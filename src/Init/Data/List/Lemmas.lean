@@ -58,7 +58,7 @@ theorem head_eq_of_cons_eq (H : h₁ :: t₁ = h₂ :: t₂) : h₁ = h₂ := (c
 
 theorem tail_eq_of_cons_eq (H : h₁ :: t₁ = h₂ :: t₂) : t₁ = t₂ := (cons.inj H).2
 
-theorem cons_inj (a : α) {l l' : List α} : a :: l = a :: l' ↔ l = l' :=
+theorem cons_inj_right (a : α) {l l' : List α} : a :: l = a :: l' ↔ l = l' :=
   ⟨tail_eq_of_cons_eq, congrArg _⟩
 
 theorem cons_eq_cons {a b : α} {l l' : List α} : a :: l = b :: l' ↔ a = b ∧ l = l' :=
@@ -71,7 +71,10 @@ theorem exists_cons_of_ne_nil : ∀ {l : List α}, l ≠ [] → ∃ b L, l = b :
 
 theorem eq_nil_of_length_eq_zero (_ : length l = 0) : l = [] := match l with | [] => rfl
 
-theorem ne_nil_of_length_eq_succ (_ : length l = succ n) : l ≠ [] := fun _ => nomatch l
+theorem ne_nil_of_length_eq_add_one (_ : length l = n + 1) : l ≠ [] := fun _ => nomatch l
+
+@[deprecated ne_nil_of_length_eq_add_one (since := "2024-06-16")]
+abbrev ne_nil_of_length_eq_succ := @ne_nil_of_length_eq_add_one
 
 @[simp] theorem length_eq_zero : length l = 0 ↔ l = [] :=
   ⟨eq_nil_of_length_eq_zero, fun h => h ▸ rfl⟩
@@ -92,15 +95,12 @@ theorem length_pos_iff_exists_cons :
     ∀ {l : List α}, 0 < l.length ↔ ∃ h t, l = h :: t :=
   ⟨exists_cons_of_length_pos, fun ⟨_, _, eq⟩ => eq ▸ Nat.succ_pos _⟩
 
-theorem exists_cons_of_length_succ :
+theorem exists_cons_of_length_eq_add_one :
     ∀ {l : List α}, l.length = n + 1 → ∃ h t, l = h :: t
   | _::_, _ => ⟨_, _, rfl⟩
 
 theorem length_pos {l : List α} : 0 < length l ↔ l ≠ [] :=
   Nat.pos_iff_ne_zero.trans (not_congr length_eq_zero)
-
-theorem exists_mem_of_ne_nil (l : List α) (h : l ≠ []) : ∃ x, x ∈ l :=
-  exists_mem_of_length_pos (length_pos.2 h)
 
 theorem length_eq_one {l : List α} : length l = 1 ↔ ∃ a, l = [a] :=
   ⟨fun h => match l, h with | [_], _ => ⟨_, rfl⟩, fun ⟨_, h⟩ => by simp [h]⟩
@@ -252,32 +252,6 @@ theorem ext_get {l₁ l₂ : List α} (hl : length l₁ = length l₂)
 @[deprecated getElem?_concat_length (since := "2024-06-12")]
 theorem get?_concat_length (l : List α) (a : α) : (l ++ [a]).get? l.length = some a := by simp
 
-/-! ### concat -/
-
--- As `List.concat` is defined in `Init.Prelude`, we write the basic simplification lemmas here.
-theorem concat_nil (a : α) : concat [] a = [a] :=
-  rfl
-theorem concat_cons (a b : α) (l : List α) : concat (a :: l) b = a :: concat l b :=
-  rfl
-
-theorem init_eq_of_concat_eq {a : α} {l₁ l₂ : List α} : concat l₁ a = concat l₂ a → l₁ = l₂ := by
-  simp
-
-theorem last_eq_of_concat_eq {a b : α} {l : List α} : concat l a = concat l b → a = b := by
-  simp
-
-theorem concat_ne_nil (a : α) (l : List α) : concat l a ≠ [] := by cases l <;> simp
-
-theorem concat_append (a : α) (l₁ l₂ : List α) : concat l₁ a ++ l₂ = l₁ ++ a :: l₂ := by simp
-
-theorem append_concat (a : α) (l₁ l₂ : List α) : l₁ ++ concat l₂ a = concat (l₁ ++ l₂) a := by simp
-
-theorem eq_nil_or_concat : ∀ l : List α, l = [] ∨ ∃ L b, l = L ++ [b]
-  | [] => .inl rfl
-  | a::l => match l, eq_nil_or_concat l with
-    | _, .inl rfl => .inr ⟨[], a, rfl⟩
-    | _, .inr ⟨L, b, rfl⟩ => .inr ⟨a::L, b, rfl⟩
-
 /-! ### mem -/
 
 @[simp] theorem not_mem_nil (a : α) : ¬ a ∈ [] := nofun
@@ -289,6 +263,9 @@ theorem eq_nil_or_concat : ∀ l : List α, l = [] ∨ ∃ L b, l = L ++ [b]
 theorem mem_cons_self (a : α) (l : List α) : a ∈ a :: l := .head ..
 
 theorem mem_cons_of_mem (y : α) {a : α} {l : List α} : a ∈ l → a ∈ y :: l := .tail _
+
+theorem exists_mem_of_ne_nil (l : List α) (h : l ≠ []) : ∃ x, x ∈ l :=
+  exists_mem_of_length_pos (length_pos.2 h)
 
 theorem eq_nil_iff_forall_not_mem {l : List α} : l = [] ↔ ∀ a, a ∉ l := by
   cases l <;> simp [-not_or]
@@ -387,51 +364,89 @@ theorem mem_iff_get? {a} {l : List α} : a ∈ l ↔ ∃ n, l.get? n = some a :=
 
 /-! ### set -/
 
+-- As `List.set` is defined in `Init.Prelude`, we write the basic simplification lemmas here.
 @[simp] theorem set_nil (n : Nat) (a : α) : [].set n a = [] := rfl
-
-@[simp] theorem set_zero (x : α) (xs : List α) (a : α) :
+@[simp] theorem set_cons_zero (x : α) (xs : List α) (a : α) :
   (x :: xs).set 0 a = a :: xs := rfl
-
-@[simp] theorem set_succ (x : α) (xs : List α) (n : Nat) (a : α) :
+@[simp] theorem set_cons_succ (x : α) (xs : List α) (n : Nat) (a : α) :
   (x :: xs).set (n + 1) a = x :: xs.set n a := rfl
 
-@[simp] theorem getElem_set_eq (l : List α) (i : Nat) (a : α) (h : i < (l.set i a).length) :
+@[simp] theorem getElem_set_eq {l : List α} {i : Nat} {a : α} (h : i < (l.set i a).length) :
     (l.set i a)[i] = a :=
   match l, i with
   | [], _ => by
     simp at h
     contradiction
-  | _ :: _, 0 => by
-    simp
-  | _ :: l, i + 1 => by
-    simp [getElem_set_eq l]
+  | _ :: _, 0 => by simp
+  | _ :: l, i + 1 => by simp [getElem_set_eq]
 
 @[deprecated getElem_set_eq (since := "2024-06-12")]
-theorem get_set_eq (l : List α) (i : Nat) (a : α) (h : i < (l.set i a).length) :
-    (l.set i a).get ⟨i, h⟩ = a :=
-  by simp
+theorem get_set_eq {l : List α} {i : Nat} {a : α} (h : i < (l.set i a).length) :
+    (l.set i a).get ⟨i, h⟩ = a := by
+  simp
 
-@[simp] theorem getElem_set_ne (l : List α) {i j : Nat} (h : i ≠ j) (a : α)
+@[simp] theorem getElem?_set_eq {l : List α} {i : Nat} {a : α} (h : i < (l.set i a).length) :
+    (l.set i a)[i]? = some a := by
+  simp_all [getElem?_eq_some]
+
+@[simp] theorem getElem_set_ne {l : List α} {i j : Nat} (h : i ≠ j) {a : α}
     (hj : j < (l.set i a).length) :
     (l.set i a)[j] = l[j]'(by simp at hj; exact hj) :=
   match l, i, j with
-  | [], _, _ => by
-    simp
-  | _ :: _, 0, 0 => by
-    contradiction
-  | _ :: _, 0, _ + 1 => by
-    simp
-  | _ :: _, _ + 1, 0 => by
-    simp
+  | [], _, _ => by simp
+  | _ :: _, 0, 0 => by contradiction
+  | _ :: _, 0, _ + 1 => by simp
+  | _ :: _, _ + 1, 0 => by simp
   | _ :: l, i + 1, j + 1 => by
     have g : i ≠ j := h ∘ congrArg (· + 1)
-    simp [getElem_set_ne l g]
+    simp [getElem_set_ne g]
 
 @[deprecated getElem_set_ne (since := "2024-06-12")]
-theorem get_set_ne (l : List α) {i j : Nat} (h : i ≠ j) (a : α)
+theorem get_set_ne {l : List α} {i j : Nat} (h : i ≠ j) {a : α}
     (hj : j < (l.set i a).length) :
     (l.set i a).get ⟨j, hj⟩ = l.get ⟨j, by simp at hj; exact hj⟩ := by
   simp [h]
+
+@[simp] theorem getElem?_set_ne {l : List α} {i j : Nat} (h : i ≠ j) {a : α}  :
+    (l.set i a)[j]? = l[j]? := by
+  by_cases hj : j < (l.set i a).length
+  · rw [getElem?_eq_getElem hj, getElem?_eq_getElem (by simp_all)]
+    simp_all
+  · rw [getElem?_eq_none.mpr (by simp_all), getElem?_eq_none.mpr (by simp_all)]
+
+theorem getElem_set {l : List α} {m n} {a} (h) :
+    (set l m a)[n]'h = if m = n then a else l[n]'(length_set .. ▸ h) := by
+  if h : m = n then
+    subst m; simp only [getElem_set_eq, ↓reduceIte]
+  else
+    simp [h]
+
+@[deprecated getElem_set (since := "2024-06-12")]
+theorem get_set {l : List α} {m n} {a : α} (h) :
+    (set l m a).get ⟨n, h⟩ = if m = n then a else l.get ⟨n, length_set .. ▸ h⟩ := by
+  simp [getElem_set]
+
+theorem getElem?_set {l : List α} {i j : Nat} {a : α} :
+    (l.set i a)[j]? = if i = j then if i < l.length then some a else none else l[j]? := by
+  if h : i = j then
+    subst h
+    rw [if_pos rfl]
+    split <;> rename_i h
+    · simp only [getElem?_set_eq (by simpa), h]
+    · simp_all
+  else
+    simp [h]
+
+theorem set_eq_of_length_le {l : List α} {n : Nat} (h : l.length ≤ n) {a : α} :
+    l.set n a = l := by
+  induction l generalizing n with
+  | nil => simp_all
+  | cons a l ih =>
+    induction n
+    · simp_all
+    · simp only [set_cons_succ, cons.injEq, true_and]
+      rw [ih]
+      exact Nat.succ_le_succ_iff.mp h
 
 @[simp] theorem set_eq_nil (l : List α) (n : Nat) (a : α) : l.set n a = [] ↔ l = [] := by
   cases l <;> cases n <;> simp only [set]
@@ -450,22 +465,17 @@ theorem set_set (a b : α) : ∀ (l : List α) (n : Nat), (l.set n a).set n b = 
   | _ :: _, 0 => by simp [set]
   | _ :: _, _+1 => by simp [set, set_set]
 
-theorem getElem_set (a : α) {m n} (l : List α) (h) :
-    (set l m a)[n]'h = if m = n then a else l[n]'(length_set .. ▸ h) := by
-  if h : m = n then
-    subst m; simp only [getElem_set_eq, ↓reduceIte]
-  else
-    simp [h]
-
-@[deprecated getElem_set (since := "2024-06-12")]
-theorem get_set (a : α) {m n} (l : List α) (h) :
-    (set l m a).get ⟨n, h⟩ = if m = n then a else l.get ⟨n, length_set .. ▸ h⟩ := by
-  simp [getElem_set]
+theorem mem_set (l : List α) (n : Nat) (h : n < l.length) (a : α) :
+    a ∈ l.set n a := by
+  simp [mem_iff_getElem]
+  exact ⟨n, (by simpa using h), by simp⟩
 
 theorem mem_or_eq_of_mem_set : ∀ {l : List α} {n : Nat} {a b : α}, a ∈ l.set n b → a ∈ l ∨ a = b
   | _ :: _, 0, _, _, h => ((mem_cons ..).1 h).symm.imp_left (.tail _)
   | _ :: _, _+1, _, _, .head .. => .inl (.head ..)
   | _ :: _, _+1, _, _, .tail _ h => (mem_or_eq_of_mem_set h).imp_left (.tail _)
+
+-- See also `set_eq_take_append_cons_drop` in `Init.Data.List.TakeDrop`.
 
 /-! ### foldlM and foldrM -/
 
@@ -979,6 +989,46 @@ theorem mem_iff_append {a : α} {l : List α} : a ∈ l ↔ ∃ s t : List α, l
 theorem forall_mem_append {p : α → Prop} {l₁ l₂ : List α} :
     (∀ (x) (_ : x ∈ l₁ ++ l₂), p x) ↔ (∀ (x) (_ : x ∈ l₁), p x) ∧ (∀ (x) (_ : x ∈ l₂), p x) := by
   simp only [mem_append, or_imp, forall_and]
+
+/-! ### concat
+
+Note that `concat_eq_append` is a `@[simp]` lemma, so `concat` should usually not appear in goals.
+As such there's no need for a thorough set of lemmas describing `concat`.
+-/
+
+-- As `List.concat` is defined in `Init.Prelude`, we write the basic simplification lemmas here.
+theorem concat_nil (a : α) : concat [] a = [a] :=
+  rfl
+theorem concat_cons (a b : α) (l : List α) : concat (a :: l) b = a :: concat l b :=
+  rfl
+
+theorem init_eq_of_concat_eq {a b : α} {l₁ l₂ : List α} : concat l₁ a = concat l₂ b → l₁ = l₂ := by
+  simp only [concat_eq_append]
+  intro h
+  apply append_inj_left' h (by simp)
+
+theorem last_eq_of_concat_eq {a b : α} {l₁ l₂ : List α} : concat l₁ a = concat l₂ b → a = b := by
+  simp only [concat_eq_append]
+  intro h
+  simpa using append_inj_right' h (by simp)
+
+theorem concat_inj_left {l l' : List α} (a : α) : concat l a = concat l' a ↔ l = l' :=
+  ⟨init_eq_of_concat_eq, by simp⟩
+
+theorem concat_eq_concat {l l' : List α} {a b : α} : concat l a = concat l' b ↔ l = l' ∧ a = b :=
+  ⟨fun h => ⟨init_eq_of_concat_eq h, last_eq_of_concat_eq h⟩, by rintro ⟨rfl, rfl⟩; rfl⟩
+
+theorem concat_ne_nil (a : α) (l : List α) : concat l a ≠ [] := by cases l <;> simp
+
+theorem concat_append (a : α) (l₁ l₂ : List α) : concat l₁ a ++ l₂ = l₁ ++ a :: l₂ := by simp
+
+theorem append_concat (a : α) (l₁ l₂ : List α) : l₁ ++ concat l₂ a = concat (l₁ ++ l₂) a := by simp
+
+theorem eq_nil_or_concat : ∀ l : List α, l = [] ∨ ∃ L b, l = concat L b
+  | [] => .inl rfl
+  | a::l => match l, eq_nil_or_concat l with
+    | _, .inl rfl => .inr ⟨[], a, rfl⟩
+    | _, .inr ⟨L, b, rfl⟩ => .inr ⟨a::L, b, rfl⟩
 
 /-! ### join -/
 

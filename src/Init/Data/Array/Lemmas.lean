@@ -242,7 +242,7 @@ theorem get!_eq_getD [Inhabited α] (a : Array α) : a.get! n = a.getD n default
 
 @[simp] theorem getElem_set_ne (a : Array α) (i : Fin a.size) (v : α) {j : Nat} (pj : j < (a.set i v).size)
     (h : i.val ≠ j) : (a.set i v)[j]'pj = a[j]'(size_set a i v ▸ pj) := by
-  simp only [set, getElem_eq_data_getElem, List.getElem_set_ne _ h]
+  simp only [set, getElem_eq_data_getElem, List.getElem_set_ne h]
 
 theorem getElem_set (a : Array α) (i : Fin a.size) (v : α) (j : Nat)
     (h : j < (a.set i v).size) :
@@ -419,7 +419,7 @@ theorem get_set (a : Array α) (i : Fin a.size) (j : Nat) (hj : j < a.size) (v :
 
 @[simp] theorem get_set_ne (a : Array α) (i : Fin a.size) {j : Nat} (v : α) (hj : j < a.size)
     (h : i.1 ≠ j) : (a.set i v)[j]'(by simp [*]) = a[j] := by
-  simp only [set, getElem_eq_data_getElem, List.getElem_set_ne _ h]
+  simp only [set, getElem_eq_data_getElem, List.getElem_set_ne h]
 
 theorem getElem_setD (a : Array α) (i : Nat) (v : α) (h : i < (setD a i v).size) :
   (setD a i v)[i] = v := by

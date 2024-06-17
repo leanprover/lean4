@@ -240,6 +240,33 @@ theorem getElem?_drop (L : List α) (i j : Nat) : (L.drop i)[j]? = L[i + j]? := 
 theorem get?_drop (L : List α) (i j : Nat) : get? (L.drop i) j = get? L (i + j) := by
   simp
 
+theorem set_eq_take_append_cons_drop {l : List α} {n : Nat} {a : α} :
+    l.set n a = if n < l.length then l.take n ++ a :: l.drop (n + 1) else l := by
+  split <;> rename_i h
+  · ext1 m
+    by_cases h' : m < n
+    · rw [getElem?_append (by simp [length_take]; omega), getElem?_set_ne (by omega),
+        getElem?_take h']
+    · by_cases h'' : m = n
+      · subst h''
+        rw [getElem?_set_eq (by simp; omega), getElem?_append_right, length_take,
+          Nat.min_eq_left (by omega), Nat.sub_self, getElem?_cons_zero]
+        rw [length_take]
+        exact Nat.min_le_left m l.length
+      · have h''' : n < m := by omega
+        rw [getElem?_set_ne (by omega), getElem?_append_right, length_take,
+          Nat.min_eq_left (by omega)]
+        · obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_lt h'''
+          have p : n + k + 1 - n = k + 1 := by omega
+          rw [p]
+          rw [getElem?_cons_succ, getElem?_drop]
+          congr 1
+          omega
+        · rw [length_take]
+          exact Nat.le_trans (Nat.min_le_left _ _) (by omega)
+  · rw [set_eq_of_length_le]
+    omega
+
 theorem drop_take : ∀ (m n : Nat) (l : List α), drop n (take m l) = take (m - n) (drop n l)
   | 0, _, _ => by simp
   | _, 0, _ => by simp
@@ -249,7 +276,7 @@ theorem drop_take : ∀ (m n : Nat) (l : List α), drop n (take m l) = take (m -
     congr 1
     omega
 
-theorem reverse_take {α} {xs : List α} (n : Nat) (h : n ≤ xs.length) :
+theorem take_reverse {α} {xs : List α} (n : Nat) (h : n ≤ xs.length) :
     xs.reverse.take n = (xs.drop (xs.length - n)).reverse := by
   induction xs generalizing n <;>
     simp only [reverse_cons, drop, reverse_nil, Nat.zero_sub, length, take_nil]
@@ -268,6 +295,8 @@ theorem reverse_take {α} {xs : List α} (n : Nat) (h : n ≤ xs.length) :
       rw [this, take_length, reverse_cons]
     rw [length_append, length_reverse]
     rfl
+
+@[deprecated (since := "2024-06-15")] abbrev reverse_take := @take_reverse
 
 /-! ### zipWith -/
 

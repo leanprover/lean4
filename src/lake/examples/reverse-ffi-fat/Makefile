@@ -50,7 +50,7 @@ else
 # Add current directory to loader path (default on Windows)
 ifeq ($(shell uname -s),Darwin)
 LINK_FLAGS_LOCAL := -Wl,-rpath,@executable_path
-SHLIB_EXT := a
+SHLIB_EXT := dylib
 else
 LINK_FLAGS_LOCAL := -Wl,-rpath,'$${ORIGIN}'
 SHLIB_EXT := so

@@ -342,7 +342,6 @@ lean_object* l_Lean_HashMapImp_find_x3f___at_Lean_ForEachExpr_visit___spec__1(le
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_396____closed__2;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_396____closed__9;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1299____lambda__5___closed__13;
-lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_mkIgnoreFnImpl___closed__3;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_997____lambda__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at_Lean_Linter_UnusedVariables_collectReferences___spec__2___boxed(lean_object*, lean_object*);
@@ -673,6 +672,7 @@ lean_object* l_List_get_x3f___rarg(lean_object*, lean_object*);
 lean_object* l_ReaderT_instMonad___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_396____lambda__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
+lean_object* l_List_length___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Linter_UnusedVariables_collectReferences___spec__24(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_UnusedVariables_References_fvarUses___default___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Linter_UnusedVariables_unusedVariables___elambda__1___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1937,18 +1937,17 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_396____lambda__6(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_2 = lean_ctor_get(x_1, 0);
-x_3 = lean_unsigned_to_nat(0u);
-x_4 = l_List_lengthTRAux___rarg(x_2, x_3);
-x_5 = l___private_Init_Data_Repr_0__Nat_reprFast(x_4);
-x_6 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_6, 0, x_5);
-x_7 = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_396____lambda__6___closed__2;
-x_8 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_8, 0, x_7);
-lean_ctor_set(x_8, 1, x_6);
-return x_8;
+x_3 = l_List_length___rarg(x_2);
+x_4 = l___private_Init_Data_Repr_0__Nat_reprFast(x_3);
+x_5 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_5, 0, x_4);
+x_6 = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_396____lambda__6___closed__2;
+x_7 = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(x_7, 0, x_6);
+lean_ctor_set(x_7, 1, x_5);
+return x_7;
 }
 }
 static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_396____closed__1() {

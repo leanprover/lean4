@@ -163,6 +163,7 @@ lean_object* lean_mk_module_initialization_function_name(lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 static lean_object* l_Lean_IR_EmitC_toCName___closed__1;
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
+LEAN_EXPORT lean_object* l_List_map___at_Lean_IR_EmitC_toStringArgs___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_isIf___boxed(lean_object*);
 uint8_t l_Lean_hasInitAttr(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitInitFn___closed__9;
@@ -300,7 +301,6 @@ LEAN_EXPORT lean_object* l_Nat_forM_loop___at_Lean_IR_EmitC_emitDeclAux___spec__
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_throwInvalidExportName(lean_object*);
 static lean_object* l_Lean_IR_EmitC_argToCString___closed__2;
 static lean_object* l_Lean_IR_EmitC_emitInitFn___closed__10;
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_IR_EmitC_toStringArgs___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitMarkPersistent___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_constName_x3f(lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitInitFn___closed__11;
@@ -7842,50 +7842,44 @@ lean_dec(x_2);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_IR_EmitC_toStringArgs___spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_map___at_Lean_IR_EmitC_toStringArgs___spec__1(lean_object* x_1) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_object* x_3; 
-x_3 = l_List_reverse___rarg(x_2);
-return x_3;
+lean_object* x_2; 
+x_2 = lean_box(0);
+return x_2;
 }
 else
 {
-uint8_t x_4; 
-x_4 = !lean_is_exclusive(x_1);
-if (x_4 == 0)
+uint8_t x_3; 
+x_3 = !lean_is_exclusive(x_1);
+if (x_3 == 0)
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_ctor_get(x_1, 0);
-x_6 = lean_ctor_get(x_1, 1);
-x_7 = l_Lean_IR_EmitC_argToCString(x_5);
-lean_ctor_set(x_1, 1, x_2);
-lean_ctor_set(x_1, 0, x_7);
-{
-lean_object* _tmp_0 = x_6;
-lean_object* _tmp_1 = x_1;
-x_1 = _tmp_0;
-x_2 = _tmp_1;
-}
-goto _start;
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_4 = lean_ctor_get(x_1, 0);
+x_5 = lean_ctor_get(x_1, 1);
+x_6 = l_Lean_IR_EmitC_argToCString(x_4);
+x_7 = l_List_map___at_Lean_IR_EmitC_toStringArgs___spec__1(x_5);
+lean_ctor_set(x_1, 1, x_7);
+lean_ctor_set(x_1, 0, x_6);
+return x_1;
 }
 else
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_9 = lean_ctor_get(x_1, 0);
-x_10 = lean_ctor_get(x_1, 1);
-lean_inc(x_10);
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_8 = lean_ctor_get(x_1, 0);
+x_9 = lean_ctor_get(x_1, 1);
 lean_inc(x_9);
+lean_inc(x_8);
 lean_dec(x_1);
-x_11 = l_Lean_IR_EmitC_argToCString(x_9);
+x_10 = l_Lean_IR_EmitC_argToCString(x_8);
+x_11 = l_List_map___at_Lean_IR_EmitC_toStringArgs___spec__1(x_9);
 x_12 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_12, 0, x_11);
-lean_ctor_set(x_12, 1, x_2);
-x_1 = x_10;
-x_2 = x_12;
-goto _start;
+lean_ctor_set(x_12, 0, x_10);
+lean_ctor_set(x_12, 1, x_11);
+return x_12;
 }
 }
 }
@@ -7893,11 +7887,10 @@ goto _start;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_toStringArgs(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+lean_object* x_2; lean_object* x_3; 
 x_2 = lean_array_to_list(lean_box(0), x_1);
-x_3 = lean_box(0);
-x_4 = l_List_mapTR_loop___at_Lean_IR_EmitC_toStringArgs___spec__1(x_2, x_3);
-return x_4;
+x_3 = l_List_map___at_Lean_IR_EmitC_toStringArgs___spec__1(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Nat_foldM_loop___at_Lean_IR_EmitC_emitSimpleExternalCall___spec__1___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {

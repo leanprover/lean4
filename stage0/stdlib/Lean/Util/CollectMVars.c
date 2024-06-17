@@ -24,7 +24,6 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkHashSet___at_Lean_CollectMVars_State_visitedExpr___default___spec__1(lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CollectMVars_main(lean_object*, lean_object*);
-uint8_t l_Lean_Expr_hasMVar(lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CollectMVars_State_result___default;
 LEAN_EXPORT lean_object* l_Lean_Expr_collectMVars(lean_object*, lean_object*);
@@ -51,6 +50,7 @@ static lean_object* l_Lean_CollectMVars_instInhabitedState___closed__2;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashSetImp_insert___at_Lean_CollectMVars_visit___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_replace___at_Lean_CollectMVars_visit___spec__7___boxed(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Expr_hasExprMVar(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkHashSet___at_Lean_CollectMVars_State_visitedExpr___default___spec__1(lean_object* x_1) {
 _start:
 {
@@ -447,7 +447,7 @@ LEAN_EXPORT lean_object* l_Lean_CollectMVars_visit(lean_object* x_1, lean_object
 _start:
 {
 uint8_t x_3; 
-x_3 = l_Lean_Expr_hasMVar(x_1);
+x_3 = l_Lean_Expr_hasExprMVar(x_1);
 if (x_3 == 0)
 {
 lean_dec(x_1);

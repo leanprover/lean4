@@ -342,6 +342,7 @@ static lean_object* l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_isNam
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_expandMutualNamespace___spec__3___closed__1;
+lean_object* l_List_map___at_Lean_ensureNonAmbiguous___spec__2(lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Command_elabAttr___spec__6___lambda__1(lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabDeclaration__1___closed__4;
@@ -502,7 +503,6 @@ static lean_object* l___regBuiltin_Lean_Elab_Command_elabDeclaration_declRange__
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_expandInitialize___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_isNamedDef___closed__8;
-lean_object* l_List_mapTR_loop___at_Lean_ensureNonAmbiguous___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_expandInitialize___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_expandDeclId(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabDeclaration_declRange__1___closed__6;
@@ -9486,7 +9486,7 @@ return x_16;
 }
 else
 {
-lean_object* x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; 
+lean_object* x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
 lean_dec(x_12);
 x_17 = lean_box(0);
 x_18 = 0;
@@ -9500,24 +9500,23 @@ x_24 = lean_string_append(x_23, x_22);
 lean_dec(x_22);
 x_25 = l_Lean_ensureNonAmbiguous___at_Lean_Elab_Command_elabAttr___spec__2___closed__5;
 x_26 = lean_string_append(x_24, x_25);
-x_27 = lean_box(0);
-x_28 = l_List_mapTR_loop___at_Lean_ensureNonAmbiguous___spec__2(x_2, x_27);
-x_29 = l_List_toString___at_Lean_ensureNoOverload___spec__2(x_28);
+x_27 = l_List_map___at_Lean_ensureNonAmbiguous___spec__2(x_2);
+x_28 = l_List_toString___at_Lean_ensureNoOverload___spec__2(x_27);
+lean_dec(x_27);
+x_29 = lean_string_append(x_26, x_28);
 lean_dec(x_28);
-x_30 = lean_string_append(x_26, x_29);
-lean_dec(x_29);
-x_31 = l_Lean_Elab_Command_elabAxiom___lambda__5___closed__7;
-x_32 = lean_string_append(x_30, x_31);
-x_33 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_33, 0, x_32);
-x_34 = l_Lean_MessageData_ofFormat(x_33);
-x_35 = l_Lean_throwErrorAt___at_Lean_Elab_Term_processDefDeriving___spec__2(x_1, x_34, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+x_30 = l_Lean_Elab_Command_elabAxiom___lambda__5___closed__7;
+x_31 = lean_string_append(x_29, x_30);
+x_32 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_32, 0, x_31);
+x_33 = l_Lean_MessageData_ofFormat(x_32);
+x_34 = l_Lean_throwErrorAt___at_Lean_Elab_Term_processDefDeriving___spec__2(x_1, x_33, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_8);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_1);
-return x_35;
+return x_34;
 }
 }
 }

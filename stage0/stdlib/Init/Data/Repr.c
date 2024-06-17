@@ -20,6 +20,7 @@ static lean_object* l_instReprPUnit___closed__2;
 LEAN_EXPORT lean_object* l_Char_quoteCore_smallCharToHex___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instReprPos___boxed(lean_object*, lean_object*);
 static lean_object* l_List_repr___rarg___closed__1;
+LEAN_EXPORT lean_object* l_List_map___at___private_Init_Data_Repr_0__Nat_reprArray___spec__1(lean_object*);
 static lean_object* l_instReprUnit___closed__2;
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_toDigitsCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -153,7 +154,6 @@ LEAN_EXPORT lean_object* l_Nat_toSubDigits(lean_object*);
 LEAN_EXPORT lean_object* l_instReprUSize(size_t, lean_object*);
 static lean_object* l_instReprBool___closed__1;
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_List_repr_x27___spec__1(lean_object*);
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at___private_Init_Data_Repr_0__Nat_reprArray___spec__1(lean_object*, lean_object*);
 static lean_object* l_List_repr___rarg___closed__5;
 static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2413____closed__10;
 static lean_object* l_instReprDecidable___rarg___closed__4;
@@ -1716,54 +1716,48 @@ x_3 = lean_string_of_usize(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at___private_Init_Data_Repr_0__Nat_reprArray___spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_map___at___private_Init_Data_Repr_0__Nat_reprArray___spec__1(lean_object* x_1) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_object* x_3; 
-x_3 = l_List_reverse___rarg(x_2);
-return x_3;
+lean_object* x_2; 
+x_2 = lean_box(0);
+return x_2;
 }
 else
 {
-uint8_t x_4; 
-x_4 = !lean_is_exclusive(x_1);
-if (x_4 == 0)
+uint8_t x_3; 
+x_3 = !lean_is_exclusive(x_1);
+if (x_3 == 0)
 {
-lean_object* x_5; lean_object* x_6; size_t x_7; lean_object* x_8; 
-x_5 = lean_ctor_get(x_1, 0);
-x_6 = lean_ctor_get(x_1, 1);
-x_7 = lean_usize_of_nat(x_5);
-lean_dec(x_5);
-x_8 = lean_string_of_usize(x_7);
-lean_ctor_set(x_1, 1, x_2);
-lean_ctor_set(x_1, 0, x_8);
-{
-lean_object* _tmp_0 = x_6;
-lean_object* _tmp_1 = x_1;
-x_1 = _tmp_0;
-x_2 = _tmp_1;
-}
-goto _start;
+lean_object* x_4; lean_object* x_5; size_t x_6; lean_object* x_7; lean_object* x_8; 
+x_4 = lean_ctor_get(x_1, 0);
+x_5 = lean_ctor_get(x_1, 1);
+x_6 = lean_usize_of_nat(x_4);
+lean_dec(x_4);
+x_7 = lean_string_of_usize(x_6);
+x_8 = l_List_map___at___private_Init_Data_Repr_0__Nat_reprArray___spec__1(x_5);
+lean_ctor_set(x_1, 1, x_8);
+lean_ctor_set(x_1, 0, x_7);
+return x_1;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; size_t x_12; lean_object* x_13; lean_object* x_14; 
-x_10 = lean_ctor_get(x_1, 0);
-x_11 = lean_ctor_get(x_1, 1);
-lean_inc(x_11);
+lean_object* x_9; lean_object* x_10; size_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_9 = lean_ctor_get(x_1, 0);
+x_10 = lean_ctor_get(x_1, 1);
 lean_inc(x_10);
+lean_inc(x_9);
 lean_dec(x_1);
-x_12 = lean_usize_of_nat(x_10);
-lean_dec(x_10);
-x_13 = lean_string_of_usize(x_12);
+x_11 = lean_usize_of_nat(x_9);
+lean_dec(x_9);
+x_12 = lean_string_of_usize(x_11);
+x_13 = l_List_map___at___private_Init_Data_Repr_0__Nat_reprArray___spec__1(x_10);
 x_14 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_14, 0, x_13);
-lean_ctor_set(x_14, 1, x_2);
-x_1 = x_11;
-x_2 = x_14;
-goto _start;
+lean_ctor_set(x_14, 0, x_12);
+lean_ctor_set(x_14, 1, x_13);
+return x_14;
 }
 }
 }
@@ -1780,12 +1774,11 @@ return x_2;
 static lean_object* _init_l___private_Init_Data_Repr_0__Nat_reprArray() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_box(0);
-x_2 = l___private_Init_Data_Repr_0__Nat_reprArray___closed__1;
-x_3 = l_List_mapTR_loop___at___private_Init_Data_Repr_0__Nat_reprArray___spec__1(x_2, x_1);
-x_4 = lean_array_mk(x_3);
-return x_4;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Init_Data_Repr_0__Nat_reprArray___closed__1;
+x_2 = l_List_map___at___private_Init_Data_Repr_0__Nat_reprArray___spec__1(x_1);
+x_3 = lean_array_mk(x_2);
+return x_3;
 }
 }
 static lean_object* _init_l___private_Init_Data_Repr_0__Nat_reprFast___closed__1() {

@@ -62,7 +62,6 @@ LEAN_EXPORT lean_object* l_Lean_Widget_addPanelWidgetScoped___at_Lean_Widget_ela
 LEAN_EXPORT lean_object* l_Lean_Widget_erasePanelWidget___at_Lean_Widget_elabShowPanelWidgetsCmd___spec__12(uint64_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_elabWidgetInstanceSpec___closed__13;
 static lean_object* l_Lean_Widget_showPanelWidgetsCmd___closed__6;
-lean_object* l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_UserWidget_0__Lean_Widget_widgetAttrImpl___closed__15;
 static lean_object* l_Lean_Widget_elabWidgetInstanceSpecAux___closed__18;
 static lean_object* l_Lean_logWarning___at_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_245____spec__2___closed__1;
@@ -146,6 +145,7 @@ lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_elabWidgetInstanceSpecAux___closed__53;
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Widget_elabShowPanelWidgetsCmd___spec__13___closed__4;
 static lean_object* l_Lean_Widget_widgetInstanceSpec___closed__3;
+lean_object* l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__5(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instantiateMVars___at_Lean_Elab_Term_MVarErrorInfo_logError___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_erasePanelWidget___at_Lean_Widget_elabShowPanelWidgetsCmd___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_instBEq;
@@ -6286,14 +6286,14 @@ if (x_9 == 0)
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = 1;
-x_11 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6(x_1, x_10, x_2, x_3, x_4, x_5, x_6);
+x_11 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__5(x_1, x_10, x_2, x_3, x_4, x_5, x_6);
 return x_11;
 }
 else
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = 2;
-x_13 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6(x_1, x_12, x_2, x_3, x_4, x_5, x_6);
+x_13 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__5(x_1, x_12, x_2, x_3, x_4, x_5, x_6);
 return x_13;
 }
 }

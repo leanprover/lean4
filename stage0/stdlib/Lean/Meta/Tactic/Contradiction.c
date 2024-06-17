@@ -156,7 +156,6 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_MVarId_contradiction
 lean_object* l_Lean_FVarId_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkDecide(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at_Lean_MVarId_contradictionCore___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_withContext___at_Lean_Meta_ElimEmptyInductive_elim___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
@@ -284,6 +283,7 @@ static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Contradiction___h
 lean_object* l_ReaderT_instMonad___rarg(lean_object*);
 lean_object* l_Lean_Meta_matchEq_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Contradiction_0__Lean_Meta_mkGenDiseqMask(lean_object*);
+lean_object* l_List_length___rarg(lean_object*);
 lean_object* l_Lean_Meta_matchHEq_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static uint8_t _init_l_Lean_Meta_Contradiction_Config_useDecide___default() {
 _start:
@@ -786,18 +786,18 @@ lean_inc(x_24);
 lean_dec(x_23);
 x_25 = lean_ctor_get(x_24, 4);
 lean_inc(x_25);
-x_26 = lean_unsigned_to_nat(0u);
-x_27 = l_List_lengthTRAux___rarg(x_25, x_26);
+x_26 = l_List_length___rarg(x_25);
 lean_dec(x_25);
-x_28 = lean_nat_dec_eq(x_27, x_26);
-lean_dec(x_27);
+x_27 = lean_unsigned_to_nat(0u);
+x_28 = lean_nat_dec_eq(x_26, x_27);
+lean_dec(x_26);
 if (x_28 == 0)
 {
 lean_object* x_29; uint8_t x_30; lean_object* x_31; 
 x_29 = lean_ctor_get(x_24, 2);
 lean_inc(x_29);
 lean_dec(x_24);
-x_30 = lean_nat_dec_lt(x_26, x_29);
+x_30 = lean_nat_dec_lt(x_27, x_29);
 lean_dec(x_29);
 x_31 = lean_box(x_30);
 lean_ctor_set(x_16, 0, x_31);
@@ -860,18 +860,18 @@ lean_inc(x_44);
 lean_dec(x_43);
 x_45 = lean_ctor_get(x_44, 4);
 lean_inc(x_45);
-x_46 = lean_unsigned_to_nat(0u);
-x_47 = l_List_lengthTRAux___rarg(x_45, x_46);
+x_46 = l_List_length___rarg(x_45);
 lean_dec(x_45);
-x_48 = lean_nat_dec_eq(x_47, x_46);
-lean_dec(x_47);
+x_47 = lean_unsigned_to_nat(0u);
+x_48 = lean_nat_dec_eq(x_46, x_47);
+lean_dec(x_46);
 if (x_48 == 0)
 {
 lean_object* x_49; uint8_t x_50; lean_object* x_51; lean_object* x_52; 
 x_49 = lean_ctor_get(x_44, 2);
 lean_inc(x_49);
 lean_dec(x_44);
-x_50 = lean_nat_dec_lt(x_46, x_49);
+x_50 = lean_nat_dec_lt(x_47, x_49);
 lean_dec(x_49);
 x_51 = lean_box(x_50);
 x_52 = lean_alloc_ctor(0, 2, 0);
@@ -978,18 +978,18 @@ lean_inc(x_75);
 lean_dec(x_74);
 x_76 = lean_ctor_get(x_75, 4);
 lean_inc(x_76);
-x_77 = lean_unsigned_to_nat(0u);
-x_78 = l_List_lengthTRAux___rarg(x_76, x_77);
+x_77 = l_List_length___rarg(x_76);
 lean_dec(x_76);
-x_79 = lean_nat_dec_eq(x_78, x_77);
-lean_dec(x_78);
+x_78 = lean_unsigned_to_nat(0u);
+x_79 = lean_nat_dec_eq(x_77, x_78);
+lean_dec(x_77);
 if (x_79 == 0)
 {
 lean_object* x_80; uint8_t x_81; lean_object* x_82; lean_object* x_83; 
 x_80 = lean_ctor_get(x_75, 2);
 lean_inc(x_80);
 lean_dec(x_75);
-x_81 = lean_nat_dec_lt(x_77, x_80);
+x_81 = lean_nat_dec_lt(x_78, x_80);
 lean_dec(x_80);
 x_82 = lean_box(x_81);
 if (lean_is_scalar(x_68)) {

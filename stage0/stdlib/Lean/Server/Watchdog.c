@@ -31257,7 +31257,6 @@ x_68 = lean_ctor_get(x_66, 1);
 lean_inc(x_68);
 lean_dec(x_66);
 x_69 = l_Lean_Server_References_removeIlean(x_67, x_35);
-lean_dec(x_35);
 x_70 = lean_st_ref_set(x_2, x_69, x_68);
 x_71 = !lean_is_exclusive(x_70);
 if (x_71 == 0)
@@ -31346,6 +31345,7 @@ lean_inc(x_88);
 x_89 = lean_ctor_get(x_87, 1);
 lean_inc(x_89);
 lean_dec(x_87);
+lean_inc(x_35);
 x_90 = l_Lean_Server_References_removeIlean(x_88, x_35);
 x_91 = l_Lean_Server_References_addIlean(x_90, x_35, x_85);
 x_92 = lean_st_ref_set(x_2, x_91, x_89);
@@ -31393,7 +31393,6 @@ x_103 = lean_ctor_get(x_101, 1);
 lean_inc(x_103);
 lean_dec(x_101);
 x_104 = l_Lean_Server_References_removeIlean(x_102, x_35);
-lean_dec(x_35);
 x_105 = lean_st_ref_set(x_2, x_104, x_103);
 x_106 = !lean_is_exclusive(x_105);
 if (x_106 == 0)
@@ -31459,7 +31458,6 @@ x_118 = lean_ctor_get(x_116, 1);
 lean_inc(x_118);
 lean_dec(x_116);
 x_119 = l_Lean_Server_References_removeIlean(x_117, x_35);
-lean_dec(x_35);
 x_120 = lean_st_ref_set(x_2, x_119, x_118);
 x_121 = !lean_is_exclusive(x_120);
 if (x_121 == 0)

@@ -10,3 +10,4 @@ import Init.Data.List.Control
 import Init.Data.List.Lemmas
 import Init.Data.List.Impl
 import Init.Data.List.TakeDrop
+import Init.Data.List.Notation

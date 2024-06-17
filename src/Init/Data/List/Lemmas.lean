@@ -61,6 +61,8 @@ theorem tail_eq_of_cons_eq (H : h₁ :: t₁ = h₂ :: t₂) : t₁ = t₂ := (c
 theorem cons_inj_right (a : α) {l l' : List α} : a :: l = a :: l' ↔ l = l' :=
   ⟨tail_eq_of_cons_eq, congrArg _⟩
 
+@[deprecated (since := "2024-06-15")] abbrev cons_inj := @cons_inj_right
+
 theorem cons_eq_cons {a b : α} {l l' : List α} : a :: l = b :: l' ↔ a = b ∧ l = l' :=
   List.cons.injEq .. ▸ .rfl
 

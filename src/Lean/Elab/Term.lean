@@ -14,6 +14,7 @@ import Lean.Elab.Level
 import Lean.Elab.DeclModifiers
 import Lean.Elab.PreDefinition.WF.TerminationHint
 import Lean.Language.Basic
+import Lean.PrettyPrinter.Delaborator.Options
 
 namespace Lean.Elab
 
@@ -723,6 +724,7 @@ def LevelMVarErrorInfo.logError (levelMVarErrorInfo : LevelMVarErrorInfo) (extra
     let msg := m! "don't know how to synthesize universe placeholder {Level.mvar levelMVarErrorInfo.mvarId}"
     logErrorAt levelMVarErrorInfo.ref (appendExtra msg)
   | .ofConst levelName const =>
+    withOptions (fun o => Lean.pp.universes.set o true) do
     let msg := m! "don't know how to synthesize universe {levelName} of '{const.constName!}'{indentD const}"
     logErrorAt levelMVarErrorInfo.ref (appendExtra msg)
 where

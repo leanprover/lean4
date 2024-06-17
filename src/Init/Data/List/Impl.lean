@@ -184,7 +184,6 @@ theorem replicateTR_loop_replicate_eq (a : α) (m n : Nat) :
   induction n generalizing m with simp [replicateTR.loop]
   | succ n ih => simp [Nat.succ_add]; exact ih (m+1)
 
-@[deprecated (since := "2024-06-15")]
 theorem replicateTR_loop_eq : ∀ n, replicateTR.loop a n acc = replicate n a ++ acc
   | 0 => rfl
   | n+1 => by rw [← replicateTR_loop_replicate_eq _ 1 n, replicate, replicate,

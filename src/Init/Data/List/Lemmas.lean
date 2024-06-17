@@ -799,6 +799,18 @@ theorem length_filterMap_le (f : α → Option β) (l : List α) :
   apply length_filter_le
 
 @[simp]
+theorem filterMap_length_eq_length {l} :
+    (filterMap f l).length = l.length ↔ ∀ a ∈ l, (f a).isSome := by
+  induction l with
+  | nil => simp
+  | cons a l ih =>
+    simp only [filterMap_cons, length_cons, succ_eq_add_one, mem_cons, forall_eq_or_imp]
+    split <;> rename_i h
+    · have := Nat.ne_of_lt (Nat.lt_succ.mpr (length_filterMap_le f l))
+      simp_all
+    · simp_all [Nat.add_one_inj] -- Why does the simproc not fire here?
+
+@[simp]
 theorem filterMap_eq_filter (p : α → Bool) :
     filterMap (Option.guard (p ·)) = filter p := by
   funext l

@@ -636,6 +636,12 @@ theorem succ_le_succ_iff : succ a ≤ succ b ↔ a ≤ b := ⟨le_of_succ_le_suc
 
 theorem succ_lt_succ_iff : succ a < succ b ↔ a < b := ⟨lt_of_succ_lt_succ, succ_lt_succ⟩
 
+theorem add_one_inj : a + 1 = b + 1 ↔ a = b := succ_inj'
+
+theorem add_one_le_add_one_iff : a + 1 ≤ b + 1 ↔ a ≤ b := succ_le_succ_iff
+
+theorem add_one_lt_add_one_iff : a + 1 < b + 1 ↔ a < b := succ_lt_succ_iff
+
 theorem pred_inj : ∀ {a b}, 0 < a → 0 < b → pred a = pred b → a = b
   | _+1, _+1, _, _ => congrArg _
 

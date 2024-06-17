@@ -320,7 +320,7 @@ macro "admit" : tactic => `(exact sorry)
 macro "sorry" : tactic => `(exact sorry)
 macro "inferInstance" : tactic => `(exact inferInstance)
 
-/- Optional configuration option for tactics -/
+/-- Optional configuration option for tactics -/
 syntax config := ("(" &"config" " := " term ")")
 
 syntax locationWildcard := "*"
@@ -342,18 +342,15 @@ syntax (name := erwSeq) "erw " rwRuleSeq (location)? : tactic
 
 def rwWithRfl (kind : SyntaxNodeKind) (atom : String) (stx : Syntax) : MacroM Syntax := do
   -- We show the `rfl` state on `]`
-  let seq   := stx[1]
+  let seq   := stx[2]
   let rbrak := seq[2]
   -- Replace `]` token with one without position information in the expanded tactic
   let seq   := seq.setArg 2 (mkAtom "]")
-  let tac   := stx.setKind kind |>.setArg 0 (mkAtomFrom stx atom) |>.setArg 1 seq
+  let tac   := stx.setKind kind |>.setArg 0 (mkAtomFrom stx atom) |>.setArg 2 seq
   `(tactic| $tac; try (withReducible rfl%$rbrak))
 
 @[macro rwSeq] def expandRwSeq : Macro :=
   rwWithRfl ``Lean.Parser.Tactic.rewriteSeq "rewrite"
-
-@[macro erwSeq] def expandERwSeq : Macro :=
-  rwWithRfl ``Lean.Parser.Tactic.erewriteSeq "erewrite"
 
 syntax (name := injection) "injection " term (" with " (colGt (ident <|> "_"))+)? : tactic
 

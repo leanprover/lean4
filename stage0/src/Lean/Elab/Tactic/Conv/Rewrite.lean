@@ -10,18 +10,13 @@ import Lean.Elab.Tactic.Conv.Basic
 namespace Lean.Elab.Tactic.Conv
 open Meta
 
-def evalRewriteCore (mode : TransparencyMode) : Tactic := fun stx =>
-  withRWRulesSeq stx[0] stx[1] fun symm term => do
+@[builtinTactic Lean.Parser.Tactic.Conv.rewrite] def evalRewrite : Tactic := fun stx => do
+  let config ← Tactic.elabRewriteConfig stx[1]
+  withRWRulesSeq stx[0] stx[2] fun symm term => do
     Term.withSynthesize <| withMainContext do
       let e ← elabTerm term none true
-      let r ← rewrite (← getMainGoal) (← getLhs) e symm (mode := mode)
+      let r ← rewrite (← getMainGoal) (← getLhs) e symm (config := config)
       updateLhs r.eNew r.eqProof
       replaceMainGoal ((← getMainGoal) :: r.mvarIds)
-
-@[builtinTactic Lean.Parser.Tactic.Conv.rewrite] def evalRewrite : Tactic :=
-  evalRewriteCore TransparencyMode.instances
-
-@[builtinTactic Lean.Parser.Tactic.Conv.erewrite] def evalERewrite : Tactic :=
-  evalRewriteCore TransparencyMode.default
 
 end Lean.Elab.Tactic.Conv

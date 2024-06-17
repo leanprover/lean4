@@ -590,15 +590,10 @@ theorem succ_le_succ_iff : succ a ≤ succ b ↔ a ≤ b := ⟨le_of_succ_le_suc
 
 theorem succ_lt_succ_iff : succ a < succ b ↔ a < b := ⟨lt_of_succ_lt_succ, succ_lt_succ⟩
 
-@[simp]
 theorem add_one_inj : a + 1 = b + 1 ↔ a = b := succ_inj'
 
--- It is tempting to make this a `@[simp]` lemma,
--- but it doesn't seem possible to make the `simproc` for explicit numerals to fire first,
--- so it would cause timeouts.
 theorem add_one_le_add_one_iff : a + 1 ≤ b + 1 ↔ a ≤ b := succ_le_succ_iff
 
--- Similarly for `<`.
 theorem add_one_lt_add_one_iff : a + 1 < b + 1 ↔ a < b := succ_lt_succ_iff
 
 theorem pred_inj : ∀ {a b}, 0 < a → 0 < b → pred a = pred b → a = b

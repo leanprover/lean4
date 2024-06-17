@@ -189,6 +189,10 @@ def Declaration.isUnsafeInductiveDeclEx : Declaration → Bool
   | Declaration.inductDecl _ _ _ isUnsafe => isUnsafe
   | _ => false
 
+def Declaration.definitionVal! : Declaration → DefinitionVal
+  | .defnDecl val => val
+  | _ => panic! "Expected a `Declaration.defnDecl`."
+
 @[specialize] def Declaration.foldExprM {α} {m : Type → Type} [Monad m] (d : Declaration) (f : α → Expr → m α) (a : α) : m α :=
   match d with
   | Declaration.quotDecl                                        => pure a

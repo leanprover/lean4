@@ -9,23 +9,14 @@ Author: Leonardo de Moura
 
 namespace lean {
 /** \brief Given an inductive datatype \c n in \c env, return declaration for
-    <tt>n.below</tt> auxiliary construction for <tt>n.brec_on</t>
+    <tt>n.below</tt> or <tt>.nibelow</tt> auxiliary construction for <tt>n.brec_on</t>
     (aka below recursion on).
 */
-declaration mk_below(environment const & env, name const & n);
+declaration mk_below(environment const & env, name const & n, bool ibelow);
 
 /** \brief Given an inductive datatype \c n in \c env, return declaration for
-    <tt>n.ibelow</tt> auxiliary construction for <tt>n.brec_on</t>.
+    <tt>n.brec_on</tt> or <tt>n.binduction_on</tt>.
 */
-declaration mk_ibelow(environment const & env, name const & n);
+declaration mk_brec_on(environment const & env, name const & n, bool ind);
 
-/** \brief Given an inductive datatype \c n in \c env, return declaration for
-    <tt>n.brec_on</tt>.
-*/
-declaration mk_brec_on(environment const & env, name const & n);
-
-/** \brief Given an inductive datatype \c n in \c env, return declaration for
-    <tt>n.binduction_on</tt>.
-*/
-declaration mk_binduction_on(environment const & env, name const & n);
 }

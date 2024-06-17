@@ -139,14 +139,6 @@ static declaration mk_below(environment const & env, name const & n, bool ibelow
                                           reducibility_hints::mk_abbreviation());
 }
 
-declaration mk_below(environment const & env, name const & n) {
-    return mk_below(env, n, false);
-}
-
-declaration mk_ibelow(environment const & env, name const & n) {
-    return mk_below(env, n, true);
-}
-
 static declaration mk_brec_on(environment const & env, name const & n, bool ind) {
     local_ctx lctx;
     constant_info ind_info = env.get(n);
@@ -316,27 +308,11 @@ static declaration mk_brec_on(environment const & env, name const & n, bool ind)
                                           reducibility_hints::mk_abbreviation());
 }
 
-declaration mk_brec_on(environment const & env, name const & n) {
-    return mk_brec_on(env, n, false);
+extern "C" LEAN_EXPORT object * lean_mk_below(object * env, object * n, uint8 ibelow) {
+    return catch_kernel_exceptions<declaration>([&]() { return mk_below(environment(env), name(n, true), ibelow); });
 }
 
-declaration mk_binduction_on(environment const & env, name const & n) {
-    return mk_brec_on(env, n, true);
-}
-
-extern "C" LEAN_EXPORT object * lean_mk_below(object * env, object * n) {
-    return catch_kernel_exceptions<declaration>([&]() { return mk_below(environment(env), name(n, true)); });
-}
-
-extern "C" LEAN_EXPORT object * lean_mk_ibelow(object * env, object * n) {
-    return catch_kernel_exceptions<declaration>([&]() { return mk_ibelow(environment(env), name(n, true)); });
-}
-
-extern "C" LEAN_EXPORT object * lean_mk_brec_on(object * env, object * n) {
-    return catch_kernel_exceptions<declaration>([&]() { return mk_brec_on(environment(env), name(n, true)); });
-}
-
-extern "C" LEAN_EXPORT object * lean_mk_binduction_on(object * env, object * n) {
-    return catch_kernel_exceptions<declaration>([&]() { return mk_binduction_on(environment(env), name(n, true)); });
+extern "C" LEAN_EXPORT object * lean_mk_brec_on(object * env, object * n, uint8 ind) {
+    return catch_kernel_exceptions<declaration>([&]() { return mk_brec_on(environment(env), name(n, true), ind); });
 }
 }

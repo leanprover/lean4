@@ -39,7 +39,7 @@ The operations are organized as follow:
 * Minima and maxima: `minimum?` and `maximum?`
 * Other functions: `intersperse`, `intercalate`, `eraseDups`, `eraseReps`, `span`, `groupBy`, `removeAll`
   (currently these functions are mostly only used in meta code,
-  and do not have complete API suitable for verification)
+  and do not have API suitable for verification)
 -/
 
 set_option linter.missingDocs true -- keep it documented
@@ -183,7 +183,7 @@ instance [LT α] [DecidableRel ((· < ·) : α → α → Prop)] : (l₁ l₂ : 
 /-! ## Basic `List` operations.
 
 We define the basic functional programming operations on `List`:
-`map`, `filter`, `filterMap`, `foldr`, `append`, `join`, `pure`, and `bind`.
+`map`, `filter`, `filterMap`, `foldr`, `append`, `join`, `pure`, `bind`, `replicate`, and `reverse`.
 -/
 
 /-! ### map -/

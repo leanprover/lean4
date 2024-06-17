@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/type_checker.h"
 #include "kernel/inductive.h"
-#include "library/protected.h"
 #include "library/reducible.h"
 #include "library/bin_app.h"
 #include "library/suffixes.h"

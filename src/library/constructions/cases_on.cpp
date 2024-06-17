@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/inductive.h"
 #include "library/suffixes.h"
-#include "library/protected.h"
 #include "library/reducible.h"
 #include "library/constants.h"
 #include "library/aux_recursors.h"

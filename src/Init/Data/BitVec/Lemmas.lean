@@ -1388,9 +1388,7 @@ theorem toNat_twoPow (w : Nat) (i : Nat) : (twoPow w i).toNat = 2^i % 2^w := by
 @[simp]
 theorem getLsb_twoPow (i j : Nat) : (twoPow w i).getLsb j = ((i < w) && (i = j)) := by
   rcases w with rfl | w
-  · simp only [twoPow, BitVec.reduceOfNat, Nat.zero_le, getLsb_ge, Bool.false_eq,
-    Bool.and_eq_false_imp, decide_eq_true_eq, decide_eq_false_iff_not]
-    omega
+  · simp; omega
   · simp only [twoPow, getLsb_shiftLeft, getLsb_ofNat]
     by_cases hj : j < i
     · simp only [hj, decide_True, Bool.not_true, Bool.and_false, Bool.false_and, Bool.false_eq,

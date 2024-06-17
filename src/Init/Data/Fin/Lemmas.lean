@@ -191,7 +191,7 @@ theorem subsingleton_iff_le_one : Subsingleton (Fin n) ↔ n ≤ 1 := by
   (match n with | 0 | 1 | n+2 => ?_) <;> try simp
   · exact ⟨nofun⟩
   · exact ⟨fun ⟨0, _⟩ ⟨0, _⟩ => rfl⟩
-  · exact iff_of_false (fun h => Fin.ne_of_lt zero_lt_one (h.elim ..)) (of_decide_eq_false rfl)
+  · exact fun h => Fin.ne_of_lt zero_lt_one (h.elim ..)
 
 instance subsingleton_zero : Subsingleton (Fin 0) := subsingleton_iff_le_one.2 (by decide)
 
@@ -378,7 +378,7 @@ theorem castSucc_lt_succ (i : Fin n) : Fin.castSucc i < i.succ :=
   lt_def.2 <| by simp only [coe_castSucc, val_succ, Nat.lt_succ_self]
 
 theorem le_castSucc_iff {i : Fin (n + 1)} {j : Fin n} : i ≤ Fin.castSucc j ↔ i < j.succ := by
-  simpa [lt_def, le_def] using Nat.succ_le_succ_iff.symm
+  simpa only [lt_def, le_def] using Nat.add_one_le_add_one_iff.symm
 
 theorem castSucc_lt_iff_succ_le {n : Nat} {i : Fin n} {j : Fin (n + 1)} :
     Fin.castSucc i < j ↔ i.succ ≤ j := .rfl

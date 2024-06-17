@@ -735,7 +735,7 @@ theorem drop_eq_nil_of_le {as : List α} {i : Nat} (h : as.length ≤ i) : as.dr
   match as, i with
   | [],    i   => simp
   | _::_,  0   => simp at h
-  | _::as, i+1 => simp at h; exact @drop_eq_nil_of_le as i (Nat.le_of_succ_le_succ h)
+  | _::as, i+1 => simp only [length_cons] at h; exact @drop_eq_nil_of_le as i (Nat.le_of_succ_le_succ h)
 
 /-! ### takeWhile -/
 

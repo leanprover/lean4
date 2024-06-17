@@ -417,6 +417,34 @@ filterMap
 @[simp] theorem foldr_nil : [].foldr f b = b := rfl
 @[simp] theorem foldr_cons (l : List α) : (a :: l).foldr f b = f a (l.foldr f b) := rfl
 
+/-! ### reverse -/
+
+/-- Auxiliary for `List.reverse`. `List.reverseAux l r = l.reverse ++ r`, but it is defined directly. -/
+def reverseAux : List α → List α → List α
+  | [],   r => r
+  | a::l, r => reverseAux l (a::r)
+
+@[simp] theorem reverseAux_nil : reverseAux [] r = r := rfl
+@[simp] theorem reverseAux_cons : reverseAux (a::l) r = reverseAux l (a::r) := rfl
+
+/--
+`O(|as|)`. Reverse of a list:
+* `[1, 2, 3, 4].reverse = [4, 3, 2, 1]`
+
+Note that because of the "functional but in place" optimization implemented by Lean's compiler,
+this function works without any allocations provided that the input list is unshared:
+it simply walks the linked list and reverses all the node pointers.
+-/
+def reverse (as : List α) : List α :=
+  reverseAux as []
+
+@[simp] theorem reverse_nil : reverse ([] : List α) = [] := rfl
+
+theorem reverseAux_reverseAux (as bs cs : List α) : reverseAux (reverseAux as bs) cs = reverseAux bs (reverseAux (reverseAux as []) cs) := by
+  induction as generalizing bs cs with
+  | nil => rfl
+  | cons a as ih => simp [reverseAux, ih (a::bs), ih [a]]
+
 /-! ### append -/
 
 /--
@@ -426,6 +454,24 @@ It takes time proportional to the first list.
 protected def append : (xs ys : List α) → List α
   | [],    bs => bs
   | a::as, bs => a :: List.append as bs
+
+/-- Tail-recursive version of `List.append`.
+
+Most of the tail-recursive implementations are in `Init.Data.List.Impl`,
+but `appendTR` must be set up immediately,
+because otherwise `Append (List α)` instance below will not use it.
+-/
+def appendTR (as bs : List α) : List α :=
+  reverseAux as.reverse bs
+
+@[csimp] theorem append_eq_appendTR : @List.append = @appendTR := by
+  apply funext; intro α; apply funext; intro as; apply funext; intro bs
+  simp [appendTR, reverse]
+  induction as with
+  | nil  => rfl
+  | cons a as ih =>
+    rw [reverseAux, reverseAux_reverseAux]
+    simp [List.append, ih, reverseAux]
 
 instance : Append (List α) := ⟨List.append⟩
 
@@ -461,6 +507,18 @@ theorem append_cons (as : List α) (b : α) (bs : List α) : as ++ b :: bs = as 
 
 @[simp] theorem concat_eq_append (as : List α) (a : α) : as.concat a = as ++ [a] := by
   induction as <;> simp [concat, *]
+
+theorem reverseAux_eq_append (as bs : List α) : reverseAux as bs = reverseAux as [] ++ bs := by
+  induction as generalizing bs with
+  | nil => simp [reverseAux]
+  | cons a as ih =>
+    simp [reverseAux]
+    rw [ih (a :: bs), ih [a], append_assoc]
+    rfl
+
+@[simp] theorem reverse_cons (a : α) (as : List α) : reverse (a :: as) = reverse as ++ [a] := by
+  simp [reverse, reverseAux]
+  rw [← reverseAux_eq_append]
 
 /-! ### join -/
 
@@ -510,65 +568,6 @@ set_option linter.missingDocs false in
 
 @[simp] theorem length_replicate (n : Nat) (a : α) : (replicate n a).length = n := by
   induction n <;> simp_all
-
-/-! ### reverse -/
-
-/-- Auxiliary for `List.reverse`. `List.reverseAux l r = l.reverse ++ r`, but it is defined directly. -/
-def reverseAux : List α → List α → List α
-  | [],   r => r
-  | a::l, r => reverseAux l (a::r)
-
-@[simp] theorem reverseAux_nil : reverseAux [] r = r := rfl
-@[simp] theorem reverseAux_cons : reverseAux (a::l) r = reverseAux l (a::r) := rfl
-
-/--
-`O(|as|)`. Reverse of a list:
-* `[1, 2, 3, 4].reverse = [4, 3, 2, 1]`
-
-Note that because of the "functional but in place" optimization implemented by Lean's compiler,
-this function works without any allocations provided that the input list is unshared:
-it simply walks the linked list and reverses all the node pointers.
--/
-def reverse (as : List α) : List α :=
-  reverseAux as []
-
-@[simp] theorem reverse_nil : reverse ([] : List α) = [] := rfl
-
-theorem reverseAux_eq_append (as bs : List α) : reverseAux as bs = reverseAux as [] ++ bs := by
-  induction as generalizing bs with
-  | nil => simp [reverseAux]
-  | cons a as ih =>
-    simp [reverseAux]
-    rw [ih (a :: bs), ih [a], append_assoc]
-    rfl
-
-@[simp] theorem reverse_cons (a : α) (as : List α) : reverse (a :: as) = reverse as ++ [a] := by
-  simp [reverse, reverseAux]
-  rw [← reverseAux_eq_append]
-
-/-! ### appendTR
-
-Most of the tail-recursive replacements for `List` operations are defined in `Init.Data.List.Impl`.
-However `appendTR` is needed earlier.
--/
-
-/-- Tail-recursive version of `List.append`. -/
-def appendTR (as bs : List α) : List α :=
-  reverseAux as.reverse bs
-
-theorem reverseAux_reverseAux (as bs cs : List α) : reverseAux (reverseAux as bs) cs = reverseAux bs (reverseAux (reverseAux as []) cs) := by
-  induction as generalizing bs cs with
-  | nil => rfl
-  | cons a as ih => simp [reverseAux, ih (a::bs), ih [a]]
-
-@[csimp] theorem append_eq_appendTR : @List.append = @appendTR := by
-  apply funext; intro α; apply funext; intro as; apply funext; intro bs
-  simp [appendTR, reverse]
-  induction as with
-  | nil  => rfl
-  | cons a as ih =>
-    rw [reverseAux, reverseAux_reverseAux]
-    simp [List.append, ih, reverseAux]
 
 /-! ## List membership
 

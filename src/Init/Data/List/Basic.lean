@@ -398,7 +398,7 @@ filterMap
     | some b => b :: filterMap f as
 
 @[simp] theorem filterMap_nil (f : α → Option β) : filterMap f [] = [] := rfl
-@[simp] theorem filterMap_cons (f : α → Option β) (a : α) (l : List α) :
+theorem filterMap_cons (f : α → Option β) (a : α) (l : List α) :
     filterMap f (a :: l) =
       match f a with
       | none => filterMap f l
@@ -562,9 +562,12 @@ set_option linter.missingDocs false in
 `replicate n a` is `n` copies of `a`:
 * `replicate 5 a = [a, a, a, a, a]`
 -/
-@[simp] def replicate : (n : Nat) → (a : α) → List α
+def replicate : (n : Nat) → (a : α) → List α
   | 0,   _ => []
   | n+1, a => a :: replicate n a
+
+@[simp] theorem replicate_zero : replicate 0 a = [] := rfl
+@[simp] theorem replicate_succ (a : α) (n) : replicate (n+1) a = a :: replicate n a := rfl
 
 @[simp] theorem length_replicate (n : Nat) (a : α) : (replicate n a).length = n := by
   induction n <;> simp_all

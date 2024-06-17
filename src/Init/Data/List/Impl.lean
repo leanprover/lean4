@@ -146,26 +146,6 @@ theorem filterTR_loop_eq (p : α → Bool) (as bs : List α) :
 @[csimp] theorem foldr_eq_foldrTR : @foldr = @foldrTR := by
   funext α β f init l; simp [foldrTR, Array.foldr_eq_foldr_data, -Array.size_toArray]
 
-/-! ### append -/
-
-/-- Tail-recursive version of `List.append`. -/
-def appendTR (as bs : List α) : List α :=
-  reverseAux as.reverse bs
-
-theorem reverseAux_reverseAux (as bs cs : List α) : reverseAux (reverseAux as bs) cs = reverseAux bs (reverseAux (reverseAux as []) cs) := by
-  induction as generalizing bs cs with
-  | nil => rfl
-  | cons a as ih => simp [reverseAux, ih (a::bs), ih [a]]
-
-@[csimp] theorem append_eq_appendTR : @List.append = @appendTR := by
-  apply funext; intro α; apply funext; intro as; apply funext; intro bs
-  simp [appendTR, reverse]
-  induction as with
-  | nil  => rfl
-  | cons a as ih =>
-    rw [reverseAux, reverseAux_reverseAux]
-    simp [List.append, ih, reverseAux]
-
 /-! ### bind  -/
 
 /-- Tail recursive version of `List.bind`. -/

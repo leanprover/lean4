@@ -546,6 +546,29 @@ theorem reverseAux_eq_append (as bs : List α) : reverseAux as bs = reverseAux a
   simp [reverse, reverseAux]
   rw [← reverseAux_eq_append]
 
+/-! ### appendTR
+
+Most of the tail-recursive replacements for `List` operations are defined in `Init.Data.List.Impl`.
+However `appendTR` is needed earlier.
+-/
+
+/-- Tail-recursive version of `List.append`. -/
+def appendTR (as bs : List α) : List α :=
+  reverseAux as.reverse bs
+
+theorem reverseAux_reverseAux (as bs cs : List α) : reverseAux (reverseAux as bs) cs = reverseAux bs (reverseAux (reverseAux as []) cs) := by
+  induction as generalizing bs cs with
+  | nil => rfl
+  | cons a as ih => simp [reverseAux, ih (a::bs), ih [a]]
+
+@[csimp] theorem append_eq_appendTR : @List.append = @appendTR := by
+  apply funext; intro α; apply funext; intro as; apply funext; intro bs
+  simp [appendTR, reverse]
+  induction as with
+  | nil  => rfl
+  | cons a as ih =>
+    rw [reverseAux, reverseAux_reverseAux]
+    simp [List.append, ih, reverseAux]
 
 /-! ## List membership
 

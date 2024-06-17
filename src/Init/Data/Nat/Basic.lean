@@ -590,6 +590,8 @@ theorem succ_le_succ_iff : succ a ≤ succ b ↔ a ≤ b := ⟨le_of_succ_le_suc
 
 theorem succ_lt_succ_iff : succ a < succ b ↔ a < b := ⟨lt_of_succ_lt_succ, succ_lt_succ⟩
 
+@[simp] theorem add_one_inj : a + 1 = b + 1 ↔ a = b := succ_inj'
+
 @[simp]
 theorem add_one_le_add_one_iff : a + 1 ≤ b + 1 ↔ a ≤ b := succ_le_succ_iff
 

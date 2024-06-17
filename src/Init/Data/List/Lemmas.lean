@@ -736,6 +736,8 @@ theorem filter_length_eq_length {l} : (filter p l).length = l.length ↔ ∀ a �
     simp only [filter_cons, length_cons, succ_eq_add_one, mem_cons, forall_eq_or_imp]
     split <;> rename_i h
     · simp_all
+    · have := Nat.ne_of_lt (Nat.lt_succ.mpr (length_filter_le p l))
+      simp_all
 
 theorem mem_filter : x ∈ filter p as ↔ x ∈ as ∧ p x := by
   induction as with

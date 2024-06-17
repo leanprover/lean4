@@ -602,7 +602,7 @@ endif()
 
 # use Bash version for building stage 0 and 1, use Lean version afterwards
 if(${STAGE} EQUAL 0)
-  configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc" @ONLY)
+  configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc${CMAKE_EXECUTABLE_SUFFIX}" @ONLY)
   set(LEANC "${CMAKE_BINARY_DIR}/bin/leanc")
 else()
   set(LEANC "${PREV_STAGE}/bin/leanc")

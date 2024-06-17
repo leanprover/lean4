@@ -430,7 +430,10 @@ private def doNotVisit (pred : Expr → Bool) (declName : Name) : DSimproc := fu
     if (← readThe Simp.Context).isDeclToUnfold declName then
       return .continue e
     else
-      return .done e
+      -- Users may have added a `[simp]` rfl theorem for the literal
+      match (← (← getMethods).dpost e) with
+      | .continue none => return .done e
+      | r => return r
   else
     return .continue e
 

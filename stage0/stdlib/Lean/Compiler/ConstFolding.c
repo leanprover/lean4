@@ -62,6 +62,7 @@ static lean_object* l_Lean_Compiler_numScalarTypes___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldStrictOr(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldNatSucc(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_NumScalarTypeInfo_size___default___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_List_map___at_Lean_Compiler_uintBinFoldFns___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__25;
 static lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__1;
 static lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__2;
@@ -232,7 +233,6 @@ LEAN_EXPORT uint8_t l_Lean_Compiler_isOfNat___lambda__1(lean_object*, lean_objec
 static lean_object* l_Lean_Compiler_boolFoldFns___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldBinUInt(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldNatSucc___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Compiler_uintBinFoldFns___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_getInfoFromVal(lean_object*);
 static lean_object* l_Lean_Compiler_boolFoldFns___closed__1;
 static lean_object* l_Lean_Compiler_foldNatAdd___rarg___closed__1;
@@ -308,7 +308,6 @@ lean_object* l_Nat_decEq___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_natFoldFns___closed__21;
 static lean_object* l_Lean_Compiler_numScalarTypes___closed__21;
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldNatAdd___rarg(lean_object*, lean_object*);
-lean_object* l_List_reverse___rarg(lean_object*);
 static lean_object* l_Lean_Compiler_unFoldFns___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldUIntMod(uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_mkLcProof___closed__1;
@@ -1697,105 +1696,97 @@ x_1 = l_Lean_Compiler_preUIntBinFoldFns___closed__25;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Compiler_uintBinFoldFns___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_List_map___at_Lean_Compiler_uintBinFoldFns___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_4; 
+lean_object* x_3; 
 lean_dec(x_1);
-x_4 = l_List_reverse___rarg(x_3);
-return x_4;
+x_3 = lean_box(0);
+return x_3;
 }
 else
 {
-uint8_t x_5; 
-x_5 = !lean_is_exclusive(x_2);
-if (x_5 == 0)
+uint8_t x_4; 
+x_4 = !lean_is_exclusive(x_2);
+if (x_4 == 0)
 {
-lean_object* x_6; uint8_t x_7; 
-x_6 = lean_ctor_get(x_2, 0);
-x_7 = !lean_is_exclusive(x_6);
-if (x_7 == 0)
+lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
+x_5 = lean_ctor_get(x_2, 0);
+x_6 = lean_ctor_get(x_2, 1);
+lean_inc(x_1);
+x_7 = l_List_map___at_Lean_Compiler_uintBinFoldFns___spec__1(x_1, x_6);
+x_8 = !lean_is_exclusive(x_5);
+if (x_8 == 0)
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_8 = lean_ctor_get(x_2, 1);
-x_9 = lean_ctor_get(x_6, 0);
+lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_9 = lean_ctor_get(x_5, 0);
 x_10 = lean_ctor_get(x_1, 1);
 lean_inc(x_10);
+lean_dec(x_1);
 x_11 = l_Lean_Name_append(x_10, x_9);
-lean_ctor_set(x_6, 0, x_11);
-lean_ctor_set(x_2, 1, x_3);
-{
-lean_object* _tmp_1 = x_8;
-lean_object* _tmp_2 = x_2;
-x_2 = _tmp_1;
-x_3 = _tmp_2;
-}
-goto _start;
+lean_ctor_set(x_5, 0, x_11);
+lean_ctor_set(x_2, 1, x_7);
+return x_2;
 }
 else
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_13 = lean_ctor_get(x_2, 1);
-x_14 = lean_ctor_get(x_6, 0);
-x_15 = lean_ctor_get(x_6, 1);
-lean_inc(x_15);
+lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+x_12 = lean_ctor_get(x_5, 0);
+x_13 = lean_ctor_get(x_5, 1);
+lean_inc(x_13);
+lean_inc(x_12);
+lean_dec(x_5);
+x_14 = lean_ctor_get(x_1, 1);
 lean_inc(x_14);
-lean_dec(x_6);
-x_16 = lean_ctor_get(x_1, 1);
-lean_inc(x_16);
-x_17 = l_Lean_Name_append(x_16, x_14);
-x_18 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_18, 0, x_17);
-lean_ctor_set(x_18, 1, x_15);
-lean_ctor_set(x_2, 1, x_3);
-lean_ctor_set(x_2, 0, x_18);
-{
-lean_object* _tmp_1 = x_13;
-lean_object* _tmp_2 = x_2;
-x_2 = _tmp_1;
-x_3 = _tmp_2;
-}
-goto _start;
+lean_dec(x_1);
+x_15 = l_Lean_Name_append(x_14, x_12);
+x_16 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_16, 0, x_15);
+lean_ctor_set(x_16, 1, x_13);
+lean_ctor_set(x_2, 1, x_7);
+lean_ctor_set(x_2, 0, x_16);
+return x_2;
 }
 }
 else
 {
-lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
-x_20 = lean_ctor_get(x_2, 0);
-x_21 = lean_ctor_get(x_2, 1);
-lean_inc(x_21);
-lean_inc(x_20);
+lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
+x_17 = lean_ctor_get(x_2, 0);
+x_18 = lean_ctor_get(x_2, 1);
+lean_inc(x_18);
+lean_inc(x_17);
 lean_dec(x_2);
-x_22 = lean_ctor_get(x_20, 0);
-lean_inc(x_22);
-x_23 = lean_ctor_get(x_20, 1);
+lean_inc(x_1);
+x_19 = l_List_map___at_Lean_Compiler_uintBinFoldFns___spec__1(x_1, x_18);
+x_20 = lean_ctor_get(x_17, 0);
+lean_inc(x_20);
+x_21 = lean_ctor_get(x_17, 1);
+lean_inc(x_21);
+if (lean_is_exclusive(x_17)) {
+ lean_ctor_release(x_17, 0);
+ lean_ctor_release(x_17, 1);
+ x_22 = x_17;
+} else {
+ lean_dec_ref(x_17);
+ x_22 = lean_box(0);
+}
+x_23 = lean_ctor_get(x_1, 1);
 lean_inc(x_23);
-if (lean_is_exclusive(x_20)) {
- lean_ctor_release(x_20, 0);
- lean_ctor_release(x_20, 1);
- x_24 = x_20;
+lean_dec(x_1);
+x_24 = l_Lean_Name_append(x_23, x_20);
+if (lean_is_scalar(x_22)) {
+ x_25 = lean_alloc_ctor(0, 2, 0);
 } else {
- lean_dec_ref(x_20);
- x_24 = lean_box(0);
+ x_25 = x_22;
 }
-x_25 = lean_ctor_get(x_1, 1);
-lean_inc(x_25);
-x_26 = l_Lean_Name_append(x_25, x_22);
-if (lean_is_scalar(x_24)) {
- x_27 = lean_alloc_ctor(0, 2, 0);
-} else {
- x_27 = x_24;
-}
-lean_ctor_set(x_27, 0, x_26);
-lean_ctor_set(x_27, 1, x_23);
-x_28 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_28, 0, x_27);
-lean_ctor_set(x_28, 1, x_3);
-x_2 = x_21;
-x_3 = x_28;
-goto _start;
+lean_ctor_set(x_25, 0, x_24);
+lean_ctor_set(x_25, 1, x_21);
+x_26 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_26, 0, x_25);
+lean_ctor_set(x_26, 1, x_19);
+return x_26;
 }
 }
 }
@@ -1809,17 +1800,16 @@ return x_1;
 }
 else
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 1);
 lean_inc(x_4);
 lean_dec(x_2);
-x_5 = lean_box(0);
-x_6 = l_Lean_Compiler_preUIntBinFoldFns;
-x_7 = l_List_mapTR_loop___at_Lean_Compiler_uintBinFoldFns___spec__1(x_3, x_6, x_5);
-x_8 = l_List_appendTR___rarg(x_1, x_7);
-x_1 = x_8;
+x_5 = l_Lean_Compiler_preUIntBinFoldFns;
+x_6 = l_List_map___at_Lean_Compiler_uintBinFoldFns___spec__1(x_3, x_5);
+x_7 = l_List_appendTR___rarg(x_1, x_6);
+x_1 = x_7;
 x_2 = x_4;
 goto _start;
 }

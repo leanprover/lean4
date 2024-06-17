@@ -720,6 +720,35 @@ theorem filter_cons :
     (x :: xs : List α).filter p = if p x then x :: (xs.filter p) else xs.filter p := by
   split <;> simp [*]
 
+theorem length_filter_le (p : α → Bool) (l : List α) :
+    (l.filter p).length ≤ l.length := by
+  induction l with
+  | nil => simp
+  | cons a l ih =>
+    simp only [filter_cons, length_cons, succ_eq_add_one]
+    split
+    · simp only [length_cons, succ_eq_add_one]
+      exact Nat.succ_le_succ ih
+    · exact Nat.le_trans ih (Nat.le_add_right _ _)
+
+@[simp]
+theorem filter_eq_self {l} : filter p l = l ↔ ∀ a ∈ l, p a := by
+  induction l with simp
+  | cons a l ih =>
+    cases h : p a <;> simp [*]
+    intro h; exact Nat.lt_irrefl _ (h ▸ length_filter_le p l)
+
+@[simp]
+theorem filter_length_eq_length {l} : (filter p l).length = l.length ↔ ∀ a ∈ l, p a := by
+  induction l with
+  | nil => simp
+  | cons a l ih =>
+    simp only [filter_cons, length_cons, succ_eq_add_one, mem_cons, forall_eq_or_imp]
+    split <;> rename_i h
+    · simp_all [Nat.add_one_inj] -- Why does the simproc not fire here?
+    · have := Nat.ne_of_lt (Nat.lt_succ.mpr (length_filter_le p l))
+      simp_all
+
 theorem mem_filter : x ∈ filter p as ↔ x ∈ as ∧ p x := by
   induction as with
   | nil => simp [filter]
@@ -770,9 +799,26 @@ theorem filterMap_eq_map (f : α → β) : filterMap (some ∘ f) = map f := by
 @[simp] theorem filterMap_some (l : List α) : filterMap some l = l := by
   erw [filterMap_eq_map, map_id]
 
-theorem filterMap_append {α β : Type _} (l l' : List α) (f : α → Option β) :
-    filterMap f (l ++ l') = filterMap f l ++ filterMap f l' := by
+theorem map_filterMap_some_eq_filter_map_is_some (f : α → Option β) (l : List α) :
+    (l.filterMap f).map some = (l.map f).filter fun b => b.isSome := by
   induction l <;> simp [filterMap_cons]; split <;> simp [*]
+
+theorem length_filterMap_le (f : α → Option β) (l : List α) :
+    (filterMap f l).length ≤ l.length := by
+  rw [← length_map _ some, map_filterMap_some_eq_filter_map_is_some, ← length_map _ f]
+  apply length_filter_le
+
+@[simp]
+theorem filterMap_length_eq_length {l} :
+    (filterMap f l).length = l.length ↔ ∀ a ∈ l, (f a).isSome := by
+  induction l with
+  | nil => simp
+  | cons a l ih =>
+    simp only [filterMap_cons, length_cons, succ_eq_add_one, mem_cons, forall_eq_or_imp]
+    split <;> rename_i h
+    · have := Nat.ne_of_lt (Nat.lt_succ.mpr (length_filterMap_le f l))
+      simp_all
+    · simp_all [Nat.add_one_inj] -- Why does the simproc not fire here?
 
 @[simp]
 theorem filterMap_eq_filter (p : α → Bool) :
@@ -807,13 +853,13 @@ theorem filterMap_filter (p : α → Bool) (f : α → Option β) (l : List α) 
   rw [← filterMap_eq_filter, filterMap_filterMap]
   congr; funext x; by_cases h : p x <;> simp [Option.guard, h]
 
-theorem map_filterMap_some_eq_filter_map_is_some (f : α → Option β) (l : List α) :
-    (l.filterMap f).map some = (l.map f).filter fun b => b.isSome := by
-  induction l <;> simp [filterMap_cons]; split <;> simp [*]
-
 @[simp] theorem mem_filterMap (f : α → Option β) (l : List α) {b : β} :
     b ∈ filterMap f l ↔ ∃ a, a ∈ l ∧ f a = some b := by
-  induction l <;> simp[filterMap_cons]; split <;> simp [*, eq_comm]
+  induction l <;> simp [filterMap_cons]; split <;> simp [*, eq_comm]
+
+theorem filterMap_append {α β : Type _} (l l' : List α) (f : α → Option β) :
+    filterMap f (l ++ l') = filterMap f l ++ filterMap f l' := by
+  induction l <;> simp [filterMap_cons]; split <;> simp [*]
 
 @[simp] theorem filterMap_join (f : α → Option β) (L : List (List α)) :
     filterMap f (join L) = join (map (filterMap f) L) := by

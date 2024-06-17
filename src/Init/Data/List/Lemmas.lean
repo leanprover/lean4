@@ -29,11 +29,9 @@ For each `List` operation, we would like theorems describing the following, when
 * negative characterisations are also useful, e.g. `List.cons_ne_nil`
 * interactions with all previously described `List` operations where possible
   (some of these should be `@[simp]`, particularly if the result can be described by a single operation)
+* characterising `(∀ (i) (_ : i ∈ f L), P i)`, for some predicate `P`
 
 Of course for any individual operation, not all of these will be relevant or helpful, so some judgement is required.
-
-Some other types of theorems which are only sometimes relevant are:
-* characterising `(∀ (i) (_ : i ∈ f L), P i)`, for some predicate `P`
 
 -/
 namespace List

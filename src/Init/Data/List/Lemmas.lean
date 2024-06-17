@@ -730,7 +730,7 @@ theorem filter_map (f : β → α) (l : List β) : filter p (map f l) = map f (f
   | nil => rfl
   | cons a l IH => by_cases h : p (f a) <;> simp [*]
 
-@[deprecated (since := "2024-06-15")] abbrev map_filter := @filter_map
+@[deprecated filter_map (since := "2024-06-15")] abbrev map_filter := @filter_map
 
 @[simp] theorem filter_append {p : α → Bool} :
     ∀ (l₁ l₂ : List α), filter p (l₁ ++ l₂) = filter p l₁ ++ filter p l₂

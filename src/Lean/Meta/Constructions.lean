@@ -11,26 +11,15 @@ import Lean.Meta.CompletionName
 
 namespace Lean
 
-@[extern "lean_mk_below"] opaque mkBelowImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_ibelow"] opaque mkIBelowImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_brec_on"] opaque mkBRecOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_binduction_on"] opaque mkBInductionOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-
 @[extern "lean_mk_rec_on"] opaque mkRecOnImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
 @[extern "lean_mk_cases_on"] opaque mkCasesOnImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
 @[extern "lean_mk_no_confusion_type"] opaque mkNoConfusionTypeCoreImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
 @[extern "lean_mk_no_confusion"] opaque mkNoConfusionCoreImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
+@[extern "lean_mk_below"] opaque mkBelowImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
+@[extern "lean_mk_ibelow"] opaque mkIBelowImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
+@[extern "lean_mk_brec_on"] opaque mkBRecOnImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
+@[extern "lean_mk_binduction_on"] opaque mkBInductionOnImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
 
-variable [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m]
-
-@[inline] private def adaptFn (f : Environment → Name → Except KernelException Environment) (declName : Name) : m Unit := do
-  let env ← ofExceptKernelException (f (← getEnv) declName)
-  modifyEnv fun _ => env
-
-def mkBelow (declName : Name) : m Unit := adaptFn mkBelowImp declName
-def mkIBelow (declName : Name) : m Unit := adaptFn mkIBelowImp declName
-def mkBRecOn (declName : Name) : m Unit := adaptFn mkBRecOnImp declName
-def mkBInductionOn (declName : Name) : m Unit := adaptFn mkBInductionOnImp declName
 
 open Meta
 
@@ -49,6 +38,87 @@ def mkCasesOn (declName : Name) : MetaM Unit := do
   setReducibleAttribute name
   modifyEnv fun env => markAuxRecursor env name
   modifyEnv fun env => addProtected env name
+
+def mkBelow (declName : Name) : MetaM Unit := do
+  let .inductInfo indVal ← getConstInfo declName | return
+  unless indVal.isRec do return
+  if ← isPropFormerType indVal.type then return
+
+  let name := mkBelowName declName
+  let decl ← ofExceptKernelException (mkBelowImp (← getEnv) declName)
+  addDecl decl
+  setReducibleAttribute name
+  modifyEnv fun env => addToCompletionBlackList env name
+  modifyEnv fun env => addProtected env name
+
+def mkIBelow (declName : Name) : MetaM Unit := do
+  let .inductInfo indVal ← getConstInfo declName | return
+  unless indVal.isRec do return
+  if ← isPropFormerType indVal.type then return
+
+  let name := mkIBelowName declName
+  let decl ← ofExceptKernelException (mkIBelowImp (← getEnv) declName)
+  addDecl decl
+  setReducibleAttribute name
+  modifyEnv fun env => addToCompletionBlackList env name
+  modifyEnv fun env => addProtected env name
+
+def mkBRecOn (declName : Name) : MetaM Unit := do
+  let .inductInfo indVal ← getConstInfo declName | return
+  unless indVal.isRec do return
+  if ← isPropFormerType indVal.type then return
+  let .recInfo recInfo ← getConstInfo (mkRecName declName) | return
+  unless recInfo.numMotives = indVal.all.length do
+    /-
+    The mutual declaration containing `n` contains nested inductive datatypes.
+    We don't support this kind of declaration here yet. We will probably never will :)
+    To support it, we will need to generate an auxiliary `below` for each nested inductive
+    type since their default `below` is not good here. For example, at
+    ```
+    inductive term
+    | var : string -> term
+    | app : string -> list term -> term
+    ```
+    The `list.below` is not useful since it will not allow us to recurse over the nested terms.
+    We need to generate another one using the auxiliary recursor `term.rec_1` for `list term`.
+    -/
+    return
+
+  let name := mkBRecOnName declName
+  let decl ← ofExceptKernelException (mkBRecOnImp (← getEnv) declName)
+  addDecl decl
+  setReducibleAttribute name
+  modifyEnv fun env => markAuxRecursor env name
+  modifyEnv fun env => addProtected env name
+
+def mkBInductionOn (declName : Name) : MetaM Unit := do
+  let .inductInfo indVal ← getConstInfo declName | return
+  unless indVal.isRec do return
+  if ← isPropFormerType indVal.type then return
+  let .recInfo recInfo ← getConstInfo (mkRecName declName) | return
+  unless recInfo.numMotives = indVal.all.length do
+    /-
+    The mutual declaration containing `n` contains nested inductive datatypes.
+    We don't support this kind of declaration here yet. We will probably never will :)
+    To support it, we will need to generate an auxiliary `below` for each nested inductive
+    type since their default `below` is not good here. For example, at
+    ```
+    inductive term
+    | var : string -> term
+    | app : string -> list term -> term
+    ```
+    The `list.below` is not useful since it will not allow us to recurse over the nested terms.
+    We need to generate another one using the auxiliary recursor `term.rec_1` for `list term`.
+    -/
+    return
+
+  let name := mkBInductionOnName declName
+  let decl ← ofExceptKernelException (mkBInductionOnImp (← getEnv) declName)
+  addDecl decl
+  setReducibleAttribute name
+  modifyEnv fun env => markAuxRecursor env name
+  modifyEnv fun env => addProtected env name
+
 
 def mkNoConfusionCore (declName : Name) : MetaM Unit := do
   -- Do not do anything unless can_elim_to_type. TODO: Extract to util

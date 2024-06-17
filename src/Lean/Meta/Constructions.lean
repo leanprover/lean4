@@ -10,7 +10,6 @@ import Lean.Meta.AppBuilder
 
 namespace Lean
 
-@[extern "lean_mk_cases_on"] opaque mkCasesOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
 @[extern "lean_mk_no_confusion"] opaque mkNoConfusionCoreImp (env : Environment) (declName : @& Name) : Except KernelException Environment
 @[extern "lean_mk_below"] opaque mkBelowImp (env : Environment) (declName : @& Name) : Except KernelException Environment
 @[extern "lean_mk_ibelow"] opaque mkIBelowImp (env : Environment) (declName : @& Name) : Except KernelException Environment
@@ -18,6 +17,7 @@ namespace Lean
 @[extern "lean_mk_binduction_on"] opaque mkBInductionOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
 
 @[extern "lean_mk_rec_on"] opaque mkRecOnImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
+@[extern "lean_mk_cases_on"] opaque mkCasesOnImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
 
 variable [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m]
 
@@ -25,7 +25,6 @@ variable [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m]
   let env ← ofExceptKernelException (f (← getEnv) declName)
   modifyEnv fun _ => env
 
-def mkCasesOn (declName : Name) : m Unit := adaptFn mkCasesOnImp declName
 def mkNoConfusionCore (declName : Name) : m Unit := adaptFn mkNoConfusionCoreImp declName
 def mkBelow (declName : Name) : m Unit := adaptFn mkBelowImp declName
 def mkIBelow (declName : Name) : m Unit := adaptFn mkIBelowImp declName
@@ -41,6 +40,15 @@ def mkRecOn (declName : Name) : MetaM Unit := do
   setReducibleAttribute name
   modifyEnv fun env => markAuxRecursor env name
   modifyEnv fun env => addProtected env name
+
+def mkCasesOn (declName : Name) : MetaM Unit := do
+  let name := mkCasesOnName declName
+  let decl ← ofExceptKernelException (mkCasesOnImp (← getEnv) declName)
+  addDecl decl
+  setReducibleAttribute name
+  modifyEnv fun env => markAuxRecursor env name
+  modifyEnv fun env => addProtected env name
+
 
 def mkNoConfusionEnum (enumName : Name) : MetaM Unit := do
   if (← getEnv).contains ``noConfusionEnum then

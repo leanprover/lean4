@@ -41,7 +41,7 @@ static bool is_type_former_arg(buffer<name> const & C_ids, expr const & arg) {
     return is_fvar(fn) && std::find(C_ids.begin(), C_ids.end(), fvar_name(fn)) != C_ids.end();
 }
 
-environment mk_cases_on(environment const & env, name const & n) {
+declaration mk_cases_on(environment const & env, name const & n) {
     constant_info ind_info = env.get(n);
     if (!ind_info.is_inductive())
         throw exception(sstream() << "error in '" << g_cases_on << "' generation, '" << n << "' is not an inductive datatype");
@@ -180,15 +180,11 @@ environment mk_cases_on(environment const & env, name const & n) {
 
     expr cases_on_type  = lctx.mk_pi(cases_on_params, rec_type);
     expr cases_on_value = lctx.mk_lambda(cases_on_params,  mk_app(rec_cnst, rec_args));
-    declaration new_d = mk_definition_inferring_unsafe(env, cases_on_name, rec_info.get_lparams(), cases_on_type, cases_on_value,
-                                                       reducibility_hints::mk_abbreviation());
-    environment new_env = env.add(new_d);
-    new_env = set_reducible(new_env, cases_on_name, reducible_status::Reducible, true);
-    new_env = add_aux_recursor(new_env, cases_on_name);
-    return add_protected(new_env, cases_on_name);
+    return mk_definition_inferring_unsafe(env, cases_on_name, rec_info.get_lparams(), cases_on_type, cases_on_value,
+                                          reducibility_hints::mk_abbreviation());
 }
 
 extern "C" LEAN_EXPORT object * lean_mk_cases_on(object * env, object * n) {
-    return catch_kernel_exceptions<environment>([&]() { return mk_cases_on(environment(env), name(n, true)); });
+    return catch_kernel_exceptions<declaration>([&]() { return mk_cases_on(environment(env), name(n, true)); });
 }
 }

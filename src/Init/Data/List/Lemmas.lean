@@ -786,22 +786,22 @@ theorem filter_congr' {p q : α → Bool} :
 
 /-! ### filterMap -/
 
-theorem filterMap_cons_none {f : α → Option β} (a : α) (l : List α) (h : f a = none) :
+@[simp] theorem filterMap_cons_none {f : α → Option β} (a : α) (l : List α) (h : f a = none) :
     filterMap f (a :: l) = filterMap f l := by simp only [filterMap, h]
 
-theorem filterMap_cons_some (f : α → Option β) (a : α) (l : List α) {b : β} (h : f a = some b) :
+@[simp] theorem filterMap_cons_some (f : α → Option β) (a : α) (l : List α) {b : β} (h : f a = some b) :
     filterMap f (a :: l) = b :: filterMap f l := by simp only [filterMap, h]
 
 @[simp]
 theorem filterMap_eq_map (f : α → β) : filterMap (some ∘ f) = map f := by
-  funext l; induction l <;> simp [*]
+  funext l; induction l <;> simp [*, filterMap_cons]
 
 @[simp] theorem filterMap_some (l : List α) : filterMap some l = l := by
   erw [filterMap_eq_map, map_id]
 
 theorem map_filterMap_some_eq_filter_map_is_some (f : α → Option β) (l : List α) :
     (l.filterMap f).map some = (l.map f).filter fun b => b.isSome := by
-  induction l <;> simp; split <;> simp [*]
+  induction l <;> simp [filterMap_cons]; split <;> simp [*]
 
 theorem length_filterMap_le (f : α → Option β) (l : List α) :
     (filterMap f l).length ≤ l.length := by
@@ -826,13 +826,13 @@ theorem filterMap_eq_filter (p : α → Bool) :
   funext l
   induction l with
   | nil => rfl
-  | cons a l IH => by_cases pa : p a <;> simp [Option.guard, pa, ← IH]
+  | cons a l IH => by_cases pa : p a <;> simp [filterMap_cons, Option.guard, pa, ← IH]
 
 theorem filterMap_filterMap (f : α → Option β) (g : β → Option γ) (l : List α) :
     filterMap g (filterMap f l) = filterMap (fun x => (f x).bind g) l := by
   induction l with
   | nil => rfl
-  | cons a l IH => cases h : f a <;> simp [*]
+  | cons a l IH => cases h : f a <;> simp [filterMap_cons, *]
 
 theorem map_filterMap (f : α → Option β) (g : β → γ) (l : List α) :
     map g (filterMap f l) = filterMap (fun x => (f x).map g) l := by
@@ -855,11 +855,11 @@ theorem filterMap_filter (p : α → Bool) (f : α → Option β) (l : List α) 
 
 @[simp] theorem mem_filterMap (f : α → Option β) (l : List α) {b : β} :
     b ∈ filterMap f l ↔ ∃ a, a ∈ l ∧ f a = some b := by
-  induction l <;> simp; split <;> simp [*, eq_comm]
+  induction l <;> simp [filterMap_cons]; split <;> simp [*, eq_comm]
 
 theorem filterMap_append {α β : Type _} (l l' : List α) (f : α → Option β) :
     filterMap f (l ++ l') = filterMap f l ++ filterMap f l' := by
-  induction l <;> simp; split <;> simp [*]
+  induction l <;> simp [filterMap_cons]; split <;> simp [*]
 
 @[simp] theorem filterMap_join (f : α → Option β) (L : List (List α)) :
     filterMap f (join L) = join (map (filterMap f) L) := by
@@ -1078,7 +1078,7 @@ theorem eq_nil_or_concat : ∀ l : List α, l = [] ∨ ∃ L b, l = concat L b
 
 /-! ### join -/
 
-theorem mem_join : ∀ {L : List (List α)}, a ∈ L.join ↔ ∃ l, l ∈ L ∧ a ∈ l
+@[simp] theorem mem_join : ∀ {L : List (List α)}, a ∈ L.join ↔ ∃ l, l ∈ L ∧ a ∈ l
   | [] => by simp
   | b :: l => by simp [mem_join, or_and_right, exists_or]
 
@@ -1094,7 +1094,7 @@ theorem mem_join_of_mem (lL : l ∈ L) (al : a ∈ l) : a ∈ join L := mem_join
 
 @[simp] theorem bind_id (l : List (List α)) : List.bind l id = l.join := by simp [List.bind]
 
-theorem mem_bind {f : α → List β} {b} {l : List α} : b ∈ l.bind f ↔ ∃ a, a ∈ l ∧ b ∈ f a := by
+@[simp] theorem mem_bind {f : α → List β} {b} {l : List α} : b ∈ l.bind f ↔ ∃ a, a ∈ l ∧ b ∈ f a := by
   simp [List.bind, mem_join]
   exact ⟨fun ⟨_, ⟨a, h₁, rfl⟩, h₂⟩ => ⟨a, h₁, h₂⟩, fun ⟨a, h₁, h₂⟩ => ⟨_, ⟨a, h₁, rfl⟩, h₂⟩⟩
 
@@ -1111,9 +1111,7 @@ theorem bind_map (f : β → γ) (g : α → List β) :
 
 /-! ### replicate -/
 
-theorem replicate_succ (a : α) (n) : replicate (n+1) a = a :: replicate n a := rfl
-
-theorem mem_replicate {a b : α} : ∀ {n}, b ∈ replicate n a ↔ n ≠ 0 ∧ b = a
+@[simp] theorem mem_replicate {a b : α} : ∀ {n}, b ∈ replicate n a ↔ n ≠ 0 ∧ b = a
   | 0 => by simp
   | n+1 => by simp [mem_replicate, Nat.succ_ne_zero]
 
@@ -1544,13 +1542,13 @@ end erase
 
 /-! ### find? -/
 
-theorem find?_cons_of_pos (l) (h : p a) : find? p (a :: l) = some a :=
+@[simp] theorem find?_cons_of_pos (l) (h : p a) : find? p (a :: l) = some a :=
   by simp [find?, h]
 
-theorem find?_cons_of_neg (l) (h : ¬p a) : find? p (a :: l) = find? p l :=
+@[simp] theorem find?_cons_of_neg (l) (h : ¬p a) : find? p (a :: l) = find? p l :=
   by simp [find?, h]
 
-theorem find?_eq_none : find? p l = none ↔ ∀ x ∈ l, ¬ p x := by
+@[simp] theorem find?_eq_none : find? p l = none ↔ ∀ x ∈ l, ¬ p x := by
   induction l <;> simp [find?_cons]; split <;> simp [*]
 
 theorem find?_some : ∀ {l}, find? p l = some a → p a

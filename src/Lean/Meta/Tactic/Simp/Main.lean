@@ -34,7 +34,7 @@ def Config.updateArith (c : Config) : CoreM Config := do
 
 /-- Return true if `e` is of the form `ofNat n` where `n` is a kernel Nat literal -/
 def isOfNatNatLit (e : Expr) : Bool :=
-  e.isAppOfArity ``OfNat.ofNat 3 && e.appFn!.appArg!.isRawNatLit
+  e.isAppOf ``OfNat.ofNat && e.getAppNumArgs >= 3 && (e.getArg! 1).isRawNatLit
 
 /--
 If `e` is a raw Nat literal and `OfNat.ofNat` is not in the list of declarations to unfold,

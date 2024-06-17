@@ -1,0 +1,21 @@
+{"version": 1,
+ "uri": "file:///4448.lean",
+ "diagnostics":
+ [{"tags": [2],
+   "source": "Lean 4",
+   "severity": 2,
+   "range":
+   {"start": {"line": 8, "character": 10}, "end": {"line": 8, "character": 17}},
+   "message": "`hi_self` has been deprecated",
+   "fullRange":
+   {"start": {"line": 8, "character": 10},
+    "end": {"line": 8, "character": 17}}},
+  {"tags": [2],
+   "source": "Lean 4",
+   "severity": 2,
+   "range":
+   {"start": {"line": 8, "character": 19}, "end": {"line": 8, "character": 21}},
+   "message": "`hi` has been deprecated",
+   "fullRange":
+   {"start": {"line": 8, "character": 19},
+    "end": {"line": 8, "character": 21}}}]}

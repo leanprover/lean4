@@ -1,5 +1,3 @@
-import Lean
-
 @[deprecated]
 theorem hi : True := .intro
 
@@ -9,3 +7,4 @@ theorem hi_self : hi = hi := rfl
 
 example : True := by
   simp [← hi_self, hi]
+                   --^ collectDiagnostics

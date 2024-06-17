@@ -1381,7 +1381,7 @@ theorem getLsb_rotateRight {x : BitVec w} {r i : Nat} :
 theorem toNat_twoPow (w : Nat) (i : Nat) : (twoPow w i).toNat = 2^i % 2^w := by
   rcases w with rfl | w
   · simp [Nat.mod_one]
-  · simp [twoPow, toNat_shiftLeft]
+  · simp only [twoPow, toNat_shiftLeft, toNat_ofNat]
     have h1 : 1 < 2 ^ (w + 1) := Nat.one_lt_two_pow (by omega)
     rw [Nat.mod_eq_of_lt h1, Nat.shiftLeft_eq, Nat.one_mul]
 

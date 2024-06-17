@@ -1,7 +1,7 @@
 /--
 info: equations:
 theorem List.append.eq_1.{u} : ∀ {α : Type u} (x : List α), [].append x = x
-theorem List.append.eq_2.{u} : ∀ {α : Type u} (x : List α) (a : α) (as : List α), (a :: as).append x = a :: as.append x
+theorem List.append.eq_2.{u} : ∀ {α : Type u} (x : List α) (a : α) (l : List α), (a :: l).append x = a :: l.append x
 -/
 #guard_msgs in
 #print eqns List.append
@@ -9,7 +9,7 @@ theorem List.append.eq_2.{u} : ∀ {α : Type u} (x : List α) (a : α) (as : Li
 /--
 info: equations:
 theorem List.append.eq_1.{u} : ∀ {α : Type u} (x : List α), [].append x = x
-theorem List.append.eq_2.{u} : ∀ {α : Type u} (x : List α) (a : α) (as : List α), (a :: as).append x = a :: as.append x
+theorem List.append.eq_2.{u} : ∀ {α : Type u} (x : List α) (a : α) (l : List α), (a :: l).append x = a :: l.append x
 -/
 #guard_msgs in
 #print equations List.append

@@ -31,6 +31,11 @@ theorem utf8Size_eq (c : Char) : c.utf8Size = 1 ∨ c.utf8Size = 2 ∨ c.utf8Siz
   rw [Char.ofNat, dif_pos]
   rfl
 
+@[ext] theorem Char.ext : {a b : Char} → a.val = b.val → a = b
+  | ⟨_,_⟩, ⟨_,_⟩, rfl => rfl
+
+theorem Char.ext_iff {x y : Char} : x = y ↔ x.val = y.val := ⟨congrArg _, Char.ext⟩
+
 end Char
 
 @[deprecated Char.utf8Size (since := "2024-06-04")] abbrev String.csize := Char.utf8Size

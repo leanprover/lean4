@@ -559,10 +559,20 @@ set_option linter.missingDocs false in
 syntax guardMsgsFilterSeverity := &"info" <|> &"warning" <|> &"error" <|> &"all"
 
 /--
-`#reduce e` computes normal form for expression `e`. By default, `proofs` and `types` are not reduced.
-**Warning:** This is a potentially very expensive operation. Consider using `#eval e` for evaluating/executing expressions.
+`#reduce <expression>` reduces the expression `<expression>` to its normal form. This
+involves applying reduction rules until no further reduction is possible.
+
+By default, proofs and types within the expression are not reduced. Use modifiers
+`(proofs := true)`  and `(types := true)` to reduce them.
+Recall that propositions are types in Lean.
+
+**Warning:** This can be a computationally expensive operation,
+especially for complex expressions.
+
+Consider using `#eval <expression>` for simple evaluation/execution
+of expressions.
 -/
-syntax (name := reduceCmd) "#reduce " ("(" &"proofs" " := " &"true" ")")? ("(" &"types" " := " &"true" ")")? term : command
+syntax (name := reduceCmd) "#reduce " (atomic("(" &"proofs" " := " &"true" ")"))? (atomic("(" &"types" " := " &"true" ")"))? term : command
 
 /--
 A message filter specification for `#guard_msgs`.

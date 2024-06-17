@@ -139,7 +139,8 @@ where
       mapM.map f arr i r = (arr.data.drop i).foldlM (fun bs a => bs.push <$> f a) r := by
     unfold mapM.map; split
     · rw [← List.get_drop_eq_drop _ i ‹_›]
-      simp [aux (i+1), map_eq_pure_bind]; rfl
+      simp only [aux (i + 1), map_eq_pure_bind, data_length, List.foldlM_cons, bind_assoc, pure_bind]
+      rfl
     · rw [List.drop_length_le (Nat.ge_of_not_lt ‹_›)]; rfl
   termination_by arr.size - i
   decreasing_by decreasing_trivial_pre_omega
@@ -241,7 +242,7 @@ theorem get!_eq_getD [Inhabited α] (a : Array α) : a.get! n = a.getD n default
 
 @[simp] theorem getElem_set_ne (a : Array α) (i : Fin a.size) (v : α) {j : Nat} (pj : j < (a.set i v).size)
     (h : i.val ≠ j) : (a.set i v)[j]'pj = a[j]'(size_set a i v ▸ pj) := by
-  simp only [set, getElem_eq_data_getElem, List.getElem_set_ne _ h]
+  simp only [set, getElem_eq_data_getElem, List.getElem_set_ne h]
 
 theorem getElem_set (a : Array α) (i : Fin a.size) (v : α) (j : Nat)
     (h : j < (a.set i v).size) :
@@ -418,7 +419,7 @@ theorem get_set (a : Array α) (i : Fin a.size) (j : Nat) (hj : j < a.size) (v :
 
 @[simp] theorem get_set_ne (a : Array α) (i : Fin a.size) {j : Nat} (v : α) (hj : j < a.size)
     (h : i.1 ≠ j) : (a.set i v)[j]'(by simp [*]) = a[j] := by
-  simp only [set, getElem_eq_data_getElem, List.getElem_set_ne _ h]
+  simp only [set, getElem_eq_data_getElem, List.getElem_set_ne h]
 
 theorem getElem_setD (a : Array α) (i : Nat) (v : α) (h : i < (setD a i v).size) :
   (setD a i v)[i] = v := by

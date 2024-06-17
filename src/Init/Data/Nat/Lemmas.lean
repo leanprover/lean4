@@ -101,6 +101,10 @@ protected theorem one_sub : ∀ n, 1 - n = if n = 0 then 1 else 0
 theorem succ_sub_sub_succ (n m k) : succ n - m - succ k = n - m - k := by
   rw [Nat.sub_sub, Nat.sub_sub, add_succ, succ_sub_succ]
 
+theorem add_sub_sub_add_right (n m k l : Nat) :
+    (n + l) - m - (k + l) = n - m - k := by
+  rw [Nat.sub_sub, Nat.sub_sub, ←Nat.add_assoc, Nat.add_sub_add_right]
+
 protected theorem sub_right_comm (m n k : Nat) : m - n - k = m - k - n := by
   rw [Nat.sub_sub, Nat.sub_sub, Nat.add_comm]
 
@@ -176,9 +180,11 @@ protected theorem sub_add_lt_sub (h₁ : m + k ≤ n) (h₂ : 0 < k) : n - (m + 
   rw [← Nat.sub_sub]; exact Nat.sub_lt_of_pos_le h₂ (Nat.le_sub_of_add_le' h₁)
 
 theorem sub_one_lt_of_le (h₀ : 0 < a) (h₁ : a ≤ b) : a - 1 < b :=
-  Nat.lt_of_lt_of_le (Nat.pred_lt' h₀) h₁
+  Nat.lt_of_lt_of_le (Nat.pred_lt_of_lt h₀) h₁
 
 theorem sub_lt_succ (a b) : a - b < succ a := lt_succ_of_le (sub_le a b)
+
+theorem sub_lt_add_one (a b) : a - b < a + 1 := lt_add_one_of_le (sub_le a b)
 
 theorem sub_one_sub_lt (h : i < n) : n - 1 - i < n := by
   rw [Nat.sub_right_comm]; exact Nat.sub_one_lt_of_le (Nat.sub_pos_of_lt h) (Nat.sub_le ..)
@@ -479,6 +485,9 @@ protected theorem mul_lt_mul_of_lt_of_lt {a b c d : Nat} (hac : a < c) (hbd : b 
 theorem succ_mul_succ (a b) : succ a * succ b = a * b + a + b + 1 := by
   rw [succ_mul, mul_succ]; rfl
 
+theorem add_one_mul_add_one (a b : Nat) : (a + 1) * (b + 1) = a * b + a + b + 1 := by
+  rw [add_one_mul, mul_add_one]; rfl
+
 theorem mul_le_add_right (m k n : Nat) : k * m ≤ m + n ↔ (k-1) * m ≤ n := by
   match k with
   | 0 =>
@@ -561,6 +570,9 @@ theorem add_mod (a b n : Nat) : (a + b) % n = ((a % n) + (b % n)) % n := by
 
 theorem pow_succ' {m n : Nat} : m ^ n.succ = m * m ^ n := by
   rw [Nat.pow_succ, Nat.mul_comm]
+
+theorem pow_add_one' {m n : Nat} : m ^ (n + 1) = m * m ^ n := by
+  rw [Nat.pow_add_one, Nat.mul_comm]
 
 @[simp] theorem pow_eq {m n : Nat} : m.pow n = m ^ n := rfl
 

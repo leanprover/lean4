@@ -559,6 +559,12 @@ set_option linter.missingDocs false in
 syntax guardMsgsFilterSeverity := &"info" <|> &"warning" <|> &"error" <|> &"all"
 
 /--
+`#reduce e` computes normal form for expression `e`. By default, `proofs` and `types` are not reduced.
+**Warning:** This is a potentially very expensive operation. Consider using `#eval e` for evaluating/executing expressions.
+-/
+syntax (name := reduceCmd) "#reduce " ("(" &"proofs" " := " &"true" ")")? ("(" &"types" " := " &"true" ")")? term : command
+
+/--
 A message filter specification for `#guard_msgs`.
 - `info`, `warning`, `error`: capture messages with the given severity level.
 - `all`: capture all messages (the default).

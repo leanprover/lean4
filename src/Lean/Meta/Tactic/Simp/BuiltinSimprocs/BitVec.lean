@@ -19,6 +19,7 @@ structure Literal where
   n     : Nat
   /-- Actual value. -/
   value : BitVec n
+  deriving DecidableEq, Repr
 
 /--
 Try to convert `OfNat.ofNat`/`BitVec.OfNat` application into a

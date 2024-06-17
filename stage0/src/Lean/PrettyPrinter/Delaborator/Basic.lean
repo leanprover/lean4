@@ -61,16 +61,19 @@ builtin_initialize delabFailureId : InternalExceptionId ← registerInternalExce
 abbrev DelabM := ReaderT Context (StateRefT State MetaM)
 abbrev Delab := DelabM Syntax
 
-instance {α} : Inhabited (DelabM α) where
+instance : Inhabited (DelabM α) where
   default := throw arbitrary
 
-@[inline] protected def orElse {α} (d₁ d₂ : DelabM α) : DelabM α := do
-catchInternalId delabFailureId d₁ (fun _ => d₂)
-protected def failure {α} : DelabM α := throw $ Exception.internal delabFailureId
-instance : Alternative DelabM := {
-  orElse  := Delaborator.orElse,
+@[inline] protected def orElse (d₁ : DelabM α) (d₂ : Unit → DelabM α) : DelabM α := do
+  catchInternalId delabFailureId d₁ fun _ => d₂ ()
+
+protected def failure : DelabM α :=
+  throw $ Exception.internal delabFailureId
+
+instance : Alternative DelabM where
+  orElse  := Delaborator.orElse
   failure := Delaborator.failure
-}
+
 -- HACK: necessary since it would otherwise prefer the instance from MonadExcept
 instance {α} : OrElse (DelabM α) := ⟨Delaborator.orElse⟩
 

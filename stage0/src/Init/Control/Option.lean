@@ -36,10 +36,10 @@ instance : Monad (OptionT m) where
   pure := OptionT.pure
   bind := OptionT.bind
 
-@[inline] protected def orElse (x : OptionT m α) (y : OptionT m α) : OptionT m α := OptionT.mk do
+@[inline] protected def orElse (x : OptionT m α) (y : Unit → OptionT m α) : OptionT m α := OptionT.mk do
   match (← x) with
   | some a => pure (some a)
-  | _      => y
+  | _      => y ()
 
 @[inline] protected def fail : OptionT m α := OptionT.mk do
   pure none

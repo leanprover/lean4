@@ -371,7 +371,8 @@ def dbgTraceState (label : String) (p : Parser) : Parser where
   fn   := andthenFn p.fn q.fn
 }
 
-instance : AndThen Parser := ⟨andthen⟩
+instance : AndThen Parser where
+  andThen a b := andthen a (b ())
 
 @[inline] def nodeFn (n : SyntaxNodeKind) (p : ParserFn) : ParserFn := fun c s =>
   let iniSz := s.stackSize
@@ -535,7 +536,8 @@ def orelseFnCore (p q : ParserFn) (mergeErrors : Bool) : ParserFn := fun c s =>
   fn   := orelseFn p.fn q.fn
 }
 
-instance : OrElse Parser := ⟨orelse⟩
+instance : OrElse Parser where
+  orElse a b := orelse a (b ())
 
 @[noinline] def noFirstTokenInfo (info : ParserInfo) : ParserInfo := {
   collectTokens := info.collectTokens,

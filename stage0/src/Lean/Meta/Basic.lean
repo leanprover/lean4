@@ -1074,9 +1074,9 @@ def ppExpr (e : Expr) : MetaM Format := do
   let ctxCore  ← readThe Core.Context
   Lean.ppExpr { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptions), currNamespace := ctxCore.currNamespace, openDecls := ctxCore.openDecls  } e
 
-@[inline] protected def orElse (x y : MetaM α) : MetaM α := do
+@[inline] protected def orElse (x : MetaM α) (y : Unit → MetaM α) : MetaM α := do
   let s ← saveState
-  try x catch _ => s.restore; y
+  try x catch _ => s.restore; y ()
 
 instance : OrElse (MetaM α) := ⟨Meta.orElse⟩
 

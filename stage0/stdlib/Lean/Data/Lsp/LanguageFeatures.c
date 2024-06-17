@@ -178,6 +178,7 @@ static lean_object* l_Lean_Lsp_instToJsonSemanticTokensLegend___closed__1;
 lean_object* l_Lean_Lsp_instFromJsonTypeDefinitionParams;
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_toJsonSemanticTokens____x40_Lean_Data_Lsp_LanguageFeatures___hyg_1886____spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_instToJsonSymbolKind___closed__23;
+lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_JsonRpc_instFromJsonMessage___spec__3(lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_instToJsonDocumentHighlightKind___closed__2;
 lean_object* l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_fromJsonSemanticTokensParams____x40_Lean_Data_Lsp_LanguageFeatures___hyg_1692_(lean_object*);
 lean_object* l_Lean_Lsp_instToJsonDocumentSymbol_go_match__1(lean_object*);
@@ -365,7 +366,6 @@ static lean_object* l_Lean_Lsp_instFromJsonCompletionList___closed__1;
 static lean_object* l_Lean_Lsp_instToJsonSemanticTokensOptions___closed__1;
 lean_object* l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_fromJsonDocumentHighlightParams____x40_Lean_Data_Lsp_LanguageFeatures___hyg_910_(lean_object*);
 lean_object* l_Lean_Lsp_instFromJsonCompletionList;
-lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_JsonRpc_instFromJsonMessage___spec__2(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Lsp_CompletionOptions_triggerCharacters_x3f___default() {
 _start:
 {
@@ -999,7 +999,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_fromJsonCompletionItem____x40_Lean_Data_Lsp_LanguageFeatures___hyg_161____closed__1;
-x_3 = l_Lean_Json_getObjValAs_x3f___at_Lean_JsonRpc_instFromJsonMessage___spec__2(x_1, x_2);
+x_3 = l_Lean_Json_getObjValAs_x3f___at_Lean_JsonRpc_instFromJsonMessage___spec__3(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; 

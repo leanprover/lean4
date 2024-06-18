@@ -310,6 +310,17 @@ theorem take_reverse {α} {xs : List α} (n : Nat) (h : n ≤ xs.length) :
   induction l₁ generalizing l₂ <;> cases l₂ <;>
     simp_all [succ_min_succ, Nat.zero_min, Nat.min_zero]
 
+theorem zipWith_eq_zipWith_take_min : ∀ (l₁ : List α) (l₂ : List β),
+    zipWith f l₁ l₂ = zipWith f (l₁.take (min l₁.length l₂.length)) (l₂.take (min l₁.length l₂.length))
+  | [], _ => by simp
+  | _, [] => by simp
+  | a :: l₁, b :: l₂ => by simp [succ_min_succ, zipWith_eq_zipWith_take_min l₁ l₂]
+
+@[simp] theorem zipWith_replicate {a : α} {b : β} {m n : Nat} :
+    zipWith f (replicate m a) (replicate n b) = replicate (min m n) (f a b) := by
+  rw [zipWith_eq_zipWith_take_min]
+  simp
+
 /-! ### zip -/
 
 @[simp] theorem length_zip (l₁ : List α) (l₂ : List β) :

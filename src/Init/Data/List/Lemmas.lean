@@ -1882,6 +1882,7 @@ theorem map_snd_zip :
     show _ :: map Prod.snd (zip as bs) = _ :: bs
     rw [map_snd_zip as bs h]
 
+-- See also `List.zip_replicate` in `Init.Data.List.TakeDrop`.
 @[simp] theorem zip_replicate' {a : α} {b : β} {n : Nat} :
     zip (replicate n a) (replicate n b) = replicate n (a, b) := by
   induction n with
@@ -1978,9 +1979,16 @@ theorem zipWith_append (f : α → β → γ) (l la : List α) (l' lb : List β)
       simp only [length_cons, Nat.succ.injEq] at h
       simp [ih _ h]
 
+-- See also `List.zipWith_replicate` in `Init.Data.List.TakeDrop`.
+@[simp] theorem zipWith_replicate' {a : α} {b : β} {n : Nat} :
+    zipWith f (replicate n a) (replicate n b) = replicate n (f a b) := by
+  induction n with
+  | zero => rfl
+  | succ n ih => simp [replicate_succ, ih]
+
 /-! ### zipWithAll -/
 
-theorem getElem?_zipWithAll {f : Option α → Option β → γ} {i : Nat } :
+theorem getElem?_zipWithAll {f : Option α → Option β → γ} {i : Nat} :
     (zipWithAll f as bs)[i]? = match as[i]?, bs[i]? with
       | none, none => .none | a?, b? => some (f a? b?) := by
   induction as generalizing bs i with
@@ -2001,6 +2009,12 @@ theorem get?_zipWithAll {f : Option α → Option β → γ} :
 
 set_option linter.deprecated false in
 @[deprecated getElem?_zipWithAll (since := "2024-06-07")] abbrev zipWithAll_get? := @get?_zipWithAll
+
+@[simp] theorem zipWithAll_replicate {a : α} {b : β} {n : Nat} :
+    zipWithAll f (replicate n a) (replicate n b) = replicate n (f a b) := by
+  induction n with
+  | zero => rfl
+  | succ n ih => simp [replicate_succ, ih]
 
 /-! ### enumFrom -/
 
@@ -2078,6 +2092,16 @@ theorem minimum?_eq_some_iff [Min α] [LE α] [anti : Antisymm ((· : α) ≤ ·
       ((le_minimum?_iff le_min_iff (xs := x::xs) rfl _).1 (le_refl _) _ h₁)
       (h₂ _ (minimum?_mem min_eq_or (xs := x::xs) rfl))
 
+theorem minimum?_replicate [Min α] {n : Nat} {a : α} (w : min a a = a) :
+    (replicate n a).minimum? = if n = 0 then none else some a := by
+  induction n with
+  | zero => rfl
+  | succ n ih => cases n <;> simp_all [minimum?_cons]
+
+@[simp] theorem minimum?_replicate_of_pos [Min α] {n : Nat} {a : α} (w : min a a = a) (h : 0 < n) :
+    (replicate n a).minimum? = some a := by
+  simp [minimum?_replicate, Nat.ne_of_gt h, w]
+
 /-! ### maximum? -/
 
 @[simp] theorem maximum?_nil [Max α] : ([] : List α).maximum? = none := rfl
@@ -2124,6 +2148,16 @@ theorem maximum?_eq_some_iff [Max α] [LE α] [anti : Antisymm ((· : α) ≤ ·
     exact congrArg some <| anti.1
       (h₂ _ (maximum?_mem max_eq_or (xs := x::xs) rfl))
       ((maximum?_le_iff max_le_iff (xs := x::xs) rfl _).1 (le_refl _) _ h₁)
+
+theorem maximum?_replicate [Max α] {n : Nat} {a : α} (w : max a a = a) :
+    (replicate n a).maximum? = if n = 0 then none else some a := by
+  induction n with
+  | zero => rfl
+  | succ n ih => cases n <;> simp_all [maximum?_cons]
+
+@[simp] theorem maximum?_replicate_of_pos [Max α] {n : Nat} {a : α} (w : max a a = a) (h : 0 < n) :
+    (replicate n a).maximum? = some a := by
+  simp [maximum?_replicate, Nat.ne_of_gt h, w]
 
 /-! ### mapM -/
 

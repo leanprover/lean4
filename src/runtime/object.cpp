@@ -2046,9 +2046,10 @@ extern "C" LEAN_EXPORT obj_res lean_string_utf8_set(obj_arg s, b_obj_arg i0, uin
     std::string tmp;
     push_unicode_scalar(tmp, c);
     std::string new_s = string_to_std(s);
+    usize len = lean_string_len(s);
     dec(s);
     new_s.replace(i, get_utf8_char_size_at(new_s, i), tmp);
-    return lean_mk_string_unchecked(new_s.data(), new_s.size(), lean_string_len(s));
+    return lean_mk_string_unchecked(new_s.data(), new_s.size(), len);
 }
 
 extern "C" LEAN_EXPORT uint64 lean_string_hash(b_obj_arg s) {

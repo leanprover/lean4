@@ -850,6 +850,9 @@ That is, there exists a `t` such that `l₂ == t ++ l₁`. -/
 def isSuffixOf [BEq α] (l₁ l₂ : List α) : Bool :=
   isPrefixOf l₁.reverse l₂.reverse
 
+@[simp] theorem isSuffixOf_nil_left [BEq α] : isSuffixOf ([] : List α) l = true := by
+  simp [isSuffixOf]
+
 /-! ### isSuffixOf? -/
 
 /-- `isSuffixOf? l₁ l₂` returns `some t` when `l₂ == t ++ l₁`.-/

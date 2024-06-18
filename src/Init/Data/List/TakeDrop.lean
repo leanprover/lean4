@@ -39,10 +39,15 @@ theorem take_take : ∀ (n m) (l : List α), take n (take m l) = take (min n m) 
   | succ n, succ m, a :: l => by
     simp only [take, succ_min_succ, take_take n m l]
 
-theorem take_replicate (a : α) : ∀ n m : Nat, take n (replicate m a) = replicate (min n m) a
+@[simp] theorem take_replicate (a : α) : ∀ n m : Nat, take n (replicate m a) = replicate (min n m) a
   | n, 0 => by simp [Nat.min_zero]
   | 0, m => by simp [Nat.zero_min]
   | succ n, succ m => by simp [succ_min_succ, take_replicate]
+
+@[simp] theorem drop_replicate (a : α) : ∀ n m : Nat, drop n (replicate m a) = replicate (m - n) a
+  | n, 0 => by simp
+  | 0, m => by simp
+  | succ n, succ m => by simp [succ_sub_succ, drop_replicate]
 
 /-- Taking the first `n` elements in `l₁ ++ l₂` is the same as appending the first `n` elements
 of `l₁` to the first `n - l₁.length` elements of `l₂`. -/
@@ -97,7 +102,7 @@ theorem get_take' (L : List α) {j i} :
 
 theorem getElem?_take_eq_none {l : List α} {n m : Nat} (h : n ≤ m) :
     (l.take n)[m]? = none :=
-  getElem?_eq_none.mpr <| Nat.le_trans (length_take_le _ _) h
+  getElem?_eq_none <| Nat.le_trans (length_take_le _ _) h
 
 @[deprecated getElem?_take_eq_none (since := "2024-06-12")]
 theorem get?_take_eq_none {l : List α} {n m : Nat} (h : n ≤ m) :
@@ -310,5 +315,16 @@ theorem take_reverse {α} {xs : List α} (n : Nat) (h : n ≤ xs.length) :
 @[simp] theorem length_zip (l₁ : List α) (l₂ : List β) :
     length (zip l₁ l₂) = min (length l₁) (length l₂) := by
   simp [zip]
+
+theorem zip_eq_zip_take_min : ∀ (l₁ : List α) (l₂ : List β),
+    zip l₁ l₂ = zip (l₁.take (min l₁.length l₂.length)) (l₂.take (min l₁.length l₂.length))
+  | [], _ => by simp
+  | _, [] => by simp
+  | a :: l₁, b :: l₂ => by simp [succ_min_succ, zip_eq_zip_take_min l₁ l₂]
+
+@[simp] theorem zip_replicate {a : α} {b : β} {m n : Nat} :
+    zip (replicate m a) (replicate n b) = replicate (min m n) (a, b) := by
+  rw [zip_eq_zip_take_min]
+  simp
 
 end List

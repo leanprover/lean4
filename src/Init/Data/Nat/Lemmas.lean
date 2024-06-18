@@ -212,12 +212,18 @@ instance : Std.IdempotentOp (α := Nat) min := ⟨Nat.min_self⟩
 
 @[simp] protected theorem min_zero (a) : min a 0 = 0 := Nat.min_eq_right (Nat.zero_le _)
 
-protected theorem min_assoc : ∀ (a b c : Nat), min (min a b) c = min a (min b c)
+@[simp] protected theorem min_assoc : ∀ (a b c : Nat), min (min a b) c = min a (min b c)
   | 0, _, _ => by rw [Nat.zero_min, Nat.zero_min, Nat.zero_min]
   | _, 0, _ => by rw [Nat.zero_min, Nat.min_zero, Nat.zero_min]
   | _, _, 0 => by rw [Nat.min_zero, Nat.min_zero, Nat.min_zero]
   | _+1, _+1, _+1 => by simp only [Nat.succ_min_succ]; exact congrArg succ <| Nat.min_assoc ..
 instance : Std.Associative (α := Nat) min := ⟨Nat.min_assoc⟩
+
+@[simp] protected theorem min_self_assoc {m n : Nat} : min m (min m n) = min m n := by
+  rw [← Nat.min_assoc, Nat.min_self]
+
+@[simp] protected theorem min_self_assoc' {m n : Nat} : min n (min m n) = min n m := by
+  rw [Nat.min_comm m n, ← Nat.min_assoc, Nat.min_self]
 
 protected theorem sub_sub_eq_min : ∀ (a b : Nat), a - (a - b) = min a b
   | 0, _ => by rw [Nat.zero_sub, Nat.zero_min]

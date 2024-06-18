@@ -39,4 +39,11 @@ tactic_extension my_trivial
 macro_rules
   | `(tactic|my_trivial) => `(tactic|trivial)
 
+/--
+info: finishing:
+    my_trivial
+extensible:
+    my_trivial
+-/
+#guard_msgs in
 #tactic_tags

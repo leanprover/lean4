@@ -28,6 +28,16 @@ variable (m n : Nat)
 
 /-! ## Getters -/
 
+#check_simp [x, y, x, y][0] ~> x
+#check_simp [x, y, x, y][1] ~> y
+#check_simp [x, y, x, y][2] ~> x
+#check_simp [x, y, x, y][3] ~> y
+
+#check_simp [x, y, x, y][0]? ~> some x
+#check_simp [x, y, x, y][1]? ~> some y
+#check_simp [x, y, x, y][2]? ~> some x
+#check_simp [x, y, x, y][3]? ~> some y
+
 /-! ### get, get!, get?, getD -/
 
 /-! ### getLast, getLast!, getLast?, getLastD -/
@@ -76,16 +86,15 @@ variable [BEq α] [LawfulBEq α] in
 
 -- `getElem` and `getElem?`
 
-variable (h : n < m) in
-#check_tactic (replicate m x)[n] ~> x by simp [h]
+variable (h : n < m) (w) in
+#check_tactic (replicate m x)[n]'w ~> x by simp [h]
 
 variable (h : n < m) in
 #check_tactic (replicate m x)[n]? ~> some x by simp [h]
 
 #check_simp (replicate 7 x)[5] ~> x
 
--- fails, needs a simproc:
--- #check_simp (replicate 7 x)[5]? ~> some x -- gets stuck at `[x, x, x, x, x, x, x][5]?`
+#check_simp (replicate 7 x)[5]? ~> some x
 
 -- injectivity
 
@@ -94,12 +103,17 @@ variable (h : n < m) in
 #check_simp replicate 3 "1" = replicate 3 "1" ~> True
 #check_simp replicate n x = replicate m y ~> n = m ∧ (n = 0 ∨ x = y)
 
+-- append
+
 #check_simp replicate n x ++ replicate m x ~> replicate (n + m) x
+
+-- map
 
 #check_simp (replicate n "x").map (fun s => s ++ s) ~> replicate n "xx"
 
--- Hmmm: metavariable handling bug in `#check_tactic`:
--- #check_tactic (replicate n "x").filter (fun s => s.length = 1) ~> replicate n "x" by simp [filter_replicate]
+-- filter
+
+#check_simp (replicate n [1]).filter (fun s => s.length = 1) ~> replicate n [1]
 
 /-! ### reverse -/
 

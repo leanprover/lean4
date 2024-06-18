@@ -42,12 +42,12 @@ theorem take_take : ∀ (n m) (l : List α), take n (take m l) = take (min n m) 
 @[simp] theorem take_replicate (a : α) : ∀ n m : Nat, take n (replicate m a) = replicate (min n m) a
   | n, 0 => by simp [Nat.min_zero]
   | 0, m => by simp [Nat.zero_min]
-  | succ n, succ m => by simp [succ_min_succ, take_replicate]
+  | succ n, succ m => by simp [replicate_succ, succ_min_succ, take_replicate]
 
 @[simp] theorem drop_replicate (a : α) : ∀ n m : Nat, drop n (replicate m a) = replicate (m - n) a
   | n, 0 => by simp
   | 0, m => by simp
-  | succ n, succ m => by simp [succ_sub_succ, drop_replicate]
+  | succ n, succ m => by simp [replicate_succ, succ_sub_succ, drop_replicate]
 
 /-- Taking the first `n` elements in `l₁ ++ l₂` is the same as appending the first `n` elements
 of `l₁` to the first `n - l₁.length` elements of `l₂`. -/

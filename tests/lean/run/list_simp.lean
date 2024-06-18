@@ -221,7 +221,7 @@ variable {p : α → Bool} (w : ¬ p x) (h : 0 < n) in
 variable {f : α → Option β} (w : (f x).isSome) in
 #check_tactic (replicate (n+1) x).findSome? f ~> f x by simp [w]
 variable {f : α → Option β} (w : (f x).isNone) in
-#check_tactic (replicate (n+1) x).findSome? f ~> none by simp [w]
+#check_tactic (replicate (n+1) x).findSome? f ~> none by simp_all [w]
 
 variable (h : 0 < n) in
 #check_tactic (replicate n x).findSome? (fun x => some x) ~> some x by simp [h]

@@ -1,7 +1,7 @@
 open List
 
 variable {α : Type _}
-variable {x y : α}
+variable {x y z : α}
 variable (l l₁ l₂ l₃ : List α)
 
 variable (m n : Nat)
@@ -66,6 +66,9 @@ variable (m n : Nat)
 
 /-! ### replicate -/
 
+#check_simp replicate 0 x ~> []
+#check_simp replicate 1 x ~> [x]
+
 -- `∈` and `contains
 
 #check_simp y ∈ replicate 0 x ~> False
@@ -114,6 +117,168 @@ variable (h : n < m) in
 -- filter
 
 #check_simp (replicate n [1]).filter (fun s => s.length = 1) ~> replicate n [1]
+#check_simp (replicate n [1]).filter (fun s => s.length = 2) ~> []
+
+-- filterMap
+
+#check_simp (replicate n [1]).filterMap (fun s => if s.length = 1 then some s else none) ~> replicate n [1]
+#check_simp (replicate n [1]).filterMap (fun s => if s.length = 2 then some s else none) ~> []
+
+-- join
+
+#check_simp (replicate n (replicate m x)).join ~> replicate (n * m) x
+#check_simp (replicate 1 (replicate m x)).join ~> replicate m x
+#check_simp (replicate n (replicate 1 x)).join ~> replicate n x
+#check_simp (replicate n (replicate 0 x)).join ~> []
+#check_simp (replicate 0 (replicate m x)).join ~> []
+#check_simp (replicate 0 (replicate 0 x)).join ~> []
+
+-- isEmpty
+
+#check_simp (replicate (n + 1) x).isEmpty ~> false
+#check_simp (replicate 0 x).isEmpty ~> true
+variable (h : ¬ n = 0) in -- It would be nice if this also worked with `h : 0 < n`
+#check_tactic (replicate n x).isEmpty ~> false by simp [h]
+
+-- reverse
+
+#check_simp (replicate n x).reverse ~> replicate n x
+
+-- dropLast
+
+#check_simp (replicate 0 x).dropLast ~> []
+#check_simp (replicate n x).dropLast ~> replicate (n-1) x
+#check_simp (replicate (n+1) x).dropLast ~> replicate n x
+
+-- isPrefixOf
+
+variable [BEq α] [LawfulBEq α] in
+#check_simp isPrefixOf [x, y, x] (replicate n x) ~> decide (3 ≤ n) && y == x
+
+attribute [local simp] isPrefixOf_cons₂ in
+variable [BEq α] [LawfulBEq α] in
+#check_simp isPrefixOf [x, y, x] (replicate (n+3) x) ~> y == x
+
+-- isSuffixOf
+
+variable [BEq α] [LawfulBEq α] in
+#check_simp isSuffixOf [x, y, x] (replicate n x) ~> decide (3 ≤ n) && y == x
+
+-- rotateLeft
+
+#check_simp (replicate n x).rotateLeft m ~> replicate n x
+
+-- rotateRight
+
+#check_simp (replicate n x).rotateRight m ~> replicate n x
+
+-- replace
+
+variable [BEq α] [LawfulBEq α] in
+#check_simp (replicate (n+1) x).replace x y ~> y :: replicate n x
+
+#check_simp (replicate n "1").replace "2" "3" ~> (replicate n "1")
+
+-- insert
+
+variable [BEq α] [LawfulBEq α] (h : 0 < n) in
+#check_tactic (replicate n x).insert x ~> replicate n x by simp [h]
+
+#check_simp (replicate n "1").insert "2" ~> "2" :: replicate n "1"
+
+-- erase
+
+variable [BEq α] [LawfulBEq α] in
+#check_simp (replicate (n+1) x).erase x ~> replicate n x
+
+#check_simp (replicate n "1").erase "2" ~> replicate n "1"
+
+-- find?
+
+#check_simp (replicate (n+1) x).find? (fun _ => true) ~> some x
+#check_simp (replicate (n+1) x).find? (fun _ => false) ~> none
+
+variable {p : α → Bool} (w : p x) in
+#check_tactic (replicate (n+1) x).find? p ~> some x by simp [w]
+variable {p : α → Bool} (w : ¬ p x) in
+#check_tactic (replicate (n+1) x).find? p ~> none by simp [w]
+
+variable (h : 0 < n) in
+#check_tactic (replicate n x).find? (fun _ => true) ~> some x by simp [h]
+variable (h : 0 < n) in
+#check_tactic (replicate n x).find? (fun _ => false) ~> none by simp [h]
+
+variable {p : α → Bool} (w : p x) (h : 0 < n) in
+#check_tactic (replicate n x).find? p ~> some x by simp [w, h]
+variable {p : α → Bool} (w : ¬ p x) (h : 0 < n) in
+#check_tactic (replicate n x).find? p ~> none by simp [w, h]
+
+-- findSome?
+
+#check_simp (replicate (n+1) x).findSome? (fun x => some x) ~> some x
+#check_simp (replicate (n+1) x).findSome? (fun _ => none) ~> none
+
+variable {f : α → Option β} (w : (f x).isSome) in
+#check_tactic (replicate (n+1) x).findSome? f ~> f x by simp [w]
+variable {f : α → Option β} (w : (f x).isNone) in
+#check_tactic (replicate (n+1) x).findSome? f ~> none by simp [w]
+
+variable (h : 0 < n) in
+#check_tactic (replicate n x).findSome? (fun x => some x) ~> some x by simp [h]
+variable (h : 0 < n) in
+#check_tactic (replicate n x).findSome? (fun _ => none) ~> none by simp [h]
+
+variable {f : α → Option β} (w : (f x).isSome) (h : 0 < n) in
+#check_tactic (replicate n x).findSome? f ~> f x by simp [w, h]
+variable {f : α → Option β} (w : (f x).isNone) (h : 0 < n) in
+#check_tactic (replicate n x).findSome? f ~> none by simp_all [w, h]
+
+-- lookup
+
+variable [BEq α] [LawfulBEq α] in
+#check_simp (replicate (n+1) (x, y)).lookup x ~> some y
+
+variable [BEq α] [LawfulBEq α] (h : 0 < n) in
+#check_tactic (replicate n (x, y)).lookup x ~> some y by simp [h]
+
+#check_simp (replicate n ("1", "2")).lookup "3" ~> none
+
+-- zip
+
+#check_simp (replicate n x).zip (replicate n y) ~> replicate n (x, y)
+#check_simp (replicate n x).zip (replicate m y) ~> replicate (min n m) (x, y)
+variable (h : n ≤ m) in
+#check_tactic (replicate n x).zip (replicate m y) ~> replicate n (x, y) by simp [h, Nat.min_eq_left]
+
+-- zipWith
+section
+variable (f : α → α → α)
+
+#check_simp zipWith f (replicate n x) (replicate n y) ~> replicate n (f x y)
+#check_simp zipWith f (replicate n x) (replicate m y) ~> replicate (min n m) (f x y)
+variable (h : n ≤ m) in
+#check_tactic zipWith f (replicate n x) (replicate m y) ~> replicate n (f x y) by simp [h, Nat.min_eq_left]
+
+-- unzip
+#check_simp unzip (replicate n (x, y)) ~> (replicate n x, replicate n y)
+
+-- minimum?
+
+-- This would need `minimum?_cons_self_replicate` to regain confluence.
+-- #check_simp (replicate (n+1) 7).minimum? ~> some 7
+
+variable (h : 0 < n) in
+#check_tactic (replicate n 7).minimum? ~> some 7 by simp [h]
+
+-- maximum?
+
+-- This would need `maximum?_cons_self_replicate` to regain confluence.
+-- #check_simp (replicate (n+1) 7).maximum? ~> some 7
+
+variable (h : 0 < n) in
+#check_tactic (replicate n 7).maximum? ~> some 7 by simp [h]
+
+end
 
 /-! ### reverse -/
 

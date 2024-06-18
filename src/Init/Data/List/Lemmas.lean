@@ -1149,6 +1149,9 @@ theorem getElem?_replicate : (replicate n a)[m]? = if m < n then some a else non
   · rw [getElem?_eq_getElem (by simpa), getElem_replicate, if_pos h]
   · rw [getElem?_eq_none (by simpa using h), if_neg h]
 
+@[simp] theorem getElem?_replicate_of_lt {n : Nat} {m : Nat} (h : m < n) : (replicate n a)[m]? = some a := by
+  simp [getElem?_replicate, h]
+
 @[simp] theorem replicate_inj : replicate n a = replicate m b ↔ n = m ∧ (n = 0 ∨ a = b) :=
   ⟨fun h => have eq : n = m := by simpa using congrArg length h
     ⟨eq, by
@@ -1194,6 +1197,12 @@ theorem filter_replicate : (replicate n a).filter p = if p a then replicate n a 
     simp only [replicate_succ, filter_cons]
     split <;> simp_all
 
+@[simp] theorem filter_replicate_of_pos (h : p a) : (replicate n a).filter p = replicate n a := by
+  simp [filter_replicate, h]
+
+@[simp] theorem filter_replicate_of_neg (h : ¬ p a) : (replicate n a).filter p = [] := by
+  simp [filter_replicate, h]
+
 theorem filterMap_replicate {f : α → Option β} :
     (replicate n a).filterMap f = match f a with | none => [] | .some b => replicate n b := by
   induction n with
@@ -1201,6 +1210,14 @@ theorem filterMap_replicate {f : α → Option β} :
   | succ n ih =>
     simp only [replicate_succ, filterMap_cons]
     split <;> simp_all
+
+@[simp] theorem filterMap_replicate_of_some {f : α → Option β} {b : β} (h : f a = some b) :
+    (replicate n a).filterMap f = replicate n b := by
+  simp [filterMap_replicate, h]
+
+@[simp] theorem filterMap_replicate_of_none {f : α → Option β} (h : f a = none) :
+    (replicate n a).filterMap f = [] := by
+  simp [filterMap_replicate, h]
 
 @[simp] theorem join_replicate_replicate : (replicate n (replicate m a)).join = replicate (n * m) a := by
   induction n with

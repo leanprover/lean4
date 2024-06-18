@@ -566,8 +566,8 @@ def replicate : (n : Nat) → (a : α) → List α
   | 0,   _ => []
   | n+1, a => a :: replicate n a
 
-@[simp low] theorem replicate_zero : replicate 0 a = [] := rfl
-@[simp low] theorem replicate_succ (a : α) (n) : replicate (n+1) a = a :: replicate n a := rfl
+@[simp] theorem replicate_zero : replicate 0 a = [] := rfl
+@[simp] theorem replicate_succ (a : α) (n) : replicate (n+1) a = a :: replicate n a := rfl
 
 @[simp] theorem length_replicate (n : Nat) (a : α) : (replicate n a).length = n := by
   induction n <;> simp_all

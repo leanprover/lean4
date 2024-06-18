@@ -38,6 +38,8 @@ namespace List
 
 open Nat
 
+/-! ## Preliminaries -/
+
 -- We may want to replace these `simp` attributes with explicit equational lemmas,
 -- as we already have for all the non-monadic functions.
 attribute [simp] mapA forA filterAuxM firstM anyM allM findM? findSomeM?
@@ -162,8 +164,10 @@ theorem getElem?_len_le : ∀ {l : List α} {n}, length l ≤ n → l[n]? = none
 theorem getElem?_eq_some {l : List α} : l[n]? = some a ↔ ∃ h : n < l.length, l[n] = a := by
   simp only [← get?_eq_getElem?, get?_eq_some, get_eq_getElem]
 
-@[simp] theorem getElem?_eq_none : l[n]? = none ↔ length l ≤ n := by
+@[simp] theorem getElem?_eq_none_iff : l[n]? = none ↔ length l ≤ n := by
   simp only [← get?_eq_getElem?, get?_eq_none]
+
+theorem getElem?_eq_none (h : length l ≤ n) : l[n]? = none := getElem?_eq_none_iff.mpr h
 
 @[simp] theorem getElem!_nil [Inhabited α] {n : Nat} : ([] : List α)[n]! = default := rfl
 
@@ -367,6 +371,20 @@ theorem mem_iff_getElem? {a} {l : List α} : a ∈ l ↔ ∃ n : Nat, l[n]? = so
 theorem mem_iff_get? {a} {l : List α} : a ∈ l ↔ ∃ n, l.get? n = some a := by
   simp [getElem?_eq_some, Fin.exists_iff, mem_iff_get]
 
+@[simp] theorem decide_mem_cons [BEq α] [LawfulBEq α] {l : List α} :
+    decide (y ∈ a :: l) = (y == a || decide (y ∈ l)) := by
+  cases h : y == a <;> simp_all
+
+/-! ### any / all -/
+
+theorem any_eq {l : List α} : l.any p = decide (∃ x, x ∈ l ∧ p x) := by induction l <;> simp [*]
+
+theorem all_eq {l : List α} : l.all p = decide (∀ x, x ∈ l →  p x) := by induction l <;> simp [*]
+
+@[simp] theorem any_eq_true {l : List α} : l.any p ↔ ∃ x, x ∈ l ∧ p x := by simp [any_eq]
+
+@[simp] theorem all_eq_true {l : List α} : l.all p ↔ ∀ x, x ∈ l →  p x := by simp [all_eq]
+
 /-! ### set -/
 
 -- As `List.set` is defined in `Init.Prelude`, we write the basic simplification lemmas here.
@@ -417,7 +435,7 @@ theorem get_set_ne {l : List α} {i j : Nat} (h : i ≠ j) {a : α}
   by_cases hj : j < (l.set i a).length
   · rw [getElem?_eq_getElem hj, getElem?_eq_getElem (by simp_all)]
     simp_all
-  · rw [getElem?_eq_none.mpr (by simp_all), getElem?_eq_none.mpr (by simp_all)]
+  · rw [getElem?_eq_none (by simp_all), getElem?_eq_none (by simp_all)]
 
 theorem getElem_set {l : List α} {m n} {a} (h) :
     (set l m a)[n]'h = if m = n then a else l[n]'(length_set .. ▸ h) := by
@@ -482,6 +500,49 @@ theorem mem_or_eq_of_mem_set : ∀ {l : List α} {n : Nat} {a b : α}, a ∈ l.s
 
 -- See also `set_eq_take_append_cons_drop` in `Init.Data.List.TakeDrop`.
 
+/-! ### Lexicographic ordering -/
+
+theorem lt_irrefl' [LT α] (lt_irrefl : ∀ x : α, ¬x < x) (l : List α) : ¬l < l := by
+  induction l with
+  | nil => nofun
+  | cons a l ih => intro
+    | .head _ _ h => exact lt_irrefl _ h
+    | .tail _ _ h => exact ih h
+
+theorem lt_trans' [LT α] [DecidableRel (@LT.lt α _)]
+    (lt_trans : ∀ {x y z : α}, x < y → y < z → x < z)
+    (le_trans : ∀ {x y z : α}, ¬x < y → ¬y < z → ¬x < z)
+    {l₁ l₂ l₃ : List α} (h₁ : l₁ < l₂) (h₂ : l₂ < l₃) : l₁ < l₃ := by
+  induction h₁ generalizing l₃ with
+  | nil => let _::_ := l₃; exact List.lt.nil ..
+  | @head a l₁ b l₂ ab =>
+    match h₂ with
+    | .head l₂ l₃ bc => exact List.lt.head _ _ (lt_trans ab bc)
+    | .tail _ cb ih =>
+      exact List.lt.head _ _ <| Decidable.by_contra (le_trans · cb ab)
+  | @tail a l₁ b l₂ ab ba h₁ ih2 =>
+    match h₂ with
+    | .head l₂ l₃ bc =>
+      exact List.lt.head _ _ <| Decidable.by_contra (le_trans ba · bc)
+    | .tail bc cb ih =>
+      exact List.lt.tail (le_trans ab bc) (le_trans cb ba) (ih2 ih)
+
+theorem lt_antisymm' [LT α]
+    (lt_antisymm : ∀ {x y : α}, ¬x < y → ¬y < x → x = y)
+    {l₁ l₂ : List α} (h₁ : ¬l₁ < l₂) (h₂ : ¬l₂ < l₁) : l₁ = l₂ := by
+  induction l₁ generalizing l₂ with
+  | nil =>
+    cases l₂ with
+    | nil => rfl
+    | cons b l₂ => cases h₁ (.nil ..)
+  | cons a l₁ ih =>
+    cases l₂ with
+    | nil => cases h₂ (.nil ..)
+    | cons b l₂ =>
+      have ab : ¬a < b := fun ab => h₁ (.head _ _ ab)
+      cases lt_antisymm ab (fun ba => h₂ (.head _ _ ba))
+      rw [ih (fun ll => h₁ (.tail ab ab ll)) (fun ll => h₂ (.tail ab ab ll))]
+
 /-! ### foldlM and foldrM -/
 
 @[simp] theorem foldlM_reverse [Monad m] (l : List α) (f : β → α → m β) (b) :
@@ -528,50 +589,6 @@ theorem foldl_map (f : β₁ → β₂) (g : α → β₂ → α) (l : List β�
 theorem foldr_map (f : α₁ → α₂) (g : α₂ → β → β) (l : List α₁) (init : β) :
     (l.map f).foldr g init = l.foldr (fun x y => g (f x) y) init := by
   induction l generalizing init <;> simp [*]
-
-/-! ### lt -/
-
-theorem lt_irrefl' [LT α] (lt_irrefl : ∀ x : α, ¬x < x) (l : List α) : ¬l < l := by
-  induction l with
-  | nil => nofun
-  | cons a l ih => intro
-    | .head _ _ h => exact lt_irrefl _ h
-    | .tail _ _ h => exact ih h
-
-theorem lt_trans' [LT α] [DecidableRel (@LT.lt α _)]
-    (lt_trans : ∀ {x y z : α}, x < y → y < z → x < z)
-    (le_trans : ∀ {x y z : α}, ¬x < y → ¬y < z → ¬x < z)
-    {l₁ l₂ l₃ : List α} (h₁ : l₁ < l₂) (h₂ : l₂ < l₃) : l₁ < l₃ := by
-  induction h₁ generalizing l₃ with
-  | nil => let _::_ := l₃; exact List.lt.nil ..
-  | @head a l₁ b l₂ ab =>
-    match h₂ with
-    | .head l₂ l₃ bc => exact List.lt.head _ _ (lt_trans ab bc)
-    | .tail _ cb ih =>
-      exact List.lt.head _ _ <| Decidable.by_contra (le_trans · cb ab)
-  | @tail a l₁ b l₂ ab ba h₁ ih2 =>
-    match h₂ with
-    | .head l₂ l₃ bc =>
-      exact List.lt.head _ _ <| Decidable.by_contra (le_trans ba · bc)
-    | .tail bc cb ih =>
-      exact List.lt.tail (le_trans ab bc) (le_trans cb ba) (ih2 ih)
-
-theorem lt_antisymm' [LT α]
-    (lt_antisymm : ∀ {x y : α}, ¬x < y → ¬y < x → x = y)
-    {l₁ l₂ : List α} (h₁ : ¬l₁ < l₂) (h₂ : ¬l₂ < l₁) : l₁ = l₂ := by
-  induction l₁ generalizing l₂ with
-  | nil =>
-    cases l₂ with
-    | nil => rfl
-    | cons b l₂ => cases h₁ (.nil ..)
-  | cons a l₁ ih =>
-    cases l₂ with
-    | nil => cases h₂ (.nil ..)
-    | cons b l₂ =>
-      have ab : ¬a < b := fun ab => h₁ (.head _ _ ab)
-      cases lt_antisymm ab (fun ba => h₂ (.head _ _ ba))
-      rw [ih (fun ll => h₁ (.tail ab ab ll)) (fun ll => h₂ (.tail ab ab ll))]
-
 
 /-! ### getD -/
 
@@ -646,6 +663,8 @@ theorem getLast?_eq_get? : ∀ (l : List α), getLast? l = l.get? (l.length - 1)
 @[simp] theorem getLastD_concat (a b l) : @getLastD α (l ++ [b]) a = b := by
   rw [getLastD_eq_getLast?, getLast?_concat]; rfl
 
+/-! ## Head and tail -/
+
 /-! ### head -/
 
 theorem head!_of_head? [Inhabited α] : ∀ {l : List α}, head? l = some a → head! l = a
@@ -658,6 +677,8 @@ theorem head?_eq_head : ∀ l h, @head? α l = some (head l h)
 
 @[simp] theorem tailD_eq_tail? (l l' : List α) : tailD l l' = (tail? l).getD l' := by
   cases l <;> rfl
+
+/-! ## Basic operations -/
 
 /-! ### map -/
 
@@ -1116,11 +1137,29 @@ theorem bind_map (f : β → γ) (g : α → List β) :
 
 /-! ### replicate -/
 
+@[simp] theorem replicate_one : replicate 1 a = [a] := rfl
+
+@[simp] theorem contains_replicate [BEq α] {n : Nat} {a b : α} :
+    (replicate n b).contains a = (a == b && !n == 0) := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    simp only [replicate_succ, elem_cons]
+    split <;> simp_all
+
+@[simp] theorem decide_mem_replicate [BEq α] [LawfulBEq α] {a b : α} :
+    ∀ {n}, decide (b ∈ replicate n a) = ((¬ n == 0) && b == a)
+  | 0 => by simp
+  | n+1 => by simp [replicate_succ, decide_mem_replicate, Nat.succ_ne_zero]
+
 @[simp] theorem mem_replicate {a b : α} : ∀ {n}, b ∈ replicate n a ↔ n ≠ 0 ∧ b = a
   | 0 => by simp
-  | n+1 => by simp [mem_replicate, Nat.succ_ne_zero]
+  | n+1 => by simp [replicate_succ, mem_replicate, Nat.succ_ne_zero]
 
 theorem eq_of_mem_replicate {a b : α} {n} (h : b ∈ replicate n a) : b = a := (mem_replicate.1 h).2
+
+@[simp] theorem replicate_succ_ne_nil (n : Nat) (a : α) : replicate (n+1) a ≠ [] := by
+  simp [replicate_succ]
 
 @[simp] theorem getElem_replicate (a : α) {n : Nat} {m} (h : m < (replicate n a).length) :
     (replicate n a)[m] = a :=
@@ -1129,6 +1168,27 @@ theorem eq_of_mem_replicate {a b : α} {n} (h : b ∈ replicate n a) : b = a := 
 @[deprecated getElem_replicate (since := "2024-06-12")]
 theorem get_replicate (a : α) {n : Nat} (m : Fin _) : (replicate n a).get m = a := by
   simp
+
+theorem getElem?_replicate : (replicate n a)[m]? = if m < n then some a else none := by
+  by_cases h : m < n
+  · rw [getElem?_eq_getElem (by simpa), getElem_replicate, if_pos h]
+  · rw [getElem?_eq_none (by simpa using h), if_neg h]
+
+@[simp] theorem getElem?_replicate_of_lt {n : Nat} {m : Nat} (h : m < n) : (replicate n a)[m]? = some a := by
+  simp [getElem?_replicate, h]
+
+@[simp] theorem replicate_inj : replicate n a = replicate m b ↔ n = m ∧ (n = 0 ∨ a = b) :=
+  ⟨fun h => have eq : n = m := by simpa using congrArg length h
+    ⟨eq, by
+    subst eq
+    by_cases w : n = 0
+    · simp_all
+    · right
+      have p := congrArg (·[0]?) h
+      replace w : 0 < n := by exact zero_lt_of_ne_zero w
+      simp only [getElem?_replicate, if_pos w] at p
+      simp_all⟩,
+    by rintro ⟨rfl, rfl | rfl⟩ <;> rfl⟩
 
 theorem eq_replicate_of_mem {a : α} :
     ∀ {l : List α}, (∀ (b) (_ : b ∈ l), b = a) → l = replicate l.length a
@@ -1141,6 +1201,76 @@ theorem eq_replicate {a : α} {n} {l : List α} :
     l = replicate n a ↔ length l = n ∧ ∀ (b) (_ : b ∈ l), b = a :=
   ⟨fun h => h ▸ ⟨length_replicate .., fun _ => eq_of_mem_replicate⟩,
    fun ⟨e, al⟩ => e ▸ eq_replicate_of_mem al⟩
+
+@[simp] theorem append_replicate_replicate : replicate n a ++ replicate m a = replicate (n + m) a := by
+  rw [eq_replicate]
+  constructor
+  · simp
+  · intro b
+    simp only [mem_append, mem_replicate, ne_eq]
+    rintro (⟨-, rfl⟩ | ⟨_, rfl⟩) <;> rfl
+
+@[simp] theorem map_replicate : (replicate n a).map f = replicate n (f a) := by
+  ext1 n
+  simp only [getElem?_map, getElem?_replicate]
+  split <;> simp
+
+theorem filter_replicate : (replicate n a).filter p = if p a then replicate n a else [] := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    simp only [replicate_succ, filter_cons]
+    split <;> simp_all
+
+@[simp] theorem filter_replicate_of_pos (h : p a) : (replicate n a).filter p = replicate n a := by
+  simp [filter_replicate, h]
+
+@[simp] theorem filter_replicate_of_neg (h : ¬ p a) : (replicate n a).filter p = [] := by
+  simp [filter_replicate, h]
+
+theorem filterMap_replicate {f : α → Option β} :
+    (replicate n a).filterMap f = match f a with | none => [] | .some b => replicate n b := by
+  induction n with
+  | zero => split <;> simp
+  | succ n ih =>
+    simp only [replicate_succ, filterMap_cons]
+    split <;> simp_all
+
+-- This is not a useful `simp` lemma because `b` is unknown.
+theorem filterMap_replicate_of_some {f : α → Option β} (h : f a = some b) :
+    (replicate n a).filterMap f = replicate n b := by
+  simp [filterMap_replicate, h]
+
+@[simp] theorem filterMap_replicate_of_isSome {f : α → Option β} (h : (f a).isSome) :
+    (replicate n a).filterMap f = replicate n (Option.get _ h) := by
+  rw [Option.isSome_iff_exists] at h
+  obtain ⟨b, h⟩ := h
+  simp [filterMap_replicate, h]
+
+@[simp] theorem filterMap_replicate_of_none {f : α → Option β} (h : f a = none) :
+    (replicate n a).filterMap f = [] := by
+  simp [filterMap_replicate, h]
+
+@[simp] theorem join_replicate_nil : (replicate n ([] : List α)).join = [] := by
+  induction n <;> simp_all [replicate_succ]
+
+@[simp] theorem join_replicate_singleton : (replicate n [a]).join = replicate n a := by
+  induction n <;> simp_all [replicate_succ]
+
+@[simp] theorem join_replicate_replicate : (replicate n (replicate m a)).join = replicate (n * m) a := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    simp only [replicate_succ, join_cons, ih, append_replicate_replicate, replicate_inj, or_true,
+      and_true, add_one_mul, Nat.add_comm]
+
+theorem bind_replicate {β} (f : α → List β) : (replicate n a).bind f = (replicate n (f a)).join := by
+  induction n with
+  | zero => simp
+  | succ n ih => simp only [replicate_succ, bind_cons, ih, join_cons]
+
+@[simp] theorem isEmpty_replicate : (replicate n a).isEmpty = decide (n = 0) := by
+  cases n <;> simp [replicate_succ]
 
 /-! ### reverse -/
 
@@ -1217,6 +1347,13 @@ theorem reverseAux_eq (as bs : List α) : reverseAux as bs = reverse as ++ bs :=
     l.reverse.foldr f b = l.foldl (fun x y => f y x) b :=
   (foldl_reverse ..).symm.trans <| by simp
 
+@[simp] theorem reverse_replicate (n) (a : α) : reverse (replicate n a) = replicate n a :=
+  eq_replicate.2
+    ⟨by rw [length_reverse, length_replicate],
+     fun b h => eq_of_mem_replicate (mem_reverse.1 h)⟩
+
+/-! ## List membership -/
+
 /-! ### elem -/
 
 @[simp] theorem elem_cons_self [BEq α] [LawfulBEq α] {a : α} : (a::as).elem a = true := by
@@ -1225,12 +1362,14 @@ theorem reverseAux_eq (as bs : List α) : reverseAux as bs = reverse as ++ bs :=
 /-! ### contains -/
 
 @[simp] theorem contains_cons [BEq α] :
-    (a :: as : List α).contains x = (a == x || as.contains x) := by
+    (a :: as : List α).contains x = (x == a || as.contains x) := by
   simp only [contains, elem]
   split <;> simp_all
 
-theorem contains_eq_any_beq [BEq α] (l : List α) (a : α) : l.contains a = l.any (· == a) := by
+theorem contains_eq_any_beq [BEq α] (l : List α) (a : α) : l.contains a = l.any (a == ·) := by
   induction l with simp | cons b l => cases b == a <;> simp [*]
+
+/-! ## Sublists -/
 
 /-! ### take and drop
 
@@ -1416,6 +1555,11 @@ theorem drop_left' {l₁ l₂ : List α} {n} (h : length l₁ = n) : drop n (l�
 
 /-! ### takeWhile and dropWhile -/
 
+theorem takeWhile_cons (p : α → Bool) (a : α) (l : List α) :
+    (a :: l).takeWhile p = if p a then a :: l.takeWhile p else [] := by
+  simp only [takeWhile]
+  by_cases h: p a <;> simp [h]
+
 theorem dropWhile_cons :
     (x :: xs : List α).dropWhile p = if p x then xs.dropWhile p else x :: xs := by
   split <;> simp_all [dropWhile]
@@ -1433,6 +1577,31 @@ theorem dropWhile_append {xs ys : List α} :
   | cons h t ih =>
     simp only [cons_append, dropWhile_cons]
     split <;> simp_all
+
+@[simp] theorem takeWhile_replicate_eq_filter (p : α → Bool) :
+    (replicate n a).takeWhile p = (replicate n a).filter p := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    simp only [replicate_succ, takeWhile_cons]
+    split <;> simp_all
+
+theorem takeWhile_replicate (p : α → Bool) :
+    (replicate n a).takeWhile p = if p a then replicate n a else [] := by
+  rw [takeWhile_replicate_eq_filter, filter_replicate]
+
+@[simp] theorem dropWhile_replicate_eq_filter_not (p : α → Bool) :
+    (replicate n a).dropWhile p = (replicate n a).filter (fun a => !p a) := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    simp only [replicate_succ, dropWhile_cons]
+    split <;> simp_all
+
+theorem dropWhile_replicate (p : α → Bool) :
+    (replicate n a).dropWhile p = if p a then [] else replicate n a := by
+  simp only [dropWhile_replicate_eq_filter_not, filter_replicate]
+  split <;> simp_all
 
 /-! ### partition -/
 
@@ -1479,20 +1648,93 @@ theorem dropLast_append_cons : dropLast (l₁ ++ b::l₂) = l₁ ++ dropLast (b:
 
 @[simp 1100] theorem dropLast_concat : dropLast (l₁ ++ [b]) = l₁ := by simp
 
-/-! ### isPrefixOf -/
+@[simp] theorem dropLast_replicate (n) (a : α) : dropLast (replicate n a) = replicate (n - 1) a := by
+  match n with
+  | 0 => simp
+  | 1 => simp [replicate_succ]
+  | n+2 =>
+    rw [replicate_succ, dropLast_cons_of_ne_nil, dropLast_replicate]
+    · simp [replicate_succ]
+    · simp
 
-@[simp] theorem isPrefixOf_cons₂_self [BEq α] [LawfulBEq α] {a : α} :
+@[simp] theorem dropLast_cons_self_replicate (n) (a : α) :
+    dropLast (a :: replicate n a) = replicate n a := by
+  rw [← replicate_succ, dropLast_replicate, Nat.add_sub_cancel]
+
+/-! ### isPrefixOf -/
+section isPrefixOf
+variable [BEq α]
+
+@[simp] theorem isPrefixOf_cons₂_self [LawfulBEq α] {a : α} :
     isPrefixOf (a::as) (a::bs) = isPrefixOf as bs := by simp [isPrefixOf_cons₂]
 
-/-! ### replace -/
+@[simp] theorem isPrefixOf_length_pos_nil {L : List α} (h : 0 < L.length) : isPrefixOf L [] = false := by
+  cases L <;> simp_all [isPrefixOf]
 
-@[simp] theorem replace_cons_self [BEq α] [LawfulBEq α] {a : α} : (a::as).replace a b = b::as := by
+@[simp] theorem isPrefixOf_replicate {a : α} :
+    isPrefixOf l (replicate n a) = (decide (l.length ≤ n) && l.all (· == a)) := by
+  induction l generalizing n with
+  | nil => simp
+  | cons h t ih =>
+    cases n
+    · simp
+    · simp [replicate_succ, isPrefixOf_cons₂, ih, Nat.succ_le_succ_iff, Bool.and_left_comm]
+
+end isPrefixOf
+
+/-! ### isSuffixOf -/
+section isSuffixOf
+variable [BEq α]
+
+@[simp] theorem isSuffixOf_cons_nil : isSuffixOf (a::as) ([] : List α) = false := by
+  simp [isSuffixOf]
+
+@[simp] theorem isSuffixOf_replicate {a : α} :
+    isSuffixOf l (replicate n a) = (decide (l.length ≤ n) && l.all (· == a)) := by
+  simp [isSuffixOf, all_eq]
+
+end isSuffixOf
+
+/-! ### rotateLeft -/
+
+@[simp] theorem rotateLeft_zero (l : List α) : rotateLeft l 0 = l := by
+  simp [rotateLeft]
+
+/-! ### rotateRight -/
+
+@[simp] theorem rotateRight_zero (l : List α) : rotateRight l 0 = l := by
+  simp [rotateRight]
+
+/-! ## Manipulating elements -/
+
+/-! ### replace -/
+section replace
+variable [BEq α]
+
+@[simp] theorem replace_cons_self [LawfulBEq α] {a : α} : (a::as).replace a b = b::as := by
   simp [replace_cons]
+
+@[simp] theorem replace_of_not_mem {l : List α} (h : !l.elem a) : l.replace a b = l := by
+  induction l <;> simp_all [replace_cons]
+
+@[simp] theorem replace_replicate_self [LawfulBEq α] {a : α} (h : 0 < n) :
+    (replicate n a).replace a b = b :: replicate (n - 1) a := by
+  cases n <;> simp_all [replicate_succ, replace_cons]
+
+@[simp] theorem replace_replicate_ne {a b c : α} (h : !b == a) :
+    (replicate n a).replace b c = replicate n a := by
+  rw [replace_of_not_mem]
+  simp_all
+
+end replace
 
 /-! ### insert -/
 
 section insert
 variable [BEq α] [LawfulBEq α]
+
+@[simp] theorem insert_nil (a : α) : [].insert a = [a] := by
+  simp [List.insert]
 
 @[simp] theorem insert_of_mem {l : List α} (h : a ∈ l) : l.insert a = l := by
   simp [List.insert, h]
@@ -1524,6 +1766,14 @@ theorem eq_or_mem_of_mem_insert {l : List α} (h : a ∈ l.insert b) : a = b ∨
 @[simp] theorem length_insert_of_not_mem {l : List α} (h : a ∉ l) :
     length (l.insert a) = length l + 1 := by rw [insert_of_not_mem h]; rfl
 
+@[simp] theorem insert_replicate_self {a : α} (h : 0 < n) : (replicate n a).insert a = replicate n a := by
+  cases n <;> simp_all
+
+@[simp] theorem insert_replicate_ne {a b : α} (h : !b == a) :
+    (replicate n a).insert b = b :: replicate n a := by
+  rw [insert_of_not_mem]
+  simp_all
+
 end insert
 
 /-! ### erase -/
@@ -1543,15 +1793,24 @@ theorem erase_of_not_mem [LawfulBEq α] {a : α} : ∀ {l : List α}, a ∉ l �
     rw [mem_cons, not_or] at h
     simp only [erase_cons, if_neg, erase_of_not_mem h.2, beq_iff_eq, Ne.symm h.1, not_false_eq_true]
 
+@[simp] theorem erase_replicate_self [LawfulBEq α] {a : α} :
+    (replicate n a).erase a = replicate (n - 1) a := by
+  cases n <;> simp [replicate_succ]
+
+@[simp] theorem erase_replicate_ne [LawfulBEq α] {a b : α} (h : !b == a) :
+    (replicate n a).erase b = replicate n a := by
+  rw [erase_of_not_mem]
+  simp_all
+
 end erase
 
 /-! ### find? -/
 
-@[simp] theorem find?_cons_of_pos (l) (h : p a) : find? p (a :: l) = some a :=
-  by simp [find?, h]
+@[simp] theorem find?_cons_of_pos (l) (h : p a) : find? p (a :: l) = some a := by
+  simp [find?, h]
 
-@[simp] theorem find?_cons_of_neg (l) (h : ¬p a) : find? p (a :: l) = find? p l :=
-  by simp [find?, h]
+@[simp] theorem find?_cons_of_neg (l) (h : ¬p a) : find? p (a :: l) = find? p l := by
+  simp [find?, h]
 
 @[simp] theorem find?_eq_none : find? p l = none ↔ ∀ x ∈ l, ¬ p x := by
   induction l <;> simp [find?_cons]; split <;> simp [*]
@@ -1568,7 +1827,29 @@ theorem find?_some : ∀ {l}, find? p l = some a → p a
     · exact H ▸ .head _
     · exact .tail _ (mem_of_find?_eq_some H)
 
+theorem find?_replicate : find? p (replicate n a) = if n = 0 then none else if p a then some a else none := by
+  cases n
+  · simp
+  · by_cases p a <;> simp_all [replicate_succ]
+
+@[simp] theorem find?_replicate_of_length_pos (h : 0 < n) : find? p (replicate n a) = if p a then some a else none := by
+  simp [find?_replicate, Nat.ne_of_gt h]
+
+@[simp] theorem find?_replicate_of_pos (h : p a) : find? p (replicate n a) = if n = 0 then none else some a := by
+  simp [find?_replicate, h]
+
+@[simp] theorem find?_replicate_of_neg (h : ¬ p a) : find? p (replicate n a) = none := by
+  simp [find?_replicate, h]
+
 /-! ### findSome? -/
+
+@[simp] theorem findSome?_cons_of_isSome (l) (h : (f a).isSome) : findSome? f (a :: l) = f a := by
+  simp only [findSome?]
+  split <;> simp_all
+
+@[simp] theorem findSome?_cons_of_isNone (l) (h : (f a).isNone) : findSome? f (a :: l) = findSome? f l := by
+  simp only [findSome?]
+  split <;> simp_all
 
 theorem exists_of_findSome?_eq_some {l : List α} {f : α → Option β} (w : l.findSome? f = some b) :
     ∃ a, a ∈ l ∧ f a = b := by
@@ -1578,16 +1859,59 @@ theorem exists_of_findSome?_eq_some {l : List α} {f : α → Option β} (w : l.
     simp_all only [findSome?_cons, mem_cons, exists_eq_or_imp]
     split at w <;> simp_all
 
-/-! ### lookup -/
+theorem findSome?_replicate : findSome? f (replicate n a) = if n = 0 then none else f a := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    simp only [replicate_succ, findSome?_cons]
+    split <;> simp_all
 
-@[simp] theorem lookup_cons_self [BEq α] [LawfulBEq α] {k : α} : ((k,b)::es).lookup k = some b := by
+@[simp] theorem findSome?_replicate_of_pos (h : 0 < n) : findSome? f (replicate n a) = f a := by
+  simp [findSome?_replicate, Nat.ne_of_gt h]
+
+@[simp] theorem find?_replicate_of_isSome (h : (f a).isSome) : findSome? f (replicate n a) = if n = 0 then none else f a := by
+  simp [findSome?_replicate, h]
+
+@[simp] theorem find?_replicate_of_isNone (h : (f a).isNone) : findSome? f (replicate n a) = none := by
+  rw [Option.isNone_iff_eq_none] at h
+  simp [findSome?_replicate, h]
+
+/-! ### lookup -/
+section lookup
+variable [BEq α] [LawfulBEq α]
+
+@[simp] theorem lookup_cons_self  {k : α} : ((k,b)::es).lookup k = some b := by
   simp [lookup_cons]
 
+theorem lookup_replicate {k : α} :
+    (replicate n (a,b)).lookup k = if n = 0 then none else if k == a then some b else none := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    simp only [replicate_succ, lookup_cons]
+    split <;> simp_all
+
+theorem lookup_replicate_of_pos {k : α} (h : 0 < n) :
+    (replicate n (a,b)).lookup k = if k == a then some b else none := by
+  simp [lookup_replicate, Nat.ne_of_gt h]
+
+theorem lookup_replicate_self {a : α} :
+    (replicate n (a, b)).lookup a = if n = 0 then none else some b := by
+  simp [lookup_replicate]
+
+@[simp] theorem lookup_replicate_self_of_pos {a : α} (h : 0 < n) :
+    (replicate n (a, b)).lookup a = some b := by
+  simp [lookup_replicate_self, Nat.ne_of_gt h]
+
+@[simp] theorem lookup_replicate_ne {k : α} (h : !k == a) :
+    (replicate n (a,b)).lookup k = none := by
+  simp_all [lookup_replicate]
+
+end lookup
+
+/-! ## Logic -/
+
 /-! ### any / all -/
-
-@[simp] theorem any_eq_true {l : List α} : l.any p ↔ ∃ x, x ∈ l ∧ p x := by induction l <;> simp [*]
-
-@[simp] theorem all_eq_true {l : List α} : l.all p ↔ ∀ x, x ∈ l →  p x := by induction l <;> simp [*]
 
 theorem not_any_eq_all_not (l : List α) (p : α → Bool) : (!l.any p) = l.all fun a => !p a := by
   induction l with simp | cons _ _ ih => rw [ih]
@@ -1616,6 +1940,8 @@ theorem any_eq_not_all_not (l : List α) (p : α → Bool) : l.any p = !l.all (!
 
 theorem all_eq_not_any_not (l : List α) (p : α → Bool) : l.all p = !l.any (!p .) := by
   simp only [not_any_eq_all_not, Bool.not_not]
+
+/-! ## Zippers -/
 
 /-! ### zip -/
 
@@ -1672,6 +1998,13 @@ theorem map_snd_zip :
     simp [Nat.succ_le_succ_iff] at h
     show _ :: map Prod.snd (zip as bs) = _ :: bs
     rw [map_snd_zip as bs h]
+
+/-- See also `List.zip_replicate` in `Init.Data.List.TakeDrop` for a generalization with different lengths. -/
+@[simp] theorem zip_replicate' {a : α} {b : β} {n : Nat} :
+    zip (replicate n a) (replicate n b) = replicate n (a, b) := by
+  induction n with
+  | zero => rfl
+  | succ n ih => simp [replicate_succ, ih]
 
 /-! ### zipWith -/
 
@@ -1763,9 +2096,16 @@ theorem zipWith_append (f : α → β → γ) (l la : List α) (l' lb : List β)
       simp only [length_cons, Nat.succ.injEq] at h
       simp [ih _ h]
 
+/-- See also `List.zipWith_replicate` in `Init.Data.List.TakeDrop` for a generalization with different lengths. -/
+@[simp] theorem zipWith_replicate' {a : α} {b : β} {n : Nat} :
+    zipWith f (replicate n a) (replicate n b) = replicate n (f a b) := by
+  induction n with
+  | zero => rfl
+  | succ n ih => simp [replicate_succ, ih]
+
 /-! ### zipWithAll -/
 
-theorem getElem?_zipWithAll {f : Option α → Option β → γ} {i : Nat } :
+theorem getElem?_zipWithAll {f : Option α → Option β → γ} {i : Nat} :
     (zipWithAll f as bs)[i]? = match as[i]?, bs[i]? with
       | none, none => .none | a?, b? => some (f a? b?) := by
   induction as generalizing bs i with
@@ -1787,6 +2127,22 @@ theorem get?_zipWithAll {f : Option α → Option β → γ} :
 set_option linter.deprecated false in
 @[deprecated getElem?_zipWithAll (since := "2024-06-07")] abbrev zipWithAll_get? := @get?_zipWithAll
 
+@[simp] theorem zipWithAll_replicate {a : α} {b : β} {n : Nat} :
+    zipWithAll f (replicate n a) (replicate n b) = replicate n (f a b) := by
+  induction n with
+  | zero => rfl
+  | succ n ih => simp [replicate_succ, ih]
+
+/-! ### unzip -/
+
+@[simp] theorem unzip_replicate {n : Nat} {a : α} {b : β} :
+    unzip (replicate n (a, b)) = (replicate n a, replicate n b) := by
+  induction n with
+  | zero => rfl
+  | succ n ih => simp [replicate_succ, ih]
+
+/-! ## Ranges and enumeration -/
+
 /-! ### enumFrom -/
 
 @[simp] theorem enumFrom_length : ∀ {n} {l : List α}, (enumFrom n l).length = l.length
@@ -1799,6 +2155,8 @@ set_option linter.deprecated false in
   enumFrom_length
 
 theorem enum_cons : (a::as).enum = (0, a) :: as.enumFrom 1 := rfl
+
+/-! ## Minima and maxima -/
 
 /-! ### minimum? -/
 
@@ -1863,6 +2221,16 @@ theorem minimum?_eq_some_iff [Min α] [LE α] [anti : Antisymm ((· : α) ≤ ·
       ((le_minimum?_iff le_min_iff (xs := x::xs) rfl _).1 (le_refl _) _ h₁)
       (h₂ _ (minimum?_mem min_eq_or (xs := x::xs) rfl))
 
+theorem minimum?_replicate [Min α] {n : Nat} {a : α} (w : min a a = a) :
+    (replicate n a).minimum? = if n = 0 then none else some a := by
+  induction n with
+  | zero => rfl
+  | succ n ih => cases n <;> simp_all [replicate_succ, minimum?_cons]
+
+@[simp] theorem minimum?_replicate_of_pos [Min α] {n : Nat} {a : α} (w : min a a = a) (h : 0 < n) :
+    (replicate n a).minimum? = some a := by
+  simp [minimum?_replicate, Nat.ne_of_gt h, w]
+
 /-! ### maximum? -/
 
 @[simp] theorem maximum?_nil [Max α] : ([] : List α).maximum? = none := rfl
@@ -1909,6 +2277,18 @@ theorem maximum?_eq_some_iff [Max α] [LE α] [anti : Antisymm ((· : α) ≤ ·
     exact congrArg some <| anti.1
       (h₂ _ (maximum?_mem max_eq_or (xs := x::xs) rfl))
       ((maximum?_le_iff max_le_iff (xs := x::xs) rfl _).1 (le_refl _) _ h₁)
+
+theorem maximum?_replicate [Max α] {n : Nat} {a : α} (w : max a a = a) :
+    (replicate n a).maximum? = if n = 0 then none else some a := by
+  induction n with
+  | zero => rfl
+  | succ n ih => cases n <;> simp_all [replicate_succ, maximum?_cons]
+
+@[simp] theorem maximum?_replicate_of_pos [Max α] {n : Nat} {a : α} (w : max a a = a) (h : 0 < n) :
+    (replicate n a).maximum? = some a := by
+  simp [maximum?_replicate, Nat.ne_of_gt h, w]
+
+/-! ## Monadic operations -/
 
 /-! ### mapM -/
 

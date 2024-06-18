@@ -1575,19 +1575,30 @@ theorem dropWhile_append {xs ys : List α} :
     simp only [cons_append, dropWhile_cons]
     split <;> simp_all
 
-theorem takeWhile_replicate (p : α → Bool) : (replicate n a).takeWhile p = if p a then replicate n a else [] := by
+@[simp] theorem takeWhile_replicate_eq_filter (p : α → Bool) :
+    (replicate n a).takeWhile p = (replicate n a).filter p := by
   induction n with
   | zero => simp
   | succ n ih =>
     simp only [replicate_succ, takeWhile_cons]
     split <;> simp_all
 
-theorem dropWhile_replicate (p : α → Bool) : (replicate n a).dropWhile p = if p a then [] else replicate n a := by
+theorem takeWhile_replicate (p : α → Bool) :
+    (replicate n a).takeWhile p = if p a then replicate n a else [] := by
+  rw [takeWhile_replicate_eq_filter, filter_replicate]
+
+@[simp] theorem dropWhile_replicate_eq_filter_not (p : α → Bool) :
+    (replicate n a).dropWhile p = (replicate n a).filter (fun a => !p a) := by
   induction n with
   | zero => simp
   | succ n ih =>
     simp only [replicate_succ, dropWhile_cons]
     split <;> simp_all
+
+theorem dropWhile_replicate (p : α → Bool) :
+    (replicate n a).dropWhile p = if p a then [] else replicate n a := by
+  simp only [dropWhile_replicate_eq_filter_not, filter_replicate]
+  split <;> simp_all
 
 /-! ### partition -/
 
@@ -1985,7 +1996,7 @@ theorem map_snd_zip :
     show _ :: map Prod.snd (zip as bs) = _ :: bs
     rw [map_snd_zip as bs h]
 
--- See also `List.zip_replicate` in `Init.Data.List.TakeDrop`.
+/-- See also `List.zip_replicate` in `Init.Data.List.TakeDrop` for a generalization with different lengths. -/
 @[simp] theorem zip_replicate' {a : α} {b : β} {n : Nat} :
     zip (replicate n a) (replicate n b) = replicate n (a, b) := by
   induction n with
@@ -2082,7 +2093,7 @@ theorem zipWith_append (f : α → β → γ) (l la : List α) (l' lb : List β)
       simp only [length_cons, Nat.succ.injEq] at h
       simp [ih _ h]
 
--- See also `List.zipWith_replicate` in `Init.Data.List.TakeDrop`.
+/-- See also `List.zipWith_replicate` in `Init.Data.List.TakeDrop` for a generalization with different lengths. -/
 @[simp] theorem zipWith_replicate' {a : α} {b : β} {n : Nat} :
     zipWith f (replicate n a) (replicate n b) = replicate n (f a b) := by
   induction n with

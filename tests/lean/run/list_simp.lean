@@ -264,16 +264,14 @@ variable (h : n ≤ m) in
 
 -- minimum?
 
--- This would need `minimum?_cons_self_replicate` to regain confluence.
--- #check_simp (replicate (n+1) 7).minimum? ~> some 7
+#check_simp (replicate (n+1) 7).minimum? ~> some 7
 
 variable (h : 0 < n) in
 #check_tactic (replicate n 7).minimum? ~> some 7 by simp [h]
 
 -- maximum?
 
--- This would need `maximum?_cons_self_replicate` to regain confluence.
--- #check_simp (replicate (n+1) 7).maximum? ~> some 7
+#check_simp (replicate (n+1) 7).maximum? ~> some 7
 
 variable (h : 0 < n) in
 #check_tactic (replicate n 7).maximum? ~> some 7 by simp [h]

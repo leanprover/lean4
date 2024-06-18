@@ -194,9 +194,6 @@ def checkSystem : SynthM Unit := do
   Core.checkInterrupted
   Core.checkMaxHeartbeatsCore "typeclass" `synthInstance.maxHeartbeats (← read).maxHeartbeats
 
-@[inline] def mapMetaM (f : forall {α}, MetaM α → MetaM α) {α} : SynthM α → SynthM α :=
-  monadMap @f
-
 instance : Inhabited (SynthM α) where
   default := fun _ _ => default
 

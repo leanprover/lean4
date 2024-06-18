@@ -58,14 +58,19 @@ variable (m n : Nat)
 
 /-! ### replicate -/
 
-#check_simp y ∈ (replicate 7 x) ~> y = x
+#check_simp y ∈ replicate 0 x ~> False
 
--- It makes me very sad that the equality ends up the other way here.
--- This will take some fixing!
 variable [BEq α] in
-#check_simp (replicate 7 x).contains y ~> x == y
+#check_simp (replicate 0 x).contains y ~> false
 
--- And adding `LawfulBEq` switches it back the other way!
+variable [BEq α] [LawfulBEq α] in
+#check_simp (replicate 0 x).contains y ~> false
+
+#check_simp y ∈ replicate 7 x ~> y = x
+
+variable [BEq α] in
+#check_simp (replicate 7 x).contains y ~> y == x
+
 variable [BEq α] [LawfulBEq α] in
 #check_simp (replicate 7 x).contains y ~> y == x
 

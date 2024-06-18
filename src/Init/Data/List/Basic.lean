@@ -609,13 +609,13 @@ def isEmpty : List α → Bool
 -/
 def elem [BEq α] (a : α) : List α → Bool
   | []    => false
-  | b::bs => match b == a with
+  | b::bs => match a == b with
     | true  => true
     | false => elem a bs
 
 @[simp] theorem elem_nil [BEq α] : ([] : List α).elem a = false := rfl
 theorem elem_cons [BEq α] {a : α} :
-    (b::bs).elem a = match b == a with | true => true | false => bs.elem a := rfl
+    (b::bs).elem a = match a == b with | true => true | false => bs.elem a := rfl
 
 /-- `notElem a l` is `!(elem a l)`. -/
 @[deprecated (since := "2024-06-15")]
@@ -909,13 +909,13 @@ def rotateRight (xs : List α) (n : Nat := 1) : List α :=
 -/
 def replace [BEq α] : List α → α → α → List α
   | [],    _, _ => []
-  | a::as, b, c => match a == b with
+  | a::as, b, c => match b == a with
     | true  => c::as
     | false => a :: replace as b c
 
 @[simp] theorem replace_nil [BEq α] : ([] : List α).replace a b = [] := rfl
 theorem replace_cons [BEq α] {a : α} :
-    (a::as).replace b c = match a == b with | true => c::as | false => a :: replace as b c :=
+    (a::as).replace b c = match b == a with | true => c::as | false => a :: replace as b c :=
   rfl
 
 /-! ### insert -/

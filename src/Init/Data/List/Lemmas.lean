@@ -1123,7 +1123,7 @@ theorem bind_map (f : β → γ) (g : α → List β) :
 /-! ### replicate -/
 
 @[simp] theorem contains_replicate [BEq α] {n : Nat} {a b : α} :
-    (replicate n b).contains a = (b == a && !n == 0) := by
+    (replicate n b).contains a = (a == b && !n == 0) := by
   induction n with
   | zero => simp
   | succ n ih =>
@@ -1307,11 +1307,11 @@ theorem reverseAux_eq (as bs : List α) : reverseAux as bs = reverse as ++ bs :=
 /-! ### contains -/
 
 @[simp] theorem contains_cons [BEq α] :
-    (a :: as : List α).contains x = (a == x || as.contains x) := by
+    (a :: as : List α).contains x = (x == a || as.contains x) := by
   simp only [contains, elem]
   split <;> simp_all
 
-theorem contains_eq_any_beq [BEq α] (l : List α) (a : α) : l.contains a = l.any (· == a) := by
+theorem contains_eq_any_beq [BEq α] (l : List α) (a : α) : l.contains a = l.any (a == ·) := by
   induction l with simp | cons b l => cases b == a <;> simp [*]
 
 /-! ## Sublists -/
@@ -1651,7 +1651,7 @@ variable [BEq α]
     (replicate n a).replace a b = b :: replicate (n - 1) a := by
   cases n <;> simp_all [replace_cons]
 
-@[simp] theorem replace_replicate_ne {a b c : α} (h : !a == b) :
+@[simp] theorem replace_replicate_ne {a b c : α} (h : !b == a) :
     (replicate n a).replace b c = replicate n a := by
   rw [replace_of_not_mem]
   simp_all

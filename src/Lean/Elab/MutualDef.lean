@@ -846,7 +846,10 @@ private def levelMVarToParamHeaders (views : Array DefView) (headers : Array Def
   let rec process : StateRefT Nat TermElabM (Array DefViewElabHeader) := do
     let mut newHeaders := #[]
     for view in views, header in headers do
-      if ← pure view.kind.isTheorem <||> isProp header.type then
+      -- Remark: we should consider using `pure view.kind.isTheorem <||> isProp header.type`, and
+      -- also handle definitions. We used the following approach because it is less disruptive to Mathlib.
+      -- Moreover, the type of most definitions are not propositions anyway.
+      if ← pure view.kind.isTheorem <||> (pure view.kind.isExample <&&> isProp header.type) then
         newHeaders ←
           withLevelNames header.levelNames do
             return newHeaders.push { header with type := (← levelMVarToParam header.type), levelNames := (← getLevelNames) }

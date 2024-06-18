@@ -1,3 +1,12 @@
+open List
+
+variable {α : Type _}
+variable {x y : α}
+variable (l l₁ l₂ l₃ : List α)
+
+
+
+variable (m n : Nat)
 
 /-! ## Preliminaries -/
 
@@ -49,11 +58,22 @@
 
 /-! ### replicate -/
 
+#check_simp y ∈ (replicate 7 x) ~> y = x
+
+-- It makes me very sad that the equality ends up the other way here.
+-- This will take some fixing!
+variable [BEq α] in
+#check_simp (replicate 7 x).contains y ~> x == y
+
+-- And adding `LawfulBEq` switches it back the other way!
+variable [BEq α] [LawfulBEq α] in
+#check_simp (replicate 7 x).contains y ~> y == x
+
 /-! ### reverse -/
 
 /-! ## List membership -/
 
-/-! ### elem -/
+/-! ### elem / contains -/
 
 /-! ## Sublists -/
 
@@ -68,6 +88,9 @@
 /-! ### isPrefixOf -/
 
 /-! ### isSuffixOf -/
+
+variable [BEq α] in
+#check_simp ([] : List α).isSuffixOf l ~> true
 
 /-! ### rotateLeft -/
 

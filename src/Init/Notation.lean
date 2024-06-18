@@ -699,6 +699,12 @@ syntax  (name := checkTacticFailure) "#check_tactic_failure " term "by" tactic :
 syntax (name := checkSimp) "#check_simp " term "~>" term : command
 
 /--
+`#check_simp? t ~> r` checks `simp` reduces `t` to `r`,
+and also prints the `Try this: simp only [...]` message.
+-/
+syntax (name := checkSimp?) "#check_simp? " term "~>" term : command
+
+/--
 `#check_simp t !~>` checks `simp` fails on reducing `t`.
 -/
 syntax (name := checkSimpFailure) "#check_simp " term "!~>" : command

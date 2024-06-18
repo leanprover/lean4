@@ -366,6 +366,10 @@ theorem mem_iff_getElem? {a} {l : List α} : a ∈ l ↔ ∃ n : Nat, l[n]? = so
 theorem mem_iff_get? {a} {l : List α} : a ∈ l ↔ ∃ n, l.get? n = some a := by
   simp [getElem?_eq_some, Fin.exists_iff, mem_iff_get]
 
+@[simp] theorem decide_mem_cons [BEq α] [LawfulBEq α] {l : List α} :
+    decide (y ∈ a :: l) = (y == a || decide (y ∈ l)) := by
+  cases h : y == a <;> simp_all
+
 /-! ### set -/
 
 -- As `List.set` is defined in `Init.Prelude`, we write the basic simplification lemmas here.
@@ -1118,7 +1122,8 @@ theorem bind_map (f : β → γ) (g : α → List β) :
 
 /-! ### replicate -/
 
-@[simp] theorem contains_replicate [BEq α] {a b : α} : (replicate n b).contains a = (b == a && !n == 0) := by
+@[simp] theorem contains_replicate [BEq α] {n : Nat} {a b : α} :
+    (replicate n b).contains a = (b == a && !n == 0) := by
   induction n with
   | zero => simp
   | succ n ih =>

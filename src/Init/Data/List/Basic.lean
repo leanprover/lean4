@@ -566,8 +566,8 @@ def replicate : (n : Nat) → (a : α) → List α
   | 0,   _ => []
   | n+1, a => a :: replicate n a
 
-@[simp] theorem replicate_zero : replicate 0 a = [] := rfl
-@[simp] theorem replicate_succ (a : α) (n) : replicate (n+1) a = a :: replicate n a := rfl
+@[simp low] theorem replicate_zero : replicate 0 a = [] := rfl
+@[simp low] theorem replicate_succ (a : α) (n) : replicate (n+1) a = a :: replicate n a := rfl
 
 @[simp] theorem length_replicate (n : Nat) (a : α) : (replicate n a).length = n := by
   induction n <;> simp_all
@@ -615,7 +615,7 @@ def elem [BEq α] (a : α) : List α → Bool
 
 @[simp] theorem elem_nil [BEq α] : ([] : List α).elem a = false := rfl
 theorem elem_cons [BEq α] {a : α} :
-    (a::as).elem b = match a == b with | true => true | false => as.elem b := rfl
+    (b::bs).elem a = match b == a with | true => true | false => bs.elem a := rfl
 
 /-- `notElem a l` is `!(elem a l)`. -/
 @[deprecated (since := "2024-06-15")]

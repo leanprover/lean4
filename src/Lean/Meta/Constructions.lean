@@ -63,12 +63,12 @@ private def mkBRecOrBInductionOn (declName : Name) (ind : Bool) : MetaM Unit := 
     To support it, we will need to generate an auxiliary `below` for each nested inductive
     type since their default `below` is not good here. For example, at
     ```
-    inductive term
-    | var : string -> term
-    | app : string -> list term -> term
+    inductive Term
+    | var : String -> Term
+    | app : String -> List Term -> Term
     ```
-    The `list.below` is not useful since it will not allow us to recurse over the nested terms.
-    We need to generate another one using the auxiliary recursor `term.rec_1` for `list term`.
+    The `List.below` is not useful since it will not allow us to recurse over the nested terms.
+    We need to generate another one using the auxiliary recursor `Term.rec_1` for `List Term`.
     -/
     return
 

@@ -481,6 +481,49 @@ theorem mem_or_eq_of_mem_set : ∀ {l : List α} {n : Nat} {a b : α}, a ∈ l.s
 
 -- See also `set_eq_take_append_cons_drop` in `Init.Data.List.TakeDrop`.
 
+/-! ### Lexicographic ordering -/
+
+theorem lt_irrefl' [LT α] (lt_irrefl : ∀ x : α, ¬x < x) (l : List α) : ¬l < l := by
+  induction l with
+  | nil => nofun
+  | cons a l ih => intro
+    | .head _ _ h => exact lt_irrefl _ h
+    | .tail _ _ h => exact ih h
+
+theorem lt_trans' [LT α] [DecidableRel (@LT.lt α _)]
+    (lt_trans : ∀ {x y z : α}, x < y → y < z → x < z)
+    (le_trans : ∀ {x y z : α}, ¬x < y → ¬y < z → ¬x < z)
+    {l₁ l₂ l₃ : List α} (h₁ : l₁ < l₂) (h₂ : l₂ < l₃) : l₁ < l₃ := by
+  induction h₁ generalizing l₃ with
+  | nil => let _::_ := l₃; exact List.lt.nil ..
+  | @head a l₁ b l₂ ab =>
+    match h₂ with
+    | .head l₂ l₃ bc => exact List.lt.head _ _ (lt_trans ab bc)
+    | .tail _ cb ih =>
+      exact List.lt.head _ _ <| Decidable.by_contra (le_trans · cb ab)
+  | @tail a l₁ b l₂ ab ba h₁ ih2 =>
+    match h₂ with
+    | .head l₂ l₃ bc =>
+      exact List.lt.head _ _ <| Decidable.by_contra (le_trans ba · bc)
+    | .tail bc cb ih =>
+      exact List.lt.tail (le_trans ab bc) (le_trans cb ba) (ih2 ih)
+
+theorem lt_antisymm' [LT α]
+    (lt_antisymm : ∀ {x y : α}, ¬x < y → ¬y < x → x = y)
+    {l₁ l₂ : List α} (h₁ : ¬l₁ < l₂) (h₂ : ¬l₂ < l₁) : l₁ = l₂ := by
+  induction l₁ generalizing l₂ with
+  | nil =>
+    cases l₂ with
+    | nil => rfl
+    | cons b l₂ => cases h₁ (.nil ..)
+  | cons a l₁ ih =>
+    cases l₂ with
+    | nil => cases h₂ (.nil ..)
+    | cons b l₂ =>
+      have ab : ¬a < b := fun ab => h₁ (.head _ _ ab)
+      cases lt_antisymm ab (fun ba => h₂ (.head _ _ ba))
+      rw [ih (fun ll => h₁ (.tail ab ab ll)) (fun ll => h₂ (.tail ab ab ll))]
+
 /-! ### foldlM and foldrM -/
 
 @[simp] theorem foldlM_reverse [Monad m] (l : List α) (f : β → α → m β) (b) :
@@ -527,50 +570,6 @@ theorem foldl_map (f : β₁ → β₂) (g : α → β₂ → α) (l : List β�
 theorem foldr_map (f : α₁ → α₂) (g : α₂ → β → β) (l : List α₁) (init : β) :
     (l.map f).foldr g init = l.foldr (fun x y => g (f x) y) init := by
   induction l generalizing init <;> simp [*]
-
-/-! ### lt -/
-
-theorem lt_irrefl' [LT α] (lt_irrefl : ∀ x : α, ¬x < x) (l : List α) : ¬l < l := by
-  induction l with
-  | nil => nofun
-  | cons a l ih => intro
-    | .head _ _ h => exact lt_irrefl _ h
-    | .tail _ _ h => exact ih h
-
-theorem lt_trans' [LT α] [DecidableRel (@LT.lt α _)]
-    (lt_trans : ∀ {x y z : α}, x < y → y < z → x < z)
-    (le_trans : ∀ {x y z : α}, ¬x < y → ¬y < z → ¬x < z)
-    {l₁ l₂ l₃ : List α} (h₁ : l₁ < l₂) (h₂ : l₂ < l₃) : l₁ < l₃ := by
-  induction h₁ generalizing l₃ with
-  | nil => let _::_ := l₃; exact List.lt.nil ..
-  | @head a l₁ b l₂ ab =>
-    match h₂ with
-    | .head l₂ l₃ bc => exact List.lt.head _ _ (lt_trans ab bc)
-    | .tail _ cb ih =>
-      exact List.lt.head _ _ <| Decidable.by_contra (le_trans · cb ab)
-  | @tail a l₁ b l₂ ab ba h₁ ih2 =>
-    match h₂ with
-    | .head l₂ l₃ bc =>
-      exact List.lt.head _ _ <| Decidable.by_contra (le_trans ba · bc)
-    | .tail bc cb ih =>
-      exact List.lt.tail (le_trans ab bc) (le_trans cb ba) (ih2 ih)
-
-theorem lt_antisymm' [LT α]
-    (lt_antisymm : ∀ {x y : α}, ¬x < y → ¬y < x → x = y)
-    {l₁ l₂ : List α} (h₁ : ¬l₁ < l₂) (h₂ : ¬l₂ < l₁) : l₁ = l₂ := by
-  induction l₁ generalizing l₂ with
-  | nil =>
-    cases l₂ with
-    | nil => rfl
-    | cons b l₂ => cases h₁ (.nil ..)
-  | cons a l₁ ih =>
-    cases l₂ with
-    | nil => cases h₂ (.nil ..)
-    | cons b l₂ =>
-      have ab : ¬a < b := fun ab => h₁ (.head _ _ ab)
-      cases lt_antisymm ab (fun ba => h₂ (.head _ _ ba))
-      rw [ih (fun ll => h₁ (.tail ab ab ll)) (fun ll => h₂ (.tail ab ab ll))]
-
 
 /-! ### getD -/
 
@@ -645,6 +644,8 @@ theorem getLast?_eq_get? : ∀ (l : List α), getLast? l = l.get? (l.length - 1)
 @[simp] theorem getLastD_concat (a b l) : @getLastD α (l ++ [b]) a = b := by
   rw [getLastD_eq_getLast?, getLast?_concat]; rfl
 
+/-! ## Head and tail -/
+
 /-! ### head -/
 
 theorem head!_of_head? [Inhabited α] : ∀ {l : List α}, head? l = some a → head! l = a
@@ -657,6 +658,8 @@ theorem head?_eq_head : ∀ l h, @head? α l = some (head l h)
 
 @[simp] theorem tailD_eq_tail? (l l' : List α) : tailD l l' = (tail? l).getD l' := by
   cases l <;> rfl
+
+/-! ## Basic operations -/
 
 /-! ### map -/
 
@@ -1166,7 +1169,7 @@ theorem eq_replicate {a : α} {n} {l : List α} :
   ⟨fun h => h ▸ ⟨length_replicate .., fun _ => eq_of_mem_replicate⟩,
    fun ⟨e, al⟩ => e ▸ eq_replicate_of_mem al⟩
 
-theorem append_replicate_replicate : replicate n a ++ replicate m a = replicate (n + m) a := by
+@[simp] theorem append_replicate_replicate : replicate n a ++ replicate m a = replicate (n + m) a := by
   rw [eq_replicate]
   constructor
   · simp
@@ -1174,7 +1177,7 @@ theorem append_replicate_replicate : replicate n a ++ replicate m a = replicate 
     simp only [mem_append, mem_replicate, ne_eq]
     rintro (⟨-, rfl⟩ | ⟨_, rfl⟩) <;> rfl
 
-theorem map_replicate : (replicate n a).map f = replicate n (f a) := by
+@[simp] theorem map_replicate : (replicate n a).map f = replicate n (f a) := by
   ext1 n
   simp only [getElem?_map, getElem?_replicate]
   split <;> simp
@@ -1289,6 +1292,8 @@ theorem reverseAux_eq (as bs : List α) : reverseAux as bs = reverse as ++ bs :=
     ⟨by rw [length_reverse, length_replicate],
      fun b h => eq_of_mem_replicate (mem_reverse.1 h)⟩
 
+/-! ## List membership -/
+
 /-! ### elem -/
 
 @[simp] theorem elem_cons_self [BEq α] [LawfulBEq α] {a : α} : (a::as).elem a = true := by
@@ -1303,6 +1308,8 @@ theorem reverseAux_eq (as bs : List α) : reverseAux as bs = reverse as ++ bs :=
 
 theorem contains_eq_any_beq [BEq α] (l : List α) (a : α) : l.contains a = l.any (· == a) := by
   induction l with simp | cons b l => cases b == a <;> simp [*]
+
+/-! ## Sublists -/
 
 /-! ### take and drop
 
@@ -1613,6 +1620,18 @@ variable [BEq α]
 
 end isSuffixOf
 
+/-! ### rotateLeft -/
+
+@[simp] theorem rotateLeft_zero (l : List α) : rotateLeft l 0 = l := by
+  simp [rotateLeft]
+
+/-! ### rotateRight -/
+
+@[simp] theorem rotateRight_zero (l : List α) : rotateRight l 0 = l := by
+  simp [rotateRight]
+
+/-! ## Manipulating elements -/
+
 /-! ### replace -/
 section replace
 variable [BEq α]
@@ -1792,6 +1811,8 @@ theorem lookup_replicate_self {a : α} :
 
 end lookup
 
+/-! ## Logic -/
+
 /-! ### any / all -/
 
 @[simp] theorem any_eq_true {l : List α} : l.any p ↔ ∃ x, x ∈ l ∧ p x := by induction l <;> simp [*]
@@ -1825,6 +1846,8 @@ theorem any_eq_not_all_not (l : List α) (p : α → Bool) : l.any p = !l.all (!
 
 theorem all_eq_not_any_not (l : List α) (p : α → Bool) : l.all p = !l.any (!p .) := by
   simp only [not_any_eq_all_not, Bool.not_not]
+
+/-! ## Zippers -/
 
 /-! ### zip -/
 
@@ -2016,6 +2039,8 @@ set_option linter.deprecated false in
   | zero => rfl
   | succ n ih => simp [replicate_succ, ih]
 
+/-! ## Ranges and enumeration -/
+
 /-! ### enumFrom -/
 
 @[simp] theorem enumFrom_length : ∀ {n} {l : List α}, (enumFrom n l).length = l.length
@@ -2028,6 +2053,8 @@ set_option linter.deprecated false in
   enumFrom_length
 
 theorem enum_cons : (a::as).enum = (0, a) :: as.enumFrom 1 := rfl
+
+/-! ## Minima and maxima -/
 
 /-! ### minimum? -/
 
@@ -2158,6 +2185,8 @@ theorem maximum?_replicate [Max α] {n : Nat} {a : α} (w : max a a = a) :
 @[simp] theorem maximum?_replicate_of_pos [Max α] {n : Nat} {a : α} (w : max a a = a) (h : 0 < n) :
     (replicate n a).maximum? = some a := by
   simp [maximum?_replicate, Nat.ne_of_gt h, w]
+
+/-! ## Monadic operations -/
 
 /-! ### mapM -/
 

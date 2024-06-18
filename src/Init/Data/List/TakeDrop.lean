@@ -303,6 +303,32 @@ theorem take_reverse {α} {xs : List α} (n : Nat) (h : n ≤ xs.length) :
 
 @[deprecated (since := "2024-06-15")] abbrev reverse_take := @take_reverse
 
+/-! ### rotateLeft -/
+
+@[simp] theorem rotateLeft_replicate (n) (a : α) : rotateLeft (replicate m a) n = replicate m a := by
+  cases n with
+  | zero => simp
+  | succ n =>
+    suffices 1 < m → m - (n + 1) % m + min ((n + 1) % m) m = m by
+      simpa [rotateLeft]
+    intro h
+    rw [Nat.min_eq_left (Nat.le_of_lt (Nat.mod_lt _ (by omega)))]
+    have : (n + 1) % m < m := Nat.mod_lt _ (by omega)
+    omega
+
+/-! ### rotateLeft -/
+
+@[simp] theorem rotateRight_replicate (n) (a : α) : rotateRight (replicate m a) n = replicate m a := by
+  cases n with
+  | zero => simp
+  | succ n =>
+    suffices 1 < m → m - (m - (n + 1) % m) + min (m - (n + 1) % m) m = m by
+      simpa [rotateRight]
+    intro h
+    have : (n + 1) % m < m := Nat.mod_lt _ (by omega)
+    rw [Nat.min_eq_left (by omega)]
+    omega
+
 /-! ### zipWith -/
 
 @[simp] theorem length_zipWith (f : α → β → γ) (l₁ l₂) :

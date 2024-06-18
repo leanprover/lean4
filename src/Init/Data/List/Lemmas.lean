@@ -156,7 +156,7 @@ theorem getElem?_len_le : ∀ {l : List α} {n}, length l ≤ n → l[n]? = none
   | _ :: l, _+1, h => by
     rw [getElem?_cons_succ, getElem?_len_le (l := l) <| Nat.le_of_succ_le_succ h]
 
-theorem getElem?_eq_getElem {l : List α} {n} (h : n < l.length) : l[n]? = some l[n] := by
+@[simp] theorem getElem?_eq_getElem {l : List α} {n} (h : n < l.length) : l[n]? = some l[n] := by
   simp only [← get?_eq_getElem?, get?_eq_get, h, get_eq_getElem]
 
 theorem getElem?_eq_some {l : List α} : l[n]? = some a ↔ ∃ h : n < l.length, l[n] = a := by
@@ -247,9 +247,12 @@ theorem ext_get {l₁ l₂ : List α} (hl : length l₁ = length l₂)
     (h : ∀ n h₁ h₂, get l₁ ⟨n, h₁⟩ = get l₂ ⟨n, h₂⟩) : l₁ = l₂ :=
   ext_getElem hl (by simp_all)
 
-@[simp] theorem getElem?_concat_length : ∀ (l : List α) (a : α), (l ++ [a])[l.length]? = some a
-  | [], a => rfl
-  | b :: l, a => by rw [cons_append, length_cons]; simp [getElem?_concat_length]
+@[simp] theorem getElem_concat_length : ∀ (l : List α) (a : α) (i) (_ : i = l.length) (w), (l ++ [a])[i]'w = a
+  | [], a, _, h, _ => by subst h; simp
+  | _ :: l, a, _, h, _ => by simp [getElem_concat_length, h]
+
+theorem getElem?_concat_length (l : List α) (a : α) : (l ++ [a])[l.length]? = some a := by
+  simp
 
 @[deprecated getElem?_concat_length (since := "2024-06-12")]
 theorem get?_concat_length (l : List α) (a : α) : (l ++ [a]).get? l.length = some a := by simp

@@ -1775,15 +1775,12 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
         | LBool.true => return LBool.true
         | LBool.false => return LBool.false
         | _ =>
-          if tFn.isMVar || sFn.isMVar then
-            let ctx ← read
-            if ctx.config.isDefEqStuckEx then do
-              trace[Meta.isDefEq.stuck] "{t} =?= {s}"
-              Meta.throwIsDefEqStuck
-            else
-              return LBool.false
+          let ctx ← read
+          if ctx.config.isDefEqStuckEx then do
+            trace[Meta.isDefEq.stuck] "{t} =?= {s}"
+            Meta.throwIsDefEqStuck
           else
-            return LBool.undef
+            return LBool.false
       else
         isDefEqQuickMVarMVar t s
 

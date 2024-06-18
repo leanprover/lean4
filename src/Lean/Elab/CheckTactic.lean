@@ -77,11 +77,6 @@ def expandCheckSimp : Macro := fun stx => do
   let `(#check_simp $t ~> $exp) := stx | Macro.throwUnsupported
   `(command|#check_tactic $t ~> $exp by simp)
 
-@[builtin_macro Lean.Parser.checkSimp?]
-def expandCheckSimp? : Macro := fun stx => do
-  let `(#check_simp? $t ~> $exp) := stx | Macro.throwUnsupported
-  `(command|#check_tactic $t ~> $exp by simp?)
-
 @[builtin_macro Lean.Parser.checkSimpFailure]
 def expandCheckSimpFailure : Macro := fun stx => do
   let `(#check_simp $t !~>) := stx | Macro.throwUnsupported

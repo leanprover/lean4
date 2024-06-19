@@ -34,22 +34,22 @@ protected def lift (x : m α) : StateRefT' ω σ m α :=
 
 instance [Monad m] : Monad (StateRefT' ω σ m) := inferInstanceAs (Monad (ReaderT _ _))
 instance : MonadLift m (StateRefT' ω σ m) := ⟨StateRefT'.lift⟩
-instance (σ m) [Monad m] : MonadFunctor m (StateRefT' ω σ m) := inferInstanceAs (MonadFunctor m (ReaderT _ _))
+instance (σ m) : MonadFunctor m (StateRefT' ω σ m) := inferInstanceAs (MonadFunctor m (ReaderT _ _))
 instance [Alternative m] [Monad m] : Alternative (StateRefT' ω σ m) := inferInstanceAs (Alternative (ReaderT _ _))
 
 @[inline]
-protected def get [Monad m] [MonadLiftT (ST ω) m] : StateRefT' ω σ m σ :=
+protected def get [MonadLiftT (ST ω) m] : StateRefT' ω σ m σ :=
   fun ref => ref.get
 
 @[inline]
-protected def set [Monad m] [MonadLiftT (ST ω) m] (s : σ) : StateRefT' ω σ m PUnit :=
+protected def set [MonadLiftT (ST ω) m] (s : σ) : StateRefT' ω σ m PUnit :=
   fun ref => ref.set s
 
 @[inline]
-protected def modifyGet [Monad m] [MonadLiftT (ST ω) m] (f : σ → α × σ) : StateRefT' ω σ m α :=
+protected def modifyGet [MonadLiftT (ST ω) m] (f : σ → α × σ) : StateRefT' ω σ m α :=
   fun ref => ref.modifyGet f
 
-instance [MonadLiftT (ST ω) m] [Monad m] : MonadStateOf σ (StateRefT' ω σ m) where
+instance [MonadLiftT (ST ω) m] : MonadStateOf σ (StateRefT' ω σ m) where
   get       := StateRefT'.get
   set       := StateRefT'.set
   modifyGet := StateRefT'.modifyGet

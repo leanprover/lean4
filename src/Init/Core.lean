@@ -642,7 +642,7 @@ instance : LawfulBEq String := inferInstance
 
 /-! # Logical connectives and equality -/
 
-@[inherit_doc True.intro] def trivial : True := ⟨⟩
+@[inherit_doc True.intro] theorem trivial : True := ⟨⟩
 
 theorem mt {a b : Prop} (h₁ : a → b) (h₂ : ¬b) : ¬a :=
   fun ha => h₂ (h₁ ha)
@@ -1173,7 +1173,7 @@ def Prod.lexLt [LT α] [LT β] (s : α × β) (t : α × β) : Prop :=
   s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)
 
 instance Prod.lexLtDec
-    [LT α] [LT β] [DecidableEq α] [DecidableEq β]
+    [LT α] [LT β] [DecidableEq α]
     [(a b : α) → Decidable (a < b)] [(a b : β) → Decidable (a < b)]
     : (s t : α × β) → Decidable (Prod.lexLt s t) :=
   fun _ _ => inferInstanceAs (Decidable (_ ∨ _))

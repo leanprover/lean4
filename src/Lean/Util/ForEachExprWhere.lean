@@ -16,8 +16,6 @@ if the number of subterms satisfying `p` is a small subset of the set of subterm
 If `p` holds for most subterms, then it is more efficient to use `forEach f e`.
 -/
 
-variable {ω : Type} {m : Type → Type} [STWorld ω m] [MonadLiftT (ST ω) m] [Monad m]
-
 namespace ForEachExprWhere
 abbrev cacheSize : USize := 8192 - 1
 
@@ -37,7 +35,9 @@ unsafe def initCache : State := {
   checked := {}
 }
 
-abbrev ForEachM {ω : Type} (m : Type → Type) [STWorld ω m] [MonadLiftT (ST ω) m] [Monad m] := StateRefT' ω State m
+abbrev ForEachM {ω : Type} (m : Type → Type) [STWorld ω m] := StateRefT' ω State m
+
+variable {ω : Type} {m : Type → Type} [STWorld ω m] [MonadLiftT (ST ω) m] [Monad m]
 
 unsafe def visited (e : Expr) : ForEachM m Bool := do
   let s ← get

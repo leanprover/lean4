@@ -353,7 +353,7 @@ part. `act` is then run on the inner part but with reuse information adjusted as
 For any tactic that participates in reuse, `withNarrowedTacticReuse` should be applied to the
 tactic's syntax and `act` should be used to do recursive tactic evaluation of nested parts.
 -/
-def withNarrowedTacticReuse [Monad m] [MonadExceptOf Exception m] [MonadWithReaderOf Context m]
+def withNarrowedTacticReuse [Monad m] [MonadWithReaderOf Context m]
     [MonadOptions m] [MonadRef m] (split : Syntax → Syntax × Syntax) (act : Syntax → m α)
     (stx : Syntax) : m α := do
   let (outer, inner) := split stx
@@ -377,7 +377,7 @@ NOTE: child nodes after `argIdx` are not tested (which would almost always disab
 necessarily shifted by changes at `argIdx`) so it must be ensured that the result of `arg` does not
 depend on them (i.e. they should not be inspected beforehand).
 -/
-def withNarrowedArgTacticReuse [Monad m] [MonadExceptOf Exception m] [MonadWithReaderOf Context m]
+def withNarrowedArgTacticReuse [Monad m] [MonadWithReaderOf Context m]
     [MonadOptions m] [MonadRef m] (argIdx : Nat) (act : Syntax → m α) (stx : Syntax) : m α :=
   withNarrowedTacticReuse (fun stx => (mkNullNode stx.getArgs[:argIdx], stx[argIdx])) act stx
 
@@ -387,7 +387,7 @@ to `none`. This should be done for tactic blocks that are run multiple times as 
 reported progress will jump back and forth (and partial reuse for these kinds of tact blocks is
 similarly questionable).
 -/
-def withoutTacticIncrementality [Monad m] [MonadWithReaderOf Context m] [MonadOptions m] [MonadRef m]
+def withoutTacticIncrementality [Monad m] [MonadWithReaderOf Context m] [MonadOptions m]
     (cond : Bool) (act : m α) : m α := do
   let opts ← getOptions
   withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.filter fun tacSnap => Id.run do
@@ -398,7 +398,7 @@ def withoutTacticIncrementality [Monad m] [MonadWithReaderOf Context m] [MonadOp
   }) act
 
 /-- Disables incremental tactic reuse for `act` if `cond` is true. -/
-def withoutTacticReuse [Monad m] [MonadWithReaderOf Context m] [MonadOptions m] [MonadRef m]
+def withoutTacticReuse [Monad m] [MonadWithReaderOf Context m] [MonadOptions m]
     (cond : Bool) (act : m α) : m α := do
   let opts ← getOptions
   withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.map fun tacSnap =>

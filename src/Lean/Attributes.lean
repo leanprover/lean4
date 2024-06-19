@@ -185,7 +185,7 @@ structure ParametricAttributeImpl (α : Type) extends AttributeImplCore where
   afterSet : Name → α → AttrM Unit := fun _ _ _ => pure ()
   afterImport : Array (Array (Name × α)) → ImportM Unit := fun _ => pure ()
 
-def registerParametricAttribute [Inhabited α] (impl : ParametricAttributeImpl α) : IO (ParametricAttribute α) := do
+def registerParametricAttribute (impl : ParametricAttributeImpl α) : IO (ParametricAttribute α) := do
   let ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α) ← registerPersistentEnvExtension {
     name            := impl.ref
     mkInitial       := pure {}
@@ -239,7 +239,7 @@ structure EnumAttributes (α : Type) where
   ext   : PersistentEnvExtension (Name × α) (Name × α) (NameMap α)
   deriving Inhabited
 
-def registerEnumAttributes [Inhabited α] (attrDescrs : List (Name × String × α))
+def registerEnumAttributes (attrDescrs : List (Name × String × α))
     (validate : Name → α → AttrM Unit := fun _ _ => pure ())
     (applicationTime := AttributeApplicationTime.afterTypeChecking)
     (ref : Name := by exact decl_name%) : IO (EnumAttributes α) := do

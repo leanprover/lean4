@@ -184,8 +184,7 @@ theorem msb_eq_getLsb_last (x : BitVec w) :
     · simp only [h]
       rw [Nat.div_eq_sub_div (Nat.two_pow_pos w) h, Nat.div_eq_of_lt]
       · decide
-      · have : BitVec.toNat x < 2^w + 2^w := by simpa [Nat.pow_succ, Nat.mul_two] using x.isLt
-        omega
+      · omega
 
 @[bv_toNat] theorem getLsb_succ_last (x : BitVec (w + 1)) :
     x.getLsb w = decide (2 ^ w ≤ x.toNat) := getLsb_last x
@@ -331,10 +330,7 @@ theorem toNat_eq_nat (x : BitVec w) (y : Nat)
   : (x.toNat = y) ↔ (y < 2^w ∧ (x = BitVec.ofNat w y)) := by
   apply Iff.intro
   · intro eq
-    simp at eq
-    have lt := x.isLt
-    simp [eq] at lt
-    simp [←eq, lt, x.isLt]
+    simp [←eq, x.isLt]
   · intro eq
     simp [Nat.mod_eq_of_lt, eq]
 
@@ -1240,11 +1236,7 @@ x.rotateLeft 2 = (<6 5 | 4 3 2 1 0>).rotateLeft 2 = <3 2 1 0 | 6 5>
 theorem getLsb_rotateLeftAux_of_le {x : BitVec w} {r : Nat} {i : Nat} (hi : i < r) :
     (x.rotateLeftAux r).getLsb i = x.getLsb (w - r + i) := by
   rw [rotateLeftAux, getLsb_or, getLsb_ushiftRight]
-  suffices (x <<< r).getLsb i = false by
-    simp; omega
-  simp only [getLsb_shiftLeft, Bool.and_eq_false_imp, Bool.and_eq_true, decide_eq_true_eq,
-    Bool.not_eq_true', decide_eq_false_iff_not, Nat.not_lt, and_imp]
-  omega
+  simp; omega
 
 /--
 Accessing bits in `x.rotateLeft r` the range `[r, w)` is equal to

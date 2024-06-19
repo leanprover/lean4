@@ -175,7 +175,7 @@ def ppOrigin [Monad m] [MonadEnv m] [MonadError m] : Origin → m MessageData
   | .stx _ ref => return ref
   | .other n => return n
 
-def ppSimpTheorem [Monad m] [MonadLiftT IO m] [MonadEnv m] [MonadError m] (s : SimpTheorem) : m MessageData := do
+def ppSimpTheorem [Monad m] [MonadEnv m] [MonadError m] (s : SimpTheorem) : m MessageData := do
   let perm := if s.perm then ":perm" else ""
   let name ← ppOrigin s.origin
   let prio := m!":{s.priority}"

@@ -100,14 +100,14 @@ private def partitionDependentMVars (mvars : Array Expr) : MetaM (Array MVarId �
     else
       return (nonDeps.push currMVarId, deps)
 
-private def reorderGoals (mvars : Array Expr) : ApplyNewGoals → MetaM (List MVarId)
-  | ApplyNewGoals.nonDependentFirst => do
+def reorderGoals (mvars : Array Expr) : ApplyNewGoals → MetaM (List MVarId)
+  | .nonDependentFirst => do
       let (nonDeps, deps) ← partitionDependentMVars mvars
       return nonDeps.toList ++ deps.toList
-  | ApplyNewGoals.nonDependentOnly => do
+  | .nonDependentOnly => do
       let (nonDeps, _) ← partitionDependentMVars mvars
       return nonDeps.toList
-  | ApplyNewGoals.all => return mvars.toList.map Lean.Expr.mvarId!
+  | .all => return mvars.toList.map Lean.Expr.mvarId!
 
 /-- Custom `isDefEq` for the `apply` tactic -/
 private def isDefEqApply (cfg : ApplyConfig) (a b : Expr) : MetaM Bool := do
@@ -169,8 +169,8 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
     let e ← instantiateMVars e
     mvarId.assign (mkAppN e newMVars)
     let newMVars ← newMVars.filterM fun mvar => not <$> mvar.mvarId!.isAssigned
-    let otherMVarIds ← getMVarsNoDelayed e
     let newMVarIds ← reorderGoals newMVars cfg.newGoals
+    let otherMVarIds ← getMVarsNoDelayed e
     let otherMVarIds := otherMVarIds.filter fun mvarId => !newMVarIds.contains mvarId
     let result := newMVarIds ++ otherMVarIds.toList
     result.forM (·.headBetaType)

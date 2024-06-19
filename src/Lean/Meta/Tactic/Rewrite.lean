@@ -56,11 +56,12 @@ def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
           let eqPrf := mkApp6 (.const ``congrArg [u1, u2]) α eType lhs rhs motive heq
           postprocessAppMVars `rewrite mvarId newMVars binderInfos
             (synthAssignedInstances := !tactic.skipAssignedInstances.get (← getOptions))
-          let newMVarIds ← newMVars.map Expr.mvarId! |>.filterM fun mvarId => not <$> mvarId.isAssigned
+          let newMVars ← newMVars.filterM fun mvar => not <$> mvar.mvarId!.isAssigned
+          let newMVarIds ← reorderGoals newMVars config.newGoals
           let otherMVarIds ← getMVarsNoDelayed heqIn
           let otherMVarIds := otherMVarIds.filter (!newMVarIds.contains ·)
-          let newMVarIds := newMVarIds ++ otherMVarIds
-          pure { eNew := eNew, eqProof := eqPrf, mvarIds := newMVarIds.toList }
+          let newMVarIds := newMVarIds ++ otherMVarIds.toList
+          pure { eNew := eNew, eqProof := eqPrf, mvarIds := newMVarIds }
         match symm with
         | false => cont heq heqType lhs rhs
         | true  => do

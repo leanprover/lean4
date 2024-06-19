@@ -129,7 +129,15 @@ def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
         eraseRecAppSyntaxExpr value
       /- `mkFix` invokes `decreasing_tactic` which may add auxiliary theorems to the environment. -/
       let value ← unfoldDeclsFrom envNew value
-      return { unaryPreDef with value }
+      let unaryPreDef := { unaryPreDef with value }
+      /-
+      We must remove `implemented_by` attributes from the auxiliary application because
+      this attribute is only relevant for code that is compiled. Moreover, the `[implemented_by <decl>]`
+      attribute would check whether the `unaryPreDef` type matches with `<decl>`'s type, and produce
+      and error. See issue #2899
+      -/
+      let unaryPreDef := unaryPreDef.filterAttrs fun attr => attr.name != `implemented_by
+      return unaryPreDef
   trace[Elab.definition.wf] ">> {preDefNonRec.declName} :=\n{preDefNonRec.value}"
   let preDefs ← preDefs.mapM fun d => eraseRecAppSyntax d
   -- Do not complain if the user sets @[semireducible], which usually is a noop,

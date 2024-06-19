@@ -43293,7 +43293,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_ctor_get(x_1, 1);
-x_8 = lean_nat_dec_eq(x_6, x_2);
+x_8 = lean_nat_dec_eq(x_2, x_6);
 if (x_8 == 0)
 {
 lean_object* x_9; 
@@ -43316,7 +43316,7 @@ x_11 = lean_ctor_get(x_1, 1);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_dec(x_1);
-x_12 = lean_nat_dec_eq(x_10, x_2);
+x_12 = lean_nat_dec_eq(x_2, x_10);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 

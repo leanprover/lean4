@@ -442,7 +442,7 @@ lean_inc(x_5);
 lean_dec(x_2);
 x_6 = lean_unbox_uint32(x_4);
 lean_dec(x_4);
-x_7 = lean_uint32_dec_eq(x_6, x_1);
+x_7 = lean_uint32_dec_eq(x_1, x_6);
 if (x_7 == 0)
 {
 x_2 = x_5;

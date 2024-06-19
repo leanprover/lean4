@@ -64,7 +64,7 @@ info: [Meta.debug] (Add.add => (node
     (* => (node #[5]))
     (Nat.add => (node (0 => (node (20 => (node #[3]))))))
 [Meta.debug] #[5, 1]
-[Meta.debug] Add.add ?m.4906 ?m.4906
+[Meta.debug] Add.add ?m.4899 ?m.4899
 [Meta.debug] #[5]
 [Meta.debug] #[5, 1, 4, 2]
 [Meta.debug] #[1, 4, 2, 5, 3]

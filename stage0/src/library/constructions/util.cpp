@@ -12,12 +12,6 @@ Author: Leonardo de Moura
 namespace lean {
 static name * g_constructions_fresh = nullptr;
 
-extern "C" object * lean_completion_add_to_black_list(object * env, object * n);
-
-environment completion_add_to_black_list(environment const & env, name const & decl_name) {
-    return environment(lean_completion_add_to_black_list(env.to_obj_arg(), decl_name.to_obj_arg()));
-}
-
 static level get_level(type_checker & ctx, expr const & A) {
     expr S = ctx.whnf(ctx.infer(A));
     if (!is_sort(S))

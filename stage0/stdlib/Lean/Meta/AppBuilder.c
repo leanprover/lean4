@@ -493,7 +493,7 @@ static lean_object* l_Lean_Meta_mkEqMPR___closed__1;
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_hasAssignableLevelMVar___at___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppMFinal___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkNoConfusion___closed__4;
-lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkProjection(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkNoConfusion___closed__2;
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -789,7 +789,7 @@ x_12 = 1;
 x_13 = 1;
 lean_inc(x_3);
 lean_inc(x_10);
-x_14 = l_Lean_Meta_mkLambdaFVars(x_10, x_3, x_11, x_12, x_13, x_4, x_5, x_6, x_7, x_8);
+x_14 = l_Lean_Meta_mkLambdaFVars(x_10, x_3, x_11, x_12, x_11, x_13, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; 
@@ -825,7 +825,7 @@ x_22 = lean_ctor_get(x_20, 1);
 lean_inc(x_22);
 lean_dec(x_20);
 lean_inc(x_18);
-x_23 = l_Lean_Meta_mkLambdaFVars(x_10, x_18, x_11, x_12, x_13, x_4, x_5, x_6, x_7, x_22);
+x_23 = l_Lean_Meta_mkLambdaFVars(x_10, x_18, x_11, x_12, x_11, x_13, x_4, x_5, x_6, x_7, x_22);
 if (lean_obj_tag(x_23) == 0)
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; 
@@ -4133,7 +4133,7 @@ x_10 = l_Lean_Expr_app___override(x_2, x_1);
 x_11 = 0;
 x_12 = 1;
 x_13 = 1;
-x_14 = l_Lean_Meta_mkLambdaFVars(x_9, x_10, x_11, x_12, x_13, x_3, x_4, x_5, x_6, x_7);
+x_14 = l_Lean_Meta_mkLambdaFVars(x_9, x_10, x_11, x_12, x_11, x_13, x_3, x_4, x_5, x_6, x_7);
 return x_14;
 }
 }
@@ -4636,7 +4636,7 @@ x_13 = l_Lean_Expr_beta(x_2, x_12);
 x_14 = 0;
 x_15 = 1;
 x_16 = 1;
-x_17 = l_Lean_Meta_mkLambdaFVars(x_10, x_13, x_14, x_15, x_16, x_4, x_5, x_6, x_7, x_8);
+x_17 = l_Lean_Meta_mkLambdaFVars(x_10, x_13, x_14, x_15, x_14, x_16, x_4, x_5, x_6, x_7, x_8);
 return x_17;
 }
 }
@@ -5573,7 +5573,7 @@ x_14 = l_Lean_Expr_beta(x_2, x_13);
 x_15 = 0;
 x_16 = 1;
 x_17 = 1;
-x_18 = l_Lean_Meta_mkLambdaFVars(x_10, x_14, x_15, x_16, x_17, x_4, x_5, x_6, x_7, x_8);
+x_18 = l_Lean_Meta_mkLambdaFVars(x_10, x_14, x_15, x_16, x_15, x_17, x_4, x_5, x_6, x_7, x_8);
 return x_18;
 }
 }

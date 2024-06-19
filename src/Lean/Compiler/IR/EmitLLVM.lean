@@ -178,14 +178,14 @@ def callLeanUnsignedToNatFn (builder : LLVM.Builder llvmctx)
   let nv ← constIntUnsigned n
   LLVM.buildCall2 builder fnty f #[nv] name
 
-def callLeanMkStringFromBytesFn (builder : LLVM.Builder llvmctx)
-    (strPtr nBytes : LLVM.Value llvmctx) (name : String) : M llvmctx (LLVM.Value llvmctx) := do
-  let fnName :=  "lean_mk_string_from_bytes"
+def callLeanMkStringUncheckedFn (builder : LLVM.Builder llvmctx)
+    (strPtr nBytes nChars : LLVM.Value llvmctx) (name : String) : M llvmctx (LLVM.Value llvmctx) := do
+  let fnName :=  "lean_mk_string_unchecked"
   let retty ← LLVM.voidPtrType llvmctx
-  let argtys :=  #[← LLVM.voidPtrType llvmctx, ← LLVM.size_tType llvmctx]
+  let argtys :=  #[← LLVM.voidPtrType llvmctx, ← LLVM.size_tType llvmctx, ← LLVM.size_tType llvmctx]
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
   let fnty ← LLVM.functionType retty argtys
-  LLVM.buildCall2 builder fnty fn #[strPtr, nBytes] name
+  LLVM.buildCall2 builder fnty fn #[strPtr, nBytes, nChars] name
 
 def callLeanMkString (builder : LLVM.Builder llvmctx)
     (strPtr : LLVM.Value llvmctx) (name : String) : M llvmctx (LLVM.Value llvmctx) := do
@@ -772,7 +772,8 @@ def emitLit (builder : LLVM.Builder llvmctx)
                                 (← LLVM.opaquePointerTypeInContext llvmctx)
                                 str_global #[zero] ""
                  let nbytes ← constIntSizeT v.utf8ByteSize
-                 callLeanMkStringFromBytesFn builder strPtr nbytes ""
+                 let nchars ← constIntSizeT v.length
+                 callLeanMkStringUncheckedFn builder strPtr nbytes nchars ""
   LLVM.buildStore builder zv zslot
   return zslot
 

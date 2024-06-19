@@ -140,6 +140,26 @@ times, here is a summary of what it has to do to implement incrementality:
     a wildcard pattern
 -/
 
+/-
+# Note [Incremental Macros]
+
+If we have a macro, we can cheaply support incrementality: as a macro is a pure function, if all
+outputs apart from the expanded syntax tree itself are identical in two document versions, we can
+simply delegate reuse detection to the subsequently called elaborator. All we have to do is to
+forward the old unfolding, if any, to it in the appropriate context field and store the new
+unfolding for that purpose in a new snapshot node whose child will be filled by the called
+elaborator. This is currently implemented for command and tactic macros.
+
+Caveat 1: Traces are an additional output of macro expansion but because they are hard to compare
+and should not be active in standard use cases, we disable incrementality if either version produced
+traces.
+
+Caveat 2: As the default `ref` of a macro spans its entire syntax tree and is applied to any token
+created from a quotation, the ref usually has to be changed to a less variable source using
+`withRef` to achieve effective incrementality. See `Elab.Command.expandNamespacedDeclaration` for a
+simple example and the implementation of tactic `have` for a complex example.
+-/
+
 set_option linter.missingDocs true
 
 namespace Lean.Language.Lean

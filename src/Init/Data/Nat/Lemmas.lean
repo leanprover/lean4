@@ -180,7 +180,7 @@ protected theorem sub_add_lt_sub (h₁ : m + k ≤ n) (h₂ : 0 < k) : n - (m + 
   rw [← Nat.sub_sub]; exact Nat.sub_lt_of_pos_le h₂ (Nat.le_sub_of_add_le' h₁)
 
 theorem sub_one_lt_of_le (h₀ : 0 < a) (h₁ : a ≤ b) : a - 1 < b :=
-  Nat.lt_of_lt_of_le (Nat.pred_lt' h₀) h₁
+  Nat.lt_of_lt_of_le (Nat.pred_lt_of_lt h₀) h₁
 
 theorem sub_lt_succ (a b) : a - b < succ a := lt_succ_of_le (sub_le a b)
 
@@ -802,6 +802,11 @@ theorem shiftRight_succ_inside : ∀m n, m >>> (n+1) = (m/2) >>> n
   | 0 => by simp [shiftRight]
   | n + 1 => by simp [shiftRight, zero_shiftRight n, shiftRight_succ]
 
+theorem shiftLeft_add (m n : Nat) : ∀ k, m <<< (n + k) = (m <<< n) <<< k
+  | 0 => rfl
+  | k + 1 => by simp [← Nat.add_assoc, shiftLeft_add _ _ k, shiftLeft_succ]
+
+@[deprecated shiftLeft_add (since := "2024-06-02")]
 theorem shiftLeft_shiftLeft (m n : Nat) : ∀ k, (m <<< n) <<< k = m <<< (n + k)
   | 0 => rfl
   | k + 1 => by simp [← Nat.add_assoc, shiftLeft_shiftLeft _ _ k, shiftLeft_succ]

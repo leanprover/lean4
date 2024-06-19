@@ -46,7 +46,6 @@ We'll use `v4.6.0` as the intended release version as a running example.
   - We do this for the repositories:
     - [lean4checker](https://github.com/leanprover/lean4checker)
       - No dependencies
-      - Note: `lean4checker` uses a different version tagging scheme: use `toolchain/v4.6.0` rather than `v4.6.0`.
       - Toolchain bump PR
       - Create and push the tag
       - Merge the tag into `stable`
@@ -82,10 +81,8 @@ We'll use `v4.6.0` as the intended release version as a running example.
       - Dependencies: `Aesop`, `ProofWidgets4`, `lean4checker`, `Batteries`, `doc-gen4`, `import-graph`
       - Toolchain bump PR notes:
         - In addition to updating the `lean-toolchain` and `lakefile.lean`,
-          in `.github/workflows/build.yml.in` in the `lean4checker` section update the line
-          `git checkout toolchain/v4.6.0` to the appropriate tag,
-          and then run `.github/workflows/mk_build_yml.sh`. Coordinate with
-          a Mathlib maintainer to get this merged.
+          in `.github/workflows/lean4checker.yml` update the line
+          `git checkout v4.6.0` to the appropriate tag. 
         - Push the PR branch to the main Mathlib repository rather than a fork, or CI may not work reliably
         - Create and push the tag
         - Create a new branch from the tag, push it, and open a pull request against `stable`.

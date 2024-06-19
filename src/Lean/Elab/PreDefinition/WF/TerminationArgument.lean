@@ -86,21 +86,23 @@ def TerminationArgument.delab (termArg : TerminationArgument) : MetaM (TSyntax `
     let e ← mkLambdaFVars ys[termArg.arity - termArg.extraParams:] e -- undo overshooting by lambdaTelescope
     pure (← delabCore e (delab := go termArg.extraParams #[])).1
   where
-    go : Nat → TSyntaxArray [`ident, `Lean.Parser.Term.hole] → DelabM (TSyntax ``terminationBy)
+    go : Nat → TSyntaxArray `ident → DelabM (TSyntax ``terminationBy)
     | 0, vars => do
+      let stxBody ← Delaborator.delab
+      let hole : TSyntax `Lean.Parser.Term.hole ← `(hole|_)
+
+      -- any variable not mentioned syntatically (it may appear in the `Expr`, so do not just use
+      -- `e.bindingBody!.hasLooseBVar`) should be delaborated as a hole.
+      let vars  : TSyntaxArray [`ident, `Lean.Parser.Term.hole] :=
+        Array.map (fun (i : Ident) => if hasIdent i.getId stxBody then i else hole) vars
       -- drop trailing underscores
       let mut vars := vars
       while ! vars.isEmpty && vars.back.raw.isOfKind ``hole do vars := vars.pop
       if vars.isEmpty then
-        `(terminationBy|termination_by $(← Delaborator.delab))
+        `(terminationBy|termination_by $stxBody)
       else
-        `(terminationBy|termination_by $vars* => $(← Delaborator.delab))
+        `(terminationBy|termination_by $vars* => $stxBody)
     | i+1, vars => do
       let e ← getExpr
       unless e.isLambda do return ← go 0 vars -- should not happen
-
-      -- Delaborate unused parameters with `_`
-      if e.bindingBody!.hasLooseBVar 0 then
-        withBindingBodyUnusedName fun n => go i (vars.push ⟨n⟩)
-      else
-        descend e.bindingBody! 1 (go i (vars.push (← `(hole|_))))
+      withBindingBodyUnusedName fun n => go i (vars.push ⟨n⟩)

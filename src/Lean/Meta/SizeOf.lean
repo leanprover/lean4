@@ -514,5 +514,9 @@ def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
 
 builtin_initialize
   registerTraceClass `Meta.sizeOf
+  registerTraceClass `Meta.sizeOf.minor
+  registerTraceClass `Meta.sizeOf.minor.step
+  registerTraceClass `Meta.sizeOf.aux
+  registerTraceClass `Meta.sizeOf.loop
 
 end Lean.Meta

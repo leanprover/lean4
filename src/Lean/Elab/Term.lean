@@ -30,8 +30,12 @@ structure SavedContext where
 
 /-- We use synthetic metavariables as placeholders for pending elaboration steps. -/
 inductive SyntheticMVarKind where
-  /-- Use typeclass resolution to synthesize value for metavariable. -/
-  | typeClass
+  /--
+  Use typeclass resolution to synthesize value for metavariable.
+  If `extraErrorMsg?` is `some msg`, `msg` contains additional information to include in error messages
+  regarding type class synthesis failure.
+  -/
+  | typeClass (extraErrorMsg? : Option MessageData)
   /-- Use coercion to synthesize value for the metavariable.
   if `f?` is `some f`, we produce an application type mismatch error message.
   Otherwise, if `header?` is `some header`, we generate the error `(header ++ "has type" ++ eType ++ "but it is expected to have type" ++ expectedType)`
@@ -43,9 +47,15 @@ inductive SyntheticMVarKind where
   | postponed (ctx : SavedContext)
   deriving Inhabited
 
+/--
+Convert an "extra" optional error message into a message `"\n{msg}"` (if `some msg`) and `MessageData.nil` (if `none`)
+-/
+def extraMsgToMsg (extraErrorMsg? : Option MessageData) : MessageData :=
+  if let some msg := extraErrorMsg? then m!"\n{msg}" else .nil
+
 instance : ToString SyntheticMVarKind where
   toString
-    | .typeClass    => "typeclass"
+    | .typeClass .. => "typeclass"
     | .coe ..       => "coe"
     | .tactic ..    => "tactic"
     | .postponed .. => "postponed"
@@ -81,7 +91,6 @@ structure MVarErrorInfo where
   mvarId    : MVarId
   ref       : Syntax
   kind      : MVarErrorKind
-  argName?  : Option Name := none
   deriving Inhabited
 
 /--
@@ -109,7 +118,20 @@ structure State where
   levelNames        : List Name       := []
   syntheticMVars    : MVarIdMap SyntheticMVarDecl := {}
   pendingMVars      : List MVarId := {}
-  mvarErrorInfos    : MVarIdMap MVarErrorInfo := {}
+  /-- List of errors associated to a metavariable that are shown to the user if the metavariable could not be fully instantiated -/
+  mvarErrorInfos    : List MVarErrorInfo := []
+  /--
+    `mvarArgNames` stores the argument names associated to metavariables.
+    These are used in combination with `mvarErrorInfos` for throwing errors about metavariables that could not be fully instantiated.
+    For example when elaborating `List _`, the argument name of the placeholder will be `α`.
+
+    While elaborating an application, `mvarArgNames` is set for each metavariable argument, using the available argument name.
+    This may happen before or after the `mvarErrorInfos` is set for the same metavariable.
+
+    We used to store the argument names in `mvarErrorInfos`, updating the `MVarErrorInfos` to add the argument name when it is available,
+    but this doesn't work if the argument name is available _before_ the `mvarErrorInfos` is set for that metavariable.
+  -/
+  mvarArgNames      : MVarIdMap Name := {}
   letRecsToLift     : List LetRecToLift := []
   deriving Inhabited
 
@@ -306,14 +328,14 @@ def SavedState.restore (s : SavedState) (restoreInfo : Bool := false) : TermElab
     setInfoState infoState
 
 @[specialize, inherit_doc Core.withRestoreOrSaveFull]
-def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState))
-    (cont : TermElabM SavedState → TermElabM α) : TermElabM α := do
+def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState)) (act : TermElabM α) :
+    TermElabM (α × SavedState) := do
   if let some (_, state) := reusableResult? then
     set state.elab
   let reusableResult? := reusableResult?.map (fun (val, state) => (val, state.meta))
-  controlAt MetaM fun runInBase =>
-    Meta.withRestoreOrSaveFull reusableResult? fun restore =>
-      runInBase <| cont (return { meta := (← restore), «elab» := (← get) })
+  let (a, meta) ← controlAt MetaM fun runInBase => do
+    Meta.withRestoreOrSaveFull reusableResult? <| runInBase act
+  return (a, { meta, «elab» := (← get) })
 
 instance : MonadBacktrack SavedState TermElabM where
   saveState      := Term.saveState
@@ -323,7 +345,7 @@ instance : MonadBacktrack SavedState TermElabM where
 Manages reuse information for nested tactics by `split`ting given syntax into an outer and inner
 part. `act` is then run on the inner part but with reuse information adjusted as following:
 * If the old (from `tacSnap?`'s `SyntaxGuarded.stx`) and new (from `stx`) outer syntax are not
-  identical according to `Syntax.structRangeEq`, reuse is disabled.
+  identical according to `Syntax.eqWithInfo`, reuse is disabled.
 * Otherwise, the old syntax as stored in `tacSnap?` is updated to the old *inner* syntax.
 * In any case, we also use `withRef` on the inner syntax to avoid leakage of the outer syntax into
   `act` via this route.
@@ -339,7 +361,7 @@ def withNarrowedTacticReuse [Monad m] [MonadExceptOf Exception m] [MonadWithRead
   withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.map fun tacSnap =>
     { tacSnap with old? := tacSnap.old?.bind fun old => do
       let (oldOuter, oldInner) := split old.stx
-      guard <| outer.structRangeEqWithTraceReuse opts oldOuter
+      guard <| outer.eqWithInfoAndTraceReuse opts oldOuter
       return { old with stx := oldInner }
     }
   }) do
@@ -616,7 +638,7 @@ def registerSyntheticMVarWithCurrRef (mvarId : MVarId) (kind : SyntheticMVarKind
   registerSyntheticMVar (← getRef) mvarId kind
 
 def registerMVarErrorInfo (mvarErrorInfo : MVarErrorInfo) : TermElabM Unit :=
-  modify fun s => { s with mvarErrorInfos := s.mvarErrorInfos.insert mvarErrorInfo.mvarId mvarErrorInfo }
+  modify fun s => { s with mvarErrorInfos := mvarErrorInfo :: s.mvarErrorInfos }
 
 def registerMVarErrorHoleInfo (mvarId : MVarId) (ref : Syntax) : TermElabM Unit :=
   registerMVarErrorInfo { mvarId, ref, kind := .hole }
@@ -627,13 +649,13 @@ def registerMVarErrorImplicitArgInfo (mvarId : MVarId) (ref : Syntax) (app : Exp
 def registerMVarErrorCustomInfo (mvarId : MVarId) (ref : Syntax) (msgData : MessageData) : TermElabM Unit := do
   registerMVarErrorInfo { mvarId, ref, kind := .custom msgData }
 
-def getMVarErrorInfo? (mvarId : MVarId) : TermElabM (Option MVarErrorInfo) := do
-  return (← get).mvarErrorInfos.find? mvarId
-
 def registerCustomErrorIfMVar (e : Expr) (ref : Syntax) (msgData : MessageData) : TermElabM Unit :=
   match e.getAppFn with
   | Expr.mvar mvarId => registerMVarErrorCustomInfo mvarId ref msgData
   | _ => pure ()
+
+def registerMVarArgName (mvarId : MVarId) (argName : Name) : TermElabM Unit :=
+  modify fun s => { s with mvarArgNames := s.mvarArgNames.insert mvarId argName }
 
 /--
   Auxiliary method for reporting errors of the form "... contains metavariables ...".
@@ -650,22 +672,22 @@ def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) (extraMsg? : Option M
   match mvarErrorInfo.kind with
   | MVarErrorKind.implicitArg app => do
     let app ← instantiateMVars app
-    let msg := addArgName "don't know how to synthesize implicit argument"
+    let msg ← addArgName "don't know how to synthesize implicit argument"
     let msg := msg ++ m!"{indentExpr app.setAppPPExplicitForExposingMVars}" ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorInfo.mvarId
     logErrorAt mvarErrorInfo.ref (appendExtra msg)
   | MVarErrorKind.hole => do
-    let msg := addArgName "don't know how to synthesize placeholder" " for argument"
+    let msg ← addArgName "don't know how to synthesize placeholder" " for argument"
     let msg := msg ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorInfo.mvarId
     logErrorAt mvarErrorInfo.ref (MessageData.tagged `Elab.synthPlaceholder <| appendExtra msg)
   | MVarErrorKind.custom msg =>
     logErrorAt mvarErrorInfo.ref (appendExtra msg)
 where
-  /-- Append `mvarErrorInfo` argument name (if available) to the message.
+  /-- Append the argument name (if available) to the message.
       Remark: if the argument name contains macro scopes we do not append it. -/
-  addArgName (msg : MessageData) (extra : String := "") : MessageData :=
-    match mvarErrorInfo.argName? with
-    | none => msg
-    | some argName => if argName.hasMacroScopes then msg else msg ++ extra ++ m!" '{argName}'"
+  addArgName (msg : MessageData) (extra : String := "") : TermElabM MessageData := do
+    match (← get).mvarArgNames.find? mvarErrorInfo.mvarId with
+    | none => return msg
+    | some argName => return if argName.hasMacroScopes then msg else msg ++ extra ++ m!" '{argName}'"
 
   appendExtra (msg : MessageData) : MessageData :=
     match extraMsg? with
@@ -687,7 +709,7 @@ def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) (extraMsg? : Op
     let mut hasNewErrors := false
     let mut alreadyVisited : MVarIdSet := {}
     let mut errors : Array MVarErrorInfo := #[]
-    for (_, mvarErrorInfo) in (← get).mvarErrorInfos do
+    for mvarErrorInfo in (← get).mvarErrorInfos do
       let mvarId := mvarErrorInfo.mvarId
       unless alreadyVisited.contains mvarId do
         alreadyVisited := alreadyVisited.insert mvarId
@@ -727,7 +749,8 @@ def mkExplicitBinder (ident : Syntax) (type : Syntax) : Syntax :=
 def levelMVarToParam (e : Expr) (except : LMVarId → Bool := fun _ => false) : TermElabM Expr := do
   let levelNames ← getLevelNames
   let r := (← getMCtx).levelMVarToParam (fun n => levelNames.elem n) except e `u 1
-  setLevelNames (levelNames ++ r.newParamNames.toList)
+  -- Recall that the most recent universe is the first element of the field `levelNames`.
+  setLevelNames (r.newParamNames.reverse.toList ++ levelNames)
   setMCtx r.mctx
   return r.expr
 
@@ -747,30 +770,35 @@ def mkFreshIdent [Monad m] [MonadQuotation m] (ref : Syntax) (canonical := false
 private def applyAttributesCore
     (declName : Name) (attrs : Array Attribute)
     (applicationTime? : Option AttributeApplicationTime) : TermElabM Unit := do profileitM Exception "attribute application" (← getOptions) do
-  for attr in attrs do
-    withRef attr.stx do withLogging do
-    let env ← getEnv
-    match getAttributeImpl env attr.name with
-    | Except.error errMsg => throwError errMsg
-    | Except.ok attrImpl  =>
-      let runAttr := attrImpl.add declName attr.stx attr.kind
-      let runAttr := do
-        -- not truly an elaborator, but a sensible target for go-to-definition
-        let elaborator := attrImpl.ref
-        if (← getInfoState).enabled && (← getEnv).contains elaborator then
-          withInfoContext (mkInfo := return .ofCommandInfo { elaborator, stx := attr.stx }) do
-            try runAttr
-            finally if attr.stx[0].isIdent || attr.stx[0].isAtom then
-              -- Add an additional node over the leading identifier if there is one to make it look more function-like.
-              -- Do this last because we want user-created infos to take precedence
-              pushInfoLeaf <| .ofCommandInfo { elaborator, stx := attr.stx[0] }
-        else
-          runAttr
-      match applicationTime? with
-      | none => runAttr
-      | some applicationTime =>
-        if applicationTime == attrImpl.applicationTime then
-          runAttr
+  /-
+  Remark: if the declaration has syntax errors, `declName` may be `.anonymous` see issue #4309
+  In this case, we skip attribute application.
+  -/
+  unless declName == .anonymous do
+    for attr in attrs do
+      withRef attr.stx do withLogging do
+      let env ← getEnv
+      match getAttributeImpl env attr.name with
+      | Except.error errMsg => throwError errMsg
+      | Except.ok attrImpl  =>
+        let runAttr := attrImpl.add declName attr.stx attr.kind
+        let runAttr := do
+          -- not truly an elaborator, but a sensible target for go-to-definition
+          let elaborator := attrImpl.ref
+          if (← getInfoState).enabled && (← getEnv).contains elaborator then
+            withInfoContext (mkInfo := return .ofCommandInfo { elaborator, stx := attr.stx }) do
+              try runAttr
+              finally if attr.stx[0].isIdent || attr.stx[0].isAtom then
+                -- Add an additional node over the leading identifier if there is one to make it look more function-like.
+                -- Do this last because we want user-created infos to take precedence
+                pushInfoLeaf <| .ofCommandInfo { elaborator, stx := attr.stx[0] }
+          else
+            runAttr
+        match applicationTime? with
+        | none => runAttr
+        | some applicationTime =>
+          if applicationTime == attrImpl.applicationTime then
+            runAttr
 
 /-- Apply given attributes **at** a given application time -/
 def applyAttributesAt (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) : TermElabM Unit :=
@@ -852,8 +880,12 @@ def containsPendingMVar (e : Expr) : MetaM Bool := do
   Return `true` if the instance was synthesized successfully, and `false` if
   the instance contains unassigned metavariables that are blocking the type class
   resolution procedure. Throw an exception if resolution or assignment irrevocably fails.
+
+  If `extraErrorMsg?` is not none, it contains additional information that should be attached
+  to type class synthesis failures.
 -/
-def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := none) : TermElabM Bool := do
+def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := none) (extraErrorMsg? : Option MessageData := none): TermElabM Bool := do
+  let extraErrorMsg := extraMsgToMsg extraErrorMsg?
   let instMVarDecl ← getMVarDecl instMVar
   let type := instMVarDecl.type
   let type ← instantiateMVars type
@@ -886,18 +918,18 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
         let oldValType ← inferType oldVal
         let valType ← inferType val
         unless (← isDefEq oldValType valType) do
-          throwError "synthesized type class instance type is not definitionally equal to expected type, synthesized{indentExpr val}\nhas type{indentExpr valType}\nexpected{indentExpr oldValType}"
-        throwError "synthesized type class instance is not definitionally equal to expression inferred by typing rules, synthesized{indentExpr val}\ninferred{indentExpr oldVal}"
+          throwError "synthesized type class instance type is not definitionally equal to expected type, synthesized{indentExpr val}\nhas type{indentExpr valType}\nexpected{indentExpr oldValType}{extraErrorMsg}"
+        throwError "synthesized type class instance is not definitionally equal to expression inferred by typing rules, synthesized{indentExpr val}\ninferred{indentExpr oldVal}{extraErrorMsg}"
     else
       unless (← isDefEq (mkMVar instMVar) val) do
-        throwError "failed to assign synthesized type class instance{indentExpr val}"
+        throwError "failed to assign synthesized type class instance{indentExpr val}{extraErrorMsg}"
     return true
   | .undef => return false -- we will try later
   | .none  =>
     if (← read).ignoreTCFailures then
       return false
     else
-      throwError "failed to synthesize{indentExpr type}\n{useDiagnosticMsg}"
+      throwError "failed to synthesize{indentExpr type}{extraErrorMsg}\n{useDiagnosticMsg}"
 
 def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
   withTraceNode `Elab.coe (fun _ => return m!"adding coercion for {e} : {← inferType e} =?= {expectedType}") do
@@ -1598,11 +1630,11 @@ def adaptExpander (exp : Syntax → TermElabM Syntax) : TermElab := fun stx expe
   If type class resolution cannot be executed (e.g., it is stuck because of metavariables in `type`),
   register metavariable as a pending one.
 -/
-def mkInstMVar (type : Expr) : TermElabM Expr := do
+def mkInstMVar (type : Expr) (extraErrorMsg? : Option MessageData := none) : TermElabM Expr := do
   let mvar ← mkFreshExprMVar type MetavarKind.synthetic
   let mvarId := mvar.mvarId!
-  unless (← synthesizeInstMVarCore mvarId) do
-    registerSyntheticMVarWithCurrRef mvarId SyntheticMVarKind.typeClass
+  unless (← synthesizeInstMVarCore mvarId (extraErrorMsg? := extraErrorMsg?)) do
+    registerSyntheticMVarWithCurrRef mvarId (.typeClass extraErrorMsg?)
   return mvar
 
 /--
@@ -1910,5 +1942,8 @@ def isIncrementalElab [Monad m] [MonadEnv m] [MonadLiftT IO m] (decl : Name) : m
   (return incrementalAttr.hasTag (← getEnv) decl)
 
 export Term (TermElabM)
+
+builtin_initialize
+  registerTraceClass `Elab.implicitForall
 
 end Lean.Elab

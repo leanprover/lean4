@@ -99,8 +99,11 @@ def CliM.run (self : CliM α) (args : List String) : BaseIO ExitCode := do
   let main := main.run >>= fun | .ok a => pure a | .error e => error e.toString
   main.run
 
-instance : MonadLift LogIO CliStateM :=
-  ⟨fun x => do MainM.runLogIO x (← get).verbosity.minLogLv (← get).ansiMode⟩
+@[inline] def CliStateM.runLogIO (x : LogIO α) : CliStateM α := do
+  let opts ← get
+  MainM.runLogIO x opts.verbosity.minLogLv opts.ansiMode
+
+instance (priority := low) : MonadLift LogIO CliStateM := ⟨CliStateM.runLogIO⟩
 
 /-! ## Argument Parsing -/
 
@@ -273,7 +276,7 @@ protected def doc : CliM PUnit := do
     | none => throw <| CliError.missingScriptDoc script.name
 
 protected def help : CliM PUnit := do
-  IO.println <| helpScript <| (← takeArg?).getD ""
+  IO.println <| helpScript <| ← takeArgD ""
 
 end script
 
@@ -290,14 +293,14 @@ protected def new : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let name ← takeArg "package name"
-  let (tmp, lang) ← parseTemplateLangSpec <| (← takeArg?).getD ""
+  let (tmp, lang) ← parseTemplateLangSpec <| ← takeArgD ""
   noArgsRem do new name tmp lang (← opts.computeEnv) opts.rootDir
 
 protected def init : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let name := (← takeArg?).getD "."
-  let (tmp, lang) ← parseTemplateLangSpec <| (← takeArg?).getD ""
+  let name := ← takeArgD "."
+  let (tmp, lang) ← parseTemplateLangSpec <| ← takeArgD ""
   noArgsRem do init name tmp lang (← opts.computeEnv) opts.rootDir
 
 protected def build : CliM PUnit := do
@@ -480,7 +483,7 @@ protected def selfCheck : CliM PUnit := do
   noArgsRem do verifyInstall (← getThe LakeOptions)
 
 protected def help : CliM PUnit := do
-  IO.println <| help <| (← takeArg?).getD ""
+  IO.println <| help <| ← takeArgD ""
 
 end lake
 

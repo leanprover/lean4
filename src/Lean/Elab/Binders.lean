@@ -782,6 +782,9 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : B
 @[builtin_term_elab «let_tmp»] def elabLetTmpDecl : TermElab :=
   fun stx expectedType? => elabLetDeclCore stx expectedType? (useLetExpr := true) (elabBodyFirst := false) (usedLetOnly := true)
 
-builtin_initialize registerTraceClass `Elab.let
+builtin_initialize
+  registerTraceClass `Elab.let
+  registerTraceClass `Elab.let.decl
+  registerTraceClass `Elab.autoParam
 
 end Lean.Elab.Term

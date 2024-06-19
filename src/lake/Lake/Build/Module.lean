@@ -143,6 +143,22 @@ def Module.recBuildDeps (mod : Module) : FetchM (BuildJob (SearchPath × Array F
 def Module.depsFacetConfig : ModuleFacetConfig depsFacet :=
   mkFacetJobConfig (·.recBuildDeps)
 
+/-- Remove cached file hashes of the module build outputs (in `.hash` files). -/
+def Module.clearOutputHashes (mod : Module) : IO PUnit := do
+  clearFileHash mod.oleanFile
+  clearFileHash mod.ileanFile
+  clearFileHash mod.cFile
+  if Lean.Internal.hasLLVMBackend () then
+    clearFileHash mod.bcFile
+
+/-- Cache the file hashes of the module build outputs in `.hash` files. -/
+def Module.cacheOutputHashes (mod : Module) : IO PUnit := do
+  cacheFileHash mod.oleanFile
+  cacheFileHash mod.ileanFile
+  cacheFileHash mod.cFile
+  if Lean.Internal.hasLLVMBackend () then
+    cacheFileHash mod.bcFile
+
 /--
 Recursively build a Lean module.
 Fetch its dependencies and then elaborate the Lean source file, producing
@@ -154,20 +170,12 @@ def Module.recBuildLean (mod : Module) : FetchM (BuildJob Unit) := do
     let argTrace : BuildTrace := pureHash mod.leanArgs
     let srcTrace : BuildTrace ← computeTrace { path := mod.leanFile : TextFilePath }
     let modTrace := (← getLeanTrace).mix <| argTrace.mix <| srcTrace.mix depTrace
-    let upToDate ← buildUnlessUpToDate? (oldTrace := srcTrace) mod modTrace mod.traceFile do
-      let hasLLVM := Lean.Internal.hasLLVMBackend ()
-      let bcFile? := if hasLLVM then some mod.bcFile else none
-      cacheBuildLog mod.logFile do
-        compileLeanModule mod.leanFile mod.oleanFile mod.ileanFile mod.cFile bcFile?
-          (← getLeanPath) mod.rootDir dynlibs dynlibPath (mod.weakLeanArgs ++ mod.leanArgs) (← getLean)
-      discard <| cacheFileHash mod.oleanFile
-      discard <| cacheFileHash mod.ileanFile
-      discard <| cacheFileHash mod.cFile
-      if hasLLVM then
-        discard <| cacheFileHash mod.bcFile
-    if upToDate then
-      updateAction .replay
-      replayBuildLog mod.logFile
+    let upToDate ← buildUnlessUpToDate? (oldTrace := srcTrace.mtime) mod modTrace mod.traceFile do
+      compileLeanModule mod.leanFile mod.oleanFile mod.ileanFile mod.cFile mod.bcFile?
+        (← getLeanPath) mod.rootDir dynlibs dynlibPath (mod.weakLeanArgs ++ mod.leanArgs) (← getLean)
+      mod.clearOutputHashes
+    unless upToDate && (← getTrustHash) do
+      mod.cacheOutputHashes
     return ((), depTrace)
 
 /-- The `ModuleFacetConfig` for the builtin `leanArtsFacet`. -/

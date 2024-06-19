@@ -481,7 +481,7 @@ def all (as : Array α) (p : α → Bool) (start := 0) (stop := as.size) : Bool 
   Id.run <| as.allM p start stop
 
 def contains [BEq α] (as : Array α) (a : α) : Bool :=
-  as.any fun b => a == b
+  as.any (· == a)
 
 def elem [BEq α] (a : α) (as : Array α) : Bool :=
   as.contains a
@@ -791,11 +791,11 @@ def toArrayLit (a : Array α) (n : Nat) (hsz : a.size = n) : Array α :=
 theorem ext' {as bs : Array α} (h : as.data = bs.data) : as = bs := by
   cases as; cases bs; simp at h; rw [h]
 
-theorem toArrayAux_eq (as : List α) (acc : Array α) : (as.toArrayAux acc).data = acc.data ++ as := by
+@[simp] theorem toArrayAux_eq (as : List α) (acc : Array α) : (as.toArrayAux acc).data = acc.data ++ as := by
   induction as generalizing acc <;> simp [*, List.toArrayAux, Array.push, List.append_assoc, List.concat_eq_append]
 
 theorem data_toArray (as : List α) : as.toArray.data = as := by
-  simp [List.toArray, toArrayAux_eq, Array.mkEmpty]
+  simp [List.toArray, Array.mkEmpty]
 
 theorem toArrayLit_eq (as : Array α) (n : Nat) (hsz : as.size = n) : as = toArrayLit as n hsz := by
   apply ext'

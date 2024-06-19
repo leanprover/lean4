@@ -97,14 +97,14 @@ def SavedState.restore (b : SavedState) (restoreInfo := false) : TacticM Unit :=
   set b.tactic
 
 @[specialize, inherit_doc Core.withRestoreOrSaveFull]
-def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState))
-    (cont : TacticM SavedState → TacticM α) : TacticM α := do
+def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState)) (act : TacticM α) :
+    TacticM (α × SavedState) := do
   if let some (_, state) := reusableResult? then
     set state.tactic
   let reusableResult? := reusableResult?.map (fun (val, state) => (val, state.term))
-  controlAt TermElabM fun runInBase =>
-    Term.withRestoreOrSaveFull reusableResult? fun restore =>
-      runInBase <| cont (return { term := (← restore), tactic := (← get) })
+  let (a, term) ← controlAt TermElabM fun runInBase => do
+    Term.withRestoreOrSaveFull reusableResult? <| runInBase act
+  return (a, { term, tactic := (← get) })
 
 protected def getCurrMacroScope : TacticM MacroScope := do pure (← readThe Core.Context).currMacroScope
 protected def getMainModule     : TacticM Name       := do pure (← getEnv).mainModule
@@ -201,6 +201,37 @@ where
           withReader ({ · with elaborator := m.declName }) do
             withTacticInfoContext stx do
               let stx' ← adaptMacro m.value stx
+              -- Support incrementality; see also Note [Incremental Macros]
+              if evalFns.isEmpty && ms.isEmpty then  -- Only try incrementality in one branch
+                if let some snap := (← readThe Term.Context).tacSnap? then
+                  let nextMacroScope := (← getThe Core.State).nextMacroScope
+                  let traceState ← getTraceState
+                  let old? := do
+                    let old ← snap.old?
+                    -- If the kind is equal, we can assume the old version was a macro as well
+                    guard <| old.stx.isOfKind stx.getKind
+                    let state ← old.val.get.data.finished.get.state?
+                    guard <| state.term.meta.core.nextMacroScope == nextMacroScope
+                    -- check absence of traces; see Note [Incremental Macros]
+                    guard <| state.term.meta.core.traceState.traces.size == 0
+                    guard <| traceState.traces.size == 0
+                    return old.val.get
+                  Language.withAlwaysResolvedPromise fun promise => do
+                    -- Store new unfolding in the snapshot tree
+                    snap.new.resolve <| .mk {
+                      stx := stx'
+                      diagnostics := .empty
+                      finished := .pure { state? := (← Tactic.saveState) }
+                    } #[{ range? := stx'.getRange?, task := promise.result }]
+                    -- Update `tacSnap?` to old unfolding
+                    withTheReader Term.Context ({ · with tacSnap? := some {
+                      new := promise
+                      old? := do
+                        let old ← old?
+                        return ⟨old.data.stx, (← old.next.get? 0)⟩
+                    } }) do
+                      evalTactic stx'
+                  return
               evalTactic stx'
         catch ex => handleEx s failures ex (expandEval s ms evalFns)
 

@@ -253,12 +253,9 @@ instance : ToString TaskState := ⟨TaskState.toString⟩
 @[extern "lean_io_wait"] opaque wait (t : Task α) : BaseIO α :=
   return t.get
 
-local macro "nonempty_list" : tactic =>
-  `(tactic| exact Nat.zero_lt_succ _)
-
 /-- Wait until any of the tasks in the given list has finished, then return its result. -/
 @[extern "lean_io_wait_any"] opaque waitAny (tasks : @& List (Task α))
-    (h : tasks.length > 0 := by nonempty_list) : BaseIO α :=
+    (h : tasks.length > 0 := by exact Nat.zero_lt_succ _) : BaseIO α :=
   return tasks[0].get
 
 /-- Helper method for implementing "deterministic" timeouts. It is the number of "small" memory allocations performed by the current execution thread. -/

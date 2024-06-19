@@ -72,6 +72,7 @@ size_t lean_usize_of_nat(lean_object*);
 uint8_t lean_get_reducibility_status(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkDiagSummaryForUnfolded___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forIn___at_Lean_Meta_collectAboveThreshold___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_collectAboveThreshold___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forIn___at_Lean_Meta_mkDiagSummary___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkDiagSummary(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -807,8 +808,6 @@ lean_closure_set(x_7, 0, x_4);
 lean_closure_set(x_7, 1, x_5);
 x_8 = l_Lean_Meta_collectAboveThreshold___rarg___closed__1;
 x_9 = l_Lean_PersistentHashMap_forIn___at_Lean_Meta_collectAboveThreshold___spec__1___rarg(x_1, x_2, x_3, x_8, x_7);
-lean_dec(x_2);
-lean_dec(x_1);
 x_10 = lean_array_get_size(x_9);
 x_11 = lean_unsigned_to_nat(1u);
 x_12 = lean_nat_sub(x_10, x_11);
@@ -823,7 +822,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_collectAboveThreshold(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Meta_collectAboveThreshold___rarg), 6, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_Meta_collectAboveThreshold___rarg___boxed), 6, 0);
 return x_2;
 }
 }
@@ -886,6 +885,16 @@ lean_object* x_5;
 x_5 = l_Lean_Meta_collectAboveThreshold___rarg___lambda__1(x_1, x_2, x_3, x_4);
 lean_dec(x_1);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_collectAboveThreshold___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Lean_Meta_collectAboveThreshold___rarg(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_subCounters___spec__4___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, size_t x_8, size_t x_9, lean_object* x_10) {
@@ -2688,6 +2697,7 @@ if (lean_obj_tag(x_5) == 1)
 {
 uint8_t x_6; 
 x_6 = l_Lean_Meta_isInstanceCore(x_1, x_3);
+lean_dec(x_3);
 lean_dec(x_1);
 if (x_6 == 0)
 {
@@ -4545,6 +4555,9 @@ lean_ctor_set(x_92, 0, x_90);
 lean_ctor_set(x_92, 1, x_91);
 x_93 = 0;
 x_94 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6(x_92, x_93, x_1, x_2, x_3, x_4, x_64);
+lean_dec(x_4);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_94;
 }
 }
@@ -4688,6 +4701,9 @@ lean_ctor_set(x_138, 0, x_136);
 lean_ctor_set(x_138, 1, x_137);
 x_139 = 0;
 x_140 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6(x_138, x_139, x_1, x_2, x_3, x_4, x_110);
+lean_dec(x_4);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_140;
 }
 }

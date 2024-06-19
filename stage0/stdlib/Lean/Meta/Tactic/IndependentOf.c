@@ -17,19 +17,21 @@ uint8_t l_List_elem___at_Lean_MVarId_getMVarDependencies_addMVars___spec__3(lean
 size_t lean_hashset_mk_idx(lean_object*, uint64_t);
 LEAN_EXPORT lean_object* l_Lean_MVarId_isIndependentOf___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashSetImp_contains___at_Lean_MVarId_isIndependentOf___spec__1___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_MVarId_isIndependentOf___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_isIndependentOf___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_HashSetImp_contains___at_Lean_MVarId_isIndependentOf___spec__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_MVarId_isIndependentOf___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_isSubsingleton(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_allM___at_Lean_MVarId_isIndependentOf___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_allM___at_Lean_MVarId_isIndependentOf___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint64_t l___private_Lean_Expr_0__Lean_hashMVarId____x40_Lean_Expr___hyg_1921_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_isIndependentOf___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isProp(lean_object*);
 lean_object* l_Lean_MVarId_getMVarDependencies(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_isIndependentOf___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint64_t l___private_Lean_Expr_0__Lean_hashMVarId____x40_Lean_Expr___hyg_1998_(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_MVarId_isIndependentOf___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_isIndependentOf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -42,7 +44,7 @@ _start:
 lean_object* x_3; lean_object* x_4; uint64_t x_5; size_t x_6; lean_object* x_7; uint8_t x_8; 
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_array_get_size(x_3);
-x_5 = l___private_Lean_Expr_0__Lean_hashMVarId____x40_Lean_Expr___hyg_1921_(x_2);
+x_5 = l___private_Lean_Expr_0__Lean_hashMVarId____x40_Lean_Expr___hyg_1998_(x_2);
 x_6 = lean_hashset_mk_idx(x_4, x_5);
 x_7 = lean_array_uget(x_3, x_6);
 x_8 = l_List_elem___at_Lean_MVarId_getMVarDependencies_addMVars___spec__3(x_2, x_7);
@@ -56,10 +58,7 @@ _start:
 if (lean_obj_tag(x_2) == 0)
 {
 uint8_t x_8; lean_object* x_9; lean_object* x_10; 
-lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 x_8 = 1;
 x_9 = lean_box(x_8);
 x_10 = lean_alloc_ctor(0, 2, 0);
@@ -76,10 +75,7 @@ x_12 = lean_ctor_get(x_2, 1);
 lean_inc(x_12);
 lean_dec(x_2);
 x_13 = 0;
-lean_inc(x_6);
 lean_inc(x_5);
-lean_inc(x_4);
-lean_inc(x_3);
 x_14 = l_Lean_MVarId_getMVarDependencies(x_11, x_13, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_14) == 0)
 {
@@ -103,10 +99,7 @@ else
 {
 lean_object* x_20; 
 lean_dec(x_12);
-lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 x_20 = lean_box(x_13);
 lean_ctor_set(x_14, 0, x_20);
 return x_14;
@@ -132,10 +125,7 @@ else
 {
 lean_object* x_25; lean_object* x_26; 
 lean_dec(x_12);
-lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 x_25 = lean_box(x_13);
 x_26 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
@@ -148,10 +138,7 @@ else
 {
 uint8_t x_27; 
 lean_dec(x_12);
-lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 x_27 = !lean_is_exclusive(x_14);
 if (x_27 == 0)
 {
@@ -178,7 +165,6 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_isIndependentOf___lambda__1(lean_object* 
 _start:
 {
 lean_object* x_9; 
-lean_dec(x_3);
 x_9 = l_List_allM___at_Lean_MVarId_isIndependentOf___spec__2(x_1, x_2, x_4, x_5, x_6, x_7, x_8);
 return x_9;
 }
@@ -187,7 +173,6 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_isIndependentOf___lambda__2(lean_object* 
 _start:
 {
 lean_object* x_9; 
-lean_dec(x_3);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
@@ -208,6 +193,9 @@ x_12 = lean_ctor_get(x_9, 1);
 lean_inc(x_12);
 lean_dec(x_9);
 x_13 = l_List_allM___at_Lean_MVarId_isIndependentOf___spec__2(x_1, x_2, x_4, x_5, x_6, x_7, x_12);
+lean_dec(x_7);
+lean_dec(x_5);
+lean_dec(x_4);
 lean_dec(x_1);
 return x_13;
 }
@@ -280,7 +268,6 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_isIndependentOf___lambda__3(lean_object* 
 _start:
 {
 lean_object* x_10; 
-lean_dec(x_4);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
@@ -524,6 +511,9 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_List_allM___at_Lean_MVarId_isIndependentOf___spec__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+lean_dec(x_6);
+lean_dec(x_4);
+lean_dec(x_3);
 lean_dec(x_1);
 return x_8;
 }
@@ -533,8 +523,30 @@ _start:
 {
 lean_object* x_9; 
 x_9 = l_Lean_MVarId_isIndependentOf___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+lean_dec(x_7);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
 lean_dec(x_1);
 return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_MVarId_isIndependentOf___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+lean_object* x_9; 
+x_9 = l_Lean_MVarId_isIndependentOf___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+lean_dec(x_3);
+return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_MVarId_isIndependentOf___lambda__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+_start:
+{
+lean_object* x_10; 
+x_10 = l_Lean_MVarId_isIndependentOf___lambda__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+lean_dec(x_4);
+return x_10;
 }
 }
 lean_object* initialize_Lean_Meta_CollectMVars(uint8_t builtin, lean_object*);

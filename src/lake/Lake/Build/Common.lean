@@ -25,97 +25,137 @@ and will be rebuilt on different host platforms.
 def platformTrace := pureHash System.Platform.target
 
 /--
-Checks if the `info` is up-to-date by comparing `depTrace` with `traceFile`.
-If old mode is enabled (e.g., `--old`), uses the modification time of `oldTrace`
-as the point of comparison instead.
+The build trace file format,
+which stores information about a (successful) build.
 -/
-@[specialize] def BuildTrace.checkUpToDate
-  [CheckExists ι] [GetMTime ι]
-  (info : ι) (depTrace : BuildTrace) (traceFile : FilePath)
-  (oldTrace := depTrace)
-: JobM Bool := do
-  if (← getIsOldMode) then
-    if (← oldTrace.checkAgainstTime info) then
-      return true
-    else if let some hash ← Hash.load? traceFile then
-      depTrace.checkAgainstHash info hash
-    else
-      return false
-  else
-    depTrace.checkAgainstFile info traceFile
+structure BuildMetadata where
+  depHash : Hash
+  log : Log
+  deriving ToJson, FromJson
+
+/-- Read persistent trace data from a file. -/
+def readTraceFile? (path : FilePath) : LogIO (Option BuildMetadata) := OptionT.run do
+  match (← IO.FS.readFile path |>.toBaseIO) with
+  | .ok contents =>
+    match Json.parse contents >>= fromJson? with
+    | .ok contents => return contents
+    | .error e => logVerbose s!"{path}: invalid trace file: {e}"; failure
+  | .error (.noFileOrDirectory ..) => failure
+  | .error e => logWarning s!"{path}: read failed: {e}"; failure
+
+/-- Write persistent trace data to a file. -/
+def writeTraceFile (path : FilePath) (depTrace : BuildTrace) (log : Log) := do
+  createParentDirs path
+  let data := {log, depHash := depTrace.hash : BuildMetadata}
+  IO.FS.writeFile path (toJson data).pretty
 
 /--
-Build `info` unless it already exists and `depTrace` matches that
-of the `traceFile`. If rebuilt, save the new `depTrace` to the `tracefile`.
-Returns whether `info` was already up-to-date.
+Checks if the `info` is up-to-date by comparing `depTrace` with `depHash`.
+If old mode is enabled (e.g., `--old`), uses the `oldTrace` modification time
+as the point of comparison instead.
 -/
-@[inline] def buildUnlessUpToDate?
-  [CheckExists ι] [GetMTime ι] (info : ι)
-  (depTrace : BuildTrace) (traceFile : FilePath) (build : JobM PUnit)
-  (action : JobAction := .build) (oldTrace := depTrace)
+@[specialize] def checkHashUpToDate
+  [CheckExists ι] [GetMTime ι]
+  (info : ι) (depTrace : BuildTrace) (depHash : Option Hash)
+  (oldTrace := depTrace.mtime)
 : JobM Bool := do
-  if (← depTrace.checkUpToDate info traceFile oldTrace) then
-    return true
-  else if (← getNoBuild) then
-    IO.Process.exit noBuildCode.toUInt8
+  if depTrace.hash == depHash then
+    checkExists info
+  else if (← getIsOldMode) then
+    oldTrace.checkUpToDate info
   else
-    updateAction action
-    build
-    depTrace.writeToFile traceFile
     return false
 
 /--
-Build `info` unless it already exists and `depTrace` matches that
-of the `traceFile`. If rebuilt, save the new `depTrace` to the `tracefile`.
+Checks whether `info` is up-to-date, and runs `build` to recreate it if not.
+If rebuilt, saves the new `depTrace` and build log to `traceFile`.
+Returns whether `info` was already up-to-date.
+
+**Up-to-date Checking**
+
+If `traceFile` exists, checks that the hash in `depTrace` matches that
+of the `traceFile`. If not, and old mode is enabled (e.g., `--old`), falls back
+to the `oldTrace` modification time as the point of comparison.
+If up-to-date, replay the build log stored in `traceFile`.
+
+If `traceFile` does not exist, checks that `info` has a newer modification time
+then `depTrace` / `oldTrace`. No log will be replayed.
+-/
+@[specialize] def buildUnlessUpToDate?
+  [CheckExists ι] [GetMTime ι] (info : ι)
+  (depTrace : BuildTrace) (traceFile : FilePath) (build : JobM PUnit)
+  (action : JobAction := .build) (oldTrace := depTrace.mtime)
+: JobM Bool := do
+  if let some data ← readTraceFile? traceFile then
+    if (← checkHashUpToDate info depTrace data.depHash oldTrace) then
+      updateAction .replay
+      data.log.replay
+      return true
+  else if (← getIsOldMode) then
+    if (← oldTrace.checkUpToDate info) then
+      return true
+  else if (← depTrace.checkAgainstTime info) then
+    return true
+  if (← getNoBuild) then
+    IO.Process.exit noBuildCode.toUInt8
+  else
+    updateAction action
+    let iniPos ← getLogPos
+    build -- fatal errors will not produce a trace (or cache their log)
+    let log := (← getLog).takeFrom iniPos
+    writeTraceFile traceFile depTrace log
+    return false
+
+/--
+Checks whether `info` is up-to-date, and runs `build` to recreate it if not.
+If rebuilt, saves the new `depTrace` and build log to `traceFile`.
+
+See `buildUnlessUpToDate?` for more details on how Lake determines whether
+`info` is up-to-date.
 -/
 @[inline] def buildUnlessUpToDate
   [CheckExists ι] [GetMTime ι] (info : ι)
   (depTrace : BuildTrace) (traceFile : FilePath) (build : JobM PUnit)
-  (action : JobAction := .build) (oldTrace := depTrace)
+  (action : JobAction := .build) (oldTrace := depTrace.mtime)
 : JobM PUnit := do
   discard <| buildUnlessUpToDate? info depTrace traceFile build action oldTrace
 
-/-- Fetch the trace of a file that may have its hash already cached in a `.hash` file. -/
-def fetchFileTrace (file : FilePath) : JobM BuildTrace := do
-  if (← getTrustHash) then
-    let hashFile := FilePath.mk <| file.toString ++ ".hash"
-    if let some hash ← Hash.load? hashFile then
-      return .mk hash (← getMTime file)
-    else
-      let hash ← computeHash file
-      IO.FS.writeFile hashFile hash.toString
-      return .mk hash (← getMTime file)
-  else
-    computeTrace file
-
-/-- Compute the hash of a file and save it to a `.hash` file. -/
-def cacheFileHash (file : FilePath) : IO Hash := do
+/-- Computes the hash of a file and saves it to a `.hash` file. -/
+def cacheFileHash (file : FilePath) : IO Unit := do
   let hash ← computeHash file
   let hashFile := FilePath.mk <| file.toString ++ ".hash"
+  createParentDirs hashFile
+  IO.FS.writeFile hashFile hash.toString
+
+/-- Remove the cached hash of a file (its `.hash` file). -/
+def clearFileHash (file : FilePath) : IO Unit := do
+  try
+    IO.FS.removeFile <| file.toString ++ ".hash"
+  catch
+    | .noFileOrDirectory .. => pure ()
+    | e => throw e
+
+/--
+Fetches the hash of a file that may already be cached in a `.hash` file.
+If the `.hash` file does not exist or hash files are not trusted
+(e.g., with `--rehash`), creates it with a newly computed hash.
+-/
+def fetchFileHash (file : FilePath) : JobM Hash := do
+  let hashFile := FilePath.mk <| file.toString ++ ".hash"
+  if (← getTrustHash) then
+    if let some hash ← Hash.load? hashFile then
+      return hash
+  let hash ← computeHash file
+  createParentDirs hashFile
   IO.FS.writeFile hashFile hash.toString
   return hash
 
 /--
-Replays the JSON log in `logFile` (if it exists).
-If the log file is malformed, logs a warning.
+Fetches the trace of a file that may have already have its hash cached
+in a `.hash` file. If no such `.hash` file exists, recomputes and creates it.
 -/
-def replayBuildLog (logFile : FilePath) : LogIO PUnit := do
-  match (← IO.FS.readFile logFile |>.toBaseIO) with
-  | .ok contents =>
-    match Json.parse contents >>= fromJson? with
-    | .ok entries => Log.mk entries |>.replay
-    | .error e => logWarning s!"cached build log is corrupted: {e}"
-  | .error (.noFileOrDirectory ..) => pure ()
-  | .error e => logWarning s!"failed to read cached build log: {e}"
-
-/-- Saves the log produce by `build` as JSON to `logFile`. -/
-def cacheBuildLog (logFile : FilePath) (build : JobM PUnit) : JobM PUnit := do
-  let iniPos ← getLogPos
-  let errPos? ← try build; pure none catch errPos => pure (some errPos)
-  let log := (← getLog).takeFrom iniPos
-  unless log.isEmpty do
-    IO.FS.writeFile logFile (toJson log).pretty
-  if let some errPos := errPos? then throw errPos
+def fetchFileTrace (file : FilePath) : JobM BuildTrace := do
+  return .mk (← fetchFileHash file) (← getMTime file)
 
 /--
 Builds `file` using `build` unless it already exists and `depTrace` matches
@@ -125,21 +165,17 @@ the `.hash` file using `fetchFileTrace`. Build logs (if any) are saved to
 a `.log.json` file and replayed from there if the build is skipped.
 
 For example, given `file := "foo.c"`, compares `depTrace` with that in
-`foo.c.trace` with the hash cache in `foo.c.hash` and the log cache in
-`foo.c.log.json`.
+`foo.c.trace` with the hash cached in `foo.c.hash` and the log cached in
+`foo.c.trace`.
 -/
 def buildFileUnlessUpToDate
   (file : FilePath) (depTrace : BuildTrace) (build : JobM PUnit)
 : JobM BuildTrace := do
   let traceFile := FilePath.mk <| file.toString ++ ".trace"
-  let logFile := FilePath.mk <| file.toString ++ ".log.json"
-  let build := cacheBuildLog logFile build
-  if (← buildUnlessUpToDate? file depTrace traceFile build) then
-    updateAction .replay
-    replayBuildLog logFile
-    fetchFileTrace file
-  else
-    return .mk (← cacheFileHash file) (← getMTime file)
+  buildUnlessUpToDate file depTrace traceFile do
+    build
+    clearFileHash file
+  fetchFileTrace file
 
 /--
 Build `file` using `build` after `dep` completes if the dependency's
@@ -170,9 +206,27 @@ trace (and/or `extraDepTrace`) has changed.
 
 /-! ## Common Builds -/
 
-/-- A build job for file that is expected to already exist (e.g., a source file). -/
-def inputFile (path : FilePath) : SpawnM (BuildJob FilePath) :=
+/--
+A build job for binary file that is expected to already exist (e.g., a data blob).
+Any byte difference in the file will trigger a rebuild of dependents.
+-/
+def inputBinFile (path : FilePath) : SpawnM (BuildJob FilePath) :=
   Job.async <| (path, ·) <$> computeTrace path
+
+/--
+A build job for text file that is expected to already exist (e.g., a source file).
+Normalizes line endings (converts CRLF to LF) to produce platform-independent traces.
+-/
+def inputTextFile (path : FilePath) : SpawnM (BuildJob FilePath) :=
+  Job.async <| (path, ·) <$> computeTrace (TextFilePath.mk path)
+
+/--
+A build job for file that is expected to already exist.
+
+**Deprecated:** Use either `inputTextFile` or `inputBinFile`.
+`inputTextFile` normalizes line endings to produce platform-independent traces.
+-/
+@[deprecated] abbrev inputFile := @inputBinFile
 
 /--
 Build an object file from a source file job using `compiler`. The invocation is:

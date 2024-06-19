@@ -423,6 +423,7 @@ lean_dec(x_7);
 x_9 = l_List_toArrayAux___rarg(x_6, x_8);
 x_10 = l_Array_reverse___rarg(x_9);
 x_11 = l_Array_append___rarg(x_5, x_10);
+lean_dec(x_10);
 return x_11;
 }
 }

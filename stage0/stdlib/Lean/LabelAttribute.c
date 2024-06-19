@@ -16,11 +16,13 @@ extern "C" {
 static lean_object* l_Lean_labelled___closed__4;
 lean_object* l_Lean_Syntax_mkNameLit(lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__9;
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__28;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Parser_Command_registerLabelAttr___closed__7;
 static lean_object* l_Lean_Parser_Command_registerLabelAttr___closed__20;
 static lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_mkLabelAttr___spec__1___closed__1;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__34;
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__2;
 LEAN_EXPORT lean_object* l_Lean_mkLabelAttr___lambda__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Command_registerLabelAttr___closed__10;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__28;
@@ -34,47 +36,47 @@ lean_object* l_Lean_Syntax_getId(lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__11;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_String_removeLeadingSpaces(lean_object*);
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__4;
 lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__47;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__35;
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__23;
 LEAN_EXPORT lean_object* l_Lean_mkLabelAttr___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__26;
 LEAN_EXPORT lean_object* l_Array_erase___at_Lean_mkLabelAttr___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_labelled___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__18;
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__17;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkLabelAttr___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__7;
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__26;
+LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_initFn____x40_Lean_LabelAttribute___hyg_20____spec__1___boxed(lean_object*);
 static lean_object* l_Lean_Parser_Command_registerLabelAttr___closed__11;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__42;
 lean_object* l_Lean_mkIdentFrom(lean_object*, lean_object*, uint8_t);
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__27;
 lean_object* l_Lean_Syntax_node5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__4;
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_LabelAttribute___hyg_18_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkLabelAttr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__52;
 static lean_object* l_Lean_Parser_Command_registerLabelAttr___closed__3;
 static lean_object* l_Lean_Parser_Command_registerLabelAttr___closed__19;
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__3;
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__14;
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__24;
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_LabelAttribute___hyg_20_(lean_object*);
+LEAN_EXPORT lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57_;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__58;
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__7;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__45;
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__21;
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__6;
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__25;
 LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at_Lean_labelled___spec__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_replace___at_Lean_registerLabelAttr___spec__6(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__38;
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__9;
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__5;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__44;
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__20;
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__3;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__23;
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__16;
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_expand___at_Lean_registerLabelAttr___spec__3(lean_object*, lean_object*);
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__15;
 LEAN_EXPORT lean_object* l_Lean_labelled(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Command_registerLabelAttr___closed__5;
 static lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_mkLabelAttr___spec__1___closed__2;
@@ -84,6 +86,7 @@ lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__18;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__50;
 lean_object* l_Lean_registerSimpleScopedEnvExtension___rarg(lean_object*, lean_object*);
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__18;
 lean_object* l_Array_feraseIdx___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 static lean_object* l_Lean_labelled___closed__2;
@@ -92,15 +95,15 @@ lean_object* l_Lean_Syntax_node6(lean_object*, lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_labelled___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_mkStrLit(lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__17;
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__22;
 LEAN_EXPORT lean_object* l_Lean_AssocList_contains___at_Lean_registerLabelAttr___spec__2___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___auto____x40_Lean_LabelAttribute___hyg_167_;
 lean_object* l_Lean_quoteNameMk(lean_object*);
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__10;
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__22;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__17;
 LEAN_EXPORT lean_object* l_Lean_mkLabelExt___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkLabelAttr___lambda__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__59;
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__4;
 static lean_object* l_Lean_registerLabelAttr___closed__1;
 lean_object* l_Lean_Syntax_getOptional_x3f(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
@@ -112,35 +115,33 @@ LEAN_EXPORT lean_object* l_Lean_registerLabelAttr(lean_object*, lean_object*, le
 lean_object* l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContextCoreM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__20;
 LEAN_EXPORT uint8_t l_Lean_AssocList_contains___at_Lean_registerLabelAttr___spec__2(lean_object*, lean_object*);
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__5;
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_modifyState___rarg(lean_object*, lean_object*, lean_object*);
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__15;
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__6;
-LEAN_EXPORT lean_object* l___auto____x40_Lean_LabelAttribute___hyg_160_;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__12;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__27;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__48;
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__12;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_mkLabelAttr___spec__1___closed__3;
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__13;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_initFn____x40_Lean_LabelAttribute___hyg_18____spec__1___boxed(lean_object*);
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__6;
 static lean_object* l_Lean_Parser_Command_registerLabelAttr___closed__1;
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__24;
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__16;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_HashMapImp_find_x3f___at_Lean_labelled___spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__56;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__43;
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__8;
 lean_object* l_Lean_TSyntax_getDocString(lean_object*);
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__10;
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__25;
 static lean_object* l_Lean_mkLabelExt___closed__1;
 LEAN_EXPORT lean_object* l_Lean_mkLabelAttr___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___auto____x40_Lean_LabelAttribute___hyg_88_;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__55;
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__28;
 size_t lean_hashmap_mk_idx(lean_object*, uint64_t);
 static lean_object* l_Lean_Parser_Command_registerLabelAttr___closed__6;
 LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at_Lean_labelled___spec__2(lean_object*, lean_object*);
@@ -148,15 +149,16 @@ static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__39;
 LEAN_EXPORT lean_object* l_Lean_HashMap_insert___at_Lean_registerLabelAttr___spec__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_initFn____x40_Lean_LabelAttribute___hyg_20____spec__1(lean_object*);
 lean_object* l_Lean_Name_mkStr6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__7;
 LEAN_EXPORT lean_object* l_Array_erase___at_Lean_mkLabelAttr___spec__2___boxed(lean_object*, lean_object*);
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__21;
 LEAN_EXPORT lean_object* l_Lean_labelExtensionMapRef;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__1;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__33;
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_registerLabelAttr___spec__5(lean_object*, lean_object*);
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__1;
 static lean_object* l_Lean_Parser_Command_registerLabelAttr___closed__16;
 lean_object* l___private_Init_Meta_0__Lean_getEscapedNameParts_x3f(lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__36;
@@ -164,36 +166,37 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__51;
 lean_object* l_id___rarg___boxed(lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__13;
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_moveEntries___at_Lean_registerLabelAttr___spec__4(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_labelled___closed__3;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__31;
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__12;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__2;
-LEAN_EXPORT lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52_;
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__14;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__15;
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 uint64_t l_Lean_Name_hash___override(lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__49;
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__9;
 uint8_t l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_labelled___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mkArray1___rarg(lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__21;
 lean_object* lean_nat_mul(lean_object*, lean_object*);
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__27;
 lean_object* l_Array_indexOfAux___at_Lean_MetavarContext_setMVarUserName___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_addCore___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__11;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__13;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__32;
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__19;
 static lean_object* l_Lean_Parser_Command_registerLabelAttr___closed__9;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__54;
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 lean_object* l_Lean_mkHashMapImp___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkLabelExt(lean_object*, lean_object*);
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__11;
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__19;
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__23;
 static lean_object* l_Lean_mkLabelExt___closed__2;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__14;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__40;
@@ -204,13 +207,13 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__8;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__25;
+LEAN_EXPORT lean_object* l___auto____x40_Lean_LabelAttribute___hyg_94_;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__22;
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__29;
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_mkLabelAttr___spec__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__2;
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__24;
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__20;
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__1;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Command_registerLabelAttr___closed__13;
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -223,17 +226,15 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__53;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__19;
-LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_initFn____x40_Lean_LabelAttribute___hyg_18____spec__1(lean_object*);
 static lean_object* l_Lean_Parser_Command_registerLabelAttr___closed__15;
 LEAN_EXPORT lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkLabelAttr___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__26;
 static lean_object* l_Lean_Parser_Command_registerLabelAttr___closed__2;
 static lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_mkLabelAttr___spec__1___closed__4;
-static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__29;
 LEAN_EXPORT lean_object* l_Lean_Parser_Command_registerLabelAttr;
 lean_object* l___private_Lean_Data_HashMap_0__Lean_numBucketsForCapacity(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_initFn____x40_Lean_LabelAttribute___hyg_18____spec__1(lean_object* x_1) {
+static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_57____closed__8;
+LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_initFn____x40_Lean_LabelAttribute___hyg_20____spec__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -241,7 +242,7 @@ x_2 = l_Lean_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_LabelAttribute___hyg_18_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_LabelAttribute___hyg_20_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
@@ -268,16 +269,16 @@ return x_8;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_initFn____x40_Lean_LabelAttribute___hyg_18____spec__1___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_initFn____x40_Lean_LabelAttribute___hyg_20____spec__1___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_mkHashMap___at_Lean_initFn____x40_Lean_LabelAttribute___hyg_18____spec__1(x_1);
+x_2 = l_Lean_mkHashMap___at_Lean_initFn____x40_Lean_LabelAttribute___hyg_20____spec__1(x_1);
 lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__1() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -285,7 +286,7 @@ x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__2() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -293,7 +294,7 @@ x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__3() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -301,7 +302,7 @@ x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__4() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -309,19 +310,19 @@ x_1 = lean_mk_string_from_bytes("tacticSeq", 9);
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__5() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__1;
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__2;
-x_3 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__3;
-x_4 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__4;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__1;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__2;
+x_3 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__3;
+x_4 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__4;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__6() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -330,7 +331,7 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__7() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -338,19 +339,19 @@ x_1 = lean_mk_string_from_bytes("tacticSeq1Indented", 18);
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__8() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__1;
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__2;
-x_3 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__3;
-x_4 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__7;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__1;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__2;
+x_3 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__3;
+x_4 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__7;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__9() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__9() {
 _start:
 {
 lean_object* x_1; 
@@ -358,17 +359,17 @@ x_1 = lean_mk_string_from_bytes("null", 4);
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__10() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__9;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__9;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__11() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__11() {
 _start:
 {
 lean_object* x_1; 
@@ -376,41 +377,41 @@ x_1 = lean_mk_string_from_bytes("exact", 5);
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__12() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__1;
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__2;
-x_3 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__3;
-x_4 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__11;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__1;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__2;
+x_3 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__3;
+x_4 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__11;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__13() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(2);
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__11;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__11;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__14() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__6;
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__13;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__6;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__13;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__15() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__15() {
 _start:
 {
 lean_object* x_1; 
@@ -418,7 +419,7 @@ x_1 = lean_mk_string_from_bytes("Term", 4);
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__16() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__16() {
 _start:
 {
 lean_object* x_1; 
@@ -426,19 +427,19 @@ x_1 = lean_mk_string_from_bytes("declName", 8);
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__17() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__17() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__1;
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__2;
-x_3 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__15;
-x_4 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__16;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__1;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__2;
+x_3 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__15;
+x_4 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__16;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__18() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__18() {
 _start:
 {
 lean_object* x_1; 
@@ -446,35 +447,35 @@ x_1 = lean_mk_string_from_bytes("decl_name%", 10);
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__19() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__19() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(2);
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__18;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__18;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__20() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__20() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__6;
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__19;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__6;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__19;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__21() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__21() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(2);
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__17;
-x_3 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__20;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__17;
+x_3 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__20;
 x_4 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -482,23 +483,23 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__22() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__22() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__14;
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__21;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__14;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__21;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__23() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__23() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(2);
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__12;
-x_3 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__22;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__12;
+x_3 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__22;
 x_4 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -506,23 +507,23 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__24() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__24() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__6;
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__23;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__6;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__23;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__25() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__25() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(2);
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__10;
-x_3 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__24;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__10;
+x_3 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__24;
 x_4 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -530,23 +531,23 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__26() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__26() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__6;
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__25;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__6;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__25;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__27() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__27() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(2);
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__8;
-x_3 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__26;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__8;
+x_3 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__26;
 x_4 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -554,23 +555,23 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__28() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__28() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__6;
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__27;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__6;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__27;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__29() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__29() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(2);
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__5;
-x_3 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__28;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__5;
+x_3 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__28;
 x_4 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -578,11 +579,11 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_52_() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_57_() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__29;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__29;
 return x_1;
 }
 }
@@ -625,7 +626,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_3 = l_Lean_mkLabelExt___closed__1;
-x_4 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__6;
+x_4 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__6;
 x_5 = l_Lean_mkLabelExt___closed__2;
 x_6 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_6, 0, x_1);
@@ -636,11 +637,11 @@ x_7 = l_Lean_registerSimpleScopedEnvExtension___rarg(x_6, x_2);
 return x_7;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_88_() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_94_() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__29;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__29;
 return x_1;
 }
 }
@@ -807,10 +808,8 @@ LEAN_EXPORT lean_object* l_Lean_mkLabelAttr___lambda__1(lean_object* x_1, lean_o
 _start:
 {
 uint8_t x_8; lean_object* x_9; 
-lean_dec(x_3);
 x_8 = 0;
 x_9 = l_Lean_ScopedEnvExtension_add___at_Lean_mkLabelAttr___spec__1(x_1, x_2, x_8, x_5, x_6, x_7);
-lean_dec(x_6);
 return x_9;
 }
 }
@@ -835,7 +834,7 @@ lean_dec(x_6);
 x_9 = lean_ctor_get(x_7, 0);
 lean_inc(x_9);
 lean_dec(x_7);
-x_10 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__6;
+x_10 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__6;
 x_11 = l_Lean_ScopedEnvExtension_getState___rarg(x_10, x_1, x_9);
 lean_dec(x_9);
 x_12 = lean_st_ref_take(x_4, x_8);
@@ -984,6 +983,8 @@ uint8_t x_8; lean_object* x_9;
 x_8 = lean_unbox(x_4);
 lean_dec(x_4);
 x_9 = l_Lean_mkLabelAttr___lambda__1(x_1, x_2, x_3, x_8, x_5, x_6, x_7);
+lean_dec(x_6);
+lean_dec(x_3);
 return x_9;
 }
 }
@@ -1008,11 +1009,11 @@ lean_dec(x_1);
 return x_6;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_160_() {
+static lean_object* _init_l___auto____x40_Lean_LabelAttribute___hyg_167_() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__29;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__29;
 return x_1;
 }
 }
@@ -1266,68 +1267,72 @@ return x_1;
 }
 else
 {
-lean_object* x_19; lean_object* x_20; 
+lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 lean_dec(x_7);
-x_19 = l_Lean_AssocList_replace___at_Lean_registerLabelAttr___spec__6(x_2, x_3, x_10);
+x_19 = lean_box(0);
 x_20 = lean_array_uset(x_6, x_9, x_19);
-lean_ctor_set(x_1, 1, x_20);
+x_21 = l_Lean_AssocList_replace___at_Lean_registerLabelAttr___spec__6(x_2, x_3, x_10);
+x_22 = lean_array_uset(x_20, x_9, x_21);
+lean_ctor_set(x_1, 1, x_22);
 return x_1;
 }
 }
 else
 {
-lean_object* x_21; lean_object* x_22; lean_object* x_23; uint64_t x_24; size_t x_25; lean_object* x_26; uint8_t x_27; 
-x_21 = lean_ctor_get(x_1, 0);
-x_22 = lean_ctor_get(x_1, 1);
-lean_inc(x_22);
-lean_inc(x_21);
-lean_dec(x_1);
-x_23 = lean_array_get_size(x_22);
-x_24 = l_Lean_Name_hash___override(x_2);
+lean_object* x_23; lean_object* x_24; lean_object* x_25; uint64_t x_26; size_t x_27; lean_object* x_28; uint8_t x_29; 
+x_23 = lean_ctor_get(x_1, 0);
+x_24 = lean_ctor_get(x_1, 1);
+lean_inc(x_24);
 lean_inc(x_23);
-x_25 = lean_hashmap_mk_idx(x_23, x_24);
-x_26 = lean_array_uget(x_22, x_25);
-x_27 = l_Lean_AssocList_contains___at_Lean_registerLabelAttr___spec__2(x_2, x_26);
-if (x_27 == 0)
+lean_dec(x_1);
+x_25 = lean_array_get_size(x_24);
+x_26 = l_Lean_Name_hash___override(x_2);
+lean_inc(x_25);
+x_27 = lean_hashmap_mk_idx(x_25, x_26);
+x_28 = lean_array_uget(x_24, x_27);
+x_29 = l_Lean_AssocList_contains___at_Lean_registerLabelAttr___spec__2(x_2, x_28);
+if (x_29 == 0)
 {
-lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; uint8_t x_33; 
-x_28 = lean_unsigned_to_nat(1u);
-x_29 = lean_nat_add(x_21, x_28);
-lean_dec(x_21);
-x_30 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_30, 0, x_2);
-lean_ctor_set(x_30, 1, x_3);
-lean_ctor_set(x_30, 2, x_26);
-x_31 = lean_array_uset(x_22, x_25, x_30);
-x_32 = l___private_Lean_Data_HashMap_0__Lean_numBucketsForCapacity(x_29);
-x_33 = lean_nat_dec_le(x_32, x_23);
+lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; 
+x_30 = lean_unsigned_to_nat(1u);
+x_31 = lean_nat_add(x_23, x_30);
 lean_dec(x_23);
-lean_dec(x_32);
-if (x_33 == 0)
+x_32 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_32, 0, x_2);
+lean_ctor_set(x_32, 1, x_3);
+lean_ctor_set(x_32, 2, x_28);
+x_33 = lean_array_uset(x_24, x_27, x_32);
+x_34 = l___private_Lean_Data_HashMap_0__Lean_numBucketsForCapacity(x_31);
+x_35 = lean_nat_dec_le(x_34, x_25);
+lean_dec(x_25);
+lean_dec(x_34);
+if (x_35 == 0)
 {
-lean_object* x_34; 
-x_34 = l_Lean_HashMapImp_expand___at_Lean_registerLabelAttr___spec__3(x_29, x_31);
-return x_34;
+lean_object* x_36; 
+x_36 = l_Lean_HashMapImp_expand___at_Lean_registerLabelAttr___spec__3(x_31, x_33);
+return x_36;
 }
 else
 {
-lean_object* x_35; 
-x_35 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_35, 0, x_29);
-lean_ctor_set(x_35, 1, x_31);
-return x_35;
+lean_object* x_37; 
+x_37 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_37, 0, x_31);
+lean_ctor_set(x_37, 1, x_33);
+return x_37;
 }
 }
 else
 {
-lean_object* x_36; lean_object* x_37; lean_object* x_38; 
-lean_dec(x_23);
-x_36 = l_Lean_AssocList_replace___at_Lean_registerLabelAttr___spec__6(x_2, x_3, x_26);
-x_37 = lean_array_uset(x_22, x_25, x_36);
-x_38 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_38, 0, x_21);
-lean_ctor_set(x_38, 1, x_37);
-return x_38;
+lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; 
+lean_dec(x_25);
+x_38 = lean_box(0);
+x_39 = lean_array_uset(x_24, x_27, x_38);
+x_40 = l_Lean_AssocList_replace___at_Lean_registerLabelAttr___spec__6(x_2, x_3, x_28);
+x_41 = lean_array_uset(x_39, x_27, x_40);
+x_42 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_42, 0, x_23);
+lean_ctor_set(x_42, 1, x_41);
+return x_42;
 }
 }
 }
@@ -1485,9 +1490,9 @@ static lean_object* _init_l_Lean_Parser_Command_registerLabelAttr___closed__4() 
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__1;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__1;
 x_2 = l_Lean_Parser_Command_registerLabelAttr___closed__1;
-x_3 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__2;
+x_3 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__2;
 x_4 = l_Lean_Parser_Command_registerLabelAttr___closed__2;
 x_5 = l_Lean_Parser_Command_registerLabelAttr___closed__3;
 x_6 = l_Lean_Name_mkStr6(x_1, x_2, x_1, x_3, x_4, x_5);
@@ -1678,7 +1683,7 @@ static lean_object* _init_l_Lean___aux__Lean__LabelAttribute______macroRules__Le
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__2;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__2;
 x_2 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__1;
 x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
@@ -1696,8 +1701,8 @@ static lean_object* _init_l_Lean___aux__Lean__LabelAttribute______macroRules__Le
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__1;
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__2;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__1;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__2;
 x_3 = l_Lean_Parser_Command_registerLabelAttr___closed__2;
 x_4 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__3;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
@@ -1716,8 +1721,8 @@ static lean_object* _init_l_Lean___aux__Lean__LabelAttribute______macroRules__Le
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__1;
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__2;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__1;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__2;
 x_3 = l_Lean_Parser_Command_registerLabelAttr___closed__2;
 x_4 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__5;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
@@ -1736,8 +1741,8 @@ static lean_object* _init_l_Lean___aux__Lean__LabelAttribute______macroRules__Le
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__1;
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__2;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__1;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__2;
 x_3 = l_Lean_Parser_Command_registerLabelAttr___closed__2;
 x_4 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__7;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
@@ -1783,9 +1788,9 @@ static lean_object* _init_l_Lean___aux__Lean__LabelAttribute______macroRules__Le
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__1;
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__2;
-x_3 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__15;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__1;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__2;
+x_3 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__15;
 x_4 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__12;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
@@ -1828,7 +1833,7 @@ static lean_object* _init_l_Lean___aux__Lean__LabelAttribute______macroRules__Le
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__1;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__1;
 x_2 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__17;
 x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
@@ -1878,9 +1883,9 @@ static lean_object* _init_l_Lean___aux__Lean__LabelAttribute______macroRules__Le
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__1;
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__2;
-x_3 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__15;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__1;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__2;
+x_3 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__15;
 x_4 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__22;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
@@ -1898,9 +1903,9 @@ static lean_object* _init_l_Lean___aux__Lean__LabelAttribute______macroRules__Le
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__1;
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__2;
-x_3 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__15;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__1;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__2;
+x_3 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__15;
 x_4 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__24;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
@@ -1918,9 +1923,9 @@ static lean_object* _init_l_Lean___aux__Lean__LabelAttribute______macroRules__Le
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__1;
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__2;
-x_3 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__15;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__1;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__2;
+x_3 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__15;
 x_4 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__26;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
@@ -1938,9 +1943,9 @@ static lean_object* _init_l_Lean___aux__Lean__LabelAttribute______macroRules__Le
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__1;
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__2;
-x_3 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__15;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__1;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__2;
+x_3 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__15;
 x_4 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__28;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
@@ -1969,7 +1974,7 @@ static lean_object* _init_l_Lean___aux__Lean__LabelAttribute______macroRules__Le
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__1;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__1;
 x_2 = l_Lean_Parser_Command_registerLabelAttr___closed__3;
 x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
@@ -2033,8 +2038,8 @@ static lean_object* _init_l_Lean___aux__Lean__LabelAttribute______macroRules__Le
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__1;
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__2;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__1;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__2;
 x_3 = l_Lean_Parser_Command_registerLabelAttr___closed__2;
 x_4 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__37;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
@@ -2053,9 +2058,9 @@ static lean_object* _init_l_Lean___aux__Lean__LabelAttribute______macroRules__Le
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__1;
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__2;
-x_3 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__15;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__1;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__2;
+x_3 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__15;
 x_4 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__39;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
@@ -2073,8 +2078,8 @@ static lean_object* _init_l_Lean___aux__Lean__LabelAttribute______macroRules__Le
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__1;
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__2;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__1;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__2;
 x_3 = l_Lean_Parser_Command_registerLabelAttr___closed__2;
 x_4 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__41;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
@@ -2133,8 +2138,8 @@ static lean_object* _init_l_Lean___aux__Lean__LabelAttribute______macroRules__Le
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__1;
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__2;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__1;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__2;
 x_3 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__47;
 x_4 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__48;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
@@ -2189,9 +2194,9 @@ static lean_object* _init_l_Lean___aux__Lean__LabelAttribute______macroRules__Le
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__1;
-x_2 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__2;
-x_3 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__15;
+x_1 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__1;
+x_2 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__2;
+x_3 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__15;
 x_4 = l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__54;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
@@ -2267,6 +2272,7 @@ lean_inc(x_13);
 x_17 = l_Lean_Name_append(x_16, x_13);
 x_18 = 0;
 x_19 = l_Lean_mkIdentFrom(x_11, x_17, x_18);
+lean_dec(x_11);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_148; 
@@ -2326,13 +2332,14 @@ lean_dec(x_22);
 x_25 = lean_ctor_get(x_2, 5);
 lean_inc(x_25);
 x_26 = l_Lean_SourceInfo_fromRef(x_25, x_18);
+lean_dec(x_25);
 x_27 = lean_ctor_get(x_2, 2);
 lean_inc(x_27);
 x_28 = lean_ctor_get(x_2, 1);
 lean_inc(x_28);
 lean_dec(x_2);
-x_29 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__10;
-x_30 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__6;
+x_29 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__10;
+x_30 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__6;
 lean_inc(x_26);
 x_31 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_31, 0, x_26);
@@ -2469,6 +2476,7 @@ block_139:
 {
 lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; 
 x_83 = l_Array_append___rarg(x_30, x_82);
+lean_dec(x_82);
 lean_inc(x_26);
 x_84 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_84, 0, x_26);
@@ -2618,16 +2626,12 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; uint64_t x_5; size_t x_6; lean_object* x_7; lean_object* x_8; 
 x_3 = lean_ctor_get(x_1, 1);
-lean_inc(x_3);
-lean_dec(x_1);
 x_4 = lean_array_get_size(x_3);
 x_5 = l_Lean_Name_hash___override(x_2);
 x_6 = lean_hashmap_mk_idx(x_4, x_5);
 x_7 = lean_array_uget(x_3, x_6);
-lean_dec(x_3);
 x_8 = l_Lean_AssocList_find_x3f___at_Lean_labelled___spec__2(x_2, x_7);
 lean_dec(x_7);
-lean_dec(x_2);
 return x_8;
 }
 }
@@ -2715,8 +2719,8 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_ctor_get(x_6, 1);
-lean_inc(x_1);
 x_10 = l_Lean_HashMapImp_find_x3f___at_Lean_labelled___spec__1(x_8, x_1);
+lean_dec(x_8);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
@@ -2749,7 +2753,7 @@ x_19 = lean_ctor_get(x_17, 0);
 x_20 = lean_ctor_get(x_19, 0);
 lean_inc(x_20);
 lean_dec(x_19);
-x_21 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__6;
+x_21 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__6;
 x_22 = l_Lean_ScopedEnvExtension_getState___rarg(x_21, x_16, x_20);
 lean_dec(x_20);
 lean_dec(x_16);
@@ -2767,7 +2771,7 @@ lean_dec(x_17);
 x_25 = lean_ctor_get(x_23, 0);
 lean_inc(x_25);
 lean_dec(x_23);
-x_26 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__6;
+x_26 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__6;
 x_27 = l_Lean_ScopedEnvExtension_getState___rarg(x_26, x_16, x_25);
 lean_dec(x_25);
 lean_dec(x_16);
@@ -2786,8 +2790,8 @@ x_30 = lean_ctor_get(x_6, 1);
 lean_inc(x_30);
 lean_inc(x_29);
 lean_dec(x_6);
-lean_inc(x_1);
 x_31 = l_Lean_HashMapImp_find_x3f___at_Lean_labelled___spec__1(x_29, x_1);
+lean_dec(x_29);
 if (lean_obj_tag(x_31) == 0)
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
@@ -2826,7 +2830,7 @@ if (lean_is_exclusive(x_39)) {
 x_43 = lean_ctor_get(x_40, 0);
 lean_inc(x_43);
 lean_dec(x_40);
-x_44 = l___auto____x40_Lean_LabelAttribute___hyg_52____closed__6;
+x_44 = l___auto____x40_Lean_LabelAttribute___hyg_57____closed__6;
 x_45 = l_Lean_ScopedEnvExtension_getState___rarg(x_44, x_38, x_43);
 lean_dec(x_43);
 lean_dec(x_38);
@@ -2847,6 +2851,16 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_AssocList_find_x3f___at_Lean_labelled___spec__2(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_HashMapImp_find_x3f___at_Lean_labelled___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_HashMapImp_find_x3f___at_Lean_labelled___spec__1(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
@@ -2885,77 +2899,77 @@ lean_dec_ref(res);
 res = initialize_Lean_DocString(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-if (builtin) {res = l_Lean_initFn____x40_Lean_LabelAttribute___hyg_18_(lean_io_mk_world());
+if (builtin) {res = l_Lean_initFn____x40_Lean_LabelAttribute___hyg_20_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_labelExtensionMapRef = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_labelExtensionMapRef);
 lean_dec_ref(res);
-}l___auto____x40_Lean_LabelAttribute___hyg_52____closed__1 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__1();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__1);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__2 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__2();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__2);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__3 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__3();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__3);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__4 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__4();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__4);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__5 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__5();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__5);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__6 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__6();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__6);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__7 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__7();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__7);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__8 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__8();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__8);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__9 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__9();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__9);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__10 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__10();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__10);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__11 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__11();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__11);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__12 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__12();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__12);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__13 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__13();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__13);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__14 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__14();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__14);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__15 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__15();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__15);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__16 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__16();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__16);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__17 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__17();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__17);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__18 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__18();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__18);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__19 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__19();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__19);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__20 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__20();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__20);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__21 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__21();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__21);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__22 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__22();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__22);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__23 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__23();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__23);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__24 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__24();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__24);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__25 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__25();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__25);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__26 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__26();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__26);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__27 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__27();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__27);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__28 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__28();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__28);
-l___auto____x40_Lean_LabelAttribute___hyg_52____closed__29 = _init_l___auto____x40_Lean_LabelAttribute___hyg_52____closed__29();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52____closed__29);
-l___auto____x40_Lean_LabelAttribute___hyg_52_ = _init_l___auto____x40_Lean_LabelAttribute___hyg_52_();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_52_);
+}l___auto____x40_Lean_LabelAttribute___hyg_57____closed__1 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__1();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__1);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__2 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__2();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__2);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__3 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__3();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__3);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__4 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__4();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__4);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__5 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__5();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__5);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__6 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__6();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__6);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__7 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__7();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__7);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__8 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__8();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__8);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__9 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__9();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__9);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__10 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__10();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__10);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__11 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__11();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__11);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__12 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__12();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__12);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__13 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__13();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__13);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__14 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__14();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__14);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__15 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__15();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__15);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__16 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__16();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__16);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__17 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__17();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__17);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__18 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__18();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__18);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__19 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__19();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__19);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__20 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__20();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__20);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__21 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__21();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__21);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__22 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__22();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__22);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__23 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__23();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__23);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__24 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__24();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__24);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__25 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__25();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__25);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__26 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__26();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__26);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__27 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__27();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__27);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__28 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__28();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__28);
+l___auto____x40_Lean_LabelAttribute___hyg_57____closed__29 = _init_l___auto____x40_Lean_LabelAttribute___hyg_57____closed__29();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57____closed__29);
+l___auto____x40_Lean_LabelAttribute___hyg_57_ = _init_l___auto____x40_Lean_LabelAttribute___hyg_57_();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_57_);
 l_Lean_mkLabelExt___closed__1 = _init_l_Lean_mkLabelExt___closed__1();
 lean_mark_persistent(l_Lean_mkLabelExt___closed__1);
 l_Lean_mkLabelExt___closed__2 = _init_l_Lean_mkLabelExt___closed__2();
 lean_mark_persistent(l_Lean_mkLabelExt___closed__2);
-l___auto____x40_Lean_LabelAttribute___hyg_88_ = _init_l___auto____x40_Lean_LabelAttribute___hyg_88_();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_88_);
+l___auto____x40_Lean_LabelAttribute___hyg_94_ = _init_l___auto____x40_Lean_LabelAttribute___hyg_94_();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_94_);
 l_Lean_ScopedEnvExtension_add___at_Lean_mkLabelAttr___spec__1___closed__1 = _init_l_Lean_ScopedEnvExtension_add___at_Lean_mkLabelAttr___spec__1___closed__1();
 lean_mark_persistent(l_Lean_ScopedEnvExtension_add___at_Lean_mkLabelAttr___spec__1___closed__1);
 l_Lean_ScopedEnvExtension_add___at_Lean_mkLabelAttr___spec__1___closed__2 = _init_l_Lean_ScopedEnvExtension_add___at_Lean_mkLabelAttr___spec__1___closed__2();
@@ -2964,8 +2978,8 @@ l_Lean_ScopedEnvExtension_add___at_Lean_mkLabelAttr___spec__1___closed__3 = _ini
 lean_mark_persistent(l_Lean_ScopedEnvExtension_add___at_Lean_mkLabelAttr___spec__1___closed__3);
 l_Lean_ScopedEnvExtension_add___at_Lean_mkLabelAttr___spec__1___closed__4 = _init_l_Lean_ScopedEnvExtension_add___at_Lean_mkLabelAttr___spec__1___closed__4();
 lean_mark_persistent(l_Lean_ScopedEnvExtension_add___at_Lean_mkLabelAttr___spec__1___closed__4);
-l___auto____x40_Lean_LabelAttribute___hyg_160_ = _init_l___auto____x40_Lean_LabelAttribute___hyg_160_();
-lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_160_);
+l___auto____x40_Lean_LabelAttribute___hyg_167_ = _init_l___auto____x40_Lean_LabelAttribute___hyg_167_();
+lean_mark_persistent(l___auto____x40_Lean_LabelAttribute___hyg_167_);
 l_Lean_registerLabelAttr___closed__1 = _init_l_Lean_registerLabelAttr___closed__1();
 lean_mark_persistent(l_Lean_registerLabelAttr___closed__1);
 l_Lean_Parser_Command_registerLabelAttr___closed__1 = _init_l_Lean_Parser_Command_registerLabelAttr___closed__1();

@@ -191,6 +191,7 @@ if (x_4 == 0)
 lean_object* x_12; lean_object* x_13; 
 x_12 = l_Lean_Elab_headerToImports___closed__1;
 x_13 = l_Array_append___rarg(x_12, x_11);
+lean_dec(x_11);
 return x_13;
 }
 else
@@ -198,6 +199,7 @@ else
 lean_object* x_14; lean_object* x_15; 
 x_14 = l_Lean_Elab_headerToImports___closed__6;
 x_15 = l_Array_append___rarg(x_14, x_11);
+lean_dec(x_11);
 return x_15;
 }
 }

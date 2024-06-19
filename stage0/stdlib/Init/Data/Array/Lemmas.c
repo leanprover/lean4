@@ -525,7 +525,7 @@ lean_object* x_7; lean_object* x_8; uint8_t x_9;
 x_7 = lean_array_uget(x_3, x_4);
 lean_inc(x_1);
 lean_inc(x_2);
-x_8 = lean_apply_2(x_1, x_2, x_7);
+x_8 = lean_apply_2(x_1, x_7, x_2);
 x_9 = lean_unbox(x_8);
 lean_dec(x_8);
 if (x_9 == 0)
@@ -575,7 +575,6 @@ if (x_6 == 0)
 uint8_t x_7; 
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 x_7 = 0;
 return x_7;
@@ -587,7 +586,6 @@ x_8 = 0;
 x_9 = lean_usize_of_nat(x_4);
 lean_dec(x_4);
 x_10 = l_Array_anyMUnsafe_any___at_Array_instDecidableMemOfDecidableEq___spec__2___rarg(x_1, x_3, x_2, x_8, x_9);
-lean_dec(x_2);
 return x_10;
 }
 }
@@ -635,6 +633,7 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = l_Array_contains___at_Array_instDecidableMemOfDecidableEq___spec__1___rarg(x_1, x_2, x_3);
+lean_dec(x_2);
 x_5 = lean_box(x_4);
 return x_5;
 }
@@ -644,6 +643,7 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = l_Array_instDecidableMemOfDecidableEq___rarg(x_1, x_2, x_3);
+lean_dec(x_3);
 x_5 = lean_box(x_4);
 return x_5;
 }

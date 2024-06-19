@@ -24,7 +24,7 @@ theorem mod_def (a m : Fin n) : a % m = Fin.mk (a % m) (Nat.lt_of_le_of_lt (Nat.
 
 theorem mul_def (a b : Fin n) : a * b = Fin.mk ((a * b) % n) (Nat.mod_lt _ a.size_pos) := rfl
 
-theorem sub_def (a b : Fin n) : a - b = Fin.mk ((a + (n - b)) % n) (Nat.mod_lt _ a.size_pos) := rfl
+theorem sub_def (a b : Fin n) : a - b = Fin.mk (((n - b) + a) % n) (Nat.mod_lt _ a.size_pos) := rfl
 
 theorem size_pos' : ∀ [Nonempty (Fin n)], 0 < n | ⟨i⟩ => i.size_pos
 
@@ -42,9 +42,6 @@ theorem pos_iff_nonempty {n : Nat} : 0 < n ↔ Nonempty (Fin n) :=
 theorem ext_iff {a b : Fin n} : a = b ↔ a.1 = b.1 := val_inj.symm
 
 theorem val_ne_iff {a b : Fin n} : a.1 ≠ b.1 ↔ a ≠ b := not_congr val_inj
-
-theorem exists_iff {p : Fin n → Prop} : (∃ i, p i) ↔ ∃ i h, p ⟨i, h⟩ :=
-  ⟨fun ⟨⟨i, hi⟩, hpi⟩ => ⟨i, hi, hpi⟩, fun ⟨i, hi, hpi⟩ => ⟨⟨i, hi⟩, hpi⟩⟩
 
 theorem forall_iff {p : Fin n → Prop} : (∀ i, p i) ↔ ∀ i h, p ⟨i, h⟩ :=
   ⟨fun h i hi => h ⟨i, hi⟩, fun h ⟨i, hi⟩ => h i hi⟩
@@ -762,16 +759,16 @@ theorem addCases_right {m n : Nat} {motive : Fin (m + n) → Sort _} {left right
 
 /-! ### sub -/
 
-protected theorem coe_sub (a b : Fin n) : ((a - b : Fin n) : Nat) = (a + (n - b)) % n := by
+protected theorem coe_sub (a b : Fin n) : ((a - b : Fin n) : Nat) = ((n - b) + a) % n := by
   cases a; cases b; rfl
 
 @[simp] theorem ofNat'_sub (x : Nat) (lt : 0 < n) (y : Fin n) :
-    Fin.ofNat' x lt - y = Fin.ofNat' (x + (n - y.val)) lt := by
+    Fin.ofNat' x lt - y = Fin.ofNat' ((n - y.val) + x) lt := by
   apply Fin.eq_of_val_eq
   simp [Fin.ofNat', Fin.sub_def]
 
 @[simp] theorem sub_ofNat' (x : Fin n) (y : Nat) (lt : 0 < n) :
-    x - Fin.ofNat' y lt = Fin.ofNat' (x.val + (n - y % n)) lt := by
+    x - Fin.ofNat' y lt = Fin.ofNat' ((n - y % n) + x.val) lt := by
   apply Fin.eq_of_val_eq
   simp [Fin.ofNat', Fin.sub_def]
 
@@ -782,7 +779,7 @@ private theorem _root_.Nat.mod_eq_sub_of_lt_two_mul {x n} (h₁ : n ≤ x) (h₂
 theorem coe_sub_iff_le {a b : Fin n} : (↑(a - b) : Nat) = a - b ↔ b ≤ a := by
   rw [sub_def, le_def]
   dsimp only
-  if h : n ≤ a + (n - b) then
+  if h : n ≤ (n - b) + a then
     rw [Nat.mod_eq_sub_of_lt_two_mul h]
     all_goals omega
   else
@@ -792,7 +789,7 @@ theorem coe_sub_iff_le {a b : Fin n} : (↑(a - b) : Nat) = a - b ↔ b ≤ a :=
 theorem coe_sub_iff_lt {a b : Fin n} : (↑(a - b) : Nat) = n + a - b ↔ a < b := by
   rw [sub_def, lt_def]
   dsimp only
-  if h : n ≤ a + (n - b) then
+  if h : n ≤ (n - b) + a then
     rw [Nat.mod_eq_sub_of_lt_two_mul h]
     all_goals omega
   else

@@ -32,7 +32,7 @@ before `omega` is available.
 -/
 syntax "decreasing_trivial_pre_omega" : tactic
 macro_rules | `(tactic| decreasing_trivial_pre_omega) => `(tactic| apply Nat.sub_succ_lt_self; assumption) -- a - (i+1) < a - i if i < a
-macro_rules | `(tactic| decreasing_trivial_pre_omega) => `(tactic| apply Nat.pred_lt'; assumption) -- i-1 < i if j < i
+macro_rules | `(tactic| decreasing_trivial_pre_omega) => `(tactic| apply Nat.pred_lt_of_lt; assumption) -- i-1 < i if j < i
 macro_rules | `(tactic| decreasing_trivial_pre_omega) => `(tactic| apply Nat.pred_lt; assumption)  -- i-1 < i if i ≠ 0
 
 

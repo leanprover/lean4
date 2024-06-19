@@ -298,6 +298,13 @@ jobs:
           ref: nightly-testing
           fetch-depth: 0 # This ensures we check out all tags and branches.
 
+      - name: install elan
+        run: |
+          set -o pipefail
+          curl -sSfL https://github.com/leanprover/elan/releases/download/v3.0.0/elan-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          ./elan-init -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "${GITHUB_PATH}"
+
       - name: Check if tag exists
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
         id: check_mathlib_tag
@@ -322,7 +329,8 @@ jobs:
             echo "leanprover/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}" > lean-toolchain
             git add lean-toolchain
             sed -i "s/require batteries from git \"https:\/\/github.com\/leanprover-community\/batteries\" @ \".\+\"/require batteries from git \"https:\/\/github.com\/leanprover-community\/batteries\" @ \"nightly-testing-${MOST_RECENT_NIGHTLY}\"/" lakefile.lean
-            git add lakefile.lean
+            lake update batteries
+            git add lakefile.lean lake-manifest.json
             git commit -m "Update lean-toolchain for testing https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
           else
             echo "Branch already exists, pushing an empty commit."

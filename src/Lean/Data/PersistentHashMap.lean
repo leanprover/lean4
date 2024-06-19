@@ -136,7 +136,7 @@ partial def insertAux [BEq α] [Hashable α] : Node α β → USize → USize �
         else Entry.ref $ mkCollisionNode k' v' k v
 
 def insert {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → β → PersistentHashMap α β
-  | { root := n }, k, v => { root := insertAux n (hash k |>.toUSize) 1 k v }
+  | { root }, k, v => { root := insertAux root (hash k |>.toUSize) 1 k v }
 
 partial def findAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : keys.size = vals.size) (i : Nat) (k : α) : Option β :=
   if h : i < keys.size then
@@ -156,7 +156,7 @@ partial def findAux [BEq α] : Node α β → USize → α → Option β
   | Node.collision keys vals heq, _, k => findAtAux keys vals heq 0 k
 
 def find? {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → Option β
-  | { root := n, .. }, k => findAux n (hash k |>.toUSize) k
+  | { root }, k => findAux root (hash k |>.toUSize) k
 
 instance {_ : BEq α} {_ : Hashable α} : GetElem (PersistentHashMap α β) α (Option β) fun _ _ => True where
   getElem m i _ := m.find? i
@@ -189,7 +189,7 @@ partial def findEntryAux [BEq α] : Node α β → USize → α → Option (α �
   | Node.collision keys vals heq, _, k => findEntryAtAux keys vals heq 0 k
 
 def findEntry? {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → Option (α × β)
-  | { root := n, .. }, k => findEntryAux n (hash k |>.toUSize) k
+  | { root }, k => findEntryAux root (hash k |>.toUSize) k
 
 partial def containsAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : keys.size = vals.size) (i : Nat) (k : α) : Bool :=
   if h : i < keys.size then
@@ -208,7 +208,7 @@ partial def containsAux [BEq α] : Node α β → USize → α → Bool
   | Node.collision keys vals heq, _, k => containsAtAux keys vals heq 0 k
 
 def contains [BEq α] [Hashable α] : PersistentHashMap α β → α → Bool
-  | { root := n, .. }, k => containsAux n (hash k |>.toUSize) k
+  | { root }, k => containsAux root (hash k |>.toUSize) k
 
 partial def isUnaryEntries (a : Array (Entry α β (Node α β))) (i : Nat) (acc : Option (α × β)) : Option (α × β) :=
   if h : i < a.size then
@@ -257,10 +257,9 @@ partial def eraseAux [BEq α] : Node α β → USize → α → Node α β
       | some (k, v) => Node.entries (entries.set! j (Entry.entry k v))
 
 def erase {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → PersistentHashMap α β
-  | { root := n }, k =>
+  | { root }, k =>
     let h := hash k |>.toUSize
-    let n := eraseAux n h k
-    { root := n }
+    { root := eraseAux root h k }
 
 section
 variable {m : Type w → Type w'} [Monad m]
@@ -322,7 +321,7 @@ partial def mapMAux {α : Type u} {β : Type v} {σ : Type u} {m : Type u → Ty
 
 def mapM {α : Type u} {β : Type v} {σ : Type u} {m : Type u → Type w} [Monad m] {_ : BEq α} {_ : Hashable α} (pm : PersistentHashMap α β) (f : β → m σ) : m (PersistentHashMap α σ) := do
   let root ← mapMAux f pm.root
-  return { pm with root }
+  return { root }
 
 def map {α : Type u} {β : Type v} {σ : Type u} {_ : BEq α} {_ : Hashable α} (pm : PersistentHashMap α β) (f : β → σ) : PersistentHashMap α σ :=
   Id.run <| pm.mapM f

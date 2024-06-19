@@ -122,10 +122,23 @@ def allTags [Monad m] [MonadEnv m] : m (List Name) := do
   let mut found : NameSet := {}
   for (tag, _) in knownTacticTagExt.getState env do
     found := found.insert tag
-  for arr in tacticAliasExt.toEnvExtension.getState env |>.importedEntries do
+  for arr in knownTacticTagExt.toEnvExtension.getState env |>.importedEntries do
     for (tag, _) in arr do
       found := found.insert tag
   pure (found.toArray.qsort (·.toString < ·.toString) |>.toList)
+
+/-- Enumerate the tactic tags that are available, with their user-facing name and docstring -/
+def allTagsWithInfo [Monad m] [MonadEnv m] : m (List (Name × String × Option String)) := do
+  let env ← getEnv
+  let mut found : NameMap (String × Option String) := {}
+  for (tag, info) in knownTacticTagExt.getState env do
+    found := found.insert tag info
+  for arr in knownTacticTagExt.toEnvExtension.getState env |>.importedEntries do
+    for (tag, info) in arr do
+      found := found.insert tag info
+  let arr := found.fold (init := #[]) (fun arr k v => arr.push (k, v))
+  pure (arr.qsort (·.1.toString < ·.1.toString) |>.toList)
+
 
 /--
 Register a tactic tag, saving its user-facing name and docstring.

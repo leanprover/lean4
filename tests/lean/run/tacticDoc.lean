@@ -1,7 +1,5 @@
 import Lean.Parser.Tactic.Doc
 import Lean.Elab.Tactic.Doc
-import Lean.Elab.Command
-
 
 /-- Finishing tactics that are intended to completely close a goal -/
 register_tactic_tag finishing "finishing"
@@ -32,9 +30,8 @@ attribute [tactic_tag ctrl] Lean.Parser.Tactic.«tactic_<;>_»
 #guard_msgs in
 attribute [tactic_tag bogus] my_trivial
 
-
 /--
-info: Available tags:
+info: Available tags: ⏎
   • 'ctrl' — "control flow"
     Tactics that sequence or arrange other tactics ⏎
     '<;>'

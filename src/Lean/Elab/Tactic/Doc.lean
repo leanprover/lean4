@@ -15,7 +15,7 @@ elab_rules : command
   | `(tactic_extension $_) => throwError "Missing documentation comment"
   | `($doc:docComment tactic_extension $tac) => do
     let tacName ← liftTermElabM <| realizeGlobalConstNoOverloadWithInfo tac
-    if let some tgt' ← aliasOfTactic tacName then
+    if let some tgt' := aliasOfTactic (← getEnv) tacName then
         throwError "'{tacName}' is an alias of '{tgt'}'"
     modifyEnv (tacticDocExtExt.addEntry · (tacName, doc.getDocString))
 

@@ -32,14 +32,13 @@ builtin_initialize tacticAliasExt
 /--
 If `tac` is registered as the alias of another tactic, then return the canonical name for it.
 -/
-def aliasOfTactic [Monad m] [MonadEnv m] (tac : Name) : m (Option Name) := do
-  let env ← getEnv
+def aliasOfTactic (env : Environment) (tac : Name) : Option Name :=
   match env.getModuleIdxFor? tac with
   | some modIdx =>
     match (tacticAliasExt.getModuleEntries env modIdx).binSearch (tac, .anonymous) (Name.quickLt ·.1 ·.1) with
-    | some (_, val) => pure (some val)
-    | none => pure none
-  | none => pure (tacticAliasExt.getState env |>.find? tac)
+    | some (_, val) => some val
+    | none => none
+  | none => tacticAliasExt.getState env |>.find? tac
 
 /--
 Find all aliases of a given canonical tactic name.
@@ -77,7 +76,7 @@ builtin_initialize
 
       let tgtName ← Lean.Elab.realizeGlobalConstNoOverloadWithInfo tgt
 
-      if let some tgt' ← aliasOfTactic tgtName then
+      if let some tgt' := aliasOfTactic (← getEnv) tgtName then
         throwError "'{tgtName}' is itself an alias of '{tgt'}'"
       modifyEnv fun env => tacticAliasExt.addEntry env (decl, tgtName)
       if let some docs ← findDocString? (← getEnv) tgtName then
@@ -181,7 +180,7 @@ builtin_initialize
       unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
       let `(attr|tactic_tag $tags:ident*) := stx
         | throwError "invalid '{name}' attribute"
-      if let some tgt' ← aliasOfTactic decl then
+      if let some tgt' := aliasOfTactic (← getEnv) decl then
         throwError "'{decl}' is an alias of '{tgt'}'"
       for t in tags do
         let tagName := t.getId
@@ -224,6 +223,32 @@ builtin_initialize tacticDocExtExt
     exportEntriesFn := fun es =>
       es.fold (fun a src tgt => a.push (src, tgt)) #[] |>.qsort (Name.quickLt ·.1 ·.1)
   }
+
+/-- Gets the extensions declared for the documentation for the given canonical tactic name -/
+def getTacticExtensions (env : Environment) (tactic : Name) : Array String := Id.run do
+  let mut extensions := #[]
+  -- Extensions may be declared in any module, so they must all be searched
+  for modArr in tacticDocExtExt.toEnvExtension.getState env |>.importedEntries do
+    if let some (_, strs) := modArr.binSearch (tactic, #[]) (Name.quickLt ·.1 ·.1) then
+      extensions := extensions ++ strs
+  if let some strs := tacticDocExtExt.getState env |>.find? tactic then
+    extensions := extensions ++ strs
+  pure extensions
+
+/-- Gets the rendered extensions for the given canonical tactic name -/
+def getTacticExtensionString (env : Environment) (tactic : Name) : String := Id.run do
+  let exts := getTacticExtensions env tactic
+  if exts.size == 0 then ""
+  else "\n\nExtensions:\n\n" ++ String.join (exts.toList.map bullet) |>.trimRight
+where
+  indentLine (str: String) : String :=
+    (if str.all (·.isWhitespace) then str else "   " ++ str) ++ "\n"
+  bullet (str : String) : String :=
+    let lines := str.splitOn "\n"
+    match lines with
+    | [] => ""
+    | [l] => " * " ++ l ++ "\n\n"
+    | l::ls => " * " ++ l ++ "\n" ++ String.join (ls.map indentLine) ++ "\n\n"
 
 /-- Add more documentation as an extension of the documentation for a given tactic. -/
 syntax (docComment)? "tactic_extension" ident : command

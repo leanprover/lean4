@@ -6,24 +6,48 @@ Authors: David Thrane Christiansen
 prelude
 import Lean.Elab.Command
 import Lean.Parser.Tactic.Doc
+import Lean.Parser.Command
 
 namespace Lean.Elab.Tactic.Doc
 open Lean.Parser.Tactic.Doc
+open Lean.Elab.Command
 
-open Lean Elab Command in
-elab_rules : command
-  | `(tactic_extension $_) => throwError "Missing documentation comment"
-  | `($doc:docComment tactic_extension $tac) => do
+-- TODO Replace the parsing in this file with proper quotations after a stage0 update
+
+/-- Find out whether the result of a docComment? is present; if so, return it -/
+private partial def asDocComment?
+    (stx : Syntax) : Option (TSyntax ``Lean.Parser.Command.docComment) :=
+  if stx.getKind == ``Lean.Parser.Command.docComment then
+    some ⟨stx⟩
+  else if let .node _ k #[c] := stx then
+    if k == nullKind then asDocComment? c else none
+  else none
+
+/-- If syntax is a string literal, return it -/
+private def asStrLit? : Syntax → Option StrLit
+  | `($s:str) => some s
+  | _ => none
+
+@[builtin_command_elab tactic_extension] def elabTacticExtension : CommandElab
+  | .node _ _ #[.node _ _ #[], cmd@(.atom _ "tactic_extension"), _] => do
+    throwErrorAt cmd "Missing documentation comment"
+  | .node _ _ #[.node _ _ #[docComment], cmd@(.atom _ "tactic_extension"), tac] => do
+    let some docComment := asDocComment? docComment
+      | throwErrorAt cmd "Malformed documentation comment ({docComment})"
     let tacName ← liftTermElabM <| realizeGlobalConstNoOverloadWithInfo tac
     if let some tgt' := aliasOfTactic (← getEnv) tacName then
         throwError "'{tacName}' is an alias of '{tgt'}'"
-    modifyEnv (tacticDocExtExt.addEntry · (tacName, doc.getDocString))
+    modifyEnv (tacticDocExtExt.addEntry · (tacName, docComment.getDocString))
+    pure ()
+  | _ => throwError "Malformed tactic extension command"
 
-elab_rules : command
-  | `($[$doc:docComment]? register_tactic_tag $tag $user) => do
-    let docstring ← doc.mapM getDocStringText
+@[builtin_command_elab register_tactic_tag] def elabRegisterTacticTag : CommandElab
+  | .node _ _ #[doc, .atom _ "register_tactic_tag", tag, user] => do
+    let docstring ← (asDocComment? doc).mapM getDocStringText
+    let some user := asStrLit? user
+      | throwErrorAt user "expected string literal"
     modifyEnv (knownTacticTagExt.addEntry · (tag.getId, user.getString, docstring))
-
+  | _ => throwError "Malformed 'register_tactic_tag' command"
 
 /--
 Gets the first string token in a parser description. For example, for a declaration like
@@ -81,11 +105,11 @@ private def showParserName (n : Name) : MetaM MessageData := do
       })] _
   }
 
-open Lean Elab Command in
+
 /--
 Displays all available tactic tags, with documentation.
 -/
-elab withPosition("#print" colGt &"tactic" colGt &"tags") : command => do
+@[builtin_command_elab printTacTags] def elabPrintTacTags : CommandElab := fun _stx => do
   let all :=
     tacticTagExt.toEnvExtension.getState (← getEnv)
       |>.importedEntries |>.push (tacticTagExt.getState (← getEnv))

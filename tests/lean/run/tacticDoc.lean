@@ -1,5 +1,13 @@
-import Lean.Parser.Tactic.Doc
-import Lean.Elab.Tactic.Doc
+/-!
+Test the commands and attributes for interacting with tactic documentation.
+
+Note that when the standard library starts shipping with actual tags, then this test will need to be
+adjusted or rewritten, as it depends on the complete set of tags that are transitively accessible.
+We don't expect to modify the default tactics often, and it should be a matter of accepting changes
+from #guard_msgs.
+-/
+
+set_option guard_msgs.diff true
 
 /-- Finishing tactics that are intended to completely close a goal -/
 register_tactic_tag finishing "finishing"
@@ -19,6 +27,7 @@ syntax (name := very_trivial) "very_trivial" : tactic
 
 /-- It tries Lean's `trivial` -/
 tactic_extension my_trivial
+
 macro_rules
   | `(tactic|my_trivial) => `(tactic|trivial)
 

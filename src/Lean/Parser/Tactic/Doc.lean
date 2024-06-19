@@ -5,11 +5,8 @@ Authors: David Thrane Christiansen
 -/
 prelude
 import Lean.Attributes
-import Lean.Data.NameMap
 import Lean.DocString
-import Lean.Environment
 import Lean.Elab.InfoTree.Main
-import Lean.Parser.Types
 
 set_option linter.missingDocs true
 
@@ -53,15 +50,6 @@ def aliases [Monad m] [MonadEnv m] (tac : Name) : m NameSet := do
       if tgt == tac then found := found.insert src
   pure found
 
-/--
-Declare this tactic to be an alias or alternative form of an existing tactic.
-
-This has the following effects:
- * The alias relationship is saved
- * The docstring is taken from the original tactic, if present
--/
-syntax (name := tactic_alias) "tactic_alias" (ppSpace ident) : attr
-
 builtin_initialize
   let name := `tactic_alias
   registerBuiltinAttribute {
@@ -71,8 +59,8 @@ builtin_initialize
       unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
       unless ((← getEnv).getModuleIdxFor? decl).isNone do
         throwError "invalid attribute '{name}', declaration is in an imported module"
-      let `(attr|tactic_alias $tgt:ident) := stx
-        | throwError "invalid '{name}' attribute"
+      let .node _ _ #[.atom _ "tactic_alias", tgt] := stx
+        | throwError "invalid '{name}' attribute {stx}"
 
       let tgtName ← Lean.Elab.realizeGlobalConstNoOverloadWithInfo tgt
 
@@ -138,12 +126,6 @@ def allTagsWithInfo [Monad m] [MonadEnv m] : m (List (Name × String × Option S
   let arr := found.fold (init := #[]) (fun arr k v => arr.push (k, v))
   pure (arr.qsort (·.1.toString < ·.1.toString) |>.toList)
 
-
-/--
-Register a tactic tag, saving its user-facing name and docstring.
--/
-syntax (name := register_tactic_tag) (docComment ppLine)? "register_tactic_tag" ident str : command
-
 /--
 The mapping between tags and tactics. Tags may be applied in any module, not just the defining
 module for the tactic.
@@ -163,14 +145,6 @@ builtin_initialize tacticTagExt
     exportEntriesFn := id
   }
 
-
-/--
-Add a tag to a tactic.
-
-Tags should be applied to the canonical names for tactics.
--/
-syntax (name := tactic_tag) "tactic_tag" (ppSpace ident)+ : attr
-
 builtin_initialize
   let name := `tactic_tag
   registerBuiltinAttribute {
@@ -178,7 +152,7 @@ builtin_initialize
     ref := by exact decl_name%,
     add := fun decl stx kind => do
       unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
-      let `(attr|tactic_tag $tags:ident*) := stx
+      let .node _ `Lean.Parser.Attr.tactic_tag #[_, .node _ _ tags] := stx
         | throwError "invalid '{name}' attribute"
       if let some tgt' := aliasOfTactic (← getEnv) decl then
         throwError "'{decl}' is an alias of '{tgt'}'"
@@ -249,6 +223,3 @@ where
     | [] => ""
     | [l] => " * " ++ l ++ "\n\n"
     | l::ls => " * " ++ l ++ "\n" ++ String.join (ls.map indentLine) ++ "\n\n"
-
-/-- Add more documentation as an extension of the documentation for a given tactic. -/
-syntax (docComment)? "tactic_extension" ident : command

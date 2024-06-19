@@ -1,5 +1,5 @@
-import Lean.Parser.Tactic.Doc
-import Lean.Elab.Tactic.Doc
+
+
 
 /-!
 Tests that docstring hovers are computed correctly for tactic extensions

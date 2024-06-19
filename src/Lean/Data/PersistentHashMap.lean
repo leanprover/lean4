@@ -23,6 +23,13 @@ inductive Node (α : Type u) (β : Type v) : Type (max u v) where
   | entries   (es : Array (Entry α β (Node α β))) : Node α β
   | collision (ks : Array α) (vs : Array β) (h : ks.size = vs.size) : Node α β
 
+partial def Node.isEmpty : Node α β → Bool
+  | .collision .. => false
+  | .entries es => es.all fun
+    | .entry .. => false
+    | .ref n    => n.isEmpty
+    | .null     => true
+
 instance {α β} : Inhabited (Node α β) := ⟨Node.entries #[]⟩
 
 abbrev shift         : USize  := 5
@@ -36,8 +43,7 @@ def mkEmptyEntriesArray {α β} : Array (Entry α β (Node α β)) :=
 end PersistentHashMap
 
 structure PersistentHashMap (α : Type u) (β : Type v) [BEq α] [Hashable α] where
-  root    : PersistentHashMap.Node α β := PersistentHashMap.Node.entries PersistentHashMap.mkEmptyEntriesArray
-  size    : Nat                        := 0
+  root : PersistentHashMap.Node α β := PersistentHashMap.Node.entries PersistentHashMap.mkEmptyEntriesArray
 
 abbrev PHashMap (α : Type u) (β : Type v) [BEq α] [Hashable α] := PersistentHashMap α β
 
@@ -45,8 +51,8 @@ namespace PersistentHashMap
 
 def empty [BEq α] [Hashable α] : PersistentHashMap α β := {}
 
-def isEmpty [BEq α] [Hashable α] (m : PersistentHashMap α β) : Bool :=
-  m.size == 0
+def isEmpty {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → Bool
+  | { root } => root.isEmpty
 
 instance [BEq α] [Hashable α] : Inhabited (PersistentHashMap α β) := ⟨{}⟩
 
@@ -130,7 +136,7 @@ partial def insertAux [BEq α] [Hashable α] : Node α β → USize → USize �
         else Entry.ref $ mkCollisionNode k' v' k v
 
 def insert {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → β → PersistentHashMap α β
-  | { root := n, size := sz }, k, v => { root := insertAux n (hash k |>.toUSize) 1 k v, size := sz + 1 }
+  | { root := n }, k, v => { root := insertAux n (hash k |>.toUSize) 1 k v }
 
 partial def findAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : keys.size = vals.size) (i : Nat) (k : α) : Option β :=
   if h : i < keys.size then
@@ -225,7 +231,7 @@ def isUnaryNode : Node α β → Option (α × β)
     else
       none
 
-partial def eraseAux [BEq α] : Node α β → USize → α → Node α β × Bool
+partial def eraseAux [BEq α] : Node α β → USize → α → Node α β
   | n@(Node.collision keys vals heq), _, k =>
     match keys.indexOf? k with
     | some idx =>
@@ -234,28 +240,27 @@ partial def eraseAux [BEq α] : Node α β → USize → α → Node α β × Bo
       let vals' := vals.feraseIdx (Eq.ndrec idx heq)
       have veq := vals.size_feraseIdx (Eq.ndrec idx heq)
       have : keys.size - 1 = vals.size - 1 := by rw [heq]
-      (Node.collision keys' vals' (keq.trans (this.trans veq.symm)), true)
-    | none     => (n, false)
+      Node.collision keys' vals' (keq.trans (this.trans veq.symm))
+    | none     => n
   | n@(Node.entries entries), h, k =>
     let j       := (mod2Shift h shift).toNat
     let entry   := entries.get! j
     match entry with
-    | Entry.null       => (n, false)
+    | Entry.null       => n
     | Entry.entry k' _ =>
-      if k == k' then (Node.entries (entries.set! j Entry.null), true) else (n, false)
+      if k == k' then Node.entries (entries.set! j Entry.null) else n
     | Entry.ref node   =>
       let entries := entries.set! j Entry.null
-      let (newNode, deleted) := eraseAux node (div2Shift h shift) k
-      if !deleted then (n, false)
-      else match isUnaryNode newNode with
-        | none        => (Node.entries (entries.set! j (Entry.ref newNode)), true)
-        | some (k, v) => (Node.entries (entries.set! j (Entry.entry k v)), true)
+      let newNode := eraseAux node (div2Shift h shift) k
+      match isUnaryNode newNode with
+      | none        => Node.entries (entries.set! j (Entry.ref newNode))
+      | some (k, v) => Node.entries (entries.set! j (Entry.entry k v))
 
 def erase {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → PersistentHashMap α β
-  | { root := n, size := sz }, k =>
+  | { root := n }, k =>
     let h := hash k |>.toUSize
-    let (n, del) := eraseAux n h k
-    { root := n, size := if del then sz - 1 else sz }
+    let n := eraseAux n h k
+    { root := n }
 
 section
 variable {m : Type w → Type w'} [Monad m]

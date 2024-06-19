@@ -984,9 +984,6 @@ def displayStats (env : Environment) : IO Unit := do
   IO.println ("direct imports:                        " ++ toString env.header.imports);
   IO.println ("number of imported modules:            " ++ toString env.header.regions.size);
   IO.println ("number of memory-mapped modules:       " ++ toString (env.header.regions.filter (·.isMemoryMapped) |>.size));
-  IO.println ("number of consts:                      " ++ toString env.constants.size);
-  IO.println ("number of imported consts:             " ++ toString env.constants.stageSizes.1);
-  IO.println ("number of local consts:                " ++ toString env.constants.stageSizes.2);
   IO.println ("number of buckets for imported consts: " ++ toString env.constants.numBuckets);
   IO.println ("trust level:                           " ++ toString env.header.trustLevel);
   IO.println ("number of extensions:                  " ++ toString env.extensions.size);

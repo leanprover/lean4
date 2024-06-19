@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Thrane Christiansen
 -/
 prelude
+import Lean.DocString
 import Lean.Elab.Command
 import Lean.Parser.Tactic.Doc
 import Lean.Parser.Command
@@ -142,3 +143,51 @@ Displays all available tactic tags, with documentation.
     m!"Available tags: {MessageData.nestD (Format.line ++ .joinSep tagDescrs Format.line)}"
 
   logInfo tagList
+
+/--
+The information needed to display all documentation for a tactic.
+-/
+structure TacticDoc where
+  /-- The name of the canonical parser for the tactic -/
+  internalName : Name
+  /-- The user-facing name to display (typically the first keyword token) -/
+  userName : String
+  /-- The tags that have been applied to the tactic -/
+  tags : NameSet
+  /-- The docstring for the tactic -/
+  docString : Option String
+  /-- Any docstring extensions that have been specified -/
+  extensionDocs : Array String
+
+def allTacticDocs : MetaM (Array TacticDoc) := do
+  let env ← getEnv
+  let all :=
+    tacticTagExt.toEnvExtension.getState (← getEnv)
+      |>.importedEntries |>.push (tacticTagExt.getState (← getEnv))
+  let mut tacTags : NameMap NameSet := {}
+  for arr in all do
+    for (tac, tag) in arr do
+      tacTags := tacTags.insert tac (tacTags.findD tac {} |>.insert tag)
+
+  let mut docs := #[]
+
+  let some tactics := (Lean.Parser.parserExtension.getState env).categories.find? `tactic
+    | return #[]
+  for (tac, _) in tactics.kinds do
+    -- Skip noncanonical tactics
+    if let some _ := aliasOfTactic env tac then continue
+    let userName : String ←
+      if let some descr := env.find? tac |>.bind (·.value?) then
+        if let some tk ← getFirstTk descr then
+          pure tk.trim
+        else pure tac.toString
+      else pure tac.toString
+
+    docs := docs.push {
+      internalName := tac,
+      userName := userName,
+      tags := tacTags.findD tac {},
+      docString := ← findDocString? env tac,
+      extensionDocs := getTacticExtensions env tac
+    }
+  return docs

@@ -11,34 +11,6 @@ import Lean.Meta.Tactic.Util
 import Lean.PrettyPrinter
 
 namespace Lean.Meta
-/-- Controls which new mvars are turned in to goals by the `apply` tactic.
-- `nonDependentFirst`  mvars that don't depend on other goals appear first in the goal list.
-- `nonDependentOnly` only mvars that don't depend on other goals are added to goal list.
-- `all` all unassigned mvars are added to the goal list.
--/
-inductive ApplyNewGoals where
-  | nonDependentFirst | nonDependentOnly | all
-
-/-- Configures the behaviour of the `apply` tactic. -/
-structure ApplyConfig where
-  newGoals := ApplyNewGoals.nonDependentFirst
-  /--
-  If `synthAssignedInstances` is `true`, then `apply` will synthesize instance implicit arguments
-  even if they have assigned by `isDefEq`, and then check whether the synthesized value matches the
-  one inferred. The `congr` tactic sets this flag to false.
-  -/
-  synthAssignedInstances := true
-  /--
-  If `allowSynthFailures` is `true`, then `apply` will return instance implicit arguments
-  for which typeclass search failed as new goals.
-  -/
-  allowSynthFailures := false
-  /--
-  If `approx := true`, then we turn on `isDefEq` approximations. That is, we use
-  the `approxDefEq` combinator.
-  -/
-  approx : Bool := true
-
 /--
   Compute the number of expected arguments and whether the result type is of the form
   (?m ...) where ?m is an unassigned metavariable.

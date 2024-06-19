@@ -458,7 +458,7 @@ inductive HEq : {α : Sort u} → α → {β : Sort u} → β → Prop where
   | refl (a : α) : HEq a a
 
 /-- A version of `HEq.refl` with an implicit argument. -/
-@[match_pattern] protected theorem HEq.rfl {α : Sort u} {a : α} : HEq a a :=
+@[match_pattern] protected def HEq.rfl {α : Sort u} {a : α} : HEq a a :=
   HEq.refl a
 
 theorem eq_of_heq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=

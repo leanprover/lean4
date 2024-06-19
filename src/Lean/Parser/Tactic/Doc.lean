@@ -195,14 +195,13 @@ builtin_initialize
               let suggestions :=
                 if count == 0 then m!"(no tags defined)"
                 else if count == 1 then
-                  m!"(expected {MessageData.joinSep (all.map name) ", "})"
+                  MessageData.joinSep (all.map name) ", "
                 else if count < 10 then
-                  m!"(expected one of {MessageData.joinSep (all.map name) ", "})"
+                  m!"one of " ++ MessageData.joinSep (all.map name) ", "
                 else
-                  m!"(expected one of {
-                    MessageData.joinSep (all.take 10 |>.map name) ", " ++ ", ..."
-                  })"
-              m!"(expected one of {suggestions})"
+                  m!"one of " ++
+                  MessageData.joinSep (all.take 10 |>.map name) ", " ++ ", ..."
+              m!"(expected {suggestions})"
 
           throwErrorAt t (m!"unknown tag '{tagName}' " ++ extra)
     descr := "Register a tactic parser as an alias of an existing tactic, so they can be " ++

@@ -23,6 +23,10 @@ macro_rules
 
 attribute [tactic_tag finishing] Lean.Parser.Tactic.omega
 
+/-- error: unknown tag 'bogus' (expected one of 'extensible', 'finishing') -/
+#guard_msgs in
+attribute [tactic_tag bogus] my_trivial
+
 /--
 info: Available tags:
   • 'extensible'

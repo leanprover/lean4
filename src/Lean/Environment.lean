@@ -447,7 +447,7 @@ is loaded.
 The most typical pattern for using `PersistentEnvExtension` is to set `σ` to a datatype such as
 `NameMap` that efficiently tracks data for the current module. Then, in `exportEntriesFn`, this type
 is converted to an array of pairs, sorted by the key. Given `ext : PersistentEnvExtension α β σ` and
-`env : Environment`, the complete array imported entries sorted by module index can be obtained
+`env : Environment`, the complete array of imported entries sorted by module index can be obtained
 using `(ext.toEnvExtension.getState env).importedEntries`. To query the extension for some name `n`,
 first use `env.getModuleIdxFor? n`. If it returns `none`, look up `n` in the current module's state
 (the `NameMap`). If it returns `some idx`, use `ext.getModuleEntries env idx` to get an array, and

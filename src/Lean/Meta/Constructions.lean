@@ -59,7 +59,7 @@ private def mkBRecOrBInductionOn (declName : Name) (ind : Bool) : MetaM Unit := 
   unless recInfo.numMotives = indVal.all.length do
     /-
     The mutual declaration containing `n` contains nested inductive datatypes.
-    We don't support this kind of declaration here yet. We will probably never will :)
+    We don't support this kind of declaration here yet. We probably never will :)
     To support it, we will need to generate an auxiliary `below` for each nested inductive
     type since their default `below` is not good here. For example, at
     ```

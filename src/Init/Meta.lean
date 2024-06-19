@@ -1311,10 +1311,13 @@ structure ApplyConfig where
 
 namespace Rewrite
 
+abbrev NewGoals := ApplyNewGoals
+
 structure Config where
   transparency : TransparencyMode := .reducible
   offsetCnstrs : Bool := true
   occs : Occurrences := .all
+  newGoals : NewGoals := .nonDependentFirst
 
 end Rewrite
 

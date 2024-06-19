@@ -1398,7 +1398,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
   ```
   def foo.aux := 1
   def foo : Nat → Nat
-    | n => foo.aux -- should not be interpreted as `(foo).bar`
+    | n => foo.aux -- should not be interpreted as `(foo).aux`
   ```
   See test `aStructPerfIssue.lean` for another example.
   We skip auxiliary declarations when `projs` is not empty and `globalDeclFound` is true.
@@ -1415,16 +1415,29 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
   -/
   let rec loop (n : Name) (projs : List String) (globalDeclFound : Bool) := do
     let givenNameView := { view with name := n }
-    let mut globalDeclFound := globalDeclFound
+    let mut globalDeclFoundNext := globalDeclFound
     unless globalDeclFound do
       let r ← resolveGlobalName givenNameView.review
       let r := r.filter fun (_, fieldList) => fieldList.isEmpty
       unless r.isEmpty do
-        globalDeclFound := true
+        globalDeclFoundNext := true
+    /-
+    Note that we use `globalDeclFound` instead of `globalDeclFoundNext` in the following test.
+    Reason: a local should shadow a global with the same name.
+    Consider the following example. See issue #3079
+    ```
+    def foo : Nat := 1
+
+    def bar : Nat :=
+      foo.add 1 -- should be 11
+    where
+      foo := 10
+    ```
+    -/
     match findLocalDecl? givenNameView (skipAuxDecl := globalDeclFound && not projs.isEmpty) with
     | some decl => return some (decl.toExpr, projs)
     | none => match n with
-      | .str pre s => loop pre (s::projs) globalDeclFound
+      | .str pre s => loop pre (s::projs) globalDeclFoundNext
       | _ => return none
   loop view.name [] (globalDeclFound := false)
 

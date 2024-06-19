@@ -187,10 +187,17 @@ def resolveGlobalName (env : Environment) (ns : Name) (openDecls : List OpenDecl
 
 /-! # Namespace resolution -/
 
-def resolveNamespaceUsingScope? (env : Environment) (n : Name) : Name → Option Name
-  | .anonymous    => if env.isNamespace n then some n else none
-  | ns@(.str p _) => if env.isNamespace (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingScope? env n p
-  | _             => unreachable!
+def resolveNamespaceUsingScope? (env : Environment) (n : Name) (ns : Name) : Option Name :=
+  match ns with
+  | .str p _ =>
+    if env.isNamespace (ns ++ n) then
+      some (ns ++ n)
+    else
+      resolveNamespaceUsingScope? env n p
+  | .anonymous =>
+    let n := n.replacePrefix rootNamespace .anonymous
+    if env.isNamespace n then some n else none
+  | _ => unreachable!
 
 def resolveNamespaceUsingOpenDecls (env : Environment) (n : Name) : List OpenDecl → List Name
   | [] => []

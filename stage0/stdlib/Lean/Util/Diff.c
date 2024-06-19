@@ -248,7 +248,7 @@ static lean_object* _init_l___private_Lean_Util_Diff_0__Lean_Diff_reprAction____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Diff.Action.insert", 23);
+x_1 = lean_mk_string_unchecked("Lean.Diff.Action.insert", 23, 23);
 return x_1;
 }
 }
@@ -332,7 +332,7 @@ static lean_object* _init_l___private_Lean_Util_Diff_0__Lean_Diff_reprAction____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Diff.Action.delete", 23);
+x_1 = lean_mk_string_unchecked("Lean.Diff.Action.delete", 23, 23);
 return x_1;
 }
 }
@@ -398,7 +398,7 @@ static lean_object* _init_l___private_Lean_Util_Diff_0__Lean_Diff_reprAction____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Diff.Action.skip", 21);
+x_1 = lean_mk_string_unchecked("Lean.Diff.Action.skip", 21, 21);
 return x_1;
 }
 }
@@ -651,7 +651,7 @@ static lean_object* _init_l_Lean_Diff_instToStringAction___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("insert", 6);
+x_1 = lean_mk_string_unchecked("insert", 6, 6);
 return x_1;
 }
 }
@@ -659,7 +659,7 @@ static lean_object* _init_l_Lean_Diff_instToStringAction___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("delete", 6);
+x_1 = lean_mk_string_unchecked("delete", 6, 6);
 return x_1;
 }
 }
@@ -667,7 +667,7 @@ static lean_object* _init_l_Lean_Diff_instToStringAction___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("skip", 4);
+x_1 = lean_mk_string_unchecked("skip", 4, 4);
 return x_1;
 }
 }
@@ -710,7 +710,7 @@ static lean_object* _init_l_Lean_Diff_Action_linePrefix___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("+", 1);
+x_1 = lean_mk_string_unchecked("+", 1, 1);
 return x_1;
 }
 }
@@ -718,7 +718,7 @@ static lean_object* _init_l_Lean_Diff_Action_linePrefix___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-", 1);
+x_1 = lean_mk_string_unchecked("-", 1, 1);
 return x_1;
 }
 }
@@ -726,7 +726,7 @@ static lean_object* _init_l_Lean_Diff_Action_linePrefix___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -3210,7 +3210,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Diff_linesToString_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -3218,7 +3218,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Diff_linesToString_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }

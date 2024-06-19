@@ -3477,7 +3477,7 @@ static lean_object* _init_l___private_Lean_Meta_Constructions_0__Lean_mkBRecOrBI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rec", 3);
+x_1 = lean_mk_string_unchecked("rec", 3, 3);
 return x_1;
 }
 }
@@ -3923,7 +3923,7 @@ static lean_object* _init_l_Lean_mkNoConfusionCore___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("noConfusionType", 15);
+x_1 = lean_mk_string_unchecked("noConfusionType", 15, 15);
 return x_1;
 }
 }
@@ -3931,7 +3931,7 @@ static lean_object* _init_l_Lean_mkNoConfusionCore___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("noConfusion", 11);
+x_1 = lean_mk_string_unchecked("noConfusion", 11, 11);
 return x_1;
 }
 }
@@ -6719,7 +6719,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Constructions", 23);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Constructions", 23, 23);
 return x_1;
 }
 }
@@ -6727,7 +6727,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.mkNoConfusionEnum.mkToCtorIdx", 34);
+x_1 = lean_mk_string_unchecked("Lean.mkNoConfusionEnum.mkToCtorIdx", 34, 34);
 return x_1;
 }
 }
@@ -6735,7 +6735,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -6756,7 +6756,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("toCtorIdx", 9);
+x_1 = lean_mk_string_unchecked("toCtorIdx", 9, 9);
 return x_1;
 }
 }
@@ -6764,7 +6764,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Nat", 3);
+x_1 = lean_mk_string_unchecked("Nat", 3, 3);
 return x_1;
 }
 }
@@ -6801,7 +6801,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("x", 1);
+x_1 = lean_mk_string_unchecked("x", 1, 1);
 return x_1;
 }
 }
@@ -6968,7 +6968,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkNoConfusionType___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("noConfusionTypeEnum", 19);
+x_1 = lean_mk_string_unchecked("noConfusionTypeEnum", 19, 19);
 return x_1;
 }
 }
@@ -7216,7 +7216,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkNoConfusionType___lambda__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("y", 1);
+x_1 = lean_mk_string_unchecked("y", 1, 1);
 return x_1;
 }
 }
@@ -7273,7 +7273,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkNoConfusionType___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.mkNoConfusionEnum.mkNoConfusionType", 40);
+x_1 = lean_mk_string_unchecked("Lean.mkNoConfusionEnum.mkNoConfusionType", 40, 40);
 return x_1;
 }
 }
@@ -7294,7 +7294,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkNoConfusionType___closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("v", 1);
+x_1 = lean_mk_string_unchecked("v", 1, 1);
 return x_1;
 }
 }
@@ -7312,7 +7312,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkNoConfusionType___closed__5
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("P", 1);
+x_1 = lean_mk_string_unchecked("P", 1, 1);
 return x_1;
 }
 }
@@ -7431,7 +7431,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkNoConfusion___lambda__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("noConfusionEnum", 15);
+x_1 = lean_mk_string_unchecked("noConfusionEnum", 15, 15);
 return x_1;
 }
 }
@@ -7922,7 +7922,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkNoConfusion___lambda__2___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("h", 1);
+x_1 = lean_mk_string_unchecked("h", 1, 1);
 return x_1;
 }
 }
@@ -8049,7 +8049,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkNoConfusion___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.mkNoConfusionEnum.mkNoConfusion", 36);
+x_1 = lean_mk_string_unchecked("Lean.mkNoConfusionEnum.mkNoConfusion", 36, 36);
 return x_1;
 }
 }

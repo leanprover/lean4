@@ -477,7 +477,7 @@ static lean_object* _init_l_Lean_Widget_instInhabitedInteractiveHypothesisBundle
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -522,7 +522,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("names", 5);
+x_1 = lean_mk_string_unchecked("names", 5, 5);
 return x_1;
 }
 }
@@ -530,7 +530,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -548,7 +548,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Widget", 6);
+x_1 = lean_mk_string_unchecked("Widget", 6, 6);
 return x_1;
 }
 }
@@ -586,7 +586,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("InteractiveHypothesisBundle", 27);
+x_1 = lean_mk_string_unchecked("InteractiveHypothesisBundle", 27, 27);
 return x_1;
 }
 }
@@ -604,7 +604,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("RpcEncodablePacket", 18);
+x_1 = lean_mk_string_unchecked("RpcEncodablePacket", 18, 18);
 return x_1;
 }
 }
@@ -622,7 +622,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -660,7 +660,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("InteractiveGoal", 15);
+x_1 = lean_mk_string_unchecked("InteractiveGoal", 15, 15);
 return x_1;
 }
 }
@@ -678,7 +678,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -716,7 +716,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -764,7 +764,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -782,7 +782,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fvarIds", 7);
+x_1 = lean_mk_string_unchecked("fvarIds", 7, 7);
 return x_1;
 }
 }
@@ -830,7 +830,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("type", 4);
+x_1 = lean_mk_string_unchecked("type", 4, 4);
 return x_1;
 }
 }
@@ -878,7 +878,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("val", 3);
+x_1 = lean_mk_string_unchecked("val", 3, 3);
 return x_1;
 }
 }
@@ -886,7 +886,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("val\?", 4);
+x_1 = lean_mk_string_unchecked("val\?", 4, 4);
 return x_1;
 }
 }
@@ -934,7 +934,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("isInstance", 10);
+x_1 = lean_mk_string_unchecked("isInstance", 10, 10);
 return x_1;
 }
 }
@@ -942,7 +942,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("isInstance\?", 11);
+x_1 = lean_mk_string_unchecked("isInstance\?", 11, 11);
 return x_1;
 }
 }
@@ -990,7 +990,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("isType", 6);
+x_1 = lean_mk_string_unchecked("isType", 6, 6);
 return x_1;
 }
 }
@@ -998,7 +998,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("isType\?", 7);
+x_1 = lean_mk_string_unchecked("isType\?", 7, 7);
 return x_1;
 }
 }
@@ -1046,7 +1046,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("isInserted", 10);
+x_1 = lean_mk_string_unchecked("isInserted", 10, 10);
 return x_1;
 }
 }
@@ -1054,7 +1054,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("isInserted\?", 11);
+x_1 = lean_mk_string_unchecked("isInserted\?", 11, 11);
 return x_1;
 }
 }
@@ -1102,7 +1102,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("isRemoved", 9);
+x_1 = lean_mk_string_unchecked("isRemoved", 9, 9);
 return x_1;
 }
 }
@@ -1110,7 +1110,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("isRemoved\?", 10);
+x_1 = lean_mk_string_unchecked("isRemoved\?", 10, 10);
 return x_1;
 }
 }
@@ -2342,7 +2342,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Widget_Lean_Widget_In
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[anonymous]", 11);
+x_1 = lean_mk_string_unchecked("[anonymous]", 11, 11);
 return x_1;
 }
 }
@@ -2350,7 +2350,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Widget_Lean_Widget_In
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected a `Name`, got '", 24);
+x_1 = lean_mk_string_unchecked("expected a `Name`, got '", 24, 24);
 return x_1;
 }
 }
@@ -2358,7 +2358,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Widget_Lean_Widget_In
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -3212,7 +3212,7 @@ static lean_object* _init_l_Lean_Widget_Lean_Widget_InteractiveHypothesisBundle_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected JSON array, got '", 26);
+x_1 = lean_mk_string_unchecked("expected JSON array, got '", 26, 26);
 return x_1;
 }
 }
@@ -6898,7 +6898,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hyps", 4);
+x_1 = lean_mk_string_unchecked("hyps", 4, 4);
 return x_1;
 }
 }
@@ -7066,7 +7066,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ctx", 3);
+x_1 = lean_mk_string_unchecked("ctx", 3, 3);
 return x_1;
 }
 }
@@ -7114,7 +7114,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("userName", 8);
+x_1 = lean_mk_string_unchecked("userName", 8, 8);
 return x_1;
 }
 }
@@ -7122,7 +7122,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("userName\?", 9);
+x_1 = lean_mk_string_unchecked("userName\?", 9, 9);
 return x_1;
 }
 }
@@ -7170,7 +7170,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("goalPrefix", 10);
+x_1 = lean_mk_string_unchecked("goalPrefix", 10, 10);
 return x_1;
 }
 }
@@ -7218,7 +7218,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mvarId", 6);
+x_1 = lean_mk_string_unchecked("mvarId", 6, 6);
 return x_1;
 }
 }
@@ -10127,7 +10127,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("InteractiveTermGoal", 19);
+x_1 = lean_mk_string_unchecked("InteractiveTermGoal", 19, 19);
 return x_1;
 }
 }
@@ -10295,7 +10295,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("range", 5);
+x_1 = lean_mk_string_unchecked("range", 5, 5);
 return x_1;
 }
 }
@@ -10343,7 +10343,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term", 4);
+x_1 = lean_mk_string_unchecked("term", 4, 4);
 return x_1;
 }
 }
@@ -11350,7 +11350,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Widget_InteractiveG
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -11368,7 +11368,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Widget_InteractiveG
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" :", 2);
+x_1 = lean_mk_string_unchecked(" :", 2, 2);
 return x_1;
 }
 }
@@ -11386,7 +11386,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Widget_InteractiveG
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" : ", 3);
+x_1 = lean_mk_string_unchecked(" : ", 3, 3);
 return x_1;
 }
 }
@@ -11404,7 +11404,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Widget_InteractiveG
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" :=", 3);
+x_1 = lean_mk_string_unchecked(" :=", 3, 3);
 return x_1;
 }
 }
@@ -11422,7 +11422,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Widget_InteractiveG
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
@@ -11927,7 +11927,7 @@ static lean_object* _init_l_Lean_Widget_InteractiveGoalCore_pretty___closed__2()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("case ", 5);
+x_1 = lean_mk_string_unchecked("case ", 5, 5);
 return x_1;
 }
 }
@@ -12092,7 +12092,7 @@ static lean_object* _init_l_Lean_Widget_InteractiveTermGoal_pretty___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⊢ ", 4);
+x_1 = lean_mk_string_unchecked("⊢ ", 4, 2);
 return x_1;
 }
 }
@@ -12113,7 +12113,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("goals", 5);
+x_1 = lean_mk_string_unchecked("goals", 5, 5);
 return x_1;
 }
 }
@@ -12121,7 +12121,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("InteractiveGoals", 16);
+x_1 = lean_mk_string_unchecked("InteractiveGoals", 16, 16);
 return x_1;
 }
 }
@@ -13236,7 +13236,7 @@ static lean_object* _init_l_Lean_Widget_addInteractiveHypothesisBundle___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Can only add a nonzero number of ids as an InteractiveHypothesisBundle.", 71);
+x_1 = lean_mk_string_unchecked("Can only add a nonzero number of ids as an InteractiveHypothesisBundle.", 71, 71);
 return x_1;
 }
 }
@@ -13358,7 +13358,7 @@ static lean_object* _init_l_Lean_Widget_withGoalCtx___rarg___lambda__2___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown goal ", 13);
+x_1 = lean_mk_string_unchecked("unknown goal ", 13, 13);
 return x_1;
 }
 }

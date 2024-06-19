@@ -312,7 +312,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Server
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("value '{j}' is too large for `USize`", 36);
+x_1 = lean_mk_string_unchecked("value '{j}' is too large for `USize`", 36, 36);
 return x_1;
 }
 }
@@ -381,7 +381,7 @@ static lean_object* _init_l___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_fromJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("p", 1);
+x_1 = lean_mk_string_unchecked("p", 1, 1);
 return x_1;
 }
 }
@@ -389,7 +389,7 @@ static lean_object* _init_l___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_fromJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -397,7 +397,7 @@ static lean_object* _init_l___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_fromJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lsp", 3);
+x_1 = lean_mk_string_unchecked("Lsp", 3, 3);
 return x_1;
 }
 }
@@ -405,7 +405,7 @@ static lean_object* _init_l___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_fromJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("RpcRef", 6);
+x_1 = lean_mk_string_unchecked("RpcRef", 6, 6);
 return x_1;
 }
 }
@@ -434,7 +434,7 @@ static lean_object* _init_l___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_fromJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -482,7 +482,7 @@ static lean_object* _init_l___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_fromJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -2705,7 +2705,7 @@ static lean_object* _init_l_Lean_Server_instRpcEncodableArray___rarg___lambda__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected JSON array, got '", 26);
+x_1 = lean_mk_string_unchecked("expected JSON array, got '", 26, 26);
 return x_1;
 }
 }
@@ -2713,7 +2713,7 @@ static lean_object* _init_l_Lean_Server_instRpcEncodableArray___rarg___lambda__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -2952,7 +2952,7 @@ static lean_object* _init_l_Lean_Server_instRpcEncodableProd___rarg___lambda__2_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected pair, got '", 20);
+x_1 = lean_mk_string_unchecked("expected pair, got '", 20, 20);
 return x_1;
 }
 }
@@ -3392,7 +3392,7 @@ static lean_object* _init_l_Lean_Server_instRpcEncodableWithRpcRefOfTypeName_rpc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("RPC reference '", 15);
+x_1 = lean_mk_string_unchecked("RPC reference '", 15, 15);
 return x_1;
 }
 }
@@ -3400,7 +3400,7 @@ static lean_object* _init_l_Lean_Server_instRpcEncodableWithRpcRefOfTypeName_rpc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' is not valid", 14);
+x_1 = lean_mk_string_unchecked("' is not valid", 14, 14);
 return x_1;
 }
 }
@@ -3408,7 +3408,7 @@ static lean_object* _init_l_Lean_Server_instRpcEncodableWithRpcRefOfTypeName_rpc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("RPC call type mismatch in reference '", 37);
+x_1 = lean_mk_string_unchecked("RPC call type mismatch in reference '", 37, 37);
 return x_1;
 }
 }
@@ -3416,7 +3416,7 @@ static lean_object* _init_l_Lean_Server_instRpcEncodableWithRpcRefOfTypeName_rpc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'\nexpected '", 12);
+x_1 = lean_mk_string_unchecked("'\nexpected '", 12, 12);
 return x_1;
 }
 }
@@ -3424,7 +3424,7 @@ static lean_object* _init_l_Lean_Server_instRpcEncodableWithRpcRefOfTypeName_rpc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', got '", 8);
+x_1 = lean_mk_string_unchecked("', got '", 8, 8);
 return x_1;
 }
 }

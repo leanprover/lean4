@@ -398,7 +398,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Decl_simp_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Compiler", 8);
+x_1 = lean_mk_string_unchecked("Compiler", 8, 8);
 return x_1;
 }
 }
@@ -406,7 +406,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Decl_simp_x3f___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simp", 4);
+x_1 = lean_mk_string_unchecked("simp", 4, 4);
 return x_1;
 }
 }
@@ -414,7 +414,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Decl_simp_x3f___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inline", 6);
+x_1 = lean_mk_string_unchecked("inline", 6, 6);
 return x_1;
 }
 }
@@ -422,7 +422,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Decl_simp_x3f___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("info", 4);
+x_1 = lean_mk_string_unchecked("info", 4, 4);
 return x_1;
 }
 }
@@ -442,7 +442,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Decl_simp_x3f___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("step", 4);
+x_1 = lean_mk_string_unchecked("step", 4, 4);
 return x_1;
 }
 }
@@ -461,7 +461,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Decl_simp_x3f___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("new", 3);
+x_1 = lean_mk_string_unchecked("new", 3, 3);
 return x_1;
 }
 }
@@ -481,7 +481,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Decl_simp_x3f___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("stat", 4);
+x_1 = lean_mk_string_unchecked("stat", 4, 4);
 return x_1;
 }
 }
@@ -500,7 +500,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Decl_simp_x3f___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -517,7 +517,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Decl_simp_x3f___closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", size: ", 8);
+x_1 = lean_mk_string_unchecked(", size: ", 8, 8);
 return x_1;
 }
 }
@@ -534,7 +534,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Decl_simp_x3f___closed__16() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", # visited: ", 13);
+x_1 = lean_mk_string_unchecked(", # visited: ", 13, 13);
 return x_1;
 }
 }
@@ -551,7 +551,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Decl_simp_x3f___closed__18() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", # inline: ", 12);
+x_1 = lean_mk_string_unchecked(", # inline: ", 12, 12);
 return x_1;
 }
 }
@@ -568,7 +568,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Decl_simp_x3f___closed__20() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", # inline local: ", 18);
+x_1 = lean_mk_string_unchecked(", # inline local: ", 18, 18);
 return x_1;
 }
 }
@@ -585,7 +585,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Decl_simp_x3f___closed__22() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" :=\n", 4);
+x_1 = lean_mk_string_unchecked(" :=\n", 4, 4);
 return x_1;
 }
 }
@@ -602,7 +602,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Decl_simp_x3f___closed__24() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
@@ -2018,7 +2018,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -2046,7 +2046,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LCNF", 4);
+x_1 = lean_mk_string_unchecked("LCNF", 4, 4);
 return x_1;
 }
 }
@@ -2064,7 +2064,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -2082,7 +2082,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -2130,7 +2130,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Simp", 4);
+x_1 = lean_mk_string_unchecked("Simp", 4, 4);
 return x_1;
 }
 }
@@ -2148,7 +2148,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }

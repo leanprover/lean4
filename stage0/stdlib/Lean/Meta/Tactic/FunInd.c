@@ -1094,7 +1094,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_removeLamda___rarg___lambda__2___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("removeLamda: expected lambda, got ", 34);
+x_1 = lean_mk_string_unchecked("removeLamda: expected lambda, got ", 34, 34);
 return x_1;
 }
 }
@@ -1111,7 +1111,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_removeLamda___rarg___lambda__2___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -1206,7 +1206,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_mkFst___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("And", 3);
+x_1 = lean_mk_string_unchecked("And", 3, 3);
 return x_1;
 }
 }
@@ -1214,7 +1214,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_mkFst___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("left", 4);
+x_1 = lean_mk_string_unchecked("left", 4, 4);
 return x_1;
 }
 }
@@ -1252,7 +1252,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_mkFst___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PProd", 5);
+x_1 = lean_mk_string_unchecked("PProd", 5, 5);
 return x_1;
 }
 }
@@ -1260,7 +1260,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_mkFst___lambda__2___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fst", 3);
+x_1 = lean_mk_string_unchecked("fst", 3, 3);
 return x_1;
 }
 }
@@ -1289,7 +1289,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_mkFst___lambda__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Cannot project out of", 21);
+x_1 = lean_mk_string_unchecked("Cannot project out of", 21, 21);
 return x_1;
 }
 }
@@ -1306,7 +1306,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_mkFst___lambda__3___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nof Type", 8);
+x_1 = lean_mk_string_unchecked("\nof Type", 8, 8);
 return x_1;
 }
 }
@@ -1569,7 +1569,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_mkSnd___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("right", 5);
+x_1 = lean_mk_string_unchecked("right", 5, 5);
 return x_1;
 }
 }
@@ -1598,7 +1598,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_mkSnd___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("snd", 3);
+x_1 = lean_mk_string_unchecked("snd", 3, 3);
 return x_1;
 }
 }
@@ -3631,7 +3631,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_foldCalls___lambda__3___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Tactic.FunInd", 23);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Tactic.FunInd", 23, 23);
 return x_1;
 }
 }
@@ -3639,7 +3639,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_foldCalls___lambda__3___closed__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Tactic.FunInd.foldCalls", 28);
+x_1 = lean_mk_string_unchecked("Lean.Tactic.FunInd.foldCalls", 28, 28);
 return x_1;
 }
 }
@@ -3647,7 +3647,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_foldCalls___lambda__3___closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -3668,7 +3668,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_foldCalls___lambda__3___closed__5
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("collectIHs: cannot eliminate unsaturated call to induction hypothesis", 69);
+x_1 = lean_mk_string_unchecked("collectIHs: cannot eliminate unsaturated call to induction hypothesis", 69, 69);
 return x_1;
 }
 }
@@ -4631,7 +4631,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_foldCalls___lambda__7___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("foldCalls: cannot reduce application of ", 40);
+x_1 = lean_mk_string_unchecked("foldCalls: cannot reduce application of ", 40, 40);
 return x_1;
 }
 }
@@ -4648,7 +4648,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_foldCalls___lambda__7___closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" in ", 4);
+x_1 = lean_mk_string_unchecked(" in ", 4, 4);
 return x_1;
 }
 }
@@ -4665,7 +4665,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_foldCalls___lambda__7___closed__5
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -5010,7 +5010,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_foldCalls___lambda__8___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("motive not an arrow", 19);
+x_1 = lean_mk_string_unchecked("motive not an arrow", 19, 19);
 return x_1;
 }
 }
@@ -5372,7 +5372,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_foldCalls___lambda__14___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Unexpected type ", 16);
+x_1 = lean_mk_string_unchecked("Unexpected type ", 16, 16);
 return x_1;
 }
 }
@@ -5389,7 +5389,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_foldCalls___lambda__14___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" of ", 4);
+x_1 = lean_mk_string_unchecked(" of ", 4, 4);
 return x_1;
 }
 }
@@ -5406,7 +5406,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_foldCalls___lambda__14___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": Reduced to application of ", 28);
+x_1 = lean_mk_string_unchecked(": Reduced to application of ", 28, 28);
 return x_1;
 }
 }
@@ -5505,7 +5505,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_foldCalls___lambda__16___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("foldCalls: type incorrect after replacing recursive call:", 57);
+x_1 = lean_mk_string_unchecked("foldCalls: type incorrect after replacing recursive call:", 57, 57);
 return x_1;
 }
 }
@@ -7794,7 +7794,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_collectIHs___lambda__4___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Tactic.FunInd.collectIHs", 29);
+x_1 = lean_mk_string_unchecked("Lean.Tactic.FunInd.collectIHs", 29, 29);
 return x_1;
 }
 }
@@ -7815,7 +7815,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_collectIHs___lambda__4___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("collectIHs: could not collect recursive calls, unsaturated application of old induction hypothesis", 98);
+x_1 = lean_mk_string_unchecked("collectIHs: could not collect recursive calls, unsaturated application of old induction hypothesis", 98, 98);
 return x_1;
 }
 }
@@ -8472,7 +8472,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_collectIHs___lambda__5___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("collectIHs: could not collect recursive calls from call ", 56);
+x_1 = lean_mk_string_unchecked("collectIHs: could not collect recursive calls from call ", 56, 56);
 return x_1;
 }
 }
@@ -8622,7 +8622,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_collectIHs___lambda__7___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("collectIHs: cannot reduce application of ", 41);
+x_1 = lean_mk_string_unchecked("collectIHs: cannot reduce application of ", 41, 41);
 return x_1;
 }
 }
@@ -8967,7 +8967,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_collectIHs___lambda__8___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("True", 4);
+x_1 = lean_mk_string_unchecked("True", 4, 4);
 return x_1;
 }
 }
@@ -11312,7 +11312,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Tactic_FunInd_asser
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ih", 2);
+x_1 = lean_mk_string_unchecked("ih", 2, 2);
 return x_1;
 }
 }
@@ -13389,7 +13389,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_buildInductionCase___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hyp", 3);
+x_1 = lean_mk_string_unchecked("hyp", 3, 3);
 return x_1;
 }
 }
@@ -15440,7 +15440,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_Lean_Tactic_FunInd_buildInduc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
+x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
 return x_1;
 }
 }
@@ -15457,7 +15457,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_Lean_Tactic_FunInd_buildInduc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -15601,7 +15601,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Tactic_FunInd_buildInducti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Match.MatcherApp.Basic", 32);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Match.MatcherApp.Basic", 32, 32);
 return x_1;
 }
 }
@@ -15609,7 +15609,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Tactic_FunInd_buildInducti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.matchMatcherApp\?", 26);
+x_1 = lean_mk_string_unchecked("Lean.Meta.matchMatcherApp\?", 26, 26);
 return x_1;
 }
 }
@@ -22799,7 +22799,7 @@ static lean_object* _init_l_Lean_logAt___at_Lean_Tactic_FunInd_buildInductionBod
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -22807,7 +22807,7 @@ static lean_object* _init_l_Lean_logAt___at_Lean_Tactic_FunInd_buildInductionBod
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -22815,7 +22815,7 @@ static lean_object* _init_l_Lean_logAt___at_Lean_Tactic_FunInd_buildInductionBod
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unsolvedGoals", 13);
+x_1 = lean_mk_string_unchecked("unsolvedGoals", 13, 13);
 return x_1;
 }
 }
@@ -22823,7 +22823,7 @@ static lean_object* _init_l_Lean_logAt___at_Lean_Tactic_FunInd_buildInductionBod
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("synthPlaceholder", 16);
+x_1 = lean_mk_string_unchecked("synthPlaceholder", 16, 16);
 return x_1;
 }
 }
@@ -24563,7 +24563,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Tactic_FunInd_build
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected matcher application, insufficient number of parameters in alternative", 80);
+x_1 = lean_mk_string_unchecked("unexpected matcher application, insufficient number of parameters in alternative", 80, 80);
 return x_1;
 }
 }
@@ -28134,7 +28134,7 @@ static lean_object* _init_l_Lean_Meta_MatcherApp_transform___at_Lean_Tactic_FunI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected matcher application, motive must be lambda expression with #", 71);
+x_1 = lean_mk_string_unchecked("unexpected matcher application, motive must be lambda expression with #", 71, 71);
 return x_1;
 }
 }
@@ -28151,7 +28151,7 @@ static lean_object* _init_l_Lean_Meta_MatcherApp_transform___at_Lean_Tactic_FunI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" arguments", 10);
+x_1 = lean_mk_string_unchecked(" arguments", 10, 10);
 return x_1;
 }
 }
@@ -28951,7 +28951,7 @@ static lean_object* _init_l_Lean_Meta_MatcherApp_transform___at_Lean_Tactic_FunI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to transform matcher, type error when constructing splitter motive:", 74);
+x_1 = lean_mk_string_unchecked("failed to transform matcher, type error when constructing splitter motive:", 74, 74);
 return x_1;
 }
 }
@@ -29261,7 +29261,7 @@ static lean_object* _init_l_Lean_Meta_MatcherApp_transform___at_Lean_Tactic_FunI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to transform matcher, type error when constructing new motive:", 69);
+x_1 = lean_mk_string_unchecked("failed to transform matcher, type error when constructing new motive:", 69, 69);
 return x_1;
 }
 }
@@ -29278,7 +29278,7 @@ static lean_object* _init_l_Lean_Meta_MatcherApp_transform___at_Lean_Tactic_FunI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to transform matcher, type error when constructing new pre-splitter motive:", 82);
+x_1 = lean_mk_string_unchecked("failed to transform matcher, type error when constructing new pre-splitter motive:", 82, 82);
 return x_1;
 }
 }
@@ -30543,7 +30543,7 @@ static lean_object* _init_l_Lean_Meta_MatcherApp_transform___at_Lean_Tactic_FunI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("matcher ", 8);
+x_1 = lean_mk_string_unchecked("matcher ", 8, 8);
 return x_1;
 }
 }
@@ -30560,7 +30560,7 @@ static lean_object* _init_l_Lean_Meta_MatcherApp_transform___at_Lean_Tactic_FunI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" has no MatchInfo found", 23);
+x_1 = lean_mk_string_unchecked(" has no MatchInfo found", 23, 23);
 return x_1;
 }
 }
@@ -30818,7 +30818,7 @@ static lean_object* _init_l_Lean_Meta_MatcherApp_transform___at_Lean_Tactic_FunI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("MatcherApp.transform: addEqualities has wrong size", 50);
+x_1 = lean_mk_string_unchecked("MatcherApp.transform: addEqualities has wrong size", 50, 50);
 return x_1;
 }
 }
@@ -31236,7 +31236,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_buildInductionBody___lambda__2___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("h", 1);
+x_1 = lean_mk_string_unchecked("h", 1, 1);
 return x_1;
 }
 }
@@ -31254,7 +31254,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_buildInductionBody___lambda__2___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("dite", 4);
+x_1 = lean_mk_string_unchecked("dite", 4, 4);
 return x_1;
 }
 }
@@ -33726,7 +33726,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_buildInductionBody___lambda__12__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Tactic.FunInd.buildInductionBody", 37);
+x_1 = lean_mk_string_unchecked("Lean.Tactic.FunInd.buildInductionBody", 37, 37);
 return x_1;
 }
 }
@@ -35558,7 +35558,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_buildInductionBody___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ite", 3);
+x_1 = lean_mk_string_unchecked("ite", 3, 3);
 return x_1;
 }
 }
@@ -37049,7 +37049,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Tactic_FunInd_abstractIn
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("case", 4);
+x_1 = lean_mk_string_unchecked("case", 4, 4);
 return x_1;
 }
 }
@@ -37697,7 +37697,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_motiveUniverseParamPos___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("motive result type must be a sort", 33);
+x_1 = lean_mk_string_unchecked("motive result type must be a sort", 33, 33);
 return x_1;
 }
 }
@@ -37851,7 +37851,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_motiveUniverseParamPos___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected eliminator resulting type", 36);
+x_1 = lean_mk_string_unchecked("unexpected eliminator resulting type", 36, 36);
 return x_1;
 }
 }
@@ -38049,7 +38049,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_findRecursor_err___rarg___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Function ", 9);
+x_1 = lean_mk_string_unchecked("Function ", 9, 9);
 return x_1;
 }
 }
@@ -38066,7 +38066,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_findRecursor_err___rarg___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" does not look like a function defined by recursion.", 52);
+x_1 = lean_mk_string_unchecked(" does not look like a function defined by recursion.", 52, 52);
 return x_1;
 }
 }
@@ -38083,7 +38083,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_findRecursor_err___rarg___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nNB: If ", 8);
+x_1 = lean_mk_string_unchecked("\nNB: If ", 8, 8);
 return x_1;
 }
 }
@@ -38100,7 +38100,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_findRecursor_err___rarg___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" is not itself recursive, but contains an inner recursive ", 58);
+x_1 = lean_mk_string_unchecked(" is not itself recursive, but contains an inner recursive ", 58, 58);
 return x_1;
 }
 }
@@ -38117,7 +38117,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_findRecursor_err___rarg___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("function (via `let rec` or `where`), try `", 42);
+x_1 = lean_mk_string_unchecked("function (via `let rec` or `where`), try `", 42, 42);
 return x_1;
 }
 }
@@ -38134,7 +38134,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_findRecursor_err___rarg___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".go` where `go` is name of the inner ", 37);
+x_1 = lean_mk_string_unchecked(".go` where `go` is name of the inner ", 37, 37);
 return x_1;
 }
 }
@@ -38151,7 +38151,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_findRecursor_err___rarg___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("function.", 9);
+x_1 = lean_mk_string_unchecked("function.", 9, 9);
 return x_1;
 }
 }
@@ -38534,7 +38534,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_findRec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("WellFounded", 11);
+x_1 = lean_mk_string_unchecked("WellFounded", 11, 11);
 return x_1;
 }
 }
@@ -38542,7 +38542,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_findRec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fix", 3);
+x_1 = lean_mk_string_unchecked("fix", 3, 3);
 return x_1;
 }
 }
@@ -38634,7 +38634,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_findRec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("functional induction: expected the target as last parameter", 59);
+x_1 = lean_mk_string_unchecked("functional induction: expected the target as last parameter", 59, 59);
 return x_1;
 }
 }
@@ -38723,7 +38723,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_findRec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fixF", 4);
+x_1 = lean_mk_string_unchecked("fixF", 4, 4);
 return x_1;
 }
 }
@@ -39017,7 +39017,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_findRec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Unexpected brecOn name ", 23);
+x_1 = lean_mk_string_unchecked("Unexpected brecOn name ", 23, 23);
 return x_1;
 }
 }
@@ -39179,7 +39179,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_findRec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("functional induction: unexpected recursor: ", 43);
+x_1 = lean_mk_string_unchecked("functional induction: unexpected recursor: ", 43, 43);
 return x_1;
 }
 }
@@ -39196,7 +39196,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_findRec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" has no universe parameters", 27);
+x_1 = lean_mk_string_unchecked(" has no universe parameters", 27, 27);
 return x_1;
 }
 }
@@ -39278,7 +39278,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_findRec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("brecOn", 6);
+x_1 = lean_mk_string_unchecked("brecOn", 6, 6);
 return x_1;
 }
 }
@@ -39296,7 +39296,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_findRec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" is defined in a way not supported by functional induction, ", 60);
+x_1 = lean_mk_string_unchecked(" is defined in a way not supported by functional induction, ", 60, 60);
 return x_1;
 }
 }
@@ -39313,7 +39313,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_findRec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("for example by recursion over an inductive predicate.", 53);
+x_1 = lean_mk_string_unchecked("for example by recursion over an inductive predicate.", 53, 53);
 return x_1;
 }
 }
@@ -39340,7 +39340,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_findRec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("functional induction: unexpected order of fixed and varying parameters:", 71);
+x_1 = lean_mk_string_unchecked("functional induction: unexpected order of fixed and varying parameters:", 71, 71);
 return x_1;
 }
 }
@@ -40432,7 +40432,7 @@ static lean_object* _init_l_Lean_getConstInfoDefn___at_Lean_Tactic_FunInd_derive
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' is not a definition", 21);
+x_1 = lean_mk_string_unchecked("' is not a definition", 21, 21);
 return x_1;
 }
 }
@@ -42039,7 +42039,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_deriveUnaryInduction___lambda__3_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Did not fully eliminate ", 24);
+x_1 = lean_mk_string_unchecked("Did not fully eliminate ", 24, 24);
 return x_1;
 }
 }
@@ -42056,7 +42056,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_deriveUnaryInduction___lambda__3_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" from induction principle body:", 31);
+x_1 = lean_mk_string_unchecked(" from induction principle body:", 31, 31);
 return x_1;
 }
 }
@@ -42328,7 +42328,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_deriveUnaryInduction___lambda__4_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected recursor argument to take ", 35);
+x_1 = lean_mk_string_unchecked("expected recursor argument to take ", 35, 35);
 return x_1;
 }
 }
@@ -42345,7 +42345,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_deriveUnaryInduction___lambda__4_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" parameters, got ", 17);
+x_1 = lean_mk_string_unchecked(" parameters, got ", 17, 17);
 return x_1;
 }
 }
@@ -42898,7 +42898,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_deriveUnaryInduction___lambda__6_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("motive", 6);
+x_1 = lean_mk_string_unchecked("motive", 6, 6);
 return x_1;
 }
 }
@@ -43196,7 +43196,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_deriveUnaryInduction___lambda__8_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to derive induction priciple:", 36);
+x_1 = lean_mk_string_unchecked("failed to derive induction priciple:", 36, 36);
 return x_1;
 }
 }
@@ -43481,7 +43481,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_deriveUnaryInduction___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("induct", 6);
+x_1 = lean_mk_string_unchecked("induct", 6, 6);
 return x_1;
 }
 }
@@ -44106,7 +44106,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_cleanPackedArgs___lambda__3___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PSum", 4);
+x_1 = lean_mk_string_unchecked("PSum", 4, 4);
 return x_1;
 }
 }
@@ -44114,7 +44114,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_cleanPackedArgs___lambda__3___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inr", 3);
+x_1 = lean_mk_string_unchecked("inr", 3, 3);
 return x_1;
 }
 }
@@ -44170,7 +44170,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_cleanPackedArgs___lambda__4___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("casesOn", 7);
+x_1 = lean_mk_string_unchecked("casesOn", 7, 7);
 return x_1;
 }
 }
@@ -44188,7 +44188,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_cleanPackedArgs___lambda__4___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inl", 3);
+x_1 = lean_mk_string_unchecked("inl", 3, 3);
 return x_1;
 }
 }
@@ -44374,7 +44374,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_cleanPackedArgs___lambda__5___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PSigma", 6);
+x_1 = lean_mk_string_unchecked("PSigma", 6, 6);
 return x_1;
 }
 }
@@ -44392,7 +44392,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_cleanPackedArgs___lambda__5___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mk", 2);
+x_1 = lean_mk_string_unchecked("mk", 2, 2);
 return x_1;
 }
 }
@@ -44410,7 +44410,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_cleanPackedArgs___lambda__5___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Tactic.FunInd.cleanPackedArgs", 34);
+x_1 = lean_mk_string_unchecked("Lean.Tactic.FunInd.cleanPackedArgs", 34, 34);
 return x_1;
 }
 }
@@ -44863,7 +44863,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_unpackM
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("could not find motive ", 22);
+x_1 = lean_mk_string_unchecked("could not find motive ", 22, 22);
 return x_1;
 }
 }
@@ -44929,7 +44929,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_unpackM
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("packed target not last argument to ", 35);
+x_1 = lean_mk_string_unchecked("packed target not last argument to ", 35, 35);
 return x_1;
 }
 }
@@ -45058,7 +45058,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_unpackM
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("conclusion ", 11);
+x_1 = lean_mk_string_unchecked("conclusion ", 11, 11);
 return x_1;
 }
 }
@@ -45075,7 +45075,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_unpackM
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" does not look like a packed motive application", 47);
+x_1 = lean_mk_string_unchecked(" does not look like a packed motive application", 47, 47);
 return x_1;
 }
 }
@@ -46912,7 +46912,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_unpackMutualInduction___lambda__6
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to unpack induction priciple:", 36);
+x_1 = lean_mk_string_unchecked("failed to unpack induction priciple:", 36, 36);
 return x_1;
 }
 }
@@ -47203,7 +47203,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_unpackMutualInduction___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mutual_induct", 13);
+x_1 = lean_mk_string_unchecked("mutual_induct", 13, 13);
 return x_1;
 }
 }

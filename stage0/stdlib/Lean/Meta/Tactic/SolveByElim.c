@@ -267,7 +267,7 @@ static lean_object* _init_l_Lean_Meta_SolveByElim_initFn____x40_Lean_Meta_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -275,7 +275,7 @@ static lean_object* _init_l_Lean_Meta_SolveByElim_initFn____x40_Lean_Meta_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -283,7 +283,7 @@ static lean_object* _init_l_Lean_Meta_SolveByElim_initFn____x40_Lean_Meta_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("solveByElim", 11);
+x_1 = lean_mk_string_unchecked("solveByElim", 11, 11);
 return x_1;
 }
 }
@@ -302,7 +302,7 @@ static lean_object* _init_l_Lean_Meta_SolveByElim_initFn____x40_Lean_Meta_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -330,7 +330,7 @@ static lean_object* _init_l_Lean_Meta_SolveByElim_initFn____x40_Lean_Meta_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("SolveByElim", 11);
+x_1 = lean_mk_string_unchecked("SolveByElim", 11, 11);
 return x_1;
 }
 }
@@ -348,7 +348,7 @@ static lean_object* _init_l_Lean_Meta_SolveByElim_initFn____x40_Lean_Meta_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -366,7 +366,7 @@ static lean_object* _init_l_Lean_Meta_SolveByElim_initFn____x40_Lean_Meta_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -424,7 +424,7 @@ static lean_object* _init_l_Lean_Meta_SolveByElim_initFn____x40_Lean_Meta_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -725,7 +725,7 @@ static lean_object* _init_l_Lean_Meta_SolveByElim_applyTactics___lambda__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -742,7 +742,7 @@ static lean_object* _init_l_Lean_Meta_SolveByElim_applyTactics___lambda__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" trying to apply: ", 18);
+x_1 = lean_mk_string_unchecked(" trying to apply: ", 18, 18);
 return x_1;
 }
 }
@@ -2977,7 +2977,7 @@ static lean_object* _init_l_Lean_Meta_SolveByElim_SolveByElimConfig_testPartialS
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed", 6);
+x_1 = lean_mk_string_unchecked("failed", 6, 6);
 return x_1;
 }
 }
@@ -4952,7 +4952,7 @@ static lean_object* _init_l_Lean_Meta_repeat1_x27___at_Lean_Meta_SolveByElim_sol
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("repeat1' made no progress", 25);
+x_1 = lean_mk_string_unchecked("repeat1' made no progress", 25, 25);
 return x_1;
 }
 }
@@ -5135,7 +5135,7 @@ static lean_object* _init_l_Lean_Meta_SolveByElim_solveByElim___lambda__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⏮️ starting over using `exfalso`", 36);
+x_1 = lean_mk_string_unchecked("⏮️ starting over using `exfalso`", 36, 32);
 return x_1;
 }
 }
@@ -7265,7 +7265,7 @@ static lean_object* _init_l_Lean_Meta_SolveByElim_mkAssumptionSet___lambda__3___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rfl", 3);
+x_1 = lean_mk_string_unchecked("rfl", 3, 3);
 return x_1;
 }
 }
@@ -7316,7 +7316,7 @@ static lean_object* _init_l_Lean_Meta_SolveByElim_mkAssumptionSet___lambda__3___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("trivial", 7);
+x_1 = lean_mk_string_unchecked("trivial", 7, 7);
 return x_1;
 }
 }
@@ -7367,7 +7367,7 @@ static lean_object* _init_l_Lean_Meta_SolveByElim_mkAssumptionSet___lambda__3___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("congrFun", 8);
+x_1 = lean_mk_string_unchecked("congrFun", 8, 8);
 return x_1;
 }
 }
@@ -7418,7 +7418,7 @@ static lean_object* _init_l_Lean_Meta_SolveByElim_mkAssumptionSet___lambda__3___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("congrArg", 8);
+x_1 = lean_mk_string_unchecked("congrArg", 8, 8);
 return x_1;
 }
 }
@@ -7469,7 +7469,7 @@ static lean_object* _init_l_Lean_Meta_SolveByElim_mkAssumptionSet___lambda__3___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("It doesn't make sense to remove local hypotheses when using `only` without `*`.", 79);
+x_1 = lean_mk_string_unchecked("It doesn't make sense to remove local hypotheses when using `only` without `*`.", 79, 79);
 return x_1;
 }
 }
@@ -8573,7 +8573,7 @@ static lean_object* _init_l_Lean_Meta_SolveByElim_mkAssumptionSet___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("It doesn't make sense to use `*` without `only`.", 48);
+x_1 = lean_mk_string_unchecked("It doesn't make sense to use `*` without `only`.", 48, 48);
 return x_1;
 }
 }

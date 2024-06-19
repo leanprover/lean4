@@ -305,7 +305,7 @@ static lean_object* _init_l_Lean_getConstInfo___at___private_Lean_Elab_PreDefini
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
+x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
 return x_1;
 }
 }
@@ -322,7 +322,7 @@ static lean_object* _init_l_Lean_getConstInfo___at___private_Lean_Elab_PreDefini
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -458,7 +458,7 @@ static lean_object* _init_l_List_forIn_loop___at___private_Lean_Elab_PreDefiniti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Match.MatcherApp.Basic", 32);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Match.MatcherApp.Basic", 32, 32);
 return x_1;
 }
 }
@@ -466,7 +466,7 @@ static lean_object* _init_l_List_forIn_loop___at___private_Lean_Elab_PreDefiniti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.matchMatcherApp\?", 26);
+x_1 = lean_mk_string_unchecked("Lean.Meta.matchMatcherApp\?", 26, 26);
 return x_1;
 }
 }
@@ -474,7 +474,7 @@ static lean_object* _init_l_List_forIn_loop___at___private_Lean_Elab_PreDefiniti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -1951,7 +1951,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_IndPred
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("not a matcherApp: ", 18);
+x_1 = lean_mk_string_unchecked("not a matcherApp: ", 18, 18);
 return x_1;
 }
 }
@@ -1968,7 +1968,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_IndPred
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -2637,7 +2637,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("could not solve using backwards chaining ", 41);
+x_1 = lean_mk_string_unchecked("could not solve using backwards chaining ", 41, 41);
 return x_1;
 }
 }
@@ -4491,7 +4491,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_IndPred
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("modified matcher:\n", 18);
+x_1 = lean_mk_string_unchecked("modified matcher:\n", 18, 18);
 return x_1;
 }
 }
@@ -4508,7 +4508,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_IndPred
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("could not add below discriminant", 32);
+x_1 = lean_mk_string_unchecked("could not add below discriminant", 32, 32);
 return x_1;
 }
 }
@@ -4807,7 +4807,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_IndPred
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -4815,7 +4815,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_IndPred
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("definition", 10);
+x_1 = lean_mk_string_unchecked("definition", 10, 10);
 return x_1;
 }
 }
@@ -4823,7 +4823,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_IndPred
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structural", 10);
+x_1 = lean_mk_string_unchecked("structural", 10, 10);
 return x_1;
 }
 }
@@ -4842,7 +4842,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_IndPred
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("matcherApp before adding below transformation:\n", 47);
+x_1 = lean_mk_string_unchecked("matcherApp before adding below transformation:\n", 47, 47);
 return x_1;
 }
 }
@@ -5821,7 +5821,7 @@ static lean_object* _init_l_Lean_Elab_Structural_mkIndPredBRecOn___lambda__2___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("FType: ", 7);
+x_1 = lean_mk_string_unchecked("FType: ", 7, 7);
 return x_1;
 }
 }
@@ -6309,7 +6309,7 @@ static lean_object* _init_l_Lean_Elab_Structural_mkIndPredBRecOn___lambda__5___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("brecOnType ", 11);
+x_1 = lean_mk_string_unchecked("brecOnType ", 11, 11);
 return x_1;
 }
 }
@@ -6407,7 +6407,7 @@ static lean_object* _init_l_Lean_Elab_Structural_mkIndPredBRecOn___lambda__6___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("brecOn     ", 11);
+x_1 = lean_mk_string_unchecked("brecOn     ", 11, 11);
 return x_1;
 }
 }
@@ -6621,7 +6621,7 @@ static lean_object* _init_l_Lean_Elab_Structural_mkIndPredBRecOn___lambda__7___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("brecOn motive: ", 15);
+x_1 = lean_mk_string_unchecked("brecOn motive: ", 15, 15);
 return x_1;
 }
 }
@@ -6815,7 +6815,7 @@ static lean_object* _init_l_Lean_Elab_Structural_mkIndPredBRecOn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fixedParams: ", 13);
+x_1 = lean_mk_string_unchecked("fixedParams: ", 13, 13);
 return x_1;
 }
 }
@@ -6832,7 +6832,7 @@ static lean_object* _init_l_Lean_Elab_Structural_mkIndPredBRecOn___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", otherArgs: ", 13);
+x_1 = lean_mk_string_unchecked(", otherArgs: ", 13, 13);
 return x_1;
 }
 }

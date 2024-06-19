@@ -62,7 +62,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_GlobalInstances___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -70,7 +70,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_GlobalInstances___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -78,7 +78,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_GlobalInstances___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("globalInstanceExtension", 23);
+x_1 = lean_mk_string_unchecked("globalInstanceExtension", 23, 23);
 return x_1;
 }
 }

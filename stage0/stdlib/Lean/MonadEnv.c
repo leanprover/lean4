@@ -1046,7 +1046,7 @@ static lean_object* _init_l_Lean_getConstInfo___rarg___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
+x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
 return x_1;
 }
 }
@@ -1063,7 +1063,7 @@ static lean_object* _init_l_Lean_getConstInfo___rarg___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -1239,7 +1239,7 @@ static lean_object* _init_l_Lean_getConstInfoDefn___rarg___lambda__1___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' is not a definition", 21);
+x_1 = lean_mk_string_unchecked("' is not a definition", 21, 21);
 return x_1;
 }
 }
@@ -1322,7 +1322,7 @@ static lean_object* _init_l_Lean_getConstInfoInduct___rarg___lambda__1___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' is not a inductive type", 25);
+x_1 = lean_mk_string_unchecked("' is not a inductive type", 25, 25);
 return x_1;
 }
 }
@@ -1405,7 +1405,7 @@ static lean_object* _init_l_Lean_getConstInfoCtor___rarg___lambda__1___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' is not a constructor", 22);
+x_1 = lean_mk_string_unchecked("' is not a constructor", 22, 22);
 return x_1;
 }
 }
@@ -1488,7 +1488,7 @@ static lean_object* _init_l_Lean_getConstInfoRec___rarg___lambda__1___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' is not a recursor", 19);
+x_1 = lean_mk_string_unchecked("' is not a recursor", 19, 19);
 return x_1;
 }
 }

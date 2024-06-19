@@ -278,7 +278,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_forEachModuleInDir_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lean", 4);
+x_1 = lean_mk_string_unchecked("lean", 4, 4);
 return x_1;
 }
 }
@@ -296,7 +296,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_forEachModuleInDir_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -688,7 +688,7 @@ static lean_object* _init_l_Lean_modToFilePath_go___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Util.Path", 14);
+x_1 = lean_mk_string_unchecked("Lean.Util.Path", 14, 14);
 return x_1;
 }
 }
@@ -696,7 +696,7 @@ static lean_object* _init_l_Lean_modToFilePath_go___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.modToFilePath.go", 21);
+x_1 = lean_mk_string_unchecked("Lean.modToFilePath.go", 21, 21);
 return x_1;
 }
 }
@@ -704,7 +704,7 @@ static lean_object* _init_l_Lean_modToFilePath_go___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ill-formed import", 17);
+x_1 = lean_mk_string_unchecked("ill-formed import", 17, 17);
 return x_1;
 }
 }
@@ -1478,7 +1478,7 @@ static lean_object* _init_l_Lean_getBuildDir___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.Data.Option.BasicAux", 25);
+x_1 = lean_mk_string_unchecked("Init.Data.Option.BasicAux", 25, 25);
 return x_1;
 }
 }
@@ -1486,7 +1486,7 @@ static lean_object* _init_l_Lean_getBuildDir___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Option.get!", 11);
+x_1 = lean_mk_string_unchecked("Option.get!", 11, 11);
 return x_1;
 }
 }
@@ -1494,7 +1494,7 @@ static lean_object* _init_l_Lean_getBuildDir___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("value is none", 13);
+x_1 = lean_mk_string_unchecked("value is none", 13, 13);
 return x_1;
 }
 }
@@ -1603,7 +1603,7 @@ static lean_object* _init_l_Lean_getLibDir___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lib", 3);
+x_1 = lean_mk_string_unchecked("lib", 3, 3);
 return x_1;
 }
 }
@@ -1642,7 +1642,7 @@ static lean_object* _init_l_Lean_getLibDir___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("..", 2);
+x_1 = lean_mk_string_unchecked("..", 2, 2);
 return x_1;
 }
 }
@@ -1650,7 +1650,7 @@ static lean_object* _init_l_Lean_getLibDir___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("stage1", 6);
+x_1 = lean_mk_string_unchecked("stage1", 6, 6);
 return x_1;
 }
 }
@@ -1755,7 +1755,7 @@ static lean_object* _init_l_Lean_addSearchPathFromEnv___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LEAN_PATH", 9);
+x_1 = lean_mk_string_unchecked("LEAN_PATH", 9, 9);
 return x_1;
 }
 }
@@ -1948,7 +1948,7 @@ static lean_object* _init_l_Lean_findOLean___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("olean", 5);
+x_1 = lean_mk_string_unchecked("olean", 5, 5);
 return x_1;
 }
 }
@@ -1956,7 +1956,7 @@ static lean_object* _init_l_Lean_findOLean___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown module prefix '", 23);
+x_1 = lean_mk_string_unchecked("unknown module prefix '", 23, 23);
 return x_1;
 }
 }
@@ -1964,7 +1964,7 @@ static lean_object* _init_l_Lean_findOLean___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'\n\nNo directory '", 17);
+x_1 = lean_mk_string_unchecked("'\n\nNo directory '", 17, 17);
 return x_1;
 }
 }
@@ -1972,7 +1972,7 @@ static lean_object* _init_l_Lean_findOLean___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' or file '", 11);
+x_1 = lean_mk_string_unchecked("' or file '", 11, 11);
 return x_1;
 }
 }
@@ -1980,7 +1980,7 @@ static lean_object* _init_l_Lean_findOLean___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".lean' in the search path entries:\n", 35);
+x_1 = lean_mk_string_unchecked(".lean' in the search path entries:\n", 35, 35);
 return x_1;
 }
 }
@@ -1988,7 +1988,7 @@ static lean_object* _init_l_Lean_findOLean___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -2159,7 +2159,7 @@ static lean_object* _init_l_Lean_moduleNameOfFileName___lambda__2___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("input file '", 12);
+x_1 = lean_mk_string_unchecked("input file '", 12, 12);
 return x_1;
 }
 }
@@ -2167,7 +2167,7 @@ static lean_object* _init_l_Lean_moduleNameOfFileName___lambda__2___closed__2() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' must be contained in root directory (", 39);
+x_1 = lean_mk_string_unchecked("' must be contained in root directory (", 39, 39);
 return x_1;
 }
 }
@@ -2175,7 +2175,7 @@ static lean_object* _init_l_Lean_moduleNameOfFileName___lambda__2___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -2676,7 +2676,7 @@ static lean_object* _init_l_Lean_findSysroot___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("--print-prefix", 14);
+x_1 = lean_mk_string_unchecked("--print-prefix", 14, 14);
 return x_1;
 }
 }
@@ -2764,7 +2764,7 @@ static lean_object* _init_l_Lean_findSysroot___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LEAN_SYSROOT", 12);
+x_1 = lean_mk_string_unchecked("LEAN_SYSROOT", 12, 12);
 return x_1;
 }
 }

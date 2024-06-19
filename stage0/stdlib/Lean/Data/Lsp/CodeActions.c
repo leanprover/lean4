@@ -563,7 +563,7 @@ static lean_object* _init_l_Lean_Lsp_instFromJsonCodeActionTriggerKind___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Unexpected CodeActionTriggerKind ", 33);
+x_1 = lean_mk_string_unchecked("Unexpected CodeActionTriggerKind ", 33, 33);
 return x_1;
 }
 }
@@ -571,7 +571,7 @@ static lean_object* _init_l_Lean_Lsp_instFromJsonCodeActionTriggerKind___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -814,7 +814,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected JSON array, got '", 26);
+x_1 = lean_mk_string_unchecked("expected JSON array, got '", 26, 26);
 return x_1;
 }
 }
@@ -822,7 +822,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -1177,7 +1177,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("diagnostics", 11);
+x_1 = lean_mk_string_unchecked("diagnostics", 11, 11);
 return x_1;
 }
 }
@@ -1185,7 +1185,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1193,7 +1193,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lsp", 3);
+x_1 = lean_mk_string_unchecked("Lsp", 3, 3);
 return x_1;
 }
 }
@@ -1201,7 +1201,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CodeActionContext", 17);
+x_1 = lean_mk_string_unchecked("CodeActionContext", 17, 17);
 return x_1;
 }
 }
@@ -1230,7 +1230,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -1278,7 +1278,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -1296,7 +1296,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("only", 4);
+x_1 = lean_mk_string_unchecked("only", 4, 4);
 return x_1;
 }
 }
@@ -1304,7 +1304,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("only\?", 5);
+x_1 = lean_mk_string_unchecked("only\?", 5, 5);
 return x_1;
 }
 }
@@ -1352,7 +1352,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("triggerKind", 11);
+x_1 = lean_mk_string_unchecked("triggerKind", 11, 11);
 return x_1;
 }
 }
@@ -1360,7 +1360,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("triggerKind\?", 12);
+x_1 = lean_mk_string_unchecked("triggerKind\?", 12, 12);
 return x_1;
 }
 }
@@ -1841,7 +1841,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("workDoneToken", 13);
+x_1 = lean_mk_string_unchecked("workDoneToken", 13, 13);
 return x_1;
 }
 }
@@ -1849,7 +1849,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CodeActionParams", 16);
+x_1 = lean_mk_string_unchecked("CodeActionParams", 16, 16);
 return x_1;
 }
 }
@@ -1888,7 +1888,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("workDoneToken\?", 14);
+x_1 = lean_mk_string_unchecked("workDoneToken\?", 14, 14);
 return x_1;
 }
 }
@@ -1936,7 +1936,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("partialResultToken", 18);
+x_1 = lean_mk_string_unchecked("partialResultToken", 18, 18);
 return x_1;
 }
 }
@@ -1944,7 +1944,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("partialResultToken\?", 19);
+x_1 = lean_mk_string_unchecked("partialResultToken\?", 19, 19);
 return x_1;
 }
 }
@@ -1992,7 +1992,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("textDocument", 12);
+x_1 = lean_mk_string_unchecked("textDocument", 12, 12);
 return x_1;
 }
 }
@@ -2040,7 +2040,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("range", 5);
+x_1 = lean_mk_string_unchecked("range", 5, 5);
 return x_1;
 }
 }
@@ -2088,7 +2088,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("context", 7);
+x_1 = lean_mk_string_unchecked("context", 7, 7);
 return x_1;
 }
 }
@@ -2477,7 +2477,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reason", 6);
+x_1 = lean_mk_string_unchecked("reason", 6, 6);
 return x_1;
 }
 }
@@ -2485,7 +2485,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CodeActionDisabled", 18);
+x_1 = lean_mk_string_unchecked("CodeActionDisabled", 18, 18);
 return x_1;
 }
 }
@@ -2717,7 +2717,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("workDoneProgress", 16);
+x_1 = lean_mk_string_unchecked("workDoneProgress", 16, 16);
 return x_1;
 }
 }
@@ -2725,7 +2725,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("codeActionKinds", 15);
+x_1 = lean_mk_string_unchecked("codeActionKinds", 15, 15);
 return x_1;
 }
 }
@@ -2733,7 +2733,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("resolveProvider", 15);
+x_1 = lean_mk_string_unchecked("resolveProvider", 15, 15);
 return x_1;
 }
 }
@@ -2978,7 +2978,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CodeActionOptions", 17);
+x_1 = lean_mk_string_unchecked("CodeActionOptions", 17, 17);
 return x_1;
 }
 }
@@ -3057,7 +3057,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("codeActionKinds\?", 16);
+x_1 = lean_mk_string_unchecked("codeActionKinds\?", 16, 16);
 return x_1;
 }
 }
@@ -3105,7 +3105,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("resolveProvider\?", 16);
+x_1 = lean_mk_string_unchecked("resolveProvider\?", 16, 16);
 return x_1;
 }
 }
@@ -3571,7 +3571,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("title", 5);
+x_1 = lean_mk_string_unchecked("title", 5, 5);
 return x_1;
 }
 }
@@ -3579,7 +3579,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("kind", 4);
+x_1 = lean_mk_string_unchecked("kind", 4, 4);
 return x_1;
 }
 }
@@ -3587,7 +3587,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("isPreferred", 11);
+x_1 = lean_mk_string_unchecked("isPreferred", 11, 11);
 return x_1;
 }
 }
@@ -3595,7 +3595,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("disabled", 8);
+x_1 = lean_mk_string_unchecked("disabled", 8, 8);
 return x_1;
 }
 }
@@ -3603,7 +3603,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("edit", 4);
+x_1 = lean_mk_string_unchecked("edit", 4, 4);
 return x_1;
 }
 }
@@ -3611,7 +3611,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("command", 7);
+x_1 = lean_mk_string_unchecked("command", 7, 7);
 return x_1;
 }
 }
@@ -3619,7 +3619,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("data", 4);
+x_1 = lean_mk_string_unchecked("data", 4, 4);
 return x_1;
 }
 }
@@ -4592,7 +4592,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CodeAction", 10);
+x_1 = lean_mk_string_unchecked("CodeAction", 10, 10);
 return x_1;
 }
 }
@@ -4711,7 +4711,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("kind\?", 5);
+x_1 = lean_mk_string_unchecked("kind\?", 5, 5);
 return x_1;
 }
 }
@@ -4759,7 +4759,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("diagnostics\?", 12);
+x_1 = lean_mk_string_unchecked("diagnostics\?", 12, 12);
 return x_1;
 }
 }
@@ -4807,7 +4807,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("isPreferred\?", 12);
+x_1 = lean_mk_string_unchecked("isPreferred\?", 12, 12);
 return x_1;
 }
 }
@@ -4855,7 +4855,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("disabled\?", 9);
+x_1 = lean_mk_string_unchecked("disabled\?", 9, 9);
 return x_1;
 }
 }
@@ -4903,7 +4903,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("edit\?", 5);
+x_1 = lean_mk_string_unchecked("edit\?", 5, 5);
 return x_1;
 }
 }
@@ -4951,7 +4951,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("command\?", 8);
+x_1 = lean_mk_string_unchecked("command\?", 8, 8);
 return x_1;
 }
 }
@@ -4999,7 +4999,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("data\?", 5);
+x_1 = lean_mk_string_unchecked("data\?", 5, 5);
 return x_1;
 }
 }
@@ -5683,7 +5683,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("properties", 10);
+x_1 = lean_mk_string_unchecked("properties", 10, 10);
 return x_1;
 }
 }
@@ -5691,7 +5691,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ResolveSupport", 14);
+x_1 = lean_mk_string_unchecked("ResolveSupport", 14, 14);
 return x_1;
 }
 }
@@ -6028,7 +6028,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("valueSet", 8);
+x_1 = lean_mk_string_unchecked("valueSet", 8, 8);
 return x_1;
 }
 }
@@ -6036,7 +6036,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CodeActionLiteralSupportValueSet", 32);
+x_1 = lean_mk_string_unchecked("CodeActionLiteralSupportValueSet", 32, 32);
 return x_1;
 }
 }
@@ -6247,7 +6247,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("codeActionKind", 14);
+x_1 = lean_mk_string_unchecked("codeActionKind", 14, 14);
 return x_1;
 }
 }
@@ -6255,7 +6255,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CodeActionLiteralSupport", 24);
+x_1 = lean_mk_string_unchecked("CodeActionLiteralSupport", 24, 24);
 return x_1;
 }
 }
@@ -6858,7 +6858,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("dynamicRegistration", 19);
+x_1 = lean_mk_string_unchecked("dynamicRegistration", 19, 19);
 return x_1;
 }
 }
@@ -6866,7 +6866,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CodeActionClientCapabilities", 28);
+x_1 = lean_mk_string_unchecked("CodeActionClientCapabilities", 28, 28);
 return x_1;
 }
 }
@@ -6905,7 +6905,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("dynamicRegistration\?", 20);
+x_1 = lean_mk_string_unchecked("dynamicRegistration\?", 20, 20);
 return x_1;
 }
 }
@@ -6953,7 +6953,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("isPreferredSupport", 18);
+x_1 = lean_mk_string_unchecked("isPreferredSupport", 18, 18);
 return x_1;
 }
 }
@@ -6961,7 +6961,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("isPreferredSupport\?", 19);
+x_1 = lean_mk_string_unchecked("isPreferredSupport\?", 19, 19);
 return x_1;
 }
 }
@@ -7009,7 +7009,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("disabledSupport", 15);
+x_1 = lean_mk_string_unchecked("disabledSupport", 15, 15);
 return x_1;
 }
 }
@@ -7017,7 +7017,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("disabledSupport\?", 16);
+x_1 = lean_mk_string_unchecked("disabledSupport\?", 16, 16);
 return x_1;
 }
 }
@@ -7065,7 +7065,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("dataSupport", 11);
+x_1 = lean_mk_string_unchecked("dataSupport", 11, 11);
 return x_1;
 }
 }
@@ -7073,7 +7073,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("dataSupport\?", 12);
+x_1 = lean_mk_string_unchecked("dataSupport\?", 12, 12);
 return x_1;
 }
 }
@@ -7121,7 +7121,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("honorsChangeAnnotations", 23);
+x_1 = lean_mk_string_unchecked("honorsChangeAnnotations", 23, 23);
 return x_1;
 }
 }
@@ -7129,7 +7129,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("honorsChangeAnnotations\?", 24);
+x_1 = lean_mk_string_unchecked("honorsChangeAnnotations\?", 24, 24);
 return x_1;
 }
 }
@@ -7177,7 +7177,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("codeActionLiteralSupport", 24);
+x_1 = lean_mk_string_unchecked("codeActionLiteralSupport", 24, 24);
 return x_1;
 }
 }
@@ -7185,7 +7185,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("codeActionLiteralSupport\?", 25);
+x_1 = lean_mk_string_unchecked("codeActionLiteralSupport\?", 25, 25);
 return x_1;
 }
 }
@@ -7233,7 +7233,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("resolveSupport", 14);
+x_1 = lean_mk_string_unchecked("resolveSupport", 14, 14);
 return x_1;
 }
 }
@@ -7241,7 +7241,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("resolveSupport\?", 15);
+x_1 = lean_mk_string_unchecked("resolveSupport\?", 15, 15);
 return x_1;
 }
 }

@@ -1075,7 +1075,7 @@ static lean_object* _init_l_Lean_Elab_Rewrites_evalExact___lambda__2___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rewrites", 8);
+x_1 = lean_mk_string_unchecked("rewrites", 8, 8);
 return x_1;
 }
 }
@@ -1093,7 +1093,7 @@ static lean_object* _init_l_Lean_Elab_Rewrites_evalExact___lambda__2___closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Could not find any lemmas which can rewrite the hypothesis ", 59);
+x_1 = lean_mk_string_unchecked("Could not find any lemmas which can rewrite the hypothesis ", 59, 59);
 return x_1;
 }
 }
@@ -1110,7 +1110,7 @@ static lean_object* _init_l_Lean_Elab_Rewrites_evalExact___lambda__2___closed__5
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -1873,7 +1873,7 @@ static lean_object* _init_l_Lean_Elab_Rewrites_evalExact___lambda__4___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1881,7 +1881,7 @@ static lean_object* _init_l_Lean_Elab_Rewrites_evalExact___lambda__4___closed__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -1889,7 +1889,7 @@ static lean_object* _init_l_Lean_Elab_Rewrites_evalExact___lambda__4___closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -1897,7 +1897,7 @@ static lean_object* _init_l_Lean_Elab_Rewrites_evalExact___lambda__4___closed__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticTry_", 10);
+x_1 = lean_mk_string_unchecked("tacticTry_", 10, 10);
 return x_1;
 }
 }
@@ -1917,7 +1917,7 @@ static lean_object* _init_l_Lean_Elab_Rewrites_evalExact___lambda__4___closed__6
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("try", 3);
+x_1 = lean_mk_string_unchecked("try", 3, 3);
 return x_1;
 }
 }
@@ -1925,7 +1925,7 @@ static lean_object* _init_l_Lean_Elab_Rewrites_evalExact___lambda__4___closed__7
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq", 9);
+x_1 = lean_mk_string_unchecked("tacticSeq", 9, 9);
 return x_1;
 }
 }
@@ -1945,7 +1945,7 @@ static lean_object* _init_l_Lean_Elab_Rewrites_evalExact___lambda__4___closed__9
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq1Indented", 18);
+x_1 = lean_mk_string_unchecked("tacticSeq1Indented", 18, 18);
 return x_1;
 }
 }
@@ -1965,7 +1965,7 @@ static lean_object* _init_l_Lean_Elab_Rewrites_evalExact___lambda__4___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -1983,7 +1983,7 @@ static lean_object* _init_l_Lean_Elab_Rewrites_evalExact___lambda__4___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticRfl", 9);
+x_1 = lean_mk_string_unchecked("tacticRfl", 9, 9);
 return x_1;
 }
 }
@@ -2003,7 +2003,7 @@ static lean_object* _init_l_Lean_Elab_Rewrites_evalExact___lambda__4___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rfl", 3);
+x_1 = lean_mk_string_unchecked("rfl", 3, 3);
 return x_1;
 }
 }
@@ -3091,7 +3091,7 @@ static lean_object* _init_l_Lean_Elab_Rewrites_evalExact___lambda__5___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Could not find any lemmas which can rewrite the goal", 52);
+x_1 = lean_mk_string_unchecked("Could not find any lemmas which can rewrite the goal", 52, 52);
 return x_1;
 }
 }
@@ -3314,7 +3314,7 @@ static lean_object* _init_l_Lean_Elab_Rewrites_evalExact___lambda__6___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Failed to find a rewrite for some location", 42);
+x_1 = lean_mk_string_unchecked("Failed to find a rewrite for some location", 42, 42);
 return x_1;
 }
 }
@@ -3348,7 +3348,7 @@ static lean_object* _init_l_Lean_Elab_Rewrites_evalExact___lambda__7___closed__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("findRewrites", 12);
+x_1 = lean_mk_string_unchecked("findRewrites", 12, 12);
 return x_1;
 }
 }
@@ -3636,7 +3636,7 @@ static lean_object* _init_l_Lean_Elab_Rewrites_evalExact___lambda__8___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("group", 5);
+x_1 = lean_mk_string_unchecked("group", 5, 5);
 return x_1;
 }
 }
@@ -3680,7 +3680,7 @@ static lean_object* _init_l_Lean_Elab_Rewrites_evalExact___lambda__9___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rewrites_forbidden", 18);
+x_1 = lean_mk_string_unchecked("rewrites_forbidden", 18, 18);
 return x_1;
 }
 }
@@ -3885,7 +3885,7 @@ static lean_object* _init_l_Lean_Elab_Rewrites_evalExact___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rewrites\?", 9);
+x_1 = lean_mk_string_unchecked("rewrites\?", 9, 9);
 return x_1;
 }
 }
@@ -4120,7 +4120,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Rewrites_evalExact__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -4128,7 +4128,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Rewrites_evalExact__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Rewrites", 8);
+x_1 = lean_mk_string_unchecked("Rewrites", 8, 8);
 return x_1;
 }
 }
@@ -4136,7 +4136,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Rewrites_evalExact__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalExact", 9);
+x_1 = lean_mk_string_unchecked("evalExact", 9, 9);
 return x_1;
 }
 }

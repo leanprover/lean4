@@ -253,7 +253,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_Diff___hyg_6__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("showTacticDiff", 14);
+x_1 = lean_mk_string_unchecked("showTacticDiff", 14, 14);
 return x_1;
 }
 }
@@ -271,7 +271,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_Diff___hyg_6__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -279,7 +279,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_Diff___hyg_6__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("When true, interactive goals for tactics will be decorated with diffing information. ", 85);
+x_1 = lean_mk_string_unchecked("When true, interactive goals for tactics will be decorated with diffing information. ", 85, 85);
 return x_1;
 }
 }
@@ -302,7 +302,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_Diff___hyg_6__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -310,7 +310,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_Diff___hyg_6__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Widget", 6);
+x_1 = lean_mk_string_unchecked("Widget", 6, 6);
 return x_1;
 }
 }
@@ -491,7 +491,7 @@ static lean_object* _init_l_Lean_Widget_ExprDiffTag_toString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("change", 6);
+x_1 = lean_mk_string_unchecked("change", 6, 6);
 return x_1;
 }
 }
@@ -499,7 +499,7 @@ static lean_object* _init_l_Lean_Widget_ExprDiffTag_toString___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("delete", 6);
+x_1 = lean_mk_string_unchecked("delete", 6, 6);
 return x_1;
 }
 }
@@ -507,7 +507,7 @@ static lean_object* _init_l_Lean_Widget_ExprDiffTag_toString___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("insert", 6);
+x_1 = lean_mk_string_unchecked("insert", 6, 6);
 return x_1;
 }
 }
@@ -740,7 +740,7 @@ static lean_object* _init_l_List_map___at_Lean_Widget_instToStringExprDiff___spe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -748,7 +748,7 @@ static lean_object* _init_l_List_map___at_Lean_Widget_instToStringExprDiff___spe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
@@ -756,7 +756,7 @@ static lean_object* _init_l_List_map___at_Lean_Widget_instToStringExprDiff___spe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -842,7 +842,7 @@ static lean_object* _init_l_Lean_Widget_instToStringExprDiff___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("before: ", 8);
+x_1 = lean_mk_string_unchecked("before: ", 8, 8);
 return x_1;
 }
 }
@@ -850,7 +850,7 @@ static lean_object* _init_l_Lean_Widget_instToStringExprDiff___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nafter: ", 8);
+x_1 = lean_mk_string_unchecked("\nafter: ", 8, 8);
 return x_1;
 }
 }
@@ -4030,7 +4030,7 @@ static lean_object* _init_l_Lean_Widget_exprDiffCore_piDiff___lambda__3___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("should not happen", 17);
+x_1 = lean_mk_string_unchecked("should not happen", 17, 17);
 return x_1;
 }
 }
@@ -6575,7 +6575,7 @@ static lean_object* _init_l_Lean_Widget_diffHypothesesBundle_withTypeDiff___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("internal error: empty fvar list!", 32);
+x_1 = lean_mk_string_unchecked("internal error: empty fvar list!", 32, 32);
 return x_1;
 }
 }
@@ -7924,7 +7924,7 @@ static lean_object* _init_l_Lean_Widget_diffInteractiveGoal___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Failed to find decl for ", 24);
+x_1 = lean_mk_string_unchecked("Failed to find decl for ", 24, 24);
 return x_1;
 }
 }
@@ -7941,7 +7941,7 @@ static lean_object* _init_l_Lean_Widget_diffInteractiveGoal___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -7958,7 +7958,7 @@ static lean_object* _init_l_Lean_Widget_diffInteractiveGoal___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Unknown goal ", 13);
+x_1 = lean_mk_string_unchecked("Unknown goal ", 13, 13);
 return x_1;
 }
 }

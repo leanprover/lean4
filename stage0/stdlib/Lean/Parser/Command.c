@@ -3594,7 +3594,7 @@ static lean_object* _init_l_Lean_Parser_Term_quot___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -3602,7 +3602,7 @@ static lean_object* _init_l_Lean_Parser_Term_quot___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -3610,7 +3610,7 @@ static lean_object* _init_l_Lean_Parser_Term_quot___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -3618,7 +3618,7 @@ static lean_object* _init_l_Lean_Parser_Term_quot___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("quot", 4);
+x_1 = lean_mk_string_unchecked("quot", 4, 4);
 return x_1;
 }
 }
@@ -3650,7 +3650,7 @@ static lean_object* _init_l_Lean_Parser_Term_quot___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`(", 2);
+x_1 = lean_mk_string_unchecked("`(", 2, 2);
 return x_1;
 }
 }
@@ -3703,7 +3703,7 @@ static lean_object* _init_l_Lean_Parser_Term_quot___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -3779,7 +3779,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Term_quot__1___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term", 4);
+x_1 = lean_mk_string_unchecked("term", 4, 4);
 return x_1;
 }
 }
@@ -3810,7 +3810,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Term_quot_docString__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Syntax quotation for terms. ", 28);
+x_1 = lean_mk_string_unchecked("Syntax quotation for terms. ", 28, 28);
 return x_1;
 }
 }
@@ -4044,7 +4044,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Term_quot_formatter__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("formatter", 9);
+x_1 = lean_mk_string_unchecked("formatter", 9, 9);
 return x_1;
 }
 }
@@ -4209,7 +4209,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Term_quot_parenthesizer__1_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("parenthesizer", 13);
+x_1 = lean_mk_string_unchecked("parenthesizer", 13, 13);
 return x_1;
 }
 }
@@ -4258,7 +4258,7 @@ static lean_object* _init_l_Lean_Parser_Term_precheckedQuot___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("precheckedQuot", 14);
+x_1 = lean_mk_string_unchecked("precheckedQuot", 14, 14);
 return x_1;
 }
 }
@@ -4290,7 +4290,7 @@ static lean_object* _init_l_Lean_Parser_Term_precheckedQuot___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`", 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -4861,7 +4861,7 @@ static lean_object* _init_l_Lean_Parser_Command_quot___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Command", 7);
+x_1 = lean_mk_string_unchecked("Command", 7, 7);
 return x_1;
 }
 }
@@ -4893,7 +4893,7 @@ static lean_object* _init_l_Lean_Parser_Command_quot___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("command", 7);
+x_1 = lean_mk_string_unchecked("command", 7, 7);
 return x_1;
 }
 }
@@ -5021,7 +5021,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Command_quot_docString__1__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Syntax quotation for (sequences of) commands.\nThe identical syntax for term quotations takes priority,\nso ambiguous quotations like `` `($x $y) `` will be parsed as an application,\nnot two commands. Use `` `($x:command $y:command) `` instead.\nMultiple commands will be put in a `` `null `` node,\nbut a single command will not (so that you can directly\nmatch against a quotation in a command kind's elaborator). ", 411);
+x_1 = lean_mk_string_unchecked("Syntax quotation for (sequences of) commands.\nThe identical syntax for term quotations takes priority,\nso ambiguous quotations like `` `($x $y) `` will be parsed as an application,\nnot two commands. Use `` `($x:command $y:command) `` instead.\nMultiple commands will be put in a `` `null `` node,\nbut a single command will not (so that you can directly\nmatch against a quotation in a command kind's elaborator). ", 411, 411);
 return x_1;
 }
 }
@@ -5417,7 +5417,7 @@ static lean_object* _init_l_Lean_Parser_Command_moduleDoc___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("moduleDoc", 9);
+x_1 = lean_mk_string_unchecked("moduleDoc", 9, 9);
 return x_1;
 }
 }
@@ -5449,7 +5449,7 @@ static lean_object* _init_l_Lean_Parser_Command_moduleDoc___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("/-!", 3);
+x_1 = lean_mk_string_unchecked("/-!", 3, 3);
 return x_1;
 }
 }
@@ -5538,7 +5538,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Command_moduleDoc_docString
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`/-! <text> -/` defines a *module docstring* that can be displayed by documentation generation\ntools. The string is associated with the corresponding position in the file. It can be used\nmultiple times in the same file.\n", 220);
+x_1 = lean_mk_string_unchecked("`/-! <text> -/` defines a *module docstring* that can be displayed by documentation generation\ntools. The string is associated with the corresponding position in the file. It can be used\nmultiple times in the same file.\n", 220, 220);
 return x_1;
 }
 }
@@ -5928,7 +5928,7 @@ static lean_object* _init_l_Lean_Parser_Command_namedPrio___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("namedPrio", 9);
+x_1 = lean_mk_string_unchecked("namedPrio", 9, 9);
 return x_1;
 }
 }
@@ -5960,7 +5960,7 @@ static lean_object* _init_l_Lean_Parser_Command_namedPrio___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" (", 2);
+x_1 = lean_mk_string_unchecked(" (", 2, 2);
 return x_1;
 }
 }
@@ -5977,7 +5977,7 @@ static lean_object* _init_l_Lean_Parser_Command_namedPrio___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("priority", 8);
+x_1 = lean_mk_string_unchecked("priority", 8, 8);
 return x_1;
 }
 }
@@ -6014,7 +6014,7 @@ static lean_object* _init_l_Lean_Parser_Command_namedPrio___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" := ", 4);
+x_1 = lean_mk_string_unchecked(" := ", 4, 4);
 return x_1;
 }
 }
@@ -6031,7 +6031,7 @@ static lean_object* _init_l_Lean_Parser_Command_namedPrio___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("prio", 4);
+x_1 = lean_mk_string_unchecked("prio", 4, 4);
 return x_1;
 }
 }
@@ -6155,7 +6155,7 @@ static lean_object* _init_l_Lean_Parser_Command_private___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("private", 7);
+x_1 = lean_mk_string_unchecked("private", 7, 7);
 return x_1;
 }
 }
@@ -6187,7 +6187,7 @@ static lean_object* _init_l_Lean_Parser_Command_private___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("private ", 8);
+x_1 = lean_mk_string_unchecked("private ", 8, 8);
 return x_1;
 }
 }
@@ -6243,7 +6243,7 @@ static lean_object* _init_l_Lean_Parser_Command_protected___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("protected", 9);
+x_1 = lean_mk_string_unchecked("protected", 9, 9);
 return x_1;
 }
 }
@@ -6275,7 +6275,7 @@ static lean_object* _init_l_Lean_Parser_Command_protected___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("protected ", 10);
+x_1 = lean_mk_string_unchecked("protected ", 10, 10);
 return x_1;
 }
 }
@@ -6349,7 +6349,7 @@ static lean_object* _init_l_Lean_Parser_Command_noncomputable___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("noncomputable", 13);
+x_1 = lean_mk_string_unchecked("noncomputable", 13, 13);
 return x_1;
 }
 }
@@ -6381,7 +6381,7 @@ static lean_object* _init_l_Lean_Parser_Command_noncomputable___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("noncomputable ", 14);
+x_1 = lean_mk_string_unchecked("noncomputable ", 14, 14);
 return x_1;
 }
 }
@@ -6437,7 +6437,7 @@ static lean_object* _init_l_Lean_Parser_Command_unsafe___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unsafe", 6);
+x_1 = lean_mk_string_unchecked("unsafe", 6, 6);
 return x_1;
 }
 }
@@ -6469,7 +6469,7 @@ static lean_object* _init_l_Lean_Parser_Command_unsafe___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unsafe ", 7);
+x_1 = lean_mk_string_unchecked("unsafe ", 7, 7);
 return x_1;
 }
 }
@@ -6525,7 +6525,7 @@ static lean_object* _init_l_Lean_Parser_Command_partial___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("partial", 7);
+x_1 = lean_mk_string_unchecked("partial", 7, 7);
 return x_1;
 }
 }
@@ -6557,7 +6557,7 @@ static lean_object* _init_l_Lean_Parser_Command_partial___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("partial ", 8);
+x_1 = lean_mk_string_unchecked("partial ", 8, 8);
 return x_1;
 }
 }
@@ -6613,7 +6613,7 @@ static lean_object* _init_l_Lean_Parser_Command_nonrec___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("nonrec", 6);
+x_1 = lean_mk_string_unchecked("nonrec", 6, 6);
 return x_1;
 }
 }
@@ -6645,7 +6645,7 @@ static lean_object* _init_l_Lean_Parser_Command_nonrec___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("nonrec ", 7);
+x_1 = lean_mk_string_unchecked("nonrec ", 7, 7);
 return x_1;
 }
 }
@@ -6701,7 +6701,7 @@ static lean_object* _init_l_Lean_Parser_Command_declModifiers___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declModifiers", 13);
+x_1 = lean_mk_string_unchecked("declModifiers", 13, 13);
 return x_1;
 }
 }
@@ -6978,7 +6978,7 @@ static lean_object* _init_l_Lean_Parser_Command_declId___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declId", 6);
+x_1 = lean_mk_string_unchecked("declId", 6, 6);
 return x_1;
 }
 }
@@ -7010,7 +7010,7 @@ static lean_object* _init_l_Lean_Parser_Command_declId___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".{", 2);
+x_1 = lean_mk_string_unchecked(".{", 2, 2);
 return x_1;
 }
 }
@@ -7054,7 +7054,7 @@ static lean_object* _init_l_Lean_Parser_Command_declId___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", ", 2);
+x_1 = lean_mk_string_unchecked(", ", 2, 2);
 return x_1;
 }
 }
@@ -7083,7 +7083,7 @@ static lean_object* _init_l_Lean_Parser_Command_declId___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("}", 1);
+x_1 = lean_mk_string_unchecked("}", 1, 1);
 return x_1;
 }
 }
@@ -7189,7 +7189,7 @@ static lean_object* _init_l_Lean_Parser_Command_declSig___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declSig", 7);
+x_1 = lean_mk_string_unchecked("declSig", 7, 7);
 return x_1;
 }
 }
@@ -7308,7 +7308,7 @@ static lean_object* _init_l_Lean_Parser_Command_optDeclSig___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("optDeclSig", 10);
+x_1 = lean_mk_string_unchecked("optDeclSig", 10, 10);
 return x_1;
 }
 }
@@ -7389,7 +7389,7 @@ static lean_object* _init_l_Lean_Parser_Command_declBody___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("by", 2);
+x_1 = lean_mk_string_unchecked("by", 2, 2);
 return x_1;
 }
 }
@@ -7472,7 +7472,7 @@ static lean_object* _init_l_Lean_Parser_Command_declValSimple___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declValSimple", 13);
+x_1 = lean_mk_string_unchecked("declValSimple", 13, 13);
 return x_1;
 }
 }
@@ -7504,7 +7504,7 @@ static lean_object* _init_l_Lean_Parser_Command_declValSimple___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" :=", 3);
+x_1 = lean_mk_string_unchecked(" :=", 3, 3);
 return x_1;
 }
 }
@@ -7609,7 +7609,7 @@ static lean_object* _init_l_Lean_Parser_Command_declValEqns___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declValEqns", 11);
+x_1 = lean_mk_string_unchecked("declValEqns", 11, 11);
 return x_1;
 }
 }
@@ -7680,7 +7680,7 @@ static lean_object* _init_l_Lean_Parser_Command_whereStructField___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("whereStructField", 16);
+x_1 = lean_mk_string_unchecked("whereStructField", 16, 16);
 return x_1;
 }
 }
@@ -7751,7 +7751,7 @@ static lean_object* _init_l_Lean_Parser_Command_whereStructInst___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("whereStructInst", 15);
+x_1 = lean_mk_string_unchecked("whereStructInst", 15, 15);
 return x_1;
 }
 }
@@ -7783,7 +7783,7 @@ static lean_object* _init_l_Lean_Parser_Command_whereStructInst___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("where", 5);
+x_1 = lean_mk_string_unchecked("where", 5, 5);
 return x_1;
 }
 }
@@ -7800,7 +7800,7 @@ static lean_object* _init_l_Lean_Parser_Command_whereStructInst___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("; ", 2);
+x_1 = lean_mk_string_unchecked("; ", 2, 2);
 return x_1;
 }
 }
@@ -7817,7 +7817,7 @@ static lean_object* _init_l_Lean_Parser_Command_whereStructInst___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sepBy", 5);
+x_1 = lean_mk_string_unchecked("sepBy", 5, 5);
 return x_1;
 }
 }
@@ -7835,7 +7835,7 @@ static lean_object* _init_l_Lean_Parser_Command_whereStructInst___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("*", 1);
+x_1 = lean_mk_string_unchecked("*", 1, 1);
 return x_1;
 }
 }
@@ -7863,7 +7863,7 @@ static lean_object* _init_l_Lean_Parser_Command_whereStructInst___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("irrelevant", 10);
+x_1 = lean_mk_string_unchecked("irrelevant", 10, 10);
 return x_1;
 }
 }
@@ -7899,7 +7899,7 @@ static lean_object* _init_l_Lean_Parser_Command_whereStructInst___closed__17() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("line break", 10);
+x_1 = lean_mk_string_unchecked("line break", 10, 10);
 return x_1;
 }
 }
@@ -8036,7 +8036,7 @@ static lean_object* _init_l_Lean_Parser_Command_declVal___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declVal", 7);
+x_1 = lean_mk_string_unchecked("declVal", 7, 7);
 return x_1;
 }
 }
@@ -8105,7 +8105,7 @@ static lean_object* _init_l_Lean_Parser_Command_abbrev___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("abbrev", 6);
+x_1 = lean_mk_string_unchecked("abbrev", 6, 6);
 return x_1;
 }
 }
@@ -8137,7 +8137,7 @@ static lean_object* _init_l_Lean_Parser_Command_abbrev___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("abbrev ", 7);
+x_1 = lean_mk_string_unchecked("abbrev ", 7, 7);
 return x_1;
 }
 }
@@ -8223,7 +8223,7 @@ static lean_object* _init_l_Lean_Parser_Command_optDefDeriving___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("deriving ", 9);
+x_1 = lean_mk_string_unchecked("deriving ", 9, 9);
 return x_1;
 }
 }
@@ -8240,7 +8240,7 @@ static lean_object* _init_l_Lean_Parser_Command_optDefDeriving___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instance", 8);
+x_1 = lean_mk_string_unchecked("instance", 8, 8);
 return x_1;
 }
 }
@@ -8335,7 +8335,7 @@ static lean_object* _init_l_Lean_Parser_Command_definition___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("definition", 10);
+x_1 = lean_mk_string_unchecked("definition", 10, 10);
 return x_1;
 }
 }
@@ -8367,7 +8367,7 @@ static lean_object* _init_l_Lean_Parser_Command_definition___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("def ", 4);
+x_1 = lean_mk_string_unchecked("def ", 4, 4);
 return x_1;
 }
 }
@@ -8473,7 +8473,7 @@ static lean_object* _init_l_Lean_Parser_Command_theorem___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("theorem", 7);
+x_1 = lean_mk_string_unchecked("theorem", 7, 7);
 return x_1;
 }
 }
@@ -8505,7 +8505,7 @@ static lean_object* _init_l_Lean_Parser_Command_theorem___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("theorem ", 8);
+x_1 = lean_mk_string_unchecked("theorem ", 8, 8);
 return x_1;
 }
 }
@@ -8591,7 +8591,7 @@ static lean_object* _init_l_Lean_Parser_Command_opaque___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("opaque", 6);
+x_1 = lean_mk_string_unchecked("opaque", 6, 6);
 return x_1;
 }
 }
@@ -8623,7 +8623,7 @@ static lean_object* _init_l_Lean_Parser_Command_opaque___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("opaque ", 7);
+x_1 = lean_mk_string_unchecked("opaque ", 7, 7);
 return x_1;
 }
 }
@@ -8840,7 +8840,7 @@ static lean_object* _init_l_Lean_Parser_Command_axiom___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("axiom", 5);
+x_1 = lean_mk_string_unchecked("axiom", 5, 5);
 return x_1;
 }
 }
@@ -8872,7 +8872,7 @@ static lean_object* _init_l_Lean_Parser_Command_axiom___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("axiom ", 6);
+x_1 = lean_mk_string_unchecked("axiom ", 6, 6);
 return x_1;
 }
 }
@@ -8948,7 +8948,7 @@ static lean_object* _init_l_Lean_Parser_Command_example___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("example", 7);
+x_1 = lean_mk_string_unchecked("example", 7, 7);
 return x_1;
 }
 }
@@ -9038,7 +9038,7 @@ static lean_object* _init_l_Lean_Parser_Command_ctor___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ctor", 4);
+x_1 = lean_mk_string_unchecked("ctor", 4, 4);
 return x_1;
 }
 }
@@ -9070,7 +9070,7 @@ static lean_object* _init_l_Lean_Parser_Command_ctor___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n| ", 3);
+x_1 = lean_mk_string_unchecked("\n| ", 3, 3);
 return x_1;
 }
 }
@@ -9184,7 +9184,7 @@ static lean_object* _init_l_Lean_Parser_Command_derivingClasses___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" with ", 6);
+x_1 = lean_mk_string_unchecked(" with ", 6, 6);
 return x_1;
 }
 }
@@ -9230,7 +9230,7 @@ static lean_object* _init_l_Lean_Parser_Command_derivingClasses___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("group", 5);
+x_1 = lean_mk_string_unchecked("group", 5, 5);
 return x_1;
 }
 }
@@ -9278,7 +9278,7 @@ static lean_object* _init_l_Lean_Parser_Command_optDeriving___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("optDeriving", 11);
+x_1 = lean_mk_string_unchecked("optDeriving", 11, 11);
 return x_1;
 }
 }
@@ -9378,7 +9378,7 @@ static lean_object* _init_l_Lean_Parser_Command_computedField___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("computedField", 13);
+x_1 = lean_mk_string_unchecked("computedField", 13, 13);
 return x_1;
 }
 }
@@ -9410,7 +9410,7 @@ static lean_object* _init_l_Lean_Parser_Command_computedField___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" : ", 3);
+x_1 = lean_mk_string_unchecked(" : ", 3, 3);
 return x_1;
 }
 }
@@ -9515,7 +9515,7 @@ static lean_object* _init_l_Lean_Parser_Command_computedFields___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("computedFields", 14);
+x_1 = lean_mk_string_unchecked("computedFields", 14, 14);
 return x_1;
 }
 }
@@ -9547,7 +9547,7 @@ static lean_object* _init_l_Lean_Parser_Command_computedFields___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("with", 4);
+x_1 = lean_mk_string_unchecked("with", 4, 4);
 return x_1;
 }
 }
@@ -9651,7 +9651,7 @@ static lean_object* _init_l_Lean_Parser_Command_inductive___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inductive", 9);
+x_1 = lean_mk_string_unchecked("inductive", 9, 9);
 return x_1;
 }
 }
@@ -9683,7 +9683,7 @@ static lean_object* _init_l_Lean_Parser_Command_inductive___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inductive ", 10);
+x_1 = lean_mk_string_unchecked("inductive ", 10, 10);
 return x_1;
 }
 }
@@ -9700,7 +9700,7 @@ static lean_object* _init_l_Lean_Parser_Command_inductive___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" where", 6);
+x_1 = lean_mk_string_unchecked(" where", 6, 6);
 return x_1;
 }
 }
@@ -9863,7 +9863,7 @@ static lean_object* _init_l_Lean_Parser_Command_classInductive___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("classInductive", 14);
+x_1 = lean_mk_string_unchecked("classInductive", 14, 14);
 return x_1;
 }
 }
@@ -9895,7 +9895,7 @@ static lean_object* _init_l_Lean_Parser_Command_classInductive___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("class ", 6);
+x_1 = lean_mk_string_unchecked("class ", 6, 6);
 return x_1;
 }
 }
@@ -10030,7 +10030,7 @@ static lean_object* _init_l_Lean_Parser_Command_structExplicitBinder___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structExplicitBinder", 20);
+x_1 = lean_mk_string_unchecked("structExplicitBinder", 20, 20);
 return x_1;
 }
 }
@@ -10062,7 +10062,7 @@ static lean_object* _init_l_Lean_Parser_Command_structExplicitBinder___closed__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -10215,7 +10215,7 @@ static lean_object* _init_l_Lean_Parser_Command_structImplicitBinder___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structImplicitBinder", 20);
+x_1 = lean_mk_string_unchecked("structImplicitBinder", 20, 20);
 return x_1;
 }
 }
@@ -10247,7 +10247,7 @@ static lean_object* _init_l_Lean_Parser_Command_structImplicitBinder___closed__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("{", 1);
+x_1 = lean_mk_string_unchecked("{", 1, 1);
 return x_1;
 }
 }
@@ -10362,7 +10362,7 @@ static lean_object* _init_l_Lean_Parser_Command_structInstBinder___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structInstBinder", 16);
+x_1 = lean_mk_string_unchecked("structInstBinder", 16, 16);
 return x_1;
 }
 }
@@ -10394,7 +10394,7 @@ static lean_object* _init_l_Lean_Parser_Command_structInstBinder___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -10430,7 +10430,7 @@ static lean_object* _init_l_Lean_Parser_Command_structInstBinder___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -10506,7 +10506,7 @@ static lean_object* _init_l_Lean_Parser_Command_structSimpleBinder___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structSimpleBinder", 18);
+x_1 = lean_mk_string_unchecked("structSimpleBinder", 18, 18);
 return x_1;
 }
 }
@@ -10606,7 +10606,7 @@ static lean_object* _init_l_Lean_Parser_Command_structFields___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structFields", 12);
+x_1 = lean_mk_string_unchecked("structFields", 12, 12);
 return x_1;
 }
 }
@@ -10638,7 +10638,7 @@ static lean_object* _init_l_Lean_Parser_Command_structFields___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("checkColGe", 10);
+x_1 = lean_mk_string_unchecked("checkColGe", 10, 10);
 return x_1;
 }
 }
@@ -10772,7 +10772,7 @@ static lean_object* _init_l_Lean_Parser_Command_structCtor___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structCtor", 10);
+x_1 = lean_mk_string_unchecked("structCtor", 10, 10);
 return x_1;
 }
 }
@@ -10804,7 +10804,7 @@ static lean_object* _init_l_Lean_Parser_Command_structCtor___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" :: ", 4);
+x_1 = lean_mk_string_unchecked(" :: ", 4, 4);
 return x_1;
 }
 }
@@ -10889,7 +10889,7 @@ static lean_object* _init_l_Lean_Parser_Command_structureTk___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structureTk", 11);
+x_1 = lean_mk_string_unchecked("structureTk", 11, 11);
 return x_1;
 }
 }
@@ -10921,7 +10921,7 @@ static lean_object* _init_l_Lean_Parser_Command_structureTk___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structure ", 10);
+x_1 = lean_mk_string_unchecked("structure ", 10, 10);
 return x_1;
 }
 }
@@ -10977,7 +10977,7 @@ static lean_object* _init_l_Lean_Parser_Command_classTk___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("classTk", 7);
+x_1 = lean_mk_string_unchecked("classTk", 7, 7);
 return x_1;
 }
 }
@@ -11048,7 +11048,7 @@ static lean_object* _init_l_Lean_Parser_Command_extends___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("extends", 7);
+x_1 = lean_mk_string_unchecked("extends", 7, 7);
 return x_1;
 }
 }
@@ -11080,7 +11080,7 @@ static lean_object* _init_l_Lean_Parser_Command_extends___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" extends ", 9);
+x_1 = lean_mk_string_unchecked(" extends ", 9, 9);
 return x_1;
 }
 }
@@ -11158,7 +11158,7 @@ static lean_object* _init_l_Lean_Parser_Command_structure___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structure", 9);
+x_1 = lean_mk_string_unchecked("structure", 9, 9);
 return x_1;
 }
 }
@@ -11248,7 +11248,7 @@ static lean_object* _init_l_Lean_Parser_Command_structure___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" where ", 7);
+x_1 = lean_mk_string_unchecked(" where ", 7, 7);
 return x_1;
 }
 }
@@ -11392,7 +11392,7 @@ static lean_object* _init_l_Lean_Parser_Command_declaration___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declaration", 11);
+x_1 = lean_mk_string_unchecked("declaration", 11, 11);
 return x_1;
 }
 }
@@ -23238,7 +23238,7 @@ static lean_object* _init_l_Lean_Parser_Command_deriving___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("deriving", 8);
+x_1 = lean_mk_string_unchecked("deriving", 8, 8);
 return x_1;
 }
 }
@@ -23270,7 +23270,7 @@ static lean_object* _init_l_Lean_Parser_Command_deriving___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instance ", 9);
+x_1 = lean_mk_string_unchecked("instance ", 9, 9);
 return x_1;
 }
 }
@@ -23287,7 +23287,7 @@ static lean_object* _init_l_Lean_Parser_Command_deriving___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" for ", 5);
+x_1 = lean_mk_string_unchecked(" for ", 5, 5);
 return x_1;
 }
 }
@@ -23806,7 +23806,7 @@ static lean_object* _init_l_Lean_Parser_Command_noncomputableSection___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("noncomputableSection", 20);
+x_1 = lean_mk_string_unchecked("noncomputableSection", 20, 20);
 return x_1;
 }
 }
@@ -23838,7 +23838,7 @@ static lean_object* _init_l_Lean_Parser_Command_noncomputableSection___closed__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("section", 7);
+x_1 = lean_mk_string_unchecked("section", 7, 7);
 return x_1;
 }
 }
@@ -23855,7 +23855,7 @@ static lean_object* _init_l_Lean_Parser_Command_noncomputableSection___closed__6
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("checkColGt", 10);
+x_1 = lean_mk_string_unchecked("checkColGt", 10, 10);
 return x_1;
 }
 }
@@ -24453,7 +24453,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Command_section_docString__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("A `section`/`end` pair delimits the scope of `variable`, `open`, `set_option`, and `local` commands.\nSections can be nested. `section <id>` provides a label to the section that has to appear with the\nmatching `end`. In either case, the `end` can be omitted, in which case the section is closed at the\nend of the file.\n", 318);
+x_1 = lean_mk_string_unchecked("A `section`/`end` pair delimits the scope of `variable`, `open`, `set_option`, and `local` commands.\nSections can be nested. `section <id>` provides a label to the section that has to appear with the\nmatching `end`. In either case, the `end` can be omitted, in which case the section is closed at the\nend of the file.\n", 318, 318);
 return x_1;
 }
 }
@@ -24723,7 +24723,7 @@ static lean_object* _init_l_Lean_Parser_Command_namespace___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("namespace", 9);
+x_1 = lean_mk_string_unchecked("namespace", 9, 9);
 return x_1;
 }
 }
@@ -24755,7 +24755,7 @@ static lean_object* _init_l_Lean_Parser_Command_namespace___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("namespace ", 10);
+x_1 = lean_mk_string_unchecked("namespace ", 10, 10);
 return x_1;
 }
 }
@@ -24834,7 +24834,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Command_namespace_docString
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`namespace <id>` opens a section with label `<id>` that influences naming and name resolution inside\nthe section:\n* Declarations names are prefixed: `def seventeen : ℕ := 17` inside a namespace `Nat` is given the\n  full name `Nat.seventeen`.\n* Names introduced by `export` declarations are also prefixed by the identifier.\n* All names starting with `<id>.` become available in the namespace without the prefix. These names\n  are preferred over names introduced by outer namespaces or `open`.\n* Within a namespace, declarations can be `protected`, which excludes them from the effects of\n  opening the namespace.\n\nAs with `section`, namespaces can be nested and the scope of a namespace is terminated by a\ncorresponding `end <id>` or the end of the file.\n\n`namespace` also acts like `section` in delimiting the scope of `variable`, `open`, and other scoped commands.\n", 868);
+x_1 = lean_mk_string_unchecked("`namespace <id>` opens a section with label `<id>` that influences naming and name resolution inside\nthe section:\n* Declarations names are prefixed: `def seventeen : ℕ := 17` inside a namespace `Nat` is given the\n  full name `Nat.seventeen`.\n* Names introduced by `export` declarations are also prefixed by the identifier.\n* All names starting with `<id>.` become available in the namespace without the prefix. These names\n  are preferred over names introduced by outer namespaces or `open`.\n* Within a namespace, declarations can be `protected`, which excludes them from the effects of\n  opening the namespace.\n\nAs with `section`, namespaces can be nested and the scope of a namespace is terminated by a\ncorresponding `end <id>` or the end of the file.\n\n`namespace` also acts like `section` in delimiting the scope of `variable`, `open`, and other scoped commands.\n", 868, 866);
 return x_1;
 }
 }
@@ -25148,7 +25148,7 @@ static lean_object* _init_l_Lean_Parser_Command_end___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("end", 3);
+x_1 = lean_mk_string_unchecked("end", 3, 3);
 return x_1;
 }
 }
@@ -25251,7 +25251,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Command_end_docString__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`end` closes a `section` or `namespace` scope. If the scope is named `<id>`, it has to be closed\nwith `end <id>`.\n", 114);
+x_1 = lean_mk_string_unchecked("`end` closes a `section` or `namespace` scope. If the scope is named `<id>`, it has to be closed\nwith `end <id>`.\n", 114, 114);
 return x_1;
 }
 }
@@ -25565,7 +25565,7 @@ static lean_object* _init_l_Lean_Parser_Command_variable___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("variable", 8);
+x_1 = lean_mk_string_unchecked("variable", 8, 8);
 return x_1;
 }
 }
@@ -25697,7 +25697,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Command_variable_docString_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Declares one or more typed variables, or modifies whether already-declared variables are\nimplicit.\n\nIntroduces variables that can be used in definitions within the same `namespace` or `section` block.\nWhen a definition mentions a variable, Lean will add it as an argument of the definition. The\n`variable` command is also able to add typeclass parameters. This is useful in particular when\nwriting many definitions that have parameters in common (see below for an example).\n\nVariable declarations have the same flexibility as regular function paramaters. In particular they\ncan be [explicit, implicit][binder docs], or [instance implicit][tpil classes] (in which case they\ncan be anonymous). This can be changed, for instance one can turn explicit variable `x` into an\nimplicit one with `variable {x}`. Note that currently, you should avoid changing how variables are\nbound and declare new variables at the same time; see [issue 2789] for more on this topic.\n\nSee [*Variables and Sections* from Theorem Proving in Lean][tpil vars] for a more detailed\ndiscussion.\n\n[tpil vars]: https://lean-lang.org/theorem_proving_in_lean4/dependent_type_theory.html#variables-and-sections\n(Variables and Sections on Theorem Proving in Lean)\n[tpil classes]: https://lean-lang.org/theorem_proving_in_lean4/type_classes.html\n(Type classes on Theorem Proving in Lean)\n[binder docs]: https://leanprover-community.github.io/mathlib4_docs/Lean/Expr.html#Lean.BinderInfo\n(Documentation for the BinderInfo type)\n[issue 2789]: https://github.com/leanprover/lean4/issues/2789\n(Issue 2789 on github)\n\n## Examples\n\n```lean\nsection\n  variable\n    {α : Type u}      -- implicit\n    (a : α)           -- explicit\n    [instBEq : BEq α] -- instance implicit, named\n    [Hashable α]      -- instance implicit, anonymous\n\n  def isEqual (b : α) : Bool :=\n    a == b\n\n  #check isEqual\n  -- isEqual.{u} {α : Type u} (a : α) [instBEq : BEq α] (b : α) : Bool\n\n  variable\n    {a} -- `a` is implicit now\n\n  def eqComm {b : α} := a == b ↔ b == a\n\n  #check eqComm\n  -- eqComm.{u} {α : Type u} {a : α} [instBEq : BEq α] {b : α} : Prop\nend\n```\n\nThe following shows a typical use of `variable` to factor out definition arguments:\n\n```lean\nvariable (Src : Type)\n\nstructure Logger where\n  trace : List (Src × String)\n#check Logger\n-- Logger (Src : Type) : Type\n\nnamespace Logger\n  -- switch `Src : Type` to be implicit until the `end Logger`\n  variable {Src}\n\n  def empty : Logger Src where\n    trace := []\n  #check empty\n  -- Logger.empty {Src : Type} : Logger Src\n\n  variable (log : Logger Src)\n\n  def len :=\n    log.trace.length\n  #check len\n  -- Logger.len {Src : Type} (log : Logger Src) : Nat\n\n  variable (src : Src) [BEq Src]\n\n  -- at this point all of `log`, `src`, `Src` and the `BEq` instance can all become arguments\n\n  def filterSrc :=\n    log.trace.filterMap\n      fun (src', str') => if src' == src then some str' else none\n  #check filterSrc\n  -- Logger.filterSrc {Src : Type} (log : Logger Src) (src : Src) [inst✝ : BEq Src] : List String\n\n  def lenSrc :=\n    log.filterSrc src |>.length\n  #check lenSrc\n  -- Logger.lenSrc {Src : Type} (log : Logger Src) (src : Src) [inst✝ : BEq Src] : Nat\nend Logger\n```\n\n", 3195);
+x_1 = lean_mk_string_unchecked("Declares one or more typed variables, or modifies whether already-declared variables are\nimplicit.\n\nIntroduces variables that can be used in definitions within the same `namespace` or `section` block.\nWhen a definition mentions a variable, Lean will add it as an argument of the definition. The\n`variable` command is also able to add typeclass parameters. This is useful in particular when\nwriting many definitions that have parameters in common (see below for an example).\n\nVariable declarations have the same flexibility as regular function paramaters. In particular they\ncan be [explicit, implicit][binder docs], or [instance implicit][tpil classes] (in which case they\ncan be anonymous). This can be changed, for instance one can turn explicit variable `x` into an\nimplicit one with `variable {x}`. Note that currently, you should avoid changing how variables are\nbound and declare new variables at the same time; see [issue 2789] for more on this topic.\n\nSee [*Variables and Sections* from Theorem Proving in Lean][tpil vars] for a more detailed\ndiscussion.\n\n[tpil vars]: https://lean-lang.org/theorem_proving_in_lean4/dependent_type_theory.html#variables-and-sections\n(Variables and Sections on Theorem Proving in Lean)\n[tpil classes]: https://lean-lang.org/theorem_proving_in_lean4/type_classes.html\n(Type classes on Theorem Proving in Lean)\n[binder docs]: https://leanprover-community.github.io/mathlib4_docs/Lean/Expr.html#Lean.BinderInfo\n(Documentation for the BinderInfo type)\n[issue 2789]: https://github.com/leanprover/lean4/issues/2789\n(Issue 2789 on github)\n\n## Examples\n\n```lean\nsection\n  variable\n    {α : Type u}      -- implicit\n    (a : α)           -- explicit\n    [instBEq : BEq α] -- instance implicit, named\n    [Hashable α]      -- instance implicit, anonymous\n\n  def isEqual (b : α) : Bool :=\n    a == b\n\n  #check isEqual\n  -- isEqual.{u} {α : Type u} (a : α) [instBEq : BEq α] (b : α) : Bool\n\n  variable\n    {a} -- `a` is implicit now\n\n  def eqComm {b : α} := a == b ↔ b == a\n\n  #check eqComm\n  -- eqComm.{u} {α : Type u} {a : α} [instBEq : BEq α] {b : α} : Prop\nend\n```\n\nThe following shows a typical use of `variable` to factor out definition arguments:\n\n```lean\nvariable (Src : Type)\n\nstructure Logger where\n  trace : List (Src × String)\n#check Logger\n-- Logger (Src : Type) : Type\n\nnamespace Logger\n  -- switch `Src : Type` to be implicit until the `end Logger`\n  variable {Src}\n\n  def empty : Logger Src where\n    trace := []\n  #check empty\n  -- Logger.empty {Src : Type} : Logger Src\n\n  variable (log : Logger Src)\n\n  def len :=\n    log.trace.length\n  #check len\n  -- Logger.len {Src : Type} (log : Logger Src) : Nat\n\n  variable (src : Src) [BEq Src]\n\n  -- at this point all of `log`, `src`, `Src` and the `BEq` instance can all become arguments\n\n  def filterSrc :=\n    log.trace.filterMap\n      fun (src', str') => if src' == src then some str' else none\n  #check filterSrc\n  -- Logger.filterSrc {Src : Type} (log : Logger Src) (src : Src) [inst✝ : BEq Src] : List String\n\n  def lenSrc :=\n    log.filterSrc src |>.length\n  #check lenSrc\n  -- Logger.lenSrc {Src : Type} (log : Logger Src) (src : Src) [inst✝ : BEq Src] : Nat\nend Logger\n```\n\n", 3195, 3174);
 return x_1;
 }
 }
@@ -26079,7 +26079,7 @@ static lean_object* _init_l_Lean_Parser_Command_universe___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("universe", 8);
+x_1 = lean_mk_string_unchecked("universe", 8, 8);
 return x_1;
 }
 }
@@ -26191,7 +26191,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Command_universe_docString_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Declares one or more universe variables.\n\n`universe u v`\n\n`Prop`, `Type`, `Type u` and `Sort u` are types that classify other types, also known as\n*universes*. In `Type u` and `Sort u`, the variable `u` stands for the universe's *level*, and a\nuniverse at level `u` can only classify universes that are at levels lower than `u`. For more\ndetails on type universes, please refer to [the relevant chapter of Theorem Proving in Lean][tpil\nuniverses].\n\nJust as type arguments allow polymorphic definitions to be used at many different types, universe\nparameters, represented by universe variables, allow a definition to be used at any required level.\nWhile Lean mostly handles universe levels automatically, declaring them explicitly can provide more\ncontrol when writing signatures. The `universe` keyword allows the declared universe variables to be\nused in a collection of definitions, and Lean will ensure that these definitions use them\nconsistently.\n\n[tpil universes]: https://lean-lang.org/theorem_proving_in_lean4/dependent_type_theory.html#types-as-objects\n(Type universes on Theorem Proving in Lean)\n\n```lean\n/- Explicit type-universe parameter. -/\ndef id₁.{u} (α : Type u) (a : α) := a\n\n/- Implicit type-universe parameter, equivalent to `id₁`.\n  Requires option `autoImplicit true`, which is the default. -/\ndef id₂ (α : Type u) (a : α) := a\n\n/- Explicit standalone universe variable declaration, equivalent to `id₁` and `id₂`. -/\nuniverse u\ndef id₃ (α : Type u) (a : α) := a\n```\n\nOn a more technical note, using a universe variable only in the right-hand side of a definition\ncauses an error if the universe has not been declared previously.\n\n```lean\ndef L₁.{u} := List (Type u)\n\n-- def L₂ := List (Type u) -- error: `unknown universe level 'u'`\n\nuniverse u\ndef L₃ := List (Type u)\n```\n\n## Examples\n\n```lean\nuniverse u v w\n\nstructure Pair (α : Type u) (β : Type v) : Type (max u v) where\n  a : α\n  b : β\n\n#check Pair.{v, w}\n-- Pair : Type v → Type w → Type (max v w)\n```\n", 2012);
+x_1 = lean_mk_string_unchecked("Declares one or more universe variables.\n\n`universe u v`\n\n`Prop`, `Type`, `Type u` and `Sort u` are types that classify other types, also known as\n*universes*. In `Type u` and `Sort u`, the variable `u` stands for the universe's *level*, and a\nuniverse at level `u` can only classify universes that are at levels lower than `u`. For more\ndetails on type universes, please refer to [the relevant chapter of Theorem Proving in Lean][tpil\nuniverses].\n\nJust as type arguments allow polymorphic definitions to be used at many different types, universe\nparameters, represented by universe variables, allow a definition to be used at any required level.\nWhile Lean mostly handles universe levels automatically, declaring them explicitly can provide more\ncontrol when writing signatures. The `universe` keyword allows the declared universe variables to be\nused in a collection of definitions, and Lean will ensure that these definitions use them\nconsistently.\n\n[tpil universes]: https://lean-lang.org/theorem_proving_in_lean4/dependent_type_theory.html#types-as-objects\n(Type universes on Theorem Proving in Lean)\n\n```lean\n/- Explicit type-universe parameter. -/\ndef id₁.{u} (α : Type u) (a : α) := a\n\n/- Implicit type-universe parameter, equivalent to `id₁`.\n  Requires option `autoImplicit true`, which is the default. -/\ndef id₂ (α : Type u) (a : α) := a\n\n/- Explicit standalone universe variable declaration, equivalent to `id₁` and `id₂`. -/\nuniverse u\ndef id₃ (α : Type u) (a : α) := a\n```\n\nOn a more technical note, using a universe variable only in the right-hand side of a definition\ncauses an error if the universe has not been declared previously.\n\n```lean\ndef L₁.{u} := List (Type u)\n\n-- def L₂ := List (Type u) -- error: `unknown universe level 'u'`\n\nuniverse u\ndef L₃ := List (Type u)\n```\n\n## Examples\n\n```lean\nuniverse u v w\n\nstructure Pair (α : Type u) (β : Type v) : Type (max u v) where\n  a : α\n  b : β\n\n#check Pair.{v, w}\n-- Pair : Type v → Type w → Type (max v w)\n```\n", 2012, 1980);
 return x_1;
 }
 }
@@ -26525,7 +26525,7 @@ static lean_object* _init_l_Lean_Parser_Command_check___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("check", 5);
+x_1 = lean_mk_string_unchecked("check", 5, 5);
 return x_1;
 }
 }
@@ -26557,7 +26557,7 @@ static lean_object* _init_l_Lean_Parser_Command_check___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#check ", 7);
+x_1 = lean_mk_string_unchecked("#check ", 7, 7);
 return x_1;
 }
 }
@@ -26932,7 +26932,7 @@ static lean_object* _init_l_Lean_Parser_Command_check__failure___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("check_failure", 13);
+x_1 = lean_mk_string_unchecked("check_failure", 13, 13);
 return x_1;
 }
 }
@@ -26964,7 +26964,7 @@ static lean_object* _init_l_Lean_Parser_Command_check__failure___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#check_failure ", 15);
+x_1 = lean_mk_string_unchecked("#check_failure ", 15, 15);
 return x_1;
 }
 }
@@ -27339,7 +27339,7 @@ static lean_object* _init_l_Lean_Parser_Command_eval___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("eval", 4);
+x_1 = lean_mk_string_unchecked("eval", 4, 4);
 return x_1;
 }
 }
@@ -27371,7 +27371,7 @@ static lean_object* _init_l_Lean_Parser_Command_eval___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#eval ", 6);
+x_1 = lean_mk_string_unchecked("#eval ", 6, 6);
 return x_1;
 }
 }
@@ -27746,7 +27746,7 @@ static lean_object* _init_l_Lean_Parser_Command_synth___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("synth", 5);
+x_1 = lean_mk_string_unchecked("synth", 5, 5);
 return x_1;
 }
 }
@@ -27778,7 +27778,7 @@ static lean_object* _init_l_Lean_Parser_Command_synth___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#synth ", 7);
+x_1 = lean_mk_string_unchecked("#synth ", 7, 7);
 return x_1;
 }
 }
@@ -28153,7 +28153,7 @@ static lean_object* _init_l_Lean_Parser_Command_exit___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("exit", 4);
+x_1 = lean_mk_string_unchecked("exit", 4, 4);
 return x_1;
 }
 }
@@ -28185,7 +28185,7 @@ static lean_object* _init_l_Lean_Parser_Command_exit___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#exit", 5);
+x_1 = lean_mk_string_unchecked("#exit", 5, 5);
 return x_1;
 }
 }
@@ -28526,7 +28526,7 @@ static lean_object* _init_l_Lean_Parser_Command_print___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("print", 5);
+x_1 = lean_mk_string_unchecked("print", 5, 5);
 return x_1;
 }
 }
@@ -28558,7 +28558,7 @@ static lean_object* _init_l_Lean_Parser_Command_print___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#print ", 7);
+x_1 = lean_mk_string_unchecked("#print ", 7, 7);
 return x_1;
 }
 }
@@ -28983,7 +28983,7 @@ static lean_object* _init_l_Lean_Parser_Command_printAxioms___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("printAxioms", 11);
+x_1 = lean_mk_string_unchecked("printAxioms", 11, 11);
 return x_1;
 }
 }
@@ -29015,7 +29015,7 @@ static lean_object* _init_l_Lean_Parser_Command_printAxioms___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("axioms ", 7);
+x_1 = lean_mk_string_unchecked("axioms ", 7, 7);
 return x_1;
 }
 }
@@ -29431,7 +29431,7 @@ static lean_object* _init_l_Lean_Parser_Command_printEqns___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("printEqns", 9);
+x_1 = lean_mk_string_unchecked("printEqns", 9, 9);
 return x_1;
 }
 }
@@ -29463,7 +29463,7 @@ static lean_object* _init_l_Lean_Parser_Command_printEqns___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("equations ", 10);
+x_1 = lean_mk_string_unchecked("equations ", 10, 10);
 return x_1;
 }
 }
@@ -29481,7 +29481,7 @@ static lean_object* _init_l_Lean_Parser_Command_printEqns___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("eqns ", 5);
+x_1 = lean_mk_string_unchecked("eqns ", 5, 5);
 return x_1;
 }
 }
@@ -29957,7 +29957,7 @@ static lean_object* _init_l_Lean_Parser_Command_init__quot___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("init_quot", 9);
+x_1 = lean_mk_string_unchecked("init_quot", 9, 9);
 return x_1;
 }
 }
@@ -30322,7 +30322,7 @@ static lean_object* _init_l_Lean_Parser_Command_optionValue___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("true", 4);
+x_1 = lean_mk_string_unchecked("true", 4, 4);
 return x_1;
 }
 }
@@ -30340,7 +30340,7 @@ static lean_object* _init_l_Lean_Parser_Command_optionValue___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("false", 5);
+x_1 = lean_mk_string_unchecked("false", 5, 5);
 return x_1;
 }
 }
@@ -30396,7 +30396,7 @@ static lean_object* _init_l_Lean_Parser_Command_set__option___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("set_option", 10);
+x_1 = lean_mk_string_unchecked("set_option", 10, 10);
 return x_1;
 }
 }
@@ -30428,7 +30428,7 @@ static lean_object* _init_l_Lean_Parser_Command_set__option___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("set_option ", 11);
+x_1 = lean_mk_string_unchecked("set_option ", 11, 11);
 return x_1;
 }
 }
@@ -30527,7 +30527,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Command_set__option_docStri
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`set_option <id> <value>` sets the option `<id>` to `<value>`. Depending on the type of the option,\nthe value can be `true`, `false`, a string, or a numeral. Options are used to configure behavior of\nLean as well as user-defined extensions. The setting is active until the end of the current `section`\nor `namespace` or the end of the file.\nAuto-completion is available for `<id>` to list available options.\n\n`set_option <id> <value> in <command>` sets the option for just a single command:\n```\nset_option pp.all true in\n#check 1 + 1\n```\nSimilarly, `set_option <id> <value> in` can also be used inside terms and tactics to set an option\nonly in a single term or tactic.\n", 670);
+x_1 = lean_mk_string_unchecked("`set_option <id> <value>` sets the option `<id>` to `<value>`. Depending on the type of the option,\nthe value can be `true`, `false`, a string, or a numeral. Options are used to configure behavior of\nLean as well as user-defined extensions. The setting is active until the end of the current `section`\nor `namespace` or the end of the file.\nAuto-completion is available for `<id>` to list available options.\n\n`set_option <id> <value> in <command>` sets the option for just a single command:\n```\nset_option pp.all true in\n#check 1 + 1\n```\nSimilarly, `set_option <id> <value> in` can also be used inside terms and tactics to set an option\nonly in a single term or tactic.\n", 670, 670);
 return x_1;
 }
 }
@@ -31057,7 +31057,7 @@ static lean_object* _init_l_Lean_Parser_Command_eraseAttr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("eraseAttr", 9);
+x_1 = lean_mk_string_unchecked("eraseAttr", 9, 9);
 return x_1;
 }
 }
@@ -31089,7 +31089,7 @@ static lean_object* _init_l_Lean_Parser_Command_eraseAttr___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-", 1);
+x_1 = lean_mk_string_unchecked("-", 1, 1);
 return x_1;
 }
 }
@@ -31155,7 +31155,7 @@ static lean_object* _init_l_Lean_Parser_Command_attribute___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attribute", 9);
+x_1 = lean_mk_string_unchecked("attribute", 9, 9);
 return x_1;
 }
 }
@@ -31187,7 +31187,7 @@ static lean_object* _init_l_Lean_Parser_Command_attribute___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attribute ", 10);
+x_1 = lean_mk_string_unchecked("attribute ", 10, 10);
 return x_1;
 }
 }
@@ -32047,7 +32047,7 @@ static lean_object* _init_l_Lean_Parser_Command_export___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("export", 6);
+x_1 = lean_mk_string_unchecked("export", 6, 6);
 return x_1;
 }
 }
@@ -32079,7 +32079,7 @@ static lean_object* _init_l_Lean_Parser_Command_export___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("export ", 7);
+x_1 = lean_mk_string_unchecked("export ", 7, 7);
 return x_1;
 }
 }
@@ -32188,7 +32188,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Command_export_docString__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Adds names from other namespaces to the current namespace.\n\nThe command `export Some.Namespace (name₁ name₂)` makes `name₁` and `name₂`:\n\n- visible in the current namespace without prefix `Some.Namespace`, like `open`, and\n- visible from outside the current namespace `N` as `N.name₁` and `N.name₂`.\n\n## Examples\n\n```lean\nnamespace Morning.Sky\n  def star := \"venus\"\nend Morning.Sky\n\nnamespace Evening.Sky\n  export Morning.Sky (star)\n  -- `star` is now in scope\n  #check star\nend Evening.Sky\n\n-- `star` is visible in `Evening.Sky`\n#check Evening.Sky.star\n```\n", 570);
+x_1 = lean_mk_string_unchecked("Adds names from other namespaces to the current namespace.\n\nThe command `export Some.Namespace (name₁ name₂)` makes `name₁` and `name₂`:\n\n- visible in the current namespace without prefix `Some.Namespace`, like `open`, and\n- visible from outside the current namespace `N` as `N.name₁` and `N.name₂`.\n\n## Examples\n\n```lean\nnamespace Morning.Sky\n  def star := \"venus\"\nend Morning.Sky\n\nnamespace Evening.Sky\n  export Morning.Sky (star)\n  -- `star` is now in scope\n  #check star\nend Evening.Sky\n\n-- `star` is visible in `Evening.Sky`\n#check Evening.Sky.star\n```\n", 570, 558);
 return x_1;
 }
 }
@@ -32574,7 +32574,7 @@ static lean_object* _init_l_Lean_Parser_Command_import___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("import", 6);
+x_1 = lean_mk_string_unchecked("import", 6, 6);
 return x_1;
 }
 }
@@ -32939,7 +32939,7 @@ static lean_object* _init_l_Lean_Parser_Command_openHiding___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("openHiding", 10);
+x_1 = lean_mk_string_unchecked("openHiding", 10, 10);
 return x_1;
 }
 }
@@ -32971,7 +32971,7 @@ static lean_object* _init_l_Lean_Parser_Command_openHiding___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" hiding", 7);
+x_1 = lean_mk_string_unchecked(" hiding", 7, 7);
 return x_1;
 }
 }
@@ -33066,7 +33066,7 @@ static lean_object* _init_l_Lean_Parser_Command_openRenamingItem___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("openRenamingItem", 16);
+x_1 = lean_mk_string_unchecked("openRenamingItem", 16, 16);
 return x_1;
 }
 }
@@ -33098,7 +33098,7 @@ static lean_object* _init_l_Lean_Parser_Command_openRenamingItem___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" → ", 5);
+x_1 = lean_mk_string_unchecked(" → ", 5, 3);
 return x_1;
 }
 }
@@ -33106,7 +33106,7 @@ static lean_object* _init_l_Lean_Parser_Command_openRenamingItem___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" -> ", 4);
+x_1 = lean_mk_string_unchecked(" -> ", 4, 4);
 return x_1;
 }
 }
@@ -33183,7 +33183,7 @@ static lean_object* _init_l_Lean_Parser_Command_openRenaming___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("openRenaming", 12);
+x_1 = lean_mk_string_unchecked("openRenaming", 12, 12);
 return x_1;
 }
 }
@@ -33215,7 +33215,7 @@ static lean_object* _init_l_Lean_Parser_Command_openRenaming___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" renaming ", 10);
+x_1 = lean_mk_string_unchecked(" renaming ", 10, 10);
 return x_1;
 }
 }
@@ -33322,7 +33322,7 @@ static lean_object* _init_l_Lean_Parser_Command_openOnly___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("openOnly", 8);
+x_1 = lean_mk_string_unchecked("openOnly", 8, 8);
 return x_1;
 }
 }
@@ -33432,7 +33432,7 @@ static lean_object* _init_l_Lean_Parser_Command_openSimple___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("openSimple", 10);
+x_1 = lean_mk_string_unchecked("openSimple", 10, 10);
 return x_1;
 }
 }
@@ -33503,7 +33503,7 @@ static lean_object* _init_l_Lean_Parser_Command_openScoped___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("openScoped", 10);
+x_1 = lean_mk_string_unchecked("openScoped", 10, 10);
 return x_1;
 }
 }
@@ -33535,7 +33535,7 @@ static lean_object* _init_l_Lean_Parser_Command_openScoped___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" scoped", 7);
+x_1 = lean_mk_string_unchecked(" scoped", 7, 7);
 return x_1;
 }
 }
@@ -33601,7 +33601,7 @@ static lean_object* _init_l_Lean_Parser_Command_openDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("openDecl", 8);
+x_1 = lean_mk_string_unchecked("openDecl", 8, 8);
 return x_1;
 }
 }
@@ -33690,7 +33690,7 @@ static lean_object* _init_l_Lean_Parser_Command_open___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("open", 4);
+x_1 = lean_mk_string_unchecked("open", 4, 4);
 return x_1;
 }
 }
@@ -33802,7 +33802,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Command_open_docString__1__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Makes names from other namespaces visible without writing the namespace prefix.\n\nNames that are made available with `open` are visible within the current `section` or `namespace`\nblock. This makes referring to (type) definitions and theorems easier, but note that it can also\nmake [scoped instances], notations, and attributes from a different namespace available.\n\nThe `open` command can be used in a few different ways:\n\n* `open Some.Namespace.Path1 Some.Namespace.Path2` makes all non-protected names in\n  `Some.Namespace.Path1` and `Some.Namespace.Path2` available without the prefix, so that\n  `Some.Namespace.Path1.x` and `Some.Namespace.Path2.y` can be referred to by writing only `x` and\n  `y`.\n\n* `open Some.Namespace.Path hiding def1 def2` opens all non-protected names in `Some.Namespace.Path`\n  except `def1` and `def2`.\n\n* `open Some.Namespace.Path (def1 def2)` only makes `Some.Namespace.Path.def1` and\n  `Some.Namespace.Path.def2` available without the full prefix, so `Some.Namespace.Path.def3` would\n  be unaffected.\n\n  This works even if `def1` and `def2` are `protected`.\n\n* `open Some.Namespace.Path renaming def1 → def1', def2 → def2'` same as `open Some.Namespace.Path\n  (def1 def2)` but `def1`/`def2`'s names are changed to `def1'`/`def2'`.\n\n  This works even if `def1` and `def2` are `protected`.\n\n* `open scoped Some.Namespace.Path1 Some.Namespace.Path2` **only** opens [scoped instances],\n  notations, and attributes from `Namespace1` and `Namespace2`; it does **not** make any other name\n  available.\n\n* `open <any of the open shapes above> in` makes the names `open`-ed visible only in the next\n  command or expression.\n\n[scoped instance]: https://lean-lang.org/theorem_proving_in_lean4/type_classes.html#scoped-instances\n(Scoped instances in Theorem Proving in Lean)\n\n\n## Examples\n\n```lean\n/-- SKI combinators https://en.wikipedia.org/wiki/SKI_combinator_calculus -/\nnamespace Combinator.Calculus\n  def I (a : α) : α := a\n  def K (a : α) : β → α := fun _ => a\n  def S (x : α → β → γ) (y : α → β) (z : α) : γ := x z (y z)\nend Combinator.Calculus\n\nsection\n  -- open everything under `Combinator.Calculus`, *i.e.* `I`, `K` and `S`,\n  -- until the section ends\n  open Combinator.Calculus\n\n  theorem SKx_eq_K : S K x = I := rfl\nend\n\n-- open everything under `Combinator.Calculus` only for the next command (the next `theorem`, here)\nopen Combinator.Calculus in\ntheorem SKx_eq_K' : S K x = I := rfl\n\nsection\n  -- open only `S` and `K` under `Combinator.Calculus`\n  open Combinator.Calculus (S K)\n\n  theorem SKxy_eq_y : S K x y = y := rfl\n\n  -- `I` is not in scope, we have to use its full path\n  theorem SKxy_eq_Iy : S K x y = Combinator.Calculus.I y := rfl\nend\n\nsection\n  open Combinator.Calculus\n    renaming\n      I → identity,\n      K → konstant\n\n  #check identity\n  #check konstant\nend\n\nsection\n  open Combinator.Calculus\n    hiding S\n\n  #check I\n  #check K\nend\n\nsection\n  namespace Demo\n    inductive MyType\n    | val\n\n    namespace N1\n      scoped infix:68 \" ≋ \" => BEq.beq\n\n      scoped instance : BEq MyType where\n        beq _ _ := true\n\n      def Alias := MyType\n    end N1\n  end Demo\n\n  -- bring `≋` and the instance in scope, but not `Alias`\n  open scoped Demo.N1\n\n  #check Demo.MyType.val == Demo.MyType.val\n  #check Demo.MyType.val ≋ Demo.MyType.val\n  -- #check Alias -- unknown identifier 'Alias'\nend\n```\n", 3378);
+x_1 = lean_mk_string_unchecked("Makes names from other namespaces visible without writing the namespace prefix.\n\nNames that are made available with `open` are visible within the current `section` or `namespace`\nblock. This makes referring to (type) definitions and theorems easier, but note that it can also\nmake [scoped instances], notations, and attributes from a different namespace available.\n\nThe `open` command can be used in a few different ways:\n\n* `open Some.Namespace.Path1 Some.Namespace.Path2` makes all non-protected names in\n  `Some.Namespace.Path1` and `Some.Namespace.Path2` available without the prefix, so that\n  `Some.Namespace.Path1.x` and `Some.Namespace.Path2.y` can be referred to by writing only `x` and\n  `y`.\n\n* `open Some.Namespace.Path hiding def1 def2` opens all non-protected names in `Some.Namespace.Path`\n  except `def1` and `def2`.\n\n* `open Some.Namespace.Path (def1 def2)` only makes `Some.Namespace.Path.def1` and\n  `Some.Namespace.Path.def2` available without the full prefix, so `Some.Namespace.Path.def3` would\n  be unaffected.\n\n  This works even if `def1` and `def2` are `protected`.\n\n* `open Some.Namespace.Path renaming def1 → def1', def2 → def2'` same as `open Some.Namespace.Path\n  (def1 def2)` but `def1`/`def2`'s names are changed to `def1'`/`def2'`.\n\n  This works even if `def1` and `def2` are `protected`.\n\n* `open scoped Some.Namespace.Path1 Some.Namespace.Path2` **only** opens [scoped instances],\n  notations, and attributes from `Namespace1` and `Namespace2`; it does **not** make any other name\n  available.\n\n* `open <any of the open shapes above> in` makes the names `open`-ed visible only in the next\n  command or expression.\n\n[scoped instance]: https://lean-lang.org/theorem_proving_in_lean4/type_classes.html#scoped-instances\n(Scoped instances in Theorem Proving in Lean)\n\n\n## Examples\n\n```lean\n/-- SKI combinators https://en.wikipedia.org/wiki/SKI_combinator_calculus -/\nnamespace Combinator.Calculus\n  def I (a : α) : α := a\n  def K (a : α) : β → α := fun _ => a\n  def S (x : α → β → γ) (y : α → β) (z : α) : γ := x z (y z)\nend Combinator.Calculus\n\nsection\n  -- open everything under `Combinator.Calculus`, *i.e.* `I`, `K` and `S`,\n  -- until the section ends\n  open Combinator.Calculus\n\n  theorem SKx_eq_K : S K x = I := rfl\nend\n\n-- open everything under `Combinator.Calculus` only for the next command (the next `theorem`, here)\nopen Combinator.Calculus in\ntheorem SKx_eq_K' : S K x = I := rfl\n\nsection\n  -- open only `S` and `K` under `Combinator.Calculus`\n  open Combinator.Calculus (S K)\n\n  theorem SKxy_eq_y : S K x y = y := rfl\n\n  -- `I` is not in scope, we have to use its full path\n  theorem SKxy_eq_Iy : S K x y = Combinator.Calculus.I y := rfl\nend\n\nsection\n  open Combinator.Calculus\n    renaming\n      I → identity,\n      K → konstant\n\n  #check identity\n  #check konstant\nend\n\nsection\n  open Combinator.Calculus\n    hiding S\n\n  #check I\n  #check K\nend\n\nsection\n  namespace Demo\n    inductive MyType\n    | val\n\n    namespace N1\n      scoped infix:68 \" ≋ \" => BEq.beq\n\n      scoped instance : BEq MyType where\n        beq _ _ := true\n\n      def Alias := MyType\n    end N1\n  end Demo\n\n  -- bring `≋` and the instance in scope, but not `Alias`\n  open scoped Demo.N1\n\n  #check Demo.MyType.val == Demo.MyType.val\n  #check Demo.MyType.val ≋ Demo.MyType.val\n  -- #check Alias -- unknown identifier 'Alias'\nend\n```\n", 3378, 3344);
 return x_1;
 }
 }
@@ -35668,7 +35668,7 @@ static lean_object* _init_l_Lean_Parser_Command_mutual___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mutual", 6);
+x_1 = lean_mk_string_unchecked("mutual", 6, 6);
 return x_1;
 }
 }
@@ -36282,7 +36282,7 @@ static lean_object* _init_l_Lean_Parser_Command_initializeKeyword___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initializeKeyword", 17);
+x_1 = lean_mk_string_unchecked("initializeKeyword", 17, 17);
 return x_1;
 }
 }
@@ -36314,7 +36314,7 @@ static lean_object* _init_l_Lean_Parser_Command_initializeKeyword___closed__4() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initialize ", 11);
+x_1 = lean_mk_string_unchecked("initialize ", 11, 11);
 return x_1;
 }
 }
@@ -36331,7 +36331,7 @@ static lean_object* _init_l_Lean_Parser_Command_initializeKeyword___closed__6() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtin_initialize ", 19);
+x_1 = lean_mk_string_unchecked("builtin_initialize ", 19, 19);
 return x_1;
 }
 }
@@ -36397,7 +36397,7 @@ static lean_object* _init_l_Lean_Parser_Command_initialize___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initialize", 10);
+x_1 = lean_mk_string_unchecked("initialize", 10, 10);
 return x_1;
 }
 }
@@ -37241,7 +37241,7 @@ static lean_object* _init_l_Lean_Parser_Command_in___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("in", 2);
+x_1 = lean_mk_string_unchecked("in", 2, 2);
 return x_1;
 }
 }
@@ -37261,7 +37261,7 @@ static lean_object* _init_l_Lean_Parser_Command_in___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" in ", 4);
+x_1 = lean_mk_string_unchecked(" in ", 4, 4);
 return x_1;
 }
 }
@@ -37625,7 +37625,7 @@ static lean_object* _init_l_Lean_Parser_Command_addDocString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("addDocString", 12);
+x_1 = lean_mk_string_unchecked("addDocString", 12, 12);
 return x_1;
 }
 }
@@ -37657,7 +37657,7 @@ static lean_object* _init_l_Lean_Parser_Command_addDocString___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("add_decl_doc ", 13);
+x_1 = lean_mk_string_unchecked("add_decl_doc ", 13, 13);
 return x_1;
 }
 }
@@ -37746,7 +37746,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Command_addDocString_docStr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Adds a docstring to an existing declaration, replacing any existing docstring.\nThe provided docstring should be written as a docstring for the `add_decl_doc` command, as in\n```\n/-- My new docstring -/\nadd_decl_doc oldDeclaration\n```\n\nThis is useful for auto-generated declarations\nfor which there is no place to write a docstring in the source code.\n\nParent projections in structures are an example of this:\n```\nstructure Triple (α β γ : Type) extends Prod α β where\n  thrd : γ\n\n/-- Extracts the first two projections of a triple. -/\nadd_decl_doc Triple.toProd\n```\n\nDocumentation can only be added to declarations in the same module.\n", 640);
+x_1 = lean_mk_string_unchecked("Adds a docstring to an existing declaration, replacing any existing docstring.\nThe provided docstring should be written as a docstring for the `add_decl_doc` command, as in\n```\n/-- My new docstring -/\nadd_decl_doc oldDeclaration\n```\n\nThis is useful for auto-generated declarations\nfor which there is no place to write a docstring in the source code.\n\nParent projections in structures are an example of this:\n```\nstructure Triple (α β γ : Type) extends Prod α β where\n  thrd : γ\n\n/-- Extracts the first two projections of a triple. -/\nadd_decl_doc Triple.toProd\n```\n\nDocumentation can only be added to declarations in the same module.\n", 640, 634);
 return x_1;
 }
 }
@@ -38084,7 +38084,7 @@ static lean_object* _init_l_Lean_Parser_Command_genInjectiveTheorems___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("genInjectiveTheorems", 20);
+x_1 = lean_mk_string_unchecked("genInjectiveTheorems", 20, 20);
 return x_1;
 }
 }
@@ -38116,7 +38116,7 @@ static lean_object* _init_l_Lean_Parser_Command_genInjectiveTheorems___closed__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("gen_injective_theorems% ", 24);
+x_1 = lean_mk_string_unchecked("gen_injective_theorems% ", 24, 24);
 return x_1;
 }
 }
@@ -38195,7 +38195,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Command_genInjectiveTheorem
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("This is an auxiliary command for generation constructor injectivity theorems for\ninductive types defined at `Prelude.lean`.\nIt is meant for bootstrapping purposes only. ", 169);
+x_1 = lean_mk_string_unchecked("This is an auxiliary command for generation constructor injectivity theorems for\ninductive types defined at `Prelude.lean`.\nIt is meant for bootstrapping purposes only. ", 169, 169);
 return x_1;
 }
 }
@@ -38509,7 +38509,7 @@ static lean_object* _init_l_Lean_Parser_Command_eoi_formatter___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("eoi", 3);
+x_1 = lean_mk_string_unchecked("eoi", 3, 3);
 return x_1;
 }
 }
@@ -38547,7 +38547,7 @@ static lean_object* _init_l_Lean_Parser_Command_eoi_formatter___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -38838,7 +38838,7 @@ static lean_object* _init_l_Lean_Parser_Command_initFn____x40_Lean_Parser_Comman
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declModifiersF", 14);
+x_1 = lean_mk_string_unchecked("declModifiersF", 14, 14);
 return x_1;
 }
 }
@@ -38954,7 +38954,7 @@ static lean_object* _init_l_Lean_Parser_Command_initFn____x40_Lean_Parser_Comman
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("nestedDeclModifiers", 19);
+x_1 = lean_mk_string_unchecked("nestedDeclModifiers", 19, 19);
 return x_1;
 }
 }
@@ -38972,7 +38972,7 @@ static lean_object* _init_l_Lean_Parser_Command_initFn____x40_Lean_Parser_Comman
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declModifiersT", 14);
+x_1 = lean_mk_string_unchecked("declModifiersT", 14, 14);
 return x_1;
 }
 }
@@ -39288,7 +39288,7 @@ static lean_object* _init_l_Lean_Parser_Command_initFn____x40_Lean_Parser_Comman
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("docComment", 10);
+x_1 = lean_mk_string_unchecked("docComment", 10, 10);
 return x_1;
 }
 }
@@ -40213,7 +40213,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Term_open_docString__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`open Foo in e` is like `open Foo` but scoped to a single term.\nIt makes the given namespaces available in the term `e`.\n", 121);
+x_1 = lean_mk_string_unchecked("`open Foo in e` is like `open Foo` but scoped to a single term.\nIt makes the given namespaces available in the term `e`.\n", 121, 121);
 return x_1;
 }
 }
@@ -40691,7 +40691,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Term_set__option_docString_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`set_option opt val in e` is like `set_option opt val` but scoped to a single term.\nIt sets the option `opt` to the value `val` in the term `e`.\n", 145);
+x_1 = lean_mk_string_unchecked("`set_option opt val in e` is like `set_option opt val` but scoped to a single term.\nIt sets the option `opt` to the value `val` in the term `e`.\n", 145, 145);
 return x_1;
 }
 }
@@ -41057,7 +41057,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_open___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -41089,7 +41089,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_open___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("open ", 5);
+x_1 = lean_mk_string_unchecked("open ", 5, 5);
 return x_1;
 }
 }
@@ -41176,7 +41176,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_open__1___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tactic", 6);
+x_1 = lean_mk_string_unchecked("tactic", 6, 6);
 return x_1;
 }
 }
@@ -41207,7 +41207,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_open_docString__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ", 128);
+x_1 = lean_mk_string_unchecked("`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ", 128, 128);
 return x_1;
 }
 }
@@ -41721,7 +41721,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_set__option_docStrin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ", 150);
+x_1 = lean_mk_string_unchecked("`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ", 150, 150);
 return x_1;
 }
 }

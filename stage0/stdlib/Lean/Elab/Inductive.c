@@ -987,7 +987,7 @@ static lean_object* _init_l_Lean_Elab_Command_initFn____x40_Lean_Elab_Inductive_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -995,7 +995,7 @@ static lean_object* _init_l_Lean_Elab_Command_initFn____x40_Lean_Elab_Inductive_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inductive", 9);
+x_1 = lean_mk_string_unchecked("inductive", 9, 9);
 return x_1;
 }
 }
@@ -1013,7 +1013,7 @@ static lean_object* _init_l_Lean_Elab_Command_initFn____x40_Lean_Elab_Inductive_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1041,7 +1041,7 @@ static lean_object* _init_l_Lean_Elab_Command_initFn____x40_Lean_Elab_Inductive_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Command", 7);
+x_1 = lean_mk_string_unchecked("Command", 7, 7);
 return x_1;
 }
 }
@@ -1059,7 +1059,7 @@ static lean_object* _init_l_Lean_Elab_Command_initFn____x40_Lean_Elab_Inductive_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -1077,7 +1077,7 @@ static lean_object* _init_l_Lean_Elab_Command_initFn____x40_Lean_Elab_Inductive_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -1115,7 +1115,7 @@ static lean_object* _init_l_Lean_Elab_Command_initFn____x40_Lean_Elab_Inductive_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Inductive", 9);
+x_1 = lean_mk_string_unchecked("Inductive", 9, 9);
 return x_1;
 }
 }
@@ -1133,7 +1133,7 @@ static lean_object* _init_l_Lean_Elab_Command_initFn____x40_Lean_Elab_Inductive_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -1172,7 +1172,7 @@ static lean_object* _init_l_Lean_Elab_Command_initFn____x40_Lean_Elab_Inductive_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("autoPromoteIndices", 18);
+x_1 = lean_mk_string_unchecked("autoPromoteIndices", 18, 18);
 return x_1;
 }
 }
@@ -1190,7 +1190,7 @@ static lean_object* _init_l_Lean_Elab_Command_initFn____x40_Lean_Elab_Inductive_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -1198,7 +1198,7 @@ static lean_object* _init_l_Lean_Elab_Command_initFn____x40_Lean_Elab_Inductive_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Promote indices to parameters in inductive types whenever possible.", 67);
+x_1 = lean_mk_string_unchecked("Promote indices to parameters in inductive types whenever possible.", 67, 67);
 return x_1;
 }
 }
@@ -1245,7 +1245,7 @@ static lean_object* _init_l_Lean_Elab_Command_checkValidInductiveModifier___rarg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid use of 'partial' in inductive declaration", 49);
+x_1 = lean_mk_string_unchecked("invalid use of 'partial' in inductive declaration", 49, 49);
 return x_1;
 }
 }
@@ -1290,7 +1290,7 @@ static lean_object* _init_l_Lean_Elab_Command_checkValidInductiveModifier___rarg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid use of 'noncomputable' in inductive declaration", 55);
+x_1 = lean_mk_string_unchecked("invalid use of 'noncomputable' in inductive declaration", 55, 55);
 return x_1;
 }
 }
@@ -1367,7 +1367,7 @@ static lean_object* _init_l_Lean_Elab_Command_checkValidCtorModifier___rarg___la
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid use of attributes in constructor declaration", 52);
+x_1 = lean_mk_string_unchecked("invalid use of attributes in constructor declaration", 52, 52);
 return x_1;
 }
 }
@@ -1416,7 +1416,7 @@ static lean_object* _init_l_Lean_Elab_Command_checkValidCtorModifier___rarg___la
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid use of 'unsafe' in constructor declaration", 50);
+x_1 = lean_mk_string_unchecked("invalid use of 'unsafe' in constructor declaration", 50, 50);
 return x_1;
 }
 }
@@ -1475,7 +1475,7 @@ static lean_object* _init_l_Lean_Elab_Command_checkValidCtorModifier___rarg___la
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid use of 'partial' in constructor declaration", 51);
+x_1 = lean_mk_string_unchecked("invalid use of 'partial' in constructor declaration", 51, 51);
 return x_1;
 }
 }
@@ -1534,7 +1534,7 @@ static lean_object* _init_l_Lean_Elab_Command_checkValidCtorModifier___rarg___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid use of 'noncomputable' in constructor declaration", 57);
+x_1 = lean_mk_string_unchecked("invalid use of 'noncomputable' in constructor declaration", 57, 57);
 return x_1;
 }
 }
@@ -2082,7 +2082,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid inductive type, resultant type is not a sort", 52);
+x_1 = lean_mk_string_unchecked("invalid inductive type, resultant type is not a sort", 52, 52);
 return x_1;
 }
 }
@@ -2284,7 +2284,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("header params: ", 15);
+x_1 = lean_mk_string_unchecked("header params: ", 15, 15);
 return x_1;
 }
 }
@@ -2301,7 +2301,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", type: ", 8);
+x_1 = lean_mk_string_unchecked(", type: ", 8, 8);
 return x_1;
 }
 }
@@ -2756,7 +2756,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Indu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid inductive type, number of parameters mismatch in mutually inductive datatypes", 85);
+x_1 = lean_mk_string_unchecked("invalid inductive type, number of parameters mismatch in mutually inductive datatypes", 85, 85);
 return x_1;
 }
 }
@@ -2960,7 +2960,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Indu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid inductive type, cannot mix unsafe and safe declarations in a mutually inductive datatypes", 97);
+x_1 = lean_mk_string_unchecked("invalid inductive type, cannot mix unsafe and safe declarations in a mutually inductive datatypes", 97, 97);
 return x_1;
 }
 }
@@ -3197,7 +3197,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Indu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid inductive type, universe parameters mismatch in mutually inductive datatypes", 84);
+x_1 = lean_mk_string_unchecked("invalid inductive type, universe parameters mismatch in mutually inductive datatypes", 84, 84);
 return x_1;
 }
 }
@@ -3547,7 +3547,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_t
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected inductive resulting type", 35);
+x_1 = lean_mk_string_unchecked("unexpected inductive resulting type", 35, 35);
 return x_1;
 }
 }
@@ -3770,7 +3770,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("resulting universe mismatch, given", 34);
+x_1 = lean_mk_string_unchecked("resulting universe mismatch, given", 34, 34);
 return x_1;
 }
 }
@@ -3787,7 +3787,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nexpected type", 14);
+x_1 = lean_mk_string_unchecked("\nexpected type", 14, 14);
 return x_1;
 }
 }
@@ -4009,7 +4009,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid mutually inductive types, ", 34);
+x_1 = lean_mk_string_unchecked("invalid mutually inductive types, ", 34, 34);
 return x_1;
 }
 }
@@ -7859,7 +7859,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_Induct
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inductive datatype parameter mismatch", 37);
+x_1 = lean_mk_string_unchecked("inductive datatype parameter mismatch", 37, 37);
 return x_1;
 }
 }
@@ -7876,7 +7876,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_Induct
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nexpected", 9);
+x_1 = lean_mk_string_unchecked("\nexpected", 9, 9);
 return x_1;
 }
 }
@@ -8182,7 +8182,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected inductive type occurrence", 36);
+x_1 = lean_mk_string_unchecked("unexpected inductive type occurrence", 36, 36);
 return x_1;
 }
 }
@@ -8387,7 +8387,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected constructor resulting type, type expected", 52);
+x_1 = lean_mk_string_unchecked("unexpected constructor resulting type, type expected", 52, 52);
 return x_1;
 }
 }
@@ -8506,7 +8506,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected constructor resulting type", 37);
+x_1 = lean_mk_string_unchecked("unexpected constructor resulting type", 37, 37);
 return x_1;
 }
 }
@@ -8729,7 +8729,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("constructor resulting type must be specified in inductive family declaration", 76);
+x_1 = lean_mk_string_unchecked("constructor resulting type must be specified in inductive family declaration", 76, 76);
 return x_1;
 }
 }
@@ -8746,7 +8746,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elabType ", 9);
+x_1 = lean_mk_string_unchecked("elabType ", 9, 9);
 return x_1;
 }
 }
@@ -8763,7 +8763,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" : ", 3);
+x_1 = lean_mk_string_unchecked(" : ", 3, 3);
 return x_1;
 }
 }
@@ -8780,7 +8780,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -9379,7 +9379,7 @@ static lean_object* _init_l_List_mapM_loop___at___private_Lean_Elab_Inductive_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("extraCtorParams: ", 17);
+x_1 = lean_mk_string_unchecked("extraCtorParams: ", 17, 17);
 return x_1;
 }
 }
@@ -10299,7 +10299,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_g
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected inductive type resulting type", 40);
+x_1 = lean_mk_string_unchecked("unexpected inductive type resulting type", 40, 40);
 return x_1;
 }
 }
@@ -10417,7 +10417,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_g
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected empty inductive declaration", 38);
+x_1 = lean_mk_string_unchecked("unexpected empty inductive declaration", 38, 38);
 return x_1;
 }
 }
@@ -11227,7 +11227,7 @@ static lean_object* _init_l_Lean_Elab_Command_shouldInferResultUniverse___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cannot infer resulting universe level of inductive datatype, given level contains metavariables ", 96);
+x_1 = lean_mk_string_unchecked("cannot infer resulting universe level of inductive datatype, given level contains metavariables ", 96, 96);
 return x_1;
 }
 }
@@ -11244,7 +11244,7 @@ static lean_object* _init_l_Lean_Elab_Command_shouldInferResultUniverse___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", provide universe explicitly", 29);
+x_1 = lean_mk_string_unchecked(", provide universe explicitly", 29, 29);
 return x_1;
 }
 }
@@ -13035,7 +13035,7 @@ static lean_object* _init_l_Lean_Elab_Command_accLevelAtCtor___lambda__2___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" has type", 9);
+x_1 = lean_mk_string_unchecked(" has type", 9, 9);
 return x_1;
 }
 }
@@ -13052,7 +13052,7 @@ static lean_object* _init_l_Lean_Elab_Command_accLevelAtCtor___lambda__2___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\ninductive type resulting type", 30);
+x_1 = lean_mk_string_unchecked("\ninductive type resulting type", 30, 30);
 return x_1;
 }
 }
@@ -13077,7 +13077,7 @@ static lean_object* _init_l_Lean_Elab_Command_accLevelAtCtor___lambda__2___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nrecall that Lean only infers the resulting universe level automatically when there is a unique solution for the universe level constraints, consider explicitly providing the inductive type resulting universe level", 214);
+x_1 = lean_mk_string_unchecked("\nrecall that Lean only infers the resulting universe level automatically when there is a unique solution for the universe level constraints, consider explicitly providing the inductive type resulting universe level", 214, 214);
 return x_1;
 }
 }
@@ -13169,7 +13169,7 @@ static lean_object* _init_l_Lean_Elab_Command_accLevelAtCtor___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to compute resulting universe level of inductive datatype, constructor '", 79);
+x_1 = lean_mk_string_unchecked("failed to compute resulting universe level of inductive datatype, constructor '", 79, 79);
 return x_1;
 }
 }
@@ -13186,7 +13186,7 @@ static lean_object* _init_l_Lean_Elab_Command_accLevelAtCtor___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' has type", 10);
+x_1 = lean_mk_string_unchecked("' has type", 10, 10);
 return x_1;
 }
 }
@@ -13203,7 +13203,7 @@ static lean_object* _init_l_Lean_Elab_Command_accLevelAtCtor___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nparameter", 10);
+x_1 = lean_mk_string_unchecked("\nparameter", 10, 10);
 return x_1;
 }
 }
@@ -13220,7 +13220,7 @@ static lean_object* _init_l_Lean_Elab_Command_accLevelAtCtor___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" '", 2);
+x_1 = lean_mk_string_unchecked(" '", 2, 2);
 return x_1;
 }
 }
@@ -13237,7 +13237,7 @@ static lean_object* _init_l_Lean_Elab_Command_accLevelAtCtor___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -16300,7 +16300,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_u
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("updateResultingUniverse us: ", 28);
+x_1 = lean_mk_string_unchecked("updateResultingUniverse us: ", 28, 28);
 return x_1;
 }
 }
@@ -16317,7 +16317,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_u
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", r: ", 5);
+x_1 = lean_mk_string_unchecked(", r: ", 5, 5);
 return x_1;
 }
 }
@@ -16334,7 +16334,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_u
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", rOffset: ", 11);
+x_1 = lean_mk_string_unchecked(", rOffset: ", 11, 11);
 return x_1;
 }
 }
@@ -16550,7 +16550,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_u
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to compute resulting universe level of inductive datatype, provide universe explicitly: ", 95);
+x_1 = lean_mk_string_unchecked("failed to compute resulting universe level of inductive datatype, provide universe explicitly: ", 95, 95);
 return x_1;
 }
 }
@@ -16736,7 +16736,7 @@ static lean_object* _init_l_Lean_Elab_Command_initFn____x40_Lean_Elab_Inductive_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("bootstrap", 9);
+x_1 = lean_mk_string_unchecked("bootstrap", 9, 9);
 return x_1;
 }
 }
@@ -16744,7 +16744,7 @@ static lean_object* _init_l_Lean_Elab_Command_initFn____x40_Lean_Elab_Inductive_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inductiveCheckResultingUniverse", 31);
+x_1 = lean_mk_string_unchecked("inductiveCheckResultingUniverse", 31, 31);
 return x_1;
 }
 }
@@ -16762,7 +16762,7 @@ static lean_object* _init_l_Lean_Elab_Command_initFn____x40_Lean_Elab_Inductive_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("by default the `inductive`/`structure` commands report an error if the resulting universe is not zero, but may be zero for some universe parameters. Reason: unless this type is a subsingleton, it is hardly what the user wants since it can only eliminate into `Prop`. In the `Init` package, we define subsingletons, and we use this option to disable the check. This option may be deleted in the future after we improve the validator", 431);
+x_1 = lean_mk_string_unchecked("by default the `inductive`/`structure` commands report an error if the resulting universe is not zero, but may be zero for some universe parameters. Reason: unless this type is a subsingleton, it is hardly what the user wants since it can only eliminate into `Prop`. In the `Init` package, we define subsingletons, and we use this option to disable the check. This option may be deleted in the future after we improve the validator", 431, 431);
 return x_1;
 }
 }
@@ -16817,7 +16817,7 @@ static lean_object* _init_l_Lean_Elab_Command_checkResultingUniverse___closed__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid universe polymorphic type, the resultant universe is not Prop (i.e., 0), but it may be Prop for some parameter values (solution: use 'u+1' or 'max 1 u')", 160);
+x_1 = lean_mk_string_unchecked("invalid universe polymorphic type, the resultant universe is not Prop (i.e., 0), but it may be Prop for some parameter values (solution: use 'u+1' or 'max 1 u')", 160, 160);
 return x_1;
 }
 }
@@ -17493,7 +17493,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nat universe level", 18);
+x_1 = lean_mk_string_unchecked("\nat universe level", 18, 18);
 return x_1;
 }
 }
@@ -17510,7 +17510,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nit must be smaller than or equal to the inductive datatype universe level", 74);
+x_1 = lean_mk_string_unchecked("\nit must be smaller than or equal to the inductive datatype universe level", 74, 74);
 return x_1;
 }
 }
@@ -17573,7 +17573,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid universe level in constructor '", 39);
+x_1 = lean_mk_string_unchecked("invalid universe level in constructor '", 39, 39);
 return x_1;
 }
 }
@@ -17590,7 +17590,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', parameter", 12);
+x_1 = lean_mk_string_unchecked("', parameter", 12, 12);
 return x_1;
 }
 }
@@ -22491,7 +22491,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_m
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -22509,7 +22509,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_m
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HEq", 3);
+x_1 = lean_mk_string_unchecked("HEq", 3, 3);
 return x_1;
 }
 }
@@ -22527,7 +22527,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_m
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PUnit", 5);
+x_1 = lean_mk_string_unchecked("PUnit", 5, 5);
 return x_1;
 }
 }
@@ -22545,7 +22545,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_m
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Prod", 4);
+x_1 = lean_mk_string_unchecked("Prod", 4, 4);
 return x_1;
 }
 }
@@ -25488,7 +25488,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_f
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("a", 1);
+x_1 = lean_mk_string_unchecked("a", 1, 1);
 return x_1;
 }
 }
@@ -25523,7 +25523,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_f
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("domain not def eq: ", 19);
+x_1 = lean_mk_string_unchecked("domain not def eq: ", 19, 19);
 return x_1;
 }
 }
@@ -25540,7 +25540,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_f
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", ", 2);
+x_1 = lean_mk_string_unchecked(", ", 2, 2);
 return x_1;
 }
 }
@@ -25557,7 +25557,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_f
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" =\?= ", 5);
+x_1 = lean_mk_string_unchecked(" =\?= ", 5, 5);
 return x_1;
 }
 }
@@ -26729,7 +26729,7 @@ static lean_object* _init_l_List_map___at___private_Lean_Elab_Inductive_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("false", 5);
+x_1 = lean_mk_string_unchecked("false", 5, 5);
 return x_1;
 }
 }
@@ -26756,7 +26756,7 @@ static lean_object* _init_l_List_map___at___private_Lean_Elab_Inductive_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("true", 4);
+x_1 = lean_mk_string_unchecked("true", 4, 4);
 return x_1;
 }
 }
@@ -27130,7 +27130,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_f
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("masks: ", 7);
+x_1 = lean_mk_string_unchecked("masks: ", 7, 7);
 return x_1;
 }
 }
@@ -31036,7 +31036,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_m
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("numExplicitParams: ", 19);
+x_1 = lean_mk_string_unchecked("numExplicitParams: ", 19, 19);
 return x_1;
 }
 }
@@ -31299,7 +31299,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_m
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("indFVars: ", 10);
+x_1 = lean_mk_string_unchecked("indFVars: ", 10, 10);
 return x_1;
 }
 }
@@ -32407,7 +32407,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Indu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -32415,7 +32415,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Indu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declaration", 11);
+x_1 = lean_mk_string_unchecked("declaration", 11, 11);
 return x_1;
 }
 }
@@ -32435,7 +32435,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Indu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("definition", 10);
+x_1 = lean_mk_string_unchecked("definition", 10, 10);
 return x_1;
 }
 }
@@ -32455,7 +32455,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Indu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("def", 3);
+x_1 = lean_mk_string_unchecked("def", 3, 3);
 return x_1;
 }
 }
@@ -32463,7 +32463,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Indu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declId", 6);
+x_1 = lean_mk_string_unchecked("declId", 6, 6);
 return x_1;
 }
 }
@@ -32483,7 +32483,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Indu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_root_", 6);
+x_1 = lean_mk_string_unchecked("_root_", 6, 6);
 return x_1;
 }
 }
@@ -32501,7 +32501,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Indu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -32519,7 +32519,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Indu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("optDeclSig", 10);
+x_1 = lean_mk_string_unchecked("optDeclSig", 10, 10);
 return x_1;
 }
 }
@@ -32539,7 +32539,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Indu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -32547,7 +32547,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Indu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("typeSpec", 8);
+x_1 = lean_mk_string_unchecked("typeSpec", 8, 8);
 return x_1;
 }
 }
@@ -32567,7 +32567,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Indu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
@@ -32575,7 +32575,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Indu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declValEqns", 11);
+x_1 = lean_mk_string_unchecked("declValEqns", 11, 11);
 return x_1;
 }
 }
@@ -32595,7 +32595,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Indu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("matchAltsWhereDecls", 19);
+x_1 = lean_mk_string_unchecked("matchAltsWhereDecls", 19, 19);
 return x_1;
 }
 }
@@ -32615,7 +32615,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Indu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Termination", 11);
+x_1 = lean_mk_string_unchecked("Termination", 11, 11);
 return x_1;
 }
 }
@@ -32623,7 +32623,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Indu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("suffix", 6);
+x_1 = lean_mk_string_unchecked("suffix", 6, 6);
 return x_1;
 }
 }
@@ -32967,7 +32967,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Indu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unsupported modifiers for computed field", 40);
+x_1 = lean_mk_string_unchecked("unsupported modifiers for computed field", 40, 40);
 return x_1;
 }
 }
@@ -32994,7 +32994,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Indu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("noncomputable", 13);
+x_1 = lean_mk_string_unchecked("noncomputable", 13, 13);
 return x_1;
 }
 }
@@ -34022,7 +34022,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Indu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attributes", 10);
+x_1 = lean_mk_string_unchecked("attributes", 10, 10);
 return x_1;
 }
 }
@@ -34329,7 +34329,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Indu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declModifiers", 13);
+x_1 = lean_mk_string_unchecked("declModifiers", 13, 13);
 return x_1;
 }
 }
@@ -34349,7 +34349,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Indu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("docComment", 10);
+x_1 = lean_mk_string_unchecked("docComment", 10, 10);
 return x_1;
 }
 }
@@ -35157,7 +35157,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("genMatcherCode", 14);
+x_1 = lean_mk_string_unchecked("genMatcherCode", 14, 14);
 return x_1;
 }
 }
@@ -35175,7 +35175,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elaboratingComputedFields", 25);
+x_1 = lean_mk_string_unchecked("elaboratingComputedFields", 25, 25);
 return x_1;
 }
 }
@@ -35268,7 +35268,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mutual", 6);
+x_1 = lean_mk_string_unchecked("mutual", 6, 6);
 return x_1;
 }
 }
@@ -35288,7 +35288,7 @@ static lean_object* _init_l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("end", 3);
+x_1 = lean_mk_string_unchecked("end", 3, 3);
 return x_1;
 }
 }

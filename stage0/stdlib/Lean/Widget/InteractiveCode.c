@@ -317,7 +317,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("wasChanged", 10);
+x_1 = lean_mk_string_unchecked("wasChanged", 10, 10);
 return x_1;
 }
 }
@@ -335,7 +335,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("willChange", 10);
+x_1 = lean_mk_string_unchecked("willChange", 10, 10);
 return x_1;
 }
 }
@@ -353,7 +353,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("wasDeleted", 10);
+x_1 = lean_mk_string_unchecked("wasDeleted", 10, 10);
 return x_1;
 }
 }
@@ -371,7 +371,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("willDelete", 10);
+x_1 = lean_mk_string_unchecked("willDelete", 10, 10);
 return x_1;
 }
 }
@@ -389,7 +389,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("wasInserted", 11);
+x_1 = lean_mk_string_unchecked("wasInserted", 11, 11);
 return x_1;
 }
 }
@@ -407,7 +407,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("willInsert", 10);
+x_1 = lean_mk_string_unchecked("willInsert", 10, 10);
 return x_1;
 }
 }
@@ -494,7 +494,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no inductive constructor matched", 32);
+x_1 = lean_mk_string_unchecked("no inductive constructor matched", 32, 32);
 return x_1;
 }
 }
@@ -990,7 +990,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("info", 4);
+x_1 = lean_mk_string_unchecked("info", 4, 4);
 return x_1;
 }
 }
@@ -998,7 +998,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1016,7 +1016,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Widget", 6);
+x_1 = lean_mk_string_unchecked("Widget", 6, 6);
 return x_1;
 }
 }
@@ -1054,7 +1054,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("SubexprInfo", 11);
+x_1 = lean_mk_string_unchecked("SubexprInfo", 11, 11);
 return x_1;
 }
 }
@@ -1072,7 +1072,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("RpcEncodablePacket", 18);
+x_1 = lean_mk_string_unchecked("RpcEncodablePacket", 18, 18);
 return x_1;
 }
 }
@@ -1090,7 +1090,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -1128,7 +1128,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("InteractiveCode", 15);
+x_1 = lean_mk_string_unchecked("InteractiveCode", 15, 15);
 return x_1;
 }
 }
@@ -1146,7 +1146,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -1184,7 +1184,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -1232,7 +1232,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -1250,7 +1250,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("subexprPos", 10);
+x_1 = lean_mk_string_unchecked("subexprPos", 10, 10);
 return x_1;
 }
 }
@@ -1298,7 +1298,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("diffStatus", 10);
+x_1 = lean_mk_string_unchecked("diffStatus", 10, 10);
 return x_1;
 }
 }
@@ -1306,7 +1306,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("diffStatus\?", 11);
+x_1 = lean_mk_string_unchecked("diffStatus\?", 11, 11);
 return x_1;
 }
 }
@@ -2971,7 +2971,7 @@ static lean_object* _init_l_Lean_Widget_ppExprTagged___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }

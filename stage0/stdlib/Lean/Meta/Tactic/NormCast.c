@@ -448,7 +448,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_NormCast_0__Lean_Meta_Nor
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.NormCast.Label.elim", 29);
+x_1 = lean_mk_string_unchecked("Lean.Meta.NormCast.Label.elim", 29, 29);
 return x_1;
 }
 }
@@ -532,7 +532,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_NormCast_0__Lean_Meta_Nor
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.NormCast.Label.move", 29);
+x_1 = lean_mk_string_unchecked("Lean.Meta.NormCast.Label.move", 29, 29);
 return x_1;
 }
 }
@@ -598,7 +598,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_NormCast_0__Lean_Meta_Nor
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.NormCast.Label.squash", 31);
+x_1 = lean_mk_string_unchecked("Lean.Meta.NormCast.Label.squash", 31, 31);
 return x_1;
 }
 }
@@ -2196,7 +2196,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_classifyType___lambda__2___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("norm_cast: badly shaped shaped squash lemma, rhs must have fewer head coes than lhs", 83);
+x_1 = lean_mk_string_unchecked("norm_cast: badly shaped shaped squash lemma, rhs must have fewer head coes than lhs", 83, 83);
 return x_1;
 }
 }
@@ -2213,7 +2213,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_classifyType___lambda__2___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -2230,7 +2230,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_classifyType___lambda__2___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("norm_cast: badly shaped lemma, rhs can't start with coe", 55);
+x_1 = lean_mk_string_unchecked("norm_cast: badly shaped lemma, rhs can't start with coe", 55, 55);
 return x_1;
 }
 }
@@ -2650,7 +2650,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_classifyType___lambda__3___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("norm_cast: badly shaped lemma, lhs must contain at least one coe", 64);
+x_1 = lean_mk_string_unchecked("norm_cast: badly shaped lemma, lhs must contain at least one coe", 64, 64);
 return x_1;
 }
 }
@@ -2885,7 +2885,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_classifyType___lambda__4___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -2903,7 +2903,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_classifyType___lambda__4___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Iff", 3);
+x_1 = lean_mk_string_unchecked("Iff", 3, 3);
 return x_1;
 }
 }
@@ -2921,7 +2921,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_classifyType___lambda__4___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("norm_cast: lemma must be = or ↔, but is", 41);
+x_1 = lean_mk_string_unchecked("norm_cast: lemma must be = or ↔, but is", 41, 39);
 return x_1;
 }
 }
@@ -3148,7 +3148,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_No
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("push_cast", 9);
+x_1 = lean_mk_string_unchecked("push_cast", 9, 9);
 return x_1;
 }
 }
@@ -3166,7 +3166,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_No
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -3174,7 +3174,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_No
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -3182,7 +3182,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_No
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("NormCast", 8);
+x_1 = lean_mk_string_unchecked("NormCast", 8, 8);
 return x_1;
 }
 }
@@ -3190,7 +3190,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_No
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pushCastExt", 11);
+x_1 = lean_mk_string_unchecked("pushCastExt", 11, 11);
 return x_1;
 }
 }
@@ -3210,7 +3210,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_No
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("The `push_cast` simp attribute uses `norm_cast` lemmas to move casts toward the leaf nodes of the expression.", 109);
+x_1 = lean_mk_string_unchecked("The `push_cast` simp attribute uses `norm_cast` lemmas to move casts toward the leaf nodes of the expression.", 109, 109);
 return x_1;
 }
 }
@@ -3583,7 +3583,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_No
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("normCastExt", 11);
+x_1 = lean_mk_string_unchecked("normCastExt", 11, 11);
 return x_1;
 }
 }
@@ -3603,7 +3603,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_No
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("up", 2);
+x_1 = lean_mk_string_unchecked("up", 2, 2);
 return x_1;
 }
 }
@@ -3631,7 +3631,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_No
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("down", 4);
+x_1 = lean_mk_string_unchecked("down", 4, 4);
 return x_1;
 }
 }
@@ -3659,7 +3659,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_No
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("squash", 6);
+x_1 = lean_mk_string_unchecked("squash", 6, 6);
 return x_1;
 }
 }
@@ -4218,7 +4218,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_No
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elim", 4);
+x_1 = lean_mk_string_unchecked("elim", 4, 4);
 return x_1;
 }
 }
@@ -4226,7 +4226,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_No
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("move", 4);
+x_1 = lean_mk_string_unchecked("move", 4, 4);
 return x_1;
 }
 }
@@ -4234,7 +4234,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_No
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Tactic.NormCast", 25);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Tactic.NormCast", 25, 25);
 return x_1;
 }
 }
@@ -4242,7 +4242,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_No
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.NormCast.initFn._@.Lean.Meta.Tactic.NormCast._hyg.2021", 64);
+x_1 = lean_mk_string_unchecked("Lean.Meta.NormCast.initFn._@.Lean.Meta.Tactic.NormCast._hyg.2021", 64, 64);
 return x_1;
 }
 }
@@ -4250,7 +4250,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_No
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -4571,7 +4571,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_No
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -4579,7 +4579,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_No
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Attr", 4);
+x_1 = lean_mk_string_unchecked("Attr", 4, 4);
 return x_1;
 }
 }
@@ -4587,7 +4587,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_No
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("norm_cast", 9);
+x_1 = lean_mk_string_unchecked("norm_cast", 9, 9);
 return x_1;
 }
 }
@@ -4800,7 +4800,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_No
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("normCastLabel", 13);
+x_1 = lean_mk_string_unchecked("normCastLabel", 13, 13);
 return x_1;
 }
 }
@@ -5210,7 +5210,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_No
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attribute cannot be erased", 26);
+x_1 = lean_mk_string_unchecked("attribute cannot be erased", 26, 26);
 return x_1;
 }
 }
@@ -5266,7 +5266,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_No
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -5284,7 +5284,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_No
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -5322,7 +5322,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_No
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -5350,7 +5350,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_No
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -5388,7 +5388,7 @@ static lean_object* _init_l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_No
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attribute for norm_cast", 23);
+x_1 = lean_mk_string_unchecked("attribute for norm_cast", 23, 23);
 return x_1;
 }
 }

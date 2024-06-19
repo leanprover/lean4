@@ -1020,7 +1020,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_InferType_inferConstType___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lcErased", 8);
+x_1 = lean_mk_string_unchecked("lcErased", 8, 8);
 return x_1;
 }
 }
@@ -1115,7 +1115,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_InferType_inferLitValueType___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Nat", 3);
+x_1 = lean_mk_string_unchecked("Nat", 3, 3);
 return x_1;
 }
 }
@@ -1143,7 +1143,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_InferType_inferLitValueType___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("String", 6);
+x_1 = lean_mk_string_unchecked("String", 6, 6);
 return x_1;
 }
 }
@@ -1374,7 +1374,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_InferType_inferType___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.InferType", 28);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.InferType", 28, 28);
 return x_1;
 }
 }
@@ -1382,7 +1382,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_InferType_inferType___closed__2()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.InferType.inferType", 38);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.InferType.inferType", 38, 38);
 return x_1;
 }
 }
@@ -1390,7 +1390,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_InferType_inferType___closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -8468,7 +8468,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_Lean_Compiler_LCNF_InferType_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
+x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
 return x_1;
 }
 }
@@ -8485,7 +8485,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_Lean_Compiler_LCNF_InferType_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -8727,7 +8727,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_InferTy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid projection", 18);
+x_1 = lean_mk_string_unchecked("invalid projection", 18, 18);
 return x_1;
 }
 }
@@ -8744,7 +8744,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_InferTy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -11669,7 +11669,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_getLevel___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("type expected", 13);
+x_1 = lean_mk_string_unchecked("type expected", 13, 13);
 return x_1;
 }
 }
@@ -12633,7 +12633,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_mkCasesResultType___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`Code.bind` failed, empty `cases` found", 39);
+x_1 = lean_mk_string_unchecked("`Code.bind` failed, empty `cases` found", 39, 39);
 return x_1;
 }
 }
@@ -12774,7 +12774,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.isErasedCompatible.go", 40);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.isErasedCompatible.go", 40, 40);
 return x_1;
 }
 }

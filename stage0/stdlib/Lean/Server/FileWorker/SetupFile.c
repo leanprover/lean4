@@ -95,7 +95,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_runLakeSetupFile_processStder
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -553,7 +553,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_runLakeSetupFile___closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("setup-file", 10);
+x_1 = lean_mk_string_unchecked("setup-file", 10, 10);
 return x_1;
 }
 }
@@ -571,7 +571,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_runLakeSetupFile___closed__4(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("--no-build", 10);
+x_1 = lean_mk_string_unchecked("--no-build", 10, 10);
 return x_1;
 }
 }
@@ -1095,7 +1095,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_setupFile___lambda__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -1103,7 +1103,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_setupFile___lambda__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`", 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -1111,7 +1111,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_setupFile___lambda__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` failed:\n", 10);
+x_1 = lean_mk_string_unchecked("` failed:\n", 10, 10);
 return x_1;
 }
 }
@@ -1119,7 +1119,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_setupFile___lambda__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nstderr:\n", 9);
+x_1 = lean_mk_string_unchecked("\nstderr:\n", 9, 9);
 return x_1;
 }
 }
@@ -1127,7 +1127,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_setupFile___lambda__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Invalid output from `", 21);
+x_1 = lean_mk_string_unchecked("Invalid output from `", 21, 21);
 return x_1;
 }
 }
@@ -1135,7 +1135,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_setupFile___lambda__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`:\n", 3);
+x_1 = lean_mk_string_unchecked("`:\n", 3, 3);
 return x_1;
 }
 }
@@ -1780,7 +1780,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_setupFile___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lakefile.lean", 13);
+x_1 = lean_mk_string_unchecked("lakefile.lean", 13, 13);
 return x_1;
 }
 }

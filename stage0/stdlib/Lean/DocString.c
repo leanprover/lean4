@@ -30,7 +30,6 @@ lean_object* l_String_removeLeadingSpaces(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getDocStringText(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getModuleDoc_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addDocString___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_getDocStringText___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findDocString_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_addDocString___rarg___lambda__1___closed__1;
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -39,7 +38,7 @@ static lean_object* l_Lean_addDocString___rarg___lambda__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_addDocString___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_DocString___hyg_46____closed__1;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_getDocStringText___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_getDocStringText___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_DocString___hyg_375_(lean_object*);
@@ -128,7 +127,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_DocString___hyg_46____closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -136,7 +135,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_DocString___hyg_46____closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("docStringExt", 12);
+x_1 = lean_mk_string_unchecked("docStringExt", 12, 12);
 return x_1;
 }
 }
@@ -237,7 +236,7 @@ static lean_object* _init_l_Lean_addDocString___rarg___lambda__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid doc string, declaration '", 33);
+x_1 = lean_mk_string_unchecked("invalid doc string, declaration '", 33, 33);
 return x_1;
 }
 }
@@ -245,7 +244,7 @@ static lean_object* _init_l_Lean_addDocString___rarg___lambda__3___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' is in an imported module", 26);
+x_1 = lean_mk_string_unchecked("' is in an imported module", 26, 26);
 return x_1;
 }
 }
@@ -545,7 +544,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_DocString___hyg_375____close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("moduleDocExt", 12);
+x_1 = lean_mk_string_unchecked("moduleDocExt", 12, 12);
 return x_1;
 }
 }
@@ -730,7 +729,7 @@ static lean_object* _init_l_Lean_getDocStringText___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected doc string", 21);
+x_1 = lean_mk_string_unchecked("unexpected doc string", 21, 21);
 return x_1;
 }
 }
@@ -747,7 +746,7 @@ static lean_object* _init_l_Lean_getDocStringText___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -760,52 +759,52 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_getDocStringText___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_getDocStringText___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; 
-x_5 = lean_unsigned_to_nat(1u);
-x_6 = l_Lean_Syntax_getArg(x_4, x_5);
-if (lean_obj_tag(x_6) == 2)
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_unsigned_to_nat(1u);
+x_5 = l_Lean_Syntax_getArg(x_3, x_4);
+if (lean_obj_tag(x_5) == 2)
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-lean_dec(x_4);
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_dec(x_3);
 lean_dec(x_2);
-x_7 = lean_ctor_get(x_6, 1);
+x_6 = lean_ctor_get(x_5, 1);
+lean_inc(x_6);
+lean_dec(x_5);
+x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
-lean_dec(x_6);
-x_8 = lean_ctor_get(x_1, 0);
-lean_inc(x_8);
 lean_dec(x_1);
-x_9 = lean_ctor_get(x_8, 1);
-lean_inc(x_9);
-lean_dec(x_8);
-x_10 = lean_string_utf8_byte_size(x_7);
-x_11 = lean_unsigned_to_nat(2u);
-x_12 = lean_nat_sub(x_10, x_11);
-lean_dec(x_10);
-x_13 = lean_unsigned_to_nat(0u);
-x_14 = lean_string_utf8_extract(x_7, x_13, x_12);
-lean_dec(x_12);
+x_8 = lean_ctor_get(x_7, 1);
+lean_inc(x_8);
 lean_dec(x_7);
-x_15 = lean_apply_2(x_9, lean_box(0), x_14);
-return x_15;
+x_9 = lean_string_utf8_byte_size(x_6);
+x_10 = lean_unsigned_to_nat(2u);
+x_11 = lean_nat_sub(x_9, x_10);
+lean_dec(x_9);
+x_12 = lean_unsigned_to_nat(0u);
+x_13 = lean_string_utf8_extract(x_6, x_12, x_11);
+lean_dec(x_11);
+lean_dec(x_6);
+x_14 = lean_apply_2(x_8, lean_box(0), x_13);
+return x_14;
 }
 else
 {
-lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_16 = l_Lean_MessageData_ofSyntax(x_6);
-x_17 = l_Lean_indentD(x_16);
-x_18 = l_Lean_getDocStringText___rarg___closed__2;
-x_19 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_19, 0, x_18);
-lean_ctor_set(x_19, 1, x_17);
-x_20 = l_Lean_getDocStringText___rarg___closed__4;
-x_21 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_21, 0, x_19);
-lean_ctor_set(x_21, 1, x_20);
-x_22 = l_Lean_throwErrorAt___rarg(x_1, x_2, x_4, x_21);
-return x_22;
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
+x_15 = l_Lean_MessageData_ofSyntax(x_5);
+x_16 = l_Lean_indentD(x_15);
+x_17 = l_Lean_getDocStringText___rarg___closed__2;
+x_18 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_18, 0, x_17);
+lean_ctor_set(x_18, 1, x_16);
+x_19 = l_Lean_getDocStringText___rarg___closed__4;
+x_20 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_20, 0, x_18);
+lean_ctor_set(x_20, 1, x_19);
+x_21 = l_Lean_throwErrorAt___rarg(x_1, x_2, x_3, x_20);
+return x_21;
 }
 }
 }
@@ -813,17 +812,8 @@ LEAN_EXPORT lean_object* l_Lean_getDocStringText(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_getDocStringText___rarg___boxed), 4, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_getDocStringText___rarg), 3, 0);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_getDocStringText___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_getDocStringText___rarg(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
-return x_5;
 }
 }
 lean_object* initialize_Lean_DeclarationRange(uint8_t builtin, lean_object*);

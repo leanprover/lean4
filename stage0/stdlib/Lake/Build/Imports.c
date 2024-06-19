@@ -141,7 +141,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lake_buildImportsAndDeps__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("olean", 5);
+x_1 = lean_mk_string_unchecked("olean", 5, 5);
 return x_1;
 }
 }
@@ -2745,7 +2745,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lake_buildImportsAndD
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.Data.String.Extra", 22);
+x_1 = lean_mk_string_unchecked("Init.Data.String.Extra", 22, 22);
 return x_1;
 }
 }
@@ -2753,7 +2753,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lake_buildImportsAndD
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("String.fromUTF8!", 16);
+x_1 = lean_mk_string_unchecked("String.fromUTF8!", 16, 16);
 return x_1;
 }
 }
@@ -2761,7 +2761,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lake_buildImportsAndD
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid UTF-8 string", 20);
+x_1 = lean_mk_string_unchecked("invalid UTF-8 string", 20, 20);
 return x_1;
 }
 }
@@ -4546,7 +4546,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lake_buildImportsAndDeps
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -4554,7 +4554,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lake_buildImportsAndDeps
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": bad import '", 14);
+x_1 = lean_mk_string_unchecked(": bad import '", 14, 14);
 return x_1;
 }
 }
@@ -4562,7 +4562,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lake_buildImportsAndDeps
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -4570,7 +4570,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lake_buildImportsAndDeps
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lean", 4);
+x_1 = lean_mk_string_unchecked("lean", 4, 4);
 return x_1;
 }
 }
@@ -4578,7 +4578,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lake_buildImportsAndDeps
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("precompileImports", 17);
+x_1 = lean_mk_string_unchecked("precompileImports", 17, 17);
 return x_1;
 }
 }
@@ -4596,7 +4596,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lake_buildImportsAndDeps
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("transImports", 12);
+x_1 = lean_mk_string_unchecked("transImports", 12, 12);
 return x_1;
 }
 }
@@ -6182,7 +6182,7 @@ static lean_object* _init_l_Lake_buildImportsAndDeps___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("stdout/stderr:\n", 15);
+x_1 = lean_mk_string_unchecked("stdout/stderr:\n", 15, 15);
 return x_1;
 }
 }
@@ -8294,7 +8294,7 @@ static lean_object* _init_l_Lake_buildImportsAndDeps___lambda__12___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("extraDep", 8);
+x_1 = lean_mk_string_unchecked("extraDep", 8, 8);
 return x_1;
 }
 }
@@ -8336,7 +8336,7 @@ static lean_object* _init_l_Lake_buildImportsAndDeps___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("imports (", 9);
+x_1 = lean_mk_string_unchecked("imports (", 9, 9);
 return x_1;
 }
 }
@@ -8344,7 +8344,7 @@ static lean_object* _init_l_Lake_buildImportsAndDeps___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }

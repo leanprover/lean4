@@ -479,7 +479,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_initFn____x40_Lean_Elab_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -487,7 +487,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_initFn____x40_Lean_Elab_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("norm_cast", 9);
+x_1 = lean_mk_string_unchecked("norm_cast", 9, 9);
 return x_1;
 }
 }
@@ -505,7 +505,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_initFn____x40_Lean_Elab_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -523,7 +523,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_initFn____x40_Lean_Elab_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -551,7 +551,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_initFn____x40_Lean_Elab_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("NormCast", 8);
+x_1 = lean_mk_string_unchecked("NormCast", 8, 8);
 return x_1;
 }
 }
@@ -569,7 +569,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_initFn____x40_Lean_Elab_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -587,7 +587,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_initFn____x40_Lean_Elab_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -645,7 +645,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_initFn____x40_Lean_Elab_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -2058,7 +2058,7 @@ static lean_object* _init_l_Lean_withTraceNode___at_Lean_Elab_Tactic_NormCast_pr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("<exception thrown while producing trace node message>", 53);
+x_1 = lean_mk_string_unchecked("<exception thrown while producing trace node message>", 53, 53);
 return x_1;
 }
 }
@@ -3219,7 +3219,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -3236,7 +3236,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" proving: ", 10);
+x_1 = lean_mk_string_unchecked(" proving: ", 10, 10);
 return x_1;
 }
 }
@@ -3487,7 +3487,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed", 6);
+x_1 = lean_mk_string_unchecked("failed", 6, 6);
 return x_1;
 }
 }
@@ -3834,7 +3834,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Nat", 3);
+x_1 = lean_mk_string_unchecked("Nat", 3, 3);
 return x_1;
 }
 }
@@ -3842,7 +3842,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("zero", 4);
+x_1 = lean_mk_string_unchecked("zero", 4, 4);
 return x_1;
 }
 }
@@ -3860,7 +3860,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__4(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("OfNat", 5);
+x_1 = lean_mk_string_unchecked("OfNat", 5, 5);
 return x_1;
 }
 }
@@ -3868,7 +3868,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__5(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat", 5);
+x_1 = lean_mk_string_unchecked("ofNat", 5, 5);
 return x_1;
 }
 }
@@ -5374,7 +5374,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lambd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -5400,7 +5400,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lambd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" to ", 4);
+x_1 = lean_mk_string_unchecked(" to ", 4, 4);
 return x_1;
 }
 }
@@ -7203,7 +7203,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_splittingProcedure___lambd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("splitting ", 10);
+x_1 = lean_mk_string_unchecked("splitting ", 10, 10);
 return x_1;
 }
 }
@@ -9096,7 +9096,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_prove___lambda__1___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" discharging: ", 14);
+x_1 = lean_mk_string_unchecked(" discharging: ", 14, 14);
 return x_1;
 }
 }
@@ -9419,7 +9419,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_upwardAndElim___closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("squash", 6);
+x_1 = lean_mk_string_unchecked("squash", 6, 6);
 return x_1;
 }
 }
@@ -10443,7 +10443,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_numeralToCoe___lambda__1__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cast", 4);
+x_1 = lean_mk_string_unchecked("cast", 4, 4);
 return x_1;
 }
 }
@@ -11012,7 +11012,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_derive___lambda__8___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pre-processing numerals", 23);
+x_1 = lean_mk_string_unchecked("pre-processing numerals", 23, 23);
 return x_1;
 }
 }
@@ -11053,7 +11053,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_derive___lambda__8___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" (after ", 8);
+x_1 = lean_mk_string_unchecked(" (after ", 8, 8);
 return x_1;
 }
 }
@@ -11070,7 +11070,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_derive___lambda__8___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -11203,7 +11203,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_derive___lambda__10___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("moving upward, splitting and eliminating", 40);
+x_1 = lean_mk_string_unchecked("moving upward, splitting and eliminating", 40, 40);
 return x_1;
 }
 }
@@ -11364,7 +11364,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_derive___lambda__12___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("squashing", 9);
+x_1 = lean_mk_string_unchecked("squashing", 9, 9);
 return x_1;
 }
 }
@@ -12051,7 +12051,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabModCast___lambda__2___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mod_cast", 8);
+x_1 = lean_mk_string_unchecked("mod_cast", 8, 8);
 return x_1;
 }
 }
@@ -12548,7 +12548,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabModCast___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("modCast", 7);
+x_1 = lean_mk_string_unchecked("modCast", 7, 7);
 return x_1;
 }
 }
@@ -12630,7 +12630,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_NormCast_elabModCast__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elabModCast", 11);
+x_1 = lean_mk_string_unchecked("elabModCast", 11, 11);
 return x_1;
 }
 }
@@ -14017,7 +14017,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_evalNormCast0___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -14025,7 +14025,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_evalNormCast0___closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("normCast0", 9);
+x_1 = lean_mk_string_unchecked("normCast0", 9, 9);
 return x_1;
 }
 }
@@ -14160,7 +14160,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_NormCast_evalNormCast0
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalNormCast0", 13);
+x_1 = lean_mk_string_unchecked("evalNormCast0", 13, 13);
 return x_1;
 }
 }
@@ -14441,7 +14441,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_NormCast_evalConvNormC
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Conv", 4);
+x_1 = lean_mk_string_unchecked("Conv", 4, 4);
 return x_1;
 }
 }
@@ -14449,7 +14449,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_NormCast_evalConvNormC
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("normCast", 8);
+x_1 = lean_mk_string_unchecked("normCast", 8, 8);
 return x_1;
 }
 }
@@ -14470,7 +14470,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_NormCast_evalConvNormC
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalConvNormCast", 16);
+x_1 = lean_mk_string_unchecked("evalConvNormCast", 16, 16);
 return x_1;
 }
 }
@@ -14937,7 +14937,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_NormCast_evalPushCast_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pushCast", 8);
+x_1 = lean_mk_string_unchecked("pushCast", 8, 8);
 return x_1;
 }
 }
@@ -14957,7 +14957,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_NormCast_evalPushCast_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalPushCast", 12);
+x_1 = lean_mk_string_unchecked("evalPushCast", 12, 12);
 return x_1;
 }
 }
@@ -15148,7 +15148,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("normCastAddElim", 15);
+x_1 = lean_mk_string_unchecked("normCastAddElim", 15, 15);
 return x_1;
 }
 }
@@ -15168,7 +15168,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ident", 5);
+x_1 = lean_mk_string_unchecked("ident", 5, 5);
 return x_1;
 }
 }
@@ -15382,7 +15382,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_NormCast_elabAddElim__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elabAddElim", 11);
+x_1 = lean_mk_string_unchecked("elabAddElim", 11, 11);
 return x_1;
 }
 }

@@ -1345,7 +1345,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_getType___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown free variable ", 22);
+x_1 = lean_mk_string_unchecked("unknown free variable ", 22, 22);
 return x_1;
 }
 }
@@ -1362,7 +1362,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_getType___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -2651,7 +2651,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_getParam___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown parameter ", 18);
+x_1 = lean_mk_string_unchecked("unknown parameter ", 18, 18);
 return x_1;
 }
 }
@@ -2885,7 +2885,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_getLetDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown let-declaration ", 24);
+x_1 = lean_mk_string_unchecked("unknown let-declaration ", 24, 24);
 return x_1;
 }
 }
@@ -3119,7 +3119,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_getFunDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown local function ", 23);
+x_1 = lean_mk_string_unchecked("unknown local function ", 23, 23);
 return x_1;
 }
 }
@@ -4044,7 +4044,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.CompilerM", 28);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.CompilerM", 28, 28);
 return x_1;
 }
 }
@@ -4052,7 +4052,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Compiler.LCNF.CompilerM.0.Lean.Compiler.LCNF.normExprImp.go", 73);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.CompilerM.0.Lean.Compiler.LCNF.normExprImp.go", 73, 73);
 return x_1;
 }
 }
@@ -4060,7 +4060,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -4468,7 +4468,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid LCNF substitution of free variable with expression ", 59);
+x_1 = lean_mk_string_unchecked("invalid LCNF substitution of free variable with expression ", 59, 59);
 return x_1;
 }
 }
@@ -4476,7 +4476,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Compiler.LCNF.CompilerM.0.Lean.Compiler.LCNF.normFVarImp", 70);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.CompilerM.0.Lean.Compiler.LCNF.normFVarImp", 70, 70);
 return x_1;
 }
 }
@@ -5993,7 +5993,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_mkParam___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_y", 2);
+x_1 = lean_mk_string_unchecked("_y", 2, 2);
 return x_1;
 }
 }
@@ -6150,7 +6150,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_mkLetDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_x", 2);
+x_1 = lean_mk_string_unchecked("_x", 2, 2);
 return x_1;
 }
 }
@@ -6273,7 +6273,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_mkFunDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_f", 2);
+x_1 = lean_mk_string_unchecked("_f", 2, 2);
 return x_1;
 }
 }
@@ -10429,7 +10429,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_mkFreshJpName___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_jp", 3);
+x_1 = lean_mk_string_unchecked("_jp", 3, 3);
 return x_1;
 }
 }

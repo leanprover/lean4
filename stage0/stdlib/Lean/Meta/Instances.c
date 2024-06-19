@@ -503,7 +503,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_6_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("synthInstance", 13);
+x_1 = lean_mk_string_unchecked("synthInstance", 13, 13);
 return x_1;
 }
 }
@@ -511,7 +511,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_6_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("checkSynthOrder", 15);
+x_1 = lean_mk_string_unchecked("checkSynthOrder", 15, 15);
 return x_1;
 }
 }
@@ -529,7 +529,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_6_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -537,7 +537,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_6_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("check that instances do not introduce metavariable in non-out-params", 68);
+x_1 = lean_mk_string_unchecked("check that instances do not introduce metavariable in non-out-params", 68, 68);
 return x_1;
 }
 }
@@ -560,7 +560,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_6_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -568,7 +568,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_6_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -673,7 +673,7 @@ static lean_object* _init_l_Lean_Meta_instToFormatInstanceEntry___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("<local>", 7);
+x_1 = lean_mk_string_unchecked("<local>", 7, 7);
 return x_1;
 }
 }
@@ -2035,7 +2035,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_addIns
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.DiscrTree", 19);
+x_1 = lean_mk_string_unchecked("Lean.Meta.DiscrTree", 19, 19);
 return x_1;
 }
 }
@@ -2043,7 +2043,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_addIns
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.DiscrTree.insertCore", 30);
+x_1 = lean_mk_string_unchecked("Lean.Meta.DiscrTree.insertCore", 30, 30);
 return x_1;
 }
 }
@@ -2051,7 +2051,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_addIns
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid key sequence", 20);
+x_1 = lean_mk_string_unchecked("invalid key sequence", 20, 20);
 return x_1;
 }
 }
@@ -3698,7 +3698,7 @@ static lean_object* _init_l_Lean_Meta_Instances_erase___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -3715,7 +3715,7 @@ static lean_object* _init_l_Lean_Meta_Instances_erase___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' does not have [instance] attribute", 36);
+x_1 = lean_mk_string_unchecked("' does not have [instance] attribute", 36, 36);
 return x_1;
 }
 }
@@ -3836,7 +3836,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_39
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instanceExtension", 17);
+x_1 = lean_mk_string_unchecked("instanceExtension", 17, 17);
 return x_1;
 }
 }
@@ -4030,7 +4030,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Meta_Inst
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("semiOutParam", 12);
+x_1 = lean_mk_string_unchecked("semiOutParam", 12, 12);
 return x_1;
 }
 }
@@ -6173,7 +6173,7 @@ static lean_object* _init_l_Lean_logAt___at___private_Lean_Meta_Instances_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -6181,7 +6181,7 @@ static lean_object* _init_l_Lean_logAt___at___private_Lean_Meta_Instances_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -6189,7 +6189,7 @@ static lean_object* _init_l_Lean_logAt___at___private_Lean_Meta_Instances_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unsolvedGoals", 13);
+x_1 = lean_mk_string_unchecked("unsolvedGoals", 13, 13);
 return x_1;
 }
 }
@@ -6197,7 +6197,7 @@ static lean_object* _init_l_Lean_logAt___at___private_Lean_Meta_Instances_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("synthPlaceholder", 16);
+x_1 = lean_mk_string_unchecked("synthPlaceholder", 16, 16);
 return x_1;
 }
 }
@@ -7989,7 +7989,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at___private_Lean_Meta_Instan
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cannot find synthesization order for instance ", 46);
+x_1 = lean_mk_string_unchecked("cannot find synthesization order for instance ", 46, 46);
 return x_1;
 }
 }
@@ -8006,7 +8006,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at___private_Lean_Meta_Instan
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" with type", 10);
+x_1 = lean_mk_string_unchecked(" with type", 10, 10);
 return x_1;
 }
 }
@@ -8023,7 +8023,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at___private_Lean_Meta_Instan
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nall remaining arguments have metavariables:", 44);
+x_1 = lean_mk_string_unchecked("\nall remaining arguments have metavariables:", 44, 44);
 return x_1;
 }
 }
@@ -9466,7 +9466,7 @@ static lean_object* _init_l___private_Lean_Meta_Instances_0__Lean_Meta_computeSy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("synthOrder", 10);
+x_1 = lean_mk_string_unchecked("synthOrder", 10, 10);
 return x_1;
 }
 }
@@ -9484,7 +9484,7 @@ static lean_object* _init_l___private_Lean_Meta_Instances_0__Lean_Meta_computeSy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("synthesizing the arguments of ", 30);
+x_1 = lean_mk_string_unchecked("synthesizing the arguments of ", 30, 30);
 return x_1;
 }
 }
@@ -9501,7 +9501,7 @@ static lean_object* _init_l___private_Lean_Meta_Instances_0__Lean_Meta_computeSy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" in the order ", 14);
+x_1 = lean_mk_string_unchecked(" in the order ", 14, 14);
 return x_1;
 }
 }
@@ -9518,7 +9518,7 @@ static lean_object* _init_l___private_Lean_Meta_Instances_0__Lean_Meta_computeSy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
@@ -9693,7 +9693,7 @@ static lean_object* _init_l___private_Lean_Meta_Instances_0__Lean_Meta_computeSy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instance does not provide concrete values for (semi-)out-params", 63);
+x_1 = lean_mk_string_unchecked("instance does not provide concrete values for (semi-)out-params", 63, 63);
 return x_1;
 }
 }
@@ -12045,7 +12045,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_25
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -12063,7 +12063,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_25
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -12101,7 +12101,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_25
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Instances", 9);
+x_1 = lean_mk_string_unchecked("Instances", 9, 9);
 return x_1;
 }
 }
@@ -12119,7 +12119,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_25
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -12147,7 +12147,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_25
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instance", 8);
+x_1 = lean_mk_string_unchecked("instance", 8, 8);
 return x_1;
 }
 }
@@ -12165,7 +12165,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_25
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("type class instance", 19);
+x_1 = lean_mk_string_unchecked("type class instance", 19, 19);
 return x_1;
 }
 }
@@ -15603,7 +15603,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_31
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("defaultInstanceExtension", 24);
+x_1 = lean_mk_string_unchecked("defaultInstanceExtension", 24, 24);
 return x_1;
 }
 }
@@ -15747,7 +15747,7 @@ static lean_object* _init_l_Lean_Meta_addDefaultInstance___lambda__2___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid default instance '", 26);
+x_1 = lean_mk_string_unchecked("invalid default instance '", 26, 26);
 return x_1;
 }
 }
@@ -15764,7 +15764,7 @@ static lean_object* _init_l_Lean_Meta_addDefaultInstance___lambda__2___closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', type must be of the form '(C ...)' where 'C' is a type class", 63);
+x_1 = lean_mk_string_unchecked("', type must be of the form '(C ...)' where 'C' is a type class", 63, 63);
 return x_1;
 }
 }
@@ -15781,7 +15781,7 @@ static lean_object* _init_l_Lean_Meta_addDefaultInstance___lambda__2___closed__5
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', it has type '(", 17);
+x_1 = lean_mk_string_unchecked("', it has type '(", 17, 17);
 return x_1;
 }
 }
@@ -15798,7 +15798,7 @@ static lean_object* _init_l_Lean_Meta_addDefaultInstance___lambda__2___closed__7
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ...)', but ", 12);
+x_1 = lean_mk_string_unchecked(" ...)', but ", 12, 12);
 return x_1;
 }
 }
@@ -15815,7 +15815,7 @@ static lean_object* _init_l_Lean_Meta_addDefaultInstance___lambda__2___closed__9
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' is not a type class", 21);
+x_1 = lean_mk_string_unchecked("' is not a type class", 21, 21);
 return x_1;
 }
 }
@@ -16005,7 +16005,7 @@ static lean_object* _init_l_Lean_Meta_addDefaultInstance___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
+x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
 return x_1;
 }
 }
@@ -16223,7 +16223,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_34
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid attribute 'default_instance', must be global", 52);
+x_1 = lean_mk_string_unchecked("invalid attribute 'default_instance', must be global", 52, 52);
 return x_1;
 }
 }
@@ -16322,7 +16322,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_34
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attribute cannot be erased", 26);
+x_1 = lean_mk_string_unchecked("attribute cannot be erased", 26, 26);
 return x_1;
 }
 }
@@ -16358,7 +16358,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_34
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("default_instance", 16);
+x_1 = lean_mk_string_unchecked("default_instance", 16, 16);
 return x_1;
 }
 }
@@ -16376,7 +16376,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_34
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("type class default instance", 27);
+x_1 = lean_mk_string_unchecked("type class default instance", 27, 27);
 return x_1;
 }
 }

@@ -507,7 +507,7 @@ static lean_object* _init_l___auto____x40_Lean_Compiler_LCNF_PhaseExt___hyg_63__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -515,7 +515,7 @@ static lean_object* _init_l___auto____x40_Lean_Compiler_LCNF_PhaseExt___hyg_63__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -523,7 +523,7 @@ static lean_object* _init_l___auto____x40_Lean_Compiler_LCNF_PhaseExt___hyg_63__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -531,7 +531,7 @@ static lean_object* _init_l___auto____x40_Lean_Compiler_LCNF_PhaseExt___hyg_63__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq", 9);
+x_1 = lean_mk_string_unchecked("tacticSeq", 9, 9);
 return x_1;
 }
 }
@@ -551,7 +551,7 @@ static lean_object* _init_l___auto____x40_Lean_Compiler_LCNF_PhaseExt___hyg_63__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq1Indented", 18);
+x_1 = lean_mk_string_unchecked("tacticSeq1Indented", 18, 18);
 return x_1;
 }
 }
@@ -571,7 +571,7 @@ static lean_object* _init_l___auto____x40_Lean_Compiler_LCNF_PhaseExt___hyg_63__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -589,7 +589,7 @@ static lean_object* _init_l___auto____x40_Lean_Compiler_LCNF_PhaseExt___hyg_63__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("exact", 5);
+x_1 = lean_mk_string_unchecked("exact", 5, 5);
 return x_1;
 }
 }
@@ -631,7 +631,7 @@ static lean_object* _init_l___auto____x40_Lean_Compiler_LCNF_PhaseExt___hyg_63__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -639,7 +639,7 @@ static lean_object* _init_l___auto____x40_Lean_Compiler_LCNF_PhaseExt___hyg_63__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declName", 8);
+x_1 = lean_mk_string_unchecked("declName", 8, 8);
 return x_1;
 }
 }
@@ -659,7 +659,7 @@ static lean_object* _init_l___auto____x40_Lean_Compiler_LCNF_PhaseExt___hyg_63__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("decl_name%", 10);
+x_1 = lean_mk_string_unchecked("decl_name%", 10, 10);
 return x_1;
 }
 }
@@ -1550,7 +1550,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Compiler", 8);
+x_1 = lean_mk_string_unchecked("Compiler", 8, 8);
 return x_1;
 }
 }
@@ -1558,7 +1558,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LCNF", 4);
+x_1 = lean_mk_string_unchecked("LCNF", 4, 4);
 return x_1;
 }
 }
@@ -1566,7 +1566,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("baseExt", 7);
+x_1 = lean_mk_string_unchecked("baseExt", 7, 7);
 return x_1;
 }
 }
@@ -1595,7 +1595,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("monoExt", 7);
+x_1 = lean_mk_string_unchecked("monoExt", 7, 7);
 return x_1;
 }
 }
@@ -2330,7 +2330,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Decl_save___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.PhaseExt", 27);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.PhaseExt", 27, 27);
 return x_1;
 }
 }
@@ -2338,7 +2338,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Decl_save___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.Decl.save", 28);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.Decl.save", 28, 28);
 return x_1;
 }
 }
@@ -2346,7 +2346,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Decl_save___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -2504,7 +2504,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_getExt___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.getExt", 25);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.getExt", 25, 25);
 return x_1;
 }
 }
@@ -3300,7 +3300,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_forEachModuleDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("module `", 8);
+x_1 = lean_mk_string_unchecked("module `", 8, 8);
 return x_1;
 }
 }
@@ -3317,7 +3317,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_forEachModuleDecl___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` not found", 11);
+x_1 = lean_mk_string_unchecked("` not found", 11, 11);
 return x_1;
 }
 }

@@ -106,7 +106,7 @@ static lean_object* _init_l_Lean_MVarId_falseOrByContra___lambda__1___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("False", 5);
+x_1 = lean_mk_string_unchecked("False", 5, 5);
 return x_1;
 }
 }
@@ -114,7 +114,7 @@ static lean_object* _init_l_Lean_MVarId_falseOrByContra___lambda__1___closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elim", 4);
+x_1 = lean_mk_string_unchecked("elim", 4, 4);
 return x_1;
 }
 }
@@ -147,7 +147,7 @@ static lean_object* _init_l_Lean_MVarId_falseOrByContra___lambda__1___closed__5(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.Tactic.FalseOrByContra", 32);
+x_1 = lean_mk_string_unchecked("Lean.Elab.Tactic.FalseOrByContra", 32, 32);
 return x_1;
 }
 }
@@ -155,7 +155,7 @@ static lean_object* _init_l_Lean_MVarId_falseOrByContra___lambda__1___closed__6(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.MVarId.falseOrByContra", 27);
+x_1 = lean_mk_string_unchecked("Lean.MVarId.falseOrByContra", 27, 27);
 return x_1;
 }
 }
@@ -163,7 +163,7 @@ static lean_object* _init_l_Lean_MVarId_falseOrByContra___lambda__1___closed__7(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected one sugoal", 19);
+x_1 = lean_mk_string_unchecked("expected one sugoal", 19, 19);
 return x_1;
 }
 }
@@ -184,7 +184,7 @@ static lean_object* _init_l_Lean_MVarId_falseOrByContra___lambda__1___closed__9(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected one subgoal", 20);
+x_1 = lean_mk_string_unchecked("expected one subgoal", 20, 20);
 return x_1;
 }
 }
@@ -407,7 +407,7 @@ static lean_object* _init_l_Lean_MVarId_falseOrByContra___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Decidable", 9);
+x_1 = lean_mk_string_unchecked("Decidable", 9, 9);
 return x_1;
 }
 }
@@ -415,7 +415,7 @@ static lean_object* _init_l_Lean_MVarId_falseOrByContra___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("byContradiction", 15);
+x_1 = lean_mk_string_unchecked("byContradiction", 15, 15);
 return x_1;
 }
 }
@@ -433,7 +433,7 @@ static lean_object* _init_l_Lean_MVarId_falseOrByContra___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Classical", 9);
+x_1 = lean_mk_string_unchecked("Classical", 9, 9);
 return x_1;
 }
 }
@@ -451,7 +451,7 @@ static lean_object* _init_l_Lean_MVarId_falseOrByContra___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Not", 3);
+x_1 = lean_mk_string_unchecked("Not", 3, 3);
 return x_1;
 }
 }
@@ -6323,7 +6323,7 @@ static lean_object* _init_l_Lean_MVarId_elabFalseOrByContra___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -6331,7 +6331,7 @@ static lean_object* _init_l_Lean_MVarId_elabFalseOrByContra___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -6339,7 +6339,7 @@ static lean_object* _init_l_Lean_MVarId_elabFalseOrByContra___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -6347,7 +6347,7 @@ static lean_object* _init_l_Lean_MVarId_elabFalseOrByContra___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("falseOrByContra", 15);
+x_1 = lean_mk_string_unchecked("falseOrByContra", 15, 15);
 return x_1;
 }
 }
@@ -6432,7 +6432,7 @@ static lean_object* _init_l___regBuiltin_Lean_MVarId_elabFalseOrByContra__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("MVarId", 6);
+x_1 = lean_mk_string_unchecked("MVarId", 6, 6);
 return x_1;
 }
 }
@@ -6440,7 +6440,7 @@ static lean_object* _init_l___regBuiltin_Lean_MVarId_elabFalseOrByContra__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elabFalseOrByContra", 19);
+x_1 = lean_mk_string_unchecked("elabFalseOrByContra", 19, 19);
 return x_1;
 }
 }

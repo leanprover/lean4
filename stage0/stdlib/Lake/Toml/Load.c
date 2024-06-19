@@ -161,7 +161,7 @@ static lean_object* _init_l_Lake_Toml_loadToml___lambda__2___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("end of input", 12);
+x_1 = lean_mk_string_unchecked("end of input", 12, 12);
 return x_1;
 }
 }
@@ -181,7 +181,7 @@ static lean_object* _init_l_Lake_Toml_loadToml___lambda__2___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -222,7 +222,7 @@ static lean_object* _init_l_Lake_Toml_loadToml___lambda__2___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_uniq", 5);
+x_1 = lean_mk_string_unchecked("_uniq", 5, 5);
 return x_1;
 }
 }
@@ -845,7 +845,7 @@ static lean_object* _init_l_Lake_Toml_loadToml___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to initialize TOML environment: ", 39);
+x_1 = lean_mk_string_unchecked("failed to initialize TOML environment: ", 39, 39);
 return x_1;
 }
 }

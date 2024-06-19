@@ -376,7 +376,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_ArgsPacker_Una
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PSigma", 6);
+x_1 = lean_mk_string_unchecked("PSigma", 6, 6);
 return x_1;
 }
 }
@@ -680,7 +680,7 @@ static lean_object* _init_l_Lean_Meta_ArgsPacker_Unary_pack_go___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("assertion violation: ", 21);
+x_1 = lean_mk_string_unchecked("assertion violation: ", 21, 21);
 return x_1;
 }
 }
@@ -688,7 +688,7 @@ static lean_object* _init_l_Lean_Meta_ArgsPacker_Unary_pack_go___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("type.isAppOfArity ``PSigma 2\n      ", 35);
+x_1 = lean_mk_string_unchecked("type.isAppOfArity ``PSigma 2\n      ", 35, 35);
 return x_1;
 }
 }
@@ -706,7 +706,7 @@ static lean_object* _init_l_Lean_Meta_ArgsPacker_Unary_pack_go___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.ArgsPacker", 20);
+x_1 = lean_mk_string_unchecked("Lean.Meta.ArgsPacker", 20, 20);
 return x_1;
 }
 }
@@ -714,7 +714,7 @@ static lean_object* _init_l_Lean_Meta_ArgsPacker_Unary_pack_go___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.ArgsPacker.Unary.pack.go", 34);
+x_1 = lean_mk_string_unchecked("Lean.Meta.ArgsPacker.Unary.pack.go", 34, 34);
 return x_1;
 }
 }
@@ -735,7 +735,7 @@ static lean_object* _init_l_Lean_Meta_ArgsPacker_Unary_pack_go___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("β.isLambda\n      ", 18);
+x_1 = lean_mk_string_unchecked("β.isLambda\n      ", 18, 17);
 return x_1;
 }
 }
@@ -766,7 +766,7 @@ static lean_object* _init_l_Lean_Meta_ArgsPacker_Unary_pack_go___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mk", 2);
+x_1 = lean_mk_string_unchecked("mk", 2, 2);
 return x_1;
 }
 }
@@ -952,7 +952,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at_Lean_Meta_ArgsPacker_Unary
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Unexpected expression while unpacking n-ary argument", 52);
+x_1 = lean_mk_string_unchecked("Unexpected expression while unpacking n-ary argument", 52, 52);
 return x_1;
 }
 }
@@ -1397,7 +1397,7 @@ static lean_object* _init_l_Lean_Meta_ArgsPacker_Unary_uncurryType___lambda__2__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("xs.size = varNames.size\n    ", 28);
+x_1 = lean_mk_string_unchecked("xs.size = varNames.size\n    ", 28, 28);
 return x_1;
 }
 }
@@ -1415,7 +1415,7 @@ static lean_object* _init_l_Lean_Meta_ArgsPacker_Unary_uncurryType___lambda__2__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.ArgsPacker.Unary.uncurryType", 38);
+x_1 = lean_mk_string_unchecked("Lean.Meta.ArgsPacker.Unary.uncurryType", 38, 38);
 return x_1;
 }
 }
@@ -1436,7 +1436,7 @@ static lean_object* _init_l_Lean_Meta_ArgsPacker_Unary_uncurryType___lambda__2__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_x", 2);
+x_1 = lean_mk_string_unchecked("_x", 2, 2);
 return x_1;
 }
 }
@@ -1696,7 +1696,7 @@ static lean_object* _init_l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPack
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("casesOn", 7);
+x_1 = lean_mk_string_unchecked("casesOn", 7, 7);
 return x_1;
 }
 }
@@ -1858,7 +1858,7 @@ static lean_object* _init_l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPack
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ArgsPacker.Binary.casesOn: Expected PSigma type, got ", 53);
+x_1 = lean_mk_string_unchecked("ArgsPacker.Binary.casesOn: Expected PSigma type, got ", 53, 53);
 return x_1;
 }
 }
@@ -1875,7 +1875,7 @@ static lean_object* _init_l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPack
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -2171,7 +2171,7 @@ static lean_object* _init_l_Lean_Meta_ArgsPacker_Unary_uncurry___lambda__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.ArgsPacker.Unary.uncurry", 34);
+x_1 = lean_mk_string_unchecked("Lean.Meta.ArgsPacker.Unary.uncurry", 34, 34);
 return x_1;
 }
 }
@@ -2179,7 +2179,7 @@ static lean_object* _init_l_Lean_Meta_ArgsPacker_Unary_uncurry___lambda__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -2517,7 +2517,7 @@ static lean_object* _init_l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPack
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("curryType: Expected PSigma type, got ", 37);
+x_1 = lean_mk_string_unchecked("curryType: Expected PSigma type, got ", 37, 37);
 return x_1;
 }
 }
@@ -2679,7 +2679,7 @@ static lean_object* _init_l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPack
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("curryType: Expected arrow type, got ", 36);
+x_1 = lean_mk_string_unchecked("curryType: Expected arrow type, got ", 36, 36);
 return x_1;
 }
 }
@@ -2757,7 +2757,7 @@ static lean_object* _init_l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPack
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Unit", 4);
+x_1 = lean_mk_string_unchecked("Unit", 4, 4);
 return x_1;
 }
 }
@@ -2925,7 +2925,7 @@ static lean_object* _init_l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPack
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("curryPSigma: Expected PSigma type, got ", 39);
+x_1 = lean_mk_string_unchecked("curryPSigma: Expected PSigma type, got ", 39, 39);
 return x_1;
 }
 }
@@ -3116,7 +3116,7 @@ static lean_object* _init_l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPack
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("curryPSigma: expected forall type, got ", 39);
+x_1 = lean_mk_string_unchecked("curryPSigma: expected forall type, got ", 39, 39);
 return x_1;
 }
 }
@@ -3281,7 +3281,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_ArgsPacker_Mut
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PSum", 4);
+x_1 = lean_mk_string_unchecked("PSum", 4, 4);
 return x_1;
 }
 }
@@ -3545,7 +3545,7 @@ static lean_object* _init_l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPack
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Mutual.unpackType: Expected PSum type, got ", 43);
+x_1 = lean_mk_string_unchecked("Mutual.unpackType: Expected PSum type, got ", 43, 43);
 return x_1;
 }
 }
@@ -3728,7 +3728,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Meta_ArgsPacker_Mutua
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("args.size == 2\n        ", 23);
+x_1 = lean_mk_string_unchecked("args.size == 2\n        ", 23, 23);
 return x_1;
 }
 }
@@ -3746,7 +3746,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Meta_ArgsPacker_Mutua
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.ArgsPacker.Mutual.pack.go", 35);
+x_1 = lean_mk_string_unchecked("Lean.Meta.ArgsPacker.Mutual.pack.go", 35, 35);
 return x_1;
 }
 }
@@ -3767,7 +3767,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Meta_ArgsPacker_Mutua
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inr", 3);
+x_1 = lean_mk_string_unchecked("inr", 3, 3);
 return x_1;
 }
 }
@@ -3785,7 +3785,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Meta_ArgsPacker_Mutua
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inl", 3);
+x_1 = lean_mk_string_unchecked("inl", 3, 3);
 return x_1;
 }
 }
@@ -4273,7 +4273,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at_Lean_Meta_ArgsPacker_Mutua
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Unexpected expression while unpacking mutual argument:", 54);
+x_1 = lean_mk_string_unchecked("Unexpected expression while unpacking mutual argument:", 54, 54);
 return x_1;
 }
 }
@@ -4743,7 +4743,7 @@ static lean_object* _init_l_Lean_Meta_ArgsPacker_Mutual_mkCodomain_go___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("xType.isAppOfArity ``PSum 2\n      ", 34);
+x_1 = lean_mk_string_unchecked("xType.isAppOfArity ``PSum 2\n      ", 34, 34);
 return x_1;
 }
 }
@@ -4761,7 +4761,7 @@ static lean_object* _init_l_Lean_Meta_ArgsPacker_Mutual_mkCodomain_go___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.ArgsPacker.Mutual.mkCodomain.go", 41);
+x_1 = lean_mk_string_unchecked("Lean.Meta.ArgsPacker.Mutual.mkCodomain.go", 41, 41);
 return x_1;
 }
 }
@@ -5513,7 +5513,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Meta_ArgsPacker_Mu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Mutual.uncurryType: Expected forall type, got ", 46);
+x_1 = lean_mk_string_unchecked("Mutual.uncurryType: Expected forall type, got ", 46, 46);
 return x_1;
 }
 }
@@ -5654,7 +5654,7 @@ static lean_object* _init_l_Lean_Meta_ArgsPacker_Mutual_uncurryType___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("x", 1);
+x_1 = lean_mk_string_unchecked("x", 1, 1);
 return x_1;
 }
 }
@@ -5907,7 +5907,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Meta_ArgsPacker_Mu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Mutual.uncurryTypeND: Expected equal codomains, but got ", 56);
+x_1 = lean_mk_string_unchecked("Mutual.uncurryTypeND: Expected equal codomains, but got ", 56, 56);
 return x_1;
 }
 }
@@ -5924,7 +5924,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Meta_ArgsPacker_Mu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" and ", 5);
+x_1 = lean_mk_string_unchecked(" and ", 5, 5);
 return x_1;
 }
 }
@@ -6072,7 +6072,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Meta_ArgsPacker_Mu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Mutual.uncurryTypeND: Expected non-dependent types, got ", 56);
+x_1 = lean_mk_string_unchecked("Mutual.uncurryTypeND: Expected non-dependent types, got ", 56, 56);
 return x_1;
 }
 }
@@ -6772,7 +6772,7 @@ static lean_object* _init_l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPack
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Mutual.casesOn: Expected PSum type, got ", 40);
+x_1 = lean_mk_string_unchecked("Mutual.casesOn: Expected PSum type, got ", 40, 40);
 return x_1;
 }
 }
@@ -6806,7 +6806,7 @@ static lean_object* _init_l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPack
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Mutual.casesOn: no alternatives", 31);
+x_1 = lean_mk_string_unchecked("Mutual.casesOn: no alternatives", 31, 31);
 return x_1;
 }
 }
@@ -7141,7 +7141,7 @@ static lean_object* _init_l_Lean_Meta_ArgsPacker_Mutual_uncurry___lambda__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.ArgsPacker.Mutual.uncurry", 35);
+x_1 = lean_mk_string_unchecked("Lean.Meta.ArgsPacker.Mutual.uncurry", 35, 35);
 return x_1;
 }
 }
@@ -7361,7 +7361,7 @@ static lean_object* _init_l_Lean_Meta_ArgsPacker_Mutual_uncurryND___lambda__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.ArgsPacker.Mutual.uncurryND", 37);
+x_1 = lean_mk_string_unchecked("Lean.Meta.ArgsPacker.Mutual.uncurryND", 37, 37);
 return x_1;
 }
 }
@@ -7797,7 +7797,7 @@ static lean_object* _init_l_Lean_Meta_ArgsPacker_pack___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fidx < argsPacker.numFuncs\n  ", 29);
+x_1 = lean_mk_string_unchecked("fidx < argsPacker.numFuncs\n  ", 29, 29);
 return x_1;
 }
 }
@@ -7815,7 +7815,7 @@ static lean_object* _init_l_Lean_Meta_ArgsPacker_pack___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.ArgsPacker.pack", 25);
+x_1 = lean_mk_string_unchecked("Lean.Meta.ArgsPacker.pack", 25, 25);
 return x_1;
 }
 }
@@ -7836,7 +7836,7 @@ static lean_object* _init_l_Lean_Meta_ArgsPacker_pack___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("args.size == argsPacker.varNamess[fidx]!.size\n  ", 48);
+x_1 = lean_mk_string_unchecked("args.size == argsPacker.varNamess[fidx]!.size\n  ", 48, 48);
 return x_1;
 }
 }
@@ -8910,7 +8910,7 @@ static lean_object* _init_l_Lean_Meta_ArgsPacker_curryProj___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("curryProj: index out of range", 29);
+x_1 = lean_mk_string_unchecked("curryProj: index out of range", 29, 29);
 return x_1;
 }
 }
@@ -9654,7 +9654,7 @@ static lean_object* _init_l_Lean_Meta_ArgsPacker_curryParam___rarg___lambda__3__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("uncurryParam: unexpected packed motive ", 39);
+x_1 = lean_mk_string_unchecked("uncurryParam: unexpected packed motive ", 39, 39);
 return x_1;
 }
 }
@@ -9726,7 +9726,7 @@ static lean_object* _init_l_Lean_Meta_ArgsPacker_curryParam___rarg___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("uncurryParam: expected forall, got ", 35);
+x_1 = lean_mk_string_unchecked("uncurryParam: expected forall, got ", 35, 35);
 return x_1;
 }
 }

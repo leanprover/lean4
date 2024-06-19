@@ -622,7 +622,7 @@ static lean_object* _init_l_List_repr___at___private_Lean_Compiler_LCNF_ElimDead
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[]", 2);
+x_1 = lean_mk_string_unchecked("[]", 2, 2);
 return x_1;
 }
 }
@@ -640,7 +640,7 @@ static lean_object* _init_l_List_repr___at___private_Lean_Compiler_LCNF_ElimDead
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -670,7 +670,7 @@ static lean_object* _init_l_List_repr___at___private_Lean_Compiler_LCNF_ElimDead
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -706,7 +706,7 @@ static lean_object* _init_l_List_repr___at___private_Lean_Compiler_LCNF_ElimDead
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -790,7 +790,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_ElimDeadBranches_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.UnreachableBranches.Value.bot", 48);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.UnreachableBranches.Value.bot", 48, 48);
 return x_1;
 }
 }
@@ -874,7 +874,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_ElimDeadBranches_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.UnreachableBranches.Value.top", 48);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.UnreachableBranches.Value.top", 48, 48);
 return x_1;
 }
 }
@@ -940,7 +940,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_ElimDeadBranches_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.UnreachableBranches.Value.ctor", 49);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.UnreachableBranches.Value.ctor", 49, 49);
 return x_1;
 }
 }
@@ -970,7 +970,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_ElimDeadBranches_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#[", 2);
+x_1 = lean_mk_string_unchecked("#[", 2, 2);
 return x_1;
 }
 }
@@ -1006,7 +1006,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_ElimDeadBranches_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#[]", 3);
+x_1 = lean_mk_string_unchecked("#[]", 3, 3);
 return x_1;
 }
 }
@@ -1024,7 +1024,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_ElimDeadBranches_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.UnreachableBranches.Value.choice", 51);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.UnreachableBranches.Value.choice", 51, 51);
 return x_1;
 }
 }
@@ -1716,7 +1716,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_UnreachableBranches_Value_addChoi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.ElimDeadBranches", 35);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.ElimDeadBranches", 35, 35);
 return x_1;
 }
 }
@@ -1724,7 +1724,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_UnreachableBranches_Value_addChoi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.UnreachableBranches.Value.addChoice", 54);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.UnreachableBranches.Value.addChoice", 54, 54);
 return x_1;
 }
 }
@@ -1732,7 +1732,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_UnreachableBranches_Value_addChoi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid addChoice", 17);
+x_1 = lean_mk_string_unchecked("invalid addChoice", 17, 17);
 return x_1;
 }
 }
@@ -3481,7 +3481,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_UnreachableBranches_Value_ofNat_g
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Nat", 3);
+x_1 = lean_mk_string_unchecked("Nat", 3, 3);
 return x_1;
 }
 }
@@ -3489,7 +3489,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_UnreachableBranches_Value_ofNat_g
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("succ", 4);
+x_1 = lean_mk_string_unchecked("succ", 4, 4);
 return x_1;
 }
 }
@@ -3557,7 +3557,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_UnreachableBranches_Value_ofNat_g
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("zero", 4);
+x_1 = lean_mk_string_unchecked("zero", 4, 4);
 return x_1;
 }
 }
@@ -3865,7 +3865,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_UnreachableBranches_Value_getLite
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.UnreachableBranches.Value.getLiteral.getNatConstant", 70);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.UnreachableBranches.Value.getLiteral.getNatConstant", 70, 70);
 return x_1;
 }
 }
@@ -3873,7 +3873,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_UnreachableBranches_Value_getLite
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Not a well formed Nat constant Value", 36);
+x_1 = lean_mk_string_unchecked("Not a well formed Nat constant Value", 36, 36);
 return x_1;
 }
 }
@@ -4223,7 +4223,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_UnreachableBranches_Value_getLite
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.UnreachableBranches.Value.getLiteral.go", 58);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.UnreachableBranches.Value.getLiteral.go", 58, 58);
 return x_1;
 }
 }
@@ -4231,7 +4231,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_UnreachableBranches_Value_getLite
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -4252,7 +4252,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_UnreachableBranches_Value_getLite
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_x", 2);
+x_1 = lean_mk_string_unchecked("_x", 2, 2);
 return x_1;
 }
 }
@@ -7453,7 +7453,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_UnreachableBranches_initFn____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -7461,7 +7461,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_UnreachableBranches_initFn____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Compiler", 8);
+x_1 = lean_mk_string_unchecked("Compiler", 8, 8);
 return x_1;
 }
 }
@@ -7469,7 +7469,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_UnreachableBranches_initFn____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LCNF", 4);
+x_1 = lean_mk_string_unchecked("LCNF", 4, 4);
 return x_1;
 }
 }
@@ -7477,7 +7477,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_UnreachableBranches_initFn____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("UnreachableBranches", 19);
+x_1 = lean_mk_string_unchecked("UnreachableBranches", 19, 19);
 return x_1;
 }
 }
@@ -7485,7 +7485,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_UnreachableBranches_initFn____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("functionSummariesExt", 20);
+x_1 = lean_mk_string_unchecked("functionSummariesExt", 20, 20);
 return x_1;
 }
 }
@@ -14013,7 +14013,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Compiler_LCNF_UnreachableBra
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -14817,7 +14817,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_Unreach
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elimDeadBranches", 16);
+x_1 = lean_mk_string_unchecked("elimDeadBranches", 16, 16);
 return x_1;
 }
 }
@@ -14835,7 +14835,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_Unreach
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Threw away cases ", 17);
+x_1 = lean_mk_string_unchecked("Threw away cases ", 17, 17);
 return x_1;
 }
 }
@@ -14843,7 +14843,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_Unreach
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" branch ", 8);
+x_1 = lean_mk_string_unchecked(" branch ", 8, 8);
 return x_1;
 }
 }
@@ -16965,7 +16965,7 @@ static lean_object* _init_l_Prod_repr___at_Lean_Compiler_LCNF_UnreachableBranche
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -17001,7 +17001,7 @@ static lean_object* _init_l_Prod_repr___at_Lean_Compiler_LCNF_UnreachableBranche
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -17365,7 +17365,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_UnreachableBranches_elimDead___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eliminating ", 12);
+x_1 = lean_mk_string_unchecked("Eliminating ", 12, 12);
 return x_1;
 }
 }
@@ -17373,7 +17373,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_UnreachableBranches_elimDead___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" with ", 6);
+x_1 = lean_mk_string_unchecked(" with ", 6, 6);
 return x_1;
 }
 }
@@ -18360,7 +18360,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -18378,7 +18378,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -18426,7 +18426,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ElimDeadBranches", 16);
+x_1 = lean_mk_string_unchecked("ElimDeadBranches", 16, 16);
 return x_1;
 }
 }
@@ -18444,7 +18444,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }

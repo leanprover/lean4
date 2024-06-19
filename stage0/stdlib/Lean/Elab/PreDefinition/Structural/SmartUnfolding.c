@@ -157,7 +157,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Elab_Structural_addSmartUn
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Match.MatcherApp.Basic", 32);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Match.MatcherApp.Basic", 32, 32);
 return x_1;
 }
 }
@@ -165,7 +165,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Elab_Structural_addSmartUn
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.matchMatcherApp\?", 26);
+x_1 = lean_mk_string_unchecked("Lean.Meta.matchMatcherApp\?", 26, 26);
 return x_1;
 }
 }
@@ -173,7 +173,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Elab_Structural_addSmartUn
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -2168,7 +2168,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Structural_add
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected matcher application alternative", 42);
+x_1 = lean_mk_string_unchecked("unexpected matcher application alternative", 42, 42);
 return x_1;
 }
 }
@@ -2185,7 +2185,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Structural_add
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nat application", 15);
+x_1 = lean_mk_string_unchecked("\nat application", 15, 15);
 return x_1;
 }
 }
@@ -2202,7 +2202,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Structural_add
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }

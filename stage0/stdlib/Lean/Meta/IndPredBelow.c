@@ -578,7 +578,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_initFn____x40_Lean_Meta_IndPr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("maxBackwardChainingDepth", 24);
+x_1 = lean_mk_string_unchecked("maxBackwardChainingDepth", 24, 24);
 return x_1;
 }
 }
@@ -596,7 +596,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_initFn____x40_Lean_Meta_IndPr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -604,7 +604,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_initFn____x40_Lean_Meta_IndPr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("The maximum search depth used in the backwards chaining part of the proof of `brecOn` for inductive predicates.", 111);
+x_1 = lean_mk_string_unchecked("The maximum search depth used in the backwards chaining part of the proof of `brecOn` for inductive predicates.", 111, 111);
 return x_1;
 }
 }
@@ -626,7 +626,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_initFn____x40_Lean_Meta_IndPr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -634,7 +634,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_initFn____x40_Lean_Meta_IndPr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -642,7 +642,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_initFn____x40_Lean_Meta_IndPr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("IndPredBelow", 12);
+x_1 = lean_mk_string_unchecked("IndPredBelow", 12, 12);
 return x_1;
 }
 }
@@ -715,7 +715,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_mkContext_motiveName___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("motive", 6);
+x_1 = lean_mk_string_unchecked("motive", 6, 6);
 return x_1;
 }
 }
@@ -733,7 +733,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_mkContext_motiveName___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("motive_", 7);
+x_1 = lean_mk_string_unchecked("motive_", 7, 7);
 return x_1;
 }
 }
@@ -1640,7 +1640,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Meta_IndPredBelow_mkC
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("below", 5);
+x_1 = lean_mk_string_unchecked("below", 5, 5);
 return x_1;
 }
 }
@@ -5029,7 +5029,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Meta_IndPredBelow_mkC
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("only trivial inductive applications supported in premises:", 58);
+x_1 = lean_mk_string_unchecked("only trivial inductive applications supported in premises:", 58, 58);
 return x_1;
 }
 }
@@ -8371,7 +8371,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_mkCtorType_checkCount___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("only arrows are allowed as premises. Multiple recursive occurrences detected:", 77);
+x_1 = lean_mk_string_unchecked("only arrows are allowed as premises. Multiple recursive occurrences detected:", 77, 77);
 return x_1;
 }
 }
@@ -12835,7 +12835,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_proveBrecOn_applyIH___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cannot apply induction hypothesis: ", 35);
+x_1 = lean_mk_string_unchecked("cannot apply induction hypothesis: ", 35, 35);
 return x_1;
 }
 }
@@ -13206,7 +13206,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_proveBrecOn_induction___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rec", 3);
+x_1 = lean_mk_string_unchecked("rec", 3, 3);
 return x_1;
 }
 }
@@ -14088,7 +14088,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_proveBrecOn_closeGoal___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("couldn't solve by backwards chaining (", 38);
+x_1 = lean_mk_string_unchecked("couldn't solve by backwards chaining (", 38, 38);
 return x_1;
 }
 }
@@ -14126,7 +14126,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_proveBrecOn_closeGoal___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" = ", 3);
+x_1 = lean_mk_string_unchecked(" = ", 3, 3);
 return x_1;
 }
 }
@@ -14155,7 +14155,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_proveBrecOn_closeGoal___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("): ", 3);
+x_1 = lean_mk_string_unchecked("): ", 3, 3);
 return x_1;
 }
 }
@@ -14443,7 +14443,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_proveBrecOn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("applying the induction hypothesis should only return one goal", 61);
+x_1 = lean_mk_string_unchecked("applying the induction hypothesis should only return one goal", 61, 61);
 return x_1;
 }
 }
@@ -14905,7 +14905,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_mkBrecOnDecl_mkIH___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ih", 2);
+x_1 = lean_mk_string_unchecked("ih", 2, 2);
 return x_1;
 }
 }
@@ -14923,7 +14923,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_mkBrecOnDecl_mkIH___closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ih_", 3);
+x_1 = lean_mk_string_unchecked("ih_", 3, 3);
 return x_1;
 }
 }
@@ -16906,7 +16906,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_mkBelowMatcher_convertToBelow
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ↦ ", 5);
+x_1 = lean_mk_string_unchecked(" ↦ ", 5, 3);
 return x_1;
 }
 }
@@ -17018,7 +17018,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_mkBelowMatcher_convertToBelow
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("h", 1);
+x_1 = lean_mk_string_unchecked("h", 1, 1);
 return x_1;
 }
 }
@@ -17036,7 +17036,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_mkBelowMatcher_convertToBelow
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("match", 5);
+x_1 = lean_mk_string_unchecked("match", 5, 5);
 return x_1;
 }
 }
@@ -17823,7 +17823,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_mkBelowMatcher_transformField
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("a", 1);
+x_1 = lean_mk_string_unchecked("a", 1, 1);
 return x_1;
 }
 }
@@ -18477,7 +18477,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_mkBelowMatcher_newMotive___la
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("motive := ", 10);
+x_1 = lean_mk_string_unchecked("motive := ", 10, 10);
 return x_1;
 }
 }
@@ -18619,7 +18619,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_mkBelowMatcher_newMotive___la
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("h_below", 7);
+x_1 = lean_mk_string_unchecked("h_below", 7, 7);
 return x_1;
 }
 }
@@ -18883,7 +18883,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Meta_IndPredBelow_mkBelo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("alt ", 4);
+x_1 = lean_mk_string_unchecked("alt ", 4, 4);
 return x_1;
 }
 }
@@ -18900,7 +18900,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Meta_IndPredBelow_mkBelo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":\n", 2);
+x_1 = lean_mk_string_unchecked(":\n", 2, 2);
 return x_1;
 }
 }
@@ -19064,7 +19064,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Meta_IndPredBelow_mkBelo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("xs = ", 5);
+x_1 = lean_mk_string_unchecked("xs = ", 5, 5);
 return x_1;
 }
 }
@@ -19081,7 +19081,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Meta_IndPredBelow_mkBelo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("; oldFVars = ", 13);
+x_1 = lean_mk_string_unchecked("; oldFVars = ", 13, 13);
 return x_1;
 }
 }
@@ -19098,7 +19098,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Meta_IndPredBelow_mkBelo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("; fvars = ", 10);
+x_1 = lean_mk_string_unchecked("; fvars = ", 10, 10);
 return x_1;
 }
 }
@@ -19115,7 +19115,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Meta_IndPredBelow_mkBelo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("; new = ", 8);
+x_1 = lean_mk_string_unchecked("; new = ", 8, 8);
 return x_1;
 }
 }
@@ -21752,7 +21752,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Meta_IndPredBelow_fin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("could not find below term in the local context", 46);
+x_1 = lean_mk_string_unchecked("could not find below term in the local context", 46, 46);
 return x_1;
 }
 }
@@ -21769,7 +21769,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Meta_IndPredBelow_fin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Found below term in the local context: ", 39);
+x_1 = lean_mk_string_unchecked("Found below term in the local context: ", 39, 39);
 return x_1;
 }
 }
@@ -22844,7 +22844,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Meta_IndPredBelow_mkB
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to prove brecOn for ", 27);
+x_1 = lean_mk_string_unchecked("failed to prove brecOn for ", 27, 27);
 return x_1;
 }
 }
@@ -22861,7 +22861,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Meta_IndPredBelow_mkB
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -23419,7 +23419,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_mkBelow___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Not inductive predicate", 23);
+x_1 = lean_mk_string_unchecked("Not inductive predicate", 23, 23);
 return x_1;
 }
 }
@@ -23436,7 +23436,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_mkBelow___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Nested or not recursive", 23);
+x_1 = lean_mk_string_unchecked("Nested or not recursive", 23, 23);
 return x_1;
 }
 }
@@ -23453,7 +23453,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_mkBelow___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("added ", 6);
+x_1 = lean_mk_string_unchecked("added ", 6, 6);
 return x_1;
 }
 }
@@ -23967,7 +23967,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_initFn____x40_Lean_Meta_IndPr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -23985,7 +23985,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_initFn____x40_Lean_Meta_IndPr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -24033,7 +24033,7 @@ static lean_object* _init_l_Lean_Meta_IndPredBelow_initFn____x40_Lean_Meta_IndPr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }

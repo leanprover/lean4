@@ -653,7 +653,7 @@ static lean_object* _init_l___private_Lake_Util_Log_0__Lake_reprVerbosity____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.Verbosity.quiet", 20);
+x_1 = lean_mk_string_unchecked("Lake.Verbosity.quiet", 20, 20);
 return x_1;
 }
 }
@@ -737,7 +737,7 @@ static lean_object* _init_l___private_Lake_Util_Log_0__Lake_reprVerbosity____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.Verbosity.normal", 21);
+x_1 = lean_mk_string_unchecked("Lake.Verbosity.normal", 21, 21);
 return x_1;
 }
 }
@@ -803,7 +803,7 @@ static lean_object* _init_l___private_Lake_Util_Log_0__Lake_reprVerbosity____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.Verbosity.verbose", 22);
+x_1 = lean_mk_string_unchecked("Lake.Verbosity.verbose", 22, 22);
 return x_1;
 }
 }
@@ -1321,7 +1321,7 @@ static lean_object* _init_l_Lake_Ansi_chalk___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\x1b[1;", 4);
+x_1 = lean_mk_string_unchecked("\x1b[1;", 4, 4);
 return x_1;
 }
 }
@@ -1329,7 +1329,7 @@ static lean_object* _init_l_Lake_Ansi_chalk___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("m", 1);
+x_1 = lean_mk_string_unchecked("m", 1, 1);
 return x_1;
 }
 }
@@ -1337,7 +1337,7 @@ static lean_object* _init_l_Lake_Ansi_chalk___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\x1b[m", 3);
+x_1 = lean_mk_string_unchecked("\x1b[m", 3, 3);
 return x_1;
 }
 }
@@ -1503,7 +1503,7 @@ static lean_object* _init_l___private_Lake_Util_Log_0__Lake_reprLogLevel____x40_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.LogLevel.trace", 19);
+x_1 = lean_mk_string_unchecked("Lake.LogLevel.trace", 19, 19);
 return x_1;
 }
 }
@@ -1569,7 +1569,7 @@ static lean_object* _init_l___private_Lake_Util_Log_0__Lake_reprLogLevel____x40_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.LogLevel.info", 18);
+x_1 = lean_mk_string_unchecked("Lake.LogLevel.info", 18, 18);
 return x_1;
 }
 }
@@ -1635,7 +1635,7 @@ static lean_object* _init_l___private_Lake_Util_Log_0__Lake_reprLogLevel____x40_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.LogLevel.warning", 21);
+x_1 = lean_mk_string_unchecked("Lake.LogLevel.warning", 21, 21);
 return x_1;
 }
 }
@@ -1701,7 +1701,7 @@ static lean_object* _init_l___private_Lake_Util_Log_0__Lake_reprLogLevel____x40_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.LogLevel.error", 19);
+x_1 = lean_mk_string_unchecked("Lake.LogLevel.error", 19, 19);
 return x_1;
 }
 }
@@ -2083,7 +2083,7 @@ static lean_object* _init_l___private_Lake_Util_Log_0__Lake_toJsonLogLevel____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("trace", 5);
+x_1 = lean_mk_string_unchecked("trace", 5, 5);
 return x_1;
 }
 }
@@ -2101,7 +2101,7 @@ static lean_object* _init_l___private_Lake_Util_Log_0__Lake_toJsonLogLevel____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("info", 4);
+x_1 = lean_mk_string_unchecked("info", 4, 4);
 return x_1;
 }
 }
@@ -2119,7 +2119,7 @@ static lean_object* _init_l___private_Lake_Util_Log_0__Lake_toJsonLogLevel____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("warning", 7);
+x_1 = lean_mk_string_unchecked("warning", 7, 7);
 return x_1;
 }
 }
@@ -2137,7 +2137,7 @@ static lean_object* _init_l___private_Lake_Util_Log_0__Lake_toJsonLogLevel____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("error", 5);
+x_1 = lean_mk_string_unchecked("error", 5, 5);
 return x_1;
 }
 }
@@ -2212,7 +2212,7 @@ static lean_object* _init_l___private_Lake_Util_Log_0__Lake_fromJsonLogLevel____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no inductive constructor matched", 32);
+x_1 = lean_mk_string_unchecked("no inductive constructor matched", 32, 32);
 return x_1;
 }
 }
@@ -2659,7 +2659,7 @@ static lean_object* _init_l_Lake_LogLevel_ansiColor___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("34", 2);
+x_1 = lean_mk_string_unchecked("34", 2, 2);
 return x_1;
 }
 }
@@ -2667,7 +2667,7 @@ static lean_object* _init_l_Lake_LogLevel_ansiColor___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("33", 2);
+x_1 = lean_mk_string_unchecked("33", 2, 2);
 return x_1;
 }
 }
@@ -2675,7 +2675,7 @@ static lean_object* _init_l_Lake_LogLevel_ansiColor___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("31", 2);
+x_1 = lean_mk_string_unchecked("31", 2, 2);
 return x_1;
 }
 }
@@ -2850,7 +2850,7 @@ static lean_object* _init_l_Lake_instInhabitedLogEntry___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -2902,7 +2902,7 @@ static lean_object* _init_l___private_Lake_Util_Log_0__Lake_toJsonLogEntry____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("level", 5);
+x_1 = lean_mk_string_unchecked("level", 5, 5);
 return x_1;
 }
 }
@@ -2910,7 +2910,7 @@ static lean_object* _init_l___private_Lake_Util_Log_0__Lake_toJsonLogEntry____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("message", 7);
+x_1 = lean_mk_string_unchecked("message", 7, 7);
 return x_1;
 }
 }
@@ -2989,7 +2989,7 @@ static lean_object* _init_l___private_Lake_Util_Log_0__Lake_fromJsonLogEntry____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake", 4);
+x_1 = lean_mk_string_unchecked("Lake", 4, 4);
 return x_1;
 }
 }
@@ -2997,7 +2997,7 @@ static lean_object* _init_l___private_Lake_Util_Log_0__Lake_fromJsonLogEntry____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LogEntry", 8);
+x_1 = lean_mk_string_unchecked("LogEntry", 8, 8);
 return x_1;
 }
 }
@@ -3025,7 +3025,7 @@ static lean_object* _init_l___private_Lake_Util_Log_0__Lake_fromJsonLogEntry____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -3073,7 +3073,7 @@ static lean_object* _init_l___private_Lake_Util_Log_0__Lake_fromJsonLogEntry____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -3264,7 +3264,7 @@ static lean_object* _init_l_Lake_LogEntry_toString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
@@ -3272,7 +3272,7 @@ static lean_object* _init_l_Lake_LogEntry_toString___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -3454,7 +3454,7 @@ static lean_object* _init_l_Lake_logSerialMessage___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":\n", 2);
+x_1 = lean_mk_string_unchecked(":\n", 2, 2);
 return x_1;
 }
 }
@@ -4575,7 +4575,7 @@ static lean_object* _init_l_Lake_instFromJsonLog___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected JSON array, got '", 26);
+x_1 = lean_mk_string_unchecked("expected JSON array, got '", 26, 26);
 return x_1;
 }
 }
@@ -4583,7 +4583,7 @@ static lean_object* _init_l_Lake_instFromJsonLog___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -4943,7 +4943,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lake_Log_toString___spe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -6058,7 +6058,7 @@ static lean_object* _init_l_Lake_withLoggedIO___rarg___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("stdout/stderr:\n", 15);
+x_1 = lean_mk_string_unchecked("stdout/stderr:\n", 15, 15);
 return x_1;
 }
 }

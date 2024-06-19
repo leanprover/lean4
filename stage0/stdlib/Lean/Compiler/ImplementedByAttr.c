@@ -140,7 +140,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_Lean_Compiler_initFn____x40_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
+x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
 return x_1;
 }
 }
@@ -157,7 +157,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_Lean_Compiler_initFn____x40_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -274,7 +274,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Implemente
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid 'implemented_by' argument '", 35);
+x_1 = lean_mk_string_unchecked("invalid 'implemented_by' argument '", 35, 35);
 return x_1;
 }
 }
@@ -291,7 +291,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Implemente
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', function cannot be implemented by itself", 43);
+x_1 = lean_mk_string_unchecked("', function cannot be implemented by itself", 43, 43);
 return x_1;
 }
 }
@@ -359,7 +359,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Implemente
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', '", 4);
+x_1 = lean_mk_string_unchecked("', '", 4, 4);
 return x_1;
 }
 }
@@ -376,7 +376,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Implemente
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' has type", 10);
+x_1 = lean_mk_string_unchecked("' has type", 10, 10);
 return x_1;
 }
 }
@@ -393,7 +393,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Implemente
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nbut '", 6);
+x_1 = lean_mk_string_unchecked("\nbut '", 6, 6);
 return x_1;
 }
 }
@@ -410,7 +410,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Implemente
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -604,7 +604,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Implemente
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' has ", 6);
+x_1 = lean_mk_string_unchecked("' has ", 6, 6);
 return x_1;
 }
 }
@@ -621,7 +621,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Implemente
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" universe level parameter(s), but '", 35);
+x_1 = lean_mk_string_unchecked(" universe level parameter(s), but '", 35, 35);
 return x_1;
 }
 }
@@ -910,7 +910,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Implemente
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -918,7 +918,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Implemente
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Compiler", 8);
+x_1 = lean_mk_string_unchecked("Compiler", 8, 8);
 return x_1;
 }
 }
@@ -926,7 +926,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Implemente
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("implementedByAttr", 17);
+x_1 = lean_mk_string_unchecked("implementedByAttr", 17, 17);
 return x_1;
 }
 }
@@ -945,7 +945,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Implemente
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("implemented_by", 14);
+x_1 = lean_mk_string_unchecked("implemented_by", 14, 14);
 return x_1;
 }
 }
@@ -963,7 +963,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Implemente
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("name of the Lean (probably unsafe) function that implements opaque constant", 75);
+x_1 = lean_mk_string_unchecked("name of the Lean (probably unsafe) function that implements opaque constant", 75, 75);
 return x_1;
 }
 }

@@ -199,7 +199,7 @@ static lean_object* _init_l_Lean_Elab_Structural_preprocess___lambda__3___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.PreDefinition.Structural.Preprocess", 45);
+x_1 = lean_mk_string_unchecked("Lean.Elab.PreDefinition.Structural.Preprocess", 45, 45);
 return x_1;
 }
 }
@@ -207,7 +207,7 @@ static lean_object* _init_l_Lean_Elab_Structural_preprocess___lambda__3___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.Structural.preprocess", 31);
+x_1 = lean_mk_string_unchecked("Lean.Elab.Structural.preprocess", 31, 31);
 return x_1;
 }
 }
@@ -215,7 +215,7 @@ static lean_object* _init_l_Lean_Elab_Structural_preprocess___lambda__3___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }

@@ -48,7 +48,7 @@ static lean_object* _init_l_Lean_Meta_Simp_evalPropStep___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Bool", 4);
+x_1 = lean_mk_string_unchecked("Bool", 4, 4);
 return x_1;
 }
 }
@@ -56,7 +56,7 @@ static lean_object* _init_l_Lean_Meta_Simp_evalPropStep___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("false", 5);
+x_1 = lean_mk_string_unchecked("false", 5, 5);
 return x_1;
 }
 }
@@ -84,7 +84,7 @@ static lean_object* _init_l_Lean_Meta_Simp_evalPropStep___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("False", 5);
+x_1 = lean_mk_string_unchecked("False", 5, 5);
 return x_1;
 }
 }
@@ -112,7 +112,7 @@ static lean_object* _init_l_Lean_Meta_Simp_evalPropStep___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("eq_false_of_decide", 18);
+x_1 = lean_mk_string_unchecked("eq_false_of_decide", 18, 18);
 return x_1;
 }
 }
@@ -149,7 +149,7 @@ static lean_object* _init_l_Lean_Meta_Simp_evalPropStep___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("true", 4);
+x_1 = lean_mk_string_unchecked("true", 4, 4);
 return x_1;
 }
 }
@@ -177,7 +177,7 @@ static lean_object* _init_l_Lean_Meta_Simp_evalPropStep___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("True", 4);
+x_1 = lean_mk_string_unchecked("True", 4, 4);
 return x_1;
 }
 }
@@ -205,7 +205,7 @@ static lean_object* _init_l_Lean_Meta_Simp_evalPropStep___closed__18() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("eq_true_of_decide", 17);
+x_1 = lean_mk_string_unchecked("eq_true_of_decide", 17, 17);
 return x_1;
 }
 }

@@ -612,7 +612,7 @@ static lean_object* _init_l_Lean_Elab_LibrarySearch_exact_x3f___lambda__5___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("library_search", 14);
+x_1 = lean_mk_string_unchecked("library_search", 14, 14);
 return x_1;
 }
 }
@@ -630,7 +630,7 @@ static lean_object* _init_l_Lean_Elab_LibrarySearch_exact_x3f___lambda__5___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("apply\? didn't find any relevant lemmas", 38);
+x_1 = lean_mk_string_unchecked("apply\? didn't find any relevant lemmas", 38, 38);
 return x_1;
 }
 }
@@ -749,7 +749,7 @@ static lean_object* _init_l_Lean_Elab_LibrarySearch_exact_x3f___lambda__6___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`exact\?` could not close the goal. Try `apply\?` to see partial suggestions.", 75);
+x_1 = lean_mk_string_unchecked("`exact\?` could not close the goal. Try `apply\?` to see partial suggestions.", 75, 75);
 return x_1;
 }
 }
@@ -1429,7 +1429,7 @@ static lean_object* _init_l_Lean_Elab_LibrarySearch_evalExact___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1437,7 +1437,7 @@ static lean_object* _init_l_Lean_Elab_LibrarySearch_evalExact___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -1445,7 +1445,7 @@ static lean_object* _init_l_Lean_Elab_LibrarySearch_evalExact___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -1453,7 +1453,7 @@ static lean_object* _init_l_Lean_Elab_LibrarySearch_evalExact___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("exact\?", 6);
+x_1 = lean_mk_string_unchecked("exact\?", 6, 6);
 return x_1;
 }
 }
@@ -1699,7 +1699,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_LibrarySearch_evalExact__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -1707,7 +1707,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_LibrarySearch_evalExact__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LibrarySearch", 13);
+x_1 = lean_mk_string_unchecked("LibrarySearch", 13, 13);
 return x_1;
 }
 }
@@ -1715,7 +1715,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_LibrarySearch_evalExact__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalExact", 9);
+x_1 = lean_mk_string_unchecked("evalExact", 9, 9);
 return x_1;
 }
 }
@@ -1876,7 +1876,7 @@ static lean_object* _init_l_Lean_Elab_LibrarySearch_evalApply___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("apply\?", 6);
+x_1 = lean_mk_string_unchecked("apply\?", 6, 6);
 return x_1;
 }
 }
@@ -2071,7 +2071,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_LibrarySearch_evalApply__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalApply", 9);
+x_1 = lean_mk_string_unchecked("evalApply", 9, 9);
 return x_1;
 }
 }
@@ -2244,7 +2244,7 @@ static lean_object* _init_l_Lean_Elab_LibrarySearch_elabExact_x3fTerm___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Try this: ", 10);
+x_1 = lean_mk_string_unchecked("Try this: ", 10, 10);
 return x_1;
 }
 }
@@ -2252,7 +2252,7 @@ static lean_object* _init_l_Lean_Elab_LibrarySearch_elabExact_x3fTerm___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`exact\?%` could not close the goal. Try `by apply` to see partial suggestions.", 78);
+x_1 = lean_mk_string_unchecked("`exact\?%` could not close the goal. Try `by apply` to see partial suggestions.", 78, 78);
 return x_1;
 }
 }
@@ -2279,7 +2279,7 @@ static lean_object* _init_l_Lean_Elab_LibrarySearch_elabExact_x3fTerm___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`exact\?%` didn't find any relevant lemmas", 41);
+x_1 = lean_mk_string_unchecked("`exact\?%` didn't find any relevant lemmas", 41, 41);
 return x_1;
 }
 }
@@ -2551,7 +2551,7 @@ static lean_object* _init_l_Lean_Elab_LibrarySearch_elabExact_x3fTerm___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Syntax", 6);
+x_1 = lean_mk_string_unchecked("Syntax", 6, 6);
 return x_1;
 }
 }
@@ -2647,7 +2647,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_LibrarySearch_elabExact_x3fTe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elabExact\?Term", 14);
+x_1 = lean_mk_string_unchecked("elabExact\?Term", 14, 14);
 return x_1;
 }
 }

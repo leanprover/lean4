@@ -229,7 +229,7 @@ static lean_object* _init_l_Lean_registerReservedNameAction___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to register reserved name action, this kind of extension can only be registered during initialization", 108);
+x_1 = lean_mk_string_unchecked("failed to register reserved name action, this kind of extension can only be registered during initialization", 108, 108);
 return x_1;
 }
 }
@@ -617,7 +617,7 @@ static lean_object* _init_l_Lean_logAt___at_Lean_realizeGlobalName___spec__3___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -736,7 +736,7 @@ static lean_object* _init_l_Lean_logAt___at_Lean_realizeGlobalName___spec__3___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -744,7 +744,7 @@ static lean_object* _init_l_Lean_logAt___at_Lean_realizeGlobalName___spec__3___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -752,7 +752,7 @@ static lean_object* _init_l_Lean_logAt___at_Lean_realizeGlobalName___spec__3___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unsolvedGoals", 13);
+x_1 = lean_mk_string_unchecked("unsolvedGoals", 13, 13);
 return x_1;
 }
 }
@@ -760,7 +760,7 @@ static lean_object* _init_l_Lean_logAt___at_Lean_realizeGlobalName___spec__3___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("synthPlaceholder", 16);
+x_1 = lean_mk_string_unchecked("synthPlaceholder", 16, 16);
 return x_1;
 }
 }
@@ -1611,7 +1611,7 @@ static lean_object* _init_l_List_filterAuxM___at_Lean_realizeGlobalName___spec__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Failed to realize constant ", 27);
+x_1 = lean_mk_string_unchecked("Failed to realize constant ", 27, 27);
 return x_1;
 }
 }
@@ -1628,7 +1628,7 @@ static lean_object* _init_l_List_filterAuxM___at_Lean_realizeGlobalName___spec__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
@@ -2226,7 +2226,7 @@ static lean_object* _init_l_Lean_throwUnknownConstant___at_Lean_realizeGlobalCon
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
+x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
 return x_1;
 }
 }
@@ -2243,7 +2243,7 @@ static lean_object* _init_l_Lean_throwUnknownConstant___at_Lean_realizeGlobalCon
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -2575,7 +2575,7 @@ static lean_object* _init_l_Lean_ensureNoOverload___at_Lean_realizeGlobalConstNo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ambiguous identifier '", 22);
+x_1 = lean_mk_string_unchecked("ambiguous identifier '", 22, 22);
 return x_1;
 }
 }
@@ -2583,7 +2583,7 @@ static lean_object* _init_l_Lean_ensureNoOverload___at_Lean_realizeGlobalConstNo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', possible interpretations: ", 29);
+x_1 = lean_mk_string_unchecked("', possible interpretations: ", 29, 29);
 return x_1;
 }
 }
@@ -2854,7 +2854,7 @@ static lean_object* _init_l_Lean_preprocessSyntaxAndResolve___at_Lean_realizeGlo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected identifier", 19);
+x_1 = lean_mk_string_unchecked("expected identifier", 19, 19);
 return x_1;
 }
 }
@@ -3173,7 +3173,7 @@ static lean_object* _init_l_Lean_ensureNonAmbiguous___at_Lean_realizeGlobalConst
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.ResolveName", 16);
+x_1 = lean_mk_string_unchecked("Lean.ResolveName", 16, 16);
 return x_1;
 }
 }
@@ -3181,7 +3181,7 @@ static lean_object* _init_l_Lean_ensureNonAmbiguous___at_Lean_realizeGlobalConst
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.ensureNonAmbiguous", 23);
+x_1 = lean_mk_string_unchecked("Lean.ensureNonAmbiguous", 23, 23);
 return x_1;
 }
 }
@@ -3189,7 +3189,7 @@ static lean_object* _init_l_Lean_ensureNonAmbiguous___at_Lean_realizeGlobalConst
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -3199,7 +3199,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_ensureNonAmbiguous___at_Lean_realizeGlobalConstNoOverload___spec__1___closed__1;
 x_2 = l_Lean_ensureNonAmbiguous___at_Lean_realizeGlobalConstNoOverload___spec__1___closed__2;
-x_3 = lean_unsigned_to_nat(357u);
+x_3 = lean_unsigned_to_nat(364u);
 x_4 = lean_unsigned_to_nat(11u);
 x_5 = l_Lean_ensureNonAmbiguous___at_Lean_realizeGlobalConstNoOverload___spec__1___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

@@ -563,7 +563,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_Eqns_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to generate equational theorem for '", 43);
+x_1 = lean_mk_string_unchecked("failed to generate equational theorem for '", 43, 43);
 return x_1;
 }
 }
@@ -580,7 +580,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_Eqns_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'\n", 2);
+x_1 = lean_mk_string_unchecked("'\n", 2, 2);
 return x_1;
 }
 }
@@ -597,7 +597,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_Eqns_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -1381,7 +1381,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_Eqns_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -1389,7 +1389,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_Eqns_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("definition", 10);
+x_1 = lean_mk_string_unchecked("definition", 10, 10);
 return x_1;
 }
 }
@@ -1397,7 +1397,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_Eqns_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structural", 10);
+x_1 = lean_mk_string_unchecked("structural", 10, 10);
 return x_1;
 }
 }
@@ -1405,7 +1405,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_Eqns_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("eqns", 4);
+x_1 = lean_mk_string_unchecked("eqns", 4, 4);
 return x_1;
 }
 }
@@ -1425,7 +1425,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_Eqns_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("step\n", 5);
+x_1 = lean_mk_string_unchecked("step\n", 5, 5);
 return x_1;
 }
 }
@@ -1777,7 +1777,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_Eqns_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("proving: ", 9);
+x_1 = lean_mk_string_unchecked("proving: ", 9, 9);
 return x_1;
 }
 }
@@ -2979,7 +2979,7 @@ static lean_object* _init_l_Lean_Elab_Structural_initFn____x40_Lean_Elab_PreDefi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -2987,7 +2987,7 @@ static lean_object* _init_l_Lean_Elab_Structural_initFn____x40_Lean_Elab_PreDefi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Structural", 10);
+x_1 = lean_mk_string_unchecked("Structural", 10, 10);
 return x_1;
 }
 }
@@ -2995,7 +2995,7 @@ static lean_object* _init_l_Lean_Elab_Structural_initFn____x40_Lean_Elab_PreDefi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("eqnInfoExt", 10);
+x_1 = lean_mk_string_unchecked("eqnInfoExt", 10, 10);
 return x_1;
 }
 }
@@ -3772,7 +3772,7 @@ static lean_object* _init_l_Lean_Elab_Structural_initFn____x40_Lean_Elab_PreDefi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -3790,7 +3790,7 @@ static lean_object* _init_l_Lean_Elab_Structural_initFn____x40_Lean_Elab_PreDefi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -3828,7 +3828,7 @@ static lean_object* _init_l_Lean_Elab_Structural_initFn____x40_Lean_Elab_PreDefi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PreDefinition", 13);
+x_1 = lean_mk_string_unchecked("PreDefinition", 13, 13);
 return x_1;
 }
 }
@@ -3856,7 +3856,7 @@ static lean_object* _init_l_Lean_Elab_Structural_initFn____x40_Lean_Elab_PreDefi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eqns", 4);
+x_1 = lean_mk_string_unchecked("Eqns", 4, 4);
 return x_1;
 }
 }
@@ -3874,7 +3874,7 @@ static lean_object* _init_l_Lean_Elab_Structural_initFn____x40_Lean_Elab_PreDefi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }

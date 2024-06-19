@@ -927,7 +927,7 @@ static lean_object* _init_l_Lake_depCycleError___rarg___lambda__1___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("  ", 2);
+x_1 = lean_mk_string_unchecked("  ", 2, 2);
 return x_1;
 }
 }
@@ -935,7 +935,7 @@ static lean_object* _init_l_Lake_depCycleError___rarg___lambda__1___closed__2() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -965,7 +965,7 @@ static lean_object* _init_l_Lake_depCycleError___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -973,7 +973,7 @@ static lean_object* _init_l_Lake_depCycleError___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("dependency cycle detected:\n", 27);
+x_1 = lean_mk_string_unchecked("dependency cycle detected:\n", 27, 27);
 return x_1;
 }
 }
@@ -1334,7 +1334,7 @@ static lean_object* _init_l_Lake_Workspace_resolveDeps_go___rarg___lambda__6___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": package requires itself (or a package with the same name)", 59);
+x_1 = lean_mk_string_unchecked(": package requires itself (or a package with the same name)", 59, 59);
 return x_1;
 }
 }
@@ -2141,7 +2141,7 @@ static lean_object* _init_l_Lake_Workspace_resolveDeps_go___rarg___lambda__15___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": impossible resolution state reached", 37);
+x_1 = lean_mk_string_unchecked(": impossible resolution state reached", 37, 37);
 return x_1;
 }
 }
@@ -3752,7 +3752,7 @@ static lean_object* _init_l_Lake_stdMismatchError___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("the 'std' package has been renamed to '", 39);
+x_1 = lean_mk_string_unchecked("the 'std' package has been renamed to '", 39, 39);
 return x_1;
 }
 }
@@ -3760,7 +3760,7 @@ static lean_object* _init_l_Lake_stdMismatchError___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' and moved to the\n'leanprover-community' organization; downstream packages which wish to\nupdate to the new std should replace\n\n  require std from\n    git \"https://github.com/leanprover/std4\"", 191);
+x_1 = lean_mk_string_unchecked("' and moved to the\n'leanprover-community' organization; downstream packages which wish to\nupdate to the new std should replace\n\n  require std from\n    git \"https://github.com/leanprover/std4\"", 191, 191);
 return x_1;
 }
 }
@@ -3768,7 +3768,7 @@ static lean_object* _init_l_Lake_stdMismatchError___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n\nin their Lake configuration file with\n\n  require ", 51);
+x_1 = lean_mk_string_unchecked("\n\nin their Lake configuration file with\n\n  require ", 51, 51);
 return x_1;
 }
 }
@@ -3776,7 +3776,7 @@ static lean_object* _init_l_Lake_stdMismatchError___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" from\n    git \"https://github.com/leanprover-community/", 55);
+x_1 = lean_mk_string_unchecked(" from\n    git \"https://github.com/leanprover-community/", 55, 55);
 return x_1;
 }
 }
@@ -3784,7 +3784,7 @@ static lean_object* _init_l_Lake_stdMismatchError___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\"", 1);
+x_1 = lean_mk_string_unchecked("\"", 1, 1);
 return x_1;
 }
 }
@@ -3792,7 +3792,7 @@ static lean_object* _init_l_Lake_stdMismatchError___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n\n", 2);
+x_1 = lean_mk_string_unchecked("\n\n", 2, 2);
 return x_1;
 }
 }
@@ -3919,7 +3919,7 @@ static lean_object* _init_l_Lake_reuseManifest___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ignoring previous manifest because it failed to load: ", 56);
+x_1 = lean_mk_string_unchecked(": ignoring previous manifest because it failed to load: ", 56, 56);
 return x_1;
 }
 }
@@ -3957,7 +3957,7 @@ static lean_object* _init_l_Lake_reuseManifest___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("could not rename workspace packages directory: ", 47);
+x_1 = lean_mk_string_unchecked("could not rename workspace packages directory: ", 47, 47);
 return x_1;
 }
 }
@@ -3965,7 +3965,7 @@ static lean_object* _init_l_Lake_reuseManifest___lambda__2___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("workspace packages directory changed; renaming '", 48);
+x_1 = lean_mk_string_unchecked("workspace packages directory changed; renaming '", 48, 48);
 return x_1;
 }
 }
@@ -3973,7 +3973,7 @@ static lean_object* _init_l_Lake_reuseManifest___lambda__2___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' to '", 6);
+x_1 = lean_mk_string_unchecked("' to '", 6, 6);
 return x_1;
 }
 }
@@ -3981,7 +3981,7 @@ static lean_object* _init_l_Lake_reuseManifest___lambda__2___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -4893,7 +4893,7 @@ static lean_object* _init_l_Lake_reuseManifest___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": no previous manifest, creating one from scratch", 49);
+x_1 = lean_mk_string_unchecked(": no previous manifest, creating one from scratch", 49, 49);
 return x_1;
 }
 }
@@ -5535,7 +5535,7 @@ static lean_object* _init_l_Lake_addDependencyEntries___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ignoring manifest because it failed to load: ", 47);
+x_1 = lean_mk_string_unchecked(": ignoring manifest because it failed to load: ", 47, 47);
 return x_1;
 }
 }
@@ -5543,7 +5543,7 @@ static lean_object* _init_l_Lake_addDependencyEntries___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ignoring missing manifest '", 29);
+x_1 = lean_mk_string_unchecked(": ignoring missing manifest '", 29, 29);
 return x_1;
 }
 }
@@ -6203,7 +6203,7 @@ static lean_object* _init_l_Lake_updateDep___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": package '", 11);
+x_1 = lean_mk_string_unchecked(": package '", 11, 11);
 return x_1;
 }
 }
@@ -6211,7 +6211,7 @@ static lean_object* _init_l_Lake_updateDep___lambda__2___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' was required as '", 19);
+x_1 = lean_mk_string_unchecked("' was required as '", 19, 19);
 return x_1;
 }
 }
@@ -6255,7 +6255,7 @@ static lean_object* _init_l_Lake_updateDep___lambda__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' was downloaded incorrectly; you will need to manually delete '", 64);
+x_1 = lean_mk_string_unchecked("' was downloaded incorrectly; you will need to manually delete '", 64, 64);
 return x_1;
 }
 }
@@ -6263,7 +6263,7 @@ static lean_object* _init_l_Lake_updateDep___lambda__3___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("': ", 3);
+x_1 = lean_mk_string_unchecked("': ", 3, 3);
 return x_1;
 }
 }
@@ -6445,7 +6445,7 @@ static lean_object* _init_l_Lake_updateDep___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("std", 3);
+x_1 = lean_mk_string_unchecked("std", 3, 3);
 return x_1;
 }
 }
@@ -6463,7 +6463,7 @@ static lean_object* _init_l_Lake_updateDep___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" @ ", 3);
+x_1 = lean_mk_string_unchecked(" @ ", 3, 3);
 return x_1;
 }
 }
@@ -8139,7 +8139,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lake_Workspace_updateAn
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": running post-update hooks", 27);
+x_1 = lean_mk_string_unchecked(": running post-update hooks", 27, 27);
 return x_1;
 }
 }
@@ -19662,7 +19662,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lake_validateManifest__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("manifest out of date: ", 22);
+x_1 = lean_mk_string_unchecked("manifest out of date: ", 22, 22);
 return x_1;
 }
 }
@@ -19670,7 +19670,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lake_validateManifest__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("git revision", 12);
+x_1 = lean_mk_string_unchecked("git revision", 12, 12);
 return x_1;
 }
 }
@@ -19688,7 +19688,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lake_validateManifest__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" of dependency '", 16);
+x_1 = lean_mk_string_unchecked(" of dependency '", 16, 16);
 return x_1;
 }
 }
@@ -19706,7 +19706,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lake_validateManifest__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' changed; use `lake update ", 28);
+x_1 = lean_mk_string_unchecked("' changed; use `lake update ", 28, 28);
 return x_1;
 }
 }
@@ -19714,7 +19714,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lake_validateManifest__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` to update it", 14);
+x_1 = lean_mk_string_unchecked("` to update it", 14, 14);
 return x_1;
 }
 }
@@ -19770,7 +19770,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lake_validateManifest__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("source kind (git/path)", 22);
+x_1 = lean_mk_string_unchecked("source kind (git/path)", 22, 22);
 return x_1;
 }
 }
@@ -19798,7 +19798,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lake_validateManifest__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("git url", 7);
+x_1 = lean_mk_string_unchecked("git url", 7, 7);
 return x_1;
 }
 }
@@ -20094,7 +20094,7 @@ static lean_object* _init_l_Lake_validateManifest___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("missing manifest; use `lake update` to generate one", 51);
+x_1 = lean_mk_string_unchecked("missing manifest; use `lake update` to generate one", 51, 51);
 return x_1;
 }
 }
@@ -20898,7 +20898,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lake_Workspace_material
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("dependency '", 12);
+x_1 = lean_mk_string_unchecked("dependency '", 12, 12);
 return x_1;
 }
 }
@@ -20906,7 +20906,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lake_Workspace_material
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' of '", 6);
+x_1 = lean_mk_string_unchecked("' of '", 6, 6);
 return x_1;
 }
 }
@@ -20914,7 +20914,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lake_Workspace_material
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' not in manifest; this suggests that the manifest is corrupt; use `lake update` to generate a new, complete file (warning: this will update ALL workspace dependencies)", 168);
+x_1 = lean_mk_string_unchecked("' not in manifest; this suggests that the manifest is corrupt; use `lake update` to generate a new, complete file (warning: this will update ALL workspace dependencies)", 168, 168);
 return x_1;
 }
 }
@@ -20922,7 +20922,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lake_Workspace_material
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' not in manifest; use `lake update ", 36);
+x_1 = lean_mk_string_unchecked("' not in manifest; use `lake update ", 36, 36);
 return x_1;
 }
 }
@@ -20930,7 +20930,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lake_Workspace_material
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` to add it", 11);
+x_1 = lean_mk_string_unchecked("` to add it", 11, 11);
 return x_1;
 }
 }
@@ -28134,7 +28134,7 @@ static lean_object* _init_l_Lake_Workspace_materializeDeps___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("manifest out of date: packages directory changed; use `lake update` to rebuild the manifest (warning: this will update ALL workspace dependencies)", 146);
+x_1 = lean_mk_string_unchecked("manifest out of date: packages directory changed; use `lake update` to rebuild the manifest (warning: this will update ALL workspace dependencies)", 146, 146);
 return x_1;
 }
 }

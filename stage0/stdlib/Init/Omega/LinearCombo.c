@@ -358,7 +358,7 @@ static lean_object* _init_l_List_repr_x27___at___private_Init_Omega_LinearCombo_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[]", 2);
+x_1 = lean_mk_string_unchecked("[]", 2, 2);
 return x_1;
 }
 }
@@ -376,7 +376,7 @@ static lean_object* _init_l_List_repr_x27___at___private_Init_Omega_LinearCombo_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -406,7 +406,7 @@ static lean_object* _init_l_List_repr_x27___at___private_Init_Omega_LinearCombo_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -442,7 +442,7 @@ static lean_object* _init_l_List_repr_x27___at___private_Init_Omega_LinearCombo_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -526,7 +526,7 @@ static lean_object* _init_l___private_Init_Omega_LinearCombo_0__Lean_Omega_reprL
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("const", 5);
+x_1 = lean_mk_string_unchecked("const", 5, 5);
 return x_1;
 }
 }
@@ -556,7 +556,7 @@ static lean_object* _init_l___private_Init_Omega_LinearCombo_0__Lean_Omega_reprL
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" := ", 4);
+x_1 = lean_mk_string_unchecked(" := ", 4, 4);
 return x_1;
 }
 }
@@ -595,7 +595,7 @@ static lean_object* _init_l___private_Init_Omega_LinearCombo_0__Lean_Omega_reprL
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("coeffs", 6);
+x_1 = lean_mk_string_unchecked("coeffs", 6, 6);
 return x_1;
 }
 }
@@ -622,7 +622,7 @@ static lean_object* _init_l___private_Init_Omega_LinearCombo_0__Lean_Omega_reprL
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("{ ", 2);
+x_1 = lean_mk_string_unchecked("{ ", 2, 2);
 return x_1;
 }
 }
@@ -658,7 +658,7 @@ static lean_object* _init_l___private_Init_Omega_LinearCombo_0__Lean_Omega_reprL
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" }", 2);
+x_1 = lean_mk_string_unchecked(" }", 2, 2);
 return x_1;
 }
 }
@@ -790,7 +790,7 @@ static lean_object* _init_l_List_map___at_Lean_Omega_LinearCombo_instToString___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" + ", 3);
+x_1 = lean_mk_string_unchecked(" + ", 3, 3);
 return x_1;
 }
 }
@@ -798,7 +798,7 @@ static lean_object* _init_l_List_map___at_Lean_Omega_LinearCombo_instToString___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" * x", 4);
+x_1 = lean_mk_string_unchecked(" * x", 4, 4);
 return x_1;
 }
 }
@@ -806,7 +806,7 @@ static lean_object* _init_l_List_map___at_Lean_Omega_LinearCombo_instToString___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -814,7 +814,7 @@ static lean_object* _init_l_List_map___at_Lean_Omega_LinearCombo_instToString___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-", 1);
+x_1 = lean_mk_string_unchecked("-", 1, 1);
 return x_1;
 }
 }

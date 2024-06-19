@@ -55,7 +55,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Modifiers___hyg_4____closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -63,7 +63,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Modifiers___hyg_4____closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("protectedExt", 12);
+x_1 = lean_mk_string_unchecked("protectedExt", 12, 12);
 return x_1;
 }
 }
@@ -126,7 +126,7 @@ static lean_object* _init_l_Lean_privateHeader___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private", 8);
+x_1 = lean_mk_string_unchecked("_private", 8, 8);
 return x_1;
 }
 }

@@ -143,7 +143,7 @@ static lean_object* _init_l_Lean_Name_getString_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Data.Name", 14);
+x_1 = lean_mk_string_unchecked("Lean.Data.Name", 14, 14);
 return x_1;
 }
 }
@@ -151,7 +151,7 @@ static lean_object* _init_l_Lean_Name_getString_x21___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Name.getString!", 20);
+x_1 = lean_mk_string_unchecked("Lean.Name.getString!", 20, 20);
 return x_1;
 }
 }
@@ -159,7 +159,7 @@ static lean_object* _init_l_Lean_Name_getString_x21___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -1028,7 +1028,7 @@ static lean_object* _init_l_Lean_Name_isInternalDetail___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_", 1);
+x_1 = lean_mk_string_unchecked("_", 1, 1);
 return x_1;
 }
 }
@@ -1036,7 +1036,7 @@ static lean_object* _init_l_Lean_Name_isInternalDetail___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("eq_", 3);
+x_1 = lean_mk_string_unchecked("eq_", 3, 3);
 return x_1;
 }
 }
@@ -1044,7 +1044,7 @@ static lean_object* _init_l_Lean_Name_isInternalDetail___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("match_", 6);
+x_1 = lean_mk_string_unchecked("match_", 6, 6);
 return x_1;
 }
 }
@@ -1052,7 +1052,7 @@ static lean_object* _init_l_Lean_Name_isInternalDetail___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("proof_", 6);
+x_1 = lean_mk_string_unchecked("proof_", 6, 6);
 return x_1;
 }
 }
@@ -1159,7 +1159,7 @@ static lean_object* _init_l_Lean_Name_isImplementationDetail___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("__", 2);
+x_1 = lean_mk_string_unchecked("__", 2, 2);
 return x_1;
 }
 }

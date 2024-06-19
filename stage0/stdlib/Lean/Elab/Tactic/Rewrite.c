@@ -899,7 +899,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_withRWRulesSeq_go___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to rewrite using equation theorems for '", 47);
+x_1 = lean_mk_string_unchecked("failed to rewrite using equation theorems for '", 47, 47);
 return x_1;
 }
 }
@@ -916,7 +916,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_withRWRulesSeq_go___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -933,7 +933,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_withRWRulesSeq_go___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_root_", 6);
+x_1 = lean_mk_string_unchecked("_root_", 6, 6);
 return x_1;
 }
 }
@@ -1966,7 +1966,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_Tactic_withRWRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1974,7 +1974,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_Tactic_withRWRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -1982,7 +1982,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_Tactic_withRWRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -1990,7 +1990,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_Tactic_withRWRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("explicit", 8);
+x_1 = lean_mk_string_unchecked("explicit", 8, 8);
 return x_1;
 }
 }
@@ -3608,7 +3608,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_Tactic_withRWRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ident", 5);
+x_1 = lean_mk_string_unchecked("ident", 5, 5);
 return x_1;
 }
 }
@@ -3856,7 +3856,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_withRWRulesSeq___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -4093,7 +4093,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalUnsafe____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -4101,7 +4101,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalUnsafe____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Rewrite", 7);
+x_1 = lean_mk_string_unchecked("Rewrite", 7, 7);
 return x_1;
 }
 }
@@ -4109,7 +4109,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalUnsafe____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Config", 6);
+x_1 = lean_mk_string_unchecked("Config", 6, 6);
 return x_1;
 }
 }
@@ -6612,15 +6612,17 @@ return x_2;
 static lean_object* _init_l_Lean_Elab_Tactic_elabRewriteConfig___closed__10() {
 _start:
 {
-uint8_t x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
+uint8_t x_1; uint8_t x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
 x_1 = 2;
 x_2 = 1;
 x_3 = lean_box(0);
-x_4 = lean_alloc_ctor(0, 1, 2);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set_uint8(x_4, sizeof(void*)*1, x_1);
-lean_ctor_set_uint8(x_4, sizeof(void*)*1 + 1, x_2);
-return x_4;
+x_4 = 0;
+x_5 = lean_alloc_ctor(0, 1, 3);
+lean_ctor_set(x_5, 0, x_3);
+lean_ctor_set_uint8(x_5, sizeof(void*)*1, x_1);
+lean_ctor_set_uint8(x_5, sizeof(void*)*1 + 1, x_2);
+lean_ctor_set_uint8(x_5, sizeof(void*)*1 + 2, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_elabRewriteConfig(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
@@ -6837,7 +6839,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalRewriteSeq___lambda__2___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rewrite", 7);
+x_1 = lean_mk_string_unchecked("rewrite", 7, 7);
 return x_1;
 }
 }
@@ -6855,7 +6857,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalRewriteSeq___lambda__2___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("did not find instance of the pattern in the current goal", 56);
+x_1 = lean_mk_string_unchecked("did not find instance of the pattern in the current goal", 56, 56);
 return x_1;
 }
 }
@@ -7046,7 +7048,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalRewriteSeq__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -7054,7 +7056,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalRewriteSeq__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rewriteSeq", 10);
+x_1 = lean_mk_string_unchecked("rewriteSeq", 10, 10);
 return x_1;
 }
 }
@@ -7074,7 +7076,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalRewriteSeq__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -7082,7 +7084,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalRewriteSeq__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalRewriteSeq", 14);
+x_1 = lean_mk_string_unchecked("evalRewriteSeq", 14, 14);
 return x_1;
 }
 }

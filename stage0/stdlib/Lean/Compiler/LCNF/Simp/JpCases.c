@@ -1853,7 +1853,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Co
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.Simp.JpCases", 31);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.Simp.JpCases", 31, 31);
 return x_1;
 }
 }
@@ -1861,7 +1861,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Co
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Compiler.LCNF.Simp.JpCases.0.Lean.Compiler.LCNF.Simp.extractJpCases.go", 84);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.Simp.JpCases.0.Lean.Compiler.LCNF.Simp.extractJpCases.go", 84, 84);
 return x_1;
 }
 }
@@ -1869,7 +1869,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Co
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -2247,7 +2247,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Co
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_jp", 3);
+x_1 = lean_mk_string_unchecked("_jp", 3, 3);
 return x_1;
 }
 }
@@ -2726,7 +2726,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_x", 2);
+x_1 = lean_mk_string_unchecked("_x", 2, 2);
 return x_1;
 }
 }
@@ -8072,7 +8072,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Compiler_LCNF_Simp_simpJpC
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -8089,7 +8089,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Compiler_LCNF_Simp_simpJpC
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ↦ ", 5);
+x_1 = lean_mk_string_unchecked(" ↦ ", 5, 3);
 return x_1;
 }
 }
@@ -8660,7 +8660,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Compiler", 8);
+x_1 = lean_mk_string_unchecked("Compiler", 8, 8);
 return x_1;
 }
 }
@@ -8668,7 +8668,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simp", 4);
+x_1 = lean_mk_string_unchecked("simp", 4, 4);
 return x_1;
 }
 }
@@ -8676,7 +8676,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("jpCases", 7);
+x_1 = lean_mk_string_unchecked("jpCases", 7, 7);
 return x_1;
 }
 }
@@ -8695,7 +8695,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("candidates", 10);
+x_1 = lean_mk_string_unchecked("candidates", 10, 10);
 return x_1;
 }
 }
@@ -9018,7 +9018,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -9046,7 +9046,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LCNF", 4);
+x_1 = lean_mk_string_unchecked("LCNF", 4, 4);
 return x_1;
 }
 }
@@ -9064,7 +9064,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -9082,7 +9082,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -9130,7 +9130,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Simp", 4);
+x_1 = lean_mk_string_unchecked("Simp", 4, 4);
 return x_1;
 }
 }
@@ -9148,7 +9148,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("JpCases", 7);
+x_1 = lean_mk_string_unchecked("JpCases", 7, 7);
 return x_1;
 }
 }
@@ -9166,7 +9166,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }

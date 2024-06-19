@@ -579,7 +579,7 @@ static lean_object* _init_l_Lean_mkErrorStringWithPos___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -587,7 +587,7 @@ static lean_object* _init_l_Lean_mkErrorStringWithPos___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
@@ -595,7 +595,7 @@ static lean_object* _init_l_Lean_mkErrorStringWithPos___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -603,7 +603,7 @@ static lean_object* _init_l_Lean_mkErrorStringWithPos___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-", 1);
+x_1 = lean_mk_string_unchecked("-", 1, 1);
 return x_1;
 }
 }
@@ -818,7 +818,7 @@ static lean_object* _init_l___private_Lean_Message_0__Lean_toJsonMessageSeverity
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("information", 11);
+x_1 = lean_mk_string_unchecked("information", 11, 11);
 return x_1;
 }
 }
@@ -836,7 +836,7 @@ static lean_object* _init_l___private_Lean_Message_0__Lean_toJsonMessageSeverity
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("warning", 7);
+x_1 = lean_mk_string_unchecked("warning", 7, 7);
 return x_1;
 }
 }
@@ -854,7 +854,7 @@ static lean_object* _init_l___private_Lean_Message_0__Lean_toJsonMessageSeverity
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("error", 5);
+x_1 = lean_mk_string_unchecked("error", 5, 5);
 return x_1;
 }
 }
@@ -923,7 +923,7 @@ static lean_object* _init_l___private_Lean_Message_0__Lean_fromJsonMessageSeveri
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no inductive constructor matched", 32);
+x_1 = lean_mk_string_unchecked("no inductive constructor matched", 32, 32);
 return x_1;
 }
 }
@@ -1259,7 +1259,7 @@ static lean_object* _init_l_Lean_instImpl____x40_Lean_Message___hyg_596____close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1267,7 +1267,7 @@ static lean_object* _init_l_Lean_instImpl____x40_Lean_Message___hyg_596____close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("MessageData", 11);
+x_1 = lean_mk_string_unchecked("MessageData", 11, 11);
 return x_1;
 }
 }
@@ -1336,7 +1336,7 @@ static lean_object* _init_l_Lean_MessageData_lazy___elambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(invalid MessageData.lazy, missing context)", 43);
+x_1 = lean_mk_string_unchecked("(invalid MessageData.lazy, missing context)", 43, 43);
 return x_1;
 }
 }
@@ -2607,7 +2607,7 @@ static lean_object* _init_l_Lean_MessageData_formatAux___lambda__1___closed__2()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -2634,7 +2634,7 @@ static lean_object* _init_l_Lean_MessageData_formatAux___lambda__1___closed__5()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -2918,7 +2918,7 @@ static lean_object* _init_l_Lean_MessageData_formatAux___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("goal ", 5);
+x_1 = lean_mk_string_unchecked("goal ", 5, 5);
 return x_1;
 }
 }
@@ -2936,7 +2936,7 @@ static lean_object* _init_l_Lean_MessageData_formatAux___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -2954,7 +2954,7 @@ static lean_object* _init_l_Lean_MessageData_formatAux___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -2972,7 +2972,7 @@ static lean_object* _init_l_Lean_MessageData_formatAux___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" [", 2);
+x_1 = lean_mk_string_unchecked(" [", 2, 2);
 return x_1;
 }
 }
@@ -2990,7 +2990,7 @@ static lean_object* _init_l_Lean_MessageData_formatAux___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("MessageData.ofLazy: expected MessageData in Dynamic, got ", 57);
+x_1 = lean_mk_string_unchecked("MessageData.ofLazy: expected MessageData in Dynamic, got ", 57, 57);
 return x_1;
 }
 }
@@ -2998,7 +2998,7 @@ static lean_object* _init_l_Lean_MessageData_formatAux___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Message", 12);
+x_1 = lean_mk_string_unchecked("Lean.Message", 12, 12);
 return x_1;
 }
 }
@@ -3006,7 +3006,7 @@ static lean_object* _init_l_Lean_MessageData_formatAux___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.MessageData.formatAux", 26);
+x_1 = lean_mk_string_unchecked("Lean.MessageData.formatAux", 26, 26);
 return x_1;
 }
 }
@@ -4582,7 +4582,7 @@ static lean_object* _init_l_Lean_MessageData_instCoeOptionExpr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("none", 4);
+x_1 = lean_mk_string_unchecked("none", 4, 4);
 return x_1;
 }
 }
@@ -4638,7 +4638,7 @@ static lean_object* _init_l_Lean_MessageData_arrayExpr_toMessageData___closed__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", ", 2);
+x_1 = lean_mk_string_unchecked(", ", 2, 2);
 return x_1;
 }
 }
@@ -4729,7 +4729,7 @@ static lean_object* _init_l_Lean_MessageData_instCoeArrayExpr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#[", 2);
+x_1 = lean_mk_string_unchecked("#[", 2, 2);
 return x_1;
 }
 }
@@ -4800,7 +4800,7 @@ static lean_object* _init_l_Lean_MessageData_paren___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -4808,7 +4808,7 @@ static lean_object* _init_l_Lean_MessageData_paren___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -4931,7 +4931,7 @@ static lean_object* _init_l_Lean_MessageData_ofList___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[]", 2);
+x_1 = lean_mk_string_unchecked("[]", 2, 2);
 return x_1;
 }
 }
@@ -4958,7 +4958,7 @@ static lean_object* _init_l_Lean_MessageData_ofList___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -5174,7 +5174,7 @@ static lean_object* _init_l___private_Lean_Message_0__Lean_toJsonBaseMessage____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fileName", 8);
+x_1 = lean_mk_string_unchecked("fileName", 8, 8);
 return x_1;
 }
 }
@@ -5182,7 +5182,7 @@ static lean_object* _init_l___private_Lean_Message_0__Lean_toJsonBaseMessage____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pos", 3);
+x_1 = lean_mk_string_unchecked("pos", 3, 3);
 return x_1;
 }
 }
@@ -5190,7 +5190,7 @@ static lean_object* _init_l___private_Lean_Message_0__Lean_toJsonBaseMessage____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("keepFullRange", 13);
+x_1 = lean_mk_string_unchecked("keepFullRange", 13, 13);
 return x_1;
 }
 }
@@ -5198,7 +5198,7 @@ static lean_object* _init_l___private_Lean_Message_0__Lean_toJsonBaseMessage____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("severity", 8);
+x_1 = lean_mk_string_unchecked("severity", 8, 8);
 return x_1;
 }
 }
@@ -5206,7 +5206,7 @@ static lean_object* _init_l___private_Lean_Message_0__Lean_toJsonBaseMessage____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("caption", 7);
+x_1 = lean_mk_string_unchecked("caption", 7, 7);
 return x_1;
 }
 }
@@ -5214,7 +5214,7 @@ static lean_object* _init_l___private_Lean_Message_0__Lean_toJsonBaseMessage____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("data", 4);
+x_1 = lean_mk_string_unchecked("data", 4, 4);
 return x_1;
 }
 }
@@ -5222,7 +5222,7 @@ static lean_object* _init_l___private_Lean_Message_0__Lean_toJsonBaseMessage____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("endPos", 6);
+x_1 = lean_mk_string_unchecked("endPos", 6, 6);
 return x_1;
 }
 }
@@ -5623,7 +5623,7 @@ static lean_object* _init_l___private_Lean_Message_0__Lean_fromJsonBaseMessage__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("BaseMessage", 11);
+x_1 = lean_mk_string_unchecked("BaseMessage", 11, 11);
 return x_1;
 }
 }
@@ -5651,7 +5651,7 @@ static lean_object* _init_l___private_Lean_Message_0__Lean_fromJsonBaseMessage__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -6471,7 +6471,7 @@ static lean_object* _init_l_Lean_SerialMessage_toString___lambda__3___closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("warning: ", 9);
+x_1 = lean_mk_string_unchecked("warning: ", 9, 9);
 return x_1;
 }
 }
@@ -6479,7 +6479,7 @@ static lean_object* _init_l_Lean_SerialMessage_toString___lambda__3___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("error: ", 7);
+x_1 = lean_mk_string_unchecked("error: ", 7, 7);
 return x_1;
 }
 }
@@ -6540,7 +6540,7 @@ static lean_object* _init_l_Lean_SerialMessage_toString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":\n", 2);
+x_1 = lean_mk_string_unchecked(":\n", 2, 2);
 return x_1;
 }
 }
@@ -9128,7 +9128,7 @@ static lean_object* _init_l_Lean_instToMessageDataOption___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("some (", 6);
+x_1 = lean_mk_string_unchecked("some (", 6, 6);
 return x_1;
 }
 }
@@ -9275,7 +9275,7 @@ static lean_object* _init_l_Lean_instToMessageDataOptionExpr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("<not-available>", 15);
+x_1 = lean_mk_string_unchecked("<not-available>", 15, 15);
 return x_1;
 }
 }
@@ -9322,7 +9322,7 @@ static lean_object* _init_l_Lean_termM_x21_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("termM!_", 7);
+x_1 = lean_mk_string_unchecked("termM!_", 7, 7);
 return x_1;
 }
 }
@@ -9340,7 +9340,7 @@ static lean_object* _init_l_Lean_termM_x21_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("andthen", 7);
+x_1 = lean_mk_string_unchecked("andthen", 7, 7);
 return x_1;
 }
 }
@@ -9358,7 +9358,7 @@ static lean_object* _init_l_Lean_termM_x21_____closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("m!", 2);
+x_1 = lean_mk_string_unchecked("m!", 2, 2);
 return x_1;
 }
 }
@@ -9376,7 +9376,7 @@ static lean_object* _init_l_Lean_termM_x21_____closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("interpolatedStr", 15);
+x_1 = lean_mk_string_unchecked("interpolatedStr", 15, 15);
 return x_1;
 }
 }
@@ -9394,7 +9394,7 @@ static lean_object* _init_l_Lean_termM_x21_____closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term", 4);
+x_1 = lean_mk_string_unchecked("term", 4, 4);
 return x_1;
 }
 }
@@ -9537,7 +9537,7 @@ static lean_object* _init_l_Lean___aux__Lean__Message______macroRules__Lean__ter
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("toMessageData", 13);
+x_1 = lean_mk_string_unchecked("toMessageData", 13, 13);
 return x_1;
 }
 }
@@ -9564,7 +9564,7 @@ static lean_object* _init_l_Lean___aux__Lean__Message______macroRules__Lean__ter
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ToMessageData", 13);
+x_1 = lean_mk_string_unchecked("ToMessageData", 13, 13);
 return x_1;
 }
 }
@@ -9710,7 +9710,7 @@ static lean_object* _init_l_Lean_toMessageList___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n\n", 2);
+x_1 = lean_mk_string_unchecked("\n\n", 2, 2);
 return x_1;
 }
 }
@@ -9754,7 +9754,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(kernel) unknown constant '", 27);
+x_1 = lean_mk_string_unchecked("(kernel) unknown constant '", 27, 27);
 return x_1;
 }
 }
@@ -9771,7 +9771,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -9788,7 +9788,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(kernel) constant has already been declared '", 45);
+x_1 = lean_mk_string_unchecked("(kernel) constant has already been declared '", 45, 45);
 return x_1;
 }
 }
@@ -9805,7 +9805,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(kernel) declaration type mismatch", 34);
+x_1 = lean_mk_string_unchecked("(kernel) declaration type mismatch", 34, 34);
 return x_1;
 }
 }
@@ -9832,7 +9832,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(kernel) declaration type mismatch, '", 37);
+x_1 = lean_mk_string_unchecked("(kernel) declaration type mismatch, '", 37, 37);
 return x_1;
 }
 }
@@ -9849,7 +9849,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' has type", 10);
+x_1 = lean_mk_string_unchecked("' has type", 10, 10);
 return x_1;
 }
 }
@@ -9866,7 +9866,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nbut it is expected to have type", 32);
+x_1 = lean_mk_string_unchecked("\nbut it is expected to have type", 32, 32);
 return x_1;
 }
 }
@@ -9892,7 +9892,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__17() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(kernel) declaration has metavariables '", 40);
+x_1 = lean_mk_string_unchecked("(kernel) declaration has metavariables '", 40, 40);
 return x_1;
 }
 }
@@ -9909,7 +9909,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__19() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(kernel) declaration has free variables '", 41);
+x_1 = lean_mk_string_unchecked("(kernel) declaration has free variables '", 41, 41);
 return x_1;
 }
 }
@@ -9926,7 +9926,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__21() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(kernel) function expected", 26);
+x_1 = lean_mk_string_unchecked("(kernel) function expected", 26, 26);
 return x_1;
 }
 }
@@ -9943,7 +9943,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__23() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(kernel) type expected", 22);
+x_1 = lean_mk_string_unchecked("(kernel) type expected", 22, 22);
 return x_1;
 }
 }
@@ -9960,7 +9960,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__25() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(kernel) let-declaration type mismatch '", 40);
+x_1 = lean_mk_string_unchecked("(kernel) let-declaration type mismatch '", 40, 40);
 return x_1;
 }
 }
@@ -9977,7 +9977,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__27() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(kernel) type mismatch at", 25);
+x_1 = lean_mk_string_unchecked("(kernel) type mismatch at", 25, 25);
 return x_1;
 }
 }
@@ -9994,7 +9994,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__29() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("application type mismatch", 25);
+x_1 = lean_mk_string_unchecked("application type mismatch", 25, 25);
 return x_1;
 }
 }
@@ -10011,7 +10011,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__31() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nargument has type", 18);
+x_1 = lean_mk_string_unchecked("\nargument has type", 18, 18);
 return x_1;
 }
 }
@@ -10028,7 +10028,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__33() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nbut function has type", 22);
+x_1 = lean_mk_string_unchecked("\nbut function has type", 22, 22);
 return x_1;
 }
 }
@@ -10045,7 +10045,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__35() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(kernel) invalid projection", 27);
+x_1 = lean_mk_string_unchecked("(kernel) invalid projection", 27, 27);
 return x_1;
 }
 }
@@ -10062,7 +10062,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__37() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(kernel) type of theorem '", 26);
+x_1 = lean_mk_string_unchecked("(kernel) type of theorem '", 26, 26);
 return x_1;
 }
 }
@@ -10079,7 +10079,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__39() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' is not a proposition", 22);
+x_1 = lean_mk_string_unchecked("' is not a proposition", 22, 22);
 return x_1;
 }
 }
@@ -10096,7 +10096,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__41() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(kernel) ", 9);
+x_1 = lean_mk_string_unchecked("(kernel) ", 9, 9);
 return x_1;
 }
 }
@@ -10113,7 +10113,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__43() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(kernel) deterministic timeout", 30);
+x_1 = lean_mk_string_unchecked("(kernel) deterministic timeout", 30, 30);
 return x_1;
 }
 }
@@ -10140,7 +10140,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__46() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(kernel) excessive memory consumption detected", 46);
+x_1 = lean_mk_string_unchecked("(kernel) excessive memory consumption detected", 46, 46);
 return x_1;
 }
 }
@@ -10167,7 +10167,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__49() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(kernel) deep recursion detected", 32);
+x_1 = lean_mk_string_unchecked("(kernel) deep recursion detected", 32, 32);
 return x_1;
 }
 }
@@ -10194,7 +10194,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__52() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(kernel) interrupted", 20);
+x_1 = lean_mk_string_unchecked("(kernel) interrupted", 20, 20);
 return x_1;
 }
 }

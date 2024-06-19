@@ -1057,7 +1057,7 @@ static lean_object* _init_l___private_Lean_Meta_AbstractMVars_0__Lean_Meta_Abstr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_abstMVar", 9);
+x_1 = lean_mk_string_unchecked("_abstMVar", 9, 9);
 return x_1;
 }
 }
@@ -2124,7 +2124,7 @@ static lean_object* _init_l_Lean_Meta_AbstractMVars_abstractExprMVars___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("x", 1);
+x_1 = lean_mk_string_unchecked("x", 1, 1);
 return x_1;
 }
 }

@@ -517,7 +517,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("theoremName", 11);
+x_1 = lean_mk_string_unchecked("theoremName", 11, 11);
 return x_1;
 }
 }
@@ -547,7 +547,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" := ", 4);
+x_1 = lean_mk_string_unchecked(" := ", 4, 4);
 return x_1;
 }
 }
@@ -586,7 +586,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -604,7 +604,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("funName", 7);
+x_1 = lean_mk_string_unchecked("funName", 7, 7);
 return x_1;
 }
 }
@@ -631,7 +631,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hypothesesPos", 13);
+x_1 = lean_mk_string_unchecked("hypothesesPos", 13, 13);
 return x_1;
 }
 }
@@ -658,7 +658,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("priority", 8);
+x_1 = lean_mk_string_unchecked("priority", 8, 8);
 return x_1;
 }
 }
@@ -685,7 +685,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("{ ", 2);
+x_1 = lean_mk_string_unchecked("{ ", 2, 2);
 return x_1;
 }
 }
@@ -721,7 +721,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" }", 2);
+x_1 = lean_mk_string_unchecked(" }", 2, 2);
 return x_1;
 }
 }
@@ -751,7 +751,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#[", 2);
+x_1 = lean_mk_string_unchecked("#[", 2, 2);
 return x_1;
 }
 }
@@ -787,7 +787,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -805,7 +805,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#[]", 3);
+x_1 = lean_mk_string_unchecked("#[]", 3, 3);
 return x_1;
 }
 }
@@ -1439,7 +1439,7 @@ static lean_object* _init_l_List_repr___at___private_Lean_Meta_Tactic_Simp_SimpC
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[]", 2);
+x_1 = lean_mk_string_unchecked("[]", 2, 2);
 return x_1;
 }
 }
@@ -1457,7 +1457,7 @@ static lean_object* _init_l_List_repr___at___private_Lean_Meta_Tactic_Simp_SimpC
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -1559,7 +1559,7 @@ static lean_object* _init_l_Prod_repr___at___private_Lean_Meta_Tactic_Simp_SimpC
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -1595,7 +1595,7 @@ static lean_object* _init_l_Prod_repr___at___private_Lean_Meta_Tactic_Simp_SimpC
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -1864,7 +1864,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lemmas", 6);
+x_1 = lean_mk_string_unchecked("lemmas", 6, 6);
 return x_1;
 }
 }
@@ -1915,7 +1915,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".toSMap", 7);
+x_1 = lean_mk_string_unchecked(".toSMap", 7, 7);
 return x_1;
 }
 }
@@ -3576,7 +3576,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -3584,7 +3584,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -3592,7 +3592,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("congrExtension", 14);
+x_1 = lean_mk_string_unchecked("congrExtension", 14, 14);
 return x_1;
 }
 }
@@ -3941,7 +3941,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_mkSimpCongrThe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid 'congr' theorem, argument #", 35);
+x_1 = lean_mk_string_unchecked("invalid 'congr' theorem, argument #", 35, 35);
 return x_1;
 }
 }
@@ -3958,7 +3958,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_mkSimpCongrThe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" of parameter #", 15);
+x_1 = lean_mk_string_unchecked(" of parameter #", 15, 15);
 return x_1;
 }
 }
@@ -3975,7 +3975,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_mkSimpCongrThe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" contains unresolved parameter", 30);
+x_1 = lean_mk_string_unchecked(" contains unresolved parameter", 30, 30);
 return x_1;
 }
 }
@@ -3992,7 +3992,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_mkSimpCongrThe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -4238,7 +4238,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_mkSimpCongrThe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid 'congr' theorem, parameter #", 36);
+x_1 = lean_mk_string_unchecked("invalid 'congr' theorem, parameter #", 36, 36);
 return x_1;
 }
 }
@@ -4255,7 +4255,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_mkSimpCongrThe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" is not a valid hypothesis, the right-hand-side argument is not local variable", 78);
+x_1 = lean_mk_string_unchecked(" is not a valid hypothesis, the right-hand-side argument is not local variable", 78, 78);
 return x_1;
 }
 }
@@ -4456,7 +4456,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_mkSimpCongrThe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" is not a valid hypothesis, the right-hand-side head was already resolved", 73);
+x_1 = lean_mk_string_unchecked(" is not a valid hypothesis, the right-hand-side head was already resolved", 73, 73);
 return x_1;
 }
 }
@@ -4590,7 +4590,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_mkSimpCongrThe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" is not a valid hypothesis, the right-hand-side head is not a metavariable", 74);
+x_1 = lean_mk_string_unchecked(" is not a valid hypothesis, the right-hand-side head is not a metavariable", 74, 74);
 return x_1;
 }
 }
@@ -4668,7 +4668,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_mkSimpCongrThe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" is not a valid hypothesis, the left-hand-side contains unresolved parameters", 77);
+x_1 = lean_mk_string_unchecked(" is not a valid hypothesis, the left-hand-side contains unresolved parameters", 77, 77);
 return x_1;
 }
 }
@@ -4685,7 +4685,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_mkSimpCongrThe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -4703,7 +4703,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_mkSimpCongrThe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Iff", 3);
+x_1 = lean_mk_string_unchecked("Iff", 3, 3);
 return x_1;
 }
 }
@@ -7881,7 +7881,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Meta_mkSimpCongrTheor
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid 'congr' theorem, equality left/right-hand sides must be applications of the same function", 97);
+x_1 = lean_mk_string_unchecked("invalid 'congr' theorem, equality left/right-hand sides must be applications of the same function", 97, 97);
 return x_1;
 }
 }
@@ -8197,7 +8197,7 @@ static lean_object* _init_l_Lean_Meta_mkSimpCongrTheorem___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid 'congr' theorem, equality expected", 42);
+x_1 = lean_mk_string_unchecked("invalid 'congr' theorem, equality expected", 42, 42);
 return x_1;
 }
 }
@@ -10407,7 +10407,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attribute cannot be erased", 26);
+x_1 = lean_mk_string_unchecked("attribute cannot be erased", 26, 26);
 return x_1;
 }
 }
@@ -10453,7 +10453,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -10471,7 +10471,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -10509,7 +10509,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -10527,7 +10527,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Simp", 4);
+x_1 = lean_mk_string_unchecked("Simp", 4, 4);
 return x_1;
 }
 }
@@ -10545,7 +10545,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("SimpCongrTheorems", 17);
+x_1 = lean_mk_string_unchecked("SimpCongrTheorems", 17, 17);
 return x_1;
 }
 }
@@ -10563,7 +10563,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -10591,7 +10591,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("congr", 5);
+x_1 = lean_mk_string_unchecked("congr", 5, 5);
 return x_1;
 }
 }
@@ -10609,7 +10609,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("congruence theorem", 18);
+x_1 = lean_mk_string_unchecked("congruence theorem", 18, 18);
 return x_1;
 }
 }

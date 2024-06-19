@@ -237,7 +237,7 @@ static lean_object* _init_l_Lean_instToStringRat___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -245,7 +245,7 @@ static lean_object* _init_l_Lean_instToStringRat___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("/", 1);
+x_1 = lean_mk_string_unchecked("/", 1, 1);
 return x_1;
 }
 }
@@ -253,7 +253,7 @@ static lean_object* _init_l_Lean_instToStringRat___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-", 1);
+x_1 = lean_mk_string_unchecked("-", 1, 1);
 return x_1;
 }
 }
@@ -353,7 +353,7 @@ static lean_object* _init_l_Lean_instReprRat___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -361,7 +361,7 @@ static lean_object* _init_l_Lean_instReprRat___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" : Rat)/", 8);
+x_1 = lean_mk_string_unchecked(" : Rat)/", 8, 8);
 return x_1;
 }
 }

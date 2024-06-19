@@ -480,7 +480,7 @@ static lean_object* _init_l_Lean_Meta_unifyEq_x3f_substEq___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("dependent elimination failed, failed to solve equation", 54);
+x_1 = lean_mk_string_unchecked("dependent elimination failed, failed to solve equation", 54, 54);
 return x_1;
 }
 }
@@ -497,7 +497,7 @@ static lean_object* _init_l_Lean_Meta_unifyEq_x3f_substEq___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -921,7 +921,7 @@ static lean_object* _init_l_Lean_Meta_unifyEq_x3f_injection___lambda__1___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nat case ", 9);
+x_1 = lean_mk_string_unchecked("\nat case ", 9, 9);
 return x_1;
 }
 }
@@ -1676,7 +1676,7 @@ static lean_object* _init_l_Lean_Meta_unifyEq_x3f___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Nat", 3);
+x_1 = lean_mk_string_unchecked("Nat", 3, 3);
 return x_1;
 }
 }
@@ -1684,7 +1684,7 @@ static lean_object* _init_l_Lean_Meta_unifyEq_x3f___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elimOffset", 10);
+x_1 = lean_mk_string_unchecked("elimOffset", 10, 10);
 return x_1;
 }
 }
@@ -2597,7 +2597,7 @@ static lean_object* _init_l_Lean_Meta_unifyEq_x3f___lambda__5___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -2615,7 +2615,7 @@ static lean_object* _init_l_Lean_Meta_unifyEq_x3f___lambda__5___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("equality expected", 17);
+x_1 = lean_mk_string_unchecked("equality expected", 17, 17);
 return x_1;
 }
 }

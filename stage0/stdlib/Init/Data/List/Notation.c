@@ -102,7 +102,7 @@ static lean_object* _init_l_term_x5b___x5d___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term[_]", 7);
+x_1 = lean_mk_string_unchecked("term[_]", 7, 7);
 return x_1;
 }
 }
@@ -120,7 +120,7 @@ static lean_object* _init_l_term_x5b___x5d___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("andthen", 7);
+x_1 = lean_mk_string_unchecked("andthen", 7, 7);
 return x_1;
 }
 }
@@ -138,7 +138,7 @@ static lean_object* _init_l_term_x5b___x5d___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -156,7 +156,7 @@ static lean_object* _init_l_term_x5b___x5d___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("withoutPosition", 15);
+x_1 = lean_mk_string_unchecked("withoutPosition", 15, 15);
 return x_1;
 }
 }
@@ -174,7 +174,7 @@ static lean_object* _init_l_term_x5b___x5d___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term", 4);
+x_1 = lean_mk_string_unchecked("term", 4, 4);
 return x_1;
 }
 }
@@ -204,7 +204,7 @@ static lean_object* _init_l_term_x5b___x5d___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", ", 2);
+x_1 = lean_mk_string_unchecked(", ", 2, 2);
 return x_1;
 }
 }
@@ -222,7 +222,7 @@ static lean_object* _init_l_term_x5b___x5d___closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -272,7 +272,7 @@ static lean_object* _init_l_term_x5b___x5d___closed__18() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -326,7 +326,7 @@ static lean_object* _init_l_term_x25_x5b___x7c___x5d___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term%[_|_]", 10);
+x_1 = lean_mk_string_unchecked("term%[_|_]", 10, 10);
 return x_1;
 }
 }
@@ -344,7 +344,7 @@ static lean_object* _init_l_term_x25_x5b___x7c___x5d___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("%[", 2);
+x_1 = lean_mk_string_unchecked("%[", 2, 2);
 return x_1;
 }
 }
@@ -362,7 +362,7 @@ static lean_object* _init_l_term_x25_x5b___x7c___x5d___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" | ", 3);
+x_1 = lean_mk_string_unchecked(" | ", 3, 3);
 return x_1;
 }
 }
@@ -470,7 +470,7 @@ static lean_object* _init_l_Lean___aux__Init__Data__List__Notation______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -478,7 +478,7 @@ static lean_object* _init_l_Lean___aux__Init__Data__List__Notation______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -486,7 +486,7 @@ static lean_object* _init_l_Lean___aux__Init__Data__List__Notation______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -494,7 +494,7 @@ static lean_object* _init_l_Lean___aux__Init__Data__List__Notation______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("app", 3);
+x_1 = lean_mk_string_unchecked("app", 3, 3);
 return x_1;
 }
 }
@@ -514,7 +514,7 @@ static lean_object* _init_l_Lean___aux__Init__Data__List__Notation______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("List.cons", 9);
+x_1 = lean_mk_string_unchecked("List.cons", 9, 9);
 return x_1;
 }
 }
@@ -531,7 +531,7 @@ static lean_object* _init_l_Lean___aux__Init__Data__List__Notation______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("List", 4);
+x_1 = lean_mk_string_unchecked("List", 4, 4);
 return x_1;
 }
 }
@@ -539,7 +539,7 @@ static lean_object* _init_l_Lean___aux__Init__Data__List__Notation______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cons", 4);
+x_1 = lean_mk_string_unchecked("cons", 4, 4);
 return x_1;
 }
 }
@@ -603,7 +603,7 @@ static lean_object* _init_l_Lean___aux__Init__Data__List__Notation______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -709,7 +709,7 @@ static lean_object* _init_l_Lean___aux__Init__Data__List__Notation______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("|", 1);
+x_1 = lean_mk_string_unchecked("|", 1, 1);
 return x_1;
 }
 }
@@ -717,7 +717,7 @@ static lean_object* _init_l_Lean___aux__Init__Data__List__Notation______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("List.nil", 8);
+x_1 = lean_mk_string_unchecked("List.nil", 8, 8);
 return x_1;
 }
 }
@@ -734,7 +734,7 @@ static lean_object* _init_l_Lean___aux__Init__Data__List__Notation______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("nil", 3);
+x_1 = lean_mk_string_unchecked("nil", 3, 3);
 return x_1;
 }
 }

@@ -3477,7 +3477,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_FindRec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structural recursion cannot be used", 35);
+x_1 = lean_mk_string_unchecked("structural recursion cannot be used", 35, 35);
 return x_1;
 }
 }
@@ -5118,7 +5118,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Structural_findR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.PreDefinition.Structural.FindRecArg", 45);
+x_1 = lean_mk_string_unchecked("Lean.Elab.PreDefinition.Structural.FindRecArg", 45, 45);
 return x_1;
 }
 }
@@ -5126,7 +5126,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Structural_findR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.Structural.findRecArg.go", 34);
+x_1 = lean_mk_string_unchecked("Lean.Elab.Structural.findRecArg.go", 34, 34);
 return x_1;
 }
 }
@@ -5134,7 +5134,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Structural_findR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -5607,7 +5607,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Elab_Structural_findRecArg_g
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -5846,7 +5846,7 @@ static lean_object* _init_l_Lean_Elab_Structural_findRecArg_go___rarg___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("argument #", 10);
+x_1 = lean_mk_string_unchecked("argument #", 10, 10);
 return x_1;
 }
 }
@@ -5863,7 +5863,7 @@ static lean_object* _init_l_Lean_Elab_Structural_findRecArg_go___rarg___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" was not used for structural recursion", 38);
+x_1 = lean_mk_string_unchecked(" was not used for structural recursion", 38, 38);
 return x_1;
 }
 }
@@ -5944,7 +5944,7 @@ static lean_object* _init_l_Lean_Elab_Structural_findRecArg_go___rarg___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" was not used because its type is an inductive datatype", 55);
+x_1 = lean_mk_string_unchecked(" was not used because its type is an inductive datatype", 55, 55);
 return x_1;
 }
 }
@@ -5961,7 +5961,7 @@ static lean_object* _init_l_Lean_Elab_Structural_findRecArg_go___rarg___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nand parameter", 14);
+x_1 = lean_mk_string_unchecked("\nand parameter", 14, 14);
 return x_1;
 }
 }
@@ -5978,7 +5978,7 @@ static lean_object* _init_l_Lean_Elab_Structural_findRecArg_go___rarg___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\ndepends on", 11);
+x_1 = lean_mk_string_unchecked("\ndepends on", 11, 11);
 return x_1;
 }
 }
@@ -5995,7 +5995,7 @@ static lean_object* _init_l_Lean_Elab_Structural_findRecArg_go___rarg___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" was not used because its type is an inductive family", 53);
+x_1 = lean_mk_string_unchecked(" was not used because its type is an inductive family", 53, 53);
 return x_1;
 }
 }
@@ -6012,7 +6012,7 @@ static lean_object* _init_l_Lean_Elab_Structural_findRecArg_go___rarg___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nand index", 10);
+x_1 = lean_mk_string_unchecked("\nand index", 10, 10);
 return x_1;
 }
 }
@@ -6029,7 +6029,7 @@ static lean_object* _init_l_Lean_Elab_Structural_findRecArg_go___rarg___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\ndepends on the non index", 25);
+x_1 = lean_mk_string_unchecked("\ndepends on the non index", 25, 25);
 return x_1;
 }
 }
@@ -6046,7 +6046,7 @@ static lean_object* _init_l_Lean_Elab_Structural_findRecArg_go___rarg___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" was not used because its type is an inductive family and indices are not pairwise distinct", 91);
+x_1 = lean_mk_string_unchecked(" was not used because its type is an inductive family and indices are not pairwise distinct", 91, 91);
 return x_1;
 }
 }
@@ -6063,7 +6063,7 @@ static lean_object* _init_l_Lean_Elab_Structural_findRecArg_go___rarg___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" was not used because its type is an inductive family and indices are not variables", 83);
+x_1 = lean_mk_string_unchecked(" was not used because its type is an inductive family and indices are not variables", 83, 83);
 return x_1;
 }
 }
@@ -7442,7 +7442,7 @@ static lean_object* _init_l_Lean_Elab_Structural_findRecArg_go___rarg___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -7450,7 +7450,7 @@ static lean_object* _init_l_Lean_Elab_Structural_findRecArg_go___rarg___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("definition", 10);
+x_1 = lean_mk_string_unchecked("definition", 10, 10);
 return x_1;
 }
 }
@@ -7458,7 +7458,7 @@ static lean_object* _init_l_Lean_Elab_Structural_findRecArg_go___rarg___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structural", 10);
+x_1 = lean_mk_string_unchecked("structural", 10, 10);
 return x_1;
 }
 }
@@ -7477,7 +7477,7 @@ static lean_object* _init_l_Lean_Elab_Structural_findRecArg_go___rarg___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("findRecArg x: ", 14);
+x_1 = lean_mk_string_unchecked("findRecArg x: ", 14, 14);
 return x_1;
 }
 }
@@ -7494,7 +7494,7 @@ static lean_object* _init_l_Lean_Elab_Structural_findRecArg_go___rarg___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", firstPass: ", 13);
+x_1 = lean_mk_string_unchecked(", firstPass: ", 13, 13);
 return x_1;
 }
 }
@@ -7511,7 +7511,7 @@ static lean_object* _init_l_Lean_Elab_Structural_findRecArg_go___rarg___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("false", 5);
+x_1 = lean_mk_string_unchecked("false", 5, 5);
 return x_1;
 }
 }
@@ -7538,7 +7538,7 @@ static lean_object* _init_l_Lean_Elab_Structural_findRecArg_go___rarg___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("true", 4);
+x_1 = lean_mk_string_unchecked("true", 4, 4);
 return x_1;
 }
 }

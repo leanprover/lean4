@@ -781,7 +781,7 @@ static lean_object* _init_l_Lean_SMap_find_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Data.SMap", 14);
+x_1 = lean_mk_string_unchecked("Lean.Data.SMap", 14, 14);
 return x_1;
 }
 }
@@ -789,7 +789,7 @@ static lean_object* _init_l_Lean_SMap_find_x21___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.SMap.find!", 15);
+x_1 = lean_mk_string_unchecked("Lean.SMap.find!", 15, 15);
 return x_1;
 }
 }
@@ -797,7 +797,7 @@ static lean_object* _init_l_Lean_SMap_find_x21___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("key is not in the map", 21);
+x_1 = lean_mk_string_unchecked("key is not in the map", 21, 21);
 return x_1;
 }
 }
@@ -5919,7 +5919,7 @@ static lean_object* _init_l_Prod_repr___at_Lean_instReprSMap___spec__3___rarg___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -5949,7 +5949,7 @@ static lean_object* _init_l_Prod_repr___at_Lean_instReprSMap___spec__3___rarg___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -5985,7 +5985,7 @@ static lean_object* _init_l_Prod_repr___at_Lean_instReprSMap___spec__3___rarg___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -6230,7 +6230,7 @@ static lean_object* _init_l_List_repr___at_Lean_instReprSMap___spec__1___rarg___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[]", 2);
+x_1 = lean_mk_string_unchecked("[]", 2, 2);
 return x_1;
 }
 }
@@ -6248,7 +6248,7 @@ static lean_object* _init_l_List_repr___at_Lean_instReprSMap___spec__1___rarg___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -6284,7 +6284,7 @@ static lean_object* _init_l_List_repr___at_Lean_instReprSMap___spec__1___rarg___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -6378,7 +6378,7 @@ static lean_object* _init_l_Lean_instReprSMap___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".toSMap", 7);
+x_1 = lean_mk_string_unchecked(".toSMap", 7, 7);
 return x_1;
 }
 }

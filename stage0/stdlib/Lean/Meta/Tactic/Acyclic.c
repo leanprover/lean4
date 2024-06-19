@@ -198,7 +198,7 @@ static lean_object* _init_l_Lean_MVarId_acyclic_go___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -206,7 +206,7 @@ static lean_object* _init_l_Lean_MVarId_acyclic_go___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -214,7 +214,7 @@ static lean_object* _init_l_Lean_MVarId_acyclic_go___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("acyclic", 7);
+x_1 = lean_mk_string_unchecked("acyclic", 7, 7);
 return x_1;
 }
 }
@@ -241,7 +241,7 @@ static lean_object* _init_l_Lean_MVarId_acyclic_go___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed with\n", 12);
+x_1 = lean_mk_string_unchecked("failed with\n", 12, 12);
 return x_1;
 }
 }
@@ -258,7 +258,7 @@ static lean_object* _init_l_Lean_MVarId_acyclic_go___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -275,7 +275,7 @@ static lean_object* _init_l_Lean_MVarId_acyclic_go___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("SizeOf", 6);
+x_1 = lean_mk_string_unchecked("SizeOf", 6, 6);
 return x_1;
 }
 }
@@ -283,7 +283,7 @@ static lean_object* _init_l_Lean_MVarId_acyclic_go___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sizeOf", 6);
+x_1 = lean_mk_string_unchecked("sizeOf", 6, 6);
 return x_1;
 }
 }
@@ -484,7 +484,7 @@ static lean_object* _init_l_Lean_MVarId_acyclic_go___closed__28() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Nat", 3);
+x_1 = lean_mk_string_unchecked("Nat", 3, 3);
 return x_1;
 }
 }
@@ -492,7 +492,7 @@ static lean_object* _init_l_Lean_MVarId_acyclic_go___closed__29() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lt_of_lt_of_eq", 14);
+x_1 = lean_mk_string_unchecked("lt_of_lt_of_eq", 14, 14);
 return x_1;
 }
 }
@@ -519,7 +519,7 @@ static lean_object* _init_l_Lean_MVarId_acyclic_go___closed__32() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lt_irrefl", 9);
+x_1 = lean_mk_string_unchecked("lt_irrefl", 9, 9);
 return x_1;
 }
 }
@@ -545,7 +545,7 @@ static lean_object* _init_l_Lean_MVarId_acyclic_go___closed__35() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("succeeded", 9);
+x_1 = lean_mk_string_unchecked("succeeded", 9, 9);
 return x_1;
 }
 }
@@ -1386,7 +1386,7 @@ static lean_object* _init_l_Lean_MVarId_acyclic___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -1631,7 +1631,7 @@ static lean_object* _init_l_Lean_MVarId_acyclic___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("type: ", 6);
+x_1 = lean_mk_string_unchecked("type: ", 6, 6);
 return x_1;
 }
 }
@@ -1837,7 +1837,7 @@ static lean_object* _init_l_Lean_MVarId_initFn____x40_Lean_Meta_Tactic_Acyclic__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1855,7 +1855,7 @@ static lean_object* _init_l_Lean_MVarId_initFn____x40_Lean_Meta_Tactic_Acyclic__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("MVarId", 6);
+x_1 = lean_mk_string_unchecked("MVarId", 6, 6);
 return x_1;
 }
 }
@@ -1873,7 +1873,7 @@ static lean_object* _init_l_Lean_MVarId_initFn____x40_Lean_Meta_Tactic_Acyclic__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -1891,7 +1891,7 @@ static lean_object* _init_l_Lean_MVarId_initFn____x40_Lean_Meta_Tactic_Acyclic__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -1939,7 +1939,7 @@ static lean_object* _init_l_Lean_MVarId_initFn____x40_Lean_Meta_Tactic_Acyclic__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Acyclic", 7);
+x_1 = lean_mk_string_unchecked("Acyclic", 7, 7);
 return x_1;
 }
 }
@@ -1957,7 +1957,7 @@ static lean_object* _init_l_Lean_MVarId_initFn____x40_Lean_Meta_Tactic_Acyclic__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }

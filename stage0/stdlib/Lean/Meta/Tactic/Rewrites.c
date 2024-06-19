@@ -387,7 +387,7 @@ static lean_object* _init_l_Lean_Meta_Rewrites_initFn____x40_Lean_Meta_Tactic_Re
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -395,7 +395,7 @@ static lean_object* _init_l_Lean_Meta_Rewrites_initFn____x40_Lean_Meta_Tactic_Re
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rewrites", 8);
+x_1 = lean_mk_string_unchecked("rewrites", 8, 8);
 return x_1;
 }
 }
@@ -413,7 +413,7 @@ static lean_object* _init_l_Lean_Meta_Rewrites_initFn____x40_Lean_Meta_Tactic_Re
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -431,7 +431,7 @@ static lean_object* _init_l_Lean_Meta_Rewrites_initFn____x40_Lean_Meta_Tactic_Re
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -449,7 +449,7 @@ static lean_object* _init_l_Lean_Meta_Rewrites_initFn____x40_Lean_Meta_Tactic_Re
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Rewrites", 8);
+x_1 = lean_mk_string_unchecked("Rewrites", 8, 8);
 return x_1;
 }
 }
@@ -467,7 +467,7 @@ static lean_object* _init_l_Lean_Meta_Rewrites_initFn____x40_Lean_Meta_Tactic_Re
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -485,7 +485,7 @@ static lean_object* _init_l_Lean_Meta_Rewrites_initFn____x40_Lean_Meta_Tactic_Re
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -543,7 +543,7 @@ static lean_object* _init_l_Lean_Meta_Rewrites_initFn____x40_Lean_Meta_Tactic_Re
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -582,7 +582,7 @@ static lean_object* _init_l_Lean_Meta_Rewrites_initFn____x40_Lean_Meta_Tactic_Re
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lemmas", 6);
+x_1 = lean_mk_string_unchecked("lemmas", 6, 6);
 return x_1;
 }
 }
@@ -622,7 +622,7 @@ static lean_object* _init_l_Lean_Meta_Rewrites_rewriteResultLemma___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("congrArg", 8);
+x_1 = lean_mk_string_unchecked("congrArg", 8, 8);
 return x_1;
 }
 }
@@ -785,7 +785,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Rewrites_0__Lean_Meta_Rew
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -793,7 +793,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Rewrites_0__Lean_Meta_Rew
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Iff", 3);
+x_1 = lean_mk_string_unchecked("Iff", 3, 3);
 return x_1;
 }
 }
@@ -1787,7 +1787,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Rewrites_0__Lean_Meta_Rew
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_inj", 4);
+x_1 = lean_mk_string_unchecked("_inj", 4, 4);
 return x_1;
 }
 }
@@ -1795,7 +1795,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Rewrites_0__Lean_Meta_Rew
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_inj'", 5);
+x_1 = lean_mk_string_unchecked("_inj'", 5, 5);
 return x_1;
 }
 }
@@ -1866,7 +1866,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Rewrites_0__Lean_Meta_Rew
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sizeOf_spec", 11);
+x_1 = lean_mk_string_unchecked("sizeOf_spec", 11, 11);
 return x_1;
 }
 }
@@ -1916,7 +1916,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Rewrites_0__Lean_Meta_Rew
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("injEq", 5);
+x_1 = lean_mk_string_unchecked("injEq", 5, 5);
 return x_1;
 }
 }
@@ -4156,7 +4156,7 @@ static lean_object* _init_l_Lean_Meta_Rewrites_solveByElim___lambda__3___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed", 6);
+x_1 = lean_mk_string_unchecked("failed", 6, 6);
 return x_1;
 }
 }
@@ -4562,7 +4562,7 @@ static lean_object* _init_l_Lean_Meta_Rewrites_rwLemma___lambda__1___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("symm", 4);
+x_1 = lean_mk_string_unchecked("symm", 4, 4);
 return x_1;
 }
 }
@@ -5018,15 +5018,17 @@ return x_120;
 static lean_object* _init_l_Lean_Meta_Rewrites_rwLemma___lambda__2___closed__1() {
 _start:
 {
-uint8_t x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
+uint8_t x_1; uint8_t x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
 x_1 = 2;
 x_2 = 1;
 x_3 = lean_box(0);
-x_4 = lean_alloc_ctor(0, 1, 2);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set_uint8(x_4, sizeof(void*)*1, x_1);
-lean_ctor_set_uint8(x_4, sizeof(void*)*1 + 1, x_2);
-return x_4;
+x_4 = 0;
+x_5 = lean_alloc_ctor(0, 1, 3);
+lean_ctor_set(x_5, 0, x_3);
+lean_ctor_set_uint8(x_5, sizeof(void*)*1, x_1);
+lean_ctor_set_uint8(x_5, sizeof(void*)*1 + 1, x_2);
+lean_ctor_set_uint8(x_5, sizeof(void*)*1 + 2, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_Rewrites_rwLemma___lambda__2(lean_object* x_1, uint8_t x_2, lean_object* x_3, uint8_t x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
@@ -5899,7 +5901,7 @@ static lean_object* _init_l_Lean_Meta_Rewrites_rwLemma___lambda__3___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("considering ", 12);
+x_1 = lean_mk_string_unchecked("considering ", 12, 12);
 return x_1;
 }
 }
@@ -5916,7 +5918,7 @@ static lean_object* _init_l_Lean_Meta_Rewrites_rwLemma___lambda__3___closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -5957,7 +5959,7 @@ static lean_object* _init_l_Lean_Meta_Rewrites_rwLemma___lambda__3___closed__7()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("← ", 4);
+x_1 = lean_mk_string_unchecked("← ", 4, 2);
 return x_1;
 }
 }
@@ -16835,7 +16837,7 @@ static lean_object* _init_l_List_map___at_Lean_Meta_Rewrites_rewriteCandidates__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -16871,7 +16873,7 @@ static lean_object* _init_l_List_map___at_Lean_Meta_Rewrites_rewriteCandidates__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("false", 5);
+x_1 = lean_mk_string_unchecked("false", 5, 5);
 return x_1;
 }
 }
@@ -16922,7 +16924,7 @@ static lean_object* _init_l_List_map___at_Lean_Meta_Rewrites_rewriteCandidates__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -16930,7 +16932,7 @@ static lean_object* _init_l_List_map___at_Lean_Meta_Rewrites_rewriteCandidates__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -16938,7 +16940,7 @@ static lean_object* _init_l_List_map___at_Lean_Meta_Rewrites_rewriteCandidates__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("true", 4);
+x_1 = lean_mk_string_unchecked("true", 4, 4);
 return x_1;
 }
 }
@@ -17356,7 +17358,7 @@ static lean_object* _init_l_Lean_Meta_Rewrites_rewriteCandidates___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Candidate rewrite lemmas:\n", 26);
+x_1 = lean_mk_string_unchecked("Candidate rewrite lemmas:\n", 26, 26);
 return x_1;
 }
 }
@@ -17690,7 +17692,7 @@ static lean_object* _init_l_Lean_Meta_Rewrites_RewriteResult_newGoal___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no goals", 8);
+x_1 = lean_mk_string_unchecked("no goals", 8, 8);
 return x_1;
 }
 }

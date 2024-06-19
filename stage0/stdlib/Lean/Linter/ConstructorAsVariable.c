@@ -178,7 +178,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_ConstructorAsV
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("linter", 6);
+x_1 = lean_mk_string_unchecked("linter", 6, 6);
 return x_1;
 }
 }
@@ -186,7 +186,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_ConstructorAsV
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("constructorNameAsVariable", 25);
+x_1 = lean_mk_string_unchecked("constructorNameAsVariable", 25, 25);
 return x_1;
 }
 }
@@ -204,7 +204,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_ConstructorAsV
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -212,7 +212,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_ConstructorAsV
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("enable the linter that warns when bound variable names are nullary constructor names", 84);
+x_1 = lean_mk_string_unchecked("enable the linter that warns when bound variable names are nullary constructor names", 84, 84);
 return x_1;
 }
 }
@@ -235,7 +235,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_ConstructorAsV
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -243,7 +243,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_ConstructorAsV
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Linter", 6);
+x_1 = lean_mk_string_unchecked("Linter", 6, 6);
 return x_1;
 }
 }
@@ -1110,7 +1110,7 @@ static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_constr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Server.InfoUtils", 21);
+x_1 = lean_mk_string_unchecked("Lean.Server.InfoUtils", 21, 21);
 return x_1;
 }
 }
@@ -1118,7 +1118,7 @@ static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_constr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.InfoTree.visitM.go", 28);
+x_1 = lean_mk_string_unchecked("Lean.Elab.InfoTree.visitM.go", 28, 28);
 return x_1;
 }
 }
@@ -1126,7 +1126,7 @@ static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_constr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected context-free info tree node", 38);
+x_1 = lean_mk_string_unchecked("unexpected context-free info tree node", 38, 38);
 return x_1;
 }
 }
@@ -2664,7 +2664,7 @@ static lean_object* _init_l_Lean_Linter_logLint___at_Lean_Linter_constructorName
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("note: this linter can be disabled with `set_option ", 51);
+x_1 = lean_mk_string_unchecked("note: this linter can be disabled with `set_option ", 51, 51);
 return x_1;
 }
 }
@@ -2681,7 +2681,7 @@ static lean_object* _init_l_Lean_Linter_logLint___at_Lean_Linter_constructorName
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" false`", 7);
+x_1 = lean_mk_string_unchecked(" false`", 7, 7);
 return x_1;
 }
 }
@@ -2707,7 +2707,7 @@ static lean_object* _init_l_Lean_Linter_logLint___at_Lean_Linter_constructorName
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -2805,7 +2805,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Linter_constructorN
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Local variable '", 16);
+x_1 = lean_mk_string_unchecked("Local variable '", 16, 16);
 return x_1;
 }
 }
@@ -2822,7 +2822,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Linter_constructorN
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' resembles constructor '", 25);
+x_1 = lean_mk_string_unchecked("' resembles constructor '", 25, 25);
 return x_1;
 }
 }
@@ -2839,7 +2839,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Linter_constructorN
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' - ", 4);
+x_1 = lean_mk_string_unchecked("' - ", 4, 4);
 return x_1;
 }
 }
@@ -2856,7 +2856,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Linter_constructorN
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("write '.", 8);
+x_1 = lean_mk_string_unchecked("write '.", 8, 8);
 return x_1;
 }
 }
@@ -2873,7 +2873,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Linter_constructorN
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' (with a dot) or '", 19);
+x_1 = lean_mk_string_unchecked("' (with a dot) or '", 19, 19);
 return x_1;
 }
 }
@@ -2890,7 +2890,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Linter_constructorN
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' to use the constructor.", 25);
+x_1 = lean_mk_string_unchecked("' to use the constructor.", 25, 25);
 return x_1;
 }
 }

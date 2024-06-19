@@ -1056,7 +1056,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_evalUnsafe____x40_Lean_Elab_T
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1064,7 +1064,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_evalUnsafe____x40_Lean_Elab_T
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -1072,7 +1072,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_evalUnsafe____x40_Lean_Elab_T
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Omega", 5);
+x_1 = lean_mk_string_unchecked("Omega", 5, 5);
 return x_1;
 }
 }
@@ -1080,7 +1080,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_evalUnsafe____x40_Lean_Elab_T
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("OmegaConfig", 11);
+x_1 = lean_mk_string_unchecked("OmegaConfig", 11, 11);
 return x_1;
 }
 }
@@ -3799,7 +3799,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_succ_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Nat", 3);
+x_1 = lean_mk_string_unchecked("Nat", 3, 3);
 return x_1;
 }
 }
@@ -3807,7 +3807,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_succ_x3f___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HAdd", 4);
+x_1 = lean_mk_string_unchecked("HAdd", 4, 4);
 return x_1;
 }
 }
@@ -3815,7 +3815,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_succ_x3f___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hAdd", 4);
+x_1 = lean_mk_string_unchecked("hAdd", 4, 4);
 return x_1;
 }
 }
@@ -3832,7 +3832,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_succ_x3f___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("succ", 4);
+x_1 = lean_mk_string_unchecked("succ", 4, 4);
 return x_1;
 }
 }
@@ -4013,7 +4013,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_problem___default
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -4129,7 +4129,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_mkEvalRflProof___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LinearCombo", 11);
+x_1 = lean_mk_string_unchecked("LinearCombo", 11, 11);
 return x_1;
 }
 }
@@ -4137,7 +4137,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_mkEvalRflProof___closed__2() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("eval", 4);
+x_1 = lean_mk_string_unchecked("eval", 4, 4);
 return x_1;
 }
 }
@@ -4167,7 +4167,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_mkEvalRflProof___closed__5() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mk", 2);
+x_1 = lean_mk_string_unchecked("mk", 2, 2);
 return x_1;
 }
 }
@@ -4206,7 +4206,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_mkEvalRflProof___closed__9() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Int", 3);
+x_1 = lean_mk_string_unchecked("Int", 3, 3);
 return x_1;
 }
 }
@@ -4234,7 +4234,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_mkEvalRflProof___closed__12()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("List", 4);
+x_1 = lean_mk_string_unchecked("List", 4, 4);
 return x_1;
 }
 }
@@ -4242,7 +4242,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_mkEvalRflProof___closed__13()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("nil", 3);
+x_1 = lean_mk_string_unchecked("nil", 3, 3);
 return x_1;
 }
 }
@@ -4292,7 +4292,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_mkEvalRflProof___closed__18()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cons", 4);
+x_1 = lean_mk_string_unchecked("cons", 4, 4);
 return x_1;
 }
 }
@@ -4330,7 +4330,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_mkEvalRflProof___closed__22()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Neg", 3);
+x_1 = lean_mk_string_unchecked("Neg", 3, 3);
 return x_1;
 }
 }
@@ -4338,7 +4338,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_mkEvalRflProof___closed__23()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("neg", 3);
+x_1 = lean_mk_string_unchecked("neg", 3, 3);
 return x_1;
 }
 }
@@ -4387,7 +4387,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_mkEvalRflProof___closed__28()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instNegInt", 10);
+x_1 = lean_mk_string_unchecked("instNegInt", 10, 10);
 return x_1;
 }
 }
@@ -4516,7 +4516,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_mkCoordinateEvalAtomsEq___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Coeffs", 6);
+x_1 = lean_mk_string_unchecked("Coeffs", 6, 6);
 return x_1;
 }
 }
@@ -4524,7 +4524,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_mkCoordinateEvalAtomsEq___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("get", 3);
+x_1 = lean_mk_string_unchecked("get", 3, 3);
 return x_1;
 }
 }
@@ -4554,7 +4554,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_mkCoordinateEvalAtomsEq___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("coordinate_eval", 15);
+x_1 = lean_mk_string_unchecked("coordinate_eval", 15, 15);
 return x_1;
 }
 }
@@ -4605,7 +4605,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_mkCoordinateEvalAtomsEq___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("coordinate_eval_", 16);
+x_1 = lean_mk_string_unchecked("coordinate_eval_", 16, 16);
 return x_1;
 }
 }
@@ -5162,7 +5162,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_rewrite___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -5180,7 +5180,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_rewrite___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.Tactic.Omega.Frontend", 31);
+x_1 = lean_mk_string_unchecked("Lean.Elab.Tactic.Omega.Frontend", 31, 31);
 return x_1;
 }
 }
@@ -5188,7 +5188,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_rewrite___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.Tactic.Omega.asLinearComboImpl.rewrite", 48);
+x_1 = lean_mk_string_unchecked("Lean.Elab.Tactic.Omega.asLinearComboImpl.rewrite", 48, 48);
 return x_1;
 }
 }
@@ -5196,7 +5196,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_rewrite___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Invalid rewrite rule in 'asLinearCombo'", 39);
+x_1 = lean_mk_string_unchecked("Invalid rewrite rule in 'asLinearCombo'", 39, 39);
 return x_1;
 }
 }
@@ -5453,7 +5453,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_rewrite___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("omega", 5);
+x_1 = lean_mk_string_unchecked("omega", 5, 5);
 return x_1;
 }
 }
@@ -5471,7 +5471,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_rewrite___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rewriting ", 10);
+x_1 = lean_mk_string_unchecked("rewriting ", 10, 10);
 return x_1;
 }
 }
@@ -5488,7 +5488,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_rewrite___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" via ", 5);
+x_1 = lean_mk_string_unchecked(" via ", 5, 5);
 return x_1;
 }
 }
@@ -5505,7 +5505,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_rewrite___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" : ", 3);
+x_1 = lean_mk_string_unchecked(" : ", 3, 3);
 return x_1;
 }
 }
@@ -6319,7 +6319,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearCombo___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Found in cache: ", 16);
+x_1 = lean_mk_string_unchecked("Found in cache: ", 16, 16);
 return x_1;
 }
 }
@@ -6773,7 +6773,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__5
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mul_eval", 8);
+x_1 = lean_mk_string_unchecked("mul_eval", 8, 8);
 return x_1;
 }
 }
@@ -6793,7 +6793,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__5
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mul_congr", 9);
+x_1 = lean_mk_string_unchecked("mul_congr", 9, 9);
 return x_1;
 }
 }
@@ -7340,7 +7340,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__6
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Or", 2);
+x_1 = lean_mk_string_unchecked("Or", 2, 2);
 return x_1;
 }
 }
@@ -7368,7 +7368,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__6
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("isZero", 6);
+x_1 = lean_mk_string_unchecked("isZero", 6, 6);
 return x_1;
 }
 }
@@ -8043,7 +8043,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__7
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("neg_eval", 8);
+x_1 = lean_mk_string_unchecked("neg_eval", 8, 8);
 return x_1;
 }
 }
@@ -8073,7 +8073,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__7
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("neg_congr", 9);
+x_1 = lean_mk_string_unchecked("neg_congr", 9, 9);
 return x_1;
 }
 }
@@ -8395,7 +8395,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__8
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sub_eval", 8);
+x_1 = lean_mk_string_unchecked("sub_eval", 8, 8);
 return x_1;
 }
 }
@@ -8425,7 +8425,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__8
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sub_congr", 9);
+x_1 = lean_mk_string_unchecked("sub_congr", 9, 9);
 return x_1;
 }
 }
@@ -8890,7 +8890,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__9
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("add_eval", 8);
+x_1 = lean_mk_string_unchecked("add_eval", 8, 8);
 return x_1;
 }
 }
@@ -8920,7 +8920,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__9
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("add_congr", 9);
+x_1 = lean_mk_string_unchecked("add_congr", 9, 9);
 return x_1;
 }
 }
@@ -9385,7 +9385,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HSub", 4);
+x_1 = lean_mk_string_unchecked("HSub", 4, 4);
 return x_1;
 }
 }
@@ -9393,7 +9393,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HMul", 4);
+x_1 = lean_mk_string_unchecked("HMul", 4, 4);
 return x_1;
 }
 }
@@ -9401,7 +9401,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HMod", 4);
+x_1 = lean_mk_string_unchecked("HMod", 4, 4);
 return x_1;
 }
 }
@@ -9409,7 +9409,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HDiv", 4);
+x_1 = lean_mk_string_unchecked("HDiv", 4, 4);
 return x_1;
 }
 }
@@ -9417,7 +9417,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Min", 3);
+x_1 = lean_mk_string_unchecked("Min", 3, 3);
 return x_1;
 }
 }
@@ -9425,7 +9425,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Max", 3);
+x_1 = lean_mk_string_unchecked("Max", 3, 3);
 return x_1;
 }
 }
@@ -9433,7 +9433,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HPow", 4);
+x_1 = lean_mk_string_unchecked("HPow", 4, 4);
 return x_1;
 }
 }
@@ -9441,7 +9441,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Prod", 4);
+x_1 = lean_mk_string_unchecked("Prod", 4, 4);
 return x_1;
 }
 }
@@ -9449,7 +9449,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fst", 3);
+x_1 = lean_mk_string_unchecked("fst", 3, 3);
 return x_1;
 }
 }
@@ -9457,7 +9457,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("snd", 3);
+x_1 = lean_mk_string_unchecked("snd", 3, 3);
 return x_1;
 }
 }
@@ -9465,7 +9465,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("snd_mk", 6);
+x_1 = lean_mk_string_unchecked("snd_mk", 6, 6);
 return x_1;
 }
 }
@@ -9485,7 +9485,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fst_mk", 6);
+x_1 = lean_mk_string_unchecked("fst_mk", 6, 6);
 return x_1;
 }
 }
@@ -9505,7 +9505,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cast", 4);
+x_1 = lean_mk_string_unchecked("cast", 4, 4);
 return x_1;
 }
 }
@@ -9513,7 +9513,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hPow", 4);
+x_1 = lean_mk_string_unchecked("hPow", 4, 4);
 return x_1;
 }
 }
@@ -9521,7 +9521,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pow_succ", 8);
+x_1 = lean_mk_string_unchecked("pow_succ", 8, 8);
 return x_1;
 }
 }
@@ -9549,7 +9549,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("max", 3);
+x_1 = lean_mk_string_unchecked("max", 3, 3);
 return x_1;
 }
 }
@@ -9557,7 +9557,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("max_def", 7);
+x_1 = lean_mk_string_unchecked("max_def", 7, 7);
 return x_1;
 }
 }
@@ -9585,7 +9585,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("min", 3);
+x_1 = lean_mk_string_unchecked("min", 3, 3);
 return x_1;
 }
 }
@@ -9593,7 +9593,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("min_def", 7);
+x_1 = lean_mk_string_unchecked("min_def", 7, 7);
 return x_1;
 }
 }
@@ -9621,7 +9621,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hDiv", 4);
+x_1 = lean_mk_string_unchecked("hDiv", 4, 4);
 return x_1;
 }
 }
@@ -9661,7 +9661,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ediv_neg", 8);
+x_1 = lean_mk_string_unchecked("ediv_neg", 8, 8);
 return x_1;
 }
 }
@@ -9699,7 +9699,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ediv_zero", 9);
+x_1 = lean_mk_string_unchecked("ediv_zero", 9, 9);
 return x_1;
 }
 }
@@ -9727,7 +9727,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hMod", 4);
+x_1 = lean_mk_string_unchecked("hMod", 4, 4);
 return x_1;
 }
 }
@@ -9745,7 +9745,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("emod_def", 8);
+x_1 = lean_mk_string_unchecked("emod_def", 8, 8);
 return x_1;
 }
 }
@@ -9783,7 +9783,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hMul", 4);
+x_1 = lean_mk_string_unchecked("hMul", 4, 4);
 return x_1;
 }
 }
@@ -9799,7 +9799,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hSub", 4);
+x_1 = lean_mk_string_unchecked("hSub", 4, 4);
 return x_1;
 }
 }
@@ -13128,7 +13128,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("processing ", 11);
+x_1 = lean_mk_string_unchecked("processing ", 11, 11);
 return x_1;
 }
 }
@@ -13224,7 +13224,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("OfNat", 5);
+x_1 = lean_mk_string_unchecked("OfNat", 5, 5);
 return x_1;
 }
 }
@@ -13232,7 +13232,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HShiftLeft", 10);
+x_1 = lean_mk_string_unchecked("HShiftLeft", 10, 10);
 return x_1;
 }
 }
@@ -13240,7 +13240,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HShiftRight", 11);
+x_1 = lean_mk_string_unchecked("HShiftRight", 11, 11);
 return x_1;
 }
 }
@@ -13248,7 +13248,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Fin", 3);
+x_1 = lean_mk_string_unchecked("Fin", 3, 3);
 return x_1;
 }
 }
@@ -13256,7 +13256,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("val", 3);
+x_1 = lean_mk_string_unchecked("val", 3, 3);
 return x_1;
 }
 }
@@ -13264,7 +13264,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("natAbs", 6);
+x_1 = lean_mk_string_unchecked("natAbs", 6, 6);
 return x_1;
 }
 }
@@ -13272,7 +13272,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat_natAbs", 12);
+x_1 = lean_mk_string_unchecked("ofNat_natAbs", 12, 12);
 return x_1;
 }
 }
@@ -13302,7 +13302,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hShiftRight", 11);
+x_1 = lean_mk_string_unchecked("hShiftRight", 11, 11);
 return x_1;
 }
 }
@@ -13310,7 +13310,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat_shiftRight_eq_div_pow", 27);
+x_1 = lean_mk_string_unchecked("ofNat_shiftRight_eq_div_pow", 27, 27);
 return x_1;
 }
 }
@@ -13340,7 +13340,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hShiftLeft", 10);
+x_1 = lean_mk_string_unchecked("hShiftLeft", 10, 10);
 return x_1;
 }
 }
@@ -13348,7 +13348,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat_shiftLeft_eq", 18);
+x_1 = lean_mk_string_unchecked("ofNat_shiftLeft_eq", 18, 18);
 return x_1;
 }
 }
@@ -13378,7 +13378,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat_max", 9);
+x_1 = lean_mk_string_unchecked("ofNat_max", 9, 9);
 return x_1;
 }
 }
@@ -13408,7 +13408,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat_min", 9);
+x_1 = lean_mk_string_unchecked("ofNat_min", 9, 9);
 return x_1;
 }
 }
@@ -13438,7 +13438,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat_snd_mk", 12);
+x_1 = lean_mk_string_unchecked("ofNat_snd_mk", 12, 12);
 return x_1;
 }
 }
@@ -13458,7 +13458,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat_fst_mk", 12);
+x_1 = lean_mk_string_unchecked("ofNat_fst_mk", 12, 12);
 return x_1;
 }
 }
@@ -13478,7 +13478,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat_pow", 9);
+x_1 = lean_mk_string_unchecked("ofNat_pow", 9, 9);
 return x_1;
 }
 }
@@ -13508,7 +13508,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat_sub_sub", 13);
+x_1 = lean_mk_string_unchecked("ofNat_sub_sub", 13, 13);
 return x_1;
 }
 }
@@ -13538,7 +13538,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat_emod", 10);
+x_1 = lean_mk_string_unchecked("ofNat_emod", 10, 10);
 return x_1;
 }
 }
@@ -13566,7 +13566,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat", 5);
+x_1 = lean_mk_string_unchecked("ofNat", 5, 5);
 return x_1;
 }
 }
@@ -13574,7 +13574,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("natCast_ofNat", 13);
+x_1 = lean_mk_string_unchecked("natCast_ofNat", 13, 13);
 return x_1;
 }
 }
@@ -13604,7 +13604,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat_ediv", 10);
+x_1 = lean_mk_string_unchecked("ofNat_ediv", 10, 10);
 return x_1;
 }
 }
@@ -13632,7 +13632,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat_mul", 9);
+x_1 = lean_mk_string_unchecked("ofNat_mul", 9, 9);
 return x_1;
 }
 }
@@ -13660,7 +13660,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat_add", 9);
+x_1 = lean_mk_string_unchecked("ofNat_add", 9, 9);
 return x_1;
 }
 }
@@ -13688,7 +13688,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleNatCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat_succ", 10);
+x_1 = lean_mk_string_unchecked("ofNat_succ", 10, 10);
 return x_1;
 }
 }
@@ -15812,7 +15812,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleFinVa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat_val_natCast", 17);
+x_1 = lean_mk_string_unchecked("ofNat_val_natCast", 17, 17);
 return x_1;
 }
 }
@@ -15842,7 +15842,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleFinVa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat_val_sub", 13);
+x_1 = lean_mk_string_unchecked("ofNat_val_sub", 13, 13);
 return x_1;
 }
 }
@@ -15872,7 +15872,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleFinVa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat_val_mul", 13);
+x_1 = lean_mk_string_unchecked("ofNat_val_mul", 13, 13);
 return x_1;
 }
 }
@@ -15902,7 +15902,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_asLinearComboImpl_handleFinVa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat_val_add", 13);
+x_1 = lean_mk_string_unchecked("ofNat_val_add", 13, 13);
 return x_1;
 }
 }
@@ -17276,7 +17276,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addIntEquality___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Adding proof of ", 16);
+x_1 = lean_mk_string_unchecked("Adding proof of ", 16, 16);
 return x_1;
 }
 }
@@ -17293,7 +17293,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addIntEquality___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" = 0", 4);
+x_1 = lean_mk_string_unchecked(" = 0", 4, 4);
 return x_1;
 }
 }
@@ -17310,7 +17310,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addIntEquality___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-", 1);
+x_1 = lean_mk_string_unchecked("-", 1, 1);
 return x_1;
 }
 }
@@ -17808,7 +17808,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addIntInequality_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("le_of_le_of_eq", 14);
+x_1 = lean_mk_string_unchecked("le_of_le_of_eq", 14, 14);
 return x_1;
 }
 }
@@ -18011,7 +18011,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addIntInequality_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ≥ 0", 6);
+x_1 = lean_mk_string_unchecked(" ≥ 0", 6, 4);
 return x_1;
 }
 }
@@ -18462,7 +18462,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_pushNot___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Decidable", 9);
+x_1 = lean_mk_string_unchecked("Decidable", 9, 9);
 return x_1;
 }
 }
@@ -18470,7 +18470,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_pushNot___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("and_not_or_not_and_of_not_iff", 29);
+x_1 = lean_mk_string_unchecked("and_not_or_not_and_of_not_iff", 29, 29);
 return x_1;
 }
 }
@@ -18500,7 +18500,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_pushNot___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Classical", 9);
+x_1 = lean_mk_string_unchecked("Classical", 9, 9);
 return x_1;
 }
 }
@@ -18508,7 +18508,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_pushNot___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("propDecidable", 13);
+x_1 = lean_mk_string_unchecked("propDecidable", 13, 13);
 return x_1;
 }
 }
@@ -18555,7 +18555,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_pushNot___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("and_not_not_of_not_or", 21);
+x_1 = lean_mk_string_unchecked("and_not_not_of_not_or", 21, 21);
 return x_1;
 }
 }
@@ -18598,7 +18598,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_pushNot___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("or_not_not_of_not_and", 21);
+x_1 = lean_mk_string_unchecked("or_not_not_of_not_and", 21, 21);
 return x_1;
 }
 }
@@ -18647,7 +18647,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_pushNot___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("of_not_not", 10);
+x_1 = lean_mk_string_unchecked("of_not_not", 10, 10);
 return x_1;
 }
 }
@@ -18692,7 +18692,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_pushNot___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("of_not_lex", 10);
+x_1 = lean_mk_string_unchecked("of_not_lex", 10, 10);
 return x_1;
 }
 }
@@ -18773,7 +18773,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_pushNot___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("emod_pos_of_not_dvd", 19);
+x_1 = lean_mk_string_unchecked("emod_pos_of_not_dvd", 19, 19);
 return x_1;
 }
 }
@@ -18934,7 +18934,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_pushNot___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lt_or_gt_of_ne", 14);
+x_1 = lean_mk_string_unchecked("lt_or_gt_of_ne", 14, 14);
 return x_1;
 }
 }
@@ -19148,7 +19148,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_pushNot___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lt_of_not_le", 12);
+x_1 = lean_mk_string_unchecked("lt_of_not_le", 12, 12);
 return x_1;
 }
 }
@@ -19354,7 +19354,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_pushNot___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("le_of_not_lt", 12);
+x_1 = lean_mk_string_unchecked("le_of_not_lt", 12, 12);
 return x_1;
 }
 }
@@ -19560,7 +19560,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_pushNot___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Not", 3);
+x_1 = lean_mk_string_unchecked("Not", 3, 3);
 return x_1;
 }
 }
@@ -19578,7 +19578,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_pushNot___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Iff", 3);
+x_1 = lean_mk_string_unchecked("Iff", 3, 3);
 return x_1;
 }
 }
@@ -19596,7 +19596,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_pushNot___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("And", 3);
+x_1 = lean_mk_string_unchecked("And", 3, 3);
 return x_1;
 }
 }
@@ -19614,7 +19614,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_pushNot___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Dvd", 3);
+x_1 = lean_mk_string_unchecked("Dvd", 3, 3);
 return x_1;
 }
 }
@@ -19622,7 +19622,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_pushNot___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("dvd", 3);
+x_1 = lean_mk_string_unchecked("dvd", 3, 3);
 return x_1;
 }
 }
@@ -19640,7 +19640,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_pushNot___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LE", 2);
+x_1 = lean_mk_string_unchecked("LE", 2, 2);
 return x_1;
 }
 }
@@ -19648,7 +19648,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_pushNot___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("le", 2);
+x_1 = lean_mk_string_unchecked("le", 2, 2);
 return x_1;
 }
 }
@@ -19666,7 +19666,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_pushNot___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LT", 2);
+x_1 = lean_mk_string_unchecked("LT", 2, 2);
 return x_1;
 }
 }
@@ -19674,7 +19674,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_pushNot___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lt", 2);
+x_1 = lean_mk_string_unchecked("lt", 2, 2);
 return x_1;
 }
 }
@@ -19692,7 +19692,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_pushNot___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lex", 3);
+x_1 = lean_mk_string_unchecked("Lex", 3, 3);
 return x_1;
 }
 }
@@ -19710,7 +19710,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_pushNot___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("and_not_of_not_imp", 18);
+x_1 = lean_mk_string_unchecked("and_not_of_not_imp", 18, 18);
 return x_1;
 }
 }
@@ -20206,7 +20206,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_pushNot___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pushing negation: ", 18);
+x_1 = lean_mk_string_unchecked("pushing negation: ", 18, 18);
 return x_1;
 }
 }
@@ -20743,7 +20743,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("and_or_not_and_not_of_iff", 25);
+x_1 = lean_mk_string_unchecked("and_or_not_and_not_of_iff", 25, 25);
 return x_1;
 }
 }
@@ -20786,7 +20786,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Subtype", 7);
+x_1 = lean_mk_string_unchecked("Subtype", 7, 7);
 return x_1;
 }
 }
@@ -20794,7 +20794,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("property", 8);
+x_1 = lean_mk_string_unchecked("property", 8, 8);
 return x_1;
 }
 }
@@ -20876,7 +20876,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Exists", 6);
+x_1 = lean_mk_string_unchecked("Exists", 6, 6);
 return x_1;
 }
 }
@@ -20884,7 +20884,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("choose_spec", 11);
+x_1 = lean_mk_string_unchecked("choose_spec", 11, 11);
 return x_1;
 }
 }
@@ -20966,7 +20966,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("left", 4);
+x_1 = lean_mk_string_unchecked("left", 4, 4);
 return x_1;
 }
 }
@@ -20994,7 +20994,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("right", 5);
+x_1 = lean_mk_string_unchecked("right", 5, 5);
 return x_1;
 }
 }
@@ -21188,7 +21188,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("of_lex", 6);
+x_1 = lean_mk_string_unchecked("of_lex", 6, 6);
 return x_1;
 }
 }
@@ -21364,7 +21364,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mod_eq_zero_of_dvd", 18);
+x_1 = lean_mk_string_unchecked("mod_eq_zero_of_dvd", 18, 18);
 return x_1;
 }
 }
@@ -21402,7 +21402,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("emod_eq_zero_of_dvd", 19);
+x_1 = lean_mk_string_unchecked("emod_eq_zero_of_dvd", 19, 19);
 return x_1;
 }
 }
@@ -21584,7 +21584,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("val_le_of_ge", 12);
+x_1 = lean_mk_string_unchecked("val_le_of_ge", 12, 12);
 return x_1;
 }
 }
@@ -21622,7 +21622,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("le_of_ge", 8);
+x_1 = lean_mk_string_unchecked("le_of_ge", 8, 8);
 return x_1;
 }
 }
@@ -21789,7 +21789,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("val_add_one_le_of_gt", 20);
+x_1 = lean_mk_string_unchecked("val_add_one_le_of_gt", 20, 20);
 return x_1;
 }
 }
@@ -21827,7 +21827,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lt_of_gt", 8);
+x_1 = lean_mk_string_unchecked("lt_of_gt", 8, 8);
 return x_1;
 }
 }
@@ -21994,7 +21994,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("val_add_one_le_of_lt", 20);
+x_1 = lean_mk_string_unchecked("val_add_one_le_of_lt", 20, 20);
 return x_1;
 }
 }
@@ -22032,7 +22032,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat_lt_of_lt", 14);
+x_1 = lean_mk_string_unchecked("ofNat_lt_of_lt", 14, 14);
 return x_1;
 }
 }
@@ -22072,7 +22072,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("add_one_le_of_lt", 16);
+x_1 = lean_mk_string_unchecked("add_one_le_of_lt", 16, 16);
 return x_1;
 }
 }
@@ -22205,7 +22205,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("val_le_of_le", 12);
+x_1 = lean_mk_string_unchecked("val_le_of_le", 12, 12);
 return x_1;
 }
 }
@@ -22243,7 +22243,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat_le_of_le", 14);
+x_1 = lean_mk_string_unchecked("ofNat_le_of_le", 14, 14);
 return x_1;
 }
 }
@@ -22283,7 +22283,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sub_nonneg_of_le", 16);
+x_1 = lean_mk_string_unchecked("sub_nonneg_of_le", 16, 16);
 return x_1;
 }
 }
@@ -22501,7 +22501,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("val_congr", 9);
+x_1 = lean_mk_string_unchecked("val_congr", 9, 9);
 return x_1;
 }
 }
@@ -22539,7 +22539,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat_congr", 11);
+x_1 = lean_mk_string_unchecked("ofNat_congr", 11, 11);
 return x_1;
 }
 }
@@ -22579,7 +22579,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sub_eq_zero_of_eq", 17);
+x_1 = lean_mk_string_unchecked("sub_eq_zero_of_eq", 17, 17);
 return x_1;
 }
 }
@@ -22817,7 +22817,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Ne", 2);
+x_1 = lean_mk_string_unchecked("Ne", 2, 2);
 return x_1;
 }
 }
@@ -22835,7 +22835,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("GE", 2);
+x_1 = lean_mk_string_unchecked("GE", 2, 2);
 return x_1;
 }
 }
@@ -22843,7 +22843,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ge", 2);
+x_1 = lean_mk_string_unchecked("ge", 2, 2);
 return x_1;
 }
 }
@@ -22861,7 +22861,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("GT", 2);
+x_1 = lean_mk_string_unchecked("GT", 2, 2);
 return x_1;
 }
 }
@@ -22869,7 +22869,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("gt", 2);
+x_1 = lean_mk_string_unchecked("gt", 2, 2);
 return x_1;
 }
 }
@@ -22887,7 +22887,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("not_or_of_imp", 13);
+x_1 = lean_mk_string_unchecked("not_or_of_imp", 13, 13);
 return x_1;
 }
 }
@@ -23531,7 +23531,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_MetaProblem_addFact___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("adding fact: ", 13);
+x_1 = lean_mk_string_unchecked("adding fact: ", 13, 13);
 return x_1;
 }
 }
@@ -24660,7 +24660,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_cases_u2082___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hByCases", 8);
+x_1 = lean_mk_string_unchecked("hByCases", 8, 8);
 return x_1;
 }
 }
@@ -24678,7 +24678,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_cases_u2082___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'cases' tactic failed, unexpected number of subgoals", 52);
+x_1 = lean_mk_string_unchecked("'cases' tactic failed, unexpected number of subgoals", 52, 52);
 return x_1;
 }
 }
@@ -24695,7 +24695,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_cases_u2082___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'cases' tactic failed, unexpected new hypothesis", 48);
+x_1 = lean_mk_string_unchecked("'cases' tactic failed, unexpected new hypothesis", 48, 48);
 return x_1;
 }
 }
@@ -25461,7 +25461,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_formatErrorMessage_varNameOf_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_", 1);
+x_1 = lean_mk_string_unchecked("_", 1, 1);
 return x_1;
 }
 }
@@ -25809,7 +25809,7 @@ static lean_object* _init_l_Std_Range_forIn_x27_loop___at_Lean_Elab_Tactic_Omega
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(masked)", 8);
+x_1 = lean_mk_string_unchecked("(masked)", 8, 8);
 return x_1;
 }
 }
@@ -26148,7 +26148,7 @@ static lean_object* _init_l_List_map___at_Lean_Elab_Tactic_Omega_formatErrorMess
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("*", 1);
+x_1 = lean_mk_string_unchecked("*", 1, 1);
 return x_1;
 }
 }
@@ -26156,7 +26156,7 @@ static lean_object* _init_l_List_map___at_Lean_Elab_Tactic_Omega_formatErrorMess
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("- ", 2);
+x_1 = lean_mk_string_unchecked("- ", 2, 2);
 return x_1;
 }
 }
@@ -26164,7 +26164,7 @@ static lean_object* _init_l_List_map___at_Lean_Elab_Tactic_Omega_formatErrorMess
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" - ", 3);
+x_1 = lean_mk_string_unchecked(" - ", 3, 3);
 return x_1;
 }
 }
@@ -26172,7 +26172,7 @@ static lean_object* _init_l_List_map___at_Lean_Elab_Tactic_Omega_formatErrorMess
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" + ", 3);
+x_1 = lean_mk_string_unchecked(" + ", 3, 3);
 return x_1;
 }
 }
@@ -26482,7 +26482,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_formatErrorMessage_prettyCons
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" is unconstrained", 17);
+x_1 = lean_mk_string_unchecked(" is unconstrained", 17, 17);
 return x_1;
 }
 }
@@ -26490,7 +26490,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_formatErrorMessage_prettyCons
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ≤ ", 5);
+x_1 = lean_mk_string_unchecked(" ≤ ", 5, 3);
 return x_1;
 }
 }
@@ -26498,7 +26498,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_formatErrorMessage_prettyCons
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ≥ ", 5);
+x_1 = lean_mk_string_unchecked(" ≥ ", 5, 3);
 return x_1;
 }
 }
@@ -26506,7 +26506,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_formatErrorMessage_prettyCons
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("∅", 3);
+x_1 = lean_mk_string_unchecked("∅", 3, 1);
 return x_1;
 }
 }
@@ -26737,7 +26737,7 @@ static lean_object* _init_l_List_map___at_Lean_Elab_Tactic_Omega_formatErrorMess
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("  ", 2);
+x_1 = lean_mk_string_unchecked("  ", 2, 2);
 return x_1;
 }
 }
@@ -26815,7 +26815,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_formatErrorMessage_prettyCons
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -27019,7 +27019,7 @@ static lean_object* _init_l_List_map___at_Lean_Elab_Tactic_Omega_formatErrorMess
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -27036,7 +27036,7 @@ static lean_object* _init_l_List_map___at_Lean_Elab_Tactic_Omega_formatErrorMess
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" := ", 4);
+x_1 = lean_mk_string_unchecked(" := ", 4, 4);
 return x_1;
 }
 }
@@ -27320,7 +27320,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_formatErrorMessage___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("a possible counterexample may satisfy the constraints\n", 54);
+x_1 = lean_mk_string_unchecked("a possible counterexample may satisfy the constraints\n", 54, 54);
 return x_1;
 }
 }
@@ -27337,7 +27337,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_formatErrorMessage___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nwhere\n", 7);
+x_1 = lean_mk_string_unchecked("\nwhere\n", 7, 7);
 return x_1;
 }
 }
@@ -27546,7 +27546,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_formatErrorMessage___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("it is trivially solvable", 24);
+x_1 = lean_mk_string_unchecked("it is trivially solvable", 24, 24);
 return x_1;
 }
 }
@@ -27573,7 +27573,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_formatErrorMessage___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("No usable constraints found. You may need to unfold definitions so `omega` can see linear arithmetic facts about `Nat` and `Int`, which may also involve multiplication, division, and modular remainder by constants.", 214);
+x_1 = lean_mk_string_unchecked("No usable constraints found. You may need to unfold definitions so `omega` can see linear arithmetic facts about `Nat` and `Int`, which may also involve multiplication, division, and modular remainder by constants.", 214, 214);
 return x_1;
 }
 }
@@ -27791,7 +27791,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_splitDisjunction___lambda__1_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("omega could not prove the goal:\n", 32);
+x_1 = lean_mk_string_unchecked("omega could not prove the goal:\n", 32, 32);
 return x_1;
 }
 }
@@ -28086,7 +28086,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_splitDisjunction___lambda__6_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("No new facts found.", 19);
+x_1 = lean_mk_string_unchecked("No new facts found.", 19, 19);
 return x_1;
 }
 }
@@ -28103,7 +28103,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_splitDisjunction___lambda__6_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Adding facts:\n", 14);
+x_1 = lean_mk_string_unchecked("Adding facts:\n", 14, 14);
 return x_1;
 }
 }
@@ -28460,7 +28460,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_splitDisjunction___lambda__7_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("h", 1);
+x_1 = lean_mk_string_unchecked("h", 1, 1);
 return x_1;
 }
 }
@@ -28912,7 +28912,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_splitDisjunction___lambda__8_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Case splitting on ", 18);
+x_1 = lean_mk_string_unchecked("Case splitting on ", 18, 18);
 return x_1;
 }
 }
@@ -29291,7 +29291,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_omegaImpl___lambda__2___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("omega found a contradiction, proving ", 37);
+x_1 = lean_mk_string_unchecked("omega found a contradiction, proving ", 37, 37);
 return x_1;
 }
 }
@@ -29690,7 +29690,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_omegaImpl___lambda__3___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Justification:\n", 15);
+x_1 = lean_mk_string_unchecked("Justification:\n", 15, 15);
 return x_1;
 }
 }
@@ -29818,7 +29818,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_omegaImpl___lambda__4___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("After elimination:\nAtoms: ", 26);
+x_1 = lean_mk_string_unchecked("After elimination:\nAtoms: ", 26, 26);
 return x_1;
 }
 }
@@ -29835,7 +29835,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_omegaImpl___lambda__4___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("impossible", 10);
+x_1 = lean_mk_string_unchecked("impossible", 10, 10);
 return x_1;
 }
 }
@@ -29862,7 +29862,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_omegaImpl___lambda__4___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("trivial", 7);
+x_1 = lean_mk_string_unchecked("trivial", 7, 7);
 return x_1;
 }
 }
@@ -30275,7 +30275,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_omegaImpl___lambda__6___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed", 6);
+x_1 = lean_mk_string_unchecked("failed", 6, 6);
 return x_1;
 }
 }
@@ -30292,7 +30292,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_omegaImpl___lambda__6___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Extracted linear arithmetic problem:\nAtoms: ", 44);
+x_1 = lean_mk_string_unchecked("Extracted linear arithmetic problem:\nAtoms: ", 44, 44);
 return x_1;
 }
 }
@@ -32137,7 +32137,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_omegaTactic___lambda__2___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("analyzing ", 10);
+x_1 = lean_mk_string_unchecked("analyzing ", 10, 10);
 return x_1;
 }
 }
@@ -32154,7 +32154,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_omegaTactic___lambda__2___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" hypotheses:\n", 13);
+x_1 = lean_mk_string_unchecked(" hypotheses:\n", 13, 13);
 return x_1;
 }
 }
@@ -33017,7 +33017,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_evalOmega___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -33025,7 +33025,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_evalOmega___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -33137,7 +33137,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Omega_evalOmega__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -33145,7 +33145,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Omega_evalOmega__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalOmega", 9);
+x_1 = lean_mk_string_unchecked("evalOmega", 9, 9);
 return x_1;
 }
 }
@@ -33296,7 +33296,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_initFn____x40_Lean_Elab_Tacti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("bv_toNat", 8);
+x_1 = lean_mk_string_unchecked("bv_toNat", 8, 8);
 return x_1;
 }
 }
@@ -33314,7 +33314,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_initFn____x40_Lean_Elab_Tacti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("bvOmegaSimpExtension", 20);
+x_1 = lean_mk_string_unchecked("bvOmegaSimpExtension", 20, 20);
 return x_1;
 }
 }
@@ -33335,7 +33335,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_initFn____x40_Lean_Elab_Tacti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simp lemmas converting `BitVec` goals to `Nat` goals, for the `bv_omega` preprocessor", 85);
+x_1 = lean_mk_string_unchecked("simp lemmas converting `BitVec` goals to `Nat` goals, for the `bv_omega` preprocessor", 85, 85);
 return x_1;
 }
 }

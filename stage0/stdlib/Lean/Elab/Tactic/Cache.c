@@ -150,7 +150,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_initFn____x40_Lean_Elab_Tactic_Cach
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tactic", 6);
+x_1 = lean_mk_string_unchecked("tactic", 6, 6);
 return x_1;
 }
 }
@@ -158,7 +158,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_initFn____x40_Lean_Elab_Tactic_Cach
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("dbg_cache", 9);
+x_1 = lean_mk_string_unchecked("dbg_cache", 9, 9);
 return x_1;
 }
 }
@@ -176,7 +176,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_initFn____x40_Lean_Elab_Tactic_Cach
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("enable tactic cache debug messages (remark: they are sent to the standard error)", 80);
+x_1 = lean_mk_string_unchecked("enable tactic cache debug messages (remark: they are sent to the standard error)", 80, 80);
 return x_1;
 }
 }
@@ -199,7 +199,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_initFn____x40_Lean_Elab_Tactic_Cach
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -207,7 +207,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_initFn____x40_Lean_Elab_Tactic_Cach
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -215,7 +215,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_initFn____x40_Lean_Elab_Tactic_Cach
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -542,7 +542,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Cache_0__Lean_Elab_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -550,7 +550,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Cache_0__Lean_Elab_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", line: ", 8);
+x_1 = lean_mk_string_unchecked(", line: ", 8, 8);
 return x_1;
 }
 }
@@ -558,7 +558,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Cache_0__Lean_Elab_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", column: ", 10);
+x_1 = lean_mk_string_unchecked(", column: ", 10, 10);
 return x_1;
 }
 }
@@ -566,7 +566,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Cache_0__Lean_Elab_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", contains entry: ", 18);
+x_1 = lean_mk_string_unchecked(", contains entry: ", 18, 18);
 return x_1;
 }
 }
@@ -574,7 +574,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Cache_0__Lean_Elab_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("false", 5);
+x_1 = lean_mk_string_unchecked("false", 5, 5);
 return x_1;
 }
 }
@@ -582,7 +582,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Cache_0__Lean_Elab_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("true", 4);
+x_1 = lean_mk_string_unchecked("true", 4, 4);
 return x_1;
 }
 }
@@ -779,7 +779,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Cache_0__Lean_Elab_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cache key not found", 19);
+x_1 = lean_mk_string_unchecked("cache key not found", 19, 19);
 return x_1;
 }
 }
@@ -787,7 +787,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Cache_0__Lean_Elab_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cached state is not compatible", 30);
+x_1 = lean_mk_string_unchecked("cached state is not compatible", 30, 30);
 return x_1;
 }
 }
@@ -795,7 +795,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Cache_0__Lean_Elab_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("syntax is different", 19);
+x_1 = lean_mk_string_unchecked("syntax is different", 19, 19);
 return x_1;
 }
 }
@@ -2289,7 +2289,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalCheckpoint___lambda__1___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cache miss", 10);
+x_1 = lean_mk_string_unchecked("cache miss", 10, 10);
 return x_1;
 }
 }
@@ -2297,7 +2297,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalCheckpoint___lambda__1___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cache hit", 9);
+x_1 = lean_mk_string_unchecked("cache hit", 9, 9);
 return x_1;
 }
 }
@@ -2927,7 +2927,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalCheckpoint__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -2935,7 +2935,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalCheckpoint__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("checkpoint", 10);
+x_1 = lean_mk_string_unchecked("checkpoint", 10, 10);
 return x_1;
 }
 }
@@ -2955,7 +2955,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalCheckpoint__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalCheckpoint", 14);
+x_1 = lean_mk_string_unchecked("evalCheckpoint", 14, 14);
 return x_1;
 }
 }

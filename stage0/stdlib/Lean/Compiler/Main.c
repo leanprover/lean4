@@ -56,7 +56,7 @@ static lean_object* _init_l_Lean_Compiler_compile___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("compiling: ", 11);
+x_1 = lean_mk_string_unchecked("compiling: ", 11, 11);
 return x_1;
 }
 }
@@ -73,7 +73,7 @@ static lean_object* _init_l_Lean_Compiler_compile___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -166,7 +166,7 @@ static lean_object* _init_l_Lean_Compiler_compile___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Compiler", 8);
+x_1 = lean_mk_string_unchecked("Compiler", 8, 8);
 return x_1;
 }
 }
@@ -184,7 +184,7 @@ static lean_object* _init_l_Lean_Compiler_compile___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("compiler new", 12);
+x_1 = lean_mk_string_unchecked("compiler new", 12, 12);
 return x_1;
 }
 }
@@ -231,7 +231,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -259,7 +259,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -277,7 +277,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -315,7 +315,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Main", 4);
+x_1 = lean_mk_string_unchecked("Main", 4, 4);
 return x_1;
 }
 }
@@ -333,7 +333,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -361,7 +361,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("stat", 4);
+x_1 = lean_mk_string_unchecked("stat", 4, 4);
 return x_1;
 }
 }

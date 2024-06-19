@@ -184,7 +184,7 @@ static lean_object* _init_l_Lean_Server_Snapshots_Snapshot_infoTree___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("assertion violation: ", 21);
+x_1 = lean_mk_string_unchecked("assertion violation: ", 21, 21);
 return x_1;
 }
 }
@@ -192,7 +192,7 @@ static lean_object* _init_l_Lean_Server_Snapshots_Snapshot_infoTree___closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("s.cmdState.infoState.trees.size == 1\n  ", 39);
+x_1 = lean_mk_string_unchecked("s.cmdState.infoState.trees.size == 1\n  ", 39, 39);
 return x_1;
 }
 }
@@ -210,7 +210,7 @@ static lean_object* _init_l_Lean_Server_Snapshots_Snapshot_infoTree___closed__4(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Server.Snapshots", 21);
+x_1 = lean_mk_string_unchecked("Lean.Server.Snapshots", 21, 21);
 return x_1;
 }
 }
@@ -218,7 +218,7 @@ static lean_object* _init_l_Lean_Server_Snapshots_Snapshot_infoTree___closed__5(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Server.Snapshots.Snapshot.infoTree", 39);
+x_1 = lean_mk_string_unchecked("Lean.Server.Snapshots.Snapshot.infoTree", 39, 39);
 return x_1;
 }
 }

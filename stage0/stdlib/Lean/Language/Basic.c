@@ -1486,7 +1486,7 @@ static lean_object* _init_l_Lean_Language_SnapshotTree_format_go___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -1504,7 +1504,7 @@ static lean_object* _init_l_Lean_Language_SnapshotTree_format_go___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" diagnostics", 12);
+x_1 = lean_mk_string_unchecked(" diagnostics", 12, 12);
 return x_1;
 }
 }
@@ -1522,7 +1522,7 @@ static lean_object* _init_l_Lean_Language_SnapshotTree_format_go___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("• ", 4);
+x_1 = lean_mk_string_unchecked("• ", 4, 2);
 return x_1;
 }
 }
@@ -1564,7 +1564,7 @@ static lean_object* _init_l_Lean_Language_SnapshotTree_format_go___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("..", 2);
+x_1 = lean_mk_string_unchecked("..", 2, 2);
 return x_1;
 }
 }
@@ -1582,7 +1582,7 @@ static lean_object* _init_l_Lean_Language_SnapshotTree_format_go___closed__11() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -1983,7 +1983,7 @@ static lean_object* _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1991,7 +1991,7 @@ static lean_object* _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Language", 8);
+x_1 = lean_mk_string_unchecked("Language", 8, 8);
 return x_1;
 }
 }
@@ -1999,7 +1999,7 @@ static lean_object* _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("SnapshotLeaf", 12);
+x_1 = lean_mk_string_unchecked("SnapshotLeaf", 12, 12);
 return x_1;
 }
 }
@@ -2271,7 +2271,7 @@ static lean_object* _init_l_Lean_Language_initFn____x40_Lean_Language_Basic___hy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("printMessageEndPos", 18);
+x_1 = lean_mk_string_unchecked("printMessageEndPos", 18, 18);
 return x_1;
 }
 }
@@ -2289,7 +2289,7 @@ static lean_object* _init_l_Lean_Language_initFn____x40_Lean_Language_Basic___hy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("print end position of each message in addition to start position", 64);
+x_1 = lean_mk_string_unchecked("print end position of each message in addition to start position", 64, 64);
 return x_1;
 }
 }
@@ -3551,7 +3551,7 @@ static lean_object* _init_l_Lean_Language_diagnosticsOfHeaderError___closed__2()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("<input>", 7);
+x_1 = lean_mk_string_unchecked("<input>", 7, 7);
 return x_1;
 }
 }

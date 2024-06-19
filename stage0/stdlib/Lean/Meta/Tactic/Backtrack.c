@@ -318,7 +318,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_Backtrack_BacktrackConfig_discharge
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed", 6);
+x_1 = lean_mk_string_unchecked("failed", 6, 6);
 return x_1;
 }
 }
@@ -1079,7 +1079,7 @@ static lean_object* _init_l_Lean_withTraceNode___at___private_Lean_Meta_Tactic_B
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("<exception thrown while producing trace node message>", 53);
+x_1 = lean_mk_string_unchecked("<exception thrown while producing trace node message>", 53, 53);
 return x_1;
 }
 }
@@ -3625,7 +3625,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -3642,7 +3642,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" success!", 9);
+x_1 = lean_mk_string_unchecked(" success!", 9, 9);
 return x_1;
 }
 }
@@ -3680,7 +3680,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" working on: ", 13);
+x_1 = lean_mk_string_unchecked(" working on: ", 13, 13);
 return x_1;
 }
 }
@@ -3778,7 +3778,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⏭️ deemed acceptable, returning as subgoal", 46);
+x_1 = lean_mk_string_unchecked("⏭️ deemed acceptable, returning as subgoal", 46, 42);
 return x_1;
 }
 }
@@ -3806,7 +3806,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⏬ discharger generated new subgoals", 37);
+x_1 = lean_mk_string_unchecked("⏬ discharger generated new subgoals", 37, 35);
 return x_1;
 }
 }
@@ -3834,7 +3834,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⏸️ suspending search and returning as subgoal", 49);
+x_1 = lean_mk_string_unchecked("⏸️ suspending search and returning as subgoal", 49, 45);
 return x_1;
 }
 }
@@ -4331,7 +4331,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" discarding already assigned goal ", 34);
+x_1 = lean_mk_string_unchecked(" discarding already assigned goal ", 34, 34);
 return x_1;
 }
 }
@@ -4486,7 +4486,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" BacktrackConfig.proc failed: ", 30);
+x_1 = lean_mk_string_unchecked(" BacktrackConfig.proc failed: ", 30, 30);
 return x_1;
 }
 }
@@ -4541,7 +4541,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("backtrack exceeded the recursion limit", 38);
+x_1 = lean_mk_string_unchecked("backtrack exceeded the recursion limit", 38, 38);
 return x_1;
 }
 }
@@ -5914,7 +5914,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("independent goals ", 18);
+x_1 = lean_mk_string_unchecked("independent goals ", 18, 18);
 return x_1;
 }
 }
@@ -5931,7 +5931,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -5948,7 +5948,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" working on them before ", 24);
+x_1 = lean_mk_string_unchecked(" working on them before ", 24, 24);
 return x_1;
 }
 }
@@ -6122,7 +6122,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed: ", 8);
+x_1 = lean_mk_string_unchecked("failed: ", 8, 8);
 return x_1;
 }
 }
@@ -6139,7 +6139,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", new: ", 7);
+x_1 = lean_mk_string_unchecked(", new: ", 7, 7);
 return x_1;
 }
 }

@@ -1005,7 +1005,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Server_RefInfo_toLspR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Server.References", 22);
+x_1 = lean_mk_string_unchecked("Lean.Server.References", 22, 22);
 return x_1;
 }
 }
@@ -1013,7 +1013,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Server_RefInfo_toLspR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Server.RefInfo.toLspRefInfo", 32);
+x_1 = lean_mk_string_unchecked("Lean.Server.RefInfo.toLspRefInfo", 32, 32);
 return x_1;
 }
 }
@@ -1021,7 +1021,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Server_RefInfo_toLspR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -3472,7 +3472,7 @@ static lean_object* _init_l___private_Lean_Server_References_0__Lean_Server_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("version", 7);
+x_1 = lean_mk_string_unchecked("version", 7, 7);
 return x_1;
 }
 }
@@ -3480,7 +3480,7 @@ static lean_object* _init_l___private_Lean_Server_References_0__Lean_Server_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -3488,7 +3488,7 @@ static lean_object* _init_l___private_Lean_Server_References_0__Lean_Server_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Server", 6);
+x_1 = lean_mk_string_unchecked("Server", 6, 6);
 return x_1;
 }
 }
@@ -3496,7 +3496,7 @@ static lean_object* _init_l___private_Lean_Server_References_0__Lean_Server_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Ilean", 5);
+x_1 = lean_mk_string_unchecked("Ilean", 5, 5);
 return x_1;
 }
 }
@@ -3525,7 +3525,7 @@ static lean_object* _init_l___private_Lean_Server_References_0__Lean_Server_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -3573,7 +3573,7 @@ static lean_object* _init_l___private_Lean_Server_References_0__Lean_Server_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -3591,7 +3591,7 @@ static lean_object* _init_l___private_Lean_Server_References_0__Lean_Server_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("module", 6);
+x_1 = lean_mk_string_unchecked("module", 6, 6);
 return x_1;
 }
 }
@@ -3639,7 +3639,7 @@ static lean_object* _init_l___private_Lean_Server_References_0__Lean_Server_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("references", 10);
+x_1 = lean_mk_string_unchecked("references", 10, 10);
 return x_1;
 }
 }
@@ -3884,7 +3884,7 @@ static lean_object* _init_l_List_map___at___private_Lean_Server_References_0__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("usages", 6);
+x_1 = lean_mk_string_unchecked("usages", 6, 6);
 return x_1;
 }
 }
@@ -3892,7 +3892,7 @@ static lean_object* _init_l_List_map___at___private_Lean_Server_References_0__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("definition", 10);
+x_1 = lean_mk_string_unchecked("definition", 10, 10);
 return x_1;
 }
 }
@@ -5610,7 +5610,7 @@ static lean_object* _init_l_Lean_Server_Ilean_load___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Failed to load ilean at ", 24);
+x_1 = lean_mk_string_unchecked("Failed to load ilean at ", 24, 24);
 return x_1;
 }
 }
@@ -5618,7 +5618,7 @@ static lean_object* _init_l_Lean_Server_Ilean_load___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -6330,7 +6330,7 @@ static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findRe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Server.InfoUtils", 21);
+x_1 = lean_mk_string_unchecked("Lean.Server.InfoUtils", 21, 21);
 return x_1;
 }
 }
@@ -6338,7 +6338,7 @@ static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findRe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.InfoTree.visitM.go", 28);
+x_1 = lean_mk_string_unchecked("Lean.Elab.InfoTree.visitM.go", 28, 28);
 return x_1;
 }
 }
@@ -6346,7 +6346,7 @@ static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findRe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected context-free info tree node", 38);
+x_1 = lean_mk_string_unchecked("unexpected context-free info tree node", 38, 38);
 return x_1;
 }
 }
@@ -7000,7 +7000,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at_Lean_Server_combineIdents_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Data.HashMap", 17);
+x_1 = lean_mk_string_unchecked("Lean.Data.HashMap", 17, 17);
 return x_1;
 }
 }
@@ -7008,7 +7008,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at_Lean_Server_combineIdents_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.HashMap.find!", 18);
+x_1 = lean_mk_string_unchecked("Lean.HashMap.find!", 18, 18);
 return x_1;
 }
 }
@@ -7016,7 +7016,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at_Lean_Server_combineIdents_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("key is not in the map", 21);
+x_1 = lean_mk_string_unchecked("key is not in the map", 21, 21);
 return x_1;
 }
 }
@@ -14700,7 +14700,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Server_References_a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lean", 4);
+x_1 = lean_mk_string_unchecked("lean", 4, 4);
 return x_1;
 }
 }

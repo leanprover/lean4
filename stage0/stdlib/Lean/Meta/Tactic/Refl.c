@@ -314,7 +314,7 @@ static lean_object* _init_l_Lean_MVarId_refl___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -322,7 +322,7 @@ static lean_object* _init_l_Lean_MVarId_refl___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("refl", 4);
+x_1 = lean_mk_string_unchecked("refl", 4, 4);
 return x_1;
 }
 }
@@ -357,7 +357,7 @@ static lean_object* _init_l_Lean_MVarId_refl___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rfl", 3);
+x_1 = lean_mk_string_unchecked("rfl", 3, 3);
 return x_1;
 }
 }
@@ -375,7 +375,7 @@ static lean_object* _init_l_Lean_MVarId_refl___lambda__2___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("equality lhs", 12);
+x_1 = lean_mk_string_unchecked("equality lhs", 12, 12);
 return x_1;
 }
 }
@@ -392,7 +392,7 @@ static lean_object* _init_l_Lean_MVarId_refl___lambda__2___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nis not definitionally equal to rhs", 35);
+x_1 = lean_mk_string_unchecked("\nis not definitionally equal to rhs", 35, 35);
 return x_1;
 }
 }
@@ -409,7 +409,7 @@ static lean_object* _init_l_Lean_MVarId_refl___lambda__2___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -716,7 +716,7 @@ static lean_object* _init_l_Lean_MVarId_refl___lambda__4___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("equality expected", 17);
+x_1 = lean_mk_string_unchecked("equality expected", 17, 17);
 return x_1;
 }
 }
@@ -1271,7 +1271,7 @@ static lean_object* _init_l_Lean_MVarId_heqOfEq___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("heq_of_eq", 9);
+x_1 = lean_mk_string_unchecked("heq_of_eq", 9, 9);
 return x_1;
 }
 }
@@ -1512,7 +1512,7 @@ static lean_object* _init_l_Lean_MVarId_eqOfHEq___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("eq_of_heq", 9);
+x_1 = lean_mk_string_unchecked("eq_of_heq", 9, 9);
 return x_1;
 }
 }
@@ -1584,7 +1584,7 @@ static lean_object* _init_l_Lean_MVarId_hrefl___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HEq", 3);
+x_1 = lean_mk_string_unchecked("HEq", 3, 3);
 return x_1;
 }
 }
@@ -1641,7 +1641,7 @@ static lean_object* _init_l_Lean_MVarId_hrefl___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hrefl", 5);
+x_1 = lean_mk_string_unchecked("hrefl", 5, 5);
 return x_1;
 }
 }

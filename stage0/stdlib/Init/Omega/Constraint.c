@@ -406,7 +406,7 @@ static lean_object* _init_l_Option_repr___at___private_Init_Omega_Constraint_0__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("none", 4);
+x_1 = lean_mk_string_unchecked("none", 4, 4);
 return x_1;
 }
 }
@@ -424,7 +424,7 @@ static lean_object* _init_l_Option_repr___at___private_Init_Omega_Constraint_0__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("some ", 5);
+x_1 = lean_mk_string_unchecked("some ", 5, 5);
 return x_1;
 }
 }
@@ -490,7 +490,7 @@ static lean_object* _init_l___private_Init_Omega_Constraint_0__Lean_Omega_reprCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lowerBound", 10);
+x_1 = lean_mk_string_unchecked("lowerBound", 10, 10);
 return x_1;
 }
 }
@@ -520,7 +520,7 @@ static lean_object* _init_l___private_Init_Omega_Constraint_0__Lean_Omega_reprCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" := ", 4);
+x_1 = lean_mk_string_unchecked(" := ", 4, 4);
 return x_1;
 }
 }
@@ -559,7 +559,7 @@ static lean_object* _init_l___private_Init_Omega_Constraint_0__Lean_Omega_reprCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -577,7 +577,7 @@ static lean_object* _init_l___private_Init_Omega_Constraint_0__Lean_Omega_reprCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("upperBound", 10);
+x_1 = lean_mk_string_unchecked("upperBound", 10, 10);
 return x_1;
 }
 }
@@ -595,7 +595,7 @@ static lean_object* _init_l___private_Init_Omega_Constraint_0__Lean_Omega_reprCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("{ ", 2);
+x_1 = lean_mk_string_unchecked("{ ", 2, 2);
 return x_1;
 }
 }
@@ -631,7 +631,7 @@ static lean_object* _init_l___private_Init_Omega_Constraint_0__Lean_Omega_reprCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" }", 2);
+x_1 = lean_mk_string_unchecked(" }", 2, 2);
 return x_1;
 }
 }
@@ -750,7 +750,7 @@ static lean_object* _init_l_Lean_Omega_Constraint_instToString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(-∞, ∞)", 11);
+x_1 = lean_mk_string_unchecked("(-∞, ∞)", 11, 7);
 return x_1;
 }
 }
@@ -767,7 +767,7 @@ static lean_object* _init_l_Lean_Omega_Constraint_instToString___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(-∞, ", 7);
+x_1 = lean_mk_string_unchecked("(-∞, ", 7, 5);
 return x_1;
 }
 }
@@ -775,7 +775,7 @@ static lean_object* _init_l_Lean_Omega_Constraint_instToString___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -783,7 +783,7 @@ static lean_object* _init_l_Lean_Omega_Constraint_instToString___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-", 1);
+x_1 = lean_mk_string_unchecked("-", 1, 1);
 return x_1;
 }
 }
@@ -791,7 +791,7 @@ static lean_object* _init_l_Lean_Omega_Constraint_instToString___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -799,7 +799,7 @@ static lean_object* _init_l_Lean_Omega_Constraint_instToString___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", ∞)", 6);
+x_1 = lean_mk_string_unchecked(", ∞)", 6, 4);
 return x_1;
 }
 }
@@ -807,7 +807,7 @@ static lean_object* _init_l_Lean_Omega_Constraint_instToString___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", ", 2);
+x_1 = lean_mk_string_unchecked(", ", 2, 2);
 return x_1;
 }
 }
@@ -815,7 +815,7 @@ static lean_object* _init_l_Lean_Omega_Constraint_instToString___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("{", 1);
+x_1 = lean_mk_string_unchecked("{", 1, 1);
 return x_1;
 }
 }
@@ -823,7 +823,7 @@ static lean_object* _init_l_Lean_Omega_Constraint_instToString___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("}", 1);
+x_1 = lean_mk_string_unchecked("}", 1, 1);
 return x_1;
 }
 }
@@ -831,7 +831,7 @@ static lean_object* _init_l_Lean_Omega_Constraint_instToString___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("∅", 3);
+x_1 = lean_mk_string_unchecked("∅", 3, 1);
 return x_1;
 }
 }

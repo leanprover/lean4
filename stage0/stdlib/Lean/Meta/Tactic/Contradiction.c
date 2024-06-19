@@ -321,7 +321,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Contradiction_0__Lean_Met
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("False", 5);
+x_1 = lean_mk_string_unchecked("False", 5, 5);
 return x_1;
 }
 }
@@ -329,7 +329,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Contradiction_0__Lean_Met
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elim", 4);
+x_1 = lean_mk_string_unchecked("elim", 4, 4);
 return x_1;
 }
 }
@@ -1830,7 +1830,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Meta_ElimEmptyInductive_elim
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -2393,7 +2393,7 @@ static lean_object* _init_l_Lean_Meta_ElimEmptyInductive_elim___lambda__3___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -2401,7 +2401,7 @@ static lean_object* _init_l_Lean_Meta_ElimEmptyInductive_elim___lambda__3___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -2409,7 +2409,7 @@ static lean_object* _init_l_Lean_Meta_ElimEmptyInductive_elim___lambda__3___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("contradiction", 13);
+x_1 = lean_mk_string_unchecked("contradiction", 13, 13);
 return x_1;
 }
 }
@@ -2428,7 +2428,7 @@ static lean_object* _init_l_Lean_Meta_ElimEmptyInductive_elim___lambda__3___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elimEmptyInductive, number subgoals: ", 37);
+x_1 = lean_mk_string_unchecked("elimEmptyInductive, number subgoals: ", 37, 37);
 return x_1;
 }
 }
@@ -2923,7 +2923,7 @@ static lean_object* _init_l_Lean_Meta_ElimEmptyInductive_elim___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elimEmptyInductive out-of-fuel", 30);
+x_1 = lean_mk_string_unchecked("elimEmptyInductive out-of-fuel", 30, 30);
 return x_1;
 }
 }
@@ -6123,7 +6123,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Contradiction_0__Lean_Met
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("assertion violation: ", 21);
+x_1 = lean_mk_string_unchecked("assertion violation: ", 21, 21);
 return x_1;
 }
 }
@@ -6131,7 +6131,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Contradiction_0__Lean_Met
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("isGenDiseq localDecl.type\n  ", 28);
+x_1 = lean_mk_string_unchecked("isGenDiseq localDecl.type\n  ", 28, 28);
 return x_1;
 }
 }
@@ -6149,7 +6149,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Contradiction_0__Lean_Met
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Tactic.Contradiction", 30);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Tactic.Contradiction", 30, 30);
 return x_1;
 }
 }
@@ -6157,7 +6157,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Contradiction_0__Lean_Met
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Meta.Tactic.Contradiction.0.Lean.Meta.processGenDiseq", 67);
+x_1 = lean_mk_string_unchecked("_private.Lean.Meta.Tactic.Contradiction.0.Lean.Meta.processGenDiseq", 67, 67);
 return x_1;
 }
 }
@@ -6909,7 +6909,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_MVarId_contradictio
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Bool", 4);
+x_1 = lean_mk_string_unchecked("Bool", 4, 4);
 return x_1;
 }
 }
@@ -6917,7 +6917,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_MVarId_contradictio
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("false", 5);
+x_1 = lean_mk_string_unchecked("false", 5, 5);
 return x_1;
 }
 }
@@ -6935,7 +6935,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_MVarId_contradictio
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("of_decide_eq_false", 18);
+x_1 = lean_mk_string_unchecked("of_decide_eq_false", 18, 18);
 return x_1;
 }
 }
@@ -11936,7 +11936,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Contradicti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -11964,7 +11964,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Contradicti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -11982,7 +11982,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Contradicti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -12030,7 +12030,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Contradicti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Contradiction", 13);
+x_1 = lean_mk_string_unchecked("Contradiction", 13, 13);
 return x_1;
 }
 }
@@ -12048,7 +12048,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Contradicti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }

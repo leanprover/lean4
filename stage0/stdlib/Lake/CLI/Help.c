@@ -101,7 +101,7 @@ static lean_object* _init_l_Lake_usage___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n\nUSAGE:\n  lake [OPTIONS] <COMMAND>\n\nCOMMANDS:\n  new <name> <temp>     create a Lean package in a new directory\n  init <name> <temp>    create a Lean package in the current directory\n  build <targets>...    build targets\n  exe <exe> <args>...   build an exe and run it in Lake's environment\n  test                  test the package using the configured test driver\n  check-test            check if there is a properly configured test driver\n  lint                  lint the package using the configured lint driver\n  check-lint            check if there is a properly configured lint driver\n  clean                 remove build outputs\n  env <cmd> <args>...   execute a command in Lake's environment\n  lean <file>           elaborate a Lean file in Lake's context\n  update                update dependencies and save them to the manifest\n  pack                  pack build artifacts into an archive for distribution\n  unpack                unpack build artifacts from an distributed archive\n  upload <tag>          upload build artifacts to a GitHub release\n  script                manage and run workspace scripts\n  scripts               shorthand for `lake script list`\n  run <script>          shorthand for `lake script run`\n  translate-config      change language of the package configuration\n  serve                 start the Lean language server\n\nOPTIONS:\n  --version             print version and exit\n  --help, -h            print help of the program or a command and exit\n  --dir, -d=file        use the package configuration in a specific directory\n  --file, -f=file       use a specific file for the package configuration\n  --quiet, -q           hide progress messages\n  --verbose, -v         show verbose information (command invocations)\n  --lean=cmd            specify the `lean` command used by Lake\n  -K key[=value]        set the configuration file option named key\n  --old                 only rebuild modified modules (ignore transitive deps)\n  --rehash, -H          hash all files for traces (do not trust `.hash` files)\n  --update, -U          update manifest before building\n  --reconfigure, -R     elaborate configuration files instead of using OLeans\n  --wfail               fail build if warnings are logged\n  --iofail              fail build if any I/O or other info is logged\n  --ansi, --no-ansi     toggle the use of ANSI escape codes to prettify output\n  --no-build            exit immediately if a build target is not up-to-date\n\nSee `lake help <command>` for more information on a specific command.", 2529);
+x_1 = lean_mk_string_unchecked("\n\nUSAGE:\n  lake [OPTIONS] <COMMAND>\n\nCOMMANDS:\n  new <name> <temp>     create a Lean package in a new directory\n  init <name> <temp>    create a Lean package in the current directory\n  build <targets>...    build targets\n  exe <exe> <args>...   build an exe and run it in Lake's environment\n  test                  test the package using the configured test driver\n  check-test            check if there is a properly configured test driver\n  lint                  lint the package using the configured lint driver\n  check-lint            check if there is a properly configured lint driver\n  clean                 remove build outputs\n  env <cmd> <args>...   execute a command in Lake's environment\n  lean <file>           elaborate a Lean file in Lake's context\n  update                update dependencies and save them to the manifest\n  pack                  pack build artifacts into an archive for distribution\n  unpack                unpack build artifacts from an distributed archive\n  upload <tag>          upload build artifacts to a GitHub release\n  script                manage and run workspace scripts\n  scripts               shorthand for `lake script list`\n  run <script>          shorthand for `lake script run`\n  translate-config      change language of the package configuration\n  serve                 start the Lean language server\n\nOPTIONS:\n  --version             print version and exit\n  --help, -h            print help of the program or a command and exit\n  --dir, -d=file        use the package configuration in a specific directory\n  --file, -f=file       use a specific file for the package configuration\n  --quiet, -q           hide progress messages\n  --verbose, -v         show verbose information (command invocations)\n  --lean=cmd            specify the `lean` command used by Lake\n  -K key[=value]        set the configuration file option named key\n  --old                 only rebuild modified modules (ignore transitive deps)\n  --rehash, -H          hash all files for traces (do not trust `.hash` files)\n  --update, -U          update manifest before building\n  --reconfigure, -R     elaborate configuration files instead of using OLeans\n  --wfail               fail build if warnings are logged\n  --iofail              fail build if any I/O or other info is logged\n  --ansi, --no-ansi     toggle the use of ANSI escape codes to prettify output\n  --no-build            exit immediately if a build target is not up-to-date\n\nSee `lake help <command>` for more information on a specific command.", 2529, 2529);
 return x_1;
 }
 }
@@ -127,7 +127,7 @@ static lean_object* _init_l_Lake_templateHelp___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("The initial configuration and starter files are based on the template:\n\n  std                   library and executable; default\n  exe                   executable only\n  lib                   library only\n  math                  library only with a mathlib dependency\n\nTemplates can be suffixed with `.lean` or `.toml` to produce a Lean or TOML\nversion of the configuration file, respectively. The default is Lean.", 414);
+x_1 = lean_mk_string_unchecked("The initial configuration and starter files are based on the template:\n\n  std                   library and executable; default\n  exe                   executable only\n  lib                   library only\n  math                  library only with a mathlib dependency\n\nTemplates can be suffixed with `.lean` or `.toml` to produce a Lean or TOML\nversion of the configuration file, respectively. The default is Lean.", 414, 414);
 return x_1;
 }
 }
@@ -143,7 +143,7 @@ static lean_object* _init_l_Lake_helpNew___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Create a Lean package in a new directory\n\nUSAGE:\n  lake new <name> [<template>][.<language>]\n\n", 94);
+x_1 = lean_mk_string_unchecked("Create a Lean package in a new directory\n\nUSAGE:\n  lake new <name> [<template>][.<language>]\n\n", 94, 94);
 return x_1;
 }
 }
@@ -161,7 +161,7 @@ static lean_object* _init_l_Lake_helpNew___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -187,7 +187,7 @@ static lean_object* _init_l_Lake_helpInit___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Create a Lean package in the current directory\n\nUSAGE:\n  lake init [<name>] [<template>][.<language>]\n\n", 103);
+x_1 = lean_mk_string_unchecked("Create a Lean package in the current directory\n\nUSAGE:\n  lake init [<name>] [<template>][.<language>]\n\n", 103, 103);
 return x_1;
 }
 }
@@ -205,7 +205,7 @@ static lean_object* _init_l_Lake_helpInit___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n\nYou can create a package with current directory's name via `lake init .`\nor a bare `lake init`.", 97);
+x_1 = lean_mk_string_unchecked("\n\nYou can create a package with current directory's name via `lake init .`\nor a bare `lake init`.", 97, 97);
 return x_1;
 }
 }
@@ -231,7 +231,7 @@ static lean_object* _init_l_Lake_helpBuild___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Build targets\n\nUSAGE:\n  lake build [<targets>...]\n\nA target is specified with a string of the form:\n\n  [[@]<package>/][<target>|[+]<module>][:<facet>]\n\nThe optional `@` and `+` markers can be used to disambiguate packages\nand modules from other kinds of targets (i.e., executables and libraries).\n\nLIBRARY FACETS:         build the library's ...\n  leanArts (default)    Lean artifacts (*.olean, *.ilean, *.c files)\n  static                static artifact (*.a file)\n  shared                shared artifact (*.so, *.dll, or *.dylib file)\n\nMODULE FACETS:          build the module's ...\n  deps                  dependencies (e.g., imports, shared libraries, etc.)\n  leanArts (default)    Lean artifacts (*.olean, *.ilean, *.c files)\n  olean                 OLean (binary blob of Lean data for importers)\n  ilean                 ILean (binary blob of metadata for the Lean LSP server)\n  c                     compiled C file\n  bc                    compiled LLVM bitcode file\n  c.o                   compiled object file (of its C file)\n  bc.o                  compiled object file (of its LLVM bitcode file)\n  o                     compiled object file (of its configured backend)\n  dynlib                shared library (e.g., for `--load-dynlib`)\n\nTARGET EXAMPLES:        build the ...\n  a                     default facet of target `a`\n  @a                    default target(s) of package `a`\n  +A                    Lean artifacts of module `A`\n  a/b                   default facet of target `b` of package `a`\n  a/+A:c                C file of module `A` of package `a`\n  :foo                  facet `foo` of the root package\n\nA bare `lake build` command will build the default facet of the root package.\nPackage dependencies are not updated during a build.", 1761);
+x_1 = lean_mk_string_unchecked("Build targets\n\nUSAGE:\n  lake build [<targets>...]\n\nA target is specified with a string of the form:\n\n  [[@]<package>/][<target>|[+]<module>][:<facet>]\n\nThe optional `@` and `+` markers can be used to disambiguate packages\nand modules from other kinds of targets (i.e., executables and libraries).\n\nLIBRARY FACETS:         build the library's ...\n  leanArts (default)    Lean artifacts (*.olean, *.ilean, *.c files)\n  static                static artifact (*.a file)\n  shared                shared artifact (*.so, *.dll, or *.dylib file)\n\nMODULE FACETS:          build the module's ...\n  deps                  dependencies (e.g., imports, shared libraries, etc.)\n  leanArts (default)    Lean artifacts (*.olean, *.ilean, *.c files)\n  olean                 OLean (binary blob of Lean data for importers)\n  ilean                 ILean (binary blob of metadata for the Lean LSP server)\n  c                     compiled C file\n  bc                    compiled LLVM bitcode file\n  c.o                   compiled object file (of its C file)\n  bc.o                  compiled object file (of its LLVM bitcode file)\n  o                     compiled object file (of its configured backend)\n  dynlib                shared library (e.g., for `--load-dynlib`)\n\nTARGET EXAMPLES:        build the ...\n  a                     default facet of target `a`\n  @a                    default target(s) of package `a`\n  +A                    Lean artifacts of module `A`\n  a/b                   default facet of target `b` of package `a`\n  a/+A:c                C file of module `A` of package `a`\n  :foo                  facet `foo` of the root package\n\nA bare `lake build` command will build the default facet of the root package.\nPackage dependencies are not updated during a build.", 1761, 1761);
 return x_1;
 }
 }
@@ -247,7 +247,7 @@ static lean_object* _init_l_Lake_helpUpdate___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Update dependencies and save them to the manifest\n\nUSAGE:\n  lake update [<package>...]\n\nALIAS: lake upgrade\n\nUpdates the Lake package manifest (i.e., `lake-manifest.json`),\ndownloading and upgrading packages as needed. For each new (transitive) git\ndependency, the appropriate commit is cloned into a subdirectory of\n`packagesDir`. No copy is made of local dependencies.\n\nIf a set of packages are specified, said dependencies are upgraded to\nthe latest version compatible with the package's configuration (or removed if\nremoved from the configuration). If there are dependencies on multiple versions\nof the same package, the version materialized is undefined.\n\nA bare `lake update` will upgrade all dependencies.", 712);
+x_1 = lean_mk_string_unchecked("Update dependencies and save them to the manifest\n\nUSAGE:\n  lake update [<package>...]\n\nALIAS: lake upgrade\n\nUpdates the Lake package manifest (i.e., `lake-manifest.json`),\ndownloading and upgrading packages as needed. For each new (transitive) git\ndependency, the appropriate commit is cloned into a subdirectory of\n`packagesDir`. No copy is made of local dependencies.\n\nIf a set of packages are specified, said dependencies are upgraded to\nthe latest version compatible with the package's configuration (or removed if\nremoved from the configuration). If there are dependencies on multiple versions\nof the same package, the version materialized is undefined.\n\nA bare `lake update` will upgrade all dependencies.", 712, 712);
 return x_1;
 }
 }
@@ -263,7 +263,7 @@ static lean_object* _init_l_Lake_helpTest___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Test the workspace's root package using its configured test driver\n\nUSAGE:\n  lake test [-- <args>...]\n\nA test driver can be configured by either setting the 'testDriver'\npackage configuration option or by tagging a script, executable, or library\n`@[test_driver]`. A definition in a dependency can be used as a test driver\nby using the `<pkg>/<name>` syntax for the 'testDriver' configuration option.\n\nA script test driver will be run with the  package configuration's\n`testDriverArgs` plus the CLI `args`. An executable test driver will be\nbuilt and then run like a script. A library test driver will just be built.\n", 616);
+x_1 = lean_mk_string_unchecked("Test the workspace's root package using its configured test driver\n\nUSAGE:\n  lake test [-- <args>...]\n\nA test driver can be configured by either setting the 'testDriver'\npackage configuration option or by tagging a script, executable, or library\n`@[test_driver]`. A definition in a dependency can be used as a test driver\nby using the `<pkg>/<name>` syntax for the 'testDriver' configuration option.\n\nA script test driver will be run with the  package configuration's\n`testDriverArgs` plus the CLI `args`. An executable test driver will be\nbuilt and then run like a script. A library test driver will just be built.\n", 616, 616);
 return x_1;
 }
 }
@@ -279,7 +279,7 @@ static lean_object* _init_l_Lake_helpCheckTest___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Check if there is a properly configured test driver\n\nUSAGE:\n  lake check-test\n\nExits with code 0 if the workspace's root package has a properly\nconfigured lint driver. Errors (with code 1) otherwise.\n\nDoes NOT verify that the configured test driver actually exists in the\npackage or its dependencies. It merely verifies that one is specified.\n", 343);
+x_1 = lean_mk_string_unchecked("Check if there is a properly configured test driver\n\nUSAGE:\n  lake check-test\n\nExits with code 0 if the workspace's root package has a properly\nconfigured lint driver. Errors (with code 1) otherwise.\n\nDoes NOT verify that the configured test driver actually exists in the\npackage or its dependencies. It merely verifies that one is specified.\n", 343, 343);
 return x_1;
 }
 }
@@ -295,7 +295,7 @@ static lean_object* _init_l_Lake_helpLint___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lint the workspace's root package using its configured lint driver\n\nUSAGE:\n  lake lint [-- <args>...]\n\nA lint driver can be configured by either setting the `lintDriver` package\nconfiguration option by tagging a script or executable `@[lint_driver]`.\nA definition in dependency can be used as a test driver by using the\n`<pkg>/<name>` syntax for the 'testDriver' configuration option.\n\nA script lint driver will be run with the  package configuration's\n`lintDriverArgs` plus the CLI `args`. An executable lint driver will be\nbuilt and then run like a script.\n", 559);
+x_1 = lean_mk_string_unchecked("Lint the workspace's root package using its configured lint driver\n\nUSAGE:\n  lake lint [-- <args>...]\n\nA lint driver can be configured by either setting the `lintDriver` package\nconfiguration option by tagging a script or executable `@[lint_driver]`.\nA definition in dependency can be used as a test driver by using the\n`<pkg>/<name>` syntax for the 'testDriver' configuration option.\n\nA script lint driver will be run with the  package configuration's\n`lintDriverArgs` plus the CLI `args`. An executable lint driver will be\nbuilt and then run like a script.\n", 559, 559);
 return x_1;
 }
 }
@@ -311,7 +311,7 @@ static lean_object* _init_l_Lake_helpCheckLint___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Check if there is a properly configured lint driver\n\nUSAGE:\n  lake check-lint\n\nExits with code 0 if the workspace's root package has a properly\nconfigured lint driver. Errors (with code 1) otherwise.\n\nDoes NOT verify that the configured lint driver actually exists in the\npackage or its dependencies. It merely verifies that one is specified.\n", 343);
+x_1 = lean_mk_string_unchecked("Check if there is a properly configured lint driver\n\nUSAGE:\n  lake check-lint\n\nExits with code 0 if the workspace's root package has a properly\nconfigured lint driver. Errors (with code 1) otherwise.\n\nDoes NOT verify that the configured lint driver actually exists in the\npackage or its dependencies. It merely verifies that one is specified.\n", 343, 343);
 return x_1;
 }
 }
@@ -327,7 +327,7 @@ static lean_object* _init_l_Lake_helpPack___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Pack build artifacts into a archive for distribution\n\nUSAGE:\n  lake pack [<file.tgz>]\n\nPacks the root package's `buildDir` into a gzip tar archive using `tar`.\nIf a path for the archive is not specified, creates a archive in the package's\nLake directory (`.lake`) named according to its `buildArchive` setting.\n\nDoes NOT build any artifacts. It just packs the existing ones.", 374);
+x_1 = lean_mk_string_unchecked("Pack build artifacts into a archive for distribution\n\nUSAGE:\n  lake pack [<file.tgz>]\n\nPacks the root package's `buildDir` into a gzip tar archive using `tar`.\nIf a path for the archive is not specified, creates a archive in the package's\nLake directory (`.lake`) named according to its `buildArchive` setting.\n\nDoes NOT build any artifacts. It just packs the existing ones.", 374, 374);
 return x_1;
 }
 }
@@ -343,7 +343,7 @@ static lean_object* _init_l_Lake_helpUnpack___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Unpack build artifacts from a distributed archive\n\nUSAGE:\n  lake unpack [<file.tgz>]\n\nUnpack build artifacts from the gzip tar archive `file.tgz` into the root\npackage's `buildDir`. If a path for the archive is not specified, uses the\nthe package's `buildArchive` in its Lake directory (`.lake`).", 296);
+x_1 = lean_mk_string_unchecked("Unpack build artifacts from a distributed archive\n\nUSAGE:\n  lake unpack [<file.tgz>]\n\nUnpack build artifacts from the gzip tar archive `file.tgz` into the root\npackage's `buildDir`. If a path for the archive is not specified, uses the\nthe package's `buildArchive` in its Lake directory (`.lake`).", 296, 296);
 return x_1;
 }
 }
@@ -359,7 +359,7 @@ static lean_object* _init_l_Lake_helpUpload___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Upload build artifacts to a GitHub release\n\nUSAGE:\n  lake upload <tag>\n\nPacks the root package's `buildDir` into a `tar.gz` archive using `tar` and\nthen uploads the asset to the pre-existing GitHub release `tag` using `gh`.", 223);
+x_1 = lean_mk_string_unchecked("Upload build artifacts to a GitHub release\n\nUSAGE:\n  lake upload <tag>\n\nPacks the root package's `buildDir` into a `tar.gz` archive using `tar` and\nthen uploads the asset to the pre-existing GitHub release `tag` using `gh`.", 223, 223);
 return x_1;
 }
 }
@@ -375,7 +375,7 @@ static lean_object* _init_l_Lake_helpClean___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Remove build outputs\n\nUSAGE:\n  lake clean [<package>...]\n\nIf no package is specified, deletes the build directories of every package in\nthe workspace. Otherwise, just deletes those of the specified packages.", 207);
+x_1 = lean_mk_string_unchecked("Remove build outputs\n\nUSAGE:\n  lake clean [<package>...]\n\nIf no package is specified, deletes the build directories of every package in\nthe workspace. Otherwise, just deletes those of the specified packages.", 207, 207);
 return x_1;
 }
 }
@@ -391,7 +391,7 @@ static lean_object* _init_l_Lake_helpScriptCli___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Manage Lake scripts\n\nUSAGE:\n  lake script <COMMAND>\n\nCOMMANDS:\n  list                  list available scripts\n  run <script>          run a script\n  doc <script>          print the docstring of a given script\n\nSee `lake help <command>` for more information on a specific command.", 279);
+x_1 = lean_mk_string_unchecked("Manage Lake scripts\n\nUSAGE:\n  lake script <COMMAND>\n\nCOMMANDS:\n  list                  list available scripts\n  run <script>          run a script\n  doc <script>          print the docstring of a given script\n\nSee `lake help <command>` for more information on a specific command.", 279, 279);
 return x_1;
 }
 }
@@ -407,7 +407,7 @@ static lean_object* _init_l_Lake_helpScriptList___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("List available scripts\n\nUSAGE:\n  lake script list\n\nALIAS: lake scripts\n\nThis command prints the list of all available scripts in the workspace.", 143);
+x_1 = lean_mk_string_unchecked("List available scripts\n\nUSAGE:\n  lake script list\n\nALIAS: lake scripts\n\nThis command prints the list of all available scripts in the workspace.", 143, 143);
 return x_1;
 }
 }
@@ -423,7 +423,7 @@ static lean_object* _init_l_Lake_helpScriptRun___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Run a script\n\nUSAGE:\n  lake script run [[<package>/]<script>] [<args>...]\n\nALIAS: lake run\n\nThis command runs the `script` of the workspace (or the specific `package`),\npassing `args` to it.\n\nA bare `lake run` command will run the default script(s) of the root package\n(with no arguments).", 289);
+x_1 = lean_mk_string_unchecked("Run a script\n\nUSAGE:\n  lake script run [[<package>/]<script>] [<args>...]\n\nALIAS: lake run\n\nThis command runs the `script` of the workspace (or the specific `package`),\npassing `args` to it.\n\nA bare `lake run` command will run the default script(s) of the root package\n(with no arguments).", 289, 289);
 return x_1;
 }
 }
@@ -439,7 +439,7 @@ static lean_object* _init_l_Lake_helpScriptDoc___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Print a script's docstring\n\nUSAGE:\n  lake script doc [<package>/]<script>\n\nPrint the docstring of `script` in the workspace or the specific `package`.", 150);
+x_1 = lean_mk_string_unchecked("Print a script's docstring\n\nUSAGE:\n  lake script doc [<package>/]<script>\n\nPrint the docstring of `script` in the workspace or the specific `package`.", 150, 150);
 return x_1;
 }
 }
@@ -455,7 +455,7 @@ static lean_object* _init_l_Lake_helpServe___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Start the Lean language server\n\nUSAGE:\n  lake serve [-- <args>...]\n\nRun the language server of the Lean installation (i.e., via `lean --server`)\nwith the package configuration's `moreServerArgs` field and `args`.\n", 213);
+x_1 = lean_mk_string_unchecked("Start the Lean language server\n\nUSAGE:\n  lake serve [-- <args>...]\n\nRun the language server of the Lean installation (i.e., via `lean --server`)\nwith the package configuration's `moreServerArgs` field and `args`.\n", 213, 213);
 return x_1;
 }
 }
@@ -471,7 +471,7 @@ static lean_object* _init_l_Lake_helpEnv___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Execute a command in Lake's environment\n\nUSAGE:\n  lake env [<cmd>] [<args>...]\n\nSpawns a new process executing `cmd` with the given `args` and with\nthe environment set based on the detected Lean/Lake installations and\nthe workspace configuration (if it exists).\n\nSpecifically, this command sets the following environment variables:\n\n  LAKE                  set to the detected Lake executable\n  LAKE_HOME             set to the detected Lake home\n  LEAN_SYSROOT          set to the detected Lean toolchain directory\n  LEAN_AR               set to the detected Lean `ar` binary\n  LEAN_CC               set to the detected `cc` (if not using the bundled one)\n  LEAN_PATH             adds Lake's and the workspace's Lean library dirs\n  LEAN_SRC_PATH         adds Lake's and the workspace's source dirs\n  PATH                  adds Lean's, Lake's, and the workspace's binary dirs\n  PATH                  adds Lean's and the workspace's library dirs (Windows)\n  DYLD_LIBRARY_PATH     adds Lean's and the workspace's library dirs (MacOS)\n  LD_LIBRARY_PATH       adds Lean's and the workspace's library dirs (other)\n\nA bare `lake env` will print out the variables set and their values,\nusing the form NAME=VALUE like the POSIX `env` command.", 1234);
+x_1 = lean_mk_string_unchecked("Execute a command in Lake's environment\n\nUSAGE:\n  lake env [<cmd>] [<args>...]\n\nSpawns a new process executing `cmd` with the given `args` and with\nthe environment set based on the detected Lean/Lake installations and\nthe workspace configuration (if it exists).\n\nSpecifically, this command sets the following environment variables:\n\n  LAKE                  set to the detected Lake executable\n  LAKE_HOME             set to the detected Lake home\n  LEAN_SYSROOT          set to the detected Lean toolchain directory\n  LEAN_AR               set to the detected Lean `ar` binary\n  LEAN_CC               set to the detected `cc` (if not using the bundled one)\n  LEAN_PATH             adds Lake's and the workspace's Lean library dirs\n  LEAN_SRC_PATH         adds Lake's and the workspace's source dirs\n  PATH                  adds Lean's, Lake's, and the workspace's binary dirs\n  PATH                  adds Lean's and the workspace's library dirs (Windows)\n  DYLD_LIBRARY_PATH     adds Lean's and the workspace's library dirs (MacOS)\n  LD_LIBRARY_PATH       adds Lean's and the workspace's library dirs (other)\n\nA bare `lake env` will print out the variables set and their values,\nusing the form NAME=VALUE like the POSIX `env` command.", 1234, 1234);
 return x_1;
 }
 }
@@ -487,7 +487,7 @@ static lean_object* _init_l_Lake_helpExe___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Build an executable target and run it in Lake's environment\n\nUSAGE:\n  lake exe <exe-target> [<args>...]\n\nALIAS: lake exec\n\nLooks for the executable target in the workspace (see `lake help build` to\nlearn how to specify targets), builds it if it is out of date, and then runs\nit with the given `args` in Lake's environment (see `lake help env` for how\nthe environment is set up).", 378);
+x_1 = lean_mk_string_unchecked("Build an executable target and run it in Lake's environment\n\nUSAGE:\n  lake exe <exe-target> [<args>...]\n\nALIAS: lake exec\n\nLooks for the executable target in the workspace (see `lake help build` to\nlearn how to specify targets), builds it if it is out of date, and then runs\nit with the given `args` in Lake's environment (see `lake help env` for how\nthe environment is set up).", 378, 378);
 return x_1;
 }
 }
@@ -503,7 +503,7 @@ static lean_object* _init_l_Lake_helpLean___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elaborate a Lean file in the context of the Lake workspace\n\nUSAGE:\n  lake lean <file> [-- <args>...]\n\nBuild the imports of the the given file and then runs `lean` on it using\nthe workspace's root package's additional Lean arguments and the given args\n(in that order). The `lean` process is executed in Lake's environment like\n`lake env lean` (see `lake help env` for how the environment is set up).", 398);
+x_1 = lean_mk_string_unchecked("Elaborate a Lean file in the context of the Lake workspace\n\nUSAGE:\n  lake lean <file> [-- <args>...]\n\nBuild the imports of the the given file and then runs `lean` on it using\nthe workspace's root package's additional Lean arguments and the given args\n(in that order). The `lean` process is executed in Lake's environment like\n`lake env lean` (see `lake help env` for how the environment is set up).", 398, 398);
 return x_1;
 }
 }
@@ -519,7 +519,7 @@ static lean_object* _init_l_Lake_helpTranslateConfig___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Translate a Lake configuration file into a different language\n\nUSAGE:\n  lake translate-config <lang> [<out-file>]\n\nTranslates the loaded package's configuration into another of\nLake's supported configuration languages (i.e., either `lean` or `toml`).\nThe produced file is written to `out-file` or, if not provided, the path of\nthe configuration file with the new language's extension. If the output file\nalready exists, Lake will error.\n\nTranslation is lossy. It does not preserve comments or formatting and\nnon-declarative configuration will be discarded.", 556);
+x_1 = lean_mk_string_unchecked("Translate a Lake configuration file into a different language\n\nUSAGE:\n  lake translate-config <lang> [<out-file>]\n\nTranslates the loaded package's configuration into another of\nLake's supported configuration languages (i.e., either `lean` or `toml`).\nThe produced file is written to `out-file` or, if not provided, the path of\nthe configuration file with the new language's extension. If the output file\nalready exists, Lake will error.\n\nTranslation is lossy. It does not preserve comments or formatting and\nnon-declarative configuration will be discarded.", 556, 556);
 return x_1;
 }
 }
@@ -535,7 +535,7 @@ static lean_object* _init_l_Lake_helpScript___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("list", 4);
+x_1 = lean_mk_string_unchecked("list", 4, 4);
 return x_1;
 }
 }
@@ -543,7 +543,7 @@ static lean_object* _init_l_Lake_helpScript___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("run", 3);
+x_1 = lean_mk_string_unchecked("run", 3, 3);
 return x_1;
 }
 }
@@ -551,7 +551,7 @@ static lean_object* _init_l_Lake_helpScript___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doc", 3);
+x_1 = lean_mk_string_unchecked("doc", 3, 3);
 return x_1;
 }
 }
@@ -612,7 +612,7 @@ static lean_object* _init_l_Lake_help___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("new", 3);
+x_1 = lean_mk_string_unchecked("new", 3, 3);
 return x_1;
 }
 }
@@ -620,7 +620,7 @@ static lean_object* _init_l_Lake_help___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("init", 4);
+x_1 = lean_mk_string_unchecked("init", 4, 4);
 return x_1;
 }
 }
@@ -628,7 +628,7 @@ static lean_object* _init_l_Lake_help___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("build", 5);
+x_1 = lean_mk_string_unchecked("build", 5, 5);
 return x_1;
 }
 }
@@ -636,7 +636,7 @@ static lean_object* _init_l_Lake_help___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("update", 6);
+x_1 = lean_mk_string_unchecked("update", 6, 6);
 return x_1;
 }
 }
@@ -644,7 +644,7 @@ static lean_object* _init_l_Lake_help___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("upgrade", 7);
+x_1 = lean_mk_string_unchecked("upgrade", 7, 7);
 return x_1;
 }
 }
@@ -652,7 +652,7 @@ static lean_object* _init_l_Lake_help___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pack", 4);
+x_1 = lean_mk_string_unchecked("pack", 4, 4);
 return x_1;
 }
 }
@@ -660,7 +660,7 @@ static lean_object* _init_l_Lake_help___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unpack", 6);
+x_1 = lean_mk_string_unchecked("unpack", 6, 6);
 return x_1;
 }
 }
@@ -668,7 +668,7 @@ static lean_object* _init_l_Lake_help___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("upload", 6);
+x_1 = lean_mk_string_unchecked("upload", 6, 6);
 return x_1;
 }
 }
@@ -676,7 +676,7 @@ static lean_object* _init_l_Lake_help___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("test", 4);
+x_1 = lean_mk_string_unchecked("test", 4, 4);
 return x_1;
 }
 }
@@ -684,7 +684,7 @@ static lean_object* _init_l_Lake_help___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("check-test", 10);
+x_1 = lean_mk_string_unchecked("check-test", 10, 10);
 return x_1;
 }
 }
@@ -692,7 +692,7 @@ static lean_object* _init_l_Lake_help___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lint", 4);
+x_1 = lean_mk_string_unchecked("lint", 4, 4);
 return x_1;
 }
 }
@@ -700,7 +700,7 @@ static lean_object* _init_l_Lake_help___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("check-lint", 10);
+x_1 = lean_mk_string_unchecked("check-lint", 10, 10);
 return x_1;
 }
 }
@@ -708,7 +708,7 @@ static lean_object* _init_l_Lake_help___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("clean", 5);
+x_1 = lean_mk_string_unchecked("clean", 5, 5);
 return x_1;
 }
 }
@@ -716,7 +716,7 @@ static lean_object* _init_l_Lake_help___closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("script", 6);
+x_1 = lean_mk_string_unchecked("script", 6, 6);
 return x_1;
 }
 }
@@ -724,7 +724,7 @@ static lean_object* _init_l_Lake_help___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("scripts", 7);
+x_1 = lean_mk_string_unchecked("scripts", 7, 7);
 return x_1;
 }
 }
@@ -732,7 +732,7 @@ static lean_object* _init_l_Lake_help___closed__16() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("serve", 5);
+x_1 = lean_mk_string_unchecked("serve", 5, 5);
 return x_1;
 }
 }
@@ -740,7 +740,7 @@ static lean_object* _init_l_Lake_help___closed__17() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("env", 3);
+x_1 = lean_mk_string_unchecked("env", 3, 3);
 return x_1;
 }
 }
@@ -748,7 +748,7 @@ static lean_object* _init_l_Lake_help___closed__18() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("exe", 3);
+x_1 = lean_mk_string_unchecked("exe", 3, 3);
 return x_1;
 }
 }
@@ -756,7 +756,7 @@ static lean_object* _init_l_Lake_help___closed__19() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("exec", 4);
+x_1 = lean_mk_string_unchecked("exec", 4, 4);
 return x_1;
 }
 }
@@ -764,7 +764,7 @@ static lean_object* _init_l_Lake_help___closed__20() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lean", 4);
+x_1 = lean_mk_string_unchecked("lean", 4, 4);
 return x_1;
 }
 }
@@ -772,7 +772,7 @@ static lean_object* _init_l_Lake_help___closed__21() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("translate-config", 16);
+x_1 = lean_mk_string_unchecked("translate-config", 16, 16);
 return x_1;
 }
 }

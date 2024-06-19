@@ -294,7 +294,7 @@ static lean_object* _init_l_Lean_PPContext_runCoreM___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("internal exception #", 20);
+x_1 = lean_mk_string_unchecked("internal exception #", 20, 20);
 return x_1;
 }
 }
@@ -311,7 +311,7 @@ static lean_object* _init_l_Lean_PPContext_runCoreM___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -349,7 +349,7 @@ static lean_object* _init_l_Lean_PPContext_runCoreM___rarg___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_pp_uniq", 8);
+x_1 = lean_mk_string_unchecked("_pp_uniq", 8, 8);
 return x_1;
 }
 }
@@ -470,7 +470,7 @@ static lean_object* _init_l_Lean_PPContext_runCoreM___rarg___closed__18() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("<PrettyPrinter>", 15);
+x_1 = lean_mk_string_unchecked("<PrettyPrinter>", 15, 15);
 return x_1;
 }
 }
@@ -1242,7 +1242,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_ppTerm___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term", 4);
+x_1 = lean_mk_string_unchecked("term", 4, 4);
 return x_1;
 }
 }
@@ -2208,7 +2208,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_ppExprLegacy___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_uniq", 5);
+x_1 = lean_mk_string_unchecked("_uniq", 5, 5);
 return x_1;
 }
 }
@@ -2873,7 +2873,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_ppTactic___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tactic", 6);
+x_1 = lean_mk_string_unchecked("tactic", 6, 6);
 return x_1;
 }
 }
@@ -2900,7 +2900,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_ppCommand___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("command", 7);
+x_1 = lean_mk_string_unchecked("command", 7, 7);
 return x_1;
 }
 }
@@ -4084,7 +4084,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PrettyPrinter", 13);
+x_1 = lean_mk_string_unchecked("PrettyPrinter", 13, 13);
 return x_1;
 }
 }
@@ -4102,7 +4102,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -4130,7 +4130,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -4148,7 +4148,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -4186,7 +4186,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -4225,7 +4225,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_registerParserCompilers___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("parenthesizer", 13);
+x_1 = lean_mk_string_unchecked("parenthesizer", 13, 13);
 return x_1;
 }
 }
@@ -4273,7 +4273,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_registerParserCompilers___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("formatter", 9);
+x_1 = lean_mk_string_unchecked("formatter", 9, 9);
 return x_1;
 }
 }
@@ -4813,7 +4813,7 @@ static lean_object* _init_l_Lean_MessageData_ofConst___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.PrettyPrinter", 18);
+x_1 = lean_mk_string_unchecked("Lean.PrettyPrinter", 18, 18);
 return x_1;
 }
 }
@@ -4821,7 +4821,7 @@ static lean_object* _init_l_Lean_MessageData_ofConst___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.MessageData.ofConst", 24);
+x_1 = lean_mk_string_unchecked("Lean.MessageData.ofConst", 24, 24);
 return x_1;
 }
 }
@@ -4829,7 +4829,7 @@ static lean_object* _init_l_Lean_MessageData_ofConst___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("not a constant", 14);
+x_1 = lean_mk_string_unchecked("not a constant", 14, 14);
 return x_1;
 }
 }

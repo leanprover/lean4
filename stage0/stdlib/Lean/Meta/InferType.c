@@ -1043,7 +1043,7 @@ static lean_object* _init_l_Lean_Expr_instantiateBetaRevRange_visit___closed__4(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.InferType", 19);
+x_1 = lean_mk_string_unchecked("Lean.Meta.InferType", 19, 19);
 return x_1;
 }
 }
@@ -1051,7 +1051,7 @@ static lean_object* _init_l_Lean_Expr_instantiateBetaRevRange_visit___closed__5(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Expr.instantiateBetaRevRange.visit", 39);
+x_1 = lean_mk_string_unchecked("Lean.Expr.instantiateBetaRevRange.visit", 39, 39);
 return x_1;
 }
 }
@@ -1059,7 +1059,7 @@ static lean_object* _init_l_Lean_Expr_instantiateBetaRevRange_visit___closed__6(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -2252,7 +2252,7 @@ static lean_object* _init_l_Lean_Expr_instantiateBetaRevRange___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("assertion violation: ", 21);
+x_1 = lean_mk_string_unchecked("assertion violation: ", 21, 21);
 return x_1;
 }
 }
@@ -2260,7 +2260,7 @@ static lean_object* _init_l_Lean_Expr_instantiateBetaRevRange___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("stop ≤ args.size\n    ", 23);
+x_1 = lean_mk_string_unchecked("stop ≤ args.size\n    ", 23, 21);
 return x_1;
 }
 }
@@ -2278,7 +2278,7 @@ static lean_object* _init_l_Lean_Expr_instantiateBetaRevRange___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Expr.instantiateBetaRevRange", 33);
+x_1 = lean_mk_string_unchecked("Lean.Expr.instantiateBetaRevRange", 33, 33);
 return x_1;
 }
 }
@@ -2412,7 +2412,7 @@ static lean_object* _init_l_Lean_Meta_throwFunctionExpected___rarg___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("function expected", 17);
+x_1 = lean_mk_string_unchecked("function expected", 17, 17);
 return x_1;
 }
 }
@@ -2429,7 +2429,7 @@ static lean_object* _init_l_Lean_Meta_throwFunctionExpected___rarg___closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -2869,7 +2869,7 @@ static lean_object* _init_l_Lean_Meta_throwIncorrectNumberOfLevels___rarg___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("incorrect number of universe levels ", 36);
+x_1 = lean_mk_string_unchecked("incorrect number of universe levels ", 36, 36);
 return x_1;
 }
 }
@@ -3049,7 +3049,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Meta_InferT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid projection", 18);
+x_1 = lean_mk_string_unchecked("invalid projection", 18, 18);
 return x_1;
 }
 }
@@ -4954,7 +4954,7 @@ static lean_object* _init_l_Lean_Meta_throwTypeExcepted___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("type expected", 13);
+x_1 = lean_mk_string_unchecked("type expected", 13, 13);
 return x_1;
 }
 }
@@ -6023,7 +6023,7 @@ static lean_object* _init_l_Lean_Meta_throwUnknownMVar___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown metavariable '\?", 23);
+x_1 = lean_mk_string_unchecked("unknown metavariable '\?", 23, 23);
 return x_1;
 }
 }
@@ -6040,7 +6040,7 @@ static lean_object* _init_l_Lean_Meta_throwUnknownMVar___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -7666,7 +7666,7 @@ static lean_object* _init_l_Lean_Meta_inferTypeImp_infer___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected bound variable ", 26);
+x_1 = lean_mk_string_unchecked("unexpected bound variable ", 26, 26);
 return x_1;
 }
 }

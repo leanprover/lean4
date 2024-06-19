@@ -250,7 +250,7 @@ static lean_object* _init_l_Lean_CodeAction_mkHoleCodeAction_unsafe__1___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -258,7 +258,7 @@ static lean_object* _init_l_Lean_CodeAction_mkHoleCodeAction_unsafe__1___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CodeAction", 10);
+x_1 = lean_mk_string_unchecked("CodeAction", 10, 10);
 return x_1;
 }
 }
@@ -266,7 +266,7 @@ static lean_object* _init_l_Lean_CodeAction_mkHoleCodeAction_unsafe__1___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HoleCodeAction", 14);
+x_1 = lean_mk_string_unchecked("HoleCodeAction", 14, 14);
 return x_1;
 }
 }
@@ -676,7 +676,7 @@ static lean_object* _init_l_Lean_CodeAction_initFn____x40_Lean_Server_CodeAction
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("holeCodeActionExt", 17);
+x_1 = lean_mk_string_unchecked("holeCodeActionExt", 17, 17);
 return x_1;
 }
 }
@@ -1318,7 +1318,7 @@ static lean_object* _init_l_Lean_CodeAction_initFn____x40_Lean_Server_CodeAction
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid attribute 'hole_code_action', must be global", 52);
+x_1 = lean_mk_string_unchecked("invalid attribute 'hole_code_action', must be global", 52, 52);
 return x_1;
 }
 }
@@ -1410,7 +1410,7 @@ static lean_object* _init_l_Lean_CodeAction_initFn____x40_Lean_Server_CodeAction
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attribute cannot be erased", 26);
+x_1 = lean_mk_string_unchecked("attribute cannot be erased", 26, 26);
 return x_1;
 }
 }
@@ -1456,7 +1456,7 @@ static lean_object* _init_l_Lean_CodeAction_initFn____x40_Lean_Server_CodeAction
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -1474,7 +1474,7 @@ static lean_object* _init_l_Lean_CodeAction_initFn____x40_Lean_Server_CodeAction
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -1502,7 +1502,7 @@ static lean_object* _init_l_Lean_CodeAction_initFn____x40_Lean_Server_CodeAction
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Server", 6);
+x_1 = lean_mk_string_unchecked("Server", 6, 6);
 return x_1;
 }
 }
@@ -1520,7 +1520,7 @@ static lean_object* _init_l_Lean_CodeAction_initFn____x40_Lean_Server_CodeAction
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CodeActions", 11);
+x_1 = lean_mk_string_unchecked("CodeActions", 11, 11);
 return x_1;
 }
 }
@@ -1538,7 +1538,7 @@ static lean_object* _init_l_Lean_CodeAction_initFn____x40_Lean_Server_CodeAction
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Attr", 4);
+x_1 = lean_mk_string_unchecked("Attr", 4, 4);
 return x_1;
 }
 }
@@ -1556,7 +1556,7 @@ static lean_object* _init_l_Lean_CodeAction_initFn____x40_Lean_Server_CodeAction
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -1584,7 +1584,7 @@ static lean_object* _init_l_Lean_CodeAction_initFn____x40_Lean_Server_CodeAction
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hole_code_action", 16);
+x_1 = lean_mk_string_unchecked("hole_code_action", 16, 16);
 return x_1;
 }
 }
@@ -1602,7 +1602,7 @@ static lean_object* _init_l_Lean_CodeAction_initFn____x40_Lean_Server_CodeAction
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Declare a new hole code action, to appear in the code actions on \?_ and _", 73);
+x_1 = lean_mk_string_unchecked("Declare a new hole code action, to appear in the code actions on \?_ and _", 73, 73);
 return x_1;
 }
 }
@@ -1709,7 +1709,7 @@ static lean_object* _init_l_Lean_CodeAction_mkCommandCodeAction_unsafe__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CommandCodeAction", 17);
+x_1 = lean_mk_string_unchecked("CommandCodeAction", 17, 17);
 return x_1;
 }
 }
@@ -2646,7 +2646,7 @@ static lean_object* _init_l_Lean_CodeAction_initFn____x40_Lean_Server_CodeAction
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cmdCodeActionExt", 16);
+x_1 = lean_mk_string_unchecked("cmdCodeActionExt", 16, 16);
 return x_1;
 }
 }
@@ -3250,7 +3250,7 @@ static lean_object* _init_l_Lean_CodeAction_initFn____x40_Lean_Server_CodeAction
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("command_code_action", 19);
+x_1 = lean_mk_string_unchecked("command_code_action", 19, 19);
 return x_1;
 }
 }
@@ -3412,7 +3412,7 @@ static lean_object* _init_l_Lean_CodeAction_initFn____x40_Lean_Server_CodeAction
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid attribute 'command_code_action', must be global", 55);
+x_1 = lean_mk_string_unchecked("invalid attribute 'command_code_action', must be global", 55, 55);
 return x_1;
 }
 }
@@ -3492,7 +3492,7 @@ static lean_object* _init_l_Lean_CodeAction_initFn____x40_Lean_Server_CodeAction
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Declare a new command code action, to appear in the code actions on commands", 76);
+x_1 = lean_mk_string_unchecked("Declare a new command code action, to appear in the code actions on commands", 76, 76);
 return x_1;
 }
 }
@@ -3614,7 +3614,7 @@ static lean_object* _init_l___private_Lean_Server_CodeActions_Attr_0__Lean_CodeA
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("insertBuiltin", 13);
+x_1 = lean_mk_string_unchecked("insertBuiltin", 13, 13);
 return x_1;
 }
 }
@@ -3643,7 +3643,7 @@ static lean_object* _init_l___private_Lean_Server_CodeActions_Attr_0__Lean_CodeA
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Name", 4);
+x_1 = lean_mk_string_unchecked("Name", 4, 4);
 return x_1;
 }
 }
@@ -3671,7 +3671,7 @@ static lean_object* _init_l___private_Lean_Server_CodeActions_Attr_0__Lean_CodeA
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("List", 4);
+x_1 = lean_mk_string_unchecked("List", 4, 4);
 return x_1;
 }
 }
@@ -3679,7 +3679,7 @@ static lean_object* _init_l___private_Lean_Server_CodeActions_Attr_0__Lean_CodeA
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("toArray", 7);
+x_1 = lean_mk_string_unchecked("toArray", 7, 7);
 return x_1;
 }
 }
@@ -3719,7 +3719,7 @@ static lean_object* _init_l___private_Lean_Server_CodeActions_Attr_0__Lean_CodeA
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("nil", 3);
+x_1 = lean_mk_string_unchecked("nil", 3, 3);
 return x_1;
 }
 }
@@ -3757,7 +3757,7 @@ static lean_object* _init_l___private_Lean_Server_CodeActions_Attr_0__Lean_CodeA
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cons", 4);
+x_1 = lean_mk_string_unchecked("cons", 4, 4);
 return x_1;
 }
 }
@@ -3804,7 +3804,7 @@ static lean_object* _init_l___private_Lean_Server_CodeActions_Attr_0__Lean_CodeA
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declare", 7);
+x_1 = lean_mk_string_unchecked("declare", 7, 7);
 return x_1;
 }
 }
@@ -4057,7 +4057,7 @@ static lean_object* _init_l_Lean_CodeAction_initFn____x40_Lean_Server_CodeAction
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtin_command_code_action", 27);
+x_1 = lean_mk_string_unchecked("builtin_command_code_action", 27, 27);
 return x_1;
 }
 }
@@ -4075,7 +4075,7 @@ static lean_object* _init_l_Lean_CodeAction_initFn____x40_Lean_Server_CodeAction
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected 'command_code_action' attribute syntax", 49);
+x_1 = lean_mk_string_unchecked("unexpected 'command_code_action' attribute syntax", 49, 49);
 return x_1;
 }
 }
@@ -4295,7 +4295,7 @@ static lean_object* _init_l_Lean_CodeAction_initFn____x40_Lean_Server_CodeAction
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Declare a new builtin command code action, to appear in the code actions on commands", 84);
+x_1 = lean_mk_string_unchecked("Declare a new builtin command code action, to appear in the code actions on commands", 84, 84);
 return x_1;
 }
 }

@@ -590,7 +590,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Check_checkFVar___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid out of scope free variable ", 35);
+x_1 = lean_mk_string_unchecked("invalid out of scope free variable ", 35, 35);
 return x_1;
 }
 }
@@ -607,7 +607,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Check_checkFVar___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -1007,7 +1007,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_Check_c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid LCNF application", 24);
+x_1 = lean_mk_string_unchecked("invalid LCNF application", 24, 24);
 return x_1;
 }
 }
@@ -1024,7 +1024,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_Check_c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nargument", 9);
+x_1 = lean_mk_string_unchecked("\nargument", 9, 9);
 return x_1;
 }
 }
@@ -1041,7 +1041,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_Check_c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nhas type", 9);
+x_1 = lean_mk_string_unchecked("\nhas type", 9, 9);
 return x_1;
 }
 }
@@ -1058,7 +1058,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_Check_c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nmust be a free variable", 24);
+x_1 = lean_mk_string_unchecked("\nmust be a free variable", 24, 24);
 return x_1;
 }
 }
@@ -1423,7 +1423,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_Check_c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("type mismatch at LCNF application", 33);
+x_1 = lean_mk_string_unchecked("type mismatch at LCNF application", 33, 33);
 return x_1;
 }
 }
@@ -1440,7 +1440,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_Check_c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nargument ", 10);
+x_1 = lean_mk_string_unchecked("\nargument ", 10, 10);
 return x_1;
 }
 }
@@ -1457,7 +1457,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_Check_c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" has type", 9);
+x_1 = lean_mk_string_unchecked(" has type", 9, 9);
 return x_1;
 }
 }
@@ -1474,7 +1474,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_Check_c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nbut is expected to have type", 29);
+x_1 = lean_mk_string_unchecked("\nbut is expected to have type", 29, 29);
 return x_1;
 }
 }
@@ -2970,7 +2970,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Check_checkJpInScope___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid jump to out of scope join point `", 41);
+x_1 = lean_mk_string_unchecked("invalid jump to out of scope join point `", 41, 41);
 return x_1;
 }
 }
@@ -2987,7 +2987,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Check_checkJpInScope___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`", 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -3054,7 +3054,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Check_checkParam___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LCNF parameter mismatch at `", 28);
+x_1 = lean_mk_string_unchecked("LCNF parameter mismatch at `", 28, 28);
 return x_1;
 }
 }
@@ -3071,7 +3071,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Check_checkParam___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`, does not value in local context", 34);
+x_1 = lean_mk_string_unchecked("`, does not value in local context", 34, 34);
 return x_1;
 }
 }
@@ -3353,7 +3353,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Check_checkLetDecl___lambda__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LCNF let declaration mismatch at `", 34);
+x_1 = lean_mk_string_unchecked("LCNF let declaration mismatch at `", 34, 34);
 return x_1;
 }
 }
@@ -3370,7 +3370,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Check_checkLetDecl___lambda__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`, does not match value in local context", 40);
+x_1 = lean_mk_string_unchecked("`, does not match value in local context", 40, 40);
 return x_1;
 }
 }
@@ -3498,7 +3498,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Check_checkLetDecl___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("type mismatch at `", 18);
+x_1 = lean_mk_string_unchecked("type mismatch at `", 18, 18);
 return x_1;
 }
 }
@@ -3515,7 +3515,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Check_checkLetDecl___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`, value has type", 17);
+x_1 = lean_mk_string_unchecked("`, value has type", 17, 17);
 return x_1;
 }
 }
@@ -4358,7 +4358,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Check_addFVarId___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid LCNF, free variables are not unique `", 45);
+x_1 = lean_mk_string_unchecked("invalid LCNF, free variables are not unique `", 45, 45);
 return x_1;
 }
 }
@@ -7060,7 +7060,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Check_check___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid LCNF `goto`, join point ", 32);
+x_1 = lean_mk_string_unchecked("invalid LCNF `goto`, join point ", 32, 32);
 return x_1;
 }
 }
@@ -7077,7 +7077,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Check_check___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" has #", 6);
+x_1 = lean_mk_string_unchecked(" has #", 6, 6);
 return x_1;
 }
 }
@@ -7094,7 +7094,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Check_check___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" parameters, but #", 18);
+x_1 = lean_mk_string_unchecked(" parameters, but #", 18, 18);
 return x_1;
 }
 }
@@ -7111,7 +7111,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Check_check___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" were provided", 14);
+x_1 = lean_mk_string_unchecked(" were provided", 14, 14);
 return x_1;
 }
 }
@@ -8239,7 +8239,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_Lean_Compiler_LCNF_Check_chec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
+x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
 return x_1;
 }
 }
@@ -8256,7 +8256,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_Lean_Compiler_LCNF_Check_chec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -8855,7 +8855,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_Check
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid LCNF `cases`, `", 23);
+x_1 = lean_mk_string_unchecked("invalid LCNF `cases`, `", 23, 23);
 return x_1;
 }
 }
@@ -8872,7 +8872,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_Check
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` has # ", 8);
+x_1 = lean_mk_string_unchecked("` has # ", 8, 8);
 return x_1;
 }
 }
@@ -8889,7 +8889,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_Check
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" fields, but alternative has # ", 31);
+x_1 = lean_mk_string_unchecked(" fields, but alternative has # ", 31, 31);
 return x_1;
 }
 }
@@ -8906,7 +8906,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_Check
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" alternatives", 13);
+x_1 = lean_mk_string_unchecked(" alternatives", 13, 13);
 return x_1;
 }
 }
@@ -9008,7 +9008,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_Check
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` is not a constructor name", 27);
+x_1 = lean_mk_string_unchecked("` is not a constructor name", 27, 27);
 return x_1;
 }
 }
@@ -9025,7 +9025,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_Check
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` is not a constructor of `", 27);
+x_1 = lean_mk_string_unchecked("` is not a constructor of `", 27, 27);
 return x_1;
 }
 }
@@ -9215,7 +9215,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_Check
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid LCNF `cases`, alternative `", 35);
+x_1 = lean_mk_string_unchecked("invalid LCNF `cases`, alternative `", 35, 35);
 return x_1;
 }
 }
@@ -9232,7 +9232,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_Check
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` occurs more than once", 23);
+x_1 = lean_mk_string_unchecked("` occurs more than once", 23, 23);
 return x_1;
 }
 }
@@ -9805,7 +9805,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Check_checkFunDecl___lambda__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LCNF local function declaration mismatch at `", 45);
+x_1 = lean_mk_string_unchecked("LCNF local function declaration mismatch at `", 45, 45);
 return x_1;
 }
 }
@@ -9822,7 +9822,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Check_checkFunDecl___lambda__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`, declaration in local context does match", 42);
+x_1 = lean_mk_string_unchecked("`, declaration in local context does match", 42, 42);
 return x_1;
 }
 }
@@ -9942,7 +9942,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Check_checkFunDecl___lambda__2___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`, type in local context", 24);
+x_1 = lean_mk_string_unchecked("`, type in local context", 24, 24);
 return x_1;
 }
 }
@@ -9959,7 +9959,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Check_checkFunDecl___lambda__2___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nexpected", 9);
+x_1 = lean_mk_string_unchecked("\nexpected", 9, 9);
 return x_1;
 }
 }
@@ -10044,7 +10044,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Check_checkFunDecl___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`, binder name in local context `", 33);
+x_1 = lean_mk_string_unchecked("`, binder name in local context `", 33, 33);
 return x_1;
 }
 }
@@ -11000,7 +11000,7 @@ static lean_object* _init_l_Lean_AssocList_forM___at_Lean_Compiler_LCNF_checkDea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LCNF local context contains unused local variable declaration `", 63);
+x_1 = lean_mk_string_unchecked("LCNF local context contains unused local variable declaration `", 63, 63);
 return x_1;
 }
 }

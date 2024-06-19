@@ -786,7 +786,7 @@ static lean_object* _init_l___private_Lean_LocalContext_0__Lean_reprLocalDeclKin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.LocalDeclKind.default", 26);
+x_1 = lean_mk_string_unchecked("Lean.LocalDeclKind.default", 26, 26);
 return x_1;
 }
 }
@@ -870,7 +870,7 @@ static lean_object* _init_l___private_Lean_LocalContext_0__Lean_reprLocalDeclKin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.LocalDeclKind.implDetail", 29);
+x_1 = lean_mk_string_unchecked("Lean.LocalDeclKind.implDetail", 29, 29);
 return x_1;
 }
 }
@@ -936,7 +936,7 @@ static lean_object* _init_l___private_Lean_LocalContext_0__Lean_reprLocalDeclKin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.LocalDeclKind.auxDecl", 26);
+x_1 = lean_mk_string_unchecked("Lean.LocalDeclKind.auxDecl", 26, 26);
 return x_1;
 }
 }
@@ -1705,7 +1705,7 @@ static lean_object* _init_l_Lean_LocalDecl_value___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.LocalContext", 17);
+x_1 = lean_mk_string_unchecked("Lean.LocalContext", 17, 17);
 return x_1;
 }
 }
@@ -1713,7 +1713,7 @@ static lean_object* _init_l_Lean_LocalDecl_value___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.LocalDecl.value", 20);
+x_1 = lean_mk_string_unchecked("Lean.LocalDecl.value", 20, 20);
 return x_1;
 }
 }
@@ -1721,7 +1721,7 @@ static lean_object* _init_l_Lean_LocalDecl_value___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("let declaration expected", 24);
+x_1 = lean_mk_string_unchecked("let declaration expected", 24, 24);
 return x_1;
 }
 }
@@ -1929,7 +1929,7 @@ static lean_object* _init_l_Lean_LocalDecl_setBinderInfo___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.LocalDecl.setBinderInfo", 28);
+x_1 = lean_mk_string_unchecked("Lean.LocalDecl.setBinderInfo", 28, 28);
 return x_1;
 }
 }
@@ -1937,7 +1937,7 @@ static lean_object* _init_l_Lean_LocalDecl_setBinderInfo___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected let declaration", 26);
+x_1 = lean_mk_string_unchecked("unexpected let declaration", 26, 26);
 return x_1;
 }
 }
@@ -3395,7 +3395,7 @@ static lean_object* _init_l_Lean_LocalContext_get_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.LocalContext.get!", 22);
+x_1 = lean_mk_string_unchecked("Lean.LocalContext.get!", 22, 22);
 return x_1;
 }
 }
@@ -3403,7 +3403,7 @@ static lean_object* _init_l_Lean_LocalContext_get_x21___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown free variable", 21);
+x_1 = lean_mk_string_unchecked("unknown free variable", 21, 21);
 return x_1;
 }
 }
@@ -10922,7 +10922,7 @@ static lean_object* _init_l_Nat_foldRev___at_Lean_LocalContext_mkBinding___spec_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.LocalContext.mkBinding", 27);
+x_1 = lean_mk_string_unchecked("Lean.LocalContext.mkBinding", 27, 27);
 return x_1;
 }
 }

@@ -535,7 +535,7 @@ static lean_object* _init_l___private_Lake_Build_Job_0__Lake_reprJobAction____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.JobAction.unknown", 22);
+x_1 = lean_mk_string_unchecked("Lake.JobAction.unknown", 22, 22);
 return x_1;
 }
 }
@@ -619,7 +619,7 @@ static lean_object* _init_l___private_Lake_Build_Job_0__Lake_reprJobAction____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.JobAction.replay", 21);
+x_1 = lean_mk_string_unchecked("Lake.JobAction.replay", 21, 21);
 return x_1;
 }
 }
@@ -685,7 +685,7 @@ static lean_object* _init_l___private_Lake_Build_Job_0__Lake_reprJobAction____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.JobAction.fetch", 20);
+x_1 = lean_mk_string_unchecked("Lake.JobAction.fetch", 20, 20);
 return x_1;
 }
 }
@@ -751,7 +751,7 @@ static lean_object* _init_l___private_Lake_Build_Job_0__Lake_reprJobAction____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.JobAction.build", 20);
+x_1 = lean_mk_string_unchecked("Lake.JobAction.build", 20, 20);
 return x_1;
 }
 }
@@ -1242,7 +1242,7 @@ static lean_object* _init_l_Lake_JobAction_verb___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Ran", 3);
+x_1 = lean_mk_string_unchecked("Ran", 3, 3);
 return x_1;
 }
 }
@@ -1250,7 +1250,7 @@ static lean_object* _init_l_Lake_JobAction_verb___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Running", 7);
+x_1 = lean_mk_string_unchecked("Running", 7, 7);
 return x_1;
 }
 }
@@ -1258,7 +1258,7 @@ static lean_object* _init_l_Lake_JobAction_verb___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Replayed", 8);
+x_1 = lean_mk_string_unchecked("Replayed", 8, 8);
 return x_1;
 }
 }
@@ -1266,7 +1266,7 @@ static lean_object* _init_l_Lake_JobAction_verb___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Replaying", 9);
+x_1 = lean_mk_string_unchecked("Replaying", 9, 9);
 return x_1;
 }
 }
@@ -1274,7 +1274,7 @@ static lean_object* _init_l_Lake_JobAction_verb___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Fetched", 7);
+x_1 = lean_mk_string_unchecked("Fetched", 7, 7);
 return x_1;
 }
 }
@@ -1282,7 +1282,7 @@ static lean_object* _init_l_Lake_JobAction_verb___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Fetching", 8);
+x_1 = lean_mk_string_unchecked("Fetching", 8, 8);
 return x_1;
 }
 }
@@ -1290,7 +1290,7 @@ static lean_object* _init_l_Lake_JobAction_verb___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Built", 5);
+x_1 = lean_mk_string_unchecked("Built", 5, 5);
 return x_1;
 }
 }
@@ -1298,7 +1298,7 @@ static lean_object* _init_l_Lake_JobAction_verb___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Building", 8);
+x_1 = lean_mk_string_unchecked("Building", 8, 8);
 return x_1;
 }
 }
@@ -2553,7 +2553,7 @@ static lean_object* _init_l_Lake_instInhabitedJob___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -7310,7 +7310,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lake_Job_async___spec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.Data.String.Extra", 22);
+x_1 = lean_mk_string_unchecked("Init.Data.String.Extra", 22, 22);
 return x_1;
 }
 }
@@ -7318,7 +7318,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lake_Job_async___spec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("String.fromUTF8!", 16);
+x_1 = lean_mk_string_unchecked("String.fromUTF8!", 16, 16);
 return x_1;
 }
 }
@@ -7326,7 +7326,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lake_Job_async___spec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid UTF-8 string", 20);
+x_1 = lean_mk_string_unchecked("invalid UTF-8 string", 20, 20);
 return x_1;
 }
 }
@@ -8873,7 +8873,7 @@ static lean_object* _init_l_Lake_Job_async___rarg___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("stdout/stderr:\n", 15);
+x_1 = lean_mk_string_unchecked("stdout/stderr:\n", 15, 15);
 return x_1;
 }
 }

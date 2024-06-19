@@ -266,7 +266,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_SolveByElim_evalUnsafe____x40_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -274,7 +274,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_SolveByElim_evalUnsafe____x40_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -282,7 +282,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_SolveByElim_evalUnsafe____x40_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("SolveByElim", 11);
+x_1 = lean_mk_string_unchecked("SolveByElim", 11, 11);
 return x_1;
 }
 }
@@ -290,7 +290,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_SolveByElim_evalUnsafe____x40_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("SolveByElimConfig", 17);
+x_1 = lean_mk_string_unchecked("SolveByElimConfig", 17, 17);
 return x_1;
 }
 }
@@ -2722,7 +2722,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_SolveByElim_elabConfig___lambda__4_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed", 6);
+x_1 = lean_mk_string_unchecked("failed", 6, 6);
 return x_1;
 }
 }
@@ -3173,7 +3173,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_SolveByElim_evalUnsafe____x40_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ApplyRulesConfig", 16);
+x_1 = lean_mk_string_unchecked("ApplyRulesConfig", 16, 16);
 return x_1;
 }
 }
@@ -3384,7 +3384,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_SolveByEl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -3392,7 +3392,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_SolveByEl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -3400,7 +3400,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_SolveByEl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("arg", 3);
+x_1 = lean_mk_string_unchecked("arg", 3, 3);
 return x_1;
 }
 }
@@ -3421,7 +3421,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_SolveByEl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.Tactic.SolveByElim", 28);
+x_1 = lean_mk_string_unchecked("Lean.Elab.Tactic.SolveByElim", 28, 28);
 return x_1;
 }
 }
@@ -3429,7 +3429,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_SolveByEl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.Tactic.SolveByElim.parseArgs", 38);
+x_1 = lean_mk_string_unchecked("Lean.Elab.Tactic.SolveByElim.parseArgs", 38, 38);
 return x_1;
 }
 }
@@ -3437,7 +3437,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_SolveByEl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Unreachable parse of solve_by_elim arguments.", 45);
+x_1 = lean_mk_string_unchecked("Unreachable parse of solve_by_elim arguments.", 45, 45);
 return x_1;
 }
 }
@@ -3458,7 +3458,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_SolveByEl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("star", 4);
+x_1 = lean_mk_string_unchecked("star", 4, 4);
 return x_1;
 }
 }
@@ -3479,7 +3479,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_SolveByEl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("erase", 5);
+x_1 = lean_mk_string_unchecked("erase", 5, 5);
 return x_1;
 }
 }
@@ -3909,7 +3909,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_SolveByElim_parseArgs___closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("args", 4);
+x_1 = lean_mk_string_unchecked("args", 4, 4);
 return x_1;
 }
 }
@@ -4059,7 +4059,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_SolveByElim_parseUsing___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("using_", 6);
+x_1 = lean_mk_string_unchecked("using_", 6, 6);
 return x_1;
 }
 }
@@ -4172,7 +4172,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_SolveByElim_processSyntax___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Removing local hypotheses is not supported when operating on multiple goals.", 76);
+x_1 = lean_mk_string_unchecked("Removing local hypotheses is not supported when operating on multiple goals.", 76, 76);
 return x_1;
 }
 }
@@ -5465,7 +5465,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_SolveByElim_evalApplyAssumption___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("applyAssumption", 15);
+x_1 = lean_mk_string_unchecked("applyAssumption", 15, 15);
 return x_1;
 }
 }
@@ -5633,7 +5633,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_SolveByElim_evalApplyA
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -5641,7 +5641,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_SolveByElim_evalApplyA
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalApplyAssumption", 19);
+x_1 = lean_mk_string_unchecked("evalApplyAssumption", 19, 19);
 return x_1;
 }
 }
@@ -6368,7 +6368,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_SolveByElim_evalApplyRules___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("applyRules", 10);
+x_1 = lean_mk_string_unchecked("applyRules", 10, 10);
 return x_1;
 }
 }
@@ -6518,7 +6518,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_SolveByElim_evalApplyR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalApplyRules", 14);
+x_1 = lean_mk_string_unchecked("evalApplyRules", 14, 14);
 return x_1;
 }
 }
@@ -6559,7 +6559,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_SolveByElim_evalApplyR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elaborator for apply_rules.\n\nSee `Lean.MVarId.applyRules` for a `MetaM` level analogue of this tactic.\n", 103);
+x_1 = lean_mk_string_unchecked("Elaborator for apply_rules.\n\nSee `Lean.MVarId.applyRules` for a `MetaM` level analogue of this tactic.\n", 103, 103);
 return x_1;
 }
 }
@@ -6679,7 +6679,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_SolveByElim_evalSolveByElim___lambd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("solve_by_elim unexpectedly returned subgoals", 44);
+x_1 = lean_mk_string_unchecked("solve_by_elim unexpectedly returned subgoals", 44, 44);
 return x_1;
 }
 }
@@ -7310,7 +7310,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_SolveByElim_evalSolveByElim___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("solveByElim", 11);
+x_1 = lean_mk_string_unchecked("solveByElim", 11, 11);
 return x_1;
 }
 }
@@ -7493,7 +7493,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_SolveByElim_evalSolveB
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalSolveByElim", 15);
+x_1 = lean_mk_string_unchecked("evalSolveByElim", 15, 15);
 return x_1;
 }
 }

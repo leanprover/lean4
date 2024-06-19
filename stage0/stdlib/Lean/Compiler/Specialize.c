@@ -452,7 +452,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("nospecialize", 12);
+x_1 = lean_mk_string_unchecked("nospecialize", 12, 12);
 return x_1;
 }
 }
@@ -470,7 +470,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -478,7 +478,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Compiler", 8);
+x_1 = lean_mk_string_unchecked("Compiler", 8, 8);
 return x_1;
 }
 }
@@ -486,7 +486,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("nospecializeAttr", 16);
+x_1 = lean_mk_string_unchecked("nospecializeAttr", 16, 16);
 return x_1;
 }
 }
@@ -505,7 +505,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mark definition to never be specialized", 39);
+x_1 = lean_mk_string_unchecked("mark definition to never be specialized", 39, 39);
 return x_1;
 }
 }
@@ -879,7 +879,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid specialization argument index, `", 40);
+x_1 = lean_mk_string_unchecked("invalid specialization argument index, `", 40, 40);
 return x_1;
 }
 }
@@ -896,7 +896,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` has already been specified as a specialization candidate", 58);
+x_1 = lean_mk_string_unchecked("` has already been specified as a specialization candidate", 58, 58);
 return x_1;
 }
 }
@@ -1005,7 +1005,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid argument index, `", 25);
+x_1 = lean_mk_string_unchecked("invalid argument index, `", 25, 25);
 return x_1;
 }
 }
@@ -1022,7 +1022,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` has #", 7);
+x_1 = lean_mk_string_unchecked("` has #", 7, 7);
 return x_1;
 }
 }
@@ -1039,7 +1039,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" arguments", 10);
+x_1 = lean_mk_string_unchecked(" arguments", 10, 10);
 return x_1;
 }
 }
@@ -1120,7 +1120,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid specialization argument name `", 38);
+x_1 = lean_mk_string_unchecked("invalid specialization argument name `", 38, 38);
 return x_1;
 }
 }
@@ -1137,7 +1137,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`, `", 4);
+x_1 = lean_mk_string_unchecked("`, `", 4, 4);
 return x_1;
 }
 }
@@ -1154,7 +1154,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` does have an argument with this name", 38);
+x_1 = lean_mk_string_unchecked("` does have an argument with this name", 38, 38);
 return x_1;
 }
 }
@@ -1171,7 +1171,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`, it has already been specified as a specialization candidate", 62);
+x_1 = lean_mk_string_unchecked("`, it has already been specified as a specialization candidate", 62, 62);
 return x_1;
 }
 }
@@ -1188,7 +1188,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid specialization argument index, index must be greater than 0", 67);
+x_1 = lean_mk_string_unchecked("invalid specialization argument index, index must be greater than 0", 67, 67);
 return x_1;
 }
 }
@@ -2163,7 +2163,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("specializeAttr", 14);
+x_1 = lean_mk_string_unchecked("specializeAttr", 14, 14);
 return x_1;
 }
 }
@@ -2182,7 +2182,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("specialize", 10);
+x_1 = lean_mk_string_unchecked("specialize", 10, 10);
 return x_1;
 }
 }
@@ -2200,7 +2200,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mark definition to always be specialized", 40);
+x_1 = lean_mk_string_unchecked("mark definition to always be specialized", 40, 40);
 return x_1;
 }
 }
@@ -4902,7 +4902,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("specExtension", 13);
+x_1 = lean_mk_string_unchecked("specExtension", 13, 13);
 return x_1;
 }
 }

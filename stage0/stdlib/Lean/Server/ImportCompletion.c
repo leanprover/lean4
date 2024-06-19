@@ -794,7 +794,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_ImportCompletion_compute
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -1406,7 +1406,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_ImportCompletion_collectAv
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[anonymous]", 11);
+x_1 = lean_mk_string_unchecked("[anonymous]", 11, 11);
 return x_1;
 }
 }
@@ -1414,7 +1414,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_ImportCompletion_collectAv
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected a `Name`, got '", 24);
+x_1 = lean_mk_string_unchecked("expected a `Name`, got '", 24, 24);
 return x_1;
 }
 }
@@ -1422,7 +1422,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_ImportCompletion_collectAv
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -1611,7 +1611,7 @@ static lean_object* _init_l_ImportCompletion_collectAvailableImportsFromLake___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("available-imports", 17);
+x_1 = lean_mk_string_unchecked("available-imports", 17, 17);
 return x_1;
 }
 }
@@ -1629,7 +1629,7 @@ static lean_object* _init_l_ImportCompletion_collectAvailableImportsFromLake___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid output from `lake available-imports`:\n", 46);
+x_1 = lean_mk_string_unchecked("invalid output from `lake available-imports`:\n", 46, 46);
 return x_1;
 }
 }
@@ -2103,7 +2103,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_ImportCompletion_collect
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lean", 4);
+x_1 = lean_mk_string_unchecked("lean", 4, 4);
 return x_1;
 }
 }
@@ -3227,7 +3227,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_ImportCompletion_find___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("import ", 7);
+x_1 = lean_mk_string_unchecked("import ", 7, 7);
 return x_1;
 }
 }

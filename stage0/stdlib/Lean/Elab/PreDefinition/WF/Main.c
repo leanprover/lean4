@@ -497,7 +497,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -505,7 +505,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("definition", 10);
+x_1 = lean_mk_string_unchecked("definition", 10, 10);
 return x_1;
 }
 }
@@ -513,7 +513,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("wf", 2);
+x_1 = lean_mk_string_unchecked("wf", 2, 2);
 return x_1;
 }
 }
@@ -532,7 +532,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -549,7 +549,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" := ", 4);
+x_1 = lean_mk_string_unchecked(" := ", 4, 4);
 return x_1;
 }
 }
@@ -5844,7 +5844,7 @@ static lean_object* _init_l_Lean_Elab_varyingVarNames___lambda__2___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("assertion violation: ", 21);
+x_1 = lean_mk_string_unchecked("assertion violation: ", 21, 21);
 return x_1;
 }
 }
@@ -5852,7 +5852,7 @@ static lean_object* _init_l_Lean_Elab_varyingVarNames___lambda__2___closed__2() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("xs.size = arity\n    ", 20);
+x_1 = lean_mk_string_unchecked("xs.size = arity\n    ", 20, 20);
 return x_1;
 }
 }
@@ -5870,7 +5870,7 @@ static lean_object* _init_l_Lean_Elab_varyingVarNames___lambda__2___closed__4() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.PreDefinition.WF.Main", 31);
+x_1 = lean_mk_string_unchecked("Lean.Elab.PreDefinition.WF.Main", 31, 31);
 return x_1;
 }
 }
@@ -5878,7 +5878,7 @@ static lean_object* _init_l_Lean_Elab_varyingVarNames___lambda__2___closed__5() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.varyingVarNames", 25);
+x_1 = lean_mk_string_unchecked("Lean.Elab.varyingVarNames", 25, 25);
 return x_1;
 }
 }
@@ -5960,7 +5960,7 @@ static lean_object* _init_l_Lean_Elab_varyingVarNames___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fixedPrefixSize ≤ arity\n  ", 28);
+x_1 = lean_mk_string_unchecked("fixedPrefixSize ≤ arity\n  ", 28, 26);
 return x_1;
 }
 }
@@ -5991,7 +5991,7 @@ static lean_object* _init_l_Lean_Elab_varyingVarNames___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("well-founded recursion cannot be used, '", 40);
+x_1 = lean_mk_string_unchecked("well-founded recursion cannot be used, '", 40, 40);
 return x_1;
 }
 }
@@ -6008,7 +6008,7 @@ static lean_object* _init_l_Lean_Elab_varyingVarNames___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' does not take any (non-fixed) arguments", 41);
+x_1 = lean_mk_string_unchecked("' does not take any (non-fixed) arguments", 41, 41);
 return x_1;
 }
 }
@@ -6693,7 +6693,7 @@ static lean_object* _init_l_Array_anyMUnsafe_any___at_Lean_Elab_wfRecursion___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reducible", 9);
+x_1 = lean_mk_string_unchecked("reducible", 9, 9);
 return x_1;
 }
 }
@@ -6711,7 +6711,7 @@ static lean_object* _init_l_Array_anyMUnsafe_any___at_Lean_Elab_wfRecursion___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("semireducible", 13);
+x_1 = lean_mk_string_unchecked("semireducible", 13, 13);
 return x_1;
 }
 }
@@ -7130,7 +7130,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Elab_wfRecursion__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Missing `termination_by`; this function is mutually ", 52);
+x_1 = lean_mk_string_unchecked("Missing `termination_by`; this function is mutually ", 52, 52);
 return x_1;
 }
 }
@@ -7147,7 +7147,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Elab_wfRecursion__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("recursive with ", 15);
+x_1 = lean_mk_string_unchecked("recursive with ", 15, 15);
 return x_1;
 }
 }
@@ -7164,7 +7164,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Elab_wfRecursion__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", which has a `termination_by` clause.", 38);
+x_1 = lean_mk_string_unchecked(", which has a `termination_by` clause.", 38, 38);
 return x_1;
 }
 }
@@ -7292,7 +7292,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Elab_wfRecursion___spec_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.Data.Option.BasicAux", 25);
+x_1 = lean_mk_string_unchecked("Init.Data.Option.BasicAux", 25, 25);
 return x_1;
 }
 }
@@ -7300,7 +7300,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Elab_wfRecursion___spec_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Option.get!", 11);
+x_1 = lean_mk_string_unchecked("Option.get!", 11, 11);
 return x_1;
 }
 }
@@ -7308,7 +7308,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Elab_wfRecursion___spec_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("value is none", 13);
+x_1 = lean_mk_string_unchecked("value is none", 13, 13);
 return x_1;
 }
 }
@@ -8303,7 +8303,7 @@ static lean_object* _init_l_Lean_Elab_wfRecursion___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("wfRel: ", 7);
+x_1 = lean_mk_string_unchecked("wfRel: ", 7, 7);
 return x_1;
 }
 }
@@ -8425,7 +8425,7 @@ static lean_object* _init_l_Lean_Elab_wfRecursion___lambda__4___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("wfRecursion: expected unary function type: ", 43);
+x_1 = lean_mk_string_unchecked("wfRecursion: expected unary function type: ", 43, 43);
 return x_1;
 }
 }
@@ -9423,7 +9423,7 @@ static lean_object* _init_l_Lean_Elab_wfRecursion___lambda__7___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(">> ", 3);
+x_1 = lean_mk_string_unchecked(">> ", 3, 3);
 return x_1;
 }
 }
@@ -9440,7 +9440,7 @@ static lean_object* _init_l_Lean_Elab_wfRecursion___lambda__7___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" :=\n", 4);
+x_1 = lean_mk_string_unchecked(" :=\n", 4, 4);
 return x_1;
 }
 }
@@ -9791,7 +9791,7 @@ static lean_object* _init_l_Lean_Elab_wfRecursion___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fixed prefix: ", 14);
+x_1 = lean_mk_string_unchecked("fixed prefix: ", 14, 14);
 return x_1;
 }
 }
@@ -10970,7 +10970,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_PreDefinition_WF_M
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -10998,7 +10998,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_PreDefinition_WF_M
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -11016,7 +11016,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_PreDefinition_WF_M
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -11054,7 +11054,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_PreDefinition_WF_M
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PreDefinition", 13);
+x_1 = lean_mk_string_unchecked("PreDefinition", 13, 13);
 return x_1;
 }
 }
@@ -11072,7 +11072,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_PreDefinition_WF_M
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("WF", 2);
+x_1 = lean_mk_string_unchecked("WF", 2, 2);
 return x_1;
 }
 }
@@ -11090,7 +11090,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_PreDefinition_WF_M
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Main", 4);
+x_1 = lean_mk_string_unchecked("Main", 4, 4);
 return x_1;
 }
 }
@@ -11108,7 +11108,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_PreDefinition_WF_M
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }

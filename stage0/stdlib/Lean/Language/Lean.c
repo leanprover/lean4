@@ -250,7 +250,7 @@ static lean_object* _init_l_Lean_Language_Lean_initFn____x40_Lean_Language_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("stderrAsMessages", 16);
+x_1 = lean_mk_string_unchecked("stderrAsMessages", 16, 16);
 return x_1;
 }
 }
@@ -268,7 +268,7 @@ static lean_object* _init_l_Lean_Language_Lean_initFn____x40_Lean_Language_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("server", 6);
+x_1 = lean_mk_string_unchecked("server", 6, 6);
 return x_1;
 }
 }
@@ -276,7 +276,7 @@ static lean_object* _init_l_Lean_Language_Lean_initFn____x40_Lean_Language_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(server) capture output to the Lean stderr channel (such as from `dbg_trace`) during elaboration of a command as a diagnostic message", 133);
+x_1 = lean_mk_string_unchecked("(server) capture output to the Lean stderr channel (such as from `dbg_trace`) during elaboration of a command as a diagnostic message", 133, 133);
 return x_1;
 }
 }
@@ -299,7 +299,7 @@ static lean_object* _init_l_Lean_Language_Lean_initFn____x40_Lean_Language_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -307,7 +307,7 @@ static lean_object* _init_l_Lean_Language_Lean_initFn____x40_Lean_Language_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Language", 8);
+x_1 = lean_mk_string_unchecked("Language", 8, 8);
 return x_1;
 }
 }
@@ -1924,7 +1924,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lean_Language_Lean_pr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.Data.String.Extra", 22);
+x_1 = lean_mk_string_unchecked("Init.Data.String.Extra", 22, 22);
 return x_1;
 }
 }
@@ -1932,7 +1932,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lean_Language_Lean_pr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("String.fromUTF8!", 16);
+x_1 = lean_mk_string_unchecked("String.fromUTF8!", 16, 16);
 return x_1;
 }
 }
@@ -1940,7 +1940,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lean_Language_Lean_pr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid UTF-8 string", 20);
+x_1 = lean_mk_string_unchecked("invalid UTF-8 string", 20, 20);
 return x_1;
 }
 }
@@ -2593,7 +2593,7 @@ static lean_object* _init_l_Lean_Language_Lean_process_doElab___lambda__3___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -4952,7 +4952,7 @@ static lean_object* _init_l_List_map___at_Lean_Language_Lean_process_processHead
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("import", 6);
+x_1 = lean_mk_string_unchecked("import", 6, 6);
 return x_1;
 }
 }
@@ -5149,7 +5149,7 @@ static lean_object* _init_l_Lean_Language_Lean_process_processHeader___lambda__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_import", 7);
+x_1 = lean_mk_string_unchecked("_import", 7, 7);
 return x_1;
 }
 }
@@ -5179,7 +5179,7 @@ static lean_object* _init_l_Lean_Language_Lean_process_processHeader___lambda__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("header", 6);
+x_1 = lean_mk_string_unchecked("header", 6, 6);
 return x_1;
 }
 }

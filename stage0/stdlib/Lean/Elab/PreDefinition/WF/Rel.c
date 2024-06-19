@@ -270,7 +270,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_checkCodoma
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("The termination argument's type must not depend on the ", 55);
+x_1 = lean_mk_string_unchecked("The termination argument's type must not depend on the ", 55, 55);
 return x_1;
 }
 }
@@ -287,7 +287,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_checkCodoma
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("function's varying parameters, but ", 35);
+x_1 = lean_mk_string_unchecked("function's varying parameters, but ", 35, 35);
 return x_1;
 }
 }
@@ -304,7 +304,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_checkCodoma
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'s termination argument does:", 29);
+x_1 = lean_mk_string_unchecked("'s termination argument does:", 29, 29);
 return x_1;
 }
 }
@@ -321,7 +321,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_checkCodoma
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -338,7 +338,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_checkCodoma
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Try using `sizeOf` explicitly", 29);
+x_1 = lean_mk_string_unchecked("Try using `sizeOf` explicitly", 29, 29);
 return x_1;
 }
 }
@@ -1541,7 +1541,7 @@ static lean_object* _init_l_Std_Range_forIn_x27_loop___at_Lean_Elab_WF_checkCodo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("The termination arguments of mutually recursive functions ", 58);
+x_1 = lean_mk_string_unchecked("The termination arguments of mutually recursive functions ", 58, 58);
 return x_1;
 }
 }
@@ -1558,7 +1558,7 @@ static lean_object* _init_l_Std_Range_forIn_x27_loop___at_Lean_Elab_WF_checkCodo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("must have the same return type, but the termination argument of ", 64);
+x_1 = lean_mk_string_unchecked("must have the same return type, but the termination argument of ", 64, 64);
 return x_1;
 }
 }
@@ -1575,7 +1575,7 @@ static lean_object* _init_l_Std_Range_forIn_x27_loop___at_Lean_Elab_WF_checkCodo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" has type", 9);
+x_1 = lean_mk_string_unchecked(" has type", 9, 9);
 return x_1;
 }
 }
@@ -1592,7 +1592,7 @@ static lean_object* _init_l_Std_Range_forIn_x27_loop___at_Lean_Elab_WF_checkCodo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -1609,7 +1609,7 @@ static lean_object* _init_l_Std_Range_forIn_x27_loop___at_Lean_Elab_WF_checkCodo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("while the termination argument of ", 34);
+x_1 = lean_mk_string_unchecked("while the termination argument of ", 34, 34);
 return x_1;
 }
 }
@@ -2263,7 +2263,7 @@ static lean_object* _init_l_Lean_Elab_WF_elabWFRel___rarg___lambda__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("WellFoundedRelation", 19);
+x_1 = lean_mk_string_unchecked("WellFoundedRelation", 19, 19);
 return x_1;
 }
 }
@@ -2281,7 +2281,7 @@ static lean_object* _init_l_Lean_Elab_WF_elabWFRel___rarg___lambda__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invImage", 8);
+x_1 = lean_mk_string_unchecked("invImage", 8, 8);
 return x_1;
 }
 }

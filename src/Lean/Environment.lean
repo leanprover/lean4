@@ -1063,4 +1063,11 @@ instance (m n) [MonadLift m n] [MonadEnv m] : MonadEnv n where
   getEnv    := liftM (getEnv : m Environment)
   modifyEnv := fun f => liftM (modifyEnv f : m Unit)
 
+/-- Constructs a DefinitionVal, inferring the `unsafe` field -/
+def mkDefinitionValInferrringUnsafe [Monad m] [MonadEnv m] (name : Name) (levelParams : List Name)
+    (type : Expr) (value : Expr) (hints : ReducibilityHints) : m DefinitionVal := do
+  let env ← getEnv
+  let safety := if env.hasUnsafe type || env.hasUnsafe value then DefinitionSafety.unsafe else DefinitionSafety.safe
+  return { name, levelParams, type, value, hints, safety }
+
 end Lean

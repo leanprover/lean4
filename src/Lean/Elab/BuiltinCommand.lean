@@ -262,7 +262,6 @@ def elabCheckCore (ignoreStuckTC : Bool) : CommandElab
 
 @[builtin_command_elab Lean.Parser.Command.check] def elabCheck : CommandElab := elabCheckCore (ignoreStuckTC := true)
 
-/-
 @[builtin_command_elab Lean.reduceCmd] def elabReduce : CommandElab
   | `(#reduce%$tk $term) => go tk term
   | `(#reduce%$tk (proofs := true) $term) => go tk term (skipProofs := false)
@@ -279,7 +278,6 @@ where
       withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.setBool `smartUnfolding false }) do
         let e ← withTransparency (mode := TransparencyMode.all) <| reduce e (skipProofs := skipProofs) (skipTypes := skipTypes)
         logInfoAt tk e
--/
 
 def hasNoErrorMessages : CommandElabM Bool := do
   return !(← get).messages.hasErrors

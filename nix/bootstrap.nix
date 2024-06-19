@@ -128,18 +128,18 @@ rec {
       mods = foldl' (mods: pkg: mods // pkg.mods) {} stdlib;
       print-paths = Lean.makePrintPathsFor [] mods;
       leanc = writeShellScriptBin "leanc" ''
-        LEAN_CC=${stdenv.cc}/bin/cc ${Leanc.executable}/bin/leanc -I${lean-bin-tools-unwrapped}/include ${stdlibLinkFlags} -L${libInit_shared} -L${leanshared} "$@"
+        LEAN_CC=${stdenv.cc}/bin/cc ${Leanc.executable}/bin/leanc -I${lean-bin-tools-unwrapped}/include ${stdlibLinkFlags} -L${leanshared} "$@"
       '';
       lean = runCommand "lean" { buildInputs = lib.optional stdenv.isDarwin darwin.cctools; } ''
         mkdir -p $out/bin
-        ${leanc}/bin/leanc ${leancpp}/lib/lean.cpp.o ${libInit_shared}/* ${leanshared}/* -o $out/bin/lean
+        ${leanc}/bin/leanc ${leancpp}/lib/lean.cpp.o ${leanshared}/* -o $out/bin/lean
       '';
       # derivation following the directory layout of the "basic" setup, mostly useful for running tests
       lean-all = stdenv.mkDerivation {
         name = "lean-${desc}";
         buildCommand = ''
           mkdir -p $out/bin $out/lib/lean
-          ln -sf ${leancpp}/lib/lean/* ${lib.concatMapStringsSep " " (l: "${l.modRoot}/* ${l.staticLib}/*") (lib.reverseList stdlib)} ${libInit_shared}/* ${leanshared}/* $out/lib/lean/
+          ln -sf ${leancpp}/lib/lean/* ${lib.concatMapStringsSep " " (l: "${l.modRoot}/* ${l.staticLib}/*") (lib.reverseList stdlib)} ${leanshared}/* $out/lib/lean/
           # put everything in a single final derivation so `IO.appDir` references work
           cp ${lean}/bin/lean ${leanc}/bin/leanc ${Lake-Main.executable}/bin/lake $out/bin
           # NOTE: `lndir` will not override existing `bin/leanc`

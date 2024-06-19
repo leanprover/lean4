@@ -2329,9 +2329,6 @@ without running out of stack space.
 def List.lengthTR (as : List α) : Nat :=
   lengthTRAux as 0
 
-@[simp] theorem List.length_cons {α} (a : α) (as : List α) : Eq (cons a as).length as.length.succ :=
-  rfl
-
 /--
 `as.get i` returns the `i`'th element of the list `as`.
 This version of the function uses `i : Fin as.length` to ensure that it will

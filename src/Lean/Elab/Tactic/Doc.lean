@@ -98,8 +98,6 @@ elab withPosition("#print" colGt &"tactic" colGt &"tags") : command => do
     | none => .nil
     | some d => Format.line ++ MessageData.joinSep ((d.splitOn "\n").map toMessageData) Format.line
 
-  let env ← getEnv
-
   let showTactics (tag : Name) : MetaM MessageData := do
     match mapping.find? tag with
     | none => pure .nil

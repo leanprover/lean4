@@ -7,32 +7,100 @@ prelude
 import Lean.AuxRecursor
 import Lean.AddDecl
 import Lean.Meta.AppBuilder
+import Lean.Meta.CompletionName
 
 namespace Lean
 
-@[extern "lean_mk_cases_on"] opaque mkCasesOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_rec_on"] opaque mkRecOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_no_confusion"] opaque mkNoConfusionCoreImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_below"] opaque mkBelowImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_ibelow"] opaque mkIBelowImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_brec_on"] opaque mkBRecOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_binduction_on"] opaque mkBInductionOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-
-variable [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m]
-
-@[inline] private def adaptFn (f : Environment → Name → Except KernelException Environment) (declName : Name) : m Unit := do
-  let env ← ofExceptKernelException (f (← getEnv) declName)
-  modifyEnv fun _ => env
-
-def mkCasesOn (declName : Name) : m Unit := adaptFn mkCasesOnImp declName
-def mkRecOn (declName : Name) : m Unit := adaptFn mkRecOnImp declName
-def mkNoConfusionCore (declName : Name) : m Unit := adaptFn mkNoConfusionCoreImp declName
-def mkBelow (declName : Name) : m Unit := adaptFn mkBelowImp declName
-def mkIBelow (declName : Name) : m Unit := adaptFn mkIBelowImp declName
-def mkBRecOn (declName : Name) : m Unit := adaptFn mkBRecOnImp declName
-def mkBInductionOn (declName : Name) : m Unit := adaptFn mkBInductionOnImp declName
+@[extern "lean_mk_rec_on"] opaque mkRecOnImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
+@[extern "lean_mk_cases_on"] opaque mkCasesOnImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
+@[extern "lean_mk_no_confusion_type"] opaque mkNoConfusionTypeCoreImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
+@[extern "lean_mk_no_confusion"] opaque mkNoConfusionCoreImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
+@[extern "lean_mk_below"] opaque mkBelowImp (env : Environment) (declName : @& Name) (ibelow : Bool) : Except KernelException Declaration
+@[extern "lean_mk_brec_on"] opaque mkBRecOnImp (env : Environment) (declName : @& Name) (ind : Bool) : Except KernelException Declaration
 
 open Meta
+
+def mkRecOn (declName : Name) : MetaM Unit := do
+  let name := mkRecOnName declName
+  let decl ← ofExceptKernelException (mkRecOnImp (← getEnv) declName)
+  addDecl decl
+  setReducibleAttribute name
+  modifyEnv fun env => markAuxRecursor env name
+  modifyEnv fun env => addProtected env name
+
+def mkCasesOn (declName : Name) : MetaM Unit := do
+  let name := mkCasesOnName declName
+  let decl ← ofExceptKernelException (mkCasesOnImp (← getEnv) declName)
+  addDecl decl
+  setReducibleAttribute name
+  modifyEnv fun env => markAuxRecursor env name
+  modifyEnv fun env => addProtected env name
+
+private def mkBelowOrIBelow (declName : Name) (ibelow : Bool) : MetaM Unit := do
+  let .inductInfo indVal ← getConstInfo declName | return
+  unless indVal.isRec do return
+  if ← isPropFormerType indVal.type then return
+
+  let decl ← ofExceptKernelException (mkBelowImp (← getEnv) declName ibelow)
+  let name := decl.definitionVal!.name
+  addDecl decl
+  setReducibleAttribute name
+  modifyEnv fun env => addToCompletionBlackList env name
+  modifyEnv fun env => addProtected env name
+
+def mkBelow (declName : Name) : MetaM Unit := mkBelowOrIBelow declName true
+def mkIBelow (declName : Name) : MetaM Unit := mkBelowOrIBelow declName false
+
+private def mkBRecOrBInductionOn (declName : Name) (ind : Bool) : MetaM Unit := do
+  let .inductInfo indVal ← getConstInfo declName | return
+  unless indVal.isRec do return
+  if ← isPropFormerType indVal.type then return
+  let .recInfo recInfo ← getConstInfo (mkRecName declName) | return
+  unless recInfo.numMotives = indVal.all.length do
+    /-
+    The mutual declaration containing `declName` contains nested inductive datatypes.
+    We don't support this kind of declaration here yet. We probably never will :)
+    To support it, we will need to generate an auxiliary `below` for each nested inductive
+    type since their default `below` is not good here. For example, at
+    ```
+    inductive Term
+    | var : String -> Term
+    | app : String -> List Term -> Term
+    ```
+    The `List.below` is not useful since it will not allow us to recurse over the nested terms.
+    We need to generate another one using the auxiliary recursor `Term.rec_1` for `List Term`.
+    -/
+    return
+
+  let decl ← ofExceptKernelException (mkBRecOnImp (← getEnv) declName ind)
+  let name := decl.definitionVal!.name
+  addDecl decl
+  setReducibleAttribute name
+  modifyEnv fun env => markAuxRecursor env name
+  modifyEnv fun env => addProtected env name
+
+def mkBRecOn (declName : Name) : MetaM Unit := mkBRecOrBInductionOn declName false
+def mkBInductionOn (declName : Name) : MetaM Unit := mkBRecOrBInductionOn declName true
+
+def mkNoConfusionCore (declName : Name) : MetaM Unit := do
+  -- Do not do anything unless can_elim_to_type. TODO: Extract to util
+  let .inductInfo indVal ← getConstInfo declName | return
+  let recInfo ← getConstInfo (mkRecName declName)
+  unless recInfo.levelParams.length > indVal.levelParams.length do return
+
+  let name := Name.mkStr declName "noConfusionType"
+  let decl ← ofExceptKernelException (mkNoConfusionTypeCoreImp (← getEnv) declName)
+  addDecl decl
+  setReducibleAttribute name
+  modifyEnv fun env => addToCompletionBlackList env name
+  modifyEnv fun env => addProtected env name
+
+  let name := Name.mkStr declName "noConfusion"
+  let decl ← ofExceptKernelException (mkNoConfusionCoreImp (← getEnv) declName)
+  addDecl decl
+  setReducibleAttribute name
+  modifyEnv fun env => markNoConfusion env name
+  modifyEnv fun env => addProtected env name
 
 def mkNoConfusionEnum (enumName : Name) : MetaM Unit := do
   if (← getEnv).contains ``noConfusionEnum then

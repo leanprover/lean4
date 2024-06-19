@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/type_checker.h"
 #include "kernel/inductive.h"
-#include "library/protected.h"
 #include "library/reducible.h"
 #include "library/bin_app.h"
 #include "library/suffixes.h"
@@ -33,11 +32,7 @@ static optional<unsigned> is_typeformer_app(buffer<name> const & typeformer_name
     return optional<unsigned>();
 }
 
-static environment mk_below(environment const & env, name const & n, bool ibelow) {
-    if (!is_recursive_datatype(env, n))
-        return env;
-    if (is_inductive_predicate(env, n))
-        return env;
+static declaration mk_below(environment const & env, name const & n, bool ibelow) {
     local_ctx lctx;
     constant_info ind_info = env.get(n);
     inductive_val ind_val  = ind_info.to_inductive_val();
@@ -140,27 +135,11 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
     expr below_type  = lctx.mk_pi(args, Type_result);
     expr below_value = lctx.mk_lambda(args, rec);
 
-    declaration new_d = mk_definition_inferring_unsafe(env, below_name, blvls, below_type, below_value,
-                                                       reducibility_hints::mk_abbreviation());
-    environment new_env = env.add(new_d);
-    new_env = set_reducible(new_env, below_name, reducible_status::Reducible, true);
-    new_env = completion_add_to_black_list(new_env, below_name);
-    return add_protected(new_env, below_name);
+    return mk_definition_inferring_unsafe(env, below_name, blvls, below_type, below_value,
+                                          reducibility_hints::mk_abbreviation());
 }
 
-environment mk_below(environment const & env, name const & n) {
-    return mk_below(env, n, false);
-}
-
-environment mk_ibelow(environment const & env, name const & n) {
-    return mk_below(env, n, true);
-}
-
-static environment mk_brec_on(environment const & env, name const & n, bool ind) {
-    if (!is_recursive_datatype(env, n))
-        return env;
-    if (is_inductive_predicate(env, n))
-        return env;
+static declaration mk_brec_on(environment const & env, name const & n, bool ind) {
     local_ctx lctx;
     constant_info ind_info = env.get(n);
     inductive_val ind_val  = ind_info.to_inductive_val();
@@ -170,22 +149,6 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
     recursor_val rec_val   = rec_info.to_recursor_val();
     unsigned nminors       = rec_val.get_nminors();
     unsigned ntypeformers  = rec_val.get_nmotives();
-    unsigned nmutual       = length(ind_val.get_all());
-    if (ntypeformers != nmutual) {
-        /* The mutual declaration containing `n` contains nested inductive datatypes.
-           We don't support this kind of declaration here yet. We will probably never will :)
-           To support it, we will need to generate an auxiliary `below` for each nested inductive
-           type since their default `below` is not good here. For example, at
-           ```
-           inductive term
-           | var : string -> term
-           | app : string -> list term -> term
-           ```
-           The `list.below` is not useful since it will not allow us to recurse over the nested terms.
-           We need to generate another one using the auxiliary recursor `term.rec_1` for `list term`.
-        */
-        return env;
-    }
     names lps              = rec_info.get_lparams();
     bool is_reflexive      = ind_val.is_reflexive();
     level  lvl             = mk_univ_param(head(lps));
@@ -341,36 +304,15 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
     expr brec_on_type  = lctx.mk_pi(args, result_type);
     expr brec_on_value = lctx.mk_lambda(args, mk_pprod_fst(tc, rec, ind));
 
-
-    declaration new_d = mk_definition_inferring_unsafe(env, brec_on_name, blps, brec_on_type, brec_on_value,
-                                                       reducibility_hints::mk_abbreviation());
-    environment new_env = env.add(new_d);
-    new_env = set_reducible(new_env, brec_on_name, reducible_status::Reducible, true);
-    new_env = add_aux_recursor(new_env, brec_on_name);
-    return add_protected(new_env, brec_on_name);
+    return mk_definition_inferring_unsafe(env, brec_on_name, blps, brec_on_type, brec_on_value,
+                                          reducibility_hints::mk_abbreviation());
 }
 
-environment mk_brec_on(environment const & env, name const & n) {
-    return mk_brec_on(env, n, false);
+extern "C" LEAN_EXPORT object * lean_mk_below(object * env, object * n, uint8 ibelow) {
+    return catch_kernel_exceptions<declaration>([&]() { return mk_below(environment(env), name(n, true), ibelow); });
 }
 
-environment mk_binduction_on(environment const & env, name const & n) {
-    return mk_brec_on(env, n, true);
-}
-
-extern "C" LEAN_EXPORT object * lean_mk_below(object * env, object * n) {
-    return catch_kernel_exceptions<environment>([&]() { return mk_below(environment(env), name(n, true)); });
-}
-
-extern "C" LEAN_EXPORT object * lean_mk_ibelow(object * env, object * n) {
-    return catch_kernel_exceptions<environment>([&]() { return mk_ibelow(environment(env), name(n, true)); });
-}
-
-extern "C" LEAN_EXPORT object * lean_mk_brec_on(object * env, object * n) {
-    return catch_kernel_exceptions<environment>([&]() { return mk_brec_on(environment(env), name(n, true)); });
-}
-
-extern "C" LEAN_EXPORT object * lean_mk_binduction_on(object * env, object * n) {
-    return catch_kernel_exceptions<environment>([&]() { return mk_binduction_on(environment(env), name(n, true)); });
+extern "C" LEAN_EXPORT object * lean_mk_brec_on(object * env, object * n, uint8 ind) {
+    return catch_kernel_exceptions<declaration>([&]() { return mk_brec_on(environment(env), name(n, true), ind); });
 }
 }

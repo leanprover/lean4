@@ -35,7 +35,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_completionBlackListExt;
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* l_Lean_TagDeclarationExtension_tag(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_isRecCore(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* lean_completion_add_to_black_list(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_addToCompletionBlackList(lean_object*, lean_object*);
 extern lean_object* l_Lean_noConfusionExt;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_CompletionName___hyg_5____closed__1;
 lean_object* l_Lean_mkTagDeclarationExtension(lean_object*, lean_object*);
@@ -92,7 +92,7 @@ x_1 = l_Lean_Meta_completionBlackListExt;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* lean_completion_add_to_black_list(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Meta_addToCompletionBlackList(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 

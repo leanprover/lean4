@@ -132,7 +132,7 @@ static lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_mkAuxNameImp
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_mkAuxNameImp_mkAuxNameWithoutGivenName(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_instMonadMCtxMetaM;
 lean_object* l_Lean_Expr_letFun_x3f(lean_object*);
-lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_getUnusedName(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_intros(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -394,7 +394,7 @@ x_18 = 1;
 x_19 = 1;
 lean_inc(x_15);
 lean_inc(x_3);
-x_20 = l_Lean_Meta_mkLambdaFVars(x_3, x_15, x_17, x_18, x_19, x_4, x_5, x_6, x_7, x_16);
+x_20 = l_Lean_Meta_mkLambdaFVars(x_3, x_15, x_17, x_18, x_17, x_19, x_4, x_5, x_6, x_7, x_16);
 if (lean_obj_tag(x_20) == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
@@ -508,7 +508,7 @@ x_43 = 1;
 x_44 = 1;
 lean_inc(x_40);
 lean_inc(x_3);
-x_45 = l_Lean_Meta_mkLambdaFVars(x_3, x_40, x_42, x_43, x_44, x_4, x_5, x_6, x_7, x_41);
+x_45 = l_Lean_Meta_mkLambdaFVars(x_3, x_40, x_42, x_43, x_42, x_44, x_4, x_5, x_6, x_7, x_41);
 if (lean_obj_tag(x_45) == 0)
 {
 lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; 

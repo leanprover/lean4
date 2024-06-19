@@ -123,7 +123,7 @@ lean_object* lean_get_set_stderr(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwAbortTerm___at_Lean_Elab_Term_ensureType___spec__1___rarg(lean_object*);
 lean_object* l_Lean_logAt___at_Lean_Elab_Term_MVarErrorInfo_logError___spec__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_metaIf___closed__23;
-lean_object* lean_string_from_utf8(lean_object*);
+lean_object* lean_string_from_utf8_unchecked(lean_object*);
 static lean_object* l_Lake_DSL_metaIf___closed__17;
 static lean_object* l_Lake_DSL_cmdDo___closed__4;
 static lean_object* l_Lake_DSL_cmdDo___closed__20;
@@ -1529,7 +1529,7 @@ return x_24;
 else
 {
 lean_object* x_31; 
-x_31 = lean_string_from_utf8(x_27);
+x_31 = lean_string_from_utf8_unchecked(x_27);
 lean_dec(x_27);
 lean_ctor_set(x_14, 1, x_22);
 lean_ctor_set(x_14, 0, x_31);
@@ -1565,7 +1565,7 @@ return x_38;
 else
 {
 lean_object* x_39; lean_object* x_40; 
-x_39 = lean_string_from_utf8(x_34);
+x_39 = lean_string_from_utf8_unchecked(x_34);
 lean_dec(x_34);
 lean_ctor_set(x_14, 1, x_22);
 lean_ctor_set(x_14, 0, x_39);
@@ -1645,7 +1645,7 @@ return x_50;
 else
 {
 lean_object* x_57; 
-x_57 = lean_string_from_utf8(x_53);
+x_57 = lean_string_from_utf8_unchecked(x_53);
 lean_dec(x_53);
 lean_ctor_set(x_14, 1, x_48);
 lean_ctor_set(x_14, 0, x_57);
@@ -1681,7 +1681,7 @@ return x_64;
 else
 {
 lean_object* x_65; lean_object* x_66; 
-x_65 = lean_string_from_utf8(x_60);
+x_65 = lean_string_from_utf8_unchecked(x_60);
 lean_dec(x_60);
 lean_ctor_set(x_14, 1, x_48);
 lean_ctor_set(x_14, 0, x_65);
@@ -1783,7 +1783,7 @@ return x_88;
 else
 {
 lean_object* x_89; lean_object* x_90; lean_object* x_91; 
-x_89 = lean_string_from_utf8(x_83);
+x_89 = lean_string_from_utf8_unchecked(x_83);
 lean_dec(x_83);
 x_90 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_90, 0, x_89);
@@ -1882,7 +1882,7 @@ return x_110;
 else
 {
 lean_object* x_111; lean_object* x_112; lean_object* x_113; 
-x_111 = lean_string_from_utf8(x_105);
+x_111 = lean_string_from_utf8_unchecked(x_105);
 lean_dec(x_105);
 x_112 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_112, 0, x_111);

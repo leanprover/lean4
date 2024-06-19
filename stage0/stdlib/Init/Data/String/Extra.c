@@ -93,7 +93,7 @@ uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1(lean_object*, lean_object*, lean_object*);
 uint8_t l_String_isNat(lean_object*);
-lean_object* lean_string_from_utf8(lean_object*);
+lean_object* lean_string_from_utf8_unchecked(lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__2___closed__4;
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__20;
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Extra_0__String_removeNumLeadingSpaces_consumeSpaces(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -785,7 +785,7 @@ LEAN_EXPORT lean_object* l_String_fromUTF8___boxed(lean_object* x_1, lean_object
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_string_from_utf8(x_1);
+x_3 = lean_string_from_utf8_unchecked(x_1);
 lean_dec(x_1);
 return x_3;
 }
@@ -804,7 +804,7 @@ return x_3;
 else
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = lean_string_from_utf8(x_1);
+x_4 = lean_string_from_utf8_unchecked(x_1);
 x_5 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_5, 0, x_4);
 return x_5;
@@ -873,7 +873,7 @@ return x_4;
 else
 {
 lean_object* x_5; 
-x_5 = lean_string_from_utf8(x_1);
+x_5 = lean_string_from_utf8_unchecked(x_1);
 return x_5;
 }
 }

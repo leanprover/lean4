@@ -1015,10 +1015,10 @@ else
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
-x_6 = lean_ctor_get(x_4, 0);
-x_7 = lean_ctor_get(x_4, 1);
-x_8 = lean_ctor_get(x_1, 0);
-x_9 = lean_ctor_get(x_1, 1);
+x_6 = lean_ctor_get(x_1, 0);
+x_7 = lean_ctor_get(x_1, 1);
+x_8 = lean_ctor_get(x_4, 0);
+x_9 = lean_ctor_get(x_4, 1);
 x_10 = lean_name_eq(x_6, x_8);
 if (x_10 == 0)
 {
@@ -1463,18 +1463,18 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_ctor_get(x_1, 1);
-x_8 = lean_ctor_get(x_6, 0);
-lean_inc(x_8);
-x_9 = lean_ctor_get(x_6, 1);
-lean_inc(x_9);
-x_10 = lean_ctor_get(x_2, 0);
-x_11 = lean_ctor_get(x_2, 1);
+x_8 = lean_ctor_get(x_2, 0);
+x_9 = lean_ctor_get(x_2, 1);
+x_10 = lean_ctor_get(x_6, 0);
+lean_inc(x_10);
+x_11 = lean_ctor_get(x_6, 1);
+lean_inc(x_11);
 x_12 = lean_name_eq(x_8, x_10);
-lean_dec(x_8);
+lean_dec(x_10);
 if (x_12 == 0)
 {
 lean_object* x_13; 
-lean_dec(x_9);
+lean_dec(x_11);
 x_13 = l_List_replace___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__11(x_7, x_2, x_3);
 lean_ctor_set(x_1, 1, x_13);
 return x_1;
@@ -1490,7 +1490,7 @@ lean_dec(x_14);
 if (x_16 == 0)
 {
 lean_object* x_17; 
-lean_dec(x_9);
+lean_dec(x_11);
 x_17 = l_List_replace___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__11(x_7, x_2, x_3);
 lean_ctor_set(x_1, 1, x_17);
 return x_1;
@@ -1500,7 +1500,7 @@ else
 lean_object* x_18; uint8_t x_19; 
 x_18 = lean_unsigned_to_nat(0u);
 x_19 = l_Array_isEqvAux___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__12(x_9, x_11, lean_box(0), x_9, x_11, x_18);
-lean_dec(x_9);
+lean_dec(x_11);
 if (x_19 == 0)
 {
 lean_object* x_20; 
@@ -1525,18 +1525,18 @@ x_22 = lean_ctor_get(x_1, 1);
 lean_inc(x_22);
 lean_inc(x_21);
 lean_dec(x_1);
-x_23 = lean_ctor_get(x_21, 0);
-lean_inc(x_23);
-x_24 = lean_ctor_get(x_21, 1);
-lean_inc(x_24);
-x_25 = lean_ctor_get(x_2, 0);
-x_26 = lean_ctor_get(x_2, 1);
+x_23 = lean_ctor_get(x_2, 0);
+x_24 = lean_ctor_get(x_2, 1);
+x_25 = lean_ctor_get(x_21, 0);
+lean_inc(x_25);
+x_26 = lean_ctor_get(x_21, 1);
+lean_inc(x_26);
 x_27 = lean_name_eq(x_23, x_25);
-lean_dec(x_23);
+lean_dec(x_25);
 if (x_27 == 0)
 {
 lean_object* x_28; lean_object* x_29; 
-lean_dec(x_24);
+lean_dec(x_26);
 x_28 = l_List_replace___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__11(x_22, x_2, x_3);
 x_29 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_29, 0, x_21);
@@ -1554,7 +1554,7 @@ lean_dec(x_30);
 if (x_32 == 0)
 {
 lean_object* x_33; lean_object* x_34; 
-lean_dec(x_24);
+lean_dec(x_26);
 x_33 = l_List_replace___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__11(x_22, x_2, x_3);
 x_34 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_34, 0, x_21);
@@ -1566,7 +1566,7 @@ else
 lean_object* x_35; uint8_t x_36; 
 x_35 = lean_unsigned_to_nat(0u);
 x_36 = l_Array_isEqvAux___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__12(x_24, x_26, lean_box(0), x_24, x_26, x_35);
-lean_dec(x_24);
+lean_dec(x_26);
 if (x_36 == 0)
 {
 lean_object* x_37; lean_object* x_38; 

@@ -277,7 +277,7 @@ static lean_object* _init_l_Option_repr___at___private_Lean_Structure_0__Lean_re
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("none", 4);
+x_1 = lean_mk_string_unchecked("none", 4, 4);
 return x_1;
 }
 }
@@ -295,7 +295,7 @@ static lean_object* _init_l_Option_repr___at___private_Lean_Structure_0__Lean_re
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("some ", 5);
+x_1 = lean_mk_string_unchecked("some ", 5, 5);
 return x_1;
 }
 }
@@ -365,7 +365,7 @@ static lean_object* _init_l___private_Lean_Structure_0__Lean_reprStructureFieldI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fieldName", 9);
+x_1 = lean_mk_string_unchecked("fieldName", 9, 9);
 return x_1;
 }
 }
@@ -395,7 +395,7 @@ static lean_object* _init_l___private_Lean_Structure_0__Lean_reprStructureFieldI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" := ", 4);
+x_1 = lean_mk_string_unchecked(" := ", 4, 4);
 return x_1;
 }
 }
@@ -434,7 +434,7 @@ static lean_object* _init_l___private_Lean_Structure_0__Lean_reprStructureFieldI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -452,7 +452,7 @@ static lean_object* _init_l___private_Lean_Structure_0__Lean_reprStructureFieldI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("projFn", 6);
+x_1 = lean_mk_string_unchecked("projFn", 6, 6);
 return x_1;
 }
 }
@@ -479,7 +479,7 @@ static lean_object* _init_l___private_Lean_Structure_0__Lean_reprStructureFieldI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("subobject\?", 10);
+x_1 = lean_mk_string_unchecked("subobject\?", 10, 10);
 return x_1;
 }
 }
@@ -506,7 +506,7 @@ static lean_object* _init_l___private_Lean_Structure_0__Lean_reprStructureFieldI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("binderInfo", 10);
+x_1 = lean_mk_string_unchecked("binderInfo", 10, 10);
 return x_1;
 }
 }
@@ -524,7 +524,7 @@ static lean_object* _init_l___private_Lean_Structure_0__Lean_reprStructureFieldI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("autoParam\?", 10);
+x_1 = lean_mk_string_unchecked("autoParam\?", 10, 10);
 return x_1;
 }
 }
@@ -542,7 +542,7 @@ static lean_object* _init_l___private_Lean_Structure_0__Lean_reprStructureFieldI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("{ ", 2);
+x_1 = lean_mk_string_unchecked("{ ", 2, 2);
 return x_1;
 }
 }
@@ -578,7 +578,7 @@ static lean_object* _init_l___private_Lean_Structure_0__Lean_reprStructureFieldI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" }", 2);
+x_1 = lean_mk_string_unchecked(" }", 2, 2);
 return x_1;
 }
 }
@@ -1703,7 +1703,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Structure___hyg_353____close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1711,7 +1711,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Structure___hyg_353____close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structureExt", 12);
+x_1 = lean_mk_string_unchecked("structureExt", 12, 12);
 return x_1;
 }
 }
@@ -2375,7 +2375,7 @@ static lean_object* _init_l_Lean_getStructureCtor___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Structure", 14);
+x_1 = lean_mk_string_unchecked("Lean.Structure", 14, 14);
 return x_1;
 }
 }
@@ -2383,7 +2383,7 @@ static lean_object* _init_l_Lean_getStructureCtor___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.getStructureCtor", 21);
+x_1 = lean_mk_string_unchecked("Lean.getStructureCtor", 21, 21);
 return x_1;
 }
 }
@@ -2391,7 +2391,7 @@ static lean_object* _init_l_Lean_getStructureCtor___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structure expected", 18);
+x_1 = lean_mk_string_unchecked("structure expected", 18, 18);
 return x_1;
 }
 }
@@ -2412,7 +2412,7 @@ static lean_object* _init_l_Lean_getStructureCtor___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ill-formed environment", 22);
+x_1 = lean_mk_string_unchecked("ill-formed environment", 22, 22);
 return x_1;
 }
 }
@@ -2562,7 +2562,7 @@ static lean_object* _init_l_Lean_getStructureFields___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.getStructureFields", 23);
+x_1 = lean_mk_string_unchecked("Lean.getStructureFields", 23, 23);
 return x_1;
 }
 }
@@ -3499,7 +3499,7 @@ static lean_object* _init_l_Lean_mkDefaultFnOfProjFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_default", 8);
+x_1 = lean_mk_string_unchecked("_default", 8, 8);
 return x_1;
 }
 }

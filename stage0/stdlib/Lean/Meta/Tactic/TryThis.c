@@ -506,7 +506,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_tryThisWidget___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nimport * as React from 'react';\nimport { EditorContext } from '@leanprover/infoview';\nconst e = React.createElement;\nexport default function ({ pos, suggestions, range, header, isInline, style }) {\n  const editorConnection = React.useContext(EditorContext)\n  const defStyle = style || {\n    className: 'link pointer dim',\n    style: { color: 'var(--vscode-textLink-foreground)' }\n  }\n\n  // Construct the children of the HTML element for a given suggestion.\n  function makeSuggestion({ suggestion, preInfo, postInfo, style }) {\n    function onClick() {\n      editorConnection.api.applyEdit({\n        changes: { [pos.uri]: [{ range, newText: suggestion }] }\n      })\n    }\n    return [\n      preInfo,\n      e('span', { onClick, title: 'Apply suggestion', ...style || defStyle }, suggestion),\n      postInfo\n    ]\n  }\n\n  // Choose between an inline 'Try this'-like display and a list-based 'Try these'-like display.\n  let inner = null\n  if (isInline) {\n    inner = e('div', { className: 'ml1' },\n      e('pre', { className: 'font-code pre-wrap' }, header, makeSuggestion(suggestions[0])))\n  } else {\n    inner = e('div', { className: 'ml1' },\n      e('pre', { className: 'font-code pre-wrap' }, header),\n      e('ul', { style: { paddingInlineStart: '20px' } }, suggestions.map(s =>\n        e('li', { className: 'font-code pre-wrap' }, makeSuggestion(s)))))\n  }\n  return e('details', { open: true },\n    e('summary', { className: 'mv2 pointer' }, 'Suggestions'),\n    inner)\n}", 1472);
+x_1 = lean_mk_string_unchecked("\nimport * as React from 'react';\nimport { EditorContext } from '@leanprover/infoview';\nconst e = React.createElement;\nexport default function ({ pos, suggestions, range, header, isInline, style }) {\n  const editorConnection = React.useContext(EditorContext)\n  const defStyle = style || {\n    className: 'link pointer dim',\n    style: { color: 'var(--vscode-textLink-foreground)' }\n  }\n\n  // Construct the children of the HTML element for a given suggestion.\n  function makeSuggestion({ suggestion, preInfo, postInfo, style }) {\n    function onClick() {\n      editorConnection.api.applyEdit({\n        changes: { [pos.uri]: [{ range, newText: suggestion }] }\n      })\n    }\n    return [\n      preInfo,\n      e('span', { onClick, title: 'Apply suggestion', ...style || defStyle }, suggestion),\n      postInfo\n    ]\n  }\n\n  // Choose between an inline 'Try this'-like display and a list-based 'Try these'-like display.\n  let inner = null\n  if (isInline) {\n    inner = e('div', { className: 'ml1' },\n      e('pre', { className: 'font-code pre-wrap' }, header, makeSuggestion(suggestions[0])))\n  } else {\n    inner = e('div', { className: 'ml1' },\n      e('pre', { className: 'font-code pre-wrap' }, header),\n      e('ul', { style: { paddingInlineStart: '20px' } }, suggestions.map(s =>\n        e('li', { className: 'font-code pre-wrap' }, makeSuggestion(s)))))\n  }\n  return e('details', { open: true },\n    e('summary', { className: 'mv2 pointer' }, 'Suggestions'),\n    inner)\n}", 1472, 1472);
 return x_1;
 }
 }
@@ -552,7 +552,7 @@ static lean_object* _init_l___regBuiltin_Lean_Meta_Tactic_TryThis_tryThisWidget_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -560,7 +560,7 @@ static lean_object* _init_l___regBuiltin_Lean_Meta_Tactic_TryThis_tryThisWidget_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -568,7 +568,7 @@ static lean_object* _init_l___regBuiltin_Lean_Meta_Tactic_TryThis_tryThisWidget_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -576,7 +576,7 @@ static lean_object* _init_l___regBuiltin_Lean_Meta_Tactic_TryThis_tryThisWidget_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("TryThis", 7);
+x_1 = lean_mk_string_unchecked("TryThis", 7, 7);
 return x_1;
 }
 }
@@ -584,7 +584,7 @@ static lean_object* _init_l___regBuiltin_Lean_Meta_Tactic_TryThis_tryThisWidget_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tryThisWidget", 13);
+x_1 = lean_mk_string_unchecked("tryThisWidget", 13, 13);
 return x_1;
 }
 }
@@ -615,7 +615,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_T
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("TryThisInfo", 11);
+x_1 = lean_mk_string_unchecked("TryThisInfo", 11, 11);
 return x_1;
 }
 }
@@ -652,7 +652,7 @@ static lean_object* _init_l_Std_Range_forIn_x27_loop___at_Lean_Meta_Tactic_TryTh
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("quickfix", 8);
+x_1 = lean_mk_string_unchecked("quickfix", 8, 8);
 return x_1;
 }
 }
@@ -670,7 +670,7 @@ static lean_object* _init_l_Std_Range_forIn_x27_loop___at_Lean_Meta_Tactic_TryTh
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Try this: ", 10);
+x_1 = lean_mk_string_unchecked("Try this: ", 10, 10);
 return x_1;
 }
 }
@@ -1394,7 +1394,7 @@ static lean_object* _init_l___regBuiltin_Lean_Meta_Tactic_TryThis_tryThisProvide
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tryThisProvider", 15);
+x_1 = lean_mk_string_unchecked("tryThisProvider", 15, 15);
 return x_1;
 }
 }
@@ -1605,7 +1605,7 @@ static lean_object* _init_l_Lean_Syntax_replaceM___at_Lean_Meta_Tactic_TryThis_r
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\?", 1);
+x_1 = lean_mk_string_unchecked("\?", 1, 1);
 return x_1;
 }
 }
@@ -1613,7 +1613,7 @@ static lean_object* _init_l_Lean_Syntax_replaceM___at_Lean_Meta_Tactic_TryThis_r
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -1621,7 +1621,7 @@ static lean_object* _init_l_Lean_Syntax_replaceM___at_Lean_Meta_Tactic_TryThis_r
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -1629,7 +1629,7 @@ static lean_object* _init_l_Lean_Syntax_replaceM___at_Lean_Meta_Tactic_TryThis_r
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hole", 4);
+x_1 = lean_mk_string_unchecked("hole", 4, 4);
 return x_1;
 }
 }
@@ -1649,7 +1649,7 @@ static lean_object* _init_l_Lean_Syntax_replaceM___at_Lean_Meta_Tactic_TryThis_r
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_", 1);
+x_1 = lean_mk_string_unchecked("_", 1, 1);
 return x_1;
 }
 }
@@ -1778,7 +1778,7 @@ static lean_object* _init_l_Lean_Syntax_replaceM___at_Lean_Meta_Tactic_TryThis_r
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("syntheticHole", 13);
+x_1 = lean_mk_string_unchecked("syntheticHole", 13, 13);
 return x_1;
 }
 }
@@ -1798,7 +1798,7 @@ static lean_object* _init_l_Lean_Syntax_replaceM___at_Lean_Meta_Tactic_TryThis_r
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ident", 5);
+x_1 = lean_mk_string_unchecked("ident", 5, 5);
 return x_1;
 }
 }
@@ -3144,7 +3144,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_Tac
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("format", 6);
+x_1 = lean_mk_string_unchecked("format", 6, 6);
 return x_1;
 }
 }
@@ -3152,7 +3152,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_Tac
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inputWidth", 10);
+x_1 = lean_mk_string_unchecked("inputWidth", 10, 10);
 return x_1;
 }
 }
@@ -3170,7 +3170,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_Tac
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -3178,7 +3178,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_Tac
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ideal input width", 17);
+x_1 = lean_mk_string_unchecked("ideal input width", 17, 17);
 return x_1;
 }
 }
@@ -3501,7 +3501,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pointer dim", 11);
+x_1 = lean_mk_string_unchecked("pointer dim", 11, 11);
 return x_1;
 }
 }
@@ -3519,7 +3519,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("className", 9);
+x_1 = lean_mk_string_unchecked("className", 9, 9);
 return x_1;
 }
 }
@@ -3539,7 +3539,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("var(--vscode-errorForeground)", 29);
+x_1 = lean_mk_string_unchecked("var(--vscode-errorForeground)", 29, 29);
 return x_1;
 }
 }
@@ -3557,7 +3557,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("color", 5);
+x_1 = lean_mk_string_unchecked("color", 5, 5);
 return x_1;
 }
 }
@@ -3598,7 +3598,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("style", 5);
+x_1 = lean_mk_string_unchecked("style", 5, 5);
 return x_1;
 }
 }
@@ -3651,7 +3651,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("underline wavy var(--vscode-editorError-foreground) 1pt", 55);
+x_1 = lean_mk_string_unchecked("underline wavy var(--vscode-editorError-foreground) 1pt", 55, 55);
 return x_1;
 }
 }
@@ -3669,7 +3669,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("textDecoration", 14);
+x_1 = lean_mk_string_unchecked("textDecoration", 14, 14);
 return x_1;
 }
 }
@@ -3794,7 +3794,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_SuggestionStyle_warning___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("gold pointer dim", 16);
+x_1 = lean_mk_string_unchecked("gold pointer dim", 16, 16);
 return x_1;
 }
 }
@@ -3845,7 +3845,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_SuggestionStyle_warning___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("underline wavy var(--vscode-editorWarning-foreground) 1pt", 57);
+x_1 = lean_mk_string_unchecked("underline wavy var(--vscode-editorWarning-foreground) 1pt", 57, 57);
 return x_1;
 }
 }
@@ -3968,7 +3968,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_SuggestionStyle_success___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("information pointer dim", 23);
+x_1 = lean_mk_string_unchecked("information pointer dim", 23, 23);
 return x_1;
 }
 }
@@ -4027,7 +4027,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_SuggestionStyle_asHypothesi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("goal-hyp pointer dim", 20);
+x_1 = lean_mk_string_unchecked("goal-hyp pointer dim", 20, 20);
 return x_1;
 }
 }
@@ -4086,7 +4086,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_SuggestionStyle_asInaccessi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("goal-inaccessible pointer dim", 29);
+x_1 = lean_mk_string_unchecked("goal-inaccessible pointer dim", 29, 29);
 return x_1;
 }
 }
@@ -4221,7 +4221,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hsl(", 4);
+x_1 = lean_mk_string_unchecked("hsl(", 4, 4);
 return x_1;
 }
 }
@@ -4229,7 +4229,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" 95% ", 5);
+x_1 = lean_mk_string_unchecked(" 95% ", 5, 5);
 return x_1;
 }
 }
@@ -4237,7 +4237,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("%)", 2);
+x_1 = lean_mk_string_unchecked("%)", 2, 2);
 return x_1;
 }
 }
@@ -4245,7 +4245,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Apply suggestion", 16);
+x_1 = lean_mk_string_unchecked("Apply suggestion", 16, 16);
 return x_1;
 }
 }
@@ -4263,7 +4263,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("title", 5);
+x_1 = lean_mk_string_unchecked("title", 5, 5);
 return x_1;
 }
 }
@@ -4295,7 +4295,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Apply suggestion (", 18);
+x_1 = lean_mk_string_unchecked("Apply suggestion (", 18, 18);
 return x_1;
 }
 }
@@ -4303,7 +4303,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -4622,7 +4622,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_Suggestion_toJsonAndInfoM__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("postInfo", 8);
+x_1 = lean_mk_string_unchecked("postInfo", 8, 8);
 return x_1;
 }
 }
@@ -4684,7 +4684,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_Suggestion_toJsonAndInfoM__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("suggestion", 10);
+x_1 = lean_mk_string_unchecked("suggestion", 10, 10);
 return x_1;
 }
 }
@@ -4692,7 +4692,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_Suggestion_toJsonAndInfoM__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("preInfo", 7);
+x_1 = lean_mk_string_unchecked("preInfo", 7, 7);
 return x_1;
 }
 }
@@ -4914,7 +4914,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_delabToRefinableSuggestion_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term", 4);
+x_1 = lean_mk_string_unchecked("term", 4, 4);
 return x_1;
 }
 }
@@ -5147,7 +5147,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("suggestions", 11);
+x_1 = lean_mk_string_unchecked("suggestions", 11, 11);
 return x_1;
 }
 }
@@ -5155,7 +5155,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("range", 5);
+x_1 = lean_mk_string_unchecked("range", 5, 5);
 return x_1;
 }
 }
@@ -5163,7 +5163,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("header", 6);
+x_1 = lean_mk_string_unchecked("header", 6, 6);
 return x_1;
 }
 }
@@ -5171,7 +5171,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("isInline", 8);
+x_1 = lean_mk_string_unchecked("isInline", 8, 8);
 return x_1;
 }
 }
@@ -6074,7 +6074,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Meta_Tactic_TryThi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n• ", 5);
+x_1 = lean_mk_string_unchecked("\n• ", 5, 3);
 return x_1;
 }
 }
@@ -6284,7 +6284,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addSuggestions___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no suggestions available", 24);
+x_1 = lean_mk_string_unchecked("no suggestions available", 24, 24);
 return x_1;
 }
 }
@@ -6415,7 +6415,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n⊢ ", 5);
+x_1 = lean_mk_string_unchecked("\n⊢ ", 5, 3);
 return x_1;
 }
 }
@@ -6628,7 +6628,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tactic", 6);
+x_1 = lean_mk_string_unchecked("tactic", 6, 6);
 return x_1;
 }
 }
@@ -6670,7 +6670,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nRemaining subgoals:", 20);
+x_1 = lean_mk_string_unchecked("\nRemaining subgoals:", 20, 20);
 return x_1;
 }
 }
@@ -6678,7 +6678,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("refine ", 7);
+x_1 = lean_mk_string_unchecked("refine ", 7, 7);
 return x_1;
 }
 }
@@ -6695,7 +6695,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("exact ", 6);
+x_1 = lean_mk_string_unchecked("exact ", 6, 6);
 return x_1;
 }
 }
@@ -6836,7 +6836,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("refine", 6);
+x_1 = lean_mk_string_unchecked("refine", 6, 6);
 return x_1;
 }
 }
@@ -6856,7 +6856,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("exact", 5);
+x_1 = lean_mk_string_unchecked("exact", 5, 5);
 return x_1;
 }
 }
@@ -7206,7 +7206,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addExactSuggestions___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Try these:", 10);
+x_1 = lean_mk_string_unchecked("Try these:", 10, 10);
 return x_1;
 }
 }
@@ -7533,7 +7533,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticLet_", 10);
+x_1 = lean_mk_string_unchecked("tacticLet_", 10, 10);
 return x_1;
 }
 }
@@ -7553,7 +7553,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("let", 3);
+x_1 = lean_mk_string_unchecked("let", 3, 3);
 return x_1;
 }
 }
@@ -7561,7 +7561,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("letDecl", 7);
+x_1 = lean_mk_string_unchecked("letDecl", 7, 7);
 return x_1;
 }
 }
@@ -7581,7 +7581,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("letIdDecl", 9);
+x_1 = lean_mk_string_unchecked("letIdDecl", 9, 9);
 return x_1;
 }
 }
@@ -7601,7 +7601,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -7619,7 +7619,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":=", 2);
+x_1 = lean_mk_string_unchecked(":=", 2, 2);
 return x_1;
 }
 }
@@ -7646,7 +7646,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticHave_", 11);
+x_1 = lean_mk_string_unchecked("tacticHave_", 11, 11);
 return x_1;
 }
 }
@@ -7666,7 +7666,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("have", 4);
+x_1 = lean_mk_string_unchecked("have", 4, 4);
 return x_1;
 }
 }
@@ -7674,7 +7674,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("haveDecl", 8);
+x_1 = lean_mk_string_unchecked("haveDecl", 8, 8);
 return x_1;
 }
 }
@@ -7694,7 +7694,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("haveIdDecl", 10);
+x_1 = lean_mk_string_unchecked("haveIdDecl", 10, 10);
 return x_1;
 }
 }
@@ -7714,7 +7714,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("haveId", 6);
+x_1 = lean_mk_string_unchecked("haveId", 6, 6);
 return x_1;
 }
 }
@@ -7734,7 +7734,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hygieneInfo", 11);
+x_1 = lean_mk_string_unchecked("hygieneInfo", 11, 11);
 return x_1;
 }
 }
@@ -7803,7 +7803,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PrettyPrinter", 13);
+x_1 = lean_mk_string_unchecked("PrettyPrinter", 13, 13);
 return x_1;
 }
 }
@@ -7831,7 +7831,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -7900,7 +7900,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Server", 6);
+x_1 = lean_mk_string_unchecked("Server", 6, 6);
 return x_1;
 }
 }
@@ -7908,7 +7908,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("RequestM", 8);
+x_1 = lean_mk_string_unchecked("RequestM", 8, 8);
 return x_1;
 }
 }
@@ -8257,7 +8257,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("typeSpec", 8);
+x_1 = lean_mk_string_unchecked("typeSpec", 8, 8);
 return x_1;
 }
 }
@@ -8277,7 +8277,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
@@ -9305,7 +9305,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Meta_Tactic_TryThis_a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rwRule", 6);
+x_1 = lean_mk_string_unchecked("rwRule", 6, 6);
 return x_1;
 }
 }
@@ -9325,7 +9325,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Meta_Tactic_TryThis_a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("patternIgnore", 13);
+x_1 = lean_mk_string_unchecked("patternIgnore", 13, 13);
 return x_1;
 }
 }
@@ -9343,7 +9343,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Meta_Tactic_TryThis_a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("token", 5);
+x_1 = lean_mk_string_unchecked("token", 5, 5);
 return x_1;
 }
 }
@@ -9351,7 +9351,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Meta_Tactic_TryThis_a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("← ", 4);
+x_1 = lean_mk_string_unchecked("← ", 4, 2);
 return x_1;
 }
 }
@@ -9369,7 +9369,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Meta_Tactic_TryThis_a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("←", 3);
+x_1 = lean_mk_string_unchecked("←", 3, 1);
 return x_1;
 }
 }
@@ -9872,7 +9872,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___lamb
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", ", 2);
+x_1 = lean_mk_string_unchecked(", ", 2, 2);
 return x_1;
 }
 }
@@ -9899,7 +9899,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___lamb
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -9907,7 +9907,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___lamb
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -9915,7 +9915,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___lamb
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rw ", 3);
+x_1 = lean_mk_string_unchecked("rw ", 3, 3);
 return x_1;
 }
 }
@@ -9932,7 +9932,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___lamb
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n-- ", 4);
+x_1 = lean_mk_string_unchecked("\n-- ", 4, 4);
 return x_1;
 }
 }
@@ -9949,7 +9949,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___lamb
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" at ", 4);
+x_1 = lean_mk_string_unchecked(" at ", 4, 4);
 return x_1;
 }
 }
@@ -10187,7 +10187,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -10195,7 +10195,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rwSeq", 5);
+x_1 = lean_mk_string_unchecked("rwSeq", 5, 5);
 return x_1;
 }
 }
@@ -10215,7 +10215,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rw", 2);
+x_1 = lean_mk_string_unchecked("rw", 2, 2);
 return x_1;
 }
 }
@@ -10223,7 +10223,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rwRuleSeq", 9);
+x_1 = lean_mk_string_unchecked("rwRuleSeq", 9, 9);
 return x_1;
 }
 }
@@ -10252,7 +10252,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("location", 8);
+x_1 = lean_mk_string_unchecked("location", 8, 8);
 return x_1;
 }
 }
@@ -10272,7 +10272,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("at", 2);
+x_1 = lean_mk_string_unchecked("at", 2, 2);
 return x_1;
 }
 }
@@ -10280,7 +10280,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("locationHyp", 11);
+x_1 = lean_mk_string_unchecked("locationHyp", 11, 11);
 return x_1;
 }
 }

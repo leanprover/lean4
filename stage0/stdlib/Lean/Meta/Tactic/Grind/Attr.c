@@ -135,7 +135,7 @@ static lean_object* _init_l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("grind_norm", 10);
+x_1 = lean_mk_string_unchecked("grind_norm", 10, 10);
 return x_1;
 }
 }
@@ -153,7 +153,7 @@ static lean_object* _init_l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -161,7 +161,7 @@ static lean_object* _init_l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -169,7 +169,7 @@ static lean_object* _init_l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Grind", 5);
+x_1 = lean_mk_string_unchecked("Grind", 5, 5);
 return x_1;
 }
 }
@@ -177,7 +177,7 @@ static lean_object* _init_l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("grindNormExt", 12);
+x_1 = lean_mk_string_unchecked("grindNormExt", 12, 12);
 return x_1;
 }
 }
@@ -197,7 +197,7 @@ static lean_object* _init_l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simplification/normalization theorems for `grind`", 49);
+x_1 = lean_mk_string_unchecked("simplification/normalization theorems for `grind`", 49, 49);
 return x_1;
 }
 }
@@ -216,7 +216,7 @@ static lean_object* _init_l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("grind_norm_proc", 15);
+x_1 = lean_mk_string_unchecked("grind_norm_proc", 15, 15);
 return x_1;
 }
 }
@@ -234,7 +234,7 @@ static lean_object* _init_l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("grindNormSimprocExt", 19);
+x_1 = lean_mk_string_unchecked("grindNormSimprocExt", 19, 19);
 return x_1;
 }
 }
@@ -254,7 +254,7 @@ static lean_object* _init_l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simplification/normalization procedured for `grind`", 51);
+x_1 = lean_mk_string_unchecked("simplification/normalization procedured for `grind`", 51, 51);
 return x_1;
 }
 }
@@ -283,7 +283,7 @@ static lean_object* _init_l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("grindCasesExt", 13);
+x_1 = lean_mk_string_unchecked("grindCasesExt", 13, 13);
 return x_1;
 }
 }
@@ -473,7 +473,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Attr_0__Lean_Meta_G
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`", 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -490,7 +490,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Attr_0__Lean_Meta_G
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` is not an inductive datatype or an alias for one", 50);
+x_1 = lean_mk_string_unchecked("` is not an inductive datatype or an alias for one", 50, 50);
 return x_1;
 }
 }
@@ -507,7 +507,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Attr_0__Lean_Meta_G
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` is a definition, but it is not an alias/abbreviation for an inductive datatype", 80);
+x_1 = lean_mk_string_unchecked("` is a definition, but it is not an alias/abbreviation for an inductive datatype", 80, 80);
 return x_1;
 }
 }
@@ -726,7 +726,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Attr_0__Lean_Meta_G
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` is a recursive datatype", 25);
+x_1 = lean_mk_string_unchecked("` is a recursive datatype", 25, 25);
 return x_1;
 }
 }
@@ -1208,7 +1208,7 @@ static lean_object* _init_l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attribute cannot be erased", 26);
+x_1 = lean_mk_string_unchecked("attribute cannot be erased", 26, 26);
 return x_1;
 }
 }
@@ -1264,7 +1264,7 @@ static lean_object* _init_l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -1282,7 +1282,7 @@ static lean_object* _init_l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -1320,7 +1320,7 @@ static lean_object* _init_l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -1348,7 +1348,7 @@ static lean_object* _init_l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Attr", 4);
+x_1 = lean_mk_string_unchecked("Attr", 4, 4);
 return x_1;
 }
 }
@@ -1366,7 +1366,7 @@ static lean_object* _init_l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -1394,7 +1394,7 @@ static lean_object* _init_l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("grind_cases", 11);
+x_1 = lean_mk_string_unchecked("grind_cases", 11, 11);
 return x_1;
 }
 }
@@ -1412,7 +1412,7 @@ static lean_object* _init_l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`grind` tactic applies `cases` to (non-recursive) inductives during pre-processing step", 87);
+x_1 = lean_mk_string_unchecked("`grind` tactic applies `cases` to (non-recursive) inductives during pre-processing step", 87, 87);
 return x_1;
 }
 }

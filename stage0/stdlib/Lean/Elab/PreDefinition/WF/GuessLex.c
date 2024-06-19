@@ -941,7 +941,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_initFn____x40_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("showInferredTerminationBy", 25);
+x_1 = lean_mk_string_unchecked("showInferredTerminationBy", 25, 25);
 return x_1;
 }
 }
@@ -959,7 +959,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_initFn____x40_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -967,7 +967,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_initFn____x40_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("In recursive definitions, show the inferred `termination_by` measure.", 69);
+x_1 = lean_mk_string_unchecked("In recursive definitions, show the inferred `termination_by` measure.", 69, 69);
 return x_1;
 }
 }
@@ -990,7 +990,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_initFn____x40_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -998,7 +998,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_initFn____x40_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -1006,7 +1006,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_initFn____x40_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("WF", 2);
+x_1 = lean_mk_string_unchecked("WF", 2, 2);
 return x_1;
 }
 }
@@ -1014,7 +1014,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_initFn____x40_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("GuessLex", 8);
+x_1 = lean_mk_string_unchecked("GuessLex", 8, 8);
 return x_1;
 }
 }
@@ -1137,7 +1137,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_naryVarNames_freshen___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -1283,7 +1283,7 @@ static lean_object* _init_l_Std_Range_forIn_x27_loop___at_Lean_Elab_WF_GuessLex_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("x", 1);
+x_1 = lean_mk_string_unchecked("x", 1, 1);
 return x_1;
 }
 }
@@ -1992,7 +1992,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_mayOmitSizeOf___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("WellFoundedRelation", 19);
+x_1 = lean_mk_string_unchecked("WellFoundedRelation", 19, 19);
 return x_1;
 }
 }
@@ -2010,7 +2010,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_mayOmitSizeOf___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("SizeOf", 6);
+x_1 = lean_mk_string_unchecked("SizeOf", 6, 6);
 return x_1;
 }
 }
@@ -2028,7 +2028,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_mayOmitSizeOf___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sizeOfWFRel", 11);
+x_1 = lean_mk_string_unchecked("sizeOfWFRel", 11, 11);
 return x_1;
 }
 }
@@ -2046,7 +2046,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_mayOmitSizeOf___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Nat", 3);
+x_1 = lean_mk_string_unchecked("Nat", 3, 3);
 return x_1;
 }
 }
@@ -3251,7 +3251,7 @@ static lean_object* _init_l_Subarray_forInUnsafe_loop___at_Lean_Elab_WF_GuessLex
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sizeOf", 6);
+x_1 = lean_mk_string_unchecked("sizeOf", 6, 6);
 return x_1;
 }
 }
@@ -4127,7 +4127,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_Lean_Elab_WF_GuessLex_withRec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
+x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
 return x_1;
 }
 }
@@ -4549,7 +4549,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Elab_WF_GuessLex_withRecAp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Match.MatcherApp.Basic", 32);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Match.MatcherApp.Basic", 32, 32);
 return x_1;
 }
 }
@@ -4557,7 +4557,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Elab_WF_GuessLex_withRecAp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.matchMatcherApp\?", 26);
+x_1 = lean_mk_string_unchecked("Lean.Meta.matchMatcherApp\?", 26, 26);
 return x_1;
 }
 }
@@ -4565,7 +4565,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Elab_WF_GuessLex_withRecAp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -9863,7 +9863,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_GuessLex_w
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected `casesOn` application alternative", 44);
+x_1 = lean_mk_string_unchecked("unexpected `casesOn` application alternative", 44, 44);
 return x_1;
 }
 }
@@ -9880,7 +9880,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_GuessLex_w
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nat application", 15);
+x_1 = lean_mk_string_unchecked("\nat application", 15, 15);
 return x_1;
 }
 }
@@ -13422,7 +13422,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_withRecApps___rarg___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("definition", 10);
+x_1 = lean_mk_string_unchecked("definition", 10, 10);
 return x_1;
 }
 }
@@ -13430,7 +13430,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_withRecApps___rarg___closed__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("wf", 2);
+x_1 = lean_mk_string_unchecked("wf", 2, 2);
 return x_1;
 }
 }
@@ -13449,7 +13449,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_withRecApps___rarg___closed__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("withRecApps (param ", 19);
+x_1 = lean_mk_string_unchecked("withRecApps (param ", 19, 19);
 return x_1;
 }
 }
@@ -13466,7 +13466,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_withRecApps___rarg___closed__6
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("): ", 3);
+x_1 = lean_mk_string_unchecked("): ", 3, 3);
 return x_1;
 }
 }
@@ -15054,7 +15054,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_collectRecCalls___lambda__2___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("collectRecCalls: ", 17);
+x_1 = lean_mk_string_unchecked("collectRecCalls: ", 17, 17);
 return x_1;
 }
 }
@@ -15071,7 +15071,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_collectRecCalls___lambda__2___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" (", 2);
+x_1 = lean_mk_string_unchecked(" (", 2, 2);
 return x_1;
 }
 }
@@ -15088,7 +15088,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_collectRecCalls___lambda__2___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(") → ", 6);
+x_1 = lean_mk_string_unchecked(") → ", 6, 4);
 return x_1;
 }
 }
@@ -15105,7 +15105,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_collectRecCalls___lambda__2___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -15224,7 +15224,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_collectRecCalls___lambda__3___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Insufficient arguments in recursive call", 40);
+x_1 = lean_mk_string_unchecked("Insufficient arguments in recursive call", 40, 40);
 return x_1;
 }
 }
@@ -15327,7 +15327,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_collectRecCalls___lambda__5___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Unexpected number of lambdas in unary pre-definition", 52);
+x_1 = lean_mk_string_unchecked("Unexpected number of lambdas in unary pre-definition", 52, 52);
 return x_1;
 }
 }
@@ -15516,7 +15516,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_isNatCmp___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("GE", 2);
+x_1 = lean_mk_string_unchecked("GE", 2, 2);
 return x_1;
 }
 }
@@ -15524,7 +15524,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_isNatCmp___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ge", 2);
+x_1 = lean_mk_string_unchecked("ge", 2, 2);
 return x_1;
 }
 }
@@ -15542,7 +15542,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_isNatCmp___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("GT", 2);
+x_1 = lean_mk_string_unchecked("GT", 2, 2);
 return x_1;
 }
 }
@@ -15550,7 +15550,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_isNatCmp___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("gt", 2);
+x_1 = lean_mk_string_unchecked("gt", 2, 2);
 return x_1;
 }
 }
@@ -15568,7 +15568,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_isNatCmp___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LE", 2);
+x_1 = lean_mk_string_unchecked("LE", 2, 2);
 return x_1;
 }
 }
@@ -15576,7 +15576,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_isNatCmp___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("le", 2);
+x_1 = lean_mk_string_unchecked("le", 2, 2);
 return x_1;
 }
 }
@@ -15594,7 +15594,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_isNatCmp___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LT", 2);
+x_1 = lean_mk_string_unchecked("LT", 2, 2);
 return x_1;
 }
 }
@@ -15602,7 +15602,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_isNatCmp___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lt", 2);
+x_1 = lean_mk_string_unchecked("lt", 2, 2);
 return x_1;
 }
 }
@@ -18139,7 +18139,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_GuessLex_co
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rc: ", 4);
+x_1 = lean_mk_string_unchecked("rc: ", 4, 4);
 return x_1;
 }
 }
@@ -19250,7 +19250,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_GuessLex_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.WF.GuessLex.GuessLexRel.lt", 36);
+x_1 = lean_mk_string_unchecked("Lean.Elab.WF.GuessLex.GuessLexRel.lt", 36, 36);
 return x_1;
 }
 }
@@ -19334,7 +19334,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_GuessLex_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.WF.GuessLex.GuessLexRel.eq", 36);
+x_1 = lean_mk_string_unchecked("Lean.Elab.WF.GuessLex.GuessLexRel.eq", 36, 36);
 return x_1;
 }
 }
@@ -19400,7 +19400,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_GuessLex_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.WF.GuessLex.GuessLexRel.le", 36);
+x_1 = lean_mk_string_unchecked("Lean.Elab.WF.GuessLex.GuessLexRel.le", 36, 36);
 return x_1;
 }
 }
@@ -19466,7 +19466,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_GuessLex_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.WF.GuessLex.GuessLexRel.no_idea", 41);
+x_1 = lean_mk_string_unchecked("Lean.Elab.WF.GuessLex.GuessLexRel.no_idea", 41, 41);
 return x_1;
 }
 }
@@ -19724,7 +19724,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_instToStringGuessLexRel___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("<", 1);
+x_1 = lean_mk_string_unchecked("<", 1, 1);
 return x_1;
 }
 }
@@ -19732,7 +19732,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_instToStringGuessLexRel___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("=", 1);
+x_1 = lean_mk_string_unchecked("=", 1, 1);
 return x_1;
 }
 }
@@ -19740,7 +19740,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_instToStringGuessLexRel___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("≤", 3);
+x_1 = lean_mk_string_unchecked("≤", 3, 1);
 return x_1;
 }
 }
@@ -19748,7 +19748,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_instToStringGuessLexRel___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\?", 1);
+x_1 = lean_mk_string_unchecked("\?", 1, 1);
 return x_1;
 }
 }
@@ -19910,7 +19910,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_GuessLexRel_toNatRel___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instLTNat", 9);
+x_1 = lean_mk_string_unchecked("instLTNat", 9, 9);
 return x_1;
 }
 }
@@ -19977,7 +19977,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_GuessLexRel_toNatRel___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -20047,7 +20047,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_GuessLexRel_toNatRel___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instLENat", 9);
+x_1 = lean_mk_string_unchecked("instLENat", 9, 9);
 return x_1;
 }
 }
@@ -20095,7 +20095,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_GuessLexRel_toNatRel___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.PreDefinition.WF.GuessLex", 35);
+x_1 = lean_mk_string_unchecked("Lean.Elab.PreDefinition.WF.GuessLex", 35, 35);
 return x_1;
 }
 }
@@ -20103,7 +20103,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_GuessLexRel_toNatRel___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.WF.GuessLex.GuessLexRel.toNatRel", 42);
+x_1 = lean_mk_string_unchecked("Lean.Elab.WF.GuessLex.GuessLexRel.toNatRel", 42, 42);
 return x_1;
 }
 }
@@ -20166,7 +20166,7 @@ static lean_object* _init_l_List_forM___at_Lean_Elab_WF_GuessLex_evalRecCall___s
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("goal not solved", 15);
+x_1 = lean_mk_string_unchecked("goal not solved", 15, 15);
 return x_1;
 }
 }
@@ -20245,7 +20245,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Elab_WF_GuessLex_evalRecCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inspectRecCall: success!", 24);
+x_1 = lean_mk_string_unchecked("inspectRecCall: success!", 24, 24);
 return x_1;
 }
 }
@@ -20389,7 +20389,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Elab_WF_GuessLex_evalRecCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticDecreasing_tactic", 23);
+x_1 = lean_mk_string_unchecked("tacticDecreasing_tactic", 23, 23);
 return x_1;
 }
 }
@@ -20407,7 +20407,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Elab_WF_GuessLex_evalRecCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("decreasing_tactic", 17);
+x_1 = lean_mk_string_unchecked("decreasing_tactic", 17, 17);
 return x_1;
 }
 }
@@ -20471,7 +20471,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Elab_WF_GuessLex_evalRecCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Using tactic ", 13);
+x_1 = lean_mk_string_unchecked("Using tactic ", 13, 13);
 return x_1;
 }
 }
@@ -20578,7 +20578,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Elab_WF_GuessLex_evalRecCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Did not find ", 13);
+x_1 = lean_mk_string_unchecked("Did not find ", 13, 13);
 return x_1;
 }
 }
@@ -20595,7 +20595,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Elab_WF_GuessLex_evalRecCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" proof: ", 8);
+x_1 = lean_mk_string_unchecked(" proof: ", 8, 8);
 return x_1;
 }
 }
@@ -21462,7 +21462,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Elab_WF_GuessLex_evalRecCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Goal for ", 9);
+x_1 = lean_mk_string_unchecked("Goal for ", 9, 9);
 return x_1;
 }
 }
@@ -21479,7 +21479,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Elab_WF_GuessLex_evalRecCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -22012,7 +22012,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_evalRecCall___lambda__3___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inspectRecCall: ", 16);
+x_1 = lean_mk_string_unchecked("inspectRecCall: ", 16, 16);
 return x_1;
 }
 }
@@ -23188,7 +23188,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_RecCallCache_prettyEntry___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_", 1);
+x_1 = lean_mk_string_unchecked("_", 1, 1);
 return x_1;
 }
 }
@@ -24250,7 +24250,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_generateMeasures___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Too many combinations", 21);
+x_1 = lean_mk_string_unchecked("Too many combinations", 21, 21);
 return x_1;
 }
 }
@@ -25379,7 +25379,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_WF_GuessLex_form
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -25619,7 +25619,7 @@ static lean_object* _init_l_Std_Range_forIn_x27_loop___at_Lean_Elab_WF_GuessLex_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -25865,7 +25865,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_RecCallWithContext_posString__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
@@ -25873,7 +25873,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_RecCallWithContext_posString__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-", 1);
+x_1 = lean_mk_string_unchecked("-", 1, 1);
 return x_1;
 }
 }
@@ -26010,7 +26010,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_measureHeader___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#", 1);
+x_1 = lean_mk_string_unchecked("#", 1, 1);
 return x_1;
 }
 }
@@ -26475,7 +26475,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_WF_GuessLex_expl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(") ", 2);
+x_1 = lean_mk_string_unchecked(") ", 2, 2);
 return x_1;
 }
 }
@@ -26777,7 +26777,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_explainNonMutualFailure___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n\n", 2);
+x_1 = lean_mk_string_unchecked("\n\n", 2, 2);
 return x_1;
 }
 }
@@ -28076,7 +28076,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_GuessLex_ex
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Call from ", 10);
+x_1 = lean_mk_string_unchecked("Call from ", 10, 10);
 return x_1;
 }
 }
@@ -28094,7 +28094,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_GuessLex_ex
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" to ", 4);
+x_1 = lean_mk_string_unchecked(" to ", 4, 4);
 return x_1;
 }
 }
@@ -28122,7 +28122,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_GuessLex_ex
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("at ", 3);
+x_1 = lean_mk_string_unchecked("at ", 3, 3);
 return x_1;
 }
 }
@@ -28140,7 +28140,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_GuessLex_ex
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":\n", 2);
+x_1 = lean_mk_string_unchecked(":\n", 2, 2);
 return x_1;
 }
 }
@@ -29824,7 +29824,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_explainFailure___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("The arguments relate at each recursive call as follows:\n", 56);
+x_1 = lean_mk_string_unchecked("The arguments relate at each recursive call as follows:\n", 56, 56);
 return x_1;
 }
 }
@@ -29842,7 +29842,7 @@ static lean_object* _init_l_Lean_Elab_WF_GuessLex_explainFailure___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(<, ≤, =: relation proved, \? all proofs failed, _: no proof attempted)\n", 73);
+x_1 = lean_mk_string_unchecked("(<, ≤, =: relation proved, \? all proofs failed, _: no proof attempted)\n", 73, 71);
 return x_1;
 }
 }
@@ -30085,7 +30085,7 @@ static lean_object* _init_l_Array_foldrMUnsafe_fold___at_Lean_Elab_WF_GuessLex_m
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Prod", 4);
+x_1 = lean_mk_string_unchecked("Prod", 4, 4);
 return x_1;
 }
 }
@@ -30093,7 +30093,7 @@ static lean_object* _init_l_Array_foldrMUnsafe_fold___at_Lean_Elab_WF_GuessLex_m
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mk", 2);
+x_1 = lean_mk_string_unchecked("mk", 2, 2);
 return x_1;
 }
 }
@@ -30949,7 +30949,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_GuessLex_re
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -30957,7 +30957,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_GuessLex_re
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Termination", 11);
+x_1 = lean_mk_string_unchecked("Termination", 11, 11);
 return x_1;
 }
 }
@@ -30965,7 +30965,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_GuessLex_re
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("terminationBy", 13);
+x_1 = lean_mk_string_unchecked("terminationBy", 13, 13);
 return x_1;
 }
 }
@@ -30985,7 +30985,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_GuessLex_re
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Try this: ", 10);
+x_1 = lean_mk_string_unchecked("Try this: ", 10, 10);
 return x_1;
 }
 }
@@ -31265,7 +31265,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_GuessLex_re
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Inferred termination argument:\n", 31);
+x_1 = lean_mk_string_unchecked("Inferred termination argument:\n", 31, 31);
 return x_1;
 }
 }
@@ -33410,7 +33410,7 @@ static lean_object* _init_l_Lean_Elab_WF_guessLex___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Could not find a decreasing measure.\n", 37);
+x_1 = lean_mk_string_unchecked("Could not find a decreasing measure.\n", 37, 37);
 return x_1;
 }
 }
@@ -33446,7 +33446,7 @@ static lean_object* _init_l_Lean_Elab_WF_guessLex___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Please use `termination_by` to specify a decreasing measure.", 60);
+x_1 = lean_mk_string_unchecked("Please use `termination_by` to specify a decreasing measure.", 60, 60);
 return x_1;
 }
 }
@@ -34231,7 +34231,7 @@ static lean_object* _init_l_Lean_Elab_WF_guessLex___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("varNames is: ", 13);
+x_1 = lean_mk_string_unchecked("varNames is: ", 13, 13);
 return x_1;
 }
 }

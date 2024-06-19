@@ -330,7 +330,7 @@ static lean_object* _init_l___private_Lake_Build_Common_0__Lake_toJsonBuildMetad
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("depHash", 7);
+x_1 = lean_mk_string_unchecked("depHash", 7, 7);
 return x_1;
 }
 }
@@ -338,7 +338,7 @@ static lean_object* _init_l___private_Lake_Build_Common_0__Lake_toJsonBuildMetad
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("log", 3);
+x_1 = lean_mk_string_unchecked("log", 3, 3);
 return x_1;
 }
 }
@@ -437,7 +437,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lake_Build_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("value '{j}' is too large for `UInt64`", 37);
+x_1 = lean_mk_string_unchecked("value '{j}' is too large for `UInt64`", 37, 37);
 return x_1;
 }
 }
@@ -520,7 +520,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lake_Build_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected JSON array, got '", 26);
+x_1 = lean_mk_string_unchecked("expected JSON array, got '", 26, 26);
 return x_1;
 }
 }
@@ -528,7 +528,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lake_Build_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -658,7 +658,7 @@ static lean_object* _init_l___private_Lake_Build_Common_0__Lake_fromJsonBuildMet
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake", 4);
+x_1 = lean_mk_string_unchecked("Lake", 4, 4);
 return x_1;
 }
 }
@@ -666,7 +666,7 @@ static lean_object* _init_l___private_Lake_Build_Common_0__Lake_fromJsonBuildMet
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("BuildMetadata", 13);
+x_1 = lean_mk_string_unchecked("BuildMetadata", 13, 13);
 return x_1;
 }
 }
@@ -694,7 +694,7 @@ static lean_object* _init_l___private_Lake_Build_Common_0__Lake_fromJsonBuildMet
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -742,7 +742,7 @@ static lean_object* _init_l___private_Lake_Build_Common_0__Lake_fromJsonBuildMet
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -948,7 +948,7 @@ static lean_object* _init_l_Lake_readTraceFile_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -956,7 +956,7 @@ static lean_object* _init_l_Lake_readTraceFile_x3f___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": read failed: ", 15);
+x_1 = lean_mk_string_unchecked(": read failed: ", 15, 15);
 return x_1;
 }
 }
@@ -964,7 +964,7 @@ static lean_object* _init_l_Lake_readTraceFile_x3f___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": invalid trace file: ", 22);
+x_1 = lean_mk_string_unchecked(": invalid trace file: ", 22, 22);
 return x_1;
 }
 }
@@ -4795,7 +4795,7 @@ static lean_object* _init_l_Lake_cacheFileHash___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".hash", 5);
+x_1 = lean_mk_string_unchecked(".hash", 5, 5);
 return x_1;
 }
 }
@@ -9071,7 +9071,7 @@ static lean_object* _init_l_Lake_buildFileUnlessUpToDate___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".trace", 6);
+x_1 = lean_mk_string_unchecked(".trace", 6, 6);
 return x_1;
 }
 }
@@ -11643,7 +11643,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lake_buildFileAfterDe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.Data.String.Extra", 22);
+x_1 = lean_mk_string_unchecked("Init.Data.String.Extra", 22, 22);
 return x_1;
 }
 }
@@ -11651,7 +11651,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lake_buildFileAfterDe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("String.fromUTF8!", 16);
+x_1 = lean_mk_string_unchecked("String.fromUTF8!", 16, 16);
 return x_1;
 }
 }
@@ -11659,7 +11659,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lake_buildFileAfterDe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid UTF-8 string", 20);
+x_1 = lean_mk_string_unchecked("invalid UTF-8 string", 20, 20);
 return x_1;
 }
 }
@@ -13370,7 +13370,7 @@ static lean_object* _init_l_Lake_buildFileAfterDep___rarg___lambda__3___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("stdout/stderr:\n", 15);
+x_1 = lean_mk_string_unchecked("stdout/stderr:\n", 15, 15);
 return x_1;
 }
 }
@@ -20029,7 +20029,7 @@ static lean_object* _init_l_Lake_buildLeanSharedLibOfStatic___lambda__3___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-Wl,--whole-archive", 19);
+x_1 = lean_mk_string_unchecked("-Wl,--whole-archive", 19, 19);
 return x_1;
 }
 }
@@ -20047,7 +20047,7 @@ static lean_object* _init_l_Lake_buildLeanSharedLibOfStatic___lambda__3___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-Wl,--no-whole-archive", 22);
+x_1 = lean_mk_string_unchecked("-Wl,--no-whole-archive", 22, 22);
 return x_1;
 }
 }
@@ -20055,7 +20055,7 @@ static lean_object* _init_l_Lake_buildLeanSharedLibOfStatic___lambda__3___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-Wl,-force_load,", 16);
+x_1 = lean_mk_string_unchecked("-Wl,-force_load,", 16, 16);
 return x_1;
 }
 }
@@ -24393,7 +24393,7 @@ static lean_object* _init_l_Lake_computeDynlibOfShared___lambda__2___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("shared library `", 16);
+x_1 = lean_mk_string_unchecked("shared library `", 16, 16);
 return x_1;
 }
 }
@@ -24401,7 +24401,7 @@ static lean_object* _init_l_Lake_computeDynlibOfShared___lambda__2___closed__2()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` has no file name", 18);
+x_1 = lean_mk_string_unchecked("` has no file name", 18, 18);
 return x_1;
 }
 }
@@ -24409,7 +24409,7 @@ static lean_object* _init_l_Lake_computeDynlibOfShared___lambda__2___closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lib", 3);
+x_1 = lean_mk_string_unchecked("lib", 3, 3);
 return x_1;
 }
 }
@@ -24417,7 +24417,7 @@ static lean_object* _init_l_Lake_computeDynlibOfShared___lambda__2___closed__4()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` does not start with `lib`; this is not supported on Unix", 58);
+x_1 = lean_mk_string_unchecked("` does not start with `lib`; this is not supported on Unix", 58, 58);
 return x_1;
 }
 }

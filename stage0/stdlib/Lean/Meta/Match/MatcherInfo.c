@@ -1640,7 +1640,7 @@ static lean_object* _init_l_Lean_Meta_Match_Extension_initFn____x40_Lean_Meta_Ma
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1648,7 +1648,7 @@ static lean_object* _init_l_Lean_Meta_Match_Extension_initFn____x40_Lean_Meta_Ma
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -1656,7 +1656,7 @@ static lean_object* _init_l_Lean_Meta_Match_Extension_initFn____x40_Lean_Meta_Ma
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Match", 5);
+x_1 = lean_mk_string_unchecked("Match", 5, 5);
 return x_1;
 }
 }
@@ -1664,7 +1664,7 @@ static lean_object* _init_l_Lean_Meta_Match_Extension_initFn____x40_Lean_Meta_Ma
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Extension", 9);
+x_1 = lean_mk_string_unchecked("Extension", 9, 9);
 return x_1;
 }
 }
@@ -1672,7 +1672,7 @@ static lean_object* _init_l_Lean_Meta_Match_Extension_initFn____x40_Lean_Meta_Ma
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("extension", 9);
+x_1 = lean_mk_string_unchecked("extension", 9, 9);
 return x_1;
 }
 }

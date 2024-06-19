@@ -413,7 +413,7 @@ static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Check", 15);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Check", 15, 15);
 return x_1;
 }
 }
@@ -421,7 +421,7 @@ static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.throwLetTypeMismatchMessage", 37);
+x_1 = lean_mk_string_unchecked("Lean.Meta.throwLetTypeMismatchMessage", 37, 37);
 return x_1;
 }
 }
@@ -429,7 +429,7 @@ static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -450,7 +450,7 @@ static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid let declaration, term", 29);
+x_1 = lean_mk_string_unchecked("invalid let declaration, term", 29, 29);
 return x_1;
 }
 }
@@ -467,7 +467,7 @@ static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nhas type", 9);
+x_1 = lean_mk_string_unchecked("\nhas type", 9, 9);
 return x_1;
 }
 }
@@ -484,7 +484,7 @@ static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nbut is expected to have type", 29);
+x_1 = lean_mk_string_unchecked("\nbut is expected to have type", 29, 29);
 return x_1;
 }
 }
@@ -501,7 +501,7 @@ static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -3644,7 +3644,7 @@ static lean_object* _init_l_Lean_Meta_addPPExplicitToExposeDiff___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pp", 2);
+x_1 = lean_mk_string_unchecked("pp", 2, 2);
 return x_1;
 }
 }
@@ -3652,7 +3652,7 @@ static lean_object* _init_l_Lean_Meta_addPPExplicitToExposeDiff___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("all", 3);
+x_1 = lean_mk_string_unchecked("all", 3, 3);
 return x_1;
 }
 }
@@ -3670,7 +3670,7 @@ static lean_object* _init_l_Lean_Meta_addPPExplicitToExposeDiff___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("explicit", 8);
+x_1 = lean_mk_string_unchecked("explicit", 8, 8);
 return x_1;
 }
 }
@@ -3755,7 +3755,7 @@ static lean_object* _init_l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("has type", 8);
+x_1 = lean_mk_string_unchecked("has type", 8, 8);
 return x_1;
 }
 }
@@ -3772,7 +3772,7 @@ static lean_object* _init_l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" : ", 3);
+x_1 = lean_mk_string_unchecked(" : ", 3, 3);
 return x_1;
 }
 }
@@ -5017,7 +5017,7 @@ static lean_object* _init_l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("application type mismatch", 25);
+x_1 = lean_mk_string_unchecked("application type mismatch", 25, 25);
 return x_1;
 }
 }
@@ -5034,7 +5034,7 @@ static lean_object* _init_l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nargument", 9);
+x_1 = lean_mk_string_unchecked("\nargument", 9, 9);
 return x_1;
 }
 }
@@ -5051,7 +5051,7 @@ static lean_object* _init_l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -8657,7 +8657,7 @@ static lean_object* _init_l_Lean_withTraceNode___at_Lean_Meta_check___spec__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("<exception thrown while producing trace node message>", 53);
+x_1 = lean_mk_string_unchecked("<exception thrown while producing trace node message>", 53, 53);
 return x_1;
 }
 }
@@ -9818,7 +9818,7 @@ static lean_object* _init_l_Lean_Meta_check___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -10444,7 +10444,7 @@ static lean_object* _init_l_Lean_Meta_check___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -10452,7 +10452,7 @@ static lean_object* _init_l_Lean_Meta_check___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("check", 5);
+x_1 = lean_mk_string_unchecked("check", 5, 5);
 return x_1;
 }
 }
@@ -10713,7 +10713,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Check___hyg_2782__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -10741,7 +10741,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Check___hyg_2782__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -10759,7 +10759,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Check___hyg_2782__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -10797,7 +10797,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Check___hyg_2782__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Check", 5);
+x_1 = lean_mk_string_unchecked("Check", 5, 5);
 return x_1;
 }
 }
@@ -10815,7 +10815,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Check___hyg_2782__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }

@@ -132,7 +132,7 @@ static lean_object* _init_l_Lake_Git_defaultRemote___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("origin", 6);
+x_1 = lean_mk_string_unchecked("origin", 6, 6);
 return x_1;
 }
 }
@@ -148,7 +148,7 @@ static lean_object* _init_l_Lake_Git_upstreamBranch___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("master", 6);
+x_1 = lean_mk_string_unchecked("master", 6, 6);
 return x_1;
 }
 }
@@ -164,7 +164,7 @@ static lean_object* _init_l_Lake_Git_filterUrl_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("git", 3);
+x_1 = lean_mk_string_unchecked("git", 3, 3);
 return x_1;
 }
 }
@@ -172,7 +172,7 @@ static lean_object* _init_l_Lake_Git_filterUrl_x3f___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".git", 4);
+x_1 = lean_mk_string_unchecked(".git", 4, 4);
 return x_1;
 }
 }
@@ -354,7 +354,7 @@ static lean_object* _init_l_Lake_GitRepo_cwd___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -502,7 +502,7 @@ static lean_object* _init_l_Lake_GitRepo_clone___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("clone", 5);
+x_1 = lean_mk_string_unchecked("clone", 5, 5);
 return x_1;
 }
 }
@@ -553,7 +553,7 @@ static lean_object* _init_l_Lake_GitRepo_quietInit___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("init", 4);
+x_1 = lean_mk_string_unchecked("init", 4, 4);
 return x_1;
 }
 }
@@ -571,7 +571,7 @@ static lean_object* _init_l_Lake_GitRepo_quietInit___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-q", 2);
+x_1 = lean_mk_string_unchecked("-q", 2, 2);
 return x_1;
 }
 }
@@ -612,7 +612,7 @@ static lean_object* _init_l_Lake_GitRepo_fetch___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fetch", 5);
+x_1 = lean_mk_string_unchecked("fetch", 5, 5);
 return x_1;
 }
 }
@@ -654,7 +654,7 @@ static lean_object* _init_l_Lake_GitRepo_checkoutBranch___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("checkout", 8);
+x_1 = lean_mk_string_unchecked("checkout", 8, 8);
 return x_1;
 }
 }
@@ -672,7 +672,7 @@ static lean_object* _init_l_Lake_GitRepo_checkoutBranch___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-B", 2);
+x_1 = lean_mk_string_unchecked("-B", 2, 2);
 return x_1;
 }
 }
@@ -714,7 +714,7 @@ static lean_object* _init_l_Lake_GitRepo_checkoutDetach___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("--detach", 8);
+x_1 = lean_mk_string_unchecked("--detach", 8, 8);
 return x_1;
 }
 }
@@ -756,7 +756,7 @@ static lean_object* _init_l_Lake_GitRepo_resolveRevision_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rev-parse", 9);
+x_1 = lean_mk_string_unchecked("rev-parse", 9, 9);
 return x_1;
 }
 }
@@ -774,7 +774,7 @@ static lean_object* _init_l_Lake_GitRepo_resolveRevision_x3f___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("--verify", 8);
+x_1 = lean_mk_string_unchecked("--verify", 8, 8);
 return x_1;
 }
 }
@@ -838,7 +838,7 @@ static lean_object* _init_l_Lake_GitRepo_getHeadRevision___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HEAD", 4);
+x_1 = lean_mk_string_unchecked("HEAD", 4, 4);
 return x_1;
 }
 }
@@ -900,7 +900,7 @@ static lean_object* _init_l_Lake_GitRepo_resolveRemoteRevision___lambda__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cannot find revision ", 21);
+x_1 = lean_mk_string_unchecked("cannot find revision ", 21, 21);
 return x_1;
 }
 }
@@ -908,7 +908,7 @@ static lean_object* _init_l_Lake_GitRepo_resolveRemoteRevision___lambda__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" in repository ", 15);
+x_1 = lean_mk_string_unchecked(" in repository ", 15, 15);
 return x_1;
 }
 }
@@ -916,7 +916,7 @@ static lean_object* _init_l_Lake_GitRepo_resolveRemoteRevision___lambda__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -1018,7 +1018,7 @@ static lean_object* _init_l_Lake_GitRepo_resolveRemoteRevision___lambda__3___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("/", 1);
+x_1 = lean_mk_string_unchecked("/", 1, 1);
 return x_1;
 }
 }
@@ -1297,7 +1297,7 @@ static lean_object* _init_l_Lake_GitRepo_branchExists___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("refs/heads/", 11);
+x_1 = lean_mk_string_unchecked("refs/heads/", 11, 11);
 return x_1;
 }
 }
@@ -1305,7 +1305,7 @@ static lean_object* _init_l_Lake_GitRepo_branchExists___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("show-ref", 8);
+x_1 = lean_mk_string_unchecked("show-ref", 8, 8);
 return x_1;
 }
 }
@@ -1369,7 +1369,7 @@ static lean_object* _init_l_Lake_GitRepo_revisionExists___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("^{commit}", 9);
+x_1 = lean_mk_string_unchecked("^{commit}", 9, 9);
 return x_1;
 }
 }
@@ -1411,7 +1411,7 @@ static lean_object* _init_l_Lake_GitRepo_findTag_x3f___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("describe", 8);
+x_1 = lean_mk_string_unchecked("describe", 8, 8);
 return x_1;
 }
 }
@@ -1429,7 +1429,7 @@ static lean_object* _init_l_Lake_GitRepo_findTag_x3f___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("--tags", 6);
+x_1 = lean_mk_string_unchecked("--tags", 6, 6);
 return x_1;
 }
 }
@@ -1447,7 +1447,7 @@ static lean_object* _init_l_Lake_GitRepo_findTag_x3f___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("--exact-match", 13);
+x_1 = lean_mk_string_unchecked("--exact-match", 13, 13);
 return x_1;
 }
 }
@@ -1488,7 +1488,7 @@ static lean_object* _init_l_Lake_GitRepo_getRemoteUrl_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("remote", 6);
+x_1 = lean_mk_string_unchecked("remote", 6, 6);
 return x_1;
 }
 }
@@ -1506,7 +1506,7 @@ static lean_object* _init_l_Lake_GitRepo_getRemoteUrl_x3f___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("get-url", 7);
+x_1 = lean_mk_string_unchecked("get-url", 7, 7);
 return x_1;
 }
 }
@@ -1683,7 +1683,7 @@ static lean_object* _init_l_Lake_GitRepo_hasNoDiff___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("diff", 4);
+x_1 = lean_mk_string_unchecked("diff", 4, 4);
 return x_1;
 }
 }
@@ -1701,7 +1701,7 @@ static lean_object* _init_l_Lake_GitRepo_hasNoDiff___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("--exit-code", 11);
+x_1 = lean_mk_string_unchecked("--exit-code", 11, 11);
 return x_1;
 }
 }

@@ -93,7 +93,7 @@ static lean_object* _init_l___private_Lake_Build_Key_0__Lake_reprBuildKey____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.BuildKey.moduleFacet", 25);
+x_1 = lean_mk_string_unchecked("Lake.BuildKey.moduleFacet", 25, 25);
 return x_1;
 }
 }
@@ -141,7 +141,7 @@ static lean_object* _init_l___private_Lake_Build_Key_0__Lake_reprBuildKey____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.BuildKey.packageFacet", 26);
+x_1 = lean_mk_string_unchecked("Lake.BuildKey.packageFacet", 26, 26);
 return x_1;
 }
 }
@@ -171,7 +171,7 @@ static lean_object* _init_l___private_Lake_Build_Key_0__Lake_reprBuildKey____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.BuildKey.targetFacet", 25);
+x_1 = lean_mk_string_unchecked("Lake.BuildKey.targetFacet", 25, 25);
 return x_1;
 }
 }
@@ -201,7 +201,7 @@ static lean_object* _init_l___private_Lake_Build_Key_0__Lake_reprBuildKey____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.BuildKey.customTarget", 26);
+x_1 = lean_mk_string_unchecked("Lake.BuildKey.customTarget", 26, 26);
 return x_1;
 }
 }
@@ -896,7 +896,7 @@ static lean_object* _init_l_Lake_BuildKey_toString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("+", 1);
+x_1 = lean_mk_string_unchecked("+", 1, 1);
 return x_1;
 }
 }
@@ -904,7 +904,7 @@ static lean_object* _init_l_Lake_BuildKey_toString___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
@@ -912,7 +912,7 @@ static lean_object* _init_l_Lake_BuildKey_toString___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -920,7 +920,7 @@ static lean_object* _init_l_Lake_BuildKey_toString___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("@", 1);
+x_1 = lean_mk_string_unchecked("@", 1, 1);
 return x_1;
 }
 }
@@ -928,7 +928,7 @@ static lean_object* _init_l_Lake_BuildKey_toString___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("/", 1);
+x_1 = lean_mk_string_unchecked("/", 1, 1);
 return x_1;
 }
 }

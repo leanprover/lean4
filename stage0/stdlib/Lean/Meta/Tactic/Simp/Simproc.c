@@ -1653,7 +1653,7 @@ static lean_object* _init_l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1661,7 +1661,7 @@ static lean_object* _init_l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -1669,7 +1669,7 @@ static lean_object* _init_l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Simp", 4);
+x_1 = lean_mk_string_unchecked("Simp", 4, 4);
 return x_1;
 }
 }
@@ -1677,7 +1677,7 @@ static lean_object* _init_l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simprocDeclExt", 14);
+x_1 = lean_mk_string_unchecked("simprocDeclExt", 14, 14);
 return x_1;
 }
 }
@@ -3429,7 +3429,7 @@ static lean_object* _init_l_Lean_Meta_Simp_registerBuiltinSimprocCore___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid builtin simproc declaration '", 37);
+x_1 = lean_mk_string_unchecked("invalid builtin simproc declaration '", 37, 37);
 return x_1;
 }
 }
@@ -3437,7 +3437,7 @@ static lean_object* _init_l_Lean_Meta_Simp_registerBuiltinSimprocCore___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', it has already been declared", 31);
+x_1 = lean_mk_string_unchecked("', it has already been declared", 31, 31);
 return x_1;
 }
 }
@@ -3531,7 +3531,7 @@ static lean_object* _init_l_Lean_Meta_Simp_registerBuiltinSimprocCore___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid builtin simproc declaration, it can only be registered during initialization", 84);
+x_1 = lean_mk_string_unchecked("invalid builtin simproc declaration, it can only be registered during initialization", 84, 84);
 return x_1;
 }
 }
@@ -3791,7 +3791,7 @@ static lean_object* _init_l_Lean_Meta_Simp_registerSimproc___lambda__3___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid simproc declaration '", 29);
+x_1 = lean_mk_string_unchecked("invalid simproc declaration '", 29, 29);
 return x_1;
 }
 }
@@ -3917,7 +3917,7 @@ static lean_object* _init_l_Lean_Meta_Simp_registerSimproc___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', function declaration is in an imported module", 48);
+x_1 = lean_mk_string_unchecked("', function declaration is in an imported module", 48, 48);
 return x_1;
 }
 }
@@ -4325,7 +4325,7 @@ static lean_object* _init_l_Lean_Meta_Simp_getSimprocFromDeclImpl___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
+x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
 return x_1;
 }
 }
@@ -4333,7 +4333,7 @@ static lean_object* _init_l_Lean_Meta_Simp_getSimprocFromDeclImpl___closed__2() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -4341,7 +4341,7 @@ static lean_object* _init_l_Lean_Meta_Simp_getSimprocFromDeclImpl___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected type at simproc", 26);
+x_1 = lean_mk_string_unchecked("unexpected type at simproc", 26, 26);
 return x_1;
 }
 }
@@ -4359,7 +4359,7 @@ static lean_object* _init_l_Lean_Meta_Simp_getSimprocFromDeclImpl___closed__5() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Simproc", 7);
+x_1 = lean_mk_string_unchecked("Simproc", 7, 7);
 return x_1;
 }
 }
@@ -4367,7 +4367,7 @@ static lean_object* _init_l_Lean_Meta_Simp_getSimprocFromDeclImpl___closed__6() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("DSimproc", 8);
+x_1 = lean_mk_string_unchecked("DSimproc", 8, 8);
 return x_1;
 }
 }
@@ -5304,7 +5304,7 @@ static lean_object* _init_l_Lean_Meta_Simp_eraseSimprocAttr___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' does not have a simproc attribute", 35);
+x_1 = lean_mk_string_unchecked("' does not have a simproc attribute", 35, 35);
 return x_1;
 }
 }
@@ -5565,7 +5565,7 @@ static lean_object* _init_l_Lean_Meta_Simp_addSimprocAttrCore___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid [simproc] attribute, '", 30);
+x_1 = lean_mk_string_unchecked("invalid [simproc] attribute, '", 30, 30);
 return x_1;
 }
 }
@@ -5582,7 +5582,7 @@ static lean_object* _init_l_Lean_Meta_Simp_addSimprocAttrCore___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' is not a simproc", 18);
+x_1 = lean_mk_string_unchecked("' is not a simproc", 18, 18);
 return x_1;
 }
 }
@@ -7101,7 +7101,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.DiscrTree", 19);
+x_1 = lean_mk_string_unchecked("Lean.Meta.DiscrTree", 19, 19);
 return x_1;
 }
 }
@@ -7109,7 +7109,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.DiscrTree.insertCore", 30);
+x_1 = lean_mk_string_unchecked("Lean.Meta.DiscrTree.insertCore", 30, 30);
 return x_1;
 }
 }
@@ -7117,7 +7117,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid key sequence", 20);
+x_1 = lean_mk_string_unchecked("invalid key sequence", 20, 20);
 return x_1;
 }
 }
@@ -7431,7 +7431,7 @@ static lean_object* _init_l_Lean_Meta_Simp_addSimprocBuiltinAttrCore___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid [builtin_simproc] attribute, '{declName}' is not a builtin simproc", 74);
+x_1 = lean_mk_string_unchecked("invalid [builtin_simproc] attribute, '{declName}' is not a builtin simproc", 74, 74);
 return x_1;
 }
 }
@@ -9286,7 +9286,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_simprocCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Debug", 5);
+x_1 = lean_mk_string_unchecked("Debug", 5, 5);
 return x_1;
 }
 }
@@ -9294,7 +9294,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_simprocCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -9302,7 +9302,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_simprocCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simp", 4);
+x_1 = lean_mk_string_unchecked("simp", 4, 4);
 return x_1;
 }
 }
@@ -9322,7 +9322,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_simprocCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simproc result ", 15);
+x_1 = lean_mk_string_unchecked("simproc result ", 15, 15);
 return x_1;
 }
 }
@@ -9339,7 +9339,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_simprocCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" => ", 4);
+x_1 = lean_mk_string_unchecked(" => ", 4, 4);
 return x_1;
 }
 }
@@ -9356,7 +9356,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_simprocCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -13533,7 +13533,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simprocCore___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no ", 3);
+x_1 = lean_mk_string_unchecked("no ", 3, 3);
 return x_1;
 }
 }
@@ -13550,7 +13550,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simprocCore___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-simprocs found for ", 20);
+x_1 = lean_mk_string_unchecked("-simprocs found for ", 20, 20);
 return x_1;
 }
 }
@@ -13567,7 +13567,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simprocCore___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pre", 3);
+x_1 = lean_mk_string_unchecked("pre", 3, 3);
 return x_1;
 }
 }
@@ -13575,7 +13575,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simprocCore___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("post", 4);
+x_1 = lean_mk_string_unchecked("post", 4, 4);
 return x_1;
 }
 }
@@ -19227,7 +19227,7 @@ static lean_object* _init_l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simprocs", 8);
+x_1 = lean_mk_string_unchecked("simprocs", 8, 8);
 return x_1;
 }
 }
@@ -19245,7 +19245,7 @@ static lean_object* _init_l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("backward compatibility", 22);
+x_1 = lean_mk_string_unchecked("backward compatibility", 22, 22);
 return x_1;
 }
 }
@@ -19253,7 +19253,7 @@ static lean_object* _init_l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Enable/disable `simproc`s (simplification procedures).", 54);
+x_1 = lean_mk_string_unchecked("Enable/disable `simproc`s (simplification procedures).", 54, 54);
 return x_1;
 }
 }
@@ -19559,7 +19559,7 @@ static lean_object* _init_l___auto____x40_Lean_Meta_Tactic_Simp_Simproc___hyg_57
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -19567,7 +19567,7 @@ static lean_object* _init_l___auto____x40_Lean_Meta_Tactic_Simp_Simproc___hyg_57
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq", 9);
+x_1 = lean_mk_string_unchecked("tacticSeq", 9, 9);
 return x_1;
 }
 }
@@ -19587,7 +19587,7 @@ static lean_object* _init_l___auto____x40_Lean_Meta_Tactic_Simp_Simproc___hyg_57
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq1Indented", 18);
+x_1 = lean_mk_string_unchecked("tacticSeq1Indented", 18, 18);
 return x_1;
 }
 }
@@ -19607,7 +19607,7 @@ static lean_object* _init_l___auto____x40_Lean_Meta_Tactic_Simp_Simproc___hyg_57
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -19625,7 +19625,7 @@ static lean_object* _init_l___auto____x40_Lean_Meta_Tactic_Simp_Simproc___hyg_57
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("exact", 5);
+x_1 = lean_mk_string_unchecked("exact", 5, 5);
 return x_1;
 }
 }
@@ -19667,7 +19667,7 @@ static lean_object* _init_l___auto____x40_Lean_Meta_Tactic_Simp_Simproc___hyg_57
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -19675,7 +19675,7 @@ static lean_object* _init_l___auto____x40_Lean_Meta_Tactic_Simp_Simproc___hyg_57
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declName", 8);
+x_1 = lean_mk_string_unchecked("declName", 8, 8);
 return x_1;
 }
 }
@@ -19695,7 +19695,7 @@ static lean_object* _init_l___auto____x40_Lean_Meta_Tactic_Simp_Simproc___hyg_57
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("decl_name%", 10);
+x_1 = lean_mk_string_unchecked("decl_name%", 10, 10);
 return x_1;
 }
 }
@@ -20134,7 +20134,7 @@ static lean_object* _init_l_Lean_Meta_Simp_addSimprocAttr___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simpPost", 8);
+x_1 = lean_mk_string_unchecked("simpPost", 8, 8);
 return x_1;
 }
 }
@@ -20834,7 +20834,7 @@ static lean_object* _init_l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simprocAttr", 11);
+x_1 = lean_mk_string_unchecked("simprocAttr", 11, 11);
 return x_1;
 }
 }
@@ -20862,7 +20862,7 @@ static lean_object* _init_l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simprocExtension", 16);
+x_1 = lean_mk_string_unchecked("simprocExtension", 16, 16);
 return x_1;
 }
 }
@@ -20882,7 +20882,7 @@ static lean_object* _init_l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Simplification procedure", 24);
+x_1 = lean_mk_string_unchecked("Simplification procedure", 24, 24);
 return x_1;
 }
 }
@@ -20902,7 +20902,7 @@ static lean_object* _init_l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sevalprocAttr", 13);
+x_1 = lean_mk_string_unchecked("sevalprocAttr", 13, 13);
 return x_1;
 }
 }
@@ -20930,7 +20930,7 @@ static lean_object* _init_l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simprocSEvalExtension", 21);
+x_1 = lean_mk_string_unchecked("simprocSEvalExtension", 21, 21);
 return x_1;
 }
 }
@@ -20950,7 +20950,7 @@ static lean_object* _init_l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Symbolic evaluator procedure", 28);
+x_1 = lean_mk_string_unchecked("Symbolic evaluator procedure", 28, 28);
 return x_1;
 }
 }
@@ -20979,7 +20979,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_Simproc_0__Lean_Meta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declare", 7);
+x_1 = lean_mk_string_unchecked("declare", 7, 7);
 return x_1;
 }
 }
@@ -20997,7 +20997,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_Simproc_0__Lean_Meta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Bool", 4);
+x_1 = lean_mk_string_unchecked("Bool", 4, 4);
 return x_1;
 }
 }
@@ -21005,7 +21005,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_Simproc_0__Lean_Meta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("false", 5);
+x_1 = lean_mk_string_unchecked("false", 5, 5);
 return x_1;
 }
 }
@@ -21033,7 +21033,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_Simproc_0__Lean_Meta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("true", 4);
+x_1 = lean_mk_string_unchecked("true", 4, 4);
 return x_1;
 }
 }
@@ -21194,7 +21194,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_Simproc_0__Lean_Meta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Sum", 3);
+x_1 = lean_mk_string_unchecked("Sum", 3, 3);
 return x_1;
 }
 }
@@ -21202,7 +21202,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_Simproc_0__Lean_Meta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inr", 3);
+x_1 = lean_mk_string_unchecked("inr", 3, 3);
 return x_1;
 }
 }
@@ -21307,7 +21307,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_Simproc_0__Lean_Meta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inl", 3);
+x_1 = lean_mk_string_unchecked("inl", 3, 3);
 return x_1;
 }
 }
@@ -21915,7 +21915,7 @@ static lean_object* _init_l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("addSimprocBuiltinAttr", 21);
+x_1 = lean_mk_string_unchecked("addSimprocBuiltinAttr", 21, 21);
 return x_1;
 }
 }
@@ -21944,7 +21944,7 @@ static lean_object* _init_l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Not implemented yet, [-builtin_simproc]", 39);
+x_1 = lean_mk_string_unchecked("Not implemented yet, [-builtin_simproc]", 39, 39);
 return x_1;
 }
 }
@@ -22000,7 +22000,7 @@ static lean_object* _init_l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -22018,7 +22018,7 @@ static lean_object* _init_l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -22086,7 +22086,7 @@ static lean_object* _init_l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -22114,7 +22114,7 @@ static lean_object* _init_l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simprocBuiltinAttr", 18);
+x_1 = lean_mk_string_unchecked("simprocBuiltinAttr", 18, 18);
 return x_1;
 }
 }
@@ -22132,7 +22132,7 @@ static lean_object* _init_l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Builtin simplification procedure", 32);
+x_1 = lean_mk_string_unchecked("Builtin simplification procedure", 32, 32);
 return x_1;
 }
 }
@@ -22219,7 +22219,7 @@ static lean_object* _init_l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("addSEvalprocBuiltinAttr", 23);
+x_1 = lean_mk_string_unchecked("addSEvalprocBuiltinAttr", 23, 23);
 return x_1;
 }
 }
@@ -22248,7 +22248,7 @@ static lean_object* _init_l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Not implemented yet, [-builtin_sevalproc]", 41);
+x_1 = lean_mk_string_unchecked("Not implemented yet, [-builtin_sevalproc]", 41, 41);
 return x_1;
 }
 }
@@ -22284,7 +22284,7 @@ static lean_object* _init_l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sevalprocBuiltinAttr", 20);
+x_1 = lean_mk_string_unchecked("sevalprocBuiltinAttr", 20, 20);
 return x_1;
 }
 }
@@ -22302,7 +22302,7 @@ static lean_object* _init_l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Builtin symbolic evaluation procedure", 37);
+x_1 = lean_mk_string_unchecked("Builtin symbolic evaluation procedure", 37, 37);
 return x_1;
 }
 }
@@ -22659,7 +22659,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simpAttrNameToSimprocAttrName___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("seval", 5);
+x_1 = lean_mk_string_unchecked("seval", 5, 5);
 return x_1;
 }
 }
@@ -22677,7 +22677,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simpAttrNameToSimprocAttrName___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_proc", 5);
+x_1 = lean_mk_string_unchecked("_proc", 5, 5);
 return x_1;
 }
 }

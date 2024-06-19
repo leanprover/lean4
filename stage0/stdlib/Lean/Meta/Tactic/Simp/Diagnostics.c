@@ -142,7 +142,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -159,7 +159,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" (builtin simproc)", 18);
+x_1 = lean_mk_string_unchecked(" (builtin simproc)", 18, 18);
 return x_1;
 }
 }
@@ -1040,7 +1040,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_mkSimpDia
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ↦ ", 5);
+x_1 = lean_mk_string_unchecked(" ↦ ", 5, 3);
 return x_1;
 }
 }
@@ -1057,7 +1057,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_mkSimpDia
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -1098,7 +1098,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_mkSimpDia
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("  ", 2);
+x_1 = lean_mk_string_unchecked("  ", 2, 2);
 return x_1;
 }
 }
@@ -1215,7 +1215,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_mkSimpDia
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -1243,7 +1243,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_mkSimpDia
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", succeeded: ", 13);
+x_1 = lean_mk_string_unchecked(", succeeded: ", 13, 13);
 return x_1;
 }
 }
@@ -1942,7 +1942,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", key: ", 7);
+x_1 = lean_mk_string_unchecked(", key: ", 7, 7);
 return x_1;
 }
 }
@@ -2896,7 +2896,7 @@ static lean_object* _init_l_Lean_Meta_Simp_reportDiag___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simp", 4);
+x_1 = lean_mk_string_unchecked("simp", 4, 4);
 return x_1;
 }
 }
@@ -2914,7 +2914,7 @@ static lean_object* _init_l_Lean_Meta_Simp_reportDiag___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("used theorems", 13);
+x_1 = lean_mk_string_unchecked("used theorems", 13, 13);
 return x_1;
 }
 }
@@ -2922,7 +2922,7 @@ static lean_object* _init_l_Lean_Meta_Simp_reportDiag___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tried theorems", 14);
+x_1 = lean_mk_string_unchecked("tried theorems", 14, 14);
 return x_1;
 }
 }
@@ -2930,7 +2930,7 @@ static lean_object* _init_l_Lean_Meta_Simp_reportDiag___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tried congruence theorems", 25);
+x_1 = lean_mk_string_unchecked("tried congruence theorems", 25, 25);
 return x_1;
 }
 }
@@ -2938,7 +2938,7 @@ static lean_object* _init_l_Lean_Meta_Simp_reportDiag___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("theorems with bad keys", 22);
+x_1 = lean_mk_string_unchecked("theorems with bad keys", 22, 22);
 return x_1;
 }
 }
@@ -2946,7 +2946,7 @@ static lean_object* _init_l_Lean_Meta_Simp_reportDiag___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("use `set_option diagnostics.threshold <num>` to control threshold for reporting counters", 88);
+x_1 = lean_mk_string_unchecked("use `set_option diagnostics.threshold <num>` to control threshold for reporting counters", 88, 88);
 return x_1;
 }
 }

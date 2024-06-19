@@ -726,7 +726,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Util_P
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected JSON array, got '", 26);
+x_1 = lean_mk_string_unchecked("expected JSON array, got '", 26, 26);
 return x_1;
 }
 }
@@ -734,7 +734,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Util_P
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -827,7 +827,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("name", 4);
+x_1 = lean_mk_string_unchecked("name", 4, 4);
 return x_1;
 }
 }
@@ -835,7 +835,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -843,7 +843,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Firefox", 7);
+x_1 = lean_mk_string_unchecked("Firefox", 7, 7);
 return x_1;
 }
 }
@@ -851,7 +851,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Category", 8);
+x_1 = lean_mk_string_unchecked("Category", 8, 8);
 return x_1;
 }
 }
@@ -880,7 +880,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -928,7 +928,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -946,7 +946,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("color", 5);
+x_1 = lean_mk_string_unchecked("color", 5, 5);
 return x_1;
 }
 }
@@ -994,7 +994,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("subcategories", 13);
+x_1 = lean_mk_string_unchecked("subcategories", 13, 13);
 return x_1;
 }
 }
@@ -1372,7 +1372,7 @@ static lean_object* _init_l_Lean_Firefox_ProfileMeta_product___default___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lean", 4);
+x_1 = lean_mk_string_unchecked("lean", 4, 4);
 return x_1;
 }
 }
@@ -1404,7 +1404,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Util_P
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Expected a number or a string 'Infinity', '-Infinity', 'NaN'.", 61);
+x_1 = lean_mk_string_unchecked("Expected a number or a string 'Infinity', '-Infinity', 'NaN'.", 61, 61);
 return x_1;
 }
 }
@@ -1422,7 +1422,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Util_P
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Infinity", 8);
+x_1 = lean_mk_string_unchecked("Infinity", 8, 8);
 return x_1;
 }
 }
@@ -1430,7 +1430,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Util_P
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-Infinity", 9);
+x_1 = lean_mk_string_unchecked("-Infinity", 9, 9);
 return x_1;
 }
 }
@@ -1438,7 +1438,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Util_P
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("NaN", 3);
+x_1 = lean_mk_string_unchecked("NaN", 3, 3);
 return x_1;
 }
 }
@@ -1879,7 +1879,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("interval", 8);
+x_1 = lean_mk_string_unchecked("interval", 8, 8);
 return x_1;
 }
 }
@@ -1887,7 +1887,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ProfileMeta", 11);
+x_1 = lean_mk_string_unchecked("ProfileMeta", 11, 11);
 return x_1;
 }
 }
@@ -1966,7 +1966,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("startTime", 9);
+x_1 = lean_mk_string_unchecked("startTime", 9, 9);
 return x_1;
 }
 }
@@ -2014,7 +2014,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("categories", 10);
+x_1 = lean_mk_string_unchecked("categories", 10, 10);
 return x_1;
 }
 }
@@ -2062,7 +2062,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("processType", 11);
+x_1 = lean_mk_string_unchecked("processType", 11, 11);
 return x_1;
 }
 }
@@ -2110,7 +2110,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("product", 7);
+x_1 = lean_mk_string_unchecked("product", 7, 7);
 return x_1;
 }
 }
@@ -2158,7 +2158,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("preprocessedProfileVersion", 26);
+x_1 = lean_mk_string_unchecked("preprocessedProfileVersion", 26, 26);
 return x_1;
 }
 }
@@ -2206,7 +2206,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("markerSchema", 12);
+x_1 = lean_mk_string_unchecked("markerSchema", 12, 12);
 return x_1;
 }
 }
@@ -3588,7 +3588,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("frame", 5);
+x_1 = lean_mk_string_unchecked("frame", 5, 5);
 return x_1;
 }
 }
@@ -3596,7 +3596,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("StackTable", 10);
+x_1 = lean_mk_string_unchecked("StackTable", 10, 10);
 return x_1;
 }
 }
@@ -3675,7 +3675,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("prefix", 6);
+x_1 = lean_mk_string_unchecked("prefix", 6, 6);
 return x_1;
 }
 }
@@ -3723,7 +3723,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("category", 8);
+x_1 = lean_mk_string_unchecked("category", 8, 8);
 return x_1;
 }
 }
@@ -3771,7 +3771,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("subcategory", 11);
+x_1 = lean_mk_string_unchecked("subcategory", 11, 11);
 return x_1;
 }
 }
@@ -3819,7 +3819,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("length", 6);
+x_1 = lean_mk_string_unchecked("length", 6, 6);
 return x_1;
 }
 }
@@ -4387,7 +4387,7 @@ static lean_object* _init_l_Lean_Firefox_SamplesTable_weightType___default___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tracing-ms", 10);
+x_1 = lean_mk_string_unchecked("tracing-ms", 10, 10);
 return x_1;
 }
 }
@@ -4592,7 +4592,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("stack", 5);
+x_1 = lean_mk_string_unchecked("stack", 5, 5);
 return x_1;
 }
 }
@@ -4600,7 +4600,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("SamplesTable", 12);
+x_1 = lean_mk_string_unchecked("SamplesTable", 12, 12);
 return x_1;
 }
 }
@@ -4679,7 +4679,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("time", 4);
+x_1 = lean_mk_string_unchecked("time", 4, 4);
 return x_1;
 }
 }
@@ -4727,7 +4727,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("weight", 6);
+x_1 = lean_mk_string_unchecked("weight", 6, 6);
 return x_1;
 }
 }
@@ -4775,7 +4775,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("weightType", 10);
+x_1 = lean_mk_string_unchecked("weightType", 10, 10);
 return x_1;
 }
 }
@@ -5472,7 +5472,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("FuncTable", 9);
+x_1 = lean_mk_string_unchecked("FuncTable", 9, 9);
 return x_1;
 }
 }
@@ -5531,7 +5531,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("isJS", 4);
+x_1 = lean_mk_string_unchecked("isJS", 4, 4);
 return x_1;
 }
 }
@@ -5579,7 +5579,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("relevantForJS", 13);
+x_1 = lean_mk_string_unchecked("relevantForJS", 13, 13);
 return x_1;
 }
 }
@@ -5627,7 +5627,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("resource", 8);
+x_1 = lean_mk_string_unchecked("resource", 8, 8);
 return x_1;
 }
 }
@@ -5675,7 +5675,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fileName", 8);
+x_1 = lean_mk_string_unchecked("fileName", 8, 8);
 return x_1;
 }
 }
@@ -5723,7 +5723,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lineNumber", 10);
+x_1 = lean_mk_string_unchecked("lineNumber", 10, 10);
 return x_1;
 }
 }
@@ -5771,7 +5771,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("columnNumber", 12);
+x_1 = lean_mk_string_unchecked("columnNumber", 12, 12);
 return x_1;
 }
 }
@@ -6479,7 +6479,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("func", 4);
+x_1 = lean_mk_string_unchecked("func", 4, 4);
 return x_1;
 }
 }
@@ -6487,7 +6487,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("FrameTable", 10);
+x_1 = lean_mk_string_unchecked("FrameTable", 10, 10);
 return x_1;
 }
 }
@@ -6566,7 +6566,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inlineDepth", 11);
+x_1 = lean_mk_string_unchecked("inlineDepth", 11, 11);
 return x_1;
 }
 }
@@ -6614,7 +6614,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("innerWindowID", 13);
+x_1 = lean_mk_string_unchecked("innerWindowID", 13, 13);
 return x_1;
 }
 }
@@ -7010,7 +7010,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("data", 4);
+x_1 = lean_mk_string_unchecked("data", 4, 4);
 return x_1;
 }
 }
@@ -7018,7 +7018,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("RawMarkerTable", 14);
+x_1 = lean_mk_string_unchecked("RawMarkerTable", 14, 14);
 return x_1;
 }
 }
@@ -7395,7 +7395,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("type", 4);
+x_1 = lean_mk_string_unchecked("type", 4, 4);
 return x_1;
 }
 }
@@ -7403,7 +7403,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ResourceTable", 13);
+x_1 = lean_mk_string_unchecked("ResourceTable", 13, 13);
 return x_1;
 }
 }
@@ -7683,7 +7683,7 @@ static lean_object* _init_l_Lean_Firefox_Thread_processType___default___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("default", 7);
+x_1 = lean_mk_string_unchecked("default", 7, 7);
 return x_1;
 }
 }
@@ -7802,7 +7802,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Thread", 6);
+x_1 = lean_mk_string_unchecked("Thread", 6, 6);
 return x_1;
 }
 }
@@ -7881,7 +7881,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("isMainThread", 12);
+x_1 = lean_mk_string_unchecked("isMainThread", 12, 12);
 return x_1;
 }
 }
@@ -7929,7 +7929,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("samples", 7);
+x_1 = lean_mk_string_unchecked("samples", 7, 7);
 return x_1;
 }
 }
@@ -7977,7 +7977,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("markers", 7);
+x_1 = lean_mk_string_unchecked("markers", 7, 7);
 return x_1;
 }
 }
@@ -8025,7 +8025,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("stackTable", 10);
+x_1 = lean_mk_string_unchecked("stackTable", 10, 10);
 return x_1;
 }
 }
@@ -8073,7 +8073,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("frameTable", 10);
+x_1 = lean_mk_string_unchecked("frameTable", 10, 10);
 return x_1;
 }
 }
@@ -8121,7 +8121,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("resourceTable", 13);
+x_1 = lean_mk_string_unchecked("resourceTable", 13, 13);
 return x_1;
 }
 }
@@ -8169,7 +8169,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("stringArray", 11);
+x_1 = lean_mk_string_unchecked("stringArray", 11, 11);
 return x_1;
 }
 }
@@ -8217,7 +8217,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("funcTable", 9);
+x_1 = lean_mk_string_unchecked("funcTable", 9, 9);
 return x_1;
 }
 }
@@ -9137,7 +9137,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("meta", 4);
+x_1 = lean_mk_string_unchecked("meta", 4, 4);
 return x_1;
 }
 }
@@ -9145,7 +9145,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Profile", 7);
+x_1 = lean_mk_string_unchecked("Profile", 7, 7);
 return x_1;
 }
 }
@@ -9224,7 +9224,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("libs", 4);
+x_1 = lean_mk_string_unchecked("libs", 4, 4);
 return x_1;
 }
 }
@@ -9272,7 +9272,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("threads", 7);
+x_1 = lean_mk_string_unchecked("threads", 7, 7);
 return x_1;
 }
 }
@@ -9713,7 +9713,7 @@ static lean_object* _init_l_Lean_Firefox_categories___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Other", 5);
+x_1 = lean_mk_string_unchecked("Other", 5, 5);
 return x_1;
 }
 }
@@ -9721,7 +9721,7 @@ static lean_object* _init_l_Lean_Firefox_categories___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("gray", 4);
+x_1 = lean_mk_string_unchecked("gray", 4, 4);
 return x_1;
 }
 }
@@ -9743,7 +9743,7 @@ static lean_object* _init_l_Lean_Firefox_categories___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -9751,7 +9751,7 @@ static lean_object* _init_l_Lean_Firefox_categories___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("red", 3);
+x_1 = lean_mk_string_unchecked("red", 3, 3);
 return x_1;
 }
 }
@@ -9773,7 +9773,7 @@ static lean_object* _init_l_Lean_Firefox_categories___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -9781,7 +9781,7 @@ static lean_object* _init_l_Lean_Firefox_categories___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("yellow", 6);
+x_1 = lean_mk_string_unchecked("yellow", 6, 6);
 return x_1;
 }
 }
@@ -18547,7 +18547,7 @@ static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_addTrac
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -19176,7 +19176,7 @@ static lean_object* _init_l_Lean_Firefox_Profile_export___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("runFrontend", 11);
+x_1 = lean_mk_string_unchecked("runFrontend", 11, 11);
 return x_1;
 }
 }
@@ -22887,7 +22887,7 @@ static lean_object* _init_l_Lean_Firefox_Profile_collide___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("collided", 8);
+x_1 = lean_mk_string_unchecked("collided", 8, 8);
 return x_1;
 }
 }

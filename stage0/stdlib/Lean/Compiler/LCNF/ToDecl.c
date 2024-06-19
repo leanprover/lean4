@@ -605,7 +605,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_ToDecl_0__Lean_Compiler
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_k", 2);
+x_1 = lean_mk_string_unchecked("_k", 2, 2);
 return x_1;
 }
 }
@@ -952,7 +952,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_inlineMatchers_inlineMatcher___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_alt", 4);
+x_1 = lean_mk_string_unchecked("_alt", 4, 4);
 return x_1;
 }
 }
@@ -2572,7 +2572,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_getDeclInfo_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_unsafe_rec", 11);
+x_1 = lean_mk_string_unchecked("_unsafe_rec", 11, 11);
 return x_1;
 }
 }
@@ -2883,7 +2883,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_toDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declaration `", 13);
+x_1 = lean_mk_string_unchecked("declaration `", 13, 13);
 return x_1;
 }
 }
@@ -2900,7 +2900,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_toDecl___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` not found", 11);
+x_1 = lean_mk_string_unchecked("` not found", 11, 11);
 return x_1;
 }
 }
@@ -2917,7 +2917,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_toDecl___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` does not have a value", 23);
+x_1 = lean_mk_string_unchecked("` does not have a value", 23, 23);
 return x_1;
 }
 }

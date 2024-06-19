@@ -43,7 +43,7 @@ static lean_object* _init_l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_elambda_", 9);
+x_1 = lean_mk_string_unchecked("_elambda_", 9, 9);
 return x_1;
 }
 }
@@ -63,7 +63,7 @@ static lean_object* _init_l_Lean_Compiler_isEagerLambdaLiftingName___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_elambda", 8);
+x_1 = lean_mk_string_unchecked("_elambda", 8, 8);
 return x_1;
 }
 }
@@ -230,7 +230,7 @@ static lean_object* _init_l_Lean_Compiler_checkIsDefinition___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknow declaration '", 20);
+x_1 = lean_mk_string_unchecked("unknow declaration '", 20, 20);
 return x_1;
 }
 }
@@ -238,7 +238,7 @@ static lean_object* _init_l_Lean_Compiler_checkIsDefinition___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -246,7 +246,7 @@ static lean_object* _init_l_Lean_Compiler_checkIsDefinition___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declaration is not a definition '", 33);
+x_1 = lean_mk_string_unchecked("declaration is not a definition '", 33, 33);
 return x_1;
 }
 }
@@ -382,7 +382,7 @@ static lean_object* _init_l_Lean_Compiler_mkUnsafeRecName___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_unsafe_rec", 11);
+x_1 = lean_mk_string_unchecked("_unsafe_rec", 11, 11);
 return x_1;
 }
 }

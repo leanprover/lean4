@@ -178,7 +178,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_5__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("package", 7);
+x_1 = lean_mk_string_unchecked("package", 7, 7);
 return x_1;
 }
 }
@@ -196,7 +196,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_5__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake", 4);
+x_1 = lean_mk_string_unchecked("Lake", 4, 4);
 return x_1;
 }
 }
@@ -204,7 +204,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_5__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("packageAttr", 11);
+x_1 = lean_mk_string_unchecked("packageAttr", 11, 11);
 return x_1;
 }
 }
@@ -222,7 +222,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_5__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mark a definition as a Lake package configuration", 49);
+x_1 = lean_mk_string_unchecked("mark a definition as a Lake package configuration", 49, 49);
 return x_1;
 }
 }
@@ -261,7 +261,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_33_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("package_dep", 11);
+x_1 = lean_mk_string_unchecked("package_dep", 11, 11);
 return x_1;
 }
 }
@@ -279,7 +279,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_33_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("packageDepAttr", 14);
+x_1 = lean_mk_string_unchecked("packageDepAttr", 14, 14);
 return x_1;
 }
 }
@@ -297,7 +297,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_33_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mark a definition as a Lake package dependency", 46);
+x_1 = lean_mk_string_unchecked("mark a definition as a Lake package dependency", 46, 46);
 return x_1;
 }
 }
@@ -317,7 +317,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_61_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("post_update", 11);
+x_1 = lean_mk_string_unchecked("post_update", 11, 11);
 return x_1;
 }
 }
@@ -335,7 +335,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_61_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("postUpdateAttr", 14);
+x_1 = lean_mk_string_unchecked("postUpdateAttr", 14, 14);
 return x_1;
 }
 }
@@ -353,7 +353,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_61_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mark a definition as a Lake package post-update hook", 52);
+x_1 = lean_mk_string_unchecked("mark a definition as a Lake package post-update hook", 52, 52);
 return x_1;
 }
 }
@@ -373,7 +373,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_89_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("script", 6);
+x_1 = lean_mk_string_unchecked("script", 6, 6);
 return x_1;
 }
 }
@@ -391,7 +391,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_89_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("scriptAttr", 10);
+x_1 = lean_mk_string_unchecked("scriptAttr", 10, 10);
 return x_1;
 }
 }
@@ -409,7 +409,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_89_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mark a definition as a Lake script", 34);
+x_1 = lean_mk_string_unchecked("mark a definition as a Lake script", 34, 34);
 return x_1;
 }
 }
@@ -553,7 +553,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_117
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attribute `default_script` can only be used on a `script`", 57);
+x_1 = lean_mk_string_unchecked("attribute `default_script` can only be used on a `script`", 57, 57);
 return x_1;
 }
 }
@@ -654,7 +654,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_117
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("default_script", 14);
+x_1 = lean_mk_string_unchecked("default_script", 14, 14);
 return x_1;
 }
 }
@@ -672,7 +672,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_117
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("defaultScriptAttr", 17);
+x_1 = lean_mk_string_unchecked("defaultScriptAttr", 17, 17);
 return x_1;
 }
 }
@@ -690,7 +690,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_117
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mark a Lake script as the package's default", 43);
+x_1 = lean_mk_string_unchecked("mark a Lake script as the package's default", 43, 43);
 return x_1;
 }
 }
@@ -738,7 +738,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_210
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lean_lib", 8);
+x_1 = lean_mk_string_unchecked("lean_lib", 8, 8);
 return x_1;
 }
 }
@@ -756,7 +756,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_210
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("leanLibAttr", 11);
+x_1 = lean_mk_string_unchecked("leanLibAttr", 11, 11);
 return x_1;
 }
 }
@@ -774,7 +774,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_210
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mark a definition as a Lake Lean library target configuration", 61);
+x_1 = lean_mk_string_unchecked("mark a definition as a Lake Lean library target configuration", 61, 61);
 return x_1;
 }
 }
@@ -794,7 +794,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_238
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lean_exe", 8);
+x_1 = lean_mk_string_unchecked("lean_exe", 8, 8);
 return x_1;
 }
 }
@@ -812,7 +812,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_238
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("leanExeAttr", 11);
+x_1 = lean_mk_string_unchecked("leanExeAttr", 11, 11);
 return x_1;
 }
 }
@@ -830,7 +830,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_238
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mark a definition as a Lake Lean executable target configuration", 64);
+x_1 = lean_mk_string_unchecked("mark a definition as a Lake Lean executable target configuration", 64, 64);
 return x_1;
 }
 }
@@ -850,7 +850,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_266
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("extern_lib", 10);
+x_1 = lean_mk_string_unchecked("extern_lib", 10, 10);
 return x_1;
 }
 }
@@ -868,7 +868,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_266
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("externLibAttr", 13);
+x_1 = lean_mk_string_unchecked("externLibAttr", 13, 13);
 return x_1;
 }
 }
@@ -886,7 +886,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_266
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mark a definition as a Lake external library target", 51);
+x_1 = lean_mk_string_unchecked("mark a definition as a Lake external library target", 51, 51);
 return x_1;
 }
 }
@@ -906,7 +906,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_294
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("target", 6);
+x_1 = lean_mk_string_unchecked("target", 6, 6);
 return x_1;
 }
 }
@@ -924,7 +924,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_294
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("targetAttr", 10);
+x_1 = lean_mk_string_unchecked("targetAttr", 10, 10);
 return x_1;
 }
 }
@@ -942,7 +942,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_294
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mark a definition as a custom Lake target", 41);
+x_1 = lean_mk_string_unchecked("mark a definition as a custom Lake target", 41, 41);
 return x_1;
 }
 }
@@ -1045,7 +1045,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_322
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attribute `default_target` can only be used on a target (e.g., `lean_lib`, `lean_exe`)", 86);
+x_1 = lean_mk_string_unchecked("attribute `default_target` can only be used on a target (e.g., `lean_lib`, `lean_exe`)", 86, 86);
 return x_1;
 }
 }
@@ -1146,7 +1146,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_322
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("default_target", 14);
+x_1 = lean_mk_string_unchecked("default_target", 14, 14);
 return x_1;
 }
 }
@@ -1164,7 +1164,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_322
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("defaultTargetAttr", 17);
+x_1 = lean_mk_string_unchecked("defaultTargetAttr", 17, 17);
 return x_1;
 }
 }
@@ -1182,7 +1182,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_322
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mark a Lake target as the package's default", 43);
+x_1 = lean_mk_string_unchecked("mark a Lake target as the package's default", 43, 43);
 return x_1;
 }
 }
@@ -1257,7 +1257,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_425
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attribute `test_driver` can only be used on a `script`, `lean_exe`, or `lean_lib`", 81);
+x_1 = lean_mk_string_unchecked("attribute `test_driver` can only be used on a `script`, `lean_exe`, or `lean_lib`", 81, 81);
 return x_1;
 }
 }
@@ -1358,7 +1358,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_425
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("test_driver", 11);
+x_1 = lean_mk_string_unchecked("test_driver", 11, 11);
 return x_1;
 }
 }
@@ -1376,7 +1376,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_425
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("testDriverAttr", 14);
+x_1 = lean_mk_string_unchecked("testDriverAttr", 14, 14);
 return x_1;
 }
 }
@@ -1394,7 +1394,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_425
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mark a Lake script, executable, or library as package's test driver", 67);
+x_1 = lean_mk_string_unchecked("mark a Lake script, executable, or library as package's test driver", 67, 67);
 return x_1;
 }
 }
@@ -1455,7 +1455,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_522
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attribute `lint_driver` can only be used on a `script` or `lean_exe`", 68);
+x_1 = lean_mk_string_unchecked("attribute `lint_driver` can only be used on a `script` or `lean_exe`", 68, 68);
 return x_1;
 }
 }
@@ -1556,7 +1556,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_522
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lint_driver", 11);
+x_1 = lean_mk_string_unchecked("lint_driver", 11, 11);
 return x_1;
 }
 }
@@ -1574,7 +1574,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_522
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lintDriverAttr", 14);
+x_1 = lean_mk_string_unchecked("lintDriverAttr", 14, 14);
 return x_1;
 }
 }
@@ -1592,7 +1592,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_522
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mark a Lake script or executable as package's linter", 52);
+x_1 = lean_mk_string_unchecked("mark a Lake script or executable as package's linter", 52, 52);
 return x_1;
 }
 }
@@ -1630,7 +1630,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_613
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("module_facet", 12);
+x_1 = lean_mk_string_unchecked("module_facet", 12, 12);
 return x_1;
 }
 }
@@ -1648,7 +1648,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_613
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("moduleFacetAttr", 15);
+x_1 = lean_mk_string_unchecked("moduleFacetAttr", 15, 15);
 return x_1;
 }
 }
@@ -1666,7 +1666,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_613
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mark a definition as a Lake module facet", 40);
+x_1 = lean_mk_string_unchecked("mark a definition as a Lake module facet", 40, 40);
 return x_1;
 }
 }
@@ -1686,7 +1686,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_641
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("package_facet", 13);
+x_1 = lean_mk_string_unchecked("package_facet", 13, 13);
 return x_1;
 }
 }
@@ -1704,7 +1704,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_641
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("packageFacetAttr", 16);
+x_1 = lean_mk_string_unchecked("packageFacetAttr", 16, 16);
 return x_1;
 }
 }
@@ -1722,7 +1722,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_641
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mark a definition as a Lake package facet", 41);
+x_1 = lean_mk_string_unchecked("mark a definition as a Lake package facet", 41, 41);
 return x_1;
 }
 }
@@ -1742,7 +1742,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_669
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("library_facet", 13);
+x_1 = lean_mk_string_unchecked("library_facet", 13, 13);
 return x_1;
 }
 }
@@ -1760,7 +1760,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_669
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("libraryFacetAttr", 16);
+x_1 = lean_mk_string_unchecked("libraryFacetAttr", 16, 16);
 return x_1;
 }
 }
@@ -1778,7 +1778,7 @@ static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_AttributesCore___hyg_669
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mark a definition as a Lake library facet", 41);
+x_1 = lean_mk_string_unchecked("mark a definition as a Lake library facet", 41, 41);
 return x_1;
 }
 }

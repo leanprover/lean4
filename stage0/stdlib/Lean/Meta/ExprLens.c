@@ -396,7 +396,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Expr", 9);
+x_1 = lean_mk_string_unchecked("Lean.Expr", 9, 9);
 return x_1;
 }
 }
@@ -404,7 +404,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Expr.0.Lean.Expr.updateApp!Impl", 45);
+x_1 = lean_mk_string_unchecked("_private.Lean.Expr.0.Lean.Expr.updateApp!Impl", 45, 45);
 return x_1;
 }
 }
@@ -412,7 +412,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("application expected", 20);
+x_1 = lean_mk_string_unchecked("application expected", 20, 20);
 return x_1;
 }
 }
@@ -584,7 +584,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Expr.0.Lean.Expr.updateLet!Impl", 45);
+x_1 = lean_mk_string_unchecked("_private.Lean.Expr.0.Lean.Expr.updateLet!Impl", 45, 45);
 return x_1;
 }
 }
@@ -592,7 +592,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("let expression expected", 23);
+x_1 = lean_mk_string_unchecked("let expression expected", 23, 23);
 return x_1;
 }
 }
@@ -785,7 +785,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Expr.updateLambdaE!", 24);
+x_1 = lean_mk_string_unchecked("Lean.Expr.updateLambdaE!", 24, 24);
 return x_1;
 }
 }
@@ -793,7 +793,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lambda expected", 15);
+x_1 = lean_mk_string_unchecked("lambda expected", 15, 15);
 return x_1;
 }
 }
@@ -909,7 +909,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Expr.updateForallE!", 24);
+x_1 = lean_mk_string_unchecked("Lean.Expr.updateForallE!", 24, 24);
 return x_1;
 }
 }
@@ -917,7 +917,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("forall expected", 15);
+x_1 = lean_mk_string_unchecked("forall expected", 15, 15);
 return x_1;
 }
 }
@@ -1132,7 +1132,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Invalid coordinate ", 19);
+x_1 = lean_mk_string_unchecked("Invalid coordinate ", 19, 19);
 return x_1;
 }
 }
@@ -1149,7 +1149,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" for ", 5);
+x_1 = lean_mk_string_unchecked(" for ", 5, 5);
 return x_1;
 }
 }
@@ -1166,7 +1166,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -1183,7 +1183,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lensing on types is not supported", 33);
+x_1 = lean_mk_string_unchecked("Lensing on types is not supported", 33, 33);
 return x_1;
 }
 }
@@ -2684,7 +2684,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprLens_0__Lean_Meta_viewCoordA
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Internal: Types should be handled by viewAux", 44);
+x_1 = lean_mk_string_unchecked("Internal: Types should be handled by viewAux", 44, 44);
 return x_1;
 }
 }
@@ -4385,7 +4385,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprLens_0__Lean_Core_viewCoordR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Bad coordinate ", 15);
+x_1 = lean_mk_string_unchecked("Bad coordinate ", 15, 15);
 return x_1;
 }
 }
@@ -4402,7 +4402,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprLens_0__Lean_Core_viewCoordR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Can't viewRaw the type of ", 26);
+x_1 = lean_mk_string_unchecked("Can't viewRaw the type of ", 26, 26);
 return x_1;
 }
 }

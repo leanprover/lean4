@@ -1479,7 +1479,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_Symm_i
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.DiscrTree", 19);
+x_1 = lean_mk_string_unchecked("Lean.Meta.DiscrTree", 19, 19);
 return x_1;
 }
 }
@@ -1487,7 +1487,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_Symm_i
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.DiscrTree.insertCore", 30);
+x_1 = lean_mk_string_unchecked("Lean.Meta.DiscrTree.insertCore", 30, 30);
 return x_1;
 }
 }
@@ -1495,7 +1495,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_Symm_i
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid key sequence", 20);
+x_1 = lean_mk_string_unchecked("invalid key sequence", 20, 20);
 return x_1;
 }
 }
@@ -1607,7 +1607,7 @@ static lean_object* _init_l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1615,7 +1615,7 @@ static lean_object* _init_l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -1623,7 +1623,7 @@ static lean_object* _init_l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Symm", 4);
+x_1 = lean_mk_string_unchecked("Symm", 4, 4);
 return x_1;
 }
 }
@@ -1631,7 +1631,7 @@ static lean_object* _init_l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("symmExt", 7);
+x_1 = lean_mk_string_unchecked("symmExt", 7, 7);
 return x_1;
 }
 }
@@ -2233,7 +2233,7 @@ static lean_object* _init_l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("@[symm] attribute only applies to lemmas proving x ∼ y → y ∼ x, got ", 74);
+x_1 = lean_mk_string_unchecked("@[symm] attribute only applies to lemmas proving x ∼ y → y ∼ x, got ", 74, 68);
 return x_1;
 }
 }
@@ -2250,7 +2250,7 @@ static lean_object* _init_l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -3330,7 +3330,7 @@ static lean_object* _init_l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attribute cannot be erased", 26);
+x_1 = lean_mk_string_unchecked("attribute cannot be erased", 26, 26);
 return x_1;
 }
 }
@@ -3386,7 +3386,7 @@ static lean_object* _init_l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -3404,7 +3404,7 @@ static lean_object* _init_l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -3442,7 +3442,7 @@ static lean_object* _init_l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -3470,7 +3470,7 @@ static lean_object* _init_l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -3498,7 +3498,7 @@ static lean_object* _init_l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("symm", 4);
+x_1 = lean_mk_string_unchecked("symm", 4, 4);
 return x_1;
 }
 }
@@ -3516,7 +3516,7 @@ static lean_object* _init_l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("symmetric relation", 18);
+x_1 = lean_mk_string_unchecked("symmetric relation", 18, 18);
 return x_1;
 }
 }
@@ -3652,7 +3652,7 @@ static lean_object* _init_l_Lean_Expr_getSymmLems___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("symmetry lemmas only apply to binary relations, not", 51);
+x_1 = lean_mk_string_unchecked("symmetry lemmas only apply to binary relations, not", 51, 51);
 return x_1;
 }
 }
@@ -3755,7 +3755,7 @@ static lean_object* _init_l_List_firstM___at_Lean_Expr_applySymm___spec__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed", 6);
+x_1 = lean_mk_string_unchecked("failed", 6, 6);
 return x_1;
 }
 }
@@ -4265,7 +4265,7 @@ static lean_object* _init_l_Lean_Expr_applySymm___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no applicable symmetry lemma found for ", 39);
+x_1 = lean_mk_string_unchecked("no applicable symmetry lemma found for ", 39, 39);
 return x_1;
 }
 }
@@ -6737,7 +6737,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_MVarId_symmSaturate
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_symm", 5);
+x_1 = lean_mk_string_unchecked("_symm", 5, 5);
 return x_1;
 }
 }

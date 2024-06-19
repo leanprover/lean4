@@ -166,7 +166,7 @@ static lean_object* _init_l_String_toNat_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.Data.String.Extra", 22);
+x_1 = lean_mk_string_unchecked("Init.Data.String.Extra", 22, 22);
 return x_1;
 }
 }
@@ -174,7 +174,7 @@ static lean_object* _init_l_String_toNat_x21___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("String.toNat!", 13);
+x_1 = lean_mk_string_unchecked("String.toNat!", 13, 13);
 return x_1;
 }
 }
@@ -182,7 +182,7 @@ static lean_object* _init_l_String_toNat_x21___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Nat expected", 12);
+x_1 = lean_mk_string_unchecked("Nat expected", 12, 12);
 return x_1;
 }
 }
@@ -833,7 +833,7 @@ static lean_object* _init_l_String_fromUTF8_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("String.fromUTF8!", 16);
+x_1 = lean_mk_string_unchecked("String.fromUTF8!", 16, 16);
 return x_1;
 }
 }
@@ -841,7 +841,7 @@ static lean_object* _init_l_String_fromUTF8_x21___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid UTF-8 string", 20);
+x_1 = lean_mk_string_unchecked("invalid UTF-8 string", 20, 20);
 return x_1;
 }
 }
@@ -1095,7 +1095,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticDecreasing_trivial", 24);
+x_1 = lean_mk_string_unchecked("tacticDecreasing_trivial", 24, 24);
 return x_1;
 }
 }
@@ -1113,7 +1113,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1121,7 +1121,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -1129,7 +1129,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -1137,7 +1137,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("withReducible", 13);
+x_1 = lean_mk_string_unchecked("withReducible", 13, 13);
 return x_1;
 }
 }
@@ -1157,7 +1157,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("with_reducible", 14);
+x_1 = lean_mk_string_unchecked("with_reducible", 14, 14);
 return x_1;
 }
 }
@@ -1165,7 +1165,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq", 9);
+x_1 = lean_mk_string_unchecked("tacticSeq", 9, 9);
 return x_1;
 }
 }
@@ -1185,7 +1185,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq1Indented", 18);
+x_1 = lean_mk_string_unchecked("tacticSeq1Indented", 18, 18);
 return x_1;
 }
 }
@@ -1205,7 +1205,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -1223,7 +1223,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("apply", 5);
+x_1 = lean_mk_string_unchecked("apply", 5, 5);
 return x_1;
 }
 }
@@ -1243,7 +1243,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("String.Iterator.sizeOf_next_lt_of_hasNext", 41);
+x_1 = lean_mk_string_unchecked("String.Iterator.sizeOf_next_lt_of_hasNext", 41, 41);
 return x_1;
 }
 }
@@ -1260,7 +1260,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("String", 6);
+x_1 = lean_mk_string_unchecked("String", 6, 6);
 return x_1;
 }
 }
@@ -1268,7 +1268,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Iterator", 8);
+x_1 = lean_mk_string_unchecked("Iterator", 8, 8);
 return x_1;
 }
 }
@@ -1276,7 +1276,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sizeOf_next_lt_of_hasNext", 25);
+x_1 = lean_mk_string_unchecked("sizeOf_next_lt_of_hasNext", 25, 25);
 return x_1;
 }
 }
@@ -1319,7 +1319,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(";", 1);
+x_1 = lean_mk_string_unchecked(";", 1, 1);
 return x_1;
 }
 }
@@ -1327,7 +1327,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("assumption", 10);
+x_1 = lean_mk_string_unchecked("assumption", 10, 10);
 return x_1;
 }
 }
@@ -1430,7 +1430,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("String.Iterator.sizeOf_next_lt_of_atEnd", 39);
+x_1 = lean_mk_string_unchecked("String.Iterator.sizeOf_next_lt_of_atEnd", 39, 39);
 return x_1;
 }
 }
@@ -1447,7 +1447,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sizeOf_next_lt_of_atEnd", 23);
+x_1 = lean_mk_string_unchecked("sizeOf_next_lt_of_atEnd", 23, 23);
 return x_1;
 }
 }
@@ -1948,7 +1948,7 @@ static lean_object* _init_l___private_Init_Data_String_Extra_0__String_removeNum
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }

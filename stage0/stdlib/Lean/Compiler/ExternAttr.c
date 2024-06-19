@@ -367,7 +367,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("string literal expected", 23);
+x_1 = lean_mk_string_unchecked("string literal expected", 23, 23);
 return x_1;
 }
 }
@@ -384,7 +384,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("all", 3);
+x_1 = lean_mk_string_unchecked("all", 3, 3);
 return x_1;
 }
 }
@@ -1143,7 +1143,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_69
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1151,7 +1151,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_69
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("externAttr", 10);
+x_1 = lean_mk_string_unchecked("externAttr", 10, 10);
 return x_1;
 }
 }
@@ -1169,7 +1169,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_69
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("extern", 6);
+x_1 = lean_mk_string_unchecked("extern", 6, 6);
 return x_1;
 }
 }
@@ -1187,7 +1187,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_69
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtin and foreign functions", 29);
+x_1 = lean_mk_string_unchecked("builtin and foreign functions", 29, 29);
 return x_1;
 }
 }
@@ -1415,7 +1415,7 @@ static lean_object* _init_l_Lean_expandExternPatternAux___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -1588,7 +1588,7 @@ static lean_object* _init_l_Lean_mkSimpleFnCall___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -1596,7 +1596,7 @@ static lean_object* _init_l_Lean_mkSimpleFnCall___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", ", 2);
+x_1 = lean_mk_string_unchecked(", ", 2, 2);
 return x_1;
 }
 }
@@ -1604,7 +1604,7 @@ static lean_object* _init_l_Lean_mkSimpleFnCall___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -2808,7 +2808,7 @@ static lean_object* _init_l_Lean_getExternConstArityExport___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("internal exception #", 20);
+x_1 = lean_mk_string_unchecked("internal exception #", 20, 20);
 return x_1;
 }
 }
@@ -2847,7 +2847,7 @@ static lean_object* _init_l_Lean_getExternConstArityExport___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_uniq", 5);
+x_1 = lean_mk_string_unchecked("_uniq", 5, 5);
 return x_1;
 }
 }
@@ -2914,7 +2914,7 @@ static lean_object* _init_l_Lean_getExternConstArityExport___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("<compiler>", 10);
+x_1 = lean_mk_string_unchecked("<compiler>", 10, 10);
 return x_1;
 }
 }

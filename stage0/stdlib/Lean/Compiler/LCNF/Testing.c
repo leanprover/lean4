@@ -228,7 +228,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Code_containsConst_goExpr___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.Testing", 26);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.Testing", 26, 26);
 return x_1;
 }
 }
@@ -236,7 +236,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Code_containsConst_goExpr___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.Code.containsConst.goExpr", 44);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.Code.containsConst.goExpr", 44, 44);
 return x_1;
 }
 }
@@ -244,7 +244,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Code_containsConst_goExpr___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -1026,7 +1026,7 @@ static lean_object* _init_l_Lean_addTrace___at___private_Lean_Compiler_LCNF_Test
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -1422,7 +1422,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compile
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Post condition test ", 20);
+x_1 = lean_mk_string_unchecked("Post condition test ", 20, 20);
 return x_1;
 }
 }
@@ -1439,7 +1439,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compile
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" for ", 5);
+x_1 = lean_mk_string_unchecked(" for ", 5, 5);
 return x_1;
 }
 }
@@ -1456,7 +1456,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compile
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" occurrence ", 12);
+x_1 = lean_mk_string_unchecked(" occurrence ", 12, 12);
 return x_1;
 }
 }
@@ -1473,7 +1473,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compile
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" successful", 11);
+x_1 = lean_mk_string_unchecked(" successful", 11, 11);
 return x_1;
 }
 }
@@ -1643,7 +1643,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compile
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Compiler", 8);
+x_1 = lean_mk_string_unchecked("Compiler", 8, 8);
 return x_1;
 }
 }
@@ -1651,7 +1651,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compile
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("test", 4);
+x_1 = lean_mk_string_unchecked("test", 4, 4);
 return x_1;
 }
 }
@@ -1669,7 +1669,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compile
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Starting post condition test ", 29);
+x_1 = lean_mk_string_unchecked("Starting post condition test ", 29, 29);
 return x_1;
 }
 }
@@ -2369,7 +2369,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compile
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Wrapper test ", 13);
+x_1 = lean_mk_string_unchecked("Wrapper test ", 13, 13);
 return x_1;
 }
 }
@@ -2588,7 +2588,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compile
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Starting wrapper test ", 22);
+x_1 = lean_mk_string_unchecked("Starting wrapper test ", 22, 22);
 return x_1;
 }
 }
@@ -2949,7 +2949,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at___private_Lean_Compiler
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -3038,7 +3038,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compile
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Result after usual run:", 23);
+x_1 = lean_mk_string_unchecked("Result after usual run:", 23, 23);
 return x_1;
 }
 }
@@ -3046,7 +3046,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compile
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Result after further run:", 25);
+x_1 = lean_mk_string_unchecked("Result after further run:", 25, 25);
 return x_1;
 }
 }
@@ -3300,7 +3300,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Testing_assertIsAtFixPoint___lamb
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Pass ", 5);
+x_1 = lean_mk_string_unchecked("Pass ", 5, 5);
 return x_1;
 }
 }
@@ -3308,7 +3308,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Testing_assertIsAtFixPoint___lamb
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" did not reach a fixpoint, it either changed declarations or their order:\n", 74);
+x_1 = lean_mk_string_unchecked(" did not reach a fixpoint, it either changed declarations or their order:\n", 74, 74);
 return x_1;
 }
 }
@@ -3316,7 +3316,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Testing_assertIsAtFixPoint___lamb
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" did not reach a fixpoint, it removed declarations on further runs:\n", 68);
+x_1 = lean_mk_string_unchecked(" did not reach a fixpoint, it removed declarations on further runs:\n", 68, 68);
 return x_1;
 }
 }
@@ -3324,7 +3324,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Testing_assertIsAtFixPoint___lamb
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" did not reach a fixpoint, it added declarations on further runs:\n", 66);
+x_1 = lean_mk_string_unchecked(" did not reach a fixpoint, it added declarations on further runs:\n", 66, 66);
 return x_1;
 }
 }
@@ -3784,7 +3784,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Testing_assertSize___lambda__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": input size ", 13);
+x_1 = lean_mk_string_unchecked(": input size ", 13, 13);
 return x_1;
 }
 }
@@ -3792,7 +3792,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Testing_assertSize___lambda__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" output size ", 13);
+x_1 = lean_mk_string_unchecked(" output size ", 13, 13);
 return x_1;
 }
 }
@@ -4701,7 +4701,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_Testi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declaration `", 13);
+x_1 = lean_mk_string_unchecked("declaration `", 13, 13);
 return x_1;
 }
 }
@@ -4718,7 +4718,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_Testi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` contains a local function declaration", 39);
+x_1 = lean_mk_string_unchecked("` contains a local function declaration", 39, 39);
 return x_1;
 }
 }

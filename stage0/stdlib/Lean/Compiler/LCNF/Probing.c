@@ -7091,7 +7091,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Probe_runOnModule___rarg___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("module `", 8);
+x_1 = lean_mk_string_unchecked("module `", 8, 8);
 return x_1;
 }
 }
@@ -7108,7 +7108,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Probe_runOnModule___rarg___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` not found", 11);
+x_1 = lean_mk_string_unchecked("` not found", 11, 11);
 return x_1;
 }
 }
@@ -7506,7 +7506,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Compiler_LCNF_Probe_toPass__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -7893,7 +7893,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Probe_toPass___elambda__1___rarg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Compiler", 8);
+x_1 = lean_mk_string_unchecked("Compiler", 8, 8);
 return x_1;
 }
 }
@@ -7901,7 +7901,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Probe_toPass___elambda__1___rarg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("probe", 5);
+x_1 = lean_mk_string_unchecked("probe", 5, 5);
 return x_1;
 }
 }
@@ -7919,7 +7919,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Probe_toPass___elambda__1___rarg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#", 1);
+x_1 = lean_mk_string_unchecked("#", 1, 1);
 return x_1;
 }
 }
@@ -8147,7 +8147,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Probe_initFn____x40_Lean_Compiler
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -8175,7 +8175,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Probe_initFn____x40_Lean_Compiler
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LCNF", 4);
+x_1 = lean_mk_string_unchecked("LCNF", 4, 4);
 return x_1;
 }
 }
@@ -8193,7 +8193,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Probe_initFn____x40_Lean_Compiler
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Probe", 5);
+x_1 = lean_mk_string_unchecked("Probe", 5, 5);
 return x_1;
 }
 }
@@ -8211,7 +8211,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Probe_initFn____x40_Lean_Compiler
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -8229,7 +8229,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Probe_initFn____x40_Lean_Compiler
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -8277,7 +8277,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Probe_initFn____x40_Lean_Compiler
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Probing", 7);
+x_1 = lean_mk_string_unchecked("Probing", 7, 7);
 return x_1;
 }
 }
@@ -8295,7 +8295,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Probe_initFn____x40_Lean_Compiler
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }

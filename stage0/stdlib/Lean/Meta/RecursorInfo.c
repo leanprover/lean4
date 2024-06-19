@@ -347,7 +347,7 @@ static lean_object* _init_l_Lean_Meta_instToStringRecursorUnivLevelPos___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("<motive-univ>", 13);
+x_1 = lean_mk_string_unchecked("<motive-univ>", 13, 13);
 return x_1;
 }
 }
@@ -537,7 +537,7 @@ static lean_object* _init_l_List_foldl___at_Lean_Meta_RecursorInfo_instToString_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", ", 2);
+x_1 = lean_mk_string_unchecked(", ", 2, 2);
 return x_1;
 }
 }
@@ -587,7 +587,7 @@ static lean_object* _init_l_List_toString___at_Lean_Meta_RecursorInfo_instToStri
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[]", 2);
+x_1 = lean_mk_string_unchecked("[]", 2, 2);
 return x_1;
 }
 }
@@ -595,7 +595,7 @@ static lean_object* _init_l_List_toString___at_Lean_Meta_RecursorInfo_instToStri
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -613,7 +613,7 @@ static lean_object* _init_l_List_toString___at_Lean_Meta_RecursorInfo_instToStri
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -705,7 +705,7 @@ static lean_object* _init_l_List_foldl___at_Lean_Meta_RecursorInfo_instToString_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("none", 4);
+x_1 = lean_mk_string_unchecked("none", 4, 4);
 return x_1;
 }
 }
@@ -713,7 +713,7 @@ static lean_object* _init_l_List_foldl___at_Lean_Meta_RecursorInfo_instToString_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(some ", 6);
+x_1 = lean_mk_string_unchecked("(some ", 6, 6);
 return x_1;
 }
 }
@@ -721,7 +721,7 @@ static lean_object* _init_l_List_foldl___at_Lean_Meta_RecursorInfo_instToString_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -958,7 +958,7 @@ static lean_object* _init_l_List_foldl___at_Lean_Meta_RecursorInfo_instToString_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("false", 5);
+x_1 = lean_mk_string_unchecked("false", 5, 5);
 return x_1;
 }
 }
@@ -966,7 +966,7 @@ static lean_object* _init_l_List_foldl___at_Lean_Meta_RecursorInfo_instToString_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("true", 4);
+x_1 = lean_mk_string_unchecked("true", 4, 4);
 return x_1;
 }
 }
@@ -1107,7 +1107,7 @@ static lean_object* _init_l_Lean_Meta_RecursorInfo_instToString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("{\n", 2);
+x_1 = lean_mk_string_unchecked("{\n", 2, 2);
 return x_1;
 }
 }
@@ -1115,7 +1115,7 @@ static lean_object* _init_l_Lean_Meta_RecursorInfo_instToString___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("  name           := ", 20);
+x_1 = lean_mk_string_unchecked("  name           := ", 20, 20);
 return x_1;
 }
 }
@@ -1133,7 +1133,7 @@ static lean_object* _init_l_Lean_Meta_RecursorInfo_instToString___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -1141,7 +1141,7 @@ static lean_object* _init_l_Lean_Meta_RecursorInfo_instToString___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("  type           := ", 20);
+x_1 = lean_mk_string_unchecked("  type           := ", 20, 20);
 return x_1;
 }
 }
@@ -1149,7 +1149,7 @@ static lean_object* _init_l_Lean_Meta_RecursorInfo_instToString___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("  univs          := ", 20);
+x_1 = lean_mk_string_unchecked("  univs          := ", 20, 20);
 return x_1;
 }
 }
@@ -1157,7 +1157,7 @@ static lean_object* _init_l_Lean_Meta_RecursorInfo_instToString___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("  depElim        := ", 20);
+x_1 = lean_mk_string_unchecked("  depElim        := ", 20, 20);
 return x_1;
 }
 }
@@ -1165,7 +1165,7 @@ static lean_object* _init_l_Lean_Meta_RecursorInfo_instToString___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("  recursive      := ", 20);
+x_1 = lean_mk_string_unchecked("  recursive      := ", 20, 20);
 return x_1;
 }
 }
@@ -1173,7 +1173,7 @@ static lean_object* _init_l_Lean_Meta_RecursorInfo_instToString___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("  numArgs        := ", 20);
+x_1 = lean_mk_string_unchecked("  numArgs        := ", 20, 20);
 return x_1;
 }
 }
@@ -1181,7 +1181,7 @@ static lean_object* _init_l_Lean_Meta_RecursorInfo_instToString___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("  numParams      := ", 20);
+x_1 = lean_mk_string_unchecked("  numParams      := ", 20, 20);
 return x_1;
 }
 }
@@ -1189,7 +1189,7 @@ static lean_object* _init_l_Lean_Meta_RecursorInfo_instToString___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("  numIndices     := ", 20);
+x_1 = lean_mk_string_unchecked("  numIndices     := ", 20, 20);
 return x_1;
 }
 }
@@ -1197,7 +1197,7 @@ static lean_object* _init_l_Lean_Meta_RecursorInfo_instToString___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("  numMinors      := ", 20);
+x_1 = lean_mk_string_unchecked("  numMinors      := ", 20, 20);
 return x_1;
 }
 }
@@ -1205,7 +1205,7 @@ static lean_object* _init_l_Lean_Meta_RecursorInfo_instToString___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("  major          := ", 20);
+x_1 = lean_mk_string_unchecked("  major          := ", 20, 20);
 return x_1;
 }
 }
@@ -1213,7 +1213,7 @@ static lean_object* _init_l_Lean_Meta_RecursorInfo_instToString___closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("  motive         := ", 20);
+x_1 = lean_mk_string_unchecked("  motive         := ", 20, 20);
 return x_1;
 }
 }
@@ -1221,7 +1221,7 @@ static lean_object* _init_l_Lean_Meta_RecursorInfo_instToString___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("  paramsAtMajor  := ", 20);
+x_1 = lean_mk_string_unchecked("  paramsAtMajor  := ", 20, 20);
 return x_1;
 }
 }
@@ -1229,7 +1229,7 @@ static lean_object* _init_l_Lean_Meta_RecursorInfo_instToString___closed__16() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("  indicesAtMajor := ", 20);
+x_1 = lean_mk_string_unchecked("  indicesAtMajor := ", 20, 20);
 return x_1;
 }
 }
@@ -1237,7 +1237,7 @@ static lean_object* _init_l_Lean_Meta_RecursorInfo_instToString___closed__17() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("  produceMotive  := ", 20);
+x_1 = lean_mk_string_unchecked("  produceMotive  := ", 20, 20);
 return x_1;
 }
 }
@@ -1245,7 +1245,7 @@ static lean_object* _init_l_Lean_Meta_RecursorInfo_instToString___closed__18() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("}", 1);
+x_1 = lean_mk_string_unchecked("}", 1, 1);
 return x_1;
 }
 }
@@ -1458,7 +1458,7 @@ static lean_object* _init_l_Lean_getConstInfoInduct___at___private_Lean_Meta_Rec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -1475,7 +1475,7 @@ static lean_object* _init_l_Lean_getConstInfoInduct___at___private_Lean_Meta_Rec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' is not a inductive type", 25);
+x_1 = lean_mk_string_unchecked("' is not a inductive type", 25, 25);
 return x_1;
 }
 }
@@ -2035,7 +2035,7 @@ static lean_object* _init_l_Lean_getConstInfoRec___at___private_Lean_Meta_Recurs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' is not a recursor", 19);
+x_1 = lean_mk_string_unchecked("' is not a recursor", 19, 19);
 return x_1;
 }
 }
@@ -2141,7 +2141,7 @@ static lean_object* _init_l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMaj
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rec", 3);
+x_1 = lean_mk_string_unchecked("rec", 3, 3);
 return x_1;
 }
 }
@@ -2640,7 +2640,7 @@ static lean_object* _init_l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkM
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid user defined recursor '", 31);
+x_1 = lean_mk_string_unchecked("invalid user defined recursor '", 31, 31);
 return x_1;
 }
 }
@@ -2657,7 +2657,7 @@ static lean_object* _init_l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkM
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', result type must be of the form (C t), where C is a bound variable, and t is a (possibly empty) sequence of bound variables", 126);
+x_1 = lean_mk_string_unchecked("', result type must be of the form (C t), where C is a bound variable, and t is a (possibly empty) sequence of bound variables", 126, 126);
 return x_1;
 }
 }
@@ -2972,7 +2972,7 @@ static lean_object* _init_l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMaj
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ill-formed recursor '", 21);
+x_1 = lean_mk_string_unchecked("ill-formed recursor '", 21, 21);
 return x_1;
 }
 }
@@ -3035,7 +3035,7 @@ static lean_object* _init_l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMaj
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid user defined recursor, '", 32);
+x_1 = lean_mk_string_unchecked("invalid user defined recursor, '", 32, 32);
 return x_1;
 }
 }
@@ -3052,7 +3052,7 @@ static lean_object* _init_l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMaj
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' does not support dependent elimination, and position of the major premise was not specified (solution: set attribute '[recursor <pos>]', where <pos> is the position of the major premise)", 188);
+x_1 = lean_mk_string_unchecked("' does not support dependent elimination, and position of the major premise was not specified (solution: set attribute '[recursor <pos>]', where <pos> is the position of the major premise)", 188, 188);
 return x_1;
 }
 }
@@ -3069,7 +3069,7 @@ static lean_object* _init_l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMaj
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid major premise position for user defined recursor, recursor has only ", 76);
+x_1 = lean_mk_string_unchecked("invalid major premise position for user defined recursor, recursor has only ", 76, 76);
 return x_1;
 }
 }
@@ -3086,7 +3086,7 @@ static lean_object* _init_l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMaj
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" arguments", 10);
+x_1 = lean_mk_string_unchecked(" arguments", 10, 10);
 return x_1;
 }
 }
@@ -3646,7 +3646,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Meta_Recurs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', type of the major premise does not contain the recursor parameter", 68);
+x_1 = lean_mk_string_unchecked("', type of the major premise does not contain the recursor parameter", 68, 68);
 return x_1;
 }
 }
@@ -4340,7 +4340,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Meta_Recurs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', type of the major premise does not contain the recursor index", 64);
+x_1 = lean_mk_string_unchecked("', type of the major premise does not contain the recursor index", 64, 64);
 return x_1;
 }
 }
@@ -4701,7 +4701,7 @@ static lean_object* _init_l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMot
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', motive result sort must be Prop or (Sort u) where u is a universe level parameter", 84);
+x_1 = lean_mk_string_unchecked("', motive result sort must be Prop or (Sort u) where u is a universe level parameter", 84, 84);
 return x_1;
 }
 }
@@ -4812,7 +4812,7 @@ static lean_object* _init_l_List_forIn_loop___at___private_Lean_Meta_RecursorInf
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', major premise type does not contain universe level parameter '", 65);
+x_1 = lean_mk_string_unchecked("', major premise type does not contain universe level parameter '", 65, 65);
 return x_1;
 }
 }
@@ -6170,7 +6170,7 @@ static lean_object* _init_l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkM
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', motive must have a type of the form (C : Pi (i : B A), I A i -> Type), where A is (possibly empty) sequence of variables (aka parameters), (i : B A) is a (possibly empty) telescope (aka indices), and I is a constant", 218);
+x_1 = lean_mk_string_unchecked("', motive must have a type of the form (C : Pi (i : B A), I A i -> Type), where A is (possibly empty) sequence of variables (aka parameters), (i : B A) is a (possibly empty) telescope (aka indices), and I is a constant", 218, 218);
 return x_1;
 }
 }
@@ -6525,7 +6525,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at___private_Lean_Meta_Recurs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', type of the major premise must be of the form (I ...), where I is a constant", 79);
+x_1 = lean_mk_string_unchecked("', type of the major premise must be of the form (I ...), where I is a constant", 79, 79);
 return x_1;
 }
 }
@@ -6847,7 +6847,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at___private_Lean_Meta_Recurs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', indices must occur before major premise", 42);
+x_1 = lean_mk_string_unchecked("', indices must occur before major premise", 42, 42);
 return x_1;
 }
 }
@@ -9391,7 +9391,7 @@ static lean_object* _init_l_Lean_Meta_Attribute_Recursor_getMajorPos___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -9399,7 +9399,7 @@ static lean_object* _init_l_Lean_Meta_Attribute_Recursor_getMajorPos___closed__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -9407,7 +9407,7 @@ static lean_object* _init_l_Lean_Meta_Attribute_Recursor_getMajorPos___closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Attr", 4);
+x_1 = lean_mk_string_unchecked("Attr", 4, 4);
 return x_1;
 }
 }
@@ -9415,7 +9415,7 @@ static lean_object* _init_l_Lean_Meta_Attribute_Recursor_getMajorPos___closed__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("recursor", 8);
+x_1 = lean_mk_string_unchecked("recursor", 8, 8);
 return x_1;
 }
 }
@@ -9435,7 +9435,7 @@ static lean_object* _init_l_Lean_Meta_Attribute_Recursor_getMajorPos___closed__6
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected attribute argument, numeral expected", 47);
+x_1 = lean_mk_string_unchecked("unexpected attribute argument, numeral expected", 47, 47);
 return x_1;
 }
 }
@@ -9460,7 +9460,7 @@ static lean_object* _init_l_Lean_Meta_Attribute_Recursor_getMajorPos___closed__9
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("major premise position must be greater than zero", 48);
+x_1 = lean_mk_string_unchecked("major premise position must be greater than zero", 48, 48);
 return x_1;
 }
 }
@@ -9969,7 +9969,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -9977,7 +9977,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("recursorAttribute", 17);
+x_1 = lean_mk_string_unchecked("recursorAttribute", 17, 17);
 return x_1;
 }
 }
@@ -10006,7 +10006,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("user defined recursor, numerical parameter specifies position of the major premise", 82);
+x_1 = lean_mk_string_unchecked("user defined recursor, numerical parameter specifies position of the major premise", 82, 82);
 return x_1;
 }
 }

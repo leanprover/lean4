@@ -987,7 +987,7 @@ static lean_object* _init_l_Lean_Parser_instInhabitedInputContext___closed__2() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -1363,7 +1363,7 @@ static lean_object* _init_l___private_Lean_Parser_Types_0__Lean_Parser_Error_exp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" or ", 4);
+x_1 = lean_mk_string_unchecked(" or ", 4, 4);
 return x_1;
 }
 }
@@ -1371,7 +1371,7 @@ static lean_object* _init_l___private_Lean_Parser_Types_0__Lean_Parser_Error_exp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", ", 2);
+x_1 = lean_mk_string_unchecked(", ", 2, 2);
 return x_1;
 }
 }
@@ -1586,7 +1586,7 @@ static lean_object* _init_l_Lean_Parser_Error_toString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected ", 9);
+x_1 = lean_mk_string_unchecked("expected ", 9, 9);
 return x_1;
 }
 }
@@ -1594,7 +1594,7 @@ static lean_object* _init_l_Lean_Parser_Error_toString___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("; ", 2);
+x_1 = lean_mk_string_unchecked("; ", 2, 2);
 return x_1;
 }
 }
@@ -2178,7 +2178,7 @@ static lean_object* _init_l_Lean_Parser_SyntaxStack_back___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Parser.Types", 17);
+x_1 = lean_mk_string_unchecked("Lean.Parser.Types", 17, 17);
 return x_1;
 }
 }
@@ -2186,7 +2186,7 @@ static lean_object* _init_l_Lean_Parser_SyntaxStack_back___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Parser.SyntaxStack.back", 28);
+x_1 = lean_mk_string_unchecked("Lean.Parser.SyntaxStack.back", 28, 28);
 return x_1;
 }
 }
@@ -2194,7 +2194,7 @@ static lean_object* _init_l_Lean_Parser_SyntaxStack_back___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("SyntaxStack.back: element is inaccessible", 41);
+x_1 = lean_mk_string_unchecked("SyntaxStack.back: element is inaccessible", 41, 41);
 return x_1;
 }
 }
@@ -2249,7 +2249,7 @@ static lean_object* _init_l_Lean_Parser_SyntaxStack_get_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Parser.SyntaxStack.get!", 28);
+x_1 = lean_mk_string_unchecked("Lean.Parser.SyntaxStack.get!", 28, 28);
 return x_1;
 }
 }
@@ -2257,7 +2257,7 @@ static lean_object* _init_l_Lean_Parser_SyntaxStack_get_x21___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("SyntaxStack.get!: element is inaccessible", 41);
+x_1 = lean_mk_string_unchecked("SyntaxStack.get!: element is inaccessible", 41, 41);
 return x_1;
 }
 }
@@ -3335,7 +3335,7 @@ static lean_object* _init_l_Lean_Parser_ParserState_mkEOIError___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected end of input", 23);
+x_1 = lean_mk_string_unchecked("unexpected end of input", 23, 23);
 return x_1;
 }
 }
@@ -3474,7 +3474,7 @@ static lean_object* _init_l_Lean_Parser_ParserState_mkUnexpectedTokenErrors___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.Data.Option.BasicAux", 25);
+x_1 = lean_mk_string_unchecked("Init.Data.Option.BasicAux", 25, 25);
 return x_1;
 }
 }
@@ -3482,7 +3482,7 @@ static lean_object* _init_l_Lean_Parser_ParserState_mkUnexpectedTokenErrors___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Option.get!", 11);
+x_1 = lean_mk_string_unchecked("Option.get!", 11, 11);
 return x_1;
 }
 }
@@ -3490,7 +3490,7 @@ static lean_object* _init_l_Lean_Parser_ParserState_mkUnexpectedTokenErrors___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("value is none", 13);
+x_1 = lean_mk_string_unchecked("value is none", 13, 13);
 return x_1;
 }
 }
@@ -3777,7 +3777,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Parser_ParserState_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -4229,7 +4229,7 @@ static lean_object* _init_l_List_toString___at_Lean_Parser_FirstTokens_toStr___s
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[]", 2);
+x_1 = lean_mk_string_unchecked("[]", 2, 2);
 return x_1;
 }
 }
@@ -4237,7 +4237,7 @@ static lean_object* _init_l_List_toString___at_Lean_Parser_FirstTokens_toStr___s
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -4245,7 +4245,7 @@ static lean_object* _init_l_List_toString___at_Lean_Parser_FirstTokens_toStr___s
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -4290,7 +4290,7 @@ static lean_object* _init_l_Lean_Parser_FirstTokens_toStr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("epsilon", 7);
+x_1 = lean_mk_string_unchecked("epsilon", 7, 7);
 return x_1;
 }
 }
@@ -4298,7 +4298,7 @@ static lean_object* _init_l_Lean_Parser_FirstTokens_toStr___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown", 7);
+x_1 = lean_mk_string_unchecked("unknown", 7, 7);
 return x_1;
 }
 }
@@ -4306,7 +4306,7 @@ static lean_object* _init_l_Lean_Parser_FirstTokens_toStr___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\?", 1);
+x_1 = lean_mk_string_unchecked("\?", 1, 1);
 return x_1;
 }
 }
@@ -6018,7 +6018,7 @@ static lean_object* _init_l_Lean_Parser_withCacheFn___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#", 1);
+x_1 = lean_mk_string_unchecked("#", 1, 1);
 return x_1;
 }
 }
@@ -6026,7 +6026,7 @@ static lean_object* _init_l_Lean_Parser_withCacheFn___lambda__2___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("withCacheFn: unexpected stack growth ", 37);
+x_1 = lean_mk_string_unchecked("withCacheFn: unexpected stack growth ", 37, 37);
 return x_1;
 }
 }
@@ -6034,7 +6034,7 @@ static lean_object* _init_l_Lean_Parser_withCacheFn___lambda__2___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Parser.withCacheFn", 23);
+x_1 = lean_mk_string_unchecked("Lean.Parser.withCacheFn", 23, 23);
 return x_1;
 }
 }

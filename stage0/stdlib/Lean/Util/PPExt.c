@@ -130,7 +130,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_PPExt___hyg_6____closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pp", 2);
+x_1 = lean_mk_string_unchecked("pp", 2, 2);
 return x_1;
 }
 }
@@ -138,7 +138,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_PPExt___hyg_6____closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("raw", 3);
+x_1 = lean_mk_string_unchecked("raw", 3, 3);
 return x_1;
 }
 }
@@ -156,7 +156,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_PPExt___hyg_6____closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(pretty printer) print raw expression/syntax tree", 49);
+x_1 = lean_mk_string_unchecked("(pretty printer) print raw expression/syntax tree", 49, 49);
 return x_1;
 }
 }
@@ -179,7 +179,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_PPExt___hyg_6____closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -209,7 +209,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_PPExt___hyg_48____close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("showInfo", 8);
+x_1 = lean_mk_string_unchecked("showInfo", 8, 8);
 return x_1;
 }
 }
@@ -228,7 +228,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_PPExt___hyg_48____close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(pretty printer) print `SourceInfo` metadata with raw printer", 61);
+x_1 = lean_mk_string_unchecked("(pretty printer) print `SourceInfo` metadata with raw printer", 61, 61);
 return x_1;
 }
 }
@@ -274,7 +274,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_PPExt___hyg_90____close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("maxDepth", 8);
+x_1 = lean_mk_string_unchecked("maxDepth", 8, 8);
 return x_1;
 }
 }
@@ -293,7 +293,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_PPExt___hyg_90____close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(pretty printer) maximum `Syntax` depth for raw printer", 55);
+x_1 = lean_mk_string_unchecked("(pretty printer) maximum `Syntax` depth for raw printer", 55, 55);
 return x_1;
 }
 }
@@ -338,7 +338,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_PPExt___hyg_132____clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rawOnError", 10);
+x_1 = lean_mk_string_unchecked("rawOnError", 10, 10);
 return x_1;
 }
 }
@@ -356,7 +356,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_PPExt___hyg_132____clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(pretty printer) fallback to 'raw' printer when pretty printer fails", 68);
+x_1 = lean_mk_string_unchecked("(pretty printer) fallback to 'raw' printer when pretty printer fails", 68, 68);
 return x_1;
 }
 }
@@ -546,7 +546,7 @@ static lean_object* _init_l_Lean_instInhabitedPPFns___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -674,7 +674,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_PPExt___hyg_371____lamb
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("goal", 4);
+x_1 = lean_mk_string_unchecked("goal", 4, 4);
 return x_1;
 }
 }
@@ -890,7 +890,7 @@ static lean_object* _init_l_Lean_ppExprWithInfos___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to pretty print expression (use 'set_option pp.rawOnError true' for raw representation)", 94);
+x_1 = lean_mk_string_unchecked("failed to pretty print expression (use 'set_option pp.rawOnError true' for raw representation)", 94, 94);
 return x_1;
 }
 }
@@ -920,7 +920,7 @@ static lean_object* _init_l_Lean_ppExprWithInfos___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[Error pretty printing expression: ", 35);
+x_1 = lean_mk_string_unchecked("[Error pretty printing expression: ", 35, 35);
 return x_1;
 }
 }
@@ -938,7 +938,7 @@ static lean_object* _init_l_Lean_ppExprWithInfos___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(". Falling back to raw printer.]", 31);
+x_1 = lean_mk_string_unchecked(". Falling back to raw printer.]", 31, 31);
 return x_1;
 }
 }
@@ -1148,7 +1148,7 @@ static lean_object* _init_l_Lean_ppTerm___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to pretty print term (use 'set_option pp.rawOnError true' for raw representation)", 88);
+x_1 = lean_mk_string_unchecked("failed to pretty print term (use 'set_option pp.rawOnError true' for raw representation)", 88, 88);
 return x_1;
 }
 }
@@ -1166,7 +1166,7 @@ static lean_object* _init_l_Lean_ppTerm___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[Error pretty printing syntax: ", 31);
+x_1 = lean_mk_string_unchecked("[Error pretty printing syntax: ", 31, 31);
 return x_1;
 }
 }

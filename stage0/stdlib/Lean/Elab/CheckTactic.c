@@ -409,7 +409,7 @@ static lean_object* _init_l_Lean_Elab_CheckTactic_elabCheckTactic___lambda__2___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -426,7 +426,7 @@ static lean_object* _init_l_Lean_Elab_CheckTactic_elabCheckTactic___lambda__2___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" closed goal, but is expected to reduce to ", 43);
+x_1 = lean_mk_string_unchecked(" closed goal, but is expected to reduce to ", 43, 43);
 return x_1;
 }
 }
@@ -443,7 +443,7 @@ static lean_object* _init_l_Lean_Elab_CheckTactic_elabCheckTactic___lambda__2___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -460,7 +460,7 @@ static lean_object* _init_l_Lean_Elab_CheckTactic_elabCheckTactic___lambda__2___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term reduces to", 15);
+x_1 = lean_mk_string_unchecked("Term reduces to", 15, 15);
 return x_1;
 }
 }
@@ -477,7 +477,7 @@ static lean_object* _init_l_Lean_Elab_CheckTactic_elabCheckTactic___lambda__2___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nbut is expected to reduce to ", 30);
+x_1 = lean_mk_string_unchecked("\nbut is expected to reduce to ", 30, 30);
 return x_1;
 }
 }
@@ -494,7 +494,7 @@ static lean_object* _init_l_Lean_Elab_CheckTactic_elabCheckTactic___lambda__2___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" produced multiple goals, but is expected to reduce to ", 55);
+x_1 = lean_mk_string_unchecked(" produced multiple goals, but is expected to reduce to ", 55, 55);
 return x_1;
 }
 }
@@ -3274,7 +3274,7 @@ static lean_object* _init_l_Lean_Elab_CheckTactic_elabCheckTactic___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -3282,7 +3282,7 @@ static lean_object* _init_l_Lean_Elab_CheckTactic_elabCheckTactic___closed__2() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -3290,7 +3290,7 @@ static lean_object* _init_l_Lean_Elab_CheckTactic_elabCheckTactic___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("checkTactic", 11);
+x_1 = lean_mk_string_unchecked("checkTactic", 11, 11);
 return x_1;
 }
 }
@@ -3461,7 +3461,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_CheckTactic_elabCheckTactic__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -3469,7 +3469,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_CheckTactic_elabCheckTactic__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CheckTactic", 11);
+x_1 = lean_mk_string_unchecked("CheckTactic", 11, 11);
 return x_1;
 }
 }
@@ -3477,7 +3477,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_CheckTactic_elabCheckTactic__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elabCheckTactic", 15);
+x_1 = lean_mk_string_unchecked("elabCheckTactic", 15, 15);
 return x_1;
 }
 }
@@ -3971,7 +3971,7 @@ static lean_object* _init_l_Lean_Elab_CheckTactic_elabCheckTacticFailure___lambd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" expected to fail on ", 21);
+x_1 = lean_mk_string_unchecked(" expected to fail on ", 21, 21);
 return x_1;
 }
 }
@@ -3988,7 +3988,7 @@ static lean_object* _init_l_Lean_Elab_CheckTactic_elabCheckTacticFailure___lambd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", but closed goal.", 18);
+x_1 = lean_mk_string_unchecked(", but closed goal.", 18, 18);
 return x_1;
 }
 }
@@ -4005,7 +4005,7 @@ static lean_object* _init_l_Lean_Elab_CheckTactic_elabCheckTacticFailure___lambd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", but returned: ", 16);
+x_1 = lean_mk_string_unchecked(", but returned: ", 16, 16);
 return x_1;
 }
 }
@@ -4022,7 +4022,7 @@ static lean_object* _init_l_Lean_Elab_CheckTactic_elabCheckTacticFailure___lambd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", but returned goals:", 21);
+x_1 = lean_mk_string_unchecked(", but returned goals:", 21, 21);
 return x_1;
 }
 }
@@ -5205,7 +5205,7 @@ static lean_object* _init_l_Lean_Elab_CheckTactic_elabCheckTacticFailure___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("checkTacticFailure", 18);
+x_1 = lean_mk_string_unchecked("checkTacticFailure", 18, 18);
 return x_1;
 }
 }
@@ -5364,7 +5364,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_CheckTactic_elabCheckTacticFa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elabCheckTacticFailure", 22);
+x_1 = lean_mk_string_unchecked("elabCheckTacticFailure", 22, 22);
 return x_1;
 }
 }
@@ -5506,7 +5506,7 @@ static lean_object* _init_l_Lean_Elab_CheckTactic_expandCheckSimp___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("checkSimp", 9);
+x_1 = lean_mk_string_unchecked("checkSimp", 9, 9);
 return x_1;
 }
 }
@@ -5525,7 +5525,7 @@ static lean_object* _init_l_Lean_Elab_CheckTactic_expandCheckSimp___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#check_tactic", 13);
+x_1 = lean_mk_string_unchecked("#check_tactic", 13, 13);
 return x_1;
 }
 }
@@ -5533,7 +5533,7 @@ static lean_object* _init_l_Lean_Elab_CheckTactic_expandCheckSimp___closed__4() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("~>", 2);
+x_1 = lean_mk_string_unchecked("~>", 2, 2);
 return x_1;
 }
 }
@@ -5541,7 +5541,7 @@ static lean_object* _init_l_Lean_Elab_CheckTactic_expandCheckSimp___closed__5() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("by", 2);
+x_1 = lean_mk_string_unchecked("by", 2, 2);
 return x_1;
 }
 }
@@ -5549,7 +5549,7 @@ static lean_object* _init_l_Lean_Elab_CheckTactic_expandCheckSimp___closed__6() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -5557,7 +5557,7 @@ static lean_object* _init_l_Lean_Elab_CheckTactic_expandCheckSimp___closed__7() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simp", 4);
+x_1 = lean_mk_string_unchecked("simp", 4, 4);
 return x_1;
 }
 }
@@ -5577,7 +5577,7 @@ static lean_object* _init_l_Lean_Elab_CheckTactic_expandCheckSimp___closed__9() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -5681,7 +5681,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_CheckTactic_expandCheckSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expandCheckSimp", 15);
+x_1 = lean_mk_string_unchecked("expandCheckSimp", 15, 15);
 return x_1;
 }
 }
@@ -5831,7 +5831,7 @@ static lean_object* _init_l_Lean_Elab_CheckTactic_expandCheckSimpFailure___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("checkSimpFailure", 16);
+x_1 = lean_mk_string_unchecked("checkSimpFailure", 16, 16);
 return x_1;
 }
 }
@@ -5850,7 +5850,7 @@ static lean_object* _init_l_Lean_Elab_CheckTactic_expandCheckSimpFailure___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#check_tactic_failure", 21);
+x_1 = lean_mk_string_unchecked("#check_tactic_failure", 21, 21);
 return x_1;
 }
 }
@@ -5928,7 +5928,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_CheckTactic_expandCheckSimpFa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expandCheckSimpFailure", 22);
+x_1 = lean_mk_string_unchecked("expandCheckSimpFailure", 22, 22);
 return x_1;
 }
 }

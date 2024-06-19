@@ -697,7 +697,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("linter", 6);
+x_1 = lean_mk_string_unchecked("linter", 6, 6);
 return x_1;
 }
 }
@@ -705,7 +705,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unusedRCasesPattern", 19);
+x_1 = lean_mk_string_unchecked("unusedRCasesPattern", 19, 19);
 return x_1;
 }
 }
@@ -723,7 +723,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -731,7 +731,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("enable the 'unused rcases pattern' linter", 41);
+x_1 = lean_mk_string_unchecked("enable the 'unused rcases pattern' linter", 41, 41);
 return x_1;
 }
 }
@@ -754,7 +754,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -762,7 +762,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -770,7 +770,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -778,7 +778,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_initFn____x40_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("RCases", 6);
+x_1 = lean_mk_string_unchecked("RCases", 6, 6);
 return x_1;
 }
 }
@@ -821,7 +821,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_instCoeIdentTSyntaxConsSynta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -829,7 +829,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_instCoeIdentTSyntaxConsSynta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rcasesPat", 9);
+x_1 = lean_mk_string_unchecked("rcasesPat", 9, 9);
 return x_1;
 }
 }
@@ -837,7 +837,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_instCoeIdentTSyntaxConsSynta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("one", 3);
+x_1 = lean_mk_string_unchecked("one", 3, 3);
 return x_1;
 }
 }
@@ -868,7 +868,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_instCoeTSyntaxConsSyntaxNode
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rcasesPatMed", 12);
+x_1 = lean_mk_string_unchecked("rcasesPatMed", 12, 12);
 return x_1;
 }
 }
@@ -888,7 +888,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_instCoeTSyntaxConsSyntaxNode
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -918,7 +918,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_instCoeTSyntaxConsSyntaxNode
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rcasesPatLo", 11);
+x_1 = lean_mk_string_unchecked("rcasesPatLo", 11, 11);
 return x_1;
 }
 }
@@ -972,7 +972,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_instCoeTSyntaxConsSyntaxNode
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rintroPat", 9);
+x_1 = lean_mk_string_unchecked("rintroPat", 9, 9);
 return x_1;
 }
 }
@@ -1043,7 +1043,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_termList_u03a3____x40_Lean_E
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("termListΣ", 10);
+x_1 = lean_mk_string_unchecked("termListΣ", 10, 9);
 return x_1;
 }
 }
@@ -1061,7 +1061,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_termList_u03a3____x40_Lean_E
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -1119,7 +1119,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_termList_u03a3____x40_Lean_E
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -1147,7 +1147,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_termList_u03a3____x40_Lean_E
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ListΣ", 6);
+x_1 = lean_mk_string_unchecked("ListΣ", 6, 5);
 return x_1;
 }
 }
@@ -1187,7 +1187,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases___aux__Lean__Elab__Tactic__R
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("List", 4);
+x_1 = lean_mk_string_unchecked("List", 4, 4);
 return x_1;
 }
 }
@@ -1315,7 +1315,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases___aux__Lean__Elab__Tactic__R
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ident", 5);
+x_1 = lean_mk_string_unchecked("ident", 5, 5);
 return x_1;
 }
 }
@@ -1381,7 +1381,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_termList_u03a0____x40_Lean_E
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("termListΠ", 10);
+x_1 = lean_mk_string_unchecked("termListΠ", 10, 9);
 return x_1;
 }
 }
@@ -1469,7 +1469,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_termList_u03a0____x40_Lean_E
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ListΠ", 6);
+x_1 = lean_mk_string_unchecked("ListΠ", 6, 5);
 return x_1;
 }
 }
@@ -1705,7 +1705,7 @@ static lean_object* _init_l_List_repr___at___private_Lean_Elab_Tactic_RCases_0__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[]", 2);
+x_1 = lean_mk_string_unchecked("[]", 2, 2);
 return x_1;
 }
 }
@@ -1723,7 +1723,7 @@ static lean_object* _init_l_List_repr___at___private_Lean_Elab_Tactic_RCases_0__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -1753,7 +1753,7 @@ static lean_object* _init_l_List_repr___at___private_Lean_Elab_Tactic_RCases_0__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -1789,7 +1789,7 @@ static lean_object* _init_l_List_repr___at___private_Lean_Elab_Tactic_RCases_0__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -1873,7 +1873,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tacti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.Tactic.RCases.RCasesPatt.paren", 40);
+x_1 = lean_mk_string_unchecked("Lean.Elab.Tactic.RCases.RCasesPatt.paren", 40, 40);
 return x_1;
 }
 }
@@ -1921,7 +1921,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tacti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.Tactic.RCases.RCasesPatt.one", 38);
+x_1 = lean_mk_string_unchecked("Lean.Elab.Tactic.RCases.RCasesPatt.one", 38, 38);
 return x_1;
 }
 }
@@ -1951,7 +1951,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tacti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.Tactic.RCases.RCasesPatt.clear", 40);
+x_1 = lean_mk_string_unchecked("Lean.Elab.Tactic.RCases.RCasesPatt.clear", 40, 40);
 return x_1;
 }
 }
@@ -1981,7 +1981,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tacti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.Tactic.RCases.RCasesPatt.explicit", 43);
+x_1 = lean_mk_string_unchecked("Lean.Elab.Tactic.RCases.RCasesPatt.explicit", 43, 43);
 return x_1;
 }
 }
@@ -2011,7 +2011,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tacti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.Tactic.RCases.RCasesPatt.typed", 40);
+x_1 = lean_mk_string_unchecked("Lean.Elab.Tactic.RCases.RCasesPatt.typed", 40, 40);
 return x_1;
 }
 }
@@ -2041,7 +2041,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tacti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.Tactic.RCases.RCasesPatt.tuple", 40);
+x_1 = lean_mk_string_unchecked("Lean.Elab.Tactic.RCases.RCasesPatt.tuple", 40, 40);
 return x_1;
 }
 }
@@ -2071,7 +2071,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tacti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.Tactic.RCases.RCasesPatt.alts", 39);
+x_1 = lean_mk_string_unchecked("Lean.Elab.Tactic.RCases.RCasesPatt.alts", 39, 39);
 return x_1;
 }
 }
@@ -2774,7 +2774,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_RCasesPatt_instInhabited___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_", 1);
+x_1 = lean_mk_string_unchecked("_", 1, 1);
 return x_1;
 }
 }
@@ -2812,7 +2812,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_RCasesPatt_name_x3f___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rfl", 3);
+x_1 = lean_mk_string_unchecked("rfl", 3, 3);
 return x_1;
 }
 }
@@ -4012,7 +4012,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_RCasesPatt_instToMessageData
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -4020,7 +4020,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_RCasesPatt_instToMessageData
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -4145,7 +4145,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_RCasesPatt_instToMessageData
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-", 1);
+x_1 = lean_mk_string_unchecked("-", 1, 1);
 return x_1;
 }
 }
@@ -4172,7 +4172,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_RCasesPatt_instToMessageData
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("@", 1);
+x_1 = lean_mk_string_unchecked("@", 1, 1);
 return x_1;
 }
 }
@@ -4198,7 +4198,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_RCasesPatt_instToMessageData
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -4245,7 +4245,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_RCasesPatt_instToMessageData
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⟨", 3);
+x_1 = lean_mk_string_unchecked("⟨", 3, 1);
 return x_1;
 }
 }
@@ -4253,7 +4253,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_RCasesPatt_instToMessageData
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⟩", 3);
+x_1 = lean_mk_string_unchecked("⟩", 3, 1);
 return x_1;
 }
 }
@@ -4261,7 +4261,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_RCasesPatt_instToMessageData
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" | ", 3);
+x_1 = lean_mk_string_unchecked(" | ", 3, 3);
 return x_1;
 }
 }
@@ -5330,7 +5330,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_subst_x27___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("subst", 5);
+x_1 = lean_mk_string_unchecked("subst", 5, 5);
 return x_1;
 }
 }
@@ -5348,7 +5348,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_subst_x27___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid equality proof, it is not of the form (x = t) or (t = x)", 64);
+x_1 = lean_mk_string_unchecked("invalid equality proof, it is not of the form (x = t) or (t = x)", 64, 64);
 return x_1;
 }
 }
@@ -8802,7 +8802,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rcases tactic failed: ", 22);
+x_1 = lean_mk_string_unchecked("rcases tactic failed: ", 22, 22);
 return x_1;
 }
 }
@@ -8819,7 +8819,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" is not a fvar", 14);
+x_1 = lean_mk_string_unchecked(" is not a fvar", 14, 14);
 return x_1;
 }
 }
@@ -9298,7 +9298,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.Tactic.RCases", 23);
+x_1 = lean_mk_string_unchecked("Lean.Elab.Tactic.RCases", 23, 23);
 return x_1;
 }
 }
@@ -9306,7 +9306,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.Tactic.RCases.rcasesCore", 34);
+x_1 = lean_mk_string_unchecked("Lean.Elab.Tactic.RCases.rcasesCore", 34, 34);
 return x_1;
 }
 }
@@ -9314,7 +9314,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -10761,7 +10761,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Quot", 4);
+x_1 = lean_mk_string_unchecked("Quot", 4, 4);
 return x_1;
 }
 }
@@ -10769,7 +10769,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ind", 3);
+x_1 = lean_mk_string_unchecked("ind", 3, 3);
 return x_1;
 }
 }
@@ -10982,7 +10982,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" : ", 3);
+x_1 = lean_mk_string_unchecked(" : ", 3, 3);
 return x_1;
 }
 }
@@ -10999,7 +10999,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" is not an inductive datatype", 29);
+x_1 = lean_mk_string_unchecked(" is not an inductive datatype", 29, 29);
 return x_1;
 }
 }
@@ -13042,7 +13042,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rcases: scrutinee", 17);
+x_1 = lean_mk_string_unchecked("rcases: scrutinee", 17, 17);
 return x_1;
 }
 }
@@ -28480,7 +28480,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_RCasesPatt_parse___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ignore", 6);
+x_1 = lean_mk_string_unchecked("ignore", 6, 6);
 return x_1;
 }
 }
@@ -28501,7 +28501,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_RCasesPatt_parse___closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("clear", 5);
+x_1 = lean_mk_string_unchecked("clear", 5, 5);
 return x_1;
 }
 }
@@ -28522,7 +28522,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_RCasesPatt_parse___closed__5
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("explicit", 8);
+x_1 = lean_mk_string_unchecked("explicit", 8, 8);
 return x_1;
 }
 }
@@ -28543,7 +28543,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_RCasesPatt_parse___closed__7
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tuple", 5);
+x_1 = lean_mk_string_unchecked("tuple", 5, 5);
 return x_1;
 }
 }
@@ -28564,7 +28564,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_RCasesPatt_parse___closed__9
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("paren", 5);
+x_1 = lean_mk_string_unchecked("paren", 5, 5);
 return x_1;
 }
 }
@@ -31380,7 +31380,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_expandRIntroPat___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("binder", 6);
+x_1 = lean_mk_string_unchecked("binder", 6, 6);
 return x_1;
 }
 }
@@ -31401,7 +31401,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_expandRIntroPat___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
@@ -32472,7 +32472,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalRCases___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rcases", 6);
+x_1 = lean_mk_string_unchecked("rcases", 6, 6);
 return x_1;
 }
 }
@@ -32616,7 +32616,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases__1__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalRCases", 10);
+x_1 = lean_mk_string_unchecked("evalRCases", 10, 10);
 return x_1;
 }
 }
@@ -32853,7 +32853,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalObtain___lambda__2___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`obtain` requires either an expected type or a value.\nusage: `obtain ⟨patt⟩\? : type (:= val)\?` or `obtain ⟨patt⟩\? (: type)\? := val`", 139);
+x_1 = lean_mk_string_unchecked("`obtain` requires either an expected type or a value.\nusage: `obtain ⟨patt⟩\? : type (:= val)\?` or `obtain ⟨patt⟩\? (: type)\? := val`", 139, 131);
 return x_1;
 }
 }
@@ -32870,7 +32870,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalObtain___lambda__2___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("this", 4);
+x_1 = lean_mk_string_unchecked("this", 4, 4);
 return x_1;
 }
 }
@@ -33315,7 +33315,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalObtain___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("obtain", 6);
+x_1 = lean_mk_string_unchecked("obtain", 6, 6);
 return x_1;
 }
 }
@@ -33489,7 +33489,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalObtain__1__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalObtain", 10);
+x_1 = lean_mk_string_unchecked("evalObtain", 10, 10);
 return x_1;
 }
 }
@@ -33746,7 +33746,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_RCases_evalRIntro___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rintro", 6);
+x_1 = lean_mk_string_unchecked("rintro", 6, 6);
 return x_1;
 }
 }
@@ -33864,7 +33864,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro__1__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalRIntro", 10);
+x_1 = lean_mk_string_unchecked("evalRIntro", 10, 10);
 return x_1;
 }
 }

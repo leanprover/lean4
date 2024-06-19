@@ -1493,7 +1493,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_getBoolLit___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Bool", 4);
+x_1 = lean_mk_string_unchecked("Bool", 4, 4);
 return x_1;
 }
 }
@@ -1501,7 +1501,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_getBoolLit___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("true", 4);
+x_1 = lean_mk_string_unchecked("true", 4, 4);
 return x_1;
 }
 }
@@ -1848,7 +1848,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_mkBoolLit___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("false", 5);
+x_1 = lean_mk_string_unchecked("false", 5, 5);
 return x_1;
 }
 }
@@ -2343,7 +2343,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_mkNatWrapperIns
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_x", 2);
+x_1 = lean_mk_string_unchecked("_x", 2, 2);
 return x_1;
 }
 }
@@ -2544,7 +2544,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_instLiteralUInt
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("UInt8", 5);
+x_1 = lean_mk_string_unchecked("UInt8", 5, 5);
 return x_1;
 }
 }
@@ -2552,7 +2552,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_instLiteralUInt
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat", 5);
+x_1 = lean_mk_string_unchecked("ofNat", 5, 5);
 return x_1;
 }
 }
@@ -2608,7 +2608,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_instLiteralUInt
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("UInt16", 6);
+x_1 = lean_mk_string_unchecked("UInt16", 6, 6);
 return x_1;
 }
 }
@@ -2664,7 +2664,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_instLiteralUInt
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("UInt32", 6);
+x_1 = lean_mk_string_unchecked("UInt32", 6, 6);
 return x_1;
 }
 }
@@ -2727,7 +2727,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_instLiteralUInt
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("UInt64", 6);
+x_1 = lean_mk_string_unchecked("UInt64", 6, 6);
 return x_1;
 }
 }
@@ -2790,7 +2790,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_instLiteralChar
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Char", 4);
+x_1 = lean_mk_string_unchecked("Char", 4, 4);
 return x_1;
 }
 }
@@ -2853,7 +2853,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_getPseudoListLi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("List", 4);
+x_1 = lean_mk_string_unchecked("List", 4, 4);
 return x_1;
 }
 }
@@ -2861,7 +2861,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_getPseudoListLi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("nil", 3);
+x_1 = lean_mk_string_unchecked("nil", 3, 3);
 return x_1;
 }
 }
@@ -2869,7 +2869,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_getPseudoListLi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cons", 4);
+x_1 = lean_mk_string_unchecked("cons", 4, 4);
 return x_1;
 }
 }
@@ -4046,7 +4046,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_Simp_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Array", 5);
+x_1 = lean_mk_string_unchecked("Array", 5, 5);
 return x_1;
 }
 }
@@ -4054,7 +4054,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_Simp_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("push", 4);
+x_1 = lean_mk_string_unchecked("push", 4, 4);
 return x_1;
 }
 }
@@ -4173,7 +4173,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_mkPseudoArrayLi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mkEmpty", 7);
+x_1 = lean_mk_string_unchecked("mkEmpty", 7, 7);
 return x_1;
 }
 }
@@ -8111,7 +8111,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_higherOrderLite
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("toArray", 7);
+x_1 = lean_mk_string_unchecked("toArray", 7, 7);
 return x_1;
 }
 }
@@ -18632,7 +18632,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolde
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Nat", 3);
+x_1 = lean_mk_string_unchecked("Nat", 3, 3);
 return x_1;
 }
 }
@@ -18640,7 +18640,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolde
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("succ", 4);
+x_1 = lean_mk_string_unchecked("succ", 4, 4);
 return x_1;
 }
 }
@@ -18666,7 +18666,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolde
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("add", 3);
+x_1 = lean_mk_string_unchecked("add", 3, 3);
 return x_1;
 }
 }
@@ -18764,7 +18764,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolde
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sub", 3);
+x_1 = lean_mk_string_unchecked("sub", 3, 3);
 return x_1;
 }
 }
@@ -18862,7 +18862,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolde
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mul", 3);
+x_1 = lean_mk_string_unchecked("mul", 3, 3);
 return x_1;
 }
 }
@@ -18888,7 +18888,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolde
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("shiftLeft", 9);
+x_1 = lean_mk_string_unchecked("shiftLeft", 9, 9);
 return x_1;
 }
 }
@@ -19137,7 +19137,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolde
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("div", 3);
+x_1 = lean_mk_string_unchecked("div", 3, 3);
 return x_1;
 }
 }
@@ -19163,7 +19163,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolde
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("shiftRight", 10);
+x_1 = lean_mk_string_unchecked("shiftRight", 10, 10);
 return x_1;
 }
 }
@@ -23030,7 +23030,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_relationFolders
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("decEq", 5);
+x_1 = lean_mk_string_unchecked("decEq", 5, 5);
 return x_1;
 }
 }
@@ -23056,7 +23056,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_relationFolders
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("decLt", 5);
+x_1 = lean_mk_string_unchecked("decLt", 5, 5);
 return x_1;
 }
 }
@@ -23082,7 +23082,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_relationFolders
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("decLe", 5);
+x_1 = lean_mk_string_unchecked("decLe", 5, 5);
 return x_1;
 }
 }
@@ -24651,7 +24651,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_stringFolders__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("String", 6);
+x_1 = lean_mk_string_unchecked("String", 6, 6);
 return x_1;
 }
 }
@@ -24659,7 +24659,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_stringFolders__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("append", 6);
+x_1 = lean_mk_string_unchecked("append", 6, 6);
 return x_1;
 }
 }
@@ -24685,7 +24685,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_stringFolders__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -24693,7 +24693,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_stringFolders__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("length", 6);
+x_1 = lean_mk_string_unchecked("length", 6, 6);
 return x_1;
 }
 }
@@ -25623,7 +25623,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_ConstantFold_0__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -25631,7 +25631,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_ConstantFold_0__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Compiler", 8);
+x_1 = lean_mk_string_unchecked("Compiler", 8, 8);
 return x_1;
 }
 }
@@ -25639,7 +25639,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_ConstantFold_0__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LCNF", 4);
+x_1 = lean_mk_string_unchecked("LCNF", 4, 4);
 return x_1;
 }
 }
@@ -25647,7 +25647,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_ConstantFold_0__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Simp", 4);
+x_1 = lean_mk_string_unchecked("Simp", 4, 4);
 return x_1;
 }
 }
@@ -25655,7 +25655,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_ConstantFold_0__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ConstantFold", 12);
+x_1 = lean_mk_string_unchecked("ConstantFold", 12, 12);
 return x_1;
 }
 }
@@ -25663,7 +25663,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_ConstantFold_0__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Folder", 6);
+x_1 = lean_mk_string_unchecked("Folder", 6, 6);
 return x_1;
 }
 }
@@ -27278,7 +27278,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_initFn____x40_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("folderExt", 9);
+x_1 = lean_mk_string_unchecked("folderExt", 9, 9);
 return x_1;
 }
 }

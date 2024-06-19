@@ -294,7 +294,7 @@ static lean_object* _init_l_Subarray_forInUnsafe_loop___at___private_Lean_Meta_I
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("And", 3);
+x_1 = lean_mk_string_unchecked("And", 3, 3);
 return x_1;
 }
 }
@@ -396,7 +396,7 @@ static lean_object* _init_l_Lean_Meta_elimOptParam___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("optParam", 8);
+x_1 = lean_mk_string_unchecked("optParam", 8, 8);
 return x_1;
 }
 }
@@ -666,7 +666,7 @@ static lean_object* _init_l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjecti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected constructor type for '", 33);
+x_1 = lean_mk_string_unchecked("unexpected constructor type for '", 33, 33);
 return x_1;
 }
 }
@@ -683,7 +683,7 @@ static lean_object* _init_l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjecti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -2350,7 +2350,7 @@ static lean_object* _init_l___private_Lean_Meta_Injective_0__Lean_Meta_injTheore
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to prove injectivity theorem for constructor '", 53);
+x_1 = lean_mk_string_unchecked("failed to prove injectivity theorem for constructor '", 53, 53);
 return x_1;
 }
 }
@@ -2367,7 +2367,7 @@ static lean_object* _init_l___private_Lean_Meta_Injective_0__Lean_Meta_injTheore
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', use 'set_option genInjectivity false' to disable the generation", 66);
+x_1 = lean_mk_string_unchecked("', use 'set_option genInjectivity false' to disable the generation", 66, 66);
 return x_1;
 }
 }
@@ -2446,7 +2446,7 @@ static lean_object* _init_l___private_Lean_Meta_Injective_0__Lean_Meta_throwInje
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -2652,7 +2652,7 @@ static lean_object* _init_l___private_Lean_Meta_Injective_0__Lean_Meta_solveEqOf
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Injective", 19);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Injective", 19, 19);
 return x_1;
 }
 }
@@ -2660,7 +2660,7 @@ static lean_object* _init_l___private_Lean_Meta_Injective_0__Lean_Meta_solveEqOf
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Meta.Injective.0.Lean.Meta.solveEqOfCtorEq", 56);
+x_1 = lean_mk_string_unchecked("_private.Lean.Meta.Injective.0.Lean.Meta.solveEqOfCtorEq", 56, 56);
 return x_1;
 }
 }
@@ -2668,7 +2668,7 @@ static lean_object* _init_l___private_Lean_Meta_Injective_0__Lean_Meta_solveEqOf
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -2877,7 +2877,7 @@ static lean_object* _init_l_Lean_Meta_mkInjectiveTheoremNameFor___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inj", 3);
+x_1 = lean_mk_string_unchecked("inj", 3, 3);
 return x_1;
 }
 }
@@ -3327,7 +3327,7 @@ static lean_object* _init_l_Lean_Meta_mkInjectiveEqTheoremNameFor___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("injEq", 5);
+x_1 = lean_mk_string_unchecked("injEq", 5, 5);
 return x_1;
 }
 }
@@ -3374,7 +3374,7 @@ static lean_object* _init_l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjecti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -3382,7 +3382,7 @@ static lean_object* _init_l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjecti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("propIntro", 9);
+x_1 = lean_mk_string_unchecked("propIntro", 9, 9);
 return x_1;
 }
 }
@@ -3425,7 +3425,7 @@ static lean_object* _init_l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjecti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected number of subgoals when proving injective theorem for constructor '", 78);
+x_1 = lean_mk_string_unchecked("unexpected number of subgoals when proving injective theorem for constructor '", 78, 78);
 return x_1;
 }
 }
@@ -5305,7 +5305,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_19
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("genInjectivity", 14);
+x_1 = lean_mk_string_unchecked("genInjectivity", 14, 14);
 return x_1;
 }
 }
@@ -5323,7 +5323,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_19
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("generate injectivity theorems for inductive datatype constructors", 65);
+x_1 = lean_mk_string_unchecked("generate injectivity theorems for inductive datatype constructors", 65, 65);
 return x_1;
 }
 }
@@ -5346,7 +5346,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_19
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -5354,7 +5354,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_19
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -5422,7 +5422,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_Lean_Meta_mkInjectiveTheorems
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
+x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
 return x_1;
 }
 }
@@ -5567,7 +5567,7 @@ static lean_object* _init_l_Lean_getConstInfoCtor___at_Lean_Meta_mkInjectiveTheo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' is not a constructor", 22);
+x_1 = lean_mk_string_unchecked("' is not a constructor", 22, 22);
 return x_1;
 }
 }
@@ -6328,7 +6328,7 @@ static lean_object* _init_l_Lean_withTraceNode___at_Lean_Meta_mkInjectiveTheorem
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("<exception thrown while producing trace node message>", 53);
+x_1 = lean_mk_string_unchecked("<exception thrown while producing trace node message>", 53, 53);
 return x_1;
 }
 }
@@ -7691,7 +7691,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Meta_mkInjectiveTheorems__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("injective", 9);
+x_1 = lean_mk_string_unchecked("injective", 9, 9);
 return x_1;
 }
 }
@@ -8449,7 +8449,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_23
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -8467,7 +8467,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_23
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -8505,7 +8505,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_23
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Injective", 9);
+x_1 = lean_mk_string_unchecked("Injective", 9, 9);
 return x_1;
 }
 }
@@ -8523,7 +8523,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_23
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }

@@ -464,7 +464,7 @@ static lean_object* _init_l___private_Lean_Syntax_0__String_reprRange____x40_Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("start", 5);
+x_1 = lean_mk_string_unchecked("start", 5, 5);
 return x_1;
 }
 }
@@ -494,7 +494,7 @@ static lean_object* _init_l___private_Lean_Syntax_0__String_reprRange____x40_Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" := ", 4);
+x_1 = lean_mk_string_unchecked(" := ", 4, 4);
 return x_1;
 }
 }
@@ -533,7 +533,7 @@ static lean_object* _init_l___private_Lean_Syntax_0__String_reprRange____x40_Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("{ byteIdx := ", 13);
+x_1 = lean_mk_string_unchecked("{ byteIdx := ", 13, 13);
 return x_1;
 }
 }
@@ -551,7 +551,7 @@ static lean_object* _init_l___private_Lean_Syntax_0__String_reprRange____x40_Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" }", 2);
+x_1 = lean_mk_string_unchecked(" }", 2, 2);
 return x_1;
 }
 }
@@ -569,7 +569,7 @@ static lean_object* _init_l___private_Lean_Syntax_0__String_reprRange____x40_Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -587,7 +587,7 @@ static lean_object* _init_l___private_Lean_Syntax_0__String_reprRange____x40_Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("stop", 4);
+x_1 = lean_mk_string_unchecked("stop", 4, 4);
 return x_1;
 }
 }
@@ -614,7 +614,7 @@ static lean_object* _init_l___private_Lean_Syntax_0__String_reprRange____x40_Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("{ ", 2);
+x_1 = lean_mk_string_unchecked("{ ", 2, 2);
 return x_1;
 }
 }
@@ -1279,7 +1279,7 @@ static lean_object* _init_l_Lean_isLitKind___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("str", 3);
+x_1 = lean_mk_string_unchecked("str", 3, 3);
 return x_1;
 }
 }
@@ -1297,7 +1297,7 @@ static lean_object* _init_l_Lean_isLitKind___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("num", 3);
+x_1 = lean_mk_string_unchecked("num", 3, 3);
 return x_1;
 }
 }
@@ -1315,7 +1315,7 @@ static lean_object* _init_l_Lean_isLitKind___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("char", 4);
+x_1 = lean_mk_string_unchecked("char", 4, 4);
 return x_1;
 }
 }
@@ -1333,7 +1333,7 @@ static lean_object* _init_l_Lean_isLitKind___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("name", 4);
+x_1 = lean_mk_string_unchecked("name", 4, 4);
 return x_1;
 }
 }
@@ -1351,7 +1351,7 @@ static lean_object* _init_l_Lean_isLitKind___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("scientific", 10);
+x_1 = lean_mk_string_unchecked("scientific", 10, 10);
 return x_1;
 }
 }
@@ -1930,7 +1930,7 @@ static lean_object* _init_l_Lean_Syntax_structRangeEqWithTraceReuse___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("trace", 5);
+x_1 = lean_mk_string_unchecked("trace", 5, 5);
 return x_1;
 }
 }
@@ -1938,7 +1938,7 @@ static lean_object* _init_l_Lean_Syntax_structRangeEqWithTraceReuse___closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -1946,7 +1946,7 @@ static lean_object* _init_l_Lean_Syntax_structRangeEqWithTraceReuse___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reuse", 5);
+x_1 = lean_mk_string_unchecked("reuse", 5, 5);
 return x_1;
 }
 }
@@ -1965,7 +1965,7 @@ static lean_object* _init_l_Lean_Syntax_structRangeEqWithTraceReuse___closed__5(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reuse stopped:\n", 15);
+x_1 = lean_mk_string_unchecked("reuse stopped:\n", 15, 15);
 return x_1;
 }
 }
@@ -1973,7 +1973,7 @@ static lean_object* _init_l_Lean_Syntax_structRangeEqWithTraceReuse___closed__6(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" !=\n", 4);
+x_1 = lean_mk_string_unchecked(" !=\n", 4, 4);
 return x_1;
 }
 }
@@ -1981,7 +1981,7 @@ static lean_object* _init_l_Lean_Syntax_structRangeEqWithTraceReuse___closed__7(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -2651,7 +2651,7 @@ static lean_object* _init_l_Lean_Syntax_asNode___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -4609,7 +4609,7 @@ static lean_object* _init_l_Lean_Syntax_identComponents___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Syntax", 11);
+x_1 = lean_mk_string_unchecked("Lean.Syntax", 11, 11);
 return x_1;
 }
 }
@@ -4617,7 +4617,7 @@ static lean_object* _init_l_Lean_Syntax_identComponents___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Syntax.identComponents", 27);
+x_1 = lean_mk_string_unchecked("Lean.Syntax.identComponents", 27, 27);
 return x_1;
 }
 }
@@ -4625,7 +4625,7 @@ static lean_object* _init_l_Lean_Syntax_identComponents___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -5126,7 +5126,7 @@ static lean_object* _init_l_Lean_Syntax_instForInTopDown_loop___rarg___lambda__7
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("choice", 6);
+x_1 = lean_mk_string_unchecked("choice", 6, 6);
 return x_1;
 }
 }
@@ -5434,7 +5434,7 @@ static lean_object* _init_l_Lean_Syntax_reprint_reprintLeaf___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -7359,7 +7359,7 @@ static lean_object* _init_l_Lean_Syntax_isQuot___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("quot", 4);
+x_1 = lean_mk_string_unchecked("quot", 4, 4);
 return x_1;
 }
 }
@@ -7367,7 +7367,7 @@ static lean_object* _init_l_Lean_Syntax_isQuot___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -7375,7 +7375,7 @@ static lean_object* _init_l_Lean_Syntax_isQuot___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -7383,7 +7383,7 @@ static lean_object* _init_l_Lean_Syntax_isQuot___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -7391,7 +7391,7 @@ static lean_object* _init_l_Lean_Syntax_isQuot___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("dynamicQuot", 11);
+x_1 = lean_mk_string_unchecked("dynamicQuot", 11, 11);
 return x_1;
 }
 }
@@ -7614,7 +7614,7 @@ static lean_object* _init_l_Lean_Syntax_isAntiquot___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("antiquot", 8);
+x_1 = lean_mk_string_unchecked("antiquot", 8, 8);
 return x_1;
 }
 }
@@ -7820,7 +7820,7 @@ static lean_object* _init_l_Lean_Syntax_mkAntiquotNode___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("$", 1);
+x_1 = lean_mk_string_unchecked("$", 1, 1);
 return x_1;
 }
 }
@@ -7883,7 +7883,7 @@ static lean_object* _init_l_Lean_Syntax_mkAntiquotNode___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pseudo", 6);
+x_1 = lean_mk_string_unchecked("pseudo", 6, 6);
 return x_1;
 }
 }
@@ -7901,7 +7901,7 @@ static lean_object* _init_l_Lean_Syntax_mkAntiquotNode___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("antiquotName", 12);
+x_1 = lean_mk_string_unchecked("antiquotName", 12, 12);
 return x_1;
 }
 }
@@ -7919,7 +7919,7 @@ static lean_object* _init_l_Lean_Syntax_mkAntiquotNode___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
@@ -7958,7 +7958,7 @@ static lean_object* _init_l_Lean_Syntax_mkAntiquotNode___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hole", 4);
+x_1 = lean_mk_string_unchecked("hole", 4, 4);
 return x_1;
 }
 }
@@ -7978,7 +7978,7 @@ static lean_object* _init_l_Lean_Syntax_mkAntiquotNode___closed__17() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("antiquotNestedExpr", 18);
+x_1 = lean_mk_string_unchecked("antiquotNestedExpr", 18, 18);
 return x_1;
 }
 }
@@ -7996,7 +7996,7 @@ static lean_object* _init_l_Lean_Syntax_mkAntiquotNode___closed__19() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -8016,7 +8016,7 @@ static lean_object* _init_l_Lean_Syntax_mkAntiquotNode___closed__21() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -8611,7 +8611,7 @@ static lean_object* _init_l_Lean_Syntax_antiquotSpliceKind_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("antiquot_scope", 14);
+x_1 = lean_mk_string_unchecked("antiquot_scope", 14, 14);
 return x_1;
 }
 }
@@ -8752,7 +8752,7 @@ static lean_object* _init_l_Lean_Syntax_mkAntiquotSpliceNode___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("antiquot_splice", 15);
+x_1 = lean_mk_string_unchecked("antiquot_splice", 15, 15);
 return x_1;
 }
 }
@@ -8770,7 +8770,7 @@ static lean_object* _init_l_Lean_Syntax_mkAntiquotSpliceNode___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -8790,7 +8790,7 @@ static lean_object* _init_l_Lean_Syntax_mkAntiquotSpliceNode___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -8865,7 +8865,7 @@ static lean_object* _init_l_Lean_Syntax_antiquotSuffixSplice_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("antiquot_suffix_splice", 22);
+x_1 = lean_mk_string_unchecked("antiquot_suffix_splice", 22, 22);
 return x_1;
 }
 }
@@ -9004,7 +9004,7 @@ static lean_object* _init_l_Lean_Syntax_isTokenAntiquot___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("token_antiquot", 14);
+x_1 = lean_mk_string_unchecked("token_antiquot", 14, 14);
 return x_1;
 }
 }

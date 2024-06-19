@@ -1260,7 +1260,7 @@ static lean_object* _init_l_Lake_LeanLib_recCollectLocalModules_go___closed__2()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lean", 4);
+x_1 = lean_mk_string_unchecked("lean", 4, 4);
 return x_1;
 }
 }
@@ -1268,7 +1268,7 @@ static lean_object* _init_l_Lake_LeanLib_recCollectLocalModules_go___closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("imports", 7);
+x_1 = lean_mk_string_unchecked("imports", 7, 7);
 return x_1;
 }
 }
@@ -2834,7 +2834,7 @@ static lean_object* _init_l_Lake_LeanLib_modulesFacetConfig___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("modules", 7);
+x_1 = lean_mk_string_unchecked("modules", 7, 7);
 return x_1;
 }
 }
@@ -2880,7 +2880,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lake_LeanLib_recBuildLe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("leanArts", 8);
+x_1 = lean_mk_string_unchecked("leanArts", 8, 8);
 return x_1;
 }
 }
@@ -3157,7 +3157,7 @@ static lean_object* _init_l_Lake_LeanLib_recBuildLean___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -4115,7 +4115,7 @@ static lean_object* _init_l_Lake_LeanLib_recBuildStatic___lambda__3___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("export", 6);
+x_1 = lean_mk_string_unchecked("export", 6, 6);
 return x_1;
 }
 }
@@ -4905,7 +4905,7 @@ static lean_object* _init_l_Lake_LeanLib_recBuildStatic___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":static", 7);
+x_1 = lean_mk_string_unchecked(":static", 7, 7);
 return x_1;
 }
 }
@@ -4913,7 +4913,7 @@ static lean_object* _init_l_Lake_LeanLib_recBuildStatic___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" (without exports)", 18);
+x_1 = lean_mk_string_unchecked(" (without exports)", 18, 18);
 return x_1;
 }
 }
@@ -4921,7 +4921,7 @@ static lean_object* _init_l_Lake_LeanLib_recBuildStatic___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" (with exports)", 15);
+x_1 = lean_mk_string_unchecked(" (with exports)", 15, 15);
 return x_1;
 }
 }
@@ -5097,7 +5097,7 @@ static lean_object* _init_l_Lake_LeanLib_staticFacetConfig___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("static", 6);
+x_1 = lean_mk_string_unchecked("static", 6, 6);
 return x_1;
 }
 }
@@ -7533,7 +7533,7 @@ static lean_object* _init_l_Lake_LeanLib_recBuildShared___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":shared", 7);
+x_1 = lean_mk_string_unchecked(":shared", 7, 7);
 return x_1;
 }
 }
@@ -7687,7 +7687,7 @@ static lean_object* _init_l_Lake_LeanLib_sharedFacetConfig___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("shared", 6);
+x_1 = lean_mk_string_unchecked("shared", 6, 6);
 return x_1;
 }
 }
@@ -7947,7 +7947,7 @@ static lean_object* _init_l_Lake_LeanLib_recBuildExtraDepTargets___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("extraDep", 8);
+x_1 = lean_mk_string_unchecked("extraDep", 8, 8);
 return x_1;
 }
 }

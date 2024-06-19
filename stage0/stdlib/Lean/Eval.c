@@ -373,7 +373,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lean_runMetaEval___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.Data.String.Extra", 22);
+x_1 = lean_mk_string_unchecked("Init.Data.String.Extra", 22, 22);
 return x_1;
 }
 }
@@ -381,7 +381,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lean_runMetaEval___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("String.fromUTF8!", 16);
+x_1 = lean_mk_string_unchecked("String.fromUTF8!", 16, 16);
 return x_1;
 }
 }
@@ -389,7 +389,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lean_runMetaEval___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid UTF-8 string", 20);
+x_1 = lean_mk_string_unchecked("invalid UTF-8 string", 20, 20);
 return x_1;
 }
 }

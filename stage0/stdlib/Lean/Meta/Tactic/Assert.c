@@ -275,7 +275,7 @@ static lean_object* _init_l_Lean_MVarId_assert___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("assert", 6);
+x_1 = lean_mk_string_unchecked("assert", 6, 6);
 return x_1;
 }
 }
@@ -629,7 +629,7 @@ static lean_object* _init_l_Lean_MVarId_define___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("define", 6);
+x_1 = lean_mk_string_unchecked("define", 6, 6);
 return x_1;
 }
 }
@@ -682,7 +682,7 @@ static lean_object* _init_l_Lean_MVarId_assertExt___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -1168,7 +1168,7 @@ static lean_object* _init_l_Lean_MVarId_assertAfter___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("assertAfter", 11);
+x_1 = lean_mk_string_unchecked("assertAfter", 11, 11);
 return x_1;
 }
 }
@@ -1808,7 +1808,7 @@ static lean_object* _init_l_Lean_MVarId_assertHypotheses___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("assertHypotheses", 16);
+x_1 = lean_mk_string_unchecked("assertHypotheses", 16, 16);
 return x_1;
 }
 }

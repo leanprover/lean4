@@ -558,7 +558,7 @@ static lean_object* _init_l_Lake_Ansi_resetLine___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\x1b[2K\r", 5);
+x_1 = lean_mk_string_unchecked("\x1b[2K\r", 5, 5);
 return x_1;
 }
 }
@@ -653,7 +653,7 @@ static lean_object* _init_l_Lake_print_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake", 4);
+x_1 = lean_mk_string_unchecked("Lake", 4, 4);
 return x_1;
 }
 }
@@ -661,7 +661,7 @@ static lean_object* _init_l_Lake_print_x21___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("print!", 6);
+x_1 = lean_mk_string_unchecked("print!", 6, 6);
 return x_1;
 }
 }
@@ -689,7 +689,7 @@ static lean_object* _init_l_Lake_print_x21___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -707,7 +707,7 @@ static lean_object* _init_l_Lake_print_x21___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" failed: ", 9);
+x_1 = lean_mk_string_unchecked(" failed: ", 9, 9);
 return x_1;
 }
 }
@@ -725,7 +725,7 @@ static lean_object* _init_l_Lake_print_x21___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("] ", 2);
+x_1 = lean_mk_string_unchecked("] ", 2, 2);
 return x_1;
 }
 }
@@ -733,7 +733,7 @@ static lean_object* _init_l_Lake_print_x21___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -741,7 +741,7 @@ static lean_object* _init_l_Lake_print_x21___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.Build.Run", 14);
+x_1 = lean_mk_string_unchecked("Lake.Build.Run", 14, 14);
 return x_1;
 }
 }
@@ -749,7 +749,7 @@ static lean_object* _init_l_Lake_print_x21___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.print!", 11);
+x_1 = lean_mk_string_unchecked("Lake.print!", 11, 11);
 return x_1;
 }
 }
@@ -1044,7 +1044,7 @@ static lean_object* _init_l_Lake_Monitor_renderProgress___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" [", 2);
+x_1 = lean_mk_string_unchecked(" [", 2, 2);
 return x_1;
 }
 }
@@ -1052,7 +1052,7 @@ static lean_object* _init_l_Lake_Monitor_renderProgress___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("/", 1);
+x_1 = lean_mk_string_unchecked("/", 1, 1);
 return x_1;
 }
 }
@@ -1060,7 +1060,7 @@ static lean_object* _init_l_Lake_Monitor_renderProgress___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Running ", 8);
+x_1 = lean_mk_string_unchecked("Running ", 8, 8);
 return x_1;
 }
 }
@@ -1068,7 +1068,7 @@ static lean_object* _init_l_Lake_Monitor_renderProgress___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" (+ ", 4);
+x_1 = lean_mk_string_unchecked(" (+ ", 4, 4);
 return x_1;
 }
 }
@@ -1076,7 +1076,7 @@ static lean_object* _init_l_Lake_Monitor_renderProgress___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" more)", 6);
+x_1 = lean_mk_string_unchecked(" more)", 6, 6);
 return x_1;
 }
 }
@@ -2116,7 +2116,7 @@ static lean_object* _init_l_Lake_Monitor_reportJob___lambda__2___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -2154,7 +2154,7 @@ static lean_object* _init_l_Lake_Monitor_reportJob___lambda__2___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -2162,7 +2162,7 @@ static lean_object* _init_l_Lake_Monitor_reportJob___lambda__2___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("32", 2);
+x_1 = lean_mk_string_unchecked("32", 2, 2);
 return x_1;
 }
 }
@@ -5658,7 +5658,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lake_Workspace_runFetch
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("- ", 2);
+x_1 = lean_mk_string_unchecked("- ", 2, 2);
 return x_1;
 }
 }
@@ -8870,7 +8870,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lake_Workspace_runFet
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.Data.String.Extra", 22);
+x_1 = lean_mk_string_unchecked("Init.Data.String.Extra", 22, 22);
 return x_1;
 }
 }
@@ -8878,7 +8878,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lake_Workspace_runFet
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("String.fromUTF8!", 16);
+x_1 = lean_mk_string_unchecked("String.fromUTF8!", 16, 16);
 return x_1;
 }
 }
@@ -8886,7 +8886,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lake_Workspace_runFet
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid UTF-8 string", 20);
+x_1 = lean_mk_string_unchecked("invalid UTF-8 string", 20, 20);
 return x_1;
 }
 }
@@ -10052,7 +10052,7 @@ static lean_object* _init_l_Lake_Workspace_runFetchM___rarg___lambda__1___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("build failed", 12);
+x_1 = lean_mk_string_unchecked("build failed", 12, 12);
 return x_1;
 }
 }
@@ -10070,7 +10070,7 @@ static lean_object* _init_l_Lake_Workspace_runFetchM___rarg___lambda__1___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Some builds logged failures:\n", 29);
+x_1 = lean_mk_string_unchecked("Some builds logged failures:\n", 29, 29);
 return x_1;
 }
 }
@@ -10108,7 +10108,7 @@ static lean_object* _init_l_Lake_Workspace_runFetchM___rarg___lambda__1___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("top-level build failed", 22);
+x_1 = lean_mk_string_unchecked("top-level build failed", 22, 22);
 return x_1;
 }
 }
@@ -10135,7 +10135,7 @@ static lean_object* _init_l_Lake_Workspace_runFetchM___rarg___lambda__1___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Computing build jobs", 20);
+x_1 = lean_mk_string_unchecked("Computing build jobs", 20, 20);
 return x_1;
 }
 }
@@ -10824,7 +10824,7 @@ static lean_object* _init_l_Lake_Workspace_runFetchM___rarg___lambda__4___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("stdout/stderr:\n", 15);
+x_1 = lean_mk_string_unchecked("stdout/stderr:\n", 15, 15);
 return x_1;
 }
 }
@@ -10869,7 +10869,7 @@ static lean_object* _init_l_Lake_Workspace_runFetchM___rarg___lambda__5___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" [\?/\?] ", 7);
+x_1 = lean_mk_string_unchecked(" [\?/\?] ", 7, 7);
 return x_1;
 }
 }
@@ -11378,7 +11378,7 @@ static lean_object* _init_l_Lake_Workspace_runFetchM___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⣿ [\?/\?] ", 10);
+x_1 = lean_mk_string_unchecked("⣿ [\?/\?] ", 10, 8);
 return x_1;
 }
 }

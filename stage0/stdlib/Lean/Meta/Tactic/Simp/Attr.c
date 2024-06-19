@@ -212,7 +212,7 @@ static lean_object* _init_l___auto____x40_Lean_Meta_Tactic_Simp_Attr___hyg_9____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -220,7 +220,7 @@ static lean_object* _init_l___auto____x40_Lean_Meta_Tactic_Simp_Attr___hyg_9____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -228,7 +228,7 @@ static lean_object* _init_l___auto____x40_Lean_Meta_Tactic_Simp_Attr___hyg_9____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -236,7 +236,7 @@ static lean_object* _init_l___auto____x40_Lean_Meta_Tactic_Simp_Attr___hyg_9____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq", 9);
+x_1 = lean_mk_string_unchecked("tacticSeq", 9, 9);
 return x_1;
 }
 }
@@ -265,7 +265,7 @@ static lean_object* _init_l___auto____x40_Lean_Meta_Tactic_Simp_Attr___hyg_9____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq1Indented", 18);
+x_1 = lean_mk_string_unchecked("tacticSeq1Indented", 18, 18);
 return x_1;
 }
 }
@@ -285,7 +285,7 @@ static lean_object* _init_l___auto____x40_Lean_Meta_Tactic_Simp_Attr___hyg_9____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -303,7 +303,7 @@ static lean_object* _init_l___auto____x40_Lean_Meta_Tactic_Simp_Attr___hyg_9____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("exact", 5);
+x_1 = lean_mk_string_unchecked("exact", 5, 5);
 return x_1;
 }
 }
@@ -345,7 +345,7 @@ static lean_object* _init_l___auto____x40_Lean_Meta_Tactic_Simp_Attr___hyg_9____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -353,7 +353,7 @@ static lean_object* _init_l___auto____x40_Lean_Meta_Tactic_Simp_Attr___hyg_9____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declName", 8);
+x_1 = lean_mk_string_unchecked("declName", 8, 8);
 return x_1;
 }
 }
@@ -373,7 +373,7 @@ static lean_object* _init_l___auto____x40_Lean_Meta_Tactic_Simp_Attr___hyg_9____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("decl_name%", 10);
+x_1 = lean_mk_string_unchecked("decl_name%", 10, 10);
 return x_1;
 }
 }
@@ -853,7 +853,7 @@ static lean_object* _init_l_Lean_logAt___at_Lean_Meta_mkSimpAttr___spec__6___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -972,7 +972,7 @@ static lean_object* _init_l_Lean_logAt___at_Lean_Meta_mkSimpAttr___spec__6___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -980,7 +980,7 @@ static lean_object* _init_l_Lean_logAt___at_Lean_Meta_mkSimpAttr___spec__6___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unsolvedGoals", 13);
+x_1 = lean_mk_string_unchecked("unsolvedGoals", 13, 13);
 return x_1;
 }
 }
@@ -988,7 +988,7 @@ static lean_object* _init_l_Lean_logAt___at_Lean_Meta_mkSimpAttr___spec__6___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("synthPlaceholder", 16);
+x_1 = lean_mk_string_unchecked("synthPlaceholder", 16, 16);
 return x_1;
 }
 }
@@ -1875,7 +1875,7 @@ static lean_object* _init_l_Lean_Meta_SimpTheorems_erase___at_Lean_Meta_mkSimpAt
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -1892,7 +1892,7 @@ static lean_object* _init_l_Lean_Meta_SimpTheorems_erase___at_Lean_Meta_mkSimpAt
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' does not have [simp] attribute", 32);
+x_1 = lean_mk_string_unchecked("' does not have [simp] attribute", 32, 32);
 return x_1;
 }
 }
@@ -2171,7 +2171,7 @@ static lean_object* _init_l_Lean_Meta_mkSimpAttr___lambda__1___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid 'simp', it is not a proposition nor a definition (to unfold)", 68);
+x_1 = lean_mk_string_unchecked("invalid 'simp', it is not a proposition nor a definition (to unfold)", 68, 68);
 return x_1;
 }
 }
@@ -2188,7 +2188,7 @@ static lean_object* _init_l_Lean_Meta_mkSimpAttr___lambda__1___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simpPost", 8);
+x_1 = lean_mk_string_unchecked("simpPost", 8, 8);
 return x_1;
 }
 }
@@ -3674,7 +3674,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_Attr__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simp", 4);
+x_1 = lean_mk_string_unchecked("simp", 4, 4);
 return x_1;
 }
 }
@@ -3692,7 +3692,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_Attr__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -3700,7 +3700,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_Attr__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simpExtension", 13);
+x_1 = lean_mk_string_unchecked("simpExtension", 13, 13);
 return x_1;
 }
 }
@@ -3719,7 +3719,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_Attr__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simplification theorem", 22);
+x_1 = lean_mk_string_unchecked("simplification theorem", 22, 22);
 return x_1;
 }
 }
@@ -3738,7 +3738,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_Attr__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("seval", 5);
+x_1 = lean_mk_string_unchecked("seval", 5, 5);
 return x_1;
 }
 }
@@ -3756,7 +3756,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_Attr__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sevalSimpExtension", 18);
+x_1 = lean_mk_string_unchecked("sevalSimpExtension", 18, 18);
 return x_1;
 }
 }
@@ -3775,7 +3775,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_Attr__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("symbolic evaluator theorem", 26);
+x_1 = lean_mk_string_unchecked("symbolic evaluator theorem", 26, 26);
 return x_1;
 }
 }

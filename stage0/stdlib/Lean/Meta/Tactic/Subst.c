@@ -691,7 +691,7 @@ static lean_object* _init_l_Lean_Meta_substCore___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("after intro rest ", 17);
+x_1 = lean_mk_string_unchecked("after intro rest ", 17, 17);
 return x_1;
 }
 }
@@ -708,7 +708,7 @@ static lean_object* _init_l_Lean_Meta_substCore___lambda__2___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -725,7 +725,7 @@ static lean_object* _init_l_Lean_Meta_substCore___lambda__2___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -2377,7 +2377,7 @@ static lean_object* _init_l_Lean_Meta_substCore___lambda__14___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_h", 2);
+x_1 = lean_mk_string_unchecked("_h", 2, 2);
 return x_1;
 }
 }
@@ -2395,7 +2395,7 @@ static lean_object* _init_l_Lean_Meta_substCore___lambda__14___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Tactic.Subst", 22);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Tactic.Subst", 22, 22);
 return x_1;
 }
 }
@@ -2403,7 +2403,7 @@ static lean_object* _init_l_Lean_Meta_substCore___lambda__14___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.substCore", 19);
+x_1 = lean_mk_string_unchecked("Lean.Meta.substCore", 19, 19);
 return x_1;
 }
 }
@@ -2411,7 +2411,7 @@ static lean_object* _init_l_Lean_Meta_substCore___lambda__14___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -3447,7 +3447,7 @@ static lean_object* _init_l_Lean_Meta_substCore___lambda__17___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reverted variables ", 19);
+x_1 = lean_mk_string_unchecked("reverted variables ", 19, 19);
 return x_1;
 }
 }
@@ -3559,7 +3559,7 @@ static lean_object* _init_l_Lean_Meta_substCore___lambda__18___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("after intro2 ", 13);
+x_1 = lean_mk_string_unchecked("after intro2 ", 13, 13);
 return x_1;
 }
 }
@@ -3797,7 +3797,7 @@ static lean_object* _init_l_Lean_Meta_substCore___lambda__19___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("after revert ", 13);
+x_1 = lean_mk_string_unchecked("after revert ", 13, 13);
 return x_1;
 }
 }
@@ -4022,7 +4022,7 @@ static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -4039,7 +4039,7 @@ static lean_object* _init_l_Lean_Meta_substCore___lambda__20___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' occurs at", 11);
+x_1 = lean_mk_string_unchecked("' occurs at", 11, 11);
 return x_1;
 }
 }
@@ -4191,7 +4191,7 @@ static lean_object* _init_l_Lean_Meta_substCore___lambda__21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("subst", 5);
+x_1 = lean_mk_string_unchecked("subst", 5, 5);
 return x_1;
 }
 }
@@ -4209,7 +4209,7 @@ static lean_object* _init_l_Lean_Meta_substCore___lambda__21___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("argument must be an equality proof", 34);
+x_1 = lean_mk_string_unchecked("argument must be an equality proof", 34, 34);
 return x_1;
 }
 }
@@ -4246,7 +4246,7 @@ static lean_object* _init_l_Lean_Meta_substCore___lambda__21___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid equality proof, it is not of the form ", 46);
+x_1 = lean_mk_string_unchecked("invalid equality proof, it is not of the form ", 46, 46);
 return x_1;
 }
 }
@@ -4263,7 +4263,7 @@ static lean_object* _init_l_Lean_Meta_substCore___lambda__21___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nafter WHNF, variable expected, but obtained", 44);
+x_1 = lean_mk_string_unchecked("\nafter WHNF, variable expected, but obtained", 44, 44);
 return x_1;
 }
 }
@@ -4280,7 +4280,7 @@ static lean_object* _init_l_Lean_Meta_substCore___lambda__21___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(x = t)", 7);
+x_1 = lean_mk_string_unchecked("(x = t)", 7, 7);
 return x_1;
 }
 }
@@ -4321,7 +4321,7 @@ static lean_object* _init_l_Lean_Meta_substCore___lambda__21___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(t = x)", 7);
+x_1 = lean_mk_string_unchecked("(t = x)", 7, 7);
 return x_1;
 }
 }
@@ -4362,7 +4362,7 @@ static lean_object* _init_l_Lean_Meta_substCore___lambda__21___closed__19() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -4370,7 +4370,7 @@ static lean_object* _init_l_Lean_Meta_substCore___lambda__21___closed__20() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -4389,7 +4389,7 @@ static lean_object* _init_l_Lean_Meta_substCore___lambda__21___closed__22() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("substituting ", 13);
+x_1 = lean_mk_string_unchecked("substituting ", 13, 13);
 return x_1;
 }
 }
@@ -4406,7 +4406,7 @@ static lean_object* _init_l_Lean_Meta_substCore___lambda__21___closed__24() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" (id: ", 6);
+x_1 = lean_mk_string_unchecked(" (id: ", 6, 6);
 return x_1;
 }
 }
@@ -4423,7 +4423,7 @@ static lean_object* _init_l_Lean_Meta_substCore___lambda__21___closed__26() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(") with ", 7);
+x_1 = lean_mk_string_unchecked(") with ", 7, 7);
 return x_1;
 }
 }
@@ -5960,7 +5960,7 @@ static lean_object* _init_l_Lean_Meta_heqToEq___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HEq", 3);
+x_1 = lean_mk_string_unchecked("HEq", 3, 3);
 return x_1;
 }
 }
@@ -9256,7 +9256,7 @@ static lean_object* _init_l_Lean_Meta_substVar___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("did not find equation for eliminating '", 39);
+x_1 = lean_mk_string_unchecked("did not find equation for eliminating '", 39, 39);
 return x_1;
 }
 }
@@ -9421,7 +9421,7 @@ static lean_object* _init_l_Lean_Meta_substVar___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("variable '", 10);
+x_1 = lean_mk_string_unchecked("variable '", 10, 10);
 return x_1;
 }
 }
@@ -9438,7 +9438,7 @@ static lean_object* _init_l_Lean_Meta_substVar___lambda__2___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' is a let-declaration", 22);
+x_1 = lean_mk_string_unchecked("' is a let-declaration", 22, 22);
 return x_1;
 }
 }
@@ -9691,7 +9691,7 @@ static lean_object* _init_l_Lean_Meta_subst_substEq___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.subst.substEq", 23);
+x_1 = lean_mk_string_unchecked("Lean.Meta.subst.substEq", 23, 23);
 return x_1;
 }
 }
@@ -9712,7 +9712,7 @@ static lean_object* _init_l_Lean_Meta_subst_substEq___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid equality proof, it is not of the form (x = t) or (t = x)", 64);
+x_1 = lean_mk_string_unchecked("invalid equality proof, it is not of the form (x = t) or (t = x)", 64, 64);
 return x_1;
 }
 }
@@ -15413,7 +15413,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Subst___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -15441,7 +15441,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Subst___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -15459,7 +15459,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Subst___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -15507,7 +15507,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Subst___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Subst", 5);
+x_1 = lean_mk_string_unchecked("Subst", 5, 5);
 return x_1;
 }
 }
@@ -15525,7 +15525,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Subst___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }

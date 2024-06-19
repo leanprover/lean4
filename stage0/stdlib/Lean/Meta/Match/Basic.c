@@ -297,7 +297,7 @@ static lean_object* _init_l_Lean_Meta_Match_mkNamedPattern___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("namedPattern", 12);
+x_1 = lean_mk_string_unchecked("namedPattern", 12, 12);
 return x_1;
 }
 }
@@ -457,7 +457,7 @@ static lean_object* _init_l_List_foldl___at_Lean_Meta_Match_Pattern_toMessageDat
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -577,7 +577,7 @@ static lean_object* _init_l_Lean_Meta_Match_Pattern_toMessageData___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".(", 2);
+x_1 = lean_mk_string_unchecked(".(", 2, 2);
 return x_1;
 }
 }
@@ -594,7 +594,7 @@ static lean_object* _init_l_Lean_Meta_Match_Pattern_toMessageData___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -611,7 +611,7 @@ static lean_object* _init_l_Lean_Meta_Match_Pattern_toMessageData___closed__5() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -628,7 +628,7 @@ static lean_object* _init_l_Lean_Meta_Match_Pattern_toMessageData___closed__7() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -654,7 +654,7 @@ static lean_object* _init_l_Lean_Meta_Match_Pattern_toMessageData___closed__10()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#[", 2);
+x_1 = lean_mk_string_unchecked("#[", 2, 2);
 return x_1;
 }
 }
@@ -671,7 +671,7 @@ static lean_object* _init_l_Lean_Meta_Match_Pattern_toMessageData___closed__12()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", ", 2);
+x_1 = lean_mk_string_unchecked(", ", 2, 2);
 return x_1;
 }
 }
@@ -698,7 +698,7 @@ static lean_object* _init_l_Lean_Meta_Match_Pattern_toMessageData___closed__15()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -715,7 +715,7 @@ static lean_object* _init_l_Lean_Meta_Match_Pattern_toMessageData___closed__17()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("@", 1);
+x_1 = lean_mk_string_unchecked("@", 1, 1);
 return x_1;
 }
 }
@@ -3296,7 +3296,7 @@ static lean_object* _init_l_List_map___at_Lean_Meta_Match_Alt_toMessageData___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":(", 2);
+x_1 = lean_mk_string_unchecked(":(", 2, 2);
 return x_1;
 }
 }
@@ -3431,7 +3431,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Meta_Match_Alt_toMessageDa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n  | ", 5);
+x_1 = lean_mk_string_unchecked("\n  | ", 5, 5);
 return x_1;
 }
 }
@@ -3448,7 +3448,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Meta_Match_Alt_toMessageDa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ≋ ", 5);
+x_1 = lean_mk_string_unchecked(" ≋ ", 5, 3);
 return x_1;
 }
 }
@@ -3686,7 +3686,7 @@ static lean_object* _init_l_Lean_Meta_Match_Alt_toMessageData___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" |- ", 4);
+x_1 = lean_mk_string_unchecked(" |- ", 4, 4);
 return x_1;
 }
 }
@@ -3703,7 +3703,7 @@ static lean_object* _init_l_Lean_Meta_Match_Alt_toMessageData___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" => ", 4);
+x_1 = lean_mk_string_unchecked(" => ", 4, 4);
 return x_1;
 }
 }
@@ -4601,7 +4601,7 @@ static lean_object* _init_l_Lean_Meta_Match_Alt_checkAndReplaceFVarId___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("type mismatch during dependent match-elimination at pattern variable '", 70);
+x_1 = lean_mk_string_unchecked("type mismatch during dependent match-elimination at pattern variable '", 70, 70);
 return x_1;
 }
 }
@@ -4618,7 +4618,7 @@ static lean_object* _init_l_Lean_Meta_Match_Alt_checkAndReplaceFVarId___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' with type", 11);
+x_1 = lean_mk_string_unchecked("' with type", 11, 11);
 return x_1;
 }
 }
@@ -4635,7 +4635,7 @@ static lean_object* _init_l_Lean_Meta_Match_Alt_checkAndReplaceFVarId___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nexpected type", 14);
+x_1 = lean_mk_string_unchecked("\nexpected type", 14, 14);
 return x_1;
 }
 }
@@ -4780,7 +4780,7 @@ static lean_object* _init_l_Lean_Meta_Match_Alt_checkAndReplaceFVarId___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown free pattern variable", 29);
+x_1 = lean_mk_string_unchecked("unknown free pattern variable", 29, 29);
 return x_1;
 }
 }
@@ -5744,7 +5744,7 @@ static lean_object* _init_l_Lean_Meta_Match_Example_toMessageData___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_", 1);
+x_1 = lean_mk_string_unchecked("_", 1, 1);
 return x_1;
 }
 }
@@ -5771,7 +5771,7 @@ static lean_object* _init_l_Lean_Meta_Match_Example_toMessageData___closed__4() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#", 1);
+x_1 = lean_mk_string_unchecked("#", 1, 1);
 return x_1;
 }
 }
@@ -6378,7 +6378,7 @@ static lean_object* _init_l_Lean_Meta_Match_Problem_toMessageData___lambda__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("remaining variables: ", 21);
+x_1 = lean_mk_string_unchecked("remaining variables: ", 21, 21);
 return x_1;
 }
 }
@@ -6395,7 +6395,7 @@ static lean_object* _init_l_Lean_Meta_Match_Problem_toMessageData___lambda__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nalternatives:", 14);
+x_1 = lean_mk_string_unchecked("\nalternatives:", 14, 14);
 return x_1;
 }
 }
@@ -6421,7 +6421,7 @@ static lean_object* _init_l_Lean_Meta_Match_Problem_toMessageData___lambda__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nexamples:", 10);
+x_1 = lean_mk_string_unchecked("\nexamples:", 10, 10);
 return x_1;
 }
 }
@@ -6438,7 +6438,7 @@ static lean_object* _init_l_Lean_Meta_Match_Problem_toMessageData___lambda__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -7043,7 +7043,7 @@ static lean_object* _init_l_Lean_Meta_Match_toPattern___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected pattern", 18);
+x_1 = lean_mk_string_unchecked("unexpected pattern", 18, 18);
 return x_1;
 }
 }
@@ -7069,7 +7069,7 @@ static lean_object* _init_l_Lean_Meta_Match_toPattern___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected occurrence of auxiliary declaration 'namedPattern'", 61);
+x_1 = lean_mk_string_unchecked("unexpected occurrence of auxiliary declaration 'namedPattern'", 61, 61);
 return x_1;
 }
 }

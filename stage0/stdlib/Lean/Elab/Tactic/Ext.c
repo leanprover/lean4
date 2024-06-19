@@ -830,7 +830,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_E
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declName", 8);
+x_1 = lean_mk_string_unchecked("declName", 8, 8);
 return x_1;
 }
 }
@@ -860,7 +860,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_E
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" := ", 4);
+x_1 = lean_mk_string_unchecked(" := ", 4, 4);
 return x_1;
 }
 }
@@ -899,7 +899,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_E
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -917,7 +917,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_E
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("priority", 8);
+x_1 = lean_mk_string_unchecked("priority", 8, 8);
 return x_1;
 }
 }
@@ -935,7 +935,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_E
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("keys", 4);
+x_1 = lean_mk_string_unchecked("keys", 4, 4);
 return x_1;
 }
 }
@@ -962,7 +962,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_E
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("{ ", 2);
+x_1 = lean_mk_string_unchecked("{ ", 2, 2);
 return x_1;
 }
 }
@@ -998,7 +998,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_E
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" }", 2);
+x_1 = lean_mk_string_unchecked(" }", 2, 2);
 return x_1;
 }
 }
@@ -1028,7 +1028,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_E
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#[", 2);
+x_1 = lean_mk_string_unchecked("#[", 2, 2);
 return x_1;
 }
 }
@@ -1064,7 +1064,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_E
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -1082,7 +1082,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_E
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#[]", 3);
+x_1 = lean_mk_string_unchecked("#[]", 3, 3);
 return x_1;
 }
 }
@@ -2812,7 +2812,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_insertCore___at_Lean_Elab_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.DiscrTree", 19);
+x_1 = lean_mk_string_unchecked("Lean.Meta.DiscrTree", 19, 19);
 return x_1;
 }
 }
@@ -2820,7 +2820,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_insertCore___at_Lean_Elab_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.DiscrTree.insertCore", 30);
+x_1 = lean_mk_string_unchecked("Lean.Meta.DiscrTree.insertCore", 30, 30);
 return x_1;
 }
 }
@@ -2828,7 +2828,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_insertCore___at_Lean_Elab_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid key sequence", 20);
+x_1 = lean_mk_string_unchecked("invalid key sequence", 20, 20);
 return x_1;
 }
 }
@@ -2975,7 +2975,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -2983,7 +2983,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -2991,7 +2991,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -2999,7 +2999,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Ext", 3);
+x_1 = lean_mk_string_unchecked("Ext", 3, 3);
 return x_1;
 }
 }
@@ -3007,7 +3007,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("extExtension", 12);
+x_1 = lean_mk_string_unchecked("extExtension", 12, 12);
 return x_1;
 }
 }
@@ -3799,7 +3799,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_ExtTheorems_erase___rarg___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -3816,7 +3816,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_ExtTheorems_erase___rarg___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' does not have [ext] attribute", 31);
+x_1 = lean_mk_string_unchecked("' does not have [ext] attribute", 31, 31);
 return x_1;
 }
 }
@@ -5331,7 +5331,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("prioDefault", 11);
+x_1 = lean_mk_string_unchecked("prioDefault", 11, 11);
 return x_1;
 }
 }
@@ -5349,7 +5349,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("default", 7);
+x_1 = lean_mk_string_unchecked("default", 7, 7);
 return x_1;
 }
 }
@@ -5744,7 +5744,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("@[ext] attribute only applies to structures or theorems proving x = y, got ", 75);
+x_1 = lean_mk_string_unchecked("@[ext] attribute only applies to structures or theorems proving x = y, got ", 75, 75);
 return x_1;
 }
 }
@@ -5761,7 +5761,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -5778,7 +5778,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -6700,7 +6700,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected 'flat' config on @[ext] theorem", 42);
+x_1 = lean_mk_string_unchecked("unexpected 'flat' config on @[ext] theorem", 42, 42);
 return x_1;
 }
 }
@@ -6717,7 +6717,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declareExtTheoremFor", 20);
+x_1 = lean_mk_string_unchecked("declareExtTheoremFor", 20, 20);
 return x_1;
 }
 }
@@ -6738,7 +6738,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declare_ext_theorems_for", 24);
+x_1 = lean_mk_string_unchecked("declare_ext_theorems_for", 24, 24);
 return x_1;
 }
 }
@@ -6746,7 +6746,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -6773,7 +6773,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -6781,7 +6781,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("flat", 4);
+x_1 = lean_mk_string_unchecked("flat", 4, 4);
 return x_1;
 }
 }
@@ -6789,7 +6789,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":=", 2);
+x_1 = lean_mk_string_unchecked(":=", 2, 2);
 return x_1;
 }
 }
@@ -6797,7 +6797,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -7551,7 +7551,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -7559,7 +7559,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Attr", 4);
+x_1 = lean_mk_string_unchecked("Attr", 4, 4);
 return x_1;
 }
 }
@@ -7567,7 +7567,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ext", 3);
+x_1 = lean_mk_string_unchecked("ext", 3, 3);
 return x_1;
 }
 }
@@ -7587,7 +7587,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected @[ext] attribute ", 28);
+x_1 = lean_mk_string_unchecked("unexpected @[ext] attribute ", 28, 28);
 return x_1;
 }
 }
@@ -7877,7 +7877,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -7895,7 +7895,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -7953,7 +7953,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -7991,7 +7991,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Marks a theorem as an extensionality theorem", 44);
+x_1 = lean_mk_string_unchecked("Marks a theorem as an extensionality theorem", 44, 44);
 return x_1;
 }
 }
@@ -8941,7 +8941,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_withExtHyps___rarg___lambda__3_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("y", 1);
+x_1 = lean_mk_string_unchecked("y", 1, 1);
 return x_1;
 }
 }
@@ -8979,7 +8979,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_withExtHyps___rarg___lambda__4_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("x", 1);
+x_1 = lean_mk_string_unchecked("x", 1, 1);
 return x_1;
 }
 }
@@ -9141,7 +9141,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_withExtHyps___rarg___lambda__6_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("not a structure: ", 17);
+x_1 = lean_mk_string_unchecked("not a structure: ", 17, 17);
 return x_1;
 }
 }
@@ -9284,7 +9284,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_withExtHyps___rarg___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("true", 4);
+x_1 = lean_mk_string_unchecked("true", 4, 4);
 return x_1;
 }
 }
@@ -9302,7 +9302,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_withExtHyps___rarg___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("false", 5);
+x_1 = lean_mk_string_unchecked("false", 5, 5);
 return x_1;
 }
 }
@@ -9320,7 +9320,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_withExtHyps___rarg___closed__5(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected 'true' or 'false'", 26);
+x_1 = lean_mk_string_unchecked("expected 'true' or 'false'", 26, 26);
 return x_1;
 }
 }
@@ -9630,7 +9630,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_elabExtType___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("extType", 7);
+x_1 = lean_mk_string_unchecked("extType", 7, 7);
 return x_1;
 }
 }
@@ -9651,7 +9651,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_elabExtType___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ident", 5);
+x_1 = lean_mk_string_unchecked("ident", 5, 5);
 return x_1;
 }
 }
@@ -9802,7 +9802,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Ext_elabExtType__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elabExtType", 11);
+x_1 = lean_mk_string_unchecked("elabExtType", 11, 11);
 return x_1;
 }
 }
@@ -9851,7 +9851,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Ext_elabExtType_docStr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Creates the type of the extensionality theorem for the given structure,\nelaborating to `x.1 = y.1 → x.2 = y.2 → x = y`, for example.\n", 137);
+x_1 = lean_mk_string_unchecked("Creates the type of the extensionality theorem for the given structure,\nelaborating to `x.1 = y.1 → x.2 = y.2 → x = y`, for example.\n", 137, 133);
 return x_1;
 }
 }
@@ -10069,7 +10069,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_elabExtIffType___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("extIffType", 10);
+x_1 = lean_mk_string_unchecked("extIffType", 10, 10);
 return x_1;
 }
 }
@@ -10213,7 +10213,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Ext_elabExtIffType__1_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elabExtIffType", 14);
+x_1 = lean_mk_string_unchecked("elabExtIffType", 14, 14);
 return x_1;
 }
 }
@@ -10254,7 +10254,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Ext_elabExtIffType_doc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Creates the type of the iff-variant of the extensionality theorem for the given structure,\nelaborating to `x = y ↔ x.1 = y.1 ∧ x.2 = y.2`, for example.\n", 156);
+x_1 = lean_mk_string_unchecked("Creates the type of the iff-variant of the extensionality theorem for the given structure,\nelaborating to `x = y ↔ x.1 = y.1 ∧ x.2 = y.2`, for example.\n", 156, 152);
 return x_1;
 }
 }
@@ -10374,7 +10374,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_Ext_app
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed", 6);
+x_1 = lean_mk_string_unchecked("failed", 6, 6);
 return x_1;
 }
 }
@@ -11178,7 +11178,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_applyExtTheoremAt___lambda__1__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no applicable extensionality theorem found for", 46);
+x_1 = lean_mk_string_unchecked("no applicable extensionality theorem found for", 46, 46);
 return x_1;
 }
 }
@@ -11472,7 +11472,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_applyExtTheoremAt___lambda__3__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("applyExtTheorem only applies to equations, not", 46);
+x_1 = lean_mk_string_unchecked("applyExtTheorem only applies to equations, not", 46, 46);
 return x_1;
 }
 }
@@ -11879,7 +11879,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Ext_evalApplyExtTheore
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("applyExtTheorem", 15);
+x_1 = lean_mk_string_unchecked("applyExtTheorem", 15, 15);
 return x_1;
 }
 }
@@ -11900,7 +11900,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Ext_evalApplyExtTheore
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalApplyExtTheorem", 19);
+x_1 = lean_mk_string_unchecked("evalApplyExtTheorem", 19, 19);
 return x_1;
 }
 }
@@ -11949,7 +11949,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Ext_evalApplyExtTheore
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Apply a single extensionality theorem to the current goal. ", 59);
+x_1 = lean_mk_string_unchecked("Apply a single extensionality theorem to the current goal. ", 59, 59);
 return x_1;
 }
 }
@@ -12278,7 +12278,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_tryIntros___rarg___lambda__6___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rintroPat", 9);
+x_1 = lean_mk_string_unchecked("rintroPat", 9, 9);
 return x_1;
 }
 }
@@ -12286,7 +12286,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_tryIntros___rarg___lambda__6___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("one", 3);
+x_1 = lean_mk_string_unchecked("one", 3, 3);
 return x_1;
 }
 }
@@ -13994,7 +13994,7 @@ static lean_object* _init_l_Lean_Linter_logLint___at_Lean_Elab_Tactic_Ext_evalEx
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("note: this linter can be disabled with `set_option ", 51);
+x_1 = lean_mk_string_unchecked("note: this linter can be disabled with `set_option ", 51, 51);
 return x_1;
 }
 }
@@ -14011,7 +14011,7 @@ static lean_object* _init_l_Lean_Linter_logLint___at_Lean_Elab_Tactic_Ext_evalEx
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" false`", 7);
+x_1 = lean_mk_string_unchecked(" false`", 7, 7);
 return x_1;
 }
 }
@@ -14028,7 +14028,7 @@ static lean_object* _init_l_Lean_Linter_logLint___at_Lean_Elab_Tactic_Ext_evalEx
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -14148,7 +14148,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_evalExt___lambda__2___closed__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rcasesPat", 9);
+x_1 = lean_mk_string_unchecked("rcasesPat", 9, 9);
 return x_1;
 }
 }
@@ -14178,7 +14178,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext_evalExt___lambda__2___closed__5
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`ext` did not consume the patterns: ", 36);
+x_1 = lean_mk_string_unchecked("`ext` did not consume the patterns: ", 36, 36);
 return x_1;
 }
 }
@@ -14708,7 +14708,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Ext_evalExt__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalExt", 7);
+x_1 = lean_mk_string_unchecked("evalExt", 7, 7);
 return x_1;
 }
 }

@@ -676,7 +676,7 @@ static lean_object* _init_l_Lean_Environment_Replay_throwKernelException___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("internal exception #", 20);
+x_1 = lean_mk_string_unchecked("internal exception #", 20, 20);
 return x_1;
 }
 }
@@ -693,7 +693,7 @@ static lean_object* _init_l_Lean_Environment_Replay_throwKernelException___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -732,7 +732,7 @@ static lean_object* _init_l_Lean_Environment_Replay_throwKernelException___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_uniq", 5);
+x_1 = lean_mk_string_unchecked("_uniq", 5, 5);
 return x_1;
 }
 }
@@ -1365,7 +1365,7 @@ static lean_object* _init_l_List_mapM_loop___at_Lean_Environment_Replay_replayCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Data.HashMap", 17);
+x_1 = lean_mk_string_unchecked("Lean.Data.HashMap", 17, 17);
 return x_1;
 }
 }
@@ -1373,7 +1373,7 @@ static lean_object* _init_l_List_mapM_loop___at_Lean_Environment_Replay_replayCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.HashMap.find!", 18);
+x_1 = lean_mk_string_unchecked("Lean.HashMap.find!", 18, 18);
 return x_1;
 }
 }
@@ -1381,7 +1381,7 @@ static lean_object* _init_l_List_mapM_loop___at_Lean_Environment_Replay_replayCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("key is not in the map", 21);
+x_1 = lean_mk_string_unchecked("key is not in the map", 21, 21);
 return x_1;
 }
 }
@@ -2031,7 +2031,7 @@ static lean_object* _init_l_Lean_Environment_Replay_replayConstant___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Replay", 11);
+x_1 = lean_mk_string_unchecked("Lean.Replay", 11, 11);
 return x_1;
 }
 }
@@ -2039,7 +2039,7 @@ static lean_object* _init_l_Lean_Environment_Replay_replayConstant___closed__2()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Environment.Replay.replayConstant", 38);
+x_1 = lean_mk_string_unchecked("Lean.Environment.Replay.replayConstant", 38, 38);
 return x_1;
 }
 }
@@ -2047,7 +2047,7 @@ static lean_object* _init_l_Lean_Environment_Replay_replayConstant___closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -3807,7 +3807,7 @@ static lean_object* _init_l_Lean_RBNode_forIn_visit___at_Lean_Environment_Replay
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("No such constructor ", 20);
+x_1 = lean_mk_string_unchecked("No such constructor ", 20, 20);
 return x_1;
 }
 }
@@ -3815,7 +3815,7 @@ static lean_object* _init_l_Lean_RBNode_forIn_visit___at_Lean_Environment_Replay
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Invalid constructor ", 20);
+x_1 = lean_mk_string_unchecked("Invalid constructor ", 20, 20);
 return x_1;
 }
 }
@@ -4770,7 +4770,7 @@ static lean_object* _init_l_Lean_RBNode_forIn_visit___at_Lean_Environment_Replay
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("No such recursor ", 17);
+x_1 = lean_mk_string_unchecked("No such recursor ", 17, 17);
 return x_1;
 }
 }
@@ -4778,7 +4778,7 @@ static lean_object* _init_l_Lean_RBNode_forIn_visit___at_Lean_Environment_Replay
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Invalid recursor ", 17);
+x_1 = lean_mk_string_unchecked("Invalid recursor ", 17, 17);
 return x_1;
 }
 }

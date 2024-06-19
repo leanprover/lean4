@@ -410,7 +410,7 @@ static lean_object* _init_l_Lean_MVarId_rewrite___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("congrArg", 8);
+x_1 = lean_mk_string_unchecked("congrArg", 8, 8);
 return x_1;
 }
 }
@@ -822,7 +822,7 @@ static lean_object* _init_l_Lean_MVarId_rewrite___lambda__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("motive is dependent", 19);
+x_1 = lean_mk_string_unchecked("motive is dependent", 19, 19);
 return x_1;
 }
 }
@@ -972,7 +972,7 @@ static lean_object* _init_l_Lean_MVarId_rewrite___lambda__4___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_a", 2);
+x_1 = lean_mk_string_unchecked("_a", 2, 2);
 return x_1;
 }
 }
@@ -990,7 +990,7 @@ static lean_object* _init_l_Lean_MVarId_rewrite___lambda__4___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("motive is not type correct", 26);
+x_1 = lean_mk_string_unchecked("motive is not type correct", 26, 26);
 return x_1;
 }
 }
@@ -1198,7 +1198,7 @@ static lean_object* _init_l_Lean_MVarId_rewrite___lambda__5___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("did not find instance of the pattern in the target expression", 61);
+x_1 = lean_mk_string_unchecked("did not find instance of the pattern in the target expression", 61, 61);
 return x_1;
 }
 }
@@ -1215,7 +1215,7 @@ static lean_object* _init_l_Lean_MVarId_rewrite___lambda__5___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -5155,7 +5155,7 @@ static lean_object* _init_l_Lean_MVarId_rewrite___lambda__18___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Iff", 3);
+x_1 = lean_mk_string_unchecked("Iff", 3, 3);
 return x_1;
 }
 }
@@ -5173,7 +5173,7 @@ static lean_object* _init_l_Lean_MVarId_rewrite___lambda__18___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("equality or iff proof expected", 30);
+x_1 = lean_mk_string_unchecked("equality or iff proof expected", 30, 30);
 return x_1;
 }
 }
@@ -5190,7 +5190,7 @@ static lean_object* _init_l_Lean_MVarId_rewrite___lambda__18___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pattern is a metavariable", 25);
+x_1 = lean_mk_string_unchecked("pattern is a metavariable", 25, 25);
 return x_1;
 }
 }
@@ -5207,7 +5207,7 @@ static lean_object* _init_l_Lean_MVarId_rewrite___lambda__18___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nfrom equation", 14);
+x_1 = lean_mk_string_unchecked("\nfrom equation", 14, 14);
 return x_1;
 }
 }
@@ -5224,7 +5224,7 @@ static lean_object* _init_l_Lean_MVarId_rewrite___lambda__18___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("propext", 7);
+x_1 = lean_mk_string_unchecked("propext", 7, 7);
 return x_1;
 }
 }
@@ -10031,7 +10031,7 @@ static lean_object* _init_l_Lean_MVarId_rewrite___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rewrite", 7);
+x_1 = lean_mk_string_unchecked("rewrite", 7, 7);
 return x_1;
 }
 }

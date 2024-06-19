@@ -166,7 +166,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid mutual definition, result types must be in the same universe ", 69);
+x_1 = lean_mk_string_unchecked("invalid mutual definition, result types must be in the same universe ", 69, 69);
 return x_1;
 }
 }
@@ -183,7 +183,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("level, resulting type ", 22);
+x_1 = lean_mk_string_unchecked("level, resulting type ", 22, 22);
 return x_1;
 }
 }
@@ -212,7 +212,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("for `", 5);
+x_1 = lean_mk_string_unchecked("for `", 5, 5);
 return x_1;
 }
 }
@@ -229,7 +229,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` is", 4);
+x_1 = lean_mk_string_unchecked("` is", 4, 4);
 return x_1;
 }
 }
@@ -246,7 +246,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" : ", 3);
+x_1 = lean_mk_string_unchecked(" : ", 3, 3);
 return x_1;
 }
 }
@@ -263,7 +263,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -280,7 +280,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("and for `", 9);
+x_1 = lean_mk_string_unchecked("and for `", 9, 9);
 return x_1;
 }
 }
@@ -297,7 +297,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -1499,7 +1499,7 @@ static lean_object* _init_l_Lean_Elab_WF_withAppN___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Failed to eta-expand partial application", 40);
+x_1 = lean_mk_string_unchecked("Failed to eta-expand partial application", 40, 40);
 return x_1;
 }
 }
@@ -3210,7 +3210,7 @@ static lean_object* _init_l_Lean_Elab_WF_packMutual___lambda__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_unary", 6);
+x_1 = lean_mk_string_unchecked("_unary", 6, 6);
 return x_1;
 }
 }
@@ -3228,7 +3228,7 @@ static lean_object* _init_l_Lean_Elab_WF_packMutual___lambda__3___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_mutual", 7);
+x_1 = lean_mk_string_unchecked("_mutual", 7, 7);
 return x_1;
 }
 }

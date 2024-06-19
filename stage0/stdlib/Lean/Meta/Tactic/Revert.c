@@ -443,7 +443,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_MVarId_revert___spe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to revert ", 17);
+x_1 = lean_mk_string_unchecked("failed to revert ", 17, 17);
 return x_1;
 }
 }
@@ -460,7 +460,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_MVarId_revert___spe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", it is an auxiliary declaration created to represent recursive definitions", 75);
+x_1 = lean_mk_string_unchecked(", it is an auxiliary declaration created to represent recursive definitions", 75, 75);
 return x_1;
 }
 }
@@ -692,7 +692,7 @@ static lean_object* _init_l_Lean_MVarId_revert___lambda__2___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to create binder due to failure when reverting variable dependencies", 75);
+x_1 = lean_mk_string_unchecked("failed to create binder due to failure when reverting variable dependencies", 75, 75);
 return x_1;
 }
 }
@@ -1828,7 +1828,7 @@ static lean_object* _init_l_Lean_MVarId_revert___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("revert", 6);
+x_1 = lean_mk_string_unchecked("revert", 6, 6);
 return x_1;
 }
 }

@@ -682,7 +682,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no inductive constructor matched", 32);
+x_1 = lean_mk_string_unchecked("no inductive constructor matched", 32, 32);
 return x_1;
 }
 }
@@ -717,7 +717,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declName", 8);
+x_1 = lean_mk_string_unchecked("declName", 8, 8);
 return x_1;
 }
 }
@@ -735,7 +735,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("const", 5);
+x_1 = lean_mk_string_unchecked("const", 5, 5);
 return x_1;
 }
 }
@@ -751,7 +751,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[anonymous]", 11);
+x_1 = lean_mk_string_unchecked("[anonymous]", 11, 11);
 return x_1;
 }
 }
@@ -759,7 +759,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected a `Name`, got '", 24);
+x_1 = lean_mk_string_unchecked("expected a `Name`, got '", 24, 24);
 return x_1;
 }
 }
@@ -767,7 +767,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -1009,7 +1009,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("id", 2);
+x_1 = lean_mk_string_unchecked("id", 2, 2);
 return x_1;
 }
 }
@@ -1056,7 +1056,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fvar", 4);
+x_1 = lean_mk_string_unchecked("fvar", 4, 4);
 return x_1;
 }
 }
@@ -1649,7 +1649,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("params", 6);
+x_1 = lean_mk_string_unchecked("params", 6, 6);
 return x_1;
 }
 }
@@ -1657,7 +1657,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1665,7 +1665,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lsp", 3);
+x_1 = lean_mk_string_unchecked("Lsp", 3, 3);
 return x_1;
 }
 }
@@ -1673,7 +1673,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CompletionItemDataWithId", 24);
+x_1 = lean_mk_string_unchecked("CompletionItemDataWithId", 24, 24);
 return x_1;
 }
 }
@@ -1702,7 +1702,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -1750,7 +1750,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -1768,7 +1768,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("id\?", 3);
+x_1 = lean_mk_string_unchecked("id\?", 3, 3);
 return x_1;
 }
 }
@@ -3826,7 +3826,7 @@ static lean_object* _init_l_Lean_getConstInfo___at___private_Lean_Server_Complet
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
+x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
 return x_1;
 }
 }
@@ -5536,7 +5536,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Comp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("keyword", 7);
+x_1 = lean_mk_string_unchecked("keyword", 7, 7);
 return x_1;
 }
 }
@@ -5599,7 +5599,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Comp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("namespace", 9);
+x_1 = lean_mk_string_unchecked("namespace", 9, 9);
 return x_1;
 }
 }
@@ -6537,7 +6537,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Comp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Server.Completion", 22);
+x_1 = lean_mk_string_unchecked("Lean.Server.Completion", 22, 22);
 return x_1;
 }
 }
@@ -6545,7 +6545,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Comp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Server.Completion.0.Lean.Server.Completion.truncate.go", 68);
+x_1 = lean_mk_string_unchecked("_private.Lean.Server.Completion.0.Lean.Server.Completion.truncate.go", 68, 68);
 return x_1;
 }
 }
@@ -6553,7 +6553,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Comp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -20397,7 +20397,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Comp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -20405,7 +20405,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Comp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -20413,7 +20413,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Comp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("completion", 10);
+x_1 = lean_mk_string_unchecked("completion", 10, 10);
 return x_1;
 }
 }
@@ -21810,7 +21810,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Server_Co
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("field", 5);
+x_1 = lean_mk_string_unchecked("field", 5, 5);
 return x_1;
 }
 }
@@ -22141,7 +22141,7 @@ static lean_object* _init_l_Lean_RBNode_forIn_visit___at___private_Lean_Server_C
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -22149,7 +22149,7 @@ static lean_object* _init_l_Lean_RBNode_forIn_visit___at___private_Lean_Server_C
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("), ", 3);
+x_1 = lean_mk_string_unchecked("), ", 3, 3);
 return x_1;
 }
 }
@@ -22157,7 +22157,7 @@ static lean_object* _init_l_Lean_RBNode_forIn_visit___at___private_Lean_Server_C
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -23741,7 +23741,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Comp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tactic", 6);
+x_1 = lean_mk_string_unchecked("tactic", 6, 6);
 return x_1;
 }
 }
@@ -23759,7 +23759,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Comp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.Data.Option.BasicAux", 25);
+x_1 = lean_mk_string_unchecked("Init.Data.Option.BasicAux", 25, 25);
 return x_1;
 }
 }
@@ -23767,7 +23767,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Comp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Option.get!", 11);
+x_1 = lean_mk_string_unchecked("Option.get!", 11, 11);
 return x_1;
 }
 }
@@ -23775,7 +23775,7 @@ static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Comp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("value is none", 13);
+x_1 = lean_mk_string_unchecked("value is none", 13, 13);
 return x_1;
 }
 }

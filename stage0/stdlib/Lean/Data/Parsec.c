@@ -145,7 +145,7 @@ static lean_object* _init_l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Parsec.ParseResult.success", 31);
+x_1 = lean_mk_string_unchecked("Lean.Parsec.ParseResult.success", 31, 31);
 return x_1;
 }
 }
@@ -175,7 +175,7 @@ static lean_object* _init_l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("String.Iterator.mk ", 19);
+x_1 = lean_mk_string_unchecked("String.Iterator.mk ", 19, 19);
 return x_1;
 }
 }
@@ -193,7 +193,7 @@ static lean_object* _init_l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -211,7 +211,7 @@ static lean_object* _init_l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("{ byteIdx := ", 13);
+x_1 = lean_mk_string_unchecked("{ byteIdx := ", 13, 13);
 return x_1;
 }
 }
@@ -229,7 +229,7 @@ static lean_object* _init_l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" }", 2);
+x_1 = lean_mk_string_unchecked(" }", 2, 2);
 return x_1;
 }
 }
@@ -265,7 +265,7 @@ static lean_object* _init_l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Parsec.ParseResult.error", 29);
+x_1 = lean_mk_string_unchecked("Lean.Parsec.ParseResult.error", 29, 29);
 return x_1;
 }
 }
@@ -544,7 +544,7 @@ static lean_object* _init_l_Lean_Parsec_instInhabited___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -1560,7 +1560,7 @@ static lean_object* _init_l_Lean_Parsec_run___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("offset ", 7);
+x_1 = lean_mk_string_unchecked("offset ", 7, 7);
 return x_1;
 }
 }
@@ -1568,7 +1568,7 @@ static lean_object* _init_l_Lean_Parsec_run___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -1634,7 +1634,7 @@ static lean_object* _init_l_Lean_Parsec_expectedEndOfInput___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected end of input", 21);
+x_1 = lean_mk_string_unchecked("expected end of input", 21, 21);
 return x_1;
 }
 }
@@ -2007,7 +2007,7 @@ static lean_object* _init_l_Lean_Parsec_pstring___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected: ", 10);
+x_1 = lean_mk_string_unchecked("expected: ", 10, 10);
 return x_1;
 }
 }
@@ -2122,7 +2122,7 @@ static lean_object* _init_l_Lean_Parsec_unexpectedEndOfInput___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected end of input", 23);
+x_1 = lean_mk_string_unchecked("unexpected end of input", 23, 23);
 return x_1;
 }
 }
@@ -2167,7 +2167,7 @@ static lean_object* _init_l_Lean_Parsec_pchar___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected: '", 11);
+x_1 = lean_mk_string_unchecked("expected: '", 11, 11);
 return x_1;
 }
 }
@@ -2175,7 +2175,7 @@ static lean_object* _init_l_Lean_Parsec_pchar___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -2303,7 +2303,7 @@ static lean_object* _init_l_Lean_Parsec_digit___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("digit expected", 14);
+x_1 = lean_mk_string_unchecked("digit expected", 14, 14);
 return x_1;
 }
 }
@@ -2372,7 +2372,7 @@ static lean_object* _init_l_Lean_Parsec_hexDigit___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hex digit expected", 18);
+x_1 = lean_mk_string_unchecked("hex digit expected", 18, 18);
 return x_1;
 }
 }
@@ -2542,7 +2542,7 @@ static lean_object* _init_l_Lean_Parsec_asciiLetter___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ASCII letter expected", 21);
+x_1 = lean_mk_string_unchecked("ASCII letter expected", 21, 21);
 return x_1;
 }
 }
@@ -2675,7 +2675,7 @@ static lean_object* _init_l_Lean_Parsec_satisfy___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("condition not satisfied", 23);
+x_1 = lean_mk_string_unchecked("condition not satisfied", 23, 23);
 return x_1;
 }
 }

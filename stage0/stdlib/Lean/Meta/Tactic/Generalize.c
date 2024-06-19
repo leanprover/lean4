@@ -441,7 +441,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Generalize_0__Lean_Meta_g
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("x", 1);
+x_1 = lean_mk_string_unchecked("x", 1, 1);
 return x_1;
 }
 }
@@ -1969,7 +1969,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Generalize_0__Lean_Meta_g
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("result is not type correct", 26);
+x_1 = lean_mk_string_unchecked("result is not type correct", 26, 26);
 return x_1;
 }
 }
@@ -1986,7 +1986,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Generalize_0__Lean_Meta_g
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -2443,7 +2443,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Generalize_0__Lean_Meta_g
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("generalize", 10);
+x_1 = lean_mk_string_unchecked("generalize", 10, 10);
 return x_1;
 }
 }

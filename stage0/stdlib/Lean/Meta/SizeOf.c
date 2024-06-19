@@ -511,7 +511,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInsta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("SizeOf", 6);
+x_1 = lean_mk_string_unchecked("SizeOf", 6, 6);
 return x_1;
 }
 }
@@ -763,7 +763,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInsta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inst", 4);
+x_1 = lean_mk_string_unchecked("inst", 4, 4);
 return x_1;
 }
 }
@@ -1903,7 +1903,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMoti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Nat", 3);
+x_1 = lean_mk_string_unchecked("Nat", 3, 3);
 return x_1;
 }
 }
@@ -1963,7 +1963,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMoti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -1971,7 +1971,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMoti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sizeOf", 6);
+x_1 = lean_mk_string_unchecked("sizeOf", 6, 6);
 return x_1;
 }
 }
@@ -1989,7 +1989,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMoti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("motive: ", 8);
+x_1 = lean_mk_string_unchecked("motive: ", 8, 8);
 return x_1;
 }
 }
@@ -2006,7 +2006,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMoti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -2271,7 +2271,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_ignoreFieldT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Unit", 4);
+x_1 = lean_mk_string_unchecked("Unit", 4, 4);
 return x_1;
 }
 }
@@ -2525,7 +2525,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfRecF
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unit", 4);
+x_1 = lean_mk_string_unchecked("unit", 4, 4);
 return x_1;
 }
 }
@@ -4671,7 +4671,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMino
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("minor: ", 7);
+x_1 = lean_mk_string_unchecked("minor: ", 7, 7);
 return x_1;
 }
 }
@@ -5287,7 +5287,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMino
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("assertion violation: ", 21);
+x_1 = lean_mk_string_unchecked("assertion violation: ", 21, 21);
 return x_1;
 }
 }
@@ -5295,7 +5295,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMino
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("minorFVars.size == minorFVars'.size\n  ", 38);
+x_1 = lean_mk_string_unchecked("minorFVars.size == minorFVars'.size\n  ", 38, 38);
 return x_1;
 }
 }
@@ -5313,7 +5313,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMino
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.SizeOf", 16);
+x_1 = lean_mk_string_unchecked("Lean.Meta.SizeOf", 16, 16);
 return x_1;
 }
 }
@@ -5321,7 +5321,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMino
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Meta.SizeOf.0.Lean.Meta.mkSizeOfMinors", 52);
+x_1 = lean_mk_string_unchecked("_private.Lean.Meta.SizeOf.0.Lean.Meta.mkSizeOfMinors", 52, 52);
 return x_1;
 }
 }
@@ -5418,7 +5418,7 @@ static lean_object* _init_l_Lean_getConstInfoRec___at_Lean_Meta_mkSizeOfFn___spe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -5435,7 +5435,7 @@ static lean_object* _init_l_Lean_getConstInfoRec___at_Lean_Meta_mkSizeOfFn___spe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' is not a recursor", 19);
+x_1 = lean_mk_string_unchecked("' is not a recursor", 19, 19);
 return x_1;
 }
 }
@@ -5567,7 +5567,7 @@ static lean_object* _init_l_Lean_Meta_mkSizeOfFn___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("val: ", 5);
+x_1 = lean_mk_string_unchecked("val: ", 5, 5);
 return x_1;
 }
 }
@@ -5664,7 +5664,7 @@ static lean_object* _init_l_Lean_Meta_mkSizeOfFn___lambda__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("type: ", 6);
+x_1 = lean_mk_string_unchecked("type: ", 6, 6);
 return x_1;
 }
 }
@@ -5762,7 +5762,7 @@ static lean_object* _init_l_Lean_Meta_mkSizeOfFn___lambda__4___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declName: ", 10);
+x_1 = lean_mk_string_unchecked("declName: ", 10, 10);
 return x_1;
 }
 }
@@ -6258,7 +6258,7 @@ static lean_object* _init_l_Lean_Meta_mkSizeOfFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("recName: ", 9);
+x_1 = lean_mk_string_unchecked("recName: ", 9, 9);
 return x_1;
 }
 }
@@ -6574,7 +6574,7 @@ static lean_object* _init_l_Lean_getConstInfoInduct___at_Lean_Meta_mkSizeOfFns__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' is not a inductive type", 25);
+x_1 = lean_mk_string_unchecked("' is not a inductive type", 25, 25);
 return x_1;
 }
 }
@@ -6680,7 +6680,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Meta_mkSizeOfFns___spec__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rec", 3);
+x_1 = lean_mk_string_unchecked("rec", 3, 3);
 return x_1;
 }
 }
@@ -7022,7 +7022,7 @@ static lean_object* _init_l_Lean_Meta_mkSizeOfFns___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_sizeOf", 7);
+x_1 = lean_mk_string_unchecked("_sizeOf", 7, 7);
 return x_1;
 }
 }
@@ -7545,7 +7545,7 @@ static lean_object* _init_l_Lean_Meta_mkSizeOfSpecLemmaName___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sizeOf_spec", 11);
+x_1 = lean_mk_string_unchecked("sizeOf_spec", 11, 11);
 return x_1;
 }
 }
@@ -7609,7 +7609,7 @@ static lean_object* _init_l_Lean_Meta_mkSizeOfSpecLemmaInstance___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to apply 'sizeOf' spec, constructor expected", 51);
+x_1 = lean_mk_string_unchecked("failed to apply 'sizeOf' spec, constructor expected", 51, 51);
 return x_1;
 }
 }
@@ -8173,7 +8173,7 @@ static lean_object* _init_l_Lean_Meta_SizeOfSpecNested_throwUnexpected___rarg___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to generate sizeOf theorem for ", 38);
+x_1 = lean_mk_string_unchecked("failed to generate sizeOf theorem for ", 38, 38);
 return x_1;
 }
 }
@@ -8190,7 +8190,7 @@ static lean_object* _init_l_Lean_Meta_SizeOfSpecNested_throwUnexpected___rarg___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" (use `set_option genSizeOfSpec false` to disable theorem generation), ", 71);
+x_1 = lean_mk_string_unchecked(" (use `set_option genSizeOfSpec false` to disable theorem generation), ", 71, 71);
 return x_1;
 }
 }
@@ -8313,7 +8313,7 @@ static lean_object* _init_l_Lean_Meta_SizeOfSpecNested_throwFailed___rarg___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", (use `set_option genSizeOfSpec false` to disable theorem generation)", 70);
+x_1 = lean_mk_string_unchecked(", (use `set_option genSizeOfSpec false` to disable theorem generation)", 70, 70);
 return x_1;
 }
 }
@@ -8383,7 +8383,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected recursor application ", 30);
+x_1 = lean_mk_string_unchecked("expected recursor application ", 30, 30);
 return x_1;
 }
 }
@@ -9341,7 +9341,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected 'Nat.add' application, lhs is ", 39);
+x_1 = lean_mk_string_unchecked("expected 'Nat.add' application, lhs is ", 39, 39);
 return x_1;
 }
 }
@@ -9358,7 +9358,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nrhs is", 7);
+x_1 = lean_mk_string_unchecked("\nrhs is", 7, 7);
 return x_1;
 }
 }
@@ -9375,7 +9375,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("add", 3);
+x_1 = lean_mk_string_unchecked("add", 3, 3);
 return x_1;
 }
 }
@@ -9811,7 +9811,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("minor", 5);
+x_1 = lean_mk_string_unchecked("minor", 5, 5);
 return x_1;
 }
 }
@@ -9830,7 +9830,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" =\?= ", 5);
+x_1 = lean_mk_string_unchecked(" =\?= ", 5, 5);
 return x_1;
 }
 }
@@ -10271,7 +10271,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("step", 4);
+x_1 = lean_mk_string_unchecked("step", 4, 4);
 return x_1;
 }
 }
@@ -10788,7 +10788,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("thmValue: ", 10);
+x_1 = lean_mk_string_unchecked("thmValue: ", 10, 10);
 return x_1;
 }
 }
@@ -11161,7 +11161,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("x", 1);
+x_1 = lean_mk_string_unchecked("x", 1, 1);
 return x_1;
 }
 }
@@ -11201,7 +11201,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_eq", 3);
+x_1 = lean_mk_string_unchecked("_eq", 3, 3);
 return x_1;
 }
 }
@@ -11882,7 +11882,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("aux", 3);
+x_1 = lean_mk_string_unchecked("aux", 3, 3);
 return x_1;
 }
 }
@@ -12033,7 +12033,7 @@ static lean_object* _init_l_Lean_getConstInfo___at___private_Lean_Meta_SizeOf_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
+x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
 return x_1;
 }
 }
@@ -12540,7 +12540,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Meta_Size
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -14541,7 +14541,7 @@ static lean_object* _init_l_Lean_Meta_SizeOfSpecNested_main_loop___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("loop", 4);
+x_1 = lean_mk_string_unchecked("loop", 4, 4);
 return x_1;
 }
 }
@@ -15147,7 +15147,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("type mismatch", 13);
+x_1 = lean_mk_string_unchecked("type mismatch", 13, 13);
 return x_1;
 }
 }
@@ -15312,7 +15312,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sizeOf spec theorem value: ", 27);
+x_1 = lean_mk_string_unchecked("sizeOf spec theorem value: ", 27, 27);
 return x_1;
 }
 }
@@ -15409,7 +15409,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sizeOf spec theorem type: ", 26);
+x_1 = lean_mk_string_unchecked("sizeOf spec theorem type: ", 26, 26);
 return x_1;
 }
 }
@@ -15507,7 +15507,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sizeOf spec theorem name: ", 26);
+x_1 = lean_mk_string_unchecked("sizeOf spec theorem name: ", 26, 26);
 return x_1;
 }
 }
@@ -15843,7 +15843,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ctor: ", 6);
+x_1 = lean_mk_string_unchecked("ctor: ", 6, 6);
 return x_1;
 }
 }
@@ -15860,7 +15860,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", target: ", 10);
+x_1 = lean_mk_string_unchecked(", target: ", 10, 10);
 return x_1;
 }
 }
@@ -16221,7 +16221,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simp", 4);
+x_1 = lean_mk_string_unchecked("simp", 4, 4);
 return x_1;
 }
 }
@@ -16766,7 +16766,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_SizeOf___hyg_7394_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("genSizeOf", 9);
+x_1 = lean_mk_string_unchecked("genSizeOf", 9, 9);
 return x_1;
 }
 }
@@ -16784,7 +16784,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_SizeOf___hyg_7394_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("generate `SizeOf` instance for inductive types and structures", 61);
+x_1 = lean_mk_string_unchecked("generate `SizeOf` instance for inductive types and structures", 61, 61);
 return x_1;
 }
 }
@@ -16807,7 +16807,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_SizeOf___hyg_7394_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -16837,7 +16837,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_SizeOf___hyg_7430_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("genSizeOfSpec", 13);
+x_1 = lean_mk_string_unchecked("genSizeOfSpec", 13, 13);
 return x_1;
 }
 }
@@ -16855,7 +16855,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_SizeOf___hyg_7430_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("generate `SizeOf` specification theorems for automatically generated instances", 78);
+x_1 = lean_mk_string_unchecked("generate `SizeOf` specification theorems for automatically generated instances", 78, 78);
 return x_1;
 }
 }
@@ -17026,7 +17026,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Meta_mkSizeOfInstances___s
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mk", 2);
+x_1 = lean_mk_string_unchecked("mk", 2, 2);
 return x_1;
 }
 }
@@ -17044,7 +17044,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Meta_mkSizeOfInstances___s
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_sizeOf_inst", 12);
+x_1 = lean_mk_string_unchecked("_sizeOf_inst", 12, 12);
 return x_1;
 }
 }
@@ -17062,7 +17062,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Meta_mkSizeOfInstances___s
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(">> ", 3);
+x_1 = lean_mk_string_unchecked(">> ", 3, 3);
 return x_1;
 }
 }
@@ -17079,7 +17079,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Meta_mkSizeOfInstances___s
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" : ", 3);
+x_1 = lean_mk_string_unchecked(" : ", 3, 3);
 return x_1;
 }
 }
@@ -17381,7 +17381,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Meta_mkSizeOfInstances___s
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("m", 1);
+x_1 = lean_mk_string_unchecked("m", 1, 1);
 return x_1;
 }
 }
@@ -18582,7 +18582,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_SizeOf___hyg_8182_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -18600,7 +18600,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_SizeOf___hyg_8182_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -18648,7 +18648,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_SizeOf___hyg_8182_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }

@@ -2635,7 +2635,7 @@ static lean_object* _init_l_Lean_HashMap_find_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Data.HashMap", 17);
+x_1 = lean_mk_string_unchecked("Lean.Data.HashMap", 17, 17);
 return x_1;
 }
 }
@@ -2643,7 +2643,7 @@ static lean_object* _init_l_Lean_HashMap_find_x21___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.HashMap.find!", 18);
+x_1 = lean_mk_string_unchecked("Lean.HashMap.find!", 18, 18);
 return x_1;
 }
 }
@@ -2651,7 +2651,7 @@ static lean_object* _init_l_Lean_HashMap_find_x21___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("key is not in the map", 21);
+x_1 = lean_mk_string_unchecked("key is not in the map", 21, 21);
 return x_1;
 }
 }

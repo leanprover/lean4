@@ -338,7 +338,7 @@ static lean_object* _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_Com
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elaboratingComputedFields", 25);
+x_1 = lean_mk_string_unchecked("elaboratingComputedFields", 25, 25);
 return x_1;
 }
 }
@@ -356,7 +356,7 @@ static lean_object* _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_Com
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("The @[computed_field] attribute can only be used in the with-block of an inductive", 82);
+x_1 = lean_mk_string_unchecked("The @[computed_field] attribute can only be used in the with-block of an inductive", 82, 82);
 return x_1;
 }
 }
@@ -399,7 +399,7 @@ static lean_object* _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_Com
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("computed_field", 14);
+x_1 = lean_mk_string_unchecked("computed_field", 14, 14);
 return x_1;
 }
 }
@@ -417,7 +417,7 @@ static lean_object* _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_Com
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -425,7 +425,7 @@ static lean_object* _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_Com
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -433,7 +433,7 @@ static lean_object* _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_Com
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ComputedFields", 14);
+x_1 = lean_mk_string_unchecked("ComputedFields", 14, 14);
 return x_1;
 }
 }
@@ -441,7 +441,7 @@ static lean_object* _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_Com
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("computedFieldAttr", 17);
+x_1 = lean_mk_string_unchecked("computedFieldAttr", 17, 17);
 return x_1;
 }
 }
@@ -461,7 +461,7 @@ static lean_object* _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_Com
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Marks a function as a computed field of an inductive", 52);
+x_1 = lean_mk_string_unchecked("Marks a function as a computed field of an inductive", 52, 52);
 return x_1;
 }
 }
@@ -501,7 +501,7 @@ static lean_object* _init_l_Lean_Elab_ComputedFields_mkUnsafeCastTo___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unsafeCast", 10);
+x_1 = lean_mk_string_unchecked("unsafeCast", 10, 10);
 return x_1;
 }
 }
@@ -592,7 +592,7 @@ static lean_object* _init_l_Lean_getConstInfoCtor___at_Lean_Elab_ComputedFields_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -609,7 +609,7 @@ static lean_object* _init_l_Lean_getConstInfoCtor___at_Lean_Elab_ComputedFields_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' is not a constructor", 22);
+x_1 = lean_mk_string_unchecked("' is not a constructor", 22, 22);
 return x_1;
 }
 }
@@ -880,7 +880,7 @@ static lean_object* _init_l_Lean_Meta_whnfEasyCases___at_Lean_Elab_ComputedField
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.WHNF", 14);
+x_1 = lean_mk_string_unchecked("Lean.Meta.WHNF", 14, 14);
 return x_1;
 }
 }
@@ -888,7 +888,7 @@ static lean_object* _init_l_Lean_Meta_whnfEasyCases___at_Lean_Elab_ComputedField
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.whnfEasyCases", 23);
+x_1 = lean_mk_string_unchecked("Lean.Meta.whnfEasyCases", 23, 23);
 return x_1;
 }
 }
@@ -896,7 +896,7 @@ static lean_object* _init_l_Lean_Meta_whnfEasyCases___at_Lean_Elab_ComputedField
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("loose bvar in expression", 24);
+x_1 = lean_mk_string_unchecked("loose bvar in expression", 24, 24);
 return x_1;
 }
 }
@@ -2229,7 +2229,7 @@ static lean_object* _init_l_Lean_Elab_ComputedFields_getComputedFieldValue___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("computed field ", 15);
+x_1 = lean_mk_string_unchecked("computed field ", 15, 15);
 return x_1;
 }
 }
@@ -2246,7 +2246,7 @@ static lean_object* _init_l_Lean_Elab_ComputedFields_getComputedFieldValue___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" does not reduce for constructor ", 33);
+x_1 = lean_mk_string_unchecked(" does not reduce for constructor ", 33, 33);
 return x_1;
 }
 }
@@ -2263,7 +2263,7 @@ static lean_object* _init_l_Lean_Elab_ComputedFields_getComputedFieldValue___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -2818,7 +2818,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_ComputedFields
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'s type must not depend on indices", 34);
+x_1 = lean_mk_string_unchecked("'s type must not depend on indices", 34, 34);
 return x_1;
 }
 }
@@ -2915,7 +2915,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_ComputedFields
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'s type must not depend on value", 32);
+x_1 = lean_mk_string_unchecked("'s type must not depend on value", 32, 32);
 return x_1;
 }
 }
@@ -3297,7 +3297,7 @@ static lean_object* _init_l_List_mapM_loop___at_Lean_Elab_ComputedFields_mkImplT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_impl", 5);
+x_1 = lean_mk_string_unchecked("_impl", 5, 5);
 return x_1;
 }
 }
@@ -4029,7 +4029,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_Lean_Elab_ComputedFields_over
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
+x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
 return x_1;
 }
 }
@@ -4174,7 +4174,7 @@ static lean_object* _init_l_Lean_getConstInfoDefn___at_Lean_Elab_ComputedFields_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' is not a definition", 21);
+x_1 = lean_mk_string_unchecked("' is not a definition", 21, 21);
 return x_1;
 }
 }
@@ -5042,7 +5042,7 @@ static lean_object* _init_l_Lean_Elab_ComputedFields_overrideCasesOn___lambda__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("m", 1);
+x_1 = lean_mk_string_unchecked("m", 1, 1);
 return x_1;
 }
 }
@@ -5118,7 +5118,7 @@ static lean_object* _init_l_Lean_Elab_ComputedFields_overrideCasesOn___lambda__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("a", 1);
+x_1 = lean_mk_string_unchecked("a", 1, 1);
 return x_1;
 }
 }
@@ -5434,7 +5434,7 @@ static lean_object* _init_l_Lean_Elab_ComputedFields_overrideCasesOn___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_override", 9);
+x_1 = lean_mk_string_unchecked("_override", 9, 9);
 return x_1;
 }
 }
@@ -9060,7 +9060,7 @@ static lean_object* _init_l_Lean_Elab_ComputedFields_overrideComputedFields___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("x", 1);
+x_1 = lean_mk_string_unchecked("x", 1, 1);
 return x_1;
 }
 }
@@ -9807,7 +9807,7 @@ static lean_object* _init_l_Lean_Elab_ComputedFields_mkComputedFieldOverrides___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("computed fields require at least two constructors", 49);
+x_1 = lean_mk_string_unchecked("computed fields require at least two constructors", 49, 49);
 return x_1;
 }
 }
@@ -10074,7 +10074,7 @@ static lean_object* _init_l_Lean_logAt___at_Lean_Elab_ComputedFields_setComputed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -10082,7 +10082,7 @@ static lean_object* _init_l_Lean_logAt___at_Lean_Elab_ComputedFields_setComputed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unsolvedGoals", 13);
+x_1 = lean_mk_string_unchecked("unsolvedGoals", 13, 13);
 return x_1;
 }
 }
@@ -10090,7 +10090,7 @@ static lean_object* _init_l_Lean_logAt___at_Lean_Elab_ComputedFields_setComputed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("synthPlaceholder", 16);
+x_1 = lean_mk_string_unchecked("synthPlaceholder", 16, 16);
 return x_1;
 }
 }
@@ -10949,7 +10949,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_ComputedFields
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' must be tagged with @[computed_field]", 39);
+x_1 = lean_mk_string_unchecked("' must be tagged with @[computed_field]", 39, 39);
 return x_1;
 }
 }

@@ -673,7 +673,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_CoreM___hyg_6____closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("diagnostics", 11);
+x_1 = lean_mk_string_unchecked("diagnostics", 11, 11);
 return x_1;
 }
 }
@@ -691,7 +691,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_CoreM___hyg_6____closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("collect diagnostic information", 30);
+x_1 = lean_mk_string_unchecked("collect diagnostic information", 30, 30);
 return x_1;
 }
 }
@@ -714,7 +714,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_CoreM___hyg_6____closed__5()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -743,7 +743,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_CoreM___hyg_43____closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("threshold", 9);
+x_1 = lean_mk_string_unchecked("threshold", 9, 9);
 return x_1;
 }
 }
@@ -761,7 +761,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_CoreM___hyg_43____closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("only diagnostic counters above this threshold are reported by the definitional equality", 87);
+x_1 = lean_mk_string_unchecked("only diagnostic counters above this threshold are reported by the definitional equality", 87, 87);
 return x_1;
 }
 }
@@ -805,7 +805,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_CoreM___hyg_85____closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("maxHeartbeats", 13);
+x_1 = lean_mk_string_unchecked("maxHeartbeats", 13, 13);
 return x_1;
 }
 }
@@ -823,7 +823,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_CoreM___hyg_85____closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -831,7 +831,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_CoreM___hyg_85____closed__4(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("maximum amount of heartbeats per command. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit", 126);
+x_1 = lean_mk_string_unchecked("maximum amount of heartbeats per command. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit", 126, 126);
 return x_1;
 }
 }
@@ -886,7 +886,7 @@ static lean_object* _init_l_Lean_useDiagnosticMsg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("use `set_option ", 16);
+x_1 = lean_mk_string_unchecked("use `set_option ", 16, 16);
 return x_1;
 }
 }
@@ -904,7 +904,7 @@ static lean_object* _init_l_Lean_useDiagnosticMsg___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" true` to get diagnostic information", 36);
+x_1 = lean_mk_string_unchecked(" true` to get diagnostic information", 36, 36);
 return x_1;
 }
 }
@@ -930,7 +930,7 @@ static lean_object* _init_l_Lean_Core_initFn____x40_Lean_CoreM___hyg_138____clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Kernel", 6);
+x_1 = lean_mk_string_unchecked("Kernel", 6, 6);
 return x_1;
 }
 }
@@ -958,7 +958,7 @@ static lean_object* _init_l_Lean_Core_initFn____x40_Lean_CoreM___hyg_138____clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Core", 4);
+x_1 = lean_mk_string_unchecked("Core", 4, 4);
 return x_1;
 }
 }
@@ -976,7 +976,7 @@ static lean_object* _init_l_Lean_Core_initFn____x40_Lean_CoreM___hyg_138____clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -994,7 +994,7 @@ static lean_object* _init_l_Lean_Core_initFn____x40_Lean_CoreM___hyg_138____clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -1022,7 +1022,7 @@ static lean_object* _init_l_Lean_Core_initFn____x40_Lean_CoreM___hyg_138____clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CoreM", 5);
+x_1 = lean_mk_string_unchecked("CoreM", 5, 5);
 return x_1;
 }
 }
@@ -1040,7 +1040,7 @@ static lean_object* _init_l_Lean_Core_initFn____x40_Lean_CoreM___hyg_138____clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -1179,7 +1179,7 @@ static lean_object* _init_l_Lean_Core_State_ngen___default___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_uniq", 5);
+x_1 = lean_mk_string_unchecked("_uniq", 5, 5);
 return x_1;
 }
 }
@@ -5296,7 +5296,7 @@ static lean_object* _init_l_Lean_Core_instantiateValueLevelParams___lambda__2___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Not a definition or theorem: ", 29);
+x_1 = lean_mk_string_unchecked("Not a definition or theorem: ", 29, 29);
 return x_1;
 }
 }
@@ -7281,7 +7281,7 @@ static lean_object* _init_l_Lean_Core_CoreM_toIO___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("internal exception #", 20);
+x_1 = lean_mk_string_unchecked("internal exception #", 20, 20);
 return x_1;
 }
 }
@@ -9815,7 +9815,7 @@ static lean_object* _init_l_Lean_Core_instMetaEvalCoreM___rarg___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("<CoreM>", 7);
+x_1 = lean_mk_string_unchecked("<CoreM>", 7, 7);
 return x_1;
 }
 }
@@ -10741,7 +10741,7 @@ static lean_object* _init_l_Lean_Core_initFn____x40_Lean_CoreM___hyg_2857____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("interrupt", 9);
+x_1 = lean_mk_string_unchecked("interrupt", 9, 9);
 return x_1;
 }
 }
@@ -10877,7 +10877,7 @@ static lean_object* _init_l_Lean_Core_initFn____x40_Lean_CoreM___hyg_2972____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("debug", 5);
+x_1 = lean_mk_string_unchecked("debug", 5, 5);
 return x_1;
 }
 }
@@ -10885,7 +10885,7 @@ static lean_object* _init_l_Lean_Core_initFn____x40_Lean_CoreM___hyg_2972____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("moduleNameAtTimeout", 19);
+x_1 = lean_mk_string_unchecked("moduleNameAtTimeout", 19, 19);
 return x_1;
 }
 }
@@ -10903,7 +10903,7 @@ static lean_object* _init_l_Lean_Core_initFn____x40_Lean_CoreM___hyg_2972____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("include module name in deterministic timeout error messages.\nRemark: we set this option to false to increase the stability of our test suite", 140);
+x_1 = lean_mk_string_unchecked("include module name in deterministic timeout error messages.\nRemark: we set this option to false to increase the stability of our test suite", 140, 140);
 return x_1;
 }
 }
@@ -10957,7 +10957,7 @@ static lean_object* _init_l_Lean_Core_throwMaxHeartbeat___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(deterministic) timeout", 23);
+x_1 = lean_mk_string_unchecked("(deterministic) timeout", 23, 23);
 return x_1;
 }
 }
@@ -10975,7 +10975,7 @@ static lean_object* _init_l_Lean_Core_throwMaxHeartbeat___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", maximum number of heartbeats (", 32);
+x_1 = lean_mk_string_unchecked(", maximum number of heartbeats (", 32, 32);
 return x_1;
 }
 }
@@ -10993,7 +10993,7 @@ static lean_object* _init_l_Lean_Core_throwMaxHeartbeat___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(") has been reached\nuse `set_option ", 35);
+x_1 = lean_mk_string_unchecked(") has been reached\nuse `set_option ", 35, 35);
 return x_1;
 }
 }
@@ -11001,7 +11001,7 @@ static lean_object* _init_l_Lean_Core_throwMaxHeartbeat___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" <num>` to set the limit\n", 25);
+x_1 = lean_mk_string_unchecked(" <num>` to set the limit\n", 25, 25);
 return x_1;
 }
 }
@@ -11009,7 +11009,7 @@ static lean_object* _init_l_Lean_Core_throwMaxHeartbeat___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" at `", 5);
+x_1 = lean_mk_string_unchecked(" at `", 5, 5);
 return x_1;
 }
 }
@@ -11017,7 +11017,7 @@ static lean_object* _init_l_Lean_Core_throwMaxHeartbeat___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`", 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -11992,7 +11992,7 @@ static lean_object* _init_l_Lean_Core_instMonadLogCoreM___lambda__5___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -12000,7 +12000,7 @@ static lean_object* _init_l_Lean_Core_instMonadLogCoreM___lambda__5___closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -12008,7 +12008,7 @@ static lean_object* _init_l_Lean_Core_instMonadLogCoreM___lambda__5___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unsolvedGoals", 13);
+x_1 = lean_mk_string_unchecked("unsolvedGoals", 13, 13);
 return x_1;
 }
 }
@@ -12016,7 +12016,7 @@ static lean_object* _init_l_Lean_Core_instMonadLogCoreM___lambda__5___closed__4(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("synthPlaceholder", 16);
+x_1 = lean_mk_string_unchecked("synthPlaceholder", 16, 16);
 return x_1;
 }
 }
@@ -12631,7 +12631,7 @@ static lean_object* _init_l_Lean_mkArrow___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("x", 1);
+x_1 = lean_mk_string_unchecked("x", 1, 1);
 return x_1;
 }
 }
@@ -12777,7 +12777,7 @@ static lean_object* _init_l___private_Lean_CoreM_0__Lean_supportedRecursors___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Empty", 5);
+x_1 = lean_mk_string_unchecked("Empty", 5, 5);
 return x_1;
 }
 }
@@ -12785,7 +12785,7 @@ static lean_object* _init_l___private_Lean_CoreM_0__Lean_supportedRecursors___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rec", 3);
+x_1 = lean_mk_string_unchecked("rec", 3, 3);
 return x_1;
 }
 }
@@ -12803,7 +12803,7 @@ static lean_object* _init_l___private_Lean_CoreM_0__Lean_supportedRecursors___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("False", 5);
+x_1 = lean_mk_string_unchecked("False", 5, 5);
 return x_1;
 }
 }
@@ -12821,7 +12821,7 @@ static lean_object* _init_l___private_Lean_CoreM_0__Lean_supportedRecursors___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -12829,7 +12829,7 @@ static lean_object* _init_l___private_Lean_CoreM_0__Lean_supportedRecursors___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ndrec", 5);
+x_1 = lean_mk_string_unchecked("ndrec", 5, 5);
 return x_1;
 }
 }
@@ -12857,7 +12857,7 @@ static lean_object* _init_l___private_Lean_CoreM_0__Lean_supportedRecursors___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("recOn", 5);
+x_1 = lean_mk_string_unchecked("recOn", 5, 5);
 return x_1;
 }
 }
@@ -12875,7 +12875,7 @@ static lean_object* _init_l___private_Lean_CoreM_0__Lean_supportedRecursors___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("casesOn", 7);
+x_1 = lean_mk_string_unchecked("casesOn", 7, 7);
 return x_1;
 }
 }
@@ -12913,7 +12913,7 @@ static lean_object* _init_l___private_Lean_CoreM_0__Lean_supportedRecursors___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("And", 3);
+x_1 = lean_mk_string_unchecked("And", 3, 3);
 return x_1;
 }
 }
@@ -13173,7 +13173,7 @@ static lean_object* _init_l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkU
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("code generator does not support recursor '", 42);
+x_1 = lean_mk_string_unchecked("code generator does not support recursor '", 42, 42);
 return x_1;
 }
 }
@@ -13190,7 +13190,7 @@ static lean_object* _init_l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkU
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' yet, consider using 'match ... with' and/or structural recursion", 66);
+x_1 = lean_mk_string_unchecked("' yet, consider using 'match ... with' and/or structural recursion", 66, 66);
 return x_1;
 }
 }
@@ -14274,7 +14274,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_CoreM___hyg_4409____closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("compiler", 8);
+x_1 = lean_mk_string_unchecked("compiler", 8, 8);
 return x_1;
 }
 }
@@ -14282,7 +14282,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_CoreM___hyg_4409____closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("enableNew", 9);
+x_1 = lean_mk_string_unchecked("enableNew", 9, 9);
 return x_1;
 }
 }
@@ -14300,7 +14300,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_CoreM___hyg_4409____closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(compiler) enable the new code generator, this should have no significant effect on your code but it does help to test the new code generator; unset to only use the old code generator instead", 191);
+x_1 = lean_mk_string_unchecked("(compiler) enable the new code generator, this should have no significant effect on your code but it does help to test the new code generator; unset to only use the old code generator instead", 191, 191);
 return x_1;
 }
 }
@@ -15014,7 +15014,7 @@ static lean_object* _init_l_Lean_withTraceNode___at_Lean_compileDecl___spec__2__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("<exception thrown while producing trace node message>", 53);
+x_1 = lean_mk_string_unchecked("<exception thrown while producing trace node message>", 53, 53);
 return x_1;
 }
 }
@@ -17414,7 +17414,7 @@ static lean_object* _init_l_Lean_compileDecl___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("compiling old: ", 15);
+x_1 = lean_mk_string_unchecked("compiling old: ", 15, 15);
 return x_1;
 }
 }
@@ -18477,7 +18477,7 @@ static lean_object* _init_l_Lean_ImportM_runCoreM___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("<ImportM>", 9);
+x_1 = lean_mk_string_unchecked("<ImportM>", 9, 9);
 return x_1;
 }
 }

@@ -1091,7 +1091,7 @@ static lean_object* _init_l___private_Lean_Declaration_0__Lean_reprDefinitionSaf
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.DefinitionSafety.unsafe", 28);
+x_1 = lean_mk_string_unchecked("Lean.DefinitionSafety.unsafe", 28, 28);
 return x_1;
 }
 }
@@ -1175,7 +1175,7 @@ static lean_object* _init_l___private_Lean_Declaration_0__Lean_reprDefinitionSaf
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.DefinitionSafety.safe", 26);
+x_1 = lean_mk_string_unchecked("Lean.DefinitionSafety.safe", 26, 26);
 return x_1;
 }
 }
@@ -1241,7 +1241,7 @@ static lean_object* _init_l___private_Lean_Declaration_0__Lean_reprDefinitionSaf
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.DefinitionSafety.partial", 29);
+x_1 = lean_mk_string_unchecked("Lean.DefinitionSafety.partial", 29, 29);
 return x_1;
 }
 }
@@ -2508,7 +2508,7 @@ static lean_object* _init_l_Lean_Declaration_definitionVal_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Declaration", 16);
+x_1 = lean_mk_string_unchecked("Lean.Declaration", 16, 16);
 return x_1;
 }
 }
@@ -2516,7 +2516,7 @@ static lean_object* _init_l_Lean_Declaration_definitionVal_x21___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Declaration.definitionVal!", 31);
+x_1 = lean_mk_string_unchecked("Lean.Declaration.definitionVal!", 31, 31);
 return x_1;
 }
 }
@@ -2524,7 +2524,7 @@ static lean_object* _init_l_Lean_Declaration_definitionVal_x21___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Expected a `Declaration.defnDecl`.", 34);
+x_1 = lean_mk_string_unchecked("Expected a `Declaration.defnDecl`.", 34, 34);
 return x_1;
 }
 }
@@ -4405,7 +4405,7 @@ static lean_object* _init_l_Lean_ConstantInfo_value_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.ConstantInfo.value!", 24);
+x_1 = lean_mk_string_unchecked("Lean.ConstantInfo.value!", 24, 24);
 return x_1;
 }
 }
@@ -4413,7 +4413,7 @@ static lean_object* _init_l_Lean_ConstantInfo_value_x21___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declaration with value expected", 31);
+x_1 = lean_mk_string_unchecked("declaration with value expected", 31, 31);
 return x_1;
 }
 }
@@ -4564,7 +4564,7 @@ static lean_object* _init_l_Lean_ConstantInfo_inductiveVal_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.ConstantInfo.inductiveVal!", 31);
+x_1 = lean_mk_string_unchecked("Lean.ConstantInfo.inductiveVal!", 31, 31);
 return x_1;
 }
 }
@@ -4572,7 +4572,7 @@ static lean_object* _init_l_Lean_ConstantInfo_inductiveVal_x21___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Expected a `ConstantInfo.inductInfo`.", 37);
+x_1 = lean_mk_string_unchecked("Expected a `ConstantInfo.inductInfo`.", 37, 37);
 return x_1;
 }
 }
@@ -4679,7 +4679,7 @@ static lean_object* _init_l_Lean_mkRecName___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rec", 3);
+x_1 = lean_mk_string_unchecked("rec", 3, 3);
 return x_1;
 }
 }

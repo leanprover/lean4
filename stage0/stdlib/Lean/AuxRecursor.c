@@ -72,7 +72,7 @@ static lean_object* _init_l_Lean_casesOnSuffix___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("casesOn", 7);
+x_1 = lean_mk_string_unchecked("casesOn", 7, 7);
 return x_1;
 }
 }
@@ -88,7 +88,7 @@ static lean_object* _init_l_Lean_recOnSuffix___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("recOn", 5);
+x_1 = lean_mk_string_unchecked("recOn", 5, 5);
 return x_1;
 }
 }
@@ -104,7 +104,7 @@ static lean_object* _init_l_Lean_brecOnSuffix___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("brecOn", 6);
+x_1 = lean_mk_string_unchecked("brecOn", 6, 6);
 return x_1;
 }
 }
@@ -120,7 +120,7 @@ static lean_object* _init_l_Lean_binductionOnSuffix___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("binductionOn", 12);
+x_1 = lean_mk_string_unchecked("binductionOn", 12, 12);
 return x_1;
 }
 }
@@ -136,7 +136,7 @@ static lean_object* _init_l_Lean_belowSuffix___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("below", 5);
+x_1 = lean_mk_string_unchecked("below", 5, 5);
 return x_1;
 }
 }
@@ -152,7 +152,7 @@ static lean_object* _init_l_Lean_ibelowSuffix___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ibelow", 6);
+x_1 = lean_mk_string_unchecked("ibelow", 6, 6);
 return x_1;
 }
 }
@@ -222,7 +222,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_AuxRecursor___hyg_70____clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -230,7 +230,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_AuxRecursor___hyg_70____clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("auxRecExt", 9);
+x_1 = lean_mk_string_unchecked("auxRecExt", 9, 9);
 return x_1;
 }
 }
@@ -274,7 +274,7 @@ static lean_object* _init_l_Lean_isAuxRecursor___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -282,7 +282,7 @@ static lean_object* _init_l_Lean_isAuxRecursor___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ndrec", 5);
+x_1 = lean_mk_string_unchecked("ndrec", 5, 5);
 return x_1;
 }
 }
@@ -300,7 +300,7 @@ static lean_object* _init_l_Lean_isAuxRecursor___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ndrecOn", 7);
+x_1 = lean_mk_string_unchecked("ndrecOn", 7, 7);
 return x_1;
 }
 }
@@ -464,7 +464,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_AuxRecursor___hyg_193____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("noConfusionExt", 14);
+x_1 = lean_mk_string_unchecked("noConfusionExt", 14, 14);
 return x_1;
 }
 }

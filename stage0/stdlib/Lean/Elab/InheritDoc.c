@@ -183,7 +183,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_Lean_initFn____x40_Lean_Elab_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
+x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
 return x_1;
 }
 }
@@ -200,7 +200,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_Lean_initFn____x40_Lean_Elab_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -371,7 +371,7 @@ static lean_object* _init_l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_Inherit
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -490,7 +490,7 @@ static lean_object* _init_l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_Inherit
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -498,7 +498,7 @@ static lean_object* _init_l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_Inherit
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -506,7 +506,7 @@ static lean_object* _init_l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_Inherit
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unsolvedGoals", 13);
+x_1 = lean_mk_string_unchecked("unsolvedGoals", 13, 13);
 return x_1;
 }
 }
@@ -514,7 +514,7 @@ static lean_object* _init_l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_Inherit
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("synthPlaceholder", 16);
+x_1 = lean_mk_string_unchecked("synthPlaceholder", 16, 16);
 return x_1;
 }
 }
@@ -1489,7 +1489,7 @@ static lean_object* _init_l_Lean_addDocString___at_Lean_initFn____x40_Lean_Elab_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid doc string, declaration '", 33);
+x_1 = lean_mk_string_unchecked("invalid doc string, declaration '", 33, 33);
 return x_1;
 }
 }
@@ -1497,7 +1497,7 @@ static lean_object* _init_l_Lean_addDocString___at_Lean_initFn____x40_Lean_Elab_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' is in an imported module", 26);
+x_1 = lean_mk_string_unchecked("' is in an imported module", 26, 26);
 return x_1;
 }
 }
@@ -1651,7 +1651,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" does not have a doc string", 27);
+x_1 = lean_mk_string_unchecked(" does not have a doc string", 27, 27);
 return x_1;
 }
 }
@@ -1921,7 +1921,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid `[inherit_doc]` attribute, could not infer doc source", 61);
+x_1 = lean_mk_string_unchecked("invalid `[inherit_doc]` attribute, could not infer doc source", 61, 61);
 return x_1;
 }
 }
@@ -1938,7 +1938,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" already has a doc string", 25);
+x_1 = lean_mk_string_unchecked(" already has a doc string", 25, 25);
 return x_1;
 }
 }
@@ -2542,7 +2542,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -2550,7 +2550,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -2558,7 +2558,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Attr", 4);
+x_1 = lean_mk_string_unchecked("Attr", 4, 4);
 return x_1;
 }
 }
@@ -2566,7 +2566,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simple", 6);
+x_1 = lean_mk_string_unchecked("simple", 6, 6);
 return x_1;
 }
 }
@@ -2586,7 +2586,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid `[inherit_doc]` attribute", 33);
+x_1 = lean_mk_string_unchecked("invalid `[inherit_doc]` attribute", 33, 33);
 return x_1;
 }
 }
@@ -2603,7 +2603,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ident", 5);
+x_1 = lean_mk_string_unchecked("ident", 5, 5);
 return x_1;
 }
 }
@@ -2728,7 +2728,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid `[inherit_doc]` attribute, must be global", 49);
+x_1 = lean_mk_string_unchecked("invalid `[inherit_doc]` attribute, must be global", 49, 49);
 return x_1;
 }
 }
@@ -2789,7 +2789,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attribute cannot be erased", 26);
+x_1 = lean_mk_string_unchecked("attribute cannot be erased", 26, 26);
 return x_1;
 }
 }
@@ -2825,7 +2825,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -2843,7 +2843,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -2881,7 +2881,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("InheritDoc", 10);
+x_1 = lean_mk_string_unchecked("InheritDoc", 10, 10);
 return x_1;
 }
 }
@@ -2899,7 +2899,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -2927,7 +2927,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inherit_doc", 11);
+x_1 = lean_mk_string_unchecked("inherit_doc", 11, 11);
 return x_1;
 }
 }
@@ -2945,7 +2945,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inherit documentation from a specified declaration", 50);
+x_1 = lean_mk_string_unchecked("inherit documentation from a specified declaration", 50, 50);
 return x_1;
 }
 }

@@ -504,7 +504,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_throwI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to compile pattern matching, inductive type expected", 59);
+x_1 = lean_mk_string_unchecked("failed to compile pattern matching, inductive type expected", 59, 59);
 return x_1;
 }
 }
@@ -521,7 +521,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_throwI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -814,7 +814,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_mkEqAn
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HEq", 3);
+x_1 = lean_mk_string_unchecked("HEq", 3, 3);
 return x_1;
 }
 }
@@ -832,7 +832,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_mkEqAn
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("refl", 4);
+x_1 = lean_mk_string_unchecked("refl", 4, 4);
 return x_1;
 }
 }
@@ -850,7 +850,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_mkEqAn
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -1179,7 +1179,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_withNe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("h", 1);
+x_1 = lean_mk_string_unchecked("h", 1, 1);
 return x_1;
 }
 }
@@ -1551,7 +1551,7 @@ static lean_object* _init_l_Lean_Meta_generalizeTargetsEq___lambda__3___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid number of targets #", 27);
+x_1 = lean_mk_string_unchecked("invalid number of targets #", 27, 27);
 return x_1;
 }
 }
@@ -1568,7 +1568,7 @@ static lean_object* _init_l_Lean_Meta_generalizeTargetsEq___lambda__3___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", motive expects #", 18);
+x_1 = lean_mk_string_unchecked(", motive expects #", 18, 18);
 return x_1;
 }
 }
@@ -1835,7 +1835,7 @@ static lean_object* _init_l_Lean_Meta_generalizeTargetsEq___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("generalizeTargets", 17);
+x_1 = lean_mk_string_unchecked("generalizeTargets", 17, 17);
 return x_1;
 }
 }
@@ -2470,7 +2470,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Meta_generalizeIndice
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ill-formed inductive datatype", 29);
+x_1 = lean_mk_string_unchecked("ill-formed inductive datatype", 29, 29);
 return x_1;
 }
 }
@@ -2560,7 +2560,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Meta_generalizeIndice
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inductive type expected", 23);
+x_1 = lean_mk_string_unchecked("inductive type expected", 23, 23);
 return x_1;
 }
 }
@@ -2597,7 +2597,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Meta_generalizeIndice
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("indexed inductive type expected", 31);
+x_1 = lean_mk_string_unchecked("indexed inductive type expected", 31, 31);
 return x_1;
 }
 }
@@ -2787,7 +2787,7 @@ static lean_object* _init_l_Lean_Meta_generalizeIndices___lambda__1___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("generalizeIndices", 17);
+x_1 = lean_mk_string_unchecked("generalizeIndices", 17, 17);
 return x_1;
 }
 }
@@ -3056,7 +3056,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at___private_Lean_Meta_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("casesOn", 7);
+x_1 = lean_mk_string_unchecked("casesOn", 7, 7);
 return x_1;
 }
 }
@@ -13737,7 +13737,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Nat", 3);
+x_1 = lean_mk_string_unchecked("Nat", 3, 3);
 return x_1;
 }
 }
@@ -13755,7 +13755,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("casesAuxOn", 10);
+x_1 = lean_mk_string_unchecked("casesAuxOn", 10, 10);
 return x_1;
 }
 }
@@ -14091,7 +14091,7 @@ static lean_object* _init_l_Lean_Meta_Cases_cases___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("not applicable to the given hypothesis", 38);
+x_1 = lean_mk_string_unchecked("not applicable to the given hypothesis", 38, 38);
 return x_1;
 }
 }
@@ -14128,7 +14128,7 @@ static lean_object* _init_l_Lean_Meta_Cases_cases___lambda__2___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -14136,7 +14136,7 @@ static lean_object* _init_l_Lean_Meta_Cases_cases___lambda__2___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -14144,7 +14144,7 @@ static lean_object* _init_l_Lean_Meta_Cases_cases___lambda__2___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cases", 5);
+x_1 = lean_mk_string_unchecked("cases", 5, 5);
 return x_1;
 }
 }
@@ -14163,7 +14163,7 @@ static lean_object* _init_l_Lean_Meta_Cases_cases___lambda__2___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("after generalizeIndices\n", 24);
+x_1 = lean_mk_string_unchecked("after generalizeIndices\n", 24, 24);
 return x_1;
 }
 }
@@ -16897,7 +16897,7 @@ static lean_object* _init_l_Lean_MVarId_casesAnd___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("And", 3);
+x_1 = lean_mk_string_unchecked("And", 3, 3);
 return x_1;
 }
 }
@@ -16962,7 +16962,7 @@ static lean_object* _init_l_Lean_MVarId_casesAnd___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected number of goals", 26);
+x_1 = lean_mk_string_unchecked("unexpected number of goals", 26, 26);
 return x_1;
 }
 }
@@ -17234,7 +17234,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_toByCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'byCases' tactic failed, unexpected new hypothesis", 50);
+x_1 = lean_mk_string_unchecked("'byCases' tactic failed, unexpected new hypothesis", 50, 50);
 return x_1;
 }
 }
@@ -17363,7 +17363,7 @@ static lean_object* _init_l_Lean_MVarId_byCases___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hByCases", 8);
+x_1 = lean_mk_string_unchecked("hByCases", 8, 8);
 return x_1;
 }
 }
@@ -17390,7 +17390,7 @@ static lean_object* _init_l_Lean_MVarId_byCases___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'byCases' tactic failed, unexpected number of subgoals", 54);
+x_1 = lean_mk_string_unchecked("'byCases' tactic failed, unexpected number of subgoals", 54, 54);
 return x_1;
 }
 }
@@ -17882,7 +17882,7 @@ static lean_object* _init_l_Lean_MVarId_byCasesDec___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Decidable", 9);
+x_1 = lean_mk_string_unchecked("Decidable", 9, 9);
 return x_1;
 }
 }
@@ -17910,7 +17910,7 @@ static lean_object* _init_l_Lean_MVarId_byCasesDec___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'byCasesDec' tactic failed, unexpected number of subgoals", 57);
+x_1 = lean_mk_string_unchecked("'byCasesDec' tactic failed, unexpected number of subgoals", 57, 57);
 return x_1;
 }
 }
@@ -18386,7 +18386,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Cases___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -18414,7 +18414,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Cases___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -18432,7 +18432,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Cases___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -18480,7 +18480,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Cases___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Cases", 5);
+x_1 = lean_mk_string_unchecked("Cases", 5, 5);
 return x_1;
 }
 }
@@ -18498,7 +18498,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Cases___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }

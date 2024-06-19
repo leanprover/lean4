@@ -188,7 +188,7 @@ static lean_object* _init_l_Lean_Server_instInhabitedRequestError___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -216,7 +216,7 @@ static lean_object* _init_l_Lean_Server_RequestError_fileChanged___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("File changed.", 13);
+x_1 = lean_mk_string_unchecked("File changed.", 13, 13);
 return x_1;
 }
 }
@@ -244,7 +244,7 @@ static lean_object* _init_l_Lean_Server_RequestError_methodNotFound___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("No request handler found for '", 30);
+x_1 = lean_mk_string_unchecked("No request handler found for '", 30, 30);
 return x_1;
 }
 }
@@ -252,7 +252,7 @@ static lean_object* _init_l_Lean_Server_RequestError_methodNotFound___closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -406,7 +406,7 @@ static lean_object* _init_l_Lean_Server_parseRequestParams___rarg___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Cannot parse request params: ", 29);
+x_1 = lean_mk_string_unchecked("Cannot parse request params: ", 29, 29);
 return x_1;
 }
 }
@@ -414,7 +414,7 @@ static lean_object* _init_l_Lean_Server_parseRequestParams___rarg___closed__2() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -1118,7 +1118,7 @@ static lean_object* _init_l_Lean_Server_RequestM_withWaitFindSnapAtPos___rarg___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -1126,7 +1126,7 @@ static lean_object* _init_l_Lean_Server_RequestM_withWaitFindSnapAtPos___rarg___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", ", 2);
+x_1 = lean_mk_string_unchecked(", ", 2, 2);
 return x_1;
 }
 }
@@ -1134,7 +1134,7 @@ static lean_object* _init_l_Lean_Server_RequestM_withWaitFindSnapAtPos___rarg___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -1142,7 +1142,7 @@ static lean_object* _init_l_Lean_Server_RequestM_withWaitFindSnapAtPos___rarg___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no snapshot found at ", 21);
+x_1 = lean_mk_string_unchecked("no snapshot found at ", 21, 21);
 return x_1;
 }
 }
@@ -2657,7 +2657,7 @@ static lean_object* _init_l_Lean_Server_registerLspRequestHandler___lambda__4___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Failed to register LSP request handler for '", 44);
+x_1 = lean_mk_string_unchecked("Failed to register LSP request handler for '", 44, 44);
 return x_1;
 }
 }
@@ -2665,7 +2665,7 @@ static lean_object* _init_l_Lean_Server_registerLspRequestHandler___lambda__4___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("': already registered", 21);
+x_1 = lean_mk_string_unchecked("': already registered", 21, 21);
 return x_1;
 }
 }
@@ -2751,7 +2751,7 @@ static lean_object* _init_l_Lean_Server_registerLspRequestHandler___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("': only possible during initialization", 38);
+x_1 = lean_mk_string_unchecked("': only possible during initialization", 38, 38);
 return x_1;
 }
 }
@@ -3207,7 +3207,7 @@ static lean_object* _init_l_Lean_Server_chainLspRequestHandler___lambda__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Failed to parse original LSP response for `", 43);
+x_1 = lean_mk_string_unchecked("Failed to parse original LSP response for `", 43, 43);
 return x_1;
 }
 }
@@ -3215,7 +3215,7 @@ static lean_object* _init_l_Lean_Server_chainLspRequestHandler___lambda__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` when chaining: ", 17);
+x_1 = lean_mk_string_unchecked("` when chaining: ", 17, 17);
 return x_1;
 }
 }
@@ -3470,7 +3470,7 @@ static lean_object* _init_l_Lean_Server_chainLspRequestHandler___lambda__3___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Failed to chain LSP request handler for '", 41);
+x_1 = lean_mk_string_unchecked("Failed to chain LSP request handler for '", 41, 41);
 return x_1;
 }
 }
@@ -3478,7 +3478,7 @@ static lean_object* _init_l_Lean_Server_chainLspRequestHandler___lambda__3___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("': no initial handler registered", 32);
+x_1 = lean_mk_string_unchecked("': no initial handler registered", 32, 32);
 return x_1;
 }
 }
@@ -3803,7 +3803,7 @@ static lean_object* _init_l_Lean_Server_handleLspRequest___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("request '", 9);
+x_1 = lean_mk_string_unchecked("request '", 9, 9);
 return x_1;
 }
 }
@@ -3811,7 +3811,7 @@ static lean_object* _init_l_Lean_Server_handleLspRequest___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' routed through watchdog but unknown in worker; are both using the same plugins\?", 81);
+x_1 = lean_mk_string_unchecked("' routed through watchdog but unknown in worker; are both using the same plugins\?", 81, 81);
 return x_1;
 }
 }

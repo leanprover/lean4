@@ -904,7 +904,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatcherApp_Transform_0__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected matcher application, insufficient number of parameters in alternative", 80);
+x_1 = lean_mk_string_unchecked("unexpected matcher application, insufficient number of parameters in alternative", 80, 80);
 return x_1;
 }
 }
@@ -1080,7 +1080,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatcherApp_Transform_0__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to add argument to matcher application, argument type was not refined by `casesOn`", 89);
+x_1 = lean_mk_string_unchecked("failed to add argument to matcher application, argument type was not refined by `casesOn`", 89, 89);
 return x_1;
 }
 }
@@ -1097,7 +1097,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatcherApp_Transform_0__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected type at MatcherApp.addArg", 36);
+x_1 = lean_mk_string_unchecked("unexpected type at MatcherApp.addArg", 36, 36);
 return x_1;
 }
 }
@@ -1888,7 +1888,7 @@ static lean_object* _init_l_Lean_Meta_MatcherApp_addArg___lambda__2___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to add argument to matcher application, type error when constructing the new motive", 90);
+x_1 = lean_mk_string_unchecked("failed to add argument to matcher application, type error when constructing the new motive", 90, 90);
 return x_1;
 }
 }
@@ -2249,7 +2249,7 @@ static lean_object* _init_l_Lean_Meta_MatcherApp_addArg___lambda__4___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected matcher application, motive must be lambda expression with #", 71);
+x_1 = lean_mk_string_unchecked("unexpected matcher application, motive must be lambda expression with #", 71, 71);
 return x_1;
 }
 }
@@ -2266,7 +2266,7 @@ static lean_object* _init_l_Lean_Meta_MatcherApp_addArg___lambda__4___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" arguments", 10);
+x_1 = lean_mk_string_unchecked(" arguments", 10, 10);
 return x_1;
 }
 }
@@ -2860,7 +2860,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Meta_MatcherApp_refin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to transfer argument through matcher application, alt type must be telescope with #", 90);
+x_1 = lean_mk_string_unchecked("failed to transfer argument through matcher application, alt type must be telescope with #", 90, 90);
 return x_1;
 }
 }
@@ -3125,7 +3125,7 @@ static lean_object* _init_l_Lean_Meta_MatcherApp_refineThrough___lambda__3___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to transfer argument through matcher application, type error when constructing the new motive", 100);
+x_1 = lean_mk_string_unchecked("failed to transfer argument through matcher application, type error when constructing the new motive", 100, 100);
 return x_1;
 }
 }
@@ -3411,7 +3411,7 @@ static lean_object* _init_l_Lean_Meta_MatcherApp_refineThrough___lambda__5___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to transfer argument through matcher application, motive must be lambda expression with #", 96);
+x_1 = lean_mk_string_unchecked("failed to transfer argument through matcher application, motive must be lambda expression with #", 96, 96);
 return x_1;
 }
 }
@@ -3738,7 +3738,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Meta_MatcherApp_arrow
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected ", 9);
+x_1 = lean_mk_string_unchecked("expected ", 9, 9);
 return x_1;
 }
 }
@@ -3755,7 +3755,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Meta_MatcherApp_arrow
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" arguments, got ", 16);
+x_1 = lean_mk_string_unchecked(" arguments, got ", 16, 16);
 return x_1;
 }
 }
@@ -3772,7 +3772,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Meta_MatcherApp_arrow
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -3789,7 +3789,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Meta_MatcherApp_arrow
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected dependent type", 25);
+x_1 = lean_mk_string_unchecked("unexpected dependent type", 25, 25);
 return x_1;
 }
 }
@@ -10253,7 +10253,7 @@ static lean_object* _init_l_Lean_Meta_MatcherApp_transform___rarg___lambda__13__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to transform matcher, type error when constructing new motive:", 69);
+x_1 = lean_mk_string_unchecked("failed to transform matcher, type error when constructing new motive:", 69, 69);
 return x_1;
 }
 }
@@ -10566,7 +10566,7 @@ static lean_object* _init_l_Lean_Meta_MatcherApp_transform___rarg___lambda__19__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to transform matcher, type error when constructing splitter motive:", 74);
+x_1 = lean_mk_string_unchecked("failed to transform matcher, type error when constructing splitter motive:", 74, 74);
 return x_1;
 }
 }
@@ -10819,7 +10819,7 @@ static lean_object* _init_l_Lean_Meta_MatcherApp_transform___rarg___lambda__23__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to transform matcher, type error when constructing new pre-splitter motive:", 82);
+x_1 = lean_mk_string_unchecked("failed to transform matcher, type error when constructing new pre-splitter motive:", 82, 82);
 return x_1;
 }
 }
@@ -11391,7 +11391,7 @@ static lean_object* _init_l_Lean_Meta_MatcherApp_transform___rarg___lambda__31__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("matcher ", 8);
+x_1 = lean_mk_string_unchecked("matcher ", 8, 8);
 return x_1;
 }
 }
@@ -11408,7 +11408,7 @@ static lean_object* _init_l_Lean_Meta_MatcherApp_transform___rarg___lambda__31__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" has no MatchInfo found", 23);
+x_1 = lean_mk_string_unchecked(" has no MatchInfo found", 23, 23);
 return x_1;
 }
 }
@@ -11571,7 +11571,7 @@ static lean_object* _init_l_Lean_Meta_MatcherApp_transform___rarg___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("MatcherApp.transform: addEqualities has wrong size", 50);
+x_1 = lean_mk_string_unchecked("MatcherApp.transform: addEqualities has wrong size", 50, 50);
 return x_1;
 }
 }
@@ -12956,7 +12956,7 @@ static lean_object* _init_l_Subarray_forInUnsafe_loop___at_Lean_Meta_MatcherApp_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Type ", 5);
+x_1 = lean_mk_string_unchecked("Type ", 5, 5);
 return x_1;
 }
 }
@@ -12973,7 +12973,7 @@ static lean_object* _init_l_Subarray_forInUnsafe_loop___at_Lean_Meta_MatcherApp_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" of alternative ", 16);
+x_1 = lean_mk_string_unchecked(" of alternative ", 16, 16);
 return x_1;
 }
 }
@@ -12990,7 +12990,7 @@ static lean_object* _init_l_Subarray_forInUnsafe_loop___at_Lean_Meta_MatcherApp_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" still depends on ", 18);
+x_1 = lean_mk_string_unchecked(" still depends on ", 18, 18);
 return x_1;
 }
 }
@@ -21392,7 +21392,7 @@ static lean_object* _init_l_Lean_Meta_MatcherApp_inferMatchType___lambda__4___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Cannot close goal after splitting: ", 35);
+x_1 = lean_mk_string_unchecked("Cannot close goal after splitting: ", 35, 35);
 return x_1;
 }
 }

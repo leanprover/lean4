@@ -68,6 +68,7 @@ static lean_object* l_Lean_Compiler_CSimp_initFn____x40_Lean_Compiler_CSimpAttr_
 LEAN_EXPORT lean_object* l_Lean_HashMap_insert___at_Lean_Compiler_CSimp_initFn____x40_Lean_Compiler_CSimpAttr___hyg_138____spec__6(lean_object*, lean_object*, lean_object*);
 size_t lean_ptr_addr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_Compiler_CSimp_initFn____x40_Lean_Compiler_CSimpAttr___hyg_138____spec__10(lean_object*, lean_object*);
+lean_object* l_Lean_SMap_switch___at_Lean_initFn____x40_Lean_Environment___hyg_6429____spec__4(lean_object*);
 static lean_object* l_Lean_Compiler_CSimp_initFn____x40_Lean_Compiler_CSimpAttr___hyg_474____lambda__2___closed__2;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_CSimp_initFn____x40_Lean_Compiler_CSimpAttr___hyg_474____closed__13;
@@ -181,7 +182,6 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Expr_ReplaceImpl_Cache_store(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at_Lean_Compiler_CSimp_replaceConstants___spec__6(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_SMap_switch___at_Lean_initFn____x40_Lean_Environment___hyg_6426____spec__4(lean_object*);
 static lean_object* l_Lean_Compiler_CSimp_initFn____x40_Lean_Compiler_CSimpAttr___hyg_474____closed__9;
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_moveEntries___at_Lean_Compiler_CSimp_initFn____x40_Lean_Compiler_CSimpAttr___hyg_138____spec__9(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_Compiler_CSimp_replaceConstants___spec__2(lean_object*, lean_object*);
@@ -360,7 +360,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6;
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = lean_ctor_get(x_1, 1);
 x_5 = l_Lean_SMap_switch___at_Lean_Compiler_CSimp_State_switch___spec__1(x_3);
-x_6 = l_Lean_SMap_switch___at_Lean_initFn____x40_Lean_Environment___hyg_6426____spec__4(x_4);
+x_6 = l_Lean_SMap_switch___at_Lean_initFn____x40_Lean_Environment___hyg_6429____spec__4(x_4);
 lean_ctor_set(x_1, 1, x_6);
 lean_ctor_set(x_1, 0, x_5);
 return x_1;
@@ -374,7 +374,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_dec(x_1);
 x_9 = l_Lean_SMap_switch___at_Lean_Compiler_CSimp_State_switch___spec__1(x_7);
-x_10 = l_Lean_SMap_switch___at_Lean_initFn____x40_Lean_Environment___hyg_6426____spec__4(x_8);
+x_10 = l_Lean_SMap_switch___at_Lean_initFn____x40_Lean_Environment___hyg_6429____spec__4(x_8);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_9);
 lean_ctor_set(x_11, 1, x_10);
@@ -1354,7 +1354,7 @@ static lean_object* _init_l_Lean_Compiler_CSimp_initFn____x40_Lean_Compiler_CSim
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1362,7 +1362,7 @@ static lean_object* _init_l_Lean_Compiler_CSimp_initFn____x40_Lean_Compiler_CSim
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Compiler", 8);
+x_1 = lean_mk_string_unchecked("Compiler", 8, 8);
 return x_1;
 }
 }
@@ -1370,7 +1370,7 @@ static lean_object* _init_l_Lean_Compiler_CSimp_initFn____x40_Lean_Compiler_CSim
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CSimp", 5);
+x_1 = lean_mk_string_unchecked("CSimp", 5, 5);
 return x_1;
 }
 }
@@ -1378,7 +1378,7 @@ static lean_object* _init_l_Lean_Compiler_CSimp_initFn____x40_Lean_Compiler_CSim
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ext", 3);
+x_1 = lean_mk_string_unchecked("ext", 3, 3);
 return x_1;
 }
 }
@@ -1512,7 +1512,7 @@ static lean_object* _init_l_Lean_getConstInfo___at___private_Lean_Compiler_CSimp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
+x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
 return x_1;
 }
 }
@@ -1529,7 +1529,7 @@ static lean_object* _init_l_Lean_getConstInfo___at___private_Lean_Compiler_CSimp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -1636,7 +1636,7 @@ static lean_object* _init_l___private_Lean_Compiler_CSimpAttr_0__Lean_Compiler_C
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -2064,7 +2064,7 @@ static lean_object* _init_l_Lean_Compiler_CSimp_add___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid 'csimp' theorem, only constant replacement theorems (e.g., `@f = @g`) are currently supported.", 102);
+x_1 = lean_mk_string_unchecked("invalid 'csimp' theorem, only constant replacement theorems (e.g., `@f = @g`) are currently supported.", 102, 102);
 return x_1;
 }
 }
@@ -2269,7 +2269,7 @@ static lean_object* _init_l_Lean_Compiler_CSimp_initFn____x40_Lean_Compiler_CSim
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attribute cannot be erased", 26);
+x_1 = lean_mk_string_unchecked("attribute cannot be erased", 26, 26);
 return x_1;
 }
 }
@@ -2325,7 +2325,7 @@ static lean_object* _init_l_Lean_Compiler_CSimp_initFn____x40_Lean_Compiler_CSim
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -2343,7 +2343,7 @@ static lean_object* _init_l_Lean_Compiler_CSimp_initFn____x40_Lean_Compiler_CSim
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -2381,7 +2381,7 @@ static lean_object* _init_l_Lean_Compiler_CSimp_initFn____x40_Lean_Compiler_CSim
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CSimpAttr", 9);
+x_1 = lean_mk_string_unchecked("CSimpAttr", 9, 9);
 return x_1;
 }
 }
@@ -2399,7 +2399,7 @@ static lean_object* _init_l_Lean_Compiler_CSimp_initFn____x40_Lean_Compiler_CSim
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -2427,7 +2427,7 @@ static lean_object* _init_l_Lean_Compiler_CSimp_initFn____x40_Lean_Compiler_CSim
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("csimp", 5);
+x_1 = lean_mk_string_unchecked("csimp", 5, 5);
 return x_1;
 }
 }
@@ -2445,7 +2445,7 @@ static lean_object* _init_l_Lean_Compiler_CSimp_initFn____x40_Lean_Compiler_CSim
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simplification theorem for the compiler", 39);
+x_1 = lean_mk_string_unchecked("simplification theorem for the compiler", 39, 39);
 return x_1;
 }
 }

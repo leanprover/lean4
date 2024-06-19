@@ -200,7 +200,7 @@ static lean_object* _init_l_Subarray_forInUnsafe_loop___at___private_Lean_Compil
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -218,7 +218,7 @@ static lean_object* _init_l_Subarray_forInUnsafe_loop___at___private_Lean_Compil
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -1085,7 +1085,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppArg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("◾", 3);
+x_1 = lean_mk_string_unchecked("◾", 3, 1);
 return x_1;
 }
 }
@@ -1111,7 +1111,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppArg___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_", 1);
+x_1 = lean_mk_string_unchecked("_", 1, 1);
 return x_1;
 }
 }
@@ -1129,7 +1129,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppArg___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -1165,7 +1165,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppArg___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -1398,7 +1398,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppLetValue___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" # ", 3);
+x_1 = lean_mk_string_unchecked(" # ", 3, 3);
 return x_1;
 }
 }
@@ -1923,7 +1923,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppParam___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" : ", 3);
+x_1 = lean_mk_string_unchecked(" : ", 3, 3);
 return x_1;
 }
 }
@@ -1941,7 +1941,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppParam___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("@&", 2);
+x_1 = lean_mk_string_unchecked("@&", 2, 2);
 return x_1;
 }
 }
@@ -2192,7 +2192,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppLetDecl___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("let ", 4);
+x_1 = lean_mk_string_unchecked("let ", 4, 4);
 return x_1;
 }
 }
@@ -2210,7 +2210,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppLetDecl___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" := ", 4);
+x_1 = lean_mk_string_unchecked(" := ", 4, 4);
 return x_1;
 }
 }
@@ -2518,7 +2518,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppFunDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" :=", 3);
+x_1 = lean_mk_string_unchecked(" :=", 3, 3);
 return x_1;
 }
 }
@@ -2792,7 +2792,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppCode___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(";", 1);
+x_1 = lean_mk_string_unchecked(";", 1, 1);
 return x_1;
 }
 }
@@ -2810,7 +2810,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppCode___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fun ", 4);
+x_1 = lean_mk_string_unchecked("fun ", 4, 4);
 return x_1;
 }
 }
@@ -2828,7 +2828,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppCode___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("jp ", 3);
+x_1 = lean_mk_string_unchecked("jp ", 3, 3);
 return x_1;
 }
 }
@@ -2846,7 +2846,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppCode___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("goto ", 5);
+x_1 = lean_mk_string_unchecked("goto ", 5, 5);
 return x_1;
 }
 }
@@ -2872,7 +2872,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppCode___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cases ", 6);
+x_1 = lean_mk_string_unchecked("cases ", 6, 6);
 return x_1;
 }
 }
@@ -2890,7 +2890,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppCode___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("return ", 7);
+x_1 = lean_mk_string_unchecked("return ", 7, 7);
 return x_1;
 }
 }
@@ -2916,7 +2916,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppCode___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⊥", 3);
+x_1 = lean_mk_string_unchecked("⊥", 3, 1);
 return x_1;
 }
 }
@@ -2934,7 +2934,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppCode___closed__17() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⊥ : ", 6);
+x_1 = lean_mk_string_unchecked("⊥ : ", 6, 4);
 return x_1;
 }
 }
@@ -4314,7 +4314,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppAlt___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("| ", 2);
+x_1 = lean_mk_string_unchecked("| ", 2, 2);
 return x_1;
 }
 }
@@ -4332,7 +4332,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppAlt___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" =>", 3);
+x_1 = lean_mk_string_unchecked(" =>", 3, 3);
 return x_1;
 }
 }
@@ -4350,7 +4350,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppAlt___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("| _ =>", 6);
+x_1 = lean_mk_string_unchecked("| _ =>", 6, 6);
 return x_1;
 }
 }
@@ -4953,7 +4953,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_ppDecl___lambda__1___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("def ", 4);
+x_1 = lean_mk_string_unchecked("def ", 4, 4);
 return x_1;
 }
 }

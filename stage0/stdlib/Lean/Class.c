@@ -1469,7 +1469,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Class___hyg_84____closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1477,7 +1477,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Class___hyg_84____closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("classExtension", 14);
+x_1 = lean_mk_string_unchecked("classExtension", 14, 14);
 return x_1;
 }
 }
@@ -2450,7 +2450,7 @@ static lean_object* _init_l___private_Lean_Class_0__Lean_checkOutParam___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid class, parameter #", 26);
+x_1 = lean_mk_string_unchecked("invalid class, parameter #", 26, 26);
 return x_1;
 }
 }
@@ -2458,7 +2458,7 @@ static lean_object* _init_l___private_Lean_Class_0__Lean_checkOutParam___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" depends on `outParam`, but it is not an `outParam`", 51);
+x_1 = lean_mk_string_unchecked(" depends on `outParam`, but it is not an `outParam`", 51, 51);
 return x_1;
 }
 }
@@ -2466,7 +2466,7 @@ static lean_object* _init_l___private_Lean_Class_0__Lean_checkOutParam___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_fvar", 5);
+x_1 = lean_mk_string_unchecked("_fvar", 5, 5);
 return x_1;
 }
 }
@@ -2760,7 +2760,7 @@ static lean_object* _init_l_Lean_mkOutParamArgsImplicit_go___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Expr", 9);
+x_1 = lean_mk_string_unchecked("Lean.Expr", 9, 9);
 return x_1;
 }
 }
@@ -2768,7 +2768,7 @@ static lean_object* _init_l_Lean_mkOutParamArgsImplicit_go___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Expr.updateForallE!", 24);
+x_1 = lean_mk_string_unchecked("Lean.Expr.updateForallE!", 24, 24);
 return x_1;
 }
 }
@@ -2776,7 +2776,7 @@ static lean_object* _init_l_Lean_mkOutParamArgsImplicit_go___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("forall expected", 15);
+x_1 = lean_mk_string_unchecked("forall expected", 15, 15);
 return x_1;
 }
 }
@@ -2797,7 +2797,7 @@ static lean_object* _init_l_Lean_mkOutParamArgsImplicit_go___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Expr.0.Lean.Expr.updateForall!Impl", 48);
+x_1 = lean_mk_string_unchecked("_private.Lean.Expr.0.Lean.Expr.updateForall!Impl", 48, 48);
 return x_1;
 }
 }
@@ -3274,7 +3274,7 @@ static lean_object* _init_l_Lean_addClass___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid 'class', declaration '", 30);
+x_1 = lean_mk_string_unchecked("invalid 'class', declaration '", 30, 30);
 return x_1;
 }
 }
@@ -3282,7 +3282,7 @@ static lean_object* _init_l_Lean_addClass___lambda__2___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' must be inductive datatype, structure, or constant", 52);
+x_1 = lean_mk_string_unchecked("' must be inductive datatype, structure, or constant", 52, 52);
 return x_1;
 }
 }
@@ -3290,7 +3290,7 @@ static lean_object* _init_l_Lean_addClass___lambda__2___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown declaration '", 21);
+x_1 = lean_mk_string_unchecked("unknown declaration '", 21, 21);
 return x_1;
 }
 }
@@ -3298,7 +3298,7 @@ static lean_object* _init_l_Lean_addClass___lambda__2___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -3379,7 +3379,7 @@ static lean_object* _init_l_Lean_addClass___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("class has already been declared '", 33);
+x_1 = lean_mk_string_unchecked("class has already been declared '", 33, 33);
 return x_1;
 }
 }
@@ -3557,7 +3557,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Class___hyg_782____lambda__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid attribute 'class', must be global", 41);
+x_1 = lean_mk_string_unchecked("invalid attribute 'class', must be global", 41, 41);
 return x_1;
 }
 }
@@ -3660,7 +3660,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Class___hyg_782____lambda__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attribute cannot be erased", 26);
+x_1 = lean_mk_string_unchecked("attribute cannot be erased", 26, 26);
 return x_1;
 }
 }
@@ -3696,7 +3696,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Class___hyg_782____closed__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -3714,7 +3714,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Class___hyg_782____closed__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -3742,7 +3742,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Class___hyg_782____closed__7
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Class", 5);
+x_1 = lean_mk_string_unchecked("Class", 5, 5);
 return x_1;
 }
 }
@@ -3760,7 +3760,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Class___hyg_782____closed__9
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -3788,7 +3788,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Class___hyg_782____closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("class", 5);
+x_1 = lean_mk_string_unchecked("class", 5, 5);
 return x_1;
 }
 }
@@ -3806,7 +3806,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Class___hyg_782____closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("type class", 10);
+x_1 = lean_mk_string_unchecked("type class", 10, 10);
 return x_1;
 }
 }

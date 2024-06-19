@@ -83,7 +83,7 @@ static lean_object* _init_l_Lake_instInhabitedEnv___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -161,7 +161,7 @@ static lean_object* _init_l_Lean_RBNode_foldM___at_Lake_Env_compute_computePkgUr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected name", 13);
+x_1 = lean_mk_string_unchecked("expected name", 13, 13);
 return x_1;
 }
 }
@@ -284,7 +284,7 @@ static lean_object* _init_l_Lake_Env_compute_computePkgUrlMap___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LAKE_PKG_URL_MAP", 16);
+x_1 = lean_mk_string_unchecked("LAKE_PKG_URL_MAP", 16, 16);
 return x_1;
 }
 }
@@ -292,7 +292,7 @@ static lean_object* _init_l_Lake_Env_compute_computePkgUrlMap___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'LAKE_PKG_URL_MAP' has invalid JSON: ", 37);
+x_1 = lean_mk_string_unchecked("'LAKE_PKG_URL_MAP' has invalid JSON: ", 37, 37);
 return x_1;
 }
 }
@@ -509,7 +509,7 @@ static lean_object* _init_l_Lake_Env_compute___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LEAN_GITHASH", 12);
+x_1 = lean_mk_string_unchecked("LEAN_GITHASH", 12, 12);
 return x_1;
 }
 }
@@ -517,7 +517,7 @@ static lean_object* _init_l_Lake_Env_compute___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ELAN_TOOLCHAIN", 14);
+x_1 = lean_mk_string_unchecked("ELAN_TOOLCHAIN", 14, 14);
 return x_1;
 }
 }
@@ -525,7 +525,7 @@ static lean_object* _init_l_Lake_Env_compute___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LEAN_PATH", 9);
+x_1 = lean_mk_string_unchecked("LEAN_PATH", 9, 9);
 return x_1;
 }
 }
@@ -533,7 +533,7 @@ static lean_object* _init_l_Lake_Env_compute___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LEAN_SRC_PATH", 13);
+x_1 = lean_mk_string_unchecked("LEAN_SRC_PATH", 13, 13);
 return x_1;
 }
 }
@@ -541,7 +541,7 @@ static lean_object* _init_l_Lake_Env_compute___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PATH", 4);
+x_1 = lean_mk_string_unchecked("PATH", 4, 4);
 return x_1;
 }
 }
@@ -1049,7 +1049,7 @@ static lean_object* _init_l_Lake_Env_baseVars___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LAKE", 4);
+x_1 = lean_mk_string_unchecked("LAKE", 4, 4);
 return x_1;
 }
 }
@@ -1057,7 +1057,7 @@ static lean_object* _init_l_Lake_Env_baseVars___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LAKE_HOME", 9);
+x_1 = lean_mk_string_unchecked("LAKE_HOME", 9, 9);
 return x_1;
 }
 }
@@ -1065,7 +1065,7 @@ static lean_object* _init_l_Lake_Env_baseVars___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LEAN_SYSROOT", 12);
+x_1 = lean_mk_string_unchecked("LEAN_SYSROOT", 12, 12);
 return x_1;
 }
 }
@@ -1073,7 +1073,7 @@ static lean_object* _init_l_Lake_Env_baseVars___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LEAN_AR", 7);
+x_1 = lean_mk_string_unchecked("LEAN_AR", 7, 7);
 return x_1;
 }
 }
@@ -1081,7 +1081,7 @@ static lean_object* _init_l_Lake_Env_baseVars___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LEAN_CC", 7);
+x_1 = lean_mk_string_unchecked("LEAN_CC", 7, 7);
 return x_1;
 }
 }
@@ -1098,7 +1098,7 @@ static lean_object* _init_l_Lake_Env_baseVars___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ELAN_HOME", 9);
+x_1 = lean_mk_string_unchecked("ELAN_HOME", 9, 9);
 return x_1;
 }
 }

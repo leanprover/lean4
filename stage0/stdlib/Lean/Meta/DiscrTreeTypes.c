@@ -352,7 +352,7 @@ static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_Disc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.DiscrTree.Key.const", 29);
+x_1 = lean_mk_string_unchecked("Lean.Meta.DiscrTree.Key.const", 29, 29);
 return x_1;
 }
 }
@@ -400,7 +400,7 @@ static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_Disc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.DiscrTree.Key.fvar", 28);
+x_1 = lean_mk_string_unchecked("Lean.Meta.DiscrTree.Key.fvar", 28, 28);
 return x_1;
 }
 }
@@ -430,7 +430,7 @@ static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_Disc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.DiscrTree.Key.lit", 27);
+x_1 = lean_mk_string_unchecked("Lean.Meta.DiscrTree.Key.lit", 27, 27);
 return x_1;
 }
 }
@@ -460,7 +460,7 @@ static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_Disc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.DiscrTree.Key.star", 28);
+x_1 = lean_mk_string_unchecked("Lean.Meta.DiscrTree.Key.star", 28, 28);
 return x_1;
 }
 }
@@ -526,7 +526,7 @@ static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_Disc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.DiscrTree.Key.other", 29);
+x_1 = lean_mk_string_unchecked("Lean.Meta.DiscrTree.Key.other", 29, 29);
 return x_1;
 }
 }
@@ -592,7 +592,7 @@ static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_Disc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.DiscrTree.Key.arrow", 29);
+x_1 = lean_mk_string_unchecked("Lean.Meta.DiscrTree.Key.arrow", 29, 29);
 return x_1;
 }
 }
@@ -658,7 +658,7 @@ static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_Disc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.DiscrTree.Key.proj", 28);
+x_1 = lean_mk_string_unchecked("Lean.Meta.DiscrTree.Key.proj", 28, 28);
 return x_1;
 }
 }
@@ -1204,7 +1204,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_instToExprKey___lambda__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1212,7 +1212,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_instToExprKey___lambda__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -1220,7 +1220,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_instToExprKey___lambda__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("DiscrTree", 9);
+x_1 = lean_mk_string_unchecked("DiscrTree", 9, 9);
 return x_1;
 }
 }
@@ -1228,7 +1228,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_instToExprKey___lambda__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Key", 3);
+x_1 = lean_mk_string_unchecked("Key", 3, 3);
 return x_1;
 }
 }
@@ -1236,7 +1236,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_instToExprKey___lambda__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("const", 5);
+x_1 = lean_mk_string_unchecked("const", 5, 5);
 return x_1;
 }
 }
@@ -1267,7 +1267,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_instToExprKey___lambda__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fvar", 4);
+x_1 = lean_mk_string_unchecked("fvar", 4, 4);
 return x_1;
 }
 }
@@ -1298,7 +1298,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_instToExprKey___lambda__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("FVarId", 6);
+x_1 = lean_mk_string_unchecked("FVarId", 6, 6);
 return x_1;
 }
 }
@@ -1306,7 +1306,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_instToExprKey___lambda__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mk", 2);
+x_1 = lean_mk_string_unchecked("mk", 2, 2);
 return x_1;
 }
 }
@@ -1335,7 +1335,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_instToExprKey___lambda__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lit", 3);
+x_1 = lean_mk_string_unchecked("lit", 3, 3);
 return x_1;
 }
 }
@@ -1366,7 +1366,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_instToExprKey___lambda__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Literal", 7);
+x_1 = lean_mk_string_unchecked("Literal", 7, 7);
 return x_1;
 }
 }
@@ -1374,7 +1374,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_instToExprKey___lambda__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("natVal", 6);
+x_1 = lean_mk_string_unchecked("natVal", 6, 6);
 return x_1;
 }
 }
@@ -1403,7 +1403,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_instToExprKey___lambda__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("strVal", 6);
+x_1 = lean_mk_string_unchecked("strVal", 6, 6);
 return x_1;
 }
 }
@@ -1432,7 +1432,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_instToExprKey___lambda__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("star", 4);
+x_1 = lean_mk_string_unchecked("star", 4, 4);
 return x_1;
 }
 }
@@ -1463,7 +1463,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_instToExprKey___lambda__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("other", 5);
+x_1 = lean_mk_string_unchecked("other", 5, 5);
 return x_1;
 }
 }
@@ -1494,7 +1494,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_instToExprKey___lambda__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("arrow", 5);
+x_1 = lean_mk_string_unchecked("arrow", 5, 5);
 return x_1;
 }
 }
@@ -1525,7 +1525,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_instToExprKey___lambda__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("proj", 4);
+x_1 = lean_mk_string_unchecked("proj", 4, 4);
 return x_1;
 }
 }

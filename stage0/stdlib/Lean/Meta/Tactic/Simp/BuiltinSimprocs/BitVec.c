@@ -1361,7 +1361,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitV
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("n", 1);
+x_1 = lean_mk_string_unchecked("n", 1, 1);
 return x_1;
 }
 }
@@ -1391,7 +1391,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitV
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" := ", 4);
+x_1 = lean_mk_string_unchecked(" := ", 4, 4);
 return x_1;
 }
 }
@@ -1430,7 +1430,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitV
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -1448,7 +1448,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitV
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("value", 5);
+x_1 = lean_mk_string_unchecked("value", 5, 5);
 return x_1;
 }
 }
@@ -1475,7 +1475,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitV
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("0x", 2);
+x_1 = lean_mk_string_unchecked("0x", 2, 2);
 return x_1;
 }
 }
@@ -1493,7 +1493,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitV
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#", 1);
+x_1 = lean_mk_string_unchecked("#", 1, 1);
 return x_1;
 }
 }
@@ -1511,7 +1511,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitV
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("{ ", 2);
+x_1 = lean_mk_string_unchecked("{ ", 2, 2);
 return x_1;
 }
 }
@@ -1547,7 +1547,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitV
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" }", 2);
+x_1 = lean_mk_string_unchecked(" }", 2, 2);
 return x_1;
 }
 }
@@ -1871,7 +1871,7 @@ static lean_object* _init_l_BitVec_reduceUnary___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("BitVec", 6);
+x_1 = lean_mk_string_unchecked("BitVec", 6, 6);
 return x_1;
 }
 }
@@ -1879,7 +1879,7 @@ static lean_object* _init_l_BitVec_reduceUnary___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat", 5);
+x_1 = lean_mk_string_unchecked("ofNat", 5, 5);
 return x_1;
 }
 }
@@ -2774,7 +2774,7 @@ static lean_object* _init_l_BitVec_reduceGetBit___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Bool", 4);
+x_1 = lean_mk_string_unchecked("Bool", 4, 4);
 return x_1;
 }
 }
@@ -2782,7 +2782,7 @@ static lean_object* _init_l_BitVec_reduceGetBit___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("false", 5);
+x_1 = lean_mk_string_unchecked("false", 5, 5);
 return x_1;
 }
 }
@@ -2820,7 +2820,7 @@ static lean_object* _init_l_BitVec_reduceGetBit___lambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("true", 4);
+x_1 = lean_mk_string_unchecked("true", 4, 4);
 return x_1;
 }
 }
@@ -4510,7 +4510,7 @@ static lean_object* _init_l_BitVec_reduceNeg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Neg", 3);
+x_1 = lean_mk_string_unchecked("Neg", 3, 3);
 return x_1;
 }
 }
@@ -4518,7 +4518,7 @@ static lean_object* _init_l_BitVec_reduceNeg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("neg", 3);
+x_1 = lean_mk_string_unchecked("neg", 3, 3);
 return x_1;
 }
 }
@@ -4590,7 +4590,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceNeg_declare__1____x40_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceNeg", 9);
+x_1 = lean_mk_string_unchecked("reduceNeg", 9, 9);
 return x_1;
 }
 }
@@ -4923,7 +4923,7 @@ static lean_object* _init_l_BitVec_reduceNot___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Complement", 10);
+x_1 = lean_mk_string_unchecked("Complement", 10, 10);
 return x_1;
 }
 }
@@ -4931,7 +4931,7 @@ static lean_object* _init_l_BitVec_reduceNot___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("complement", 10);
+x_1 = lean_mk_string_unchecked("complement", 10, 10);
 return x_1;
 }
 }
@@ -5003,7 +5003,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceNot_declare__1____x40_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceNot", 9);
+x_1 = lean_mk_string_unchecked("reduceNot", 9, 9);
 return x_1;
 }
 }
@@ -5289,7 +5289,7 @@ static lean_object* _init_l_BitVec_reduceAbs___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("abs", 3);
+x_1 = lean_mk_string_unchecked("abs", 3, 3);
 return x_1;
 }
 }
@@ -5361,7 +5361,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceAbs_declare__1____x40_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceAbs", 9);
+x_1 = lean_mk_string_unchecked("reduceAbs", 9, 9);
 return x_1;
 }
 }
@@ -5788,7 +5788,7 @@ static lean_object* _init_l_BitVec_reduceAnd___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HAnd", 4);
+x_1 = lean_mk_string_unchecked("HAnd", 4, 4);
 return x_1;
 }
 }
@@ -5796,7 +5796,7 @@ static lean_object* _init_l_BitVec_reduceAnd___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hAnd", 4);
+x_1 = lean_mk_string_unchecked("hAnd", 4, 4);
 return x_1;
 }
 }
@@ -5868,7 +5868,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceAnd_declare__1____x40_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceAnd", 9);
+x_1 = lean_mk_string_unchecked("reduceAnd", 9, 9);
 return x_1;
 }
 }
@@ -6365,7 +6365,7 @@ static lean_object* _init_l_BitVec_reduceOr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HOr", 3);
+x_1 = lean_mk_string_unchecked("HOr", 3, 3);
 return x_1;
 }
 }
@@ -6373,7 +6373,7 @@ static lean_object* _init_l_BitVec_reduceOr___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hOr", 3);
+x_1 = lean_mk_string_unchecked("hOr", 3, 3);
 return x_1;
 }
 }
@@ -6445,7 +6445,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceOr_declare__1____x40_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceOr", 8);
+x_1 = lean_mk_string_unchecked("reduceOr", 8, 8);
 return x_1;
 }
 }
@@ -6933,7 +6933,7 @@ static lean_object* _init_l_BitVec_reduceXOr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HXor", 4);
+x_1 = lean_mk_string_unchecked("HXor", 4, 4);
 return x_1;
 }
 }
@@ -6941,7 +6941,7 @@ static lean_object* _init_l_BitVec_reduceXOr___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hXor", 4);
+x_1 = lean_mk_string_unchecked("hXor", 4, 4);
 return x_1;
 }
 }
@@ -7013,7 +7013,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceXOr_declare__1____x40_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceXOr", 9);
+x_1 = lean_mk_string_unchecked("reduceXOr", 9, 9);
 return x_1;
 }
 }
@@ -7501,7 +7501,7 @@ static lean_object* _init_l_BitVec_reduceAdd___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HAdd", 4);
+x_1 = lean_mk_string_unchecked("HAdd", 4, 4);
 return x_1;
 }
 }
@@ -7509,7 +7509,7 @@ static lean_object* _init_l_BitVec_reduceAdd___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hAdd", 4);
+x_1 = lean_mk_string_unchecked("hAdd", 4, 4);
 return x_1;
 }
 }
@@ -7581,7 +7581,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceAdd_declare__1____x40_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceAdd", 9);
+x_1 = lean_mk_string_unchecked("reduceAdd", 9, 9);
 return x_1;
 }
 }
@@ -8069,7 +8069,7 @@ static lean_object* _init_l_BitVec_reduceMul___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HMul", 4);
+x_1 = lean_mk_string_unchecked("HMul", 4, 4);
 return x_1;
 }
 }
@@ -8077,7 +8077,7 @@ static lean_object* _init_l_BitVec_reduceMul___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hMul", 4);
+x_1 = lean_mk_string_unchecked("hMul", 4, 4);
 return x_1;
 }
 }
@@ -8149,7 +8149,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceMul_declare__1____x40_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceMul", 9);
+x_1 = lean_mk_string_unchecked("reduceMul", 9, 9);
 return x_1;
 }
 }
@@ -8637,7 +8637,7 @@ static lean_object* _init_l_BitVec_reduceSub___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HSub", 4);
+x_1 = lean_mk_string_unchecked("HSub", 4, 4);
 return x_1;
 }
 }
@@ -8645,7 +8645,7 @@ static lean_object* _init_l_BitVec_reduceSub___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hSub", 4);
+x_1 = lean_mk_string_unchecked("hSub", 4, 4);
 return x_1;
 }
 }
@@ -8717,7 +8717,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceSub_declare__1____x40_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceSub", 9);
+x_1 = lean_mk_string_unchecked("reduceSub", 9, 9);
 return x_1;
 }
 }
@@ -9205,7 +9205,7 @@ static lean_object* _init_l_BitVec_reduceDiv___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HDiv", 4);
+x_1 = lean_mk_string_unchecked("HDiv", 4, 4);
 return x_1;
 }
 }
@@ -9213,7 +9213,7 @@ static lean_object* _init_l_BitVec_reduceDiv___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hDiv", 4);
+x_1 = lean_mk_string_unchecked("hDiv", 4, 4);
 return x_1;
 }
 }
@@ -9285,7 +9285,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceDiv_declare__1____x40_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceDiv", 9);
+x_1 = lean_mk_string_unchecked("reduceDiv", 9, 9);
 return x_1;
 }
 }
@@ -9773,7 +9773,7 @@ static lean_object* _init_l_BitVec_reduceMod___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HMod", 4);
+x_1 = lean_mk_string_unchecked("HMod", 4, 4);
 return x_1;
 }
 }
@@ -9781,7 +9781,7 @@ static lean_object* _init_l_BitVec_reduceMod___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hMod", 4);
+x_1 = lean_mk_string_unchecked("hMod", 4, 4);
 return x_1;
 }
 }
@@ -9853,7 +9853,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceMod_declare__1____x40_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceMod", 9);
+x_1 = lean_mk_string_unchecked("reduceMod", 9, 9);
 return x_1;
 }
 }
@@ -10036,7 +10036,7 @@ static lean_object* _init_l_BitVec_reduceUMod___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("umod", 4);
+x_1 = lean_mk_string_unchecked("umod", 4, 4);
 return x_1;
 }
 }
@@ -10095,7 +10095,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceUMod_declare__1____x40_Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceUMod", 10);
+x_1 = lean_mk_string_unchecked("reduceUMod", 10, 10);
 return x_1;
 }
 }
@@ -10227,7 +10227,7 @@ static lean_object* _init_l_BitVec_reduceUDiv___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("udiv", 4);
+x_1 = lean_mk_string_unchecked("udiv", 4, 4);
 return x_1;
 }
 }
@@ -10286,7 +10286,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceUDiv_declare__1____x40_Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceUDiv", 10);
+x_1 = lean_mk_string_unchecked("reduceUDiv", 10, 10);
 return x_1;
 }
 }
@@ -10714,7 +10714,7 @@ static lean_object* _init_l_BitVec_reduceSMTUDiv___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("smtUDiv", 7);
+x_1 = lean_mk_string_unchecked("smtUDiv", 7, 7);
 return x_1;
 }
 }
@@ -10786,7 +10786,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceSMTUDiv_declare__1____x40_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceSMTUDiv", 13);
+x_1 = lean_mk_string_unchecked("reduceSMTUDiv", 13, 13);
 return x_1;
 }
 }
@@ -11214,7 +11214,7 @@ static lean_object* _init_l_BitVec_reduceSMod___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("smod", 4);
+x_1 = lean_mk_string_unchecked("smod", 4, 4);
 return x_1;
 }
 }
@@ -11286,7 +11286,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceSMod_declare__1____x40_Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceSMod", 10);
+x_1 = lean_mk_string_unchecked("reduceSMod", 10, 10);
 return x_1;
 }
 }
@@ -11714,7 +11714,7 @@ static lean_object* _init_l_BitVec_reduceSRem___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("srem", 4);
+x_1 = lean_mk_string_unchecked("srem", 4, 4);
 return x_1;
 }
 }
@@ -11786,7 +11786,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceSRem_declare__1____x40_Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceSRem", 10);
+x_1 = lean_mk_string_unchecked("reduceSRem", 10, 10);
 return x_1;
 }
 }
@@ -12214,7 +12214,7 @@ static lean_object* _init_l_BitVec_reduceSDiv___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sdiv", 4);
+x_1 = lean_mk_string_unchecked("sdiv", 4, 4);
 return x_1;
 }
 }
@@ -12286,7 +12286,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceSDiv_declare__1____x40_Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceSDiv", 10);
+x_1 = lean_mk_string_unchecked("reduceSDiv", 10, 10);
 return x_1;
 }
 }
@@ -12714,7 +12714,7 @@ static lean_object* _init_l_BitVec_reduceSMTSDiv___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("smtSDiv", 7);
+x_1 = lean_mk_string_unchecked("smtSDiv", 7, 7);
 return x_1;
 }
 }
@@ -12786,7 +12786,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceSMTSDiv_declare__1____x40_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceSMTSDiv", 13);
+x_1 = lean_mk_string_unchecked("reduceSMTSDiv", 13, 13);
 return x_1;
 }
 }
@@ -13122,7 +13122,7 @@ static lean_object* _init_l_BitVec_reduceGetLsb___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("getLsb", 6);
+x_1 = lean_mk_string_unchecked("getLsb", 6, 6);
 return x_1;
 }
 }
@@ -13194,7 +13194,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceGetLsb_declare__1____x40_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceGetLsb", 12);
+x_1 = lean_mk_string_unchecked("reduceGetLsb", 12, 12);
 return x_1;
 }
 }
@@ -13578,7 +13578,7 @@ static lean_object* _init_l_BitVec_reduceGetMsb___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("getMsb", 6);
+x_1 = lean_mk_string_unchecked("getMsb", 6, 6);
 return x_1;
 }
 }
@@ -13650,7 +13650,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceGetMsb_declare__1____x40_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceGetMsb", 12);
+x_1 = lean_mk_string_unchecked("reduceGetMsb", 12, 12);
 return x_1;
 }
 }
@@ -14012,7 +14012,7 @@ static lean_object* _init_l_BitVec_reduceShiftLeft___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("shiftLeft", 9);
+x_1 = lean_mk_string_unchecked("shiftLeft", 9, 9);
 return x_1;
 }
 }
@@ -14084,7 +14084,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceShiftLeft_declare__1____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceShiftLeft", 15);
+x_1 = lean_mk_string_unchecked("reduceShiftLeft", 15, 15);
 return x_1;
 }
 }
@@ -14446,7 +14446,7 @@ static lean_object* _init_l_BitVec_reduceUShiftRight___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ushiftRight", 11);
+x_1 = lean_mk_string_unchecked("ushiftRight", 11, 11);
 return x_1;
 }
 }
@@ -14518,7 +14518,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceUShiftRight_declare__1____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceUShiftRight", 17);
+x_1 = lean_mk_string_unchecked("reduceUShiftRight", 17, 17);
 return x_1;
 }
 }
@@ -14877,7 +14877,7 @@ static lean_object* _init_l_BitVec_reduceSShiftRight___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sshiftRight", 11);
+x_1 = lean_mk_string_unchecked("sshiftRight", 11, 11);
 return x_1;
 }
 }
@@ -14949,7 +14949,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceSShiftRight_declare__1____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceSShiftRight", 17);
+x_1 = lean_mk_string_unchecked("reduceSShiftRight", 17, 17);
 return x_1;
 }
 }
@@ -15072,7 +15072,7 @@ static lean_object* _init_l_BitVec_reduceHShiftLeft___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HShiftLeft", 10);
+x_1 = lean_mk_string_unchecked("HShiftLeft", 10, 10);
 return x_1;
 }
 }
@@ -15080,7 +15080,7 @@ static lean_object* _init_l_BitVec_reduceHShiftLeft___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hShiftLeft", 10);
+x_1 = lean_mk_string_unchecked("hShiftLeft", 10, 10);
 return x_1;
 }
 }
@@ -15139,7 +15139,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceHShiftLeft_declare__1____x
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceHShiftLeft", 16);
+x_1 = lean_mk_string_unchecked("reduceHShiftLeft", 16, 16);
 return x_1;
 }
 }
@@ -15352,7 +15352,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceHShiftLeft_x27_declare__1_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceHShiftLeft'", 17);
+x_1 = lean_mk_string_unchecked("reduceHShiftLeft'", 17, 17);
 return x_1;
 }
 }
@@ -15522,7 +15522,7 @@ static lean_object* _init_l_BitVec_reduceHShiftRight___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HShiftRight", 11);
+x_1 = lean_mk_string_unchecked("HShiftRight", 11, 11);
 return x_1;
 }
 }
@@ -15530,7 +15530,7 @@ static lean_object* _init_l_BitVec_reduceHShiftRight___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hShiftRight", 11);
+x_1 = lean_mk_string_unchecked("hShiftRight", 11, 11);
 return x_1;
 }
 }
@@ -15589,7 +15589,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceHShiftRight_declare__1____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceHShiftRight", 17);
+x_1 = lean_mk_string_unchecked("reduceHShiftRight", 17, 17);
 return x_1;
 }
 }
@@ -15793,7 +15793,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceHShiftRight_x27_declare__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceHShiftRight'", 18);
+x_1 = lean_mk_string_unchecked("reduceHShiftRight'", 18, 18);
 return x_1;
 }
 }
@@ -16193,7 +16193,7 @@ static lean_object* _init_l_BitVec_reduceRotateLeft___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rotateLeft", 10);
+x_1 = lean_mk_string_unchecked("rotateLeft", 10, 10);
 return x_1;
 }
 }
@@ -16265,7 +16265,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceRotateLeft_declare__1____x
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceRotateLeft", 16);
+x_1 = lean_mk_string_unchecked("reduceRotateLeft", 16, 16);
 return x_1;
 }
 }
@@ -16627,7 +16627,7 @@ static lean_object* _init_l_BitVec_reduceRotateRight___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rotateRight", 11);
+x_1 = lean_mk_string_unchecked("rotateRight", 11, 11);
 return x_1;
 }
 }
@@ -16699,7 +16699,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceRotateRight_declare__1____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceRotateRight", 17);
+x_1 = lean_mk_string_unchecked("reduceRotateRight", 17, 17);
 return x_1;
 }
 }
@@ -17109,7 +17109,7 @@ static lean_object* _init_l_BitVec_reduceAppend___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HAppend", 7);
+x_1 = lean_mk_string_unchecked("HAppend", 7, 7);
 return x_1;
 }
 }
@@ -17117,7 +17117,7 @@ static lean_object* _init_l_BitVec_reduceAppend___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hAppend", 7);
+x_1 = lean_mk_string_unchecked("hAppend", 7, 7);
 return x_1;
 }
 }
@@ -17290,7 +17290,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceAppend_declare__1____x40_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceAppend", 12);
+x_1 = lean_mk_string_unchecked("reduceAppend", 12, 12);
 return x_1;
 }
 }
@@ -17686,7 +17686,7 @@ static lean_object* _init_l_BitVec_reduceCast___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cast", 4);
+x_1 = lean_mk_string_unchecked("cast", 4, 4);
 return x_1;
 }
 }
@@ -17811,7 +17811,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceCast_declare__1____x40_Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceCast", 10);
+x_1 = lean_mk_string_unchecked("reduceCast", 10, 10);
 return x_1;
 }
 }
@@ -18083,7 +18083,7 @@ static lean_object* _init_l_BitVec_reduceToNat___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("toNat", 5);
+x_1 = lean_mk_string_unchecked("toNat", 5, 5);
 return x_1;
 }
 }
@@ -18174,7 +18174,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceToNat_declare__1____x40_Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceToNat", 11);
+x_1 = lean_mk_string_unchecked("reduceToNat", 11, 11);
 return x_1;
 }
 }
@@ -18327,7 +18327,7 @@ static lean_object* _init_l_BitVec_reduceToInt___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Int", 3);
+x_1 = lean_mk_string_unchecked("Int", 3, 3);
 return x_1;
 }
 }
@@ -18355,7 +18355,7 @@ static lean_object* _init_l_BitVec_reduceToInt___lambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instNegInt", 10);
+x_1 = lean_mk_string_unchecked("instNegInt", 10, 10);
 return x_1;
 }
 }
@@ -18615,7 +18615,7 @@ static lean_object* _init_l_BitVec_reduceToInt___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("toInt", 5);
+x_1 = lean_mk_string_unchecked("toInt", 5, 5);
 return x_1;
 }
 }
@@ -18706,7 +18706,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceToInt_declare__1____x40_Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceToInt", 11);
+x_1 = lean_mk_string_unchecked("reduceToInt", 11, 11);
 return x_1;
 }
 }
@@ -19045,7 +19045,7 @@ static lean_object* _init_l_BitVec_reduceOfInt___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofInt", 5);
+x_1 = lean_mk_string_unchecked("ofInt", 5, 5);
 return x_1;
 }
 }
@@ -19139,7 +19139,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceOfInt_declare__1____x40_Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceOfInt", 11);
+x_1 = lean_mk_string_unchecked("reduceOfInt", 11, 11);
 return x_1;
 }
 }
@@ -19603,7 +19603,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceOfNat_declare__1____x40_Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceOfNat", 11);
+x_1 = lean_mk_string_unchecked("reduceOfNat", 11, 11);
 return x_1;
 }
 }
@@ -19976,7 +19976,7 @@ static lean_object* _init_l_BitVec_reduceEq___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -20047,7 +20047,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceEq_declare__1____x40_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceEq", 8);
+x_1 = lean_mk_string_unchecked("reduceEq", 8, 8);
 return x_1;
 }
 }
@@ -20442,7 +20442,7 @@ static lean_object* _init_l_BitVec_reduceNe___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Ne", 2);
+x_1 = lean_mk_string_unchecked("Ne", 2, 2);
 return x_1;
 }
 }
@@ -20513,7 +20513,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceNe_declare__1____x40_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceNe", 8);
+x_1 = lean_mk_string_unchecked("reduceNe", 8, 8);
 return x_1;
 }
 }
@@ -20531,7 +20531,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceNe_declare__1____x40_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Not", 3);
+x_1 = lean_mk_string_unchecked("Not", 3, 3);
 return x_1;
 }
 }
@@ -20943,7 +20943,7 @@ static lean_object* _init_l_BitVec_reduceLT___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LT", 2);
+x_1 = lean_mk_string_unchecked("LT", 2, 2);
 return x_1;
 }
 }
@@ -20951,7 +20951,7 @@ static lean_object* _init_l_BitVec_reduceLT___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lt", 2);
+x_1 = lean_mk_string_unchecked("lt", 2, 2);
 return x_1;
 }
 }
@@ -21022,7 +21022,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceLT_declare__1____x40_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceLT", 8);
+x_1 = lean_mk_string_unchecked("reduceLT", 8, 8);
 return x_1;
 }
 }
@@ -21425,7 +21425,7 @@ static lean_object* _init_l_BitVec_reduceLE___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LE", 2);
+x_1 = lean_mk_string_unchecked("LE", 2, 2);
 return x_1;
 }
 }
@@ -21433,7 +21433,7 @@ static lean_object* _init_l_BitVec_reduceLE___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("le", 2);
+x_1 = lean_mk_string_unchecked("le", 2, 2);
 return x_1;
 }
 }
@@ -21504,7 +21504,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceLE_declare__1____x40_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceLE", 8);
+x_1 = lean_mk_string_unchecked("reduceLE", 8, 8);
 return x_1;
 }
 }
@@ -21907,7 +21907,7 @@ static lean_object* _init_l_BitVec_reduceGT___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("GT", 2);
+x_1 = lean_mk_string_unchecked("GT", 2, 2);
 return x_1;
 }
 }
@@ -21915,7 +21915,7 @@ static lean_object* _init_l_BitVec_reduceGT___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("gt", 2);
+x_1 = lean_mk_string_unchecked("gt", 2, 2);
 return x_1;
 }
 }
@@ -21986,7 +21986,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceGT_declare__1____x40_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceGT", 8);
+x_1 = lean_mk_string_unchecked("reduceGT", 8, 8);
 return x_1;
 }
 }
@@ -22317,7 +22317,7 @@ static lean_object* _init_l_BitVec_reduceGE___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("GE", 2);
+x_1 = lean_mk_string_unchecked("GE", 2, 2);
 return x_1;
 }
 }
@@ -22325,7 +22325,7 @@ static lean_object* _init_l_BitVec_reduceGE___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ge", 2);
+x_1 = lean_mk_string_unchecked("ge", 2, 2);
 return x_1;
 }
 }
@@ -22396,7 +22396,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceGE_declare__1____x40_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceGE", 8);
+x_1 = lean_mk_string_unchecked("reduceGE", 8, 8);
 return x_1;
 }
 }
@@ -22727,7 +22727,7 @@ static lean_object* _init_l_BitVec_reduceULT___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ult", 3);
+x_1 = lean_mk_string_unchecked("ult", 3, 3);
 return x_1;
 }
 }
@@ -22799,7 +22799,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceULT_declare__1____x40_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceULT", 9);
+x_1 = lean_mk_string_unchecked("reduceULT", 9, 9);
 return x_1;
 }
 }
@@ -23182,7 +23182,7 @@ static lean_object* _init_l_BitVec_reduceULE___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ule", 3);
+x_1 = lean_mk_string_unchecked("ule", 3, 3);
 return x_1;
 }
 }
@@ -23254,7 +23254,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceULE_declare__1____x40_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceULE", 9);
+x_1 = lean_mk_string_unchecked("reduceULE", 9, 9);
 return x_1;
 }
 }
@@ -23635,7 +23635,7 @@ static lean_object* _init_l_BitVec_reduceSLT___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("slt", 3);
+x_1 = lean_mk_string_unchecked("slt", 3, 3);
 return x_1;
 }
 }
@@ -23707,7 +23707,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceSLT_declare__1____x40_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceSLT", 9);
+x_1 = lean_mk_string_unchecked("reduceSLT", 9, 9);
 return x_1;
 }
 }
@@ -24088,7 +24088,7 @@ static lean_object* _init_l_BitVec_reduceSLE___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sle", 3);
+x_1 = lean_mk_string_unchecked("sle", 3, 3);
 return x_1;
 }
 }
@@ -24160,7 +24160,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceSLE_declare__1____x40_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceSLE", 9);
+x_1 = lean_mk_string_unchecked("reduceSLE", 9, 9);
 return x_1;
 }
 }
@@ -24565,7 +24565,7 @@ static lean_object* _init_l_BitVec_reduceZeroExtend_x27___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("zeroExtend'", 11);
+x_1 = lean_mk_string_unchecked("zeroExtend'", 11, 11);
 return x_1;
 }
 }
@@ -24690,7 +24690,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceZeroExtend_x27_declare__1_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceZeroExtend'", 17);
+x_1 = lean_mk_string_unchecked("reduceZeroExtend'", 17, 17);
 return x_1;
 }
 }
@@ -25071,7 +25071,7 @@ static lean_object* _init_l_BitVec_reduceShiftLeftZeroExtend___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("shiftLeftZeroExtend", 19);
+x_1 = lean_mk_string_unchecked("shiftLeftZeroExtend", 19, 19);
 return x_1;
 }
 }
@@ -25181,7 +25181,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceShiftLeftZeroExtend_declar
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceShiftLeftZeroExtend", 25);
+x_1 = lean_mk_string_unchecked("reduceShiftLeftZeroExtend", 25, 25);
 return x_1;
 }
 }
@@ -25621,7 +25621,7 @@ static lean_object* _init_l_BitVec_reduceExtracLsb_x27___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("extractLsb'", 11);
+x_1 = lean_mk_string_unchecked("extractLsb'", 11, 11);
 return x_1;
 }
 }
@@ -25751,7 +25751,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceExtracLsb_x27_declare__1__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceExtracLsb'", 16);
+x_1 = lean_mk_string_unchecked("reduceExtracLsb'", 16, 16);
 return x_1;
 }
 }
@@ -26132,7 +26132,7 @@ static lean_object* _init_l_BitVec_reduceReplicate___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("replicate", 9);
+x_1 = lean_mk_string_unchecked("replicate", 9, 9);
 return x_1;
 }
 }
@@ -26242,7 +26242,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceReplicate_declare__1____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceReplicate", 15);
+x_1 = lean_mk_string_unchecked("reduceReplicate", 15, 15);
 return x_1;
 }
 }
@@ -26604,7 +26604,7 @@ static lean_object* _init_l_BitVec_reduceZeroExtend___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("zeroExtend", 10);
+x_1 = lean_mk_string_unchecked("zeroExtend", 10, 10);
 return x_1;
 }
 }
@@ -26676,7 +26676,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceZeroExtend_declare__1____x
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceZeroExtend", 16);
+x_1 = lean_mk_string_unchecked("reduceZeroExtend", 16, 16);
 return x_1;
 }
 }
@@ -27035,7 +27035,7 @@ static lean_object* _init_l_BitVec_reduceSignExtend___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("signExtend", 10);
+x_1 = lean_mk_string_unchecked("signExtend", 10, 10);
 return x_1;
 }
 }
@@ -27107,7 +27107,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceSignExtend_declare__1____x
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceSignExtend", 16);
+x_1 = lean_mk_string_unchecked("reduceSignExtend", 16, 16);
 return x_1;
 }
 }
@@ -27372,7 +27372,7 @@ static lean_object* _init_l_BitVec_reduceAllOnes___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("allOnes", 7);
+x_1 = lean_mk_string_unchecked("allOnes", 7, 7);
 return x_1;
 }
 }
@@ -27449,7 +27449,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceAllOnes_declare__1____x40_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceAllOnes", 13);
+x_1 = lean_mk_string_unchecked("reduceAllOnes", 13, 13);
 return x_1;
 }
 }
@@ -27790,7 +27790,7 @@ static lean_object* _init_l_BitVec_reduceBitVecOfFin___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofFin", 5);
+x_1 = lean_mk_string_unchecked("ofFin", 5, 5);
 return x_1;
 }
 }
@@ -27883,7 +27883,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceBitVecOfFin_declare__1____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceBitVecOfFin", 17);
+x_1 = lean_mk_string_unchecked("reduceBitVecOfFin", 17, 17);
 return x_1;
 }
 }
@@ -27996,7 +27996,7 @@ static lean_object* _init_l_BitVec_reduceBitVecToFin___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("OfNat", 5);
+x_1 = lean_mk_string_unchecked("OfNat", 5, 5);
 return x_1;
 }
 }
@@ -28024,7 +28024,7 @@ static lean_object* _init_l_BitVec_reduceBitVecToFin___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Fin", 3);
+x_1 = lean_mk_string_unchecked("Fin", 3, 3);
 return x_1;
 }
 }
@@ -28052,7 +28052,7 @@ static lean_object* _init_l_BitVec_reduceBitVecToFin___lambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instOfNat", 9);
+x_1 = lean_mk_string_unchecked("instOfNat", 9, 9);
 return x_1;
 }
 }
@@ -28276,7 +28276,7 @@ static lean_object* _init_l_BitVec_reduceBitVecToFin___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("toFin", 5);
+x_1 = lean_mk_string_unchecked("toFin", 5, 5);
 return x_1;
 }
 }
@@ -28367,7 +28367,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceBitVecToFin_declare__1____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceBitVecToFin", 17);
+x_1 = lean_mk_string_unchecked("reduceBitVecToFin", 17, 17);
 return x_1;
 }
 }
@@ -29137,7 +29137,7 @@ static lean_object* _init_l_BitVec_reduceShiftLeftShiftLeft___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("shiftLeft_add", 13);
+x_1 = lean_mk_string_unchecked("shiftLeft_add", 13, 13);
 return x_1;
 }
 }
@@ -29197,7 +29197,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceShiftLeftShiftLeft_declare
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceShiftLeftShiftLeft", 24);
+x_1 = lean_mk_string_unchecked("reduceShiftLeftShiftLeft", 24, 24);
 return x_1;
 }
 }
@@ -29425,7 +29425,7 @@ static lean_object* _init_l_BitVec_reduceShiftRightShiftRight___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("shiftRight_add", 14);
+x_1 = lean_mk_string_unchecked("shiftRight_add", 14, 14);
 return x_1;
 }
 }
@@ -29485,7 +29485,7 @@ static lean_object* _init_l___regBuiltin_BitVec_reduceShiftRightShiftRight_decla
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceShiftRightShiftRight", 26);
+x_1 = lean_mk_string_unchecked("reduceShiftRightShiftRight", 26, 26);
 return x_1;
 }
 }

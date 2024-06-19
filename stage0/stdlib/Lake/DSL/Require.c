@@ -255,7 +255,7 @@ static lean_object* _init_l_Lake_DSL_fromPath___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake", 4);
+x_1 = lean_mk_string_unchecked("Lake", 4, 4);
 return x_1;
 }
 }
@@ -263,7 +263,7 @@ static lean_object* _init_l_Lake_DSL_fromPath___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("DSL", 3);
+x_1 = lean_mk_string_unchecked("DSL", 3, 3);
 return x_1;
 }
 }
@@ -271,7 +271,7 @@ static lean_object* _init_l_Lake_DSL_fromPath___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fromPath", 8);
+x_1 = lean_mk_string_unchecked("fromPath", 8, 8);
 return x_1;
 }
 }
@@ -290,7 +290,7 @@ static lean_object* _init_l_Lake_DSL_fromPath___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term", 4);
+x_1 = lean_mk_string_unchecked("term", 4, 4);
 return x_1;
 }
 }
@@ -342,7 +342,7 @@ static lean_object* _init_l_Lake_DSL_fromGit___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fromGit", 7);
+x_1 = lean_mk_string_unchecked("fromGit", 7, 7);
 return x_1;
 }
 }
@@ -361,7 +361,7 @@ static lean_object* _init_l_Lake_DSL_fromGit___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("andthen", 7);
+x_1 = lean_mk_string_unchecked("andthen", 7, 7);
 return x_1;
 }
 }
@@ -379,7 +379,7 @@ static lean_object* _init_l_Lake_DSL_fromGit___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("git ", 4);
+x_1 = lean_mk_string_unchecked("git ", 4, 4);
 return x_1;
 }
 }
@@ -425,7 +425,7 @@ static lean_object* _init_l_Lake_DSL_fromGit___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("optional", 8);
+x_1 = lean_mk_string_unchecked("optional", 8, 8);
 return x_1;
 }
 }
@@ -443,7 +443,7 @@ static lean_object* _init_l_Lake_DSL_fromGit___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("@", 1);
+x_1 = lean_mk_string_unchecked("@", 1, 1);
 return x_1;
 }
 }
@@ -501,7 +501,7 @@ static lean_object* _init_l_Lake_DSL_fromGit___closed__16() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("/", 1);
+x_1 = lean_mk_string_unchecked("/", 1, 1);
 return x_1;
 }
 }
@@ -581,7 +581,7 @@ static lean_object* _init_l_Lake_DSL_fromSource___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fromSource", 10);
+x_1 = lean_mk_string_unchecked("fromSource", 10, 10);
 return x_1;
 }
 }
@@ -600,7 +600,7 @@ static lean_object* _init_l_Lake_DSL_fromSource___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("orelse", 6);
+x_1 = lean_mk_string_unchecked("orelse", 6, 6);
 return x_1;
 }
 }
@@ -654,7 +654,7 @@ static lean_object* _init_l_Lake_DSL_fromClause___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fromClause", 10);
+x_1 = lean_mk_string_unchecked("fromClause", 10, 10);
 return x_1;
 }
 }
@@ -673,7 +673,7 @@ static lean_object* _init_l_Lake_DSL_fromClause___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" from ", 6);
+x_1 = lean_mk_string_unchecked(" from ", 6, 6);
 return x_1;
 }
 }
@@ -727,7 +727,7 @@ static lean_object* _init_l_Lake_DSL_withClause___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("withClause", 10);
+x_1 = lean_mk_string_unchecked("withClause", 10, 10);
 return x_1;
 }
 }
@@ -746,7 +746,7 @@ static lean_object* _init_l_Lake_DSL_withClause___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" with ", 6);
+x_1 = lean_mk_string_unchecked(" with ", 6, 6);
 return x_1;
 }
 }
@@ -800,7 +800,7 @@ static lean_object* _init_l_Lake_DSL_depSpec___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("depSpec", 7);
+x_1 = lean_mk_string_unchecked("depSpec", 7, 7);
 return x_1;
 }
 }
@@ -897,7 +897,7 @@ static lean_object* _init_l___private_Lake_DSL_Require_0__Lake_DSL_quoteOptTerm_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("none", 4);
+x_1 = lean_mk_string_unchecked("none", 4, 4);
 return x_1;
 }
 }
@@ -924,7 +924,7 @@ static lean_object* _init_l___private_Lake_DSL_Require_0__Lake_DSL_quoteOptTerm_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Option", 6);
+x_1 = lean_mk_string_unchecked("Option", 6, 6);
 return x_1;
 }
 }
@@ -1020,7 +1020,7 @@ static lean_object* _init_l___private_Lake_DSL_Require_0__Lake_DSL_quoteOptTerm_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1028,7 +1028,7 @@ static lean_object* _init_l___private_Lake_DSL_Require_0__Lake_DSL_quoteOptTerm_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -1036,7 +1036,7 @@ static lean_object* _init_l___private_Lake_DSL_Require_0__Lake_DSL_quoteOptTerm_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -1044,7 +1044,7 @@ static lean_object* _init_l___private_Lake_DSL_Require_0__Lake_DSL_quoteOptTerm_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("app", 3);
+x_1 = lean_mk_string_unchecked("app", 3, 3);
 return x_1;
 }
 }
@@ -1064,7 +1064,7 @@ static lean_object* _init_l___private_Lake_DSL_Require_0__Lake_DSL_quoteOptTerm_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("some", 4);
+x_1 = lean_mk_string_unchecked("some", 4, 4);
 return x_1;
 }
 }
@@ -1125,7 +1125,7 @@ static lean_object* _init_l___private_Lake_DSL_Require_0__Lake_DSL_quoteOptTerm_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -1306,7 +1306,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("choice", 6);
+x_1 = lean_mk_string_unchecked("choice", 6, 6);
 return x_1;
 }
 }
@@ -1324,7 +1324,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term{}", 6);
+x_1 = lean_mk_string_unchecked("term{}", 6, 6);
 return x_1;
 }
 }
@@ -1342,7 +1342,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("{", 1);
+x_1 = lean_mk_string_unchecked("{", 1, 1);
 return x_1;
 }
 }
@@ -1350,7 +1350,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("}", 1);
+x_1 = lean_mk_string_unchecked("}", 1, 1);
 return x_1;
 }
 }
@@ -1358,7 +1358,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structInst", 10);
+x_1 = lean_mk_string_unchecked("structInst", 10, 10);
 return x_1;
 }
 }
@@ -1387,7 +1387,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("optEllipsis", 11);
+x_1 = lean_mk_string_unchecked("optEllipsis", 11, 11);
 return x_1;
 }
 }
@@ -1407,7 +1407,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Command", 7);
+x_1 = lean_mk_string_unchecked("Command", 7, 7);
 return x_1;
 }
 }
@@ -1415,7 +1415,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declaration", 11);
+x_1 = lean_mk_string_unchecked("declaration", 11, 11);
 return x_1;
 }
 }
@@ -1435,7 +1435,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declModifiers", 13);
+x_1 = lean_mk_string_unchecked("declModifiers", 13, 13);
 return x_1;
 }
 }
@@ -1455,7 +1455,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__17() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attributes", 10);
+x_1 = lean_mk_string_unchecked("attributes", 10, 10);
 return x_1;
 }
 }
@@ -1475,7 +1475,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__19() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("@[", 2);
+x_1 = lean_mk_string_unchecked("@[", 2, 2);
 return x_1;
 }
 }
@@ -1483,7 +1483,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__20() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attrInstance", 12);
+x_1 = lean_mk_string_unchecked("attrInstance", 12, 12);
 return x_1;
 }
 }
@@ -1503,7 +1503,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__22() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attrKind", 8);
+x_1 = lean_mk_string_unchecked("attrKind", 8, 8);
 return x_1;
 }
 }
@@ -1523,7 +1523,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__24() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Attr", 4);
+x_1 = lean_mk_string_unchecked("Attr", 4, 4);
 return x_1;
 }
 }
@@ -1531,7 +1531,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__25() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simple", 6);
+x_1 = lean_mk_string_unchecked("simple", 6, 6);
 return x_1;
 }
 }
@@ -1551,7 +1551,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__27() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("package_dep", 11);
+x_1 = lean_mk_string_unchecked("package_dep", 11, 11);
 return x_1;
 }
 }
@@ -1578,7 +1578,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__30() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -1586,7 +1586,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__31() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("definition", 10);
+x_1 = lean_mk_string_unchecked("definition", 10, 10);
 return x_1;
 }
 }
@@ -1606,7 +1606,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__33() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("def", 3);
+x_1 = lean_mk_string_unchecked("def", 3, 3);
 return x_1;
 }
 }
@@ -1614,7 +1614,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__34() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declId", 6);
+x_1 = lean_mk_string_unchecked("declId", 6, 6);
 return x_1;
 }
 }
@@ -1657,7 +1657,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__38() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("optDeclSig", 10);
+x_1 = lean_mk_string_unchecked("optDeclSig", 10, 10);
 return x_1;
 }
 }
@@ -1677,7 +1677,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__40() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("typeSpec", 8);
+x_1 = lean_mk_string_unchecked("typeSpec", 8, 8);
 return x_1;
 }
 }
@@ -1697,7 +1697,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__42() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
@@ -1705,7 +1705,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__43() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Dependency", 10);
+x_1 = lean_mk_string_unchecked("Dependency", 10, 10);
 return x_1;
 }
 }
@@ -1734,7 +1734,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__46() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declValSimple", 13);
+x_1 = lean_mk_string_unchecked("declValSimple", 13, 13);
 return x_1;
 }
 }
@@ -1754,7 +1754,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__48() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":=", 2);
+x_1 = lean_mk_string_unchecked(":=", 2, 2);
 return x_1;
 }
 }
@@ -1762,7 +1762,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__49() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structInstField", 15);
+x_1 = lean_mk_string_unchecked("structInstField", 15, 15);
 return x_1;
 }
 }
@@ -1782,7 +1782,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__51() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structInstLVal", 14);
+x_1 = lean_mk_string_unchecked("structInstLVal", 14, 14);
 return x_1;
 }
 }
@@ -1802,7 +1802,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__53() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("name", 4);
+x_1 = lean_mk_string_unchecked("name", 4, 4);
 return x_1;
 }
 }
@@ -1829,7 +1829,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__56() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -1837,7 +1837,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__57() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("src", 3);
+x_1 = lean_mk_string_unchecked("src", 3, 3);
 return x_1;
 }
 }
@@ -1864,7 +1864,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__60() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("opts", 4);
+x_1 = lean_mk_string_unchecked("opts", 4, 4);
 return x_1;
 }
 }
@@ -1891,7 +1891,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__63() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Termination", 11);
+x_1 = lean_mk_string_unchecked("Termination", 11, 11);
 return x_1;
 }
 }
@@ -1899,7 +1899,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__64() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("suffix", 6);
+x_1 = lean_mk_string_unchecked("suffix", 6, 6);
 return x_1;
 }
 }
@@ -1919,7 +1919,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__66() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("quotedName", 10);
+x_1 = lean_mk_string_unchecked("quotedName", 10, 10);
 return x_1;
 }
 }
@@ -1939,7 +1939,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__68() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -1947,7 +1947,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__1___closed__69() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`", 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -2325,7 +2325,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("DependencySrc.git", 17);
+x_1 = lean_mk_string_unchecked("DependencySrc.git", 17, 17);
 return x_1;
 }
 }
@@ -2342,7 +2342,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__2___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("DependencySrc", 13);
+x_1 = lean_mk_string_unchecked("DependencySrc", 13, 13);
 return x_1;
 }
 }
@@ -2350,7 +2350,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__2___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("git", 3);
+x_1 = lean_mk_string_unchecked("git", 3, 3);
 return x_1;
 }
 }
@@ -2574,7 +2574,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ill-formed from syntax", 22);
+x_1 = lean_mk_string_unchecked("ill-formed from syntax", 22, 22);
 return x_1;
 }
 }
@@ -2647,7 +2647,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__4___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("DependencySrc.path", 18);
+x_1 = lean_mk_string_unchecked("DependencySrc.path", 18, 18);
 return x_1;
 }
 }
@@ -2664,7 +2664,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___lambda__4___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("path", 4);
+x_1 = lean_mk_string_unchecked("path", 4, 4);
 return x_1;
 }
 }
@@ -2940,7 +2940,7 @@ static lean_object* _init_l_Lake_DSL_expandDepSpec___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ill-formed require syntax", 25);
+x_1 = lean_mk_string_unchecked("ill-formed require syntax", 25, 25);
 return x_1;
 }
 }
@@ -3089,7 +3089,7 @@ static lean_object* _init_l_Lake_DSL_requireDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("requireDecl", 11);
+x_1 = lean_mk_string_unchecked("requireDecl", 11, 11);
 return x_1;
 }
 }
@@ -3108,7 +3108,7 @@ static lean_object* _init_l_Lake_DSL_requireDecl___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("docComment", 10);
+x_1 = lean_mk_string_unchecked("docComment", 10, 10);
 return x_1;
 }
 }
@@ -3148,7 +3148,7 @@ static lean_object* _init_l_Lake_DSL_requireDecl___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("require ", 8);
+x_1 = lean_mk_string_unchecked("require ", 8, 8);
 return x_1;
 }
 }

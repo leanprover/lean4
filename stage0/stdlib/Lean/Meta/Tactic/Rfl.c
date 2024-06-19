@@ -1532,7 +1532,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_Rfl_in
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.DiscrTree", 19);
+x_1 = lean_mk_string_unchecked("Lean.Meta.DiscrTree", 19, 19);
 return x_1;
 }
 }
@@ -1540,7 +1540,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_Rfl_in
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.DiscrTree.insertCore", 30);
+x_1 = lean_mk_string_unchecked("Lean.Meta.DiscrTree.insertCore", 30, 30);
 return x_1;
 }
 }
@@ -1548,7 +1548,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_Rfl_in
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid key sequence", 20);
+x_1 = lean_mk_string_unchecked("invalid key sequence", 20, 20);
 return x_1;
 }
 }
@@ -1660,7 +1660,7 @@ static lean_object* _init_l_Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1668,7 +1668,7 @@ static lean_object* _init_l_Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -1676,7 +1676,7 @@ static lean_object* _init_l_Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Rfl", 3);
+x_1 = lean_mk_string_unchecked("Rfl", 3, 3);
 return x_1;
 }
 }
@@ -1684,7 +1684,7 @@ static lean_object* _init_l_Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reflExt", 7);
+x_1 = lean_mk_string_unchecked("reflExt", 7, 7);
 return x_1;
 }
 }
@@ -2447,7 +2447,7 @@ static lean_object* _init_l_Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("@[refl] attribute only applies to lemmas proving x ∼ x, got ", 62);
+x_1 = lean_mk_string_unchecked("@[refl] attribute only applies to lemmas proving x ∼ x, got ", 62, 60);
 return x_1;
 }
 }
@@ -2464,7 +2464,7 @@ static lean_object* _init_l_Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -2481,7 +2481,7 @@ static lean_object* _init_l_Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -2489,7 +2489,7 @@ static lean_object* _init_l_Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("@[refl] attribute may not be used on `Eq.refl`.", 47);
+x_1 = lean_mk_string_unchecked("@[refl] attribute may not be used on `Eq.refl`.", 47, 47);
 return x_1;
 }
 }
@@ -3369,7 +3369,7 @@ static lean_object* _init_l_Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attribute cannot be erased", 26);
+x_1 = lean_mk_string_unchecked("attribute cannot be erased", 26, 26);
 return x_1;
 }
 }
@@ -3425,7 +3425,7 @@ static lean_object* _init_l_Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -3443,7 +3443,7 @@ static lean_object* _init_l_Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -3481,7 +3481,7 @@ static lean_object* _init_l_Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -3509,7 +3509,7 @@ static lean_object* _init_l_Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -3537,7 +3537,7 @@ static lean_object* _init_l_Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("refl", 4);
+x_1 = lean_mk_string_unchecked("refl", 4, 4);
 return x_1;
 }
 }
@@ -3555,7 +3555,7 @@ static lean_object* _init_l_Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reflexivity relation", 20);
+x_1 = lean_mk_string_unchecked("reflexivity relation", 20, 20);
 return x_1;
 }
 }
@@ -3727,7 +3727,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_MVarId_applyRfl___s
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unsolvedGoals", 13);
+x_1 = lean_mk_string_unchecked("unsolvedGoals", 13, 13);
 return x_1;
 }
 }
@@ -3745,7 +3745,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_MVarId_applyRfl___s
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unsolved goals\n", 15);
+x_1 = lean_mk_string_unchecked("unsolved goals\n", 15, 15);
 return x_1;
 }
 }
@@ -20292,7 +20292,7 @@ static lean_object* _init_l_Lean_MVarId_applyRfl___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rfl failed, no lemma with @[refl] applies", 41);
+x_1 = lean_mk_string_unchecked("rfl failed, no lemma with @[refl] applies", 41, 41);
 return x_1;
 }
 }
@@ -20352,7 +20352,7 @@ static lean_object* _init_l_Lean_MVarId_applyRfl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reflexivity lemmas only apply to binary relations, not", 54);
+x_1 = lean_mk_string_unchecked("reflexivity lemmas only apply to binary relations, not", 54, 54);
 return x_1;
 }
 }
@@ -20380,7 +20380,7 @@ static lean_object* _init_l_Lean_MVarId_applyRfl___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("MVarId.applyRfl does not solve `=` goals. Use `MVarId.refl` instead.", 68);
+x_1 = lean_mk_string_unchecked("MVarId.applyRfl does not solve `=` goals. Use `MVarId.refl` instead.", 68, 68);
 return x_1;
 }
 }
@@ -31171,7 +31171,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_MVarId_liftReflToEq
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed", 6);
+x_1 = lean_mk_string_unchecked("failed", 6, 6);
 return x_1;
 }
 }
@@ -31465,7 +31465,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_MVarId_liftReflToEq
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private", 8);
+x_1 = lean_mk_string_unchecked("_private", 8, 8);
 return x_1;
 }
 }
@@ -31563,7 +31563,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_MVarId_liftReflToEq
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rel_of_eq_and_refl", 18);
+x_1 = lean_mk_string_unchecked("rel_of_eq_and_refl", 18, 18);
 return x_1;
 }
 }
@@ -31923,7 +31923,7 @@ static lean_object* _init_l_Lean_MVarId_liftReflToEq___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("liftReflToEq", 12);
+x_1 = lean_mk_string_unchecked("liftReflToEq", 12, 12);
 return x_1;
 }
 }

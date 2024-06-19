@@ -419,7 +419,7 @@ static lean_object* _init_l_Lake_DSL_buildDeclSig___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake", 4);
+x_1 = lean_mk_string_unchecked("Lake", 4, 4);
 return x_1;
 }
 }
@@ -427,7 +427,7 @@ static lean_object* _init_l_Lake_DSL_buildDeclSig___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("DSL", 3);
+x_1 = lean_mk_string_unchecked("DSL", 3, 3);
 return x_1;
 }
 }
@@ -435,7 +435,7 @@ static lean_object* _init_l_Lake_DSL_buildDeclSig___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("buildDeclSig", 12);
+x_1 = lean_mk_string_unchecked("buildDeclSig", 12, 12);
 return x_1;
 }
 }
@@ -454,7 +454,7 @@ static lean_object* _init_l_Lake_DSL_buildDeclSig___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("andthen", 7);
+x_1 = lean_mk_string_unchecked("andthen", 7, 7);
 return x_1;
 }
 }
@@ -472,7 +472,7 @@ static lean_object* _init_l_Lake_DSL_buildDeclSig___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("optional", 8);
+x_1 = lean_mk_string_unchecked("optional", 8, 8);
 return x_1;
 }
 }
@@ -490,7 +490,7 @@ static lean_object* _init_l_Lake_DSL_buildDeclSig___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ppSpace", 7);
+x_1 = lean_mk_string_unchecked("ppSpace", 7, 7);
 return x_1;
 }
 }
@@ -558,7 +558,7 @@ static lean_object* _init_l_Lake_DSL_buildDeclSig___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -566,7 +566,7 @@ static lean_object* _init_l_Lake_DSL_buildDeclSig___closed__16() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -574,7 +574,7 @@ static lean_object* _init_l_Lake_DSL_buildDeclSig___closed__17() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -582,7 +582,7 @@ static lean_object* _init_l_Lake_DSL_buildDeclSig___closed__18() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("typeSpec", 8);
+x_1 = lean_mk_string_unchecked("typeSpec", 8, 8);
 return x_1;
 }
 }
@@ -626,7 +626,7 @@ static lean_object* _init_l_Lake_DSL_buildDeclSig___closed__22() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Command", 7);
+x_1 = lean_mk_string_unchecked("Command", 7, 7);
 return x_1;
 }
 }
@@ -634,7 +634,7 @@ static lean_object* _init_l_Lake_DSL_buildDeclSig___closed__23() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declValSimple", 13);
+x_1 = lean_mk_string_unchecked("declValSimple", 13, 13);
 return x_1;
 }
 }
@@ -832,7 +832,7 @@ static lean_object* _init_l_Lake_DSL_moduleFacetDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("moduleFacetDecl", 15);
+x_1 = lean_mk_string_unchecked("moduleFacetDecl", 15, 15);
 return x_1;
 }
 }
@@ -851,7 +851,7 @@ static lean_object* _init_l_Lake_DSL_moduleFacetDecl___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("docComment", 10);
+x_1 = lean_mk_string_unchecked("docComment", 10, 10);
 return x_1;
 }
 }
@@ -891,7 +891,7 @@ static lean_object* _init_l_Lake_DSL_moduleFacetDecl___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attributes", 10);
+x_1 = lean_mk_string_unchecked("attributes", 10, 10);
 return x_1;
 }
 }
@@ -947,7 +947,7 @@ static lean_object* _init_l_Lake_DSL_moduleFacetDecl___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("module_facet ", 13);
+x_1 = lean_mk_string_unchecked("module_facet ", 13, 13);
 return x_1;
 }
 }
@@ -1015,7 +1015,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attrInstance", 12);
+x_1 = lean_mk_string_unchecked("attrInstance", 12, 12);
 return x_1;
 }
 }
@@ -1035,7 +1035,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attrKind", 8);
+x_1 = lean_mk_string_unchecked("attrKind", 8, 8);
 return x_1;
 }
 }
@@ -1055,7 +1055,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -1082,7 +1082,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Attr", 4);
+x_1 = lean_mk_string_unchecked("Attr", 4, 4);
 return x_1;
 }
 }
@@ -1090,7 +1090,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simple", 6);
+x_1 = lean_mk_string_unchecked("simple", 6, 6);
 return x_1;
 }
 }
@@ -1110,7 +1110,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("module_facet", 12);
+x_1 = lean_mk_string_unchecked("module_facet", 12, 12);
 return x_1;
 }
 }
@@ -1146,7 +1146,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("moduleDataDecl", 14);
+x_1 = lean_mk_string_unchecked("moduleDataDecl", 14, 14);
 return x_1;
 }
 }
@@ -1164,7 +1164,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("module_data", 11);
+x_1 = lean_mk_string_unchecked("module_data", 11, 11);
 return x_1;
 }
 }
@@ -1172,7 +1172,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
@@ -1180,7 +1180,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("app", 3);
+x_1 = lean_mk_string_unchecked("app", 3, 3);
 return x_1;
 }
 }
@@ -1200,7 +1200,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("BuildJob", 8);
+x_1 = lean_mk_string_unchecked("BuildJob", 8, 8);
 return x_1;
 }
 }
@@ -1283,7 +1283,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declaration", 11);
+x_1 = lean_mk_string_unchecked("declaration", 11, 11);
 return x_1;
 }
 }
@@ -1303,7 +1303,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declModifiers", 13);
+x_1 = lean_mk_string_unchecked("declModifiers", 13, 13);
 return x_1;
 }
 }
@@ -1323,7 +1323,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("@[", 2);
+x_1 = lean_mk_string_unchecked("@[", 2, 2);
 return x_1;
 }
 }
@@ -1331,7 +1331,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -1339,7 +1339,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -1347,7 +1347,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("abbrev", 6);
+x_1 = lean_mk_string_unchecked("abbrev", 6, 6);
 return x_1;
 }
 }
@@ -1367,7 +1367,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declId", 6);
+x_1 = lean_mk_string_unchecked("declId", 6, 6);
 return x_1;
 }
 }
@@ -1410,7 +1410,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("optDeclSig", 10);
+x_1 = lean_mk_string_unchecked("optDeclSig", 10, 10);
 return x_1;
 }
 }
@@ -1430,7 +1430,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":=", 2);
+x_1 = lean_mk_string_unchecked(":=", 2, 2);
 return x_1;
 }
 }
@@ -1438,7 +1438,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.DSL.mkModuleFacetDecl", 26);
+x_1 = lean_mk_string_unchecked("Lake.DSL.mkModuleFacetDecl", 26, 26);
 return x_1;
 }
 }
@@ -1455,7 +1455,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mkModuleFacetDecl", 17);
+x_1 = lean_mk_string_unchecked("mkModuleFacetDecl", 17, 17);
 return x_1;
 }
 }
@@ -1520,7 +1520,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("paren", 5);
+x_1 = lean_mk_string_unchecked("paren", 5, 5);
 return x_1;
 }
 }
@@ -1540,7 +1540,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -1548,7 +1548,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fun", 3);
+x_1 = lean_mk_string_unchecked("fun", 3, 3);
 return x_1;
 }
 }
@@ -1568,7 +1568,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("basicFun", 8);
+x_1 = lean_mk_string_unchecked("basicFun", 8, 8);
 return x_1;
 }
 }
@@ -1588,7 +1588,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("=>", 2);
+x_1 = lean_mk_string_unchecked("=>", 2, 2);
 return x_1;
 }
 }
@@ -1596,7 +1596,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -1613,7 +1613,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_modFacet", 9);
+x_1 = lean_mk_string_unchecked("_modFacet", 9, 9);
 return x_1;
 }
 }
@@ -1968,7 +1968,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ill-formed module facet declaration", 35);
+x_1 = lean_mk_string_unchecked("ill-formed module facet declaration", 35, 35);
 return x_1;
 }
 }
@@ -1976,7 +1976,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Termination", 11);
+x_1 = lean_mk_string_unchecked("Termination", 11, 11);
 return x_1;
 }
 }
@@ -1984,7 +1984,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("suffix", 6);
+x_1 = lean_mk_string_unchecked("suffix", 6, 6);
 return x_1;
 }
 }
@@ -2004,7 +2004,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("whereDecls", 10);
+x_1 = lean_mk_string_unchecked("whereDecls", 10, 10);
 return x_1;
 }
 }
@@ -2845,7 +2845,7 @@ static lean_object* _init_l_Lake_DSL_packageFacetDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("packageFacetDecl", 16);
+x_1 = lean_mk_string_unchecked("packageFacetDecl", 16, 16);
 return x_1;
 }
 }
@@ -2864,7 +2864,7 @@ static lean_object* _init_l_Lake_DSL_packageFacetDecl___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("package_facet ", 14);
+x_1 = lean_mk_string_unchecked("package_facet ", 14, 14);
 return x_1;
 }
 }
@@ -2932,7 +2932,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("package_facet", 13);
+x_1 = lean_mk_string_unchecked("package_facet", 13, 13);
 return x_1;
 }
 }
@@ -2959,7 +2959,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("packageDataDecl", 15);
+x_1 = lean_mk_string_unchecked("packageDataDecl", 15, 15);
 return x_1;
 }
 }
@@ -2977,7 +2977,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("package_data", 12);
+x_1 = lean_mk_string_unchecked("package_data", 12, 12);
 return x_1;
 }
 }
@@ -2985,7 +2985,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.DSL.mkPackageFacetDecl", 27);
+x_1 = lean_mk_string_unchecked("Lake.DSL.mkPackageFacetDecl", 27, 27);
 return x_1;
 }
 }
@@ -3002,7 +3002,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mkPackageFacetDecl", 18);
+x_1 = lean_mk_string_unchecked("mkPackageFacetDecl", 18, 18);
 return x_1;
 }
 }
@@ -3067,7 +3067,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_pkgFacet", 9);
+x_1 = lean_mk_string_unchecked("_pkgFacet", 9, 9);
 return x_1;
 }
 }
@@ -3422,7 +3422,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ill-formed package facet declaration", 36);
+x_1 = lean_mk_string_unchecked("ill-formed package facet declaration", 36, 36);
 return x_1;
 }
 }
@@ -4251,7 +4251,7 @@ static lean_object* _init_l_Lake_DSL_libraryFacetDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("libraryFacetDecl", 16);
+x_1 = lean_mk_string_unchecked("libraryFacetDecl", 16, 16);
 return x_1;
 }
 }
@@ -4270,7 +4270,7 @@ static lean_object* _init_l_Lake_DSL_libraryFacetDecl___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("library_facet ", 14);
+x_1 = lean_mk_string_unchecked("library_facet ", 14, 14);
 return x_1;
 }
 }
@@ -4338,7 +4338,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("library_facet", 13);
+x_1 = lean_mk_string_unchecked("library_facet", 13, 13);
 return x_1;
 }
 }
@@ -4365,7 +4365,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("libraryDataDecl", 15);
+x_1 = lean_mk_string_unchecked("libraryDataDecl", 15, 15);
 return x_1;
 }
 }
@@ -4383,7 +4383,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("library_data", 12);
+x_1 = lean_mk_string_unchecked("library_data", 12, 12);
 return x_1;
 }
 }
@@ -4391,7 +4391,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LibraryFacetDecl", 16);
+x_1 = lean_mk_string_unchecked("LibraryFacetDecl", 16, 16);
 return x_1;
 }
 }
@@ -4452,7 +4452,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.DSL.mkLibraryFacetDecl", 27);
+x_1 = lean_mk_string_unchecked("Lake.DSL.mkLibraryFacetDecl", 27, 27);
 return x_1;
 }
 }
@@ -4469,7 +4469,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mkLibraryFacetDecl", 18);
+x_1 = lean_mk_string_unchecked("mkLibraryFacetDecl", 18, 18);
 return x_1;
 }
 }
@@ -4534,7 +4534,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_libFacet", 9);
+x_1 = lean_mk_string_unchecked("_libFacet", 9, 9);
 return x_1;
 }
 }
@@ -4906,7 +4906,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ill-formed library facet declaration", 36);
+x_1 = lean_mk_string_unchecked("ill-formed library facet declaration", 36, 36);
 return x_1;
 }
 }
@@ -5734,7 +5734,7 @@ static lean_object* _init_l_Lake_DSL_targetDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("targetDecl", 10);
+x_1 = lean_mk_string_unchecked("targetDecl", 10, 10);
 return x_1;
 }
 }
@@ -5753,7 +5753,7 @@ static lean_object* _init_l_Lake_DSL_targetDecl___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("target ", 7);
+x_1 = lean_mk_string_unchecked("target ", 7, 7);
 return x_1;
 }
 }
@@ -5821,7 +5821,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("target", 6);
+x_1 = lean_mk_string_unchecked("target", 6, 6);
 return x_1;
 }
 }
@@ -5848,7 +5848,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_package", 8);
+x_1 = lean_mk_string_unchecked("_package", 8, 8);
 return x_1;
 }
 }
@@ -5856,7 +5856,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("name", 4);
+x_1 = lean_mk_string_unchecked("name", 4, 4);
 return x_1;
 }
 }
@@ -5874,7 +5874,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("familyDef", 9);
+x_1 = lean_mk_string_unchecked("familyDef", 9, 9);
 return x_1;
 }
 }
@@ -5892,7 +5892,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("family_def", 10);
+x_1 = lean_mk_string_unchecked("family_def", 10, 10);
 return x_1;
 }
 }
@@ -5900,7 +5900,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CustomData", 10);
+x_1 = lean_mk_string_unchecked("CustomData", 10, 10);
 return x_1;
 }
 }
@@ -5961,7 +5961,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tuple", 5);
+x_1 = lean_mk_string_unchecked("tuple", 5, 5);
 return x_1;
 }
 }
@@ -5981,7 +5981,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.DSL.mkTargetDecl", 21);
+x_1 = lean_mk_string_unchecked("Lake.DSL.mkTargetDecl", 21, 21);
 return x_1;
 }
 }
@@ -5998,7 +5998,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mkTargetDecl", 12);
+x_1 = lean_mk_string_unchecked("mkTargetDecl", 12, 12);
 return x_1;
 }
 }
@@ -6385,7 +6385,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ill-formed target declaration", 29);
+x_1 = lean_mk_string_unchecked("ill-formed target declaration", 29, 29);
 return x_1;
 }
 }
@@ -6576,7 +6576,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("identOrStr", 10);
+x_1 = lean_mk_string_unchecked("identOrStr", 10, 10);
 return x_1;
 }
 }
@@ -6595,7 +6595,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ident", 5);
+x_1 = lean_mk_string_unchecked("ident", 5, 5);
 return x_1;
 }
 }
@@ -7010,7 +7010,7 @@ static lean_object* _init_l_Lake_DSL_leanLibDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("leanLibDecl", 11);
+x_1 = lean_mk_string_unchecked("leanLibDecl", 11, 11);
 return x_1;
 }
 }
@@ -7029,7 +7029,7 @@ static lean_object* _init_l_Lake_DSL_leanLibDecl___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lean_lib ", 9);
+x_1 = lean_mk_string_unchecked("lean_lib ", 9, 9);
 return x_1;
 }
 }
@@ -7097,7 +7097,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______elabRules__L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lean_lib", 8);
+x_1 = lean_mk_string_unchecked("lean_lib", 8, 8);
 return x_1;
 }
 }
@@ -7124,7 +7124,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______elabRules__L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LeanLibConfig", 13);
+x_1 = lean_mk_string_unchecked("LeanLibConfig", 13, 13);
 return x_1;
 }
 }
@@ -7422,7 +7422,7 @@ static lean_object* _init_l_Lake_DSL_leanExeDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("leanExeDecl", 11);
+x_1 = lean_mk_string_unchecked("leanExeDecl", 11, 11);
 return x_1;
 }
 }
@@ -7441,7 +7441,7 @@ static lean_object* _init_l_Lake_DSL_leanExeDecl___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lean_exe ", 9);
+x_1 = lean_mk_string_unchecked("lean_exe ", 9, 9);
 return x_1;
 }
 }
@@ -7509,7 +7509,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______elabRules__L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lean_exe", 8);
+x_1 = lean_mk_string_unchecked("lean_exe", 8, 8);
 return x_1;
 }
 }
@@ -7536,7 +7536,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______elabRules__L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LeanExeConfig", 13);
+x_1 = lean_mk_string_unchecked("LeanExeConfig", 13, 13);
 return x_1;
 }
 }
@@ -7834,7 +7834,7 @@ static lean_object* _init_l_Lake_DSL_externLibDeclSpec___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("externLibDeclSpec", 17);
+x_1 = lean_mk_string_unchecked("externLibDeclSpec", 17, 17);
 return x_1;
 }
 }
@@ -7889,7 +7889,7 @@ static lean_object* _init_l_Lake_DSL_externLibDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("externLibDecl", 13);
+x_1 = lean_mk_string_unchecked("externLibDecl", 13, 13);
 return x_1;
 }
 }
@@ -7908,7 +7908,7 @@ static lean_object* _init_l_Lake_DSL_externLibDecl___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("extern_lib ", 11);
+x_1 = lean_mk_string_unchecked("extern_lib ", 11, 11);
 return x_1;
 }
 }
@@ -7976,7 +7976,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("extern_lib", 10);
+x_1 = lean_mk_string_unchecked("extern_lib", 10, 10);
 return x_1;
 }
 }
@@ -8003,7 +8003,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("FilePath", 8);
+x_1 = lean_mk_string_unchecked("FilePath", 8, 8);
 return x_1;
 }
 }
@@ -8030,7 +8030,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("System", 6);
+x_1 = lean_mk_string_unchecked("System", 6, 6);
 return x_1;
 }
 }
@@ -8072,7 +8072,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("definition", 10);
+x_1 = lean_mk_string_unchecked("definition", 10, 10);
 return x_1;
 }
 }
@@ -8092,7 +8092,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("def", 3);
+x_1 = lean_mk_string_unchecked("def", 3, 3);
 return x_1;
 }
 }
@@ -8100,7 +8100,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ExternLibDecl", 13);
+x_1 = lean_mk_string_unchecked("ExternLibDecl", 13, 13);
 return x_1;
 }
 }
@@ -8183,7 +8183,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structInst", 10);
+x_1 = lean_mk_string_unchecked("structInst", 10, 10);
 return x_1;
 }
 }
@@ -8203,7 +8203,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("{", 1);
+x_1 = lean_mk_string_unchecked("{", 1, 1);
 return x_1;
 }
 }
@@ -8211,7 +8211,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structInstField", 15);
+x_1 = lean_mk_string_unchecked("structInstField", 15, 15);
 return x_1;
 }
 }
@@ -8231,7 +8231,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structInstLVal", 14);
+x_1 = lean_mk_string_unchecked("structInstLVal", 14, 14);
 return x_1;
 }
 }
@@ -8251,7 +8251,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pkg", 3);
+x_1 = lean_mk_string_unchecked("pkg", 3, 3);
 return x_1;
 }
 }
@@ -8297,7 +8297,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("config", 6);
+x_1 = lean_mk_string_unchecked("config", 6, 6);
 return x_1;
 }
 }
@@ -8324,7 +8324,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("getJob", 6);
+x_1 = lean_mk_string_unchecked("getJob", 6, 6);
 return x_1;
 }
 }
@@ -8351,7 +8351,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofFamily", 8);
+x_1 = lean_mk_string_unchecked("ofFamily", 8, 8);
 return x_1;
 }
 }
@@ -8434,7 +8434,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("optEllipsis", 11);
+x_1 = lean_mk_string_unchecked("optEllipsis", 11, 11);
 return x_1;
 }
 }
@@ -8454,7 +8454,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("}", 1);
+x_1 = lean_mk_string_unchecked("}", 1, 1);
 return x_1;
 }
 }
@@ -8462,7 +8462,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("static", 6);
+x_1 = lean_mk_string_unchecked("static", 6, 6);
 return x_1;
 }
 }
@@ -8919,7 +8919,7 @@ static lean_object* _init_l_Lake_DSL___aux__Lake__DSL__Targets______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ill-formed external library declaration", 39);
+x_1 = lean_mk_string_unchecked("ill-formed external library declaration", 39, 39);
 return x_1;
 }
 }

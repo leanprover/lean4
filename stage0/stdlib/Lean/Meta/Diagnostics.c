@@ -2048,7 +2048,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_mkDiagSummary_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -2065,7 +2065,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_mkDiagSummary_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ↦ ", 5);
+x_1 = lean_mk_string_unchecked(" ↦ ", 5, 3);
 return x_1;
 }
 }
@@ -2082,7 +2082,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_mkDiagSummary_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -2123,7 +2123,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_mkDiagSummary_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("  ", 2);
+x_1 = lean_mk_string_unchecked("  ", 2, 2);
 return x_1;
 }
 }
@@ -3944,7 +3944,7 @@ static lean_object* _init_l_Lean_Meta_appendSection___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" (max: ", 7);
+x_1 = lean_mk_string_unchecked(" (max: ", 7, 7);
 return x_1;
 }
 }
@@ -3952,7 +3952,7 @@ static lean_object* _init_l_Lean_Meta_appendSection___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", num: ", 7);
+x_1 = lean_mk_string_unchecked(", num: ", 7, 7);
 return x_1;
 }
 }
@@ -3960,7 +3960,7 @@ static lean_object* _init_l_Lean_Meta_appendSection___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("):", 2);
+x_1 = lean_mk_string_unchecked("):", 2, 2);
 return x_1;
 }
 }
@@ -4066,7 +4066,7 @@ static lean_object* _init_l_Lean_Meta_reportDiag___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduction", 9);
+x_1 = lean_mk_string_unchecked("reduction", 9, 9);
 return x_1;
 }
 }
@@ -4084,7 +4084,7 @@ static lean_object* _init_l_Lean_Meta_reportDiag___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unfolded declarations", 21);
+x_1 = lean_mk_string_unchecked("unfolded declarations", 21, 21);
 return x_1;
 }
 }
@@ -4092,7 +4092,7 @@ static lean_object* _init_l_Lean_Meta_reportDiag___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unfolded instances", 18);
+x_1 = lean_mk_string_unchecked("unfolded instances", 18, 18);
 return x_1;
 }
 }
@@ -4100,7 +4100,7 @@ static lean_object* _init_l_Lean_Meta_reportDiag___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unfolded reducible declarations", 31);
+x_1 = lean_mk_string_unchecked("unfolded reducible declarations", 31, 31);
 return x_1;
 }
 }
@@ -4108,7 +4108,7 @@ static lean_object* _init_l_Lean_Meta_reportDiag___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("type_class", 10);
+x_1 = lean_mk_string_unchecked("type_class", 10, 10);
 return x_1;
 }
 }
@@ -4126,7 +4126,7 @@ static lean_object* _init_l_Lean_Meta_reportDiag___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("used instances", 14);
+x_1 = lean_mk_string_unchecked("used instances", 14, 14);
 return x_1;
 }
 }
@@ -4142,7 +4142,7 @@ static lean_object* _init_l_Lean_Meta_reportDiag___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("max synth pending failures (maxSynthPendingDepth: ", 50);
+x_1 = lean_mk_string_unchecked("max synth pending failures (maxSynthPendingDepth: ", 50, 50);
 return x_1;
 }
 }
@@ -4150,7 +4150,7 @@ static lean_object* _init_l_Lean_Meta_reportDiag___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("), use `set_option maxSynthPendingDepth <limit>`", 48);
+x_1 = lean_mk_string_unchecked("), use `set_option maxSynthPendingDepth <limit>`", 48, 48);
 return x_1;
 }
 }
@@ -4158,7 +4158,7 @@ static lean_object* _init_l_Lean_Meta_reportDiag___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("def_eq", 6);
+x_1 = lean_mk_string_unchecked("def_eq", 6, 6);
 return x_1;
 }
 }
@@ -4176,7 +4176,7 @@ static lean_object* _init_l_Lean_Meta_reportDiag___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("heuristic for solving `f a =\?= f b`", 35);
+x_1 = lean_mk_string_unchecked("heuristic for solving `f a =\?= f b`", 35, 35);
 return x_1;
 }
 }
@@ -4184,7 +4184,7 @@ static lean_object* _init_l_Lean_Meta_reportDiag___closed__16() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("kernel", 6);
+x_1 = lean_mk_string_unchecked("kernel", 6, 6);
 return x_1;
 }
 }
@@ -4202,7 +4202,7 @@ static lean_object* _init_l_Lean_Meta_reportDiag___closed__18() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("use `set_option diagnostics.threshold <num>` to control threshold for reporting counters", 88);
+x_1 = lean_mk_string_unchecked("use `set_option diagnostics.threshold <num>` to control threshold for reporting counters", 88, 88);
 return x_1;
 }
 }

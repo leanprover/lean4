@@ -776,7 +776,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lake_Package_recCompute
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("deps", 4);
+x_1 = lean_mk_string_unchecked("deps", 4, 4);
 return x_1;
 }
 }
@@ -1693,7 +1693,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lake_Package_recBuildExt
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("extraDep", 8);
+x_1 = lean_mk_string_unchecked("extraDep", 8, 8);
 return x_1;
 }
 }
@@ -4900,7 +4900,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lake_Package_recBuild
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.Data.String.Extra", 22);
+x_1 = lean_mk_string_unchecked("Init.Data.String.Extra", 22, 22);
 return x_1;
 }
 }
@@ -4908,7 +4908,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lake_Package_recBuild
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("String.fromUTF8!", 16);
+x_1 = lean_mk_string_unchecked("String.fromUTF8!", 16, 16);
 return x_1;
 }
 }
@@ -4916,7 +4916,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lake_Package_recBuild
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid UTF-8 string", 20);
+x_1 = lean_mk_string_unchecked("invalid UTF-8 string", 20, 20);
 return x_1;
 }
 }
@@ -6978,7 +6978,7 @@ static lean_object* _init_l_Lake_Package_recBuildExtraDepTargets___lambda__5___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("stdout/stderr:\n", 15);
+x_1 = lean_mk_string_unchecked("stdout/stderr:\n", 15, 15);
 return x_1;
 }
 }
@@ -6986,7 +6986,7 @@ static lean_object* _init_l_Lake_Package_recBuildExtraDepTargets___lambda__5___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -6994,7 +6994,7 @@ static lean_object* _init_l_Lake_Package_recBuildExtraDepTargets___lambda__5___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to fetch cloud release; falling back to local build", 58);
+x_1 = lean_mk_string_unchecked("failed to fetch cloud release; falling back to local build", 58, 58);
 return x_1;
 }
 }
@@ -7478,7 +7478,7 @@ static lean_object* _init_l_Lake_Package_recBuildExtraDepTargets___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":optRelease", 11);
+x_1 = lean_mk_string_unchecked(":optRelease", 11, 11);
 return x_1;
 }
 }
@@ -7486,7 +7486,7 @@ static lean_object* _init_l_Lake_Package_recBuildExtraDepTargets___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("optRelease", 10);
+x_1 = lean_mk_string_unchecked("optRelease", 10, 10);
 return x_1;
 }
 }
@@ -14372,7 +14372,7 @@ static lean_object* _init_l_Lake_Package_fetchOptRelease___lambda__3___closed__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("describe", 8);
+x_1 = lean_mk_string_unchecked("describe", 8, 8);
 return x_1;
 }
 }
@@ -14390,7 +14390,7 @@ static lean_object* _init_l_Lake_Package_fetchOptRelease___lambda__3___closed__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("--tags", 6);
+x_1 = lean_mk_string_unchecked("--tags", 6, 6);
 return x_1;
 }
 }
@@ -14408,7 +14408,7 @@ static lean_object* _init_l_Lake_Package_fetchOptRelease___lambda__3___closed__6
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("--exact-match", 13);
+x_1 = lean_mk_string_unchecked("--exact-match", 13, 13);
 return x_1;
 }
 }
@@ -14426,7 +14426,7 @@ static lean_object* _init_l_Lake_Package_fetchOptRelease___lambda__3___closed__8
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HEAD", 4);
+x_1 = lean_mk_string_unchecked("HEAD", 4, 4);
 return x_1;
 }
 }
@@ -14456,7 +14456,7 @@ static lean_object* _init_l_Lake_Package_fetchOptRelease___lambda__3___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("git", 3);
+x_1 = lean_mk_string_unchecked("git", 3, 3);
 return x_1;
 }
 }
@@ -14464,7 +14464,7 @@ static lean_object* _init_l_Lake_Package_fetchOptRelease___lambda__3___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": wanted prebuilt release, but no tag found for revision", 56);
+x_1 = lean_mk_string_unchecked(": wanted prebuilt release, but no tag found for revision", 56, 56);
 return x_1;
 }
 }
@@ -14485,7 +14485,7 @@ static lean_object* _init_l_Lake_Package_fetchOptRelease___lambda__3___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("/releases/download/", 19);
+x_1 = lean_mk_string_unchecked("/releases/download/", 19, 19);
 return x_1;
 }
 }
@@ -14493,7 +14493,7 @@ static lean_object* _init_l_Lake_Package_fetchOptRelease___lambda__3___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("/", 1);
+x_1 = lean_mk_string_unchecked("/", 1, 1);
 return x_1;
 }
 }
@@ -14501,7 +14501,7 @@ static lean_object* _init_l_Lake_Package_fetchOptRelease___lambda__3___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".trace", 6);
+x_1 = lean_mk_string_unchecked(".trace", 6, 6);
 return x_1;
 }
 }
@@ -14530,7 +14530,7 @@ static lean_object* _init_l_Lake_Package_fetchOptRelease___lambda__3___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("downloading ", 12);
+x_1 = lean_mk_string_unchecked("downloading ", 12, 12);
 return x_1;
 }
 }
@@ -14546,7 +14546,7 @@ static lean_object* _init_l_Lake_Package_fetchOptRelease___lambda__3___closed__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unpacking ", 10);
+x_1 = lean_mk_string_unchecked("unpacking ", 10, 10);
 return x_1;
 }
 }
@@ -14554,7 +14554,7 @@ static lean_object* _init_l_Lake_Package_fetchOptRelease___lambda__3___closed__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
@@ -14562,7 +14562,7 @@ static lean_object* _init_l_Lake_Package_fetchOptRelease___lambda__3___closed__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": wanted prebuilt release, but repository URL not known; the package may need to set 'releaseRepo'", 98);
+x_1 = lean_mk_string_unchecked(": wanted prebuilt release, but repository URL not known; the package may need to set 'releaseRepo'", 98, 98);
 return x_1;
 }
 }
@@ -16806,7 +16806,7 @@ static lean_object* _init_l_Lake_Package_releaseFacetConfig___elambda__1___lambd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to fetch cloud release", 29);
+x_1 = lean_mk_string_unchecked("failed to fetch cloud release", 29, 29);
 return x_1;
 }
 }
@@ -17273,7 +17273,7 @@ static lean_object* _init_l_Lake_Package_releaseFacetConfig___elambda__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":release", 8);
+x_1 = lean_mk_string_unchecked(":release", 8, 8);
 return x_1;
 }
 }
@@ -17320,7 +17320,7 @@ static lean_object* _init_l_Lake_Package_releaseFacetConfig___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("release", 7);
+x_1 = lean_mk_string_unchecked("release", 7, 7);
 return x_1;
 }
 }

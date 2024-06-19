@@ -247,7 +247,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Eqns___hyg_4____cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("recExt", 6);
+x_1 = lean_mk_string_unchecked("recExt", 6, 6);
 return x_1;
 }
 }
@@ -469,7 +469,7 @@ static lean_object* _init_l_Lean_Meta_eqnThmSuffixBase___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("eq", 2);
+x_1 = lean_mk_string_unchecked("eq", 2, 2);
 return x_1;
 }
 }
@@ -485,7 +485,7 @@ static lean_object* _init_l_Lean_Meta_eqnThmSuffixBasePrefix___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_", 1);
+x_1 = lean_mk_string_unchecked("_", 1, 1);
 return x_1;
 }
 }
@@ -511,7 +511,7 @@ static lean_object* _init_l_Lean_Meta_eqn1ThmSuffix___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("1", 1);
+x_1 = lean_mk_string_unchecked("1", 1, 1);
 return x_1;
 }
 }
@@ -570,7 +570,7 @@ static lean_object* _init_l_Lean_Meta_unfoldThmSuffix___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("eq_def", 6);
+x_1 = lean_mk_string_unchecked("eq_def", 6, 6);
 return x_1;
 }
 }
@@ -605,7 +605,7 @@ static lean_object* _init_l_Lean_throwReservedNameNotAvailable___at_Lean_Meta_en
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to declare `", 19);
+x_1 = lean_mk_string_unchecked("failed to declare `", 19, 19);
 return x_1;
 }
 }
@@ -622,7 +622,7 @@ static lean_object* _init_l_Lean_throwReservedNameNotAvailable___at_Lean_Meta_en
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` because `", 11);
+x_1 = lean_mk_string_unchecked("` because `", 11, 11);
 return x_1;
 }
 }
@@ -639,7 +639,7 @@ static lean_object* _init_l_Lean_throwReservedNameNotAvailable___at_Lean_Meta_en
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` has already been declared", 27);
+x_1 = lean_mk_string_unchecked("` has already been declared", 27, 27);
 return x_1;
 }
 }
@@ -1053,7 +1053,7 @@ static lean_object* _init_l_Lean_Meta_registerGetEqnsFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to register equation getter, this kind of extension can only be registered during initialization", 103);
+x_1 = lean_mk_string_unchecked("failed to register equation getter, this kind of extension can only be registered during initialization", 103, 103);
 return x_1;
 }
 }
@@ -5631,7 +5631,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Meta_getUnfoldEqnFor_x3f__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid unfold theorem name `", 29);
+x_1 = lean_mk_string_unchecked("invalid unfold theorem name `", 29, 29);
 return x_1;
 }
 }
@@ -5648,7 +5648,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Meta_getUnfoldEqnFor_x3f__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` has been generated expected `", 31);
+x_1 = lean_mk_string_unchecked("` has been generated expected `", 31, 31);
 return x_1;
 }
 }
@@ -5665,7 +5665,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Meta_getUnfoldEqnFor_x3f__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`", 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }

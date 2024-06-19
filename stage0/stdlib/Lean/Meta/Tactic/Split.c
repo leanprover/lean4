@@ -2370,7 +2370,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("heq", 3);
+x_1 = lean_mk_string_unchecked("heq", 3, 3);
 return x_1;
 }
 }
@@ -2545,7 +2545,7 @@ static lean_object* _init_l_Lean_Meta_Split_initFn____x40_Lean_Meta_Tactic_Split
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("discrGeneralizationFailure", 26);
+x_1 = lean_mk_string_unchecked("discrGeneralizationFailure", 26, 26);
 return x_1;
 }
 }
@@ -2738,7 +2738,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("internal error in `split` tactic: encountered unexpected auxiliary equalities created to generalize `match`-expression discriminant\nthis error typically occurs when the `split` tactic internal functions have been used in a new meta-program", 239);
+x_1 = lean_mk_string_unchecked("internal error in `split` tactic: encountered unexpected auxiliary equalities created to generalize `match`-expression discriminant\nthis error typically occurs when the `split` tactic internal functions have been used in a new meta-program", 239, 239);
 return x_1;
 }
 }
@@ -2755,7 +2755,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HEq", 3);
+x_1 = lean_mk_string_unchecked("HEq", 3, 3);
 return x_1;
 }
 }
@@ -2773,7 +2773,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -3724,7 +3724,7 @@ static lean_object* _init_l_List_forIn_loop___at___private_Lean_Meta_Tactic_Spli
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Match.MatcherApp.Basic", 32);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Match.MatcherApp.Basic", 32, 32);
 return x_1;
 }
 }
@@ -3732,7 +3732,7 @@ static lean_object* _init_l_List_forIn_loop___at___private_Lean_Meta_Tactic_Spli
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.matchMatcherApp\?", 26);
+x_1 = lean_mk_string_unchecked("Lean.Meta.matchMatcherApp\?", 26, 26);
 return x_1;
 }
 }
@@ -3740,7 +3740,7 @@ static lean_object* _init_l_List_forIn_loop___at___private_Lean_Meta_Tactic_Spli
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -5178,7 +5178,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("split", 5);
+x_1 = lean_mk_string_unchecked("split", 5, 5);
 return x_1;
 }
 }
@@ -5186,7 +5186,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("debug", 5);
+x_1 = lean_mk_string_unchecked("debug", 5, 5);
 return x_1;
 }
 }
@@ -5204,7 +5204,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("discr mismatch ", 15);
+x_1 = lean_mk_string_unchecked("discr mismatch ", 15, 15);
 return x_1;
 }
 }
@@ -5221,7 +5221,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" != ", 4);
+x_1 = lean_mk_string_unchecked(" != ", 4, 4);
 return x_1;
 }
 }
@@ -5238,7 +5238,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -5904,7 +5904,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Meta_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("internal error in `split` tactic: encountered an unexpected `match` expression alternative\nthis error typically occurs when the `match` expression has been constructed using meta-programming.", 191);
+x_1 = lean_mk_string_unchecked("internal error in `split` tactic: encountered an unexpected `match` expression alternative\nthis error typically occurs when the `match` expression has been constructed using meta-programming.", 191, 191);
 return x_1;
 }
 }
@@ -7108,7 +7108,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("internal error in `split` tactic: failed to find match-expression discriminants\nthis error typically occurs when the `split` tactic internal functions have been used in a new meta-program", 187);
+x_1 = lean_mk_string_unchecked("internal error in `split` tactic: failed to find match-expression discriminants\nthis error typically occurs when the `split` tactic internal functions have been used in a new meta-program", 187, 187);
 return x_1;
 }
 }
@@ -7538,7 +7538,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Tactic.Split", 22);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Tactic.Split", 22, 22);
 return x_1;
 }
 }
@@ -7546,7 +7546,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Meta.Tactic.Split.0.Lean.Meta.Split.generalizeMatchDiscrs", 71);
+x_1 = lean_mk_string_unchecked("_private.Lean.Meta.Tactic.Split.0.Lean.Meta.Split.generalizeMatchDiscrs", 71, 71);
 return x_1;
 }
 }
@@ -7567,7 +7567,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("targetNew:\n", 11);
+x_1 = lean_mk_string_unchecked("targetNew:\n", 11, 11);
 return x_1;
 }
 }
@@ -9020,7 +9020,7 @@ static lean_object* _init_l_List_foldlM___at_Lean_Meta_Split_applyMatchSplitter_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("after unifyEqs\n", 15);
+x_1 = lean_mk_string_unchecked("after unifyEqs\n", 15, 15);
 return x_1;
 }
 }
@@ -9373,7 +9373,7 @@ static lean_object* _init_l_List_foldlM___at_Lean_Meta_Split_applyMatchSplitter_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("before unifyEqs\n", 16);
+x_1 = lean_mk_string_unchecked("before unifyEqs\n", 16, 16);
 return x_1;
 }
 }
@@ -9895,7 +9895,7 @@ static lean_object* _init_l_Lean_Meta_Split_applyMatchSplitter___lambda__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("discrEqs after generalizeTargetsEq: ", 36);
+x_1 = lean_mk_string_unchecked("discrEqs after generalizeTargetsEq: ", 36, 36);
 return x_1;
 }
 }
@@ -10058,7 +10058,7 @@ static lean_object* _init_l_Lean_Meta_Split_applyMatchSplitter___lambda__3___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("internal error in `split` tactic: unexpected number of goals created after applying splitter auxiliary theorem `", 112);
+x_1 = lean_mk_string_unchecked("internal error in `split` tactic: unexpected number of goals created after applying splitter auxiliary theorem `", 112, 112);
 return x_1;
 }
 }
@@ -10075,7 +10075,7 @@ static lean_object* _init_l_Lean_Meta_Split_applyMatchSplitter___lambda__3___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` for `", 7);
+x_1 = lean_mk_string_unchecked("` for `", 7, 7);
 return x_1;
 }
 }
@@ -10092,7 +10092,7 @@ static lean_object* _init_l_Lean_Meta_Split_applyMatchSplitter___lambda__3___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`", 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -10223,7 +10223,7 @@ static lean_object* _init_l_Lean_Meta_Split_applyMatchSplitter___lambda__4___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("after check splitter", 20);
+x_1 = lean_mk_string_unchecked("after check splitter", 20, 20);
 return x_1;
 }
 }
@@ -10411,7 +10411,7 @@ static lean_object* _init_l_Lean_Meta_Split_applyMatchSplitter___lambda__7___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`split` tactic failed to split a match-expression: the splitter auxiliary theorem `", 83);
+x_1 = lean_mk_string_unchecked("`split` tactic failed to split a match-expression: the splitter auxiliary theorem `", 83, 83);
 return x_1;
 }
 }
@@ -10428,7 +10428,7 @@ static lean_object* _init_l_Lean_Meta_Split_applyMatchSplitter___lambda__7___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` can only eliminate into `Prop`", 32);
+x_1 = lean_mk_string_unchecked("` can only eliminate into `Prop`", 32, 32);
 return x_1;
 }
 }
@@ -10636,7 +10636,7 @@ static lean_object* _init_l_Lean_Meta_Split_applyMatchSplitter___lambda__8___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("after introN\n", 13);
+x_1 = lean_mk_string_unchecked("after introN\n", 13, 13);
 return x_1;
 }
 }
@@ -10861,7 +10861,7 @@ static lean_object* _init_l_Lean_Meta_Split_applyMatchSplitter___lambda__9___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("after generalize\n", 17);
+x_1 = lean_mk_string_unchecked("after generalize\n", 17, 17);
 return x_1;
 }
 }
@@ -11076,7 +11076,7 @@ static lean_object* _init_l_Lean_Meta_Split_applyMatchSplitter___lambda__10___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("after generalizeMatchDiscrs\n", 28);
+x_1 = lean_mk_string_unchecked("after generalizeMatchDiscrs\n", 28, 28);
 return x_1;
 }
 }
@@ -11310,7 +11310,7 @@ static lean_object* _init_l_Lean_Meta_Split_applyMatchSplitter___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("internal error in `split` tactic: `", 35);
+x_1 = lean_mk_string_unchecked("internal error in `split` tactic: `", 35, 35);
 return x_1;
 }
 }
@@ -11327,7 +11327,7 @@ static lean_object* _init_l_Lean_Meta_Split_applyMatchSplitter___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` is not an auxiliary declaration used to encode `match`-expressions\nthis error typically occurs when the `split` tactic internal functions have been used in a new meta-program", 176);
+x_1 = lean_mk_string_unchecked("` is not an auxiliary declaration used to encode `match`-expressions\nthis error typically occurs when the `split` tactic internal functions have been used in a new meta-program", 176, 176);
 return x_1;
 }
 }
@@ -11344,7 +11344,7 @@ static lean_object* _init_l_Lean_Meta_Split_applyMatchSplitter___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("applyMatchSplitter\n", 19);
+x_1 = lean_mk_string_unchecked("applyMatchSplitter\n", 19, 19);
 return x_1;
 }
 }
@@ -12381,7 +12381,7 @@ static lean_object* _init_l_Lean_Meta_Split_mkDiscrGenErrorMsg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`split` tactic failed to generalize discriminant(s) at", 54);
+x_1 = lean_mk_string_unchecked("`split` tactic failed to generalize discriminant(s) at", 54, 54);
 return x_1;
 }
 }
@@ -12398,7 +12398,7 @@ static lean_object* _init_l_Lean_Meta_Split_mkDiscrGenErrorMsg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nresulting expression was not type correct\npossible solution: generalize discriminant(s) manually before using `split`", 118);
+x_1 = lean_mk_string_unchecked("\nresulting expression was not type correct\npossible solution: generalize discriminant(s) manually before using `split`", 118, 118);
 return x_1;
 }
 }
@@ -12995,7 +12995,7 @@ static lean_object* _init_l_Lean_Meta_Split_splitMatch___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("internal error in `split` tactic: match application expected", 60);
+x_1 = lean_mk_string_unchecked("internal error in `split` tactic: match application expected", 60, 60);
 return x_1;
 }
 }
@@ -13012,7 +13012,7 @@ static lean_object* _init_l_Lean_Meta_Split_splitMatch___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nthis error typically occurs when the `split` tactic internal functions have been used in a new meta-program", 108);
+x_1 = lean_mk_string_unchecked("\nthis error typically occurs when the `split` tactic internal functions have been used in a new meta-program", 108, 108);
 return x_1;
 }
 }
@@ -13889,7 +13889,7 @@ static lean_object* _init_l_Lean_Meta_splitTarget_x3f_go___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("did not find term to split\n", 27);
+x_1 = lean_mk_string_unchecked("did not find term to split\n", 27, 27);
 return x_1;
 }
 }
@@ -13906,7 +13906,7 @@ static lean_object* _init_l_Lean_Meta_splitTarget_x3f_go___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failure", 7);
+x_1 = lean_mk_string_unchecked("failure", 7, 7);
 return x_1;
 }
 }
@@ -13924,7 +13924,7 @@ static lean_object* _init_l_Lean_Meta_splitTarget_x3f_go___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`split` tactic failed at", 24);
+x_1 = lean_mk_string_unchecked("`split` tactic failed at", 24, 24);
 return x_1;
 }
 }
@@ -13941,7 +13941,7 @@ static lean_object* _init_l_Lean_Meta_splitTarget_x3f_go___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -18826,7 +18826,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Split___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -18844,7 +18844,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Split___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -18862,7 +18862,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Split___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -18880,7 +18880,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Split___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -18918,7 +18918,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Split___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -18936,7 +18936,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Split___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Split", 5);
+x_1 = lean_mk_string_unchecked("Split", 5, 5);
 return x_1;
 }
 }
@@ -18954,7 +18954,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Split___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }

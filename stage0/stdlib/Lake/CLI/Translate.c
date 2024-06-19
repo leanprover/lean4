@@ -314,7 +314,7 @@ static lean_object* _init_l_Lake_Package_mkConfigString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(internal) failed to pretty print Lean configuration: ", 54);
+x_1 = lean_mk_string_unchecked("(internal) failed to pretty print Lean configuration: ", 54, 54);
 return x_1;
 }
 }
@@ -322,7 +322,7 @@ static lean_object* _init_l_Lake_Package_mkConfigString___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -330,7 +330,7 @@ static lean_object* _init_l_Lake_Package_mkConfigString___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -338,7 +338,7 @@ static lean_object* _init_l_Lake_Package_mkConfigString___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake", 4);
+x_1 = lean_mk_string_unchecked("Lake", 4, 4);
 return x_1;
 }
 }
@@ -427,7 +427,7 @@ static lean_object* _init_l_Lake_Package_mkConfigString___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_uniq", 5);
+x_1 = lean_mk_string_unchecked("_uniq", 5, 5);
 return x_1;
 }
 }
@@ -548,7 +548,7 @@ static lean_object* _init_l_Lake_Package_mkConfigString___closed__24() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("internal exception #", 20);
+x_1 = lean_mk_string_unchecked("internal exception #", 20, 20);
 return x_1;
 }
 }

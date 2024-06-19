@@ -487,7 +487,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_MissingDocs___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("linter", 6);
+x_1 = lean_mk_string_unchecked("linter", 6, 6);
 return x_1;
 }
 }
@@ -495,7 +495,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_MissingDocs___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("missingDocs", 11);
+x_1 = lean_mk_string_unchecked("missingDocs", 11, 11);
 return x_1;
 }
 }
@@ -513,7 +513,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_MissingDocs___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -521,7 +521,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_MissingDocs___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("enable the 'missing documentation' linter", 41);
+x_1 = lean_mk_string_unchecked("enable the 'missing documentation' linter", 41, 41);
 return x_1;
 }
 }
@@ -544,7 +544,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_MissingDocs___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -552,7 +552,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_MissingDocs___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Linter", 6);
+x_1 = lean_mk_string_unchecked("Linter", 6, 6);
 return x_1;
 }
 }
@@ -738,7 +738,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_mkHandlerUnsafe___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
+x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
 return x_1;
 }
 }
@@ -746,7 +746,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_mkHandlerUnsafe___closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -754,7 +754,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_mkHandlerUnsafe___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected missing docs handler at '", 36);
+x_1 = lean_mk_string_unchecked("unexpected missing docs handler at '", 36, 36);
 return x_1;
 }
 }
@@ -762,7 +762,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_mkHandlerUnsafe___closed__4(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', `MissingDocs.Handler` or `MissingDocs.SimpleHandler` expected", 64);
+x_1 = lean_mk_string_unchecked("', `MissingDocs.Handler` or `MissingDocs.SimpleHandler` expected", 64, 64);
 return x_1;
 }
 }
@@ -770,7 +770,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_mkHandlerUnsafe___closed__5(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("MissingDocs", 11);
+x_1 = lean_mk_string_unchecked("MissingDocs", 11, 11);
 return x_1;
 }
 }
@@ -778,7 +778,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_mkHandlerUnsafe___closed__6(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("SimpleHandler", 13);
+x_1 = lean_mk_string_unchecked("SimpleHandler", 13, 13);
 return x_1;
 }
 }
@@ -786,7 +786,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_mkHandlerUnsafe___closed__7(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Handler", 7);
+x_1 = lean_mk_string_unchecked("Handler", 7, 7);
 return x_1;
 }
 }
@@ -2198,7 +2198,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_Mi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("number of local entries: ", 25);
+x_1 = lean_mk_string_unchecked("number of local entries: ", 25, 25);
 return x_1;
 }
 }
@@ -2232,7 +2232,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_Mi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("missingDocsExt", 14);
+x_1 = lean_mk_string_unchecked("missingDocsExt", 14, 14);
 return x_1;
 }
 }
@@ -2668,7 +2668,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_Mi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("addBuiltinHandler", 17);
+x_1 = lean_mk_string_unchecked("addBuiltinHandler", 17, 17);
 return x_1;
 }
 }
@@ -2698,7 +2698,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_Mi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("toHandler", 9);
+x_1 = lean_mk_string_unchecked("toHandler", 9, 9);
 return x_1;
 }
 }
@@ -3055,7 +3055,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_Mi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid attribute '", 19);
+x_1 = lean_mk_string_unchecked("invalid attribute '", 19, 19);
 return x_1;
 }
 }
@@ -3072,7 +3072,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_Mi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', must be global", 17);
+x_1 = lean_mk_string_unchecked("', must be global", 17, 17);
 return x_1;
 }
 }
@@ -3141,7 +3141,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_Mi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attribute cannot be erased", 26);
+x_1 = lean_mk_string_unchecked("attribute cannot be erased", 26, 26);
 return x_1;
 }
 }
@@ -3560,7 +3560,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_Mi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', declaration is in an imported module", 39);
+x_1 = lean_mk_string_unchecked("', declaration is in an imported module", 39, 39);
 return x_1;
 }
 }
@@ -3754,7 +3754,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_Mi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtin_missing_docs_handler", 28);
+x_1 = lean_mk_string_unchecked("builtin_missing_docs_handler", 28, 28);
 return x_1;
 }
 }
@@ -3802,7 +3802,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_Mi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -3820,7 +3820,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_Mi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -3868,7 +3868,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_Mi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -3896,7 +3896,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_Mi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(builtin) ", 10);
+x_1 = lean_mk_string_unchecked("(builtin) ", 10, 10);
 return x_1;
 }
 }
@@ -3904,7 +3904,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_Mi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("adds a syntax traversal for the missing docs linter", 51);
+x_1 = lean_mk_string_unchecked("adds a syntax traversal for the missing docs linter", 51, 51);
 return x_1;
 }
 }
@@ -3946,7 +3946,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_Mi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("missing_docs_handler", 20);
+x_1 = lean_mk_string_unchecked("missing_docs_handler", 20, 20);
 return x_1;
 }
 }
@@ -4135,7 +4135,7 @@ static lean_object* _init_l_Lean_Linter_logLint___at_Lean_Linter_MissingDocs_lin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("note: this linter can be disabled with `set_option ", 51);
+x_1 = lean_mk_string_unchecked("note: this linter can be disabled with `set_option ", 51, 51);
 return x_1;
 }
 }
@@ -4152,7 +4152,7 @@ static lean_object* _init_l_Lean_Linter_logLint___at_Lean_Linter_MissingDocs_lin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" false`", 7);
+x_1 = lean_mk_string_unchecked(" false`", 7, 7);
 return x_1;
 }
 }
@@ -4178,7 +4178,7 @@ static lean_object* _init_l_Lean_Linter_logLint___at_Lean_Linter_MissingDocs_lin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -4276,7 +4276,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_lint___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("missing doc string for ", 23);
+x_1 = lean_mk_string_unchecked("missing doc string for ", 23, 23);
 return x_1;
 }
 }
@@ -4332,7 +4332,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_lintNamed___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -4370,7 +4370,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_lintField___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -4452,7 +4452,7 @@ static lean_object* _init_l_Array_anyMUnsafe_any___at_Lean_Linter_MissingDocs_ha
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -4460,7 +4460,7 @@ static lean_object* _init_l_Array_anyMUnsafe_any___at_Lean_Linter_MissingDocs_ha
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Attr", 4);
+x_1 = lean_mk_string_unchecked("Attr", 4, 4);
 return x_1;
 }
 }
@@ -4468,7 +4468,7 @@ static lean_object* _init_l_Array_anyMUnsafe_any___at_Lean_Linter_MissingDocs_ha
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simple", 6);
+x_1 = lean_mk_string_unchecked("simple", 6, 6);
 return x_1;
 }
 }
@@ -4488,7 +4488,7 @@ static lean_object* _init_l_Array_anyMUnsafe_any___at_Lean_Linter_MissingDocs_ha
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inherit_doc", 11);
+x_1 = lean_mk_string_unchecked("inherit_doc", 11, 11);
 return x_1;
 }
 }
@@ -4623,7 +4623,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_declModifiersPubNoDoc___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Command", 7);
+x_1 = lean_mk_string_unchecked("Command", 7, 7);
 return x_1;
 }
 }
@@ -4631,7 +4631,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_declModifiersPubNoDoc___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("private", 7);
+x_1 = lean_mk_string_unchecked("private", 7, 7);
 return x_1;
 }
 }
@@ -4715,7 +4715,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_lintDeclHead___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("abbrev", 6);
+x_1 = lean_mk_string_unchecked("abbrev", 6, 6);
 return x_1;
 }
 }
@@ -4735,7 +4735,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_lintDeclHead___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("definition", 10);
+x_1 = lean_mk_string_unchecked("definition", 10, 10);
 return x_1;
 }
 }
@@ -4755,7 +4755,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_lintDeclHead___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("opaque", 6);
+x_1 = lean_mk_string_unchecked("opaque", 6, 6);
 return x_1;
 }
 }
@@ -4775,7 +4775,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_lintDeclHead___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("axiom", 5);
+x_1 = lean_mk_string_unchecked("axiom", 5, 5);
 return x_1;
 }
 }
@@ -4795,7 +4795,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_lintDeclHead___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inductive", 9);
+x_1 = lean_mk_string_unchecked("inductive", 9, 9);
 return x_1;
 }
 }
@@ -4815,7 +4815,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_lintDeclHead___closed__11() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("classInductive", 14);
+x_1 = lean_mk_string_unchecked("classInductive", 14, 14);
 return x_1;
 }
 }
@@ -4835,7 +4835,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_lintDeclHead___closed__13() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structure", 9);
+x_1 = lean_mk_string_unchecked("structure", 9, 9);
 return x_1;
 }
 }
@@ -4855,7 +4855,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_lintDeclHead___closed__15() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("public structure", 16);
+x_1 = lean_mk_string_unchecked("public structure", 16, 16);
 return x_1;
 }
 }
@@ -4863,7 +4863,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_lintDeclHead___closed__16() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("public inductive", 16);
+x_1 = lean_mk_string_unchecked("public inductive", 16, 16);
 return x_1;
 }
 }
@@ -4871,7 +4871,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_lintDeclHead___closed__17() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("public axiom", 12);
+x_1 = lean_mk_string_unchecked("public axiom", 12, 12);
 return x_1;
 }
 }
@@ -4879,7 +4879,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_lintDeclHead___closed__18() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("public opaque", 13);
+x_1 = lean_mk_string_unchecked("public opaque", 13, 13);
 return x_1;
 }
 }
@@ -4887,7 +4887,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_lintDeclHead___closed__19() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("public def", 10);
+x_1 = lean_mk_string_unchecked("public def", 10, 10);
 return x_1;
 }
 }
@@ -4895,7 +4895,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_lintDeclHead___closed__20() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("public abbrev", 13);
+x_1 = lean_mk_string_unchecked("public abbrev", 13, 13);
 return x_1;
 }
 }
@@ -5017,7 +5017,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Linter_MissingDocs_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("public constructor", 18);
+x_1 = lean_mk_string_unchecked("public constructor", 18, 18);
 return x_1;
 }
 }
@@ -5108,7 +5108,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Linter_MissingDocs_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("computed field", 14);
+x_1 = lean_mk_string_unchecked("computed field", 14, 14);
 return x_1;
 }
 }
@@ -5933,7 +5933,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Linter_MissingDocs_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("public field", 12);
+x_1 = lean_mk_string_unchecked("public field", 12, 12);
 return x_1;
 }
 }
@@ -5970,7 +5970,7 @@ x_15 = l_Lean_Syntax_getRange_x3f(x_13, x_14);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; size_t x_19; size_t x_20; lean_object* x_21; 
-x_16 = lean_mk_string_from_bytes("public field", 12);
+x_16 = lean_mk_string_unchecked("public field", 12, 12);
 lean_inc(x_8);
 x_17 = l_Lean_Linter_MissingDocs_lintField(x_3, x_13, x_16, x_8, x_9, x_10);
 lean_dec(x_16);
@@ -6000,7 +6000,7 @@ lean_dec(x_24);
 if (x_25 == 0)
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; size_t x_29; size_t x_30; lean_object* x_31; 
-x_26 = lean_mk_string_from_bytes("public field", 12);
+x_26 = lean_mk_string_unchecked("public field", 12, 12);
 lean_inc(x_8);
 x_27 = l_Lean_Linter_MissingDocs_lintField(x_3, x_13, x_26, x_8, x_9, x_10);
 lean_dec(x_26);
@@ -6045,7 +6045,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Linter_MissingDocs_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structSimpleBinder", 18);
+x_1 = lean_mk_string_unchecked("structSimpleBinder", 18, 18);
 return x_1;
 }
 }
@@ -6136,7 +6136,7 @@ x_41 = l_Lean_Syntax_getRange_x3f(x_39, x_40);
 if (lean_obj_tag(x_41) == 0)
 {
 lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; 
-x_42 = lean_mk_string_from_bytes("public field", 12);
+x_42 = lean_mk_string_unchecked("public field", 12, 12);
 lean_inc(x_8);
 x_43 = l_Lean_Linter_MissingDocs_lintField(x_3, x_39, x_42, x_8, x_9, x_10);
 lean_dec(x_42);
@@ -6163,7 +6163,7 @@ lean_dec(x_47);
 if (x_48 == 0)
 {
 lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; 
-x_49 = lean_mk_string_from_bytes("public field", 12);
+x_49 = lean_mk_string_unchecked("public field", 12, 12);
 lean_inc(x_8);
 x_50 = l_Lean_Linter_MissingDocs_lintField(x_3, x_39, x_49, x_8, x_9, x_10);
 lean_dec(x_49);
@@ -6773,7 +6773,7 @@ static lean_object* _init_l___regBuiltin_Lean_Linter_MissingDocs_checkDecl__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declaration", 11);
+x_1 = lean_mk_string_unchecked("declaration", 11, 11);
 return x_1;
 }
 }
@@ -6821,7 +6821,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_checkInit___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initializer", 11);
+x_1 = lean_mk_string_unchecked("initializer", 11, 11);
 return x_1;
 }
 }
@@ -6888,7 +6888,7 @@ static lean_object* _init_l___regBuiltin_Lean_Linter_MissingDocs_checkInit__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initialize", 10);
+x_1 = lean_mk_string_unchecked("initialize", 10, 10);
 return x_1;
 }
 }
@@ -6936,7 +6936,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_checkNotation___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -6944,7 +6944,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_checkNotation___closed__2() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("local", 5);
+x_1 = lean_mk_string_unchecked("local", 5, 5);
 return x_1;
 }
 }
@@ -6964,7 +6964,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_checkNotation___closed__4() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("notation", 8);
+x_1 = lean_mk_string_unchecked("notation", 8, 8);
 return x_1;
 }
 }
@@ -7226,7 +7226,7 @@ static lean_object* _init_l___regBuiltin_Lean_Linter_MissingDocs_checkMixfix__1_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mixfix", 6);
+x_1 = lean_mk_string_unchecked("mixfix", 6, 6);
 return x_1;
 }
 }
@@ -7274,7 +7274,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_checkSyntax___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("syntax", 6);
+x_1 = lean_mk_string_unchecked("syntax", 6, 6);
 return x_1;
 }
 }
@@ -7484,7 +7484,7 @@ static lean_object* _init_l___regBuiltin_Lean_Linter_MissingDocs_checkSyntaxAbbr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("syntaxAbbrev", 12);
+x_1 = lean_mk_string_unchecked("syntaxAbbrev", 12, 12);
 return x_1;
 }
 }
@@ -7532,7 +7532,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_checkSyntaxCat___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("syntax category", 15);
+x_1 = lean_mk_string_unchecked("syntax category", 15, 15);
 return x_1;
 }
 }
@@ -7559,7 +7559,7 @@ static lean_object* _init_l___regBuiltin_Lean_Linter_MissingDocs_checkSyntaxCat_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("syntaxCat", 9);
+x_1 = lean_mk_string_unchecked("syntaxCat", 9, 9);
 return x_1;
 }
 }
@@ -7607,7 +7607,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_checkMacro___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("macro", 5);
+x_1 = lean_mk_string_unchecked("macro", 5, 5);
 return x_1;
 }
 }
@@ -7758,7 +7758,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_checkElab___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elab", 4);
+x_1 = lean_mk_string_unchecked("elab", 4, 4);
 return x_1;
 }
 }
@@ -7909,7 +7909,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_checkClassAbbrev___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("class abbrev", 12);
+x_1 = lean_mk_string_unchecked("class abbrev", 12, 12);
 return x_1;
 }
 }
@@ -7957,7 +7957,7 @@ static lean_object* _init_l___regBuiltin_Lean_Linter_MissingDocs_checkClassAbbre
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("classAbbrev", 11);
+x_1 = lean_mk_string_unchecked("classAbbrev", 11, 11);
 return x_1;
 }
 }
@@ -8005,7 +8005,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_checkSimpLike___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simp-like tactic", 16);
+x_1 = lean_mk_string_unchecked("simp-like tactic", 16, 16);
 return x_1;
 }
 }
@@ -8032,7 +8032,7 @@ static lean_object* _init_l___regBuiltin_Lean_Linter_MissingDocs_checkSimpLike__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -8040,7 +8040,7 @@ static lean_object* _init_l___regBuiltin_Lean_Linter_MissingDocs_checkSimpLike__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declareSimpLikeTactic", 21);
+x_1 = lean_mk_string_unchecked("declareSimpLikeTactic", 21, 21);
 return x_1;
 }
 }
@@ -8088,7 +8088,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_checkRegisterBuiltinOption__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("option", 6);
+x_1 = lean_mk_string_unchecked("option", 6, 6);
 return x_1;
 }
 }
@@ -8115,7 +8115,7 @@ static lean_object* _init_l___regBuiltin_Lean_Linter_MissingDocs_checkRegisterBu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Option", 6);
+x_1 = lean_mk_string_unchecked("Option", 6, 6);
 return x_1;
 }
 }
@@ -8123,7 +8123,7 @@ static lean_object* _init_l___regBuiltin_Lean_Linter_MissingDocs_checkRegisterBu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("registerBuiltinOption", 21);
+x_1 = lean_mk_string_unchecked("registerBuiltinOption", 21, 21);
 return x_1;
 }
 }
@@ -8189,7 +8189,7 @@ static lean_object* _init_l___regBuiltin_Lean_Linter_MissingDocs_checkRegisterOp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("registerOption", 14);
+x_1 = lean_mk_string_unchecked("registerOption", 14, 14);
 return x_1;
 }
 }
@@ -8236,7 +8236,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_checkRegisterSimpAttr___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simp attr", 9);
+x_1 = lean_mk_string_unchecked("simp attr", 9, 9);
 return x_1;
 }
 }
@@ -8263,7 +8263,7 @@ static lean_object* _init_l___regBuiltin_Lean_Linter_MissingDocs_checkRegisterSi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("registerSimpAttr", 16);
+x_1 = lean_mk_string_unchecked("registerSimpAttr", 16, 16);
 return x_1;
 }
 }
@@ -8354,7 +8354,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_handleIn___rarg___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("set_option", 10);
+x_1 = lean_mk_string_unchecked("set_option", 10, 10);
 return x_1;
 }
 }
@@ -8475,7 +8475,7 @@ static lean_object* _init_l___regBuiltin_Lean_Linter_MissingDocs_handleIn__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("in", 2);
+x_1 = lean_mk_string_unchecked("in", 2, 2);
 return x_1;
 }
 }
@@ -8673,7 +8673,7 @@ static lean_object* _init_l___regBuiltin_Lean_Linter_MissingDocs_handleMutual__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mutual", 6);
+x_1 = lean_mk_string_unchecked("mutual", 6, 6);
 return x_1;
 }
 }

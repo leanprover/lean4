@@ -11156,7 +11156,7 @@ static lean_object* _init_l_Lean_Meta_Simp_Result_mkCast___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cast", 4);
+x_1 = lean_mk_string_unchecked("cast", 4, 4);
 return x_1;
 }
 }
@@ -11881,7 +11881,7 @@ static lean_object* _init_l_Lean_Meta_Simp_mkImpCongr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Expr", 9);
+x_1 = lean_mk_string_unchecked("Lean.Expr", 9, 9);
 return x_1;
 }
 }
@@ -11889,7 +11889,7 @@ static lean_object* _init_l_Lean_Meta_Simp_mkImpCongr___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Expr.updateForallE!", 24);
+x_1 = lean_mk_string_unchecked("Lean.Expr.updateForallE!", 24, 24);
 return x_1;
 }
 }
@@ -11897,7 +11897,7 @@ static lean_object* _init_l_Lean_Meta_Simp_mkImpCongr___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("forall expected", 15);
+x_1 = lean_mk_string_unchecked("forall expected", 15, 15);
 return x_1;
 }
 }
@@ -12654,7 +12654,7 @@ static lean_object* _init_l_Lean_Meta_Simp_removeUnnecessaryCasts_isDummyEqRec__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -12662,7 +12662,7 @@ static lean_object* _init_l_Lean_Meta_Simp_removeUnnecessaryCasts_isDummyEqRec__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rec", 3);
+x_1 = lean_mk_string_unchecked("rec", 3, 3);
 return x_1;
 }
 }
@@ -12680,7 +12680,7 @@ static lean_object* _init_l_Lean_Meta_Simp_removeUnnecessaryCasts_isDummyEqRec__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ndrec", 5);
+x_1 = lean_mk_string_unchecked("ndrec", 5, 5);
 return x_1;
 }
 }
@@ -12698,7 +12698,7 @@ static lean_object* _init_l_Lean_Meta_Simp_removeUnnecessaryCasts_isDummyEqRec__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("refl", 4);
+x_1 = lean_mk_string_unchecked("refl", 4, 4);
 return x_1;
 }
 }
@@ -13176,7 +13176,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Meta_Simp_congrArgs___spec__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -14030,7 +14030,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_congrArgs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Debug", 5);
+x_1 = lean_mk_string_unchecked("Debug", 5, 5);
 return x_1;
 }
 }
@@ -14038,7 +14038,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_congrArgs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -14046,7 +14046,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_congrArgs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -14054,7 +14054,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_congrArgs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simp", 4);
+x_1 = lean_mk_string_unchecked("simp", 4, 4);
 return x_1;
 }
 }
@@ -14074,7 +14074,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_congrArgs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("app [", 5);
+x_1 = lean_mk_string_unchecked("app [", 5, 5);
 return x_1;
 }
 }
@@ -14091,7 +14091,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_congrArgs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("] ", 2);
+x_1 = lean_mk_string_unchecked("] ", 2, 2);
 return x_1;
 }
 }
@@ -14108,7 +14108,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_congrArgs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -14125,7 +14125,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_congrArgs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" hasFwdDeps: ", 13);
+x_1 = lean_mk_string_unchecked(" hasFwdDeps: ", 13, 13);
 return x_1;
 }
 }
@@ -14151,7 +14151,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_congrArgs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("false", 5);
+x_1 = lean_mk_string_unchecked("false", 5, 5);
 return x_1;
 }
 }
@@ -14178,7 +14178,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_congrArgs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("true", 4);
+x_1 = lean_mk_string_unchecked("true", 4, 4);
 return x_1;
 }
 }
@@ -16679,7 +16679,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_tryAutoCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Tactic.Simp.Types", 27);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Tactic.Simp.Types", 27, 27);
 return x_1;
 }
 }
@@ -16687,7 +16687,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_tryAutoCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Simp.tryAutoCongrTheorem\?", 35);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Simp.tryAutoCongrTheorem\?", 35, 35);
 return x_1;
 }
 }
@@ -16695,7 +16695,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_tryAutoCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -20859,7 +20859,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_tryAutoCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("congr", 5);
+x_1 = lean_mk_string_unchecked("congr", 5, 5);
 return x_1;
 }
 }
@@ -20879,7 +20879,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_tryAutoCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to synthesize instance", 29);
+x_1 = lean_mk_string_unchecked("failed to synthesize instance", 29, 29);
 return x_1;
 }
 }

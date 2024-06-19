@@ -350,7 +350,7 @@ static lean_object* _init_l_Lean_MVarId_constructor___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no applicable constructor found", 31);
+x_1 = lean_mk_string_unchecked("no applicable constructor found", 31, 31);
 return x_1;
 }
 }
@@ -396,7 +396,7 @@ static lean_object* _init_l_Lean_MVarId_constructor___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("target is not an inductive datatype", 35);
+x_1 = lean_mk_string_unchecked("target is not an inductive datatype", 35, 35);
 return x_1;
 }
 }
@@ -706,7 +706,7 @@ static lean_object* _init_l_Lean_MVarId_constructor___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("constructor", 11);
+x_1 = lean_mk_string_unchecked("constructor", 11, 11);
 return x_1;
 }
 }
@@ -783,7 +783,7 @@ static lean_object* _init_l_Lean_MVarId_existsIntro___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected number of subgoals", 29);
+x_1 = lean_mk_string_unchecked("unexpected number of subgoals", 29, 29);
 return x_1;
 }
 }
@@ -1112,7 +1112,7 @@ static lean_object* _init_l_Lean_MVarId_existsIntro___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("target is not an inductive datatype with one constructor", 56);
+x_1 = lean_mk_string_unchecked("target is not an inductive datatype with one constructor", 56, 56);
 return x_1;
 }
 }
@@ -1149,7 +1149,7 @@ static lean_object* _init_l_Lean_MVarId_existsIntro___lambda__2___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("constructor must have at least two fields", 41);
+x_1 = lean_mk_string_unchecked("constructor must have at least two fields", 41, 41);
 return x_1;
 }
 }
@@ -1552,7 +1552,7 @@ static lean_object* _init_l_Lean_MVarId_existsIntro___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("exists", 6);
+x_1 = lean_mk_string_unchecked("exists", 6, 6);
 return x_1;
 }
 }

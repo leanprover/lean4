@@ -2033,7 +2033,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Compiler_LCNF_Simp_withInlin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -2429,7 +2429,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_withInlining_check___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("function `", 10);
+x_1 = lean_mk_string_unchecked("function `", 10, 10);
 return x_1;
 }
 }
@@ -2446,7 +2446,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_withInlining_check___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` has been recursively inlined more than #", 42);
+x_1 = lean_mk_string_unchecked("` has been recursively inlined more than #", 42, 42);
 return x_1;
 }
 }
@@ -2463,7 +2463,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_withInlining_check___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", consider removing the attribute `[inline_if_reduce]` from this declaration or increasing the limit using `set_option compiler.maxRecInlineIfReduce <num>`", 155);
+x_1 = lean_mk_string_unchecked(", consider removing the attribute `[inline_if_reduce]` from this declaration or increasing the limit using `set_option compiler.maxRecInlineIfReduce <num>`", 155, 155);
 return x_1;
 }
 }
@@ -2820,7 +2820,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_withInlining_check___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Compiler", 8);
+x_1 = lean_mk_string_unchecked("Compiler", 8, 8);
 return x_1;
 }
 }
@@ -2828,7 +2828,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_withInlining_check___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simp", 4);
+x_1 = lean_mk_string_unchecked("simp", 4, 4);
 return x_1;
 }
 }
@@ -2836,7 +2836,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_withInlining_check___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inline", 6);
+x_1 = lean_mk_string_unchecked("inline", 6, 6);
 return x_1;
 }
 }
@@ -3318,7 +3318,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Compiler_LCNF_Simp_withInc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("...\n", 4);
+x_1 = lean_mk_string_unchecked("...\n", 4, 4);
 return x_1;
 }
 }
@@ -3919,7 +3919,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_withIncRecDepth_throwMaxRecD
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -3937,7 +3937,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_withIncRecDepth_throwMaxRecD
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("maximum recursion depth reached in the code generator\nfunction inline stack:\n", 77);
+x_1 = lean_mk_string_unchecked("maximum recursion depth reached in the code generator\nfunction inline stack:\n", 77, 77);
 return x_1;
 }
 }

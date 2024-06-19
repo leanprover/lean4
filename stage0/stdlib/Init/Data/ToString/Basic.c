@@ -252,7 +252,7 @@ static lean_object* _init_l_instToStringBool___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("false", 5);
+x_1 = lean_mk_string_unchecked("false", 5, 5);
 return x_1;
 }
 }
@@ -260,7 +260,7 @@ static lean_object* _init_l_instToStringBool___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("true", 4);
+x_1 = lean_mk_string_unchecked("true", 4, 4);
 return x_1;
 }
 }
@@ -330,7 +330,7 @@ static lean_object* _init_l_List_foldl___at_List_toString___spec__1___rarg___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", ", 2);
+x_1 = lean_mk_string_unchecked(", ", 2, 2);
 return x_1;
 }
 }
@@ -374,7 +374,7 @@ static lean_object* _init_l_List_toString___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[]", 2);
+x_1 = lean_mk_string_unchecked("[]", 2, 2);
 return x_1;
 }
 }
@@ -382,7 +382,7 @@ static lean_object* _init_l_List_toString___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -390,7 +390,7 @@ static lean_object* _init_l_List_toString___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -471,7 +471,7 @@ static lean_object* _init_l_instToStringPUnit___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("()", 2);
+x_1 = lean_mk_string_unchecked("()", 2, 2);
 return x_1;
 }
 }
@@ -554,7 +554,7 @@ static lean_object* _init_l_instToStringInt___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-", 1);
+x_1 = lean_mk_string_unchecked("-", 1, 1);
 return x_1;
 }
 }
@@ -601,7 +601,7 @@ static lean_object* _init_l_instToStringChar___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -792,7 +792,7 @@ static lean_object* _init_l_addParenHeuristic___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -800,7 +800,7 @@ static lean_object* _init_l_addParenHeuristic___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("{", 1);
+x_1 = lean_mk_string_unchecked("{", 1, 1);
 return x_1;
 }
 }
@@ -808,7 +808,7 @@ static lean_object* _init_l_addParenHeuristic___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#[", 2);
+x_1 = lean_mk_string_unchecked("#[", 2, 2);
 return x_1;
 }
 }
@@ -816,7 +816,7 @@ static lean_object* _init_l_addParenHeuristic___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -911,7 +911,7 @@ static lean_object* _init_l_instToStringOption___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("none", 4);
+x_1 = lean_mk_string_unchecked("none", 4, 4);
 return x_1;
 }
 }
@@ -919,7 +919,7 @@ static lean_object* _init_l_instToStringOption___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(some ", 6);
+x_1 = lean_mk_string_unchecked("(some ", 6, 6);
 return x_1;
 }
 }
@@ -963,7 +963,7 @@ static lean_object* _init_l_instToStringSum___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(inl ", 5);
+x_1 = lean_mk_string_unchecked("(inl ", 5, 5);
 return x_1;
 }
 }
@@ -971,7 +971,7 @@ static lean_object* _init_l_instToStringSum___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(inr ", 5);
+x_1 = lean_mk_string_unchecked("(inr ", 5, 5);
 return x_1;
 }
 }
@@ -1057,7 +1057,7 @@ static lean_object* _init_l_instToStringSigma___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⟨", 3);
+x_1 = lean_mk_string_unchecked("⟨", 3, 1);
 return x_1;
 }
 }
@@ -1065,7 +1065,7 @@ static lean_object* _init_l_instToStringSigma___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⟩", 3);
+x_1 = lean_mk_string_unchecked("⟩", 3, 1);
 return x_1;
 }
 }
@@ -1279,7 +1279,7 @@ static lean_object* _init_l_String_toInt_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Int expected", 12);
+x_1 = lean_mk_string_unchecked("Int expected", 12, 12);
 return x_1;
 }
 }
@@ -1309,7 +1309,7 @@ static lean_object* _init_l_instToStringExcept___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("error: ", 7);
+x_1 = lean_mk_string_unchecked("error: ", 7, 7);
 return x_1;
 }
 }
@@ -1317,7 +1317,7 @@ static lean_object* _init_l_instToStringExcept___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ok: ", 4);
+x_1 = lean_mk_string_unchecked("ok: ", 4, 4);
 return x_1;
 }
 }
@@ -1364,7 +1364,7 @@ static lean_object* _init_l_instReprExcept___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Except.error ", 13);
+x_1 = lean_mk_string_unchecked("Except.error ", 13, 13);
 return x_1;
 }
 }
@@ -1382,7 +1382,7 @@ static lean_object* _init_l_instReprExcept___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Except.ok ", 10);
+x_1 = lean_mk_string_unchecked("Except.ok ", 10, 10);
 return x_1;
 }
 }

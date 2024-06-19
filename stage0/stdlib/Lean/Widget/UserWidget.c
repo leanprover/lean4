@@ -830,7 +830,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_eval
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -838,7 +838,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_eval
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Widget", 6);
+x_1 = lean_mk_string_unchecked("Widget", 6, 6);
 return x_1;
 }
 }
@@ -846,7 +846,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_eval
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Module", 6);
+x_1 = lean_mk_string_unchecked("Module", 6, 6);
 return x_1;
 }
 }
@@ -875,7 +875,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_eval
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("WidgetInstance", 14);
+x_1 = lean_mk_string_unchecked("WidgetInstance", 14, 14);
 return x_1;
 }
 }
@@ -6058,7 +6058,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("moduleRegistry", 14);
+x_1 = lean_mk_string_unchecked("moduleRegistry", 14, 14);
 return x_1;
 }
 }
@@ -6341,7 +6341,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("addBuiltinModule", 16);
+x_1 = lean_mk_string_unchecked("addBuiltinModule", 16, 16);
 return x_1;
 }
 }
@@ -6385,7 +6385,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("A widget module with the same hash(JS source code) was already registered at ", 77);
+x_1 = lean_mk_string_unchecked("A widget module with the same hash(JS source code) was already registered at ", 77, 77);
 return x_1;
 }
 }
@@ -6402,7 +6402,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -6507,7 +6507,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ToModule", 8);
+x_1 = lean_mk_string_unchecked("ToModule", 8, 8);
 return x_1;
 }
 }
@@ -6515,7 +6515,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("toModule", 8);
+x_1 = lean_mk_string_unchecked("toModule", 8, 8);
 return x_1;
 }
 }
@@ -6861,7 +6861,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid attribute '", 19);
+x_1 = lean_mk_string_unchecked("invalid attribute '", 19, 19);
 return x_1;
 }
 }
@@ -6878,7 +6878,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', must be global", 17);
+x_1 = lean_mk_string_unchecked("', must be global", 17, 17);
 return x_1;
 }
 }
@@ -7202,7 +7202,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attribute cannot be erased", 26);
+x_1 = lean_mk_string_unchecked("attribute cannot be erased", 26, 26);
 return x_1;
 }
 }
@@ -7369,7 +7369,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("A builtin widget module with the same hash(JS source code) was already registered.", 82);
+x_1 = lean_mk_string_unchecked("A builtin widget module with the same hash(JS source code) was already registered.", 82, 82);
 return x_1;
 }
 }
@@ -7843,7 +7843,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtin_widget_module", 21);
+x_1 = lean_mk_string_unchecked("builtin_widget_module", 21, 21);
 return x_1;
 }
 }
@@ -7861,7 +7861,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("widgetModuleAttrImpl", 20);
+x_1 = lean_mk_string_unchecked("widgetModuleAttrImpl", 20, 20);
 return x_1;
 }
 }
@@ -7880,7 +7880,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(builtin) ", 10);
+x_1 = lean_mk_string_unchecked("(builtin) ", 10, 10);
 return x_1;
 }
 }
@@ -7888,7 +7888,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Registers a widget module. Its type must implement Lean.Widget.ToModule.", 72);
+x_1 = lean_mk_string_unchecked("Registers a widget module. Its type must implement Lean.Widget.ToModule.", 72, 72);
 return x_1;
 }
 }
@@ -7930,7 +7930,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("widget_module", 13);
+x_1 = lean_mk_string_unchecked("widget_module", 13, 13);
 return x_1;
 }
 }
@@ -7948,7 +7948,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -8217,7 +8217,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hash", 4);
+x_1 = lean_mk_string_unchecked("hash", 4, 4);
 return x_1;
 }
 }
@@ -8225,7 +8225,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pos", 3);
+x_1 = lean_mk_string_unchecked("pos", 3, 3);
 return x_1;
 }
 }
@@ -8286,7 +8286,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("GetWidgetSourceParams", 21);
+x_1 = lean_mk_string_unchecked("GetWidgetSourceParams", 21, 21);
 return x_1;
 }
 }
@@ -8355,7 +8355,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -8545,7 +8545,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sourcetext", 10);
+x_1 = lean_mk_string_unchecked("sourcetext", 10, 10);
 return x_1;
 }
 }
@@ -8591,7 +8591,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("WidgetSource", 12);
+x_1 = lean_mk_string_unchecked("WidgetSource", 12, 12);
 return x_1;
 }
 }
@@ -9059,7 +9059,7 @@ static lean_object* _init_l_Lean_Widget_getWidgetSource___lambda__6___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("No widget module with hash ", 27);
+x_1 = lean_mk_string_unchecked("No widget module with hash ", 27, 27);
 return x_1;
 }
 }
@@ -9067,7 +9067,7 @@ static lean_object* _init_l_Lean_Widget_getWidgetSource___lambda__6___closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" registered", 11);
+x_1 = lean_mk_string_unchecked(" registered", 11, 11);
 return x_1;
 }
 }
@@ -9386,7 +9386,7 @@ static lean_object* _init_l_Lean_Server_registerBuiltinRpcProcedure___at_Lean_Wi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": already registered", 20);
+x_1 = lean_mk_string_unchecked(": already registered", 20, 20);
 return x_1;
 }
 }
@@ -9466,7 +9466,7 @@ static lean_object* _init_l_Lean_Server_registerBuiltinRpcProcedure___at_Lean_Wi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Failed to register builtin RPC call handler for '", 49);
+x_1 = lean_mk_string_unchecked("Failed to register builtin RPC call handler for '", 49, 49);
 return x_1;
 }
 }
@@ -9474,7 +9474,7 @@ static lean_object* _init_l_Lean_Server_registerBuiltinRpcProcedure___at_Lean_Wi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -9482,7 +9482,7 @@ static lean_object* _init_l_Lean_Server_registerBuiltinRpcProcedure___at_Lean_Wi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": only possible during initialization", 37);
+x_1 = lean_mk_string_unchecked(": only possible during initialization", 37, 37);
 return x_1;
 }
 }
@@ -9561,7 +9561,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("getWidgetSource", 15);
+x_1 = lean_mk_string_unchecked("getWidgetSource", 15, 15);
 return x_1;
 }
 }
@@ -12180,7 +12180,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("panelWidgetsExt", 15);
+x_1 = lean_mk_string_unchecked("panelWidgetsExt", 15, 15);
 return x_1;
 }
 }
@@ -13263,7 +13263,7 @@ static lean_object* _init_l_Lean_Widget_widgetInstanceSpec___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("widgetInstanceSpec", 18);
+x_1 = lean_mk_string_unchecked("widgetInstanceSpec", 18, 18);
 return x_1;
 }
 }
@@ -13282,7 +13282,7 @@ static lean_object* _init_l_Lean_Widget_widgetInstanceSpec___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("andthen", 7);
+x_1 = lean_mk_string_unchecked("andthen", 7, 7);
 return x_1;
 }
 }
@@ -13300,7 +13300,7 @@ static lean_object* _init_l_Lean_Widget_widgetInstanceSpec___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ident", 5);
+x_1 = lean_mk_string_unchecked("ident", 5, 5);
 return x_1;
 }
 }
@@ -13328,7 +13328,7 @@ static lean_object* _init_l_Lean_Widget_widgetInstanceSpec___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("optional", 8);
+x_1 = lean_mk_string_unchecked("optional", 8, 8);
 return x_1;
 }
 }
@@ -13346,7 +13346,7 @@ static lean_object* _init_l_Lean_Widget_widgetInstanceSpec___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("with ", 5);
+x_1 = lean_mk_string_unchecked("with ", 5, 5);
 return x_1;
 }
 }
@@ -13364,7 +13364,7 @@ static lean_object* _init_l_Lean_Widget_widgetInstanceSpec___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term", 4);
+x_1 = lean_mk_string_unchecked("term", 4, 4);
 return x_1;
 }
 }
@@ -13456,7 +13456,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpecAux___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -13464,7 +13464,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpecAux___closed__2() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -13472,7 +13472,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpecAux___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structInst", 10);
+x_1 = lean_mk_string_unchecked("structInst", 10, 10);
 return x_1;
 }
 }
@@ -13492,7 +13492,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpecAux___closed__5() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("{", 1);
+x_1 = lean_mk_string_unchecked("{", 1, 1);
 return x_1;
 }
 }
@@ -13500,7 +13500,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpecAux___closed__6() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -13518,7 +13518,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpecAux___closed__8() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structInstField", 15);
+x_1 = lean_mk_string_unchecked("structInstField", 15, 15);
 return x_1;
 }
 }
@@ -13538,7 +13538,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpecAux___closed__10()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structInstLVal", 14);
+x_1 = lean_mk_string_unchecked("structInstLVal", 14, 14);
 return x_1;
 }
 }
@@ -13558,7 +13558,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpecAux___closed__12()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("id", 2);
+x_1 = lean_mk_string_unchecked("id", 2, 2);
 return x_1;
 }
 }
@@ -13631,7 +13631,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpecAux___closed__19()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":=", 2);
+x_1 = lean_mk_string_unchecked(":=", 2, 2);
 return x_1;
 }
 }
@@ -13639,7 +13639,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpecAux___closed__20()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("javascriptHash", 14);
+x_1 = lean_mk_string_unchecked("javascriptHash", 14, 14);
 return x_1;
 }
 }
@@ -13666,7 +13666,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpecAux___closed__23()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("proj", 4);
+x_1 = lean_mk_string_unchecked("proj", 4, 4);
 return x_1;
 }
 }
@@ -13686,7 +13686,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpecAux___closed__25()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("paren", 5);
+x_1 = lean_mk_string_unchecked("paren", 5, 5);
 return x_1;
 }
 }
@@ -13706,7 +13706,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpecAux___closed__27()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -13714,7 +13714,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpecAux___closed__28()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("app", 3);
+x_1 = lean_mk_string_unchecked("app", 3, 3);
 return x_1;
 }
 }
@@ -13734,7 +13734,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpecAux___closed__30()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ToModule.toModule", 17);
+x_1 = lean_mk_string_unchecked("ToModule.toModule", 17, 17);
 return x_1;
 }
 }
@@ -13785,7 +13785,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpecAux___closed__35()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -13793,7 +13793,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpecAux___closed__36()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("props", 5);
+x_1 = lean_mk_string_unchecked("props", 5, 5);
 return x_1;
 }
 }
@@ -13820,7 +13820,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpecAux___closed__39()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Server.RpcEncodable.rpcEncode", 29);
+x_1 = lean_mk_string_unchecked("Server.RpcEncodable.rpcEncode", 29, 29);
 return x_1;
 }
 }
@@ -13837,7 +13837,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpecAux___closed__41()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Server", 6);
+x_1 = lean_mk_string_unchecked("Server", 6, 6);
 return x_1;
 }
 }
@@ -13845,7 +13845,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpecAux___closed__42()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("RpcEncodable", 12);
+x_1 = lean_mk_string_unchecked("RpcEncodable", 12, 12);
 return x_1;
 }
 }
@@ -13853,7 +13853,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpecAux___closed__43()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rpcEncode", 9);
+x_1 = lean_mk_string_unchecked("rpcEncode", 9, 9);
 return x_1;
 }
 }
@@ -13908,7 +13908,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpecAux___closed__48()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("optEllipsis", 11);
+x_1 = lean_mk_string_unchecked("optEllipsis", 11, 11);
 return x_1;
 }
 }
@@ -13928,7 +13928,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpecAux___closed__50()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("}", 1);
+x_1 = lean_mk_string_unchecked("}", 1, 1);
 return x_1;
 }
 }
@@ -13956,7 +13956,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpecAux___closed__53()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("quotedName", 10);
+x_1 = lean_mk_string_unchecked("quotedName", 10, 10);
 return x_1;
 }
 }
@@ -13976,7 +13976,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpecAux___closed__55()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`", 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -14390,7 +14390,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpec___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Json.mkObj", 10);
+x_1 = lean_mk_string_unchecked("Json.mkObj", 10, 10);
 return x_1;
 }
 }
@@ -14407,7 +14407,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpec___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Json", 4);
+x_1 = lean_mk_string_unchecked("Json", 4, 4);
 return x_1;
 }
 }
@@ -14415,7 +14415,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpec___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mkObj", 5);
+x_1 = lean_mk_string_unchecked("mkObj", 5, 5);
 return x_1;
 }
 }
@@ -14490,7 +14490,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpec___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term[_]", 7);
+x_1 = lean_mk_string_unchecked("term[_]", 7, 7);
 return x_1;
 }
 }
@@ -14508,7 +14508,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpec___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -14516,7 +14516,7 @@ static lean_object* _init_l_Lean_Widget_elabWidgetInstanceSpec___closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -14716,7 +14716,7 @@ static lean_object* _init_l_Lean_Widget_addWidgetSpec___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("addWidgetSpec", 13);
+x_1 = lean_mk_string_unchecked("addWidgetSpec", 13, 13);
 return x_1;
 }
 }
@@ -14735,7 +14735,7 @@ static lean_object* _init_l_Lean_Widget_addWidgetSpec___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attrKind", 8);
+x_1 = lean_mk_string_unchecked("attrKind", 8, 8);
 return x_1;
 }
 }
@@ -14801,7 +14801,7 @@ static lean_object* _init_l_Lean_Widget_eraseWidgetSpec___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("eraseWidgetSpec", 15);
+x_1 = lean_mk_string_unchecked("eraseWidgetSpec", 15, 15);
 return x_1;
 }
 }
@@ -14820,7 +14820,7 @@ static lean_object* _init_l_Lean_Widget_eraseWidgetSpec___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-", 1);
+x_1 = lean_mk_string_unchecked("-", 1, 1);
 return x_1;
 }
 }
@@ -14874,7 +14874,7 @@ static lean_object* _init_l_Lean_Widget_showWidgetSpec___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("showWidgetSpec", 14);
+x_1 = lean_mk_string_unchecked("showWidgetSpec", 14, 14);
 return x_1;
 }
 }
@@ -14893,7 +14893,7 @@ static lean_object* _init_l_Lean_Widget_showWidgetSpec___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("orelse", 6);
+x_1 = lean_mk_string_unchecked("orelse", 6, 6);
 return x_1;
 }
 }
@@ -14947,7 +14947,7 @@ static lean_object* _init_l_Lean_Widget_showPanelWidgetsCmd___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("showPanelWidgetsCmd", 19);
+x_1 = lean_mk_string_unchecked("showPanelWidgetsCmd", 19, 19);
 return x_1;
 }
 }
@@ -14966,7 +14966,7 @@ static lean_object* _init_l_Lean_Widget_showPanelWidgetsCmd___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("show_panel_widgets ", 19);
+x_1 = lean_mk_string_unchecked("show_panel_widgets ", 19, 19);
 return x_1;
 }
 }
@@ -15008,7 +15008,7 @@ static lean_object* _init_l_Lean_Widget_showPanelWidgetsCmd___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", ", 2);
+x_1 = lean_mk_string_unchecked(", ", 2, 2);
 return x_1;
 }
 }
@@ -16770,7 +16770,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Widget_elabShowPane
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_instance", 9);
+x_1 = lean_mk_string_unchecked("_instance", 9, 9);
 return x_1;
 }
 }
@@ -16788,7 +16788,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Widget_elabShowPane
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to compile expression, it contains metavariables", 55);
+x_1 = lean_mk_string_unchecked("failed to compile expression, it contains metavariables", 55, 55);
 return x_1;
 }
 }
@@ -18473,7 +18473,7 @@ static lean_object* _init_l_Lean_Widget_widgetCmd___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("widgetCmd", 9);
+x_1 = lean_mk_string_unchecked("widgetCmd", 9, 9);
 return x_1;
 }
 }
@@ -18492,7 +18492,7 @@ static lean_object* _init_l_Lean_Widget_widgetCmd___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#widget ", 8);
+x_1 = lean_mk_string_unchecked("#widget ", 8, 8);
 return x_1;
 }
 }
@@ -18694,7 +18694,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("name", 4);
+x_1 = lean_mk_string_unchecked("name", 4, 4);
 return x_1;
 }
 }
@@ -18702,7 +18702,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("javascript", 10);
+x_1 = lean_mk_string_unchecked("javascript", 10, 10);
 return x_1;
 }
 }
@@ -18803,7 +18803,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("UserWidgetDefinition", 20);
+x_1 = lean_mk_string_unchecked("UserWidgetDefinition", 20, 20);
 return x_1;
 }
 }
@@ -19094,7 +19094,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_widg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private", 8);
+x_1 = lean_mk_string_unchecked("_private", 8, 8);
 return x_1;
 }
 }
@@ -19132,7 +19132,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_widg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("UserWidget", 10);
+x_1 = lean_mk_string_unchecked("UserWidget", 10, 10);
 return x_1;
 }
 }
@@ -19180,7 +19180,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_widg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("widgetAttrImpl", 14);
+x_1 = lean_mk_string_unchecked("widgetAttrImpl", 14, 14);
 return x_1;
 }
 }
@@ -19198,7 +19198,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_widg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("widget", 6);
+x_1 = lean_mk_string_unchecked("widget", 6, 6);
 return x_1;
 }
 }
@@ -19216,7 +19216,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_widg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("The `@[widget]` attribute has been deprecated, use `@[widget_module]` instead.", 78);
+x_1 = lean_mk_string_unchecked("The `@[widget]` attribute has been deprecated, use `@[widget_module]` instead.", 78, 78);
 return x_1;
 }
 }
@@ -19837,7 +19837,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PanelWidgetInstance", 19);
+x_1 = lean_mk_string_unchecked("PanelWidgetInstance", 19, 19);
 return x_1;
 }
 }
@@ -19855,7 +19855,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("RpcEncodablePacket", 18);
+x_1 = lean_mk_string_unchecked("RpcEncodablePacket", 18, 18);
 return x_1;
 }
 }
@@ -19873,7 +19873,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -19921,7 +19921,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -20059,7 +20059,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("range", 5);
+x_1 = lean_mk_string_unchecked("range", 5, 5);
 return x_1;
 }
 }
@@ -20067,7 +20067,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("range\?", 6);
+x_1 = lean_mk_string_unchecked("range\?", 6, 6);
 return x_1;
 }
 }
@@ -20115,7 +20115,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("name\?", 5);
+x_1 = lean_mk_string_unchecked("name\?", 5, 5);
 return x_1;
 }
 }
@@ -20727,7 +20727,7 @@ static lean_object* _init_l_Lean_Widget_Lean_Widget_PanelWidgetInstance_instRpcE
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("value '{j}' is too large for `UInt64`", 37);
+x_1 = lean_mk_string_unchecked("value '{j}' is too large for `UInt64`", 37, 37);
 return x_1;
 }
 }
@@ -20745,7 +20745,7 @@ static lean_object* _init_l_Lean_Widget_Lean_Widget_PanelWidgetInstance_instRpcE
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[anonymous]", 11);
+x_1 = lean_mk_string_unchecked("[anonymous]", 11, 11);
 return x_1;
 }
 }
@@ -20753,7 +20753,7 @@ static lean_object* _init_l_Lean_Widget_Lean_Widget_PanelWidgetInstance_instRpcE
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected a `Name`, got '", 24);
+x_1 = lean_mk_string_unchecked("expected a `Name`, got '", 24, 24);
 return x_1;
 }
 }
@@ -21829,7 +21829,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("widgets", 7);
+x_1 = lean_mk_string_unchecked("widgets", 7, 7);
 return x_1;
 }
 }
@@ -21837,7 +21837,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("GetWidgetsResponse", 18);
+x_1 = lean_mk_string_unchecked("GetWidgetsResponse", 18, 18);
 return x_1;
 }
 }
@@ -22208,7 +22208,7 @@ static lean_object* _init_l_Lean_Widget_Lean_Widget_GetWidgetsResponse_instRpcEn
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected JSON array, got '", 26);
+x_1 = lean_mk_string_unchecked("expected JSON array, got '", 26, 26);
 return x_1;
 }
 }
@@ -23909,7 +23909,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("getWidgets", 10);
+x_1 = lean_mk_string_unchecked("getWidgets", 10, 10);
 return x_1;
 }
 }

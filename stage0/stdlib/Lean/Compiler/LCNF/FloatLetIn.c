@@ -470,7 +470,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_FloatLetIn_0__Lean_Comp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.FloatLetIn.Decision.arm", 42);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.FloatLetIn.Decision.arm", 42, 42);
 return x_1;
 }
 }
@@ -518,7 +518,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_FloatLetIn_0__Lean_Comp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.FloatLetIn.Decision.default", 46);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.FloatLetIn.Decision.default", 46, 46);
 return x_1;
 }
 }
@@ -584,7 +584,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_FloatLetIn_0__Lean_Comp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.FloatLetIn.Decision.dont", 43);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.FloatLetIn.Decision.dont", 43, 43);
 return x_1;
 }
 }
@@ -650,7 +650,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_FloatLetIn_0__Lean_Comp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.FloatLetIn.Decision.unknown", 46);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.FloatLetIn.Decision.unknown", 46, 46);
 return x_1;
 }
 }
@@ -1806,7 +1806,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Expr_forFVarM___at_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.FVarUtil", 27);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.FVarUtil", 27, 27);
 return x_1;
 }
 }
@@ -1814,7 +1814,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Expr_forFVarM___at_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.Expr.forFVarM", 32);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.Expr.forFVarM", 32, 32);
 return x_1;
 }
 }
@@ -1822,7 +1822,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Expr_forFVarM___at_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -8513,7 +8513,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_FloatLetIn_dontFloat___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Data.HashMap", 17);
+x_1 = lean_mk_string_unchecked("Lean.Data.HashMap", 17, 17);
 return x_1;
 }
 }
@@ -8521,7 +8521,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_FloatLetIn_dontFloat___closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.HashMap.find!", 18);
+x_1 = lean_mk_string_unchecked("Lean.HashMap.find!", 18, 18);
 return x_1;
 }
 }
@@ -8529,7 +8529,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_FloatLetIn_dontFloat___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("key is not in the map", 21);
+x_1 = lean_mk_string_unchecked("key is not in the map", 21, 21);
 return x_1;
 }
 }
@@ -10305,7 +10305,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Compiler_LCNF_FloatLetIn_flo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -10757,7 +10757,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FloatLe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Compiler", 8);
+x_1 = lean_mk_string_unchecked("Compiler", 8, 8);
 return x_1;
 }
 }
@@ -10765,7 +10765,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FloatLe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("floatLetIn", 10);
+x_1 = lean_mk_string_unchecked("floatLetIn", 10, 10);
 return x_1;
 }
 }
@@ -10783,7 +10783,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FloatLe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Size of code that was pushed into arm: ", 39);
+x_1 = lean_mk_string_unchecked("Size of code that was pushed into arm: ", 39, 39);
 return x_1;
 }
 }
@@ -10800,7 +10800,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FloatLe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -12092,7 +12092,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -12120,7 +12120,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LCNF", 4);
+x_1 = lean_mk_string_unchecked("LCNF", 4, 4);
 return x_1;
 }
 }
@@ -12138,7 +12138,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -12156,7 +12156,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -12204,7 +12204,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("FloatLetIn", 10);
+x_1 = lean_mk_string_unchecked("FloatLetIn", 10, 10);
 return x_1;
 }
 }
@@ -12222,7 +12222,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }

@@ -204,7 +204,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lake_compileLeanModule__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("--load-dynlib=", 14);
+x_1 = lean_mk_string_unchecked("--load-dynlib=", 14, 14);
 return x_1;
 }
 }
@@ -212,7 +212,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lake_compileLeanModule__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -254,7 +254,7 @@ static lean_object* _init_l___private_Lean_Message_0__Lean_fromJsonBaseMessage__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fileName", 8);
+x_1 = lean_mk_string_unchecked("fileName", 8, 8);
 return x_1;
 }
 }
@@ -262,7 +262,7 @@ static lean_object* _init_l___private_Lean_Message_0__Lean_fromJsonBaseMessage__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -270,7 +270,7 @@ static lean_object* _init_l___private_Lean_Message_0__Lean_fromJsonBaseMessage__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("BaseMessage", 11);
+x_1 = lean_mk_string_unchecked("BaseMessage", 11, 11);
 return x_1;
 }
 }
@@ -298,7 +298,7 @@ static lean_object* _init_l___private_Lean_Message_0__Lean_fromJsonBaseMessage__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -346,7 +346,7 @@ static lean_object* _init_l___private_Lean_Message_0__Lean_fromJsonBaseMessage__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -364,7 +364,7 @@ static lean_object* _init_l___private_Lean_Message_0__Lean_fromJsonBaseMessage__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pos", 3);
+x_1 = lean_mk_string_unchecked("pos", 3, 3);
 return x_1;
 }
 }
@@ -412,7 +412,7 @@ static lean_object* _init_l___private_Lean_Message_0__Lean_fromJsonBaseMessage__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("endPos", 6);
+x_1 = lean_mk_string_unchecked("endPos", 6, 6);
 return x_1;
 }
 }
@@ -460,7 +460,7 @@ static lean_object* _init_l___private_Lean_Message_0__Lean_fromJsonBaseMessage__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("keepFullRange", 13);
+x_1 = lean_mk_string_unchecked("keepFullRange", 13, 13);
 return x_1;
 }
 }
@@ -508,7 +508,7 @@ static lean_object* _init_l___private_Lean_Message_0__Lean_fromJsonBaseMessage__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("severity", 8);
+x_1 = lean_mk_string_unchecked("severity", 8, 8);
 return x_1;
 }
 }
@@ -556,7 +556,7 @@ static lean_object* _init_l___private_Lean_Message_0__Lean_fromJsonBaseMessage__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("caption", 7);
+x_1 = lean_mk_string_unchecked("caption", 7, 7);
 return x_1;
 }
 }
@@ -604,7 +604,7 @@ static lean_object* _init_l___private_Lean_Message_0__Lean_fromJsonBaseMessage__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("data", 4);
+x_1 = lean_mk_string_unchecked("data", 4, 4);
 return x_1;
 }
 }
@@ -989,7 +989,7 @@ static lean_object* _init_l_Lake_logSerialMessage___at_Lake_compileLeanModule___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":\n", 2);
+x_1 = lean_mk_string_unchecked(":\n", 2, 2);
 return x_1;
 }
 }
@@ -1136,7 +1136,7 @@ static lean_object* _init_l_List_foldlM___at_Lake_compileLeanModule___spec__4___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -1144,7 +1144,7 @@ static lean_object* _init_l_List_foldlM___at_Lake_compileLeanModule___spec__4___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("stdout:\n", 8);
+x_1 = lean_mk_string_unchecked("stdout:\n", 8, 8);
 return x_1;
 }
 }
@@ -1527,7 +1527,7 @@ static lean_object* _init_l_Lake_compileLeanModule___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean exited with code ", 22);
+x_1 = lean_mk_string_unchecked("Lean exited with code ", 22, 22);
 return x_1;
 }
 }
@@ -1581,7 +1581,7 @@ static lean_object* _init_l_Lake_compileLeanModule___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("stderr:\n", 8);
+x_1 = lean_mk_string_unchecked("stderr:\n", 8, 8);
 return x_1;
 }
 }
@@ -1620,7 +1620,7 @@ static lean_object* _init_l_Lake_compileLeanModule___lambda__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to execute '", 19);
+x_1 = lean_mk_string_unchecked("failed to execute '", 19, 19);
 return x_1;
 }
 }
@@ -1628,7 +1628,7 @@ static lean_object* _init_l_Lake_compileLeanModule___lambda__3___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("': ", 3);
+x_1 = lean_mk_string_unchecked("': ", 3, 3);
 return x_1;
 }
 }
@@ -1825,7 +1825,7 @@ static lean_object* _init_l_Lake_compileLeanModule___lambda__4___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("--json", 6);
+x_1 = lean_mk_string_unchecked("--json", 6, 6);
 return x_1;
 }
 }
@@ -1845,7 +1845,7 @@ static lean_object* _init_l_Lake_compileLeanModule___lambda__4___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LEAN_PATH", 9);
+x_1 = lean_mk_string_unchecked("LEAN_PATH", 9, 9);
 return x_1;
 }
 }
@@ -2830,7 +2830,7 @@ static lean_object* _init_l_Lake_compileLeanModule___lambda__5___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-b", 2);
+x_1 = lean_mk_string_unchecked("-b", 2, 2);
 return x_1;
 }
 }
@@ -2934,7 +2934,7 @@ static lean_object* _init_l_Lake_compileLeanModule___lambda__6___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-c", 2);
+x_1 = lean_mk_string_unchecked("-c", 2, 2);
 return x_1;
 }
 }
@@ -3039,7 +3039,7 @@ static lean_object* _init_l_Lake_compileLeanModule___lambda__7___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-i", 2);
+x_1 = lean_mk_string_unchecked("-i", 2, 2);
 return x_1;
 }
 }
@@ -3154,7 +3154,7 @@ static lean_object* _init_l_Lake_compileLeanModule___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-R", 2);
+x_1 = lean_mk_string_unchecked("-R", 2, 2);
 return x_1;
 }
 }
@@ -3162,7 +3162,7 @@ static lean_object* _init_l_Lake_compileLeanModule___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-o", 2);
+x_1 = lean_mk_string_unchecked("-o", 2, 2);
 return x_1;
 }
 }
@@ -3530,7 +3530,7 @@ static lean_object* _init_l_Lake_compileStaticLib___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rcs", 3);
+x_1 = lean_mk_string_unchecked("rcs", 3, 3);
 return x_1;
 }
 }
@@ -3646,7 +3646,7 @@ static lean_object* _init_l_Lake_compileSharedLib___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-shared", 7);
+x_1 = lean_mk_string_unchecked("-shared", 7, 7);
 return x_1;
 }
 }
@@ -3867,7 +3867,7 @@ static lean_object* _init_l_Lake_download___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-s", 2);
+x_1 = lean_mk_string_unchecked("-s", 2, 2);
 return x_1;
 }
 }
@@ -3885,7 +3885,7 @@ static lean_object* _init_l_Lake_download___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-S", 2);
+x_1 = lean_mk_string_unchecked("-S", 2, 2);
 return x_1;
 }
 }
@@ -3903,7 +3903,7 @@ static lean_object* _init_l_Lake_download___lambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-f", 2);
+x_1 = lean_mk_string_unchecked("-f", 2, 2);
 return x_1;
 }
 }
@@ -3931,7 +3931,7 @@ static lean_object* _init_l_Lake_download___lambda__1___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-L", 2);
+x_1 = lean_mk_string_unchecked("-L", 2, 2);
 return x_1;
 }
 }
@@ -3939,7 +3939,7 @@ static lean_object* _init_l_Lake_download___lambda__1___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("curl", 4);
+x_1 = lean_mk_string_unchecked("curl", 4, 4);
 return x_1;
 }
 }
@@ -4266,7 +4266,7 @@ static lean_object* _init_l_Lake_untar___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-C", 2);
+x_1 = lean_mk_string_unchecked("-C", 2, 2);
 return x_1;
 }
 }
@@ -4274,7 +4274,7 @@ static lean_object* _init_l_Lake_untar___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tar", 3);
+x_1 = lean_mk_string_unchecked("tar", 3, 3);
 return x_1;
 }
 }
@@ -4311,7 +4311,7 @@ static lean_object* _init_l_Lake_untar___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-xvv", 4);
+x_1 = lean_mk_string_unchecked("-xvv", 4, 4);
 return x_1;
 }
 }
@@ -4489,7 +4489,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lake_tar___spec__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("--exclude=", 10);
+x_1 = lean_mk_string_unchecked("--exclude=", 10, 10);
 return x_1;
 }
 }
@@ -4541,7 +4541,7 @@ static lean_object* _init_l_Lake_tar___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("true", 4);
+x_1 = lean_mk_string_unchecked("true", 4, 4);
 return x_1;
 }
 }
@@ -4559,7 +4559,7 @@ static lean_object* _init_l_Lake_tar___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("COPYFILE_DISABLE", 16);
+x_1 = lean_mk_string_unchecked("COPYFILE_DISABLE", 16, 16);
 return x_1;
 }
 }
@@ -4658,7 +4658,7 @@ static lean_object* _init_l_Lake_tar___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-cvv", 4);
+x_1 = lean_mk_string_unchecked("-cvv", 4, 4);
 return x_1;
 }
 }
@@ -4676,7 +4676,7 @@ static lean_object* _init_l_Lake_tar___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-z", 2);
+x_1 = lean_mk_string_unchecked("-z", 2, 2);
 return x_1;
 }
 }

@@ -1581,7 +1581,7 @@ static lean_object* _init_l_Lean_Meta_unfoldTarget___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tactic 'unfold' failed to unfold '", 34);
+x_1 = lean_mk_string_unchecked("tactic 'unfold' failed to unfold '", 34, 34);
 return x_1;
 }
 }
@@ -1598,7 +1598,7 @@ static lean_object* _init_l_Lean_Meta_unfoldTarget___lambda__2___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' at", 4);
+x_1 = lean_mk_string_unchecked("' at", 4, 4);
 return x_1;
 }
 }
@@ -1615,7 +1615,7 @@ static lean_object* _init_l_Lean_Meta_unfoldTarget___lambda__2___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -1928,7 +1928,7 @@ static lean_object* _init_l_Lean_Meta_unfoldLocalDecl___lambda__1___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Tactic.Unfold", 23);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Tactic.Unfold", 23, 23);
 return x_1;
 }
 }
@@ -1936,7 +1936,7 @@ static lean_object* _init_l_Lean_Meta_unfoldLocalDecl___lambda__1___closed__2() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.unfoldLocalDecl", 25);
+x_1 = lean_mk_string_unchecked("Lean.Meta.unfoldLocalDecl", 25, 25);
 return x_1;
 }
 }
@@ -1944,7 +1944,7 @@ static lean_object* _init_l_Lean_Meta_unfoldLocalDecl___lambda__1___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }

@@ -345,7 +345,7 @@ static lean_object* _init_l_Lean_SubExpr_Pos_head___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.SubExpr", 12);
+x_1 = lean_mk_string_unchecked("Lean.SubExpr", 12, 12);
 return x_1;
 }
 }
@@ -353,7 +353,7 @@ static lean_object* _init_l_Lean_SubExpr_Pos_head___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.SubExpr.Pos.head", 21);
+x_1 = lean_mk_string_unchecked("Lean.SubExpr.Pos.head", 21, 21);
 return x_1;
 }
 }
@@ -361,7 +361,7 @@ static lean_object* _init_l_Lean_SubExpr_Pos_head___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("already at top", 14);
+x_1 = lean_mk_string_unchecked("already at top", 14, 14);
 return x_1;
 }
 }
@@ -421,7 +421,7 @@ static lean_object* _init_l_Lean_SubExpr_Pos_tail___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.SubExpr.Pos.tail", 21);
+x_1 = lean_mk_string_unchecked("Lean.SubExpr.Pos.tail", 21, 21);
 return x_1;
 }
 }
@@ -476,7 +476,7 @@ static lean_object* _init_l_Lean_SubExpr_Pos_push___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid coordinate ", 19);
+x_1 = lean_mk_string_unchecked("invalid coordinate ", 19, 19);
 return x_1;
 }
 }
@@ -484,7 +484,7 @@ static lean_object* _init_l_Lean_SubExpr_Pos_push___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -492,7 +492,7 @@ static lean_object* _init_l_Lean_SubExpr_Pos_push___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.SubExpr.Pos.push", 21);
+x_1 = lean_mk_string_unchecked("Lean.SubExpr.Pos.push", 21, 21);
 return x_1;
 }
 }
@@ -1334,7 +1334,7 @@ static lean_object* _init_l_Lean_SubExpr_Pos_toString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("/", 1);
+x_1 = lean_mk_string_unchecked("/", 1, 1);
 return x_1;
 }
 }
@@ -1365,7 +1365,7 @@ static lean_object* _init_l___private_Lean_SubExpr_0__Lean_SubExpr_Pos_ofStringC
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("0", 1);
+x_1 = lean_mk_string_unchecked("0", 1, 1);
 return x_1;
 }
 }
@@ -1373,7 +1373,7 @@ static lean_object* _init_l___private_Lean_SubExpr_0__Lean_SubExpr_Pos_ofStringC
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("1", 1);
+x_1 = lean_mk_string_unchecked("1", 1, 1);
 return x_1;
 }
 }
@@ -1381,7 +1381,7 @@ static lean_object* _init_l___private_Lean_SubExpr_0__Lean_SubExpr_Pos_ofStringC
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("2", 1);
+x_1 = lean_mk_string_unchecked("2", 1, 1);
 return x_1;
 }
 }
@@ -1389,7 +1389,7 @@ static lean_object* _init_l___private_Lean_SubExpr_0__Lean_SubExpr_Pos_ofStringC
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("3", 1);
+x_1 = lean_mk_string_unchecked("3", 1, 1);
 return x_1;
 }
 }
@@ -1397,7 +1397,7 @@ static lean_object* _init_l___private_Lean_SubExpr_0__Lean_SubExpr_Pos_ofStringC
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Invalid coordinate ", 19);
+x_1 = lean_mk_string_unchecked("Invalid coordinate ", 19, 19);
 return x_1;
 }
 }
@@ -1571,7 +1571,7 @@ static lean_object* _init_l_Lean_SubExpr_Pos_fromString_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("malformed ", 10);
+x_1 = lean_mk_string_unchecked("malformed ", 10, 10);
 return x_1;
 }
 }
@@ -1718,7 +1718,7 @@ static lean_object* _init_l_Lean_SubExpr_Pos_fromString_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.SubExpr.Pos.fromString!", 28);
+x_1 = lean_mk_string_unchecked("Lean.SubExpr.Pos.fromString!", 28, 28);
 return x_1;
 }
 }
@@ -1815,7 +1815,7 @@ static lean_object* _init_l_Lean_SubExpr_Pos_instRepr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Pos.fromString! ", 16);
+x_1 = lean_mk_string_unchecked("Pos.fromString! ", 16, 16);
 return x_1;
 }
 }
@@ -2014,7 +2014,7 @@ static lean_object* _init_l_Lean_SubExpr_bindingBody_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.SubExpr.bindingBody!", 25);
+x_1 = lean_mk_string_unchecked("Lean.SubExpr.bindingBody!", 25, 25);
 return x_1;
 }
 }
@@ -2022,7 +2022,7 @@ static lean_object* _init_l_Lean_SubExpr_bindingBody_x21___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("subexpr is not a binder", 23);
+x_1 = lean_mk_string_unchecked("subexpr is not a binder", 23, 23);
 return x_1;
 }
 }
@@ -2138,7 +2138,7 @@ static lean_object* _init_l_Lean_SubExpr_bindingDomain_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.SubExpr.bindingDomain!", 27);
+x_1 = lean_mk_string_unchecked("Lean.SubExpr.bindingDomain!", 27, 27);
 return x_1;
 }
 }
@@ -2285,7 +2285,7 @@ static lean_object* _init_l_Lean_SubExpr_instFromJsonFVarId___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[anonymous]", 11);
+x_1 = lean_mk_string_unchecked("[anonymous]", 11, 11);
 return x_1;
 }
 }
@@ -2293,7 +2293,7 @@ static lean_object* _init_l_Lean_SubExpr_instFromJsonFVarId___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected a `Name`, got '", 24);
+x_1 = lean_mk_string_unchecked("expected a `Name`, got '", 24, 24);
 return x_1;
 }
 }
@@ -2301,7 +2301,7 @@ static lean_object* _init_l_Lean_SubExpr_instFromJsonFVarId___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -2572,7 +2572,7 @@ static lean_object* _init_l___private_Lean_SubExpr_0__Lean_SubExpr_fromJsonGoalL
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no inductive constructor matched", 32);
+x_1 = lean_mk_string_unchecked("no inductive constructor matched", 32, 32);
 return x_1;
 }
 }
@@ -2598,7 +2598,7 @@ static lean_object* _init_l___private_Lean_SubExpr_0__Lean_SubExpr_fromJsonGoalL
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hypValue", 8);
+x_1 = lean_mk_string_unchecked("hypValue", 8, 8);
 return x_1;
 }
 }
@@ -3010,7 +3010,7 @@ static lean_object* _init_l___private_Lean_SubExpr_0__Lean_SubExpr_fromJsonGoalL
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hypType", 7);
+x_1 = lean_mk_string_unchecked("hypType", 7, 7);
 return x_1;
 }
 }
@@ -3400,7 +3400,7 @@ static lean_object* _init_l___private_Lean_SubExpr_0__Lean_SubExpr_fromJsonGoalL
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hyp", 3);
+x_1 = lean_mk_string_unchecked("hyp", 3, 3);
 return x_1;
 }
 }
@@ -3625,7 +3625,7 @@ static lean_object* _init_l___private_Lean_SubExpr_0__Lean_SubExpr_fromJsonGoalL
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("target", 6);
+x_1 = lean_mk_string_unchecked("target", 6, 6);
 return x_1;
 }
 }
@@ -4293,7 +4293,7 @@ static lean_object* _init_l___private_Lean_SubExpr_0__Lean_SubExpr_fromJsonGoals
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mvarId", 6);
+x_1 = lean_mk_string_unchecked("mvarId", 6, 6);
 return x_1;
 }
 }
@@ -4301,7 +4301,7 @@ static lean_object* _init_l___private_Lean_SubExpr_0__Lean_SubExpr_fromJsonGoals
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -4309,7 +4309,7 @@ static lean_object* _init_l___private_Lean_SubExpr_0__Lean_SubExpr_fromJsonGoals
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("SubExpr", 7);
+x_1 = lean_mk_string_unchecked("SubExpr", 7, 7);
 return x_1;
 }
 }
@@ -4317,7 +4317,7 @@ static lean_object* _init_l___private_Lean_SubExpr_0__Lean_SubExpr_fromJsonGoals
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("GoalsLocation", 13);
+x_1 = lean_mk_string_unchecked("GoalsLocation", 13, 13);
 return x_1;
 }
 }
@@ -4346,7 +4346,7 @@ static lean_object* _init_l___private_Lean_SubExpr_0__Lean_SubExpr_fromJsonGoals
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -4394,7 +4394,7 @@ static lean_object* _init_l___private_Lean_SubExpr_0__Lean_SubExpr_fromJsonGoals
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -4412,7 +4412,7 @@ static lean_object* _init_l___private_Lean_SubExpr_0__Lean_SubExpr_fromJsonGoals
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("loc", 3);
+x_1 = lean_mk_string_unchecked("loc", 3, 3);
 return x_1;
 }
 }

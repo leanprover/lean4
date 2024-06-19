@@ -1604,9 +1604,9 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11;
 x_8 = lean_ctor_get(x_5, 0);
 x_9 = lean_ctor_get(x_5, 1);
 lean_inc(x_1);
-lean_inc(x_3);
 lean_inc(x_8);
-x_10 = lean_apply_2(x_1, x_8, x_3);
+lean_inc(x_3);
+x_10 = lean_apply_2(x_1, x_3, x_8);
 x_11 = lean_unbox(x_10);
 lean_dec(x_10);
 if (x_11 == 0)
@@ -1656,9 +1656,9 @@ lean_inc(x_23);
 lean_inc(x_22);
 lean_dec(x_5);
 lean_inc(x_1);
-lean_inc(x_3);
 lean_inc(x_22);
-x_24 = lean_apply_2(x_1, x_22, x_3);
+lean_inc(x_3);
+x_24 = lean_apply_2(x_1, x_3, x_22);
 x_25 = lean_unbox(x_24);
 lean_dec(x_24);
 if (x_25 == 0)

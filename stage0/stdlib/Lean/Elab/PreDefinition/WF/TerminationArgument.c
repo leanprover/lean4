@@ -127,7 +127,7 @@ lean_object* l_Lean_PrettyPrinter_Delaborator_withBindingBodyUnusedName___rarg(l
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
-lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Elab_WF_TerminationArgument_elab___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_TerminationArgument_elab___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_instInhabitedTerminationArgument;
@@ -302,7 +302,7 @@ x_14 = l_Array_append___rarg(x_13, x_4);
 x_15 = 0;
 x_16 = 1;
 x_17 = 1;
-x_18 = l_Lean_Meta_mkLambdaFVars(x_14, x_3, x_15, x_16, x_17, x_8, x_9, x_10, x_11, x_12);
+x_18 = l_Lean_Meta_mkLambdaFVars(x_14, x_3, x_15, x_16, x_15, x_17, x_8, x_9, x_10, x_11, x_12);
 return x_18;
 }
 }
@@ -1625,7 +1625,7 @@ lean_dec(x_13);
 x_15 = 0;
 x_16 = 1;
 x_17 = 1;
-x_18 = l_Lean_Meta_mkLambdaFVars(x_14, x_3, x_15, x_16, x_17, x_4, x_5, x_6, x_7, x_8);
+x_18 = l_Lean_Meta_mkLambdaFVars(x_14, x_3, x_15, x_16, x_15, x_17, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 

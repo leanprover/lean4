@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/type_checker.h"
-#include "library/protected.h"
 #include "library/util.h"
 #include "library/suffixes.h"
 #include "library/reducible.h"
@@ -23,10 +22,8 @@ static void throw_corrupted(name const & n) {
     throw exception(sstream() << "error in '" << g_no_confusion << "' generation, '" << n << "' inductive datatype declaration is corrupted");
 }
 
-static optional<environment> mk_no_confusion_type(environment const & env, name const & n) {
+static declaration mk_no_confusion_type(environment const & env, name const & n) {
     constant_info ind_info = env.get(n);
-    if (!ind_info.is_inductive() || !can_elim_to_type(env, n))
-        return optional<environment>();
     inductive_val ind_val    = ind_info.to_inductive_val();
     local_ctx lctx;
     name_generator ngen      = mk_constructions_name_generator();
@@ -120,26 +117,22 @@ static optional<environment> mk_no_confusion_type(environment const & env, name 
         t1 = binding_body(t1);
     }
     expr no_confusion_type_value = lctx.mk_lambda(args, mk_app(cases_on1, outer_cases_on_args));
-    declaration new_d = mk_definition_inferring_unsafe(env, no_confusion_type_name, lps, no_confusion_type_type, no_confusion_type_value,
-                                                       reducibility_hints::mk_abbreviation());
-    environment new_env = env.add(new_d);
-    new_env = set_reducible(new_env, no_confusion_type_name, reducible_status::Reducible, true);
-    new_env = completion_add_to_black_list(new_env, no_confusion_type_name);
-    return some(add_protected(new_env, no_confusion_type_name));
+    return mk_definition_inferring_unsafe(env, no_confusion_type_name, lps, no_confusion_type_type, no_confusion_type_value,
+                                          reducibility_hints::mk_abbreviation());
 }
 
-environment mk_no_confusion(environment const & env, name const & n) {
-    optional<environment> env1 = mk_no_confusion_type(env, n);
-    if (!env1)
-        return env;
-    environment new_env = *env1;
+extern "C" LEAN_EXPORT object * lean_mk_no_confusion_type(object * env, object * n) {
+    return catch_kernel_exceptions<declaration>([&]() { return mk_no_confusion_type(environment(env), name(n, true)); });
+}
+
+declaration mk_no_confusion(environment const & env, name const & n) {
     local_ctx lctx;
     name_generator ngen                  = mk_constructions_name_generator();
-    constant_info ind_info               = new_env.get(n);
+    constant_info ind_info               = env.get(n);
     inductive_val ind_val                = ind_info.to_inductive_val();
     unsigned nparams                     = ind_val.get_nparams();
-    constant_info no_confusion_type_info = new_env.get(name{n, g_no_confusion_type});
-    constant_info cases_info             = new_env.get(name(n, g_cases_on));
+    constant_info no_confusion_type_info = env.get(name{n, g_no_confusion_type});
+    constant_info cases_info             = env.get(name(n, g_cases_on));
     names lps                            = no_confusion_type_info.get_lparams();
     levels ls                            = lparams_to_levels(lps);
     expr ind_type                        = instantiate_type_lparams(ind_info, tail(ls));
@@ -155,7 +148,7 @@ environment mk_no_confusion(environment const & env, name const & n) {
     expr v1           = args[args.size()-2];
     expr v2           = args[args.size()-1];
     expr v_type       = lctx.get_type(v1);
-    level v_lvl       = sort_level(type_checker(new_env, lctx).ensure_type(v_type));
+    level v_lvl       = sort_level(type_checker(env, lctx).ensure_type(v_type));
     expr eq_v         = mk_app(mk_constant(get_eq_name(), levels(v_lvl)), v_type);
     expr H12          = lctx.mk_local_decl(ngen, "h12", mk_app(eq_v, v1, v2), mk_binder_info());
     args.push_back(H12);
@@ -187,11 +180,11 @@ environment mk_no_confusion(environment const & env, name const & n) {
     levels clvls   = ls;
     expr cases_on  = mk_app(mk_app(mk_constant(cases_info.get_name(), clvls), nparams, args.data()), type_former);
     cases_on       = mk_app(mk_app(cases_on, nindices, args.data() + nparams), v1);
-    expr cot       = type_checker(new_env, lctx).infer(cases_on);
+    expr cot       = type_checker(env, lctx).infer(cases_on);
 
     while (is_pi(cot)) {
         buffer<expr> minor_args;
-        expr minor = to_telescope(new_env, lctx, ngen, binding_domain(cot), minor_args);
+        expr minor = to_telescope(env, lctx, ngen, binding_domain(cot), minor_args);
         lean_assert(!minor_args.empty());
         expr H  = minor_args.back();
         expr Ht = lctx.get_type(H);
@@ -231,15 +224,11 @@ environment mk_no_confusion(environment const & env, name const & n) {
     eq_rec = mk_app(mk_app(eq_rec, rec_type_former, gen, v2, H12), H12);
     //
     expr no_confusion_val = lctx.mk_lambda(args, eq_rec);
-    declaration new_d = mk_definition_inferring_unsafe(new_env, no_confusion_name, lps, no_confusion_ty, no_confusion_val,
-                                                       reducibility_hints::mk_abbreviation());
-    new_env = new_env.add(new_d);
-    new_env = set_reducible(new_env, no_confusion_name, reducible_status::Reducible, true);
-    new_env = add_no_confusion(new_env, no_confusion_name);
-    return add_protected(new_env, no_confusion_name);
+    return mk_definition_inferring_unsafe(env, no_confusion_name, lps, no_confusion_ty, no_confusion_val,
+                                          reducibility_hints::mk_abbreviation());
 }
 
 extern "C" LEAN_EXPORT object * lean_mk_no_confusion(object * env, object * n) {
-    return catch_kernel_exceptions<environment>([&]() { return mk_no_confusion(environment(env), name(n, true)); });
+    return catch_kernel_exceptions<declaration>([&]() { return mk_no_confusion(environment(env), name(n, true)); });
 }
 }

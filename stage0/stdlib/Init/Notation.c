@@ -94,6 +94,7 @@ static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x24_x3e_
 static lean_object* l_term___x5e_x5e_x5e_____closed__7;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x2a____1___closed__6;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3e_x3e_x3d____1___closed__3;
+static lean_object* l_Lean_reduceCmd___closed__26;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3e_x3e_x3d____1___closed__7;
 static lean_object* l_boolIfThenElse___closed__3;
 static lean_object* l_term___x2a_____closed__1;
@@ -715,6 +716,7 @@ LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__termIfThenElse
 static lean_object* l_stx___x3c_x7c_x3e_____closed__8;
 static lean_object* l_term___x24_______closed__3;
 static lean_object* l_precMax___closed__4;
+static lean_object* l_Lean_reduceCmd___closed__27;
 static lean_object* l_Lean_modCast___closed__3;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___x3e_x3d____1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_precMin;
@@ -24758,7 +24760,7 @@ static lean_object* _init_l_Lean_reduceCmd___closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__Notation______macroRules__stx___x3f__1___closed__3;
+x_1 = l_term___x24_______closed__4;
 x_2 = l_Lean_reduceCmd___closed__13;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -24769,10 +24771,22 @@ return x_3;
 static lean_object* _init_l_Lean_reduceCmd___closed__15() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___aux__Init__Notation______macroRules__stx___x3f__1___closed__3;
+x_2 = l_Lean_reduceCmd___closed__14;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_reduceCmd___closed__16() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Syntax_addPrec___closed__7;
 x_2 = l_Lean_reduceCmd___closed__4;
-x_3 = l_Lean_reduceCmd___closed__14;
+x_3 = l_Lean_reduceCmd___closed__15;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -24780,7 +24794,7 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_reduceCmd___closed__16() {
+static lean_object* _init_l_Lean_reduceCmd___closed__17() {
 _start:
 {
 lean_object* x_1; 
@@ -24788,11 +24802,11 @@ x_1 = lean_mk_string_from_bytes("types", 5);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_reduceCmd___closed__17() {
+static lean_object* _init_l_Lean_reduceCmd___closed__18() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = l_Lean_reduceCmd___closed__16;
+x_1 = l_Lean_reduceCmd___closed__17;
 x_2 = 0;
 x_3 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_3, 0, x_1);
@@ -24800,27 +24814,13 @@ lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_reduceCmd___closed__18() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Syntax_addPrec___closed__7;
-x_2 = l_Lean_reduceCmd___closed__5;
-x_3 = l_Lean_reduceCmd___closed__17;
-x_4 = lean_alloc_ctor(2, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
 static lean_object* _init_l_Lean_reduceCmd___closed__19() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Syntax_addPrec___closed__7;
-x_2 = l_Lean_reduceCmd___closed__18;
-x_3 = l_termIfLet___closed__8;
+x_2 = l_Lean_reduceCmd___closed__5;
+x_3 = l_Lean_reduceCmd___closed__18;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -24834,7 +24834,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Syntax_addPrec___closed__7;
 x_2 = l_Lean_reduceCmd___closed__19;
-x_3 = l_Lean_reduceCmd___closed__11;
+x_3 = l_termIfLet___closed__8;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -24848,7 +24848,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Syntax_addPrec___closed__7;
 x_2 = l_Lean_reduceCmd___closed__20;
-x_3 = l_prec_x28___x29___closed__8;
+x_3 = l_Lean_reduceCmd___closed__11;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -24859,22 +24859,10 @@ return x_4;
 static lean_object* _init_l_Lean_reduceCmd___closed__22() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__Notation______macroRules__stx___x3f__1___closed__3;
-x_2 = l_Lean_reduceCmd___closed__21;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_reduceCmd___closed__23() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Syntax_addPrec___closed__7;
-x_2 = l_Lean_reduceCmd___closed__15;
-x_3 = l_Lean_reduceCmd___closed__22;
+x_2 = l_Lean_reduceCmd___closed__21;
+x_3 = l_prec_x28___x29___closed__8;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -24882,12 +24870,50 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
+static lean_object* _init_l_Lean_reduceCmd___closed__23() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_term___x24_______closed__4;
+x_2 = l_Lean_reduceCmd___closed__22;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
 static lean_object* _init_l_Lean_reduceCmd___closed__24() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___aux__Init__Notation______macroRules__stx___x3f__1___closed__3;
+x_2 = l_Lean_reduceCmd___closed__23;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_reduceCmd___closed__25() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Syntax_addPrec___closed__7;
-x_2 = l_Lean_reduceCmd___closed__23;
+x_2 = l_Lean_reduceCmd___closed__16;
+x_3 = l_Lean_reduceCmd___closed__24;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_reduceCmd___closed__26() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Syntax_addPrec___closed__7;
+x_2 = l_Lean_reduceCmd___closed__25;
 x_3 = l_termDepIfThenElse___closed__15;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
@@ -24896,13 +24922,13 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_reduceCmd___closed__25() {
+static lean_object* _init_l_Lean_reduceCmd___closed__27() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_reduceCmd___closed__2;
 x_2 = lean_unsigned_to_nat(1022u);
-x_3 = l_Lean_reduceCmd___closed__24;
+x_3 = l_Lean_reduceCmd___closed__26;
 x_4 = lean_alloc_ctor(3, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -24914,7 +24940,7 @@ static lean_object* _init_l_Lean_reduceCmd() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_reduceCmd___closed__25;
+x_1 = l_Lean_reduceCmd___closed__27;
 return x_1;
 }
 }
@@ -29431,6 +29457,10 @@ l_Lean_reduceCmd___closed__24 = _init_l_Lean_reduceCmd___closed__24();
 lean_mark_persistent(l_Lean_reduceCmd___closed__24);
 l_Lean_reduceCmd___closed__25 = _init_l_Lean_reduceCmd___closed__25();
 lean_mark_persistent(l_Lean_reduceCmd___closed__25);
+l_Lean_reduceCmd___closed__26 = _init_l_Lean_reduceCmd___closed__26();
+lean_mark_persistent(l_Lean_reduceCmd___closed__26);
+l_Lean_reduceCmd___closed__27 = _init_l_Lean_reduceCmd___closed__27();
+lean_mark_persistent(l_Lean_reduceCmd___closed__27);
 l_Lean_reduceCmd = _init_l_Lean_reduceCmd();
 lean_mark_persistent(l_Lean_reduceCmd);
 l_Lean_guardMsgsFilter___closed__1 = _init_l_Lean_guardMsgsFilter___closed__1();

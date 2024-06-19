@@ -439,7 +439,7 @@ static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21__
 LEAN_EXPORT uint8_t l___private_Init_System_IO_0__IO_FS_beqSystemTime____x40_Init_System_IO___hyg_2917_(lean_object*, lean_object*);
 extern lean_object* l_Std_Format_defWidth;
 static lean_object* l_Lean_instEvalUnit___rarg___closed__1;
-lean_object* lean_string_from_utf8(lean_object*);
+lean_object* lean_string_from_utf8_unchecked(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_ofHandle___elambda__5(lean_object*, size_t, lean_object*);
 static lean_object* l_instMonadEIO___closed__1;
 LEAN_EXPORT uint8_t l_IO_Process_StdioConfig_stdin___default;
@@ -9695,7 +9695,7 @@ return x_3;
 else
 {
 lean_object* x_8; 
-x_8 = lean_string_from_utf8(x_5);
+x_8 = lean_string_from_utf8_unchecked(x_5);
 lean_dec(x_5);
 lean_ctor_set(x_3, 0, x_8);
 return x_3;
@@ -9723,7 +9723,7 @@ return x_13;
 else
 {
 lean_object* x_14; lean_object* x_15; 
-x_14 = lean_string_from_utf8(x_9);
+x_14 = lean_string_from_utf8_unchecked(x_9);
 lean_dec(x_9);
 x_15 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_15, 0, x_14);
@@ -10392,7 +10392,7 @@ lean_dec(x_1);
 x_13 = lean_ctor_get(x_12, 1);
 lean_inc(x_13);
 lean_dec(x_12);
-x_14 = lean_string_from_utf8(x_4);
+x_14 = lean_string_from_utf8_unchecked(x_4);
 x_15 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_15, 0, x_14);
 lean_ctor_set(x_15, 1, x_2);
@@ -11104,7 +11104,7 @@ return x_18;
 else
 {
 lean_object* x_25; 
-x_25 = lean_string_from_utf8(x_21);
+x_25 = lean_string_from_utf8_unchecked(x_21);
 lean_dec(x_21);
 lean_ctor_set(x_8, 1, x_16);
 lean_ctor_set(x_8, 0, x_25);
@@ -11140,7 +11140,7 @@ return x_32;
 else
 {
 lean_object* x_33; lean_object* x_34; 
-x_33 = lean_string_from_utf8(x_28);
+x_33 = lean_string_from_utf8_unchecked(x_28);
 lean_dec(x_28);
 lean_ctor_set(x_8, 1, x_16);
 lean_ctor_set(x_8, 0, x_33);
@@ -11220,7 +11220,7 @@ return x_44;
 else
 {
 lean_object* x_51; 
-x_51 = lean_string_from_utf8(x_47);
+x_51 = lean_string_from_utf8_unchecked(x_47);
 lean_dec(x_47);
 lean_ctor_set(x_8, 1, x_42);
 lean_ctor_set(x_8, 0, x_51);
@@ -11256,7 +11256,7 @@ return x_58;
 else
 {
 lean_object* x_59; lean_object* x_60; 
-x_59 = lean_string_from_utf8(x_54);
+x_59 = lean_string_from_utf8_unchecked(x_54);
 lean_dec(x_54);
 lean_ctor_set(x_8, 1, x_42);
 lean_ctor_set(x_8, 0, x_59);
@@ -11358,7 +11358,7 @@ return x_82;
 else
 {
 lean_object* x_83; lean_object* x_84; lean_object* x_85; 
-x_83 = lean_string_from_utf8(x_77);
+x_83 = lean_string_from_utf8_unchecked(x_77);
 lean_dec(x_77);
 x_84 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_84, 0, x_83);
@@ -11457,7 +11457,7 @@ return x_104;
 else
 {
 lean_object* x_105; lean_object* x_106; lean_object* x_107; 
-x_105 = lean_string_from_utf8(x_99);
+x_105 = lean_string_from_utf8_unchecked(x_99);
 lean_dec(x_99);
 x_106 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_106, 0, x_105);

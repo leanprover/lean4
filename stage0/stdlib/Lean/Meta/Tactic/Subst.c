@@ -264,7 +264,7 @@ static lean_object* l_Lean_Meta_heqToEq___lambda__2___closed__3;
 uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* l_Lean_Meta_intro1Core(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_substVar___lambda__2___closed__3;
-lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t l_Lean_Exception_isRuntime(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_Meta_substSomeVar_x3f___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1229,7 +1229,7 @@ x_16 = lean_array_push(x_15, x_5);
 x_17 = 0;
 x_18 = 1;
 x_19 = 1;
-x_20 = l_Lean_Meta_mkLambdaFVars(x_16, x_14, x_17, x_18, x_19, x_6, x_7, x_8, x_9, x_13);
+x_20 = l_Lean_Meta_mkLambdaFVars(x_16, x_14, x_17, x_18, x_17, x_19, x_6, x_7, x_8, x_9, x_13);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -2548,7 +2548,7 @@ x_42 = 0;
 x_43 = 1;
 x_44 = 1;
 lean_inc(x_24);
-x_45 = l_Lean_Meta_mkLambdaFVars(x_41, x_24, x_42, x_43, x_44, x_16, x_17, x_18, x_19, x_39);
+x_45 = l_Lean_Meta_mkLambdaFVars(x_41, x_24, x_42, x_43, x_42, x_44, x_16, x_17, x_18, x_19, x_39);
 if (lean_obj_tag(x_45) == 0)
 {
 lean_object* x_46; lean_object* x_47; lean_object* x_48; 
@@ -2886,7 +2886,7 @@ x_95 = lean_array_push(x_94, x_12);
 x_96 = 0;
 x_97 = 1;
 x_98 = 1;
-x_99 = l_Lean_Meta_mkLambdaFVars(x_95, x_24, x_96, x_97, x_98, x_16, x_17, x_18, x_19, x_66);
+x_99 = l_Lean_Meta_mkLambdaFVars(x_95, x_24, x_96, x_97, x_96, x_98, x_16, x_17, x_18, x_19, x_66);
 if (lean_obj_tag(x_99) == 0)
 {
 lean_object* x_100; lean_object* x_101; lean_object* x_102; 

@@ -38,7 +38,6 @@ static lean_object* l___auto____x40_Lake_Util_OrderedTagAttribute___hyg_58____cl
 static lean_object* l_Lake_instInhabitedOrderedTagAttribute___closed__12;
 static lean_object* l___auto____x40_Lake_Util_OrderedTagAttribute___hyg_58____closed__20;
 LEAN_EXPORT lean_object* l_Lake_registerOrderedTagAttribute___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_registerOrderedTagAttribute___lambda__4___closed__4;
 lean_object* l_Lean_Attribute_Builtin_ensureNoArgs(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_registerOrderedTagAttribute___lambda__2(lean_object*);
 static lean_object* l_Lake_registerOrderedTagAttribute___lambda__4___closed__3;
@@ -888,20 +887,8 @@ return x_2;
 static lean_object* _init_l_Lake_registerOrderedTagAttribute___lambda__4___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lake_registerOrderedTagAttribute___lambda__4___closed__2;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lake_registerOrderedTagAttribute___lambda__4___closed__4() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lake_registerOrderedTagAttribute___lambda__4___closed__3;
+x_1 = l_Lake_registerOrderedTagAttribute___lambda__4___closed__2;
 x_2 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
@@ -935,7 +922,7 @@ x_14 = lean_ctor_get(x_11, 0);
 x_15 = lean_ctor_get(x_11, 4);
 lean_dec(x_15);
 x_16 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_3, x_14, x_2);
-x_17 = l_Lake_registerOrderedTagAttribute___lambda__4___closed__4;
+x_17 = l_Lake_registerOrderedTagAttribute___lambda__4___closed__3;
 lean_ctor_set(x_11, 4, x_17);
 lean_ctor_set(x_11, 0, x_16);
 x_18 = lean_st_ref_set(x_6, x_11, x_12);
@@ -980,7 +967,7 @@ lean_inc(x_26);
 lean_inc(x_25);
 lean_dec(x_11);
 x_31 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_3, x_25, x_2);
-x_32 = l_Lake_registerOrderedTagAttribute___lambda__4___closed__4;
+x_32 = l_Lake_registerOrderedTagAttribute___lambda__4___closed__3;
 x_33 = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(x_33, 0, x_31);
 lean_ctor_set(x_33, 1, x_26);
@@ -1876,8 +1863,6 @@ l_Lake_registerOrderedTagAttribute___lambda__4___closed__2 = _init_l_Lake_regist
 lean_mark_persistent(l_Lake_registerOrderedTagAttribute___lambda__4___closed__2);
 l_Lake_registerOrderedTagAttribute___lambda__4___closed__3 = _init_l_Lake_registerOrderedTagAttribute___lambda__4___closed__3();
 lean_mark_persistent(l_Lake_registerOrderedTagAttribute___lambda__4___closed__3);
-l_Lake_registerOrderedTagAttribute___lambda__4___closed__4 = _init_l_Lake_registerOrderedTagAttribute___lambda__4___closed__4();
-lean_mark_persistent(l_Lake_registerOrderedTagAttribute___lambda__4___closed__4);
 l_Lake_registerOrderedTagAttribute___lambda__5___closed__1 = _init_l_Lake_registerOrderedTagAttribute___lambda__5___closed__1();
 lean_mark_persistent(l_Lake_registerOrderedTagAttribute___lambda__5___closed__1);
 l_Lake_registerOrderedTagAttribute___lambda__5___closed__2 = _init_l_Lake_registerOrderedTagAttribute___lambda__5___closed__2();

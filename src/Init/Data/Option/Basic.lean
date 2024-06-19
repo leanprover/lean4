@@ -123,9 +123,6 @@ def merge (fn : α → α → α) : Option α → Option α → Option α
   | some x, _, f => f x
   | none, y, _ => y
 
-@[simp] theorem elim_none (b) (f : α → β) : none.elim b f = b := rfl
-@[simp] theorem elim_some (a) (b) (f : α → β) : (some a).elim b f = f a := rfl
-
 /-- Extracts the value `a` from an option that is known to be `some a` for some `a`. -/
 @[inline] def get {α : Type u} : (o : Option α) → isSome o → α
   | some x, _ => x

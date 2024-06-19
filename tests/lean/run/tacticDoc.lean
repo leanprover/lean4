@@ -9,6 +9,9 @@ register_tactic_tag finishing "finishing"
 /-- Tactics that are intended to be extensible -/
 register_tactic_tag extensible "extensible"
 
+/-- Tactics that sequence or arrange other tactics -/
+register_tactic_tag ctrl "control flow"
+
 /-- Another `trivial` tactic -/
 @[tactic_tag finishing extensible]
 syntax (name := my_trivial) "my_trivial" : tactic
@@ -23,18 +26,24 @@ macro_rules
 
 attribute [tactic_tag finishing] Lean.Parser.Tactic.omega
 
-/-- error: unknown tag 'bogus' (expected one of 'extensible', 'finishing') -/
+attribute [tactic_tag ctrl] Lean.Parser.Tactic.«tactic_<;>_»
+
+/-- error: unknown tag 'bogus' (expected one of 'ctrl', 'extensible', 'finishing') -/
 #guard_msgs in
 attribute [tactic_tag bogus] my_trivial
 
+
 /--
 info: Available tags:
+  • 'ctrl' — "control flow"
+    Tactics that sequence or arrange other tactics ⏎
+    '<;>'
   • 'extensible'
     Tactics that are intended to be extensible ⏎
     'my_trivial'
   • 'finishing'
     Finishing tactics that are intended to completely close a goal ⏎
-    'Lean.Parser.Tactic.omega', 'my_trivial'
+    'omega', 'my_trivial'
 -/
 #guard_msgs in
 #print tactic tags

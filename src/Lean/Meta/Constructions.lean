@@ -8,6 +8,7 @@ import Lean.AuxRecursor
 import Lean.AddDecl
 import Lean.Meta.AppBuilder
 import Lean.Meta.CompletionName
+import Lean.Meta.Constructions.RecOn
 
 namespace Lean
 
@@ -19,14 +20,6 @@ namespace Lean
 @[extern "lean_mk_brec_on"] opaque mkBRecOnImp (env : Environment) (declName : @& Name) (ind : Bool) : Except KernelException Declaration
 
 open Meta
-
-def mkRecOn (declName : Name) : MetaM Unit := do
-  let name := mkRecOnName declName
-  let decl ← ofExceptKernelException (mkRecOnImp (← getEnv) declName)
-  addDecl decl
-  setReducibleAttribute name
-  modifyEnv fun env => markAuxRecursor env name
-  modifyEnv fun env => addProtected env name
 
 def mkCasesOn (declName : Name) : MetaM Unit := do
   let name := mkCasesOnName declName

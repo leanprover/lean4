@@ -796,7 +796,7 @@ private:
         }
         if (object * const * o = g_init_globals->find(fn)) {
             // persistent, so no `inc` needed
-            return *o;
+            return type_is_scalar(t) ? unbox_t(*o, t) : *o;
         }
 
         symbol_cache_entry e = lookup_symbol(fn);

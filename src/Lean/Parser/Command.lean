@@ -681,7 +681,7 @@ Register a tactic tag, saving its user-facing name and docstring.
 
 Tactic tags can be used by documentation generation tools to classify related tactics.
 -/
-@[builtin_command_parser] def register_tactic_tag := leading_parser
+@[builtin_command_parser] def «register_tactic_tag» := leading_parser
   optional (docComment >> ppLine) >>
   "register_tactic_tag " >> ident >> strLit
 
@@ -691,7 +691,7 @@ Add more documentation as an extension of the documentation for a given tactic.
 The extended documentation is placed in the command's docstring. It is shown as part of a bulleted
 list, so it should be brief.
 -/
-@[builtin_command_parser] def tactic_extension := leading_parser
+@[builtin_command_parser] def «tactic_extension» := leading_parser
   optional (docComment >> ppLine) >>
   "tactic_extension " >> ident
 

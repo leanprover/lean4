@@ -29,7 +29,7 @@ private def asStrLit? : Syntax → Option StrLit
   | `($s:str) => some s
   | _ => none
 
-@[builtin_command_elab tactic_extension] def elabTacticExtension : CommandElab
+@[builtin_command_elab «tactic_extension»] def elabTacticExtension : CommandElab
   | .node _ _ #[.node _ _ #[], cmd@(.atom _ "tactic_extension"), _] => do
     throwErrorAt cmd "Missing documentation comment"
   | .node _ _ #[.node _ _ #[docComment], cmd@(.atom _ "tactic_extension"), tac] => do
@@ -44,7 +44,7 @@ private def asStrLit? : Syntax → Option StrLit
     pure ()
   | _ => throwError "Malformed tactic extension command"
 
-@[builtin_command_elab register_tactic_tag] def elabRegisterTacticTag : CommandElab
+@[builtin_command_elab «register_tactic_tag»] def elabRegisterTacticTag : CommandElab
   | .node _ _ #[doc, .atom _ "register_tactic_tag", tag, user] => do
     let docstring ← (asDocComment? doc).mapM getDocStringText
     let some user := asStrLit? user

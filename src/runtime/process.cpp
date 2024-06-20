@@ -159,7 +159,12 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     object * parent_stdout = box(0); setup_stdio(&saAttr, &child_stdout, &parent_stdout, false, stdout_mode);
     object * parent_stderr = box(0); setup_stdio(&saAttr, &child_stderr, &parent_stderr, false, stderr_mode);
 
-    std::string command = proc_name.to_std_string();
+    std::string program = proc_name.to_std_string();
+
+    // Always escape program in cmdline, in case it contains spaces
+    std::string command = "\"";
+    command += program;
+    command += "\"";
 
     // This needs some thought, on Windows we must pass a command string
     // which is a valid command, that is a fully assembled command to be executed.
@@ -231,7 +236,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
 
     // Create the child process.
     bool bSuccess = CreateProcess(
-        NULL,
+        program.c_str(),
         const_cast<char *>(command.c_str()), // command line
         NULL,                                // process security attributes
         NULL,                                // primary thread security attributes

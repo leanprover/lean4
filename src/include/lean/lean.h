@@ -1694,7 +1694,7 @@ static inline uint16_t lean_uint16_log2(uint16_t a) {
     /* Multiplying the magic number 0x0F2D to `2 ^ n - 1` for `n = 0` to `15`
        maps its significant `4` bits from `0` to `15`.
        `table` satisfies `n` -> `m = 2 ^ n - 1` -> `(m * 0x0F2D) mod 2 ^ 16` -- table -> `n`. */
-    return (16 - (uint16_t)(a * 0x0F2D)) & 0xF;
+    return table[(uint16_t)(a * 0x0F2D) >> 12];
 }
 static inline uint8_t lean_uint16_dec_eq(uint16_t a1, uint16_t a2) { return a1 == a2; }
 static inline uint8_t lean_uint16_dec_lt(uint16_t a1, uint16_t a2) { return a1 < a2; }

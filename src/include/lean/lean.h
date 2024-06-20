@@ -1769,7 +1769,7 @@ static inline uint64_t lean_uint64_modn(uint64_t a1, b_lean_obj_arg a2) {
     }
 }
 static inline uint64_t lean_uint64_log2(uint64_t a) {
-    alignas(64) unsigned char const tab64[64] = {
+    unsigned char const tab64[64] = {
         63,  0, 58,  1, 59, 47, 53,  2,
         60, 39, 48, 27, 54, 33, 42,  3,
         61, 51, 37, 40, 49, 18, 28, 20,

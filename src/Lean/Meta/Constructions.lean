@@ -8,6 +8,7 @@ import Lean.AuxRecursor
 import Lean.AddDecl
 import Lean.Meta.AppBuilder
 import Lean.Meta.CompletionName
+import Lean.Meta.Constructions.Below
 
 namespace Lean
 
@@ -15,7 +16,6 @@ namespace Lean
 @[extern "lean_mk_cases_on"] opaque mkCasesOnImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
 @[extern "lean_mk_no_confusion_type"] opaque mkNoConfusionTypeCoreImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
 @[extern "lean_mk_no_confusion"] opaque mkNoConfusionCoreImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
-@[extern "lean_mk_below"] opaque mkBelowImp (env : Environment) (declName : @& Name) (ibelow : Bool) : Except KernelException Declaration
 @[extern "lean_mk_brec_on"] opaque mkBRecOnImp (env : Environment) (declName : @& Name) (ind : Bool) : Except KernelException Declaration
 
 open Meta
@@ -35,21 +35,6 @@ def mkCasesOn (declName : Name) : MetaM Unit := do
   setReducibleAttribute name
   modifyEnv fun env => markAuxRecursor env name
   modifyEnv fun env => addProtected env name
-
-private def mkBelowOrIBelow (declName : Name) (ibelow : Bool) : MetaM Unit := do
-  let .inductInfo indVal ← getConstInfo declName | return
-  unless indVal.isRec do return
-  if ← isPropFormerType indVal.type then return
-
-  let decl ← ofExceptKernelException (mkBelowImp (← getEnv) declName ibelow)
-  let name := decl.definitionVal!.name
-  addDecl decl
-  setReducibleAttribute name
-  modifyEnv fun env => addToCompletionBlackList env name
-  modifyEnv fun env => addProtected env name
-
-def mkBelow (declName : Name) : MetaM Unit := mkBelowOrIBelow declName true
-def mkIBelow (declName : Name) : MetaM Unit := mkBelowOrIBelow declName false
 
 private def mkBRecOrBInductionOn (declName : Name) (ind : Bool) : MetaM Unit := do
   let .inductInfo indVal ← getConstInfo declName | return

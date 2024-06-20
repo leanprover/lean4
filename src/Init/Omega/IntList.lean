@@ -173,7 +173,7 @@ theorem mul_neg_left (xs ys : IntList) : (-xs) * ys = -(xs * ys) := by
 attribute [local simp] add_def neg_def sub_def in
 theorem sub_eq_add_neg (xs ys : IntList) : xs - ys = xs + (-ys) := by
   induction xs generalizing ys with
-  | nil => simp; rfl
+  | nil => simp
   | cons x xs ih =>
     cases ys with
     | nil => simp

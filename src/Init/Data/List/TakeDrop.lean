@@ -316,7 +316,7 @@ theorem take_reverse {α} {xs : List α} (n : Nat) (h : n ≤ xs.length) :
     have : (n + 1) % m < m := Nat.mod_lt _ (by omega)
     omega
 
-/-! ### rotateLeft -/
+/-! ### rotateRight -/
 
 @[simp] theorem rotateRight_replicate (n) (a : α) : rotateRight (replicate m a) n = replicate m a := by
   cases n with

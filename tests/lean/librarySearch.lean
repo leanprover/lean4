@@ -156,7 +156,23 @@ end synonym
 #guard_msgs in
 example : ∀ P : Prop, ¬(P ↔ ¬P) := by apply?
 
+-- Copy of P for testing purposes.
+inductive Q : Nat → Prop
+  | gt_in_head {n : Nat} : n < 0 → Q n
+
+theorem p_iff_q (i : Nat) : P i ↔ Q i :=
+  Iff.intro (fun ⟨i⟩ => Q.gt_in_head i) (fun ⟨i⟩ => P.gt_in_head i)
+
 -- We even find `iff` results:
+
+/-- info: Try this: exact (p_iff_q a).mp h -/
+#guard_msgs in
+example {a : Nat} (h : P a) : Q a := by apply?
+
+/-- info: Try this: exact (p_iff_q a).mpr h -/
+#guard_msgs in
+example {a : Nat} (h : Q a) : P a := by apply?
+
 /-- info: Try this: exact (Nat.dvd_add_iff_left h₁).mpr h₂ -/
 #guard_msgs in
 example {a b c : Nat} (h₁ : a ∣ c) (h₂ : a ∣ b + c) : a ∣ b := by apply?

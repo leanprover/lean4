@@ -1784,7 +1784,7 @@ static inline uint64_t lean_uint64_log2(uint64_t a) {
     a |= a >> 8;
     a |= a >> 16;
     a |= a >> 32;
-    return tab64[(static_cast<uint64_t>((a - (a >> 1)) * 0x07EDD5E59A4E28C2)) >> 58];
+    return tab64[((uint64_t)((a - (a >> 1)) * 0x07EDD5E59A4E28C2)) >> 58];
 }
 static inline uint8_t lean_uint64_dec_eq(uint64_t a1, uint64_t a2) { return a1 == a2; }
 static inline uint8_t lean_uint64_dec_lt(uint64_t a1, uint64_t a2) { return a1 < a2; }

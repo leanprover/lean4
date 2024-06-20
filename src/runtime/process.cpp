@@ -236,7 +236,9 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
 
     // Create the child process.
     bool bSuccess = CreateProcess(
-        program.c_str(),
+        // Passing `program` here should be more robust, but would require adding a `.exe` extension
+        // where necessary
+        NULL, //program.c_str(),
         const_cast<char *>(command.c_str()), // command line
         NULL,                                // process security attributes
         NULL,                                // primary thread security attributes

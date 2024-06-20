@@ -453,7 +453,9 @@ first use `env.getModuleIdxFor? n`. If it returns `none`, look up `n` in the cur
 (the `NameMap`). If it returns `some idx`, use `ext.getModuleEntries env idx` to get an array, and
 query it using `Array.binSearch`. This imposes a constraint that the extension can only track
 metadata declared in the same module as the definition to which it applies; relaxing this
-restriction can make queries slower due to needing to search _all_ modules.
+restriction can make queries slower due to needing to search _all_ modules, in which case
+it is usually better to initialize the state of type `σ` once from all imported entries and choose
+a more efficient search datastructure for it.
 
 Note that `addEntryFn` is not in `IO`. This is intentional, and allows us to write simple functions
 such as

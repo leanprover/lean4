@@ -1810,7 +1810,7 @@ static inline uint64_t lean_uint64_log2(uint64_t a) {
 // Multiplying the magic number 0x03F6EAF2CD271461 to `2 ^ n - 1` for `n = 0` to `63`
 // maps its significant `6` bits from `0` to `63`.
 // `table` satisfies `n` -> `m = 2 ^ n - 1` -> `(m * 0x03F6EAF2CD271461) mod 2 ^ 64` -- table -> `n`.
-    return tab64[(uint64_t)(a * 0x03F6EAF2CD271461) >> 58];
+    return table[(uint64_t)(a * 0x03F6EAF2CD271461) >> 58];
 }
 static inline uint8_t lean_uint64_dec_eq(uint64_t a1, uint64_t a2) { return a1 == a2; }
 static inline uint8_t lean_uint64_dec_lt(uint64_t a1, uint64_t a2) { return a1 < a2; }

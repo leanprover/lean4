@@ -1632,12 +1632,18 @@ static inline uint8_t lean_uint8_modn(uint8_t a1, b_lean_obj_arg a2) {
     }
 }
 static inline uint8_t lean_uint8_log2(uint8_t a) {
-    uint8_t res = 0;
-    while (a >= 2) {
-        res++;
-        a /= 2;
-    }
-    return res;
+    static unsigned char const table[8] = {5, 0, 3, 1, 4, 7, 2, 6};
+
+// Maps `a` to the smallest `2 ^ n - 1` form not greater than `a`.
+    a |= a >> 1;
+    a |= a >> 2;
+    a |= a >> 4;
+    a |= a >> 8;
+
+// Multiplying the magic number 0x27 to `2 ^ n - 1` for `n = 0` to `7`
+// maps its significant `3` bits from `0` to `7`.
+// `table` satisfies `n` -> `m = 2 ^ n - 1` -> `(m * 0x07C4ACDD) mod 2 ^ 8` -- table -> `n`.
+    return table[(std::uint8_t)(a * Ox27) >> 5];
 }
 static inline uint8_t lean_uint8_dec_eq(uint8_t a1, uint8_t a2) { return a1 == a2; }
 static inline uint8_t lean_uint8_dec_lt(uint8_t a1, uint8_t a2) { return a1 < a2; }
@@ -1676,12 +1682,15 @@ static inline uint16_t lean_uint16_modn(uint16_t a1, b_lean_obj_arg a2) {
     }
 }
 static inline uint16_t lean_uint16_log2(uint16_t a) {
-    uint16_t res = 0;
-    while (a >= 2) {
-        res++;
-        a /= 2;
-    }
-    return res;
+// Maps `a` to the smallest `2 ^ n - 1` form not greater than `a`.
+    a |= a >> 1;
+    a |= a >> 2;
+    a |= a >> 4;
+    a |= a >> 8;
+
+// Multiplying the magic number 0xF09B to `2 ^ n - 1` for `n = 0` to `15`
+// maps its significant `4` bits to `(16 - n) mod 16`.
+    return (16 - (uint16_t)(a * 0xF09B)) & 0xF;
 }
 static inline uint8_t lean_uint16_dec_eq(uint16_t a1, uint16_t a2) { return a1 == a2; }
 static inline uint8_t lean_uint16_dec_lt(uint16_t a1, uint16_t a2) { return a1 < a2; }
@@ -1724,12 +1733,23 @@ static inline uint32_t lean_uint32_modn(uint32_t a1, b_lean_obj_arg a2) {
     }
 }
 static inline uint32_t lean_uint32_log2(uint32_t a) {
-    uint32_t res = 0;
-    while (a >= 2) {
-        res++;
-        a /= 2;
-    }
-    return res;
+    static unsigned char const table[32] = {
+         0,  9,  1, 10, 13, 21,  2, 29,
+        11, 14, 16, 18, 22, 25,  3, 30,
+         8, 12, 20, 28, 15, 17, 24,  7,
+        19, 27, 23,  6, 26,  5,  4, 31};
+
+// Maps `a` to the smallest `2 ^ n - 1` form not greater than `a`.
+    a |= a >> 1;
+    a |= a >> 2;
+    a |= a >> 4;
+    a |= a >> 8;
+    a |= a >> 16;
+
+// Multiplying the magic number 0x07C4ACDD to `2 ^ n - 1` for `n = 0` to `31`
+// maps its significant `5` bits from `0` to `31`.
+// `table` satisfies `n` -> `m = 2 ^ n - 1` -> `(m * 0x07C4ACDD) mod 2 ^ 32` -- table -> `n`.
+    return table[(uint32_t)(a * 0x07C4ACDD) >> 27];
 }
 static inline uint8_t lean_uint32_dec_eq(uint32_t a1, uint32_t a2) { return a1 == a2; }
 static inline uint8_t lean_uint32_dec_lt(uint32_t a1, uint32_t a2) { return a1 < a2; }
@@ -1769,22 +1789,28 @@ static inline uint64_t lean_uint64_modn(uint64_t a1, b_lean_obj_arg a2) {
     }
 }
 static inline uint64_t lean_uint64_log2(uint64_t a) {
-    unsigned char const tab64[64] = {
-        63,  0, 58,  1, 59, 47, 53,  2,
-        60, 39, 48, 27, 54, 33, 42,  3,
-        61, 51, 37, 40, 49, 18, 28, 20,
-        55, 30, 34, 11, 43, 14, 22,  4,
-        62, 57, 46, 52, 38, 26, 32, 41,
-        50, 36, 17, 19, 29, 10, 13, 21,
-        56, 45, 25, 31, 35, 16,  9, 12,
-        44, 24, 15,  8, 23,  7,  6,  5};
+    static unsigned char const table[64] = {
+         0, 58,  1, 59, 47, 53,  2, 60,
+        39, 48, 27, 54, 33, 42,  3, 61,
+        51, 37, 40, 49, 18, 28, 20, 55,
+        30, 34, 11, 43, 14, 22,  4, 62,
+        57, 46, 52, 38, 26, 32, 41, 50,
+        36, 17, 19, 29, 10, 13, 21, 56,
+        45, 25, 31, 35, 16,  9, 12, 44,
+        24, 15,  8, 23,  7,  6,  5, 63};
+
+// Maps `a` to the smallest `2 ^ n - 1` form not greater than `a`.
     a |= a >> 1;
     a |= a >> 2;
     a |= a >> 4;
     a |= a >> 8;
     a |= a >> 16;
     a |= a >> 32;
-    return tab64[((uint64_t)((a - (a >> 1)) * 0x07EDD5E59A4E28C2)) >> 58];
+
+// Multiplying the magic number 0x03F6EAF2CD271461 to `2 ^ n - 1` for `n = 0` to `63`
+// maps its significant `6` bits from `0` to `63`.
+// `table` satisfies `n` -> `m = 2 ^ n - 1` -> `(m * 0x03F6EAF2CD271461) mod 2 ^ 64` -- table -> `n`.
+    return tab64[(uint64_t)(a * 0x03F6EAF2CD271461) >> 58];
 }
 static inline uint8_t lean_uint64_dec_eq(uint64_t a1, uint64_t a2) { return a1 == a2; }
 static inline uint8_t lean_uint64_dec_lt(uint64_t a1, uint64_t a2) { return a1 < a2; }

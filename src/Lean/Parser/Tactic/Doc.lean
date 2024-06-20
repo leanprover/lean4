@@ -7,10 +7,21 @@ prelude
 import Lean.Attributes
 import Lean.DocString
 import Lean.Elab.InfoTree.Main
+import Lean.Parser.Extension
 
 set_option linter.missingDocs true
 
 namespace Lean.Parser.Tactic.Doc
+
+open Lean.Parser (registerParserAttributeHook)
+
+/-- Check whether a name is a tactic syntax kind -/
+def isTactic (env : Environment) (kind : Name) : Bool := Id.run do
+  let some tactics := (Lean.Parser.parserExtension.getState env).categories.find? `tactic
+    | return false
+  for (tac, _) in tactics.kinds do
+    if kind == tac then return true
+  return false
 
 /--
 Stores a collection of tactic aliases, to track which new syntax rules represent new forms of
@@ -60,9 +71,14 @@ builtin_initialize
       unless ((← getEnv).getModuleIdxFor? decl).isNone do
         throwError "invalid attribute '{name}', declaration is in an imported module"
       let .node _ _ #[.atom _ "tactic_alias", tgt] := stx
-        | throwError "invalid '{name}' attribute {stx}"
+        | throwError "invalid syntax for '{name}' attribute"
 
       let tgtName ← Lean.Elab.realizeGlobalConstNoOverloadWithInfo tgt
+
+      if !(isTactic (← getEnv) tgtName) then throwErrorAt tgt "'{tgtName}' is not a tactic"
+      -- If this condition is true, then we're in an `attribute` command and can validate here.
+      if (← getEnv).find? decl |>.isSome then
+        if !(isTactic (← getEnv) decl) then throwError "'{decl}' is not a tactic"
 
       if let some tgt' := aliasOfTactic (← getEnv) tgtName then
         throwError "'{tgtName}' is itself an alias of '{tgt'}'"
@@ -72,8 +88,14 @@ builtin_initialize
           logWarningAt stx m!"Replacing docstring for '{decl}' with the one from '{tgtName}'"
         addDocString decl docs
     descr := "Register a tactic parser as an alias of an existing tactic, so they can be grouped together in documentation.",
-    applicationTime := .afterTypeChecking
+    -- This runs prior to elaboration because it allows a check for whether the decl is present
+    -- in the environment to determine whether we can see if it's a tactic name. This is useful
+    -- when the attribute is applied after definition, using an `attribute` command (error checking
+    -- for the `@[tactic_alias TAC]` syntax is performed by the parser attribute hook). If this
+    -- attribute ran later, then the decl would already be present.
+    applicationTime := .beforeElaboration
   }
+
 
 /--
 The known tactic tags that allow tactics to be grouped by purpose.
@@ -137,12 +159,17 @@ some other purpose, consider a new representation.
 The first projection in each pair is the tactic name, and the second is the tag name.
 -/
 builtin_initialize tacticTagExt
-    : PersistentEnvExtension (Name × Name) (Name × Name) (Array (Name × Name)) ←
+    : PersistentEnvExtension (Name × Name) (Name × Name) (NameMap NameSet) ←
   registerPersistentEnvExtension {
     mkInitial := pure {},
-    addImportedFn := fun _ => pure #[],
-    addEntryFn := Array.push,
-    exportEntriesFn := id
+    addImportedFn := fun _ => pure {},
+    addEntryFn := fun tags (decl, newTag) => tags.insert decl (tags.findD decl {} |>.insert newTag)
+    exportEntriesFn := fun tags => Id.run do
+      let mut exported := #[]
+      for (decl, dTags) in tags do
+        for t in dTags do
+          exported := exported.push (decl, t)
+      exported
   }
 
 builtin_initialize
@@ -152,10 +179,15 @@ builtin_initialize
     ref := by exact decl_name%,
     add := fun decl stx kind => do
       unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
-      let .node _ `Lean.Parser.Attr.tactic_tag #[_, .node _ _ tags] := stx
+      let .node _ `Lean.Parser.Attr.tactic_tag #[_kw, .node _ _ tags] := stx
         | throwError "invalid '{name}' attribute"
+      if (← getEnv).find? decl |>.isSome then
+        if !(isTactic (← getEnv) decl) then
+          throwErrorAt stx "'{decl}' is not a tactic"
+
       if let some tgt' := aliasOfTactic (← getEnv) decl then
-        throwError "'{decl}' is an alias of '{tgt'}'"
+        throwErrorAt stx "'{decl}' is an alias of '{tgt'}'"
+
       for t in tags do
         let tagName := t.getId
         if let some _ ← tagInfo tagName then
@@ -179,7 +211,12 @@ builtin_initialize
           throwErrorAt t (m!"unknown tag '{tagName}' " ++ extra)
     descr := "Register a tactic parser as an alias of an existing tactic, so they can be " ++
       "grouped together in documentation.",
-    applicationTime := .afterTypeChecking
+    -- This runs prior to elaboration because it allows a check for whether the decl is present
+    -- in the environment to determine whether we can see if it's a tactic name. This is useful
+    -- when the attribute is applied after definition, using an `attribute` command (error checking
+    -- for the `@[tactic_tag ...]` syntax is performed by the parser attribute hook). If this
+    -- attribute ran later, then the decl would already be present.
+    applicationTime := .beforeElaboration
   }
 
 /--
@@ -223,3 +260,25 @@ where
     | [] => ""
     | [l] => " * " ++ l ++ "\n\n"
     | l::ls => " * " ++ l ++ "\n" ++ String.join (ls.map indentLine) ++ "\n\n"
+
+
+-- Note: this error handler doesn't prevent all cases of non-tactics being added to the data
+-- structure. But the module will throw errors during elaboration, and there doesn't seem to be
+-- another way to implement this, because the category parser extension attribute runs *after* the
+-- attributes specified before a `syntax` command.
+/--
+Validate that a tactic alias is actually a tactic and that syntax tagged as tactics are tactics
+-/
+def tacticDocsOnTactics : ParserAttributeHook where
+  postAdd (catName declName : Name) (_builtIn : Bool) := do
+    if catName == `tactic then return
+    if aliasOfTactic (← getEnv) declName |>.isSome then
+      throwError m!"'{declName}' is not a tactic"
+    -- It's sufficient to look in the state (and not the imported entries) because this validation
+    -- only needs to check tags added in the current module
+    if let some tags := tacticTagExt.getState (← getEnv) |>.find? declName then
+      if !tags.isEmpty then
+        throwError m!"'{declName}' is not a tactic"
+
+builtin_initialize
+  registerParserAttributeHook tacticDocsOnTactics

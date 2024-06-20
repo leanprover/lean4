@@ -37,7 +37,9 @@ private def asStrLit? : Syntax → Option StrLit
       | throwErrorAt cmd "Malformed documentation comment ({docComment})"
     let tacName ← liftTermElabM <| realizeGlobalConstNoOverloadWithInfo tac
     if let some tgt' := aliasOfTactic (← getEnv) tacName then
-        throwError "'{tacName}' is an alias of '{tgt'}'"
+        throwErrorAt tac "'{tacName}' is an alias of '{tgt'}'"
+    if !(isTactic (← getEnv) tacName) then throwErrorAt tac "'{tacName}' is not a tactic"
+
     modifyEnv (tacticDocExtExt.addEntry · (tacName, docComment.getDocString))
     pure ()
   | _ => throwError "Malformed tactic extension command"
@@ -113,7 +115,7 @@ Displays all available tactic tags, with documentation.
 @[builtin_command_elab printTacTags] def elabPrintTacTags : CommandElab := fun _stx => do
   let all :=
     tacticTagExt.toEnvExtension.getState (← getEnv)
-      |>.importedEntries |>.push (tacticTagExt.getState (← getEnv))
+      |>.importedEntries |>.push (tacticTagExt.exportEntriesFn (tacticTagExt.getState (← getEnv)))
   let mut mapping : NameMap NameSet := {}
   for arr in all do
     for (tac, tag) in arr do
@@ -163,7 +165,7 @@ def allTacticDocs : MetaM (Array TacticDoc) := do
   let env ← getEnv
   let all :=
     tacticTagExt.toEnvExtension.getState (← getEnv)
-      |>.importedEntries |>.push (tacticTagExt.getState (← getEnv))
+      |>.importedEntries |>.push (tacticTagExt.exportEntriesFn (tacticTagExt.getState (← getEnv)))
   let mut tacTags : NameMap NameSet := {}
   for arr in all do
     for (tac, tag) in arr do

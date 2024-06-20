@@ -35,9 +35,74 @@ attribute [tactic_tag finishing] Lean.Parser.Tactic.omega
 
 attribute [tactic_tag ctrl] Lean.Parser.Tactic.«tactic_<;>_»
 
+/-!
+# Error Handling
+
+Test error handling. Non-tactics are not eligible to be the target of aliases, to be aliases, or to
+receive tags or doc extensions.
+-/
+
+/-! These tests check that non-tactics can't be aliases -/
+
+/-- error: 'nonTacticTm' is not a tactic -/
+#guard_msgs in
+@[tactic_alias my_trivial]
+syntax (name := nonTacticTm) "nonTactic" : term
+
+syntax (name := nonTacticTm') "nonTactic'" : term
+
+/-- error: 'nonTacticTm'' is not a tactic -/
+#guard_msgs in
+attribute [tactic_alias my_trivial] nonTacticTm'
+
+/-! These tests check that non-tactics can't be aliased -/
+
+/-- error: 'nonTacticTm' is not a tactic -/
+#guard_msgs in
+@[tactic_alias nonTacticTm]
+syntax (name := itsATactic) "yepATactic" : tactic
+
+syntax (name := itsATactic') "yepATactic'" : tactic
+
+/-- error: 'nonTacticTm' is not a tactic -/
+#guard_msgs in
+attribute [tactic_alias nonTacticTm] itsATactic'
+
+
+/-! These tests check that non-tactics can't receive tags -/
+
+/-- error: 'tm' is not a tactic -/
+#guard_msgs in
+@[tactic_tag finishing]
+syntax (name := tm) "someTerm" : term
+
+
+/-- error: 'tm' is not a tactic -/
+#guard_msgs in
+attribute [tactic_tag ctrl] tm
+
+/-! These tests check that only known tags may be applied -/
+
 /-- error: unknown tag 'bogus' (expected one of 'ctrl', 'extensible', 'finishing') -/
 #guard_msgs in
 attribute [tactic_tag bogus] my_trivial
+
+/-- error: unknown tag 'bogus' (expected one of 'ctrl', 'extensible', 'finishing') -/
+#guard_msgs in
+@[tactic_tag bogus]
+syntax "someTactic" : tactic
+
+/-! Check that only canonical tactics may receive doc extensions -/
+
+/-- error: 'nonTacticTm'' is not a tactic -/
+#guard_msgs in
+/-- Some docs that don't belong here -/
+tactic_extension nonTacticTm'
+
+/-- error: 'very_trivial' is an alias of 'my_trivial' -/
+#guard_msgs in
+/-- Some docs that don't belong here -/
+tactic_extension very_trivial
 
 /--
 info: Available tags: ⏎
@@ -49,7 +114,7 @@ info: Available tags: ⏎
     'my_trivial'
   • 'finishing'
     Finishing tactics that are intended to completely close a goal ⏎
-    'omega', 'my_trivial'
+    'omega', 'my_trivial', 'someTerm'
 -/
 #guard_msgs in
 #print tactic tags

@@ -437,12 +437,12 @@ complete, the state of type `σ` is converted to serialized state of type `Array
 modify it, use `PersistentEnvExtension.addEntry`, with an `addEntryFn` that performs the appropriate
 modification.
 
-When a module is loaded, the values saved for all of its dependencies' `PersistentEnvExtension`s are
-deserialized into an array. These values are available with type `Array (Array α)` via the
-environment extension, with one array per transitively imported module. The state of type `σ` used
+When a module is loaded, the values saved by all of its dependencies for this `PersistentEnvExtension` are
+are available as an `Array (Array α)` via the environment extension,
+with one array per transitively imported module. The state of type `σ` used
 in the current module can be initialized from these imports, but it's usually better for performance
-to query the array of imported modules directly, because this code must be run every time a module
-is loaded.
+to query the array of imported modules directly, because only a fraction of imported entries is usually
+queried during elaboration of a module.
 
 The most typical pattern for using `PersistentEnvExtension` is to set `σ` to a datatype such as
 `NameMap` that efficiently tracks data for the current module. Then, in `exportEntriesFn`, this type

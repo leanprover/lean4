@@ -429,7 +429,8 @@ An environment extension with support for storing/retrieving entries from a .ole
  - β is the type of values used to update the state.
  - σ is the actual state.
 
-For most extensions, α and β coincide.
+For most extensions, α and β coincide. `α` and ‵β` do not coincide for extensions where the data
+used to update the state contains, for example, closures which we currently cannot store in files.
 
 During elaboration of a module, state of type `σ` can be both read and written. When elaboration is
 complete, the state of type `σ` is converted to serialized state of type `Array α` by
@@ -437,37 +438,35 @@ complete, the state of type `σ` is converted to serialized state of type `Array
 modify it, use `PersistentEnvExtension.addEntry`, with an `addEntryFn` that performs the appropriate
 modification.
 
-When a module is loaded, the values saved by all of its dependencies for this `PersistentEnvExtension` are
-are available as an `Array (Array α)` via the environment extension,
-with one array per transitively imported module. The state of type `σ` used
-in the current module can be initialized from these imports, but it's usually better for performance
-to query the array of imported modules directly, because only a fraction of imported entries is usually
+When a module is loaded, the values saved by all of its dependencies for this
+`PersistentEnvExtension` are are available as an `Array (Array α)` via the environment extension,
+with one array per transitively imported module. The state of type `σ` used in the current module
+can be initialized from these imports by specifying a suitable `addImportedFn`. The `addImportedFn`
+runs at the beginning of elaboration for every module, so it's usually better for performance to
+query the array of imported modules directly, because only a fraction of imported entries is usually
 queried during elaboration of a module.
 
 The most typical pattern for using `PersistentEnvExtension` is to set `σ` to a datatype such as
 `NameMap` that efficiently tracks data for the current module. Then, in `exportEntriesFn`, this type
 is converted to an array of pairs, sorted by the key. Given `ext : PersistentEnvExtension α β σ` and
 `env : Environment`, the complete array of imported entries sorted by module index can be obtained
-using `(ext.toEnvExtension.getState env).importedEntries`. To query the extension for some name `n`,
-first use `env.getModuleIdxFor? n`. If it returns `none`, look up `n` in the current module's state
-(the `NameMap`). If it returns `some idx`, use `ext.getModuleEntries env idx` to get an array, and
-query it using `Array.binSearch`. This imposes a constraint that the extension can only track
-metadata declared in the same module as the definition to which it applies; relaxing this
-restriction can make queries slower due to needing to search _all_ modules, in which case
-it is usually better to initialize the state of type `σ` once from all imported entries and choose
-a more efficient search datastructure for it.
+using `(ext.toEnvExtension.getState env).importedEntries`. To query the extension for some constant
+name `n`, first use `env.getModuleIdxFor? n`. If it returns `none`, look up `n` in the current
+module's state (the `NameMap`). If it returns `some idx`, use `ext.getModuleEntries env idx` to get
+the array of entries for `n`'s defining module, and query it using `Array.binSearch`. This pattern
+imposes a constraint that the extension can only track metadata that is declared in the same module
+as the definition to which it applies; relaxing this restriction can make queries slower due to
+needing to search _all_ modules. If it is necessary to search all modules, it is usually better to
+initialize the state of type `σ` once from all imported entries and choose a more efficient search
+datastructure for it.
 
 Note that `addEntryFn` is not in `IO`. This is intentional, and allows us to write simple functions
 such as
-
 ```
 def addAlias (env : Environment) (a : Name) (e : Name) : Environment :=
 aliasExtension.addEntry env (a, e)
 ```
 without using `IO`. We have many functions like `addAlias`.
-
-`α` and ‵β` do not coincide for extensions where the data used to update the state contains, for
-example, closures which we currently cannot store in files.
 -/
 structure PersistentEnvExtension (α : Type) (β : Type) (σ : Type) where
   toEnvExtension  : EnvExtension (PersistentEnvExtensionState α σ)

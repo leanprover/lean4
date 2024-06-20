@@ -430,7 +430,7 @@ An environment extension with support for storing/retrieving entries from a .ole
  - σ is the actual state.
 
 For most extensions, α and β coincide. `α` and ‵β` do not coincide for extensions where the data
-used to update the state contains elements which cannot be stored in files (for example, closures) .
+used to update the state contains elements which cannot be stored in files (for example, closures).
 
 During elaboration of a module, state of type `σ` can be both read and written. When elaboration is
 complete, the state of type `σ` is converted to serialized state of type `Array α` by

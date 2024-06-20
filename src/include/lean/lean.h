@@ -1769,12 +1769,22 @@ static inline uint64_t lean_uint64_modn(uint64_t a1, b_lean_obj_arg a2) {
     }
 }
 static inline uint64_t lean_uint64_log2(uint64_t a) {
-    uint64_t res = 0;
-    while (a >= 2) {
-        res++;
-        a /= 2;
-    }
-    return res;
+    alignas(64) unsigned char const tab64[64] = {
+        63,  0, 58,  1, 59, 47, 53,  2,
+        60, 39, 48, 27, 54, 33, 42,  3,
+        61, 51, 37, 40, 49, 18, 28, 20,
+        55, 30, 34, 11, 43, 14, 22,  4,
+        62, 57, 46, 52, 38, 26, 32, 41,
+        50, 36, 17, 19, 29, 10, 13, 21,
+        56, 45, 25, 31, 35, 16,  9, 12,
+        44, 24, 15,  8, 23,  7,  6,  5};
+    a |= a >> 1;
+    a |= a >> 2;
+    a |= a >> 4;
+    a |= a >> 8;
+    a |= a >> 16;
+    a |= a >> 32;
+    return tab64[(static_cast<uint64_t>((a - (a >> 1)) * 0x07EDD5E59A4E28C2)) >> 58];
 }
 static inline uint8_t lean_uint64_dec_eq(uint64_t a1, uint64_t a2) { return a1 == a2; }
 static inline uint8_t lean_uint64_dec_lt(uint64_t a1, uint64_t a2) { return a1 < a2; }

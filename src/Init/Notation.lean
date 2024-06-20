@@ -704,6 +704,27 @@ syntax (name := checkSimp) "#check_simp " term "~>" term : command
 syntax (name := checkSimpFailure) "#check_simp " term "!~>" : command
 
 /--
+`#discr_tree_key  t` prints the discrimination tree keys for the type of a term `t` or an identifier.
+It uses the default configuration for generating keys.
+
+For example,
+```
+#discr_tree_key (∀ {a n : Nat}, bar a (OfNat.ofNat n) = default)
+-- @Eq Nat (bar _ (@OfNat.ofNat Nat _ _)) (@default Nat _)
+
+#discr_tree_simp_key Nat.add_assoc
+-- @HAdd.hAdd Nat Nat Nat _ (@HAdd.hAdd Nat Nat Nat _ _ _) _
+```
+
+`#discr_tree_sim_key` is similar to `#discr_tree_key`, but it assumes the underlying type is
+an equality and prints the left-hand side using the `simp` configuration for generating keys.
+-/
+syntax (name := discrTreeKeyCmd) "#discr_tree_key " term : command
+
+@[inherit_doc discrTreeKeyCmd]
+syntax (name := discrTreeSimpKeyCmd) "#discr_tree_simp_key" term : command
+
+/--
 The `seal foo` command ensures that the definition of `foo` is sealed, meaning it is marked as `[irreducible]`.
 This command is particularly useful in contexts where you want to prevent the reduction of `foo` in proofs.
 

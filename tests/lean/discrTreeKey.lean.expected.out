@@ -1,0 +1,13 @@
+@Eq Nat (bar _ (@OfNat.ofNat Nat _ _)) (@default Nat _)
+bar _ (@OfNat.ofNat Nat _ _)
+@Eq Nat (bar _ _) (@default Nat _)
+@HAdd.hAdd Nat Nat Nat _ (@HAdd.hAdd Nat Nat Nat _ _ _) _
+@Eq _ (@HAdd.hAdd _ _ _ _ (@HAdd.hAdd _ _ _ _ _ _) _) (@HAdd.hAdd _ _ _ _ _ (@HAdd.hAdd _ _ _ _ _ _))
+@HAdd.hAdd _ _ _ _ (@HAdd.hAdd _ _ _ _ _ _) _
+Add (Wrapper _)
+@HAdd.hAdd _ _ _ _ (@HAdd.hAdd _ _ _ _ _ _) _
+@Eq _ (@HAdd.hAdd _ _ _ _ (@HAdd.hAdd _ _ _ _ _ _) _) (@HAdd.hAdd _ _ _ _ _ (@HAdd.hAdd _ _ _ _ _ _))
+@HAdd.hAdd β β β _ (@HAdd.hAdd (Wrapper β) (Wrapper β) (Wrapper β) _ x✝² x✝¹).1 x✝.1
+discrTreeKey.lean:44:0-44:8: warning: declaration uses 'sorry'
+@HAdd.hAdd β β β _ (@HAdd.hAdd β β β _ _ _) _
+@HAdd.hAdd β β β _ (@HAdd.hAdd β β β _ x✝².1 x✝¹.1) x✝.1

@@ -81,9 +81,13 @@ def Modifiers.isNonrec : Modifiers → Bool
   | { recKind := .nonrec, .. } => true
   | _                          => false
 
-/-- Store `attr` in `modifiers` -/
-def Modifiers.addAttribute (modifiers : Modifiers) (attr : Attribute) : Modifiers :=
+/-- Adds attribute `attr` in `modifiers` -/
+def Modifiers.addAttr (modifiers : Modifiers) (attr : Attribute) : Modifiers :=
   { modifiers with attrs := modifiers.attrs.push attr }
+
+/-- Filters attributes using `p` -/
+def Modifiers.filterAttrs (modifiers : Modifiers) (p : Attribute → Bool) : Modifiers :=
+  { modifiers with attrs := modifiers.attrs.filter p }
 
 instance : ToFormat Modifiers := ⟨fun m =>
   let components : List Format :=

@@ -135,8 +135,8 @@ open Meta
 def mkDefViewOfAbbrev (modifiers : Modifiers) (stx : Syntax) : DefView :=
   -- leading_parser "abbrev " >> declId >> optDeclSig >> declVal
   let (binders, type) := expandOptDeclSig stx[2]
-  let modifiers       := modifiers.addAttribute { name := `inline }
-  let modifiers       := modifiers.addAttribute { name := `reducible }
+  let modifiers       := modifiers.addAttr { name := `inline }
+  let modifiers       := modifiers.addAttr { name := `reducible }
   { ref := stx, headerRef := mkNullNode stx.getArgs[:3], kind := DefKind.abbrev, modifiers,
     declId := stx[1], binders, type? := type, value := stx[3] }
 
@@ -159,7 +159,7 @@ def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
   let prio            ← liftMacroM <| expandOptNamedPrio stx[2]
   let attrStx         ← `(attr| instance $(quote prio):num)
   let (binders, type) := expandDeclSig stx[4]
-  let modifiers       := modifiers.addAttribute { kind := attrKind, name := `instance, stx := attrStx }
+  let modifiers       := modifiers.addAttr { kind := attrKind, name := `instance, stx := attrStx }
   let declId ← match stx[3].getOptional? with
     | some declId =>
       if ← isTracingEnabledFor `Elab.instance.mkInstanceName then

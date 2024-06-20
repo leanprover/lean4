@@ -47,11 +47,11 @@ protected theorem ne_of_val_ne {a b : $typeName} (h : a.val ≠ b.val) : a ≠ b
 open $typeName (ne_of_val_ne) in
 protected theorem ne_of_lt {a b : $typeName} (h : a < b) : a ≠ b := ne_of_val_ne (Fin.ne_of_lt h)
 
-@[simp] protected theorem zero_toNat : (0 : $typeName).toNat = 0 := Nat.zero_mod _
-@[simp] protected theorem mod_toNat (a b : $typeName) : (a % b).toNat = a.toNat % b.toNat := Fin.mod_val ..
-@[simp] protected theorem div_toNat (a b : $typeName) : (a / b).toNat = a.toNat / b.toNat := Fin.div_val ..
-@[simp] protected theorem sub_toNat_of_le (a b : $typeName) : b ≤ a → (a - b).toNat = a.toNat - b.toNat := Fin.sub_val_of_le
-@[simp] protected theorem modn_toNat (a : $typeName) (b : Nat) : (a.modn b).toNat = a.toNat % b := Fin.modn_val ..
+@[simp] protected theorem toNat_zero : (0 : $typeName).toNat = 0 := Nat.zero_mod _
+@[simp] protected theorem toNat_mod (a b : $typeName) : (a % b).toNat = a.toNat % b.toNat := Fin.mod_val ..
+@[simp] protected theorem toNat_div (a b : $typeName) : (a / b).toNat = a.toNat / b.toNat := Fin.div_val ..
+@[simp] protected theorem toNat_sub_of_le (a b : $typeName) : b ≤ a → (a - b).toNat = a.toNat - b.toNat := Fin.sub_val_of_le
+@[simp] protected theorem toNat_modn (a : $typeName) (b : Nat) : (a.modn b).toNat = a.toNat % b := Fin.modn_val ..
 protected theorem modn_lt {m : Nat} : ∀ (u : $typeName), m > 0 → toNat (u % m) < m
   | ⟨u⟩, h => Fin.modn_lt u h
 open $typeName (modn_lt) in

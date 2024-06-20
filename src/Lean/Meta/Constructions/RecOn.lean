@@ -29,8 +29,7 @@ def mkRecOn (n : Name) : MetaM Unit := do
     let value ← mkLambdaFVars vs e
     mkDefinitionValInferrringUnsafe (mkRecOnName n) recInfo.levelParams type value .abbrev
 
-  let name := mkRecOnName n
   addDecl (.defnDecl decl)
-  setReducibleAttribute name
-  modifyEnv fun env => markAuxRecursor env name
-  modifyEnv fun env => addProtected env name
+  setReducibleAttribute decl.name
+  modifyEnv fun env => markAuxRecursor env decl.name
+  modifyEnv fun env => addProtected env decl.name

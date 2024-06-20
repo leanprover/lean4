@@ -82,7 +82,10 @@ fun {α} {motive} t =>
 ```
 -/
 private def mkBelowOrIBelow (indName : Name) (ibelow : Bool) : MetaM Unit := do
-  let indVal ← getConstInfoInduct indName
+  let .inductInfo indVal ← getConstInfo indName | return
+  unless indVal.isRec do return
+  if ← isPropFormerType indVal.type then return
+
   let recName := mkRecName indName
   -- The construction follows the type of `ind.rec`
   let .recInfo recVal ← getConstInfo recName

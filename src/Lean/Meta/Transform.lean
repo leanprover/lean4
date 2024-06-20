@@ -21,7 +21,7 @@ inductive TransformStep where
   For `pre`, this means visiting the children of the expression.
   For `post`, this is equivalent to returning `done`. -/
   | continue (e? : Option Expr := none)
-  deriving Inhabited
+  deriving Inhabited, Repr
 
 namespace Core
 

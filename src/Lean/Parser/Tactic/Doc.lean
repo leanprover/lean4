@@ -24,10 +24,10 @@ def isTactic (env : Environment) (kind : Name) : Bool := Id.run do
   return false
 
 /--
-Stores a collection of tactic aliases, to track which new syntax rules represent new forms of
+Stores a collection of *tactic alternatives*, to track which new syntax rules represent new forms of
 existing tactics.
 -/
-builtin_initialize tacticAliasExt
+builtin_initialize tacticAlternativeExt
     : PersistentEnvExtension (Name × Name) (Name × Name) (NameMap Name) ←
   registerPersistentEnvExtension {
     mkInitial := pure {},
@@ -38,31 +38,32 @@ builtin_initialize tacticAliasExt
   }
 
 /--
-If `tac` is registered as the alias of another tactic, then return the canonical name for it.
+If `tac` is registered as the alternative form of another tactic, then return the canonical name for
+it.
 -/
-def aliasOfTactic (env : Environment) (tac : Name) : Option Name :=
+def alternativeOfTactic (env : Environment) (tac : Name) : Option Name :=
   match env.getModuleIdxFor? tac with
   | some modIdx =>
-    match (tacticAliasExt.getModuleEntries env modIdx).binSearch (tac, .anonymous) (Name.quickLt ·.1 ·.1) with
+    match (tacticAlternativeExt.getModuleEntries env modIdx).binSearch (tac, .anonymous) (Name.quickLt ·.1 ·.1) with
     | some (_, val) => some val
     | none => none
-  | none => tacticAliasExt.getState env |>.find? tac
+  | none => tacticAlternativeExt.getState env |>.find? tac
 
 /--
-Find all aliases of a given canonical tactic name.
+Find all alternatives for a given canonical tactic name.
 -/
 def aliases [Monad m] [MonadEnv m] (tac : Name) : m NameSet := do
   let env ← getEnv
   let mut found := {}
-  for (src, tgt) in tacticAliasExt.getState env do
+  for (src, tgt) in tacticAlternativeExt.getState env do
     if tgt == tac then found := found.insert src
-  for arr in tacticAliasExt.toEnvExtension.getState env |>.importedEntries do
+  for arr in tacticAlternativeExt.toEnvExtension.getState env |>.importedEntries do
     for (src, tgt) in arr do
       if tgt == tac then found := found.insert src
   pure found
 
 builtin_initialize
-  let name := `tactic_alias
+  let name := `tactic_alt
   registerBuiltinAttribute {
     name := name,
     ref := by exact decl_name%,
@@ -70,7 +71,7 @@ builtin_initialize
       unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
       unless ((← getEnv).getModuleIdxFor? decl).isNone do
         throwError "invalid attribute '{name}', declaration is in an imported module"
-      let .node _ _ #[.atom _ "tactic_alias", tgt] := stx
+      let .node _ _ #[.atom _ "tactic_alt", tgt] := stx
         | throwError "invalid syntax for '{name}' attribute"
 
       let tgtName ← Lean.Elab.realizeGlobalConstNoOverloadWithInfo tgt
@@ -80,18 +81,20 @@ builtin_initialize
       if (← getEnv).find? decl |>.isSome then
         if !(isTactic (← getEnv) decl) then throwError "'{decl}' is not a tactic"
 
-      if let some tgt' := aliasOfTactic (← getEnv) tgtName then
-        throwError "'{tgtName}' is itself an alias of '{tgt'}'"
-      modifyEnv fun env => tacticAliasExt.addEntry env (decl, tgtName)
+      if let some tgt' := alternativeOfTactic (← getEnv) tgtName then
+        throwError "'{tgtName}' is itself an alternative for '{tgt'}'"
+      modifyEnv fun env => tacticAlternativeExt.addEntry env (decl, tgtName)
       if let some docs ← findDocString? (← getEnv) tgtName then
         if (← findDocString? (← getEnv) decl).isSome then
           logWarningAt stx m!"Replacing docstring for '{decl}' with the one from '{tgtName}'"
         addDocString decl docs
-    descr := "Register a tactic parser as an alias of an existing tactic, so they can be grouped together in documentation.",
+    descr :=
+      "Register a tactic parser as an alternative form of an existing tactic, so they " ++
+      "can be grouped together in documentation.",
     -- This runs prior to elaboration because it allows a check for whether the decl is present
     -- in the environment to determine whether we can see if it's a tactic name. This is useful
     -- when the attribute is applied after definition, using an `attribute` command (error checking
-    -- for the `@[tactic_alias TAC]` syntax is performed by the parser attribute hook). If this
+    -- for the `@[tactic_alt TAC]` syntax is performed by the parser attribute hook). If this
     -- attribute ran later, then the decl would already be present.
     applicationTime := .beforeElaboration
   }
@@ -185,8 +188,8 @@ builtin_initialize
         if !(isTactic (← getEnv) decl) then
           throwErrorAt stx "'{decl}' is not a tactic"
 
-      if let some tgt' := aliasOfTactic (← getEnv) decl then
-        throwErrorAt stx "'{decl}' is an alias of '{tgt'}'"
+      if let some tgt' := alternativeOfTactic (← getEnv) decl then
+        throwErrorAt stx "'{decl}' is an alternative form of '{tgt'}'"
 
       for t in tags do
         let tagName := t.getId
@@ -209,7 +212,7 @@ builtin_initialize
               m!"(expected {suggestions})"
 
           throwErrorAt t (m!"unknown tag '{tagName}' " ++ extra)
-    descr := "Register a tactic parser as an alias of an existing tactic, so they can be " ++
+    descr := "Register a tactic parser as an alternative of an existing tactic, so they can be " ++
       "grouped together in documentation.",
     -- This runs prior to elaboration because it allows a check for whether the decl is present
     -- in the environment to determine whether we can see if it's a tactic name. This is useful
@@ -267,12 +270,13 @@ where
 -- another way to implement this, because the category parser extension attribute runs *after* the
 -- attributes specified before a `syntax` command.
 /--
-Validate that a tactic alias is actually a tactic and that syntax tagged as tactics are tactics
+Validates that a tactic alternative is actually a tactic and that syntax tagged as tactics are
+tactics.
 -/
 def tacticDocsOnTactics : ParserAttributeHook where
   postAdd (catName declName : Name) (_builtIn : Bool) := do
     if catName == `tactic then return
-    if aliasOfTactic (← getEnv) declName |>.isSome then
+    if alternativeOfTactic (← getEnv) declName |>.isSome then
       throwError m!"'{declName}' is not a tactic"
     -- It's sufficient to look in the state (and not the imported entries) because this validation
     -- only needs to check tags added in the current module

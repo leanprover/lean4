@@ -57,8 +57,8 @@ This has the following effects:
  * The alias relationship is saved
  * The docstring is taken from the original tactic, if present
 -/
-@[builtin_attr_parser] def tactic_alias := leading_parser
-  "tactic_alias" >> ppSpace >> ident
+@[builtin_attr_parser] def tactic_alt := leading_parser
+  "tactic_alt" >> ppSpace >> ident
 
 /--
 Add one or more tags to a tactic.

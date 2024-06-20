@@ -36,8 +36,8 @@ private def asStrLit? : Syntax → Option StrLit
     let some docComment := asDocComment? docComment
       | throwErrorAt cmd "Malformed documentation comment ({docComment})"
     let tacName ← liftTermElabM <| realizeGlobalConstNoOverloadWithInfo tac
-    if let some tgt' := aliasOfTactic (← getEnv) tacName then
-        throwErrorAt tac "'{tacName}' is an alias of '{tgt'}'"
+    if let some tgt' := alternativeOfTactic (← getEnv) tacName then
+        throwErrorAt tac "'{tacName}' is an alternative form of '{tgt'}'"
     if !(isTactic (← getEnv) tacName) then throwErrorAt tac "'{tacName}' is not a tactic"
 
     modifyEnv (tacticDocExtExt.addEntry · (tacName, docComment.getDocString))
@@ -177,7 +177,7 @@ def allTacticDocs : MetaM (Array TacticDoc) := do
     | return #[]
   for (tac, _) in tactics.kinds do
     -- Skip noncanonical tactics
-    if let some _ := aliasOfTactic env tac then continue
+    if let some _ := alternativeOfTactic env tac then continue
     let userName : String ←
       if let some descr := env.find? tac |>.bind (·.value?) then
         if let some tk ← getFirstTk descr then

@@ -10,7 +10,7 @@ import Lean.Parser.Tactic.Doc
 
 namespace Lean.Elab
 
-open Lean.Parser.Tactic.Doc (aliasOfTactic getTacticExtensionString)
+open Lean.Parser.Tactic.Doc (alternativeOfTactic getTacticExtensionString)
 
 /-- Elaborator information with elaborator context.
 
@@ -262,11 +262,11 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
   return none
 where
   /--
-  Find the docstring for a name, resolving tactic aliases and additionally adding tactic extension
-  documentation
+  Find the docstring for a name, resolving tactic alternatives and additionally adding tactic
+  extension documentation
   -/
   docsWithTacExt? env n := do
-    let n := aliasOfTactic env n |>.getD n
+    let n := alternativeOfTactic env n |>.getD n
     return (← findDocString? env n).map (· ++ getTacticExtensionString env n)
 
 /-- Construct a hover popup, if any, from an info node in a context.-/

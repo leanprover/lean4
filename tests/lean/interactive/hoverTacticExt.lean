@@ -8,7 +8,7 @@ Tests that docstring hovers are computed correctly for tactic extensions
 /-- Another `trivial` tactic -/
 syntax (name := my_trivial) "my_trivial" : tactic
 
-@[tactic_alias my_trivial]
+@[tactic_alt my_trivial]
 syntax (name := very_trivial) "very_trivial" : tactic
 macro_rules
 | `(tactic|very_trivial) => `(tactic|my_trivial)
@@ -55,7 +55,7 @@ example : True := by
   my_trivial
       --^ textDocument/hover
 
--- This tests that aliases are resolved
+-- This tests that alts are resolved
 example : True := by
   very_trivial
       --^ textDocument/hover

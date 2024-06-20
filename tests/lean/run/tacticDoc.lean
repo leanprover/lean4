@@ -22,7 +22,7 @@ register_tactic_tag ctrl "control flow"
 @[tactic_tag finishing extensible]
 syntax (name := my_trivial) "my_trivial" : tactic
 
-@[tactic_alias my_trivial]
+@[tactic_alt my_trivial]
 syntax (name := very_trivial) "very_trivial" : tactic
 
 /-- It tries Lean's `trivial` -/
@@ -38,35 +38,35 @@ attribute [tactic_tag ctrl] Lean.Parser.Tactic.«tactic_<;>_»
 /-!
 # Error Handling
 
-Test error handling. Non-tactics are not eligible to be the target of aliases, to be aliases, or to
-receive tags or doc extensions.
+Test error handling. Non-tactics are not eligible to be the target of alternatives, to be
+alternatives themselves, or to receive tags or doc extensions.
 -/
 
-/-! These tests check that non-tactics can't be aliases -/
+/-! These tests check that non-tactics can't be alternative forms of tactics -/
 
 /-- error: 'nonTacticTm' is not a tactic -/
 #guard_msgs in
-@[tactic_alias my_trivial]
+@[tactic_alt my_trivial]
 syntax (name := nonTacticTm) "nonTactic" : term
 
 syntax (name := nonTacticTm') "nonTactic'" : term
 
 /-- error: 'nonTacticTm'' is not a tactic -/
 #guard_msgs in
-attribute [tactic_alias my_trivial] nonTacticTm'
+attribute [tactic_alt my_trivial] nonTacticTm'
 
-/-! These tests check that non-tactics can't be aliased -/
+/-! These tests check that non-tactics can't have tactic alternatives -/
 
 /-- error: 'nonTacticTm' is not a tactic -/
 #guard_msgs in
-@[tactic_alias nonTacticTm]
+@[tactic_alt nonTacticTm]
 syntax (name := itsATactic) "yepATactic" : tactic
 
 syntax (name := itsATactic') "yepATactic'" : tactic
 
 /-- error: 'nonTacticTm' is not a tactic -/
 #guard_msgs in
-attribute [tactic_alias nonTacticTm] itsATactic'
+attribute [tactic_alt nonTacticTm] itsATactic'
 
 
 /-! These tests check that non-tactics can't receive tags -/
@@ -99,7 +99,7 @@ syntax "someTactic" : tactic
 /-- Some docs that don't belong here -/
 tactic_extension nonTacticTm'
 
-/-- error: 'very_trivial' is an alias of 'my_trivial' -/
+/-- error: 'very_trivial' is an alternative form of 'my_trivial' -/
 #guard_msgs in
 /-- Some docs that don't belong here -/
 tactic_extension very_trivial

@@ -26,7 +26,7 @@ open Lsp
 open RequestM
 open Snapshots
 
-open Lean.Parser.Tactic.Doc (aliasOfTactic getTacticExtensionString)
+open Lean.Parser.Tactic.Doc (alternativeOfTactic getTacticExtensionString)
 
 def handleCompletion (p : CompletionParams)
     : RequestM (RequestTask CompletionList) := do
@@ -89,8 +89,8 @@ def handleHover (p : HoverParams)
       let stxDoc? ← match stack? with
         | some stack => stack.findSomeM? fun (stx, _) => do
           let .node _ kind _ := stx | pure none
-          -- If the tactic is an alias, get the docs for the canonical version
-          let kind := aliasOfTactic snap.env kind |>.getD kind
+          -- If the tactic is an alternative form, get the docs for the canonical version
+          let kind := alternativeOfTactic snap.env kind |>.getD kind
           let exts := getTacticExtensionString snap.env kind
           let docStr := (← findDocString? snap.env kind).map (· ++ exts)
           return docStr.map (·, stx.getRange?.get!)

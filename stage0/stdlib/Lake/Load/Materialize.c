@@ -107,7 +107,7 @@ static lean_object* _init_l_Lake_updateGitPkg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -115,7 +115,7 @@ static lean_object* _init_l_Lake_updateGitPkg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": repository '", 14);
+x_1 = lean_mk_string_unchecked(": repository '", 14, 14);
 return x_1;
 }
 }
@@ -123,7 +123,7 @@ static lean_object* _init_l_Lake_updateGitPkg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' has local changes", 19);
+x_1 = lean_mk_string_unchecked("' has local changes", 19, 19);
 return x_1;
 }
 }
@@ -140,7 +140,7 @@ static lean_object* _init_l_Lake_updateGitPkg___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rev-parse", 9);
+x_1 = lean_mk_string_unchecked("rev-parse", 9, 9);
 return x_1;
 }
 }
@@ -158,7 +158,7 @@ static lean_object* _init_l_Lake_updateGitPkg___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("--verify", 8);
+x_1 = lean_mk_string_unchecked("--verify", 8, 8);
 return x_1;
 }
 }
@@ -176,7 +176,7 @@ static lean_object* _init_l_Lake_updateGitPkg___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HEAD", 4);
+x_1 = lean_mk_string_unchecked("HEAD", 4, 4);
 return x_1;
 }
 }
@@ -215,7 +215,7 @@ static lean_object* _init_l_Lake_updateGitPkg___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("git", 3);
+x_1 = lean_mk_string_unchecked("git", 3, 3);
 return x_1;
 }
 }
@@ -223,7 +223,7 @@ static lean_object* _init_l_Lake_updateGitPkg___closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": updating repository '", 23);
+x_1 = lean_mk_string_unchecked(": updating repository '", 23, 23);
 return x_1;
 }
 }
@@ -231,7 +231,7 @@ static lean_object* _init_l_Lake_updateGitPkg___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' to revision '", 15);
+x_1 = lean_mk_string_unchecked("' to revision '", 15, 15);
 return x_1;
 }
 }
@@ -239,7 +239,7 @@ static lean_object* _init_l_Lake_updateGitPkg___closed__16() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -247,7 +247,7 @@ static lean_object* _init_l_Lake_updateGitPkg___closed__17() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("checkout", 8);
+x_1 = lean_mk_string_unchecked("checkout", 8, 8);
 return x_1;
 }
 }
@@ -265,7 +265,7 @@ static lean_object* _init_l_Lake_updateGitPkg___closed__19() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("--detach", 8);
+x_1 = lean_mk_string_unchecked("--detach", 8, 8);
 return x_1;
 }
 }
@@ -292,7 +292,7 @@ static lean_object* _init_l_Lake_updateGitPkg___closed__22() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("diff", 4);
+x_1 = lean_mk_string_unchecked("diff", 4, 4);
 return x_1;
 }
 }
@@ -310,7 +310,7 @@ static lean_object* _init_l_Lake_updateGitPkg___closed__24() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("--exit-code", 11);
+x_1 = lean_mk_string_unchecked("--exit-code", 11, 11);
 return x_1;
 }
 }
@@ -786,7 +786,7 @@ static lean_object* _init_l_Lake_cloneGitPkg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": cloning ", 10);
+x_1 = lean_mk_string_unchecked(": cloning ", 10, 10);
 return x_1;
 }
 }
@@ -794,7 +794,7 @@ static lean_object* _init_l_Lake_cloneGitPkg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" to '", 5);
+x_1 = lean_mk_string_unchecked(" to '", 5, 5);
 return x_1;
 }
 }
@@ -802,7 +802,7 @@ static lean_object* _init_l_Lake_cloneGitPkg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("clone", 5);
+x_1 = lean_mk_string_unchecked("clone", 5, 5);
 return x_1;
 }
 }
@@ -1281,7 +1281,7 @@ static lean_object* _init_l_Lake_updateGitRepo___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": URL has changed; deleting '", 29);
+x_1 = lean_mk_string_unchecked(": URL has changed; deleting '", 29, 29);
 return x_1;
 }
 }
@@ -1289,7 +1289,7 @@ static lean_object* _init_l_Lake_updateGitRepo___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' and cloning again", 19);
+x_1 = lean_mk_string_unchecked("' and cloning again", 19, 19);
 return x_1;
 }
 }
@@ -1297,7 +1297,7 @@ static lean_object* _init_l_Lake_updateGitRepo___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": URL has changed; you might need to delete '", 45);
+x_1 = lean_mk_string_unchecked(": URL has changed; you might need to delete '", 45, 45);
 return x_1;
 }
 }
@@ -1305,7 +1305,7 @@ static lean_object* _init_l_Lake_updateGitRepo___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' manually", 10);
+x_1 = lean_mk_string_unchecked("' manually", 10, 10);
 return x_1;
 }
 }
@@ -1313,7 +1313,7 @@ static lean_object* _init_l_Lake_updateGitRepo___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("remote", 6);
+x_1 = lean_mk_string_unchecked("remote", 6, 6);
 return x_1;
 }
 }
@@ -1331,7 +1331,7 @@ static lean_object* _init_l_Lake_updateGitRepo___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("get-url", 7);
+x_1 = lean_mk_string_unchecked("get-url", 7, 7);
 return x_1;
 }
 }

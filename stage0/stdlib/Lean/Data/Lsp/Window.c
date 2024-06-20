@@ -242,7 +242,7 @@ static lean_object* _init_l_instFromJsonMessageType___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Unknown MessageType ID", 22);
+x_1 = lean_mk_string_unchecked("Unknown MessageType ID", 22, 22);
 return x_1;
 }
 }
@@ -730,7 +730,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Window_0__fromJsonShowMessag
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("type", 4);
+x_1 = lean_mk_string_unchecked("type", 4, 4);
 return x_1;
 }
 }
@@ -738,7 +738,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Window_0__fromJsonShowMessag
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ShowMessageParams", 17);
+x_1 = lean_mk_string_unchecked("ShowMessageParams", 17, 17);
 return x_1;
 }
 }
@@ -766,7 +766,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Window_0__fromJsonShowMessag
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -814,7 +814,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Window_0__fromJsonShowMessag
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -832,7 +832,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Window_0__fromJsonShowMessag
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("message", 7);
+x_1 = lean_mk_string_unchecked("message", 7, 7);
 return x_1;
 }
 }
@@ -1211,7 +1211,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Window_0__fromJsonMessageAct
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("title", 5);
+x_1 = lean_mk_string_unchecked("title", 5, 5);
 return x_1;
 }
 }
@@ -1219,7 +1219,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Window_0__fromJsonMessageAct
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("MessageActionItem", 17);
+x_1 = lean_mk_string_unchecked("MessageActionItem", 17, 17);
 return x_1;
 }
 }
@@ -1471,7 +1471,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected JSON array, got '", 26);
+x_1 = lean_mk_string_unchecked("expected JSON array, got '", 26, 26);
 return x_1;
 }
 }
@@ -1479,7 +1479,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -1666,7 +1666,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Window_0__fromJsonShowMessag
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ShowMessageRequestParams", 24);
+x_1 = lean_mk_string_unchecked("ShowMessageRequestParams", 24, 24);
 return x_1;
 }
 }
@@ -1744,7 +1744,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Window_0__fromJsonShowMessag
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("actions", 7);
+x_1 = lean_mk_string_unchecked("actions", 7, 7);
 return x_1;
 }
 }
@@ -1752,7 +1752,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Window_0__fromJsonShowMessag
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("actions\?", 8);
+x_1 = lean_mk_string_unchecked("actions\?", 8, 8);
 return x_1;
 }
 }

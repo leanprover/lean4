@@ -71,7 +71,7 @@ static lean_object* _init_l_Lake_termTry__Else_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake", 4);
+x_1 = lean_mk_string_unchecked("Lake", 4, 4);
 return x_1;
 }
 }
@@ -79,7 +79,7 @@ static lean_object* _init_l_Lake_termTry__Else_____closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("termTry_Else_", 13);
+x_1 = lean_mk_string_unchecked("termTry_Else_", 13, 13);
 return x_1;
 }
 }
@@ -97,7 +97,7 @@ static lean_object* _init_l_Lake_termTry__Else_____closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("andthen", 7);
+x_1 = lean_mk_string_unchecked("andthen", 7, 7);
 return x_1;
 }
 }
@@ -115,7 +115,7 @@ static lean_object* _init_l_Lake_termTry__Else_____closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("try ", 4);
+x_1 = lean_mk_string_unchecked("try ", 4, 4);
 return x_1;
 }
 }
@@ -133,7 +133,7 @@ static lean_object* _init_l_Lake_termTry__Else_____closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term", 4);
+x_1 = lean_mk_string_unchecked("term", 4, 4);
 return x_1;
 }
 }
@@ -177,7 +177,7 @@ static lean_object* _init_l_Lake_termTry__Else_____closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" else ", 6);
+x_1 = lean_mk_string_unchecked(" else ", 6, 6);
 return x_1;
 }
 }
@@ -245,7 +245,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Sugar______macroRules__Lake_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_<|>_", 9);
+x_1 = lean_mk_string_unchecked("term_<|>_", 9, 9);
 return x_1;
 }
 }
@@ -263,7 +263,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Sugar______macroRules__Lake_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("<|>", 3);
+x_1 = lean_mk_string_unchecked("<|>", 3, 3);
 return x_1;
 }
 }
@@ -322,7 +322,7 @@ static lean_object* _init_l_Lake_doElemTry__Else_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doElemTry_Else_", 15);
+x_1 = lean_mk_string_unchecked("doElemTry_Else_", 15, 15);
 return x_1;
 }
 }
@@ -340,7 +340,7 @@ static lean_object* _init_l_Lake_doElemTry__Else_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doSeq", 5);
+x_1 = lean_mk_string_unchecked("doSeq", 5, 5);
 return x_1;
 }
 }
@@ -432,7 +432,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Sugar______macroRules__Lake_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -440,7 +440,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Sugar______macroRules__Lake_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -448,7 +448,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Sugar______macroRules__Lake_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -456,7 +456,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Sugar______macroRules__Lake_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doExpr", 6);
+x_1 = lean_mk_string_unchecked("doExpr", 6, 6);
 return x_1;
 }
 }
@@ -476,7 +476,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Sugar______macroRules__Lake_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("paren", 5);
+x_1 = lean_mk_string_unchecked("paren", 5, 5);
 return x_1;
 }
 }
@@ -496,7 +496,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Sugar______macroRules__Lake_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -504,7 +504,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Sugar______macroRules__Lake_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("do", 2);
+x_1 = lean_mk_string_unchecked("do", 2, 2);
 return x_1;
 }
 }
@@ -524,7 +524,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Sugar______macroRules__Lake_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }

@@ -203,7 +203,7 @@ static lean_object* _init_l_Lake_mkHoleFrom___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -211,7 +211,7 @@ static lean_object* _init_l_Lake_mkHoleFrom___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -219,7 +219,7 @@ static lean_object* _init_l_Lake_mkHoleFrom___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -227,7 +227,7 @@ static lean_object* _init_l_Lake_mkHoleFrom___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hole", 4);
+x_1 = lean_mk_string_unchecked("hole", 4, 4);
 return x_1;
 }
 }
@@ -247,7 +247,7 @@ static lean_object* _init_l_Lake_mkHoleFrom___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_", 1);
+x_1 = lean_mk_string_unchecked("_", 1, 1);
 return x_1;
 }
 }
@@ -497,7 +497,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lake_getBinderIds___spec__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ident", 5);
+x_1 = lean_mk_string_unchecked("ident", 5, 5);
 return x_1;
 }
 }
@@ -515,7 +515,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lake_getBinderIds___spec__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("identifier or `_` expected", 26);
+x_1 = lean_mk_string_unchecked("identifier or `_` expected", 26, 26);
 return x_1;
 }
 }
@@ -638,7 +638,7 @@ static lean_object* _init_l_Lean_Elab_Term_mkFreshBinderName___at_Lake_expandBin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("x", 1);
+x_1 = lean_mk_string_unchecked("x", 1, 1);
 return x_1;
 }
 }
@@ -1022,7 +1022,7 @@ static lean_object* _init_l_Lake_matchBinder___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("explicitBinder", 14);
+x_1 = lean_mk_string_unchecked("explicitBinder", 14, 14);
 return x_1;
 }
 }
@@ -1042,7 +1042,7 @@ static lean_object* _init_l_Lake_matchBinder___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("implicitBinder", 14);
+x_1 = lean_mk_string_unchecked("implicitBinder", 14, 14);
 return x_1;
 }
 }
@@ -1062,7 +1062,7 @@ static lean_object* _init_l_Lake_matchBinder___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("strictImplicitBinder", 20);
+x_1 = lean_mk_string_unchecked("strictImplicitBinder", 20, 20);
 return x_1;
 }
 }
@@ -1082,7 +1082,7 @@ static lean_object* _init_l_Lake_matchBinder___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instBinder", 10);
+x_1 = lean_mk_string_unchecked("instBinder", 10, 10);
 return x_1;
 }
 }
@@ -1506,7 +1506,7 @@ static lean_object* _init_l_Lake_BinderSyntaxView_mkBinder___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -1514,7 +1514,7 @@ static lean_object* _init_l_Lake_BinderSyntaxView_mkBinder___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -1532,7 +1532,7 @@ static lean_object* _init_l_Lake_BinderSyntaxView_mkBinder___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
@@ -1549,7 +1549,7 @@ static lean_object* _init_l_Lake_BinderSyntaxView_mkBinder___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -1566,7 +1566,7 @@ static lean_object* _init_l_Lake_BinderSyntaxView_mkBinder___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("{", 1);
+x_1 = lean_mk_string_unchecked("{", 1, 1);
 return x_1;
 }
 }
@@ -1574,7 +1574,7 @@ static lean_object* _init_l_Lake_BinderSyntaxView_mkBinder___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("}", 1);
+x_1 = lean_mk_string_unchecked("}", 1, 1);
 return x_1;
 }
 }
@@ -1582,7 +1582,7 @@ static lean_object* _init_l_Lake_BinderSyntaxView_mkBinder___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⦃", 3);
+x_1 = lean_mk_string_unchecked("⦃", 3, 1);
 return x_1;
 }
 }
@@ -1590,7 +1590,7 @@ static lean_object* _init_l_Lake_BinderSyntaxView_mkBinder___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⦄", 3);
+x_1 = lean_mk_string_unchecked("⦄", 3, 1);
 return x_1;
 }
 }
@@ -1598,7 +1598,7 @@ static lean_object* _init_l_Lake_BinderSyntaxView_mkBinder___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -1606,7 +1606,7 @@ static lean_object* _init_l_Lake_BinderSyntaxView_mkBinder___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -1816,7 +1816,7 @@ static lean_object* _init_l_Lake_BinderSyntaxView_mkArgument___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("namedArgument", 13);
+x_1 = lean_mk_string_unchecked("namedArgument", 13, 13);
 return x_1;
 }
 }
@@ -1836,7 +1836,7 @@ static lean_object* _init_l_Lake_BinderSyntaxView_mkArgument___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":=", 2);
+x_1 = lean_mk_string_unchecked(":=", 2, 2);
 return x_1;
 }
 }

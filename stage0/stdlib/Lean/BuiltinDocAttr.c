@@ -355,7 +355,7 @@ static lean_object* _init_l_Lean_declareBuiltinDocStringAndRanges___lambda__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declRange", 9);
+x_1 = lean_mk_string_unchecked("declRange", 9, 9);
 return x_1;
 }
 }
@@ -373,7 +373,7 @@ static lean_object* _init_l_Lean_declareBuiltinDocStringAndRanges___lambda__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -381,7 +381,7 @@ static lean_object* _init_l_Lean_declareBuiltinDocStringAndRanges___lambda__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("addBuiltinDeclarationRanges", 27);
+x_1 = lean_mk_string_unchecked("addBuiltinDeclarationRanges", 27, 27);
 return x_1;
 }
 }
@@ -409,7 +409,7 @@ static lean_object* _init_l_Lean_declareBuiltinDocStringAndRanges___lambda__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("DeclarationRanges", 17);
+x_1 = lean_mk_string_unchecked("DeclarationRanges", 17, 17);
 return x_1;
 }
 }
@@ -417,7 +417,7 @@ static lean_object* _init_l_Lean_declareBuiltinDocStringAndRanges___lambda__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mk", 2);
+x_1 = lean_mk_string_unchecked("mk", 2, 2);
 return x_1;
 }
 }
@@ -446,7 +446,7 @@ static lean_object* _init_l_Lean_declareBuiltinDocStringAndRanges___lambda__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("DeclarationRange", 16);
+x_1 = lean_mk_string_unchecked("DeclarationRange", 16, 16);
 return x_1;
 }
 }
@@ -475,7 +475,7 @@ static lean_object* _init_l_Lean_declareBuiltinDocStringAndRanges___lambda__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Position", 8);
+x_1 = lean_mk_string_unchecked("Position", 8, 8);
 return x_1;
 }
 }
@@ -672,7 +672,7 @@ static lean_object* _init_l_Lean_declareBuiltinDocStringAndRanges___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("docString", 9);
+x_1 = lean_mk_string_unchecked("docString", 9, 9);
 return x_1;
 }
 }
@@ -690,7 +690,7 @@ static lean_object* _init_l_Lean_declareBuiltinDocStringAndRanges___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("addBuiltinDocString", 19);
+x_1 = lean_mk_string_unchecked("addBuiltinDocString", 19, 19);
 return x_1;
 }
 }
@@ -911,7 +911,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_BuiltinDocAttr___hyg_208____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attribute cannot be erased", 26);
+x_1 = lean_mk_string_unchecked("attribute cannot be erased", 26, 26);
 return x_1;
 }
 }
@@ -947,7 +947,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_BuiltinDocAttr___hyg_208____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -965,7 +965,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_BuiltinDocAttr___hyg_208____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -993,7 +993,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_BuiltinDocAttr___hyg_208____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("BuiltinDocAttr", 14);
+x_1 = lean_mk_string_unchecked("BuiltinDocAttr", 14, 14);
 return x_1;
 }
 }
@@ -1011,7 +1011,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_BuiltinDocAttr___hyg_208____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -1039,7 +1039,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_BuiltinDocAttr___hyg_208____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtin_doc", 11);
+x_1 = lean_mk_string_unchecked("builtin_doc", 11, 11);
 return x_1;
 }
 }
@@ -1057,7 +1057,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_BuiltinDocAttr___hyg_208____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("make the docs and location of this declaration available as a builtin", 69);
+x_1 = lean_mk_string_unchecked("make the docs and location of this declaration available as a builtin", 69, 69);
 return x_1;
 }
 }

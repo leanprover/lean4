@@ -50,7 +50,7 @@ static lean_object* _init_l_Lean_Compiler_FFI_getCFlags___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("include", 7);
+x_1 = lean_mk_string_unchecked("include", 7, 7);
 return x_1;
 }
 }
@@ -67,7 +67,7 @@ static lean_object* _init_l_Lean_Compiler_FFI_getCFlags___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-I", 2);
+x_1 = lean_mk_string_unchecked("-I", 2, 2);
 return x_1;
 }
 }
@@ -103,7 +103,7 @@ static lean_object* _init_l_Lean_Compiler_FFI_getCFlags___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -144,7 +144,7 @@ static lean_object* _init_l_Lean_Compiler_FFI_getLinkerFlags___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lib", 3);
+x_1 = lean_mk_string_unchecked("lib", 3, 3);
 return x_1;
 }
 }
@@ -152,7 +152,7 @@ static lean_object* _init_l_Lean_Compiler_FFI_getLinkerFlags___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lean", 4);
+x_1 = lean_mk_string_unchecked("lean", 4, 4);
 return x_1;
 }
 }
@@ -160,7 +160,7 @@ static lean_object* _init_l_Lean_Compiler_FFI_getLinkerFlags___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-L", 2);
+x_1 = lean_mk_string_unchecked("-L", 2, 2);
 return x_1;
 }
 }

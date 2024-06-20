@@ -32,7 +32,6 @@ LEAN_EXPORT lean_object* l_Lean_ShareCommon_objectFactory___lambda__5(lean_objec
 LEAN_EXPORT lean_object* l_Lean_ShareCommon_ShareCommonT_monadShareCommon(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ShareCommon_shareCommon___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ShareCommon_shareCommon(lean_object*);
-lean_object* l_Lean_PersistentHashMap_empty___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ShareCommon_persistentObjectFactory___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_HashMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ShareCommon_objectFactory___closed__7;
@@ -70,6 +69,7 @@ LEAN_EXPORT lean_object* l_Lean_ShareCommon_ShareCommonT_withShareCommon___rarg(
 lean_object* l_Lean_mkHashMapImp___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ShareCommon_persistentObjectFactory___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ShareCommon_PShareCommonT_monadShareCommon___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PersistentHashMap_empty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ShareCommon_objectFactory___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_HashSetImp_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ShareCommon_objectFactory___closed__2;
@@ -264,7 +264,7 @@ LEAN_EXPORT lean_object* l_Lean_ShareCommon_persistentObjectFactory___lambda__1(
 _start:
 {
 lean_object* x_6; 
-x_6 = l_Lean_PersistentHashMap_empty___rarg(x_3, x_4);
+x_6 = l_Lean_PersistentHashMap_empty(lean_box(0), lean_box(0), x_3, x_4);
 return x_6;
 }
 }
@@ -288,7 +288,7 @@ LEAN_EXPORT lean_object* l_Lean_ShareCommon_persistentObjectFactory___lambda__4(
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Lean_PersistentHashMap_empty___rarg(x_2, x_3);
+x_5 = l_Lean_PersistentHashMap_empty(lean_box(0), lean_box(0), x_2, x_3);
 return x_5;
 }
 }

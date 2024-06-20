@@ -28,7 +28,7 @@ static lean_object* l_IO_FS_withIsolatedStreams___at_Lean_runMetaEval___spec__1_
 lean_object* l_IO_FS_Stream_ofBuffer(lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_get_set_stderr(lean_object*, lean_object*);
-lean_object* lean_string_from_utf8(lean_object*);
+lean_object* lean_string_from_utf8_unchecked(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instMetaEvalOfEval(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_runMetaEval___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instMetaEvalOfEval___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
@@ -373,7 +373,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lean_runMetaEval___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.Data.String.Extra", 22);
+x_1 = lean_mk_string_unchecked("Init.Data.String.Extra", 22, 22);
 return x_1;
 }
 }
@@ -381,7 +381,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lean_runMetaEval___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("String.fromUTF8!", 16);
+x_1 = lean_mk_string_unchecked("String.fromUTF8!", 16, 16);
 return x_1;
 }
 }
@@ -389,7 +389,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lean_runMetaEval___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid UTF-8 string", 20);
+x_1 = lean_mk_string_unchecked("invalid UTF-8 string", 20, 20);
 return x_1;
 }
 }
@@ -467,7 +467,7 @@ return x_18;
 else
 {
 lean_object* x_25; 
-x_25 = lean_string_from_utf8(x_21);
+x_25 = lean_string_from_utf8_unchecked(x_21);
 lean_dec(x_21);
 lean_ctor_set(x_8, 1, x_16);
 lean_ctor_set(x_8, 0, x_25);
@@ -503,7 +503,7 @@ return x_32;
 else
 {
 lean_object* x_33; lean_object* x_34; 
-x_33 = lean_string_from_utf8(x_28);
+x_33 = lean_string_from_utf8_unchecked(x_28);
 lean_dec(x_28);
 lean_ctor_set(x_8, 1, x_16);
 lean_ctor_set(x_8, 0, x_33);
@@ -583,7 +583,7 @@ return x_44;
 else
 {
 lean_object* x_51; 
-x_51 = lean_string_from_utf8(x_47);
+x_51 = lean_string_from_utf8_unchecked(x_47);
 lean_dec(x_47);
 lean_ctor_set(x_8, 1, x_42);
 lean_ctor_set(x_8, 0, x_51);
@@ -619,7 +619,7 @@ return x_58;
 else
 {
 lean_object* x_59; lean_object* x_60; 
-x_59 = lean_string_from_utf8(x_54);
+x_59 = lean_string_from_utf8_unchecked(x_54);
 lean_dec(x_54);
 lean_ctor_set(x_8, 1, x_42);
 lean_ctor_set(x_8, 0, x_59);
@@ -721,7 +721,7 @@ return x_82;
 else
 {
 lean_object* x_83; lean_object* x_84; lean_object* x_85; 
-x_83 = lean_string_from_utf8(x_77);
+x_83 = lean_string_from_utf8_unchecked(x_77);
 lean_dec(x_77);
 x_84 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_84, 0, x_83);
@@ -820,7 +820,7 @@ return x_104;
 else
 {
 lean_object* x_105; lean_object* x_106; lean_object* x_107; 
-x_105 = lean_string_from_utf8(x_99);
+x_105 = lean_string_from_utf8_unchecked(x_99);
 lean_dec(x_99);
 x_106 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_106, 0, x_105);

@@ -67,7 +67,7 @@ static lean_object* _init_l___private_Lean_Server_CompletionItemData_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("params", 6);
+x_1 = lean_mk_string_unchecked("params", 6, 6);
 return x_1;
 }
 }
@@ -75,7 +75,7 @@ static lean_object* _init_l___private_Lean_Server_CompletionItemData_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -83,7 +83,7 @@ static lean_object* _init_l___private_Lean_Server_CompletionItemData_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lsp", 3);
+x_1 = lean_mk_string_unchecked("Lsp", 3, 3);
 return x_1;
 }
 }
@@ -91,7 +91,7 @@ static lean_object* _init_l___private_Lean_Server_CompletionItemData_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CompletionItemData", 18);
+x_1 = lean_mk_string_unchecked("CompletionItemData", 18, 18);
 return x_1;
 }
 }
@@ -120,7 +120,7 @@ static lean_object* _init_l___private_Lean_Server_CompletionItemData_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -168,7 +168,7 @@ static lean_object* _init_l___private_Lean_Server_CompletionItemData_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -312,7 +312,7 @@ static lean_object* _init_l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no data param on completion item ", 33);
+x_1 = lean_mk_string_unchecked("no data param on completion item ", 33, 33);
 return x_1;
 }
 }
@@ -320,7 +320,7 @@ static lean_object* _init_l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -328,7 +328,7 @@ static lean_object* _init_l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Server.CompletionItemData", 30);
+x_1 = lean_mk_string_unchecked("Lean.Server.CompletionItemData", 30, 30);
 return x_1;
 }
 }
@@ -336,7 +336,7 @@ static lean_object* _init_l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItem.getFileSource!", 38);
+x_1 = lean_mk_string_unchecked("Lean.Lsp.CompletionItem.getFileSource!", 38, 38);
 return x_1;
 }
 }

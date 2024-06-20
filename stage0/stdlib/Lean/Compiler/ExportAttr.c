@@ -265,7 +265,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_95
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid 'export' function name, is not a valid C++ identifier", 61);
+x_1 = lean_mk_string_unchecked("invalid 'export' function name, is not a valid C++ identifier", 61, 61);
 return x_1;
 }
 }
@@ -428,7 +428,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_95
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -436,7 +436,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_95
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("exportAttr", 10);
+x_1 = lean_mk_string_unchecked("exportAttr", 10, 10);
 return x_1;
 }
 }
@@ -454,7 +454,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_95
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("export", 6);
+x_1 = lean_mk_string_unchecked("export", 6, 6);
 return x_1;
 }
 }
@@ -472,7 +472,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_95
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("name to be used by code generators", 34);
+x_1 = lean_mk_string_unchecked("name to be used by code generators", 34, 34);
 return x_1;
 }
 }
@@ -607,7 +607,7 @@ static lean_object* _init_l_Lean_isExport___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("main", 4);
+x_1 = lean_mk_string_unchecked("main", 4, 4);
 return x_1;
 }
 }

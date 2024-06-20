@@ -171,7 +171,7 @@ static lean_object* _init_l_Lean_MVarId_replaceTargetEq___lambda__1___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -179,7 +179,7 @@ static lean_object* _init_l_Lean_MVarId_replaceTargetEq___lambda__1___closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mpr", 3);
+x_1 = lean_mk_string_unchecked("mpr", 3, 3);
 return x_1;
 }
 }
@@ -763,7 +763,7 @@ static lean_object* _init_l_Lean_MVarId_replaceTargetEq___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("replaceTarget", 13);
+x_1 = lean_mk_string_unchecked("replaceTarget", 13, 13);
 return x_1;
 }
 }
@@ -1171,7 +1171,7 @@ static lean_object* _init_l_Lean_MVarId_replaceTargetDefEq___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("change", 6);
+x_1 = lean_mk_string_unchecked("change", 6, 6);
 return x_1;
 }
 }
@@ -2510,7 +2510,7 @@ static lean_object* _init_l_Lean_MVarId_change___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("given type", 10);
+x_1 = lean_mk_string_unchecked("given type", 10, 10);
 return x_1;
 }
 }
@@ -2527,7 +2527,7 @@ static lean_object* _init_l_Lean_MVarId_change___lambda__2___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nis not definitionally equal to", 31);
+x_1 = lean_mk_string_unchecked("\nis not definitionally equal to", 31, 31);
 return x_1;
 }
 }
@@ -2544,7 +2544,7 @@ static lean_object* _init_l_Lean_MVarId_change___lambda__2___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -3830,7 +3830,7 @@ static lean_object* _init_l_Lean_MVarId_changeLocalDecl___lambda__1___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected auxiliary target", 27);
+x_1 = lean_mk_string_unchecked("unexpected auxiliary target", 27, 27);
 return x_1;
 }
 }
@@ -4416,7 +4416,7 @@ static lean_object* _init_l_Lean_MVarId_changeLocalDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("changeLocalDecl", 15);
+x_1 = lean_mk_string_unchecked("changeLocalDecl", 15, 15);
 return x_1;
 }
 }
@@ -4736,7 +4736,7 @@ static lean_object* _init_l_Lean_MVarId_modifyTarget___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("modifyTarget", 12);
+x_1 = lean_mk_string_unchecked("modifyTarget", 12, 12);
 return x_1;
 }
 }
@@ -4776,7 +4776,7 @@ static lean_object* _init_l_Lean_MVarId_modifyTargetEqLHS___lambda__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("modifyTargetEqLHS", 17);
+x_1 = lean_mk_string_unchecked("modifyTargetEqLHS", 17, 17);
 return x_1;
 }
 }
@@ -4794,7 +4794,7 @@ static lean_object* _init_l_Lean_MVarId_modifyTargetEqLHS___lambda__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("equality expected", 17);
+x_1 = lean_mk_string_unchecked("equality expected", 17, 17);
 return x_1;
 }
 }

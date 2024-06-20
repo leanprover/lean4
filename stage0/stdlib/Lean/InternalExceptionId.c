@@ -152,7 +152,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_uget(x_2, x_3);
-x_7 = lean_name_eq(x_1, x_6);
+x_7 = lean_name_eq(x_6, x_1);
 lean_dec(x_6);
 if (x_7 == 0)
 {
@@ -250,7 +250,7 @@ static lean_object* _init_l_Lean_registerInternalExceptionId___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid internal exception id, '", 32);
+x_1 = lean_mk_string_unchecked("invalid internal exception id, '", 32, 32);
 return x_1;
 }
 }
@@ -258,7 +258,7 @@ static lean_object* _init_l_Lean_registerInternalExceptionId___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' has already been used", 23);
+x_1 = lean_mk_string_unchecked("' has already been used", 23, 23);
 return x_1;
 }
 }
@@ -380,7 +380,7 @@ static lean_object* _init_l_Lean_InternalExceptionId_toString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("internal exception #", 20);
+x_1 = lean_mk_string_unchecked("internal exception #", 20, 20);
 return x_1;
 }
 }
@@ -388,7 +388,7 @@ static lean_object* _init_l_Lean_InternalExceptionId_toString___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -409,7 +409,7 @@ static lean_object* _init_l_Lean_InternalExceptionId_getName___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid internal exception id", 29);
+x_1 = lean_mk_string_unchecked("invalid internal exception id", 29, 29);
 return x_1;
 }
 }

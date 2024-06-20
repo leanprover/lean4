@@ -332,7 +332,7 @@ static lean_object* _init_l___private_Lean_Server_CodeActions_Basic_0__Lean_Serv
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("params", 6);
+x_1 = lean_mk_string_unchecked("params", 6, 6);
 return x_1;
 }
 }
@@ -340,7 +340,7 @@ static lean_object* _init_l___private_Lean_Server_CodeActions_Basic_0__Lean_Serv
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("providerName", 12);
+x_1 = lean_mk_string_unchecked("providerName", 12, 12);
 return x_1;
 }
 }
@@ -348,7 +348,7 @@ static lean_object* _init_l___private_Lean_Server_CodeActions_Basic_0__Lean_Serv
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("providerResultIndex", 19);
+x_1 = lean_mk_string_unchecked("providerResultIndex", 19, 19);
 return x_1;
 }
 }
@@ -436,7 +436,7 @@ static lean_object* _init_l___private_Lean_Server_CodeActions_Basic_0__Lean_Serv
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -444,7 +444,7 @@ static lean_object* _init_l___private_Lean_Server_CodeActions_Basic_0__Lean_Serv
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Server", 6);
+x_1 = lean_mk_string_unchecked("Server", 6, 6);
 return x_1;
 }
 }
@@ -452,7 +452,7 @@ static lean_object* _init_l___private_Lean_Server_CodeActions_Basic_0__Lean_Serv
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CodeActionResolveData", 21);
+x_1 = lean_mk_string_unchecked("CodeActionResolveData", 21, 21);
 return x_1;
 }
 }
@@ -481,7 +481,7 @@ static lean_object* _init_l___private_Lean_Server_CodeActions_Basic_0__Lean_Serv
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -529,7 +529,7 @@ static lean_object* _init_l___private_Lean_Server_CodeActions_Basic_0__Lean_Serv
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -799,7 +799,7 @@ static lean_object* _init_l_Lean_Server_CodeAction_getFileSource_x21___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no data param on code action ", 29);
+x_1 = lean_mk_string_unchecked("no data param on code action ", 29, 29);
 return x_1;
 }
 }
@@ -807,7 +807,7 @@ static lean_object* _init_l_Lean_Server_CodeAction_getFileSource_x21___closed__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -815,7 +815,7 @@ static lean_object* _init_l_Lean_Server_CodeAction_getFileSource_x21___closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Server.CodeActions.Basic", 29);
+x_1 = lean_mk_string_unchecked("Lean.Server.CodeActions.Basic", 29, 29);
 return x_1;
 }
 }
@@ -823,7 +823,7 @@ static lean_object* _init_l_Lean_Server_CodeAction_getFileSource_x21___closed__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Server.CodeAction.getFileSource!", 37);
+x_1 = lean_mk_string_unchecked("Lean.Server.CodeAction.getFileSource!", 37, 37);
 return x_1;
 }
 }
@@ -1198,7 +1198,7 @@ static lean_object* _init_l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Ba
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("codeActionProviderExt", 21);
+x_1 = lean_mk_string_unchecked("codeActionProviderExt", 21, 21);
 return x_1;
 }
 }
@@ -1288,7 +1288,7 @@ static lean_object* _init_l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Ba
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("addBuiltinCodeActionProvider", 28);
+x_1 = lean_mk_string_unchecked("addBuiltinCodeActionProvider", 28, 28);
 return x_1;
 }
 }
@@ -1336,7 +1336,7 @@ static lean_object* _init_l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Ba
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CodeActionProvider", 18);
+x_1 = lean_mk_string_unchecked("CodeActionProvider", 18, 18);
 return x_1;
 }
 }
@@ -1355,7 +1355,7 @@ static lean_object* _init_l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Ba
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid attribute '", 19);
+x_1 = lean_mk_string_unchecked("invalid attribute '", 19, 19);
 return x_1;
 }
 }
@@ -1372,7 +1372,7 @@ static lean_object* _init_l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Ba
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', must be of type `Lean.Server.CodeActionProvider`", 51);
+x_1 = lean_mk_string_unchecked("', must be of type `Lean.Server.CodeActionProvider`", 51, 51);
 return x_1;
 }
 }
@@ -1476,7 +1476,7 @@ static lean_object* _init_l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Ba
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', must be global", 17);
+x_1 = lean_mk_string_unchecked("', must be global", 17, 17);
 return x_1;
 }
 }
@@ -1577,7 +1577,7 @@ static lean_object* _init_l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Ba
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attribute cannot be erased", 26);
+x_1 = lean_mk_string_unchecked("attribute cannot be erased", 26, 26);
 return x_1;
 }
 }
@@ -1801,7 +1801,7 @@ static lean_object* _init_l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Ba
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtin_code_action_provider", 28);
+x_1 = lean_mk_string_unchecked("builtin_code_action_provider", 28, 28);
 return x_1;
 }
 }
@@ -1839,7 +1839,7 @@ static lean_object* _init_l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Ba
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -1857,7 +1857,7 @@ static lean_object* _init_l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Ba
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -1895,7 +1895,7 @@ static lean_object* _init_l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Ba
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CodeActions", 11);
+x_1 = lean_mk_string_unchecked("CodeActions", 11, 11);
 return x_1;
 }
 }
@@ -1913,7 +1913,7 @@ static lean_object* _init_l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Ba
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Basic", 5);
+x_1 = lean_mk_string_unchecked("Basic", 5, 5);
 return x_1;
 }
 }
@@ -1931,7 +1931,7 @@ static lean_object* _init_l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Ba
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -1959,7 +1959,7 @@ static lean_object* _init_l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Ba
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(builtin) ", 10);
+x_1 = lean_mk_string_unchecked("(builtin) ", 10, 10);
 return x_1;
 }
 }
@@ -1967,7 +1967,7 @@ static lean_object* _init_l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Ba
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Use to decorate methods for suggesting code actions. This is a low-level interface for making code actions.", 107);
+x_1 = lean_mk_string_unchecked("Use to decorate methods for suggesting code actions. This is a low-level interface for making code actions.", 107, 107);
 return x_1;
 }
 }
@@ -2009,7 +2009,7 @@ static lean_object* _init_l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Ba
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("code_action_provider", 20);
+x_1 = lean_mk_string_unchecked("code_action_provider", 20, 20);
 return x_1;
 }
 }
@@ -3333,7 +3333,7 @@ static lean_object* _init_l_Lean_Server_parseRequestParams___at_Lean_Server_init
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Cannot parse request params: ", 29);
+x_1 = lean_mk_string_unchecked("Cannot parse request params: ", 29, 29);
 return x_1;
 }
 }
@@ -3341,7 +3341,7 @@ static lean_object* _init_l_Lean_Server_parseRequestParams___at_Lean_Server_init
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -3752,7 +3752,7 @@ static lean_object* _init_l_Lean_Server_registerLspRequestHandler___at_Lean_Serv
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Failed to register LSP request handler for '", 44);
+x_1 = lean_mk_string_unchecked("Failed to register LSP request handler for '", 44, 44);
 return x_1;
 }
 }
@@ -3760,7 +3760,7 @@ static lean_object* _init_l_Lean_Server_registerLspRequestHandler___at_Lean_Serv
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("': already registered", 21);
+x_1 = lean_mk_string_unchecked("': already registered", 21, 21);
 return x_1;
 }
 }
@@ -3840,7 +3840,7 @@ static lean_object* _init_l_Lean_Server_registerLspRequestHandler___at_Lean_Serv
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("': only possible during initialization", 38);
+x_1 = lean_mk_string_unchecked("': only possible during initialization", 38, 38);
 return x_1;
 }
 }
@@ -3909,7 +3909,7 @@ static lean_object* _init_l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Ba
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("textDocument/codeAction", 23);
+x_1 = lean_mk_string_unchecked("textDocument/codeAction", 23, 23);
 return x_1;
 }
 }
@@ -4010,7 +4010,7 @@ static lean_object* _init_l_Lean_Server_handleCodeActionResolve___lambda__2___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Failed to resolve code action index ", 36);
+x_1 = lean_mk_string_unchecked("Failed to resolve code action index ", 36, 36);
 return x_1;
 }
 }
@@ -4018,7 +4018,7 @@ static lean_object* _init_l_Lean_Server_handleCodeActionResolve___lambda__2___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Can't resolve; nothing further to resolve.", 42);
+x_1 = lean_mk_string_unchecked("Can't resolve; nothing further to resolve.", 42, 42);
 return x_1;
 }
 }
@@ -4362,7 +4362,7 @@ static lean_object* _init_l_Lean_Server_handleCodeActionResolve___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Expected a data field on CodeAction.", 36);
+x_1 = lean_mk_string_unchecked("Expected a data field on CodeAction.", 36, 36);
 return x_1;
 }
 }
@@ -4382,7 +4382,7 @@ static lean_object* _init_l_Lean_Server_handleCodeActionResolve___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("snapshot not found", 18);
+x_1 = lean_mk_string_unchecked("snapshot not found", 18, 18);
 return x_1;
 }
 }
@@ -5255,7 +5255,7 @@ static lean_object* _init_l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Ba
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("codeAction/resolve", 18);
+x_1 = lean_mk_string_unchecked("codeAction/resolve", 18, 18);
 return x_1;
 }
 }

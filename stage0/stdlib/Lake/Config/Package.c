@@ -46,7 +46,6 @@ lean_object* l_Lean_mkHashSetImp___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_externLibConfigs___default___boxed(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lake_Package_testDriverArgs(lean_object*);
-uint8_t l_Lean_Name_isAnonymous(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaquePackage_unsafeGet(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lake_Package_isBuildableModule___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_manifestFile(lean_object*);
@@ -97,7 +96,6 @@ LEAN_EXPORT lean_object* l_Lake_PackageConfig_extraDepTargets___default;
 static lean_object* l_Lake_Package_leanLibConfigs___default___closed__2;
 static lean_object* l_Lake_PackageConfig_srcDir___default___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Package_moreServerOptions(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_stringToLegalOrSimpleName(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_irDir___default;
 LEAN_EXPORT lean_object* l_Lake_Package_buildArchiveFile(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_lintDriverArgs___default;
@@ -128,7 +126,6 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lake_Package_isBuildableMod
 LEAN_EXPORT lean_object* l_Lake_Package_isBuildableModule___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_srcDir___default;
 uint8_t lean_name_eq(lean_object*, lean_object*);
-lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaquePostUpdateHook_unsafeMk___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaquePostUpdateHook_unsafeGet___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_lintDriverArgs(lean_object*);
@@ -169,7 +166,6 @@ LEAN_EXPORT lean_object* l_Lake_Package_defaultScripts___default;
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_moreGlobalServerArgs___default(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaquePostUpdateHook_instInhabitedOfPostUpdateHook___boxed(lean_object*);
 uint64_t l_Lean_Name_hash___override(lean_object*);
-lean_object* l_String_toName(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkHashSet___at_Lake_PackageSet_empty___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instHashablePackage___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lake_Package_isBuildableModule___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -226,33 +222,11 @@ static lean_object* l_Lake_OrdHashSet_empty___at_Lake_OrdPackageSet_empty___spec
 extern lean_object* l_Lake_defaultLeanLibDir;
 extern lean_object* l_Lake_defaultManifestFile;
 LEAN_EXPORT lean_object* l_Lake_Package_buildArchive___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_stringToLegalOrSimpleName(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; uint8_t x_3; 
-lean_inc(x_1);
-x_2 = l_String_toName(x_1);
-x_3 = l_Lean_Name_isAnonymous(x_2);
-if (x_3 == 0)
-{
-lean_dec(x_1);
-return x_2;
-}
-else
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_2);
-x_4 = lean_box(0);
-x_5 = l_Lean_Name_str___override(x_4, x_1);
-return x_5;
-}
-}
-}
 static lean_object* _init_l_Lake_defaultBuildArchive___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -260,7 +234,7 @@ static lean_object* _init_l_Lake_defaultBuildArchive___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-", 1);
+x_1 = lean_mk_string_unchecked("-", 1, 1);
 return x_1;
 }
 }
@@ -268,7 +242,7 @@ static lean_object* _init_l_Lake_defaultBuildArchive___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".tar.gz", 7);
+x_1 = lean_mk_string_unchecked(".tar.gz", 7, 7);
 return x_1;
 }
 }
@@ -351,7 +325,7 @@ static lean_object* _init_l_Lake_PackageConfig_srcDir___default___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }

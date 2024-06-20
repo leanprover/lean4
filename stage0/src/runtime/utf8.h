@@ -45,8 +45,11 @@ LEAN_EXPORT unsigned next_utf8(char const * str, size_t size, size_t & i);
 /* Decode a UTF-8 encoded string `str` into unicode scalar values */
 LEAN_EXPORT void utf8_decode(std::string const & str, std::vector<unsigned> & out);
 
+/* Returns true if the given character is valid UTF-8 */
+LEAN_EXPORT bool validate_utf8_one(uint8_t const * str, size_t size, size_t & pos);
+
 /* Returns true if the provided string is valid UTF-8 */
-LEAN_EXPORT bool validate_utf8(uint8_t const * str, size_t size);
+LEAN_EXPORT bool validate_utf8(uint8_t const * str, size_t size, size_t & pos, size_t & i);
 
 /* Push a unicode scalar value into a utf-8 encoded string */
 LEAN_EXPORT void push_unicode_scalar(std::string & s, unsigned code);

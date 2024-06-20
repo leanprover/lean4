@@ -808,7 +808,7 @@ static lean_object* _init_l_Lake_Toml_crlfAuxFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid newline; no LF after CR", 31);
+x_1 = lean_mk_string_unchecked("invalid newline; no LF after CR", 31, 31);
 return x_1;
 }
 }
@@ -870,7 +870,7 @@ static lean_object* _init_l_Lake_Toml_newlineFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("newline", 7);
+x_1 = lean_mk_string_unchecked("newline", 7, 7);
 return x_1;
 }
 }
@@ -890,7 +890,7 @@ static lean_object* _init_l_Lake_Toml_newlineFn___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected end of input", 23);
+x_1 = lean_mk_string_unchecked("unexpected end of input", 23, 23);
 return x_1;
 }
 }
@@ -991,7 +991,7 @@ static lean_object* _init_l_Lake_Toml_commentFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("comment", 7);
+x_1 = lean_mk_string_unchecked("comment", 7, 7);
 return x_1;
 }
 }
@@ -1452,7 +1452,7 @@ static lean_object* _init_l_Lake_Toml_escapeSeqFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("escape sequence", 15);
+x_1 = lean_mk_string_unchecked("escape sequence", 15, 15);
 return x_1;
 }
 }
@@ -1472,7 +1472,7 @@ static lean_object* _init_l_Lake_Toml_escapeSeqFn___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("string gap is forbidden here", 28);
+x_1 = lean_mk_string_unchecked("string gap is forbidden here", 28, 28);
 return x_1;
 }
 }
@@ -1480,7 +1480,7 @@ static lean_object* _init_l_Lake_Toml_escapeSeqFn___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid escape sequence", 23);
+x_1 = lean_mk_string_unchecked("invalid escape sequence", 23, 23);
 return x_1;
 }
 }
@@ -1713,7 +1713,7 @@ static lean_object* _init_l_Lake_Toml_basicStringAuxFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unterminated basic string", 25);
+x_1 = lean_mk_string_unchecked("unterminated basic string", 25, 25);
 return x_1;
 }
 }
@@ -1819,7 +1819,7 @@ static lean_object* _init_l_Lake_Toml_basicStringFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("basic string", 12);
+x_1 = lean_mk_string_unchecked("basic string", 12, 12);
 return x_1;
 }
 }
@@ -1866,7 +1866,7 @@ static lean_object* _init_l_Lake_Toml_literalStringAuxFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unterminated literal string", 27);
+x_1 = lean_mk_string_unchecked("unterminated literal string", 27, 27);
 return x_1;
 }
 }
@@ -1940,7 +1940,7 @@ static lean_object* _init_l_Lake_Toml_literalStringFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("literal string", 14);
+x_1 = lean_mk_string_unchecked("literal string", 14, 14);
 return x_1;
 }
 }
@@ -1995,7 +1995,7 @@ static lean_object* _init_l_Lake_Toml_mlLiteralStringAuxFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("too many quotes", 15);
+x_1 = lean_mk_string_unchecked("too many quotes", 15, 15);
 return x_1;
 }
 }
@@ -2003,7 +2003,7 @@ static lean_object* _init_l_Lake_Toml_mlLiteralStringAuxFn___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unterminated multi-line literal string", 38);
+x_1 = lean_mk_string_unchecked("unterminated multi-line literal string", 38, 38);
 return x_1;
 }
 }
@@ -2171,7 +2171,7 @@ static lean_object* _init_l_Lake_Toml_mlLiteralStringFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("multi-line literal string", 25);
+x_1 = lean_mk_string_unchecked("multi-line literal string", 25, 25);
 return x_1;
 }
 }
@@ -2253,7 +2253,7 @@ static lean_object* _init_l_Lake_Toml_mlBasicStringAuxFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unterminated multi-line basic string", 36);
+x_1 = lean_mk_string_unchecked("unterminated multi-line basic string", 36, 36);
 return x_1;
 }
 }
@@ -2461,7 +2461,7 @@ static lean_object* _init_l_Lake_Toml_mlBasicStringFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("multi-line basic string", 23);
+x_1 = lean_mk_string_unchecked("multi-line basic string", 23, 23);
 return x_1;
 }
 }
@@ -2542,7 +2542,7 @@ static lean_object* _init_l_Lake_Toml_hourMinFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hour digit", 10);
+x_1 = lean_mk_string_unchecked("hour digit", 10, 10);
 return x_1;
 }
 }
@@ -2562,7 +2562,7 @@ static lean_object* _init_l_Lake_Toml_hourMinFn___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -2580,7 +2580,7 @@ static lean_object* _init_l_Lake_Toml_hourMinFn___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -2620,7 +2620,7 @@ static lean_object* _init_l_Lake_Toml_hourMinFn___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("minute digit", 12);
+x_1 = lean_mk_string_unchecked("minute digit", 12, 12);
 return x_1;
 }
 }
@@ -2686,7 +2686,7 @@ static lean_object* _init_l_Lake_Toml_timeTailFn_timeOffsetFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("time offset is forbidden here", 29);
+x_1 = lean_mk_string_unchecked("time offset is forbidden here", 29, 29);
 return x_1;
 }
 }
@@ -2816,7 +2816,7 @@ static lean_object* _init_l_Lake_Toml_timeTailFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("millisecond", 11);
+x_1 = lean_mk_string_unchecked("millisecond", 11, 11);
 return x_1;
 }
 }
@@ -3123,7 +3123,7 @@ static lean_object* _init_l_Lake_Toml_timeAuxFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("second digit", 12);
+x_1 = lean_mk_string_unchecked("second digit", 12, 12);
 return x_1;
 }
 }
@@ -3203,7 +3203,7 @@ static lean_object* _init_l_Lake_Toml_timeFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hour", 4);
+x_1 = lean_mk_string_unchecked("hour", 4, 4);
 return x_1;
 }
 }
@@ -3381,7 +3381,7 @@ static lean_object* _init_l_Lake_Toml_dateTimeAuxFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("month digit", 11);
+x_1 = lean_mk_string_unchecked("month digit", 11, 11);
 return x_1;
 }
 }
@@ -3443,7 +3443,7 @@ static lean_object* _init_l_Lake_Toml_dateTimeAuxFn___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("day digit", 9);
+x_1 = lean_mk_string_unchecked("day digit", 9, 9);
 return x_1;
 }
 }
@@ -3521,7 +3521,7 @@ static lean_object* _init_l_Lake_Toml_repeatFn_loop___at_Lake_Toml_dateTimeFn___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("year digit", 10);
+x_1 = lean_mk_string_unchecked("year digit", 10, 10);
 return x_1;
 }
 }
@@ -3632,7 +3632,7 @@ static lean_object* _init_l_Lake_Toml_dateTimeLitFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake", 4);
+x_1 = lean_mk_string_unchecked("Lake", 4, 4);
 return x_1;
 }
 }
@@ -3640,7 +3640,7 @@ static lean_object* _init_l_Lake_Toml_dateTimeLitFn___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Toml", 4);
+x_1 = lean_mk_string_unchecked("Toml", 4, 4);
 return x_1;
 }
 }
@@ -3648,7 +3648,7 @@ static lean_object* _init_l_Lake_Toml_dateTimeLitFn___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("dateTime", 8);
+x_1 = lean_mk_string_unchecked("dateTime", 8, 8);
 return x_1;
 }
 }
@@ -3694,7 +3694,7 @@ static lean_object* _init_l_Lake_Toml_decExpFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("decimal exponent", 16);
+x_1 = lean_mk_string_unchecked("decimal exponent", 16, 16);
 return x_1;
 }
 }
@@ -3863,7 +3863,7 @@ static lean_object* _init_l_Lake_Toml_decNumberTailAuxFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("decInt", 6);
+x_1 = lean_mk_string_unchecked("decInt", 6, 6);
 return x_1;
 }
 }
@@ -3882,7 +3882,7 @@ static lean_object* _init_l_Lake_Toml_decNumberTailAuxFn___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("float", 5);
+x_1 = lean_mk_string_unchecked("float", 5, 5);
 return x_1;
 }
 }
@@ -3901,7 +3901,7 @@ static lean_object* _init_l_Lake_Toml_decNumberTailAuxFn___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("decimal fraction", 16);
+x_1 = lean_mk_string_unchecked("decimal fraction", 16, 16);
 return x_1;
 }
 }
@@ -4116,7 +4116,7 @@ static lean_object* _init_l_Lake_Toml_decNumberFn___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("decimal integer", 15);
+x_1 = lean_mk_string_unchecked("decimal integer", 15, 15);
 return x_1;
 }
 }
@@ -4248,7 +4248,7 @@ static lean_object* _init_l_Lake_Toml_infAuxFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'inf'", 5);
+x_1 = lean_mk_string_unchecked("'inf'", 5, 5);
 return x_1;
 }
 }
@@ -4268,7 +4268,7 @@ static lean_object* _init_l_Lake_Toml_infAuxFn___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("nf", 2);
+x_1 = lean_mk_string_unchecked("nf", 2, 2);
 return x_1;
 }
 }
@@ -4304,7 +4304,7 @@ static lean_object* _init_l_Lake_Toml_nanAuxFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'nan'", 5);
+x_1 = lean_mk_string_unchecked("'nan'", 5, 5);
 return x_1;
 }
 }
@@ -4324,7 +4324,7 @@ static lean_object* _init_l_Lake_Toml_nanAuxFn___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("an", 2);
+x_1 = lean_mk_string_unchecked("an", 2, 2);
 return x_1;
 }
 }
@@ -4459,7 +4459,7 @@ static lean_object* _init_l_Lake_Toml_decNumeralAuxFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("date-time", 9);
+x_1 = lean_mk_string_unchecked("date-time", 9, 9);
 return x_1;
 }
 }
@@ -4710,7 +4710,7 @@ static lean_object* _init_l_Lake_Toml_numeralFn___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("integer", 7);
+x_1 = lean_mk_string_unchecked("integer", 7, 7);
 return x_1;
 }
 }
@@ -4730,7 +4730,7 @@ static lean_object* _init_l_Lake_Toml_numeralFn___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected '", 12);
+x_1 = lean_mk_string_unchecked("unexpected '", 12, 12);
 return x_1;
 }
 }
@@ -4738,7 +4738,7 @@ static lean_object* _init_l_Lake_Toml_numeralFn___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hexadecimal integer", 19);
+x_1 = lean_mk_string_unchecked("hexadecimal integer", 19, 19);
 return x_1;
 }
 }
@@ -4766,7 +4766,7 @@ static lean_object* _init_l_Lake_Toml_numeralFn___lambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hexNum", 6);
+x_1 = lean_mk_string_unchecked("hexNum", 6, 6);
 return x_1;
 }
 }
@@ -4785,7 +4785,7 @@ static lean_object* _init_l_Lake_Toml_numeralFn___lambda__1___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("octal integer", 13);
+x_1 = lean_mk_string_unchecked("octal integer", 13, 13);
 return x_1;
 }
 }
@@ -4813,7 +4813,7 @@ static lean_object* _init_l_Lake_Toml_numeralFn___lambda__1___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("octNum", 6);
+x_1 = lean_mk_string_unchecked("octNum", 6, 6);
 return x_1;
 }
 }
@@ -4832,7 +4832,7 @@ static lean_object* _init_l_Lake_Toml_numeralFn___lambda__1___closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("binary integer", 14);
+x_1 = lean_mk_string_unchecked("binary integer", 14, 14);
 return x_1;
 }
 }
@@ -4860,7 +4860,7 @@ static lean_object* _init_l_Lake_Toml_numeralFn___lambda__1___closed__17() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("binNum", 6);
+x_1 = lean_mk_string_unchecked("binNum", 6, 6);
 return x_1;
 }
 }
@@ -5278,7 +5278,7 @@ static lean_object* _init_l_Lake_Toml_unquotedKeyFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unquoted key", 12);
+x_1 = lean_mk_string_unchecked("unquoted key", 12, 12);
 return x_1;
 }
 }
@@ -5336,7 +5336,7 @@ static lean_object* _init_l_Lake_Toml_unquotedKey___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unquotedKey", 11);
+x_1 = lean_mk_string_unchecked("unquotedKey", 11, 11);
 return x_1;
 }
 }
@@ -5384,7 +5384,7 @@ static lean_object* _init_l_Lake_Toml_basicString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("basicString", 11);
+x_1 = lean_mk_string_unchecked("basicString", 11, 11);
 return x_1;
 }
 }
@@ -5432,7 +5432,7 @@ static lean_object* _init_l_Lake_Toml_literalString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("literalString", 13);
+x_1 = lean_mk_string_unchecked("literalString", 13, 13);
 return x_1;
 }
 }
@@ -5480,7 +5480,7 @@ static lean_object* _init_l_Lake_Toml_mlBasicString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mlBasicString", 13);
+x_1 = lean_mk_string_unchecked("mlBasicString", 13, 13);
 return x_1;
 }
 }
@@ -5528,7 +5528,7 @@ static lean_object* _init_l_Lake_Toml_mlLiteralString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mlLiteralString", 15);
+x_1 = lean_mk_string_unchecked("mlLiteralString", 15, 15);
 return x_1;
 }
 }
@@ -5594,7 +5594,7 @@ static lean_object* _init_l_Lake_Toml_simpleKey___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simpleKey", 9);
+x_1 = lean_mk_string_unchecked("simpleKey", 9, 9);
 return x_1;
 }
 }
@@ -5643,7 +5643,7 @@ static lean_object* _init_l_Lake_Toml_key___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("key", 3);
+x_1 = lean_mk_string_unchecked("key", 3, 3);
 return x_1;
 }
 }
@@ -5747,7 +5747,7 @@ static lean_object* _init_l_Lake_Toml_key___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -5797,7 +5797,7 @@ static lean_object* _init_l_Lake_Toml_stdTable___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("stdTable", 8);
+x_1 = lean_mk_string_unchecked("stdTable", 8, 8);
 return x_1;
 }
 }
@@ -5816,7 +5816,7 @@ static lean_object* _init_l_Lake_Toml_stdTable___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("table", 5);
+x_1 = lean_mk_string_unchecked("table", 5, 5);
 return x_1;
 }
 }
@@ -5900,7 +5900,7 @@ static lean_object* _init_l_Lake_Toml_stdTable___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'['", 3);
+x_1 = lean_mk_string_unchecked("'['", 3, 3);
 return x_1;
 }
 }
@@ -6050,7 +6050,7 @@ static lean_object* _init_l_Lake_Toml_arrayTable___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("arrayTable", 10);
+x_1 = lean_mk_string_unchecked("arrayTable", 10, 10);
 return x_1;
 }
 }
@@ -6175,7 +6175,7 @@ static lean_object* _init_l_Lake_Toml_keyvalCore___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("keyval", 6);
+x_1 = lean_mk_string_unchecked("keyval", 6, 6);
 return x_1;
 }
 }
@@ -6265,7 +6265,7 @@ static lean_object* _init_l_Lake_Toml_expressionCore___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expression", 10);
+x_1 = lean_mk_string_unchecked("expression", 10, 10);
 return x_1;
 }
 }
@@ -6307,7 +6307,7 @@ static lean_object* _init_l_Lake_Toml_header___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("header", 6);
+x_1 = lean_mk_string_unchecked("header", 6, 6);
 return x_1;
 }
 }
@@ -6347,7 +6347,7 @@ static lean_object* _init_l_Lake_Toml_tomlCore___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("toml", 4);
+x_1 = lean_mk_string_unchecked("toml", 4, 4);
 return x_1;
 }
 }
@@ -6366,7 +6366,7 @@ static lean_object* _init_l_Lake_Toml_tomlCore___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sepBy", 5);
+x_1 = lean_mk_string_unchecked("sepBy", 5, 5);
 return x_1;
 }
 }
@@ -6384,7 +6384,7 @@ static lean_object* _init_l_Lake_Toml_tomlCore___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("*", 1);
+x_1 = lean_mk_string_unchecked("*", 1, 1);
 return x_1;
 }
 }
@@ -6401,7 +6401,7 @@ static lean_object* _init_l_Lake_Toml_tomlCore___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("line break", 10);
+x_1 = lean_mk_string_unchecked("line break", 10, 10);
 return x_1;
 }
 }
@@ -6449,7 +6449,7 @@ static lean_object* _init_l_Lake_Toml_inlineTableCore___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inlineTable", 11);
+x_1 = lean_mk_string_unchecked("inlineTable", 11, 11);
 return x_1;
 }
 }
@@ -6468,7 +6468,7 @@ static lean_object* _init_l_Lake_Toml_inlineTableCore___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inline-table", 12);
+x_1 = lean_mk_string_unchecked("inline-table", 12, 12);
 return x_1;
 }
 }
@@ -6552,7 +6552,7 @@ static lean_object* _init_l_Lake_Toml_inlineTableCore___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -6634,7 +6634,7 @@ static lean_object* _init_l_Lake_Toml_arrayCore___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("array", 5);
+x_1 = lean_mk_string_unchecked("array", 5, 5);
 return x_1;
 }
 }
@@ -6708,7 +6708,7 @@ static lean_object* _init_l_Lake_Toml_string___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("string", 6);
+x_1 = lean_mk_string_unchecked("string", 6, 6);
 return x_1;
 }
 }
@@ -6799,7 +6799,7 @@ static lean_object* _init_l_Lake_Toml_true___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("true", 4);
+x_1 = lean_mk_string_unchecked("true", 4, 4);
 return x_1;
 }
 }
@@ -6881,7 +6881,7 @@ static lean_object* _init_l_Lake_Toml_false___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("false", 5);
+x_1 = lean_mk_string_unchecked("false", 5, 5);
 return x_1;
 }
 }
@@ -6963,7 +6963,7 @@ static lean_object* _init_l_Lake_Toml_boolean___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("boolean", 7);
+x_1 = lean_mk_string_unchecked("boolean", 7, 7);
 return x_1;
 }
 }
@@ -7078,7 +7078,7 @@ static lean_object* _init_l_Lake_Toml_numeralAntiquot___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("numeral", 7);
+x_1 = lean_mk_string_unchecked("numeral", 7, 7);
 return x_1;
 }
 }
@@ -7219,7 +7219,7 @@ static lean_object* _init_l_Lake_Toml_numeralOfKind___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("illegal numeral kind", 20);
+x_1 = lean_mk_string_unchecked("illegal numeral kind", 20, 20);
 return x_1;
 }
 }
@@ -7291,7 +7291,7 @@ static lean_object* _init_l_Lake_Toml_binNum___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("binary number", 13);
+x_1 = lean_mk_string_unchecked("binary number", 13, 13);
 return x_1;
 }
 }
@@ -7317,7 +7317,7 @@ static lean_object* _init_l_Lake_Toml_octNum___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("octal number", 12);
+x_1 = lean_mk_string_unchecked("octal number", 12, 12);
 return x_1;
 }
 }
@@ -7343,7 +7343,7 @@ static lean_object* _init_l_Lake_Toml_hexNum___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hexadecimal number", 18);
+x_1 = lean_mk_string_unchecked("hexadecimal number", 18, 18);
 return x_1;
 }
 }
@@ -7404,7 +7404,7 @@ static lean_object* _init_l_Lake_Toml_val___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("val", 3);
+x_1 = lean_mk_string_unchecked("val", 3, 3);
 return x_1;
 }
 }

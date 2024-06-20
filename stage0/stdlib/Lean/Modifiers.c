@@ -21,7 +21,7 @@ LEAN_EXPORT lean_object* l_Lean_isPrivatePrefix___boxed(lean_object*);
 static lean_object* l_Lean_privateHeader___closed__1;
 LEAN_EXPORT uint8_t lean_is_private_name(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isPrivateNameFromImportedModule___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* lean_add_protected(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_addProtected(lean_object*, lean_object*);
 uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_4____closed__1;
 LEAN_EXPORT lean_object* l_Lean_mkPrivateName(lean_object*, lean_object*);
@@ -32,7 +32,7 @@ lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_privateHeader;
 LEAN_EXPORT lean_object* l___private_Lean_Modifiers_0__Lean_privatePrefixAux___boxed(lean_object*);
 static lean_object* l_Lean_addProtected___closed__1;
-LEAN_EXPORT uint8_t lean_is_protected(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_isProtected(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_4_(lean_object*);
@@ -55,7 +55,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Modifiers___hyg_4____closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -63,7 +63,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Modifiers___hyg_4____closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("protectedExt", 12);
+x_1 = lean_mk_string_unchecked("protectedExt", 12, 12);
 return x_1;
 }
 }
@@ -94,7 +94,7 @@ x_1 = l_Lean_protectedExt;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* lean_add_protected(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_addProtected(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
@@ -103,13 +103,12 @@ x_4 = l_Lean_TagDeclarationExtension_tag(x_3, x_1, x_2);
 return x_4;
 }
 }
-LEAN_EXPORT uint8_t lean_is_protected(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Lean_isProtected(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
 x_3 = l_Lean_addProtected___closed__1;
 x_4 = l_Lean_TagDeclarationExtension_isTagged(x_3, x_1, x_2);
-lean_dec(x_1);
 return x_4;
 }
 }
@@ -117,7 +116,8 @@ LEAN_EXPORT lean_object* l_Lean_isProtected___boxed(lean_object* x_1, lean_objec
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = lean_is_protected(x_1, x_2);
+x_3 = l_Lean_isProtected(x_1, x_2);
+lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -126,7 +126,7 @@ static lean_object* _init_l_Lean_privateHeader___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private", 8);
+x_1 = lean_mk_string_unchecked("_private", 8, 8);
 return x_1;
 }
 }

@@ -152,7 +152,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_6____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pp", 2);
+x_1 = lean_mk_string_unchecked("pp", 2, 2);
 return x_1;
 }
 }
@@ -160,7 +160,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_6____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("auxDecls", 8);
+x_1 = lean_mk_string_unchecked("auxDecls", 8, 8);
 return x_1;
 }
 }
@@ -178,7 +178,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_6____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("display auxiliary declarations used to compile recursive functions", 66);
+x_1 = lean_mk_string_unchecked("display auxiliary declarations used to compile recursive functions", 66, 66);
 return x_1;
 }
 }
@@ -201,7 +201,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_6____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -209,7 +209,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_6____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -240,7 +240,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_48___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("implementationDetailHyps", 24);
+x_1 = lean_mk_string_unchecked("implementationDetailHyps", 24, 24);
 return x_1;
 }
 }
@@ -258,7 +258,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_48___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("display implementation detail hypotheses in the local context", 61);
+x_1 = lean_mk_string_unchecked("display implementation detail hypotheses in the local context", 61, 61);
 return x_1;
 }
 }
@@ -304,7 +304,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_90___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inaccessibleNames", 17);
+x_1 = lean_mk_string_unchecked("inaccessibleNames", 17, 17);
 return x_1;
 }
 }
@@ -322,7 +322,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_90___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("display inaccessible declarations in the local context", 54);
+x_1 = lean_mk_string_unchecked("display inaccessible declarations in the local context", 54, 54);
 return x_1;
 }
 }
@@ -368,7 +368,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_132__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("showLetValues", 13);
+x_1 = lean_mk_string_unchecked("showLetValues", 13, 13);
 return x_1;
 }
 }
@@ -386,7 +386,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_132__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("display let-declaration values in the info view", 47);
+x_1 = lean_mk_string_unchecked("display let-declaration values in the info view", 47, 47);
 return x_1;
 }
 }
@@ -452,7 +452,7 @@ static lean_object* _init_l_Lean_Meta_getGoalPrefix___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⊢ ", 4);
+x_1 = lean_mk_string_unchecked("⊢ ", 4, 2);
 return x_1;
 }
 }
@@ -460,7 +460,7 @@ static lean_object* _init_l_Lean_Meta_getGoalPrefix___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("| ", 2);
+x_1 = lean_mk_string_unchecked("| ", 2, 2);
 return x_1;
 }
 }
@@ -600,7 +600,7 @@ static lean_object* _init_l_Lean_Meta_ppGoal_pushPending___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -618,7 +618,7 @@ static lean_object* _init_l_Lean_Meta_ppGoal_pushPending___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" :", 2);
+x_1 = lean_mk_string_unchecked(" :", 2, 2);
 return x_1;
 }
 }
@@ -849,7 +849,7 @@ static lean_object* _init_l_Lean_Meta_ppGoal_ppVars___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" : ", 3);
+x_1 = lean_mk_string_unchecked(" : ", 3, 3);
 return x_1;
 }
 }
@@ -867,7 +867,7 @@ static lean_object* _init_l_Lean_Meta_ppGoal_ppVars___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" :=", 3);
+x_1 = lean_mk_string_unchecked(" :=", 3, 3);
 return x_1;
 }
 }
@@ -6833,7 +6833,7 @@ static lean_object* _init_l_Lean_Meta_ppGoal___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("case ", 5);
+x_1 = lean_mk_string_unchecked("case ", 5, 5);
 return x_1;
 }
 }
@@ -7555,7 +7555,7 @@ static lean_object* _init_l_Lean_Meta_ppGoal___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown goal", 12);
+x_1 = lean_mk_string_unchecked("unknown goal", 12, 12);
 return x_1;
 }
 }

@@ -203,7 +203,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("compiler", 8);
+x_1 = lean_mk_string_unchecked("compiler", 8, 8);
 return x_1;
 }
 }
@@ -211,7 +211,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("small", 5);
+x_1 = lean_mk_string_unchecked("small", 5, 5);
 return x_1;
 }
 }
@@ -229,7 +229,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(compiler) function declarations with size `≤ small` is inlined even if there are multiple occurrences.", 105);
+x_1 = lean_mk_string_unchecked("(compiler) function declarations with size `≤ small` is inlined even if there are multiple occurrences.", 105, 103);
 return x_1;
 }
 }
@@ -251,7 +251,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -259,7 +259,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Compiler", 8);
+x_1 = lean_mk_string_unchecked("Compiler", 8, 8);
 return x_1;
 }
 }
@@ -267,7 +267,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LCNF", 4);
+x_1 = lean_mk_string_unchecked("LCNF", 4, 4);
 return x_1;
 }
 }
@@ -308,7 +308,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("maxRecInline", 12);
+x_1 = lean_mk_string_unchecked("maxRecInline", 12, 12);
 return x_1;
 }
 }
@@ -326,7 +326,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(compiler) maximum number of times a recursive definition tagged with `[inline]` can be recursively inlined before generating an error during compilation.", 154);
+x_1 = lean_mk_string_unchecked("(compiler) maximum number of times a recursive definition tagged with `[inline]` can be recursively inlined before generating an error during compilation.", 154, 154);
 return x_1;
 }
 }
@@ -372,7 +372,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("maxRecInlineIfReduce", 20);
+x_1 = lean_mk_string_unchecked("maxRecInlineIfReduce", 20, 20);
 return x_1;
 }
 }
@@ -390,7 +390,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(compiler) maximum number of times a recursive definition tagged with `[inline_if_reduce]` can be recursively inlined before generating an error during compilation.", 164);
+x_1 = lean_mk_string_unchecked("(compiler) maximum number of times a recursive definition tagged with `[inline_if_reduce]` can be recursively inlined before generating an error during compilation.", 164, 164);
 return x_1;
 }
 }
@@ -512,7 +512,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("checkTypes", 10);
+x_1 = lean_mk_string_unchecked("checkTypes", 10, 10);
 return x_1;
 }
 }
@@ -530,7 +530,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(compiler) perform type compatibility checking after each compiler pass. Note this is not a complete check, and it is used only for debugging purposes. It fails in code that makes heavy use of dependent types.", 209);
+x_1 = lean_mk_string_unchecked("(compiler) perform type compatibility checking after each compiler pass. Note this is not a complete check, and it is used only for debugging purposes. It fails in code that makes heavy use of dependent types.", 209, 209);
 return x_1;
 }
 }

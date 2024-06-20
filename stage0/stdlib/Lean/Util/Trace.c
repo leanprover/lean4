@@ -1811,7 +1811,7 @@ static lean_object* _init_l___private_Lean_Util_Trace_0__Lean_checkTraceOption__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("trace", 5);
+x_1 = lean_mk_string_unchecked("trace", 5, 5);
 return x_1;
 }
 }
@@ -2184,7 +2184,7 @@ static lean_object* _init_l_Lean_addTrace___rarg___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -2589,7 +2589,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_Trace___hyg_1239____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("profiler", 8);
+x_1 = lean_mk_string_unchecked("profiler", 8, 8);
 return x_1;
 }
 }
@@ -2607,7 +2607,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_Trace___hyg_1239____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("activate nested traces with execution time above `trace.profiler.threshold` and annotate with time", 98);
+x_1 = lean_mk_string_unchecked("activate nested traces with execution time above `trace.profiler.threshold` and annotate with time", 98, 98);
 return x_1;
 }
 }
@@ -2630,7 +2630,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_Trace___hyg_1239____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -2660,7 +2660,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_Trace___hyg_1333____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("threshold", 9);
+x_1 = lean_mk_string_unchecked("threshold", 9, 9);
 return x_1;
 }
 }
@@ -2679,7 +2679,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_Trace___hyg_1333____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("threshold in milliseconds (or heartbeats if `trace.profiler.useHeartbeats` is true), traces below threshold will not be activated", 129);
+x_1 = lean_mk_string_unchecked("threshold in milliseconds (or heartbeats if `trace.profiler.useHeartbeats` is true), traces below threshold will not be activated", 129, 129);
 return x_1;
 }
 }
@@ -2724,7 +2724,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_Trace___hyg_1427____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("useHearbeats", 12);
+x_1 = lean_mk_string_unchecked("useHearbeats", 12, 12);
 return x_1;
 }
 }
@@ -2743,7 +2743,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_Trace___hyg_1427____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("if true, measure and report heartbeats instead of seconds", 57);
+x_1 = lean_mk_string_unchecked("if true, measure and report heartbeats instead of seconds", 57, 57);
 return x_1;
 }
 }
@@ -2865,7 +2865,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_Trace___hyg_1521____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("output", 6);
+x_1 = lean_mk_string_unchecked("output", 6, 6);
 return x_1;
 }
 }
@@ -2884,7 +2884,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_Trace___hyg_1521____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("output `trace.profiler` data in Firefox Profiler-compatible format to given file path", 85);
+x_1 = lean_mk_string_unchecked("output `trace.profiler` data in Firefox Profiler-compatible format to given file path", 85, 85);
 return x_1;
 }
 }
@@ -2938,7 +2938,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_Trace___hyg_1615____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pp", 2);
+x_1 = lean_mk_string_unchecked("pp", 2, 2);
 return x_1;
 }
 }
@@ -2958,7 +2958,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_Trace___hyg_1615____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("if false, limit text in exported trace nodes to trace class name and `TraceData.tag`, if any\n\nThis is useful when we are interested in the time taken by specific subsystems instead of specific invocations, which is the common case.", 231);
+x_1 = lean_mk_string_unchecked("if false, limit text in exported trace nodes to trace class name and `TraceData.tag`, if any\n\nThis is useful when we are interested in the time taken by specific subsystems instead of specific invocations, which is the common case.", 231, 231);
 return x_1;
 }
 }
@@ -3638,7 +3638,7 @@ static lean_object* _init_l_Lean_withTraceNode___rarg___lambda__6___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("<exception thrown while producing trace node message>", 53);
+x_1 = lean_mk_string_unchecked("<exception thrown while producing trace node message>", 53, 53);
 return x_1;
 }
 }
@@ -5365,7 +5365,7 @@ static lean_object* _init_l___auto____x40_Lean_Util_Trace___hyg_2988____closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -5373,7 +5373,7 @@ static lean_object* _init_l___auto____x40_Lean_Util_Trace___hyg_2988____closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -5381,7 +5381,7 @@ static lean_object* _init_l___auto____x40_Lean_Util_Trace___hyg_2988____closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq", 9);
+x_1 = lean_mk_string_unchecked("tacticSeq", 9, 9);
 return x_1;
 }
 }
@@ -5401,7 +5401,7 @@ static lean_object* _init_l___auto____x40_Lean_Util_Trace___hyg_2988____closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq1Indented", 18);
+x_1 = lean_mk_string_unchecked("tacticSeq1Indented", 18, 18);
 return x_1;
 }
 }
@@ -5421,7 +5421,7 @@ static lean_object* _init_l___auto____x40_Lean_Util_Trace___hyg_2988____closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -5439,7 +5439,7 @@ static lean_object* _init_l___auto____x40_Lean_Util_Trace___hyg_2988____closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("exact", 5);
+x_1 = lean_mk_string_unchecked("exact", 5, 5);
 return x_1;
 }
 }
@@ -5481,7 +5481,7 @@ static lean_object* _init_l___auto____x40_Lean_Util_Trace___hyg_2988____closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -5489,7 +5489,7 @@ static lean_object* _init_l___auto____x40_Lean_Util_Trace___hyg_2988____closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declName", 8);
+x_1 = lean_mk_string_unchecked("declName", 8, 8);
 return x_1;
 }
 }
@@ -5509,7 +5509,7 @@ static lean_object* _init_l___auto____x40_Lean_Util_Trace___hyg_2988____closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("decl_name%", 10);
+x_1 = lean_mk_string_unchecked("decl_name%", 10, 10);
 return x_1;
 }
 }
@@ -5667,7 +5667,7 @@ static lean_object* _init_l_Lean_registerTraceClass___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("enable/disable tracing for the given module and submodules", 58);
+x_1 = lean_mk_string_unchecked("enable/disable tracing for the given module and submodules", 58, 58);
 return x_1;
 }
 }
@@ -5790,7 +5790,7 @@ static lean_object* _init_l_Lean_doElemTrace_x5b___x5d_______closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doElemTrace[_]__", 16);
+x_1 = lean_mk_string_unchecked("doElemTrace[_]__", 16, 16);
 return x_1;
 }
 }
@@ -5808,7 +5808,7 @@ static lean_object* _init_l_Lean_doElemTrace_x5b___x5d_______closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("andthen", 7);
+x_1 = lean_mk_string_unchecked("andthen", 7, 7);
 return x_1;
 }
 }
@@ -5826,7 +5826,7 @@ static lean_object* _init_l_Lean_doElemTrace_x5b___x5d_______closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("trace[", 6);
+x_1 = lean_mk_string_unchecked("trace[", 6, 6);
 return x_1;
 }
 }
@@ -5844,7 +5844,7 @@ static lean_object* _init_l_Lean_doElemTrace_x5b___x5d_______closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ident", 5);
+x_1 = lean_mk_string_unchecked("ident", 5, 5);
 return x_1;
 }
 }
@@ -5886,7 +5886,7 @@ static lean_object* _init_l_Lean_doElemTrace_x5b___x5d_______closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -5918,7 +5918,7 @@ static lean_object* _init_l_Lean_doElemTrace_x5b___x5d_______closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("orelse", 6);
+x_1 = lean_mk_string_unchecked("orelse", 6, 6);
 return x_1;
 }
 }
@@ -5936,7 +5936,7 @@ static lean_object* _init_l_Lean_doElemTrace_x5b___x5d_______closed__16() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("interpolatedStr", 15);
+x_1 = lean_mk_string_unchecked("interpolatedStr", 15, 15);
 return x_1;
 }
 }
@@ -5954,7 +5954,7 @@ static lean_object* _init_l_Lean_doElemTrace_x5b___x5d_______closed__18() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term", 4);
+x_1 = lean_mk_string_unchecked("term", 4, 4);
 return x_1;
 }
 }
@@ -6046,7 +6046,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doNested", 8);
+x_1 = lean_mk_string_unchecked("doNested", 8, 8);
 return x_1;
 }
 }
@@ -6066,7 +6066,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("do", 2);
+x_1 = lean_mk_string_unchecked("do", 2, 2);
 return x_1;
 }
 }
@@ -6074,7 +6074,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doSeqIndent", 11);
+x_1 = lean_mk_string_unchecked("doSeqIndent", 11, 11);
 return x_1;
 }
 }
@@ -6094,7 +6094,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doSeqItem", 9);
+x_1 = lean_mk_string_unchecked("doSeqItem", 9, 9);
 return x_1;
 }
 }
@@ -6114,7 +6114,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doLet", 5);
+x_1 = lean_mk_string_unchecked("doLet", 5, 5);
 return x_1;
 }
 }
@@ -6134,7 +6134,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("let", 3);
+x_1 = lean_mk_string_unchecked("let", 3, 3);
 return x_1;
 }
 }
@@ -6142,7 +6142,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("letDecl", 7);
+x_1 = lean_mk_string_unchecked("letDecl", 7, 7);
 return x_1;
 }
 }
@@ -6162,7 +6162,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("letIdDecl", 9);
+x_1 = lean_mk_string_unchecked("letIdDecl", 9, 9);
 return x_1;
 }
 }
@@ -6182,7 +6182,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cls", 3);
+x_1 = lean_mk_string_unchecked("cls", 3, 3);
 return x_1;
 }
 }
@@ -6209,7 +6209,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":=", 2);
+x_1 = lean_mk_string_unchecked(":=", 2, 2);
 return x_1;
 }
 }
@@ -6217,7 +6217,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doIf", 4);
+x_1 = lean_mk_string_unchecked("doIf", 4, 4);
 return x_1;
 }
 }
@@ -6237,7 +6237,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("if", 2);
+x_1 = lean_mk_string_unchecked("if", 2, 2);
 return x_1;
 }
 }
@@ -6245,7 +6245,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doIfProp", 8);
+x_1 = lean_mk_string_unchecked("doIfProp", 8, 8);
 return x_1;
 }
 }
@@ -6265,7 +6265,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("paren", 5);
+x_1 = lean_mk_string_unchecked("paren", 5, 5);
 return x_1;
 }
 }
@@ -6285,7 +6285,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -6293,7 +6293,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("liftMethod", 10);
+x_1 = lean_mk_string_unchecked("liftMethod", 10, 10);
 return x_1;
 }
 }
@@ -6313,7 +6313,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("←", 3);
+x_1 = lean_mk_string_unchecked("←", 3, 1);
 return x_1;
 }
 }
@@ -6321,7 +6321,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("app", 3);
+x_1 = lean_mk_string_unchecked("app", 3, 3);
 return x_1;
 }
 }
@@ -6341,7 +6341,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.isTracingEnabledFor", 24);
+x_1 = lean_mk_string_unchecked("Lean.isTracingEnabledFor", 24, 24);
 return x_1;
 }
 }
@@ -6358,7 +6358,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("isTracingEnabledFor", 19);
+x_1 = lean_mk_string_unchecked("isTracingEnabledFor", 19, 19);
 return x_1;
 }
 }
@@ -6422,7 +6422,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -6430,7 +6430,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("then", 4);
+x_1 = lean_mk_string_unchecked("then", 4, 4);
 return x_1;
 }
 }
@@ -6438,7 +6438,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doExpr", 6);
+x_1 = lean_mk_string_unchecked("doExpr", 6, 6);
 return x_1;
 }
 }
@@ -6458,7 +6458,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.addTrace", 13);
+x_1 = lean_mk_string_unchecked("Lean.addTrace", 13, 13);
 return x_1;
 }
 }
@@ -6475,7 +6475,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("addTrace", 8);
+x_1 = lean_mk_string_unchecked("addTrace", 8, 8);
 return x_1;
 }
 }
@@ -6539,7 +6539,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("quotedName", 10);
+x_1 = lean_mk_string_unchecked("quotedName", 10, 10);
 return x_1;
 }
 }
@@ -6559,7 +6559,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -6567,7 +6567,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`", 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -6798,7 +6798,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("interpolatedStrKind", 19);
+x_1 = lean_mk_string_unchecked("interpolatedStrKind", 19, 19);
 return x_1;
 }
 }
@@ -6816,7 +6816,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("typeAscription", 14);
+x_1 = lean_mk_string_unchecked("typeAscription", 14, 14);
 return x_1;
 }
 }
@@ -6836,7 +6836,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
@@ -6844,7 +6844,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("MessageData", 11);
+x_1 = lean_mk_string_unchecked("MessageData", 11, 11);
 return x_1;
 }
 }
@@ -6927,7 +6927,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("termM!_", 7);
+x_1 = lean_mk_string_unchecked("termM!_", 7, 7);
 return x_1;
 }
 }
@@ -6945,7 +6945,7 @@ static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("m!", 2);
+x_1 = lean_mk_string_unchecked("m!", 2, 2);
 return x_1;
 }
 }
@@ -7112,7 +7112,7 @@ static lean_object* _init_l_Lean_bombEmoji___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("💥", 4);
+x_1 = lean_mk_string_unchecked("💥", 4, 1);
 return x_1;
 }
 }
@@ -7128,7 +7128,7 @@ static lean_object* _init_l_Lean_checkEmoji___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("✅", 3);
+x_1 = lean_mk_string_unchecked("✅", 3, 1);
 return x_1;
 }
 }
@@ -7144,7 +7144,7 @@ static lean_object* _init_l_Lean_crossEmoji___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("❌", 3);
+x_1 = lean_mk_string_unchecked("❌", 3, 1);
 return x_1;
 }
 }
@@ -7432,7 +7432,7 @@ static lean_object* _init_l_Lean_withTraceNodeBefore___rarg___lambda__3___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }

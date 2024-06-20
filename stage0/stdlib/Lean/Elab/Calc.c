@@ -293,7 +293,7 @@ static lean_object* _init_l___private_Lean_Elab_Calc_0__Lean_Elab_Term_getRelUni
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected relation type", 24);
+x_1 = lean_mk_string_unchecked("unexpected relation type", 24, 24);
 return x_1;
 }
 }
@@ -310,7 +310,7 @@ static lean_object* _init_l___private_Lean_Elab_Calc_0__Lean_Elab_Term_getRelUni
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -560,7 +560,7 @@ static lean_object* _init_l_Lean_Elab_Term_mkCalcTrans___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.Calc", 14);
+x_1 = lean_mk_string_unchecked("Lean.Elab.Calc", 14, 14);
 return x_1;
 }
 }
@@ -568,7 +568,7 @@ static lean_object* _init_l_Lean_Elab_Term_mkCalcTrans___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.Term.mkCalcTrans", 26);
+x_1 = lean_mk_string_unchecked("Lean.Elab.Term.mkCalcTrans", 26, 26);
 return x_1;
 }
 }
@@ -576,7 +576,7 @@ static lean_object* _init_l_Lean_Elab_Term_mkCalcTrans___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -610,7 +610,7 @@ static lean_object* _init_l_Lean_Elab_Term_mkCalcTrans___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Trans", 5);
+x_1 = lean_mk_string_unchecked("Trans", 5, 5);
 return x_1;
 }
 }
@@ -637,7 +637,7 @@ static lean_object* _init_l_Lean_Elab_Term_mkCalcTrans___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid 'calc' step, failed to synthesize `Trans` instance", 58);
+x_1 = lean_mk_string_unchecked("invalid 'calc' step, failed to synthesize `Trans` instance", 58, 58);
 return x_1;
 }
 }
@@ -654,7 +654,7 @@ static lean_object* _init_l_Lean_Elab_Term_mkCalcTrans___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -680,7 +680,7 @@ static lean_object* _init_l_Lean_Elab_Term_mkCalcTrans___closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("trans", 5);
+x_1 = lean_mk_string_unchecked("trans", 5, 5);
 return x_1;
 }
 }
@@ -707,7 +707,7 @@ static lean_object* _init_l_Lean_Elab_Term_mkCalcTrans___closed__17() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid 'calc' step, step result is not a relation", 50);
+x_1 = lean_mk_string_unchecked("invalid 'calc' step, step result is not a relation", 50, 50);
 return x_1;
 }
 }
@@ -10976,7 +10976,7 @@ static lean_object* _init_l_Lean_Elab_Term_annotateFirstHoleWithType_go___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -10984,7 +10984,7 @@ static lean_object* _init_l_Lean_Elab_Term_annotateFirstHoleWithType_go___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -10992,7 +10992,7 @@ static lean_object* _init_l_Lean_Elab_Term_annotateFirstHoleWithType_go___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -11000,7 +11000,7 @@ static lean_object* _init_l_Lean_Elab_Term_annotateFirstHoleWithType_go___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hole", 4);
+x_1 = lean_mk_string_unchecked("hole", 4, 4);
 return x_1;
 }
 }
@@ -11008,7 +11008,7 @@ static lean_object* _init_l_Lean_Elab_Term_annotateFirstHoleWithType_go___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("typeAscription", 14);
+x_1 = lean_mk_string_unchecked("typeAscription", 14, 14);
 return x_1;
 }
 }
@@ -11028,7 +11028,7 @@ static lean_object* _init_l_Lean_Elab_Term_annotateFirstHoleWithType_go___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -11036,7 +11036,7 @@ static lean_object* _init_l_Lean_Elab_Term_annotateFirstHoleWithType_go___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
@@ -11044,7 +11044,7 @@ static lean_object* _init_l_Lean_Elab_Term_annotateFirstHoleWithType_go___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -11062,7 +11062,7 @@ static lean_object* _init_l_Lean_Elab_Term_annotateFirstHoleWithType_go___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -14447,7 +14447,7 @@ static lean_object* _init_l_Lean_Elab_Term_getCalcFirstStep___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("calcFirstStep", 13);
+x_1 = lean_mk_string_unchecked("calcFirstStep", 13, 13);
 return x_1;
 }
 }
@@ -14465,7 +14465,7 @@ static lean_object* _init_l_Lean_Elab_Term_getCalcFirstStep___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("calcStep", 8);
+x_1 = lean_mk_string_unchecked("calcStep", 8, 8);
 return x_1;
 }
 }
@@ -14483,7 +14483,7 @@ static lean_object* _init_l_Lean_Elab_Term_getCalcFirstStep___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":=", 2);
+x_1 = lean_mk_string_unchecked(":=", 2, 2);
 return x_1;
 }
 }
@@ -14491,7 +14491,7 @@ static lean_object* _init_l_Lean_Elab_Term_getCalcFirstStep___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_=_", 7);
+x_1 = lean_mk_string_unchecked("term_=_", 7, 7);
 return x_1;
 }
 }
@@ -14509,7 +14509,7 @@ static lean_object* _init_l_Lean_Elab_Term_getCalcFirstStep___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("=", 1);
+x_1 = lean_mk_string_unchecked("=", 1, 1);
 return x_1;
 }
 }
@@ -14529,7 +14529,7 @@ static lean_object* _init_l_Lean_Elab_Term_getCalcFirstStep___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_", 1);
+x_1 = lean_mk_string_unchecked("_", 1, 1);
 return x_1;
 }
 }
@@ -14537,7 +14537,7 @@ static lean_object* _init_l_Lean_Elab_Term_getCalcFirstStep___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rfl", 3);
+x_1 = lean_mk_string_unchecked("rfl", 3, 3);
 return x_1;
 }
 }
@@ -14833,7 +14833,7 @@ static lean_object* _init_l_Lean_Elab_Term_getCalcSteps___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("calcSteps", 9);
+x_1 = lean_mk_string_unchecked("calcSteps", 9, 9);
 return x_1;
 }
 }
@@ -14851,7 +14851,7 @@ static lean_object* _init_l_Lean_Elab_Term_getCalcSteps___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.Term.getCalcSteps", 27);
+x_1 = lean_mk_string_unchecked("Lean.Elab.Term.getCalcSteps", 27, 27);
 return x_1;
 }
 }
@@ -15746,7 +15746,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Term_elabCalcS
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.Term.elabCalcSteps", 28);
+x_1 = lean_mk_string_unchecked("Lean.Elab.Term.elabCalcSteps", 28, 28);
 return x_1;
 }
 }
@@ -15767,7 +15767,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Term_elabCalcS
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid 'calc' step, relation expected", 38);
+x_1 = lean_mk_string_unchecked("invalid 'calc' step, relation expected", 38, 38);
 return x_1;
 }
 }
@@ -15784,7 +15784,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Term_elabCalcS
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid 'calc' step, left-hand-side is", 38);
+x_1 = lean_mk_string_unchecked("invalid 'calc' step, left-hand-side is", 38, 38);
 return x_1;
 }
 }
@@ -15801,7 +15801,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Term_elabCalcS
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" : ", 3);
+x_1 = lean_mk_string_unchecked(" : ", 3, 3);
 return x_1;
 }
 }
@@ -15818,7 +15818,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Term_elabCalcS
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nprevious right-hand-side is", 28);
+x_1 = lean_mk_string_unchecked("\nprevious right-hand-side is", 28, 28);
 return x_1;
 }
 }
@@ -18441,7 +18441,7 @@ static lean_object* _init_l_Lean_Elab_Term_elabCalcSteps___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.Data.Option.BasicAux", 25);
+x_1 = lean_mk_string_unchecked("Init.Data.Option.BasicAux", 25, 25);
 return x_1;
 }
 }
@@ -18449,7 +18449,7 @@ static lean_object* _init_l_Lean_Elab_Term_elabCalcSteps___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Option.get!", 11);
+x_1 = lean_mk_string_unchecked("Option.get!", 11, 11);
 return x_1;
 }
 }
@@ -18457,7 +18457,7 @@ static lean_object* _init_l_Lean_Elab_Term_elabCalcSteps___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("value is none", 13);
+x_1 = lean_mk_string_unchecked("value is none", 13, 13);
 return x_1;
 }
 }
@@ -18809,7 +18809,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabCalc__1___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("calc", 4);
+x_1 = lean_mk_string_unchecked("calc", 4, 4);
 return x_1;
 }
 }
@@ -18827,7 +18827,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabCalc__1___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -18835,7 +18835,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabCalc__1___closed__4(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elabCalc", 8);
+x_1 = lean_mk_string_unchecked("elabCalc", 8, 8);
 return x_1;
 }
 }
@@ -18883,7 +18883,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabCalc_docString__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elaborator for the `calc` term mode variant. ", 45);
+x_1 = lean_mk_string_unchecked("Elaborator for the `calc` term mode variant. ", 45, 45);
 return x_1;
 }
 }

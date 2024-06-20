@@ -1270,7 +1270,7 @@ static lean_object* _init_l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lamb
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("parameter '", 11);
+x_1 = lean_mk_string_unchecked("parameter '", 11, 11);
 return x_1;
 }
 }
@@ -1287,7 +1287,7 @@ static lean_object* _init_l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lamb
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' ", 2);
+x_1 = lean_mk_string_unchecked("' ", 2, 2);
 return x_1;
 }
 }
@@ -1304,7 +1304,7 @@ static lean_object* _init_l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lamb
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -1480,7 +1480,7 @@ static lean_object* _init_l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lamb
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("parameter name mismatch '", 25);
+x_1 = lean_mk_string_unchecked("parameter name mismatch '", 25, 25);
 return x_1;
 }
 }
@@ -1497,7 +1497,7 @@ static lean_object* _init_l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lamb
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', expected '", 13);
+x_1 = lean_mk_string_unchecked("', expected '", 13, 13);
 return x_1;
 }
 }
@@ -1514,7 +1514,7 @@ static lean_object* _init_l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lamb
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -1658,7 +1658,7 @@ static lean_object* _init_l_Lean_Meta_forallTelescopeCompatibleAux___rarg___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected number of parameters", 31);
+x_1 = lean_mk_string_unchecked("unexpected number of parameters", 31, 31);
 return x_1;
 }
 }
@@ -1675,7 +1675,7 @@ static lean_object* _init_l_Lean_Meta_forallTelescopeCompatibleAux___rarg___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("binder annotation mismatch at parameter '", 41);
+x_1 = lean_mk_string_unchecked("binder annotation mismatch at parameter '", 41, 41);
 return x_1;
 }
 }
@@ -2956,7 +2956,7 @@ static lean_object* _init_l_Lean_Elab_sortDeclLevelParams___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unused universe parameter '", 27);
+x_1 = lean_mk_string_unchecked("unused universe parameter '", 27, 27);
 return x_1;
 }
 }

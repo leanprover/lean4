@@ -69,7 +69,7 @@ static lean_object* _init_l_List_mapTR_loop___at_Lake_mkCmdLog___spec__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PATH", 4);
+x_1 = lean_mk_string_unchecked("PATH", 4, 4);
 return x_1;
 }
 }
@@ -77,7 +77,7 @@ static lean_object* _init_l_List_mapTR_loop___at_Lake_mkCmdLog___spec__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -85,7 +85,7 @@ static lean_object* _init_l_List_mapTR_loop___at_Lake_mkCmdLog___spec__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("=", 1);
+x_1 = lean_mk_string_unchecked("=", 1, 1);
 return x_1;
 }
 }
@@ -93,7 +93,7 @@ static lean_object* _init_l_List_mapTR_loop___at_Lake_mkCmdLog___spec__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -101,7 +101,7 @@ static lean_object* _init_l_List_mapTR_loop___at_Lake_mkCmdLog___spec__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PATH ", 5);
+x_1 = lean_mk_string_unchecked("PATH ", 5, 5);
 return x_1;
 }
 }
@@ -267,7 +267,7 @@ static lean_object* _init_l_Lake_mkCmdLog___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -285,7 +285,7 @@ static lean_object* _init_l_Lake_mkCmdLog___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("> ", 2);
+x_1 = lean_mk_string_unchecked("> ", 2, 2);
 return x_1;
 }
 }
@@ -360,7 +360,7 @@ static lean_object* _init_l_Lake_logOutput___rarg___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("stderr:\n", 8);
+x_1 = lean_mk_string_unchecked("stderr:\n", 8, 8);
 return x_1;
 }
 }
@@ -401,7 +401,7 @@ static lean_object* _init_l_Lake_logOutput___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("stdout:\n", 8);
+x_1 = lean_mk_string_unchecked("stdout:\n", 8, 8);
 return x_1;
 }
 }
@@ -477,7 +477,7 @@ static lean_object* _init_l_Lake_rawProc___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to execute '", 19);
+x_1 = lean_mk_string_unchecked("failed to execute '", 19, 19);
 return x_1;
 }
 }
@@ -485,7 +485,7 @@ static lean_object* _init_l_Lake_rawProc___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("': ", 3);
+x_1 = lean_mk_string_unchecked("': ", 3, 3);
 return x_1;
 }
 }
@@ -971,7 +971,7 @@ static lean_object* _init_l_Lake_proc___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("external command '", 18);
+x_1 = lean_mk_string_unchecked("external command '", 18, 18);
 return x_1;
 }
 }
@@ -979,7 +979,7 @@ static lean_object* _init_l_Lake_proc___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' exited with code ", 19);
+x_1 = lean_mk_string_unchecked("' exited with code ", 19, 19);
 return x_1;
 }
 }

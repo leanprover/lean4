@@ -934,7 +934,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.Basic", 24);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.Basic", 24, 24);
 return x_1;
 }
 }
@@ -942,7 +942,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.Arg.updateTypeImp", 72);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.Arg.updateTypeImp", 72, 72);
 return x_1;
 }
 }
@@ -950,7 +950,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -1021,7 +1021,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.Arg.updateFVarImp", 72);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.Arg.updateFVarImp", 72, 72);
 return x_1;
 }
 }
@@ -1662,7 +1662,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.LetValue.updateProjImp", 77);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.LetValue.updateProjImp", 77, 77);
 return x_1;
 }
 }
@@ -1743,7 +1743,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.LetValue.updateConstImp", 78);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.LetValue.updateConstImp", 78, 78);
 return x_1;
 }
 }
@@ -1905,7 +1905,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.LetValue.updateFVarImp", 77);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.LetValue.updateFVarImp", 77, 77);
 return x_1;
 }
 }
@@ -2016,7 +2016,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.LetValue.updateArgsImp", 77);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.LetValue.updateArgsImp", 77, 77);
 return x_1;
 }
 }
@@ -3707,7 +3707,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.updateAltImp", 67);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.updateAltImp", 67, 67);
 return x_1;
 }
 }
@@ -3838,7 +3838,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.updateAltsImp", 68);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.updateAltsImp", 68, 68);
 return x_1;
 }
 }
@@ -3971,7 +3971,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.updateCasesImp", 69);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.updateCasesImp", 69, 69);
 return x_1;
 }
 }
@@ -4242,7 +4242,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.updateLetImp", 67);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.updateLetImp", 67, 67);
 return x_1;
 }
 }
@@ -4355,7 +4355,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.updateContImp", 68);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.updateContImp", 68, 68);
 return x_1;
 }
 }
@@ -4518,7 +4518,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.updateFunImp", 67);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.updateFunImp", 67, 67);
 return x_1;
 }
 }
@@ -4710,7 +4710,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.updateReturnImp", 70);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.updateReturnImp", 70, 70);
 return x_1;
 }
 }
@@ -4779,7 +4779,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.updateJmpImp", 67);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.updateJmpImp", 67, 67);
 return x_1;
 }
 }
@@ -4890,7 +4890,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.updateUnreachImp", 71);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.updateUnreachImp", 71, 71);
 return x_1;
 }
 }
@@ -5335,7 +5335,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_CasesCore_extractAlt_x21___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.CasesCore.extractAlt!", 40);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.CasesCore.extractAlt!", 40, 40);
 return x_1;
 }
 }
@@ -8530,7 +8530,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.collectType", 66);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.collectType", 66, 66);
 return x_1;
 }
 }

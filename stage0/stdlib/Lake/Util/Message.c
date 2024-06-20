@@ -59,7 +59,7 @@ static lean_object* _init_l_Lake_mkParserErrorMessage___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -316,7 +316,7 @@ static lean_object* _init_l_Lake_mkMessageStringCore___lambda__2___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -372,7 +372,7 @@ static lean_object* _init_l_Lake_mkMessageStringCore___lambda__3___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("info: ", 6);
+x_1 = lean_mk_string_unchecked("info: ", 6, 6);
 return x_1;
 }
 }
@@ -380,7 +380,7 @@ static lean_object* _init_l_Lake_mkMessageStringCore___lambda__3___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("warning: ", 9);
+x_1 = lean_mk_string_unchecked("warning: ", 9, 9);
 return x_1;
 }
 }
@@ -388,7 +388,7 @@ static lean_object* _init_l_Lake_mkMessageStringCore___lambda__3___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("error: ", 7);
+x_1 = lean_mk_string_unchecked("error: ", 7, 7);
 return x_1;
 }
 }
@@ -450,7 +450,7 @@ static lean_object* _init_l_Lake_mkMessageStringCore___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":\n", 2);
+x_1 = lean_mk_string_unchecked(":\n", 2, 2);
 return x_1;
 }
 }

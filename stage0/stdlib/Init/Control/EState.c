@@ -37,7 +37,7 @@ static lean_object* _init_l_EStateM_instToStringResult___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ok: ", 4);
+x_1 = lean_mk_string_unchecked("ok: ", 4, 4);
 return x_1;
 }
 }
@@ -45,7 +45,7 @@ static lean_object* _init_l_EStateM_instToStringResult___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("error: ", 7);
+x_1 = lean_mk_string_unchecked("error: ", 7, 7);
 return x_1;
 }
 }
@@ -92,7 +92,7 @@ static lean_object* _init_l_EStateM_instReprResult___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("EStateM.Result.ok ", 18);
+x_1 = lean_mk_string_unchecked("EStateM.Result.ok ", 18, 18);
 return x_1;
 }
 }
@@ -110,7 +110,7 @@ static lean_object* _init_l_EStateM_instReprResult___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("EStateM.Result.error ", 21);
+x_1 = lean_mk_string_unchecked("EStateM.Result.error ", 21, 21);
 return x_1;
 }
 }

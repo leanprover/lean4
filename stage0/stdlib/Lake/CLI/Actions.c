@@ -175,7 +175,7 @@ static lean_object* _init_l_Lake_exe___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown executable `", 20);
+x_1 = lean_mk_string_unchecked("unknown executable `", 20, 20);
 return x_1;
 }
 }
@@ -183,7 +183,7 @@ static lean_object* _init_l_Lake_exe___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`", 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -191,7 +191,7 @@ static lean_object* _init_l_Lake_exe___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("build failed", 12);
+x_1 = lean_mk_string_unchecked("build failed", 12, 12);
 return x_1;
 }
 }
@@ -332,7 +332,7 @@ static lean_object* _init_l_Lake_Package_pack___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("packing ", 8);
+x_1 = lean_mk_string_unchecked("packing ", 8, 8);
 return x_1;
 }
 }
@@ -340,7 +340,7 @@ static lean_object* _init_l_Lake_Package_pack___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -385,7 +385,7 @@ static lean_object* _init_l_Lake_Package_unpack___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unpacking ", 10);
+x_1 = lean_mk_string_unchecked("unpacking ", 10, 10);
 return x_1;
 }
 }
@@ -420,7 +420,7 @@ static lean_object* _init_l_Lake_Package_uploadRelease___lambda__1___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("gh", 2);
+x_1 = lean_mk_string_unchecked("gh", 2, 2);
 return x_1;
 }
 }
@@ -448,7 +448,7 @@ static lean_object* _init_l_Lake_Package_uploadRelease___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("uploading ", 10);
+x_1 = lean_mk_string_unchecked("uploading ", 10, 10);
 return x_1;
 }
 }
@@ -456,7 +456,7 @@ static lean_object* _init_l_Lake_Package_uploadRelease___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
@@ -473,7 +473,7 @@ static lean_object* _init_l_Lake_Package_uploadRelease___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("release", 7);
+x_1 = lean_mk_string_unchecked("release", 7, 7);
 return x_1;
 }
 }
@@ -491,7 +491,7 @@ static lean_object* _init_l_Lake_Package_uploadRelease___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("upload", 6);
+x_1 = lean_mk_string_unchecked("upload", 6, 6);
 return x_1;
 }
 }
@@ -509,7 +509,7 @@ static lean_object* _init_l_Lake_Package_uploadRelease___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("--clobber", 9);
+x_1 = lean_mk_string_unchecked("--clobber", 9, 9);
 return x_1;
 }
 }
@@ -534,7 +534,7 @@ static lean_object* _init_l_Lake_Package_uploadRelease___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-R", 2);
+x_1 = lean_mk_string_unchecked("-R", 2, 2);
 return x_1;
 }
 }
@@ -779,7 +779,7 @@ static lean_object* _init_l_Lake_Package_resolveDriver___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": invalid ", 10);
+x_1 = lean_mk_string_unchecked(": invalid ", 10, 10);
 return x_1;
 }
 }
@@ -787,7 +787,7 @@ static lean_object* _init_l_Lake_Package_resolveDriver___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" driver '", 9);
+x_1 = lean_mk_string_unchecked(" driver '", 9, 9);
 return x_1;
 }
 }
@@ -795,7 +795,7 @@ static lean_object* _init_l_Lake_Package_resolveDriver___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' (too many '/')", 16);
+x_1 = lean_mk_string_unchecked("' (too many '/')", 16, 16);
 return x_1;
 }
 }
@@ -803,7 +803,7 @@ static lean_object* _init_l_Lake_Package_resolveDriver___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": unknown ", 10);
+x_1 = lean_mk_string_unchecked(": unknown ", 10, 10);
 return x_1;
 }
 }
@@ -811,7 +811,7 @@ static lean_object* _init_l_Lake_Package_resolveDriver___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" driver package '", 17);
+x_1 = lean_mk_string_unchecked(" driver package '", 17, 17);
 return x_1;
 }
 }
@@ -819,7 +819,7 @@ static lean_object* _init_l_Lake_Package_resolveDriver___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -827,7 +827,7 @@ static lean_object* _init_l_Lake_Package_resolveDriver___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": no ", 5);
+x_1 = lean_mk_string_unchecked(": no ", 5, 5);
 return x_1;
 }
 }
@@ -835,7 +835,7 @@ static lean_object* _init_l_Lake_Package_resolveDriver___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" driver configured", 18);
+x_1 = lean_mk_string_unchecked(" driver configured", 18, 18);
 return x_1;
 }
 }
@@ -1218,7 +1218,7 @@ static lean_object* _init_l_Lake_Package_test___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": invalid test driver: ", 23);
+x_1 = lean_mk_string_unchecked(": invalid test driver: ", 23, 23);
 return x_1;
 }
 }
@@ -1510,7 +1510,7 @@ static lean_object* _init_l_Lake_Package_test___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("test", 4);
+x_1 = lean_mk_string_unchecked("test", 4, 4);
 return x_1;
 }
 }
@@ -1518,7 +1518,7 @@ static lean_object* _init_l_Lake_Package_test___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": invalid test driver: unknown script, executable, or library '", 63);
+x_1 = lean_mk_string_unchecked(": invalid test driver: unknown script, executable, or library '", 63, 63);
 return x_1;
 }
 }
@@ -1526,7 +1526,7 @@ static lean_object* _init_l_Lake_Package_test___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": arguments cannot be passed to a library test driver", 53);
+x_1 = lean_mk_string_unchecked(": arguments cannot be passed to a library test driver", 53, 53);
 return x_1;
 }
 }
@@ -2486,7 +2486,7 @@ static lean_object* _init_l_Lake_Package_lint___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lint", 4);
+x_1 = lean_mk_string_unchecked("lint", 4, 4);
 return x_1;
 }
 }
@@ -2494,7 +2494,7 @@ static lean_object* _init_l_Lake_Package_lint___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": invalid lint driver: unknown script or executable '", 53);
+x_1 = lean_mk_string_unchecked(": invalid lint driver: unknown script or executable '", 53, 53);
 return x_1;
 }
 }

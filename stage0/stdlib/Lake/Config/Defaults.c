@@ -44,7 +44,7 @@ static lean_object* _init_l_Lake_defaultLakeDir___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".lake", 5);
+x_1 = lean_mk_string_unchecked(".lake", 5, 5);
 return x_1;
 }
 }
@@ -60,7 +60,7 @@ static lean_object* _init_l_Lake_defaultPackagesDir___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("packages", 8);
+x_1 = lean_mk_string_unchecked("packages", 8, 8);
 return x_1;
 }
 }
@@ -86,7 +86,7 @@ static lean_object* _init_l_Lake_defaultConfigFile___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lakefile", 8);
+x_1 = lean_mk_string_unchecked("lakefile", 8, 8);
 return x_1;
 }
 }
@@ -102,7 +102,7 @@ static lean_object* _init_l_Lake_defaultLeanConfigFile___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lean", 4);
+x_1 = lean_mk_string_unchecked("lean", 4, 4);
 return x_1;
 }
 }
@@ -128,7 +128,7 @@ static lean_object* _init_l_Lake_defaultTomlConfigFile___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("toml", 4);
+x_1 = lean_mk_string_unchecked("toml", 4, 4);
 return x_1;
 }
 }
@@ -154,7 +154,7 @@ static lean_object* _init_l_Lake_defaultManifestFile___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lake-manifest.json", 18);
+x_1 = lean_mk_string_unchecked("lake-manifest.json", 18, 18);
 return x_1;
 }
 }
@@ -170,7 +170,7 @@ static lean_object* _init_l_Lake_defaultBuildDir___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("build", 5);
+x_1 = lean_mk_string_unchecked("build", 5, 5);
 return x_1;
 }
 }
@@ -196,7 +196,7 @@ static lean_object* _init_l_Lake_defaultLeanLibDir___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lib", 3);
+x_1 = lean_mk_string_unchecked("lib", 3, 3);
 return x_1;
 }
 }
@@ -220,7 +220,7 @@ static lean_object* _init_l_Lake_defaultBinDir___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("bin", 3);
+x_1 = lean_mk_string_unchecked("bin", 3, 3);
 return x_1;
 }
 }
@@ -236,7 +236,7 @@ static lean_object* _init_l_Lake_defaultIrDir___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ir", 2);
+x_1 = lean_mk_string_unchecked("ir", 2, 2);
 return x_1;
 }
 }

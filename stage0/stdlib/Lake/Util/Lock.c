@@ -118,7 +118,7 @@ static lean_object* _init_l_Lake_busyAcquireLockFile_busyLoop___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("warning: waiting for prior `lake build` invocation to finish... (remove '", 73);
+x_1 = lean_mk_string_unchecked("warning: waiting for prior `lake build` invocation to finish... (remove '", 73, 73);
 return x_1;
 }
 }
@@ -126,7 +126,7 @@ static lean_object* _init_l_Lake_busyAcquireLockFile_busyLoop___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' if stuck)", 11);
+x_1 = lean_mk_string_unchecked("' if stuck)", 11, 11);
 return x_1;
 }
 }
@@ -398,7 +398,7 @@ static lean_object* _init_l_Lake_withLockFile___rarg___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("warning: `", 10);
+x_1 = lean_mk_string_unchecked("warning: `", 10, 10);
 return x_1;
 }
 }
@@ -406,7 +406,7 @@ static lean_object* _init_l_Lake_withLockFile___rarg___lambda__2___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` was deleted before the lock was released", 42);
+x_1 = lean_mk_string_unchecked("` was deleted before the lock was released", 42, 42);
 return x_1;
 }
 }

@@ -242,7 +242,7 @@ static lean_object* _init_l_Lean_logAt___at_Lean_addDecl___spec__5___lambda__1__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -361,7 +361,7 @@ static lean_object* _init_l_Lean_logAt___at_Lean_addDecl___spec__5___lambda__2__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -369,7 +369,7 @@ static lean_object* _init_l_Lean_logAt___at_Lean_addDecl___spec__5___lambda__2__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -377,7 +377,7 @@ static lean_object* _init_l_Lean_logAt___at_Lean_addDecl___spec__5___lambda__2__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unsolvedGoals", 13);
+x_1 = lean_mk_string_unchecked("unsolvedGoals", 13, 13);
 return x_1;
 }
 }
@@ -385,7 +385,7 @@ static lean_object* _init_l_Lean_logAt___at_Lean_addDecl___spec__5___lambda__2__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("synthPlaceholder", 16);
+x_1 = lean_mk_string_unchecked("synthPlaceholder", 16, 16);
 return x_1;
 }
 }
@@ -1375,7 +1375,7 @@ static lean_object* _init_l_Lean_withTraceNode___at_Lean_addDecl___spec__6___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("<exception thrown while producing trace node message>", 53);
+x_1 = lean_mk_string_unchecked("<exception thrown while producing trace node message>", 53, 53);
 return x_1;
 }
 }
@@ -2535,7 +2535,7 @@ static lean_object* _init_l_Lean_addDecl___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("typechecking declaration", 24);
+x_1 = lean_mk_string_unchecked("typechecking declaration", 24, 24);
 return x_1;
 }
 }
@@ -2601,7 +2601,7 @@ static lean_object* _init_l_Lean_addDecl___lambda__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declaration uses 'sorry'", 24);
+x_1 = lean_mk_string_unchecked("declaration uses 'sorry'", 24, 24);
 return x_1;
 }
 }
@@ -2684,7 +2684,7 @@ static lean_object* _init_l_Lean_addDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Kernel", 6);
+x_1 = lean_mk_string_unchecked("Kernel", 6, 6);
 return x_1;
 }
 }
@@ -2710,7 +2710,7 @@ static lean_object* _init_l_Lean_addDecl___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("type checking", 13);
+x_1 = lean_mk_string_unchecked("type checking", 13, 13);
 return x_1;
 }
 }

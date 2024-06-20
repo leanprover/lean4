@@ -321,7 +321,7 @@ static lean_object* _init_l_Lean_ParseImports_State_mkEOIError___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected end of input", 23);
+x_1 = lean_mk_string_unchecked("unexpected end of input", 23, 23);
 return x_1;
 }
 }
@@ -452,7 +452,7 @@ static lean_object* _init_l_Lean_ParseImports_finishCommentBlock_eoi___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unterminated comment", 20);
+x_1 = lean_mk_string_unchecked("unterminated comment", 20, 20);
 return x_1;
 }
 }
@@ -1068,7 +1068,7 @@ static lean_object* _init_l_Lean_ParseImports_whitespace___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tabs are not allowed; please configure your editor to expand them", 65);
+x_1 = lean_mk_string_unchecked("tabs are not allowed; please configure your editor to expand them", 65, 65);
 return x_1;
 }
 }
@@ -1497,7 +1497,7 @@ static lean_object* _init_l_Lean_ParseImports_keywordCore_go___at_Lean_ParseImpo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`", 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -1505,7 +1505,7 @@ static lean_object* _init_l_Lean_ParseImports_keywordCore_go___at_Lean_ParseImpo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` expected", 10);
+x_1 = lean_mk_string_unchecked("` expected", 10, 10);
 return x_1;
 }
 }
@@ -2230,7 +2230,7 @@ static lean_object* _init_l_Lean_ParseImports_moduleIdent_parse___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected identifier", 19);
+x_1 = lean_mk_string_unchecked("expected identifier", 19, 19);
 return x_1;
 }
 }
@@ -2248,7 +2248,7 @@ static lean_object* _init_l_Lean_ParseImports_moduleIdent_parse___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unterminated identifier escape", 30);
+x_1 = lean_mk_string_unchecked("unterminated identifier escape", 30, 30);
 return x_1;
 }
 }
@@ -3099,7 +3099,7 @@ static lean_object* _init_l_Lean_ParseImports_keywordCore_go___at_Lean_ParseImpo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init", 4);
+x_1 = lean_mk_string_unchecked("Init", 4, 4);
 return x_1;
 }
 }
@@ -3228,7 +3228,7 @@ static lean_object* _init_l_Lean_ParseImports_keywordCore_go___at_Lean_ParseImpo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("import", 6);
+x_1 = lean_mk_string_unchecked("import", 6, 6);
 return x_1;
 }
 }
@@ -3474,7 +3474,7 @@ static lean_object* _init_l_Lean_ParseImports_many___at_Lean_ParseImports_main__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("runtime", 7);
+x_1 = lean_mk_string_unchecked("runtime", 7, 7);
 return x_1;
 }
 }
@@ -3620,7 +3620,7 @@ static lean_object* _init_l_Lean_ParseImports_main___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("prelude", 7);
+x_1 = lean_mk_string_unchecked("prelude", 7, 7);
 return x_1;
 }
 }
@@ -3690,7 +3690,7 @@ static lean_object* _init_l_Lean_parseImports_x27___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -3698,7 +3698,7 @@ static lean_object* _init_l_Lean_parseImports_x27___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -3782,7 +3782,7 @@ static lean_object* _init_l___private_Lean_Elab_ParseImportsFast_0__Lean_toJsonI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("module", 6);
+x_1 = lean_mk_string_unchecked("module", 6, 6);
 return x_1;
 }
 }
@@ -3790,7 +3790,7 @@ static lean_object* _init_l___private_Lean_Elab_ParseImportsFast_0__Lean_toJsonI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("runtimeOnly", 11);
+x_1 = lean_mk_string_unchecked("runtimeOnly", 11, 11);
 return x_1;
 }
 }
@@ -3980,7 +3980,7 @@ static lean_object* _init_l___private_Lean_Elab_ParseImportsFast_0__Lean_toJsonP
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("imports", 7);
+x_1 = lean_mk_string_unchecked("imports", 7, 7);
 return x_1;
 }
 }
@@ -3988,7 +3988,7 @@ static lean_object* _init_l___private_Lean_Elab_ParseImportsFast_0__Lean_toJsonP
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("errors", 6);
+x_1 = lean_mk_string_unchecked("errors", 6, 6);
 return x_1;
 }
 }

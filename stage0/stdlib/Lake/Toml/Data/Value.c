@@ -147,7 +147,7 @@ static lean_object* _init_l_Lake_Toml_instInhabitedValue___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -780,7 +780,7 @@ static lean_object* _init_l_String_foldlAux___at_Lake_Toml_ppString___spec__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\\u", 2);
+x_1 = lean_mk_string_unchecked("\\u", 2, 2);
 return x_1;
 }
 }
@@ -788,7 +788,7 @@ static lean_object* _init_l_String_foldlAux___at_Lake_Toml_ppString___spec__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\\\\", 2);
+x_1 = lean_mk_string_unchecked("\\\\", 2, 2);
 return x_1;
 }
 }
@@ -796,7 +796,7 @@ static lean_object* _init_l_String_foldlAux___at_Lake_Toml_ppString___spec__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\\\"", 2);
+x_1 = lean_mk_string_unchecked("\\\"", 2, 2);
 return x_1;
 }
 }
@@ -804,7 +804,7 @@ static lean_object* _init_l_String_foldlAux___at_Lake_Toml_ppString___spec__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\\r", 2);
+x_1 = lean_mk_string_unchecked("\\r", 2, 2);
 return x_1;
 }
 }
@@ -812,7 +812,7 @@ static lean_object* _init_l_String_foldlAux___at_Lake_Toml_ppString___spec__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\\f", 2);
+x_1 = lean_mk_string_unchecked("\\f", 2, 2);
 return x_1;
 }
 }
@@ -820,7 +820,7 @@ static lean_object* _init_l_String_foldlAux___at_Lake_Toml_ppString___spec__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\\n", 2);
+x_1 = lean_mk_string_unchecked("\\n", 2, 2);
 return x_1;
 }
 }
@@ -828,7 +828,7 @@ static lean_object* _init_l_String_foldlAux___at_Lake_Toml_ppString___spec__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\\t", 2);
+x_1 = lean_mk_string_unchecked("\\t", 2, 2);
 return x_1;
 }
 }
@@ -836,7 +836,7 @@ static lean_object* _init_l_String_foldlAux___at_Lake_Toml_ppString___spec__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\\b", 2);
+x_1 = lean_mk_string_unchecked("\\b", 2, 2);
 return x_1;
 }
 }
@@ -1022,7 +1022,7 @@ static lean_object* _init_l_Lake_Toml_ppString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\"", 1);
+x_1 = lean_mk_string_unchecked("\"", 1, 1);
 return x_1;
 }
 }
@@ -1167,7 +1167,7 @@ static lean_object* _init_l_Lake_Toml_ppKey___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -1223,7 +1223,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lake_Toml_ppInlineTable___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" = ", 3);
+x_1 = lean_mk_string_unchecked(" = ", 3, 3);
 return x_1;
 }
 }
@@ -1271,7 +1271,7 @@ static lean_object* _init_l_Lake_Toml_ppInlineTable___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", ", 2);
+x_1 = lean_mk_string_unchecked(", ", 2, 2);
 return x_1;
 }
 }
@@ -1279,7 +1279,7 @@ static lean_object* _init_l_Lake_Toml_ppInlineTable___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("{", 1);
+x_1 = lean_mk_string_unchecked("{", 1, 1);
 return x_1;
 }
 }
@@ -1287,7 +1287,7 @@ static lean_object* _init_l_Lake_Toml_ppInlineTable___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("}", 1);
+x_1 = lean_mk_string_unchecked("}", 1, 1);
 return x_1;
 }
 }
@@ -1327,7 +1327,7 @@ static lean_object* _init_l_Lake_Toml_Value_toString___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-", 1);
+x_1 = lean_mk_string_unchecked("-", 1, 1);
 return x_1;
 }
 }
@@ -1335,7 +1335,7 @@ static lean_object* _init_l_Lake_Toml_Value_toString___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("false", 5);
+x_1 = lean_mk_string_unchecked("false", 5, 5);
 return x_1;
 }
 }
@@ -1343,7 +1343,7 @@ static lean_object* _init_l_Lake_Toml_Value_toString___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("true", 4);
+x_1 = lean_mk_string_unchecked("true", 4, 4);
 return x_1;
 }
 }
@@ -1479,7 +1479,7 @@ static lean_object* _init_l_Lake_Toml_ppInlineArray___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -1487,7 +1487,7 @@ static lean_object* _init_l_Lake_Toml_ppInlineArray___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -1555,7 +1555,7 @@ static lean_object* _init_l_Lake_Toml_ppTable_appendKeyval___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -1620,7 +1620,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lake_Toml_ppTable___spe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.Toml.Data.Value", 20);
+x_1 = lean_mk_string_unchecked("Lake.Toml.Data.Value", 20, 20);
 return x_1;
 }
 }
@@ -1628,7 +1628,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lake_Toml_ppTable___spe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.Toml.ppTable", 17);
+x_1 = lean_mk_string_unchecked("Lake.Toml.ppTable", 17, 17);
 return x_1;
 }
 }
@@ -1636,7 +1636,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lake_Toml_ppTable___spe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -1657,7 +1657,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lake_Toml_ppTable___spe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[[", 2);
+x_1 = lean_mk_string_unchecked("[[", 2, 2);
 return x_1;
 }
 }
@@ -1665,7 +1665,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lake_Toml_ppTable___spe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]]\n", 3);
+x_1 = lean_mk_string_unchecked("]]\n", 3, 3);
 return x_1;
 }
 }
@@ -1796,7 +1796,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lake_Toml_ppTable___spe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]\n", 2);
+x_1 = lean_mk_string_unchecked("]\n", 2, 2);
 return x_1;
 }
 }

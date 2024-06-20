@@ -250,7 +250,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalSymm___lambda__4___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("symm made no progress", 21);
+x_1 = lean_mk_string_unchecked("symm made no progress", 21, 21);
 return x_1;
 }
 }
@@ -276,7 +276,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalSymm___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -284,7 +284,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalSymm___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -292,7 +292,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalSymm___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -300,7 +300,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalSymm___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("symm", 4);
+x_1 = lean_mk_string_unchecked("symm", 4, 4);
 return x_1;
 }
 }
@@ -462,7 +462,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalSymm__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -470,7 +470,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalSymm__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalSymm", 8);
+x_1 = lean_mk_string_unchecked("evalSymm", 8, 8);
 return x_1;
 }
 }
@@ -712,7 +712,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalSymmSaturate___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("symmSaturate", 12);
+x_1 = lean_mk_string_unchecked("symmSaturate", 12, 12);
 return x_1;
 }
 }
@@ -781,7 +781,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalSymmSaturate__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalSymmSaturate", 16);
+x_1 = lean_mk_string_unchecked("evalSymmSaturate", 16, 16);
 return x_1;
 }
 }

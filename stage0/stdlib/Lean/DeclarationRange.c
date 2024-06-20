@@ -257,7 +257,7 @@ static lean_object* _init_l___private_Lean_DeclarationRange_0__Lean_reprDeclarat
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pos", 3);
+x_1 = lean_mk_string_unchecked("pos", 3, 3);
 return x_1;
 }
 }
@@ -287,7 +287,7 @@ static lean_object* _init_l___private_Lean_DeclarationRange_0__Lean_reprDeclarat
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" := ", 4);
+x_1 = lean_mk_string_unchecked(" := ", 4, 4);
 return x_1;
 }
 }
@@ -326,7 +326,7 @@ static lean_object* _init_l___private_Lean_DeclarationRange_0__Lean_reprDeclarat
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -344,7 +344,7 @@ static lean_object* _init_l___private_Lean_DeclarationRange_0__Lean_reprDeclarat
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("charUtf16", 9);
+x_1 = lean_mk_string_unchecked("charUtf16", 9, 9);
 return x_1;
 }
 }
@@ -371,7 +371,7 @@ static lean_object* _init_l___private_Lean_DeclarationRange_0__Lean_reprDeclarat
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("endPos", 6);
+x_1 = lean_mk_string_unchecked("endPos", 6, 6);
 return x_1;
 }
 }
@@ -398,7 +398,7 @@ static lean_object* _init_l___private_Lean_DeclarationRange_0__Lean_reprDeclarat
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("endCharUtf16", 12);
+x_1 = lean_mk_string_unchecked("endCharUtf16", 12, 12);
 return x_1;
 }
 }
@@ -425,7 +425,7 @@ static lean_object* _init_l___private_Lean_DeclarationRange_0__Lean_reprDeclarat
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("{ ", 2);
+x_1 = lean_mk_string_unchecked("{ ", 2, 2);
 return x_1;
 }
 }
@@ -461,7 +461,7 @@ static lean_object* _init_l___private_Lean_DeclarationRange_0__Lean_reprDeclarat
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" }", 2);
+x_1 = lean_mk_string_unchecked(" }", 2, 2);
 return x_1;
 }
 }
@@ -628,7 +628,7 @@ static lean_object* _init_l_Lean_instToExprDeclarationRange___lambda__1___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -636,7 +636,7 @@ static lean_object* _init_l_Lean_instToExprDeclarationRange___lambda__1___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("DeclarationRange", 16);
+x_1 = lean_mk_string_unchecked("DeclarationRange", 16, 16);
 return x_1;
 }
 }
@@ -644,7 +644,7 @@ static lean_object* _init_l_Lean_instToExprDeclarationRange___lambda__1___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mk", 2);
+x_1 = lean_mk_string_unchecked("mk", 2, 2);
 return x_1;
 }
 }
@@ -673,7 +673,7 @@ static lean_object* _init_l_Lean_instToExprDeclarationRange___lambda__1___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Position", 8);
+x_1 = lean_mk_string_unchecked("Position", 8, 8);
 return x_1;
 }
 }
@@ -837,7 +837,7 @@ static lean_object* _init_l___private_Lean_DeclarationRange_0__Lean_reprDeclarat
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("range", 5);
+x_1 = lean_mk_string_unchecked("range", 5, 5);
 return x_1;
 }
 }
@@ -888,7 +888,7 @@ static lean_object* _init_l___private_Lean_DeclarationRange_0__Lean_reprDeclarat
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("selectionRange", 14);
+x_1 = lean_mk_string_unchecked("selectionRange", 14, 14);
 return x_1;
 }
 }
@@ -1008,7 +1008,7 @@ static lean_object* _init_l_Lean_instToExprDeclarationRanges___lambda__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("DeclarationRanges", 17);
+x_1 = lean_mk_string_unchecked("DeclarationRanges", 17, 17);
 return x_1;
 }
 }
@@ -1220,7 +1220,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_DeclarationRange___hyg_607__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declRangeExt", 12);
+x_1 = lean_mk_string_unchecked("declRangeExt", 12, 12);
 return x_1;
 }
 }

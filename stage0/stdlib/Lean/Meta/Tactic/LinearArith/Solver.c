@@ -428,7 +428,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("id", 2);
+x_1 = lean_mk_string_unchecked("id", 2, 2);
 return x_1;
 }
 }
@@ -458,7 +458,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" := ", 4);
+x_1 = lean_mk_string_unchecked(" := ", 4, 4);
 return x_1;
 }
 }
@@ -497,7 +497,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("{ ", 2);
+x_1 = lean_mk_string_unchecked("{ ", 2, 2);
 return x_1;
 }
 }
@@ -533,7 +533,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" }", 2);
+x_1 = lean_mk_string_unchecked(" }", 2, 2);
 return x_1;
 }
 }
@@ -748,7 +748,7 @@ static lean_object* _init_l_Prod_repr___at___private_Lean_Meta_Tactic_LinearArit
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -778,7 +778,7 @@ static lean_object* _init_l_Prod_repr___at___private_Lean_Meta_Tactic_LinearArit
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -814,7 +814,7 @@ static lean_object* _init_l_Prod_repr___at___private_Lean_Meta_Tactic_LinearArit
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -1023,7 +1023,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("val", 3);
+x_1 = lean_mk_string_unchecked("val", 3, 3);
 return x_1;
 }
 }
@@ -1074,7 +1074,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#[", 2);
+x_1 = lean_mk_string_unchecked("#[", 2, 2);
 return x_1;
 }
 }
@@ -1110,7 +1110,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -1128,7 +1128,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#[]", 3);
+x_1 = lean_mk_string_unchecked("#[]", 3, 3);
 return x_1;
 }
 }
@@ -2944,7 +2944,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Linear.Justification.combine", 38);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Linear.Justification.combine", 38, 38);
 return x_1;
 }
 }
@@ -2992,7 +2992,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Linear.Justification.assumption", 41);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Linear.Justification.assumption", 41, 41);
 return x_1;
 }
 }
@@ -3390,7 +3390,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Linear.CnstrKind.eq", 29);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Linear.CnstrKind.eq", 29, 29);
 return x_1;
 }
 }
@@ -3456,7 +3456,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Linear.CnstrKind.div", 30);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Linear.CnstrKind.div", 30, 30);
 return x_1;
 }
 }
@@ -3522,7 +3522,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Linear.CnstrKind.lt", 29);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Linear.CnstrKind.lt", 29, 29);
 return x_1;
 }
 }
@@ -3588,7 +3588,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Linear.CnstrKind.le", 29);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Linear.CnstrKind.le", 29, 29);
 return x_1;
 }
 }
@@ -3947,7 +3947,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("kind", 4);
+x_1 = lean_mk_string_unchecked("kind", 4, 4);
 return x_1;
 }
 }
@@ -3998,7 +3998,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lhs", 3);
+x_1 = lean_mk_string_unchecked("lhs", 3, 3);
 return x_1;
 }
 }
@@ -4016,7 +4016,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rhs", 3);
+x_1 = lean_mk_string_unchecked("rhs", 3, 3);
 return x_1;
 }
 }
@@ -4034,7 +4034,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("jst", 3);
+x_1 = lean_mk_string_unchecked("jst", 3, 3);
 return x_1;
 }
 }
@@ -4419,7 +4419,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Cnstr_isUnsat___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Tactic.LinearArith.Solver", 35);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Tactic.LinearArith.Solver", 35, 35);
 return x_1;
 }
 }
@@ -4427,7 +4427,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Cnstr_isUnsat___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Linear.Cnstr.isUnsat", 30);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Linear.Cnstr.isUnsat", 30, 30);
 return x_1;
 }
 }
@@ -4435,7 +4435,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Cnstr_isUnsat___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }

@@ -71,7 +71,7 @@ static lean_object* _init_l_Lake_Package_fetchTargetJob___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("package '", 9);
+x_1 = lean_mk_string_unchecked("package '", 9, 9);
 return x_1;
 }
 }
@@ -79,7 +79,7 @@ static lean_object* _init_l_Lake_Package_fetchTargetJob___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' has no target '", 17);
+x_1 = lean_mk_string_unchecked("' has no target '", 17, 17);
 return x_1;
 }
 }
@@ -87,7 +87,7 @@ static lean_object* _init_l_Lake_Package_fetchTargetJob___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -435,7 +435,7 @@ static lean_object* _init_l_Lake_TargetDecl_fetch___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' of target '", 13);
+x_1 = lean_mk_string_unchecked("' of target '", 13, 13);
 return x_1;
 }
 }
@@ -443,7 +443,7 @@ static lean_object* _init_l_Lake_TargetDecl_fetch___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' does not exist in workspace", 29);
+x_1 = lean_mk_string_unchecked("' does not exist in workspace", 29, 29);
 return x_1;
 }
 }
@@ -904,7 +904,7 @@ static lean_object* _init_l_Lake_PackageFacetConfig_fetchJob___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("package facet '", 15);
+x_1 = lean_mk_string_unchecked("package facet '", 15, 15);
 return x_1;
 }
 }
@@ -912,7 +912,7 @@ static lean_object* _init_l_Lake_PackageFacetConfig_fetchJob___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' has no associated build job", 29);
+x_1 = lean_mk_string_unchecked("' has no associated build job", 29, 29);
 return x_1;
 }
 }
@@ -1635,7 +1635,7 @@ static lean_object* _init_l_Lake_ModuleFacetConfig_fetchJob___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("module facet '", 14);
+x_1 = lean_mk_string_unchecked("module facet '", 14, 14);
 return x_1;
 }
 }
@@ -1963,7 +1963,7 @@ static lean_object* _init_l_Lake_Module_fetchFacetJob___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("library facet '", 15);
+x_1 = lean_mk_string_unchecked("library facet '", 15, 15);
 return x_1;
 }
 }
@@ -2343,7 +2343,7 @@ static lean_object* _init_l_Lake_LeanLibConfig_get___rarg___lambda__2___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean library '", 14);
+x_1 = lean_mk_string_unchecked("Lean library '", 14, 14);
 return x_1;
 }
 }
@@ -2351,7 +2351,7 @@ static lean_object* _init_l_Lake_LeanLibConfig_get___rarg___lambda__2___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' does not exist in the workspace", 33);
+x_1 = lean_mk_string_unchecked("' does not exist in the workspace", 33, 33);
 return x_1;
 }
 }
@@ -3164,7 +3164,7 @@ static lean_object* _init_l_Lake_LeanExeConfig_get___rarg___lambda__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean executable '", 17);
+x_1 = lean_mk_string_unchecked("Lean executable '", 17, 17);
 return x_1;
 }
 }

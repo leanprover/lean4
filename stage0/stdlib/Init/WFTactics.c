@@ -273,7 +273,7 @@ static lean_object* _init_l_tacticSimp__wf___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSimp_wf", 13);
+x_1 = lean_mk_string_unchecked("tacticSimp_wf", 13, 13);
 return x_1;
 }
 }
@@ -291,7 +291,7 @@ static lean_object* _init_l_tacticSimp__wf___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simp_wf", 7);
+x_1 = lean_mk_string_unchecked("simp_wf", 7, 7);
 return x_1;
 }
 }
@@ -333,7 +333,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -341,7 +341,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -349,7 +349,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -357,7 +357,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticTry_", 10);
+x_1 = lean_mk_string_unchecked("tacticTry_", 10, 10);
 return x_1;
 }
 }
@@ -377,7 +377,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("try", 3);
+x_1 = lean_mk_string_unchecked("try", 3, 3);
 return x_1;
 }
 }
@@ -385,7 +385,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq", 9);
+x_1 = lean_mk_string_unchecked("tacticSeq", 9, 9);
 return x_1;
 }
 }
@@ -405,7 +405,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq1Indented", 18);
+x_1 = lean_mk_string_unchecked("tacticSeq1Indented", 18, 18);
 return x_1;
 }
 }
@@ -425,7 +425,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -443,7 +443,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simp", 4);
+x_1 = lean_mk_string_unchecked("simp", 4, 4);
 return x_1;
 }
 }
@@ -463,7 +463,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("config", 6);
+x_1 = lean_mk_string_unchecked("config", 6, 6);
 return x_1;
 }
 }
@@ -483,7 +483,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -491,7 +491,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":=", 2);
+x_1 = lean_mk_string_unchecked(":=", 2, 2);
 return x_1;
 }
 }
@@ -499,7 +499,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -507,7 +507,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structInst", 10);
+x_1 = lean_mk_string_unchecked("structInst", 10, 10);
 return x_1;
 }
 }
@@ -527,7 +527,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("{", 1);
+x_1 = lean_mk_string_unchecked("{", 1, 1);
 return x_1;
 }
 }
@@ -544,7 +544,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structInstField", 15);
+x_1 = lean_mk_string_unchecked("structInstField", 15, 15);
 return x_1;
 }
 }
@@ -564,7 +564,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structInstLVal", 14);
+x_1 = lean_mk_string_unchecked("structInstLVal", 14, 14);
 return x_1;
 }
 }
@@ -584,7 +584,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unfoldPartialApp", 16);
+x_1 = lean_mk_string_unchecked("unfoldPartialApp", 16, 16);
 return x_1;
 }
 }
@@ -611,7 +611,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("true", 4);
+x_1 = lean_mk_string_unchecked("true", 4, 4);
 return x_1;
 }
 }
@@ -638,7 +638,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Bool", 4);
+x_1 = lean_mk_string_unchecked("Bool", 4, 4);
 return x_1;
 }
 }
@@ -680,7 +680,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -688,7 +688,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("zetaDelta", 9);
+x_1 = lean_mk_string_unchecked("zetaDelta", 9, 9);
 return x_1;
 }
 }
@@ -715,7 +715,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("optEllipsis", 11);
+x_1 = lean_mk_string_unchecked("optEllipsis", 11, 11);
 return x_1;
 }
 }
@@ -735,7 +735,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("}", 1);
+x_1 = lean_mk_string_unchecked("}", 1, 1);
 return x_1;
 }
 }
@@ -743,7 +743,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -751,7 +751,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -759,7 +759,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simpLemma", 9);
+x_1 = lean_mk_string_unchecked("simpLemma", 9, 9);
 return x_1;
 }
 }
@@ -779,7 +779,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invImage", 8);
+x_1 = lean_mk_string_unchecked("invImage", 8, 8);
 return x_1;
 }
 }
@@ -852,7 +852,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("InvImage", 8);
+x_1 = lean_mk_string_unchecked("InvImage", 8, 8);
 return x_1;
 }
 }
@@ -925,7 +925,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Prod.lex", 8);
+x_1 = lean_mk_string_unchecked("Prod.lex", 8, 8);
 return x_1;
 }
 }
@@ -942,7 +942,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Prod", 4);
+x_1 = lean_mk_string_unchecked("Prod", 4, 4);
 return x_1;
 }
 }
@@ -950,7 +950,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lex", 3);
+x_1 = lean_mk_string_unchecked("lex", 3, 3);
 return x_1;
 }
 }
@@ -1014,7 +1014,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sizeOfWFRel", 11);
+x_1 = lean_mk_string_unchecked("sizeOfWFRel", 11, 11);
 return x_1;
 }
 }
@@ -1087,7 +1087,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("measure", 7);
+x_1 = lean_mk_string_unchecked("measure", 7, 7);
 return x_1;
 }
 }
@@ -1160,7 +1160,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Nat.lt_wfRel", 12);
+x_1 = lean_mk_string_unchecked("Nat.lt_wfRel", 12, 12);
 return x_1;
 }
 }
@@ -1177,7 +1177,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Nat", 3);
+x_1 = lean_mk_string_unchecked("Nat", 3, 3);
 return x_1;
 }
 }
@@ -1185,7 +1185,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lt_wfRel", 8);
+x_1 = lean_mk_string_unchecked("lt_wfRel", 8, 8);
 return x_1;
 }
 }
@@ -1249,7 +1249,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("WellFoundedRelation.rel", 23);
+x_1 = lean_mk_string_unchecked("WellFoundedRelation.rel", 23, 23);
 return x_1;
 }
 }
@@ -1266,7 +1266,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("WellFoundedRelation", 19);
+x_1 = lean_mk_string_unchecked("WellFoundedRelation", 19, 19);
 return x_1;
 }
 }
@@ -1274,7 +1274,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rel", 3);
+x_1 = lean_mk_string_unchecked("rel", 3, 3);
 return x_1;
 }
 }
@@ -1325,7 +1325,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -1641,7 +1641,7 @@ static lean_object* _init_l_tacticDecreasing__trivial___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticDecreasing_trivial", 24);
+x_1 = lean_mk_string_unchecked("tacticDecreasing_trivial", 24, 24);
 return x_1;
 }
 }
@@ -1659,7 +1659,7 @@ static lean_object* _init_l_tacticDecreasing__trivial___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("decreasing_trivial", 18);
+x_1 = lean_mk_string_unchecked("decreasing_trivial", 18, 18);
 return x_1;
 }
 }
@@ -1701,7 +1701,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tactic_<;>_", 11);
+x_1 = lean_mk_string_unchecked("tactic_<;>_", 11, 11);
 return x_1;
 }
 }
@@ -1721,7 +1721,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("paren", 5);
+x_1 = lean_mk_string_unchecked("paren", 5, 5);
 return x_1;
 }
 }
@@ -1741,7 +1741,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("arith", 5);
+x_1 = lean_mk_string_unchecked("arith", 5, 5);
 return x_1;
 }
 }
@@ -1768,7 +1768,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failIfUnchanged", 15);
+x_1 = lean_mk_string_unchecked("failIfUnchanged", 15, 15);
 return x_1;
 }
 }
@@ -1795,7 +1795,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("false", 5);
+x_1 = lean_mk_string_unchecked("false", 5, 5);
 return x_1;
 }
 }
@@ -1856,7 +1856,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("<;>", 3);
+x_1 = lean_mk_string_unchecked("<;>", 3, 3);
 return x_1;
 }
 }
@@ -1864,7 +1864,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("done", 4);
+x_1 = lean_mk_string_unchecked("done", 4, 4);
 return x_1;
 }
 }
@@ -2073,7 +2073,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("omega", 5);
+x_1 = lean_mk_string_unchecked("omega", 5, 5);
 return x_1;
 }
 }
@@ -2144,7 +2144,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("assumption", 10);
+x_1 = lean_mk_string_unchecked("assumption", 10, 10);
 return x_1;
 }
 }
@@ -2208,7 +2208,7 @@ static lean_object* _init_l_tacticDecreasing__trivial__pre__omega___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticDecreasing_trivial_pre_omega", 34);
+x_1 = lean_mk_string_unchecked("tacticDecreasing_trivial_pre_omega", 34, 34);
 return x_1;
 }
 }
@@ -2226,7 +2226,7 @@ static lean_object* _init_l_tacticDecreasing__trivial__pre__omega___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("decreasing_trivial_pre_omega", 28);
+x_1 = lean_mk_string_unchecked("decreasing_trivial_pre_omega", 28, 28);
 return x_1;
 }
 }
@@ -2268,7 +2268,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("seq1", 4);
+x_1 = lean_mk_string_unchecked("seq1", 4, 4);
 return x_1;
 }
 }
@@ -2288,7 +2288,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("apply", 5);
+x_1 = lean_mk_string_unchecked("apply", 5, 5);
 return x_1;
 }
 }
@@ -2308,7 +2308,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Nat.sub_succ_lt_self", 20);
+x_1 = lean_mk_string_unchecked("Nat.sub_succ_lt_self", 20, 20);
 return x_1;
 }
 }
@@ -2325,7 +2325,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sub_succ_lt_self", 16);
+x_1 = lean_mk_string_unchecked("sub_succ_lt_self", 16, 16);
 return x_1;
 }
 }
@@ -2367,7 +2367,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(";", 1);
+x_1 = lean_mk_string_unchecked(";", 1, 1);
 return x_1;
 }
 }
@@ -2447,7 +2447,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Nat.pred_lt'", 12);
+x_1 = lean_mk_string_unchecked("Nat.pred_lt_of_lt", 17, 17);
 return x_1;
 }
 }
@@ -2464,7 +2464,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pred_lt'", 8);
+x_1 = lean_mk_string_unchecked("pred_lt_of_lt", 13, 13);
 return x_1;
 }
 }
@@ -2578,7 +2578,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Nat.pred_lt", 11);
+x_1 = lean_mk_string_unchecked("Nat.pred_lt", 11, 11);
 return x_1;
 }
 }
@@ -2595,7 +2595,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pred_lt", 7);
+x_1 = lean_mk_string_unchecked("pred_lt", 7, 7);
 return x_1;
 }
 }
@@ -2731,7 +2731,7 @@ static lean_object* _init_l_tacticDecreasing__with_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticDecreasing_with_", 22);
+x_1 = lean_mk_string_unchecked("tacticDecreasing_with_", 22, 22);
 return x_1;
 }
 }
@@ -2749,7 +2749,7 @@ static lean_object* _init_l_tacticDecreasing__with_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("andthen", 7);
+x_1 = lean_mk_string_unchecked("andthen", 7, 7);
 return x_1;
 }
 }
@@ -2767,7 +2767,7 @@ static lean_object* _init_l_tacticDecreasing__with_____closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("decreasing_with ", 16);
+x_1 = lean_mk_string_unchecked("decreasing_with ", 16, 16);
 return x_1;
 }
 }
@@ -2843,7 +2843,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticRepeat_", 13);
+x_1 = lean_mk_string_unchecked("tacticRepeat_", 13, 13);
 return x_1;
 }
 }
@@ -2863,7 +2863,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("repeat", 6);
+x_1 = lean_mk_string_unchecked("repeat", 6, 6);
 return x_1;
 }
 }
@@ -2871,7 +2871,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("first", 5);
+x_1 = lean_mk_string_unchecked("first", 5, 5);
 return x_1;
 }
 }
@@ -2891,7 +2891,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("group", 5);
+x_1 = lean_mk_string_unchecked("group", 5, 5);
 return x_1;
 }
 }
@@ -2909,7 +2909,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("|", 1);
+x_1 = lean_mk_string_unchecked("|", 1, 1);
 return x_1;
 }
 }
@@ -2917,7 +2917,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Prod.Lex.right", 14);
+x_1 = lean_mk_string_unchecked("Prod.Lex.right", 14, 14);
 return x_1;
 }
 }
@@ -2934,7 +2934,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lex", 3);
+x_1 = lean_mk_string_unchecked("Lex", 3, 3);
 return x_1;
 }
 }
@@ -2942,7 +2942,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("right", 5);
+x_1 = lean_mk_string_unchecked("right", 5, 5);
 return x_1;
 }
 }
@@ -2985,7 +2985,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Prod.Lex.left", 13);
+x_1 = lean_mk_string_unchecked("Prod.Lex.left", 13, 13);
 return x_1;
 }
 }
@@ -3002,7 +3002,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("left", 4);
+x_1 = lean_mk_string_unchecked("left", 4, 4);
 return x_1;
 }
 }
@@ -3045,7 +3045,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PSigma.Lex.right", 16);
+x_1 = lean_mk_string_unchecked("PSigma.Lex.right", 16, 16);
 return x_1;
 }
 }
@@ -3062,7 +3062,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PSigma", 6);
+x_1 = lean_mk_string_unchecked("PSigma", 6, 6);
 return x_1;
 }
 }
@@ -3105,7 +3105,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PSigma.Lex.left", 15);
+x_1 = lean_mk_string_unchecked("PSigma.Lex.left", 15, 15);
 return x_1;
 }
 }
@@ -3157,7 +3157,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fail", 4);
+x_1 = lean_mk_string_unchecked("fail", 4, 4);
 return x_1;
 }
 }
@@ -3177,7 +3177,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("str", 3);
+x_1 = lean_mk_string_unchecked("str", 3, 3);
 return x_1;
 }
 }
@@ -3195,7 +3195,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\"failed to prove termination, possible solutions:\n  - Use `have`-expressions to prove the remaining goals\n  - Use `termination_by` to specify a different well-founded relation\n  - Use `decreasing_by` to specify your own tactic for discharging this kind of goal\"", 261);
+x_1 = lean_mk_string_unchecked("\"failed to prove termination, possible solutions:\n  - Use `have`-expressions to prove the remaining goals\n  - Use `termination_by` to specify a different well-founded relation\n  - Use `decreasing_by` to specify your own tactic for discharging this kind of goal\"", 261, 261);
 return x_1;
 }
 }
@@ -3494,7 +3494,7 @@ static lean_object* _init_l_tacticDecreasing__tactic___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticDecreasing_tactic", 23);
+x_1 = lean_mk_string_unchecked("tacticDecreasing_tactic", 23, 23);
 return x_1;
 }
 }
@@ -3512,7 +3512,7 @@ static lean_object* _init_l_tacticDecreasing__tactic___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("decreasing_tactic", 17);
+x_1 = lean_mk_string_unchecked("decreasing_tactic", 17, 17);
 return x_1;
 }
 }
@@ -3554,7 +3554,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("decreasing_with", 15);
+x_1 = lean_mk_string_unchecked("decreasing_with", 15, 15);
 return x_1;
 }
 }
@@ -3562,7 +3562,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("substVars", 9);
+x_1 = lean_mk_string_unchecked("substVars", 9, 9);
 return x_1;
 }
 }
@@ -3582,7 +3582,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("subst_vars", 10);
+x_1 = lean_mk_string_unchecked("subst_vars", 10, 10);
 return x_1;
 }
 }

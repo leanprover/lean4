@@ -55,7 +55,7 @@ static lean_object* _init_l_Lake_configFileExists___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lean", 4);
+x_1 = lean_mk_string_unchecked("lean", 4, 4);
 return x_1;
 }
 }
@@ -63,7 +63,7 @@ static lean_object* _init_l_Lake_configFileExists___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("toml", 4);
+x_1 = lean_mk_string_unchecked("toml", 4, 4);
 return x_1;
 }
 }
@@ -337,7 +337,7 @@ static lean_object* _init_l_Lake_loadPackageCore___lambda__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -345,7 +345,7 @@ static lean_object* _init_l_Lake_loadPackageCore___lambda__3___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": configuration has unsupported file extension: ", 48);
+x_1 = lean_mk_string_unchecked(": configuration has unsupported file extension: ", 48, 48);
 return x_1;
 }
 }
@@ -730,7 +730,7 @@ static lean_object* _init_l_Lake_loadPackageCore___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": no configuration file with a supported extension:\n", 52);
+x_1 = lean_mk_string_unchecked(": no configuration file with a supported extension:\n", 52, 52);
 return x_1;
 }
 }
@@ -738,7 +738,7 @@ static lean_object* _init_l_Lake_loadPackageCore___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -746,7 +746,7 @@ static lean_object* _init_l_Lake_loadPackageCore___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -754,7 +754,7 @@ static lean_object* _init_l_Lake_loadPackageCore___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" and ", 5);
+x_1 = lean_mk_string_unchecked(" and ", 5, 5);
 return x_1;
 }
 }
@@ -762,7 +762,7 @@ static lean_object* _init_l_Lake_loadPackageCore___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" are both present; using ", 25);
+x_1 = lean_mk_string_unchecked(" are both present; using ", 25, 25);
 return x_1;
 }
 }
@@ -770,7 +770,7 @@ static lean_object* _init_l_Lake_loadPackageCore___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": configuration file not found: ", 32);
+x_1 = lean_mk_string_unchecked(": configuration file not found: ", 32, 32);
 return x_1;
 }
 }
@@ -1516,7 +1516,7 @@ static lean_object* _init_l_Lake_loadPackage___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[root]", 6);
+x_1 = lean_mk_string_unchecked("[root]", 6, 6);
 return x_1;
 }
 }

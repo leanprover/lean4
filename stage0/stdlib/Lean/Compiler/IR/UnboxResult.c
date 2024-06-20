@@ -94,7 +94,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_Lean_IR_UnboxResult_initFn___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
+x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
 return x_1;
 }
 }
@@ -111,7 +111,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_Lean_IR_UnboxResult_initFn___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -218,7 +218,7 @@ static lean_object* _init_l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_U
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("constant must be an inductive type", 34);
+x_1 = lean_mk_string_unchecked("constant must be an inductive type", 34, 34);
 return x_1;
 }
 }
@@ -235,7 +235,7 @@ static lean_object* _init_l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_U
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("recursive inductive datatypes are not supported", 47);
+x_1 = lean_mk_string_unchecked("recursive inductive datatypes are not supported", 47, 47);
 return x_1;
 }
 }
@@ -343,7 +343,7 @@ static lean_object* _init_l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_U
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unbox", 5);
+x_1 = lean_mk_string_unchecked("unbox", 5, 5);
 return x_1;
 }
 }
@@ -361,7 +361,7 @@ static lean_object* _init_l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_U
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -369,7 +369,7 @@ static lean_object* _init_l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_U
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("IR", 2);
+x_1 = lean_mk_string_unchecked("IR", 2, 2);
 return x_1;
 }
 }
@@ -377,7 +377,7 @@ static lean_object* _init_l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_U
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("UnboxResult", 11);
+x_1 = lean_mk_string_unchecked("UnboxResult", 11, 11);
 return x_1;
 }
 }
@@ -385,7 +385,7 @@ static lean_object* _init_l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_U
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unboxAttr", 9);
+x_1 = lean_mk_string_unchecked("unboxAttr", 9, 9);
 return x_1;
 }
 }
@@ -405,7 +405,7 @@ static lean_object* _init_l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_U
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("compiler tries to unbox result values if their types are tagged with `[unbox]`", 78);
+x_1 = lean_mk_string_unchecked("compiler tries to unbox result values if their types are tagged with `[unbox]`", 78, 78);
 return x_1;
 }
 }

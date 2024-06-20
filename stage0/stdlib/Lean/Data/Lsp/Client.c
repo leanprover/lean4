@@ -91,7 +91,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Client_0__Lean_Lsp_toJsonReg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("id", 2);
+x_1 = lean_mk_string_unchecked("id", 2, 2);
 return x_1;
 }
 }
@@ -99,7 +99,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Client_0__Lean_Lsp_toJsonReg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("method", 6);
+x_1 = lean_mk_string_unchecked("method", 6, 6);
 return x_1;
 }
 }
@@ -107,7 +107,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Client_0__Lean_Lsp_toJsonReg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("registerOptions", 15);
+x_1 = lean_mk_string_unchecked("registerOptions", 15, 15);
 return x_1;
 }
 }
@@ -277,7 +277,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Client_0__Lean_Lsp_fromJsonR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -285,7 +285,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Client_0__Lean_Lsp_fromJsonR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lsp", 3);
+x_1 = lean_mk_string_unchecked("Lsp", 3, 3);
 return x_1;
 }
 }
@@ -293,7 +293,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Client_0__Lean_Lsp_fromJsonR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Registration", 12);
+x_1 = lean_mk_string_unchecked("Registration", 12, 12);
 return x_1;
 }
 }
@@ -322,7 +322,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Client_0__Lean_Lsp_fromJsonR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -370,7 +370,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Client_0__Lean_Lsp_fromJsonR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -632,7 +632,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Client_0__Lean_Lsp_toJsonReg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("registrations", 13);
+x_1 = lean_mk_string_unchecked("registrations", 13, 13);
 return x_1;
 }
 }
@@ -750,7 +750,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected JSON array, got '", 26);
+x_1 = lean_mk_string_unchecked("expected JSON array, got '", 26, 26);
 return x_1;
 }
 }
@@ -758,7 +758,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -851,7 +851,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Client_0__Lean_Lsp_fromJsonR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("RegistrationParams", 18);
+x_1 = lean_mk_string_unchecked("RegistrationParams", 18, 18);
 return x_1;
 }
 }

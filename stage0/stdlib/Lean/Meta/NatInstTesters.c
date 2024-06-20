@@ -135,7 +135,7 @@ static lean_object* _init_l_Lean_Meta_isInstOfNatNat___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instOfNatNat", 12);
+x_1 = lean_mk_string_unchecked("instOfNatNat", 12, 12);
 return x_1;
 }
 }
@@ -225,7 +225,7 @@ static lean_object* _init_l_Lean_Meta_isInstAddNat___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instAddNat", 10);
+x_1 = lean_mk_string_unchecked("instAddNat", 10, 10);
 return x_1;
 }
 }
@@ -321,7 +321,7 @@ static lean_object* _init_l_Lean_Meta_isInstSubNat___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instSubNat", 10);
+x_1 = lean_mk_string_unchecked("instSubNat", 10, 10);
 return x_1;
 }
 }
@@ -417,7 +417,7 @@ static lean_object* _init_l_Lean_Meta_isInstMulNat___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instMulNat", 10);
+x_1 = lean_mk_string_unchecked("instMulNat", 10, 10);
 return x_1;
 }
 }
@@ -513,7 +513,7 @@ static lean_object* _init_l_Lean_Meta_isInstDivNat___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Nat", 3);
+x_1 = lean_mk_string_unchecked("Nat", 3, 3);
 return x_1;
 }
 }
@@ -521,7 +521,7 @@ static lean_object* _init_l_Lean_Meta_isInstDivNat___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instDiv", 7);
+x_1 = lean_mk_string_unchecked("instDiv", 7, 7);
 return x_1;
 }
 }
@@ -617,7 +617,7 @@ static lean_object* _init_l_Lean_Meta_isInstModNat___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instMod", 7);
+x_1 = lean_mk_string_unchecked("instMod", 7, 7);
 return x_1;
 }
 }
@@ -713,7 +713,7 @@ static lean_object* _init_l_Lean_Meta_isInstNatPowNat___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instNatPowNat", 13);
+x_1 = lean_mk_string_unchecked("instNatPowNat", 13, 13);
 return x_1;
 }
 }
@@ -817,7 +817,7 @@ static lean_object* _init_l_Lean_Meta_isInstPowNat___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instPowNat", 10);
+x_1 = lean_mk_string_unchecked("instPowNat", 10, 10);
 return x_1;
 }
 }
@@ -1001,7 +1001,7 @@ static lean_object* _init_l_Lean_Meta_isInstHAddNat___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instHAdd", 8);
+x_1 = lean_mk_string_unchecked("instHAdd", 8, 8);
 return x_1;
 }
 }
@@ -1185,7 +1185,7 @@ static lean_object* _init_l_Lean_Meta_isInstHSubNat___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instHSub", 8);
+x_1 = lean_mk_string_unchecked("instHSub", 8, 8);
 return x_1;
 }
 }
@@ -1369,7 +1369,7 @@ static lean_object* _init_l_Lean_Meta_isInstHMulNat___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instHMul", 8);
+x_1 = lean_mk_string_unchecked("instHMul", 8, 8);
 return x_1;
 }
 }
@@ -1553,7 +1553,7 @@ static lean_object* _init_l_Lean_Meta_isInstHDivNat___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instHDiv", 8);
+x_1 = lean_mk_string_unchecked("instHDiv", 8, 8);
 return x_1;
 }
 }
@@ -1737,7 +1737,7 @@ static lean_object* _init_l_Lean_Meta_isInstHModNat___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instHMod", 8);
+x_1 = lean_mk_string_unchecked("instHMod", 8, 8);
 return x_1;
 }
 }
@@ -1921,7 +1921,7 @@ static lean_object* _init_l_Lean_Meta_isInstHPowNat___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instHPow", 8);
+x_1 = lean_mk_string_unchecked("instHPow", 8, 8);
 return x_1;
 }
 }
@@ -2139,7 +2139,7 @@ static lean_object* _init_l_Lean_Meta_isInstLTNat___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instLTNat", 9);
+x_1 = lean_mk_string_unchecked("instLTNat", 9, 9);
 return x_1;
 }
 }
@@ -2235,7 +2235,7 @@ static lean_object* _init_l_Lean_Meta_isInstLENat___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instLENat", 9);
+x_1 = lean_mk_string_unchecked("instLENat", 9, 9);
 return x_1;
 }
 }

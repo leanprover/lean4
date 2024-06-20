@@ -101,7 +101,7 @@ static lean_object* _init_l_Lake_invalidConfigEnvVar___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LAKE_INVALID_CONFIG", 19);
+x_1 = lean_mk_string_unchecked("LAKE_INVALID_CONFIG", 19, 19);
 return x_1;
 }
 }
@@ -329,7 +329,7 @@ static lean_object* _init_l_Lake_setupFile___lambda__3___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("build failed", 12);
+x_1 = lean_mk_string_unchecked("build failed", 12, 12);
 return x_1;
 }
 }
@@ -684,7 +684,7 @@ static lean_object* _init_l_Lake_setupFile___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Invalid Lake configuration.  Please restart the server after fixing the Lake configuration file.", 96);
+x_1 = lean_mk_string_unchecked("Invalid Lake configuration.  Please restart the server after fixing the Lake configuration file.", 96, 96);
 return x_1;
 }
 }
@@ -1030,7 +1030,7 @@ static lean_object* _init_l_Lake_serve___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("--server", 8);
+x_1 = lean_mk_string_unchecked("--server", 8, 8);
 return x_1;
 }
 }
@@ -1109,7 +1109,7 @@ static lean_object* _init_l_Lake_serve___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("warning: package configuration has errors, falling back to plain `lean --server`", 80);
+x_1 = lean_mk_string_unchecked("warning: package configuration has errors, falling back to plain `lean --server`", 80, 80);
 return x_1;
 }
 }

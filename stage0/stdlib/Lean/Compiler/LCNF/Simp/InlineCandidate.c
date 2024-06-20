@@ -313,7 +313,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_inlineCandidate_x3f___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instDecidableEqBool", 19);
+x_1 = lean_mk_string_unchecked("instDecidableEqBool", 19, 19);
 return x_1;
 }
 }
@@ -1469,7 +1469,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_inlineCandidate_x3f___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inline", 6);
+x_1 = lean_mk_string_unchecked("inline", 6, 6);
 return x_1;
 }
 }
@@ -1825,7 +1825,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_initFn____x40_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Compiler", 8);
+x_1 = lean_mk_string_unchecked("Compiler", 8, 8);
 return x_1;
 }
 }
@@ -1833,7 +1833,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_initFn____x40_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simp", 4);
+x_1 = lean_mk_string_unchecked("simp", 4, 4);
 return x_1;
 }
 }
@@ -1852,7 +1852,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_initFn____x40_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1880,7 +1880,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_initFn____x40_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LCNF", 4);
+x_1 = lean_mk_string_unchecked("LCNF", 4, 4);
 return x_1;
 }
 }
@@ -1898,7 +1898,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_initFn____x40_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Simp", 4);
+x_1 = lean_mk_string_unchecked("Simp", 4, 4);
 return x_1;
 }
 }
@@ -1916,7 +1916,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_initFn____x40_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -1934,7 +1934,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_initFn____x40_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -1992,7 +1992,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_initFn____x40_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("InlineCandidate", 15);
+x_1 = lean_mk_string_unchecked("InlineCandidate", 15, 15);
 return x_1;
 }
 }
@@ -2010,7 +2010,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_initFn____x40_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }

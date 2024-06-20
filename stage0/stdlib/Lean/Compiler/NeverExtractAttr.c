@@ -50,7 +50,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Compiler_NeverExtractAttr___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("never_extract", 13);
+x_1 = lean_mk_string_unchecked("never_extract", 13, 13);
 return x_1;
 }
 }
@@ -68,7 +68,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Compiler_NeverExtractAttr___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -76,7 +76,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Compiler_NeverExtractAttr___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("neverExtractAttr", 16);
+x_1 = lean_mk_string_unchecked("neverExtractAttr", 16, 16);
 return x_1;
 }
 }
@@ -94,7 +94,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Compiler_NeverExtractAttr___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instruct the compiler that function applications using the tagged declaration should not be extracted when they are closed terms, nor common subexpression should be performed. This is useful for declarations that have implicit effects.", 235);
+x_1 = lean_mk_string_unchecked("instruct the compiler that function applications using the tagged declaration should not be extracted when they are closed terms, nor common subexpression should be performed. This is useful for declarations that have implicit effects.", 235, 235);
 return x_1;
 }
 }

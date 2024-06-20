@@ -1309,7 +1309,7 @@ static lean_object* _init_l_Lean_JsonNumber_toString___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -1317,7 +1317,7 @@ static lean_object* _init_l_Lean_JsonNumber_toString___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -1325,7 +1325,7 @@ static lean_object* _init_l_Lean_JsonNumber_toString___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("e", 1);
+x_1 = lean_mk_string_unchecked("e", 1, 1);
 return x_1;
 }
 }
@@ -1333,7 +1333,7 @@ static lean_object* _init_l_Lean_JsonNumber_toString___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-", 1);
+x_1 = lean_mk_string_unchecked("-", 1, 1);
 return x_1;
 }
 }
@@ -1644,7 +1644,7 @@ static lean_object* _init_l_Lean_JsonNumber_instRepr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -1662,7 +1662,7 @@ static lean_object* _init_l_Lean_JsonNumber_instRepr___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⟨", 3);
+x_1 = lean_mk_string_unchecked("⟨", 3, 1);
 return x_1;
 }
 }
@@ -1698,7 +1698,7 @@ static lean_object* _init_l_Lean_JsonNumber_instRepr___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⟩", 3);
+x_1 = lean_mk_string_unchecked("⟩", 3, 1);
 return x_1;
 }
 }
@@ -1967,7 +1967,7 @@ static lean_object* _init_l___private_Lean_Data_Json_Basic_0__Lean_JsonNumber_fr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Failed to parse ", 16);
+x_1 = lean_mk_string_unchecked("Failed to parse ", 16, 16);
 return x_1;
 }
 }
@@ -1975,7 +1975,7 @@ static lean_object* _init_l___private_Lean_Data_Json_Basic_0__Lean_JsonNumber_fr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Data.Json.Basic", 20);
+x_1 = lean_mk_string_unchecked("Lean.Data.Json.Basic", 20, 20);
 return x_1;
 }
 }
@@ -1983,7 +1983,7 @@ static lean_object* _init_l___private_Lean_Data_Json_Basic_0__Lean_JsonNumber_fr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Data.Json.Basic.0.Lean.JsonNumber.fromPositiveFloat!", 66);
+x_1 = lean_mk_string_unchecked("_private.Lean.Data.Json.Basic.0.Lean.JsonNumber.fromPositiveFloat!", 66, 66);
 return x_1;
 }
 }
@@ -2145,7 +2145,7 @@ static lean_object* _init_l_Lean_JsonNumber_fromFloat_x3f___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-Infinity", 9);
+x_1 = lean_mk_string_unchecked("-Infinity", 9, 9);
 return x_1;
 }
 }
@@ -2163,7 +2163,7 @@ static lean_object* _init_l_Lean_JsonNumber_fromFloat_x3f___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Infinity", 8);
+x_1 = lean_mk_string_unchecked("Infinity", 8, 8);
 return x_1;
 }
 }
@@ -2181,7 +2181,7 @@ static lean_object* _init_l_Lean_JsonNumber_fromFloat_x3f___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("NaN", 3);
+x_1 = lean_mk_string_unchecked("NaN", 3, 3);
 return x_1;
 }
 }
@@ -5490,7 +5490,7 @@ static lean_object* _init_l_Lean_Json_getObj_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("object expected", 15);
+x_1 = lean_mk_string_unchecked("object expected", 15, 15);
 return x_1;
 }
 }
@@ -5540,7 +5540,7 @@ static lean_object* _init_l_Lean_Json_getArr_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("array expected", 14);
+x_1 = lean_mk_string_unchecked("array expected", 14, 14);
 return x_1;
 }
 }
@@ -5590,7 +5590,7 @@ static lean_object* _init_l_Lean_Json_getStr_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("String expected", 15);
+x_1 = lean_mk_string_unchecked("String expected", 15, 15);
 return x_1;
 }
 }
@@ -5640,7 +5640,7 @@ static lean_object* _init_l_Lean_Json_getNat_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Natural number expected", 23);
+x_1 = lean_mk_string_unchecked("Natural number expected", 23, 23);
 return x_1;
 }
 }
@@ -5764,7 +5764,7 @@ static lean_object* _init_l_Lean_Json_getInt_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Integer expected", 16);
+x_1 = lean_mk_string_unchecked("Integer expected", 16, 16);
 return x_1;
 }
 }
@@ -5855,7 +5855,7 @@ static lean_object* _init_l_Lean_Json_getBool_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Bool expected", 13);
+x_1 = lean_mk_string_unchecked("Bool expected", 13, 13);
 return x_1;
 }
 }
@@ -5902,7 +5902,7 @@ static lean_object* _init_l_Lean_Json_getNum_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("number expected", 15);
+x_1 = lean_mk_string_unchecked("number expected", 15, 15);
 return x_1;
 }
 }
@@ -5952,7 +5952,7 @@ static lean_object* _init_l_Lean_Json_getObjVal_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("property not found: ", 20);
+x_1 = lean_mk_string_unchecked("property not found: ", 20, 20);
 return x_1;
 }
 }
@@ -6064,7 +6064,7 @@ static lean_object* _init_l_Lean_Json_getArrVal_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("index out of bounds: ", 21);
+x_1 = lean_mk_string_unchecked("index out of bounds: ", 21, 21);
 return x_1;
 }
 }
@@ -6214,7 +6214,7 @@ static lean_object* _init_l_Lean_Json_setObjVal_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Json.setObjVal!", 20);
+x_1 = lean_mk_string_unchecked("Lean.Json.setObjVal!", 20, 20);
 return x_1;
 }
 }
@@ -6222,7 +6222,7 @@ static lean_object* _init_l_Lean_Json_setObjVal_x21___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Json.setObjVal!: not an object: {j}", 35);
+x_1 = lean_mk_string_unchecked("Json.setObjVal!: not an object: {j}", 35, 35);
 return x_1;
 }
 }

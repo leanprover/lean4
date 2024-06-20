@@ -8,12 +8,21 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
-/** \brief Given an inductive datatype \c n (which is not a proposition) in \c env, add
-    <tt>n.no_confusion_type</tt> and <tt>n.no_confusion</tt> to the environment.
+/** \brief Given an inductive datatype \c n (which is not a proposition) in \c env,
+    returns the declaration for <tt>n.no_confusion_type</tt>.
 
-    \remark This procedure assumes the environment contains eq, n.cases_on</tt>.
+    \remark This procedure assumes the environment contains <tt>eq, n.cases_on</tt>.
     If the environment has an impredicative Prop, it also assumes heq is defined.
     If the environment does not have an impredicative Prop, then it also assumes lift is defined.
 */
-environment mk_no_confusion(environment const & env, name const & n);
+declaration mk_no_confusion_type(environment const & env, name const & n);
+
+/** \brief Given an inductive datatype \c n (which is not a proposition) in \c env,
+    returns the declaration for <tt>n.no_confusion</tt>.
+
+    \remark This procedure assumes the environment contains <tt>eq, n.cases_on, n.no_confusion_type</tt>.
+    If the environment has an impredicative Prop, it also assumes heq is defined.
+    If the environment does not have an impredicative Prop, then it also assumes lift is defined.
+*/
+declaration mk_no_confusion(environment const & env, name const & n);
 }

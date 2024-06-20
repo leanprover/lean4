@@ -72,7 +72,7 @@ static lean_object* l_IO_FS_withIsolatedStreams___at_Lake_ensureJob___spec__1___
 lean_object* lean_get_set_stderr(lean_object*, lean_object*);
 static lean_object* l_IO_FS_withIsolatedStreams___at_Lake_ensureJob___spec__1___rarg___closed__4;
 LEAN_EXPORT lean_object* l_IO_withStdout___at_Lake_ensureJob___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_from_utf8(lean_object*);
+lean_object* lean_string_from_utf8_unchecked(lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lake_instMonadCycleOfBuildKeyRecBuildM___spec__2(lean_object*, lean_object*);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 static lean_object* l_Lake_buildCycleError___rarg___closed__1;
@@ -1155,7 +1155,7 @@ static lean_object* _init_l_Lake_buildCycleError___rarg___lambda__1___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("  ", 2);
+x_1 = lean_mk_string_unchecked("  ", 2, 2);
 return x_1;
 }
 }
@@ -1163,7 +1163,7 @@ static lean_object* _init_l_Lake_buildCycleError___rarg___lambda__1___closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -1192,7 +1192,7 @@ static lean_object* _init_l_Lake_buildCycleError___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -1200,7 +1200,7 @@ static lean_object* _init_l_Lake_buildCycleError___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("build cycle detected:\n", 22);
+x_1 = lean_mk_string_unchecked("build cycle detected:\n", 22, 22);
 return x_1;
 }
 }
@@ -4516,7 +4516,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lake_ensureJob___spec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.Data.String.Extra", 22);
+x_1 = lean_mk_string_unchecked("Init.Data.String.Extra", 22, 22);
 return x_1;
 }
 }
@@ -4524,7 +4524,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lake_ensureJob___spec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("String.fromUTF8!", 16);
+x_1 = lean_mk_string_unchecked("String.fromUTF8!", 16, 16);
 return x_1;
 }
 }
@@ -4532,7 +4532,7 @@ static lean_object* _init_l_IO_FS_withIsolatedStreams___at_Lake_ensureJob___spec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid UTF-8 string", 20);
+x_1 = lean_mk_string_unchecked("invalid UTF-8 string", 20, 20);
 return x_1;
 }
 }
@@ -4640,7 +4640,7 @@ return x_29;
 else
 {
 lean_object* x_37; lean_object* x_38; 
-x_37 = lean_string_from_utf8(x_32);
+x_37 = lean_string_from_utf8_unchecked(x_32);
 lean_dec(x_32);
 lean_ctor_set(x_20, 1, x_27);
 lean_ctor_set(x_20, 0, x_37);
@@ -4684,7 +4684,7 @@ return x_46;
 else
 {
 lean_object* x_47; lean_object* x_48; lean_object* x_49; 
-x_47 = lean_string_from_utf8(x_41);
+x_47 = lean_string_from_utf8_unchecked(x_41);
 lean_dec(x_41);
 lean_ctor_set(x_20, 1, x_27);
 lean_ctor_set(x_20, 0, x_47);
@@ -4782,7 +4782,7 @@ return x_66;
 else
 {
 lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; 
-x_67 = lean_string_from_utf8(x_60);
+x_67 = lean_string_from_utf8_unchecked(x_60);
 lean_dec(x_60);
 lean_ctor_set(x_20, 1, x_54);
 lean_ctor_set(x_20, 0, x_67);
@@ -4902,7 +4902,7 @@ return x_90;
 else
 {
 lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; 
-x_91 = lean_string_from_utf8(x_83);
+x_91 = lean_string_from_utf8_unchecked(x_83);
 lean_dec(x_83);
 x_92 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_92, 0, x_91);
@@ -5167,7 +5167,7 @@ return x_139;
 else
 {
 lean_object* x_147; lean_object* x_148; 
-x_147 = lean_string_from_utf8(x_142);
+x_147 = lean_string_from_utf8_unchecked(x_142);
 lean_dec(x_142);
 lean_ctor_set(x_130, 1, x_137);
 lean_ctor_set(x_130, 0, x_147);
@@ -5211,7 +5211,7 @@ return x_156;
 else
 {
 lean_object* x_157; lean_object* x_158; lean_object* x_159; 
-x_157 = lean_string_from_utf8(x_151);
+x_157 = lean_string_from_utf8_unchecked(x_151);
 lean_dec(x_151);
 lean_ctor_set(x_130, 1, x_137);
 lean_ctor_set(x_130, 0, x_157);
@@ -5309,7 +5309,7 @@ return x_176;
 else
 {
 lean_object* x_177; lean_object* x_178; lean_object* x_179; lean_object* x_180; 
-x_177 = lean_string_from_utf8(x_170);
+x_177 = lean_string_from_utf8_unchecked(x_170);
 lean_dec(x_170);
 lean_ctor_set(x_130, 1, x_164);
 lean_ctor_set(x_130, 0, x_177);
@@ -5429,7 +5429,7 @@ return x_200;
 else
 {
 lean_object* x_201; lean_object* x_202; lean_object* x_203; lean_object* x_204; lean_object* x_205; 
-x_201 = lean_string_from_utf8(x_193);
+x_201 = lean_string_from_utf8_unchecked(x_193);
 lean_dec(x_193);
 x_202 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_202, 0, x_201);
@@ -5853,7 +5853,7 @@ static lean_object* _init_l_Lake_ensureJob___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("stdout/stderr:\n", 15);
+x_1 = lean_mk_string_unchecked("stdout/stderr:\n", 15, 15);
 return x_1;
 }
 }

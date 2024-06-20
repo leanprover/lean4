@@ -329,7 +329,7 @@ static lean_object* _init_l_Lean_CodeAction_holeCodeActionProvider___lambda__3__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -337,7 +337,7 @@ static lean_object* _init_l_Lean_CodeAction_holeCodeActionProvider___lambda__3__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -345,7 +345,7 @@ static lean_object* _init_l_Lean_CodeAction_holeCodeActionProvider___lambda__3__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -353,7 +353,7 @@ static lean_object* _init_l_Lean_CodeAction_holeCodeActionProvider___lambda__3__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elabHole", 8);
+x_1 = lean_mk_string_unchecked("elabHole", 8, 8);
 return x_1;
 }
 }
@@ -373,7 +373,7 @@ static lean_object* _init_l_Lean_CodeAction_holeCodeActionProvider___lambda__3__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elabSyntheticHole", 17);
+x_1 = lean_mk_string_unchecked("elabSyntheticHole", 17, 17);
 return x_1;
 }
 }
@@ -393,7 +393,7 @@ static lean_object* _init_l_Lean_CodeAction_holeCodeActionProvider___lambda__3__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elabSorry", 9);
+x_1 = lean_mk_string_unchecked("elabSorry", 9, 9);
 return x_1;
 }
 }
@@ -792,7 +792,7 @@ static lean_object* _init_l___regBuiltin_Lean_CodeAction_holeCodeActionProvider_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CodeAction", 10);
+x_1 = lean_mk_string_unchecked("CodeAction", 10, 10);
 return x_1;
 }
 }
@@ -800,7 +800,7 @@ static lean_object* _init_l___regBuiltin_Lean_CodeAction_holeCodeActionProvider_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("holeCodeActionProvider", 22);
+x_1 = lean_mk_string_unchecked("holeCodeActionProvider", 22, 22);
 return x_1;
 }
 }
@@ -1831,7 +1831,7 @@ static lean_object* _init_l_Lean_CodeAction_findTactic_x3f_go___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -1839,7 +1839,7 @@ static lean_object* _init_l_Lean_CodeAction_findTactic_x3f_go___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -1847,7 +1847,7 @@ static lean_object* _init_l_Lean_CodeAction_findTactic_x3f_go___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq", 9);
+x_1 = lean_mk_string_unchecked("tacticSeq", 9, 9);
 return x_1;
 }
 }
@@ -1867,7 +1867,7 @@ static lean_object* _init_l_Lean_CodeAction_findTactic_x3f_go___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeqBracketed", 18);
+x_1 = lean_mk_string_unchecked("tacticSeqBracketed", 18, 18);
 return x_1;
 }
 }
@@ -4113,7 +4113,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_CodeAction_cmdCodeA
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Server.CodeActions.Provider", 32);
+x_1 = lean_mk_string_unchecked("Lean.Server.CodeActions.Provider", 32, 32);
 return x_1;
 }
 }
@@ -4121,7 +4121,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_CodeAction_cmdCodeA
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.CodeAction.cmdCodeActionProvider", 37);
+x_1 = lean_mk_string_unchecked("Lean.CodeAction.cmdCodeActionProvider", 37, 37);
 return x_1;
 }
 }
@@ -4129,7 +4129,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_CodeAction_cmdCodeA
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -4893,7 +4893,7 @@ static lean_object* _init_l___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cmdCodeActionProvider", 21);
+x_1 = lean_mk_string_unchecked("cmdCodeActionProvider", 21, 21);
 return x_1;
 }
 }

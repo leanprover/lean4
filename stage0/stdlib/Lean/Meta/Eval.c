@@ -347,7 +347,7 @@ static lean_object* _init_l_Lean_Meta_evalExprCore___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_tmp", 4);
+x_1 = lean_mk_string_unchecked("_tmp", 4, 4);
 return x_1;
 }
 }
@@ -365,7 +365,7 @@ static lean_object* _init_l_Lean_Meta_evalExprCore___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to evaluate expression, it contains metavariables", 56);
+x_1 = lean_mk_string_unchecked("failed to evaluate expression, it contains metavariables", 56, 56);
 return x_1;
 }
 }
@@ -382,7 +382,7 @@ static lean_object* _init_l_Lean_Meta_evalExprCore___rarg___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -906,7 +906,7 @@ static lean_object* _init_l_Lean_Meta_evalExpr_x27___rarg___lambda__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected type at evalExpr", 27);
+x_1 = lean_mk_string_unchecked("unexpected type at evalExpr", 27, 27);
 return x_1;
 }
 }
@@ -1084,7 +1084,7 @@ static lean_object* _init_l_Lean_Meta_evalExpr___rarg___lambda__1___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected type at `evalExpr` ", 30);
+x_1 = lean_mk_string_unchecked("unexpected type at `evalExpr` ", 30, 30);
 return x_1;
 }
 }

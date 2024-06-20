@@ -354,7 +354,7 @@ static lean_object* _init_l_Lean_IR_Checker_markIndex___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("variable / joinpoint index ", 27);
+x_1 = lean_mk_string_unchecked("variable / joinpoint index ", 27, 27);
 return x_1;
 }
 }
@@ -362,7 +362,7 @@ static lean_object* _init_l_Lean_IR_Checker_markIndex___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" has already been used", 22);
+x_1 = lean_mk_string_unchecked(" has already been used", 22, 22);
 return x_1;
 }
 }
@@ -487,7 +487,7 @@ static lean_object* _init_l_Lean_IR_Checker_getDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown declaration '", 21);
+x_1 = lean_mk_string_unchecked("unknown declaration '", 21, 21);
 return x_1;
 }
 }
@@ -495,7 +495,7 @@ static lean_object* _init_l_Lean_IR_Checker_getDecl___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -561,7 +561,7 @@ static lean_object* _init_l_Lean_IR_Checker_checkVar___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("x_", 2);
+x_1 = lean_mk_string_unchecked("x_", 2, 2);
 return x_1;
 }
 }
@@ -569,7 +569,7 @@ static lean_object* _init_l_Lean_IR_Checker_checkVar___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown variable '", 18);
+x_1 = lean_mk_string_unchecked("unknown variable '", 18, 18);
 return x_1;
 }
 }
@@ -638,7 +638,7 @@ static lean_object* _init_l_Lean_IR_Checker_checkJP___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("block_", 6);
+x_1 = lean_mk_string_unchecked("block_", 6, 6);
 return x_1;
 }
 }
@@ -646,7 +646,7 @@ static lean_object* _init_l_Lean_IR_Checker_checkJP___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown join point '", 20);
+x_1 = lean_mk_string_unchecked("unknown join point '", 20, 20);
 return x_1;
 }
 }
@@ -895,7 +895,7 @@ static lean_object* _init_l_Lean_IR_Checker_checkEqTypes___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected type '{ty₁}' != '{ty₂}'", 38);
+x_1 = lean_mk_string_unchecked("unexpected type '{ty₁}' != '{ty₂}'", 38, 34);
 return x_1;
 }
 }
@@ -961,7 +961,7 @@ static lean_object* _init_l_Lean_IR_Checker_checkType___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected type '", 17);
+x_1 = lean_mk_string_unchecked("unexpected type '", 17, 17);
 return x_1;
 }
 }
@@ -977,7 +977,7 @@ static lean_object* _init_l_Lean_IR_Checker_checkType___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -985,7 +985,7 @@ static lean_object* _init_l_Lean_IR_Checker_checkType___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", ", 2);
+x_1 = lean_mk_string_unchecked(", ", 2, 2);
 return x_1;
 }
 }
@@ -1069,7 +1069,7 @@ static lean_object* _init_l_Lean_IR_Checker_checkObjType___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("object expected", 15);
+x_1 = lean_mk_string_unchecked("object expected", 15, 15);
 return x_1;
 }
 }
@@ -1120,7 +1120,7 @@ static lean_object* _init_l_Lean_IR_Checker_checkScalarType___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("scalar expected", 15);
+x_1 = lean_mk_string_unchecked("scalar expected", 15, 15);
 return x_1;
 }
 }
@@ -1763,7 +1763,7 @@ static lean_object* _init_l_Lean_IR_Checker_checkFullApp___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("incorrect number of arguments to '", 34);
+x_1 = lean_mk_string_unchecked("incorrect number of arguments to '", 34, 34);
 return x_1;
 }
 }
@@ -1771,7 +1771,7 @@ static lean_object* _init_l_Lean_IR_Checker_checkFullApp___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', ", 3);
+x_1 = lean_mk_string_unchecked("', ", 3, 3);
 return x_1;
 }
 }
@@ -1779,7 +1779,7 @@ static lean_object* _init_l_Lean_IR_Checker_checkFullApp___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" provided, ", 11);
+x_1 = lean_mk_string_unchecked(" provided, ", 11, 11);
 return x_1;
 }
 }
@@ -1787,7 +1787,7 @@ static lean_object* _init_l_Lean_IR_Checker_checkFullApp___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" expected", 9);
+x_1 = lean_mk_string_unchecked(" expected", 9, 9);
 return x_1;
 }
 }
@@ -2058,7 +2058,7 @@ static lean_object* _init_l_Lean_IR_Checker_checkPartialApp___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("too many arguments too partial application '", 44);
+x_1 = lean_mk_string_unchecked("too many arguments too partial application '", 44, 44);
 return x_1;
 }
 }
@@ -2066,7 +2066,7 @@ static lean_object* _init_l_Lean_IR_Checker_checkPartialApp___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', num. args: ", 14);
+x_1 = lean_mk_string_unchecked("', num. args: ", 14, 14);
 return x_1;
 }
 }
@@ -2074,7 +2074,7 @@ static lean_object* _init_l_Lean_IR_Checker_checkPartialApp___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", arity: ", 9);
+x_1 = lean_mk_string_unchecked(", arity: ", 9, 9);
 return x_1;
 }
 }
@@ -2457,7 +2457,7 @@ static lean_object* _init_l_Lean_IR_Checker_checkExpr___lambda__2___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("constructor '", 13);
+x_1 = lean_mk_string_unchecked("constructor '", 13, 13);
 return x_1;
 }
 }
@@ -2465,7 +2465,7 @@ static lean_object* _init_l_Lean_IR_Checker_checkExpr___lambda__2___closed__2() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' has too many scalar fields", 28);
+x_1 = lean_mk_string_unchecked("' has too many scalar fields", 28, 28);
 return x_1;
 }
 }
@@ -2522,7 +2522,7 @@ static lean_object* _init_l_Lean_IR_Checker_checkExpr___lambda__3___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' has too many fields", 21);
+x_1 = lean_mk_string_unchecked("' has too many fields", 21, 21);
 return x_1;
 }
 }
@@ -2570,7 +2570,7 @@ static lean_object* _init_l_Lean_IR_Checker_checkExpr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tag for constructor '", 21);
+x_1 = lean_mk_string_unchecked("tag for constructor '", 21, 21);
 return x_1;
 }
 }
@@ -2578,7 +2578,7 @@ static lean_object* _init_l_Lean_IR_Checker_checkExpr___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' is too big, this is a limitation of the current runtime", 57);
+x_1 = lean_mk_string_unchecked("' is too big, this is a limitation of the current runtime", 57, 57);
 return x_1;
 }
 }
@@ -2586,7 +2586,7 @@ static lean_object* _init_l_Lean_IR_Checker_checkExpr___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected IR type '", 20);
+x_1 = lean_mk_string_unchecked("unexpected IR type '", 20, 20);
 return x_1;
 }
 }
@@ -2594,7 +2594,7 @@ static lean_object* _init_l_Lean_IR_Checker_checkExpr___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid proj index", 18);
+x_1 = lean_mk_string_unchecked("invalid proj index", 18, 18);
 return x_1;
 }
 }
@@ -6687,7 +6687,7 @@ static lean_object* _init_l_Lean_IR_checkDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("compiler IR check failed at '", 29);
+x_1 = lean_mk_string_unchecked("compiler IR check failed at '", 29, 29);
 return x_1;
 }
 }
@@ -6695,7 +6695,7 @@ static lean_object* _init_l_Lean_IR_checkDecl___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', error: ", 10);
+x_1 = lean_mk_string_unchecked("', error: ", 10, 10);
 return x_1;
 }
 }

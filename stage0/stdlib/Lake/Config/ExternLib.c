@@ -213,7 +213,7 @@ static lean_object* _init_l_Lake_ExternLib_staticTargetName___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("static", 6);
+x_1 = lean_mk_string_unchecked("static", 6, 6);
 return x_1;
 }
 }

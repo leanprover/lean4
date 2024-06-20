@@ -263,7 +263,7 @@ static lean_object* _init_l_Lake_Manifest_version___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -291,7 +291,7 @@ static lean_object* _init_l___private_Lake_Load_Manifest_0__Lake_fromJsonPackage
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no inductive constructor matched", 32);
+x_1 = lean_mk_string_unchecked("no inductive constructor matched", 32, 32);
 return x_1;
 }
 }
@@ -326,7 +326,7 @@ static lean_object* _init_l___private_Lake_Load_Manifest_0__Lake_fromJsonPackage
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("url", 3);
+x_1 = lean_mk_string_unchecked("url", 3, 3);
 return x_1;
 }
 }
@@ -344,7 +344,7 @@ static lean_object* _init_l___private_Lake_Load_Manifest_0__Lake_fromJsonPackage
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rev", 3);
+x_1 = lean_mk_string_unchecked("rev", 3, 3);
 return x_1;
 }
 }
@@ -362,7 +362,7 @@ static lean_object* _init_l___private_Lake_Load_Manifest_0__Lake_fromJsonPackage
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inputRev\?", 9);
+x_1 = lean_mk_string_unchecked("inputRev\?", 9, 9);
 return x_1;
 }
 }
@@ -380,7 +380,7 @@ static lean_object* _init_l___private_Lake_Load_Manifest_0__Lake_fromJsonPackage
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("subDir\?", 7);
+x_1 = lean_mk_string_unchecked("subDir\?", 7, 7);
 return x_1;
 }
 }
@@ -407,7 +407,7 @@ static lean_object* _init_l___private_Lake_Load_Manifest_0__Lake_fromJsonPackage
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("git", 3);
+x_1 = lean_mk_string_unchecked("git", 3, 3);
 return x_1;
 }
 }
@@ -423,7 +423,7 @@ static lean_object* _init_l___private_Lake_Load_Manifest_0__Lake_fromJsonPackage
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[anonymous]", 11);
+x_1 = lean_mk_string_unchecked("[anonymous]", 11, 11);
 return x_1;
 }
 }
@@ -431,7 +431,7 @@ static lean_object* _init_l___private_Lake_Load_Manifest_0__Lake_fromJsonPackage
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected a `Name`, got '", 24);
+x_1 = lean_mk_string_unchecked("expected a `Name`, got '", 24, 24);
 return x_1;
 }
 }
@@ -439,7 +439,7 @@ static lean_object* _init_l___private_Lake_Load_Manifest_0__Lake_fromJsonPackage
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -2025,7 +2025,7 @@ static lean_object* _init_l___private_Lake_Load_Manifest_0__Lake_fromJsonPackage
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("name", 4);
+x_1 = lean_mk_string_unchecked("name", 4, 4);
 return x_1;
 }
 }
@@ -2043,7 +2043,7 @@ static lean_object* _init_l___private_Lake_Load_Manifest_0__Lake_fromJsonPackage
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("opts", 4);
+x_1 = lean_mk_string_unchecked("opts", 4, 4);
 return x_1;
 }
 }
@@ -2061,7 +2061,7 @@ static lean_object* _init_l___private_Lake_Load_Manifest_0__Lake_fromJsonPackage
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inherited", 9);
+x_1 = lean_mk_string_unchecked("inherited", 9, 9);
 return x_1;
 }
 }
@@ -2079,7 +2079,7 @@ static lean_object* _init_l___private_Lake_Load_Manifest_0__Lake_fromJsonPackage
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("dir", 3);
+x_1 = lean_mk_string_unchecked("dir", 3, 3);
 return x_1;
 }
 }
@@ -2156,7 +2156,7 @@ static lean_object* _init_l___private_Lake_Load_Manifest_0__Lake_fromJsonPackage
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("path", 4);
+x_1 = lean_mk_string_unchecked("path", 4, 4);
 return x_1;
 }
 }
@@ -3293,7 +3293,7 @@ static lean_object* _init_l_Lake_PackageEntry_toJson___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("configFile", 10);
+x_1 = lean_mk_string_unchecked("configFile", 10, 10);
 return x_1;
 }
 }
@@ -3301,7 +3301,7 @@ static lean_object* _init_l_Lake_PackageEntry_toJson___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("manifestFile", 12);
+x_1 = lean_mk_string_unchecked("manifestFile", 12, 12);
 return x_1;
 }
 }
@@ -3319,7 +3319,7 @@ static lean_object* _init_l_Lake_PackageEntry_toJson___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("type", 4);
+x_1 = lean_mk_string_unchecked("type", 4, 4);
 return x_1;
 }
 }
@@ -3361,7 +3361,7 @@ static lean_object* _init_l_Lake_PackageEntry_toJson___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inputRev", 8);
+x_1 = lean_mk_string_unchecked("inputRev", 8, 8);
 return x_1;
 }
 }
@@ -3381,7 +3381,7 @@ static lean_object* _init_l_Lake_PackageEntry_toJson___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("subDir", 6);
+x_1 = lean_mk_string_unchecked("subDir", 6, 6);
 return x_1;
 }
 }
@@ -3883,7 +3883,7 @@ static lean_object* _init_l_Lake_PackageEntry_fromJson_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("package entry: ", 15);
+x_1 = lean_mk_string_unchecked("package entry: ", 15, 15);
 return x_1;
 }
 }
@@ -3891,7 +3891,7 @@ static lean_object* _init_l_Lake_PackageEntry_fromJson_x3f___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("package entry '", 15);
+x_1 = lean_mk_string_unchecked("package entry '", 15, 15);
 return x_1;
 }
 }
@@ -3899,7 +3899,7 @@ static lean_object* _init_l_Lake_PackageEntry_fromJson_x3f___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("': ", 3);
+x_1 = lean_mk_string_unchecked("': ", 3, 3);
 return x_1;
 }
 }
@@ -3917,7 +3917,7 @@ static lean_object* _init_l_Lake_PackageEntry_fromJson_x3f___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -3955,7 +3955,7 @@ static lean_object* _init_l_Lake_PackageEntry_fromJson_x3f___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("property not found: ", 20);
+x_1 = lean_mk_string_unchecked("property not found: ", 20, 20);
 return x_1;
 }
 }
@@ -4093,7 +4093,7 @@ static lean_object* _init_l_Lake_PackageEntry_fromJson_x3f___closed__23() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown package entry type '", 28);
+x_1 = lean_mk_string_unchecked("unknown package entry type '", 28, 28);
 return x_1;
 }
 }
@@ -6222,7 +6222,7 @@ static lean_object* _init_l_Lake_Manifest_toJson___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("version", 7);
+x_1 = lean_mk_string_unchecked("version", 7, 7);
 return x_1;
 }
 }
@@ -6242,7 +6242,7 @@ static lean_object* _init_l_Lake_Manifest_toJson___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lakeDir", 7);
+x_1 = lean_mk_string_unchecked("lakeDir", 7, 7);
 return x_1;
 }
 }
@@ -6250,7 +6250,7 @@ static lean_object* _init_l_Lake_Manifest_toJson___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("packages", 8);
+x_1 = lean_mk_string_unchecked("packages", 8, 8);
 return x_1;
 }
 }
@@ -6258,7 +6258,7 @@ static lean_object* _init_l_Lake_Manifest_toJson___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("packagesDir", 11);
+x_1 = lean_mk_string_unchecked("packagesDir", 11, 11);
 return x_1;
 }
 }
@@ -6667,7 +6667,7 @@ static lean_object* _init_l_Lake_Manifest_fromJson_x3f___lambda__2___closed__9()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected JSON array, got '", 26);
+x_1 = lean_mk_string_unchecked("expected JSON array, got '", 26, 26);
 return x_1;
 }
 }
@@ -6728,7 +6728,7 @@ static lean_object* _init_l_Lake_Manifest_fromJson_x3f___lambda__2___closed__15(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("incompatible manifest version '", 31);
+x_1 = lean_mk_string_unchecked("incompatible manifest version '", 31, 31);
 return x_1;
 }
 }
@@ -6736,7 +6736,7 @@ static lean_object* _init_l_Lake_Manifest_fromJson_x3f___lambda__2___closed__16(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("manifest version '", 18);
+x_1 = lean_mk_string_unchecked("manifest version '", 18, 18);
 return x_1;
 }
 }
@@ -6744,7 +6744,7 @@ static lean_object* _init_l_Lake_Manifest_fromJson_x3f___lambda__2___closed__17(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' is of a higher major version than this Lake's '", 49);
+x_1 = lean_mk_string_unchecked("' is of a higher major version than this Lake's '", 49, 49);
 return x_1;
 }
 }
@@ -6752,7 +6752,7 @@ static lean_object* _init_l_Lake_Manifest_fromJson_x3f___lambda__2___closed__18(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'; you may need to update your 'lean-toolchain'", 47);
+x_1 = lean_mk_string_unchecked("'; you may need to update your 'lean-toolchain'", 47, 47);
 return x_1;
 }
 }
@@ -7661,7 +7661,7 @@ static lean_object* _init_l_Lake_Manifest_fromJson_x3f___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown manifest version format '", 33);
+x_1 = lean_mk_string_unchecked("unknown manifest version format '", 33, 33);
 return x_1;
 }
 }
@@ -8158,7 +8158,7 @@ static lean_object* _init_l_Lake_Manifest_parse___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("manifest is not valid JSON: ", 28);
+x_1 = lean_mk_string_unchecked("manifest is not valid JSON: ", 28, 28);
 return x_1;
 }
 }

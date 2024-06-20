@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "library/class.h"
 #include "library/num.h"
 #include "library/annotation.h"
-#include "library/protected.h"
 #include "library/print.h"
 #include "library/util.h"
 #include "library/profiling.h"

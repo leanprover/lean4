@@ -11,13 +11,12 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/inductive.h"
 #include "library/reducible.h"
-#include "library/protected.h"
 #include "library/suffixes.h"
 #include "library/aux_recursors.h"
 #include "library/constructions/util.h"
 
 namespace lean {
-environment mk_rec_on(environment const & env, name const & n) {
+declaration mk_rec_on(environment const & env, name const & n) {
     constant_info ind_info = env.get(n);
     if (!ind_info.is_inductive())
         throw exception(sstream() << "error in '" << g_rec_on << "' generation, '" << n << "' is not an inductive datatype");
@@ -55,14 +54,11 @@ environment mk_rec_on(environment const & env, name const & n) {
     expr rec  = mk_constant(rec_info.get_name(), ls);
     expr rec_on_val = lctx.mk_lambda(new_locals, mk_app(rec, locals));
 
-    environment new_env = env.add(mk_definition_inferring_unsafe(env, rec_on_name, rec_info.get_lparams(),
-                                                                 rec_on_type, rec_on_val, reducibility_hints::mk_abbreviation()));
-    new_env = set_reducible(new_env, rec_on_name, reducible_status::Reducible, true);
-    new_env = add_aux_recursor(new_env, rec_on_name);
-    return add_protected(new_env, rec_on_name);
+    return mk_definition_inferring_unsafe(env, rec_on_name, rec_info.get_lparams(),
+                                          rec_on_type, rec_on_val, reducibility_hints::mk_abbreviation());
 }
 
 extern "C" LEAN_EXPORT object * lean_mk_rec_on(object * env, object * n) {
-    return catch_kernel_exceptions<environment>([&]() { return mk_rec_on(environment(env), name(n, true)); });
+    return catch_kernel_exceptions<declaration>([&]() { return mk_rec_on(environment(env), name(n, true)); });
 }
 }

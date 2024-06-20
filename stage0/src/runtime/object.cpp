@@ -355,12 +355,12 @@ extern "C" LEAN_EXPORT lean_object * lean_array_data(lean_obj_arg a) {
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_array_get_panic(lean_obj_arg def_val) {
-    return lean_panic_fn(def_val, lean_mk_string("Error: index out of bounds"));
+    return lean_panic_fn(def_val, lean_mk_ascii_string_unchecked("Error: index out of bounds"));
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_array_set_panic(lean_obj_arg a, lean_obj_arg v) {
     lean_dec(v);
-    return lean_panic_fn(a, lean_mk_string("Error: index out of bounds"));
+    return lean_panic_fn(a, lean_mk_ascii_string_unchecked("Error: index out of bounds"));
 }
 
 // =======================================
@@ -1561,9 +1561,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_float_to_string(double a) {
     if (isnan(a))
         // override NaN because we don't want NaNs to be distinguishable
         // because the sign bit / payload bits can be architecture-dependent
-        return mk_string("NaN");
+        return mk_ascii_string_unchecked("NaN");
     else
-        return mk_string(std::to_string(a));
+        return mk_ascii_string_unchecked(std::to_string(a));
 }
 
 extern "C" LEAN_EXPORT double lean_float_scaleb(double a, b_lean_obj_arg b) {
@@ -1607,7 +1607,7 @@ static object * string_ensure_capacity(object * o, size_t extra) {
     }
 }
 
-extern "C" LEAN_EXPORT object * lean_mk_string_core(char const * s, size_t sz, size_t len) {
+extern "C" LEAN_EXPORT object * lean_mk_string_unchecked(char const * s, size_t sz, size_t len) {
     size_t rsz = sz + 1;
     object * r = lean_alloc_string(rsz, rsz, len);
     memcpy(w_string_cstr(r), s, sz);
@@ -1615,20 +1615,51 @@ extern "C" LEAN_EXPORT object * lean_mk_string_core(char const * s, size_t sz, s
     return r;
 }
 
+object * lean_mk_string_lossy_recover(char const * s, size_t sz, size_t pos, size_t i) {
+    std::string str(s, pos);
+    size_t start = pos;
+    while (pos < sz) {
+        if (!validate_utf8_one((const uint8_t *)s, sz, pos)) {
+            str.append(s + start, pos - start);
+            str.append("\ufffd"); // U+FFFD REPLACEMENT CHARACTER
+            do pos++; while (pos < sz && (s[pos] & 0xc0) == 0x80);
+            start = pos;
+        }
+        i++;
+    }
+    str.append(s + start, pos - start);
+    return lean_mk_string_unchecked(str.data(), str.size(), i);
+}
+
 extern "C" LEAN_EXPORT object * lean_mk_string_from_bytes(char const * s, size_t sz) {
-    return lean_mk_string_core(s, sz, utf8_strlen(s, sz));
+    size_t pos = 0, i = 0;
+    if (validate_utf8((const uint8_t *)s, sz, pos, i)) {
+        return lean_mk_string_unchecked(s, pos, i);
+    } else {
+        return lean_mk_string_lossy_recover(s, sz, pos, i);
+    }
+}
+
+extern "C" LEAN_EXPORT object * lean_mk_string_from_bytes_unchecked(char const * s, size_t sz) {
+    return lean_mk_string_unchecked(s, sz, utf8_strlen(s, sz));
 }
 
 extern "C" LEAN_EXPORT object * lean_mk_string(char const * s) {
     return lean_mk_string_from_bytes(s, strlen(s));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_string_from_utf8(b_obj_arg a) {
-    return lean_mk_string_from_bytes(reinterpret_cast<char *>(lean_sarray_cptr(a)), lean_sarray_size(a));
+extern "C" LEAN_EXPORT object * lean_mk_ascii_string_unchecked(char const * s) {
+    size_t len = strlen(s);
+    return lean_mk_string_unchecked(s, len, len);
+}
+
+extern "C" LEAN_EXPORT obj_res lean_string_from_utf8_unchecked(b_obj_arg a) {
+    return lean_mk_string_from_bytes_unchecked(reinterpret_cast<char *>(lean_sarray_cptr(a)), lean_sarray_size(a));
 }
 
 extern "C" LEAN_EXPORT uint8 lean_string_validate_utf8(b_obj_arg a) {
-    return validate_utf8(lean_sarray_cptr(a), lean_sarray_size(a));
+    size_t pos = 0, i = 0;
+    return validate_utf8(lean_sarray_cptr(a), lean_sarray_size(a), pos, i);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_string_to_utf8(b_obj_arg s) {
@@ -1642,8 +1673,8 @@ object * mk_string(std::string const & s) {
     return lean_mk_string_from_bytes(s.data(), s.size());
 }
 
-object * mk_ascii_string(std::string const & s) {
-    return lean_mk_string_core(s.data(), s.size(), s.size());
+object * mk_ascii_string_unchecked(std::string const & s) {
+    return lean_mk_string_unchecked(s.data(), s.size(), s.size());
 }
 
 std::string string_to_std(b_obj_arg o) {
@@ -1713,16 +1744,6 @@ extern "C" LEAN_EXPORT bool lean_string_lt(object * s1, object * s2) {
     return r < 0 || (r == 0 && sz1 < sz2);
 }
 
-static std::string list_as_string(b_obj_arg lst) {
-    std::string s;
-    b_obj_arg o = lst;
-    while (!lean_is_scalar(o)) {
-        push_unicode_scalar(s, lean_unbox_uint32(lean_ctor_get(o, 0)));
-        o = lean_ctor_get(o, 1);
-    }
-    return s;
-}
-
 static obj_res string_to_list_core(std::string const & s, bool reverse = false) {
     std::vector<unsigned> tmp;
     utf8_decode(s, tmp);
@@ -1741,9 +1762,16 @@ static obj_res string_to_list_core(std::string const & s, bool reverse = false) 
 }
 
 extern "C" LEAN_EXPORT obj_res lean_string_mk(obj_arg cs) {
-    std::string s = list_as_string(cs);
+    std::string s;
+    b_obj_arg o = cs;
+    size_t len = 0;
+    while (!lean_is_scalar(o)) {
+        push_unicode_scalar(s, lean_unbox_uint32(lean_ctor_get(o, 0)));
+        o = lean_ctor_get(o, 1);
+        len++;
+    }
     lean_dec(cs);
-    return mk_string(s);
+    return lean_mk_string_unchecked(s.data(), s.size(), len);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_string_data(obj_arg s) {
@@ -1876,7 +1904,7 @@ extern "C" LEAN_EXPORT obj_res lean_string_utf8_get_opt(b_obj_arg s, b_obj_arg i
 }
 
 static uint32 lean_string_utf8_get_panic() {
-    lean_panic_fn(lean_box(0), lean_mk_string("Error: invalid `String.Pos` at `String.get!`"));
+    lean_panic_fn(lean_box(0), lean_mk_ascii_string_unchecked("Error: invalid `String.Pos` at `String.get!`"));
     return lean_char_default_value();
 }
 
@@ -1957,10 +1985,10 @@ extern "C" LEAN_EXPORT obj_res lean_string_utf8_extract(b_obj_arg s, b_obj_arg b
     usize e = lean_unbox(e0);
     char const * str = lean_string_cstr(s);
     usize sz = lean_string_size(s) - 1;
-    if (b >= e || b >= sz) return lean_mk_string("");
+    if (b >= e || b >= sz) return lean_mk_string_unchecked("", 0, 0);
     /* In the reference implementation if `b` is not pointing to a valid UTF8
        character start position, the result is the empty string. */
-    if (!is_utf8_first_byte(str[b])) return lean_mk_string("");
+    if (!is_utf8_first_byte(str[b])) return lean_mk_string_unchecked("", 0, 0);
     if (e > sz) e = sz;
     lean_assert(b < e);
     lean_assert(e > 0);
@@ -1969,7 +1997,7 @@ extern "C" LEAN_EXPORT obj_res lean_string_utf8_extract(b_obj_arg s, b_obj_arg b
     if (e < sz && !is_utf8_first_byte(str[e])) e = sz;
     usize new_sz = e - b;
     lean_assert(new_sz > 0);
-    return lean_mk_string_from_bytes(lean_string_cstr(s) + b, new_sz);
+    return lean_mk_string_from_bytes_unchecked(lean_string_cstr(s) + b, new_sz);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_string_utf8_prev(b_obj_arg s, b_obj_arg i0) {
@@ -2018,9 +2046,10 @@ extern "C" LEAN_EXPORT obj_res lean_string_utf8_set(obj_arg s, b_obj_arg i0, uin
     std::string tmp;
     push_unicode_scalar(tmp, c);
     std::string new_s = string_to_std(s);
+    usize len = lean_string_len(s);
     dec(s);
     new_s.replace(i, get_utf8_char_size_at(new_s, i), tmp);
-    return mk_string(new_s);
+    return lean_mk_string_unchecked(new_s.data(), new_s.size(), len);
 }
 
 extern "C" LEAN_EXPORT uint64 lean_string_hash(b_obj_arg s) {
@@ -2030,7 +2059,7 @@ extern "C" LEAN_EXPORT uint64 lean_string_hash(b_obj_arg s) {
 }
 
 extern "C" LEAN_EXPORT obj_res lean_string_of_usize(size_t n) {
-    return mk_ascii_string(std::to_string(n));
+    return mk_ascii_string_unchecked(std::to_string(n));
 }
 
 // =======================================

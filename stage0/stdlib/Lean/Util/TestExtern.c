@@ -84,7 +84,7 @@ static lean_object* _init_l_testExternCmd___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("testExternCmd", 13);
+x_1 = lean_mk_string_unchecked("testExternCmd", 13, 13);
 return x_1;
 }
 }
@@ -102,7 +102,7 @@ static lean_object* _init_l_testExternCmd___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("andthen", 7);
+x_1 = lean_mk_string_unchecked("andthen", 7, 7);
 return x_1;
 }
 }
@@ -120,7 +120,7 @@ static lean_object* _init_l_testExternCmd___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("test_extern ", 12);
+x_1 = lean_mk_string_unchecked("test_extern ", 12, 12);
 return x_1;
 }
 }
@@ -138,7 +138,7 @@ static lean_object* _init_l_testExternCmd___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term", 4);
+x_1 = lean_mk_string_unchecked("term", 4, 4);
 return x_1;
 }
 }
@@ -243,7 +243,7 @@ static lean_object* _init_l_elabTestExtern___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("test_extern: expects a function application", 43);
+x_1 = lean_mk_string_unchecked("test_extern: expects a function application", 43, 43);
 return x_1;
 }
 }
@@ -260,7 +260,7 @@ static lean_object* _init_l_elabTestExtern___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -268,7 +268,7 @@ static lean_object* _init_l_elabTestExtern___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceBool", 10);
+x_1 = lean_mk_string_unchecked("reduceBool", 10, 10);
 return x_1;
 }
 }
@@ -296,7 +296,7 @@ static lean_object* _init_l_elabTestExtern___lambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Bool", 4);
+x_1 = lean_mk_string_unchecked("Bool", 4, 4);
 return x_1;
 }
 }
@@ -324,7 +324,7 @@ static lean_object* _init_l_elabTestExtern___lambda__1___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("native implementation did not agree with reference implementation!\n", 67);
+x_1 = lean_mk_string_unchecked("native implementation did not agree with reference implementation!\n", 67, 67);
 return x_1;
 }
 }
@@ -351,7 +351,7 @@ static lean_object* _init_l_elabTestExtern___lambda__1___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Compare the outputs of:\n#eval ", 30);
+x_1 = lean_mk_string_unchecked("Compare the outputs of:\n#eval ", 30, 30);
 return x_1;
 }
 }
@@ -368,7 +368,7 @@ static lean_object* _init_l_elabTestExtern___lambda__1___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n and\n#eval ", 12);
+x_1 = lean_mk_string_unchecked("\n and\n#eval ", 12, 12);
 return x_1;
 }
 }
@@ -385,7 +385,7 @@ static lean_object* _init_l_elabTestExtern___lambda__1___closed__17() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -410,7 +410,7 @@ static lean_object* _init_l_elabTestExtern___lambda__1___closed__20() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("test_extern: ", 13);
+x_1 = lean_mk_string_unchecked("test_extern: ", 13, 13);
 return x_1;
 }
 }
@@ -427,7 +427,7 @@ static lean_object* _init_l_elabTestExtern___lambda__1___closed__22() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" does not have an @[extern] attribute or @[implemented_by] attribute", 68);
+x_1 = lean_mk_string_unchecked(" does not have an @[extern] attribute or @[implemented_by] attribute", 68, 68);
 return x_1;
 }
 }

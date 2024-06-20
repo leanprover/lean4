@@ -1075,7 +1075,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkParenthesizerAttribute___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid [parenthesizer] argument, unknown syntax kind '", 55);
+x_1 = lean_mk_string_unchecked("invalid [parenthesizer] argument, unknown syntax kind '", 55, 55);
 return x_1;
 }
 }
@@ -1092,7 +1092,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkParenthesizerAttribute___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -1265,7 +1265,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkParenthesizerAttribute___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtin_parenthesizer", 21);
+x_1 = lean_mk_string_unchecked("builtin_parenthesizer", 21, 21);
 return x_1;
 }
 }
@@ -1283,7 +1283,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkParenthesizerAttribute___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("parenthesizer", 13);
+x_1 = lean_mk_string_unchecked("parenthesizer", 13, 13);
 return x_1;
 }
 }
@@ -1301,7 +1301,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkParenthesizerAttribute___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1309,7 +1309,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkParenthesizerAttribute___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PrettyPrinter", 13);
+x_1 = lean_mk_string_unchecked("PrettyPrinter", 13, 13);
 return x_1;
 }
 }
@@ -1317,7 +1317,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkParenthesizerAttribute___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parenthesizer", 13);
+x_1 = lean_mk_string_unchecked("Parenthesizer", 13, 13);
 return x_1;
 }
 }
@@ -1336,7 +1336,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkParenthesizerAttribute___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Register a parenthesizer for a parser.\n\n  [parenthesizer k] registers a declaration of type `Lean.PrettyPrinter.Parenthesizer` for the `SyntaxNodeKind` `k`.", 156);
+x_1 = lean_mk_string_unchecked("Register a parenthesizer for a parser.\n\n  [parenthesizer k] registers a declaration of type `Lean.PrettyPrinter.Parenthesizer` for the `SyntaxNodeKind` `k`.", 156, 156);
 return x_1;
 }
 }
@@ -1380,7 +1380,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkParenthesizerAttribute___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("parenthesizerAttribute", 22);
+x_1 = lean_mk_string_unchecked("parenthesizerAttribute", 22, 22);
 return x_1;
 }
 }
@@ -1501,7 +1501,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkCategoryParenthesizerAttribute_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid [category_parenthesizer] argument, unknown parser category '", 68);
+x_1 = lean_mk_string_unchecked("invalid [category_parenthesizer] argument, unknown parser category '", 68, 68);
 return x_1;
 }
 }
@@ -2024,7 +2024,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkCategoryParenthesizerAttribute_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtin_category_parenthesizer", 30);
+x_1 = lean_mk_string_unchecked("builtin_category_parenthesizer", 30, 30);
 return x_1;
 }
 }
@@ -2042,7 +2042,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkCategoryParenthesizerAttribute_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("category_parenthesizer", 22);
+x_1 = lean_mk_string_unchecked("category_parenthesizer", 22, 22);
 return x_1;
 }
 }
@@ -2060,7 +2060,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkCategoryParenthesizerAttribute_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CategoryParenthesizer", 21);
+x_1 = lean_mk_string_unchecked("CategoryParenthesizer", 21, 21);
 return x_1;
 }
 }
@@ -2079,7 +2079,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkCategoryParenthesizerAttribute_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Register a parenthesizer for a syntax category.\n\n  [category_parenthesizer cat] registers a declaration of type `Lean.PrettyPrinter.CategoryParenthesizer` for the category `cat`,\n  which is used when parenthesizing calls of `categoryParser cat prec`. Implementations should call `maybeParenthesize`\n  with the precedence and `cat`. If no category parenthesizer is registered, the category will never be parenthesized,\n  but still be traversed for parenthesizing nested categories.", 480);
+x_1 = lean_mk_string_unchecked("Register a parenthesizer for a syntax category.\n\n  [category_parenthesizer cat] registers a declaration of type `Lean.PrettyPrinter.CategoryParenthesizer` for the category `cat`,\n  which is used when parenthesizing calls of `categoryParser cat prec`. Implementations should call `maybeParenthesize`\n  with the precedence and `cat`. If no category parenthesizer is registered, the category will never be parenthesized,\n  but still be traversed for parenthesizing nested categories.", 480, 480);
 return x_1;
 }
 }
@@ -2115,7 +2115,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkCategoryParenthesizerAttribute_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("categoryParenthesizerAttribute", 30);
+x_1 = lean_mk_string_unchecked("categoryParenthesizerAttribute", 30, 30);
 return x_1;
 }
 }
@@ -2165,7 +2165,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkCombinatorParenthesizerAttribut
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("combinator_parenthesizer", 24);
+x_1 = lean_mk_string_unchecked("combinator_parenthesizer", 24, 24);
 return x_1;
 }
 }
@@ -2183,7 +2183,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkCombinatorParenthesizerAttribut
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mkCombinatorParenthesizerAttribute", 34);
+x_1 = lean_mk_string_unchecked("mkCombinatorParenthesizerAttribute", 34, 34);
 return x_1;
 }
 }
@@ -2202,7 +2202,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkCombinatorParenthesizerAttribut
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Register a parenthesizer for a parser combinator.\n\n  [combinator_parenthesizer c] registers a declaration of type `Lean.PrettyPrinter.Parenthesizer` for the `Parser` declaration `c`.\n  Note that, unlike with [parenthesizer], this is not a node kind since combinators usually do not introduce their own node kinds.\n  The tagged declaration may optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced\n  with `Parenthesizer` in the parameter types.", 490);
+x_1 = lean_mk_string_unchecked("Register a parenthesizer for a parser combinator.\n\n  [combinator_parenthesizer c] registers a declaration of type `Lean.PrettyPrinter.Parenthesizer` for the `Parser` declaration `c`.\n  Note that, unlike with [parenthesizer], this is not a node kind since combinators usually do not introduce their own node kinds.\n  The tagged declaration may optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced\n  with `Parenthesizer` in the parameter types.", 490, 490);
 return x_1;
 }
 }
@@ -3667,7 +3667,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_PrettyPrinter_Parenthesizer_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -4456,7 +4456,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("parenthesized: ", 15);
+x_1 = lean_mk_string_unchecked("parenthesized: ", 15, 15);
 return x_1;
 }
 }
@@ -4979,7 +4979,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("visited a syntax tree without precedences\?!", 43);
+x_1 = lean_mk_string_unchecked("visited a syntax tree without precedences\?!", 43, 43);
 return x_1;
 }
 }
@@ -4996,7 +4996,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("...precedences are ", 19);
+x_1 = lean_mk_string_unchecked("...precedences are ", 19, 19);
 return x_1;
 }
 }
@@ -5013,7 +5013,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" >\? ", 4);
+x_1 = lean_mk_string_unchecked(" >\? ", 4, 4);
 return x_1;
 }
 }
@@ -5049,7 +5049,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", ", 2);
+x_1 = lean_mk_string_unchecked(", ", 2, 2);
 return x_1;
 }
 }
@@ -5066,7 +5066,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -5102,7 +5102,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" <=\? ", 5);
+x_1 = lean_mk_string_unchecked(" <=\? ", 5, 5);
 return x_1;
 }
 }
@@ -5119,7 +5119,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -5127,7 +5127,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -5135,7 +5135,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("none", 4);
+x_1 = lean_mk_string_unchecked("none", 4, 4);
 return x_1;
 }
 }
@@ -5186,7 +5186,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("some (", 6);
+x_1 = lean_mk_string_unchecked("some (", 6, 6);
 return x_1;
 }
 }
@@ -6409,7 +6409,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("parenthesize", 12);
+x_1 = lean_mk_string_unchecked("parenthesize", 12, 12);
 return x_1;
 }
 }
@@ -6427,7 +6427,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("parenthesizing (cont := ", 24);
+x_1 = lean_mk_string_unchecked("parenthesizing (cont := ", 24, 24);
 return x_1;
 }
 }
@@ -8223,7 +8223,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesize
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("choice", 6);
+x_1 = lean_mk_string_unchecked("choice", 6, 6);
 return x_1;
 }
 }
@@ -8546,7 +8546,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_parenthesizerForKin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("missing", 7);
+x_1 = lean_mk_string_unchecked("missing", 7, 7);
 return x_1;
 }
 }
@@ -9243,7 +9243,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_term_parenthesizer_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -9251,7 +9251,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_term_parenthesizer_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -9259,7 +9259,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_term_parenthesizer_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("paren", 5);
+x_1 = lean_mk_string_unchecked("paren", 5, 5);
 return x_1;
 }
 }
@@ -9320,7 +9320,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_term_parenthesizer_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term", 4);
+x_1 = lean_mk_string_unchecked("term", 4, 4);
 return x_1;
 }
 }
@@ -9394,7 +9394,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_tactic_parenthesize
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -9426,7 +9426,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_tactic_parenthesize
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tactic", 6);
+x_1 = lean_mk_string_unchecked("tactic", 6, 6);
 return x_1;
 }
 }
@@ -9500,7 +9500,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_level_parenthesizer
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Level", 5);
+x_1 = lean_mk_string_unchecked("Level", 5, 5);
 return x_1;
 }
 }
@@ -9532,7 +9532,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_level_parenthesizer
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("level", 5);
+x_1 = lean_mk_string_unchecked("level", 5, 5);
 return x_1;
 }
 }
@@ -9643,7 +9643,7 @@ static lean_object* _init_l___regBuiltin_Lean_PrettyPrinter_Parenthesizer_rawStx
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rawStx", 6);
+x_1 = lean_mk_string_unchecked("rawStx", 6, 6);
 return x_1;
 }
 }
@@ -9887,7 +9887,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_checkKind___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("backtrack", 9);
+x_1 = lean_mk_string_unchecked("backtrack", 9, 9);
 return x_1;
 }
 }
@@ -9914,7 +9914,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_checkKind___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected node kind '", 22);
+x_1 = lean_mk_string_unchecked("unexpected node kind '", 22, 22);
 return x_1;
 }
 }
@@ -9931,7 +9931,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_checkKind___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', expected '", 13);
+x_1 = lean_mk_string_unchecked("', expected '", 13, 13);
 return x_1;
 }
 }
@@ -10815,7 +10815,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_identNoAntiquot_par
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ident", 5);
+x_1 = lean_mk_string_unchecked("ident", 5, 5);
 return x_1;
 }
 }
@@ -11323,7 +11323,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Parenthesizer_many1Unbox_parenthe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -12063,7 +12063,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_PrettyPrinter_Pare
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("interpolatedStrLitKind", 22);
+x_1 = lean_mk_string_unchecked("interpolatedStrLitKind", 22, 22);
 return x_1;
 }
 }
@@ -12636,7 +12636,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_parenthesize___lambda__1___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("parenthesize: uncaught backtrack exception", 42);
+x_1 = lean_mk_string_unchecked("parenthesize: uncaught backtrack exception", 42, 42);
 return x_1;
 }
 }
@@ -12865,7 +12865,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_parenthesize___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("input", 5);
+x_1 = lean_mk_string_unchecked("input", 5, 5);
 return x_1;
 }
 }
@@ -13028,7 +13028,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_parenthesizeCommand___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("command", 7);
+x_1 = lean_mk_string_unchecked("command", 7, 7);
 return x_1;
 }
 }
@@ -13075,7 +13075,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -13093,7 +13093,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -13141,7 +13141,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }

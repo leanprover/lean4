@@ -192,7 +192,7 @@ static lean_object* _init_l_Lake_LeanLib_facetBuildKey___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("leanLib", 7);
+x_1 = lean_mk_string_unchecked("leanLib", 7, 7);
 return x_1;
 }
 }
@@ -239,7 +239,7 @@ static lean_object* _init_l_Lake_LeanExe_buildKey___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("leanExe", 7);
+x_1 = lean_mk_string_unchecked("leanExe", 7, 7);
 return x_1;
 }
 }
@@ -285,7 +285,7 @@ static lean_object* _init_l_Lake_ExternLib_staticBuildKey___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("externLib", 9);
+x_1 = lean_mk_string_unchecked("externLib", 9, 9);
 return x_1;
 }
 }
@@ -293,7 +293,7 @@ static lean_object* _init_l_Lake_ExternLib_staticBuildKey___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("static", 6);
+x_1 = lean_mk_string_unchecked("static", 6, 6);
 return x_1;
 }
 }
@@ -357,7 +357,7 @@ static lean_object* _init_l_Lake_ExternLib_sharedBuildKey___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("shared", 6);
+x_1 = lean_mk_string_unchecked("shared", 6, 6);
 return x_1;
 }
 }
@@ -421,7 +421,7 @@ static lean_object* _init_l_Lake_ExternLib_dynlibBuildKey___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("dynlib", 6);
+x_1 = lean_mk_string_unchecked("dynlib", 6, 6);
 return x_1;
 }
 }
@@ -796,7 +796,7 @@ static lean_object* _init_l_Lake_Module_importsFacet___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lean", 4);
+x_1 = lean_mk_string_unchecked("lean", 4, 4);
 return x_1;
 }
 }
@@ -804,7 +804,7 @@ static lean_object* _init_l_Lake_Module_importsFacet___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("imports", 7);
+x_1 = lean_mk_string_unchecked("imports", 7, 7);
 return x_1;
 }
 }
@@ -830,7 +830,7 @@ static lean_object* _init_l_Lake_Module_transImportsFacet___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("transImports", 12);
+x_1 = lean_mk_string_unchecked("transImports", 12, 12);
 return x_1;
 }
 }
@@ -856,7 +856,7 @@ static lean_object* _init_l_Lake_Module_precompileImportsFacet___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("precompileImports", 17);
+x_1 = lean_mk_string_unchecked("precompileImports", 17, 17);
 return x_1;
 }
 }
@@ -900,7 +900,7 @@ static lean_object* _init_l_Lake_LeanLib_modulesFacet___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("modules", 7);
+x_1 = lean_mk_string_unchecked("modules", 7, 7);
 return x_1;
 }
 }
@@ -926,7 +926,7 @@ static lean_object* _init_l_Lake_Package_depsFacet___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("deps", 4);
+x_1 = lean_mk_string_unchecked("deps", 4, 4);
 return x_1;
 }
 }
@@ -1006,7 +1006,7 @@ static lean_object* _init_l_Lake_Module_leanArts___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("leanArts", 8);
+x_1 = lean_mk_string_unchecked("leanArts", 8, 8);
 return x_1;
 }
 }
@@ -1035,7 +1035,7 @@ static lean_object* _init_l_Lake_Module_olean___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("olean", 5);
+x_1 = lean_mk_string_unchecked("olean", 5, 5);
 return x_1;
 }
 }
@@ -1064,7 +1064,7 @@ static lean_object* _init_l_Lake_Module_ilean___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ilean", 5);
+x_1 = lean_mk_string_unchecked("ilean", 5, 5);
 return x_1;
 }
 }
@@ -1093,7 +1093,7 @@ static lean_object* _init_l_Lake_Module_c___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("c", 1);
+x_1 = lean_mk_string_unchecked("c", 1, 1);
 return x_1;
 }
 }
@@ -1122,7 +1122,7 @@ static lean_object* _init_l_Lake_Module_bc___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("bc", 2);
+x_1 = lean_mk_string_unchecked("bc", 2, 2);
 return x_1;
 }
 }
@@ -1151,7 +1151,7 @@ static lean_object* _init_l_Lake_Module_o___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("o", 1);
+x_1 = lean_mk_string_unchecked("o", 1, 1);
 return x_1;
 }
 }
@@ -1180,7 +1180,7 @@ static lean_object* _init_l_Lake_Module_oExport___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("export", 6);
+x_1 = lean_mk_string_unchecked("export", 6, 6);
 return x_1;
 }
 }
@@ -1209,7 +1209,7 @@ static lean_object* _init_l_Lake_Module_oNoExport___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("noexport", 8);
+x_1 = lean_mk_string_unchecked("noexport", 8, 8);
 return x_1;
 }
 }
@@ -1345,7 +1345,7 @@ static lean_object* _init_l_Lake_Package_release___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("release", 7);
+x_1 = lean_mk_string_unchecked("release", 7, 7);
 return x_1;
 }
 }
@@ -1374,7 +1374,7 @@ static lean_object* _init_l_Lake_Package_optRelease___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("optRelease", 10);
+x_1 = lean_mk_string_unchecked("optRelease", 10, 10);
 return x_1;
 }
 }
@@ -1403,7 +1403,7 @@ static lean_object* _init_l_Lake_Package_extraDep___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("extraDep", 8);
+x_1 = lean_mk_string_unchecked("extraDep", 8, 8);
 return x_1;
 }
 }

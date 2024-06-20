@@ -125,7 +125,7 @@ static lean_object* _init_l_Lean_IR_initFn____x40_Lean_Compiler_IR___hyg_6____cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("compiler", 8);
+x_1 = lean_mk_string_unchecked("compiler", 8, 8);
 return x_1;
 }
 }
@@ -133,7 +133,7 @@ static lean_object* _init_l_Lean_IR_initFn____x40_Lean_Compiler_IR___hyg_6____cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reuse", 5);
+x_1 = lean_mk_string_unchecked("reuse", 5, 5);
 return x_1;
 }
 }
@@ -151,7 +151,7 @@ static lean_object* _init_l_Lean_IR_initFn____x40_Lean_Compiler_IR___hyg_6____cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -159,7 +159,7 @@ static lean_object* _init_l_Lean_IR_initFn____x40_Lean_Compiler_IR___hyg_6____cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("heuristically insert reset/reuse instruction pairs", 50);
+x_1 = lean_mk_string_unchecked("heuristically insert reset/reuse instruction pairs", 50, 50);
 return x_1;
 }
 }
@@ -182,7 +182,7 @@ static lean_object* _init_l_Lean_IR_initFn____x40_Lean_Compiler_IR___hyg_6____cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -190,7 +190,7 @@ static lean_object* _init_l_Lean_IR_initFn____x40_Lean_Compiler_IR___hyg_6____cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("IR", 2);
+x_1 = lean_mk_string_unchecked("IR", 2, 2);
 return x_1;
 }
 }
@@ -371,7 +371,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("result", 6);
+x_1 = lean_mk_string_unchecked("result", 6, 6);
 return x_1;
 }
 }
@@ -462,7 +462,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elim_dead", 9);
+x_1 = lean_mk_string_unchecked("elim_dead", 9, 9);
 return x_1;
 }
 }
@@ -490,7 +490,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simp_case", 9);
+x_1 = lean_mk_string_unchecked("simp_case", 9, 9);
 return x_1;
 }
 }
@@ -518,7 +518,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("borrow", 6);
+x_1 = lean_mk_string_unchecked("borrow", 6, 6);
 return x_1;
 }
 }
@@ -546,7 +546,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("boxing", 6);
+x_1 = lean_mk_string_unchecked("boxing", 6, 6);
 return x_1;
 }
 }
@@ -574,7 +574,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rc", 2);
+x_1 = lean_mk_string_unchecked("rc", 2, 2);
 return x_1;
 }
 }
@@ -610,7 +610,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expand_reset_reuse", 18);
+x_1 = lean_mk_string_unchecked("expand_reset_reuse", 18, 18);
 return x_1;
 }
 }
@@ -738,7 +738,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("init", 4);
+x_1 = lean_mk_string_unchecked("init", 4, 4);
 return x_1;
 }
 }
@@ -766,7 +766,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elim_dead_branches", 18);
+x_1 = lean_mk_string_unchecked("elim_dead_branches", 18, 18);
 return x_1;
 }
 }
@@ -794,7 +794,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("push_proj", 9);
+x_1 = lean_mk_string_unchecked("push_proj", 9, 9);
 return x_1;
 }
 }
@@ -822,7 +822,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reset_reuse", 11);
+x_1 = lean_mk_string_unchecked("reset_reuse", 11, 11);
 return x_1;
 }
 }

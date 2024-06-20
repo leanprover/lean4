@@ -229,7 +229,7 @@ static lean_object* _init_l___private_Lean_Server_GoTo_0__Lean_Server_toJsonGoTo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declaration", 11);
+x_1 = lean_mk_string_unchecked("declaration", 11, 11);
 return x_1;
 }
 }
@@ -247,7 +247,7 @@ static lean_object* _init_l___private_Lean_Server_GoTo_0__Lean_Server_toJsonGoTo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("definition", 10);
+x_1 = lean_mk_string_unchecked("definition", 10, 10);
 return x_1;
 }
 }
@@ -265,7 +265,7 @@ static lean_object* _init_l___private_Lean_Server_GoTo_0__Lean_Server_toJsonGoTo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("type", 4);
+x_1 = lean_mk_string_unchecked("type", 4, 4);
 return x_1;
 }
 }
@@ -334,7 +334,7 @@ static lean_object* _init_l___private_Lean_Server_GoTo_0__Lean_Server_fromJsonGo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no inductive constructor matched", 32);
+x_1 = lean_mk_string_unchecked("no inductive constructor matched", 32, 32);
 return x_1;
 }
 }
@@ -601,7 +601,7 @@ static lean_object* _init_l_Lean_Server_documentUriFromModule___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lean", 4);
+x_1 = lean_mk_string_unchecked("lean", 4, 4);
 return x_1;
 }
 }

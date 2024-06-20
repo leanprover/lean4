@@ -59,7 +59,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("backtrackFormatter", 18);
+x_1 = lean_mk_string_unchecked("backtrackFormatter", 18, 18);
 return x_1;
 }
 }
@@ -255,7 +255,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -263,7 +263,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ParserDescr", 11);
+x_1 = lean_mk_string_unchecked("ParserDescr", 11, 11);
 return x_1;
 }
 }
@@ -281,7 +281,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("TrailingParserDescr", 19);
+x_1 = lean_mk_string_unchecked("TrailingParserDescr", 19, 19);
 return x_1;
 }
 }
@@ -299,7 +299,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__6
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no declaration of attribute [", 29);
+x_1 = lean_mk_string_unchecked("no declaration of attribute [", 29, 29);
 return x_1;
 }
 }
@@ -316,7 +316,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__8
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("] found for '", 13);
+x_1 = lean_mk_string_unchecked("] found for '", 13, 13);
 return x_1;
 }
 }
@@ -333,7 +333,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }

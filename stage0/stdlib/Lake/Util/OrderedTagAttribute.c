@@ -38,7 +38,6 @@ static lean_object* l___auto____x40_Lake_Util_OrderedTagAttribute___hyg_58____cl
 static lean_object* l_Lake_instInhabitedOrderedTagAttribute___closed__12;
 static lean_object* l___auto____x40_Lake_Util_OrderedTagAttribute___hyg_58____closed__20;
 LEAN_EXPORT lean_object* l_Lake_registerOrderedTagAttribute___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_registerOrderedTagAttribute___lambda__4___closed__4;
 lean_object* l_Lean_Attribute_Builtin_ensureNoArgs(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_registerOrderedTagAttribute___lambda__2(lean_object*);
 static lean_object* l_Lake_registerOrderedTagAttribute___lambda__4___closed__3;
@@ -214,7 +213,7 @@ static lean_object* _init_l_Lake_instInhabitedOrderedTagAttribute___lambda__3___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -479,7 +478,7 @@ static lean_object* _init_l___auto____x40_Lake_Util_OrderedTagAttribute___hyg_58
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -487,7 +486,7 @@ static lean_object* _init_l___auto____x40_Lake_Util_OrderedTagAttribute___hyg_58
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -495,7 +494,7 @@ static lean_object* _init_l___auto____x40_Lake_Util_OrderedTagAttribute___hyg_58
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -503,7 +502,7 @@ static lean_object* _init_l___auto____x40_Lake_Util_OrderedTagAttribute___hyg_58
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq", 9);
+x_1 = lean_mk_string_unchecked("tacticSeq", 9, 9);
 return x_1;
 }
 }
@@ -523,7 +522,7 @@ static lean_object* _init_l___auto____x40_Lake_Util_OrderedTagAttribute___hyg_58
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq1Indented", 18);
+x_1 = lean_mk_string_unchecked("tacticSeq1Indented", 18, 18);
 return x_1;
 }
 }
@@ -543,7 +542,7 @@ static lean_object* _init_l___auto____x40_Lake_Util_OrderedTagAttribute___hyg_58
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -561,7 +560,7 @@ static lean_object* _init_l___auto____x40_Lake_Util_OrderedTagAttribute___hyg_58
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("exact", 5);
+x_1 = lean_mk_string_unchecked("exact", 5, 5);
 return x_1;
 }
 }
@@ -603,7 +602,7 @@ static lean_object* _init_l___auto____x40_Lake_Util_OrderedTagAttribute___hyg_58
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -611,7 +610,7 @@ static lean_object* _init_l___auto____x40_Lake_Util_OrderedTagAttribute___hyg_58
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declName", 8);
+x_1 = lean_mk_string_unchecked("declName", 8, 8);
 return x_1;
 }
 }
@@ -631,7 +630,7 @@ static lean_object* _init_l___auto____x40_Lake_Util_OrderedTagAttribute___hyg_58
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("decl_name%", 10);
+x_1 = lean_mk_string_unchecked("decl_name%", 10, 10);
 return x_1;
 }
 }
@@ -796,7 +795,7 @@ static lean_object* _init_l_Lake_registerOrderedTagAttribute___lambda__3___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tag attribute", 13);
+x_1 = lean_mk_string_unchecked("tag attribute", 13, 13);
 return x_1;
 }
 }
@@ -826,7 +825,7 @@ static lean_object* _init_l_Lake_registerOrderedTagAttribute___lambda__3___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("number of local entries: ", 25);
+x_1 = lean_mk_string_unchecked("number of local entries: ", 25, 25);
 return x_1;
 }
 }
@@ -888,20 +887,8 @@ return x_2;
 static lean_object* _init_l_Lake_registerOrderedTagAttribute___lambda__4___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lake_registerOrderedTagAttribute___lambda__4___closed__2;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lake_registerOrderedTagAttribute___lambda__4___closed__4() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lake_registerOrderedTagAttribute___lambda__4___closed__3;
+x_1 = l_Lake_registerOrderedTagAttribute___lambda__4___closed__2;
 x_2 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
@@ -935,7 +922,7 @@ x_14 = lean_ctor_get(x_11, 0);
 x_15 = lean_ctor_get(x_11, 4);
 lean_dec(x_15);
 x_16 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_3, x_14, x_2);
-x_17 = l_Lake_registerOrderedTagAttribute___lambda__4___closed__4;
+x_17 = l_Lake_registerOrderedTagAttribute___lambda__4___closed__3;
 lean_ctor_set(x_11, 4, x_17);
 lean_ctor_set(x_11, 0, x_16);
 x_18 = lean_st_ref_set(x_6, x_11, x_12);
@@ -980,7 +967,7 @@ lean_inc(x_26);
 lean_inc(x_25);
 lean_dec(x_11);
 x_31 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_3, x_25, x_2);
-x_32 = l_Lake_registerOrderedTagAttribute___lambda__4___closed__4;
+x_32 = l_Lake_registerOrderedTagAttribute___lambda__4___closed__3;
 x_33 = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(x_33, 0, x_31);
 lean_ctor_set(x_33, 1, x_26);
@@ -1043,7 +1030,7 @@ static lean_object* _init_l_Lake_registerOrderedTagAttribute___lambda__5___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid attribute '", 19);
+x_1 = lean_mk_string_unchecked("invalid attribute '", 19, 19);
 return x_1;
 }
 }
@@ -1060,7 +1047,7 @@ static lean_object* _init_l_Lake_registerOrderedTagAttribute___lambda__5___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', declaration is in an imported module", 39);
+x_1 = lean_mk_string_unchecked("', declaration is in an imported module", 39, 39);
 return x_1;
 }
 }
@@ -1205,7 +1192,7 @@ static lean_object* _init_l_Lake_registerOrderedTagAttribute___lambda__6___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', must be global", 17);
+x_1 = lean_mk_string_unchecked("', must be global", 17, 17);
 return x_1;
 }
 }
@@ -1311,7 +1298,7 @@ static lean_object* _init_l_Lake_registerOrderedTagAttribute___lambda__7___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attribute cannot be erased", 26);
+x_1 = lean_mk_string_unchecked("attribute cannot be erased", 26, 26);
 return x_1;
 }
 }
@@ -1876,8 +1863,6 @@ l_Lake_registerOrderedTagAttribute___lambda__4___closed__2 = _init_l_Lake_regist
 lean_mark_persistent(l_Lake_registerOrderedTagAttribute___lambda__4___closed__2);
 l_Lake_registerOrderedTagAttribute___lambda__4___closed__3 = _init_l_Lake_registerOrderedTagAttribute___lambda__4___closed__3();
 lean_mark_persistent(l_Lake_registerOrderedTagAttribute___lambda__4___closed__3);
-l_Lake_registerOrderedTagAttribute___lambda__4___closed__4 = _init_l_Lake_registerOrderedTagAttribute___lambda__4___closed__4();
-lean_mark_persistent(l_Lake_registerOrderedTagAttribute___lambda__4___closed__4);
 l_Lake_registerOrderedTagAttribute___lambda__5___closed__1 = _init_l_Lake_registerOrderedTagAttribute___lambda__5___closed__1();
 lean_mark_persistent(l_Lake_registerOrderedTagAttribute___lambda__5___closed__1);
 l_Lake_registerOrderedTagAttribute___lambda__5___closed__2 = _init_l_Lake_registerOrderedTagAttribute___lambda__5___closed__2();

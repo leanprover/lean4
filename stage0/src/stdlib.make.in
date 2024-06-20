@@ -26,7 +26,7 @@ LEANMAKE_OPTS=\
 	CMAKE_LIKE_OUTPUT=1
 
 ifeq "${STAGE}" "0"
-  LEANMAKE_OPTS+=C_ONLY=1 C_OUT=../stdlib/
+  LEANMAKE_OPTS+=C_ONLY=1 C_OUT=${LEAN_SOURCE_DIR}/../stdlib/
 endif
 
 .PHONY: Init Lean leanshared Lake lean
@@ -41,7 +41,7 @@ Init:
 
 Lean: Init
 	+"${LEAN_BIN}/leanmake" lib lib.export PKG=Lean $(LEANMAKE_OPTS)
-	
+
 ${LIB}/temp/empty.c:
 	touch $@
 

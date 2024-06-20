@@ -70,7 +70,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_expandLocation___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -78,7 +78,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_expandLocation___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -86,7 +86,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_expandLocation___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -94,7 +94,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_expandLocation___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("locationWildcard", 16);
+x_1 = lean_mk_string_unchecked("locationWildcard", 16, 16);
 return x_1;
 }
 }

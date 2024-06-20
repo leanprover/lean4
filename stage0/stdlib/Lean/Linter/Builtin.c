@@ -152,7 +152,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_Builtin___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("linter", 6);
+x_1 = lean_mk_string_unchecked("linter", 6, 6);
 return x_1;
 }
 }
@@ -160,7 +160,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_Builtin___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("suspiciousUnexpanderPatterns", 28);
+x_1 = lean_mk_string_unchecked("suspiciousUnexpanderPatterns", 28, 28);
 return x_1;
 }
 }
@@ -178,7 +178,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_Builtin___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -186,7 +186,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_Builtin___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("enable the 'suspicious unexpander patterns' linter", 50);
+x_1 = lean_mk_string_unchecked("enable the 'suspicious unexpander patterns' linter", 50, 50);
 return x_1;
 }
 }
@@ -209,7 +209,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_Builtin___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -217,7 +217,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_Builtin___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Linter", 6);
+x_1 = lean_mk_string_unchecked("Linter", 6, 6);
 return x_1;
 }
 }
@@ -355,7 +355,7 @@ static lean_object* _init_l_Lean_Linter_logLint___at_Lean_Linter_suspiciousUnexp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("note: this linter can be disabled with `set_option ", 51);
+x_1 = lean_mk_string_unchecked("note: this linter can be disabled with `set_option ", 51, 51);
 return x_1;
 }
 }
@@ -372,7 +372,7 @@ static lean_object* _init_l_Lean_Linter_logLint___at_Lean_Linter_suspiciousUnexp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" false`", 7);
+x_1 = lean_mk_string_unchecked(" false`", 7, 7);
 return x_1;
 }
 }
@@ -398,7 +398,7 @@ static lean_object* _init_l_Lean_Linter_logLint___at_Lean_Linter_suspiciousUnexp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -496,7 +496,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Linter_suspiciousUn
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Unexpanders should match the function name against an antiquotation `$_` so as to be independent of the specific pretty printing of the name.", 141);
+x_1 = lean_mk_string_unchecked("Unexpanders should match the function name against an antiquotation `$_` so as to be independent of the specific pretty printing of the name.", 141, 141);
 return x_1;
 }
 }
@@ -572,7 +572,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Linter_suspiciousUn
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -580,7 +580,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Linter_suspiciousUn
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -588,7 +588,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Linter_suspiciousUn
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("quot", 4);
+x_1 = lean_mk_string_unchecked("quot", 4, 4);
 return x_1;
 }
 }
@@ -608,7 +608,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Linter_suspiciousUn
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("app", 3);
+x_1 = lean_mk_string_unchecked("app", 3, 3);
 return x_1;
 }
 }
@@ -628,7 +628,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Linter_suspiciousUn
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ident", 5);
+x_1 = lean_mk_string_unchecked("ident", 5, 5);
 return x_1;
 }
 }
@@ -903,7 +903,7 @@ static lean_object* _init_l_Array_anyMUnsafe_any___at_Lean_Linter_suspiciousUnex
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Attr", 4);
+x_1 = lean_mk_string_unchecked("Attr", 4, 4);
 return x_1;
 }
 }
@@ -911,7 +911,7 @@ static lean_object* _init_l_Array_anyMUnsafe_any___at_Lean_Linter_suspiciousUnex
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simple", 6);
+x_1 = lean_mk_string_unchecked("simple", 6, 6);
 return x_1;
 }
 }
@@ -931,7 +931,7 @@ static lean_object* _init_l_Array_anyMUnsafe_any___at_Lean_Linter_suspiciousUnex
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("app_unexpander", 14);
+x_1 = lean_mk_string_unchecked("app_unexpander", 14, 14);
 return x_1;
 }
 }
@@ -1019,7 +1019,7 @@ static lean_object* _init_l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attrInstance", 12);
+x_1 = lean_mk_string_unchecked("attrInstance", 12, 12);
 return x_1;
 }
 }
@@ -1039,7 +1039,7 @@ static lean_object* _init_l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attrKind", 8);
+x_1 = lean_mk_string_unchecked("attrKind", 8, 8);
 return x_1;
 }
 }
@@ -1116,7 +1116,7 @@ static lean_object* _init_l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("matchAlt", 8);
+x_1 = lean_mk_string_unchecked("matchAlt", 8, 8);
 return x_1;
 }
 }
@@ -1251,7 +1251,7 @@ static lean_object* _init_l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attributes", 10);
+x_1 = lean_mk_string_unchecked("attributes", 10, 10);
 return x_1;
 }
 }
@@ -1301,7 +1301,7 @@ static lean_object* _init_l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Command", 7);
+x_1 = lean_mk_string_unchecked("Command", 7, 7);
 return x_1;
 }
 }
@@ -1309,7 +1309,7 @@ static lean_object* _init_l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("definition", 10);
+x_1 = lean_mk_string_unchecked("definition", 10, 10);
 return x_1;
 }
 }
@@ -1329,7 +1329,7 @@ static lean_object* _init_l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("optDeclSig", 10);
+x_1 = lean_mk_string_unchecked("optDeclSig", 10, 10);
 return x_1;
 }
 }
@@ -1349,7 +1349,7 @@ static lean_object* _init_l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("typeSpec", 8);
+x_1 = lean_mk_string_unchecked("typeSpec", 8, 8);
 return x_1;
 }
 }
@@ -1369,7 +1369,7 @@ static lean_object* _init_l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declValEqns", 11);
+x_1 = lean_mk_string_unchecked("declValEqns", 11, 11);
 return x_1;
 }
 }
@@ -1389,7 +1389,7 @@ static lean_object* _init_l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("matchAltsWhereDecls", 19);
+x_1 = lean_mk_string_unchecked("matchAltsWhereDecls", 19, 19);
 return x_1;
 }
 }
@@ -1409,7 +1409,7 @@ static lean_object* _init_l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("matchAlts", 9);
+x_1 = lean_mk_string_unchecked("matchAlts", 9, 9);
 return x_1;
 }
 }
@@ -1437,7 +1437,7 @@ static lean_object* _init_l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Termination", 11);
+x_1 = lean_mk_string_unchecked("Termination", 11, 11);
 return x_1;
 }
 }
@@ -1445,7 +1445,7 @@ static lean_object* _init_l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("suffix", 6);
+x_1 = lean_mk_string_unchecked("suffix", 6, 6);
 return x_1;
 }
 }
@@ -1996,7 +1996,7 @@ static lean_object* _init_l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declaration", 11);
+x_1 = lean_mk_string_unchecked("declaration", 11, 11);
 return x_1;
 }
 }
@@ -2016,7 +2016,7 @@ static lean_object* _init_l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declModifiers", 13);
+x_1 = lean_mk_string_unchecked("declModifiers", 13, 13);
 return x_1;
 }
 }
@@ -2036,7 +2036,7 @@ static lean_object* _init_l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("docComment", 10);
+x_1 = lean_mk_string_unchecked("docComment", 10, 10);
 return x_1;
 }
 }

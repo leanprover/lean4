@@ -1878,7 +1878,7 @@ static lean_object* _init_l_commandDeclare__uint__simprocs_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("commandDeclare_uint_simprocs_", 29);
+x_1 = lean_mk_string_unchecked("commandDeclare_uint_simprocs_", 29, 29);
 return x_1;
 }
 }
@@ -1896,7 +1896,7 @@ static lean_object* _init_l_commandDeclare__uint__simprocs_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("andthen", 7);
+x_1 = lean_mk_string_unchecked("andthen", 7, 7);
 return x_1;
 }
 }
@@ -1914,7 +1914,7 @@ static lean_object* _init_l_commandDeclare__uint__simprocs_____closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declare_uint_simprocs", 21);
+x_1 = lean_mk_string_unchecked("declare_uint_simprocs", 21, 21);
 return x_1;
 }
 }
@@ -1932,7 +1932,7 @@ static lean_object* _init_l_commandDeclare__uint__simprocs_____closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ident", 5);
+x_1 = lean_mk_string_unchecked("ident", 5, 5);
 return x_1;
 }
 }
@@ -1996,7 +1996,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat", 5);
+x_1 = lean_mk_string_unchecked("ofNat", 5, 5);
 return x_1;
 }
 }
@@ -2014,7 +2014,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNatCore", 9);
+x_1 = lean_mk_string_unchecked("ofNatCore", 9, 9);
 return x_1;
 }
 }
@@ -2032,7 +2032,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("toNat", 5);
+x_1 = lean_mk_string_unchecked("toNat", 5, 5);
 return x_1;
 }
 }
@@ -2050,7 +2050,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fromExpr", 8);
+x_1 = lean_mk_string_unchecked("fromExpr", 8, 8);
 return x_1;
 }
 }
@@ -2077,7 +2077,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -2095,7 +2095,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -2103,7 +2103,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -2111,7 +2111,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Command", 7);
+x_1 = lean_mk_string_unchecked("Command", 7, 7);
 return x_1;
 }
 }
@@ -2119,7 +2119,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("namespace", 9);
+x_1 = lean_mk_string_unchecked("namespace", 9, 9);
 return x_1;
 }
 }
@@ -2139,7 +2139,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declaration", 11);
+x_1 = lean_mk_string_unchecked("declaration", 11, 11);
 return x_1;
 }
 }
@@ -2159,7 +2159,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declModifiers", 13);
+x_1 = lean_mk_string_unchecked("declModifiers", 13, 13);
 return x_1;
 }
 }
@@ -2188,7 +2188,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("definition", 10);
+x_1 = lean_mk_string_unchecked("definition", 10, 10);
 return x_1;
 }
 }
@@ -2208,7 +2208,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("def", 3);
+x_1 = lean_mk_string_unchecked("def", 3, 3);
 return x_1;
 }
 }
@@ -2216,7 +2216,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declId", 6);
+x_1 = lean_mk_string_unchecked("declId", 6, 6);
 return x_1;
 }
 }
@@ -2293,7 +2293,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("optDeclSig", 10);
+x_1 = lean_mk_string_unchecked("optDeclSig", 10, 10);
 return x_1;
 }
 }
@@ -2313,7 +2313,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -2321,7 +2321,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("explicitBinder", 14);
+x_1 = lean_mk_string_unchecked("explicitBinder", 14, 14);
 return x_1;
 }
 }
@@ -2341,7 +2341,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -2349,7 +2349,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("e", 1);
+x_1 = lean_mk_string_unchecked("e", 1, 1);
 return x_1;
 }
 }
@@ -2376,7 +2376,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
@@ -2384,7 +2384,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Expr", 4);
+x_1 = lean_mk_string_unchecked("Expr", 4, 4);
 return x_1;
 }
 }
@@ -2467,7 +2467,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -2475,7 +2475,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("typeSpec", 8);
+x_1 = lean_mk_string_unchecked("typeSpec", 8, 8);
 return x_1;
 }
 }
@@ -2495,7 +2495,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("app", 3);
+x_1 = lean_mk_string_unchecked("app", 3, 3);
 return x_1;
 }
 }
@@ -2515,7 +2515,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("SimpM", 5);
+x_1 = lean_mk_string_unchecked("SimpM", 5, 5);
 return x_1;
 }
 }
@@ -2542,7 +2542,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -2550,7 +2550,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Simp", 4);
+x_1 = lean_mk_string_unchecked("Simp", 4, 4);
 return x_1;
 }
 }
@@ -2594,7 +2594,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("paren", 5);
+x_1 = lean_mk_string_unchecked("paren", 5, 5);
 return x_1;
 }
 }
@@ -2614,7 +2614,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Option", 6);
+x_1 = lean_mk_string_unchecked("Option", 6, 6);
 return x_1;
 }
 }
@@ -2719,7 +2719,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declValSimple", 13);
+x_1 = lean_mk_string_unchecked("declValSimple", 13, 13);
 return x_1;
 }
 }
@@ -2739,7 +2739,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":=", 2);
+x_1 = lean_mk_string_unchecked(":=", 2, 2);
 return x_1;
 }
 }
@@ -2747,7 +2747,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("do", 2);
+x_1 = lean_mk_string_unchecked("do", 2, 2);
 return x_1;
 }
 }
@@ -2767,7 +2767,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doSeqIndent", 11);
+x_1 = lean_mk_string_unchecked("doSeqIndent", 11, 11);
 return x_1;
 }
 }
@@ -2787,7 +2787,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doSeqItem", 9);
+x_1 = lean_mk_string_unchecked("doSeqItem", 9, 9);
 return x_1;
 }
 }
@@ -2807,7 +2807,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doLetArrow", 10);
+x_1 = lean_mk_string_unchecked("doLetArrow", 10, 10);
 return x_1;
 }
 }
@@ -2827,7 +2827,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("let", 3);
+x_1 = lean_mk_string_unchecked("let", 3, 3);
 return x_1;
 }
 }
@@ -2835,7 +2835,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doPatDecl", 9);
+x_1 = lean_mk_string_unchecked("doPatDecl", 9, 9);
 return x_1;
 }
 }
@@ -2855,7 +2855,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("some", 4);
+x_1 = lean_mk_string_unchecked("some", 4, 4);
 return x_1;
 }
 }
@@ -2916,7 +2916,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tuple", 5);
+x_1 = lean_mk_string_unchecked("tuple", 5, 5);
 return x_1;
 }
 }
@@ -2936,7 +2936,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("n", 1);
+x_1 = lean_mk_string_unchecked("n", 1, 1);
 return x_1;
 }
 }
@@ -2963,7 +2963,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -2971,7 +2971,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hole", 4);
+x_1 = lean_mk_string_unchecked("hole", 4, 4);
 return x_1;
 }
 }
@@ -2991,7 +2991,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_", 1);
+x_1 = lean_mk_string_unchecked("_", 1, 1);
 return x_1;
 }
 }
@@ -2999,7 +2999,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("←", 3);
+x_1 = lean_mk_string_unchecked("←", 3, 1);
 return x_1;
 }
 }
@@ -3007,7 +3007,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doExpr", 6);
+x_1 = lean_mk_string_unchecked("doExpr", 6, 6);
 return x_1;
 }
 }
@@ -3027,7 +3027,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("getOfNatValue\?", 14);
+x_1 = lean_mk_string_unchecked("getOfNatValue\?", 14, 14);
 return x_1;
 }
 }
@@ -3111,7 +3111,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("|", 1);
+x_1 = lean_mk_string_unchecked("|", 1, 1);
 return x_1;
 }
 }
@@ -3119,7 +3119,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doReturn", 8);
+x_1 = lean_mk_string_unchecked("doReturn", 8, 8);
 return x_1;
 }
 }
@@ -3139,7 +3139,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("return", 6);
+x_1 = lean_mk_string_unchecked("return", 6, 6);
 return x_1;
 }
 }
@@ -3147,7 +3147,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("none", 4);
+x_1 = lean_mk_string_unchecked("none", 4, 4);
 return x_1;
 }
 }
@@ -3208,7 +3208,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Termination", 11);
+x_1 = lean_mk_string_unchecked("Termination", 11, 11);
 return x_1;
 }
 }
@@ -3216,7 +3216,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("suffix", 6);
+x_1 = lean_mk_string_unchecked("suffix", 6, 6);
 return x_1;
 }
 }
@@ -3236,7 +3236,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attributes", 10);
+x_1 = lean_mk_string_unchecked("attributes", 10, 10);
 return x_1;
 }
 }
@@ -3256,7 +3256,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("@[", 2);
+x_1 = lean_mk_string_unchecked("@[", 2, 2);
 return x_1;
 }
 }
@@ -3264,7 +3264,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attrInstance", 12);
+x_1 = lean_mk_string_unchecked("attrInstance", 12, 12);
 return x_1;
 }
 }
@@ -3284,7 +3284,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attrKind", 8);
+x_1 = lean_mk_string_unchecked("attrKind", 8, 8);
 return x_1;
 }
 }
@@ -3304,7 +3304,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Attr", 4);
+x_1 = lean_mk_string_unchecked("Attr", 4, 4);
 return x_1;
 }
 }
@@ -3312,7 +3312,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simple", 6);
+x_1 = lean_mk_string_unchecked("simple", 6, 6);
 return x_1;
 }
 }
@@ -3332,7 +3332,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inline", 6);
+x_1 = lean_mk_string_unchecked("inline", 6, 6);
 return x_1;
 }
 }
@@ -3405,7 +3405,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -3413,7 +3413,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceBin", 9);
+x_1 = lean_mk_string_unchecked("reduceBin", 9, 9);
 return x_1;
 }
 }
@@ -3440,7 +3440,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declName", 8);
+x_1 = lean_mk_string_unchecked("declName", 8, 8);
 return x_1;
 }
 }
@@ -3467,7 +3467,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Name", 4);
+x_1 = lean_mk_string_unchecked("Name", 4, 4);
 return x_1;
 }
 }
@@ -3550,7 +3550,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("arity", 5);
+x_1 = lean_mk_string_unchecked("arity", 5, 5);
 return x_1;
 }
 }
@@ -3577,7 +3577,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Nat", 3);
+x_1 = lean_mk_string_unchecked("Nat", 3, 3);
 return x_1;
 }
 }
@@ -3682,7 +3682,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("op", 2);
+x_1 = lean_mk_string_unchecked("op", 2, 2);
 return x_1;
 }
 }
@@ -3709,7 +3709,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("arrow", 5);
+x_1 = lean_mk_string_unchecked("arrow", 5, 5);
 return x_1;
 }
 }
@@ -3729,7 +3729,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("→", 3);
+x_1 = lean_mk_string_unchecked("→", 3, 1);
 return x_1;
 }
 }
@@ -3737,7 +3737,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("DStep", 5);
+x_1 = lean_mk_string_unchecked("DStep", 5, 5);
 return x_1;
 }
 }
@@ -3822,7 +3822,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doUnless", 8);
+x_1 = lean_mk_string_unchecked("doUnless", 8, 8);
 return x_1;
 }
 }
@@ -3842,7 +3842,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unless", 6);
+x_1 = lean_mk_string_unchecked("unless", 6, 6);
 return x_1;
 }
 }
@@ -3850,7 +3850,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("e.isAppOfArity", 14);
+x_1 = lean_mk_string_unchecked("e.isAppOfArity", 14, 14);
 return x_1;
 }
 }
@@ -3867,7 +3867,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("isAppOfArity", 12);
+x_1 = lean_mk_string_unchecked("isAppOfArity", 12, 12);
 return x_1;
 }
 }
@@ -3885,7 +3885,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("dotIdent", 8);
+x_1 = lean_mk_string_unchecked("dotIdent", 8, 8);
 return x_1;
 }
 }
@@ -3905,7 +3905,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -3913,7 +3913,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("continue", 8);
+x_1 = lean_mk_string_unchecked("continue", 8, 8);
 return x_1;
 }
 }
@@ -3940,7 +3940,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("e.appFn!.appArg!", 16);
+x_1 = lean_mk_string_unchecked("e.appFn!.appArg!", 16, 16);
 return x_1;
 }
 }
@@ -3957,7 +3957,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("appFn!", 6);
+x_1 = lean_mk_string_unchecked("appFn!", 6, 6);
 return x_1;
 }
 }
@@ -3965,7 +3965,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("appArg!", 7);
+x_1 = lean_mk_string_unchecked("appArg!", 7, 7);
 return x_1;
 }
 }
@@ -3984,7 +3984,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("m", 1);
+x_1 = lean_mk_string_unchecked("m", 1, 1);
 return x_1;
 }
 }
@@ -4011,7 +4011,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("e.appArg!", 9);
+x_1 = lean_mk_string_unchecked("e.appArg!", 9, 9);
 return x_1;
 }
 }
@@ -4038,7 +4038,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_<|_", 8);
+x_1 = lean_mk_string_unchecked("term_<|_", 8, 8);
 return x_1;
 }
 }
@@ -4056,7 +4056,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("done", 4);
+x_1 = lean_mk_string_unchecked("done", 4, 4);
 return x_1;
 }
 }
@@ -4083,7 +4083,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("<|", 2);
+x_1 = lean_mk_string_unchecked("<|", 2, 2);
 return x_1;
 }
 }
@@ -4091,7 +4091,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("toExpr", 6);
+x_1 = lean_mk_string_unchecked("toExpr", 6, 6);
 return x_1;
 }
 }
@@ -4118,7 +4118,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ToExpr", 6);
+x_1 = lean_mk_string_unchecked("ToExpr", 6, 6);
 return x_1;
 }
 }
@@ -4161,7 +4161,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceBinPred", 13);
+x_1 = lean_mk_string_unchecked("reduceBinPred", 13, 13);
 return x_1;
 }
 }
@@ -4188,7 +4188,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Bool", 4);
+x_1 = lean_mk_string_unchecked("Bool", 4, 4);
 return x_1;
 }
 }
@@ -4261,7 +4261,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Step", 4);
+x_1 = lean_mk_string_unchecked("Step", 4, 4);
 return x_1;
 }
 }
@@ -4346,7 +4346,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalPropStep", 12);
+x_1 = lean_mk_string_unchecked("evalPropStep", 12, 12);
 return x_1;
 }
 }
@@ -4431,7 +4431,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceBoolPred", 14);
+x_1 = lean_mk_string_unchecked("reduceBoolPred", 14, 14);
 return x_1;
 }
 }
@@ -4458,7 +4458,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("command__Builtin_dsimproc__[_]_(_):=_", 37);
+x_1 = lean_mk_string_unchecked("command__Builtin_dsimproc__[_]_(_):=_", 37, 37);
 return x_1;
 }
 }
@@ -4477,7 +4477,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtin_dsimproc", 16);
+x_1 = lean_mk_string_unchecked("builtin_dsimproc", 16, 16);
 return x_1;
 }
 }
@@ -4485,7 +4485,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -4493,7 +4493,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simp", 4);
+x_1 = lean_mk_string_unchecked("simp", 4, 4);
 return x_1;
 }
 }
@@ -4556,7 +4556,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("seval", 5);
+x_1 = lean_mk_string_unchecked("seval", 5, 5);
 return x_1;
 }
 }
@@ -4583,7 +4583,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceAdd", 9);
+x_1 = lean_mk_string_unchecked("reduceAdd", 9, 9);
 return x_1;
 }
 }
@@ -4610,7 +4610,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("typeAscription", 14);
+x_1 = lean_mk_string_unchecked("typeAscription", 14, 14);
 return x_1;
 }
 }
@@ -4630,7 +4630,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_+_", 7);
+x_1 = lean_mk_string_unchecked("term_+_", 7, 7);
 return x_1;
 }
 }
@@ -4648,7 +4648,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("+", 1);
+x_1 = lean_mk_string_unchecked("+", 1, 1);
 return x_1;
 }
 }
@@ -4656,7 +4656,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doubleQuotedName", 16);
+x_1 = lean_mk_string_unchecked("doubleQuotedName", 16, 16);
 return x_1;
 }
 }
@@ -4676,7 +4676,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`", 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -4684,7 +4684,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HAdd.hAdd", 9);
+x_1 = lean_mk_string_unchecked("HAdd.hAdd", 9, 9);
 return x_1;
 }
 }
@@ -4701,7 +4701,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HAdd", 4);
+x_1 = lean_mk_string_unchecked("HAdd", 4, 4);
 return x_1;
 }
 }
@@ -4709,7 +4709,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hAdd", 4);
+x_1 = lean_mk_string_unchecked("hAdd", 4, 4);
 return x_1;
 }
 }
@@ -4751,7 +4751,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("num", 3);
+x_1 = lean_mk_string_unchecked("num", 3, 3);
 return x_1;
 }
 }
@@ -4769,7 +4769,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("6", 1);
+x_1 = lean_mk_string_unchecked("6", 1, 1);
 return x_1;
 }
 }
@@ -4777,7 +4777,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cdot", 4);
+x_1 = lean_mk_string_unchecked("cdot", 4, 4);
 return x_1;
 }
 }
@@ -4797,7 +4797,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("·", 2);
+x_1 = lean_mk_string_unchecked("·", 2, 1);
 return x_1;
 }
 }
@@ -4814,7 +4814,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceMul", 9);
+x_1 = lean_mk_string_unchecked("reduceMul", 9, 9);
 return x_1;
 }
 }
@@ -4841,7 +4841,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_*_", 7);
+x_1 = lean_mk_string_unchecked("term_*_", 7, 7);
 return x_1;
 }
 }
@@ -4859,7 +4859,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("*", 1);
+x_1 = lean_mk_string_unchecked("*", 1, 1);
 return x_1;
 }
 }
@@ -4867,7 +4867,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HMul.hMul", 9);
+x_1 = lean_mk_string_unchecked("HMul.hMul", 9, 9);
 return x_1;
 }
 }
@@ -4884,7 +4884,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HMul", 4);
+x_1 = lean_mk_string_unchecked("HMul", 4, 4);
 return x_1;
 }
 }
@@ -4892,7 +4892,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hMul", 4);
+x_1 = lean_mk_string_unchecked("hMul", 4, 4);
 return x_1;
 }
 }
@@ -4934,7 +4934,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceSub", 9);
+x_1 = lean_mk_string_unchecked("reduceSub", 9, 9);
 return x_1;
 }
 }
@@ -4961,7 +4961,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_-_", 7);
+x_1 = lean_mk_string_unchecked("term_-_", 7, 7);
 return x_1;
 }
 }
@@ -4979,7 +4979,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-", 1);
+x_1 = lean_mk_string_unchecked("-", 1, 1);
 return x_1;
 }
 }
@@ -4987,7 +4987,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HSub.hSub", 9);
+x_1 = lean_mk_string_unchecked("HSub.hSub", 9, 9);
 return x_1;
 }
 }
@@ -5004,7 +5004,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HSub", 4);
+x_1 = lean_mk_string_unchecked("HSub", 4, 4);
 return x_1;
 }
 }
@@ -5012,7 +5012,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hSub", 4);
+x_1 = lean_mk_string_unchecked("hSub", 4, 4);
 return x_1;
 }
 }
@@ -5054,7 +5054,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceDiv", 9);
+x_1 = lean_mk_string_unchecked("reduceDiv", 9, 9);
 return x_1;
 }
 }
@@ -5081,7 +5081,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_/_", 7);
+x_1 = lean_mk_string_unchecked("term_/_", 7, 7);
 return x_1;
 }
 }
@@ -5099,7 +5099,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("/", 1);
+x_1 = lean_mk_string_unchecked("/", 1, 1);
 return x_1;
 }
 }
@@ -5107,7 +5107,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HDiv.hDiv", 9);
+x_1 = lean_mk_string_unchecked("HDiv.hDiv", 9, 9);
 return x_1;
 }
 }
@@ -5124,7 +5124,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HDiv", 4);
+x_1 = lean_mk_string_unchecked("HDiv", 4, 4);
 return x_1;
 }
 }
@@ -5132,7 +5132,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hDiv", 4);
+x_1 = lean_mk_string_unchecked("hDiv", 4, 4);
 return x_1;
 }
 }
@@ -5174,7 +5174,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceMod", 9);
+x_1 = lean_mk_string_unchecked("reduceMod", 9, 9);
 return x_1;
 }
 }
@@ -5201,7 +5201,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_%_", 7);
+x_1 = lean_mk_string_unchecked("term_%_", 7, 7);
 return x_1;
 }
 }
@@ -5219,7 +5219,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("%", 1);
+x_1 = lean_mk_string_unchecked("%", 1, 1);
 return x_1;
 }
 }
@@ -5227,7 +5227,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HMod.hMod", 9);
+x_1 = lean_mk_string_unchecked("HMod.hMod", 9, 9);
 return x_1;
 }
 }
@@ -5244,7 +5244,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HMod", 4);
+x_1 = lean_mk_string_unchecked("HMod", 4, 4);
 return x_1;
 }
 }
@@ -5252,7 +5252,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hMod", 4);
+x_1 = lean_mk_string_unchecked("hMod", 4, 4);
 return x_1;
 }
 }
@@ -5294,7 +5294,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("command__Builtin_simproc__[_]_(_):=_", 36);
+x_1 = lean_mk_string_unchecked("command__Builtin_simproc__[_]_(_):=_", 36, 36);
 return x_1;
 }
 }
@@ -5313,7 +5313,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtin_simproc", 15);
+x_1 = lean_mk_string_unchecked("builtin_simproc", 15, 15);
 return x_1;
 }
 }
@@ -5321,7 +5321,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceLT", 8);
+x_1 = lean_mk_string_unchecked("reduceLT", 8, 8);
 return x_1;
 }
 }
@@ -5348,7 +5348,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_<_", 7);
+x_1 = lean_mk_string_unchecked("term_<_", 7, 7);
 return x_1;
 }
 }
@@ -5366,7 +5366,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("<", 1);
+x_1 = lean_mk_string_unchecked("<", 1, 1);
 return x_1;
 }
 }
@@ -5374,7 +5374,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LT.lt", 5);
+x_1 = lean_mk_string_unchecked("LT.lt", 5, 5);
 return x_1;
 }
 }
@@ -5391,7 +5391,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LT", 2);
+x_1 = lean_mk_string_unchecked("LT", 2, 2);
 return x_1;
 }
 }
@@ -5399,7 +5399,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lt", 2);
+x_1 = lean_mk_string_unchecked("lt", 2, 2);
 return x_1;
 }
 }
@@ -5441,7 +5441,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("4", 1);
+x_1 = lean_mk_string_unchecked("4", 1, 1);
 return x_1;
 }
 }
@@ -5449,7 +5449,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceLE", 8);
+x_1 = lean_mk_string_unchecked("reduceLE", 8, 8);
 return x_1;
 }
 }
@@ -5476,7 +5476,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_≤_", 9);
+x_1 = lean_mk_string_unchecked("term_≤_", 9, 7);
 return x_1;
 }
 }
@@ -5494,7 +5494,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("≤", 3);
+x_1 = lean_mk_string_unchecked("≤", 3, 1);
 return x_1;
 }
 }
@@ -5502,7 +5502,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LE.le", 5);
+x_1 = lean_mk_string_unchecked("LE.le", 5, 5);
 return x_1;
 }
 }
@@ -5519,7 +5519,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LE", 2);
+x_1 = lean_mk_string_unchecked("LE", 2, 2);
 return x_1;
 }
 }
@@ -5527,7 +5527,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("le", 2);
+x_1 = lean_mk_string_unchecked("le", 2, 2);
 return x_1;
 }
 }
@@ -5569,7 +5569,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceGT", 8);
+x_1 = lean_mk_string_unchecked("reduceGT", 8, 8);
 return x_1;
 }
 }
@@ -5596,7 +5596,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_>_", 7);
+x_1 = lean_mk_string_unchecked("term_>_", 7, 7);
 return x_1;
 }
 }
@@ -5614,7 +5614,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(">", 1);
+x_1 = lean_mk_string_unchecked(">", 1, 1);
 return x_1;
 }
 }
@@ -5622,7 +5622,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("GT.gt", 5);
+x_1 = lean_mk_string_unchecked("GT.gt", 5, 5);
 return x_1;
 }
 }
@@ -5639,7 +5639,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("GT", 2);
+x_1 = lean_mk_string_unchecked("GT", 2, 2);
 return x_1;
 }
 }
@@ -5647,7 +5647,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("gt", 2);
+x_1 = lean_mk_string_unchecked("gt", 2, 2);
 return x_1;
 }
 }
@@ -5689,7 +5689,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceGE", 8);
+x_1 = lean_mk_string_unchecked("reduceGE", 8, 8);
 return x_1;
 }
 }
@@ -5716,7 +5716,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_≥_", 9);
+x_1 = lean_mk_string_unchecked("term_≥_", 9, 7);
 return x_1;
 }
 }
@@ -5734,7 +5734,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("≥", 3);
+x_1 = lean_mk_string_unchecked("≥", 3, 1);
 return x_1;
 }
 }
@@ -5742,7 +5742,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("GE.ge", 5);
+x_1 = lean_mk_string_unchecked("GE.ge", 5, 5);
 return x_1;
 }
 }
@@ -5759,7 +5759,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("GE", 2);
+x_1 = lean_mk_string_unchecked("GE", 2, 2);
 return x_1;
 }
 }
@@ -5767,7 +5767,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ge", 2);
+x_1 = lean_mk_string_unchecked("ge", 2, 2);
 return x_1;
 }
 }
@@ -5809,7 +5809,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceEq", 8);
+x_1 = lean_mk_string_unchecked("reduceEq", 8, 8);
 return x_1;
 }
 }
@@ -5836,7 +5836,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_=_", 7);
+x_1 = lean_mk_string_unchecked("term_=_", 7, 7);
 return x_1;
 }
 }
@@ -5854,7 +5854,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("=", 1);
+x_1 = lean_mk_string_unchecked("=", 1, 1);
 return x_1;
 }
 }
@@ -5862,7 +5862,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -5935,7 +5935,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("3", 1);
+x_1 = lean_mk_string_unchecked("3", 1, 1);
 return x_1;
 }
 }
@@ -5943,7 +5943,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceNe", 8);
+x_1 = lean_mk_string_unchecked("reduceNe", 8, 8);
 return x_1;
 }
 }
@@ -5970,7 +5970,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_≠_", 9);
+x_1 = lean_mk_string_unchecked("term_≠_", 9, 7);
 return x_1;
 }
 }
@@ -5988,7 +5988,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("≠", 3);
+x_1 = lean_mk_string_unchecked("≠", 3, 1);
 return x_1;
 }
 }
@@ -5996,7 +5996,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Ne", 2);
+x_1 = lean_mk_string_unchecked("Ne", 2, 2);
 return x_1;
 }
 }
@@ -6069,7 +6069,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceBEq", 9);
+x_1 = lean_mk_string_unchecked("reduceBEq", 9, 9);
 return x_1;
 }
 }
@@ -6096,7 +6096,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_==_", 8);
+x_1 = lean_mk_string_unchecked("term_==_", 8, 8);
 return x_1;
 }
 }
@@ -6114,7 +6114,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("==", 2);
+x_1 = lean_mk_string_unchecked("==", 2, 2);
 return x_1;
 }
 }
@@ -6122,7 +6122,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("BEq.beq", 7);
+x_1 = lean_mk_string_unchecked("BEq.beq", 7, 7);
 return x_1;
 }
 }
@@ -6139,7 +6139,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("BEq", 3);
+x_1 = lean_mk_string_unchecked("BEq", 3, 3);
 return x_1;
 }
 }
@@ -6147,7 +6147,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("beq", 3);
+x_1 = lean_mk_string_unchecked("beq", 3, 3);
 return x_1;
 }
 }
@@ -6189,7 +6189,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceBNe", 9);
+x_1 = lean_mk_string_unchecked("reduceBNe", 9, 9);
 return x_1;
 }
 }
@@ -6216,7 +6216,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_!=_", 8);
+x_1 = lean_mk_string_unchecked("term_!=_", 8, 8);
 return x_1;
 }
 }
@@ -6234,7 +6234,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("!=", 2);
+x_1 = lean_mk_string_unchecked("!=", 2, 2);
 return x_1;
 }
 }
@@ -6242,7 +6242,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("bne", 3);
+x_1 = lean_mk_string_unchecked("bne", 3, 3);
 return x_1;
 }
 }
@@ -6315,7 +6315,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceOfNatCore", 15);
+x_1 = lean_mk_string_unchecked("reduceOfNatCore", 15, 15);
 return x_1;
 }
 }
@@ -6342,7 +6342,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fun", 3);
+x_1 = lean_mk_string_unchecked("fun", 3, 3);
 return x_1;
 }
 }
@@ -6362,7 +6362,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("basicFun", 8);
+x_1 = lean_mk_string_unchecked("basicFun", 8, 8);
 return x_1;
 }
 }
@@ -6382,7 +6382,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("=>", 2);
+x_1 = lean_mk_string_unchecked("=>", 2, 2);
 return x_1;
 }
 }
@@ -6390,7 +6390,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("2", 1);
+x_1 = lean_mk_string_unchecked("2", 1, 1);
 return x_1;
 }
 }
@@ -6398,7 +6398,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("value", 5);
+x_1 = lean_mk_string_unchecked("value", 5, 5);
 return x_1;
 }
 }
@@ -6425,7 +6425,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Nat.fromExpr\?", 13);
+x_1 = lean_mk_string_unchecked("Nat.fromExpr\?", 13, 13);
 return x_1;
 }
 }
@@ -6442,7 +6442,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fromExpr\?", 9);
+x_1 = lean_mk_string_unchecked("fromExpr\?", 9, 9);
 return x_1;
 }
 }
@@ -6506,7 +6506,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doLet", 5);
+x_1 = lean_mk_string_unchecked("doLet", 5, 5);
 return x_1;
 }
 }
@@ -6526,7 +6526,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("letDecl", 7);
+x_1 = lean_mk_string_unchecked("letDecl", 7, 7);
 return x_1;
 }
 }
@@ -6546,7 +6546,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("letIdDecl", 9);
+x_1 = lean_mk_string_unchecked("letIdDecl", 9, 9);
 return x_1;
 }
 }
@@ -6566,7 +6566,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceOfNat", 11);
+x_1 = lean_mk_string_unchecked("reduceOfNat", 11, 11);
 return x_1;
 }
 }
@@ -6593,7 +6593,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("1", 1);
+x_1 = lean_mk_string_unchecked("1", 1, 1);
 return x_1;
 }
 }
@@ -6601,7 +6601,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceToNat", 11);
+x_1 = lean_mk_string_unchecked("reduceToNat", 11, 11);
 return x_1;
 }
 }
@@ -6628,7 +6628,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("v", 1);
+x_1 = lean_mk_string_unchecked("v", 1, 1);
 return x_1;
 }
 }
@@ -6655,7 +6655,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("docComment", 10);
+x_1 = lean_mk_string_unchecked("docComment", 10, 10);
 return x_1;
 }
 }
@@ -6675,7 +6675,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("/--", 3);
+x_1 = lean_mk_string_unchecked("/--", 3, 3);
 return x_1;
 }
 }
@@ -6683,7 +6683,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Return `.done` for UInt values. We don't want to unfold in the symbolic evaluator. -/", 85);
+x_1 = lean_mk_string_unchecked("Return `.done` for UInt values. We don't want to unfold in the symbolic evaluator. -/", 85, 85);
 return x_1;
 }
 }
@@ -6691,7 +6691,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("isValue", 7);
+x_1 = lean_mk_string_unchecked("isValue", 7, 7);
 return x_1;
 }
 }
@@ -6718,7 +6718,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("OfNat.ofNat", 11);
+x_1 = lean_mk_string_unchecked("OfNat.ofNat", 11, 11);
 return x_1;
 }
 }
@@ -6735,7 +6735,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("OfNat", 5);
+x_1 = lean_mk_string_unchecked("OfNat", 5, 5);
 return x_1;
 }
 }
@@ -6777,7 +6777,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("end", 3);
+x_1 = lean_mk_string_unchecked("end", 3, 3);
 return x_1;
 }
 }
@@ -6806,7 +6806,7 @@ static lean_object* _init_l___aux__Lean__Meta__Tactic__Simp__BuiltinSimprocs__UI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("quotedName", 10);
+x_1 = lean_mk_string_unchecked("quotedName", 10, 10);
 return x_1;
 }
 }
@@ -9282,7 +9282,7 @@ static lean_object* _init_l_UInt8_fromExpr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("UInt8", 5);
+x_1 = lean_mk_string_unchecked("UInt8", 5, 5);
 return x_1;
 }
 }
@@ -9501,7 +9501,7 @@ static lean_object* _init_l_UInt8_reduceBin____x40_Lean_Meta_Tactic_Simp_Builtin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instOfNat", 9);
+x_1 = lean_mk_string_unchecked("instOfNat", 9, 9);
 return x_1;
 }
 }
@@ -10064,7 +10064,7 @@ static lean_object* _init_l_UInt8_reduceBoolPred____x40_Lean_Meta_Tactic_Simp_Bu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("false", 5);
+x_1 = lean_mk_string_unchecked("false", 5, 5);
 return x_1;
 }
 }
@@ -10102,7 +10102,7 @@ static lean_object* _init_l_UInt8_reduceBoolPred____x40_Lean_Meta_Tactic_Simp_Bu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("true", 4);
+x_1 = lean_mk_string_unchecked("true", 4, 4);
 return x_1;
 }
 }
@@ -14186,7 +14186,7 @@ static lean_object* _init_l___regBuiltin_UInt8_reduceEq_declare__1____x40_Lean_M
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -14224,7 +14224,7 @@ static lean_object* _init_l___regBuiltin_UInt8_reduceEq_declare__1____x40_Lean_M
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -14252,7 +14252,7 @@ static lean_object* _init_l___regBuiltin_UInt8_reduceEq_declare__1____x40_Lean_M
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("BuiltinSimprocs", 15);
+x_1 = lean_mk_string_unchecked("BuiltinSimprocs", 15, 15);
 return x_1;
 }
 }
@@ -14270,7 +14270,7 @@ static lean_object* _init_l___regBuiltin_UInt8_reduceEq_declare__1____x40_Lean_M
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("UInt", 4);
+x_1 = lean_mk_string_unchecked("UInt", 4, 4);
 return x_1;
 }
 }
@@ -14288,7 +14288,7 @@ static lean_object* _init_l___regBuiltin_UInt8_reduceEq_declare__1____x40_Lean_M
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -14761,7 +14761,7 @@ static lean_object* _init_l___regBuiltin_UInt8_reduceNe_declare__1____x40_Lean_M
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Not", 3);
+x_1 = lean_mk_string_unchecked("Not", 3, 3);
 return x_1;
 }
 }
@@ -17046,7 +17046,7 @@ static lean_object* _init_l_UInt16_fromExpr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("UInt16", 6);
+x_1 = lean_mk_string_unchecked("UInt16", 6, 6);
 return x_1;
 }
 }
@@ -24263,7 +24263,7 @@ static lean_object* _init_l_UInt32_fromExpr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("UInt32", 6);
+x_1 = lean_mk_string_unchecked("UInt32", 6, 6);
 return x_1;
 }
 }
@@ -31480,7 +31480,7 @@ static lean_object* _init_l_UInt64_fromExpr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("UInt64", 6);
+x_1 = lean_mk_string_unchecked("UInt64", 6, 6);
 return x_1;
 }
 }

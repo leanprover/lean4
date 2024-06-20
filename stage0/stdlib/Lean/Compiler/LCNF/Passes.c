@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_Lean_Compiler_LCNF_cse(uint8_t, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_init___closed__2;
-static lean_object* l_Lean_Compiler_LCNF_addPass___closed__9;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__26;
 lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Passes___hyg_867____lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Passes___hyg_506____closed__7;
@@ -326,7 +325,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_init___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("init", 4);
+x_1 = lean_mk_string_unchecked("init", 4, 4);
 return x_1;
 }
 }
@@ -416,7 +415,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_trace___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("trace", 5);
+x_1 = lean_mk_string_unchecked("trace", 5, 5);
 return x_1;
 }
 }
@@ -547,7 +546,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_saveBase___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("saveBase", 8);
+x_1 = lean_mk_string_unchecked("saveBase", 8, 8);
 return x_1;
 }
 }
@@ -670,7 +669,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_saveMono___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("saveMono", 8);
+x_1 = lean_mk_string_unchecked("saveMono", 8, 8);
 return x_1;
 }
 }
@@ -1605,7 +1604,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1613,7 +1612,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Compiler", 8);
+x_1 = lean_mk_string_unchecked("Compiler", 8, 8);
 return x_1;
 }
 }
@@ -1621,7 +1620,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LCNF", 4);
+x_1 = lean_mk_string_unchecked("LCNF", 4, 4);
 return x_1;
 }
 }
@@ -1629,7 +1628,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("passManagerExt", 14);
+x_1 = lean_mk_string_unchecked("passManagerExt", 14, 14);
 return x_1;
 }
 }
@@ -1821,7 +1820,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_addPass___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid 'cpass' only 'PassInstaller's can be added via the 'cpass' attribute: ", 78);
+x_1 = lean_mk_string_unchecked("invalid 'cpass' only 'PassInstaller's can be added via the 'cpass' attribute: ", 78, 78);
 return x_1;
 }
 }
@@ -1838,7 +1837,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_addPass___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -1855,7 +1854,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_addPass___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PassInstaller", 13);
+x_1 = lean_mk_string_unchecked("PassInstaller", 13, 13);
 return x_1;
 }
 }
@@ -1880,20 +1879,8 @@ return x_2;
 static lean_object* _init_l_Lean_Compiler_LCNF_addPass___closed__8() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_addPass___closed__7;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_addPass___closed__9() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Compiler_LCNF_addPass___closed__8;
+x_1 = l_Lean_Compiler_LCNF_addPass___closed__7;
 x_2 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
@@ -2100,7 +2087,7 @@ lean_inc(x_66);
 x_67 = lean_ctor_get(x_58, 6);
 lean_inc(x_67);
 lean_dec(x_58);
-x_68 = l_Lean_Compiler_LCNF_addPass___closed__9;
+x_68 = l_Lean_Compiler_LCNF_addPass___closed__8;
 x_69 = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(x_69, 0, x_62);
 lean_ctor_set(x_69, 1, x_63);
@@ -2160,7 +2147,7 @@ lean_inc(x_86);
 x_87 = lean_ctor_get(x_77, 6);
 lean_inc(x_87);
 lean_dec(x_77);
-x_88 = l_Lean_Compiler_LCNF_addPass___closed__9;
+x_88 = l_Lean_Compiler_LCNF_addPass___closed__8;
 x_89 = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(x_89, 0, x_82);
 lean_ctor_set(x_89, 1, x_83);
@@ -2436,7 +2423,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid attribute 'cpass', must be global", 41);
+x_1 = lean_mk_string_unchecked("invalid attribute 'cpass', must be global", 41, 41);
 return x_1;
 }
 }
@@ -2529,7 +2516,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attribute cannot be erased", 26);
+x_1 = lean_mk_string_unchecked("attribute cannot be erased", 26, 26);
 return x_1;
 }
 }
@@ -2585,7 +2572,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -2603,7 +2590,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -2651,7 +2638,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Passes", 6);
+x_1 = lean_mk_string_unchecked("Passes", 6, 6);
 return x_1;
 }
 }
@@ -2669,7 +2656,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -2697,7 +2684,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cpass", 5);
+x_1 = lean_mk_string_unchecked("cpass", 5, 5);
 return x_1;
 }
 }
@@ -2715,7 +2702,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("compiler passes for the code generator", 38);
+x_1 = lean_mk_string_unchecked("compiler passes for the code generator", 38, 38);
 return x_1;
 }
 }
@@ -3157,8 +3144,6 @@ l_Lean_Compiler_LCNF_addPass___closed__7 = _init_l_Lean_Compiler_LCNF_addPass___
 lean_mark_persistent(l_Lean_Compiler_LCNF_addPass___closed__7);
 l_Lean_Compiler_LCNF_addPass___closed__8 = _init_l_Lean_Compiler_LCNF_addPass___closed__8();
 lean_mark_persistent(l_Lean_Compiler_LCNF_addPass___closed__8);
-l_Lean_Compiler_LCNF_addPass___closed__9 = _init_l_Lean_Compiler_LCNF_addPass___closed__9();
-lean_mark_persistent(l_Lean_Compiler_LCNF_addPass___closed__9);
 l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Passes___hyg_867____lambda__2___closed__1 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Passes___hyg_867____lambda__2___closed__1();
 lean_mark_persistent(l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Passes___hyg_867____lambda__2___closed__1);
 l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Passes___hyg_867____lambda__2___closed__2 = _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Passes___hyg_867____lambda__2___closed__2();

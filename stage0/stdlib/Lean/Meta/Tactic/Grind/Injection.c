@@ -584,7 +584,7 @@ static lean_object* _init_l_Lean_Meta_Grind_injection_x3f___lambda__4___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }

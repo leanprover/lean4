@@ -110,7 +110,7 @@ static lean_object* _init_l_Lake_instToExprFilePath__lake___lambda__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("System", 6);
+x_1 = lean_mk_string_unchecked("System", 6, 6);
 return x_1;
 }
 }
@@ -118,7 +118,7 @@ static lean_object* _init_l_Lake_instToExprFilePath__lake___lambda__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("FilePath", 8);
+x_1 = lean_mk_string_unchecked("FilePath", 8, 8);
 return x_1;
 }
 }
@@ -126,7 +126,7 @@ static lean_object* _init_l_Lake_instToExprFilePath__lake___lambda__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mk", 2);
+x_1 = lean_mk_string_unchecked("mk", 2, 2);
 return x_1;
 }
 }

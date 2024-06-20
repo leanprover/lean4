@@ -8,12 +8,12 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
-/** \brief Given an inductive datatype \c n in \c env, add
-    <tt>n.rec_on</tt> to the environment.
+/** \brief Given an inductive datatype \c n in \c env, returns
+    the declaration for <tt>n.rec_on</tt>.
 
     \remark <tt>rec_on</tt> is based on <tt>n.rec</tt>
 
     \remark Throws an exception if \c n is not an inductive datatype.
 */
-environment mk_rec_on(environment const & env, name const & n);
+declaration mk_rec_on(environment const & env, name const & n);
 }

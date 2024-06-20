@@ -283,7 +283,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Log___hyg_197____closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("warningAsError", 14);
+x_1 = lean_mk_string_unchecked("warningAsError", 14, 14);
 return x_1;
 }
 }
@@ -301,7 +301,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Log___hyg_197____closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -309,7 +309,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Log___hyg_197____closed__4()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("treat warnings as errors", 24);
+x_1 = lean_mk_string_unchecked("treat warnings as errors", 24, 24);
 return x_1;
 }
 }
@@ -332,7 +332,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Log___hyg_197____closed__6()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1199,7 +1199,7 @@ static lean_object* _init_l_Lean_logUnknownDecl___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown declaration '", 21);
+x_1 = lean_mk_string_unchecked("unknown declaration '", 21, 21);
 return x_1;
 }
 }
@@ -1216,7 +1216,7 @@ static lean_object* _init_l_Lean_logUnknownDecl___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }

@@ -347,7 +347,7 @@ static lean_object* _init_l_Lean_addTrace___at___private_Lean_Meta_DecLevel_0__L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -619,7 +619,7 @@ static lean_object* _init_l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -627,7 +627,7 @@ static lean_object* _init_l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("isLevelDefEq", 12);
+x_1 = lean_mk_string_unchecked("isLevelDefEq", 12, 12);
 return x_1;
 }
 }
@@ -635,7 +635,7 @@ static lean_object* _init_l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("step", 4);
+x_1 = lean_mk_string_unchecked("step", 4, 4);
 return x_1;
 }
 }
@@ -654,7 +654,7 @@ static lean_object* _init_l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("decAux\?, ", 9);
+x_1 = lean_mk_string_unchecked("decAux\?, ", 9, 9);
 return x_1;
 }
 }
@@ -671,7 +671,7 @@ static lean_object* _init_l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" := ", 4);
+x_1 = lean_mk_string_unchecked(" := ", 4, 4);
 return x_1;
 }
 }
@@ -1943,7 +1943,7 @@ static lean_object* _init_l_Lean_Meta_decLevel___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid universe level, ", 24);
+x_1 = lean_mk_string_unchecked("invalid universe level, ", 24, 24);
 return x_1;
 }
 }
@@ -1960,7 +1960,7 @@ static lean_object* _init_l_Lean_Meta_decLevel___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" is not greater than 0", 22);
+x_1 = lean_mk_string_unchecked(" is not greater than 0", 22, 22);
 return x_1;
 }
 }
@@ -2139,7 +2139,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_DecLevel___hyg_738
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -2167,7 +2167,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_DecLevel___hyg_738
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -2185,7 +2185,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_DecLevel___hyg_738
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -2223,7 +2223,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_DecLevel___hyg_738
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("DecLevel", 8);
+x_1 = lean_mk_string_unchecked("DecLevel", 8, 8);
 return x_1;
 }
 }
@@ -2241,7 +2241,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_DecLevel___hyg_738
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }

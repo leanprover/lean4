@@ -923,7 +923,7 @@ theorem map_filter_eq_foldr (f : α → β) (p : α → Bool) (as : List α) :
   | a :: l₁, l₂ => by simp [filter]; split <;> simp [filter_append l₁]
 
 theorem filter_congr {p q : α → Bool} :
-    ∀ {l : List α}, (∀ x ∈ l, p x ↔ q x) → filter p l = filter q l
+    ∀ {l : List α}, (∀ x ∈ l, p x = q x) → filter p l = filter q l
   | [], _ => rfl
   | a :: l, h => by
     rw [forall_mem_cons] at h; by_cases pa : p a

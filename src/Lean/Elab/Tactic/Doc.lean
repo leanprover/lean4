@@ -12,43 +12,26 @@ import Lean.Parser.Command
 namespace Lean.Elab.Tactic.Doc
 open Lean.Parser.Tactic.Doc
 open Lean.Elab.Command
-
--- TODO Replace the parsing in this file with proper quotations after a stage0 update
-
-/-- Find out whether the result of a docComment? is present; if so, return it -/
-private partial def asDocComment?
-    (stx : Syntax) : Option (TSyntax ``Lean.Parser.Command.docComment) :=
-  if stx.getKind == ``Lean.Parser.Command.docComment then
-    some ⟨stx⟩
-  else if let .node _ k #[c] := stx then
-    if k == nullKind then asDocComment? c else none
-  else none
-
-/-- If syntax is a string literal, return it -/
-private def asStrLit? : Syntax → Option StrLit
-  | `($s:str) => some s
-  | _ => none
+open Lean.Parser.Command
 
 @[builtin_command_elab «tactic_extension»] def elabTacticExtension : CommandElab
-  | .node _ _ #[.node _ _ #[], cmd@(.atom _ "tactic_extension"), _] => do
+  | `(«tactic_extension»|tactic_extension%$cmd $_) => do
     throwErrorAt cmd "Missing documentation comment"
-  | .node _ _ #[.node _ _ #[docComment], cmd@(.atom _ "tactic_extension"), tac] => do
-    let some docComment := asDocComment? docComment
-      | throwErrorAt cmd "Malformed documentation comment ({docComment})"
+  | `(«tactic_extension»|$docs:docComment tactic_extension $tac:ident) => do
     let tacName ← liftTermElabM <| realizeGlobalConstNoOverloadWithInfo tac
+
     if let some tgt' := alternativeOfTactic (← getEnv) tacName then
         throwErrorAt tac "'{tacName}' is an alternative form of '{tgt'}'"
-    if !(isTactic (← getEnv) tacName) then throwErrorAt tac "'{tacName}' is not a tactic"
+    if !(isTactic (← getEnv) tacName) then
+      throwErrorAt tac "'{tacName}' is not a tactic"
 
-    modifyEnv (tacticDocExtExt.addEntry · (tacName, docComment.getDocString))
+    modifyEnv (tacticDocExtExt.addEntry · (tacName, docs.getDocString))
     pure ()
   | _ => throwError "Malformed tactic extension command"
 
 @[builtin_command_elab «register_tactic_tag»] def elabRegisterTacticTag : CommandElab
-  | .node _ _ #[doc, .atom _ "register_tactic_tag", tag, user] => do
-    let docstring ← (asDocComment? doc).mapM getDocStringText
-    let some user := asStrLit? user
-      | throwErrorAt user "expected string literal"
+  | `(«register_tactic_tag»|$[$doc:docComment]? register_tactic_tag $tag:ident $user:str) => do
+    let docstring ← doc.mapM getDocStringText
     modifyEnv (knownTacticTagExt.addEntry · (tag.getId, user.getString, docstring))
   | _ => throwError "Malformed 'register_tactic_tag' command"
 

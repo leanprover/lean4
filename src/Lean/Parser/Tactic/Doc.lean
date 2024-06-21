@@ -7,6 +7,7 @@ prelude
 import Lean.Attributes
 import Lean.DocString
 import Lean.Elab.InfoTree.Main
+import Lean.Parser.Attr
 import Lean.Parser.Extension
 
 set_option linter.missingDocs true
@@ -14,6 +15,7 @@ set_option linter.missingDocs true
 namespace Lean.Parser.Tactic.Doc
 
 open Lean.Parser (registerParserAttributeHook)
+open Lean.Parser.Attr
 
 /-- Check whether a name is a tactic syntax kind -/
 def isTactic (env : Environment) (kind : Name) : Bool := Id.run do
@@ -71,7 +73,7 @@ builtin_initialize
       unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
       unless ((← getEnv).getModuleIdxFor? decl).isNone do
         throwError "invalid attribute '{name}', declaration is in an imported module"
-      let .node _ _ #[.atom _ "tactic_alt", tgt] := stx
+      let `(«tactic_alt»|tactic_alt $tgt) := stx
         | throwError "invalid syntax for '{name}' attribute"
 
       let tgtName ← Lean.Elab.realizeGlobalConstNoOverloadWithInfo tgt
@@ -182,7 +184,7 @@ builtin_initialize
     ref := by exact decl_name%,
     add := fun decl stx kind => do
       unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
-      let .node _ `Lean.Parser.Attr.tactic_tag #[_kw, .node _ _ tags] := stx
+      let `(«tactic_tag»|tactic_tag $tags*) := stx
         | throwError "invalid '{name}' attribute"
       if (← getEnv).find? decl |>.isSome then
         if !(isTactic (← getEnv) decl) then

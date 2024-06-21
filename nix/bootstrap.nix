@@ -152,9 +152,9 @@ rec {
         '';
         meta.mainProgram = "lean";
       };
-      cacheRoots = linkFarmFromDrvs "cacheRoots" [
+      cacheRoots = linkFarmFromDrvs "cacheRoots" ([
         stage0 lean leanc lean-all iTree modDepsFiles depRoots Leanc.src
-      ] ++ map (lib: lib.oTree) stdlib;
+      ] ++ map (lib: lib.oTree) stdlib);
       test = buildCMake {
         name = "lean-test-${desc}";
         realSrc = lib.sourceByRegex src [ "src.*" "tests.*" ];

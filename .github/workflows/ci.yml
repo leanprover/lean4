@@ -343,6 +343,8 @@ jobs:
           # this also enables githash embedding into stage 1 library
           OPTIONS=(-DCHECK_OLEAN_VERSION=ON)
           OPTIONS+=(-DLEAN_EXTRA_MAKE_OPTS=-DwarningAsError=true)
+          # TODO: delete
+          OPTIONS+=(-DUSE_LAKE=ON)
           if [[ -n '${{ matrix.cross_target }}' ]]; then
             # used by `prepare-llvm`
             export EXTRA_FLAGS=--target=${{ matrix.cross_target }}

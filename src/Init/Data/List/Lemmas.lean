@@ -927,8 +927,8 @@ theorem filter_congr {p q : α → Bool} :
   | [], _ => rfl
   | a :: l, h => by
     rw [forall_mem_cons] at h; by_cases pa : p a
-    · simp [pa, h.1.1 pa, filter_congr h.2]
-    · simp [pa, mt h.1.2 pa, filter_congr h.2]
+    · simp [pa, h.1 ▸ pa, filter_congr h.2]
+    · simp [pa, h.1 ▸ pa, filter_congr h.2]
 
 @[deprecated filter_congr (since := "2024-06-20")] abbrev filter_congr' := @filter_congr
 

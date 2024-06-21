@@ -267,7 +267,7 @@ static lean_object* _init_l_Lake_declareOpaqueType___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake", 4);
+x_1 = lean_mk_string_unchecked("Lake", 4, 4);
 return x_1;
 }
 }
@@ -275,7 +275,7 @@ static lean_object* _init_l_Lake_declareOpaqueType___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declareOpaqueType", 17);
+x_1 = lean_mk_string_unchecked("declareOpaqueType", 17, 17);
 return x_1;
 }
 }
@@ -293,7 +293,7 @@ static lean_object* _init_l_Lake_declareOpaqueType___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("andthen", 7);
+x_1 = lean_mk_string_unchecked("andthen", 7, 7);
 return x_1;
 }
 }
@@ -311,7 +311,7 @@ static lean_object* _init_l_Lake_declareOpaqueType___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("optional", 8);
+x_1 = lean_mk_string_unchecked("optional", 8, 8);
 return x_1;
 }
 }
@@ -329,7 +329,7 @@ static lean_object* _init_l_Lake_declareOpaqueType___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("docComment", 10);
+x_1 = lean_mk_string_unchecked("docComment", 10, 10);
 return x_1;
 }
 }
@@ -369,7 +369,7 @@ static lean_object* _init_l_Lake_declareOpaqueType___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declare_opaque_type ", 20);
+x_1 = lean_mk_string_unchecked("declare_opaque_type ", 20, 20);
 return x_1;
 }
 }
@@ -401,7 +401,7 @@ static lean_object* _init_l_Lake_declareOpaqueType___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ident", 5);
+x_1 = lean_mk_string_unchecked("ident", 5, 5);
 return x_1;
 }
 }
@@ -443,7 +443,7 @@ static lean_object* _init_l_Lake_declareOpaqueType___closed__19() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("many", 4);
+x_1 = lean_mk_string_unchecked("many", 4, 4);
 return x_1;
 }
 }
@@ -461,7 +461,7 @@ static lean_object* _init_l_Lake_declareOpaqueType___closed__21() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("binder", 6);
+x_1 = lean_mk_string_unchecked("binder", 6, 6);
 return x_1;
 }
 }
@@ -585,7 +585,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -603,7 +603,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -611,7 +611,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -619,7 +619,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Command", 7);
+x_1 = lean_mk_string_unchecked("Command", 7, 7);
 return x_1;
 }
 }
@@ -627,7 +627,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declaration", 11);
+x_1 = lean_mk_string_unchecked("declaration", 11, 11);
 return x_1;
 }
 }
@@ -647,7 +647,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declModifiers", 13);
+x_1 = lean_mk_string_unchecked("declModifiers", 13, 13);
 return x_1;
 }
 }
@@ -676,7 +676,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("opaque", 6);
+x_1 = lean_mk_string_unchecked("opaque", 6, 6);
 return x_1;
 }
 }
@@ -696,7 +696,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declId", 6);
+x_1 = lean_mk_string_unchecked("declId", 6, 6);
 return x_1;
 }
 }
@@ -739,7 +739,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declSig", 7);
+x_1 = lean_mk_string_unchecked("declSig", 7, 7);
 return x_1;
 }
 }
@@ -759,7 +759,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -767,7 +767,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("typeSpec", 8);
+x_1 = lean_mk_string_unchecked("typeSpec", 8, 8);
 return x_1;
 }
 }
@@ -787,7 +787,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
@@ -795,7 +795,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("explicitUniv", 12);
+x_1 = lean_mk_string_unchecked("explicitUniv", 12, 12);
 return x_1;
 }
 }
@@ -815,7 +815,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("NonemptyType", 12);
+x_1 = lean_mk_string_unchecked("NonemptyType", 12, 12);
 return x_1;
 }
 }
@@ -888,7 +888,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".{", 2);
+x_1 = lean_mk_string_unchecked(".{", 2, 2);
 return x_1;
 }
 }
@@ -896,7 +896,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("num", 3);
+x_1 = lean_mk_string_unchecked("num", 3, 3);
 return x_1;
 }
 }
@@ -914,7 +914,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("0", 1);
+x_1 = lean_mk_string_unchecked("0", 1, 1);
 return x_1;
 }
 }
@@ -922,7 +922,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("}", 1);
+x_1 = lean_mk_string_unchecked("}", 1, 1);
 return x_1;
 }
 }
@@ -930,7 +930,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("definition", 10);
+x_1 = lean_mk_string_unchecked("definition", 10, 10);
 return x_1;
 }
 }
@@ -950,7 +950,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("def", 3);
+x_1 = lean_mk_string_unchecked("def", 3, 3);
 return x_1;
 }
 }
@@ -958,7 +958,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("optDeclSig", 10);
+x_1 = lean_mk_string_unchecked("optDeclSig", 10, 10);
 return x_1;
 }
 }
@@ -978,7 +978,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("type", 4);
+x_1 = lean_mk_string_unchecked("type", 4, 4);
 return x_1;
 }
 }
@@ -998,7 +998,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Type", 4);
+x_1 = lean_mk_string_unchecked("Type", 4, 4);
 return x_1;
 }
 }
@@ -1006,7 +1006,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declValSimple", 13);
+x_1 = lean_mk_string_unchecked("declValSimple", 13, 13);
 return x_1;
 }
 }
@@ -1026,7 +1026,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":=", 2);
+x_1 = lean_mk_string_unchecked(":=", 2, 2);
 return x_1;
 }
 }
@@ -1034,7 +1034,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pipeProj", 8);
+x_1 = lean_mk_string_unchecked("pipeProj", 8, 8);
 return x_1;
 }
 }
@@ -1054,7 +1054,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("|>.", 3);
+x_1 = lean_mk_string_unchecked("|>.", 3, 3);
 return x_1;
 }
 }
@@ -1081,7 +1081,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Termination", 11);
+x_1 = lean_mk_string_unchecked("Termination", 11, 11);
 return x_1;
 }
 }
@@ -1089,7 +1089,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("suffix", 6);
+x_1 = lean_mk_string_unchecked("suffix", 6, 6);
 return x_1;
 }
 }
@@ -1109,7 +1109,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instance", 8);
+x_1 = lean_mk_string_unchecked("instance", 8, 8);
 return x_1;
 }
 }
@@ -1129,7 +1129,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attrKind", 8);
+x_1 = lean_mk_string_unchecked("attrKind", 8, 8);
 return x_1;
 }
 }
@@ -1149,7 +1149,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("app", 3);
+x_1 = lean_mk_string_unchecked("app", 3, 3);
 return x_1;
 }
 }
@@ -1169,7 +1169,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Nonempty", 8);
+x_1 = lean_mk_string_unchecked("Nonempty", 8, 8);
 return x_1;
 }
 }
@@ -1242,7 +1242,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("property", 8);
+x_1 = lean_mk_string_unchecked("property", 8, 8);
 return x_1;
 }
 }
@@ -1278,7 +1278,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("nonemptyType", 12);
+x_1 = lean_mk_string_unchecked("nonemptyType", 12, 12);
 return x_1;
 }
 }
@@ -1794,7 +1794,7 @@ static lean_object* _init_l_Lake_hydrateOpaqueType___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hydrateOpaqueType", 17);
+x_1 = lean_mk_string_unchecked("hydrateOpaqueType", 17, 17);
 return x_1;
 }
 }
@@ -1812,7 +1812,7 @@ static lean_object* _init_l_Lake_hydrateOpaqueType___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hydrate_opaque_type ", 20);
+x_1 = lean_mk_string_unchecked("hydrate_opaque_type ", 20, 20);
 return x_1;
 }
 }
@@ -1954,7 +1954,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lake___aux__Lake__Util__Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("implicitBinder", 14);
+x_1 = lean_mk_string_unchecked("implicitBinder", 14, 14);
 return x_1;
 }
 }
@@ -1974,7 +1974,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lake___aux__Lake__Util__Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("{", 1);
+x_1 = lean_mk_string_unchecked("{", 1, 1);
 return x_1;
 }
 }
@@ -2026,7 +2026,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mk", 2);
+x_1 = lean_mk_string_unchecked("mk", 2, 2);
 return x_1;
 }
 }
@@ -2053,7 +2053,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unsafeMk", 8);
+x_1 = lean_mk_string_unchecked("unsafeMk", 8, 8);
 return x_1;
 }
 }
@@ -2080,7 +2080,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("get", 3);
+x_1 = lean_mk_string_unchecked("get", 3, 3);
 return x_1;
 }
 }
@@ -2107,7 +2107,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unsafeGet", 9);
+x_1 = lean_mk_string_unchecked("unsafeGet", 9, 9);
 return x_1;
 }
 }
@@ -2134,7 +2134,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("namespace", 9);
+x_1 = lean_mk_string_unchecked("namespace", 9, 9);
 return x_1;
 }
 }
@@ -2154,7 +2154,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unsafe", 6);
+x_1 = lean_mk_string_unchecked("unsafe", 6, 6);
 return x_1;
 }
 }
@@ -2208,7 +2208,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("arrow", 5);
+x_1 = lean_mk_string_unchecked("arrow", 5, 5);
 return x_1;
 }
 }
@@ -2228,7 +2228,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term", 4);
+x_1 = lean_mk_string_unchecked("term", 4, 4);
 return x_1;
 }
 }
@@ -2258,7 +2258,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("→", 3);
+x_1 = lean_mk_string_unchecked("→", 3, 1);
 return x_1;
 }
 }
@@ -2266,7 +2266,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unsafeCast", 10);
+x_1 = lean_mk_string_unchecked("unsafeCast", 10, 10);
 return x_1;
 }
 }
@@ -2339,7 +2339,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attributes", 10);
+x_1 = lean_mk_string_unchecked("attributes", 10, 10);
 return x_1;
 }
 }
@@ -2359,7 +2359,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("@[", 2);
+x_1 = lean_mk_string_unchecked("@[", 2, 2);
 return x_1;
 }
 }
@@ -2367,7 +2367,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attrInstance", 12);
+x_1 = lean_mk_string_unchecked("attrInstance", 12, 12);
 return x_1;
 }
 }
@@ -2387,7 +2387,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Attr", 4);
+x_1 = lean_mk_string_unchecked("Attr", 4, 4);
 return x_1;
 }
 }
@@ -2395,7 +2395,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simple", 6);
+x_1 = lean_mk_string_unchecked("simple", 6, 6);
 return x_1;
 }
 }
@@ -2415,7 +2415,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("implemented_by", 14);
+x_1 = lean_mk_string_unchecked("implemented_by", 14, 14);
 return x_1;
 }
 }
@@ -2442,7 +2442,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -2484,7 +2484,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Coe", 3);
+x_1 = lean_mk_string_unchecked("Coe", 3, 3);
 return x_1;
 }
 }
@@ -2557,7 +2557,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("paren", 5);
+x_1 = lean_mk_string_unchecked("paren", 5, 5);
 return x_1;
 }
 }
@@ -2577,7 +2577,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -2585,7 +2585,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -2593,7 +2593,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("anonymousCtor", 13);
+x_1 = lean_mk_string_unchecked("anonymousCtor", 13, 13);
 return x_1;
 }
 }
@@ -2613,7 +2613,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⟨", 3);
+x_1 = lean_mk_string_unchecked("⟨", 3, 1);
 return x_1;
 }
 }
@@ -2621,7 +2621,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⟩", 3);
+x_1 = lean_mk_string_unchecked("⟩", 3, 1);
 return x_1;
 }
 }
@@ -2697,7 +2697,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instBinder", 10);
+x_1 = lean_mk_string_unchecked("instBinder", 10, 10);
 return x_1;
 }
 }
@@ -2717,7 +2717,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -2725,7 +2725,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Inhabited", 9);
+x_1 = lean_mk_string_unchecked("Inhabited", 9, 9);
 return x_1;
 }
 }
@@ -2798,7 +2798,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("default", 7);
+x_1 = lean_mk_string_unchecked("default", 7, 7);
 return x_1;
 }
 }
@@ -2881,7 +2881,7 @@ static lean_object* _init_l_Lake___aux__Lake__Util__Opaque______macroRules__Lake
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("end", 3);
+x_1 = lean_mk_string_unchecked("end", 3, 3);
 return x_1;
 }
 }

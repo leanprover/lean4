@@ -398,7 +398,7 @@ static lean_object* _init_l_Lean_RBNode_foldM___at_Lake_instFromJsonNameMap__lak
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected name", 13);
+x_1 = lean_mk_string_unchecked("expected name", 13, 13);
 return x_1;
 }
 }
@@ -906,7 +906,7 @@ static lean_object* _init_l_Lake_Name_quoteFrom___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -914,7 +914,7 @@ static lean_object* _init_l_Lake_Name_quoteFrom___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -922,7 +922,7 @@ static lean_object* _init_l_Lake_Name_quoteFrom___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -930,7 +930,7 @@ static lean_object* _init_l_Lake_Name_quoteFrom___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("quotedName", 10);
+x_1 = lean_mk_string_unchecked("quotedName", 10, 10);
 return x_1;
 }
 }
@@ -950,7 +950,7 @@ static lean_object* _init_l_Lake_Name_quoteFrom___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -958,7 +958,7 @@ static lean_object* _init_l_Lake_Name_quoteFrom___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`", 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }

@@ -39,10 +39,15 @@ theorem take_take : ∀ (n m) (l : List α), take n (take m l) = take (min n m) 
   | succ n, succ m, a :: l => by
     simp only [take, succ_min_succ, take_take n m l]
 
-theorem take_replicate (a : α) : ∀ n m : Nat, take n (replicate m a) = replicate (min n m) a
+@[simp] theorem take_replicate (a : α) : ∀ n m : Nat, take n (replicate m a) = replicate (min n m) a
   | n, 0 => by simp [Nat.min_zero]
   | 0, m => by simp [Nat.zero_min]
-  | succ n, succ m => by simp [succ_min_succ, take_replicate]
+  | succ n, succ m => by simp [replicate_succ, succ_min_succ, take_replicate]
+
+@[simp] theorem drop_replicate (a : α) : ∀ n m : Nat, drop n (replicate m a) = replicate (m - n) a
+  | n, 0 => by simp
+  | 0, m => by simp
+  | succ n, succ m => by simp [replicate_succ, succ_sub_succ, drop_replicate]
 
 /-- Taking the first `n` elements in `l₁ ++ l₂` is the same as appending the first `n` elements
 of `l₁` to the first `n - l₁.length` elements of `l₂`. -/
@@ -97,7 +102,7 @@ theorem get_take' (L : List α) {j i} :
 
 theorem getElem?_take_eq_none {l : List α} {n m : Nat} (h : n ≤ m) :
     (l.take n)[m]? = none :=
-  getElem?_eq_none.mpr <| Nat.le_trans (length_take_le _ _) h
+  getElem?_eq_none <| Nat.le_trans (length_take_le _ _) h
 
 @[deprecated getElem?_take_eq_none (since := "2024-06-12")]
 theorem get?_take_eq_none {l : List α} {n m : Nat} (h : n ≤ m) :
@@ -298,6 +303,32 @@ theorem take_reverse {α} {xs : List α} (n : Nat) (h : n ≤ xs.length) :
 
 @[deprecated (since := "2024-06-15")] abbrev reverse_take := @take_reverse
 
+/-! ### rotateLeft -/
+
+@[simp] theorem rotateLeft_replicate (n) (a : α) : rotateLeft (replicate m a) n = replicate m a := by
+  cases n with
+  | zero => simp
+  | succ n =>
+    suffices 1 < m → m - (n + 1) % m + min ((n + 1) % m) m = m by
+      simpa [rotateLeft]
+    intro h
+    rw [Nat.min_eq_left (Nat.le_of_lt (Nat.mod_lt _ (by omega)))]
+    have : (n + 1) % m < m := Nat.mod_lt _ (by omega)
+    omega
+
+/-! ### rotateRight -/
+
+@[simp] theorem rotateRight_replicate (n) (a : α) : rotateRight (replicate m a) n = replicate m a := by
+  cases n with
+  | zero => simp
+  | succ n =>
+    suffices 1 < m → m - (m - (n + 1) % m) + min (m - (n + 1) % m) m = m by
+      simpa [rotateRight]
+    intro h
+    have : (n + 1) % m < m := Nat.mod_lt _ (by omega)
+    rw [Nat.min_eq_left (by omega)]
+    omega
+
 /-! ### zipWith -/
 
 @[simp] theorem length_zipWith (f : α → β → γ) (l₁ l₂) :
@@ -305,10 +336,32 @@ theorem take_reverse {α} {xs : List α} (n : Nat) (h : n ≤ xs.length) :
   induction l₁ generalizing l₂ <;> cases l₂ <;>
     simp_all [succ_min_succ, Nat.zero_min, Nat.min_zero]
 
+theorem zipWith_eq_zipWith_take_min : ∀ (l₁ : List α) (l₂ : List β),
+    zipWith f l₁ l₂ = zipWith f (l₁.take (min l₁.length l₂.length)) (l₂.take (min l₁.length l₂.length))
+  | [], _ => by simp
+  | _, [] => by simp
+  | a :: l₁, b :: l₂ => by simp [succ_min_succ, zipWith_eq_zipWith_take_min l₁ l₂]
+
+@[simp] theorem zipWith_replicate {a : α} {b : β} {m n : Nat} :
+    zipWith f (replicate m a) (replicate n b) = replicate (min m n) (f a b) := by
+  rw [zipWith_eq_zipWith_take_min]
+  simp
+
 /-! ### zip -/
 
 @[simp] theorem length_zip (l₁ : List α) (l₂ : List β) :
     length (zip l₁ l₂) = min (length l₁) (length l₂) := by
   simp [zip]
+
+theorem zip_eq_zip_take_min : ∀ (l₁ : List α) (l₂ : List β),
+    zip l₁ l₂ = zip (l₁.take (min l₁.length l₂.length)) (l₂.take (min l₁.length l₂.length))
+  | [], _ => by simp
+  | _, [] => by simp
+  | a :: l₁, b :: l₂ => by simp [succ_min_succ, zip_eq_zip_take_min l₁ l₂]
+
+@[simp] theorem zip_replicate {a : α} {b : β} {m n : Nat} :
+    zip (replicate m a) (replicate n b) = replicate (min m n) (a, b) := by
+  rw [zip_eq_zip_take_min]
+  simp
 
 end List

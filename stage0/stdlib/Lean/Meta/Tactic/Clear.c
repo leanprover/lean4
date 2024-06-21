@@ -210,7 +210,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_MVarId_clear___spe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("variable '", 10);
+x_1 = lean_mk_string_unchecked("variable '", 10, 10);
 return x_1;
 }
 }
@@ -227,7 +227,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_MVarId_clear___spe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' depends on '", 14);
+x_1 = lean_mk_string_unchecked("' depends on '", 14, 14);
 return x_1;
 }
 }
@@ -244,7 +244,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_MVarId_clear___spe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -3084,7 +3084,7 @@ static lean_object* _init_l_Lean_MVarId_clear___lambda__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("target depends on '", 19);
+x_1 = lean_mk_string_unchecked("target depends on '", 19, 19);
 return x_1;
 }
 }
@@ -3326,7 +3326,7 @@ static lean_object* _init_l_Lean_MVarId_clear___lambda__4___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown variable '", 18);
+x_1 = lean_mk_string_unchecked("unknown variable '", 18, 18);
 return x_1;
 }
 }
@@ -3434,7 +3434,7 @@ static lean_object* _init_l_Lean_MVarId_clear___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("clear", 5);
+x_1 = lean_mk_string_unchecked("clear", 5, 5);
 return x_1;
 }
 }

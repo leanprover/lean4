@@ -35,7 +35,7 @@ inductive ReducibilityHints where
   | opaque  : ReducibilityHints
   | abbrev  : ReducibilityHints
   | regular : UInt32 → ReducibilityHints
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 @[export lean_mk_reducibility_hints_regular]
 def mkReducibilityHintsRegularEx (h : UInt32) : ReducibilityHints :=
@@ -117,7 +117,7 @@ structure DefinitionVal extends ConstantVal where
     are compiled using recursors and `WellFounded.fix`.
   -/
   all : List Name := [name]
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 @[export lean_mk_definition_val]
 def mkDefinitionValEx (name : Name) (levelParams : List Name) (type : Expr) (value : Expr) (hints : ReducibilityHints) (safety : DefinitionSafety) (all : List Name) : DefinitionVal := {
@@ -161,13 +161,13 @@ def mkOpaqueValEx (name : Name) (levelParams : List Name) (type : Expr) (value :
 structure Constructor where
   name : Name
   type : Expr
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 structure InductiveType where
   name : Name
   type : Expr
   ctors : List Constructor
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 /-- Declaration object that can be sent to the kernel. -/
 inductive Declaration where
@@ -178,7 +178,7 @@ inductive Declaration where
   | quotDecl
   | mutualDefnDecl  (defns : List DefinitionVal) -- All definitions must be marked as `unsafe` or `partial`
   | inductDecl      (lparams : List Name) (nparams : Nat) (types : List InductiveType) (isUnsafe : Bool)
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 @[export lean_mk_inductive_decl]
 def mkInductiveDeclEs (lparams : List Name) (nparams : Nat) (types : List InductiveType) (isUnsafe : Bool) : Declaration :=
@@ -188,6 +188,10 @@ def mkInductiveDeclEs (lparams : List Name) (nparams : Nat) (types : List Induct
 def Declaration.isUnsafeInductiveDeclEx : Declaration → Bool
   | Declaration.inductDecl _ _ _ isUnsafe => isUnsafe
   | _ => false
+
+def Declaration.definitionVal! : Declaration → DefinitionVal
+  | .defnDecl val => val
+  | _ => panic! "Expected a `Declaration.defnDecl`."
 
 @[specialize] def Declaration.foldExprM {α} {m : Type → Type} [Monad m] (d : Declaration) (f : α → Expr → m α) (a : α) : m α :=
   match d with

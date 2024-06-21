@@ -522,7 +522,7 @@ static lean_object* _init_l_Lake_WorkspaceConfig_toToml___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("packagesDir", 11);
+x_1 = lean_mk_string_unchecked("packagesDir", 11, 11);
 return x_1;
 }
 }
@@ -619,7 +619,7 @@ static lean_object* _init_l_Lake_LeanConfig_toToml___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("weakLinkArgs", 12);
+x_1 = lean_mk_string_unchecked("weakLinkArgs", 12, 12);
 return x_1;
 }
 }
@@ -637,7 +637,7 @@ static lean_object* _init_l_Lake_LeanConfig_toToml___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("moreLinkArgs", 12);
+x_1 = lean_mk_string_unchecked("moreLinkArgs", 12, 12);
 return x_1;
 }
 }
@@ -655,7 +655,7 @@ static lean_object* _init_l_Lake_LeanConfig_toToml___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("weakLeancArgs", 13);
+x_1 = lean_mk_string_unchecked("weakLeancArgs", 13, 13);
 return x_1;
 }
 }
@@ -673,7 +673,7 @@ static lean_object* _init_l_Lake_LeanConfig_toToml___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("moreLeancArgs", 13);
+x_1 = lean_mk_string_unchecked("moreLeancArgs", 13, 13);
 return x_1;
 }
 }
@@ -691,7 +691,7 @@ static lean_object* _init_l_Lake_LeanConfig_toToml___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("weakLeanArgs", 12);
+x_1 = lean_mk_string_unchecked("weakLeanArgs", 12, 12);
 return x_1;
 }
 }
@@ -709,7 +709,7 @@ static lean_object* _init_l_Lake_LeanConfig_toToml___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("moreLeanArgs", 12);
+x_1 = lean_mk_string_unchecked("moreLeanArgs", 12, 12);
 return x_1;
 }
 }
@@ -727,7 +727,7 @@ static lean_object* _init_l_Lake_LeanConfig_toToml___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("moreServerOptions", 17);
+x_1 = lean_mk_string_unchecked("moreServerOptions", 17, 17);
 return x_1;
 }
 }
@@ -745,7 +745,7 @@ static lean_object* _init_l_Lake_LeanConfig_toToml___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("leanOptions", 11);
+x_1 = lean_mk_string_unchecked("leanOptions", 11, 11);
 return x_1;
 }
 }
@@ -763,7 +763,7 @@ static lean_object* _init_l_Lake_LeanConfig_toToml___closed__17() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("platformIndependent", 19);
+x_1 = lean_mk_string_unchecked("platformIndependent", 19, 19);
 return x_1;
 }
 }
@@ -781,7 +781,7 @@ static lean_object* _init_l_Lake_LeanConfig_toToml___closed__19() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("backend", 7);
+x_1 = lean_mk_string_unchecked("backend", 7, 7);
 return x_1;
 }
 }
@@ -799,7 +799,7 @@ static lean_object* _init_l_Lake_LeanConfig_toToml___closed__21() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("buildType", 9);
+x_1 = lean_mk_string_unchecked("buildType", 9, 9);
 return x_1;
 }
 }
@@ -1613,7 +1613,7 @@ static lean_object* _init_l_Lake_PackageConfig_toToml___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("preferReleaseBuild", 18);
+x_1 = lean_mk_string_unchecked("preferReleaseBuild", 18, 18);
 return x_1;
 }
 }
@@ -1631,7 +1631,7 @@ static lean_object* _init_l_Lake_PackageConfig_toToml___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("buildArchive", 12);
+x_1 = lean_mk_string_unchecked("buildArchive", 12, 12);
 return x_1;
 }
 }
@@ -1649,7 +1649,7 @@ static lean_object* _init_l_Lake_PackageConfig_toToml___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -1657,7 +1657,7 @@ static lean_object* _init_l_Lake_PackageConfig_toToml___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-", 1);
+x_1 = lean_mk_string_unchecked("-", 1, 1);
 return x_1;
 }
 }
@@ -1665,7 +1665,7 @@ static lean_object* _init_l_Lake_PackageConfig_toToml___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".tar.gz", 7);
+x_1 = lean_mk_string_unchecked(".tar.gz", 7, 7);
 return x_1;
 }
 }
@@ -1673,7 +1673,7 @@ static lean_object* _init_l_Lake_PackageConfig_toToml___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("releaseRepo", 11);
+x_1 = lean_mk_string_unchecked("releaseRepo", 11, 11);
 return x_1;
 }
 }
@@ -1691,7 +1691,7 @@ static lean_object* _init_l_Lake_PackageConfig_toToml___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("irDir", 5);
+x_1 = lean_mk_string_unchecked("irDir", 5, 5);
 return x_1;
 }
 }
@@ -1709,7 +1709,7 @@ static lean_object* _init_l_Lake_PackageConfig_toToml___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("binDir", 6);
+x_1 = lean_mk_string_unchecked("binDir", 6, 6);
 return x_1;
 }
 }
@@ -1727,7 +1727,7 @@ static lean_object* _init_l_Lake_PackageConfig_toToml___closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("nativeLibDir", 12);
+x_1 = lean_mk_string_unchecked("nativeLibDir", 12, 12);
 return x_1;
 }
 }
@@ -1745,7 +1745,7 @@ static lean_object* _init_l_Lake_PackageConfig_toToml___closed__16() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("leanLibDir", 10);
+x_1 = lean_mk_string_unchecked("leanLibDir", 10, 10);
 return x_1;
 }
 }
@@ -1763,7 +1763,7 @@ static lean_object* _init_l_Lake_PackageConfig_toToml___closed__18() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("buildDir", 8);
+x_1 = lean_mk_string_unchecked("buildDir", 8, 8);
 return x_1;
 }
 }
@@ -1781,7 +1781,7 @@ static lean_object* _init_l_Lake_PackageConfig_toToml___closed__20() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("srcDir", 6);
+x_1 = lean_mk_string_unchecked("srcDir", 6, 6);
 return x_1;
 }
 }
@@ -1799,7 +1799,7 @@ static lean_object* _init_l_Lake_PackageConfig_toToml___closed__22() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("moreGlobalServerArgs", 20);
+x_1 = lean_mk_string_unchecked("moreGlobalServerArgs", 20, 20);
 return x_1;
 }
 }
@@ -1817,7 +1817,7 @@ static lean_object* _init_l_Lake_PackageConfig_toToml___closed__24() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("precompileModules", 17);
+x_1 = lean_mk_string_unchecked("precompileModules", 17, 17);
 return x_1;
 }
 }
@@ -1835,7 +1835,7 @@ static lean_object* _init_l_Lake_PackageConfig_toToml___closed__26() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("name", 4);
+x_1 = lean_mk_string_unchecked("name", 4, 4);
 return x_1;
 }
 }
@@ -1853,7 +1853,7 @@ static lean_object* _init_l_Lake_PackageConfig_toToml___closed__28() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -3006,7 +3006,7 @@ static lean_object* _init_l_Lake_LeanLibConfig_toToml___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("defaultFacets", 13);
+x_1 = lean_mk_string_unchecked("defaultFacets", 13, 13);
 return x_1;
 }
 }
@@ -3024,7 +3024,7 @@ static lean_object* _init_l_Lake_LeanLibConfig_toToml___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("leanArts", 8);
+x_1 = lean_mk_string_unchecked("leanArts", 8, 8);
 return x_1;
 }
 }
@@ -3061,7 +3061,7 @@ static lean_object* _init_l_Lake_LeanLibConfig_toToml___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("libName", 7);
+x_1 = lean_mk_string_unchecked("libName", 7, 7);
 return x_1;
 }
 }
@@ -3079,7 +3079,7 @@ static lean_object* _init_l_Lake_LeanLibConfig_toToml___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("globs", 5);
+x_1 = lean_mk_string_unchecked("globs", 5, 5);
 return x_1;
 }
 }
@@ -3097,7 +3097,7 @@ static lean_object* _init_l_Lake_LeanLibConfig_toToml___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("roots", 5);
+x_1 = lean_mk_string_unchecked("roots", 5, 5);
 return x_1;
 }
 }
@@ -3633,7 +3633,7 @@ static lean_object* _init_l_Lake_LeanExeConfig_toToml___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("supportInterpreter", 18);
+x_1 = lean_mk_string_unchecked("supportInterpreter", 18, 18);
 return x_1;
 }
 }
@@ -3651,7 +3651,7 @@ static lean_object* _init_l_Lake_LeanExeConfig_toToml___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("exeName", 7);
+x_1 = lean_mk_string_unchecked("exeName", 7, 7);
 return x_1;
 }
 }
@@ -3669,7 +3669,7 @@ static lean_object* _init_l_Lake_LeanExeConfig_toToml___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("root", 4);
+x_1 = lean_mk_string_unchecked("root", 4, 4);
 return x_1;
 }
 }
@@ -4003,7 +4003,7 @@ static lean_object* _init_l_Lake_Dependency_toToml___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("options", 7);
+x_1 = lean_mk_string_unchecked("options", 7, 7);
 return x_1;
 }
 }
@@ -4021,7 +4021,7 @@ static lean_object* _init_l_Lake_Dependency_toToml___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("path", 4);
+x_1 = lean_mk_string_unchecked("path", 4, 4);
 return x_1;
 }
 }
@@ -4039,7 +4039,7 @@ static lean_object* _init_l_Lake_Dependency_toToml___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("subDir", 6);
+x_1 = lean_mk_string_unchecked("subDir", 6, 6);
 return x_1;
 }
 }
@@ -4057,7 +4057,7 @@ static lean_object* _init_l_Lake_Dependency_toToml___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rev", 3);
+x_1 = lean_mk_string_unchecked("rev", 3, 3);
 return x_1;
 }
 }
@@ -4075,7 +4075,7 @@ static lean_object* _init_l_Lake_Dependency_toToml___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("git", 3);
+x_1 = lean_mk_string_unchecked("git", 3, 3);
 return x_1;
 }
 }
@@ -4334,7 +4334,7 @@ static lean_object* _init_l_Lake_Package_mkTomlConfig___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lean_exe", 8);
+x_1 = lean_mk_string_unchecked("lean_exe", 8, 8);
 return x_1;
 }
 }
@@ -4352,7 +4352,7 @@ static lean_object* _init_l_Lake_Package_mkTomlConfig___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lean_lib", 8);
+x_1 = lean_mk_string_unchecked("lean_lib", 8, 8);
 return x_1;
 }
 }
@@ -4370,7 +4370,7 @@ static lean_object* _init_l_Lake_Package_mkTomlConfig___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("require", 7);
+x_1 = lean_mk_string_unchecked("require", 7, 7);
 return x_1;
 }
 }
@@ -4388,7 +4388,7 @@ static lean_object* _init_l_Lake_Package_mkTomlConfig___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("defaultTargets", 14);
+x_1 = lean_mk_string_unchecked("defaultTargets", 14, 14);
 return x_1;
 }
 }
@@ -4406,7 +4406,7 @@ static lean_object* _init_l_Lake_Package_mkTomlConfig___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lintDriverArgs", 14);
+x_1 = lean_mk_string_unchecked("lintDriverArgs", 14, 14);
 return x_1;
 }
 }
@@ -4424,7 +4424,7 @@ static lean_object* _init_l_Lake_Package_mkTomlConfig___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lintDriver", 10);
+x_1 = lean_mk_string_unchecked("lintDriver", 10, 10);
 return x_1;
 }
 }
@@ -4442,7 +4442,7 @@ static lean_object* _init_l_Lake_Package_mkTomlConfig___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("testDriverArgs", 14);
+x_1 = lean_mk_string_unchecked("testDriverArgs", 14, 14);
 return x_1;
 }
 }
@@ -4460,7 +4460,7 @@ static lean_object* _init_l_Lake_Package_mkTomlConfig___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("testDriver", 10);
+x_1 = lean_mk_string_unchecked("testDriver", 10, 10);
 return x_1;
 }
 }

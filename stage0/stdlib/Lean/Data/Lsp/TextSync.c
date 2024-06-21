@@ -318,7 +318,7 @@ static lean_object* _init_l_Lean_Lsp_instFromJsonTextDocumentSyncKind___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown TextDocumentSyncKind", 28);
+x_1 = lean_mk_string_unchecked("unknown TextDocumentSyncKind", 28, 28);
 return x_1;
 }
 }
@@ -523,7 +523,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_toJsonD
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("textDocument", 12);
+x_1 = lean_mk_string_unchecked("textDocument", 12, 12);
 return x_1;
 }
 }
@@ -577,7 +577,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -585,7 +585,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lsp", 3);
+x_1 = lean_mk_string_unchecked("Lsp", 3, 3);
 return x_1;
 }
 }
@@ -593,7 +593,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("DidOpenTextDocumentParams", 25);
+x_1 = lean_mk_string_unchecked("DidOpenTextDocumentParams", 25, 25);
 return x_1;
 }
 }
@@ -622,7 +622,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -670,7 +670,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -839,7 +839,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("documentSelector", 16);
+x_1 = lean_mk_string_unchecked("documentSelector", 16, 16);
 return x_1;
 }
 }
@@ -847,7 +847,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("TextDocumentChangeRegistrationOptions", 37);
+x_1 = lean_mk_string_unchecked("TextDocumentChangeRegistrationOptions", 37, 37);
 return x_1;
 }
 }
@@ -886,7 +886,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("documentSelector\?", 17);
+x_1 = lean_mk_string_unchecked("documentSelector\?", 17, 17);
 return x_1;
 }
 }
@@ -934,7 +934,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("syncKind", 8);
+x_1 = lean_mk_string_unchecked("syncKind", 8, 8);
 return x_1;
 }
 }
@@ -1115,7 +1115,7 @@ static lean_object* _init_l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("range", 5);
+x_1 = lean_mk_string_unchecked("range", 5, 5);
 return x_1;
 }
 }
@@ -1123,7 +1123,7 @@ static lean_object* _init_l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("text", 4);
+x_1 = lean_mk_string_unchecked("text", 4, 4);
 return x_1;
 }
 }
@@ -1539,7 +1539,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_toJsonD
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("contentChanges", 14);
+x_1 = lean_mk_string_unchecked("contentChanges", 14, 14);
 return x_1;
 }
 }
@@ -1780,7 +1780,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected JSON array, got '", 26);
+x_1 = lean_mk_string_unchecked("expected JSON array, got '", 26, 26);
 return x_1;
 }
 }
@@ -1788,7 +1788,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -1881,7 +1881,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("DidChangeTextDocumentParams", 27);
+x_1 = lean_mk_string_unchecked("DidChangeTextDocumentParams", 27, 27);
 return x_1;
 }
 }
@@ -2168,7 +2168,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("DidSaveTextDocumentParams", 25);
+x_1 = lean_mk_string_unchecked("DidSaveTextDocumentParams", 25, 25);
 return x_1;
 }
 }
@@ -2227,7 +2227,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("text\?", 5);
+x_1 = lean_mk_string_unchecked("text\?", 5, 5);
 return x_1;
 }
 }
@@ -2395,7 +2395,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_toJsonS
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("includeText", 11);
+x_1 = lean_mk_string_unchecked("includeText", 11, 11);
 return x_1;
 }
 }
@@ -2451,7 +2451,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("SaveOptions", 11);
+x_1 = lean_mk_string_unchecked("SaveOptions", 11, 11);
 return x_1;
 }
 }
@@ -2638,7 +2638,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("DidCloseTextDocumentParams", 26);
+x_1 = lean_mk_string_unchecked("DidCloseTextDocumentParams", 26, 26);
 return x_1;
 }
 }
@@ -2798,7 +2798,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_toJsonT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("openClose", 9);
+x_1 = lean_mk_string_unchecked("openClose", 9, 9);
 return x_1;
 }
 }
@@ -2806,7 +2806,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_toJsonT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("willSave", 8);
+x_1 = lean_mk_string_unchecked("willSave", 8, 8);
 return x_1;
 }
 }
@@ -2814,7 +2814,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_toJsonT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("willSaveWaitUntil", 17);
+x_1 = lean_mk_string_unchecked("willSaveWaitUntil", 17, 17);
 return x_1;
 }
 }
@@ -2822,7 +2822,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_toJsonT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("save", 4);
+x_1 = lean_mk_string_unchecked("save", 4, 4);
 return x_1;
 }
 }
@@ -2830,7 +2830,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_toJsonT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("change", 6);
+x_1 = lean_mk_string_unchecked("change", 6, 6);
 return x_1;
 }
 }
@@ -3202,7 +3202,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("TextDocumentSyncOptions", 23);
+x_1 = lean_mk_string_unchecked("TextDocumentSyncOptions", 23, 23);
 return x_1;
 }
 }
@@ -3401,7 +3401,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("save\?", 5);
+x_1 = lean_mk_string_unchecked("save\?", 5, 5);
 return x_1;
 }
 }

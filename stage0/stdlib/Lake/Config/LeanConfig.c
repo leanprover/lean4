@@ -372,7 +372,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprBuildTy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.BuildType.debug", 20);
+x_1 = lean_mk_string_unchecked("Lake.BuildType.debug", 20, 20);
 return x_1;
 }
 }
@@ -456,7 +456,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprBuildTy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.BuildType.relWithDebInfo", 29);
+x_1 = lean_mk_string_unchecked("Lake.BuildType.relWithDebInfo", 29, 29);
 return x_1;
 }
 }
@@ -522,7 +522,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprBuildTy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.BuildType.minSizeRel", 25);
+x_1 = lean_mk_string_unchecked("Lake.BuildType.minSizeRel", 25, 25);
 return x_1;
 }
 }
@@ -588,7 +588,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprBuildTy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.BuildType.release", 22);
+x_1 = lean_mk_string_unchecked("Lake.BuildType.release", 22, 22);
 return x_1;
 }
 }
@@ -1111,7 +1111,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprBackend
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.Backend.c", 14);
+x_1 = lean_mk_string_unchecked("Lake.Backend.c", 14, 14);
 return x_1;
 }
 }
@@ -1177,7 +1177,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprBackend
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.Backend.llvm", 17);
+x_1 = lean_mk_string_unchecked("Lake.Backend.llvm", 17, 17);
 return x_1;
 }
 }
@@ -1243,7 +1243,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprBackend
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.Backend.default", 20);
+x_1 = lean_mk_string_unchecked("Lake.Backend.default", 20, 20);
 return x_1;
 }
 }
@@ -1477,7 +1477,7 @@ static lean_object* _init_l_Lake_Backend_ofString_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("c", 1);
+x_1 = lean_mk_string_unchecked("c", 1, 1);
 return x_1;
 }
 }
@@ -1485,7 +1485,7 @@ static lean_object* _init_l_Lake_Backend_ofString_x3f___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("llvm", 4);
+x_1 = lean_mk_string_unchecked("llvm", 4, 4);
 return x_1;
 }
 }
@@ -1493,7 +1493,7 @@ static lean_object* _init_l_Lake_Backend_ofString_x3f___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("default", 7);
+x_1 = lean_mk_string_unchecked("default", 7, 7);
 return x_1;
 }
 }
@@ -1676,7 +1676,7 @@ static lean_object* _init_l_Lake_BuildType_leancArgs___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-Og", 3);
+x_1 = lean_mk_string_unchecked("-Og", 3, 3);
 return x_1;
 }
 }
@@ -1694,7 +1694,7 @@ static lean_object* _init_l_Lake_BuildType_leancArgs___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-g", 2);
+x_1 = lean_mk_string_unchecked("-g", 2, 2);
 return x_1;
 }
 }
@@ -1721,7 +1721,7 @@ static lean_object* _init_l_Lake_BuildType_leancArgs___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-O3", 3);
+x_1 = lean_mk_string_unchecked("-O3", 3, 3);
 return x_1;
 }
 }
@@ -1749,7 +1749,7 @@ static lean_object* _init_l_Lake_BuildType_leancArgs___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-DNDEBUG", 8);
+x_1 = lean_mk_string_unchecked("-DNDEBUG", 8, 8);
 return x_1;
 }
 }
@@ -1767,7 +1767,7 @@ static lean_object* _init_l_Lake_BuildType_leancArgs___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-Os", 3);
+x_1 = lean_mk_string_unchecked("-Os", 3, 3);
 return x_1;
 }
 }
@@ -1856,7 +1856,7 @@ static lean_object* _init_l_Lake_BuildType_ofString_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("debug", 5);
+x_1 = lean_mk_string_unchecked("debug", 5, 5);
 return x_1;
 }
 }
@@ -1864,7 +1864,7 @@ static lean_object* _init_l_Lake_BuildType_ofString_x3f___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("relWithDebInfo", 14);
+x_1 = lean_mk_string_unchecked("relWithDebInfo", 14, 14);
 return x_1;
 }
 }
@@ -1872,7 +1872,7 @@ static lean_object* _init_l_Lake_BuildType_ofString_x3f___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("minSizeRel", 10);
+x_1 = lean_mk_string_unchecked("minSizeRel", 10, 10);
 return x_1;
 }
 }
@@ -1880,7 +1880,7 @@ static lean_object* _init_l_Lake_BuildType_ofString_x3f___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("release", 7);
+x_1 = lean_mk_string_unchecked("release", 7, 7);
 return x_1;
 }
 }
@@ -2054,7 +2054,7 @@ static lean_object* _init_l_Lake_instInhabitedLeanOption___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -2092,7 +2092,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprLeanOpt
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("name", 4);
+x_1 = lean_mk_string_unchecked("name", 4, 4);
 return x_1;
 }
 }
@@ -2122,7 +2122,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprLeanOpt
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" := ", 4);
+x_1 = lean_mk_string_unchecked(" := ", 4, 4);
 return x_1;
 }
 }
@@ -2161,7 +2161,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprLeanOpt
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -2179,7 +2179,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprLeanOpt
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("value", 5);
+x_1 = lean_mk_string_unchecked("value", 5, 5);
 return x_1;
 }
 }
@@ -2206,7 +2206,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprLeanOpt
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("{ ", 2);
+x_1 = lean_mk_string_unchecked("{ ", 2, 2);
 return x_1;
 }
 }
@@ -2242,7 +2242,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprLeanOpt
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" }", 2);
+x_1 = lean_mk_string_unchecked(" }", 2, 2);
 return x_1;
 }
 }
@@ -2353,7 +2353,7 @@ static lean_object* _init_l_Lake_LeanOption_asCliArg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-D", 2);
+x_1 = lean_mk_string_unchecked("-D", 2, 2);
 return x_1;
 }
 }
@@ -2361,7 +2361,7 @@ static lean_object* _init_l_Lake_LeanOption_asCliArg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("=", 1);
+x_1 = lean_mk_string_unchecked("=", 1, 1);
 return x_1;
 }
 }
@@ -2530,7 +2530,7 @@ static lean_object* _init_l_Option_repr___at___private_Lake_Config_LeanConfig_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("none", 4);
+x_1 = lean_mk_string_unchecked("none", 4, 4);
 return x_1;
 }
 }
@@ -2548,7 +2548,7 @@ static lean_object* _init_l_Option_repr___at___private_Lake_Config_LeanConfig_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("some ", 5);
+x_1 = lean_mk_string_unchecked("some ", 5, 5);
 return x_1;
 }
 }
@@ -2566,7 +2566,7 @@ static lean_object* _init_l_Option_repr___at___private_Lake_Config_LeanConfig_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("false", 5);
+x_1 = lean_mk_string_unchecked("false", 5, 5);
 return x_1;
 }
 }
@@ -2596,7 +2596,7 @@ static lean_object* _init_l_Option_repr___at___private_Lake_Config_LeanConfig_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("true", 4);
+x_1 = lean_mk_string_unchecked("true", 4, 4);
 return x_1;
 }
 }
@@ -2751,7 +2751,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprLeanCon
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("buildType", 9);
+x_1 = lean_mk_string_unchecked("buildType", 9, 9);
 return x_1;
 }
 }
@@ -2802,7 +2802,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprLeanCon
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("leanOptions", 11);
+x_1 = lean_mk_string_unchecked("leanOptions", 11, 11);
 return x_1;
 }
 }
@@ -2829,7 +2829,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprLeanCon
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("moreLeanArgs", 12);
+x_1 = lean_mk_string_unchecked("moreLeanArgs", 12, 12);
 return x_1;
 }
 }
@@ -2856,7 +2856,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprLeanCon
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("weakLeanArgs", 12);
+x_1 = lean_mk_string_unchecked("weakLeanArgs", 12, 12);
 return x_1;
 }
 }
@@ -2874,7 +2874,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprLeanCon
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("moreLeancArgs", 13);
+x_1 = lean_mk_string_unchecked("moreLeancArgs", 13, 13);
 return x_1;
 }
 }
@@ -2901,7 +2901,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprLeanCon
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("moreServerOptions", 17);
+x_1 = lean_mk_string_unchecked("moreServerOptions", 17, 17);
 return x_1;
 }
 }
@@ -2928,7 +2928,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprLeanCon
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("weakLeancArgs", 13);
+x_1 = lean_mk_string_unchecked("weakLeancArgs", 13, 13);
 return x_1;
 }
 }
@@ -2946,7 +2946,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprLeanCon
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("moreLinkArgs", 12);
+x_1 = lean_mk_string_unchecked("moreLinkArgs", 12, 12);
 return x_1;
 }
 }
@@ -2964,7 +2964,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprLeanCon
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("weakLinkArgs", 12);
+x_1 = lean_mk_string_unchecked("weakLinkArgs", 12, 12);
 return x_1;
 }
 }
@@ -2982,7 +2982,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprLeanCon
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("backend", 7);
+x_1 = lean_mk_string_unchecked("backend", 7, 7);
 return x_1;
 }
 }
@@ -3009,7 +3009,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprLeanCon
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("platformIndependent", 19);
+x_1 = lean_mk_string_unchecked("platformIndependent", 19, 19);
 return x_1;
 }
 }
@@ -3048,7 +3048,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprLeanCon
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#[", 2);
+x_1 = lean_mk_string_unchecked("#[", 2, 2);
 return x_1;
 }
 }
@@ -3084,7 +3084,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprLeanCon
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -3102,7 +3102,7 @@ static lean_object* _init_l___private_Lake_Config_LeanConfig_0__Lake_reprLeanCon
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#[]", 3);
+x_1 = lean_mk_string_unchecked("#[]", 3, 3);
 return x_1;
 }
 }

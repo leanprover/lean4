@@ -1203,7 +1203,7 @@ static lean_object* _init_l_Lake_DRBMap_instReprOfSigma___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.drbmapOf ", 14);
+x_1 = lean_mk_string_unchecked("Lake.drbmapOf ", 14, 14);
 return x_1;
 }
 }
@@ -1705,7 +1705,7 @@ static lean_object* _init_l_Lake_DRBMap_min_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.Util.DRBMap", 16);
+x_1 = lean_mk_string_unchecked("Lake.Util.DRBMap", 16, 16);
 return x_1;
 }
 }
@@ -1713,7 +1713,7 @@ static lean_object* _init_l_Lake_DRBMap_min_x21___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.DRBMap.min!", 16);
+x_1 = lean_mk_string_unchecked("Lake.DRBMap.min!", 16, 16);
 return x_1;
 }
 }
@@ -1721,7 +1721,7 @@ static lean_object* _init_l_Lake_DRBMap_min_x21___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("map is empty", 12);
+x_1 = lean_mk_string_unchecked("map is empty", 12, 12);
 return x_1;
 }
 }
@@ -1808,7 +1808,7 @@ static lean_object* _init_l_Lake_DRBMap_max_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.DRBMap.max!", 16);
+x_1 = lean_mk_string_unchecked("Lake.DRBMap.max!", 16, 16);
 return x_1;
 }
 }
@@ -1895,7 +1895,7 @@ static lean_object* _init_l_Lake_DRBMap_find_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.DRBMap.find!", 17);
+x_1 = lean_mk_string_unchecked("Lake.DRBMap.find!", 17, 17);
 return x_1;
 }
 }
@@ -1903,7 +1903,7 @@ static lean_object* _init_l_Lake_DRBMap_find_x21___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("key is not in the map", 21);
+x_1 = lean_mk_string_unchecked("key is not in the map", 21, 21);
 return x_1;
 }
 }

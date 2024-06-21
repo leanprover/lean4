@@ -454,7 +454,7 @@ static lean_object* _init_l_initFn____x40_Lean_Elab_GuardMsgs___hyg_7____closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("guard_msgs", 10);
+x_1 = lean_mk_string_unchecked("guard_msgs", 10, 10);
 return x_1;
 }
 }
@@ -462,7 +462,7 @@ static lean_object* _init_l_initFn____x40_Lean_Elab_GuardMsgs___hyg_7____closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("diff", 4);
+x_1 = lean_mk_string_unchecked("diff", 4, 4);
 return x_1;
 }
 }
@@ -480,7 +480,7 @@ static lean_object* _init_l_initFn____x40_Lean_Elab_GuardMsgs___hyg_7____closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -488,7 +488,7 @@ static lean_object* _init_l_initFn____x40_Lean_Elab_GuardMsgs___hyg_7____closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("When true, show a diff between expected and actual messages if they don't match. ", 81);
+x_1 = lean_mk_string_unchecked("When true, show a diff between expected and actual messages if they don't match. ", 81, 81);
 return x_1;
 }
 }
@@ -539,7 +539,7 @@ static lean_object* _init_l___private_Lean_Elab_GuardMsgs_0__Lean_Elab_Tactic_Gu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -595,7 +595,7 @@ static lean_object* _init_l___private_Lean_Elab_GuardMsgs_0__Lean_Elab_Tactic_Gu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("info:", 5);
+x_1 = lean_mk_string_unchecked("info:", 5, 5);
 return x_1;
 }
 }
@@ -603,7 +603,7 @@ static lean_object* _init_l___private_Lean_Elab_GuardMsgs_0__Lean_Elab_Tactic_Gu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("warning:", 8);
+x_1 = lean_mk_string_unchecked("warning:", 8, 8);
 return x_1;
 }
 }
@@ -611,7 +611,7 @@ static lean_object* _init_l___private_Lean_Elab_GuardMsgs_0__Lean_Elab_Tactic_Gu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("error:", 6);
+x_1 = lean_mk_string_unchecked("error:", 6, 6);
 return x_1;
 }
 }
@@ -656,7 +656,7 @@ static lean_object* _init_l___private_Lean_Elab_GuardMsgs_0__Lean_Elab_Tactic_Gu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -689,7 +689,7 @@ static lean_object* _init_l___private_Lean_Elab_GuardMsgs_0__Lean_Elab_Tactic_Gu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":\n", 2);
+x_1 = lean_mk_string_unchecked(":\n", 2, 2);
 return x_1;
 }
 }
@@ -1294,7 +1294,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_GuardMs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1302,7 +1302,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_GuardMs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("guardMsgsFilterSeverity", 23);
+x_1 = lean_mk_string_unchecked("guardMsgsFilterSeverity", 23, 23);
 return x_1;
 }
 }
@@ -1320,7 +1320,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_GuardMs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("token", 5);
+x_1 = lean_mk_string_unchecked("token", 5, 5);
 return x_1;
 }
 }
@@ -1328,7 +1328,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_GuardMs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("info", 4);
+x_1 = lean_mk_string_unchecked("info", 4, 4);
 return x_1;
 }
 }
@@ -1346,7 +1346,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_GuardMs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("warning", 7);
+x_1 = lean_mk_string_unchecked("warning", 7, 7);
 return x_1;
 }
 }
@@ -1364,7 +1364,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_GuardMs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("error", 5);
+x_1 = lean_mk_string_unchecked("error", 5, 5);
 return x_1;
 }
 }
@@ -1382,7 +1382,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_GuardMs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("all", 3);
+x_1 = lean_mk_string_unchecked("all", 3, 3);
 return x_1;
 }
 }
@@ -1729,7 +1729,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_GuardMs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("guardMsgsSpecElt", 16);
+x_1 = lean_mk_string_unchecked("guardMsgsSpecElt", 16, 16);
 return x_1;
 }
 }
@@ -1747,7 +1747,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_GuardMs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("guardMsgsFilter", 15);
+x_1 = lean_mk_string_unchecked("guardMsgsFilter", 15, 15);
 return x_1;
 }
 }
@@ -1765,7 +1765,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_GuardMs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("guardMsgsWhitespace", 19);
+x_1 = lean_mk_string_unchecked("guardMsgsWhitespace", 19, 19);
 return x_1;
 }
 }
@@ -1783,7 +1783,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_GuardMs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("guardMsgsOrdering", 17);
+x_1 = lean_mk_string_unchecked("guardMsgsOrdering", 17, 17);
 return x_1;
 }
 }
@@ -1801,7 +1801,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_GuardMs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("guardMsgsOrderingArg", 20);
+x_1 = lean_mk_string_unchecked("guardMsgsOrderingArg", 20, 20);
 return x_1;
 }
 }
@@ -1819,7 +1819,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_GuardMs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("exact", 5);
+x_1 = lean_mk_string_unchecked("exact", 5, 5);
 return x_1;
 }
 }
@@ -1837,7 +1837,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_GuardMs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sorted", 6);
+x_1 = lean_mk_string_unchecked("sorted", 6, 6);
 return x_1;
 }
 }
@@ -1855,7 +1855,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_GuardMs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("guardMsgsWhitespaceArg", 22);
+x_1 = lean_mk_string_unchecked("guardMsgsWhitespaceArg", 22, 22);
 return x_1;
 }
 }
@@ -1873,7 +1873,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_GuardMs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("normalized", 10);
+x_1 = lean_mk_string_unchecked("normalized", 10, 10);
 return x_1;
 }
 }
@@ -1891,7 +1891,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_GuardMs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lax", 3);
+x_1 = lean_mk_string_unchecked("lax", 3, 3);
 return x_1;
 }
 }
@@ -3891,7 +3891,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_parseGuardMsgsSpec___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("guardMsgsSpec", 13);
+x_1 = lean_mk_string_unchecked("guardMsgsSpec", 13, 13);
 return x_1;
 }
 }
@@ -4229,7 +4229,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_instImpl____x40_Lean_Elab
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -4237,7 +4237,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_instImpl____x40_Lean_Elab
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -4245,7 +4245,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_instImpl____x40_Lean_Elab
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("GuardMsgs", 9);
+x_1 = lean_mk_string_unchecked("GuardMsgs", 9, 9);
 return x_1;
 }
 }
@@ -4253,7 +4253,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_instImpl____x40_Lean_Elab
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("GuardMsgFailure", 15);
+x_1 = lean_mk_string_unchecked("GuardMsgFailure", 15, 15);
 return x_1;
 }
 }
@@ -4290,7 +4290,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_revealTrailingWhitespace_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⏎\n", 4);
+x_1 = lean_mk_string_unchecked("⏎\n", 4, 2);
 return x_1;
 }
 }
@@ -4298,7 +4298,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_revealTrailingWhitespace_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⏎⏎\n", 7);
+x_1 = lean_mk_string_unchecked("⏎⏎\n", 7, 3);
 return x_1;
 }
 }
@@ -4306,7 +4306,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_revealTrailingWhitespace_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\t\n", 2);
+x_1 = lean_mk_string_unchecked("\t\n", 2, 2);
 return x_1;
 }
 }
@@ -4314,7 +4314,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_revealTrailingWhitespace_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\t⏎\n", 5);
+x_1 = lean_mk_string_unchecked("\t⏎\n", 5, 3);
 return x_1;
 }
 }
@@ -4322,7 +4322,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_revealTrailingWhitespace_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" \n", 2);
+x_1 = lean_mk_string_unchecked(" \n", 2, 2);
 return x_1;
 }
 }
@@ -4330,7 +4330,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_revealTrailingWhitespace_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ⏎\n", 5);
+x_1 = lean_mk_string_unchecked(" ⏎\n", 5, 3);
 return x_1;
 }
 }
@@ -8606,7 +8606,7 @@ static lean_object* _init_l_Lean_getDocStringText___at_Lean_Elab_Tactic_GuardMsg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected doc string", 21);
+x_1 = lean_mk_string_unchecked("unexpected doc string", 21, 21);
 return x_1;
 }
 }
@@ -8759,7 +8759,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("---\n", 4);
+x_1 = lean_mk_string_unchecked("---\n", 4, 4);
 return x_1;
 }
 }
@@ -8767,7 +8767,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("❌ Docstring on `#guard_msgs` does not match generated message:\n\n", 66);
+x_1 = lean_mk_string_unchecked("❌ Docstring on `#guard_msgs` does not match generated message:\n\n", 66, 64);
 return x_1;
 }
 }
@@ -10903,7 +10903,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("guardMsgsCmd", 12);
+x_1 = lean_mk_string_unchecked("guardMsgsCmd", 12, 12);
 return x_1;
 }
 }
@@ -10921,7 +10921,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -10929,7 +10929,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___closed__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Command", 7);
+x_1 = lean_mk_string_unchecked("Command", 7, 7);
 return x_1;
 }
 }
@@ -10937,7 +10937,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___closed__5
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("docComment", 10);
+x_1 = lean_mk_string_unchecked("docComment", 10, 10);
 return x_1;
 }
 }
@@ -11635,7 +11635,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_GuardMsgs_elabGuardMsg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elabGuardMsgs", 13);
+x_1 = lean_mk_string_unchecked("elabGuardMsgs", 13, 13);
 return x_1;
 }
 }
@@ -12628,7 +12628,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_guardMsgsCodeAction___rar
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("quickfix", 8);
+x_1 = lean_mk_string_unchecked("quickfix", 8, 8);
 return x_1;
 }
 }
@@ -12657,7 +12657,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_guardMsgsCodeAction___rar
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Update #guard_msgs with tactic output", 37);
+x_1 = lean_mk_string_unchecked("Update #guard_msgs with tactic output", 37, 37);
 return x_1;
 }
 }
@@ -12729,7 +12729,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_guardMsgsCodeAction___rar
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -12771,7 +12771,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_guardMsgsCodeAction___rar
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("/--\n", 4);
+x_1 = lean_mk_string_unchecked("/--\n", 4, 4);
 return x_1;
 }
 }
@@ -12779,7 +12779,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_guardMsgsCodeAction___rar
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n-/\n", 4);
+x_1 = lean_mk_string_unchecked("\n-/\n", 4, 4);
 return x_1;
 }
 }
@@ -12787,7 +12787,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_guardMsgsCodeAction___rar
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("/-- ", 4);
+x_1 = lean_mk_string_unchecked("/-- ", 4, 4);
 return x_1;
 }
 }
@@ -12795,7 +12795,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_guardMsgsCodeAction___rar
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" -/\n", 4);
+x_1 = lean_mk_string_unchecked(" -/\n", 4, 4);
 return x_1;
 }
 }

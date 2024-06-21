@@ -750,7 +750,7 @@ theorem mem_of_mem_filter {a : α} {l} (h : a ∈ filter p l) : a ∈ l :=
   exact this #[]
   induction l
   · simp_all [Id.run]
-  · simp_all [Id.run]
+  · simp_all [Id.run, List.filterMap_cons]
     split <;> simp_all
 
 @[simp] theorem mem_filterMap (f : α → Option β) (l : Array α) {b : β} :

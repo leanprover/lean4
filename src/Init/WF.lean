@@ -37,7 +37,7 @@ noncomputable abbrev Acc.ndrecOn.{u1, u2} {α : Sort u2} {r : α → α → Prop
 namespace Acc
 variable {α : Sort u} {r : α → α → Prop}
 
-def inv {x y : α} (h₁ : Acc r x) (h₂ : r y x) : Acc r y :=
+theorem inv {x y : α} (h₁ : Acc r x) (h₂ : r y x) : Acc r y :=
   h₁.recOn (fun _ ac₁ _ h₂ => ac₁ y h₂) h₂
 
 end Acc
@@ -58,7 +58,7 @@ class WellFoundedRelation (α : Sort u) where
   wf  : WellFounded rel
 
 namespace WellFounded
-def apply {α : Sort u} {r : α → α → Prop} (wf : WellFounded r) (a : α) : Acc r a :=
+theorem apply {α : Sort u} {r : α → α → Prop} (wf : WellFounded r) (a : α) : Acc r a :=
   wf.rec (fun p => p) a
 
 section
@@ -78,7 +78,7 @@ noncomputable def fixF (x : α) (a : Acc r x) : C x := by
   induction a with
   | intro x₁ _ ih => exact F x₁ ih
 
-def fixFEq (x : α) (acx : Acc r x) : fixF F x acx = F x (fun (y : α) (p : r y x) => fixF F y (Acc.inv acx p)) := by
+theorem fixFEq (x : α) (acx : Acc r x) : fixF F x acx = F x (fun (y : α) (p : r y x) => fixF F y (Acc.inv acx p)) := by
   induction acx with
   | intro x r _ => exact rfl
 
@@ -112,14 +112,14 @@ def emptyWf {α : Sort u} : WellFoundedRelation α where
 namespace Subrelation
 variable {α : Sort u} {r q : α → α → Prop}
 
-def accessible {a : α} (h₁ : Subrelation q r) (ac : Acc r a) : Acc q a := by
+theorem accessible {a : α} (h₁ : Subrelation q r) (ac : Acc r a) : Acc q a := by
   induction ac with
   | intro x _ ih =>
     apply Acc.intro
     intro y h
     exact ih y (h₁ h)
 
-def wf (h₁ : Subrelation q r) (h₂ : WellFounded r) : WellFounded q :=
+theorem wf (h₁ : Subrelation q r) (h₂ : WellFounded r) : WellFounded q :=
   ⟨fun a => accessible @h₁ (apply h₂ a)⟩
 end Subrelation
 
@@ -136,10 +136,10 @@ private def accAux (f : α → β) {b : β} (ac : Acc r b) : (x : α) → f x = 
     subst x
     apply ih (f y) lt y rfl
 
-def accessible {a : α} (f : α → β) (ac : Acc r (f a)) : Acc (InvImage r f) a :=
+theorem accessible {a : α} (f : α → β) (ac : Acc r (f a)) : Acc (InvImage r f) a :=
   accAux f ac a rfl
 
-def wf (f : α → β) (h : WellFounded r) : WellFounded (InvImage r f) :=
+theorem wf (f : α → β) (h : WellFounded r) : WellFounded (InvImage r f) :=
   ⟨fun a => accessible f (apply h (f a))⟩
 end InvImage
 
@@ -151,7 +151,7 @@ end InvImage
 namespace TC
 variable {α : Sort u} {r : α → α → Prop}
 
-def accessible {z : α} (ac : Acc r z) : Acc (TC r) z := by
+theorem accessible {z : α} (ac : Acc r z) : Acc (TC r) z := by
   induction ac with
   | intro x acx ih =>
     apply Acc.intro x
@@ -160,7 +160,7 @@ def accessible {z : α} (ac : Acc r z) : Acc (TC r) z := by
     | base a b rab => exact ih a rab
     | trans a b c rab _ _ ih₂ => apply Acc.inv (ih₂ acx ih) rab
 
-def wf (h : WellFounded r) : WellFounded (TC r) :=
+theorem wf (h : WellFounded r) : WellFounded (TC r) :=
   ⟨fun a => accessible (apply h a)⟩
 end TC
 
@@ -251,7 +251,7 @@ instance [αeqDec : DecidableEq α] {r : α → α → Prop} [rDec : DecidableRe
         apply isFalse; intro contra; cases contra <;> contradiction
 
 -- TODO: generalize
-def right' {a₁ : Nat} {b₁ : β} (h₁ : a₁ ≤ a₂) (h₂ : rb b₁ b₂) : Prod.Lex Nat.lt rb (a₁, b₁) (a₂, b₂) :=
+theorem right' {a₁ : Nat} {b₁ : β} (h₁ : a₁ ≤ a₂) (h₂ : rb b₁ b₂) : Prod.Lex Nat.lt rb (a₁, b₁) (a₂, b₂) :=
   match Nat.eq_or_lt_of_le h₁ with
   | Or.inl h => h ▸ Prod.Lex.right a₁ h₂
   | Or.inr h => Prod.Lex.left b₁ _ h
@@ -268,7 +268,7 @@ section
 variable {α : Type u} {β : Type v}
 variable {ra  : α → α → Prop} {rb  : β → β → Prop}
 
-def lexAccessible {a : α} (aca : Acc ra a) (acb : (b : β) → Acc rb b) (b : β) : Acc (Prod.Lex ra rb) (a, b) := by
+theorem lexAccessible {a : α} (aca : Acc ra a) (acb : (b : β) → Acc rb b) (b : β) : Acc (Prod.Lex ra rb) (a, b) := by
   induction aca generalizing b with
   | intro xa _ iha =>
     induction (acb b) with
@@ -347,7 +347,7 @@ variable {α : Sort u} {β : Sort v}
 def lexNdep (r : α → α → Prop) (s : β → β → Prop) :=
   Lex r (fun _ => s)
 
-def lexNdepWf {r  : α → α → Prop} {s : β → β → Prop} (ha : WellFounded r) (hb : WellFounded s) : WellFounded (lexNdep r s) :=
+theorem lexNdepWf {r  : α → α → Prop} {s : β → β → Prop} (ha : WellFounded r) (hb : WellFounded s) : WellFounded (lexNdep r s) :=
   WellFounded.intro fun ⟨a, b⟩ => lexAccessible (WellFounded.apply ha a) (fun _ => hb) b
 end
 
@@ -365,7 +365,7 @@ open WellFounded
 variable {α : Sort u} {β : Sort v}
 variable {r  : α → α → Prop} {s : β → β → Prop}
 
-def revLexAccessible {b} (acb : Acc s b) (aca : (a : α) → Acc r a): (a : α) → Acc (RevLex r s) ⟨a, b⟩ := by
+theorem revLexAccessible {b} (acb : Acc s b) (aca : (a : α) → Acc r a): (a : α) → Acc (RevLex r s) ⟨a, b⟩ := by
   induction acb with
   | intro xb _ ihb =>
     intro a
@@ -377,7 +377,7 @@ def revLexAccessible {b} (acb : Acc s b) (aca : (a : α) → Acc r a): (a : α) 
       | left  => apply iha; assumption
       | right => apply ihb; assumption
 
-def revLex (ha : WellFounded r) (hb : WellFounded s) : WellFounded (RevLex r s) :=
+theorem revLex (ha : WellFounded r) (hb : WellFounded s) : WellFounded (RevLex r s) :=
   WellFounded.intro fun ⟨a, b⟩ => revLexAccessible (apply hb b) (WellFounded.apply ha) a
 end
 
@@ -389,7 +389,7 @@ def skipLeft (α : Type u) {β : Type v} (hb : WellFoundedRelation β) : WellFou
   rel := SkipLeft α hb.rel
   wf  := revLex emptyWf.wf hb.wf
 
-def mkSkipLeft {α : Type u} {β : Type v} {b₁ b₂ : β} {s : β → β → Prop} (a₁ a₂ : α) (h : s b₁ b₂) : SkipLeft α s ⟨a₁, b₁⟩ ⟨a₂, b₂⟩ :=
+theorem mkSkipLeft {α : Type u} {β : Type v} {b₁ b₂ : β} {s : β → β → Prop} (a₁ a₂ : α) (h : s b₁ b₂) : SkipLeft α s ⟨a₁, b₁⟩ ⟨a₂, b₂⟩ :=
   RevLex.right _ _ h
 end
 

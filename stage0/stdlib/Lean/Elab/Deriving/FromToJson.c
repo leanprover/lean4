@@ -545,7 +545,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkJsonField___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid json field name ", 24);
+x_1 = lean_mk_string_unchecked("invalid json field name ", 24, 24);
 return x_1;
 }
 }
@@ -562,7 +562,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkJsonField___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -782,7 +782,7 @@ static lean_object* _init_l_Lean_getConstInfoCtor___at_Lean_Elab_Deriving_FromTo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -799,7 +799,7 @@ static lean_object* _init_l_Lean_getConstInfoCtor___at_Lean_Elab_Deriving_FromTo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' is not a constructor", 22);
+x_1 = lean_mk_string_unchecked("' is not a constructor", 22, 22);
 return x_1;
 }
 }
@@ -908,7 +908,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -916,7 +916,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -924,7 +924,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -932,7 +932,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hole", 4);
+x_1 = lean_mk_string_unchecked("hole", 4, 4);
 return x_1;
 }
 }
@@ -952,7 +952,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_", 1);
+x_1 = lean_mk_string_unchecked("_", 1, 1);
 return x_1;
 }
 }
@@ -1049,7 +1049,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("a", 1);
+x_1 = lean_mk_string_unchecked("a", 1, 1);
 return x_1;
 }
 }
@@ -1303,7 +1303,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("app", 3);
+x_1 = lean_mk_string_unchecked("app", 3, 3);
 return x_1;
 }
 }
@@ -1323,7 +1323,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("explicit", 8);
+x_1 = lean_mk_string_unchecked("explicit", 8, 8);
 return x_1;
 }
 }
@@ -1343,7 +1343,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("@", 1);
+x_1 = lean_mk_string_unchecked("@", 1, 1);
 return x_1;
 }
 }
@@ -1351,7 +1351,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -1369,7 +1369,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("matchAlt", 8);
+x_1 = lean_mk_string_unchecked("matchAlt", 8, 8);
 return x_1;
 }
 }
@@ -1389,7 +1389,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("|", 1);
+x_1 = lean_mk_string_unchecked("|", 1, 1);
 return x_1;
 }
 }
@@ -1397,7 +1397,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -1417,7 +1417,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("=>", 2);
+x_1 = lean_mk_string_unchecked("=>", 2, 2);
 return x_1;
 }
 }
@@ -2765,7 +2765,7 @@ static lean_object* _init_l_Lean_getConstInfoInduct___at_Lean_Elab_Deriving_From
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' is not a inductive type", 25);
+x_1 = lean_mk_string_unchecked("' is not a inductive type", 25, 25);
 return x_1;
 }
 }
@@ -2874,7 +2874,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("toJson", 6);
+x_1 = lean_mk_string_unchecked("toJson", 6, 6);
 return x_1;
 }
 }
@@ -2901,7 +2901,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ToJson", 6);
+x_1 = lean_mk_string_unchecked("ToJson", 6, 6);
 return x_1;
 }
 }
@@ -3046,7 +3046,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Elab_Deriving_FromToJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tuple", 5);
+x_1 = lean_mk_string_unchecked("tuple", 5, 5);
 return x_1;
 }
 }
@@ -3066,7 +3066,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Elab_Deriving_FromToJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -3074,7 +3074,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Elab_Deriving_FromToJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -3642,7 +3642,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term[_]", 7);
+x_1 = lean_mk_string_unchecked("term[_]", 7, 7);
 return x_1;
 }
 }
@@ -3660,7 +3660,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -3668,7 +3668,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("proj", 4);
+x_1 = lean_mk_string_unchecked("proj", 4, 4);
 return x_1;
 }
 }
@@ -3688,7 +3688,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("paren", 5);
+x_1 = lean_mk_string_unchecked("paren", 5, 5);
 return x_1;
 }
 }
@@ -3708,7 +3708,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -3716,7 +3716,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -3724,7 +3724,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("opt", 3);
+x_1 = lean_mk_string_unchecked("opt", 3, 3);
 return x_1;
 }
 }
@@ -3751,7 +3751,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Json", 4);
+x_1 = lean_mk_string_unchecked("Json", 4, 4);
 return x_1;
 }
 }
@@ -4239,7 +4239,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mkObj", 5);
+x_1 = lean_mk_string_unchecked("mkObj", 5, 5);
 return x_1;
 }
 }
@@ -4323,7 +4323,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Json.arr", 8);
+x_1 = lean_mk_string_unchecked("Json.arr", 8, 8);
 return x_1;
 }
 }
@@ -4340,7 +4340,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("arr", 3);
+x_1 = lean_mk_string_unchecked("arr", 3, 3);
 return x_1;
 }
 }
@@ -4415,7 +4415,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term#[_,]", 9);
+x_1 = lean_mk_string_unchecked("term#[_,]", 9, 9);
 return x_1;
 }
 }
@@ -4433,7 +4433,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("#[", 2);
+x_1 = lean_mk_string_unchecked("#[", 2, 2);
 return x_1;
 }
 }
@@ -6107,7 +6107,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("match", 5);
+x_1 = lean_mk_string_unchecked("match", 5, 5);
 return x_1;
 }
 }
@@ -6127,7 +6127,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("with", 4);
+x_1 = lean_mk_string_unchecked("with", 4, 4);
 return x_1;
 }
 }
@@ -6135,7 +6135,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("matchAlts", 9);
+x_1 = lean_mk_string_unchecked("matchAlts", 9, 9);
 return x_1;
 }
 }
@@ -6155,7 +6155,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Command", 7);
+x_1 = lean_mk_string_unchecked("Command", 7, 7);
 return x_1;
 }
 }
@@ -6163,7 +6163,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declaration", 11);
+x_1 = lean_mk_string_unchecked("declaration", 11, 11);
 return x_1;
 }
 }
@@ -6183,7 +6183,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declModifiers", 13);
+x_1 = lean_mk_string_unchecked("declModifiers", 13, 13);
 return x_1;
 }
 }
@@ -6203,7 +6203,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("private", 7);
+x_1 = lean_mk_string_unchecked("private", 7, 7);
 return x_1;
 }
 }
@@ -6223,7 +6223,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("definition", 10);
+x_1 = lean_mk_string_unchecked("definition", 10, 10);
 return x_1;
 }
 }
@@ -6243,7 +6243,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("def", 3);
+x_1 = lean_mk_string_unchecked("def", 3, 3);
 return x_1;
 }
 }
@@ -6251,7 +6251,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declId", 6);
+x_1 = lean_mk_string_unchecked("declId", 6, 6);
 return x_1;
 }
 }
@@ -6271,7 +6271,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("optDeclSig", 10);
+x_1 = lean_mk_string_unchecked("optDeclSig", 10, 10);
 return x_1;
 }
 }
@@ -6291,7 +6291,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("typeSpec", 8);
+x_1 = lean_mk_string_unchecked("typeSpec", 8, 8);
 return x_1;
 }
 }
@@ -6311,7 +6311,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
@@ -6394,7 +6394,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declValSimple", 13);
+x_1 = lean_mk_string_unchecked("declValSimple", 13, 13);
 return x_1;
 }
 }
@@ -6414,7 +6414,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":=", 2);
+x_1 = lean_mk_string_unchecked(":=", 2, 2);
 return x_1;
 }
 }
@@ -6422,7 +6422,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Termination", 11);
+x_1 = lean_mk_string_unchecked("Termination", 11, 11);
 return x_1;
 }
 }
@@ -6430,7 +6430,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("suffix", 6);
+x_1 = lean_mk_string_unchecked("suffix", 6, 6);
 return x_1;
 }
 }
@@ -6450,7 +6450,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("partial", 7);
+x_1 = lean_mk_string_unchecked("partial", 7, 7);
 return x_1;
 }
 }
@@ -8096,7 +8096,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_<|_", 8);
+x_1 = lean_mk_string_unchecked("term_<|_", 8, 8);
 return x_1;
 }
 }
@@ -8138,7 +8138,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("<|", 2);
+x_1 = lean_mk_string_unchecked("<|", 2, 2);
 return x_1;
 }
 }
@@ -8146,7 +8146,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("List.join", 9);
+x_1 = lean_mk_string_unchecked("List.join", 9, 9);
 return x_1;
 }
 }
@@ -8163,7 +8163,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("List", 4);
+x_1 = lean_mk_string_unchecked("List", 4, 4);
 return x_1;
 }
 }
@@ -8171,7 +8171,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("join", 4);
+x_1 = lean_mk_string_unchecked("join", 4, 4);
 return x_1;
 }
 }
@@ -10291,7 +10291,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Elab_Deriving_FromToJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doExpr", 6);
+x_1 = lean_mk_string_unchecked("doExpr", 6, 6);
 return x_1;
 }
 }
@@ -10311,7 +10311,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Elab_Deriving_FromToJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fromJson\?", 9);
+x_1 = lean_mk_string_unchecked("fromJson\?", 9, 9);
 return x_1;
 }
 }
@@ -10338,7 +10338,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Elab_Deriving_FromToJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("FromJson", 8);
+x_1 = lean_mk_string_unchecked("FromJson", 8, 8);
 return x_1;
 }
 }
@@ -10381,7 +10381,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Elab_Deriving_FromToJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term__[_]_!", 11);
+x_1 = lean_mk_string_unchecked("term__[_]_!", 11, 11);
 return x_1;
 }
 }
@@ -10399,7 +10399,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Elab_Deriving_FromToJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("jsons", 5);
+x_1 = lean_mk_string_unchecked("jsons", 5, 5);
 return x_1;
 }
 }
@@ -10426,7 +10426,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Elab_Deriving_FromToJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("group", 5);
+x_1 = lean_mk_string_unchecked("group", 5, 5);
 return x_1;
 }
 }
@@ -10444,7 +10444,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Elab_Deriving_FromToJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("!", 1);
+x_1 = lean_mk_string_unchecked("!", 1, 1);
 return x_1;
 }
 }
@@ -11022,7 +11022,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doSeqItem", 9);
+x_1 = lean_mk_string_unchecked("doSeqItem", 9, 9);
 return x_1;
 }
 }
@@ -11042,7 +11042,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doLetArrow", 10);
+x_1 = lean_mk_string_unchecked("doLetArrow", 10, 10);
 return x_1;
 }
 }
@@ -11062,7 +11062,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("let", 3);
+x_1 = lean_mk_string_unchecked("let", 3, 3);
 return x_1;
 }
 }
@@ -11070,7 +11070,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doIdDecl", 8);
+x_1 = lean_mk_string_unchecked("doIdDecl", 8, 8);
 return x_1;
 }
 }
@@ -11090,7 +11090,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("←", 3);
+x_1 = lean_mk_string_unchecked("←", 3, 1);
 return x_1;
 }
 }
@@ -11212,7 +11212,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("quotedName", 10);
+x_1 = lean_mk_string_unchecked("quotedName", 10, 10);
 return x_1;
 }
 }
@@ -11232,7 +11232,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`", 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -11299,7 +11299,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term", 4);
+x_1 = lean_mk_string_unchecked("term", 4, 4);
 return x_1;
 }
 }
@@ -11329,7 +11329,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Json.parseTagged", 16);
+x_1 = lean_mk_string_unchecked("Json.parseTagged", 16, 16);
 return x_1;
 }
 }
@@ -11346,7 +11346,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("parseTagged", 11);
+x_1 = lean_mk_string_unchecked("parseTagged", 11, 11);
 return x_1;
 }
 }
@@ -11421,7 +11421,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("json", 4);
+x_1 = lean_mk_string_unchecked("json", 4, 4);
 return x_1;
 }
 }
@@ -11481,7 +11481,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("bind", 4);
+x_1 = lean_mk_string_unchecked("bind", 4, 4);
 return x_1;
 }
 }
@@ -11508,7 +11508,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Bind", 4);
+x_1 = lean_mk_string_unchecked("Bind", 4, 4);
 return x_1;
 }
 }
@@ -11550,7 +11550,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fun", 3);
+x_1 = lean_mk_string_unchecked("fun", 3, 3);
 return x_1;
 }
 }
@@ -11570,7 +11570,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("basicFun", 8);
+x_1 = lean_mk_string_unchecked("basicFun", 8, 8);
 return x_1;
 }
 }
@@ -11590,7 +11590,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("do", 2);
+x_1 = lean_mk_string_unchecked("do", 2, 2);
 return x_1;
 }
 }
@@ -11610,7 +11610,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doSeqIndent", 11);
+x_1 = lean_mk_string_unchecked("doSeqIndent", 11, 11);
 return x_1;
 }
 }
@@ -11630,7 +11630,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("doReturn", 8);
+x_1 = lean_mk_string_unchecked("doReturn", 8, 8);
 return x_1;
 }
 }
@@ -11650,7 +11650,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("return", 6);
+x_1 = lean_mk_string_unchecked("return", 6, 6);
 return x_1;
 }
 }
@@ -12059,7 +12059,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("none", 4);
+x_1 = lean_mk_string_unchecked("none", 4, 4);
 return x_1;
 }
 }
@@ -12086,7 +12086,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Option", 6);
+x_1 = lean_mk_string_unchecked("Option", 6, 6);
 return x_1;
 }
 }
@@ -12128,7 +12128,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("some", 4);
+x_1 = lean_mk_string_unchecked("some", 4, 4);
 return x_1;
 }
 }
@@ -13065,7 +13065,7 @@ static lean_object* _init_l_Array_foldrMUnsafe_fold___at_Lean_Elab_Deriving_From
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Except.orElseLazy", 17);
+x_1 = lean_mk_string_unchecked("Except.orElseLazy", 17, 17);
 return x_1;
 }
 }
@@ -13082,7 +13082,7 @@ static lean_object* _init_l_Array_foldrMUnsafe_fold___at_Lean_Elab_Deriving_From
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Except", 6);
+x_1 = lean_mk_string_unchecked("Except", 6, 6);
 return x_1;
 }
 }
@@ -13090,7 +13090,7 @@ static lean_object* _init_l_Array_foldrMUnsafe_fold___at_Lean_Elab_Deriving_From
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("orElseLazy", 10);
+x_1 = lean_mk_string_unchecked("orElseLazy", 10, 10);
 return x_1;
 }
 }
@@ -13544,7 +13544,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("getObjValAs\?", 12);
+x_1 = lean_mk_string_unchecked("getObjValAs\?", 12, 12);
 return x_1;
 }
 }
@@ -13628,7 +13628,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("j", 1);
+x_1 = lean_mk_string_unchecked("j", 1, 1);
 return x_1;
 }
 }
@@ -13655,7 +13655,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Except.mapError", 15);
+x_1 = lean_mk_string_unchecked("Except.mapError", 15, 15);
 return x_1;
 }
 }
@@ -13672,7 +13672,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mapError", 8);
+x_1 = lean_mk_string_unchecked("mapError", 8, 8);
 return x_1;
 }
 }
@@ -13736,7 +13736,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("s", 1);
+x_1 = lean_mk_string_unchecked("s", 1, 1);
 return x_1;
 }
 }
@@ -13763,7 +13763,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_++_", 8);
+x_1 = lean_mk_string_unchecked("term_++_", 8, 8);
 return x_1;
 }
 }
@@ -13781,7 +13781,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("toString", 8);
+x_1 = lean_mk_string_unchecked("toString", 8, 8);
 return x_1;
 }
 }
@@ -13808,7 +13808,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ToString", 8);
+x_1 = lean_mk_string_unchecked("ToString", 8, 8);
 return x_1;
 }
 }
@@ -13850,7 +13850,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("++", 2);
+x_1 = lean_mk_string_unchecked("++", 2, 2);
 return x_1;
 }
 }
@@ -13858,7 +13858,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("str", 3);
+x_1 = lean_mk_string_unchecked("str", 3, 3);
 return x_1;
 }
 }
@@ -13876,7 +13876,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\".\"", 3);
+x_1 = lean_mk_string_unchecked("\".\"", 3, 3);
 return x_1;
 }
 }
@@ -13884,7 +13884,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\": \"", 4);
+x_1 = lean_mk_string_unchecked("\": \"", 4, 4);
 return x_1;
 }
 }
@@ -14943,7 +14943,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structInstField", 15);
+x_1 = lean_mk_string_unchecked("structInstField", 15, 15);
 return x_1;
 }
 }
@@ -14963,7 +14963,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structInstLVal", 14);
+x_1 = lean_mk_string_unchecked("structInstLVal", 14, 14);
 return x_1;
 }
 }
@@ -15023,7 +15023,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstance___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("explicitBinder", 14);
+x_1 = lean_mk_string_unchecked("explicitBinder", 14, 14);
 return x_1;
 }
 }
@@ -15072,7 +15072,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstance___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("String", 6);
+x_1 = lean_mk_string_unchecked("String", 6, 6);
 return x_1;
 }
 }
@@ -16447,7 +16447,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstance___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fromJson", 8);
+x_1 = lean_mk_string_unchecked("fromJson", 8, 8);
 return x_1;
 }
 }
@@ -16465,7 +16465,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstance___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Except.error", 12);
+x_1 = lean_mk_string_unchecked("Except.error", 12, 12);
 return x_1;
 }
 }
@@ -16482,7 +16482,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstance___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("error", 5);
+x_1 = lean_mk_string_unchecked("error", 5, 5);
 return x_1;
 }
 }
@@ -16546,7 +16546,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstance___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\"no inductive constructor matched\"", 34);
+x_1 = lean_mk_string_unchecked("\"no inductive constructor matched\"", 34, 34);
 return x_1;
 }
 }
@@ -17236,7 +17236,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstance___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structInst", 10);
+x_1 = lean_mk_string_unchecked("structInst", 10, 10);
 return x_1;
 }
 }
@@ -17256,7 +17256,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstance___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("{", 1);
+x_1 = lean_mk_string_unchecked("{", 1, 1);
 return x_1;
 }
 }
@@ -17264,7 +17264,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstance___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("optEllipsis", 11);
+x_1 = lean_mk_string_unchecked("optEllipsis", 11, 11);
 return x_1;
 }
 }
@@ -17284,7 +17284,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstance___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("}", 1);
+x_1 = lean_mk_string_unchecked("}", 1, 1);
 return x_1;
 }
 }

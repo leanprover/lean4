@@ -599,7 +599,7 @@ end TagDeclarationExtension
 
 def MapDeclarationExtension (α : Type) := SimplePersistentEnvExtension (Name × α) (NameMap α)
 
-def mkMapDeclarationExtension [Inhabited α] (name : Name := by exact decl_name%) : IO (MapDeclarationExtension α) :=
+def mkMapDeclarationExtension (name : Name := by exact decl_name%) : IO (MapDeclarationExtension α) :=
   registerSimplePersistentEnvExtension {
     name          := name,
     addImportedFn := fun _ => {},
@@ -984,9 +984,6 @@ def displayStats (env : Environment) : IO Unit := do
   IO.println ("direct imports:                        " ++ toString env.header.imports);
   IO.println ("number of imported modules:            " ++ toString env.header.regions.size);
   IO.println ("number of memory-mapped modules:       " ++ toString (env.header.regions.filter (·.isMemoryMapped) |>.size));
-  IO.println ("number of consts:                      " ++ toString env.constants.size);
-  IO.println ("number of imported consts:             " ++ toString env.constants.stageSizes.1);
-  IO.println ("number of local consts:                " ++ toString env.constants.stageSizes.2);
   IO.println ("number of buckets for imported consts: " ++ toString env.constants.numBuckets);
   IO.println ("trust level:                           " ++ toString env.header.trustLevel);
   IO.println ("number of extensions:                  " ++ toString env.extensions.size);
@@ -1062,5 +1059,12 @@ export MonadEnv (getEnv modifyEnv)
 instance (m n) [MonadLift m n] [MonadEnv m] : MonadEnv n where
   getEnv    := liftM (getEnv : m Environment)
   modifyEnv := fun f => liftM (modifyEnv f : m Unit)
+
+/-- Constructs a DefinitionVal, inferring the `unsafe` field -/
+def mkDefinitionValInferrringUnsafe [Monad m] [MonadEnv m] (name : Name) (levelParams : List Name)
+    (type : Expr) (value : Expr) (hints : ReducibilityHints) : m DefinitionVal := do
+  let env ← getEnv
+  let safety := if env.hasUnsafe type || env.hasUnsafe value then DefinitionSafety.unsafe else DefinitionSafety.safe
+  return { name, levelParams, type, value, hints, safety }
 
 end Lean

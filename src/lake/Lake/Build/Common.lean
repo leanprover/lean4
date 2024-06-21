@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 import Lake.Config.Monad
 import Lake.Build.Actions
+import Lake.Util.JsonObject
 
 /-! # Common Build Tools
 This file defines general utilities that abstract common
@@ -31,15 +32,29 @@ which stores information about a (successful) build.
 structure BuildMetadata where
   depHash : Hash
   log : Log
-  deriving ToJson, FromJson
+  deriving ToJson
+
+def BuildMetadata.ofHash (h : Hash) : BuildMetadata :=
+  {depHash := h, log := {}}
+
+def BuildMetadata.fromJson? (json : Json) : Except String BuildMetadata := do
+  let obj ← JsonObject.fromJson? json
+  let depHash ← obj.get "depHash"
+  let log ← obj.getD "log" {}
+  return {depHash, log}
+
+instance : FromJson BuildMetadata := ⟨BuildMetadata.fromJson?⟩
 
 /-- Read persistent trace data from a file. -/
 def readTraceFile? (path : FilePath) : LogIO (Option BuildMetadata) := OptionT.run do
   match (← IO.FS.readFile path |>.toBaseIO) with
   | .ok contents =>
-    match Json.parse contents >>= fromJson? with
-    | .ok contents => return contents
-    | .error e => logVerbose s!"{path}: invalid trace file: {e}"; failure
+    if let some hash := Hash.ofString? contents.trim then
+      return .ofHash hash
+    else
+      match Json.parse contents >>= fromJson? with
+      | .ok contents => return contents
+      | .error e => logVerbose s!"{path}: invalid trace file: {e}"; failure
   | .error (.noFileOrDirectory ..) => failure
   | .error e => logWarning s!"{path}: read failed: {e}"; failure
 
@@ -86,25 +101,34 @@ then `depTrace` / `oldTrace`. No log will be replayed.
   (depTrace : BuildTrace) (traceFile : FilePath) (build : JobM PUnit)
   (action : JobAction := .build) (oldTrace := depTrace.mtime)
 : JobM Bool := do
-  if let some data ← readTraceFile? traceFile then
-    if (← checkHashUpToDate info depTrace data.depHash oldTrace) then
-      updateAction .replay
-      data.log.replay
+  if (← traceFile.pathExists) then
+    if let some data ← readTraceFile? traceFile then
+      if (← checkHashUpToDate info depTrace data.depHash oldTrace) then
+        updateAction .replay
+        data.log.replay
+        return true
+      else
+        go
+    else if (← getIsOldMode) && (← oldTrace.checkUpToDate info) then
       return true
-  else if (← getIsOldMode) then
-    if (← oldTrace.checkUpToDate info) then
-      return true
-  else if (← depTrace.checkAgainstTime info) then
-    return true
-  if (← getNoBuild) then
-    IO.Process.exit noBuildCode.toUInt8
+    else
+      go
   else
-    updateAction action
-    let iniPos ← getLogPos
-    build -- fatal errors will not produce a trace (or cache their log)
-    let log := (← getLog).takeFrom iniPos
-    writeTraceFile traceFile depTrace log
-    return false
+    if (← depTrace.checkAgainstTime info) then
+      return true
+    else
+      go
+where
+  go := do
+    if (← getNoBuild) then
+      IO.Process.exit noBuildCode.toUInt8
+    else
+      updateAction action
+      let iniPos ← getLogPos
+      build -- fatal errors will not produce a trace (or cache their log)
+      let log := (← getLog).takeFrom iniPos
+      writeTraceFile traceFile depTrace log
+      return false
 
 /--
 Checks whether `info` is up-to-date, and runs `build` to recreate it if not.

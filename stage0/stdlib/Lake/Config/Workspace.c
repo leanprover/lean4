@@ -11854,7 +11854,7 @@ static lean_object* _init_l_Lake_Workspace_augmentedEnvVars___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LEAN_PATH", 9);
+x_1 = lean_mk_string_unchecked("LEAN_PATH", 9, 9);
 return x_1;
 }
 }
@@ -11862,7 +11862,7 @@ static lean_object* _init_l_Lake_Workspace_augmentedEnvVars___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LEAN_SRC_PATH", 13);
+x_1 = lean_mk_string_unchecked("LEAN_SRC_PATH", 13, 13);
 return x_1;
 }
 }
@@ -11870,7 +11870,7 @@ static lean_object* _init_l_Lake_Workspace_augmentedEnvVars___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PATH", 4);
+x_1 = lean_mk_string_unchecked("PATH", 4, 4);
 return x_1;
 }
 }

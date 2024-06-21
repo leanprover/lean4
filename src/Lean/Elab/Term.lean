@@ -353,7 +353,7 @@ part. `act` is then run on the inner part but with reuse information adjusted as
 For any tactic that participates in reuse, `withNarrowedTacticReuse` should be applied to the
 tactic's syntax and `act` should be used to do recursive tactic evaluation of nested parts.
 -/
-def withNarrowedTacticReuse [Monad m] [MonadExceptOf Exception m] [MonadWithReaderOf Context m]
+def withNarrowedTacticReuse [Monad m] [MonadWithReaderOf Context m]
     [MonadOptions m] [MonadRef m] (split : Syntax → Syntax × Syntax) (act : Syntax → m α)
     (stx : Syntax) : m α := do
   let (outer, inner) := split stx
@@ -377,7 +377,7 @@ NOTE: child nodes after `argIdx` are not tested (which would almost always disab
 necessarily shifted by changes at `argIdx`) so it must be ensured that the result of `arg` does not
 depend on them (i.e. they should not be inspected beforehand).
 -/
-def withNarrowedArgTacticReuse [Monad m] [MonadExceptOf Exception m] [MonadWithReaderOf Context m]
+def withNarrowedArgTacticReuse [Monad m] [MonadWithReaderOf Context m]
     [MonadOptions m] [MonadRef m] (argIdx : Nat) (act : Syntax → m α) (stx : Syntax) : m α :=
   withNarrowedTacticReuse (fun stx => (mkNullNode stx.getArgs[:argIdx], stx[argIdx])) act stx
 
@@ -387,7 +387,7 @@ to `none`. This should be done for tactic blocks that are run multiple times as 
 reported progress will jump back and forth (and partial reuse for these kinds of tact blocks is
 similarly questionable).
 -/
-def withoutTacticIncrementality [Monad m] [MonadWithReaderOf Context m] [MonadOptions m] [MonadRef m]
+def withoutTacticIncrementality [Monad m] [MonadWithReaderOf Context m] [MonadOptions m]
     (cond : Bool) (act : m α) : m α := do
   let opts ← getOptions
   withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.filter fun tacSnap => Id.run do
@@ -398,7 +398,7 @@ def withoutTacticIncrementality [Monad m] [MonadWithReaderOf Context m] [MonadOp
   }) act
 
 /-- Disables incremental tactic reuse for `act` if `cond` is true. -/
-def withoutTacticReuse [Monad m] [MonadWithReaderOf Context m] [MonadOptions m] [MonadRef m]
+def withoutTacticReuse [Monad m] [MonadWithReaderOf Context m] [MonadOptions m]
     (cond : Bool) (act : m α) : m α := do
   let opts ← getOptions
   withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.map fun tacSnap =>
@@ -1398,7 +1398,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
   ```
   def foo.aux := 1
   def foo : Nat → Nat
-    | n => foo.aux -- should not be interpreted as `(foo).bar`
+    | n => foo.aux -- should not be interpreted as `(foo).aux`
   ```
   See test `aStructPerfIssue.lean` for another example.
   We skip auxiliary declarations when `projs` is not empty and `globalDeclFound` is true.
@@ -1415,16 +1415,29 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
   -/
   let rec loop (n : Name) (projs : List String) (globalDeclFound : Bool) := do
     let givenNameView := { view with name := n }
-    let mut globalDeclFound := globalDeclFound
+    let mut globalDeclFoundNext := globalDeclFound
     unless globalDeclFound do
       let r ← resolveGlobalName givenNameView.review
       let r := r.filter fun (_, fieldList) => fieldList.isEmpty
       unless r.isEmpty do
-        globalDeclFound := true
+        globalDeclFoundNext := true
+    /-
+    Note that we use `globalDeclFound` instead of `globalDeclFoundNext` in the following test.
+    Reason: a local should shadow a global with the same name.
+    Consider the following example. See issue #3079
+    ```
+    def foo : Nat := 1
+
+    def bar : Nat :=
+      foo.add 1 -- should be 11
+    where
+      foo := 10
+    ```
+    -/
     match findLocalDecl? givenNameView (skipAuxDecl := globalDeclFound && not projs.isEmpty) with
     | some decl => return some (decl.toExpr, projs)
     | none => match n with
-      | .str pre s => loop pre (s::projs) globalDeclFound
+      | .str pre s => loop pre (s::projs) globalDeclFoundNext
       | _ => return none
   loop view.name [] (globalDeclFound := false)
 
@@ -1836,9 +1849,9 @@ def resolveName' (ident : Syntax) (explicitLevels : List Level) (expectedType? :
       return (c, ids.head!, ids.tail!)
   | _ => throwError "identifier expected"
 
-def resolveId? (stx : Syntax) (kind := "term") (withInfo := false) : TermElabM (Option Expr) :=
+def resolveId? (stx : Syntax) (kind := "term") (withInfo := false) : TermElabM (Option Expr) := withRef stx do
   match stx with
-  | .ident _ _ val preresolved => do
+  | .ident _ _ val preresolved =>
     let rs ← try resolveName stx val preresolved [] catch _ => pure []
     let rs := rs.filter fun ⟨_, projs⟩ => projs.isEmpty
     let fs := rs.map fun (f, _) => f

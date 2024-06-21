@@ -223,7 +223,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_FunDeclInfo_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.Simp.FunDeclInfo.once", 40);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.Simp.FunDeclInfo.once", 40, 40);
 return x_1;
 }
 }
@@ -307,7 +307,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_FunDeclInfo_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.Simp.FunDeclInfo.many", 40);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.Simp.FunDeclInfo.many", 40, 40);
 return x_1;
 }
 }
@@ -373,7 +373,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_FunDeclInfo_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.Simp.FunDeclInfo.mustInline", 46);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.Simp.FunDeclInfo.mustInline", 46, 46);
 return x_1;
 }
 }
@@ -669,7 +669,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Compiler_LCNF_Simp_FunDecl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -687,7 +687,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Compiler_LCNF_Simp_FunDecl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -705,7 +705,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Compiler_LCNF_Simp_FunDecl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ↦ ", 5);
+x_1 = lean_mk_string_unchecked(" ↦ ", 5, 3);
 return x_1;
 }
 }

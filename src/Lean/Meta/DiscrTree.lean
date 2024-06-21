@@ -850,7 +850,7 @@ def foldValues (f : σ → α → σ) (init : σ) (t : DiscrTree α) : σ :=
 Check for the presence of a value satisfying a predicate.
 -/
 @[inline]
-def containsValueP [BEq α] (t : DiscrTree α) (f : α → Bool) : Bool :=
+def containsValueP (t : DiscrTree α) (f : α → Bool) : Bool :=
   t.foldValues (init := false) fun r a => r || f a
 
 /--

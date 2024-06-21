@@ -32,6 +32,9 @@ structure PreDefinition where
   termination : WF.TerminationHints
   deriving Inhabited
 
+def PreDefinition.filterAttrs (preDef : PreDefinition) (p : Attribute → Bool) : PreDefinition :=
+  { preDef with modifiers := preDef.modifiers.filterAttrs p }
+
 def instantiateMVarsAtPreDecls (preDefs : Array PreDefinition) : TermElabM (Array PreDefinition) :=
   preDefs.mapM fun preDef => do
     pure { preDef with type := (← instantiateMVars preDef.type), value := (← instantiateMVars preDef.value) }

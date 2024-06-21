@@ -586,7 +586,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_DeclNa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed", 6);
+x_1 = lean_mk_string_unchecked("failed", 6, 6);
 return x_1;
 }
 }
@@ -2198,7 +2198,7 @@ static lean_object* _init_l___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("u", 1);
+x_1 = lean_mk_string_unchecked("u", 1, 1);
 return x_1;
 }
 }
@@ -3106,7 +3106,7 @@ static lean_object* _init_l___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -3300,7 +3300,7 @@ static lean_object* _init_l___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Prop", 4);
+x_1 = lean_mk_string_unchecked("Prop", 4, 4);
 return x_1;
 }
 }
@@ -3308,7 +3308,7 @@ static lean_object* _init_l___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Type", 4);
+x_1 = lean_mk_string_unchecked("Type", 4, 4);
 return x_1;
 }
 }
@@ -3316,7 +3316,7 @@ static lean_object* _init_l___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Sort", 4);
+x_1 = lean_mk_string_unchecked("Sort", 4, 4);
 return x_1;
 }
 }
@@ -3324,7 +3324,7 @@ static lean_object* _init_l___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Forall", 6);
+x_1 = lean_mk_string_unchecked("Forall", 6, 6);
 return x_1;
 }
 }
@@ -3733,7 +3733,7 @@ static lean_object* _init_l___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Of", 2);
+x_1 = lean_mk_string_unchecked("Of", 2, 2);
 return x_1;
 }
 }
@@ -4428,7 +4428,7 @@ static lean_object* _init_l___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_", 1);
+x_1 = lean_mk_string_unchecked("_", 1, 1);
 return x_1;
 }
 }
@@ -6613,7 +6613,7 @@ static lean_object* _init_l_Lean_Elab_Command_mkInstanceName___lambda__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inst", 4);
+x_1 = lean_mk_string_unchecked("inst", 4, 4);
 return x_1;
 }
 }

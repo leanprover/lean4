@@ -385,7 +385,7 @@ static lean_object* _init_l_Lean_throwUnknownConstant___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
+x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
 return x_1;
 }
 }
@@ -402,7 +402,7 @@ static lean_object* _init_l_Lean_throwUnknownConstant___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -951,7 +951,7 @@ static lean_object* _init_l_Lean_termThrowError_______closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -959,7 +959,7 @@ static lean_object* _init_l_Lean_termThrowError_______closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("termThrowError__", 16);
+x_1 = lean_mk_string_unchecked("termThrowError__", 16, 16);
 return x_1;
 }
 }
@@ -977,7 +977,7 @@ static lean_object* _init_l_Lean_termThrowError_______closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("andthen", 7);
+x_1 = lean_mk_string_unchecked("andthen", 7, 7);
 return x_1;
 }
 }
@@ -995,7 +995,7 @@ static lean_object* _init_l_Lean_termThrowError_______closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("throwError ", 11);
+x_1 = lean_mk_string_unchecked("throwError ", 11, 11);
 return x_1;
 }
 }
@@ -1013,7 +1013,7 @@ static lean_object* _init_l_Lean_termThrowError_______closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("orelse", 6);
+x_1 = lean_mk_string_unchecked("orelse", 6, 6);
 return x_1;
 }
 }
@@ -1031,7 +1031,7 @@ static lean_object* _init_l_Lean_termThrowError_______closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("interpolatedStr", 15);
+x_1 = lean_mk_string_unchecked("interpolatedStr", 15, 15);
 return x_1;
 }
 }
@@ -1049,7 +1049,7 @@ static lean_object* _init_l_Lean_termThrowError_______closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term", 4);
+x_1 = lean_mk_string_unchecked("term", 4, 4);
 return x_1;
 }
 }
@@ -1141,7 +1141,7 @@ static lean_object* _init_l_Lean_termThrowErrorAt___________closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("termThrowErrorAt____", 20);
+x_1 = lean_mk_string_unchecked("termThrowErrorAt____", 20, 20);
 return x_1;
 }
 }
@@ -1159,7 +1159,7 @@ static lean_object* _init_l_Lean_termThrowErrorAt___________closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("throwErrorAt ", 13);
+x_1 = lean_mk_string_unchecked("throwErrorAt ", 13, 13);
 return x_1;
 }
 }
@@ -1203,7 +1203,7 @@ static lean_object* _init_l_Lean_termThrowErrorAt___________closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ppSpace", 7);
+x_1 = lean_mk_string_unchecked("ppSpace", 7, 7);
 return x_1;
 }
 }
@@ -1281,7 +1281,7 @@ static lean_object* _init_l_Lean___aux__Lean__Exception______macroRules__Lean__t
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("interpolatedStrKind", 19);
+x_1 = lean_mk_string_unchecked("interpolatedStrKind", 19, 19);
 return x_1;
 }
 }
@@ -1299,7 +1299,7 @@ static lean_object* _init_l_Lean___aux__Lean__Exception______macroRules__Lean__t
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -1307,7 +1307,7 @@ static lean_object* _init_l_Lean___aux__Lean__Exception______macroRules__Lean__t
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -1315,7 +1315,7 @@ static lean_object* _init_l_Lean___aux__Lean__Exception______macroRules__Lean__t
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("app", 3);
+x_1 = lean_mk_string_unchecked("app", 3, 3);
 return x_1;
 }
 }
@@ -1335,7 +1335,7 @@ static lean_object* _init_l_Lean___aux__Lean__Exception______macroRules__Lean__t
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.throwError", 15);
+x_1 = lean_mk_string_unchecked("Lean.throwError", 15, 15);
 return x_1;
 }
 }
@@ -1352,7 +1352,7 @@ static lean_object* _init_l_Lean___aux__Lean__Exception______macroRules__Lean__t
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("throwError", 10);
+x_1 = lean_mk_string_unchecked("throwError", 10, 10);
 return x_1;
 }
 }
@@ -1416,7 +1416,7 @@ static lean_object* _init_l_Lean___aux__Lean__Exception______macroRules__Lean__t
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -1434,7 +1434,7 @@ static lean_object* _init_l_Lean___aux__Lean__Exception______macroRules__Lean__t
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("paren", 5);
+x_1 = lean_mk_string_unchecked("paren", 5, 5);
 return x_1;
 }
 }
@@ -1454,7 +1454,7 @@ static lean_object* _init_l_Lean___aux__Lean__Exception______macroRules__Lean__t
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -1462,7 +1462,7 @@ static lean_object* _init_l_Lean___aux__Lean__Exception______macroRules__Lean__t
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("termM!_", 7);
+x_1 = lean_mk_string_unchecked("termM!_", 7, 7);
 return x_1;
 }
 }
@@ -1480,7 +1480,7 @@ static lean_object* _init_l_Lean___aux__Lean__Exception______macroRules__Lean__t
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("m!", 2);
+x_1 = lean_mk_string_unchecked("m!", 2, 2);
 return x_1;
 }
 }
@@ -1488,7 +1488,7 @@ static lean_object* _init_l_Lean___aux__Lean__Exception______macroRules__Lean__t
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -1613,7 +1613,7 @@ static lean_object* _init_l_Lean___aux__Lean__Exception______macroRules__Lean__t
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.throwErrorAt", 17);
+x_1 = lean_mk_string_unchecked("Lean.throwErrorAt", 17, 17);
 return x_1;
 }
 }
@@ -1630,7 +1630,7 @@ static lean_object* _init_l_Lean___aux__Lean__Exception______macroRules__Lean__t
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("throwErrorAt", 12);
+x_1 = lean_mk_string_unchecked("throwErrorAt", 12, 12);
 return x_1;
 }
 }

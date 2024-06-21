@@ -258,7 +258,7 @@ theorem replicateTR_loop_eq : ∀ n, replicateTR.loop a n acc = replicate n a ++
   unless `b` is not found in `xs` in which case it returns `l`. -/
   @[specialize] go : List α → Array α → List α
   | [], _ => l
-  | a::as, acc => bif a == b then acc.toListAppend (c::as) else go as (acc.push a)
+  | a::as, acc => bif b == a then acc.toListAppend (c::as) else go as (acc.push a)
 
 @[csimp] theorem replace_eq_replaceTR : @List.replace = @replaceTR := by
   funext α _ l b c; simp [replaceTR]

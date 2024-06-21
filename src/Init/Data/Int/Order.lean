@@ -127,9 +127,14 @@ protected theorem lt_iff_le_not_le {a b : Int} : a < b ↔ a ≤ b ∧ ¬b ≤ a
   · exact Int.le_antisymm h h'
   · subst h'; apply Int.le_refl
 
+protected theorem lt_of_not_ge {a b : Int} (h : ¬a ≤ b) : b < a :=
+  Int.lt_iff_le_not_le.mpr ⟨(Int.le_total ..).resolve_right h, h⟩
+
+protected theorem not_le_of_gt {a b : Int} (h : b < a) : ¬a ≤ b :=
+  (Int.lt_iff_le_not_le.mp h).right
+
 protected theorem not_le {a b : Int} : ¬a ≤ b ↔ b < a :=
-  ⟨fun h => Int.lt_iff_le_not_le.2 ⟨(Int.le_total ..).resolve_right h, h⟩,
-   fun h => (Int.lt_iff_le_not_le.1 h).2⟩
+  Iff.intro Int.lt_of_not_ge Int.not_le_of_gt
 
 protected theorem not_lt {a b : Int} : ¬a < b ↔ b ≤ a :=
   by rw [← Int.not_le, Decidable.not_not]
@@ -509,9 +514,6 @@ theorem mem_toNat' : ∀ (a : Int) (n : Nat), toNat' a = some n ↔ a = n
 
 /-! ## Order properties of the integers -/
 
-protected theorem lt_of_not_ge {a b : Int} : ¬a ≤ b → b < a := Int.not_le.mp
-protected theorem not_le_of_gt {a b : Int} : b < a → ¬a ≤ b := Int.not_le.mpr
-
 protected theorem le_of_not_le {a b : Int} : ¬ a ≤ b → b ≤ a := (Int.le_total a b).resolve_left
 
 @[simp] theorem negSucc_not_pos (n : Nat) : 0 < -[n+1] ↔ False := by
@@ -586,7 +588,10 @@ theorem add_one_le_iff {a b : Int} : a + 1 ≤ b ↔ a < b := .rfl
 theorem lt_add_one_iff {a b : Int} : a < b + 1 ↔ a ≤ b := Int.add_le_add_iff_right _
 
 @[simp] theorem succ_ofNat_pos (n : Nat) : 0 < (n : Int) + 1 :=
-  lt_add_one_iff.2 (ofNat_zero_le _)
+  lt_add_one_iff.mpr (ofNat_zero_le _)
+
+theorem not_ofNat_neg (n : Nat) : ¬((n : Int) < 0) :=
+  Int.not_lt.mpr (ofNat_zero_le ..)
 
 theorem le_add_one {a b : Int} (h : a ≤ b) : a ≤ b + 1 :=
   Int.le_of_lt (Int.lt_add_one_iff.2 h)
@@ -800,6 +805,12 @@ protected theorem lt_add_of_neg_lt_sub_right {a b c : Int} (h : -b < a - c) : c 
 
 protected theorem neg_lt_sub_right_of_lt_add {a b c : Int} (h : c < a + b) : -b < a - c :=
   Int.lt_sub_left_of_add_lt (Int.sub_right_lt_of_lt_add h)
+
+protected theorem add_lt_iff (a b c : Int) : a + b < c ↔ a < -b + c := by
+  rw [← Int.add_lt_add_iff_left (-b), Int.add_comm (-b), Int.add_neg_cancel_right]
+
+protected theorem sub_lt_iff (a b c : Int) : a - b < c ↔ a < c + b :=
+  Iff.intro Int.lt_add_of_sub_right_lt Int.sub_right_lt_of_lt_add
 
 protected theorem sub_lt_of_sub_lt {a b c : Int} (h : a - b < c) : a - c < b :=
   Int.sub_left_lt_of_lt_add (Int.lt_add_of_sub_right_lt h)

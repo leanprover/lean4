@@ -267,7 +267,9 @@ syntax (name := case') "case' " sepBy1(caseArg, " | ") " => " tacticSeq : tactic
 `next x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses with
 inaccessible names to the given names.
 -/
-macro "next " args:binderIdent* " => " tac:tacticSeq : tactic => `(tactic| case _ $args* => $tac)
+macro "next " args:binderIdent* arrowTk:" => " tac:tacticSeq : tactic =>
+  -- Limit ref variability for incrementality; see Note [Incremental Macros]
+  withRef arrowTk `(tactic| case _ $args* =>%$arrowTk $tac)
 
 /-- `all_goals tac` runs `tac` on each goal, concatenating the resulting goals, if any. -/
 syntax (name := allGoals) "all_goals " tacticSeq : tactic
@@ -1459,6 +1461,7 @@ have been simplified by using the modifier `↓`. Here is an example
 ```
 
 When multiple simp theorems are applicable, the simplifier uses the one with highest priority.
+The equational theorems of function are applied at very low priority (100 and below).
 If there are several with the same priority, it is uses the "most recent one". Example:
 ```lean
 @[simp high] theorem cond_true (a b : α) : cond true a b = a := rfl

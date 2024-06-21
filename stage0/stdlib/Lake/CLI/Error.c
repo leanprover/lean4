@@ -181,7 +181,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.missingCommand", 28);
+x_1 = lean_mk_string_unchecked("Lake.CliError.missingCommand", 28, 28);
 return x_1;
 }
 }
@@ -265,7 +265,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.unknownCommand", 28);
+x_1 = lean_mk_string_unchecked("Lake.CliError.unknownCommand", 28, 28);
 return x_1;
 }
 }
@@ -295,7 +295,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.missingArg", 24);
+x_1 = lean_mk_string_unchecked("Lake.CliError.missingArg", 24, 24);
 return x_1;
 }
 }
@@ -325,7 +325,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.missingOptArg", 27);
+x_1 = lean_mk_string_unchecked("Lake.CliError.missingOptArg", 27, 27);
 return x_1;
 }
 }
@@ -355,7 +355,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.unknownShortOption", 32);
+x_1 = lean_mk_string_unchecked("Lake.CliError.unknownShortOption", 32, 32);
 return x_1;
 }
 }
@@ -385,7 +385,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.unknownLongOption", 31);
+x_1 = lean_mk_string_unchecked("Lake.CliError.unknownLongOption", 31, 31);
 return x_1;
 }
 }
@@ -415,7 +415,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.unexpectedArguments", 33);
+x_1 = lean_mk_string_unchecked("Lake.CliError.unexpectedArguments", 33, 33);
 return x_1;
 }
 }
@@ -445,7 +445,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.unknownTemplate", 29);
+x_1 = lean_mk_string_unchecked("Lake.CliError.unknownTemplate", 29, 29);
 return x_1;
 }
 }
@@ -475,7 +475,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.unknownConfigLang", 31);
+x_1 = lean_mk_string_unchecked("Lake.CliError.unknownConfigLang", 31, 31);
 return x_1;
 }
 }
@@ -505,7 +505,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.unknownModule", 27);
+x_1 = lean_mk_string_unchecked("Lake.CliError.unknownModule", 27, 27);
 return x_1;
 }
 }
@@ -535,7 +535,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.unknownPackage", 28);
+x_1 = lean_mk_string_unchecked("Lake.CliError.unknownPackage", 28, 28);
 return x_1;
 }
 }
@@ -565,7 +565,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.unknownFacet", 26);
+x_1 = lean_mk_string_unchecked("Lake.CliError.unknownFacet", 26, 26);
 return x_1;
 }
 }
@@ -595,7 +595,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.unknownTarget", 27);
+x_1 = lean_mk_string_unchecked("Lake.CliError.unknownTarget", 27, 27);
 return x_1;
 }
 }
@@ -625,7 +625,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.missingModule", 27);
+x_1 = lean_mk_string_unchecked("Lake.CliError.missingModule", 27, 27);
 return x_1;
 }
 }
@@ -655,7 +655,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.missingTarget", 27);
+x_1 = lean_mk_string_unchecked("Lake.CliError.missingTarget", 27, 27);
 return x_1;
 }
 }
@@ -685,7 +685,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.nonCliTarget", 26);
+x_1 = lean_mk_string_unchecked("Lake.CliError.nonCliTarget", 26, 26);
 return x_1;
 }
 }
@@ -715,7 +715,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.nonCliFacet", 25);
+x_1 = lean_mk_string_unchecked("Lake.CliError.nonCliFacet", 25, 25);
 return x_1;
 }
 }
@@ -745,7 +745,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.invalidTargetSpec", 31);
+x_1 = lean_mk_string_unchecked("Lake.CliError.invalidTargetSpec", 31, 31);
 return x_1;
 }
 }
@@ -775,7 +775,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.invalidFacet", 26);
+x_1 = lean_mk_string_unchecked("Lake.CliError.invalidFacet", 26, 26);
 return x_1;
 }
 }
@@ -805,7 +805,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.unknownExe", 24);
+x_1 = lean_mk_string_unchecked("Lake.CliError.unknownExe", 24, 24);
 return x_1;
 }
 }
@@ -835,7 +835,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.unknownScript", 27);
+x_1 = lean_mk_string_unchecked("Lake.CliError.unknownScript", 27, 27);
 return x_1;
 }
 }
@@ -865,7 +865,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.missingScriptDoc", 30);
+x_1 = lean_mk_string_unchecked("Lake.CliError.missingScriptDoc", 30, 30);
 return x_1;
 }
 }
@@ -895,7 +895,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.invalidScriptSpec", 31);
+x_1 = lean_mk_string_unchecked("Lake.CliError.invalidScriptSpec", 31, 31);
 return x_1;
 }
 }
@@ -925,7 +925,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.outputConfigExists", 32);
+x_1 = lean_mk_string_unchecked("Lake.CliError.outputConfigExists", 32, 32);
 return x_1;
 }
 }
@@ -955,7 +955,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("FilePath.mk ", 12);
+x_1 = lean_mk_string_unchecked("FilePath.mk ", 12, 12);
 return x_1;
 }
 }
@@ -973,7 +973,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.unknownLeanInstall", 32);
+x_1 = lean_mk_string_unchecked("Lake.CliError.unknownLeanInstall", 32, 32);
 return x_1;
 }
 }
@@ -1039,7 +1039,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.unknownLakeInstall", 32);
+x_1 = lean_mk_string_unchecked("Lake.CliError.unknownLakeInstall", 32, 32);
 return x_1;
 }
 }
@@ -1105,7 +1105,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.leanRevMismatch", 29);
+x_1 = lean_mk_string_unchecked("Lake.CliError.leanRevMismatch", 29, 29);
 return x_1;
 }
 }
@@ -1135,7 +1135,7 @@ static lean_object* _init_l___private_Lake_CLI_Error_0__Lake_reprCliError____x40
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CliError.invalidEnv", 24);
+x_1 = lean_mk_string_unchecked("Lake.CliError.invalidEnv", 24, 24);
 return x_1;
 }
 }
@@ -3550,7 +3550,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("missing command", 15);
+x_1 = lean_mk_string_unchecked("missing command", 15, 15);
 return x_1;
 }
 }
@@ -3558,7 +3558,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown command '", 17);
+x_1 = lean_mk_string_unchecked("unknown command '", 17, 17);
 return x_1;
 }
 }
@@ -3566,7 +3566,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -3574,7 +3574,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("missing ", 8);
+x_1 = lean_mk_string_unchecked("missing ", 8, 8);
 return x_1;
 }
 }
@@ -3582,7 +3582,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -3590,7 +3590,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" after ", 7);
+x_1 = lean_mk_string_unchecked(" after ", 7, 7);
 return x_1;
 }
 }
@@ -3598,7 +3598,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown short option '-", 23);
+x_1 = lean_mk_string_unchecked("unknown short option '-", 23, 23);
 return x_1;
 }
 }
@@ -3606,7 +3606,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown long option '", 21);
+x_1 = lean_mk_string_unchecked("unknown long option '", 21, 21);
 return x_1;
 }
 }
@@ -3614,7 +3614,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -3622,7 +3622,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected arguments: ", 22);
+x_1 = lean_mk_string_unchecked("unexpected arguments: ", 22, 22);
 return x_1;
 }
 }
@@ -3630,7 +3630,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown package template `", 26);
+x_1 = lean_mk_string_unchecked("unknown package template `", 26, 26);
 return x_1;
 }
 }
@@ -3638,7 +3638,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`", 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -3646,7 +3646,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown configuration language `", 32);
+x_1 = lean_mk_string_unchecked("unknown configuration language `", 32, 32);
 return x_1;
 }
 }
@@ -3654,7 +3654,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown module `", 16);
+x_1 = lean_mk_string_unchecked("unknown module `", 16, 16);
 return x_1;
 }
 }
@@ -3662,7 +3662,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown package `", 17);
+x_1 = lean_mk_string_unchecked("unknown package `", 17, 17);
 return x_1;
 }
 }
@@ -3670,7 +3670,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__16() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown ", 8);
+x_1 = lean_mk_string_unchecked("unknown ", 8, 8);
 return x_1;
 }
 }
@@ -3678,7 +3678,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__17() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" facet `", 8);
+x_1 = lean_mk_string_unchecked(" facet `", 8, 8);
 return x_1;
 }
 }
@@ -3686,7 +3686,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__18() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown target `", 16);
+x_1 = lean_mk_string_unchecked("unknown target `", 16, 16);
 return x_1;
 }
 }
@@ -3694,7 +3694,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__19() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("package '", 9);
+x_1 = lean_mk_string_unchecked("package '", 9, 9);
 return x_1;
 }
 }
@@ -3702,7 +3702,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__20() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' has no module '", 17);
+x_1 = lean_mk_string_unchecked("' has no module '", 17, 17);
 return x_1;
 }
 }
@@ -3710,7 +3710,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__21() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' has no target '", 17);
+x_1 = lean_mk_string_unchecked("' has no target '", 17, 17);
 return x_1;
 }
 }
@@ -3718,7 +3718,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__22() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("target `", 8);
+x_1 = lean_mk_string_unchecked("target `", 8, 8);
 return x_1;
 }
 }
@@ -3726,7 +3726,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__23() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` is not a buildable via `lake`", 31);
+x_1 = lean_mk_string_unchecked("` is not a buildable via `lake`", 31, 31);
 return x_1;
 }
 }
@@ -3734,7 +3734,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__24() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid script spec '", 21);
+x_1 = lean_mk_string_unchecked("invalid script spec '", 21, 21);
 return x_1;
 }
 }
@@ -3742,7 +3742,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__25() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' (too many '", 13);
+x_1 = lean_mk_string_unchecked("' (too many '", 13, 13);
 return x_1;
 }
 }
@@ -3750,7 +3750,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__26() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("')", 2);
+x_1 = lean_mk_string_unchecked("')", 2, 2);
 return x_1;
 }
 }
@@ -3758,7 +3758,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__27() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid facet `", 15);
+x_1 = lean_mk_string_unchecked("invalid facet `", 15, 15);
 return x_1;
 }
 }
@@ -3766,7 +3766,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__28() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`; target ", 10);
+x_1 = lean_mk_string_unchecked("`; target ", 10, 10);
 return x_1;
 }
 }
@@ -3774,7 +3774,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__29() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" has no facets", 14);
+x_1 = lean_mk_string_unchecked(" has no facets", 14, 14);
 return x_1;
 }
 }
@@ -3782,7 +3782,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__30() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown executable ", 19);
+x_1 = lean_mk_string_unchecked("unknown executable ", 19, 19);
 return x_1;
 }
 }
@@ -3790,7 +3790,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__31() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown script ", 15);
+x_1 = lean_mk_string_unchecked("unknown script ", 15, 15);
 return x_1;
 }
 }
@@ -3798,7 +3798,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__32() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no documentation provided for `", 31);
+x_1 = lean_mk_string_unchecked("no documentation provided for `", 31, 31);
 return x_1;
 }
 }
@@ -3806,7 +3806,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__33() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' (too many '/')", 16);
+x_1 = lean_mk_string_unchecked("' (too many '/')", 16, 16);
 return x_1;
 }
 }
@@ -3814,7 +3814,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__34() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("output configuration file already exists: ", 42);
+x_1 = lean_mk_string_unchecked("output configuration file already exists: ", 42, 42);
 return x_1;
 }
 }
@@ -3822,7 +3822,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__35() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("could not detect a Lean installation", 36);
+x_1 = lean_mk_string_unchecked("could not detect a Lean installation", 36, 36);
 return x_1;
 }
 }
@@ -3830,7 +3830,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__36() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("could not detect the configuration of the Lake installation", 59);
+x_1 = lean_mk_string_unchecked("could not detect the configuration of the Lake installation", 59, 59);
 return x_1;
 }
 }
@@ -3838,7 +3838,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__37() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected Lean commit ", 21);
+x_1 = lean_mk_string_unchecked("expected Lean commit ", 21, 21);
 return x_1;
 }
 }
@@ -3846,7 +3846,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__38() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", but got ", 10);
+x_1 = lean_mk_string_unchecked(", but got ", 10, 10);
 return x_1;
 }
 }
@@ -3854,7 +3854,7 @@ static lean_object* _init_l_Lake_CliError_toString___closed__39() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("nothing", 7);
+x_1 = lean_mk_string_unchecked("nothing", 7, 7);
 return x_1;
 }
 }

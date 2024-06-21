@@ -28,7 +28,7 @@ static lean_object* _init_l_Lean_determineLakePath___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LEAN_SYSROOT", 12);
+x_1 = lean_mk_string_unchecked("LEAN_SYSROOT", 12, 12);
 return x_1;
 }
 }
@@ -36,7 +36,7 @@ static lean_object* _init_l_Lean_determineLakePath___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lake", 4);
+x_1 = lean_mk_string_unchecked("lake", 4, 4);
 return x_1;
 }
 }
@@ -44,7 +44,7 @@ static lean_object* _init_l_Lean_determineLakePath___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("bin", 3);
+x_1 = lean_mk_string_unchecked("bin", 3, 3);
 return x_1;
 }
 }
@@ -159,7 +159,7 @@ static lean_object* _init_l_Lean_determineLakePath___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LAKE", 4);
+x_1 = lean_mk_string_unchecked("LAKE", 4, 4);
 return x_1;
 }
 }

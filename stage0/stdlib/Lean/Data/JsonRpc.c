@@ -246,7 +246,7 @@ static lean_object* _init_l_Lean_JsonRpc_instInhabitedRequestID___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -520,7 +520,7 @@ static lean_object* _init_l_Lean_JsonRpc_instToStringRequestID___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\"", 1);
+x_1 = lean_mk_string_unchecked("\"", 1, 1);
 return x_1;
 }
 }
@@ -528,7 +528,7 @@ static lean_object* _init_l_Lean_JsonRpc_instToStringRequestID___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -760,7 +760,7 @@ static lean_object* _init_l_Lean_JsonRpc_instFromJsonErrorCode___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected error code", 19);
+x_1 = lean_mk_string_unchecked("expected error code", 19, 19);
 return x_1;
 }
 }
@@ -2712,7 +2712,7 @@ static lean_object* _init_l_Lean_JsonRpc_instFromJsonRequestID___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("a request id needs to be a number or a string", 45);
+x_1 = lean_mk_string_unchecked("a request id needs to be a number or a string", 45, 45);
 return x_1;
 }
 }
@@ -2959,7 +2959,7 @@ static lean_object* _init_l_Lean_JsonRpc_instToJsonMessage___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("2.0", 3);
+x_1 = lean_mk_string_unchecked("2.0", 3, 3);
 return x_1;
 }
 }
@@ -2977,7 +2977,7 @@ static lean_object* _init_l_Lean_JsonRpc_instToJsonMessage___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("jsonrpc", 7);
+x_1 = lean_mk_string_unchecked("jsonrpc", 7, 7);
 return x_1;
 }
 }
@@ -2997,7 +2997,7 @@ static lean_object* _init_l_Lean_JsonRpc_instToJsonMessage___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("method", 6);
+x_1 = lean_mk_string_unchecked("method", 6, 6);
 return x_1;
 }
 }
@@ -3005,7 +3005,7 @@ static lean_object* _init_l_Lean_JsonRpc_instToJsonMessage___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("params", 6);
+x_1 = lean_mk_string_unchecked("params", 6, 6);
 return x_1;
 }
 }
@@ -3013,7 +3013,7 @@ static lean_object* _init_l_Lean_JsonRpc_instToJsonMessage___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("id", 2);
+x_1 = lean_mk_string_unchecked("id", 2, 2);
 return x_1;
 }
 }
@@ -3033,7 +3033,7 @@ static lean_object* _init_l_Lean_JsonRpc_instToJsonMessage___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("result", 6);
+x_1 = lean_mk_string_unchecked("result", 6, 6);
 return x_1;
 }
 }
@@ -3041,7 +3041,7 @@ static lean_object* _init_l_Lean_JsonRpc_instToJsonMessage___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("message", 7);
+x_1 = lean_mk_string_unchecked("message", 7, 7);
 return x_1;
 }
 }
@@ -3049,7 +3049,7 @@ static lean_object* _init_l_Lean_JsonRpc_instToJsonMessage___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("data", 4);
+x_1 = lean_mk_string_unchecked("data", 4, 4);
 return x_1;
 }
 }
@@ -3057,7 +3057,7 @@ static lean_object* _init_l_Lean_JsonRpc_instToJsonMessage___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("code", 4);
+x_1 = lean_mk_string_unchecked("code", 4, 4);
 return x_1;
 }
 }
@@ -3065,7 +3065,7 @@ static lean_object* _init_l_Lean_JsonRpc_instToJsonMessage___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("error", 5);
+x_1 = lean_mk_string_unchecked("error", 5, 5);
 return x_1;
 }
 }
@@ -4116,7 +4116,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at_Lean_JsonRpc_instFrom
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected structured object, got '", 33);
+x_1 = lean_mk_string_unchecked("expected structured object, got '", 33, 33);
 return x_1;
 }
 }
@@ -4124,7 +4124,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at_Lean_JsonRpc_instFrom
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -4275,7 +4275,7 @@ static lean_object* _init_l_Lean_JsonRpc_instFromJsonMessage___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("only version 2.0 of JSON RPC is supported", 41);
+x_1 = lean_mk_string_unchecked("only version 2.0 of JSON RPC is supported", 41, 41);
 return x_1;
 }
 }
@@ -4985,7 +4985,7 @@ static lean_object* _init_l_Lean_JsonRpc_instFromJsonNotification___rarg___lambd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("not a notfication", 17);
+x_1 = lean_mk_string_unchecked("not a notfication", 17, 17);
 return x_1;
 }
 }
@@ -5962,7 +5962,7 @@ static lean_object* _init_l_IO_FS_Stream_readMessage___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("JSON '", 6);
+x_1 = lean_mk_string_unchecked("JSON '", 6, 6);
 return x_1;
 }
 }
@@ -5970,7 +5970,7 @@ static lean_object* _init_l_IO_FS_Stream_readMessage___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' did not have the format of a JSON-RPC message.\n", 49);
+x_1 = lean_mk_string_unchecked("' did not have the format of a JSON-RPC message.\n", 49, 49);
 return x_1;
 }
 }
@@ -6446,7 +6446,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Expected method '", 17);
+x_1 = lean_mk_string_unchecked("Expected method '", 17, 17);
 return x_1;
 }
 }
@@ -6454,7 +6454,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', got method '", 15);
+x_1 = lean_mk_string_unchecked("', got method '", 15, 15);
 return x_1;
 }
 }
@@ -6462,7 +6462,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Unexpected param '", 18);
+x_1 = lean_mk_string_unchecked("Unexpected param '", 18, 18);
 return x_1;
 }
 }
@@ -6470,7 +6470,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' for method '", 14);
+x_1 = lean_mk_string_unchecked("' for method '", 14, 14);
 return x_1;
 }
 }
@@ -6478,7 +6478,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'\n", 2);
+x_1 = lean_mk_string_unchecked("'\n", 2, 2);
 return x_1;
 }
 }
@@ -6486,7 +6486,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Expected JSON-RPC request, got: '", 33);
+x_1 = lean_mk_string_unchecked("Expected JSON-RPC request, got: '", 33, 33);
 return x_1;
 }
 }
@@ -7584,7 +7584,7 @@ static lean_object* _init_l_IO_FS_Stream_readNotificationAs___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Expected JSON-RPC notification, got: '", 38);
+x_1 = lean_mk_string_unchecked("Expected JSON-RPC notification, got: '", 38, 38);
 return x_1;
 }
 }
@@ -8879,7 +8879,7 @@ static lean_object* _init_l_IO_FS_Stream_readResponseAs___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Expected JSON-RPC response, got: '", 34);
+x_1 = lean_mk_string_unchecked("Expected JSON-RPC response, got: '", 34, 34);
 return x_1;
 }
 }
@@ -8887,7 +8887,7 @@ static lean_object* _init_l_IO_FS_Stream_readResponseAs___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Expected id ", 12);
+x_1 = lean_mk_string_unchecked("Expected id ", 12, 12);
 return x_1;
 }
 }
@@ -8895,7 +8895,7 @@ static lean_object* _init_l_IO_FS_Stream_readResponseAs___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", got id ", 9);
+x_1 = lean_mk_string_unchecked(", got id ", 9, 9);
 return x_1;
 }
 }
@@ -8903,7 +8903,7 @@ static lean_object* _init_l_IO_FS_Stream_readResponseAs___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Unexpected result '", 19);
+x_1 = lean_mk_string_unchecked("Unexpected result '", 19, 19);
 return x_1;
 }
 }

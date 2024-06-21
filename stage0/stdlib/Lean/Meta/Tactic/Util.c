@@ -717,7 +717,7 @@ static lean_object* _init_l_Lean_Meta_throwTacticEx___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tactic '", 8);
+x_1 = lean_mk_string_unchecked("tactic '", 8, 8);
 return x_1;
 }
 }
@@ -734,7 +734,7 @@ static lean_object* _init_l_Lean_Meta_throwTacticEx___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' failed\n", 9);
+x_1 = lean_mk_string_unchecked("' failed\n", 9, 9);
 return x_1;
 }
 }
@@ -751,7 +751,7 @@ static lean_object* _init_l_Lean_Meta_throwTacticEx___rarg___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -768,7 +768,7 @@ static lean_object* _init_l_Lean_Meta_throwTacticEx___rarg___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' failed, ", 10);
+x_1 = lean_mk_string_unchecked("' failed, ", 10, 10);
 return x_1;
 }
 }
@@ -785,7 +785,7 @@ static lean_object* _init_l_Lean_Meta_throwTacticEx___rarg___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -991,7 +991,7 @@ static lean_object* _init_l_Lean_Meta_throwNestedTacticEx___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' failed, nested error:\n", 24);
+x_1 = lean_mk_string_unchecked("' failed, nested error:\n", 24, 24);
 return x_1;
 }
 }
@@ -1065,7 +1065,7 @@ static lean_object* _init_l_Lean_MVarId_checkNotAssigned___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("metavariable has already been assigned", 38);
+x_1 = lean_mk_string_unchecked("metavariable has already been assigned", 38, 38);
 return x_1;
 }
 }
@@ -1371,7 +1371,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -1379,7 +1379,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -1397,7 +1397,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1425,7 +1425,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -1443,7 +1443,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -1491,7 +1491,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Util", 4);
+x_1 = lean_mk_string_unchecked("Util", 4, 4);
 return x_1;
 }
 }
@@ -1509,7 +1509,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -1675,7 +1675,7 @@ static lean_object* _init_l_Lean_MVarId_admit___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("admit", 5);
+x_1 = lean_mk_string_unchecked("admit", 5, 5);
 return x_1;
 }
 }
@@ -1839,7 +1839,7 @@ else
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
-x_6 = lean_name_eq(x_4, x_1);
+x_6 = lean_name_eq(x_1, x_4);
 if (x_6 == 0)
 {
 x_2 = x_5;
@@ -3040,7 +3040,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_ctor_get(x_1, 1);
-x_8 = lean_name_eq(x_6, x_2);
+x_8 = lean_name_eq(x_2, x_6);
 if (x_8 == 0)
 {
 lean_object* x_9; 
@@ -3063,7 +3063,7 @@ x_11 = lean_ctor_get(x_1, 1);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_dec(x_1);
-x_12 = lean_name_eq(x_10, x_2);
+x_12 = lean_name_eq(x_2, x_10);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
@@ -8507,7 +8507,7 @@ static lean_object* _init_l_Lean_MVarId_inferInstance___lambda__1___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`infer_instance` tactic failed to assign instance", 49);
+x_1 = lean_mk_string_unchecked("`infer_instance` tactic failed to assign instance", 49, 49);
 return x_1;
 }
 }
@@ -8759,7 +8759,7 @@ static lean_object* _init_l_Lean_MVarId_inferInstance___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("infer_instance", 14);
+x_1 = lean_mk_string_unchecked("infer_instance", 14, 14);
 return x_1;
 }
 }
@@ -8790,7 +8790,7 @@ static lean_object* _init_l_Lean_MVarId_isSubsingleton___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Subsingleton", 12);
+x_1 = lean_mk_string_unchecked("Subsingleton", 12, 12);
 return x_1;
 }
 }
@@ -8961,7 +8961,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tactic", 6);
+x_1 = lean_mk_string_unchecked("tactic", 6, 6);
 return x_1;
 }
 }
@@ -8969,7 +8969,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("skipAssignedInstances", 21);
+x_1 = lean_mk_string_unchecked("skipAssignedInstances", 21, 21);
 return x_1;
 }
 }
@@ -8987,7 +8987,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("backward compatibility", 22);
+x_1 = lean_mk_string_unchecked("backward compatibility", 22, 22);
 return x_1;
 }
 }
@@ -8995,7 +8995,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("in the `rw` and `simp` tactics, if an instance implicit argument is assigned, do not try to synthesize instance.", 112);
+x_1 = lean_mk_string_unchecked("in the `rw` and `simp` tactics, if an instance implicit argument is assigned, do not try to synthesize instance.", 112, 112);
 return x_1;
 }
 }

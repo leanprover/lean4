@@ -573,7 +573,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("u", 1);
+x_1 = lean_mk_string_unchecked("u", 1, 1);
 return x_1;
 }
 }
@@ -591,7 +591,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.Level", 24);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.Level", 24, 24);
 return x_1;
 }
 }
@@ -599,7 +599,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.NormLevelParam.normLevel", 43);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.NormLevelParam.normLevel", 43, 43);
 return x_1;
 }
 }
@@ -607,7 +607,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -1151,7 +1151,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normExpr___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.NormLevelParam.normExpr", 42);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.NormLevelParam.normExpr", 42, 42);
 return x_1;
 }
 }

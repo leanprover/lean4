@@ -194,9 +194,6 @@ def checkSystem : SynthM Unit := do
   Core.checkInterrupted
   Core.checkMaxHeartbeatsCore "typeclass" `synthInstance.maxHeartbeats (← read).maxHeartbeats
 
-@[inline] def mapMetaM (f : forall {α}, MetaM α → MetaM α) {α} : SynthM α → SynthM α :=
-  monadMap @f
-
 instance : Inhabited (SynthM α) where
   default := fun _ _ => default
 
@@ -337,26 +334,6 @@ def getSubgoals (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array 
   }
 
 /--
-Similar to `mkLambdaFVars`, but ensures result is eta-reduced.
-For example, suppose `e` is the local variable `inst x y`, and `xs` is `#[x, y]`, then
-the result is `inst` instead of `fun x y => inst x y`.
-
-We added this auxiliary function because of aliases such as `DecidablePred`. For example,
-consider the following definition.
-```
-def filter (p : α → Prop) [inst : DecidablePred p] (xs : List α) : List α :=
-  match xs with
-  | [] => []
-  | x :: xs' => if p x then x :: filter p xs' else filter p xs'
-```
-Without `mkLambdaFVars'`, the implicit instance at the `filter` applications would be `fun x => inst x` instead of `inst`.
-Moreover, the equation lemmas associated with `filter` would have `fun x => inst x` on their right-hand-side. Then,
-we would start getting terms such as `fun x => (fun x => inst x) x` when using the equational theorem.
--/
-private def mkLambdaFVars' (xs : Array Expr) (e : Expr) : MetaM Expr :=
-  return (← mkLambdaFVars xs e).eta
-
-/--
   Try to synthesize metavariable `mvar` using the instance `inst`.
   Remark: `mctx` is set using `withMCtx`.
   If it succeeds, the result is a new updated metavariable context and a new list of subgoals.
@@ -373,7 +350,23 @@ def tryResolve (mvar : Expr) (inst : Instance) : MetaM (Option (MetavarContext �
     withTraceNode `Meta.synthInstance.tryResolve (withMCtx (← getMCtx) do
         return m!"{exceptOptionEmoji ·} {← instantiateMVars mvarTypeBody} ≟ {← instantiateMVars instTypeBody}") do
     if (← isDefEq mvarTypeBody instTypeBody) then
-      let instVal ← mkLambdaFVars' xs instVal
+      /-
+      We set `etaReduce := true`.
+      For example, suppose `e` is the local variable `inst x y`, and `xs` is `#[x, y]`, then
+      the result is `inst` instead of `fun x y => inst x y`.
+
+      Consider the following definition.
+      ```
+      def filter (p : α → Prop) [inst : DecidablePred p] (xs : List α) : List α :=
+        match xs with
+        | [] => []
+        | x :: xs' => if p x then x :: filter p xs' else filter p xs'
+      ```
+      Without `etaReduce := true`, the implicit instance at the `filter` applications would be `fun x => inst x` instead of `inst`.
+      Moreover, the equation lemmas associated with `filter` would have `fun x => inst x` on their right-hand-side. Then,
+      we would start getting terms such as `fun x => (fun x => inst x) x` when using the equational theorem.
+      -/
+      let instVal ← mkLambdaFVars xs instVal (etaReduce := true)
       if (← isDefEq mvar instVal) then
         return some ((← getMCtx), subgoals)
     return none
@@ -486,7 +479,7 @@ private def removeUnusedArguments? (mctx : MetavarContext) (mvar : Expr) : MetaM
         let ys := ys.toArray
         let mvarType' ← mkForallFVars ys body
         withLocalDeclD `redf mvarType' fun f => do
-          let transformer ← mkLambdaFVars' #[f] (← mkLambdaFVars' xs (mkAppN f ys))
+          let transformer ← mkLambdaFVars #[f] (← mkLambdaFVars xs (mkAppN f ys) (etaReduce := true)) (etaReduce := true)
           trace[Meta.synthInstance.unusedArgs] "{mvarType}\nhas unused arguments, reduced type{indentExpr mvarType'}\nTransformer{indentExpr transformer}"
           return some (mvarType', transformer)
 

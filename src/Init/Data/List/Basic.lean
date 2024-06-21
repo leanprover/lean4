@@ -398,7 +398,7 @@ filterMap
     | some b => b :: filterMap f as
 
 @[simp] theorem filterMap_nil (f : α → Option β) : filterMap f [] = [] := rfl
-@[simp] theorem filterMap_cons (f : α → Option β) (a : α) (l : List α) :
+theorem filterMap_cons (f : α → Option β) (a : α) (l : List α) :
     filterMap f (a :: l) =
       match f a with
       | none => filterMap f l
@@ -562,12 +562,17 @@ set_option linter.missingDocs false in
 `replicate n a` is `n` copies of `a`:
 * `replicate 5 a = [a, a, a, a, a]`
 -/
-@[simp] def replicate : (n : Nat) → (a : α) → List α
+def replicate : (n : Nat) → (a : α) → List α
   | 0,   _ => []
   | n+1, a => a :: replicate n a
 
+@[simp] theorem replicate_zero : replicate 0 a = [] := rfl
+theorem replicate_succ (a : α) (n) : replicate (n+1) a = a :: replicate n a := rfl
+
 @[simp] theorem length_replicate (n : Nat) (a : α) : (replicate n a).length = n := by
-  induction n <;> simp_all
+  induction n with
+  | zero => simp
+  | succ n ih => simp only [ih, replicate_succ, length_cons, Nat.succ_eq_add_one]
 
 /-! ## List membership
 
@@ -606,13 +611,13 @@ def isEmpty : List α → Bool
 -/
 def elem [BEq α] (a : α) : List α → Bool
   | []    => false
-  | b::bs => match b == a with
+  | b::bs => match a == b with
     | true  => true
     | false => elem a bs
 
 @[simp] theorem elem_nil [BEq α] : ([] : List α).elem a = false := rfl
 theorem elem_cons [BEq α] {a : α} :
-    (a::as).elem b = match a == b with | true => true | false => as.elem b := rfl
+    (b::bs).elem a = match a == b with | true => true | false => bs.elem a := rfl
 
 /-- `notElem a l` is `!(elem a l)`. -/
 @[deprecated (since := "2024-06-15")]
@@ -735,7 +740,7 @@ theorem drop_eq_nil_of_le {as : List α} {i : Nat} (h : as.length ≤ i) : as.dr
   match as, i with
   | [],    i   => simp
   | _::_,  0   => simp at h
-  | _::as, i+1 => simp at h; exact @drop_eq_nil_of_le as i (Nat.le_of_succ_le_succ h)
+  | _::as, i+1 => simp only [length_cons] at h; exact @drop_eq_nil_of_le as i (Nat.le_of_succ_le_succ h)
 
 /-! ### takeWhile -/
 
@@ -847,6 +852,9 @@ That is, there exists a `t` such that `l₂ == t ++ l₁`. -/
 def isSuffixOf [BEq α] (l₁ l₂ : List α) : Bool :=
   isPrefixOf l₁.reverse l₂.reverse
 
+@[simp] theorem isSuffixOf_nil_left [BEq α] : isSuffixOf ([] : List α) l = true := by
+  simp [isSuffixOf]
+
 /-! ### isSuffixOf? -/
 
 /-- `isSuffixOf? l₁ l₂` returns `some t` when `l₂ == t ++ l₁`.-/
@@ -872,6 +880,8 @@ def rotateLeft (xs : List α) (n : Nat := 1) : List α :=
     let e := xs.drop n
     e ++ b
 
+@[simp] theorem rotateLeft_nil : ([] : List α).rotateLeft n = [] := rfl
+
 /-! ### rotateRight -/
 
 /--
@@ -891,6 +901,8 @@ def rotateRight (xs : List α) (n : Nat := 1) : List α :=
     let e := xs.drop n
     e ++ b
 
+@[simp] theorem rotateRight_nil : ([] : List α).rotateRight n = [] := rfl
+
 /-! ## Manipulating elements -/
 
 /-! ### replace -/
@@ -903,13 +915,13 @@ def rotateRight (xs : List α) (n : Nat := 1) : List α :=
 -/
 def replace [BEq α] : List α → α → α → List α
   | [],    _, _ => []
-  | a::as, b, c => match a == b with
+  | a::as, b, c => match b == a with
     | true  => c::as
     | false => a :: replace as b c
 
 @[simp] theorem replace_nil [BEq α] : ([] : List α).replace a b = [] := rfl
 theorem replace_cons [BEq α] {a : α} :
-    (a::as).replace b c = match a == b with | true => c::as | false => a :: replace as b c :=
+    (a::as).replace b c = match b == a with | true => c::as | false => a :: replace as b c :=
   rfl
 
 /-! ### insert -/

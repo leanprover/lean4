@@ -24,7 +24,6 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkHashSet___at_Lean_CollectMVars_State_visitedExpr___default___spec__1(lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CollectMVars_main(lean_object*, lean_object*);
-uint8_t l_Lean_Expr_hasMVar(lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CollectMVars_State_result___default;
 LEAN_EXPORT lean_object* l_Lean_Expr_collectMVars(lean_object*, lean_object*);
@@ -51,6 +50,7 @@ static lean_object* l_Lean_CollectMVars_instInhabitedState___closed__2;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashSetImp_insert___at_Lean_CollectMVars_visit___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_replace___at_Lean_CollectMVars_visit___spec__7___boxed(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Expr_hasExprMVar(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkHashSet___at_Lean_CollectMVars_State_visitedExpr___default___spec__1(lean_object* x_1) {
 _start:
 {
@@ -137,7 +137,7 @@ else
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
-x_6 = lean_expr_eqv(x_4, x_1);
+x_6 = lean_expr_eqv(x_1, x_4);
 if (x_6 == 0)
 {
 x_2 = x_5;
@@ -282,7 +282,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_ctor_get(x_1, 1);
-x_8 = lean_expr_eqv(x_6, x_2);
+x_8 = lean_expr_eqv(x_2, x_6);
 if (x_8 == 0)
 {
 lean_object* x_9; 
@@ -305,7 +305,7 @@ x_11 = lean_ctor_get(x_1, 1);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_dec(x_1);
-x_12 = lean_expr_eqv(x_10, x_2);
+x_12 = lean_expr_eqv(x_2, x_10);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
@@ -447,7 +447,7 @@ LEAN_EXPORT lean_object* l_Lean_CollectMVars_visit(lean_object* x_1, lean_object
 _start:
 {
 uint8_t x_3; 
-x_3 = l_Lean_Expr_hasMVar(x_1);
+x_3 = l_Lean_Expr_hasExprMVar(x_1);
 if (x_3 == 0)
 {
 lean_dec(x_1);

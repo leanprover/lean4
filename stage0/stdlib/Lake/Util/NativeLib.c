@@ -46,7 +46,7 @@ static lean_object* _init_l_Lake_sharedLibExt___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("so", 2);
+x_1 = lean_mk_string_unchecked("so", 2, 2);
 return x_1;
 }
 }
@@ -54,7 +54,7 @@ static lean_object* _init_l_Lake_sharedLibExt___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("dylib", 5);
+x_1 = lean_mk_string_unchecked("dylib", 5, 5);
 return x_1;
 }
 }
@@ -81,7 +81,7 @@ static lean_object* _init_l_Lake_sharedLibExt___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("dll", 3);
+x_1 = lean_mk_string_unchecked("dll", 3, 3);
 return x_1;
 }
 }
@@ -116,7 +116,7 @@ static lean_object* _init_l_Lake_nameToStaticLib___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lib", 3);
+x_1 = lean_mk_string_unchecked("lib", 3, 3);
 return x_1;
 }
 }
@@ -124,7 +124,7 @@ static lean_object* _init_l_Lake_nameToStaticLib___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".a", 2);
+x_1 = lean_mk_string_unchecked(".a", 2, 2);
 return x_1;
 }
 }
@@ -132,7 +132,7 @@ static lean_object* _init_l_Lake_nameToStaticLib___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -174,7 +174,7 @@ static lean_object* _init_l_Lake_nameToSharedLib___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".so", 3);
+x_1 = lean_mk_string_unchecked(".so", 3, 3);
 return x_1;
 }
 }
@@ -182,7 +182,7 @@ static lean_object* _init_l_Lake_nameToSharedLib___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".dylib", 6);
+x_1 = lean_mk_string_unchecked(".dylib", 6, 6);
 return x_1;
 }
 }
@@ -190,7 +190,7 @@ static lean_object* _init_l_Lake_nameToSharedLib___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".dll", 4);
+x_1 = lean_mk_string_unchecked(".dll", 4, 4);
 return x_1;
 }
 }
@@ -246,7 +246,7 @@ static lean_object* _init_l_Lake_sharedLibPathEnvVar___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LD_LIBRARY_PATH", 15);
+x_1 = lean_mk_string_unchecked("LD_LIBRARY_PATH", 15, 15);
 return x_1;
 }
 }
@@ -254,7 +254,7 @@ static lean_object* _init_l_Lake_sharedLibPathEnvVar___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("DYLD_LIBRARY_PATH", 17);
+x_1 = lean_mk_string_unchecked("DYLD_LIBRARY_PATH", 17, 17);
 return x_1;
 }
 }
@@ -281,7 +281,7 @@ static lean_object* _init_l_Lake_sharedLibPathEnvVar___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PATH", 4);
+x_1 = lean_mk_string_unchecked("PATH", 4, 4);
 return x_1;
 }
 }

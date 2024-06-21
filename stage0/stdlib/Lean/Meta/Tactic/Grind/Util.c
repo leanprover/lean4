@@ -175,7 +175,7 @@ static lean_object* _init_l_Lean_MVarId_ensureNoMVar___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("grind", 5);
+x_1 = lean_mk_string_unchecked("grind", 5, 5);
 return x_1;
 }
 }
@@ -193,7 +193,7 @@ static lean_object* _init_l_Lean_MVarId_ensureNoMVar___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("goal contains metavariables", 27);
+x_1 = lean_mk_string_unchecked("goal contains metavariables", 27, 27);
 return x_1;
 }
 }
@@ -338,7 +338,7 @@ static lean_object* _init_l_Lean_MVarId_ensureProp___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("goal is not a proposition", 25);
+x_1 = lean_mk_string_unchecked("goal is not a proposition", 25, 25);
 return x_1;
 }
 }
@@ -3170,7 +3170,7 @@ static lean_object* _init_l_Lean_MVarId_byContra_x3f___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("False", 5);
+x_1 = lean_mk_string_unchecked("False", 5, 5);
 return x_1;
 }
 }
@@ -3198,7 +3198,7 @@ static lean_object* _init_l_Lean_MVarId_byContra_x3f___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Classical", 9);
+x_1 = lean_mk_string_unchecked("Classical", 9, 9);
 return x_1;
 }
 }
@@ -3206,7 +3206,7 @@ static lean_object* _init_l_Lean_MVarId_byContra_x3f___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("byContradiction", 15);
+x_1 = lean_mk_string_unchecked("byContradiction", 15, 15);
 return x_1;
 }
 }
@@ -3452,7 +3452,7 @@ static lean_object* _init_l_Lean_MVarId_byContra_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("by_contra", 9);
+x_1 = lean_mk_string_unchecked("by_contra", 9, 9);
 return x_1;
 }
 }
@@ -4209,7 +4209,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_MVarId_clearAuxDecls___spe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to clear local auxiliary declaration", 43);
+x_1 = lean_mk_string_unchecked("failed to clear local auxiliary declaration", 43, 43);
 return x_1;
 }
 }
@@ -4596,7 +4596,7 @@ static lean_object* _init_l_Lean_MVarId_clearAuxDecls___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("clear_aux_decls", 15);
+x_1 = lean_mk_string_unchecked("clear_aux_decls", 15, 15);
 return x_1;
 }
 }

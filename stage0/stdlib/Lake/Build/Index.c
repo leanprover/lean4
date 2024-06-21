@@ -399,7 +399,7 @@ static lean_object* _init_l_Lake_ExternLib_recBuildStatic___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("static", 6);
+x_1 = lean_mk_string_unchecked("static", 6, 6);
 return x_1;
 }
 }
@@ -407,7 +407,7 @@ static lean_object* _init_l_Lake_ExternLib_recBuildStatic___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -415,7 +415,7 @@ static lean_object* _init_l_Lake_ExternLib_recBuildStatic___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":static", 7);
+x_1 = lean_mk_string_unchecked(":static", 7, 7);
 return x_1;
 }
 }
@@ -547,7 +547,7 @@ static lean_object* _init_l_Lake_ExternLib_recBuildShared___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":shared", 7);
+x_1 = lean_mk_string_unchecked(":shared", 7, 7);
 return x_1;
 }
 }
@@ -663,7 +663,7 @@ static lean_object* _init_l_Lake_ExternLib_recComputeDynlib___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":dynlib", 7);
+x_1 = lean_mk_string_unchecked(":dynlib", 7, 7);
 return x_1;
 }
 }
@@ -717,7 +717,7 @@ static lean_object* _init_l_Lake_recBuildWithIndex___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("do not know how to build module facet `", 39);
+x_1 = lean_mk_string_unchecked("do not know how to build module facet `", 39, 39);
 return x_1;
 }
 }
@@ -725,7 +725,7 @@ static lean_object* _init_l_Lake_recBuildWithIndex___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`", 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -733,7 +733,7 @@ static lean_object* _init_l_Lake_recBuildWithIndex___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("do not know how to build package facet `", 40);
+x_1 = lean_mk_string_unchecked("do not know how to build package facet `", 40, 40);
 return x_1;
 }
 }
@@ -741,7 +741,7 @@ static lean_object* _init_l_Lake_recBuildWithIndex___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("do not know how to build library facet `", 40);
+x_1 = lean_mk_string_unchecked("do not know how to build library facet `", 40, 40);
 return x_1;
 }
 }
@@ -749,7 +749,7 @@ static lean_object* _init_l_Lake_recBuildWithIndex___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("could not build `", 17);
+x_1 = lean_mk_string_unchecked("could not build `", 17, 17);
 return x_1;
 }
 }
@@ -757,7 +757,7 @@ static lean_object* _init_l_Lake_recBuildWithIndex___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` of `", 6);
+x_1 = lean_mk_string_unchecked("` of `", 6, 6);
 return x_1;
 }
 }
@@ -765,7 +765,7 @@ static lean_object* _init_l_Lake_recBuildWithIndex___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` -- target not found", 21);
+x_1 = lean_mk_string_unchecked("` -- target not found", 21, 21);
 return x_1;
 }
 }
@@ -1307,7 +1307,7 @@ else
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
-x_6 = l___private_Lake_Build_Key_0__Lake_decEqBuildKey____x40_Lake_Build_Key___hyg_325_(x_4, x_1);
+x_6 = l___private_Lake_Build_Key_0__Lake_decEqBuildKey____x40_Lake_Build_Key___hyg_325_(x_1, x_4);
 if (x_6 == 0)
 {
 x_2 = x_5;
@@ -3923,7 +3923,7 @@ static lean_object* _init_l_Lake_buildCycleError___at_Lake_FetchM_run___spec__6_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -3931,7 +3931,7 @@ static lean_object* _init_l_Lake_buildCycleError___at_Lake_FetchM_run___spec__6_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("build cycle detected:\n", 22);
+x_1 = lean_mk_string_unchecked("build cycle detected:\n", 22, 22);
 return x_1;
 }
 }

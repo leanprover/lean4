@@ -776,14 +776,8 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (E
   match (matcherExt.getState env).find? (result.value, compile) with
   | some nameNew => return (mkMatcherConst nameNew, none)
   | none =>
-    let decl := Declaration.defnDecl {
-      name
-      levelParams := result.levelParams.toList
-      type        := result.type
-      value       := result.value
-      hints       := ReducibilityHints.abbrev
-      safety      := if env.hasUnsafe result.type || env.hasUnsafe result.value then DefinitionSafety.unsafe else DefinitionSafety.safe
-    }
+    let decl := Declaration.defnDecl (← mkDefinitionValInferrringUnsafe name result.levelParams.toList
+      result.type result.value .abbrev)
     trace[Meta.Match.debug] "{name} : {result.type} := {result.value}"
     let addMatcher : MatcherInfo → MetaM Unit := fun mi => do
       addDecl decl

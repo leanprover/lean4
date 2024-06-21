@@ -435,8 +435,6 @@ structure Pair (α : Type u) (β : Type v) : Type (max u v) where
   "#check " >> termParser
 @[builtin_command_parser] def check_failure  := leading_parser
   "#check_failure " >> termParser -- Like `#check`, but succeeds only if term does not type check
-@[builtin_command_parser] def reduce         := leading_parser
-  "#reduce " >> termParser
 @[builtin_command_parser] def eval           := leading_parser
   "#eval " >> termParser
 @[builtin_command_parser] def synth          := leading_parser

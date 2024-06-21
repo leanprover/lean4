@@ -498,7 +498,7 @@ private partial def withSynthesizeImp (k : TermElabM α) (postpone : PostponeBeh
   Execute `k`, and synthesize pending synthetic metavariables created while executing `k` are solved.
   If `mayPostpone == false`, then all of them must be synthesized.
   Remark: even if `mayPostpone == true`, the method still uses `synthesizeUsingDefault` -/
-@[inline] def withSynthesize [MonadFunctorT TermElabM m] [Monad m] (k : m α) (postpone := PostponeBehavior.no) : m α :=
+@[inline] def withSynthesize [MonadFunctorT TermElabM m] (k : m α) (postpone := PostponeBehavior.no) : m α :=
   monadMap (m := TermElabM) (withSynthesizeImp · postpone) k
 
 private partial def withSynthesizeLightImp (k : TermElabM α) : TermElabM α := do
@@ -512,7 +512,7 @@ private partial def withSynthesizeLightImp (k : TermElabM α) : TermElabM α := 
     modify fun s => { s with pendingMVars := s.pendingMVars ++ pendingMVarsSaved }
 
 /-- Similar to `withSynthesize`, but uses `postpone := .true`, does not use use `synthesizeUsingDefault` -/
-@[inline] def withSynthesizeLight [MonadFunctorT TermElabM m] [Monad m] (k : m α) : m α :=
+@[inline] def withSynthesizeLight [MonadFunctorT TermElabM m] (k : m α) : m α :=
   monadMap (m := TermElabM) (withSynthesizeLightImp ·) k
 
 /-- Elaborate `stx`, and make sure all pending synthetic metavariables created while elaborating `stx` are solved. -/

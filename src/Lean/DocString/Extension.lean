@@ -63,7 +63,7 @@ def getMainModuleDoc (env : Environment) : PersistentArray ModuleDoc :=
 def getModuleDoc? (env : Environment) (moduleName : Name) : Option (Array ModuleDoc) :=
   env.getModuleIdx? moduleName |>.map fun modIdx => moduleDocExt.getModuleEntries env modIdx
 
-def getDocStringText [Monad m] [MonadError m] [MonadRef m] (stx : TSyntax `Lean.Parser.Command.docComment) : m String :=
+def getDocStringText [Monad m] [MonadError m] (stx : TSyntax `Lean.Parser.Command.docComment) : m String :=
   match stx.raw[1] with
   | Syntax.atom _ val => return val.extract 0 (val.endPos - ⟨2⟩)
   | _                 => throwErrorAt stx "unexpected doc string{indentD stx.raw[1]}"

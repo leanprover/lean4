@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normExprImp(lean_object*, lean_object*, uint8_t);
-static lean_object* l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__4;
 lean_object* l_Lean_Compiler_LCNF_normCode___rarg___lambda__1(uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_getFunDecl___closed__2;
 lean_object* l_Lean_Compiler_LCNF_normParams___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -116,7 +115,6 @@ LEAN_EXPORT lean_object* l_ReaderT_read___at_Lean_Compiler_LCNF_instMonadFVarSub
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_BasicAux_0__mapMonoMImp_go___at_Lean_Compiler_LCNF_normCodeImp___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_mkFunDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_getPhase(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__5;
 lean_object* l_Lean_Compiler_LCNF_LCtx_toLocalContext(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at_Lean_Compiler_LCNF_getType___spec__6___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_normArgs___at_Lean_Compiler_LCNF_normCodeImp___spec__2(uint8_t);
@@ -212,7 +210,6 @@ static lean_object* l_Lean_Compiler_LCNF_instMonadCompilerM___closed__5;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normArgsImp___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_panic___at_Lean_Expr_appFn_x21___spec__1(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_normParam___at_Lean_Compiler_LCNF_normFunDeclImp___spec__2___rarg(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__6;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_getBinderName___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normFVarImp___boxed(lean_object*, lean_object*, lean_object*);
@@ -924,57 +921,19 @@ static lean_object* _init_l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__2;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__2;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__2;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__3;
-x_3 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__4;
-x_4 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__5;
-x_5 = lean_alloc_ctor(0, 9, 0);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_1);
-lean_ctor_set(x_5, 2, x_1);
-lean_ctor_set(x_5, 3, x_2);
-lean_ctor_set(x_5, 4, x_3);
-lean_ctor_set(x_5, 5, x_4);
-lean_ctor_set(x_5, 6, x_2);
-lean_ctor_set(x_5, 7, x_3);
-lean_ctor_set(x_5, 8, x_3);
-return x_5;
+x_2 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__2;
+x_3 = lean_alloc_ctor(0, 9, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_1);
+lean_ctor_set(x_3, 2, x_1);
+lean_ctor_set(x_3, 3, x_2);
+lean_ctor_set(x_3, 4, x_2);
+lean_ctor_set(x_3, 5, x_2);
+lean_ctor_set(x_3, 6, x_2);
+lean_ctor_set(x_3, 7, x_2);
+lean_ctor_set(x_3, 8, x_2);
+return x_3;
 }
 }
 lean_object* l_Lean_Compiler_LCNF_instAddMessageContextCompilerM(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -1003,7 +962,7 @@ lean_dec(x_14);
 x_16 = l_Lean_Compiler_LCNF_LCtx_toLocalContext(x_15);
 lean_dec(x_15);
 x_17 = lean_ctor_get(x_4, 2);
-x_18 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__6;
+x_18 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__3;
 lean_inc(x_17);
 x_19 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_19, 0, x_11);
@@ -1030,7 +989,7 @@ lean_dec(x_20);
 x_23 = l_Lean_Compiler_LCNF_LCtx_toLocalContext(x_22);
 lean_dec(x_22);
 x_24 = lean_ctor_get(x_4, 2);
-x_25 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__6;
+x_25 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__3;
 lean_inc(x_24);
 x_26 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_26, 0, x_11);
@@ -1076,7 +1035,7 @@ lean_dec(x_32);
 x_36 = l_Lean_Compiler_LCNF_LCtx_toLocalContext(x_35);
 lean_dec(x_35);
 x_37 = lean_ctor_get(x_4, 2);
-x_38 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__6;
+x_38 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__3;
 lean_inc(x_37);
 x_39 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_39, 0, x_30);
@@ -1274,7 +1233,7 @@ lean_dec(x_15);
 x_17 = l_Lean_Compiler_LCNF_LCtx_toLocalContext(x_16);
 lean_dec(x_16);
 x_18 = lean_ctor_get(x_4, 2);
-x_19 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__6;
+x_19 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__3;
 lean_inc(x_18);
 x_20 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_20, 0, x_12);
@@ -1306,7 +1265,7 @@ lean_dec(x_22);
 x_25 = l_Lean_Compiler_LCNF_LCtx_toLocalContext(x_24);
 lean_dec(x_24);
 x_26 = lean_ctor_get(x_4, 2);
-x_27 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__6;
+x_27 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__3;
 lean_inc(x_26);
 x_28 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_28, 0, x_12);
@@ -1356,7 +1315,7 @@ lean_dec(x_35);
 x_39 = l_Lean_Compiler_LCNF_LCtx_toLocalContext(x_38);
 lean_dec(x_38);
 x_40 = lean_ctor_get(x_4, 2);
-x_41 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__6;
+x_41 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__3;
 lean_inc(x_40);
 x_42 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_42, 0, x_33);
@@ -1386,7 +1345,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_getType___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown free variable ", 22);
+x_1 = lean_mk_string_unchecked("unknown free variable ", 22, 22);
 return x_1;
 }
 }
@@ -1403,7 +1362,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_getType___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -1717,7 +1676,7 @@ lean_dec(x_15);
 x_17 = l_Lean_Compiler_LCNF_LCtx_toLocalContext(x_16);
 lean_dec(x_16);
 x_18 = lean_ctor_get(x_4, 2);
-x_19 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__6;
+x_19 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__3;
 lean_inc(x_18);
 x_20 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_20, 0, x_12);
@@ -1749,7 +1708,7 @@ lean_dec(x_22);
 x_25 = l_Lean_Compiler_LCNF_LCtx_toLocalContext(x_24);
 lean_dec(x_24);
 x_26 = lean_ctor_get(x_4, 2);
-x_27 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__6;
+x_27 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__3;
 lean_inc(x_26);
 x_28 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_28, 0, x_12);
@@ -1799,7 +1758,7 @@ lean_dec(x_35);
 x_39 = l_Lean_Compiler_LCNF_LCtx_toLocalContext(x_38);
 lean_dec(x_38);
 x_40 = lean_ctor_get(x_4, 2);
-x_41 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__6;
+x_41 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__3;
 lean_inc(x_40);
 x_42 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_42, 0, x_33);
@@ -2580,7 +2539,7 @@ lean_dec(x_15);
 x_17 = l_Lean_Compiler_LCNF_LCtx_toLocalContext(x_16);
 lean_dec(x_16);
 x_18 = lean_ctor_get(x_4, 2);
-x_19 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__6;
+x_19 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__3;
 lean_inc(x_18);
 x_20 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_20, 0, x_12);
@@ -2612,7 +2571,7 @@ lean_dec(x_22);
 x_25 = l_Lean_Compiler_LCNF_LCtx_toLocalContext(x_24);
 lean_dec(x_24);
 x_26 = lean_ctor_get(x_4, 2);
-x_27 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__6;
+x_27 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__3;
 lean_inc(x_26);
 x_28 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_28, 0, x_12);
@@ -2662,7 +2621,7 @@ lean_dec(x_35);
 x_39 = l_Lean_Compiler_LCNF_LCtx_toLocalContext(x_38);
 lean_dec(x_38);
 x_40 = lean_ctor_get(x_4, 2);
-x_41 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__6;
+x_41 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__3;
 lean_inc(x_40);
 x_42 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_42, 0, x_33);
@@ -2692,7 +2651,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_getParam___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown parameter ", 18);
+x_1 = lean_mk_string_unchecked("unknown parameter ", 18, 18);
 return x_1;
 }
 }
@@ -2814,7 +2773,7 @@ lean_dec(x_15);
 x_17 = l_Lean_Compiler_LCNF_LCtx_toLocalContext(x_16);
 lean_dec(x_16);
 x_18 = lean_ctor_get(x_4, 2);
-x_19 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__6;
+x_19 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__3;
 lean_inc(x_18);
 x_20 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_20, 0, x_12);
@@ -2846,7 +2805,7 @@ lean_dec(x_22);
 x_25 = l_Lean_Compiler_LCNF_LCtx_toLocalContext(x_24);
 lean_dec(x_24);
 x_26 = lean_ctor_get(x_4, 2);
-x_27 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__6;
+x_27 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__3;
 lean_inc(x_26);
 x_28 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_28, 0, x_12);
@@ -2896,7 +2855,7 @@ lean_dec(x_35);
 x_39 = l_Lean_Compiler_LCNF_LCtx_toLocalContext(x_38);
 lean_dec(x_38);
 x_40 = lean_ctor_get(x_4, 2);
-x_41 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__6;
+x_41 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__3;
 lean_inc(x_40);
 x_42 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_42, 0, x_33);
@@ -2926,7 +2885,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_getLetDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown let-declaration ", 24);
+x_1 = lean_mk_string_unchecked("unknown let-declaration ", 24, 24);
 return x_1;
 }
 }
@@ -3048,7 +3007,7 @@ lean_dec(x_15);
 x_17 = l_Lean_Compiler_LCNF_LCtx_toLocalContext(x_16);
 lean_dec(x_16);
 x_18 = lean_ctor_get(x_4, 2);
-x_19 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__6;
+x_19 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__3;
 lean_inc(x_18);
 x_20 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_20, 0, x_12);
@@ -3080,7 +3039,7 @@ lean_dec(x_22);
 x_25 = l_Lean_Compiler_LCNF_LCtx_toLocalContext(x_24);
 lean_dec(x_24);
 x_26 = lean_ctor_get(x_4, 2);
-x_27 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__6;
+x_27 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__3;
 lean_inc(x_26);
 x_28 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_28, 0, x_12);
@@ -3130,7 +3089,7 @@ lean_dec(x_35);
 x_39 = l_Lean_Compiler_LCNF_LCtx_toLocalContext(x_38);
 lean_dec(x_38);
 x_40 = lean_ctor_get(x_4, 2);
-x_41 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__6;
+x_41 = l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__3;
 lean_inc(x_40);
 x_42 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_42, 0, x_33);
@@ -3160,7 +3119,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_getFunDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown local function ", 23);
+x_1 = lean_mk_string_unchecked("unknown local function ", 23, 23);
 return x_1;
 }
 }
@@ -4085,7 +4044,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.CompilerM", 28);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.CompilerM", 28, 28);
 return x_1;
 }
 }
@@ -4093,7 +4052,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Compiler.LCNF.CompilerM.0.Lean.Compiler.LCNF.normExprImp.go", 73);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.CompilerM.0.Lean.Compiler.LCNF.normExprImp.go", 73, 73);
 return x_1;
 }
 }
@@ -4101,7 +4060,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -4509,7 +4468,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid LCNF substitution of free variable with expression ", 59);
+x_1 = lean_mk_string_unchecked("invalid LCNF substitution of free variable with expression ", 59, 59);
 return x_1;
 }
 }
@@ -4517,7 +4476,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Compiler.LCNF.CompilerM.0.Lean.Compiler.LCNF.normFVarImp", 70);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.CompilerM.0.Lean.Compiler.LCNF.normFVarImp", 70, 70);
 return x_1;
 }
 }
@@ -6034,7 +5993,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_mkParam___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_y", 2);
+x_1 = lean_mk_string_unchecked("_y", 2, 2);
 return x_1;
 }
 }
@@ -6191,7 +6150,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_mkLetDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_x", 2);
+x_1 = lean_mk_string_unchecked("_x", 2, 2);
 return x_1;
 }
 }
@@ -6314,7 +6273,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_mkFunDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_f", 2);
+x_1 = lean_mk_string_unchecked("_f", 2, 2);
 return x_1;
 }
 }
@@ -10470,7 +10429,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_mkFreshJpName___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_jp", 3);
+x_1 = lean_mk_string_unchecked("_jp", 3, 3);
 return x_1;
 }
 }
@@ -10713,12 +10672,6 @@ l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__2 = _init_l_Lean_C
 lean_mark_persistent(l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__2);
 l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__3 = _init_l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__3();
 lean_mark_persistent(l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__3);
-l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__4 = _init_l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__4();
-lean_mark_persistent(l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__4);
-l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__5 = _init_l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__5();
-lean_mark_persistent(l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__5);
-l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__6 = _init_l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__6();
-lean_mark_persistent(l_Lean_Compiler_LCNF_instAddMessageContextCompilerM___closed__6);
 l_Lean_Compiler_LCNF_getType___closed__1 = _init_l_Lean_Compiler_LCNF_getType___closed__1();
 lean_mark_persistent(l_Lean_Compiler_LCNF_getType___closed__1);
 l_Lean_Compiler_LCNF_getType___closed__2 = _init_l_Lean_Compiler_LCNF_getType___closed__2();

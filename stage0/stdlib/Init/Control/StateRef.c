@@ -13,56 +13,52 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_instMonadFinallyStateRefT_x27OfMonad___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadExceptOf___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_StateRefT_x27_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadStateOfOfMonadLiftTSTOfMonad(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_StateRefT_x27_get(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_StateRefT_x27_instMonadFunctorOfMonad___closed__1;
+LEAN_EXPORT lean_object* l_StateRefT_x27_get(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadStateOfOfMonadLiftTST___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadFinallyStateRefT_x27OfMonad___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_StateRefT_x27_set(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_StateRefT_x27_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_instAlternativeOfMonad(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_StateRefT_x27_modifyGet(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_StateRefT_x27_modifyGet(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_set___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_tryFinally___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_run___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_tryFinally___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_run_x27___rarg___lambda__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadFunctorOfMonad(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_instMonadControlStateRefT_x27___closed__2;
 LEAN_EXPORT lean_object* l_instMonadFinallyStateRefT_x27OfMonad(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_instMonad___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_run___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_StateRefT_x27_modifyGet___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_run___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_StateRefT_x27_set___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadStateOfOfMonadLiftTST(lean_object*, lean_object*, lean_object*);
 static lean_object* l_instMonadControlStateRefT_x27___closed__1;
+LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadFunctor(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instMonadFunctor(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_lift___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadExceptOf___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadExceptOf___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadStateOfOfMonadLiftTSTOfMonad___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Prim_mkRef___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_lift___rarg(lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_modifyGetUnsafe___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadControlStateRefT_x27(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadStateOfOfMonadLiftTST___rarg(lean_object*);
 static lean_object* l_StateRefT_x27_instMonadLift___closed__1;
 LEAN_EXPORT lean_object* l_StateRefT_x27_run_x27___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadExceptOf(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadExceptOf___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_instMonad(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instAlternativeOfMonad___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadFunctorOfMonad___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_set___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_run_x27(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadStateOfOfMonadLiftTSTOfMonad___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_lift(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_StateRefT_x27_instMonadFunctor___closed__1;
 LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadLift(lean_object*, lean_object*, lean_object*);
 lean_object* l_instMonadControlReaderT___lambda__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadExceptOf___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_run___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_get___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_run(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadStateOfOfMonadLiftTSTOfMonad___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_modifyGet___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_instAlternativeOfMonad___rarg(lean_object*, lean_object*);
 static lean_object* l_instMonadControlStateRefT_x27___closed__3;
@@ -259,7 +255,7 @@ x_4 = l_StateRefT_x27_instMonadLift___closed__1;
 return x_4;
 }
 }
-static lean_object* _init_l_StateRefT_x27_instMonadFunctorOfMonad___closed__1() {
+static lean_object* _init_l_StateRefT_x27_instMonadFunctor___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -269,21 +265,12 @@ lean_closure_set(x_1, 1, lean_box(0));
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadFunctorOfMonad(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadFunctor(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_5; 
-x_5 = l_StateRefT_x27_instMonadFunctorOfMonad___closed__1;
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadFunctorOfMonad___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_StateRefT_x27_instMonadFunctorOfMonad(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-return x_5;
+lean_object* x_4; 
+x_4 = l_StateRefT_x27_instMonadFunctor___closed__1;
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_StateRefT_x27_instAlternativeOfMonad___rarg(lean_object* x_1, lean_object* x_2) {
@@ -314,21 +301,12 @@ x_4 = lean_apply_2(x_1, lean_box(0), x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_StateRefT_x27_get(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_StateRefT_x27_get(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_StateRefT_x27_get___rarg), 2, 0);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_StateRefT_x27_get___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_StateRefT_x27_get(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-return x_5;
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_StateRefT_x27_get___rarg), 2, 0);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_StateRefT_x27_set___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -344,21 +322,12 @@ x_5 = lean_apply_2(x_1, lean_box(0), x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_StateRefT_x27_set(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_StateRefT_x27_set(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_StateRefT_x27_set___rarg), 3, 0);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_StateRefT_x27_set___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_StateRefT_x27_set(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-return x_5;
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_StateRefT_x27_set___rarg), 3, 0);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_StateRefT_x27_modifyGet___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -372,24 +341,15 @@ x_5 = lean_apply_2(x_1, lean_box(0), x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_StateRefT_x27_modifyGet(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_StateRefT_x27_modifyGet(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_6; 
-x_6 = lean_alloc_closure((void*)(l_StateRefT_x27_modifyGet___rarg), 3, 0);
-return x_6;
+lean_object* x_5; 
+x_5 = lean_alloc_closure((void*)(l_StateRefT_x27_modifyGet___rarg), 3, 0);
+return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_StateRefT_x27_modifyGet___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l_StateRefT_x27_modifyGet(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadStateOfOfMonadLiftTSTOfMonad___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadStateOfOfMonadLiftTST___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
@@ -400,40 +360,31 @@ x_6 = lean_apply_2(x_1, lean_box(0), x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadStateOfOfMonadLiftTSTOfMonad___rarg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadStateOfOfMonadLiftTST___rarg(lean_object* x_1) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 lean_inc(x_1);
-x_3 = lean_alloc_closure((void*)(l_StateRefT_x27_get___rarg), 2, 1);
+x_2 = lean_alloc_closure((void*)(l_StateRefT_x27_get___rarg), 2, 1);
+lean_closure_set(x_2, 0, x_1);
+lean_inc(x_1);
+x_3 = lean_alloc_closure((void*)(l_StateRefT_x27_set___rarg), 3, 1);
 lean_closure_set(x_3, 0, x_1);
-lean_inc(x_1);
-x_4 = lean_alloc_closure((void*)(l_StateRefT_x27_set___rarg), 3, 1);
+x_4 = lean_alloc_closure((void*)(l_StateRefT_x27_instMonadStateOfOfMonadLiftTST___rarg___lambda__1), 4, 1);
 lean_closure_set(x_4, 0, x_1);
-x_5 = lean_alloc_closure((void*)(l_StateRefT_x27_instMonadStateOfOfMonadLiftTSTOfMonad___rarg___lambda__1), 4, 1);
-lean_closure_set(x_5, 0, x_1);
-x_6 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_6, 0, x_3);
-lean_ctor_set(x_6, 1, x_4);
-lean_ctor_set(x_6, 2, x_5);
-return x_6;
+x_5 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_5, 0, x_2);
+lean_ctor_set(x_5, 1, x_3);
+lean_ctor_set(x_5, 2, x_4);
+return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadStateOfOfMonadLiftTSTOfMonad(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadStateOfOfMonadLiftTST(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_StateRefT_x27_instMonadStateOfOfMonadLiftTSTOfMonad___rarg___boxed), 2, 0);
+x_4 = lean_alloc_closure((void*)(l_StateRefT_x27_instMonadStateOfOfMonadLiftTST___rarg), 1, 0);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadStateOfOfMonadLiftTSTOfMonad___rarg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_StateRefT_x27_instMonadStateOfOfMonadLiftTSTOfMonad___rarg(x_1, x_2);
-lean_dec(x_2);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadExceptOf___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -543,9 +494,8 @@ LEAN_EXPORT lean_object* l_instMonadFinallyStateRefT_x27OfMonad___rarg(lean_obje
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_ReaderT_tryFinally___rarg___boxed), 7, 2);
+x_3 = lean_alloc_closure((void*)(l_ReaderT_tryFinally___rarg), 6, 1);
 lean_closure_set(x_3, 0, x_1);
-lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
@@ -553,8 +503,17 @@ LEAN_EXPORT lean_object* l_instMonadFinallyStateRefT_x27OfMonad(lean_object* x_1
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_instMonadFinallyStateRefT_x27OfMonad___rarg), 2, 0);
+x_4 = lean_alloc_closure((void*)(l_instMonadFinallyStateRefT_x27OfMonad___rarg___boxed), 2, 0);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_instMonadFinallyStateRefT_x27OfMonad___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_instMonadFinallyStateRefT_x27OfMonad___rarg(x_1, x_2);
+lean_dec(x_2);
+return x_3;
 }
 }
 lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);
@@ -572,8 +531,8 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_StateRefT_x27_instMonadLift___closed__1 = _init_l_StateRefT_x27_instMonadLift___closed__1();
 lean_mark_persistent(l_StateRefT_x27_instMonadLift___closed__1);
-l_StateRefT_x27_instMonadFunctorOfMonad___closed__1 = _init_l_StateRefT_x27_instMonadFunctorOfMonad___closed__1();
-lean_mark_persistent(l_StateRefT_x27_instMonadFunctorOfMonad___closed__1);
+l_StateRefT_x27_instMonadFunctor___closed__1 = _init_l_StateRefT_x27_instMonadFunctor___closed__1();
+lean_mark_persistent(l_StateRefT_x27_instMonadFunctor___closed__1);
 l_instMonadControlStateRefT_x27___closed__1 = _init_l_instMonadControlStateRefT_x27___closed__1();
 lean_mark_persistent(l_instMonadControlStateRefT_x27___closed__1);
 l_instMonadControlStateRefT_x27___closed__2 = _init_l_instMonadControlStateRefT_x27___closed__2();

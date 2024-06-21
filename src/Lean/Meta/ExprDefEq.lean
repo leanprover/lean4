@@ -419,10 +419,10 @@ where the index is the position in the local context.
 -/
 private partial def mkLambdaFVarsWithLetDeps (xs : Array Expr) (v : Expr) : MetaM (Option Expr) := do
   if not (← hasLetDeclsInBetween) then
-    mkLambdaFVars xs v
+    mkLambdaFVars xs v (etaReduce := true)
   else
     let ys ← addLetDeps
-    mkLambdaFVars ys v
+    mkLambdaFVars ys v (etaReduce := true)
 
 where
   /-- Return true if there are let-declarions between `xs[0]` and `xs[xs.size-1]`.
@@ -1775,15 +1775,12 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
         | LBool.true => return LBool.true
         | LBool.false => return LBool.false
         | _ =>
-          if tFn.isMVar || sFn.isMVar then
-            let ctx ← read
-            if ctx.config.isDefEqStuckEx then do
-              trace[Meta.isDefEq.stuck] "{t} =?= {s}"
-              Meta.throwIsDefEqStuck
-            else
-              return LBool.false
+          let ctx ← read
+          if ctx.config.isDefEqStuckEx then do
+            trace[Meta.isDefEq.stuck] "{t} =?= {s}"
+            Meta.throwIsDefEqStuck
           else
-            return LBool.undef
+            return LBool.false
       else
         isDefEqQuickMVarMVar t s
 

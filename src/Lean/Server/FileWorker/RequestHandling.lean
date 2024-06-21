@@ -10,6 +10,8 @@ import Lean.DeclarationRange
 import Lean.Data.Json
 import Lean.Data.Lsp
 
+import Lean.Parser.Tactic.Doc
+
 import Lean.Server.FileWorker.Utils
 import Lean.Server.Requests
 import Lean.Server.Completion
@@ -23,6 +25,8 @@ namespace Lean.Server.FileWorker
 open Lsp
 open RequestM
 open Snapshots
+
+open Lean.Parser.Tactic.Doc (alternativeOfTactic getTacticExtensionString)
 
 def handleCompletion (p : CompletionParams)
     : RequestM (RequestTask CompletionList) := do
@@ -85,7 +89,8 @@ def handleHover (p : HoverParams)
       let stxDoc? ← match stack? with
         | some stack => stack.findSomeM? fun (stx, _) => do
           let .node _ kind _ := stx | pure none
-          return (← findDocString? snap.env kind).map (·, stx.getRange?.get!)
+          let docStr ← findDocString? snap.env kind
+          return docStr.map (·, stx.getRange?.get!)
         | none => pure none
 
       -- now try info tree

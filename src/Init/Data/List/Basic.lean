@@ -67,6 +67,9 @@ namespace List
 
 @[simp 1100] theorem length_singleton (a : α) : length [a] = 1 := rfl
 
+@[simp] theorem length_cons {α} (a : α) (as : List α) : (cons a as).length = as.length + 1 :=
+  rfl
+
 /-! ### set -/
 
 @[simp] theorem length_set (as : List α) (i : Nat) (a : α) : (as.set i a).length = as.length := by

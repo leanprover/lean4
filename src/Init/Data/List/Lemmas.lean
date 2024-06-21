@@ -1275,7 +1275,7 @@ theorem map_bind (f : β → γ) (g : α → List β) :
   | [] => rfl
   | a::l => by simp only [bind_cons, map_append, map_bind _ _ l]
 
-theorem bind_map {f : α → β} {g : β → List γ} (l : List α) : (map f l).bind g = l.bind (fun a => g (f a)) := by
+theorem bind_map (f : α → β) (g : β → List γ) (l : List α) : (map f l).bind g = l.bind (fun a => g (f a)) := by
   induction l <;> simp [bind_cons, append_bind, *]
 
 theorem map_eq_bind {α β} (f : α → β) (l : List α) : map f l = l.bind fun x => [f x] := by

@@ -54,7 +54,7 @@ decreasing_by
   try -- the need for `try` here is fishy
       -- the proof with explicit `termination_by` does not need it, so it should not throw
       -- GuessLex off, but without `try` it does
-      -- This appeared after #4522, which made Nat.sub_one_le a simp lemma
+      -- This appeared after #4522, which made Nat.sub_le a simp lemma
     search_lex solve
       | decreasing_trivial
       | apply Nat.bitwise_rec_lemma; assumption

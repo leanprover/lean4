@@ -469,6 +469,11 @@ jobs:
           fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Update release.lean-lang.org
+        run: |
+          gh workflow -R leanprover/release-index run update-index.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_INDEX_TOKEN }}
 
   # This job creates nightly releases during the cron job.
   # It is responsible for creating the tag, and automatically generating a changelog.
@@ -511,3 +516,8 @@ jobs:
           repository: ${{ github.repository_owner }}/lean4-nightly
         env:
           GITHUB_TOKEN: ${{ secrets.PUSH_NIGHTLY_TOKEN }}
+      - name: Update release.lean-lang.org
+        run: |
+          gh workflow -R leanprover/release-index run update-index.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_INDEX_TOKEN }}

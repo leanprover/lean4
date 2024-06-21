@@ -222,7 +222,14 @@ structure SynthInstanceCacheKey where
   synthPendingDepth : Nat
   deriving Hashable, BEq
 
-abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey (Option Expr)
+/-- Resulting type for `abstractMVars` -/
+structure AbstractMVarsResult where
+  paramNames : Array Name
+  numMVars   : Nat
+  expr       : Expr
+  deriving Inhabited, BEq
+
+abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey (Option AbstractMVarsResult)
 
 abbrev InferTypeCache := PersistentExprStructMap Expr
 abbrev FunInfoCache   := PersistentHashMap InfoCacheKey FunInfo

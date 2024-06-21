@@ -67,7 +67,7 @@ variable (m n : Nat)
 variable (l : List Nat) in
 #check_simp map (· + 1) l = map (·.succ) l ~> True
 variable (l : List Nat) in
-#check_simp map (0 * ·) l ~> replicate l.length 0
+#check_simp map (0 * ·) l ~> map (fun _ => 0) l
 variable (l : List String) in
 #check_simp map (fun s => s ++ s) ("a" :: l) ~> "aa" :: map (fun s => s ++ s) l
 

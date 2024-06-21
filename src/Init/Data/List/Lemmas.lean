@@ -34,15 +34,21 @@ For each `List` operation, we would like theorems describing the following, when
 Of course for any individual operation, not all of these will be relevant or helpful, so some judgement is required.
 
 General principles for `simp` normal forms for `List` operations:
-* Arithmetic operations are "light", so e.g. we prefer to simplify `(L.drop i).drop j` to `L.drop (i + j)`,
+* Conversion operations (e.g. `toArray`, or `length`) should be moved inwards aggressively,
+  to make the conversion effective.
+* Similarly, operation which work on elements should be moved inwards in preference to
+  "structural" operations on the list, e.g. we prefer to simplify
+  `List.map f (L ++ M) ~> (List.map f L) ++ (List.map f M)`,
+  `List.map f L.reverse ~> (List.map f L).reverse`, and
+  `List.map f (L.take n) ~> (List.map f L).take n`.
+* Arithmetic operations are "light", so e.g. we prefer to simplify `drop i (drop j L)` to `drop (i + j) L`,
   rather than the other way round.
 * Function compositions are "light", so we prefer to simplify `(L.map f).map g` to `L.map (g ∘ f)`.
-* We generally prefer to move "more basic operations inwards", so for example
-  `List.map_reverse : (L.reverse.map f) = (L.map f).reverse` is a `simp` lemma,
-  because `List.map` is a more basic operation than `reverse`
-  (and there is more chance that we "know how to calculate `L.map f`")
 * We try to avoid non-linear left hand sides (i.e. with subexpressions appearing multiple times),
   but this is only a weak preference.
+* Generally, we prefer that the right hand side does not introduce duplication,
+  however generally duplication of higher order arguments (functions, predicates, etc) is allowed,
+  as we expect to be able to compute these once they reach ground terms.
 
 -/
 namespace List
@@ -1350,7 +1356,8 @@ theorem map_eq_replicate_iff {l : List α} {f : α → β} {b : β} :
 @[simp] theorem map_const (l : List α) (b : β) : map (Function.const α b) l = replicate l.length b :=
   map_eq_replicate_iff.mpr fun _ _ => rfl
 
-@[simp] theorem map_const' (l : List α) (b : β) : map (fun _ => b) l = replicate l.length b :=
+-- This can not be a `@[simp]` lemma because it would fire on every `List.map`.
+theorem map_const' (l : List α) (b : β) : map (fun _ => b) l = replicate l.length b :=
   map_const l b
 
 @[simp] theorem append_replicate_replicate : replicate n a ++ replicate m a = replicate (n + m) a := by

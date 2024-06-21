@@ -154,9 +154,7 @@ rec {
       };
       cacheRoots = linkFarmFromDrvs "cacheRoots" [
         stage0 lean leanc lean-all iTree modDepsFiles depRoots Leanc.src
-        # .o files are not a runtime dependency on macOS because of lack of thin archives
-        Init.oTree Std.oTree Lean.oTree Lake.oTree
-      ];
+      ] ++ map (lib: lib.oTree) stdlib;
       test = buildCMake {
         name = "lean-test-${desc}";
         realSrc = lib.sourceByRegex src [ "src.*" "tests.*" ];
@@ -179,7 +177,7 @@ rec {
         '';
       };
       update-stage0 =
-        let cTree = symlinkJoin { name = "cs"; paths = [ Init.cTree Lean.cTree Lake.cTree ]; }; in
+        let cTree = symlinkJoin { name = "cs"; paths = map (lib: lib.cTree) stdlib; }; in
         writeShellScriptBin "update-stage0" ''
           CSRCS=${cTree} CP_C_PARAMS="--dereference --no-preserve=all" ${src + "/script/lib/update-stage0"}
         '';

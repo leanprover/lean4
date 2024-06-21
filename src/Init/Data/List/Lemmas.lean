@@ -1212,7 +1212,7 @@ theorem concat_append (a : α) (l₁ l₂ : List α) : concat l₁ a ++ l₂ = l
 
 theorem append_concat (a : α) (l₁ l₂ : List α) : l₁ ++ concat l₂ a = concat (l₁ ++ l₂) a := by simp
 
-@[simp] theorem map_concat (f : α → β) (a : α) (l : List α) : map f (concat l a) = concat (map f l) (f a) := by
+theorem map_concat (f : α → β) (a : α) (l : List α) : map f (concat l a) = concat (map f l) (f a) := by
   induction l with
   | nil => rfl
   | cons x xs ih => simp [ih]
@@ -1470,7 +1470,7 @@ theorem reverseAux_reverseAux_nil (as bs : List α) : reverseAux (reverseAux as 
 @[simp] theorem reverse_append (as bs : List α) : (as ++ bs).reverse = bs.reverse ++ as.reverse := by
   induction as <;> simp_all
 
-@[simp] theorem map_reverse (f : α → β) (l : List α) : (l.reverse).map f = (l.map f).reverse := by
+@[simp] theorem map_reverse (f : α → β) (l : List α) : l.reverse.map f = (l.map f).reverse := by
   induction l <;> simp [*]
 
 @[deprecated map_reverse (since := "2024-06-20")]
@@ -1817,7 +1817,7 @@ theorem dropLast_append_cons : dropLast (l₁ ++ b::l₂) = l₁ ++ dropLast (b:
 
 @[simp 1100] theorem dropLast_concat : dropLast (l₁ ++ [b]) = l₁ := by simp
 
-@[simp] theorem map_dropLast (f : α → β) (l : List α) : (l.dropLast).map f = (l.map f).dropLast := by
+@[simp] theorem map_dropLast (f : α → β) (l : List α) : l.dropLast.map f = (l.map f).dropLast := by
   induction l with
   | nil => rfl
   | cons x xs ih => cases xs <;> simp [ih]
@@ -2007,7 +2007,7 @@ theorem find?_some : ∀ {l}, find? p l = some a → p a
     · exact H ▸ .head _
     · exact .tail _ (mem_of_find?_eq_some H)
 
-@[simp] theorem find?_map (f : β → α) (l : List β) : find? p (l.map f) = (l.find? fun x => p (f x)).map f := by
+@[simp] theorem find?_map (f : β → α) (l : List β) : find? p (l.map f) = (l.find? (p ∘ f)).map f := by
   induction l with
   | nil => simp
   | cons x xs ih =>
@@ -2046,7 +2046,7 @@ theorem exists_of_findSome?_eq_some {l : List α} {f : α → Option β} (w : l.
     simp_all only [findSome?_cons, mem_cons, exists_eq_or_imp]
     split at w <;> simp_all
 
-@[simp] theorem findSome?_map (f : β → γ) (l : List β) : findSome? p (l.map f) = (l.findSome? fun x => p (f x)) := by
+@[simp] theorem findSome?_map (f : β → γ) (l : List β) : findSome? p (l.map f) = l.findSome? (p ∘ f) := by
   induction l with
   | nil => simp
   | cons x xs ih =>

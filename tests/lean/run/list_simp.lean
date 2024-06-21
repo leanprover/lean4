@@ -7,6 +7,9 @@ variable (l l₁ l₂ l₃ : List α)
 variable {β : Type _}
 variable {f g : α → β}
 
+variable {γ : Type _}
+variable {f' : β → γ}
+
 variable (m n : Nat)
 
 /-! ## Preliminaries -/
@@ -69,6 +72,37 @@ variable (l : List String) in
 #check_simp map (fun s => s ++ s) ("a" :: l) ~> "aa" :: map (fun s => s ++ s) l
 
 #check_simp l.map f = [] ~> l = []
+
+variable (w : l ≠ []) in
+#check_simp head (l.map f) (by simpa) ~> f (head l (by simpa))
+variable (l : List String) in
+#check_simp head (("a" :: l).map fun s => s ++ s) (by simp) ~> "aa"
+
+variable (w : l ≠ []) in
+#check_simp getLast (l.map f) (by simpa) ~> f (getLast l (by simpa))
+
+#check_simp (l₁ ++ l₂).map f ~> l₁.map f ++ l₂.map f
+#check_simp (l.map f).map f' ~> l.map (f' ∘ f)
+#check_simp (concat l x).map f ~> map f l ++ [f x]
+
+variable (L : List (List α)) in
+#check_simp L.join.map f ~> (L.map (map f)).join
+#check_simp [l₁, l₂].join.map f ~> map f l₁ ++ map f l₂
+
+#check_simp l.map (Function.const α "1") ~> replicate l.length "1"
+#check_simp [x, y].map (Function.const α "1") ~> ["1", "1"]
+
+#check_simp l.reverse.map f ~> (l.map f).reverse
+
+#check_simp (l.take 3).map f ~> (l.map f).take 3
+#check_simp (l.drop 3).map f ~> (l.map f).drop 3
+
+#check_simp l.dropLast.map f ~> (l.map f).dropLast
+
+variable (p : β → Bool) in
+#check_simp (l.map f).find? p ~> (l.find? (p ∘ f)).map f
+variable (p : β → Option γ) in
+#check_simp (l.map f).findSome? p ~> l.findSome? (p ∘ f)
 
 /-! ### filter -/
 

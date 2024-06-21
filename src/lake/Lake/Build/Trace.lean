@@ -87,8 +87,11 @@ namespace Hash
 @[inline] def ofNat (n : Nat) :=
   mk n.toUInt64
 
+def ofString? (s : String) : Option Hash :=
+  (inline s.toNat?).map ofNat
+
 def load? (hashFile : FilePath) : BaseIO (Option Hash) :=
-  (·.toNat?.map ofNat) <$> IO.FS.readFile hashFile |>.catchExceptions fun _ => pure none
+  ofString? <$> IO.FS.readFile hashFile |>.catchExceptions fun _ => pure none
 
 def nil : Hash :=
   mk <| 1723 -- same as Name.anonymous

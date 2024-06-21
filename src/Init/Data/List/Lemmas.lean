@@ -33,6 +33,23 @@ For each `List` operation, we would like theorems describing the following, when
 
 Of course for any individual operation, not all of these will be relevant or helpful, so some judgement is required.
 
+General principles for `simp` normal forms for `List` operations:
+* Conversion operations (e.g. `toArray`, or `length`) should be moved inwards aggressively,
+  to make the conversion effective.
+* Similarly, operation which work on elements should be moved inwards in preference to
+  "structural" operations on the list, e.g. we prefer to simplify
+  `List.map f (L ++ M) ~> (List.map f L) ++ (List.map f M)`,
+  `List.map f L.reverse ~> (List.map f L).reverse`, and
+  `List.map f (L.take n) ~> (List.map f L).take n`.
+* Arithmetic operations are "light", so e.g. we prefer to simplify `drop i (drop j L)` to `drop (i + j) L`,
+  rather than the other way round.
+* Function compositions are "light", so we prefer to simplify `(L.map f).map g` to `L.map (g ∘ f)`.
+* We try to avoid non-linear left hand sides (i.e. with subexpressions appearing multiple times),
+  but this is only a weak preference.
+* Generally, we prefer that the right hand side does not introduce duplication,
+  however generally duplication of higher order arguments (functions, predicates, etc) is allowed,
+  as we expect to be able to compute these once they reach ground terms.
+
 -/
 namespace List
 
@@ -590,6 +607,20 @@ theorem foldr_map (f : α₁ → α₂) (g : α₂ → β → β) (l : List α�
     (l.map f).foldr g init = l.foldr (fun x y => g (f x) y) init := by
   induction l generalizing init <;> simp [*]
 
+theorem foldl_map' {α β : Type u} (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
+    (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
+    (l.map g).foldl f' (g a) = g (l.foldl f a) := by
+  induction l generalizing a
+  · simp
+  · simp [*, h]
+
+theorem foldr_map' {α β : Type u} (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
+    (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
+    (l.map g).foldr f' (g a) = g (l.foldr f a) := by
+  induction l generalizing a
+  · simp
+  · simp [*, h]
+
 /-! ### getD -/
 
 @[simp] theorem getD_eq_getElem? (l) (n) (a : α) : getD l n a = (l[n]?).getD a := by
@@ -682,6 +713,15 @@ theorem head?_eq_head : ∀ l h, @head? α l = some (head l h)
 
 /-! ### map -/
 
+@[simp] theorem map_id (l : List α) : map id l = l := by induction l <;> simp_all
+
+@[simp] theorem map_id' (l : List α) : map (fun a => a) l = l := by induction l <;> simp_all
+
+theorem map_id'' {f : α → α} (h : ∀ x, f x = x) (l : List α) : map f l = l := by
+  simp [show f = id from funext h]
+
+theorem map_singleton (f : α → β) (a : α) : map f [a] = [f a] := rfl
+
 @[simp] theorem length_map (as : List α) (f : α → β) : (as.map f).length = as.length := by
   induction as with
   | nil => simp [List.map]
@@ -707,32 +747,104 @@ theorem get_map (f : α → β) {l n} :
     get (map f l) n = f (get l ⟨n, length_map l f ▸ n.2⟩) := by
   simp
 
-@[simp] theorem map_append (f : α → β) : ∀ l₁ l₂, map f (l₁ ++ l₂) = map f l₁ ++ map f l₂ := by
-  intro l₁; induction l₁ <;> intros <;> simp_all
-
-@[simp] theorem map_id (l : List α) : map id l = l := by induction l <;> simp_all
-
-@[simp] theorem map_id' (l : List α) : map (fun a => a) l = l := by induction l <;> simp_all
-
 @[simp] theorem mem_map {f : α → β} : ∀ {l : List α}, b ∈ l.map f ↔ ∃ a, a ∈ l ∧ f a = b
   | [] => by simp
   | _ :: l => by simp [mem_map (l := l), eq_comm (a := b)]
 
+theorem exists_of_mem_map (h : b ∈ map f l) : ∃ a, a ∈ l ∧ f a = b := mem_map.1 h
+
 theorem mem_map_of_mem (f : α → β) (h : a ∈ l) : f a ∈ map f l := mem_map.2 ⟨_, h, rfl⟩
+
+@[simp] theorem map_inj_left {f g : α → β} : map f l = map g l ↔ ∀ a ∈ l, f a = g a := by
+  induction l <;> simp_all
+
+theorem map_congr_left (h : ∀ a ∈ l, f a = g a) : map f l = map g l :=
+  map_inj_left.2 h
+
+theorem map_inj : map f = map g ↔ f = g := by
+  constructor
+  · intro h; ext a; replace h := congrFun h [a]; simpa using h
+  · intro h; subst h; rfl
+
+@[simp] theorem map_eq_nil {f : α → β} {l : List α} : map f l = [] ↔ l = [] := by
+  constructor <;> exact fun _ => match l with | [] => rfl
+
+theorem eq_nil_of_map_eq_nil {f : α → β} {l : List α} (h : map f l = []) : l = [] :=
+  map_eq_nil.mp h
+
+theorem map_eq_cons {f : α → β} {l : List α} :
+    map f l = b :: l₂ ↔ l.head?.map f = some b ∧ l.tail?.map (map f) = some l₂ := by
+  induction l <;> simp_all
+
+theorem map_eq_cons' {f : α → β} {l : List α} :
+    map f l = b :: l₂ ↔ ∃ a l₁, l = a :: l₁ ∧ f a = b ∧ map f l₁ = l₂ := by
+  cases l
+  case nil => simp
+  case cons a l₁ =>
+    simp only [map_cons, cons.injEq]
+    constructor
+    · rintro ⟨rfl, rfl⟩
+      exact ⟨a, l₁, ⟨rfl, rfl⟩, ⟨rfl, rfl⟩⟩
+    · rintro ⟨a, l₁, ⟨rfl, rfl⟩, ⟨rfl, rfl⟩⟩
+      constructor <;> rfl
+
+theorem map_eq_foldr (f : α → β) (l : List α) : map f l = foldr (fun a bs => f a :: bs) [] l := by
+  induction l <;> simp [*]
+
+@[simp] theorem set_map {f : α → β} {l : List α} {n : Nat} {a : α} :
+    (map f l).set n (f a) = map f (l.set n a) := by
+  induction l generalizing n with
+  | nil => simp
+  | cons b l ih => cases n <;> simp_all
+
+@[simp] theorem head_map (f : α → β) (l : List α) (w) :
+    head (map f l) w = f (head l (by simpa using w)) := by
+  cases l
+  · simp at w
+  · simp_all
+
+@[simp] theorem head?_map (f : α → β) (l : List α) : head? (map f l) = (head? l).map f := by
+  cases l <;> rfl
+
+@[simp] theorem headD_map (f : α → β) (l : List α) (a : α) : headD (map f l) (f a) = f (headD l a) := by
+  cases l <;> rfl
+
+@[simp] theorem tail?_map (f : α → β) (l : List α) : tail? (map f l) = (tail? l).map (map f) := by
+  cases l <;> rfl
+
+@[simp] theorem tailD_map (f : α → β) (l : List α) (l' : List α) :
+    tailD (map f l) (map f l') = map f (tailD l l') := by
+  cases l <;> rfl
+
+@[simp] theorem getLast_map (f : α → β) (l : List α) (h) :
+    getLast (map f l) h = f (getLast l (by simpa using h)) := by
+  cases l
+  · simp at h
+  · simp only [← getElem_cons_length _ _ _ rfl]
+    simp only [map_cons]
+    simp only [← getElem_cons_length _ _ _ rfl]
+    simp only [← map_cons, getElem_map]
+    simp
+
+@[simp] theorem getLast?_map (f : α → β) (l : List α) : getLast? (map f l) = (getLast? l).map f := by
+  cases l
+  · simp
+  · rw [getLast?_eq_getLast, getLast?_eq_getLast, getLast_map] <;> simp
+
+@[simp] theorem getLastD_map (f : α → β) (l : List α) (a : α) : getLastD (map f l) (f a) = f (getLastD l a) := by
+  cases l
+  · simp
+  · rw [getLastD_eq_getLast?, getLastD_eq_getLast?, getLast?_map] <;> simp
+
+@[simp] theorem map_append (f : α → β) : ∀ l₁ l₂, map f (l₁ ++ l₂) = map f l₁ ++ map f l₂ := by
+  intro l₁; induction l₁ <;> intros <;> simp_all
 
 @[simp] theorem map_map (g : β → γ) (f : α → β) (l : List α) :
   map g (map f l) = map (g ∘ f) l := by induction l <;> simp_all
 
-theorem map_singleton (f : α → β) (a : α) : map f [a] = [f a] := rfl
-
-theorem exists_of_mem_map (h : b ∈ map f l) : ∃ a, a ∈ l ∧ f a = b := mem_map.1 h
-
 theorem forall_mem_map_iff {f : α → β} {l : List α} {P : β → Prop} :
     (∀ (i) (_ : i ∈ l.map f), P i) ↔ ∀ (j) (_ : j ∈ l), P (f j) := by
   simp
-
-@[simp] theorem map_eq_nil {f : α → β} {l : List α} : map f l = [] ↔ l = [] := by
-  constructor <;> exact fun _ => match l with | [] => rfl
 
 /-! ### filter -/
 
@@ -797,18 +909,28 @@ theorem filter_map (f : β → α) (l : List β) : filter p (map f l) = map f (f
 
 @[deprecated filter_map (since := "2024-06-15")] abbrev map_filter := @filter_map
 
+theorem map_filter_eq_foldr (f : α → β) (p : α → Bool) (as : List α) :
+    map f (filter p as) = foldr (fun a bs => bif p a then f a :: bs else bs) [] as := by
+  induction as with
+  | nil => rfl
+  | cons head _ ih =>
+    simp only [foldr]
+    cases hp : p head <;> simp [filter, *]
+
 @[simp] theorem filter_append {p : α → Bool} :
     ∀ (l₁ l₂ : List α), filter p (l₁ ++ l₂) = filter p l₁ ++ filter p l₂
   | [], l₂ => rfl
   | a :: l₁, l₂ => by simp [filter]; split <;> simp [filter_append l₁]
 
-theorem filter_congr' {p q : α → Bool} :
+theorem filter_congr {p q : α → Bool} :
     ∀ {l : List α}, (∀ x ∈ l, p x ↔ q x) → filter p l = filter q l
   | [], _ => rfl
   | a :: l, h => by
     rw [forall_mem_cons] at h; by_cases pa : p a
-    · simp [pa, h.1.1 pa, filter_congr' h.2]
-    · simp [pa, mt h.1.2 pa, filter_congr' h.2]
+    · simp [pa, h.1.1 pa, filter_congr h.2]
+    · simp [pa, mt h.1.2 pa, filter_congr h.2]
+
+@[deprecated filter_congr (since := "2024-06-20")] abbrev filter_congr' := @filter_congr
 
 /-! ### filterMap -/
 
@@ -1096,6 +1218,11 @@ theorem concat_append (a : α) (l₁ l₂ : List α) : concat l₁ a ++ l₂ = l
 
 theorem append_concat (a : α) (l₁ l₂ : List α) : l₁ ++ concat l₂ a = concat (l₁ ++ l₂) a := by simp
 
+theorem map_concat (f : α → β) (a : α) (l : List α) : map f (concat l a) = concat (map f l) (f a) := by
+  induction l with
+  | nil => rfl
+  | cons x xs ih => simp [ih]
+
 theorem eq_nil_or_concat : ∀ l : List α, l = [] ∨ ∃ L b, l = concat L b
   | [] => .inl rfl
   | a::l => match l, eq_nil_or_concat l with
@@ -1111,6 +1238,9 @@ theorem eq_nil_or_concat : ∀ l : List α, l = [] ∨ ∃ L b, l = concat L b
 theorem exists_of_mem_join : a ∈ join L → ∃ l, l ∈ L ∧ a ∈ l := mem_join.1
 
 theorem mem_join_of_mem (lL : l ∈ L) (al : a ∈ l) : a ∈ join L := mem_join.2 ⟨l, lL, al⟩
+
+@[simp] theorem map_join (f : α → β) (L : List (List α)) : map f (join L) = join (map (map f) L) := by
+  induction L <;> simp_all
 
 /-! ### bind -/
 
@@ -1130,10 +1260,27 @@ theorem exists_of_mem_bind {b : β} {l : List α} {f : α → List β} :
 theorem mem_bind_of_mem {b : β} {l : List α} {f : α → List β} {a} (al : a ∈ l) (h : b ∈ f a) :
     b ∈ List.bind l f := mem_bind.2 ⟨a, al, h⟩
 
-theorem bind_map (f : β → γ) (g : α → List β) :
-    ∀ l : List α, map f (l.bind g) = l.bind fun a => (g a).map f
+theorem bind_singleton (f : α → List β) (x : α) : [x].bind f = f x :=
+  append_nil (f x)
+
+@[simp] theorem bind_singleton' (l : List α) : (l.bind fun x => [x]) = l := by
+  induction l <;> simp [*]
+
+theorem bind_assoc {α β} (l : List α) (f : α → List β) (g : β → List γ) :
+    (l.bind f).bind g = l.bind fun x => (f x).bind g := by
+  induction l <;> simp [*]
+
+theorem map_bind (f : β → γ) (g : α → List β) :
+    ∀ l : List α, (l.bind g).map f = l.bind fun a => (g a).map f
   | [] => rfl
-  | a::l => by simp only [bind_cons, map_append, bind_map _ _ l]
+  | a::l => by simp only [bind_cons, map_append, map_bind _ _ l]
+
+theorem bind_map {f : α → β} {g : β → List γ} (l : List α) : (map f l).bind g = l.bind (fun a => g (f a)) := by
+  induction l <;> simp [bind_cons, append_bind, *]
+
+theorem map_eq_bind {α β} (f : α → β) (l : List α) : map f l = l.bind fun x => [f x] := by
+  simp only [← map_singleton]
+  rw [← bind_singleton' l, map_bind, bind_singleton']
 
 /-! ### replicate -/
 
@@ -1201,6 +1348,17 @@ theorem eq_replicate {a : α} {n} {l : List α} :
     l = replicate n a ↔ length l = n ∧ ∀ (b) (_ : b ∈ l), b = a :=
   ⟨fun h => h ▸ ⟨length_replicate .., fun _ => eq_of_mem_replicate⟩,
    fun ⟨e, al⟩ => e ▸ eq_replicate_of_mem al⟩
+
+theorem map_eq_replicate_iff {l : List α} {f : α → β} {b : β} :
+    l.map f = replicate l.length b ↔ ∀ x ∈ l, f x = b := by
+  simp [eq_replicate]
+
+@[simp] theorem map_const (l : List α) (b : β) : map (Function.const α b) l = replicate l.length b :=
+  map_eq_replicate_iff.mpr fun _ _ => rfl
+
+-- This can not be a `@[simp]` lemma because it would fire on every `List.map`.
+theorem map_const' (l : List α) (b : β) : map (fun _ => b) l = replicate l.length b :=
+  map_const l b
 
 @[simp] theorem append_replicate_replicate : replicate n a ++ replicate m a = replicate (n + m) a := by
   rw [eq_replicate]
@@ -1319,8 +1477,12 @@ theorem reverseAux_reverseAux_nil (as bs : List α) : reverseAux (reverseAux as 
 @[simp] theorem reverse_append (as bs : List α) : (as ++ bs).reverse = bs.reverse ++ as.reverse := by
   induction as <;> simp_all
 
-theorem reverse_map (f : α → β) (l : List α) : (l.map f).reverse = l.reverse.map f := by
+@[simp] theorem map_reverse (f : α → β) (l : List α) : l.reverse.map f = (l.map f).reverse := by
   induction l <;> simp [*]
+
+@[deprecated map_reverse (since := "2024-06-20")]
+theorem reverse_map (f : α → β) (l : List α) : (l.map f).reverse = l.reverse.map f := by
+  simp
 
 @[simp] theorem reverse_eq_nil_iff {xs : List α} : xs.reverse = [] ↔ xs = [] := by
   match xs with
@@ -1354,12 +1516,10 @@ theorem reverseAux_eq (as bs : List α) : reverseAux as bs = reverse as ++ bs :=
 
 /-! ## List membership -/
 
-/-! ### elem -/
+/-! ### elem / contains -/
 
 @[simp] theorem elem_cons_self [BEq α] [LawfulBEq α] {a : α} : (a::as).elem a = true := by
   simp [elem_cons]
-
-/-! ### contains -/
 
 @[simp] theorem contains_cons [BEq α] :
     (a :: as : List α).contains x = (x == a || as.contains x) := by
@@ -1421,7 +1581,7 @@ theorem take_left : ∀ l₁ l₂ : List α, take (length l₁) (l₁ ++ l₂) =
 theorem take_left' {l₁ l₂ : List α} {n} (h : length l₁ = n) : take n (l₁ ++ l₂) = l₁ := by
   rw [← h]; apply take_left
 
-theorem map_take (f : α → β) :
+@[simp] theorem map_take (f : α → β) :
     ∀ (L : List α) (i : Nat), (L.take i).map f = (L.map f).take i
   | [], i => by simp
   | _, 0 => by simp
@@ -1510,7 +1670,7 @@ theorem take_drop : ∀ (m n : Nat) (l : List α), take n (drop m l) = drop m (t
   | _, _, [] => by simp
   | _+1, _, _ :: _ => by simpa [Nat.succ_add, take_succ_cons, drop_succ_cons] using take_drop ..
 
-theorem map_drop (f : α → β) :
+@[simp] theorem map_drop (f : α → β) :
     ∀ (L : List α) (i : Nat), (L.drop i).map f = (L.map f).drop i
   | [], i => by simp
   | L, 0 => by simp
@@ -1563,6 +1723,22 @@ theorem takeWhile_cons (p : α → Bool) (a : α) (l : List α) :
 theorem dropWhile_cons :
     (x :: xs : List α).dropWhile p = if p x then xs.dropWhile p else x :: xs := by
   split <;> simp_all [dropWhile]
+
+theorem takeWhile_map (f : α → β) (p : β → Bool) (l : List α) :
+    (l.map f).takeWhile p = (l.takeWhile (p ∘ f)).map f := by
+  induction l with
+  | nil => rfl
+  | cons x xs ih =>
+    simp only [map_cons, takeWhile_cons]
+    split <;> simp_all
+
+theorem dropWhile_map (f : α → β) (p : β → Bool) (l : List α) :
+    (l.map f).dropWhile p = (l.dropWhile (p ∘ f)).map f := by
+  induction l with
+  | nil => rfl
+  | cons x xs ih =>
+    simp only [map_cons, dropWhile_cons]
+    split <;> simp_all
 
 @[simp] theorem takeWhile_append_dropWhile (p : α → Bool) :
     ∀ (l : List α), takeWhile p l ++ dropWhile p l = l
@@ -1648,6 +1824,11 @@ theorem dropLast_append_cons : dropLast (l₁ ++ b::l₂) = l₁ ++ dropLast (b:
 
 @[simp 1100] theorem dropLast_concat : dropLast (l₁ ++ [b]) = l₁ := by simp
 
+@[simp] theorem map_dropLast (f : α → β) (l : List α) : l.dropLast.map f = (l.map f).dropLast := by
+  induction l with
+  | nil => rfl
+  | cons x xs ih => cases xs <;> simp [ih]
+
 @[simp] theorem dropLast_replicate (n) (a : α) : dropLast (replicate n a) = replicate (n - 1) a := by
   match n with
   | 0 => simp
@@ -1700,10 +1881,16 @@ end isSuffixOf
 @[simp] theorem rotateLeft_zero (l : List α) : rotateLeft l 0 = l := by
   simp [rotateLeft]
 
+-- TODO Batteries defines its own `getElem?_rotate`, which we need to adapt.
+-- TODO Prove `map_rotateLeft`, using `ext` and `getElem?_rotateLeft`.
+
 /-! ### rotateRight -/
 
 @[simp] theorem rotateRight_zero (l : List α) : rotateRight l 0 = l := by
   simp [rotateRight]
+
+-- TODO Batteries defines its own `getElem?_rotate`, which we need to adapt.
+-- TODO Prove `map_rotateRight`, using `ext` and `getElem?_rotateRight`.
 
 /-! ## Manipulating elements -/
 
@@ -1827,6 +2014,13 @@ theorem find?_some : ∀ {l}, find? p l = some a → p a
     · exact H ▸ .head _
     · exact .tail _ (mem_of_find?_eq_some H)
 
+@[simp] theorem find?_map (f : β → α) (l : List β) : find? p (l.map f) = (l.find? (p ∘ f)).map f := by
+  induction l with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [map_cons, find?]
+    by_cases h : p (f x) <;> simp [h, ih]
+
 theorem find?_replicate : find? p (replicate n a) = if n = 0 then none else if p a then some a else none := by
   cases n
   · simp
@@ -1858,6 +2052,13 @@ theorem exists_of_findSome?_eq_some {l : List α} {f : α → Option β} (w : l.
   | cons h l ih =>
     simp_all only [findSome?_cons, mem_cons, exists_eq_or_imp]
     split at w <;> simp_all
+
+@[simp] theorem findSome?_map (f : β → γ) (l : List β) : findSome? p (l.map f) = l.findSome? (p ∘ f) := by
+  induction l with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [map_cons, findSome?]
+    split <;> simp_all
 
 theorem findSome?_replicate : findSome? f (replicate n a) = if n = 0 then none else f a := by
   induction n with
@@ -1940,6 +2141,12 @@ theorem any_eq_not_all_not (l : List α) (p : α → Bool) : l.any p = !l.all (!
 
 theorem all_eq_not_any_not (l : List α) (p : α → Bool) : l.all p = !l.any (!p .) := by
   simp only [not_any_eq_all_not, Bool.not_not]
+
+theorem any_map (f : α → β) (l : List α) (p : β → Bool) : (l.map f).any p = l.any (p ∘ f) := by
+  induction l with simp | cons _ _ ih => rw [ih]
+
+theorem all_map (f : α → β) (l : List α) (p : β → Bool) : (l.map f).all p = l.all (p ∘ f) := by
+  induction l with simp | cons _ _ ih => rw [ih]
 
 /-! ## Zippers -/
 
@@ -2127,6 +2334,25 @@ theorem get?_zipWithAll {f : Option α → Option β → γ} :
 set_option linter.deprecated false in
 @[deprecated getElem?_zipWithAll (since := "2024-06-07")] abbrev zipWithAll_get? := @get?_zipWithAll
 
+theorem zipWithAll_map {μ} (f : Option γ → Option δ → μ) (g : α → γ) (h : β → δ) (l₁ : List α) (l₂ : List β) :
+    zipWithAll f (l₁.map g) (l₂.map h) = zipWithAll (fun a b => f (g <$> a) (h <$> b)) l₁ l₂ := by
+  induction l₁ generalizing l₂ <;> cases l₂ <;> simp_all
+
+theorem zipWithAll_map_left (l₁ : List α) (l₂ : List β) (f : α → α') (g : Option α' → Option β → γ) :
+    zipWithAll g (l₁.map f) l₂ = zipWithAll (fun a b => g (f <$> a) b) l₁ l₂ := by
+  induction l₁ generalizing l₂ <;> cases l₂ <;> simp_all
+
+theorem zipWithAll_map_right (l₁ : List α) (l₂ : List β) (f : β → β') (g : Option α → Option β' → γ) :
+    zipWithAll g l₁ (l₂.map f) = zipWithAll (fun a b => g a (f <$> b)) l₁ l₂ := by
+  induction l₁ generalizing l₂ <;> cases l₂ <;> simp_all
+
+theorem map_zipWithAll {δ : Type _} (f : α → β) (g : Option γ → Option δ → α) (l : List γ) (l' : List δ) :
+    map f (zipWithAll g l l') = zipWithAll (fun x y => f (g x y)) l l' := by
+  induction l generalizing l' with
+  | nil => simp
+  | cons hd tl hl =>
+    cases l' <;> simp_all
+
 @[simp] theorem zipWithAll_replicate {a : α} {b : β} {n : Nat} :
     zipWithAll f (replicate n a) (replicate n b) = replicate n (f a b) := by
   induction n with
@@ -2149,12 +2375,19 @@ set_option linter.deprecated false in
   | _, [] => rfl
   | _, _ :: _ => congrArg Nat.succ enumFrom_length
 
+theorem map_enumFrom (f : α → β) (n : Nat) (l : List α) :
+    map (Prod.map id f) (enumFrom n l) = enumFrom n (map f l) := by
+  induction l generalizing n <;> simp_all
+
 /-! ### enum -/
 
 @[simp] theorem enum_length : (enum l).length = l.length :=
   enumFrom_length
 
 theorem enum_cons : (a::as).enum = (0, a) :: as.enumFrom 1 := rfl
+
+theorem map_enum (f : α → β) (l : List α) : map (Prod.map id f) (enum l) = enum (map f l) :=
+  map_enumFrom f 0 l
 
 /-! ## Minima and maxima -/
 

@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 import Lake.DSL.Attributes
 import Lake.Config.Workspace
+import Lean.DocString
 
 /-! # Lean Configuration Evaluator
 

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Wojciech Nawrocki
 -/
 prelude
+import Lean.DocString
 import Lean.PrettyPrinter
 import Lean.Parser.Tactic.Doc
 
@@ -247,7 +248,7 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
   match i with
   | .ofTermInfo ti =>
     if let some n := ti.expr.constName? then
-      return (← docsWithTacExt? env n)
+      return (← findDocString? env n)
   | .ofFieldInfo fi => return ← findDocString? env fi.projName
   | .ofOptionInfo oi =>
     if let some doc ← findDocString? env oi.declName then
@@ -258,16 +259,9 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
   | .ofOmissionInfo { reason := s, .. } => return s -- Show the omission reason for the docstring.
   | _ => pure ()
   if let some ei := i.toElabInfo? then
-    return ← docsWithTacExt? env ei.stx.getKind <||> docsWithTacExt? env ei.elaborator
+    return ← findDocString? env ei.stx.getKind <||> findDocString? env ei.elaborator
   return none
-where
-  /--
-  Find the docstring for a name, resolving tactic alternatives and additionally adding tactic
-  extension documentation
-  -/
-  docsWithTacExt? env n := do
-    let n := alternativeOfTactic env n |>.getD n
-    return (← findDocString? env n).map (· ++ getTacticExtensionString env n)
+
 
 /-- Construct a hover popup, if any, from an info node in a context.-/
 def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option FormatWithInfos) := do

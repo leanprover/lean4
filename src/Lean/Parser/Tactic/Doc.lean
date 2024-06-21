@@ -5,7 +5,7 @@ Authors: David Thrane Christiansen
 -/
 prelude
 import Lean.Attributes
-import Lean.DocString
+import Lean.DocString.Extension
 import Lean.Elab.InfoTree.Main
 import Lean.Parser.Attr
 import Lean.Parser.Extension
@@ -86,10 +86,9 @@ builtin_initialize
       if let some tgt' := alternativeOfTactic (← getEnv) tgtName then
         throwError "'{tgtName}' is itself an alternative for '{tgt'}'"
       modifyEnv fun env => tacticAlternativeExt.addEntry env (decl, tgtName)
-      if let some docs ← findDocString? (← getEnv) tgtName then
-        if (← findDocString? (← getEnv) decl).isSome then
-          logWarningAt stx m!"Replacing docstring for '{decl}' with the one from '{tgtName}'"
-        addDocString decl docs
+      if (← findSimpleDocString? (← getEnv) decl).isSome then
+        logWarningAt stx m!"Docstring for '{decl}' will be ignored because it is an alternative"
+
     descr :=
       "Register a tactic parser as an alternative form of an existing tactic, so they " ++
       "can be grouped together in documentation.",
@@ -277,7 +276,8 @@ tactics.
 -/
 def tacticDocsOnTactics : ParserAttributeHook where
   postAdd (catName declName : Name) (_builtIn : Bool) := do
-    if catName == `tactic then return
+    if catName == `tactic then
+      return
     if alternativeOfTactic (← getEnv) declName |>.isSome then
       throwError m!"'{declName}' is not a tactic"
     -- It's sufficient to look in the state (and not the imported entries) because this validation

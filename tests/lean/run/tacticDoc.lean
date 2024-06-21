@@ -104,6 +104,22 @@ tactic_extension nonTacticTm'
 /-- Some docs that don't belong here -/
 tactic_extension very_trivial
 
+/-! Check that warnings are issued if alternatives have their own docstrings -/
+
+/-- warning: Docstring for 'tacticAnother' will be ignored because it is an alternative -/
+#guard_msgs in
+/-- Docs -/
+@[tactic_alt my_trivial]
+syntax "another" : tactic
+
+/-- Docs -/
+syntax (name := yetAnother) "yetAnother" : tactic
+
+/-- warning: Docstring for 'yetAnother' will be ignored because it is an alternative -/
+#guard_msgs in
+attribute [tactic_alt my_trivial] «yetAnother»
+
+/-! # Querying Tactic Docs -/
 /--
 info: Available tags: ⏎
   • 'ctrl' — "control flow"

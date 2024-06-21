@@ -89,10 +89,7 @@ def handleHover (p : HoverParams)
       let stxDoc? ← match stack? with
         | some stack => stack.findSomeM? fun (stx, _) => do
           let .node _ kind _ := stx | pure none
-          -- If the tactic is an alternative form, get the docs for the canonical version
-          let kind := alternativeOfTactic snap.env kind |>.getD kind
-          let exts := getTacticExtensionString snap.env kind
-          let docStr := (← findDocString? snap.env kind).map (· ++ exts)
+          let docStr ← findDocString? snap.env kind
           return docStr.map (·, stx.getRange?.get!)
         | none => pure none
 

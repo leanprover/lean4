@@ -282,16 +282,13 @@ theorem pred_le : ∀ (n : Nat), pred n ≤ n
   | zero   => Nat.le.refl
   | succ _ => le_succ _
 
-@[simp] theorem sub_one_le (n : Nat) : n - 1 ≤ n :=
-  pred_le n
-
 theorem pred_lt : ∀ {n : Nat}, n ≠ 0 → pred n < n
   | zero,   h => absurd rfl h
   | succ _, _ => lt_succ_of_le (Nat.le_refl _)
 
 theorem sub_one_lt : ∀ {n : Nat}, n ≠ 0 → n - 1 < n := pred_lt
 
-theorem sub_le (n m : Nat) : n - m ≤ n := by
+@[simp] theorem sub_le (n m : Nat) : n - m ≤ n := by
   induction m with
   | zero      => exact Nat.le_refl (n - 0)
   | succ m ih => apply Nat.le_trans (pred_le (n - m)) ih

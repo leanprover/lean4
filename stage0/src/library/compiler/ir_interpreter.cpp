@@ -796,7 +796,7 @@ private:
         }
         if (object * const * o = g_init_globals->find(fn)) {
             // persistent, so no `inc` needed
-            return *o;
+            return type_is_scalar(t) ? unbox_t(*o, t) : *o;
         }
 
         symbol_cache_entry e = lookup_symbol(fn);
@@ -867,7 +867,7 @@ private:
                 string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
                 throw exception(sstream() << "Could not find native implementation of external declaration '" << fn
                                           << "' (symbols '" << boxed_mangled.data() << "' or '" << mangled.data() << "').\n"
-                                          << "For declarations from `Init` or `Lean`, you need to set `supportInterpreter := true` "
+                                          << "For declarations from `Init`, `Std`, or `Lean`, you need to set `supportInterpreter := true` "
                                           << "in the relevant `lean_exe` statement in your `lakefile.lean`.");
             }
             // evaluate args in old stack frame

@@ -198,6 +198,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Command_expandMutualPreamble_declRa
 lean_object* l___private_Lean_Elab_InfoTree_Main_0__Lean_Elab_withSavedPartialInfoContext___at___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_addNonRecAux___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_expandMutualNamespace_declRange__1___closed__5;
 static lean_object* l___regBuiltin_Lean_Elab_Command_expandMutualElement__1___closed__1;
+lean_object* l_Lean_Elab_Modifiers_addAttr(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandInitialize___lambda__1___closed__31;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabDeclaration___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -563,7 +564,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_expandMut
 static lean_object* l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_setDeclIdName___closed__5;
 static lean_object* l___regBuiltin_Lean_Elab_Command_expandMutualElement_declRange__1___closed__2;
 uint8_t lean_usize_dec_lt(size_t, size_t);
-lean_object* l_Lean_Elab_Modifiers_addAttribute(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabClassInductive___closed__2;
 lean_object* l_Array_mkArray2___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Command_expandMutualNamespace_declRange__1(lean_object*);
@@ -5343,7 +5343,7 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = l_Lean_Elab_Command_elabClassInductive___closed__3;
-x_7 = l_Lean_Elab_Modifiers_addAttribute(x_1, x_6);
+x_7 = l_Lean_Elab_Modifiers_addAttr(x_1, x_6);
 lean_inc(x_4);
 lean_inc(x_3);
 x_8 = l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_inductiveSyntaxToView(x_7, x_2, x_3, x_4, x_5);

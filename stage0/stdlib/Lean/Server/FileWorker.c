@@ -133,7 +133,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_0__Lean_Server_FileW
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__40;
 lean_object* lean_module_name_of_file(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_reportSnapshots___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__53;
 static lean_object* l_Lean_Server_FileWorker_handleNotification___closed__6;
@@ -410,6 +409,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_queueRequest(lean_object*, lea
 LEAN_EXPORT lean_object* l_Lean_RBTree_toArray___at___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_publishDiagnostics___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_foldM___at_Lean_Server_FileWorker_mainLoop___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_RpcSession_hasExpired(lean_object*, lean_object*);
+lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_1144____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_ordRequestID____x40_Lean_Data_JsonRpc___hyg_133_(lean_object*, lean_object*);
 extern lean_object* l_Task_Priority_dedicated;
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_reportSnapshots_go___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -890,7 +890,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_2 = l_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker___hyg_296____closed__3;
 x_3 = l_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker___hyg_296____closed__5;
 x_4 = l_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker___hyg_296____closed__9;
-x_5 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____spec__1(x_2, x_3, x_4, x_1);
+x_5 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_1144____spec__1(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }

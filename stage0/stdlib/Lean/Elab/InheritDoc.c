@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.InheritDoc
-// Imports: Lean.Elab.InfoTree.Main Lean.DocString
+// Imports: Lean.Elab.InfoTree.Main Lean.DocString.Extension
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -30,7 +30,6 @@ static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda_
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_levelParams(lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
-lean_object* l_Lean_findDocString_x3f(lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 lean_object* l_String_removeLeadingSpaces(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkConstWithLevelParams___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -65,11 +64,11 @@ lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_Lean_addDocString___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__5___closed__2;
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____closed__17;
 static lean_object* l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__4___closed__2;
+lean_object* l_Lean_findSimpleDocString_x3f(lean_object*, lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__4___lambda__2___closed__2;
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda__2___closed__1;
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addDocString___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__5___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l___private_Lean_DocString_0__Lean_docStringExt;
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda__3___closed__6;
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____closed__3;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -102,6 +101,7 @@ static lean_object* l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_InheritDoc___
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda__2___closed__4;
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
+extern lean_object* l___private_Lean_DocString_Extension_0__Lean_docStringExt;
 LEAN_EXPORT lean_object* l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____closed__7;
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____closed__6;
@@ -1354,7 +1354,7 @@ static lean_object* _init_l_Lean_addDocString___at_Lean_initFn____x40_Lean_Elab_
 _start:
 {
 lean_object* x_1; 
-x_1 = l___private_Lean_DocString_0__Lean_docStringExt;
+x_1 = l___private_Lean_DocString_Extension_0__Lean_docStringExt;
 return x_1;
 }
 }
@@ -1680,7 +1680,7 @@ lean_inc(x_12);
 lean_dec(x_10);
 x_13 = 1;
 lean_inc(x_1);
-x_14 = l_Lean_findDocString_x3f(x_12, x_1, x_13, x_11);
+x_14 = l_Lean_findSimpleDocString_x3f(x_12, x_1, x_13, x_11);
 lean_dec(x_12);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
@@ -1828,7 +1828,7 @@ lean_inc(x_50);
 lean_dec(x_48);
 x_51 = 1;
 lean_inc(x_1);
-x_52 = l_Lean_findDocString_x3f(x_50, x_1, x_51, x_49);
+x_52 = l_Lean_findSimpleDocString_x3f(x_50, x_1, x_51, x_49);
 lean_dec(x_50);
 x_53 = lean_ctor_get(x_52, 0);
 lean_inc(x_53);
@@ -2004,7 +2004,7 @@ lean_inc(x_22);
 lean_dec(x_20);
 x_23 = 1;
 lean_inc(x_2);
-x_24 = l_Lean_findDocString_x3f(x_22, x_2, x_23, x_21);
+x_24 = l_Lean_findSimpleDocString_x3f(x_22, x_2, x_23, x_21);
 lean_dec(x_22);
 x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
@@ -2178,7 +2178,7 @@ lean_inc(x_64);
 lean_dec(x_62);
 x_65 = 1;
 lean_inc(x_2);
-x_66 = l_Lean_findDocString_x3f(x_64, x_2, x_65, x_63);
+x_66 = l_Lean_findSimpleDocString_x3f(x_64, x_2, x_65, x_63);
 lean_dec(x_64);
 x_67 = lean_ctor_get(x_66, 0);
 lean_inc(x_67);
@@ -2400,7 +2400,7 @@ lean_inc(x_120);
 lean_dec(x_117);
 x_121 = 1;
 lean_inc(x_2);
-x_122 = l_Lean_findDocString_x3f(x_120, x_2, x_121, x_118);
+x_122 = l_Lean_findSimpleDocString_x3f(x_120, x_2, x_121, x_118);
 lean_dec(x_120);
 x_123 = lean_ctor_get(x_122, 0);
 lean_inc(x_123);
@@ -3148,7 +3148,7 @@ return x_5;
 }
 }
 lean_object* initialize_Lean_Elab_InfoTree_Main(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_DocString(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_DocString_Extension(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_InheritDoc(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -3157,7 +3157,7 @@ _G_initialized = true;
 res = initialize_Lean_Elab_InfoTree_Main(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_DocString(builtin, lean_io_mk_world());
+res = initialize_Lean_DocString_Extension(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_getConstInfo___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__2___closed__1 = _init_l_Lean_getConstInfo___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__2___closed__1();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Parser
-// Imports: Lean.Parser.Basic Lean.Parser.Level Lean.Parser.Term Lean.Parser.Tactic Lean.Parser.Command Lean.Parser.Module Lean.Parser.Syntax Lean.Parser.Do
+// Imports: Lean.Parser.Basic Lean.Parser.Level Lean.Parser.Term Lean.Parser.Tactic Lean.Parser.Command Lean.Parser.Module Lean.Parser.Syntax Lean.Parser.Do Lean.Parser.Tactic.Doc
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -9149,6 +9149,7 @@ lean_object* initialize_Lean_Parser_Command(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Parser_Module(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Parser_Syntax(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Parser_Do(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Parser_Tactic_Doc(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Parser(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -9176,6 +9177,9 @@ res = initialize_Lean_Parser_Syntax(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Parser_Do(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Parser_Tactic_Doc(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Parser_initFn____x40_Lean_Parser___hyg_8____lambda__1___closed__1 = _init_l_Lean_Parser_initFn____x40_Lean_Parser___hyg_8____lambda__1___closed__1();

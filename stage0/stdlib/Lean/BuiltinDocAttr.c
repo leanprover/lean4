@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.BuiltinDocAttr
-// Imports: Lean.Compiler.InitAttr Lean.DocString
+// Imports: Lean.Compiler.InitAttr Lean.DocString.Extension
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -23,7 +23,6 @@ lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isRec___at_Lean_declareBuiltinDocStringAndRanges___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_declRangeExt;
 static lean_object* l_Lean_declareBuiltinDocStringAndRanges___closed__2;
-lean_object* l_Lean_findDocString_x3f(lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_BuiltinDocAttr___hyg_208____closed__11;
 static lean_object* l_Lean_declareBuiltinDocStringAndRanges___closed__4;
@@ -52,6 +51,7 @@ LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_BuiltinDocAttr___hyg_208_(lea
 lean_object* l_Lean_declareBuiltin(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_is_aux_recursor(lean_object*, lean_object*);
 static lean_object* l_Lean_declareBuiltinDocStringAndRanges___lambda__1___closed__5;
+lean_object* l_Lean_findSimpleDocString_x3f(lean_object*, lean_object*, uint8_t, lean_object*);
 extern lean_object* l_Lean_builtinDeclRanges;
 lean_object* l_Lean_Name_getPrefix(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_BuiltinDocAttr___hyg_208____closed__17;
@@ -729,7 +729,7 @@ lean_inc(x_8);
 lean_dec(x_6);
 x_9 = 0;
 lean_inc(x_1);
-x_10 = l_Lean_findDocString_x3f(x_8, x_1, x_9, x_7);
+x_10 = l_Lean_findSimpleDocString_x3f(x_8, x_1, x_9, x_7);
 lean_dec(x_8);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
@@ -1139,7 +1139,7 @@ return x_5;
 }
 }
 lean_object* initialize_Lean_Compiler_InitAttr(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_DocString(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_DocString_Extension(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_BuiltinDocAttr(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1148,7 +1148,7 @@ _G_initialized = true;
 res = initialize_Lean_Compiler_InitAttr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_DocString(builtin, lean_io_mk_world());
+res = initialize_Lean_DocString_Extension(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_findDeclarationRangesCore_x3f___at_Lean_declareBuiltinDocStringAndRanges___spec__3___closed__1 = _init_l_Lean_findDeclarationRangesCore_x3f___at_Lean_declareBuiltinDocStringAndRanges___spec__3___closed__1();

@@ -747,7 +747,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_mkDeclName___at_Lean_Elab_Term_expandDeclId
 static lean_object* l_Lean_Elab_Term_withAutoBoundImplicit_loop___rarg___closed__1;
 static lean_object* l_Lean_Linter_checkDeprecated___at_Lean_Elab_Term_mkConst___spec__1___closed__5;
 lean_object* l_Lean_Elab_getBetterRef(lean_object*, lean_object*);
-extern lean_object* l___private_Lean_DocString_0__Lean_docStringExt;
 uint8_t l_Lean_Expr_isMVar(lean_object*);
 static lean_object* l_Lean_Elab_logException___at___private_Lean_Elab_Term_0__Lean_Elab_Term_applyAttributesCore___spec__7___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_withDeclName(lean_object*);
@@ -1095,6 +1094,7 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_Term_addAutoBound
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_isMVarApp___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_mkDeclName___at_Lean_Elab_Term_expandDeclId___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l___private_Lean_DocString_Extension_0__Lean_docStringExt;
 LEAN_EXPORT lean_object* l_Lean_profileitM___at___private_Lean_Elab_Term_0__Lean_Elab_Term_applyAttributesCore___spec__11(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_addAutoBoundImplicits_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_Elab_Term_resolveLocalName___spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -73569,7 +73569,7 @@ static lean_object* _init_l_Lean_addDocString___at_Lean_Elab_Term_expandDeclId__
 _start:
 {
 lean_object* x_1; 
-x_1 = l___private_Lean_DocString_0__Lean_docStringExt;
+x_1 = l___private_Lean_DocString_Extension_0__Lean_docStringExt;
 return x_1;
 }
 }

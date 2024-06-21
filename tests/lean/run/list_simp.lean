@@ -4,6 +4,9 @@ variable {α : Type _}
 variable {x y z : α}
 variable (l l₁ l₂ l₃ : List α)
 
+variable {β : Type _}
+variable {f g : α → β}
+
 variable (m n : Nat)
 
 /-! ## Preliminaries -/
@@ -51,6 +54,21 @@ variable (m n : Nat)
 /-! ## Basic operations -/
 
 /-! ### map -/
+
+#check_simp l.map id ~> l
+#check_simp l.map (fun x => x) ~> l
+#check_simp [].map f ~> []
+#check_simp [x].map f ~> [f x]
+
+#check_simp map f l = map g l ~> ∀ a ∈ l, f a = g a
+variable (l : List Nat) in
+#check_simp map (· + 1) l = map (·.succ) l ~> True
+variable (l : List Nat) in
+#check_simp map (0 * ·) l ~> replicate l.length 0
+variable (l : List String) in
+#check_simp map (fun s => s ++ s) ("a" :: l) ~> "aa" :: map (fun s => s ++ s) l
+
+#check_simp l.map f = [] ~> l = []
 
 /-! ### filter -/
 

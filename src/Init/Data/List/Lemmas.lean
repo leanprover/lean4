@@ -785,28 +785,28 @@ theorem map_eq_cons' {f : α → β} {l : List α} :
 theorem map_eq_foldr (f : α → β) (l : List α) : map f l = foldr (fun a bs => f a :: bs) [] l := by
   induction l <;> simp [*]
 
-theorem map_set {f : α → β} {l : List α} {n : Nat} {a : α} :
-    map f (l.set n a) = (map f l).set n (f a) := by
+@[simp] theorem set_map {f : α → β} {l : List α} {n : Nat} {a : α} :
+    (map f l).set n (f a) = map f (l.set n a) := by
   induction l generalizing n with
   | nil => simp
   | cons b l ih => cases n <;> simp_all
 
-theorem head_map (f : α → β) (l : List α) (w) :
+@[simp] theorem head_map (f : α → β) (l : List α) (w) :
     head (map f l) w = f (head l (by simpa using w)) := by
   cases l
   · simp at w
   · simp_all
 
-theorem head?_map (f : α → β) (l : List α) : head? (map f l) = (head? l).map f := by
+@[simp] theorem head?_map (f : α → β) (l : List α) : head? (map f l) = (head? l).map f := by
   cases l <;> rfl
 
-theorem headD_map (f : α → β) (l : List α) (a : α) : headD (map f l) (f a) = f (headD l a) := by
+@[simp] theorem headD_map (f : α → β) (l : List α) (a : α) : headD (map f l) (f a) = f (headD l a) := by
   cases l <;> rfl
 
-theorem tail?_map (f : α → β) (l : List α) : tail? (map f l) = (tail? l).map (map f) := by
+@[simp] theorem tail?_map (f : α → β) (l : List α) : tail? (map f l) = (tail? l).map (map f) := by
   cases l <;> rfl
 
-theorem tailD_map (f : α → β) (l : List α) (l' : List α) :
+@[simp] theorem tailD_map (f : α → β) (l : List α) (l' : List α) :
     tailD (map f l) (map f l') = map f (tailD l l') := by
   cases l <;> rfl
 

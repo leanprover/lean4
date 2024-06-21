@@ -166,7 +166,7 @@ def uriEncode (s : String) : String :=
   s.foldl (init := "") fun s c => uriEncodeChar c s
 
 def fetchReservoirPkg (lakeEnv : Lake.Env) (owner pkg : String) : LogIO RegistryPkg := do
-  let url := s!"{lakeEnv.reservoirApiUrl}/v0/packages/{uriEncode owner}/{uriEncode pkg}"
+  let url := s!"{lakeEnv.reservoirApiUrl}/packages/{uriEncode owner}/{uriEncode pkg}"
   let out ←
     try
       getUrl url #["X-Lake-Registry-Api-Version:0.1.0"]

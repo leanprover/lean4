@@ -235,22 +235,29 @@ instance : DecodeToml DependencySrc := ⟨fun v => do DependencySrc.decodeToml (
 
 protected def Dependency.decodeToml (t : Table) (ref := Syntax.missing) : Except (Array DecodeError) Dependency := ensureDecode do
   let name  ← stringToLegalOrSimpleName <$> t.tryDecode `name ref
+  let rev? ← t.tryDecode? `rev
   let src? : Option DependencySrc ← id do
     if let some dir ← t.tryDecode? `path then
       return some <| .path dir
     else if let some g := t.find? `git then
       match g with
       | .string _ url =>
-        return some <| .git url (← t.tryDecode? `rev) (← t.tryDecode? `subDir)
+        return some <| .git url rev? (← t.tryDecode? `subDir)
       | .table ref t =>
-        return some <| .git (← t.tryDecode `url ref) (← t.tryDecode? `rev) (← t.tryDecode? `subDir)
+        return some <| .git (← t.tryDecode `url ref) rev? (← t.tryDecode? `subDir)
       | _ =>
         modify (·.push <| .mk g.ref "expected string or table")
         return default
     else
       t.tryDecode? `source
   let scope ← t.tryDecodeD `scope ""
-  let version? ← t.tryDecode? `version
+  let version? ← id do
+    if let some ver ← t.tryDecode? `version then
+      return some ver
+    else if let some rev := rev? then
+      return some s!"git#{rev}"
+    else
+      return none
   let opts ← t.tryDecodeD `options {}
   return {name, scope, version?, src?, opts}
 

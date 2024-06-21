@@ -124,7 +124,7 @@ def Dependency.materialize
       if ver.startsWith "git#" then
         return ver.drop 4
       else
-        error s!"{dep.name} unsupported dependency version format '{ver}'"
+        error s!"{dep.name} unsupported dependency version format '{ver}' (should be \"git#>rev>\")"
     let pkg ← fetchReservoirPkg lakeEnv dep.scope <| dep.name.toString (escape := false)
     let relPkgDir := relPkgsDir / pkg.name
     match pkg.gitSrc? with
@@ -133,7 +133,7 @@ def Dependency.materialize
     | _ => error s!"{pkg.fullName}: Git source not found on Reservoir"
 where
   mkEntry src : PackageEntry :=
-    {name := dep.name, inherited, src}
+    {name := dep.name, scope := dep.scope, inherited, src}
   materializeGit name relPkgDir gitUrl remoteUrl? inputRev? subDir? : LogIO MaterializedDep := do
     let repo := GitRepo.mk (wsDir / relPkgDir)
     let gitUrl := lakeEnv.pkgUrlMap.find? dep.name |>.getD gitUrl

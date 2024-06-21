@@ -47,8 +47,9 @@ That is, Lake ignores the `-` suffix.
 
 **v1.x.x** (versioned by a string)
 - `"1.0.0"`: Switches to a semantic versioning scheme
+- `"1.1.0"`: Add optional `scope` package entry field
 -/
-@[inline] def Manifest.version : LeanVer := v!"1.0.0"
+@[inline] def Manifest.version : LeanVer := v!"1.1.0"
 
 /-- Manifest version `0.6.0` package entry. For backwards compatibility. -/
 inductive PackageEntryV6
@@ -79,6 +80,7 @@ inductive PackageEntrySrc
 /-- An entry for a package stored in the manifest. -/
 structure PackageEntry where
   name : Name
+  scope : String := ""
   inherited : Bool
   configFile : FilePath := defaultConfigFile
   manifestFile? : Option FilePath := none
@@ -90,6 +92,7 @@ namespace PackageEntry
 protected def toJson (entry : PackageEntry) : Json :=
   let fields := [
     ("name", toJson entry.name),
+    ("scope", toJson entry.scope),
     ("configFile" , toJson entry.configFile),
     ("manifestFile", toJson entry.manifestFile?),
     ("inherited", toJson entry.inherited),
@@ -114,6 +117,7 @@ instance : ToJson PackageEntry := ⟨PackageEntry.toJson⟩
 protected def fromJson? (json : Json) : Except String PackageEntry := do
   let obj ← JsonObject.fromJson? json |>.mapError (s!"package entry: {·}")
   let name ← obj.get "name" |>.mapError (s!"package entry: {·}")
+  let scope ← obj.getD "scope" ""
   try
     let type ← obj.get "type"
     let inherited ← obj.get "inherited"
@@ -133,7 +137,7 @@ protected def fromJson? (json : Json) : Except String PackageEntry := do
       | _ =>
         throw s!"unknown package entry type '{type}'"
     return {
-      name, inherited,
+      name, scope, inherited,
       configFile, manifestFile? := manifestFile, src
       : PackageEntry
     }

@@ -110,22 +110,22 @@ def Module.recBuildDeps (mod : Module) : FetchM (BuildJob (SearchPath × Array F
     imp.olean.fetch
   let precompileImports ← try mod.precompileImports.fetch
     catch errPos => return Job.error (← takeLogFrom errPos)
-  let modJobs ← precompileImports.mapM (·.dynlib.fetch)
+  let modLibJobs ← precompileImports.mapM (·.dynlib.fetch)
   let pkgs := precompileImports.foldl (·.insert ·.pkg)
     OrdPackageSet.empty |>.insert mod.pkg |>.toArray
   let (externJobs, libDirs) ← recBuildExternDynlibs pkgs
   let externDynlibsJob ← BuildJob.collectArray externJobs
-  let modDynlibsJob ← BuildJob.collectArray modJobs
+  let modDynlibsJob ← BuildJob.collectArray modLibJobs
 
   extraDepJob.bindAsync fun _ extraDepTrace => do
   importJob.bindAsync fun _ importTrace => do
-  modDynlibsJob.bindAsync fun modDynlibs modTrace => do
+  modDynlibsJob.bindAsync fun modDynlibs modLibTrace => do
   return externDynlibsJob.mapWithTrace fun externDynlibs externTrace =>
-    let depTrace := extraDepTrace.mix <| importTrace.mix <| modTrace
+    let depTrace := extraDepTrace.mix <| importTrace
     let depTrace :=
       match mod.platformIndependent with
-      | none => depTrace.mix <| externTrace
-      | some false => depTrace.mix <| externTrace.mix <| platformTrace
+      | none => depTrace.mix <| modLibTrace.mix <| externTrace
+      | some false => depTrace.mix <| modLibTrace.mix <| externTrace.mix <| platformTrace
       | some true => depTrace
     /-
     Requirements:

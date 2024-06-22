@@ -571,6 +571,8 @@ where
       let postNew := (← tacticCacheNew.get).post
       tacticCache.modify fun _ => { pre := postNew, post := {} }
       let cmdState ← cmdStateRef.get
+      -- TODO: should not be done in server mode
+      let cmdState := Runtime.markPersistent cmdState
       let mut messages := cmdState.messages
       if !output.isEmpty then
         messages := messages.add {

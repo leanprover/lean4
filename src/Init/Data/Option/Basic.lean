@@ -119,7 +119,7 @@ def merge (fn : α → α → α) : Option α → Option α → Option α
 
 
 /-- An elimination principle for `Option`. It is a nondependent version of `Option.recOn`. -/
-@[simp, inline] protected def elim : Option α → β → (α → β) → β
+@[inline] protected def elim : Option α → β → (α → β) → β
   | some x, _, f => f x
   | none, y, _ => y
 

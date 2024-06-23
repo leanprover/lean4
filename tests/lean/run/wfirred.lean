@@ -39,7 +39,7 @@ error: The rfl tactic failed. Possible reasons:
 - The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).
 - The arguments of the relation are not equal.
 Try using the reflexivity lemma for your relation explicitly, e.g. `exact Eq.refl _` or
-`exact HEq.rfl`
+`exact HEq.rfl` etc.
 n : Nat
 ⊢ foo (n + 1) = foo n
 -/

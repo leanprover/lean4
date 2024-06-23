@@ -95,6 +95,48 @@ def ensureFunIndReservedNamesAvailable (preDefs : Array PreDefinition) : MetaM U
     withRef preDef.ref <| ensureReservedNameAvailable preDef.declName "induct"
   withRef preDefs[0]!.ref <| ensureReservedNameAvailable preDefs[0]!.declName "mutual_induct"
 
+
+/--
+Checks consistency of a clique of TerminationHints:
+
+* If one has a termination hint, all of them have one
+* If one has `structurally`, all have it, and no `decreasing_by` may appear
+-/
+def checkTerminationByHints (preDefs : Array PreDefinition) : CoreM Unit := do
+  let some preDefWith := preDefs.find? (·.termination.terminationBy?.isSome)
+    | return
+  let structurally :=
+    preDefWith.termination.terminationBy? matches some {structurally := true, ..}
+  for preDef in preDefs do
+    if let .some ref := preDef.termination.terminationBy?? then
+      throwErrorAt ref (m!"Useless `termination_by?`; this function is mutually " ++
+        m!"recursive with {preDefWith.declName}, which already has a `termination_by` clause.")
+    let .some termBy := preDef.termination.terminationBy?
+      | throwErrorAt preDef.ref (m!"Missing `termination_by`; this function is mutually " ++
+        m!"recursive with {preDefWith.declName}, which has a `termination_by` clause.")
+    if structurally && ! termBy.structurally then
+      throwErrorAt termBy.ref (m!"Invalid `termination_by`; this function is mutually " ++
+        m!"recursive with {preDefWith.declName}, which has a `termination_by structurally` " ++
+        m!"so this one also needs to be marked `structurally` clause.")
+    if ! structurally && termBy.structurally then
+      throwErrorAt termBy.ref (m!"Invalid `termination_by`; this function is mutually " ++
+        m!"recursive with {preDefWith.declName}, which is not marked as `structurally` " ++
+        m!"so this one canot be `structurally` either.")
+    if termBy.structurally then
+      if let .some decr := preDef.termination.decreasingBy? then
+        throwErrorAt decr.ref (m!"Invalid `decreasing_by`; this function is marked as " ++
+          m!"structurally recursive, so no explicit termination proof is needed.")
+
+def shouldUseStructural (preDefs : Array PreDefinition) : Bool :=
+  preDefs.any fun preDef =>
+    preDef.termination.terminationBy? matches some {structurally := true, ..}
+
+def shouldUseWF (preDefs : Array PreDefinition) : Bool :=
+  preDefs.any fun preDef =>
+    preDef.termination.terminationBy? matches some {structurally := false, ..} ||
+    preDef.termination.decreasingBy?.isSome
+
+
 def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLCtx {} {} do
   for preDef in preDefs do
     trace[Elab.definition.body] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
@@ -128,8 +170,10 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
     else
       ensureFunIndReservedNamesAvailable preDefs
       try
-        let hasHints := preDefs.any fun preDef => preDef.termination.isNotNone
-        if hasHints then
+        checkTerminationByHints preDefs
+        if shouldUseStructural preDefs then
+          structuralRecursion preDefs
+        else if shouldUseWF preDefs then
           wfRecursion preDefs
         else
           withRef (preDefs[0]!.ref) <| mapError

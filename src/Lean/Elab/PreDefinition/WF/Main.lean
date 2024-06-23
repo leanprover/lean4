@@ -100,21 +100,15 @@ def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
     return (fixedPrefixSize, argsPacker, ← packMutual fixedPrefixSize argsPacker preDefsDIte)
 
   let wf : TerminationArguments ← do
-    let (preDefsWith, preDefsWithout) := preDefs.partition (·.termination.terminationBy?.isSome)
-    if preDefsWith.isEmpty then
-      -- No termination_by anywhere, so guess one
+    if preDefs[0]!.termination.terminationBy?.isNone then
+      -- No termination_by here, so guess one
+      -- (PreDefinition.Main already checks that either all or none have a `termination_by`)
       guessLex preDefs unaryPreDef fixedPrefixSize argsPacker
-    else if preDefsWithout.isEmpty then
-      preDefsWith.mapIdxM fun funIdx predef => do
+    else
+      preDefs.mapIdxM fun funIdx predef => do
         let arity := fixedPrefixSize + argsPacker.varNamess[funIdx]!.size
         let hints := predef.termination
         TerminationArgument.elab predef.declName predef.type arity hints.extraParams hints.terminationBy?.get!
-    else
-      -- Some have, some do not, so report errors
-      preDefsWithout.forM fun preDef => do
-        logErrorAt preDef.ref (m!"Missing `termination_by`; this function is mutually " ++
-          m!"recursive with {preDefsWith[0]!.declName}, which has a `termination_by` clause.")
-      return
 
   let preDefNonRec ← forallBoundedTelescope unaryPreDef.type fixedPrefixSize fun prefixArgs type => do
     let type ← whnfForall type

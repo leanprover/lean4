@@ -58,7 +58,7 @@ structure TerminationHints where
 def TerminationHints.none : TerminationHints := ⟨.missing, .none, .none, .none, 0⟩
 
 /-- Logs warnings when the `TerminationHints` are present.  -/
-def TerminationHints.ensureNone (hints : TerminationHints) (reason : String): CoreM Unit := do
+def TerminationHints.ensureNone (hints : TerminationHints) (reason : String) : CoreM Unit := do
   match hints.terminationBy??, hints.terminationBy?, hints.decreasingBy? with
   | .none, .none, .none => pure ()
   | .none, .none, .some dec_by =>

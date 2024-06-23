@@ -9,14 +9,13 @@ import Lean.AddDecl
 import Lean.Meta.AppBuilder
 import Lean.Meta.CompletionName
 import Lean.Meta.Constructions.RecOn
-import Lean.Meta.Constructions.Below
+import Lean.Meta.Constructions.BRecOn
 
 namespace Lean
 
 @[extern "lean_mk_cases_on"] opaque mkCasesOnImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
 @[extern "lean_mk_no_confusion_type"] opaque mkNoConfusionTypeCoreImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
 @[extern "lean_mk_no_confusion"] opaque mkNoConfusionCoreImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
-@[extern "lean_mk_brec_on"] opaque mkBRecOnImp (env : Environment) (declName : @& Name) (ind : Bool) : Except KernelException Declaration
 
 open Meta
 
@@ -27,37 +26,6 @@ def mkCasesOn (declName : Name) : MetaM Unit := do
   setReducibleAttribute name
   modifyEnv fun env => markAuxRecursor env name
   modifyEnv fun env => addProtected env name
-
-private def mkBRecOrBInductionOn (declName : Name) (ind : Bool) : MetaM Unit := do
-  let .inductInfo indVal ← getConstInfo declName | return
-  unless indVal.isRec do return
-  if ← isPropFormerType indVal.type then return
-  let .recInfo recInfo ← getConstInfo (mkRecName declName) | return
-  unless recInfo.numMotives = indVal.all.length do
-    /-
-    The mutual declaration containing `declName` contains nested inductive datatypes.
-    We don't support this kind of declaration here yet. We probably never will :)
-    To support it, we will need to generate an auxiliary `below` for each nested inductive
-    type since their default `below` is not good here. For example, at
-    ```
-    inductive Term
-    | var : String -> Term
-    | app : String -> List Term -> Term
-    ```
-    The `List.below` is not useful since it will not allow us to recurse over the nested terms.
-    We need to generate another one using the auxiliary recursor `Term.rec_1` for `List Term`.
-    -/
-    return
-
-  let decl ← ofExceptKernelException (mkBRecOnImp (← getEnv) declName ind)
-  let name := decl.definitionVal!.name
-  addDecl decl
-  setReducibleAttribute name
-  modifyEnv fun env => markAuxRecursor env name
-  modifyEnv fun env => addProtected env name
-
-def mkBRecOn (declName : Name) : MetaM Unit := mkBRecOrBInductionOn declName false
-def mkBInductionOn (declName : Name) : MetaM Unit := mkBRecOrBInductionOn declName true
 
 def mkNoConfusionCore (declName : Name) : MetaM Unit := do
   -- Do not do anything unless can_elim_to_type. TODO: Extract to util
@@ -88,7 +56,6 @@ def mkNoConfusionEnum (enumName : Name) : MetaM Unit := do
     -- `noConfusionEnum` was not defined yet, so we use `mkNoConfusionCore`
     mkNoConfusionCore enumName
 where
-
   mkToCtorIdx : MetaM Unit := do
     let ConstantInfo.inductInfo info ← getConstInfo enumName | unreachable!
     let us := info.levelParams.map mkLevelParam

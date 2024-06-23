@@ -62,13 +62,15 @@ where moduleDirExists
   | .mkStr parent str => do
     unless (← moduleDirExists parent) do
       return false
-    return (← (modToFilePath base parent ext).readDir).any (·.fileName == str)
+    return (← (modToFilePath base parent "").readDir).any (·.fileName == str)
   | .anonymous => base.pathExists
   | .num .. => panic! "ill-formed import"
 
 
 def findRoot (sp : SearchPath) (ext : String) (pkg : String) : IO (Option FilePath) := do
   sp.findM? fun p => do
+    unless (← p.isDir) do  -- Lake may pass search roots that do not exist (yet)
+      return false
     if (← (p / pkg).isDir) then
       return (← p.readDir).any (·.fileName == pkg)
     else

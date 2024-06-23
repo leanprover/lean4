@@ -601,6 +601,7 @@ the inferrred termination argument will be suggested.
 -/
 def terminationBy := leading_parser
   "termination_by " >>
+  optional (nonReservedSymbol "structurally ") >>
   optional (atomic (many (ppSpace >> Term.binderIdent) >> " => ")) >>
   termParser
 

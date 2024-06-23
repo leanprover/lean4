@@ -114,6 +114,8 @@ def elabTerminationHints {m} [Monad m] [MonadError m] (stx : TSyntax ``suffix) :
       | _ => pure none
       else pure none
     let terminationBy? : Option TerminationBy ← if let some t := t? then match t with
+      | `(terminationBy|termination_by structurally%$s $[$_var* =>]? $_body) =>
+        throwErrorAt s "`termination_by structurally` not yet supported"
       | `(terminationBy|termination_by => $_body) =>
         throwErrorAt t "no extra parameters bounds, please omit the `=>`"
       | `(terminationBy|termination_by $vars* => $body) => pure (some {ref := t, vars, body})

@@ -22,7 +22,7 @@ structure LetRecDeclView where
   type          : Expr
   mvar          : Expr -- auxiliary metavariable used to lift the 'let rec'
   valStx        : Syntax
-  termination   : WF.TerminationHints
+  termination   : TerminationHints
 
 structure LetRecView where
   decls     : Array LetRecDeclView
@@ -61,7 +61,7 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
         pure decl[4]
       else
         liftMacroM <| expandMatchAltsIntoMatch decl decl[3]
-      let termination ← WF.elabTerminationHints ⟨attrDeclStx[3]⟩
+      let termination ← elabTerminationHints ⟨attrDeclStx[3]⟩
       pure { ref := declId, attrs, shortDeclName, declName, binderIds, type, mvar, valStx,
              termination : LetRecDeclView }
     else

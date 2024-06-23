@@ -14,7 +14,7 @@ import Lean.Elab.Quotation
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
-import Lean.Elab.PreDefinition.WF.TerminationArgument
+import Lean.Elab.PreDefinition.TerminationArgument
 import Lean.Data.Array
 
 

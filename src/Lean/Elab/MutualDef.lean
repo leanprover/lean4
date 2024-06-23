@@ -14,7 +14,7 @@ import Lean.Elab.Match
 import Lean.Elab.DefView
 import Lean.Elab.Deriving.Basic
 import Lean.Elab.PreDefinition.Main
-import Lean.Elab.PreDefinition.WF.TerminationHint
+import Lean.Elab.PreDefinition.TerminationHint
 import Lean.Elab.DeclarationRange
 
 namespace Lean.Elab
@@ -320,11 +320,11 @@ private def declValToTerm (declVal : Syntax) : MacroM Syntax := withRef declVal 
     Macro.throwErrorAt declVal "unexpected declaration body"
 
 /-- Elaborates the termination hints in a `declVal` syntax. -/
-private def declValToTerminationHint (declVal : Syntax) : TermElabM WF.TerminationHints :=
+private def declValToTerminationHint (declVal : Syntax) : TermElabM TerminationHints :=
   if declVal.isOfKind ``Parser.Command.declValSimple then
-    WF.elabTerminationHints ⟨declVal[2]⟩
+    elabTerminationHints ⟨declVal[2]⟩
   else if declVal.isOfKind ``Parser.Command.declValEqns then
-    WF.elabTerminationHints ⟨declVal[0][1]⟩
+    elabTerminationHints ⟨declVal[0][1]⟩
   else
     return .none
 

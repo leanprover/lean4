@@ -9,7 +9,7 @@ import Lean.Parser.Term
 import Lean.Elab.Term
 import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
-import Lean.Elab.PreDefinition.WF.TerminationHint
+import Lean.Elab.PreDefinition.TerminationHint
 import Lean.PrettyPrinter.Delaborator
 
 /-!
@@ -19,7 +19,7 @@ clause, the `TerminationArguments` type for a clique and the elaboration functio
 
 set_option autoImplicit false
 
-namespace Lean.Elab.WF
+namespace Lean.Elab
 
 open Lean Meta Elab Term
 
@@ -72,7 +72,6 @@ def TerminationArgument.elab (funName : Name) (type : Expr) (arity extraParams :
         -- Now abstract also over the remaining extra parameters
         forallBoundedTelescope type'.get! (extraParams - hint.vars.size) fun zs _ => do
           mkLambdaFVars (ys ++ xs ++ zs) body
-  -- logInfo m!"elabTermValue: {r}"
   check r
   pure { ref := hint.ref, arity, extraParams, fn := r}
   where
@@ -106,3 +105,5 @@ def TerminationArgument.delab (termArg : TerminationArgument) : MetaM (TSyntax `
       let e ← getExpr
       unless e.isLambda do return ← go 0 vars -- should not happen
       withBindingBodyUnusedName fun n => go i (vars.push ⟨n⟩)
+
+end Lean.Elab

@@ -3,6 +3,7 @@ def foo (n : Nat) : True := match n with
   | 0 => .intro
   | n+1 => foo n
 termination_by structurally n
+#print foo
 
 -- Check that we can still refer to a variable called `structurally` in
 -- the `termination_by` syntax

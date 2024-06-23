@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.WF.TerminationArgument
+import Lean.Elab.PreDefinition.TerminationArgument
 import Lean.Elab.PreDefinition.WF.PackMutual
 import Lean.Elab.PreDefinition.WF.Preprocess
 import Lean.Elab.PreDefinition.WF.Rel

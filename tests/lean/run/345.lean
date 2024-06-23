@@ -1,9 +1,10 @@
+set_option pp.mvars false
 
 /--
 error: failed to synthesize
-  OfNat (Sort ?u.1) 1
+  OfNat (Sort _) 1
 numerals are polymorphic in Lean, but the numeral `1` cannot be used in a context where the expected type is
-  Sort ?u.1
+  Sort _
 due to the absence of the instance above
 use `set_option diagnostics true` to get diagnostic information
 -/
@@ -12,9 +13,9 @@ axiom bla : 1
 
 /--
 error: failed to synthesize
-  OfNat (Sort ?u.8) 1
+  OfNat (Sort _) 1
 numerals are polymorphic in Lean, but the numeral `1` cannot be used in a context where the expected type is
-  Sort ?u.8
+  Sort _
 due to the absence of the instance above
 use `set_option diagnostics true` to get diagnostic information
 -/
@@ -24,9 +25,9 @@ structure Foo where
 
 /--
 error: failed to synthesize
-  OfNat (Sort ?u.210) 1
+  OfNat (Sort _) 1
 numerals are polymorphic in Lean, but the numeral `1` cannot be used in a context where the expected type is
-  Sort ?u.210
+  Sort _
 due to the absence of the instance above
 use `set_option diagnostics true` to get diagnostic information
 -/

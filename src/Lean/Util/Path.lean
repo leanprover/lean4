@@ -45,20 +45,50 @@ abbrev SearchPath := System.SearchPath
 
 namespace SearchPath
 
+variable (base : FilePath) (ext : String) in
+/--
+Checks whether a module of the given name and extension exists in `base`; this uses case-sensitive
+path comparisons regardless of underlying file system to ensure the check is consistent across
+platforms.
+-/
+private partial def moduleExists : Name → IO Bool
+  | .mkStr parent str => do
+    unless (← moduleDirExists parent) do
+      return false
+    let fileName := s!"{str}.{ext}"
+    return (← (modToFilePath base parent ext).readDir).any (·.fileName == fileName)
+  | _ => panic! "ill-formed import"
+where moduleDirExists
+  | .mkStr parent str => do
+    unless (← moduleDirExists parent) do
+      return false
+    return (← (modToFilePath base parent ext).readDir).any (·.fileName == str)
+  | .anonymous => base.pathExists
+  | .num .. => panic! "ill-formed import"
+
+
+def findRoot (sp : SearchPath) (ext : String) (pkg : String) : IO (Option FilePath) := do
+  sp.findM? fun p => do
+    if (← (p / pkg).isDir) then
+      return (← p.readDir).any (·.fileName == pkg)
+    else
+      let fileName := s!"{pkg}.{ext}"
+      return (← p.readDir).any (·.fileName == fileName)
+
 /-- If the package of `mod` can be found in `sp`, return the path with extension
 `ext` (`lean` or `olean`) corresponding to `mod`. Otherwise, return `none`. Does
 not check whether the returned path exists. -/
 def findWithExt (sp : SearchPath) (ext : String) (mod : Name) : IO (Option FilePath) := do
   let pkg := mod.getRoot.toString (escape := false)
-  let root? ← sp.findM? fun p =>
-    (p / pkg).isDir <||> ((p / pkg).addExtension ext).pathExists
+  let root? ← findRoot sp ext pkg
   return root?.map (modToFilePath · mod ext)
 
 /-- Like `findWithExt`, but ensures the returned path exists. -/
 def findModuleWithExt (sp : SearchPath) (ext : String) (mod : Name) : IO (Option FilePath) := do
-  if let some path ← findWithExt sp ext mod then
-    if ← path.pathExists then
-      return some path
+  let pkg := mod.getRoot.toString (escape := false)
+  if let some root ← findRoot sp ext pkg then
+    if (← moduleExists root ext mod) then
+      return some <| modToFilePath root mod ext
   return none
 
 def findAllWithExt (sp : SearchPath) (ext : String) : IO (Array FilePath) := do

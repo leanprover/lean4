@@ -381,7 +381,7 @@ def mkBRecOnOrBInductionOn (indName : Name) (ind : Bool) : MetaM Unit := do
       let type ← mkForallFVars below_params (mkAppN typeFormers[idx]! remaining)
       val ← mkLambdaFVars below_params val
 
-      let name := if ind then mkIBelowName indName else mkBelowName indName
+      let name := if ind then mkBInductionOnName indName else mkBRecOnName indName
       mkDefinitionValInferrringUnsafe name blps type val .abbrev
 
   addDecl (.defnDecl decl)

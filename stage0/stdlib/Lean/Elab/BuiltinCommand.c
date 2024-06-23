@@ -385,6 +385,7 @@ LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_Builtin
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabSetOption_declRange__1___closed__3;
 lean_object* l_Lean_InternalExceptionId_getName(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_elabNamespace___spec__1___rarg___closed__2;
+extern lean_object* l___private_Lean_DocString_Extension_0__Lean_moduleDocExt;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_BuiltinCommand_0__Lean_Elab_Command_addScope___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabNonComputableSection_declRange__1___closed__2;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
@@ -842,7 +843,6 @@ lean_object* l_List_map___at_Lean_filterFieldList___spec__1(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabInitQuot_declRange__1___closed__5;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Command_elabRunCmd_declRange__1(lean_object*);
 static lean_object* l___private_Lean_Elab_BuiltinCommand_0__Lean_Elab_Command_mkRunMetaEval___closed__5;
-extern lean_object* l___private_Lean_DocString_0__Lean_moduleDocExt;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_BuiltinCommand_0__Lean_Elab_Command_addScope___spec__4(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabEnd___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabRunElab___closed__4;
@@ -1526,7 +1526,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabModuleDoc___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l___private_Lean_DocString_0__Lean_moduleDocExt;
+x_1 = l___private_Lean_DocString_Extension_0__Lean_moduleDocExt;
 return x_1;
 }
 }

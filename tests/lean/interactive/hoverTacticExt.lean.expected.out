@@ -1,0 +1,56 @@
+{"textDocument": {"uri": "file:///hoverTacticExt.lean"},
+ "position": {"line": 16, "character": 17}}
+{"range":
+ {"start": {"line": 16, "character": 17}, "end": {"line": 16, "character": 27}},
+ "contents":
+ {"value":
+  "```lean\nmy_trivial : Lean.ParserDescr\n```\n***\nAnother `trivial` tactic ",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverTacticExt.lean"},
+ "position": {"line": 19, "character": 15}}
+{"range":
+ {"start": {"line": 19, "character": 13}, "end": {"line": 19, "character": 23}},
+ "contents":
+ {"value":
+  "Another `trivial` tactic \n\nExtensions:\n\n * It tries Lean's `trivial`",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverTacticExt.lean"},
+ "position": {"line": 29, "character": 8}}
+{"range":
+ {"start": {"line": 29, "character": 2}, "end": {"line": 29, "character": 12}},
+ "contents":
+ {"value":
+  "Another `trivial` tactic \n\nExtensions:\n\n * It tries Lean's `trivial` \n\n * It tries `simp_all`",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverTacticExt.lean"},
+ "position": {"line": 33, "character": 17}}
+{"range":
+ {"start": {"line": 33, "character": 17}, "end": {"line": 33, "character": 27}},
+ "contents":
+ {"value":
+  "```lean\nmy_trivial : Lean.ParserDescr\n```\n***\nAnother `trivial` tactic \n\nExtensions:\n\n * It tries Lean's `trivial` \n\n * It tries `simp_all`",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverTacticExt.lean"},
+ "position": {"line": 38, "character": 13}}
+{"range":
+ {"start": {"line": 38, "character": 13}, "end": {"line": 38, "character": 23}},
+ "contents":
+ {"value":
+  "Another `trivial` tactic \n\nExtensions:\n\n * It tries Lean's `trivial` \n\n * It tries `simp_all` \n\n * It tries `constructor`",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverTacticExt.lean"},
+ "position": {"line": 54, "character": 8}}
+{"range":
+ {"start": {"line": 54, "character": 2}, "end": {"line": 54, "character": 12}},
+ "contents":
+ {"value":
+  "Another `trivial` tactic \n\nExtensions:\n\n * It tries Lean's `trivial` \n\n * It tries `simp_all` \n\n * It tries `constructor` \n\n * It tries some useful things:\n    * `omega`\n    * `simp_arith [*]`",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverTacticExt.lean"},
+ "position": {"line": 59, "character": 8}}
+{"range":
+ {"start": {"line": 59, "character": 2}, "end": {"line": 59, "character": 14}},
+ "contents":
+ {"value":
+  "Another `trivial` tactic \n\nExtensions:\n\n * It tries Lean's `trivial` \n\n * It tries `simp_all` \n\n * It tries `constructor` \n\n * It tries some useful things:\n    * `omega`\n    * `simp_arith [*]`",
+  "kind": "markdown"}}

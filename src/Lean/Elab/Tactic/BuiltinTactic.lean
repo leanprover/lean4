@@ -199,7 +199,7 @@ def evalTacticCDot : Tactic := fun stx => do
   -- but the token antiquotation does not copy trailing whitespace, leading to
   -- differences in the goal display (#2153)
   let initInfo ← mkInitialTacticInfo stx[0]
-  withRef stx[0] <| closeUsingOrAdmit do
+  withCaseRef stx[0] stx[1] <| closeUsingOrAdmit do
     -- save state before/after entering focus on `·`
     withInfoContext (pure ()) initInfo
     Term.withNarrowedArgTacticReuse (argIdx := 1) evalTactic stx

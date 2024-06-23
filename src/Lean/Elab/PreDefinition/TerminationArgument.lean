@@ -31,9 +31,12 @@ Elaborated form for a `termination_by` clause.
 The `fn` has the same (value) arity as the recursive functions (stored in
 `arity`), and maps its arguments (including fixed prefix, in unpacked form) to
 the termination argument.
+
+If `structural := Bool`, then the `fn` is a lambda picking out exactly one argument.
 -/
 structure TerminationArgument where
   ref : Syntax
+  structural : Bool
   fn : Expr
 deriving Inhabited
 
@@ -66,15 +69,30 @@ def TerminationArgument.elab (funName : Name) (type : Expr) (arity extraParams :
       elabFunBinders hint.vars (some type') fun xs type' => do
         -- Elaborate the body in this local environment
         let body ← Lean.Elab.Term.withSynthesize <| elabTermEnsuringType hint.body none
+
+        -- Structural recursion: The body has to be a single parameter, whose index we return
+        if hint.structurally then unless (ys ++ xs).contains body do
+            throwErrorAt hint.ref m!"The terminination argument of a structurally recursive " ++
+              "function must be one of the parameters {ys ++ xs}, but the given {body} isn't " ++
+              "one of these."
+
         -- Now abstract also over the remaining extra parameters
         forallBoundedTelescope type'.get! (extraParams - hint.vars.size) fun zs _ => do
           mkLambdaFVars (ys ++ xs ++ zs) body
   check r
-  pure { ref := hint.ref, fn := r}
+  pure { ref := hint.ref, structural := hint.structurally, fn := r}
   where
     parameters : Nat → MessageData
     | 1 => "one parameter"
     | n => m!"{n} parameters"
+
+def TerminationArgument.structuralArg (termArg : TerminationArgument) : MetaM Nat := do
+  assert! termArg.structural
+  lambdaTelescope termArg.fn fun ys e => do
+    let .some idx := ys.indexOf? e
+      | panic! "TerminationArgument.structuralArg: body not one of the parameters"
+    return idx
+
 
 open PrettyPrinter Delaborator SubExpr Parser.Termination Parser.Term in
 /--
@@ -101,10 +119,16 @@ def TerminationArgument.delab (arity : Nat) (extraParams : Nat) (termArg : Termi
       -- drop trailing underscores
       let mut vars := vars
       while ! vars.isEmpty && vars.back.raw.isOfKind ``hole do vars := vars.pop
-      if vars.isEmpty then
-        `(terminationBy|termination_by $stxBody)
+      if termArg.structural then
+        if vars.isEmpty then
+          `(terminationBy|termination_by structurally $stxBody)
+        else
+          `(terminationBy|termination_by structurally $vars* => $stxBody)
       else
-        `(terminationBy|termination_by $vars* => $stxBody)
+        if vars.isEmpty then
+          `(terminationBy|termination_by $stxBody)
+        else
+          `(terminationBy|termination_by $vars* => $stxBody)
     | i+1, vars => do
       let e ← getExpr
       unless e.isLambda do return ← go 0 vars -- should not happen

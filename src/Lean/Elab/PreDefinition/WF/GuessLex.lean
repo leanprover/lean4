@@ -187,7 +187,7 @@ def simpleMeasures (preDefs : Array PreDefinition) (fixedPrefixSize : Nat)
             if  ← mayOmitSizeOf is_mutual xs[fixedPrefixSize:] x
             then mkLambdaFVars xs x
             else pure natFn
-          ret := ret.push { ref := .missing, fn, natFn }
+          ret := ret.push { ref := .missing, structural := false, fn, natFn }
         return ret
 
 /-- Internal monad used by `withRecApps` -/
@@ -396,7 +396,7 @@ def complexMeasures (preDefs : Array PreDefinition) (fixedPrefixSize : Nat)
               let fn ← mkLambdaFVars rc.params body
               -- Avoid duplicates
               unless ← measures.anyM (isDefEq ·.fn fn) do
-                measures := measures.push { ref := .missing, fn, natFn := fn }
+                measures := measures.push { ref := .missing, structural := false,  fn, natFn := fn }
         return measures
     return measures
 
@@ -748,7 +748,7 @@ def toTerminationArguments (preDefs : Array PreDefinition) (fixedPrefixSize : Na
           | .args taIdxs => measures[taIdxs[funIdx]!]!.fn.beta xs
           | .func funIdx' => mkNatLit <| if funIdx' == funIdx then 1 else 0
         let fn ← mkLambdaFVars xs (← mkProdElem args)
-        return { ref := .missing, fn}
+        return { ref := .missing, structural := false, fn}
 
 /--
 Shows the inferred termination argument to the user, and implements `termination_by?`

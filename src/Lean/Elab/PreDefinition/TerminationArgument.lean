@@ -13,8 +13,10 @@ import Lean.Elab.PreDefinition.TerminationHint
 import Lean.PrettyPrinter.Delaborator
 
 /-!
-This module contains the data type `TerminationArgument`, the elaborated form of a `TerminationBy`
-clause, the `TerminationArguments` type for a clique and the elaboration functions.
+This module contains
+* the data type `TerminationArgument`, the elaborated form of a `TerminationBy` clause,
+* the `TerminationArguments` type for a clique, and
+* elaboration and deelaboration functions.
 -/
 
 set_option autoImplicit false
@@ -32,8 +34,6 @@ the termination argument.
 -/
 structure TerminationArgument where
   ref : Syntax
-  arity : Nat
-  extraParams : Nat
   fn : Expr
 deriving Inhabited
 
@@ -44,9 +44,6 @@ abbrev TerminationArguments := Array TerminationArgument
 Elaborates a `TerminationBy` to an `TerminationArgument`.
 
 * `type` is the full type of the original recursive function, including fixed prefix.
-* `arity` is the value arity of the recursive function; the termination argument cannot take more.
-* `extraParams` is the the number of parameters the function has after the colon; together with
-  `arity` indicates how many parameters of the function are before the colon and thus in scope.
 * `hint : TerminationBy` is the syntactic `TerminationBy`.
 -/
 def TerminationArgument.elab (funName : Name) (type : Expr) (arity extraParams : Nat)
@@ -73,17 +70,24 @@ def TerminationArgument.elab (funName : Name) (type : Expr) (arity extraParams :
         forallBoundedTelescope type'.get! (extraParams - hint.vars.size) fun zs _ => do
           mkLambdaFVars (ys ++ xs ++ zs) body
   check r
-  pure { ref := hint.ref, arity, extraParams, fn := r}
+  pure { ref := hint.ref, fn := r}
   where
     parameters : Nat → MessageData
     | 1 => "one parameter"
     | n => m!"{n} parameters"
 
 open PrettyPrinter Delaborator SubExpr Parser.Termination Parser.Term in
-def TerminationArgument.delab (termArg : TerminationArgument) : MetaM (TSyntax ``terminationBy) := do
+/--
+Delaborates a `TerminationArgument` back to a `TerminationHint`, e.g. for `termination_by?`.
+
+This needs extra information:
+* `arity` is the value arity of the recursive function
+* `extraParams` indicates how many of the functions arguments are bound “after the colon”.
+-/
+def TerminationArgument.delab (arity : Nat) (extraParams : Nat) (termArg : TerminationArgument) : MetaM (TSyntax ``terminationBy) := do
   lambdaTelescope termArg.fn fun ys e => do
-    let e ← mkLambdaFVars ys[termArg.arity - termArg.extraParams:] e -- undo overshooting by lambdaTelescope
-    pure (← delabCore e (delab := go termArg.extraParams #[])).1
+    let e ← mkLambdaFVars ys[arity - extraParams:] e -- undo overshooting by lambdaTelescope
+    pure (← delabCore e (delab := go extraParams #[])).1
   where
     go : Nat → TSyntaxArray `ident → DelabM (TSyntax ``terminationBy)
     | 0, vars => do

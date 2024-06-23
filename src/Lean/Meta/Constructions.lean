@@ -8,25 +8,17 @@ import Lean.AuxRecursor
 import Lean.AddDecl
 import Lean.Meta.AppBuilder
 import Lean.Meta.CompletionName
+import Lean.Meta.Constructions.RecOn
 import Lean.Meta.Constructions.Below
 
 namespace Lean
 
-@[extern "lean_mk_rec_on"] opaque mkRecOnImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
 @[extern "lean_mk_cases_on"] opaque mkCasesOnImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
 @[extern "lean_mk_no_confusion_type"] opaque mkNoConfusionTypeCoreImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
 @[extern "lean_mk_no_confusion"] opaque mkNoConfusionCoreImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
 @[extern "lean_mk_brec_on"] opaque mkBRecOnImp (env : Environment) (declName : @& Name) (ind : Bool) : Except KernelException Declaration
 
 open Meta
-
-def mkRecOn (declName : Name) : MetaM Unit := do
-  let name := mkRecOnName declName
-  let decl ← ofExceptKernelException (mkRecOnImp (← getEnv) declName)
-  addDecl decl
-  setReducibleAttribute name
-  modifyEnv fun env => markAuxRecursor env name
-  modifyEnv fun env => addProtected env name
 
 def mkCasesOn (declName : Name) : MetaM Unit := do
   let name := mkCasesOnName declName

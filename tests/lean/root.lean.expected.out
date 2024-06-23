@@ -10,7 +10,7 @@ Bla.f (x : Nat) : Nat
 prv (x : Nat) : Nat
 root.lean:90:89-90:93: error: unsolved goals
 x : Nat
-⊢ isEven (x + 1 + 1) = isEven x
+⊢ isEven (x + 2) = isEven x
 root.lean:95:89-95:93: error: unsolved goals
 x : Nat
-⊢ isEven (x + 1 + 1) = isEven x
+⊢ isEven (x + 2) = isEven x

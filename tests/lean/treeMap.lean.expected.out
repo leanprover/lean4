@@ -5,4 +5,4 @@ treeMap.lean:8:59-8:69: error: failed to prove termination, possible solutions:
 name : String
 children : List TreeNode
 t : TreeNode
-⊢ sizeOf t < 1 + sizeOf name + sizeOf children
+⊢ sizeOf t < 1 + (sizeOf name + sizeOf children)

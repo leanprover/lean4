@@ -45,8 +45,8 @@ example : f x = id (x + 2) := by
 axiom expand_mul_add (x y z : Nat) : x * (y + z) = x * y + x * y
 @[simp high, my_simp high]
 axiom expand_add_mul (x y z : Nat) : (x + y) * z = x * z + y * z
-@[simp, my_simp]
-axiom lassoc_add (x y z : Nat) : x + (y + z) = x + y + z
+@[simp high, my_simp high]
+axiom lassoc_add (x y z : Nat) : x + y + z = x + (y + z)
 
 set_option trace.Meta.Tactic.simp.rewrite true
 

@@ -689,6 +689,7 @@ lean_object* l_Lean_Elab_Term_addTermInfo_x27(lean_object*, lean_object*, lean_o
 lean_object* l_Lean_FileMap_leanPosToLspPos(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_levelMVarToParam___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabStructure___lambda__2___boxed(lean_object**);
+lean_object* l_Lean_setReducibilityStatus___at_mkRecOn___spec__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_elabAttr___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_expandCtor___spec__4___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_copyDefaultValue_x3f_failed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_elabFieldTypeValue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -807,7 +808,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Stru
 static lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_copyDefaultValue_x3f_go_x3f___closed__2;
 static lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_Structure___hyg_13419____closed__3;
 static lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_processSubfields_go___rarg___closed__5;
-lean_object* l_Lean_mkRecOn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_expandFields___spec__5___lambda__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_Structure___hyg_13419____closed__2;
@@ -1012,7 +1012,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Stru
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 uint8_t l_Lean_Elab_Modifiers_isPartial(lean_object*);
-lean_object* l_Lean_setReducibilityStatus___at_Lean_mkRecOn___spec__4(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_mkRecOn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_copyNewFieldsFrom_copyFields_copy___rarg___closed__7;
 static lean_object* l_Lean_Elab_elabModifiers___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_expandCtor___spec__1___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_getFieldType___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -25640,8 +25640,10 @@ x_17 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_mkAuxConstructions__
 x_18 = l_Lean_Environment_contains(x_12, x_17);
 lean_inc(x_7);
 lean_inc(x_6);
+lean_inc(x_5);
+lean_inc(x_4);
 lean_inc(x_1);
-x_19 = l_Lean_mkRecOn(x_1, x_4, x_5, x_6, x_7, x_11);
+x_19 = l_mkRecOn(x_1, x_4, x_5, x_6, x_7, x_11);
 if (lean_obj_tag(x_19) == 0)
 {
 if (x_14 == 0)
@@ -27555,7 +27557,7 @@ if (x_52 == 0)
 {
 uint8_t x_53; lean_object* x_54; 
 x_53 = 0;
-x_54 = l_Lean_setReducibilityStatus___at_Lean_mkRecOn___spec__4(x_41, x_53, x_13, x_14, x_15, x_16, x_51);
+x_54 = l_Lean_setReducibilityStatus___at_mkRecOn___spec__3(x_41, x_53, x_13, x_14, x_15, x_16, x_51);
 lean_dec(x_16);
 lean_dec(x_15);
 lean_dec(x_14);
@@ -27626,7 +27628,7 @@ if (x_68 == 0)
 {
 uint8_t x_69; lean_object* x_70; 
 x_69 = 0;
-x_70 = l_Lean_setReducibilityStatus___at_Lean_mkRecOn___spec__4(x_41, x_69, x_13, x_14, x_15, x_16, x_67);
+x_70 = l_Lean_setReducibilityStatus___at_mkRecOn___spec__3(x_41, x_69, x_13, x_14, x_15, x_16, x_67);
 lean_dec(x_16);
 lean_dec(x_15);
 lean_dec(x_14);
@@ -27767,7 +27769,7 @@ if (x_101 == 0)
 {
 uint8_t x_102; lean_object* x_103; 
 x_102 = 0;
-x_103 = l_Lean_setReducibilityStatus___at_Lean_mkRecOn___spec__4(x_89, x_102, x_13, x_14, x_15, x_16, x_100);
+x_103 = l_Lean_setReducibilityStatus___at_mkRecOn___spec__3(x_89, x_102, x_13, x_14, x_15, x_16, x_100);
 lean_dec(x_16);
 lean_dec(x_15);
 lean_dec(x_14);
@@ -27840,7 +27842,7 @@ if (x_117 == 0)
 {
 uint8_t x_118; lean_object* x_119; 
 x_118 = 0;
-x_119 = l_Lean_setReducibilityStatus___at_Lean_mkRecOn___spec__4(x_89, x_118, x_13, x_14, x_15, x_16, x_116);
+x_119 = l_Lean_setReducibilityStatus___at_mkRecOn___spec__3(x_89, x_118, x_13, x_14, x_15, x_16, x_116);
 lean_dec(x_16);
 lean_dec(x_15);
 lean_dec(x_14);

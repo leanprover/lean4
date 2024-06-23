@@ -6410,7 +6410,7 @@ static lean_object* _init_l_Lean_Parser_Tactic___aux__Init__Tactics______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("\"The rfl tactic failed. Possible reasons:\n- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).\n- The arguments of the relation are not equal.\nTry using the reflexivitiy lemma for your relation explicitly, e.g. `exact Eq.rfl`.\"", 263, 263);
+x_1 = lean_mk_string_unchecked("\"The rfl tactic failed. Possible reasons:\n- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).\n- The arguments of the relation are not equal.\nTry using the reflexivity lemma for your relation explicitly, e.g. `exact Eq.refl _` or\n`exact HEq.rfl` etc.\"", 288, 288);
 return x_1;
 }
 }

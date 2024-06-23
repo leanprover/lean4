@@ -737,9 +737,8 @@ theorem set_next_add (s : String) (i : Pos) (c : Char) (b₁ b₂)
     apply iteInduction (motive := fun p => (utf8GetAux p a i).utf8Size + b₁ = utf8ByteSize.go p + b₂) <;>
       intro h' <;> simp [utf8GetAux, h', utf8ByteSize.go] at h ⊢
     next =>
-      rw [Nat.add_assoc, Nat.add_left_comm] at h ⊢; rw [Nat.add_left_cancel h]
+      rw [Nat.add_left_comm] at h ⊢; rw [Nat.add_left_cancel h]
     next =>
-      rw [Nat.add_assoc] at h ⊢
       refine foo cs (a + c') b₁ (c'.utf8Size + b₂) h
   exact foo s.1 0 _ _ h
 

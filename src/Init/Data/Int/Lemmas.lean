@@ -404,7 +404,7 @@ theorem ofNat_mul_subNatNat (m n k : Nat) :
       simp [subNatNat_of_le h, subNatNat_of_le h', Nat.mul_sub_left_distrib]
 
 theorem negOfNat_add (m n : Nat) : negOfNat m + negOfNat n = negOfNat (m + n) := by
-  cases m <;> cases n <;> simp [Nat.succ_add] <;> rfl
+  cases m <;> cases n <;> simp [negOfNat, Nat.add_comm 1]
 
 theorem negSucc_mul_subNatNat (m n k : Nat) :
     -[m+1] * subNatNat n k = subNatNat (succ m * k) (succ m * n) := by

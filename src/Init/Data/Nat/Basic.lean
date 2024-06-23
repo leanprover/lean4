@@ -165,7 +165,7 @@ protected theorem add_comm : ∀ (n m : Nat), n + m = m + n
     apply this
 instance : Std.Commutative (α := Nat) (· + ·) := ⟨Nat.add_comm⟩
 
-protected theorem add_assoc : ∀ (n m k : Nat), (n + m) + k = n + (m + k)
+@[simp] protected theorem add_assoc : ∀ (n m k : Nat), (n + m) + k = n + (m + k)
   | _, _, 0      => rfl
   | n, m, succ k => congrArg succ (Nat.add_assoc n m k)
 instance : Std.Associative (α := Nat) (· + ·) := ⟨Nat.add_assoc⟩
@@ -179,7 +179,7 @@ protected theorem add_right_comm (n m k : Nat) : (n + m) + k = (n + k) + m := by
 protected theorem add_left_cancel {n m k : Nat} : n + m = n + k → m = k := by
   induction n with
   | zero => simp
-  | succ n ih => simp [succ_add, succ.injEq]; intro h; apply ih h
+  | succ n ih => simp only [succ_add, succ_eq_add_one, succ.injEq]; intro h; apply ih h
 
 protected theorem add_right_cancel {n m k : Nat} (h : n + m = k + m) : n = k := by
   rw [Nat.add_comm n m, Nat.add_comm k m] at h
@@ -231,7 +231,7 @@ instance : Std.LawfulIdentity (α := Nat) (· * ·) 1 where
 protected theorem left_distrib (n m k : Nat) : n * (m + k) = n * m + n * k := by
   induction n with
   | zero      => repeat rw [Nat.zero_mul]
-  | succ n ih => simp [succ_mul, ih]; rw [Nat.add_assoc, Nat.add_assoc (n*m)]; apply congrArg; apply Nat.add_left_comm
+  | succ n ih => simp only [succ_mul, ih, Nat.add_assoc]; apply congrArg; apply Nat.add_left_comm
 
 protected theorem right_distrib (n m k : Nat) : (n + m) * k = n * k + m * k := by
   rw [Nat.mul_comm, Nat.left_distrib]; simp [Nat.mul_comm]

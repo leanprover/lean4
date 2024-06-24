@@ -1,3 +1,9 @@
+/-
+Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Thrane Christiansen
+-/
+prelude
 import Lean.CoreM
 import Lean.Data.Lsp.Utf16
 import Lean.Elab.InfoTree

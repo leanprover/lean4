@@ -86,7 +86,7 @@ def varyingVarNames (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Ar
     let xs : Array Expr := xs[fixedPrefixSize:]
     xs.mapM (·.fvarId!.getUserName)
 
-def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
+def wfRecursion (preDefs : Array PreDefinition) (termArgs? : Option TerminationArguments) : TermElabM Unit := do
   let preDefs ← preDefs.mapM fun preDef =>
     return { preDef with value := (← preprocess preDef.value) }
   let (fixedPrefixSize, argsPacker, unaryPreDef) ← withoutModifyingEnv do
@@ -100,15 +100,9 @@ def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
     return (fixedPrefixSize, argsPacker, ← packMutual fixedPrefixSize argsPacker preDefsDIte)
 
   let wf : TerminationArguments ← do
-    if preDefs[0]!.termination.terminationBy?.isNone then
-      -- No termination_by here, so guess one
-      -- (PreDefinition.Main already checks that either all or none have a `termination_by`)
-      guessLex preDefs unaryPreDef fixedPrefixSize argsPacker
-    else
-      preDefs.mapIdxM fun funIdx predef => do
-        let arity := fixedPrefixSize + argsPacker.varNamess[funIdx]!.size
-        let hints := predef.termination
-        TerminationArgument.elab predef.declName predef.type arity hints.extraParams hints.terminationBy?.get!
+    if let some tas := termArgs? then pure tas else
+    -- No termination_by here, so use GuessLex to infer one
+    guessLex preDefs unaryPreDef fixedPrefixSize argsPacker
 
   let preDefNonRec ← forallBoundedTelescope unaryPreDef.type fixedPrefixSize fun prefixArgs type => do
     let type ← whnfForall type

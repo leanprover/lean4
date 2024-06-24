@@ -171,8 +171,11 @@ protected theorem add_assoc : ∀ (n m k : Nat), (n + m) + k = n + (m + k)
 instance : Std.Associative (α := Nat) (· + ·) := ⟨Nat.add_assoc⟩
 
 @[simp]
-protected theorem add_assoc' {n m k : Nat} : n + (m + k) = n + m + k :=
+protected theorem add_assoc' (n m k : Nat) : n + (m + k) = n + m + k :=
   Nat.add_assoc n m k |>.symm
+
+protected theorem add_rotate (n m k : Nat) : n + m + k = m + k + n := by
+  rw [Nat.add_assoc, Nat.add_comm]
 
 protected theorem add_left_comm (n m k : Nat) : n + (m + k) = m + (n + k) := by
   rw [← Nat.add_assoc, Nat.add_comm n m, Nat.add_assoc]
@@ -235,7 +238,10 @@ instance : Std.LawfulIdentity (α := Nat) (· * ·) 1 where
 protected theorem left_distrib (n m k : Nat) : n * (m + k) = n * m + n * k := by
   induction n with
   | zero      => repeat rw [Nat.zero_mul]
-  | succ n ih => simp [succ_mul, ih]; rw [Nat.add_assoc, Nat.add_assoc (n*m)]; apply congrArg; apply Nat.add_left_comm
+  | succ n ih =>
+    simp only [succ_mul, ih]
+    rw [Nat.add_assoc, Nat.add_assoc (n*m)]
+    apply congrArg; apply Nat.add_left_comm
 
 protected theorem right_distrib (n m k : Nat) : (n + m) * k = n * k + m * k := by
   rw [Nat.mul_comm, Nat.left_distrib]; simp [Nat.mul_comm]
@@ -980,13 +986,13 @@ theorem add_le_of_le_sub {a b c : Nat} (hle : b ≤ c) (h : a ≤ c - b) : a + b
   | ⟨d, hd⟩ =>
     apply @le.intro _ _ d
     rw [Nat.eq_add_of_sub_eq hle hd.symm]
-    simp [Nat.add_comm, Nat.add_assoc, Nat.add_left_comm]
+    simp [Nat.add_right_comm]
 
 theorem le_sub_of_add_le {a b c : Nat} (h : a + b ≤ c) : a ≤ c - b := by
   match le.dest h with
   | ⟨d, hd⟩ =>
     apply @le.intro _ _ d
-    have hd : a + d + b = c := by simp [← hd, Nat.add_comm, Nat.add_assoc, Nat.add_left_comm]
+    have hd : a + d + b = c := by simp [← hd, Nat.add_right_comm]
     have hd := Nat.sub_eq_of_eq_add hd.symm
     exact hd.symm
 

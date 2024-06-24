@@ -1105,7 +1105,7 @@ theorem ext_iff {s₁ s₂ : String} : s₁ = s₂ ↔ s₁.data = s₂.data := 
   rfl
 
 @[simp] theorem length_pushn (c : Char) (n : Nat) : (pushn s c n).length = s.length + n := by
-  unfold pushn; induction n <;> simp [Nat.repeat, Nat.add_assoc, *]
+  unfold pushn; induction n <;> simp [Nat.repeat, *]
 
 @[simp] theorem length_append (s t : String) : (s ++ t).length = s.length + t.length := by
   simp only [length, append, List.length_append]

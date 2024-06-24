@@ -364,4 +364,24 @@ theorem zip_eq_zip_take_min : ∀ (l₁ : List α) (l₂ : List β),
   rw [zip_eq_zip_take_min]
   simp
 
+/-! ### minimum? -/
+
+-- A specialization of `minimum?_eq_some_iff` to Nat.
+theorem minimum?_eq_some_iff' {xs : List Nat} :
+    xs.minimum? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, a ≤ b) :=
+  minimum?_eq_some_iff
+    (le_refl := Nat.le_refl)
+    (min_eq_or := fun _ _ => by omega)
+    (le_min_iff := fun _ _ _ => by omega)
+
+/-! ### maximum? -/
+
+-- A specialization of `maximum?_eq_some_iff` to Nat.
+theorem maximum?_eq_some_iff' {xs : List Nat} :
+    xs.maximum? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, b ≤ a) :=
+  maximum?_eq_some_iff
+    (le_refl := Nat.le_refl)
+    (max_eq_or := fun _ _ => by omega)
+    (max_le_iff := fun _ _ _ => by omega)
+
 end List

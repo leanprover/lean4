@@ -80,3 +80,13 @@ incremental reporting in this case.
 def tacInTermInTac : True := by
   · rw [show 0 = 0 by rfl]
 --^ collectDiagnostics
+
+/-!
+
+-/
+-- RESET
+def tacInTermInTac2 : True := by
+  cases (by exact 0) with
+  | zero => done
+  | succ => sorry
+--^ collectDiagnostics

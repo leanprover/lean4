@@ -58,12 +58,11 @@ def withRecArgInfo (numFixed : Nat) (xs : Array Expr) (i : Nat) (k : RecArgInfo 
     if localDecl.isLet then
       throwError "it is a let-binding"
     let xType ← whnfD localDecl.type
-    matchConstInduct xType.getAppFn (fun _ =>
-      throwError "TODO") fun indInfo us => do
+    matchConstInduct xType.getAppFn (fun _ => throwError "its type is not an inductive") fun indInfo us => do
     if !(← hasConst (mkBRecOnName indInfo.name)) then
       throwError "its type does not have a recursor"
     else if indInfo.isReflexive && !(← hasConst (mkBInductionOnName indInfo.name)) && !(← isInductivePredicate indInfo.name) then
-      throwError "its type is reflexive" -- TODO
+      throwError "its type is a reflexive inductive, but {mkBInductionOnName indInfo.name} does not exist and it is not an inductive predicate"
     else
       let indArgs    := xType.getAppArgs
       let indParams  := indArgs.extract 0 indInfo.numParams

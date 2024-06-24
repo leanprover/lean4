@@ -467,6 +467,7 @@ jobs:
         with:
           files: artifacts/*/*
           fail_on_unmatched_files: true
+          prerelease: ${{ !startsWith(github.ref, 'refs/tags/v') || contains(github.ref, '-rc') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

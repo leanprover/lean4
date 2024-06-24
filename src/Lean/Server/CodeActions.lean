@@ -7,4 +7,5 @@ Authors: E.W.Ayers
 prelude
 import Lean.Server.CodeActions.Attr
 import Lean.Server.CodeActions.Basic
+import Lean.Server.CodeActions.NameSuggestions
 import Lean.Server.CodeActions.Provider

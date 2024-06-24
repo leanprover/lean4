@@ -7,6 +7,7 @@ prelude
 import Lean.Meta.Match.MatchPatternAttr
 import Lean.Elab.Arg
 import Lean.Elab.MatchAltView
+import Lean.Elab.NameSuggestions
 
 namespace Lean.Elab.Term
 
@@ -54,44 +55,14 @@ private def throwCtorExpected {α} (ident : Option Syntax) : M α := do
   let name := idStx.getId
   if let .anonymous := name then throwError message
   let env ← getEnv
-  let mut candidates : Array Name := #[]
-  for (c, _) in env.constants do
+  let mut candidates : NameSuggestions := {}
+  for (c, info) in env.constants do
     if isPrivateName c then continue
     if !(name.isSuffixOf c) then continue
     if env.isConstructor c || hasMatchPatternAttribute env c then
-      candidates := candidates.push c
-
-  if candidates.size = 0 then
-    throwError message
-  else if h : candidates.size = 1 then
-    throwError message ++ m!"\n\nSuggestion: '{candidates[0]}' is similar"
-  else
-    let sorted := candidates.qsort (·.toString < ·.toString)
-    let diff :=
-      if candidates.size > 10 then [m!" (or {candidates.size - 10} others)"]
-      else []
-    let suggestions : MessageData := .group <|
-      .joinSep ((sorted.extract 0 10 |>.toList |>.map (showName env)) ++ diff)
-        ("," ++ Format.line)
-    throwError message ++ .group ("\n\nSuggestions:" ++ .nestD (Format.line ++ suggestions))
-where
-  -- Create some `MessageData` for a name that shows it without an `@`, but with the metadata that
-  -- makes infoview hovers and the like work. This technique only works because the names are known
-  -- to be global constants, so we don't need the local context.
-  showName (env : Environment) (n : Name) : MessageData :=
-      let params :=
-        env.constants.find?' n |>.map (·.levelParams.map Level.param) |>.getD []
-      .ofFormatWithInfos {
-        fmt := "'" ++ .tag 0 (format n) ++ "'",
-        infos :=
-          .fromList [(0, .ofTermInfo {
-            lctx := .empty,
-            expr := .const n params,
-            stx := .ident .none (toString n).toSubstring n [.decl n []],
-            elaborator := `Delab,
-            expectedType? := none
-          })] _
-      }
+      candidates := candidates.addConstant c.toString 0 c info.levelParams
+  ident.forM fun stx => candidates.saveInfo stx
+  throwError message ++ candidates.toMessageData
 
 private def throwInvalidPattern {α} : M α :=
   throwError "invalid pattern"

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
+import Lean.Util.EditDistance
 import Lean.ReservedNameAction
 import Lean.Meta.AppBuilder
 import Lean.Meta.CollectMVars
@@ -13,7 +14,10 @@ import Lean.Elab.Config
 import Lean.Elab.Level
 import Lean.Elab.DeclModifiers
 import Lean.Elab.PreDefinition.WF.TerminationHint
+import Lean.Elab.NameSuggestions
 import Lean.Language.Basic
+
+open Lean.EditDistance
 
 namespace Lean.Elab
 
@@ -1808,6 +1812,64 @@ private def mkConsts (candidates : List (Name × List String)) (explicitLevels :
     let const ← mkConst declName explicitLevels
     return (const, projs) :: result
 
+def throwUnknownIdentifier (n : Name) : TermElabM α := do
+  let n := n.eraseMacroScopes
+  let nameString := n.toString
+  let mut best :=
+    if nameString.length < 2 then 0
+    else if nameString.length < 4 then 1
+    else if nameString.length < 6 then 2
+    else 3
+  let mut lsuggestions := []
+  for ldecl in (← getLCtx) do
+    let lNameString := ldecl.userName.toString
+    if let some d := levenshtein nameString lNameString best then
+      if d < best then
+        best := d
+        lsuggestions := [(lNameString, d, ldecl.fvarId)]
+      else if d == best then
+        lsuggestions := lsuggestions.cons (lNameString, d, ldecl.fvarId)
+  let mut gsuggestions := []
+  for (c, info) in (← getEnv).constants do
+    let mut nameStrings := inNs (← getCurrNamespace).components c.components |>.map (·.toString)
+    for decl in (← getOpenDecls) do
+      if let some other := seenAs decl c then
+        nameStrings := nameStrings.cons other.toString
+    for cNameString in nameStrings do
+      if let some d := levenshtein nameString cNameString best then
+        if d < best then
+          best := d
+          lsuggestions := []
+          gsuggestions := [(cNameString, d, c, info.levelParams)]
+        else if d == best then
+          gsuggestions := gsuggestions.cons (cNameString, d, c, info.levelParams)
+  let suggestions : NameSuggestions := {localSuggestions := lsuggestions, constSuggestions := gsuggestions}
+  suggestions.saveInfo (← getRef)
+  throwError m!"unknown identifier '{Lean.mkConst n}'" ++ suggestions.toMessageData
+where
+  assemble (acc : Name) : List Name → Name
+    | [] => acc
+    | .str _ s :: ns => assemble (.str acc s) ns
+    | .num _ n :: ns => assemble (.num acc n) ns
+    | .anonymous :: ns => assemble acc ns
+  seenAs : OpenDecl → Name → Option Name
+    | .simple ns except, n =>
+      let ns' := ns.components
+      let n' := n.components
+      if let some x := ns'.isPrefixOf? n' then
+        let x := assemble .anonymous x
+        if x ∈ except then none else some x
+      else none
+    | .explicit src tgt, n => if n == tgt then some src else none
+  prefixes {α} : List α → List (List α)
+  | [] => [[]]
+  | x :: xs => [] :: (prefixes xs).map (x :: ·)
+  inNs (ns : List Name) (n : List Name) :=
+    prefixes ns |>.bind fun pre =>
+      if let some x := pre.isPrefixOf? n then
+        [assemble .anonymous x]
+      else []
+
 def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × List String)) := do
   addCompletionInfo <| CompletionInfo.id stx stx.getId (danglingDot := false) (← getLCtx) expectedType?
   if let some (e, projs) ← resolveLocalName n then
@@ -1833,7 +1895,7 @@ where
            isValidAutoBoundImplicitName n (relaxedAutoImplicit.get (← getOptions)) then
         throwAutoBoundImplicitLocal n
       else
-        throwError "unknown identifier '{Lean.mkConst n}'"
+        throwUnknownIdentifier n
     mkConsts candidates explicitLevels
 
 /--

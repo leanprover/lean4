@@ -177,7 +177,7 @@ elaborating to `x.1 = y.1 → x.2 = y.2 → x = y`, for example.
         unless ← Meta.isProof fvar do
           throwError "argument {fvar} is not a proof, which is not supported"
         if fvars.fvarSet.contains fvar.fvarId! then
-          throwError "argument {fvar} is dependent upon, which is not supported"
+          throwError "argument {fvar} is depended upon, which is not supported"
       let conj := mkAndN (← toRevert.mapM (inferType ·)).toList
       let mut lctx ← getLCtx
       for i in [:startIdx] do

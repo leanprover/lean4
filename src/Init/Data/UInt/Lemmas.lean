@@ -69,3 +69,28 @@ declare_uint_theorems UInt16
 declare_uint_theorems UInt32
 declare_uint_theorems UInt64
 declare_uint_theorems USize
+
+@[deprecated (since := "2024-06-23")] protected abbrev UInt8.zero_toNat := @UInt8.toNat_zero
+@[deprecated (since := "2024-06-23")] protected abbrev UInt8.div_toNat := @UInt8.toNat_div
+@[deprecated (since := "2024-06-23")] protected abbrev UInt8.mod_toNat := @UInt8.toNat_mod
+@[deprecated (since := "2024-06-23")] protected abbrev UInt8.modn_toNat := @UInt8.toNat_modn
+
+@[deprecated (since := "2024-06-23")] protected abbrev UInt16.zero_toNat := @UInt16.toNat_zero
+@[deprecated (since := "2024-06-23")] protected abbrev UInt16.div_toNat := @UInt16.toNat_div
+@[deprecated (since := "2024-06-23")] protected abbrev UInt16.mod_toNat := @UInt16.toNat_mod
+@[deprecated (since := "2024-06-23")] protected abbrev UInt16.modn_toNat := @UInt16.toNat_modn
+
+@[deprecated (since := "2024-06-23")] protected abbrev UInt32.zero_toNat := @UInt32.toNat_zero
+@[deprecated (since := "2024-06-23")] protected abbrev UInt32.div_toNat := @UInt32.toNat_div
+@[deprecated (since := "2024-06-23")] protected abbrev UInt32.mod_toNat := @UInt32.toNat_mod
+@[deprecated (since := "2024-06-23")] protected abbrev UInt32.modn_toNat := @UInt32.toNat_modn
+
+@[deprecated (since := "2024-06-23")] protected abbrev UInt64.zero_toNat := @UInt64.toNat_zero
+@[deprecated (since := "2024-06-23")] protected abbrev UInt64.div_toNat := @UInt64.toNat_div
+@[deprecated (since := "2024-06-23")] protected abbrev UInt64.mod_toNat := @UInt64.toNat_mod
+@[deprecated (since := "2024-06-23")] protected abbrev UInt64.modn_toNat := @UInt64.toNat_modn
+
+@[deprecated (since := "2024-06-23")] protected abbrev USize.zero_toNat := @USize.toNat_zero
+@[deprecated (since := "2024-06-23")] protected abbrev USize.div_toNat := @USize.toNat_div
+@[deprecated (since := "2024-06-23")] protected abbrev USize.mod_toNat := @USize.toNat_mod
+@[deprecated (since := "2024-06-23")] protected abbrev USize.modn_toNat := @USize.toNat_modn

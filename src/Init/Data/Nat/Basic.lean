@@ -170,6 +170,10 @@ protected theorem add_assoc : ∀ (n m k : Nat), (n + m) + k = n + (m + k)
   | n, m, succ k => congrArg succ (Nat.add_assoc n m k)
 instance : Std.Associative (α := Nat) (· + ·) := ⟨Nat.add_assoc⟩
 
+@[simp]
+protected theorem add_assoc' {n m k : Nat} : n + (m + k) = n + m + k :=
+  Nat.add_assoc n m k |>.symm
+
 protected theorem add_left_comm (n m k : Nat) : n + (m + k) = m + (n + k) := by
   rw [← Nat.add_assoc, Nat.add_comm n m, Nat.add_assoc]
 

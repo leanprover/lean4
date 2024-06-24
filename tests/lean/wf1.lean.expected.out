@@ -1,7 +1,7 @@
 wf1.lean:1:4-1:5: error: fail to show termination for
   g
 with errors
-Structural recursion cannot be used:
+structural recursion cannot be used:
 
 argument #1 cannot be used for structural recursion
   failed to eliminate recursive application

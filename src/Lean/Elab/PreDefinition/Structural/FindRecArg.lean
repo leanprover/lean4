@@ -35,13 +35,6 @@ private def hasBadParamDep? (ys : Array Expr) (indParams : Array Expr) : MetaM (
         return some (p, y)
   return none
 
-private def throwStructuralFailed : MetaM α :=
-  throwError "structural recursion cannot be used"
-
-private def orelse' (x y : M α) : M α := do
-  let saveState ← get
-  orelseMergeErrors x (do set saveState; y)
-
 /--
 Pass to `k` the `RecArgInfo` for the `i`th parameter in the parameter list `xs`. This performs
 various sanity checks on the argument (is it even an inductive type etc).
@@ -133,7 +126,7 @@ partial def findRecArg (numFixed : Nat) (xs : Array Expr) (k : RecArgInfo → M 
     catch e => errors := errors.set! i e.toMessageData
   throwError
     errors.foldl
-      (init := m!"Structural recursion cannot be used:")
+      (init := m!"structural recursion cannot be used:")
       (f := (· ++ Format.line ++ Format.line ++ .))
 
 end Lean.Elab.Structural

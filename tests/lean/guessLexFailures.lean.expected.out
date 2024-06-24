@@ -1,7 +1,7 @@
 guessLexFailures.lean:9:4-9:18: error: fail to show termination for
   nonTerminating
 with errors
-Structural recursion cannot be used:
+structural recursion cannot be used:
 
 argument #1 cannot be used for structural recursion
   failed to eliminate recursive application
@@ -26,13 +26,13 @@ Please use `termination_by` to specify a decreasing measure.
 guessLexFailures.lean:20:4-20:15: error: fail to show termination for
   noArguments
 with errors
-Structural recursion cannot be used:
+structural recursion cannot be used:
 
 well-founded recursion cannot be used, 'noArguments' does not take any (non-fixed) arguments
 guessLexFailures.lean:22:4-22:23: error: fail to show termination for
   noNonFixedArguments
 with errors
-Structural recursion cannot be used:
+structural recursion cannot be used:
 
 argument #1 cannot be used for structural recursion
   it is unchanged in the recursive calls
@@ -109,7 +109,7 @@ Please use `termination_by` to specify a decreasing measure.
 guessLexFailures.lean:87:4-87:5: error: fail to show termination for
   DuplicatedCall.f
 with errors
-Structural recursion cannot be used:
+structural recursion cannot be used:
 
 argument #1 cannot be used for structural recursion
   failed to eliminate recursive application

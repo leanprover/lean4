@@ -13,7 +13,7 @@ termination_by (xs.size - i, i)
 guessLexDiff.lean:84:4-84:11: error: fail to show termination for
   failure
 with errors
-Structural recursion cannot be used:
+structural recursion cannot be used:
 
 argument #1 cannot be used for structural recursion
   it is unchanged in the recursive calls

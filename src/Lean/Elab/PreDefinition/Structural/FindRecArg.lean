@@ -35,13 +35,6 @@ private def hasBadParamDep? (ys : Array Expr) (indParams : Array Expr) : MetaM (
         return some (p, y)
   return none
 
-private def throwStructuralFailed : MetaM α :=
-  throwError "structural recursion cannot be used"
-
-private def orelse' (x y : M α) : M α := do
-  let saveState ← get
-  orelseMergeErrors x (do set saveState; y)
-
 /--
 Pass to `k` the `RecArgInfo` for the `i`th parameter in the parameter list `xs`. This performs
 various sanity checks on the argument (is it even an inductive type etc).
@@ -58,12 +51,11 @@ def withRecArgInfo (numFixed : Nat) (xs : Array Expr) (i : Nat) (k : RecArgInfo 
     if localDecl.isLet then
       throwError "it is a let-binding"
     let xType ← whnfD localDecl.type
-    matchConstInduct xType.getAppFn (fun _ =>
-      throwError "TODO") fun indInfo us => do
+    matchConstInduct xType.getAppFn (fun _ => throwError "its type is not an inductive") fun indInfo us => do
     if !(← hasConst (mkBRecOnName indInfo.name)) then
       throwError "its type does not have a recursor"
     else if indInfo.isReflexive && !(← hasConst (mkBInductionOnName indInfo.name)) && !(← isInductivePredicate indInfo.name) then
-      throwError "its type is reflexive" -- TODO
+      throwError "its type is a reflexive inductive, but {mkBInductionOnName indInfo.name} does not exist and it is not an inductive predicate"
     else
       let indArgs    := xType.getAppArgs
       let indParams  := indArgs.extract 0 indInfo.numParams
@@ -134,7 +126,7 @@ partial def findRecArg (numFixed : Nat) (xs : Array Expr) (k : RecArgInfo → M 
     catch e => errors := errors.set! i e.toMessageData
   throwError
     errors.foldl
-      (init := m!"Structural recursion cannot be used:")
+      (init := m!"structural recursion cannot be used:")
       (f := (· ++ Format.line ++ Format.line ++ .))
 
 end Lean.Elab.Structural

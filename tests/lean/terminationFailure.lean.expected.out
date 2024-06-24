@@ -22,7 +22,7 @@ f.g : Nat → Nat
 terminationFailure.lean:20:4-20:5: error: fail to show termination for
   h
 with errors
-Structural recursion cannot be used:
+structural recursion cannot be used:
 
 argument #1 cannot be used for structural recursion
   failed to eliminate recursive application

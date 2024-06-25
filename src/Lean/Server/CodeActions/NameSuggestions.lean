@@ -23,7 +23,7 @@ def holeCodeActionProvider : CodeActionProvider := fun params snap => do
     else result
   let mut quickfixes : Array LazyCodeAction:= #[]
   for ⟨range, xs⟩ in names do
-    for x in xs do
+    for x in xs.get do
       quickfixes := quickfixes.push {
         eager := {
           title := s!"Replace with '{x}'",

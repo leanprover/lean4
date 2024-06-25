@@ -48,21 +48,26 @@ structure State where
 
 abbrev M := StateRefT State TermElabM
 
+private def patternCtorSuggestions (env : Environment) (name : Name) : Thunk NameSuggestions :=
+  Thunk.mk fun () => Id.run do
+    let mut candidates : NameSuggestions := {}
+    for (c, info) in env.constants do
+      if isPrivateName c then continue
+      if !(name.isSuffixOf c) then continue
+      if env.isConstructor c || hasMatchPatternAttribute env c then
+        candidates := candidates.addConstant c.toString 0 c info.levelParams
+    return candidates
+
 private def throwCtorExpected {α} (ident : Option Syntax) : M α := do
   let message : MessageData :=
     "invalid pattern, constructor or constant marked with '[match_pattern]' expected"
   let some idStx := ident | throwError message
   let name := idStx.getId
   if let .anonymous := name then throwError message
-  let env ← getEnv
-  let mut candidates : NameSuggestions := {}
-  for (c, info) in env.constants do
-    if isPrivateName c then continue
-    if !(name.isSuffixOf c) then continue
-    if env.isConstructor c || hasMatchPatternAttribute env c then
-      candidates := candidates.addConstant c.toString 0 c info.levelParams
-  ident.forM fun stx => candidates.saveInfo stx
-  throwError message ++ candidates.toMessageData
+  let suggestions := patternCtorSuggestions (← getEnv) name
+  ident.forM fun stx => do
+    if stx.getPos? (canonicalOnly := true) |>.isSome then saveNameSuggestions stx suggestions
+  throwError message ++ .lazy fun _ => pure suggestions.get.toMessageData
 
 private def throwInvalidPattern {α} : M α :=
   throwError "invalid pattern"

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
-import Lean.Util.EditDistance
 import Lean.ReservedNameAction
 import Lean.Meta.AppBuilder
 import Lean.Meta.CollectMVars
@@ -16,8 +15,6 @@ import Lean.Elab.DeclModifiers
 import Lean.Elab.PreDefinition.WF.TerminationHint
 import Lean.Elab.NameSuggestions
 import Lean.Language.Basic
-
-open Lean.EditDistance
 
 namespace Lean.Elab
 
@@ -1812,6 +1809,7 @@ private def mkConsts (candidates : List (Name × List String)) (explicitLevels :
     let const ← mkConst declName explicitLevels
     return (const, projs) :: result
 
+/-- Throws an unknown identifier error message, with spelling suggestions if applicable. -/
 def throwUnknownIdentifier (n : Name) : TermElabM α := do
   let ref ← getRef
   let env ← getEnv
@@ -1822,7 +1820,7 @@ def throwUnknownIdentifier (n : Name) : TermElabM α := do
   let canonical := ref.getPos? (canonicalOnly := true) |>.isSome
   let suggestions :=
     if canonical then
-      findSuggestions n env lctx currNamespace openDecls
+      findSuggestions n env (some lctx) currNamespace openDecls
     else .pure {}
 
   if canonical then

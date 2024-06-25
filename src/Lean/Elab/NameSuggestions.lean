@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Thrane Christiansen
 -/
 prelude
-import Lean.CoreM
 import Lean.Data.Lsp.Utf16
 import Lean.Elab.InfoTree
 import Lean.Message
@@ -34,7 +33,7 @@ structure NameSuggestions where
   constSuggestions : List (String × Nat × Name × List Name) := []
 
 structure NameSuggestionInfo where
-  range : Lsp.Range
+  range : String.Range
   replacements : Thunk (Array String)
 deriving TypeName
 
@@ -110,10 +109,9 @@ where
     | (str1, score1), (str2, score2) =>
       if score1 == score2 then str1 < str2 else score1 < score2
 
-def saveNameSuggestions (ref : Syntax) (suggestions : Thunk NameSuggestions) : CoreM Unit := do
-  if let some range := ref.getRange? then
-    let map ← getFileMap
-    let range := map.utf8RangeToLspRange range
+def saveNameSuggestions [Monad m] [MonadInfoTree m]
+    (ref : Syntax) (suggestions : Thunk NameSuggestions) : m Unit := do
+  if let some range := ref.getRange? (canonicalOnly := true) then
     pushInfoLeaf <| .ofCustomInfo {
       stx := ref
       value := Dynamic.mk
@@ -125,7 +123,8 @@ Suggests replacements for an unknown name `n`.
 
 Suggestions are based on the Levenshtein distance between the name as it was written and the string
 representations of the various forms of each in-scope name that are available, taking `open`
-declarations and the current namespace into account.
+declarations and the current namespace into account. The local context is optional: if it is
+omitted, then suggestions will only be for global constants.
 
 Suggestions are only provided up to a threshold, based on the length of the name being corrected:
  * Single-character names: no suggestions provided
@@ -145,7 +144,7 @@ different.
 -/
 def findSuggestions
     (n : Name)
-    (env : Environment) (lctx : LocalContext) (currNamespace : Name) (openDecls : List OpenDecl)
+    (env : Environment) (lctx : Option LocalContext) (currNamespace : Name) (openDecls : List OpenDecl)
     : Thunk NameSuggestions :=
   .mk fun () => Id.run do
     if skip n then return {}
@@ -156,15 +155,16 @@ def findSuggestions
       else if nameString.length < 6 then 2
       else 3
     let mut lsuggestions := []
-    for ldecl in lctx do
-      if skip ldecl.userName then continue
-      let lNameString := ldecl.userName.toString
-      if let some d := levenshtein nameString lNameString best then
-        if d < best then
-          best := d
-          lsuggestions := [(lNameString, d, ldecl.fvarId)]
-        else if d == best then
-          lsuggestions := lsuggestions.cons (lNameString, d, ldecl.fvarId)
+    if let some lctx := lctx then
+      for ldecl in lctx do
+        if skip ldecl.userName then continue
+        let lNameString := ldecl.userName.toString
+        if let some d := levenshtein nameString lNameString best then
+          if d < best then
+            best := d
+            lsuggestions := [(lNameString, d, ldecl.fvarId)]
+          else if d == best then
+            lsuggestions := lsuggestions.cons (lNameString, d, ldecl.fvarId)
     let mut gsuggestions := []
     for (c, info) in env.constants do
       if skip c then continue

@@ -12,6 +12,7 @@ open Lean Elab Server RequestM
 @[builtin_code_action_provider]
 def holeCodeActionProvider : CodeActionProvider := fun params snap => do
   let doc ← readDoc
+  let fileMap := doc.meta.text
   let startPos := doc.meta.text.lspPosToUtf8Pos params.range.start
   let endPos := doc.meta.text.lspPosToUtf8Pos params.range.end
   let names : Array NameSuggestionInfo := snap.infoTree.foldInfo (init := #[]) fun _ctx info result => Id.run do
@@ -23,6 +24,7 @@ def holeCodeActionProvider : CodeActionProvider := fun params snap => do
     else result
   let mut quickfixes : Array LazyCodeAction:= #[]
   for ⟨range, xs⟩ in names do
+    let range := fileMap.utf8RangeToLspRange range
     for x in xs.get do
       quickfixes := quickfixes.push {
         eager := {

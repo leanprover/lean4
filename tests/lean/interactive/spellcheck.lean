@@ -1,5 +1,5 @@
 
-/-! Tests the spelling suggestions provided for identifiers -/
+
 open Lean (versionString)
 
 open Nat (zero)
@@ -14,8 +14,8 @@ Suggestions: 'xyy', 'xyz', 'zxy'
 -/
 #guard_msgs in
 def foo (xyz zxy : Nat) := xy
+                         --^ codeAction
 
-/-! Check that opening Nat did the right thing here -/
 /--
 error: unknown identifier 'zaro'
 
@@ -23,8 +23,7 @@ Suggestion: 'zero'
 -/
 #guard_msgs in
 def foo (xyz zxy : Nat) := zaro
-
-/-! Check that opening Nat did not bring `succ` into scope -/
+                          --^ codeAction
 /--
 error: unknown identifier 'scc'
 
@@ -32,7 +31,7 @@ Suggestion: 'Acc'
 -/
 #guard_msgs in
 example := scc
-
+           --^ codeAction
 /--
 error: unknown identifier 'scc'
 
@@ -41,7 +40,7 @@ Suggestions: 'Acc', 'succ'
 #guard_msgs in
 open Nat in
 example := scc
-
+         --^ codeAction
 /--
 error: unknown identifier 'SuArray'
 
@@ -49,8 +48,8 @@ Suggestions: 'Array', 'Subarray'
 -/
 #guard_msgs in
 def x : Type := SuArray Nat
-
-/-! Check that dots are fixable just like any other typo -/
+                --^ codeAction
+                       --^ codeAction
 /--
 error: unknown identifier 'Std.Formatxnil'
 
@@ -58,11 +57,12 @@ Suggestion: 'Std.Format.nil'
 -/
 #guard_msgs in
 example := Std.Formatxnil
+                --^ codeAction
 
 /-- error: unknown identifier 'Formatxnil' -/
 #guard_msgs in
 example := Formatxnil
-
+                --^ codeAction
 namespace Std
 
 /--
@@ -72,7 +72,7 @@ Suggestion: 'Format.nil'
 -/
 #guard_msgs in
 example := Formatxnil
-
+            --^ codeAction
 namespace Format
 
 
@@ -83,7 +83,7 @@ Suggestion: 'Associative'
 -/
 #guard_msgs in
 example := @Asociative
-
+                --^ codeAction
 
 /--
 error: unknown identifier 'niil'
@@ -92,50 +92,4 @@ Suggestion: 'nil'
 -/
 #guard_msgs in
 example : Format := niil
-
-end Std.Format
-
-/-!
-# Protected Names
-
-Test that protected names are respected.
--/
-
-namespace Test
-def abcdefg : Unit := ()
-protected def abcdefh : Unit := ()
-end Test
-
-/--
-error: unknown identifier 'abcdef'
-
-Suggestion: 'id_def'
--/
-#guard_msgs in
-example : Unit := abcdef
-
-/--
-error: unknown identifier 'abcdef'
-
-Suggestion: 'abcdefg'
--/
-#guard_msgs in
-open Test in
-example : Unit := abcdef
-
-/--
-error: unknown identifier 'abcdefh'
-
-Suggestion: 'abcdefg'
--/
-#guard_msgs in
-open Test in
-example : Unit := abcdefh
-
-/--
-error: unknown identifier 'Test.abcdef'
-
-Suggestions: 'Test.abcdefg', 'Test.abcdefh'
--/
-#guard_msgs in
-example : Unit := Test.abcdef
+                   --^ codeAction

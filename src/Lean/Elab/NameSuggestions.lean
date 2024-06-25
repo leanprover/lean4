@@ -67,7 +67,9 @@ def NameSuggestions.toMessageData (suggestions : NameSuggestions) : MessageData 
     let toShow := (all.extract 0 10 |>.toList |>.map (fun (_, _, msg) => msg)) ++ diff
     match toShow with
     | [s] => m!"Suggestion: {s}"
-    | _ => m!"Suggestions: {MessageData.joinSep toShow ", "}"
+    | _ =>
+      let comma : MessageData := "," ++ Format.line
+      m!"Suggestions:{MessageData.nestD (.group (Format.line ++ MessageData.joinSep toShow comma))}"
 where
   lt
     | (str1, score1, _), (str2, score2, _) =>

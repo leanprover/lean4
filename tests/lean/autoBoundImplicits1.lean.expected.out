@@ -2,6 +2,8 @@ myid 10 : Nat
 myid true : Bool
 autoBoundImplicits1.lean:16:4-16:11: warning: declaration uses 'sorry'
 autoBoundImplicits1.lean:20:25-20:29: error: unknown identifier 'size'
+
+Suggestions: 'USize', 'dite', 'ite'
 autoBoundImplicits1.lean:24:23-24:24: error: unknown identifier 'α'
 autoBoundImplicits1.lean:24:25-24:26: error: unknown identifier 'n'
 autoBoundImplicits1.lean:24:33-24:34: error: unknown identifier 'α'

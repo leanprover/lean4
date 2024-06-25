@@ -1,4 +1,6 @@
 20 + 1 : Nat
 scopedTokens.lean:14:7-14:11: error: unknown identifier 'foo!'
+
+Suggestions: 'Bool', 'bool'
 foo! : Nat
 20 + 1 : Nat

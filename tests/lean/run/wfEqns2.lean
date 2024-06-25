@@ -43,7 +43,11 @@ info: g.eq_def (i j : Nat) :
 #guard_msgs in
 #check g.eq_def
 
-/-- error: unknown identifier 'g.eq_3' -/
+/--
+error: unknown identifier 'g.eq_3'
+
+Suggestions: 'g.eq_1', 'g.eq_2'
+-/
 #guard_msgs in
 #check g.eq_3
 
@@ -65,6 +69,10 @@ info: h.eq_def (i j : Nat) :
 #guard_msgs in
 #check h.eq_def
 
-/-- error: unknown identifier 'h.eq_3' -/
+/--
+error: unknown identifier 'h.eq_3'
+
+Suggestions: 'h.eq_1', 'h.eq_2'
+-/
 #guard_msgs in
 #check h.eq_3

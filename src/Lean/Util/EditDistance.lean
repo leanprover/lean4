@@ -16,7 +16,11 @@ returned `some` does not necessarily indicate that the edit distance is less tha
 cutoff.
 -/
 def levenshtein (str1 str2 : String) (cutoff : Nat) : Option Nat := Id.run do
-  let mut v0 := Array.mkArray (str2.length + 1) 0
+  let len1 := str1.length
+  let len2 := str2.length
+  if max len1 len2 - min len1 len2 > cutoff then return none
+
+  let mut v0 := Array.mkArray (len2 + 1) 0
   let mut v1 := v0
 
   for i in [0:v0.size] do
@@ -25,7 +29,7 @@ def levenshtein (str1 str2 : String) (cutoff : Nat) : Option Nat := Id.run do
   for i in [0:str1.length] do
     v1 :=v1.set! 0 (i+1)
     let mut iter2 := str2.iter
-    for j in [0:str2.length] do
+    for j in [0:len2] do
       let deletionCost := v0[j+1]! + 1
       let insertionCost := v1[j]! + 1
       let substCost :=
@@ -37,4 +41,4 @@ def levenshtein (str1 str2 : String) (cutoff : Nat) : Option Nat := Id.run do
     iter1 := iter1.next
     if v1.all (· > cutoff) then return none
     v0 := v1
-  some v0[str2.length]!
+  some v0[len2]!

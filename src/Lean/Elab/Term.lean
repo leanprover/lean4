@@ -1813,40 +1813,51 @@ private def mkConsts (candidates : List (Name × List String)) (explicitLevels :
     return (const, projs) :: result
 
 def throwUnknownIdentifier (n : Name) : TermElabM α := do
-  let n := n.eraseMacroScopes
-  let nameString := n.toString
-  let mut best :=
-    if nameString.length < 2 then 0
-    else if nameString.length < 4 then 1
-    else if nameString.length < 6 then 2
-    else 3
-  let mut lsuggestions := []
-  for ldecl in (← getLCtx) do
-    let lNameString := ldecl.userName.toString
-    if let some d := levenshtein nameString lNameString best then
-      if d < best then
-        best := d
-        lsuggestions := [(lNameString, d, ldecl.fvarId)]
-      else if d == best then
-        lsuggestions := lsuggestions.cons (lNameString, d, ldecl.fvarId)
-  let mut gsuggestions := []
-  for (c, info) in (← getEnv).constants do
-    let mut nameStrings := inNs (← getCurrNamespace).components c.components |>.map (·.toString)
-    for decl in (← getOpenDecls) do
-      if let some other := seenAs decl c then
-        nameStrings := nameStrings.cons other.toString
-    for cNameString in nameStrings do
-      if let some d := levenshtein nameString cNameString best then
+  throwError m!"unknown identifier '{Lean.mkConst n}'" ++ .lazy fun ctxt => do
+    if skip n then
+      pure ({} : NameSuggestions).toMessageData
+    else
+    let nameString := n.toString
+    let mut best :=
+      if nameString.length < 2 then 0
+      else if nameString.length < 4 then 1
+      else if nameString.length < 6 then 2
+      else 3
+    let mut lsuggestions := []
+    for ldecl in ctxt.lctx do
+      if skip ldecl.userName then continue
+      let lNameString := ldecl.userName.toString
+      if let some d := levenshtein nameString lNameString best then
         if d < best then
           best := d
-          lsuggestions := []
-          gsuggestions := [(cNameString, d, c, info.levelParams)]
+          lsuggestions := [(lNameString, d, ldecl.fvarId)]
         else if d == best then
-          gsuggestions := gsuggestions.cons (cNameString, d, c, info.levelParams)
-  let suggestions : NameSuggestions := {localSuggestions := lsuggestions, constSuggestions := gsuggestions}
-  suggestions.saveInfo (← getRef)
-  throwError m!"unknown identifier '{Lean.mkConst n}'" ++ suggestions.toMessageData
+          lsuggestions := lsuggestions.cons (lNameString, d, ldecl.fvarId)
+    let mut gsuggestions := []
+    for (c, info) in ctxt.env.constants do
+      if skip c then continue
+      let mut nameStrings := []
+      if isProtected ctxt.env c then
+        nameStrings := [c.toString]
+      else
+        nameStrings := inNs ctxt.currNamespace.components c.components |>.map (·.toString)
+        for decl in ctxt.openDecls do
+          if let some other := seenAs decl c then
+            nameStrings := nameStrings.cons other.toString
+      for cNameString in nameStrings do
+        if let some d := levenshtein nameString cNameString best then
+          if d < best then
+            best := d
+            lsuggestions := []
+            gsuggestions := [(cNameString, d, c, info.levelParams)]
+          else if d == best then
+            gsuggestions := gsuggestions.cons (cNameString, d, c, info.levelParams)
+    let suggestions : NameSuggestions := {localSuggestions := lsuggestions, constSuggestions := gsuggestions}
+    -- suggestions.saveInfo (← getRef)
+    return suggestions.toMessageData
 where
+  skip (n : Name) : Bool :=
+    n.hasMacroScopes || n.isInaccessibleUserName || n.isImplementationDetail
   assemble (acc : Name) : List Name → Name
     | [] => acc
     | .str _ s :: ns => assemble (.str acc s) ns

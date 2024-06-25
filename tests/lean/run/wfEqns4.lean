@@ -48,7 +48,11 @@ info: @f.eq_def : ∀ {α : Type u_1} (x : Nat) (x_1 x_2 : α),
 -/
 #guard_msgs in
 #check @f.eq_def
-/-- error: unknown identifier 'f.eq_3' -/
+/--
+error: unknown identifier 'f.eq_3'
+
+Suggestions: 'f.eq_1', 'f.eq_2'
+-/
 #guard_msgs in
 #check @f.eq_3
 
@@ -68,6 +72,10 @@ info: @h.eq_def : ∀ {α : Type u_1} (x x_1 : α) (x_2 : Nat),
 #guard_msgs in
 #check @h.eq_def
 
-/-- error: unknown identifier 'h.eq_3' -/
+/--
+error: unknown identifier 'h.eq_3'
+
+Suggestions: 'h.eq_1', 'h.eq_2'
+-/
 #guard_msgs in
 #check @h.eq_3

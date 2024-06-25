@@ -43,7 +43,7 @@ t 2
    "severity": 1,
    "range":
    {"start": {"line": 2, "character": 9}, "end": {"line": 2, "character": 11}},
-   "message": "unknown identifier 'no'",
+   "message": "unknown identifier 'no'\n\nSuggestion: 'not'",
    "fullRange":
    {"start": {"line": 2, "character": 9}, "end": {"line": 2, "character": 11}}},
   {"source": "Lean 4",

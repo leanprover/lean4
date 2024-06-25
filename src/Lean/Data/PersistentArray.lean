@@ -69,8 +69,10 @@ def get! [Inhabited α] (t : PersistentArray α) (i : Nat) : α :=
     getAux t.root (USize.ofNat i) t.shift
 
 -- TODO: remove [Inhabited α]
-instance [Inhabited α] : GetElem (PersistentArray α) Nat α fun as i => i < as.size where
+instance [I : Inhabited α] : GetElem (PersistentArray α) Nat α fun as i => i < as.size where
   getElem xs i _ := xs.get! i
+  getElem? xs i := if _ : i < xs.size then some (xs.get! i) else none
+  getElem! := @fun I' xs i => if _ : i < xs.size then @get! _ I xs i else (@outOfBounds _ I')
 
 instance [Inhabited α] : LawfulGetElem (PersistentArray α) Nat α fun as i => i < as.size where
 

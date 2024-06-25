@@ -160,6 +160,8 @@ def find? {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → Op
 
 instance {_ : BEq α} {_ : Hashable α} : GetElem (PersistentHashMap α β) α (Option β) fun _ _ => True where
   getElem m i _ := m.find? i
+  getElem? m i := some (m.find? i) -- Not really sure what should go here. We're meant to be returning an `Option (Option β)`.
+  getElem! m i := m.find? i
 
 instance {_ : BEq α} {_ : Hashable α} : LawfulGetElem (PersistentHashMap α β) α (Option β) fun _ _ => True where
 

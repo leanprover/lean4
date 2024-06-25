@@ -7,8 +7,10 @@ prelude
 import Init.Util
 
 @[never_extract]
-private def outOfBounds [Inhabited α] : α :=
+def outOfBounds [Inhabited α] : α :=
   panic! "index out of bounds"
+
+theorem outOfBounds_eq_default [Inhabited α] : (outOfBounds : α) = default := rfl
 
 /--
 The class `GetElem coll idx elem valid` implements the `xs[i]` notation.
@@ -50,11 +52,9 @@ class GetElem (coll : Type u) (idx : Type v) (elem : outParam (Type w))
   -/
   getElem (xs : coll) (i : idx) (h : valid xs i) : elem
 
-  getElem? (xs : coll) (i : idx) [Decidable (valid xs i)] : Option elem :=
-    if h : _ then some (getElem xs i h) else none
+  getElem? (xs : coll) (i : idx) : Option elem
 
-  getElem! [Inhabited elem] (xs : coll) (i : idx) [Decidable (valid xs i)] : elem :=
-    match getElem? xs i with | some e => e | none => outOfBounds
+  getElem! [Inhabited elem] (xs : coll) (i : idx) : elem
 
 export GetElem (getElem getElem! getElem?)
 
@@ -82,9 +82,19 @@ class LawfulGetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w))
    (dom : outParam (cont → idx → Prop)) [ge : GetElem cont idx elem dom] : Prop where
 
   getElem?_def (c : cont) (i : idx) [Decidable (dom c i)] :
-    c[i]? = if h : dom c i then some (c[i]'h) else none := by intros; eq_refl
+      c[i]? = if h : dom c i then some (c[i]'h) else none := by
+    intros
+    try simp only [getElem?, reduceDIte]
+    <;> try congr
+    <;> try split
+    <;> eq_refl
   getElem!_def [Inhabited elem] (c : cont) (i : idx) [Decidable (dom c i)] :
-    c[i]! = match c[i]? with | some e => e | none => default := by intros; eq_refl
+      c[i]! = match c[i]? with | some e => e | none => default := by
+    intros
+    try simp only [getElem!, getElem?, outOfBounds_eq_default]
+    <;> try congr
+    <;> try split
+    <;> eq_refl
 
 export LawfulGetElem (getElem?_def getElem!_def)
 
@@ -138,6 +148,8 @@ namespace List
 
 instance : GetElem (List α) Nat α fun as i => i < as.length where
   getElem as i h := as.get ⟨i, h⟩
+  getElem? as i := if h : i < as.length then some (as.get ⟨i, h⟩) else none
+  getElem! as i := if h : i < as.length then as.get ⟨i, h⟩ else outOfBounds
 
 instance : LawfulGetElem (List α) Nat α fun as i => i < as.length where
 
@@ -162,6 +174,8 @@ namespace Array
 
 instance : GetElem (Array α) Nat α fun xs i => i < xs.size where
   getElem xs i h := xs.get ⟨i, h⟩
+  getElem? xs i := if h : i < xs.size then some (xs.get ⟨i, h⟩) else none
+  getElem! xs i := if h : i < xs.size then xs.get ⟨i, h⟩ else outOfBounds
 
 instance : LawfulGetElem (Array α) Nat α fun xs i => i < xs.size where
 
@@ -171,6 +185,8 @@ namespace Lean.Syntax
 
 instance : GetElem Syntax Nat Syntax fun _ _ => True where
   getElem stx i _ := stx.getArg i
+  getElem? stx i := stx.getArg i
+  getElem! stx i := stx.getArg i
 
 instance : LawfulGetElem Syntax Nat Syntax fun _ _ => True where
 

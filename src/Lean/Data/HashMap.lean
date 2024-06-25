@@ -222,6 +222,8 @@ def insertIfNew (m : HashMap α β) (a : α) (b : β) : HashMap α β × Option 
 
 instance : GetElem (HashMap α β) α (Option β) fun _ _ => True where
   getElem m k _ := m.find? k
+  getElem? m k := some (m.find? k) -- Not really sure what should go here. We're meant to be returning an `Option (Option β)`.
+  getElem! m k := m.find? k
 
 instance : LawfulGetElem (HashMap α β) α (Option β) fun _ _ => True where
 

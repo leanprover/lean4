@@ -46,6 +46,8 @@ def get (s : Subarray α) (i : Fin s.size) : α :=
 
 instance : GetElem (Subarray α) Nat α fun xs i => i < xs.size where
   getElem xs i h := xs.get ⟨i, h⟩
+  getElem? xs i := if h : i < xs.size then some (xs.get ⟨i, h⟩) else none
+  getElem! xs i := if h : i < xs.size then xs.get ⟨i, h⟩ else outOfBounds
 
 instance : LawfulGetElem (Subarray α) Nat α fun xs i => i < xs.size where
 

@@ -57,11 +57,15 @@ def get? (ds : FloatArray) (i : Nat) : Option Float :=
 
 instance : GetElem FloatArray Nat Float fun xs i => i < xs.size where
   getElem xs i h := xs.get ⟨i, h⟩
+  getElem? xs i := if h : i < xs.size then some (xs.get ⟨i, h⟩) else none
+  getElem! xs i := if h : i < xs.size then xs.get ⟨i, h⟩ else outOfBounds
 
 instance : LawfulGetElem FloatArray Nat Float fun xs i => i < xs.size where
 
 instance : GetElem FloatArray USize Float fun xs i => i.val < xs.size where
   getElem xs i h := xs.uget i h
+  getElem? xs i := if h : i.val < xs.size then some (xs.uget i h) else none
+  getElem! xs i := if h : i.val < xs.size then xs.uget i h else outOfBounds
 
 instance : LawfulGetElem FloatArray USize Float fun xs i => i.val < xs.size where
 

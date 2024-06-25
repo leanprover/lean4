@@ -1259,8 +1259,8 @@ private def isNoImplicitLambda (stx : Syntax) : Bool :=
 
 private def isTypeAscription (stx : Syntax) : Bool :=
   match stx with
-  | `(($_ : $_)) => true
-  | _            => false
+  | `(($_ : $[$_]?)) => true
+  | _                => false
 
 def hasNoImplicitLambdaAnnotation (type : Expr) : Bool :=
   annotation? `noImplicitLambda type |>.isSome

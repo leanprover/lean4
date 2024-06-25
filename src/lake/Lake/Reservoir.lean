@@ -19,23 +19,12 @@ open System Lean
 namespace Lake
 
 /--
-Package Git source information from a Lake registry (e.g., Reservoir).
-Only contains the subset of fields useful to Lake.
--/
-structure RegistryGitSrc where
-  gitUrl : String
-  repoUrl? : Option String
-  defaultBranch? : Option String
-  subDir? : Option FilePath
-  deriving Inhabited
-
-/--
 Package source information from a Lake registry (e.g., Reservoir).
 Only contains the subset of fields useful to Lake.
 -/
 inductive RegistrySrc
 | git (data : JsonObject) (url : String)
-  (repoUrl? defaultBranch? : Option String) (subDir? : Option FilePath)
+  (githubUrl? defaultBranch? : Option String) (subDir? : Option FilePath)
 | other (data : JsonObject)
 deriving Inhabited
 
@@ -60,10 +49,11 @@ protected def fromJson? (val : Json) : Except String RegistrySrc := do
   try
     let obj ← JsonObject.fromJson? val
     if let some url ← obj.get? "gitUrl" then
-      let repoUrl? ← obj.get? "repoUrl"
+      let githubUrl? ← (← obj.get? "host").bindM fun host =>
+        if host == "github" then obj.get? "repoUrl" else pure none
       let defaultBranch? ← obj.get? "defaultBranch"
       let subDir? ← obj.get? "subDir"
-      return .git obj url repoUrl? defaultBranch? subDir?
+      return .git obj url githubUrl? defaultBranch? subDir?
     else
       return .other obj
   catch e =>
@@ -107,11 +97,6 @@ protected def fromJson? (val : Json) : Except String RegistryPkg := do
 instance : FromJson RegistryPkg := ⟨RegistryPkg.fromJson?⟩
 
 end RegistryPkg
-
-def getUrl (url : String) (headers : Array String := #[]) : LogIO String := do
-  let args := #["-s", "-f", "-L"]
-  let args := headers.foldl (init := args) (· ++ #["-H", ·])
-  captureProc {cmd := "curl", args := args.push url}
 
 def hexEncodeByte (b : UInt8) : Char :=
   if b = 0 then '0' else
@@ -165,17 +150,54 @@ def uriEncodeChar (c : Char) (s := "") : String :=
 def uriEncode (s : String) : String :=
   s.foldl (init := "") fun s c => uriEncodeChar c s
 
-def fetchReservoirPkg (lakeEnv : Lake.Env) (owner pkg : String) : LogIO RegistryPkg := do
+def getUrl (url : String) (headers : Array String := #[]) : LogIO String := do
+  let args := #["-s", "-L"]
+  let args := headers.foldl (init := args) (· ++ #["-H", ·])
+  captureProc {cmd := "curl", args := args.push url}
+
+/-- A Reservoir API response object. -/
+inductive ReservoirResp (α : Type u)
+| data (a : α)
+| error (status : Nat) (message : String)
+
+protected def ReservoirResp.fromJson? [FromJson α] (val : Json) : Except String (ReservoirResp α) := do
+  let obj ← JsonObject.fromJson? val
+  if let some (err : JsonObject) ← obj.get? "error" then
+    let status ← err.get "status"
+    let message ← err.get "message"
+    return .error status message
+  else
+    .data <$> fromJson? val
+
+instance [FromJson α] : FromJson (ReservoirResp α) := ⟨ReservoirResp.fromJson?⟩
+
+def fetchReservoirPkg? (lakeEnv : Lake.Env) (owner pkg : String) : LogIO (Option RegistryPkg) := do
   let url := s!"{lakeEnv.reservoirApiUrl}/packages/{uriEncode owner}/{uriEncode pkg}"
   let out ←
     try
-      getUrl url #["X-Lake-Registry-Api-Version:0.1.0"]
-    catch errPos =>
-      logError s!"{pkg}: Reservoir lookup failed"
-      throw errPos
+      getUrl url #[
+        "X-Reservoir-Api-Version:1.0.0",
+        "X-Lake-Registry-Api-Version:0.1.0"
+      ]
+    catch _ =>
+      logError s!"{owner}/{pkg}: Reservoir lookup failed"
+      return none
   match Json.parse out >>= fromJson? with
   | .ok json =>
     match fromJson? json with
-    | .ok pkg => pure pkg
-    | .error e => error s!"{pkg}: Reservoir lookup failed: server returned unsupported JSON: {e}"
-  | .error e => error s!"{pkg}: Reservoir lookup failed: server returned invalid JSON: {e}"
+    | .ok (resp : ReservoirResp RegistryPkg) =>
+      match resp with
+      | .data pkg =>
+        return pkg
+      | .error status msg =>
+        if status == 404 then
+          return none
+        else
+          logError s!"{owner}/{pkg}: Reservoir lookup failed: {msg}"
+          return none
+    | .error e =>
+      logError s!"{owner}/{pkg}: Reservoir lookup failed; server returned unsupported JSON: {e}"
+      return none
+  | .error e =>
+    logError s!"{owner}/{pkg}: Reservoir lookup failed; server returned invalid JSON: {e}"
+    return none

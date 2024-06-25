@@ -125,11 +125,14 @@ def Dependency.materialize
         return ver.drop 4
       else
         error s!"{dep.name} unsupported dependency version format '{ver}' (should be \"git#>rev>\")"
-    let pkg ← fetchReservoirPkg lakeEnv dep.scope <| dep.name.toString (escape := false)
+    let depName := dep.name.toString (escape := false)
+    let some pkg ← fetchReservoirPkg? lakeEnv dep.scope depName
+      | error s!"{dep.scope}/{depName}: could not materialize package: \
+        dependency has no explicit source and was not found on Reservoir"
     let relPkgDir := relPkgsDir / pkg.name
     match pkg.gitSrc? with
-    | some (.git _ url repoUrl? defaultBranch? subDir?) =>
-      materializeGit pkg.fullName relPkgDir url repoUrl? (verRev? <|> defaultBranch?) subDir?
+    | some (.git _ url githubUrl? defaultBranch? subDir?) =>
+      materializeGit pkg.fullName relPkgDir url githubUrl? (verRev? <|> defaultBranch?) subDir?
     | _ => error s!"{pkg.fullName}: Git source not found on Reservoir"
 where
   mkEntry src : PackageEntry :=

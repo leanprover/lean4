@@ -255,7 +255,7 @@ protected def Dependency.decodeToml (t : Table) (ref := Syntax.missing) : Except
     if let some ver ← t.tryDecode? `version then
       return some ver
     else if let some rev := rev? then
-      return some s!"git#{rev}"
+      return if src?.isSome then none else some s!"git#{rev}"
     else
       return none
   let opts ← t.tryDecodeD `options {}

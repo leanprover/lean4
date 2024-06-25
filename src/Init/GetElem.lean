@@ -13,18 +13,47 @@ def outOfBounds [Inhabited α] : α :=
 theorem outOfBounds_eq_default [Inhabited α] : (outOfBounds : α) = default := rfl
 
 /--
-The class `GetElem coll idx elem valid` implements the `xs[i]` notation.
-Given `xs[i]` with `xs : coll` and `i : idx`, Lean looks for an instance of
-`GetElem coll idx elem valid` and uses this to infer the type of return
-value `elem` and side conditions `valid` required to ensure `xs[i]` yields
-a valid value of type `elem`.
+The class `GetElem coll idx elem valid` implements lookup notation,
+specifically `xs[i]`, `xs[i]?`, `xs[i]!`, and `xs[i]'p`.
 
-For example, the instance for arrays looks like
-`GetElem (Array α) Nat α (fun xs i => i < xs.size)`.
+The types `coll`, `idx`, and `elem` are the collection, the index, and the
+element types. A single collection may support lookups with multiple index
+types. The relation `valid` determines when the index is guaranteed to be
+valid; lookups of valid indices are guaranteed not to fail.
+
+For example, an instance for arrays looks like
+`GetElem (Array α) Nat α (fun xs i => i < xs.size)`. In other words, given an
+array `xs` and a natural number `i`, `xs[i]` will return an `α` when `valid xs i`
+holds, which is true when `i` is less than the size of the array. `Array`
+additionally supports indexing with `USize` instead of `Nat`.
+In either case, because the bounds are checked at compile time,
+no runtime check is required.
+
+Given `xs[i]` with `xs : coll` and `i : idx`, Lean looks for an instance of
+`GetElem coll idx elem valid` and uses this to infer the type of the return
+value `elem` and side condition `valid` required to ensure `xs[i]` yields
+a valid value of type `elem`. The tactic `get_elem_tactic` is
+invoked to prove validity automatically. The `xs[i]'p` notation uses the
+proof `p` to satisfy the validity condition.
+If the proof `p` is long, it is often easier to place the
+proof in the context using `have`, because `get_elem_tactic` tries
+`assumption`.
+
+`xs[i]?` and `xs[i]!` do not impose a proof obligation; the former returns
+an `Option elem`, with `none` signalling that the value isn't present, and
+the latter returns `elem` but panics if the value isn't there, returning
+`default : elem` based on the `Inhabited elem` instance.
 
 The proof side-condition `valid xs i` is automatically dispatched by the
-`get_elem_tactic` tactic, which can be extended by adding more clauses to
-`get_elem_tactic_trivial`.
+`get_elem_tactic` tactic; this tactic can be extended by adding more clauses to
+`get_elem_tactic_trivial` using `macro_rules`.
+
+Important instances include:
+  * `arr[i] : α` where `arr : Array α` and `i : Nat` or `i : USize`: does array
+    indexing with no runtime bounds check and a proof side goal `i < arr.size`.
+  * `l[i] : α` where `l : List α` and `i : Nat`: index into a list, with proof
+    side goal `i < l.length`.
+
 -/
 class GetElem (coll : Type u) (idx : Type v) (elem : outParam (Type w))
               (valid : outParam (coll → idx → Prop)) where
@@ -32,28 +61,20 @@ class GetElem (coll : Type u) (idx : Type v) (elem : outParam (Type w))
   The syntax `arr[i]` gets the `i`'th element of the collection `arr`. If there
   are proof side conditions to the application, they will be automatically
   inferred by the `get_elem_tactic` tactic.
-
-  The actual behavior of this class is type-dependent, but here are some
-  important implementations:
-  * `arr[i] : α` where `arr : Array α` and `i : Nat` or `i : USize`: does array
-    indexing with no bounds check and a proof side goal `i < arr.size`.
-  * `l[i] : α` where `l : List α` and `i : Nat`: index into a list, with proof
-    side goal `i < l.length`.
-  * `stx[i] : Syntax` where `stx : Syntax` and `i : Nat`: get a syntax argument,
-    no side goal (returns `.missing` out of range)
-
-  There are other variations on this syntax:
-  * `arr[i]!` is syntax for `getElem! arr i` which should panic and return
-    `default : α` if the index is not valid.
-  * `arr[i]?` is syntax for `getElem?` which should return `none` if the index
-    is not valid.
-  * `arr[i]'h` is syntax for `getElem arr i h` with `h` an explicit proof the
-    index is valid.
   -/
   getElem (xs : coll) (i : idx) (h : valid xs i) : elem
 
+  /--
+  The syntax `arr[i]?` gets the `i`'th element of the collection `arr`,
+  if it is present (and wraps it in `some`), and otherwise returns `none`.
+  -/
   getElem? (xs : coll) (i : idx) : Option elem
 
+  /--
+  The syntax `arr[i]!` gets the `i`'th element of the collection `arr`,
+  if it is present, and otherwise panics at runtime and returns the `default` term
+  from `Inhabited elem`.
+  -/
   getElem! [Inhabited elem] (xs : coll) (i : idx) : elem
 
 export GetElem (getElem getElem! getElem?)

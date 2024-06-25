@@ -7,8 +7,15 @@ prelude
 import Lean.Elab.NameSuggestions
 import Lean.Server.CodeActions.Basic
 
+set_option linter.missingDocs true
+
 open Lean Elab Server RequestM
 
+/--
+A code action provider for spelling suggestions for identifiers.
+
+This presents quickfixes based on the data saved by `Lean.Elab.saveNameSuggestions`.
+-/
 @[builtin_code_action_provider]
 def holeCodeActionProvider : CodeActionProvider := fun params snap => do
   let doc ← readDoc

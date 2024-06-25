@@ -9,6 +9,8 @@ import Lean.Elab.InfoTree
 import Lean.Message
 import Lean.Util.EditDistance
 
+set_option linter.missingDocs true
+
 open Lean.EditDistance
 
 namespace Lean.Elab
@@ -32,8 +34,18 @@ structure NameSuggestions where
 
   constSuggestions : List (String × Nat × Name × List Name) := []
 
+/-- A custom info node with suggested names, for use in the code action. -/
 structure NameSuggestionInfo where
+  /-- The range of the document that the suggestions are for -/
   range : String.Range
+  /--
+  The replacements to be shown.
+
+  This is a thunk because the code that computes the spelling suggestions can be expensive, with its
+  results being used both in error messages and here. It should not be run if not necessary, but it
+  should also not be run twice. Use this thunk together with `MessageData.lazy` for the error
+  message.
+ -/
   replacements : Thunk (Array String)
 deriving TypeName
 
@@ -54,17 +66,33 @@ def Suggestions.isSingleton (suggestions : NameSuggestions) : Bool :=
   | [_], [] => true
   | _, _ => false
 
+/--
+Adds a constant to the suggested corrections.
+
+The universe parameters can be found in `ConstantVal` values inside of `ConstantInfo` in the
+environment. They're needed to construct expressions that are used in error messages to enable hover
+support for the suggested names.
+-/
 def NameSuggestions.addConstant
     (toShow : String) (score : Nat) (name : Name) (universeParams : List Name)
     (suggestions : NameSuggestions) : NameSuggestions :=
   {suggestions with
     constSuggestions := (toShow, score, name, universeParams) :: suggestions.constSuggestions}
 
+/--
+Adds a constant to the suggested corrections.
+-/
 def NameSuggestions.addFVar
     (toShow : String) (score : Nat) (fvarId : FVarId)
     (suggestions : NameSuggestions) : NameSuggestions :=
   {suggestions with localSuggestions := (toShow, score, fvarId) :: suggestions.localSuggestions}
 
+/--
+Converts a set of name suggestions to `MessageData`, showing the top 10 suggestions if there's too
+many.
+
+This should typically be used as part of a lazy message (see `MessageData.lazy`).
+-/
 def NameSuggestions.toMessageData (suggestions : NameSuggestions) : MessageData :=
   if suggestions.isEmpty then .nil
   else m!"\n\n" ++
@@ -99,6 +127,9 @@ where
     | (str1, score1, _), (str2, score2, _) =>
       if score1 == score2 then str1 < str2 else score1 < score2
 
+/--
+Get replacement strings for a set of suggestions, to be used in code actions.
+-/
 def NameSuggestions.getReplacements (suggestions : NameSuggestions) (max := 10) : Array String :=
   let locals := suggestions.localSuggestions.map fun (str, score, _) => (str, score)
   let consts := suggestions.constSuggestions.map fun (str, score, _, _) => (str, score)
@@ -109,6 +140,15 @@ where
     | (str1, score1), (str2, score2) =>
       if score1 == score2 then str1 < str2 else score1 < score2
 
+/--
+Save a set of suggestions for a name. `ref` should be a piece of canonical syntax at which the
+suggestions should be shown.
+
+The thunk used here should share computational work with the lazy error message that lists
+suggestions.
+
+If `ref` is not canonical (that is, the user didn't write it) then no suggestions are saved.
+-/
 def saveNameSuggestions [Monad m] [MonadInfoTree m]
     (ref : Syntax) (suggestions : Thunk NameSuggestions) : m Unit := do
   if let some range := ref.getRange? (canonicalOnly := true) then

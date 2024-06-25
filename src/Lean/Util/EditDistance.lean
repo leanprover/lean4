@@ -6,6 +6,8 @@ Authors: David Thrane Christiansen
 prelude
 import Init.Data.Range
 
+set_option linter.missingDocs true
+
 namespace Lean.EditDistance
 
 /--
@@ -18,6 +20,8 @@ cutoff.
 def levenshtein (str1 str2 : String) (cutoff : Nat) : Option Nat := Id.run do
   let len1 := str1.length
   let len2 := str2.length
+
+  -- The lower bound on the Levenshtein distance is the difference in lengths
   if max len1 len2 - min len1 len2 > cutoff then return none
 
   let mut v0 := Array.mkArray (len2 + 1) 0
@@ -27,7 +31,7 @@ def levenshtein (str1 str2 : String) (cutoff : Nat) : Option Nat := Id.run do
     v0 := v0.set! i i
   let mut iter1 := str1.iter
   for i in [0:str1.length] do
-    v1 :=v1.set! 0 (i+1)
+    v1 := v1.set! 0 (i+1)
     let mut iter2 := str2.iter
     for j in [0:len2] do
       let deletionCost := v0[j+1]! + 1
@@ -39,6 +43,7 @@ def levenshtein (str1 str2 : String) (cutoff : Nat) : Option Nat := Id.run do
       v1 := v1.set! (j+1) cost
       iter2 := iter2.next
     iter1 := iter1.next
+    -- Terminate early if it's impossible that the result is below the cutoff
     if v1.all (· > cutoff) then return none
     v0 := v1
   some v0[len2]!

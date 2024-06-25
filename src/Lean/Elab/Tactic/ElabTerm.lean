@@ -22,12 +22,15 @@ Runs a term elaborator inside a tactic.
 This function ensures that term elaboration fails when backtracking,
 i.e., in `first| tac term | other`.
 -/
-def runTermElab (k : TermElabM α) (mayPostpone := false) : TacticM α := do
-  /- If error recovery is disabled, we disable `Term.withoutErrToSorry` -/
-  if (← read).recover then
-    go
-  else
-    Term.withoutErrToSorry go
+def runTermElab (k : TermElabM α) (mayPostpone := false) : TacticM α :=
+  -- We disable incrementality here so that nested tactics do not unexpectedly use and affect the
+  -- incrementality state of a calling incrementality-enabled tactic.
+  Term.withoutTacticIncrementality true do
+    /- If error recovery is disabled, we disable `Term.withoutErrToSorry` -/
+    if (← read).recover then
+      go
+    else
+      Term.withoutErrToSorry go
 where
   go := k <* Term.synthesizeSyntheticMVars (postpone := .ofBool mayPostpone)
 

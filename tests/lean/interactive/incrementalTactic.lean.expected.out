@@ -74,3 +74,14 @@ s
    "fullRange":
    {"start": {"line": 2, "character": 8},
     "end": {"line": 2, "character": 25}}}]}
+{"version": 1,
+ "uri": "file:///incrementalTactic.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 3, "character": 12}, "end": {"line": 3, "character": 16}},
+   "message": "unsolved goals\ncase zero\n⊢ True",
+   "fullRange":
+   {"start": {"line": 3, "character": 12},
+    "end": {"line": 3, "character": 16}}}]}

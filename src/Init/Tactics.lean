@@ -373,7 +373,8 @@ reflexivity theorems (e.g., `Iff.rfl`).
 macro "rfl" : tactic => `(tactic| case' _ => fail "The rfl tactic failed. Possible reasons:
 - The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).
 - The arguments of the relation are not equal.
-Try using the reflexivitiy lemma for your relation explicitly, e.g. `exact Eq.rfl`.")
+Try using the reflexivity lemma for your relation explicitly, e.g. `exact Eq.refl _` or
+`exact HEq.rfl` etc.")
 
 macro_rules | `(tactic| rfl) => `(tactic| eq_refl)
 macro_rules | `(tactic| rfl) => `(tactic| exact HEq.rfl)

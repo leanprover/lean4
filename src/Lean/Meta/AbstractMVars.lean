@@ -7,13 +7,6 @@ prelude
 import Lean.Meta.Basic
 
 namespace Lean.Meta
-
-structure AbstractMVarsResult where
-  paramNames : Array Name
-  numMVars   : Nat
-  expr       : Expr
-  deriving Inhabited, BEq
-
 namespace AbstractMVars
 
 structure State where

@@ -8,6 +8,11 @@ import Lean.Data.Options
 
 namespace Lean
 
+register_builtin_option pp.maxSteps : Nat := {
+  defValue := 5000
+  group    := "pp"
+  descr    := "(pretty printer) maximum number of expressions to visit, after which terms will pretty print as `⋯`"
+}
 register_builtin_option pp.all : Bool := {
   defValue := false
   group    := "pp"
@@ -162,12 +167,12 @@ register_builtin_option pp.instanceTypes : Bool := {
   descr    := "(pretty printer) when printing explicit applications, show the types of inst-implicit arguments"
 }
 register_builtin_option pp.deepTerms : Bool := {
-  defValue := true
+  defValue := false
   group    := "pp"
   descr    := "(pretty printer) display deeply nested terms, replacing them with `⋯` if set to false"
 }
 register_builtin_option pp.deepTerms.threshold : Nat := {
-  defValue := 20
+  defValue := 50
   group    := "pp"
   descr    := "(pretty printer) when `pp.deepTerms` is false, the depth at which terms start being replaced with `⋯`"
 }
@@ -188,16 +193,6 @@ register_builtin_option pp.motives.all : Bool := {
 }
 -- TODO:
 /-
-register_builtin_option g_pp_max_depth : Nat := {
-  defValue := false
-  group    := "pp"
-  descr    := "(pretty printer) maximum expression depth, after that it will use ellipsis"
-}
-register_builtin_option g_pp_max_steps : Nat := {
-  defValue := false
-  group    := "pp"
-  descr    := "(pretty printer) maximum number of visited expressions, after that it will use ellipsis"
-}
 register_builtin_option g_pp_locals_full_names : Bool := {
   defValue := false
   group    := "pp"
@@ -225,6 +220,7 @@ register_builtin_option g_pp_compact_let : Bool := {
 }
 -/
 
+def getPPMaxSteps (o : Options) : Nat := o.get pp.maxSteps.name pp.maxSteps.defValue
 def getPPAll (o : Options) : Bool := o.get pp.all.name false
 def getPPFunBinderTypes (o : Options) : Bool := o.get pp.funBinderTypes.name (getPPAll o)
 def getPPPiBinderTypes (o : Options) : Bool := o.get pp.piBinderTypes.name pp.piBinderTypes.defValue

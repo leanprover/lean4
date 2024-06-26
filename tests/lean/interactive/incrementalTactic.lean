@@ -80,3 +80,15 @@ incremental reporting in this case.
 def tacInTermInTac : True := by
   · rw [show 0 = 0 by rfl]
 --^ collectDiagnostics
+
+/-!
+#4553 Similar to the above, but here the nested tactic block is not floated out, which means it
+could unexpectedly get access to the surrounding combinator's incrementality context if not warded
+against (in `Tactic.runTermElab`).
+-/
+-- RESET
+def tacInTermInTac2 : True := by
+  cases (by exact 0) with
+  | zero => done
+  | succ => sorry
+--^ collectDiagnostics

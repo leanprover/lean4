@@ -278,7 +278,7 @@ theorem succ_sub_succ_eq_sub (n m : Nat) : succ n - succ m = n - m := by
   | zero      => exact rfl
   | succ m ih => apply congrArg pred ih
 
-@[simp] theorem pred_le : ∀ (n : Nat), pred n ≤ n
+theorem pred_le : ∀ (n : Nat), pred n ≤ n
   | zero   => Nat.le.refl
   | succ _ => le_succ _
 
@@ -288,7 +288,7 @@ theorem pred_lt : ∀ {n : Nat}, n ≠ 0 → pred n < n
 
 theorem sub_one_lt : ∀ {n : Nat}, n ≠ 0 → n - 1 < n := pred_lt
 
-theorem sub_le (n m : Nat) : n - m ≤ n := by
+@[simp] theorem sub_le (n m : Nat) : n - m ≤ n := by
   induction m with
   | zero      => exact Nat.le_refl (n - 0)
   | succ m ih => apply Nat.le_trans (pred_le (n - m)) ih

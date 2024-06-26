@@ -243,7 +243,7 @@ example : ((x + y) + z : Nat) = x + (y + z) := by
   conv in (occs := 3 1) _ + _ => trace_state
   conv in (occs := 2 3) _ + _ => trace_state
   conv in (occs := 2 4) _ + _ => trace_state
-  apply Nat.add_assoc
+  apply ← Nat.add_assoc'
 
 example : ((x + y) + z : Nat) = x + (y + z) := by conv => pattern (occs := 5) _ + _
 example : ((x + y) + z : Nat) = x + (y + z) := by conv => pattern (occs := 2 5) _ + _

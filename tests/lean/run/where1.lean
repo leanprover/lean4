@@ -23,7 +23,7 @@ where
     | nil => simp [reverse.loop]
     | cons a as ih =>
       show (reverse.loop as (a::bs)).length = (a :: as).length + bs.length
-      simp [ih, Nat.add_assoc, Nat.succ_add]
+      simp [ih, ← Nat.add_assoc', Nat.succ_add]
 
 def h : Nat -> Nat
   | 0    => g 0

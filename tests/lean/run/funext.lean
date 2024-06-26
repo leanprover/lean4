@@ -23,4 +23,4 @@ theorem ex5 : (fun (x : Id Nat) => x.succ + 0) = (fun (x : Id Nat) => 0 + x.succ
 
 theorem ex6 : (fun (x : Nat) y z => x + y + z) = (fun x y z => x + (y + z)) := by
   funext
-  rw [Nat.add_assoc]
+  rw [← Nat.add_assoc']

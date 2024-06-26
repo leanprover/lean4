@@ -1208,7 +1208,7 @@ theorem bmod_natAbs_plus_one (x : Int) (w : 1 < x.natAbs) : bmod x (x.natAbs + 1
         | (x+1) =>
           refine Int.ofNat_le.mpr ?_
           apply Nat.div_le_of_le_mul
-          simp only [Nat.two_mul, Nat.add_assoc]
+          simp only [Nat.two_mul, ← Nat.add_assoc']
           apply Nat.add_le_add_left (Nat.add_le_add_left (Nat.add_le_add_left (Nat.le_add_left
             _ _) _) _)
   | negSucc x =>

@@ -45,7 +45,6 @@ theorem length_add_eq_lengthTRAux (as : List α) (n : Nat) : as.length + n = as.
   | nil  => simp [length, lengthTRAux]
   | cons a as ih =>
     simp [length, lengthTRAux, ← ih, Nat.succ_add]
-    rfl
 
 @[csimp] theorem length_eq_lengthTR : @List.length = @List.lengthTR := by
   apply funext; intro α; apply funext; intro as

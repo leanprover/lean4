@@ -1,5 +1,5 @@
 attribute [local simp] Nat.mul_comm Nat.mul_assoc Nat.mul_left_comm
-attribute [local simp] Nat.add_assoc Nat.add_comm Nat.add_left_comm
+attribute [local simp] ← Nat.add_assoc' Nat.add_comm Nat.add_left_comm
 example (w x y z : Nat) (p : Nat → Prop)
         (h : p (x * y + z * w  * x)) : p (x * w * z + y * x) := by
   simp at *; assumption

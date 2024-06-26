@@ -226,7 +226,7 @@ theorem testBit_mul_two_pow_add_eq (a b i : Nat) :
   match a with
   | 0 => simp
   | a+1 =>
-    simp [Nat.mul_succ, Nat.add_assoc,
+    simp [Nat.mul_succ, ← Nat.add_assoc',
           testBit_mul_two_pow_add_eq a,
           testBit_two_pow_add_eq,
           Nat.succ_mod_two]
@@ -385,7 +385,7 @@ theorem bitwise_lt_two_pow (left : x < 2^n) (right : y < 2^n) : (Nat.bitwise f x
       simp only [x_zero, y_zero, if_neg]
       have hyp1 := hyp (div_two_le_of_lt_two left) (div_two_le_of_lt_two right)
       by_cases p : f (decide (x % 2 = 1)) (decide (y % 2 = 1)) = true <;>
-        simp [p, Nat.pow_succ, mul_succ, Nat.add_assoc]
+        simp [p, Nat.pow_succ, mul_succ, ← Nat.add_assoc']
       case pos =>
         apply lt_of_succ_le
         simp only [← Nat.succ_add]

@@ -56,7 +56,7 @@ theorem Expr.eq_of_flat (ctx : Context α) (a b : Expr) (h : flat a = flat b) : 
 theorem test (x₁ x₂ x₃ x₄ : Nat) : (x₁ + x₂) + (x₃ + x₄) = x₁ + x₂ + x₃ + x₄ :=
   Expr.eq_of_flat
     { op    := Nat.add
-      assoc := Nat.add_assoc
+      assoc := ← Nat.add_assoc'
       unit  := Nat.zero
       vars  := [x₁, x₂, x₃, x₄] }
     (Expr.op (Expr.op (Expr.var 0) (Expr.var 1)) (Expr.op (Expr.var 2) (Expr.var 3)))

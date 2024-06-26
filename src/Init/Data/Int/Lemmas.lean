@@ -117,11 +117,11 @@ theorem subNatNat_add_add (m n k : Nat) : subNatNat (m + k) (n + k) = subNatNat 
   apply subNatNat_elim m n (fun m n i => subNatNat (m + k) (n + k) = i)
   focus
     intro i j
-    rw [Nat.add_assoc, Nat.add_comm i k, ← Nat.add_assoc]
+    rw [← Nat.add_assoc', Nat.add_comm i k, Nat.add_assoc']
     exact subNatNat_add_left
   focus
     intro i j
-    rw [Nat.add_assoc j i 1, Nat.add_comm j (i+1), Nat.add_assoc, Nat.add_comm (i+1) (j+k)]
+    rw [← Nat.add_assoc' j i 1, Nat.add_comm j (i+1), ← Nat.add_assoc', Nat.add_comm (i+1) (j+k)]
     exact subNatNat_add_right
 
 theorem subNatNat_of_le {m n : Nat} (h : n ≤ m) : subNatNat m n = ↑(m - n) :=
@@ -178,7 +178,7 @@ theorem subNatNat_add_negSucc (m n k : Nat) :
     rw [subNatNat_of_lt h', subNatNat_of_lt h₂]
     simp only [pred_eq_sub_one, negSucc_add_negSucc, succ_eq_add_one, negSucc.injEq]
     rw [Nat.add_right_comm, sub_one_add_one_eq_of_pos (Nat.sub_pos_of_lt h'), Nat.sub_sub,
-      ← Nat.add_assoc, succ_sub_succ_eq_sub, Nat.add_comm n,Nat.add_sub_assoc (Nat.le_of_lt h'),
+      Nat.add_assoc', succ_sub_succ_eq_sub, Nat.add_comm n,Nat.add_sub_assoc (Nat.le_of_lt h'),
       Nat.add_comm]
 
 protected theorem add_assoc : ∀ a b c : Int, a + b + c = a + (b + c)
@@ -325,7 +325,7 @@ theorem toNat_sub (m n : Nat) : toNat (m - n) = m - n := by
   rw [← Int.subNatNat_eq_coe]
   refine subNatNat_elim m n (fun m n i => toNat i = m - n) (fun i n => ?_) (fun i n => ?_)
   · exact (Nat.add_sub_cancel_left ..).symm
-  · dsimp; rw [Nat.add_assoc, Nat.sub_eq_zero_of_le (Nat.le_add_right ..)]; rfl
+  · dsimp; rw [← Nat.add_assoc', Nat.sub_eq_zero_of_le (Nat.le_add_right ..)]; rfl
 
 /- ## add/sub injectivity -/
 

@@ -170,18 +170,17 @@ protected theorem add_assoc : ∀ (n m k : Nat), (n + m) + k = n + (m + k)
   | n, m, succ k => congrArg succ (Nat.add_assoc n m k)
 instance : Std.Associative (α := Nat) (· + ·) := ⟨Nat.add_assoc⟩
 
-@[simp]
-protected theorem add_assoc' (n m k : Nat) : n + (m + k) = n + m + k :=
+@[simp] protected theorem add_assoc' (n m k : Nat) : n + (m + k) = n + m + k :=
   Nat.add_assoc n m k |>.symm
 
 protected theorem add_rotate (n m k : Nat) : n + m + k = m + k + n := by
-  rw [Nat.add_assoc, Nat.add_comm]
+  rw [← Nat.add_assoc', Nat.add_comm]
 
 protected theorem add_left_comm (n m k : Nat) : n + (m + k) = m + (n + k) := by
-  rw [← Nat.add_assoc, Nat.add_comm n m, Nat.add_assoc]
+  rw [Nat.add_assoc', Nat.add_comm n m, ← Nat.add_assoc']
 
 protected theorem add_right_comm (n m k : Nat) : (n + m) + k = (n + k) + m := by
-  rw [Nat.add_assoc, Nat.add_comm m k, ← Nat.add_assoc]
+  rw [← Nat.add_assoc', Nat.add_comm m k, Nat.add_assoc']
 
 protected theorem add_left_cancel {n m k : Nat} : n + m = n + k → m = k := by
   induction n with
@@ -240,7 +239,7 @@ protected theorem left_distrib (n m k : Nat) : n * (m + k) = n * m + n * k := by
   | zero      => repeat rw [Nat.zero_mul]
   | succ n ih =>
     simp only [succ_mul, ih]
-    rw [Nat.add_assoc, Nat.add_assoc (n*m)]
+    rw [← Nat.add_assoc', ← Nat.add_assoc' (n*m)]
     apply congrArg; apply Nat.add_left_comm
 
 protected theorem right_distrib (n m k : Nat) : (n + m) * k = n * k + m * k := by
@@ -502,9 +501,9 @@ instance : Antisymm (¬ . < . : Nat → Nat → Prop) where
 protected theorem add_le_add_left {n m : Nat} (h : n ≤ m) (k : Nat) : k + n ≤ k + m :=
   match le.dest h with
   | ⟨w, hw⟩ =>
-    have h₁ : k + n + w = k + (n + w) := Nat.add_assoc ..
+    have h₁ : k + (n + w) = k + n + w := Nat.add_assoc' ..
     have h₂ : k + (n + w) = k + m     := congrArg _ hw
-    le.intro <| h₁.trans h₂
+    le.intro <| h₁.symm.trans h₂
 
 protected theorem add_le_add_right {n m : Nat} (h : n ≤ m) (k : Nat) : n + k ≤ m + k := by
   rw [Nat.add_comm n k, Nat.add_comm m k]
@@ -535,7 +534,7 @@ protected theorem le_of_add_le_add_left {a b c : Nat} (h : a + b ≤ a + c) : b 
   match le.dest h with
   | ⟨d, hd⟩ =>
     apply @le.intro _ _ d
-    rw [Nat.add_assoc] at hd
+    rw [← Nat.add_assoc'] at hd
     apply Nat.add_left_cancel hd
 
 protected theorem le_of_add_le_add_right {a b c : Nat} : a + b ≤ c + b → a ≤ c := by
@@ -906,7 +905,7 @@ theorem sub_one_cancel : ∀ {a b : Nat}, 0 < a → 0 < b → a - 1 = b - 1 → 
 protected theorem add_sub_add_right (n k m : Nat) : (n + k) - (m + k) = n - m := by
   induction k with
   | zero => simp
-  | succ k ih => simp [← Nat.add_assoc, succ_sub_succ_eq_sub, ih]
+  | succ k ih => simp [Nat.add_assoc', succ_sub_succ_eq_sub, ih]
 
 protected theorem add_sub_add_left (k n m : Nat) : (k + n) - (k + m) = n - m := by
   rw [Nat.add_comm k n, Nat.add_comm k m, Nat.add_sub_add_right]
@@ -922,7 +921,7 @@ protected theorem add_sub_cancel_left (n m : Nat) : n + m - n = m :=
 protected theorem add_sub_assoc {m k : Nat} (h : k ≤ m) (n : Nat) : n + m - k = n + (m - k) := by
  cases Nat.le.dest h
  rename_i l hl
- rw [← hl, Nat.add_sub_cancel_left, Nat.add_comm k, ← Nat.add_assoc, Nat.add_sub_cancel]
+ rw [← hl, Nat.add_sub_cancel_left, Nat.add_comm k, Nat.add_assoc', Nat.add_sub_cancel]
 
 protected theorem eq_add_of_sub_eq {a b c : Nat} (hle : b ≤ a) (h : a - b = c) : a = c + b := by
   rw [h.symm, Nat.sub_add_cancel hle]

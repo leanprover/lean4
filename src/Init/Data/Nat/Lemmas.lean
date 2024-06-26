@@ -22,7 +22,7 @@ namespace Nat
 /-! ## add -/
 
 protected theorem add_add_add_comm (a b c d : Nat) : (a + b) + (c + d) = (a + c) + (b + d) := by
-  rw [Nat.add_assoc, Nat.add_assoc, Nat.add_left_comm b]
+  rw [← Nat.add_assoc', ← Nat.add_assoc', Nat.add_left_comm b]
 
 theorem one_add (n) : 1 + n = succ n := Nat.add_comm ..
 
@@ -103,7 +103,7 @@ theorem succ_sub_sub_succ (n m k) : succ n - m - succ k = n - m - k := by
 
 theorem add_sub_sub_add_right (n m k l : Nat) :
     (n + l) - m - (k + l) = n - m - k := by
-  rw [Nat.sub_sub, Nat.sub_sub, ←Nat.add_assoc, Nat.add_sub_add_right]
+  rw [Nat.sub_sub, Nat.sub_sub, Nat.add_assoc', Nat.add_sub_add_right]
 
 protected theorem sub_right_comm (m n k : Nat) : m - n - k = m - k - n := by
   rw [Nat.sub_sub, Nat.sub_sub, Nat.add_comm]
@@ -810,12 +810,12 @@ theorem shiftRight_succ_inside : ∀m n, m >>> (n+1) = (m/2) >>> n
 
 theorem shiftLeft_add (m n : Nat) : ∀ k, m <<< (n + k) = (m <<< n) <<< k
   | 0 => rfl
-  | k + 1 => by simp [← Nat.add_assoc, shiftLeft_add _ _ k, shiftLeft_succ]
+  | k + 1 => by simp [Nat.add_assoc', shiftLeft_add _ _ k, shiftLeft_succ]
 
 @[deprecated shiftLeft_add (since := "2024-06-02")]
 theorem shiftLeft_shiftLeft (m n : Nat) : ∀ k, (m <<< n) <<< k = m <<< (n + k)
   | 0 => rfl
-  | k + 1 => by simp [← Nat.add_assoc, shiftLeft_shiftLeft _ _ k, shiftLeft_succ]
+  | k + 1 => by simp [Nat.add_assoc', shiftLeft_shiftLeft _ _ k, shiftLeft_succ]
 
 @[simp] theorem shiftLeft_shiftRight (x n : Nat) : x <<< n >>> n = x := by
   rw [Nat.shiftLeft_eq, Nat.shiftRight_eq_div_pow, Nat.mul_div_cancel _ (Nat.two_pow_pos _)]
@@ -824,14 +824,14 @@ theorem mul_add_div {m : Nat} (m_pos : m > 0) (x y : Nat) : (m * x + y) / m = x 
   match x with
   | 0 => simp
   | x + 1 =>
-    rw [Nat.mul_succ, Nat.add_assoc _ m, mul_add_div m_pos x (m+y), div_eq]
+    rw [Nat.mul_succ, ← Nat.add_assoc' _ m, mul_add_div m_pos x (m+y), div_eq]
     simp_arith [m_pos]; rw [Nat.add_comm, Nat.add_sub_cancel]
 
 theorem mul_add_mod (m x y : Nat) : (m * x + y) % m = y % m := by
   match x with
   | 0 => simp
   | x + 1 =>
-    simp [Nat.mul_succ, Nat.add_assoc _ m, mul_add_mod _ x]
+    simp [Nat.mul_succ, ← Nat.add_assoc', mul_add_mod _ x]
 
 @[simp] theorem mod_div_self (m n : Nat) : m % n / n = 0 := by
   cases n

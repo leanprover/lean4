@@ -377,7 +377,7 @@ where
       loop xs rest belowIndices xIdx (yIdx + 1)
 
 private def belowType (motive : Expr) (xs : Array Expr) (idx : Nat) : MetaM $ Name × Expr := do
-  (← inferType xs[idx]!).withApp fun type args => do
+  (← whnf (← inferType xs[idx]!)).withApp fun type args => do
     let indName := type.constName!
     let indInfo ← getConstInfoInduct indName
     let belowArgs := args[:indInfo.numParams] ++ #[motive] ++ args[indInfo.numParams:] ++ #[xs[idx]!]
@@ -554,8 +554,7 @@ where
 
 def findBelowIdx (xs : Array Expr) (motive : Expr) : MetaM $ Option (Expr × Nat) := do
   xs.findSomeM? fun x => do
-  let xTy ← inferType x
-  xTy.withApp fun f _ =>
+  (← whnf (← inferType x)).withApp fun f _ =>
   match f.constName?, xs.indexOf? x with
   | some name, some idx => do
     if (← isInductivePredicate name) then

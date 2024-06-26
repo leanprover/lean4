@@ -40,16 +40,17 @@ If the proof `p` is long, it is often easier to place the
 proof in the context using `have`, because `get_elem_tactic` tries
 `assumption`.
 
+
+The proof side-condition `valid xs i` is automatically dispatched by the
+`get_elem_tactic` tactic; this tactic can be extended by adding more clauses to
+`get_elem_tactic_trivial` using `macro_rules`.
+
 `xs[i]?` and `xs[i]!` do not impose a proof obligation; the former returns
 an `Option elem`, with `none` signalling that the value isn't present, and
 the latter returns `elem` but panics if the value isn't there, returning
 `default : elem` based on the `Inhabited elem` instance.
 These are provided by the `GetElem?` class, for which there is a default instance
-generated from a `GetElem` class as longer as `valid xs i` is always decidable.
-
-The proof side-condition `valid xs i` is automatically dispatched by the
-`get_elem_tactic` tactic; this tactic can be extended by adding more clauses to
-`get_elem_tactic_trivial` using `macro_rules`.
+generated from a `GetElem` class as long as `valid xs i` is always decidable.
 
 Important instances include:
   * `arr[i] : α` where `arr : Array α` and `i : Nat` or `i : USize`: does array
@@ -89,9 +90,7 @@ class GetElem? (coll : Type u) (idx : Type v) (elem : outParam (Type w))
   The syntax `arr[i]?` gets the `i`'th element of the collection `arr`,
   if it is present (and wraps it in `some`), and otherwise returns `none`.
   -/
-  getElem? : coll → idx → Option elem := by
-    intro xs i
-    exact decidableGetElem? xs i
+  getElem? : coll → idx → Option elem
 
   /--
   The syntax `arr[i]!` gets the `i`'th element of the collection `arr`,
@@ -126,7 +125,7 @@ class LawfulGetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w))
       c[i]? = if h : dom c i then some (c[i]'h) else none := by
     intros
     try simp only [getElem?] <;> congr
-  getElem!_def [Inhabited elem] (c : cont) (i : idx) [Decidable (dom c i)] :
+  getElem!_def [Inhabited elem] (c : cont) (i : idx) :
       c[i]! = match c[i]? with | some e => e | none => default := by
     intros
     simp only [getElem!, getElem?, outOfBounds_eq_default]
@@ -167,7 +166,7 @@ instance instGetElem?FinVal [GetElem? cont Nat elem dom] : GetElem? cont (Fin n)
 instance [GetElem? cont Nat elem dom] [h : LawfulGetElem cont Nat elem dom] :
       LawfulGetElem cont (Fin n) elem fun xs i => dom xs i where
   getElem?_def _c _i _d := h.getElem?_def ..
-  getElem!_def _c _i _d := h.getElem!_def ..
+  getElem!_def _c _i := h.getElem!_def ..
 
 @[simp] theorem getElem_fin [GetElem? Cont Nat Elem Dom] (a : Cont) (i : Fin n) (h : Dom a i) :
     a[i] = a[i.1] := rfl

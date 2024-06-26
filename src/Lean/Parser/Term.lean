@@ -583,12 +583,12 @@ letrec we need them here already.
 -/
 
 /--
-Specify a termination argument for well-founded termination:
+Specify a termination argument for recursive functions.
 ```
 termination_by a - b
 ```
 indicates that termination of the currently defined recursive function follows
-because the difference between the the arguments `a` and `b`.
+because the difference between the the arguments `a` and `b` decreases.
 
 If the fuction takes further argument after the colon, you can name them as follows:
 ```
@@ -596,8 +596,14 @@ def example (a : Nat) : Nat → Nat → Nat :=
 termination_by b c => a - b
 ```
 
+By default, a `termination_by` clause will cause the function to be constructed using well-founded
+recursion. The syntax `termination_by structurally a` (or `termination_by structurally _ c => c`)
+indicates the the function is expected to be structurally recursive on the argument. In this case
+the body of the `termination_by` clause must be one of the function's parameters.
+
 If omitted, a termination argument will be inferred. If written as `termination_by?`,
 the inferrred termination argument will be suggested.
+
 -/
 def terminationBy := leading_parser
   "termination_by " >>
@@ -614,6 +620,9 @@ Manually prove that the termination argument (as specified with `termination_by`
 decreases at each recursive call.
 
 By default, the tactic `decreasing_tactic` is used.
+
+Forces the use of well-founded recursion and is hence incompatible with
+`termination_by structurally`.
 -/
 def decreasingBy := leading_parser
   ppDedent ppLine >> "decreasing_by " >> Tactic.tacticSeqIndentGt

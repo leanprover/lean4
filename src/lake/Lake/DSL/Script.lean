@@ -15,7 +15,7 @@ namespace Lake.DSL
 open Lean Parser Command
 
 syntax scriptDeclSpec :=
-  ident (ppSpace simpleBinder)? (declValSimple <|> declValDo)
+  identOrStr (ppSpace simpleBinder)? (declValSimple <|> declValDo)
 
 /--
 Define a new Lake script for the package.
@@ -37,9 +37,10 @@ scoped syntax (name := scriptDecl)
 
 @[macro scriptDecl]
 def expandScriptDecl : Macro
-| `($[$doc?]? $[$attrs?]? script%$kw $id:ident $[$args?]? do $seq $[$wds?:whereDecls]?) => do
-  `($[$doc?]? $[$attrs?]? script%$kw  $id:ident $[$args?]? := do $seq $[$wds?:whereDecls]?)
-| `($[$doc?]? $[$attrs?]? script%$kw  $id:ident $[$args?]? := $defn $[$wds?:whereDecls]?) => withRef kw do
+| `($[$doc?]? $[$attrs?]? script%$kw $name $[$args?]? do $seq $[$wds?:whereDecls]?) => do
+  `($[$doc?]? $[$attrs?]? script%$kw $name $[$args?]? := do $seq $[$wds?:whereDecls]?)
+| `($[$doc?]? $[$attrs?]? script%$kw $name $[$args?]? := $defn $[$wds?:whereDecls]?) => withRef kw do
+  let id := expandIdentOrStrAsIdent name
   let args ← expandOptSimpleBinder args?
   let attrs := #[← `(Term.attrInstance| «script»)] ++ expandAttrs attrs?
   `($[$doc?]? @[$attrs,*] def $id : ScriptFn := fun $args => $defn $[$wds?:whereDecls]?)

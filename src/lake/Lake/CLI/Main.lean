@@ -201,12 +201,12 @@ def verifyInstall (opts : LakeOptions) : ExceptT CliError MainM PUnit := do
 def parseScriptSpec (ws : Workspace) (spec : String) : Except CliError Script :=
   match spec.splitOn "/" with
   | [scriptName] =>
-    match ws.findScript? scriptName.toName with
+    match ws.findScript? (stringToLegalOrSimpleName scriptName) with
     | some script => return script
     | none => throw <| CliError.unknownScript spec
   | [pkg, scriptName] => do
     let pkg ← parsePackageSpec ws pkg
-    match pkg.scripts.find? scriptName.toName with
+    match pkg.scripts.find? (stringToLegalOrSimpleName scriptName) with
     | some script => return script
     | none => throw <| CliError.unknownScript spec
   | _ => throw <| CliError.invalidScriptSpec spec

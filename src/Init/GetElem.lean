@@ -157,14 +157,15 @@ theorem getElem!_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem d
 
 namespace Fin
 
-instance instGetElemFinVal [GetElem? cont Nat elem dom] : GetElem? cont (Fin n) elem fun xs i => dom xs i where
+instance instGetElemFinVal [GetElem cont Nat elem dom] : GetElem cont (Fin n) elem fun xs i => dom xs i where
   getElem xs i h := getElem xs i.1 h
+
+instance instGetElem?FinVal [GetElem? cont Nat elem dom] : GetElem? cont (Fin n) elem fun xs i => dom xs i where
   getElem? xs i := getElem? xs i.val
   getElem! xs i := getElem! xs i.val
 
 instance [GetElem? cont Nat elem dom] [h : LawfulGetElem cont Nat elem dom] :
       LawfulGetElem cont (Fin n) elem fun xs i => dom xs i where
-
   getElem?_def _c _i _d := h.getElem?_def ..
   getElem!_def _c _i _d := h.getElem!_def ..
 

@@ -349,20 +349,5 @@ theorem getLsb_mul (x y : BitVec w) (i : Nat) :
     (x * y).getLsb i = (mulRec x y w).getLsb i := by
   simp [mulRec_eq_mul_signExtend_truncate]
   rw [truncate, zeroExtend_of_ge (by omega), zeroExtend_eq_self]
-/- ## Shift left for arbitrary bit width -/
-
-@[simp]
-theorem shiftLeft_zero (x : BitVec w) : x <<< 0 = x := by
-  simp [bv_toNat]
-
-@[simp]
-theorem zero_shiftLeft (n : Nat) : (0#w) <<< n = 0 := by
-  simp [bv_toNat]
-
-@[simp]
-theorem truncate_one_eq_ofBool_getLsb (x : BitVec w) :
-    x.truncate 1 = ofBool (x.getLsb 0) := by
-  ext i
-  simp [show i = 0 by omega]
 
 end BitVec

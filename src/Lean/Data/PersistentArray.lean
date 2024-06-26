@@ -69,7 +69,7 @@ def get! [Inhabited α] (t : PersistentArray α) (i : Nat) : α :=
     getAux t.root (USize.ofNat i) t.shift
 
 -- TODO: remove [Inhabited α]
-instance [Inhabited α] : GetElemBase (PersistentArray α) Nat α fun as i => i < as.size where
+instance [Inhabited α] : GetElem (PersistentArray α) Nat α fun as i => i < as.size where
   getElem xs i _ := xs.get! i
 
 partial def setAux : PersistentArrayNode α → USize → USize → α → PersistentArrayNode α

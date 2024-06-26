@@ -3,9 +3,9 @@ mkConstTuple : {α : Type u_1} → α → Nat → ◾
 Fin.add : {n : Nat} → Fin ◾ → Fin ◾ → Fin ◾
 Vec.cons : {α : Type u} → {n : Nat} → α → Vec α ◾ → Vec α ◾
 Eq.rec : {α : Sort u_1} → {a : α} → {motive : α → ◾ → Sort u} → motive ◾ ◾ → {a : α} → ◾ → motive ◾ ◾
-GetElemBase.getElem : {coll : Type u} →
+GetElem.getElem : {coll : Type u} →
   {idx : Type v} →
-    {elem : Type w} → {valid : coll → idx → Prop} → [self : GetElemBase coll idx elem ◾] → coll → idx → ◾ → elem
+    {elem : Type w} → {valid : coll → idx → Prop} → [self : GetElem coll idx elem ◾] → coll → idx → ◾ → elem
 Term.constFold : {ctx : List Ty} → {ty : Ty} → Term ◾ ◾ → Term ◾ ◾
 Term.denote : {ctx : List Ty} → {ty : Ty} → Term ◾ ◾ → HList ◾ ◾ → ◾
 HList.get : {α : Type u_1} → {β : α → Type u_2} → {is : List α} → {i : α} → HList β ◾ → Member ◾ ◾ → β ◾

@@ -15,16 +15,15 @@ info: {coll : Type u} →
   {idx : Type v} →
     {elem : outParam (Type w)} →
       {valid : outParam (coll → idx → Prop)} →
-        [self : GetElemBase coll idx elem valid] → (xs : coll) → (i : idx) → valid xs i → elem
+        [self : GetElem coll idx elem valid] → (xs : coll) → (i : idx) → valid xs i → elem
 ---
 {coll : Type u} →
   {idx : Type v} →
     {elem : Type w} →
-      {valid : coll → idx → Prop} →
-        [self : GetElemBase coll idx elem valid] → (xs : coll) → (i : idx) → valid xs i → elem
+      {valid : coll → idx → Prop} → [self : GetElem coll idx elem valid] → (xs : coll) → (i : idx) → valid xs i → elem
 -/
 #guard_msgs in
-#eval gen ``GetElemBase.getElem
+#eval gen ``GetElem.getElem
 
 def f (x := 0) (_ : x = x := by rfl) : Nat := x+1
 

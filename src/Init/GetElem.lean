@@ -13,13 +13,13 @@ def outOfBounds [Inhabited α] : α :=
 theorem outOfBounds_eq_default [Inhabited α] : (outOfBounds : α) = default := rfl
 
 /--
-The class `GetElemBase coll idx elem valid` implements lookup notation,
+The class `GetElem coll idx elem valid` implements lookup notation,
 specifically `xs[i]` and `xs[i]'p`.
 
-In nearly all cases there is also a `GetElem` instance which additionally implements
-`xs[i]?` and `xs[i]!`. Please see the doc-string for `GetElem` for details.
+In nearly all cases there is also a `GetElem?` instance which additionally implements
+`xs[i]?` and `xs[i]!`. Please see the doc-string for `GetElem?` for details.
 -/
-class GetElemBase (coll : Type u) (idx : Type v) (elem : outParam (Type w))
+class GetElem (coll : Type u) (idx : Type v) (elem : outParam (Type w))
               (valid : outParam (coll → idx → Prop)) where
   /--
   The syntax `arr[i]` gets the `i`'th element of the collection `arr`. If there
@@ -28,7 +28,7 @@ class GetElemBase (coll : Type u) (idx : Type v) (elem : outParam (Type w))
   -/
   getElem (xs : coll) (i : idx) (h : valid xs i) : elem
 
-export GetElemBase (getElem)
+export GetElem (getElem)
 
 @[inherit_doc getElem]
 syntax:max term noWs "[" withoutPosition(term) "]" : term
@@ -38,17 +38,18 @@ macro_rules | `($x[$i]) => `(getElem $x $i (by get_elem_tactic))
 syntax term noWs "[" withoutPosition(term) "]'" term:max : term
 macro_rules | `($x[$i]'$h) => `(getElem $x $i $h)
 
-/-- Helper function for implementation of `GetElem.getElem?`. -/
-abbrev decidableGetElem? [GetElemBase coll idx elem valid] (xs : coll) (i : idx) [Decidable (valid xs i)] :
+/-- Helper function for implementation of `GetElem?.getElem?`. -/
+abbrev decidableGetElem? [GetElem coll idx elem valid] (xs : coll) (i : idx) [Decidable (valid xs i)] :
     Option elem :=
   if h : valid xs i then some xs[i] else none
 
 /--
-The class `GetElem coll idx elem valid` implements lookup notation,
+The classes `GetElem` and `GetElem?` implement lookup notation,
 specifically `xs[i]`, `xs[i]?`, `xs[i]!`, and `xs[i]'p`.
 
-The types `coll`, `idx`, and `elem` are the collection, the index, and the
-element types. A single collection may support lookups with multiple index
+Both classes are indexed by types `coll`, `idx`, and `elem` which are
+the collection, the index, and the element types.
+A single collection may support lookups with multiple index
 types. The relation `valid` determines when the index is guaranteed to be
 valid; lookups of valid indices are guaranteed not to fail.
 
@@ -74,6 +75,8 @@ proof in the context using `have`, because `get_elem_tactic` tries
 an `Option elem`, with `none` signalling that the value isn't present, and
 the latter returns `elem` but panics if the value isn't there, returning
 `default : elem` based on the `Inhabited elem` instance.
+These are provided by the `GetElem?` class, for which there is a default instance
+generated from a `GetElem` class as longer as `valid xs i` is always decidable.
 
 The proof side-condition `valid xs i` is automatically dispatched by the
 `get_elem_tactic` tactic; this tactic can be extended by adding more clauses to
@@ -86,8 +89,8 @@ Important instances include:
     side goal `i < l.length`.
 
 -/
-class GetElem (coll : Type u) (idx : Type v) (elem : outParam (Type w))
-    (valid : outParam (coll → idx → Prop)) extends GetElemBase coll idx elem valid where
+class GetElem? (coll : Type u) (idx : Type v) (elem : outParam (Type w))
+    (valid : outParam (coll → idx → Prop)) extends GetElem coll idx elem valid where
   /--
   The syntax `arr[i]?` gets the `i`'th element of the collection `arr`,
   if it is present (and wraps it in `some`), and otherwise returns `none`.
@@ -104,7 +107,7 @@ class GetElem (coll : Type u) (idx : Type v) (elem : outParam (Type w))
   getElem! [Inhabited elem] (xs : coll) (i : idx) : elem :=
     match getElem? xs i with | some e => e | none => outOfBounds
 
-export GetElem (getElem! getElem?)
+export GetElem? (getElem? getElem!)
 
 /--
 The syntax `arr[i]?` gets the `i`'th element of the collection `arr` or
@@ -118,13 +121,12 @@ panics `i` is out of bounds.
 -/
 macro:max x:term noWs "[" i:term "]" noWs "!" : term => `(getElem! $x $i)
 
-instance (priority := low) getElemOfDecidable
-    [GetElemBase coll idx elem valid] [∀ xs i, Decidable (valid xs i)] :
-    GetElem coll idx elem valid where
+instance (priority := low) [GetElem coll idx elem valid] [∀ xs i, Decidable (valid xs i)] :
+    GetElem? coll idx elem valid where
   getElem? xs i := decidableGetElem? xs i
 
 class LawfulGetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w))
-   (dom : outParam (cont → idx → Prop)) [ge : GetElem cont idx elem dom] : Prop where
+   (dom : outParam (cont → idx → Prop)) [ge : GetElem? cont idx elem dom] : Prop where
 
   getElem?_def (c : cont) (i : idx) [Decidable (dom c i)] :
       c[i]? = if h : dom c i then some (c[i]'h) else none := by
@@ -137,49 +139,48 @@ class LawfulGetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w))
 
 export LawfulGetElem (getElem?_def getElem!_def)
 
-instance (priority := low) lawfulGetElemOfDecidable
-    [GetElemBase coll idx elem valid] [∀ xs i, Decidable (valid xs i)] :
+instance (priority := low) [GetElem coll idx elem valid] [∀ xs i, Decidable (valid xs i)] :
     LawfulGetElem coll idx elem valid where
 
-theorem getElem?_pos [GetElem cont idx elem dom] [LawfulGetElem cont idx elem dom]
+theorem getElem?_pos [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     (c : cont) (i : idx) (h : dom c i) [Decidable (dom c i)] : c[i]? = some (c[i]'h) := by
   rw [getElem?_def]
   exact dif_pos h
 
-theorem getElem?_neg [GetElem cont idx elem dom] [LawfulGetElem cont idx elem dom]
+theorem getElem?_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     (c : cont) (i : idx) (h : ¬dom c i) [Decidable (dom c i)] : c[i]? = none := by
   rw [getElem?_def]
   exact dif_neg h
 
-theorem getElem!_pos [GetElem cont idx elem dom] [LawfulGetElem cont idx elem dom]
+theorem getElem!_pos [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     [Inhabited elem] (c : cont) (i : idx) (h : dom c i) [Decidable (dom c i)] :
     c[i]! = c[i]'h := by
   simp only [getElem!_def, getElem?_def, h]
 
-theorem getElem!_neg [GetElem cont idx elem dom] [LawfulGetElem cont idx elem dom]
+theorem getElem!_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     [Inhabited elem] (c : cont) (i : idx) (h : ¬dom c i) [Decidable (dom c i)] : c[i]! = default := by
   simp only [getElem!_def, getElem?_def, h]
 
 namespace Fin
 
-instance instGetElemFinVal [GetElem cont Nat elem dom] : GetElem cont (Fin n) elem fun xs i => dom xs i where
+instance instGetElemFinVal [GetElem? cont Nat elem dom] : GetElem? cont (Fin n) elem fun xs i => dom xs i where
   getElem xs i h := getElem xs i.1 h
   getElem? xs i := getElem? xs i.val
   getElem! xs i := getElem! xs i.val
 
-instance [GetElem cont Nat elem dom] [h : LawfulGetElem cont Nat elem dom] :
+instance [GetElem? cont Nat elem dom] [h : LawfulGetElem cont Nat elem dom] :
       LawfulGetElem cont (Fin n) elem fun xs i => dom xs i where
 
   getElem?_def _c _i _d := h.getElem?_def ..
   getElem!_def _c _i _d := h.getElem!_def ..
 
-@[simp] theorem getElem_fin [GetElem Cont Nat Elem Dom] (a : Cont) (i : Fin n) (h : Dom a i) :
+@[simp] theorem getElem_fin [GetElem? Cont Nat Elem Dom] (a : Cont) (i : Fin n) (h : Dom a i) :
     a[i] = a[i.1] := rfl
 
-@[simp] theorem getElem?_fin [h : GetElem Cont Nat Elem Dom] (a : Cont) (i : Fin n)
+@[simp] theorem getElem?_fin [h : GetElem? Cont Nat Elem Dom] (a : Cont) (i : Fin n)
     [Decidable (Dom a i)] : a[i]? = a[i.1]? := by rfl
 
-@[simp] theorem getElem!_fin [GetElem Cont Nat Elem Dom] (a : Cont) (i : Fin n)
+@[simp] theorem getElem!_fin [GetElem? Cont Nat Elem Dom] (a : Cont) (i : Fin n)
     [Decidable (Dom a i)] [Inhabited Elem] : a[i]! = a[i.1]! := rfl
 
 macro_rules
@@ -189,7 +190,7 @@ end Fin
 
 namespace List
 
-instance : GetElemBase (List α) Nat α fun as i => i < as.length where
+instance : GetElem (List α) Nat α fun as i => i < as.length where
   getElem as i h := as.get ⟨i, h⟩
 
 @[simp] theorem getElem_cons_zero (a : α) (as : List α) (h : 0 < (a :: as).length) : getElem (a :: as) 0 h = a := by
@@ -211,14 +212,14 @@ end List
 
 namespace Array
 
-instance : GetElemBase (Array α) Nat α fun xs i => i < xs.size where
+instance : GetElem (Array α) Nat α fun xs i => i < xs.size where
   getElem xs i h := xs.get ⟨i, h⟩
 
 end Array
 
 namespace Lean.Syntax
 
-instance : GetElemBase Syntax Nat Syntax fun _ _ => True where
+instance : GetElem Syntax Nat Syntax fun _ _ => True where
   getElem stx i _ := stx.getArg i
 
 end Lean.Syntax

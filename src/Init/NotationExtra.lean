@@ -211,7 +211,7 @@ end Lean
   | `($f [$k] $sep)  => `($f $k $sep)
   | _                => throw ()
 
-@[app_unexpander GetElemBase.getElem] def unexpandGetElem : Lean.PrettyPrinter.Unexpander
+@[app_unexpander GetElem.getElem] def unexpandGetElem : Lean.PrettyPrinter.Unexpander
   | `($_ $array $index $_) => `($array[$index])
   | _ => throw ()
 

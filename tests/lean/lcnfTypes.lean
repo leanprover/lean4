@@ -28,7 +28,7 @@ def mkConstTuple (a : α) : (n : Nat) → Tuple α n
 #eval test ``Fin.add
 #eval test ``Vec.cons
 #eval test ``Eq.rec
-#eval test ``GetElemBase.getElem
+#eval test ``GetElem.getElem
 
 inductive HList {α : Type v} (β : α → Type u) : List α → Type (max u v)
   | nil  : HList β []

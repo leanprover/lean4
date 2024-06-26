@@ -44,10 +44,8 @@ def get (s : Subarray α) (i : Fin s.size) : α :=
    exact Nat.add_lt_of_lt_sub this
   s.array[s.start + i.val]
 
-instance : GetElemBase (Subarray α) Nat α fun xs i => i < xs.size where
-  getElem xs i h := xs.get ⟨i, h⟩
-
 instance : GetElem (Subarray α) Nat α fun xs i => i < xs.size where
+  getElem xs i h := xs.get ⟨i, h⟩
 
 @[inline] def getD (s : Subarray α) (i : Nat) (v₀ : α) : α :=
   if h : i < s.size then s.get ⟨i, h⟩ else v₀

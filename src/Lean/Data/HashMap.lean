@@ -220,7 +220,7 @@ def insertIfNew (m : HashMap α β) (a : α) (b : β) : HashMap α β × Option 
   | some b => b
   | none   => panic! "key is not in the map"
 
-instance : GetElemBase (HashMap α β) α (Option β) fun _ _ => True where
+instance : GetElem (HashMap α β) α (Option β) fun _ _ => True where
   getElem m k _ := m.find? k
 
 @[inline] def contains (m : HashMap α β) (a : α) : Bool :=

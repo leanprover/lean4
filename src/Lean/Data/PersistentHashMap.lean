@@ -158,7 +158,7 @@ partial def findAux [BEq α] : Node α β → USize → α → Option β
 def find? {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → Option β
   | { root }, k => findAux root (hash k |>.toUSize) k
 
-instance {_ : BEq α} {_ : Hashable α} : GetElemBase (PersistentHashMap α β) α (Option β) fun _ _ => True where
+instance {_ : BEq α} {_ : Hashable α} : GetElem (PersistentHashMap α β) α (Option β) fun _ _ => True where
   getElem m i _ := m.find? i
 
 @[inline] def findD {_ : BEq α} {_ : Hashable α} (m : PersistentHashMap α β) (a : α) (b₀ : β) : β :=

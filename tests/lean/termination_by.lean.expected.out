@@ -10,9 +10,15 @@ termination_by.lean:35:2-36:21: error: unused termination hints, function is uns
 termination_by.lean:40:4-40:20: error: unused `termination_by`, function is not recursive
 termination_by.lean:44:4-44:20: error: unused `termination_by`, function is not recursive
 termination_by.lean:54:2-54:18: error: unused `termination_by`, function is not recursive
-termination_by.lean:64:6-64:11: error: Missing `termination_by`; this function is mutually recursive with isEven, which has a `termination_by` clause.
-termination_by.lean:81:6-81:7: error: Missing `termination_by`; this function is mutually recursive with Test.f, which has a `termination_by` clause.
-termination_by.lean:97:2-97:27: error: Invalid `termination_by`; this function is mutually recursive with Test2.f, which has a `termination_by structurally` so this one also needs to be marked `structurally` clause.
-termination_by.lean:115:2-115:40: error: Invalid `termination_by`; this function is mutually recursive with Test3.f, which is not marked as `structurally` so this one canot be `structurally` either.
-termination_by.lean:125:6-125:7: error: Missing `termination_by`; this function is mutually recursive with Test4.g, which has a `termination_by` clause.
-termination_by.lean:152:2-152:21: error: Invalid `decreasing_by`; this function is marked as structurally recursive, so no explicit termination proof is needed.
+termination_by.lean:62:2-62:23: error: Incomplete set of `termination_by` annotations:
+This function is mutually with isOdd, which does not have a `termination_by` clause.
+The present clause is ignored.
+Try this: termination_by x1 => x1
+termination_by.lean:79:2-79:27: error: Incomplete set of `termination_by` annotations:
+This function is mutually with Test.f, Test.h and Test.i, which do not have a `termination_by` clause.
+The present clause is ignored.
+termination_by.lean:101:2-101:27: error: Invalid `termination_by`; this function is mutually recursive with Test2.f, which is marked as `termination_by structurally` so this one also needs to be marked `structurally`.
+termination_by.lean:120:2-120:40: error: Invalid `termination_by`; this function is mutually recursive with Test3.f, which is not marked as `structurally` so this one cannot be `structurally` either.
+termination_by.lean:144:2-144:40: error: Invalid `termination_by`; this function is mutually recursive with Test4.f, which is not marked as `structurally` so this one cannot be `structurally` either.
+termination_by.lean:159:2-159:21: error: Invalid `decreasing_by`; this function is marked as structurally recursive, so no explicit termination proof is needed.
+termination_by.lean:149:0-165:3: error: structural recursion does not handle mutually recursive functions

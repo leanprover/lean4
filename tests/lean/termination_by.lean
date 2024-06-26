@@ -59,11 +59,12 @@ mutual
   def isEven : Nat → Bool
     | 0 => true
     | n+1 => isOdd n
-  termination_by x => x
+  termination_by x => x -- Error
 
-  def isOdd : Nat → Bool -- Error
+  def isOdd : Nat → Bool
     | 0 => false
     | n+1 => isEven n
+  termination_by? -- still works
 end
 
 namespace Test
@@ -71,14 +72,17 @@ mutual
   def f : Nat → α → α → α
     | 0, a, b => a
     | n+1, a, b => g n a b |>.1
-  termination_by n _ _ => n
 
   def g : Nat → α → α → (α × α)
     | 0, a, b => (a, b)
     | n+1, a, b => (h n a b, a)
-  termination_by n _ _ => n
+  termination_by n _ _ => n -- Error
 
-  def h : Nat → α → α → α -- Error
+  def h : Nat → α → α → α
+    | 0, a, b => b
+    | n+1, a, b => i n a b
+
+  def i : Nat → α → α → α
     | 0, a, b => b
     | n+1, a, b => f n a b
 end
@@ -99,6 +103,7 @@ mutual
   def h : Nat → α → α → α
     | 0, a, b => b
     | n+1, a, b => f n a b
+  termination_by n _ _ => n
 end
 end Test2
 
@@ -117,14 +122,16 @@ mutual
   def h : Nat → α → α → α
     | 0, a, b => b
     | n+1, a, b => f n a b
+  termination_by structurally n _ _ => n
 end
 end Test3
 
 namespace Test4
 mutual
-  def f : Nat → α → α → α -- Error
+  def f : Nat → α → α → α
     | 0, a, b => a
     | n+1, a, b => g n a b |>.1
+  termination_by n _ _ => n
 
   def g : Nat → α → α → (α × α)
     | 0, a, b => (a, b)
@@ -134,7 +141,7 @@ mutual
   def h : Nat → α → α → α
     | 0, a, b => b
     | n+1, a, b => f n a b
-  termination_by structurally n _ _ => n
+  termination_by structurally n _ _ => n -- Error
 end
 end Test4
 

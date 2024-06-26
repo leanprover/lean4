@@ -99,47 +99,49 @@ def ensureFunIndReservedNamesAvailable (preDefs : Array PreDefinition) : MetaM U
 /--
 Checks consistency of a clique of TerminationHints:
 
-* If one has a termination hint, all of them have one
-* If one has `structurally`, all have it, and no `decreasing_by` may appear
+* If not all have a hint, the hints are ignored (log error)
+* If one has `structurally`, check that all have it, (else throw error)
+* A `structurally` shold not have a `decreasing_by` (else log error)
 
 -/
 def checkTerminationByHints (preDefs : Array PreDefinition) : CoreM Unit := do
   let some preDefWith := preDefs.find? (·.termination.terminationBy?.isSome) | return
+  let preDefsWithout := preDefs.filter (·.termination.terminationBy?.isNone)
   let structurally :=
     preDefWith.termination.terminationBy? matches some {structurally := true, ..}
   for preDef in preDefs do
-    if let .some ref := preDef.termination.terminationBy?? then
-      throwErrorAt ref (m!"Useless `termination_by?`; this function is mutually " ++
-        m!"recursive with {preDefWith.declName}, which already has a `termination_by` clause.")
-    let .some termBy := preDef.termination.terminationBy?
-      | throwErrorAt preDef.ref (m!"Missing `termination_by`; this function is mutually " ++
-        m!"recursive with {preDefWith.declName}, which has a `termination_by` clause.")
-    if structurally && ! termBy.structurally then
-      throwErrorAt termBy.ref (m!"Invalid `termination_by`; this function is mutually " ++
-        m!"recursive with {preDefWith.declName}, which has a `termination_by structurally` " ++
-        m!"so this one also needs to be marked `structurally` clause.")
-    if ! structurally && termBy.structurally then
-      throwErrorAt termBy.ref (m!"Invalid `termination_by`; this function is mutually " ++
-        m!"recursive with {preDefWith.declName}, which is not marked as `structurally` " ++
-        m!"so this one canot be `structurally` either.")
-    if termBy.structurally then
-      if let .some decr := preDef.termination.decreasingBy? then
-        throwErrorAt decr.ref (m!"Invalid `decreasing_by`; this function is marked as " ++
-          m!"structurally recursive, so no explicit termination proof is needed.")
+    if let .some termBy := preDef.termination.terminationBy? then
+      if !preDefsWithout.isEmpty then
+        let m := MessageData.andList (preDefsWithout.toList.map (m!"{·.declName}"))
+        let doOrDoes := if preDefsWithout.size = 1 then "does" else "do"
+        logErrorAt termBy.ref (m!"Incomplete set of `termination_by` annotations:\n"++
+          m!"This function is mutually with {m}, which {doOrDoes} not have " ++
+          m!"a `termination_by` clause.\n" ++
+          m!"The present clause is ignored.")
+
+      if structurally && ! termBy.structurally then
+        throwErrorAt termBy.ref (m!"Invalid `termination_by`; this function is mutually " ++
+          m!"recursive with {preDefWith.declName}, which is marked as `termination_by " ++
+          m!"structurally` so this one also needs to be marked `structurally`.")
+      if ! structurally && termBy.structurally then
+        throwErrorAt termBy.ref (m!"Invalid `termination_by`; this function is mutually " ++
+          m!"recursive with {preDefWith.declName}, which is not marked as `structurally` " ++
+          m!"so this one cannot be `structurally` either.")
+      if termBy.structurally then
+        if let .some decr := preDef.termination.decreasingBy? then
+          logErrorAt decr.ref (m!"Invalid `decreasing_by`; this function is marked as " ++
+            m!"structurally recursive, so no explicit termination proof is needed.")
 
 /--
 Elaborates the `TerminationHint` in the clique to `TerminationArguments`
 -/
 def elabTerminationByHints (preDefs : Array PreDefinition) : TermElabM (Option TerminationArguments) := do
-  -- if one has a terminationBy, then all do
-  if preDefs[0]!.termination.terminationBy?.isSome then
-    let tas ← preDefs.mapM fun preDef => do
-      let arity ← lambdaTelescope preDef.value fun xs _ => pure xs.size
-      let hints := preDef.termination
-      TerminationArgument.elab preDef.declName preDef.type arity hints.extraParams hints.terminationBy?.get!
-    return some tas
-  else
-    return none
+  let tas ← preDefs.mapM fun preDef => do
+    let arity ← lambdaTelescope preDef.value fun xs _ => pure xs.size
+    let hints := preDef.termination
+    hints.terminationBy?.mapM
+      (TerminationArgument.elab preDef.declName preDef.type arity hints.extraParams ·)
+  return tas.sequenceMap id -- only return something if every function has a hint
 
 def shouldUseStructural (preDefs : Array PreDefinition) : Bool :=
   preDefs.any fun preDef =>

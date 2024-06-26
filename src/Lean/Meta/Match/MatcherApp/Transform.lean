@@ -241,10 +241,6 @@ def transform
   if addEqualities.size != matcherApp.discrs.size then
     throwError "MatcherApp.transform: addEqualities has wrong size"
 
-  -- Do not add equalities when the matcher already does so
-  let addEqualities := Array.zipWith addEqualities matcherApp.discrInfos fun b di =>
-    if di.hName?.isSome then false else b
-
   -- We also handle CasesOn applications here, and need to treat them specially in a
   -- few places.
   -- TODO: Expand MatcherApp with the necessary fields to make this more uniform
@@ -260,17 +256,26 @@ def transform
   let params' ← matcherApp.params.mapM onParams
   let discrs' ← matcherApp.discrs.mapM onParams
 
-
-  let (motive', uElim) ← lambdaTelescope matcherApp.motive fun motiveArgs motiveBody => do
+  let (motive', uElim, addHEqualities) ← lambdaTelescope matcherApp.motive fun motiveArgs motiveBody => do
     unless motiveArgs.size == matcherApp.discrs.size do
       throwError "unexpected matcher application, motive must be lambda expression with #{matcherApp.discrs.size} arguments"
     let mut motiveBody' ← onMotive motiveArgs motiveBody
 
-    -- Prepend (x = e) → to the motive when an equality is requested
-    for arg in motiveArgs, discr in discrs', b in addEqualities do if b then
-      motiveBody' ← liftMetaM <| mkArrow (← mkEq discr arg) motiveBody'
+    -- Prepend `(x = e) →` or `(HEq x e) → ` to the motive when an equality is requested
+    -- and not already present, and remember whether we added an Eq or a HEq
+    let mut addHEqualities : Array (Option Bool) := #[]
+    for arg in motiveArgs, discr in discrs', b in addEqualities, di in matcherApp.discrInfos do
+      if b && di.hName?.isNone then
+        if ← isProof arg then
+          addHEqualities := addHEqualities.push none
+        else
+          let heq ← mkEqHEq discr arg
+          motiveBody' ← liftMetaM <| mkArrow heq motiveBody'
+          addHEqualities := addHEqualities.push heq.isHEq
+      else
+        addHEqualities := addHEqualities.push none
 
-    return (← mkLambdaFVars motiveArgs motiveBody', ← getLevel motiveBody')
+    return (← mkLambdaFVars motiveArgs motiveBody', ← getLevel motiveBody', addHEqualities)
 
   let matcherLevels ← match matcherApp.uElimPos? with
     | none     => pure matcherApp.matcherLevels
@@ -280,15 +285,14 @@ def transform
   -- (and count them along the way)
   let mut remaining' := #[]
   let mut extraEqualities : Nat := 0
-  for discr in discrs'.reverse, b in addEqualities.reverse do if b then
-    remaining' := remaining'.push (← mkEqRefl discr)
-    extraEqualities := extraEqualities + 1
+  for discr in discrs'.reverse, b in addHEqualities.reverse do
+    match b with
+    | none => pure ()
+    | some is_heq =>
+        remaining' := remaining'.push (← (if is_heq then mkHEqRefl else mkEqRefl) discr)
+        extraEqualities := extraEqualities + 1
 
   if useSplitter && !isCasesOn then
-    -- We replace the matcher with the splitter
-    let matchEqns ← Match.getEquationsFor matcherApp.matcherName
-    let splitter := matchEqns.splitterName
-
     let aux1 := mkAppN (mkConst matcherApp.matcherName matcherLevels.toList) params'
     let aux1 := mkApp aux1 motive'
     let aux1 := mkAppN aux1 discrs'
@@ -296,6 +300,10 @@ def transform
       logError m!"failed to transform matcher, type error when constructing new pre-splitter motive:{indentExpr aux1}"
       check aux1
     let origAltTypes ← arrowDomainsN matcherApp.alts.size (← inferType aux1)
+
+    -- We replace the matcher with the splitter
+    let matchEqns ← Match.getEquationsFor matcherApp.matcherName
+    let splitter := matchEqns.splitterName
 
     let aux2 := mkAppN (mkConst splitter matcherLevels.toList) params'
     let aux2 := mkApp aux2 motive'

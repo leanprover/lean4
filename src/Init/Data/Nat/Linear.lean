@@ -578,7 +578,6 @@ attribute [-simp] Nat.right_distrib Nat.left_distrib
 
 theorem PolyCnstr.denote_mul (ctx : Context) (k : Nat) (c : PolyCnstr) : (c.mul (k+1)).denote ctx = c.denote ctx := by
   cases c; rename_i eq lhs rhs
-  set_option diagnostics true in
   have : k ≠ 0 → k + 1 ≠ 1 := by intro h; match k with | 0 => contradiction | k+1 => simp [Nat.succ.injEq, -Nat.add_assoc']
   have : ¬ (k == 0) → (k + 1 == 1) = false := fun h => beq_false_of_ne (this (ne_of_beq_false (Bool.of_not_eq_true h)))
   have : ¬ ((k + 1 == 0) = true)  := fun h => absurd (eq_of_beq h) (Nat.succ_ne_zero k)

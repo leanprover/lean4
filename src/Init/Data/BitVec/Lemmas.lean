@@ -859,7 +859,6 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
 theorem shiftRight_add {w : Nat} (x : BitVec w) (n m : Nat) :
     x >>> (n + m) = (x >>> n) >>> m:= by
   ext i
-  set_option diagnostics true in
   simp
 
 @[deprecated shiftRight_add (since := "2024-06-02")]

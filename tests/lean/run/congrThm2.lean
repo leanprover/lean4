@@ -21,7 +21,7 @@ info: ∀ (coll coll' : Type u),
           elem = elem' →
             ∀ (valid : coll → idx → Prop) (valid' : coll' → idx' → Prop),
               HEq valid valid' →
-                ∀ (self : GetElem coll idx elem valid) (self' : GetElem coll' idx' elem' valid'),
+                ∀ (self : GetElemBase coll idx elem valid) (self' : GetElemBase coll' idx' elem' valid'),
                   HEq self self' →
                     ∀ (xs : coll) (xs' : coll'),
                       HEq xs xs' →
@@ -29,14 +29,14 @@ info: ∀ (coll coll' : Type u),
                           HEq i i' → ∀ (h : valid xs i) (h' : valid' xs' i'), HEq h h' → HEq xs[i] xs'[i']
 -/
 #guard_msgs in
-#eval genHCongr ``GetElem.getElem
+#eval genHCongr ``GetElemBase.getElem
 
 /--
-info: ∀ {coll : Type u} {idx : Type v} {elem : Type w} {valid : coll → idx → Prop} [self : GetElem coll idx elem valid]
+info: ∀ {coll : Type u} {idx : Type v} {elem : Type w} {valid : coll → idx → Prop} [self : GetElemBase coll idx elem valid]
   (xs xs_1 : coll) (e_xs : xs = xs_1) (i i_1 : idx) (e_i : i = i_1) (h : valid xs i), xs[i] = xs_1[i_1]
 -/
 #guard_msgs in
-#eval genCongr ``GetElem.getElem
+#eval genCongr ``GetElemBase.getElem
 
 def f (x := 0) (_ : x = x := by rfl) := x + 1
 

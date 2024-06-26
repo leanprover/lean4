@@ -124,17 +124,11 @@ class LawfulGetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w))
   getElem?_def (c : cont) (i : idx) [Decidable (dom c i)] :
       c[i]? = if h : dom c i then some (c[i]'h) else none := by
     intros
-    try simp only [getElem?, reduceDIte]
-    <;> try congr
-    <;> try split
-    <;> eq_refl
+    try simp only [getElem?] <;> congr
   getElem!_def [Inhabited elem] (c : cont) (i : idx) [Decidable (dom c i)] :
       c[i]! = match c[i]? with | some e => e | none => default := by
     intros
-    try simp only [getElem!, getElem?, outOfBounds_eq_default]
-    <;> try congr
-    <;> try split
-    <;> eq_refl
+    simp only [getElem!, getElem?, outOfBounds_eq_default]
 
 export LawfulGetElem (getElem?_def getElem!_def)
 

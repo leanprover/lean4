@@ -163,6 +163,16 @@ theorem toNat_zero (n : Nat) : (0#n).toNat = 0 := by trivial
 private theorem lt_two_pow_of_le {x m n : Nat} (lt : x < 2 ^ m) (le : m ≤ n) : x < 2 ^ n :=
   Nat.lt_of_lt_of_le lt (Nat.pow_le_pow_of_le_right (by trivial : 0 < 2) le)
 
+@[simp]
+theorem getLsb_ofBool (b : Bool) (i : Nat) : (BitVec.ofBool b).getLsb i = ((i = 0) && b) := by
+  rcases b with rfl | rfl
+  · simp [ofBool]
+  · simp [ofBool, getLsb_ofNat]
+    by_cases hi : (i = 0)
+    · simp [hi]
+    · simp [hi]
+      omega
+
 /-! ### msb -/
 
 @[simp] theorem msb_zero : (0#w).msb = false := by simp [BitVec.msb, getMsb]
@@ -404,6 +414,28 @@ theorem msb_zeroExtend (x : BitVec w) : (x.zeroExtend v).msb = (decide (0 < v) &
 theorem msb_zeroExtend' (x : BitVec w) (h : w ≤ v) : (x.zeroExtend' h).msb = (decide (0 < v) && x.getLsb (v - 1)) := by
   rw [zeroExtend'_eq, msb_zeroExtend]
 
+/-- zero extending a bitvector to width 1 equals the boolean of the lsb. -/
+theorem zeroExtend_one_eq_ofBool_getLsb_zero (x : BitVec w) :
+    x.zeroExtend 1 = BitVec.ofBool (x.getLsb 0) := by
+  ext i
+  simp [getLsb_zeroExtend, Fin.fin_one_eq_zero i]
+
+/-- `testBit 1 i` is true iff the index `i` equals 0. -/
+private theorem Nat.testBit_one_eq_true_iff_self_eq_zero {i : Nat} :
+    Nat.testBit 1 i = true ↔ i = 0 := by
+  cases i <;> simp
+
+/-- Zero extending `1#v` to `1#w` equals `1#w` when `v > 0`. -/
+theorem zeroExtend_ofNat_one_eq_ofNat_one_of_lt {v w : Nat} (hv : 0 < v):
+    (BitVec.ofNat v 1).zeroExtend w = BitVec.ofNat w 1 := by
+  ext i
+  obtain ⟨i, hilt⟩ := i
+  simp only [getLsb_zeroExtend, hilt, decide_True, getLsb_ofNat, Bool.true_and,
+    Bool.and_iff_right_iff_imp, decide_eq_true_eq]
+  intros hi1
+  have hv := Nat.testBit_one_eq_true_iff_self_eq_zero.mp hi1
+  omega
+
 /-! ## extractLsb -/
 
 @[simp]
@@ -588,6 +620,11 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
 
 @[simp] theorem toFin_shiftLeft {n : Nat} (x : BitVec w) :
     BitVec.toFin (x <<< n) = Fin.ofNat' (x.toNat <<< n) (Nat.two_pow_pos w) := rfl
+
+@[simp]
+theorem shiftLeft_zero_eq (x : BitVec w) : x <<< 0 = x := by
+  apply eq_of_toNat_eq
+  simp
 
 @[simp] theorem getLsb_shiftLeft (x : BitVec m) (n) :
     getLsb (x <<< n) i = (decide (i < m) && !decide (i < n) && getLsb x (i - n)) := by
@@ -1135,6 +1172,18 @@ instance : Std.Associative (fun (x y : BitVec w) => x * y) := ⟨BitVec.mul_asso
 
 instance : Std.LawfulCommIdentity (fun (x y : BitVec w) => x * y) (1#w) where
   right_id := BitVec.mul_one
+
+@[simp]
+theorem BitVec.mul_zero {x : BitVec w} : x * 0#w = 0#w := by
+  apply eq_of_toNat_eq
+  simp [toNat_mul]
+
+theorem BitVec.mul_add {x y z : BitVec w} :
+    x * (y + z) = x * y + x * z := by
+  apply eq_of_toNat_eq
+  simp
+  rw [Nat.mul_mod, Nat.mod_mod (y.toNat + z.toNat),
+    ← Nat.mul_mod, Nat.mul_add]
 
 @[simp, bv_toNat] theorem toInt_mul (x y : BitVec w) :
   (x * y).toInt = (x.toInt * y.toInt).bmod (2^w) := by

@@ -257,7 +257,7 @@ instance : CoeT α a α where coe := a
 (coercion-to-)function type, and this is triggered whenever an element
 `f : α` appears in an application like `f x`, which would not make sense since
 `f` does not have a function type.
-`CoeFun` instances apply to `CoeOut` as well.
+`CoeFun` instances apply to `CoeOTC` as well.
 -/
 class CoeFun (α : Sort u) (γ : outParam (α → Sort v)) where
   /-- Coerces a value `f : α` to type `γ f`, which should be either be a

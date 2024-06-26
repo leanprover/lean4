@@ -134,7 +134,7 @@ theorem Expr.eq_of_sort_flat (ctx : Context α) (a b : Expr) (h : sort (flat a) 
 theorem ex₁ (x₁ x₂ x₃ x₄ : Nat) : (x₁ + x₂) + (x₃ + x₄) = x₁ + x₂ + x₃ + x₄ :=
   Expr.eq_of_flat
     { op      := Nat.add
-      assoc   := ← Nat.add_assoc'
+      assoc   := Nat.add_assoc
       comm    := Nat.add_comm
       vars    := [x₁, x₂, x₃, x₄],
       someVal := x₁ }
@@ -145,7 +145,7 @@ theorem ex₁ (x₁ x₂ x₃ x₄ : Nat) : (x₁ + x₂) + (x₃ + x₄) = x₁
 theorem ex₂ (x₁ x₂ x₃ x₄ : Nat) : (x₁ + x₂) + (x₃ + x₄) = x₃ + x₁ + x₂ + x₄ :=
   Expr.eq_of_sort_flat
     { op      := Nat.add
-      assoc   := ← Nat.add_assoc'
+      assoc   := Nat.add_assoc
       comm    := Nat.add_comm
       vars    := [x₁, x₂, x₃, x₄],
       someVal := x₁ }

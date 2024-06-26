@@ -13,6 +13,37 @@ def outOfBounds [Inhabited α] : α :=
 theorem outOfBounds_eq_default [Inhabited α] : (outOfBounds : α) = default := rfl
 
 /--
+The class `GetElemBase coll idx elem valid` implements lookup notation,
+specifically `xs[i]` and `xs[i]'p`.
+
+In nearly all cases there is also a `GetElem` instance which additionally implements
+`xs[i]?` and `xs[i]!`. Please see the doc-string for `GetElem` for details.
+-/
+class GetElemBase (coll : Type u) (idx : Type v) (elem : outParam (Type w))
+              (valid : outParam (coll → idx → Prop)) where
+  /--
+  The syntax `arr[i]` gets the `i`'th element of the collection `arr`. If there
+  are proof side conditions to the application, they will be automatically
+  inferred by the `get_elem_tactic` tactic.
+  -/
+  getElem (xs : coll) (i : idx) (h : valid xs i) : elem
+
+export GetElemBase (getElem)
+
+@[inherit_doc getElem]
+syntax:max term noWs "[" withoutPosition(term) "]" : term
+macro_rules | `($x[$i]) => `(getElem $x $i (by get_elem_tactic))
+
+@[inherit_doc getElem]
+syntax term noWs "[" withoutPosition(term) "]'" term:max : term
+macro_rules | `($x[$i]'$h) => `(getElem $x $i $h)
+
+/-- Helper function for implementation of `GetElem.getElem?`. -/
+abbrev decidableGetElem? [GetElemBase coll idx elem valid] (xs : coll) (i : idx) [Decidable (valid xs i)] :
+    Option elem :=
+  if h : valid xs i then some xs[i] else none
+
+/--
 The class `GetElem coll idx elem valid` implements lookup notation,
 specifically `xs[i]`, `xs[i]?`, `xs[i]!`, and `xs[i]'p`.
 
@@ -56,36 +87,24 @@ Important instances include:
 
 -/
 class GetElem (coll : Type u) (idx : Type v) (elem : outParam (Type w))
-              (valid : outParam (coll → idx → Prop)) where
-  /--
-  The syntax `arr[i]` gets the `i`'th element of the collection `arr`. If there
-  are proof side conditions to the application, they will be automatically
-  inferred by the `get_elem_tactic` tactic.
-  -/
-  getElem (xs : coll) (i : idx) (h : valid xs i) : elem
-
+    (valid : outParam (coll → idx → Prop)) extends GetElemBase coll idx elem valid where
   /--
   The syntax `arr[i]?` gets the `i`'th element of the collection `arr`,
   if it is present (and wraps it in `some`), and otherwise returns `none`.
   -/
-  getElem? (xs : coll) (i : idx) : Option elem
+  getElem? : coll → idx → Option elem := by
+    intro xs i
+    exact decidableGetElem? xs i
 
   /--
   The syntax `arr[i]!` gets the `i`'th element of the collection `arr`,
   if it is present, and otherwise panics at runtime and returns the `default` term
   from `Inhabited elem`.
   -/
-  getElem! [Inhabited elem] (xs : coll) (i : idx) : elem
+  getElem! [Inhabited elem] (xs : coll) (i : idx) : elem :=
+    match getElem? xs i with | some e => e | none => outOfBounds
 
-export GetElem (getElem getElem! getElem?)
-
-@[inherit_doc getElem]
-syntax:max term noWs "[" withoutPosition(term) "]" : term
-macro_rules | `($x[$i]) => `(getElem $x $i (by get_elem_tactic))
-
-@[inherit_doc getElem]
-syntax term noWs "[" withoutPosition(term) "]'" term:max : term
-macro_rules | `($x[$i]'$h) => `(getElem $x $i $h)
+export GetElem (getElem! getElem?)
 
 /--
 The syntax `arr[i]?` gets the `i`'th element of the collection `arr` or
@@ -167,10 +186,10 @@ end Fin
 
 namespace List
 
-instance : GetElem (List α) Nat α fun as i => i < as.length where
+instance : GetElemBase (List α) Nat α fun as i => i < as.length where
   getElem as i h := as.get ⟨i, h⟩
-  getElem? as i := if h : i < as.length then some (as.get ⟨i, h⟩) else none
-  getElem! as i := if h : i < as.length then as.get ⟨i, h⟩ else outOfBounds
+
+instance : GetElem (List α) Nat α fun as i => i < as.length where
 
 instance : LawfulGetElem (List α) Nat α fun as i => i < as.length where
 
@@ -193,10 +212,10 @@ end List
 
 namespace Array
 
-instance : GetElem (Array α) Nat α fun xs i => i < xs.size where
+instance : GetElemBase (Array α) Nat α fun xs i => i < xs.size where
   getElem xs i h := xs.get ⟨i, h⟩
-  getElem? xs i := if h : i < xs.size then some (xs.get ⟨i, h⟩) else none
-  getElem! xs i := if h : i < xs.size then xs.get ⟨i, h⟩ else outOfBounds
+
+instance : GetElem (Array α) Nat α fun xs i => i < xs.size where
 
 instance : LawfulGetElem (Array α) Nat α fun xs i => i < xs.size where
 
@@ -204,10 +223,11 @@ end Array
 
 namespace Lean.Syntax
 
+instance : GetElemBase Syntax Nat Syntax fun _ _ => True where
+  getElem stx i _ := stx.getArg i
+
 instance : GetElem Syntax Nat Syntax fun _ _ => True where
   getElem stx i _ := stx.getArg i
-  getElem? stx i := stx.getArg i
-  getElem! stx i := stx.getArg i
 
 instance : LawfulGetElem Syntax Nat Syntax fun _ _ => True where
 

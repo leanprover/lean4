@@ -57,10 +57,10 @@ def singleton (v : α) : Array α :=
 def uget (a : @& Array α) (i : USize) (h : i.toNat < a.size) : α :=
   a[i.toNat]
 
-instance : GetElem (Array α) USize α fun xs i => i.toNat < xs.size where
+instance : GetElemBase (Array α) USize α fun xs i => i.toNat < xs.size where
   getElem xs i h := xs.uget i h
-  getElem? xs i  := if h : i.toNat < xs.size then some (xs.uget i h) else none
-  getElem! xs i  := if h : i.toNat < xs.size then xs.uget i h else outOfBounds
+
+instance : GetElem (Array α) USize α fun xs i => i.toNat < xs.size where
 
 instance : LawfulGetElem (Array α) USize α fun xs i => i.toNat < xs.size where
 

@@ -154,7 +154,7 @@ theorem get?_eq_none : l.get? n = none ↔ length l ≤ n :=
   ⟨fun e => Nat.ge_of_not_lt (fun h' => by cases e ▸ get?_eq_some.2 ⟨h', rfl⟩), get?_len_le⟩
 
 @[simp] theorem get?_eq_getElem? (l : List α) (i : Nat) : l.get? i = l[i]? := by
-  simp only [getElem?]; split
+  simp only [getElem?, decidableGetElem?]; split
   · exact (get?_eq_get ‹_›)
   · exact (get?_eq_none.2 <| Nat.not_lt.1 ‹_›)
 

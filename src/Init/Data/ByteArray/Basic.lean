@@ -49,17 +49,17 @@ def get! : (@& ByteArray) → (@& Nat) → UInt8
 def get : (a : @& ByteArray) → (@& Fin a.size) → UInt8
   | ⟨bs⟩, i => bs.get i
 
-instance : GetElem ByteArray Nat UInt8 fun xs i => i < xs.size where
+instance : GetElemBase ByteArray Nat UInt8 fun xs i => i < xs.size where
   getElem xs i h := xs.get ⟨i, h⟩
-  getElem? xs i := if h : i < xs.size then some (xs.get ⟨i, h⟩) else none
-  getElem! xs i := if h : i < xs.size then xs.get ⟨i, h⟩ else outOfBounds
+
+instance : GetElem ByteArray Nat UInt8 fun xs i => i < xs.size where
 
 instance : LawfulGetElem ByteArray Nat UInt8 fun xs i => i < xs.size where
 
-instance : GetElem ByteArray USize UInt8 fun xs i => i.val < xs.size where
+instance : GetElemBase ByteArray USize UInt8 fun xs i => i.val < xs.size where
   getElem xs i h := xs.uget i h
-  getElem? xs i := if h : i.val < xs.size then some (xs.uget i h) else none
-  getElem! xs i := if h : i.val < xs.size then xs.uget i h else outOfBounds
+
+instance : GetElem ByteArray USize UInt8 fun xs i => i.val < xs.size where
 
 instance : LawfulGetElem ByteArray USize UInt8 fun xs i => i.val < xs.size where
 

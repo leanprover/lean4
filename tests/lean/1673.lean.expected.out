@@ -1,6 +1,12 @@
 1673.lean:1:4-1:9: error: fail to show termination for
   foo.a
 with errors
-structural recursion cannot be used
+structural recursion cannot be used:
+
+argument #1 cannot be used for structural recursion
+  it is unchanged in the recursive calls
+
+argument #2 cannot be used for structural recursion
+  it is unchanged in the recursive calls
 
 well-founded recursion cannot be used, 'foo.a' does not take any (non-fixed) arguments

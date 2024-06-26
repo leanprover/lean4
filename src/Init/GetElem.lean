@@ -13,37 +13,6 @@ def outOfBounds [Inhabited α] : α :=
 theorem outOfBounds_eq_default [Inhabited α] : (outOfBounds : α) = default := rfl
 
 /--
-The class `GetElem coll idx elem valid` implements lookup notation,
-specifically `xs[i]` and `xs[i]'p`.
-
-In nearly all cases there is also a `GetElem?` instance which additionally implements
-`xs[i]?` and `xs[i]!`. Please see the doc-string for `GetElem?` for details.
--/
-class GetElem (coll : Type u) (idx : Type v) (elem : outParam (Type w))
-              (valid : outParam (coll → idx → Prop)) where
-  /--
-  The syntax `arr[i]` gets the `i`'th element of the collection `arr`. If there
-  are proof side conditions to the application, they will be automatically
-  inferred by the `get_elem_tactic` tactic.
-  -/
-  getElem (xs : coll) (i : idx) (h : valid xs i) : elem
-
-export GetElem (getElem)
-
-@[inherit_doc getElem]
-syntax:max term noWs "[" withoutPosition(term) "]" : term
-macro_rules | `($x[$i]) => `(getElem $x $i (by get_elem_tactic))
-
-@[inherit_doc getElem]
-syntax term noWs "[" withoutPosition(term) "]'" term:max : term
-macro_rules | `($x[$i]'$h) => `(getElem $x $i $h)
-
-/-- Helper function for implementation of `GetElem?.getElem?`. -/
-abbrev decidableGetElem? [GetElem coll idx elem valid] (xs : coll) (i : idx) [Decidable (valid xs i)] :
-    Option elem :=
-  if h : valid xs i then some xs[i] else none
-
-/--
 The classes `GetElem` and `GetElem?` implement lookup notation,
 specifically `xs[i]`, `xs[i]?`, `xs[i]!`, and `xs[i]'p`.
 
@@ -89,6 +58,31 @@ Important instances include:
     side goal `i < l.length`.
 
 -/
+class GetElem (coll : Type u) (idx : Type v) (elem : outParam (Type w))
+              (valid : outParam (coll → idx → Prop)) where
+  /--
+  The syntax `arr[i]` gets the `i`'th element of the collection `arr`. If there
+  are proof side conditions to the application, they will be automatically
+  inferred by the `get_elem_tactic` tactic.
+  -/
+  getElem (xs : coll) (i : idx) (h : valid xs i) : elem
+
+export GetElem (getElem)
+
+@[inherit_doc getElem]
+syntax:max term noWs "[" withoutPosition(term) "]" : term
+macro_rules | `($x[$i]) => `(getElem $x $i (by get_elem_tactic))
+
+@[inherit_doc getElem]
+syntax term noWs "[" withoutPosition(term) "]'" term:max : term
+macro_rules | `($x[$i]'$h) => `(getElem $x $i $h)
+
+/-- Helper function for implementation of `GetElem?.getElem?`. -/
+abbrev decidableGetElem? [GetElem coll idx elem valid] (xs : coll) (i : idx) [Decidable (valid xs i)] :
+    Option elem :=
+  if h : valid xs i then some xs[i] else none
+
+@[inherit_doc GetElem]
 class GetElem? (coll : Type u) (idx : Type v) (elem : outParam (Type w))
     (valid : outParam (coll → idx → Prop)) extends GetElem coll idx elem valid where
   /--

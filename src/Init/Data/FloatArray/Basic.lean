@@ -58,16 +58,8 @@ def get? (ds : FloatArray) (i : Nat) : Option Float :=
 instance : GetElemBase FloatArray Nat Float fun xs i => i < xs.size where
   getElem xs i h := xs.get ⟨i, h⟩
 
-instance : GetElem FloatArray Nat Float fun xs i => i < xs.size where
-
-instance : LawfulGetElem FloatArray Nat Float fun xs i => i < xs.size where
-
 instance : GetElemBase FloatArray USize Float fun xs i => i.val < xs.size where
   getElem xs i h := xs.uget i h
-
-instance : GetElem FloatArray USize Float fun xs i => i.val < xs.size where
-
-instance : LawfulGetElem FloatArray USize Float fun xs i => i.val < xs.size where
 
 @[extern "lean_float_array_uset"]
 def uset : (a : FloatArray) → (i : USize) → Float → i.toNat < a.size → FloatArray

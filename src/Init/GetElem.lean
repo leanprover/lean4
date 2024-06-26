@@ -118,6 +118,11 @@ panics `i` is out of bounds.
 -/
 macro:max x:term noWs "[" i:term "]" noWs "!" : term => `(getElem! $x $i)
 
+instance (priority := low) getElemOfDecidable
+    [GetElemBase coll idx elem valid] [∀ xs i, Decidable (valid xs i)] :
+    GetElem coll idx elem valid where
+  getElem? xs i := decidableGetElem? xs i
+
 class LawfulGetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w))
    (dom : outParam (cont → idx → Prop)) [ge : GetElem cont idx elem dom] : Prop where
 
@@ -131,6 +136,10 @@ class LawfulGetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w))
     simp only [getElem!, getElem?, outOfBounds_eq_default]
 
 export LawfulGetElem (getElem?_def getElem!_def)
+
+instance (priority := low) lawfulGetElemOfDecidable
+    [GetElemBase coll idx elem valid] [∀ xs i, Decidable (valid xs i)] :
+    LawfulGetElem coll idx elem valid where
 
 theorem getElem?_pos [GetElem cont idx elem dom] [LawfulGetElem cont idx elem dom]
     (c : cont) (i : idx) (h : dom c i) [Decidable (dom c i)] : c[i]? = some (c[i]'h) := by
@@ -183,10 +192,6 @@ namespace List
 instance : GetElemBase (List α) Nat α fun as i => i < as.length where
   getElem as i h := as.get ⟨i, h⟩
 
-instance : GetElem (List α) Nat α fun as i => i < as.length where
-
-instance : LawfulGetElem (List α) Nat α fun as i => i < as.length where
-
 @[simp] theorem getElem_cons_zero (a : α) (as : List α) (h : 0 < (a :: as).length) : getElem (a :: as) 0 h = a := by
   rfl
 
@@ -209,20 +214,11 @@ namespace Array
 instance : GetElemBase (Array α) Nat α fun xs i => i < xs.size where
   getElem xs i h := xs.get ⟨i, h⟩
 
-instance : GetElem (Array α) Nat α fun xs i => i < xs.size where
-
-instance : LawfulGetElem (Array α) Nat α fun xs i => i < xs.size where
-
 end Array
 
 namespace Lean.Syntax
 
 instance : GetElemBase Syntax Nat Syntax fun _ _ => True where
   getElem stx i _ := stx.getArg i
-
-instance : GetElem Syntax Nat Syntax fun _ _ => True where
-  getElem stx i _ := stx.getArg i
-
-instance : LawfulGetElem Syntax Nat Syntax fun _ _ => True where
 
 end Lean.Syntax

@@ -54,14 +54,10 @@ instance : GetElemBase ByteArray Nat UInt8 fun xs i => i < xs.size where
 
 instance : GetElem ByteArray Nat UInt8 fun xs i => i < xs.size where
 
-instance : LawfulGetElem ByteArray Nat UInt8 fun xs i => i < xs.size where
-
 instance : GetElemBase ByteArray USize UInt8 fun xs i => i.val < xs.size where
   getElem xs i h := xs.uget i h
 
 instance : GetElem ByteArray USize UInt8 fun xs i => i.val < xs.size where
-
-instance : LawfulGetElem ByteArray USize UInt8 fun xs i => i.val < xs.size where
 
 @[extern "lean_byte_array_set"]
 def set! : ByteArray → (@& Nat) → UInt8 → ByteArray

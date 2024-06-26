@@ -49,8 +49,6 @@ instance : GetElemBase (Subarray α) Nat α fun xs i => i < xs.size where
 
 instance : GetElem (Subarray α) Nat α fun xs i => i < xs.size where
 
-instance : LawfulGetElem (Subarray α) Nat α fun xs i => i < xs.size where
-
 @[inline] def getD (s : Subarray α) (i : Nat) (v₀ : α) : α :=
   if h : i < s.size then s.get ⟨i, h⟩ else v₀
 

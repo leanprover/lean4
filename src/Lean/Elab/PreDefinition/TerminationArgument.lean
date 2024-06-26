@@ -72,9 +72,10 @@ def TerminationArgument.elab (funName : Name) (type : Expr) (arity extraParams :
 
         -- Structural recursion: The body has to be a single parameter, whose index we return
         if hint.structurally then unless (ys ++ xs).contains body do
-            throwErrorAt hint.ref m!"The terminination argument of a structurally recursive " ++
-              "function must be one of the parameters {ys ++ xs}, but the given {body} isn't " ++
-              "one of these."
+          let params := MessageData.andList ((ys ++ xs).toList.map (m!"'{·}'"))
+          throwErrorAt hint.ref m!"The termination argument of a structurally recursive " ++
+            m!"function must be one of the parameters {params}, but{indentExpr body}\nisn't " ++
+            m!"one of these."
 
         -- Now abstract also over the remaining extra parameters
         forallBoundedTelescope type'.get! (extraParams - hint.vars.size) fun zs _ => do

@@ -70,4 +70,16 @@ def ackermann2 (n m : Nat) := match n, m with
   | .succ n, .succ m => ackermann2 n (ackermann2 (n + 1) m)
 termination_by structurally m
 
+/--
+error: The termination argument of a structurally recursive function must be one of the parameters 'n', but
+  id n + 1
+isn't one of these.
+-/
+#guard_msgs in
+def foo4 (n : Nat) : Nat → Nat := match n with
+  | 0 => id
+  | n+1 => foo4 n
+termination_by structurally id n + 1
+
+
 end Errors

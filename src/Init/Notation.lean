@@ -700,7 +700,7 @@ For example,
 -- @HAdd.hAdd Nat Nat Nat _ (@HAdd.hAdd Nat Nat Nat _ _ _) _
 ```
 
-`#discr_tree_sim_key` is similar to `#discr_tree_key`, but it assumes the underlying type is
+`#discr_tree_simp_key` is similar to `#discr_tree_key`, but it assumes the underlying type is
 an equality and prints the left-hand side using the `simp` configuration for generating keys.
 -/
 syntax (name := discrTreeKeyCmd) "#discr_tree_key " term : command

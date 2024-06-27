@@ -8,5 +8,5 @@ lean_lib «Unicode» where
   -- add library configuration options here
 
 @[default_target]
-lean_exe "unicode" where
-  root := `Main
+lean_exe "generate_tables" where
+  root := `Generation

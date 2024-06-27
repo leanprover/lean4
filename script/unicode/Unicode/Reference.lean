@@ -1,4 +1,4 @@
-import UtgLean4.Tool.Unicode
+import Unicode.Unicode
 
 def referenceTable (ucd : List UnicodeData) (property : UnicodeData → Bool) : List Nat :=
   (ucd.filter property).map (fun ucdc => ucdc.codepoint)

@@ -1,7 +1,7 @@
 import Lake
 open Lake DSL
 
-package "unicode" where
+package "Unicode" where
   -- add package configuration options here
 
 @[default_target]

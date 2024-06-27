@@ -229,4 +229,19 @@ where
       have k := Nat.gt_of_not_le <| mt decide_eq_true h
       exact Nat.sub_lt_sub_left k (String.lt_next _ _)
 
+def isNatHex (s : String) : Bool :=
+  !s.isEmpty && s.all (·.isHexDigit)
+
+def toNatHex? (s : String) : Option Nat :=
+  if s.isNatHex then
+    some <| s.foldl (fun n c =>  n*16 + (if c.isDigit then c.toNat - '0'.toNat else 10 + (c.toNat - 'A'.toNat))) 0
+  else
+    none
+
+def toNatHex! (s : String) : Nat :=
+  if s.isNatHex then
+    s.foldl (fun n c =>  n*16 + (if c.isDigit then c.toNat - '0'.toNat else 10 + (c.toNat - 'A'.toNat))) 0
+  else
+    panic! "Nat in hexadecimal expected"
+
 end String

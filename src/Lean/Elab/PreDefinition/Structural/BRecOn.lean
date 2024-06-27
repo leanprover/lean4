@@ -83,10 +83,10 @@ private partial def toBelow (below : Expr) (numIndParams : Nat) (recArg : Expr) 
   withBelowDict below numIndParams fun C belowDict =>
     toBelowAux C belowDict recArg below
 
-private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) (below : Expr) (e : Expr) : M Expr :=
-  let containsRecFn (e : Expr) : StateRefT (HasConstCache recFnName) M Bool :=
+private partial def replaceRecApps (recArgInfo : RecArgInfo) (below : Expr) (e : Expr) : M Expr :=
+  let containsRecFn (e : Expr) : StateRefT (HasConstCache recArgInfo.fnName) M Bool :=
     modifyGet (·.contains e)
-  let rec loop (below : Expr) (e : Expr) : StateRefT (HasConstCache recFnName) M Expr := do
+  let rec loop (below : Expr) (e : Expr) : StateRefT (HasConstCache recArgInfo.fnName) M Expr := do
     if !(← containsRecFn e) then
       return e
     match e with
@@ -106,11 +106,11 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
         return mkMData d (← loop below b)
     | Expr.proj n i e => return mkProj n i (← loop below e)
     | Expr.app _ _ =>
-      let processApp (e : Expr) : StateRefT (HasConstCache recFnName) M Expr :=
+      let processApp (e : Expr) : StateRefT (HasConstCache recArgInfo.fnName) M Expr :=
         e.withApp fun f args => do
-          if f.isConstOf recFnName then
+          if f.isConstOf recArgInfo.fnName then
             let numFixed  := recArgInfo.fixedParams.size
-            let recArgPos := recArgInfo.fixedParams.size + recArgInfo.pos
+            let recArgPos := recArgInfo.recArgPos
             if recArgPos >= args.size then
               throwError "insufficient number of parameters at recursive application {indentExpr e}"
             let recArg := args[recArgPos]!
@@ -124,14 +124,14 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
             for i in [:argsNonFixed.size] do
               if recArgInfo.pos != i && !recArgInfo.indicesPos.contains i then
                 let arg := argsNonFixed[i]!
-                let arg ← replaceRecApps recFnName recArgInfo below arg
+                let arg ← replaceRecApps recArgInfo below arg
                 fArgs := fArgs.push arg
             return mkAppN f fArgs
           else
             return mkAppN (← loop below f) (← args.mapM (loop below))
       match (← matchMatcherApp? (alsoCasesOn := true) e) with
       | some matcherApp =>
-        if !recArgHasLooseBVarsAt recFnName recArgInfo.recArgPos e then
+        if !recArgHasLooseBVarsAt recArgInfo.fnName recArgInfo.recArgPos e then
           processApp e
         else
           /- Here is an example we currently do not handle
@@ -163,14 +163,19 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
           else
             processApp e
       | none => processApp e
-    | e => ensureNoRecFn recFnName e
+    | e => ensureNoRecFn recArgInfo.fnName e
   loop below e |>.run' {}
 
-def mkBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
+def mkBRecOn (recArgInfo : RecArgInfo) (xs : Array Expr) (value : Expr) : M Expr := do
   trace[Elab.definition.structural] "mkBRecOn: {value}"
   let type  := (← inferType value).headBeta
-  let major := recArgInfo.ys[recArgInfo.pos]!
-  let otherArgs := recArgInfo.ys.filter fun y => y != major && !recArgInfo.indIndices.contains y
+  let mut indexMajorArgs := #[]
+  let mut otherArgs := #[]
+  for h : i in [recArgInfo.fixedParams.size:xs.size] do
+    if i = recArgInfo.recArgPos || recArgInfo.indicesPos.contains (i - recArgInfo.fixedParams.size) then
+      indexMajorArgs := indexMajorArgs.push xs[i]
+    else
+      otherArgs := otherArgs.push xs[i]
   trace[Elab.definition.structural] "fixedParams: {recArgInfo.fixedParams}, otherArgs: {otherArgs}"
   let motive ← mkForallFVars otherArgs type
   let mut brecOnUniv ← getLevel motive
@@ -178,7 +183,7 @@ def mkBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr) : M Exp
   let useBInductionOn := recArgInfo.reflexive && brecOnUniv == levelZero
   if recArgInfo.reflexive && brecOnUniv != levelZero then
     brecOnUniv ← decLevel brecOnUniv
-  let motive ← mkLambdaFVars (recArgInfo.indIndices.push major) motive
+  let motive ← mkLambdaFVars indexMajorArgs motive
   trace[Elab.definition.structural] "brecOn motive: {motive}"
   let brecOn :=
     if useBInductionOn then
@@ -187,8 +192,7 @@ def mkBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr) : M Exp
       Lean.mkConst (mkBRecOnName recArgInfo.indName) (brecOnUniv :: recArgInfo.indLevels)
   let brecOn := mkAppN brecOn recArgInfo.indParams
   let brecOn := mkApp brecOn motive
-  let brecOn := mkAppN brecOn recArgInfo.indIndices
-  let brecOn := mkApp brecOn major
+  let brecOn := mkAppN brecOn indexMajorArgs
   check brecOn
   let brecOnType ← inferType brecOn
   trace[Elab.definition.structural] "brecOn     {brecOn}"
@@ -197,14 +201,13 @@ def mkBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr) : M Exp
     let F := F[0]!
     let FType ← inferType F
     trace[Elab.definition.structural] "FType: {FType}"
-    let FType ← instantiateForall FType recArgInfo.indIndices
-    let FType ← instantiateForall FType #[major]
+    let FType ← instantiateForall FType indexMajorArgs
     forallBoundedTelescope FType (some 1) fun below _ => do
       -- TODO: `below` user name is `f`, and it will make a global `f` to be pretty printed as `_root_.f` in error messages.
       -- We should add an option to `forallBoundedTelescope` to ensure fresh names are used.
       let below := below[0]!
-      let valueNew     ← replaceRecApps recFnName recArgInfo below value
-      let Farg         ← mkLambdaFVars (recArgInfo.indIndices ++ #[major, below] ++ otherArgs) valueNew
+      let valueNew     ← replaceRecApps recArgInfo below value
+      let Farg         ← mkLambdaFVars (indexMajorArgs ++ #[below] ++ otherArgs) valueNew
       let brecOn       := mkApp brecOn Farg
       return mkAppN brecOn otherArgs
 

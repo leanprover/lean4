@@ -40,7 +40,7 @@ Pass to `k` the `RecArgInfo` for the `i`th parameter in the parameter list `xs`.
 various sanity checks on the argument (is it even an inductive type etc).
 Also wraps all errors in a common “argument cannot be used” header
 -/
-def withRecArgInfo (numFixed : Nat) (xs : Array Expr) (i : Nat) (k : RecArgInfo → M α) : M α := do
+def withRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) (k : RecArgInfo → M α) : M α := do
   mapError
     (f := fun msg => m!"argument #{i+1} cannot be used for structural recursion{indentD msg}") do
   if h : i < xs.size then
@@ -78,14 +78,13 @@ def withRecArgInfo (numFixed : Nat) (xs : Array Expr) (i : Nat) (k : RecArgInfo 
             throwError "its type is an inductive datatype{indentExpr xType}\nand parameter{indentExpr indParam}\ndepends on{indentExpr y}"
           | none =>
             let indicesPos := indIndices.map fun index => match ys.indexOf? index with | some i => i.val | none => unreachable!
-            k { fixedParams := fixedParams
-                ys          := ys
+            k { fnName      := fnName
+                fixedParams := fixedParams
                 pos         := i - fixedParams.size
                 indicesPos  := indicesPos
                 indName     := indInfo.name
                 indLevels   := us
                 indParams   := indParams
-                indIndices  := indIndices
                 reflexive   := indInfo.isReflexive
                 indPred     := ←isInductivePredicate indInfo.name }
     else
@@ -99,7 +98,7 @@ def withRecArgInfo (numFixed : Nat) (xs : Array Expr) (i : Nat) (k : RecArgInfo 
   See issue #837 for an example where we can show termination using the index of an inductive family, but
   we don't get the desired definitional equalities.
 -/
-partial def findRecArg (numFixed : Nat) (xs : Array Expr) (k : RecArgInfo → M α) : M α := do
+partial def findRecArg (fnName : Name) (numFixed : Nat) (xs : Array Expr) (k : RecArgInfo → M α) : M α := do
   /- Collect arguments that are indices. See comment above. -/
   let indicesRef : IO.Ref (Array Nat) ← IO.mkRef {}
   for x in xs do
@@ -122,7 +121,7 @@ partial def findRecArg (numFixed : Nat) (xs : Array Expr) (k : RecArgInfo → M 
     trace[Elab.definition.structural] "findRecArg x: {x}"
     try
       set saveState
-      return (← withRecArgInfo numFixed xs i k)
+      return (← withRecArgInfo fnName numFixed xs i k)
     catch e => errors := errors.set! i e.toMessageData
   throwError
     errors.foldl

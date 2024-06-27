@@ -69,21 +69,20 @@ private def elimRecursion (preDef : PreDefinition) (termArg? : Option Terminatio
     trace[Elab.definition.structural] "numFixed: {numFixed}"
     let go := fun recArgInfo => do
       let valueNew ← if recArgInfo.indPred then
-        mkIndPredBRecOn preDef.declName recArgInfo value
+        mkIndPredBRecOn recArgInfo xs value
       else
-        mkBRecOn preDef.declName recArgInfo value
+        mkBRecOn recArgInfo xs value
       let valueNew ← mkLambdaFVars xs valueNew
       trace[Elab.definition.structural] "result: {valueNew}"
       -- Recursive applications may still occur in expressions that were not visited by replaceRecApps (e.g., in types)
       let valueNew ← ensureNoRecFn preDef.declName valueNew
-      let recArgPos := recArgInfo.fixedParams.size + recArgInfo.pos
-      return (recArgPos, { preDef with value := valueNew })
+      return (recArgInfo.recArgPos, { preDef with value := valueNew })
     -- Use termination_by annotation to find argument to recurse on, or just try all
     match termArg? with
     | .some termArg =>
         assert! termArg.structural
-        withRecArgInfo numFixed xs (← termArg.structuralArg) go
-    | .none => findRecArg numFixed xs go
+        withRecArgInfo preDef.declName numFixed xs (← termArg.structuralArg) go
+    | .none => findRecArg preDef.declName numFixed xs go
 
 def reportTermArg (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit := do
   if let some ref := preDef.termination.terminationBy?? then

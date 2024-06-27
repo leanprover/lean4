@@ -9,11 +9,18 @@ import Lean.Meta.ForEachExpr
 
 namespace Lean.Elab.Structural
 
+/--
+Information about the argument of interest of a structurally recursive function.
+
+The `Expr`s in this data structure expect the `fixedParams` to be in scope, but not the other
+parameters of the function. This ensures that this data structure makes sense in the other functions
+of a mutually recursive group.
+-/
 structure RecArgInfo where
+  /-- the name of the recursive function -/
+  fnName      : Name
   /-- `fixedParams ++ ys` are the arguments of the function we are trying to justify termination using structural recursion. -/
   fixedParams : Array Expr
-  /-- recursion arguments -/
-  ys          : Array Expr
   /-- position in `ys` of the argument we are recursing on -/
   pos         : Nat
   /-- position in `ys` of the inductive datatype indices we are recursing on -/
@@ -24,12 +31,13 @@ structure RecArgInfo where
   indLevels   : List Level
   /-- inductive datatype parameters of the argument we are recursing on -/
   indParams   : Array Expr
-  /-- inductive datatype indices of the argument we are recursing on, it is equal to `indicesPos.map fun i => ys.get! i` -/
-  indIndices  : Array Expr
+  -- /-- inductive datatype indices of the argument we are recursing on, it is equal to `indicesPos.map fun i => ys.get! i` -/
+  -- indIndices  : Array Expr
   /-- true if we are recursing over a reflexive inductive datatype -/
   reflexive   : Bool
   /-- true if the type is an inductive predicate -/
   indPred     : Bool
+deriving Inhabited
 
 def RecArgInfo.recArgPos (info : RecArgInfo) : Nat :=
   info.fixedParams.size + info.pos

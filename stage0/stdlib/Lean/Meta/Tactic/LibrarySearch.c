@@ -295,8 +295,8 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 lean_object* l_Lean_getMaxHeartbeats(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_mkHeartbeatCheck___elambda__2___rarg(lean_object*);
-lean_object* l_Lean_profileitM___at_Lean_Meta_synthInstance_x3f___spec__10___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_LibrarySearch_DeclMod_ofNat(lean_object*);
+lean_object* l_Lean_profileitM___at_Lean_Meta_synthInstance_x3f___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 double lean_float_sub(double, double);
 static lean_object* l_Lean_Meta_LibrarySearch_droppedKeys___closed__5;
 static lean_object* l_Lean_Meta_LibrarySearch_initFn____x40_Lean_Meta_Tactic_LibrarySearch___hyg_5____closed__10;
@@ -6497,7 +6497,7 @@ lean_closure_set(x_11, 2, x_3);
 lean_closure_set(x_11, 3, x_4);
 x_12 = l_Lean_Meta_LibrarySearch_initFn____x40_Lean_Meta_Tactic_LibrarySearch___hyg_5____closed__2;
 x_13 = lean_box(0);
-x_14 = l_Lean_profileitM___at_Lean_Meta_synthInstance_x3f___spec__10___rarg(x_12, x_10, x_11, x_13, x_5, x_6, x_7, x_8, x_9);
+x_14 = l_Lean_profileitM___at_Lean_Meta_synthInstance_x3f___spec__6___rarg(x_12, x_10, x_11, x_13, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_10);
 return x_14;
 }

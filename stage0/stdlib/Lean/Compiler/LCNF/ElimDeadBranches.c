@@ -81,7 +81,6 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_UnreachableBranches_inferMain___spec__2(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_Compiler_LCNF_UnreachableBranches_elimDead___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_UnreachableBranches_Value_ofLCNFLit___boxed(lean_object*);
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_List_repr___at___private_Lean_Compiler_LCNF_ElimDeadBranches_0__Lean_Compiler_LCNF_UnreachableBranches_reprValue____x40_Lean_Compiler_LCNF_ElimDeadBranches___hyg_43____spec__4___closed__11;
 lean_object* l_Lean_Compiler_LCNF_UnreachableBranches_Value_proj(lean_object*, lean_object*);
 lean_object* l_instInhabitedReaderT___rarg___boxed(lean_object*, lean_object*);
@@ -214,6 +213,7 @@ static lean_object* l_Lean_Compiler_LCNF_UnreachableBranches_initFn____x40_Lean_
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_UnreachableBranches_instInhabitedValue;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_UnreachableBranches_interpCode___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_UnreachableBranches_Value_ofNat_goSmall___closed__2;
 LEAN_EXPORT lean_object* l_Array_mapIdxM_map___at_Lean_Compiler_LCNF_Decl_elimDeadBranches___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -7998,7 +7998,7 @@ if (x_14 == 0)
 lean_object* x_15; lean_object* x_16; 
 lean_dec(x_11);
 x_15 = l_Lean_Compiler_LCNF_UnreachableBranches_getAssignment___closed__1;
-x_16 = l___private_Init_GetElem_0__outOfBounds___rarg(x_15);
+x_16 = l_outOfBounds___rarg(x_15);
 lean_ctor_set(x_8, 0, x_16);
 return x_8;
 }
@@ -8031,7 +8031,7 @@ if (x_23 == 0)
 lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 lean_dec(x_20);
 x_24 = l_Lean_Compiler_LCNF_UnreachableBranches_getAssignment___closed__1;
-x_25 = l___private_Init_GetElem_0__outOfBounds___rarg(x_24);
+x_25 = l_outOfBounds___rarg(x_24);
 x_26 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
 lean_ctor_set(x_26, 1, x_19);
@@ -8086,7 +8086,7 @@ if (x_14 == 0)
 lean_object* x_15; lean_object* x_16; 
 lean_dec(x_12);
 x_15 = l_Lean_Compiler_LCNF_UnreachableBranches_instInhabitedValue;
-x_16 = l___private_Init_GetElem_0__outOfBounds___rarg(x_15);
+x_16 = l_outOfBounds___rarg(x_15);
 lean_ctor_set(x_9, 0, x_16);
 return x_9;
 }
@@ -8119,7 +8119,7 @@ if (x_23 == 0)
 lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 lean_dec(x_21);
 x_24 = l_Lean_Compiler_LCNF_UnreachableBranches_instInhabitedValue;
-x_25 = l___private_Init_GetElem_0__outOfBounds___rarg(x_24);
+x_25 = l_outOfBounds___rarg(x_24);
 x_26 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
 lean_ctor_set(x_26, 1, x_20);
@@ -13333,7 +13333,7 @@ if (x_43 == 0)
 {
 lean_object* x_44; lean_object* x_45; 
 x_44 = l_Lean_Compiler_LCNF_instInhabitedDecl;
-x_45 = l___private_Init_GetElem_0__outOfBounds___rarg(x_44);
+x_45 = l_outOfBounds___rarg(x_44);
 x_21 = x_45;
 goto block_42;
 }
@@ -17763,7 +17763,7 @@ if (x_12 == 0)
 lean_object* x_13; lean_object* x_14; uint8_t x_15; 
 lean_dec(x_11);
 x_13 = l_Lean_Compiler_LCNF_instInhabitedDecl;
-x_14 = l___private_Init_GetElem_0__outOfBounds___rarg(x_13);
+x_14 = l_outOfBounds___rarg(x_13);
 x_15 = lean_ctor_get_uint8(x_14, sizeof(void*)*6 + 1);
 lean_dec(x_14);
 if (x_15 == 0)
@@ -17843,7 +17843,7 @@ if (x_13 == 0)
 {
 lean_object* x_16; lean_object* x_17; 
 x_16 = l_Lean_Compiler_LCNF_instInhabitedDecl;
-x_17 = l___private_Init_GetElem_0__outOfBounds___rarg(x_16);
+x_17 = l_outOfBounds___rarg(x_16);
 if (x_15 == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
@@ -17852,7 +17852,7 @@ x_18 = lean_ctor_get(x_17, 0);
 lean_inc(x_18);
 lean_dec(x_17);
 x_19 = l_Lean_Compiler_LCNF_UnreachableBranches_instInhabitedValue;
-x_20 = l___private_Init_GetElem_0__outOfBounds___rarg(x_19);
+x_20 = l_outOfBounds___rarg(x_19);
 x_21 = l_Lean_Compiler_LCNF_UnreachableBranches_addFunctionSummary(x_6, x_18, x_20);
 x_5 = x_10;
 x_6 = x_21;
@@ -17886,7 +17886,7 @@ x_29 = lean_ctor_get(x_28, 0);
 lean_inc(x_29);
 lean_dec(x_28);
 x_30 = l_Lean_Compiler_LCNF_UnreachableBranches_instInhabitedValue;
-x_31 = l___private_Init_GetElem_0__outOfBounds___rarg(x_30);
+x_31 = l_outOfBounds___rarg(x_30);
 x_32 = l_Lean_Compiler_LCNF_UnreachableBranches_addFunctionSummary(x_6, x_29, x_31);
 x_5 = x_10;
 x_6 = x_32;
@@ -17953,7 +17953,7 @@ if (x_23 == 0)
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 x_24 = l_Lean_Compiler_LCNF_UnreachableBranches_getAssignment___closed__1;
-x_25 = l___private_Init_GetElem_0__outOfBounds___rarg(x_24);
+x_25 = l_outOfBounds___rarg(x_24);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);

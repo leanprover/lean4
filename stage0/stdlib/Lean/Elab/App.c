@@ -207,7 +207,6 @@ static lean_object* l___regBuiltin_Lean_Elab_Term_elabChoice_declRange__1___clos
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_instToStringNamedArg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Elab_App_0__Lean_Elab_Term_ElabAppArgs_addEtaArg___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabAppArgs___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_mergeFailures___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_exceptionToSorry(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -539,6 +538,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Term_ElabElim_finalize
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit___at___private_Lean_Elab_App_0__Lean_Elab_Term_ElabAppArgs_anyNamedArgDependsOnCurrent___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Elab_App_0__Lean_Elab_Term_throwLValError___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_object*, uint8_t);
+lean_object* l_outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkFreshFVarId___at___private_Lean_Elab_App_0__Lean_Elab_Term_ElabAppArgs_isNextOutParamOfLocalInstanceAndResult___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_map___at_Lean_compileDecl___spec__1(lean_object*);
 static lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppLValsAux_loop___lambda__3___closed__6;
@@ -11708,7 +11708,7 @@ if (x_54 == 0)
 {
 lean_object* x_55; lean_object* x_56; 
 x_55 = l_Lean_instInhabitedExpr;
-x_56 = l___private_Init_GetElem_0__outOfBounds___rarg(x_55);
+x_56 = l_outOfBounds___rarg(x_55);
 x_25 = x_56;
 goto block_53;
 }
@@ -11999,7 +11999,7 @@ if (x_15 == 0)
 {
 lean_object* x_37; lean_object* x_38; 
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
+x_38 = l_outOfBounds___rarg(x_37);
 x_16 = x_38;
 goto block_36;
 }
@@ -27430,7 +27430,7 @@ if (x_28 == 0)
 {
 lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 x_29 = l_Lean_instInhabitedExpr;
-x_30 = l___private_Init_GetElem_0__outOfBounds___rarg(x_29);
+x_30 = l_outOfBounds___rarg(x_29);
 lean_inc(x_13);
 lean_inc(x_12);
 lean_inc(x_11);
@@ -33605,7 +33605,7 @@ lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35;
 lean_dec(x_29);
 lean_dec(x_16);
 x_32 = l_Lean_instInhabitedName;
-x_33 = l___private_Init_GetElem_0__outOfBounds___rarg(x_32);
+x_33 = l_outOfBounds___rarg(x_32);
 lean_inc(x_2);
 x_34 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_34, 0, x_2);
@@ -37361,7 +37361,7 @@ if (x_53 == 0)
 {
 lean_object* x_54; lean_object* x_55; 
 x_54 = l_Lean_instInhabitedExpr;
-x_55 = l___private_Init_GetElem_0__outOfBounds___rarg(x_54);
+x_55 = l_outOfBounds___rarg(x_54);
 x_23 = x_55;
 goto block_52;
 }
@@ -37696,7 +37696,7 @@ if (x_101 == 0)
 {
 lean_object* x_102; lean_object* x_103; 
 x_102 = l_Lean_instInhabitedExpr;
-x_103 = l___private_Init_GetElem_0__outOfBounds___rarg(x_102);
+x_103 = l_outOfBounds___rarg(x_102);
 x_38 = x_103;
 goto block_100;
 }

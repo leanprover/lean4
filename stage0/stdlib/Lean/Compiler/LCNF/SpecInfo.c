@@ -52,7 +52,6 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Lean_Compiler_LCNF_instToMessageDataSpecParamInfo___closed__11;
 static size_t l_Lean_PersistentHashMap_insertAux___at_Lean_Compiler_LCNF_SpecState_addEntry___spec__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_specExtension;
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_SpecInfo_0__Lean_Compiler_LCNF_reprSpecParamInfo____x40_Lean_Compiler_LCNF_SpecInfo___hyg_17____closed__18;
 lean_object* l_instInhabitedReaderT___rarg___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_SpecInfo_0__Lean_Compiler_LCNF_reprSpecParamInfo____x40_Lean_Compiler_LCNF_SpecInfo___hyg_17____closed__2;
@@ -140,6 +139,7 @@ static lean_object* l___private_Lean_Compiler_LCNF_SpecInfo_0__Lean_Compiler_LCN
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__5___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_Compiler_LCNF_getSpecParamInfoCore_x3f___spec__1___boxed(lean_object*, lean_object*);
+lean_object* l_outOfBounds___rarg(lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_SpecInfo_0__Lean_Compiler_LCNF_reprSpecParamInfo____x40_Lean_Compiler_LCNF_SpecInfo___hyg_17____closed__1;
 lean_object* l_Lean_Compiler_LCNF_saveSpecParamInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_SpecInfo_0__Lean_Compiler_LCNF_reprSpecParamInfo____x40_Lean_Compiler_LCNF_SpecInfo___hyg_17_(uint8_t, lean_object*);
@@ -2168,7 +2168,7 @@ if (x_35 == 0)
 uint8_t x_36; lean_object* x_37; lean_object* x_38; uint8_t x_39; lean_object* x_40; 
 x_36 = l_Lean_Compiler_LCNF_instInhabitedSpecParamInfo;
 x_37 = lean_box(x_36);
-x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
+x_38 = l_outOfBounds___rarg(x_37);
 x_39 = lean_unbox(x_38);
 lean_dec(x_38);
 x_40 = lean_box(x_39);
@@ -2271,7 +2271,7 @@ if (x_17 == 0)
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; 
 x_18 = lean_ctor_get(x_5, 0);
 x_19 = l_Lean_Compiler_LCNF_instInhabitedParam;
-x_20 = l___private_Init_GetElem_0__outOfBounds___rarg(x_19);
+x_20 = l_outOfBounds___rarg(x_19);
 x_21 = lean_ctor_get(x_20, 2);
 lean_inc(x_21);
 lean_dec(x_20);
@@ -2405,7 +2405,7 @@ if (x_6 == 0)
 {
 lean_object* x_16; lean_object* x_17; 
 x_16 = l_Lean_Compiler_LCNF_instInhabitedParam;
-x_17 = l___private_Init_GetElem_0__outOfBounds___rarg(x_16);
+x_17 = l_outOfBounds___rarg(x_16);
 x_9 = x_17;
 goto block_15;
 }
@@ -2630,7 +2630,7 @@ if (x_36 == 0)
 {
 lean_object* x_95; lean_object* x_96; 
 x_95 = l_Lean_Compiler_LCNF_instInhabitedParam;
-x_96 = l___private_Init_GetElem_0__outOfBounds___rarg(x_95);
+x_96 = l_outOfBounds___rarg(x_95);
 x_38 = x_96;
 goto block_94;
 }
@@ -3390,7 +3390,7 @@ if (x_33 == 0)
 uint8_t x_34; lean_object* x_35; lean_object* x_36; uint8_t x_37; lean_object* x_38; 
 x_34 = l_Lean_Compiler_LCNF_instInhabitedSpecParamInfo;
 x_35 = lean_box(x_34);
-x_36 = l___private_Init_GetElem_0__outOfBounds___rarg(x_35);
+x_36 = l_outOfBounds___rarg(x_35);
 x_37 = lean_unbox(x_36);
 lean_dec(x_36);
 x_38 = lean_box(x_37);
@@ -4877,7 +4877,7 @@ if (x_22 == 0)
 {
 lean_object* x_112; lean_object* x_113; 
 x_112 = l_Lean_Compiler_LCNF_instInhabitedDecl;
-x_113 = l___private_Init_GetElem_0__outOfBounds___rarg(x_112);
+x_113 = l_outOfBounds___rarg(x_112);
 x_24 = x_113;
 goto block_111;
 }
@@ -4958,7 +4958,7 @@ x_96 = lean_ctor_get(x_85, 0);
 lean_inc(x_96);
 lean_dec(x_85);
 x_97 = l_Lean_Compiler_LCNF_instInhabitedSpecEntry___closed__1;
-x_98 = l___private_Init_GetElem_0__outOfBounds___rarg(x_97);
+x_98 = l_outOfBounds___rarg(x_97);
 x_26 = x_98;
 x_27 = x_96;
 goto block_84;

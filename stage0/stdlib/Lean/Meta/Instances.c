@@ -88,7 +88,6 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_Insta
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_Meta_addInstance___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_instInhabitedInstanceEntry___closed__1;
 static lean_object* l_Lean_Meta_addDefaultInstance___lambda__2___closed__3;
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_394____closed__5;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_2556____lambda__1___closed__6;
@@ -206,6 +205,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_Insta
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_2556____closed__17;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__7___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_logAt___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6___closed__1;
+lean_object* l_outOfBounds___rarg(lean_object*);
 extern uint8_t l_Lean_instInhabitedBinderInfo;
 lean_object* l_Lean_Meta_DiscrTree_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_2556_(lean_object*);
@@ -2084,7 +2084,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = l_Lean_Meta_DiscrTree_instInhabitedKey;
-x_9 = l___private_Init_GetElem_0__outOfBounds___rarg(x_8);
+x_9 = l_outOfBounds___rarg(x_8);
 lean_inc(x_1);
 x_10 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_addInstanceEntry___spec__2(x_1, x_9);
 if (lean_obj_tag(x_10) == 0)
@@ -5054,7 +5054,7 @@ if (x_38 == 0)
 lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; 
 lean_dec(x_36);
 x_39 = l_Lean_instInhabitedExpr;
-x_40 = l___private_Init_GetElem_0__outOfBounds___rarg(x_39);
+x_40 = l_outOfBounds___rarg(x_39);
 lean_inc(x_14);
 x_41 = l_Lean_MVarId_assign___at_Lean_Meta_getLevel___spec__1(x_14, x_40, x_7, x_8, x_9, x_10, x_11);
 x_42 = lean_ctor_get(x_41, 0);
@@ -5933,7 +5933,7 @@ if (x_16 == 0)
 lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 lean_dec(x_13);
 x_17 = l_Lean_instInhabitedExpr;
-x_18 = l___private_Init_GetElem_0__outOfBounds___rarg(x_17);
+x_18 = l_outOfBounds___rarg(x_17);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
@@ -7251,7 +7251,7 @@ if (x_75 == 0)
 {
 lean_object* x_76; lean_object* x_77; 
 x_76 = l_Lean_instInhabitedExpr;
-x_77 = l___private_Init_GetElem_0__outOfBounds___rarg(x_76);
+x_77 = l_outOfBounds___rarg(x_76);
 x_17 = x_77;
 goto block_74;
 }
@@ -7615,7 +7615,7 @@ block_44:
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_16 = l_Lean_instInhabitedExpr;
-x_17 = l___private_Init_GetElem_0__outOfBounds___rarg(x_16);
+x_17 = l_outOfBounds___rarg(x_16);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -7923,7 +7923,7 @@ if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_13 = l_instInhabitedNat;
-x_14 = l___private_Init_GetElem_0__outOfBounds___rarg(x_13);
+x_14 = l_outOfBounds___rarg(x_13);
 x_15 = lean_apply_8(x_2, x_3, x_4, x_14, x_6, x_7, x_8, x_9, x_10);
 return x_15;
 }
@@ -9175,7 +9175,7 @@ if (x_16 == 0)
 lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 lean_dec(x_12);
 x_17 = l_Lean_instInhabitedExpr;
-x_18 = l___private_Init_GetElem_0__outOfBounds___rarg(x_17);
+x_18 = l_outOfBounds___rarg(x_17);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
@@ -9443,7 +9443,7 @@ if (x_4 == 0)
 uint8_t x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; uint8_t x_9; uint8_t x_10; 
 x_5 = l_Lean_instInhabitedBinderInfo;
 x_6 = lean_box(x_5);
-x_7 = l___private_Init_GetElem_0__outOfBounds___rarg(x_6);
+x_7 = l_outOfBounds___rarg(x_6);
 x_8 = lean_unbox(x_7);
 lean_dec(x_7);
 x_9 = 3;

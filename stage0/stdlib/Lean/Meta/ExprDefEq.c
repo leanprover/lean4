@@ -204,7 +204,6 @@ uint8_t l_Lean_HashSetImp_contains___at_Lean_Expr_FindImpl_checkVisited___spec__
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_checkMVar___spec__19(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_isDefEqStringLit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_checkAssignment___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_withProofIrrelTransparency(lean_object*);
 lean_object* l_Lean_exceptBoolEmoji___rarg(lean_object*);
@@ -505,6 +504,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_CheckAssignment_checkMVar___boxed(lean_obje
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unfoldNonProjFnDefEq_packedInstanceOf_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_DefEqCache_update___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_object*, uint8_t);
+lean_object* l_outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_CheckAssignment_initFn____x40_Lean_Meta_ExprDefEq___hyg_5827_(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit___at_Lean_Meta_CheckAssignment_checkMVar___spec__12___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_ExprDefEq___hyg_6____closed__10;
@@ -1615,7 +1615,7 @@ if (x_80 == 0)
 {
 lean_object* x_81; lean_object* x_82; 
 x_81 = l_Lean_instInhabitedExpr;
-x_82 = l___private_Init_GetElem_0__outOfBounds___rarg(x_81);
+x_82 = l_outOfBounds___rarg(x_81);
 x_13 = x_82;
 goto block_79;
 }
@@ -2002,7 +2002,7 @@ if (x_42 == 0)
 {
 lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; 
 x_43 = l_Lean_instInhabitedExpr;
-x_44 = l___private_Init_GetElem_0__outOfBounds___rarg(x_43);
+x_44 = l_outOfBounds___rarg(x_43);
 x_45 = l_Lean_MessageData_ofExpr(x_44);
 x_46 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_46, 0, x_41);
@@ -2089,7 +2089,7 @@ if (x_79 == 0)
 {
 lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; 
 x_80 = l_Lean_instInhabitedExpr;
-x_81 = l___private_Init_GetElem_0__outOfBounds___rarg(x_80);
+x_81 = l_outOfBounds___rarg(x_80);
 x_82 = l_Lean_MessageData_ofExpr(x_81);
 x_83 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_83, 0, x_78);
@@ -2246,7 +2246,7 @@ if (x_50 == 0)
 {
 lean_object* x_51; lean_object* x_52; lean_object* x_53; 
 x_51 = l_Lean_instInhabitedExpr;
-x_52 = l___private_Init_GetElem_0__outOfBounds___rarg(x_51);
+x_52 = l_outOfBounds___rarg(x_51);
 x_53 = l_Lean_Meta_isAbstractedUnassignedMVar(x_52, x_15, x_16, x_17, x_18, x_49);
 if (lean_obj_tag(x_53) == 0)
 {
@@ -6922,7 +6922,7 @@ if (x_42 == 0)
 {
 lean_object* x_267; lean_object* x_268; 
 x_267 = l_Lean_Meta_instInhabitedParamInfo;
-x_268 = l___private_Init_GetElem_0__outOfBounds___rarg(x_267);
+x_268 = l_outOfBounds___rarg(x_267);
 x_47 = x_268;
 goto block_266;
 }
@@ -7033,7 +7033,7 @@ if (x_44 == 0)
 {
 lean_object* x_263; lean_object* x_264; 
 x_263 = l_Lean_instInhabitedExpr;
-x_264 = l___private_Init_GetElem_0__outOfBounds___rarg(x_263);
+x_264 = l_outOfBounds___rarg(x_263);
 x_49 = x_264;
 goto block_262;
 }
@@ -7051,7 +7051,7 @@ if (x_46 == 0)
 {
 lean_object* x_259; lean_object* x_260; 
 x_259 = l_Lean_instInhabitedExpr;
-x_260 = l___private_Init_GetElem_0__outOfBounds___rarg(x_259);
+x_260 = l_outOfBounds___rarg(x_259);
 x_50 = x_260;
 goto block_258;
 }
@@ -8241,11 +8241,11 @@ if (x_28 == 0)
 {
 lean_object* x_31; lean_object* x_32; 
 x_31 = l_Lean_instInhabitedExpr;
-x_32 = l___private_Init_GetElem_0__outOfBounds___rarg(x_31);
+x_32 = l_outOfBounds___rarg(x_31);
 if (x_30 == 0)
 {
 lean_object* x_33; lean_object* x_34; 
-x_33 = l___private_Init_GetElem_0__outOfBounds___rarg(x_31);
+x_33 = l_outOfBounds___rarg(x_31);
 lean_inc(x_13);
 lean_inc(x_12);
 lean_inc(x_11);
@@ -8393,7 +8393,7 @@ if (x_30 == 0)
 {
 lean_object* x_58; lean_object* x_59; lean_object* x_60; 
 x_58 = l_Lean_instInhabitedExpr;
-x_59 = l___private_Init_GetElem_0__outOfBounds___rarg(x_58);
+x_59 = l_outOfBounds___rarg(x_58);
 lean_inc(x_13);
 lean_inc(x_12);
 lean_inc(x_11);
@@ -9082,7 +9082,7 @@ if (x_19 == 0)
 {
 lean_object* x_131; lean_object* x_132; 
 x_131 = l_Lean_instInhabitedExpr;
-x_132 = l___private_Init_GetElem_0__outOfBounds___rarg(x_131);
+x_132 = l_outOfBounds___rarg(x_131);
 x_23 = x_132;
 goto block_130;
 }
@@ -9100,7 +9100,7 @@ if (x_21 == 0)
 {
 lean_object* x_127; lean_object* x_128; 
 x_127 = l_Lean_instInhabitedExpr;
-x_128 = l___private_Init_GetElem_0__outOfBounds___rarg(x_127);
+x_128 = l_outOfBounds___rarg(x_127);
 x_24 = x_128;
 goto block_126;
 }
@@ -9118,7 +9118,7 @@ if (x_22 == 0)
 lean_object* x_25; lean_object* x_26; uint8_t x_27; 
 lean_dec(x_18);
 x_25 = l_Lean_Meta_instInhabitedParamInfo;
-x_26 = l___private_Init_GetElem_0__outOfBounds___rarg(x_25);
+x_26 = l_outOfBounds___rarg(x_25);
 x_27 = l_Lean_Meta_ParamInfo_isInstImplicit(x_26);
 lean_dec(x_26);
 if (x_27 == 0)
@@ -9715,7 +9715,7 @@ if (x_33 == 0)
 {
 lean_object* x_205; lean_object* x_206; 
 x_205 = l_Lean_instInhabitedExpr;
-x_206 = l___private_Init_GetElem_0__outOfBounds___rarg(x_205);
+x_206 = l_outOfBounds___rarg(x_205);
 x_37 = x_206;
 goto block_204;
 }
@@ -9786,7 +9786,7 @@ if (x_35 == 0)
 {
 lean_object* x_201; lean_object* x_202; 
 x_201 = l_Lean_instInhabitedExpr;
-x_202 = l___private_Init_GetElem_0__outOfBounds___rarg(x_201);
+x_202 = l_outOfBounds___rarg(x_201);
 x_38 = x_202;
 goto block_200;
 }
@@ -9804,7 +9804,7 @@ if (x_36 == 0)
 lean_object* x_39; lean_object* x_40; uint8_t x_41; 
 lean_dec(x_18);
 x_39 = l_Lean_Meta_instInhabitedParamInfo;
-x_40 = l___private_Init_GetElem_0__outOfBounds___rarg(x_39);
+x_40 = l_outOfBounds___rarg(x_39);
 x_41 = l_Lean_Meta_ParamInfo_isInstImplicit(x_40);
 lean_dec(x_40);
 if (x_41 == 0)
@@ -11205,7 +11205,7 @@ if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 x_20 = l_Lean_instInhabitedExpr;
-x_21 = l___private_Init_GetElem_0__outOfBounds___rarg(x_20);
+x_21 = l_outOfBounds___rarg(x_20);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
@@ -14253,7 +14253,7 @@ lean_dec(x_15);
 if (x_12 == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
-x_17 = l___private_Init_GetElem_0__outOfBounds___rarg(x_13);
+x_17 = l_outOfBounds___rarg(x_13);
 lean_inc(x_10);
 x_18 = l_Lean_LocalContext_getFVar_x21(x_10, x_17);
 lean_dec(x_17);
@@ -17133,7 +17133,7 @@ x_16 = l_Lean_mkHashSetImp___rarg(x_15);
 if (x_10 == 0)
 {
 lean_object* x_67; 
-x_67 = l___private_Init_GetElem_0__outOfBounds___rarg(x_11);
+x_67 = l_outOfBounds___rarg(x_11);
 x_17 = x_67;
 goto block_66;
 }
@@ -17590,7 +17590,7 @@ lean_dec(x_17);
 if (x_13 == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; 
-x_20 = l___private_Init_GetElem_0__outOfBounds___rarg(x_14);
+x_20 = l_outOfBounds___rarg(x_14);
 lean_inc(x_7);
 x_21 = l_Lean_LocalContext_getFVar_x21(x_7, x_20);
 lean_dec(x_20);

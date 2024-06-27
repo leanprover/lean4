@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Jean-Baptiste Tristan
+-/
 import Init.Data.Char.UnicodeSkipList
 import Unicode.Unicode
 import Unicode.Parse
@@ -124,8 +129,14 @@ def writeTable (property : String) (table : UnicodePropertyTable) : IO Unit := d
   let workingDir : FilePath ← currentDir
   let f : FilePath := join workingDir <| System.mkFilePath ["..","..","src","Init","Data","Char","Tables.lean"]
   let mut content := ""
+  content := content ++ "/-\n"
+  content := content ++ "Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.\n"
+  content := content ++ "Released under Apache 2.0 license as described in the file LICENSE.\n"
+  content := content ++ "Authors: Jean-Baptiste Tristan\n"
+  content := content ++ "-/\n"
   content := content ++ "import Init.Data.Char.UnicodeSkipList\n"
   content := content ++ "\n"
+  content := content ++ "namespace Char\n"
   content := content ++ s!"instance {property}Table : UnicodePropertyTable where\n"
   content := content ++ "  runs := #[\n"
   content := content ++ "    " ++ (reprStr (table.runs.get! 0))
@@ -141,6 +152,7 @@ def writeTable (property : String) (table : UnicodePropertyTable) : IO Unit := d
     if i % 10 = 0 then
       content := content ++ "\n    "
   content := content ++ "  ]\n"
+  content := content ++ "\nend Char\n"
   writeFile f content
 
 def main : IO Unit := do

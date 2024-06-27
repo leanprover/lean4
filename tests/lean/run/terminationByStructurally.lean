@@ -146,5 +146,11 @@ def B.size : B → Nat
 termination_by structurally x => x
 end
 
+theorem A_size_eq1 (a : A) : (A.self a).size = a.size + 1 := rfl
+theorem A_size_eq2 (b : B) : (A.other b).size = b.size + 1 := rfl
+theorem A_size_eq3 : A.empty.size = 0  := rfl
+theorem B_size_eq1 (b : B) : (B.self b).size = b.size + 1 := rfl
+theorem B_size_eq2 (a : A) : (B.other a).size = a.size + 1 := rfl
+theorem B_size_eq3 : B.empty.size = 0  := rfl
 
 end MutualIndNonMutualFun

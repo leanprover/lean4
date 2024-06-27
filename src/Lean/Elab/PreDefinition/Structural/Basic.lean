@@ -55,6 +55,20 @@ def RecArgInfo.pickIndicesMajor (info : RecArgInfo) (xs : Array Expr) : (Array E
       otherArgs := otherArgs.push xs[i]
   return (indexMajorArgs, otherArgs)
 
+
+/-- If `xs` are the parameters of the functions (excluding fixed prefix), skips the fixed prefix
+and partitions the remaining parameters into indices and major argugument, and other parameters.
+-/
+def RecArgInfo.pickIndicesMajor' (info : RecArgInfo) (xs : Array Expr) : (Array Expr × Array Expr) := Id.run do
+  let mut indexMajorArgs := #[]
+  let mut otherArgs := #[]
+  for h : i in [:xs.size] do
+    if i = info.pos || info.indicesPos.contains i then
+      indexMajorArgs := indexMajorArgs.push xs[i]
+    else
+      otherArgs := otherArgs.push xs[i]
+  return (indexMajorArgs, otherArgs)
+
 structure State where
   /-- As part of the inductive predicates case, we keep adding more and more discriminants from the
      local context and build up a bigger matcher application until we reach a fixed point.

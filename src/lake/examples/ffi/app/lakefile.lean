@@ -9,4 +9,5 @@ require ffi from ".."/"lib"
 lean_exe app where
   root := `Main
 
-lean_lib Test
+lean_lib Test where
+  precompileModules := true

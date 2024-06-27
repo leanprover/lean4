@@ -4,25 +4,21 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jean-Baptiste Tristan
 -/
 prelude
-import Init.Prelude
-import Init.Core
-import Init.Data.UInt.Basic
-import Init.Data.ToString.Basic
 import Init.Data.Range
 
 open Std
 
 namespace Char
 
-structure UcdPropertyTable where
+structure UnicodePropertyTable where
   runs : Array UInt32
   offsets : Array UInt8
-  deriving Repr, Inhabited, Nonempty -- DecidableEq,
+  deriving Repr, Inhabited, Nonempty --  DecidableEq
 
 -- instance : ToString UcdPropertyTable where
 --   toString := fun table => s!"runs:\n{table.runs}\noffsets:\n{table.offsets}"
 
-def searchRuns (table : UcdPropertyTable) (c : Char) : Nat × Range := Id.run do
+def searchRuns (table : UnicodePropertyTable) (c : Char) : Nat × Range := Id.run do
   let codepoint := c.toNat
   let mut i := 0
   for run in table.runs do
@@ -37,7 +33,7 @@ def searchRuns (table : UcdPropertyTable) (c : Char) : Nat × Range := Id.run do
   let range : Range := Range.mk rangeStart rangeStop 1
   return (codepointStart, range)
 
-def searchOffsets (table : UcdPropertyTable) (c : Char) (range : Range) (pfs : Nat) : Bool := Id.run do
+def searchOffsets (table : UnicodePropertyTable) (c : Char) (range : Range) (pfs : Nat) : Bool := Id.run do
   let codepoint := c.toNat
   let mut i := 0
   let mut prefixSum := pfs
@@ -49,7 +45,7 @@ def searchOffsets (table : UcdPropertyTable) (c : Char) (range : Range) (pfs : N
       prefixSum := prefixSum + (table.offsets.get! j).toNat
   return i % 2 = 1
 
-def search (table : UcdPropertyTable) (c : Char) : Bool :=
+def search (table : UnicodePropertyTable) (c : Char) : Bool :=
   let (pfs,range) := searchRuns table c
   searchOffsets table c range pfs
 

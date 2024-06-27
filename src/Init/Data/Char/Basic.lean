@@ -82,6 +82,10 @@ def isAlpha (c : Char) : Bool :=
 def isDigit (c : Char) : Bool :=
   c.val ≥ 48 && c.val ≤ 57
 
+/-- Is the character in `0123456789ABCDEF`? -/
+def isHexDigit (c : Char) : Bool :=
+  c.val ≥ 48 && c.val ≤ 57 || c.val ≥ 65 && c.val ≤ 70
+
 /-- Is the character in `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`? -/
 def isAlphanum (c : Char) : Bool :=
   c.isAlpha || c.isDigit

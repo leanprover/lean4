@@ -5,4 +5,4 @@ argument
 has type
   Prop : Type
 but is expected to have type
-  α : Sort ?u
+  α : Sort u_1

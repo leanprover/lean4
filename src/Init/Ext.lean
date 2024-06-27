@@ -10,19 +10,35 @@ import Init.RCases
 
 namespace Lean
 namespace Parser.Attr
-/-- Registers an extensionality theorem.
+
+/--
+The flag `(iff := false)` prevents `ext` from generating an `ext_iff` lemma.
+-/
+syntax extIff := atomic("(" &"iff" " := " &"false" ")")
+
+/--
+The flag `(flat := false)` causes `ext` to not flatten parents' fields when generating an `ext` lemma.
+-/
+syntax extFlat := atomic("(" &"flat" " := " &"false" ")")
+
+/--
+Registers an extensionality theorem.
 
 * When `@[ext]` is applied to a structure, it generates `.ext` and `.ext_iff` theorems and registers
   them for the `ext` tactic.
 
-* When `@[ext]` is applied to a theorem, the theorem is registered for the `ext` tactic.
+* When `@[ext]` is applied to a theorem, the theorem is registered for the `ext` tactic, and it generates an `ext_iff` theorem.
+  The name of the theorem is from adding the suffix `_iff` to the theorem name.
 
 * An optional natural number argument, e.g. `@[ext 9000]`, specifies a priority for the lemma. Higher-priority lemmas are chosen first, and the default is `1000`.
 
+* The flag `@[ext (iff := false)]` prevents it from generating an `ext_iff` theorem.
+
 * The flag `@[ext (flat := false)]` causes generated structure extensionality theorems to show inherited fields based on their representation,
   rather than flattening the parents' fields into the lemma's equality hypotheses.
-  structures in the generated extensionality theorems. -/
-syntax (name := ext) "ext" (" (" &"flat" " := " term ")")? (ppSpace prio)? : attr
+  structures in the generated extensionality theorems.
+-/
+syntax (name := ext) "ext" (ppSpace extIff)? (ppSpace extFlat)? (ppSpace prio)? : attr
 end Parser.Attr
 
 -- TODO: rename this namespace?
@@ -32,36 +48,56 @@ namespace Elab.Tactic.Ext
 Creates the type of the extensionality theorem for the given structure,
 elaborating to `x.1 = y.1 → x.2 = y.2 → x = y`, for example.
 -/
-scoped syntax (name := extType) "ext_type% " term:max ppSpace ident : term
-
-/--
-Creates the type of the iff-variant of the extensionality theorem for the given structure,
-elaborating to `x = y ↔ x.1 = y.1 ∧ x.2 = y.2`, for example.
--/
-scoped syntax (name := extIffType) "ext_iff_type% " term:max ppSpace ident : term
+scoped syntax (name := extType) "ext_type% " (Parser.Attr.extFlat)? ppSpace ident : term
 
 /--
 `declare_ext_theorems_for A` declares the extensionality theorems for the structure `A`.
 
 These theorems state that two expressions with the structure type are equal if their fields are equal.
 -/
-syntax (name := declareExtTheoremFor) "declare_ext_theorems_for " ("(" &"flat" " := " term ") ")? ident (ppSpace prio)? : command
+syntax (name := declareExtTheoremFor) "declare_ext_theorems_for " (Parser.Attr.extIff ppSpace)? (Parser.Attr.extFlat ppSpace)? ident (ppSpace prio)? : command
 
-macro_rules | `(declare_ext_theorems_for $[(flat := $f)]? $struct:ident $(prio)?) => do
-  let flat := f.getD (mkIdent `true)
+macro_rules | `(declare_ext_theorems_for $[(iff := false%$iff?)]? $[(flat := false%$flat?)]? $struct:ident $[$prio?]?) => do
   let names ← Macro.resolveGlobalName struct.getId.eraseMacroScopes
   let name ← match names.filter (·.2.isEmpty) with
     | [] => Macro.throwError s!"unknown constant {struct.getId}"
     | [(name, _)] => pure name
     | _ => Macro.throwError s!"ambiguous name {struct.getId}"
   let extName := mkIdentFrom struct (canonical := true) <| name.mkStr "ext"
-  let extIffName := mkIdentFrom struct (canonical := true) <| name.mkStr "ext_iff"
-  `(@[ext $(prio)?] protected theorem $extName:ident : ext_type% $flat $struct:ident :=
-      fun {..} {..} => by intros; subst_eqs; rfl
-    protected theorem $extIffName:ident : ext_iff_type% $flat $struct:ident :=
-      fun {..} {..} =>
-        ⟨fun h => by cases h; and_intros <;> rfl,
-         fun _ => by (repeat cases ‹_ ∧ _›); subst_eqs; rfl⟩)
+  `(@[ext $[(iff := false%$iff?)]? $[$prio?:prio]?] protected theorem $extName:ident : ext_type% $[(flat := false%$flat?)]? $struct:ident :=
+      fun {..} {..} => by intros; subst_eqs; rfl)
+
+/--
+Creates the type of the iff variant of the given user extensionality theorem,
+elaborating to `x = y ↔ x.1 = y.1 ∧ x.2 = y.2`, for example.
+-/
+scoped syntax (name := deriveExtIffType) "derive_ext_iff_type% " ident : term
+
+/--
+`derive_ext_if_theorem ext_thm` declares the iff variant of the extensionality theorem `ext_thm`.
+-/
+syntax (name := deriveExtIffTheoremFor) "derive_ext_iff_theorem " ident : command
+
+macro_rules | `(derive_ext_iff_theorem $extThm:ident) => do
+  let names ← Macro.resolveGlobalName extThm.getId.eraseMacroScopes
+  let name ← match names.filter (·.2.isEmpty) with
+    | [] => Macro.throwError s!"unknown constant {extThm.getId}"
+    | [(name, _)] => pure name
+    | _ => Macro.throwError s!"ambiguous name {extThm.getId}"
+  let extIffThm := mkIdentFrom extThm (canonical := true) <|
+    match name with
+    | .str name' n => .str name' (n ++ "_iff")
+    | _ => .str name "ext_iff"
+  let body : Term ← `(by
+    intros
+    refine ⟨?_, ?_⟩
+    · intro h; cases h; and_intros <;> (intros; first | rfl | simp | fail "Failed to prove converse of ext theorem")
+    · intro; (repeat cases ‹_ ∧ _›); apply $extThm <;> assumption)
+  if name.getRoot == name then
+    -- In root namespace, cannot protect.
+    `(theorem $extIffThm:ident : derive_ext_iff_type% $extThm:ident := $body)
+  else
+    `(protected theorem $extIffThm:ident : derive_ext_iff_type% $extThm:ident := $body)
 
 /--
 Applies extensionality lemmas that are registered with the `@[ext]` attribute.

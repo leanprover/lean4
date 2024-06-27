@@ -56,9 +56,9 @@ def Set (α : Type u) := α → Prop
 
 structure MyUnit
 
-@[ext high] theorem MyUnit.ext1 (x y : MyUnit) (_h : 0 = 1) : x = y := rfl
+@[ext (iff := false) high] theorem MyUnit.ext1 (x y : MyUnit) (_h : 0 = 1) : x = y := rfl
 @[ext high] theorem MyUnit.ext2 (x y : MyUnit) (_h : 1 = 1) : x = y := rfl
-@[ext] theorem MyUnit.ext3 (x y : MyUnit) (_h : 2 = 1) : x = y := rfl
+@[ext (iff := false)] theorem MyUnit.ext3 (x y : MyUnit) (_h : 2 = 1) : x = y := rfl
 
 example (x y : MyUnit) : x = y := by ext; rfl
 
@@ -72,7 +72,7 @@ example (f : ℕ × (ℕ → ℕ)) : f = f := by
 example (f : Empty → Empty) : f = f := by
   ext ⟨⟩
 
-@[ext] theorem ext_intros {n m : Nat} (w : ∀ n m : Nat, n = m) : n = m := by apply w
+@[ext (iff := false)] theorem ext_intros {n m : Nat} (w : ∀ n m : Nat, n = m) : n = m := by apply w
 
 example : 3 = 7 := by
   ext : 1

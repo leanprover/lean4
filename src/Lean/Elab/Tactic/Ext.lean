@@ -66,9 +66,9 @@ def ExtTheorems.eraseCore (d : ExtTheorems) (declName : Name) : ExtTheorems :=
  { d with erased := d.erased.insert declName }
 
 /--
-  Erases a name marked as a `ext` attribute.
-  Check that it does in fact have the `ext` attribute by making sure it names a `ExtTheorem`
-  found somewhere in the state's tree, and is not erased.
+Erases a name marked as a `ext` attribute.
+Check that it does in fact have the `ext` attribute by making sure it names a `ExtTheorem`
+found somewhere in the state's tree, and is not erased.
 -/
 def ExtTheorems.erase [Monad m] [MonadError m] (d : ExtTheorems) (declName : Name) :
     m ExtTheorems := do
@@ -80,24 +80,27 @@ builtin_initialize registerBuiltinAttribute {
   name := `ext
   descr := "Marks a theorem as an extensionality theorem"
   add := fun declName stx kind => do
-    let `(attr| ext $[(flat := $f)]? $(prio)?) := stx
+    let `(attr| ext $[(iff := false%$iff?)]? $[(flat := false%$flat?)]? $(prio)?) := stx
       | throwError "unexpected @[ext] attribute {stx}"
     if isStructure (← getEnv) declName then
       liftCommandElabM <| Elab.Command.elabCommand <|
-        ← `(declare_ext_theorems_for $[(flat := $f)]? $(mkCIdentFrom stx declName) $[$prio]?)
+        ← `(declare_ext_theorems_for $[(iff := false%$iff?)]? $[(flat := false%$flat?)]? $(mkCIdentFrom stx declName) $[$prio]?)
     else MetaM.run' do
-      if let some flat := f then
+      if let some flat := flat? then
         throwErrorAt flat "unexpected 'flat' config on @[ext] theorem"
       let declTy := (← getConstInfo declName).type
       let (_, _, declTy) ← withDefault <| forallMetaTelescopeReducing declTy
-      let failNotEq := throwError
-        "@[ext] attribute only applies to structures or theorems proving x = y, got {declTy}"
+      let failNotEq := throwError "\
+        @[ext] attribute only applies to structures or theorems proving x = y, got{indentD declTy}"
       let some (ty, lhs, rhs) := declTy.eq? | failNotEq
       unless lhs.isMVar && rhs.isMVar do failNotEq
       let keys ← withReducible <| DiscrTree.mkPath ty extExt.config
       let priority ← liftCommandElabM do Elab.liftMacroM do
         evalPrio (prio.getD (← `(prio| default)))
       extExtension.add {declName, keys, priority} kind
+      if iff?.isNone then
+        liftCommandElabM <| Elab.Command.elabCommand <|
+          ← `(derive_ext_iff_theorem $(mkCIdentFrom stx declName))
   erase := fun declName => do
     let s := extExtension.getState (← getEnv)
     let s ← s.erase declName
@@ -118,12 +121,8 @@ If it is `false`, then the behind-the-scenes encoding of inherited fields
 is visible in the extensionality lemma.
 -/
 -- TODO: this is probably the wrong place to have this function
-def withExtHyps (struct : Name) (flat : Term)
+def withExtHyps (struct : Name) (flat : Bool)
     (k : Array Expr → (x y : Expr) → Array (Name × Expr) → MetaM α) : MetaM α := do
-  let flat ← match flat with
-  | `(true) => pure true
-  | `(false) => pure false
-  | _ => throwErrorAt flat "expected 'true' or 'false'"
   unless isStructure (← getEnv) struct do throwError "not a structure: {struct}"
   let structC ← mkConstWithLevelParams struct
   forallTelescope (← inferType structC) fun params _ => do
@@ -152,23 +151,39 @@ elaborating to `x.1 = y.1 → x.2 = y.2 → x = y`, for example.
 -/
 @[builtin_term_elab extType] def elabExtType : TermElab := fun stx _ => do
   match stx with
-  | `(ext_type%  $flat:term $struct:ident) => do
-    withExtHyps (← realizeGlobalConstNoOverloadWithInfo struct) flat fun params x y hyps => do
+  | `(ext_type% $[(flat := false%$flat?)]? $struct:ident) => do
+    withExtHyps (← realizeGlobalConstNoOverloadWithInfo struct) flat?.isNone fun params x y hyps => do
       let ty := hyps.foldr (init := ← mkEq x y) fun (f, h) ty =>
         mkForall f BinderInfo.default h ty
       mkForallFVars (params |>.push x |>.push y) ty
   | _ => throwUnsupportedSyntax
 
-/--
-Creates the type of the iff-variant of the extensionality theorem for the given structure,
-elaborating to `x = y ↔ x.1 = y.1 ∧ x.2 = y.2`, for example.
--/
-@[builtin_term_elab extIffType] def elabExtIffType : TermElab := fun stx _ => do
+@[builtin_term_elab deriveExtIffType] def elabDeriveExtIffType : TermElab := fun stx _ => do
   match stx with
-  | `(ext_iff_type% $flat:term $struct:ident) => do
-    withExtHyps (← realizeGlobalConstNoOverloadWithInfo struct) flat fun params x y hyps => do
-      mkForallFVars (params |>.push x |>.push y) <|
-        mkIff (← mkEq x y) <| mkAndN (hyps.map (·.2)).toList
+  | `(derive_ext_iff_type% $extThm:ident) => withLCtx {} {} <| withDefault do
+    let thmName ← realizeGlobalConstNoOverloadWithInfo extThm
+    forallTelescopeReducing (← getConstInfo thmName).type fun args ty => do
+      let failNotEq := throwError "\
+        expecting a theorem proving x = y, but instead it proves{indentD ty}"
+      let some (_, x, y) := ty.eq? | failNotEq
+      let some xIdx := args.findIdx? (· == x) | failNotEq
+      let some yIdx := args.findIdx? (· == y) | failNotEq
+      unless xIdx == yIdx + 1 || xIdx + 1 == yIdx do
+        throwError "expecting {x} and {y} to be consecutive arguments"
+      let startIdx := max xIdx yIdx + 1
+      let toRevert := args[startIdx:].toArray
+      let fvars ← toRevert.foldlM (init := {}) (fun st e => return collectFVars st (← inferType e))
+      for fvar in toRevert do
+        unless ← Meta.isProof fvar do
+          throwError "argument {fvar} is not a proof, which is not supported"
+        if fvars.fvarSet.contains fvar.fvarId! then
+          throwError "argument {fvar} is depended upon, which is not supported"
+      let conj := mkAndN (← toRevert.mapM (inferType ·)).toList
+      let mut lctx ← getLCtx
+      for i in [:startIdx] do
+        lctx := lctx.setBinderInfo args[i]!.fvarId! <|
+          if i == xIdx || i == yIdx then .default else .implicit
+      withLCtx lctx {} <| mkForallFVars (args[:startIdx]) <| mkIff ty conj
   | _ => throwUnsupportedSyntax
 
 /-- Apply a single extensionality theorem to `goal`. -/

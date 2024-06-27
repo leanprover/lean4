@@ -159,6 +159,20 @@ theorem add_eq_adc (w : Nat) (x y : BitVec w) : x + y = (adc x y false).snd := b
 theorem allOnes_sub_eq_not (x : BitVec w) : allOnes w - x = ~~~x := by
   rw [← add_not_self x, BitVec.add_comm, add_sub_cancel]
 
+/-- Adding two bitvectors equals or-ing them if they are 1 in mutually exclusive locations. -/
+theorem add_eq_or_of_and_eq_zero {w : Nat} (x y : BitVec w)
+    (h : x &&& y = 0#w) : x + y = x ||| y := by
+  rw [add_eq_adc, adc, iunfoldr_replace (fun _ => false) (x ||| y)]
+  · rfl
+  · simp [adcb, atLeastTwo, h]
+    intros i
+    replace h : (x &&& y).getLsb i = (0#w).getLsb i := by rw [h]
+    simp only [getLsb_and, getLsb_zero, and_eq_false_imp] at h
+    constructor
+    · intros hx
+      simp_all [hx]
+    · by_cases hx : x.getLsb i <;> simp_all [hx]
+
 /-! ### Negation -/
 
 theorem bit_not_testBit (x : BitVec w) (i : Fin w) :
@@ -234,5 +248,143 @@ theorem sle_eq_not_slt (x y : BitVec w) : x.sle y = !y.slt x := by
 theorem sle_eq_carry (x y : BitVec w) :
     x.sle y = !((x.msb == y.msb).xor (carry w y (~~~x) true)) := by
   rw [sle_eq_not_slt, slt_eq_not_carry, beq_comm]
+
+/-## shiftLeft recurrence -/
+
+@[simp]
+theorem truncate_one_eq_ofBool_getLsb (x : BitVec w) :
+    x.truncate 1 = ofBool (x.getLsb 0) := by
+  ext i
+  simp only [show i = 0 by omega, Fin.isValue, Fin.val_zero, getLsb_zeroExtend, Nat.lt_succ_self,
+    decide_True, Bool.true_and, getLsb_ofBool]
+
+def shiftLeftRec (x : BitVec w₁) (y : BitVec w₂) (n : Nat) : BitVec w₁ :=
+  let shiftAmt := (y &&& (twoPow w₂ n))
+  match n with
+  | 0 => x <<< shiftAmt
+  | n + 1 => (shiftLeftRec x y n) <<< shiftAmt
+
+@[simp]
+theorem shiftLeftRec_zero (x : BitVec w₁) (y : BitVec w₂) :
+    shiftLeftRec x y 0 = x <<< (y &&& twoPow w₂ 0)  := by
+  simp [shiftLeftRec]
+
+@[simp]
+theorem shiftLeftRec_succ (x : BitVec w₁) (y : BitVec w₂) :
+    shiftLeftRec x y (n + 1) =
+      (shiftLeftRec x y n) <<< (y &&& twoPow w₂ (n + 1)) := by
+  simp [shiftLeftRec]
+
+-- | TODO: should this be a simp-lemma? Probably not.
+theorem shiftLeft_eq' (x : BitVec w) (y : BitVec w₂) :
+  x <<< y = x <<< y.toNat := by rfl
+
+-- | TODO: what to name these theorems?
+@[simp]
+theorem shiftLeft_zero' (x : BitVec w) :
+    x <<< (0#w₂) = x := by
+  simp [shiftLeft_eq']
+
+@[simp]
+theorem getLsb_ofNat_one (w i : Nat) :
+    (1#w).getLsb i = (decide (i = 0) && decide (i < w)) := by
+  rcases w with rfl | w
+  · simp;
+  · simp [getLsb]
+    by_cases hi : i = 0
+    · simp [hi]
+    · simp [hi]
+      intros _; simp [testBit, shiftRight_eq_div_pow];
+      suffices 1 / 2^i = 0 by simp [this]
+      apply Nat.div_eq_of_lt;
+      exact Nat.one_lt_two_pow_iff.mpr hi
+
+theorem shiftLeft'_shiftLeft' {x y z : BitVec w} :
+    x <<< y <<< z = x <<< (y.toNat + z.toNat) := by
+  simp [shiftLeft_eq', shiftLeft_add]
+
+theorem shiftLeft_or_eq_shiftLeft_shiftLeft_of_and_eq_zero {x : BitVec w} {y z : BitVec w₂}
+    (h : y &&& z = 0#w₂) (h' : y.toNat + z.toNat < 2^w₂):
+    x <<< (y ||| z) = x <<< y <<< z := by
+  simp [← add_eq_or_of_and_eq_zero _ _ h, shiftLeft_eq', shiftLeft_add,
+    toNat_add, Nat.mod_eq_of_lt h']
+
+
+theorem getLsb_shiftLeft' (x : BitVec w) (y : BitVec w₂) (i : Nat) :
+    (x <<< y).getLsb i = (decide (i < w) && !decide (i < y.toNat) && x.getLsb (i - y.toNat)) := by
+  simp [shiftLeft_eq', getLsb_shiftLeft]
+
+theorem zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsb_false
+  {x : BitVec w} {i : Nat} {hx : x.getLsb i = false} :
+    zeroExtend w₂ (x.truncate (i + 1)) =
+      zeroExtend w₂ (x.truncate i) := by
+  ext k
+  simp only [getLsb_zeroExtend, Fin.is_lt, decide_True, Bool.true_and, getLsb_or, getLsb_and]
+  by_cases hik:i = k
+  · subst hik
+    simp [hx]
+  · by_cases hik' : k < i + 1 <;> simp [hik'] <;> omega
+
+theorem zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsb_true
+    (x : BitVec w) (i : Nat) (hx : x.getLsb i = true) :
+    zeroExtend w₂ (x.truncate (i + 1)) =
+      zeroExtend w₂ (x.truncate i) ||| (twoPow w₂ i) := by
+  ext k
+  simp only [getLsb_zeroExtend, Fin.is_lt, decide_True, Bool.true_and, getLsb_or, getLsb_and]
+  by_cases hik : i = k
+  · subst hik
+    simp [hx]
+  · by_cases hik' : k < i + 1 <;> simp [hik, hik'] <;> omega
+
+
+theorem shiftLeftRec_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) (hn : n + 1 ≤ w₂) :
+  shiftLeftRec x y n = x <<< (y.truncate (n + 1)).zeroExtend w₂ := by
+  induction n generalizing x y
+  case zero =>
+    ext i
+    simp only [shiftLeftRec_zero, twoPow_zero_eq_one, Nat.reduceAdd, truncate_one_eq_ofBool_getLsb]
+    have heq : (y &&& 1#w₂) = zeroExtend w₂ (ofBool (y.getLsb 0)) := by
+      ext i
+      by_cases h : (↑i : Nat) = 0 <;> simp [h, Bool.and_comm]
+    simp [heq]
+  case succ n ih =>
+    simp only [shiftLeftRec_succ, and_twoPow_eq]
+    by_cases h : y.getLsb (n + 1) <;> simp [h]
+    · rw [ih (hn := by omega)]
+      rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsb_true _ _ h]
+      rw [shiftLeft_or_eq_shiftLeft_shiftLeft_of_and_eq_zero]
+      · simp [and_twoPow_eq]
+      · simp only [toNat_truncate, toNat_twoPow]
+        have hpow : 2 ^ (n + 1) < 2 ^ w₂ := by
+          apply Nat.pow_lt_pow_of_lt (by decide) (by omega)
+        have h₂ : 2 ^ (n + 1) % 2 ^ w₂ = 2 ^ (n + 1) := Nat.mod_eq_of_lt (by omega)
+        have h₁ : y.toNat % 2 ^ (n + 1) % 2 ^ w₂ = y.toNat % 2 ^ (n + 1) := by
+          apply Nat.mod_eq_of_lt
+          apply Nat.lt_of_lt_of_le (m := 2 ^ (n + 1))
+          apply Nat.mod_lt
+          apply Nat.pow_pos (by decide); omega
+        obtain h₁ : y.toNat % 2 ^ (n + 1) % 2 ^ w₂ = y.toNat % 2 ^ (n + 1) := by
+          apply Nat.mod_eq_of_lt
+          apply Nat.lt_of_lt_of_le (m := 2 ^ (n + 1)) <;> omega
+        rw [h₁, h₂]
+        rcases w₂ with rfl | w₂
+        · omega
+        · apply Nat.add_lt_add_of_lt_of_le
+          · simp only [pow_eq, Nat.mul_eq, Nat.mul_one]
+            apply Nat.lt_of_lt_of_le (m := 2 ^ (n + 1))
+            · apply Nat.mod_lt
+              · apply Nat.pow_pos (by decide)
+            · apply Nat.pow_le_pow_of_le_right (by decide) (by omega)
+          · simp
+            apply Nat.pow_le_pow_of_le_right (by decide) (by omega)
+    · rw [ih (hn := by omega)]
+      rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsb_false (i := n + 1)]
+      simp [h]
+
+theorem shiftLeft_eq_shiftLeft_rec (x : BitVec ℘) (y : BitVec w₂) :
+    x <<< y = shiftLeftRec x y (w₂ - 1) := by
+  rcases w₂ with rfl | w₂
+  · simp [of_length_zero]
+  · simp [shiftLeftRec_eq x y w₂ (by omega)]
 
 end BitVec

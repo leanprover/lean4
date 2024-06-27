@@ -588,7 +588,7 @@ Specify a termination argument for well-founded termination:
 termination_by a - b
 ```
 indicates that termination of the currently defined recursive function follows
-because the difference between the the arguments `a` and `b`.
+because the difference between the arguments `a` and `b`.
 
 If the fuction takes further argument after the colon, you can name them as follows:
 ```

@@ -8,7 +8,7 @@ import Init.Data.Char.Tables
 import Unicode.Reference
 import Unicode.Parse
 
-open System IO FilePath Process FS Std
+open System IO FilePath Process FS Std Char
 
 def compareTables (ucd : List UnicodeData) (property : UnicodeData → Bool) : IO Unit := do
   let time ← monoMsNow

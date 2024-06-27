@@ -59,6 +59,53 @@ private def getFixedPrefix (declName : Name) (xs : Array Expr) (value : Expr) : 
       return true
   numFixedRef.get
 
+partial def withCommonTelescope (preDefs : Array PreDefinition) (k : Array Expr → Array Expr → MetaM α) : MetaM α :=
+  go #[] (preDefs.map (·.value))
+where
+  go (fvars : Array Expr) (vals : Array Expr) : MetaM α := do
+    if !(vals.all fun val => val.isLambda) then
+      k fvars vals
+    else if !(← vals.allM fun val => return val.bindingName! == vals[0]!.bindingName! && val.binderInfo == vals[0]!.binderInfo && (← isDefEq val.bindingDomain! vals[0]!.bindingDomain!)) then
+      k fvars vals
+    else
+      withLocalDecl vals[0]!.bindingName! vals[0]!.binderInfo vals[0]!.bindingDomain! fun x =>
+        go (fvars.push x) (vals.map fun val => val.bindingBody!.instantiate1 x)
+
+def getMutualFixedPrefix (preDefs : Array PreDefinition) : MetaM Nat :=
+  withCommonTelescope preDefs fun xs vals => do
+    let resultRef ← IO.mkRef xs.size
+    for val in vals do
+      if (← resultRef.get) == 0 then return 0
+      forEachExpr' val fun e => do
+        if preDefs.any fun preDef => e.isAppOf preDef.declName then
+          let args := e.getAppArgs
+          resultRef.modify (min args.size ·)
+          for arg in args, x in xs do
+            if !(← withoutProofIrrelevance <| withReducible <| isDefEq arg x) then
+              -- We continue searching if e's arguments are not a prefix of `xs`
+              return true
+          return false
+        else
+          return true
+    resultRef.get
+
+private def elimMutualRecursion (preDefs : Array PreDefinition) (termArgs : TerminationArguments) : M Unit := do
+  withoutModifyingEnv do
+    let numFixed ← getMutualFixedPrefix preDefs
+    let recArgInfos ← preDefs.mapIdxM fun i preDef => do
+      let termArg := termArgs[i]!
+      lambdaTelescope preDef.value fun xs _value => do
+        let recArgInfo ← withRecArgInfo preDef.declName numFixed xs (← termArg.structuralArg) pure
+        return recArgInfo
+    let indInfo ← getConstInfoInduct recArgInfos[0]!.indName
+    if ← isInductivePredicate indInfo.name then
+      throwError "structural mutual recursion over inductive predicates is not yet supported"
+    -- TODO: This check should be up to permutation and calculate that permutation somehow
+    unless indInfo.all.toArray = recArgInfos.map (·.indName) do
+      throwError "structural mutual recursion only supported without reordering for now"
+
+
+
 private def elimRecursion (preDef : PreDefinition) (termArg? : Option TerminationArgument) : M (Nat × PreDefinition) := do
   trace[Elab.definition.structural] "{preDef.declName} := {preDef.value}"
   withoutModifyingEnv do lambdaTelescope preDef.value fun xs value => do
@@ -69,10 +116,11 @@ private def elimRecursion (preDef : PreDefinition) (termArg? : Option Terminatio
     trace[Elab.definition.structural] "numFixed: {numFixed}"
     let go := fun recArgInfo => do
       let valueNew ← if recArgInfo.indPred then
-        mkIndPredBRecOn recArgInfo xs value
+        let valueNew ← mkIndPredBRecOn recArgInfo xs value
+        mkLambdaFVars xs valueNew
       else
-        mkBRecOn recArgInfo xs value
-      let valueNew ← mkLambdaFVars xs valueNew
+        let valueNew ← mkBRecOn recArgInfo (← mkLambdaFVars xs[recArgInfo.fixedParams.size:] value)
+        mkLambdaFVars (xs[:recArgInfo.fixedParams.size]) valueNew
       trace[Elab.definition.structural] "result: {valueNew}"
       -- Recursive applications may still occur in expressions that were not visited by replaceRecApps (e.g., in types)
       let valueNew ← ensureNoRecFn preDef.declName valueNew
@@ -92,9 +140,11 @@ def reportTermArg (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit := do
     let stx ← termArg.delab arity (extraParams := preDef.termination.extraParams)
     Tactic.TryThis.addSuggestion ref stx
 
-def structuralRecursion (preDefs : Array PreDefinition) (termArgs? : Option TerminationArguments) : TermElabM Unit :=
+def structuralRecursion (preDefs : Array PreDefinition) (termArgs? : Option TerminationArguments) : TermElabM Unit := do
   if preDefs.size != 1 then
-    throwError "structural recursion does not handle mutually recursive functions"
+    let .some termArgs := termArgs?
+      | throwError "mutual structural recursion reqiures explicit `termination_by` clauses"
+    let (_, _state) ← run <| elimMutualRecursion preDefs termArgs
   else do
     let termArg? := termArgs?.map (·[0]!)
     let ((recArgPos, preDefNonRec), state) ← run <| elimRecursion preDefs[0]! termArg?

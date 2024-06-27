@@ -83,3 +83,68 @@ termination_by structurally id n + 1
 
 
 end Errors
+
+namespace MutualIndNonMutualFun
+
+mutual
+inductive A
+  | self : A → A
+  | other : B → A
+  | empty
+inductive B
+  | self : B → B
+  | other : A → B
+  | empty
+end
+
+/--
+error: argument #1 cannot be used for structural recursion
+  application type mismatch
+    @A.brecOn (fun x => Nat) x✝
+  argument
+    x✝
+  has type
+    A : Type
+  but is expected to have type
+    B → Type : Type 1
+-/
+#guard_msgs in
+def A.self_size : A → Nat
+  | .self a => a.self_size + 1
+  | .other _ => 0
+  | .empty => 0
+termination_by structurally x => x
+
+/--
+error: argument #1 cannot be used for structural recursion
+  application type mismatch
+    @B.brecOn fun x => Nat
+  argument
+    fun x => Nat
+  has type
+    B → Type : Type 1
+  but is expected to have type
+    A → Type : Type 1
+-/
+#guard_msgs in
+def B.self_size : B → Nat
+  | .self b => b.self_size + 1
+  | .other _ => 0
+  | .empty => 0
+termination_by structurally x => x
+
+mutual
+def A.size : A → Nat
+  | .self a => a.size + 1
+  | .other b => b.size + 1
+  | .empty => 0
+termination_by structurally x => x
+def B.size : B → Nat
+  | .self b => b.size + 1
+  | .other a => a.size + 1
+  | .empty => 0
+termination_by structurally x => x
+end
+
+
+end MutualIndNonMutualFun

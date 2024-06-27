@@ -42,8 +42,8 @@ deriving Inhabited
 def RecArgInfo.recArgPos (info : RecArgInfo) : Nat :=
   info.fixedParams.size + info.pos
 
-/-- If `xs` are the parameters of the functions (including fixed prefix), partition
-the parameters into indices and major argugument, and other parameters.
+/-- If `xs` are the parameters of the functions (including fixed prefix), skips the fixed prefix
+and partitions the remaining parameters into indices and major argugument, and other parameters.
 -/
 def RecArgInfo.pickIndicesMajor (info : RecArgInfo) (xs : Array Expr) : (Array Expr × Array Expr) := Id.run do
   let mut indexMajorArgs := #[]

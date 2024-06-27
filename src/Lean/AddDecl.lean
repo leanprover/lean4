@@ -15,9 +15,9 @@ register_builtin_option debug.skipKernelTC : Bool := {
 }
 
 def Environment.addDecl (env : Environment) (opts : Options) (decl : Declaration) : Except KernelException Environment :=
-  -- if debug.skipKernelTC.get opts then
-  --  addDeclWithoutChecking env decl
-  -- else
+  if debug.skipKernelTC.get opts then
+    addDeclWithoutChecking env decl
+  else
     addDeclCore env (Core.getMaxHeartbeats opts).toUSize decl
 
 def Environment.addAndCompile (env : Environment) (opts : Options) (decl : Declaration) : Except KernelException Environment := do

@@ -472,23 +472,30 @@ def Exception.isInterrupt : Exception → Bool
 
 /--
 Custom `try-catch` for all monads based on `CoreM`. We usually don't want to catch "runtime
-exceptions" these monads, but on `CommandElabM`. See issues #2775 and #2744 as well as
-`MonadAlwaysExcept`. Also, we never want to catch interrupt exceptions inside the elaborator.
+exceptions" these monads, but on `CommandElabM` or, in specific cases, using `tryCatchRuntimeEx`.
+See issues #2775 and #2744 as well as `MonadAlwaysExcept`. Also, we never want to catch interrupt
+exceptions inside the elaborator.
 -/
 @[inline] protected def Core.tryCatch (x : CoreM α) (h : Exception → CoreM α) : CoreM α := do
   try
     x
   catch ex =>
     if ex.isInterrupt || ex.isRuntime then
-
-      throw ex -- We should use `tryCatchRuntimeEx` for catching runtime exceptions
+      throw ex
     else
       h ex
 
+/--
+A variant of `tryCatch` that also catches runtime exception (see also `tryCatch` documentation).
+Like `tryCatch`, this function does not catch interrupt exceptions, which are not considered runtime
+exceptions.
+-/
 @[inline] protected def Core.tryCatchRuntimeEx (x : CoreM α) (h : Exception → CoreM α) : CoreM α := do
   try
     x
   catch ex =>
+    if ex.isInterrupt then
+      throw ex
     h ex
 
 instance : MonadExceptOf Exception CoreM where

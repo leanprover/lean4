@@ -12,6 +12,6 @@ def referenceSearch (table : List Nat) (c : Char) : Bool :=
   table.contains c.toNat
 
 @[simp]
-noncomputable def reference (ucd : List UnicodeData) (property : UnicodeData → Bool) (c : Char) : Bool :=
+def reference (ucd : List UnicodeData) (property : UnicodeData → Bool) (c : Char) : Bool :=
   let table := referenceTable ucd property
   referenceSearch table c

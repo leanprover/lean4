@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jean-Baptiste Tristan
 -/
 
+open System IO
+
 inductive Letter where
   | Lu -- uppercase
   | Ll -- lowercase
@@ -95,3 +97,39 @@ structure UnicodeData where
   codepoint : Nat
   gc : GeneralCategory
   deriving Repr, DecidableEq, Inhabited, Nonempty
+
+structure SummaryUCD where
+  letterCount : Int := 0
+  markCount : Int := 0
+  numberCount : Int := 0
+  punctuationCount : Int := 0
+  symbolCount : Int := 0
+  separatorCount : Int := 0
+  otherCount : Int := 0
+  deriving Repr, DecidableEq, Inhabited, Nonempty
+
+def summarizeUnicodeData (ucd : List UnicodeData) : SummaryUCD := Id.run do
+  let mut table : SummaryUCD := {}
+  for entry in ucd do
+    match entry.gc with
+    | GeneralCategory.Letter _ => table := { table with letterCount := table.letterCount + 1 }
+    | GeneralCategory.Mark _ => table := { table with markCount := table.markCount + 1 }
+    | GeneralCategory.Number _ => table := { table with numberCount := table.numberCount + 1 }
+    | GeneralCategory.Punctuation _ => table := { table with punctuationCount := table.punctuationCount + 1 }
+    | GeneralCategory.Symbol _ => table := { table with symbolCount := table.symbolCount + 1 }
+    | GeneralCategory.Separator _ => table := { table with separatorCount := table.separatorCount + 1 }
+    | GeneralCategory.Other _ => table := { table with otherCount := table.otherCount + 1 }
+  return table
+
+def printSummary (sucd : SummaryUCD) : IO Unit := do
+  println s!"Letter count: {sucd.letterCount}"
+  println s!"Mark count: {sucd.markCount}"
+  println s!"Number count: {sucd.numberCount}"
+  println s!"Punctuation count: {sucd.punctuationCount}"
+  println s!"Symbol count: {sucd.symbolCount}"
+  println s!"Separator count: {sucd.separatorCount}"
+  println s!"Other count: {sucd.otherCount}"
+
+def printUnicodeData (ucd : List UnicodeData) : IO Unit := do
+  for entry in ucd do
+    println <| reprStr entry

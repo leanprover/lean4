@@ -8,7 +8,7 @@ import Init.Data.Range
 
 open Std
 
-namespace Char
+namespace Char.UnicodeSkipList
 
 structure UnicodePropertyTable where
   runs : Array UInt32
@@ -49,4 +49,4 @@ def search (table : UnicodePropertyTable) (c : Char) : Bool :=
   let (pfs,range) := searchRuns table c
   searchOffsets table c range pfs
 
-end Char
+end Char.UnicodeSkipList

@@ -5,7 +5,7 @@ Authors: Jean-Baptiste Tristan
 -/
 import Init.Data.Char.UnicodeSkipList
 
-namespace Char
+namespace Char.UnicodeSkipList
 instance numericTable : UnicodePropertyTable where
   runs := #[
     1632, 18876774, 31461440, 102765417, 111154926, 115349830, 132128880, 165684320, 186656630, 195046653, 199241735
@@ -42,4 +42,4 @@ instance numericTable : UnicodePropertyTable where
     , 59, 1, 3, 1, 4, 76, 45, 1, 15, 0
     , 13, 0, 10, 0  ]
 
-end Char
+end Char.UnicodeSkipList

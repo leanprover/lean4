@@ -8,9 +8,9 @@ import Init.Data.Char.Tables
 import Unicode.Reference
 import Unicode.Parse
 
-open System IO FilePath Process FS Std Char
+open System IO FilePath Process FS Std Char.UnicodeSkipList
 
-def compareTables (ucd : List UnicodeData) (property : UnicodeData → Bool) : IO Unit := do
+def compareTables (ucd : List UnicodeData) (property : UnicodeData → Bool) : IO Bool := do
   let time ← monoMsNow
   let mut failed := false
   let table := numericTable
@@ -24,6 +24,7 @@ def compareTables (ucd : List UnicodeData) (property : UnicodeData → Bool) : I
       println s!"{c.toNat} {c} {ref} {candidate}"
   let msg := if failed then "failed" else "succeeded"
   println s!"Verification {msg} in {((← monoMsNow) - time).toFloat / 1000} seconds"
+  return failed
 
 def main : IO Unit := do
   let workingDir : FilePath ← currentDir
@@ -35,11 +36,14 @@ def main : IO Unit := do
     let _ ← download (unicodeUrl ++ dataset) f
 
   let f : FilePath := System.mkFilePath ["Data","UnicodeData.txt"]
-  let ucd₁ : ExceptT String IO (List UnicodeData) := loadUnicodeData f
-  let ucd₄ : Except String (List UnicodeData) ← ucd₁
-  match ucd₄ with
-  | Except.ok ucd₅ =>
-      println s! "UCD size: {ucd₅.length}"
+  let ucd ← loadUnicodeData f
+  match ucd with
+  | Except.ok ucd =>
+      println s! "UCD size: {ucd.length}"
       let property := (fun ucdc : UnicodeData => if let .Number _ := ucdc.gc then true else false)
-      compareTables ucd₅ property
-  | Except.error msg => println msg
+      let failed ← compareTables ucd property
+      if failed then
+        IO.Process.exit 1
+  | Except.error msg =>
+      println msg
+      IO.Process.exit 1

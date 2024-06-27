@@ -9,3 +9,7 @@ Syntactically, character literals are enclosed in single quotes.
 ```
 
 Characters are ordered and can be decidably compared using the relational operators `=`, `<`, `≤`, `>`, `≥`.
+
+the `unicodeVersion` definition is the version of Unicode that the Unicode parts of char and str methods are based on.
+
+New versions of Unicode are released regularly and subsequently all methods in the standard library depending on Unicode are updated. Therefore the behavior of some char and str methods and the value of this constant changes over time. *This is not considered to be a breaking change.*

@@ -10,3 +10,6 @@ lean_lib «Unicode» where
 @[default_target]
 lean_exe "generate_tables" where
   root := `Generation
+
+lean_exe "verify_tables" where
+  root := `Verification

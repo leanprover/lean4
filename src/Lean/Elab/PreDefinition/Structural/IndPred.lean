@@ -68,13 +68,7 @@ private partial def replaceIndPredRecApps (recArgInfo : RecArgInfo) (motive : Ex
 
 def mkIndPredBRecOn (recArgInfo : RecArgInfo) (xs : Array Expr) (value : Expr) : M Expr := do
   let type  := (← inferType value).headBeta
-  let mut indexMajorArgs := #[]
-  let mut otherArgs := #[]
-  for h : i in [recArgInfo.fixedParams.size:xs.size] do
-    if i = recArgInfo.recArgPos || recArgInfo.indicesPos.contains (i - recArgInfo.fixedParams.size) then
-      indexMajorArgs := indexMajorArgs.push xs[i]
-    else
-      otherArgs := otherArgs.push xs[i]
+  let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor xs
   trace[Elab.definition.structural] "fixedParams: {recArgInfo.fixedParams}, otherArgs: {otherArgs}"
   let motive ← mkForallFVars otherArgs type
   let motive ← mkLambdaFVars indexMajorArgs motive

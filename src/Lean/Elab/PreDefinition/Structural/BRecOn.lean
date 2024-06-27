@@ -169,13 +169,7 @@ private partial def replaceRecApps (recArgInfo : RecArgInfo) (below : Expr) (e :
 def mkBRecOn (recArgInfo : RecArgInfo) (xs : Array Expr) (value : Expr) : M Expr := do
   trace[Elab.definition.structural] "mkBRecOn: {value}"
   let type  := (← inferType value).headBeta
-  let mut indexMajorArgs := #[]
-  let mut otherArgs := #[]
-  for h : i in [recArgInfo.fixedParams.size:xs.size] do
-    if i = recArgInfo.recArgPos || recArgInfo.indicesPos.contains (i - recArgInfo.fixedParams.size) then
-      indexMajorArgs := indexMajorArgs.push xs[i]
-    else
-      otherArgs := otherArgs.push xs[i]
+  let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor xs
   trace[Elab.definition.structural] "fixedParams: {recArgInfo.fixedParams}, otherArgs: {otherArgs}"
   let motive ← mkForallFVars otherArgs type
   let mut brecOnUniv ← getLevel motive

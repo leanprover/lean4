@@ -160,13 +160,13 @@ private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr :=
 register_builtin_option debug.byAsSorry : Bool := {
   defValue := false
   group    := "debug"
-  descr    := "replace `by ..` blocks with `sorry`"
+  descr    := "replace `by ..` blocks with `sorry` IF the expected type is a proposition"
 }
 
 @[builtin_term_elab byTactic] def elabByTactic : TermElab := fun stx expectedType? => do
   match expectedType? with
   | some expectedType =>
-    if debug.byAsSorry.get (← getOptions) then
+    if ← pure (debug.byAsSorry.get (← getOptions)) <&&> isProp expectedType then
       mkSorry expectedType false
     else
       mkTacticMVar expectedType stx

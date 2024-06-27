@@ -1,7 +1,7 @@
-import UtgLean4.Init.Lookup
-import UtgLean4.Init.Tables
-import UtgLean4.Tool.Reference
-import UtgLean4.Tool.Parse
+import Init.Data.Char.UnicodeSkipList
+import Init.Data.Char.Tables
+import Unicode.Reference
+import Unicode.Parse
 
 open System IO FilePath Process FS Std
 

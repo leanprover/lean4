@@ -1,5 +1,4 @@
-import UtgLean4.Tool.Unicode
-import UtgLean4.Init.Util
+import Unicode.Unicode
 
 open System IO FilePath Process FS Std
 

@@ -1,9 +1,8 @@
-import UtgLean4.Init.Lookup
-import UtgLean4.Init.Util
-import UtgLean4.Tool.Unicode
-import UtgLean4.Tool.Parse
+import Init.Data.Char.UnicodeSkipList
+import Unicode.Unicode
+import Unicode.Parse
 
-open System IO FilePath Process FS Std
+open System IO FilePath Process FS Std Char
 
 structure SummaryUCD where
   letterCount : Int := 0
@@ -107,7 +106,7 @@ def largeOffsetEncoding (indices prefixSums : List Nat) : Array UInt32 :=
   let prefixSums := prefixSums ++ [1114111 + 1]
   ((indices.zip prefixSums).map (fun (idx,pf) => (idx + pf).toUInt32)).toArray
 
-def calculateTable (ucd : List UnicodeData) (property : UnicodeData → Bool) : UcdPropertyTable :=
+def calculateTable (ucd : List UnicodeData) (property : UnicodeData → Bool) : UnicodePropertyTable :=
   let ranges := (explicitRanges ucd property)
   let gaps := mergeRanges ranges
   let offsets := offsets gaps
@@ -121,13 +120,13 @@ noncomputable def skiplist (ucd : List UnicodeData) (property : UnicodeData → 
   let table := calculateTable ucd property
   search table c
 
-def writeTable (property : String) (table : UcdPropertyTable) : IO Unit := do
+def writeTable (property : String) (table : UnicodePropertyTable) : IO Unit := do
   let workingDir : FilePath ← currentDir
-  let f : FilePath := join workingDir <| System.mkFilePath ["UtgLean4","Init","Tables.lean"]
+  let f : FilePath := join workingDir <| System.mkFilePath ["..","..","src","Init","Data","Char","Tables.lean"]
   let mut content := ""
-  content := content ++ "import UtgLean4.Init.Lookup\n"
+  content := content ++ "import Init.Data.Char.UnicodeSkipList\n"
   content := content ++ "\n"
-  content := content ++ s!"instance {property}Table : UcdPropertyTable where\n"
+  content := content ++ s!"instance {property}Table : UnicodePropertyTable where\n"
   content := content ++ "  runs := #[\n"
   content := content ++ "    " ++ (reprStr (table.runs.get! 0))
   for i in Range.mk 1 (table.runs.size) 1 do

@@ -76,7 +76,7 @@ def LeanLib.staticExportFacetConfig : LibraryFacetConfig staticExportFacet :=
 @[specialize] protected def LeanLib.buildStaticFat
 (self : LeanLib) : FetchM (BuildJob FilePath) := do
     withRegisterJob s!"{self.name}:static.fat" do
-    let mods ← self.rootModules.concatMapM fun mod => do
+    let mods ← (← self.modules.fetch).concatMapM fun mod => do
       return (← mod.transImports.fetch).push mod
     let oJobs ← mods.concatMapM fun mod =>
       mod.nativeFacets (shouldExport := true) |>.mapM fun facet => fetch <| mod.facet facet.name

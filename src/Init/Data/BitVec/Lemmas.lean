@@ -1046,6 +1046,9 @@ theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n ((2^n - y.toNat) + x.toN
 @[simp] theorem toNat_sub {n} (x y : BitVec n) :
     (x - y).toNat = (((2^n - y.toNat) + x.toNat) % 2^n) := rfl
 
+-- We prefer this lemma to `toNat_sub` for the `bv_toNat` simp set.
+-- For reasons we don't yet understand, unfolding via `toNat_sub` sometimes
+-- results in `omega` generating proof terms that are very slow in the kernel.
 @[bv_toNat] theorem toNat_sub' {n} (x y : BitVec n) :
     (x - y).toNat = ((x.toNat + (2^n - y.toNat)) % 2^n) := by
   rw [toNat_sub, Nat.add_comm]

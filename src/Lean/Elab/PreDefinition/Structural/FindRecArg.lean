@@ -83,8 +83,7 @@ def withRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) 
                 indName     := indInfo.name
                 indLevels   := us
                 indParams   := indParams
-                reflexive   := indInfo.isReflexive
-                indPred     := ←isInductivePredicate indInfo.name }
+                reflexive   := indInfo.isReflexive }
     else
       throwError "the index #{i+1} exceeds {xs.size}, the number of parameters"
 

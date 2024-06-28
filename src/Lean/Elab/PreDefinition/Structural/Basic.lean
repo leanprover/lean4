@@ -35,8 +35,6 @@ structure RecArgInfo where
   -- indIndices  : Array Expr
   /-- true if we are recursing over a reflexive inductive datatype -/
   reflexive   : Bool
-  /-- true if the type is an inductive predicate -/
-  indPred     : Bool
 deriving Inhabited
 
 def RecArgInfo.recArgPos (info : RecArgInfo) : Nat :=

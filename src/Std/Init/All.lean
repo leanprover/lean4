@@ -1,3 +1,4 @@
+prelude
 import Std.Init.Array
 import Std.Init.Bif
 import Std.Init.List

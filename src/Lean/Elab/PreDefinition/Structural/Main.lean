@@ -118,10 +118,7 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Ar
         let valueNew ← lambdaTelescope values[0]! fun ys value => do
           let valueNew ← mkIndPredBRecOn recArgInfo (xs ++ ys) value
           mkLambdaFVars (xs ++ ys) valueNew
-        let valueNew ← ensureNoRecFn preDef.declName valueNew
         trace[Elab.definition.structural] "Nonrecursive value:{indentExpr valueNew}"
-        trace[Elab.definition.structural] "FVars: {valueNew.hasFVar}"
-        trace[Elab.definition.structural] "FVars: {valueNew.find? (·.isFVar)}"
         check valueNew
         return #[{ preDef with value := valueNew }]
 
@@ -139,7 +136,6 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Ar
         mkBrecOnApp brecOnConst motives FArgs r v
       -- Abstract over the fixed prefixed
       let valuesNew ← valuesNew.mapM (mkLambdaFVars xs ·)
-      -- TODO: ensureNoRecFn
       return (Array.zip preDefs valuesNew).map fun ⟨preDef, valueNew⟩ => { preDef with value := valueNew }
 
 def buildTermArg (preDef : PreDefinition) (recArgPos : Nat) : MetaM TerminationArgument := do

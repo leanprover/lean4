@@ -90,7 +90,9 @@ where
         else
           processApp F e
       | none => processApp F e
-    | e => ensureNoRecFn recFnName e
+    | e =>
+      ensureNoRecFn #[recFnName] e
+      pure e
 
 /-- Refine `F` over `PSum.casesOn` -/
 private partial def processSumCasesOn (x F val : Expr) (k : (x : Expr) → (F : Expr) → (val : Expr) → TermElabM Expr) : TermElabM Expr := do

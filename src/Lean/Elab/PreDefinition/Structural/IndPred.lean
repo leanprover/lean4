@@ -63,7 +63,9 @@ private partial def replaceIndPredRecApps (recArgInfo : RecArgInfo) (motive : Ex
             trace[Elab.definition.structural] "modified matcher:\n{newApp}"
             processApp newApp
       | none => processApp e
-    | e => ensureNoRecFn recArgInfo.fnName e
+    | e =>
+      ensureNoRecFn #[recArgInfo.fnName] e
+      pure e
   loop e
 
 def mkIndPredBRecOn (recArgInfo : RecArgInfo) (xs : Array Expr) (value : Expr) : M Expr := do

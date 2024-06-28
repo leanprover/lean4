@@ -183,16 +183,13 @@ def addAndCompilePartialRec (preDefs : Array PreDefinition) : TermElabM Unit := 
             | _ => none
           modifiers := {} }
 
-private def containsRecFn (recFnName : Name) (e : Expr) : Bool :=
-  (e.find? fun e => e.isConstOf recFnName).isSome
+private def containsRecFn (recFnNames : Array Name) (e : Expr) : Bool :=
+  (e.find? fun e => e.isConst && recFnNames.contains e.constName!).isSome
 
-def ensureNoRecFn (recFnName : Name) (e : Expr) : MetaM Expr := do
-  if containsRecFn recFnName e then
+def ensureNoRecFn (recFnNames : Array Name) (e : Expr) : MetaM Unit := do
+  if containsRecFn recFnNames e then
     Meta.forEachExpr e fun e => do
-      if e.isAppOf recFnName then
+      if e.getAppFn.isConst && recFnNames.contains e.getAppFn.constName! then
         throwError "unexpected occurrence of recursive application{indentExpr e}"
-    pure e
-  else
-    pure e
 
 end Lean.Elab

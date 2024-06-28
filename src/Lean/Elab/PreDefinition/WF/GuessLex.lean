@@ -267,7 +267,7 @@ where
           processApp param e
       | none => processApp param e
     | e => do
-      let _ ← ensureNoRecFn recFnName e
+      ensureNoRecFn #[recFnName] e
 
 /--
 A `SavedLocalContext` captures the state and local context of a `MetaM`, to be continued later.

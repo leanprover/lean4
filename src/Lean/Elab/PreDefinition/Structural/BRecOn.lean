@@ -168,7 +168,9 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (below : Exp
           else
             processApp e
       | none => processApp e
-    | e => recArgInfos.foldlM (fun e recArgInfo => ensureNoRecFn recArgInfo.fnName e) e -- TODO: why is ensureNoRecFn not m Unit
+    | e =>
+      ensureNoRecFn (recArgInfos.map (·.fnName)) e
+      pure e
   loop below e
 
 /--

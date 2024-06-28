@@ -6,6 +6,7 @@ Authors: Jean-Baptiste Tristan
 import Init.Data.Char.UnicodeSkipList
 import Unicode.UnicodeSkipList
 import Unicode.Unicode
+import Unicode.FetchDatabase
 
 open System IO FilePath Process FS Std Char.UnicodeSkipList
 
@@ -27,6 +28,7 @@ def main : IO Unit := do
       printSummary summary
       let property := (fun ucdc : UnicodeData => if let .Number _ := ucdc.gc then true else false)
       let table := calculateTable ucd property
+      writeUnicodeVersion
       writeTable "numeric" table
   | Except.error msg =>
     println msg

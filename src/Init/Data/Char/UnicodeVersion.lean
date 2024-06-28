@@ -4,12 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jean-Baptiste Tristan
 -/
 prelude
-import Init.Data.Char.UnicodeSkipList
-import Init.Data.Char.Tables
+import Init.Data.Nat.Basic
 
 namespace Char
 
-def isNumeric (c : Char) : Bool :=
-  UnicodeSkipList.search UnicodeSkipList.numericTable c
+def unicodeVersion : Nat × Nat × Nat := (15,1,0)
 
 end Char

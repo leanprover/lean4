@@ -208,8 +208,6 @@ def B.self_size : B → Nat
   | .empty => 0
 termination_by structurally x => x
 
-/-- error: More than one function recursing on the same type not yet supported -/
-#guard_msgs in
 mutual
 def A.weird_size1 : A → Nat
   | .self a => a.weird_size2 + 1
@@ -217,6 +215,11 @@ def A.weird_size1 : A → Nat
   | .empty => 0
 termination_by structurally x => x
 def A.weird_size2 : A → Nat
+  | .self a => a.weird_size3 + 1
+  | .other _ => 0
+  | .empty => 0
+termination_by structurally x => x
+def A.weird_size3 : A → Nat
   | .self a => a.weird_size1 + 1
   | .other _ => 0
   | .empty => 0
@@ -225,8 +228,25 @@ end
 
 end MutualIndNonMutualFun
 
-namespace DifferentTypes
+namespace NestedWithTuple
 
+inductive Tree where
+  | leaf
+  | node : (Tree × Tree) → Tree
+
+
+/-- error: its type NestedWithTuple.Tree does not have a recursor -/
+#guard_msgs in
+def Tree.size : Tree → Nat
+  | leaf => 0
+  | node (t₁, t₂) => t₁.size + t₂.size
+termination_by structurally t => t
+
+
+
+end NestedWithTuple
+
+namespace DifferentTypes
 
 inductive A
   | self : A → A

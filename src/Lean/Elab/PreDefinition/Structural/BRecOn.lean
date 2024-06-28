@@ -13,6 +13,64 @@ import Lean.Elab.PreDefinition.Structural.Basic
 namespace Lean.Elab.Structural
 open Meta
 
+-- Todo: Put in common module
+
+private def mkPUnit : Level → Expr
+  | .zero => .const ``True []
+  | lvl   => .const ``PUnit [lvl]
+
+private def mkPProd (e1 e2 : Expr) : MetaM Expr := do
+  let lvl1 ← getLevel e1
+  let lvl2 ← getLevel e2
+  if lvl1 matches .zero && lvl2 matches .zero then
+    return mkApp2 (.const `And []) e1 e2
+  else
+    return mkApp2 (.const ``PProd [lvl1, lvl2]) e1 e2
+
+private def mkNProd (lvl : Level) (es : Array Expr) : MetaM Expr :=
+  es.foldrM (init := mkPUnit lvl) mkPProd
+
+private def mkPUnitMk : Level → Expr
+  | .zero => .const ``True.intro []
+  | lvl   => .const ``PUnit.unit [lvl]
+
+private def mkPProdMk (e1 e2 : Expr) : MetaM Expr := do
+  let t1 ← inferType e1
+  let t2 ← inferType e2
+  let lvl1 ← getLevel t1
+  let lvl2 ← getLevel t2
+  if lvl1 matches .zero && lvl2 matches .zero then
+    return mkApp4 (.const ``And.intro []) t1 t2 e1 e2
+  else
+    return mkApp4 (.const ``PProd.mk [lvl1, lvl2]) t1 t2 e1 e2
+
+private def mkNProdMk (lvl : Level) (es : Array Expr) : MetaM Expr :=
+  es.foldrM (init := mkPUnitMk lvl) mkPProdMk
+
+/-- `PProd.fst` or `And.left` (as projections) -/
+private def mkPProdFst (e : Expr) : MetaM Expr := do
+  let t ← whnf (← inferType e)
+  match_expr t with
+  | PProd _ _ => return .proj ``PProd 0 e
+  | And _ _ =>   return .proj ``And 0 e
+  | _ => throwError "Cannot project .1 out of{indentExpr e}\nof type{indentExpr t}"
+
+/-- `PProd.snd` or `And.right` (as projections) -/
+private def mkPProdSnd (e : Expr) : MetaM Expr := do
+  let t ← whnf (← inferType e)
+  match_expr t with
+  | PProd _ _ => return .proj ``PProd 1 e
+  | And _ _ =>   return .proj ``And 1 e
+  | _ => throwError "Cannot project .2 out of{indentExpr e}\nof type{indentExpr t}"
+
+/-- Given a proof of `P₁ ∧ … ∧ Pᵢ ∧ … ∧ Pₙ ∧ True`, return the proof of `Pᵢ` -/
+def mkPProdProjN (i : Nat) (e : Expr) : MetaM Expr := do
+  let mut value := e
+  for _ in [:i] do
+      value ← mkPProdSnd value
+  value ← mkPProdFst value
+  return value
+
 
 /--
 Combines motives from different functions that recurse on the same parameter type into a single
@@ -27,42 +85,39 @@ will return
 fun (n : Nat) (PProd Nat (Fin n → Fin n))
 ```
 
-It is mostly the identity if `motives.size = 1`, and it returns a dummy motive
-if `motives = #[]` (which is the reason for the `motiveType` parameter).
+It is the identity if `motives.size = 1`.
+
+It returns a dummy motive `(xs : ) → PUnit` or `(xs : … ) → True` if no motive is given.
+(this is the reason we need the expected type in the `motiveType` parameter).
 
 -/
 def packMotives (motiveType : Expr) (motives : Array Expr) : MetaM Expr := do
-  if motives.size = 0 then
-    forallTelescope motiveType fun xs sort => do
-      let r ←
-        match sort with
-        | .sort 0 => pure <| .const ``True []
-        | .sort u => pure <| .const ``PUnit [u]
-        | _ => throwError "packMotives: Unexpected motiveType {motiveType}"
-      mkLambdaFVars xs r
-  else if motives.size = 1 then
+  if motives.size = 1 then
     return motives[0]!
-  else
-    throwError "More than one function recursing on the same type not yet supported"
+  trace[Elab.definition.structural] "packing Motives\nexpected: {motiveType}\nmotives: {motives}"
+  forallTelescope motiveType fun xs sort => do
+    unless sort.isSort do
+      throwError "packMotives: Unexpected motiveType {motiveType}"
+    -- NB: Use beta, not instantiateLambda; when constructing the belowDict below
+    -- we pass `C`, a plain FVar, here
+    let motives := motives.map (·.beta xs)
+    let packedMotives ← mkNProd sort.sortLevel! motives
+    mkLambdaFVars xs packedMotives
 
 /--
 Combines the F-args from different functions that recurse on the same parameter type into a single
 function returning a `PProd` value. See `packMotives`
 
-It is mostly the identity if `motives.size = 1`.
+It is the identity if `motives.size = 1`.
 -/
 def packFArgs (FArgType : Expr) (FArgs : Array Expr) : MetaM Expr := do
-  if FArgs.size = 0 then
-    forallTelescope FArgType fun xs unit => do
-      let r ← match_expr unit with
-        | True => pure <| .const ``True.intro []
-        | PUnit => pure <| .const ``PUnit.unit unit.constLevels!
-        | _ => throwError "packFArgs: Unexpected FArgType {FArgType}"
-      mkLambdaFVars xs r
-  else if FArgs.size = 1 then
+  if FArgs.size = 1 then
     return FArgs[0]!
-  else
-    throwError "More than one function recursing on the same type not yet supported"
+  forallTelescope FArgType fun xs body => do
+    let lvl ← getLevel body
+    let FArgs := FArgs.map (·.beta xs)
+    let packedFArgs ← mkNProdMk lvl FArgs
+    mkLambdaFVars xs packedFArgs
 
 def sortAndPackWith [Monad m] [Inhabited β] (pack : α → Array β → m γ)
     (positions : Array (Array Nat)) (es : Array β) (types : Array α) : m (Array γ) := do
@@ -113,25 +168,29 @@ private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat)
   unless (← isTypeCorrect below) do
     trace[Elab.definition.structural] "not type correct!"
   belowType.withApp fun f args => do
-    unless numIndParams + numIndAll < args.size do throwError "unexpected 'below' type{indentExpr belowType}"
+    unless numIndParams + numIndAll < args.size do
+      trace[Elab.definition.structural] "unexpected 'below' type{indentExpr belowType}"
+      throwToBelowFailed
     let params := args[:numIndParams]
-    let finalArgs := args[numIndParams+numIndAll : ]
+    let finalArgs := args[numIndParams+numIndAll:]
     let pre := mkAppN f params
     let motiveTypes ← inferArgumentTypesN numIndAll pre
     let numMotives : Nat := positions.foldl (fun s poss => s + poss.size) 0
+    trace[Elab.definition.structural] "numMotives: {numMotives}"
     let mut CTypes := Array.mkArray numMotives (.sort 37) -- dummy value
     for poss in positions, motiveType in motiveTypes do
       for pos in poss do
         CTypes := CTypes.set! pos motiveType
     let CDecls : Array (Name × (Array Expr → MetaM Expr)) ← CTypes.mapM fun t => do
         return ((← mkFreshUserName `C), fun _ => pure t)
-    -- We have to pack these canary motives like we packed the real motives
     withLocalDeclsD CDecls fun Cs => do
+      -- We have to pack these canary motives like we packed the real motives
       let packedCs ← sortAndPackWith packMotives positions Cs motiveTypes
       let belowDict := mkAppN pre packedCs
       let belowDict := mkAppN belowDict finalArgs
       trace[Elab.definition.structural] "initial belowDict for {Cs}:{indentExpr belowDict}"
-      check belowDict
+      unless (← isTypeCorrect belowDict) do
+        trace[Elab.definition.structural] "not type correct!"
       k Cs belowDict
 
 /--
@@ -325,10 +384,7 @@ def inferBRecOnFTypes (recArgInfos : Array RecArgInfo) (positions : Array (Array
 
   let mut FTypes := Array.mkArray recArgInfos.size (Expr.sort 0)
   for packedFType in packedFTypes, poss in positions do
-    if poss.size > 1 then
-         throwError "Not supported yet"
     for pos in poss do
-      -- Todo: The n-ary case
       FTypes := FTypes.set! pos packedFType
   return FTypes
 
@@ -336,8 +392,8 @@ def inferBRecOnFTypes (recArgInfos : Array RecArgInfo) (positions : Array (Array
 Completes the `.brecOn` for the given function.
 The `value` is the function with (only) the fixed parameters moved into the context.
 -/
-def mkBrecOnApp (positions : Array (Array Nat)) (brecOnConst : Name → Expr) (FArgs : Array Expr)
-    (recArgInfo : RecArgInfo) (value : Expr) : MetaM Expr := do
+def mkBrecOnApp (positions : Array (Array Nat)) (fnIdx : Nat) (brecOnConst : Name → Expr)
+    (FArgs : Array Expr) (recArgInfo : RecArgInfo) (value : Expr) : MetaM Expr := do
   lambdaTelescope value fun ys _value => do
     let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor ys
     let brecOn := brecOnConst recArgInfo.indName
@@ -345,6 +401,10 @@ def mkBrecOnApp (positions : Array (Array Nat)) (brecOnConst : Name → Expr) (F
     let packedFTypes ← inferArgumentTypesN positions.size brecOn
     let packedFArgs ← sortAndPackWith packFArgs positions FArgs packedFTypes
     let brecOn := mkAppN brecOn packedFArgs
+    let some poss := positions.find? (·.contains fnIdx)
+      | throwError "mkBrecOnApp: Could not find {fnIdx} in {positions}"
+    let brecOn ← if poss.size = 1 then pure brecOn else
+      mkPProdProjN (poss.getIdx? fnIdx).get! brecOn
     mkLambdaFVars ys (mkAppN brecOn otherArgs)
 
 end Lean.Elab.Structural

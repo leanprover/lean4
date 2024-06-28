@@ -4,16 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jean-Baptiste Tristan
 -/
 import Unicode.Unicode
+import Unicode.FetchDatabase
 
 open System IO FilePath Process FS Std
-
-def unicodeUrl : String := "https://www.unicode.org/Public/UCD/latest/ucd/"
-def unicodeDatasets : List String := ["UnicodeData.txt"]
-
-def download  (url : String) (file : FilePath) : IO Output := do
-  if (¬ (← file.pathExists)) then
-    output { cmd := "curl", args := #["-s", "-S", "-f", "-o", file.toString, "-L", url] }
-  else pure { exitCode := 0, stdout := "", stderr := "" }
 
 def mkGeneralCategory (s : String) : Except String GeneralCategory := do
   if s = "Lu" then pure <| .Letter Letter.Lu

@@ -180,7 +180,7 @@ The `value` is the function with (only) the fixed parameters moved into the cont
 def mkBRecOnMotive (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
   lambdaTelescope value fun xs value => do
     let type  := (← inferType value).headBeta
-    let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor' xs
+    let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor xs
     let motive ← mkForallFVars otherArgs type
     mkLambdaFVars indexMajorArgs motive
 
@@ -193,7 +193,7 @@ uses of the `below` induction hypothesis.
 -/
 def mkBRecOnF (recArgInfos : Array RecArgInfo) (recArgInfo : RecArgInfo) (value : Expr) (FType : Expr) : M Expr := do
   lambdaTelescope value fun xs value => do
-    let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor' xs
+    let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor xs
     let FType ← instantiateForall FType indexMajorArgs
     forallBoundedTelescope FType (some 1) fun below _ => do
       -- TODO: `below` user name is `f`, and it will make a global `f` to be pretty printed as `_root_.f` in error messages.
@@ -246,14 +246,14 @@ The `value` is the function with (only) the fixed parameters moved into the cont
 -/
 def mkBrecOnApp (brecOnConst : Name → Expr) (motives : Array Expr) (FArgs : Array Expr)
     (recArgInfo : RecArgInfo) (value : Expr) : MetaM Expr := do
-  lambdaTelescope value fun xs _value => do
-    let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor' xs
+  lambdaTelescope value fun ys _value => do
+    let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor ys
     let brecOn := brecOnConst recArgInfo.indName
     let brecOn := mkAppN brecOn recArgInfo.indParams
     let brecOn := mkAppN brecOn motives
     let brecOn := mkAppN brecOn indexMajorArgs
     let brecOn := mkAppN brecOn FArgs
-    mkLambdaFVars xs (mkAppN brecOn otherArgs)
+    mkLambdaFVars ys (mkAppN brecOn otherArgs)
 
 /--
 Temporary until the mutual code is proven.

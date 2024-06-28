@@ -115,9 +115,9 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Ar
         trace[Elab.definition.structural] "Using mkIndPred construction"
         let preDef := preDefs[0]!
         let recArgInfo := recArgInfos[0]!
-        let valueNew ← lambdaTelescope values[0]! fun ys value => do
-          let valueNew ← mkIndPredBRecOn recArgInfo (xs ++ ys) value
-          mkLambdaFVars (xs ++ ys) valueNew
+        let value := values[0]!
+        let valueNew ← mkIndPredBRecOn recArgInfo value
+        let valueNew ← mkLambdaFVars xs valueNew
         trace[Elab.definition.structural] "Nonrecursive value:{indentExpr valueNew}"
         check valueNew
         return #[{ preDef with value := valueNew }]

@@ -239,6 +239,6 @@ def toNatHex? (s : String) : Option Nat :=
   if h : s.isNatHex then s.toNatHex h else none
 
 def toNatHex! (s : String) : Nat :=
-  if h : s.isNatHex then s.toNatHex h else panic! "Nat in hexadecimal expected
+  if h : s.isNatHex then s.toNatHex h else panic! "Nat in hexadecimal expected"
 
 end String

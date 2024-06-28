@@ -15,8 +15,6 @@ Note that values in `[0xd800, 0xdfff]` are reserved for [UTF-16 surrogate pairs]
 
 namespace Char
 
-def unicodeVersion : Nat × Nat × Nat := (15,1,0)
-
 protected def lt (a b : Char) : Prop := a.val < b.val
 protected def le (a b : Char) : Prop := a.val ≤ b.val
 

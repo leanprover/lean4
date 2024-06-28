@@ -1463,5 +1463,4 @@ theorem mul_twoPow_eq_shiftLeft (x : BitVec w) (i : Nat) :
       apply Nat.pow_dvd_pow 2 (by omega)
     simp [Nat.mul_mod, hpow]
 
-
 end BitVec

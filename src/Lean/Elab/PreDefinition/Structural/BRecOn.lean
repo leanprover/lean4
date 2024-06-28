@@ -166,6 +166,35 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (below : Exp
   loop below e
 
 /--
+Calculates the `.brecOn` motive corresponding to one structural recursive function.
+The `value` is the function with (only) the fixed parameters moved into the context.
+-/
+def mkBRecOnMotive (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
+  lambdaTelescope value fun xs value => do
+    let type  := (← inferType value).headBeta
+    let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor' xs
+    let motive ← mkForallFVars otherArgs type
+    mkLambdaFVars indexMajorArgs motive
+
+/--
+Calculates the `.brecOn` functional argument corresponding to one structural recursive function.
+The `value` is the function with (only) the fixed parameters moved into the context,
+The `type` is the expected type of the argument.
+The `recArgInfos` is used to transform the body of the function to replace recursive calls with
+uses of the `below` induction hypothesis.
+-/
+def mkBRecOnF (recArgInfos : Array RecArgInfo) (recArgInfo : RecArgInfo) (value : Expr) (FType : Expr) : M Expr := do
+  lambdaTelescope value fun xs value => do
+    let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor' xs
+    let FType ← instantiateForall FType indexMajorArgs
+    forallBoundedTelescope FType (some 1) fun below _ => do
+      -- TODO: `below` user name is `f`, and it will make a global `f` to be pretty printed as `_root_.f` in error messages.
+      -- We should add an option to `forallBoundedTelescope` to ensure fresh names are used.
+      let below := below[0]!
+      let valueNew   ← replaceRecApps recArgInfos below value
+      mkLambdaFVars (indexMajorArgs ++ #[below] ++ otherArgs) valueNew
+
+/--
 The `value` is the function with (only) the fixed parameters moved into the context.
 -/
 def mkBRecOn (recArgInfos : Array RecArgInfo) (values : Array Expr) (i : Nat) : M Expr := do
@@ -192,33 +221,17 @@ def mkBRecOn (recArgInfos : Array RecArgInfo) (values : Array Expr) (i : Nat) : 
     brecOn := mkAppN brecOn recArgInfo.indParams
     -- calculate motives
     for recArgInfo in recArgInfos, value in values do
-      let motive ← lambdaTelescope value fun xs value => do
-        let type  := (← inferType value).headBeta
-        let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor' xs
-        let motive ← mkForallFVars otherArgs type
-        mkLambdaFVars indexMajorArgs motive
-      brecOn := mkApp brecOn motive
+      brecOn := mkApp brecOn (← mkBRecOnMotive recArgInfo value)
     brecOn := mkAppN brecOn indexMajorArgs
     check brecOn
     -- calculate minor args
     for recArgInfo in recArgInfos, value in values do
-      let Farg ← lambdaTelescope value fun xs value => do
-        let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor' xs
-        let brecOnType ← inferType brecOn
-        trace[Elab.definition.structural] "brecOn     {brecOn}"
-        trace[Elab.definition.structural] "brecOnType {brecOnType}"
-        forallBoundedTelescope brecOnType (some 1) fun F _ => do
-          let F := F[0]!
-          let FType ← inferType F
-          trace[Elab.definition.structural] "FType: {FType}"
-          let FType ← instantiateForall FType indexMajorArgs
-          forallBoundedTelescope FType (some 1) fun below _ => do
-            -- TODO: `below` user name is `f`, and it will make a global `f` to be pretty printed as `_root_.f` in error messages.
-            -- We should add an option to `forallBoundedTelescope` to ensure fresh names are used.
-            let below := below[0]!
-            let valueNew     ← replaceRecApps recArgInfos below value
-            mkLambdaFVars (indexMajorArgs ++ #[below] ++ otherArgs) valueNew
-      brecOn  := mkApp brecOn Farg
+      let brecOnType ← inferType brecOn
+      trace[Elab.definition.structural] "brecOn     {brecOn}"
+      trace[Elab.definition.structural] "brecOnType {brecOnType}"
+      let FType ← forallBoundedTelescope brecOnType (some 1) fun F _ => inferType F[0]!
+      trace[Elab.definition.structural] "FType: {FType}"
+      brecOn  := mkApp brecOn (← mkBRecOnF recArgInfos recArgInfo value FType)
     mkLambdaFVars xs (mkAppN brecOn otherArgs)
 
 end Lean.Elab.Structural

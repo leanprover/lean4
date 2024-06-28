@@ -426,7 +426,7 @@ private theorem Nat.testBit_one_eq_true_iff_self_eq_zero {i : Nat} :
   cases i <;> simp
 
 /-- Zero extending `1#v` to `1#w` equals `1#w` when `v > 0`. -/
-theorem zeroExtend_ofNat_one_eq_ofNat_one_of_lt {v w : Nat} (hv : 0 < v):
+theorem zeroExtend_ofNat_one_eq_ofNat_one_of_lt {v w : Nat} (hv : 0 < v) :
     (BitVec.ofNat v 1).zeroExtend w = BitVec.ofNat w 1 := by
   ext i
   obtain ⟨i, hilt⟩ := i

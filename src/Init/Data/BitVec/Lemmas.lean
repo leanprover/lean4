@@ -1043,8 +1043,13 @@ theorem ofInt_add {n} (x y : Int) : BitVec.ofInt n (x + y) =
 
 theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n ((2^n - y.toNat) + x.toNat) := by rfl
 
-@[simp, bv_toNat] theorem toNat_sub {n} (x y : BitVec n) :
-  (x - y).toNat = (((2^n - y.toNat) + x.toNat) % 2^n) := rfl
+@[simp] theorem toNat_sub {n} (x y : BitVec n) :
+    (x - y).toNat = (((2^n - y.toNat) + x.toNat) % 2^n) := rfl
+
+@[bv_toNat] theorem toNat_sub' {n} (x y : BitVec n) :
+    (x - y).toNat = ((x.toNat + (2^n - y.toNat)) % 2^n) := by
+  rw [toNat_sub, Nat.add_comm]
+
 @[simp] theorem toFin_sub (x y : BitVec n) : (x - y).toFin = toFin x - toFin y := rfl
 
 @[simp] theorem ofFin_sub (x : Fin (2^n)) (y : BitVec n) : .ofFin x - y = .ofFin (x - y.toFin) :=

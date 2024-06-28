@@ -190,10 +190,7 @@ inductive B
   | empty
 end
 
-/--
-error: argument #1 cannot be used for structural recursion
-  structural mutual recursion only supported without reordering for now
--/
+/-- error: structural mutual recursion only supported without reordering for now -/
 #guard_msgs in
 def A.self_size : A → Nat
   | .self a => a.self_size + 1
@@ -201,10 +198,7 @@ def A.self_size : A → Nat
   | .empty => 0
 termination_by structurally x => x
 
-/--
-error: argument #1 cannot be used for structural recursion
-  structural mutual recursion only supported without reordering for now
--/
+/-- error: structural mutual recursion only supported without reordering for now -/
 #guard_msgs in
 def B.self_size : B → Nat
   | .self b => b.self_size + 1

@@ -138,74 +138,46 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Ar
       let valuesNew ← valuesNew.mapM (mkLambdaFVars xs ·)
       return (Array.zip preDefs valuesNew).map fun ⟨preDef, valueNew⟩ => { preDef with value := valueNew }
 
-def buildTermArg (preDef : PreDefinition) (recArgPos : Nat) : MetaM TerminationArgument := do
-  let fn ← lambdaTelescope preDef.value fun xs _ => mkLambdaFVars xs xs[recArgPos]!
-  return {ref := .missing, structural := true, fn}
-
 def reportTermArg (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit := do
   if let some ref := preDef.termination.terminationBy?? then
-    let termArg ← buildTermArg preDef recArgPos
+    let fn ← lambdaTelescope preDef.value fun xs _ => mkLambdaFVars xs xs[recArgPos]!
+    let termArg : TerminationArgument:= {ref := .missing, structural := true, fn}
     let arity ← lambdaTelescope preDef.value fun xs _ => pure xs.size
     let stx ← termArg.delab arity (extraParams := preDef.termination.extraParams)
     Tactic.TryThis.addSuggestion ref stx
 
-
-private def elimRecursion (preDef : PreDefinition) (termArg? : Option TerminationArgument) : M (Nat × PreDefinition) := do
-  trace[Elab.definition.structural] "{preDef.declName} := {preDef.value}"
+private def inferRecArgPos (preDefs : Array PreDefinition)
+    (termArgs? : Option TerminationArguments) : M (Array Nat × Array PreDefinition) := do
   withoutModifyingEnv do
-    let go := fun i => do
-      mapError (f := fun msg => m!"argument #{i+1} cannot be used for structural recursion{indentD msg}") do
-        -- Use the mutual inductive case here to exercise ist
-        let preDefsNew ← elimMutualRecursion #[preDef] #[i]
-        return (i, preDefsNew[0]!)
-    -- Use termination_by annotation to find argument to recurse on, or just try all
-    match termArg? with
-    | .some termArg => go (← termArg.structuralArg)
-    | .none => tryAllArgs preDef.value go
+    if let some termArgs := termArgs? then
+      let recArgPoss ← termArgs.mapM (·.structuralArg)
+      let preDefsNew ← elimMutualRecursion preDefs recArgPoss
+      return (recArgPoss, preDefsNew)
+    else
+      let #[preDef] := preDefs
+        | throwError "mutual structural recursion reqiures explicit `termination_by` clauses"
+      -- Use termination_by annotation to find argument to recurse on, or just try all
+      tryAllArgs preDef.value fun i =>
+        mapError (f := fun msg => m!"argument #{i+1} cannot be used for structural recursion{indentD msg}") do
+          let preDefsNew ← elimMutualRecursion #[preDef] #[i]
+          return (#[i], preDefsNew)
 
 def structuralRecursion (preDefs : Array PreDefinition) (termArgs? : Option TerminationArguments) : TermElabM Unit := do
-  if preDefs.size != 1 then
-    let .some termArgs := termArgs?
-      | throwError "mutual structural recursion reqiures explicit `termination_by` clauses"
-    let recArgPoss ← termArgs.mapM (·.structuralArg)
-    let (preDefsNonRec, state) ← run <| elimMutualRecursion preDefs recArgPoss
-    -- TODO: reportTermArg
-    state.addMatchers.forM liftM
-    preDefsNonRec.forM fun preDefNonRec => do
-      let preDefNonRec ← eraseRecAppSyntax preDefNonRec
-      -- state.addMatchers.forM liftM
-      mapError (addNonRec preDefNonRec (applyAttrAfterCompilation := false)) fun msg =>
-        m!"structural recursion failed, produced type incorrect term{indentD msg}"
-      -- We create the `_unsafe_rec` before we abstract nested proofs.
-      -- Reason: the nested proofs may be referring to the _unsafe_rec.
-    let preDefs ← preDefs.mapM (eraseRecAppSyntax ·)
-    addAndCompilePartialRec preDefs
-    for preDef in preDefs, recArgPos in recArgPoss do
-      let mut preDef := preDef
-      unless preDef.kind.isTheorem do
-        unless (← isProp preDef.type) do
-          preDef ← abstractNestedProofs preDef
-          /-
-          Don't save predefinition info for equation generator
-          for theorems and definitions that are propositions.
-          See issue #2327
-          -/
-          registerEqnsInfo preDef recArgPos
-      addSmartUnfoldingDef preDef recArgPos
-      markAsRecursive preDef.declName
-    applyAttributesOf preDefsNonRec AttributeApplicationTime.afterCompilation
-  else do
-    let termArg? := termArgs?.map (·[0]!)
-    let ((recArgPos, preDefNonRec), state) ← run <| elimRecursion preDefs[0]! termArg?
-    state.addMatchers.forM liftM
-    reportTermArg preDefNonRec recArgPos
+  let ((recArgPoss, preDefsNonRec), state) ← run <| inferRecArgPos preDefs termArgs?
+  for recArgPos in recArgPoss, preDef in preDefs do
+    reportTermArg preDef recArgPos
+  state.addMatchers.forM liftM
+  preDefsNonRec.forM fun preDefNonRec => do
     let preDefNonRec ← eraseRecAppSyntax preDefNonRec
+    -- state.addMatchers.forM liftM
     mapError (addNonRec preDefNonRec (applyAttrAfterCompilation := false)) fun msg =>
       m!"structural recursion failed, produced type incorrect term{indentD msg}"
-    let mut preDef ← eraseRecAppSyntax preDefs[0]!
     -- We create the `_unsafe_rec` before we abstract nested proofs.
     -- Reason: the nested proofs may be referring to the _unsafe_rec.
-    addAndCompilePartialRec #[preDef]
+  let preDefs ← preDefs.mapM (eraseRecAppSyntax ·)
+  addAndCompilePartialRec preDefs
+  for preDef in preDefs, recArgPos in recArgPoss do
+    let mut preDef := preDef
     unless preDef.kind.isTheorem do
       unless (← isProp preDef.type) do
         preDef ← abstractNestedProofs preDef
@@ -217,7 +189,7 @@ def structuralRecursion (preDefs : Array PreDefinition) (termArgs? : Option Term
         registerEqnsInfo preDef recArgPos
     addSmartUnfoldingDef preDef recArgPos
     markAsRecursive preDef.declName
-    applyAttributesOf #[preDefNonRec] AttributeApplicationTime.afterCompilation
+  applyAttributesOf preDefsNonRec AttributeApplicationTime.afterCompilation
 
 builtin_initialize
   registerTraceClass `Elab.definition.structural

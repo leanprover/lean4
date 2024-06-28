@@ -103,7 +103,6 @@ uint8_t l_Lean_Meta_Match_isMatchEqnTheorem(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_elabSimpConfigCore___closed__6;
 static lean_object* l_Lean_Elab_Tactic_elabSimpConfigCore___closed__9;
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_initFn____x40_Lean_Elab_Tactic_Simp___hyg_4935____closed__7;
 static lean_object* l_Lean_Elab_Tactic_instBEqSimpKind___closed__1;
 static lean_object* l_Lean_Parser_Tactic_getSimpArgs_x3f___closed__1;
@@ -241,6 +240,7 @@ LEAN_EXPORT lean_object* l_Lean_mkFreshId___at_Lean_Elab_Tactic_elabSimpArgs___s
 lean_object* l_Lean_FVarId_getDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_SimpKind_toCtorIdx___boxed(lean_object*);
 uint8_t l_Lean_PersistentHashMap_contains___at_Lean_Meta_SimpTheorems_erase___spec__1(lean_object*, lean_object*);
+lean_object* l_outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_SimpKind_toCtorIdx(uint8_t);
 lean_object* l_Lean_Elab_Tactic_withMainContext___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Elab_Tactic_mkSimpContext___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10764,7 +10764,7 @@ if (x_19 == 0)
 {
 lean_object* x_38; lean_object* x_39; 
 x_38 = l_Lean_Meta_instInhabitedSimpTheorems;
-x_39 = l___private_Init_GetElem_0__outOfBounds___rarg(x_38);
+x_39 = l_outOfBounds___rarg(x_38);
 x_25 = x_39;
 goto block_37;
 }

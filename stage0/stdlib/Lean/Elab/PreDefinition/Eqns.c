@@ -85,7 +85,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Eqns_mkEqnTypes_go___boxed(lean_object*, le
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT uint8_t l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_findMatchToSplit_x3f___spec__3___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Eqns_removeUnusedEqnHypotheses_go___spec__11___at_Lean_Elab_Eqns_removeUnusedEqnHypotheses_go___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_shouldUseSimpMatch___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_saveEqn___spec__8(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getType_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -244,6 +243,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_E
 LEAN_EXPORT lean_object* l_Lean_Elab_Eqns_simpEqnType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_transform___at_Lean_Meta_zetaReduce___spec__1(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FVarId_getDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_Meta_delta_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Eqns_removeUnusedEqnHypotheses_go___spec__11___at_Lean_Elab_Eqns_removeUnusedEqnHypotheses_go___spec__12(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getEqnsFor_x3f(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1902,7 +1902,7 @@ if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; uint8_t x_16; 
 x_14 = l_Lean_instInhabitedExpr;
-x_15 = l___private_Init_GetElem_0__outOfBounds___rarg(x_14);
+x_15 = l_outOfBounds___rarg(x_14);
 x_16 = l_Lean_Expr_isFVar(x_15);
 lean_dec(x_15);
 if (x_16 == 0)
@@ -2082,7 +2082,7 @@ if (x_15 == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_17 = l_Lean_instInhabitedExpr;
-x_18 = l___private_Init_GetElem_0__outOfBounds___rarg(x_17);
+x_18 = l_outOfBounds___rarg(x_17);
 x_19 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_16, x_18);
 if (lean_obj_tag(x_19) == 0)
 {

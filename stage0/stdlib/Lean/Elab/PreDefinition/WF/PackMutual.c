@@ -35,7 +35,6 @@ lean_object* l_Lean_Expr_sort___override(lean_object*);
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Lean_Elab_WF_checkCodomainsLevel___spec__1___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Lean_Elab_WF_checkCodomainsLevel___spec__1___lambda__1___closed__16;
@@ -66,6 +65,7 @@ static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDefinitio
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_withAppN___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_transform___at_Lean_Meta_zetaReduce___spec__1(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Lean_Elab_WF_checkCodomainsLevel___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Lean_Elab_WF_checkCodomainsLevel___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1015,7 +1015,7 @@ if (x_24 == 0)
 {
 lean_object* x_57; lean_object* x_58; 
 x_57 = l_Lean_Elab_instInhabitedPreDefinition;
-x_58 = l___private_Init_GetElem_0__outOfBounds___rarg(x_57);
+x_58 = l_outOfBounds___rarg(x_57);
 x_26 = x_58;
 goto block_56;
 }
@@ -1043,7 +1043,7 @@ if (x_25 == 0)
 {
 lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; uint8_t x_33; lean_object* x_34; 
 x_29 = l_instInhabitedNat;
-x_30 = l___private_Init_GetElem_0__outOfBounds___rarg(x_29);
+x_30 = l_outOfBounds___rarg(x_29);
 x_31 = lean_nat_add(x_1, x_30);
 lean_dec(x_30);
 x_32 = lean_alloc_ctor(1, 1, 0);
@@ -1315,7 +1315,7 @@ if (x_11 == 0)
 {
 lean_object* x_29; lean_object* x_30; 
 x_29 = l_Lean_Elab_instInhabitedPreDefinition;
-x_30 = l___private_Init_GetElem_0__outOfBounds___rarg(x_29);
+x_30 = l_outOfBounds___rarg(x_29);
 x_14 = x_30;
 goto block_28;
 }
@@ -1345,7 +1345,7 @@ if (x_13 == 0)
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; lean_object* x_22; 
 lean_dec(x_2);
 x_17 = l_instInhabitedNat;
-x_18 = l___private_Init_GetElem_0__outOfBounds___rarg(x_17);
+x_18 = l_outOfBounds___rarg(x_17);
 x_19 = lean_nat_add(x_1, x_18);
 lean_dec(x_18);
 lean_dec(x_1);
@@ -1906,7 +1906,7 @@ lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean
 lean_dec(x_20);
 lean_dec(x_4);
 x_24 = l___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Lean_Elab_WF_post___lambda__3___closed__1;
-x_25 = l___private_Init_GetElem_0__outOfBounds___rarg(x_24);
+x_25 = l_outOfBounds___rarg(x_24);
 x_26 = lean_array_get_size(x_25);
 lean_dec(x_25);
 x_27 = lean_nat_add(x_5, x_26);
@@ -2057,7 +2057,7 @@ lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean
 lean_dec(x_51);
 lean_dec(x_4);
 x_55 = l___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Lean_Elab_WF_post___lambda__3___closed__1;
-x_56 = l___private_Init_GetElem_0__outOfBounds___rarg(x_55);
+x_56 = l_outOfBounds___rarg(x_55);
 x_57 = lean_array_get_size(x_56);
 lean_dec(x_56);
 x_58 = lean_nat_add(x_5, x_57);
@@ -3273,7 +3273,7 @@ x_34 = lean_ctor_get(x_30, 1);
 lean_inc(x_34);
 lean_dec(x_30);
 x_35 = l_Lean_Elab_instInhabitedPreDefinition;
-x_36 = l___private_Init_GetElem_0__outOfBounds___rarg(x_35);
+x_36 = l_outOfBounds___rarg(x_35);
 x_37 = lean_ctor_get(x_36, 3);
 lean_inc(x_37);
 lean_dec(x_36);
@@ -3378,7 +3378,7 @@ x_56 = lean_ctor_get(x_30, 1);
 lean_inc(x_56);
 lean_dec(x_30);
 x_57 = l_Lean_Elab_instInhabitedPreDefinition;
-x_58 = l___private_Init_GetElem_0__outOfBounds___rarg(x_57);
+x_58 = l_outOfBounds___rarg(x_57);
 x_59 = lean_ctor_get(x_58, 3);
 lean_inc(x_59);
 lean_dec(x_58);
@@ -3480,7 +3480,7 @@ if (x_15 == 0)
 {
 lean_object* x_23; lean_object* x_24; 
 x_23 = l_Lean_Elab_instInhabitedPreDefinition;
-x_24 = l___private_Init_GetElem_0__outOfBounds___rarg(x_23);
+x_24 = l_outOfBounds___rarg(x_23);
 x_17 = x_24;
 goto block_22;
 }
@@ -3559,7 +3559,7 @@ if (x_21 == 0)
 lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 lean_dec(x_3);
 x_22 = l_Lean_Elab_instInhabitedPreDefinition;
-x_23 = l___private_Init_GetElem_0__outOfBounds___rarg(x_22);
+x_23 = l_outOfBounds___rarg(x_22);
 x_24 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_24, 0, x_23);
 lean_ctor_set(x_24, 1, x_8);

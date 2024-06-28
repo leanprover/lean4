@@ -80,7 +80,6 @@ lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_Elab_Tactic_Conv_mkConvGoalFor(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalSkip__1___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalRhs__1___closed__2;
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Conv_extLetBodyCongr_x3f___lambda__2___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalRhs_declRange__1___closed__5;
@@ -187,6 +186,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalRhs_declRange__1___
 LEAN_EXPORT lean_object* l_List_forIn_loop___at___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_Tactic_Conv_selectIdx___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_map___at_Lean_Elab_Tactic_Conv_congr___spec__4(lean_object*);
+lean_object* l_outOfBounds___rarg(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalSkip__1___closed__2;
 static lean_object* l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_Tactic_Conv_extCore___lambda__1___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalLhs_declRange__1___closed__6;
@@ -1459,7 +1459,7 @@ if (x_37 == 0)
 {
 lean_object* x_409; lean_object* x_410; 
 x_409 = l_Lean_instInhabitedExpr;
-x_410 = l___private_Init_GetElem_0__outOfBounds___rarg(x_409);
+x_410 = l_outOfBounds___rarg(x_409);
 x_44 = x_410;
 goto block_408;
 }
@@ -1512,13 +1512,13 @@ if (x_40 == 0)
 {
 lean_object* x_77; lean_object* x_78; 
 x_77 = l_Lean_Meta_instInhabitedParamInfo;
-x_78 = l___private_Init_GetElem_0__outOfBounds___rarg(x_77);
+x_78 = l_outOfBounds___rarg(x_77);
 if (x_43 == 0)
 {
 uint8_t x_79; lean_object* x_80; lean_object* x_81; uint8_t x_82; lean_object* x_83; 
 x_79 = l_Lean_Meta_instInhabitedCongrArgKind;
 x_80 = lean_box(x_79);
-x_81 = l___private_Init_GetElem_0__outOfBounds___rarg(x_80);
+x_81 = l_outOfBounds___rarg(x_80);
 x_82 = lean_unbox(x_81);
 lean_dec(x_81);
 x_83 = lean_box(x_82);
@@ -2495,7 +2495,7 @@ if (x_43 == 0)
 uint8_t x_244; lean_object* x_245; lean_object* x_246; uint8_t x_247; lean_object* x_248; 
 x_244 = l_Lean_Meta_instInhabitedCongrArgKind;
 x_245 = lean_box(x_244);
-x_246 = l___private_Init_GetElem_0__outOfBounds___rarg(x_245);
+x_246 = l_outOfBounds___rarg(x_245);
 x_247 = lean_unbox(x_246);
 lean_dec(x_246);
 x_248 = lean_box(x_247);

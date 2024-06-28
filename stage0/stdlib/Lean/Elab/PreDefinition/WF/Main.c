@@ -59,7 +59,6 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_WF_Main_0__Lean_Elab_isOnlyOneUnaryDef___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_wfRecursion___lambda__8(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_PreDefinition_WF_Main___hyg_2866____closed__5;
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_PreDefinition_WF_Main___hyg_2866____closed__18;
@@ -152,6 +151,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_wfRecursion___spe
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_wfRecursion___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_transform___at_Lean_Meta_zetaReduce___spec__1(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_getFixedPrefix___spec__14___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_outOfBounds___rarg(lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_getFixedPrefix___spec__2___closed__1;
 lean_object* l_Lean_Meta_ArgsPacker_curryProj(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_WF_instInhabitedTerminationBy;
@@ -602,7 +602,7 @@ if (x_25 == 0)
 {
 lean_object* x_122; lean_object* x_123; 
 x_122 = l_Lean_Elab_instInhabitedPreDefinition;
-x_123 = l___private_Init_GetElem_0__outOfBounds___rarg(x_122);
+x_123 = l_outOfBounds___rarg(x_122);
 x_28 = x_123;
 goto block_121;
 }
@@ -1324,7 +1324,7 @@ if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
 x_27 = l_Lean_instInhabitedExpr;
-x_28 = l___private_Init_GetElem_0__outOfBounds___rarg(x_27);
+x_28 = l_outOfBounds___rarg(x_27);
 x_29 = l_Lean_Expr_bindingDomain_x21(x_28);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -1765,7 +1765,7 @@ if (x_14 == 0)
 lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; lean_object* x_23; uint8_t x_24; lean_object* x_25; 
 lean_dec(x_3);
 x_19 = l_Lean_instInhabitedExpr;
-x_20 = l___private_Init_GetElem_0__outOfBounds___rarg(x_19);
+x_20 = l_outOfBounds___rarg(x_19);
 x_21 = l_Lean_Expr_bindingName_x21(x_20);
 x_22 = l_Lean_Expr_binderInfo(x_20);
 x_23 = l_Lean_Expr_bindingDomain_x21(x_20);
@@ -5770,7 +5770,7 @@ if (x_15 == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; lean_object* x_21; 
 x_17 = l_Lean_Elab_instInhabitedPreDefinition;
-x_18 = l___private_Init_GetElem_0__outOfBounds___rarg(x_17);
+x_18 = l_outOfBounds___rarg(x_17);
 x_19 = lean_ctor_get(x_18, 5);
 lean_inc(x_19);
 lean_dec(x_18);
@@ -7204,7 +7204,7 @@ if (x_18 == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; size_t x_33; size_t x_34; 
 x_19 = l_Lean_Elab_instInhabitedPreDefinition;
-x_20 = l___private_Init_GetElem_0__outOfBounds___rarg(x_19);
+x_20 = l_outOfBounds___rarg(x_19);
 x_21 = lean_ctor_get(x_20, 3);
 lean_inc(x_21);
 lean_dec(x_20);
@@ -7363,7 +7363,7 @@ x_27 = lean_ctor_get(x_23, 2);
 lean_inc(x_27);
 lean_dec(x_23);
 x_28 = l_Lean_Elab_withCommonTelescope___rarg___closed__1;
-x_29 = l___private_Init_GetElem_0__outOfBounds___rarg(x_28);
+x_29 = l_outOfBounds___rarg(x_28);
 x_30 = lean_array_get_size(x_29);
 lean_dec(x_29);
 x_31 = lean_nat_add(x_1, x_30);

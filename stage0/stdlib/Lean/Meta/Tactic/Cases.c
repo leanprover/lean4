@@ -87,7 +87,6 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_generalizeTargetsEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitApp___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__6(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__26___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__33___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__35(lean_object*, lean_object*, lean_object*, size_t, size_t);
@@ -202,6 +201,7 @@ lean_object* l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0_
 static lean_object* l_Lean_Meta_Cases_cases___lambda__2___closed__9;
 lean_object* l_Lean_Meta_getLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FVarId_getDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_generalizeIndices___spec__1___lambda__6___closed__4;
 static lean_object* l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_mkEqAndProof___closed__7;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -1211,21 +1211,21 @@ return x_14;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; uint8_t x_17; 
-x_15 = lean_array_fget(x_1, x_4);
-x_16 = lean_array_get_size(x_2);
-x_17 = lean_nat_dec_lt(x_4, x_16);
-lean_dec(x_16);
-if (x_17 == 0)
+lean_object* x_15; uint8_t x_16; lean_object* x_17; 
+x_15 = lean_array_get_size(x_2);
+x_16 = lean_nat_dec_lt(x_4, x_15);
+lean_dec(x_15);
+x_17 = lean_array_fget(x_1, x_4);
+if (x_16 == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_18 = l_Lean_instInhabitedExpr;
-x_19 = l___private_Init_GetElem_0__outOfBounds___rarg(x_18);
+x_19 = l_outOfBounds___rarg(x_18);
 lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
-x_20 = l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_mkEqAndProof(x_15, x_19, x_7, x_8, x_9, x_10, x_11);
+x_20 = l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_mkEqAndProof(x_17, x_19, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_20) == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; uint8_t x_28; lean_object* x_29; 
@@ -1294,7 +1294,7 @@ lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
-x_35 = l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_mkEqAndProof(x_15, x_34, x_7, x_8, x_9, x_10, x_11);
+x_35 = l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_mkEqAndProof(x_17, x_34, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_35) == 0)
 {
 lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; uint8_t x_42; uint8_t x_43; lean_object* x_44; 
@@ -3810,12 +3810,12 @@ if (x_12 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
 x_14 = l_Lean_instInhabitedExpr;
-x_15 = l___private_Init_GetElem_0__outOfBounds___rarg(x_14);
+x_15 = l_outOfBounds___rarg(x_14);
 if (x_13 == 0)
 {
 lean_object* x_16; uint8_t x_17; 
 lean_dec(x_11);
-x_16 = l___private_Init_GetElem_0__outOfBounds___rarg(x_14);
+x_16 = l_outOfBounds___rarg(x_14);
 x_17 = lean_expr_eqv(x_15, x_16);
 lean_dec(x_16);
 lean_dec(x_15);
@@ -3863,7 +3863,7 @@ if (x_13 == 0)
 lean_object* x_25; lean_object* x_26; uint8_t x_27; 
 lean_dec(x_11);
 x_25 = l_Lean_instInhabitedExpr;
-x_26 = l___private_Init_GetElem_0__outOfBounds___rarg(x_25);
+x_26 = l_outOfBounds___rarg(x_25);
 x_27 = lean_expr_eqv(x_24, x_26);
 lean_dec(x_26);
 lean_dec(x_24);
@@ -12647,7 +12647,7 @@ if (x_17 == 0)
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 lean_dec(x_8);
 x_22 = l_Lean_instInhabitedName;
-x_23 = l___private_Init_GetElem_0__outOfBounds___rarg(x_22);
+x_23 = l_outOfBounds___rarg(x_22);
 lean_inc(x_4);
 lean_inc(x_23);
 x_24 = l_Lean_Expr_const___override(x_23, x_4);
@@ -12706,7 +12706,7 @@ if (x_17 == 0)
 lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; 
 lean_dec(x_8);
 x_43 = l_Lean_instInhabitedName;
-x_44 = l___private_Init_GetElem_0__outOfBounds___rarg(x_43);
+x_44 = l_outOfBounds___rarg(x_43);
 lean_inc(x_4);
 lean_inc(x_44);
 x_45 = l_Lean_Expr_const___override(x_44, x_4);

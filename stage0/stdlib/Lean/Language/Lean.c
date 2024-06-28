@@ -46,7 +46,6 @@ LEAN_EXPORT lean_object* l_Lean_Language_Lean_process_parseHeader___lambda__1(le
 lean_object* l_Lean_Elab_Command_mkState(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_LeanProcessingM_run(lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_Language_SnapshotTask_ofIO___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Language_Lean_process_parseCmd___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_process_parseCmd___lambda__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -103,6 +102,7 @@ LEAN_EXPORT lean_object* l_Lean_Language_Lean_instMonadLiftProcessingTLeanProces
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_process_processHeader___lambda__1(lean_object*);
 lean_object* l_Lean_Elab_getResetInfoTrees___at___private_Lean_Elab_Command_0__Lean_Elab_Command_elabCommandUsing___spec__3___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_process_doElab___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instMonadLiftProcessingTLeanProcessingT(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_process_doElab___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderParsedSnapshot_processedResult(lean_object*);
@@ -2419,7 +2419,7 @@ if (x_24 == 0)
 lean_object* x_25; lean_object* x_26; lean_object* x_27; uint8_t x_28; lean_object* x_29; lean_object* x_30; 
 lean_dec(x_21);
 x_25 = l_Lean_Elab_instInhabitedInfoTree;
-x_26 = l___private_Init_GetElem_0__outOfBounds___rarg(x_25);
+x_26 = l_outOfBounds___rarg(x_25);
 x_27 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_27, 0, x_26);
 x_28 = 0;
@@ -2473,7 +2473,7 @@ if (x_42 == 0)
 lean_object* x_43; lean_object* x_44; lean_object* x_45; uint8_t x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; 
 lean_dec(x_39);
 x_43 = l_Lean_Elab_instInhabitedInfoTree;
-x_44 = l___private_Init_GetElem_0__outOfBounds___rarg(x_43);
+x_44 = l_outOfBounds___rarg(x_43);
 x_45 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_45, 0, x_44);
 x_46 = 0;
@@ -5309,7 +5309,7 @@ if (x_54 == 0)
 lean_object* x_57; lean_object* x_58; lean_object* x_59; uint8_t x_60; lean_object* x_61; lean_object* x_62; 
 lean_dec(x_43);
 x_57 = l_Lean_Elab_instInhabitedInfoTree;
-x_58 = l___private_Init_GetElem_0__outOfBounds___rarg(x_57);
+x_58 = l_outOfBounds___rarg(x_57);
 x_59 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_59, 0, x_58);
 x_60 = 0;
@@ -5365,7 +5365,7 @@ if (x_73 == 0)
 lean_object* x_76; lean_object* x_77; lean_object* x_78; uint8_t x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; 
 lean_dec(x_43);
 x_76 = l_Lean_Elab_instInhabitedInfoTree;
-x_77 = l___private_Init_GetElem_0__outOfBounds___rarg(x_76);
+x_77 = l_outOfBounds___rarg(x_76);
 x_78 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_78, 0, x_77);
 x_79 = 0;
@@ -5505,7 +5505,7 @@ if (x_128 == 0)
 lean_object* x_131; lean_object* x_132; lean_object* x_133; uint8_t x_134; lean_object* x_135; lean_object* x_136; lean_object* x_137; 
 lean_dec(x_115);
 x_131 = l_Lean_Elab_instInhabitedInfoTree;
-x_132 = l___private_Init_GetElem_0__outOfBounds___rarg(x_131);
+x_132 = l_outOfBounds___rarg(x_131);
 x_133 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_133, 0, x_132);
 x_134 = 0;

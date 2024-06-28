@@ -54,7 +54,6 @@ lean_object* l_Lean_Meta_DiscrTree_instInhabited(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_21____spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_21____spec__3(lean_object*, size_t, lean_object*);
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_MVarId_symmSaturate___spec__3___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkExpectedTypeHint(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static size_t l_Lean_PersistentHashMap_findAux___at_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_21____spec__3___closed__2;
@@ -120,6 +119,7 @@ static lean_object* l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_1
 static lean_object* l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_106____closed__12;
 static lean_object* l_List_firstM___at_Lean_Expr_applySymm___spec__1___closed__1;
 lean_object* l_Array_back_x3f___rarg(lean_object*);
+lean_object* l_outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_symmSaturate___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at_Lean_MVarId_symmSaturate___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -1528,7 +1528,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = l_Lean_Meta_DiscrTree_instInhabitedKey;
-x_9 = l___private_Init_GetElem_0__outOfBounds___rarg(x_8);
+x_9 = l_outOfBounds___rarg(x_8);
 lean_inc(x_1);
 x_10 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_21____spec__2(x_1, x_9);
 if (lean_obj_tag(x_10) == 0)

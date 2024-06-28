@@ -8,8 +8,17 @@ import Lean.CoreM
 
 namespace Lean
 
+register_builtin_option debug.skipKernelTC : Bool := {
+  defValue := false
+  group    := "debug"
+  descr    := "skip kernel type checker. WARNING: setting this option to true may compromise soundness because your proofs will not be checked by the Lean kernel"
+}
+
 def Environment.addDecl (env : Environment) (opts : Options) (decl : Declaration) : Except KernelException Environment :=
-  addDeclCore env (Core.getMaxHeartbeats opts).toUSize decl
+  if debug.skipKernelTC.get opts then
+    addDeclWithoutChecking env decl
+  else
+    addDeclCore env (Core.getMaxHeartbeats opts).toUSize decl
 
 def Environment.addAndCompile (env : Environment) (opts : Options) (decl : Declaration) : Except KernelException Environment := do
   let env ← addDecl env opts decl

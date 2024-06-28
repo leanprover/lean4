@@ -89,6 +89,16 @@ def getMutualFixedPrefix (preDefs : Array PreDefinition) : M Nat :=
           return true
     resultRef.get
 
+/-- Checks that all parameter types are mutually inductive -/
+private def checkAllFromSameClique (recArgInfos : Array RecArgInfo) : MetaM Unit := do
+  let indInfo ← getConstInfoInduct recArgInfos[0]!.indName
+  for recArgInfo in recArgInfos do
+    unless indInfo.all.contains recArgInfo.indName do
+      throwError m!"Cannot use structural mutual recursion: The recursive argument of " ++
+        m!"{recArgInfos[0]!.fnName} is of type {indInfo.name}, " ++
+        m!"the recursive argument of {recArgInfo.fnName} is of type " ++
+            m!"{recArgInfo.indName}, and these are not mutually recursive."
+
 private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Array Nat) : M (Array PreDefinition) := do
   withoutModifyingEnv do
     preDefs.forM (addAsAxiom ·)
@@ -122,26 +132,23 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Ar
         check valueNew
         return #[{ preDef with value := valueNew }]
 
-      -- Check that all parameter types are mutually inductive
-      for recArgInfo in recArgInfos do
-        unless indInfo.all.contains recArgInfo.indName do
-          throwError m!"Cannot use structural mutual recursion: The recursive argument of " ++
-            m!"{recArgInfos[0]!.fnName} is of type {indInfo.name}, " ++
-            m!"the recursive argument of {recArgInfo.fnName} is of type " ++
-            m!"{recArgInfo.indName}, and these are not mutually recursive."
-
-      -- TODO: This check should be up to permutation and calculate that permutation somehow
-      unless indInfo.all.toArray = recArgInfos.map (·.indName) do
-        throwError "structural mutual recursion only supported without reordering for now"
+      checkAllFromSameClique recArgInfos
+      -- Sort the (indices of the) definitions by their position in indInfo.all
+      let positions : Array (Array Nat) :=
+        indInfo.all.toArray.map fun indName =>
+          (Array.range preDefs.size).filter fun i =>
+            recArgInfos[i]!.indName = indName
+      -- Sanity check
+      assert! Array.range preDefs.size = positions.flatten.qsort Nat.blt
 
       -- Construct the common `.brecOn` arguments
       let motives ← (Array.zip recArgInfos values).mapM fun (r, v) => mkBRecOnMotive r v
       let brecOnConst ← mkBRecOnConst recArgInfos motives
-      let FTypes ← inferBRecOnFTypes recArgInfos motives brecOnConst
+      let FTypes ← inferBRecOnFTypes recArgInfos brecOnConst
       let FArgs ← (recArgInfos.zip  (values.zip FTypes)).mapM fun (r, (v, t)) => mkBRecOnF recArgInfos r v t
       -- Assemble the individual `.brecOn` applications
       let valuesNew ← (Array.zip recArgInfos values).mapM fun (r, v) =>
-        mkBrecOnApp brecOnConst motives FArgs r v
+        mkBrecOnApp brecOnConst FArgs r v
       -- Abstract over the fixed prefixed
       let valuesNew ← valuesNew.mapM (mkLambdaFVars xs ·)
       return (Array.zip preDefs valuesNew).map fun ⟨preDef, valueNew⟩ => { preDef with value := valueNew }

@@ -204,8 +204,8 @@ def mkBRecOnF (recArgInfos : Array RecArgInfo) (recArgInfo : RecArgInfo) (value 
       mkLambdaFVars (indexMajorArgs ++ #[below] ++ otherArgs) valueNew
 
 /--
-Given the `motives`, figures out whether to use `.brecOn` or `.binductionOn`, and
-the right universe levels.
+Given the `motives`, figures out whether to use `.brecOn` or `.binductionOn`, pass
+the right universe levels, the parameters, and the motives.
 TODO: What if the function motives have different universes?
 -/
 def mkBRecOnConst (recArgInfos : Array RecArgInfo) (motives : Array Expr) : MetaM (Name → Expr) := do
@@ -220,53 +220,41 @@ def mkBRecOnConst (recArgInfos : Array RecArgInfo) (motives : Array Expr) : Meta
       decLevel brecOnUniv
     else
       pure brecOnUniv
-  if useBInductionOn then
-    return fun n => Lean.mkConst (mkBInductionOnName n) recArgInfo.indLevels
-  else
-    return fun n => Lean.mkConst (mkBRecOnName n) (brecOnUniv :: recArgInfo.indLevels)
+  return fun n =>
+    let brecOn :=
+      if useBInductionOn then .const (mkBInductionOnName n) recArgInfo.indLevels
+      else                    .const (mkBRecOnName n) (brecOnUniv :: recArgInfo.indLevels)
+    let brecOn := mkAppN brecOn recArgInfo.indParams
+    let brecOn := mkAppN brecOn motives
+    brecOn
 
 /--
 Given the `recArgInfos` and the `motives`, infer the types of the `F` arguments to the `.brecOn`
 combinators. This assumes that all `.brecOn` functions of a mutual inductive have the same
 result here.
 -/
-def inferBRecOnFTypes (recArgInfos : Array RecArgInfo) (motives : Array Expr)
+def inferBRecOnFTypes (recArgInfos : Array RecArgInfo)
     (brecOnConst : Name → Expr) : MetaM (Array Expr) := do
   let recArgInfo := recArgInfos[0]! -- pick an arbitrary one
   let brecOn := brecOnConst recArgInfo.indName
   check brecOn
-  let mut brecOnType ← inferType brecOn
-  brecOnType ← instantiateForall brecOnType recArgInfo.indParams
-  brecOnType ← instantiateForall brecOnType motives
+  let brecOnType ← inferType brecOn
+  -- Skip the indices and major argument
   forallBoundedTelescope brecOnType (some (recArgInfo.indicesPos.size + 1)) fun _ brecOnType =>
+    -- And return the types of of the next arguments
     arrowDomainsN recArgInfos.size brecOnType
 
 /--
 Completes the `.brecOn` for the given function.
 The `value` is the function with (only) the fixed parameters moved into the context.
 -/
-def mkBrecOnApp (brecOnConst : Name → Expr) (motives : Array Expr) (FArgs : Array Expr)
+def mkBrecOnApp (brecOnConst : Name → Expr) (FArgs : Array Expr)
     (recArgInfo : RecArgInfo) (value : Expr) : MetaM Expr := do
   lambdaTelescope value fun ys _value => do
     let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor ys
     let brecOn := brecOnConst recArgInfo.indName
-    let brecOn := mkAppN brecOn recArgInfo.indParams
-    let brecOn := mkAppN brecOn motives
     let brecOn := mkAppN brecOn indexMajorArgs
     let brecOn := mkAppN brecOn FArgs
     mkLambdaFVars ys (mkAppN brecOn otherArgs)
-
-/--
-Temporary until the mutual code is proven.
-The `value` is the function with (only) the fixed parameters moved into the context.
--/
-def mkBRecOnNonMut (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
-  let recArgInfos := #[recArgInfo]
-  let values := #[value]
-  let motives ← (Array.zip recArgInfos values).mapM fun (r, v) => mkBRecOnMotive r v
-  let brecOnConst ← mkBRecOnConst recArgInfos motives
-  let FTypes ← inferBRecOnFTypes recArgInfos motives brecOnConst
-  let FArgs ← (recArgInfos.zip  (values.zip FTypes)).mapM fun (r, (v, t)) => mkBRecOnF recArgInfos r v t
-  mkBrecOnApp brecOnConst motives FArgs recArgInfo value
 
 end Lean.Elab.Structural

@@ -106,6 +106,7 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (termArgs : Term
     unless indInfo.all.toArray = recArgInfos.map (·.indName) do
       throwError "structural mutual recursion only supported without reordering for now"
     withCommonTelescope preDefs fun xs bodies => do
+      -- Move all but the fixed parameters back to the context
       let bodies ← bodies.mapM (mkLambdaFVars xs[numFixed:] ·)
       let xs := xs[:numFixed]
       let valuesNew ← (Array.range preDefs.size).mapM fun i => mkBRecOn recArgInfos bodies i

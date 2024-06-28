@@ -195,39 +195,60 @@ def mkBRecOnF (recArgInfos : Array RecArgInfo) (recArgInfo : RecArgInfo) (value 
       mkLambdaFVars (indexMajorArgs ++ #[below] ++ otherArgs) valueNew
 
 /--
+Given the `motives`, figures out whether to use `.brecOn` or `.binductionOn`, and
+the right universe levels.
+TODO: What if the function motives have different universes?
+-/
+def mkBRecOnConst (recArgInfos : Array RecArgInfo) (motives : Array Expr) : MetaM (Name → Expr) := do
+  -- For now, just look at the first
+  let recArgInfo := recArgInfos[0]!
+  let motive := motives[0]!
+  let brecOnUniv ← lambdaTelescope motive fun _ type => getLevel type
+  let useBInductionOn := recArgInfo.reflexive && brecOnUniv == levelZero
+  let brecOnUniv ←
+    if recArgInfo.reflexive && brecOnUniv != levelZero then
+      decLevel brecOnUniv
+    else
+      pure brecOnUniv
+  if useBInductionOn then
+    return fun n => Lean.mkConst (mkBInductionOnName n) recArgInfo.indLevels
+  else
+    return fun n => Lean.mkConst (mkBRecOnName n) (brecOnUniv :: recArgInfo.indLevels)
+
+/--
+Given the `recArgInfos` and the `motives`, infer the types of the `F` arguments to the `.brecOn`
+combinators. This assumes that all `.brecOn` functions of a mutual inductive have the same
+result here.
+-/
+def inferBRecOnFTypes (recArgInfos : Array RecArgInfo) (motives : Array Expr)
+    (brecOnConst : Name → Expr) : MetaM (Array Expr) := do
+  let recArgInfo := recArgInfos[0]! -- pick an arbitrary one
+  let brecOn := brecOnConst recArgInfo.indName
+  check brecOn
+  let mut brecOnType ← inferType brecOn
+  brecOnType ← instantiateForall brecOnType recArgInfo.indParams
+  brecOnType ← instantiateForall brecOnType motives
+  forallBoundedTelescope brecOnType (some (recArgInfo.indicesPos.size + 1)) fun _ brecOnType =>
+    arrowDomainsN recArgInfos.size brecOnType
+
+/--
 The `value` is the function with (only) the fixed parameters moved into the context.
 -/
 def mkBRecOn (recArgInfos : Array RecArgInfo) (values : Array Expr) (i : Nat) : M Expr := do
+  let motives ← (Array.zip recArgInfos values).mapM fun (r, v) => mkBRecOnMotive r v
+  let brecOnConst ← mkBRecOnConst recArgInfos motives
+  let FTypes ← inferBRecOnFTypes recArgInfos motives brecOnConst
+  let FArgs ← (recArgInfos.zip  (values.zip FTypes)).mapM fun (r, (v, t)) => mkBRecOnF recArgInfos r v t
+
   let value := values[i]!
   let recArgInfo := recArgInfos[i]!
-  lambdaTelescope value fun xs value => do
-    trace[Elab.definition.structural] "mkBRecOn: {value}"
-    let type  := (← inferType value).headBeta
+  lambdaTelescope value fun xs _value => do
     let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor' xs
-    trace[Elab.definition.structural] "fixedParams: {recArgInfo.fixedParams}, otherArgs: {otherArgs}"
-    let motive ← mkForallFVars otherArgs type
-    let mut brecOnUniv ← getLevel motive
-    trace[Elab.definition.structural] "brecOn univ: {brecOnUniv}"
-    let useBInductionOn := recArgInfo.reflexive && brecOnUniv == levelZero
-    if recArgInfo.reflexive && brecOnUniv != levelZero then
-      brecOnUniv ← decLevel brecOnUniv
-    let motive ← mkLambdaFVars indexMajorArgs motive
-    trace[Elab.definition.structural] "brecOn motive: {motive}"
-    let mut brecOn :=
-      if useBInductionOn then
-        Lean.mkConst (mkBInductionOnName recArgInfo.indName) recArgInfo.indLevels
-      else
-        Lean.mkConst (mkBRecOnName recArgInfo.indName) (brecOnUniv :: recArgInfo.indLevels)
-    brecOn := mkAppN brecOn recArgInfo.indParams
-    -- calculate motives
-    for recArgInfo in recArgInfos, value in values do
-      brecOn := mkApp brecOn (← mkBRecOnMotive recArgInfo value)
-    brecOn := mkAppN brecOn indexMajorArgs
-    check brecOn
-    let FTypes ← inferArgumentTypesN values.size brecOn
-    -- calculate minor args
-    for recArgInfo in recArgInfos, value in values, FType in FTypes do
-      brecOn  := mkApp brecOn (← mkBRecOnF recArgInfos recArgInfo value FType)
+    let brecOn := brecOnConst recArgInfo.indName
+    let brecOn := mkAppN brecOn recArgInfo.indParams
+    let brecOn := mkAppN brecOn motives
+    let brecOn := mkAppN brecOn indexMajorArgs
+    let brecOn := mkAppN brecOn FArgs
     mkLambdaFVars xs (mkAppN brecOn otherArgs)
 
 end Lean.Elab.Structural

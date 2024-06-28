@@ -152,14 +152,14 @@ private def elimRecursion (preDef : PreDefinition) (termArg? : Option Terminatio
   trace[Elab.definition.structural] "{preDef.declName} := {preDef.value}"
   withoutModifyingEnv do
     let go := fun i => do
+      mapError (f := fun msg => m!"argument #{i+1} cannot be used for structural recursion{indentD msg}") do
         -- Use the mutual inductive case here to exercise ist
         let preDefsNew ← elimMutualRecursion #[preDef] #[i]
         return (i, preDefsNew[0]!)
     -- Use termination_by annotation to find argument to recurse on, or just try all
     match termArg? with
     | .some termArg => go (← termArg.structuralArg)
-    | .none =>lambdaTelescope preDef.value fun xs _ => tryAllArgs xs go
-
+    | .none => lambdaTelescope preDef.value fun xs _ => tryAllArgs xs go
 
 def structuralRecursion (preDefs : Array PreDefinition) (termArgs? : Option TerminationArguments) : TermElabM Unit := do
   if preDefs.size != 1 then

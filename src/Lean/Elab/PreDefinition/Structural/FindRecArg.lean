@@ -41,8 +41,6 @@ various sanity checks on the argument (is it even an inductive type etc).
 Also wraps all errors in a common “argument cannot be used” header
 -/
 def withRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) (k : RecArgInfo → M α) : M α := do
-  mapError
-    (f := fun msg => m!"argument #{i+1} cannot be used for structural recursion{indentD msg}") do
   if h : i < xs.size then
     if i < numFixed then
       throwError "it is unchanged in the recursive calls"

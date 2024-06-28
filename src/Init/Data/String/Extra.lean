@@ -232,16 +232,13 @@ where
 def isNatHex (s : String) : Bool :=
   !s.isEmpty && s.all (·.isHexDigit)
 
+def toNatHex (s : String) (_h : s.isNatHex) : Nat :=
+  s.foldl (fun n c =>  n*16 + (if c.isDigit then c.toNat - '0'.toNat else 10 + (c.toNat - 'A'.toNat))) 0
+
 def toNatHex? (s : String) : Option Nat :=
-  if s.isNatHex then
-    some <| s.foldl (fun n c =>  n*16 + (if c.isDigit then c.toNat - '0'.toNat else 10 + (c.toNat - 'A'.toNat))) 0
-  else
-    none
+  if h : s.isNatHex then s.toNatHex h else none
 
 def toNatHex! (s : String) : Nat :=
-  if s.isNatHex then
-    s.foldl (fun n c =>  n*16 + (if c.isDigit then c.toNat - '0'.toNat else 10 + (c.toNat - 'A'.toNat))) 0
-  else
-    panic! "Nat in hexadecimal expected"
+  if h : s.isNatHex then s.toNatHex h else panic! "Nat in hexadecimal expected
 
 end String

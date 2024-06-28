@@ -1,7 +1,7 @@
 sanitychecks.lean:1:8-1:15: error: fail to show termination for
   unsound
 with errors
-structural recursion cannot be used
+structural recursion cannot be used:
 
 well-founded recursion cannot be used, 'unsound' does not take any (non-fixed) arguments
 sanitychecks.lean:4:8-4:32: error: 'partial' theorems are not allowed, 'partial' is a code generation directive

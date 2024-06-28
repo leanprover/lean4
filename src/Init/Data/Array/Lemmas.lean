@@ -220,7 +220,7 @@ theorem getElem?_len_le (a : Array α) {i : Nat} (h : a.size ≤ i) : a[i]? = no
 theorem getD_get? (a : Array α) (i : Nat) (d : α) :
   Option.getD a[i]? d = if p : i < a.size then a[i]'p else d := by
   if h : i < a.size then
-    simp [setD, h, getElem?]
+    simp [setD, h, getElem?_def]
   else
     have p : i ≥ a.size := Nat.le_of_not_gt h
     simp [setD, getElem?_len_le _ p, h]
@@ -383,18 +383,18 @@ theorem get?_push {a : Array α} : (a.push x)[i]? = if i = a.size then some x el
   | Or.inl g =>
     have h1 : i < a.size + 1 := by omega
     have h2 : i ≠ a.size := by omega
-    simp [getElem?, size_push, g, h1, h2, get_push_lt]
+    simp [getElem?_def, size_push, g, h1, h2, get_push_lt]
   | Or.inr (Or.inl heq) =>
     simp [heq, getElem?_pos, get_push_eq]
   | Or.inr (Or.inr g) =>
-    simp only [getElem?, size_push]
+    simp only [getElem?_def, size_push]
     have h1 : ¬ (i < a.size) := by omega
     have h2 : ¬ (i < a.size + 1) := by omega
     have h3 : i ≠ a.size := by omega
     simp [h1, h2, h3]
 
 @[simp] theorem get?_size {a : Array α} : a[a.size]? = none := by
-  simp only [getElem?, Nat.lt_irrefl, dite_false]
+  simp only [getElem?_def, Nat.lt_irrefl, dite_false]
 
 @[simp] theorem data_set (a : Array α) (i v) : (a.set i v).data = a.data.set i.1 v := rfl
 

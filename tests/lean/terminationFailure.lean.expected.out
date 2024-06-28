@@ -19,14 +19,14 @@ f (x : Nat) : Nat
 f.g : Nat → Nat
 1
 2
-terminationFailure.lean:24:9-24:12: error: fail to show termination for
+terminationFailure.lean:20:4-20:5: error: fail to show termination for
   h
 with errors
-argument #1 was not used for structural recursion
+structural recursion cannot be used:
+
+argument #1 cannot be used for structural recursion
   failed to eliminate recursive application
     h x
-
-structural recursion cannot be used
 
 failed to prove termination, possible solutions:
   - Use `have`-expressions to prove the remaining goals

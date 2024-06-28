@@ -91,14 +91,14 @@ def withRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) 
       throwError "the index #{i+1} exceeds {xs.size}, the number of parameters"
 
 /--
-  Try to find an argument that is structurally smaller in every recursive application.
+  Runs `k` on all argument indices, until it succeeds.
   We use this argument to justify termination using the auxiliary `brecOn` construction.
 
   We give preference for arguments that are *not* indices of inductive types of other arguments.
   See issue #837 for an example where we can show termination using the index of an inductive family, but
   we don't get the desired definitional equalities.
 -/
-partial def findRecArg (fnName : Name) (numFixed : Nat) (xs : Array Expr) (k : RecArgInfo → M α) : M α := do
+partial def tryAllArgs (xs : Array Expr) (k : Nat → M α) : M α := do
   /- Collect arguments that are indices. See comment above. -/
   let indicesRef : IO.Ref (Array Nat) ← IO.mkRef {}
   for x in xs do
@@ -121,7 +121,7 @@ partial def findRecArg (fnName : Name) (numFixed : Nat) (xs : Array Expr) (k : R
     trace[Elab.definition.structural] "findRecArg x: {x}"
     try
       set saveState
-      return (← withRecArgInfo fnName numFixed xs i k)
+      return (← k i)
     catch e => errors := errors.set! i e.toMessageData
   throwError
     errors.foldl

@@ -89,15 +89,15 @@ def getMutualFixedPrefix (preDefs : Array PreDefinition) : M Nat :=
           return true
     resultRef.get
 
-private def elimMutualRecursion (preDefs : Array PreDefinition) (termArgs : TerminationArguments) : M (Array PreDefinition) := do
+private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Array Nat) : M (Array PreDefinition) := do
   withoutModifyingEnv do
     preDefs.forM (addAsAxiom ·)
     -- TODO: preprocess?
     let numFixed ← getMutualFixedPrefix preDefs
     let recArgInfos ← preDefs.mapIdxM fun i preDef => do
-      let termArg := termArgs[i]!
+      let recArgPos := recArgPoss[i]!
       lambdaTelescope preDef.value fun xs _value => do
-        let recArgInfo ← withRecArgInfo preDef.declName numFixed xs (← termArg.structuralArg) pure
+        let recArgInfo ← withRecArgInfo preDef.declName numFixed xs recArgPos pure
         return recArgInfo
     let indInfo ← getConstInfoInduct recArgInfos[0]!.indName
     if ← isInductivePredicate indInfo.name then
@@ -120,51 +120,54 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (termArgs : Term
          mkBrecOnApp brecOnConst motives FArgs r v
       -- Abstract over the fixed prefixed
       let valuesNew ← valuesNew.mapM (mkLambdaFVars xs ·)
+      -- TODO: ensureNoRecFn
       return (Array.zip preDefs valuesNew).map fun ⟨preDef, valueNew⟩ => { preDef with value := valueNew }
+
+def buildTermArg (preDef : PreDefinition) (recArgPos : Nat) : MetaM TerminationArgument := do
+  let fn ← lambdaTelescope preDef.value fun xs _ => mkLambdaFVars xs xs[recArgPos]!
+  return {ref := .missing, structural := true, fn}
+
+def reportTermArg (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit := do
+  if let some ref := preDef.termination.terminationBy?? then
+    let termArg ← buildTermArg preDef recArgPos
+    let arity ← lambdaTelescope preDef.value fun xs _ => pure xs.size
+    let stx ← termArg.delab arity (extraParams := preDef.termination.extraParams)
+    Tactic.TryThis.addSuggestion ref stx
 
 
 private def elimRecursion (preDef : PreDefinition) (termArg? : Option TerminationArgument) : M (Nat × PreDefinition) := do
   trace[Elab.definition.structural] "{preDef.declName} := {preDef.value}"
   withoutModifyingEnv do lambdaTelescope preDef.value fun xs value => do
-    addAsAxiom preDef
     let value ← preprocess value preDef.declName
     trace[Elab.definition.structural] "{preDef.declName} {xs} :=\n{value}"
     let numFixed ← getFixedPrefix preDef.declName xs value
     trace[Elab.definition.structural] "numFixed: {numFixed}"
-    let go := fun recArgInfo => do
-      let indInfo ← getConstInfoInduct recArgInfo.indName
-      unless indInfo.all.length = 1 do
-        throwError "Structural non-mutual recursion over a mutual inductive data type is not supported"
-      let valueNew ← if recArgInfo.indPred then
-        let valueNew ← mkIndPredBRecOn recArgInfo xs value
-        mkLambdaFVars xs valueNew
-      else
-        let valueNew ← mkBRecOnNonMut recArgInfo (← mkLambdaFVars xs[recArgInfo.fixedParams.size:] value)
-        mkLambdaFVars (xs[:recArgInfo.fixedParams.size]) valueNew
-      trace[Elab.definition.structural] "result: {valueNew}"
-      -- Recursive applications may still occur in expressions that were not visited by replaceRecApps (e.g., in types)
-      let valueNew ← ensureNoRecFn preDef.declName valueNew
-      return (recArgInfo.recArgPos, { preDef with value := valueNew })
+    let go := fun i => withRecArgInfo preDef.declName numFixed xs i fun recArgInfo => do
+        let indInfo ← getConstInfoInduct recArgInfo.indName
+        unless indInfo.all.length = 1 do
+          throwError "Structural non-mutual recursion over a mutual inductive data type is not supported"
+        if recArgInfo.indPred then
+          addAsAxiom preDef
+          let valueNew ← mkIndPredBRecOn recArgInfo xs value
+          let valueNew ← mkLambdaFVars xs valueNew
+          let valueNew ← ensureNoRecFn preDef.declName valueNew
+          return (recArgInfo.recArgPos, { preDef with value := valueNew })
+        else
+          -- Use the mutual inductive case here to exercise ist
+          let preDefsNew ← elimMutualRecursion #[preDef] #[recArgInfo.recArgPos]
+          return (recArgInfo.recArgPos, preDefsNew[0]!)
     -- Use termination_by annotation to find argument to recurse on, or just try all
     match termArg? with
-    | .some termArg =>
-        assert! termArg.structural
-        withRecArgInfo preDef.declName numFixed xs (← termArg.structuralArg) go
-    | .none => findRecArg preDef.declName numFixed xs go
+    | .some termArg => go (← termArg.structuralArg)
+    | .none => tryAllArgs xs go
 
-def reportTermArg (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit := do
-  if let some ref := preDef.termination.terminationBy?? then
-    let fn ← lambdaTelescope preDef.value fun xs _ => mkLambdaFVars xs xs[recArgPos]!
-    let termArg : TerminationArgument := {ref := .missing, structural := true, fn}
-    let arity ← lambdaTelescope preDef.value fun xs _ => pure xs.size
-    let stx ← termArg.delab arity (extraParams := preDef.termination.extraParams)
-    Tactic.TryThis.addSuggestion ref stx
 
 def structuralRecursion (preDefs : Array PreDefinition) (termArgs? : Option TerminationArguments) : TermElabM Unit := do
   if preDefs.size != 1 then
     let .some termArgs := termArgs?
       | throwError "mutual structural recursion reqiures explicit `termination_by` clauses"
-    let (preDefsNonRec, _state) ← run <| elimMutualRecursion preDefs termArgs
+    let recArgPoss ← termArgs.mapM (·.structuralArg)
+    let (preDefsNonRec, _state) ← run <| elimMutualRecursion preDefs recArgPoss
     -- TODO: reportTermArg
     preDefsNonRec.forM fun preDefNonRec => do
       let preDefNonRec ← eraseRecAppSyntax preDefNonRec

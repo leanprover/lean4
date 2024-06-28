@@ -420,11 +420,6 @@ theorem zeroExtend_one_eq_ofBool_getLsb_zero (x : BitVec w) :
   ext i
   simp [getLsb_zeroExtend, Fin.fin_one_eq_zero i]
 
-/-- `testBit 1 i` is true iff the index `i` equals 0. -/
-private theorem Nat.testBit_one_eq_true_iff_self_eq_zero {i : Nat} :
-    Nat.testBit 1 i = true ↔ i = 0 := by
-  cases i <;> simp
-
 /-- Zero extending `1#v` to `1#w` equals `1#w` when `v > 0`. -/
 theorem zeroExtend_ofNat_one_eq_ofNat_one_of_lt {v w : Nat} (hv : 0 < v) :
     (BitVec.ofNat v 1).zeroExtend w = BitVec.ofNat w 1 := by

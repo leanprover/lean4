@@ -15,7 +15,7 @@ def compareTables (ucd : List UnicodeData) (property : UnicodeData → Bool) : I
   let mut failed := false
   let table := numericTable
   let referenceTable := referenceTable ucd property
-  for i in Range.mk 0 1114112 1 do
+  for i in [:1114112] do
     let c := Char.ofNat i
     let ref := referenceSearch referenceTable c
     let candidate := search table c

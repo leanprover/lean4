@@ -3,6 +3,7 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+prelude
 import Std.Classes.BEq
 import Std.Init.All
 import Std.Data.DHashMap.Internal.List.Pairwise
@@ -1220,7 +1221,7 @@ theorem containsKey_of_perm [BEq α] [PartialEquivBEq α] {l l' : List (Σ a, β
   · next p t₁ t₂ _ ih₂ => rw [containsKey_cons, containsKey_cons, ih₂]
   · next p p' _ =>
     rw [containsKey_cons, containsKey_cons, containsKey_cons, containsKey_cons]
-    ac_rfl
+    simp only [← Bool.or_assoc, Bool.or_comm]
   · next _ _ _ _ _ ih₁ ih₂ => exact ih₁.trans ih₂
 
 theorem getValueCast?_of_perm [BEq α] [LawfulBEq α] {l l' : List (Σ a, β a)} {a : α} (hl : DistinctKeys l)

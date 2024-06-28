@@ -3,6 +3,10 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+prelude
+import Init.Notation
+import Init.Tactics
+import Init.SimpLemmas
 
 theorem apply_bif (f : α → β) {b : Bool} {a a' : α} :
     f (bif b then a else a') = bif b then f a else f a' := by

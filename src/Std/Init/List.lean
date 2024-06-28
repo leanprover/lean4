@@ -3,6 +3,10 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+prelude
+import Init.Data.List.TakeDrop
+import Init.Data.Nat.Lemmas
+import Init.Omega
 
 namespace List
 
@@ -20,7 +24,7 @@ theorem exists_of_set' {n : Nat} {a' : α} {l : List α} (h : n < l.length) :
       obtain ⟨t₁, t₂, ⟨ht₁, ht₂, ht₃⟩⟩ := ih (Nat.succ_lt_succ_iff.1 h)
       refine ⟨a :: t₁, t₂, ?_, ?_, ?_⟩
       · simpa using ht₁
-      · simpa using ht₂
+      · simpa [Nat.add_one_inj] using ht₂
       · simpa using ht₃
 
 theorem getElem_append_right'' (l₁ : List α) {l₂ : List α} {n : Nat} (hn : n < l₂.length) :

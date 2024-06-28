@@ -133,7 +133,7 @@ termination_by structurally x => x
 end
 
 
--- Mixed levels. This works because both `Prop` and `Nat` are in the same universe (`Type`)
+-- Mixed levels.
 
 -- TODO: Should this work?
 

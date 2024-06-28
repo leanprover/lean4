@@ -201,10 +201,6 @@ def A.self_size : A → Nat
   | .empty => 0
 termination_by structurally x => x
 
-/--
-error: failed to eliminate recursive application
-  b.self_size
--/
 #guard_msgs in
 def B.self_size : B → Nat
   | .self b => b.self_size + 1

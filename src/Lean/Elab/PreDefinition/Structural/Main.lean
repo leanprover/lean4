@@ -144,7 +144,8 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Ar
       let motives ← (Array.zip recArgInfos values).mapM fun (r, v) => mkBRecOnMotive r v
       let brecOnConst ← mkBRecOnConst recArgInfos positions motives
       let FTypes ← inferBRecOnFTypes recArgInfos positions brecOnConst
-      let FArgs ← (recArgInfos.zip  (values.zip FTypes)).mapM fun (r, (v, t)) => mkBRecOnF recArgInfos r v t
+      let FArgs ← (recArgInfos.zip  (values.zip FTypes)).mapM fun (r, (v, t)) =>
+        mkBRecOnF recArgInfos positions r v t
       -- Assemble the individual `.brecOn` applications
       let valuesNew ← (Array.zip recArgInfos values).mapM fun (r, v) =>
         mkBrecOnApp positions brecOnConst FArgs r v

@@ -13,6 +13,65 @@ import Lean.Elab.PreDefinition.Structural.Basic
 namespace Lean.Elab.Structural
 open Meta
 
+
+/--
+Combines motives from different functions that recurse on the same parameter type into a single
+function returning a `PProd` type.
+
+For example
+```
+packMotives (Nat → Sort u) #[(fun (n : Nat) => Nat), (fun (n : Nat) => Fin n -> Fin n )]
+```
+will return
+```
+fun (n : Nat) (PProd Nat (Fin n → Fin n))
+```
+
+It is mostly the identity if `motives.size = 1`, and it returns a dummy motive
+if `motives = #[]` (which is the reason for the `motiveType` parameter).
+
+-/
+def packMotives (motiveType : Expr) (motives : Array Expr) : MetaM Expr := do
+  if motives.size = 0 then
+    forallTelescope motiveType fun xs sort => do
+      let r ←
+        match sort with
+        | .sort 0 => pure <| .const ``True []
+        | .sort u => pure <| .const ``PUnit [u]
+        | _ => throwError "packMotives: Unexpected motiveType {motiveType}"
+      mkLambdaFVars xs r
+  else if motives.size = 1 then
+    return motives[0]!
+  else
+    throwError "More than one function recursing on the same type not yet supported"
+
+/--
+Combines the F-args from different functions that recurse on the same parameter type into a single
+function returning a `PProd` value. See `packMotives`
+
+It is mostly the identity if `motives.size = 1`.
+-/
+def packFArgs (FArgType : Expr) (FArgs : Array Expr) : MetaM Expr := do
+  if FArgs.size = 0 then
+    forallTelescope FArgType fun xs unit => do
+      let r ← match_expr unit with
+        | True => pure <| .const ``True.intro []
+        | PUnit => pure <| .const ``PUnit.unit unit.constLevels!
+        | _ => throwError "packFArgs: Unexpected FArgType {FArgType}"
+      mkLambdaFVars xs r
+  else if FArgs.size = 1 then
+    return FArgs[0]!
+  else
+    throwError "More than one function recursing on the same type not yet supported"
+
+def sortAndPackWith [Monad m] [Inhabited β] (pack : α → Array β → m γ)
+    (positions : Array (Array Nat)) (es : Array β) (types : Array α) : m (Array γ) := do
+  let mut packed := #[]
+  for poss in positions, type in types do
+    let e' ← pack type (poss.map (es[·]!))
+    packed := packed.push e'
+  return packed
+
 private def throwToBelowFailed : MetaM α :=
   throwError "toBelow failed"
 
@@ -46,24 +105,34 @@ private partial def toBelowAux (C : Expr) (belowDict : Expr) (arg : Expr) (F : E
       throwToBelowFailed
 
 /-- See `toBelow` -/
-private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat) (numMotives : Nat) (k : Array Expr → Expr → MetaM α) : MetaM α := do
+private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat)
+    (positions : Array (Array Nat)) (k : Array Expr → Expr → MetaM α) : MetaM α := do
+  let numIndAll := positions.size
   let belowType ← inferType below
   trace[Elab.definition.structural] "belowType: {belowType}"
   unless (← isTypeCorrect below) do
     trace[Elab.definition.structural] "not type correct!"
   belowType.withApp fun f args => do
-    unless numIndParams + numMotives < args.size do throwError "unexpected 'below' type{indentExpr belowType}"
-    let pre := mkAppN f (args.extract 0 numIndParams)
-    let preType ← inferType pre
-    forallBoundedTelescope preType (some numMotives) fun xs _ => do
-      assert! (xs.size == numMotives)
-      let motiveTypes ← xs.mapM (inferType ·)
-      let motiveDecls : Array (Name × (Array Expr → MetaM Expr)) ← motiveTypes.mapM fun t => do
-          return ((← mkFreshUserName `C), fun _ => pure t)
-      withLocalDeclsD motiveDecls fun Cs =>
-        let belowDict := mkAppN pre Cs
-        let belowDict := mkAppN belowDict (args.extract (numIndParams + numMotives) args.size)
-        k Cs belowDict
+    unless numIndParams + numIndAll < args.size do throwError "unexpected 'below' type{indentExpr belowType}"
+    let params := args[:numIndParams]
+    let finalArgs := args[numIndParams+numIndAll : ]
+    let pre := mkAppN f params
+    let motiveTypes ← inferArgumentTypesN numIndAll pre
+    let numMotives : Nat := positions.foldl (fun s poss => s + poss.size) 0
+    let mut CTypes := Array.mkArray numMotives (.sort 37) -- dummy value
+    for poss in positions, motiveType in motiveTypes do
+      for pos in poss do
+        CTypes := CTypes.set! pos motiveType
+    let CDecls : Array (Name × (Array Expr → MetaM Expr)) ← CTypes.mapM fun t => do
+        return ((← mkFreshUserName `C), fun _ => pure t)
+    -- We have to pack these canary motives like we packed the real motives
+    withLocalDeclsD CDecls fun Cs => do
+      let packedCs ← sortAndPackWith packMotives positions Cs motiveTypes
+      let belowDict := mkAppN pre packedCs
+      let belowDict := mkAppN belowDict finalArgs
+      trace[Elab.definition.structural] "initial belowDict for {Cs}:{indentExpr belowDict}"
+      check belowDict
+      k Cs belowDict
 
 /--
   `below` is a free variable with type of the form `I.below indParams motive indices major`,
@@ -85,12 +154,12 @@ private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat) (nu
   We search this dictionary using the auxiliary function `toBelowAux`.
   The dictionary is built using the `PProd` (`And` for inductive predicates).
   We keep searching it until we find `C recArg`, where `C` is the auxiliary fresh variable created at `withBelowDict`.  -/
-private partial def toBelow (below : Expr) (numIndParams : Nat) (numMotives : Nat) (fnIndex : Nat) (recArg : Expr) : MetaM Expr := do
-  withBelowDict below numIndParams numMotives fun Cs belowDict =>
+private partial def toBelow (below : Expr) (numIndParams : Nat) (positions : Array (Array Nat)) (fnIndex : Nat) (recArg : Expr) : MetaM Expr := do
+  withBelowDict below numIndParams positions fun Cs belowDict =>
     toBelowAux Cs[fnIndex]! belowDict recArg below
 
 -- TODO: resurrect caching using HasConstCache
-private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (below : Expr) (e : Expr) : M Expr :=
+private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions : Array (Array Nat)) (below : Expr) (e : Expr) : M Expr :=
   let rec loop (below : Expr) (e : Expr) : M Expr := do
     match e with
     | Expr.lam n d b c =>
@@ -121,7 +190,7 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (below : Exp
             -- For reflexive type, we may have nested recursive applications in recArg
             let recArg ← loop below recArg
             let f ←
-              try toBelow below recArgInfo.indParams.size recArgInfos.size fnIdx recArg
+              try toBelow below recArgInfo.indParams.size positions fnIdx recArg
               catch _ => throwError "failed to eliminate recursive application{indentExpr e}"
             -- Recall that the fixed parameters are not in the scope of the `brecOn`. So, we skip them.
             let argsNonFixed := args.extract numFixed args.size
@@ -130,7 +199,7 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (below : Exp
             for i in [:argsNonFixed.size] do
               if recArgInfo.pos != i && !recArgInfo.indicesPos.contains i then
                 let arg := argsNonFixed[i]!
-                let arg ← replaceRecApps recArgInfos below arg
+                let arg ← replaceRecApps recArgInfos positions below arg
                 fArgs := fArgs.push arg
             return mkAppN f fArgs
           else
@@ -192,7 +261,8 @@ The `type` is the expected type of the argument.
 The `recArgInfos` is used to transform the body of the function to replace recursive calls with
 uses of the `below` induction hypothesis.
 -/
-def mkBRecOnF (recArgInfos : Array RecArgInfo) (recArgInfo : RecArgInfo) (value : Expr) (FType : Expr) : M Expr := do
+def mkBRecOnF (recArgInfos : Array RecArgInfo) (positions : Array (Array Nat))
+    (recArgInfo : RecArgInfo) (value : Expr) (FType : Expr) : M Expr := do
   lambdaTelescope value fun xs value => do
     let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor xs
     let FType ← instantiateForall FType indexMajorArgs
@@ -200,67 +270,9 @@ def mkBRecOnF (recArgInfos : Array RecArgInfo) (recArgInfo : RecArgInfo) (value 
       -- TODO: `below` user name is `f`, and it will make a global `f` to be pretty printed as `_root_.f` in error messages.
       -- We should add an option to `forallBoundedTelescope` to ensure fresh names are used.
       let below := below[0]!
-      let valueNew   ← replaceRecApps recArgInfos below value
+      let valueNew   ← replaceRecApps recArgInfos positions below value
       mkLambdaFVars (indexMajorArgs ++ #[below] ++ otherArgs) valueNew
 
-/--
-Combines motives from different functions that recurse on the same parameter type into a single
-function returning a `PProd` type.
-
-For example
-```
-packMotives (Nat → Sort u) #[(fun (n : Nat) => Nat), (fun (n : Nat) => Fin n -> Fin n )]
-```
-will return
-```
-fun (n : Nat) (PProd Nat (Fin n → Fin n))
-```
-
-It is mostly the identity if `motives.size = 1`, and it returns a dummy motive
-if `motives = #[]` (which is the reason for the `motiveType` parameter).
-
--/
-def packMotives (motiveType : Expr) (motives : Array Expr) : MetaM Expr := do
-  if motives.size = 0 then
-    forallTelescope motiveType fun xs sort => do
-      let r ←
-        match sort with
-        | .sort 0 => pure <| .const ``True []
-        | .sort u => pure <| .const ``PUnit [u]
-        | _ => throwError "packMotives: Unexpected motiveType {motiveType}"
-      mkLambdaFVars xs r
-  else if motives.size = 1 then
-    return motives[0]!
-  else
-    throwError "More than one function recursing on the same type not yet supported"
-
-/--
-Combines the F-args from different functions that recurse on the same parameter type into a single
-function returning a `PProd` value. See `packMotives`
-
-It is mostly the identity if `motives.size = 1`.
--/
-def packFArgs (FArgType : Expr) (FArgs : Array Expr) : MetaM Expr := do
-  if FArgs.size = 0 then
-    forallTelescope FArgType fun xs unit => do
-      let r ← match_expr unit with
-        | True => pure <| .const ``True.intro []
-        | PUnit => pure <| .const ``PUnit.unit unit.constLevels!
-        | _ => throwError "packFArgs: Unexpected FArgType {FArgType}"
-      mkLambdaFVars xs r
-  else if FArgs.size = 1 then
-    return FArgs[0]!
-  else
-    throwError "More than one function recursing on the same type not yet supported"
-
-
-def sortAndPackWith (pack : Expr → Array Expr → MetaM Expr) (positions : Array (Array Nat)) (es : Array Expr)
-  (types : Array Expr) : MetaM (Array Expr) := do
-  let mut packed := #[]
-  for poss in positions, type in types do
-    let e' ← pack type (poss.map (es[·]!))
-    packed := packed.push e'
-  return packed
 
 /--
 Given the `motives`, figures out whether to use `.brecOn` or `.binductionOn`, pass

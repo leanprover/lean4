@@ -420,4 +420,30 @@ Remark: it subsumes `isType`
 def isTypeFormer (e : Expr) : MetaM Bool := do
   isTypeFormerType (← inferType e)
 
+
+/--
+Given `n` and a non-dependent function type `α₁ → α₂ → ... → αₙ → Sort u`, returns the
+types `α₁, α₂, ..., αₙ`. Throws an error if there are not at least `n` argument types or if a
+later argument type depends on a prior one (i.e., it's a dependent function type).
+
+This can be used to infer the expected type of the alternatives when constructing a `MatcherApp`.
+-/
+def arrowDomainsN (n : Nat) (type : Expr) : MetaM (Array Expr) := do
+  let mut type := type
+  let mut ts := #[]
+  for i in [:n] do
+    type ← whnfForall type
+    let Expr.forallE _ α β _ ← pure type | throwError "expected {n} arguments, got {i}"
+    if β.hasLooseBVars then throwError "unexpected dependent type"
+    ts := ts.push α
+    type := β
+  return ts
+
+
+/--
+Infers the types of the next `n` parameters that `e` expects. See `arrowDomainsN`.
+-/
+def inferArgumentTypesN (n : Nat) (e : Expr) : MetaM (Array Expr) := do
+  arrowDomainsN n (← inferType e)
+
 end Lean.Meta

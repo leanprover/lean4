@@ -16,7 +16,7 @@ def download  (url : String) (file : FilePath) : IO Output := do
   else pure { exitCode := 0, stdout := "", stderr := "" }
 
 def mkGeneralCategory (s : String) : Except String GeneralCategory := do
-  if s = "Lu" then pure <| GeneralCategory.Letter Letter.Lu
+  if s = "Lu" then pure <| .Letter Letter.Lu
   else if s = "Ll" then pure <| .Letter .Ll
   else if s = "Lt" then pure <| .Letter .Lt
   else if s = "Lm" then pure <| .Letter .Lm

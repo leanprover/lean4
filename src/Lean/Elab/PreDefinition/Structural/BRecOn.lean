@@ -17,18 +17,18 @@ private def throwToBelowFailed : MetaM α :=
   throwError "toBelow failed"
 
 /-- See `toBelow` -/
-private partial def toBelowAux (Cs : Array Expr) (belowDict : Expr) (arg : Expr) (F : Expr) : MetaM Expr := do
+private partial def toBelowAux (C : Expr) (belowDict : Expr) (arg : Expr) (F : Expr) : MetaM Expr := do
   let belowDict ← whnf belowDict
   trace[Elab.definition.structural] "belowDict: {belowDict}, arg: {arg}"
   match belowDict with
   | .app (.app (.const `PProd _) d1) d2 =>
-    (do toBelowAux Cs d1 arg (← mkAppM `PProd.fst #[F]))
+    (do toBelowAux C d1 arg (← mkAppM `PProd.fst #[F]))
     <|>
-    (do toBelowAux Cs d2 arg (← mkAppM `PProd.snd #[F]))
+    (do toBelowAux C d2 arg (← mkAppM `PProd.snd #[F]))
   | .app (.app (.const `And _) d1) d2 =>
-    (do toBelowAux Cs d1 arg (← mkAppM `And.left #[F]))
+    (do toBelowAux C d1 arg (← mkAppM `And.left #[F]))
     <|>
-    (do toBelowAux Cs d2 arg (← mkAppM `And.right #[F]))
+    (do toBelowAux C d2 arg (← mkAppM `And.right #[F]))
   | _ => forallTelescopeReducing belowDict fun xs belowDict => do
     let arg ← zetaReduce arg
     let argArgs := arg.getAppArgs
@@ -38,7 +38,7 @@ private partial def toBelowAux (Cs : Array Expr) (belowDict : Expr) (arg : Expr)
     let belowDict := belowDict.replaceFVars xs argTailArgs
     match belowDict with
     | .app belowDictFun belowDictArg =>
-      unless Cs.contains belowDictFun.getAppFn do throwToBelowFailed
+      unless belowDictFun.getAppFn == C do throwToBelowFailed
       unless ← isDefEq belowDictArg arg do throwToBelowFailed
       pure (mkAppN F argTailArgs)
     | _ =>
@@ -85,9 +85,9 @@ private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat) (nu
   We search this dictionary using the auxiliary function `toBelowAux`.
   The dictionary is built using the `PProd` (`And` for inductive predicates).
   We keep searching it until we find `C recArg`, where `C` is the auxiliary fresh variable created at `withBelowDict`.  -/
-private partial def toBelow (below : Expr) (numIndParams : Nat) (numMotives : Nat) (recArg : Expr) : MetaM Expr := do
+private partial def toBelow (below : Expr) (numIndParams : Nat) (numMotives : Nat) (fnIndex : Nat) (recArg : Expr) : MetaM Expr := do
   withBelowDict below numIndParams numMotives fun Cs belowDict =>
-    toBelowAux Cs belowDict recArg below
+    toBelowAux Cs[fnIndex]! belowDict recArg below
 
 -- TODO: resurrect caching using HasConstCache
 private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (below : Expr) (e : Expr) : M Expr :=
@@ -111,7 +111,8 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (below : Exp
     | Expr.app _ _ =>
       let processApp (e : Expr) : M Expr :=
         e.withApp fun f args => do
-          if let .some recArgInfo := recArgInfos.find? (f.isConstOf ·.fnName) then
+          if let .some fnIdx := recArgInfos.findIdx? (f.isConstOf ·.fnName) then
+            let recArgInfo := recArgInfos[fnIdx]!
             let numFixed  := recArgInfo.fixedParams.size
             let recArgPos := recArgInfo.recArgPos
             if recArgPos >= args.size then
@@ -120,7 +121,7 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (below : Exp
             -- For reflexive type, we may have nested recursive applications in recArg
             let recArg ← loop below recArg
             let f ←
-              try toBelow below recArgInfo.indParams.size recArgInfos.size recArg
+              try toBelow below recArgInfo.indParams.size recArgInfos.size fnIdx recArg
               catch _ => throwError "failed to eliminate recursive application{indentExpr e}"
             -- Recall that the fixed parameters are not in the scope of the `brecOn`. So, we skip them.
             let argsNonFixed := args.extract numFixed args.size

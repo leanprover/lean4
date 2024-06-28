@@ -245,5 +245,4 @@ def Nat.foo : Nat → Nat
 termination_by structurally x => x
 end
 
-
 end DifferentTypes

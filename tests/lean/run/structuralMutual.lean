@@ -43,6 +43,46 @@ theorem B_size_eq1 (b : B) : (B.self b).size = b.size + 1 := rfl
 theorem B_size_eq2 (a : A) : (B.other a).size = a.size + 1 := rfl
 theorem B_size_eq3 : B.empty.size = 0  := rfl
 
+/-- info: A.size.eq_1 (a : A) : a.self.size = a.size + 1 -/
+#guard_msgs in
+#check A.size.eq_1
+
+/-- info: A.size.eq_2 (b : B) : (A.other b).size = b.size + 1 -/
+#guard_msgs in
+#check A.size.eq_2
+
+/-- info: A.size.eq_3 : A.empty.size = 0 -/
+#guard_msgs in
+#check A.size.eq_3
+
+/-- info: B.size.eq_1 (b : B) : b.self.size = b.size + 1 -/
+#guard_msgs in
+#check B.size.eq_1
+
+/-- info: B.size.eq_2 (a : A) : (B.other a).size = a.size + 1 -/
+#guard_msgs in
+#check B.size.eq_2
+
+/-- info: B.size.eq_3 : B.empty.size = 0 -/
+#guard_msgs in
+#check B.size.eq_3
+
+-- TODO:
+-- #check A.size.induct
+
+-- Test smart unfolding
+
+/--
+info: a : A
+h : (B.other a).size = 1
+⊢ a.size = 0
+-/
+#guard_msgs in
+theorem ex1 (a : A) (h : (A.other (B.other a)).size = 2) : a.size = 0 := by
+  injection h with h
+  trace_state -- without smart unfolding the state would be a mess
+  injection h with h
+
 -- Theorems
 
 mutual
@@ -63,11 +103,13 @@ end
 
 mutual
 open Classical
+noncomputable
 def A.hasNoAEmpty : A → Prop
   | .self a => a.hasNoAEmpty
   | .other b => b.oddCount > 0
   | .empty => False
 termination_by structurally x => x
+noncomputable
 def B.oddCount : B → Nat
   | .self b => b.oddCount + 1
   | .other a => if a.hasNoAEmpty then 0 else 1

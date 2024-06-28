@@ -168,24 +168,41 @@ def structuralRecursion (preDefs : Array PreDefinition) (termArgs? : Option Term
     let .some termArgs := termArgs?
       | throwError "mutual structural recursion reqiures explicit `termination_by` clauses"
     let recArgPoss ← termArgs.mapM (·.structuralArg)
-    let (preDefsNonRec, _state) ← run <| elimMutualRecursion preDefs recArgPoss
+    let (preDefsNonRec, state) ← run <| elimMutualRecursion preDefs recArgPoss
     -- TODO: reportTermArg
+    state.addMatchers.forM liftM
     preDefsNonRec.forM fun preDefNonRec => do
       let preDefNonRec ← eraseRecAppSyntax preDefNonRec
-      let mut preDef ← eraseRecAppSyntax preDefs[0]!
       -- state.addMatchers.forM liftM
       mapError (addNonRec preDefNonRec (applyAttrAfterCompilation := false)) fun msg =>
         m!"structural recursion failed, produced type incorrect term{indentD msg}"
+      -- We create the `_unsafe_rec` before we abstract nested proofs.
+      -- Reason: the nested proofs may be referring to the _unsafe_rec.
+    let preDefs ← preDefs.mapM (eraseRecAppSyntax ·)
+    addAndCompilePartialRec preDefs
+    for preDef in preDefs, recArgPos in recArgPoss do
+      let mut preDef := preDef
+      unless preDef.kind.isTheorem do
+        unless (← isProp preDef.type) do
+          preDef ← abstractNestedProofs preDef
+          /-
+          Don't save predefinition info for equation generator
+          for theorems and definitions that are propositions.
+          See issue #2327
+          -/
+          registerEqnsInfo preDef recArgPos
+      addSmartUnfoldingDef preDef recArgPos
       markAsRecursive preDef.declName
+    applyAttributesOf preDefsNonRec AttributeApplicationTime.afterCompilation
   else do
     let termArg? := termArgs?.map (·[0]!)
     let ((recArgPos, preDefNonRec), state) ← run <| elimRecursion preDefs[0]! termArg?
+    state.addMatchers.forM liftM
     reportTermArg preDefNonRec recArgPos
     let preDefNonRec ← eraseRecAppSyntax preDefNonRec
-    let mut preDef ← eraseRecAppSyntax preDefs[0]!
-    state.addMatchers.forM liftM
     mapError (addNonRec preDefNonRec (applyAttrAfterCompilation := false)) fun msg =>
       m!"structural recursion failed, produced type incorrect term{indentD msg}"
+    let mut preDef ← eraseRecAppSyntax preDefs[0]!
     -- We create the `_unsafe_rec` before we abstract nested proofs.
     -- Reason: the nested proofs may be referring to the _unsafe_rec.
     addAndCompilePartialRec #[preDef]

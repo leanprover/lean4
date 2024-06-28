@@ -99,14 +99,7 @@ end
 
 /--
 error: argument #1 cannot be used for structural recursion
-  application type mismatch
-    @A.brecOn (fun x => Nat) x✝
-  argument
-    x✝
-  has type
-    A : Type
-  but is expected to have type
-    B → Type : Type 1
+  Structural non-mutual recursion over a mutual inductive data type is not supported
 -/
 #guard_msgs in
 def A.self_size : A → Nat
@@ -117,14 +110,7 @@ termination_by structurally x => x
 
 /--
 error: argument #1 cannot be used for structural recursion
-  application type mismatch
-    @B.brecOn fun x => Nat
-  argument
-    fun x => Nat
-  has type
-    B → Type : Type 1
-  but is expected to have type
-    A → Type : Type 1
+  Structural non-mutual recursion over a mutual inductive data type is not supported
 -/
 #guard_msgs in
 def B.self_size : B → Nat

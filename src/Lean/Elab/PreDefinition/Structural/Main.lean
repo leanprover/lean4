@@ -132,6 +132,9 @@ private def elimRecursion (preDef : PreDefinition) (termArg? : Option Terminatio
     let numFixed ← getFixedPrefix preDef.declName xs value
     trace[Elab.definition.structural] "numFixed: {numFixed}"
     let go := fun recArgInfo => do
+      let indInfo ← getConstInfoInduct recArgInfo.indName
+      unless indInfo.all.length = 1 do
+        throwError "Structural non-mutual recursion over a mutual inductive data type is not supported"
       let valueNew ← if recArgInfo.indPred then
         let valueNew ← mkIndPredBRecOn recArgInfo xs value
         mkLambdaFVars xs valueNew

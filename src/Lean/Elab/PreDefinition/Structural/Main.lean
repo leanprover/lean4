@@ -92,6 +92,9 @@ def getMutualFixedPrefix (preDefs : Array PreDefinition) : M Nat :=
 private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Array Nat) : M (Array PreDefinition) := do
   withoutModifyingEnv do
     preDefs.forM (addAsAxiom ·)
+    let names := preDefs.map (·.declName)
+    let preDefs ← preDefs.mapM fun preDef =>
+      return { preDef with value := (← preprocess preDef.value names) }
     -- TODO: preprocess?
     let numFixed ← getMutualFixedPrefix preDefs
     let recArgInfos ← preDefs.mapIdxM fun i preDef => do
@@ -147,19 +150,15 @@ def reportTermArg (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit := do
 
 private def elimRecursion (preDef : PreDefinition) (termArg? : Option TerminationArgument) : M (Nat × PreDefinition) := do
   trace[Elab.definition.structural] "{preDef.declName} := {preDef.value}"
-  withoutModifyingEnv do lambdaTelescope preDef.value fun xs value => do
-    let value ← preprocess value preDef.declName
-    trace[Elab.definition.structural] "{preDef.declName} {xs} :=\n{value}"
-    let numFixed ← getFixedPrefix preDef.declName xs value
-    trace[Elab.definition.structural] "numFixed: {numFixed}"
-    let go := fun i => withRecArgInfo preDef.declName numFixed xs i fun recArgInfo => do
+  withoutModifyingEnv do
+    let go := fun i => do
         -- Use the mutual inductive case here to exercise ist
-        let preDefsNew ← elimMutualRecursion #[preDef] #[recArgInfo.recArgPos]
-        return (recArgInfo.recArgPos, preDefsNew[0]!)
+        let preDefsNew ← elimMutualRecursion #[preDef] #[i]
+        return (i, preDefsNew[0]!)
     -- Use termination_by annotation to find argument to recurse on, or just try all
     match termArg? with
     | .some termArg => go (← termArg.structuralArg)
-    | .none => tryAllArgs xs go
+    | .none =>lambdaTelescope preDef.value fun xs _ => tryAllArgs xs go
 
 
 def structuralRecursion (preDefs : Array PreDefinition) (termArgs? : Option TerminationArguments) : TermElabM Unit := do

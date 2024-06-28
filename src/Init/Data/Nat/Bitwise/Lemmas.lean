@@ -311,6 +311,7 @@ theorem testBit_bool_to_nat (b : Bool) (i : Nat) :
         Nat.mod_eq_of_lt]
 
 /-- `testBit 1 i` is true iff the index `i` equals 0. -/
+@[simp]
 theorem testBit_one_eq_true_iff_self_eq_zero {i : Nat} :
     Nat.testBit 1 i = true ↔ i = 0 := by
   cases i <;> simp

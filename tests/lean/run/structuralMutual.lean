@@ -9,7 +9,6 @@ inductive B
   | empty
 end
 
-
 mutual
 def A.size : A → Nat
   | .self a => a.size + 1
@@ -140,8 +139,14 @@ end
 
 -- set_option trace.Elab.definition.structural true in
 /--
-error: failed to eliminate recursive application
-  a.strangeType
+error: application type mismatch
+  @A.brecOn (fun x => Type) fun x => Nat
+argument
+  fun x => Nat
+has type
+  B → Type : Type 1
+but is expected to have type
+  B → Type 1 : Type 2
 -/
 #guard_msgs in
 mutual
@@ -190,15 +195,16 @@ inductive B
   | empty
 end
 
-/-- error: structural mutual recursion only supported without reordering for now -/
-#guard_msgs in
 def A.self_size : A → Nat
   | .self a => a.self_size + 1
   | .other _ => 0
   | .empty => 0
 termination_by structurally x => x
 
-/-- error: structural mutual recursion only supported without reordering for now -/
+/--
+error: failed to eliminate recursive application
+  b.self_size
+-/
 #guard_msgs in
 def B.self_size : B → Nat
   | .self b => b.self_size + 1
@@ -206,7 +212,7 @@ def B.self_size : B → Nat
   | .empty => 0
 termination_by structurally x => x
 
-/-- error: structural mutual recursion only supported without reordering for now -/
+/-- error: More than one function recursing on the same type not yet supported -/
 #guard_msgs in
 mutual
 def A.weird_size1 : A → Nat

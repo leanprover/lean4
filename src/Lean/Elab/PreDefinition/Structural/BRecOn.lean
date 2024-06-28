@@ -204,11 +204,71 @@ def mkBRecOnF (recArgInfos : Array RecArgInfo) (recArgInfo : RecArgInfo) (value 
       mkLambdaFVars (indexMajorArgs ++ #[below] ++ otherArgs) valueNew
 
 /--
+Combines motives from different functions that recurse on the same parameter type into a single
+function returning a `PProd` type.
+
+For example
+```
+packMotives (Nat → Sort u) #[(fun (n : Nat) => Nat), (fun (n : Nat) => Fin n -> Fin n )]
+```
+will return
+```
+fun (n : Nat) (PProd Nat (Fin n → Fin n))
+```
+
+It is mostly the identity if `motives.size = 1`, and it returns a dummy motive
+if `motives = #[]` (which is the reason for the `motiveType` parameter).
+
+-/
+def packMotives (motiveType : Expr) (motives : Array Expr) : MetaM Expr := do
+  if motives.size = 0 then
+    forallTelescope motiveType fun xs sort => do
+      let r ←
+        match sort with
+        | .sort 0 => pure <| .const ``True []
+        | .sort u => pure <| .const ``PUnit [u]
+        | _ => throwError "packMotives: Unexpected motiveType {motiveType}"
+      mkLambdaFVars xs r
+  else if motives.size = 1 then
+    return motives[0]!
+  else
+    throwError "More than one function recursing on the same type not yet supported"
+
+/--
+Combines the F-args from different functions that recurse on the same parameter type into a single
+function returning a `PProd` value. See `packMotives`
+
+It is mostly the identity if `motives.size = 1`.
+-/
+def packFArgs (FArgType : Expr) (FArgs : Array Expr) : MetaM Expr := do
+  if FArgs.size = 0 then
+    forallTelescope FArgType fun xs unit => do
+      let r ← match_expr unit with
+        | True => pure <| .const ``True.intro []
+        | PUnit => pure <| .const ``PUnit.unit unit.constLevels!
+        | _ => throwError "packFArgs: Unexpected FArgType {FArgType}"
+      mkLambdaFVars xs r
+  else if FArgs.size = 1 then
+    return FArgs[0]!
+  else
+    throwError "More than one function recursing on the same type not yet supported"
+
+
+def sortAndPackWith (pack : Expr → Array Expr → MetaM Expr) (positions : Array (Array Nat)) (es : Array Expr)
+  (types : Array Expr) : MetaM (Array Expr) := do
+  let mut packed := #[]
+  for poss in positions, type in types do
+    let e' ← pack type (poss.map (es[·]!))
+    packed := packed.push e'
+  return packed
+
+/--
 Given the `motives`, figures out whether to use `.brecOn` or `.binductionOn`, pass
 the right universe levels, the parameters, and the motives.
 TODO: What if the function motives have different universes?
 -/
-def mkBRecOnConst (recArgInfos : Array RecArgInfo) (motives : Array Expr) : MetaM (Name → Expr) := do
+def mkBRecOnConst (recArgInfos : Array RecArgInfo) (positions : Array (Array Nat))
+   (motives : Array Expr) : MetaM (Name → Expr) := do
   -- For now, just look at the first
   let recArgInfo := recArgInfos[0]!
   let motive := motives[0]!
@@ -220,41 +280,59 @@ def mkBRecOnConst (recArgInfos : Array RecArgInfo) (motives : Array Expr) : Meta
       decLevel brecOnUniv
     else
       pure brecOnUniv
-  return fun n =>
+  let brecOnCons := fun n =>
     let brecOn :=
       if useBInductionOn then .const (mkBInductionOnName n) recArgInfo.indLevels
       else                    .const (mkBRecOnName n) (brecOnUniv :: recArgInfo.indLevels)
-    let brecOn := mkAppN brecOn recArgInfo.indParams
-    let brecOn := mkAppN brecOn motives
-    brecOn
+    mkAppN brecOn recArgInfo.indParams
+
+  -- Pick one as a prototype
+  let brecOnAux := brecOnCons recArgInfo.indName
+  -- Infer the type of the packed motive arguments
+  let packedMotiveTypes ← inferArgumentTypesN recArgInfo.indAll.size brecOnAux
+  let packedMotives ← sortAndPackWith packMotives positions motives packedMotiveTypes
+
+  return fun n => mkAppN (brecOnCons n) packedMotives
 
 /--
 Given the `recArgInfos` and the `motives`, infer the types of the `F` arguments to the `.brecOn`
-combinators. This assumes that all `.brecOn` functions of a mutual inductive have the same
-result here.
+combinators. This assumes that all `.brecOn` functions of a mutual inductive have the same structure.
+
+It also undoes the permutation and packing done by `packMotives`
 -/
-def inferBRecOnFTypes (recArgInfos : Array RecArgInfo)
+def inferBRecOnFTypes (recArgInfos : Array RecArgInfo) (positions : Array (Array Nat))
     (brecOnConst : Name → Expr) : MetaM (Array Expr) := do
   let recArgInfo := recArgInfos[0]! -- pick an arbitrary one
   let brecOn := brecOnConst recArgInfo.indName
   check brecOn
   let brecOnType ← inferType brecOn
   -- Skip the indices and major argument
-  forallBoundedTelescope brecOnType (some (recArgInfo.indicesPos.size + 1)) fun _ brecOnType =>
+  let packedFTypes ← forallBoundedTelescope brecOnType (some (recArgInfo.indicesPos.size + 1)) fun _ brecOnType =>
     -- And return the types of of the next arguments
-    arrowDomainsN recArgInfos.size brecOnType
+    arrowDomainsN recArgInfo.indAll.size brecOnType
+
+  let mut FTypes := Array.mkArray recArgInfos.size (Expr.sort 0)
+  for packedFType in packedFTypes, poss in positions do
+    if poss.size > 1 then
+         throwError "Not supported yet"
+    for pos in poss do
+      -- Todo: The n-ary case
+      FTypes := FTypes.set! pos packedFType
+  return FTypes
 
 /--
 Completes the `.brecOn` for the given function.
 The `value` is the function with (only) the fixed parameters moved into the context.
 -/
-def mkBrecOnApp (brecOnConst : Name → Expr) (FArgs : Array Expr)
+def mkBrecOnApp (positions : Array (Array Nat)) (brecOnConst : Name → Expr) (FArgs : Array Expr)
     (recArgInfo : RecArgInfo) (value : Expr) : MetaM Expr := do
   lambdaTelescope value fun ys _value => do
     let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor ys
     let brecOn := brecOnConst recArgInfo.indName
     let brecOn := mkAppN brecOn indexMajorArgs
-    let brecOn := mkAppN brecOn FArgs
+    let packedFTypes ← inferArgumentTypesN positions.size brecOn
+    let packedFArgs ← sortAndPackWith packFArgs positions FArgs packedFTypes
+    let brecOn := mkAppN brecOn packedFArgs
     mkLambdaFVars ys (mkAppN brecOn otherArgs)
 
 end Lean.Elab.Structural

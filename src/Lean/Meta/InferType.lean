@@ -429,16 +429,12 @@ later argument type depends on a prior one (i.e., it's a dependent function type
 This can be used to infer the expected type of the alternatives when constructing a `MatcherApp`.
 -/
 def arrowDomainsN (n : Nat) (type : Expr) : MetaM (Array Expr) := do
-  let mut type := type
-  let mut ts := #[]
-  for i in [:n] do
-    type ← whnfForall type
-    let Expr.forallE _ α β _ ← pure type | throwError "expected {n} arguments, got {i}"
-    if β.hasLooseBVars then throwError "unexpected dependent type"
-    ts := ts.push α
-    type := β
-  return ts
-
+  forallBoundedTelescope type n fun xs _ => do
+    let types ← xs.mapM (inferType ·)
+    for t in types do
+      if t.hasAnyFVar (fun fvar => xs.contains (.fvar fvar)) then
+        throwError "unexpected dependent type {t} in {type}"
+    return types
 
 /--
 Infers the types of the next `n` parameters that `e` expects. See `arrowDomainsN`.

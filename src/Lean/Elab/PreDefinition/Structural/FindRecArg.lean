@@ -82,7 +82,8 @@ def withRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) 
                 indicesPos  := indicesPos
                 indName     := indInfo.name
                 indLevels   := us
-                indParams   := indParams }
+                indParams   := indParams
+                indAll      := indInfo.all.toArray }
     else
       throwError "the index #{i+1} exceeds {xs.size}, the number of parameters"
 

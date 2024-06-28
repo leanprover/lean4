@@ -31,6 +31,8 @@ structure RecArgInfo where
   indLevels   : List Level
   /-- inductive datatype parameters of the argument we are recursing on -/
   indParams   : Array Expr
+  /-- The types mutually inductive with indName -/
+  indAll      : Array Name
 deriving Inhabited
 
 def RecArgInfo.recArgPos (info : RecArgInfo) : Nat :=

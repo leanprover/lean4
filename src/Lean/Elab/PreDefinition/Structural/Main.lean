@@ -95,33 +95,37 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Ar
     let names := preDefs.map (·.declName)
     let preDefs ← preDefs.mapM fun preDef =>
       return { preDef with value := (← preprocess preDef.value names) }
-    -- TODO: preprocess?
     let numFixed ← getMutualFixedPrefix preDefs
-    let recArgInfos ← preDefs.mapIdxM fun i preDef => do
-      let recArgPos := recArgPoss[i]!
-      lambdaTelescope preDef.value fun xs _value => do
-        let recArgInfo ← withRecArgInfo preDef.declName numFixed xs recArgPos pure
-        return recArgInfo
-    let indInfo ← getConstInfoInduct recArgInfos[0]!.indName
-    if ← isInductivePredicate indInfo.name then
-      -- Here we branch off to the IndPred construction, but only for non-mutual functions
-      unless preDefs.size = 1 do
-        throwError "structural mutual recursion over inductive predicates is not supported"
-      let preDef := preDefs[0]!
-      let recArgInfo := recArgInfos[0]!
-      let valueNew ← lambdaTelescope preDef.value fun xs value => do
-        let valueNew ← mkIndPredBRecOn recArgInfo xs value
-        mkLambdaFVars xs valueNew
-      let valueNew ← ensureNoRecFn preDef.declName valueNew
-      return #[{ preDef with value := valueNew }]
-
-    -- TODO: This check should be up to permutation and calculate that permutation somehow
-    unless indInfo.all.toArray = recArgInfos.map (·.indName) do
-      throwError "structural mutual recursion only supported without reordering for now"
+    -- Get the fixed parameters into scope. Most of the code below expects them to be
+    -- in the environment
     withCommonTelescope preDefs fun xs bodies => do
+      assert! xs.size ≥ numFixed
       -- Move all but the fixed parameters back to the value
       let values ← bodies.mapM (mkLambdaFVars xs[numFixed:] ·)
       let xs := xs[:numFixed]
+
+      let recArgInfos ← preDefs.mapIdxM fun i preDef => do
+        let recArgPos := recArgPoss[i]!
+        let value := values[i]!
+        lambdaTelescope value fun ys _value => do
+          let recArgInfo ← withRecArgInfo preDef.declName numFixed (xs ++ ys) recArgPos pure
+          return recArgInfo
+      let indInfo ← getConstInfoInduct recArgInfos[0]!.indName
+      if ← isInductivePredicate indInfo.name then
+        -- Here we branch off to the IndPred construction, but only for non-mutual functions
+        unless preDefs.size = 1 do
+          throwError "structural mutual recursion over inductive predicates is not supported"
+        let preDef := preDefs[0]!
+        let recArgInfo := recArgInfos[0]!
+        let valueNew ← lambdaTelescope preDef.value fun ys value => do
+          let valueNew ← mkIndPredBRecOn recArgInfo (xs ++ ys) value
+          mkLambdaFVars (xs ++ ys) valueNew
+        let valueNew ← ensureNoRecFn preDef.declName valueNew
+        return #[{ preDef with value := valueNew }]
+
+      -- TODO: This check should be up to permutation and calculate that permutation somehow
+      unless indInfo.all.toArray = recArgInfos.map (·.indName) do
+        throwError "structural mutual recursion only supported without reordering for now"
 
       -- Construct the common `.brecOn` arguments
       let motives ← (Array.zip recArgInfos values).mapM fun (r, v) => mkBRecOnMotive r v
@@ -130,7 +134,7 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Ar
       let FArgs ← (recArgInfos.zip  (values.zip FTypes)).mapM fun (r, (v, t)) => mkBRecOnF recArgInfos r v t
       -- Assemble the individual `.brecOn` applications
       let valuesNew ← (Array.zip recArgInfos values).mapM fun (r, v) =>
-         mkBrecOnApp brecOnConst motives FArgs r v
+        mkBrecOnApp brecOnConst motives FArgs r v
       -- Abstract over the fixed prefixed
       let valuesNew ← valuesNew.mapM (mkLambdaFVars xs ·)
       -- TODO: ensureNoRecFn

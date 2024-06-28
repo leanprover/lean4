@@ -421,11 +421,10 @@ theorem zeroExtend_one_eq_ofBool_getLsb_zero (x : BitVec w) :
 theorem zeroExtend_ofNat_one_eq_ofNat_one_of_lt {v w : Nat} (hv : 0 < v) :
     (BitVec.ofNat v 1).zeroExtend w = BitVec.ofNat w 1 := by
   ext ⟨i, hilt⟩
-  obtain  := i
   simp only [getLsb_zeroExtend, hilt, decide_True, getLsb_ofNat, Bool.true_and,
     Bool.and_iff_right_iff_imp, decide_eq_true_eq]
-  intros hi1
-  have hv := Nat.testBit_one_eq_true_iff_self_eq_zero.mp hi1
+  intros hi₁
+  have hv := Nat.testBit_one_eq_true_iff_self_eq_zero.mp hi₁
   omega
 
 /-! ## extractLsb -/

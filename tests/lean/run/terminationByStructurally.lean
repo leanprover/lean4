@@ -146,6 +146,19 @@ def B.size : B → Nat
 termination_by structurally x => x
 end
 
+mutual
+def A.subs : (a : A) → (Fin a.size → A ⊕ B)
+  | .self a => Fin.lastCases (.inl a) (a.subs)
+  | .other b => Fin.lastCases (.inr b) (b.subs)
+  | .empty => Fin.elim0
+termination_by structurally x => x
+def B.subs : (b : B) → (Fin b.size → A ⊕ B)
+  | .self b => Fin.lastCases (.inr b) (b.subs)
+  | .other a => Fin.lastCases (.inl a) (a.subs)
+  | .empty => Fin.elim0
+termination_by structurally x => x
+end
+
 theorem A_size_eq1 (a : A) : (A.self a).size = a.size + 1 := rfl
 theorem A_size_eq2 (b : B) : (A.other b).size = b.size + 1 := rfl
 theorem A_size_eq3 : A.empty.size = 0  := rfl

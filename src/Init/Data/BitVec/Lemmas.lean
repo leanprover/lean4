@@ -167,7 +167,7 @@ private theorem lt_two_pow_of_le {x m n : Nat} (lt : x < 2 ^ m) (le : m ≤ n) :
 theorem getLsb_ofBool (b : Bool) (i : Nat) : (BitVec.ofBool b).getLsb i = ((i = 0) && b) := by
   rcases b with rfl | rfl
   · simp [ofBool]
-  · simp [ofBool, getLsb_ofNat]
+  · simp only [ofBool, ofNat_eq_ofNat, cond_true, getLsb_ofNat, Bool.and_true]
     by_cases hi : (i = 0)
     · simp [hi]
     · simp [hi]
@@ -423,8 +423,8 @@ theorem zeroExtend_one_eq_ofBool_getLsb_zero (x : BitVec w) :
 /-- Zero extending `1#v` to `1#w` equals `1#w` when `v > 0`. -/
 theorem zeroExtend_ofNat_one_eq_ofNat_one_of_lt {v w : Nat} (hv : 0 < v) :
     (BitVec.ofNat v 1).zeroExtend w = BitVec.ofNat w 1 := by
-  ext i
-  obtain ⟨i, hilt⟩ := i
+  ext ⟨i, hilt⟩
+  obtain  := i
   simp only [getLsb_zeroExtend, hilt, decide_True, getLsb_ofNat, Bool.true_and,
     Bool.and_iff_right_iff_imp, decide_eq_true_eq]
   intros hi1
@@ -1176,7 +1176,7 @@ theorem BitVec.mul_zero {x : BitVec w} : x * 0#w = 0#w := by
 theorem BitVec.mul_add {x y z : BitVec w} :
     x * (y + z) = x * y + x * z := by
   apply eq_of_toNat_eq
-  simp
+  simp only [toNat_mul, toNat_add, Nat.add_mod_mod, Nat.mod_add_mod]
   rw [Nat.mul_mod, Nat.mod_mod (y.toNat + z.toNat),
     ← Nat.mul_mod, Nat.mul_add]
 

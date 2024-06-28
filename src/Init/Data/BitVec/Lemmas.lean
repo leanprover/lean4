@@ -293,6 +293,9 @@ theorem toInt_ofNat {n : Nat} (x : Nat) :
 
 /-! ### zeroExtend and truncate -/
 
+theorem truncate_eq_zeroExtend {v : Nat} {x : BitVec w} :
+  truncate v x = zeroExtend v x := rfl
+
 @[simp, bv_toNat] theorem toNat_zeroExtend' {m n : Nat} (p : m ≤ n) (x : BitVec m) :
     (zeroExtend' p x).toNat = x.toNat := by
   unfold zeroExtend'
@@ -398,6 +401,12 @@ theorem msb_truncate (x : BitVec w) : (x.truncate (k + 1)).msb = x.getLsb k := b
 @[simp] theorem truncate_truncate_of_le (x : BitVec w) (h : k ≤ l) :
     (x.truncate l).truncate k = x.truncate k :=
   zeroExtend_zeroExtend_of_le x h
+
+/--Truncating by the bitwidth has no effect. -/
+@[simp]
+theorem truncate_eq_self {x : BitVec w} : x.truncate w = x := by
+  ext i
+  simp [getLsb_zeroExtend]
 
 @[simp] theorem truncate_cast {h : w = v} : (cast h x).truncate k = x.truncate k := by
   apply eq_of_getLsb_eq
@@ -1453,5 +1462,6 @@ theorem mul_twoPow_eq_shiftLeft (x : BitVec w) (i : Nat) :
       rw [Nat.mod_eq_zero_of_dvd]
       apply Nat.pow_dvd_pow 2 (by omega)
     simp [Nat.mul_mod, hpow]
+
 
 end BitVec

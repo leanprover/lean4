@@ -359,14 +359,13 @@ theorem zeroExtend_zeroExtend_of_ge {x : BitVec w} {i j : Nat} (hi : i ≥ w) :
   have hi' : k < w := BitVec.lt_of_getLsb _ _ hx
   omega
 
-/-- Zero extending by the bitwidth has no effect. -/
-theorem zeroExtend_eq_self {x : BitVec w} : x.zeroExtend w = x := by
-  ext i
-  simp [getLsb_zeroExtend]
 
 theorem getLsb_mul (x y : BitVec w) (i : Nat) :
     (x * y).getLsb i = (mulRec x y w).getLsb i := by
   simp only [mulRec_eq_mul_signExtend_truncate]
-  rw [truncate, zeroExtend_zeroExtend_of_ge (by omega), zeroExtend_eq_self]
+  rw [truncate, ← truncate_eq_zeroExtend, ← truncate_eq_zeroExtend,
+    truncate_truncate_of_le]
+  · simp
+  · omega
 
 end BitVec

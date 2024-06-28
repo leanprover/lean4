@@ -36,11 +36,10 @@ private def hasBadParamDep? (ys : Array Expr) (indParams : Array Expr) : MetaM (
   return none
 
 /--
-Pass to `k` the `RecArgInfo` for the `i`th parameter in the parameter list `xs`. This performs
+Assemble the `RecArgInfo` for the `i`th parameter in the parameter list `xs`. This performs
 various sanity checks on the argument (is it even an inductive type etc).
-Also wraps all errors in a common “argument cannot be used” header
 -/
-def withRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) (k : RecArgInfo → M α) : M α := do
+def getRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) : MetaM RecArgInfo := do
   if h : i < xs.size then
     if i < numFixed then
       throwError "it is unchanged in the recursive calls"
@@ -76,14 +75,14 @@ def withRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) 
             throwError "its type {indInfo.name} is an inductive datatype{indentExpr xType}\nand parameter{indentExpr indParam}\ndepends on{indentExpr y}"
           | none =>
             let indicesPos := indIndices.map fun index => match ys.indexOf? index with | some i => i.val | none => unreachable!
-            k { fnName      := fnName
-                fixedParams := fixedParams
-                pos         := i - fixedParams.size
-                indicesPos  := indicesPos
-                indName     := indInfo.name
-                indLevels   := us
-                indParams   := indParams
-                indAll      := indInfo.all.toArray }
+            return { fnName      := fnName
+                     fixedParams := fixedParams
+                     pos         := i - fixedParams.size
+                     indicesPos  := indicesPos
+                     indName     := indInfo.name
+                     indLevels   := us
+                     indParams   := indParams
+                     indAll      := indInfo.all.toArray }
     else
       throwError "the index #{i+1} exceeds {xs.size}, the number of parameters"
 

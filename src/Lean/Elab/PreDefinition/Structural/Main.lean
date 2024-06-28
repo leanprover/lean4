@@ -114,8 +114,7 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Ar
         let recArgPos := recArgPoss[i]!
         let value := values[i]!
         lambdaTelescope value fun ys _value => do
-          let recArgInfo ← withRecArgInfo preDef.declName numFixed (xs ++ ys) recArgPos pure
-          return recArgInfo
+          getRecArgInfo preDef.declName numFixed (xs ++ ys) recArgPos
       let indInfo ← getConstInfoInduct recArgInfos[0]!.indName
       if ← isInductivePredicate indInfo.name then
         -- Here we branch off to the IndPred construction, but only for non-mutual functions

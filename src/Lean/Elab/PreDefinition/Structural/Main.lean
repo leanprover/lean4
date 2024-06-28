@@ -101,7 +101,17 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Ar
         return recArgInfo
     let indInfo ← getConstInfoInduct recArgInfos[0]!.indName
     if ← isInductivePredicate indInfo.name then
-      throwError "structural mutual recursion over inductive predicates is not yet supported"
+      -- Here we branch off to the IndPred construction, but only for non-mutual functions
+      unless preDefs.size = 1 do
+        throwError "structural mutual recursion over inductive predicates is not supported"
+      let preDef := preDefs[0]!
+      let recArgInfo := recArgInfos[0]!
+      let valueNew ← lambdaTelescope preDef.value fun xs value => do
+        let valueNew ← mkIndPredBRecOn recArgInfo xs value
+        mkLambdaFVars xs valueNew
+      let valueNew ← ensureNoRecFn preDef.declName valueNew
+      return #[{ preDef with value := valueNew }]
+
     -- TODO: This check should be up to permutation and calculate that permutation somehow
     unless indInfo.all.toArray = recArgInfos.map (·.indName) do
       throwError "structural mutual recursion only supported without reordering for now"
@@ -143,19 +153,9 @@ private def elimRecursion (preDef : PreDefinition) (termArg? : Option Terminatio
     let numFixed ← getFixedPrefix preDef.declName xs value
     trace[Elab.definition.structural] "numFixed: {numFixed}"
     let go := fun i => withRecArgInfo preDef.declName numFixed xs i fun recArgInfo => do
-        let indInfo ← getConstInfoInduct recArgInfo.indName
-        unless indInfo.all.length = 1 do
-          throwError "Structural non-mutual recursion over a mutual inductive data type is not supported"
-        if recArgInfo.indPred then
-          addAsAxiom preDef
-          let valueNew ← mkIndPredBRecOn recArgInfo xs value
-          let valueNew ← mkLambdaFVars xs valueNew
-          let valueNew ← ensureNoRecFn preDef.declName valueNew
-          return (recArgInfo.recArgPos, { preDef with value := valueNew })
-        else
-          -- Use the mutual inductive case here to exercise ist
-          let preDefsNew ← elimMutualRecursion #[preDef] #[recArgInfo.recArgPos]
-          return (recArgInfo.recArgPos, preDefsNew[0]!)
+        -- Use the mutual inductive case here to exercise ist
+        let preDefsNew ← elimMutualRecursion #[preDef] #[recArgInfo.recArgPos]
+        return (recArgInfo.recArgPos, preDefsNew[0]!)
     -- Use termination_by annotation to find argument to recurse on, or just try all
     match termArg? with
     | .some termArg => go (← termArg.structuralArg)

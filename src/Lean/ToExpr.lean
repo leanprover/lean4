@@ -106,6 +106,10 @@ instance : ToExpr Unit where
   toExpr     := fun _ => mkConst `Unit.unit
   toTypeExpr := mkConst ``Unit
 
+instance : ToExpr System.FilePath where
+  toExpr p := mkApp (mkConst ``System.FilePath.mk) (toExpr p.toString)
+  toTypeExpr := mkConst ``System.FilePath
+
 private def Name.toExprAux (n : Name) : Expr :=
   if isSimple n 0 then
     mkStr n 0 #[]

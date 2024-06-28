@@ -29,3 +29,4 @@ import Lean.Util.OccursCheck
 import Lean.Util.HasConstCache
 import Lean.Util.FileSetupInfo
 import Lean.Util.Heartbeats
+import Lean.Util.SearchPath

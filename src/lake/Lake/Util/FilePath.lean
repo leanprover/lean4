@@ -22,7 +22,3 @@ def mkRelPathString (path : FilePath) : String :=
 
 scoped instance : ToJson FilePath where
   toJson path := toJson <| mkRelPathString path
-
-scoped instance : ToExpr FilePath where
-  toExpr p := mkApp (mkConst ``System.FilePath.mk) (toExpr p.toString)
-  toTypeExpr := mkConst ``System.FilePath

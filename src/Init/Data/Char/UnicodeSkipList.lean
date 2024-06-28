@@ -15,9 +15,6 @@ structure UnicodePropertyTable where
   offsets : Array UInt8
   deriving Repr, Inhabited, Nonempty --  DecidableEq
 
--- instance : ToString UcdPropertyTable where
---   toString := fun table => s!"runs:\n{table.runs}\noffsets:\n{table.offsets}"
-
 def searchRuns (table : UnicodePropertyTable) (c : Char) : Nat × Range := Id.run do
   let codepoint := c.toNat
   let mut i := 0

@@ -8,11 +8,13 @@ import Lean.CoreM
 
 namespace Lean
 
-def Environment.addDecl (env : Environment) (opts : Options) (decl : Declaration) : Except KernelException Environment :=
-  addDeclCore env (Core.getMaxHeartbeats opts).toUSize decl
+def Environment.addDecl (env : Environment) (opts : Options) (decl : Declaration)
+    (cancelTk? : Option IO.CancelToken := none) : Except KernelException Environment :=
+  addDeclCore env (Core.getMaxHeartbeats opts).toUSize decl cancelTk?
 
-def Environment.addAndCompile (env : Environment) (opts : Options) (decl : Declaration) : Except KernelException Environment := do
-  let env ← addDecl env opts decl
+def Environment.addAndCompile (env : Environment) (opts : Options) (decl : Declaration)
+    (cancelTk? : Option IO.CancelToken := none) : Except KernelException Environment := do
+  let env ← addDecl env opts decl cancelTk?
   compileDecl env opts decl
 
 def addDecl (decl : Declaration) : CoreM Unit := do
@@ -20,7 +22,7 @@ def addDecl (decl : Declaration) : CoreM Unit := do
     withTraceNode `Kernel (fun _ => return m!"typechecking declaration") do
       if !(← MonadLog.hasErrors) && decl.hasSorry then
         logWarning "declaration uses 'sorry'"
-      match (← getEnv).addDecl (← getOptions) decl with
+      match (← getEnv).addDecl (← getOptions) decl (← read).cancelTk? with
       | .ok    env => setEnv env
       | .error ex  => throwKernelException ex
 

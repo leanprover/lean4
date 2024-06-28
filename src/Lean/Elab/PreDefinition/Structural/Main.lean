@@ -107,9 +107,18 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (termArgs : Term
       throwError "structural mutual recursion only supported without reordering for now"
     withCommonTelescope preDefs fun xs bodies => do
       -- Move all but the fixed parameters back to the context
-      let bodies ← bodies.mapM (mkLambdaFVars xs[numFixed:] ·)
+      let values ← bodies.mapM (mkLambdaFVars xs[numFixed:] ·)
       let xs := xs[:numFixed]
-      let valuesNew ← (Array.range preDefs.size).mapM fun i => mkBRecOn recArgInfos bodies i
+
+      -- Construct the common `.brecOn` arguments
+      let motives ← (Array.zip recArgInfos values).mapM fun (r, v) => mkBRecOnMotive r v
+      let brecOnConst ← mkBRecOnConst recArgInfos motives
+      let FTypes ← inferBRecOnFTypes recArgInfos motives brecOnConst
+      let FArgs ← (recArgInfos.zip  (values.zip FTypes)).mapM fun (r, (v, t)) => mkBRecOnF recArgInfos r v t
+      -- Assemble the individual `.brecOn` applications
+      let valuesNew ← (Array.zip recArgInfos values).mapM fun (r, v) =>
+         mkBrecOnApp brecOnConst motives FArgs r v
+      -- Abstract over the fixed prefixed
       let valuesNew ← valuesNew.mapM (mkLambdaFVars xs ·)
       return (Array.zip preDefs valuesNew).map fun ⟨preDef, valueNew⟩ => { preDef with value := valueNew }
 

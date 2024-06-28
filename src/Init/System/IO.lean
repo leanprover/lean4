@@ -814,6 +814,10 @@ def set (tk : CancelToken) : BaseIO Unit :=
 def isSet (tk : CancelToken) : BaseIO Bool :=
   tk.ref.get
 
+-- separate definition as otherwise no unboxed version is generated
+@[export lean_io_cancel_token_is_set]
+private def isSetExport := @isSet
+
 end CancelToken
 
 namespace FS

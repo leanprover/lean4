@@ -299,6 +299,12 @@ extern "C" LEAN_EXPORT object * lean_add_decl(object * env, size_t max_heartbeat
         });
 }
 
+extern "C" LEAN_EXPORT object * lean_add_decl_without_checking(object * env, object * decl) {
+    return catch_kernel_exceptions<environment>([&]() {
+            return environment(env).add(declaration(decl, true), false);
+        });
+}
+
 void environment::for_each_constant(std::function<void(constant_info const & d)> const & f) const {
     smap_foreach(cnstr_get(raw(), 1), [&](object *, object * v) {
             constant_info cinfo(v, true);

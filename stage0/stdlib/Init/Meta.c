@@ -243,7 +243,6 @@ lean_object* l_Lean_Syntax_getArgs(lean_object*);
 static lean_object* l_Lean_version_specialDesc___closed__1;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__declareSimpLikeTactic__1___closed__19;
 LEAN_EXPORT lean_object* l___private_Init_Meta_0__Lean_Meta_reprConfig____x40_Init_Meta___hyg_11978____boxed(lean_object*, lean_object*);
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Parser_Tactic_simpAllArithAutoUnfold___closed__9;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__declareSimpLikeTactic__1___closed__69;
 static lean_object* l_Lean_Syntax_instReprTSyntax___closed__1;
@@ -608,6 +607,7 @@ static lean_object* l_Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean
 LEAN_EXPORT lean_object* l___private_Init_Meta_0__Lean_Syntax_decodeDecimalLitAux(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_termEval__prec_____closed__6;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__declareSimpLikeTactic__1___lambda__1___closed__56;
+lean_object* l_outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Parser_Tactic_simpArithAutoUnfold___closed__9;
 LEAN_EXPORT lean_object* l_Lean_quoteNameMk(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkGroupNode(lean_object*);
@@ -7345,7 +7345,7 @@ if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
 lean_inc(x_1);
-x_11 = l___private_Init_GetElem_0__outOfBounds___rarg(x_1);
+x_11 = l_outOfBounds___rarg(x_1);
 lean_inc(x_3);
 x_12 = lean_apply_1(x_3, x_11);
 if (lean_obj_tag(x_12) == 0)
@@ -7462,7 +7462,7 @@ if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
 lean_inc(x_2);
-x_11 = l___private_Init_GetElem_0__outOfBounds___rarg(x_2);
+x_11 = l_outOfBounds___rarg(x_2);
 lean_inc(x_1);
 x_12 = l_Lean_Syntax_setTailInfoAux(x_1, x_11);
 if (lean_obj_tag(x_12) == 0)

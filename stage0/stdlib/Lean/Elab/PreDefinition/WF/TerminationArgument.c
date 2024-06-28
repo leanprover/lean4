@@ -33,7 +33,6 @@ lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Elab_Term_addAutoBound
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_TerminationArgument_delab_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_TerminationArgument_elab___closed__17;
 static lean_object* l_Lean_Elab_WF_TerminationArgument_elab_parameters___closed__1;
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_Elab_Term_elabFunBinders___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_TerminationArgument_elab___closed__6;
 static lean_object* l_Lean_Elab_WF_TerminationArgument_elab___closed__14;
@@ -68,6 +67,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_WF_TerminationArgument_elab_parameters(lean
 static lean_object* l_Lean_Elab_WF_TerminationArgument_elab___closed__1;
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* l_Lean_Meta_check(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_outOfBounds___rarg(lean_object*);
 lean_object* lean_array_pop(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_TerminationArgument_delab_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_TerminationArgument_elab___closed__15;
@@ -879,7 +879,7 @@ if (x_40 == 0)
 lean_object* x_41; lean_object* x_42; lean_object* x_43; uint8_t x_44; 
 lean_dec(x_19);
 x_41 = lean_box(0);
-x_42 = l___private_Init_GetElem_0__outOfBounds___rarg(x_41);
+x_42 = l_outOfBounds___rarg(x_41);
 x_43 = l_Lean_Elab_WF_TerminationArgument_elab___closed__14;
 lean_inc(x_42);
 x_44 = l_Lean_Syntax_isOfKind(x_42, x_43);

@@ -171,7 +171,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_WF_GuessLex_withRecApp
 static lean_object* l_Lean_Elab_WF_GuessLex_initFn____x40_Lean_Elab_PreDefinition_WF_GuessLex___hyg_9____closed__2;
 static lean_object* l_Lean_Elab_WF_GuessLex_instToFormatGuessLexRel___closed__3;
 static lean_object* l_Lean_Elab_WF_GuessLex_instToStringGuessLexRel___closed__3;
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Elab_WF_GuessLex_withRecApps_loop___spec__7___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_WF_GuessLex_withRecApps_loop___spec__22___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_GuessLex_reportTermArgs___spec__1___closed__2;
@@ -413,6 +412,7 @@ uint8_t l_Lean_Expr_isLit(lean_object*);
 lean_object* l_Lean_Meta_getLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appArg(lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_GuessLex_explainMutualFailure___spec__12___closed__3;
+lean_object* l_outOfBounds___rarg(lean_object*);
 lean_object* l_List_map___at_Lean_compileDecl___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_GuessLex_withRecApps_loop___spec__29___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_GuessLex_GuessLexRel_toNatRel___closed__1;
@@ -3588,7 +3588,7 @@ lean_closure_set(x_26, 7, x_22);
 if (x_17 == 0)
 {
 lean_object* x_27; lean_object* x_28; 
-x_27 = l___private_Init_GetElem_0__outOfBounds___rarg(x_22);
+x_27 = l_outOfBounds___rarg(x_22);
 x_28 = l_Lean_Elab_WF_GuessLex_withUserNames___rarg(x_15, x_27, x_26, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_15);
 return x_28;
@@ -8651,7 +8651,7 @@ x_38 = lean_ctor_get(x_1, 4);
 lean_inc(x_38);
 lean_dec(x_1);
 x_39 = l_Lean_instInhabitedExpr;
-x_40 = l___private_Init_GetElem_0__outOfBounds___rarg(x_39);
+x_40 = l_outOfBounds___rarg(x_39);
 if (x_37 == 0)
 {
 lean_object* x_41; lean_object* x_42; 
@@ -9412,7 +9412,7 @@ if (x_22 == 0)
 lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
 lean_dec(x_3);
 x_36 = l_Lean_instInhabitedExpr;
-x_37 = l___private_Init_GetElem_0__outOfBounds___rarg(x_36);
+x_37 = l_outOfBounds___rarg(x_36);
 lean_inc(x_29);
 lean_inc(x_17);
 lean_inc(x_16);
@@ -13985,7 +13985,7 @@ x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_nat_dec_eq(x_9, x_14);
 if (x_15 == 0)
 {
-lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_46; lean_object* x_47; uint8_t x_64; 
+lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_46; lean_object* x_64; uint8_t x_65; 
 x_16 = lean_unsigned_to_nat(1u);
 x_17 = lean_nat_sub(x_9, x_16);
 lean_dec(x_9);
@@ -14001,67 +14001,66 @@ if (lean_is_exclusive(x_12)) {
  lean_dec_ref(x_12);
  x_20 = lean_box(0);
 }
-x_46 = lean_array_get_size(x_19);
-x_64 = lean_nat_dec_lt(x_4, x_46);
-if (x_64 == 0)
+x_64 = lean_array_get_size(x_19);
+x_65 = lean_nat_dec_lt(x_4, x_64);
+lean_dec(x_64);
+if (x_65 == 0)
 {
-uint8_t x_65; lean_object* x_66; lean_object* x_67; uint8_t x_68; 
-x_65 = l_instInhabitedBool;
-x_66 = lean_box(x_65);
-x_67 = l___private_Init_GetElem_0__outOfBounds___rarg(x_66);
-x_68 = lean_unbox(x_67);
-lean_dec(x_67);
-if (x_68 == 0)
+uint8_t x_66; lean_object* x_67; lean_object* x_68; uint8_t x_69; 
+x_66 = l_instInhabitedBool;
+x_67 = lean_box(x_66);
+x_68 = l_outOfBounds___rarg(x_67);
+x_69 = lean_unbox(x_68);
+lean_dec(x_68);
+if (x_69 == 0)
 {
-lean_object* x_69; 
-x_69 = lean_box(0);
-x_47 = x_69;
+lean_object* x_70; 
+x_70 = lean_box(0);
+x_46 = x_70;
 goto block_63;
 }
 else
 {
-lean_object* x_70; lean_object* x_71; 
-lean_dec(x_46);
+lean_object* x_71; lean_object* x_72; 
 lean_dec(x_20);
-x_70 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_70, 0, x_18);
-lean_ctor_set(x_70, 1, x_19);
-x_71 = lean_nat_add(x_10, x_8);
+x_71 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_71, 0, x_18);
+lean_ctor_set(x_71, 1, x_19);
+x_72 = lean_nat_add(x_10, x_8);
 lean_dec(x_10);
 x_9 = x_17;
-x_10 = x_71;
+x_10 = x_72;
 x_11 = lean_box(0);
-x_12 = x_70;
+x_12 = x_71;
 goto _start;
 }
 }
 else
 {
-lean_object* x_73; uint8_t x_74; 
-x_73 = lean_array_fget(x_19, x_4);
-x_74 = lean_unbox(x_73);
-lean_dec(x_73);
-if (x_74 == 0)
+lean_object* x_74; uint8_t x_75; 
+x_74 = lean_array_fget(x_19, x_4);
+x_75 = lean_unbox(x_74);
+lean_dec(x_74);
+if (x_75 == 0)
 {
-lean_object* x_75; 
-x_75 = lean_box(0);
-x_47 = x_75;
+lean_object* x_76; 
+x_76 = lean_box(0);
+x_46 = x_76;
 goto block_63;
 }
 else
 {
-lean_object* x_76; lean_object* x_77; 
-lean_dec(x_46);
+lean_object* x_77; lean_object* x_78; 
 lean_dec(x_20);
-x_76 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_76, 0, x_18);
-lean_ctor_set(x_76, 1, x_19);
-x_77 = lean_nat_add(x_10, x_8);
+x_77 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_77, 0, x_18);
+lean_ctor_set(x_77, 1, x_19);
+x_78 = lean_nat_add(x_10, x_8);
 lean_dec(x_10);
 x_9 = x_17;
-x_10 = x_77;
+x_10 = x_78;
 x_11 = lean_box(0);
-x_12 = x_76;
+x_12 = x_77;
 goto _start;
 }
 }
@@ -14127,16 +14126,17 @@ goto _start;
 }
 block_63:
 {
-uint8_t x_48; 
-lean_dec(x_47);
-x_48 = lean_nat_dec_lt(x_10, x_46);
+lean_object* x_47; uint8_t x_48; 
 lean_dec(x_46);
+x_47 = lean_array_get_size(x_19);
+x_48 = lean_nat_dec_lt(x_10, x_47);
+lean_dec(x_47);
 if (x_48 == 0)
 {
 uint8_t x_49; lean_object* x_50; lean_object* x_51; uint8_t x_52; 
 x_49 = l_instInhabitedBool;
 x_50 = lean_box(x_49);
-x_51 = l___private_Init_GetElem_0__outOfBounds___rarg(x_50);
+x_51 = l_outOfBounds___rarg(x_50);
 x_52 = lean_unbox(x_51);
 lean_dec(x_51);
 if (x_52 == 0)
@@ -14393,7 +14393,7 @@ if (x_18 == 0)
 uint8_t x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; 
 x_19 = l_instInhabitedBool;
 x_20 = lean_box(x_19);
-x_21 = l___private_Init_GetElem_0__outOfBounds___rarg(x_20);
+x_21 = l_outOfBounds___rarg(x_20);
 x_22 = lean_unbox(x_21);
 lean_dec(x_21);
 if (x_22 == 0)
@@ -15136,7 +15136,7 @@ x_43 = lean_ctor_get(x_16, 1);
 lean_inc(x_43);
 lean_dec(x_16);
 x_44 = l_Lean_instInhabitedExpr;
-x_45 = l___private_Init_GetElem_0__outOfBounds___rarg(x_44);
+x_45 = l_outOfBounds___rarg(x_44);
 x_46 = lean_unbox(x_42);
 lean_dec(x_42);
 x_17 = x_45;
@@ -15309,7 +15309,7 @@ if (x_15 == 0)
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 lean_dec(x_1);
 x_18 = l_Lean_instInhabitedExpr;
-x_19 = l___private_Init_GetElem_0__outOfBounds___rarg(x_18);
+x_19 = l_outOfBounds___rarg(x_18);
 x_20 = l_Lean_Elab_WF_GuessLex_withRecApps___rarg(x_16, x_2, x_19, x_5, x_17, x_7, x_8, x_9, x_10, x_11);
 return x_20;
 }
@@ -18366,7 +18366,7 @@ if (x_27 == 0)
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
 x_31 = l_Lean_Elab_WF_GuessLex_naryVarNames___closed__1;
-x_32 = l___private_Init_GetElem_0__outOfBounds___rarg(x_31);
+x_32 = l_outOfBounds___rarg(x_31);
 x_33 = lean_alloc_closure((void*)(l_Lean_Elab_WF_GuessLex_withUserNames___rarg___boxed), 8, 3);
 lean_closure_set(x_33, 0, x_25);
 lean_closure_set(x_33, 1, x_32);
@@ -22219,7 +22219,7 @@ if (x_14 == 0)
 {
 lean_object* x_35; lean_object* x_36; 
 x_35 = l_Lean_Elab_WF_GuessLex_instInhabitedMeasure;
-x_36 = l___private_Init_GetElem_0__outOfBounds___rarg(x_35);
+x_36 = l_outOfBounds___rarg(x_35);
 x_20 = x_36;
 goto block_34;
 }
@@ -22241,7 +22241,7 @@ if (x_16 == 0)
 {
 lean_object* x_31; lean_object* x_32; 
 x_31 = l_Lean_Elab_WF_GuessLex_instInhabitedMeasure;
-x_32 = l___private_Init_GetElem_0__outOfBounds___rarg(x_31);
+x_32 = l_outOfBounds___rarg(x_31);
 x_23 = x_32;
 goto block_30;
 }
@@ -22437,7 +22437,7 @@ lean_dec(x_9);
 if (x_8 == 0)
 {
 lean_object* x_54; 
-x_54 = l___private_Init_GetElem_0__outOfBounds___rarg(x_5);
+x_54 = l_outOfBounds___rarg(x_5);
 x_13 = x_54;
 goto block_53;
 }
@@ -22456,7 +22456,7 @@ if (x_10 == 0)
 lean_object* x_50; lean_object* x_51; 
 lean_dec(x_6);
 x_50 = l_Lean_Elab_WF_GuessLex_naryVarNames___closed__1;
-x_51 = l___private_Init_GetElem_0__outOfBounds___rarg(x_50);
+x_51 = l_outOfBounds___rarg(x_50);
 x_14 = x_51;
 goto block_49;
 }
@@ -22477,7 +22477,7 @@ if (x_12 == 0)
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 lean_dec(x_11);
 x_16 = l_Lean_Elab_WF_GuessLex_naryVarNames___closed__1;
-x_17 = l___private_Init_GetElem_0__outOfBounds___rarg(x_16);
+x_17 = l_outOfBounds___rarg(x_16);
 x_18 = lean_array_get_size(x_17);
 x_19 = lean_mk_array(x_18, x_5);
 x_20 = lean_mk_array(x_15, x_19);
@@ -22655,7 +22655,7 @@ if (x_50 == 0)
 lean_object* x_51; lean_object* x_52; lean_object* x_53; uint8_t x_54; 
 lean_dec(x_12);
 x_51 = l_Lean_Elab_WF_GuessLex_naryVarNames___closed__1;
-x_52 = l___private_Init_GetElem_0__outOfBounds___rarg(x_51);
+x_52 = l_outOfBounds___rarg(x_51);
 x_53 = lean_array_get_size(x_52);
 x_54 = lean_nat_dec_lt(x_3, x_53);
 lean_dec(x_53);
@@ -22663,7 +22663,7 @@ if (x_54 == 0)
 {
 lean_object* x_55; 
 lean_dec(x_52);
-x_55 = l___private_Init_GetElem_0__outOfBounds___rarg(x_48);
+x_55 = l_outOfBounds___rarg(x_48);
 if (lean_obj_tag(x_55) == 0)
 {
 lean_object* x_56; 
@@ -22730,7 +22730,7 @@ if (x_63 == 0)
 {
 lean_object* x_64; 
 lean_dec(x_61);
-x_64 = l___private_Init_GetElem_0__outOfBounds___rarg(x_48);
+x_64 = l_outOfBounds___rarg(x_48);
 if (lean_obj_tag(x_64) == 0)
 {
 lean_object* x_65; 
@@ -22921,7 +22921,7 @@ if (x_106 == 0)
 lean_object* x_107; lean_object* x_108; lean_object* x_109; uint8_t x_110; 
 lean_dec(x_70);
 x_107 = l_Lean_Elab_WF_GuessLex_naryVarNames___closed__1;
-x_108 = l___private_Init_GetElem_0__outOfBounds___rarg(x_107);
+x_108 = l_outOfBounds___rarg(x_107);
 x_109 = lean_array_get_size(x_108);
 x_110 = lean_nat_dec_lt(x_3, x_109);
 lean_dec(x_109);
@@ -22929,7 +22929,7 @@ if (x_110 == 0)
 {
 lean_object* x_111; 
 lean_dec(x_108);
-x_111 = l___private_Init_GetElem_0__outOfBounds___rarg(x_104);
+x_111 = l_outOfBounds___rarg(x_104);
 if (lean_obj_tag(x_111) == 0)
 {
 lean_object* x_112; 
@@ -22998,7 +22998,7 @@ if (x_121 == 0)
 {
 lean_object* x_122; 
 lean_dec(x_119);
-x_122 = l___private_Init_GetElem_0__outOfBounds___rarg(x_104);
+x_122 = l_outOfBounds___rarg(x_104);
 if (lean_obj_tag(x_122) == 0)
 {
 lean_object* x_123; 
@@ -23219,7 +23219,7 @@ if (x_46 == 0)
 lean_object* x_47; lean_object* x_48; 
 lean_dec(x_11);
 x_47 = l_Lean_Elab_WF_GuessLex_naryVarNames___closed__1;
-x_48 = l___private_Init_GetElem_0__outOfBounds___rarg(x_47);
+x_48 = l_outOfBounds___rarg(x_47);
 x_15 = x_48;
 goto block_44;
 }
@@ -23241,7 +23241,7 @@ if (x_17 == 0)
 {
 lean_object* x_18; 
 lean_dec(x_15);
-x_18 = l___private_Init_GetElem_0__outOfBounds___rarg(x_14);
+x_18 = l_outOfBounds___rarg(x_14);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_object* x_19; lean_object* x_20; 
@@ -23487,12 +23487,12 @@ if (x_12 == 0)
 lean_object* x_15; lean_object* x_16; 
 lean_dec(x_10);
 x_15 = l_instInhabitedNat;
-x_16 = l___private_Init_GetElem_0__outOfBounds___rarg(x_15);
+x_16 = l_outOfBounds___rarg(x_15);
 if (x_14 == 0)
 {
 lean_object* x_17; lean_object* x_18; 
 lean_dec(x_13);
-x_17 = l___private_Init_GetElem_0__outOfBounds___rarg(x_15);
+x_17 = l_outOfBounds___rarg(x_15);
 x_18 = l_Lean_Elab_WF_GuessLex_RecCallCache_eval(x_1, x_16, x_17, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_17);
 lean_dec(x_16);
@@ -23519,7 +23519,7 @@ if (x_14 == 0)
 lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 lean_dec(x_13);
 x_22 = l_instInhabitedNat;
-x_23 = l___private_Init_GetElem_0__outOfBounds___rarg(x_22);
+x_23 = l_outOfBounds___rarg(x_22);
 x_24 = l_Lean_Elab_WF_GuessLex_RecCallCache_eval(x_1, x_21, x_23, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_23);
 lean_dec(x_21);
@@ -23759,7 +23759,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_10 = l_instInhabitedNat;
-x_11 = l___private_Init_GetElem_0__outOfBounds___rarg(x_10);
+x_11 = l_outOfBounds___rarg(x_10);
 x_12 = lean_nat_dec_eq(x_7, x_11);
 lean_dec(x_11);
 lean_dec(x_7);
@@ -25230,7 +25230,7 @@ if (x_21 == 0)
 {
 lean_object* x_24; lean_object* x_25; uint8_t x_26; 
 x_24 = l_instInhabitedNat;
-x_25 = l___private_Init_GetElem_0__outOfBounds___rarg(x_24);
+x_25 = l_outOfBounds___rarg(x_24);
 x_26 = lean_nat_dec_lt(x_25, x_23);
 lean_dec(x_25);
 if (x_26 == 0)
@@ -25474,7 +25474,7 @@ if (x_13 == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_15 = l_instInhabitedNat;
-x_16 = l___private_Init_GetElem_0__outOfBounds___rarg(x_15);
+x_16 = l_outOfBounds___rarg(x_15);
 x_17 = lean_nat_sub(x_16, x_14);
 lean_dec(x_14);
 lean_dec(x_16);
@@ -25557,7 +25557,7 @@ if (x_29 == 0)
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
 x_31 = l_instInhabitedNat;
-x_32 = l___private_Init_GetElem_0__outOfBounds___rarg(x_31);
+x_32 = l_outOfBounds___rarg(x_31);
 x_33 = lean_nat_sub(x_32, x_30);
 lean_dec(x_30);
 lean_dec(x_32);
@@ -25712,7 +25712,7 @@ if (x_4 == 0)
 {
 lean_object* x_16; lean_object* x_17; 
 x_16 = l_Lean_Elab_WF_GuessLex_naryVarNames___closed__1;
-x_17 = l___private_Init_GetElem_0__outOfBounds___rarg(x_16);
+x_17 = l_outOfBounds___rarg(x_16);
 x_8 = x_17;
 goto block_15;
 }
@@ -27584,7 +27584,7 @@ if (x_31 == 0)
 {
 lean_object* x_72; 
 lean_inc(x_7);
-x_72 = l___private_Init_GetElem_0__outOfBounds___rarg(x_7);
+x_72 = l_outOfBounds___rarg(x_7);
 x_33 = x_72;
 goto block_71;
 }
@@ -27620,14 +27620,14 @@ if (x_35 == 0)
 lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
 lean_dec(x_33);
 x_36 = l_String_instInhabited;
-x_37 = l___private_Init_GetElem_0__outOfBounds___rarg(x_36);
+x_37 = l_outOfBounds___rarg(x_36);
 x_38 = l_Lean_Elab_WF_GuessLex_naryVarNames___closed__1;
 x_39 = lean_array_push(x_38, x_37);
 if (x_32 == 0)
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; 
 lean_inc(x_9);
-x_40 = l___private_Init_GetElem_0__outOfBounds___rarg(x_9);
+x_40 = l_outOfBounds___rarg(x_9);
 x_41 = lean_array_get_size(x_40);
 lean_dec(x_40);
 lean_inc(x_41);
@@ -27678,7 +27678,7 @@ if (x_32 == 0)
 {
 lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; 
 lean_inc(x_9);
-x_57 = l___private_Init_GetElem_0__outOfBounds___rarg(x_9);
+x_57 = l_outOfBounds___rarg(x_9);
 x_58 = lean_array_get_size(x_57);
 lean_dec(x_57);
 lean_inc(x_58);
@@ -27769,7 +27769,7 @@ if (x_31 == 0)
 {
 lean_object* x_72; 
 lean_inc(x_7);
-x_72 = l___private_Init_GetElem_0__outOfBounds___rarg(x_7);
+x_72 = l_outOfBounds___rarg(x_7);
 x_33 = x_72;
 goto block_71;
 }
@@ -27805,14 +27805,14 @@ if (x_35 == 0)
 lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
 lean_dec(x_33);
 x_36 = l_String_instInhabited;
-x_37 = l___private_Init_GetElem_0__outOfBounds___rarg(x_36);
+x_37 = l_outOfBounds___rarg(x_36);
 x_38 = l_Lean_Elab_WF_GuessLex_naryVarNames___closed__1;
 x_39 = lean_array_push(x_38, x_37);
 if (x_32 == 0)
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; 
 lean_inc(x_9);
-x_40 = l___private_Init_GetElem_0__outOfBounds___rarg(x_9);
+x_40 = l_outOfBounds___rarg(x_9);
 x_41 = lean_array_get_size(x_40);
 lean_dec(x_40);
 lean_inc(x_41);
@@ -27863,7 +27863,7 @@ if (x_32 == 0)
 {
 lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; 
 lean_inc(x_9);
-x_57 = l___private_Init_GetElem_0__outOfBounds___rarg(x_9);
+x_57 = l_outOfBounds___rarg(x_9);
 x_58 = lean_array_get_size(x_57);
 lean_dec(x_57);
 lean_inc(x_58);
@@ -28220,7 +28220,7 @@ if (x_25 == 0)
 {
 lean_object* x_172; lean_object* x_173; 
 x_172 = l_Lean_instInhabitedName;
-x_173 = l___private_Init_GetElem_0__outOfBounds___rarg(x_172);
+x_173 = l_outOfBounds___rarg(x_172);
 x_35 = x_173;
 goto block_171;
 }
@@ -28250,7 +28250,7 @@ if (x_26 == 0)
 {
 lean_object* x_168; lean_object* x_169; 
 x_168 = l_Lean_instInhabitedName;
-x_169 = l___private_Init_GetElem_0__outOfBounds___rarg(x_168);
+x_169 = l_outOfBounds___rarg(x_168);
 x_43 = x_169;
 goto block_167;
 }
@@ -28284,7 +28284,7 @@ if (x_32 == 0)
 {
 lean_object* x_164; lean_object* x_165; 
 x_164 = l_Lean_Elab_WF_GuessLex_naryVarNames___closed__1;
-x_165 = l___private_Init_GetElem_0__outOfBounds___rarg(x_164);
+x_165 = l_outOfBounds___rarg(x_164);
 x_51 = x_165;
 goto block_163;
 }
@@ -28311,7 +28311,7 @@ if (x_56 == 0)
 {
 lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; 
 x_57 = l_Lean_Elab_WF_GuessLex_naryVarNames___closed__1;
-x_58 = l___private_Init_GetElem_0__outOfBounds___rarg(x_57);
+x_58 = l_outOfBounds___rarg(x_57);
 x_59 = lean_array_get_size(x_58);
 lean_dec(x_58);
 x_60 = lean_unsigned_to_nat(0u);
@@ -28539,7 +28539,7 @@ if (x_109 == 0)
 lean_object* x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; lean_object* x_120; 
 lean_dec(x_18);
 x_110 = l_Lean_Elab_WF_GuessLex_naryVarNames___closed__1;
-x_111 = l___private_Init_GetElem_0__outOfBounds___rarg(x_110);
+x_111 = l_outOfBounds___rarg(x_110);
 x_112 = lean_array_get_size(x_111);
 lean_dec(x_111);
 x_113 = lean_unsigned_to_nat(0u);
@@ -28786,7 +28786,7 @@ if (x_178 == 0)
 {
 lean_object* x_318; lean_object* x_319; 
 x_318 = l_Lean_instInhabitedName;
-x_319 = l___private_Init_GetElem_0__outOfBounds___rarg(x_318);
+x_319 = l_outOfBounds___rarg(x_318);
 x_189 = x_319;
 goto block_317;
 }
@@ -28816,7 +28816,7 @@ if (x_179 == 0)
 {
 lean_object* x_314; lean_object* x_315; 
 x_314 = l_Lean_instInhabitedName;
-x_315 = l___private_Init_GetElem_0__outOfBounds___rarg(x_314);
+x_315 = l_outOfBounds___rarg(x_314);
 x_197 = x_315;
 goto block_313;
 }
@@ -28850,7 +28850,7 @@ if (x_186 == 0)
 {
 lean_object* x_310; lean_object* x_311; 
 x_310 = l_Lean_Elab_WF_GuessLex_naryVarNames___closed__1;
-x_311 = l___private_Init_GetElem_0__outOfBounds___rarg(x_310);
+x_311 = l_outOfBounds___rarg(x_310);
 x_205 = x_311;
 goto block_309;
 }
@@ -28877,7 +28877,7 @@ if (x_210 == 0)
 {
 lean_object* x_211; lean_object* x_212; lean_object* x_213; lean_object* x_214; lean_object* x_215; lean_object* x_216; lean_object* x_217; lean_object* x_218; lean_object* x_219; lean_object* x_220; 
 x_211 = l_Lean_Elab_WF_GuessLex_naryVarNames___closed__1;
-x_212 = l___private_Init_GetElem_0__outOfBounds___rarg(x_211);
+x_212 = l_outOfBounds___rarg(x_211);
 x_213 = lean_array_get_size(x_212);
 lean_dec(x_212);
 x_214 = lean_unsigned_to_nat(0u);
@@ -29099,7 +29099,7 @@ if (x_259 == 0)
 lean_object* x_260; lean_object* x_261; lean_object* x_262; lean_object* x_263; lean_object* x_264; lean_object* x_265; lean_object* x_266; lean_object* x_267; lean_object* x_268; lean_object* x_269; lean_object* x_270; 
 lean_dec(x_18);
 x_260 = l_Lean_Elab_WF_GuessLex_naryVarNames___closed__1;
-x_261 = l___private_Init_GetElem_0__outOfBounds___rarg(x_260);
+x_261 = l_outOfBounds___rarg(x_260);
 x_262 = lean_array_get_size(x_261);
 lean_dec(x_261);
 x_263 = lean_unsigned_to_nat(0u);
@@ -29949,7 +29949,7 @@ if (x_28 == 0)
 lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 lean_dec(x_2);
 x_29 = l_Lean_Elab_WF_GuessLex_naryVarNames___closed__1;
-x_30 = l___private_Init_GetElem_0__outOfBounds___rarg(x_29);
+x_30 = l_outOfBounds___rarg(x_29);
 x_31 = l_Lean_Elab_WF_GuessLex_explainNonMutualFailure(x_30, x_3, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_31) == 0)
 {
@@ -30217,7 +30217,7 @@ lean_object* x_20; lean_object* x_21;
 lean_dec(x_12);
 lean_dec(x_1);
 x_20 = l_Lean_instInhabitedExpr;
-x_21 = l___private_Init_GetElem_0__outOfBounds___rarg(x_20);
+x_21 = l_outOfBounds___rarg(x_20);
 if (x_19 == 0)
 {
 uint8_t x_22; 
@@ -30369,7 +30369,7 @@ if (x_43 == 0)
 lean_object* x_44; lean_object* x_45; lean_object* x_46; 
 lean_dec(x_1);
 x_44 = l_Lean_instInhabitedExpr;
-x_45 = l___private_Init_GetElem_0__outOfBounds___rarg(x_44);
+x_45 = l_outOfBounds___rarg(x_44);
 x_46 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_46, 0, x_45);
 lean_ctor_set(x_46, 1, x_6);
@@ -30468,7 +30468,7 @@ if (x_15 == 0)
 lean_object* x_17; lean_object* x_18; uint8_t x_19; 
 lean_dec(x_13);
 x_17 = l_instInhabitedNat;
-x_18 = l___private_Init_GetElem_0__outOfBounds___rarg(x_17);
+x_18 = l_outOfBounds___rarg(x_17);
 x_19 = lean_nat_dec_lt(x_18, x_16);
 lean_dec(x_16);
 if (x_19 == 0)
@@ -30476,7 +30476,7 @@ if (x_19 == 0)
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
 lean_dec(x_18);
 x_20 = l_Lean_Elab_WF_GuessLex_instInhabitedMeasure;
-x_21 = l___private_Init_GetElem_0__outOfBounds___rarg(x_20);
+x_21 = l_outOfBounds___rarg(x_20);
 x_22 = lean_ctor_get(x_21, 0);
 lean_inc(x_22);
 lean_dec(x_21);
@@ -30521,7 +30521,7 @@ if (x_34 == 0)
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
 lean_dec(x_33);
 x_35 = l_Lean_Elab_WF_GuessLex_instInhabitedMeasure;
-x_36 = l___private_Init_GetElem_0__outOfBounds___rarg(x_35);
+x_36 = l_outOfBounds___rarg(x_35);
 x_37 = lean_ctor_get(x_36, 0);
 lean_inc(x_37);
 lean_dec(x_36);
@@ -30736,7 +30736,7 @@ lean_closure_set(x_24, 2, x_6);
 if (x_19 == 0)
 {
 lean_object* x_25; lean_object* x_26; 
-x_25 = l___private_Init_GetElem_0__outOfBounds___rarg(x_7);
+x_25 = l_outOfBounds___rarg(x_7);
 x_26 = l_Lean_Elab_WF_GuessLex_withUserNames___rarg(x_17, x_25, x_24, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_17);
 return x_26;
@@ -30774,7 +30774,7 @@ if (x_22 == 0)
 {
 lean_object* x_39; lean_object* x_40; 
 x_39 = l_Lean_Elab_WF_GuessLex_naryVarNames___closed__1;
-x_40 = l___private_Init_GetElem_0__outOfBounds___rarg(x_39);
+x_40 = l_outOfBounds___rarg(x_39);
 x_24 = x_40;
 goto block_38;
 }

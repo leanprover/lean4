@@ -226,7 +226,6 @@ LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Elab_Tactic_evalAnyGoals___
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_evalOpen___spec__40(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalFirst_declRange__1___closed__6;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_BuiltinTactic_0__Lean_Elab_Tactic_getCaseGoals___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_renameInaccessibles___spec__11(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalLeft_declRange__1___closed__5;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSleep__1___closed__3;
@@ -668,6 +667,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalIntros_declRange__1___cl
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalWithAnnotateState_declRange__1___closed__1;
 static lean_object* l___private_Lean_Elab_Tactic_BuiltinTactic_0__Lean_Elab_Tactic_getCaseGoals_commaList___closed__1;
 static lean_object* l_Lean_Elab_nestedExceptionToMessageData___at_Lean_Elab_Tactic_evalOpen___spec__37___closed__5;
+lean_object* l_outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_Elab_Tactic_withMainContext___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalCase_x27_declRange__1___closed__6;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalTacticSeq1Indented_declRange__1(lean_object*);
@@ -15767,7 +15767,7 @@ if (x_54 == 0)
 lean_object* x_55; lean_object* x_56; lean_object* x_57; 
 lean_dec(x_1);
 x_55 = l_Lean_instInhabitedName;
-x_56 = l___private_Init_GetElem_0__outOfBounds___rarg(x_55);
+x_56 = l_outOfBounds___rarg(x_55);
 x_57 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_57, 0, x_56);
 lean_ctor_set(x_57, 1, x_13);
@@ -15995,7 +15995,7 @@ if (x_60 == 0)
 lean_object* x_61; lean_object* x_62; lean_object* x_63; 
 lean_dec(x_18);
 x_61 = l_Lean_instInhabitedException;
-x_62 = l___private_Init_GetElem_0__outOfBounds___rarg(x_61);
+x_62 = l_outOfBounds___rarg(x_61);
 if (lean_is_scalar(x_17)) {
  x_63 = lean_alloc_ctor(1, 2, 0);
 } else {
@@ -43595,7 +43595,7 @@ x_19 = lean_ctor_get(x_17, 1);
 lean_inc(x_19);
 lean_dec(x_17);
 x_20 = l_Lean_instInhabitedSyntax;
-x_21 = l___private_Init_GetElem_0__outOfBounds___rarg(x_20);
+x_21 = l_outOfBounds___rarg(x_20);
 x_22 = l_Lean_Syntax_getArg(x_21, x_13);
 lean_dec(x_21);
 x_23 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_evalTactic), 10, 1);
@@ -43926,7 +43926,7 @@ if (x_73 == 0)
 lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; 
 lean_dec(x_2);
 x_74 = l_Lean_instInhabitedSyntax;
-x_75 = l___private_Init_GetElem_0__outOfBounds___rarg(x_74);
+x_75 = l_outOfBounds___rarg(x_74);
 x_76 = l_Lean_Syntax_getArg(x_75, x_13);
 lean_dec(x_75);
 x_77 = l_Lean_Elab_Tactic_evalTactic(x_76, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);

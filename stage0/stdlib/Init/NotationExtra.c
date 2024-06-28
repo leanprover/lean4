@@ -150,7 +150,6 @@ static lean_object* l_Lean_explicitBinders___closed__1;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 static lean_object* l_Lean_calc___closed__2;
 static lean_object* l_Lean_command____Unif__hint________Where___x7c___x2d_u22a2_____closed__7;
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1___closed__1;
 static lean_object* l_Lean_command____Unif__hint________Where___x7c___x2d_u22a2_____closed__12;
@@ -429,6 +428,7 @@ static lean_object* l_term_u2203___x2c_____closed__1;
 static lean_object* l_Array_forInUnsafe_loop___at_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1___spec__5___closed__2;
 LEAN_EXPORT lean_object* l_unexpandUnit___boxed(lean_object*);
 static lean_object* l_unexpandSubtype___closed__5;
+lean_object* l_outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_calcTactic___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Loop_noConfusion___rarg(lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__NotationExtra______macroRules__tacticFunext________1___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1708,7 +1708,7 @@ if (x_13 == 0)
 {
 lean_object* x_110; lean_object* x_111; 
 x_110 = l_Lean_instInhabitedSyntax;
-x_111 = l___private_Init_GetElem_0__outOfBounds___rarg(x_110);
+x_111 = l_outOfBounds___rarg(x_110);
 x_14 = x_111;
 goto block_109;
 }
@@ -1983,7 +1983,7 @@ if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 x_13 = l_Lean_instInhabitedSyntax;
-x_14 = l___private_Init_GetElem_0__outOfBounds___rarg(x_13);
+x_14 = l_outOfBounds___rarg(x_13);
 x_15 = l_Lean_Syntax_getArg(x_14, x_9);
 x_16 = l_Lean_Syntax_getArgs(x_15);
 lean_dec(x_15);

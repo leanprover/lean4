@@ -44,7 +44,6 @@ static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lean_Elab_Structural_registerEqnsInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Structural_preprocess(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_getFixedPrefix___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_Term_throwErrorIfErrors___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -85,6 +84,7 @@ static lean_object* l_Lean_Elab_Structural_initFn____x40_Lean_Elab_PreDefinition
 static lean_object* l_Lean_Elab_Structural_structuralRecursion___closed__5;
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_structuralRecursion___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_outOfBounds___rarg(lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimRecursion___lambda__6___closed__4;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
@@ -2898,7 +2898,7 @@ if (x_15 == 0)
 {
 lean_object* x_112; lean_object* x_113; 
 x_112 = l_Lean_Elab_instInhabitedPreDefinition;
-x_113 = l___private_Init_GetElem_0__outOfBounds___rarg(x_112);
+x_113 = l_outOfBounds___rarg(x_112);
 x_16 = x_113;
 goto block_111;
 }

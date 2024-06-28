@@ -133,20 +133,13 @@ termination_by structurally x => x
 end
 
 
--- Mixed levels.
+-- Mixed levels, should error
 
--- TODO: Should this work?
-
--- set_option trace.Elab.definition.structural true in
 /--
-error: application type mismatch
-  @A.brecOn (fun x => Type) fun x => Nat
-argument
-  fun x => Nat
-has type
-  B → Type : Type 1
-but is expected to have type
-  B → Type 1 : Type 2
+error: invalid mutual definition, result types must be in the same universe level, resulting type for `A.strangeType` is
+  Type : Type 1
+and for `B.odderCount` is
+  Nat : Type
 -/
 #guard_msgs in
 mutual

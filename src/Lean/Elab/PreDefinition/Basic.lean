@@ -192,4 +192,22 @@ def ensureNoRecFn (recFnNames : Array Name) (e : Expr) : MetaM Unit := do
       if e.getAppFn.isConst && recFnNames.contains e.getAppFn.constName! then
         throwError "unexpected occurrence of recursive application{indentExpr e}"
 
+/--
+Checks that all codomians have the same level, throws an error otherwise.
+-/
+def checkCodomainsLevel (preDefs : Array PreDefinition) : MetaM Unit := do
+  if preDefs.size = 1 then return
+  let arities ← preDefs.mapM fun preDef =>
+    lambdaTelescope preDef.value fun xs _ => return xs.size
+  forallBoundedTelescope preDefs[0]!.type arities[0]!  fun _ type₀ => do
+    let u₀ ← getLevel type₀
+    for i in [1:preDefs.size] do
+      forallBoundedTelescope preDefs[i]!.type arities[i]! fun _ typeᵢ =>
+      unless ← isLevelDefEq u₀ (← getLevel typeᵢ) do
+        withOptions (fun o => pp.sanitizeNames.set o false) do
+          throwError m!"invalid mutual definition, result types must be in the same universe " ++
+            m!"level, resulting type " ++
+            m!"for `{preDefs[0]!.declName}` is{indentExpr type₀} : {← inferType type₀}\n" ++
+            m!"and for `{preDefs[i]!.declName}` is{indentExpr typeᵢ} : {← inferType typeᵢ}"
+
 end Lean.Elab

@@ -41,12 +41,16 @@ private partial def toBelowAux (Cs : Array Expr) (belowDict : Expr) (arg : Expr)
       unless Cs.contains belowDictFun.getAppFn do throwToBelowFailed
       unless ← isDefEq belowDictArg arg do throwToBelowFailed
       pure (mkAppN F argTailArgs)
-    | _ => throwToBelowFailed
+    | _ =>
+      trace[Elab.definition.structural] "belowDict not an app: {belowDict}"
+      throwToBelowFailed
 
 /-- See `toBelow` -/
 private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat) (numMotives : Nat) (k : Array Expr → Expr → MetaM α) : MetaM α := do
   let belowType ← inferType below
   trace[Elab.definition.structural] "belowType: {belowType}"
+  unless (← isTypeCorrect below) do
+    trace[Elab.definition.structural] "not type correct!"
   belowType.withApp fun f args => do
     unless numIndParams + numMotives < args.size do throwError "unexpected 'below' type{indentExpr belowType}"
     let pre := mkAppN f (args.extract 0 numIndParams)
@@ -115,7 +119,9 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (below : Exp
             let recArg := args[recArgPos]!
             -- For reflexive type, we may have nested recursive applications in recArg
             let recArg ← loop below recArg
-            let f ← try toBelow below recArgInfo.indParams.size recArgInfos.size recArg catch  _ => throwError "failed to eliminate recursive application{indentExpr e}"
+            let f ←
+              try toBelow below recArgInfo.indParams.size recArgInfos.size recArg
+              catch _ => throwError "failed to eliminate recursive application{indentExpr e}"
             -- Recall that the fixed parameters are not in the scope of the `brecOn`. So, we skip them.
             let argsNonFixed := args.extract numFixed args.size
             -- The function `f` does not explicitly take `recArg` and its indices as arguments. So, we skip them too.

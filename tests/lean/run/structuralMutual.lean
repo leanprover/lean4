@@ -206,4 +206,44 @@ def B.self_size : B → Nat
   | .empty => 0
 termination_by structurally x => x
 
+/-- error: structural mutual recursion only supported without reordering for now -/
+#guard_msgs in
+mutual
+def A.weird_size1 : A → Nat
+  | .self a => a.weird_size2 + 1
+  | .other _ => 0
+  | .empty => 0
+termination_by structurally x => x
+def A.weird_size2 : A → Nat
+  | .self a => a.weird_size1 + 1
+  | .other _ => 0
+  | .empty => 0
+termination_by structurally x => x
+end
+
 end MutualIndNonMutualFun
+
+namespace DifferentTypes
+
+
+inductive A
+  | self : A → A
+  | empty
+
+/--
+error: Cannot use structural mutual recursion: The recursive argument of DifferentTypes.A.with_nat is of type DifferentTypes.A, the recursive argument of DifferentTypes.Nat.foo is of type Nat, and these are not mutually recursive.
+-/
+#guard_msgs in
+mutual
+def A.with_nat : A → Nat
+  | .self a => a.with_nat + Nat.foo 1
+  | .empty => 0
+termination_by structurally x => x
+def Nat.foo : Nat → Nat
+  | n+1 => Nat.foo n
+  | 0 => A.empty.with_nat
+termination_by structurally x => x
+end
+
+
+end DifferentTypes

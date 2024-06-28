@@ -122,6 +122,14 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Ar
         check valueNew
         return #[{ preDef with value := valueNew }]
 
+      -- Check that all parameter types are mutually inductive
+      for recArgInfo in recArgInfos do
+        unless indInfo.all.contains recArgInfo.indName do
+          throwError m!"Cannot use structural mutual recursion: The recursive argument of " ++
+            m!"{recArgInfos[0]!.fnName} is of type {indInfo.name}, " ++
+            m!"the recursive argument of {recArgInfo.fnName} is of type " ++
+            m!"{recArgInfo.indName}, and these are not mutually recursive."
+
       -- TODO: This check should be up to permutation and calculate that permutation somehow
       unless indInfo.all.toArray = recArgInfos.map (·.indName) do
         throwError "structural mutual recursion only supported without reordering for now"

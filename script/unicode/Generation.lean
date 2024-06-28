@@ -16,7 +16,7 @@ def main : IO Unit := do
   if (¬ (← dataDir.pathExists)) then
     createDir "Data"
   for dataset in unicodeDatasets do
-    let f : FilePath := System.mkFilePath ["Data",dataset]
+    let f : FilePath := System.mkFilePath ["Data", dataset]
     let _ ← download (unicodeUrl ++ dataset) f
 
   let f : FilePath := System.mkFilePath ["Data","UnicodeData.txt"]

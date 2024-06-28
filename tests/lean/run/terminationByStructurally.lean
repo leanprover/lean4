@@ -24,7 +24,7 @@ def foo1 (n : Nat) : Nat := foo1 n
 termination_by structurally n
 
 /--
-error: its type is an inductive family and indices are not variables
+error: its type Nat.le is an inductive family and indices are not variables
   n.succ.le 100
 -/
 #guard_msgs in

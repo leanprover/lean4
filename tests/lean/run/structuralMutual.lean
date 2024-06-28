@@ -174,6 +174,21 @@ end
 
 end Reflexive
 
+namespace EvenOdd
+
+mutual
+  def isEven : Nat → Prop
+    | 0 => True
+    | n+1 => ¬ isOdd n
+  termination_by structurally x => x
+
+  def isOdd : Nat → Prop
+    | 0 => False
+    | n+1 => ¬ isEven n
+  termination_by structurally x => x
+end
+
+end EvenOdd
 
 namespace MutualIndNonMutualFun
 

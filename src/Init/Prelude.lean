@@ -2209,13 +2209,6 @@ def Char.utf8Size (c : Char) : Nat :=
     (ite (LE.le v (UInt32.ofNatCore 0x7FF (by decide))) 2
       (ite (LE.le v (UInt32.ofNatCore 0xFFFF (by decide))) 3 4))
 
-/-- The `UnicodeVersion` type represents the current version of
-unicode supported by Lean -/
-structure UnicodeVersion where
-  major : Nat
-  minor : Nat
-  update : Nat
-
 /--
 `Option α` is the type of values which are either `some a` for some `a : α`,
 or `none`. In functional programming languages, this type is used to represent

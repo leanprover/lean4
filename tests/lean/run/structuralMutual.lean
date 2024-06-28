@@ -150,7 +150,7 @@ end
 
 /--
 error: argument #1 cannot be used for structural recursion
-  Structural non-mutual recursion over a mutual inductive data type is not supported
+  structural mutual recursion only supported without reordering for now
 -/
 #guard_msgs in
 def A.self_size : A → Nat
@@ -161,7 +161,7 @@ termination_by structurally x => x
 
 /--
 error: argument #1 cannot be used for structural recursion
-  Structural non-mutual recursion over a mutual inductive data type is not supported
+  structural mutual recursion only supported without reordering for now
 -/
 #guard_msgs in
 def B.self_size : B → Nat

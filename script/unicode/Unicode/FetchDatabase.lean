@@ -29,6 +29,7 @@ def writeUnicodeVersion : IO Unit := do
   content := content ++ "Released under Apache 2.0 license as described in the file LICENSE.\n"
   content := content ++ "Authors: Jean-Baptiste Tristan\n"
   content := content ++ "-/\n"
+  content := content ++ "-- DO NOT EDIT: file generated using the scripts/unicode tool\n"
   content := content ++ "prelude\n"
   content := content ++ "import Init.Data.Nat.Basic\n"
   content := content ++ "\n"

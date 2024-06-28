@@ -6,11 +6,23 @@ Authors: Jean-Baptiste Tristan
 import Init.Data.Char.UnicodeSkipList
 import Unicode.Unicode
 import Unicode.Parse
+import Init.Data.Char.Basic
 
 open Std System IO FilePath FS
 
 namespace Char.UnicodeSkipList
 
+/-
+The following code creates the unicode skip list data structure for
+a given property. To understand it at a high-level, we provide an
+explanation in Init/Data/Char/UnicodeSkipList.lean
+-/
+
+/-
+Break down the sequence of codepoints into a sequence of ranges,
+alternating between ranges that satisfy the property and ranges that
+do not.
+-/
 def explicitRanges (ucd : List UnicodeData) (property : UnicodeData → Bool) : List Range := Id.run do
   let mut rangeOpt : Option Range := none
   let mut ranges := []
@@ -42,6 +54,9 @@ def explicitRanges (ucd : List UnicodeData) (property : UnicodeData → Bool) : 
 
   return ranges
 
+/-
+Turn the list or ranges into a gap encoding.
+-/
 def mergeRanges (ranges : List Range) : List Nat := Id.run do
   let flat := ranges.foldl (fun acc => fun range => range.start :: range.stop :: acc) []
   let mut prev := 0
@@ -52,9 +67,16 @@ def mergeRanges (ranges : List Range) : List Nat := Id.run do
   gaps := (0 :: gaps).reverse
   return gaps
 
+/-
+Ranges with a length that cannot fit in 8 bits are encoded as 0.
+-/
 def offsets (gaps : List Nat) : Array UInt8 :=
   (gaps.map (fun gap => if gap ≥ 256 then 0 else gap.toUInt8)).toArray
 
+/-
+Compute the list of indices into the offset array, pointing to the
+different runs.
+-/
 def indices (gaps : List Nat) : List Nat := Id.run do
   let mut index := 0
   let mut indices := [0]
@@ -64,6 +86,10 @@ def indices (gaps : List Nat) : List Nat := Id.run do
       indices := index * 2^21 :: indices
   return indices.reverse
 
+/-
+Computer the list of codepoint that mark the beginning of a run
+in the original unicode data.
+-/
 def prefixSums (gaps : List Nat) : List Nat := Id.run do
   let mut prefixSum := 0
   let mut prefixSums := []
@@ -74,7 +100,7 @@ def prefixSums (gaps : List Nat) : List Nat := Id.run do
   return prefixSums.reverse
 
 def largeOffsetEncoding (indices prefixSums : List Nat) : Array UInt32 :=
-  let prefixSums := prefixSums ++ [1114111 + 1]
+  let prefixSums := prefixSums ++ [1114112]
   ((indices.zip prefixSums).map (fun (idx,pf) => (idx + pf).toUInt32)).toArray
 
 def calculateTable (ucd : List UnicodeData) (property : UnicodeData → Bool) : UnicodePropertyTable :=

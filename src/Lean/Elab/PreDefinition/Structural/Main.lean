@@ -127,7 +127,7 @@ private def elimRecursion (preDef : PreDefinition) (termArg? : Option Terminatio
         let valueNew ← mkIndPredBRecOn recArgInfo xs value
         mkLambdaFVars xs valueNew
       else
-        let valueNew ← mkBRecOn #[recArgInfo] #[(← mkLambdaFVars xs[recArgInfo.fixedParams.size:] value)] 0
+        let valueNew ← mkBRecOnNonMut recArgInfo (← mkLambdaFVars xs[recArgInfo.fixedParams.size:] value)
         mkLambdaFVars (xs[:recArgInfo.fixedParams.size]) valueNew
       trace[Elab.definition.structural] "result: {valueNew}"
       -- Recursive applications may still occur in expressions that were not visited by replaceRecApps (e.g., in types)

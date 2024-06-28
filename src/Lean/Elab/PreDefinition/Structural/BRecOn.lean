@@ -232,16 +232,11 @@ def inferBRecOnFTypes (recArgInfos : Array RecArgInfo) (motives : Array Expr)
     arrowDomainsN recArgInfos.size brecOnType
 
 /--
+Completes the `.brecOn` for the given function.
 The `value` is the function with (only) the fixed parameters moved into the context.
 -/
-def mkBRecOn (recArgInfos : Array RecArgInfo) (values : Array Expr) (i : Nat) : M Expr := do
-  let motives ← (Array.zip recArgInfos values).mapM fun (r, v) => mkBRecOnMotive r v
-  let brecOnConst ← mkBRecOnConst recArgInfos motives
-  let FTypes ← inferBRecOnFTypes recArgInfos motives brecOnConst
-  let FArgs ← (recArgInfos.zip  (values.zip FTypes)).mapM fun (r, (v, t)) => mkBRecOnF recArgInfos r v t
-
-  let value := values[i]!
-  let recArgInfo := recArgInfos[i]!
+def mkBrecOnApp (brecOnConst : Name → Expr) (motives : Array Expr) (FArgs : Array Expr)
+    (recArgInfo : RecArgInfo) (value : Expr) : MetaM Expr := do
   lambdaTelescope value fun xs _value => do
     let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor' xs
     let brecOn := brecOnConst recArgInfo.indName
@@ -250,5 +245,27 @@ def mkBRecOn (recArgInfos : Array RecArgInfo) (values : Array Expr) (i : Nat) : 
     let brecOn := mkAppN brecOn indexMajorArgs
     let brecOn := mkAppN brecOn FArgs
     mkLambdaFVars xs (mkAppN brecOn otherArgs)
+
+/--
+The `value` is the function with (only) the fixed parameters moved into the context.
+-/
+def mkBRecOn (recArgInfos : Array RecArgInfo) (values : Array Expr) (i : Nat) : M Expr := do
+  let motives ← (Array.zip recArgInfos values).mapM fun (r, v) => mkBRecOnMotive r v
+  let brecOnConst ← mkBRecOnConst recArgInfos motives
+  let FTypes ← inferBRecOnFTypes recArgInfos motives brecOnConst
+  let FArgs ← (recArgInfos.zip  (values.zip FTypes)).mapM fun (r, (v, t)) => mkBRecOnF recArgInfos r v t
+  mkBrecOnApp brecOnConst motives FArgs recArgInfos[i]! values[i]!
+
+/--
+Temporary until the mutual code is proven.
+-/
+def mkBRecOnNonMut (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
+  let recArgInfos := #[recArgInfo]
+  let values := #[value]
+  let motives ← (Array.zip recArgInfos values).mapM fun (r, v) => mkBRecOnMotive r v
+  let brecOnConst ← mkBRecOnConst recArgInfos motives
+  let FTypes ← inferBRecOnFTypes recArgInfos motives brecOnConst
+  let FArgs ← (recArgInfos.zip  (values.zip FTypes)).mapM fun (r, (v, t)) => mkBRecOnF recArgInfos r v t
+  mkBrecOnApp brecOnConst motives FArgs recArgInfo value
 
 end Lean.Elab.Structural

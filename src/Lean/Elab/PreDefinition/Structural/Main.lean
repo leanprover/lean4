@@ -96,13 +96,10 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Ar
     let preDefs ← preDefs.mapM fun preDef =>
       return { preDef with value := (← preprocess preDef.value names) }
     let numFixed ← getMutualFixedPrefix preDefs
-    -- Get the fixed parameters into scope. Most of the code below expects them to be
-    -- in the environment
-    withCommonTelescope preDefs fun xs bodies => do
-      assert! xs.size ≥ numFixed
-      -- Move all but the fixed parameters back to the value
-      let values ← bodies.mapM (mkLambdaFVars xs[numFixed:] ·)
-      let xs := xs[:numFixed]
+    -- Get (only!) the fixed parameters into scope
+    lambdaTelescopeBounded preDefs[0]!.value numFixed fun xs _ => do
+      assert! xs.size = numFixed
+      let values ← preDefs.mapM (instantiateLambda ·.value xs)
 
       let recArgInfos ← preDefs.mapIdxM fun i preDef => do
         let recArgPos := recArgPoss[i]!
@@ -115,12 +112,17 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Ar
         -- Here we branch off to the IndPred construction, but only for non-mutual functions
         unless preDefs.size = 1 do
           throwError "structural mutual recursion over inductive predicates is not supported"
+        trace[Elab.definition.structural] "Using mkIndPred construction"
         let preDef := preDefs[0]!
         let recArgInfo := recArgInfos[0]!
-        let valueNew ← lambdaTelescope preDef.value fun ys value => do
+        let valueNew ← lambdaTelescope values[0]! fun ys value => do
           let valueNew ← mkIndPredBRecOn recArgInfo (xs ++ ys) value
           mkLambdaFVars (xs ++ ys) valueNew
         let valueNew ← ensureNoRecFn preDef.declName valueNew
+        trace[Elab.definition.structural] "Nonrecursive value:{indentExpr valueNew}"
+        trace[Elab.definition.structural] "FVars: {valueNew.hasFVar}"
+        trace[Elab.definition.structural] "FVars: {valueNew.find? (·.isFVar)}"
+        check valueNew
         return #[{ preDef with value := valueNew }]
 
       -- TODO: This check should be up to permutation and calculate that permutation somehow
@@ -163,7 +165,7 @@ private def elimRecursion (preDef : PreDefinition) (termArg? : Option Terminatio
     -- Use termination_by annotation to find argument to recurse on, or just try all
     match termArg? with
     | .some termArg => go (← termArg.structuralArg)
-    | .none => lambdaTelescope preDef.value fun xs _ => tryAllArgs xs go
+    | .none => tryAllArgs preDef.value go
 
 def structuralRecursion (preDefs : Array PreDefinition) (termArgs? : Option TerminationArguments) : TermElabM Unit := do
   if preDefs.size != 1 then

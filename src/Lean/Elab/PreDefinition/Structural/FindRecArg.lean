@@ -95,28 +95,34 @@ def withRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) 
   We give preference for arguments that are *not* indices of inductive types of other arguments.
   See issue #837 for an example where we can show termination using the index of an inductive family, but
   we don't get the desired definitional equalities.
+
+  `value` is the function value (including fixed parameters)
 -/
-partial def tryAllArgs (xs : Array Expr) (k : Nat → M α) : M α := do
-  /- Collect arguments that are indices. See comment above. -/
-  let indicesRef : IO.Ref (Array Nat) ← IO.mkRef {}
-  for x in xs do
-    let xType ← inferType x
-    /- Traverse all sub-expressions in the type of `x` -/
-    forEachExpr xType fun e =>
-      /- If `e` is an inductive family, we store in `indicesRef` all variables in `xs` that occur in "index positions". -/
-      matchConstInduct e.getAppFn (fun _ => pure ()) fun info _ => do
-        if info.numIndices > 0 && info.numParams + info.numIndices == e.getAppNumArgs then
-          for arg in e.getAppArgs[info.numParams:] do
-            forEachExpr arg fun e => do
-              if let .some idx := xs.getIdx? e then
-                indicesRef.modify fun indices => indices.push idx
-  let indices ← indicesRef.get
-  let nonIndices := (Array.range xs.size).filter (fun i => !(indices.contains i))
-  let mut errors : Array MessageData := Array.mkArray xs.size m!""
+partial def tryAllArgs (value : Expr) (k : Nat → M α) : M α := do
+  -- It's improtant to keep the call to `k` outside the scope of `lambdaTelescope`:
+  -- The tactics in the IndPred construction search the full local context, so we must not have
+  -- extra FVars there
+  let (indices, nonIndices) ← lambdaTelescope value fun xs _ => do
+    let indicesRef : IO.Ref (Array Nat) ← IO.mkRef {}
+    for x in xs do
+      let xType ← inferType x
+      /- Traverse all sub-expressions in the type of `x` -/
+      forEachExpr xType fun e =>
+        /- If `e` is an inductive family, we store in `indicesRef` all variables in `xs` that occur in "index positions". -/
+        matchConstInduct e.getAppFn (fun _ => pure ()) fun info _ => do
+          if info.numIndices > 0 && info.numParams + info.numIndices == e.getAppNumArgs then
+            for arg in e.getAppArgs[info.numParams:] do
+              forEachExpr arg fun e => do
+                if let .some idx := xs.getIdx? e then
+                  indicesRef.modify (·.push idx)
+    let indices ← indicesRef.get
+    let nonIndices := (Array.range xs.size).filter (fun i => !(indices.contains i))
+    return (indices, nonIndices)
+
+  let mut errors : Array MessageData := Array.mkArray (indices.size  + nonIndices.size) m!""
   let saveState ← get -- backtrack the state for each argument
   for i in id (nonIndices ++ indices) do
-    let x := xs[i]!
-    trace[Elab.definition.structural] "findRecArg x: {x}"
+    trace[Elab.definition.structural] "findRecArg i: {i}"
     try
       set saveState
       return (← k i)

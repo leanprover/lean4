@@ -157,9 +157,19 @@ private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr :=
   registerSyntheticMVar ref mvarId <| SyntheticMVarKind.tactic tacticCode (← saveContext)
   return mvar
 
+register_builtin_option debug.byAsSorry : Bool := {
+  defValue := false
+  group    := "debug"
+  descr    := "replace `by ..` blocks with `sorry` IF the expected type is a proposition"
+}
+
 @[builtin_term_elab byTactic] def elabByTactic : TermElab := fun stx expectedType? => do
   match expectedType? with
-  | some expectedType => mkTacticMVar expectedType stx
+  | some expectedType =>
+    if ← pure (debug.byAsSorry.get (← getOptions)) <&&> isProp expectedType then
+      mkSorry expectedType false
+    else
+      mkTacticMVar expectedType stx
   | none =>
     tryPostpone
     throwError ("invalid 'by' tactic, expected type has not been provided")

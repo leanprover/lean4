@@ -21,4 +21,4 @@ termination_by.lean:101:2-101:27: error: Invalid `termination_by`; this function
 termination_by.lean:120:2-120:40: error: Invalid `termination_by`; this function is mutually recursive with Test3.f, which is not marked as `structurally` so this one cannot be `structurally` either.
 termination_by.lean:144:2-144:40: error: Invalid `termination_by`; this function is mutually recursive with Test4.f, which is not marked as `structurally` so this one cannot be `structurally` either.
 termination_by.lean:159:2-159:21: error: Invalid `decreasing_by`; this function is marked as structurally recursive, so no explicit termination proof is needed.
-termination_by.lean:149:0-165:3: error: structural recursion does not handle mutually recursive functions
+termination_by.lean:149:0-165:3: error: structural mutual recursion only supported without reordering for now

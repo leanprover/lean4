@@ -224,13 +224,9 @@ def mkBRecOn (recArgInfos : Array RecArgInfo) (values : Array Expr) (i : Nat) : 
       brecOn := mkApp brecOn (← mkBRecOnMotive recArgInfo value)
     brecOn := mkAppN brecOn indexMajorArgs
     check brecOn
+    let FTypes ← inferArgumentTypesN values.size brecOn
     -- calculate minor args
-    for recArgInfo in recArgInfos, value in values do
-      let brecOnType ← inferType brecOn
-      trace[Elab.definition.structural] "brecOn     {brecOn}"
-      trace[Elab.definition.structural] "brecOnType {brecOnType}"
-      let FType ← forallBoundedTelescope brecOnType (some 1) fun F _ => inferType F[0]!
-      trace[Elab.definition.structural] "FType: {FType}"
+    for recArgInfo in recArgInfos, value in values, FType in FTypes do
       brecOn  := mkApp brecOn (← mkBRecOnF recArgInfos recArgInfo value FType)
     mkLambdaFVars xs (mkAppN brecOn otherArgs)
 

@@ -212,9 +212,10 @@ def mkBRecOnConst (recArgInfos : Array RecArgInfo) (motives : Array Expr) : Meta
   let recArgInfo := recArgInfos[0]!
   let motive := motives[0]!
   let brecOnUniv ← lambdaTelescope motive fun _ type => getLevel type
-  let useBInductionOn := recArgInfo.reflexive && brecOnUniv == levelZero
+  let indInfo ← getConstInfoInduct recArgInfo.indName
+  let useBInductionOn := indInfo.isReflexive && brecOnUniv == levelZero
   let brecOnUniv ←
-    if recArgInfo.reflexive && brecOnUniv != levelZero then
+    if indInfo.isReflexive && brecOnUniv != levelZero then
       decLevel brecOnUniv
     else
       pure brecOnUniv

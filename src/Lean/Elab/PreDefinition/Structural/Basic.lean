@@ -31,10 +31,6 @@ structure RecArgInfo where
   indLevels   : List Level
   /-- inductive datatype parameters of the argument we are recursing on -/
   indParams   : Array Expr
-  -- /-- inductive datatype indices of the argument we are recursing on, it is equal to `indicesPos.map fun i => ys.get! i` -/
-  -- indIndices  : Array Expr
-  /-- true if we are recursing over a reflexive inductive datatype -/
-  reflexive   : Bool
 deriving Inhabited
 
 def RecArgInfo.recArgPos (info : RecArgInfo) : Nat :=

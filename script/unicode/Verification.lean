@@ -21,7 +21,7 @@ def compareTables (ucd : List UnicodeData) (property : UnicodeData → Bool) : I
     let candidate := search table c
     if ref ≠ candidate then
       failed := true
-      println s!"{c.toNat} {c} {ref} {candidate}"
+      println s!"Discrepancy: character {c} with decimal code {c.toNat} is {ref} in the reference and {candidate} in the skiplist"
   let msg := if failed then "failed" else "succeeded"
   println s!"Verification {msg} in {((← monoMsNow) - time).toFloat / 1000} seconds"
   return failed

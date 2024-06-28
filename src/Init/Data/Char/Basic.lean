@@ -16,6 +16,9 @@ Note that values in `[0xd800, 0xdfff]` are reserved for [UTF-16 surrogate pairs]
 
 namespace Char
 
+/-- Maximum valid Unicode codepoint -/
+def max : Nat := 1114111
+
 protected def lt (a b : Char) : Prop := a.val < b.val
 protected def le (a b : Char) : Prop := a.val ≤ b.val
 

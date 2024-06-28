@@ -467,7 +467,7 @@ example (x y : BitVec 64) (_ : x < (y.truncate 32).zeroExtend 64) :
   bv_omega
 
 -- This example, reported from LNSym,
--- started failing when we changed the definition of `Fin.sub`.
+-- started failing when we changed the definition of `Fin.sub` in https://github.com/leanprover/lean4/pull/4421.
 -- When we use the new definition, `omega` produces a proof term that the kernel is very slow on.
 -- To work around this for now, I've removed `BitVec.toNat_sub` from the `bv_toNat` simp set,
 -- and replaced it with `BitVec.toNat_sub'` which uses the old definition for subtraction.

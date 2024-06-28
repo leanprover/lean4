@@ -104,14 +104,14 @@ def writeTable (property : String) (table : UnicodePropertyTable) : IO Unit := d
   content := content ++ s!"instance {property}Table : UnicodePropertyTable where\n"
   content := content ++ "  runs := #[\n"
   content := content ++ "    " ++ (reprStr (table.runs.get! 0))
-  for i in Range.mk 1 (table.runs.size) 1 do
+  for i in [1:(table.runs.size)] do
     content := content ++ ", " ++ (reprStr (table.runs.get! i))
     if i % 10 = 0 then
       content := content ++ "\n    "
   content := content ++ "  ]\n"
   content := content ++ "  offsets := #[\n"
   content := content ++ "    " ++ (reprStr (table.offsets.get! 0))
-  for i in Range.mk 1 (table.offsets.size) 1 do
+  for i in [1:(table.offsets.size)] do
     content := content ++ ", " ++ (reprStr (table.offsets.get! i))
     if i % 10 = 0 then
       content := content ++ "\n    "

@@ -184,8 +184,7 @@ theorem msb_eq_getLsb_last (x : BitVec w) :
     · simp only [h]
       rw [Nat.div_eq_sub_div (Nat.two_pow_pos w) h, Nat.div_eq_of_lt]
       · decide
-      · have : BitVec.toNat x < 2^w + 2^w := by simpa [Nat.pow_succ, Nat.mul_two] using x.isLt
-        omega
+      · omega
 
 @[bv_toNat] theorem getLsb_succ_last (x : BitVec (w + 1)) :
     x.getLsb w = decide (2 ^ w ≤ x.toNat) := getLsb_last x
@@ -331,10 +330,7 @@ theorem toNat_eq_nat (x : BitVec w) (y : Nat)
   : (x.toNat = y) ↔ (y < 2^w ∧ (x = BitVec.ofNat w y)) := by
   apply Iff.intro
   · intro eq
-    simp at eq
-    have lt := x.isLt
-    simp [eq] at lt
-    simp [←eq, lt, x.isLt]
+    simp [←eq, x.isLt]
   · intro eq
     simp [Nat.mod_eq_of_lt, eq]
 
@@ -1045,10 +1041,10 @@ theorem ofInt_add {n} (x y : Int) : BitVec.ofInt n (x + y) =
 
 /-! ### sub/neg -/
 
-theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n (x.toNat + (2^n - y.toNat)) := by rfl
+theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n ((2^n - y.toNat) + x.toNat) := by rfl
 
 @[simp, bv_toNat] theorem toNat_sub {n} (x y : BitVec n) :
-  (x - y).toNat = ((x.toNat + (2^n - y.toNat)) % 2^n) := rfl
+  (x - y).toNat = (((2^n - y.toNat) + x.toNat) % 2^n) := rfl
 @[simp] theorem toFin_sub (x y : BitVec n) : (x - y).toFin = toFin x - toFin y := rfl
 
 @[simp] theorem ofFin_sub (x : Fin (2^n)) (y : BitVec n) : .ofFin x - y = .ofFin (x - y.toFin) :=
@@ -1057,7 +1053,7 @@ theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n (x.toNat + (2^n - y.toNa
   rfl
 -- Remark: we don't use `[simp]` here because simproc` subsumes it for literals.
 -- If `x` and `n` are not literals, applying this theorem eagerly may not be a good idea.
-theorem ofNat_sub_ofNat {n} (x y : Nat) : BitVec.ofNat n x - BitVec.ofNat n y = .ofNat n (x + (2^n - y % 2^n)) := by
+theorem ofNat_sub_ofNat {n} (x y : Nat) : BitVec.ofNat n x - BitVec.ofNat n y = .ofNat n ((2^n - y % 2^n) + x) := by
   apply eq_of_toNat_eq ; simp [BitVec.ofNat]
 
 @[simp] protected theorem sub_zero (x : BitVec n) : x - 0#n = x := by apply eq_of_toNat_eq ; simp
@@ -1065,7 +1061,7 @@ theorem ofNat_sub_ofNat {n} (x y : Nat) : BitVec.ofNat n x - BitVec.ofNat n y = 
 @[simp] protected theorem sub_self (x : BitVec n) : x - x = 0#n := by
   apply eq_of_toNat_eq
   simp only [toNat_sub]
-  rw [Nat.add_sub_of_le]
+  rw [Nat.add_comm, Nat.add_sub_of_le]
   · simp
   · exact Nat.le_of_lt x.isLt
 
@@ -1079,14 +1075,15 @@ theorem ofNat_sub_ofNat {n} (x y : Nat) : BitVec.ofNat n x - BitVec.ofNat n y = 
 theorem sub_toAdd {n} (x y : BitVec n) : x - y = x + - y := by
   apply eq_of_toNat_eq
   simp
+  rw [Nat.add_comm]
 
 @[simp] theorem neg_zero (n:Nat) : -BitVec.ofNat n 0 = BitVec.ofNat n 0 := by apply eq_of_toNat_eq ; simp
 
 theorem add_sub_cancel (x y : BitVec w) : x + y - y = x := by
   apply eq_of_toNat_eq
   have y_toNat_le := Nat.le_of_lt y.isLt
-  rw [toNat_sub, toNat_add, Nat.mod_add_mod, Nat.add_assoc, ← Nat.add_sub_assoc y_toNat_le,
-    Nat.add_sub_cancel_left, Nat.add_mod_right, toNat_mod_cancel]
+  rw [toNat_sub, toNat_add, Nat.add_comm, Nat.mod_add_mod, Nat.add_assoc, ← Nat.add_sub_assoc y_toNat_le,
+      Nat.add_sub_cancel_left, Nat.add_mod_right, toNat_mod_cancel]
 
 theorem sub_add_cancel (x y : BitVec w) : x - y + y = x := by
   rw [sub_toAdd, BitVec.add_assoc, BitVec.add_comm _ y,
@@ -1239,11 +1236,7 @@ x.rotateLeft 2 = (<6 5 | 4 3 2 1 0>).rotateLeft 2 = <3 2 1 0 | 6 5>
 theorem getLsb_rotateLeftAux_of_le {x : BitVec w} {r : Nat} {i : Nat} (hi : i < r) :
     (x.rotateLeftAux r).getLsb i = x.getLsb (w - r + i) := by
   rw [rotateLeftAux, getLsb_or, getLsb_ushiftRight]
-  suffices (x <<< r).getLsb i = false by
-    simp; omega
-  simp only [getLsb_shiftLeft, Bool.and_eq_false_imp, Bool.and_eq_true, decide_eq_true_eq,
-    Bool.not_eq_true', decide_eq_false_iff_not, Nat.not_lt, and_imp]
-  omega
+  simp; omega
 
 /--
 Accessing bits in `x.rotateLeft r` the range `[r, w)` is equal to
@@ -1373,5 +1366,52 @@ theorem getLsb_rotateRight {x : BitVec w} {r i : Nat} :
   rcases w with ⟨rfl, w⟩
   · simp
   · rw [← rotateRight_mod_eq_rotateRight, getLsb_rotateRight_of_le (Nat.mod_lt _ (by omega))]
+
+/- ## twoPow -/
+
+@[simp, bv_toNat]
+theorem toNat_twoPow (w : Nat) (i : Nat) : (twoPow w i).toNat = 2^i % 2^w := by
+  rcases w with rfl | w
+  · simp [Nat.mod_one]
+  · simp only [twoPow, toNat_shiftLeft, toNat_ofNat]
+    have h1 : 1 < 2 ^ (w + 1) := Nat.one_lt_two_pow (by omega)
+    rw [Nat.mod_eq_of_lt h1, Nat.shiftLeft_eq, Nat.one_mul]
+
+@[simp]
+theorem getLsb_twoPow (i j : Nat) : (twoPow w i).getLsb j = ((i < w) && (i = j)) := by
+  rcases w with rfl | w
+  · simp; omega
+  · simp only [twoPow, getLsb_shiftLeft, getLsb_ofNat]
+    by_cases hj : j < i
+    · simp only [hj, decide_True, Bool.not_true, Bool.and_false, Bool.false_and, Bool.false_eq,
+      Bool.and_eq_false_imp, decide_eq_true_eq, decide_eq_false_iff_not]
+      omega
+    · by_cases hi : Nat.testBit 1 (j - i)
+      · obtain hi' := Nat.testBit_one_eq_true_iff_self_eq_zero.mp hi
+        have hij : j = i := by omega
+        simp_all
+      · have hij : i ≠ j := by
+          intro h; subst h
+          simp at hi
+        simp_all
+
+theorem and_twoPow_eq (x : BitVec w) (i : Nat) :
+    x &&& (twoPow w i) = if x.getLsb i then twoPow w i else 0#w := by
+  ext j
+  simp only [getLsb_and, getLsb_twoPow]
+  by_cases hj : i = j <;> by_cases hx : x.getLsb i <;> simp_all
+
+@[simp]
+theorem mul_twoPow_eq_shiftLeft (x : BitVec w) (i : Nat) :
+    x * (twoPow w i) = x <<< i := by
+  apply eq_of_toNat_eq
+  simp only [toNat_mul, toNat_twoPow, toNat_shiftLeft, Nat.shiftLeft_eq]
+  by_cases hi : i < w
+  · have hpow : 2^i < 2^w := Nat.pow_lt_pow_of_lt (by omega) (by omega)
+    rw [Nat.mod_eq_of_lt hpow]
+  · have hpow : 2 ^ i % 2 ^ w = 0 := by
+      rw [Nat.mod_eq_zero_of_dvd]
+      apply Nat.pow_dvd_pow 2 (by omega)
+    simp [Nat.mul_mod, hpow]
 
 end BitVec

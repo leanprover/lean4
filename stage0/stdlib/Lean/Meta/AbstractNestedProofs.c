@@ -99,7 +99,7 @@ lean_object* l_Lean_LocalDecl_value_x3f(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_mkAuxName___at___private_Lean_Meta_AbstractNestedProofs_0__Lean_Meta_AbstractNestedProofs_mkAuxLemma___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_AbstractNestedProofs_0__Lean_Meta_AbstractNestedProofs_mkAuxLemma___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaLetTelescope___at_Lean_Meta_AbstractNestedProofs_visit___spec__6___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -425,7 +425,7 @@ static lean_object* _init_l___private_Lean_Meta_AbstractNestedProofs_0__Lean_Met
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("proof", 5);
+x_1 = lean_mk_string_unchecked("proof", 5, 5);
 return x_1;
 }
 }
@@ -1266,7 +1266,7 @@ _start:
 uint8_t x_11; uint8_t x_12; lean_object* x_13; 
 x_11 = 0;
 x_12 = 1;
-x_13 = l_Lean_Meta_mkLambdaFVars(x_1, x_2, x_11, x_11, x_12, x_6, x_7, x_8, x_9, x_10);
+x_13 = l_Lean_Meta_mkLambdaFVars(x_1, x_2, x_11, x_11, x_11, x_12, x_6, x_7, x_8, x_9, x_10);
 return x_13;
 }
 }

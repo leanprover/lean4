@@ -1,10 +1,12 @@
+set_option pp.mvars false
+
 class Foo (α : Type)
 
 /--
 error: function expected at
   Missing
 term has type
-  ?m.9
+  ?_
 -/
 #guard_msgs in
 variable {α : Type} (s : Missing α)

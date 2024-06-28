@@ -208,9 +208,9 @@ theorem liftOrGet_eq_or_eq {f : α → α → α} (h : ∀ a b, f a b = a ∨ f 
 @[simp] theorem liftOrGet_some_some {f} {a b : α} :
   liftOrGet f (some a) (some b) = f a b := rfl
 
-theorem elim_none (x : β) (f : α → β) : none.elim x f = x := rfl
+@[simp] theorem elim_none (x : β) (f : α → β) : none.elim x f = x := rfl
 
-theorem elim_some (x : β) (f : α → β) (a : α) : (some a).elim x f = f a := rfl
+@[simp] theorem elim_some (x : β) (f : α → β) (a : α) : (some a).elim x f = f a := rfl
 
 @[simp] theorem getD_map (f : α → β) (x : α) (o : Option α) :
   (o.map f).getD (f x) = f (getD o x) := by cases o <;> rfl

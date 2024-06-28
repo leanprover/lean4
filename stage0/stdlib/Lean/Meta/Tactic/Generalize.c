@@ -66,7 +66,6 @@ static lean_object* l___private_Lean_Meta_Tactic_Generalize_0__Lean_Meta_general
 LEAN_EXPORT lean_object* l_Lean_Meta_GeneralizeArg_xName_x3f___default;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_MVarId_generalizeHyp___spec__1(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FVarId_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_generalizeHyp___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Generalize_0__Lean_Meta_generalizeCore___lambda__3(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -111,6 +110,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_instInhabitedGeneralizeArg;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_generalize___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
+lean_object* l_List_length___rarg(lean_object*);
 static lean_object* l_Lean_Meta_instInhabitedGeneralizeArg___closed__1;
 static lean_object* l___private_Lean_Meta_Tactic_Generalize_0__Lean_Meta_generalizeCore___lambda__3___closed__2;
 uint8_t l_Array_isEmpty___rarg(lean_object*);
@@ -441,7 +441,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Generalize_0__Lean_Meta_g
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("x", 1);
+x_1 = lean_mk_string_unchecked("x", 1, 1);
 return x_1;
 }
 }
@@ -1895,7 +1895,7 @@ lean_inc(x_50);
 lean_dec(x_49);
 x_51 = l_Lean_Expr_mvarId_x21(x_42);
 lean_dec(x_42);
-x_52 = l_List_lengthTRAux___rarg(x_39, x_28);
+x_52 = l_List_length___rarg(x_39);
 lean_dec(x_39);
 x_53 = lean_nat_add(x_11, x_52);
 lean_dec(x_52);
@@ -1969,7 +1969,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Generalize_0__Lean_Meta_g
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("result is not type correct", 26);
+x_1 = lean_mk_string_unchecked("result is not type correct", 26, 26);
 return x_1;
 }
 }
@@ -1986,7 +1986,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Generalize_0__Lean_Meta_g
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -2443,7 +2443,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Generalize_0__Lean_Meta_g
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("generalize", 10);
+x_1 = lean_mk_string_unchecked("generalize", 10, 10);
 return x_1;
 }
 }

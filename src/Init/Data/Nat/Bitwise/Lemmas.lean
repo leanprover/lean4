@@ -90,6 +90,10 @@ noncomputable def div2Induction {motive : Nat → Sort u}
   unfold testBit
   simp [shiftRight_succ_inside]
 
+@[simp] theorem testBit_add_one (x i : Nat) : testBit x (i + 1) = testBit (x/2) i := by
+  unfold testBit
+  simp [shiftRight_succ_inside]
+
 theorem testBit_to_div_mod {x : Nat} : testBit x i = decide (x / 2^i % 2 = 1) := by
   induction i generalizing x with
   | zero =>
@@ -305,6 +309,11 @@ theorem testBit_bool_to_nat (b : Bool) (i : Nat) :
   simp [testBit_to_div_mod, Nat.pow_succ, Nat.mul_comm _ 2,
         ←Nat.div_div_eq_div_mul _ 2, one_div_two,
         Nat.mod_eq_of_lt]
+
+/-- `testBit 1 i` is true iff the index `i` equals 0. -/
+theorem testBit_one_eq_true_iff_self_eq_zero {i : Nat} :
+    Nat.testBit 1 i = true ↔ i = 0 := by
+  cases i <;> simp
 
 /-! ### bitwise -/
 

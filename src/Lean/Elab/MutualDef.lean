@@ -846,7 +846,7 @@ private def levelMVarToParamHeaders (views : Array DefView) (headers : Array Def
   let rec process : StateRefT Nat TermElabM (Array DefViewElabHeader) := do
     let mut newHeaders := #[]
     for view in views, header in headers do
-      if view.kind.isTheorem then
+      if ← pure view.kind.isTheorem <||> isProp header.type then
         newHeaders ←
           withLevelNames header.levelNames do
             return newHeaders.push { header with type := (← levelMVarToParam header.type), levelNames := (← getLevelNames) }

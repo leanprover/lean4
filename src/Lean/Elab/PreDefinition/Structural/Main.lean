@@ -66,7 +66,6 @@ private def elimRecursion (preDef : PreDefinition) : M (Nat × PreDefinition) :=
     let numFixed ← getFixedPrefix preDef.declName xs value
     trace[Elab.definition.structural] "numFixed: {numFixed}"
     findRecArg numFixed xs fun recArgInfo => do
-      -- when (recArgInfo.indName == `Nat) throwStructuralFailed -- HACK to skip Nat argument
       let valueNew ← if recArgInfo.indPred then
         mkIndPredBRecOn preDef.declName recArgInfo value
       else

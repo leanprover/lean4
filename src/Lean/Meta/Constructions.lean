@@ -7,32 +7,45 @@ prelude
 import Lean.AuxRecursor
 import Lean.AddDecl
 import Lean.Meta.AppBuilder
+import Lean.Meta.CompletionName
+import Lean.Meta.Constructions.RecOn
+import Lean.Meta.Constructions.BRecOn
 
 namespace Lean
 
-@[extern "lean_mk_cases_on"] opaque mkCasesOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_rec_on"] opaque mkRecOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_no_confusion"] opaque mkNoConfusionCoreImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_below"] opaque mkBelowImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_ibelow"] opaque mkIBelowImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_brec_on"] opaque mkBRecOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_binduction_on"] opaque mkBInductionOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-
-variable [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m]
-
-@[inline] private def adaptFn (f : Environment → Name → Except KernelException Environment) (declName : Name) : m Unit := do
-  let env ← ofExceptKernelException (f (← getEnv) declName)
-  modifyEnv fun _ => env
-
-def mkCasesOn (declName : Name) : m Unit := adaptFn mkCasesOnImp declName
-def mkRecOn (declName : Name) : m Unit := adaptFn mkRecOnImp declName
-def mkNoConfusionCore (declName : Name) : m Unit := adaptFn mkNoConfusionCoreImp declName
-def mkBelow (declName : Name) : m Unit := adaptFn mkBelowImp declName
-def mkIBelow (declName : Name) : m Unit := adaptFn mkIBelowImp declName
-def mkBRecOn (declName : Name) : m Unit := adaptFn mkBRecOnImp declName
-def mkBInductionOn (declName : Name) : m Unit := adaptFn mkBInductionOnImp declName
+@[extern "lean_mk_cases_on"] opaque mkCasesOnImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
+@[extern "lean_mk_no_confusion_type"] opaque mkNoConfusionTypeCoreImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
+@[extern "lean_mk_no_confusion"] opaque mkNoConfusionCoreImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
 
 open Meta
+
+def mkCasesOn (declName : Name) : MetaM Unit := do
+  let name := mkCasesOnName declName
+  let decl ← ofExceptKernelException (mkCasesOnImp (← getEnv) declName)
+  addDecl decl
+  setReducibleAttribute name
+  modifyEnv fun env => markAuxRecursor env name
+  modifyEnv fun env => addProtected env name
+
+def mkNoConfusionCore (declName : Name) : MetaM Unit := do
+  -- Do not do anything unless can_elim_to_type. TODO: Extract to util
+  let .inductInfo indVal ← getConstInfo declName | return
+  let recInfo ← getConstInfo (mkRecName declName)
+  unless recInfo.levelParams.length > indVal.levelParams.length do return
+
+  let name := Name.mkStr declName "noConfusionType"
+  let decl ← ofExceptKernelException (mkNoConfusionTypeCoreImp (← getEnv) declName)
+  addDecl decl
+  setReducibleAttribute name
+  modifyEnv fun env => addToCompletionBlackList env name
+  modifyEnv fun env => addProtected env name
+
+  let name := Name.mkStr declName "noConfusion"
+  let decl ← ofExceptKernelException (mkNoConfusionCoreImp (← getEnv) declName)
+  addDecl decl
+  setReducibleAttribute name
+  modifyEnv fun env => markNoConfusion env name
+  modifyEnv fun env => addProtected env name
 
 def mkNoConfusionEnum (enumName : Name) : MetaM Unit := do
   if (← getEnv).contains ``noConfusionEnum then
@@ -43,7 +56,6 @@ def mkNoConfusionEnum (enumName : Name) : MetaM Unit := do
     -- `noConfusionEnum` was not defined yet, so we use `mkNoConfusionCore`
     mkNoConfusionCore enumName
 where
-
   mkToCtorIdx : MetaM Unit := do
     let ConstantInfo.inductInfo info ← getConstInfo enumName | unreachable!
     let us := info.levelParams.map mkLevelParam

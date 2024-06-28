@@ -130,7 +130,7 @@ static lean_object* _init_l___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("oleanPath", 9);
+x_1 = lean_mk_string_unchecked("oleanPath", 9, 9);
 return x_1;
 }
 }
@@ -138,7 +138,7 @@ static lean_object* _init_l___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("srcPath", 7);
+x_1 = lean_mk_string_unchecked("srcPath", 7, 7);
 return x_1;
 }
 }
@@ -146,7 +146,7 @@ static lean_object* _init_l___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("loadDynlibPaths", 15);
+x_1 = lean_mk_string_unchecked("loadDynlibPaths", 15, 15);
 return x_1;
 }
 }
@@ -311,7 +311,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Util_P
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected JSON array, got '", 26);
+x_1 = lean_mk_string_unchecked("expected JSON array, got '", 26, 26);
 return x_1;
 }
 }
@@ -319,7 +319,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Util_P
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -539,7 +539,7 @@ static lean_object* _init_l___private_Lean_Util_Paths_0__Lean_fromJsonLeanPaths_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -547,7 +547,7 @@ static lean_object* _init_l___private_Lean_Util_Paths_0__Lean_fromJsonLeanPaths_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LeanPaths", 9);
+x_1 = lean_mk_string_unchecked("LeanPaths", 9, 9);
 return x_1;
 }
 }
@@ -575,7 +575,7 @@ static lean_object* _init_l___private_Lean_Util_Paths_0__Lean_fromJsonLeanPaths_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -623,7 +623,7 @@ static lean_object* _init_l___private_Lean_Util_Paths_0__Lean_fromJsonLeanPaths_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -914,7 +914,7 @@ static lean_object* _init_l_Lean_initSrcSearchPath___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LEAN_SRC_PATH", 13);
+x_1 = lean_mk_string_unchecked("LEAN_SRC_PATH", 13, 13);
 return x_1;
 }
 }
@@ -922,7 +922,7 @@ static lean_object* _init_l_Lean_initSrcSearchPath___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("..", 2);
+x_1 = lean_mk_string_unchecked("..", 2, 2);
 return x_1;
 }
 }
@@ -930,7 +930,7 @@ static lean_object* _init_l_Lean_initSrcSearchPath___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("src", 3);
+x_1 = lean_mk_string_unchecked("src", 3, 3);
 return x_1;
 }
 }
@@ -938,7 +938,7 @@ static lean_object* _init_l_Lean_initSrcSearchPath___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lean", 4);
+x_1 = lean_mk_string_unchecked("lean", 4, 4);
 return x_1;
 }
 }
@@ -946,7 +946,7 @@ static lean_object* _init_l_Lean_initSrcSearchPath___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lake", 4);
+x_1 = lean_mk_string_unchecked("lake", 4, 4);
 return x_1;
 }
 }

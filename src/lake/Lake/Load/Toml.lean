@@ -12,7 +12,8 @@ open Lean Parser
 
 /-! # TOML Loader
 
-Load a package from a TOML Lake configuration file.
+This module contains the main definitions to load a package from a
+Lake configuration file written in TOML.
 -/
 
 namespace Lake
@@ -220,29 +221,29 @@ protected def LeanExeConfig.decodeToml (t : Table) (ref := Syntax.missing) : Exc
 
 instance : DecodeToml LeanExeConfig := ⟨fun v => do LeanExeConfig.decodeToml (← v.decodeTable) v.ref⟩
 
-protected def Source.decodeToml (t : Table) (ref := Syntax.missing) : Except (Array DecodeError) Source := do
+protected def DependencySrc.decodeToml (t : Table) (ref := Syntax.missing) : Except (Array DecodeError) DependencySrc := do
   let typeVal ← t.decodeValue `type
   match (← typeVal.decodeString) with
   | "path" =>
-    return Source.path (← t.decode `dir)
+    return .path (← t.decode `dir)
   | "git" => ensureDecode do
-    return Source.git (← t.tryDecode `url ref) (← t.tryDecode? `rev) (← t.tryDecode? `subDir)
+    return .git (← t.tryDecode `url ref) (← t.tryDecode? `rev) (← t.tryDecode? `subDir)
   | _ =>
     throw #[DecodeError.mk typeVal.ref "expected one of 'path' or 'git'"]
 
-instance : DecodeToml Source := ⟨fun v => do Source.decodeToml (← v.decodeTable) v.ref⟩
+instance : DecodeToml DependencySrc := ⟨fun v => do DependencySrc.decodeToml (← v.decodeTable) v.ref⟩
 
 protected def Dependency.decodeToml (t : Table) (ref := Syntax.missing) : Except (Array DecodeError) Dependency := ensureDecode do
-  let name ← t.tryDecode `name ref
-  let src ← id do
+  let name  ← stringToLegalOrSimpleName <$> t.tryDecode `name ref
+  let src : DependencySrc ← id do
     if let some dir ← t.tryDecode? `path then
-      return Source.path dir
+      return .path dir
     else if let some g := t.find? `git then
       match g with
       | .string _ url =>
-        return Source.git url (← t.tryDecode? `rev) (← t.tryDecode? `subDir)
+        return .git url (← t.tryDecode? `rev) (← t.tryDecode? `subDir)
       | .table ref t =>
-        return Source.git (← t.tryDecode `url ref) (← t.tryDecode? `rev) (← t.tryDecode? `subDir)
+        return .git (← t.tryDecode `url ref) (← t.tryDecode? `rev) (← t.tryDecode? `subDir)
       | _ =>
         modify (·.push <| .mk g.ref "expected string or table")
         return default
@@ -255,6 +256,10 @@ instance : DecodeToml Dependency := ⟨fun v => do Dependency.decodeToml (← v.
 
 /-! ## Root Loader -/
 
+/--
+Load a `Package` from a TOML Lake configuration file.
+The resulting package does not yet include any dependencies.
+-/
 def loadTomlConfig (dir relDir relConfigFile : FilePath) : LogIO Package := do
   let configFile := dir / relConfigFile
   let input ← IO.FS.readFile configFile

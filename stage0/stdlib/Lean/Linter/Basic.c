@@ -114,7 +114,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("linter", 6);
+x_1 = lean_mk_string_unchecked("linter", 6, 6);
 return x_1;
 }
 }
@@ -122,7 +122,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("all", 3);
+x_1 = lean_mk_string_unchecked("all", 3, 3);
 return x_1;
 }
 }
@@ -140,7 +140,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -148,7 +148,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("enable all linters", 18);
+x_1 = lean_mk_string_unchecked("enable all linters", 18, 18);
 return x_1;
 }
 }
@@ -171,7 +171,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -179,7 +179,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Linter", 6);
+x_1 = lean_mk_string_unchecked("Linter", 6, 6);
 return x_1;
 }
 }

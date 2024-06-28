@@ -262,16 +262,22 @@ def elabCheckCore (ignoreStuckTC : Bool) : CommandElab
 
 @[builtin_command_elab Lean.Parser.Command.check] def elabCheck : CommandElab := elabCheckCore (ignoreStuckTC := true)
 
-@[builtin_command_elab Lean.Parser.Command.reduce] def elabReduce : CommandElab
-  | `(#reduce%$tk $term) => withoutModifyingEnv <| runTermElabM fun _ => Term.withDeclName `_reduce do
-    let e ← Term.elabTerm term none
-    Term.synthesizeSyntheticMVarsNoPostponing
-    let e ← Term.levelMVarToParam (← instantiateMVars e)
-    -- TODO: add options or notation for setting the following parameters
-    withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.setBool `smartUnfolding false }) do
-      let e ← withTransparency (mode := TransparencyMode.all) <| reduce e (skipProofs := false) (skipTypes := false)
-      logInfoAt tk e
+@[builtin_command_elab Lean.reduceCmd] def elabReduce : CommandElab
+  | `(#reduce%$tk $term) => go tk term
+  | `(#reduce%$tk (proofs := true) $term) => go tk term (skipProofs := false)
+  | `(#reduce%$tk (types := true) $term) => go tk term (skipTypes := false)
+  | `(#reduce%$tk (proofs := true) (types := true) $term) => go tk term (skipProofs := false) (skipTypes := false)
   | _ => throwUnsupportedSyntax
+where
+  go (tk : Syntax) (term : Syntax) (skipProofs := true) (skipTypes := true) : CommandElabM Unit :=
+    withoutModifyingEnv <| runTermElabM fun _ => Term.withDeclName `_reduce do
+      let e ← Term.elabTerm term none
+      Term.synthesizeSyntheticMVarsNoPostponing
+      let e ← Term.levelMVarToParam (← instantiateMVars e)
+      -- TODO: add options or notation for setting the following parameters
+      withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.setBool `smartUnfolding false }) do
+        let e ← withTransparency (mode := TransparencyMode.all) <| reduce e (skipProofs := skipProofs) (skipTypes := skipTypes)
+        logInfoAt tk e
 
 def hasNoErrorMessages : CommandElabM Bool := do
   return !(← get).messages.hasErrors

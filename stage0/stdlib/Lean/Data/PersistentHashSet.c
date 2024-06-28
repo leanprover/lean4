@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+uint8_t l_Lean_PersistentHashMap_Node_isEmpty___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_contains___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_PersistentHashSet_fold___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_PersistentHashSet_foldM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -21,7 +22,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_find_x3f___rarg(lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_empty___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_PersistentHashSet_fold___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_foldlMAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_PersistentHashMap_isEmpty___rarg(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_insert(lean_object*);
@@ -35,13 +35,10 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_instEmptyCollection___rarg(lea
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_PersistentHashSet_fold___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_foldM(lean_object*);
-lean_object* l_Lean_PersistentHashMap_empty___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux___at_Lean_PersistentHashSet_fold___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_contains___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_size___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_find_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_instEmptyCollection___rarg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_size___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_PersistentHashSet_fold___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_isEmpty___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_PersistentHashSet_foldM___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -51,18 +48,17 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_fold(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_PersistentHashSet_foldM___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_fold___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_instInhabited(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_size___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_instEmptyCollection(lean_object*);
 lean_object* l_Lean_PersistentHashMap_findEntry_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_foldM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_PersistentHashSet_fold___spec__1___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_size(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_PersistentHashSet_fold___spec__3___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_PersistentHashSet_fold___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_erase(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_PersistentHashSet_fold___spec__4(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_Lean_PersistentHashMap_empty(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -82,7 +78,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_empty___rarg(lean_object* x_1,
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_PersistentHashMap_empty___rarg(x_1, x_2);
+x_3 = l_Lean_PersistentHashMap_empty(lean_box(0), lean_box(0), x_1, x_2);
 return x_3;
 }
 }
@@ -108,7 +104,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_instInhabited___rarg(lean_obje
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_PersistentHashMap_empty___rarg(x_1, x_2);
+x_3 = l_Lean_PersistentHashMap_empty(lean_box(0), lean_box(0), x_1, x_2);
 return x_3;
 }
 }
@@ -134,7 +130,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_instEmptyCollection___rarg(lea
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_PersistentHashMap_empty___rarg(x_1, x_2);
+x_3 = l_Lean_PersistentHashMap_empty(lean_box(0), lean_box(0), x_1, x_2);
 return x_3;
 }
 }
@@ -160,7 +156,7 @@ LEAN_EXPORT uint8_t l_Lean_PersistentHashSet_isEmpty___rarg(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
-x_2 = l_Lean_PersistentHashMap_isEmpty___rarg(x_1);
+x_2 = l_Lean_PersistentHashMap_Node_isEmpty___rarg(x_1);
 return x_2;
 }
 }
@@ -290,51 +286,12 @@ x_2 = lean_alloc_closure((void*)(l_Lean_PersistentHashSet_contains___rarg), 4, 0
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_size___rarg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_ctor_get(x_1, 1);
-lean_inc(x_2);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_size(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Lean_PersistentHashSet_size___rarg___boxed), 1, 0);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_size___rarg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_PersistentHashSet_size___rarg(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_size___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_PersistentHashSet_size(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_PersistentHashSet_foldM___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; 
-x_5 = lean_ctor_get(x_2, 0);
-lean_inc(x_5);
-lean_dec(x_2);
-x_6 = l_Lean_PersistentHashMap_foldlMAux___rarg(x_1, lean_box(0), lean_box(0), lean_box(0), x_3, x_5, x_4);
-return x_6;
+lean_object* x_5; 
+x_5 = l_Lean_PersistentHashMap_foldlMAux___rarg(x_1, lean_box(0), lean_box(0), lean_box(0), x_3, x_2, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_PersistentHashSet_foldM___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -359,7 +316,7 @@ _start:
 lean_object* x_9; lean_object* x_10; 
 x_9 = lean_alloc_closure((void*)(l_Lean_PersistentHashSet_foldM___rarg___lambda__1___boxed), 4, 1);
 lean_closure_set(x_9, 0, x_6);
-x_10 = l_Lean_PersistentHashMap_foldlM___at_Lean_PersistentHashSet_foldM___spec__1___rarg(x_5, x_8, x_9, x_7);
+x_10 = l_Lean_PersistentHashMap_foldlMAux___rarg(x_5, lean_box(0), lean_box(0), lean_box(0), x_9, x_8, x_7);
 return x_10;
 }
 }
@@ -558,10 +515,9 @@ return x_4;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_PersistentHashSet_fold___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; 
-x_4 = lean_ctor_get(x_1, 0);
-x_5 = l_Lean_PersistentHashMap_foldlMAux___at_Lean_PersistentHashSet_fold___spec__2___rarg(x_2, x_4, x_3);
-return x_5;
+lean_object* x_4; 
+x_4 = l_Lean_PersistentHashMap_foldlMAux___at_Lean_PersistentHashSet_fold___spec__2___rarg(x_2, x_1, x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_PersistentHashSet_fold___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -578,7 +534,7 @@ _start:
 lean_object* x_7; lean_object* x_8; 
 x_7 = lean_alloc_closure((void*)(l_Lean_PersistentHashSet_foldM___rarg___lambda__1___boxed), 4, 1);
 lean_closure_set(x_7, 0, x_4);
-x_8 = l_Lean_PersistentHashMap_foldlM___at_Lean_PersistentHashSet_fold___spec__1___rarg(x_6, x_7, x_5);
+x_8 = l_Lean_PersistentHashMap_foldlMAux___at_Lean_PersistentHashSet_fold___spec__2___rarg(x_7, x_6, x_5);
 return x_8;
 }
 }

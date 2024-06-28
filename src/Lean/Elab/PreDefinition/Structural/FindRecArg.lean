@@ -35,12 +35,61 @@ private def hasBadParamDep? (ys : Array Expr) (indParams : Array Expr) : MetaM (
         return some (p, y)
   return none
 
-private def throwStructuralFailed : MetaM α :=
-  throwError "structural recursion cannot be used"
-
-private def orelse' (x y : M α) : M α := do
-  let saveState ← get
-  orelseMergeErrors x (do set saveState; y)
+/--
+Pass to `k` the `RecArgInfo` for the `i`th parameter in the parameter list `xs`. This performs
+various sanity checks on the argument (is it even an inductive type etc).
+Also wraps all errors in a common “argument cannot be used” header
+-/
+def withRecArgInfo (numFixed : Nat) (xs : Array Expr) (i : Nat) (k : RecArgInfo → M α) : M α := do
+  mapError
+    (f := fun msg => m!"argument #{i+1} cannot be used for structural recursion{indentD msg}") do
+  if h : i < xs.size then
+    if i < numFixed then
+      throwError "it is unchanged in the recursive calls"
+    let x := xs[i]
+    let localDecl ← getFVarLocalDecl x
+    if localDecl.isLet then
+      throwError "it is a let-binding"
+    let xType ← whnfD localDecl.type
+    matchConstInduct xType.getAppFn (fun _ => throwError "its type is not an inductive") fun indInfo us => do
+    if !(← hasConst (mkBRecOnName indInfo.name)) then
+      throwError "its type does not have a recursor"
+    else if indInfo.isReflexive && !(← hasConst (mkBInductionOnName indInfo.name)) && !(← isInductivePredicate indInfo.name) then
+      throwError "its type is a reflexive inductive, but {mkBInductionOnName indInfo.name} does not exist and it is not an inductive predicate"
+    else
+      let indArgs    := xType.getAppArgs
+      let indParams  := indArgs.extract 0 indInfo.numParams
+      let indIndices := indArgs.extract indInfo.numParams indArgs.size
+      if !indIndices.all Expr.isFVar then
+        throwError "its type is an inductive family and indices are not variables{indentExpr xType}"
+      else if !indIndices.allDiff then
+        throwError " its type is an inductive family and indices are not pairwise distinct{indentExpr xType}"
+      else
+        let indexMinPos := getIndexMinPos xs indIndices
+        let numFixed    := if indexMinPos < numFixed then indexMinPos else numFixed
+        let fixedParams := xs.extract 0 numFixed
+        let ys          := xs.extract numFixed xs.size
+        match (← hasBadIndexDep? ys indIndices) with
+        | some (index, y) =>
+          throwError "its type is an inductive family{indentExpr xType}\nand index{indentExpr index}\ndepends on the non index{indentExpr y}"
+        | none =>
+          match (← hasBadParamDep? ys indParams) with
+          | some (indParam, y) =>
+            throwError "its type is an inductive datatype{indentExpr xType}\nand parameter{indentExpr indParam}\ndepends on{indentExpr y}"
+          | none =>
+            let indicesPos := indIndices.map fun index => match ys.indexOf? index with | some i => i.val | none => unreachable!
+            k { fixedParams := fixedParams
+                ys          := ys
+                pos         := i - fixedParams.size
+                indicesPos  := indicesPos
+                indName     := indInfo.name
+                indLevels   := us
+                indParams   := indParams
+                indIndices  := indIndices
+                reflexive   := indInfo.isReflexive
+                indPred     := ←isInductivePredicate indInfo.name }
+    else
+      throwError "the index #{i+1} exceeds {xs.size}, the number of parameters"
 
 /--
   Try to find an argument that is structurally smaller in every recursive application.
@@ -49,16 +98,10 @@ private def orelse' (x y : M α) : M α := do
   We give preference for arguments that are *not* indices of inductive types of other arguments.
   See issue #837 for an example where we can show termination using the index of an inductive family, but
   we don't get the desired definitional equalities.
-
-  We perform two passes. In the first-pass, we only consider arguments that are not indices.
-  In the second pass, we consider them.
-
-  TODO: explore whether there are better solutions, and whether there are other ways to break the heuristic used
-  for creating the smart unfolding auxiliary definition.
 -/
 partial def findRecArg (numFixed : Nat) (xs : Array Expr) (k : RecArgInfo → M α) : M α := do
   /- Collect arguments that are indices. See comment above. -/
-  let indicesRef : IO.Ref FVarIdSet ← IO.mkRef {}
+  let indicesRef : IO.Ref (Array Nat) ← IO.mkRef {}
   for x in xs do
     let xType ← inferType x
     /- Traverse all sub-expressions in the type of `x` -/
@@ -68,75 +111,22 @@ partial def findRecArg (numFixed : Nat) (xs : Array Expr) (k : RecArgInfo → M 
         if info.numIndices > 0 && info.numParams + info.numIndices == e.getAppNumArgs then
           for arg in e.getAppArgs[info.numParams:] do
             forEachExpr arg fun e => do
-              if e.isFVar && xs.any (· == e) then
-                indicesRef.modify fun indices => indices.insert e.fvarId!
+              if let .some idx := xs.getIdx? e then
+                indicesRef.modify fun indices => indices.push idx
   let indices ← indicesRef.get
-  /- We perform two passes. See comment above. -/
-  let rec go (i : Nat) (firstPass : Bool) : M α := do
-    if h : i < xs.size then
-      let x := xs.get ⟨i, h⟩
-      trace[Elab.definition.structural] "findRecArg x: {x}, firstPass: {firstPass}"
-      let localDecl ← getFVarLocalDecl x
-      if localDecl.isLet then
-        throwStructuralFailed
-      else if firstPass == indices.contains localDecl.fvarId then
-        go (i+1) firstPass
-      else
-        let xType ← whnfD localDecl.type
-        matchConstInduct xType.getAppFn (fun _ => go (i+1) firstPass) fun indInfo us => do
-        if !(← hasConst (mkBRecOnName indInfo.name)) then
-          go (i+1) firstPass
-        else if indInfo.isReflexive && !(← hasConst (mkBInductionOnName indInfo.name)) && !(← isInductivePredicate indInfo.name) then
-          go (i+1) firstPass
-        else
-          let indArgs    := xType.getAppArgs
-          let indParams  := indArgs.extract 0 indInfo.numParams
-          let indIndices := indArgs.extract indInfo.numParams indArgs.size
-          if !indIndices.all Expr.isFVar then
-            orelse'
-              (throwError "argument #{i+1} was not used because its type is an inductive family and indices are not variables{indentExpr xType}")
-              (go (i+1) firstPass)
-          else if !indIndices.allDiff then
-            orelse'
-              (throwError "argument #{i+1} was not used because its type is an inductive family and indices are not pairwise distinct{indentExpr xType}")
-              (go (i+1) firstPass)
-          else
-            let indexMinPos := getIndexMinPos xs indIndices
-            let numFixed    := if indexMinPos < numFixed then indexMinPos else numFixed
-            let fixedParams := xs.extract 0 numFixed
-            let ys          := xs.extract numFixed xs.size
-            match (← hasBadIndexDep? ys indIndices) with
-            | some (index, y) =>
-              orelse'
-                (throwError "argument #{i+1} was not used because its type is an inductive family{indentExpr xType}\nand index{indentExpr index}\ndepends on the non index{indentExpr y}")
-                (go (i+1) firstPass)
-            | none =>
-              match (← hasBadParamDep? ys indParams) with
-              | some (indParam, y) =>
-                orelse'
-                  (throwError "argument #{i+1} was not used because its type is an inductive datatype{indentExpr xType}\nand parameter{indentExpr indParam}\ndepends on{indentExpr y}")
-                  (go (i+1) firstPass)
-              | none =>
-                let indicesPos := indIndices.map fun index => match ys.indexOf? index with | some i => i.val | none => unreachable!
-                orelse'
-                  (mapError
-                    (k { fixedParams := fixedParams
-                         ys          := ys
-                         pos         := i - fixedParams.size
-                         indicesPos  := indicesPos
-                         indName     := indInfo.name
-                         indLevels   := us
-                         indParams   := indParams
-                         indIndices  := indIndices
-                         reflexive := indInfo.isReflexive
-                         indPred := ←isInductivePredicate indInfo.name })
-                    (fun msg => m!"argument #{i+1} was not used for structural recursion{indentD msg}"))
-                  (go (i+1) firstPass)
-    else if firstPass then
-      go (i := numFixed) (firstPass := false)
-    else
-      throwStructuralFailed
-
-  go (i := numFixed) (firstPass := true)
+  let nonIndices := (Array.range xs.size).filter (fun i => !(indices.contains i))
+  let mut errors : Array MessageData := Array.mkArray xs.size m!""
+  let saveState ← get -- backtrack the state for each argument
+  for i in id (nonIndices ++ indices) do
+    let x := xs[i]!
+    trace[Elab.definition.structural] "findRecArg x: {x}"
+    try
+      set saveState
+      return (← withRecArgInfo numFixed xs i k)
+    catch e => errors := errors.set! i e.toMessageData
+  throwError
+    errors.foldl
+      (init := m!"structural recursion cannot be used:")
+      (f := (· ++ Format.line ++ Format.line ++ .))
 
 end Lean.Elab.Structural

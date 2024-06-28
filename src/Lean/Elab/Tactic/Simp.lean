@@ -341,7 +341,7 @@ def mkSimpOnly (stx : Syntax) (usedSimps : Simp.UsedSimps) : MetaM Syntax := do
   let mut localsOrStar := some #[]
   let lctx ← getLCtx
   let env ← getEnv
-  for (thm, _) in usedSimps.toArray.qsort (·.2 < ·.2) do
+  for thm in usedSimps.toArray do
     match thm with
     | .decl declName post inv => -- global definitions in the environment
       if env.contains declName

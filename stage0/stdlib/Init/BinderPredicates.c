@@ -251,7 +251,7 @@ static lean_object* _init_l_Lean_binderPred_quot___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -259,7 +259,7 @@ static lean_object* _init_l_Lean_binderPred_quot___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -267,7 +267,7 @@ static lean_object* _init_l_Lean_binderPred_quot___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -275,7 +275,7 @@ static lean_object* _init_l_Lean_binderPred_quot___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("quot", 4);
+x_1 = lean_mk_string_unchecked("quot", 4, 4);
 return x_1;
 }
 }
@@ -295,7 +295,7 @@ static lean_object* _init_l_Lean_binderPred_quot___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("binderPred", 10);
+x_1 = lean_mk_string_unchecked("binderPred", 10, 10);
 return x_1;
 }
 }
@@ -313,7 +313,7 @@ static lean_object* _init_l_Lean_binderPred_quot___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("andthen", 7);
+x_1 = lean_mk_string_unchecked("andthen", 7, 7);
 return x_1;
 }
 }
@@ -331,7 +331,7 @@ static lean_object* _init_l_Lean_binderPred_quot___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`(binderPred| ", 14);
+x_1 = lean_mk_string_unchecked("`(binderPred| ", 14, 14);
 return x_1;
 }
 }
@@ -371,7 +371,7 @@ static lean_object* _init_l_Lean_binderPred_quot___closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -461,7 +461,7 @@ static lean_object* _init_l_Lean_termSatisfies__binder__pred_x25_______closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("termSatisfies_binder_pred%__", 28);
+x_1 = lean_mk_string_unchecked("termSatisfies_binder_pred%__", 28, 28);
 return x_1;
 }
 }
@@ -479,7 +479,7 @@ static lean_object* _init_l_Lean_termSatisfies__binder__pred_x25_______closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("satisfies_binder_pred% ", 23);
+x_1 = lean_mk_string_unchecked("satisfies_binder_pred% ", 23, 23);
 return x_1;
 }
 }
@@ -497,7 +497,7 @@ static lean_object* _init_l_Lean_termSatisfies__binder__pred_x25_______closed__5
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term", 4);
+x_1 = lean_mk_string_unchecked("term", 4, 4);
 return x_1;
 }
 }
@@ -577,7 +577,7 @@ static lean_object* _init_l_Lean_term_u2203_____x2c_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term∃__,_", 11);
+x_1 = lean_mk_string_unchecked("term∃__,_", 11, 9);
 return x_1;
 }
 }
@@ -595,7 +595,7 @@ static lean_object* _init_l_Lean_term_u2203_____x2c_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("∃ ", 4);
+x_1 = lean_mk_string_unchecked("∃ ", 4, 2);
 return x_1;
 }
 }
@@ -641,7 +641,7 @@ static lean_object* _init_l_Lean_term_u2203_____x2c_____closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", ", 2);
+x_1 = lean_mk_string_unchecked(", ", 2, 2);
 return x_1;
 }
 }
@@ -721,7 +721,7 @@ static lean_object* _init_l_Lean_term_u2200_____x2c_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term∀__,_", 11);
+x_1 = lean_mk_string_unchecked("term∀__,_", 11, 9);
 return x_1;
 }
 }
@@ -739,7 +739,7 @@ static lean_object* _init_l_Lean_term_u2200_____x2c_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("∀ ", 4);
+x_1 = lean_mk_string_unchecked("∀ ", 4, 2);
 return x_1;
 }
 }
@@ -835,7 +835,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("binderIdent", 11);
+x_1 = lean_mk_string_unchecked("binderIdent", 11, 11);
 return x_1;
 }
 }
@@ -853,7 +853,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ident", 5);
+x_1 = lean_mk_string_unchecked("ident", 5, 5);
 return x_1;
 }
 }
@@ -871,7 +871,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hole", 4);
+x_1 = lean_mk_string_unchecked("hole", 4, 4);
 return x_1;
 }
 }
@@ -891,7 +891,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term∃_,_", 10);
+x_1 = lean_mk_string_unchecked("term∃_,_", 10, 8);
 return x_1;
 }
 }
@@ -909,7 +909,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("∃", 3);
+x_1 = lean_mk_string_unchecked("∃", 3, 1);
 return x_1;
 }
 }
@@ -917,7 +917,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("explicitBinders", 15);
+x_1 = lean_mk_string_unchecked("explicitBinders", 15, 15);
 return x_1;
 }
 }
@@ -935,7 +935,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unbracketedExplicitBinders", 26);
+x_1 = lean_mk_string_unchecked("unbracketedExplicitBinders", 26, 26);
 return x_1;
 }
 }
@@ -953,7 +953,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -971,7 +971,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("x", 1);
+x_1 = lean_mk_string_unchecked("x", 1, 1);
 return x_1;
 }
 }
@@ -1007,7 +1007,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -1015,7 +1015,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_∧_", 9);
+x_1 = lean_mk_string_unchecked("term_∧_", 9, 7);
 return x_1;
 }
 }
@@ -1033,7 +1033,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("satisfies_binder_pred%", 22);
+x_1 = lean_mk_string_unchecked("satisfies_binder_pred%", 22, 22);
 return x_1;
 }
 }
@@ -1041,7 +1041,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("∧", 3);
+x_1 = lean_mk_string_unchecked("∧", 3, 1);
 return x_1;
 }
 }
@@ -1261,7 +1261,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("forall", 6);
+x_1 = lean_mk_string_unchecked("forall", 6, 6);
 return x_1;
 }
 }
@@ -1281,7 +1281,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("∀", 3);
+x_1 = lean_mk_string_unchecked("∀", 3, 1);
 return x_1;
 }
 }
@@ -1289,7 +1289,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("arrow", 5);
+x_1 = lean_mk_string_unchecked("arrow", 5, 5);
 return x_1;
 }
 }
@@ -1309,7 +1309,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("→", 3);
+x_1 = lean_mk_string_unchecked("→", 3, 1);
 return x_1;
 }
 }
@@ -1513,7 +1513,7 @@ static lean_object* _init_l_Lean_binderTerm_x3e_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("binderTerm>_", 12);
+x_1 = lean_mk_string_unchecked("binderTerm>_", 12, 12);
 return x_1;
 }
 }
@@ -1531,7 +1531,7 @@ static lean_object* _init_l_Lean_binderTerm_x3e_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" > ", 3);
+x_1 = lean_mk_string_unchecked(" > ", 3, 3);
 return x_1;
 }
 }
@@ -1585,7 +1585,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_>_", 7);
+x_1 = lean_mk_string_unchecked("term_>_", 7, 7);
 return x_1;
 }
 }
@@ -1603,7 +1603,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(">", 1);
+x_1 = lean_mk_string_unchecked(">", 1, 1);
 return x_1;
 }
 }
@@ -1682,7 +1682,7 @@ static lean_object* _init_l_Lean_binderTerm_u2265_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("binderTerm≥_", 14);
+x_1 = lean_mk_string_unchecked("binderTerm≥_", 14, 12);
 return x_1;
 }
 }
@@ -1700,7 +1700,7 @@ static lean_object* _init_l_Lean_binderTerm_u2265_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ≥ ", 5);
+x_1 = lean_mk_string_unchecked(" ≥ ", 5, 3);
 return x_1;
 }
 }
@@ -1754,7 +1754,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_≥_", 9);
+x_1 = lean_mk_string_unchecked("term_≥_", 9, 7);
 return x_1;
 }
 }
@@ -1772,7 +1772,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("≥", 3);
+x_1 = lean_mk_string_unchecked("≥", 3, 1);
 return x_1;
 }
 }
@@ -1851,7 +1851,7 @@ static lean_object* _init_l_Lean_binderTerm_x3c_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("binderTerm<_", 12);
+x_1 = lean_mk_string_unchecked("binderTerm<_", 12, 12);
 return x_1;
 }
 }
@@ -1869,7 +1869,7 @@ static lean_object* _init_l_Lean_binderTerm_x3c_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" < ", 3);
+x_1 = lean_mk_string_unchecked(" < ", 3, 3);
 return x_1;
 }
 }
@@ -1923,7 +1923,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_<_", 7);
+x_1 = lean_mk_string_unchecked("term_<_", 7, 7);
 return x_1;
 }
 }
@@ -1941,7 +1941,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("<", 1);
+x_1 = lean_mk_string_unchecked("<", 1, 1);
 return x_1;
 }
 }
@@ -2020,7 +2020,7 @@ static lean_object* _init_l_Lean_binderTerm_u2264_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("binderTerm≤_", 14);
+x_1 = lean_mk_string_unchecked("binderTerm≤_", 14, 12);
 return x_1;
 }
 }
@@ -2038,7 +2038,7 @@ static lean_object* _init_l_Lean_binderTerm_u2264_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ≤ ", 5);
+x_1 = lean_mk_string_unchecked(" ≤ ", 5, 3);
 return x_1;
 }
 }
@@ -2092,7 +2092,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_≤_", 9);
+x_1 = lean_mk_string_unchecked("term_≤_", 9, 7);
 return x_1;
 }
 }
@@ -2110,7 +2110,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("≤", 3);
+x_1 = lean_mk_string_unchecked("≤", 3, 1);
 return x_1;
 }
 }
@@ -2189,7 +2189,7 @@ static lean_object* _init_l_Lean_binderTerm_u2260_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("binderTerm≠_", 14);
+x_1 = lean_mk_string_unchecked("binderTerm≠_", 14, 12);
 return x_1;
 }
 }
@@ -2207,7 +2207,7 @@ static lean_object* _init_l_Lean_binderTerm_u2260_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ≠ ", 5);
+x_1 = lean_mk_string_unchecked(" ≠ ", 5, 3);
 return x_1;
 }
 }
@@ -2261,7 +2261,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_≠_", 9);
+x_1 = lean_mk_string_unchecked("term_≠_", 9, 7);
 return x_1;
 }
 }
@@ -2279,7 +2279,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("≠", 3);
+x_1 = lean_mk_string_unchecked("≠", 3, 1);
 return x_1;
 }
 }
@@ -2358,7 +2358,7 @@ static lean_object* _init_l_Lean_binderTerm_u2208_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("binderTerm∈_", 14);
+x_1 = lean_mk_string_unchecked("binderTerm∈_", 14, 12);
 return x_1;
 }
 }
@@ -2376,7 +2376,7 @@ static lean_object* _init_l_Lean_binderTerm_u2208_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ∈ ", 5);
+x_1 = lean_mk_string_unchecked(" ∈ ", 5, 3);
 return x_1;
 }
 }
@@ -2430,7 +2430,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_∈_", 9);
+x_1 = lean_mk_string_unchecked("term_∈_", 9, 7);
 return x_1;
 }
 }
@@ -2448,7 +2448,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("∈", 3);
+x_1 = lean_mk_string_unchecked("∈", 3, 1);
 return x_1;
 }
 }
@@ -2527,7 +2527,7 @@ static lean_object* _init_l_Lean_binderTerm_u2209_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("binderTerm∉_", 14);
+x_1 = lean_mk_string_unchecked("binderTerm∉_", 14, 12);
 return x_1;
 }
 }
@@ -2545,7 +2545,7 @@ static lean_object* _init_l_Lean_binderTerm_u2209_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ∉ ", 5);
+x_1 = lean_mk_string_unchecked(" ∉ ", 5, 3);
 return x_1;
 }
 }
@@ -2599,7 +2599,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_∉_", 9);
+x_1 = lean_mk_string_unchecked("term_∉_", 9, 7);
 return x_1;
 }
 }
@@ -2617,7 +2617,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("∉", 3);
+x_1 = lean_mk_string_unchecked("∉", 3, 1);
 return x_1;
 }
 }
@@ -2696,7 +2696,7 @@ static lean_object* _init_l_Lean_binderTerm_u2286_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("binderTerm⊆_", 14);
+x_1 = lean_mk_string_unchecked("binderTerm⊆_", 14, 12);
 return x_1;
 }
 }
@@ -2714,7 +2714,7 @@ static lean_object* _init_l_Lean_binderTerm_u2286_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ⊆ ", 5);
+x_1 = lean_mk_string_unchecked(" ⊆ ", 5, 3);
 return x_1;
 }
 }
@@ -2768,7 +2768,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_⊆_", 9);
+x_1 = lean_mk_string_unchecked("term_⊆_", 9, 7);
 return x_1;
 }
 }
@@ -2786,7 +2786,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⊆", 3);
+x_1 = lean_mk_string_unchecked("⊆", 3, 1);
 return x_1;
 }
 }
@@ -2865,7 +2865,7 @@ static lean_object* _init_l_Lean_binderTerm_u2282_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("binderTerm⊂_", 14);
+x_1 = lean_mk_string_unchecked("binderTerm⊂_", 14, 12);
 return x_1;
 }
 }
@@ -2883,7 +2883,7 @@ static lean_object* _init_l_Lean_binderTerm_u2282_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ⊂ ", 5);
+x_1 = lean_mk_string_unchecked(" ⊂ ", 5, 3);
 return x_1;
 }
 }
@@ -2937,7 +2937,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_⊂_", 9);
+x_1 = lean_mk_string_unchecked("term_⊂_", 9, 7);
 return x_1;
 }
 }
@@ -2955,7 +2955,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⊂", 3);
+x_1 = lean_mk_string_unchecked("⊂", 3, 1);
 return x_1;
 }
 }
@@ -3034,7 +3034,7 @@ static lean_object* _init_l_Lean_binderTerm_u2287_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("binderTerm⊇_", 14);
+x_1 = lean_mk_string_unchecked("binderTerm⊇_", 14, 12);
 return x_1;
 }
 }
@@ -3052,7 +3052,7 @@ static lean_object* _init_l_Lean_binderTerm_u2287_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ⊇ ", 5);
+x_1 = lean_mk_string_unchecked(" ⊇ ", 5, 3);
 return x_1;
 }
 }
@@ -3106,7 +3106,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_⊇_", 9);
+x_1 = lean_mk_string_unchecked("term_⊇_", 9, 7);
 return x_1;
 }
 }
@@ -3124,7 +3124,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⊇", 3);
+x_1 = lean_mk_string_unchecked("⊇", 3, 1);
 return x_1;
 }
 }
@@ -3203,7 +3203,7 @@ static lean_object* _init_l_Lean_binderTerm_u2283_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("binderTerm⊃_", 14);
+x_1 = lean_mk_string_unchecked("binderTerm⊃_", 14, 12);
 return x_1;
 }
 }
@@ -3221,7 +3221,7 @@ static lean_object* _init_l_Lean_binderTerm_u2283_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ⊃ ", 5);
+x_1 = lean_mk_string_unchecked(" ⊃ ", 5, 3);
 return x_1;
 }
 }
@@ -3275,7 +3275,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term_⊃_", 9);
+x_1 = lean_mk_string_unchecked("term_⊃_", 9, 7);
 return x_1;
 }
 }
@@ -3293,7 +3293,7 @@ static lean_object* _init_l_Lean___aux__Init__BinderPredicates______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⊃", 3);
+x_1 = lean_mk_string_unchecked("⊃", 3, 1);
 return x_1;
 }
 }

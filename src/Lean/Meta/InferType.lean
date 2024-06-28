@@ -377,29 +377,41 @@ def isType (e : Expr) : MetaM Bool := do
   withReader (fun ctx => { ctx with lctx := ctx.lctx.mkLocalDecl fvarId name type bi }) do
     x (mkFVar fvarId)
 
-def isTypeFormerTypeQuick : Expr → Bool
-  | .forallE _ _ b _ => isTypeFormerTypeQuick b
-  | .sort _ => true
-  | _ => false
+def typeFormerTypeLevelQuick : Expr → Option Level
+  | .forallE _ _ b _ => typeFormerTypeLevelQuick b
+  | .sort l => some l
+  | _ => none
+
+/--
+Return `u` iff `type` is `Sort u` or `As → Sort u`.
+-/
+partial def typeFormerTypeLevel (type : Expr) : MetaM (Option Level) := do
+  match typeFormerTypeLevelQuick type with
+  | .some l => return .some l
+  | .none => savingCache <| go type #[]
+where
+  go (type : Expr) (xs : Array Expr) : MetaM (Option Level) := do
+    match type with
+    | .sort l => return some l
+    | .forallE n d b c => withLocalDecl' n c (d.instantiateRev xs) fun x => go b (xs.push x)
+    | _ =>
+      let type ← whnfD (type.instantiateRev xs)
+      match type with
+      | .sort l => return some l
+      | .forallE .. => go type #[]
+      | _ => return none
 
 /--
 Return true iff `type` is `Sort _` or `As → Sort _`.
 -/
 partial def isTypeFormerType (type : Expr) : MetaM Bool := do
-  match isTypeFormerTypeQuick type with
-  | true => return true
-  | false => savingCache <| go type #[]
-where
-  go (type : Expr) (xs : Array Expr) : MetaM Bool := do
-    match type with
-    | .sort .. => return true
-    | .forallE n d b c => withLocalDecl' n c (d.instantiateRev xs) fun x => go b (xs.push x)
-    | _ =>
-      let type ← whnfD (type.instantiateRev xs)
-      match type with
-      | .sort .. => return true
-      | .forallE .. => go type #[]
-      | _ => return false
+  return (← typeFormerTypeLevel type).isSome
+
+/--
+Return true iff `type` is `Prop` or `As → Prop`.
+-/
+partial def isPropFormerType (type : Expr) : MetaM Bool := do
+  return (← typeFormerTypeLevel type) == .some .zero
 
 /--
 Return true iff `e : Sort _` or `e : (forall As, Sort _)`.

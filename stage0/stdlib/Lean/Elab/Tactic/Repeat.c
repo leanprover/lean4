@@ -1621,7 +1621,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalRepeat_x27___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1629,7 +1629,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalRepeat_x27___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -1637,7 +1637,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalRepeat_x27___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -1645,7 +1645,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalRepeat_x27___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("repeat'", 7);
+x_1 = lean_mk_string_unchecked("repeat'", 7, 7);
 return x_1;
 }
 }
@@ -1665,7 +1665,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalRepeat_x27___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq", 9);
+x_1 = lean_mk_string_unchecked("tacticSeq", 9, 9);
 return x_1;
 }
 }
@@ -1861,7 +1861,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalRepeat_x27__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -1869,7 +1869,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalRepeat_x27__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalRepeat'", 11);
+x_1 = lean_mk_string_unchecked("evalRepeat'", 11, 11);
 return x_1;
 }
 }
@@ -2057,7 +2057,7 @@ static lean_object* _init_l_Lean_Meta_repeat1_x27___at_Lean_Elab_Tactic_evalRepe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("repeat1' made no progress", 25);
+x_1 = lean_mk_string_unchecked("repeat1' made no progress", 25, 25);
 return x_1;
 }
 }
@@ -2186,7 +2186,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalRepeat1_x27___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("repeat1'", 8);
+x_1 = lean_mk_string_unchecked("repeat1'", 8, 8);
 return x_1;
 }
 }
@@ -2342,7 +2342,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalRepeat1_x27__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalRepeat1'", 12);
+x_1 = lean_mk_string_unchecked("evalRepeat1'", 12, 12);
 return x_1;
 }
 }

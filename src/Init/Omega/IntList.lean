@@ -28,8 +28,8 @@ def get (xs : IntList) (i : Nat) : Int := (xs.get? i).getD 0
 @[simp] theorem get_cons_succ : get (x :: xs) (i+1) = get xs i := rfl
 
 theorem get_map {xs : IntList} (h : f 0 = 0) : get (xs.map f) i = f (xs.get i) := by
-  simp only [get, List.get?_map]
-  cases xs.get? i <;> simp_all
+  simp only [get, List.get?_eq_getElem?, List.getElem?_map]
+  cases xs[i]? <;> simp_all
 
 theorem get_of_length_le {xs : IntList} (h : xs.length ≤ i) : xs.get i = 0 := by
   rw [get, List.get?_eq_none.mpr h]
@@ -66,8 +66,8 @@ theorem add_def (xs ys : IntList) :
   rfl
 
 @[simp] theorem add_get (xs ys : IntList) (i : Nat) : (xs + ys).get i = xs.get i + ys.get i := by
-  simp only [add_def, get, List.zipWithAll_get?, List.get?_eq_none]
-  cases xs.get? i <;> cases ys.get? i <;> simp
+  simp only [get, add_def, List.get?_eq_getElem?, List.getElem?_zipWithAll]
+  cases xs[i]? <;> cases ys[i]? <;> simp
 
 @[simp] theorem add_nil (xs : IntList) : xs + [] = xs := by simp [add_def]
 @[simp] theorem nil_add (xs : IntList) : [] + xs = xs := by simp [add_def]
@@ -83,8 +83,8 @@ theorem mul_def (xs ys : IntList) : xs * ys = List.zipWith (· * ·) xs ys :=
   rfl
 
 @[simp] theorem mul_get (xs ys : IntList) (i : Nat) : (xs * ys).get i = xs.get i * ys.get i := by
-  simp only [mul_def, get, List.zipWith_get?]
-  cases xs.get? i <;> cases ys.get? i <;> simp
+  simp only [get, mul_def, List.get?_eq_getElem?, List.getElem?_zipWith]
+  cases xs[i]? <;> cases ys[i]? <;> simp
 
 @[simp] theorem mul_nil_left : ([] : IntList) * ys = [] := rfl
 @[simp] theorem mul_nil_right : xs * ([] : IntList) = [] := List.zipWith_nil_right
@@ -98,8 +98,8 @@ instance : Neg IntList := ⟨neg⟩
 theorem neg_def (xs : IntList) : - xs = xs.map fun x => -x := rfl
 
 @[simp] theorem neg_get (xs : IntList) (i : Nat) : (- xs).get i = - xs.get i := by
-  simp only [neg_def, get, List.get?_map]
-  cases xs.get? i <;> simp
+  simp only [get, neg_def, List.get?_eq_getElem?, List.getElem?_map]
+  cases xs[i]? <;> simp
 
 @[simp] theorem neg_nil : (- ([] : IntList)) = [] := rfl
 @[simp] theorem neg_cons : (- (x::xs : IntList)) = -x :: -xs := rfl
@@ -124,8 +124,8 @@ instance : HMul Int IntList IntList where
 theorem smul_def (xs : IntList) (i : Int) : i * xs = xs.map fun x => i * x := rfl
 
 @[simp] theorem smul_get (xs : IntList) (a : Int) (i : Nat) : (a * xs).get i = a * xs.get i := by
-  simp only [smul_def, get, List.get?_map]
-  cases xs.get? i <;> simp
+  simp only [get, smul_def, List.get?_eq_getElem?, List.getElem?_map]
+  cases xs[i]? <;> simp
 
 @[simp] theorem smul_nil {i : Int} : i * ([] : IntList) = [] := rfl
 @[simp] theorem smul_cons {i : Int} : i * (x::xs : IntList) = i * x :: i * xs := rfl
@@ -173,7 +173,7 @@ theorem mul_neg_left (xs ys : IntList) : (-xs) * ys = -(xs * ys) := by
 attribute [local simp] add_def neg_def sub_def in
 theorem sub_eq_add_neg (xs ys : IntList) : xs - ys = xs + (-ys) := by
   induction xs generalizing ys with
-  | nil => simp; rfl
+  | nil => simp
   | cons x xs ih =>
     cases ys with
     | nil => simp

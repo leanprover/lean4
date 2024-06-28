@@ -150,7 +150,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_isLcCast_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lcCast", 6);
+x_1 = lean_mk_string_unchecked("lcCast", 6, 6);
 return x_1;
 }
 }
@@ -256,7 +256,7 @@ static lean_object* _init_l_Lean_getConstInfo___at___private_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
+x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
 return x_1;
 }
 }
@@ -273,7 +273,7 @@ static lean_object* _init_l_Lean_getConstInfo___at___private_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -629,7 +629,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCase
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.Util", 23);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.Util", 23, 23);
 return x_1;
 }
 }
@@ -637,7 +637,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCase
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.getCasesInfo\?", 32);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.getCasesInfo\?", 32, 32);
 return x_1;
 }
 }
@@ -645,7 +645,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCase
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -1124,7 +1124,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("assertion violation: ", 21);
+x_1 = lean_mk_string_unchecked("assertion violation: ", 21, 21);
 return x_1;
 }
 }
@@ -1132,7 +1132,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("info.arity == e.getAppNumArgs\n    ", 34);
+x_1 = lean_mk_string_unchecked("info.arity == e.getAppNumArgs\n    ", 34, 34);
 return x_1;
 }
 }
@@ -1150,7 +1150,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.isCasesApp\?", 30);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.isCasesApp\?", 30, 30);
 return x_1;
 }
 }
@@ -1543,7 +1543,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("String", 6);
+x_1 = lean_mk_string_unchecked("String", 6, 6);
 return x_1;
 }
 }
@@ -1561,7 +1561,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("UInt8", 5);
+x_1 = lean_mk_string_unchecked("UInt8", 5, 5);
 return x_1;
 }
 }
@@ -1579,7 +1579,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__5()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("UInt16", 6);
+x_1 = lean_mk_string_unchecked("UInt16", 6, 6);
 return x_1;
 }
 }
@@ -1597,7 +1597,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__7()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("UInt32", 6);
+x_1 = lean_mk_string_unchecked("UInt32", 6, 6);
 return x_1;
 }
 }
@@ -1615,7 +1615,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__9()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("UInt64", 6);
+x_1 = lean_mk_string_unchecked("UInt64", 6, 6);
 return x_1;
 }
 }
@@ -1633,7 +1633,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__11(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("USize", 5);
+x_1 = lean_mk_string_unchecked("USize", 5, 5);
 return x_1;
 }
 }
@@ -1651,7 +1651,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__13(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Float", 5);
+x_1 = lean_mk_string_unchecked("Float", 5, 5);
 return x_1;
 }
 }
@@ -1669,7 +1669,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__15(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Thunk", 5);
+x_1 = lean_mk_string_unchecked("Thunk", 5, 5);
 return x_1;
 }
 }
@@ -1687,7 +1687,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__17(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Task", 4);
+x_1 = lean_mk_string_unchecked("Task", 4, 4);
 return x_1;
 }
 }
@@ -1705,7 +1705,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__19(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Array", 5);
+x_1 = lean_mk_string_unchecked("Array", 5, 5);
 return x_1;
 }
 }
@@ -1723,7 +1723,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__21(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ByteArray", 9);
+x_1 = lean_mk_string_unchecked("ByteArray", 9, 9);
 return x_1;
 }
 }
@@ -1741,7 +1741,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__23(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("FloatArray", 10);
+x_1 = lean_mk_string_unchecked("FloatArray", 10, 10);
 return x_1;
 }
 }
@@ -1759,7 +1759,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__25(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Nat", 3);
+x_1 = lean_mk_string_unchecked("Nat", 3, 3);
 return x_1;
 }
 }
@@ -1777,7 +1777,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__27(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Int", 3);
+x_1 = lean_mk_string_unchecked("Int", 3, 3);
 return x_1;
 }
 }

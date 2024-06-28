@@ -60,8 +60,6 @@ def uget (a : @& Array α) (i : USize) (h : i.toNat < a.size) : α :=
 instance : GetElem (Array α) USize α fun xs i => i.toNat < xs.size where
   getElem xs i h := xs.uget i h
 
-instance : LawfulGetElem (Array α) USize α fun xs i => i.toNat < xs.size where
-
 def back [Inhabited α] (a : Array α) : α :=
   a.get! (a.size - 1)
 
@@ -481,7 +479,7 @@ def all (as : Array α) (p : α → Bool) (start := 0) (stop := as.size) : Bool 
   Id.run <| as.allM p start stop
 
 def contains [BEq α] (as : Array α) (a : α) : Bool :=
-  as.any fun b => a == b
+  as.any (· == a)
 
 def elem [BEq α] (a : α) (as : Array α) : Bool :=
   as.contains a

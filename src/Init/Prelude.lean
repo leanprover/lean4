@@ -740,7 +740,7 @@ prove `p` given any element `x : α`, then `p` holds. Note that it is essential
 that `p` is a `Prop` here; the version with `p` being a `Sort u` is equivalent
 to `Classical.choice`.
 -/
-protected def Nonempty.elim {α : Sort u} {p : Prop} (h₁ : Nonempty α) (h₂ : α → p) : p :=
+protected theorem Nonempty.elim {α : Sort u} {p : Prop} (h₁ : Nonempty α) (h₂ : α → p) : p :=
   match h₁ with
   | intro a => h₂ a
 
@@ -914,6 +914,9 @@ is `Bool` valued instead of `Prop` valued, and it also does not have any
 axioms like being reflexive or agreeing with `=`. It is mainly intended for
 programming applications. See `LawfulBEq` for a version that requires that
 `==` and `=` coincide.
+
+Typically we prefer to put the "more variable" term on the left,
+and the "more constant" term on the right.
 -/
 class BEq (α : Type u) where
   /-- Boolean equality, notated as `a == b`. -/
@@ -1068,11 +1071,15 @@ This type is special-cased by both the kernel and the compiler:
   library (usually [GMP](https://gmplib.org/)).
 -/
 inductive Nat where
-  /-- `Nat.zero`, normally written `0 : Nat`, is the smallest natural number.
-  This is one of the two constructors of `Nat`. -/
+  /-- `Nat.zero`, is the smallest natural number. This is one of the two
+  constructors of `Nat`. Using `Nat.zero` should usually be avoided in favor of
+  `0 : Nat` or simply `0`, in order to remain compatible with the simp normal
+  form defined by `Nat.zero_eq`. -/
   | zero : Nat
   /-- The successor function on natural numbers, `succ n = n + 1`.
-  This is one of the two constructors of `Nat`. -/
+  This is one of the two constructors of `Nat`. Using `succ n` should usually
+  be avoided in favor of `n + 1`, in order to remain compatible with the simp
+  normal form defined by `Nat.succ_eq_add_one`. -/
   | succ (n : Nat) : Nat
 
 instance : Inhabited Nat where
@@ -2196,15 +2203,11 @@ instance : DecidableEq Char :=
     | isFalse h => isFalse (Char.ne_of_val_ne h)
 
 /-- Returns the number of bytes required to encode this `Char` in UTF-8. -/
-def Char.utf8Size (c : Char) : UInt32 :=
+def Char.utf8Size (c : Char) : Nat :=
   let v := c.val
-  ite (LE.le v (UInt32.ofNatCore 0x7F (by decide)))
-    (UInt32.ofNatCore 1 (by decide))
-    (ite (LE.le v (UInt32.ofNatCore 0x7FF (by decide)))
-      (UInt32.ofNatCore 2 (by decide))
-      (ite (LE.le v (UInt32.ofNatCore 0xFFFF (by decide)))
-        (UInt32.ofNatCore 3 (by decide))
-        (UInt32.ofNatCore 4 (by decide))))
+  ite (LE.le v (UInt32.ofNatCore 0x7F (by decide))) 1
+    (ite (LE.le v (UInt32.ofNatCore 0x7FF (by decide))) 2
+      (ite (LE.le v (UInt32.ofNatCore 0xFFFF (by decide))) 3 4))
 
 /--
 `Option α` is the type of values which are either `some a` for some `a : α`,
@@ -2304,24 +2307,6 @@ protected def List.hasDecEq {α : Type u} [DecidableEq α] : (a b : List α) →
 instance {α : Type u} [DecidableEq α] : DecidableEq (List α) := List.hasDecEq
 
 /--
-Folds a function over a list from the left:
-`foldl f z [a, b, c] = f (f (f z a) b) c`
--/
-@[specialize]
-def List.foldl {α : Type u} {β : Type v} (f : α → β → α) : (init : α) → List β → α
-  | a, nil      => a
-  | a, cons b l => foldl f (f a b) l
-
-/--
-`l.set n a` sets the value of list `l` at (zero-based) index `n` to `a`:
-`[a, b, c, d].set 1 b' = [a, b', c, d]`
--/
-def List.set : List α → Nat → α → List α
-  | cons _ as, 0,          b => cons b as
-  | cons a as, Nat.succ n, b => cons a (set as n b)
-  | nil,       _,          _ => nil
-
-/--
 The length of a list: `[].length = 0` and `(a :: l).length = l.length + 1`.
 
 This function is overridden in the compiler to `lengthTR`, which uses constant
@@ -2344,14 +2329,6 @@ without running out of stack space.
 def List.lengthTR (as : List α) : Nat :=
   lengthTRAux as 0
 
-@[simp] theorem List.length_cons {α} (a : α) (as : List α) : Eq (cons a as).length as.length.succ :=
-  rfl
-
-/-- `l.concat a` appends `a` at the *end* of `l`, that is, `l ++ [a]`. -/
-def List.concat {α : Type u} : List α → α → List α
-  | nil,       b => cons b nil
-  | cons a as, b => cons a (concat as b)
-
 /--
 `as.get i` returns the `i`'th element of the list `as`.
 This version of the function uses `i : Fin as.length` to ensure that it will
@@ -2360,6 +2337,29 @@ not index out of bounds.
 def List.get {α : Type u} : (as : List α) → Fin as.length → α
   | cons a _,  ⟨0, _⟩ => a
   | cons _ as, ⟨Nat.succ i, h⟩ => get as ⟨i, Nat.le_of_succ_le_succ h⟩
+
+/--
+`l.set n a` sets the value of list `l` at (zero-based) index `n` to `a`:
+`[a, b, c, d].set 1 b' = [a, b', c, d]`
+-/
+def List.set : List α → Nat → α → List α
+  | cons _ as, 0,          b => cons b as
+  | cons a as, Nat.succ n, b => cons a (set as n b)
+  | nil,       _,          _ => nil
+
+/--
+Folds a function over a list from the left:
+`foldl f z [a, b, c] = f (f (f z a) b) c`
+-/
+@[specialize]
+def List.foldl {α : Type u} {β : Type v} (f : α → β → α) : (init : α) → List β → α
+  | a, nil      => a
+  | a, cons b l => foldl f (f a b) l
+
+/-- `l.concat a` appends `a` at the *end* of `l`, that is, `l ++ [a]`. -/
+def List.concat {α : Type u} : List α → α → List α
+  | nil,       b => cons b nil
+  | cons a as, b => cons a (concat as b)
 
 /--
 `String` is the type of (UTF-8 encoded) strings.
@@ -2433,10 +2433,6 @@ instance : Inhabited Substring where
 @[inline] def Substring.bsize : Substring → Nat
   | ⟨_, b, e⟩ => e.byteIdx.sub b.byteIdx
 
-/-- Returns the number of bytes required to encode this `Char` in UTF-8. -/
-def String.csize (c : Char) : Nat :=
-  c.utf8Size.toNat
-
 /--
 The UTF-8 byte length of this string.
 This is overridden by the compiler to be cached and O(1).
@@ -2447,7 +2443,7 @@ def String.utf8ByteSize : (@& String) → Nat
 where
   go : List Char → Nat
    | .nil       => 0
-   | .cons c cs => hAdd (go cs) (csize c)
+   | .cons c cs => hAdd (go cs) c.utf8Size
 
 instance : HAdd String.Pos String.Pos String.Pos where
   hAdd p₁ p₂ := { byteIdx := hAdd p₁.byteIdx p₂.byteIdx }
@@ -2456,7 +2452,7 @@ instance : HSub String.Pos String.Pos String.Pos where
   hSub p₁ p₂ := { byteIdx := HSub.hSub p₁.byteIdx p₂.byteIdx }
 
 instance : HAdd String.Pos Char String.Pos where
-  hAdd p c := { byteIdx := hAdd p.byteIdx (String.csize c) }
+  hAdd p c := { byteIdx := hAdd p.byteIdx c.utf8Size }
 
 instance : HAdd String.Pos String String.Pos where
   hAdd p s := { byteIdx := hAdd p.byteIdx s.utf8ByteSize }
@@ -2977,7 +2973,7 @@ def MonadExcept.ofExcept [Monad m] [MonadExcept ε m] : Except ε α → m α
 
 export MonadExcept (throw tryCatch ofExcept)
 
-instance (ε : outParam (Type u)) (m : Type v → Type w) [MonadExceptOf ε m] : MonadExcept ε m where
+instance (ε : Type u) (m : Type v → Type w) [MonadExceptOf ε m] : MonadExcept ε m where
   throw    := throwThe ε
   tryCatch := tryCatchThe ε
 
@@ -3151,7 +3147,7 @@ instance (ρ : Type u) (m : Type u → Type v) [MonadWithReaderOf ρ m] : MonadW
 instance {ρ : Type u} {m : Type u → Type v} {n : Type u → Type v} [MonadFunctor m n] [MonadWithReaderOf ρ m] : MonadWithReaderOf ρ n where
   withReader f := monadMap (m := m) (withTheReader ρ f)
 
-instance {ρ : Type u} {m : Type u → Type v} [Monad m] : MonadWithReaderOf ρ (ReaderT ρ m) where
+instance {ρ : Type u} {m : Type u → Type v} : MonadWithReaderOf ρ (ReaderT ρ m) where
   withReader f x := fun ctx => x (f ctx)
 
 /--
@@ -3234,7 +3230,7 @@ def modify {σ : Type u} {m : Type u → Type v} [MonadState σ m] (f : σ → �
 of the state. It is equivalent to `get <* modify f` but may be more efficient.
 -/
 @[always_inline, inline]
-def getModify {σ : Type u} {m : Type u → Type v} [MonadState σ m] [Monad m] (f : σ → σ) : m σ :=
+def getModify {σ : Type u} {m : Type u → Type v} [MonadState σ m] (f : σ → σ) : m σ :=
   modifyGet fun s => (s, f s)
 
 -- NOTE: The Ordering of the following two instances determines that the top-most `StateT` Monad layer

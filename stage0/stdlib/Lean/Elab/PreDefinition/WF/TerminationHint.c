@@ -220,7 +220,7 @@ static lean_object* _init_l_Lean_Elab_WF_TerminationHints_ensureNone___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unused `decreasing_by`, function is ", 36);
+x_1 = lean_mk_string_unchecked("unused `decreasing_by`, function is ", 36, 36);
 return x_1;
 }
 }
@@ -237,7 +237,7 @@ static lean_object* _init_l_Lean_Elab_WF_TerminationHints_ensureNone___closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -254,7 +254,7 @@ static lean_object* _init_l_Lean_Elab_WF_TerminationHints_ensureNone___closed__5
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unused `termination_by`, function is ", 37);
+x_1 = lean_mk_string_unchecked("unused `termination_by`, function is ", 37, 37);
 return x_1;
 }
 }
@@ -271,7 +271,7 @@ static lean_object* _init_l_Lean_Elab_WF_TerminationHints_ensureNone___closed__7
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unused termination hints, function is ", 38);
+x_1 = lean_mk_string_unchecked("unused termination hints, function is ", 38, 38);
 return x_1;
 }
 }
@@ -288,7 +288,7 @@ static lean_object* _init_l_Lean_Elab_WF_TerminationHints_ensureNone___closed__9
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unused `termination_by\?`, function is ", 38);
+x_1 = lean_mk_string_unchecked("unused `termination_by\?`, function is ", 38, 38);
 return x_1;
 }
 }
@@ -564,7 +564,7 @@ static lean_object* _init_l_Lean_Elab_WF_TerminationBy_checkVars_parameters___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" parameters", 11);
+x_1 = lean_mk_string_unchecked(" parameters", 11, 11);
 return x_1;
 }
 }
@@ -581,7 +581,7 @@ static lean_object* _init_l_Lean_Elab_WF_TerminationBy_checkVars_parameters___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("one parameter", 13);
+x_1 = lean_mk_string_unchecked("one parameter", 13, 13);
 return x_1;
 }
 }
@@ -718,7 +718,7 @@ static lean_object* _init_l_Lean_Elab_WF_TerminationBy_checkVars___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" bound in `termination_by`, but the body of ", 44);
+x_1 = lean_mk_string_unchecked(" bound in `termination_by`, but the body of ", 44, 44);
 return x_1;
 }
 }
@@ -735,7 +735,7 @@ static lean_object* _init_l_Lean_Elab_WF_TerminationBy_checkVars___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" only binds ", 12);
+x_1 = lean_mk_string_unchecked(" only binds ", 12, 12);
 return x_1;
 }
 }
@@ -752,7 +752,7 @@ static lean_object* _init_l_Lean_Elab_WF_TerminationBy_checkVars___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -769,7 +769,7 @@ static lean_object* _init_l_Lean_Elab_WF_TerminationBy_checkVars___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ident", 5);
+x_1 = lean_mk_string_unchecked("ident", 5, 5);
 return x_1;
 }
 }
@@ -787,7 +787,7 @@ static lean_object* _init_l_Lean_Elab_WF_TerminationBy_checkVars___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" (Since Lean v4.6.0, the `termination_by` clause no longer ", 59);
+x_1 = lean_mk_string_unchecked(" (Since Lean v4.6.0, the `termination_by` clause no longer ", 59, 59);
 return x_1;
 }
 }
@@ -804,7 +804,7 @@ static lean_object* _init_l_Lean_Elab_WF_TerminationBy_checkVars___closed__11() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expects the function name here.)", 32);
+x_1 = lean_mk_string_unchecked("expects the function name here.)", 32, 32);
 return x_1;
 }
 }
@@ -1124,7 +1124,7 @@ static lean_object* _init_l_Lean_Elab_WF_elabTerminationHints___rarg___lambda__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1132,7 +1132,7 @@ static lean_object* _init_l_Lean_Elab_WF_elabTerminationHints___rarg___lambda__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -1140,7 +1140,7 @@ static lean_object* _init_l_Lean_Elab_WF_elabTerminationHints___rarg___lambda__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Termination", 11);
+x_1 = lean_mk_string_unchecked("Termination", 11, 11);
 return x_1;
 }
 }
@@ -1148,7 +1148,7 @@ static lean_object* _init_l_Lean_Elab_WF_elabTerminationHints___rarg___lambda__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("decreasingBy", 12);
+x_1 = lean_mk_string_unchecked("decreasingBy", 12, 12);
 return x_1;
 }
 }
@@ -1168,7 +1168,7 @@ static lean_object* _init_l_Lean_Elab_WF_elabTerminationHints___rarg___lambda__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected `decreasing_by` syntax", 33);
+x_1 = lean_mk_string_unchecked("unexpected `decreasing_by` syntax", 33, 33);
 return x_1;
 }
 }
@@ -1258,7 +1258,7 @@ static lean_object* _init_l_Lean_Elab_WF_elabTerminationHints___rarg___lambda__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("terminationBy", 13);
+x_1 = lean_mk_string_unchecked("terminationBy", 13, 13);
 return x_1;
 }
 }
@@ -1278,7 +1278,7 @@ static lean_object* _init_l_Lean_Elab_WF_elabTerminationHints___rarg___lambda__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("terminationBy\?", 14);
+x_1 = lean_mk_string_unchecked("terminationBy\?", 14, 14);
 return x_1;
 }
 }
@@ -1298,7 +1298,7 @@ static lean_object* _init_l_Lean_Elab_WF_elabTerminationHints___rarg___lambda__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected `termination_by` syntax", 34);
+x_1 = lean_mk_string_unchecked("unexpected `termination_by` syntax", 34, 34);
 return x_1;
 }
 }
@@ -1315,7 +1315,7 @@ static lean_object* _init_l_Lean_Elab_WF_elabTerminationHints___rarg___lambda__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no extra parameters bounds, please omit the `=>`", 48);
+x_1 = lean_mk_string_unchecked("no extra parameters bounds, please omit the `=>`", 48, 48);
 return x_1;
 }
 }
@@ -1773,7 +1773,7 @@ static lean_object* _init_l_Lean_Elab_WF_elabTerminationHints___rarg___lambda__6
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Unexpected Termination.suffix syntax: ", 38);
+x_1 = lean_mk_string_unchecked("Unexpected Termination.suffix syntax: ", 38, 38);
 return x_1;
 }
 }
@@ -1781,7 +1781,7 @@ static lean_object* _init_l_Lean_Elab_WF_elabTerminationHints___rarg___lambda__6
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" of kind ", 9);
+x_1 = lean_mk_string_unchecked(" of kind ", 9, 9);
 return x_1;
 }
 }
@@ -1893,7 +1893,7 @@ static lean_object* _init_l_Lean_Elab_WF_elabTerminationHints___rarg___lambda__7
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("suffix", 6);
+x_1 = lean_mk_string_unchecked("suffix", 6, 6);
 return x_1;
 }
 }

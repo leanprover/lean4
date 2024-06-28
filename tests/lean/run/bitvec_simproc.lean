@@ -137,3 +137,7 @@ example (a : BitVec 32) (h : a >>> 3 = b) : (a >>> 1) >>> 2 = b := by
   simp; guard_target =ₛ a >>> 3 = b; assumption
 example (a : BitVec 32) (h : a >>> 3 = b) : (a >>> 1#32) >>> 2 = b := by
   simp; guard_target =ₛ a >>> 3 = b; assumption
+example (h : False) : 1#2 = 2#2 := by
+  simp; guard_target =ₛ False; exact h
+example : 1#2 ≠ 2#2 := by
+  simp

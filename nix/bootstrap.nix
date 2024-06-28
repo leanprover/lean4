@@ -87,7 +87,8 @@ rec {
         leanFlags = [ "-DwarningAsError=true" ];
       } // args);
       Init' = build { name = "Init"; deps = []; };
-      Lean' = build { name = "Lean"; deps = [ Init' ]; };
+      Std' = build { name = "Std"; deps = [ Init' ]; };
+      Lean' = build { name = "Lean"; deps = [ Std' ]; };
       attachSharedLib = sharedLib: pkg: pkg // {
         inherit sharedLib;
         mods = mapAttrs (_: m: m // { inherit sharedLib; propagatedLoadDynlibs = []; }) pkg.mods;
@@ -95,7 +96,8 @@ rec {
     in (all: all // all.lean) rec {
       inherit (Lean) emacs-dev emacs-package vscode-dev vscode-package;
       Init = attachSharedLib leanshared Init';
-      Lean = attachSharedLib leanshared Lean' // { allExternalDeps = [ Init ]; };
+      Std = attachSharedLib leanshared Std' // { allExternalDeps = [ Init ]; };
+      Lean = attachSharedLib leanshared Lean' // { allExternalDeps = [ Std ]; };
       Lake = build {
         name = "Lake";
         src = src + "/src/lake";
@@ -109,29 +111,22 @@ rec {
         linkFlags = lib.optional stdenv.isLinux "-rdynamic";
         src = src + "/src/lake";
       };
-      stdlib = [ Init Lean Lake ];
+      stdlib = [ Init Std Lean Lake ];
       modDepsFiles = symlinkJoin { name = "modDepsFiles"; paths = map (l: l.modDepsFile) (stdlib ++ [ Leanc ]); };
       depRoots = symlinkJoin { name = "depRoots"; paths = map (l: l.depRoots) stdlib; };
       iTree = symlinkJoin { name = "ileans"; paths = map (l: l.iTree) stdlib; };
       Leanc = build { name = "Leanc"; src = lean-bin-tools-unwrapped.leanc_src; deps = stdlib; roots = [ "Leanc" ]; };
-      stdlibLinkFlags = "-L${Init.staticLib} -L${Lean.staticLib} -L${Lake.staticLib} -L${leancpp}/lib/lean";
+      stdlibLinkFlags = "${lib.concatMapStringsSep " " (l: "-L${l.staticLib}") stdlib} -L${leancpp}/lib/lean";
       libInit_shared = runCommand "libInit_shared" { buildInputs = [ stdenv.cc ]; libName = "libInit_shared${stdenv.hostPlatform.extensions.sharedLibrary}"; } ''
         mkdir $out
-        LEAN_CC=${stdenv.cc}/bin/cc ${lean-bin-tools-unwrapped}/bin/leanc -shared ${lib.optionalString stdenv.isLinux "-Wl,-Bsymbolic"} \
-          ${if stdenv.isDarwin
-            then "-Wl,-force_load,${Init.staticLib}/libInit.a -Wl,-force_load,${Lean.staticLib}/libLean.a -lleancpp -Wl,-force_load,${leancpp}/lib/lean/libleancpp.a ${leancpp}/lib/libleanrt_initial-exec.a -lc++"
-            else "-Wl,--whole-archive -lInit ${leancpp}/lib/libleanrt_initial-exec.a -Wl,--no-whole-archive -lstdc++"} \
-          -lm ${stdlibLinkFlags} \
-          $(${llvmPackages.libllvm.dev}/bin/llvm-config --ldflags --libs) \
-          -o $out/$libName
+        touch empty.c
+        ${stdenv.cc}/bin/cc -shared -o $out/$libName empty.c
       '';
       leanshared = runCommand "leanshared" { buildInputs = [ stdenv.cc ]; libName = "libleanshared${stdenv.hostPlatform.extensions.sharedLibrary}"; } ''
         mkdir $out
         LEAN_CC=${stdenv.cc}/bin/cc ${lean-bin-tools-unwrapped}/bin/leanc -shared ${lib.optionalString stdenv.isLinux "-Wl,-Bsymbolic"} \
-          ${if stdenv.isDarwin
-            then "-Wl,-force_load,${libInit_shared}/* -lLean -Wl,-force_load,${Lean.staticLib}/libLean.a -lleancpp -Wl,-force_load,${leancpp}/lib/lean/libleancpp.a ${leancpp}/lib/libleanrt_initial-exec.a -lc++"
-            else "${libInit_shared}/* -Wl,--whole-archive -lLean -lleancpp -Wl,--no-whole-archive -lstdc++"} \
-          -lm ${stdlibLinkFlags} \
+          ${if stdenv.isDarwin then "-Wl,-force_load,${Init.staticLib}/libInit.a -Wl,-force_load,${Lean.staticLib}/libLean.a -Wl,-force_load,${leancpp}/lib/lean/libleancpp.a ${leancpp}/lib/libleanrt_initial-exec.a -lc++"
+            else "-Wl,--whole-archive -lInit -lStd -lLean -lleancpp ${leancpp}/lib/libleanrt_initial-exec.a -Wl,--no-whole-archive -lstdc++"} -lm ${stdlibLinkFlags} \
           $(${llvmPackages.libllvm.dev}/bin/llvm-config --ldflags --libs) \
           -o $out/$libName
       '';
@@ -157,11 +152,9 @@ rec {
         '';
         meta.mainProgram = "lean";
       };
-      cacheRoots = linkFarmFromDrvs "cacheRoots" [
+      cacheRoots = linkFarmFromDrvs "cacheRoots" ([
         stage0 lean leanc lean-all iTree modDepsFiles depRoots Leanc.src
-        # .o files are not a runtime dependency on macOS because of lack of thin archives
-        Lean.oTree Lake.oTree
-      ];
+      ] ++ map (lib: lib.oTree) stdlib);
       test = buildCMake {
         name = "lean-test-${desc}";
         realSrc = lib.sourceByRegex src [ "src.*" "tests.*" ];
@@ -176,7 +169,7 @@ rec {
           ln -sf ${lean-all}/* .
         '';
         buildPhase = ''
-          ctest --output-junit test-results.xml --output-on-failure -E 'leancomptest_(doc_example|foreign)|leanlaketest_init' -j$NIX_BUILD_CORES
+          ctest --output-junit test-results.xml --output-on-failure -E 'leancomptest_(doc_example|foreign)' -j$NIX_BUILD_CORES
         '';
         installPhase = ''
           mkdir $out
@@ -184,7 +177,7 @@ rec {
         '';
       };
       update-stage0 =
-        let cTree = symlinkJoin { name = "cs"; paths = [ Init.cTree Lean.cTree ]; }; in
+        let cTree = symlinkJoin { name = "cs"; paths = map (lib: lib.cTree) stdlib; }; in
         writeShellScriptBin "update-stage0" ''
           CSRCS=${cTree} CP_C_PARAMS="--dereference --no-preserve=all" ${src + "/script/lib/update-stage0"}
         '';

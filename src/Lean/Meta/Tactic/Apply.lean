@@ -11,34 +11,6 @@ import Lean.Meta.Tactic.Util
 import Lean.PrettyPrinter
 
 namespace Lean.Meta
-/-- Controls which new mvars are turned in to goals by the `apply` tactic.
-- `nonDependentFirst`  mvars that don't depend on other goals appear first in the goal list.
-- `nonDependentOnly` only mvars that don't depend on other goals are added to goal list.
-- `all` all unassigned mvars are added to the goal list.
--/
-inductive ApplyNewGoals where
-  | nonDependentFirst | nonDependentOnly | all
-
-/-- Configures the behaviour of the `apply` tactic. -/
-structure ApplyConfig where
-  newGoals := ApplyNewGoals.nonDependentFirst
-  /--
-  If `synthAssignedInstances` is `true`, then `apply` will synthesize instance implicit arguments
-  even if they have assigned by `isDefEq`, and then check whether the synthesized value matches the
-  one inferred. The `congr` tactic sets this flag to false.
-  -/
-  synthAssignedInstances := true
-  /--
-  If `allowSynthFailures` is `true`, then `apply` will return instance implicit arguments
-  for which typeclass search failed as new goals.
-  -/
-  allowSynthFailures := false
-  /--
-  If `approx := true`, then we turn on `isDefEq` approximations. That is, we use
-  the `approxDefEq` combinator.
-  -/
-  approx : Bool := true
-
 /--
   Compute the number of expected arguments and whether the result type is of the form
   (?m ...) where ?m is an unassigned metavariable.
@@ -52,13 +24,9 @@ def getExpectedNumArgs (e : Expr) : MetaM Nat := do
   pure numArgs
 
 private def throwApplyError {α} (mvarId : MVarId) (eType : Expr) (targetType : Expr) : MetaM α := do
-  let explanation := MessageData.lazy
-    (f := fun ppctxt => ppctxt.runMetaM do
-        let (eType, targetType) ← addPPExplicitToExposeDiff eType targetType
-        return m!"{indentExpr eType}\nwith{indentExpr targetType}")
-    (hasSyntheticSorry := fun mvarctxt =>
-      (instantiateMVarsCore mvarctxt eType |>.1.hasSyntheticSorry) ||
-      (instantiateMVarsCore mvarctxt targetType |>.1.hasSyntheticSorry))
+  let explanation := MessageData.ofLazyM (es := #[eType, targetType]) do
+    let (eType, targetType) ← addPPExplicitToExposeDiff eType targetType
+    return m!"{indentExpr eType}\nwith{indentExpr targetType}"
   throwTacticEx `apply mvarId m!"failed to unify{explanation}"
 
 def synthAppInstances (tacticName : Name) (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo)

@@ -11,7 +11,7 @@ termination_by state
 decreasing_by sorry
 
 /--
-error: tactic 'split' failed, consider using `set_option trace.split.failures true`
+error: tactic 'split' failed, consider using `set_option trace.split.failure true`
 state : Nat
 p :
   (match h : step state with

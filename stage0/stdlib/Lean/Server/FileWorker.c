@@ -115,7 +115,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_initializeWorker_mkLspOutputCh
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_updatePendingRequests___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__21;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_setupImports___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Message_0__Lean_fromJsonBaseMessage____x40_Lean_Message___hyg_2442____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_reportSnapshots_go___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Json_toStructured_x3f___at_Lean_Server_FileWorker_runRefreshTask___spec__2___closed__4;
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__69;
@@ -134,7 +133,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_0__Lean_Server_FileW
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__40;
 lean_object* lean_module_name_of_file(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_reportSnapshots___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__53;
 static lean_object* l_Lean_Server_FileWorker_handleNotification___closed__6;
@@ -374,6 +372,7 @@ static lean_object* l_Lean_RBNode_foldM___at_Lean_Server_FileWorker_mainLoop___s
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_reportSnapshots_go___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at_Lean_Server_FileWorker_handleRpcConnect___spec__1___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Message_0__Lean_fromJsonBaseMessage____x40_Lean_Message___hyg_2574____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_setupImports(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_mkIleanInfoFinalNotification___closed__1;
 lean_object* l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2480_(lean_object*);
@@ -410,6 +409,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_queueRequest(lean_object*, lea
 LEAN_EXPORT lean_object* l_Lean_RBTree_toArray___at___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_publishDiagnostics___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_foldM___at_Lean_Server_FileWorker_mainLoop___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_RpcSession_hasExpired(lean_object*, lean_object*);
+lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_1144____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_ordRequestID____x40_Lean_Data_JsonRpc___hyg_133_(lean_object*, lean_object*);
 extern lean_object* l_Task_Priority_dedicated;
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_reportSnapshots_go___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -668,7 +668,7 @@ static lean_object* _init_l___private_Lean_Server_FileWorker_0__Lean_Server_File
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("$/lean/ileanInfoUpdate", 22);
+x_1 = lean_mk_string_unchecked("$/lean/ileanInfoUpdate", 22, 22);
 return x_1;
 }
 }
@@ -694,7 +694,7 @@ static lean_object* _init_l___private_Lean_Server_FileWorker_0__Lean_Server_File
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("$/lean/ileanInfoFinal", 21);
+x_1 = lean_mk_string_unchecked("$/lean/ileanInfoFinal", 21, 21);
 return x_1;
 }
 }
@@ -720,7 +720,7 @@ static lean_object* _init_l___private_Lean_Server_FileWorker_0__Lean_Server_File
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("$/lean/importClosure", 20);
+x_1 = lean_mk_string_unchecked("$/lean/importClosure", 20, 20);
 return x_1;
 }
 }
@@ -802,7 +802,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_initFn____x40_Lean_Server_Fil
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("server", 6);
+x_1 = lean_mk_string_unchecked("server", 6, 6);
 return x_1;
 }
 }
@@ -810,7 +810,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_initFn____x40_Lean_Server_Fil
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reportDelayMs", 13);
+x_1 = lean_mk_string_unchecked("reportDelayMs", 13, 13);
 return x_1;
 }
 }
@@ -828,7 +828,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_initFn____x40_Lean_Server_Fil
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(server) time in milliseconds to wait before reporting progress and diagnostics on document edit in order to reduce flickering\n\nThis option can only be set on the command line, not in the lakefile or via `set_option`.", 217);
+x_1 = lean_mk_string_unchecked("(server) time in milliseconds to wait before reporting progress and diagnostics on document edit in order to reduce flickering\n\nThis option can only be set on the command line, not in the lakefile or via `set_option`.", 217, 217);
 return x_1;
 }
 }
@@ -850,7 +850,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_initFn____x40_Lean_Server_Fil
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -858,7 +858,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_initFn____x40_Lean_Server_Fil
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Server", 6);
+x_1 = lean_mk_string_unchecked("Server", 6, 6);
 return x_1;
 }
 }
@@ -866,7 +866,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_initFn____x40_Lean_Server_Fil
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("FileWorker", 10);
+x_1 = lean_mk_string_unchecked("FileWorker", 10, 10);
 return x_1;
 }
 }
@@ -890,7 +890,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_2 = l_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker___hyg_296____closed__3;
 x_3 = l_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker___hyg_296____closed__5;
 x_4 = l_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker___hyg_296____closed__9;
-x_5 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____spec__1(x_2, x_3, x_4, x_1);
+x_5 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_1144____spec__1(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
@@ -898,7 +898,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_instImpl____x40_Lean_Server_F
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("MemorizedInteractiveDiagnostics", 31);
+x_1 = lean_mk_string_unchecked("MemorizedInteractiveDiagnostics", 31, 31);
 return x_1;
 }
 }
@@ -993,7 +993,7 @@ static lean_object* _init_l_Lean_Json_toStructured_x3f___at___private_Lean_Serve
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected structured object, got '", 33);
+x_1 = lean_mk_string_unchecked("expected structured object, got '", 33, 33);
 return x_1;
 }
 }
@@ -1001,7 +1001,7 @@ static lean_object* _init_l_Lean_Json_toStructured_x3f___at___private_Lean_Serve
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -1037,7 +1037,7 @@ static lean_object* _init_l___private_Lean_Server_FileWorker_0__Lean_Server_File
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("textDocument/publishDiagnostics", 31);
+x_1 = lean_mk_string_unchecked("textDocument/publishDiagnostics", 31, 31);
 return x_1;
 }
 }
@@ -4243,7 +4243,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_setupImports___lambda__5___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Imports are out of date and must be rebuilt; use the \"Restart File\" command in your editor.", 91);
+x_1 = lean_mk_string_unchecked("Imports are out of date and must be rebuilt; use the \"Restart File\" command in your editor.", 91, 91);
 return x_1;
 }
 }
@@ -4730,7 +4730,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_initializeWorker_mkLspOutputC
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("$/lean/fileProgress", 19);
+x_1 = lean_mk_string_unchecked("$/lean/fileProgress", 19, 19);
 return x_1;
 }
 }
@@ -10221,7 +10221,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_handleStaleDependency___rarg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Imports are out of date and should be rebuilt; use the \"Restart File\" command in your editor.", 93);
+x_1 = lean_mk_string_unchecked("Imports are out of date and should be rebuilt; use the \"Restart File\" command in your editor.", 93, 93);
 return x_1;
 }
 }
@@ -13452,7 +13452,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_parseParams___rarg___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Got param with wrong structure: ", 32);
+x_1 = lean_mk_string_unchecked("Got param with wrong structure: ", 32, 32);
 return x_1;
 }
 }
@@ -13460,7 +13460,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_parseParams___rarg___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -13468,7 +13468,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_parseParams___rarg___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -13728,7 +13728,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_handleNotification___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("textDocument/didChange", 22);
+x_1 = lean_mk_string_unchecked("textDocument/didChange", 22, 22);
 return x_1;
 }
 }
@@ -13736,7 +13736,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_handleNotification___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("$/cancelRequest", 15);
+x_1 = lean_mk_string_unchecked("$/cancelRequest", 15, 15);
 return x_1;
 }
 }
@@ -13744,7 +13744,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_handleNotification___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("$/lean/staleDependency", 22);
+x_1 = lean_mk_string_unchecked("$/lean/staleDependency", 22, 22);
 return x_1;
 }
 }
@@ -13752,7 +13752,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_handleNotification___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("$/lean/rpc/release", 18);
+x_1 = lean_mk_string_unchecked("$/lean/rpc/release", 18, 18);
 return x_1;
 }
 }
@@ -13760,7 +13760,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_handleNotification___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("$/lean/rpc/keepAlive", 20);
+x_1 = lean_mk_string_unchecked("$/lean/rpc/keepAlive", 20, 20);
 return x_1;
 }
 }
@@ -13768,7 +13768,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_handleNotification___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Got unsupported notification method: ", 37);
+x_1 = lean_mk_string_unchecked("Got unsupported notification method: ", 37, 37);
 return x_1;
 }
 }
@@ -18895,7 +18895,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_handleRequest___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("$/lean/rpc/connect", 18);
+x_1 = lean_mk_string_unchecked("$/lean/rpc/connect", 18, 18);
 return x_1;
 }
 }
@@ -18903,7 +18903,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_handleRequest___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("$/lean/rpc/call", 15);
+x_1 = lean_mk_string_unchecked("$/lean/rpc/call", 15, 15);
 return x_1;
 }
 }
@@ -18911,7 +18911,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_handleRequest___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("textDocument/completion", 23);
+x_1 = lean_mk_string_unchecked("textDocument/completion", 23, 23);
 return x_1;
 }
 }
@@ -18930,7 +18930,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_handleRequest___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Widget", 6);
+x_1 = lean_mk_string_unchecked("Widget", 6, 6);
 return x_1;
 }
 }
@@ -18938,7 +18938,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_handleRequest___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("getInteractiveDiagnostics", 25);
+x_1 = lean_mk_string_unchecked("getInteractiveDiagnostics", 25, 25);
 return x_1;
 }
 }
@@ -18957,7 +18957,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_handleRequest___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Outdated RPC session", 20);
+x_1 = lean_mk_string_unchecked("Outdated RPC session", 20, 20);
 return x_1;
 }
 }
@@ -19782,7 +19782,7 @@ static lean_object* _init_l_Lean_RBNode_foldM___at_Lean_Server_FileWorker_mainLo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\"", 1);
+x_1 = lean_mk_string_unchecked("\"", 1, 1);
 return x_1;
 }
 }
@@ -19790,7 +19790,7 @@ static lean_object* _init_l_Lean_RBNode_foldM___at_Lean_Server_FileWorker_mainLo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Failed responding to request ", 29);
+x_1 = lean_mk_string_unchecked("Failed responding to request ", 29, 29);
 return x_1;
 }
 }
@@ -19798,7 +19798,7 @@ static lean_object* _init_l_Lean_RBNode_foldM___at_Lean_Server_FileWorker_mainLo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -19806,7 +19806,7 @@ static lean_object* _init_l_Lean_RBNode_foldM___at_Lean_Server_FileWorker_mainLo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -20470,7 +20470,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_mainLoop___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Got invalid JSON-RPC message", 28);
+x_1 = lean_mk_string_unchecked("Got invalid JSON-RPC message", 28, 28);
 return x_1;
 }
 }
@@ -20478,7 +20478,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_mainLoop___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("exit", 4);
+x_1 = lean_mk_string_unchecked("exit", 4, 4);
 return x_1;
 }
 }
@@ -21499,7 +21499,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at_Lean_Server_FileWorker_run
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("workspace/semanticTokens/refresh", 32);
+x_1 = lean_mk_string_unchecked("workspace/semanticTokens/refresh", 32, 32);
 return x_1;
 }
 }
@@ -21854,7 +21854,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Expected method '", 17);
+x_1 = lean_mk_string_unchecked("Expected method '", 17, 17);
 return x_1;
 }
 }
@@ -21862,7 +21862,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', got method '", 15);
+x_1 = lean_mk_string_unchecked("', got method '", 15, 15);
 return x_1;
 }
 }
@@ -21870,7 +21870,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("processId", 9);
+x_1 = lean_mk_string_unchecked("processId", 9, 9);
 return x_1;
 }
 }
@@ -21878,7 +21878,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("clientInfo", 10);
+x_1 = lean_mk_string_unchecked("clientInfo", 10, 10);
 return x_1;
 }
 }
@@ -21886,7 +21886,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rootUri", 7);
+x_1 = lean_mk_string_unchecked("rootUri", 7, 7);
 return x_1;
 }
 }
@@ -21894,7 +21894,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initializationOptions", 21);
+x_1 = lean_mk_string_unchecked("initializationOptions", 21, 21);
 return x_1;
 }
 }
@@ -21902,7 +21902,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("capabilities", 12);
+x_1 = lean_mk_string_unchecked("capabilities", 12, 12);
 return x_1;
 }
 }
@@ -21910,7 +21910,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Unexpected param '", 18);
+x_1 = lean_mk_string_unchecked("Unexpected param '", 18, 18);
 return x_1;
 }
 }
@@ -21918,7 +21918,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' for method '", 14);
+x_1 = lean_mk_string_unchecked("' for method '", 14, 14);
 return x_1;
 }
 }
@@ -21926,7 +21926,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'\n", 2);
+x_1 = lean_mk_string_unchecked("'\n", 2, 2);
 return x_1;
 }
 }
@@ -21934,7 +21934,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("trace", 5);
+x_1 = lean_mk_string_unchecked("trace", 5, 5);
 return x_1;
 }
 }
@@ -21942,7 +21942,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("workspaceFolders", 16);
+x_1 = lean_mk_string_unchecked("workspaceFolders", 16, 16);
 return x_1;
 }
 }
@@ -21950,7 +21950,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("2.0", 3);
+x_1 = lean_mk_string_unchecked("2.0", 3, 3);
 return x_1;
 }
 }
@@ -21968,7 +21968,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("jsonrpc", 7);
+x_1 = lean_mk_string_unchecked("jsonrpc", 7, 7);
 return x_1;
 }
 }
@@ -21988,7 +21988,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("method", 6);
+x_1 = lean_mk_string_unchecked("method", 6, 6);
 return x_1;
 }
 }
@@ -21996,7 +21996,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("params", 6);
+x_1 = lean_mk_string_unchecked("params", 6, 6);
 return x_1;
 }
 }
@@ -22004,7 +22004,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Expected JSON-RPC request, got: '", 33);
+x_1 = lean_mk_string_unchecked("Expected JSON-RPC request, got: '", 33, 33);
 return x_1;
 }
 }
@@ -22012,7 +22012,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("result", 6);
+x_1 = lean_mk_string_unchecked("result", 6, 6);
 return x_1;
 }
 }
@@ -22020,7 +22020,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("id", 2);
+x_1 = lean_mk_string_unchecked("id", 2, 2);
 return x_1;
 }
 }
@@ -22040,7 +22040,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("message", 7);
+x_1 = lean_mk_string_unchecked("message", 7, 7);
 return x_1;
 }
 }
@@ -22048,7 +22048,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("data", 4);
+x_1 = lean_mk_string_unchecked("data", 4, 4);
 return x_1;
 }
 }
@@ -22056,7 +22056,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("code", 4);
+x_1 = lean_mk_string_unchecked("code", 4, 4);
 return x_1;
 }
 }
@@ -22064,7 +22064,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("error", 5);
+x_1 = lean_mk_string_unchecked("error", 5, 5);
 return x_1;
 }
 }
@@ -22688,7 +22688,7 @@ lean_inc(x_23);
 x_27 = l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonInitializeParams___spec__2(x_23, x_26);
 x_28 = l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__5;
 lean_inc(x_23);
-x_29 = l_Lean_Json_getObjValAs_x3f___at___private_Lean_Message_0__Lean_fromJsonBaseMessage____x40_Lean_Message___hyg_2442____spec__1(x_23, x_28);
+x_29 = l_Lean_Json_getObjValAs_x3f___at___private_Lean_Message_0__Lean_fromJsonBaseMessage____x40_Lean_Message___hyg_2574____spec__1(x_23, x_28);
 x_30 = l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__6;
 lean_inc(x_23);
 x_31 = l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonInitializeParams___spec__3(x_23, x_30);
@@ -28210,7 +28210,7 @@ static lean_object* _init_l_IO_FS_Stream_readLspRequestAs___at_Lean_Server_FileW
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Cannot read LSP request: ", 25);
+x_1 = lean_mk_string_unchecked("Cannot read LSP request: ", 25, 25);
 return x_1;
 }
 }
@@ -28325,7 +28325,7 @@ static lean_object* _init_l_IO_FS_Stream_readNotificationAs___at_Lean_Server_Fil
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Expected JSON-RPC notification, got: '", 38);
+x_1 = lean_mk_string_unchecked("Expected JSON-RPC notification, got: '", 38, 38);
 return x_1;
 }
 }
@@ -29606,7 +29606,7 @@ static lean_object* _init_l_IO_FS_Stream_readLspNotificationAs___at_Lean_Server_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Cannot read LSP notification: ", 30);
+x_1 = lean_mk_string_unchecked("Cannot read LSP notification: ", 30, 30);
 return x_1;
 }
 }
@@ -29888,7 +29888,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_initAndRunWorker___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fwIn.txt", 8);
+x_1 = lean_mk_string_unchecked("fwIn.txt", 8, 8);
 return x_1;
 }
 }
@@ -29896,7 +29896,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_initAndRunWorker___closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fwOut.txt", 9);
+x_1 = lean_mk_string_unchecked("fwOut.txt", 9, 9);
 return x_1;
 }
 }
@@ -29904,7 +29904,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_initAndRunWorker___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initialize", 10);
+x_1 = lean_mk_string_unchecked("initialize", 10, 10);
 return x_1;
 }
 }
@@ -29912,7 +29912,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_initAndRunWorker___closed__4(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("textDocument/didOpen", 20);
+x_1 = lean_mk_string_unchecked("textDocument/didOpen", 20, 20);
 return x_1;
 }
 }
@@ -29920,7 +29920,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_initAndRunWorker___closed__5(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -29928,7 +29928,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_initAndRunWorker___closed__6(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("] ", 2);
+x_1 = lean_mk_string_unchecked("] ", 2, 2);
 return x_1;
 }
 }
@@ -30180,7 +30180,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_workerMain___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("worker initialization error: ", 29);
+x_1 = lean_mk_string_unchecked("worker initialization error: ", 29, 29);
 return x_1;
 }
 }

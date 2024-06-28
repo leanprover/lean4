@@ -238,11 +238,6 @@ section ServerM
   def findFileWorker? (uri : DocumentUri) : ServerM (Option FileWorker) :=
     return (← (←read).fileWorkersRef.get).find? uri
 
-  def findFileWorker! (uri : DocumentUri) : ServerM FileWorker := do
-    let some fw ← findFileWorker? uri
-      | throwServerError s!"cannot find open document '{uri}'"
-    return fw
-
   def eraseFileWorker (uri : DocumentUri) : ServerM Unit := do
     let s ← read
     s.importData.modify (·.eraseImportsOf uri)
@@ -395,7 +390,8 @@ section ServerM
     updateFileWorkers fw
 
   def terminateFileWorker (uri : DocumentUri) : ServerM Unit := do
-    let fw ← findFileWorker! uri
+    let some fw ← findFileWorker? uri
+      | return
     try
       fw.stdin.writeLspMessage (Message.notification "exit" none)
     catch _ =>
@@ -409,7 +405,9 @@ section ServerM
     eraseFileWorker uri
 
   def handleCrash (uri : DocumentUri) (queuedMsgs : Array JsonRpc.Message) : ServerM Unit := do
-    updateFileWorkers { ←findFileWorker! uri with state := WorkerState.crashed queuedMsgs }
+    let some fw ← findFileWorker? uri
+      | return
+    updateFileWorkers { fw with state := WorkerState.crashed queuedMsgs }
 
   /-- Tries to write a message, sets the state of the FileWorker to `crashed` if it does not succeed
       and restarts the file worker if the `crashed` flag was already set. Just logs an error if
@@ -423,12 +421,7 @@ section ServerM
       (restartCrashedWorker := false)
       : ServerM Unit := do
     let some fw ← findFileWorker? uri
-      | do
-        let errorMsg :=
-          s!"Cannot send message to unknown document '{uri}':\n"
-          ++ s!"{(toJson msg).compress}"
-        (←read).hLog.putStrLn errorMsg
-        return
+      | return
     match fw.state with
     | WorkerState.crashed queuedMsgs =>
       let mut queuedMsgs := queuedMsgs
@@ -439,7 +432,8 @@ section ServerM
       -- restart the crashed FileWorker
       eraseFileWorker uri
       startFileWorker fw.doc
-      let newFw ← findFileWorker! uri
+      let some newFw ← findFileWorker? uri
+        | throwServerError "Cannot find file worker for '{uri}'."
       let mut crashedMsgs := #[]
       -- try to discharge all queued msgs, tracking the ones that we can't discharge
       for msg in queuedMsgs do
@@ -735,7 +729,9 @@ section NotificationHandling
   def handleDidChange (p : DidChangeTextDocumentParams) : ServerM Unit := do
     let doc := p.textDocument
     let changes := p.contentChanges
-    let fw ← findFileWorker! p.textDocument.uri
+    let some fw ← findFileWorker? p.textDocument.uri
+      -- Global search and replace in VS Code will send `didChange` to files that were never opened.
+      | return
     let oldDoc := fw.doc
     let newVersion := doc.version?.getD 0
     if changes.isEmpty then
@@ -1042,17 +1038,48 @@ def initAndRunWatchdogAux : ServerM Unit := do
   let st ← read
   try
     discard $ st.hIn.readLspNotificationAs "initialized" InitializedParams
+    st.hOut.writeLspRequest {
+      id := RequestID.str "register_lean_watcher"
+      method := "client/registerCapability"
+      param := some {
+        registrations := #[ {
+          id := "lean_watcher"
+          method := "workspace/didChangeWatchedFiles"
+          registerOptions := some <| toJson {
+            watchers := #[ { globPattern := "**/*.lean" }, { globPattern := "**/*.ilean" } ]
+          : DidChangeWatchedFilesRegistrationOptions }
+        } ]
+      : RegistrationParams }
+    }
     let clientTask ← runClientTask
     mainLoop clientTask
   catch err =>
     shutdown
     throw err
-  /- NOTE(WN): It looks like instead of sending the `exit` notification,
-  VSCode just closes the stream. In that case, pretend we got an `exit`. -/
-  let Message.notification "exit" none ←
-    try st.hIn.readLspMessage
-    catch _ => pure (Message.notification "exit" none)
-    | throwServerError "Got `shutdown` request, expected an `exit` notification"
+
+  while true do
+    let msg: JsonRpc.Message ←
+      try
+        st.hIn.readLspMessage
+      catch _ =>
+        /-
+        NOTE(WN): It looks like instead of sending the `exit` notification,
+        VSCode sometimes just closes the stream. In that case, pretend we got an `exit`.
+        -/
+        pure (Message.notification "exit" none)
+    match msg with
+    | .notification "exit" none =>
+      break
+    | .request id _ _ =>
+      -- The LSP spec suggests that requests after 'shutdown' should be errored in this manner.
+      st.hOut.writeLspResponseError {
+        id,
+        code := .invalidRequest,
+        message := "Request received after 'shutdown' request."
+      }
+    | _ =>
+      -- Ignore all other message types.
+      continue
 
 def findWorkerPath : IO System.FilePath := do
   let mut workerPath ← IO.appPath
@@ -1110,19 +1137,6 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
       }
       : InitializeResult
     }
-  }
-  o.writeLspRequest {
-    id := RequestID.str "register_lean_watcher"
-    method := "client/registerCapability"
-    param := some {
-      registrations := #[ {
-        id := "lean_watcher"
-        method := "workspace/didChangeWatchedFiles"
-        registerOptions := some <| toJson {
-          watchers := #[ { globPattern := "**/*.lean" }, { globPattern := "**/*.ilean" } ]
-        : DidChangeWatchedFilesRegistrationOptions }
-      } ]
-    : RegistrationParams }
   }
   ReaderT.run initAndRunWatchdogAux {
     hIn              := i

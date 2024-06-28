@@ -13,18 +13,36 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # see ci.yml
+  configure:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.result }}
+    steps:
+      - name: Configure build matrix
+        id: set-matrix
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let large = ${{ github.repository == 'leanprover/lean4' }};
+            let matrix = [
+              {
+                "name": "Nix Linux",
+                "os": large ? "nscloud-ubuntu-22.04-amd64-8x8" : "ubuntu-latest",
+              }
+            ];
+            console.log(`matrix:\n${JSON.stringify(matrix, null, 2)}`);
+            return matrix;
+
   Build:
+    needs: [configure]
     runs-on: ${{ matrix.os }}
     defaults:
       run:
         shell: nix run .#ciShell -- bash -euxo pipefail {0}
     strategy:
       matrix:
-        include:
-          - name: Nix Linux
-            os: ubuntu-latest
-          #- name: Nix macOS
-          #  os: macos-latest
+        include: ${{fromJson(needs.configure.outputs.matrix)}}
       # complete all jobs
       fail-fast: false
     name: ${{ matrix.name }}

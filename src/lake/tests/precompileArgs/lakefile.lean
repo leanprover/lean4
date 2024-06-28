@@ -6,4 +6,5 @@ package precompileArgs
 @[default_target]
 lean_lib Foo where
   precompileModules := true
-  moreLinkArgs := #["-lBaz"]
+  platformIndependent := if get_config? platformIndependent |>.isSome then true else none
+  moreLinkArgs := if let some cfg := get_config? linkArgs then cfg.splitOn " " |>.toArray else #[]

@@ -19,6 +19,7 @@ structure Literal where
   n     : Nat
   /-- Actual value. -/
   value : BitVec n
+  deriving DecidableEq, Repr
 
 /--
 Try to convert `OfNat.ofNat`/`BitVec.OfNat` application into a
@@ -226,6 +227,9 @@ builtin_dsimproc [simp, seval] reduceOfNat (BitVec.ofNat _ _) := fun e => do
   let bv := BitVec.ofNat n v
   if bv.toNat == v then return .continue -- already normalized
   return .done <| toExpr (BitVec.ofNat n v)
+
+builtin_simproc [simp, seval] reduceEq  (( _ : BitVec _) = _)  := reduceBinPred ``Eq 3 (. = .)
+builtin_simproc [simp, seval] reduceNe  (( _ : BitVec _) ≠ _)  := reduceBinPred ``Ne 3 (. ≠ .)
 
 /-- Simplification procedure for `<` on `BitVec`s. -/
 builtin_simproc [simp, seval] reduceLT (( _ : BitVec _) < _)  := reduceBinPred ``LT.lt 4 (· < ·)

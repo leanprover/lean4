@@ -96,13 +96,31 @@ structure Context where
   invalidating the cache.
   -/
   lctxInitIndices   : Nat := 0
+  /--
+  If `inDSimp := true`, then `simp` is in `dsimp` mode, and only applying
+  transformations that presereve definitional equality.
+  -/
+  inDSimp : Bool := false
   deriving Inhabited
 
 def Context.isDeclToUnfold (ctx : Context) (declName : Name) : Bool :=
   ctx.simpTheorems.isDeclToUnfold declName
 
--- We should use `PHashMap` because we backtrack the contents of `UsedSimps`
-abbrev UsedSimps := PHashMap Origin Nat
+structure UsedSimps where
+  -- We should use `PHashMap` because we backtrack the contents of `UsedSimps`
+  -- The natural number tracks the insertion order
+  map  : PHashMap Origin Nat := {}
+  size : Nat := 0
+  deriving Inhabited
+
+def UsedSimps.insert (s : UsedSimps) (thmId : Origin) : UsedSimps :=
+  if s.map.contains thmId then
+    s
+  else match s with
+    | { map, size } => { map := map.insert thmId size, size := size + 1 }
+
+def UsedSimps.toArray (s : UsedSimps) : Array Origin :=
+  s.map.toArray.qsort (·.2 < ·.2) |>.map (·.1)
 
 structure Diagnostics where
   /-- Number of times each simp theorem has been used/applied. -/
@@ -312,6 +330,13 @@ def getSimpTheorems : SimpM SimpTheoremsArray :=
 def getSimpCongrTheorems : SimpM SimpCongrTheorems :=
   return (← readThe Context).congrTheorems
 
+/--
+Returns `true` if `simp` is in `dsimp` mode.
+That is, only transformations that preserve definitional equality should be applied.
+-/
+def inDSimp : SimpM Bool :=
+  return (← readThe Context).inDSimp
+
 @[inline] def withPreservedCache (x : SimpM α) : SimpM α := do
   -- Recall that `cache.map₁` should be used linearly but `cache.map₂` is great for copies.
   let savedMap₂   := (← get).cache.map₂
@@ -355,9 +380,7 @@ def recordSimpTheorem (thmId : Origin) : SimpM Unit := do
       else
         pure thmId
     | _ => pure thmId
-  modify fun s => if s.usedTheorems.contains thmId then s else
-    let n := s.usedTheorems.size
-    { s with usedTheorems := s.usedTheorems.insert thmId n }
+  modify fun s => { s with usedTheorems := s.usedTheorems.insert thmId }
 
 def recordCongrTheorem (declName : Name) : SimpM Unit := do
   modifyDiag fun s =>

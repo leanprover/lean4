@@ -642,7 +642,7 @@ instance : LawfulBEq String := inferInstance
 
 /-! # Logical connectives and equality -/
 
-@[inherit_doc True.intro] def trivial : True := ⟨⟩
+@[inherit_doc True.intro] theorem trivial : True := ⟨⟩
 
 theorem mt {a b : Prop} (h₁ : a → b) (h₂ : ¬b) : ¬a :=
   fun ha => h₂ (h₁ ha)
@@ -1173,7 +1173,7 @@ def Prod.lexLt [LT α] [LT β] (s : α × β) (t : α × β) : Prop :=
   s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)
 
 instance Prod.lexLtDec
-    [LT α] [LT β] [DecidableEq α] [DecidableEq β]
+    [LT α] [LT β] [DecidableEq α]
     [(a b : α) → Decidable (a < b)] [(a b : β) → Decidable (a < b)]
     : (s t : α × β) → Decidable (Prod.lexLt s t) :=
   fun _ _ => inferInstanceAs (Decidable (_ ∨ _))
@@ -1190,6 +1190,11 @@ by applying `f` to the first component and `g` to the second.
 def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ : Type v₂}
     (f : α₁ → α₂) (g : β₁ → β₂) : α₁ × β₁ → α₂ × β₂
   | (a, b) => (f a, g b)
+
+@[simp] theorem Prod.map_apply (f : α → β) (g : γ → δ) (x) (y) :
+    Prod.map f g (x, y) = (f x, g y) := rfl
+@[simp] theorem Prod.map_fst (f : α → β) (g : γ → δ) (x) : (Prod.map f g x).1 = f x.1 := rfl
+@[simp] theorem Prod.map_snd (f : α → β) (g : γ → δ) (x) : (Prod.map f g x).2 = g x.2 := rfl
 
 /-! # Dependent products -/
 

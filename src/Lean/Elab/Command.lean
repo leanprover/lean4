@@ -81,7 +81,10 @@ Remark: see comment at TermElabM
 @[always_inline]
 instance : Monad CommandElabM := let i := inferInstanceAs (Monad CommandElabM); { pure := i.pure, bind := i.bind }
 
-/-- Like `Core.tryCatch` but do catch runtime exceptions. -/
+/--
+Like `Core.tryCatchRuntimeEx`; runtime errors are generally used to abort term elaboration, so we do
+want to catch and process them at the command level.
+-/
 @[inline] protected def tryCatch (x : CommandElabM α) (h : Exception → CommandElabM α) :
     CommandElabM α := do
   try

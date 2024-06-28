@@ -187,10 +187,17 @@ def resolveGlobalName (env : Environment) (ns : Name) (openDecls : List OpenDecl
 
 /-! # Namespace resolution -/
 
-def resolveNamespaceUsingScope? (env : Environment) (n : Name) : Name → Option Name
-  | .anonymous    => if env.isNamespace n then some n else none
-  | ns@(.str p _) => if env.isNamespace (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingScope? env n p
-  | _             => unreachable!
+def resolveNamespaceUsingScope? (env : Environment) (n : Name) (ns : Name) : Option Name :=
+  match ns with
+  | .str p _ =>
+    if env.isNamespace (ns ++ n) then
+      some (ns ++ n)
+    else
+      resolveNamespaceUsingScope? env n p
+  | .anonymous =>
+    let n := n.replacePrefix rootNamespace .anonymous
+    if env.isNamespace n then some n else none
+  | _ => unreachable!
 
 def resolveNamespaceUsingOpenDecls (env : Environment) (n : Name) : List OpenDecl → List Name
   | [] => []
@@ -307,7 +314,7 @@ def ensureNoOverload [Monad m] [MonadError m] (n : Name) (cs : List Name) : m Na
 def resolveGlobalConstNoOverloadCore [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (n : Name) : m Name := do
   ensureNoOverload n (← resolveGlobalConstCore n)
 
-def preprocessSyntaxAndResolve [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (stx : Syntax) (k : Name → m (List Name)) : m (List Name) := do
+def preprocessSyntaxAndResolve [Monad m] [MonadEnv m] [MonadError m] (stx : Syntax) (k : Name → m (List Name)) : m (List Name) := do
   match stx with
   | .ident _ _ n pre => do
     let pre := pre.filterMap fun

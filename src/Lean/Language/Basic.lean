@@ -206,11 +206,12 @@ abbrev SnapshotTree.children : SnapshotTree → Array (SnapshotTask SnapshotTree
 partial def SnapshotTree.format : SnapshotTree → Format := go none
 where go range? s :=
   let range := match range? with
-    | some range => f!"{range.start}..{range.stop}"
+    | some range => f!"{range.start}..{range.stop} "
     | none => ""
+  let element := f!"{s.element.diagnostics.msgLog.unreported.size} diagnostics"
   let children := Std.Format.prefixJoin .line <|
     s.children.toList.map fun c => go c.range? c.get
-  .nestD f!"• {range}{children}"
+  .nestD f!"• {range}{element}{children}"
 
 /--
   Helper class for projecting a heterogeneous hierarchy of snapshot classes to a homogeneous

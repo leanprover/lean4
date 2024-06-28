@@ -168,10 +168,7 @@ theorem getLsb_ofBool (b : Bool) (i : Nat) : (BitVec.ofBool b).getLsb i = ((i = 
   rcases b with rfl | rfl
   · simp [ofBool]
   · simp only [ofBool, ofNat_eq_ofNat, cond_true, getLsb_ofNat, Bool.and_true]
-    by_cases hi : (i = 0)
-    · simp [hi]
-    · simp [hi]
-      omega
+    by_cases hi : i = 0 <;> simp [hi] <;> omega
 
 /-! ### msb -/
 

@@ -301,3 +301,43 @@ termination_by structurally x => x
 end
 
 end DifferentTypes
+
+namespace FixedIndex
+
+/- Do we run into problems if one of the indices is part of the “fixed prefix”? -/
+
+inductive T : Nat → Type
+  | a : T 37
+  | b : T n → T n
+
+def T.size (n : Nat) (start : Nat) : T n → Nat
+  | a => start
+  | b t => 1 + T.size n start t
+termination_by structurally t => t
+
+namespace Mutual
+mutual
+def T.size1 (n : Nat) (start : Nat) : T n → Nat
+  | .a => 0
+  | .b t => 1 + T.size2 n start t
+termination_by structurally t => t
+
+def T.size2 (n : Nat) (start : Nat) : T n → Nat
+  | .a => 0
+  | .b t => 1 + T.size1 n start t
+termination_by structurally t => t
+end
+
+end Mutual
+
+/--
+error: its type FixedIndex.T is an inductive family and indices are not variables
+  T 37
+-/
+#guard_msgs in
+def T.size2 : T 37 → Nat
+  | a => 0
+  | b t => 1 + T.size2 t
+termination_by structurally t => t
+
+end FixedIndex

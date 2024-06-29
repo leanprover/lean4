@@ -25,6 +25,8 @@ structure Env where
   lean : LeanInstall
   /-- The Elan installation (if any) of the environment. -/
   elan? : Option ElanInstall
+  /-- The Reservoir API endpoint URL (e.g., `https://reservoir.lean-lang.org/api`). -/
+  reservoirApiUrl : String
   /-- Overrides the detected Lean's githash as the string Lake uses for Lean traces. -/
   githashOverride : String
   /-- A name-to-URL mapping of URL overrides for the named packages. -/
@@ -44,10 +46,12 @@ structure Env where
 namespace Env
 
 /-- Compute an `Lake.Env` object from the given installs and set environment variables. -/
-def compute (lake : LakeInstall) (lean : LeanInstall) (elan? : Option ElanInstall) : EIO String Env :=
+def compute (lake : LakeInstall) (lean : LeanInstall) (elan? : Option ElanInstall) : EIO String Env := do
+  let reservoirBaseUrl ← getUrlD "RESERVOIR_API_BASE_URL" "https://reservoir.lean-lang.org/api"
   return {
     lake, lean, elan?,
     pkgUrlMap := ← computePkgUrlMap
+    reservoirApiUrl := ← getUrlD "RESERVOIR_API_URL" s!"{reservoirBaseUrl}/v1"
     githashOverride := (← IO.getEnv "LEAN_GITHASH").getD ""
     initToolchain := (← IO.getEnv "ELAN_TOOLCHAIN").getD ""
     initLeanPath := ← getSearchPath "LEAN_PATH",
@@ -61,6 +65,11 @@ where
     match Json.parse urlMapStr |>.bind fromJson? with
     | .ok urlMap => return urlMap
     | .error e => throw s!"'LAKE_PKG_URL_MAP' has invalid JSON: {e}"
+  @[macro_inline] getUrlD var default := do
+    if let some url ← IO.getEnv var then
+      return if url.back == '/' then url.dropRight 1 else url
+    else
+       return default
 
 /--
 The string Lake uses to identify Lean in traces.

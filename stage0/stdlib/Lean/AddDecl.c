@@ -95,6 +95,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_addDecl___spec__2___boxed(l
 LEAN_EXPORT lean_object* l_Lean_Environment_addDecl(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___at_Lean_compileDecl___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 double l_Float_ofScientific(lean_object*, uint8_t, lean_object*);
+static lean_object* l_Lean_Environment_addDecl___closed__1;
 static lean_object* l_Lean_withTraceNode___at_Lean_addDecl___spec__6___lambda__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_addDecl___spec__6___lambda__2(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, double, double, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___at_Lean_addDecl___spec__5___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -102,6 +103,7 @@ LEAN_EXPORT lean_object* l_Lean_Environment_addAndCompile(lean_object*, lean_obj
 static lean_object* l_Lean_withTraceNode___at_Lean_addDecl___spec__6___lambda__3___closed__1;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lean_addDecl___lambda__3___closed__3;
+lean_object* lean_add_decl_without_checking(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_AddDecl___hyg_6____closed__1;
 lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_Profile___hyg_6____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_addDecl___spec__6___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -213,15 +215,35 @@ x_5 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_Profile___hyg_6__
 return x_5;
 }
 }
+static lean_object* _init_l_Lean_Environment_addDecl___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_debug_skipKernelTC;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Environment_addDecl(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; size_t x_5; lean_object* x_6; 
-x_4 = l_Lean_Core_getMaxHeartbeats(x_2);
-x_5 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
-x_6 = lean_add_decl(x_1, x_5, x_3);
-return x_6;
+lean_object* x_4; uint8_t x_5; 
+x_4 = l_Lean_Environment_addDecl___closed__1;
+x_5 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_2, x_4);
+if (x_5 == 0)
+{
+lean_object* x_6; size_t x_7; lean_object* x_8; 
+x_6 = l_Lean_Core_getMaxHeartbeats(x_2);
+x_7 = lean_usize_of_nat(x_6);
+lean_dec(x_6);
+x_8 = lean_add_decl(x_1, x_7, x_3);
+return x_8;
+}
+else
+{
+lean_object* x_9; 
+x_9 = lean_add_decl_without_checking(x_1, x_3);
+return x_9;
+}
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Environment_addDecl___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -3101,7 +3123,9 @@ if (lean_io_result_is_error(res)) return res;
 l_Lean_debug_skipKernelTC = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_debug_skipKernelTC);
 lean_dec_ref(res);
-}l_Lean_logAt___at_Lean_addDecl___spec__5___lambda__1___closed__1 = _init_l_Lean_logAt___at_Lean_addDecl___spec__5___lambda__1___closed__1();
+}l_Lean_Environment_addDecl___closed__1 = _init_l_Lean_Environment_addDecl___closed__1();
+lean_mark_persistent(l_Lean_Environment_addDecl___closed__1);
+l_Lean_logAt___at_Lean_addDecl___spec__5___lambda__1___closed__1 = _init_l_Lean_logAt___at_Lean_addDecl___spec__5___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_logAt___at_Lean_addDecl___spec__5___lambda__1___closed__1);
 l_Lean_logAt___at_Lean_addDecl___spec__5___lambda__2___closed__1 = _init_l_Lean_logAt___at_Lean_addDecl___spec__5___lambda__2___closed__1();
 lean_mark_persistent(l_Lean_logAt___at_Lean_addDecl___spec__5___lambda__2___closed__1);

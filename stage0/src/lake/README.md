@@ -323,13 +323,12 @@ In all of these, the object parameter and its type specifier are optional and th
 
 ## Adding Dependencies
 
-Lake packages can have dependencies. Dependencies are other Lake packages the current package needs in order to function. They can be sourced directly from a local folder (e.g., a subdirectory of the package) or come from remote Git repositories. For example, one can depend on [mathlib](https://github.com/leanprover-community/mathlib4) like so:
+Lake packages can have dependencies. Dependencies are other Lake packages the current package needs in order to function. They can be sourced directly from a local folder (e.g., a subdirectory of the package) or come from remote Git repositories. For example, one can depend on [mathlib](https://reservoir.lean-lang.org/@leanprover-community/mathlib) like so:
 
 ```lean
 package hello
 
-require mathlib from git
-  "https://github.com/leanprover-community/mathlib4.git"
+require "leanprover-community" / "mathlib"
 ```
 
 The next run of `lake build` (or refreshing dependencies in an editor like VSCode) will clone the mathlib repository and build it. Information on the specific revision cloned will then be saved to `lake-manifest.json` to enable reproducibility (i.e., ensure the same version of mathlib is used by future builds). To update `mathlib` after this, you will need to run `lake update` -- other commands do not update resolved dependencies.
@@ -343,10 +342,13 @@ For theorem proving packages which depend on `mathlib`, you can also run `lake n
 The `require` command in Lean Lake configuration follows the general syntax:
 
 ```lean
-require <pkg-name> from <source> [with <options>]
+require ["<scope>" /] <pkg-name> [@ <version>]
+  [from <source>] [with <options>]
 ```
 
 The `from` clause tells Lake where to locate the dependency.
+Without a `from` clause, Lake will lookup the package in the default registry (i.e., [Reservoir](https://reservoir.lean-lang.org/@lean-dojo/LeanCopilot)) and use the information there to download the package at the specified `version`. The optional `scope` is used to disambiguate which package with `pkg-name` to lookup. In Reservoir, this scope is the package owner (e.g., `leanprover` of [@leanprover/doc-gen4](https://reservoir.lean-lang.org/@leanprover/doc-gen4)).
+
 The `with` clause specifies a `NameMap String` of Lake options used to configure the dependency. This is equivalent to passing `-K` options to the dependency on the command line.
 
 ## Supported Sources
@@ -374,11 +376,17 @@ Lake clones the Git repository available at the specified fixed Git `url`, and c
 To `require` a package in a TOML configuration, the parallel syntax for the above examples is:
 
 ```toml
+# A Reservoir dependency
+[[require]]
+name = "<pkg-name>"
+scope = "<scope>"
+version = "<version>"
+options = {<options>}
+
 # A path dependency
 [[require]]
 name = "<pkg-name>"
 path = "<path>"
-options = {<options>}
 
 # A Git dependency
 [[require]]
@@ -386,7 +394,6 @@ name = "<pkg-name>"
 git = "<url>"
 rev = "<rev>"
 subDir = "<subDir>"
-options = {<options>}
 ```
 
 ## GitHub Release Builds

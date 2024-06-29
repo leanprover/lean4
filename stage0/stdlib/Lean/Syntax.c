@@ -70,7 +70,6 @@ static lean_object* l_Lean_Syntax_identComponents___closed__1;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 static lean_object* l___private_Lean_Syntax_0__String_reprRange____x40_Lean_Syntax___hyg_37____closed__10;
 LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDown_loop___at_Lean_Syntax_reprint___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT uint8_t l_String_Range_includes(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Syntax_0__String_reprRange____x40_Lean_Syntax___hyg_37____closed__6;
 static lean_object* l_Lean_isLitKind___closed__10;
@@ -183,6 +182,7 @@ LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDown___rarg___lambda__1(lean_
 LEAN_EXPORT lean_object* l_Lean_Syntax_eqWithInfo___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_MonadTraverser_getCur___rarg(lean_object*, lean_object*);
 lean_object* l_Array_back_x3f___rarg(lean_object*);
+lean_object* l_outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_isEscapedAntiquot___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Syntax_hasMissing___spec__2(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDown_loop___at_Lean_Syntax_hasMissing___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3815,7 +3815,7 @@ if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_16 = l_Lean_instInhabitedSyntax;
-x_17 = l___private_Init_GetElem_0__outOfBounds___rarg(x_16);
+x_17 = l_outOfBounds___rarg(x_16);
 x_18 = l_Lean_Syntax_updateTrailing(x_1, x_17);
 x_19 = lean_array_set(x_5, x_14, x_18);
 lean_dec(x_14);
@@ -3845,7 +3845,7 @@ if (x_25 == 0)
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
 x_26 = l_Lean_instInhabitedSyntax;
-x_27 = l___private_Init_GetElem_0__outOfBounds___rarg(x_26);
+x_27 = l_outOfBounds___rarg(x_26);
 x_28 = l_Lean_Syntax_updateTrailing(x_1, x_27);
 x_29 = lean_array_set(x_5, x_24, x_28);
 lean_dec(x_24);
@@ -5234,7 +5234,7 @@ if (x_39 == 0)
 lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; 
 lean_dec(x_19);
 x_41 = l_Lean_instInhabitedSyntax;
-x_42 = l___private_Init_GetElem_0__outOfBounds___rarg(x_41);
+x_42 = l_outOfBounds___rarg(x_41);
 x_43 = l_Lean_Syntax_instForInTopDown_loop___rarg(x_1, x_4, x_5, x_42, x_17, x_6);
 x_44 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_43, x_40);
 return x_44;
@@ -5874,7 +5874,7 @@ if (x_76 == 0)
 {
 lean_object* x_77; lean_object* x_78; 
 x_77 = l_Lean_instInhabitedSyntax;
-x_78 = l___private_Init_GetElem_0__outOfBounds___rarg(x_77);
+x_78 = l_outOfBounds___rarg(x_77);
 x_53 = x_78;
 goto block_70;
 }
@@ -6048,7 +6048,7 @@ if (x_33 == 0)
 lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 lean_dec(x_9);
 x_34 = l_Lean_instInhabitedSyntax;
-x_35 = l___private_Init_GetElem_0__outOfBounds___rarg(x_34);
+x_35 = l_outOfBounds___rarg(x_34);
 x_36 = l_Lean_Syntax_instForInTopDown_loop___at_Lean_Syntax_reprint___spec__3(x_1, x_35, x_6, x_4);
 if (lean_obj_tag(x_36) == 0)
 {
@@ -6516,7 +6516,7 @@ if (x_29 == 0)
 lean_object* x_30; lean_object* x_31; 
 lean_dec(x_9);
 x_30 = l_Lean_instInhabitedSyntax;
-x_31 = l___private_Init_GetElem_0__outOfBounds___rarg(x_30);
+x_31 = l_outOfBounds___rarg(x_30);
 lean_inc(x_1);
 {
 lean_object* _tmp_2 = x_31;

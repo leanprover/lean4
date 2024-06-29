@@ -84,7 +84,6 @@ LEAN_EXPORT lean_object* l_Lean_Level_addOffset(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Level_0__Lean_reprLevel____x40_Lean_Level___hyg_1022____closed__21;
 LEAN_EXPORT lean_object* l_Lean_Level_isMVar___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_zero___override;
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Level_PP_Result_quote___closed__16;
 LEAN_EXPORT lean_object* l_Lean_Level_Data_hasMVar___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Level_isExplicit(lean_object*);
@@ -180,6 +179,7 @@ static lean_object* l___private_Lean_Level_0__Lean_Level_PP_parenIfFalse___close
 LEAN_EXPORT lean_object* l_Lean_mkLevelMax(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Level_0__Lean_Level_updateIMax_x21Impl___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Level_normLt___boxed(lean_object*, lean_object*);
+lean_object* l_outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_Level_PP_parenIfFalse(lean_object*, uint8_t);
 static lean_object* l_Lean_Level_PP_Result_quote___closed__14;
 LEAN_EXPORT lean_object* l_Lean_Level_substParams_go(lean_object*, lean_object*);
@@ -4301,7 +4301,7 @@ if (x_20 == 0)
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 lean_dec(x_19);
 x_22 = l_Lean_instInhabitedLevel;
-x_23 = l___private_Init_GetElem_0__outOfBounds___rarg(x_22);
+x_23 = l_outOfBounds___rarg(x_22);
 x_24 = l_Lean_Level_getLevelOffset(x_23);
 x_25 = l_Lean_Level_getOffsetAux(x_23, x_3);
 lean_dec(x_23);
@@ -4337,7 +4337,7 @@ if (x_33 == 0)
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
 lean_dec(x_16);
 x_35 = l_Lean_instInhabitedLevel;
-x_36 = l___private_Init_GetElem_0__outOfBounds___rarg(x_35);
+x_36 = l_outOfBounds___rarg(x_35);
 x_37 = l_Lean_Level_getLevelOffset(x_36);
 x_38 = l_Lean_Level_getOffsetAux(x_36, x_3);
 lean_dec(x_36);

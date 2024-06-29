@@ -193,7 +193,6 @@ LEAN_EXPORT lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Lean_mkProj(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Expr_0__Lean_Expr_updateLambda_x21Impl___closed__3;
 static lean_object* l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_3053____closed__32;
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 uint64_t lean_expr_data(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_hasFVarEx___boxed(lean_object*);
 static lean_object* l___private_Lean_Expr_0__Lean_Expr_updateForall_x21Impl___closed__1;
@@ -474,6 +473,7 @@ static lean_object* l_Lean_Expr_getAutoParamTactic_x3f___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Expr_appArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_Data_approxDepth___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_object*, uint8_t);
+lean_object* l_outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Expr_mvarId_x21___closed__2;
 LEAN_EXPORT uint8_t l_Lean_instInhabitedBinderInfo;
 LEAN_EXPORT lean_object* l_Lean_Expr_appArg_x21_x27___boxed(lean_object*);
@@ -30532,7 +30532,7 @@ if (x_16 == 0)
 {
 lean_object* x_49; lean_object* x_50; 
 x_49 = l_Lean_instInhabitedExpr;
-x_50 = l___private_Init_GetElem_0__outOfBounds___rarg(x_49);
+x_50 = l_outOfBounds___rarg(x_49);
 x_22 = x_50;
 goto block_48;
 }
@@ -30550,7 +30550,7 @@ if (x_18 == 0)
 {
 lean_object* x_45; lean_object* x_46; 
 x_45 = l_Lean_instInhabitedExpr;
-x_46 = l___private_Init_GetElem_0__outOfBounds___rarg(x_45);
+x_46 = l_outOfBounds___rarg(x_45);
 x_23 = x_46;
 goto block_44;
 }
@@ -30569,7 +30569,7 @@ if (x_20 == 0)
 lean_object* x_41; lean_object* x_42; 
 lean_dec(x_14);
 x_41 = l_Lean_instInhabitedExpr;
-x_42 = l___private_Init_GetElem_0__outOfBounds___rarg(x_41);
+x_42 = l_outOfBounds___rarg(x_41);
 x_24 = x_42;
 goto block_40;
 }

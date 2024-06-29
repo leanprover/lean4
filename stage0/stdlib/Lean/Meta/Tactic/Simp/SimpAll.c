@@ -40,7 +40,6 @@ LEAN_EXPORT lean_object* l_Lean_mkConstWithLevelParams___at___private_Lean_Meta_
 static lean_object* l_Lean_getConstInfo___at___private_Lean_Meta_Tactic_Simp_SimpAll_0__Lean_Meta_SimpAll_loop___spec__5___closed__4;
 LEAN_EXPORT uint8_t l_Lean_Meta_SimpAll_State_modified___default;
 uint8_t l_Array_contains___at___private_Lean_Class_0__Lean_checkOutParam___spec__1(lean_object*, lean_object*);
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___private_Lean_Meta_Tactic_Simp_SimpAll_0__Lean_Meta_SimpAll_initEntries___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkExpectedTypeHint(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bvar___override(lean_object*);
@@ -99,6 +98,7 @@ lean_object* l_Lean_Meta_simpTarget(lean_object*, lean_object*, lean_object*, le
 LEAN_EXPORT lean_object* l_Lean_addTrace___at___private_Lean_Meta_Tactic_Simp_SimpAll_0__Lean_Meta_SimpAll_loop___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpAll___hyg_2209____closed__13;
 lean_object* l_Lean_FVarId_getDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_outOfBounds___rarg(lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_SimpAll_State_diag___default___closed__2;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
@@ -2958,7 +2958,7 @@ if (x_41 == 0)
 lean_object* x_779; lean_object* x_780; 
 lean_dec(x_39);
 x_779 = l_Lean_Meta_SimpAll_instInhabitedEntry;
-x_780 = l___private_Init_GetElem_0__outOfBounds___rarg(x_779);
+x_780 = l_outOfBounds___rarg(x_779);
 x_43 = x_780;
 goto block_778;
 }

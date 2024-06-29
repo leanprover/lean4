@@ -97,7 +97,6 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emit___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_builtinInitAttr;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitJmp___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT uint8_t l_Nat_anyTR_loop___at_Lean_IR_EmitC_overwriteParam___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_EmitC_emitCase___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getExternEntryFor(lean_object*, lean_object*);
@@ -263,6 +262,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitC_hasMainFn___boxed(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitDeclInit___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitUSet___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_argToCString(lean_object*);
+lean_object* l_outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_declareParams___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1853,7 +1853,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_8 = l_Lean_IR_instInhabitedParam;
-x_9 = l___private_Init_GetElem_0__outOfBounds___rarg(x_8);
+x_9 = l_outOfBounds___rarg(x_8);
 x_10 = lean_ctor_get(x_9, 1);
 lean_inc(x_10);
 lean_dec(x_9);
@@ -5201,7 +5201,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; 
 x_8 = l_Lean_IR_instInhabitedAlt;
-x_9 = l___private_Init_GetElem_0__outOfBounds___rarg(x_8);
+x_9 = l_outOfBounds___rarg(x_8);
 if (lean_obj_tag(x_9) == 0)
 {
 uint8_t x_10; 
@@ -5220,7 +5220,7 @@ lean_dec(x_2);
 if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_16 = l___private_Init_GetElem_0__outOfBounds___rarg(x_8);
+x_16 = l_outOfBounds___rarg(x_8);
 x_17 = l_Lean_IR_AltCore_body(x_16);
 lean_dec(x_16);
 lean_ctor_set(x_9, 1, x_17);
@@ -5265,7 +5265,7 @@ lean_dec(x_2);
 if (x_28 == 0)
 {
 lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
-x_29 = l___private_Init_GetElem_0__outOfBounds___rarg(x_8);
+x_29 = l_outOfBounds___rarg(x_8);
 x_30 = l_Lean_IR_AltCore_body(x_29);
 lean_dec(x_29);
 x_31 = lean_alloc_ctor(0, 2, 0);
@@ -5328,7 +5328,7 @@ if (x_46 == 0)
 {
 lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; 
 x_47 = l_Lean_IR_instInhabitedAlt;
-x_48 = l___private_Init_GetElem_0__outOfBounds___rarg(x_47);
+x_48 = l_outOfBounds___rarg(x_47);
 x_49 = l_Lean_IR_AltCore_body(x_48);
 lean_dec(x_48);
 lean_ctor_set(x_40, 1, x_49);
@@ -5374,7 +5374,7 @@ if (x_60 == 0)
 {
 lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; 
 x_61 = l_Lean_IR_instInhabitedAlt;
-x_62 = l___private_Init_GetElem_0__outOfBounds___rarg(x_61);
+x_62 = l_outOfBounds___rarg(x_61);
 x_63 = l_Lean_IR_AltCore_body(x_62);
 lean_dec(x_62);
 x_64 = lean_alloc_ctor(0, 2, 0);
@@ -6260,7 +6260,7 @@ if (x_15 == 0)
 {
 lean_object* x_43; lean_object* x_44; 
 x_43 = l_Lean_IR_instInhabitedParam;
-x_44 = l___private_Init_GetElem_0__outOfBounds___rarg(x_43);
+x_44 = l_outOfBounds___rarg(x_43);
 x_17 = x_44;
 goto block_42;
 }
@@ -6290,7 +6290,7 @@ if (x_16 == 0)
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
 lean_dec(x_13);
 x_25 = l_Lean_IR_instInhabitedArg;
-x_26 = l___private_Init_GetElem_0__outOfBounds___rarg(x_25);
+x_26 = l_outOfBounds___rarg(x_25);
 x_27 = l_Lean_IR_EmitC_emitArg(x_26, x_6, x_24);
 x_28 = lean_ctor_get(x_27, 1);
 lean_inc(x_28);
@@ -6586,7 +6586,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = l_Lean_IR_instInhabitedArg;
-x_9 = l___private_Init_GetElem_0__outOfBounds___rarg(x_8);
+x_9 = l_outOfBounds___rarg(x_8);
 x_10 = l_Lean_IR_EmitC_emitArg(x_9, x_5, x_6);
 return x_10;
 }
@@ -6892,7 +6892,7 @@ if (x_25 == 0)
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
 lean_dec(x_13);
 x_26 = l_Lean_IR_instInhabitedArg;
-x_27 = l___private_Init_GetElem_0__outOfBounds___rarg(x_26);
+x_27 = l_outOfBounds___rarg(x_26);
 x_28 = l_Lean_IR_EmitC_emitArg(x_27, x_6, x_24);
 x_29 = lean_ctor_get(x_28, 1);
 lean_inc(x_29);
@@ -7905,7 +7905,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 x_8 = l_Lean_IR_instInhabitedArg;
-x_9 = l___private_Init_GetElem_0__outOfBounds___rarg(x_8);
+x_9 = l_outOfBounds___rarg(x_8);
 x_10 = l_Lean_IR_EmitC_emitArg(x_9, x_4, x_5);
 x_11 = !lean_is_exclusive(x_10);
 if (x_11 == 0)
@@ -7986,7 +7986,7 @@ if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; 
 x_35 = l_Lean_IR_instInhabitedParam;
-x_36 = l___private_Init_GetElem_0__outOfBounds___rarg(x_35);
+x_36 = l_outOfBounds___rarg(x_35);
 x_14 = x_36;
 goto block_32;
 }
@@ -8453,7 +8453,7 @@ if (x_14 == 0)
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
 lean_dec(x_13);
 x_26 = l_Lean_IR_instInhabitedArg;
-x_27 = l___private_Init_GetElem_0__outOfBounds___rarg(x_26);
+x_27 = l_outOfBounds___rarg(x_26);
 x_28 = l_Lean_IR_EmitC_emitArg(x_27, x_6, x_25);
 x_29 = lean_ctor_get(x_28, 1);
 lean_inc(x_29);
@@ -10322,7 +10322,7 @@ if (x_12 == 0)
 lean_object* x_13; lean_object* x_14; uint8_t x_15; 
 lean_dec(x_10);
 x_13 = l_Lean_IR_instInhabitedArg;
-x_14 = l___private_Init_GetElem_0__outOfBounds___rarg(x_13);
+x_14 = l_outOfBounds___rarg(x_13);
 x_15 = l_Lean_IR_EmitC_paramEqArg(x_2, x_14);
 lean_dec(x_14);
 if (x_15 == 0)
@@ -10391,7 +10391,7 @@ if (x_12 == 0)
 lean_object* x_13; lean_object* x_14; uint8_t x_15; 
 lean_dec(x_10);
 x_13 = l_Lean_IR_instInhabitedArg;
-x_14 = l___private_Init_GetElem_0__outOfBounds___rarg(x_13);
+x_14 = l_outOfBounds___rarg(x_13);
 x_15 = l_Lean_IR_EmitC_paramEqArg(x_2, x_14);
 lean_dec(x_14);
 if (x_15 == 0)
@@ -10461,7 +10461,7 @@ if (x_12 == 0)
 lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 lean_dec(x_11);
 x_15 = l_Lean_IR_instInhabitedParam;
-x_16 = l___private_Init_GetElem_0__outOfBounds___rarg(x_15);
+x_16 = l_outOfBounds___rarg(x_15);
 x_17 = l_Nat_anyTR_loop___at_Lean_IR_EmitC_overwriteParam___spec__1(x_2, x_16, x_3, x_14);
 lean_dec(x_16);
 if (x_17 == 0)
@@ -10589,13 +10589,13 @@ if (x_15 == 0)
 {
 lean_object* x_17; lean_object* x_18; 
 x_17 = l_Lean_IR_instInhabitedParam;
-x_18 = l___private_Init_GetElem_0__outOfBounds___rarg(x_17);
+x_18 = l_outOfBounds___rarg(x_17);
 if (x_16 == 0)
 {
 lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 lean_dec(x_13);
 x_19 = l_Lean_IR_instInhabitedArg;
-x_20 = l___private_Init_GetElem_0__outOfBounds___rarg(x_19);
+x_20 = l_outOfBounds___rarg(x_19);
 x_21 = l_Lean_IR_EmitC_paramEqArg(x_18, x_20);
 if (x_21 == 0)
 {
@@ -10681,7 +10681,7 @@ if (x_16 == 0)
 lean_object* x_55; lean_object* x_56; uint8_t x_57; 
 lean_dec(x_13);
 x_55 = l_Lean_IR_instInhabitedArg;
-x_56 = l___private_Init_GetElem_0__outOfBounds___rarg(x_55);
+x_56 = l_outOfBounds___rarg(x_55);
 x_57 = l_Lean_IR_EmitC_paramEqArg(x_54, x_56);
 if (x_57 == 0)
 {
@@ -10802,12 +10802,12 @@ if (x_14 == 0)
 {
 lean_object* x_17; lean_object* x_18; 
 x_17 = l_Lean_IR_instInhabitedParam;
-x_18 = l___private_Init_GetElem_0__outOfBounds___rarg(x_17);
+x_18 = l_outOfBounds___rarg(x_17);
 if (x_16 == 0)
 {
 lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 x_19 = l_Lean_IR_instInhabitedArg;
-x_20 = l___private_Init_GetElem_0__outOfBounds___rarg(x_19);
+x_20 = l_outOfBounds___rarg(x_19);
 x_21 = l_Lean_IR_EmitC_paramEqArg(x_18, x_20);
 if (x_21 == 0)
 {
@@ -10899,7 +10899,7 @@ if (x_16 == 0)
 {
 lean_object* x_59; lean_object* x_60; uint8_t x_61; 
 x_59 = l_Lean_IR_instInhabitedArg;
-x_60 = l___private_Init_GetElem_0__outOfBounds___rarg(x_59);
+x_60 = l_outOfBounds___rarg(x_59);
 x_61 = l_Lean_IR_EmitC_paramEqArg(x_58, x_60);
 if (x_61 == 0)
 {
@@ -11027,12 +11027,12 @@ if (x_14 == 0)
 {
 lean_object* x_17; lean_object* x_18; 
 x_17 = l_Lean_IR_instInhabitedParam;
-x_18 = l___private_Init_GetElem_0__outOfBounds___rarg(x_17);
+x_18 = l_outOfBounds___rarg(x_17);
 if (x_16 == 0)
 {
 lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 x_19 = l_Lean_IR_instInhabitedArg;
-x_20 = l___private_Init_GetElem_0__outOfBounds___rarg(x_19);
+x_20 = l_outOfBounds___rarg(x_19);
 x_21 = l_Lean_IR_EmitC_paramEqArg(x_18, x_20);
 lean_dec(x_20);
 if (x_21 == 0)
@@ -11116,7 +11116,7 @@ if (x_16 == 0)
 {
 lean_object* x_55; lean_object* x_56; uint8_t x_57; 
 x_55 = l_Lean_IR_instInhabitedArg;
-x_56 = l___private_Init_GetElem_0__outOfBounds___rarg(x_55);
+x_56 = l_outOfBounds___rarg(x_55);
 x_57 = l_Lean_IR_EmitC_paramEqArg(x_54, x_56);
 lean_dec(x_56);
 if (x_57 == 0)
@@ -12979,7 +12979,7 @@ if (x_13 == 0)
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
 lean_dec(x_12);
 x_17 = l_Lean_IR_instInhabitedParam;
-x_18 = l___private_Init_GetElem_0__outOfBounds___rarg(x_17);
+x_18 = l_outOfBounds___rarg(x_17);
 x_19 = lean_ctor_get(x_18, 0);
 lean_inc(x_19);
 lean_dec(x_18);
@@ -13049,7 +13049,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_8 = l_Lean_IR_instInhabitedParam;
-x_9 = l___private_Init_GetElem_0__outOfBounds___rarg(x_8);
+x_9 = l_outOfBounds___rarg(x_8);
 x_10 = lean_ctor_get(x_9, 1);
 lean_inc(x_10);
 x_11 = l_Lean_IR_EmitC_toCType(x_10);

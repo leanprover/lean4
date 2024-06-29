@@ -50,7 +50,6 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_revFold___at_Lean_Compiler_LCNF_Simp_simp
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT uint8_t l_Lean_RBNode_any___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_mkJpAlt_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__1;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
@@ -98,6 +97,7 @@ LEAN_EXPORT uint8_t l_Lean_RBNode_any___at_Lean_Compiler_LCNF_Simp_JpCasesInfoMa
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_mkJmpArgsAtJp___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_mkJmpArgsAtJp(lean_object*, lean_object*, lean_object*, uint8_t);
+lean_object* l_outOfBounds___rarg(lean_object*);
 lean_object* l_List_map___at_Lean_compileDecl___spec__1(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Simp_JpCases___hyg_3502____closed__1;
 LEAN_EXPORT lean_object* l_Lean_RBNode_revFold___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___spec__4___boxed(lean_object*, lean_object*);
@@ -910,7 +910,7 @@ if (x_64 == 0)
 lean_object* x_65; lean_object* x_66; 
 lean_dec(x_52);
 x_65 = l_Lean_Compiler_LCNF_instInhabitedArg;
-x_66 = l___private_Init_GetElem_0__outOfBounds___rarg(x_65);
+x_66 = l_outOfBounds___rarg(x_65);
 if (lean_obj_tag(x_66) == 1)
 {
 lean_object* x_67; lean_object* x_68; lean_object* x_69; 
@@ -1129,7 +1129,7 @@ if (x_117 == 0)
 lean_object* x_118; lean_object* x_119; 
 lean_dec(x_52);
 x_118 = l_Lean_Compiler_LCNF_instInhabitedArg;
-x_119 = l___private_Init_GetElem_0__outOfBounds___rarg(x_118);
+x_119 = l_outOfBounds___rarg(x_118);
 if (lean_obj_tag(x_119) == 1)
 {
 lean_object* x_120; lean_object* x_121; lean_object* x_122; 
@@ -1372,7 +1372,7 @@ if (x_173 == 0)
 lean_object* x_174; lean_object* x_175; 
 lean_dec(x_52);
 x_174 = l_Lean_Compiler_LCNF_instInhabitedArg;
-x_175 = l___private_Init_GetElem_0__outOfBounds___rarg(x_174);
+x_175 = l_outOfBounds___rarg(x_174);
 if (lean_obj_tag(x_175) == 1)
 {
 lean_object* x_176; lean_object* x_177; lean_object* x_178; 
@@ -2013,7 +2013,7 @@ if (x_28 == 0)
 {
 lean_object* x_30; lean_object* x_31; 
 x_30 = l_Lean_Compiler_LCNF_instInhabitedParam;
-x_31 = l___private_Init_GetElem_0__outOfBounds___rarg(x_30);
+x_31 = l_outOfBounds___rarg(x_30);
 if (x_29 == 0)
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
@@ -2272,7 +2272,7 @@ if (x_15 == 0)
 {
 lean_object* x_61; lean_object* x_62; 
 x_61 = l_Lean_Compiler_LCNF_instInhabitedParam;
-x_62 = l___private_Init_GetElem_0__outOfBounds___rarg(x_61);
+x_62 = l_outOfBounds___rarg(x_61);
 x_47 = x_62;
 goto block_60;
 }
@@ -2816,7 +2816,7 @@ if (x_337 == 0)
 {
 lean_object* x_338; lean_object* x_339; 
 x_338 = l_Lean_Compiler_LCNF_instInhabitedArg;
-x_339 = l___private_Init_GetElem_0__outOfBounds___rarg(x_338);
+x_339 = l_outOfBounds___rarg(x_338);
 if (lean_obj_tag(x_339) == 1)
 {
 lean_object* x_340; 
@@ -4224,7 +4224,7 @@ if (x_436 == 0)
 {
 lean_object* x_437; lean_object* x_438; 
 x_437 = l_Lean_Compiler_LCNF_instInhabitedArg;
-x_438 = l___private_Init_GetElem_0__outOfBounds___rarg(x_437);
+x_438 = l_outOfBounds___rarg(x_437);
 if (lean_obj_tag(x_438) == 1)
 {
 lean_object* x_439; 

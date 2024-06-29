@@ -67,7 +67,7 @@ guessLexFailures.lean:59:6-59:7: error: fail to show termination for
   Mutual.g
   Mutual.h
 with errors
-mutual structural recursion reqiures explicit `termination_by` clauses
+mutual structural recursion requires explicit `termination_by` clauses
 
 Could not find a decreasing measure.
 The arguments relate at each recursive call as follows:

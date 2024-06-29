@@ -193,7 +193,7 @@ def ensureNoRecFn (recFnNames : Array Name) (e : Expr) : MetaM Unit := do
         throwError "unexpected occurrence of recursive application{indentExpr e}"
 
 /--
-Checks that all codomians have the same level, throws an error otherwise.
+Checks that all codomains have the same level, throws an error otherwise.
 -/
 def checkCodomainsLevel (preDefs : Array PreDefinition) : MetaM Unit := do
   if preDefs.size = 1 then return

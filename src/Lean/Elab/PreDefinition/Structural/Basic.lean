@@ -40,7 +40,7 @@ def RecArgInfo.recArgPos (info : RecArgInfo) : Nat :=
 
 /--
 If `xs` are the parameters of the functions (excluding fixed prefix), partitions them
-into indices and major argugument, and other parameters.
+into indices and major arguments, and other parameters.
 -/
 def RecArgInfo.pickIndicesMajor (info : RecArgInfo) (xs : Array Expr) : (Array Expr × Array Expr) := Id.run do
   let mut indexMajorArgs := #[]

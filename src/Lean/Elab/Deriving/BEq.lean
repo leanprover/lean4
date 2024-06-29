@@ -43,6 +43,7 @@ where
         let mut ctorArgs1 := #[]
         let mut ctorArgs2 := #[]
         let mut rhs ← `(true)
+        let mut rhs_empty := true
         for i in [:ctorInfo.numFields] do
           let pos := indVal.numParams + ctorInfo.numFields - i - 1
           let x := xs[pos]!
@@ -59,17 +60,26 @@ where
             if (← isProp xType) then
               continue
             if xType.isAppOf indVal.name then
-              rhs ← `($(mkIdent auxFunName):ident $a:ident $b:ident && $rhs)
+              if rhs_empty then
+                rhs ← `($(mkIdent auxFunName):ident $a:ident $b:ident)
+                rhs_empty := false
+              else
+                rhs ← `($(mkIdent auxFunName):ident $a:ident $b:ident && $rhs)
             /- If `x` appears in the type of another field, use `eq_of_beq` to
                unify the types of the subsequent variables -/
             else if ← xs[pos+1:].anyM
-                (fun fvar => (Lean.Expr.containsFVar · x.fvarId!) <$> (inferType fvar)) then
+                (fun fvar => (Expr.containsFVar · x.fvarId!) <$> (inferType fvar)) then
               rhs ← `(if h : $a:ident == $b:ident then by
                         cases (eq_of_beq h)
                         exact $rhs
                       else false)
+              rhs_empty := false
             else
-              rhs ← `($a:ident == $b:ident && $rhs)
+              if rhs_empty then
+                rhs ← `($a:ident == $b:ident)
+                rhs_empty := false
+              else
+                rhs ← `($a:ident == $b:ident && $rhs)
           -- add `_` for inductive parameters, they are inaccessible
         for _ in [:indVal.numParams] do
           ctorArgs1 := ctorArgs1.push (← `(_))

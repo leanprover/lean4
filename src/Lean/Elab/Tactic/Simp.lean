@@ -347,7 +347,7 @@ def mkSimpOnly (stx : Syntax) (usedSimps : Simp.UsedSimps) : MetaM Syntax := do
       if env.contains declName
          && (inv || !simpOnlyBuiltins.contains declName)
          && !Match.isMatchEqnTheorem env declName then
-        let decl : Term ← `($(mkIdent (← unresolveNameGlobal declName)):ident)
+        let decl : Term ← `($(mkIdent (← unresolveNameGlobalAvoidingLocals declName)):ident)
         let arg ← match post, inv with
           | true,  true  => `(Parser.Tactic.simpLemma| ← $decl:term)
           | true,  false => `(Parser.Tactic.simpLemma| $decl:term)

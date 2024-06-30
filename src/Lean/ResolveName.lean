@@ -425,4 +425,15 @@ where
           return some candidate
     return none
 
+def unresolveNameGlobalAvoidingLocals [Monad m] [MonadResolveName m] [MonadEnv m] [MonadLCtx m]
+    (n₀ : Name) (fullNames := false) : m Name := do
+  let mut n ← unresolveNameGlobal n₀ fullNames
+  unless (← getLCtx).usesUserName n do return n
+  -- `n` is also a local declaration
+  if n == n₀ then
+    -- `n` is the fully qualified name. So, we append the `_root_` prefix
+    return `_root_ ++ n
+  else
+    return n₀
+
 end Lean

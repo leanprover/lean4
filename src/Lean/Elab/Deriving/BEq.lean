@@ -73,6 +73,7 @@ where
                         cases (eq_of_beq h)
                         exact $rhs
                       else false)
+              rhs_empty := false
             else
               if rhs_empty then
                 rhs ← `($a:ident == $b:ident)

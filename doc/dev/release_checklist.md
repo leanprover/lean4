@@ -13,13 +13,11 @@ We'll use `v4.6.0` as the intended release version as a running example.
   - `set(LEAN_VERSION_MINOR 6)` (for whichever `6` is appropriate)
   - `set(LEAN_VERSION_IS_RELEASE 1)`
   - (both of these should already be in place from the release candidates)
-- It is possible that the `v4.6.0` section of `RELEASES.md` is out of sync between
-  `releases/v4.6.0` and `master`. This should be reconciled:
-  - Run `git diff master RELEASES.md`.
-  - You should expect to see additons on `master` in the `v4.7.0-rc1` section; ignore these.
-    (i.e. the new release notes for the upcoming release candidate).
-  - Reconcile discrepancies in the `v4.6.0` section,
-    usually via copy and paste and a commit to `releases/v4.6.0`.
+- In `RELEASES.md`, verify that the `v4.6.0` section has been completed during the release candidate cycle.
+  It should be in bullet point form, with a point for every significant PR,
+  and may have a paragraph describing each major new language feature.
+  It should have a "breaking changes" section calling out changes that are specifically likely
+  to cause problems for downstream users.
 - `git tag v4.6.0`
 - `git push $REMOTE v4.6.0`, where `$REMOTE` is the upstream Lean repository (e.g., `origin`, `upstream`)
 - Now wait, while CI runs.
@@ -189,8 +187,12 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
   Please also make sure that whoever is handling social media knows the release is out.
 - Begin the next development cycle (i.e. for `v4.8.0`) on the Lean repository, by making a PR that:
   - Updates `src/CMakeLists.txt` to say `set(LEAN_VERSION_MINOR 8)`
-  - Removes `(in development)` from the section heading in `RELEASES.md` for `v4.7.0`,
-    and creates a new `v4.8.0 (in development)` section heading.
+  - In `RELEASES.md`, update the `v4.7.0` section to say:
+    "Release candidate, release notes will be copied from branch `releases/v4.7.0` once completed."
+    Make sure that whoever is preparing the release notes during this cycle knows that it is their job to do so!
+  - In `RELEASES.md`, update the `v4.8.0` section to say:
+    "Development in progress".
+  - In `RELEASES.md`, verify that the old section `v4.6.0` has the full releases notes from the `releases/v4.6.0` branch.
 
 ## Time estimates:
 Slightly longer than the corresponding steps for a stable release.

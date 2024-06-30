@@ -211,12 +211,12 @@ instance : MonadTrace CoreM where
 
 structure SavedState extends State where
   /-- Number of heartbeats passed inside `withRestoreOrSaveFull`, not used otherwise. -/
-  passedHearbeats : Nat
+  passedHeartbeats : Nat
 deriving Nonempty
 
 def saveState : CoreM SavedState := do
   let s ← get
-  return { toState := s, passedHearbeats := 0 }
+  return { toState := s, passedHeartbeats := 0 }
 
 /--
 Incremental reuse primitive: if `reusableResult?` is `none`, runs `act` and returns its result
@@ -236,14 +236,14 @@ itself after calling `act` as well as by reuse-handling code such as the one sup
     (act : CoreM α) : CoreM (α × SavedState) := do
   if let some (val, state) := reusableResult? then
     set state.toState
-    IO.addHeartbeats state.passedHearbeats.toUInt64
+    IO.addHeartbeats state.passedHeartbeats.toUInt64
     return (val, state)
 
   let startHeartbeats ← IO.getNumHeartbeats
   let a ← act
   let s ← get
   let stopHeartbeats ← IO.getNumHeartbeats
-  return (a, { toState := s, passedHearbeats := stopHeartbeats - startHeartbeats })
+  return (a, { toState := s, passedHeartbeats := stopHeartbeats - startHeartbeats })
 
 /-- Restore backtrackable parts of the state. -/
 def SavedState.restore (b : SavedState) : CoreM Unit :=

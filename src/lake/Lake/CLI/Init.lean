@@ -157,13 +157,11 @@ def mathToolchainUrl : String :=
   "https://github.com/leanprover-community/mathlib4/blob/master/lean-toolchain"
 
 def leanActionWorkflowContents :=
-s!"name: Lean Action CI
+"name: Lean Action CI
 
 on:
   push:
-    branches: [\"main\"]
   pull_request:
-    branches: [\"main\"]
   workflow_dispatch:
 
 jobs:

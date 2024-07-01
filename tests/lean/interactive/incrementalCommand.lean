@@ -55,3 +55,15 @@ example : False := by
   interrupt
   simp
 --^ collectDiagnostics
+
+/-!
+Trailing whitespace should not invalidate the module header. Note that in case of a regression, this
+test case will currently deadlock. In any case, it should not succeed as interactive tests
+communicate with one worker process only.
+-/
+-- RESET
+import Init.Prelude
+                 --^ collectDiagnostics
+                 --^ insert: " "
+                 --^ collectDiagnostics
+#eval "import"

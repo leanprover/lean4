@@ -44,6 +44,9 @@ theorem isEmpty_emptyc : (∅ : Raw α).isEmpty :=
 theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] {a : α} : (m.insert a).isEmpty = false :=
   HashMap.Raw.isEmpty_insert h.out
 
+theorem mem_iff_contains {a : α} : a ∈ m ↔ m.contains a :=
+  HashMap.Raw.mem_iff_contains
+
 theorem contains_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) : m.contains a = m.contains b :=
   HashMap.Raw.contains_congr h.out hab
 
@@ -52,9 +55,6 @@ theorem mem_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) : 
 
 @[simp] theorem contains_empty {a : α} {c} : (empty c : Raw α).contains a = false :=
   HashMap.Raw.contains_empty
-
-theorem mem_iff_contains {a : α} : a ∈ m ↔ m.contains a :=
-  HashMap.Raw.mem_iff_contains
 
 @[simp] theorem not_mem_empty {a : α} {c} : ¬a ∈ (empty c : Raw α) :=
   HashMap.Raw.not_mem_empty
@@ -167,6 +167,9 @@ theorem isEmpty_emptyc : (∅ : HashSet α).isEmpty :=
 theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] {a : α} : (m.insert a).isEmpty = false :=
   HashMap.isEmpty_insert
 
+theorem mem_iff_contains {a : α} : a ∈ m ↔ m.contains a :=
+  HashMap.mem_iff_contains
+
 theorem contains_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) : m.contains a = m.contains b :=
   HashMap.contains_congr hab
 
@@ -175,9 +178,6 @@ theorem mem_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) : 
 
 @[simp] theorem contains_empty {a : α} {c} : (empty c : HashSet α).contains a = false :=
   HashMap.contains_empty
-
-theorem mem_iff_contains {a : α} : a ∈ m ↔ m.contains a :=
-  HashMap.mem_iff_contains
 
 @[simp] theorem not_mem_empty {a : α} {c} : ¬a ∈ (empty c : HashSet α) :=
   HashMap.not_mem_empty

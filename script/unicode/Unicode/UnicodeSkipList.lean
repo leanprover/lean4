@@ -138,16 +138,16 @@ def writeTable (property : String) (table : UnicodePropertyTable) : IO Unit := d
   content := content ++ "namespace Char.UnicodeSkipList\n"
   content := content ++ s!"instance {property}Table : UnicodePropertyTable where\n"
   content := content ++ "  runs := #[\n"
-  content := content ++ "    " ++ (reprStr (table.runs.get! 0))
+  content := content ++ "    " ++ (reprStr (table.runs[0]!))
   for i in [1:(table.runs.size)] do
-    content := content ++ ", " ++ (reprStr (table.runs.get! i))
+    content := content ++ ", " ++ (reprStr (table.runs[i]!))
     if i % 10 = 0 then
       content := content ++ "\n    "
   content := content ++ "  ]\n"
   content := content ++ "  offsets := #[\n"
-  content := content ++ "    " ++ (reprStr (table.offsets.get! 0))
+  content := content ++ "    " ++ (reprStr (table.offsets[0]!))
   for i in [1:(table.offsets.size)] do
-    content := content ++ ", " ++ (reprStr (table.offsets.get! i))
+    content := content ++ ", " ++ (reprStr (table.offsets[i]!))
     if i % 10 = 0 then
       content := content ++ "\n    "
   content := content ++ "  ]\n"

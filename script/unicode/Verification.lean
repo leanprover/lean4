@@ -35,7 +35,7 @@ def main : IO Unit := do
     let f : FilePath := System.mkFilePath ["Data",dataset]
     let _ ← download (unicodeUrl ++ dataset) f
 
-  let f : FilePath := System.mkFilePath ["Data","UnicodeData.txt"]
+  let f : FilePath := System.mkFilePath ["Data", "UnicodeData.txt"]
   let ucd ← loadUnicodeData f
   match ucd with
   | Except.ok ucd =>

@@ -69,7 +69,7 @@ def searchRuns (table : UnicodePropertyTable) (c : Char) : Nat × Range := Id.ru
   let idx := i
   let codepointStart := if idx = 0 then 0 else table.runs[idx - 1]!.toNat % 2^21
   let rangeStart := table.runs[idx]!.toNat / 2^21
-  let rangeStop := if idx + 1 = table.runs.size then table.offsets.size else (table.runs.get! (idx + 1)).toNat / 2^21
+  let rangeStop := if idx + 1 = table.runs.size then table.offsets.size else (table.runs[idx + 1]!).toNat / 2^21
   let range : Range := [rangeStart:rangeStop]
   return (codepointStart, range)
 
@@ -83,11 +83,11 @@ def searchOffsets (table : UnicodePropertyTable) (c : Char) (range : Range) (pfs
   let mut i := 0
   let mut prefixSum := pfs
   for j in range do
-    if codepoint < prefixSum + (table.offsets.get! j).toNat then
+    if codepoint < prefixSum + (table.offsets[j]!).toNat then
       i := j
       break
     else
-      prefixSum := prefixSum + (table.offsets.get! j).toNat
+      prefixSum := prefixSum + (table.offsets[j]!).toNat
   return i % 2 = 1
 
 def search (table : UnicodePropertyTable) (c : Char) : Bool :=

@@ -11,6 +11,8 @@ inductive B
   | empty
 end
 
+-- A simple mutually recursive function definition
+
 mutual
 def A.size : A → Nat
   | .self a => a.size + 1
@@ -24,18 +26,7 @@ def B.size : B → Nat
 termination_by structurally x => x
 end
 
-mutual
-def A.subs : (a : A) → (Fin a.size → A ⊕ B)
-  | .self a => Fin.lastCases (.inl a) (a.subs)
-  | .other b => Fin.lastCases (.inr b) (b.subs)
-  | .empty => Fin.elim0
-termination_by structurally x => x
-def B.subs : (b : B) → (Fin b.size → A ⊕ B)
-  | .self b => Fin.lastCases (.inr b) (b.subs)
-  | .other a => Fin.lastCases (.inl a) (a.subs)
-  | .empty => Fin.elim0
-termination_by structurally x => x
-end
+-- And indeed all equationals hold definitionally
 
 theorem A_size_eq1 (a : A) : (A.self a).size = a.size + 1 := rfl
 theorem A_size_eq2 (b : B) : (A.other b).size = b.size + 1 := rfl
@@ -43,6 +34,8 @@ theorem A_size_eq3 : A.empty.size = 0  := rfl
 theorem B_size_eq1 (b : B) : (B.self b).size = b.size + 1 := rfl
 theorem B_size_eq2 (a : A) : (B.other a).size = a.size + 1 := rfl
 theorem B_size_eq3 : B.empty.size = 0  := rfl
+
+-- The expected equational theorems are produced
 
 /-- info: A.size.eq_1 (a : A) : a.self.size = a.size + 1 -/
 #guard_msgs in
@@ -68,7 +61,7 @@ theorem B_size_eq3 : B.empty.size = 0  := rfl
 #guard_msgs in
 #check B.size.eq_3
 
--- Test smart unfolding
+-- Smart unfolding works
 
 /--
 info: a : A
@@ -81,7 +74,24 @@ theorem ex1 (a : A) (h : (A.other (B.other a)).size = 2) : a.size = 0 := by
   trace_state -- without smart unfolding the state would be a mess
   injection h with h
 
--- Theorems
+
+-- And it computes in type just fine
+
+mutual
+def A.subs : (a : A) → (Fin a.size → A ⊕ B)
+  | .self a => Fin.lastCases (.inl a) (a.subs)
+  | .other b => Fin.lastCases (.inr b) (b.subs)
+  | .empty => Fin.elim0
+termination_by structurally x => x
+def B.subs : (b : B) → (Fin b.size → A ⊕ B)
+  | .self b => Fin.lastCases (.inr b) (b.subs)
+  | .other a => Fin.lastCases (.inl a) (a.subs)
+  | .empty => Fin.elim0
+termination_by structurally x => x
+end
+
+
+-- We can define mutually recursive theorems as well
 
 mutual
 def A.hasNoBEmpty : A → Prop
@@ -155,25 +165,10 @@ def B.odderCount : B → Nat
 termination_by structurally x => x
 end
 
-namespace Reflexive
-
--- A mutual inductive reflexive data type
--- But these still only ever eliminate into `Prop`, so the following is not an example
--- for a reflexive data type that can eliminiate into `Type`, although `Acc` is:
-
-mutual
-inductive AccA {α : Sort u} (r : α → α → Prop) : α → Prop where
-  | intro (x : α) (h : (y : α) → r y x → AccB r y) : AccA r x
-inductive AccB {α : Sort u} (r : α → α → Prop) : α → Prop where
-  | intro (x : α) (h : (y : α) → r y x → AccA r y) : AccB r x
-end
-
--- TODO: What kind of recursive function can I even define over this data type,
--- given that it can only eliminate into `Prop`?
-
-end Reflexive
 
 namespace EvenOdd
+
+-- Mutual structural recursion over a non-mutual inductive type
 
 mutual
   def isEven : Nat → Prop
@@ -202,6 +197,8 @@ inductive B
   | empty
 end
 
+-- Structural recursion ignoring some types of the mutual inductive
+
 def A.self_size : A → Nat
   | .self a => a.self_size + 1
   | .other _ => 0
@@ -214,6 +211,8 @@ def B.self_size : B → Nat
   | .other _ => 0
   | .empty => 0
 termination_by structurally x => x
+
+-- Structural recursion with more than one function per types of the mutual inductive
 
 mutual
 def A.weird_size1 : A → Nat
@@ -274,10 +273,12 @@ fun t₁ t₂ => Eq.refl (Tree.node (t₁, t₂)).size
 #guard_msgs in
 #print Tree.size.eq_2
 
-
 end NestedWithTuple
 
+
 namespace DifferentTypes
+
+-- Check error message when argument types are not mutually recursive
 
 inductive A
   | self : A → A

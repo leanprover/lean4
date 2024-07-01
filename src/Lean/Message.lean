@@ -256,6 +256,15 @@ def ofList : List MessageData → MessageData
 def ofArray (msgs : Array MessageData) : MessageData :=
   ofList msgs.toList
 
+/-- Puts `MessageData` into a comma-separated list with `"and"` at the back (no Oxford comma).
+Best used on non-empty lists; returns `"– none –"` for an empty list.  -/
+def andList (xs : List MessageData) : MessageData :=
+  match xs with
+  | [] => "– none –"
+  | [x] => x
+  | _ => joinSep xs.dropLast ", " ++ " and " ++ xs.getLast!
+
+
 instance : Coe (List MessageData) MessageData := ⟨ofList⟩
 instance : Coe (List Expr) MessageData := ⟨fun es => ofList <| es.map ofExpr⟩
 
@@ -403,7 +412,7 @@ def indentExpr (e : Expr) : MessageData :=
   indentD e
 
 class AddMessageContext (m : Type → Type) where
-  /-- 
+  /--
   Without context, a `MessageData` object may be be missing information
   (e.g. hover info) for pretty printing, or may print an error. Hence,
   `addMessageContext` should be called on all constructed `MessageData`

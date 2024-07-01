@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.WF.TerminationArgument
+import Lean.Elab.PreDefinition.TerminationArgument
 import Lean.Elab.PreDefinition.WF.PackMutual
 import Lean.Elab.PreDefinition.WF.Preprocess
 import Lean.Elab.PreDefinition.WF.Rel
@@ -86,7 +86,7 @@ def varyingVarNames (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Ar
     let xs : Array Expr := xs[fixedPrefixSize:]
     xs.mapM (·.fvarId!.getUserName)
 
-def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
+def wfRecursion (preDefs : Array PreDefinition) (termArgs? : Option TerminationArguments) : TermElabM Unit := do
   let preDefs ← preDefs.mapM fun preDef =>
     return { preDef with value := (← preprocess preDef.value) }
   let (fixedPrefixSize, argsPacker, unaryPreDef) ← withoutModifyingEnv do
@@ -100,21 +100,9 @@ def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
     return (fixedPrefixSize, argsPacker, ← packMutual fixedPrefixSize argsPacker preDefsDIte)
 
   let wf : TerminationArguments ← do
-    let (preDefsWith, preDefsWithout) := preDefs.partition (·.termination.terminationBy?.isSome)
-    if preDefsWith.isEmpty then
-      -- No termination_by anywhere, so guess one
-      guessLex preDefs unaryPreDef fixedPrefixSize argsPacker
-    else if preDefsWithout.isEmpty then
-      preDefsWith.mapIdxM fun funIdx predef => do
-        let arity := fixedPrefixSize + argsPacker.varNamess[funIdx]!.size
-        let hints := predef.termination
-        TerminationArgument.elab predef.declName predef.type arity hints.extraParams hints.terminationBy?.get!
-    else
-      -- Some have, some do not, so report errors
-      preDefsWithout.forM fun preDef => do
-        logErrorAt preDef.ref (m!"Missing `termination_by`; this function is mutually " ++
-          m!"recursive with {preDefsWith[0]!.declName}, which has a `termination_by` clause.")
-      return
+    if let some tas := termArgs? then pure tas else
+    -- No termination_by here, so use GuessLex to infer one
+    guessLex preDefs unaryPreDef fixedPrefixSize argsPacker
 
   let preDefNonRec ← forallBoundedTelescope unaryPreDef.type fixedPrefixSize fun prefixArgs type => do
     let type ← whnfForall type

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Elab.PreDefinition.TerminationArgument
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.Structural.FindRecArg
 import Lean.Elab.PreDefinition.Structural.Preprocess
@@ -11,6 +12,7 @@ import Lean.Elab.PreDefinition.Structural.BRecOn
 import Lean.Elab.PreDefinition.Structural.IndPred
 import Lean.Elab.PreDefinition.Structural.Eqns
 import Lean.Elab.PreDefinition.Structural.SmartUnfolding
+import Lean.Meta.Tactic.TryThis
 
 namespace Lean.Elab
 namespace Structural
@@ -57,7 +59,7 @@ private def getFixedPrefix (declName : Name) (xs : Array Expr) (value : Expr) : 
       return true
   numFixedRef.get
 
-private def elimRecursion (preDef : PreDefinition) : M (Nat × PreDefinition) := do
+private def elimRecursion (preDef : PreDefinition) (termArg? : Option TerminationArgument) : M (Nat × PreDefinition) := do
   trace[Elab.definition.structural] "{preDef.declName} := {preDef.value}"
   withoutModifyingEnv do lambdaTelescope preDef.value fun xs value => do
     addAsAxiom preDef
@@ -65,7 +67,7 @@ private def elimRecursion (preDef : PreDefinition) : M (Nat × PreDefinition) :=
     trace[Elab.definition.structural] "{preDef.declName} {xs} :=\n{value}"
     let numFixed ← getFixedPrefix preDef.declName xs value
     trace[Elab.definition.structural] "numFixed: {numFixed}"
-    findRecArg numFixed xs fun recArgInfo => do
+    let go := fun recArgInfo => do
       let valueNew ← if recArgInfo.indPred then
         mkIndPredBRecOn preDef.declName recArgInfo value
       else
@@ -76,12 +78,28 @@ private def elimRecursion (preDef : PreDefinition) : M (Nat × PreDefinition) :=
       let valueNew ← ensureNoRecFn preDef.declName valueNew
       let recArgPos := recArgInfo.fixedParams.size + recArgInfo.pos
       return (recArgPos, { preDef with value := valueNew })
+    -- Use termination_by annotation to find argument to recurse on, or just try all
+    match termArg? with
+    | .some termArg =>
+        assert! termArg.structural
+        withRecArgInfo numFixed xs (← termArg.structuralArg) go
+    | .none => findRecArg numFixed xs go
 
-def structuralRecursion (preDefs : Array PreDefinition) : TermElabM Unit :=
+def reportTermArg (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit := do
+  if let some ref := preDef.termination.terminationBy?? then
+    let fn ← lambdaTelescope preDef.value fun xs _ => mkLambdaFVars xs xs[recArgPos]!
+    let termArg : TerminationArgument := {ref := .missing, structural := true, fn}
+    let arity ← lambdaTelescope preDef.value fun xs _ => pure xs.size
+    let stx ← termArg.delab arity (extraParams := preDef.termination.extraParams)
+    Tactic.TryThis.addSuggestion ref stx
+
+def structuralRecursion (preDefs : Array PreDefinition) (termArgs? : Option TerminationArguments) : TermElabM Unit :=
   if preDefs.size != 1 then
     throwError "structural recursion does not handle mutually recursive functions"
   else do
-    let ((recArgPos, preDefNonRec), state) ← run <| elimRecursion preDefs[0]!
+    let termArg? := termArgs?.map (·[0]!)
+    let ((recArgPos, preDefNonRec), state) ← run <| elimRecursion preDefs[0]! termArg?
+    reportTermArg preDefNonRec recArgPos
     let preDefNonRec ← eraseRecAppSyntax preDefNonRec
     let mut preDef ← eraseRecAppSyntax preDefs[0]!
     state.addMatchers.forM liftM

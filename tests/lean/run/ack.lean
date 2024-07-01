@@ -33,3 +33,19 @@ set_option diagnostics.threshold 500 in
 set_option diagnostics true in
 theorem ex : ack 3 2 = 29 :=
   rfl
+
+
+/--
+info: [kernel] unfolded declarations (max: 1193, num: 4):
+    Nat.casesOn ↦ 1193
+  ⏎
+  Nat.rec ↦ 1065
+  ⏎
+  Eq.ndrec ↦ 973
+   Eq.rec ↦ 973use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+-/
+#guard_msgs in
+set_option diagnostics true in
+set_option diagnostics.threshold 800 in
+theorem ack_3_2_eq_29 : ack 3 2 = 29 := by
+  rfl -- uses kernel defeq checker, so only kernel diags shown

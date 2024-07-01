@@ -10,7 +10,7 @@
       {"start": {"line": 4, "character": 0},
        "end": {"line": 4, "character": 15}},
       "newText": "termination_by (n, m)"}]}]}}
-{"title": "Try this: termination_by structurally n",
+{"title": "Try this: termination_by structural n",
  "kind": "quickfix",
  "isPreferred": true,
  "edit":
@@ -21,8 +21,8 @@
     [{"range":
       {"start": {"line": 11, "character": 0},
        "end": {"line": 11, "character": 15}},
-      "newText": "termination_by structurally n"}]}]}}
-{"title": "Try this: termination_by structurally x => x",
+      "newText": "termination_by structural n"}]}]}}
+{"title": "Try this: termination_by structural x => x",
  "kind": "quickfix",
  "isPreferred": true,
  "edit":
@@ -33,7 +33,7 @@
     [{"range":
       {"start": {"line": 17, "character": 0},
        "end": {"line": 17, "character": 15}},
-      "newText": "termination_by structurally x => x"}]}]}}
+      "newText": "termination_by structural x => x"}]}]}}
 {"title": "Try this: termination_by n",
  "kind": "quickfix",
  "isPreferred": true,

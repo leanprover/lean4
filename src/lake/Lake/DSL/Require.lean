@@ -59,16 +59,26 @@ syntax fromClause :=
 syntax withClause :=
   " with " term
 
+/--
+The version of the package to lookup in Lake's package index.
+A Git revision can be specified via `"git#<rev>"`.
+-/
+syntax verSpec :=
+  " @ " term:max
+
+syntax depName :=
+  atomic(str " / ")? identOrStr
+
 syntax depSpec :=
-  identOrStr fromClause (withClause)?
+  depName (verSpec)? (fromClause)? (withClause)?
 
 @[inline] private def quoteOptTerm [Monad m] [MonadQuotation m] (term? : Option Term) : m Term :=
   if let some term := term? then withRef term `(some $term) else `(none)
 
 def expandDepSpec (stx : TSyntax ``depSpec) (doc? : Option DocComment) : MacroM Command := do
-  let `(depSpec| $nameStx from $src $[with $opts?]?) := stx
+  let `(depSpec| $fullNameStx $[@ $ver?]? $[from $src?]? $[with $opts?]?) := stx
     | Macro.throwErrorAt stx "ill-formed require syntax"
-  let src ←
+  let src? ← src?.mapM fun src =>
     match src with
     | `(fromSource|git%$tk $url $[@ $rev?]? $[/ $subDir?]?) => withRef tk do
       let rev ← quoteOptTerm rev?
@@ -77,10 +87,18 @@ def expandDepSpec (stx : TSyntax ``depSpec) (doc? : Option DocComment) : MacroM 
     | `(fromSource|$path:term) => withRef src do
       ``(DependencySrc.path $path)
     | _ => Macro.throwErrorAt src "ill-formed from syntax"
+  let `(depName|$[$scope? /]? $nameStx) := fullNameStx
+    | Macro.throwErrorAt fullNameStx "ill-formed name syntax"
+  let scope :=
+    match scope? with
+    | some scope => scope
+    | none => Syntax.mkStrLit "" (.fromRef fullNameStx)
   let name := expandIdentOrStrAsIdent nameStx
   `($[$doc?:docComment]? @[package_dep] def $name : $(mkCIdent ``Dependency) := {
     name :=  $(quote name.getId),
-    src := $src,
+    scope := $scope,
+    version? := $(← quoteOptTerm ver?),
+    src? := $(← quoteOptTerm src?),
     opts := $(opts?.getD <| ← `({})),
   })
 
@@ -88,12 +106,19 @@ def expandDepSpec (stx : TSyntax ``depSpec) (doc? : Option DocComment) : MacroM 
 Adds a new package dependency to the workspace. The general syntax is:
 
 ```
-require <pkg-name> from <source> [with <options>]
+require ["<scope>" /] <pkg-name> [@ <version>]
+  [from <source>] [with <options>]
 ```
 
 The `from` clause tells Lake where to locate the dependency.
 See the `fromClause` syntax documentation (e.g., hover over it) to see
 the different forms this clause can take.
+
+Without a `from` clause, Lake will lookup the package in the default
+registry (i.e., Reservoir) and use the information there to download the
+package at the specified `version`. The optional `scope` is used to
+disambiguate which package with `pkg-name` to lookup. In Reservoir, this scope
+is the package owner (e.g., `leanprover` of `@leanprover/doc-gen4`).
 
 The `with` clause specifies a `NameMap String` of Lake options
 used to configure the dependency. This is equivalent to passing `-K`

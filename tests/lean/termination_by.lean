@@ -2,7 +2,7 @@
 This module tests various mis-uses of termination_by and decreasing_by:
 * use in non-recursive functions
 * that all or none of a recursive group have termination_by.
-* mismatched structurally/non-structurally
+* mismatched structural/non-structural
 -/
 
 def nonRecursive1 (n : Nat) : Nat := n
@@ -93,7 +93,7 @@ mutual
   def f : Nat → α → α → α
     | 0, a, b => a
     | n+1, a, b => g n a b |>.1
-  termination_by structurally n _ _ => n
+  termination_by structural n _ _ => n
 
   def g : Nat → α → α → (α × α)
     | 0, a, b => (a, b)
@@ -117,12 +117,12 @@ mutual
   def g : Nat → α → α → (α × α)
     | 0, a, b => (a, b)
     | n+1, a, b => (h n a b, a)
-  termination_by structurally n _ _ => n -- Error
+  termination_by structural n _ _ => n -- Error
 
   def h : Nat → α → α → α
     | 0, a, b => b
     | n+1, a, b => f n a b
-  termination_by structurally n _ _ => n
+  termination_by structural n _ _ => n
 end
 end Test3
 
@@ -141,7 +141,7 @@ mutual
   def h : Nat → α → α → α
     | 0, a, b => b
     | n+1, a, b => f n a b
-  termination_by structurally n _ _ => n -- Error
+  termination_by structural n _ _ => n -- Error
 end
 end Test4
 
@@ -150,17 +150,17 @@ mutual
   def f : Nat → α → α → α
     | 0, a, b => a
     | n+1, a, b => g n a b |>.1
-  termination_by structurally n _ _ => n
+  termination_by structural n _ _ => n
 
   def g : Nat → α → α → (α × α)
     | 0, a, b => (a, b)
     | n+1, a, b => (h n a b, a)
-  termination_by structurally n _ _ => n
+  termination_by structural n _ _ => n
   decreasing_by sorry -- Error
 
   def h : Nat → α → α → α
     | 0, a, b => b
     | n+1, a, b => f n a b
-  termination_by structurally n _ _ => n
+  termination_by structural n _ _ => n
 end
 end Test5

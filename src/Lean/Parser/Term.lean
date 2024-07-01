@@ -597,8 +597,8 @@ termination_by b c => a - b
 ```
 
 By default, a `termination_by` clause will cause the function to be constructed using well-founded
-recursion. The syntax `termination_by structurally a` (or `termination_by structurally _ c => c`)
-indicates the the function is expected to be structurally recursive on the argument. In this case
+recursion. The syntax `termination_by structural a` (or `termination_by structural _ c => c`)
+indicates the the function is expected to be structural recursive on the argument. In this case
 the body of the `termination_by` clause must be one of the function's parameters.
 
 If omitted, a termination argument will be inferred. If written as `termination_by?`,
@@ -607,7 +607,7 @@ the inferrred termination argument will be suggested.
 -/
 def terminationBy := leading_parser
   "termination_by " >>
-  optional (nonReservedSymbol "structurally ") >>
+  optional (nonReservedSymbol "structural ") >>
   optional (atomic (many (ppSpace >> Term.binderIdent) >> " => ")) >>
   termParser
 
@@ -622,7 +622,7 @@ decreases at each recursive call.
 By default, the tactic `decreasing_tactic` is used.
 
 Forces the use of well-founded recursion and is hence incompatible with
-`termination_by structurally`.
+`termination_by structural`.
 -/
 def decreasingBy := leading_parser
   ppDedent ppLine >> "decreasing_by " >> Tactic.tacticSeqIndentGt

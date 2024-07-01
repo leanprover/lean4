@@ -15,7 +15,7 @@ namespace Lean.Elab
 /-- A single `termination_by` clause -/
 structure TerminationBy where
   ref          : Syntax
-  structurally : Bool
+  structural : Bool
   vars         : TSyntaxArray [`ident, ``Lean.Parser.Term.hole]
   body         : Term
   /--
@@ -117,12 +117,12 @@ def elabTerminationHints {m} [Monad m] [MonadError m] (stx : TSyntax ``suffix) :
       | _ => pure none
       else pure none
     let terminationBy? : Option TerminationBy ← if let some t := t? then match t with
-      | `(terminationBy|termination_by $[structurally%$s]? => $_body) =>
+      | `(terminationBy|termination_by $[structural%$s]? => $_body) =>
         throwErrorAt t "no extra parameters bounds, please omit the `=>`"
-      | `(terminationBy|termination_by $[structurally%$s]? $vars* => $body) =>
-        pure (some {ref := t, structurally := s.isSome, vars, body})
-      | `(terminationBy|termination_by $[structurally%$s]? $body:term) =>
-        pure (some {ref := t, structurally := s.isSome, vars := #[], body})
+      | `(terminationBy|termination_by $[structural%$s]? $vars* => $body) =>
+        pure (some {ref := t, structural := s.isSome, vars, body})
+      | `(terminationBy|termination_by $[structural%$s]? $body:term) =>
+        pure (some {ref := t, structural := s.isSome, vars := #[], body})
       | `(terminationBy?|termination_by?) => pure none
       | _ => throwErrorAt t "unexpected `termination_by` syntax"
       else pure none

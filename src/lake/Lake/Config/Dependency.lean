@@ -41,13 +41,27 @@ structure Dependency where
   -/
   name : Name
   /--
+  An additional qualifier used to distinguish packages of the same
+  name in a Lake registry. On Reservoir, this is the package owner.
+  -/
+  scope : String
+  /--
+  The target version of the dependency.
+  A Git revision can be specified with the syntax `git#<rev>`.
+  -/
+  version? : Option String
+  /--
   The source of a dependency.
+  If none, looks up the dependency in the default registry (e.g., Reservoir).
   See the documentation of `DependencySrc` for supported sources.
   -/
-  src  : DependencySrc
+  src?  : Option DependencySrc
   /--
   Arguments to pass to the dependency's package configuration.
   -/
-  opts : NameMap String := {}
+  opts : NameMap String
+  deriving Inhabited
 
-deriving Inhabited
+/-- The full name of a dependency (i.e., `<scope>/<name>`)-/
+def Dependency.fullName (dep : Dependency) : String :=
+  s!"{dep.scope}/{dep.name.toString}"

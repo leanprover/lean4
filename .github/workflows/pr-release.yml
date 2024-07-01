@@ -328,7 +328,7 @@ jobs:
             git switch -c lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }} "$BASE"
             echo "leanprover/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}" > lean-toolchain
             git add lean-toolchain
-            sed -i "s/require batteries from git \"https:\/\/github.com\/leanprover-community\/batteries\" @ \".\+\"/require batteries from git \"https:\/\/github.com\/leanprover-community\/batteries\" @ \"nightly-testing-${MOST_RECENT_NIGHTLY}\"/" lakefile.lean
+            sed -i 's,require "leanprover-community" / "batteries" @ ".\+",require "leanprover-community" / "batteries" @ "git#'"${MOST_RECENT_NIGHTLY}"'",' lakefile.lean
             lake update batteries
             git add lakefile.lean lake-manifest.json
             git commit -m "Update lean-toolchain for testing https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"

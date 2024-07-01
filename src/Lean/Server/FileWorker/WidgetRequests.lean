@@ -50,7 +50,7 @@ def makePopup : WithRpcRef InfoWithCtx → RequestM (RequestTask InfoPopup)
   | ⟨i⟩ => RequestM.asTask do
     i.ctx.runMetaM i.info.lctx do
       let type? ← match (← i.info.type?) with
-        | some type => some <$> (ppExprTagged =<< instantiateMVars type)
+        | some type => some <$> ppExprTagged type
         | none => pure none
       let exprExplicit? ← match i.info with
         | Elab.Info.ofTermInfo ti =>

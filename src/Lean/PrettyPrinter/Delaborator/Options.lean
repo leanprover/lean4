@@ -80,7 +80,7 @@ register_builtin_option pp.numericTypes : Bool := {
   descr    := "(pretty printer) display types of numeric literals"
 }
 register_builtin_option pp.instantiateMVars : Bool := {
-  defValue := false -- TODO: default to true?
+  defValue := true
   group    := "pp"
   descr    := "(pretty printer) instantiate mvars before delaborating"
 }

@@ -36,7 +36,7 @@ whether a character has a property, we first use the `runs` array
 to locate where to search in the `offsets` array. We can then locate the
 character in the offsets array to determine the parity of its position.
 
-The 32 bit integers in the outter array contain encode the following
+The 32 bit integers in the outer array contain encode the following
 information. The 11 most significants bits are an index into the inner
 array, pointing to the start of a run. The 21 least significant bits
 point to the codepoint one passed the run.

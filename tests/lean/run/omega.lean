@@ -599,8 +599,8 @@ a possible counterexample may satisfy the constraints
   d_1 ≥ 0
   u ≥ 0
   t ≥ 0
-  q + r + s + t + u + v + w + x + y + z + a_1 + b_1 + c_1 + d_1 + e_1 ≥ 100
   w ≥ 0
+  q + r + s + t + u + v + w + x + y + z + a_1 + b_1 + c_1 + d_1 + e_1 ≥ 100
   r ≥ 0
   y ≥ 0
 where

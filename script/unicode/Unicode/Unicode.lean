@@ -112,13 +112,13 @@ def summarizeUnicodeData (ucd : Array UnicodeData) : SummaryUCD := Id.run do
   let mut table : SummaryUCD := {}
   for entry in ucd do
     match entry.gc with
-    | GeneralCategory.Letter _ => table := { table with letterCount := table.letterCount + 1 }
-    | GeneralCategory.Mark _ => table := { table with markCount := table.markCount + 1 }
-    | GeneralCategory.Number _ => table := { table with numberCount := table.numberCount + 1 }
-    | GeneralCategory.Punctuation _ => table := { table with punctuationCount := table.punctuationCount + 1 }
-    | GeneralCategory.Symbol _ => table := { table with symbolCount := table.symbolCount + 1 }
-    | GeneralCategory.Separator _ => table := { table with separatorCount := table.separatorCount + 1 }
-    | GeneralCategory.Other _ => table := { table with otherCount := table.otherCount + 1 }
+    | .Letter _ => table := { table with letterCount := table.letterCount + 1 }
+    | .Mark _ => table := { table with markCount := table.markCount + 1 }
+    | .Number _ => table := { table with numberCount := table.numberCount + 1 }
+    | .Punctuation _ => table := { table with punctuationCount := table.punctuationCount + 1 }
+    | .Symbol _ => table := { table with symbolCount := table.symbolCount + 1 }
+    | .Separator _ => table := { table with separatorCount := table.separatorCount + 1 }
+    | .Other _ => table := { table with otherCount := table.otherCount + 1 }
   return table
 
 def printSummary (sucd : SummaryUCD) : IO Unit := do

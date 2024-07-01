@@ -27,17 +27,17 @@ def compareTables (ucd : Array UnicodeData) (property : UnicodeData → Bool) : 
 def main : IO Unit := do
   let workingDir : FilePath ← currentDir
   let dataDir : FilePath := join workingDir (System.mkFilePath ["Data"])
-  if (¬ (← dataDir.pathExists)) then
+  unless ← dataDir.pathExists do
     createDir "Data"
   for dataset in unicodeDatasets do
     let f : FilePath := System.mkFilePath ["Data",dataset]
-    let _ ← download (unicodeUrl ++ dataset) f
+    discard <| download (unicodeUrl ++ dataset) f
 
   let f : FilePath := System.mkFilePath ["Data", "UnicodeData.txt"]
   let ucd ← loadUnicodeData f
   match ucd with
   | Except.ok ucd =>
-      let property := (fun ucdc : UnicodeData => if let .Number _ := ucdc.gc then true else false)
+      let property := fun ucdc : UnicodeData => if let .Number _ := ucdc.gc then true else false
       let failed ← compareTables ucd property
       if failed then
         IO.Process.exit 1

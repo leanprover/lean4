@@ -67,7 +67,7 @@ def explicitRanges (ucd : Array UnicodeData) (property : UnicodeData → Bool) :
 Turn the list of ranges into a gap encoding.
 -/
 def mergeRanges (ranges : List Range) : List Nat := Id.run do
-  let flat := ranges.foldl (fun acc => fun range => range.start :: range.stop :: acc) []
+  let flat := ranges.foldl (init := []) fun acc => fun range => range.start :: range.stop :: acc
   let mut prev := 0
   let mut gaps := []
   for bound in flat do
@@ -80,7 +80,7 @@ def mergeRanges (ranges : List Range) : List Nat := Id.run do
 Ranges with a length that cannot fit in 8 bits are encoded as 0.
 -/
 def offsets (gaps : List Nat) : Array UInt8 :=
-  (gaps.map (fun gap => if gap ≥ 256 then 0 else gap.toUInt8)).toArray
+  (gaps.map fun gap => if gap ≥ 256 then 0 else gap.toUInt8).toArray
 
 /-
 Compute the list of indices into the offset array, pointing to the
@@ -110,7 +110,7 @@ def prefixSums (gaps : List Nat) : List Nat := Id.run do
 
 def largeOffsetEncoding (indices prefixSums : List Nat) : Array UInt32 :=
   let prefixSums := prefixSums ++ [1114112]
-  ((indices.zip prefixSums).map (fun (idx,pf) => (idx + pf).toUInt32)).toArray
+  ((indices.zip prefixSums).map fun (idx,pf) => (idx + pf).toUInt32).toArray
 
 def calculateTable (ucd : Array UnicodeData) (property : UnicodeData → Bool) : UnicodePropertyTable :=
   let ranges := explicitRanges ucd property

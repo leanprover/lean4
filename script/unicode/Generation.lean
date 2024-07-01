@@ -13,11 +13,11 @@ open System IO FilePath Process FS Std Char.UnicodeSkipList
 def main : IO Unit := do
   let workingDir : FilePath ← currentDir
   let dataDir : FilePath := join workingDir (System.mkFilePath ["Data"])
-  if (¬ (← dataDir.pathExists)) then
+  unless ← dataDir.pathExists do
     createDir "Data"
   for dataset in unicodeDatasets do
     let f : FilePath := System.mkFilePath ["Data", dataset]
-    let _ ← download (unicodeUrl ++ dataset) f
+    discard <| download (unicodeUrl ++ dataset) f
 
   let f : FilePath := System.mkFilePath ["Data", "UnicodeData.txt"]
   let ucd ← loadUnicodeData f
@@ -26,7 +26,7 @@ def main : IO Unit := do
       println s! "UCD size: {ucd.size}"
       let summary := summarizeUnicodeData ucd
       printSummary summary
-      let property := (fun ucdc : UnicodeData => if let .Number _ := ucdc.gc then true else false)
+      let property := fun ucdc : UnicodeData => if let .Number _ := ucdc.gc then true else false
       let table := calculateTable ucd property
       writeUnicodeVersion
       writeTable "numeric" table

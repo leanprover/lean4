@@ -42,7 +42,7 @@ def explicitRanges (ucd : List UnicodeData) (property : UnicodeData → Bool) : 
         ranges := completedRange :: ranges
     | some r, false =>
       -- Close the range
-      -- Cannot use code for range end as their may be a jump in codepoints
+      -- Cannot use code for range end as there may be a jump in codepoints
       let completedRange : Range := { start := r.start , stop := r.stop + 1 }
       rangeOpt := none
       ranges := completedRange :: ranges

@@ -55,7 +55,7 @@ def explicitRanges (ucd : List UnicodeData) (property : UnicodeData → Bool) : 
   return ranges
 
 /-
-Turn the list or ranges into a gap encoding.
+Turn the list of ranges into a gap encoding.
 -/
 def mergeRanges (ranges : List Range) : List Nat := Id.run do
   let flat := ranges.foldl (fun acc => fun range => range.start :: range.stop :: acc) []

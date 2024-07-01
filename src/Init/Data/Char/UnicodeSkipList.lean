@@ -19,7 +19,7 @@ We use a variant of the skip list data structure that takes advantage
 of the distribution of character properties for the common properties of
 interest. Considering the sequence of codepoints that satisfy a given
 property, they tend to appear is small ranges that are clustered. These
-clusters are separated from each others by large ranges of codepoint that
+clusters are separated from each other by large ranges of codepoints that
 do not satisfy the property. We refer to such clusters as runs.
 
 The data structure takes advantage of this by representing the set

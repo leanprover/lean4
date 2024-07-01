@@ -578,9 +578,14 @@ where
         names := names.push "(masked)"
     return names
 
+  -- We sort the constraints; otherwise the order is dependent on details of the hashing
+  -- and this can cause test suite output churn
   prettyConstraints (names : Array String) (constraints : HashMap Coeffs Fact) : String :=
     constraints.toList
+      |>.toArray
+      |>.qsort (·.1 < ·.1)
       |>.map (fun ⟨coeffs, ⟨_, cst, _⟩⟩ => "  " ++ prettyConstraint (prettyCoeffs names coeffs) cst)
+      |>.toList
       |> "\n".intercalate
 
   prettyConstraint (e : String) : Constraint → String

@@ -24,7 +24,7 @@ do not satisfy the property. We refer to such clusters as runs.
 
 The data structure takes advantage of this by representing the set
 using an array of 32 bit integers (the outer array that allows to skip)
-and an array of 8 bits integers. The integers of the outter array
+and an array of 8 bit integers. The integers of the outer array
 contains enough information to let us locate in which run a codepoint
 belong, and we call it `runs`. The bytes of the inner array, which we call
 `offsets` record the length of the ranges. Large ranges of codepoints

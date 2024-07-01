@@ -13,6 +13,7 @@ import Lean.Elab.Config
 import Lean.Elab.Level
 import Lean.Elab.DeclModifiers
 import Lean.Elab.PreDefinition.WF.TerminationHint
+import Lean.Elab.NameSuggestions
 import Lean.Language.Basic
 
 namespace Lean.Elab
@@ -1808,6 +1809,26 @@ private def mkConsts (candidates : List (Name × List String)) (explicitLevels :
     let const ← mkConst declName explicitLevels
     return (const, projs) :: result
 
+/-- Throws an unknown identifier error message, with spelling suggestions if applicable. -/
+def throwUnknownIdentifier (n : Name) : TermElabM α := do
+  let ref ← getRef
+  let env ← getEnv
+  let lctx ← getLCtx
+  let currNamespace ← getCurrNamespace
+  let openDecls ← getOpenDecls
+
+  let canonical := ref.getPos? (canonicalOnly := true) |>.isSome
+  let suggestions :=
+    if canonical then
+      findSuggestions n env (some lctx) currNamespace openDecls
+    else .pure {}
+
+  if canonical then
+    saveNameSuggestions ref suggestions
+
+  throwError m!"unknown identifier '{Lean.mkConst n}'" ++ .lazy fun _ => do
+    pure suggestions.get.toMessageData
+
 def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × List String)) := do
   addCompletionInfo <| CompletionInfo.id stx stx.getId (danglingDot := false) (← getLCtx) expectedType?
   if let some (e, projs) ← resolveLocalName n then
@@ -1833,7 +1854,7 @@ where
            isValidAutoBoundImplicitName n (relaxedAutoImplicit.get (← getOptions)) then
         throwAutoBoundImplicitLocal n
       else
-        throwError "unknown identifier '{Lean.mkConst n}'"
+        throwUnknownIdentifier n
     mkConsts candidates explicitLevels
 
 /--

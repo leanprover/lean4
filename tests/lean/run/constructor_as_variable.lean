@@ -108,7 +108,7 @@ def ctorSuggestion1 (pair : α × β) : β :=
 /--
 error: invalid pattern, constructor or constant marked with '[match_pattern]' expected
 
-Suggestion: 'List.cons' is similar
+Suggestion: 'List.cons'
 ---
 warning: Local variable 'nil' resembles constructor 'List.nil' - write '.nil' (with a dot) or 'List.nil' to use the constructor.
 note: this linter can be disabled with `set_option linter.constructorNameAsVariable false`

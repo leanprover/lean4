@@ -33,6 +33,10 @@ info: foo.eq_def :
 #guard_msgs in
 #check foo.eq_def
 
-/-- error: unknown identifier 'foo.eq_3' -/
+/--
+error: unknown identifier 'foo.eq_3'
+
+Suggestions: 'foo.eq_1', 'foo.eq_2'
+-/
 #guard_msgs in
 #check foo.eq_3

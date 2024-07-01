@@ -2,6 +2,8 @@ Foo.Bar.bar : Nat
 Foo.Bar.bar : Nat
 Foo.Bar.bar : Nat
 593.lean:21:7-21:10: error: unknown identifier 'boo'
+
+Suggestion: 'bool'
 593.lean:26:7-26:10: error: unknown identifier 'bar'
 Foo.boo : Nat
 Foo.Bar.bar : Nat

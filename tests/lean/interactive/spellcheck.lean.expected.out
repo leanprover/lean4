@@ -1,0 +1,143 @@
+{"title": "Replace with 'xyy'",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///spellcheck.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 15, "character": 27},
+       "end": {"line": 15, "character": 29}},
+      "newText": "xyy"}]}]}}
+{"title": "Replace with 'xyz'",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///spellcheck.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 15, "character": 27},
+       "end": {"line": 15, "character": 29}},
+      "newText": "xyz"}]}]}}
+{"title": "Replace with 'zxy'",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///spellcheck.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 15, "character": 27},
+       "end": {"line": 15, "character": 29}},
+      "newText": "zxy"}]}]}}
+{"title": "Replace with 'zero'",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///spellcheck.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 24, "character": 27},
+       "end": {"line": 24, "character": 31}},
+      "newText": "zero"}]}]}}
+{"title": "Replace with 'Acc'",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///spellcheck.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 32, "character": 11},
+       "end": {"line": 32, "character": 14}},
+      "newText": "Acc"}]}]}}
+{"title": "Replace with 'Acc'",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///spellcheck.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 41, "character": 11},
+       "end": {"line": 41, "character": 14}},
+      "newText": "Acc"}]}]}}
+{"title": "Replace with 'succ'",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///spellcheck.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 41, "character": 11},
+       "end": {"line": 41, "character": 14}},
+      "newText": "succ"}]}]}}
+{"title": "Replace with 'Array'",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///spellcheck.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 49, "character": 16},
+       "end": {"line": 49, "character": 23}},
+      "newText": "Array"}]}]}}
+{"title": "Replace with 'Subarray'",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///spellcheck.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 49, "character": 16},
+       "end": {"line": 49, "character": 23}},
+      "newText": "Subarray"}]}]}}
+{"title": "Replace with 'Std.Format.nil'",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///spellcheck.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 58, "character": 11},
+       "end": {"line": 58, "character": 25}},
+      "newText": "Std.Format.nil"}]}]}}
+{"title": "Replace with 'Format.nil'",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///spellcheck.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 73, "character": 11},
+       "end": {"line": 73, "character": 21}},
+      "newText": "Format.nil"}]}]}}
+{"title": "Replace with 'Associative'",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///spellcheck.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 84, "character": 12},
+       "end": {"line": 84, "character": 22}},
+      "newText": "Associative"}]}]}}
+{"title": "Replace with 'nil'",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///spellcheck.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 93, "character": 20},
+       "end": {"line": 93, "character": 24}},
+      "newText": "nil"}]}]}}

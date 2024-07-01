@@ -44,6 +44,7 @@ a : α
         • [.] Fam2.nat : none @ ⟨10, 4⟩-⟨10, 12⟩
         • Fam2.nat : Nat → Fam2 Nat Nat @ ⟨10, 4⟩-⟨10, 12⟩
         • [.] n : none @ ⟨10, 13⟩-⟨10, 14⟩
+        • CustomInfo(Lean.Elab.NameSuggestionInfo)
         • [.] Fam2.any : none @ ⟨9, 4⟩-⟨9, 12⟩
         • [.] Fam2.any : none @ ⟨9, 4⟩-⟨9, 12⟩
         • @Fam2.any : {α : Type} → Fam2 α α @ ⟨9, 4⟩-⟨9, 12⟩
@@ -61,6 +62,7 @@ a : α
         • [.] Fam2.nat : none @ ⟨10, 4⟩-⟨10, 12⟩
         • Fam2.nat : Nat → Fam2 Nat Nat @ ⟨10, 4⟩-⟨10, 12⟩
         • [.] n : none @ ⟨10, 13⟩-⟨10, 14⟩
+        • CustomInfo(Lean.Elab.NameSuggestionInfo)
         • [.] a : none @ ⟨8, 2⟩†-⟨10, 19⟩†
         • [.] Fam2.nat : some Fam2 ([mdata _patWithRef: [mdata _inaccessible:1 [mdata _patWithRef: ?_uniq]]]) ([mdata _patWithRef: [mdata _inaccessible:1 [mdata _patWithRef: ?_uniq]]]) @ ⟨10, 4⟩-⟨10, 12⟩
         • [.] n : some Nat @ ⟨10, 13⟩-⟨10, 14⟩

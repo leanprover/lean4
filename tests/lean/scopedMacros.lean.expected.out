@@ -1,5 +1,7 @@
 10 + 1 : Nat
 scopedMacros.lean:11:7-11:11: error: unknown identifier 'foo!'
+
+Suggestions: 'Bool', 'bool'
 10 + 1 : Nat
 scopedMacros.lean:19:7-19:50: error: scoped attributes must be used inside namespaces
 scopedMacros.lean:19:7-19:50: error: invalid syntax node kind 'termBla!_'

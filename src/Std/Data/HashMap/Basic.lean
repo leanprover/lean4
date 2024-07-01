@@ -149,6 +149,9 @@ instance {m : Type w → Type w} : ForIn m (Raw α β) (α × β) where
 @[inline] def unitOfList [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] (l : ρ) : Raw α Unit :=
   ⟨DHashMap.Raw.Const.unitOfList l⟩
 
+def Internal.numBuckets (m : Raw α β) : Nat :=
+  DHashMap.Raw.Internal.numBuckets m.inner
+
 end Unverified
 
 structure WF [BEq α] [Hashable α] (m : Raw α β) : Prop where
@@ -305,6 +308,9 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β
 
 @[inline] def unitOfList [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] (l : ρ) : HashMap α Unit :=
   ⟨DHashMap.Const.unitOfList l⟩
+
+def Internal.numBuckets [BEq α] [Hashable α] (m : HashMap α β) : Nat :=
+  DHashMap.Internal.numBuckets m.inner
 
 end Unverified
 

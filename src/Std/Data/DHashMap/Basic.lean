@@ -221,6 +221,9 @@ else m -- will never happen for well-formed inputs
 @[inline] def Const.unitOfList [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] (l : ρ) : Raw α (fun _ => Unit) :=
   Const.insertManyUnit ∅ l
 
+def Internal.numBuckets (m : Raw α β) : Nat :=
+  m.buckets.size
+
 end Unverified
 
 section WF
@@ -475,6 +478,9 @@ instance [BEq α] [Hashable α] : ForIn m (DHashMap α β) (Σ a, β a) where
 
 @[inline] def Const.unitOfList [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] (l : ρ) : DHashMap α (fun _ => Unit) :=
   Const.insertManyUnit ∅ l
+
+def Internal.numBuckets [BEq α] [Hashable α] (m : DHashMap α β) :=
+  Raw.Internal.numBuckets m.1
 
 end Unverified
 

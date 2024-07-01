@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.Basic
-// Imports: Lean.Compiler.NoncomputableAttr Lean.Util.CollectLevelParams Lean.Meta.AbstractNestedProofs Lean.Meta.ForEachExpr Lean.Elab.RecAppSyntax Lean.Elab.DefView Lean.Elab.PreDefinition.WF.TerminationHint
+// Imports: Lean.Compiler.NoncomputableAttr Lean.Util.CollectLevelParams Lean.Meta.AbstractNestedProofs Lean.Meta.ForEachExpr Lean.Elab.RecAppSyntax Lean.Elab.DefView Lean.Elab.PreDefinition.TerminationHint
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -10131,7 +10131,7 @@ lean_object* initialize_Lean_Meta_AbstractNestedProofs(uint8_t builtin, lean_obj
 lean_object* initialize_Lean_Meta_ForEachExpr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_RecAppSyntax(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_DefView(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_PreDefinition_WF_TerminationHint(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_PreDefinition_TerminationHint(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_PreDefinition_Basic(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -10155,7 +10155,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_DefView(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_PreDefinition_WF_TerminationHint(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_PreDefinition_TerminationHint(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_instInhabitedPreDefinition___closed__1 = _init_l_Lean_Elab_instInhabitedPreDefinition___closed__1();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.WF.Rel
-// Imports: Lean.Meta.Tactic.Apply Lean.Meta.Tactic.Cases Lean.Meta.Tactic.Rename Lean.Elab.SyntheticMVars Lean.Elab.PreDefinition.Basic Lean.Elab.PreDefinition.WF.TerminationArgument Lean.Meta.ArgsPacker
+// Imports: Lean.Meta.Tactic.Apply Lean.Meta.Tactic.Cases Lean.Meta.Tactic.Rename Lean.Elab.SyntheticMVars Lean.Elab.PreDefinition.Basic Lean.Elab.PreDefinition.TerminationArgument Lean.Meta.ArgsPacker
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_hasAnyFVar_visit___at_Lean_Elab_WF_checkCodomains___spec__2___boxed(lean_object*, lean_object*);
+extern lean_object* l_Lean_Elab_instInhabitedTerminationArgument;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_WF_elabWFRel___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_checkCodomains___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_WF_checkCodomains___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -94,7 +95,6 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_beta(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_WF_checkCodomains___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_WF_instInhabitedTerminationArgument;
 static lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_WF_checkCodomains___spec__4___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_checkCodomains___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -566,7 +566,7 @@ x_45 = lean_array_fget(x_36, x_37);
 x_46 = lean_nat_add(x_37, x_34);
 lean_dec(x_37);
 lean_ctor_set(x_19, 1, x_46);
-x_47 = lean_ctor_get(x_33, 3);
+x_47 = lean_ctor_get(x_33, 1);
 lean_inc(x_47);
 lean_inc(x_1);
 x_48 = l_Lean_Expr_beta(x_47, x_1);
@@ -698,7 +698,7 @@ x_72 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_72, 0, x_36);
 lean_ctor_set(x_72, 1, x_71);
 lean_ctor_set(x_72, 2, x_38);
-x_73 = lean_ctor_get(x_33, 3);
+x_73 = lean_ctor_get(x_33, 1);
 lean_inc(x_73);
 lean_inc(x_1);
 x_74 = l_Lean_Expr_beta(x_73, x_1);
@@ -889,7 +889,7 @@ if (lean_is_scalar(x_105)) {
 lean_ctor_set(x_108, 0, x_100);
 lean_ctor_set(x_108, 1, x_107);
 lean_ctor_set(x_108, 2, x_102);
-x_109 = lean_ctor_get(x_96, 3);
+x_109 = lean_ctor_get(x_96, 1);
 lean_inc(x_109);
 lean_inc(x_1);
 x_110 = l_Lean_Expr_beta(x_109, x_1);
@@ -1133,7 +1133,7 @@ if (lean_is_scalar(x_150)) {
 lean_ctor_set(x_153, 0, x_144);
 lean_ctor_set(x_153, 1, x_152);
 lean_ctor_set(x_153, 2, x_146);
-x_154 = lean_ctor_get(x_140, 3);
+x_154 = lean_ctor_get(x_140, 1);
 lean_inc(x_154);
 lean_inc(x_1);
 x_155 = l_Lean_Expr_beta(x_154, x_1);
@@ -1399,7 +1399,7 @@ if (lean_is_scalar(x_200)) {
 lean_ctor_set(x_203, 0, x_193);
 lean_ctor_set(x_203, 1, x_202);
 lean_ctor_set(x_203, 2, x_195);
-x_204 = lean_ctor_get(x_189, 3);
+x_204 = lean_ctor_get(x_189, 1);
 lean_inc(x_204);
 lean_inc(x_1);
 x_205 = l_Lean_Expr_beta(x_204, x_1);
@@ -1693,7 +1693,7 @@ x_42 = l_Lean_indentExpr(x_29);
 if (x_34 == 0)
 {
 lean_object* x_90; lean_object* x_91; 
-x_90 = l_Lean_Elab_WF_instInhabitedTerminationArgument;
+x_90 = l_Lean_Elab_instInhabitedTerminationArgument;
 x_91 = l_outOfBounds___rarg(x_90);
 x_43 = x_91;
 goto block_89;
@@ -2245,7 +2245,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_array_uget(x_4, x_3);
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_4, x_3, x_7);
-x_9 = lean_ctor_get(x_6, 3);
+x_9 = lean_ctor_get(x_6, 1);
 lean_inc(x_9);
 lean_dec(x_6);
 lean_inc(x_1);
@@ -2637,7 +2637,7 @@ lean_object* initialize_Lean_Meta_Tactic_Cases(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Rename(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_SyntheticMVars(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_PreDefinition_WF_TerminationArgument(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_PreDefinition_TerminationArgument(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_ArgsPacker(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_PreDefinition_WF_Rel(uint8_t builtin, lean_object* w) {
@@ -2659,7 +2659,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_PreDefinition_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_PreDefinition_WF_TerminationArgument(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_PreDefinition_TerminationArgument(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_ArgsPacker(builtin, lean_io_mk_world());

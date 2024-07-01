@@ -19,38 +19,47 @@ explanation in Init/Data/Char/UnicodeSkipList.lean
 -/
 
 /-
-Break down the sequence of codepoints into a sequence of ranges,
-alternating between ranges that satisfy the property and ranges that
-do not.
+Return the list of all contiguous ranges of codepoints that satisfy the property
 -/
 def explicitRanges (ucd : List UnicodeData) (property : UnicodeData → Bool) : List Range := Id.run do
   let mut rangeOpt : Option Range := none
   let mut ranges := []
+  -- Assumes that codepoints in `ucd` appear in increasing order
+  -- which should be true if ucd was read from the Unicode database
   for datapoint in ucd do
     let code := datapoint.codepoint
     let prop := property datapoint
     match rangeOpt, prop with
     | some r, true =>
+      -- We are in a range of codepoints that satisfy a property and the
+      -- new codepoint also satisfies the property. Two possibilities:
       if r.stop + 1 = code then
+        -- If the new codepoint is contiguous to the range
         -- Extend the range
         rangeOpt := some { r with stop := code }
       else
-        -- Hidden gap
+        -- There's a range of unallocated codepoints
+        -- So we need two create a new range
         let completedRange : Range := { start := r.start , stop := r.stop + 1 }
         let newRange : Range := { start := code , stop := code }
         rangeOpt := some newRange
         ranges := completedRange :: ranges
     | some r, false =>
+      -- We reached the end of a range that satisfies the property
       -- Close the range
       -- Cannot use code for range end as there may be a jump in codepoints
       let completedRange : Range := { start := r.start , stop := r.stop + 1 }
       rangeOpt := none
       ranges := completedRange :: ranges
     | none, true =>
+      -- We were in a negative range and encountered a codepoint that satisfies the property
       -- Open a range
       let newRange : Range := { start := code , stop := code }
       rangeOpt := some newRange
-    | none, false => ()
+    | none, false =>
+      -- The codepoint does not have the property and is not closing
+      -- a range of codepoints that do have the property, so continue
+      ()
 
   return ranges
 

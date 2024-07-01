@@ -156,6 +156,24 @@ def mathToolchainBlobUrl : String :=
 def mathToolchainUrl : String :=
   "https://github.com/leanprover-community/mathlib4/blob/master/lean-toolchain"
 
+def leanActionWorkflowContents :=
+s!"name: Lean Action CI
+
+on:
+  push:
+    branches: [\"main\"]
+  pull_request:
+    branches: [\"main\"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1-beta
+"
 
 /-- Lake package template identifier. -/
 inductive InitTemplate
@@ -287,6 +305,17 @@ def validatePkgName (pkgName : String) : LogIO PUnit := do
   if pkgName.toLower ∈ ["init", "lean", "lake", "main"] then
     error "reserved package name"
 
+def createLeanActionWorkflow (dir : FilePath) : LogIO PUnit := do
+  logInfo "creating lean-action CI workflow"
+  let workflowDir := dir / ".github" / "workflows"
+  let workflowFile := workflowDir / "lean_action_ci.yml"
+  if (← workflowFile.pathExists) then
+    logWarning "lean-action CI workflow already exists"
+    return
+  IO.FS.createDirAll workflowDir
+  IO.FS.writeFile workflowFile leanActionWorkflowContents
+  logInfo s!"created lean-action CI workflow at '{workflowFile}'"
+
 def init (name : String) (tmp : InitTemplate) (lang : ConfigLang) (env : Lake.Env) (cwd : FilePath := ".") : LogIO PUnit := do
   let name ← id do
     if name == "." then
@@ -300,6 +329,7 @@ def init (name : String) (tmp : InitTemplate) (lang : ConfigLang) (env : Lake.En
   validatePkgName name
   IO.FS.createDirAll cwd
   initPkg cwd (stringToLegalOrSimpleName name) tmp lang env
+  createLeanActionWorkflow cwd
 
 def new (name : String) (tmp : InitTemplate) (lang : ConfigLang)  (env : Lake.Env) (cwd : FilePath := ".") : LogIO PUnit := do
   let name := name.trim
@@ -309,3 +339,4 @@ def new (name : String) (tmp : InitTemplate) (lang : ConfigLang)  (env : Lake.En
   let dir := cwd / dirName
   IO.FS.createDirAll dir
   initPkg dir name tmp lang env
+  createLeanActionWorkflow dir

@@ -85,7 +85,8 @@ theorem contains_val [BEq α] [Hashable α] {m : Raw₀ α β} {a : α} :
   simp [Raw.contains, m.2]
 
 theorem get_eq [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} {a : α} {h : a ∈ m} :
-    m.get a h = Raw₀.get ⟨m, by rw [Raw.mem_iff_contains, Raw.contains] at h; split at h <;> simp_all⟩ a (by rw [Raw.mem_iff_contains, Raw.contains] at h; split at h <;> simp_all) := rfl
+    m.get a h = Raw₀.get ⟨m, by change dite .. = true at h; split at h <;> simp_all⟩ a
+      (by change dite .. = true at h; split at h <;> simp_all) := rfl
 
 theorem get_val [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} {a : α} {h : a ∈ m.val} :
     m.val.get a h = m.get a (contains_val (m := m) ▸ h) := rfl
@@ -151,7 +152,8 @@ theorem Const.get?_val [BEq α] [Hashable α] {m : Raw₀ α (fun _ => β)} {a :
   simp [Raw.Const.get?, m.2]
 
 theorem Const.get_eq [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {a : α} {h : a ∈ m} :
-    Raw.Const.get m a h = Raw₀.Const.get ⟨m, by rw [Raw.mem_iff_contains, Raw.contains] at h; split at h <;> simp_all⟩ a (by rw [Raw.mem_iff_contains, Raw.contains] at h; split at h <;> simp_all) :=
+    Raw.Const.get m a h = Raw₀.Const.get ⟨m, by change dite .. = true at h; split at h <;> simp_all⟩ a
+      (by change dite .. = true at h; split at h <;> simp_all) :=
   rfl
 
 theorem Const.get_val [BEq α] [Hashable α] {m : Raw₀ α (fun _ => β)} {a : α} {h : a ∈ m.val} :

@@ -86,6 +86,8 @@ theorem isEmpty_emptyc : (∅ : Raw α β).isEmpty :=
 theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} : (m.insert k v).isEmpty = false := by
   simp_to_raw using Raw₀.isEmpty_insert
 
+theorem mem_iff_contains [BEq α] [Hashable α] {m : Raw α β} {a : α} : a ∈ m ↔ m.contains a := Iff.rfl
+
 theorem contains_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) : m.contains a = m.contains b := by
   simp_to_raw using Raw₀.contains_congr
 
@@ -687,11 +689,11 @@ theorem isEmpty_emptyc : (∅ : DHashMap α β).isEmpty :=
 theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} : (m.insert k v).isEmpty = false :=
   Raw₀.isEmpty_insert _ m.2
 
-theorem contains_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) : m.contains a = m.contains b :=
-  Raw₀.contains_congr _ m.2 hab
-
 theorem mem_iff_contains {a : α} : a ∈ m ↔ m.contains a :=
   Iff.rfl
+
+theorem contains_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) : m.contains a = m.contains b :=
+  Raw₀.contains_congr _ m.2 hab
 
 theorem mem_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) : a ∈ m ↔ b ∈ m := by
   simp [mem_iff_contains, contains_congr hab]

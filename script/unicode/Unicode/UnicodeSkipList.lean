@@ -104,7 +104,7 @@ def largeOffsetEncoding (indices prefixSums : List Nat) : Array UInt32 :=
   ((indices.zip prefixSums).map (fun (idx,pf) => (idx + pf).toUInt32)).toArray
 
 def calculateTable (ucd : List UnicodeData) (property : UnicodeData → Bool) : UnicodePropertyTable :=
-  let ranges := (explicitRanges ucd property)
+  let ranges := explicitRanges ucd property
   let gaps := mergeRanges ranges
   let offsets := offsets gaps
   let indices := indices gaps

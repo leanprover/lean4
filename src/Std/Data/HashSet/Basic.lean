@@ -59,6 +59,16 @@ instance [BEq α] [Hashable α] {m : Raw α} {a : α} : Decidable (a ∈ m) :=
 @[inline] def remove [BEq α] [Hashable α] (m : Raw α) (a : α) : Raw α :=
   ⟨m.inner.remove a⟩
 
+@[inline] def size (m : Raw α) : Nat :=
+  m.inner.size
+
+@[inline] def isEmpty (m : Raw α) : Bool :=
+  m.inner.isEmpty
+
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
+
 @[inline] def filter [BEq α] [Hashable α] (f : α → Bool) (m : Raw α) : Raw α :=
   ⟨m.inner.filter fun a _ => f a⟩
 
@@ -86,17 +96,13 @@ instance {m : Type v → Type v} : ForIn m (Raw α) α where
 @[inline] def toArray (m : Raw α) : Array α :=
   m.inner.keysArray
 
-@[inline] def size (m : Raw α) : Nat :=
-  m.inner.size
-
-@[inline] def isEmpty (m : Raw α) : Bool :=
-  m.inner.isEmpty
-
 @[inline] def insertMany [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] (m : Raw α) (l : ρ) : Raw α :=
   ⟨m.inner.insertManyUnit l⟩
 
 @[inline] def ofList [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] (l : ρ) : Raw α :=
   ⟨HashMap.Raw.unitOfList l⟩
+
+end Unverified
 
 structure WF [BEq α] [Hashable α] (m : Raw α) : Prop where
   out : m.inner.WF
@@ -159,6 +165,16 @@ instance [BEq α] [Hashable α] {m : HashSet α} {a : α} : Decidable (a ∈ m) 
 @[inline] def remove [BEq α] [Hashable α] (m : HashSet α) (a : α) : HashSet α :=
   ⟨m.inner.remove a⟩
 
+@[inline] def size [BEq α] [Hashable α] (m : HashSet α) : Nat :=
+  m.inner.size
+
+@[inline] def isEmpty [BEq α] [Hashable α] (m : HashSet α) : Bool :=
+  m.inner.isEmpty
+
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
+
 @[inline] def filter [BEq α] [Hashable α] (f : α → Bool) (m : HashSet α) : HashSet α :=
   ⟨m.inner.filter fun a _ => f a⟩
 
@@ -186,17 +202,13 @@ instance [BEq α] [Hashable α] {m : Type v → Type v} : ForIn m (HashSet α) �
 @[inline] def toArray [BEq α] [Hashable α] (m : HashSet α) : Array α :=
   m.inner.keysArray
 
-@[inline] def size [BEq α] [Hashable α] (m : HashSet α) : Nat :=
-  m.inner.size
-
-@[inline] def isEmpty [BEq α] [Hashable α] (m : HashSet α) : Bool :=
-  m.inner.isEmpty
-
 @[inline] def insertMany [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] (m : HashSet α) (l : ρ) : HashSet α :=
   ⟨m.inner.insertManyUnit l⟩
 
 @[inline] def ofList [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] (l : ρ) : HashSet α :=
   ⟨HashMap.unitOfList l⟩
+
+end Unverified
 
 end HashSet
 

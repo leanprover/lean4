@@ -102,21 +102,6 @@ instance [BEq α] [Hashable α] {m : Raw α β} {a : α} : Decidable (a ∈ m) :
     Raw₀.remove ⟨m, h⟩ a
   else m -- will never happen for well-formed inputs
 
-@[inline] def filterMap {γ : α → Type w} (f : (a : α) → β a → Option (γ a)) (m : Raw α β) : Raw α γ :=
-  if h : 0 < m.buckets.size then
-    Raw₀.filterMap f ⟨m, h⟩
-  else ∅ -- will never happen for well-formed inputs
-
-@[inline] def map {γ : α → Type w} (f : (a : α) → β a → γ a) (m : Raw α β) : Raw α γ :=
-  if h : 0 < m.buckets.size then
-    Raw₀.map f ⟨m, h⟩
-  else ∅ -- will never happen for well-formed inputs
-
-@[inline] def filter (f : (a : α) → β a → Bool) (m : Raw α β) : Raw α β :=
-  if h : 0 < m.buckets.size then
-    Raw₀.filter f ⟨m, h⟩
-  else ∅ -- will never happen for well-formed inputs
-
 section
 
 variable {β : Type v}
@@ -148,6 +133,28 @@ variable {β : Type v}
   else (m, none) -- will never happen for well-formed inputs
 
 end
+
+@[inline] def isEmpty (m : Raw α β) : Bool :=
+  m.size == 0
+
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
+
+@[inline] def filterMap {γ : α → Type w} (f : (a : α) → β a → Option (γ a)) (m : Raw α β) : Raw α γ :=
+  if h : 0 < m.buckets.size then
+    Raw₀.filterMap f ⟨m, h⟩
+  else ∅ -- will never happen for well-formed inputs
+
+@[inline] def map {γ : α → Type w} (f : (a : α) → β a → γ a) (m : Raw α β) : Raw α γ :=
+  if h : 0 < m.buckets.size then
+    Raw₀.map f ⟨m, h⟩
+  else ∅ -- will never happen for well-formed inputs
+
+@[inline] def filter (f : (a : α) → β a → Bool) (m : Raw α β) : Raw α β :=
+  if h : 0 < m.buckets.size then
+    Raw₀.filter f ⟨m, h⟩
+  else ∅ -- will never happen for well-formed inputs
 
 /-- Folds the given function over the mappings in the hash map in some order. -/
 @[inline] def foldlM (f : δ → (a : α) → β a → m δ) (init : δ) (b : Raw α β) : m δ :=
@@ -190,9 +197,6 @@ instance : ForIn m (Raw α β) (Σ a, β a) where
 @[inline] def values {β : Type v} (m : Raw α (fun _ => β)) : List β :=
   m.foldl (fun acc _ v => v :: acc) []
 
-@[inline] def isEmpty (m : Raw α β) : Bool :=
-  m.size == 0
-
 @[inline] def insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (m : Raw α β) (l : ρ) : Raw α β :=
   if h : 0 < m.buckets.size then
     (Raw₀.insertMany ⟨m, h⟩ l).1
@@ -216,6 +220,8 @@ else m -- will never happen for well-formed inputs
 
 @[inline] def Const.unitOfList [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] (l : ρ) : Raw α (fun _ => Unit) :=
   Const.insertManyUnit ∅ l
+
+end Unverified
 
 section WF
 
@@ -375,9 +381,6 @@ Removes the mapping with the given key if it exists.
 @[inline] def remove [BEq α] [Hashable α] (m : DHashMap α β) (a : α) : DHashMap α β :=
   ⟨Raw₀.remove ⟨m.1, m.2.size_buckets_pos⟩ a, .remove₀ m.2⟩
 
-@[inline] def filter [BEq α] [Hashable α] (f : (a : α) → β a → Bool) (m : DHashMap α β) : DHashMap α β :=
-  ⟨Raw₀.filter f ⟨m.1, m.2.size_buckets_pos⟩, .filter₀ m.2⟩
-
 section
 
 variable {β : Type v}
@@ -405,6 +408,16 @@ end
 
 @[inline] def size [BEq α] [Hashable α] (m : DHashMap α β) : Nat :=
   m.1.size
+
+@[inline] def isEmpty [BEq α] [Hashable α] (m : DHashMap α β) : Bool :=
+  m.1.isEmpty
+
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
+
+@[inline] def filter [BEq α] [Hashable α] (f : (a : α) → β a → Bool) (m : DHashMap α β) : DHashMap α β :=
+  ⟨Raw₀.filter f ⟨m.1, m.2.size_buckets_pos⟩, .filter₀ m.2⟩
 
 @[inline] def foldlM [BEq α] [Hashable α] (f : δ → (a : α) → β a → m δ) (init : δ) (b : DHashMap α β) : m δ :=
   b.1.foldlM f init
@@ -445,9 +458,6 @@ instance [BEq α] [Hashable α] : ForIn m (DHashMap α β) (Σ a, β a) where
 @[inline] def values {β : Type v} [BEq α] [Hashable α] (m : DHashMap α (fun _ => β)) : List β :=
   m.1.values
 
-@[inline] def isEmpty [BEq α] [Hashable α] (m : DHashMap α β) : Bool :=
-  m.1.isEmpty
-
 @[inline] def insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (m : DHashMap α β) (l : ρ) : DHashMap α β :=
   ⟨(Raw₀.insertMany ⟨m.1, m.2.size_buckets_pos⟩ l).1, (Raw₀.insertMany ⟨m.1, m.2.size_buckets_pos⟩ l).2 _ Raw.WF.insert₀ m.2⟩
 
@@ -465,5 +475,7 @@ instance [BEq α] [Hashable α] : ForIn m (DHashMap α β) (Σ a, β a) where
 
 @[inline] def Const.unitOfList [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] (l : ρ) : DHashMap α (fun _ => Unit) :=
   Const.insertManyUnit ∅ l
+
+end Unverified
 
 end Std.DHashMap

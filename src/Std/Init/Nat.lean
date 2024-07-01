@@ -5,12 +5,8 @@ Authors: Markus Himmel
 -/
 prelude
 import Init.Data.Nat.Bitwise.Lemmas
-import Init.RCases
 
 namespace Nat
-
-theorem lt_of_eq_of_lt {n m k : Nat} : n = m → m < k → n < k :=
-  fun h₁ h₂ => h₁ ▸ h₂
 
 theorem le_of_testBit {n m : Nat} (h : ∀ i, n.testBit i = true → m.testBit i = true) : n ≤ m := by
   induction n using Nat.div2Induction generalizing m

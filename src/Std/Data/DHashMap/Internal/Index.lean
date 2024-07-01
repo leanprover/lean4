@@ -30,7 +30,7 @@ def scrambleHash (hash : UInt64) : UInt64 :=
 /--
 `sz` is an explicit parameter because having it inferred from `h` can lead to suboptimal IR, cf. https://github.com/leanprover/lean4/issues/4157
 -/
-@[irreducible] def mkIdx (sz : Nat) (h : 0 < sz) (hash : UInt64) : { u : USize // u.toNat < sz } :=
+@[irreducible, inline] def mkIdx (sz : Nat) (h : 0 < sz) (hash : UInt64) : { u : USize // u.toNat < sz } :=
   ⟨(scrambleHash hash).toUSize &&& (sz.toUSize - 1), by
     -- Making this proof significantly less painful will be a good test for our USize API
     by_cases h' : sz < USize.size

@@ -496,6 +496,16 @@ protected theorem cond_false {α : Type u} {a b : α} : cond false a b = b := co
 @[simp] theorem cond_true_same  : ∀(c b : Bool), cond c c b = (c || b) := by decide
 @[simp] theorem cond_false_same : ∀(c b : Bool), cond c b c = (c && b) := by decide
 
+theorem cond_pos {b : Bool} {a a' : α} (h : b = true) : (bif b then a else a') = a := by
+  rw [h, cond_true]
+
+theorem cond_neg {b : Bool} {a a' : α} (h : b = false) : (bif b then a else a') = a' := by
+  rw [h, cond_false]
+
+theorem apply_cond (f : α → β) {b : Bool} {a a' : α} :
+    f (bif b then a else a') = bif b then f a else f a' := by
+  cases b <;> simp
+
 /-# decidability -/
 
 protected theorem decide_coe (b : Bool) [Decidable (b = true)] : decide (b = true) = b := decide_eq_true

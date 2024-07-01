@@ -11,7 +11,7 @@ import Unicode.Parse
 open System IO FilePath Process FS Std Char.UnicodeSkipList
 
 def compareTables (ucd : Array UnicodeData) (property : UnicodeData → Bool) : IO Bool := do
-  let time ← monoMsNow
+
   let mut failed := false
   let table := numericTable
   let referenceTable := referenceTable ucd property
@@ -22,8 +22,6 @@ def compareTables (ucd : Array UnicodeData) (property : UnicodeData → Bool) : 
     if ref ≠ candidate then
       failed := true
       println s!"Discrepancy: character {c} with decimal code {c.toNat} is {ref} in the reference and {candidate} in the skiplist"
-  let msg := if failed then "failed" else "succeeded"
-  println s!"Verification {msg} in {((← monoMsNow) - time).toFloat / 1000} seconds"
   return failed
 
 def main : IO Unit := do
@@ -39,11 +37,12 @@ def main : IO Unit := do
   let ucd ← loadUnicodeData f
   match ucd with
   | Except.ok ucd =>
-      println s! "UCD size: {ucd.size}"
       let property := (fun ucdc : UnicodeData => if let .Number _ := ucdc.gc then true else false)
       let failed ← compareTables ucd property
       if failed then
         IO.Process.exit 1
+      else
+        IO.Process.exit 0
   | Except.error msg =>
       println msg
       IO.Process.exit 1

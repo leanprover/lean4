@@ -53,5 +53,4 @@ def loadUnicodeData (file : FilePath) : ExceptT String IO (Array UnicodeData) :=
       match codepoint.toNatHex? with
       | none => throw "Conversion of codepoint failed"
       | some c => data := data.push { codepointRaw := codepoint , codepoint := c, gc := gc }
-      --data := { codepointRaw := codepoint , codepoint := c, gc := gc } :: data
   return data

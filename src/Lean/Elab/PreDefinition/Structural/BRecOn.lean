@@ -217,9 +217,14 @@ private partial def toBelow (below : Expr) (numIndParams : Nat) (positions : Arr
   withBelowDict below numIndParams positions fun Cs belowDict =>
     toBelowAux Cs[fnIndex]! belowDict recArg below
 
--- TODO: resurrect caching using HasConstCache
-private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions : Array (Array Nat)) (below : Expr) (e : Expr) : M Expr :=
-  let rec loop (below : Expr) (e : Expr) : M Expr := do
+private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions : Array (Array Nat))
+    (below : Expr) (e : Expr) : M Expr :=
+  let recFnNames := recArgInfos.map (·.fnName)
+  let containsRecFn (e : Expr) : StateRefT (HasConstCache recFnNames) M Bool :=
+    modifyGet (·.contains e)
+  let rec loop (below : Expr) (e : Expr) : StateRefT (HasConstCache recFnNames) M Expr := do
+    if !(← containsRecFn e) then
+      return e
     match e with
     | Expr.lam n d b c =>
       withLocalDecl n c (← loop below d) fun x => do
@@ -237,7 +242,7 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
         return mkMData d (← loop below b)
     | Expr.proj n i e => return mkProj n i (← loop below e)
     | Expr.app _ _ =>
-      let processApp (e : Expr) : M Expr :=
+      let processApp (e : Expr) : StateRefT (HasConstCache recFnNames) M Expr :=
         e.withApp fun f args => do
           if let .some fnIdx := recArgInfos.findIdx? (f.isConstOf ·.fnName) then
             let recArgInfo := recArgInfos[fnIdx]!
@@ -298,9 +303,9 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
             processApp e
       | none => processApp e
     | e =>
-      ensureNoRecFn (recArgInfos.map (·.fnName)) e
+      ensureNoRecFn recFnNames e
       pure e
-  loop below e
+  loop below e |>.run' {}
 
 /--
 Calculates the `.brecOn` motive corresponding to one structural recursive function.

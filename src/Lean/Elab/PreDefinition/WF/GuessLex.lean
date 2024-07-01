@@ -192,7 +192,7 @@ def simpleMeasures (preDefs : Array PreDefinition) (fixedPrefixSize : Nat)
 
 /-- Internal monad used by `withRecApps` -/
 abbrev M (recFnName : Name) (α β : Type) : Type :=
-  StateRefT (Array α) (StateRefT (HasConstCache recFnName) MetaM) β
+  StateRefT (Array α) (StateRefT (HasConstCache #[recFnName]) MetaM) β
 
 /--
 Traverses the given expression `e`, and invokes the continuation `k`
@@ -223,7 +223,7 @@ where
         loop param f
 
   containsRecFn (e : Expr) : M recFnName α Bool := do
-    modifyGetThe (HasConstCache recFnName) (·.contains e)
+    modifyGetThe (HasConstCache #[recFnName]) (·.contains e)
 
   loop (param : Expr) (e : Expr) : M recFnName α Unit := do
     if !(← containsRecFn e) then

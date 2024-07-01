@@ -106,6 +106,7 @@ def splitIfTarget? (mvarId : MVarId) (hName? : Option Name := none) : MetaM (Opt
     let mvarId₁ ← simpIfTarget s₁.mvarId
     let mvarId₂ ← simpIfTarget s₂.mvarId
     if s₁.mvarId == mvarId₁ && s₂.mvarId == mvarId₂ then
+      trace[split.failure] "`split` tactic failed to simplify target using new hypotheses Goals:\n{mvarId₁}\n{mvarId₂}"
       return none
     else
       return some ({ s₁ with mvarId := mvarId₁ }, { s₂ with mvarId := mvarId₂ })
@@ -118,6 +119,7 @@ def splitIfLocalDecl? (mvarId : MVarId) (fvarId : FVarId) (hName? : Option Name 
       let mvarId₁ ← simpIfLocalDecl s₁.mvarId fvarId
       let mvarId₂ ← simpIfLocalDecl s₂.mvarId fvarId
       if s₁.mvarId == mvarId₁ && s₂.mvarId == mvarId₂ then
+        trace[split.failure] "`split` tactic failed to simplify target using new hypotheses Goals:\n{mvarId₁}\n{mvarId₂}"
         return none
       else
         return some (mvarId₁, mvarId₂)

@@ -171,7 +171,7 @@ private def inferRecArgPos (preDefs : Array PreDefinition)
       return (recArgPoss, preDefsNew)
     else
       let #[preDef] := preDefs
-        | throwError "mutual structural recursion reqiures explicit `termination_by` clauses"
+        | throwError "mutual structural recursion requires explicit `termination_by` clauses"
       -- Use termination_by annotation to find argument to recurse on, or just try all
       tryAllArgs preDef.value fun i =>
         mapError (f := fun msg => m!"argument #{i+1} cannot be used for structural recursion{indentD msg}") do

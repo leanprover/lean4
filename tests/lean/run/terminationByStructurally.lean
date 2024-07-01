@@ -71,7 +71,7 @@ def ackermann2 (n m : Nat) := match n, m with
 termination_by structural m
 
 /--
-error: The termination argument of a structural recursive function must be one of the parameters 'n', but
+error: The termination argument of a structurally recursive function must be one of the parameters 'n', but
   id n + 1
 isn't one of these.
 -/

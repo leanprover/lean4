@@ -18,12 +18,12 @@ def A.size : A → Nat
   | .self a => a.size + 1
   | .other b => b.size + 1
   | .empty => 0
-termination_by structurally x => x
+termination_by structural x => x
 def B.size : B → Nat
   | .self b => b.size + 1
   | .other a => a.size + 1
   | .empty => 0
-termination_by structurally x => x
+termination_by structural x => x
 end
 
 -- And indeed all equationals hold definitionally
@@ -82,12 +82,12 @@ def A.subs : (a : A) → (Fin a.size → A ⊕ B)
   | .self a => Fin.lastCases (.inl a) (a.subs)
   | .other b => Fin.lastCases (.inr b) (b.subs)
   | .empty => Fin.elim0
-termination_by structurally x => x
+termination_by structural x => x
 def B.subs : (b : B) → (Fin b.size → A ⊕ B)
   | .self b => Fin.lastCases (.inr b) (b.subs)
   | .other a => Fin.lastCases (.inl a) (a.subs)
   | .empty => Fin.elim0
-termination_by structurally x => x
+termination_by structural x => x
 end
 
 
@@ -98,12 +98,12 @@ def A.hasNoBEmpty : A → Prop
   | .self a => a.hasNoBEmpty
   | .other b => b.hasNoBEmpty
   | .empty => True
-termination_by structurally x => x
+termination_by structural x => x
 def B.hasNoBEmpty : B → Prop
   | .self b => b.hasNoBEmpty
   | .other a => a.hasNoBEmpty
   | .empty => False
-termination_by structurally x => x
+termination_by structural x => x
 end
 
 -- Mixing Prop and Nat.
@@ -116,13 +116,13 @@ def A.hasNoAEmpty : A → Prop
   | .self a => a.hasNoAEmpty
   | .other b => b.oddCount > 0
   | .empty => False
-termination_by structurally x => x
+termination_by structural x => x
 noncomputable
 def B.oddCount : B → Nat
   | .self b => b.oddCount + 1
   | .other a => if a.hasNoAEmpty then 0 else 1
   | .empty => 0
-termination_by structurally x => x
+termination_by structural x => x
 end
 
 -- Higher levels, but the same level `Type u`
@@ -133,12 +133,12 @@ def A.type.{u} : A → Type u
   | .self a => Unit × a.type
   | .other b => Unit × b.type
   | .empty => PUnit
-termination_by structurally x => x
+termination_by structural x => x
 def B.type.{u} : B → Type u
   | .self b => PUnit × b.type
   | .other a => PUnit × a.type
   | .empty => PUnit
-termination_by structurally x => x
+termination_by structural x => x
 end
 
 
@@ -157,12 +157,12 @@ def A.strangeType : A → Type
   | .self a => Unit × a.strangeType
   | .other b => Fin b.odderCount
   | .empty => Unit
-termination_by structurally x => x
+termination_by structural x => x
 def B.odderCount : B → Nat
   | .self b => b.odderCount + 1
   | .other a => if Nonempty a.strangeType then 0 else 1
   | .empty => 0
-termination_by structurally x => x
+termination_by structural x => x
 end
 
 
@@ -186,12 +186,12 @@ def A.size (m n : Nat) : A m n → Nat
   | .self a => a.size + m
   | .other b => b.size + m
   | .empty => 0
-termination_by structurally x => x
+termination_by structural x => x
 def B.size (m n : Nat): B m n → Nat
   | .self b => b.size + m
   | .other a => a.size + m
   | .empty => 0
-termination_by structurally x => x
+termination_by structural x => x
 end
 
 mutual
@@ -199,12 +199,12 @@ theorem A.size_eq_index (m n : Nat) : (a : A m n) → a.size = n
   | .self a => by dsimp [A.size]; rw[ A.size_eq_index]
   | .other b => by dsimp [A.size]; rw [B.size_eq_index]
   | .empty => rfl
-termination_by structurally x => x
+termination_by structural x => x
 theorem B.size_eq_index (m n : Nat) : (b : B m n) → b.size = n
   | .self b => by dsimp [B.size]; rw [B.size_eq_index]
   | .other a => by dsimp [B.size]; rw [A.size_eq_index]
   | .empty => rfl
-termination_by structurally x => x
+termination_by structural x => x
 end
 
 end Index
@@ -218,12 +218,12 @@ mutual
   def isEven : Nat → Prop
     | 0 => True
     | n+1 => ¬ isOdd n
-  termination_by structurally x => x
+  termination_by structural x => x
 
   def isOdd : Nat → Prop
     | 0 => False
     | n+1 => ¬ isEven n
-  termination_by structurally x => x
+  termination_by structural x => x
 end
 
 end EvenOdd
@@ -247,14 +247,14 @@ def A.self_size : A → Nat
   | .self a => a.self_size + 1
   | .other _ => 0
   | .empty => 0
-termination_by structurally x => x
+termination_by structural x => x
 
 #guard_msgs in
 def B.self_size : B → Nat
   | .self b => b.self_size + 1
   | .other _ => 0
   | .empty => 0
-termination_by structurally x => x
+termination_by structural x => x
 
 -- Structural recursion with more than one function per types of the mutual inductive
 
@@ -263,17 +263,17 @@ def A.weird_size1 : A → Nat
   | .self a => a.weird_size2 + 1
   | .other _ => 0
   | .empty => 0
-termination_by structurally x => x
+termination_by structural x => x
 def A.weird_size2 : A → Nat
   | .self a => a.weird_size3 + 1
   | .other _ => 0
   | .empty => 0
-termination_by structurally x => x
+termination_by structural x => x
 def A.weird_size3 : A → Nat
   | .self a => a.weird_size1 + 1
   | .other _ => 0
   | .empty => 0
-termination_by structurally x => x
+termination_by structural x => x
 end
 
 end MutualIndNonMutualFun
@@ -308,7 +308,7 @@ def Tree.below_1 (motive : Tree → Sort u) : Tree → Sort (max 1 u) :=
 def Tree.size : Tree → Nat
   | leaf => 0
   | node (t₁, t₂) => t₁.size + t₂.size
-termination_by structurally t => t
+termination_by structural t => t
 
 /--
 info: theorem NestedWithTuple.Tree.size.eq_2 : ∀ (t₁ t₂ : Tree), (Tree.node (t₁, t₂)).size = t₁.size + t₂.size :=
@@ -336,11 +336,11 @@ mutual
 def A.with_nat : A → Nat
   | .self a => a.with_nat + Nat.foo 1
   | .empty => 0
-termination_by structurally x => x
+termination_by structural x => x
 def Nat.foo : Nat → Nat
   | n+1 => Nat.foo n
   | 0 => A.empty.with_nat
-termination_by structurally x => x
+termination_by structural x => x
 end
 
 end DifferentTypes
@@ -356,19 +356,19 @@ inductive T : Nat → Type
 def T.size (n : Nat) (start : Nat) : T n → Nat
   | a => start
   | b t => 1 + T.size n start t
-termination_by structurally t => t
+termination_by structural t => t
 
 namespace Mutual
 mutual
 def T.size1 (n : Nat) (start : Nat) : T n → Nat
   | .a => 0
   | .b t => 1 + T.size2 n start t
-termination_by structurally t => t
+termination_by structural t => t
 
 def T.size2 (n : Nat) (start : Nat) : T n → Nat
   | .a => 0
   | .b t => 1 + T.size1 n start t
-termination_by structurally t => t
+termination_by structural t => t
 end
 
 end Mutual
@@ -381,7 +381,7 @@ error: its type FixedIndex.T is an inductive family and indices are not variable
 def T.size2 : T 37 → Nat
   | a => 0
   | b t => 1 + T.size2 t
-termination_by structurally t => t
+termination_by structural t => t
 
 end FixedIndex
 

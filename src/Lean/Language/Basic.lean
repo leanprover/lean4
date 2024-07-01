@@ -71,7 +71,7 @@ structure SnapshotTask (α : Type) where
   range? : Option String.Range
   /-- Underlying task producing the snapshot. -/
   task : Task α
-deriving Nonempty
+deriving Nonempty, Inhabited
 
 /-- Creates a snapshot task from a reporting range and a `BaseIO` action. -/
 def SnapshotTask.ofIO (range? : Option String.Range) (act : BaseIO α) : BaseIO (SnapshotTask α) := do
@@ -130,6 +130,10 @@ structure SyntaxGuarded (α : Type) where
   stx : Syntax
   /-- Potentially reusable value. -/
   val : α
+
+/-- Applies `f` to `s.val`. -/
+def SyntaxGuarded.mapVal (s : SyntaxGuarded α) (f : α → β) : SyntaxGuarded β :=
+  { s with val := f s.val }
 
 /--
 Pair of (optional) old snapshot task usable for incremental reuse and new snapshot promise for
@@ -221,6 +225,9 @@ class ToSnapshotTree (α : Type) where
   toSnapshotTree : α → SnapshotTree
 export ToSnapshotTree (toSnapshotTree)
 
+instance : ToSnapshotTree SnapshotTree where
+  toSnapshotTree t := t
+
 instance [ToSnapshotTree α] : ToSnapshotTree (Option α) where
   toSnapshotTree
     | some a => toSnapshotTree a
@@ -228,7 +235,7 @@ instance [ToSnapshotTree α] : ToSnapshotTree (Option α) where
 
 /-- Snapshot type without child nodes. -/
 structure SnapshotLeaf extends Snapshot
-deriving Nonempty, TypeName
+deriving Inhabited, TypeName
 
 instance : ToSnapshotTree SnapshotLeaf where
   toSnapshotTree s := SnapshotTree.mk s.toSnapshot #[]

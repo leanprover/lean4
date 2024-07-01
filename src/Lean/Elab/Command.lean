@@ -51,12 +51,10 @@ structure Context where
   (mutual) defs and contained tactics, in which case the `DynamicSnapshot` is a
   `HeadersParsedSnapshot`.
 
-  Definitely resolved in `Language.Lean.process.doElab`.
-
   Invariant: if the bundle's `old?` is set, the context and state at the beginning of current and
   old elaboration are identical.
   -/
-  snap?          : Option (Language.SnapshotBundle Language.DynamicSnapshot)
+  snap?          : Option (Language.SnapshotBundle Language.DynamicSnapshot) := none
   /-- Cancellation token forwarded to `Core.cancelTk?`. -/
   cancelTk?      : Option IO.CancelToken
   /--
@@ -65,8 +63,7 @@ structure Context where
   -/
   suppressElabErrors : Bool := false
 
-abbrev CommandElabCoreM (ε) := ReaderT Context $ StateRefT State $ EIO ε
-abbrev CommandElabM := CommandElabCoreM Exception
+abbrev CommandElabM := ReaderT Context <| StateRefT State (EIO Exception)
 abbrev CommandElab  := Syntax → CommandElabM Unit
 structure Linter where
   run : Syntax → CommandElabM Unit
@@ -268,6 +265,51 @@ def runLinters (stx : Syntax) : CommandElabM Unit := do
             finally
               modify fun s => { savedState with messages := s.messages }
 
+/--
+Catches and logs exceptions occurring in `x`. Unlike `try catch` in `CommandElabM`, this function
+catches interrupt exceptions as well and thus is intended for use at the top level of elaboration.
+Interrupt and abort exceptions are caught but not logged.
+-/
+@[inline] def withLoggingExceptions (x : CommandElabM Unit) : CommandElabM Unit := fun ctx ref =>
+  EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
+
+/-- Runs the given action in a separate task, discarding its final state. -/
+def runAsync (act : CommandElabM α) : CommandElabM (Task (Except Exception α)) := do
+  EIO.asTask (act.run (← read) |>.run' (← get))
+
+/--
+Runs the given action in a separate task, discarding its final state except for the message log,
+which is reported in the returned snapshot.
+-/
+def runAsyncAsSnapshot (act : CommandElabM Unit) : CommandElabM (Task Language.SnapshotTree) := do
+  let t ← runAsync do
+    -- Reset log so as not to report messages twice, from either thread
+    modify ({ · with messages := {} })
+    withLoggingExceptions act
+    get
+  BaseIO.mapTask (t := t) fun
+    | .ok st =>
+      return .mk { diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog st.messages) } #[]
+    | .error _ => unreachable!
+
+def runLintersAsync (stx : Syntax) (lintPromise : IO.Promise Language.SnapshotTree) :
+    CommandElabM Unit := do
+  let opts ← getOptions
+  let hasLintTrace := opts.entries.any ((`Elab.lint).isPrefixOf ·.1)
+  if hasLintTrace || trace.profiler.get opts then
+    -- NOTE: can't currently report traces from tasks
+    runLinters stx
+  else
+    -- We only start one task for all linters for now as most linters are fast and we simply want
+    -- to unblock elaboration of the next command
+    lintPromise.resolve <| .mk {
+      diagnostics := .empty
+    } #[{
+      range? := none
+      task   := (← runAsyncAsSnapshot <| runLinters stx)
+    }]
+
+
 protected def getCurrMacroScope : CommandElabM Nat  := do pure (← read).currMacroScope
 protected def getMainModule     : CommandElabM Name := do pure (← getEnv).mainModule
 
@@ -448,6 +490,26 @@ register_builtin_option showPartialSyntaxErrors : Bool := {
   descr    := "show elaboration errors from partial syntax trees (i.e. after parser recovery)"
 }
 
+open Language in
+/--
+State at the beginning of elaboration of a command, after snapshot tasks for subtasks have been
+allocated.
+-/
+structure CommandProcessingSnapshot extends Snapshot where
+  /--
+  Snapshot task for incrementality in the specific command elaborator called, stored in
+  `Context.snap?`.
+  -/
+  elabSnap : SnapshotTask DynamicSnapshot
+  /-- Snapshot task for async linting. -/
+  lintSnap : SnapshotTask SnapshotTree
+deriving Inhabited
+open Language in
+instance : ToSnapshotTree CommandProcessingSnapshot where
+  toSnapshotTree s := .mk s.toSnapshot #[
+    s.elabSnap.map (sync := true) toSnapshotTree,
+    s.lintSnap.map (sync := true) toSnapshotTree]
+
 builtin_initialize
   registerTraceClass `Elab.info
   registerTraceClass `Elab.snapshotTree
@@ -456,18 +518,38 @@ builtin_initialize
 `elabCommand` wrapper that should be used for the initial invocation, not for recursive calls after
 macro expansion etc.
 -/
-def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do profileitM Exception "elaboration" (← getOptions) do
+def elabCommandTopLevel (stx : Syntax)
+    (snap? : Option (Language.SnapshotBundle CommandProcessingSnapshot) := none) :
+    CommandElabM Unit :=
+  withRef stx do
+  profileitM Exception "elaboration" (← getOptions) do
   withReader ({ · with suppressElabErrors :=
     stx.hasMissing && !showPartialSyntaxErrors.get (← getOptions) }) do
   let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
   let initInfoTrees ← getResetInfoTrees
   try
-    -- We should *not* factor out `elabCommand`'s `withLogging` to here since it would make its error
-    -- recovery more coarse. In particular, If `c` in `set_option ... in $c` fails, the remaining
-    -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
-    elabCommand stx
-    withLogging do
-      runLinters stx
+    Language.withAlwaysResolvedPromise fun elabPromise =>
+    Language.withAlwaysResolvedPromise fun lintPromise => do
+      if let some snap := snap? then
+        snap.new.resolve {
+          diagnostics := .empty
+          -- TODO: set range?
+          elabSnap := { range? := none, task := elabPromise.result }
+          lintSnap := { range? := none, task := lintPromise.result }}
+        withReader ({ · with snap? := some {
+          old? := snap.old?.map (·.mapVal (·.bind (·.elabSnap)))
+          new := elabPromise
+        }}) do
+          -- We should *not* factor out `elabCommand`'s `withLogging` to here since it would make its error
+          -- recovery more coarse. In particular, If `c` in `set_option ... in $c` fails, the remaining
+          -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
+          elabCommand stx
+        withLogging do
+          runLintersAsync stx lintPromise
+      else
+        elabCommand stx
+        withLogging do
+          runLinters stx
   finally
     -- note the order: first process current messages & info trees, then add back old messages & trees,
     -- then convert new traces to messages
@@ -600,14 +682,6 @@ def runTermElabM (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
           let someType := mkSort levelZero
           Term.addAutoBoundImplicits' xs someType fun xs _ =>
             Term.withoutAutoBoundImplicit <| elabFn xs
-
-/--
-Catches and logs exceptions occurring in `x`. Unlike `try catch` in `CommandElabM`, this function
-catches interrupt exceptions as well and thus is intended for use at the top level of elaboration.
-Interrupt and abort exceptions are caught but not logged.
--/
-@[inline] def withLoggingExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit := fun ctx ref =>
-  EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
 
 private def liftAttrM {α} (x : AttrM α) : CommandElabM α := do
   liftCoreM x

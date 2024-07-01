@@ -341,7 +341,7 @@ def mkBRecOnF (recArgInfos : Array RecArgInfo) (positions : Array (Array Nat))
 /--
 Given the `motives`, figures out whether to use `.brecOn` or `.binductionOn`, pass
 the right universe levels, the parameters, and the motives.
-TODO: What if the function motives have different universes?
+It was already checked earlier in `checkCodomainsLevel` that the functions live in the same universe.
 -/
 def mkBRecOnConst (recArgInfos : Array RecArgInfo) (positions : Array (Array Nat))
    (motives : Array Expr) : MetaM (Name → Expr) := do

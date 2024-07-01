@@ -11,6 +11,7 @@ import Std.Data.HashMap.Basic
 # Additional hash map operations
 
 This file defines the operations `map` and `filterMap` on `Std.Data.HashMap`.
+We currently do not provide lemmas for these functions.
 -/
 
 set_option linter.missingDocs true

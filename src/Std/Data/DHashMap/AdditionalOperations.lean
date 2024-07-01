@@ -11,6 +11,7 @@ import Std.Data.DHashMap.Internal.WF
 # Additional dependent hash map operations
 
 This file defines the operations `map` and `filterMap` on `Std.Data.DHashMap`.
+We currently do not provide lemmas for these functions.
 -/
 
 open Std.DHashMap.Internal

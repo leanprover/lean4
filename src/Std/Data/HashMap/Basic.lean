@@ -85,6 +85,16 @@ instance [BEq α] [Hashable α] : GetElem? (Raw α β) α β (fun m a => a ∈ m
 @[inline] def remove [BEq α] [Hashable α] (m : Raw α β) (a : α) : Raw α β :=
   ⟨m.inner.remove a⟩
 
+@[inline] def size (m : Raw α β) : Nat :=
+  m.inner.size
+
+@[inline] def isEmpty (m : Raw α β) : Bool :=
+  m.inner.isEmpty
+
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
+
 @[inline] def filterMap {γ : Type w} (f : α → β → Option γ) (m : Raw α β) : Raw α γ :=
   ⟨m.inner.filterMap f⟩
 
@@ -127,12 +137,6 @@ instance {m : Type w → Type w} : ForIn m (Raw α β) (α × β) where
 @[inline] def values (m : Raw α β) : List β :=
   m.inner.values
 
-@[inline] def size (m : Raw α β) : Nat :=
-  m.inner.size
-
-@[inline] def isEmpty (m : Raw α β) : Bool :=
-  m.inner.isEmpty
-
 @[inline] def insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ (α × β)] (m : Raw α β) (l : ρ) : Raw α β :=
   ⟨DHashMap.Raw.Const.insertMany m.inner l⟩
 
@@ -144,6 +148,8 @@ instance {m : Type w → Type w} : ForIn m (Raw α β) (α × β) where
 
 @[inline] def unitOfList [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] (l : ρ) : Raw α Unit :=
   ⟨DHashMap.Raw.Const.unitOfList l⟩
+
+end Unverified
 
 structure WF [BEq α] [Hashable α] (m : Raw α β) : Prop where
   out : m.inner.WF
@@ -242,6 +248,16 @@ instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a �
 @[inline] def remove [BEq α] [Hashable α] (m : HashMap α β) (a : α) : HashMap α β :=
   ⟨m.inner.remove a⟩
 
+@[inline] def size [BEq α] [Hashable α] (m : HashMap α β) : Nat :=
+  m.inner.size
+
+@[inline] def isEmpty [BEq α] [Hashable α] (m : HashMap α β) : Bool :=
+  m.inner.isEmpty
+
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
+
 @[inline] def filter [BEq α] [Hashable α] (f : α → β → Bool) (m : HashMap α β) : HashMap α β :=
   ⟨m.inner.filter f⟩
 
@@ -278,12 +294,6 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β
 @[inline] def values [BEq α] [Hashable α] (m : HashMap α β) : List β :=
   m.inner.values
 
-@[inline] def size [BEq α] [Hashable α] (m : HashMap α β) : Nat :=
-  m.inner.size
-
-@[inline] def isEmpty [BEq α] [Hashable α] (m : HashMap α β) : Bool :=
-  m.inner.isEmpty
-
 @[inline] def insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ (α × β)] (m : HashMap α β) (l : ρ) : HashMap α β :=
   ⟨DHashMap.Const.insertMany m.inner l⟩
 
@@ -295,5 +305,7 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β
 
 @[inline] def unitOfList [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] (l : ρ) : HashMap α Unit :=
   ⟨DHashMap.Const.unitOfList l⟩
+
+end Unverified
 
 end Std.HashMap

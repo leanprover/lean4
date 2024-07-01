@@ -36,7 +36,7 @@ ExternalProject_add(cadical
   GIT_TAG rel-1.9.5
   CONFIGURE_COMMAND ""
   # https://github.com/arminbiere/cadical/blob/master/BUILD.md#manual-build
-  BUILD_COMMAND bash -c 'ccache clang++ -O3 -DNDEBUG -DNBUILD -o cadical `ls *.cpp | grep -v mobical`'
+  BUILD_COMMAND bash -c "ccache clang++ -O3 -DNDEBUG -DNBUILD -o cadical `ls *.cpp | grep -v mobical`"
   BUILD_IN_SOURCE ON
   INSTALL_COMMAND ""
 )

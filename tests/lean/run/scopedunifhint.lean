@@ -27,30 +27,26 @@ def x : Nat := 10
 
 /--
 error: application type mismatch
-  mul x
+  mul ?m.742 x
 argument
   x
 has type
   Nat : Type
 but is expected to have type
   ?m.730.α : Type ?u.729
----
-info: mul (sorryAx ?m.730.α true) (sorryAx ?m.730.α true) : ?m.730.α
 -/
 #guard_msgs in
 #check mul x x           -- Error: unification hint is not active
 
 /--
 error: application type mismatch
-  mul (x, x)
+  mul ?m.833 (x, x)
 argument
   (x, x)
 has type
   Nat × Nat : Type
 but is expected to have type
-  ?m.856.α : Type ?u.855
----
-info: mul (sorryAx ?m.856.α true) (sorryAx ?m.856.α true) : ?m.856.α
+  ?m.817.α : Type ?u.816
 -/
 #guard_msgs in
 #check mul (x, x) (x, x) -- Error: no unification hint
@@ -58,17 +54,14 @@ info: mul (sorryAx ?m.856.α true) (sorryAx ?m.856.α true) : ?m.856.α
 local infix:65 (priority := high) "*" => mul
 
 /--
-
 error: application type mismatch
-  mul x
+  ?m.2484*x
 argument
   x
 has type
   Nat : Type
 but is expected to have type
-  ?m.2547.α : Type ?u.2546
----
-info: sorryAx ?m.2547.α true*sorryAx ?m.2547.α true : ?m.2547.α
+  ?m.2472.α : Type ?u.2471
 -/
 #guard_msgs in
 #check x*x -- Error: unification hint is not active
@@ -80,15 +73,14 @@ open Algebra -- activate unification hints
 
 /--
 error: application type mismatch
-  mul (x, x)
+  ?m.2585*(x, x)
 argument
   (x, x)
 has type
   Nat × Nat : Type
 but is expected to have type
-  ?m.2679.α : Type ?u.2678
----
-info: sorryAx ?m.2679.α true*sorryAx ?m.2679.α true : ?m.2679.α-/
+  ?m.2565.α : Type ?u.2564
+-/
 #guard_msgs in
 #check mul (x, x) (x, x) -- still error
 
@@ -109,15 +101,13 @@ end Sec1
 
 /--
 error: application type mismatch
-  mul (x, x)
+  ?m.2832*(x, x)
 argument
   (x, x)
 has type
   Nat × Nat : Type
 but is expected to have type
-  ?m.2959.α : Type ?u.2958
----
-info: sorryAx ?m.2959.α true*sorryAx ?m.2959.α true : ?m.2959.α
+  ?m.2812.α : Type ?u.2811
 -/
 #guard_msgs in
 #check (x, x) * (x, x) -- error, local hint is not active after end of section anymore

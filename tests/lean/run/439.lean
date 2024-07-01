@@ -48,8 +48,6 @@ has type
   P : Sort u
 but is expected to have type
   Bar.fn ?m.1225 : Sort ?u.1170
----
-info: fn'.imp (sorryAx (Bar.fn ?m.1225) true) : Bar.fn ?m.1225
 -/
 #guard_msgs in
 #check fn' p

@@ -188,7 +188,7 @@ def mkRecursorAppPrefix (mvarId : MVarId) (tacticName : Name) (majorFVarId : FVa
       let motive ← mkLambdaFVars indices motive
       return mkApp recursor motive
     | _ =>
-      throwTacticEx tacticName mvarId "major premise is not of the form (C ...)"
+      throwTacticEx tacticName mvarId "major premise is not of the form 'C ...'"
 
 def _root_.Lean.MVarId.induction (mvarId : MVarId) (majorFVarId : FVarId) (recursorName : Name) (givenNames : Array AltVarNames := #[]) : MetaM (Array InductionSubgoal) :=
   mvarId.withContext do

@@ -234,7 +234,7 @@ where
     if type.getAppFn.isMVar then
       throwUnknownExpectedType
     else
-      throwError "invalid \{...} notation, {kind} type is not of the form (C ...){indentExpr type}"
+      throwError "invalid \{...} notation, {kind} type is not of the form 'C ...'{indentExpr type}"
 
 inductive FieldLHS where
   | fieldName  (ref : Syntax) (name : Name)

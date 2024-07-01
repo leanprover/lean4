@@ -49,7 +49,7 @@ structure UnicodePropertyTable where
   deriving Repr, Inhabited, Nonempty
 
 /-
-Search a character in the outter `runs` array and return a range in
+Search a character in the outer `runs` array and return a range in
 `offsets` where the character will be found and the length of the run.
 -/
 def searchRuns (table : UnicodePropertyTable) (c : Char) : Nat × Range := Id.run do

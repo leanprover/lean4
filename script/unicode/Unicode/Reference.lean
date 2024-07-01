@@ -5,12 +5,12 @@ Authors: Jean-Baptiste Tristan
 -/
 import Unicode.Unicode
 
-def referenceTable (ucd : List UnicodeData) (property : UnicodeData → Bool) : List Nat :=
+def referenceTable (ucd : Array UnicodeData) (property : UnicodeData → Bool) : Array Nat :=
   (ucd.filter property).map (fun ucdc => ucdc.codepoint)
 
-def referenceSearch (table : List Nat) (c : Char) : Bool :=
+def referenceSearch (table : Array Nat) (c : Char) : Bool :=
   table.contains c.toNat
 
-def reference (ucd : List UnicodeData) (property : UnicodeData → Bool) (c : Char) : Bool :=
+def reference (ucd : Array UnicodeData) (property : UnicodeData → Bool) (c : Char) : Bool :=
   let table := referenceTable ucd property
   referenceSearch table c

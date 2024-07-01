@@ -108,7 +108,7 @@ structure SummaryUCD where
   otherCount : Int := 0
   deriving Repr, DecidableEq, Inhabited, Nonempty
 
-def summarizeUnicodeData (ucd : List UnicodeData) : SummaryUCD := Id.run do
+def summarizeUnicodeData (ucd : Array UnicodeData) : SummaryUCD := Id.run do
   let mut table : SummaryUCD := {}
   for entry in ucd do
     match entry.gc with
@@ -130,6 +130,6 @@ def printSummary (sucd : SummaryUCD) : IO Unit := do
   println s!"Separator count: {sucd.separatorCount}"
   println s!"Other count: {sucd.otherCount}"
 
-def printUnicodeData (ucd : List UnicodeData) : IO Unit := do
+def printUnicodeData (ucd : Array UnicodeData) : IO Unit := do
   for entry in ucd do
     println <| reprStr entry

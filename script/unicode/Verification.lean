@@ -10,7 +10,7 @@ import Unicode.Parse
 
 open System IO FilePath Process FS Std Char.UnicodeSkipList
 
-def compareTables (ucd : List UnicodeData) (property : UnicodeData → Bool) : IO Bool := do
+def compareTables (ucd : Array UnicodeData) (property : UnicodeData → Bool) : IO Bool := do
   let time ← monoMsNow
   let mut failed := false
   let table := numericTable
@@ -39,7 +39,7 @@ def main : IO Unit := do
   let ucd ← loadUnicodeData f
   match ucd with
   | Except.ok ucd =>
-      println s! "UCD size: {ucd.length}"
+      println s! "UCD size: {ucd.size}"
       let property := (fun ucdc : UnicodeData => if let .Number _ := ucdc.gc then true else false)
       let failed ← compareTables ucd property
       if failed then

@@ -41,10 +41,10 @@ def mkGeneralCategory (s : String) : Except String GeneralCategory := do
   else if s = "Cn" then pure <| .Other .Cn
   else throw s!"Unknown General Category: {s}"
 
-def loadUnicodeData (file : FilePath) : ExceptT String IO (List UnicodeData) := do
+def loadUnicodeData (file : FilePath) : ExceptT String IO (Array UnicodeData) := do
   let content : String ← readFile file
   let content : List String := content.splitOn "\n"
-  let mut data := []
+  let mut data := #[]
   for line in content do
     if line ≠ "" then -- UnicodeData.txt ends with an empty line
       let line : List String := line.splitOn ";"
@@ -52,5 +52,6 @@ def loadUnicodeData (file : FilePath) : ExceptT String IO (List UnicodeData) := 
       let gc : GeneralCategory ← mkGeneralCategory (line.get! 2)
       match codepoint.toNatHex? with
       | none => throw "Conversion of codepoint failed"
-      | some c => data := { codepointRaw := codepoint , codepoint := c, gc := gc } :: data
-  return data.reverse
+      | some c => data := data.push { codepointRaw := codepoint , codepoint := c, gc := gc }
+      --data := { codepointRaw := codepoint , codepoint := c, gc := gc } :: data
+  return data

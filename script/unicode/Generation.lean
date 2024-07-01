@@ -23,7 +23,7 @@ def main : IO Unit := do
   let ucd ← loadUnicodeData f
   match ucd with
   | Except.ok ucd =>
-      println s! "UCD size: {ucd.length}"
+      println s! "UCD size: {ucd.size}"
       let summary := summarizeUnicodeData ucd
       printSummary summary
       let property := (fun ucdc : UnicodeData => if let .Number _ := ucdc.gc then true else false)

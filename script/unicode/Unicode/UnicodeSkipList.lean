@@ -21,7 +21,7 @@ explanation in Init/Data/Char/UnicodeSkipList.lean
 /-
 Return the list of all contiguous ranges of codepoints that satisfy the property
 -/
-def explicitRanges (ucd : List UnicodeData) (property : UnicodeData → Bool) : List Range := Id.run do
+def explicitRanges (ucd : Array UnicodeData) (property : UnicodeData → Bool) : List Range := Id.run do
   let mut rangeOpt : Option Range := none
   let mut ranges := []
   -- Assumes that codepoints in `ucd` appear in increasing order
@@ -112,7 +112,7 @@ def largeOffsetEncoding (indices prefixSums : List Nat) : Array UInt32 :=
   let prefixSums := prefixSums ++ [1114112]
   ((indices.zip prefixSums).map (fun (idx,pf) => (idx + pf).toUInt32)).toArray
 
-def calculateTable (ucd : List UnicodeData) (property : UnicodeData → Bool) : UnicodePropertyTable :=
+def calculateTable (ucd : Array UnicodeData) (property : UnicodeData → Bool) : UnicodePropertyTable :=
   let ranges := explicitRanges ucd property
   let gaps := mergeRanges ranges
   let offsets := offsets gaps

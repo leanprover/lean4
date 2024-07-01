@@ -99,7 +99,7 @@ These classes should be implemented for coercions:
   (coercion-to-)function type, and this is triggered whenever an element
   `f : α` appears in an application like `f x` which would not make sense since
   `f` does not have a function type.
-  `CoeFun` instances apply to `CoeOut` as well.
+  `CoeFun` instances apply to `CoeOTC` as well.
 
 * `CoeSort α β` is a coercion to a sort. `β` must be a universe, and this is
   triggered when `a : α` appears in a place where a type is expected, like
@@ -257,7 +257,7 @@ instance : CoeT α a α where coe := a
 (coercion-to-)function type, and this is triggered whenever an element
 `f : α` appears in an application like `f x`, which would not make sense since
 `f` does not have a function type.
-`CoeFun` instances apply to `CoeOut` as well.
+`CoeFun` instances apply to `CoeOTC` as well.
 -/
 class CoeFun (α : Sort u) (γ : outParam (α → Sort v)) where
   /-- Coerces a value `f : α` to type `γ f`, which should be either be a
@@ -266,7 +266,7 @@ class CoeFun (α : Sort u) (γ : outParam (α → Sort v)) where
   coe : (f : α) → γ f
 attribute [coe_decl] CoeFun.coe
 
-instance [CoeFun α fun _ => β] : CoeOut α β where coe a := CoeFun.coe a
+instance [CoeFun α fun _ => β] : CoeOTC α β where coe a := CoeFun.coe a
 
 /--
 `CoeSort α β` is a coercion to a sort. `β` must be a universe, and this is

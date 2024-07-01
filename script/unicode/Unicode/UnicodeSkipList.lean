@@ -87,7 +87,7 @@ def indices (gaps : List Nat) : List Nat := Id.run do
   return indices.reverse
 
 /-
-Computer the list of codepoint that mark the beginning of a run
+Compute the list of codepoints that mark the beginning of a run
 in the original unicode data.
 -/
 def prefixSums (gaps : List Nat) : List Nat := Id.run do

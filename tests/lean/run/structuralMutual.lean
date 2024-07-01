@@ -1,3 +1,5 @@
+import Lean.Elab.Command
+
 mutual
 inductive A
   | self : A → A
@@ -65,9 +67,6 @@ theorem B_size_eq3 : B.empty.size = 0  := rfl
 /-- info: B.size.eq_3 : B.empty.size = 0 -/
 #guard_msgs in
 #check B.size.eq_3
-
--- TODO:
--- #check A.size.induct
 
 -- Test smart unfolding
 
@@ -261,8 +260,7 @@ def Tree.below_1 (motive : Tree → Sort u) : Tree → Sort (max 1 u) :=
     (fun _a _a_1 a_ih a_ih_1 => ⟨PUnit.unit, ⟨a_ih, ⟨a_ih_1, PUnit.unit⟩⟩⟩)
     t).1
 
--- Then the decrecursifier works just fine:
-
+-- Then the decrecursifier works just fine! (and FunInd too, see below)
 #guard_msgs in
 def Tree.size : Tree → Nat
   | leaf => 0
@@ -341,3 +339,87 @@ def T.size2 : T 37 → Nat
 termination_by structurally t => t
 
 end FixedIndex
+
+
+namespace FunIndTests
+
+-- FunInd does not handle mutual structural recursion yet, so make sure we error
+-- out nicely
+
+/--
+error: Failed to realize constant A.size.induct:
+  functional induction: cannot handle mutual inductives
+---
+error: Failed to realize constant A.size.induct:
+  functional induction: cannot handle mutual inductives
+---
+error: unknown identifier 'A.size.induct'
+-/
+#guard_msgs in
+#check A.size.induct
+
+/--
+error: Failed to realize constant A.subs.induct:
+  functional induction: cannot handle mutual inductives
+---
+error: Failed to realize constant A.subs.induct:
+  functional induction: cannot handle mutual inductives
+---
+error: unknown identifier 'A.subs.induct'
+-/
+#guard_msgs in
+#check A.subs.induct
+
+/--
+error: Failed to realize constant MutualIndNonMutualFun.A.self_size.induct:
+  functional induction: cannot handle mutual inductives
+---
+error: Failed to realize constant MutualIndNonMutualFun.A.self_size.induct:
+  functional induction: cannot handle mutual inductives
+---
+error: unknown identifier 'MutualIndNonMutualFun.A.self_size.induct'
+-/
+#guard_msgs in
+#check MutualIndNonMutualFun.A.self_size.induct
+
+/--
+error: Failed to realize constant A.hasNoBEmpty.induct:
+  functional induction: cannot handle mutual inductives
+---
+error: Failed to realize constant A.hasNoBEmpty.induct:
+  functional induction: cannot handle mutual inductives
+---
+error: unknown identifier 'A.hasNoBEmpty.induct'
+-/
+#guard_msgs in
+#check A.hasNoBEmpty.induct
+
+/--
+error: Failed to realize constant EvenOdd.isEven.induct:
+  Function EvenOdd.isEven does not look like a function defined by recursion.
+  NB: If EvenOdd.isEven is not itself recursive, but contains an inner recursive function (via `let rec` or `where`), try `EvenOdd.isEven.go` where `go` is name of the inner function.
+---
+error: Failed to realize constant EvenOdd.isEven.induct:
+  Function EvenOdd.isEven does not look like a function defined by recursion.
+  NB: If EvenOdd.isEven is not itself recursive, but contains an inner recursive function (via `let rec` or `where`), try `EvenOdd.isEven.go` where `go` is name of the inner function.
+---
+error: unknown identifier 'EvenOdd.isEven.induct'
+-/
+#guard_msgs in
+#check EvenOdd.isEven.induct -- TODO: This error message can be improved
+
+
+-- For Tree.size this would actually work already:
+
+run_meta
+  Lean.modifyEnv fun env => Lean.markAuxRecursor env ``NestedWithTuple.Tree.brecOn
+
+/--
+info: NestedWithTuple.Tree.size.induct (motive : NestedWithTuple.Tree → Prop) (case1 : motive NestedWithTuple.Tree.leaf)
+  (case2 : ∀ (t₁ t₂ : NestedWithTuple.Tree), motive t₁ → motive t₂ → motive (NestedWithTuple.Tree.node (t₁, t₂))) :
+  ∀ (a : NestedWithTuple.Tree), motive a
+-/
+#guard_msgs in
+#check NestedWithTuple.Tree.size.induct
+
+end FunIndTests

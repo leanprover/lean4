@@ -142,11 +142,11 @@ theorem size_remove_le [EquivBEq α] [LawfulHashable α] {k : α} : (m.remove k)
   simp_to_model using List.length_removeKey_le
 
 @[simp]
-theorem fst_containsThenInsert {k : α} {v : β k} : (m.containsThenInsert k v).1 = m.insert k v := by
+theorem containsThenInsert_fst {k : α} {v : β k} : (m.containsThenInsert k v).1 = m.insert k v := by
   rw [containsThenInsert_eq_insertₘ, insert_eq_insertₘ]
 
 @[simp]
-theorem snd_containsThenInsert {k : α} {v : β k} : (m.containsThenInsert k v).2 = m.contains k := by
+theorem containsThenInsert_snd {k : α} {v : β k} : (m.containsThenInsert k v).2 = m.contains k := by
   rw [containsThenInsert_eq_containsₘ, contains_eq_containsₘ]
 
 @[simp]
@@ -512,11 +512,11 @@ theorem getD_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {fallback 
 end Const
 
 @[simp]
-theorem fst_getThenInsertIfNew? [LawfulBEq α] {k : α} {v : β k} : (m.getThenInsertIfNew? k v).1 = m.insertIfNew k v := by
+theorem getThenInsertIfNew?_fst [LawfulBEq α] {k : α} {v : β k} : (m.getThenInsertIfNew? k v).1 = m.insertIfNew k v := by
   rw [getThenInsertIfNew?_eq_insertIfNewₘ, insertIfNew_eq_insertIfNewₘ]
 
 @[simp]
-theorem snd_getThenInsertIfNew? [LawfulBEq α] {k : α} {v : β k} : (m.getThenInsertIfNew? k v).2 = m.get? k := by
+theorem getThenInsertIfNew?_snd [LawfulBEq α] {k : α} {v : β k} : (m.getThenInsertIfNew? k v).2 = m.get? k := by
   rw [getThenInsertIfNew?_eq_get?ₘ, get?_eq_get?ₘ]
 
 namespace Const
@@ -524,11 +524,11 @@ namespace Const
 variable {β : Type v} (m : Raw₀ α (fun _ => β)) (h : m.1.WF)
 
 @[simp]
-theorem fst_getThenInsertIfNew? {k : α} {v : β} : (getThenInsertIfNew? m k v).1 = m.insertIfNew k v := by
+theorem getThenInsertIfNew?_fst {k : α} {v : β} : (getThenInsertIfNew? m k v).1 = m.insertIfNew k v := by
   rw [getThenInsertIfNew?_eq_insertIfNewₘ, insertIfNew_eq_insertIfNewₘ]
 
 @[simp]
-theorem snd_getThenInsertIfNew? {k : α} {v : β} : (getThenInsertIfNew? m k v).2 = get? m k := by
+theorem getThenInsertIfNew?_snd {k : α} {v : β} : (getThenInsertIfNew? m k v).2 = get? m k := by
   rw [getThenInsertIfNew?_eq_get?ₘ, get?_eq_get?ₘ]
 
 end Const

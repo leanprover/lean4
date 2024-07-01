@@ -34,20 +34,20 @@ private def baseNames : Array Name :=
   #[``Raw.empty_eq, ``Raw.emptyc_eq,
     ``insert_eq, ``insert_val,
     ``insertIfNew_eq, ``insertIfNew_val,
-    ``snd_containsThenInsert_eq, ``snd_containsThenInsert_val,
-    ``snd_getThenInsertIfNew?_eq, ``snd_getThenInsertIfNew?_val,
+    ``containsThenInsert_snd_eq, ``containsThenInsert_snd_val,
+    ``getThenInsertIfNew?_snd_eq, ``getThenInsertIfNew?_snd_val,
     ``map_eq, ``map_val,
     ``filter_eq, ``filter_val,
     ``remove_eq, ``remove_val,
     ``filterMap_eq, ``filterMap_val,
-    ``Const.snd_getThenInsertIfNew?_eq, ``Const.snd_getThenInsertIfNew?_val,
-    ``fst_containsThenInsert_eq, ``fst_containsThenInsert_val,
+    ``Const.getThenInsertIfNew?_snd_eq, ``Const.getThenInsertIfNew?_snd_val,
+    ``containsThenInsert_fst_eq, ``containsThenInsert_fst_val,
     ``Const.get?_eq, ``Const.get?_val,
     ``Const.get_eq, ``Const.get_val,
     ``Const.getD_eq, ``Const.getD_val,
     ``Const.get!_eq, ``Const.get!_val,
-    ``fst_getThenInsertIfNew?_eq, ``fst_getThenInsertIfNew?_val,
-    ``Const.fst_getThenInsertIfNew?_eq, ``Const.fst_getThenInsertIfNew?_val,
+    ``getThenInsertIfNew?_fst_eq, ``getThenInsertIfNew?_fst_val,
+    ``Const.getThenInsertIfNew?_fst_eq, ``Const.getThenInsertIfNew?_fst_val,
     ``get?_eq, ``get?_val,
     ``contains_eq, ``contains_val,
     ``get_eq, ``get_val,
@@ -180,12 +180,12 @@ theorem size_remove_le [EquivBEq α] [LawfulHashable α] {k : α} : (m.remove k)
   simp_to_raw using Raw₀.size_remove_le
 
 @[simp]
-theorem fst_containsThenInsert {k : α} {v : β k} : (m.containsThenInsert k v).1 = m.insert k v := by
-  simp_to_raw using congrArg Subtype.val (Raw₀.fst_containsThenInsert _)
+theorem containsThenInsert_fst {k : α} {v : β k} : (m.containsThenInsert k v).1 = m.insert k v := by
+  simp_to_raw using congrArg Subtype.val (Raw₀.containsThenInsert_fst _)
 
 @[simp]
-theorem snd_containsThenInsert {k : α} {v : β k} : (m.containsThenInsert k v).2 = m.contains k := by
-  simp_to_raw using Raw₀.snd_containsThenInsert
+theorem containsThenInsert_snd {k : α} {v : β k} : (m.containsThenInsert k v).2 = m.contains k := by
+  simp_to_raw using Raw₀.containsThenInsert_snd
 
 @[simp]
 theorem get?_empty [LawfulBEq α] {a : α} {c} : (empty c : Raw α β).get? a = none := by
@@ -649,24 +649,24 @@ theorem getD_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {fallback 
 end Const
 
 @[simp]
-theorem fst_getThenInsertIfNew? [LawfulBEq α] {k : α} {v : β k} : (m.getThenInsertIfNew? k v).1 = m.insertIfNew k v := by
-  simp_to_raw using congrArg Subtype.val (Raw₀.fst_getThenInsertIfNew? _)
+theorem getThenInsertIfNew?_fst [LawfulBEq α] {k : α} {v : β k} : (m.getThenInsertIfNew? k v).1 = m.insertIfNew k v := by
+  simp_to_raw using congrArg Subtype.val (Raw₀.getThenInsertIfNew?_fst _)
 
 @[simp]
-theorem snd_getThenInsertIfNew? [LawfulBEq α] {k : α} {v : β k} : (m.getThenInsertIfNew? k v).2 = m.get? k := by
-  simp_to_raw using Raw₀.snd_getThenInsertIfNew?
+theorem getThenInsertIfNew?_snd [LawfulBEq α] {k : α} {v : β k} : (m.getThenInsertIfNew? k v).2 = m.get? k := by
+  simp_to_raw using Raw₀.getThenInsertIfNew?_snd
 
 namespace Const
 
 variable {β : Type v} {m : DHashMap.Raw α (fun _ => β)} (h : m.WF)
 
 @[simp]
-theorem fst_getThenInsertIfNew? {k : α} {v : β} : (getThenInsertIfNew? m k v).1 = m.insertIfNew k v := by
-  simp_to_raw using congrArg Subtype.val (Raw₀.Const.fst_getThenInsertIfNew? _)
+theorem getThenInsertIfNew?_fst {k : α} {v : β} : (getThenInsertIfNew? m k v).1 = m.insertIfNew k v := by
+  simp_to_raw using congrArg Subtype.val (Raw₀.Const.getThenInsertIfNew?_fst _)
 
 @[simp]
-theorem snd_getThenInsertIfNew? {k : α} {v : β} : (getThenInsertIfNew? m k v).2 = get? m k := by
-  simp_to_raw using Raw₀.Const.snd_getThenInsertIfNew?
+theorem getThenInsertIfNew?_snd {k : α} {v : β} : (getThenInsertIfNew? m k v).2 = get? m k := by
+  simp_to_raw using Raw₀.Const.getThenInsertIfNew?_snd
 
 end Const
 

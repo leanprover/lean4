@@ -166,6 +166,50 @@ termination_by structurally x => x
 end
 
 
+namespace Index
+
+/-! An example where the data type has parameters and indices -/
+
+mutual
+inductive A (m : Nat) : Nat → Type
+  | self : A m n → A m (n+m)
+  | other : B m n → A m (n+m)
+  | empty : A m 0
+inductive B (m : Nat) : Nat → Type
+  | self : B m n → B m (n+m)
+  | other : A m n → B m (n+m)
+  | empty : B m 0
+end
+
+mutual
+def A.size (m n : Nat) : A m n → Nat
+  | .self a => a.size + m
+  | .other b => b.size + m
+  | .empty => 0
+termination_by structurally x => x
+def B.size (m n : Nat): B m n → Nat
+  | .self b => b.size + m
+  | .other a => a.size + m
+  | .empty => 0
+termination_by structurally x => x
+end
+
+mutual
+theorem A.size_eq_index (m n : Nat) : (a : A m n) → a.size = n
+  | .self a => by dsimp [A.size]; rw[ A.size_eq_index]
+  | .other b => by dsimp [A.size]; rw [B.size_eq_index]
+  | .empty => rfl
+termination_by structurally x => x
+theorem B.size_eq_index (m n : Nat) : (b : B m n) → b.size = n
+  | .self b => by dsimp [B.size]; rw [B.size_eq_index]
+  | .other a => by dsimp [B.size]; rw [A.size_eq_index]
+  | .empty => rfl
+termination_by structurally x => x
+end
+
+end Index
+
+
 namespace EvenOdd
 
 -- Mutual structural recursion over a non-mutual inductive type

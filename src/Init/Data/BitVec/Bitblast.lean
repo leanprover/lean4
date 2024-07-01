@@ -349,16 +349,6 @@ theorem mulRec_eq_mul_signExtend_truncate (l r : BitVec w) (s : Nat) :
       by_cases hr : r.getLsb (s' + 1) <;> simp [hr]
     rw [heq, ← BitVec.mul_add, ← zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_twoPow]
 
-/-- Zero extending by number of bits larger than the bitwidth has no effect. -/
-theorem zeroExtend_zeroExtend_of_ge {x : BitVec w} {i j : Nat} (hi : i ≥ w) :
-    (x.zeroExtend i).zeroExtend j = x.zeroExtend j := by
-  ext k
-  simp only [getLsb_zeroExtend, Fin.is_lt, decide_True, Bool.true_and, Bool.and_iff_right_iff_imp,
-    decide_eq_true_eq]
-  intros hx
-  have hi' : k < w := BitVec.lt_of_getLsb _ _ hx
-  omega
-
 theorem getLsb_mul (x y : BitVec w) (i : Nat) :
     (x * y).getLsb i = (mulRec x y w).getLsb i := by
   simp only [mulRec_eq_mul_signExtend_truncate]

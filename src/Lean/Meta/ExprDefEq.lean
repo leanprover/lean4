@@ -2019,7 +2019,7 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
       return true
     if t.isConst && s.isConst then
       if t.constName! == s.constName! && !usedHeuristic then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
-    else if (← pure (t.isApp && s.isApp) <&&> isDefEqApp usedHeuristic t s) then
+    else if (← pure (t.isApp && s.isApp) <&&> (isDefEqApp usedHeuristic t s <||> isDefEqOnFailure t s)) then
       return true
     else
       whenUndefDo (isDefEqProjInst t s) do

@@ -33,7 +33,7 @@ def explicitRanges (ucd : List UnicodeData) (property : UnicodeData → Bool) : 
     | some r, true =>
       if r.stop + 1 = code then
         -- Extend the range
-        rangeOpt := some {r with stop := code}
+        rangeOpt := some { r with stop := code }
       else
         -- Hidden gap
         let completedRange : Range := { start := r.start , stop := r.stop + 1 }

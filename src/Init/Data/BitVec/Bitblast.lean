@@ -270,37 +270,6 @@ theorem mulRec_succ_eq (l r : BitVec w) (s : Nat) :
     mulRec l r (s + 1) = mulRec l r s + if r.getLsb (s + 1) then (l <<< (s + 1)) else 0 := rfl
 
 /--
-When the `(i+1)`th bit of `x` is false,
-keeping the lower `(i + 1)` bits of `x` equals keeping the lower `i` bits.
--/
-theorem zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsb_false
-  {x : BitVec w} {i : Nat} (hx : x.getLsb i = false) :
-    zeroExtend w (x.truncate (i + 1)) =
-      zeroExtend w (x.truncate i) := by
-  ext k
-  simp only [getLsb_zeroExtend, Fin.is_lt, decide_True, Bool.true_and, getLsb_or, getLsb_and]
-  by_cases hik : i = k
-  · subst hik
-    simp [hx]
-  · by_cases hik' : k < i + 1 <;> simp [hik'] <;> omega
-
-/--
-When the `(i+1)`th bit of `x` is true,
-keeping the lower `(i + 1)` bits of `x` equalsk eeping the lower `i` bits
-and then performing bitwise-or with `twoPow i = (1 << i)`,
--/
-theorem zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsb_true
-    {x : BitVec w} {i : Nat} (hx : x.getLsb i = true) :
-    zeroExtend w (x.truncate (i + 1)) =
-      zeroExtend w (x.truncate i) ||| (twoPow w i) := by
-  ext k
-  simp only [getLsb_zeroExtend, Fin.is_lt, decide_True, Bool.true_and, getLsb_or, getLsb_and]
-  by_cases hik : i = k
-  · subst hik
-    simp [hx]
-  · by_cases hik' : k < i + 1 <;> simp [hik, hik'] <;> omega
-
-/--
 Recurrence lemma: truncating to `i+1` bits and then zero extending to `w`
 equals truncating upto `i` bits `[0..i-1]`, and then adding the `i`th bit of `x`.
 -/

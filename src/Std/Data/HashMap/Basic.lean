@@ -263,11 +263,11 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForM m (HashMap α β)
 instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β) (α × β) where
   forIn m init f := m.forIn (fun a b acc => f (a, b) acc) init
 
-@[inline] def toList (m : Raw α β) : List (α × β) :=
-  DHashMap.Raw.Const.toList m.inner
+@[inline] def toList [BEq α] [Hashable α] (m : HashMap α β) : List (α × β) :=
+  DHashMap.Const.toList m.inner
 
-@[inline] def toArray (m : Raw α β) : Array (α × β) :=
-  DHashMap.Raw.Const.toArray m.inner
+@[inline] def toArray [BEq α] [Hashable α] (m : HashMap α β) : Array (α × β) :=
+  DHashMap.Const.toArray m.inner
 
 @[inline] def keys [BEq α] [Hashable α] (m : HashMap α β) : List α :=
   m.inner.keys

@@ -89,6 +89,11 @@ Implementation of `OrElse`'s `<|>` syntax for `Option`.
 instance : OrElse (Option α) where
   orElse := Option.orElse
 
+/-- If the first argument is `some a`, returns `some a`, otherwise returns the second argument. -/
+@[always_inline, inline] def or : Option α → Option α → Option α
+  | some a, _ => some a
+  | none,   b => b
+
 @[inline] protected def lt (r : α → α → Prop) : Option α → Option α → Prop
   | none, some _     => True
   | some x,   some y => r x y

@@ -236,3 +236,46 @@ end
 @[simp] theorem toList_some (a : α) : (a : Option α).toList = [a] := rfl
 
 @[simp] theorem toList_none (α : Type _) : (none : Option α).toList = [] := rfl
+
+@[simp] theorem or_some : (some a).or o = some a := rfl
+@[simp] theorem none_or : none.or o = o := rfl
+
+theorem or_eq_bif : or o o' = bif o.isSome then o else o' := by
+  cases o <;> rfl
+
+@[simp] theorem isSome_or : (or o o').isSome = (o.isSome || o'.isSome) := by
+  cases o <;> rfl
+
+@[simp] theorem isNone_or : (or o o').isNone = (o.isNone && o'.isNone) := by
+  cases o <;> rfl
+
+@[simp] theorem or_eq_none : or o o' = none ↔ o = none ∧ o' = none := by
+  cases o <;> simp
+
+theorem or_eq_some : or o o' = some a ↔ o = some a ∨ (o = none ∧ o' = some a) := by
+  cases o <;> simp
+
+theorem or_assoc : or (or o₁ o₂) o₃ = or o₁ (or o₂ o₃) := by
+  cases o₁ <;> cases o₂ <;> rfl
+instance : Std.Associative (or (α := α)) := ⟨@or_assoc _⟩
+
+@[simp]
+theorem or_none : or o none = o := by
+  cases o <;> rfl
+instance : Std.LawfulIdentity (or (α := α)) none where
+  left_id := @none_or _
+  right_id := @or_none _
+
+@[simp]
+theorem or_self : or o o = o := by
+  cases o <;> rfl
+instance : Std.IdempotentOp (or (α := α)) := ⟨@or_self _⟩
+
+theorem or_eq_orElse : or o o' = o.orElse (fun _ => o') := by
+  cases o <;> rfl
+
+theorem map_or : f <$> or o o' = (f <$> o).or (f <$> o') := by
+  cases o <;> rfl
+
+theorem map_or' : (or o o').map f = (o.map f).or (o'.map f) := by
+  cases o <;> rfl

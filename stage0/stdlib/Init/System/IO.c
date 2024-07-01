@@ -149,6 +149,7 @@ LEAN_EXPORT lean_object* l_IO_wait___boxed(lean_object*, lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___at_Lean_runEval___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_2673____closed__16;
 LEAN_EXPORT lean_object* l_IO_iterate(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lean_io_cancel_token_is_set(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_System_IO___hyg_1716____closed__15;
 LEAN_EXPORT lean_object* l_IO_FS_Mode_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_IO_bindTask___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -9382,6 +9383,15 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_IO_CancelToken_isSet(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* lean_io_cancel_token_is_set(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_st_ref_get(x_1, x_2);
 lean_dec(x_1);
 return x_3;
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Term
-// Imports: Lean.ReservedNameAction Lean.Meta.AppBuilder Lean.Meta.CollectMVars Lean.Meta.Coe Lean.Linter.Deprecated Lean.Elab.Config Lean.Elab.Level Lean.Elab.DeclModifiers Lean.Elab.PreDefinition.WF.TerminationHint Lean.Language.Basic
+// Imports: Lean.ReservedNameAction Lean.Meta.AppBuilder Lean.Meta.CollectMVars Lean.Meta.Coe Lean.Linter.Deprecated Lean.Elab.Config Lean.Elab.Level Lean.Elab.DeclModifiers Lean.Elab.PreDefinition.TerminationHint Lean.Language.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -64,7 +64,6 @@ lean_object* l_Lean_Core_getMaxHeartbeats(lean_object*);
 uint8_t l_Lean_Elab_isAbortExceptionId(lean_object*);
 static lean_object* l_Lean_Elab_Term_tryPostponeIfHasMVars___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_withoutTacticIncrementality___rarg___lambda__1___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_trace_profiler_useHearbeats;
 uint8_t l_Lean_MacroScopesView_isSuffixOf(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___spec__1___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitApp___at_Lean_Elab_Term_addAutoBoundImplicits_go___spec__44(lean_object*, lean_object*, lean_object*);
@@ -407,6 +406,7 @@ static lean_object* l___private_Lean_Elab_Term_0__Lean_Elab_Term_isTacticBlock__
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___lambda__1___closed__5;
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Term___hyg_18023____lambda__3___closed__1;
+extern lean_object* l_Lean_trace_profiler_useHeartbeats;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeRevM_x3f___at_Lean_Elab_Term_resolveLocalName___spec__7(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_resolveName_process___closed__2;
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_Term_addAutoBoundImplicits_go___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -36260,7 +36260,7 @@ static lean_object* _init_l_Lean_withTraceNode___at_Lean_Elab_Term_mkCoe___spec_
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_trace_profiler_useHearbeats;
+x_1 = l_Lean_trace_profiler_useHeartbeats;
 return x_1;
 }
 }
@@ -76496,7 +76496,7 @@ lean_object* initialize_Lean_Linter_Deprecated(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Config(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Level(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_DeclModifiers(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_PreDefinition_WF_TerminationHint(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_PreDefinition_TerminationHint(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Language_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Term(uint8_t builtin, lean_object* w) {
@@ -76527,7 +76527,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_DeclModifiers(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_PreDefinition_WF_TerminationHint(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_PreDefinition_TerminationHint(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Language_Basic(builtin, lean_io_mk_world());

@@ -30,6 +30,16 @@ if(NOT (DEFINED STAGE0_CMAKE_EXECUTABLE_SUFFIX))
     set(STAGE0_CMAKE_EXECUTABLE_SUFFIX "${CMAKE_EXECUTABLE_SUFFIX}")
 endif()
 
+ExternalProject_add(cadical
+  PREFIX cadical
+  GIT_REPOSITORY https://github.com/arminbiere/cadical
+  GIT_TAG rel-1.9.5
+  CONFIGURE_COMMAND ""
+  # https://github.com/arminbiere/cadical/blob/master/BUILD.md#manual-build
+  BUILD_COMMAND bash -c "ccache clang++ -O3 -DNDEBUG -DNBUILD -o cadical `ls source/*.cpp | grep -v mobical`"
+  BUILD_IN_SOURCE ON
+  INSTALL_COMMAND ""
+)
 ExternalProject_add(stage0
   SOURCE_DIR "${LEAN_SOURCE_DIR}/stage0"
   SOURCE_SUBDIR src
@@ -49,7 +59,7 @@ ExternalProject_add(stage1
   CMAKE_ARGS -DSTAGE=1 -DPREV_STAGE=${CMAKE_BINARY_DIR}/stage0 -DPREV_STAGE_CMAKE_EXECUTABLE_SUFFIX=${STAGE0_CMAKE_EXECUTABLE_SUFFIX} ${CL_ARGS}
   BUILD_ALWAYS ON
   INSTALL_COMMAND ""
-  DEPENDS stage0
+  DEPENDS stage0 cadical
 )
 ExternalProject_add(stage2
   SOURCE_DIR "${LEAN_SOURCE_DIR}"

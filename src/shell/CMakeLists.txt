@@ -75,6 +75,17 @@ FOREACH(T ${LEANRUNTESTS})
   endif()
 ENDFOREACH(T)
 
+# LEAN UNICODE TESTS
+file(GLOB LEANRUNTESTS "${LEAN_SOURCE_DIR}/../script/unicode/Verification.lean")
+FOREACH(T ${LEANRUNTESTS})
+  if(NOT T MATCHES "\\.#")
+    GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+    add_test(NAME "leanruntest_${T_NAME}"
+             WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../script/unicode"
+             COMMAND bash -c "${TEST_VARS} ./test.sh ${T_NAME}")
+  endif()
+ENDFOREACH(T)
+
 # LEAN RUN doc/examples
 file(GLOB LEANDOCEXS "${LEAN_SOURCE_DIR}/../doc/examples/*.lean")
 FOREACH(T ${LEANDOCEXS})

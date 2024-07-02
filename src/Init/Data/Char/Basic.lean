@@ -5,6 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Data.UInt.Basic
+import Init.Data.Char.UnicodeVersion
 
 /-- Determines if the given integer is a valid [Unicode scalar value](https://www.unicode.org/glossary/#unicode_scalar_value).
 
@@ -14,6 +15,9 @@ Note that values in `[0xd800, 0xdfff]` are reserved for [UTF-16 surrogate pairs]
   n < 0xd800 ∨ (0xdfff < n ∧ n < 0x110000)
 
 namespace Char
+
+/-- Maximum valid Unicode codepoint -/
+protected def max : Char := Char.ofNat 1114111
 
 protected def lt (a b : Char) : Prop := a.val < b.val
 protected def le (a b : Char) : Prop := a.val ≤ b.val
@@ -81,6 +85,10 @@ def isAlpha (c : Char) : Bool :=
 /-- Is the character in `0123456789`? -/
 def isDigit (c : Char) : Bool :=
   c.val ≥ 48 && c.val ≤ 57
+
+/-- Is the character in `0123456789ABCDEF`? -/
+def isHexDigit (c : Char) : Bool :=
+  c.val ≥ 48 && c.val ≤ 57 || c.val ≥ 65 && c.val ≤ 70
 
 /-- Is the character in `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`? -/
 def isAlphanum (c : Char) : Bool :=

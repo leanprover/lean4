@@ -88,7 +88,7 @@ partial def findSplit? (e : Expr) (kind : SplitKind := .both) (exceptionSet : Ex
 where
   go (e : Expr) : MetaM (Option Expr) := do
     if let some target ← find? e then
-      if e.isIte || e.isDIte then
+      if target.isIte || target.isDIte then
         let cond := target.getArg! 1 5
         -- Try to find a nested `if` in `cond`
         return (← go cond).getD target

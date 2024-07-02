@@ -664,10 +664,6 @@ Return `none` if `mvarId` has no declaration in the current metavariable context
 def _root_.Lean.MVarId.findDecl? (mvarId : MVarId) : MetaM (Option MetavarDecl) :=
   return (← getMCtx).findDecl? mvarId
 
-@[deprecated MVarId.findDecl? (since := "2022-07-15")]
-def findMVarDecl? (mvarId : MVarId) : MetaM (Option MetavarDecl) :=
-  mvarId.findDecl?
-
 /--
 Return `mvarId` declaration in the current metavariable context.
 Throw an exception if `mvarId` is not declared in the current metavariable context.
@@ -677,19 +673,11 @@ def _root_.Lean.MVarId.getDecl (mvarId : MVarId) : MetaM MetavarDecl := do
   | some d => pure d
   | none   => throwError "unknown metavariable '?{mvarId.name}'"
 
-@[deprecated MVarId.getDecl (since := "2022-07-15")]
-def getMVarDecl (mvarId : MVarId) : MetaM MetavarDecl := do
-  mvarId.getDecl
-
 /--
 Return `mvarId` kind. Throw an exception if `mvarId` is not declared in the current metavariable context.
 -/
 def _root_.Lean.MVarId.getKind (mvarId : MVarId) : MetaM MetavarKind :=
   return (← mvarId.getDecl).kind
-
-@[deprecated MVarId.getKind (since := "2022-07-15")]
-def getMVarDeclKind (mvarId : MVarId) : MetaM MetavarKind :=
-  mvarId.getKind
 
 /-- Return `true` if `e` is a synthetic (or synthetic opaque) metavariable -/
 def isSyntheticMVar (e : Expr) : MetaM Bool := do
@@ -704,18 +692,10 @@ Set `mvarId` kind in the current metavariable context.
 def _root_.Lean.MVarId.setKind (mvarId : MVarId) (kind : MetavarKind) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.setMVarKind mvarId kind
 
-@[deprecated MVarId.setKind (since := "2022-07-15")]
-def setMVarKind (mvarId : MVarId) (kind : MetavarKind) : MetaM Unit :=
-  mvarId.setKind kind
-
 /-- Update the type of the given metavariable. This function assumes the new type is
    definitionally equal to the current one -/
 def _root_.Lean.MVarId.setType (mvarId : MVarId) (type : Expr) : MetaM Unit := do
   modifyMCtx fun mctx => mctx.setMVarType mvarId type
-
-@[deprecated MVarId.setType (since := "2022-07-15")]
-def setMVarType (mvarId : MVarId) (type : Expr) : MetaM Unit := do
-  mvarId.setType type
 
 /--
 Return true if the given metavariable is "read-only".
@@ -723,10 +703,6 @@ That is, its `depth` is different from the current metavariable context depth.
 -/
 def _root_.Lean.MVarId.isReadOnly (mvarId : MVarId) : MetaM Bool := do
   return (← mvarId.getDecl).depth != (← getMCtx).depth
-
-@[deprecated MVarId.isReadOnly (since := "2022-07-15")]
-def isReadOnlyExprMVar (mvarId : MVarId) : MetaM Bool := do
-  mvarId.isReadOnly
 
 /--
 Returns true if `mvarId.isReadOnly` returns true or if `mvarId` is a synthetic opaque metavariable.
@@ -742,10 +718,6 @@ def _root_.Lean.MVarId.isReadOnlyOrSyntheticOpaque (mvarId : MVarId) : MetaM Boo
     | MetavarKind.syntheticOpaque => return !(← getConfig).assignSyntheticOpaque
     | _ => return false
 
-@[deprecated MVarId.isReadOnlyOrSyntheticOpaque (since := "2022-07-15")]
-def isReadOnlyOrSyntheticOpaqueExprMVar (mvarId : MVarId) : MetaM Bool := do
-  mvarId.isReadOnlyOrSyntheticOpaque
-
 /--
 Return the level of the given universe level metavariable.
 -/
@@ -754,10 +726,6 @@ def _root_.Lean.LMVarId.getLevel (mvarId : LMVarId) : MetaM Nat := do
   | some depth => return depth
   | _          => throwError "unknown universe metavariable '?{mvarId.name}'"
 
-@[deprecated LMVarId.getLevel (since := "2022-07-15")]
-def getLevelMVarDepth (mvarId : LMVarId) : MetaM Nat :=
-  mvarId.getLevel
-
 /--
 Return true if the given universe metavariable is "read-only".
 That is, its `depth` is different from the current metavariable context depth.
@@ -765,19 +733,11 @@ That is, its `depth` is different from the current metavariable context depth.
 def _root_.Lean.LMVarId.isReadOnly (mvarId : LMVarId) : MetaM Bool :=
   return (← mvarId.getLevel) < (← getMCtx).levelAssignDepth
 
-@[deprecated LMVarId.isReadOnly (since := "2022-07-15")]
-def isReadOnlyLevelMVar (mvarId : LMVarId) : MetaM Bool := do
-  mvarId.isReadOnly
-
 /--
 Set the user-facing name for the given metavariable.
 -/
 def _root_.Lean.MVarId.setUserName (mvarId : MVarId) (newUserName : Name) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.setMVarUserName mvarId newUserName
-
-@[deprecated MVarId.setUserName (since := "2022-07-15")]
-def setMVarUserName (mvarId : MVarId) (userNameNew : Name) : MetaM Unit :=
-  mvarId.setUserName userNameNew
 
 /--
 Throw an exception saying `fvarId` is not declared in the current local context.
@@ -785,19 +745,11 @@ Throw an exception saying `fvarId` is not declared in the current local context.
 def _root_.Lean.FVarId.throwUnknown (fvarId : FVarId) : CoreM α :=
   throwError "unknown free variable '{mkFVar fvarId}'"
 
-@[deprecated FVarId.throwUnknown (since := "2022-07-15")]
-def throwUnknownFVar (fvarId : FVarId) : MetaM α :=
-  fvarId.throwUnknown
-
 /--
 Return `some decl` if `fvarId` is declared in the current local context.
 -/
 def _root_.Lean.FVarId.findDecl? (fvarId : FVarId) : MetaM (Option LocalDecl) :=
   return (← getLCtx).find? fvarId
-
-@[deprecated FVarId.findDecl? (since := "2022-07-15")]
-def findLocalDecl? (fvarId : FVarId) : MetaM (Option LocalDecl) :=
-  fvarId.findDecl?
 
 /--
   Return the local declaration for the given free variable.
@@ -807,10 +759,6 @@ def _root_.Lean.FVarId.getDecl (fvarId : FVarId) : MetaM LocalDecl := do
   match (← getLCtx).find? fvarId with
   | some d => return d
   | none   => fvarId.throwUnknown
-
-@[deprecated FVarId.getDecl (since := "2022-07-15")]
-def getLocalDecl (fvarId : FVarId) : MetaM LocalDecl := do
-  fvarId.getDecl
 
 /-- Return the type of the given free variable. -/
 def _root_.Lean.FVarId.getType (fvarId : FVarId) : MetaM Expr :=
@@ -886,20 +834,12 @@ contain a metavariable `?m` s.t. local context of `?m` contains a free variable 
 def _root_.Lean.Expr.abstractRangeM (e : Expr) (n : Nat) (xs : Array Expr) : MetaM Expr :=
   liftMkBindingM <| MetavarContext.abstractRange e n xs
 
-@[deprecated Expr.abstractRangeM (since := "2022-07-15")]
-def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : MetaM Expr :=
-  e.abstractRangeM n xs
-
 /--
 Replace free (or meta) variables `xs` with loose bound variables.
 Similar to `Expr.abstract`, but handles metavariables correctly.
 -/
 def _root_.Lean.Expr.abstractM (e : Expr) (xs : Array Expr) : MetaM Expr :=
   e.abstractRangeM xs.size xs
-
-@[deprecated Expr.abstractM (since := "2022-07-15")]
-def abstract (e : Expr) (xs : Array Expr) : MetaM Expr :=
-  e.abstractM xs
 
 /--
 Collect forward dependencies for the free variables in `toRevert`.
@@ -1550,10 +1490,6 @@ private def withMVarContextImp (mvarId : MVarId) (x : MetaM α) : MetaM α := do
   different from the current ones. -/
 def _root_.Lean.MVarId.withContext (mvarId : MVarId) : n α → n α :=
   mapMetaM <| withMVarContextImp mvarId
-
-@[deprecated MVarId.withContext (since := "2022-07-15")]
-def withMVarContext (mvarId : MVarId) : n α → n α :=
-  mvarId.withContext
 
 private def withMCtxImp (mctx : MetavarContext) (x : MetaM α) : MetaM α := do
   let mctx' ← getMCtx

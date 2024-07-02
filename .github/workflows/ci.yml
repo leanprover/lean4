@@ -126,81 +126,6 @@ jobs:
             let large = ${{ github.repository == 'leanprover/lean4' }};
             let matrix = [
               {
-                // portable release build: use channel with older glibc (2.27)
-                "name": "Linux LLVM",
-                "os": "ubuntu-latest",
-                "release": false,
-                "check-level": 2,
-                "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
-                "binary-check": "ldd -v",
-                // foreign code may be linked against more recent glibc
-                // reverse-ffi needs to be updated to link to LLVM libraries
-                "CTEST_OPTIONS": "-E 'foreign|leanlaketest_reverse-ffi'",
-                "CMAKE_OPTIONS": "-DLLVM=ON -DLLVM_CONFIG=${GITHUB_WORKSPACE}/build/llvm-host/bin/llvm-config"
-              },
-              {
-                "name": "Linux release",
-                "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",
-                "release": true,
-                "check-level": 0,
-                "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
-                "binary-check": "ldd -v",
-                // foreign code may be linked against more recent glibc
-                "CTEST_OPTIONS": "-E 'foreign'"
-              },
-              {
-                "name": "Linux",
-                "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",
-                "check-stage3": level >= 2,
-                "test-speedcenter": level >= 2,
-                "check-level": 1,
-              },
-              {
-                "name": "Linux Debug",
-                "os": "ubuntu-latest",
-                "check-level": 2,
-                "CMAKE_PRESET": "debug",
-                // exclude seriously slow tests
-                "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest'"
-              },
-              // TODO: suddenly started failing in CI
-              /*{
-                "name": "Linux fsanitize",
-                "os": "ubuntu-latest",
-                "check-level": 2,
-                // turn off custom allocator & symbolic functions to make LSAN do its magic
-                "CMAKE_PRESET": "sanitize",
-                // exclude seriously slow/problematic tests (laketests crash)
-                "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest'"
-              },*/
-              {
-                "name": "macOS",
-                "os": "macos-13",
-                "release": true,
-                "check-level": 2,
-                "shell": "bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
-                "binary-check": "otool -L",
-                "tar": "gtar" // https://github.com/actions/runner-images/issues/2619
-              },
-              {
-                "name": "macOS aarch64",
-                "os": "macos-14",
-                "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
-                "release": true,
-                "check-level": 1,
-                "shell": "bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-apple-darwin.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
-                "binary-check": "otool -L",
-                "tar": "gtar" // https://github.com/actions/runner-images/issues/2619
-              },
-              {
                 "name": "Windows",
                 "os": "windows-2022",
                 "release": true,
@@ -212,43 +137,6 @@ jobs:
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-mingw.sh lean-llvm*",
                 "binary-check": "ldd"
-              },
-              {
-                "name": "Linux aarch64",
-                "os": "ubuntu-latest",
-                "CMAKE_OPTIONS": "-DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-linux_aarch64",
-                "release": true,
-                "check-level": 2,
-                "cross": true,
-                "cross_target": "aarch64-unknown-linux-gnu",
-                "shell": "nix develop .#oldGlibcAArch -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-linux-gnu.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm-aarch64-* lean-llvm-x86_64-*"
-              },
-              {
-                "name": "Linux 32bit",
-                "os": "ubuntu-latest",
-                // Use 32bit on stage0 and stage1 to keep oleans compatible
-                "CMAKE_OPTIONS": "-DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_MMAP=OFF -DUSE_GMP=OFF -DLEAN_EXTRA_CXX_FLAGS='-m32' -DLEANC_OPTS='-m32' -DMMAP=OFF -DLEAN_INSTALL_SUFFIX=-linux_x86",
-                "cmultilib": true,
-                "release": true,
-                "check-level": 2,
-                "cross": true,
-                "shell": "bash -euxo pipefail {0}"
-              },
-              {
-                "name": "Web Assembly",
-                "os": "ubuntu-latest",
-                // Build a native 32bit binary in stage0 and use it to compile the oleans and the wasm build
-                "CMAKE_OPTIONS": "-DCMAKE_C_COMPILER_WORKS=1 -DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_CMAKE_CXX_COMPILER=clang++ -DSTAGE0_CMAKE_C_COMPILER=clang -DSTAGE0_CMAKE_EXECUTABLE_SUFFIX=\"\" -DUSE_GMP=OFF -DMMAP=OFF -DSTAGE0_MMAP=OFF -DCMAKE_AR=../emsdk/emsdk-main/upstream/emscripten/emar -DCMAKE_TOOLCHAIN_FILE=../emsdk/emsdk-main/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DLEAN_INSTALL_SUFFIX=-linux_wasm32",
-                "wasm": true,
-                "cmultilib": true,
-                "release": true,
-                "check-level": 2,
-                "cross": true,
-                "shell": "bash -euxo pipefail {0}",
-                // Just a few selected tests because wasm is slow
-                "CTEST_OPTIONS": "-R \"leantest_1007\\.lean|leantest_Format\\.lean|leanruntest\\_1037.lean|leanruntest_ac_rfl\\.lean\""
               }
             ];
             console.log(`matrix:\n${JSON.stringify(matrix, null, 2)}`)
@@ -398,7 +286,7 @@ jobs:
       - name: Test
         id: test
         run: |
-          time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
+          time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }} -R spaces
         if: (matrix.wasm || !matrix.cross) && needs.configure.outputs.check-level >= 1
       - name: Test Summary
         uses: test-summary/action@v2

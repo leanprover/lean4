@@ -93,7 +93,7 @@ instance : OrElse (Option α) where
 
 /-- If the first argument is `some a`, returns `some a`, otherwise returns the second argument.
 This is similar to `<|>`/`orElse`, but it is strict in the second argument. -/
-@[always_inline, inline] def or : Option α → Option α → Option α
+@[always_inline, macro_inline] def or : Option α → Option α → Option α
   | some a, _ => some a
   | none,   b => b
 

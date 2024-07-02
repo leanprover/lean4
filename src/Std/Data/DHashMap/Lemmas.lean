@@ -136,12 +136,12 @@ theorem size_remove_le [EquivBEq α] [LawfulHashable α] {k : α} : (m.remove k)
   Raw₀.size_remove_le _ m.2
 
 @[simp]
-theorem containsThenInsert_fst {k : α} {v : β k} : (m.containsThenInsert k v).1 = m.insert k v :=
-  Subtype.eq <| (congrArg Subtype.val (Raw₀.containsThenInsert_fst _ (k := k)) :)
+theorem containsThenInsert_snd {k : α} {v : β k} : (m.containsThenInsert k v).2 = m.insert k v :=
+  Subtype.eq <| (congrArg Subtype.val (Raw₀.containsThenInsert_snd _ (k := k)) :)
 
 @[simp]
-theorem containsThenInsert_snd {k : α} {v : β k} : (m.containsThenInsert k v).2 = m.contains k :=
-  Raw₀.containsThenInsert_snd _
+theorem containsThenInsert_fst {k : α} {v : β k} : (m.containsThenInsert k v).1 = m.contains k :=
+  Raw₀.containsThenInsert_fst _
 
 @[simp]
 theorem get?_empty [LawfulBEq α] {a : α} {c} : (empty c : DHashMap α β).get? a = none :=
@@ -604,24 +604,24 @@ theorem getD_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {fallback 
 end Const
 
 @[simp]
-theorem getThenInsertIfNew?_fst [LawfulBEq α] {k : α} {v : β k} : (m.getThenInsertIfNew? k v).1 = m.insertIfNew k v :=
-  Subtype.eq <| (congrArg Subtype.val (Raw₀.getThenInsertIfNew?_fst _ (k := k)) :)
+theorem getThenInsertIfNew?_fst [LawfulBEq α] {k : α} {v : β k} : (m.getThenInsertIfNew? k v).1 = m.get? k :=
+  Raw₀.getThenInsertIfNew?_fst _
 
 @[simp]
-theorem getThenInsertIfNew?_snd [LawfulBEq α] {k : α} {v : β k} : (m.getThenInsertIfNew? k v).2 = m.get? k :=
-  Raw₀.getThenInsertIfNew?_snd _
+theorem getThenInsertIfNew?_snd [LawfulBEq α] {k : α} {v : β k} : (m.getThenInsertIfNew? k v).2 = m.insertIfNew k v :=
+  Subtype.eq <| (congrArg Subtype.val (Raw₀.getThenInsertIfNew?_snd _ (k := k)) :)
 
 namespace Const
 
 variable {β : Type v} {m : DHashMap α (fun _ => β)}
 
 @[simp]
-theorem getThenInsertIfNew?_fst {k : α} {v : β} : (getThenInsertIfNew? m k v).1 = m.insertIfNew k v :=
-  Subtype.eq <| (congrArg Subtype.val (Raw₀.Const.getThenInsertIfNew?_fst _ (k := k)) :)
+theorem getThenInsertIfNew?_fst {k : α} {v : β} : (getThenInsertIfNew? m k v).1 = get? m k :=
+  Raw₀.Const.getThenInsertIfNew?_fst _
 
 @[simp]
-theorem getThenInsertIfNew?_snd {k : α} {v : β} : (getThenInsertIfNew? m k v).2 = get? m k :=
-  Raw₀.Const.getThenInsertIfNew?_snd _
+theorem getThenInsertIfNew?_snd {k : α} {v : β} : (getThenInsertIfNew? m k v).2 = m.insertIfNew k v :=
+  Subtype.eq <| (congrArg Subtype.val (Raw₀.Const.getThenInsertIfNew?_snd _ (k := k)) :)
 
 end Const
 

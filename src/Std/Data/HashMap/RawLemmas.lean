@@ -142,12 +142,12 @@ theorem size_remove_le [EquivBEq α] [LawfulHashable α] {k : α} : (m.remove k)
   DHashMap.Raw.size_remove_le h.out
 
 @[simp]
-theorem containsThenInsert_fst {k : α} {v : β} : (m.containsThenInsert k v).1 = m.insert k v :=
-  ext (DHashMap.Raw.containsThenInsert_fst h.out)
+theorem containsThenInsert_fst {k : α} {v : β} : (m.containsThenInsert k v).1 = m.contains k :=
+  DHashMap.Raw.containsThenInsert_fst h.out
 
 @[simp]
-theorem containsThenInsert_snd {k : α} {v : β} : (m.containsThenInsert k v).2 = m.contains k :=
-  DHashMap.Raw.containsThenInsert_snd h.out
+theorem containsThenInsert_snd {k : α} {v : β} : (m.containsThenInsert k v).2 = m.insert k v :=
+  ext (DHashMap.Raw.containsThenInsert_snd h.out)
 
 @[simp]
 theorem getElem?_empty {a : α} {c} : (empty c : Raw α β)[a]? = none :=
@@ -379,12 +379,12 @@ theorem getD_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {fallback 
   DHashMap.Raw.Const.getD_insertIfNew h.out
 
 @[simp]
-theorem getThenInsertIfNew?_fst {k : α} {v : β} : (getThenInsertIfNew? m k v).1 = m.insertIfNew k v :=
-  ext (DHashMap.Raw.Const.getThenInsertIfNew?_fst h.out)
+theorem getThenInsertIfNew?_fst {k : α} {v : β} : (getThenInsertIfNew? m k v).1 = get? m k :=
+  DHashMap.Raw.Const.getThenInsertIfNew?_fst h.out
 
 @[simp]
-theorem getThenInsertIfNew?_snd {k : α} {v : β} : (getThenInsertIfNew? m k v).2 = get? m k :=
-  DHashMap.Raw.Const.getThenInsertIfNew?_snd h.out
+theorem getThenInsertIfNew?_snd {k : α} {v : β} : (getThenInsertIfNew? m k v).2 = m.insertIfNew k v :=
+  ext (DHashMap.Raw.Const.getThenInsertIfNew?_snd h.out)
 
 end Raw
 

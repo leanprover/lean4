@@ -317,7 +317,7 @@ theorem insert_eq_insertₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (
   · rfl
 
 theorem containsThenInsert_eq_insertₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) :
-    (m.containsThenInsert a b).1 = m.insertₘ a b := by
+    (m.containsThenInsert a b).2 = m.insertₘ a b := by
   rw [containsThenInsert, insertₘ, containsₘ, bucket]
   dsimp only [Array.ugetElem_eq_getElem, Array.uset]
   split
@@ -327,7 +327,7 @@ theorem containsThenInsert_eq_insertₘ [BEq α] [Hashable α] (m : Raw₀ α β
   · rfl
 
 theorem containsThenInsert_eq_containsₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) :
-    (m.containsThenInsert a b).2 = m.containsₘ a := by
+    (m.containsThenInsert a b).1 = m.containsₘ a := by
   rw [containsThenInsert, containsₘ, bucket]
   dsimp only [Array.ugetElem_eq_getElem, Array.uset]
   split <;> simp_all
@@ -336,13 +336,13 @@ theorem insertIfNew_eq_insertIfNewₘ [BEq α] [Hashable α] (m : Raw₀ α β) 
     m.insertIfNew a b = m.insertIfNewₘ a b := rfl
 
 theorem getThenInsertIfNew?_eq_insertIfNewₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α) (b : β a) :
-    (m.getThenInsertIfNew? a b).1 = m.insertIfNewₘ a b := by
+    (m.getThenInsertIfNew? a b).2 = m.insertIfNewₘ a b := by
   rw [getThenInsertIfNew?, insertIfNewₘ, containsₘ, bucket]
   dsimp only [Array.ugetElem_eq_getElem, Array.uset]
   split <;> simp_all [consₘ, updateBucket, List.containsKey_eq_isSome_getValueCast?]
 
 theorem getThenInsertIfNew?_eq_get?ₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α) (b : β a) :
-    (m.getThenInsertIfNew? a b).2 = m.get?ₘ a := by
+    (m.getThenInsertIfNew? a b).1 = m.get?ₘ a := by
   rw [getThenInsertIfNew?, get?ₘ, bucket]
   dsimp only [Array.ugetElem_eq_getElem, Array.uset]
   split <;> simp_all
@@ -384,13 +384,13 @@ theorem Const.get!_eq_get!ₘ [BEq α] [Hashable α] [Inhabited β] (m : Raw₀ 
   simp [get!, get!ₘ, get?ₘ, List.getValue!_eq_getValue?, bucket]
 
 theorem Const.getThenInsertIfNew?_eq_insertIfNewₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α) (b : β) :
-    (Const.getThenInsertIfNew? m a b).1 = m.insertIfNewₘ a b := by
+    (Const.getThenInsertIfNew? m a b).2 = m.insertIfNewₘ a b := by
   rw [getThenInsertIfNew?, insertIfNewₘ, containsₘ, bucket]
   dsimp only [Array.ugetElem_eq_getElem, Array.uset]
   split <;> simp_all [consₘ, updateBucket, List.containsKey_eq_isSome_getValue?, -Option.not_isSome]
 
 theorem Const.getThenInsertIfNew?_eq_get?ₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α) (b : β) :
-    (Const.getThenInsertIfNew? m a b).2 = Const.get?ₘ m a := by
+    (Const.getThenInsertIfNew? m a b).1 = Const.get?ₘ m a := by
   rw [getThenInsertIfNew?, get?ₘ, bucket]
   dsimp only [Array.ugetElem_eq_getElem, Array.uset]
   split <;> simp_all [-getValue?_eq_none]

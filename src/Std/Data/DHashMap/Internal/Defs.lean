@@ -201,17 +201,17 @@ where
     let buckets' := buckets.uset i (AssocList.cons a b bkt) h
     expandIfNecessary ⟨⟨size', buckets'⟩, by simpa [buckets']⟩
 
-@[inline] def containsThenInsert [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) : Raw₀ α β × Bool :=
+@[inline] def containsThenInsert [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) : Bool × Raw₀ α β :=
   let ⟨⟨size, buckets⟩, hm⟩ := m
   let ⟨i, h⟩ := mkIdx buckets.size hm (hash a)
   let bkt := buckets[i]
   if bkt.contains a then
     let buckets' := buckets.uset i .nil h
-    (⟨⟨size, buckets'.uset i (bkt.replace a b) (by simpa [buckets'])⟩, by simpa [buckets']⟩, true)
+    (true, ⟨⟨size, buckets'.uset i (bkt.replace a b) (by simpa [buckets'])⟩, by simpa [buckets']⟩)
   else
     let size'    := size + 1
     let buckets' := buckets.uset i (AssocList.cons a b bkt) h
-    (expandIfNecessary ⟨⟨size', buckets'⟩, by simpa [buckets']⟩, false)
+    (false, expandIfNecessary ⟨⟨size', buckets'⟩, by simpa [buckets']⟩)
 
 @[inline] def insertIfNew [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) : Raw₀ α β :=
   let ⟨⟨size, buckets⟩, hm⟩ := m
@@ -224,7 +224,7 @@ where
     let buckets' := buckets.uset i (AssocList.cons a b bkt) h
     expandIfNecessary ⟨⟨size', buckets'⟩, by simpa [buckets']⟩
 
-@[inline] def getThenInsertIfNew? [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α) (b : β a) : Raw₀ α β × Option (β a) :=
+@[inline] def getThenInsertIfNew? [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α) (b : β a) : Option (β a) × Raw₀ α β :=
   let ⟨⟨size, buckets⟩, hm⟩ := m
   let ⟨i, h⟩ := mkIdx buckets.size hm (hash a)
   let bkt := buckets[i]
@@ -232,8 +232,8 @@ where
   | none =>
     let size'    := size + 1
     let buckets' := buckets.uset i (AssocList.cons a b bkt) h
-    (expandIfNecessary ⟨⟨size', buckets'⟩, by simpa [buckets']⟩, none)
-  | some v => (⟨⟨size, buckets⟩, hm⟩, some v)
+    (none, expandIfNecessary ⟨⟨size', buckets'⟩, by simpa [buckets']⟩)
+  | some v => (some v, ⟨⟨size, buckets⟩, hm⟩)
 
 @[inline] def get? [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Option (β a) :=
   let ⟨⟨_, buckets⟩, h⟩ := m
@@ -320,7 +320,7 @@ variable {β : Type v}
   buckets[idx.1].get! a
 
 @[inline] def Const.getThenInsertIfNew? [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α) (b : β) :
-    Raw₀ α (fun _ => β) × Option β :=
+    Option β × Raw₀ α (fun _ => β) :=
   let ⟨⟨size, buckets⟩, hm⟩ := m
   let ⟨i, h⟩ := mkIdx buckets.size hm (hash a)
   let bkt := buckets[i]
@@ -328,8 +328,8 @@ variable {β : Type v}
   | none =>
     let size'    := size + 1
     let buckets' := buckets.uset i (AssocList.cons a b bkt) h
-    (expandIfNecessary ⟨⟨size', buckets'⟩, by simpa [buckets']⟩, none)
-  | some v => (⟨⟨size, buckets⟩, hm⟩, some v)
+    (none, expandIfNecessary ⟨⟨size', buckets'⟩, by simpa [buckets']⟩)
+  | some v => (some v, ⟨⟨size, buckets⟩, hm⟩)
 
 @[inline] def Const.insertMany {ρ : Type w} [ForIn Id ρ (α × β)] [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (l : ρ) :
     { m' : Raw₀ α (fun _ => β) // ∀ (P : Raw₀ α (fun _ => β) → Prop), (∀ {m'' a b}, P m'' → P (m''.insert a b)) → P m → P m' } := Id.run do

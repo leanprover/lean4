@@ -138,12 +138,12 @@ theorem size_remove_le [EquivBEq α] [LawfulHashable α] {k : α} : (m.remove k)
   HashMap.Raw.size_remove_le h.out
 
 @[simp]
-theorem containsThenInsert_fst {k : α} : (m.containsThenInsert k).1 = m.insert k :=
-  ext (HashMap.Raw.containsThenInsert_fst h.out)
+theorem containsThenInsert_fst {k : α} : (m.containsThenInsert k).1 = m.contains k :=
+  HashMap.Raw.containsThenInsert_fst h.out
 
 @[simp]
-theorem containsThenInsert_snd {k : α} : (m.containsThenInsert k).2 = m.contains k :=
-  HashMap.Raw.containsThenInsert_snd h.out
+theorem containsThenInsert_snd {k : α} : (m.containsThenInsert k).2 = m.insert k :=
+  ext (HashMap.Raw.containsThenInsert_snd h.out)
 
 end Raw
 

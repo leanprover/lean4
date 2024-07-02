@@ -1365,21 +1365,16 @@ private abbrev unfold (e : Expr) (failK : MetaM α) (successK : Expr → MetaM �
   | some e => successK e
   | none   => failK
 
-private def _root_.Lean.LBool.toExceptM (d : α) (b : MetaM LBool) : MetaM (Except α Bool) := do match ← b with
-  | .true  => return .ok true
-  | .false => return .ok false
-  | .undef => return .error d
-
 /-- Auxiliary method for isDefEqDelta -/
 private def unfoldBothDefEq (fn : Name) (t s : Expr) : MetaM (Except Bool Bool) := do
   match t, s with
   | Expr.const _ ls₁, Expr.const _ ls₂ => LBool.toExceptM false <| isListLevelDefEq ls₁ ls₂
   | Expr.app _ _,     Expr.app _ _     => do
-    let usedHeuristic ← match (← tryHeuristic t s) with
+    let triedHeuristic ← match (← tryHeuristic t s) with
       | .true  => return .ok true
       | .false => pure true
       | .undef => pure false
-    LBool.toExceptM usedHeuristic <|
+    LBool.toExceptM triedHeuristic <|
       unfold t
        (unfold s (pure LBool.undef) (fun s => isDefEqRight fn t s))
        (fun t => unfold s (isDefEqLeft fn t s) (fun s => isDefEqLeftRight fn t s))
@@ -1518,7 +1513,8 @@ where
   9- If `headSymbol (unfold t) == headSymbol s`, then unfold t and continue.
   10- If `headSymbol (unfold s) == headSymbol t`, then unfold s
   11- Otherwise, unfold `t` and `s` and continue.
-  Remark: 9&10&11 are implemented by `unfoldComparingHeadsDefEq` -/
+  Remark: 9&10&11 are implemented by `unfoldComparingHeadsDefEq`.
+  In the failure case, we return a flag that tells whether 3(a) has been attempted. -/
 private def isDefEqDelta (t s : Expr) : MetaM (Except Bool Bool) := do
   let tInfo? ← isDeltaCandidate? t
   let sInfo? ← isDeltaCandidate? s
@@ -1814,10 +1810,10 @@ end
   | .false => return false
   | .undef => k
 
-@[inline] def whenExceptDo (x : ExceptT α MetaM Bool) (k : α → MetaM Bool) : MetaM Bool := do
+@[inline] def whenExceptDo (x : ExceptT ε MetaM Bool) (k : ε → MetaM Bool) : MetaM Bool := do
   match (← x) with
   | .ok b => return b
-  | .error a => k a
+  | .error e => k e
 
 @[specialize] private def unstuckMVar (e : Expr) (successK : Expr → MetaM Bool) (failK : MetaM Bool): MetaM Bool := do
   match (← getStuckMVar? e) with
@@ -1864,8 +1860,8 @@ private def isDefEqDeltaStep (t s : Expr) : MetaM DeltaStepResult := do
     | .eq =>
       -- Remark: if `t` and `s` are both some `f`-application, we use `tryHeuristic`
       -- if `f` is not a projection. The projection case generates a performance regression.
-      if tInfo.name == sInfo.name then
-        if t.isApp && s.isApp && (← tryHeuristic t s) matches .true then
+      if tInfo.name == sInfo.name && t.isApp && s.isApp then
+        if (← tryHeuristic t s) matches .true then
           return .eq
         else
           unfoldBoth t s
@@ -1963,11 +1959,11 @@ where
   Given applications `t` and `s` that are in WHNF (modulo the current transparency setting),
   check whether they are definitionally equal or not.
 -/
-private def isDefEqApp (usedHeuristic : Bool) (t s : Expr) : MetaM Bool := do
+private def isDefEqApp (triedHeuristic : Bool) (t s : Expr) : MetaM Bool := do
   let tFn := t.getAppFn
   let sFn := s.getAppFn
   if tFn.isConst && sFn.isConst && tFn.constName! == sFn.constName! then
-    if usedHeuristic then return false else
+    if triedHeuristic then return false else
     /- See comment at `tryHeuristic` explaining why we process arguments before universe levels. -/
     checkpointDefEq (isDefEqArgs tFn t.getAppArgs s.getAppArgs <&&> isListLevelDefEqAux tFn.constLevels! sFn.constLevels!)
   else
@@ -2010,7 +2006,7 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
     whenUndefDo (isDefEqNative t s) do
     whenUndefDo (isDefEqNat t s) do
     whenUndefDo (isDefEqOffset t s) do
-    whenExceptDo (isDefEqDelta t s) fun usedHeuristic => do
+    whenExceptDo (isDefEqDelta t s) fun triedHeuristic => do
     -- We try structure eta *after* lazy delta reduction;
     -- otherwise we would end up applying it at every step of a reduction chain
     -- as soon as one of the sides is a constructor application,
@@ -2018,8 +2014,8 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
     if (← (isDefEqEtaStruct t s <||> isDefEqEtaStruct s t)) then
       return true
     if t.isConst && s.isConst then
-      if t.constName! == s.constName! && !usedHeuristic then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
-    else if (← pure (t.isApp && s.isApp) <&&> (isDefEqApp usedHeuristic t s <||> isDefEqOnFailure t s)) then
+      if t.constName! == s.constName! && !triedHeuristic then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
+    else if (← pure (t.isApp && s.isApp) <&&> (isDefEqApp triedHeuristic t s <||> isDefEqOnFailure t s)) then
       return true
     else
       whenUndefDo (isDefEqProjInst t s) do

@@ -64,5 +64,5 @@ end StateRefT'
 instance (ω σ : Type) (m : Type → Type) : MonadControl m (StateRefT' ω σ m) :=
   inferInstanceAs (MonadControl m (ReaderT _ _))
 
-instance {m : Type → Type} {ω σ : Type} [MonadFinally m] [Monad m] : MonadFinally (StateRefT' ω σ m) :=
+instance {m : Type → Type} {ω σ : Type} [MonadFinally m] : MonadFinally (StateRefT' ω σ m) :=
   inferInstanceAs (MonadFinally (ReaderT _ _))

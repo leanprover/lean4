@@ -126,6 +126,14 @@ theorem length_pos {l : List α} : 0 < length l ↔ l ≠ [] :=
 theorem length_eq_one {l : List α} : length l = 1 ↔ ∃ a, l = [a] :=
   ⟨fun h => match l, h with | [_], _ => ⟨_, rfl⟩, fun ⟨_, h⟩ => by simp [h]⟩
 
+/-! ### `isEmpty` -/
+
+theorem isEmpty_iff {l : List α} : l.isEmpty ↔ l = [] := by
+  cases l <;> simp
+
+theorem isEmpty_iff_length_eq_zero {l : List α} : l.isEmpty ↔ l.length = 0 := by
+  rw [isEmpty_iff, length_eq_zero]
+
 /-! ### L[i] and L[i]? -/
 
 @[simp] theorem get_cons_zero : get (a::l) (0 : Fin (l.length + 1)) = a := rfl
@@ -1035,6 +1043,10 @@ theorem getElem_append_right' {l₁ l₂ : List α} {n : Nat} (h₁ : l₁.lengt
       l₂[n - l₁.length]'(by rw [length_append] at h₂; exact Nat.sub_lt_left_of_lt_add h₁ h₂) :=
   Option.some.inj <| by rw [← getElem?_eq_getElem, ← getElem?_eq_getElem, getElem?_append_right h₁]
 
+theorem getElem_append_right'' (l₁ : List α) {l₂ : List α} {n : Nat} (hn : n < l₂.length) :
+    l₂[n] = (l₁ ++ l₂)[n + l₁.length]'(by simpa [Nat.add_comm] using Nat.add_lt_add_left hn _) := by
+  rw [getElem_append_right] <;> simp [*, le_add_left]
+
 @[deprecated (since := "2024-06-12")]
 theorem get_append_right_aux {l₁ l₂ : List α} {n : Nat}
   (h₁ : l₁.length ≤ n) (h₂ : n < (l₁ ++ l₂).length) : n - l₁.length < l₂.length := by
@@ -1282,6 +1294,14 @@ theorem map_eq_bind {α β} (f : α → β) (l : List α) : map f l = l.bind fun
   simp only [← map_singleton]
   rw [← bind_singleton' l, map_bind, bind_singleton']
 
+theorem bind_eq_foldl (f : α → List β) (l : List α) :
+    l.bind f = l.foldl (fun acc a => acc ++ f a) [] := by
+  suffices ∀ l', l' ++ l.bind f = l.foldl (fun acc a => acc ++ f a) l' by simpa using this []
+  intro l'
+  induction l generalizing l'
+  · simp
+  · next ih => rw [bind_cons, ← append_assoc, ih, foldl_cons]
+
 /-! ### replicate -/
 
 @[simp] theorem replicate_one : replicate 1 a = [a] := rfl
@@ -1528,6 +1548,10 @@ theorem reverseAux_eq (as bs : List α) : reverseAux as bs = reverse as ++ bs :=
 
 theorem contains_eq_any_beq [BEq α] (l : List α) (a : α) : l.contains a = l.any (a == ·) := by
   induction l with simp | cons b l => cases b == a <;> simp [*]
+
+theorem contains_iff_exists_mem_beq [BEq α] (l : List α) (a : α) :
+    l.contains a ↔ ∃ a' ∈ l, a == a' := by
+  induction l <;> simp_all
 
 /-! ## Sublists -/
 

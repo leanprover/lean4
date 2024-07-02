@@ -118,6 +118,10 @@ instance (priority := low) [GetElem coll idx elem valid] [∀ xs i, Decidable (v
     GetElem? coll idx elem valid where
   getElem? xs i := decidableGetElem? xs i
 
+theorem getElem_congr [GetElem coll idx elem valid] {c : coll} {i j : idx} {h : valid c i}
+    (h' : i = j) : c[i] = c[j]'(h' ▸ h) := by
+  cases h'; rfl
+
 class LawfulGetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w))
    (dom : outParam (cont → idx → Prop)) [ge : GetElem? cont idx elem dom] : Prop where
 
@@ -190,12 +194,12 @@ instance : GetElem (List α) Nat α fun as i => i < as.length where
 @[simp] theorem getElem_cons_zero (a : α) (as : List α) (h : 0 < (a :: as).length) : getElem (a :: as) 0 h = a := by
   rfl
 
-@[deprecated (since := "2024-6-12")] abbrev cons_getElem_zero := @getElem_cons_zero
+@[deprecated (since := "2024-06-12")] abbrev cons_getElem_zero := @getElem_cons_zero
 
 @[simp] theorem getElem_cons_succ (a : α) (as : List α) (i : Nat) (h : i + 1 < (a :: as).length) : getElem (a :: as) (i+1) h = getElem as i (Nat.lt_of_succ_lt_succ h) := by
   rfl
 
-@[deprecated (since := "2024-6-12")] abbrev cons_getElem_succ := @getElem_cons_succ
+@[deprecated (since := "2024-06-12")] abbrev cons_getElem_succ := @getElem_cons_succ
 
 theorem get_drop_eq_drop (as : List α) (i : Nat) (h : i < as.length) : as[i] :: as.drop (i+1) = as.drop i :=
   match as, i with

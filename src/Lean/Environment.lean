@@ -248,7 +248,8 @@ namespace Environment
 Type check given declaration and add it to the environment
 -/
 @[extern "lean_add_decl"]
-opaque addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration) : Except KernelException Environment
+opaque addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
+  (cancelTk? : @& Option IO.CancelToken) : Except KernelException Environment
 
 /--
 Add declaration to kernel without type checking it.

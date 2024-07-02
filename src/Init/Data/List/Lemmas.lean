@@ -126,6 +126,14 @@ theorem length_pos {l : List α} : 0 < length l ↔ l ≠ [] :=
 theorem length_eq_one {l : List α} : length l = 1 ↔ ∃ a, l = [a] :=
   ⟨fun h => match l, h with | [_], _ => ⟨_, rfl⟩, fun ⟨_, h⟩ => by simp [h]⟩
 
+/-! ### `isEmpty` -/
+
+theorem isEmpty_iff {l : List α} : l.isEmpty ↔ l = [] := by
+  cases l <;> simp
+
+theorem isEmpty_iff_length_eq_zero {l : List α} : l.isEmpty ↔ l.length = 0 := by
+  rw [isEmpty_iff, length_eq_zero]
+
 /-! ### L[i] and L[i]? -/
 
 @[simp] theorem get_cons_zero : get (a::l) (0 : Fin (l.length + 1)) = a := rfl
@@ -160,21 +168,6 @@ theorem get?_eq_none : l.get? n = none ↔ length l ≤ n :=
 
 @[simp] theorem get_eq_getElem (l : List α) (i : Fin l.length) : l.get i = l[i.1]'i.2 := rfl
 
-@[simp] theorem getElem?_nil {n : Nat} : ([] : List α)[n]? = none := rfl
-
-@[simp] theorem getElem?_cons_zero {l : List α} : (a::l)[0]? = some a := by
-  simp only [← get?_eq_getElem?]
-  rfl
-
-@[simp] theorem getElem?_cons_succ {l : List α} : (a::l)[n+1]? = l[n]? := by
-  simp only [← get?_eq_getElem?]
-  rfl
-
-theorem getElem?_len_le : ∀ {l : List α} {n}, length l ≤ n → l[n]? = none
-  | [], _, _ => rfl
-  | _ :: l, _+1, h => by
-    rw [getElem?_cons_succ, getElem?_len_le (l := l) <| Nat.le_of_succ_le_succ h]
-
 @[simp] theorem getElem?_eq_getElem {l : List α} {n} (h : n < l.length) : l[n]? = some l[n] := by
   simp only [← get?_eq_getElem?, get?_eq_get, h, get_eq_getElem]
 
@@ -185,6 +178,19 @@ theorem getElem?_eq_some {l : List α} : l[n]? = some a ↔ ∃ h : n < l.length
   simp only [← get?_eq_getElem?, get?_eq_none]
 
 theorem getElem?_eq_none (h : length l ≤ n) : l[n]? = none := getElem?_eq_none_iff.mpr h
+
+@[simp] theorem getElem?_nil {n : Nat} : ([] : List α)[n]? = none := rfl
+
+theorem getElem?_cons_zero {l : List α} : (a::l)[0]? = some a := by simp
+
+@[simp] theorem getElem?_cons_succ {l : List α} : (a::l)[n+1]? = l[n]? := by
+  simp only [← get?_eq_getElem?]
+  rfl
+
+theorem getElem?_len_le : ∀ {l : List α} {n}, length l ≤ n → l[n]? = none
+  | [], _, _ => rfl
+  | _ :: l, _+1, h => by
+    rw [getElem?_cons_succ, getElem?_len_le (l := l) <| Nat.le_of_succ_le_succ h]
 
 @[simp] theorem getElem!_nil [Inhabited α] {n : Nat} : ([] : List α)[n]! = default := rfl
 
@@ -812,9 +818,8 @@ theorem map_eq_foldr (f : α → β) (l : List α) : map f l = foldr (fun a bs =
 @[simp] theorem tail?_map (f : α → β) (l : List α) : tail? (map f l) = (tail? l).map (map f) := by
   cases l <;> rfl
 
-@[simp] theorem tailD_map (f : α → β) (l : List α) (l' : List α) :
-    tailD (map f l) (map f l') = map f (tailD l l') := by
-  cases l <;> rfl
+theorem tailD_map (f : α → β) (l : List α) (l' : List α) :
+    tailD (map f l) (map f l') = map f (tailD l l') := by simp
 
 @[simp] theorem getLast_map (f : α → β) (l : List α) (h) :
     getLast (map f l) h = f (getLast l (by simpa using h)) := by
@@ -1034,6 +1039,10 @@ theorem getElem_append_right' {l₁ l₂ : List α} {n : Nat} (h₁ : l₁.lengt
     (l₁ ++ l₂)[n]'h₂ =
       l₂[n - l₁.length]'(by rw [length_append] at h₂; exact Nat.sub_lt_left_of_lt_add h₁ h₂) :=
   Option.some.inj <| by rw [← getElem?_eq_getElem, ← getElem?_eq_getElem, getElem?_append_right h₁]
+
+theorem getElem_append_right'' (l₁ : List α) {l₂ : List α} {n : Nat} (hn : n < l₂.length) :
+    l₂[n] = (l₁ ++ l₂)[n + l₁.length]'(by simpa [Nat.add_comm] using Nat.add_lt_add_left hn _) := by
+  rw [getElem_append_right] <;> simp [*, le_add_left]
 
 @[deprecated (since := "2024-06-12")]
 theorem get_append_right_aux {l₁ l₂ : List α} {n : Nat}
@@ -1282,6 +1291,14 @@ theorem map_eq_bind {α β} (f : α → β) (l : List α) : map f l = l.bind fun
   simp only [← map_singleton]
   rw [← bind_singleton' l, map_bind, bind_singleton']
 
+theorem bind_eq_foldl (f : α → List β) (l : List α) :
+    l.bind f = l.foldl (fun acc a => acc ++ f a) [] := by
+  suffices ∀ l', l' ++ l.bind f = l.foldl (fun acc a => acc ++ f a) l' by simpa using this []
+  intro l'
+  induction l generalizing l'
+  · simp
+  · next ih => rw [bind_cons, ← append_assoc, ih, foldl_cons]
+
 /-! ### replicate -/
 
 @[simp] theorem replicate_one : replicate 1 a = [a] := rfl
@@ -1518,8 +1535,7 @@ theorem reverseAux_eq (as bs : List α) : reverseAux as bs = reverse as ++ bs :=
 
 /-! ### elem / contains -/
 
-@[simp] theorem elem_cons_self [BEq α] [LawfulBEq α] {a : α} : (a::as).elem a = true := by
-  simp [elem_cons]
+theorem elem_cons_self [BEq α] [LawfulBEq α] {a : α} : (a::as).elem a = true := by simp
 
 @[simp] theorem contains_cons [BEq α] :
     (a :: as : List α).contains x = (x == a || as.contains x) := by
@@ -1528,6 +1544,10 @@ theorem reverseAux_eq (as bs : List α) : reverseAux as bs = reverse as ++ bs :=
 
 theorem contains_eq_any_beq [BEq α] (l : List α) (a : α) : l.contains a = l.any (a == ·) := by
   induction l with simp | cons b l => cases b == a <;> simp [*]
+
+theorem contains_iff_exists_mem_beq [BEq α] (l : List α) (a : α) :
+    l.contains a ↔ ∃ a' ∈ l, a == a' := by
+  induction l <;> simp_all
 
 /-! ## Sublists -/
 
@@ -1920,14 +1940,13 @@ end replace
 section insert
 variable [BEq α] [LawfulBEq α]
 
-@[simp] theorem insert_nil (a : α) : [].insert a = [a] := by
-  simp [List.insert]
-
 @[simp] theorem insert_of_mem {l : List α} (h : a ∈ l) : l.insert a = l := by
   simp [List.insert, h]
 
 @[simp] theorem insert_of_not_mem {l : List α} (h : a ∉ l) : l.insert a = a :: l := by
   simp [List.insert, h]
+
+theorem insert_nil (a : α) : [].insert a = [a] := by simp
 
 @[simp] theorem mem_insert_iff {l : List α} : a ∈ l.insert b ↔ a = b ∨ a ∈ l := by
   if h : b ∈ l then

@@ -94,12 +94,12 @@ withLocalDeclD `y nat fun y => do
 let m ← mkFreshExprMVar nat;
 print (← ppGoal m.mvarId!);
 let val ← mkAppM `Add.add #[mkNatLit 10, y];
-let ⟨zId, nId, subst⟩ ← assertAfter m.mvarId! x.fvarId! `z nat val;
+let ⟨zId, nId, subst⟩ ← m.mvarId!.assertAfter x.fvarId! `z nat val;
 print m;
 print (← ppGoal nId);
-withMVarContext nId do {
+nId.withContext do {
   print m!"{subst.apply x} {subst.apply y} {mkFVar zId}";
-  assignExprMVar nId (← mkAppM `Add.add #[subst.apply x, mkFVar zId]);
+  nId.assign (← mkAppM `Add.add #[subst.apply x, mkFVar zId]);
   print (mkMVar nId)
 };
 print m;
@@ -131,9 +131,9 @@ withLocalDeclD `h₁ p fun h₁ => do
 let eq ← mkEq p q;
 withLocalDeclD `h₂ eq fun h₂ => do
 let m ← mkFreshExprMVar q;
-let r ← replaceLocalDecl m.mvarId! h₁.fvarId! q h₂;
+let r ← m.mvarId!.replaceLocalDecl h₁.fvarId! q h₂;
 print (← ppGoal r.mvarId);
-assignExprMVar r.mvarId (mkFVar r.fvarId);
+r.mvarId.assign (mkFVar r.fvarId);
 print m;
 check m;
 pure ()
@@ -157,12 +157,12 @@ withLocalDeclD `y nat fun y => do
 let m ← mkFreshExprMVar nat;
 print (← ppGoal m.mvarId!);
 let val ← mkAppM `Add.add #[mkNatLit 10, y];
-let ⟨zId, nId, subst⟩ ← assertAfter m.mvarId! y.fvarId! `z nat val;
+let ⟨zId, nId, subst⟩ ← m.mvarId!.assertAfter y.fvarId! `z nat val;
 print m;
 print (← ppGoal nId);
-withMVarContext nId do {
+nId.withContext do {
   print m!"{subst.apply x} {subst.apply y} {mkFVar zId}";
-  assignExprMVar nId (← mkAppM `Add.add #[subst.apply x, mkFVar zId]);
+  nId.assign (← mkAppM `Add.add #[subst.apply x, mkFVar zId]);
   print (mkMVar nId)
 };
 print m;

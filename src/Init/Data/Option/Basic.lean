@@ -26,7 +26,7 @@ def toMonad [Monad m] [Alternative m] : Option α → m α := getM
   | some _ => true
   | none   => false
 
-@[deprecated isSome, inline] def toBool : Option α → Bool := isSome
+@[deprecated isSome (since := "2024-04-17"), inline] def toBool : Option α → Bool := isSome
 
 /-- Returns `true` on `none` and `false` on `some x`. -/
 @[inline] def isNone : Option α → Bool

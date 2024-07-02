@@ -19,8 +19,11 @@ static lean_object* l_Lake_instInhabitedDependency___closed__1;
 static lean_object* l_Option_repr___at___private_Lake_Config_Dependency_0__Lake_reprDependencySrc____x40_Lake_Config_Dependency___hyg_52____spec__1___closed__1;
 static lean_object* l___private_Lake_Config_Dependency_0__Lake_reprDependencySrc____x40_Lake_Config_Dependency___hyg_52____closed__5;
 lean_object* l_String_quote(lean_object*);
+lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 static lean_object* l___private_Lake_Config_Dependency_0__Lake_reprDependencySrc____x40_Lake_Config_Dependency___hyg_52____closed__1;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedDependency;
+LEAN_EXPORT lean_object* l_Lake_Dependency_fullName(lean_object*);
+static lean_object* l_Lake_Dependency_fullName___closed__1;
 static lean_object* l_Option_repr___at___private_Lake_Config_Dependency_0__Lake_reprDependencySrc____x40_Lake_Config_Dependency___hyg_52____spec__2___closed__2;
 static lean_object* l_Lake_instInhabitedDependencySrc___closed__2;
 LEAN_EXPORT lean_object* l_Option_repr___at___private_Lake_Config_Dependency_0__Lake_reprDependencySrc____x40_Lake_Config_Dependency___hyg_52____spec__1___boxed(lean_object*, lean_object*);
@@ -30,7 +33,6 @@ LEAN_EXPORT lean_object* l_Lake_instReprDependencySrc;
 static lean_object* l___private_Lake_Config_Dependency_0__Lake_reprDependencySrc____x40_Lake_Config_Dependency___hyg_52____closed__4;
 static lean_object* l_Option_repr___at___private_Lake_Config_Dependency_0__Lake_reprDependencySrc____x40_Lake_Config_Dependency___hyg_52____spec__1___closed__4;
 static lean_object* l___private_Lake_Config_Dependency_0__Lake_reprDependencySrc____x40_Lake_Config_Dependency___hyg_52____closed__7;
-LEAN_EXPORT lean_object* l_Lake_Dependency_opts___default;
 static lean_object* l___private_Lake_Config_Dependency_0__Lake_reprDependencySrc____x40_Lake_Config_Dependency___hyg_52____closed__6;
 LEAN_EXPORT lean_object* l_Option_repr___at___private_Lake_Config_Dependency_0__Lake_reprDependencySrc____x40_Lake_Config_Dependency___hyg_52____spec__2___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedDependencySrc___closed__1;
@@ -41,6 +43,7 @@ static lean_object* l_Option_repr___at___private_Lake_Config_Dependency_0__Lake_
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_repr___at___private_Lake_Config_Dependency_0__Lake_reprDependencySrc____x40_Lake_Config_Dependency___hyg_52____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Config_Dependency_0__Lake_reprDependencySrc____x40_Lake_Config_Dependency___hyg_52____boxed(lean_object*, lean_object*);
+lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Option_repr___at___private_Lake_Config_Dependency_0__Lake_reprDependencySrc____x40_Lake_Config_Dependency___hyg_52____spec__2___closed__1;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Config_Dependency_0__Lake_reprDependencySrc____x40_Lake_Config_Dependency___hyg_52____closed__2;
@@ -526,26 +529,21 @@ x_1 = l_Lake_instReprDependencySrc___closed__1;
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_Dependency_opts___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
 static lean_object* _init_l_Lake_instInhabitedDependency___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = lean_box(0);
 x_2 = lean_box(0);
-x_3 = l_Lake_instInhabitedDependencySrc___closed__2;
-x_4 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_4, 0, x_2);
-lean_ctor_set(x_4, 1, x_3);
-lean_ctor_set(x_4, 2, x_1);
-return x_4;
+x_3 = lean_box(0);
+x_4 = l_Lake_instInhabitedDependencySrc___closed__1;
+x_5 = lean_alloc_ctor(0, 5, 0);
+lean_ctor_set(x_5, 0, x_3);
+lean_ctor_set(x_5, 1, x_4);
+lean_ctor_set(x_5, 2, x_1);
+lean_ctor_set(x_5, 3, x_1);
+lean_ctor_set(x_5, 4, x_2);
+return x_5;
 }
 }
 static lean_object* _init_l_Lake_instInhabitedDependency() {
@@ -554,6 +552,36 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lake_instInhabitedDependency___closed__1;
 return x_1;
+}
+}
+static lean_object* _init_l_Lake_Dependency_fullName___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("/", 1, 1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Dependency_fullName(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_2 = lean_ctor_get(x_1, 1);
+lean_inc(x_2);
+x_3 = l_Lake_instInhabitedDependencySrc___closed__1;
+x_4 = lean_string_append(x_3, x_2);
+lean_dec(x_2);
+x_5 = l_Lake_Dependency_fullName___closed__1;
+x_6 = lean_string_append(x_4, x_5);
+x_7 = lean_ctor_get(x_1, 0);
+lean_inc(x_7);
+lean_dec(x_1);
+x_8 = 1;
+x_9 = l_Lean_Name_toString(x_7, x_8);
+x_10 = lean_string_append(x_6, x_9);
+lean_dec(x_9);
+x_11 = lean_string_append(x_10, x_3);
+return x_11;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
@@ -607,12 +635,12 @@ l_Lake_instReprDependencySrc___closed__1 = _init_l_Lake_instReprDependencySrc___
 lean_mark_persistent(l_Lake_instReprDependencySrc___closed__1);
 l_Lake_instReprDependencySrc = _init_l_Lake_instReprDependencySrc();
 lean_mark_persistent(l_Lake_instReprDependencySrc);
-l_Lake_Dependency_opts___default = _init_l_Lake_Dependency_opts___default();
-lean_mark_persistent(l_Lake_Dependency_opts___default);
 l_Lake_instInhabitedDependency___closed__1 = _init_l_Lake_instInhabitedDependency___closed__1();
 lean_mark_persistent(l_Lake_instInhabitedDependency___closed__1);
 l_Lake_instInhabitedDependency = _init_l_Lake_instInhabitedDependency();
 lean_mark_persistent(l_Lake_instInhabitedDependency);
+l_Lake_Dependency_fullName___closed__1 = _init_l_Lake_Dependency_fullName___closed__1();
+lean_mark_persistent(l_Lake_Dependency_fullName___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

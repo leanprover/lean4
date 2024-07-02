@@ -92,20 +92,24 @@ protected def append (a : ByteArray) (b : ByteArray) : ByteArray :=
 
 instance : Append ByteArray := ⟨ByteArray.append⟩
 
-partial def toList (bs : ByteArray) : List UInt8 :=
+def toList (bs : ByteArray) : List UInt8 :=
   let rec loop (i : Nat) (r : List UInt8) :=
     if i < bs.size then
       loop (i+1) (bs.get! i :: r)
     else
       r.reverse
+    termination_by bs.size - i
+    decreasing_by decreasing_trivial_pre_omega
   loop 0 []
 
-@[inline] partial def findIdx? (a : ByteArray) (p : UInt8 → Bool) (start := 0) : Option Nat :=
+@[inline] def findIdx? (a : ByteArray) (p : UInt8 → Bool) (start := 0) : Option Nat :=
   let rec @[specialize] loop (i : Nat) :=
     if i < a.size then
       if p (a.get! i) then some i else loop (i+1)
     else
       none
+    termination_by a.size - i
+    decreasing_by decreasing_trivial_pre_omega
   loop start
 
 /--

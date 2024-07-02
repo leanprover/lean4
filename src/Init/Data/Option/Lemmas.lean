@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro
 -/
 prelude
+import Init.Data.Option.BasicAux
 import Init.Data.Option.Instances
 import Init.Classical
 import Init.Ext
@@ -40,6 +41,21 @@ theorem getD_of_ne_none {x : Option α} (hx : x ≠ none) (y : α) : some (x.get
 
 theorem getD_eq_iff {o : Option α} {a b} : o.getD a = b ↔ (o = some b ∨ o = none ∧ a = b) := by
   cases o <;> simp
+
+@[simp] theorem get!_none [Inhabited α] : (none : Option α).get! = default := rfl
+
+@[simp] theorem get!_some [Inhabited α] {a : α} : (some a).get! = a := rfl
+
+theorem get_eq_get! [Inhabited α] : (o : Option α) → {h : o.isSome} → o.get h = o.get!
+  | some _, _ => rfl
+
+theorem get_eq_getD {fallback : α} : (o : Option α) → {h : o.isSome} → o.get h = o.getD fallback
+  | some _, _ => rfl
+
+theorem some_get! [Inhabited α] : (o : Option α) → o.isSome → some (o.get!) = o
+  | some _, _ => rfl
+
+theorem get!_eq_getD_default [Inhabited α] (o : Option α) : o.get! = o.getD default := rfl
 
 theorem mem_unique {o : Option α} {a b : α} (ha : a ∈ o) (hb : b ∈ o) : a = b :=
   some.inj <| ha ▸ hb
@@ -144,6 +160,12 @@ theorem map_eq_some : f <$> x = some b ↔ ∃ a, x = some a ∧ f a = b := map_
 
 @[simp] theorem map_eq_none' : x.map f = none ↔ x = none := by
   cases x <;> simp only [map_none', map_some', eq_self_iff_true]
+
+theorem isSome_map {x : Option α} : (f <$> x).isSome = x.isSome := by
+  cases x <;> simp
+
+@[simp] theorem isSome_map' {x : Option α} : (x.map f).isSome = x.isSome := by
+  cases x <;> simp
 
 theorem map_eq_none : f <$> x = none ↔ x = none := map_eq_none'
 

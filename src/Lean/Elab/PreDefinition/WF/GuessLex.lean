@@ -14,7 +14,7 @@ import Lean.Elab.Quotation
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
-import Lean.Elab.PreDefinition.WF.TerminationArgument
+import Lean.Elab.PreDefinition.TerminationArgument
 import Lean.Data.Array
 
 
@@ -128,10 +128,10 @@ structure Measure extends TerminationArgument where
   natFn : Expr
 deriving Inhabited
 
-/-- String desription of this measure -/
+/-- String description of this measure -/
 def Measure.toString (measure : Measure) : MetaM String := do
-  lambdaTelescope measure.fn fun xs e => do
-    let e ← mkLambdaFVars xs[measure.arity:] e -- undo overshooting
+  lambdaTelescope measure.fn fun _xs e => do
+    -- This is a bit slopping if `measure.fn` takes more parameters than the `PreDefinition`
     return (← ppExpr e).pretty
 
 /--
@@ -187,8 +187,7 @@ def simpleMeasures (preDefs : Array PreDefinition) (fixedPrefixSize : Nat)
             if  ← mayOmitSizeOf is_mutual xs[fixedPrefixSize:] x
             then mkLambdaFVars xs x
             else pure natFn
-          let extraParams := preDef.termination.extraParams
-          ret := ret.push { ref := .missing, fn, natFn, arity := xs.size, extraParams }
+          ret := ret.push { ref := .missing, structural := false, fn, natFn }
         return ret
 
 /-- Internal monad used by `withRecApps` -/
@@ -370,8 +369,7 @@ def isNatCmp (e : Expr) : Option (Expr × Expr) :=
 def complexMeasures (preDefs : Array PreDefinition) (fixedPrefixSize : Nat)
     (userVarNamess : Array (Array Name)) (recCalls : Array RecCallWithContext) :
     MetaM (Array (Array Measure)) := do
-  preDefs.mapIdxM fun funIdx preDef => do
-    let arity ← lambdaTelescope preDef.value fun xs _ => pure xs.size
+  preDefs.mapIdxM fun funIdx _preDef => do
     let mut measures := #[]
     for rc in recCalls do
       -- Only look at calls from the current function
@@ -398,8 +396,7 @@ def complexMeasures (preDefs : Array PreDefinition) (fixedPrefixSize : Nat)
               let fn ← mkLambdaFVars rc.params body
               -- Avoid duplicates
               unless ← measures.anyM (isDefEq ·.fn fn) do
-                let extraParams := preDef.termination.extraParams
-                measures := measures.push { ref := .missing, fn, natFn := fn, arity, extraParams }
+                measures := measures.push { ref := .missing, structural := false,  fn, natFn := fn }
         return measures
     return measures
 
@@ -751,18 +748,20 @@ def toTerminationArguments (preDefs : Array PreDefinition) (fixedPrefixSize : Na
           | .args taIdxs => measures[taIdxs[funIdx]!]!.fn.beta xs
           | .func funIdx' => mkNatLit <| if funIdx' == funIdx then 1 else 0
         let fn ← mkLambdaFVars xs (← mkProdElem args)
-        let extraParams := preDef.termination.extraParams
-        return { ref := .missing, arity := xs.size, extraParams, fn}
+        return { ref := .missing, structural := false, fn}
 
 /--
 Shows the inferred termination argument to the user, and implements `termination_by?`
 -/
 def reportTermArgs (preDefs : Array PreDefinition) (termArgs : TerminationArguments) : MetaM Unit := do
   for preDef in preDefs, termArg in termArgs do
+    let stx := do
+      let arity ← lambdaTelescope preDef.value fun xs _ => pure xs.size
+      termArg.delab arity (extraParams := preDef.termination.extraParams)
     if showInferredTerminationBy.get (← getOptions) then
-      logInfoAt preDef.ref m!"Inferred termination argument:\n{← termArg.delab}"
+      logInfoAt preDef.ref m!"Inferred termination argument:\n{← stx}"
     if let some ref := preDef.termination.terminationBy?? then
-      Tactic.TryThis.addSuggestion ref (← termArg.delab)
+      Tactic.TryThis.addSuggestion ref (← stx)
 
 end GuessLex
 open GuessLex

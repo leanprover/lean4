@@ -98,7 +98,7 @@ instance : MonadLift LogIO JobM := ⟨ELogT.takeAndRun⟩
 abbrev SpawnM := BuildT BaseIO
 
 /-- The monad used to spawn asynchronous Lake build jobs. **Replaced by `SpawnM`.** -/
-@[deprecated SpawnM] abbrev SchedulerM := SpawnM
+@[deprecated SpawnM (since := "2024-05-21")] abbrev SchedulerM := SpawnM
 
 /-- A Lake job. -/
 structure Job (α : Type u)  where

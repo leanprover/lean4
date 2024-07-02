@@ -120,6 +120,7 @@ LEAN_EXPORT lean_object* l_Lake_logWarning(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Log_replay___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MonadLog_ofMonadState(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_logVerbose___rarg(lean_object*, lean_object*);
+lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Message_0__Lean_fromJsonBaseMessage____x40_Lean_Message___hyg_2615____spec__1(lean_object*, lean_object*);
 static lean_object* l_Lake_getLogPos___rarg___closed__1;
 static lean_object* l___private_Lake_Util_Log_0__Lake_reprLogLevel____x40_Lake_Util_Log___hyg_509____closed__6;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_instFromJsonLog___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -337,7 +338,6 @@ LEAN_EXPORT lean_object* l_Lake_LogLevel_icon___boxed(lean_object*);
 lean_object* l_Array_extract___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_takeLog___rarg___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ELogT_run_x3f(lean_object*, lean_object*);
-lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Message_0__Lean_fromJsonBaseMessage____x40_Lean_Message___hyg_2574____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MonadLog_stderr(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Log_replay___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LogIO_toBaseIO(lean_object*);
@@ -3170,7 +3170,7 @@ x_12 = lean_ctor_get(x_3, 0);
 lean_inc(x_12);
 lean_dec(x_3);
 x_13 = l___private_Lake_Util_Log_0__Lake_toJsonLogEntry____x40_Lake_Util_Log___hyg_1315____closed__2;
-x_14 = l_Lean_Json_getObjValAs_x3f___at___private_Lean_Message_0__Lean_fromJsonBaseMessage____x40_Lean_Message___hyg_2574____spec__1(x_1, x_13);
+x_14 = l_Lean_Json_getObjValAs_x3f___at___private_Lean_Message_0__Lean_fromJsonBaseMessage____x40_Lean_Message___hyg_2615____spec__1(x_1, x_13);
 if (lean_obj_tag(x_14) == 0)
 {
 uint8_t x_15; 

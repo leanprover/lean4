@@ -390,16 +390,8 @@ def isLevelMVarAssigned [Monad m] [MonadMCtx m] (mvarId : LMVarId) : m Bool :=
 def _root_.Lean.MVarId.isAssigned [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool :=
   return (← getMCtx).eAssignment.contains mvarId
 
-@[deprecated MVarId.isAssigned (since := "2022-07-15")]
-def isExprMVarAssigned [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool := do
-  mvarId.isAssigned
-
 def _root_.Lean.MVarId.isDelayedAssigned [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool :=
   return (← getMCtx).dAssignment.contains mvarId
-
-@[deprecated MVarId.isDelayedAssigned (since := "2022-07-15")]
-def isMVarDelayedAssigned [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool := do
-  mvarId.isDelayedAssigned
 
 /--
 Check whether a metavariable is assigned or delayed-assigned. A
@@ -428,10 +420,6 @@ def _root_.Lean.MVarId.isAssignable [Monad m] [MonadMCtx m] (mvarId : MVarId) : 
   let mctx ← getMCtx
   let decl := mctx.getDecl mvarId
   return decl.depth == mctx.depth
-
-@[deprecated MVarId.isAssignable (since := "2022-07-15")]
-def isExprMVarAssignable [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool := do
-  mvarId.isAssignable
 
 /-- Return true iff the given level contains an assigned metavariable. -/
 def hasAssignedLevelMVar [Monad m] [MonadMCtx m] : Level → m Bool
@@ -498,10 +486,6 @@ This is a low-level API, and it is safer to use `isDefEq (mkMVar mvarId) x`.
 -/
 def _root_.Lean.MVarId.assign [MonadMCtx m] (mvarId : MVarId) (val : Expr) : m Unit :=
   modifyMCtx fun m => { m with eAssignment := m.eAssignment.insert mvarId val }
-
-@[deprecated MVarId.assign (since := "2022-07-15")]
-def assignExprMVar [MonadMCtx m] (mvarId : MVarId) (val : Expr) : m Unit :=
-  mvarId.assign val
 
 /--
 Add a delayed assignment for the given metavariable. You must make sure that

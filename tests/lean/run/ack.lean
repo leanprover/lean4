@@ -5,27 +5,35 @@ def ack : Nat → Nat → Nat
 termination_by a b => (a, b)
 
 /--
-info: [reduction] unfolded declarations (max: 1725, num: 4):
-    Nat.rec ↦ 1725
+info: [reduction] unfolded declarations (max: 1725, num: 5):
+    Eq.rec ↦ 1725
   ⏎
-  Eq.rec ↦ 1114
+  Nat.rec ↦ 1725
   ⏎
   Acc.rec ↦ 1050
+  ⏎
+  rfl ↦ 627
   ⏎
   PSigma.rec ↦ 513[reduction] unfolded reducible declarations (max: 1577, num: 3):
     Nat.casesOn ↦ 1577
   ⏎
   Eq.ndrec ↦ 984
   ⏎
-  PSigma.casesOn ↦ 513[kernel] unfolded declarations (max: 1193, num: 5):
+  PSigma.casesOn ↦ 513[kernel] unfolded declarations (max: 1193, num: 8):
     Nat.casesOn ↦ 1193
+  ⏎
+  Eq.rec ↦ 1077
   ⏎
   Nat.rec ↦ 1065
   ⏎
   Eq.ndrec ↦ 973
   ⏎
-  Eq.rec ↦ 973
-   Acc.rec ↦ 754use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+  Acc.rec ↦ 754
+  ⏎
+  PSigma.casesOn ↦ 667
+  ⏎
+  WellFoundedRelation.rel ↦ 520
+   sizeOf ↦ 505use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
 unseal ack in

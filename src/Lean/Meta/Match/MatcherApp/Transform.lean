@@ -159,25 +159,6 @@ def refineThrough? (matcherApp : MatcherApp) (e : Expr) :
     return none
 
 
-/--
-Given `n` and a non-dependent function type `α₁ → α₂ → ... → αₙ → Sort u`, returns the
-types `α₁, α₂, ..., αₙ`. Throws an error if there are not at least `n` argument types or if a
-later argument type depends on a prior one (i.e., it's a dependent function type).
-
-This can be used to infer the expected type of the alternatives when constructing a `MatcherApp`.
--/
--- TODO: Which is the natural module for this?
-def arrowDomainsN (n : Nat) (type : Expr) : MetaM (Array Expr) := do
-  let mut type := type
-  let mut ts := #[]
-  for i in [:n] do
-    type ← whnfForall type
-    let Expr.forallE _ α β _ ← pure type | throwError "expected {n} arguments, got {i}"
-    if β.hasLooseBVars then throwError "unexpected dependent type"
-    ts := ts.push α
-    type := β
-  return ts
-
 private def withUserNamesImpl {α} (fvars : Array Expr) (names : Array Name) (k : MetaM α) : MetaM α := do
   let lctx := (Array.zip fvars names).foldl (init := ← (getLCtx)) fun lctx (fvar, name) =>
     lctx.setUserName fvar.fvarId! name
@@ -295,7 +276,7 @@ def transform
     unless (← isTypeCorrect aux1) do
       logError m!"failed to transform matcher, type error when constructing new pre-splitter motive:{indentExpr aux1}"
       check aux1
-    let origAltTypes ← arrowDomainsN matcherApp.alts.size (← inferType aux1)
+    let origAltTypes ← inferArgumentTypesN matcherApp.alts.size aux1
 
     let aux2 := mkAppN (mkConst splitter matcherLevels.toList) params'
     let aux2 := mkApp aux2 motive'
@@ -303,7 +284,7 @@ def transform
     unless (← isTypeCorrect aux2) do
       logError m!"failed to transform matcher, type error when constructing splitter motive:{indentExpr aux2}"
       check aux2
-    let altTypes ← arrowDomainsN matcherApp.alts.size (← inferType aux2)
+    let altTypes ← inferArgumentTypesN matcherApp.alts.size aux2
 
     let mut alts' := #[]
     for alt in matcherApp.alts,
@@ -343,7 +324,7 @@ def transform
     unless (← isTypeCorrect aux) do
       logError m!"failed to transform matcher, type error when constructing new motive:{indentExpr aux}"
       check aux
-    let altTypes ← arrowDomainsN matcherApp.alts.size (← inferType aux)
+    let altTypes ← inferArgumentTypesN matcherApp.alts.size aux
 
     let mut alts' := #[]
     for alt in matcherApp.alts,

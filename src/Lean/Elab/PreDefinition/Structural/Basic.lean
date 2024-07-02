@@ -9,11 +9,18 @@ import Lean.Meta.ForEachExpr
 
 namespace Lean.Elab.Structural
 
+/--
+Information about the argument of interest of a structurally recursive function.
+
+The `Expr`s in this data structure expect the `fixedParams` to be in scope, but not the other
+parameters of the function. This ensures that this data structure makes sense in the other functions
+of a mutually recursive group.
+-/
 structure RecArgInfo where
+  /-- the name of the recursive function -/
+  fnName      : Name
   /-- `fixedParams ++ ys` are the arguments of the function we are trying to justify termination using structural recursion. -/
   fixedParams : Array Expr
-  /-- recursion arguments -/
-  ys          : Array Expr
   /-- position in `ys` of the argument we are recursing on -/
   pos         : Nat
   /-- position in `ys` of the inductive datatype indices we are recursing on -/
@@ -24,15 +31,26 @@ structure RecArgInfo where
   indLevels   : List Level
   /-- inductive datatype parameters of the argument we are recursing on -/
   indParams   : Array Expr
-  /-- inductive datatype indices of the argument we are recursing on, it is equal to `indicesPos.map fun i => ys.get! i` -/
-  indIndices  : Array Expr
-  /-- true if we are recursing over a reflexive inductive datatype -/
-  reflexive   : Bool
-  /-- true if the type is an inductive predicate -/
-  indPred     : Bool
+  /-- The types mutually inductive with indName -/
+  indAll      : Array Name
+deriving Inhabited
 
 def RecArgInfo.recArgPos (info : RecArgInfo) : Nat :=
   info.fixedParams.size + info.pos
+
+/--
+If `xs` are the parameters of the functions (excluding fixed prefix), partitions them
+into indices and major arguments, and other parameters.
+-/
+def RecArgInfo.pickIndicesMajor (info : RecArgInfo) (xs : Array Expr) : (Array Expr × Array Expr) := Id.run do
+  let mut indexMajorArgs := #[]
+  let mut otherArgs := #[]
+  for h : i in [:xs.size] do
+    if i = info.pos || info.indicesPos.contains i then
+      indexMajorArgs := indexMajorArgs.push xs[i]
+    else
+      otherArgs := otherArgs.push xs[i]
+  return (indexMajorArgs, otherArgs)
 
 structure State where
   /-- As part of the inductive predicates case, we keep adding more and more discriminants from the

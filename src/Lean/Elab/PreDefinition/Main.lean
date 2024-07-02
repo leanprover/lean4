@@ -186,6 +186,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
     else
       ensureFunIndReservedNamesAvailable preDefs
       try
+        checkCodomainsLevel preDefs
         checkTerminationByHints preDefs
         let termArgs ← elabTerminationByHints preDefs
         if shouldUseStructural preDefs then

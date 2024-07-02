@@ -43,3 +43,12 @@ def Bool.toLBool : Bool → Lean.LBool
 @[inline] def toLBoolM {m : Type → Type} [Monad m] (x : m Bool) : m Lean.LBool := do
   let b ← x
   pure b.toLBool
+
+def Lean.LBool.toExcept (e : ε) : Lean.LBool → Except ε Bool
+  | true  => .ok Bool.true
+  | false => .ok Bool.false
+  | undef => .error e
+
+@[inline] def Lean.LBool.toExceptM {m : Type → Type} [Monad m] (e : ε) (x : m Lean.LBool) : m (Except ε Bool) := do
+  let b ← x
+  return b.toExcept e

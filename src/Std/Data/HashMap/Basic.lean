@@ -48,13 +48,13 @@ instance : EmptyCollection (Raw α β) where
 @[inline] def insertIfNew [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β) : Raw α β :=
   ⟨m.inner.insertIfNew a b⟩
 
-@[inline] def containsThenInsert [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β) : Raw α β × Bool :=
-  let ⟨r, replaced⟩ := m.inner.containsThenInsert a b
-  ⟨⟨r⟩, replaced⟩
+@[inline] def containsThenInsert [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β) : Bool × Raw α β :=
+  let ⟨replaced, r⟩ := m.inner.containsThenInsert a b
+  ⟨replaced, ⟨r⟩⟩
 
-@[inline] def getThenInsertIfNew? [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β) : Raw α β × Option β :=
-  let ⟨r, previous⟩ := DHashMap.Raw.Const.getThenInsertIfNew? m.inner a b
-  ⟨⟨r⟩, previous⟩
+@[inline] def getThenInsertIfNew? [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β) : Option β × Raw α β :=
+  let ⟨previous, r⟩ := DHashMap.Raw.Const.getThenInsertIfNew? m.inner a b
+  ⟨previous, ⟨r⟩⟩
 
 @[inline] def get? [BEq α] [Hashable α] (m : Raw α β) (a : α) : Option β :=
   DHashMap.Raw.Const.get? m.inner a
@@ -172,10 +172,10 @@ theorem WF.insert [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β} (h : 
 theorem WF.insertIfNew [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β} (h : m.WF) : (m.insertIfNew a b).WF :=
   ⟨DHashMap.Raw.WF.insertIfNew h.out⟩
 
-theorem WF.containsThenInsert [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β} (h : m.WF) : (m.containsThenInsert a b).1.WF :=
+theorem WF.containsThenInsert [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β} (h : m.WF) : (m.containsThenInsert a b).2.WF :=
   ⟨DHashMap.Raw.WF.containsThenInsert h.out⟩
 
-theorem WF.getThenInsertIfNew? [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β} (h : m.WF) : (m.getThenInsertIfNew? a b).1.WF :=
+theorem WF.getThenInsertIfNew? [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β} (h : m.WF) : (m.getThenInsertIfNew? a b).2.WF :=
   ⟨DHashMap.Raw.WF.Const.getThenInsertIfNew? h.out⟩
 
 theorem WF.remove [BEq α] [Hashable α] {m : Raw α β} {a : α} (h : m.WF) : (m.remove a).WF :=
@@ -217,13 +217,13 @@ instance [BEq α] [Hashable α] : EmptyCollection (HashMap α β) where
 @[inline] def insertIfNew [BEq α] [Hashable α] (m : HashMap α β) (a : α) (b : β) : HashMap α β :=
   ⟨m.inner.insertIfNew a b⟩
 
-@[inline] def containsThenInsert [BEq α] [Hashable α] (m : HashMap α β) (a : α) (b : β) : HashMap α β × Bool :=
-  let ⟨r, replaced⟩ := m.inner.containsThenInsert a b
-  ⟨⟨r⟩, replaced⟩
+@[inline] def containsThenInsert [BEq α] [Hashable α] (m : HashMap α β) (a : α) (b : β) : Bool × HashMap α β :=
+  let ⟨replaced, r⟩ := m.inner.containsThenInsert a b
+  ⟨replaced, ⟨r⟩⟩
 
-@[inline] def getThenInsertIfNew? [BEq α] [Hashable α] (m : HashMap α β) (a : α) (b : β) : HashMap α β × Option β :=
-  let ⟨r, previous⟩ := DHashMap.Const.getThenInsertIfNew? m.inner a b
-  ⟨⟨r⟩, previous⟩
+@[inline] def getThenInsertIfNew? [BEq α] [Hashable α] (m : HashMap α β) (a : α) (b : β) : Option β × HashMap α β :=
+  let ⟨previous, r⟩ := DHashMap.Const.getThenInsertIfNew? m.inner a b
+  ⟨previous, ⟨r⟩⟩
 
 @[inline] def get? [BEq α] [Hashable α] (m : HashMap α β) (a : α) : Option β :=
   DHashMap.Const.get? m.inner a

@@ -43,9 +43,9 @@ instance : EmptyCollection (Raw α) where
 @[inline] def insert [BEq α] [Hashable α] (m : Raw α) (a : α) : Raw α :=
   ⟨m.inner.insert a ()⟩
 
-@[inline] def containsThenInsert [BEq α] [Hashable α] (m : Raw α) (a : α) : Raw α × Bool :=
-  let ⟨r, replaced⟩ := m.inner.containsThenInsert a ()
-  ⟨⟨r⟩, replaced⟩
+@[inline] def containsThenInsert [BEq α] [Hashable α] (m : Raw α) (a : α) : Bool × Raw α :=
+  let ⟨replaced, r⟩ := m.inner.containsThenInsert a ()
+  ⟨replaced, ⟨r⟩⟩
 
 @[inline] def contains [BEq α] [Hashable α] (m : Raw α) (a : α) : Bool :=
   m.inner.contains a
@@ -122,7 +122,7 @@ theorem WF.emptyc [BEq α] [Hashable α] : (∅ : Raw α).WF :=
 theorem WF.insert [BEq α] [Hashable α] {m : Raw α} {a : α} (h : m.WF) : (m.insert a).WF :=
   ⟨HashMap.Raw.WF.insert h.out⟩
 
-theorem WF.containsThenInsert [BEq α] [Hashable α] {m : Raw α} {a : α} (h : m.WF) : (m.containsThenInsert a).1.WF :=
+theorem WF.containsThenInsert [BEq α] [Hashable α] {m : Raw α} {a : α} (h : m.WF) : (m.containsThenInsert a).2.WF :=
   ⟨HashMap.Raw.WF.containsThenInsert h.out⟩
 
 theorem WF.remove [BEq α] [Hashable α] {m : Raw α} {a : α} (h : m.WF) : (m.remove a).WF :=
@@ -155,9 +155,9 @@ instance [BEq α] [Hashable α] : EmptyCollection (HashSet α) where
 @[inline] def insert [BEq α] [Hashable α] (m : HashSet α) (a : α) : HashSet α :=
   ⟨m.inner.insert a ()⟩
 
-@[inline] def containsThenInsert [BEq α] [Hashable α] (m : HashSet α) (a : α) : HashSet α × Bool :=
-  let ⟨r, replaced⟩ := m.inner.containsThenInsert a ()
-  ⟨⟨r⟩, replaced⟩
+@[inline] def containsThenInsert [BEq α] [Hashable α] (m : HashSet α) (a : α) : Bool × HashSet α :=
+  let ⟨replaced, r⟩ := m.inner.containsThenInsert a ()
+  ⟨replaced, ⟨r⟩⟩
 
 @[inline] def contains [BEq α] [Hashable α] (m : HashSet α) (a : α) : Bool :=
   m.inner.contains a

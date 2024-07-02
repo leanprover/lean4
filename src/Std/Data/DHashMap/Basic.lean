@@ -55,17 +55,17 @@ instance : EmptyCollection (Raw α β) where
     (Raw₀.insertIfNew ⟨m, h⟩ a b).1
   else m -- will never happen for well-formed inputs
 
-@[inline] def containsThenInsert [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β a) : Raw α β × Bool :=
+@[inline] def containsThenInsert [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β a) : Bool × Raw α β:=
   if h : 0 < m.buckets.size then
-    let ⟨⟨r, _⟩, replaced⟩ := Raw₀.containsThenInsert ⟨m, h⟩ a b
-    ⟨r, replaced⟩
-  else (m, false) -- will never happen for well-formed inputs
+    let ⟨replaced, ⟨r, _⟩⟩ := Raw₀.containsThenInsert ⟨m, h⟩ a b
+    ⟨replaced, r⟩
+  else (false, m) -- will never happen for well-formed inputs
 
-@[inline] def getThenInsertIfNew? [BEq α] [Hashable α] [LawfulBEq α] (m : Raw α β) (a : α) (b : β a) : Raw α β × Option (β a) :=
+@[inline] def getThenInsertIfNew? [BEq α] [Hashable α] [LawfulBEq α] (m : Raw α β) (a : α) (b : β a) : Option (β a) × Raw α β :=
   if h : 0 < m.buckets.size then
-    let ⟨⟨r, _⟩, previous⟩ := Raw₀.getThenInsertIfNew? ⟨m, h⟩ a b
-    ⟨r, previous⟩
-  else (m, none) -- will never happen for well-formed inputs
+    let ⟨previous, ⟨r, _⟩⟩ := Raw₀.getThenInsertIfNew? ⟨m, h⟩ a b
+    ⟨previous, r⟩
+  else (none, m) -- will never happen for well-formed inputs
 
 @[inline] def get? [BEq α] [LawfulBEq α] [Hashable α] (m : Raw α β) (a : α) : Option (β a) :=
   if h : 0 < m.buckets.size then
@@ -126,11 +126,11 @@ variable {β : Type v}
   else default -- will never happen for well-formed inputs
 
 @[inline] def Const.getThenInsertIfNew? [BEq α] [Hashable α] (m : Raw α (fun _ => β)) (a : α) (b : β) :
-    Raw α (fun _ => β) × Option β :=
+    Option β × Raw α (fun _ => β) :=
   if h : 0 < m.buckets.size then
-    let ⟨⟨r, _⟩, replaced⟩ := Raw₀.Const.getThenInsertIfNew? ⟨m, h⟩ a b
-    ⟨r, replaced⟩
-  else (m, none) -- will never happen for well-formed inputs
+    let ⟨replaced, ⟨r, _⟩⟩ := Raw₀.Const.getThenInsertIfNew? ⟨m, h⟩ a b
+    ⟨replaced, r⟩
+  else (none, m) -- will never happen for well-formed inputs
 
 end
 
@@ -244,23 +244,23 @@ inductive WF : {α : Type u} → {β : α → Type v} → [BEq α] → [Hashable
   | wf {α β} [BEq α] [Hashable α] {m : Raw α β} : 0 < m.buckets.size → (∀ [EquivBEq α] [LawfulHashable α], Raw.WFImp m) → WF m
   | empty₀ {α β} [BEq α] [Hashable α] {c} : WF (Raw₀.empty c : Raw₀ α β).1
   | insert₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a b} : WF m → WF (Raw₀.insert ⟨m, h⟩ a b).1
-  | containsThenInsert₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a b} : WF m → WF (Raw₀.containsThenInsert ⟨m, h⟩ a b).1.1
+  | containsThenInsert₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a b} : WF m → WF (Raw₀.containsThenInsert ⟨m, h⟩ a b).2.1
   | remove₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a} : WF m → WF (Raw₀.remove ⟨m, h⟩ a).1
   | insertIfNew₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a b} : WF m → WF (Raw₀.insertIfNew ⟨m, h⟩ a b).1
-  | getThenInsertIfNew?₀ {α β} [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} {h a b} : WF m → WF (Raw₀.getThenInsertIfNew? ⟨m, h⟩ a b).1.1
+  | getThenInsertIfNew?₀ {α β} [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} {h a b} : WF m → WF (Raw₀.getThenInsertIfNew? ⟨m, h⟩ a b).2.1
   | filter₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h f} : WF m → WF (Raw₀.filter f ⟨m, h⟩).1
-  | constGetThenInsertIfNew?₀ {α β} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {h a b} : WF m → WF (Raw₀.Const.getThenInsertIfNew? ⟨m, h⟩ a b).1.1
+  | constGetThenInsertIfNew?₀ {α β} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {h a b} : WF m → WF (Raw₀.Const.getThenInsertIfNew? ⟨m, h⟩ a b).2.1
 
 theorem WF.size_buckets_pos [BEq α] [Hashable α] (m : Raw α β) : WF m → 0 < m.buckets.size
   | wf h₁ _ => h₁
   | empty₀ => (Raw₀.empty _).2
   | insert₀ _ => (Raw₀.insert ⟨_, _⟩ _ _).2
-  | containsThenInsert₀ _ => (Raw₀.containsThenInsert ⟨_, _⟩ _ _).1.2
+  | containsThenInsert₀ _ => (Raw₀.containsThenInsert ⟨_, _⟩ _ _).2.2
   | remove₀ _ => (Raw₀.remove ⟨_, _⟩ _).2
   | insertIfNew₀ _ => (Raw₀.insertIfNew ⟨_, _⟩ _ _).2
-  | getThenInsertIfNew?₀ _ => (Raw₀.getThenInsertIfNew? ⟨_, _⟩ _ _).1.2
+  | getThenInsertIfNew?₀ _ => (Raw₀.getThenInsertIfNew? ⟨_, _⟩ _ _).2.2
   | filter₀ _ => (Raw₀.filter _ ⟨_, _⟩).2
-  | constGetThenInsertIfNew?₀ _ => (Raw₀.Const.getThenInsertIfNew? ⟨_, _⟩ _ _).1.2
+  | constGetThenInsertIfNew?₀ _ => (Raw₀.Const.getThenInsertIfNew? ⟨_, _⟩ _ _).2.2
 
 @[simp]
 theorem WF.empty [BEq α] [Hashable α] {c : Nat} : (Raw.empty c : Raw α β).WF :=
@@ -273,7 +273,7 @@ theorem WF.emptyc [BEq α] [Hashable α] : (∅ : Raw α β).WF :=
 theorem WF.insert [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β a} (h : m.WF) : (m.insert a b).WF := by
   simpa [Raw.insert, h.size_buckets_pos] using .insert₀ h
 
-theorem WF.containsThenInsert [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β a} (h : m.WF) : (m.containsThenInsert a b).1.WF := by
+theorem WF.containsThenInsert [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β a} (h : m.WF) : (m.containsThenInsert a b).2.WF := by
   simpa [Raw.containsThenInsert, h.size_buckets_pos] using .containsThenInsert₀ h
 
 theorem WF.remove [BEq α] [Hashable α] {m : Raw α β} {a : α} (h : m.WF) : (m.remove a).WF := by
@@ -283,7 +283,7 @@ theorem WF.insertIfNew [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β a
   simpa [Raw.insertIfNew, h.size_buckets_pos] using .insertIfNew₀ h
 
 theorem WF.getThenInsertIfNew? [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} {a : α} {b : β a} (h : m.WF) :
-    (m.getThenInsertIfNew? a b).1.WF := by
+    (m.getThenInsertIfNew? a b).2.WF := by
   simpa [Raw.getThenInsertIfNew?, h.size_buckets_pos] using .getThenInsertIfNew?₀ h
 
 theorem WF.filter [BEq α] [Hashable α] {m : Raw α β} {f : (a : α) → β a → Bool} (h : m.WF) :
@@ -291,7 +291,7 @@ theorem WF.filter [BEq α] [Hashable α] {m : Raw α β} {f : (a : α) → β a 
   simpa [Raw.filter, h.size_buckets_pos] using .filter₀ h
 
 theorem WF.Const.getThenInsertIfNew? {β : Type v} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {a : α} {b : β} (h : m.WF) :
-    (Const.getThenInsertIfNew? m a b).1.WF := by
+    (Const.getThenInsertIfNew? m a b).2.WF := by
   simpa [Raw.Const.getThenInsertIfNew?, h.size_buckets_pos] using .constGetThenInsertIfNew?₀ h
 
 theorem WF.insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] {m : Raw α β} {l : ρ} (h : m.WF) :
@@ -345,13 +345,13 @@ Inserts the mapping into the map, replacing an existing mapping if there is one.
 Inserts the mapping into the map, replacing an existing mapping if there is one.
 Returns `true` if there was a previous mapping that was replaced.
 -/
-@[inline] def containsThenInsert [BEq α] [Hashable α] (m : DHashMap α β) (a : α) (b : β a) : DHashMap α β × Bool :=
+@[inline] def containsThenInsert [BEq α] [Hashable α] (m : DHashMap α β) (a : α) (b : β a) : Bool × DHashMap α β :=
   let m' := Raw₀.containsThenInsert ⟨m.1, m.2.size_buckets_pos⟩ a b
-  ⟨⟨m'.1.1, .containsThenInsert₀ m.2⟩, m'.2⟩
+  ⟨m'.1, ⟨m'.2.1, .containsThenInsert₀ m.2⟩⟩
 
-@[inline] def getThenInsertIfNew? [BEq α] [Hashable α] [LawfulBEq α] (m : DHashMap α β) (a : α) (b : β a) : DHashMap α β × Option (β a) :=
+@[inline] def getThenInsertIfNew? [BEq α] [Hashable α] [LawfulBEq α] (m : DHashMap α β) (a : α) (b : β a) : Option (β a) × DHashMap α β :=
   let m' := Raw₀.getThenInsertIfNew? ⟨m.1, m.2.size_buckets_pos⟩ a b
-  ⟨⟨m'.1.1, .getThenInsertIfNew?₀ m.2⟩, m'.2⟩
+  ⟨m'.1, ⟨m'.2.1, .getThenInsertIfNew?₀ m.2⟩⟩
 
 /--
 Retrieves the value associated with the given key, if it exists. This function requires a `LawfulBEq` instance
@@ -406,9 +406,9 @@ Retrieves the value associated with the given key, if it exists. -/
   Raw₀.Const.get! ⟨m.1, m.2.size_buckets_pos⟩ a
 
 @[inline] def Const.getThenInsertIfNew? [BEq α] [Hashable α] (m : DHashMap α (fun _ => β)) (a : α) (b : β) :
-    DHashMap α (fun _ => β) × Option β :=
+    Option β × DHashMap α (fun _ => β) :=
   let m' := Raw₀.Const.getThenInsertIfNew? ⟨m.1, m.2.size_buckets_pos⟩ a b
-  ⟨⟨m'.1.1, .constGetThenInsertIfNew?₀ m.2⟩, m'.2⟩
+  ⟨m'.1, ⟨m'.2.1, .constGetThenInsertIfNew?₀ m.2⟩⟩
 
 end
 

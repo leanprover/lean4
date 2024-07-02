@@ -14,7 +14,7 @@ def compareTables (ucd : Array UnicodeData) (property : UnicodeData → Bool) : 
   let mut failed := false
   let table := numericTable
   let referenceTable := referenceTable ucd property
-  for i in [:1114112] do
+  for i in [:Char.max.val.toNat + 1] do
     let c := Char.ofNat i
     let ref := referenceSearch referenceTable c
     let candidate := search table c

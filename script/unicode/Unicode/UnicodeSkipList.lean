@@ -16,6 +16,15 @@ namespace Char.UnicodeSkipList
 The following code creates the unicode skip list data structure for
 a given property. To understand it at a high-level, we provide an
 explanation in Init/Data/Char/UnicodeSkipList.lean
+
+Note that it is implicitly assuming that `ucd` is not any value
+of type `Array UnicodeData` but the result of parsing the UnicodeData.txt
+file. Likewise, we are implicitly assuming that `property` is not an
+arbitrary Boolean-valued function but rather one that checks for some
+specific attribute.
+
+In case where such implicit assumptions are violated, the verifier
+will reject the table was incorrectly created.
 -/
 
 /-
@@ -109,7 +118,7 @@ def prefixSums (gaps : List Nat) : List Nat := Id.run do
   return prefixSums.reverse
 
 def largeOffsetEncoding (indices prefixSums : List Nat) : Array UInt32 :=
-  let prefixSums := prefixSums ++ [1114112]
+  let prefixSums := prefixSums ++ [Char.max.val.toNat + 1]
   ((indices.zip prefixSums).map fun (idx,pf) => (idx + pf).toUInt32).toArray
 
 def calculateTable (ucd : Array UnicodeData) (property : UnicodeData → Bool) : UnicodePropertyTable :=

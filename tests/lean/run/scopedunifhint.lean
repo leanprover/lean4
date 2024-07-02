@@ -25,17 +25,63 @@ end Algebra
 
 def x : Nat := 10
 
+/--
+error: application type mismatch
+  mul ?m.742 x
+argument
+  x
+has type
+  Nat : Type
+but is expected to have type
+  ?m.730.α : Type ?u.729
+-/
+#guard_msgs in
 #check mul x x           -- Error: unification hint is not active
+
+/--
+error: application type mismatch
+  mul ?m.833 (x, x)
+argument
+  (x, x)
+has type
+  Nat × Nat : Type
+but is expected to have type
+  ?m.817.α : Type ?u.816
+-/
+#guard_msgs in
 #check mul (x, x) (x, x) -- Error: no unification hint
 
 local infix:65 (priority := high) "*" => mul
 
+/--
+error: application type mismatch
+  ?m.2484*x
+argument
+  x
+has type
+  Nat : Type
+but is expected to have type
+  ?m.2472.α : Type ?u.2471
+-/
+#guard_msgs in
 #check x*x -- Error: unification hint is not active
 
 open Algebra -- activate unification hints
 
 #check mul x x -- works
 #check x*x -- works
+
+/--
+error: application type mismatch
+  ?m.2585*(x, x)
+argument
+  (x, x)
+has type
+  Nat × Nat : Type
+but is expected to have type
+  ?m.2565.α : Type ?u.2564
+-/
+#guard_msgs in
 #check mul (x, x) (x, x) -- still error
 
 section Sec1
@@ -53,4 +99,15 @@ local unif_hint (s : Magma) (m : Magma) (n : Magma) (β : Type u) (δ : Type v) 
 
 end Sec1
 
+/--
+error: application type mismatch
+  ?m.2832*(x, x)
+argument
+  (x, x)
+has type
+  Nat × Nat : Type
+but is expected to have type
+  ?m.2812.α : Type ?u.2811
+-/
+#guard_msgs in
 #check (x, x) * (x, x) -- error, local hint is not active after end of section anymore

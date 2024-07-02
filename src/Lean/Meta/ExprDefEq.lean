@@ -1815,6 +1815,32 @@ end
       let e ← instantiateMVars e
       successK e
     else
+      if (← read).config.isDefEqStuckEx then
+        /-
+        When `isDefEqStuckEx := true` and `mvar` was created in a previous level,
+        we should throw an exception. See issue #2736 for a situation where this can happen.
+        This can happen when we have type classes such as
+        ```
+        class RightDistribClass (R : Type) [Mul R] [Add R] : Prop where
+          right_distrib : ∀ a b c : R, (a + b) * c = a * c + b * c
+        ```
+        and a theorem
+        ```
+        theorem add_one_mul [Add α] [MulOneClass α] [RightDistribClass α] (a b : α)
+                : (a + 1) * b = a * b + b
+        ```
+        and then we try to elaborate
+        ```
+        #check (add_one_mul)
+        ```
+        When we try to synthesize `@RightDistribClass ?α (MulOneClass.toMul ?moInst) ?addInst`
+        we get stuck at the term `(MulOneClass.toMul ?moInst)`, and we should abort
+        type class resolution, which sets `isDefEqStuckEx := true`, because `?moInst : MulOneClass ?α`
+        was **not** created by the type class resolution procedure.
+        -/
+        let mvarDecl ← mvarId.getDecl
+        if mvarDecl.depth < (← getMCtx).depth then
+          Meta.throwIsDefEqStuck
       failK
   | none   => failK
 

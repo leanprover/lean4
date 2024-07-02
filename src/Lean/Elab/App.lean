@@ -1424,8 +1424,27 @@ private def getSuccesses (candidates : Array (TermElabResult Expr)) : TermElabM 
           return false
       return true
     | _ => return false
-  if r₂.size == 0 then return r₁ else return r₂
-
+  if r₂.size == 0 then
+    return r₁
+  if r₂.size == 1 then
+    return r₂
+  /-
+  If there are still more than one solution, discard solutions that have pending metavariables.
+  We added this extra filter to address regressions introduced after fixing
+  `isDefEqStuckEx` behavior at `ExprDefEq.lean`.
+  -/
+  let r₂ ← candidates.filterM fun
+    | .ok _ s => do
+      try
+        s.restore
+        synthesizeSyntheticMVars (postpone := .no)
+        return true
+      catch _ =>
+        return false
+    | _ => return false
+  if r₂.size == 0 then
+    return r₁
+  return r₂
 /--
   Throw an error message that describes why each possible interpretation for the overloaded notation and symbols did not work.
   We use a nested error message to aggregate the exceptions produced by each failure.

@@ -662,11 +662,11 @@ where
 def main (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Result × Stats) := do
   let ctx := { ctx with config := (← ctx.config.updateArith), lctxInitIndices := (← getLCtx).numIndices }
   withSimpContext ctx do
-    let (r, s) ← simpMain e methods.toMethodsRef ctx |>.run { stats with }
+    let (r, s) ← go e methods.toMethodsRef ctx |>.run { stats with }
     trace[Meta.Tactic.simp.numSteps] "{s.numSteps}"
     return (r, { s with })
 where
-  simpMain (e : Expr) : SimpM Result :=
+  go (e : Expr) : SimpM Result :=
     tryCatchRuntimeEx
       (simp e)
       fun ex => do
@@ -678,10 +678,10 @@ where
 
 def dsimpMain (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Expr × Stats) := do
   withSimpContext ctx do
-    let (r, s) ← run e methods.toMethodsRef ctx |>.run { stats with }
+    let (r, s) ← go e methods.toMethodsRef ctx |>.run { stats with }
     pure (r, { s with })
 where
-  run (e : Expr) : SimpM Expr :=
+  go (e : Expr) : SimpM Expr :=
     tryCatchRuntimeEx
       (dsimp e)
       fun ex => do

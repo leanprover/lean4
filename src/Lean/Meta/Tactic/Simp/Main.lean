@@ -678,10 +678,10 @@ where
 
 def dsimpMain (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Expr × Stats) := do
   withSimpContext ctx do
-    let (r, s) ← dsimpMain e methods.toMethodsRef ctx |>.run { stats with }
+    let (r, s) ← run e methods.toMethodsRef ctx |>.run { stats with }
     pure (r, { s with })
 where
-  dsimpMain (e : Expr) : SimpM Expr :=
+  run (e : Expr) : SimpM Expr :=
     tryCatchRuntimeEx
       (dsimp e)
       fun ex => do

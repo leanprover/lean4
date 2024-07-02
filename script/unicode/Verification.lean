@@ -11,7 +11,6 @@ import Unicode.Parse
 open System IO FilePath Process FS Std Char.UnicodeSkipList
 
 def compareTables (ucd : Array UnicodeData) (property : UnicodeData → Bool) : IO Bool := do
-
   let mut failed := false
   let table := numericTable
   let referenceTable := referenceTable ucd property

@@ -191,7 +191,7 @@ theorem div_add_mod (m n : Nat) : n * (m / n) + m % n = m := by
   | isTrue h =>
     simp [h]
     have ih := div_add_mod (m - n) n
-    rw [Nat.left_distrib, Nat.mul_one, Nat.add_assoc, Nat.add_left_comm, ih, Nat.add_comm, Nat.sub_add_cancel h.2]
+    rw [Nat.left_distrib, Nat.mul_one, ← Nat.add_assoc', Nat.add_left_comm, ih, Nat.add_comm, Nat.sub_add_cancel h.2]
 decreasing_by apply div_rec_lemma; assumption
 
 theorem div_eq_sub_div (h₁ : 0 < b) (h₂ : b ≤ a) : a / b = (a - b) / b + 1 := by
@@ -201,7 +201,7 @@ theorem div_eq_sub_div (h₁ : 0 < b) (h₂ : b ≤ a) : a / b = (a - b) / b + 1
 theorem mod_add_div (m k : Nat) : m % k + k * (m / k) = m := by
   induction m, k using mod.inductionOn with rw [div_eq, mod_eq]
   | base x y h => simp [h]
-  | ind x y h IH => simp [h]; rw [Nat.mul_succ, ← Nat.add_assoc, IH, Nat.sub_add_cancel h.2]
+  | ind x y h IH => simp [h]; rw [Nat.mul_succ, Nat.add_assoc', IH, Nat.sub_add_cancel h.2]
 
 @[simp] protected theorem div_one (n : Nat) : n / 1 = n := by
   have := mod_add_div n 1
@@ -260,7 +260,7 @@ theorem div_lt_iff_lt_mul (Hk : 0 < k) : x / k < y ↔ x < y * k := by
 theorem add_mul_div_left (x z : Nat) {y : Nat} (H : 0 < y) : (x + y * z) / y = x / y + z := by
   induction z with
   | zero => rw [Nat.mul_zero, Nat.add_zero, Nat.add_zero]
-  | succ z ih => rw [mul_succ, ← Nat.add_assoc, add_div_right _ H, ih]; rfl
+  | succ z ih => rw [mul_succ, Nat.add_assoc', add_div_right _ H, ih]; rfl
 
 theorem add_mul_div_right (x y : Nat) {z : Nat} (H : 0 < z) : (x + y * z) / z = x / z + y := by
   rw [Nat.mul_comm, add_mul_div_left _ _ H]
@@ -274,7 +274,7 @@ theorem add_mul_div_right (x y : Nat) {z : Nat} (H : 0 < z) : (x + y * z) / z = 
 @[simp] theorem add_mul_mod_self_left (x y z : Nat) : (x + y * z) % y = x % y := by
   match z with
   | 0 => rw [Nat.mul_zero, Nat.add_zero]
-  | succ z => rw [mul_succ, ← Nat.add_assoc, add_mod_right, add_mul_mod_self_left (z := z)]
+  | succ z => rw [mul_succ, Nat.add_assoc', add_mod_right, add_mul_mod_self_left (z := z)]
 
 @[simp] theorem add_mul_mod_self_right (x y z : Nat) : (x + y * z) % z = x % z := by
   rw [Nat.mul_comm, add_mul_mod_self_left]

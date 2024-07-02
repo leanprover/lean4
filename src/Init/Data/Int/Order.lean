@@ -1027,10 +1027,10 @@ theorem natAbs_add_le (a b : Int) : natAbs (a + b) ≤ natAbs a + natAbs b := by
     (fun i n (e : (n + i).succ = _) => ?_) rfl
   · intro i n h
     subst h
-    rw [Nat.add_comm _ i, Nat.add_assoc]
+    rw [Nat.add_comm _ i, ← Nat.add_assoc']
     exact Nat.le_add_right i (b.succ + b).succ
   · apply succ_le_succ
-    rw [← succ.inj e, ← Nat.add_assoc, Nat.add_comm]
+    rw [← succ.inj e, Nat.add_assoc', Nat.add_comm]
     apply Nat.le_add_right
 
 theorem natAbs_sub_le (a b : Int) : natAbs (a - b) ≤ natAbs a + natAbs b := by

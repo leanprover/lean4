@@ -5,7 +5,7 @@ def g (x : Nat) := x*x*x
 
 @[simp] theorem eq1 (x y : Nat) : f (x+2) y = x+5 := by
   simp [f]
-  rw [Nat.add_left_comm]
+  rw [Nat.add_comm]
 
 theorem ex1 : g (f (x+3) y) = g (x+6) := by
   simp

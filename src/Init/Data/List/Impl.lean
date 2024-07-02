@@ -43,9 +43,8 @@ The following operations are given `@[csimp]` replacements below:
 theorem length_add_eq_lengthTRAux (as : List α) (n : Nat) : as.length + n = as.lengthTRAux n := by
   induction as generalizing n with
   | nil  => simp [length, lengthTRAux]
-  | cons a as ih =>
+  | cons _ _ ih =>
     simp [length, lengthTRAux, ← ih, Nat.succ_add]
-    rfl
 
 @[csimp] theorem length_eq_lengthTR : @List.length = @List.lengthTR := by
   apply funext; intro α; apply funext; intro as

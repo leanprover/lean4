@@ -290,7 +290,7 @@ theorem getElem?_setD_eq (a : Array α) {i : Nat} (p : i < a.size) (v : α) : (a
     unfold ofFn.go
     have : 1 + (n - (i + 1)) = n - i :=
       Nat.sub_sub .. ▸ Nat.add_sub_cancel' (Nat.le_sub_of_add_le (Nat.add_comm .. ▸ hin))
-    rw [dif_pos hin, size_ofFn_go f (i+1), size_push, Nat.add_assoc, this]
+    rw [dif_pos hin, size_ofFn_go f (i+1), size_push, ← Nat.add_assoc', this]
   else
     have : n - i = 0 := Nat.sub_eq_zero_of_le (Nat.le_of_not_lt hin)
     unfold ofFn.go
@@ -834,7 +834,7 @@ theorem size_extract_loop (as bs : Array α) (size start : Nat) :
   | zero => rw [extract_loop_zero, Nat.zero_min, Nat.add_zero]
   | succ size ih =>
     if h : start < as.size then
-      rw [extract_loop_succ (h:=h), ih, size_push, Nat.add_assoc, ←Nat.add_min_add_left,
+      rw [extract_loop_succ (h:=h), ih, size_push, ← Nat.add_assoc', ←Nat.add_min_add_left,
         Nat.sub_succ, Nat.one_add, Nat.one_add, Nat.succ_pred_eq_of_pos (Nat.sub_pos_of_lt h)]
     else
       have h := Nat.le_of_not_gt h

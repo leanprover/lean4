@@ -29,3 +29,22 @@ info: use2 .succ✝ 0
 run_cmd Lean.Elab.Command.liftTermElabM do
   Lean.logInfo <| ← `(tactic| use1 .succ 0)
   Lean.logInfo <| ← `(tactic| use2 .succ 0)
+
+/-!
+Check that fix even works inside other nodes.
+-/
+
+syntax myPPSpace := ppSpace
+
+syntax "use3" myPPSpace term,+ : tactic
+syntax "use4" group(myPPSpace) term,+ : tactic
+
+/--
+info: use3 .succ✝ 0
+---
+info: use4 .succ✝ 0
+-/
+#guard_msgs in
+run_cmd Lean.Elab.Command.liftTermElabM do
+  Lean.logInfo <| ← `(tactic| use3 .succ 0)
+  Lean.logInfo <| ← `(tactic| use4 .succ 0)

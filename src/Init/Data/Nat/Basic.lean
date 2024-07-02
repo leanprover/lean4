@@ -811,6 +811,9 @@ theorem sub_one_lt_of_lt {n m : Nat} (h : m < n) : n - 1 < n :=
 protected theorem pred_zero : pred 0 = 0 := rfl
 protected theorem pred_succ (n : Nat) : pred n.succ = n := rfl
 
+@[simp] protected theorem zero_sub_one : 0 - 1 = 0 := rfl
+@[simp] protected theorem add_one_sub_one (n : Nat) : n + 1 - 1 = n := rfl
+
 theorem succ_pred {a : Nat} (h : a ≠ 0) : a.pred.succ = a := by
   induction a with
   | zero => contradiction

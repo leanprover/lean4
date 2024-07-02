@@ -83,26 +83,18 @@ def x : A := A.x
 
 /-! Test the interaction with the invalid match pattern error messages -/
 
+inductive MyProd where
+  | construct : Nat → Nat → MyProd
+
 /--
 error: invalid pattern, constructor or constant marked with '[match_pattern]' expected
 
-Suggestions:
-  'Add.mk',
-  'Alternative.mk',
-  'AndOp.mk',
-  'AndThen.mk',
-  'Antisymm.mk',
-  'Append.mk',
-  'Applicative.mk',
-  'Array.Mem.mk',
-  'Array.mk',
-  'BEq.mk',
-   (or 201 others)
+Suggestion: 'MyProd.construct' is similar
 -/
 #guard_msgs in
-def ctorSuggestion1 (pair : α × β) : β :=
+def ctorSuggestion1 (pair : MyProd) : Nat :=
   match pair with
-  | mk x y => y
+  | construct x y => y
 
 -- This test is a realistic situation if a user doesn't know how Lean namespaces work
 /--

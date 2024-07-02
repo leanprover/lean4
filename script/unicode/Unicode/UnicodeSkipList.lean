@@ -41,20 +41,20 @@ def explicitRanges (ucd : Array UnicodeData) (property : UnicodeData → Bool) :
         -- There's a range of unallocated codepoints
         -- So we need two create a new range
         let completedRange : Range := { start := r.start, stop := r.stop + 1 }
-        let newRange : Range := { start := code , stop := code }
+        let newRange : Range := { start := code, stop := code }
         rangeOpt := some newRange
         ranges := completedRange :: ranges
     | some r, false =>
       -- We reached the end of a range that satisfies the property
       -- Close the range
       -- Cannot use code for range end as there may be a jump in codepoints
-      let completedRange : Range := { start := r.start , stop := r.stop + 1 }
+      let completedRange : Range := { start := r.start, stop := r.stop + 1 }
       rangeOpt := none
       ranges := completedRange :: ranges
     | none, true =>
       -- We were in a negative range and encountered a codepoint that satisfies the property
       -- Open a range
-      let newRange : Range := { start := code , stop := code }
+      let newRange : Range := { start := code, stop := code }
       rangeOpt := some newRange
     | none, false =>
       -- The codepoint does not have the property and is not closing

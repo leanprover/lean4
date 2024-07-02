@@ -10,7 +10,3 @@ def referenceTable (ucd : Array UnicodeData) (property : UnicodeData → Bool) :
 
 def referenceSearch (table : Array Nat) (c : Char) : Bool :=
   table.contains c.toNat
-
-def reference (ucd : Array UnicodeData) (property : UnicodeData → Bool) (c : Char) : Bool :=
-  let table := referenceTable ucd property
-  referenceSearch table c

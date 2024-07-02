@@ -29,7 +29,14 @@ but is expected to have type
 #guard_msgs in
 example : foo (n+1) = foo n := rfl
 
--- This succeeding is a bug or misfeature in the rfl tactic, using the kernel defeq check
+-- also for closed terms
+/--
+error: The rfl tactic failed. Possible reasons:
+- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).
+- The arguments of the relation are not equal.
+Try using the reflexivitiy lemma for your relation explicitly, e.g. `exact Eq.rfl`.
+⊢ foo 0 = 0
+-/
 #guard_msgs in
 example : foo 0 = 0 := by rfl
 

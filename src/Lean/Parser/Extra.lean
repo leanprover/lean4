@@ -156,8 +156,22 @@ node.
 This parser always has arity 1, even if `p` does not. Parsers like `p*` are automatically
 rewritten to `group(p)*` if `p` does not have arity 1, so that the results from separate invocations
 of `p` can be differentiated. -/
-@[run_builtin_parser_attribute_hooks, inline] def group (p : Parser) : Parser :=
+@[inline] def group (p : Parser) : Parser :=
   node groupKind p
+
+open PrettyPrinter Syntax.MonadTraverser Formatter in
+@[combinator_formatter group]
+def group.formatter (p : Formatter) : Formatter := do
+  checkKind groupKind
+  let stx ← getCur
+  -- There might be no arguments, but in that case `p` sees `Syntax.missing`.
+  -- Note that if we used the auto-generated formatter for `group`,
+  -- `visitArgs` would not run `p` if the group has no arguments,
+  -- which is possible for example with `group(ppSpace)` (see issue #4561).
+  goDown (stx.getArgs.size - 1); p; goUp
+  goLeft
+
+attribute [run_builtin_parser_attribute_hooks] group
 
 /-- The parser `many1Indent(p)` is equivalent to `withPosition((colGe p)+)`. This has the effect of
 parsing one or more occurrences of `p`, where each subsequent `p` parse needs to be indented

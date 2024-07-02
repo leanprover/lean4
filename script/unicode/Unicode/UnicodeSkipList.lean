@@ -40,7 +40,7 @@ def explicitRanges (ucd : Array UnicodeData) (property : UnicodeData → Bool) :
       else
         -- There's a range of unallocated codepoints
         -- So we need two create a new range
-        let completedRange : Range := { start := r.start , stop := r.stop + 1 }
+        let completedRange : Range := { start := r.start, stop := r.stop + 1 }
         let newRange : Range := { start := code , stop := code }
         rangeOpt := some newRange
         ranges := completedRange :: ranges

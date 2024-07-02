@@ -48,6 +48,7 @@ protected theorem ne_of_lt {a b : $typeName} (h : a < b) : a ≠ b := ne_of_val_
 @[simp] protected theorem zero_toNat : (0 : $typeName).toNat = 0 := Nat.zero_mod _
 @[simp] protected theorem mod_toNat (a b : $typeName) : (a % b).toNat = a.toNat % b.toNat := Fin.mod_val ..
 @[simp] protected theorem div_toNat (a b : $typeName) : (a / b).toNat = a.toNat / b.toNat := Fin.div_val ..
+@[simp] protected theorem sub_toNat_of_le (a b : $typeName) : b ≤ a → (a - b).toNat = a.toNat - b.toNat := Fin.sub_val_of_le
 @[simp] protected theorem modn_toNat (a : $typeName) (b : Nat) : (a.modn b).toNat = a.toNat % b := Fin.modn_val ..
 protected theorem modn_lt {m : Nat} : ∀ (u : $typeName), m > 0 → toNat (u % m) < m
   | ⟨u⟩, h => Fin.modn_lt u h
@@ -55,6 +56,8 @@ open $typeName (modn_lt) in
 protected theorem mod_lt (a b : $typeName) (h : 0 < b) : a % b < b := modn_lt _ (by simp [lt_def] at h; exact h)
 protected theorem toNat.inj : ∀ {a b : $typeName}, a.toNat = b.toNat → a = b
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
+protected theorem toNat_lt_size (a : $typeName) : a.toNat < size := a.1.2
+@[simp] protected theorem ofNat_one : ofNat 1 = 1 := rfl
 
 end $typeName
 )

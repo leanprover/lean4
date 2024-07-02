@@ -786,6 +786,9 @@ theorem coe_sub_iff_le {a b : Fin n} : (↑(a - b) : Nat) = a - b ↔ b ≤ a :=
     rw [Nat.mod_eq_of_lt]
     all_goals omega
 
+theorem sub_val_of_le {a b : Fin n} : b ≤ a → (a - b).val = a.val - b.val :=
+  coe_sub_iff_le.2
+
 theorem coe_sub_iff_lt {a b : Fin n} : (↑(a - b) : Nat) = n + a - b ↔ a < b := by
   rw [sub_def, lt_def]
   dsimp only

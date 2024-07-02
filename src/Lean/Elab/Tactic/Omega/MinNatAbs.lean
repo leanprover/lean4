@@ -53,7 +53,7 @@ theorem nonzeroMinimum_mem {xs : List Nat} (w : xs.nonzeroMinimum ≠ 0) :
   | some (m+1), _ => simp_all [minimum?_eq_some_iff', mem_filter]
 
 theorem nonzeroMinimum_pos {xs : List Nat} (m : a ∈ xs) (h : a ≠ 0) : 0 < xs.nonzeroMinimum :=
-  Nat.pos_iff_ne_zero.mpr fun w => h (nonzeroMinimum_eq_zero_iff.mp w _ m)
+  Nat.pos_iff_ne_zero.mpr fun w => h (nonzeroMinimum_eq_zero_iff.mp w m)
 
 theorem nonzeroMinimum_le {xs : List Nat} (m : a ∈ xs) (h : a ≠ 0) : xs.nonzeroMinimum ≤ a := by
   have : (xs.filter (· ≠ 0) |>.minimum?) = some xs.nonzeroMinimum := by
@@ -83,7 +83,7 @@ theorem nonzeroMinimum_eq_nonzero_iff {xs : List Nat} {y : Nat} (h : y ≠ 0) :
     · have nz : xs.nonzeroMinimum ≠ 0 := by
         apply Nat.pos_iff_ne_zero.mp
         apply nonzeroMinimum_pos m h
-      specialize w (nonzeroMinimum xs) (nonzeroMinimum_mem nz)
+      specialize w (nonzeroMinimum_mem nz)
       cases w with
       | inl h => exact h
       | inr h => exact False.elim (nz h)

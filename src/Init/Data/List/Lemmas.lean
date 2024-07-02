@@ -168,21 +168,6 @@ theorem get?_eq_none : l.get? n = none ↔ length l ≤ n :=
 
 @[simp] theorem get_eq_getElem (l : List α) (i : Fin l.length) : l.get i = l[i.1]'i.2 := rfl
 
-@[simp] theorem getElem?_nil {n : Nat} : ([] : List α)[n]? = none := rfl
-
-@[simp] theorem getElem?_cons_zero {l : List α} : (a::l)[0]? = some a := by
-  simp only [← get?_eq_getElem?]
-  rfl
-
-@[simp] theorem getElem?_cons_succ {l : List α} : (a::l)[n+1]? = l[n]? := by
-  simp only [← get?_eq_getElem?]
-  rfl
-
-theorem getElem?_len_le : ∀ {l : List α} {n}, length l ≤ n → l[n]? = none
-  | [], _, _ => rfl
-  | _ :: l, _+1, h => by
-    rw [getElem?_cons_succ, getElem?_len_le (l := l) <| Nat.le_of_succ_le_succ h]
-
 @[simp] theorem getElem?_eq_getElem {l : List α} {n} (h : n < l.length) : l[n]? = some l[n] := by
   simp only [← get?_eq_getElem?, get?_eq_get, h, get_eq_getElem]
 
@@ -193,6 +178,19 @@ theorem getElem?_eq_some {l : List α} : l[n]? = some a ↔ ∃ h : n < l.length
   simp only [← get?_eq_getElem?, get?_eq_none]
 
 theorem getElem?_eq_none (h : length l ≤ n) : l[n]? = none := getElem?_eq_none_iff.mpr h
+
+@[simp] theorem getElem?_nil {n : Nat} : ([] : List α)[n]? = none := rfl
+
+theorem getElem?_cons_zero {l : List α} : (a::l)[0]? = some a := by simp
+
+@[simp] theorem getElem?_cons_succ {l : List α} : (a::l)[n+1]? = l[n]? := by
+  simp only [← get?_eq_getElem?]
+  rfl
+
+theorem getElem?_len_le : ∀ {l : List α} {n}, length l ≤ n → l[n]? = none
+  | [], _, _ => rfl
+  | _ :: l, _+1, h => by
+    rw [getElem?_cons_succ, getElem?_len_le (l := l) <| Nat.le_of_succ_le_succ h]
 
 @[simp] theorem getElem!_nil [Inhabited α] {n : Nat} : ([] : List α)[n]! = default := rfl
 
@@ -820,9 +818,8 @@ theorem map_eq_foldr (f : α → β) (l : List α) : map f l = foldr (fun a bs =
 @[simp] theorem tail?_map (f : α → β) (l : List α) : tail? (map f l) = (tail? l).map (map f) := by
   cases l <;> rfl
 
-@[simp] theorem tailD_map (f : α → β) (l : List α) (l' : List α) :
-    tailD (map f l) (map f l') = map f (tailD l l') := by
-  cases l <;> rfl
+theorem tailD_map (f : α → β) (l : List α) (l' : List α) :
+    tailD (map f l) (map f l') = map f (tailD l l') := by simp
 
 @[simp] theorem getLast_map (f : α → β) (l : List α) (h) :
     getLast (map f l) h = f (getLast l (by simpa using h)) := by
@@ -1538,8 +1535,7 @@ theorem reverseAux_eq (as bs : List α) : reverseAux as bs = reverse as ++ bs :=
 
 /-! ### elem / contains -/
 
-@[simp] theorem elem_cons_self [BEq α] [LawfulBEq α] {a : α} : (a::as).elem a = true := by
-  simp [elem_cons]
+theorem elem_cons_self [BEq α] [LawfulBEq α] {a : α} : (a::as).elem a = true := by simp
 
 @[simp] theorem contains_cons [BEq α] :
     (a :: as : List α).contains x = (x == a || as.contains x) := by
@@ -1944,14 +1940,13 @@ end replace
 section insert
 variable [BEq α] [LawfulBEq α]
 
-@[simp] theorem insert_nil (a : α) : [].insert a = [a] := by
-  simp [List.insert]
-
 @[simp] theorem insert_of_mem {l : List α} (h : a ∈ l) : l.insert a = l := by
   simp [List.insert, h]
 
 @[simp] theorem insert_of_not_mem {l : List α} (h : a ∉ l) : l.insert a = a :: l := by
   simp [List.insert, h]
+
+theorem insert_nil (a : α) : [].insert a = [a] := by simp
 
 @[simp] theorem mem_insert_iff {l : List α} : a ∈ l.insert b ↔ a = b ∨ a ∈ l := by
   if h : b ∈ l then

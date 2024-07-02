@@ -86,7 +86,7 @@ noncomputable def div2Induction {motive : Nat → Sort u}
 @[simp] theorem testBit_zero (x : Nat) : testBit x 0 = decide (x % 2 = 1) := by
   cases mod_two_eq_zero_or_one x with | _ p => simp [testBit, p]
 
-@[simp] theorem testBit_succ (x i : Nat) : testBit x (succ i) = testBit (x/2) i := by
+theorem testBit_succ (x i : Nat) : testBit x (succ i) = testBit (x/2) i := by
   unfold testBit
   simp [shiftRight_succ_inside]
 

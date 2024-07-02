@@ -110,8 +110,8 @@ theorem eq_of_getMsb_eq {x y : BitVec w}
 theorem of_length_zero {x : BitVec 0} : x = 0#0 := by ext; simp
 
 @[simp] theorem toNat_zero_length (x : BitVec 0) : x.toNat = 0 := by simp [of_length_zero]
-@[simp] theorem getLsb_zero_length (x : BitVec 0) : x.getLsb i = false := by simp [of_length_zero]
-@[simp] theorem getMsb_zero_length (x : BitVec 0) : x.getMsb i = false := by simp [of_length_zero]
+theorem getLsb_zero_length (x : BitVec 0) : x.getLsb i = false := by simp
+theorem getMsb_zero_length (x : BitVec 0) : x.getMsb i = false := by simp
 @[simp] theorem msb_zero_length (x : BitVec 0) : x.msb = false := by simp [BitVec.msb, of_length_zero]
 
 theorem eq_of_toFin_eq : ∀ {x y : BitVec w}, x.toFin = y.toFin → x = y
@@ -329,7 +329,7 @@ theorem zeroExtend'_eq {x : BitVec w} (h : w ≤ v) : x.zeroExtend' h = x.zeroEx
   apply eq_of_toNat_eq
   simp [toNat_zeroExtend]
 
-@[simp] theorem truncate_eq (x : BitVec n) : truncate n x = x := zeroExtend_eq x
+theorem truncate_eq (x : BitVec n) : truncate n x = x := zeroExtend_eq x
 
 @[simp] theorem ofNat_toNat (m : Nat) (x : BitVec n) : BitVec.ofNat m x.toNat = truncate m x := by
   apply eq_of_toNat_eq
@@ -383,7 +383,7 @@ theorem nat_eq_toNat (x : BitVec w) (y : Nat)
   all_goals (first | apply getLsb_ge | apply Eq.symm; apply getLsb_ge)
     <;> omega
 
-@[simp] theorem getLsb_truncate (m : Nat) (x : BitVec n) (i : Nat) :
+theorem getLsb_truncate (m : Nat) (x : BitVec n) (i : Nat) :
     getLsb (truncate m x) i = (decide (i < m) && getLsb x i) :=
   getLsb_zeroExtend m x i
 
@@ -608,7 +608,7 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
   ext
   simp_all [lt_of_getLsb]
 
-@[simp] theorem xor_cast {x y : BitVec w} (h : w = w') : cast h x &&& cast h y = cast h (x &&& y) := by
+@[simp] theorem xor_cast {x y : BitVec w} (h : w = w') : cast h x ^^^ cast h y = cast h (x ^^^ y) := by
   ext
   simp_all [lt_of_getLsb]
 

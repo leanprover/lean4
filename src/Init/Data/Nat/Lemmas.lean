@@ -115,8 +115,6 @@ protected theorem add_sub_cancel_right (n m : Nat) : (n + m) - m = n := Nat.add_
 
 theorem succ_sub_one (n) : succ n - 1 = n := rfl
 
-protected theorem add_one_sub_one (n : Nat) : (n + 1) - 1 = n := rfl
-
 protected theorem one_add_sub_one (n : Nat) : (1 + n) - 1 = n := Nat.add_sub_cancel_left 1 _
 
 protected theorem sub_sub_self {n m : Nat} (h : m ≤ n) : n - (n - m) = m :=

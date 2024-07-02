@@ -89,6 +89,10 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval (DHashMap.Raw.Const.ofList [(1, 2), (2, 4), (3, 6)]).toList
 
+/-- info: Std.DHashMap.Raw.ofList [⟨1, 4⟩] -/
+#guard_msgs in
+#eval DHashMap.Raw.Const.ofList [(1, 2), (1, 4)]
+
 end DHashMap.Raw
 
 namespace DHashMap
@@ -175,6 +179,10 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval (DHashMap.Const.ofList [(1, 2), (2, 4), (3, 6)]).toList
 
+/-- info: Std.DHashMap.ofList [⟨1, 4⟩] -/
+#guard_msgs in
+#eval DHashMap.Const.ofList [(1, 2), (1, 4)]
+
 end DHashMap
 
 namespace HashMap.Raw
@@ -244,6 +252,10 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 /-- info: [(3, 6), (2, 4), (1, 2), (16, 9)] -/
 #guard_msgs in
 #eval (m.insertMany [(16, 8), (16, 9)]).toList
+
+/-- info: Std.HashMap.Raw.ofList [(1, 4)] -/
+#guard_msgs in
+#eval HashMap.Raw.ofList [(1, 2), (1, 4)]
 
 end HashMap.Raw
 
@@ -315,6 +327,10 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval (m.insertMany [(16, 8), (16, 9)]).toList
 
+/-- info: Std.HashMap.ofList [(1, 4)] -/
+#guard_msgs in
+#eval HashMap.ofList [(1, 2), (1, 4)]
+
 end HashMap
 
 namespace HashSet.Raw
@@ -365,6 +381,10 @@ def addKeyToState (k : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval (m.insertMany [16, 16]).toList
 
+/-- info: Std.HashSet.Raw.ofList [100, 1] -/
+#guard_msgs in
+#eval HashSet.Raw.ofList [1, 100]
+
 end HashSet.Raw
 
 namespace HashSet
@@ -414,5 +434,9 @@ def addKeyToState (k : Nat) : StateM Nat PUnit := do
 /-- info: [1000000000, 2, 1, 16] -/
 #guard_msgs in
 #eval (m.insertMany [16, 16]).toList
+
+/-- info: Std.HashSet.ofList [100, 1] -/
+#guard_msgs in
+#eval HashSet.ofList [1, 100]
 
 end HashSet

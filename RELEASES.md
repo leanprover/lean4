@@ -1408,6 +1408,7 @@ v4.3.0
 * Update manifest format to version 7 (see [lean4#2801](https://github.com/leanprover/lean4/pull/2801) for details on the changes).
 * Deprecate the `manifestFile` field of a package configuration.
 * There is now a more rigorous check on `lakefile.olean` compatibility (see [#2842](https://github.com/leanprover/lean4/pull/2842) for more details).
+* `Prop`-valued inductive types and structures now [live in `Prop` by default](https://github.com/leanprover/lean4/pull/2695).
 
 v4.2.0
 ---------

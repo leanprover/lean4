@@ -52,8 +52,8 @@ theorem eq_iff_iff {a b : Bool} : a = b ↔ (a ↔ b) := by cases b <;> simp
 
 @[simp] theorem decide_eq_true  {b : Bool} [Decidable (b = true)]  : decide (b = true)  =  b := by cases b <;> simp
 @[simp] theorem decide_eq_false {b : Bool} [Decidable (b = false)] : decide (b = false) = !b := by cases b <;> simp
-@[simp] theorem decide_true_eq  {b : Bool} [Decidable (true = b)]  : decide (true  = b) =  b := by cases b <;> simp
-@[simp] theorem decide_false_eq {b : Bool} [Decidable (false = b)] : decide (false = b) = !b := by cases b <;> simp
+theorem decide_true_eq  {b : Bool} [Decidable (true = b)]  : decide (true  = b) =  b := by cases b <;> simp
+theorem decide_false_eq {b : Bool} [Decidable (false = b)] : decide (false = b) = !b := by cases b <;> simp
 
 /-! ### and -/
 
@@ -163,7 +163,7 @@ Consider the term: `¬((b && c) = true)`:
 -/
 @[simp] theorem and_eq_false_imp : ∀ (x y : Bool), (x && y) = false ↔ (x = true → y = false) := by decide
 
-@[simp] theorem or_eq_true_iff : ∀ (x y : Bool), (x || y) = true ↔ x = true ∨ y = true := by decide
+theorem or_eq_true_iff : ∀ (x y : Bool), (x || y) = true ↔ x = true ∨ y = true := by simp
 
 @[simp] theorem or_eq_false_iff : ∀ (x y : Bool), (x || y) = false ↔ x = false ∧ y = false := by decide
 
@@ -187,11 +187,9 @@ in false_eq and true_eq.
 
 @[simp] theorem true_beq  : ∀b, (true  == b) =  b := by decide
 @[simp] theorem false_beq : ∀b, (false == b) = !b := by decide
-@[simp] theorem beq_true  : ∀b, (b == true)  =  b := by decide
 instance : Std.LawfulIdentity (· == ·) true where
   left_id := true_beq
   right_id := beq_true
-@[simp] theorem beq_false : ∀b, (b == false) = !b := by decide
 
 @[simp] theorem true_bne  : ∀(b : Bool), (true  != b) = !b := by decide
 @[simp] theorem false_bne : ∀(b : Bool), (false != b) =  b := by decide
@@ -353,7 +351,7 @@ theorem and_or_inj_left_iff :
 /-! ## toNat -/
 
 /-- convert a `Bool` to a `Nat`, `false -> 0`, `true -> 1` -/
-def toNat (b:Bool) : Nat := cond b 1 0
+def toNat (b : Bool) : Nat := cond b 1 0
 
 @[simp] theorem toNat_false : false.toNat = 0 := rfl
 

@@ -368,9 +368,6 @@ else isTrue fun h2 => absurd h2 h
 
 theorem decide_eq_true_iff (p : Prop) [Decidable p] : (decide p = true) ↔ p := by simp
 
-@[simp] theorem decide_eq_false_iff_not (p : Prop) {_ : Decidable p} : (decide p = false) ↔ ¬p :=
-  ⟨of_decide_eq_false, decide_eq_false⟩
-
 @[simp] theorem decide_eq_decide {p q : Prop} {_ : Decidable p} {_ : Decidable q} :
     decide p = decide q ↔ (p ↔ q) :=
   ⟨fun h => by rw [← decide_eq_true_iff p, h, decide_eq_true_iff], fun h => by simp [h]⟩

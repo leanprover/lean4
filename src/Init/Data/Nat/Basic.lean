@@ -124,13 +124,8 @@ instance : LawfulBEq Nat where
   eq_of_beq h := Nat.eq_of_beq_eq_true h
   rfl := by simp [BEq.beq]
 
-@[simp] theorem beq_eq_true_eq (a b : Nat) : ((a == b) = true) = (a = b) := propext <| Iff.intro eq_of_beq (fun h => by subst h; apply LawfulBEq.rfl)
-@[simp] theorem not_beq_eq_true_eq (a b : Nat) : ((!(a == b)) = true) = ¬(a = b) :=
-  propext <| Iff.intro
-    (fun h₁ h₂ => by subst h₂; rw [LawfulBEq.rfl] at h₁; contradiction)
-    (fun h =>
-      have : ¬ ((a == b) = true) := fun h' => absurd (eq_of_beq h') h
-      by simp [this])
+theorem beq_eq_true_eq (a b : Nat) : ((a == b) = true) = (a = b) := by simp
+theorem not_beq_eq_true_eq (a b : Nat) : ((!(a == b)) = true) = ¬(a = b) := by simp
 
 /-! # Nat.add theorems -/
 
@@ -355,7 +350,7 @@ protected theorem pos_of_ne_zero {n : Nat} : n ≠ 0 → 0 < n := (eq_zero_or_po
 
 theorem lt.base (n : Nat) : n < succ n := Nat.le_refl (succ n)
 
-@[simp] theorem lt_succ_self (n : Nat) : n < succ n := lt.base n
+theorem lt_succ_self (n : Nat) : n < succ n := lt.base n
 
 @[simp] protected theorem lt_add_one (n : Nat) : n < n + 1 := lt.base n
 
@@ -705,8 +700,7 @@ protected theorem one_ne_zero : 1 ≠ (0 : Nat) :=
 protected theorem zero_ne_one : 0 ≠ (1 : Nat) :=
   fun h => Nat.noConfusion h
 
-@[simp] theorem succ_ne_zero (n : Nat) : succ n ≠ 0 :=
-  fun h => Nat.noConfusion h
+theorem succ_ne_zero (n : Nat) : succ n ≠ 0 := by simp
 
 /-! # mul + order -/
 
@@ -814,8 +808,8 @@ theorem sub_one_lt_of_lt {n m : Nat} (h : m < n) : n - 1 < n :=
 
 /-! # pred theorems -/
 
-@[simp] protected theorem pred_zero : pred 0 = 0 := rfl
-@[simp] protected theorem pred_succ (n : Nat) : pred n.succ = n := rfl
+protected theorem pred_zero : pred 0 = 0 := rfl
+protected theorem pred_succ (n : Nat) : pred n.succ = n := rfl
 
 theorem succ_pred {a : Nat} (h : a ≠ 0) : a.pred.succ = a := by
   induction a with

@@ -136,7 +136,7 @@ def writeTable (property : String) (table : UnicodePropertyTable) : IO Unit := d
   content := content ++ "import Init.Data.Array.BasicAux\n"
   content := content ++ "\n"
   content := content ++ "namespace Char.UnicodeSkipList\n"
-  content := content ++ s!"instance {property}Table : UnicodePropertyTable where\n"
+  content := content ++ s!"def {property}Table : UnicodePropertyTable where\n"
   content := content ++ "  runs := #[\n"
   content := content ++ "    " ++ (reprStr (table.runs[0]!))
   for i in [1:(table.runs.size)] do

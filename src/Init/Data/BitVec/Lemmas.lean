@@ -426,6 +426,11 @@ theorem zeroExtend_one_eq_ofBool_getLsb_zero (x : BitVec w) :
   ext i
   simp [getLsb_zeroExtend, Fin.fin_one_eq_zero i]
 
+/-- `testBit 1 i` is true iff the index `i` equals 0. -/
+private theorem Nat.testBit_one_eq_true_iff_self_eq_zero {i : Nat} :
+    Nat.testBit 1 i = true ↔ i = 0 := by
+  cases i <;> simp
+
 /-- Zero extending `1#v` to `1#w` equals `1#w` when `v > 0`. -/
 theorem zeroExtend_ofNat_one_eq_ofNat_one_of_lt {v w : Nat} (hv : 0 < v) :
     (BitVec.ofNat v 1).zeroExtend w = BitVec.ofNat w 1 := by
@@ -817,6 +822,15 @@ theorem signExtend_eq_not_zeroExtend_not_of_msb_true {x : BitVec w} {v : Nat} (h
   · rw [signExtend_eq_not_zeroExtend_not_of_msb_true hmsb]
     by_cases (i < v) <;> by_cases (i < w) <;> simp_all <;> omega
 
+/-! ### udiv -/
+
+theorem udiv_eq {x y : BitVec n} :
+    x.udiv y = BitVec.ofNat n (x.toNat / y.toNat) := by
+  apply BitVec.eq_of_toNat_eq
+  simp only [udiv, toNat_ofNatLt, toNat_ofNat]
+  rw [Nat.mod_eq_of_lt]
+  exact Nat.lt_of_le_of_lt (Nat.div_le_self ..) (by omega)
+
 /-! ### append -/
 
 theorem append_def (x : BitVec v) (y : BitVec w) :
@@ -1202,6 +1216,23 @@ theorem ofInt_mul {n} (x y : Int) : BitVec.ofInt n (x * y) =
   apply eq_of_toInt_eq
   simp
 
+@[simp]
+theorem BitVec.mul_one {x : BitVec w} : x * 1#w = x := by
+  apply eq_of_toNat_eq
+  simp [toNat_mul, Nat.mod_eq_of_lt x.isLt]
+
+@[simp]
+theorem BitVec.mul_zero {x : BitVec w} : x * 0#w = 0#w := by
+  apply eq_of_toNat_eq
+  simp [toNat_mul]
+
+theorem BitVec.mul_add {x y z : BitVec w} :
+    x * (y + z) = x * y + x * z := by
+  apply eq_of_toNat_eq
+  simp
+  rw [Nat.mul_mod, Nat.mod_mod (y.toNat + z.toNat),
+    ← Nat.mul_mod, Nat.mul_add]
+
 /-! ### le and lt -/
 
 @[bv_toNat] theorem le_def (x y : BitVec n) :
@@ -1503,5 +1534,28 @@ theorem zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsb_true
   · subst hik
     simp [hx]
   · by_cases hik' : k < i + 1 <;> simp [hik, hik'] <;> omega
+
+/- ## twoPow -/
+
+@[simp]
+theorem and_twoPow_eq_getLsb (x : BitVec w) (i : Nat) :
+    x &&& (twoPow w i) = if x.getLsb i then twoPow w i else 0#w := by
+  ext j
+  simp only [getLsb_and, getLsb_twoPow]
+  by_cases hj : i = j <;> by_cases hx : x.getLsb i <;> simp_all
+
+theorem BitVec.toNat_twoPow (w : Nat) (i : Nat) : (twoPow w i).toNat = 2^i % 2^w := by
+  rcases w with rfl | w
+  · simp [Nat.mod_one]
+  · simp [twoPow, toNat_shiftLeft]
+    have hone : 1 < 2 ^ (w + 1) := by
+      rw [show 1 = 2^0 by simp[Nat.pow_zero]]
+      exact Nat.pow_lt_pow_of_lt (by omega) (by omega)
+    simp [Nat.mod_eq_of_lt hone, Nat.shiftLeft_eq]
+
+@[simp]
+theorem twoPow_zero_eq_one (w : Nat) : twoPow w 0 = 1#w := by
+  apply eq_of_toNat_eq
+  simp
 
 end BitVec

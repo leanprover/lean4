@@ -80,7 +80,9 @@ theorem map_id : (Option.map id : Option α → Option α) = id :=
   | none   => false
 
 /--
-Implementation of `OrElse`'s `<|>` syntax for `Option`.
+Implementation of `OrElse`'s `<|>` syntax for `Option`. If the first argument is `some a`, returns
+`some a`, otherwise evaluates and returns the second argument. See also `or` for a version that is
+strict in the second argument.
 -/
 @[always_inline, macro_inline] protected def orElse : Option α → (Unit → Option α) → Option α
   | some a, _ => some a
@@ -89,7 +91,8 @@ Implementation of `OrElse`'s `<|>` syntax for `Option`.
 instance : OrElse (Option α) where
   orElse := Option.orElse
 
-/-- If the first argument is `some a`, returns `some a`, otherwise returns the second argument. -/
+/-- If the first argument is `some a`, returns `some a`, otherwise returns the second argument.
+This is similar to `<|>`/`orElse`, but it is strict in the second argument. -/
 @[always_inline, inline] def or : Option α → Option α → Option α
   | some a, _ => some a
   | none,   b => b

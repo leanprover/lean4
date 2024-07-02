@@ -224,6 +224,9 @@ else m -- will never happen for well-formed inputs
 def Internal.numBuckets (m : Raw α β) : Nat :=
   m.buckets.size
 
+instance [Repr α] [(a : α) → Repr (β a)] : Repr (Raw α β) where
+  reprPrec m prec := Repr.addAppParen ("Std.DHashMap.Raw.ofList " ++ reprArg m.toList) prec
+
 end Unverified
 
 section WF
@@ -481,6 +484,9 @@ instance [BEq α] [Hashable α] : ForIn m (DHashMap α β) (Σ a, β a) where
 
 def Internal.numBuckets [BEq α] [Hashable α] (m : DHashMap α β) :=
   Raw.Internal.numBuckets m.1
+
+instance [BEq α] [Hashable α] [Repr α] [(a : α) → Repr (β a)] : Repr (DHashMap α β) where
+  reprPrec m prec := Repr.addAppParen ("Std.DHashMap.ofList " ++ reprArg m.toList) prec
 
 end Unverified
 

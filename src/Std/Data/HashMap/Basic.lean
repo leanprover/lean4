@@ -152,6 +152,9 @@ instance {m : Type w → Type w} : ForIn m (Raw α β) (α × β) where
 def Internal.numBuckets (m : Raw α β) : Nat :=
   DHashMap.Raw.Internal.numBuckets m.inner
 
+instance [Repr α] [Repr β] : Repr (Raw α β) where
+  reprPrec m prec := Repr.addAppParen ("Std.HashMap.Raw.ofList " ++ reprArg m.toList) prec
+
 end Unverified
 
 structure WF [BEq α] [Hashable α] (m : Raw α β) : Prop where
@@ -311,6 +314,9 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β
 
 def Internal.numBuckets [BEq α] [Hashable α] (m : HashMap α β) : Nat :=
   DHashMap.Internal.numBuckets m.inner
+
+instance [BEq α] [Hashable α] [Repr α] [Repr β] : Repr (HashMap α β) where
+  reprPrec m prec := Repr.addAppParen ("Std.HashMap.ofList " ++ reprArg m.toList) prec
 
 end Unverified
 

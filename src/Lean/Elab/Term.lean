@@ -327,14 +327,33 @@ def SavedState.restore (s : SavedState) (restoreInfo : Bool := false) : TermElab
   unless restoreInfo do
     setInfoState infoState
 
-@[specialize, inherit_doc Core.withRestoreOrSaveFull]
-def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState)) (act : TermElabM α) :
+/--
+Like `Meta.withRestoreOrSaveFull` for `TermElabM`, but also takes a `tacSnap?` that
+* when running `act`, is set as `Context.tacSnap?`
+* otherwise (i.e. on restore) is used to update the new snapshot promise to the old task's
+  value.
+This extra restore step is necessary because while `reusableResult?` can be used to replay any
+effects on `State`, `Context.tacSnap?` is not part of it but changed via an `IO` side effect, so
+it needs to be replayed separately.
+
+We use an explicit parameter instead of accessing `Context.tacSnap?` directly because this prevents
+`withRestoreOrSaveFull` and `withReader` from being used in the wrong order.
+-/
+@[specialize]
+def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState))
+    (tacSnap? : Option (Language.SnapshotBundle Tactic.TacticParsedSnapshot)) (act : TermElabM α) :
     TermElabM (α × SavedState) := do
   if let some (_, state) := reusableResult? then
     set state.elab
+    if let some snap := tacSnap? then
+      let some old := snap.old?
+        | throwError "withRestoreOrSaveFull: expected old snapshot in `tacSnap?`"
+      snap.new.resolve old.val.get
+
   let reusableResult? := reusableResult?.map (fun (val, state) => (val, state.meta))
-  let (a, meta) ← controlAt MetaM fun runInBase => do
-    Meta.withRestoreOrSaveFull reusableResult? <| runInBase act
+  let (a, meta) ← withReader ({ · with tacSnap? }) do
+    controlAt MetaM fun runInBase => do
+      Meta.withRestoreOrSaveFull reusableResult? <| runInBase act
   return (a, { meta, «elab» := (← get) })
 
 instance : MonadBacktrack SavedState TermElabM where

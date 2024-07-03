@@ -8,6 +8,13 @@ import Std.Data.DHashMap.Basic
 import Std.Data.DHashMap.Internal.Model
 import Std.Data.DHashMap.Internal.AssocList.Lemmas
 
+/-!
+This is an internal implementation file of the hash map. Users of the hash map should not rely on
+the contents of this file.
+
+File contents: proof that all hash map operations preserve `WFImp` to show `WF.out : WF → WFImp`
+-/
+
 open Std.DHashMap.Internal.List
 
 set_option autoImplicit false

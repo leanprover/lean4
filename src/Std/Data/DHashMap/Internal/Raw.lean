@@ -6,6 +6,13 @@ Authors: Markus Himmel
 prelude
 import Std.Data.DHashMap.Basic
 
+/-!
+This is an internal implementation file of the hash map. Users of the hash map should not rely on
+the contents of this file.
+
+File contents: relating operations on `Raw` to operations on `Raw₀`
+-/
+
 set_option autoImplicit false
 
 universe u v w

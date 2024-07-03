@@ -8,6 +8,13 @@ import Std.Classes.LawfulHashable
 import Std.Data.DHashMap.Internal.List.Associative
 import Std.Data.DHashMap.Internal.Defs
 
+/-!
+This is an internal implementation file of the hash map. Users of the hash map should not rely on
+the contents of this file.
+
+File contents: lemmas about `HashesTo` (defined in `Internal.Defs`)
+-/
+
 namespace Std.DHashMap.Internal.List
 
 variable {α : Type u} {β : α → Type v}

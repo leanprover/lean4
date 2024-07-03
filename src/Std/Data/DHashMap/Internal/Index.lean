@@ -7,6 +7,13 @@ prelude
 import Init.Data.UInt.Lemmas
 import Std.Init.All
 
+/-!
+This is an internal implementation file of the hash map. Users of the hash map should not rely on
+the contents of this file.
+
+File contents: mapping a hash to a hash map bucket
+-/
+
 namespace Std.DHashMap.Internal
 
 /--

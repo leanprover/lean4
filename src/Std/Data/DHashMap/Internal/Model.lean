@@ -8,8 +8,10 @@ import Std.Data.DHashMap.Basic
 import Std.Data.DHashMap.Internal.List.HashesTo
 import Std.Data.DHashMap.Internal.AssocList.Lemmas
 
-
 /-!
+This is an internal implementation file of the hash map. Users of the hash map should not rely on
+the contents of this file.
+
 In this file we define functions for manipulating a hash map based on operations defined in terms of their buckets.
 Then we give "model implementations" of the hash map operations in terms of these basic building blocks and show that
 the actual operations are equal to the model implementations. This means that later we will be able to prove properties

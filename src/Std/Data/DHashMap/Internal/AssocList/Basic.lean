@@ -6,6 +6,13 @@ Authors: Leonardo de Moura, Mario Carneiro, Markus Himmel
 prelude
 import Init.NotationExtra
 
+/-!
+This is an internal implementation file of the hash map. Users of the hash map should not rely on
+the contents of this file.
+
+File contents: Operations on associative lists
+-/
+
 set_option autoImplicit false
 
 universe w v u

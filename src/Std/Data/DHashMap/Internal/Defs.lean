@@ -9,6 +9,11 @@ import Std.Data.DHashMap.Internal.List.Defs
 import Std.Data.DHashMap.Internal.Index
 
 /-!
+This is an internal implementation file of the hash map. Users of the hash map should not rely on
+the contents of this file.
+
+File contents: Definition of all operations on `Raw₀`, definition of `WFImp`.
+
 # Hash map implementation notes
 
 This is a simple separate-chaining hash table. The data of the hash map (`DHashMap.Raw`) consists of

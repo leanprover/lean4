@@ -6,6 +6,13 @@ Authors: Markus Himmel
 prelude
 import Init.Data.List.Lemmas
 
+/-!
+This is an internal implementation file of the hash map. Users of the hash map should not rely on
+the contents of this file.
+
+File contents: tiny private implementation of `List.Perm`
+-/
+
 set_option autoImplicit false
 
 universe u v

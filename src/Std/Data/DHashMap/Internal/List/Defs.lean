@@ -6,6 +6,13 @@ Authors: Markus Himmel
 prelude
 import Init.BinderPredicates
 
+/-!
+This is an internal implementation file of the hash map. Users of the hash map should not rely on
+the contents of this file.
+
+File contents: definitions on lists needed to state the well-formedness predicate
+-/
+
 universe u v w
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w}

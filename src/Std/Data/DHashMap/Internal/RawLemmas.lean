@@ -6,6 +6,13 @@ Authors: Markus Himmel
 prelude
 import Std.Data.DHashMap.Internal.WF
 
+/-!
+This is an internal implementation file of the hash map. Users of the hash map should not rely on
+the contents of this file.
+
+File contents: verification of operations on `Raw₀`
+-/
+
 open Std.DHashMap.Internal.List
 
 set_option autoImplicit false

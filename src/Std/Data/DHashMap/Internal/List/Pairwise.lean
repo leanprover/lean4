@@ -8,6 +8,13 @@ import Std.Data.DHashMap.Internal.List.Defs
 import Std.Data.DHashMap.Internal.List.Perm
 import Std.Data.DHashMap.Internal.List.Sublist
 
+/-!
+This is an internal implementation file of the hash map. Users of the hash map should not rely on
+the contents of this file.
+
+File contents: tiny private implementation of `List.Pairwise`
+-/
+
 namespace Std.DHashMap.Internal.List
 
 set_option autoImplicit false

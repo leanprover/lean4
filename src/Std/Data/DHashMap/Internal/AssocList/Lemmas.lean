@@ -7,6 +7,13 @@ prelude
 import Std.Data.DHashMap.Internal.AssocList.Basic
 import Std.Data.DHashMap.Internal.List.Associative
 
+/-!
+This is an internal implementation file of the hash map. Users of the hash map should not rely on
+the contents of this file.
+
+File contents: Connecting operations on `AssocList` to operations defined in `List.Associative`
+-/
+
 open Std.DHashMap.Internal
 
 set_option autoImplicit false

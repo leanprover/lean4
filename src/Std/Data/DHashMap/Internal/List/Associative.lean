@@ -8,6 +8,13 @@ import Std.Classes.BEq
 import Std.Init.All
 import Std.Data.DHashMap.Internal.List.Pairwise
 
+/-!
+This is an internal implementation file of the hash map. Users of the hash map should not rely on
+the contents of this file.
+
+File contents: Verification of associative lists
+-/
+
 set_option autoImplicit false
 
 universe u v w

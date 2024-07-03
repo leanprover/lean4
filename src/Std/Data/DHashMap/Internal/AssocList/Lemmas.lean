@@ -27,7 +27,8 @@ namespace Std.DHashMap.Internal.AssocList
 open Internal.List
 
 @[simp] theorem toList_nil : (nil : AssocList α β).toList = [] := rfl
-@[simp] theorem toList_cons {l : AssocList α β} {a : α} {b : β a} : (l.cons a b).toList = ⟨a, b⟩ :: l.toList := rfl
+@[simp] theorem toList_cons {l : AssocList α β} {a : α} {b : β a} :
+    (l.cons a b).toList = ⟨a, b⟩ :: l.toList := rfl
 
 @[simp]
 theorem foldl_eq {f : δ → (a : α) → β a → δ} {init : δ} {l : AssocList α β} :
@@ -45,15 +46,18 @@ theorem length_eq {l : AssocList α β} : l.length = l.toList.length := by
     simp [ih, Nat.add_assoc, Nat.add_comm n 1]
 
 @[simp]
-theorem get?_eq {β : Type v} [BEq α] {l : AssocList α (fun _ => β)} {a : α} : l.get? a = getValue? a l.toList := by
+theorem get?_eq {β : Type v} [BEq α] {l : AssocList α (fun _ => β)} {a : α} :
+    l.get? a = getValue? a l.toList := by
   induction l <;> simp_all [get?, List.getValue?]
 
 @[simp]
-theorem getCast?_eq [BEq α] [LawfulBEq α] {l : AssocList α β} {a : α} : l.getCast? a = getValueCast? a l.toList := by
+theorem getCast?_eq [BEq α] [LawfulBEq α] {l : AssocList α β} {a : α} :
+    l.getCast? a = getValueCast? a l.toList := by
   induction l <;> simp_all [getCast?, List.getValueCast?]
 
 @[simp]
-theorem contains_eq [BEq α] {l : AssocList α β} {a : α} : l.contains a = containsKey a l.toList := by
+theorem contains_eq [BEq α] {l : AssocList α β} {a : α} :
+    l.contains a = containsKey a l.toList := by
   induction l <;> simp_all [contains, List.containsKey]
 
 @[simp]
@@ -83,7 +87,8 @@ theorem getD_eq {β : Type v} [BEq α] {l : AssocList α (fun _ => β)} {a : α}
     l.getD a fallback = getValueD a l.toList fallback := by
   induction l
   · simp [getD, List.getValueD]
-  · simp_all [getD, List.getValueD, List.getValueD, List.getValue?_cons, apply_bif (fun x => Option.getD x fallback)]
+  · simp_all [getD, List.getValueD, List.getValueD, List.getValue?_cons,
+      apply_bif (fun x => Option.getD x fallback)]
 
 @[simp]
 theorem panicWithPosWithDecl_eq [Inhabited α] {modName declName line col msg} :
@@ -112,7 +117,8 @@ theorem toList_replace [BEq α] {l : AssocList α β} {a : α} {b : β a} :
   · next k v t ih => cases h : a == k <;> simp_all [replace, List.replaceEntry_cons]
 
 @[simp]
-theorem toList_remove [BEq α] {l : AssocList α β} {a : α} : (l.remove a).toList = removeKey a l.toList := by
+theorem toList_remove [BEq α] {l : AssocList α β} {a : α} :
+    (l.remove a).toList = removeKey a l.toList := by
   induction l
   · simp [remove]
   · next k v t ih => cases h : a == k <;> simp_all [remove, List.removeKey_cons]
@@ -120,7 +126,8 @@ theorem toList_remove [BEq α] {l : AssocList α β} {a : α} : (l.remove a).toL
 theorem toList_filterMap {f : (a : α) → β a → Option (γ a)} {l : AssocList α β} :
     Perm (l.filterMap f).toList (l.toList.filterMap fun p => (f p.1 p.2).map (⟨p.1, ·⟩)) := by
   rw [filterMap]
-  suffices ∀ l l', Perm (filterMap.go f l l').toList (l.toList ++ l'.toList.filterMap fun p => (f p.1 p.2).map (⟨p.1, ·⟩)) by
+  suffices ∀ l l', Perm (filterMap.go f l l').toList
+      (l.toList ++ l'.toList.filterMap fun p => (f p.1 p.2).map (⟨p.1, ·⟩)) by
     simpa using this .nil l
   intros l l'
   induction l' generalizing l
@@ -137,7 +144,8 @@ theorem toList_filterMap {f : (a : α) → β a → Option (γ a)} {l : AssocLis
 theorem toList_map {f : (a : α) → β a → γ a} {l : AssocList α β} :
     Perm (l.map f).toList (l.toList.map fun p => ⟨p.1, f p.1 p.2⟩) := by
   rw [map]
-  suffices ∀ l l', Perm (map.go f l l').toList (l.toList ++ l'.toList.map fun p => ⟨p.1, f p.1 p.2⟩) by
+  suffices ∀ l l', Perm (map.go f l l').toList
+      (l.toList ++ l'.toList.map fun p => ⟨p.1, f p.1 p.2⟩) by
     simpa using this .nil l
   intros l l'
   induction l' generalizing l
@@ -150,7 +158,8 @@ theorem toList_map {f : (a : α) → β a → γ a} {l : AssocList α β} :
 theorem toList_filter {f : (a : α) → β a → Bool} {l : AssocList α β} :
     Perm (l.filter f).toList (l.toList.filter fun p => f p.1 p.2) := by
   rw [filter]
-  suffices ∀ l l', Perm (filter.go f l l').toList (l.toList ++ l'.toList.filter fun p => f p.1 p.2) by
+  suffices ∀ l l', Perm (filter.go f l l').toList
+      (l.toList ++ l'.toList.filter fun p => f p.1 p.2) by
     simpa using this .nil l
   intros l l'
   induction l' generalizing l

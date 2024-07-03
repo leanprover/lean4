@@ -67,21 +67,24 @@ return the map unaltered. -/
   else m -- will never happen for well-formed inputs
 
 /-- Equivalent to (but potentially faster than) calling `contains` followed by `insert`. -/
-@[inline] def containsThenInsert [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β a) : Bool × Raw α β:=
+@[inline] def containsThenInsert [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β a) :
+    Bool × Raw α β:=
   if h : 0 < m.buckets.size then
     let ⟨replaced, ⟨r, _⟩⟩ := Raw₀.containsThenInsert ⟨m, h⟩ a b
     ⟨replaced, r⟩
   else (false, m) -- will never happen for well-formed inputs
 
 /-- Equivalent to (but potentially faster than) calling `get?` followed by `insertIfNew`. -/
-@[inline] def getThenInsertIfNew? [BEq α] [Hashable α] [LawfulBEq α] (m : Raw α β) (a : α) (b : β a) : Option (β a) × Raw α β :=
+@[inline] def getThenInsertIfNew? [BEq α] [Hashable α] [LawfulBEq α] (m : Raw α β) (a : α)
+    (b : β a) : Option (β a) × Raw α β :=
   if h : 0 < m.buckets.size then
     let ⟨previous, ⟨r, _⟩⟩ := Raw₀.getThenInsertIfNew? ⟨m, h⟩ a b
     ⟨previous, r⟩
   else (none, m) -- will never happen for well-formed inputs
 
 /-- Equivalent to (but potentially faster than) calling `contains` followed by `insertIfNew`. -/
-@[inline] def containsThenInsertIfNew [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β a) : Bool × Raw α β :=
+@[inline] def containsThenInsertIfNew [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β a) :
+    Bool × Raw α β :=
   if h : 0 < m.buckets.size then
     let ⟨previous, ⟨r, _⟩⟩ := Raw₀.containsThenInsertIfNew ⟨m, h⟩ a b
     ⟨previous, r⟩
@@ -123,7 +126,8 @@ Uses the `LawfulBEq` instance to cast the retrieved value to the correct type. -
 present.
 
 Uses the `LawfulBEq` instance to cast the retrieved value to the correct type. -/
-@[inline] def getD [BEq α] [Hashable α] [LawfulBEq α] (m : Raw α β) (a : α) (fallback : β a) : β a :=
+@[inline] def getD [BEq α] [Hashable α] [LawfulBEq α] (m : Raw α β) (a : α) (fallback : β a) :
+    β a :=
   if h : 0 < m.buckets.size then
     Raw₀.getD ⟨m, h⟩ a fallback
   else fallback -- will never happen for well-formed inputs
@@ -131,7 +135,8 @@ Uses the `LawfulBEq` instance to cast the retrieved value to the correct type. -
 /-- Tries to retrieve the mapping for the given key, panicking if no such mapping is present.
 
 Uses the `LawfulBEq` instance to cast the retrieved value to the correct type. -/
-@[inline] def get! [BEq α] [Hashable α] [LawfulBEq α] (m : Raw α β) (a : α) [Inhabited (β a)] : β a :=
+@[inline] def get! [BEq α] [Hashable α] [LawfulBEq α] (m : Raw α β) (a : α) [Inhabited (β a)] :
+    β a :=
   if h : 0 < m.buckets.size then
     Raw₀.get! ⟨m, h⟩ a
   else default -- will never happen for well-formed inputs
@@ -175,8 +180,8 @@ present. -/
   else default -- will never happen for well-formed inputs
 
 /-- Equivalent to (but potentially faster than) calling `Const.get?` followed by `insertIfNew`. -/
-@[inline] def Const.getThenInsertIfNew? [BEq α] [Hashable α] (m : Raw α (fun _ => β)) (a : α) (b : β) :
-    Option β × Raw α (fun _ => β) :=
+@[inline] def Const.getThenInsertIfNew? [BEq α] [Hashable α] (m : Raw α (fun _ => β)) (a : α)
+    (b : β) : Option β × Raw α (fun _ => β) :=
   if h : 0 < m.buckets.size then
     let ⟨replaced, ⟨r, _⟩⟩ := Raw₀.Const.getThenInsertIfNew? ⟨m, h⟩ a b
     ⟨replaced, r⟩
@@ -198,7 +203,8 @@ section Unverified
 
 /-- Updates the values of the hash map by applying the given function to all mappings, keeping
 only those mappings where the function returns `some` value. -/
-@[inline] def filterMap {γ : α → Type w} (f : (a : α) → β a → Option (γ a)) (m : Raw α β) : Raw α γ :=
+@[inline] def filterMap {γ : α → Type w} (f : (a : α) → β a → Option (γ a)) (m : Raw α β) :
+    Raw α γ :=
   if h : 0 < m.buckets.size then
     Raw₀.filterMap f ⟨m, h⟩
   else ∅ -- will never happen for well-formed inputs
@@ -245,10 +251,12 @@ instance : ForIn m (Raw α β) ((a : α) × β a) where
 @[inline] def toArray (m : Raw α β) : Array ((a : α) × β a) :=
   m.foldl (fun acc k v => acc.push ⟨k, v⟩) #[]
 
-@[inline, inherit_doc Raw.toList] def Const.toList {β : Type v} (m : Raw α (fun _ => β)) : List (α × β) :=
+@[inline, inherit_doc Raw.toList] def Const.toList {β : Type v} (m : Raw α (fun _ => β)) :
+    List (α × β) :=
   m.foldl (fun acc k v => ⟨k, v⟩ :: acc) []
 
-@[inline, inherit_doc Raw.toArray] def Const.toArray {β : Type v} (m : Raw α (fun _ => β)) : Array (α × β) :=
+@[inline, inherit_doc Raw.toArray] def Const.toArray {β : Type v} (m : Raw α (fun _ => β)) :
+    Array (α × β) :=
   m.foldl (fun acc k v => acc.push ⟨k, v⟩) #[]
 
 /-- Returns a list of all keys present in the hash map in some order. -/
@@ -265,29 +273,35 @@ instance : ForIn m (Raw α β) ((a : α) × β a) where
 
 /-- Inserts multiple mappings into the hash map by iterating over the given collection and calling
 `insert`. If the same key appears multiple times, the last occurrence takes precendence. -/
-@[inline] def insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (m : Raw α β) (l : ρ) : Raw α β :=
+@[inline] def insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
+    (m : Raw α β) (l : ρ) : Raw α β :=
   if h : 0 < m.buckets.size then
     (Raw₀.insertMany ⟨m, h⟩ l).1
   else m -- will never happen for well-formed inputs
 
-@[inline, inherit_doc Raw.insertMany] def Const.insertMany {β : Type v} [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ (α × β)] (m : Raw α (fun _ => β)) (l : ρ) : Raw α (fun _ => β) :=
+@[inline, inherit_doc Raw.insertMany] def Const.insertMany {β : Type v} [BEq α] [Hashable α]
+    {ρ : Type w} [ForIn Id ρ (α × β)] (m : Raw α (fun _ => β)) (l : ρ) : Raw α (fun _ => β) :=
   if h : 0 < m.buckets.size then
     (Raw₀.Const.insertMany ⟨m, h⟩ l).1
   else m -- will never happen for well-formed inputs
 
-@[inline, inherit_doc Raw.insertMany] def Const.insertManyUnit [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] (m : Raw α (fun _ => Unit)) (l : ρ) : Raw α (fun _ => Unit) :=
+@[inline, inherit_doc Raw.insertMany] def Const.insertManyUnit [BEq α] [Hashable α] {ρ : Type w}
+    [ForIn Id ρ α] (m : Raw α (fun _ => Unit)) (l : ρ) : Raw α (fun _ => Unit) :=
   if h : 0 < m.buckets.size then
     (Raw₀.Const.insertManyUnit ⟨m, h⟩ l).1
   else m -- will never happen for well-formed inputs
 
 /-- Creates a hash map from a list of mappings. -/
-@[inline] def ofList [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (l : ρ) : Raw α β :=
+@[inline] def ofList [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (l : ρ) :
+    Raw α β :=
   insertMany ∅ l
 
-@[inline, inherit_doc Raw.ofList] def Const.ofList {β : Type v} [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ (α × β)] (l : ρ) : Raw α (fun _ => β) :=
+@[inline, inherit_doc Raw.ofList] def Const.ofList {β : Type v} [BEq α] [Hashable α] {ρ : Type w}
+    [ForIn Id ρ (α × β)] (l : ρ) : Raw α (fun _ => β) :=
   Const.insertMany ∅ l
 
-@[inline, inherit_doc Raw.ofList] def Const.unitOfList [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] (l : ρ) : Raw α (fun _ => Unit) :=
+@[inline, inherit_doc Raw.ofList] def Const.unitOfList [BEq α] [Hashable α] {ρ : Type w}
+    [ForIn Id ρ α] (l : ρ) : Raw α (fun _ => Unit) :=
   Const.insertManyUnit ∅ l
 
 /-- Returns the number of buckets in the internal representation of the hash map. This function may
@@ -303,35 +317,41 @@ end Unverified
 
 section WF
 
-/-- Well-formedness predicate for hash maps. Users of `DHashMap` will not need to interact with this.
-Users of `DHashMap.Raw` will need to provide proofs of `WF` to lemmas and should use lemmas like
-`WF.empty` and `WF.insert` to show that map operations preserve well-formedness. The constructors
-of this type are internal implementation details and should not be accessed by users.
--/
+/-- Well-formedness predicate for hash maps. Users of `DHashMap` will not need to interact with
+this. Users of `DHashMap.Raw` will need to provide proofs of `WF` to lemmas and should use lemmas
+like `WF.empty` and `WF.insert` to show that map operations preserve well-formedness. The
+constructors of this type are internal implementation details and should not be accessed by
+users. -/
 inductive WF : {α : Type u} → {β : α → Type v} → [BEq α] → [Hashable α] → Raw α β → Prop where
-  -- Implementation note: the reason why we provide the `[EquivBEq α] [LawfulHashable α]` is so that we can write down
-  -- `DHashMap.map` and `DHashMap.filterMap` in `AdditionalOperations.lean` without requiring these proofs just to invoke
-  -- the operations.
+  -- Implementation note: the reason why we provide the `[EquivBEq α] [LawfulHashable α]` is so that
+  -- we can write down `DHashMap.map` and `DHashMap.filterMap` in `AdditionalOperations.lean`
+  -- without requiring these proofs just to invoke the operations.
   /-- Internal implementation detail of the hash map -/
-  | wf {α β} [BEq α] [Hashable α] {m : Raw α β} : 0 < m.buckets.size → (∀ [EquivBEq α] [LawfulHashable α], Raw.WFImp m) → WF m
+  | wf {α β} [BEq α] [Hashable α] {m : Raw α β} : 0 < m.buckets.size →
+      (∀ [EquivBEq α] [LawfulHashable α], Raw.WFImp m) → WF m
   /-- Internal implementation detail of the hash map -/
   | empty₀ {α β} [BEq α] [Hashable α] {c} : WF (Raw₀.empty c : Raw₀ α β).1
   /-- Internal implementation detail of the hash map -/
   | insert₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a b} : WF m → WF (Raw₀.insert ⟨m, h⟩ a b).1
   /-- Internal implementation detail of the hash map -/
-  | containsThenInsert₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a b} : WF m → WF (Raw₀.containsThenInsert ⟨m, h⟩ a b).2.1
+  | containsThenInsert₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a b} :
+      WF m → WF (Raw₀.containsThenInsert ⟨m, h⟩ a b).2.1
   /-- Internal implementation detail of the hash map -/
-  | containsThenInsertIfNew₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a b} : WF m → WF (Raw₀.containsThenInsertIfNew ⟨m, h⟩ a b).2.1
+  | containsThenInsertIfNew₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a b} :
+      WF m → WF (Raw₀.containsThenInsertIfNew ⟨m, h⟩ a b).2.1
   /-- Internal implementation detail of the hash map -/
   | remove₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a} : WF m → WF (Raw₀.remove ⟨m, h⟩ a).1
   /-- Internal implementation detail of the hash map -/
-  | insertIfNew₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a b} : WF m → WF (Raw₀.insertIfNew ⟨m, h⟩ a b).1
+  | insertIfNew₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a b} :
+      WF m → WF (Raw₀.insertIfNew ⟨m, h⟩ a b).1
   /-- Internal implementation detail of the hash map -/
-  | getThenInsertIfNew?₀ {α β} [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} {h a b} : WF m → WF (Raw₀.getThenInsertIfNew? ⟨m, h⟩ a b).2.1
+  | getThenInsertIfNew?₀ {α β} [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} {h a b} :
+      WF m → WF (Raw₀.getThenInsertIfNew? ⟨m, h⟩ a b).2.1
   /-- Internal implementation detail of the hash map -/
   | filter₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h f} : WF m → WF (Raw₀.filter f ⟨m, h⟩).1
   /-- Internal implementation detail of the hash map -/
-  | constGetThenInsertIfNew?₀ {α β} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {h a b} : WF m → WF (Raw₀.Const.getThenInsertIfNew? ⟨m, h⟩ a b).2.1
+  | constGetThenInsertIfNew?₀ {α β} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {h a b} :
+      WF m → WF (Raw₀.Const.getThenInsertIfNew? ⟨m, h⟩ a b).2.1
 
 theorem WF.size_buckets_pos [BEq α] [Hashable α] (m : Raw α β) : WF m → 0 < m.buckets.size
   | wf h₁ _ => h₁
@@ -351,52 +371,62 @@ theorem WF.size_buckets_pos [BEq α] [Hashable α] (m : Raw α β) : WF m → 0 
 @[simp] theorem WF.emptyc [BEq α] [Hashable α] : (∅ : Raw α β).WF :=
   .empty
 
-theorem WF.insert [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β a} (h : m.WF) : (m.insert a b).WF := by
+theorem WF.insert [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β a} (h : m.WF) :
+    (m.insert a b).WF := by
   simpa [Raw.insert, h.size_buckets_pos] using .insert₀ h
 
-theorem WF.containsThenInsert [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β a} (h : m.WF) : (m.containsThenInsert a b).2.WF := by
+theorem WF.containsThenInsert [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β a} (h : m.WF) :
+    (m.containsThenInsert a b).2.WF := by
   simpa [Raw.containsThenInsert, h.size_buckets_pos] using .containsThenInsert₀ h
 
-theorem WF.containsThenInsertIfNew [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β a} (h : m.WF) : (m.containsThenInsertIfNew a b).2.WF := by
+theorem WF.containsThenInsertIfNew [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β a} (h : m.WF) :
+    (m.containsThenInsertIfNew a b).2.WF := by
   simpa [Raw.containsThenInsertIfNew, h.size_buckets_pos] using .containsThenInsertIfNew₀ h
 
 theorem WF.remove [BEq α] [Hashable α] {m : Raw α β} {a : α} (h : m.WF) : (m.remove a).WF := by
   simpa [Raw.remove, h.size_buckets_pos] using .remove₀ h
 
-theorem WF.insertIfNew [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β a} (h : m.WF) : (m.insertIfNew a b).WF := by
+theorem WF.insertIfNew [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β a} (h : m.WF) :
+    (m.insertIfNew a b).WF := by
   simpa [Raw.insertIfNew, h.size_buckets_pos] using .insertIfNew₀ h
 
-theorem WF.getThenInsertIfNew? [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} {a : α} {b : β a} (h : m.WF) :
-    (m.getThenInsertIfNew? a b).2.WF := by
+theorem WF.getThenInsertIfNew? [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} {a : α} {b : β a}
+    (h : m.WF) : (m.getThenInsertIfNew? a b).2.WF := by
   simpa [Raw.getThenInsertIfNew?, h.size_buckets_pos] using .getThenInsertIfNew?₀ h
 
 theorem WF.filter [BEq α] [Hashable α] {m : Raw α β} {f : (a : α) → β a → Bool} (h : m.WF) :
     (m.filter f).WF := by
   simpa [Raw.filter, h.size_buckets_pos] using .filter₀ h
 
-theorem WF.Const.getThenInsertIfNew? {β : Type v} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {a : α} {b : β} (h : m.WF) :
-    (Const.getThenInsertIfNew? m a b).2.WF := by
+theorem WF.Const.getThenInsertIfNew? {β : Type v} [BEq α] [Hashable α] {m : Raw α (fun _ => β)}
+    {a : α} {b : β} (h : m.WF) : (Const.getThenInsertIfNew? m a b).2.WF := by
   simpa [Raw.Const.getThenInsertIfNew?, h.size_buckets_pos] using .constGetThenInsertIfNew?₀ h
 
-theorem WF.insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] {m : Raw α β} {l : ρ} (h : m.WF) :
-    (m.insertMany l).WF := by
-  simpa [Raw.insertMany, h.size_buckets_pos] using (Raw₀.insertMany ⟨m, h.size_buckets_pos⟩ l).2 _ WF.insert₀ h
+theorem WF.insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] {m : Raw α β}
+    {l : ρ} (h : m.WF) : (m.insertMany l).WF := by
+  simpa [Raw.insertMany, h.size_buckets_pos] using
+    (Raw₀.insertMany ⟨m, h.size_buckets_pos⟩ l).2 _ WF.insert₀ h
 
-theorem WF.Const.insertMany {β : Type v} [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ (α × β)] {m : Raw α (fun _ => β)} {l : ρ} (h : m.WF) :
-    (Const.insertMany m l).WF := by
-  simpa [Raw.Const.insertMany, h.size_buckets_pos] using (Raw₀.Const.insertMany ⟨m, h.size_buckets_pos⟩ l).2 _ WF.insert₀ h
+theorem WF.Const.insertMany {β : Type v} [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ (α × β)]
+    {m : Raw α (fun _ => β)} {l : ρ} (h : m.WF) : (Const.insertMany m l).WF := by
+  simpa [Raw.Const.insertMany, h.size_buckets_pos] using
+    (Raw₀.Const.insertMany ⟨m, h.size_buckets_pos⟩ l).2 _ WF.insert₀ h
 
-theorem WF.Const.insertManyUnit [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] {m : Raw α (fun _ => Unit)} {l : ρ} (h : m.WF) :
-    (Const.insertManyUnit m l).WF := by
-  simpa [Raw.Const.insertManyUnit, h.size_buckets_pos] using (Raw₀.Const.insertManyUnit ⟨m, h.size_buckets_pos⟩ l).2 _ WF.insert₀ h
+theorem WF.Const.insertManyUnit [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α]
+    {m : Raw α (fun _ => Unit)} {l : ρ} (h : m.WF) : (Const.insertManyUnit m l).WF := by
+  simpa [Raw.Const.insertManyUnit, h.size_buckets_pos] using
+    (Raw₀.Const.insertManyUnit ⟨m, h.size_buckets_pos⟩ l).2 _ WF.insert₀ h
 
-theorem WF.ofList [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] {l : ρ} : (ofList l : Raw α β).WF :=
+theorem WF.ofList [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] {l : ρ} :
+    (ofList l : Raw α β).WF :=
   .insertMany WF.empty
 
-theorem WF.Const.ofList {β : Type v} [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ (α × β)] {l : ρ} : (Const.ofList l : Raw α (fun _ => β)).WF :=
+theorem WF.Const.ofList {β : Type v} [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ (α × β)]
+    {l : ρ} : (Const.ofList l : Raw α (fun _ => β)).WF :=
   Const.insertMany WF.empty
 
-theorem WF.Const.unitOfList [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] {l : ρ} : (Const.unitOfList l : Raw α (fun _ => Unit)).WF :=
+theorem WF.Const.unitOfList [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] {l : ρ} :
+    (Const.unitOfList l : Raw α (fun _ => Unit)).WF :=
   Const.insertManyUnit WF.empty
 
 end WF

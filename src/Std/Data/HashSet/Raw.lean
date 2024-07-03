@@ -99,7 +99,8 @@ section Unverified
   ⟨m.inner.filter fun a _ => f a⟩
 
 /-- Folds the given function over the elements of the hash set in some order. -/
-@[inline] def foldlM {m : Type v → Type v} [Monad m] {β : Type v} (f : β → α → m β) (init : β) (b : Raw α) : m β :=
+@[inline] def foldlM {m : Type v → Type v} [Monad m] {β : Type v} (f : β → α → m β) (init : β)
+    (b : Raw α) : m β :=
   b.inner.foldlM (fun b a _ => f b a) init
 
 /-- Folds the given function over the elements of the hash set in some order. -/
@@ -111,7 +112,8 @@ section Unverified
   b.inner.forM (fun a _ => f a)
 
 /-- Support for the `for` loop construct in `do` blocks. -/
-@[inline] def forIn {m : Type v → Type v} [Monad m] {β : Type v} (f : α → β → m (ForInStep β)) (init : β) (b : Raw α) : m β :=
+@[inline] def forIn {m : Type v → Type v} [Monad m] {β : Type v} (f : α → β → m (ForInStep β))
+    (init : β) (b : Raw α) : m β :=
   b.inner.forIn (fun a _ acc => f a acc) init
 
 instance {m : Type v → Type v} : ForM m (Raw α) α where
@@ -130,7 +132,8 @@ instance {m : Type v → Type v} : ForIn m (Raw α) α where
 
 /-- Inserts multiple elements into the hash set by iterating over the given collection and calling
 `insert`. -/
-@[inline] def insertMany [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] (m : Raw α) (l : ρ) : Raw α :=
+@[inline] def insertMany [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] (m : Raw α) (l : ρ) :
+    Raw α :=
   ⟨m.inner.insertManyUnit l⟩
 
 /-- Creates a hash set from a list of elements. -/
@@ -164,7 +167,8 @@ theorem WF.emptyc [BEq α] [Hashable α] : (∅ : Raw α).WF :=
 theorem WF.insert [BEq α] [Hashable α] {m : Raw α} {a : α} (h : m.WF) : (m.insert a).WF :=
   ⟨HashMap.Raw.WF.insertIfNew h.out⟩
 
-theorem WF.containsThenInsert [BEq α] [Hashable α] {m : Raw α} {a : α} (h : m.WF) : (m.containsThenInsert a).2.WF :=
+theorem WF.containsThenInsert [BEq α] [Hashable α] {m : Raw α} {a : α} (h : m.WF) :
+    (m.containsThenInsert a).2.WF :=
   ⟨HashMap.Raw.WF.containsThenInsertIfNew h.out⟩
 
 theorem WF.remove [BEq α] [Hashable α] {m : Raw α} {a : α} (h : m.WF) : (m.remove a).WF :=
@@ -173,10 +177,12 @@ theorem WF.remove [BEq α] [Hashable α] {m : Raw α} {a : α} (h : m.WF) : (m.r
 theorem WF.filter [BEq α] [Hashable α] {m : Raw α} {f : α → Bool} (h : m.WF) : (m.filter f).WF :=
   ⟨HashMap.Raw.WF.filter h.out⟩
 
-theorem WF.insertMany [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] {m : Raw α} {l : ρ} (h : m.WF) : (m.insertMany l).WF :=
+theorem WF.insertMany [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] {m : Raw α} {l : ρ}
+    (h : m.WF) : (m.insertMany l).WF :=
   ⟨HashMap.Raw.WF.insertManyUnit h.out⟩
 
-theorem WF.ofList [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] {l : ρ} : (ofList l : Raw α).WF :=
+theorem WF.ofList [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] {l : ρ} :
+    (ofList l : Raw α).WF :=
   ⟨HashMap.Raw.WF.unitOfList⟩
 
 end Raw

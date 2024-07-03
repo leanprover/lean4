@@ -52,7 +52,8 @@ theorem Sublist.cons_iff {a : α} {l₁ l₂ : List α} : Sublist (a::l₁) (a::
     · simpa using h.length_le
     · next b t => exact Sublist.of_cons_left h
 
-theorem Sublist.map (f : α → β) {l₁ l₂ : List α} (h : Sublist l₁ l₂) : Sublist (l₁.map f) (l₂.map f) := by
+theorem Sublist.map (f : α → β) {l₁ l₂ : List α} (h : Sublist l₁ l₂) :
+    Sublist (l₁.map f) (l₂.map f) := by
   induction h
   · exact .refl
   · exact .cons ‹_›

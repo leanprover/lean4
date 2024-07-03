@@ -27,7 +27,8 @@ variable {α : Type u}
 theorem Pairwise.nil {P : α → α → Prop} : Pairwise P [] :=
   trivial
 
-theorem Pairwise.perm {P : α → α → Prop} (hP : ∀ {x y}, P x y → P y x) {l l' : List α} (h : Perm l l') : Pairwise P l → Pairwise P l' := by
+theorem Pairwise.perm {P : α → α → Prop} (hP : ∀ {x y}, P x y → P y x) {l l' : List α}
+    (h : Perm l l') : Pairwise P l → Pairwise P l' := by
   induction h
   · exact id
   · next l₁ l₂ a h ih => exact fun hx => ⟨fun y hy => hx.1 _ (h.mem_iff.2 hy), ih hx.2⟩
@@ -41,7 +42,8 @@ theorem Pairwise.perm {P : α → α → Prop} (hP : ∀ {x y}, P x y → P y x)
     · exact fun y hy => hx₁ _ (List.mem_cons_of_mem _ hy)
   · next ih₁ ih₂ => exact ih₂ ∘ ih₁
 
-theorem Pairwise.sublist {P : α → α → Prop} {l l' : List α} (h : Sublist l l') : Pairwise P l' → Pairwise P l := by
+theorem Pairwise.sublist {P : α → α → Prop} {l l' : List α} (h : Sublist l l') :
+    Pairwise P l' → Pairwise P l := by
   induction h
   · exact id
   · next a l₁ l₂ h ih =>
@@ -51,7 +53,8 @@ theorem Pairwise.sublist {P : α → α → Prop} {l l' : List α} (h : Sublist 
     intro ⟨_, hx⟩
     exact ih hx
 
-theorem pairwise_cons {P : α → α → Prop} {a : α} {l : List α} : Pairwise P (a::l) ↔ (∀ y ∈ l, P a y) ∧ Pairwise P l :=
+theorem pairwise_cons {P : α → α → Prop} {a : α} {l : List α} :
+    Pairwise P (a::l) ↔ (∀ y ∈ l, P a y) ∧ Pairwise P l :=
   Iff.rfl
 
 end Std.DHashMap.Internal.List

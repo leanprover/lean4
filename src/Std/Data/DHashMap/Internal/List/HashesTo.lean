@@ -33,8 +33,9 @@ theorem hashesTo_cons [BEq α] [Hashable α] {i : Nat} {size : Nat} {l : List ((
   · exact h h'
   · exact ih h' _ hk
 
-theorem HashesTo.containsKey_eq_false [BEq α] [Hashable α] [LawfulHashable α] {l : List ((a : α) × β a)} {i : Nat} {size : Nat} (hs : 0 < size)
-    (h : HashesTo l i size) (k : α) : (mkIdx size hs (hash k)).1.toNat ≠ i → containsKey k l = false := by
+theorem HashesTo.containsKey_eq_false [BEq α] [Hashable α] [LawfulHashable α]
+    {l : List ((a : α) × β a)} {i : Nat} {size : Nat} (hs : 0 < size) (h : HashesTo l i size)
+    (k : α) : (mkIdx size hs (hash k)).1.toNat ≠ i → containsKey k l = false := by
   rw [← Decidable.not_imp_not]
   simp only [Bool.not_eq_false, containsKey_eq_true_iff_exists_mem]
   rintro ⟨⟨k', v⟩, hmem, heq⟩

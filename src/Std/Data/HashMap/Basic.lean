@@ -37,28 +37,34 @@ structure HashMap (α : Type u) (β : Type v) [BEq α] [Hashable α] where
 
 namespace HashMap
 
-@[inline, inherit_doc DHashMap.empty] def empty [BEq α] [Hashable α] (capacity := 8) : HashMap α β :=
+@[inline, inherit_doc DHashMap.empty] def empty [BEq α] [Hashable α] (capacity := 8) :
+    HashMap α β :=
   ⟨DHashMap.empty capacity⟩
 
 instance [BEq α] [Hashable α] : EmptyCollection (HashMap α β) where
   emptyCollection := empty
 
-@[inline, inherit_doc DHashMap.insert] def insert [BEq α] [Hashable α] (m : HashMap α β) (a : α) (b : β) : HashMap α β :=
+@[inline, inherit_doc DHashMap.insert] def insert [BEq α] [Hashable α] (m : HashMap α β) (a : α)
+    (b : β) : HashMap α β :=
   ⟨m.inner.insert a b⟩
 
-@[inline, inherit_doc DHashMap.insertIfNew] def insertIfNew [BEq α] [Hashable α] (m : HashMap α β) (a : α) (b : β) : HashMap α β :=
+@[inline, inherit_doc DHashMap.insertIfNew] def insertIfNew [BEq α] [Hashable α] (m : HashMap α β)
+    (a : α) (b : β) : HashMap α β :=
   ⟨m.inner.insertIfNew a b⟩
 
-@[inline, inherit_doc DHashMap.containsThenInsert] def containsThenInsert [BEq α] [Hashable α] (m : HashMap α β) (a : α) (b : β) : Bool × HashMap α β :=
+@[inline, inherit_doc DHashMap.containsThenInsert] def containsThenInsert [BEq α] [Hashable α]
+    (m : HashMap α β) (a : α) (b : β) : Bool × HashMap α β :=
   let ⟨replaced, r⟩ := m.inner.containsThenInsert a b
   ⟨replaced, ⟨r⟩⟩
 
-@[inline, inherit_doc DHashMap.containsThenInsertIfNew] def containsThenInsertIfNew [BEq α] [Hashable α] (m : HashMap α β) (a : α) (b : β) : Bool × HashMap α β :=
+@[inline, inherit_doc DHashMap.containsThenInsertIfNew] def containsThenInsertIfNew [BEq α]
+    [Hashable α] (m : HashMap α β) (a : α) (b : β) : Bool × HashMap α β :=
   let ⟨replaced, r⟩ := m.inner.containsThenInsertIfNew a b
   ⟨replaced, ⟨r⟩⟩
 
 /-- Equivalent to (but potentially faster than) calling `get?` followed by `insertIfNew`. -/
-@[inline] def getThenInsertIfNew? [BEq α] [Hashable α] (m : HashMap α β) (a : α) (b : β) : Option β × HashMap α β :=
+@[inline] def getThenInsertIfNew? [BEq α] [Hashable α] (m : HashMap α β) (a : α) (b : β) :
+    Option β × HashMap α β :=
   let ⟨previous, r⟩ := DHashMap.Const.getThenInsertIfNew? m.inner a b
   ⟨previous, ⟨r⟩⟩
 
@@ -69,7 +75,8 @@ Tries to retrieve the mapping for the given key, returning `none` if no such map
 @[inline] def get? [BEq α] [Hashable α] (m : HashMap α β) (a : α) : Option β :=
   DHashMap.Const.get? m.inner a
 
-@[inline, inherit_doc DHashMap.contains] def contains [BEq α] [Hashable α] (m : HashMap α β) (a : α) : Bool :=
+@[inline, inherit_doc DHashMap.contains] def contains [BEq α] [Hashable α] (m : HashMap α β)
+    (a : α) : Bool :=
   m.inner.contains a
 
 instance [BEq α] [Hashable α] : Membership α (HashMap α β) where
@@ -85,7 +92,8 @@ Retrieves the mapping for the given key. Ensures that such a mapping exists by r
 @[inline] def get [BEq α] [Hashable α] (m : HashMap α β) (a : α) (h : a ∈ m) : β :=
   DHashMap.Const.get m.inner a h
 
-@[inline, inherit_doc DHashMap.Const.getD] def getD [BEq α] [Hashable α] (m : HashMap α β) (a : α) (fallback : β) : β :=
+@[inline, inherit_doc DHashMap.Const.getD] def getD [BEq α] [Hashable α] (m : HashMap α β) (a : α)
+    (fallback : β) : β :=
   DHashMap.Const.getD m.inner a fallback
 
 /-- The notation `m[a]!` is preferred over calling this function directly.
@@ -99,7 +107,8 @@ instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a �
   getElem? m a := m.get? a
   getElem! m a := m.get! a
 
-@[inline, inherit_doc DHashMap.remove] def remove [BEq α] [Hashable α] (m : HashMap α β) (a : α) : HashMap α β :=
+@[inline, inherit_doc DHashMap.remove] def remove [BEq α] [Hashable α] (m : HashMap α β) (a : α) :
+    HashMap α β :=
   ⟨m.inner.remove a⟩
 
 @[inline, inherit_doc DHashMap.size] def size [BEq α] [Hashable α] (m : HashMap α β) : Nat :=
@@ -112,19 +121,24 @@ section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
 
-@[inline, inherit_doc DHashMap.filter] def filter [BEq α] [Hashable α] (f : α → β → Bool) (m : HashMap α β) : HashMap α β :=
+@[inline, inherit_doc DHashMap.filter] def filter [BEq α] [Hashable α] (f : α → β → Bool)
+    (m : HashMap α β) : HashMap α β :=
   ⟨m.inner.filter f⟩
 
-@[inline, inherit_doc DHashMap.foldlM] def foldlM [BEq α] [Hashable α] {m : Type w → Type w} [Monad m] {γ : Type w} (f : γ → α → β → m γ) (init : γ) (b : HashMap α β) : m γ :=
+@[inline, inherit_doc DHashMap.foldlM] def foldlM [BEq α] [Hashable α] {m : Type w → Type w}
+    [Monad m] {γ : Type w} (f : γ → α → β → m γ) (init : γ) (b : HashMap α β) : m γ :=
   b.inner.foldlM f init
 
-@[inline, inherit_doc DHashMap.foldl] def foldl [BEq α] [Hashable α] {γ : Type w} (f : γ → α → β → γ) (init : γ) (b : HashMap α β) : γ :=
+@[inline, inherit_doc DHashMap.foldl] def foldl [BEq α] [Hashable α] {γ : Type w}
+    (f : γ → α → β → γ) (init : γ) (b : HashMap α β) : γ :=
   b.inner.foldl f init
 
-@[inline, inherit_doc DHashMap.forM] def forM [BEq α] [Hashable α] {m : Type w → Type w} [Monad m] (f : (a : α) → β → m PUnit) (b : HashMap α β) : m PUnit :=
+@[inline, inherit_doc DHashMap.forM] def forM [BEq α] [Hashable α] {m : Type w → Type w} [Monad m]
+    (f : (a : α) → β → m PUnit) (b : HashMap α β) : m PUnit :=
   b.inner.forM f
 
-@[inline, inherit_doc DHashMap.forIn] def forIn [BEq α] [Hashable α] {m : Type w → Type w} [Monad m] {γ : Type w} (f : (a : α) → β → γ → m (ForInStep γ)) (init : γ) (b : HashMap α β) : m γ :=
+@[inline, inherit_doc DHashMap.forIn] def forIn [BEq α] [Hashable α] {m : Type w → Type w} [Monad m]
+    {γ : Type w} (f : (a : α) → β → γ → m (ForInStep γ)) (init : γ) (b : HashMap α β) : m γ :=
   b.inner.forIn f init
 
 instance [BEq α] [Hashable α] {m : Type w → Type w} : ForM m (HashMap α β) (α × β) where
@@ -133,34 +147,42 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForM m (HashMap α β)
 instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β) (α × β) where
   forIn m init f := m.forIn (fun a b acc => f (a, b) acc) init
 
-@[inline, inherit_doc DHashMap.Const.toList] def toList [BEq α] [Hashable α] (m : HashMap α β) : List (α × β) :=
+@[inline, inherit_doc DHashMap.Const.toList] def toList [BEq α] [Hashable α] (m : HashMap α β) :
+    List (α × β) :=
   DHashMap.Const.toList m.inner
 
-@[inline, inherit_doc DHashMap.Const.toArray] def toArray [BEq α] [Hashable α] (m : HashMap α β) : Array (α × β) :=
+@[inline, inherit_doc DHashMap.Const.toArray] def toArray [BEq α] [Hashable α] (m : HashMap α β) :
+    Array (α × β) :=
   DHashMap.Const.toArray m.inner
 
 @[inline, inherit_doc DHashMap.keys] def keys [BEq α] [Hashable α] (m : HashMap α β) : List α :=
   m.inner.keys
 
-@[inline, inherit_doc DHashMap.keysArray] def keysArray [BEq α] [Hashable α] (m : HashMap α β) : Array α :=
+@[inline, inherit_doc DHashMap.keysArray] def keysArray [BEq α] [Hashable α] (m : HashMap α β) :
+    Array α :=
   m.inner.keysArray
 
 @[inline, inherit_doc DHashMap.values] def values [BEq α] [Hashable α] (m : HashMap α β) : List β :=
   m.inner.values
 
-@[inline, inherit_doc DHashMap.Const.insertMany] def insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ (α × β)] (m : HashMap α β) (l : ρ) : HashMap α β :=
+@[inline, inherit_doc DHashMap.Const.insertMany] def insertMany [BEq α] [Hashable α] {ρ : Type w}
+    [ForIn Id ρ (α × β)] (m : HashMap α β) (l : ρ) : HashMap α β :=
   ⟨DHashMap.Const.insertMany m.inner l⟩
 
-@[inline, inherit_doc DHashMap.Const.insertManyUnit] def insertManyUnit [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] (m : HashMap α Unit) (l : ρ) : HashMap α Unit :=
+@[inline, inherit_doc DHashMap.Const.insertManyUnit] def insertManyUnit [BEq α] [Hashable α]
+    {ρ : Type w} [ForIn Id ρ α] (m : HashMap α Unit) (l : ρ) : HashMap α Unit :=
   ⟨DHashMap.Const.insertManyUnit m.inner l⟩
 
-@[inline, inherit_doc DHashMap.Const.ofList] def ofList [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ (α × β)] (l : ρ) : HashMap α β :=
+@[inline, inherit_doc DHashMap.Const.ofList] def ofList [BEq α] [Hashable α] {ρ : Type w}
+    [ForIn Id ρ (α × β)] (l : ρ) : HashMap α β :=
   ⟨DHashMap.Const.ofList l⟩
 
-@[inline, inherit_doc DHashMap.Const.unitOfList] def unitOfList [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] (l : ρ) : HashMap α Unit :=
+@[inline, inherit_doc DHashMap.Const.unitOfList] def unitOfList [BEq α] [Hashable α] {ρ : Type w}
+    [ForIn Id ρ α] (l : ρ) : HashMap α Unit :=
   ⟨DHashMap.Const.unitOfList l⟩
 
-@[inline, inherit_doc DHashMap.Internal.numBuckets] def Internal.numBuckets [BEq α] [Hashable α] (m : HashMap α β) : Nat :=
+@[inline, inherit_doc DHashMap.Internal.numBuckets] def Internal.numBuckets [BEq α] [Hashable α]
+    (m : HashMap α β) : Nat :=
   DHashMap.Internal.numBuckets m.inner
 
 instance [BEq α] [Hashable α] [Repr α] [Repr β] : Repr (HashMap α β) where

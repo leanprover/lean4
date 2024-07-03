@@ -44,7 +44,8 @@ namespace AssocList
 @[inline] def forM (f : (a : α) → β a → m PUnit) (as : AssocList α β) : m PUnit :=
   as.foldlM (fun _ => f) ⟨⟩
 
-@[inline] def forInStep (as : AssocList α β) (init : δ) (f : (a : α) → β a → δ → m (ForInStep δ)) : m (ForInStep δ) :=
+@[inline] def forInStep (as : AssocList α β) (init : δ) (f : (a : α) → β a → δ → m (ForInStep δ)) :
+    m (ForInStep δ) :=
   go as init
 where @[specialize] go : AssocList α β → δ → m (ForInStep δ)
   | .nil, acc => pure (ForInStep.yield acc)
@@ -72,7 +73,8 @@ end
 
 def getCast? [BEq α] [LawfulBEq α] (a : α) : AssocList α β → Option (β a)
   | nil => none
-  | cons k v es => if h : a == k then some (cast (congrArg β (eq_of_beq h).symm) v) else es.getCast? a
+  | cons k v es => if h : a == k then some (cast (congrArg β (eq_of_beq h).symm) v)
+      else es.getCast? a
 
 def contains [BEq α] (a : α) : AssocList α β → Bool
   | nil => false
@@ -83,8 +85,8 @@ def get {β : Type v} [BEq α] (a : α) : (l : AssocList α (fun _ => β)) → l
       (by rw [← h, contains, Bool.of_not_eq_true hka, Bool.false_or])
 
 def getCast [BEq α] [LawfulBEq α] (a : α) : (l : AssocList α β) → l.contains a → β a
-  | cons k v es, h => if hka : a == k then cast (congrArg β (eq_of_beq hka).symm) v else es.getCast a
-      (by rw [← h, contains, Bool.of_not_eq_true hka, Bool.false_or])
+  | cons k v es, h => if hka : a == k then cast (congrArg β (eq_of_beq hka).symm) v
+      else es.getCast a (by rw [← h, contains, Bool.of_not_eq_true hka, Bool.false_or])
 
 def getCast! [BEq α] [LawfulBEq α] (a : α) [Inhabited (β a)] : AssocList α β → β a
   | nil => panic! "key is not present in hash table"
@@ -96,7 +98,8 @@ def get! {β : Type v} [BEq α] [Inhabited β] (a : α) : AssocList α (fun _ =>
 
 def getCastD [BEq α] [LawfulBEq α] (a : α) (fallback : β a) : AssocList α β → β a
   | nil => fallback
-  | cons k v es => if h : a == k then cast (congrArg β (eq_of_beq h).symm) v else es.getCastD a fallback
+  | cons k v es => if h : a == k then cast (congrArg β (eq_of_beq h).symm) v
+      else es.getCastD a fallback
 
 def getD {β : Type v} [BEq α] (a : α) (fallback : β) : AssocList α (fun _ => β) → β
   | nil => fallback

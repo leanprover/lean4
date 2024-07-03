@@ -12,10 +12,11 @@ import Std.Data.DHashMap.Internal.AssocList.Lemmas
 This is an internal implementation file of the hash map. Users of the hash map should not rely on
 the contents of this file.
 
-In this file we define functions for manipulating a hash map based on operations defined in terms of their buckets.
-Then we give "model implementations" of the hash map operations in terms of these basic building blocks and show that
-the actual operations are equal to the model implementations. This means that later we will be able to prove properties
-of the operations by proving general facts about the basic building blocks.
+In this file we define functions for manipulating a hash map based on operations defined in terms of
+their buckets. Then we give "model implementations" of the hash map operations in terms of these
+basic building blocks and show that the actual operations are equal to the model implementations T
+his means that later we will be able to prove properties of the operations by proving general facts
+about the basic building blocks.
 -/
 
 set_option autoImplicit false
@@ -30,7 +31,8 @@ open Internal.List
 
 /-! # Setting up the infrastructure -/
 
-def bucket [Hashable α] (self : Array (AssocList α β)) (h : 0 < self.size) (k : α) : AssocList α β :=
+def bucket [Hashable α] (self : Array (AssocList α β)) (h : 0 < self.size) (k : α) :
+    AssocList α β :=
   let ⟨i, h⟩ := mkIdx self.size h (hash k)
   self[i]
 
@@ -74,7 +76,8 @@ theorem exists_bucket_of_uset [BEq α] [Hashable α]
     ∃ l, Perm (toListModel self) (self[i.toNat].toList ++ l) ∧
       Perm (toListModel (self.uset i d hi)) (d.toList ++ l) ∧
       (∀ [LawfulHashable α], IsHashSelf self →
-        ∀ k : α, (mkIdx self.size (by omega) (hash k)).1.toNat = i.toNat → containsKey k l = false) := by
+        ∀ k : α, (mkIdx self.size (by omega) (hash k)).1.toNat = i.toNat →
+          containsKey k l = false) := by
   have h₀ : 0 < self.size := by omega
   obtain ⟨l₁, l₂, h₁, h₂, h₃⟩ := Array.exists_of_update self i d hi
   refine ⟨l₁.bind AssocList.toList ++ l₂.bind AssocList.toList, ?_, ?_, ?_⟩
@@ -92,13 +95,14 @@ theorem exists_bucket_of_uset [BEq α] [Hashable α]
       omega
     · apply List.containsKey_bind_eq_false
       intro j hj
-      rw [← List.getElem_cons_succ self[i] _ _ (by simp only [Array.ugetElem_eq_getElem, List.length_cons]; omega)]
+      rw [← List.getElem_cons_succ self[i] _ _ (by simp only [Array.ugetElem_eq_getElem,
+                                                  List.length_cons]; omega)]
       rw [List.getElem_append_right'' l₁, List.getElem_congr h₁.symm]
       apply (h.hashes_to (j + 1 + l₁.length) _).containsKey_eq_false h₀ k
       omega
 
-theorem exists_bucket_of_update [BEq α] [Hashable α] (m : Array (AssocList α β)) (h : 0 < m.size) (k : α)
-    (f : AssocList α β → AssocList α β) :
+theorem exists_bucket_of_update [BEq α] [Hashable α] (m : Array (AssocList α β)) (h : 0 < m.size)
+    (k : α) (f : AssocList α β → AssocList α β) :
     ∃ l : List ((a : α) × β a),
       Perm (toListModel m) ((bucket m h k).toList ++ l) ∧
       Perm (toListModel (updateBucket m h k f)) ((f (bucket m h k)).toList ++ l) ∧
@@ -122,39 +126,40 @@ theorem exists_bucket [BEq α] [Hashable α]
   obtain ⟨l, h₁, -, h₂⟩ := exists_bucket_of_update m h k (fun _ => .nil)
   exact ⟨l, h₁, h₂⟩
 
-/--
-This is the general theorem used to show that access operations are correct.
--/
-theorem apply_bucket [BEq α] [Hashable α] [PartialEquivBEq α] [LawfulHashable α] {m : Raw₀ α β} (hm : Raw.WFImp m.1) {a : α}
-    {f : AssocList α β → γ} {g : List ((a : α) × β a) → γ} (hfg : ∀ {l}, f l = g l.toList)
-    (hg₁ : ∀ {l l'}, DistinctKeys l → Perm l l' → g l = g l') (hg₂ : ∀ {l l'}, containsKey a l' = false → g (l ++ l') = g l) :
+/-- This is the general theorem used to show that access operations are correct. -/
+theorem apply_bucket [BEq α] [Hashable α] [PartialEquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
+    (hm : Raw.WFImp m.1) {a : α} {f : AssocList α β → γ} {g : List ((a : α) × β a) → γ}
+    (hfg : ∀ {l}, f l = g l.toList) (hg₁ : ∀ {l l'}, DistinctKeys l → Perm l l' → g l = g l')
+    (hg₂ : ∀ {l l'}, containsKey a l' = false → g (l ++ l') = g l) :
     f (bucket m.1.buckets m.2 a) = g (toListModel m.1.buckets) := by
   obtain ⟨l, hl, hlk⟩ := exists_bucket m.1.buckets m.2 a
   refine Eq.trans ?_ (hg₁ (hm.distinct.perm hl.symm) hl.symm)
   rw [hfg, hg₂]
   exact hlk hm.buckets_hash_self _ rfl
 
-/--
-This is the general theorem used to show that access operations involving a proof (like `get`) are correct.
--/
-theorem apply_bucket_with_proof {γ : α → Type w} [BEq α] [Hashable α] [PartialEquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
-    (hm : Raw.WFImp m.1) (a : α)
-    (f : (a : α) → (l : AssocList α β) → l.contains a → γ a) (g : (a : α) → (l : List ((a : α) × β a)) → containsKey a l → γ a)
+/-- This is the general theorem used to show that access operations involving a proof (like `get`)
+are correct. -/
+theorem apply_bucket_with_proof {γ : α → Type w} [BEq α] [Hashable α] [PartialEquivBEq α]
+    [LawfulHashable α] {m : Raw₀ α β} (hm : Raw.WFImp m.1) (a : α)
+    (f : (a : α) → (l : AssocList α β) → l.contains a → γ a)
+    (g : (a : α) → (l : List ((a : α) × β a)) → containsKey a l → γ a)
     (hfg : ∀ {a l h}, f a l h = g a l.toList (AssocList.contains_eq.symm.trans h))
-    (hg₁ : ∀ {l l' a h}, DistinctKeys l → (hl' : Perm l l') → g a l h = g a l' ((List.containsKey_of_perm hl').symm.trans h)) {h h'}
-    (hg₂ : ∀ {l l' a h}, (hl' : containsKey a l' = false) → g a (l ++ l') h = g a l ((List.containsKey_append_of_not_contains_right hl').symm.trans h)) :
+    (hg₁ : ∀ {l l' a h}, DistinctKeys l → (hl' : Perm l l') →
+      g a l h = g a l' ((List.containsKey_of_perm hl').symm.trans h)) {h h'}
+    (hg₂ : ∀ {l l' a h}, (hl' : containsKey a l' = false) →
+      g a (l ++ l') h = g a l ((List.containsKey_append_of_not_contains_right hl').symm.trans h)) :
     f a (bucket m.1.buckets m.2 a) h = g a (toListModel m.1.buckets) h' := by
   obtain ⟨l, hl, hlk⟩ := exists_bucket m.1.buckets m.2 a
   refine Eq.trans ?_ (hg₁ hm.distinct hl).symm
   rw [hfg, hg₂]
   exact hlk hm.buckets_hash_self _ rfl
 
-/--
-This is the general theorem to show that modification operations are correct.
--/
-theorem toListModel_updateBucket [BEq α] [Hashable α] [PartialEquivBEq α] [LawfulHashable α] {m : Raw₀ α β} (hm : Raw.WFImp m.1) {a : α}
-    {f : AssocList α β → AssocList α β} {g : List ((a : α) × β a) → List ((a : α) × β a)} (hfg : ∀ {l}, (f l).toList = g l.toList)
-    (hg₁ : ∀ {l l'}, DistinctKeys l → Perm l l' → Perm (g l) (g l')) (hg₂ : ∀ {l l'}, containsKey a l' = false → g (l ++ l') = g l ++ l') :
+/-- This is the general theorem to show that modification operations are correct. -/
+theorem toListModel_updateBucket [BEq α] [Hashable α] [PartialEquivBEq α] [LawfulHashable α]
+    {m : Raw₀ α β} (hm : Raw.WFImp m.1) {a : α} {f : AssocList α β → AssocList α β}
+    {g : List ((a : α) × β a) → List ((a : α) × β a)} (hfg : ∀ {l}, (f l).toList = g l.toList)
+    (hg₁ : ∀ {l l'}, DistinctKeys l → Perm l l' → Perm (g l) (g l'))
+    (hg₂ : ∀ {l l'}, containsKey a l' = false → g (l ++ l') = g l ++ l') :
     Perm (toListModel (updateBucket m.1.buckets m.2 a f)) (g (toListModel m.1.2)) := by
   obtain ⟨l, h₁, h₂, h₃⟩ := exists_bucket_of_update m.1.buckets m.2 a f
   refine h₂.trans (Perm.trans ?_ (hg₁ hm.distinct h₁).symm)
@@ -162,20 +167,24 @@ theorem toListModel_updateBucket [BEq α] [Hashable α] [PartialEquivBEq α] [La
   · exact Perm.refl _
   · exact h₃ hm.buckets_hash_self _ rfl
 
-/--
-This is the general theorem to show that mapping operations (like `map` and `filter`) are correct.
--/
-theorem toListModel_updateAllBuckets {m : Raw₀ α β} {f : AssocList α β → AssocList α δ} {g : List ((a : α) × β a) → List ((a : α) × δ a)}
-    (hfg : ∀ {l}, Perm ((f l).toList) (g l.toList)) (hg : ∀ {l l'}, Perm (g (l ++ l')) (g l ++ g l')) :
+/-- This is the general theorem to show that mapping operations (like `map` and `filter`) are
+correct. -/
+theorem toListModel_updateAllBuckets {m : Raw₀ α β} {f : AssocList α β → AssocList α δ}
+    {g : List ((a : α) × β a) → List ((a : α) × δ a)}
+    (hfg : ∀ {l}, Perm ((f l).toList) (g l.toList))
+    (hg : ∀ {l l'}, Perm (g (l ++ l')) (g l ++ g l')) :
     Perm (toListModel (updateAllBuckets m.1.buckets f)) (g (toListModel m.1.2)) := by
   have hg₀ : g [] = [] := by
     rw [← List.length_eq_zero]
     have := (hg (l := []) (l' := [])).length_eq
     rw [List.length_append, List.append_nil] at this
     omega
-  rw [updateAllBuckets, toListModel, Array.map_data, List.bind_eq_foldl, List.foldl_map, toListModel, List.bind_eq_foldl]
-  suffices ∀ (l : List (AssocList α β)) (l' : List ((a: α) × δ a)) (l'' : List ((a : α) × β a)), Perm (g l'') l' →
-      Perm (l.foldl (fun acc a => acc ++ (f a).toList) l') (g (l.foldl (fun acc a => acc ++ a.toList) l'')) by
+  rw [updateAllBuckets, toListModel, Array.map_data, List.bind_eq_foldl, List.foldl_map,
+    toListModel, List.bind_eq_foldl]
+  suffices ∀ (l : List (AssocList α β)) (l' : List ((a: α) × δ a)) (l'' : List ((a : α) × β a)),
+      Perm (g l'') l' →
+      Perm (l.foldl (fun acc a => acc ++ (f a).toList) l')
+        (g (l.foldl (fun acc a => acc ++ a.toList) l'')) by
     simpa using this m.1.buckets.data [] [] (by simpa [hg₀] using Perm.refl _)
   rintro l l' l'' h
   induction l generalizing l' l''
@@ -190,22 +199,26 @@ theorem toListModel_updateAllBuckets {m : Raw₀ α β} {f : AssocList α β →
 namespace IsHashSelf
 
 @[simp]
-theorem mkArray [BEq α] [Hashable α] {c : Nat} : IsHashSelf (mkArray c (AssocList.nil : AssocList α β)) :=
+theorem mkArray [BEq α] [Hashable α] {c : Nat} : IsHashSelf
+    (mkArray c (AssocList.nil : AssocList α β)) :=
   ⟨by simp⟩
 
-theorem uset [BEq α] [Hashable α] {m : Array (AssocList α β)} {i : USize} {h : i.toNat < m.size} {d : AssocList α β}
-    (hd : HashesTo m[i].toList i.toNat m.size → HashesTo d.toList i.toNat m.size) (hm : IsHashSelf m) : IsHashSelf (m.uset i d h) := by
+theorem uset [BEq α] [Hashable α] {m : Array (AssocList α β)} {i : USize} {h : i.toNat < m.size}
+    {d : AssocList α β}
+    (hd : HashesTo m[i].toList i.toNat m.size → HashesTo d.toList i.toNat m.size)
+    (hm : IsHashSelf m) : IsHashSelf (m.uset i d h) := by
   refine ⟨fun j hj => ?_⟩
   simp only [Array.uset, Array.getElem_set, Array.size_set]
   split
   · next hij => exact hij ▸ (hd (hm.hashes_to _ _))
   · exact hm.hashes_to j (by simpa using hj)
 
-/--
-This is the general theorem to show that modification operations preserve well-formedness of buckets.
--/
-theorem updateBucket [BEq α] [Hashable α] [PartialEquivBEq α] [LawfulHashable α] {m : Array (AssocList α β)} {h : 0 < m.size} {a : α} {f : AssocList α β → AssocList α β}
-    (hf : ∀ l p, p ∈ (f l).toList → containsKey p.1 l.toList ∨ hash p.1 = hash a) (hm : IsHashSelf m) : IsHashSelf (updateBucket m h a f) := by
+/-- This is the general theorem to show that modification operations preserve well-formedness of
+buckets. -/
+theorem updateBucket [BEq α] [Hashable α] [PartialEquivBEq α] [LawfulHashable α]
+    {m : Array (AssocList α β)} {h : 0 < m.size} {a : α} {f : AssocList α β → AssocList α β}
+    (hf : ∀ l p, p ∈ (f l).toList → containsKey p.1 l.toList ∨ hash p.1 = hash a)
+    (hm : IsHashSelf m) : IsHashSelf (updateBucket m h a f) := by
   rw [Internal.updateBucket]
   refine IsHashSelf.uset (fun h' => ⟨fun _ p hp => ?_⟩) hm
   rcases hf _ _ hp with (hf|hf)
@@ -214,8 +227,9 @@ theorem updateBucket [BEq α] [Hashable α] [PartialEquivBEq α] [LawfulHashable
     rw [← h'.hash_self h _ hq₁, hash_eq hq₂]
   · rw [hf]
 
-theorem updateAllBuckets [BEq α] [Hashable α] [LawfulHashable α] {m : Array (AssocList α β)} {f : AssocList α β → AssocList α δ}
-    (hf : ∀ l p, p ∈ (f l).toList → containsKey p.1 l.toList) (hm : IsHashSelf m) : IsHashSelf (updateAllBuckets m f) := by
+theorem updateAllBuckets [BEq α] [Hashable α] [LawfulHashable α] {m : Array (AssocList α β)}
+    {f : AssocList α β → AssocList α δ} (hf : ∀ l p, p ∈ (f l).toList → containsKey p.1 l.toList)
+    (hm : IsHashSelf m) : IsHashSelf (updateAllBuckets m f) := by
   rw [Internal.updateAllBuckets]
   refine ⟨fun j hj => ?_⟩
   simp only [Array.getElem_map, Array.size_map]
@@ -291,7 +305,8 @@ end
 
 /-! # Equivalence between model functions and real implementations -/
 
-theorem reinsertAux_eq [Hashable α] (data : { d : Array (AssocList α β) // 0 < d.size }) (a : α) (b : β a) :
+theorem reinsertAux_eq [Hashable α] (data : { d : Array (AssocList α β) // 0 < d.size }) (a : α)
+    (b : β a) :
     (reinsertAux hash data a b).1 = updateBucket data.1 data.2 a (fun l => l.cons a b) := rfl
 
 theorem get?_eq_get?ₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) :
@@ -337,8 +352,8 @@ theorem containsThenInsert_eq_containsₘ [BEq α] [Hashable α] (m : Raw₀ α 
   dsimp only [Array.ugetElem_eq_getElem, Array.uset]
   split <;> simp_all
 
-theorem containsThenInsertIfNew_eq_insertIfNewₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) :
-    (m.containsThenInsertIfNew a b).2 = m.insertIfNewₘ a b := by
+theorem containsThenInsertIfNew_eq_insertIfNewₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α)
+    (b : β a) : (m.containsThenInsertIfNew a b).2 = m.insertIfNewₘ a b := by
   rw [containsThenInsertIfNew, insertIfNewₘ, containsₘ, bucket]
   dsimp only [Array.ugetElem_eq_getElem, Array.uset]
   split
@@ -354,19 +369,20 @@ theorem containsThenInsertIfNew_eq_containsₘ [BEq α] [Hashable α] (m : Raw�
 theorem insertIfNew_eq_insertIfNewₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) :
     m.insertIfNew a b = m.insertIfNewₘ a b := rfl
 
-theorem getThenInsertIfNew?_eq_insertIfNewₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α) (b : β a) :
-    (m.getThenInsertIfNew? a b).2 = m.insertIfNewₘ a b := by
+theorem getThenInsertIfNew?_eq_insertIfNewₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β)
+    (a : α) (b : β a) : (m.getThenInsertIfNew? a b).2 = m.insertIfNewₘ a b := by
   rw [getThenInsertIfNew?, insertIfNewₘ, containsₘ, bucket]
   dsimp only [Array.ugetElem_eq_getElem, Array.uset]
   split <;> simp_all [consₘ, updateBucket, List.containsKey_eq_isSome_getValueCast?]
 
-theorem getThenInsertIfNew?_eq_get?ₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α) (b : β a) :
-    (m.getThenInsertIfNew? a b).1 = m.get?ₘ a := by
+theorem getThenInsertIfNew?_eq_get?ₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α)
+    (b : β a) : (m.getThenInsertIfNew? a b).1 = m.get?ₘ a := by
   rw [getThenInsertIfNew?, get?ₘ, bucket]
   dsimp only [Array.ugetElem_eq_getElem, Array.uset]
   split <;> simp_all
 
-theorem remove_eq_removeₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : m.remove a = m.removeₘ a := by
+theorem remove_eq_removeₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) :
+    m.remove a = m.removeₘ a := by
   rw [remove, removeₘ, containsₘ, bucket]
   dsimp only [Array.ugetElem_eq_getElem, Array.uset]
   split
@@ -391,8 +407,8 @@ variable {β : Type v}
 theorem Const.get?_eq_get?ₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α) :
     Const.get? m a = Const.get?ₘ m a := rfl
 
-theorem Const.get_eq_getₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α) (h : m.contains a) :
-    Const.get m a h = Const.getₘ m a h := rfl
+theorem Const.get_eq_getₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α)
+    (h : m.contains a) : Const.get m a h = Const.getₘ m a h := rfl
 
 theorem Const.getD_eq_getDₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α) (fallback : β) :
     Const.getD m a fallback = Const.getDₘ m a fallback := by
@@ -402,14 +418,14 @@ theorem Const.get!_eq_get!ₘ [BEq α] [Hashable α] [Inhabited β] (m : Raw₀ 
     Const.get! m a = Const.get!ₘ m a := by
   simp [get!, get!ₘ, get?ₘ, List.getValue!_eq_getValue?, bucket]
 
-theorem Const.getThenInsertIfNew?_eq_insertIfNewₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α) (b : β) :
-    (Const.getThenInsertIfNew? m a b).2 = m.insertIfNewₘ a b := by
+theorem Const.getThenInsertIfNew?_eq_insertIfNewₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β))
+    (a : α) (b : β) : (Const.getThenInsertIfNew? m a b).2 = m.insertIfNewₘ a b := by
   rw [getThenInsertIfNew?, insertIfNewₘ, containsₘ, bucket]
   dsimp only [Array.ugetElem_eq_getElem, Array.uset]
   split <;> simp_all [consₘ, updateBucket, List.containsKey_eq_isSome_getValue?, -Option.not_isSome]
 
-theorem Const.getThenInsertIfNew?_eq_get?ₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α) (b : β) :
-    (Const.getThenInsertIfNew? m a b).1 = Const.get?ₘ m a := by
+theorem Const.getThenInsertIfNew?_eq_get?ₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α)
+    (b : β) : (Const.getThenInsertIfNew? m a b).1 = Const.get?ₘ m a := by
   rw [getThenInsertIfNew?, get?ₘ, bucket]
   dsimp only [Array.ugetElem_eq_getElem, Array.uset]
   split <;> simp_all [-getValue?_eq_none]

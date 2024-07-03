@@ -95,19 +95,23 @@ section Unverified
   ⟨m.inner.filter fun a _ => f a⟩
 
 /-- Folds the given function over the elements of the hash set in some order. -/
-@[inline] def foldlM [BEq α] [Hashable α] {m : Type v → Type v} [Monad m] {β : Type v} (f : β → α → m β) (init : β) (b : HashSet α) : m β :=
+@[inline] def foldlM [BEq α] [Hashable α] {m : Type v → Type v} [Monad m] {β : Type v}
+    (f : β → α → m β) (init : β) (b : HashSet α) : m β :=
   b.inner.foldlM (fun b a _ => f b a) init
 
 /-- Folds the given function over the elements of the hash set in some order. -/
-@[inline] def foldl [BEq α] [Hashable α] {β : Type v} (f : β → α → β) (init : β) (m : HashSet α) : β :=
+@[inline] def foldl [BEq α] [Hashable α] {β : Type v} (f : β → α → β) (init : β) (m : HashSet α) :
+    β :=
   m.inner.foldl (fun b a _ => f b a) init
 
 /-- Folds the given function over the elements of the hash set in some order. -/
-@[inline] def forM [BEq α] [Hashable α] {m : Type v → Type v} [Monad m] (f : α → m PUnit) (b : HashSet α) : m PUnit :=
+@[inline] def forM [BEq α] [Hashable α] {m : Type v → Type v} [Monad m] (f : α → m PUnit)
+    (b : HashSet α) : m PUnit :=
   b.inner.forM (fun a _ => f a)
 
 /-- Support for the `for` loop construct in `do` blocks. -/
-@[inline] def forIn [BEq α] [Hashable α] {m : Type v → Type v} [Monad m] {β : Type v} (f : α → β → m (ForInStep β)) (init : β) (b : HashSet α) : m β :=
+@[inline] def forIn [BEq α] [Hashable α] {m : Type v → Type v} [Monad m] {β : Type v}
+    (f : α → β → m (ForInStep β)) (init : β) (b : HashSet α) : m β :=
   b.inner.forIn (fun a _ acc => f a acc) init
 
 instance [BEq α] [Hashable α] {m : Type v → Type v} : ForM m (HashSet α) α where
@@ -126,7 +130,8 @@ instance [BEq α] [Hashable α] {m : Type v → Type v} : ForIn m (HashSet α) �
 
 /-- Inserts multiple elements into the hash set by iterating over the given collection and calling
 `insert`. -/
-@[inline] def insertMany [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] (m : HashSet α) (l : ρ) : HashSet α :=
+@[inline] def insertMany [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] (m : HashSet α) (l : ρ) :
+    HashSet α :=
   ⟨m.inner.insertManyUnit l⟩
 
 /-- Creates a hash set from a list of elements. -/

@@ -77,7 +77,7 @@ def mkIndPredBRecOn (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
   lambdaTelescope value fun ys value => do
     let type  := (← inferType value).headBeta
     let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor ys
-    trace[Elab.definition.structural] "fixedParams: {recArgInfo.fixedParams}, indexMajorArgs: {indexMajorArgs}, otherArgs: {otherArgs}"
+    trace[Elab.definition.structural] "numFixed: {recArgInfo.numFixed}, indexMajorArgs: {indexMajorArgs}, otherArgs: {otherArgs}"
     let motive ← mkForallFVars otherArgs type
     let motive ← mkLambdaFVars indexMajorArgs motive
     trace[Elab.definition.structural] "brecOn motive: {motive}"

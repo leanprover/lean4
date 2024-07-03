@@ -64,7 +64,6 @@ def getRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) :
       else
         let indexMinPos := getIndexMinPos xs indIndices
         let numFixed    := if indexMinPos < numFixed then indexMinPos else numFixed
-        let fixedParams := xs.extract 0 numFixed
         let ys          := xs.extract numFixed xs.size
         match (← hasBadIndexDep? ys indIndices) with
         | some (index, y) =>
@@ -76,7 +75,7 @@ def getRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) :
           | none =>
             let indicesPos := indIndices.map fun index => match xs.indexOf? index with | some i => i.val | none => unreachable!
             return { fnName      := fnName
-                     fixedParams := fixedParams
+                     numFixed    := numFixed
                      recArgPos   := i
                      indicesPos  := indicesPos
                      indName     := indInfo.name

@@ -20,7 +20,7 @@ structure RecArgInfo where
   /-- the name of the recursive function -/
   fnName      : Name
   /-- the fixed prefix of arguments of the function we are trying to justify termination using structural recursion. -/
-  fixedParams : Array Expr
+  numFixed    : Nat
   /-- position of the argument (counted including fixed prefix) we are recursing on -/
   recArgPos   : Nat
   /-- position of the indices (counted including fixed prefix) of the inductive datatype indices we are recursing on -/
@@ -42,7 +42,7 @@ def RecArgInfo.pickIndicesMajor (info : RecArgInfo) (xs : Array Expr) : (Array E
   let mut indexMajorArgs := #[]
   let mut otherArgs := #[]
   for h : i in [:xs.size] do
-    let j := i + info.fixedParams.size
+    let j := i + info.numFixed
     if j = info.recArgPos || info.indicesPos.contains j then
       indexMajorArgs := indexMajorArgs.push xs[i]
     else

@@ -246,7 +246,7 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
         e.withApp fun f args => do
           if let .some fnIdx := recArgInfos.findIdx? (f.isConstOf ·.fnName) then
             let recArgInfo := recArgInfos[fnIdx]!
-            let numFixed  := recArgInfo.fixedParams.size
+            let numFixed  := recArgInfo.numFixed
             let recArgPos := recArgInfo.recArgPos
             if recArgPos >= args.size then
               throwError "insufficient number of parameters at recursive application {indentExpr e}"

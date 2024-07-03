@@ -34,6 +34,13 @@ def writeUnicodeVersion : IO Unit := do
   content := content ++ "import Init.Data.Nat.Basic\n"
   content := content ++ "\n"
   content := content ++ "namespace Char\n\n"
+  content := content ++ "/--\n"
+  content := content ++ "The `unicodeVersion` definition gives Lean's current version of Unicode in format (major,minor,update). \n
+                         New versions of Unicode are released regularly and subsequently all methods \n
+                         in the standard library depending on Unicode are updated. Therefore the behavior \n
+                          of some `Char` and `String` methods and the value of this constant changes \n
+                          over time. *This is not considered to be a breaking change.*"
+  content := content ++ "\n-/\n"
   content := content ++ s!"def unicodeVersion : Nat × Nat × Nat := ({major},{minor},{update})\n"
   content := content ++ "\nend Char\n"
   writeFile f content

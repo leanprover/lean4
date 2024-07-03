@@ -6,12 +6,8 @@ Authors: Jean-Baptiste Tristan
 prelude
 import Init.Data.Range
 
-open Std
-
-namespace Char.UnicodeSkipList
-
-/-
-The following data structure is used to represent the set of characters
+/-!
+The unicode skip list data structure is used to represent the set of characters
 that have some property. The data structure is precomputed using the
 tool in script/unicode.
 
@@ -51,6 +47,10 @@ The idea for this data structure comes from Rust:
 https://github.com/rust-lang/rust/tree/master/src/tools/unicode-table-generator
 
 -/
+
+open Std
+
+namespace Char.UnicodeSkipList
 
 structure UnicodePropertyTable where
   runs : Array UInt32

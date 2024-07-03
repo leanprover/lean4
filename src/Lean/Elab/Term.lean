@@ -328,11 +328,13 @@ def SavedState.restore (s : SavedState) (restoreInfo : Bool := false) : TermElab
     setInfoState infoState
 
 /--
-Like `Meta.withRestoreOrSaveFull` for `TermElabM`, but also takes a `tacSnap?` to set as
-`Context.tacSnap?` when running `act`, or else to update the new snapshot promise to the old task's
-value when restoring a state. This is necessary because while `reusableResult?` can be used to
-replay any effects on `State`, `Context.tacSnap?` is not part of it but changed via an `IO` side
-effect, so it needs to be replayed separately.
+Like `Meta.withRestoreOrSaveFull` for `TermElabM`, but also takes a `tacSnap?` that
+* when running `act`, is set as `Context.tacSnap?`
+* otherwise (i.e. on restore) is used to update the new snapshot promise to the old task's
+  value.
+This extra restore step is necessary because while `reusableResult?` can be used to replay any
+effects on `State`, `Context.tacSnap?` is not part of it but changed via an `IO` side effect, so
+it needs to be replayed separately.
 
 We use an explicit parameter instead of accessing `Context.tacSnap?` directly because this prevents
 `withRestoreOrSaveFull` and `withReader` from being used in the wrong order.

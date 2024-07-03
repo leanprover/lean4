@@ -91,6 +91,7 @@ where
                 range? := stxs |>.getRange?
                 task := next.result }]
             let (_, state) ← withRestoreOrSaveFull reusableResult?
+                -- set up nested reuse; `evalTactic` will check for `isIncrementalElab`
                 (tacSnap? := some { old? := oldInner?, new := inner }) do
               evalTactic tac
             finished.resolve { state? := state }

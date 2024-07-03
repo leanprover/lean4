@@ -110,7 +110,7 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Ar
 
     -- We do two passes to get the RecArgInfo values.
     -- From the first pass, we only keep the  mininum of the `numFixed` reported.
-    let numFixed ← lambdaTelescopeBounded preDefs[0]!.value maxNumFixed fun xs _ => do
+    let numFixed ← lambdaBoundedTelescope preDefs[0]!.value maxNumFixed fun xs _ => do
       assert! xs.size = maxNumFixed
       let values ← preDefs.mapM (instantiateLambda ·.value xs)
 
@@ -126,7 +126,7 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Ar
       trace[Elab.definition.structural] "Reduced numFixed from {maxNumFixed} to {numFixed}"
 
     -- Now we bring exactly that `numFixed` parameter into scope.
-    lambdaTelescopeBounded preDefs[0]!.value numFixed fun xs _ => do
+    lambdaBoundedTelescope preDefs[0]!.value numFixed fun xs _ => do
       assert! xs.size = numFixed
       let values ← preDefs.mapM (instantiateLambda ·.value xs)
 

@@ -58,7 +58,7 @@ where
      {M N : outParam (Type _)} (φ : outParam (M → N))
      (X Y : outParam (Type _)) [SMul M X] [SMul N Y] [FunLike F X Y] : Prop where
   ```
-  The right-hand-side of the equation does not bind `N`. Thus, `SMul N Y` cannot
+  The left-hand-side of the equation does not bind `N`. Thus, `SMul N Y` cannot
   be synthesized until we synthesize `MulActionSemiHomClass F φ X Y`. Note that
   `N` is an output parameter for `MulActionSemiHomClass`.
   -/

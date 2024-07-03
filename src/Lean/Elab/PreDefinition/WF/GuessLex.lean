@@ -256,8 +256,7 @@ where
           matcherApp.discrs.forM (loop param)
           (Array.zip matcherApp.alts (Array.zip matcherApp.altNumParams altParams)).forM
             fun (alt, altNumParam, altParam) =>
-              lambdaTelescope altParam fun xs altParam => do
-                -- TODO: Use boundedLambdaTelescope
+              lambdaBoundedTelescope altParam altNumParam fun xs altParam => do
                 unless altNumParam = xs.size do
                   throwError "unexpected `casesOn` application alternative{indentExpr alt}\nat application{indentExpr e}"
                 let altBody := alt.beta xs
@@ -342,9 +341,8 @@ call site.
 def collectRecCalls (unaryPreDef : PreDefinition) (fixedPrefixSize : Nat)
     (argsPacker : ArgsPacker) : MetaM (Array RecCallWithContext) := withoutModifyingState do
   addAsAxiom unaryPreDef
-  lambdaTelescope unaryPreDef.value fun xs body => do
+  lambdaBoundedTelescope unaryPreDef.value (fixedPrefixSize + 1) fun xs body => do
     unless xs.size == fixedPrefixSize + 1 do
-      -- Maybe cleaner to have lambdaBoundedTelescope?
       throwError "Unexpected number of lambdas in unary pre-definition"
     let ys := xs[:fixedPrefixSize]
     let param := xs[fixedPrefixSize]!

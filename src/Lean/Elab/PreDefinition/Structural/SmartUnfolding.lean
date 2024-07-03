@@ -47,17 +47,13 @@ where
         else
           let mut altsNew := #[]
           for alt in matcherApp.alts, numParams in matcherApp.altNumParams do
-            let altNew ← lambdaTelescope alt fun xs altBody => do
-              unless xs.size >= numParams do
+            let altNew ← lambdaBoundedTelescope alt numParams fun xs altBody => do
+              unless xs.size = numParams do
                 throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
               let altBody ← visit altBody
               let containsSUnfoldMatch := Option.isSome <| altBody.find? fun e => smartUnfoldingMatch? e |>.isSome
-              if !containsSUnfoldMatch then
-                let altBody ← mkLambdaFVars xs[numParams:xs.size] altBody
-                let altBody := markSmartUnfoldingMatchAlt altBody
-                mkLambdaFVars xs[0:numParams] altBody
-              else
-                mkLambdaFVars xs altBody
+              let altBody := if !containsSUnfoldMatch then markSmartUnfoldingMatchAlt altBody else altBody
+              mkLambdaFVars xs altBody
             altsNew := altsNew.push altNew
           return markSmartUnfoldingMatch { matcherApp with alts := altsNew }.toExpr
       | _ => processApp e

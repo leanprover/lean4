@@ -94,7 +94,7 @@ def searchOffsets (table : UnicodePropertyTable) (c : Char) (range : Range) (pfs
   return i % 2 = 1
 
 def search (table : UnicodePropertyTable) (c : Char) : Bool :=
-  let (pfs,range) := searchRuns table c
+  let (pfs, range) := searchRuns table c
   searchOffsets table c range pfs
 
 end Char.UnicodeSkipList

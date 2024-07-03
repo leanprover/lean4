@@ -385,6 +385,7 @@ end
 
 -- In this test A and B have `n start` as fixed prefix, but only
 -- in `A` the `n` is an index
+
 set_option linter.constructorNameAsVariable false in
 mutual
 def A.size (n : Nat) (start : Nat) : A n → Nat
@@ -399,6 +400,38 @@ end
 
 end Mutual2
 
+namespace Mutual3
+
+mutual
+inductive  A (n : Nat) : Type
+  | a : A n
+  | b : B n → A n
+inductive  B (n : Nat) : Type
+  | a : A n → B n
+end
+
+/--
+error: its type FixedIndex.Mutual3.A is an inductive datatype
+  A n
+and parameter
+  n
+depends on (non-fixed) parameter
+  n
+-/
+#guard_msgs in
+set_option linter.constructorNameAsVariable false in
+mutual
+def A.size (n : Nat) (m : Nat) : A n → Nat
+  | .a => 0
+  | .b b => 1 + B.size m n b
+termination_by structural t => t
+
+def B.size (n : Nat) (m : Nat) : B m → Nat
+  | .a a => 1 + A.size m n a
+termination_by structural t => t
+end
+
+end Mutual3
 
 /--
 error: its type FixedIndex.T is an inductive family and indices are not variables

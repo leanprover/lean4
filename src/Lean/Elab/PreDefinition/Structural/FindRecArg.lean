@@ -29,9 +29,8 @@ private def hasBadIndexDep? (ys : Array Expr) (indices : Array Expr) : MetaM (Op
 -- Inductive datatype parameters cannot depend on ys
 private def hasBadParamDep? (ys : Array Expr) (indParams : Array Expr) : MetaM (Option (Expr × Expr)) := do
   for p in indParams do
-    let pType ← inferType p
     for y in ys do
-      if ← dependsOn pType y.fvarId! then
+      if ← dependsOn p y.fvarId! then
         return some (p, y)
   return none
 
@@ -54,9 +53,9 @@ def getRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) :
     else if indInfo.isReflexive && !(← hasConst (mkBInductionOnName indInfo.name)) && !(← isInductivePredicate indInfo.name) then
       throwError "its type {indInfo.name} is a reflexive inductive, but {mkBInductionOnName indInfo.name} does not exist and it is not an inductive predicate"
     else
-      let indArgs    := xType.getAppArgs
-      let indParams  := indArgs.extract 0 indInfo.numParams
-      let indIndices := indArgs.extract indInfo.numParams indArgs.size
+      let indArgs    : Array Expr := xType.getAppArgs
+      let indParams  : Array Expr := indArgs[0:indInfo.numParams]
+      let indIndices : Array Expr := indArgs[indInfo.numParams:]
       if !indIndices.all Expr.isFVar then
         throwError "its type {indInfo.name} is an inductive family and indices are not variables{indentExpr xType}"
       else if !indIndices.allDiff then
@@ -64,14 +63,14 @@ def getRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) :
       else
         let indexMinPos := getIndexMinPos xs indIndices
         let numFixed    := if indexMinPos < numFixed then indexMinPos else numFixed
-        let ys          := xs.extract numFixed xs.size
+        let ys          := xs[numFixed:]
         match (← hasBadIndexDep? ys indIndices) with
         | some (index, y) =>
           throwError "its type {indInfo.name} is an inductive family{indentExpr xType}\nand index{indentExpr index}\ndepends on the non index{indentExpr y}"
         | none =>
           match (← hasBadParamDep? ys indParams) with
           | some (indParam, y) =>
-            throwError "its type {indInfo.name} is an inductive datatype{indentExpr xType}\nand parameter{indentExpr indParam}\ndepends on{indentExpr y}"
+            throwError "its type {indInfo.name} is an inductive datatype{indentExpr xType}\nand parameter{indentExpr indParam}\ndepends on (non-fixed) parameter{indentExpr y}"
           | none =>
             let indicesPos := indIndices.map fun index => match xs.indexOf? index with | some i => i.val | none => unreachable!
             return { fnName      := fnName

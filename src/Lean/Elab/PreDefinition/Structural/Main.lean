@@ -104,11 +104,13 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Ar
     let names := preDefs.map (·.declName)
     let preDefs ← preDefs.mapM fun preDef =>
       return { preDef with value := (← preprocess preDef.value names) }
+
     -- The syntactically fixed arguments
-    -- NB: the RecArgInfo can reduce that number if an index ends up therein
     let maxNumFixed ← getMutualFixedPrefix preDefs
-    -- Get (only!) the fixed parameters into scope
-    lambdaTelescopeBounded preDefs[0]!.value maxNumFixed fun xs _ => do
+
+    -- We do two passes to get the RecArgInfo values.
+    -- From the first pass, we only keep the  mininum of the `numFixed` reported.
+    let numFixed ← lambdaTelescopeBounded preDefs[0]!.value maxNumFixed fun xs _ => do
       assert! xs.size = maxNumFixed
       let values ← preDefs.mapM (instantiateLambda ·.value xs)
 
@@ -117,6 +119,26 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Ar
         let value := values[i]!
         lambdaTelescope value fun ys _value => do
           getRecArgInfo preDef.declName maxNumFixed (xs ++ ys) recArgPos
+
+      return (recArgInfos.map (·.numFixed)).foldl Nat.min maxNumFixed
+
+    if numFixed < maxNumFixed then
+      trace[Elab.definition.structural] "Reduced numFixed from {maxNumFixed} to {numFixed}"
+
+    -- Now we bring exactly that `numFixed` parameter into scope.
+    lambdaTelescopeBounded preDefs[0]!.value numFixed fun xs _ => do
+      assert! xs.size = numFixed
+      let values ← preDefs.mapM (instantiateLambda ·.value xs)
+
+      let recArgInfos ← preDefs.mapIdxM fun i preDef => do
+        let recArgPos := recArgPoss[i]!
+        let value := values[i]!
+        lambdaTelescope value fun ys _value => do
+          getRecArgInfo preDef.declName numFixed (xs ++ ys) recArgPos
+
+      -- Two passes should suffice
+      assert! recArgInfos.all (·.numFixed = numFixed)
+
       let indInfo ← getConstInfoInduct recArgInfos[0]!.indName
       if ← isInductivePredicate indInfo.name then
         -- Here we branch off to the IndPred construction, but only for non-mutual functions
@@ -138,7 +160,7 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Ar
         indInfo.all.toArray.map fun indName =>
           (Array.range preDefs.size).filter fun i =>
             recArgInfos[i]!.indName = indName
-      -- Sanity check
+      -- Sanity check: is this really a grouped permutation of all the indices?
       assert! Array.range preDefs.size = positions.flatten.qsort Nat.blt
 
       -- Construct the common `.brecOn` arguments

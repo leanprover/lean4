@@ -180,9 +180,9 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
           trace[Elab.definition.structural] "below before matcherApp.addArg: {below} : {← inferType below}"
           if let some matcherApp ← matcherApp.addArg? below then
             let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
-              lambdaTelescope alt fun xs altBody => do
+              lambdaBoundedTelescope alt numParams fun xs altBody => do
                 trace[Elab.definition.structural] "altNumParams: {numParams}, xs: {xs}"
-                unless xs.size >= numParams do
+                unless xs.size = numParams do
                   throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
                 let belowForAlt := xs[numParams - 1]!
                 mkLambdaFVars xs (← loop belowForAlt altBody)

@@ -104,8 +104,7 @@ This needs extra information:
 * `extraParams` indicates how many of the functions arguments are bound “after the colon”.
 -/
 def TerminationArgument.delab (arity : Nat) (extraParams : Nat) (termArg : TerminationArgument) : MetaM (TSyntax ``terminationBy) := do
-  lambdaTelescope termArg.fn fun ys e => do
-    let e ← mkLambdaFVars ys[arity - extraParams:] e -- undo overshooting by lambdaTelescope
+  lambdaBoundedTelescope termArg.fn (arity - extraParams) fun _ys e => do
     pure (← delabCore e (delab := go extraParams #[])).1
   where
     go : Nat → TSyntaxArray `ident → DelabM (TSyntax ``terminationBy)

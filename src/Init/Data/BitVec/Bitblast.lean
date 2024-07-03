@@ -374,7 +374,7 @@ theorem getLsb_shiftLeft' {x : BitVec w} {y : BitVec w₂} {i : Nat} :
   simp [shiftLeft_eq', getLsb_shiftLeft]
 
 theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} (hn : n + 1 ≤ w₂) :
-  shiftLeftRec x y n = x <<< (y.truncate (n + 1)).zeroExtend w₂ := by
+    shiftLeftRec x y n = x <<< (y.truncate (n + 1)).zeroExtend w₂ := by
   induction n generalizing x y
   case zero =>
     ext i

@@ -115,28 +115,28 @@ def inst1 [FunLike F M M₃] [LinearMapClass F R M M₃] : ZeroHomClass F M M₃
   { map_zero := fun f ↦
       show f 0 = 0 by
         rw [← zero_smul R (0 : M), @map_smulₛₗ]
-        sorry
+        simp only [id_eq, zero_smul]
   }
 
 def inst2 [FunLike F M M₃] [LinearMapClass F R M M₃] : ZeroHomClass F M M₃ :=
   { map_zero := fun f ↦
       show f 0 = 0 by
         rw [← zero_smul R (0 : M), map_smulₛₗ (N := R)]
-        sorry -- simp only [map_zero, smul_zero]
+        simp only [id_eq, zero_smul]
   }
 
 def inst3 [FunLike F M M₃] [LinearMapClass F R M M₃] : ZeroHomClass F M M₃ :=
   { map_zero := fun f ↦
       show f 0 = 0 by
         rw [← zero_smul R (0 : M), map_smulₛₗ ]
-        sorry -- simp only [map_zero, smul_zero]
+        simp only [id_eq, zero_smul]
   }
 
 def inst4 [FunLike F M M₃] [LinearMapClass F R M M₃] : ZeroHomClass F M M₃ :=
   { map_zero := fun f ↦
       show f 0 = 0 by
         rw [← zero_smul R (0 : M), map_smulₛₗ ..]
-        sorry -- simp only [map_zero, smul_zero]
+        simp only [id_eq, zero_smul]
   }
 
 end Mathlib.Algebra.Module.LinearMap.Defs

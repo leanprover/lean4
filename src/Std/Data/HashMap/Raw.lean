@@ -55,6 +55,10 @@ instance : EmptyCollection (Raw α β) where
   let ⟨replaced, r⟩ := m.inner.containsThenInsert a b
   ⟨replaced, ⟨r⟩⟩
 
+@[inline, inherit_doc DHashMap.Raw.containsThenInsertIfNew] def containsThenInsertIfNew [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β) : Bool × Raw α β :=
+  let ⟨replaced, r⟩ := m.inner.containsThenInsertIfNew a b
+  ⟨replaced, ⟨r⟩⟩
+
 /-- Equivalent to (but potentially faster than) calling `get?` followed by `insertIfNew`. -/
 @[inline] def getThenInsertIfNew? [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β) : Option β × Raw α β :=
   let ⟨previous, r⟩ := DHashMap.Raw.Const.getThenInsertIfNew? m.inner a b
@@ -196,6 +200,9 @@ theorem WF.insertIfNew [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β} 
 
 theorem WF.containsThenInsert [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β} (h : m.WF) : (m.containsThenInsert a b).2.WF :=
   ⟨DHashMap.Raw.WF.containsThenInsert h.out⟩
+
+theorem WF.containsThenInsertIfNew [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β} (h : m.WF) : (m.containsThenInsertIfNew a b).2.WF :=
+  ⟨DHashMap.Raw.WF.containsThenInsertIfNew h.out⟩
 
 theorem WF.getThenInsertIfNew? [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β} (h : m.WF) : (m.getThenInsertIfNew? a b).2.WF :=
   ⟨DHashMap.Raw.WF.Const.getThenInsertIfNew? h.out⟩

@@ -213,6 +213,17 @@ where
     let buckets' := buckets.uset i (AssocList.cons a b bkt) h
     (false, expandIfNecessary ⟨⟨size', buckets'⟩, by simpa [buckets']⟩)
 
+@[inline] def containsThenInsertIfNew [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) : Bool × Raw₀ α β :=
+  let ⟨⟨size, buckets⟩, hm⟩ := m
+  let ⟨i, h⟩ := mkIdx buckets.size hm (hash a)
+  let bkt := buckets[i]
+  if bkt.contains a then
+    (true, ⟨⟨size, buckets⟩, hm⟩)
+  else
+    let size'    := size + 1
+    let buckets' := buckets.uset i (AssocList.cons a b bkt) h
+    (false, expandIfNecessary ⟨⟨size', buckets'⟩, by simpa [buckets']⟩)
+
 @[inline] def insertIfNew [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) : Raw₀ α β :=
   let ⟨⟨size, buckets⟩, hm⟩ := m
   let ⟨i, h⟩ := mkIdx buckets.size hm (hash a)

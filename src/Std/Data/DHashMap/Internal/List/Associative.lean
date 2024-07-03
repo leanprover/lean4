@@ -967,11 +967,19 @@ theorem containsKey_insertEntryIfNew [BEq α] [PartialEquivBEq α] {l : List (Σ
   · simp
   · rw [Bool.true_and, Bool.true_or, getEntry?_congr h, Bool.not_or_self]
 
+theorem containsKey_insertEntryIfNew_self [BEq α] [EquivBEq α] {l : List (Σ a, β a)} {k : α}
+    {v : β k} : containsKey k (insertEntryIfNew k v l) := by
+  rw [containsKey_insertEntryIfNew, BEq.refl, Bool.true_or]
+
+theorem containsKey_of_containsKey_insertEntryIfNew [BEq α] [PartialEquivBEq α] {l : List (Σ a, β a)} {k a : α}
+    {v : β k} (h₁ : containsKey a (insertEntryIfNew k v l)) (h₂ : (a == k) = false) : containsKey a l := by
+  rwa [containsKey_insertEntryIfNew, h₂, Bool.false_or] at h₁
+
 /--
 This is a restatement of `containsKey_insertEntryIfNew` that is written to exactly match the proof obligation in the
 statement of `getValueCast_insertEntryIfNew`.
 -/
-theorem containsKey_of_containsKey_insertEntryIfNew [BEq α] [PartialEquivBEq α] {l : List (Σ a, β a)} {k a : α}
+theorem containsKey_of_containsKey_insertEntryIfNew' [BEq α] [PartialEquivBEq α] {l : List (Σ a, β a)} {k a : α}
     {v : β k} (h₁ : containsKey a (insertEntryIfNew k v l)) (h₂ : ¬((a == k) ∧ containsKey k l = false)) : containsKey a l := by
   rw [Decidable.not_and_iff_or_not, Bool.not_eq_true, Bool.not_eq_false] at h₂
   rcases h₂ with h₂|h₂
@@ -983,13 +991,13 @@ theorem getValueCast_insertEntryIfNew [BEq α] [LawfulBEq α] {l : List (Σ a, �
     if h' : a == k ∧ containsKey k l = false then
       cast (congrArg β (eq_of_beq h'.1).symm) v
     else
-      getValueCast a l (containsKey_of_containsKey_insertEntryIfNew h h') := by
+      getValueCast a l (containsKey_of_containsKey_insertEntryIfNew' h h') := by
   rw [← Option.some_inj, ← getValueCast?_eq_some_getValueCast, apply_dite Option.some, getValueCast?_insertEntryIfNew]
   simp only [← getValueCast?_eq_some_getValueCast]
 
 theorem getValue_insertEntryIfNew {β : Type v} [BEq α] [PartialEquivBEq α] {l : List ((_ : α) × β)} {k a : α} {v : β} {h} :
     getValue a (insertEntryIfNew k v l) h =
-    if h' : a == k ∧ containsKey k l = false then v else getValue a l (containsKey_of_containsKey_insertEntryIfNew h
+    if h' : a == k ∧ containsKey k l = false then v else getValue a l (containsKey_of_containsKey_insertEntryIfNew' h
         (by simpa only [Decidable.not_and_iff_or_not_not, Bool.not_eq_false, Bool.not_eq_true] using h')) := by
   rw [← Option.some_inj, ← getValue?_eq_some_getValue, apply_dite Option.some, getValue?_insertEntryIfNew, cond_eq_if, ← dite_eq_ite]
   simp [← getValue?_eq_some_getValue]

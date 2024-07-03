@@ -49,11 +49,11 @@ instance [BEq α] [Hashable α] : EmptyCollection (HashSet α) where
 
 /-- Insert the given element into the set. -/
 @[inline] def insert [BEq α] [Hashable α] (m : HashSet α) (a : α) : HashSet α :=
-  ⟨m.inner.insert a ()⟩
+  ⟨m.inner.insertIfNew a ()⟩
 
 /-- Equivalent to (but potentially faster than) calling `contains` followed by `insert`. -/
 @[inline] def containsThenInsert [BEq α] [Hashable α] (m : HashSet α) (a : α) : Bool × HashSet α :=
-  let ⟨replaced, r⟩ := m.inner.containsThenInsert a ()
+  let ⟨replaced, r⟩ := m.inner.containsThenInsertIfNew a ()
   ⟨replaced, ⟨r⟩⟩
 
 /-- Returns `true` if the given key is present in the map. There is also a `Prop`-valued version

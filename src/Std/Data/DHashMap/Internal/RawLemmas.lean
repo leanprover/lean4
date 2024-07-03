@@ -150,6 +150,14 @@ theorem containsThenInsert_snd {k : α} {v : β k} : (m.containsThenInsert k v).
   rw [containsThenInsert_eq_insertₘ, insert_eq_insertₘ]
 
 @[simp]
+theorem containsThenInsertIfNew_fst {k : α} {v : β k} : (m.containsThenInsertIfNew k v).1 = m.contains k := by
+  rw [containsThenInsertIfNew_eq_containsₘ, contains_eq_containsₘ]
+
+@[simp]
+theorem containsThenInsertIfNew_snd {k : α} {v : β k} : (m.containsThenInsertIfNew k v).2 = m.insertIfNew k v := by
+  rw [containsThenInsertIfNew_eq_insertIfNewₘ, insertIfNew_eq_insertIfNewₘ]
+
+@[simp]
 theorem get?_empty [LawfulBEq α] {a : α} {c} : (empty c : Raw₀ α β).get? a = none := by
   simp [get?]
 
@@ -458,11 +466,19 @@ theorem contains_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : �
     (m.insertIfNew k v).contains a = (a == k || m.contains a) := by
   simp_to_model using List.containsKey_insertEntryIfNew
 
+theorem contains_insertIfNew_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
+    (m.insertIfNew k v).contains k := by
+  simp_to_model using List.containsKey_insertEntryIfNew_self
+
+theorem contains_of_contains_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :
+    (m.insertIfNew k v).contains a → (a == k) = false → m.contains a := by
+  simp_to_model using List.containsKey_of_containsKey_insertEntryIfNew
+
 /-- This is a restatement of `contains_insertIfNew` that is written to exactly match the proof obligation in the statement of
     `get_insertIfNew`. -/
-theorem contains_of_contains_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :
+theorem contains_of_contains_insertIfNew' [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :
     (m.insertIfNew k v).contains a → ¬((a == k) ∧ m.contains k = false) → m.contains a := by
-  simp_to_model using List.containsKey_of_containsKey_insertEntryIfNew
+  simp_to_model using List.containsKey_of_containsKey_insertEntryIfNew'
 
 theorem size_insertIfNew [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
     (m.insertIfNew k v).1.size = bif m.contains k then m.1.size else m.1.size + 1 := by
@@ -478,7 +494,7 @@ theorem get?_insertIfNew [LawfulBEq α] {k a : α} {v : β k} :
 
 theorem get_insertIfNew [LawfulBEq α] {k a : α} {v : β k} {h₁} :
     (m.insertIfNew k v).get a h₁ = if h₂ : a == k ∧ m.contains k = false then cast (congrArg β (eq_of_beq h₂.1).symm) v else m.get a
-      (contains_of_contains_insertIfNew _ h h₁ h₂) := by
+      (contains_of_contains_insertIfNew' _ h h₁ h₂) := by
   simp_to_model using List.getValueCast_insertEntryIfNew
 
 theorem get!_insertIfNew [LawfulBEq α] {k a : α} [Inhabited (β a)] {v : β k} :
@@ -498,7 +514,7 @@ theorem get?_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
   simp_to_model using List.getValue?_insertEntryIfNew
 
 theorem get_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} {h₁} :
-    get (m.insertIfNew k v) a h₁ = if h₂ : a == k ∧ m.contains k = false then v else get m a (contains_of_contains_insertIfNew _ h h₁ h₂) := by
+    get (m.insertIfNew k v) a h₁ = if h₂ : a == k ∧ m.contains k = false then v else get m a (contains_of_contains_insertIfNew' _ h h₁ h₂) := by
   simp_to_model using List.getValue_insertEntryIfNew
 
 theorem get!_insertIfNew [EquivBEq α] [LawfulHashable α] [Inhabited β] {k a : α} {v : β} :

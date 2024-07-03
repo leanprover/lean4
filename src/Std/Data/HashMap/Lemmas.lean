@@ -150,6 +150,14 @@ theorem containsThenInsert_snd {k : α} {v : β} : (m.containsThenInsert k v).2 
   ext (DHashMap.containsThenInsert_snd)
 
 @[simp]
+theorem containsThenInsertIfNew_fst {k : α} {v : β} : (m.containsThenInsertIfNew k v).1 = m.contains k :=
+  DHashMap.containsThenInsertIfNew_fst
+
+@[simp]
+theorem containsThenInsertIfNew_snd {k : α} {v : β} : (m.containsThenInsertIfNew k v).2 = m.insertIfNew k v :=
+  ext DHashMap.containsThenInsertIfNew_snd
+
+@[simp]
 theorem getElem?_empty {a : α} {c} : (empty c : HashMap α β)[a]? = none :=
   DHashMap.Const.get?_empty
 
@@ -343,17 +351,33 @@ theorem mem_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
     a ∈ m.insertIfNew k v ↔ a == k ∨ a ∈ m :=
   DHashMap.mem_insertIfNew
 
+theorem contains_insertIfNew_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
+    (m.insertIfNew k v).contains k :=
+  DHashMap.contains_insertIfNew_self
+
+theorem mem_insertIfNew_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
+    k ∈ m.insertIfNew k v :=
+  DHashMap.mem_insertIfNew_self
+
+theorem contains_of_contains_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
+    (m.insertIfNew k v).contains a → (a == k) = false → m.contains a :=
+  DHashMap.contains_of_contains_insertIfNew
+
+theorem mem_of_mem_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
+    a ∈ m.insertIfNew k v → (a == k) = false → a ∈ m :=
+  DHashMap.mem_of_mem_insertIfNew
+
 /-- This is a restatement of `contains_insertIfNew` that is written to exactly match the proof obligation in the statement of
     `getElem_insertIfNew`. -/
-theorem contains_of_contains_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
+theorem contains_of_contains_insertIfNew' [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
     (m.insertIfNew k v).contains a → ¬((a == k) ∧ m.contains k = false) → m.contains a :=
-  DHashMap.contains_of_contains_insertIfNew
+  DHashMap.contains_of_contains_insertIfNew'
 
 /-- This is a restatement of `mem_insertIfNew` that is written to exactly match the proof obligation in the statement of
     `getElem_insertIfNew`. -/
-theorem mem_of_mem_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
+theorem mem_of_mem_insertIfNew' [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
     a ∈ m.insertIfNew k v → ¬((a == k) ∧ ¬k ∈ m) → a ∈ m :=
-  DHashMap.mem_of_mem_insertIfNew
+  DHashMap.mem_of_mem_insertIfNew'
 
 theorem size_insertIfNew [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
     (m.insertIfNew k v).size = bif m.contains k then m.size else m.size + 1 :=
@@ -368,7 +392,7 @@ theorem getElem?_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : �
   DHashMap.Const.get?_insertIfNew
 
 theorem getElem_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} {h₁} :
-    (m.insertIfNew k v)[a]'h₁ = if h₂ : a == k ∧ ¬k ∈ m then v else m[a]'(mem_of_mem_insertIfNew h₁ h₂) :=
+    (m.insertIfNew k v)[a]'h₁ = if h₂ : a == k ∧ ¬k ∈ m then v else m[a]'(mem_of_mem_insertIfNew' h₁ h₂) :=
   DHashMap.Const.get_insertIfNew (h₁ := h₁)
 
 theorem getElem!_insertIfNew [EquivBEq α] [LawfulHashable α] [Inhabited β] {k a : α} {v : β} :

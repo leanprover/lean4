@@ -52,6 +52,22 @@ theorem containsThenInsert_fst_val [BEq α] [Hashable α] {m : Raw₀ α β} {a 
     (m.val.containsThenInsert a b).1 = (m.containsThenInsert a b).1 := by
   simp [Raw.containsThenInsert, m.2]
 
+theorem containsThenInsertIfNew_snd_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {a : α} {b : β a} :
+    (m.containsThenInsertIfNew a b).2 = (Raw₀.containsThenInsertIfNew ⟨m, h.size_buckets_pos⟩ a b).2.1 := by
+  simp [Raw.containsThenInsertIfNew, h.size_buckets_pos]
+
+theorem containsThenInsertIfNew_snd_val [BEq α] [Hashable α] {m : Raw₀ α β} {a : α} {b : β a} :
+    (m.val.containsThenInsertIfNew a b).2 = (m.containsThenInsertIfNew a b).2.1 := by
+  simp [Raw.containsThenInsertIfNew, m.2]
+
+theorem containsThenInsertIfNew_fst_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {a : α} {b : β a} :
+    (m.containsThenInsertIfNew a b).1 = (Raw₀.containsThenInsertIfNew ⟨m, h.size_buckets_pos⟩ a b).1 := by
+  simp [Raw.containsThenInsertIfNew, h.size_buckets_pos]
+
+theorem containsThenInsertIfNew_fst_val [BEq α] [Hashable α] {m : Raw₀ α β} {a : α} {b : β a} :
+    (m.val.containsThenInsertIfNew a b).1 = (m.containsThenInsertIfNew a b).1 := by
+  simp [Raw.containsThenInsertIfNew, m.2]
+
 theorem getThenInsertIfNew?_snd_eq [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} (h : m.WF) {a : α} {b : β a} :
     (m.getThenInsertIfNew? a b).2 = (Raw₀.getThenInsertIfNew? ⟨m, h.size_buckets_pos⟩ a b).2.1 := by
   simp [Raw.getThenInsertIfNew?, h.size_buckets_pos]

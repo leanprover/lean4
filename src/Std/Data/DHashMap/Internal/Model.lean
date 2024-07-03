@@ -332,6 +332,20 @@ theorem containsThenInsert_eq_containsₘ [BEq α] [Hashable α] (m : Raw₀ α 
   dsimp only [Array.ugetElem_eq_getElem, Array.uset]
   split <;> simp_all
 
+theorem containsThenInsertIfNew_eq_insertIfNewₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) :
+    (m.containsThenInsertIfNew a b).2 = m.insertIfNewₘ a b := by
+  rw [containsThenInsertIfNew, insertIfNewₘ, containsₘ, bucket]
+  dsimp only [Array.ugetElem_eq_getElem, Array.uset]
+  split
+  · simp only [replaceₘ, Subtype.mk.injEq, Raw.mk.injEq, true_and]
+  · rfl
+
+theorem containsThenInsertIfNew_eq_containsₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) :
+    (m.containsThenInsertIfNew a b).1 = m.containsₘ a := by
+  rw [containsThenInsertIfNew, containsₘ, bucket]
+  dsimp only [Array.ugetElem_eq_getElem, Array.uset]
+  split <;> simp_all
+
 theorem insertIfNew_eq_insertIfNewₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) :
     m.insertIfNew a b = m.insertIfNewₘ a b := rfl
 

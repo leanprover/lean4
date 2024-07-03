@@ -55,6 +55,10 @@ instance [BEq α] [Hashable α] : EmptyCollection (DHashMap α β) where
   let m' := Raw₀.containsThenInsert ⟨m.1, m.2.size_buckets_pos⟩ a b
   ⟨m'.1, ⟨m'.2.1, .containsThenInsert₀ m.2⟩⟩
 
+@[inline, inherit_doc Raw.containsThenInsert] def containsThenInsertIfNew [BEq α] [Hashable α] (m : DHashMap α β) (a : α) (b : β a) : Bool × DHashMap α β :=
+  let m' := Raw₀.containsThenInsertIfNew ⟨m.1, m.2.size_buckets_pos⟩ a b
+  ⟨m'.1, ⟨m'.2.1, .containsThenInsertIfNew₀ m.2⟩⟩
+
 @[inline, inherit_doc Raw.getThenInsertIfNew?] def getThenInsertIfNew? [BEq α] [Hashable α] [LawfulBEq α] (m : DHashMap α β) (a : α) (b : β a) : Option (β a) × DHashMap α β :=
   let m' := Raw₀.getThenInsertIfNew? ⟨m.1, m.2.size_buckets_pos⟩ a b
   ⟨m'.1, ⟨m'.2.1, .getThenInsertIfNew?₀ m.2⟩⟩

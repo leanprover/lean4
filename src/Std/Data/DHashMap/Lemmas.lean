@@ -136,12 +136,20 @@ theorem size_remove_le [EquivBEq α] [LawfulHashable α] {k : α} : (m.remove k)
   Raw₀.size_remove_le _ m.2
 
 @[simp]
+theorem containsThenInsert_fst {k : α} {v : β k} : (m.containsThenInsert k v).1 = m.contains k :=
+  Raw₀.containsThenInsert_fst _
+
+@[simp]
 theorem containsThenInsert_snd {k : α} {v : β k} : (m.containsThenInsert k v).2 = m.insert k v :=
   Subtype.eq <| (congrArg Subtype.val (Raw₀.containsThenInsert_snd _ (k := k)) :)
 
 @[simp]
-theorem containsThenInsert_fst {k : α} {v : β k} : (m.containsThenInsert k v).1 = m.contains k :=
-  Raw₀.containsThenInsert_fst _
+theorem containsThenInsertIfNew_fst {k : α} {v : β k} : (m.containsThenInsertIfNew k v).1 = m.contains k :=
+  Raw₀.containsThenInsertIfNew_fst _
+
+@[simp]
+theorem containsThenInsertIfNew_snd {k : α} {v : β k} : (m.containsThenInsertIfNew k v).2 = m.insertIfNew k v :=
+  Subtype.eq <| (congrArg Subtype.val (Raw₀.containsThenInsertIfNew_snd _ (k := k)) :)
 
 @[simp]
 theorem get?_empty [LawfulBEq α] {a : α} {c} : (empty c : DHashMap α β).get? a = none :=
@@ -539,17 +547,33 @@ theorem mem_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} 
     a ∈ m.insertIfNew k v ↔ a == k ∨ a ∈ m := by
   simp [mem_iff_contains, contains_insertIfNew]
 
+theorem contains_insertIfNew_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
+    (m.insertIfNew k v).contains k :=
+  Raw₀.contains_insertIfNew_self ⟨m.1, _⟩ m.2
+
+theorem mem_insertIfNew_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
+    k ∈ m.insertIfNew k v := by
+  simpa [mem_iff_contains, -contains_insertIfNew] using contains_insertIfNew_self
+
+theorem contains_of_contains_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :
+    (m.insertIfNew k v).contains a → (a == k) = false → m.contains a :=
+  Raw₀.contains_of_contains_insertIfNew ⟨m.1, _⟩ m.2
+
+theorem mem_of_mem_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :
+    a ∈ m.insertIfNew k v → (a == k) = false → a ∈ m := by
+  simpa [mem_iff_contains, -contains_insertIfNew] using contains_of_contains_insertIfNew
+
 /-- This is a restatement of `contains_insertIfNew` that is written to exactly match the proof obligation in the statement of
     `get_insertIfNew`. -/
-theorem contains_of_contains_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :
+theorem contains_of_contains_insertIfNew' [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :
     (m.insertIfNew k v).contains a → ¬((a == k) ∧ m.contains k = false) → m.contains a :=
-  Raw₀.contains_of_contains_insertIfNew ⟨m.1, _⟩ m.2
+  Raw₀.contains_of_contains_insertIfNew' ⟨m.1, _⟩ m.2
 
 /-- This is a restatement of `mem_insertIfNew` that is written to exactly match the proof obligation in the statement of
     `get_insertIfNew`. -/
-theorem mem_of_mem_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :
+theorem mem_of_mem_insertIfNew' [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :
     a ∈ m.insertIfNew k v → ¬((a == k) ∧ ¬k ∈ m) → a ∈ m := by
-  simpa [mem_iff_contains, -contains_insertIfNew] using contains_of_contains_insertIfNew
+  simpa [mem_iff_contains, -contains_insertIfNew] using contains_of_contains_insertIfNew'
 
 theorem size_insertIfNew [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
     (m.insertIfNew k v).size = bif m.contains k then m.size else m.size + 1 :=
@@ -566,7 +590,7 @@ theorem get?_insertIfNew [LawfulBEq α] {k a : α} {v : β k} :
 
 theorem get_insertIfNew [LawfulBEq α] {k a : α} {v : β k} {h₁} :
     (m.insertIfNew k v).get a h₁ = if h₂ : a == k ∧ ¬k ∈ m then cast (congrArg β (eq_of_beq h₂.1).symm) v else m.get a
-      (mem_of_mem_insertIfNew h₁ h₂) := by
+      (mem_of_mem_insertIfNew' h₁ h₂) := by
   simp only [mem_iff_contains, Bool.not_eq_true]
   exact Raw₀.get_insertIfNew ⟨m.1, _⟩ m.2
 
@@ -589,7 +613,7 @@ theorem get?_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
   Raw₀.Const.get?_insertIfNew ⟨m.1, _⟩ m.2
 
 theorem get_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} {h₁} :
-    get (m.insertIfNew k v) a h₁ = if h₂ : a == k ∧ ¬k ∈ m then v else get m a (mem_of_mem_insertIfNew h₁ h₂) := by
+    get (m.insertIfNew k v) a h₁ = if h₂ : a == k ∧ ¬k ∈ m then v else get m a (mem_of_mem_insertIfNew' h₁ h₂) := by
   simp only [mem_iff_contains, Bool.not_eq_true]
   exact Raw₀.Const.get_insertIfNew ⟨m.1, _⟩ m.2
 

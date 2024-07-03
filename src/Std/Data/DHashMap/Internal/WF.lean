@@ -355,6 +355,18 @@ theorem wfImp_insertIfNew [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable �
   rw [insertIfNew_eq_insertIfNewₘ]
   exact wfImp_insertIfNewₘ h
 
+/-! # `containsThenInsertIfNew` -/
+
+theorem toListModel_containsThenInsertIfNew [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
+    (h : Raw.WFImp m.1) {a : α} {b : β a} : Perm (toListModel (m.containsThenInsertIfNew a b).2.1.2) (insertEntryIfNew a b (toListModel m.1.2)) := by
+  rw [containsThenInsertIfNew_eq_insertIfNewₘ]
+  exact toListModel_insertIfNewₘ h
+
+theorem wfImp_containsThenInsertIfNew [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
+    (h : Raw.WFImp m.1) {a : α} {b : β a} : Raw.WFImp (m.containsThenInsertIfNew a b).2.1 := by
+  rw [containsThenInsertIfNew_eq_insertIfNewₘ]
+  exact wfImp_insertIfNewₘ h
+
 /-! # `getThenInsertIfNew?` -/
 
 theorem toListModel_getThenInsertIfNew? [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} {a : α} {b : β a} (h : Raw.WFImp m.1) :
@@ -538,6 +550,7 @@ theorem WF.out [BEq α] [Hashable α] [i₁ : EquivBEq α] [i₂ : LawfulHashabl
   · exact Raw₀.wfImp_empty
   · next h => exact Raw₀.wfImp_insert (by apply h)
   · next h => exact Raw₀.wfImp_containsThenInsert (by apply h)
+  · next h => exact Raw₀.wfImp_containsThenInsertIfNew (by apply h)
   · next h => exact Raw₀.wfImp_remove (by apply h)
   · next h => exact Raw₀.wfImp_insertIfNew (by apply h)
   · next h => exact Raw₀.wfImp_getThenInsertIfNew? (by apply h)

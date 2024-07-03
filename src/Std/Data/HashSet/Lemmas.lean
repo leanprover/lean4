@@ -41,7 +41,7 @@ theorem isEmpty_emptyc : (∅ : HashSet α).isEmpty :=
 
 @[simp]
 theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] {a : α} : (m.insert a).isEmpty = false :=
-  HashMap.isEmpty_insert
+  HashMap.isEmpty_insertIfNew
 
 theorem mem_iff_contains {a : α} : a ∈ m ↔ m.contains a :=
   HashMap.mem_iff_contains
@@ -66,27 +66,27 @@ theorem mem_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) : 
 
 @[simp]
 theorem contains_insert [EquivBEq α] [LawfulHashable α] {k a : α} : (m.insert k).contains a = (a == k || m.contains a) :=
-  HashMap.contains_insert
+  HashMap.contains_insertIfNew
 
 @[simp]
 theorem mem_insert [EquivBEq α] [LawfulHashable α] {k a : α} : a ∈ m.insert k ↔ a == k ∨ a ∈ m :=
-  HashMap.mem_insert
+  HashMap.mem_insertIfNew
 
 theorem contains_of_contains_insert [EquivBEq α] [LawfulHashable α] {k a : α} :
     (m.insert k).contains a → (a == k) = false → m.contains a :=
-  HashMap.contains_of_contains_insert
+  HashMap.contains_of_contains_insertIfNew
 
 theorem mem_of_mem_insert [EquivBEq α] [LawfulHashable α] {k a : α} :
     a ∈ m.insert k → (a == k) = false → a ∈ m :=
-  HashMap.mem_of_mem_insert
+  HashMap.mem_of_mem_insertIfNew
 
 @[simp]
 theorem contains_insert_self [EquivBEq α] [LawfulHashable α] {k : α}  : (m.insert k).contains k :=
-  HashMap.contains_insert_self
+  HashMap.contains_insertIfNew_self
 
 @[simp]
 theorem mem_insert_self [EquivBEq α] [LawfulHashable α] {k : α} : k ∈ m.insert k :=
-  HashMap.mem_insert_self
+  HashMap.mem_insertIfNew_self
 
 @[simp]
 theorem size_empty {c} : (empty c : HashSet α).size = 0 :=
@@ -100,10 +100,10 @@ theorem isEmpty_eq_size_eq_zero : m.isEmpty = (m.size == 0) :=
   HashMap.isEmpty_eq_size_eq_zero
 
 theorem size_insert [EquivBEq α] [LawfulHashable α] {k : α} : (m.insert k).size = bif m.contains k then m.size else m.size + 1 :=
-  HashMap.size_insert
+  HashMap.size_insertIfNew
 
 theorem size_le_size_insert [EquivBEq α] [LawfulHashable α] {k : α} : m.size ≤ (m.insert k).size :=
-  HashMap.size_le_size_insert
+  HashMap.size_le_size_insertIfNew
 
 @[simp]
 theorem remove_empty {a : α} {c : Nat} : (empty c : HashSet α).remove a = empty c :=
@@ -139,11 +139,11 @@ theorem size_remove_le [EquivBEq α] [LawfulHashable α] {k : α} : (m.remove k)
 
 @[simp]
 theorem containsThenInsert_fst {k : α} : (m.containsThenInsert k).1 = m.contains k :=
-  HashMap.containsThenInsert_fst
+  HashMap.containsThenInsertIfNew_fst
 
 @[simp]
 theorem containsThenInsert_snd {k : α} : (m.containsThenInsert k).2 = m.insert k :=
-  ext HashMap.containsThenInsert_snd
+  ext HashMap.containsThenInsertIfNew_snd
 
 end
 

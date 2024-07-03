@@ -80,6 +80,13 @@ return the map unaltered. -/
     ⟨previous, r⟩
   else (none, m) -- will never happen for well-formed inputs
 
+/-- Equivalent to (but potentially faster than) calling `contains` followed by `insertIfNew`. -/
+@[inline] def containsThenInsertIfNew [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β a) : Bool × Raw α β :=
+  if h : 0 < m.buckets.size then
+    let ⟨previous, ⟨r, _⟩⟩ := Raw₀.containsThenInsertIfNew ⟨m, h⟩ a b
+    ⟨previous, r⟩
+  else (false, m) -- will never happen for well-formed inputs
+
 /-- Tries to retrieve the mapping for the given key, returning `none` if no such mapping is present.
 
 Uses the `LawfulBEq` instance to cast the retrieved value to the correct type. -/
@@ -317,6 +324,8 @@ inductive WF : {α : Type u} → {β : α → Type v} → [BEq α] → [Hashable
   /-- Internal implementation detail of the hash map -/
   | containsThenInsert₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a b} : WF m → WF (Raw₀.containsThenInsert ⟨m, h⟩ a b).2.1
   /-- Internal implementation detail of the hash map -/
+  | containsThenInsertIfNew₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a b} : WF m → WF (Raw₀.containsThenInsertIfNew ⟨m, h⟩ a b).2.1
+  /-- Internal implementation detail of the hash map -/
   | remove₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a} : WF m → WF (Raw₀.remove ⟨m, h⟩ a).1
   /-- Internal implementation detail of the hash map -/
   | insertIfNew₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a b} : WF m → WF (Raw₀.insertIfNew ⟨m, h⟩ a b).1
@@ -332,6 +341,7 @@ theorem WF.size_buckets_pos [BEq α] [Hashable α] (m : Raw α β) : WF m → 0 
   | empty₀ => (Raw₀.empty _).2
   | insert₀ _ => (Raw₀.insert ⟨_, _⟩ _ _).2
   | containsThenInsert₀ _ => (Raw₀.containsThenInsert ⟨_, _⟩ _ _).2.2
+  | containsThenInsertIfNew₀ _ => (Raw₀.containsThenInsertIfNew ⟨_, _⟩ _ _).2.2
   | remove₀ _ => (Raw₀.remove ⟨_, _⟩ _).2
   | insertIfNew₀ _ => (Raw₀.insertIfNew ⟨_, _⟩ _ _).2
   | getThenInsertIfNew?₀ _ => (Raw₀.getThenInsertIfNew? ⟨_, _⟩ _ _).2.2
@@ -349,6 +359,9 @@ theorem WF.insert [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β a} (h 
 
 theorem WF.containsThenInsert [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β a} (h : m.WF) : (m.containsThenInsert a b).2.WF := by
   simpa [Raw.containsThenInsert, h.size_buckets_pos] using .containsThenInsert₀ h
+
+theorem WF.containsThenInsertIfNew [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β a} (h : m.WF) : (m.containsThenInsertIfNew a b).2.WF := by
+  simpa [Raw.containsThenInsertIfNew, h.size_buckets_pos] using .containsThenInsertIfNew₀ h
 
 theorem WF.remove [BEq α] [Hashable α] {m : Raw α β} {a : α} (h : m.WF) : (m.remove a).WF := by
   simpa [Raw.remove, h.size_buckets_pos] using .remove₀ h

@@ -53,6 +53,10 @@ instance [BEq α] [Hashable α] : EmptyCollection (HashMap α β) where
   let ⟨replaced, r⟩ := m.inner.containsThenInsert a b
   ⟨replaced, ⟨r⟩⟩
 
+@[inline, inherit_doc DHashMap.containsThenInsertIfNew] def containsThenInsertIfNew [BEq α] [Hashable α] (m : HashMap α β) (a : α) (b : β) : Bool × HashMap α β :=
+  let ⟨replaced, r⟩ := m.inner.containsThenInsertIfNew a b
+  ⟨replaced, ⟨r⟩⟩
+
 /-- Equivalent to (but potentially faster than) calling `get?` followed by `insertIfNew`. -/
 @[inline] def getThenInsertIfNew? [BEq α] [Hashable α] (m : HashMap α β) (a : α) (b : β) : Option β × HashMap α β :=
   let ⟨previous, r⟩ := DHashMap.Const.getThenInsertIfNew? m.inner a b

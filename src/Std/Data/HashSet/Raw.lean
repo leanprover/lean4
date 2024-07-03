@@ -51,11 +51,11 @@ instance : EmptyCollection (Raw α) where
 
 /-- Insert the given element into the set. -/
 @[inline] def insert [BEq α] [Hashable α] (m : Raw α) (a : α) : Raw α :=
-  ⟨m.inner.insert a ()⟩
+  ⟨m.inner.insertIfNew a ()⟩
 
 /-- Equivalent to (but potentially faster than) calling `contains` followed by `insert`. -/
 @[inline] def containsThenInsert [BEq α] [Hashable α] (m : Raw α) (a : α) : Bool × Raw α :=
-  let ⟨replaced, r⟩ := m.inner.containsThenInsert a ()
+  let ⟨replaced, r⟩ := m.inner.containsThenInsertIfNew a ()
   ⟨replaced, ⟨r⟩⟩
 
 /-- Returns `true` if the given key is present in the map. There is also a `Prop`-valued version
@@ -164,10 +164,10 @@ theorem WF.emptyc [BEq α] [Hashable α] : (∅ : Raw α).WF :=
   ⟨HashMap.Raw.WF.empty⟩
 
 theorem WF.insert [BEq α] [Hashable α] {m : Raw α} {a : α} (h : m.WF) : (m.insert a).WF :=
-  ⟨HashMap.Raw.WF.insert h.out⟩
+  ⟨HashMap.Raw.WF.insertIfNew h.out⟩
 
 theorem WF.containsThenInsert [BEq α] [Hashable α] {m : Raw α} {a : α} (h : m.WF) : (m.containsThenInsert a).2.WF :=
-  ⟨HashMap.Raw.WF.containsThenInsert h.out⟩
+  ⟨HashMap.Raw.WF.containsThenInsertIfNew h.out⟩
 
 theorem WF.remove [BEq α] [Hashable α] {m : Raw α} {a : α} (h : m.WF) : (m.remove a).WF :=
   ⟨HashMap.Raw.WF.remove h.out⟩

@@ -5,7 +5,7 @@ Authors: Markus Himmel
 -/
 prelude
 import Std.Data.DHashMap.RawLemmas
-import Std.Data.HashMap.Basic
+import Std.Data.HashMap.Raw
 
 /-!
 # Hash map lemmas

@@ -6,6 +6,7 @@ Authors: Markus Himmel
 prelude
 import Std.Data.DHashMap.AdditionalOperations
 import Std.Data.HashMap.Basic
+import Std.Data.HashMap.Raw
 
 /-!
 # Additional hash map operations

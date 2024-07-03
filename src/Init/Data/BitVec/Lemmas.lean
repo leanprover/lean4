@@ -442,7 +442,6 @@ theorem truncate_one_eq_ofBool_getLsb {x : BitVec w} :
   ext i
   simp [show i = 0 by omega]
 
-
 /-! ## extractLsb -/
 
 @[simp]
@@ -701,6 +700,20 @@ theorem shiftLeft_add {w : Nat} (x : BitVec w) (n m : Nat) :
 theorem shiftLeft_shiftLeft {w : Nat} (x : BitVec w) (n m : Nat) :
     (x <<< n) <<< m = x <<< (n + m) := by
   rw [shiftLeft_add]
+
+/-! ### shiftLeft reductions from BitVec to Nat -/
+
+theorem shiftLeft_eq' {x : BitVec w} {y : BitVec w₂} :
+  x <<< y = x <<< y.toNat := by rfl
+
+@[simp]
+theorem shiftLeft_zero' {x : BitVec w} :
+    x <<< (0#w₂) = x := by
+  simp [shiftLeft_eq']
+
+theorem shiftLeft_shiftLeft' {x y z : BitVec w} :
+    x <<< y <<< z = x <<< (y.toNat + z.toNat) := by
+  simp [shiftLeft_eq', shiftLeft_add]
 
 /-! ### ushiftRight -/
 

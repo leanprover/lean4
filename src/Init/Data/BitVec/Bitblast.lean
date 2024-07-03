@@ -349,16 +349,6 @@ theorem shiftLeftRec_succ {x : BitVec w₁} {y : BitVec w₂} :
       (shiftLeftRec x y n) <<< (y &&& twoPow w₂ (n + 1)) := by
   simp [shiftLeftRec]
 
--- TODO: should this be a simp-lemma? Probably not.
-theorem shiftLeft_eq' {x : BitVec w} {y : BitVec w₂} :
-  x <<< y = x <<< y.toNat := by rfl
-
--- | TODO: what to name these theorems?
-@[simp]
-theorem shiftLeft_zero' {x : BitVec w} :
-    x <<< (0#w₂) = x := by
-  simp [shiftLeft_eq']
-
 @[simp]
 theorem getLsb_ofNat_one {w i : Nat} :
     (1#w).getLsb i = (decide (i = 0) && decide (i < w)) := by
@@ -372,10 +362,6 @@ theorem getLsb_ofNat_one {w i : Nat} :
       suffices 1 / 2^i = 0 by simp [this]
       apply Nat.div_eq_of_lt;
       exact Nat.one_lt_two_pow_iff.mpr hi
-
-theorem shiftLeft_shiftLeft' {x y z : BitVec w} :
-    x <<< y <<< z = x <<< (y.toNat + z.toNat) := by
-  simp [shiftLeft_eq', shiftLeft_add]
 
 theorem shiftLeft_or_eq_shiftLeft_shiftLeft_of_and_eq_zero {x : BitVec w} {y z : BitVec w₂}
     (h : y &&& z = 0#w₂) (h' : y.toNat + z.toNat < 2^w₂):

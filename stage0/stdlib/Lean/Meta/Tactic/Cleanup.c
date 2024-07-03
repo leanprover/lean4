@@ -109,7 +109,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Meta_Tact
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 uint8_t l_Lean_Expr_hasFVar(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_cleanup(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_value_x3f(lean_object*);
@@ -4593,16 +4592,6 @@ x_9 = lean_unbox(x_3);
 lean_dec(x_3);
 x_10 = l_Lean_MVarId_cleanup(x_1, x_2, x_9, x_4, x_5, x_6, x_7, x_8);
 return x_10;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_cleanup(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; uint8_t x_8; lean_object* x_9; 
-x_7 = l___private_Lean_Meta_Tactic_Cleanup_0__Lean_Meta_cleanupCore_addUsedFVars___closed__2;
-x_8 = 1;
-x_9 = l___private_Lean_Meta_Tactic_Cleanup_0__Lean_Meta_cleanupCore(x_1, x_7, x_8, x_2, x_3, x_4, x_5, x_6);
-return x_9;
 }
 }
 lean_object* initialize_Lean_Meta_CollectFVars(uint8_t builtin, lean_object*);

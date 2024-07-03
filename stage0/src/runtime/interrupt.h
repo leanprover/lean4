@@ -43,9 +43,9 @@ public:
 LEAN_EXPORT void check_heartbeat();
 
 /* Update the thread local `IO.CancelToken` (`nullptr` if unset) */
-class scope_cancel_tk : flet<lean_object *> {
+class LEAN_EXPORT scope_cancel_tk : flet<lean_object *> {
 public:
-    scope_cancel_tk(lean_object *);
+    LEAN_EXPORT scope_cancel_tk(lean_object *);
 };
 
 /**

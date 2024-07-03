@@ -148,11 +148,9 @@ instance [Repr α] : Repr (Raw α) where
 
 end Unverified
 
-/--
-Well-formedness predicate for hash sets. Users of `HashSet` will not need to interact with this.
-Users of `HashSet.Raw` will need to provide proofs of `WF` to lemmas and should use the lemmas
-`WF.empty`, `WF.emptyc`, `WF.insert`, `WF.containsThenInsert`, `WF.remove`,  `WF.filter` to show
-that map operations preserve well-formedness. -/
+/-- Well-formedness predicate for hash sets. Users of `HashSet` will not need to interact with this.
+Users of `HashSet.Raw` will need to provide proofs of `WF` to lemmas and should use lemmas like
+`WF.empty` and `WF.insert` to show that map operations preserve well-formedness. -/
 structure WF [BEq α] [Hashable α] (m : Raw α) : Prop where
   /-- Internal implementation detail of the hash set -/
   out : m.inner.WF

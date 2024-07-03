@@ -176,12 +176,9 @@ instance [Repr α] [Repr β] : Repr (Raw α β) where
 
 end Unverified
 
-/--
-Well-formedness predicate for hash maps. Users of `HashMap` will not need to interact with this.
-Users of `HashMap.Raw` will need to provide proofs of `WF` to lemmas and should use the lemmas
-`WF.empty`, `WF.emptyc`, `WF.insert`, `WF.containsThenInsert`, `WF.remove`, `WF.insertIfNew`,
-`WF.getThenInsertIfNew?`, `WF.filter`, `WF.filterMap` and `WF.map` to show that map operations
-preserve well-formedness. -/
+/-- Well-formedness predicate for hash maps. Users of `HashMap` will not need to interact with this.
+Users of `HashMap.Raw` will need to provide proofs of `WF` to lemmas and should use lemmas
+`WF.empty` and `WF.insert` to show that map operations preserve well-formedness. -/
 structure WF [BEq α] [Hashable α] (m : Raw α β) : Prop where
   /-- Internal implementation detail of the hash map -/
   out : m.inner.WF

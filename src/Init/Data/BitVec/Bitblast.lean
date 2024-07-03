@@ -407,16 +407,15 @@ theorem getLsb_ofNat_one (w i : Nat) :
       apply Nat.div_eq_of_lt;
       exact Nat.one_lt_two_pow_iff.mpr hi
 
-theorem shiftLeft'_shiftLeft' {x y z : BitVec w} :
+theorem shiftLeft_shiftLeft' {x y z : BitVec w} :
     x <<< y <<< z = x <<< (y.toNat + z.toNat) := by
-  simp [shiftLeft_eq', shiftLeft_shiftLeft]
+  simp [shiftLeft_eq', shiftLeft_add]
 
 theorem shiftLeft_or_eq_shiftLeft_shiftLeft_of_and_eq_zero {x : BitVec w} {y z : BitVec w₂}
     (h : y &&& z = 0#w₂) (h' : y.toNat + z.toNat < 2^w₂):
     x <<< (y ||| z) = x <<< y <<< z := by
-  simp [← add_eq_or_of_and_eq_zero _ _ h, shiftLeft_eq', shiftLeft_shiftLeft,
+  simp [← add_eq_or_of_and_eq_zero _ _ h, shiftLeft_eq', shiftLeft_add,
     toNat_add, Nat.mod_eq_of_lt h']
-
 
 theorem getLsb_shiftLeft' (x : BitVec w) (y : BitVec w₂) (i : Nat) :
     (x <<< y).getLsb i = (decide (i < w) && !decide (i < y.toNat) && x.getLsb (i - y.toNat)) := by

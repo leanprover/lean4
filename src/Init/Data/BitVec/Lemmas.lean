@@ -1221,18 +1221,6 @@ theorem BitVec.mul_one {x : BitVec w} : x * 1#w = x := by
   apply eq_of_toNat_eq
   simp [toNat_mul, Nat.mod_eq_of_lt x.isLt]
 
-@[simp]
-theorem BitVec.mul_zero {x : BitVec w} : x * 0#w = 0#w := by
-  apply eq_of_toNat_eq
-  simp [toNat_mul]
-
-theorem BitVec.mul_add {x y z : BitVec w} :
-    x * (y + z) = x * y + x * z := by
-  apply eq_of_toNat_eq
-  simp
-  rw [Nat.mul_mod, Nat.mod_mod (y.toNat + z.toNat),
-    ← Nat.mul_mod, Nat.mul_add]
-
 /-! ### le and lt -/
 
 @[bv_toNat] theorem le_def (x y : BitVec n) :

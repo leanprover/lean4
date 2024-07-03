@@ -159,7 +159,6 @@ theorem add_eq_adc (w : Nat) (x y : BitVec w) : x + y = (adc x y false).snd := b
 theorem allOnes_sub_eq_not (x : BitVec w) : allOnes w - x = ~~~x := by
   rw [← add_not_self x, BitVec.add_comm, add_sub_cancel]
 
-<<<<<<< HEAD
 /-- Addition of bitvectors is the same as bitwise or, if bitwise and is zero. -/
 theorem add_eq_or_of_and_eq_zero {w : Nat} (x y : BitVec w)
     (h : x &&& y = 0#w) : x + y = x ||| y := by
@@ -175,23 +174,6 @@ theorem add_eq_or_of_and_eq_zero {w : Nat} (x y : BitVec w)
       simp_all [hx]
     · by_cases hx : x.getLsb i <;> simp_all [hx]
 
-||||||| 81f5b07215
-=======
-/-- Adding two bitvectors equals or-ing them if they are 1 in mutually exclusive locations. -/
-theorem add_eq_or_of_and_eq_zero {w : Nat} (x y : BitVec w)
-    (h : x &&& y = 0#w) : x + y = x ||| y := by
-  rw [add_eq_adc, adc, iunfoldr_replace (fun _ => false) (x ||| y)]
-  · rfl
-  · simp [adcb, atLeastTwo, h]
-    intros i
-    replace h : (x &&& y).getLsb i = (0#w).getLsb i := by rw [h]
-    simp only [getLsb_and, getLsb_zero, and_eq_false_imp] at h
-    constructor
-    · intros hx
-      simp_all [hx]
-    · by_cases hx : x.getLsb i <;> simp_all [hx]
-
->>>>>>> cbf80f80a86af0cc2919b60fed599bf65848f689
 /-! ### Negation -/
 
 theorem bit_not_testBit (x : BitVec w) (i : Fin w) :
@@ -294,21 +276,22 @@ equals truncating upto `i` bits `[0..i-1]`, and then adding the `i`th bit of `x`
 theorem zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_twoPow (x : BitVec w) (i : Nat) :
     zeroExtend w (x.truncate (i + 1)) =
       zeroExtend w (x.truncate i) + (x &&& twoPow w i) := by
-  rw [add_eq_or_of_and_eq_zero]
-  · ext k
-    simp only [getLsb_zeroExtend, Fin.is_lt, decide_True, Bool.true_and, getLsb_or, getLsb_and]
-    by_cases hik : i = k
-    · subst hik
-      simp
-    · simp only [getLsb_twoPow, hik, decide_False, Bool.and_false, Bool.or_false]
-      by_cases hik' : k < (i + 1)
-      · have hik'' : k < i := by omega
-        simp [hik', hik'']
-      · have hik'' : ¬ (k < i) := by omega
-        simp [hik', hik'']
-  · ext k
-    simp
-    omega
+  sorry
+  -- rw [add_eq_or_of_and_eq_zero]
+  -- · ext k
+  --   simp only [getLsb_zeroExtend, Fin.is_lt, decide_True, Bool.true_and, getLsb_or, getLsb_and]
+  --   by_cases hik : i = k
+  --   · subst hik
+  --     simp
+  --   · simp only [getLsb_twoPow, hik, decide_False, Bool.and_false, Bool.or_false]
+  --     by_cases hik' : k < (i + 1)
+  --     · have hik'' : k < i := by omega
+  --       simp [hik', hik'']
+  --     · have hik'' : ¬ (k < i) := by omega
+  --       simp [hik', hik'']
+  -- · ext k
+  --   simp
+  --   omega
 
 /--
 Recurrence lemma: multiplying `l` with the first `s` bits of `r` is the

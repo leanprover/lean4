@@ -135,16 +135,16 @@ section Unverified
 @[inline, inherit_doc Raw.forIn] def forIn [BEq α] [Hashable α] (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (b : DHashMap α β) : m δ :=
   b.1.forIn f init
 
-instance [BEq α] [Hashable α] : ForM m (DHashMap α β) (Σ a, β a) where
+instance [BEq α] [Hashable α] : ForM m (DHashMap α β) ((a : α) × β a) where
   forM m f := m.forM (fun a b => f ⟨a, b⟩)
 
-instance [BEq α] [Hashable α] : ForIn m (DHashMap α β) (Σ a, β a) where
+instance [BEq α] [Hashable α] : ForIn m (DHashMap α β) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
 
-@[inline, inherit_doc Raw.toList] def toList [BEq α] [Hashable α] (m : DHashMap α β) : List (Σ a, β a) :=
+@[inline, inherit_doc Raw.toList] def toList [BEq α] [Hashable α] (m : DHashMap α β) : List ((a : α) × β a) :=
   m.1.toList
 
-@[inline, inherit_doc Raw.toArray] def toArray [BEq α] [Hashable α] (m : DHashMap α β) : Array (Σ a, β a) :=
+@[inline, inherit_doc Raw.toArray] def toArray [BEq α] [Hashable α] (m : DHashMap α β) : Array ((a : α) × β a) :=
   m.1.toArray
 
 @[inline, inherit_doc Raw.Const.toList] def Const.toList {β : Type v} [BEq α] [Hashable α] (m : DHashMap α (fun _ => β)) : List (α × β) :=

@@ -231,18 +231,18 @@ only those mappings where the function returns `some` value. -/
 @[inline] def forIn (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (b : Raw α β) : m δ :=
   b.buckets.forIn init (fun bucket acc => bucket.forInStep acc f)
 
-instance : ForM m (Raw α β) (Σ a, β a) where
+instance : ForM m (Raw α β) ((a : α) × β a) where
   forM m f := m.forM (fun a b => f ⟨a, b⟩)
 
-instance : ForIn m (Raw α β) (Σ a, β a) where
+instance : ForIn m (Raw α β) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
 
 /-- Transforms the hash map into a list of mappings in some order. -/
-@[inline] def toList (m : Raw α β) : List (Σ a, β a) :=
+@[inline] def toList (m : Raw α β) : List ((a : α) × β a) :=
   m.foldl (fun acc k v => ⟨k, v⟩ :: acc) []
 
 /-- Transforms the hash map into an array of mappings in some order. -/
-@[inline] def toArray (m : Raw α β) : Array (Σ a, β a) :=
+@[inline] def toArray (m : Raw α β) : Array ((a : α) × β a) :=
   m.foldl (fun acc k v => acc.push ⟨k, v⟩) #[]
 
 @[inline, inherit_doc Raw.toList] def Const.toList {β : Type v} (m : Raw α (fun _ => β)) : List (α × β) :=

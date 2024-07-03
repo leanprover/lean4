@@ -18,7 +18,7 @@ File contents: Definition of all operations on `Raw₀`, definition of `WFImp`.
 
 This is a simple separate-chaining hash table. The data of the hash map (`DHashMap.Raw`) consists of
 a cached size and an array of buckets, where each bucket is an `AssocList α β` (which is the same as
-a `List (Σ a, β a)` but with one less level of indirection). The number of buckets is always a power of
+a `List ((a : α) × β a)` but with one less level of indirection). The number of buckets is always a power of
 two. The hash map doubles its size upon inserting an element such that the number of elements is more
 than 75% of the number of buckets.
 
@@ -43,8 +43,8 @@ remainder of this text.
 
 The basic idea is to translate statements about hash maps into statements about lists using the function
 `toListModel` defined in this file. The function `toListModel` simply concatenates all buckets into a
-`List (Σ a, β a)`. The file `Internal.List.Associative` then contains a complete verification of
-associative lists. The theorems relating the operations on `Raw₀` to the operations on `List (Σ a, β a)`
+`List ((a : α) × β a)`. The file `Internal.List.Associative` then contains a complete verification of
+associative lists. The theorems relating the operations on `Raw₀` to the operations on `List ((a : α) × β a)`
 are located in `Internal.WF` and have such names as `contains_eq_containsKey` or `toListModel_insert`.
 In the file `Internal.RawLemmas` we then state all of the lemmas for `Raw₀` and use a tactic to apply
 the results from `Internal.WF` to reduce to the results from `Internal.List.Associative`. From there we
@@ -143,7 +143,7 @@ namespace DHashMap.Internal
   -- a "load factor" of 0.75 is the usual standard for hash maps
   capacity * 4 / 3
 
-def toListModel (buckets : Array (AssocList α β)) : List (Σ a, β a) :=
+def toListModel (buckets : Array (AssocList α β)) : List ((a : α) × β a) :=
   buckets.data.bind AssocList.toList
 
 @[inline] def computeSize (buckets : Array (AssocList α β)) : Nat :=
@@ -303,7 +303,7 @@ where
   let newBuckets := buckets.map (AssocList.filter f)
   ⟨⟨computeSize newBuckets, newBuckets⟩, by simpa [newBuckets] using hb⟩
 
-@[inline] def insertMany {ρ : Type w} [ForIn Id ρ (Σ a, β a)] [BEq α] [Hashable α] (m : Raw₀ α β) (l : ρ) :
+@[inline] def insertMany {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [BEq α] [Hashable α] (m : Raw₀ α β) (l : ρ) :
     { m' : Raw₀ α β // ∀ (P : Raw₀ α β → Prop), (∀ {m'' a b}, P m'' → P (m''.insert a b)) → P m → P m' } := Id.run do
   let mut r : { m' : Raw₀ α β // ∀ (P : Raw₀ α β → Prop), (∀ {m'' a b}, P m'' → P (m''.insert a b)) → P m → P m' } := ⟨m, fun _ _ => id⟩
   for ⟨a, b⟩ in l do
@@ -364,7 +364,7 @@ end
 
 end Raw₀
 
-structure List.HashesTo [BEq α] [Hashable α] (l : List (Σ a, β a)) (i : Nat) (size : Nat) : Prop where
+structure List.HashesTo [BEq α] [Hashable α] (l : List ((a : α) × β a)) (i : Nat) (size : Nat) : Prop where
   hash_self : (h : 0 < size) → ∀ p, p ∈ l → (mkIdx size h (hash p.1)).1.toNat = i
 
 structure IsHashSelf [BEq α] [Hashable α] (m : Array (AssocList α β)) : Prop where

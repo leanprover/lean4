@@ -36,7 +36,7 @@ theorem toListModel_mkArray_nil {c} : toListModel (mkArray c (AssocList.nil : As
 @[simp]
 theorem computeSize_eq {buckets : Array (AssocList α β)} : computeSize buckets = (toListModel buckets).length := by
   rw [computeSize, toListModel, List.bind_eq_foldl, Array.foldl_eq_foldl_data]
-  suffices ∀ (l : List (AssocList α β)) (l' : List (Σ a, β a)),
+  suffices ∀ (l : List (AssocList α β)) (l' : List ((a : α) × β a)),
       l.foldl (fun d b => d + b.toList.length) l'.length = (l.foldl (fun acc a => acc ++ a.toList) l').length
     by simpa using this buckets.data []
   intro l l'
@@ -87,13 +87,13 @@ theorem toListModel_reinsertAux [BEq α] [Hashable α] [PartialEquivBEq α]
   refine h₂.trans ?_
   simpa using Perm.cons _ (Perm.symm h₁)
 
-theorem isHashSelf_foldl_reinsertAux [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] (l : List (Σ a, β a)) (target : { d : Array (AssocList α β) // 0 < d.size }) :
+theorem isHashSelf_foldl_reinsertAux [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] (l : List ((a : α) × β a)) (target : { d : Array (AssocList α β) // 0 < d.size }) :
     IsHashSelf target.1 → IsHashSelf (l.foldl (fun acc p => reinsertAux hash acc p.1 p.2) target).1 := by
   induction l generalizing target
   · simp [Id.run]
   · next k v _ ih => exact fun h => ih _ (isHashSelf_reinsertAux _ _ _ h)
 
-theorem toListModel_foldl_reinsertAux [BEq α] [Hashable α] [PartialEquivBEq α] (l : List (Σ a, β a))
+theorem toListModel_foldl_reinsertAux [BEq α] [Hashable α] [PartialEquivBEq α] (l : List ((a : α) × β a))
     (target : { d : Array (AssocList α β) // 0 < d.size }) :
     Perm (toListModel (l.foldl (fun acc p => reinsertAux hash acc p.1 p.2) target).1) (l ++ toListModel target.1) := by
   induction l generalizing target
@@ -568,7 +568,7 @@ end Raw
 
 namespace Raw₀
 
-theorem wfImp_insertMany [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {ρ : Type w} [ForIn Id ρ (Σ a, β a)] {m : Raw₀ α β}
+theorem wfImp_insertMany [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] {m : Raw₀ α β}
     {l : ρ} (h : Raw.WFImp m.1) : Raw.WFImp (m.insertMany l).1.1 :=
   Raw.WF.out ((m.insertMany l).2 _ Raw.WF.insert₀ (.wf m.2 h))
 

@@ -99,7 +99,7 @@ theorem exists_bucket_of_uset [BEq α] [Hashable α]
 
 theorem exists_bucket_of_update [BEq α] [Hashable α] (m : Array (AssocList α β)) (h : 0 < m.size) (k : α)
     (f : AssocList α β → AssocList α β) :
-    ∃ l : List (Σ a, β a),
+    ∃ l : List ((a : α) × β a),
       Perm (toListModel m) ((bucket m h k).toList ++ l) ∧
       Perm (toListModel (updateBucket m h k f)) ((f (bucket m h k)).toList ++ l) ∧
       (∀ [LawfulHashable α], IsHashSelf m → ∀ k', hash k = hash k' → containsKey k' l = false) := by
@@ -117,7 +117,7 @@ theorem exists_bucket' [BEq α] [Hashable α]
 
 theorem exists_bucket [BEq α] [Hashable α]
     (m : Array (AssocList α β)) (h : 0 < m.size) (k : α) :
-    ∃ l : List (Σ a, β a), Perm (toListModel m) ((bucket m h k).toList ++ l) ∧
+    ∃ l : List ((a : α) × β a), Perm (toListModel m) ((bucket m h k).toList ++ l) ∧
       (∀ [LawfulHashable α], IsHashSelf m → ∀ k', hash k = hash k' → containsKey k' l = false) := by
   obtain ⟨l, h₁, -, h₂⟩ := exists_bucket_of_update m h k (fun _ => .nil)
   exact ⟨l, h₁, h₂⟩
@@ -126,7 +126,7 @@ theorem exists_bucket [BEq α] [Hashable α]
 This is the general theorem used to show that access operations are correct.
 -/
 theorem apply_bucket [BEq α] [Hashable α] [PartialEquivBEq α] [LawfulHashable α] {m : Raw₀ α β} (hm : Raw.WFImp m.1) {a : α}
-    {f : AssocList α β → γ} {g : List (Σ a, β a) → γ} (hfg : ∀ {l}, f l = g l.toList)
+    {f : AssocList α β → γ} {g : List ((a : α) × β a) → γ} (hfg : ∀ {l}, f l = g l.toList)
     (hg₁ : ∀ {l l'}, DistinctKeys l → Perm l l' → g l = g l') (hg₂ : ∀ {l l'}, containsKey a l' = false → g (l ++ l') = g l) :
     f (bucket m.1.buckets m.2 a) = g (toListModel m.1.buckets) := by
   obtain ⟨l, hl, hlk⟩ := exists_bucket m.1.buckets m.2 a
@@ -139,7 +139,7 @@ This is the general theorem used to show that access operations involving a proo
 -/
 theorem apply_bucket_with_proof {γ : α → Type w} [BEq α] [Hashable α] [PartialEquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
     (hm : Raw.WFImp m.1) (a : α)
-    (f : (a : α) → (l : AssocList α β) → l.contains a → γ a) (g : (a : α) → (l : List (Σ a, β a)) → containsKey a l → γ a)
+    (f : (a : α) → (l : AssocList α β) → l.contains a → γ a) (g : (a : α) → (l : List ((a : α) × β a)) → containsKey a l → γ a)
     (hfg : ∀ {a l h}, f a l h = g a l.toList (AssocList.contains_eq.symm.trans h))
     (hg₁ : ∀ {l l' a h}, DistinctKeys l → (hl' : Perm l l') → g a l h = g a l' ((List.containsKey_of_perm hl').symm.trans h)) {h h'}
     (hg₂ : ∀ {l l' a h}, (hl' : containsKey a l' = false) → g a (l ++ l') h = g a l ((List.containsKey_append_of_not_contains_right hl').symm.trans h)) :
@@ -153,7 +153,7 @@ theorem apply_bucket_with_proof {γ : α → Type w} [BEq α] [Hashable α] [Par
 This is the general theorem to show that modification operations are correct.
 -/
 theorem toListModel_updateBucket [BEq α] [Hashable α] [PartialEquivBEq α] [LawfulHashable α] {m : Raw₀ α β} (hm : Raw.WFImp m.1) {a : α}
-    {f : AssocList α β → AssocList α β} {g : List (Σ a, β a) → List (Σ a, β a)} (hfg : ∀ {l}, (f l).toList = g l.toList)
+    {f : AssocList α β → AssocList α β} {g : List ((a : α) × β a) → List ((a : α) × β a)} (hfg : ∀ {l}, (f l).toList = g l.toList)
     (hg₁ : ∀ {l l'}, DistinctKeys l → Perm l l' → Perm (g l) (g l')) (hg₂ : ∀ {l l'}, containsKey a l' = false → g (l ++ l') = g l ++ l') :
     Perm (toListModel (updateBucket m.1.buckets m.2 a f)) (g (toListModel m.1.2)) := by
   obtain ⟨l, h₁, h₂, h₃⟩ := exists_bucket_of_update m.1.buckets m.2 a f
@@ -165,7 +165,7 @@ theorem toListModel_updateBucket [BEq α] [Hashable α] [PartialEquivBEq α] [La
 /--
 This is the general theorem to show that mapping operations (like `map` and `filter`) are correct.
 -/
-theorem toListModel_updateAllBuckets {m : Raw₀ α β} {f : AssocList α β → AssocList α δ} {g : List (Σ a, β a) → List (Σ a, δ a)}
+theorem toListModel_updateAllBuckets {m : Raw₀ α β} {f : AssocList α β → AssocList α δ} {g : List ((a : α) × β a) → List ((a : α) × δ a)}
     (hfg : ∀ {l}, Perm ((f l).toList) (g l.toList)) (hg : ∀ {l l'}, Perm (g (l ++ l')) (g l ++ g l')) :
     Perm (toListModel (updateAllBuckets m.1.buckets f)) (g (toListModel m.1.2)) := by
   have hg₀ : g [] = [] := by
@@ -174,7 +174,7 @@ theorem toListModel_updateAllBuckets {m : Raw₀ α β} {f : AssocList α β →
     rw [List.length_append, List.append_nil] at this
     omega
   rw [updateAllBuckets, toListModel, Array.map_data, List.bind_eq_foldl, List.foldl_map, toListModel, List.bind_eq_foldl]
-  suffices ∀ (l : List (AssocList α β)) (l' : List (Σ a, δ a)) (l'' : List (Σ a, β a)), Perm (g l'') l' →
+  suffices ∀ (l : List (AssocList α β)) (l' : List ((a: α) × δ a)) (l'' : List ((a : α) × β a)), Perm (g l'') l' →
       Perm (l.foldl (fun acc a => acc ++ (f a).toList) l') (g (l.foldl (fun acc a => acc ++ a.toList) l'')) by
     simpa using this m.1.buckets.data [] [] (by simpa [hg₀] using Perm.refl _)
   rintro l l' l'' h

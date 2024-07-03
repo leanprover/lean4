@@ -53,7 +53,7 @@ where @[specialize] go : AssocList α β → δ → m (ForInStep δ)
     | ForInStep.done d => pure (ForInStep.done d)
     | ForInStep.yield d => go t d
 
-def toList : AssocList α β → List (Σ a, β a)
+def toList : AssocList α β → List ((a : α) × β a)
   | nil => []
   | cons a b es => ⟨a, b⟩ :: es.toList
 

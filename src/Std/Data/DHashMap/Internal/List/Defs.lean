@@ -23,11 +23,11 @@ def Pairwise (P : α → α → Prop) : List α → Prop
 | [] => True
 | (x::xs) => (∀ y ∈ xs, P x y) ∧ Pairwise P xs
 
-def keys : List (Σ a, β a) → List α
+def keys : List ((a : α) × β a) → List α
   | [] => []
   | ⟨k, _⟩ :: l => k :: keys l
 
-structure DistinctKeys [BEq α] (l : List (Σ a, β a)) : Prop where
+structure DistinctKeys [BEq α] (l : List ((a : α) × β a)) : Prop where
   distinct : Pairwise (fun a b => (a == b) = false) (keys l)
 
 def values {β : Type v} : List ((_ : α) × β) → List β

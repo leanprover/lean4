@@ -328,12 +328,6 @@ theorem getLsb_mul (x y : BitVec w) (i : Nat) :
 
 /-## shiftLeft recurrence for bitblasting -/
 
-@[simp]
-theorem truncate_one_eq_ofBool_getLsb {x : BitVec w} :
-    x.truncate 1 = ofBool (x.getLsb 0) := by
-  ext i
-  simp [show i = 0 by omega]
-
 /--
 A recurrence that describes shifting by an arbitrary bitvector
 as shifting by a constant amount.

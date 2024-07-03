@@ -436,6 +436,13 @@ theorem zeroExtend_ofNat_one_eq_ofNat_one_of_lt {v w : Nat} (hv : 0 < v) :
   have hv := Nat.testBit_one_eq_true_iff_self_eq_zero.mp hi₁
   omega
 
+/-- Truncating to width 1 produces a bitvector equal to the the LSB. -/
+theorem truncate_one_eq_ofBool_getLsb {x : BitVec w} :
+    x.truncate 1 = ofBool (x.getLsb 0) := by
+  ext i
+  simp [show i = 0 by omega]
+
+
 /-! ## extractLsb -/
 
 @[simp]

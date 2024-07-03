@@ -1,4 +1,5 @@
 import Std.Data.HashSet.Basic
+import Std.Data.HashSet.Raw
 import Std.Data.HashMap.AdditionalOperations
 
 open Std

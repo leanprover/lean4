@@ -119,7 +119,7 @@ def prefixSums (gaps : List Nat) : List Nat := Id.run do
 
 def largeOffsetEncoding (indices prefixSums : List Nat) : Array UInt32 :=
   let prefixSums := prefixSums ++ [Char.max.val.toNat + 1]
-  ((indices.zip prefixSums).map fun (idx,pf) => (idx + pf).toUInt32).toArray
+  ((indices.zip prefixSums).map fun (idx, pf) => (idx + pf).toUInt32).toArray
 
 def calculateTable (ucd : Array UnicodeData) (property : UnicodeData → Bool) : UnicodePropertyTable :=
   let ranges := explicitRanges ucd property

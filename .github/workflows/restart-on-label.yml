@@ -22,8 +22,10 @@ jobs:
         gh run cancel "$run_id" || echo "(failed)"
         echo "Waiting for 10s"
         sleep 10
+        gh run view "$run_id"
         echo "Rerunning"
         gh run rerun "$run_id"
+        gh run view "$run_id"
       shell: bash
       env:
         head_ref: ${{ github.head_ref }}

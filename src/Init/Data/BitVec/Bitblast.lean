@@ -329,19 +329,15 @@ theorem getLsb_mul (x y : BitVec w) (i : Nat) :
 /-## shiftLeft recurrence for bitblasting -/
 
 @[simp]
-theorem shiftLeft_zero (x : BitVec w) : x <<< 0 = x := by
-  simp [bv_toNat]
-
-@[simp]
-theorem zero_shiftLeft (n : Nat) : (0#w) <<< n = 0 := by
-  simp [bv_toNat]
-
-@[simp]
-theorem truncate_one_eq_ofBool_getLsb (x : BitVec w) :
+theorem truncate_one_eq_ofBool_getLsb {x : BitVec w} :
     x.truncate 1 = ofBool (x.getLsb 0) := by
   ext i
   simp [show i = 0 by omega]
 
+/--
+A recurrence that describes shifting by an arbitrary bitvector
+as shifting by a constant amount.
+ -/
 def shiftLeftRec (x : BitVec w₁) (y : BitVec w₂) (n : Nat) : BitVec w₁ :=
   let shiftAmt := (y &&& (twoPow w₂ n))
   match n with
@@ -349,28 +345,28 @@ def shiftLeftRec (x : BitVec w₁) (y : BitVec w₂) (n : Nat) : BitVec w₁ :=
   | n + 1 => (shiftLeftRec x y n) <<< shiftAmt
 
 @[simp]
-theorem shiftLeftRec_zero (x : BitVec w₁) (y : BitVec w₂) :
+theorem shiftLeftRec_zero {x : BitVec w₁} {y : BitVec w₂} :
     shiftLeftRec x y 0 = x <<< (y &&& twoPow w₂ 0)  := by
   simp [shiftLeftRec]
 
 @[simp]
-theorem shiftLeftRec_succ (x : BitVec w₁) (y : BitVec w₂) :
+theorem shiftLeftRec_succ {x : BitVec w₁} {y : BitVec w₂} :
     shiftLeftRec x y (n + 1) =
       (shiftLeftRec x y n) <<< (y &&& twoPow w₂ (n + 1)) := by
   simp [shiftLeftRec]
 
--- | TODO: should this be a simp-lemma? Probably not.
-theorem shiftLeft_eq' (x : BitVec w) (y : BitVec w₂) :
+-- TODO: should this be a simp-lemma? Probably not.
+theorem shiftLeft_eq' {x : BitVec w} {y : BitVec w₂} :
   x <<< y = x <<< y.toNat := by rfl
 
 -- | TODO: what to name these theorems?
 @[simp]
-theorem shiftLeft_zero' (x : BitVec w) :
+theorem shiftLeft_zero' {x : BitVec w} :
     x <<< (0#w₂) = x := by
   simp [shiftLeft_eq']
 
 @[simp]
-theorem getLsb_ofNat_one (w i : Nat) :
+theorem getLsb_ofNat_one {w i : Nat} :
     (1#w).getLsb i = (decide (i = 0) && decide (i < w)) := by
   rcases w with rfl | w
   · simp;
@@ -393,11 +389,11 @@ theorem shiftLeft_or_eq_shiftLeft_shiftLeft_of_and_eq_zero {x : BitVec w} {y z :
   simp [← add_eq_or_of_and_eq_zero _ _ h, shiftLeft_eq', shiftLeft_add,
     toNat_add, Nat.mod_eq_of_lt h']
 
-theorem getLsb_shiftLeft' (x : BitVec w) (y : BitVec w₂) (i : Nat) :
+theorem getLsb_shiftLeft' {x : BitVec w} {y : BitVec w₂} {i : Nat} :
     (x <<< y).getLsb i = (decide (i < w) && !decide (i < y.toNat) && x.getLsb (i - y.toNat)) := by
   simp [shiftLeft_eq', getLsb_shiftLeft]
 
-theorem shiftLeftRec_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) (hn : n + 1 ≤ w₂) :
+theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} (hn : n + 1 ≤ w₂) :
   shiftLeftRec x y n = x <<< (y.truncate (n + 1)).zeroExtend w₂ := by
   induction n generalizing x y
   case zero =>
@@ -445,6 +441,6 @@ theorem shiftLeft_eq_shiftLeft_rec (x : BitVec ℘) (y : BitVec w₂) :
     x <<< y = shiftLeftRec x y (w₂ - 1) := by
   rcases w₂ with rfl | w₂
   · simp [of_length_zero]
-  · simp [shiftLeftRec_eq x y w₂ (by omega)]
+  · simp [shiftLeftRec_eq (x := x) (y := y) (n := w₂) (by omega)]
 
 end BitVec

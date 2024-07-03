@@ -626,6 +626,10 @@ theorem shiftLeft_zero_eq (x : BitVec w) : x <<< 0 = x := by
   apply eq_of_toNat_eq
   simp
 
+@[simp]
+theorem zero_shiftLeft_eq (n : Nat) : (0#w) <<< n = 0 := by
+  simp [bv_toNat]
+
 @[simp] theorem getLsb_shiftLeft (x : BitVec m) (n) :
     getLsb (x <<< n) i = (decide (i < m) && !decide (i < n) && getLsb x (i - n)) := by
   rw [← testBit_toNat, getLsb]

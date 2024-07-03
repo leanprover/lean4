@@ -92,3 +92,16 @@ def tacInTermInTac2 : True := by
   | zero => done
   | succ => sorry
 --^ collectDiagnostics
+
+/-!
+Error messages (or rather, whole snapshot subtrees) may vanish if we do not properly restore them on
+reuse (which `Term.withRestoreOrSaveFull` now makes sure of).
+-/
+-- RESET
+example : True := by
+  · · done
+    · done
+  · skip
+      --^ sync
+      --^ insert: " "
+      --^ collectDiagnostics

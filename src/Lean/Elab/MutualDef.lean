@@ -167,7 +167,7 @@ private def elabHeaders (views : Array DefView)
         else
           reuseBody := false
 
-      let mut (newHeader, newState) ← withRestoreOrSaveFull reusableResult? do
+      let mut (newHeader, newState) ← withRestoreOrSaveFull reusableResult? none do
         withRef view.headerRef do
         addDeclarationRanges declName view.ref  -- NOTE: this should be the full `ref`
         applyAttributesAt declName view.modifiers.attrs .beforeElaboration
@@ -337,14 +337,9 @@ private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array
         -- elaboration
         if let some old := old.val.get then
           snap.new.resolve <| some old
-          -- also make sure to reuse tactic snapshots if present so that body reuse does not lead to
-          -- missed tactic reuse on further changes
-          if let some tacSnap := header.tacSnap? then
-            if let some oldTacSnap := tacSnap.old? then
-              tacSnap.new.resolve oldTacSnap.val.get
           reusableResult? := some (old.value, old.state)
 
-    let (val, state) ← withRestoreOrSaveFull reusableResult? do
+    let (val, state) ← withRestoreOrSaveFull reusableResult? header.tacSnap? do
       withDeclName header.declName <| withLevelNames header.levelNames do
       let valStx ← liftMacroM <| declValToTerm header.value
       forallBoundedTelescope header.type header.numParams fun xs type => do

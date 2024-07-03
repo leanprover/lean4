@@ -726,7 +726,7 @@ macro_rules
     * Even after setting the ref, we still need a `with_annotate_state` to show the correct tactic
       state on `by` as the synthetic info derived from the ref is ignored for this purpose.
     -/
-    let tac ← Lean.withRef byTk `(tactic| with_annotate_state $byTk ($tacs:tacticSeq))
+    let tac ←  Lean.withRef byTk `(tactic| with_annotate_state $byTk ($tacs:tacticSeq))
     let tac ← `(tacticSeq| $tac:tactic)
     let tac ← Lean.withRef byTk `(tactic| case body => $(.mk tac):tacticSeq)
     Lean.withRef haveTk `(tactic| focus

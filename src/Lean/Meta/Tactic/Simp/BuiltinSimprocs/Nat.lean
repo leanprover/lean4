@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Simproc
 import Init.Data.Nat.Simproc
+import Lean.Util.SafeExponentiation
 import Lean.Meta.LitValues
 import Lean.Meta.Offset
 import Lean.Meta.Tactic.Simp.Simproc
@@ -52,7 +53,13 @@ builtin_dsimproc [simp, seval] reduceMul ((_ * _ : Nat)) := reduceBin ``HMul.hMu
 builtin_dsimproc [simp, seval] reduceSub ((_ - _ : Nat)) := reduceBin ``HSub.hSub 6 (· - ·)
 builtin_dsimproc [simp, seval] reduceDiv ((_ / _ : Nat)) := reduceBin ``HDiv.hDiv 6 (· / ·)
 builtin_dsimproc [simp, seval] reduceMod ((_ % _ : Nat)) := reduceBin ``HMod.hMod 6 (· % ·)
-builtin_dsimproc [simp, seval] reducePow ((_ ^ _ : Nat)) := reduceBin ``HPow.hPow 6 (· ^ ·)
+
+builtin_dsimproc [simp, seval] reducePow ((_ ^ _ : Nat)) := fun e => do
+  let some n ← fromExpr? e.appFn!.appArg! | return .continue
+  let some m ← fromExpr? e.appArg! | return .continue
+  unless (← checkExponent m) do return .continue
+  return .done <| toExpr (n ^ m)
+
 builtin_dsimproc [simp, seval] reduceGcd (gcd _ _)       := reduceBin ``gcd 2 gcd
 
 builtin_simproc [simp, seval] reduceLT  (( _ : Nat) < _)  := reduceBinPred ``LT.lt 4 (. < .)

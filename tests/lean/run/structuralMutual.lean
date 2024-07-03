@@ -26,6 +26,7 @@ def B.size : B → Nat
 termination_by structural x => x
 end
 
+
 -- And indeed all equationals hold definitionally
 
 theorem A_size_eq1 (a : A) : (A.self a).size = a.size + 1 := rfl
@@ -73,7 +74,6 @@ theorem ex1 (a : A) (h : (A.other (B.other a)).size = 2) : a.size = 0 := by
   injection h with h
   trace_state -- without smart unfolding the state would be a mess
   injection h with h
-
 
 -- And it computes in type just fine
 
@@ -240,14 +240,7 @@ end
 
 theorem isEven_eq_2 (n : Nat) : isEven (n+1) = ! isOdd n := rfl
 
-/--
-info: EvenOdd.isEven.eq_1 :
-  ∀ (x : Nat),
-    isEven x =
-      match x with
-      | 0 => true
-      | n.succ => !isOdd n
--/
+/-- info: EvenOdd.isEven.eq_1 : isEven 0 = true -/
 #guard_msgs in
 #check isEven.eq_1
 
@@ -319,15 +312,9 @@ end
 -- We have equality
 theorem A.weird_size1_eq_1 (a : A) : (A.self a).weird_size1 = a.weird_size2 + 1 := rfl
 
--- And equational theorems: (TODO: This is not the right one yet)
+-- And the right equational theorems
 /--
-info: MutualIndNonMutualFun.A.weird_size1.eq_1 :
-  ∀ (x : A),
-    x.weird_size1 =
-      match x with
-      | a.self => a.weird_size2 + 1
-      | A.other a => 0
-      | A.empty => 0
+info: MutualIndNonMutualFun.A.weird_size1.eq_1 (a : A) : a.self.weird_size1 = a.weird_size2 + 1
 -/
 #guard_msgs in
 #check A.weird_size1.eq_1

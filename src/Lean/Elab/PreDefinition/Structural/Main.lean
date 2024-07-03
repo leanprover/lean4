@@ -224,7 +224,7 @@ def structuralRecursion (preDefs : Array PreDefinition) (termArgs? : Option Term
         for theorems and definitions that are propositions.
         See issue #2327
         -/
-        registerEqnsInfo preDef recArgPos
+        registerEqnsInfo preDef (preDefs.map (·.declName)) recArgPos
     addSmartUnfoldingDef preDef recArgPos
     markAsRecursive preDef.declName
   applyAttributesOf preDefsNonRec AttributeApplicationTime.afterCompilation

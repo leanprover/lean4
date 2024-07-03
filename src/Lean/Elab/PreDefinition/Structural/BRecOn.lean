@@ -261,7 +261,8 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
             -- The function `f` does not explicitly take `recArg` and its indices as arguments. So, we skip them too.
             let mut fArgs := #[]
             for i in [:argsNonFixed.size] do
-              if recArgInfo.pos != i && !recArgInfo.indicesPos.contains i then
+              let j := i + numFixed
+              if recArgInfo.recArgPos != j && !recArgInfo.indicesPos.contains j then
                 let arg := argsNonFixed[i]!
                 let arg ← replaceRecApps recArgInfos positions below arg
                 fArgs := fArgs.push arg

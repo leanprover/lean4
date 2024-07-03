@@ -74,10 +74,10 @@ def getRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) :
           | some (indParam, y) =>
             throwError "its type {indInfo.name} is an inductive datatype{indentExpr xType}\nand parameter{indentExpr indParam}\ndepends on{indentExpr y}"
           | none =>
-            let indicesPos := indIndices.map fun index => match ys.indexOf? index with | some i => i.val | none => unreachable!
+            let indicesPos := indIndices.map fun index => match xs.indexOf? index with | some i => i.val | none => unreachable!
             return { fnName      := fnName
                      fixedParams := fixedParams
-                     pos         := i - fixedParams.size
+                     recArgPos   := i
                      indicesPos  := indicesPos
                      indName     := indInfo.name
                      indLevels   := us

@@ -19,11 +19,11 @@ of a mutually recursive group.
 structure RecArgInfo where
   /-- the name of the recursive function -/
   fnName      : Name
-  /-- `fixedParams ++ ys` are the arguments of the function we are trying to justify termination using structural recursion. -/
+  /-- the fixed prefix of arguments of the function we are trying to justify termination using structural recursion. -/
   fixedParams : Array Expr
-  /-- position in `ys` of the argument we are recursing on -/
-  pos         : Nat
-  /-- position in `ys` of the inductive datatype indices we are recursing on -/
+  /-- position of the argument (counted including fixed prefix) we are recursing on -/
+  recArgPos   : Nat
+  /-- position of the indices (counted including fixed prefix) of the inductive datatype indices we are recursing on -/
   indicesPos  : Array Nat
   /-- inductive datatype name of the argument we are recursing on -/
   indName     : Name
@@ -34,10 +34,6 @@ structure RecArgInfo where
   /-- The types mutually inductive with indName -/
   indAll      : Array Name
 deriving Inhabited
-
-def RecArgInfo.recArgPos (info : RecArgInfo) : Nat :=
-  info.fixedParams.size + info.pos
-
 /--
 If `xs` are the parameters of the functions (excluding fixed prefix), partitions them
 into indices and major arguments, and other parameters.
@@ -46,7 +42,8 @@ def RecArgInfo.pickIndicesMajor (info : RecArgInfo) (xs : Array Expr) : (Array E
   let mut indexMajorArgs := #[]
   let mut otherArgs := #[]
   for h : i in [:xs.size] do
-    if i = info.pos || info.indicesPos.contains i then
+    let j := i + info.fixedParams.size
+    if j = info.recArgPos || info.indicesPos.contains j then
       indexMajorArgs := indexMajorArgs.push xs[i]
     else
       otherArgs := otherArgs.push xs[i]

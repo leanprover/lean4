@@ -20,8 +20,12 @@ universe u v
 
 namespace Std.DHashMap
 
+/-- Dependent hash maps without bundled well-formedness invariant. Suitable for use in nested
+inductive types. The well-formedness invariant is called `Raw.WF`. -/
 structure Raw (α : Type u) (β : α → Type v) where
+  /-- The number of mappings present in the hash map -/
   size : Nat
+  /-- Internal implementation detail of the hash map -/
   buckets : Array (DHashMap.Internal.AssocList α β)
 
 end Std.DHashMap

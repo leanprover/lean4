@@ -122,12 +122,5 @@ def packFArgs (FArgType : Expr) (FArgs : Array Expr) : MetaM Expr := do
     let packedFArgs ← mkNProdMk lvl FArgs
     mkLambdaFVars xs packedFArgs
 
-def sortAndPackWith [Monad m] [Inhabited β] (pack : α → Array β → m γ)
-    (positions : Array (Array Nat)) (es : Array β) (types : Array α) : m (Array γ) := do
-  let mut packed := #[]
-  for poss in positions, type in types do
-    let e' ← pack type (poss.map (es[·]!))
-    packed := packed.push e'
-  return packed
 
 end Lean.Elab.Structural

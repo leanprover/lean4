@@ -48,7 +48,7 @@ private partial def toBelowAux (C : Expr) (belowDict : Expr) (arg : Expr) (F : E
 
 /-- See `toBelow` -/
 private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat)
-    (positions : Array (Array Nat)) (k : Array Expr → Expr → MetaM α) : MetaM α := do
+    (positions : Positions) (k : Array Expr → Expr → MetaM α) : MetaM α := do
   let numIndAll := positions.size
   let belowType ← inferType below
   trace[Elab.definition.structural] "belowType: {belowType}"
@@ -62,7 +62,7 @@ private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat)
     let finalArgs := args[numIndParams+numIndAll:]
     let pre := mkAppN f params
     let motiveTypes ← inferArgumentTypesN numIndAll pre
-    let numMotives : Nat := positions.foldl (fun s poss => s + poss.size) 0
+    let numMotives : Nat := positions.numIndices
     trace[Elab.definition.structural] "numMotives: {numMotives}"
     let mut CTypes := Array.mkArray numMotives (.sort 37) -- dummy value
     for poss in positions, motiveType in motiveTypes do
@@ -72,7 +72,7 @@ private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat)
         return ((← mkFreshUserName `C), fun _ => pure t)
     withLocalDeclsD CDecls fun Cs => do
       -- We have to pack these canary motives like we packed the real motives
-      let packedCs ← sortAndPackWith packMotives positions Cs motiveTypes
+      let packedCs ← positions.mapMwith packMotives motiveTypes Cs
       let belowDict := mkAppN pre packedCs
       let belowDict := mkAppN belowDict finalArgs
       trace[Elab.definition.structural] "initial belowDict for {Cs}:{indentExpr belowDict}"
@@ -100,11 +100,11 @@ private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat)
   We search this dictionary using the auxiliary function `toBelowAux`.
   The dictionary is built using the `PProd` (`And` for inductive predicates).
   We keep searching it until we find `C recArg`, where `C` is the auxiliary fresh variable created at `withBelowDict`.  -/
-private partial def toBelow (below : Expr) (numIndParams : Nat) (positions : Array (Array Nat)) (fnIndex : Nat) (recArg : Expr) : MetaM Expr := do
+private partial def toBelow (below : Expr) (numIndParams : Nat) (positions : Positions) (fnIndex : Nat) (recArg : Expr) : MetaM Expr := do
   withBelowDict below numIndParams positions fun Cs belowDict =>
     toBelowAux Cs[fnIndex]! belowDict recArg below
 
-private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions : Array (Array Nat))
+private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions : Positions)
     (below : Expr) (e : Expr) : M Expr :=
   let recFnNames := recArgInfos.map (·.fnName)
   let containsRecFn (e : Expr) : StateRefT (HasConstCache recFnNames) M Bool :=
@@ -213,7 +213,7 @@ The `type` is the expected type of the argument.
 The `recArgInfos` is used to transform the body of the function to replace recursive calls with
 uses of the `below` induction hypothesis.
 -/
-def mkBRecOnF (recArgInfos : Array RecArgInfo) (positions : Array (Array Nat))
+def mkBRecOnF (recArgInfos : Array RecArgInfo) (positions : Positions)
     (recArgInfo : RecArgInfo) (value : Expr) (FType : Expr) : M Expr := do
   lambdaTelescope value fun xs value => do
     let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor xs
@@ -231,7 +231,7 @@ Given the `motives`, figures out whether to use `.brecOn` or `.binductionOn`, pa
 the right universe levels, the parameters, and the motives.
 It was already checked earlier in `checkCodomainsLevel` that the functions live in the same universe.
 -/
-def mkBRecOnConst (recArgInfos : Array RecArgInfo) (positions : Array (Array Nat))
+def mkBRecOnConst (recArgInfos : Array RecArgInfo) (positions : Positions)
    (motives : Array Expr) : MetaM (Name → Expr) := do
   -- For now, just look at the first
   let recArgInfo := recArgInfos[0]!
@@ -254,7 +254,7 @@ def mkBRecOnConst (recArgInfos : Array RecArgInfo) (positions : Array (Array Nat
   let brecOnAux := brecOnCons recArgInfo.indName
   -- Infer the type of the packed motive arguments
   let packedMotiveTypes ← inferArgumentTypesN recArgInfo.indAll.size brecOnAux
-  let packedMotives ← sortAndPackWith packMotives positions motives packedMotiveTypes
+  let packedMotives ← positions.mapMwith packMotives packedMotiveTypes motives
 
   return fun n => mkAppN (brecOnCons n) packedMotives
 
@@ -264,7 +264,7 @@ combinators. This assumes that all `.brecOn` functions of a mutual inductive hav
 
 It also undoes the permutation and packing done by `packMotives`
 -/
-def inferBRecOnFTypes (recArgInfos : Array RecArgInfo) (positions : Array (Array Nat))
+def inferBRecOnFTypes (recArgInfos : Array RecArgInfo) (positions : Positions)
     (brecOnConst : Name → Expr) : MetaM (Array Expr) := do
   let recArgInfo := recArgInfos[0]! -- pick an arbitrary one
   let brecOn := brecOnConst recArgInfo.indName
@@ -285,14 +285,14 @@ def inferBRecOnFTypes (recArgInfos : Array RecArgInfo) (positions : Array (Array
 Completes the `.brecOn` for the given function.
 The `value` is the function with (only) the fixed parameters moved into the context.
 -/
-def mkBrecOnApp (positions : Array (Array Nat)) (fnIdx : Nat) (brecOnConst : Name → Expr)
+def mkBrecOnApp (positions : Positions) (fnIdx : Nat) (brecOnConst : Name → Expr)
     (FArgs : Array Expr) (recArgInfo : RecArgInfo) (value : Expr) : MetaM Expr := do
   lambdaTelescope value fun ys _value => do
     let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor ys
     let brecOn := brecOnConst recArgInfo.indName
     let brecOn := mkAppN brecOn indexMajorArgs
     let packedFTypes ← inferArgumentTypesN positions.size brecOn
-    let packedFArgs ← sortAndPackWith packFArgs positions FArgs packedFTypes
+    let packedFArgs ← positions.mapMwith packFArgs packedFTypes FArgs
     let brecOn := mkAppN brecOn packedFArgs
     let some poss := positions.find? (·.contains fnIdx)
       | throwError "mkBrecOnApp: Could not find {fnIdx} in {positions}"

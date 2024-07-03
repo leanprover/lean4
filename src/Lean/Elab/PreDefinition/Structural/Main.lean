@@ -156,12 +156,7 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Ar
 
       checkAllFromSameClique recArgInfos
       -- Sort the (indices of the) definitions by their position in indInfo.all
-      let positions : Array (Array Nat) :=
-        indInfo.all.toArray.map fun indName =>
-          (Array.range preDefs.size).filter fun i =>
-            recArgInfos[i]!.indName = indName
-      -- Sanity check: is this really a grouped permutation of all the indices?
-      assert! Array.range preDefs.size = positions.flatten.qsort Nat.blt
+      let positions : Positions := .groupAndSort (·.indName) recArgInfos indInfo.all.toArray
 
       -- Construct the common `.brecOn` arguments
       let motives ← (Array.zip recArgInfos values).mapM fun (r, v) => mkBRecOnMotive r v

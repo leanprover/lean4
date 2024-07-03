@@ -286,8 +286,7 @@ where
   else
     ⟨⟨size, buckets⟩, hb⟩
 
--- Computing the size after the fact was determined to be faster than computing it inline,
--- see Benchmark/FilterMap.lean
+-- Computing the size after the fact was determined to be faster than computing it inline
 @[inline] def filterMap {γ : α → Type w} (f : (a : α) → β a → Option (γ a))
     (m : Raw₀ α β) : Raw₀ α γ :=
   let ⟨⟨_, buckets⟩, hb⟩ := m
@@ -373,10 +372,8 @@ structure IsHashSelf [BEq α] [Hashable α] (m : Array (AssocList α β)) : Prop
 
 namespace Raw
 
-/--
-This is the actual well-formedness predicate for hash maps. Users should never need to interact with this and should use
-`WF` instead.
--/
+/-- This is the actual well-formedness predicate for hash maps. Users should never need to interact
+with this and should use `WF` instead. -/
 structure WFImp [BEq α] [Hashable α] (m : Raw α β) : Prop where
   buckets_hash_self : IsHashSelf m.buckets
   size_eq : m.size = (toListModel m.buckets).length

@@ -134,6 +134,9 @@ theorem apply_bucket [BEq α] [Hashable α] [PartialEquivBEq α] [LawfulHashable
   rw [hfg, hg₂]
   exact hlk hm.buckets_hash_self _ rfl
 
+/--
+This is the general theorem used to show that access operations involving a proof (like `get`) are correct.
+-/
 theorem apply_bucket_with_proof {γ : α → Type w} [BEq α] [Hashable α] [PartialEquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
     (hm : Raw.WFImp m.1) (a : α)
     (f : (a : α) → (l : AssocList α β) → l.contains a → γ a) (g : (a : α) → (l : List (Σ a, β a)) → containsKey a l → γ a)

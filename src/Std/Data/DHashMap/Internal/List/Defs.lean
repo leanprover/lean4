@@ -27,7 +27,6 @@ def keys : List (Σ a, β a) → List α
   | [] => []
   | ⟨k, _⟩ :: l => k :: keys l
 
-/-- The well-formedness predicate for `AssocList` says that keys are pairwise distinct. -/
 structure DistinctKeys [BEq α] (l : List (Σ a, β a)) : Prop where
   distinct : Pairwise (fun a b => (a == b) = false) (keys l)
 

@@ -31,35 +31,43 @@ namespace Std
 
 namespace HashMap
 
+/-- Hash maps without bundled well-formedness invariant. Suitable for use in nested
+inductive types. The well-formedness invariant is called `Raw.WF`. -/
 structure Raw (α : Type u) (β : Type v) where
+  /-- Internal implementation detail of the hash map -/
   inner : DHashMap.Raw α (fun _ => β)
 
 namespace Raw
 
-@[inline] def empty (capacity := 8) : Raw α β :=
+@[inline, inherit_doc DHashMap.Raw.empty] def empty (capacity := 8) : Raw α β :=
   ⟨DHashMap.Raw.empty capacity⟩
 
 instance : EmptyCollection (Raw α β) where
   emptyCollection := empty
 
-@[inline] def insert [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β) : Raw α β :=
+@[inline, inherit_doc DHashMap.Raw.insert] def insert [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β) : Raw α β :=
   ⟨m.inner.insert a b⟩
 
-@[inline] def insertIfNew [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β) : Raw α β :=
+@[inline, inherit_doc DHashMap.Raw.insertIfNew] def insertIfNew [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β) : Raw α β :=
   ⟨m.inner.insertIfNew a b⟩
 
-@[inline] def containsThenInsert [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β) : Bool × Raw α β :=
+@[inline, inherit_doc DHashMap.Raw.containsThenInsert] def containsThenInsert [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β) : Bool × Raw α β :=
   let ⟨replaced, r⟩ := m.inner.containsThenInsert a b
   ⟨replaced, ⟨r⟩⟩
 
+/-- Equivalent to (but potentially faster than) calling `get?` followed by `insertIfNew`. -/
 @[inline] def getThenInsertIfNew? [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β) : Option β × Raw α β :=
   let ⟨previous, r⟩ := DHashMap.Raw.Const.getThenInsertIfNew? m.inner a b
   ⟨previous, ⟨r⟩⟩
 
+/-- The notation `m[a]?` is preferred over calling this function directly.
+
+Tries to retrieve the mapping for the given key, returning `none` if no such mapping is present.
+-/
 @[inline] def get? [BEq α] [Hashable α] (m : Raw α β) (a : α) : Option β :=
   DHashMap.Raw.Const.get? m.inner a
 
-@[inline] def contains [BEq α] [Hashable α] (m : Raw α β) (a : α) : Bool :=
+@[inline, inherit_doc DHashMap.Raw.contains] def contains [BEq α] [Hashable α] (m : Raw α β) (a : α) : Bool :=
   m.inner.contains a
 
 instance [BEq α] [Hashable α] : Membership α (Raw α β) where
@@ -68,12 +76,19 @@ instance [BEq α] [Hashable α] : Membership α (Raw α β) where
 instance [BEq α] [Hashable α] {m : Raw α β} {a : α} : Decidable (a ∈ m) :=
   inferInstanceAs (Decidable (a ∈ m.inner))
 
+/-- The notation `m[a]` or `m[a]'h` is preferred over calling this function directly.
+
+Retrieves the mapping for the given key. Ensures that such a mapping exists by requiring a proof of
+`a ∈ m`. -/
 @[inline] def get [BEq α] [Hashable α] (m : Raw α β) (a : α) (h : a ∈ m) : β :=
   DHashMap.Raw.Const.get m.inner a h
 
-@[inline] def getD [BEq α] [Hashable α] (m : Raw α β) (a : α) (fallback : β) : β :=
+@[inline, inherit_doc DHashMap.Raw.Const.getD] def getD [BEq α] [Hashable α] (m : Raw α β) (a : α) (fallback : β) : β :=
   DHashMap.Raw.Const.getD m.inner a fallback
 
+/-- The notation `m[a]!` is preferred over calling this function directly.
+
+Tries to retrieve the mapping for the given key, panicking if no such mapping is present. -/
 @[inline] def get! [BEq α] [Hashable α] [Inhabited β] (m : Raw α β) (a : α) : β :=
   DHashMap.Raw.Const.get! m.inner a
 
@@ -82,38 +97,38 @@ instance [BEq α] [Hashable α] : GetElem? (Raw α β) α β (fun m a => a ∈ m
   getElem? m a := m.get? a
   getElem! m a := m.get! a
 
-@[inline] def remove [BEq α] [Hashable α] (m : Raw α β) (a : α) : Raw α β :=
+@[inline, inherit_doc DHashMap.Raw.remove] def remove [BEq α] [Hashable α] (m : Raw α β) (a : α) : Raw α β :=
   ⟨m.inner.remove a⟩
 
-@[inline] def size (m : Raw α β) : Nat :=
+@[inline, inherit_doc DHashMap.Raw.size] def size (m : Raw α β) : Nat :=
   m.inner.size
 
-@[inline] def isEmpty (m : Raw α β) : Bool :=
+@[inline, inherit_doc DHashMap.Raw.isEmpty] def isEmpty (m : Raw α β) : Bool :=
   m.inner.isEmpty
 
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
 
-@[inline] def filterMap {γ : Type w} (f : α → β → Option γ) (m : Raw α β) : Raw α γ :=
+@[inline, inherit_doc DHashMap.Raw.filterMap] def filterMap {γ : Type w} (f : α → β → Option γ) (m : Raw α β) : Raw α γ :=
   ⟨m.inner.filterMap f⟩
 
-@[inline] def map {γ : Type w} (f : α → β → γ) (m : Raw α β) : Raw α γ :=
+@[inline, inherit_doc DHashMap.Raw.map] def map {γ : Type w} (f : α → β → γ) (m : Raw α β) : Raw α γ :=
   ⟨m.inner.map f⟩
 
-@[inline] def filter (f : α → β → Bool) (m : Raw α β) : Raw α β :=
+@[inline, inherit_doc DHashMap.Raw.filter] def filter (f : α → β → Bool) (m : Raw α β) : Raw α β :=
   ⟨m.inner.filter f⟩
 
-@[inline] def foldlM {m : Type w → Type w} [Monad m] {γ : Type w} (f : γ → α → β → m γ) (init : γ) (b : Raw α β) : m γ :=
+@[inline, inherit_doc DHashMap.Raw.foldlM] def foldlM {m : Type w → Type w} [Monad m] {γ : Type w} (f : γ → α → β → m γ) (init : γ) (b : Raw α β) : m γ :=
   b.inner.foldlM f init
 
-@[inline] def foldl {γ : Type w} (f : γ → α → β → γ) (init : γ) (b : Raw α β) : γ :=
+@[inline, inherit_doc DHashMap.Raw.foldl] def foldl {γ : Type w} (f : γ → α → β → γ) (init : γ) (b : Raw α β) : γ :=
   b.inner.foldl f init
 
-@[inline] def forM {m : Type w → Type w} [Monad m] (f : (a : α) → β → m PUnit) (b : Raw α β) : m PUnit :=
+@[inline, inherit_doc DHashMap.Raw.forM] def forM {m : Type w → Type w} [Monad m] (f : (a : α) → β → m PUnit) (b : Raw α β) : m PUnit :=
   b.inner.forM f
 
-@[inline] def forIn {m : Type w → Type w} [Monad m] {γ : Type w} (f : (a : α) → β → γ → m (ForInStep γ)) (init : γ) (b : Raw α β) : m γ :=
+@[inline, inherit_doc DHashMap.Raw.forIn] def forIn {m : Type w → Type w} [Monad m] {γ : Type w} (f : (a : α) → β → γ → m (ForInStep γ)) (init : γ) (b : Raw α β) : m γ :=
   b.inner.forIn f init
 
 instance {m : Type w → Type w} : ForM m (Raw α β) (α × β) where
@@ -122,34 +137,34 @@ instance {m : Type w → Type w} : ForM m (Raw α β) (α × β) where
 instance {m : Type w → Type w} : ForIn m (Raw α β) (α × β) where
   forIn m init f := m.forIn (fun a b acc => f (a, b) acc) init
 
-@[inline] def toList (m : Raw α β) : List (α × β) :=
+@[inline, inherit_doc DHashMap.Raw.Const.toList] def toList (m : Raw α β) : List (α × β) :=
   DHashMap.Raw.Const.toList m.inner
 
-@[inline] def toArray (m : Raw α β) : Array (α × β) :=
+@[inline, inherit_doc DHashMap.Raw.Const.toArray] def toArray (m : Raw α β) : Array (α × β) :=
   DHashMap.Raw.Const.toArray m.inner
 
-@[inline] def keys (m : Raw α β) : List α :=
+@[inline, inherit_doc DHashMap.Raw.keys] def keys (m : Raw α β) : List α :=
   m.inner.keys
 
-@[inline] def keysArray (m : Raw α β) : Array α :=
+@[inline, inherit_doc DHashMap.Raw.keysArray] def keysArray (m : Raw α β) : Array α :=
   m.inner.keysArray
 
-@[inline] def values (m : Raw α β) : List β :=
+@[inline, inherit_doc DHashMap.Raw.values] def values (m : Raw α β) : List β :=
   m.inner.values
 
-@[inline] def insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ (α × β)] (m : Raw α β) (l : ρ) : Raw α β :=
+@[inline, inherit_doc DHashMap.Raw.Const.insertMany] def insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ (α × β)] (m : Raw α β) (l : ρ) : Raw α β :=
   ⟨DHashMap.Raw.Const.insertMany m.inner l⟩
 
-@[inline] def insertManyUnit [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] (m : Raw α Unit) (l : ρ) : Raw α Unit :=
+@[inline, inherit_doc DHashMap.Raw.Const.insertManyUnit] def insertManyUnit [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] (m : Raw α Unit) (l : ρ) : Raw α Unit :=
   ⟨DHashMap.Raw.Const.insertManyUnit m.inner l⟩
 
-@[inline] def ofList [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ (α × β)] (l : ρ) : Raw α β :=
+@[inline, inherit_doc DHashMap.Raw.Const.ofList] def ofList [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ (α × β)] (l : ρ) : Raw α β :=
   ⟨DHashMap.Raw.Const.ofList l⟩
 
-@[inline] def unitOfList [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] (l : ρ) : Raw α Unit :=
+@[inline, inherit_doc DHashMap.Raw.Const.unitOfList] def unitOfList [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] (l : ρ) : Raw α Unit :=
   ⟨DHashMap.Raw.Const.unitOfList l⟩
 
-def Internal.numBuckets (m : Raw α β) : Nat :=
+@[inherit_doc DHashMap.Raw.Internal.numBuckets] def Internal.numBuckets (m : Raw α β) : Nat :=
   DHashMap.Raw.Internal.numBuckets m.inner
 
 instance [Repr α] [Repr β] : Repr (Raw α β) where
@@ -157,7 +172,14 @@ instance [Repr α] [Repr β] : Repr (Raw α β) where
 
 end Unverified
 
+/--
+Well-formedness predicate for hash maps. Users of `HashMap` will not need to interact with this.
+Users of `HashMap.Raw` will need to provide proofs of `WF` to lemmas and should use the lemmas
+`WF.empty`, `WF.emptyc`, `WF.insert`, `WF.containsThenInsert`, `WF.remove`, `WF.insertIfNew`,
+`WF.getThenInsertIfNew?`, `WF.filter`, `WF.filterMap` and `WF.map` to show that map operations
+preserve well-formedness. -/
 structure WF [BEq α] [Hashable α] (m : Raw α β) : Prop where
+  /-- Internal implementation detail of the hash map -/
   out : m.inner.WF
 
 theorem WF.empty [BEq α] [Hashable α] {c} : (empty c : Raw α β).WF :=

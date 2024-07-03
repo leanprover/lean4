@@ -31,24 +31,38 @@ namespace Std
 
 namespace HashSet
 
+/-- Hash sets without bundled well-formedness invariant. Suitable for use in nested
+inductive types. The well-formedness invariant is called `Raw.WF`. -/
 structure Raw (α : Type u) where
+  /-- Internal implementation detail of the hash set. -/
   inner : HashMap.Raw α Unit
 
 namespace Raw
 
+/-- Creates a new empty hash set. The optional parameter `capacity` can be supplied to presize the
+map so that it can hold the given number of elements without reallocating. It is also possible to
+use the empty collection notations `∅` and `{}` to create an empty hash map with the default
+capacity. -/
 @[inline] def empty (capacity := 8) : Raw α :=
   ⟨HashMap.Raw.empty capacity⟩
 
 instance : EmptyCollection (Raw α) where
   emptyCollection := empty
 
+/-- Insert the given element into the set. -/
 @[inline] def insert [BEq α] [Hashable α] (m : Raw α) (a : α) : Raw α :=
   ⟨m.inner.insert a ()⟩
 
+/-- Equivalent to (but potentially faster than) calling `contains` followed by `insert`. -/
 @[inline] def containsThenInsert [BEq α] [Hashable α] (m : Raw α) (a : α) : Bool × Raw α :=
   let ⟨replaced, r⟩ := m.inner.containsThenInsert a ()
   ⟨replaced, ⟨r⟩⟩
 
+/-- Returns `true` if the given key is present in the map. There is also a `Prop`-valued version
+of this: `a ∈ m` is equivalent to `m.contains a = true`.
+
+Observe that this is different behavior than for lists: for lists, `∈` uses `=` and `contains` use
+`==` for comparisons, while for hash sets, both use `==`. -/
 @[inline] def contains [BEq α] [Hashable α] (m : Raw α) (a : α) : Bool :=
   m.inner.contains a
 
@@ -58,12 +72,19 @@ instance [BEq α] [Hashable α] : Membership α (Raw α) where
 instance [BEq α] [Hashable α] {m : Raw α} {a : α} : Decidable (a ∈ m) :=
   inferInstanceAs (Decidable (a ∈ m.inner))
 
+/-- Removes the element if it exists. -/
 @[inline] def remove [BEq α] [Hashable α] (m : Raw α) (a : α) : Raw α :=
   ⟨m.inner.remove a⟩
 
+/-- The number of elements present in the set -/
 @[inline] def size (m : Raw α) : Nat :=
   m.inner.size
 
+/-- Returns `true` if the hash set contains no elements.
+
+Note that if your `BEq` instance is not reflexive or your `Hashable` instance is not
+lawful, then it is possible that this function returns `false` even though `m.contains a = false`
+for all `a`. -/
 @[inline] def isEmpty (m : Raw α) : Bool :=
   m.inner.isEmpty
 
@@ -71,18 +92,25 @@ section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
 
+/-! We currently do not provide lemmas for the functions below. -/
+
+/-- Removes all elements from the hash map for which the given function returns `false`. -/
 @[inline] def filter [BEq α] [Hashable α] (f : α → Bool) (m : Raw α) : Raw α :=
   ⟨m.inner.filter fun a _ => f a⟩
 
+/-- Folds the given function over the elements of the hash set in some order. -/
 @[inline] def foldlM {m : Type v → Type v} [Monad m] {β : Type v} (f : β → α → m β) (init : β) (b : Raw α) : m β :=
   b.inner.foldlM (fun b a _ => f b a) init
 
+/-- Folds the given function over the elements of the hash set in some order. -/
 @[inline] def foldl {β : Type v} (f : β → α → β) (init : β) (m : Raw α) : β :=
   m.inner.foldl (fun b a _ => f b a) init
 
+/-- Folds the given function over the elements of the hash set in some order. -/
 @[inline] def forM {m : Type v → Type v} [Monad m] (f : α → m PUnit) (b : Raw α) : m PUnit :=
   b.inner.forM (fun a _ => f a)
 
+/-- Support for the `for` loop construct in `do` blocks. -/
 @[inline] def forIn {m : Type v → Type v} [Monad m] {β : Type v} (f : α → β → m (ForInStep β)) (init : β) (b : Raw α) : m β :=
   b.inner.forIn (fun a _ acc => f a acc) init
 
@@ -92,18 +120,26 @@ instance {m : Type v → Type v} : ForM m (Raw α) α where
 instance {m : Type v → Type v} : ForIn m (Raw α) α where
   forIn m init f := m.forIn f init
 
+/-- Transforms the hash set into a list of elements in some order. -/
 @[inline] def toList (m : Raw α) : List α :=
   m.inner.keys
 
+/-- Transforms the hash set into an array of elements in some order. -/
 @[inline] def toArray (m : Raw α) : Array α :=
   m.inner.keysArray
 
+/-- Inserts multiple elements into the hash set by iterating over the given collection and calling
+`insert`. -/
 @[inline] def insertMany [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] (m : Raw α) (l : ρ) : Raw α :=
   ⟨m.inner.insertManyUnit l⟩
 
+/-- Creates a hash set from a list of elements. -/
 @[inline] def ofList [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] (l : ρ) : Raw α :=
   ⟨HashMap.Raw.unitOfList l⟩
 
+/-- Returns the number of buckets in the internal representation of the hash set. This function may
+be useful for things like monitoring system health, but it should be considered an internal
+implementation detail. -/
 def Internal.numBuckets (m : Raw α) : Nat :=
   HashMap.Raw.Internal.numBuckets m.inner
 
@@ -112,7 +148,13 @@ instance [Repr α] : Repr (Raw α) where
 
 end Unverified
 
+/--
+Well-formedness predicate for hash sets. Users of `HashSet` will not need to interact with this.
+Users of `HashSet.Raw` will need to provide proofs of `WF` to lemmas and should use the lemmas
+`WF.empty`, `WF.emptyc`, `WF.insert`, `WF.containsThenInsert`, `WF.remove`,  `WF.filter` to show
+that map operations preserve well-formedness. -/
 structure WF [BEq α] [Hashable α] (m : Raw α) : Prop where
+  /-- Internal implementation detail of the hash set -/
   out : m.inner.WF
 
 theorem WF.empty [BEq α] [Hashable α] {c} : (empty c : Raw α).WF :=

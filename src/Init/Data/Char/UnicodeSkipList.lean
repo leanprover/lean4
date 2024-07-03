@@ -61,7 +61,7 @@ structure UnicodePropertyTable where
 Search a character in the outer `runs` array and return a range in
 `offsets` where the character will be found and the length of the run.
 -/
-def searchRuns (table : UnicodePropertyTable) (c : Char) : Nat × Range := Id.run do
+private def searchRuns (table : UnicodePropertyTable) (c : Char) : Nat × Range := Id.run do
   let codepoint := c.toNat
   let mut i := 0
   for run in table.runs do
@@ -81,7 +81,7 @@ Search a character in the inner `offsets` array by keeping track
 of how many characters of the prefix sum of ranges' length and
 use the index parity to decide if the character has the property.
 -/
-def searchOffsets (table : UnicodePropertyTable) (c : Char) (range : Range) (pfs : Nat) : Bool := Id.run do
+private def searchOffsets (table : UnicodePropertyTable) (c : Char) (range : Range) (pfs : Nat) : Bool := Id.run do
   let codepoint := c.toNat
   let mut i := 0
   let mut prefixSum := pfs
@@ -93,6 +93,7 @@ def searchOffsets (table : UnicodePropertyTable) (c : Char) (range : Range) (pfs
       prefixSum := prefixSum + (table.offsets[j]!).toNat
   return i % 2 = 1
 
+/-- Search a character in a Unicode skip list table -/
 def search (table : UnicodePropertyTable) (c : Char) : Bool :=
   let (pfs, range) := searchRuns table c
   searchOffsets table c range pfs

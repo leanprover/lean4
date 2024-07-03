@@ -85,3 +85,27 @@ s
    "fullRange":
    {"start": {"line": 3, "character": 12},
     "end": {"line": 3, "character": 16}}}]}
+{"version": 2,
+ "uri": "file:///incrementalTactic.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 2, "character": 6}, "end": {"line": 2, "character": 10}},
+   "message": "unsolved goals\n⊢ True",
+   "fullRange":
+   {"start": {"line": 2, "character": 6}, "end": {"line": 2, "character": 10}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 3, "character": 4}, "end": {"line": 3, "character": 10}},
+   "message": "no goals to be solved",
+   "fullRange":
+   {"start": {"line": 3, "character": 4}, "end": {"line": 3, "character": 10}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 4, "character": 2}, "end": {"line": 4, "character": 8}},
+   "message": "no goals to be solved",
+   "fullRange":
+   {"start": {"line": 4, "character": 2}, "end": {"line": 4, "character": 8}}}]}

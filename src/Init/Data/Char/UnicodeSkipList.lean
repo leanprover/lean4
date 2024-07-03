@@ -44,7 +44,7 @@ point to the codepoint one past the run.
 As an example, consider some property that would hold for the set of
 codepoints: {100, 101, 103, 104, 105, 108, 109, 2000, 2001, 2002, 2004}
 
-The offsets would be: [100,5,2,2,0,4]
+The offsets would be: [100,2,1,3,2,2,0,3,1,1,0]
 Before packing into a 32 bit integer, the runs would be: [(0,2000),(5,1114112)]
 
 The idea for this data structure comes from Rust:

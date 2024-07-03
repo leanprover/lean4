@@ -215,16 +215,56 @@ namespace EvenOdd
 -- Mutual structural recursion over a non-mutual inductive type
 
 mutual
-  def isEven : Nat → Prop
+  def Even : Nat → Prop
     | 0 => True
-    | n+1 => ¬ isOdd n
+    | n+1 => ¬ Odd n
   termination_by structural x => x
 
-  def isOdd : Nat → Prop
+  def Odd : Nat → Prop
     | 0 => False
-    | n+1 => ¬ isEven n
+    | n+1 => ¬ Even n
   termination_by structural x => x
 end
+
+mutual
+  def isEven : Nat → Bool
+    | 0 => true
+    | n+1 => ! isOdd n
+  termination_by structural x => x
+
+  def isOdd : Nat → Bool
+    | 0 => false
+    | n+1 => ! isEven n
+  termination_by structural x => x
+end
+
+theorem isEven_eq_2 (n : Nat) : isEven (n+1) = ! isOdd n := rfl
+
+/--
+info: EvenOdd.isEven.eq_1 :
+  ∀ (x : Nat),
+    isEven x =
+      match x with
+      | 0 => true
+      | n.succ => !isOdd n
+-/
+#guard_msgs in
+#check isEven.eq_1
+
+theorem eq_true_of_not_eq_false {b : Bool} : (! b) = false → b = true := by simp
+theorem eq_false_of_not_eq_true {b : Bool} : (! b) = true → b = false := by simp
+
+/--
+info: n : Nat
+h : EvenOdd.isOdd (n + 1) = false
+⊢ EvenOdd.isEven n = true
+-/
+#guard_msgs in
+theorem ex1 (n : Nat) (h : isEven (n+2) = true) : isEven n = true := by
+  replace h := eq_false_of_not_eq_true h
+  trace_state -- without smart unfolding the state would be a mess
+  replace h := eq_true_of_not_eq_false h
+  exact h
 
 end EvenOdd
 
@@ -275,6 +315,22 @@ def A.weird_size3 : A → Nat
   | .empty => 0
 termination_by structural x => x
 end
+
+-- We have equality
+theorem A.weird_size1_eq_1 (a : A) : (A.self a).weird_size1 = a.weird_size2 + 1 := rfl
+
+-- And equational theorems: (TODO: This is not the right one yet)
+/--
+info: MutualIndNonMutualFun.A.weird_size1.eq_1 :
+  ∀ (x : A),
+    x.weird_size1 =
+      match x with
+      | a.self => a.weird_size2 + 1
+      | A.other a => 0
+      | A.empty => 0
+-/
+#guard_msgs in
+#check A.weird_size1.eq_1
 
 end MutualIndNonMutualFun
 

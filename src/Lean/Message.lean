@@ -359,6 +359,13 @@ structure MessageLog where
   hadErrors : Bool := false
   /-- The list of messages not already reported, in insertion order. -/
   unreported : PersistentArray Message := {}
+  /--
+  Set of message kinds that have been added to the log.
+  For example, we have the kind `unsafe.exponentiation.warning` for warning messages associated with
+  the configuration option `exponentiation.threshold`.
+  We don't produce a warning if the kind is already in the following set.
+  -/
+  reportedKinds : NameSet := {}
   deriving Inhabited
 
 namespace MessageLog

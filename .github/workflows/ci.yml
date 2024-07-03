@@ -267,7 +267,7 @@ jobs:
 
   build:
     needs: [configure]
-    if: ! (github.event_name == 'schedule' && github.repository == 'leanprover/lean4' || inputs.action == 'release nightly')
+    if: github.event_name != 'schedule' || github.repository == 'leanprover/lean4'
     strategy:
       matrix:
         include: ${{fromJson(needs.configure.outputs.matrix)}}

@@ -250,7 +250,7 @@ A build job for file that is expected to already exist.
 **Deprecated:** Use either `inputTextFile` or `inputBinFile`.
 `inputTextFile` normalizes line endings to produce platform-independent traces.
 -/
-@[deprecated] abbrev inputFile := @inputBinFile
+@[deprecated (since := "2024-06-08")] abbrev inputFile := @inputBinFile
 
 /--
 Build an object file from a source file job using `compiler`. The invocation is:

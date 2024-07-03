@@ -7,6 +7,8 @@ prelude
 import Lean.Data.LBool
 import Lean.Meta.InferType
 import Lean.Meta.NatInstTesters
+import Lean.Meta.NatInstTesters
+import Lean.Util.SafeExponentiation
 
 namespace Lean.Meta
 
@@ -29,6 +31,10 @@ partial def evalNat (e : Expr) : OptionT MetaM Nat := do
   | .mvar ..             => visit e
   | _                    => failure
 where
+  evalPow (b n : Expr) : OptionT MetaM Nat := do
+    let n ← evalNat n
+    guard (← checkExponent n)
+    return (← evalNat b) ^ n
   visit e := do
     match_expr e with
     | OfNat.ofNat _ n i => guard (← isInstOfNatNat i); evalNat n
@@ -48,10 +54,10 @@ where
     | Nat.mod a b => return (← evalNat a) % (← evalNat b)
     | Mod.mod _ i a b => guard (← isInstModNat i); return (← evalNat a) % (← evalNat b)
     | HMod.hMod _ _ _ i a b => guard (← isInstHModNat i); return (← evalNat a) % (← evalNat b)
-    | Nat.pow a b => return (← evalNat a) ^ (← evalNat b)
-    | NatPow.pow _ i a b => guard (← isInstNatPowNat i); return (← evalNat a) ^ (← evalNat b)
-    | Pow.pow _ _ i a b => guard (← isInstPowNat i); return (← evalNat a) ^ (← evalNat b)
-    | HPow.hPow _ _ _ i a b => guard (← isInstHPowNat i); return (← evalNat a) ^ (← evalNat b)
+    | Nat.pow a b => evalPow a b
+    | NatPow.pow _ i a b => guard (← isInstNatPowNat i); evalPow a b
+    | Pow.pow _ _ i a b => guard (← isInstPowNat i); evalPow a b
+    | HPow.hPow _ _ _ i a b => guard (← isInstHPowNat i); evalPow a b
     | _ => failure
 
 /--

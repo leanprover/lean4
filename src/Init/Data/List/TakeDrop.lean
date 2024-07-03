@@ -272,6 +272,15 @@ theorem set_eq_take_append_cons_drop {l : List α} {n : Nat} {a : α} :
   · rw [set_eq_of_length_le]
     omega
 
+theorem exists_of_set {n : Nat} {a' : α} {l : List α} (h : n < l.length) :
+    ∃ l₁ l₂, l = l₁ ++ l[n] :: l₂ ∧ l₁.length = n ∧ l.set n a' = l₁ ++ a' :: l₂ := by
+  refine ⟨l.take n, l.drop (n + 1), ⟨by simp, ⟨length_take_of_le (Nat.le_of_lt h), ?_⟩⟩⟩
+  simp [set_eq_take_append_cons_drop, h]
+
+theorem drop_set_of_lt (a : α) {n m : Nat} (l : List α)
+    (hnm : n < m) : drop m (l.set n a) = l.drop m :=
+  ext_getElem? fun k => by simpa only [getElem?_drop] using getElem?_set_ne (by omega)
+
 theorem drop_take : ∀ (m n : Nat) (l : List α), drop n (take m l) = take (m - n) (drop n l)
   | 0, _, _ => by simp
   | _, 0, _ => by simp

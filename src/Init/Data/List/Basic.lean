@@ -88,7 +88,7 @@ namespace List
 
 /-! ### concat -/
 
-@[simp] theorem length_concat (as : List α) (a : α) : (concat as a).length = as.length + 1 := by
+@[simp high] theorem length_concat (as : List α) (a : α) : (concat as a).length = as.length + 1 := by
   induction as with
   | nil => rfl
   | cons _ xs ih => simp [concat, ih]
@@ -817,6 +817,8 @@ def dropLast {α} : List α → List α
 @[simp] theorem dropLast_cons₂ :
     (x::y::zs).dropLast = x :: (y::zs).dropLast := rfl
 
+-- Later this can be proved by `simp` via `[List.length_dropLast, List.length_cons, Nat.add_sub_cancel]`,
+-- but we need this while bootstrapping `Array`.
 @[simp] theorem length_dropLast_cons (a : α) (as : List α) : (a :: as).dropLast.length = as.length := by
   match as with
   | []       => rfl

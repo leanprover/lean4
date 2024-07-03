@@ -288,7 +288,7 @@ instance [ha : WellFoundedRelation α] [hb : WellFoundedRelation β] : WellFound
   lex ha hb
 
 -- relational product is a Subrelation of the Lex
-def RProdSubLex (a : α × β) (b : α × β) (h : RProd ra rb a b) : Prod.Lex ra rb a b := by
+theorem RProdSubLex (a : α × β) (b : α × β) (h : RProd ra rb a b) : Prod.Lex ra rb a b := by
   cases h with
   | intro h₁ h₂ => exact Prod.Lex.left _ _ h₁
 
@@ -320,7 +320,7 @@ section
 variable {α : Sort u} {β : α → Sort v}
 variable {r  : α → α → Prop} {s : ∀ (a : α), β a → β a → Prop}
 
-def lexAccessible {a} (aca : Acc r a) (acb : (a : α) → WellFounded (s a)) (b : β a) : Acc (Lex r s) ⟨a, b⟩ := by
+theorem lexAccessible {a} (aca : Acc r a) (acb : (a : α) → WellFounded (s a)) (b : β a) : Acc (Lex r s) ⟨a, b⟩ := by
   induction aca with
   | intro xa _ iha =>
     induction (WellFounded.apply (acb xa) b) with

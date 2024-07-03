@@ -519,4 +519,16 @@ instance : MonadRuntimeException CoreM where
 @[inline] def mapCoreM [MonadControlT CoreM m] [Monad m] (f : forall {α}, CoreM α → CoreM α) {α} (x : m α) : m α :=
   controlAt CoreM fun runInBase => f <| runInBase x
 
+/--
+Returns `true` if the given message kind has not been reported in the message log,
+and then mark it as reported. Otherwise, returns `false`.
+We use this API to ensure we don't report the same kind of warning multiple times.
+-/
+def reportMessageKind (kind : Name) : CoreM Bool := do
+  if (← get).messages.reportedKinds.contains kind then
+    return false
+  else
+    modify fun s => { s with messages.reportedKinds := s.messages.reportedKinds.insert kind }
+    return true
+
 end Lean

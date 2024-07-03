@@ -15,25 +15,39 @@ variable (fn : Fn ((p : P) -> B.fn p) ({p : P} -> B.fn p))
 
 variable (p : P)
 variable (Bp : Bar.fn p)
-#check fn Bp
-/-
-application type mismatch
-  Fn.imp fn Bp
-argument
-  Bp
-has type
-  Bar.fn p : Sort ?u.635
-but is expected to have type
-  P : Sort u
+/--
+error: function expected at
+  fn.imp
+term has type
+  Bar.fn ?m.744
 -/
-#check fn p
-#check fn (p := p)
+#guard_msgs in
+#check fn Bp
 
+/--
+error: function expected at
+  fn.imp
+term has type
+  Bar.fn ?m.828
+-/
+#guard_msgs in
+#check fn p
+
+#check fn (p := p)
 
 variable (fn' : Fn ((p : P) -> B.fn p -> B.fn p) ({p : P} -> B.fn p -> B.fn p))
 
--- Expect no error
 #check fn' Bp
 
--- Expect error
+/--
+error: application type mismatch
+  fn'.imp p
+argument
+  p
+has type
+  P : Sort u
+but is expected to have type
+  Bar.fn ?m.1225 : Sort ?u.1170
+-/
+#guard_msgs in
 #check fn' p

@@ -435,6 +435,12 @@ Note that EOF does not actually close a handle, so further reads may block and r
 
 end Handle
 
+/--
+Resolves a pathname to an absolute pathname with no '.', '..', or symbolic links.
+
+This function coincides with the [POSIX `realpath` function](https://pubs.opengroup.org/onlinepubs/9699919799/functions/realpath.html),
+see there for more information.
+-/
 @[extern "lean_io_realpath"] opaque realPath (fname : FilePath) : IO FilePath
 @[extern "lean_io_remove_file"] opaque removeFile (fname : @& FilePath) : IO Unit
 /-- Remove given directory. Fails if not empty; see also `IO.FS.removeDirAll`. -/

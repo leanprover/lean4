@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
 prelude
-import Std.Classes.LawfulHashable
+import Init.Data.Hashable
 import Std.Data.DHashMap.Internal.List.Associative
 import Std.Data.DHashMap.Internal.Defs
 

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
 prelude
+import Init.Data.Array.TakeDrop
 import Std.Data.DHashMap.Basic
 import Std.Data.DHashMap.Internal.List.HashesTo
 import Std.Data.DHashMap.Internal.AssocList.Lemmas
@@ -79,7 +80,7 @@ theorem exists_bucket_of_uset [BEq α] [Hashable α]
         ∀ k : α, (mkIdx self.size (by omega) (hash k)).1.toNat = i.toNat →
           containsKey k l = false) := by
   have h₀ : 0 < self.size := by omega
-  obtain ⟨l₁, l₂, h₁, h₂, h₃⟩ := Array.exists_of_update self i d hi
+  obtain ⟨l₁, l₂, h₁, h₂, h₃⟩ := Array.exists_of_uset self i d hi
   refine ⟨l₁.bind AssocList.toList ++ l₂.bind AssocList.toList, ?_, ?_, ?_⟩
   · rw [toListModel, h₁]
     simpa using perm_append_comm_assoc _ _ _
@@ -90,14 +91,14 @@ theorem exists_bucket_of_uset [BEq α] [Hashable α]
     refine ⟨?_, ?_⟩
     · apply List.containsKey_bind_eq_false
       intro j hj
-      rw [← List.getElem_append (l₂ := self[i] :: l₂), List.getElem_congr h₁.symm]
+      rw [← List.getElem_append (l₂ := self[i] :: l₂), getElem_congr_coll h₁.symm]
       apply (h.hashes_to j _).containsKey_eq_false h₀ k
       omega
     · apply List.containsKey_bind_eq_false
       intro j hj
-      rw [← List.getElem_cons_succ self[i] _ _ (by simp only [Array.ugetElem_eq_getElem,
-                                                  List.length_cons]; omega)]
-      rw [List.getElem_append_right'' l₁, List.getElem_congr h₁.symm]
+      rw [← List.getElem_cons_succ self[i] _ _
+        (by simp only [Array.ugetElem_eq_getElem, List.length_cons]; omega)]
+      rw [List.getElem_append_right'' l₁, getElem_congr_coll h₁.symm]
       apply (h.hashes_to (j + 1 + l₁.length) _).containsKey_eq_false h₀ k
       omega
 

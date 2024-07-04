@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro, Markus Himmel
 -/
 prelude
+import Init.Data.Array.Lemmas
 import Std.Data.DHashMap.RawDef
 import Std.Data.DHashMap.Internal.List.Defs
 import Std.Data.DHashMap.Internal.Index

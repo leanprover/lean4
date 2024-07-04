@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
 prelude
-import Std.Classes.BEq
-import Std.Classes.LawfulHashable
+import Init.Data.BEq
+import Init.Data.Hashable
 import Std.Data.DHashMap.Internal.Defs
 
 /-

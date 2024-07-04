@@ -88,7 +88,7 @@ theorem getD_eq {β : Type v} [BEq α] {l : AssocList α (fun _ => β)} {a : α}
   induction l
   · simp [getD, List.getValueD]
   · simp_all [getD, List.getValueD, List.getValueD, List.getValue?_cons,
-      apply_bif (fun x => Option.getD x fallback)]
+      Bool.apply_cond (fun x => Option.getD x fallback)]
 
 @[simp]
 theorem panicWithPosWithDecl_eq [Inhabited α] {modName declName line col msg} :
@@ -107,7 +107,8 @@ theorem get!_eq {β : Type v} [BEq α] [Inhabited β] {l : AssocList α (fun _ =
     l.get! a = getValue! a l.toList := by
   induction l
   · simp [get!, List.getValue!]
-  · simp_all [get!, List.getValue!, List.getValue!, List.getValue?_cons, apply_bif Option.get!]
+  · simp_all [get!, List.getValue!, List.getValue!, List.getValue?_cons,
+      Bool.apply_cond Option.get!]
 
 @[simp]
 theorem toList_replace [BEq α] {l : AssocList α β} {a : α} {b : β a} :

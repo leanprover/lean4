@@ -149,8 +149,8 @@ private def mkBelowOrIBelow (indName : Name) (ibelow : Bool) : MetaM Unit := do
     if ibelow then
       0
     else if indVal.isReflexive then
-      if let .max 1 lvl := ilvl then
-        mkLevelMax' (.succ lvl) lvl
+      if let .max 1 ilvl' := ilvl then
+        mkLevelMax' (.succ lvl) ilvl'
       else
         mkLevelMax' (.succ lvl) ilvl
     else
@@ -317,8 +317,8 @@ def mkBRecOnOrBInductionOn (indName : Name) (ind : Bool) : MetaM Unit := do
     if ind then
       0
     else if indVal.isReflexive then
-      if let .max 1 lvl := ilvl then
-        mkLevelMax' (.succ lvl) lvl
+      if let .max 1 ilvl' := ilvl then
+        mkLevelMax' (.succ lvl) ilvl'
       else
         mkLevelMax' (.succ lvl) ilvl
     else

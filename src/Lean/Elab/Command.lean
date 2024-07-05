@@ -295,7 +295,7 @@ def runAsyncAsSnapshot (act : CommandElabM Unit) : CommandElabM (Task Language.S
 def runLintersAsync (stx : Syntax) (lintPromise : IO.Promise Language.SnapshotTree) :
     CommandElabM Unit := do
   let opts ← getOptions
-  let hasLintTrace := opts.entries.any ((`Elab.lint).isPrefixOf ·.1)
+  let hasLintTrace := opts.entries.any ((`trace.Elab.lint).isPrefixOf ·.1)
   if hasLintTrace || trace.profiler.get opts then
     -- NOTE: can't currently report traces from tasks
     runLinters stx

@@ -15,9 +15,11 @@ the contents of this file.
 File contents: tiny private implementation of `List.Pairwise`
 -/
 
+set_option linter.missingDocs true
+set_option autoImplicit false
+
 namespace Std.DHashMap.Internal.List
 
-set_option autoImplicit false
 
 universe u
 

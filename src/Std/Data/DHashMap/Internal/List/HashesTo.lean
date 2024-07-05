@@ -15,6 +15,11 @@ the contents of this file.
 File contents: lemmas about `HashesTo` (defined in `Internal.Defs`)
 -/
 
+set_option linter.missingDocs true
+set_option autoImplicit false
+
+universe u v
+
 namespace Std.DHashMap.Internal.List
 
 variable {α : Type u} {β : α → Type v}

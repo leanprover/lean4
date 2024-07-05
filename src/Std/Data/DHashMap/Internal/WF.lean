@@ -17,6 +17,7 @@ File contents: proof that all hash map operations preserve `WFImp` to show `WF.o
 
 open Std.DHashMap.Internal.List
 
+set_option linter.missingDocs true
 set_option autoImplicit false
 
 universe u v w

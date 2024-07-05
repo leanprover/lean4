@@ -14,9 +14,10 @@ the contents of this file.
 File contents: Connecting operations on `AssocList` to operations defined in `List.Associative`
 -/
 
-open Std.DHashMap.Internal
-
+set_option linter.missingDocs true
 set_option autoImplicit false
+
+open Std.DHashMap.Internal
 
 universe w v u
 

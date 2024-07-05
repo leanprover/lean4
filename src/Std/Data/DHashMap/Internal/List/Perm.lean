@@ -13,6 +13,7 @@ the contents of this file.
 File contents: tiny private implementation of `List.Perm`
 -/
 
+set_option linter.missingDocs true
 set_option autoImplicit false
 
 universe u v
@@ -21,11 +22,16 @@ variable {α : Type u} {β : Type v}
 
 namespace Std.DHashMap.Internal.List
 
+/-- Internal implementation detail of the hash map -/
 inductive Perm : List α → List α → Prop where
-| refl (l) : Perm l l
-| cons {l l'} (a) : Perm l l' → Perm (a::l) (a::l')
-| swap {l l'} (a b) : Perm l l' → Perm (a::b::l) (b::a::l)
-| trans {l l' l''} : Perm l l' → Perm l' l'' → Perm l l''
+  /-- Internal implementation detail of the hash map -/
+  | refl (l) : Perm l l
+  /-- Internal implementation detail of the hash map -/
+  | cons {l l'} (a) : Perm l l' → Perm (a::l) (a::l')
+  /-- Internal implementation detail of the hash map -/
+  | swap {l l'} (a b) : Perm l l' → Perm (a::b::l) (b::a::l)
+  /-- Internal implementation detail of the hash map -/
+  | trans {l l' l''} : Perm l l' → Perm l' l'' → Perm l l''
 
 theorem Perm.append_right {l₁ l₂ : List α} (l₃ : List α) (h : Perm l₁ l₂) :
     Perm (l₁ ++ l₃) (l₂ ++ l₃) := by

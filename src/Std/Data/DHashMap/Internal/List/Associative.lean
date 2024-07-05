@@ -15,6 +15,7 @@ the contents of this file.
 File contents: Verification of associative lists
 -/
 
+set_option linter.missingDocs true
 set_option autoImplicit false
 
 universe u v w
@@ -31,6 +32,7 @@ theorem assoc_induction {motive : List ((a : α) × β a) → Prop} (nil : motiv
   | [] => nil
   | ⟨_, _⟩ :: _ => cons _ _ _ (assoc_induction nil cons _)
 
+/-- Internal implementation detail of the hash map -/
 def getEntry? [BEq α] (a : α) : List ((a : α) × β a) → Option ((a : α) × β a)
   | [] => none
   | ⟨k, v⟩ :: l => bif a == k then some ⟨k, v⟩ else getEntry? a l
@@ -84,6 +86,7 @@ section
 
 variable {β : Type v}
 
+/-- Internal implementation detail of the hash map -/
 def getValue? [BEq α] (a : α) : List ((_ : α) × β) → Option β
   | [] => none
   | ⟨k, v⟩ :: l => bif a == k then some v else getValue? a l
@@ -124,6 +127,7 @@ theorem isEmpty_eq_false_iff_exists_isSome_getValue? [BEq α] [ReflBEq α] {l : 
 
 end
 
+/-- Internal implementation detail of the hash map -/
 def getValueCast? [BEq α] [LawfulBEq α] (a : α) : List ((a : α) × β a) → Option (β a)
   | [] => none
   | ⟨k, v⟩ :: l => if h : a == k then some (cast (congrArg β (eq_of_beq h).symm) v)
@@ -200,6 +204,7 @@ theorem isEmpty_eq_false_iff_exists_isSome_getValueCast? [BEq α] [LawfulBEq α]
     {l : List ((a : α) × β a)} : l.isEmpty = false ↔ ∃ a, (getValueCast? a l).isSome := by
   simp [isEmpty_eq_false_iff_exists_isSome_getEntry?, isSome_getValueCast?_eq_isSome_getEntry?]
 
+/-- Internal implementation detail of the hash map -/
 def containsKey [BEq α] (a : α) : List ((a : α) × β a) → Bool
   | [] => false
   | ⟨k, _⟩ :: l => a == k || containsKey a l
@@ -280,6 +285,7 @@ theorem containsKey_of_beq [BEq α] [PartialEquivBEq α] {l : List ((a : α) × 
     (hla : containsKey a l) (hab : a == b) : containsKey b l := by
   rwa [← containsKey_congr hab]
 
+/-- Internal implementation detail of the hash map -/
 def getEntry [BEq α] (a : α) (l : List ((a : α) × β a)) (h : containsKey a l) : (a : α) × β a :=
   (getEntry? a l).get <| containsKey_eq_isSome_getEntry?.symm.trans h
 
@@ -309,6 +315,7 @@ section
 
 variable {β : Type v}
 
+/-- Internal implementation detail of the hash map -/
 def getValue [BEq α] (a : α) (l : List ((_ : α) × β)) (h : containsKey a l) : β :=
   (getValue? a l).get <| containsKey_eq_isSome_getValue?.symm.trans h
 
@@ -346,6 +353,7 @@ theorem getValue_congr [BEq α] [PartialEquivBEq α] {l : List ((_ : α) × β)}
 
 end
 
+/-- Internal implementation detail of the hash map -/
 def getValueCast [BEq α] [LawfulBEq α] (a : α) (l : List ((a : α) × β a)) (h : containsKey a l) :
     β a :=
   (getValueCast? a l).get <| containsKey_eq_isSome_getValueCast?.symm.trans h
@@ -374,6 +382,7 @@ theorem getValue_eq_getValueCast {β : Type v} [BEq α] [LawfulBEq α] {l : List
   · simp at h
   · simp_all [getValue_cons, getValueCast_cons]
 
+/-- Internal implementation detail of the hash map -/
 def getValueCastD [BEq α] [LawfulBEq α] (a : α) (l : List ((a : α) × β a)) (fallback : β a) : β a :=
   (getValueCast? a l).getD fallback
 
@@ -400,6 +409,7 @@ theorem getValueCast?_eq_some_getValueCastD [BEq α] [LawfulBEq α] {l : List ((
     getValueCast? a l = some (getValueCastD a l fallback) := by
   rw [getValueCast?_eq_some_getValueCast h, getValueCast_eq_getValueCastD]
 
+/-- Internal implementation detail of the hash map -/
 def getValueCast! [BEq α] [LawfulBEq α] (a : α) [Inhabited (β a)] (l : List ((a : α) × β a)) :
     β a :=
   (getValueCast? a l).get!
@@ -433,6 +443,7 @@ section
 
 variable {β : Type v}
 
+/-- Internal implementation detail of the hash map -/
 def getValueD [BEq α] (a : α) (l : List ((_ : α) × β)) (fallback : β) : β :=
   (getValue? a l).getD fallback
 
@@ -464,6 +475,7 @@ theorem getValueD_congr [BEq α] [PartialEquivBEq α] {l : List ((_ : α) × β)
     {fallback : β} (hab : a == b) : getValueD a l fallback = getValueD b l fallback := by
   simp only [getValueD_eq_getValue?, getValue?_congr hab]
 
+/-- Internal implementation detail of the hash map -/
 def getValue! [BEq α] [Inhabited β] (a : α) (l : List ((_ : α) × β)) : β :=
   (getValue? a l).get!
 
@@ -500,6 +512,7 @@ theorem getValue!_eq_getValueD_default [BEq α] [Inhabited β] {l : List ((_ : �
 
 end
 
+/-- Internal implementation detail of the hash map -/
 def replaceEntry [BEq α] (k : α) (v : β k) : List ((a : α) × β a) → List ((a : α) × β a)
   | [] => []
   | ⟨k', v'⟩ :: l => bif k == k' then ⟨k, v⟩ :: l else ⟨k', v'⟩ :: replaceEntry k v l
@@ -627,6 +640,7 @@ theorem containsKey_replaceEntry [BEq α] [PartialEquivBEq α] {l : List ((a : �
     rw [Bool.and_eq_true] at h
     exact containsKey_of_beq h.1 (BEq.symm h.2)
 
+/-- Internal implementation detail of the hash map -/
 def removeKey [BEq α] (k : α) : List ((a : α) × β a) → List ((a : α) × β a)
   | [] => []
   | ⟨k', v'⟩ :: l => bif k == k' then l else ⟨k', v'⟩ :: removeKey k l
@@ -808,6 +822,7 @@ theorem DistinctKeys.replaceEntry [BEq α] [PartialEquivBEq α] {l : List ((a : 
       refine ⟨h.1, ?_⟩
       simpa [containsKey_congr (BEq.symm hk'k)] using h.2
 
+/-- Internal implementation detail of the hash map -/
 def insertEntry [BEq α]  (k : α) (v : β k) (l : List ((a : α) × β a)) : List ((a : α) × β a) :=
   bif containsKey k l then replaceEntry k v l else ⟨k, v⟩ :: l
 
@@ -983,6 +998,7 @@ theorem getValue_insertEntry_self {β : Type v} [BEq α] [EquivBEq α] {l : List
     {v : β} : getValue k (insertEntry k v l) containsKey_insertEntry_self = v := by
   simp [getValue_insertEntry]
 
+/-- Internal implementation detail of the hash map -/
 def insertEntryIfNew [BEq α] (k : α) (v : β k) (l : List ((a : α) × β a)) : List ((a : α) × β a) :=
   bif containsKey k l then l else ⟨k, v⟩ :: l
 

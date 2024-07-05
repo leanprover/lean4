@@ -13,6 +13,7 @@ the contents of this file.
 File contents: relating operations on `Raw` to operations on `Raw₀`
 -/
 
+set_option linter.missingDocs true
 set_option autoImplicit false
 
 universe u v w

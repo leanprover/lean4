@@ -13,6 +13,7 @@ the contents of this file.
 File contents: tiny private implementation of `List.Sublist`
 -/
 
+set_option linter.missingDocs true
 set_option autoImplicit false
 
 universe u v
@@ -21,10 +22,14 @@ variable {α : Type u} {β : Type v}
 
 namespace Std.DHashMap.Internal.List
 
+/-- Internal implementation detail of the hash map -/
 inductive Sublist : List α → List α → Prop where
-| refl {l} : Sublist l l
-| cons {a} {l l'} : Sublist l l' → Sublist (a::l) (a::l')
-| cons_right {a} {l l'} : Sublist l l' → Sublist l (a::l')
+  /-- Internal implementation detail of the hash map -/
+  | refl {l} : Sublist l l
+  /-- Internal implementation detail of the hash map -/
+  | cons {a} {l l'} : Sublist l l' → Sublist (a::l) (a::l')
+    /-- Internal implementation detail of the hash map -/
+  | cons_right {a} {l l'} : Sublist l l' → Sublist l (a::l')
 
 @[simp]
 theorem sublist_nil {l : List α} : Sublist [] l := by

@@ -20,6 +20,7 @@ his means that later we will be able to prove properties of the operations by pr
 about the basic building blocks.
 -/
 
+set_option linter.missingDocs true
 set_option autoImplicit false
 
 universe u v w
@@ -32,20 +33,24 @@ open Internal.List
 
 /-! # Setting up the infrastructure -/
 
+/-- Internal implementation detail of the hash map -/
 def bucket [Hashable α] (self : Array (AssocList α β)) (h : 0 < self.size) (k : α) :
     AssocList α β :=
   let ⟨i, h⟩ := mkIdx self.size h (hash k)
   self[i]
 
+/-- Internal implementation detail of the hash map -/
 def updateBucket [Hashable α] (self : Array (AssocList α β)) (h : 0 < self.size) (k : α)
     (f : AssocList α β → AssocList α β) : Array (AssocList α β) :=
   let ⟨i, h⟩ := mkIdx self.size h (hash k)
   self.uset i (f self[i]) h
 
+/-- Internal implementation detail of the hash map -/
 def updateAllBuckets (self : Array (AssocList α β)) (f : AssocList α β → AssocList α δ) :
     Array (AssocList α δ) :=
   self.map f
 
+/-- Internal implementation detail of the hash map -/
 def withComputedSize (self : Array (AssocList α β)) : Raw α β :=
   ⟨computeSize self, self⟩
 
@@ -244,45 +249,59 @@ namespace Raw₀
 
 /-! # Definition of model functions -/
 
+/-- Internal implementation detail of the hash map -/
 def replaceₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) : Raw₀ α β :=
   ⟨⟨m.1.size, updateBucket m.1.buckets m.2 a (fun l => l.replace a b)⟩, by simpa using m.2⟩
 
+/-- Internal implementation detail of the hash map -/
 def consₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) : Raw₀ α β :=
   ⟨⟨m.1.size + 1, updateBucket m.1.buckets m.2 a (fun l => l.cons a b)⟩, by simpa using m.2⟩
 
+/-- Internal implementation detail of the hash map -/
 def get?ₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Option (β a) :=
   (bucket m.1.buckets m.2 a).getCast? a
 
+/-- Internal implementation detail of the hash map -/
 def containsₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Bool :=
   (bucket m.1.buckets m.2 a).contains a
 
+/-- Internal implementation detail of the hash map -/
 def getₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) (h : m.containsₘ a) : β a :=
   (bucket m.1.buckets m.2 a).getCast a h
 
+/-- Internal implementation detail of the hash map -/
 def getDₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : β a) : β a :=
   (m.get?ₘ a).getD fallback
 
+/-- Internal implementation detail of the hash map -/
 def get!ₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) [Inhabited (β a)] : β a :=
   (m.get?ₘ a).get!
 
+/-- Internal implementation detail of the hash map -/
 def insertₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) : Raw₀ α β :=
   if m.containsₘ a then m.replaceₘ a b else Raw₀.expandIfNecessary (m.consₘ a b)
 
+/-- Internal implementation detail of the hash map -/
 def insertIfNewₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) : Raw₀ α β :=
   if m.containsₘ a then m else Raw₀.expandIfNecessary (m.consₘ a b)
 
+/-- Internal implementation detail of the hash map -/
 def removeₘaux [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Raw₀ α β :=
   ⟨⟨m.1.size - 1, updateBucket m.1.buckets m.2 a (fun l => l.remove a)⟩, by simpa using m.2⟩
 
+/-- Internal implementation detail of the hash map -/
 def removeₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Raw₀ α β :=
   if m.containsₘ a then m.removeₘaux a else m
 
+/-- Internal implementation detail of the hash map -/
 def filterMapₘ (m : Raw₀ α β) (f : (a : α) → β a → Option (δ a)) : Raw₀ α δ :=
   ⟨withComputedSize (updateAllBuckets m.1.buckets fun l => l.filterMap f), by simpa using m.2⟩
 
+/-- Internal implementation detail of the hash map -/
 def mapₘ (m : Raw₀ α β) (f : (a : α) → β a → δ a) : Raw₀ α δ :=
   ⟨⟨m.1.size, updateAllBuckets m.1.buckets (AssocList.map f)⟩, by simpa using m.2⟩
 
+/-- Internal implementation detail of the hash map -/
 def filterₘ (m : Raw₀ α β) (f : (a : α) → β a → Bool) : Raw₀ α β :=
   ⟨withComputedSize (updateAllBuckets m.1.buckets fun l => l.filter f), by simpa using m.2⟩
 
@@ -290,15 +309,19 @@ section
 
 variable {β : Type v}
 
+/-- Internal implementation detail of the hash map -/
 def Const.get?ₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α) : Option β :=
   (bucket m.1.buckets m.2 a).get? a
 
+/-- Internal implementation detail of the hash map -/
 def Const.getₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α) (h : m.containsₘ a) : β :=
   (bucket m.1.buckets m.2 a).get a h
 
+/-- Internal implementation detail of the hash map -/
 def Const.getDₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α) (fallback : β) : β :=
   (Const.get?ₘ m a).getD fallback
 
+/-- Internal implementation detail of the hash map -/
 def Const.get!ₘ [BEq α] [Hashable α] [Inhabited β] (m : Raw₀ α (fun _ => β)) (a : α) : β :=
   (Const.get?ₘ m a).get!
 

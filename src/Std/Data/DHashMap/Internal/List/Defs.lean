@@ -13,23 +13,31 @@ the contents of this file.
 File contents: definitions on lists needed to state the well-formedness predicate
 -/
 
+set_option linter.missingDocs true
+set_option autoImplicit false
+
 universe u v w
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w}
 
 namespace Std.DHashMap.Internal.List
 
+/-- Internal implementation detail of the hash map -/
 def Pairwise (P : α → α → Prop) : List α → Prop
 | [] => True
 | (x::xs) => (∀ y ∈ xs, P x y) ∧ Pairwise P xs
 
+/-- Internal implementation detail of the hash map -/
 def keys : List ((a : α) × β a) → List α
   | [] => []
   | ⟨k, _⟩ :: l => k :: keys l
 
+/-- Internal implementation detail of the hash map -/
 structure DistinctKeys [BEq α] (l : List ((a : α) × β a)) : Prop where
+  /-- Internal implementation detail of the hash map -/
   distinct : Pairwise (fun a b => (a == b) = false) (keys l)
 
+/-- Internal implementation detail of the hash map -/
 def values {β : Type v} : List ((_ : α) × β) → List β
   | [] => []
   | ⟨_, v⟩ :: l => v :: values l

@@ -13,9 +13,10 @@ the contents of this file.
 File contents: verification of operations on `Raw₀`
 -/
 
-open Std.DHashMap.Internal.List
-
+set_option linter.missingDocs true
 set_option autoImplicit false
+
+open Std.DHashMap.Internal.List
 
 universe u v
 
@@ -56,12 +57,14 @@ namespace Raw₀
 
 variable (m : Raw₀ α β) (h : m.1.WF)
 
+/-- Internal implementation detail of the hash map -/
 scoped macro "wf_trivial" : tactic => `(tactic|
   repeat (first
     | apply Raw₀.wfImp_insert | apply Raw₀.wfImp_insertIfNew | apply Raw₀.wfImp_remove
     | apply Raw.WF.out | assumption | apply Raw₀.wfImp_empty | apply Raw.WFImp.distinct
     | apply Raw.WF.empty₀))
 
+/-- Internal implementation detail of the hash map -/
 scoped macro "empty" : tactic => `(tactic| { intros; simp_all [List.isEmpty_iff] } )
 
 open Lean
@@ -82,6 +85,7 @@ private def congrNames : MacroM (Array (TSyntax `term)) := do
     ← `(getValueCast!_of_perm _), ← `(getValueCastD_of_perm _), ← `(getValue!_of_perm _),
     ← `(getValueD_of_perm _) ]
 
+/-- Internal implementation detail of the hash map -/
 scoped syntax "simp_to_model" ("using" term)? : tactic
 
 macro_rules

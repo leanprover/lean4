@@ -13,6 +13,7 @@ the contents of this file.
 File contents: Operations on associative lists
 -/
 
+set_option linter.missingDocs true
 set_option autoImplicit false
 
 universe w v u
@@ -26,24 +27,30 @@ variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {
 leads to one fewer pointer indirection (in the current code generator).
 -/
 inductive AssocList (α : Type u) (β : α → Type v) where
+  /-- Internal implementation detail of the hash map -/
   | nil
+  /-- Internal implementation detail of the hash map -/
   | cons (key : α) (value : β key) (tail : AssocList α β)
   deriving Inhabited
 
 namespace AssocList
 
+/-- Internal implementation detail of the hash map -/
 @[specialize] def foldlM (f : δ → (a : α) → β a → m δ) : (init : δ) → AssocList α β → m δ
   | d, nil         => pure d
   | d, cons a b es => do
     let d ← f d a b
     foldlM f d es
 
+/-- Internal implementation detail of the hash map -/
 @[inline] def foldl (f : δ → (α : α) → β α → δ) (init : δ) (as : AssocList α β) : δ :=
   Id.run (foldlM f init as)
 
+/-- Internal implementation detail of the hash map -/
 @[inline] def forM (f : (a : α) → β a → m PUnit) (as : AssocList α β) : m PUnit :=
   as.foldlM (fun _ => f) ⟨⟩
 
+/-- Internal implementation detail of the hash map -/
 @[inline] def forInStep (as : AssocList α β) (init : δ) (f : (a : α) → β a → δ → m (ForInStep δ)) :
     m (ForInStep δ) :=
   go as init
@@ -54,10 +61,12 @@ where @[specialize] go : AssocList α β → δ → m (ForInStep δ)
     | ForInStep.done d => pure (ForInStep.done d)
     | ForInStep.yield d => go t d
 
+/-- Internal implementation detail of the hash map -/
 def toList : AssocList α β → List ((a : α) × β a)
   | nil => []
   | cons a b es => ⟨a, b⟩ :: es.toList
 
+/-- Internal implementation detail of the hash map -/
 def length (l : AssocList α β) : Nat :=
   l.foldl (fun n _ _ => n + 1) 0
 
@@ -65,54 +74,66 @@ section
 
 variable {β : Type v}
 
+/-- Internal implementation detail of the hash map -/
 def get? [BEq α] (a : α) : AssocList α (fun _ => β) → Option β
   | nil => none
   | cons k v es => bif a == k then some v else get? a es
 
 end
 
+/-- Internal implementation detail of the hash map -/
 def getCast? [BEq α] [LawfulBEq α] (a : α) : AssocList α β → Option (β a)
   | nil => none
   | cons k v es => if h : a == k then some (cast (congrArg β (eq_of_beq h).symm) v)
       else es.getCast? a
 
+/-- Internal implementation detail of the hash map -/
 def contains [BEq α] (a : α) : AssocList α β → Bool
   | nil => false
   | cons k _ l => a == k || l.contains a
 
+/-- Internal implementation detail of the hash map -/
 def get {β : Type v} [BEq α] (a : α) : (l : AssocList α (fun _ => β)) → l.contains a → β
   | cons k v es, h => if hka : a == k then v else get a es
       (by rw [← h, contains, Bool.of_not_eq_true hka, Bool.false_or])
 
+/-- Internal implementation detail of the hash map -/
 def getCast [BEq α] [LawfulBEq α] (a : α) : (l : AssocList α β) → l.contains a → β a
   | cons k v es, h => if hka : a == k then cast (congrArg β (eq_of_beq hka).symm) v
       else es.getCast a (by rw [← h, contains, Bool.of_not_eq_true hka, Bool.false_or])
 
+/-- Internal implementation detail of the hash map -/
 def getCast! [BEq α] [LawfulBEq α] (a : α) [Inhabited (β a)] : AssocList α β → β a
   | nil => panic! "key is not present in hash table"
   | cons k v es => if h : a == k then cast (congrArg β (eq_of_beq h).symm) v else es.getCast! a
 
+/-- Internal implementation detail of the hash map -/
 def get! {β : Type v} [BEq α] [Inhabited β] (a : α) : AssocList α (fun _ => β) → β
   | nil => panic! "key is not present in hash table"
   | cons k v es => bif a == k then v else es.get! a
 
+/-- Internal implementation detail of the hash map -/
 def getCastD [BEq α] [LawfulBEq α] (a : α) (fallback : β a) : AssocList α β → β a
   | nil => fallback
   | cons k v es => if h : a == k then cast (congrArg β (eq_of_beq h).symm) v
       else es.getCastD a fallback
 
+/-- Internal implementation detail of the hash map -/
 def getD {β : Type v} [BEq α] (a : α) (fallback : β) : AssocList α (fun _ => β) → β
   | nil => fallback
   | cons k v es => bif a == k then v else es.getD a fallback
 
+/-- Internal implementation detail of the hash map -/
 def replace [BEq α] (a : α) (b : β a) : AssocList α β → AssocList α β
   | nil => nil
   | cons k v l => bif a == k then cons a b l else cons k v (replace a b l)
 
+/-- Internal implementation detail of the hash map -/
 def remove [BEq α] (a : α) : AssocList α β → AssocList α β
   | nil => nil
   | cons k v l => bif a == k then l else cons k v (l.remove a)
 
+/-- Internal implementation detail of the hash map -/
 @[inline] def filterMap (f : (a : α) → β a → Option (γ a)) :
     AssocList α β → AssocList α γ :=
   go .nil
@@ -123,6 +144,7 @@ where
     | none => go acc t
     | some v' => go (cons k v' acc) t
 
+/-- Internal implementation detail of the hash map -/
 @[inline] def map (f : (a : α) → β a → γ a) : AssocList α β → AssocList α γ :=
   go .nil
 where
@@ -130,6 +152,7 @@ where
   | nil => acc
   | cons k v t => go (cons k (f k v) acc) t
 
+/-- Internal implementation detail of the hash map -/
 @[inline] def filter (f : (a : α) → β a → Bool) : AssocList α β → AssocList α β :=
   go .nil
 where

@@ -14,6 +14,9 @@ the contents of this file.
 File contents: mapping a hash to a hash map bucket
 -/
 
+set_option linter.missingDocs true
+set_option autoImplicit false
+
 namespace Std.DHashMap.Internal
 
 /--

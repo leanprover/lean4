@@ -35,7 +35,7 @@
       echo -n 'lines C++: ' &&
       find src \( -name '*.h' -o -name '*.cpp' \) -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1 &&
       echo -n 'max dynamic symbols: ' &&
-      find ${BUILD:-build/release}/stage2/lib/lean -name '*.so' -exec bash -c 'nm --dynamic --defined-only {} | wc -l' \; | sort | head -n1
+      find ${BUILD:-build/release}/stage2/lib/lean -name '*.a' -exec bash -c 'nm {} | grep " T " | wc -l' \; | sort | head -n1
       "
     max_runs: 1
     runner: output

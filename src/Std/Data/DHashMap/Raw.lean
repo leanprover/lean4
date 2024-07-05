@@ -278,7 +278,7 @@ only those mappings where the function returns `some` value.
 @[inline] def fold (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
   Id.run (b.foldM f init)
 
-/-- Folds the given function over the mappings in the hash map in some order. -/
+/-- Carries out a monadic action on each mapping in the hash map in some order. -/
 @[inline] def forM (f : (a : α) → β a → m PUnit) (b : Raw α β) : m PUnit :=
   b.buckets.forM (AssocList.forM f)
 

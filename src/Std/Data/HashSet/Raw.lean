@@ -125,7 +125,7 @@ section Unverified
 @[inline] def fold {β : Type v} (f : β → α → β) (init : β) (m : Raw α) : β :=
   m.inner.fold (fun b a _ => f b a) init
 
-/-- Folds the given function over the elements of the hash set in some order. -/
+/-- Carries out a monadic action on each mapping in the hash map in some order. -/
 @[inline] def forM {m : Type v → Type v} [Monad m] (f : α → m PUnit) (b : Raw α) : m PUnit :=
   b.inner.forM (fun a _ => f a)
 

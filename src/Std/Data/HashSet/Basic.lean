@@ -118,14 +118,14 @@ section Unverified
   ⟨m.inner.filter fun a _ => f a⟩
 
 /-- Folds the given function over the elements of the hash set in some order. -/
-@[inline] def foldlM [BEq α] [Hashable α] {m : Type v → Type v} [Monad m] {β : Type v}
+@[inline] def foldM [BEq α] [Hashable α] {m : Type v → Type v} [Monad m] {β : Type v}
     (f : β → α → m β) (init : β) (b : HashSet α) : m β :=
-  b.inner.foldlM (fun b a _ => f b a) init
+  b.inner.foldM (fun b a _ => f b a) init
 
 /-- Folds the given function over the elements of the hash set in some order. -/
-@[inline] def foldl [BEq α] [Hashable α] {β : Type v} (f : β → α → β) (init : β) (m : HashSet α) :
+@[inline] def fold [BEq α] [Hashable α] {β : Type v} (f : β → α → β) (init : β) (m : HashSet α) :
     β :=
-  m.inner.foldl (fun b a _ => f b a) init
+  m.inner.fold (fun b a _ => f b a) init
 
 /-- Folds the given function over the elements of the hash set in some order. -/
 @[inline] def forM [BEq α] [Hashable α] {m : Type v → Type v} [Monad m] (f : α → m PUnit)

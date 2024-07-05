@@ -117,13 +117,13 @@ section Unverified
   ⟨m.inner.filter fun a _ => f a⟩
 
 /-- Folds the given function over the elements of the hash set in some order. -/
-@[inline] def foldlM {m : Type v → Type v} [Monad m] {β : Type v} (f : β → α → m β) (init : β)
+@[inline] def foldM {m : Type v → Type v} [Monad m] {β : Type v} (f : β → α → m β) (init : β)
     (b : Raw α) : m β :=
-  b.inner.foldlM (fun b a _ => f b a) init
+  b.inner.foldM (fun b a _ => f b a) init
 
 /-- Folds the given function over the elements of the hash set in some order. -/
-@[inline] def foldl {β : Type v} (f : β → α → β) (init : β) (m : Raw α) : β :=
-  m.inner.foldl (fun b a _ => f b a) init
+@[inline] def fold {β : Type v} (f : β → α → β) (init : β) (m : Raw α) : β :=
+  m.inner.fold (fun b a _ => f b a) init
 
 /-- Folds the given function over the elements of the hash set in some order. -/
 @[inline] def forM {m : Type v → Type v} [Monad m] (f : α → m PUnit) (b : Raw α) : m PUnit :=

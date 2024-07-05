@@ -146,13 +146,13 @@ section Unverified
 @[inline, inherit_doc DHashMap.Raw.filter] def filter (f : α → β → Bool) (m : Raw α β) : Raw α β :=
   ⟨m.inner.filter f⟩
 
-@[inline, inherit_doc DHashMap.Raw.foldlM] def foldlM {m : Type w → Type w} [Monad m] {γ : Type w}
+@[inline, inherit_doc DHashMap.Raw.foldM] def foldM {m : Type w → Type w} [Monad m] {γ : Type w}
     (f : γ → α → β → m γ) (init : γ) (b : Raw α β) : m γ :=
-  b.inner.foldlM f init
+  b.inner.foldM f init
 
-@[inline, inherit_doc DHashMap.Raw.foldl] def foldl {γ : Type w} (f : γ → α → β → γ) (init : γ)
+@[inline, inherit_doc DHashMap.Raw.fold] def fold {γ : Type w} (f : γ → α → β → γ) (init : γ)
     (b : Raw α β) : γ :=
-  b.inner.foldl f init
+  b.inner.fold f init
 
 @[inline, inherit_doc DHashMap.Raw.forM] def forM {m : Type w → Type w} [Monad m]
     (f : (a : α) → β → m PUnit) (b : Raw α β) : m PUnit :=

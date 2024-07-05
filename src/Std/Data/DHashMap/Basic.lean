@@ -152,13 +152,13 @@ section Unverified
     (m : DHashMap α β) : DHashMap α β :=
   ⟨Raw₀.filter f ⟨m.1, m.2.size_buckets_pos⟩, .filter₀ m.2⟩
 
-@[inline, inherit_doc Raw.foldlM] def foldlM [BEq α] [Hashable α] (f : δ → (a : α) → β a → m δ)
+@[inline, inherit_doc Raw.foldM] def foldM [BEq α] [Hashable α] (f : δ → (a : α) → β a → m δ)
     (init : δ) (b : DHashMap α β) : m δ :=
-  b.1.foldlM f init
+  b.1.foldM f init
 
-@[inline, inherit_doc Raw.foldl] def foldl [BEq α] [Hashable α] (f : δ → (a : α) → β a → δ)
+@[inline, inherit_doc Raw.fold] def fold [BEq α] [Hashable α] (f : δ → (a : α) → β a → δ)
     (init : δ) (b : DHashMap α β) : δ :=
-  b.1.foldl f init
+  b.1.fold f init
 
 @[inline, inherit_doc Raw.forM] def forM [BEq α] [Hashable α] (f : (a : α) → β a → m PUnit)
     (b : DHashMap α β) : m PUnit :=

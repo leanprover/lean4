@@ -150,13 +150,13 @@ section Unverified
     (m : HashMap α β) : HashMap α β :=
   ⟨m.inner.filter f⟩
 
-@[inline, inherit_doc DHashMap.foldlM] def foldlM [BEq α] [Hashable α] {m : Type w → Type w}
+@[inline, inherit_doc DHashMap.foldM] def foldM [BEq α] [Hashable α] {m : Type w → Type w}
     [Monad m] {γ : Type w} (f : γ → α → β → m γ) (init : γ) (b : HashMap α β) : m γ :=
-  b.inner.foldlM f init
+  b.inner.foldM f init
 
-@[inline, inherit_doc DHashMap.foldl] def foldl [BEq α] [Hashable α] {γ : Type w}
+@[inline, inherit_doc DHashMap.fold] def fold [BEq α] [Hashable α] {γ : Type w}
     (f : γ → α → β → γ) (init : γ) (b : HashMap α β) : γ :=
-  b.inner.foldl f init
+  b.inner.fold f init
 
 @[inline, inherit_doc DHashMap.forM] def forM [BEq α] [Hashable α] {m : Type w → Type w} [Monad m]
     (f : (a : α) → β → m PUnit) (b : HashMap α β) : m PUnit :=

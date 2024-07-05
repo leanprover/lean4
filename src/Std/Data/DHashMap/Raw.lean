@@ -84,7 +84,7 @@ Equivalent to (but potentially faster than) calling `contains` followed by `inse
   else (false, m) -- will never happen for well-formed inputs
 
 /--
-Checks whether a key is present in a map, returning the associate value, and inserts a value for
+Checks whether a key is present in a map, returning the associated value, and inserts a value for
 the key if it was not found.
 
 If the returned value is `some v`, then the returned map is unaltered. If it is `none`, then the
@@ -271,12 +271,12 @@ only those mappings where the function returns `some` value.
   else ∅ -- will never happen for well-formed inputs
 
 /-- Folds the given function over the mappings in the hash map in some order. -/
-@[inline] def foldlM (f : δ → (a : α) → β a → m δ) (init : δ) (b : Raw α β) : m δ :=
+@[inline] def foldM (f : δ → (a : α) → β a → m δ) (init : δ) (b : Raw α β) : m δ :=
   b.buckets.foldlM (fun acc l => l.foldlM f acc) init
 
 /-- Folds the given function over the mappings in the hash map in some order. -/
-@[inline] def foldl (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
-  Id.run (b.foldlM f init)
+@[inline] def fold (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
+  Id.run (b.foldM f init)
 
 /-- Folds the given function over the mappings in the hash map in some order. -/
 @[inline] def forM (f : (a : α) → β a → m PUnit) (b : Raw α β) : m PUnit :=
@@ -294,31 +294,31 @@ instance : ForIn m (Raw α β) ((a : α) × β a) where
 
 /-- Transforms the hash map into a list of mappings in some order. -/
 @[inline] def toList (m : Raw α β) : List ((a : α) × β a) :=
-  m.foldl (fun acc k v => ⟨k, v⟩ :: acc) []
+  m.fold (fun acc k v => ⟨k, v⟩ :: acc) []
 
 /-- Transforms the hash map into an array of mappings in some order. -/
 @[inline] def toArray (m : Raw α β) : Array ((a : α) × β a) :=
-  m.foldl (fun acc k v => acc.push ⟨k, v⟩) #[]
+  m.fold (fun acc k v => acc.push ⟨k, v⟩) #[]
 
 @[inline, inherit_doc Raw.toList] def Const.toList {β : Type v} (m : Raw α (fun _ => β)) :
     List (α × β) :=
-  m.foldl (fun acc k v => ⟨k, v⟩ :: acc) []
+  m.fold (fun acc k v => ⟨k, v⟩ :: acc) []
 
 @[inline, inherit_doc Raw.toArray] def Const.toArray {β : Type v} (m : Raw α (fun _ => β)) :
     Array (α × β) :=
-  m.foldl (fun acc k v => acc.push ⟨k, v⟩) #[]
+  m.fold (fun acc k v => acc.push ⟨k, v⟩) #[]
 
 /-- Returns a list of all keys present in the hash map in some order. -/
 @[inline] def keys (m : Raw α β) : List α :=
-  m.foldl (fun acc k _ => k :: acc) []
+  m.fold (fun acc k _ => k :: acc) []
 
 /-- Returns an array of all keys present in the hash map in some order. -/
 @[inline] def keysArray (m : Raw α β) : Array α :=
-  m.foldl (fun acc k _ => acc.push k) #[]
+  m.fold (fun acc k _ => acc.push k) #[]
 
 /-- Returns a list of all values present in the hash map in some order. -/
 @[inline] def values {β : Type v} (m : Raw α (fun _ => β)) : List β :=
-  m.foldl (fun acc _ v => v :: acc) []
+  m.fold (fun acc _ v => v :: acc) []
 
 /--
 Inserts multiple mappings into the hash map by iterating over the given collection and calling

@@ -33,7 +33,7 @@ endif
 
 # These can be phony since the inner Makefile will have the correct dependencies and avoid rebuilds
 Init:
-	@mkdir -p "${LIB}/lean/Lean" "${LIB}/lean/Lake"
+	@mkdir -p "${LIB}/lean/Lean" "${LIB}/lean/Lake" "${LIB}/lean/Std"
 # Use `+` to use the Make jobserver with `leanmake` for parallelized builds
 # Build `.olean/.o`s of downstream libraries as well for better parallelism
 	+"${LEAN_BIN}/leanmake" objs lib lib.export PKG=Init $(LEANMAKE_OPTS) \

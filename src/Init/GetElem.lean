@@ -118,6 +118,10 @@ instance (priority := low) [GetElem coll idx elem valid] [∀ xs i, Decidable (v
     GetElem? coll idx elem valid where
   getElem? xs i := decidableGetElem? xs i
 
+theorem getElem_congr_coll [GetElem coll idx elem valid] {c d : coll} {i : idx} {h : valid c i}
+    (h' : c = d) : c[i] = d[i]'(h' ▸ h) := by
+  cases h'; rfl
+
 theorem getElem_congr [GetElem coll idx elem valid] {c : coll} {i j : idx} {h : valid c i}
     (h' : i = j) : c[i] = c[j]'(h' ▸ h) := by
   cases h'; rfl

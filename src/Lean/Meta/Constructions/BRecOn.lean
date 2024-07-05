@@ -201,6 +201,15 @@ private def mkBelowFromRec (recName : Name) (ibelow reflexive : Bool) (nParams :
   modifyEnv fun env => markAuxRecursor env decl.name
   modifyEnv fun env => addProtected env decl.name
 
+/--
+For a given inductive type, how many nested inductive types occur in its recursor.
+(Should this number become part of `InductiveVal`?)
+-/
+private def numNestedInducts (indName : Name) : MetaM Nat := do
+  let .inductInfo indVal ← getConstInfo indName | panic! "{indName} is an inductive"
+  let .recInfo recVal ← getConstInfo (mkRecName indName) | panic! "{indName} has a recursor"
+  return recVal.numMotives - indVal.all.length
+
 private def mkBelowOrIBelow (indName : Name) (ibelow : Bool) : MetaM Unit := do
   let .inductInfo indVal ← getConstInfo indName | return
   unless indVal.isRec do return
@@ -212,10 +221,8 @@ private def mkBelowOrIBelow (indName : Name) (ibelow : Bool) : MetaM Unit := do
   -- If this is the first inductive in a mutual group with nested inductives,
   -- generate the other ones here as well
   if indVal.all[0]! = indName then
-    -- We have to look at the recVal of the first inductive to find the number
-    -- of motives
-    let .recInfo recVal ← getConstInfo (mkRecName indName) | throwError "not a .recInfo"
-    for i in [0 : recVal.numMotives - indVal.all.length] do
+    let numNested ← numNestedInducts indName
+    for i in [:numNested] do
       let recName : Name := .str indName s!"rec_{i+1}"
       let belowName : Name := if ibelow then
           .str indName s!"below_{i+1}"

@@ -91,6 +91,8 @@ If the returned value is `some v`, then the returned map is unaltered. If it is 
 returned map has a new value inserted.
 
 Equivalent to (but potentially faster than) calling `get?` followed by `insertIfNew`.
+
+Uses the `LawfulBEq` instance to cast the retrieved value to the correct type.
 -/
 @[inline] def getThenInsertIfNew? [BEq α] [Hashable α] [LawfulBEq α] (m : Raw α β) (a : α)
     (b : β a) : Option (β a) × Raw α β :=

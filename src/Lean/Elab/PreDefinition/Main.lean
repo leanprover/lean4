@@ -152,13 +152,23 @@ def shouldUseWF (preDefs : Array PreDefinition) : Bool :=
     preDef.termination.terminationBy? matches some {structural := false, ..} ||
     preDef.termination.decreasingBy?.isSome
 
+private def toDeclaration! : ConstantInfo → Declaration
+  | .defnInfo   info => Declaration.defnDecl info
+  | .thmInfo    info => Declaration.thmDecl     info
+  | .axiomInfo  info => Declaration.axiomDecl   info
+  | .opaqueInfo info => Declaration.opaqueDecl  info
+  | .quotInfo   _ => panic! "toDeclaration for quotInfo not implemented"
+  | .inductInfo _ => panic! "toDeclaration for inductInfo not implemented"
+  | .ctorInfo   _ => panic! "toDeclaration for ctorInfo not implemented"
+  | .recInfo    _ => panic! "toDeclaration for recInfo not implemented"
 
-def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLCtx {} {} do
+def addPreDefinitions (preDefs : Array PreDefinition) (postponeCheck := false) : TermElabM (Option Declaration) := withLCtx {} {} do
   for preDef in preDefs do
     trace[Elab.definition.body] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
   let preDefs ← preDefs.mapM ensureNoUnassignedMVarsAtPreDef
   let preDefs ← betaReduceLetRecApps preDefs
   let cliques := partitionPreDefs preDefs
+  let postponeCheck := postponeCheck && preDefs.size == 1 && preDefs[0]!.kind == .theorem
   for preDefs in cliques do
     trace[Elab.definition.scc] "{preDefs.map (·.declName)}"
     if preDefs.size == 1 && isNonRecursive preDefs[0]! then
@@ -169,11 +179,13 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
       -/
       let preDef ← eraseRecAppSyntax preDefs[0]!
       ensureEqnReservedNamesAvailable preDef.declName
-      if preDef.modifiers.isNoncomputable then
-        addNonRec preDef
-      else
-        addAndCompileNonRec preDef
+      withOptions (fun opts => if postponeCheck then debug.skipKernelTC.set opts true else opts) do
+        if preDef.modifiers.isNoncomputable then
+          addNonRec preDef
+        else
+          addAndCompileNonRec preDef
       preDef.termination.ensureNone "not recursive"
+      if postponeCheck then return toDeclaration! <$> (← getEnv).find? preDef.declName else return none
     else if preDefs.any (·.modifiers.isUnsafe) then
       addAndCompileUnsafe preDefs
       preDefs.forM (·.termination.ensureNone "unsafe")
@@ -215,6 +227,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
           else if preDefs.all fun preDef => preDef.kind == DefKind.theorem then
             addAsAxioms preDefs
         catch _ => s.restore
+  return none
 
 builtin_initialize
   registerTraceClass `Elab.definition.body

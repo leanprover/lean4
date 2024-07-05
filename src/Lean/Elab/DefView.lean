@@ -96,10 +96,12 @@ deriving Nonempty
 structure DefsParsedSnapshot extends Language.Snapshot where
   /-- Definitions of this mutual block. -/
   defs : Array DefParsed
+  typeCheckedSnap : SnapshotTask SnapshotTree
 deriving Nonempty, TypeName
 instance : Language.ToSnapshotTree DefsParsedSnapshot where
   toSnapshotTree s := ⟨s.toSnapshot,
-    s.defs.map (·.headerProcessedSnap.map (sync := true) toSnapshotTree)⟩
+    s.defs.map (·.headerProcessedSnap.map (sync := true) toSnapshotTree) ++
+      #[s.typeCheckedSnap]⟩
 
 end Snapshots
 

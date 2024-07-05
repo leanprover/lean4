@@ -895,7 +895,7 @@ partial def checkForHiddenUnivLevels (allUserLevelNames : List Name) (preDefs : 
     for preDef in preDefs do
       checkPreDef preDef
 
-def elabMutualDef (vars : Array Expr) (views : Array DefView) : TermElabM Unit :=
+def elabMutualDef (vars : Array Expr) (views : Array DefView) (typeCheckedPromise : IO.Promise SnapshotTree): TermElabM Unit :=
   if isExample views then
     withoutModifyingEnv do
       -- save correct environment in info tree
@@ -936,7 +936,25 @@ where
           for preDef in preDefs do
             trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
           checkForHiddenUnivLevels allUserLevelNames preDefs
-          addPreDefinitions preDefs
+          let preEnv ← getEnv
+          if let some postponed ← addPreDefinitions (postponeCheck := true) preDefs then
+            let opts ← getOptions
+            let fileName ← getFileName
+            let pos := (← getFileMap).toPosition (← getRefPos)
+            typeCheckedPromise.resolve <| .mk {
+              diagnostics := .empty
+            } #[{
+              range? := none
+              task := (← BaseIO.asTask do
+                let mut msgLog := .empty
+                if let .error e := preEnv.addDecl opts postponed then
+                  msgLog := msgLog.add {
+                    fileName
+                    pos
+                    data := e.toMessageData opts
+                  }
+                return .mk { diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog) } #[])
+            }]
           processDeriving headers
 
   processDeriving (headers : Array DefViewElabHeader) := do
@@ -954,6 +972,7 @@ namespace Command
 def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
   let opts ← getOptions
   withAlwaysResolvedPromises ds.size fun headerPromises => do
+  withAlwaysResolvedPromise fun typeCheckedPromise => do
     let snap? := (← read).snap?
     let mut views := #[]
     let mut defs := #[]
@@ -990,8 +1009,11 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
       views := views.push view
     if let some snap := snap? then
       -- no non-fatal diagnostics at this point
-      snap.new.resolve <| .ofTyped { defs, diagnostics := .empty : DefsParsedSnapshot }
-    runTermElabM fun vars => Term.elabMutualDef vars views
+      snap.new.resolve <| .ofTyped {
+        defs
+        typeCheckedSnap := { range? := /-TODO-/ (mkNullNode ds).getRange?, task := typeCheckedPromise.result }
+        diagnostics := .empty : DefsParsedSnapshot }
+    runTermElabM fun vars => Term.elabMutualDef vars views typeCheckedPromise
 
 builtin_initialize
   registerTraceClass `Elab.definition.mkClosure

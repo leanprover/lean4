@@ -39,6 +39,12 @@ and an array of buckets, where each bucket is a linked list of key-value pais. T
 is always a power of two. The hash map doubles its size upon inserting an element such that the
 number of elements is more than 75% of the number of buckets.
 
+The hash map uses `==` (provided by the `BEq` typeclass) to compare keys and `hash` (provided by
+the `Hashable` typeclass) to hash them. To ensure that the operations behave as expected, `==`
+should be an equivalence relation and `a == b` should imply `hash a = hash b` (see also the
+`EquivBEq` and `LawfulHashable` typeclasses). Both of these conditions are automatic if the BEq
+instance is lawful, i.e., if `a == b` implies `a = b`.
+
 These hash maps contain a bundled well-formedness invariant, which means that they cannot
 be used in nested inductive types. For these use cases, `Std.Data.HashMap.Raw` and
 `Std.Data.HashMap.Raw.WF` unbundle the invariant from the hash map. When in doubt, prefer

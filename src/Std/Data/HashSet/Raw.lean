@@ -10,7 +10,7 @@ import Std.Data.HashMap.Raw
 # Hash sets with unbundled well-formedness invariant
 
 This file develops the type `Std.Data.HashSet.Raw` of dependent hash
-maps with unbundled well-formedness invariant.
+set with unbundled well-formedness invariant.
 
 This version is safe to use in nested inductive types. The well-formedness predicate is
 available as `Std.Data.HashSet.Raw.WF` and we prove in this file that all operations preserve
@@ -51,7 +51,7 @@ namespace Raw
 /--
 Creates a new empty hash set. The optional parameter `capacity` can be supplied to presize the set
 so that it can hold the given number of elements without reallocating. It is also possible to use
-the empty collection notations `∅` and `{}` to create an empty hash map with the default capacity.
+the empty collection notations `∅` and `{}` to create an empty hash set with the default capacity.
 -/
 @[inline] def empty (capacity := 8) : Raw α :=
   ⟨HashMap.Raw.empty capacity⟩
@@ -73,7 +73,7 @@ Equivalent to (but potentially faster than) calling `contains` followed by `inse
   ⟨replaced, ⟨r⟩⟩
 
 /--
-Returns `true` if the given key is present in the map. There is also a `Prop`-valued version
+Returns `true` if the given element is present in the set. There is also a `Prop`-valued version
 of this: `a ∈ m` is equivalent to `m.contains a = true`.
 
 Observe that this is different behavior than for lists: for lists, `∈` uses `=` and `contains` use
@@ -112,7 +112,7 @@ section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
 
-/-- Removes all elements from the hash map for which the given function returns `false`. -/
+/-- Removes all elements from the hash set for which the given function returns `false`. -/
 @[inline] def filter [BEq α] [Hashable α] (f : α → Bool) (m : Raw α) : Raw α :=
   ⟨m.inner.filter fun a _ => f a⟩
 
@@ -125,7 +125,7 @@ section Unverified
 @[inline] def fold {β : Type v} (f : β → α → β) (init : β) (m : Raw α) : β :=
   m.inner.fold (fun b a _ => f b a) init
 
-/-- Carries out a monadic action on each mapping in the hash map in some order. -/
+/-- Carries out a monadic action on each element in the hash set in some order. -/
 @[inline] def forM {m : Type v → Type v} [Monad m] (f : α → m PUnit) (b : Raw α) : m PUnit :=
   b.inner.forM (fun a _ => f a)
 
@@ -175,7 +175,7 @@ end Unverified
 Well-formedness predicate for hash sets. Users of `HashSet` will not need to interact with this.
 Users of `HashSet.Raw` will need to provide proofs of `WF` to lemmas and should use lemmas like
 `WF.empty` and `WF.insert` (which are always named exactly like the operations they are about) to
-show that map operations preserve well-formedness.
+show that set operations preserve well-formedness.
 -/
 structure WF [BEq α] [Hashable α] (m : Raw α) : Prop where
   /-- Internal implementation detail of the hash set -/

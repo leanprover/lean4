@@ -11,9 +11,6 @@ import Std.Data.HashMap.Basic
 
 This file develops the type `Std.Data.HashSet` of dependent hash sets.
 
-The operations `map` and `filterMap` on `Std.Data.HashSet` are defined in the module
-`Std.Data.HashSet.AdditionalOperations`.
-
 Lemmas about the operations on `Std.Data.HashSet` are available in the
 module `Std.Data.HashSet.Lemmas`.
 
@@ -33,14 +30,14 @@ namespace Std
 /--
 Hash sets.
 
-This is a simple separate-chaining hash table. The data of the hash map consists of a cached size
+This is a simple separate-chaining hash table. The data of the hash set consists of a cached size
 and an array of buckets, where each bucket is a linked list of keys. The number of buckets
-is always a power of two. The hash map doubles its size upon inserting an element such that the
+is always a power of two. The hash set doubles its size upon inserting an element such that the
 number of elements is more than 75% of the number of buckets.
 
 These hash sets contain a bundled well-formedness invariant, which means that they cannot
 be used in nested inductive types. For these use cases, `Std.Data.HashSet.Raw` and
-`Std.Data.HashSet.Raw.WF` unbundle the invariant from the hash map. When in doubt, prefer
+`Std.Data.HashSet.Raw.WF` unbundle the invariant from the hash set. When in doubt, prefer
 `HashSet` over `HashSet.Raw`.
 -/
 structure HashSet (α : Type u) [BEq α] [Hashable α] where
@@ -51,8 +48,8 @@ namespace HashSet
 
 /--
 Creates a new empty hash set. The optional parameter `capacity` can be supplied to presize the
-map so that it can hold the given number of elements without reallocating. It is also possible to
-use the empty collection notations `∅` and `{}` to create an empty hash map with the default
+set so that it can hold the given number of elements without reallocating. It is also possible to
+use the empty collection notations `∅` and `{}` to create an empty hash set with the default
 capacity.
 -/
 @[inline] def empty [BEq α] [Hashable α] (capacity := 8) : HashSet α :=
@@ -112,7 +109,7 @@ section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
 
-/-- Removes all elements from the hash map for which the given function returns `false`. -/
+/-- Removes all elements from the hash set for which the given function returns `false`. -/
 @[inline] def filter [BEq α] [Hashable α] (f : α → Bool) (m : HashSet α) : HashSet α :=
   ⟨m.inner.filter fun a _ => f a⟩
 
@@ -126,7 +123,7 @@ section Unverified
     β :=
   m.inner.fold (fun b a _ => f b a) init
 
-/-- Carries out a monadic action on each mapping in the hash map in some order. -/
+/-- Carries out a monadic action on each element in the hash set in some order. -/
 @[inline] def forM [BEq α] [Hashable α] {m : Type v → Type v} [Monad m] (f : α → m PUnit)
     (b : HashSet α) : m PUnit :=
   b.inner.forM (fun a _ => f a)

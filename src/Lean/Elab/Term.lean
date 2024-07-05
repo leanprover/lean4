@@ -361,20 +361,38 @@ instance : MonadBacktrack SavedState TermElabM where
   restoreState b := b.restore
 
 /--
+Incremental elaboration helper. Avoids leakage of data from outside syntax via the monadic context
+when running `act` on `stx` by
+* setting `stx` as the `ref` and
+* deactivating `suppressElabErrors` if `stx` is `missing`-free, which also helps with not hiding
+  useful errors in this part of the input. Note that if `stx` has `missing`, this should always be
+  true for the outer syntax as well, so taking the old value of `suppressElabErrors` into account
+  should not introduce data leakage.
+
+This combinator should always be used when narrowing reuse to a syntax subtree, usually (in the case
+of tactics, to be generalized) via `withNarrowed(Arg)TacticReuse`.
+-/
+def withReuseContext [Monad m] [MonadWithReaderOf Core.Context m] (stx : Syntax) (act : m α) :
+    m α := do
+  withTheReader Core.Context (fun ctx => { ctx with
+      ref := stx
+      suppressElabErrors := ctx.suppressElabErrors && stx.hasMissing }) act
+
+/--
 Manages reuse information for nested tactics by `split`ting given syntax into an outer and inner
 part. `act` is then run on the inner part but with reuse information adjusted as following:
 * If the old (from `tacSnap?`'s `SyntaxGuarded.stx`) and new (from `stx`) outer syntax are not
   identical according to `Syntax.eqWithInfo`, reuse is disabled.
 * Otherwise, the old syntax as stored in `tacSnap?` is updated to the old *inner* syntax.
-* In any case, we also use `withRef` on the inner syntax to avoid leakage of the outer syntax into
-  `act` via this route.
+* In any case, `withReuseContext` is used on the new inner syntax to further prepare the monadic
+  context.
 
 For any tactic that participates in reuse, `withNarrowedTacticReuse` should be applied to the
 tactic's syntax and `act` should be used to do recursive tactic evaluation of nested parts.
 -/
-def withNarrowedTacticReuse [Monad m] [MonadWithReaderOf Context m]
-    [MonadOptions m] [MonadRef m] (split : Syntax → Syntax × Syntax) (act : Syntax → m α)
-    (stx : Syntax) : m α := do
+def withNarrowedTacticReuse [Monad m] [MonadWithReaderOf Core.Context m]
+    [MonadWithReaderOf Context m] [MonadOptions m] (split : Syntax → Syntax × Syntax)
+    (act : Syntax → m α) (stx : Syntax) : m α := do
   let (outer, inner) := split stx
   let opts ← getOptions
   withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.map fun tacSnap =>
@@ -384,8 +402,7 @@ def withNarrowedTacticReuse [Monad m] [MonadWithReaderOf Context m]
       return { old with stx := oldInner }
     }
   }) do
-    withRef inner do
-      act inner
+    withReuseContext inner (act inner)
 
 /--
 A variant of `withNarrowedTacticReuse` that uses `stx[argIdx]` as the inner syntax and all `stx`
@@ -396,8 +413,8 @@ NOTE: child nodes after `argIdx` are not tested (which would almost always disab
 necessarily shifted by changes at `argIdx`) so it must be ensured that the result of `arg` does not
 depend on them (i.e. they should not be inspected beforehand).
 -/
-def withNarrowedArgTacticReuse [Monad m] [MonadWithReaderOf Context m]
-    [MonadOptions m] [MonadRef m] (argIdx : Nat) (act : Syntax → m α) (stx : Syntax) : m α :=
+def withNarrowedArgTacticReuse [Monad m] [MonadWithReaderOf Core.Context m] [MonadWithReaderOf Context m]
+    [MonadOptions m] (argIdx : Nat) (act : Syntax → m α) (stx : Syntax) : m α :=
   withNarrowedTacticReuse (fun stx => (mkNullNode stx.getArgs[:argIdx], stx[argIdx])) act stx
 
 /--

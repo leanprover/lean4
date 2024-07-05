@@ -105,3 +105,16 @@ example : True := by
       --^ sync
       --^ insert: " "
       --^ collectDiagnostics
+
+/-!
+Incomplete syntax should not suppress errors in previous steps as that would prevent reuse.
+-/
+-- RESET
+---set_option trace.Elab.info true
+example : True := by
+  exact noSuchTheorem
+  skip
+  d
+--^ sync
+--^ delete: "d"
+--^ collectDiagnostics

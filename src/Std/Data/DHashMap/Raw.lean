@@ -42,25 +42,30 @@ The type `DHashMap.Raw` itself is defined in the module `Std.Data.DHashmap.RawDe
 structure reasons.
 -/
 
-/-- Creates a new empty hash map. The optional parameter `capacity` can be supplied to presize the
+/--
+Creates a new empty hash map. The optional parameter `capacity` can be supplied to presize the
 map so that it can hold the given number of mappings without reallocating. It is also possible to
 use the empty collection notations `∅` and `{}` to create an empty hash map with the default
-capacity. -/
+capacity.
+-/
 @[inline] def empty (capacity := 8) : Raw α β :=
   (Raw₀.empty capacity).1
 
 instance : EmptyCollection (Raw α β) where
   emptyCollection := empty
 
-/-- Insert the given mapping into the map, replacing an existing mapping for the key if there is
-one. -/
+/--
+Insert the given mapping into the map, replacing an existing mapping for the key if there is one.
+-/
 @[inline] def insert [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β a) : Raw α β :=
   if h : 0 < m.buckets.size then
     (Raw₀.insert ⟨m, h⟩ a b).1
   else m -- will never happen for well-formed inputs
 
-/-- If there is no mapping for the given key, insert the given mapping into the map. Otherwise,
-return the map unaltered. -/
+/--
+If there is no mapping for the given key, insert the given mapping into the map. Otherwise,
+return the map unaltered.
+-/
 @[inline] def insertIfNew [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β a) : Raw α β :=
   if h : 0 < m.buckets.size then
     (Raw₀.insertIfNew ⟨m, h⟩ a b).1
@@ -90,19 +95,23 @@ return the map unaltered. -/
     ⟨previous, r⟩
   else (false, m) -- will never happen for well-formed inputs
 
-/-- Tries to retrieve the mapping for the given key, returning `none` if no such mapping is present.
+/--
+Tries to retrieve the mapping for the given key, returning `none` if no such mapping is present.
 
-Uses the `LawfulBEq` instance to cast the retrieved value to the correct type. -/
+Uses the `LawfulBEq` instance to cast the retrieved value to the correct type.
+-/
 @[inline] def get? [BEq α] [LawfulBEq α] [Hashable α] (m : Raw α β) (a : α) : Option (β a) :=
   if h : 0 < m.buckets.size then
     Raw₀.get? ⟨m, h⟩ a
   else none -- will never happen for well-formed inputs
 
-/-- Returns `true` if there is a mapping for the given key. There is also a `Prop`-valued version
+/--
+Returns `true` if there is a mapping for the given key. There is also a `Prop`-valued version
 of this: `a ∈ m` is equivalent to `m.contains a = true`.
 
 Observe that this is different behavior than for lists: for lists, `∈` uses `=` and `contains` use
-`==` for comparisons, while for hash maps, both use `==`. -/
+`==` for comparisons, while for hash maps, both use `==`.
+-/
 @[inline] def contains [BEq α] [Hashable α] (m : Raw α β) (a : α) : Bool :=
   if h : 0 < m.buckets.size then
     Raw₀.contains ⟨m, h⟩ a
@@ -114,36 +123,39 @@ instance [BEq α] [Hashable α] : Membership α (Raw α β) where
 instance [BEq α] [Hashable α] {m : Raw α β} {a : α} : Decidable (a ∈ m) :=
   inferInstanceAs (Decidable (m.contains a))
 
-/-- Retrieves the mapping for the given key. Ensures that such a mapping exists by requiring a proof
+/--
+Retrieves the mapping for the given key. Ensures that such a mapping exists by requiring a proof
 of `a ∈ m`.
 
-Uses the `LawfulBEq` instance to cast the retrieved value to the correct type. -/
+Uses the `LawfulBEq` instance to cast the retrieved value to the correct type.
+-/
 @[inline] def get [BEq α] [Hashable α] [LawfulBEq α] (m : Raw α β) (a : α) (h : a ∈ m) : β a :=
   Raw₀.get ⟨m, by change dite .. = true at h; split at h <;> simp_all⟩ a
     (by change dite .. = true at h; split at h <;> simp_all)
 
-/-- Tries to retrieve the mapping for the given key, returning `fallback` if no such mapping is
-present.
+/--
+Tries to retrieve the mapping for the given key, returning `fallback` if no such mapping is present.
 
-Uses the `LawfulBEq` instance to cast the retrieved value to the correct type. -/
+Uses the `LawfulBEq` instance to cast the retrieved value to the correct type.
+-/
 @[inline] def getD [BEq α] [Hashable α] [LawfulBEq α] (m : Raw α β) (a : α) (fallback : β a) :
     β a :=
   if h : 0 < m.buckets.size then
     Raw₀.getD ⟨m, h⟩ a fallback
   else fallback -- will never happen for well-formed inputs
 
-/-- Tries to retrieve the mapping for the given key, panicking if no such mapping is present.
+/--
+Tries to retrieve the mapping for the given key, panicking if no such mapping is present.
 
-Uses the `LawfulBEq` instance to cast the retrieved value to the correct type. -/
+Uses the `LawfulBEq` instance to cast the retrieved value to the correct type.
+-/
 @[inline] def get! [BEq α] [Hashable α] [LawfulBEq α] (m : Raw α β) (a : α) [Inhabited (β a)] :
     β a :=
   if h : 0 < m.buckets.size then
     Raw₀.get! ⟨m, h⟩ a
   else default -- will never happen for well-formed inputs
 
-/-- Removes the mapping for the given key if it exists.
-
-Uses the `LawfulBEq` instance to cast the retrieved value to the correct type. -/
+/-- Removes the mapping for the given key if it exists. -/
 @[inline] def remove [BEq α] [Hashable α] (m : Raw α β) (a : α) : Raw α β :=
   if h : 0 < m.buckets.size then
     Raw₀.remove ⟨m, h⟩ a
@@ -153,21 +165,25 @@ section
 
 variable {β : Type v}
 
-/-- Tries to retrieve the mapping for the given key, returning `none` if no such mapping is present.
+/--
+Tries to retrieve the mapping for the given key, returning `none` if no such mapping is present.
 -/
 @[inline] def Const.get? [BEq α] [Hashable α] (m : Raw α (fun _ => β)) (a : α) : Option β :=
   if h : 0 < m.buckets.size then
     Raw₀.Const.get? ⟨m, h⟩ a
   else none -- will never happen for well-formed inputs
 
-/-- Retrieves the mapping for the given key. Ensures that such a mapping exists by requiring a proof
-of `a ∈ m`. -/
+/--
+Retrieves the mapping for the given key. Ensures that such a mapping exists by requiring a proof of
+`a ∈ m`.
+-/
 @[inline] def Const.get [BEq α] [Hashable α] (m : Raw α (fun _ => β)) (a : α) (h : a ∈ m) : β :=
   Raw₀.Const.get ⟨m, by change dite .. = true at h; split at h <;> simp_all⟩ a
     (by change dite .. = true at h; split at h <;> simp_all)
 
-/-- Tries to retrieve the mapping for the given key, returning `fallback` if no such mapping is
-present. -/
+/--
+Tries to retrieve the mapping for the given key, returning `fallback` if no such mapping is present.
+-/
 @[inline] def Const.getD [BEq α] [Hashable α] (m : Raw α (fun _ => β)) (a : α) (fallback : β) : β :=
   if h : 0 < m.buckets.size then
     Raw₀.Const.getD ⟨m, h⟩ a fallback
@@ -189,11 +205,13 @@ present. -/
 
 end
 
-/-- Returns `true` if the hash map contains no mappings.
+/--
+Returns `true` if the hash map contains no mappings.
 
 Note that if your `BEq` instance is not reflexive or your `Hashable` instance is not
 lawful, then it is possible that this function returns `false` even though is not possible
-to get anything out of the hash map. -/
+to get anything out of the hash map.
+-/
 @[inline] def isEmpty (m : Raw α β) : Bool :=
   m.size == 0
 
@@ -201,8 +219,10 @@ section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
 
-/-- Updates the values of the hash map by applying the given function to all mappings, keeping
-only those mappings where the function returns `some` value. -/
+/--
+Updates the values of the hash map by applying the given function to all mappings, keeping
+only those mappings where the function returns `some` value.
+-/
 @[inline] def filterMap {γ : α → Type w} (f : (a : α) → β a → Option (γ a)) (m : Raw α β) :
     Raw α γ :=
   if h : 0 < m.buckets.size then
@@ -271,8 +291,10 @@ instance : ForIn m (Raw α β) ((a : α) × β a) where
 @[inline] def values {β : Type v} (m : Raw α (fun _ => β)) : List β :=
   m.foldl (fun acc _ v => v :: acc) []
 
-/-- Inserts multiple mappings into the hash map by iterating over the given collection and calling
-`insert`. If the same key appears multiple times, the last occurrence takes precendence. -/
+/--
+Inserts multiple mappings into the hash map by iterating over the given collection and calling
+`insert`. If the same key appears multiple times, the last occurrence takes precendence.
+-/
 @[inline] def insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
     (m : Raw α β) (l : ρ) : Raw α β :=
   if h : 0 < m.buckets.size then
@@ -304,9 +326,11 @@ instance : ForIn m (Raw α β) ((a : α) × β a) where
     [ForIn Id ρ α] (l : ρ) : Raw α (fun _ => Unit) :=
   Const.insertManyUnit ∅ l
 
-/-- Returns the number of buckets in the internal representation of the hash map. This function may
-be useful for things like monitoring system health, but it should be considered an internal
-implementation detail. -/
+/--
+Returns the number of buckets in the internal representation of the hash map. This function may be
+useful for things like monitoring system health, but it should be considered an internal
+implementation detail.
+-/
 def Internal.numBuckets (m : Raw α β) : Nat :=
   m.buckets.size
 
@@ -317,11 +341,13 @@ end Unverified
 
 section WF
 
-/-- Well-formedness predicate for hash maps. Users of `DHashMap` will not need to interact with
+/--
+Well-formedness predicate for hash maps. Users of `DHashMap` will not need to interact with
 this. Users of `DHashMap.Raw` will need to provide proofs of `WF` to lemmas and should use lemmas
 like `WF.empty` and `WF.insert` to show that map operations preserve well-formedness. The
 constructors of this type are internal implementation details and should not be accessed by
-users. -/
+users.
+-/
 inductive WF : {α : Type u} → {β : α → Type v} → [BEq α] → [Hashable α] → Raw α β → Prop where
   -- Implementation note: the reason why we provide the `[EquivBEq α] [LawfulHashable α]` is so that
   -- we can write down `DHashMap.map` and `DHashMap.filterMap` in `AdditionalOperations.lean`
@@ -353,6 +379,7 @@ inductive WF : {α : Type u} → {β : α → Type v} → [BEq α] → [Hashable
   | constGetThenInsertIfNew?₀ {α β} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {h a b} :
       WF m → WF (Raw₀.Const.getThenInsertIfNew? ⟨m, h⟩ a b).2.1
 
+/-- Internal implementation detail of the hash map -/
 theorem WF.size_buckets_pos [BEq α] [Hashable α] (m : Raw α β) : WF m → 0 < m.buckets.size
   | wf h₁ _ => h₁
   | empty₀ => (Raw₀.empty _).2

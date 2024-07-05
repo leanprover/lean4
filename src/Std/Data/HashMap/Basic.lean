@@ -68,7 +68,8 @@ instance [BEq α] [Hashable α] : EmptyCollection (HashMap α β) where
   let ⟨previous, r⟩ := DHashMap.Const.getThenInsertIfNew? m.inner a b
   ⟨previous, ⟨r⟩⟩
 
-/-- The notation `m[a]?` is preferred over calling this function directly.
+/--
+The notation `m[a]?` is preferred over calling this function directly.
 
 Tries to retrieve the mapping for the given key, returning `none` if no such mapping is present.
 -/
@@ -85,10 +86,12 @@ instance [BEq α] [Hashable α] : Membership α (HashMap α β) where
 instance [BEq α] [Hashable α] {m : HashMap α β} {a : α} : Decidable (a ∈ m) :=
   inferInstanceAs (Decidable (a ∈ m.inner))
 
-/-- The notation `m[a]` or `m[a]'h` is preferred over calling this function directly.
+/--
+The notation `m[a]` or `m[a]'h` is preferred over calling this function directly.
 
 Retrieves the mapping for the given key. Ensures that such a mapping exists by requiring a proof of
-`a ∈ m`. -/
+`a ∈ m`.
+-/
 @[inline] def get [BEq α] [Hashable α] (m : HashMap α β) (a : α) (h : a ∈ m) : β :=
   DHashMap.Const.get m.inner a h
 
@@ -96,9 +99,11 @@ Retrieves the mapping for the given key. Ensures that such a mapping exists by r
     (fallback : β) : β :=
   DHashMap.Const.getD m.inner a fallback
 
-/-- The notation `m[a]!` is preferred over calling this function directly.
+/--
+The notation `m[a]!` is preferred over calling this function directly.
 
-Tries to retrieve the mapping for the given key, panicking if no such mapping is present. -/
+Tries to retrieve the mapping for the given key, panicking if no such mapping is present.
+-/
 @[inline] def get! [BEq α] [Hashable α] [Inhabited β] (m : HashMap α β) (a : α) : β :=
   DHashMap.Const.get! m.inner a
 

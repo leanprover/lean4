@@ -31,18 +31,21 @@ namespace Std
 
 namespace HashSet
 
-/-- Hash sets without bundled well-formedness invariant. Suitable for use in nested
-inductive types. The well-formedness invariant is called `Raw.WF`. -/
+/--
+Hash sets without bundled well-formedness invariant. Suitable for use in nested
+inductive types. The well-formedness invariant is called `Raw.WF`.
+-/
 structure Raw (α : Type u) where
   /-- Internal implementation detail of the hash set. -/
   inner : HashMap.Raw α Unit
 
 namespace Raw
 
-/-- Creates a new empty hash set. The optional parameter `capacity` can be supplied to presize the
-map so that it can hold the given number of elements without reallocating. It is also possible to
-use the empty collection notations `∅` and `{}` to create an empty hash map with the default
-capacity. -/
+/--
+Creates a new empty hash set. The optional parameter `capacity` can be supplied to presize the map
+so that it can hold the given number of elements without reallocating. It is also possible to use
+the empty collection notations `∅` and `{}` to create an empty hash map with the default capacity.
+-/
 @[inline] def empty (capacity := 8) : Raw α :=
   ⟨HashMap.Raw.empty capacity⟩
 
@@ -58,11 +61,13 @@ instance : EmptyCollection (Raw α) where
   let ⟨replaced, r⟩ := m.inner.containsThenInsertIfNew a ()
   ⟨replaced, ⟨r⟩⟩
 
-/-- Returns `true` if the given key is present in the map. There is also a `Prop`-valued version
+/--
+Returns `true` if the given key is present in the map. There is also a `Prop`-valued version
 of this: `a ∈ m` is equivalent to `m.contains a = true`.
 
 Observe that this is different behavior than for lists: for lists, `∈` uses `=` and `contains` use
-`==` for comparisons, while for hash sets, both use `==`. -/
+`==` for comparisons, while for hash sets, both use `==`.
+-/
 @[inline] def contains [BEq α] [Hashable α] (m : Raw α) (a : α) : Bool :=
   m.inner.contains a
 
@@ -80,11 +85,13 @@ instance [BEq α] [Hashable α] {m : Raw α} {a : α} : Decidable (a ∈ m) :=
 @[inline] def size (m : Raw α) : Nat :=
   m.inner.size
 
-/-- Returns `true` if the hash set contains no elements.
+/--
+Returns `true` if the hash set contains no elements.
 
 Note that if your `BEq` instance is not reflexive or your `Hashable` instance is not
 lawful, then it is possible that this function returns `false` even though `m.contains a = false`
-for all `a`. -/
+for all `a`.
+-/
 @[inline] def isEmpty (m : Raw α) : Bool :=
   m.inner.isEmpty
 
@@ -140,9 +147,11 @@ instance {m : Type v → Type v} : ForIn m (Raw α) α where
 @[inline] def ofList [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] (l : ρ) : Raw α :=
   ⟨HashMap.Raw.unitOfList l⟩
 
-/-- Returns the number of buckets in the internal representation of the hash set. This function may
+/--
+Returns the number of buckets in the internal representation of the hash set. This function may
 be useful for things like monitoring system health, but it should be considered an internal
-implementation detail. -/
+implementation detail.
+-/
 def Internal.numBuckets (m : Raw α) : Nat :=
   HashMap.Raw.Internal.numBuckets m.inner
 
@@ -151,9 +160,11 @@ instance [Repr α] : Repr (Raw α) where
 
 end Unverified
 
-/-- Well-formedness predicate for hash sets. Users of `HashSet` will not need to interact with this.
+/--
+Well-formedness predicate for hash sets. Users of `HashSet` will not need to interact with this.
 Users of `HashSet.Raw` will need to provide proofs of `WF` to lemmas and should use lemmas like
-`WF.empty` and `WF.insert` to show that map operations preserve well-formedness. -/
+`WF.empty` and `WF.insert` to show that map operations preserve well-formedness.
+-/
 structure WF [BEq α] [Hashable α] (m : Raw α) : Prop where
   /-- Internal implementation detail of the hash set -/
   out : m.inner.WF

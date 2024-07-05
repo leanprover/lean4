@@ -712,7 +712,16 @@ structure Child (cfg : StdioConfig) where
 
 @[extern "lean_io_process_spawn"] opaque spawn (args : SpawnArgs) : IO (Child args.toStdioConfig)
 
+/--
+Block until the child process has exited and return its exit code.
+-/
 @[extern "lean_io_process_child_wait"] opaque Child.wait {cfg : @& StdioConfig} : @& Child cfg → IO UInt32
+
+/--
+Check whether the child has exited yet. If it hasn't return none, otherwise its exit code.
+-/
+@[extern "lean_io_process_child_try_wait"] opaque Child.tryWait {cfg : @& StdioConfig} : @& Child cfg →
+    IO (Option UInt32)
 
 /-- Terminates the child process using the SIGTERM signal or a platform analogue.
     If the process was started using `SpawnArgs.setsid`, terminates the entire process group instead. -/

@@ -57,3 +57,9 @@ def usingIO {α} (x : IO α) : IO α := x
   let (stdin, lean) ← lean.takeStdin
   stdin.putStr "#exit\n"
   lean.wait
+
+#eval usingIO do
+  let child ← spawn { cmd := "sh", args := #["-c", "sleep 0.1"] };
+  IO.println (← child.tryWait)
+  IO.sleep 200
+  child.tryWait

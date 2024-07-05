@@ -10,7 +10,7 @@ import Std.Data.HashSet.Basic
 /-!
 # Hash set lemmas
 
-This file contains lemmas about `Std.Data.HashSet`. Most of the lemmas require
+This module contains lemmas about `Std.Data.HashSet`. Most of the lemmas require
 `EquivBEq α` and `LawfulHashable α` for the key type `α`. The easiest way to obtain these instances
 is to provide an instance of `LawfulBEq α`.
 -/

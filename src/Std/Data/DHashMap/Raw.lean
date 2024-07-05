@@ -270,7 +270,10 @@ only those mappings where the function returns `some` value.
     Raw₀.filter f ⟨m, h⟩
   else ∅ -- will never happen for well-formed inputs
 
-/-- Folds the given function over the mappings in the hash map in some order. -/
+/--
+Monadically computes a value by folding the given function over the mappings in the hash
+map in some order.
+-/
 @[inline] def foldM (f : δ → (a : α) → β a → m δ) (init : δ) (b : Raw α β) : m δ :=
   b.buckets.foldlM (fun acc l => l.foldlM f acc) init
 

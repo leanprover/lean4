@@ -10,7 +10,7 @@ import Std.Data.HashMap.Raw
 /-!
 # Hash map lemmas
 
-This file contains lemmas about `Std.Data.HashMap.Raw`. Most of the lemmas require
+This module contains lemmas about `Std.Data.HashMap.Raw`. Most of the lemmas require
 `EquivBEq α` and `LawfulHashable α` for the key type `α`. The easiest way to obtain these instances
 is to provide an instance of `LawfulBEq α`.
 -/

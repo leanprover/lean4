@@ -11,7 +11,7 @@ import Std.Data.HashMap.Raw
 /-!
 # Additional hash map operations
 
-This file defines the operations `map` and `filterMap` on `Std.Data.HashMap`.
+This module defines the operations `map` and `filterMap` on `Std.Data.HashMap`.
 We currently do not provide lemmas for these functions.
 -/
 

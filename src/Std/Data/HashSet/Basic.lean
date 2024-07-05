@@ -9,7 +9,7 @@ import Std.Data.HashMap.Basic
 /-!
 # Hash sets
 
-This file develops the type `Std.Data.HashSet` of dependent hash sets.
+This module develops the type `Std.Data.HashSet` of dependent hash sets.
 
 Lemmas about the operations on `Std.Data.HashSet` are available in the
 module `Std.Data.HashSet.Lemmas`.

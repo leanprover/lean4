@@ -9,7 +9,7 @@ import Std.Data.HashMap.Raw
 /-
 # Hash sets with unbundled well-formedness invariant
 
-This file develops the type `Std.Data.HashSet.Raw` of dependent hash
+This module develops the type `Std.Data.HashSet.Raw` of dependent hash
 set with unbundled well-formedness invariant.
 
 This version is safe to use in nested inductive types. The well-formedness predicate is
@@ -116,7 +116,10 @@ section Unverified
 @[inline] def filter [BEq α] [Hashable α] (f : α → Bool) (m : Raw α) : Raw α :=
   ⟨m.inner.filter fun a _ => f a⟩
 
-/-- Folds the given function over the elements of the hash set in some order. -/
+/--
+Monadically computes a value by folding the given function over the elements in the hash set in some
+order.
+-/
 @[inline] def foldM {m : Type v → Type v} [Monad m] {β : Type v} (f : β → α → m β) (init : β)
     (b : Raw α) : m β :=
   b.inner.foldM (fun b a _ => f b a) init

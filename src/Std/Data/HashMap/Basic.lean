@@ -12,8 +12,8 @@ set_option autoImplicit false
 /-!
 # Hash maps
 
-This file develops the type `Std.Data.HashMap` of hash maps. Dependent hash
-maps are defined in `Std.Data.DHashMap`.
+This module develops the type `Std.Data.HashMap` of hash maps. Dependent hash maps are defined in
+`Std.Data.DHashMap`.
 
 The operations `map` and `filterMap` on `Std.Data.HashMap` are defined in the module
 `Std.Data.HashMap.AdditionalOperations`.

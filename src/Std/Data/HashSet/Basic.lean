@@ -113,7 +113,10 @@ section Unverified
 @[inline] def filter [BEq α] [Hashable α] (f : α → Bool) (m : HashSet α) : HashSet α :=
   ⟨m.inner.filter fun a _ => f a⟩
 
-/-- Folds the given function over the elements of the hash set in some order. -/
+/--
+Monadically computes a value by folding the given function over the elements in the hash set in some
+order.
+-/
 @[inline] def foldM [BEq α] [Hashable α] {m : Type v → Type v} [Monad m] {β : Type v}
     (f : β → α → m β) (init : β) (b : HashSet α) : m β :=
   b.inner.foldM (fun b a _ => f b a) init

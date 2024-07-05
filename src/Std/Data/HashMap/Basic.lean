@@ -194,6 +194,10 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β
 @[inline, inherit_doc DHashMap.values] def values [BEq α] [Hashable α] (m : HashMap α β) : List β :=
   m.inner.values
 
+@[inline, inherit_doc DHashMap.valuesArray] def valuesArray [BEq α] [Hashable α] (m : HashMap α β) :
+    Array β :=
+  m.inner.valuesArray
+
 @[inline, inherit_doc DHashMap.Const.insertMany] def insertMany [BEq α] [Hashable α] {ρ : Type w}
     [ForIn Id ρ (α × β)] (m : HashMap α β) (l : ρ) : HashMap α β :=
   ⟨DHashMap.Const.insertMany m.inner l⟩

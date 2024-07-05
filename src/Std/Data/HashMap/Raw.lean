@@ -184,7 +184,10 @@ instance {m : Type w → Type w} : ForIn m (Raw α β) (α × β) where
   m.inner.keysArray
 
 @[inline, inherit_doc DHashMap.Raw.values] def values (m : Raw α β) : List β :=
-  m.inner.values
+m.inner.values
+
+@[inline, inherit_doc DHashMap.Raw.valuesArray] def valuesArray (m : Raw α β) : Array β :=
+  m.inner.valuesArray
 
 @[inline, inherit_doc DHashMap.Raw.Const.insertMany] def insertMany [BEq α] [Hashable α]
     {ρ : Type w} [ForIn Id ρ (α × β)] (m : Raw α β) (l : ρ) : Raw α β :=

@@ -219,7 +219,7 @@ Tries to retrieve the mapping for the given key, returning `fallback` if no such
 /--
 Equivalent to (but potentially faster than) calling `Const.get?` followed by `insertIfNew`.
 
-Checks whether a key is present in a map, returning the associate value, and inserts a value for
+Checks whether a key is present in a map, returning the associated value, and inserts a value for
 the key if it was not found.
 
 If the returned value is `some v`, then the returned map is unaltered. If it is `none`, then the
@@ -322,6 +322,10 @@ instance : ForIn m (Raw α β) ((a : α) × β a) where
 /-- Returns a list of all values present in the hash map in some order. -/
 @[inline] def values {β : Type v} (m : Raw α (fun _ => β)) : List β :=
   m.fold (fun acc _ v => v :: acc) []
+
+/-- Returns an array of all values present in the hash map in some order. -/
+@[inline] def valuesArray {β : Type v} (m : Raw α (fun _ => β)) : Array β :=
+  m.fold (fun acc _ v => acc.push v) #[]
 
 /--
 Inserts multiple mappings into the hash map by iterating over the given collection and calling

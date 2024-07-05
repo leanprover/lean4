@@ -201,6 +201,10 @@ instance [BEq α] [Hashable α] : ForIn m (DHashMap α β) ((a : α) × β a) wh
     (m : DHashMap α (fun _ => β)) : List β :=
   m.1.values
 
+@[inline, inherit_doc Raw.valuesArray] def valuesArray {β : Type v} [BEq α] [Hashable α]
+    (m : DHashMap α (fun _ => β)) : Array β :=
+  m.1.valuesArray
+
 @[inline, inherit_doc Raw.insertMany] def insertMany [BEq α] [Hashable α] {ρ : Type w}
     [ForIn Id ρ ((a : α) × β a)] (m : DHashMap α β) (l : ρ) : DHashMap α β :=
   ⟨(Raw₀.insertMany ⟨m.1, m.2.size_buckets_pos⟩ l).1,

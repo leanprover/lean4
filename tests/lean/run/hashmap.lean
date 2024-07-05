@@ -29,11 +29,11 @@ def addValueToStateAndAddKey (acc : Nat) (k : Nat) (v : Nat) : StateM Nat Nat :=
 
 /-- info: (18, 25) -/
 #guard_msgs in
-#eval (m.foldlM (init := 12) addValueToStateAndAddKey).run 13
+#eval (m.foldM (init := 12) addValueToStateAndAddKey).run 13
 
 /-- info: 18 -/
 #guard_msgs in
-#eval m.foldl (init := 12) fun acc k _ => acc + k
+#eval m.fold (init := 12) fun acc k _ => acc + k
 
 def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
   modify (fun st => st + v)
@@ -119,11 +119,11 @@ def addValueToStateAndAddKey (acc : Nat) (k : Nat) (v : Nat) : StateM Nat Nat :=
 
 /-- info: (18, 25) -/
 #guard_msgs in
-#eval (m.foldlM (init := 12) addValueToStateAndAddKey).run 13
+#eval (m.foldM (init := 12) addValueToStateAndAddKey).run 13
 
 /-- info: 18 -/
 #guard_msgs in
-#eval m.foldl (init := 12) fun acc k _ => acc + k
+#eval m.fold (init := 12) fun acc k _ => acc + k
 
 def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
   modify (fun st => st + v)
@@ -209,11 +209,11 @@ def addValueToStateAndAddKey (acc : Nat) (k : Nat) (v : Nat) : StateM Nat Nat :=
 
 /-- info: (18, 25) -/
 #guard_msgs in
-#eval (m.foldlM (init := 12) addValueToStateAndAddKey).run 13
+#eval (m.foldM (init := 12) addValueToStateAndAddKey).run 13
 
 /-- info: 18 -/
 #guard_msgs in
-#eval m.foldl (init := 12) fun acc k _ => acc + k
+#eval m.fold (init := 12) fun acc k _ => acc + k
 
 def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
   modify (fun st => st + v)
@@ -283,11 +283,11 @@ def addValueToStateAndAddKey (acc : Nat) (k : Nat) (v : Nat) : StateM Nat Nat :=
 
 /-- info: (18, 25) -/
 #guard_msgs in
-#eval (m.foldlM (init := 12) addValueToStateAndAddKey).run 13
+#eval (m.foldM (init := 12) addValueToStateAndAddKey).run 13
 
 /-- info: 18 -/
 #guard_msgs in
-#eval m.foldl (init := 12) fun acc k _ => acc + k
+#eval m.fold (init := 12) fun acc k _ => acc + k
 
 def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
   modify (fun st => st + v)
@@ -349,11 +349,11 @@ def addKeyToStateAndAddKey (acc : Nat) (k : Nat) : StateM Nat Nat := do
 
 /-- info: (1000000015, 1000000016) -/
 #guard_msgs in
-#eval (m.foldlM (init := 12) addKeyToStateAndAddKey).run 13
+#eval (m.foldM (init := 12) addKeyToStateAndAddKey).run 13
 
 /-- info: 1000000015 -/
 #guard_msgs in
-#eval m.foldl (init := 12) fun acc k => acc + k
+#eval m.fold (init := 12) fun acc k => acc + k
 
 def addKeyToState (k : Nat) : StateM Nat PUnit := do
   modify (fun st => st + k)
@@ -403,11 +403,11 @@ def addKeyToStateAndAddKey (acc : Nat) (k : Nat) : StateM Nat Nat := do
 
 /-- info: (1000000015, 1000000016) -/
 #guard_msgs in
-#eval (m.foldlM (init := 12) addKeyToStateAndAddKey).run 13
+#eval (m.foldM (init := 12) addKeyToStateAndAddKey).run 13
 
 /-- info: 1000000015 -/
 #guard_msgs in
-#eval m.foldl (init := 12) fun acc k => acc + k
+#eval m.fold (init := 12) fun acc k => acc + k
 
 def addKeyToState (k : Nat) : StateM Nat PUnit := do
   modify (fun st => st + k)

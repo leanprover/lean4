@@ -58,14 +58,19 @@ capacity.
 instance [BEq α] [Hashable α] : EmptyCollection (HashSet α) where
   emptyCollection := empty
 
-/-- Inserts the given element into the set. -/
+/--
+Inserts the given element into the set. If the hash set already contains an element that is
+equal (with regard to `==`) to the given element, then the hash set is returned unchanged.
+-/
 @[inline] def insert [BEq α] [Hashable α] (m : HashSet α) (a : α) : HashSet α :=
   ⟨m.inner.insertIfNew a ()⟩
 
 /--
 Checks whether an element is present in a set and inserts the element if it was not found.
+If the hash set already contains an element that is equal (with regard to `==`) to the given
+element, then the hash set is returned unchanged.
 
-Equivalent to (but potentially faster than) calling `contains` followed by `insertIfNew`.
+Equivalent to (but potentially faster than) calling `contains` followed by `insert`.
 -/
 @[inline] def containsThenInsert [BEq α] [Hashable α] (m : HashSet α) (a : α) : Bool × HashSet α :=
   let ⟨replaced, r⟩ := m.inner.containsThenInsertIfNew a ()
@@ -151,14 +156,19 @@ instance [BEq α] [Hashable α] {m : Type v → Type v} : ForIn m (HashSet α) �
   m.inner.keysArray
 
 /--
-Inserts multiple elements into the hash set by iterating over the given collection and calling
-`insert`.
+Inserts multiple elements into the hash set. Note that unlike repeatedly calling `insert`, if the
+collection contains multiple elements that are equal (with regard to `==`), then the last element
+in the collection will be present in the returned hash set.
 -/
 @[inline] def insertMany [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] (m : HashSet α) (l : ρ) :
     HashSet α :=
   ⟨m.inner.insertManyUnit l⟩
 
-/-- Creates a hash set from a list of elements. -/
+/--
+Creates a hash set from a list of elements. Note that unlike repeatedly calling `insert`, if the
+collection contains multiple elements that are equal (with regard to `==`), then the last element
+in the collection will be present in the returned hash set.
+-/
 @[inline] def ofList [BEq α] [Hashable α] (l : List α) : HashSet α :=
   ⟨HashMap.unitOfList l⟩
 

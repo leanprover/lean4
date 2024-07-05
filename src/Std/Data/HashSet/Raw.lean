@@ -59,14 +59,19 @@ the empty collection notations `∅` and `{}` to create an empty hash set with t
 instance : EmptyCollection (Raw α) where
   emptyCollection := empty
 
-/-- Inserts the given element into the set. -/
+/--
+Inserts the given element into the set. If the hash set already contains an element that is
+equal (with regard to `==`) to the given element, then the hash set is returned unchanged.
+-/
 @[inline] def insert [BEq α] [Hashable α] (m : Raw α) (a : α) : Raw α :=
   ⟨m.inner.insertIfNew a ()⟩
 
 /--
 Checks whether an element is present in a set and inserts the element if it was not found.
+If the hash set already contains an element that is equal (with regard to `==`) to the given
+element, then the hash set is returned unchanged.
 
-Equivalent to (but potentially faster than) calling `contains` followed by `insertIfNew`.
+Equivalent to (but potentially faster than) calling `contains` followed by `insert`.
 -/
 @[inline] def containsThenInsert [BEq α] [Hashable α] (m : Raw α) (a : α) : Bool × Raw α :=
   let ⟨replaced, r⟩ := m.inner.containsThenInsertIfNew a ()
@@ -151,13 +156,20 @@ instance {m : Type v → Type v} : ForIn m (Raw α) α where
 @[inline] def toArray (m : Raw α) : Array α :=
   m.inner.keysArray
 
-/-- Inserts multiple elements into the hash set by iterating over the given collection and calling
-`insert`. -/
+/--
+Inserts multiple elements into the hash set. Note that unlike repeatedly calling `insert`, if the
+collection contains multiple elements that are equal (with regard to `==`), then the last element
+in the collection will be present in the returned hash set.
+-/
 @[inline] def insertMany [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] (m : Raw α) (l : ρ) :
     Raw α :=
   ⟨m.inner.insertManyUnit l⟩
 
-/-- Creates a hash set from a list of elements. -/
+/--
+Creates a hash set from a list of elements. Note that unlike repeatedly calling `insert`, if the
+collection contains multiple elements that are equal (with regard to `==`), then the last element
+in the collection will be present in the returned hash set.
+-/
 @[inline] def ofList [BEq α] [Hashable α] (l : List α) : Raw α :=
   ⟨HashMap.Raw.unitOfList l⟩
 

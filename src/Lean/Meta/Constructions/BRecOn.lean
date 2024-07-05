@@ -149,7 +149,6 @@ private def mkBelowFromRec (recName : Name) (ibelow reflexive : Bool) (nParams :
     let indices     : Array Expr := refArgs[nParams + recVal.numMotives + recVal.numMinors:refArgs.size - 1]
     let major       : Expr       := refArgs[refArgs.size - 1]!
 
-
     -- universe parameter names of ibelow/below
     let blvls :=
       -- For ibelow we instantiate the first universe parameter of `.rec` to `.zero`
@@ -160,7 +159,7 @@ private def mkBelowFromRec (recName : Name) (ibelow reflexive : Bool) (nParams :
     -- type of the recursor, to be more robust when facing nested induction
     let majorTypeType ← inferType (← inferType major)
     let .some ilvl ← typeFormerTypeLevel majorTypeType
-      | throwError "type of major premise {major} not a type former:{indentExpr majorTypeType}"
+      | throwError "type of type of major premise {major} not a type former"
 
     -- universe level of the resultant type
     let rlvl : Level :=
@@ -209,6 +208,20 @@ private def mkBelowOrIBelow (indName : Name) (ibelow : Bool) : MetaM Unit := do
 
   mkBelowFromRec (mkRecName indName) ibelow indVal.isReflexive indVal.numParams
     (if ibelow then mkIBelowName indName else mkBelowName indName)
+
+  -- If this is the first inductive in a mutual group with nested inductives,
+  -- generate the other ones here as well
+  if indVal.all[0]! = indName then
+    -- We have to look at the recVal of the first inductive to find the number
+    -- of motives
+    let .recInfo recVal ← getConstInfo (mkRecName indName) | throwError "not a .recInfo"
+    for i in [0 : recVal.numMotives - indVal.all.length] do
+      let recName : Name := .str indName s!"rec_{i+1}"
+      let belowName : Name := if ibelow then
+          .str indName s!"below_{i+1}"
+      else
+          .str indName s!"ibelow_{i+1}"
+      mkBelowFromRec recName ibelow indVal.isReflexive indVal.numParams belowName
 
 def mkBelow (declName : Name) : MetaM Unit := mkBelowOrIBelow declName true
 def mkIBelow (declName : Name) : MetaM Unit := mkBelowOrIBelow declName false

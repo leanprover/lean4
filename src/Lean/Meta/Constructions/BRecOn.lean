@@ -124,52 +124,55 @@ fun {α} {motive} t =>
   List.rec True (fun head tail tail_ih => (motive tail ∧ tail_ih) ∧ True) t
 ```
 -/
-private def mkBelowOrIBelow (indName : Name) (ibelow : Bool) : MetaM Unit := do
-  let .inductInfo indVal ← getConstInfo indName | return
-  unless indVal.isRec do return
-  if ← isPropFormerType indVal.type then return
-
-  let recName := mkRecName indName
+private def mkBelowFromRec (recName : Name) (ibelow reflexive : Bool) (nParams : Nat)
+  (belowName : Name) : MetaM Unit := do
   -- The construction follows the type of `ind.rec`
   let .recInfo recVal ← getConstInfo recName
     | throwError "{recName} not a .recInfo"
   let lvl::lvls := recVal.levelParams.map (Level.param ·)
     | throwError "recursor {recName} has no levelParams"
   let lvlParam := recVal.levelParams.head!
-  -- universe parameter names of ibelow/below
-  let blvls :=
-    -- For ibelow we instantiate the first universe parameter of `.rec` to `.zero`
-    if ibelow then recVal.levelParams.tail!
-              else recVal.levelParams
-  let .some ilvl ← typeFormerTypeLevel indVal.type
-    | throwError "type {indVal.type} of inductive {indVal.name} not a type former?"
-
-  -- universe level of the resultant type
-  let rlvl : Level :=
-    if ibelow then
-      0
-    else if indVal.isReflexive then
-      if let .max 1 ilvl' := ilvl then
-        mkLevelMax' (.succ lvl) ilvl'
-      else
-        mkLevelMax' (.succ lvl) ilvl
-    else
-      mkLevelMax' 1 lvl
 
   let refType :=
     if ibelow then
       recVal.type.instantiateLevelParams [lvlParam] [0]
-    else if indVal.isReflexive then
+    else if reflexive then
       recVal.type.instantiateLevelParams [lvlParam] [lvl.succ]
     else
       recVal.type
 
   let decl ← forallTelescope refType fun refArgs _ => do
-    assert! refArgs.size == indVal.numParams + recVal.numMotives + recVal.numMinors + indVal.numIndices + 1
-    let params      : Array Expr := refArgs[:indVal.numParams]
-    let typeFormers : Array Expr := refArgs[indVal.numParams:indVal.numParams + recVal.numMotives]
-    let minors      : Array Expr := refArgs[indVal.numParams + recVal.numMotives:indVal.numParams + recVal.numMotives + recVal.numMinors]
-    let remaining   : Array Expr := refArgs[indVal.numParams + recVal.numMotives + recVal.numMinors:]
+    assert! refArgs.size > nParams + recVal.numMotives + recVal.numMinors
+    let params      : Array Expr := refArgs[:nParams]
+    let typeFormers : Array Expr := refArgs[nParams:nParams + recVal.numMotives]
+    let minors      : Array Expr := refArgs[nParams + recVal.numMotives:nParams + recVal.numMotives + recVal.numMinors]
+    let indices     : Array Expr := refArgs[nParams + recVal.numMotives + recVal.numMinors:refArgs.size - 1]
+    let major       : Expr       := refArgs[refArgs.size - 1]!
+
+
+    -- universe parameter names of ibelow/below
+    let blvls :=
+      -- For ibelow we instantiate the first universe parameter of `.rec` to `.zero`
+      if ibelow then recVal.levelParams.tail!
+                else recVal.levelParams
+    -- universe parameter of the type fomer.
+    -- same as `typeFormerTypeLevel indVal.type`, but we want to infer it from the
+    -- type of the recursor, to be more robust when facing nested induction
+    let majorTypeType ← inferType (← inferType major)
+    let .some ilvl ← typeFormerTypeLevel majorTypeType
+      | throwError "type of major premise {major} not a type former:{indentExpr majorTypeType}"
+
+    -- universe level of the resultant type
+    let rlvl : Level :=
+      if ibelow then
+        0
+      else if reflexive then
+        if let .max 1 ilvl' := ilvl then
+          mkLevelMax' (.succ lvl) ilvl'
+        else
+          mkLevelMax' (.succ lvl) ilvl
+      else
+        mkLevelMax' 1 lvl
 
     let mut val := .const recName (rlvl.succ :: lvls)
     -- add parameters
@@ -184,20 +187,28 @@ private def mkBelowOrIBelow (indName : Name) (ibelow : Bool) : MetaM Unit := do
       let arg ← buildBelowMinorPremise rlvl typeFormers (← inferType minor)
       val := .app val arg
     -- add indices and major premise
-    val := mkAppN val remaining
+    val := mkAppN val indices
+    val := mkApp val major
 
     -- All paramaters of `.rec` besides the `minors` become parameters of `.below`
-    let below_params := params ++ typeFormers ++ remaining
+    let below_params := params ++ typeFormers ++ indices ++ #[major]
     let type ← mkForallFVars below_params (.sort rlvl)
     val ← mkLambdaFVars below_params val
 
-    let name := if ibelow then mkIBelowName indName else mkBelowName indName
-    mkDefinitionValInferrringUnsafe name blvls type val .abbrev
+    mkDefinitionValInferrringUnsafe belowName blvls type val .abbrev
 
   addDecl (.defnDecl decl)
   setReducibleAttribute decl.name
   modifyEnv fun env => markAuxRecursor env decl.name
   modifyEnv fun env => addProtected env decl.name
+
+private def mkBelowOrIBelow (indName : Name) (ibelow : Bool) : MetaM Unit := do
+  let .inductInfo indVal ← getConstInfo indName | return
+  unless indVal.isRec do return
+  if ← isPropFormerType indVal.type then return
+
+  mkBelowFromRec (mkRecName indName) ibelow indVal.isReflexive indVal.numParams
+    (if ibelow then mkIBelowName indName else mkBelowName indName)
 
 def mkBelow (declName : Name) : MetaM Unit := mkBelowOrIBelow declName true
 def mkIBelow (declName : Name) : MetaM Unit := mkBelowOrIBelow declName false

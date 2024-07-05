@@ -174,7 +174,8 @@ end Unverified
 /--
 Well-formedness predicate for hash sets. Users of `HashSet` will not need to interact with this.
 Users of `HashSet.Raw` will need to provide proofs of `WF` to lemmas and should use lemmas like
-`WF.empty` and `WF.insert` to show that map operations preserve well-formedness.
+`WF.empty` and `WF.insert` (which are always named exactly like the operations they are about) to
+show that map operations preserve well-formedness.
 -/
 structure WF [BEq α] [Hashable α] (m : Raw α) : Prop where
   /-- Internal implementation detail of the hash set -/

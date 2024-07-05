@@ -373,9 +373,9 @@ section WF
 /--
 Well-formedness predicate for hash maps. Users of `DHashMap` will not need to interact with
 this. Users of `DHashMap.Raw` will need to provide proofs of `WF` to lemmas and should use lemmas
-like `WF.empty` and `WF.insert` to show that map operations preserve well-formedness. The
-constructors of this type are internal implementation details and should not be accessed by
-users.
+like `WF.empty` and `WF.insert` (which are always named exactly like the operations they are about)
+to show that map operations preserve well-formedness. The constructors of this type are internal
+implementation details and should not be accessed by users.
 -/
 inductive WF : {α : Type u} → {β : α → Type v} → [BEq α] → [Hashable α] → Raw α β → Prop where
   -- Implementation note: the reason why we provide the `[EquivBEq α] [LawfulHashable α]` is so that

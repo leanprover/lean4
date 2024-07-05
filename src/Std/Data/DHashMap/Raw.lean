@@ -343,23 +343,34 @@ Inserts multiple mappings into the hash map by iterating over the given collecti
     (Raw₀.Const.insertMany ⟨m, h⟩ l).1
   else m -- will never happen for well-formed inputs
 
-@[inline, inherit_doc Raw.insertMany] def Const.insertManyUnit [BEq α] [Hashable α] {ρ : Type w}
+/--
+Inserts multiple keys with the value `()` into the hash map by iterating over the given collection
+and calling `insert`. If the same key appears multiple times, the last occurrence takes precedence.
+
+This is mainly useful to implement `HashSet.insertMany`, so if you are considering using this,
+`HashSet` or `HashSet.Raw` might be a better fit for you.
+-/
+@[inline] def Const.insertManyUnit [BEq α] [Hashable α] {ρ : Type w}
     [ForIn Id ρ α] (m : Raw α (fun _ => Unit)) (l : ρ) : Raw α (fun _ => Unit) :=
   if h : 0 < m.buckets.size then
     (Raw₀.Const.insertManyUnit ⟨m, h⟩ l).1
   else m -- will never happen for well-formed inputs
 
-/-- Creates a hash map from a list of mappings. -/
-@[inline] def ofList [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (l : ρ) :
-    Raw α β :=
+/-- Creates a hash map from a list of mappings. If the same key appears multiple times, the last
+occurrence takes precedence. -/
+@[inline] def ofList [BEq α] [Hashable α] (l : List ((a : α) × β a)) : Raw α β :=
   insertMany ∅ l
 
-@[inline, inherit_doc Raw.ofList] def Const.ofList {β : Type v} [BEq α] [Hashable α] {ρ : Type w}
-    [ForIn Id ρ (α × β)] (l : ρ) : Raw α (fun _ => β) :=
+@[inline, inherit_doc Raw.ofList] def Const.ofList {β : Type v} [BEq α] [Hashable α]
+    (l : List (α × β)) : Raw α (fun _ => β) :=
   Const.insertMany ∅ l
 
-@[inline, inherit_doc Raw.ofList] def Const.unitOfList [BEq α] [Hashable α] {ρ : Type w}
-    [ForIn Id ρ α] (l : ρ) : Raw α (fun _ => Unit) :=
+/-- Creates a hash map from a list of keys, associating the value `()` with each key.
+
+This is mainly useful to implement `HashSet.ofList`, so if you are considering using this,
+`HashSet` or `HashSet.Raw` might be a better fit for you. -/
+@[inline] def Const.unitOfList [BEq α] [Hashable α] (l : List α) :
+    Raw α (fun _ => Unit) :=
   Const.insertManyUnit ∅ l
 
 /--
@@ -480,15 +491,15 @@ theorem WF.Const.insertManyUnit [BEq α] [Hashable α] {ρ : Type w} [ForIn Id �
   simpa [Raw.Const.insertManyUnit, h.size_buckets_pos] using
     (Raw₀.Const.insertManyUnit ⟨m, h.size_buckets_pos⟩ l).2 _ WF.insert₀ h
 
-theorem WF.ofList [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] {l : ρ} :
+theorem WF.ofList [BEq α] [Hashable α] {l : List ((a : α) × β a)} :
     (ofList l : Raw α β).WF :=
   .insertMany WF.empty
 
-theorem WF.Const.ofList {β : Type v} [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ (α × β)]
-    {l : ρ} : (Const.ofList l : Raw α (fun _ => β)).WF :=
+theorem WF.Const.ofList {β : Type v} [BEq α] [Hashable α] {l : List (α × β)} :
+    (Const.ofList l : Raw α (fun _ => β)).WF :=
   Const.insertMany WF.empty
 
-theorem WF.Const.unitOfList [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] {l : ρ} :
+theorem WF.Const.unitOfList [BEq α] [Hashable α] {l : List α} :
     (Const.unitOfList l : Raw α (fun _ => Unit)).WF :=
   Const.insertManyUnit WF.empty
 

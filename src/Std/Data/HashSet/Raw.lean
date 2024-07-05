@@ -158,7 +158,7 @@ instance {m : Type v → Type v} : ForIn m (Raw α) α where
   ⟨m.inner.insertManyUnit l⟩
 
 /-- Creates a hash set from a list of elements. -/
-@[inline] def ofList [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] (l : ρ) : Raw α :=
+@[inline] def ofList [BEq α] [Hashable α] (l : List α) : Raw α :=
   ⟨HashMap.Raw.unitOfList l⟩
 
 /--
@@ -207,7 +207,7 @@ theorem WF.insertMany [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] {m :
     (h : m.WF) : (m.insertMany l).WF :=
   ⟨HashMap.Raw.WF.insertManyUnit h.out⟩
 
-theorem WF.ofList [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] {l : ρ} :
+theorem WF.ofList [BEq α] [Hashable α] {l : List α} :
     (ofList l : Raw α).WF :=
   ⟨HashMap.Raw.WF.unitOfList⟩
 

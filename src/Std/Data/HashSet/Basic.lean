@@ -159,7 +159,7 @@ Inserts multiple elements into the hash set by iterating over the given collecti
   ⟨m.inner.insertManyUnit l⟩
 
 /-- Creates a hash set from a list of elements. -/
-@[inline] def ofList [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] (l : ρ) : HashSet α :=
+@[inline] def ofList [BEq α] [Hashable α] (l : List α) : HashSet α :=
   ⟨HashMap.unitOfList l⟩
 
 /--

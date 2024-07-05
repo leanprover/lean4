@@ -206,12 +206,12 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β
     {ρ : Type w} [ForIn Id ρ α] (m : HashMap α Unit) (l : ρ) : HashMap α Unit :=
   ⟨DHashMap.Const.insertManyUnit m.inner l⟩
 
-@[inline, inherit_doc DHashMap.Const.ofList] def ofList [BEq α] [Hashable α] {ρ : Type w}
-    [ForIn Id ρ (α × β)] (l : ρ) : HashMap α β :=
+@[inline, inherit_doc DHashMap.Const.ofList] def ofList [BEq α] [Hashable α] (l : List (α × β)) :
+    HashMap α β :=
   ⟨DHashMap.Const.ofList l⟩
 
-@[inline, inherit_doc DHashMap.Const.unitOfList] def unitOfList [BEq α] [Hashable α] {ρ : Type w}
-    [ForIn Id ρ α] (l : ρ) : HashMap α Unit :=
+@[inline, inherit_doc DHashMap.Const.unitOfList] def unitOfList [BEq α] [Hashable α] (l : List α) :
+    HashMap α Unit :=
   ⟨DHashMap.Const.unitOfList l⟩
 
 @[inline, inherit_doc DHashMap.Internal.numBuckets] def Internal.numBuckets [BEq α] [Hashable α]

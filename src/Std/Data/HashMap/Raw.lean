@@ -197,12 +197,12 @@ m.inner.values
     {ρ : Type w} [ForIn Id ρ α] (m : Raw α Unit) (l : ρ) : Raw α Unit :=
   ⟨DHashMap.Raw.Const.insertManyUnit m.inner l⟩
 
-@[inline, inherit_doc DHashMap.Raw.Const.ofList] def ofList [BEq α] [Hashable α] {ρ : Type w}
-    [ForIn Id ρ (α × β)] (l : ρ) : Raw α β :=
+@[inline, inherit_doc DHashMap.Raw.Const.ofList] def ofList [BEq α] [Hashable α]
+    (l : List (α × β)) : Raw α β :=
   ⟨DHashMap.Raw.Const.ofList l⟩
 
 @[inline, inherit_doc DHashMap.Raw.Const.unitOfList] def unitOfList [BEq α] [Hashable α]
-    {ρ : Type w} [ForIn Id ρ α] (l : ρ) : Raw α Unit :=
+    (l : List α) : Raw α Unit :=
   ⟨DHashMap.Raw.Const.unitOfList l⟩
 
 @[inherit_doc DHashMap.Raw.Internal.numBuckets] def Internal.numBuckets (m : Raw α β) : Nat :=
@@ -264,11 +264,10 @@ theorem WF.insertManyUnit [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] 
     (h : m.WF) : (m.insertManyUnit l).WF :=
   ⟨DHashMap.Raw.WF.Const.insertManyUnit h.out⟩
 
-theorem WF.ofList [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ (α × β)] {l : ρ} : (ofList l).WF :=
+theorem WF.ofList [BEq α] [Hashable α] {l : List (α × β)} : (ofList l).WF :=
   ⟨DHashMap.Raw.WF.Const.ofList⟩
 
-theorem WF.unitOfList [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] {l : ρ} :
-    (unitOfList l).WF :=
+theorem WF.unitOfList [BEq α] [Hashable α] {l : List α} : (unitOfList l).WF :=
   ⟨DHashMap.Raw.WF.Const.unitOfList⟩
 
 end Raw

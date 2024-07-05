@@ -222,16 +222,16 @@ instance [BEq α] [Hashable α] : ForIn m (DHashMap α β) ((a : α) × β a) wh
   ⟨(Raw₀.Const.insertManyUnit ⟨m.1, m.2.size_buckets_pos⟩ l).1,
    (Raw₀.Const.insertManyUnit ⟨m.1, m.2.size_buckets_pos⟩ l).2 _ Raw.WF.insert₀ m.2⟩
 
-@[inline, inherit_doc Raw.ofList] def ofList [BEq α] [Hashable α] {ρ : Type w}
-    [ForIn Id ρ ((a : α) × β a)] (l : ρ) : DHashMap α β :=
+@[inline, inherit_doc Raw.ofList] def ofList [BEq α] [Hashable α] (l : List ((a : α) × β a)) :
+    DHashMap α β :=
   insertMany ∅ l
 
 @[inline, inherit_doc Raw.Const.ofList] def Const.ofList {β : Type v} [BEq α] [Hashable α]
-    {ρ : Type w} [ForIn Id ρ (α × β)] (l : ρ) : DHashMap α (fun _ => β) :=
+    (l : List (α × β)) : DHashMap α (fun _ => β) :=
   Const.insertMany ∅ l
 
-@[inline, inherit_doc Raw.Const.unitOfList] def Const.unitOfList [BEq α] [Hashable α] {ρ : Type w}
-    [ForIn Id ρ α] (l : ρ) : DHashMap α (fun _ => Unit) :=
+@[inline, inherit_doc Raw.Const.unitOfList] def Const.unitOfList [BEq α] [Hashable α] (l : List α) :
+    DHashMap α (fun _ => Unit) :=
   Const.insertManyUnit ∅ l
 
 @[inherit_doc Raw.Internal.numBuckets] def Internal.numBuckets [BEq α] [Hashable α]

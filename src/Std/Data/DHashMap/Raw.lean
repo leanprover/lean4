@@ -55,7 +55,7 @@ instance : EmptyCollection (Raw α β) where
   emptyCollection := empty
 
 /--
-Insert the given mapping into the map, replacing an existing mapping for the key if there is one.
+Inserts the given mapping into the map, replacing an existing mapping for the key if there is one.
 -/
 @[inline] def insert [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β a) : Raw α β :=
   if h : 0 < m.buckets.size then
@@ -63,15 +63,19 @@ Insert the given mapping into the map, replacing an existing mapping for the key
   else m -- will never happen for well-formed inputs
 
 /--
-If there is no mapping for the given key, insert the given mapping into the map. Otherwise,
-return the map unaltered.
+If there is no mapping for the given key, inserts the given mapping into the map. Otherwise,
+returns the map unaltered.
 -/
 @[inline] def insertIfNew [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β a) : Raw α β :=
   if h : 0 < m.buckets.size then
     (Raw₀.insertIfNew ⟨m, h⟩ a b).1
   else m -- will never happen for well-formed inputs
 
-/-- Equivalent to (but potentially faster than) calling `contains` followed by `insert`. -/
+/--
+Checks whether a key is present in a map, and unconditionally inserts a value for the key.
+
+Equivalent to (but potentially faster than) calling `contains` followed by `insert`.
+-/
 @[inline] def containsThenInsert [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β a) :
     Bool × Raw α β:=
   if h : 0 < m.buckets.size then
@@ -79,7 +83,15 @@ return the map unaltered.
     ⟨replaced, r⟩
   else (false, m) -- will never happen for well-formed inputs
 
-/-- Equivalent to (but potentially faster than) calling `get?` followed by `insertIfNew`. -/
+/--
+Checks whether a key is present in a map, returning the associate value, and inserts a value for
+the key if it was not found.
+
+If the returned value is `some v`, then the returned map is unaltered. If it is `none`, then the
+returned map has a new value inserted.
+
+Equivalent to (but potentially faster than) calling `get?` followed by `insertIfNew`.
+-/
 @[inline] def getThenInsertIfNew? [BEq α] [Hashable α] [LawfulBEq α] (m : Raw α β) (a : α)
     (b : β a) : Option (β a) × Raw α β :=
   if h : 0 < m.buckets.size then
@@ -87,7 +99,14 @@ return the map unaltered.
     ⟨previous, r⟩
   else (none, m) -- will never happen for well-formed inputs
 
-/-- Equivalent to (but potentially faster than) calling `contains` followed by `insertIfNew`. -/
+/--
+Checks whether a key is present in a map and inserts a value for the key if it was not found.
+
+If the returned `Bool` is `true`, then the returned map is unaltered. If the `Bool` is `false`, then
+the returned map has a new value inserted.
+
+Equivalent to (but potentially faster than) calling `contains` followed by `insertIfNew`.
+-/
 @[inline] def containsThenInsertIfNew [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β a) :
     Bool × Raw α β :=
   if h : 0 < m.buckets.size then
@@ -109,7 +128,7 @@ Uses the `LawfulBEq` instance to cast the retrieved value to the correct type.
 Returns `true` if there is a mapping for the given key. There is also a `Prop`-valued version
 of this: `a ∈ m` is equivalent to `m.contains a = true`.
 
-Observe that this is different behavior than for lists: for lists, `∈` uses `=` and `contains` use
+Observe that this is different behavior than for lists: for lists, `∈` uses `=` and `contains` uses
 `==` for comparisons, while for hash maps, both use `==`.
 -/
 @[inline] def contains [BEq α] [Hashable α] (m : Raw α β) (a : α) : Bool :=
@@ -195,7 +214,15 @@ Tries to retrieve the mapping for the given key, returning `fallback` if no such
     Raw₀.Const.get! ⟨m, h⟩ a
   else default -- will never happen for well-formed inputs
 
-/-- Equivalent to (but potentially faster than) calling `Const.get?` followed by `insertIfNew`. -/
+/--
+Equivalent to (but potentially faster than) calling `Const.get?` followed by `insertIfNew`.
+
+Checks whether a key is present in a map, returning the associate value, and inserts a value for
+the key if it was not found.
+
+If the returned value is `some v`, then the returned map is unaltered. If it is `none`, then the
+returned map has a new value inserted.
+-/
 @[inline] def Const.getThenInsertIfNew? [BEq α] [Hashable α] (m : Raw α (fun _ => β)) (a : α)
     (b : β) : Option β × Raw α (fun _ => β) :=
   if h : 0 < m.buckets.size then

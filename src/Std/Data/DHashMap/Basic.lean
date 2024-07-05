@@ -34,7 +34,19 @@ namespace Std
 
 open DHashMap.Internal DHashMap.Internal.List
 
-/-- Dependent hash maps. -/
+/--
+Dependent hash maps.
+
+This is a simple separate-chaining hash table. The data of the hash map consists of a cached size
+and an array of buckets, where each bucket is a linked list of key-value pais. The number of buckets
+is always a power of two. The hash map doubles its size upon inserting an element such that the
+number of elements is more than 75% of the number of buckets.
+
+These hash maps contain a bundled well-formedness invariant, which means that they cannot
+be used in nested inductive types. For these use cases, `Std.Data.DHashMap.Raw` and
+`Std.Data.DHashMap.Raw.WF` unbundle the invariant from the hash map. When in doubt, prefer
+`DHashMap` over `DHashMap.Raw`.
+-/
 def DHashMap (α : Type u) (β : α → Type v) [BEq α] [Hashable α] := { m : DHashMap.Raw α β // m.WF }
 
 namespace DHashMap

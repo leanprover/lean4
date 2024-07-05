@@ -37,6 +37,12 @@ This is a simple separate-chaining hash table. The data of the hash map consists
 and an array of buckets, where each bucket is a linked list of keys. The number of buckets
 is always a power of two. The hash map doubles its size upon inserting an element such that the
 number of elements is more than 75% of the number of buckets.
+
+
+These hash sets contain a bundled well-formedness invariant, which means that they cannot
+be used in nested inductive types. For these use cases, `Std.Data.HashSet.Raw` and
+`Std.Data.HashSet.Raw.WF` unbundle the invariant from the hash map. When in doubt, prefer
+`HashSet` over `HashSet.Raw`.
 -/
 structure HashSet (α : Type u) [BEq α] [Hashable α] where
   /-- Internal implementation detail of the hash set. -/
@@ -56,17 +62,21 @@ capacity.
 instance [BEq α] [Hashable α] : EmptyCollection (HashSet α) where
   emptyCollection := empty
 
-/-- Insert the given element into the set. -/
+/-- Inserts the given element into the set. -/
 @[inline] def insert [BEq α] [Hashable α] (m : HashSet α) (a : α) : HashSet α :=
   ⟨m.inner.insertIfNew a ()⟩
 
-/-- Equivalent to (but potentially faster than) calling `contains` followed by `insert`. -/
+/--
+Checks whether an element is present in a set and inserts the element if it was not found.
+
+Equivalent to (but potentially faster than) calling `contains` followed by `insertIfNew`.
+-/
 @[inline] def containsThenInsert [BEq α] [Hashable α] (m : HashSet α) (a : α) : Bool × HashSet α :=
   let ⟨replaced, r⟩ := m.inner.containsThenInsertIfNew a ()
   ⟨replaced, ⟨r⟩⟩
 
 /--
-Returns `true` if the given key is present in the map. There is also a `Prop`-valued version of
+Returns `true` if the given key is present in the set. There is also a `Prop`-valued version of
 this: `a ∈ m` is equivalent to `m.contains a = true`.
 
 Observe that this is different behavior than for lists: for lists, `∈` uses `=` and `contains` use

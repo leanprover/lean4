@@ -32,8 +32,15 @@ namespace Std
 namespace HashMap
 
 /--
-Hash maps without bundled well-formedness invariant. Suitable for use in nested
-inductive types. The well-formedness invariant is called `Raw.WF`.
+Hash maps without a bundled well-formedness invariant, suitable for use in nested
+inductive types. The well-formedness invariant is called `Raw.WF`. When in doubt, prefer `HashMap`
+over `HashMap.Raw`. Lemmas about the operations on `Std.Data.HashMap.Raw` are available in the
+module `Std.Data.HashMap.RawLemmas`.
+
+This is a simple separate-chaining hash table. The data of the hash map consists of a cached size
+and an array of buckets, where each bucket is a linked list of key-value pais. The number of buckets
+is always a power of two. The hash map doubles its size upon inserting an element such that the
+number of elements is more than 75% of the number of buckets.
 -/
 structure Raw (α : Type u) (β : Type v) where
   /-- Internal implementation detail of the hash map -/

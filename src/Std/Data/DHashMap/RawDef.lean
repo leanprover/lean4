@@ -26,11 +26,10 @@ inductive types. The well-formedness invariant is called `Raw.WF`. When in doubt
 over `DHashMap.Raw`. Lemmas about the operations on `Std.Data.DHashMap.Raw` are available in the
 module `Std.Data.DHashMap.RawLemmas`.
 
-This is a simple separate-chaining hash table. The data of the hash map consists of a cached
-size and an array of buckets, where each bucket is an `AssocList α β` (which is the same as
-a `List ((a : α) × β a)` but with one less level of indirection). The number of buckets is always a
-power of two. The hash map doubles its size upon inserting an element such that the number of
-elements is more than 75% of the number of buckets.
+This is a simple separate-chaining hash table. The data of the hash map consists of a cached size
+and an array of buckets, where each bucket is a linked list of key-value pais. The number of buckets
+is always a power of two. The hash map doubles its size upon inserting an element such that the
+number of elements is more than 75% of the number of buckets.
 -/
 structure Raw (α : Type u) (β : α → Type v) where
   /-- The number of mappings present in the hash map -/

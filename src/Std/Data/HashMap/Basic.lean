@@ -12,7 +12,7 @@ set_option autoImplicit false
 /-!
 # Hash maps
 
-This file develops the type `Std.Data.HashMap` of dependent hash maps.
+This file develops the type `Std.Data.HashMap` of hash maps.
 
 The operations `map` and `filterMap` on `Std.Data.HashMap` are defined in the module
 `Std.Data.HashMap.AdditionalOperations`.
@@ -37,6 +37,11 @@ This is a simple separate-chaining hash table. The data of the hash map consists
 and an array of buckets, where each bucket is a linked list of key-value pais. The number of buckets
 is always a power of two. The hash map doubles its size upon inserting an element such that the
 number of elements is more than 75% of the number of buckets.
+
+These hash maps contain a bundled well-formedness invariant, which means that they cannot
+be used in nested inductive types. For these use cases, `Std.Data.HashMap.Raw` and
+`Std.Data.HashMap.Raw.WF` unbundle the invariant from the hash map. When in doubt, prefer
+`HashMap` over `HashMap.Raw`.
 -/
 structure HashMap (α : Type u) (β : Type v) [BEq α] [Hashable α] where
   /-- Internal implementation detail of the hash map -/

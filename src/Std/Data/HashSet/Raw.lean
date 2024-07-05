@@ -59,11 +59,15 @@ the empty collection notations `∅` and `{}` to create an empty hash map with t
 instance : EmptyCollection (Raw α) where
   emptyCollection := empty
 
-/-- Insert the given element into the set. -/
+/-- Inserts the given element into the set. -/
 @[inline] def insert [BEq α] [Hashable α] (m : Raw α) (a : α) : Raw α :=
   ⟨m.inner.insertIfNew a ()⟩
 
-/-- Equivalent to (but potentially faster than) calling `contains` followed by `insert`. -/
+/--
+Checks whether an element is present in a set and inserts the element if it was not found.
+
+Equivalent to (but potentially faster than) calling `contains` followed by `insertIfNew`.
+-/
 @[inline] def containsThenInsert [BEq α] [Hashable α] (m : Raw α) (a : α) : Bool × Raw α :=
   let ⟨replaced, r⟩ := m.inner.containsThenInsertIfNew a ()
   ⟨replaced, ⟨r⟩⟩

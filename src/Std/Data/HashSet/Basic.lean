@@ -30,7 +30,14 @@ variable {α : Type u}
 
 namespace Std
 
-/-- Hash sets. -/
+/--
+Hash sets.
+
+This is a simple separate-chaining hash table. The data of the hash map consists of a cached size
+and an array of buckets, where each bucket is a linked list of keys. The number of buckets
+is always a power of two. The hash map doubles its size upon inserting an element such that the
+number of elements is more than 75% of the number of buckets.
+-/
 structure HashSet (α : Type u) [BEq α] [Hashable α] where
   /-- Internal implementation detail of the hash set. -/
   inner : HashMap α Unit

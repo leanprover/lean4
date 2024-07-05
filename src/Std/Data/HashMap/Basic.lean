@@ -12,7 +12,8 @@ set_option autoImplicit false
 /-!
 # Hash maps
 
-This file develops the type `Std.Data.HashMap` of hash maps.
+This file develops the type `Std.Data.HashMap` of hash maps. Dependent hash
+maps are defined in `Std.Data.DHashMap`.
 
 The operations `map` and `filterMap` on `Std.Data.HashMap` are defined in the module
 `Std.Data.HashMap.AdditionalOperations`.
@@ -42,6 +43,9 @@ These hash maps contain a bundled well-formedness invariant, which means that th
 be used in nested inductive types. For these use cases, `Std.Data.HashMap.Raw` and
 `Std.Data.HashMap.Raw.WF` unbundle the invariant from the hash map. When in doubt, prefer
 `HashMap` over `HashMap.Raw`.
+
+Dependent hash maps, in which keys may occur in their values' types, are available as
+`Std.Data.DHashMap`.
 -/
 structure HashMap (α : Type u) (β : Type v) [BEq α] [Hashable α] where
   /-- Internal implementation detail of the hash map -/

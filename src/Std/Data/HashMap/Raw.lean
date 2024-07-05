@@ -41,6 +41,9 @@ This is a simple separate-chaining hash table. The data of the hash map consists
 and an array of buckets, where each bucket is a linked list of key-value pais. The number of buckets
 is always a power of two. The hash map doubles its size upon inserting an element such that the
 number of elements is more than 75% of the number of buckets.
+
+Dependent hash maps, in which keys may occur in their values' types, are available as
+`Std.Data.Raw.DHashMap`.
 -/
 structure Raw (α : Type u) (β : Type v) where
   /-- Internal implementation detail of the hash map -/

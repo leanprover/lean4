@@ -49,7 +49,7 @@ structure Raw (α : Type u) where
 namespace Raw
 
 /--
-Creates a new empty hash set. The optional parameter `capacity` can be supplied to presize the map
+Creates a new empty hash set. The optional parameter `capacity` can be supplied to presize the set
 so that it can hold the given number of elements without reallocating. It is also possible to use
 the empty collection notations `∅` and `{}` to create an empty hash map with the default capacity.
 -/

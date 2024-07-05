@@ -38,7 +38,6 @@ and an array of buckets, where each bucket is a linked list of keys. The number 
 is always a power of two. The hash map doubles its size upon inserting an element such that the
 number of elements is more than 75% of the number of buckets.
 
-
 These hash sets contain a bundled well-formedness invariant, which means that they cannot
 be used in nested inductive types. For these use cases, `Std.Data.HashSet.Raw` and
 `Std.Data.HashSet.Raw.WF` unbundle the invariant from the hash map. When in doubt, prefer
@@ -127,7 +126,7 @@ section Unverified
     β :=
   m.inner.fold (fun b a _ => f b a) init
 
-/-- Folds the given function over the elements of the hash set in some order. -/
+/-- Carries out a monadic action on each mapping in the hash map in some order. -/
 @[inline] def forM [BEq α] [Hashable α] {m : Type v → Type v} [Monad m] (f : α → m PUnit)
     (b : HashSet α) : m PUnit :=
   b.inner.forM (fun a _ => f a)

@@ -401,7 +401,8 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
             if unfoldedInsts.isEmpty then
               MessageData.nil
             else
-              m!"after unfolding the instances{indentD <| MessageData.andList unfoldedInsts.toList}\n"
+              let instances := if unfoldedInsts.size == 1 then "instance" else "instances"
+              m!"after unfolding the {instances}{indentD <| MessageData.andList unfoldedInsts.toList}\n"
           let hint :=
             if r.isAppOf ``Eq.rec then
               m!"\n\n\

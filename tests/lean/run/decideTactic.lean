@@ -32,7 +32,7 @@ error: tactic 'decide' failed for proposition
   unknownProp
 since its 'Decidable' instance did not reduce to 'isTrue' or 'isFalse'.
 
-Instead, after unfolding the instances
+Instead, after unfolding the instance
   Classical.propDecidable
 it reduced to
   Classical.choice ⋯

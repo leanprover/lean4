@@ -29,9 +29,8 @@ private def hasBadIndexDep? (ys : Array Expr) (indices : Array Expr) : MetaM (Op
 -- Inductive datatype parameters cannot depend on ys
 private def hasBadParamDep? (ys : Array Expr) (indParams : Array Expr) : MetaM (Option (Expr × Expr)) := do
   for p in indParams do
-    let pType ← inferType p
     for y in ys do
-      if ← dependsOn pType y.fvarId! then
+      if ← dependsOn p y.fvarId! then
         return some (p, y)
   return none
 

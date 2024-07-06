@@ -359,8 +359,8 @@ def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId
   | _ => throwUnsupportedSyntax
 
 /--
-   Make sure `expectedType` does not contain free and metavariables.
-   It applies zeta and zetaDelta-reduction to eliminate let-free-vars.
+Make sure `expectedType` does not contain free and metavariables.
+It applies zeta and zetaDelta-reduction to eliminate let-free-vars.
 -/
 private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
   let mut expectedType ← instantiateMVars expectedType
@@ -385,12 +385,47 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
         {indentExpr expectedType}\n\
         is false"
     unless r.isAppOf ``isTrue do
-      throwError "\
-        tactic 'decide' failed for proposition\
-        {indentExpr expectedType}\n\
-        since its 'Decidable' instance reduced to\
-        {indentExpr r}\n\
-        rather than to the 'isTrue' constructor."
+      let msg := MessageData.ofLazyM (es := #[expectedType]) <| withoutModifyingState do
+        -- Re-reduce the instance and collect diagnostics, to get all unfolded Decidable instances
+        withOptions (fun opt => diagnostics.set opt true) do
+          modifyDiag (fun _ => {})
+          discard <| withDefault <| whnf s
+          let unfolded := (← get).diag.unfoldCounter.foldl (init := #[]) fun cs n _ => cs.push n
+          let unfoldedInsts ← unfolded |>.qsort Name.quickLt |>.filterMapM fun n => do
+            let e ← mkConstWithLevelParams n
+            if (← Meta.isClass? (← inferType e)) == ``Decidable then
+              return MessageData.ofConst e
+            else
+              return none
+          let unfoldMsg :=
+            if unfoldedInsts.isEmpty then
+              MessageData.nil
+            else
+              m!"after unfolding the instances{indentD <| MessageData.andList unfoldedInsts.toList}\n"
+          let hint :=
+            if r.isAppOf ``Eq.rec then
+              m!"\n\n\
+              Hint: reduction got stuck on '▸' (Eq.rec), which indicates that one of the instances \
+              is defined using tactics such as 'rw' or 'simp'. Use definitions such as \
+              '{MessageData.ofConst (.const ``inferInstanceAs [Level.param `u])}' or \
+              '{MessageData.ofConst (.const ``decidable_of_decidable_of_iff [])}' to change or \
+              otherwise \"rewrite\" the type."
+            else if r.isAppOf ``Classical.choice then
+              m!"\n\n\
+              Hint: reduction got stuck on 'Classical.choice', suggesting that there are \
+              \"classical\" instances, for example due to an 'open scoped Classical' command. \
+              The 'decide' tactic works by evaluating a decision procedure via reduction, but such \
+              classical instances cannot be evaluated."
+            else
+              MessageData.nil
+          return m!"\
+            tactic 'decide' failed for proposition\
+            {indentExpr expectedType}\n\
+            since its 'Decidable' instance did not reduce to \
+            '{MessageData.ofConst (.const ``isTrue [])}' or '{MessageData.ofConst (.const ``isFalse [])}'.\n\n\
+            Instead, {unfoldMsg}it reduced to{indentExpr r}\
+            {hint}"
+      throwError msg
     -- While we have a proof from reduction, we do not embed it in the proof term,
     -- but rather we let the kernel recompute it during type checking from a more efficient term.
     let rflPrf ← mkEqRefl (toExpr true)

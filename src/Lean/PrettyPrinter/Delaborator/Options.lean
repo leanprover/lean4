@@ -104,7 +104,8 @@ register_builtin_option pp.structureInstances : Bool := {
   defValue := true
   group    := "pp"
   descr    := "(pretty printer) display structure instances using the '{ fieldName := fieldValue, ... }' notation, \
-              or using '⟨fieldValue, ... ⟩' if structure is tagged with the '@[pp_using_anonymous_constructor]' attribute"
+              or using '⟨fieldValue, ... ⟩' if structure is tagged with the '@[pp_using_anonymous_constructor]' attribute. \
+              This can be disabled on a per-structure bases using the @[pp_no_structure_instances] attribute."
 }
 register_builtin_option pp.structureInstances.flatten : Bool := {
   defValue := true

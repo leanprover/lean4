@@ -193,6 +193,7 @@ def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStruct
   let e ← getExpr
   let some s ← isConstructorApp? e | failure
   guard <| isStructure env s.induct
+  guard <| !hasPPNoStructureInstancesAttribute env s.induct
   /- If implicit arguments should be shown, and the structure has parameters, we should not
      pretty print using { ... }, because we will not be able to see the parameters. -/
   let fieldNames := getStructureFields env s.induct

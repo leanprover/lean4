@@ -37,7 +37,7 @@ Interesting options:
   let args := args.erase "-leanshared"
 
   -- We assume that the CMake variables do not contain escaped spaces
-  let cflags := getCFlags root
+  let mut cflags := getCFlags root
   let mut cflagsInternal := getInternalCFlags root
   let mut ldflagsInternal := getInternalLinkerFlags root
   let ldflags := getLinkerFlags root linkStatic
@@ -57,6 +57,9 @@ Interesting options:
     -- these are intended for the bundled compiler only
     cflagsInternal := #[]
     ldflagsInternal := #[]
+  if let some ccPre ← IO.getEnv "LEAN_CC_COMPILER_LAUNCHER" then
+    cflags := #[cc] ++ cflags
+    cc := ccPre
   let args := cflags ++ cflagsInternal ++ args ++ ldflagsInternal ++ ldflags ++ ["-Wno-unused-command-line-argument"]
   let args := args.filter (!·.isEmpty)
   if args.contains "-v" then

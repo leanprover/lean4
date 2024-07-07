@@ -6,7 +6,8 @@ SHELL := $(LEAN_BASH) -eo pipefail
 
 # any absolute path to the stdlib breaks the Makefile
 export LEAN_PATH=
-export LEAN_CC=${CMAKE_C_COMPILER_LAUNCHER} ${CMAKE_C_COMPILER}
+export LEAN_CC_COMPILER_LAUNCHER=${CMAKE_C_COMPILER_LAUNCHER}
+export LEAN_CC=${CMAKE_C_COMPILER}
 export LEAN_ABORT_ON_PANIC=1
 
 # LEAN_OPTS: don't use native code (except for primitives) since it is from the previous stage
@@ -76,7 +77,7 @@ ${LIB}/temp/empty.c:
 # the following targets are all invoked by separate `make` calls; see src/CMakeLists.txt
 
 # we specify the precise file names here to avoid rebuilds
-${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libInit_shared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${LIB}/temp/libInit.a.export ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LIB}/temp/empty.c
+${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libInit_shared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${LIB}/lean/libInit.a.export ${LIB}/lean/libStd.a.export ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LIB}/temp/empty.c
 ifeq "${INIT_SHARED_LINKER_FLAGS}" ""
   # create empty library on platforms without restrictive symbol limits; avoids costly indirections and troubles with cross-library exceptions
 	"${LEANC}" -shared -o $@ ${LIB}/temp/empty.c ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS} ${LINK_OPTS}

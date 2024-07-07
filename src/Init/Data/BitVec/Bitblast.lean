@@ -120,11 +120,11 @@ theorem getLsb_add_add_bool {i : Nat} (i_lt : i < w) (x y : BitVec w) (c : Bool)
       i_lt,
       decide_True,
       Bool.true_and,
-      Nat.add_assoc,
+      ← Nat.add_assoc',
       Nat.add_left_comm (_%_) (_ * _) _,
       testBit_limit (mod_two_pow_add_mod_two_pow_add_bool_lt_two_pow_succ x y i c)
     ]
-  simp [testBit_to_div_mod, carry, Nat.add_assoc]
+  simp [testBit_to_div_mod, carry]
 
 theorem getLsb_add {i : Nat} (i_lt : i < w) (x y : BitVec w) :
     getLsb (x + y) i =

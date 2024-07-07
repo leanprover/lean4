@@ -63,7 +63,7 @@ theorem shiftRight_succ (m n) : m >>> (n + 1) = (m >>> n) / 2 := rfl
 
 theorem shiftRight_add (m n : Nat) : ∀ k, m >>> (n + k) = (m >>> n) >>> k
   | 0 => rfl
-  | k + 1 => by simp [← Nat.add_assoc, shiftRight_add _ _ k, shiftRight_succ]
+  | k + 1 => by simp [Nat.add_assoc', shiftRight_add _ _ k, shiftRight_succ]
 
 theorem shiftRight_eq_div_pow (m : Nat) : ∀ n, m >>> n = m / 2 ^ n
   | 0 => (Nat.div_one _).symm

@@ -727,7 +727,7 @@ theorem set_next_add (s : String) (i : Pos) (c : Char) (b₁ b₂)
     (h : (s.next i).1 + b₁ = s.endPos.1 + b₂) :
     ((s.set i c).next i).1 + b₁ = (s.set i c).endPos.1 + b₂ := by
   simp [next, get, set, endPos, utf8ByteSize] at h ⊢
-  rw [Nat.add_comm i.1, Nat.add_assoc] at h ⊢
+  rw [Nat.add_comm i.1, ← Nat.add_assoc'] at h ⊢
   let rec foo : ∀ cs a b₁ b₂,
     (utf8GetAux cs a i).utf8Size + b₁ = utf8ByteSize.go cs + b₂ →
     (utf8GetAux (utf8SetAux c cs a i) a i).utf8Size + b₁ = utf8ByteSize.go (utf8SetAux c cs a i) + b₂
@@ -737,9 +737,9 @@ theorem set_next_add (s : String) (i : Pos) (c : Char) (b₁ b₂)
     apply iteInduction (motive := fun p => (utf8GetAux p a i).utf8Size + b₁ = utf8ByteSize.go p + b₂) <;>
       intro h' <;> simp [utf8GetAux, h', utf8ByteSize.go] at h ⊢
     next =>
-      rw [Nat.add_assoc, Nat.add_left_comm] at h ⊢; rw [Nat.add_left_cancel h]
+      rw [← Nat.add_assoc', Nat.add_left_comm] at h ⊢; rw [Nat.add_left_cancel h]
     next =>
-      rw [Nat.add_assoc] at h ⊢
+      rw [← Nat.add_assoc'] at h ⊢
       refine foo cs (a + c') b₁ (c'.utf8Size + b₂) h
   exact foo s.1 0 _ _ h
 
@@ -1105,7 +1105,7 @@ theorem ext_iff {s₁ s₂ : String} : s₁ = s₂ ↔ s₁.data = s₂.data := 
   rfl
 
 @[simp] theorem length_pushn (c : Char) (n : Nat) : (pushn s c n).length = s.length + n := by
-  unfold pushn; induction n <;> simp [Nat.repeat, Nat.add_assoc, *]
+  unfold pushn; induction n <;> simp [Nat.repeat, *]
 
 @[simp] theorem length_append (s t : String) : (s ++ t).length = s.length + t.length := by
   simp only [length, append, List.length_append]

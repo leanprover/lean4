@@ -159,7 +159,7 @@ theorem rev_eq {n a : Nat} (i : Fin (n + 1)) (h : n = a + i) :
     rev i = ⟨a, Nat.lt_succ_of_le (h ▸ Nat.le_add_right ..)⟩ := by
   ext; dsimp
   conv => lhs; congr; rw [h]
-  rw [Nat.add_assoc, Nat.add_sub_cancel]
+  rw [← Nat.add_assoc', Nat.add_sub_cancel]
 
 @[simp] theorem rev_lt_rev {i j : Fin n} : rev i < rev j ↔ j < i := by
   rw [← Fin.not_le, ← Fin.not_le, rev_le_rev]
@@ -357,7 +357,7 @@ theorem cast_castAdd_left {n n' m : Nat} (i : Fin n') (h : n' + m = n + m) :
     cast h (castAdd m' i) = castAdd m i := rfl
 
 theorem castAdd_castAdd {m n p : Nat} (i : Fin m) :
-    castAdd p (castAdd n i) = cast (Nat.add_assoc ..).symm (castAdd (n + p) i) := rfl
+    castAdd p (castAdd n i) = cast (Nat.add_assoc' ..) (castAdd (n + p) i) := rfl
 
 /-- The cast of the successor is the successor of the cast. See `Fin.succ_cast_eq` for rewriting in
 the reverse direction. -/
@@ -477,14 +477,14 @@ theorem cast_natAdd_right {n n' m : Nat} (i : Fin n') (h : m + n' = m + n) :
   ext <| (congrArg (· + (i : Nat)) (Nat.add_right_cancel h) : _)
 
 theorem castAdd_natAdd (p m : Nat) {n : Nat} (i : Fin n) :
-    castAdd p (natAdd m i) = cast (Nat.add_assoc ..).symm (natAdd m (castAdd p i)) := rfl
+    castAdd p (natAdd m i) = cast (Nat.add_assoc' ..) (natAdd m (castAdd p i)) := rfl
 
 theorem natAdd_castAdd (p m : Nat) {n : Nat} (i : Fin n) :
-    natAdd m (castAdd p i) = cast (Nat.add_assoc ..) (castAdd p (natAdd m i)) := rfl
+    natAdd m (castAdd p i) = cast (Nat.add_assoc' ..).symm (castAdd p (natAdd m i)) := rfl
 
 theorem natAdd_natAdd (m n : Nat) {p : Nat} (i : Fin p) :
-    natAdd m (natAdd n i) = cast (Nat.add_assoc ..) (natAdd (m + n) i) :=
-  ext <| (Nat.add_assoc ..).symm
+    natAdd m (natAdd n i) = cast (Nat.add_assoc' ..).symm (natAdd (m + n) i) :=
+  ext <| (Nat.add_assoc' ..)
 
 @[simp]
 theorem cast_natAdd_zero {n n' : Nat} (i : Fin n) (h : 0 + n = n') :

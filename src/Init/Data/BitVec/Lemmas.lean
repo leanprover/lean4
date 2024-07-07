@@ -641,7 +641,7 @@ theorem shiftLeft_zero_eq (x : BitVec w) : x <<< 0 = x := by
   · subst h; simp
   have t : w - 1 - k < w := by omega
   simp only [t]
-  simp only [decide_True, Nat.sub_sub, Bool.true_and, Nat.add_assoc]
+  simp only [decide_True, Nat.sub_sub, Bool.true_and, ← Nat.add_assoc']
   by_cases h₁ : k < w <;> by_cases h₂ : w - (1 + k) < i <;> by_cases h₃ : k + i < w
     <;> simp [h₁, h₂, h₃]
     <;> (first | apply getLsb_ge | apply Eq.symm; apply getLsb_ge)
@@ -896,7 +896,7 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
 theorem shiftRight_add {w : Nat} (x : BitVec w) (n m : Nat) :
     x >>> (n + m) = (x >>> n) >>> m:= by
   ext i
-  simp [Nat.add_assoc n m i]
+  simp
 
 @[deprecated shiftRight_add (since := "2024-06-02")]
 theorem shiftRight_shiftRight {w : Nat} (x : BitVec w) (n m : Nat) :
@@ -1048,7 +1048,7 @@ theorem ofNat_add_ofNat {n} (x y : Nat) : BitVec.ofNat n x + BitVec.ofNat n y = 
   (ofNat_add x y).symm
 
 protected theorem add_assoc (x y z : BitVec n) : x + y + z = x + (y + z) := by
-  apply eq_of_toNat_eq ; simp [Nat.add_assoc]
+  apply eq_of_toNat_eq ; simp [← Nat.add_assoc']
 instance : Std.Associative (α := BitVec n) (· + ·) := ⟨BitVec.add_assoc⟩
 
 protected theorem add_comm (x y : BitVec n) : x + y = y + x := by
@@ -1127,7 +1127,7 @@ theorem sub_toAdd {n} (x y : BitVec n) : x - y = x + - y := by
 theorem add_sub_cancel (x y : BitVec w) : x + y - y = x := by
   apply eq_of_toNat_eq
   have y_toNat_le := Nat.le_of_lt y.isLt
-  rw [toNat_sub, toNat_add, Nat.add_comm, Nat.mod_add_mod, Nat.add_assoc, ← Nat.add_sub_assoc y_toNat_le,
+  rw [toNat_sub, toNat_add, Nat.add_comm, Nat.mod_add_mod, ← Nat.add_assoc', ← Nat.add_sub_assoc y_toNat_le,
       Nat.add_sub_cancel_left, Nat.add_mod_right, toNat_mod_cancel]
 
 theorem sub_add_cancel (x y : BitVec w) : x - y + y = x := by

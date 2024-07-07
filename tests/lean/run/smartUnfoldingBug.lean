@@ -110,7 +110,7 @@ def seqVecAux {α: Type}{n m l: Nat}: (s : n + m = l) →
         by
           rw [← s]
           rw [(Nat.add_comm m 1)]
-          rw [(Nat.add_assoc k 1 m)]
+          rw [(Nat.add_assoc' k 1 m)]
           done
       seqVecAux ss (seq1.init) ((seq1.last) +: seq2)
 

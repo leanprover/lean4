@@ -397,7 +397,7 @@ macro "rfl'" : tactic => `(tactic| set_option smartUnfolding false in with_unfol
 /--
 `ac_rfl` proves equalities up to application of an associative and commutative operator.
 ```
-instance : Associative (α := Nat) (.+.) := ⟨Nat.add_assoc⟩
+instance : Associative (α := Nat) (.+.) := ⟨← Nat.add_assoc'⟩
 instance : Commutative (α := Nat) (.+.) := ⟨Nat.add_comm⟩
 
 example (a b c d : Nat) : a + b + c + d = d + (b + c) + a := by ac_rfl

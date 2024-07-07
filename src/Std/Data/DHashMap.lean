@@ -5,5 +5,6 @@ Authors: Markus Himmel
 -/
 prelude
 import Std.Data.DHashMap.Basic
+import Std.Data.DHashMap.RawLemmas
 import Std.Data.DHashMap.Lemmas
 import Std.Data.DHashMap.AdditionalOperations

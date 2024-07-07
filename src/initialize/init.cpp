@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 extern "C" object* initialize_Init(uint8_t, object* w);
+extern "C" object* initialize_Std(uint8_t, object* w);
 extern "C" object* initialize_Lean(uint8_t, object* w);
 
 /* Initializes the Lean runtime. Before executing any code which uses the Lean package,
@@ -27,7 +28,13 @@ extern "C" LEAN_EXPORT void lean_initialize() {
     save_stack_info();
     initialize_util_module();
     uint8_t builtin = 1;
+    // Initializing the core libs explicitly is necessary because of references to them other than
+    // via `import`, such as:
+    // * calling exported Lean functions from C++
+    // * calling into native code of the current module from a previous stage when `prefer_native`
+    //   is set
     consume_io_result(initialize_Init(builtin, io_mk_world()));
+    consume_io_result(initialize_Std(builtin, io_mk_world()));
     consume_io_result(initialize_Lean(builtin, io_mk_world()));
     initialize_kernel_module();
     init_default_print_fn();

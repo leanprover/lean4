@@ -738,11 +738,13 @@ theorem head?_eq_getElem? : ∀ l : List α, head? l = l[0]?
 
 /-! ### headD -/
 
+/-- `simp` unfolds `headD` in terms of `head?` and `Option.getD`. -/
 @[simp] theorem headD_eq_head?_getD {l : List α} : headD l a = (head? l).getD a := by
   cases l <;> simp [headD]
 
 /-! ### tail -/
 
+/-- `simp` unfolds `tailD` in terms of `tail?` and `Option.getD`. -/
 @[simp] theorem tailD_eq_tail? (l l' : List α) : tailD l l' = (tail? l).getD l' := by
   cases l <;> rfl
 
@@ -1650,8 +1652,8 @@ theorem reverseAux_eq (as bs : List α) : reverseAux as bs = reverse as ++ bs :=
 
 /-! #### Further results about `getLast` and `getLast?` -/
 
-@[simp] theorem head_reverse {l : List α} (h : l ≠ []) :
-    (l.reverse).head (by simp_all) = getLast l h := by
+@[simp] theorem head_reverse {l : List α} (h : l.reverse ≠ []) :
+    l.reverse.head h = getLast l (by simp_all) := by
   induction l with
   | nil => contradiction
   | cons a l ih =>
@@ -1659,14 +1661,23 @@ theorem reverseAux_eq (as bs : List α) : reverseAux as bs = reverse as ++ bs :=
     by_cases h' : l = []
     · simp_all
     · rw [getLast_cons' _ h', head_append_of_ne_nil, ih]
+      simp_all
 
-@[simp] theorem getLast_reverse {l : List α} (h : l ≠ []) :
-    l.reverse.getLast (by simp_all) = l.head h := by
-  simp [← head_reverse]
+theorem getLast_eq_head_reverse {l : List α} (h : l ≠ []) :
+    l.getLast h = l.reverse.head (by simp_all) := by
+  rw [← head_reverse]
+
+@[simp] theorem getLast_reverse {l : List α} (h : l.reverse ≠ []) :
+    l.reverse.getLast h = l.head (by simp_all) := by
+  simp [getLast_eq_head_reverse]
+
+theorem head_eq_getLast_reverse {l : List α} (h : l ≠ []) :
+    l.head h = l.reverse.getLast (by simp_all) := by
+  rw [← getLast_reverse]
 
 @[simp] theorem getLast_append_of_ne_nil {l : List α} (h : l' ≠ []) :
     (l ++ l').getLast (append_ne_nil_of_ne_nil_right l h) = l'.getLast (by simp_all) := by
-  simp only [← head_reverse, reverse_append]
+  simp only [getLast_eq_head_reverse, reverse_append]
   rw [head_append_of_ne_nil]
 
 theorem getLast_append {l : List α} (h : l ++ l' ≠ []) :
@@ -1687,13 +1698,13 @@ theorem getLast_append {l : List α} (h : l ++ l' ≠ []) :
 
 theorem getLast_filter_of_pos {p : α → Bool} {l : List α} (w : l ≠ []) (h : p (getLast l w) = true) :
     getLast (filter p l) (ne_nil_of_mem (mem_filter.2 ⟨getLast_mem w, h⟩)) = getLast l w := by
-  simp only [← head_reverse, ← filter_reverse]
+  simp only [getLast_eq_head_reverse, ← filter_reverse]
   rw [head_filter_of_pos]
   simp_all
 
 theorem getLast_filterMap_of_eq_some {f : α → Option β} {l : List α} {w : l ≠ []} {b : β} (h : f (l.getLast w) = some b) :
     (filterMap f l).getLast (ne_nil_of_mem (mem_filterMap.2 ⟨_, getLast_mem w, h⟩)) = b := by
-  simp only [← head_reverse, ← filterMap_reverse]
+  simp only [getLast_eq_head_reverse, ← filterMap_reverse]
   rw [head_filterMap_of_eq_some (by simp_all)]
   simp_all
 
@@ -1711,8 +1722,7 @@ theorem getLast?_replicate (a : α) (n : Nat) : (replicate n a).getLast? = if n 
   simp only [← head?_reverse, reverse_replicate, head?_replicate]
 
 @[simp] theorem getLast_replicate (w : replicate n a ≠ []) : (replicate n a).getLast w = a := by
-  rw [← head_reverse]
-  simp
+  simp [getLast_eq_head_reverse]
 
 /-! ## List membership -/
 

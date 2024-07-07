@@ -370,6 +370,28 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
     throwError "expected type must not contain free or meta variables{indentExpr expectedType}"
   return expectedType
 
+/--
+Given the decidable instance `inst`, reduces it and returns a decidable instance expression
+in whnf that can be regarded as the reason for the failure of `inst` to fully reduce.
+-/
+private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := do
+  let inst ← whnf inst
+  -- If it's the Decidable recursor, then blame the major premise.
+  if inst.isAppOfArity ``Decidable.rec 5 then
+    return ← blameDecideReductionFailure inst.appArg!
+  -- If it is a matcher, look for a discriminant that's a Decidable instance to blame.
+  if let .const c _ := inst.getAppFn then
+    if let some info ← getMatcherInfo? c then
+      if inst.getAppNumArgs == info.arity then
+        let args := inst.getAppArgs
+        for i in [0:info.numDiscrs] do
+          let inst' := args[info.numParams + 1 + i]!
+          if (← Meta.isClass? (← inferType inst')) == ``Decidable then
+            let inst'' ← whnf inst'
+            if !(inst''.isAppOf ``isTrue || inst''.isAppOf ``isFalse) then
+              return ← blameDecideReductionFailure inst''
+  return inst
+
 @[builtin_tactic Lean.Parser.Tactic.decide] def evalDecide : Tactic := fun _ =>
   closeMainGoalUsing fun expectedType => do
     let expectedType ← preprocessPropToDecide expectedType
@@ -377,7 +399,7 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
     let d ← instantiateMVars d
     -- Get instance from `d`
     let s := d.appArg!
-    -- Reduce the instance rather than `d` itself, since that gives a nicer error message on failure.
+    -- Reduce the instance rather than `d` itself, since this is more interpretable when creating error messages.
     let r ← withDefault <| whnf s
     if r.isAppOf ``isFalse then
       throwError "\
@@ -385,11 +407,11 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
         {indentExpr expectedType}\n\
         is false"
     unless r.isAppOf ``isTrue do
-      let msg := MessageData.ofLazyM (es := #[expectedType]) <| withoutModifyingState do
+      throwError MessageData.ofLazyM (es := #[expectedType]) do --<| withoutModifyingState do
         -- Re-reduce the instance and collect diagnostics, to get all unfolded Decidable instances
         withOptions (fun opt => diagnostics.set opt true) do
           modifyDiag (fun _ => {})
-          discard <| withDefault <| whnf s
+          let reason ← withDefault <| blameDecideReductionFailure s
           let unfolded := (← get).diag.unfoldCounter.foldl (init := #[]) fun cs n _ => cs.push n
           let unfoldedInsts ← unfolded |>.qsort Name.quickLt |>.filterMapM fun n => do
             let e ← mkConstWithLevelParams n
@@ -397,23 +419,23 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
               return MessageData.ofConst e
             else
               return none
-          let unfoldMsg :=
+          let stuckMsg :=
             if unfoldedInsts.isEmpty then
-              MessageData.nil
+              m!"Reduction got stuck at the 'Decidable' instance{indentExpr reason}"
             else
               let instances := if unfoldedInsts.size == 1 then "instance" else "instances"
-              m!"after unfolding the {instances}{indentD <| MessageData.andList unfoldedInsts.toList}\n"
+              m!"After unfolding the {instances} {MessageData.andList unfoldedInsts.toList}, \
+              reduction got stuck at the 'Decidable' instance{indentExpr reason}"
           let hint :=
-            if r.isAppOf ``Eq.rec then
+            if reason.isAppOf ``Eq.rec then
               m!"\n\n\
-              Hint: reduction got stuck on '▸' (Eq.rec), which indicates that one of the instances \
+              Hint: Reduction got stuck on '▸' (Eq.rec), which suggests that one of the decidability instances \
               is defined using tactics such as 'rw' or 'simp'. Use definitions such as \
               '{MessageData.ofConst (.const ``inferInstanceAs [Level.param `u])}' or \
-              '{MessageData.ofConst (.const ``decidable_of_decidable_of_iff [])}' to change or \
-              otherwise \"rewrite\" the type."
-            else if r.isAppOf ``Classical.choice then
+              '{MessageData.ofConst (.const ``decidable_of_decidable_of_iff [])}' to alter a proposition."
+            else if reason.isAppOf ``Classical.choice then
               m!"\n\n\
-              Hint: reduction got stuck on 'Classical.choice', suggesting that there are \
+              Hint: Reduction got stuck on 'Classical.choice', suggesting that there are \
               \"classical\" instances, for example due to an 'open scoped Classical' command. \
               The 'decide' tactic works by evaluating a decision procedure via reduction, but such \
               classical instances cannot be evaluated."
@@ -422,11 +444,10 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
           return m!"\
             tactic 'decide' failed for proposition\
             {indentExpr expectedType}\n\
-            since its 'Decidable' instance did not reduce to \
-            '{MessageData.ofConst (.const ``isTrue [])}' or '{MessageData.ofConst (.const ``isFalse [])}'.\n\n\
-            Instead, {unfoldMsg}it reduced to{indentExpr r}\
-            {hint}"
-      throwError msg
+            since its 'Decidable' instance\
+            {indentExpr s}\n\
+            did not reduce to '{MessageData.ofConst (.const ``isTrue [])}' or '{MessageData.ofConst (.const ``isFalse [])}'.\n\n\
+            {stuckMsg}{hint}"
     -- While we have a proof from reduction, we do not embed it in the proof term,
     -- but rather we let the kernel recompute it during type checking from a more efficient term.
     let rflPrf ← mkEqRefl (toExpr true)

@@ -30,14 +30,15 @@ opaque unknownProp : Prop
 /--
 error: tactic 'decide' failed for proposition
   unknownProp
-since its 'Decidable' instance did not reduce to 'isTrue' or 'isFalse'.
+since its 'Decidable' instance
+  Classical.propDecidable unknownProp
+did not reduce to 'isTrue' or 'isFalse'.
 
-Instead, after unfolding the instance
-  Classical.propDecidable
-it reduced to
+After unfolding the instance Classical.propDecidable, reduction got stuck at the
+'Decidable' instance
   Classical.choice ⋯
 
-Hint: reduction got stuck on 'Classical.choice', suggesting that there are "classical" instances,
+Hint: Reduction got stuck on 'Classical.choice', suggesting that there are "classical" instances,
 for example due to an 'open scoped Classical' command. The 'decide' tactic works by evaluating a
 decision procedure via reduction, but such classical instances cannot be evaluated.
 -/
@@ -64,16 +65,40 @@ instance : Decidable (Nice n) := baz n
 /--
 error: tactic 'decide' failed for proposition
   Nice 102
-since its 'Decidable' instance did not reduce to 'isTrue' or 'isFalse'.
+since its 'Decidable' instance
+  instDecidableNice
+did not reduce to 'isTrue' or 'isFalse'.
 
-Instead, after unfolding the instances
-  instDecidableNice and baz
-it reduced to
+After unfolding the instances instDecidableNice and baz, reduction got stuck at the
+'Decidable' instance
   ⋯ ▸ inferInstance
 
-Hint: reduction got stuck on '▸' (Eq.rec), which indicates that one of the instances is defined
-using tactics such as 'rw' or 'simp'. Use definitions such as 'inferInstanceAs' or
-'decidable_of_decidable_of_iff' to change or otherwise "rewrite" the type.
+Hint: Reduction got stuck on '▸' (Eq.rec), which suggests that one of the decidability instances is
+defined using tactics such as 'rw' or 'simp'. Use definitions such as 'inferInstanceAs' or
+'decidable_of_decidable_of_iff' to alter a proposition.
 -/
 #guard_msgs in
 example : Nice 102 := by decide
+
+
+/-!
+Following `Decidable.rec` to give better messages
+-/
+
+/--
+error: tactic 'decide' failed for proposition
+  ¬Nice 102
+since its 'Decidable' instance
+  instDecidableNot
+did not reduce to 'isTrue' or 'isFalse'.
+
+After unfolding the instances instDecidableNot, instDecidableNice and baz, reduction got stuck
+at the 'Decidable' instance
+  ⋯ ▸ inferInstance
+
+Hint: Reduction got stuck on '▸' (Eq.rec), which suggests that one of the decidability instances
+is defined using tactics such as 'rw' or 'simp'. Use definitions such as 'inferInstanceAs' or
+'decidable_of_decidable_of_iff' to alter a proposition.
+-/
+#guard_msgs in
+example : ¬ Nice 102 := by decide

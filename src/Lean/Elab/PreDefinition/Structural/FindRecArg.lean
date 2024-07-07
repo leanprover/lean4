@@ -74,7 +74,7 @@ def withRecArgInfo (numFixed : Nat) (xs : Array Expr) (i : Nat) (k : RecArgInfo 
         | none =>
           match (← hasBadParamDep? ys indParams) with
           | some (indParam, y) =>
-            throwError "its type is an inductive datatype{indentExpr xType}\nand parameter{indentExpr indParam}\ndepends on{indentExpr y}"
+            throwError "its type is an inductive datatype{indentExpr xType}\nand the datatype parameter{indentExpr indParam}\ndepends on the function parameter{indentExpr y}\nwhich does not come before the varying parameters and before the indices of the recursion parameter."
           | none =>
             let indicesPos := indIndices.map fun index => match ys.indexOf? index with | some i => i.val | none => unreachable!
             k { fixedParams := fixedParams

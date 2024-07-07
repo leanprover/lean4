@@ -8,10 +8,11 @@ inductive  A (n : Nat) : Type
 error: argument #3 cannot be used for structural recursion
   its type is an inductive datatype
     A n
-  and parameter
+  and the datatype parameter
     n
-  depends on
+  depends on the function parameter
     n
+  which does not come before the varying parameters and before the indices of the recursion parameter.
 -/
 #guard_msgs in
 def A.size (acc n : Nat) : A n → Nat

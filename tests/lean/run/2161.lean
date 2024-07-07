@@ -19,7 +19,7 @@ since its 'Decidable' instance
   instDecidableEqFoo (((mul 4 1).mul 1).mul 1) 4
 did not reduce to 'isTrue' or 'isFalse'.
 
-After unfolding the instances instDecidableEqFoo, decEqFoo✝, Nat.decEq and instDecidableEqNat,
+After unfolding the instances decEqFoo✝, instDecidableEqFoo, instDecidableEqNat and Nat.decEq,
 reduction got stuck at the 'Decidable' instance
   match h : (((mul 4 1).mul 1).mul 1).num.beq 4 with
   | true => isTrue ⋯
@@ -40,7 +40,7 @@ since its 'Decidable' instance
   instDecidableEqFoo (((add 4 1).add 1).add 1) 4
 did not reduce to 'isTrue' or 'isFalse'.
 
-After unfolding the instances instDecidableEqFoo, decEqFoo✝, Nat.decEq and instDecidableEqNat,
+After unfolding the instances decEqFoo✝, instDecidableEqFoo, instDecidableEqNat and Nat.decEq,
 reduction got stuck at the 'Decidable' instance
   match h : (((add 4 1).add 1).add 1).num.beq 4 with
   | true => isTrue ⋯

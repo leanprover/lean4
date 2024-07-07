@@ -413,7 +413,7 @@ private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := do
           modifyDiag (fun _ => {})
           let reason ← withDefault <| blameDecideReductionFailure s
           let unfolded := (← get).diag.unfoldCounter.foldl (init := #[]) fun cs n _ => cs.push n
-          let unfoldedInsts ← unfolded |>.qsort Name.quickLt |>.filterMapM fun n => do
+          let unfoldedInsts ← unfolded |>.qsort Name.lt |>.filterMapM fun n => do
             let e ← mkConstWithLevelParams n
             if (← Meta.isClass? (← inferType e)) == ``Decidable then
               return MessageData.ofConst e

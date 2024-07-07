@@ -69,8 +69,8 @@ since its 'Decidable' instance
   instDecidableNice
 did not reduce to 'isTrue' or 'isFalse'.
 
-After unfolding the instances instDecidableNice and baz, reduction got stuck at the
-'Decidable' instance
+After unfolding the instances baz and instDecidableNice, reduction got stuck at the 'Decidable'
+instance
   ⋯ ▸ inferInstance
 
 Hint: Reduction got stuck on '▸' (Eq.rec), which suggests that one of the decidability instances is
@@ -92,12 +92,12 @@ since its 'Decidable' instance
   instDecidableNot
 did not reduce to 'isTrue' or 'isFalse'.
 
-After unfolding the instances instDecidableNot, instDecidableNice and baz, reduction got stuck
-at the 'Decidable' instance
+After unfolding the instances baz, instDecidableNice and instDecidableNot, reduction got stuck at
+the 'Decidable' instance
   ⋯ ▸ inferInstance
 
-Hint: Reduction got stuck on '▸' (Eq.rec), which suggests that one of the decidability instances
-is defined using tactics such as 'rw' or 'simp'. Use definitions such as 'inferInstanceAs' or
+Hint: Reduction got stuck on '▸' (Eq.rec), which suggests that one of the decidability instances is
+defined using tactics such as 'rw' or 'simp'. Use definitions such as 'inferInstanceAs' or
 'decidable_of_decidable_of_iff' to alter a proposition.
 -/
 #guard_msgs in

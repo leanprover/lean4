@@ -24,19 +24,17 @@
   run_config:
     cwd: ../../
     cmd: |
-      bash -c "
-      set -euxo pipefail &&
-      echo -n 'lines: ' &&
+      set -euxo pipefail
+      echo -n 'lines: '
       find src -name '*.lean' -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
-      echo -n 'bytes .olean: ' &&
+      echo -n 'bytes .olean: '
       find ${BUILD:-build/release}/stage2/lib/lean -name '*.olean' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
-      echo -n 'lines C: ' &&
+      echo -n 'lines C: '
       find ${BUILD:-build/release}/stage2/lib/temp -name '*.c' -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
-      echo -n 'lines C++: ' &&
-      find src \( -name '*.h' -o -name '*.cpp' \) -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1 &&
-      echo -n 'max dynamic symbols: ' &&
+      echo -n 'lines C++: '
+      find src \( -name '*.h' -o -name '*.cpp' \) -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
+      echo -n 'max dynamic symbols: '
       find ${BUILD:-build/release}/stage2/lib/lean -name '*.a' -exec bash -c 'nm {} | grep " T " | wc -l' \; | sort | head -n1
-      "
     max_runs: 1
     runner: output
 - attributes:

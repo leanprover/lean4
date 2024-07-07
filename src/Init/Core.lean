@@ -1867,7 +1867,7 @@ instance : Subsingleton (Squash α) where
 /--
 `Antisymm (·≤·)` says that `(·≤·)` is antisymmetric, that is, `a ≤ b → b ≤ a → a = b`.
 -/
-class Antisymm {α : Sort u} (r : α → α → Prop) where
+class Antisymm {α : Sort u} (r : α → α → Prop) : Prop where
   /-- An antisymmetric relation `(·≤·)` satisfies `a ≤ b → b ≤ a → a = b`. -/
   antisymm {a b : α} : r a b → r b a → a = b
 

@@ -26,6 +26,8 @@ theorem add_def (a b : $typeName) : a + b = ⟨a.val + b.val⟩ := rfl
   | ⟨_, _⟩ => rfl
 theorem val_eq_of_lt {a : Nat} : a < size → ((ofNat a).val : Nat) = a :=
   Nat.mod_eq_of_lt
+theorem toNat_ofNat_of_lt {n : Nat} (h : n < size) : (ofNat n).toNat = n := by
+  rw [toNat, val_eq_of_lt h]
 
 theorem le_def {a b : $typeName} : a ≤ b ↔ a.1 ≤ b.1 := .rfl
 theorem lt_def {a b : $typeName} : a < b ↔ a.1 < b.1 := .rfl

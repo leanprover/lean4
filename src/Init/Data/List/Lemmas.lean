@@ -2089,8 +2089,9 @@ theorem findSome?_replicate : findSome? f (replicate n a) = if n = 0 then none e
 @[simp] theorem findSome?_replicate_of_pos (h : 0 < n) : findSome? f (replicate n a) = f a := by
   simp [findSome?_replicate, Nat.ne_of_gt h]
 
-@[simp] theorem find?_replicate_of_isSome (h : (f a).isSome) : findSome? f (replicate n a) = if n = 0 then none else f a := by
-  simp [findSome?_replicate, h]
+-- Argument is unused, but used to decide whether `simp` should unfold.
+@[simp] theorem find?_replicate_of_isSome (_ : (f a).isSome) : findSome? f (replicate n a) = if n = 0 then none else f a := by
+  simp [findSome?_replicate]
 
 @[simp] theorem find?_replicate_of_isNone (h : (f a).isNone) : findSome? f (replicate n a) = none := by
   rw [Option.isNone_iff_eq_none] at h

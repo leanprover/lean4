@@ -53,7 +53,7 @@ structure AttributeImpl extends AttributeImplCore where
   erase (decl : Name) : AttrM Unit := throwError "attribute cannot be erased"
   deriving Inhabited
 
-builtin_initialize attributeMapRef : IO.Ref (PersistentHashMap Name AttributeImpl) ← IO.mkRef {}
+builtin_initialize attributeMapRef : IO.Ref (HashMap Name AttributeImpl) ← IO.mkRef {}
 
 /-- Low level attribute registration function. -/
 def registerBuiltinAttribute (attr : AttributeImpl) : IO Unit := do
@@ -185,7 +185,7 @@ structure ParametricAttributeImpl (α : Type) extends AttributeImplCore where
   afterSet : Name → α → AttrM Unit := fun _ _ _ => pure ()
   afterImport : Array (Array (Name × α)) → ImportM Unit := fun _ => pure ()
 
-def registerParametricAttribute [Inhabited α] (impl : ParametricAttributeImpl α) : IO (ParametricAttribute α) := do
+def registerParametricAttribute (impl : ParametricAttributeImpl α) : IO (ParametricAttribute α) := do
   let ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α) ← registerPersistentEnvExtension {
     name            := impl.ref
     mkInitial       := pure {}
@@ -239,7 +239,7 @@ structure EnumAttributes (α : Type) where
   ext   : PersistentEnvExtension (Name × α) (Name × α) (NameMap α)
   deriving Inhabited
 
-def registerEnumAttributes [Inhabited α] (attrDescrs : List (Name × String × α))
+def registerEnumAttributes (attrDescrs : List (Name × String × α))
     (validate : Name → α → AttrM Unit := fun _ _ => pure ())
     (applicationTime := AttributeApplicationTime.afterTypeChecking)
     (ref : Name := by exact decl_name%) : IO (EnumAttributes α) := do
@@ -317,7 +317,7 @@ inductive AttributeExtensionOLeanEntry where
 
 structure AttributeExtensionState where
   newEntries : List AttributeExtensionOLeanEntry := []
-  map        : PersistentHashMap Name AttributeImpl
+  map        : HashMap Name AttributeImpl
   deriving Inhabited
 
 abbrev AttributeExtension := PersistentEnvExtension AttributeExtensionOLeanEntry (AttributeExtensionOLeanEntry × AttributeImpl) AttributeExtensionState
@@ -348,7 +348,7 @@ private def AttributeExtension.addImported (es : Array (Array AttributeExtension
   let map ← es.foldlM
     (fun map entries =>
       entries.foldlM
-        (fun (map : PersistentHashMap Name AttributeImpl) entry => do
+        (fun (map : HashMap Name AttributeImpl) entry => do
           let attrImpl ← mkAttributeImplOfEntry ctx.env ctx.opts entry
           return map.insert attrImpl.name attrImpl)
         map)
@@ -374,7 +374,7 @@ def isBuiltinAttribute (n : Name) : IO Bool := do
 
 /-- Return the name of all registered attributes. -/
 def getBuiltinAttributeNames : IO (List Name) :=
-  return (← attributeMapRef.get).foldl (init := []) fun r n _ => n::r
+  return (← attributeMapRef.get).fold (init := []) fun r n _ => n::r
 
 def getBuiltinAttributeImpl (attrName : Name) : IO AttributeImpl := do
   let m ← attributeMapRef.get
@@ -392,7 +392,7 @@ def isAttribute (env : Environment) (attrName : Name) : Bool :=
 
 def getAttributeNames (env : Environment) : List Name :=
   let m := (attributeExtension.getState env).map
-  m.foldl (fun r n _ => n::r) []
+  m.fold (fun r n _ => n::r) []
 
 def getAttributeImpl (env : Environment) (attrName : Name) : Except String AttributeImpl :=
   let m := (attributeExtension.getState env).map
@@ -427,7 +427,7 @@ def Attribute.erase (declName : Name) (attrName : Name) : AttrM Unit := do
 def updateEnvAttributesImpl (env : Environment) : IO Environment := do
   let map ← attributeMapRef.get
   let s := attributeExtension.getState env
-  let s := map.foldl (init := s) fun s attrName attrImpl =>
+  let s := map.fold (init := s) fun s attrName attrImpl =>
     if s.map.contains attrName then
       s
     else

@@ -80,3 +80,28 @@ incremental reporting in this case.
 def tacInTermInTac : True := by
   · rw [show 0 = 0 by rfl]
 --^ collectDiagnostics
+
+/-!
+#4553 Similar to the above, but here the nested tactic block is not floated out, which means it
+could unexpectedly get access to the surrounding combinator's incrementality context if not warded
+against (in `Tactic.runTermElab`).
+-/
+-- RESET
+def tacInTermInTac2 : True := by
+  cases (by exact 0) with
+  | zero => done
+  | succ => sorry
+--^ collectDiagnostics
+
+/-!
+Error messages (or rather, whole snapshot subtrees) may vanish if we do not properly restore them on
+reuse (which `Term.withRestoreOrSaveFull` now makes sure of).
+-/
+-- RESET
+example : True := by
+  · · done
+    · done
+  · skip
+      --^ sync
+      --^ insert: " "
+      --^ collectDiagnostics

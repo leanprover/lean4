@@ -43,9 +43,6 @@ theorem ext_iff {a b : Fin n} : a = b ↔ a.1 = b.1 := val_inj.symm
 
 theorem val_ne_iff {a b : Fin n} : a.1 ≠ b.1 ↔ a ≠ b := not_congr val_inj
 
-theorem exists_iff {p : Fin n → Prop} : (∃ i, p i) ↔ ∃ i h, p ⟨i, h⟩ :=
-  ⟨fun ⟨⟨i, hi⟩, hpi⟩ => ⟨i, hi, hpi⟩, fun ⟨i, hi, hpi⟩ => ⟨⟨i, hi⟩, hpi⟩⟩
-
 theorem forall_iff {p : Fin n → Prop} : (∀ i, p i) ↔ ∀ i h, p ⟨i, h⟩ :=
   ⟨fun h i hi => h ⟨i, hi⟩, fun h ⟨i, hi⟩ => h i hi⟩
 
@@ -381,7 +378,7 @@ theorem castSucc_lt_succ (i : Fin n) : Fin.castSucc i < i.succ :=
   lt_def.2 <| by simp only [coe_castSucc, val_succ, Nat.lt_succ_self]
 
 theorem le_castSucc_iff {i : Fin (n + 1)} {j : Fin n} : i ≤ Fin.castSucc j ↔ i < j.succ := by
-  simpa [lt_def, le_def] using Nat.succ_le_succ_iff.symm
+  simpa only [lt_def, le_def] using Nat.add_one_le_add_one_iff.symm
 
 theorem castSucc_lt_iff_succ_le {n : Nat} {i : Fin n} {j : Fin (n + 1)} :
     Fin.castSucc i < j ↔ i.succ ≤ j := .rfl
@@ -788,6 +785,9 @@ theorem coe_sub_iff_le {a b : Fin n} : (↑(a - b) : Nat) = a - b ↔ b ≤ a :=
   else
     rw [Nat.mod_eq_of_lt]
     all_goals omega
+
+theorem sub_val_of_le {a b : Fin n} : b ≤ a → (a - b).val = a.val - b.val :=
+  coe_sub_iff_le.2
 
 theorem coe_sub_iff_lt {a b : Fin n} : (↑(a - b) : Nat) = n + a - b ↔ a < b := by
   rw [sub_def, lt_def]

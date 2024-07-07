@@ -57,9 +57,9 @@ instance [Monad m] [MonadError m] : MonadCycleOf Name (ResolveT m) where
 
 /--
 Recursively visits the workspace dependency graph, starting from `root`.
-At each package, performs `f` to resolve the dependencies of a package,
-recurses, then adds the package to workspace's package set.
-Errors if a cycle is encountered.
+At each package, loops through each direct dependency performing just `breath`.
+Them, loops again through the results applying `depth`, recursing, and adding
+the package to workspace's package set. Errors if a cycle is encountered.
 
 **Traversal Order**
 
@@ -87,12 +87,13 @@ the order `R`, `A`, `B`, `X`, `Y`, `C`. If `X` and `C` are both the package
 `foo`, Lake would use the configuration of `foo` found in `B` rather than in
 the root `R`, which would likely confuse the user.
 -/
-@[inline] def Workspace.resolveDeps
+@[specialize] def Workspace.resolveDeps
   [Monad m] [MonadError m] (ws : Workspace)
-  (f : Package → Dependency → ResolveT m Package)
+  (breadth : Package → Dependency → ResolveT m Package)
+  (depth : Package → m PUnit := fun _ => pure ())
 : m Workspace := do
   let (root, ws) ← ResolveT.run ws <| StateT.run' (s := {}) <|
-    recFetchAcyclic (·.name) go ws.root
+    inline <| recFetchAcyclic (·.name) go ws.root
   return {ws with root}
 where
   @[specialize] go pkg resolve : StateT (NameMap Package) (ResolveT m) Package := do
@@ -103,12 +104,13 @@ where
         return -- already resolved in another branch
       if pkg.name = dep.name then
         error s!"{pkg.name}: package requires itself (or a package with the same name)"
-      let dep ← f pkg dep -- package w/o dependencies
-      store dep.name dep
+      let pre ← breadth pkg dep -- package w/o dependencies
+      store dep.name pre
     let deps ← pkg.depConfigs.mapM fun dep => do
-      if let some dep ← fetch? dep.name then
+      if let some pre ← fetch? dep.name then
         modifyThe (NameMap Package) (·.erase dep.name) -- for `dep` linearity
-        return OpaquePackage.mk (← resolve dep)
+        depth pre
+        return OpaquePackage.mk (← resolve pre)
       if let some dep ← findPackage? dep.name then
         return OpaquePackage.mk dep -- already resolved in another branch
       error s!"{dep.name}: impossible resolution state reached"
@@ -171,6 +173,19 @@ def reuseManifest (ws : Workspace) (toUpdate : NameSet) : UpdateT LogIO PUnit :=
       liftM (m := IO) <| throw e -- only ignore manifest on a bare `lake update`
     logWarning s!"{rootName}: ignoring previous manifest because it failed to load: {e}"
 
+/-- Add a package dependency's manifest entries to the update state. -/
+def addDependencyEntries (pkg : Package) : UpdateT LogIO PUnit := do
+  match (← Manifest.load pkg.manifestFile |>.toBaseIO) with
+  | .ok manifest =>
+    manifest.packages.forM fun entry => do
+      unless (← getThe (NameMap PackageEntry)).contains entry.name do
+        let entry := entry.setInherited.inDirectory pkg.relDir
+        store entry.name entry
+  | .error (.noFileOrDirectory ..) =>
+    logWarning s!"{pkg.name}: ignoring missing manifest '{pkg.manifestFile}'"
+  | .error e =>
+    logWarning s!"{pkg.name}: ignoring manifest because it failed to load: {e}"
+
 /-- Update a single dependency. -/
 def updateDep
   (pkg : Package) (dep : Dependency) (leanOpts : Options := {})
@@ -199,17 +214,6 @@ def updateDep
       logError s!"'{dep.name}' was downloaded incorrectly; \
         you will need to manually delete '{depPkg.dir}': {e}"
     error s!"{pkg.name}: package '{depPkg.name}' was required as '{dep.name}'"
-  -- Add the dependencies' locked dependencies to the manifest
-  match (← Manifest.load depPkg.manifestFile |>.toBaseIO) with
-  | .ok manifest =>
-    manifest.packages.forM fun entry => do
-      unless (← getThe (NameMap PackageEntry)).contains entry.name do
-        let entry := entry.setInherited.inDirectory depPkg.relDir
-        store entry.name entry
-  | .error (.noFileOrDirectory ..) =>
-    logWarning s!"{depPkg.name}: ignoring missing dependency manifest '{depPkg.manifestFile}'"
-  | .error e =>
-    logWarning s!"{depPkg.name}: ignoring dependency manifest because it failed to load: {e}"
   return depPkg
 
 /--
@@ -227,7 +231,7 @@ def Workspace.updateAndMaterialize
 : LogIO Workspace := do
   let (ws, entries) ← UpdateT.run do
     reuseManifest ws toUpdate
-    ws.resolveDeps fun pkg dep => updateDep pkg dep leanOpts
+    ws.resolveDeps (updateDep · · leanOpts) (addDependencyEntries ·)
   let manifestEntries := ws.packages.foldl (init := #[]) fun arr pkg =>
     match entries.find? pkg.name with
     | some entry => arr.push <|
@@ -261,8 +265,9 @@ def validateManifest
       logWarning <|
         s!"manifest out of date: {what} of dependency '{dep.name}' changed; \
         use `lake update {dep.name}` to update it"
-    if let .some entry := pkgEntries.find? dep.name then
-    match dep.src, entry.src with
+    let some src := dep.src? | return
+    let some entry := pkgEntries.find? dep.name | return
+    match src, entry.src with
     | .git (url := url) (rev := rev) .., .git (url := url') (inputRev? := rev')  .. =>
       if url ≠ url' then warnOutOfDate "git url"
       if rev ≠ rev' then warnOutOfDate "git revision"

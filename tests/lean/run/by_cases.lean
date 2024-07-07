@@ -7,3 +7,14 @@ example : True := by
 example (p : Prop) : True := by
   if p then ?foo else trivial
   case foo => trivial
+
+/-! Should not accidentally leak `open Classical` into branches. -/
+
+/--
+error: failed to synthesize
+  Decidable p
+use `set_option diagnostics true` to get diagnostic information
+-/
+#guard_msgs in
+example (p : Prop) : True := by
+  if p then exact decide p else trivial

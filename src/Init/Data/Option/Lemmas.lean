@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro
 -/
 prelude
+import Init.Data.Option.BasicAux
 import Init.Data.Option.Instances
 import Init.Classical
 import Init.Ext
@@ -40,6 +41,21 @@ theorem getD_of_ne_none {x : Option α} (hx : x ≠ none) (y : α) : some (x.get
 
 theorem getD_eq_iff {o : Option α} {a b} : o.getD a = b ↔ (o = some b ∨ o = none ∧ a = b) := by
   cases o <;> simp
+
+@[simp] theorem get!_none [Inhabited α] : (none : Option α).get! = default := rfl
+
+@[simp] theorem get!_some [Inhabited α] {a : α} : (some a).get! = a := rfl
+
+theorem get_eq_get! [Inhabited α] : (o : Option α) → {h : o.isSome} → o.get h = o.get!
+  | some _, _ => rfl
+
+theorem get_eq_getD {fallback : α} : (o : Option α) → {h : o.isSome} → o.get h = o.getD fallback
+  | some _, _ => rfl
+
+theorem some_get! [Inhabited α] : (o : Option α) → o.isSome → some (o.get!) = o
+  | some _, _ => rfl
+
+theorem get!_eq_getD_default [Inhabited α] (o : Option α) : o.get! = o.getD default := rfl
 
 theorem mem_unique {o : Option α} {a b : α} (ha : a ∈ o) (hb : b ∈ o) : a = b :=
   some.inj <| ha ▸ hb
@@ -145,6 +161,12 @@ theorem map_eq_some : f <$> x = some b ↔ ∃ a, x = some a ∧ f a = b := map_
 @[simp] theorem map_eq_none' : x.map f = none ↔ x = none := by
   cases x <;> simp only [map_none', map_some', eq_self_iff_true]
 
+theorem isSome_map {x : Option α} : (f <$> x).isSome = x.isSome := by
+  cases x <;> simp
+
+@[simp] theorem isSome_map' {x : Option α} : (x.map f).isSome = x.isSome := by
+  cases x <;> simp
+
 theorem map_eq_none : f <$> x = none ↔ x = none := map_eq_none'
 
 theorem map_eq_bind {x : Option α} : x.map f = x.bind (some ∘ f) := by
@@ -208,9 +230,9 @@ theorem liftOrGet_eq_or_eq {f : α → α → α} (h : ∀ a b, f a b = a ∨ f 
 @[simp] theorem liftOrGet_some_some {f} {a b : α} :
   liftOrGet f (some a) (some b) = f a b := rfl
 
-theorem elim_none (x : β) (f : α → β) : none.elim x f = x := rfl
+@[simp] theorem elim_none (x : β) (f : α → β) : none.elim x f = x := rfl
 
-theorem elim_some (x : β) (f : α → β) (a : α) : (some a).elim x f = f a := rfl
+@[simp] theorem elim_some (x : β) (f : α → β) (a : α) : (some a).elim x f = f a := rfl
 
 @[simp] theorem getD_map (f : α → β) (x : α) (o : Option α) :
   (o.map f).getD (f x) = f (getD o x) := by cases o <;> rfl
@@ -236,3 +258,46 @@ end
 @[simp] theorem toList_some (a : α) : (a : Option α).toList = [a] := rfl
 
 @[simp] theorem toList_none (α : Type _) : (none : Option α).toList = [] := rfl
+
+@[simp] theorem or_some : (some a).or o = some a := rfl
+@[simp] theorem none_or : none.or o = o := rfl
+
+theorem or_eq_bif : or o o' = bif o.isSome then o else o' := by
+  cases o <;> rfl
+
+@[simp] theorem isSome_or : (or o o').isSome = (o.isSome || o'.isSome) := by
+  cases o <;> rfl
+
+@[simp] theorem isNone_or : (or o o').isNone = (o.isNone && o'.isNone) := by
+  cases o <;> rfl
+
+@[simp] theorem or_eq_none : or o o' = none ↔ o = none ∧ o' = none := by
+  cases o <;> simp
+
+theorem or_eq_some : or o o' = some a ↔ o = some a ∨ (o = none ∧ o' = some a) := by
+  cases o <;> simp
+
+theorem or_assoc : or (or o₁ o₂) o₃ = or o₁ (or o₂ o₃) := by
+  cases o₁ <;> cases o₂ <;> rfl
+instance : Std.Associative (or (α := α)) := ⟨@or_assoc _⟩
+
+@[simp]
+theorem or_none : or o none = o := by
+  cases o <;> rfl
+instance : Std.LawfulIdentity (or (α := α)) none where
+  left_id := @none_or _
+  right_id := @or_none _
+
+@[simp]
+theorem or_self : or o o = o := by
+  cases o <;> rfl
+instance : Std.IdempotentOp (or (α := α)) := ⟨@or_self _⟩
+
+theorem or_eq_orElse : or o o' = o.orElse (fun _ => o') := by
+  cases o <;> rfl
+
+theorem map_or : f <$> or o o' = (f <$> o).or (f <$> o') := by
+  cases o <;> rfl
+
+theorem map_or' : (or o o').map f = (o.map f).or (o'.map f) := by
+  cases o <;> rfl

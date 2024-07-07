@@ -342,7 +342,6 @@ lean_object* l_Lean_HashMapImp_find_x3f___at_Lean_ForEachExpr_visit___spec__1(le
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_396____closed__2;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_396____closed__9;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1299____lambda__5___closed__13;
-lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_mkIgnoreFnImpl___closed__3;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_997____lambda__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at_Lean_Linter_UnusedVariables_collectReferences___spec__2___boxed(lean_object*, lean_object*);
@@ -673,6 +672,7 @@ lean_object* l_List_get_x3f___rarg(lean_object*, lean_object*);
 lean_object* l_ReaderT_instMonad___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_396____lambda__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
+lean_object* l_List_length___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Linter_UnusedVariables_collectReferences___spec__24(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_UnusedVariables_References_fvarUses___default___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Linter_UnusedVariables_unusedVariables___elambda__1___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -684,7 +684,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("linter", 6);
+x_1 = lean_mk_string_unchecked("linter", 6, 6);
 return x_1;
 }
 }
@@ -692,7 +692,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unusedVariables", 15);
+x_1 = lean_mk_string_unchecked("unusedVariables", 15, 15);
 return x_1;
 }
 }
@@ -710,7 +710,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -718,7 +718,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("enable the 'unused variables' linter", 36);
+x_1 = lean_mk_string_unchecked("enable the 'unused variables' linter", 36, 36);
 return x_1;
 }
 }
@@ -741,7 +741,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -749,7 +749,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Linter", 6);
+x_1 = lean_mk_string_unchecked("Linter", 6, 6);
 return x_1;
 }
 }
@@ -780,7 +780,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("funArgs", 7);
+x_1 = lean_mk_string_unchecked("funArgs", 7, 7);
 return x_1;
 }
 }
@@ -799,7 +799,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("enable the 'unused variables' linter to mark unused function arguments", 70);
+x_1 = lean_mk_string_unchecked("enable the 'unused variables' linter to mark unused function arguments", 70, 70);
 return x_1;
 }
 }
@@ -846,7 +846,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("patternVars", 11);
+x_1 = lean_mk_string_unchecked("patternVars", 11, 11);
 return x_1;
 }
 }
@@ -865,7 +865,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("enable the 'unused variables' linter to mark unused pattern variables", 69);
+x_1 = lean_mk_string_unchecked("enable the 'unused variables' linter to mark unused pattern variables", 69, 69);
 return x_1;
 }
 }
@@ -1083,7 +1083,7 @@ static lean_object* _init_l_Lean_Linter_mkIgnoreFnImpl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
+x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
 return x_1;
 }
 }
@@ -1091,7 +1091,7 @@ static lean_object* _init_l_Lean_Linter_mkIgnoreFnImpl___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -1099,7 +1099,7 @@ static lean_object* _init_l_Lean_Linter_mkIgnoreFnImpl___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("IgnoreFunction", 14);
+x_1 = lean_mk_string_unchecked("IgnoreFunction", 14, 14);
 return x_1;
 }
 }
@@ -1118,7 +1118,7 @@ static lean_object* _init_l_Lean_Linter_mkIgnoreFnImpl___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected unused_variables_ignore_fn at '", 42);
+x_1 = lean_mk_string_unchecked("unexpected unused_variables_ignore_fn at '", 42, 42);
 return x_1;
 }
 }
@@ -1126,7 +1126,7 @@ static lean_object* _init_l_Lean_Linter_mkIgnoreFnImpl___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', must be of type `Lean.Linter.IgnoreFunction`", 47);
+x_1 = lean_mk_string_unchecked("', must be of type `Lean.Linter.IgnoreFunction`", 47, 47);
 return x_1;
 }
 }
@@ -1920,7 +1920,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("number of local entries: ", 25);
+x_1 = lean_mk_string_unchecked("number of local entries: ", 25, 25);
 return x_1;
 }
 }
@@ -1937,25 +1937,24 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_396____lambda__6(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_2 = lean_ctor_get(x_1, 0);
-x_3 = lean_unsigned_to_nat(0u);
-x_4 = l_List_lengthTRAux___rarg(x_2, x_3);
-x_5 = l___private_Init_Data_Repr_0__Nat_reprFast(x_4);
-x_6 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_6, 0, x_5);
-x_7 = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_396____lambda__6___closed__2;
-x_8 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_8, 0, x_7);
-lean_ctor_set(x_8, 1, x_6);
-return x_8;
+x_3 = l_List_length___rarg(x_2);
+x_4 = l___private_Init_Data_Repr_0__Nat_reprFast(x_3);
+x_5 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_5, 0, x_4);
+x_6 = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_396____lambda__6___closed__2;
+x_7 = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(x_7, 0, x_6);
+lean_ctor_set(x_7, 1, x_5);
+return x_7;
 }
 }
 static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_396____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unusedVariablesIgnoreFnsExt", 27);
+x_1 = lean_mk_string_unchecked("unusedVariablesIgnoreFnsExt", 27, 27);
 return x_1;
 }
 }
@@ -2107,7 +2106,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("addBuiltinUnusedVariablesIgnoreFn", 33);
+x_1 = lean_mk_string_unchecked("addBuiltinUnusedVariablesIgnoreFn", 33, 33);
 return x_1;
 }
 }
@@ -2153,7 +2152,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid attribute '", 19);
+x_1 = lean_mk_string_unchecked("invalid attribute '", 19, 19);
 return x_1;
 }
 }
@@ -2266,7 +2265,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', must be global", 17);
+x_1 = lean_mk_string_unchecked("', must be global", 17, 17);
 return x_1;
 }
 }
@@ -2367,7 +2366,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attribute cannot be erased", 26);
+x_1 = lean_mk_string_unchecked("attribute cannot be erased", 26, 26);
 return x_1;
 }
 }
@@ -2821,7 +2820,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtin_unused_variables_ignore_fn", 34);
+x_1 = lean_mk_string_unchecked("builtin_unused_variables_ignore_fn", 34, 34);
 return x_1;
 }
 }
@@ -2859,7 +2858,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -2877,7 +2876,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -2915,7 +2914,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("UnusedVariables", 15);
+x_1 = lean_mk_string_unchecked("UnusedVariables", 15, 15);
 return x_1;
 }
 }
@@ -2933,7 +2932,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -2961,7 +2960,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(builtin) ", 10);
+x_1 = lean_mk_string_unchecked("(builtin) ", 10, 10);
 return x_1;
 }
 }
@@ -2969,7 +2968,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Marks a function of type `Lean.Linter.IgnoreFunction` for suppressing unused variable warnings", 94);
+x_1 = lean_mk_string_unchecked("Marks a function of type `Lean.Linter.IgnoreFunction` for suppressing unused variable warnings", 94, 94);
 return x_1;
 }
 }
@@ -3011,7 +3010,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unused_variables_ignore_fn", 26);
+x_1 = lean_mk_string_unchecked("unused_variables_ignore_fn", 26, 26);
 return x_1;
 }
 }
@@ -3187,7 +3186,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -3215,7 +3214,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -3223,7 +3222,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Command", 7);
+x_1 = lean_mk_string_unchecked("Command", 7, 7);
 return x_1;
 }
 }
@@ -3231,7 +3230,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("variable", 8);
+x_1 = lean_mk_string_unchecked("variable", 8, 8);
 return x_1;
 }
 }
@@ -3346,7 +3345,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structure", 9);
+x_1 = lean_mk_string_unchecked("structure", 9, 9);
 return x_1;
 }
 }
@@ -3461,7 +3460,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inductive", 9);
+x_1 = lean_mk_string_unchecked("inductive", 9, 9);
 return x_1;
 }
 }
@@ -3551,7 +3550,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("optDeclSig", 10);
+x_1 = lean_mk_string_unchecked("optDeclSig", 10, 10);
 return x_1;
 }
 }
@@ -3571,7 +3570,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declSig", 7);
+x_1 = lean_mk_string_unchecked("declSig", 7, 7);
 return x_1;
 }
 }
@@ -3773,7 +3772,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ctor", 4);
+x_1 = lean_mk_string_unchecked("ctor", 4, 4);
 return x_1;
 }
 }
@@ -3793,7 +3792,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structSimpleBinder", 18);
+x_1 = lean_mk_string_unchecked("structSimpleBinder", 18, 18);
 return x_1;
 }
 }
@@ -3967,7 +3966,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("opaque", 6);
+x_1 = lean_mk_string_unchecked("opaque", 6, 6);
 return x_1;
 }
 }
@@ -3987,7 +3986,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("axiom", 5);
+x_1 = lean_mk_string_unchecked("axiom", 5, 5);
 return x_1;
 }
 }
@@ -4183,7 +4182,7 @@ static lean_object* _init_l_Array_anyMUnsafe_any___at_Lean_Linter_initFn____x40_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Attr", 4);
+x_1 = lean_mk_string_unchecked("Attr", 4, 4);
 return x_1;
 }
 }
@@ -4191,7 +4190,7 @@ static lean_object* _init_l_Array_anyMUnsafe_any___at_Lean_Linter_initFn____x40_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("extern", 6);
+x_1 = lean_mk_string_unchecked("extern", 6, 6);
 return x_1;
 }
 }
@@ -4211,7 +4210,7 @@ static lean_object* _init_l_Array_anyMUnsafe_any___at_Lean_Linter_initFn____x40_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simple", 6);
+x_1 = lean_mk_string_unchecked("simple", 6, 6);
 return x_1;
 }
 }
@@ -4231,7 +4230,7 @@ static lean_object* _init_l_Array_anyMUnsafe_any___at_Lean_Linter_initFn____x40_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("implemented_by", 14);
+x_1 = lean_mk_string_unchecked("implemented_by", 14, 14);
 return x_1;
 }
 }
@@ -4333,7 +4332,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -4341,7 +4340,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attrInstance", 12);
+x_1 = lean_mk_string_unchecked("attrInstance", 12, 12);
 return x_1;
 }
 }
@@ -4361,7 +4360,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attrKind", 8);
+x_1 = lean_mk_string_unchecked("attrKind", 8, 8);
 return x_1;
 }
 }
@@ -4489,7 +4488,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("noncomputable", 13);
+x_1 = lean_mk_string_unchecked("noncomputable", 13, 13);
 return x_1;
 }
 }
@@ -4562,7 +4561,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attributes", 10);
+x_1 = lean_mk_string_unchecked("attributes", 10, 10);
 return x_1;
 }
 }
@@ -4796,7 +4795,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declModifiers", 13);
+x_1 = lean_mk_string_unchecked("declModifiers", 13, 13);
 return x_1;
 }
 }
@@ -4816,7 +4815,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("docComment", 10);
+x_1 = lean_mk_string_unchecked("docComment", 10, 10);
 return x_1;
 }
 }
@@ -4836,7 +4835,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declaration", 11);
+x_1 = lean_mk_string_unchecked("declaration", 11, 11);
 return x_1;
 }
 }
@@ -5194,7 +5193,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("explicitBinder", 14);
+x_1 = lean_mk_string_unchecked("explicitBinder", 14, 14);
 return x_1;
 }
 }
@@ -5224,7 +5223,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("depArrow", 8);
+x_1 = lean_mk_string_unchecked("depArrow", 8, 8);
 return x_1;
 }
 }
@@ -5327,7 +5326,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("letIdDecl", 9);
+x_1 = lean_mk_string_unchecked("letIdDecl", 9, 9);
 return x_1;
 }
 }
@@ -5405,7 +5404,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("whereStructField", 16);
+x_1 = lean_mk_string_unchecked("whereStructField", 16, 16);
 return x_1;
 }
 }
@@ -5687,7 +5686,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("basicFun", 8);
+x_1 = lean_mk_string_unchecked("basicFun", 8, 8);
 return x_1;
 }
 }
@@ -5741,7 +5740,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("typeAscription", 14);
+x_1 = lean_mk_string_unchecked("typeAscription", 14, 14);
 return x_1;
 }
 }
@@ -5846,7 +5845,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("matchAlt", 8);
+x_1 = lean_mk_string_unchecked("matchAlt", 8, 8);
 return x_1;
 }
 }
@@ -5866,7 +5865,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -5874,7 +5873,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inductionAltLHS", 15);
+x_1 = lean_mk_string_unchecked("inductionAltLHS", 15, 15);
 return x_1;
 }
 }
@@ -6030,7 +6029,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("guardMsgsCmd", 12);
+x_1 = lean_mk_string_unchecked("guardMsgsCmd", 12, 12);
 return x_1;
 }
 }
@@ -6215,7 +6214,7 @@ lean_inc(x_5);
 lean_dec(x_2);
 x_6 = lean_unbox_usize(x_4);
 lean_dec(x_4);
-x_7 = lean_usize_dec_eq(x_6, x_1);
+x_7 = lean_usize_dec_eq(x_1, x_6);
 if (x_7 == 0)
 {
 x_2 = x_5;
@@ -6407,7 +6406,7 @@ lean_object* x_6; lean_object* x_7; size_t x_8; uint8_t x_9;
 x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_ctor_get(x_1, 1);
 x_8 = lean_unbox_usize(x_6);
-x_9 = lean_usize_dec_eq(x_8, x_2);
+x_9 = lean_usize_dec_eq(x_2, x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; 
@@ -6433,7 +6432,7 @@ lean_inc(x_13);
 lean_inc(x_12);
 lean_dec(x_1);
 x_14 = lean_unbox_usize(x_12);
-x_15 = lean_usize_dec_eq(x_14, x_2);
+x_15 = lean_usize_dec_eq(x_2, x_14);
 if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; 
@@ -8489,50 +8488,47 @@ return x_11;
 }
 else
 {
-lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_object* x_12; lean_object* x_13; 
 lean_dec(x_7);
 x_12 = lean_array_uget(x_4, x_6);
-x_13 = lean_ctor_get(x_12, 0);
-lean_inc(x_13);
-lean_dec(x_12);
 lean_inc(x_2);
-x_14 = l_Lean_Linter_UnusedVariables_visitAssignments_visitNode(x_1, x_2, x_13, x_8, x_9);
-lean_dec(x_13);
-if (lean_obj_tag(x_14) == 0)
+x_13 = l_Lean_Linter_UnusedVariables_visitAssignments_visitNode(x_1, x_2, x_12, x_8, x_9);
+lean_dec(x_12);
+if (lean_obj_tag(x_13) == 0)
 {
-lean_object* x_15; size_t x_16; size_t x_17; lean_object* x_18; 
-x_15 = lean_ctor_get(x_14, 1);
-lean_inc(x_15);
-lean_dec(x_14);
-x_16 = 1;
-x_17 = lean_usize_add(x_6, x_16);
-x_18 = lean_box(0);
-x_6 = x_17;
-x_7 = x_18;
-x_9 = x_15;
+lean_object* x_14; size_t x_15; size_t x_16; lean_object* x_17; 
+x_14 = lean_ctor_get(x_13, 1);
+lean_inc(x_14);
+lean_dec(x_13);
+x_15 = 1;
+x_16 = lean_usize_add(x_6, x_15);
+x_17 = lean_box(0);
+x_6 = x_16;
+x_7 = x_17;
+x_9 = x_14;
 goto _start;
 }
 else
 {
-uint8_t x_20; 
+uint8_t x_19; 
 lean_dec(x_2);
-x_20 = !lean_is_exclusive(x_14);
-if (x_20 == 0)
+x_19 = !lean_is_exclusive(x_13);
+if (x_19 == 0)
 {
-return x_14;
+return x_13;
 }
 else
 {
-lean_object* x_21; lean_object* x_22; lean_object* x_23; 
-x_21 = lean_ctor_get(x_14, 0);
-x_22 = lean_ctor_get(x_14, 1);
-lean_inc(x_22);
+lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+x_20 = lean_ctor_get(x_13, 0);
+x_21 = lean_ctor_get(x_13, 1);
 lean_inc(x_21);
-lean_dec(x_14);
-x_23 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_23, 0, x_21);
-lean_ctor_set(x_23, 1, x_22);
-return x_23;
+lean_inc(x_20);
+lean_dec(x_13);
+x_22 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_22, 0, x_20);
+lean_ctor_set(x_22, 1, x_21);
+return x_22;
 }
 }
 }
@@ -8848,7 +8844,7 @@ static lean_object* _init_l_Lean_Linter_UnusedVariables_collectReferences_skipDe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declId", 6);
+x_1 = lean_mk_string_unchecked("declId", 6, 6);
 return x_1;
 }
 }
@@ -9265,7 +9261,7 @@ else
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
-x_6 = l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_95_(x_4, x_1);
+x_6 = l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_95_(x_1, x_4);
 if (x_6 == 0)
 {
 x_2 = x_5;
@@ -9396,7 +9392,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_ctor_get(x_1, 1);
-x_8 = l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_95_(x_6, x_2);
+x_8 = l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_95_(x_2, x_6);
 if (x_8 == 0)
 {
 lean_object* x_9; 
@@ -9419,7 +9415,7 @@ x_11 = lean_ctor_get(x_1, 1);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_dec(x_1);
-x_12 = l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_95_(x_10, x_2);
+x_12 = l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_95_(x_2, x_10);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
@@ -10061,7 +10057,7 @@ static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_Unused
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Server.InfoUtils", 21);
+x_1 = lean_mk_string_unchecked("Lean.Server.InfoUtils", 21, 21);
 return x_1;
 }
 }
@@ -10069,7 +10065,7 @@ static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_Unused
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.InfoTree.visitM.go", 28);
+x_1 = lean_mk_string_unchecked("Lean.Elab.InfoTree.visitM.go", 28, 28);
 return x_1;
 }
 }
@@ -10077,7 +10073,7 @@ static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_Unused
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected context-free info tree node", 38);
+x_1 = lean_mk_string_unchecked("unexpected context-free info tree node", 38, 38);
 return x_1;
 }
 }
@@ -10087,7 +10083,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_UnusedVariables_collectReferences___spec__23___closed__1;
 x_2 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_UnusedVariables_collectReferences___spec__23___closed__2;
-x_3 = lean_unsigned_to_nat(52u);
+x_3 = lean_unsigned_to_nat(56u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_UnusedVariables_collectReferences___spec__23___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -10693,7 +10689,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Linter_UnusedVariab
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_", 1);
+x_1 = lean_mk_string_unchecked("_", 1, 1);
 return x_1;
 }
 }
@@ -14895,7 +14891,7 @@ static lean_object* _init_l_Array_qsort_sort___at_Lean_Linter_UnusedVariables_un
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.Data.Option.BasicAux", 25);
+x_1 = lean_mk_string_unchecked("Init.Data.Option.BasicAux", 25, 25);
 return x_1;
 }
 }
@@ -14903,7 +14899,7 @@ static lean_object* _init_l_Array_qsort_sort___at_Lean_Linter_UnusedVariables_un
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Option.get!", 11);
+x_1 = lean_mk_string_unchecked("Option.get!", 11, 11);
 return x_1;
 }
 }
@@ -14911,7 +14907,7 @@ static lean_object* _init_l_Array_qsort_sort___at_Lean_Linter_UnusedVariables_un
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("value is none", 13);
+x_1 = lean_mk_string_unchecked("value is none", 13, 13);
 return x_1;
 }
 }
@@ -15049,7 +15045,7 @@ static lean_object* _init_l_Lean_Linter_logLint___at_Lean_Linter_UnusedVariables
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("note: this linter can be disabled with `set_option ", 51);
+x_1 = lean_mk_string_unchecked("note: this linter can be disabled with `set_option ", 51, 51);
 return x_1;
 }
 }
@@ -15066,7 +15062,7 @@ static lean_object* _init_l_Lean_Linter_logLint___at_Lean_Linter_UnusedVariables
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" false`", 7);
+x_1 = lean_mk_string_unchecked(" false`", 7, 7);
 return x_1;
 }
 }
@@ -15092,7 +15088,7 @@ static lean_object* _init_l_Lean_Linter_logLint___at_Lean_Linter_UnusedVariables
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -15190,7 +15186,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Linter_UnusedVariab
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unused variable `", 17);
+x_1 = lean_mk_string_unchecked("unused variable `", 17, 17);
 return x_1;
 }
 }
@@ -15207,7 +15203,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Linter_UnusedVariab
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`", 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }

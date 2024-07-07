@@ -223,8 +223,6 @@ def insertIfNew (m : HashMap α β) (a : α) (b : β) : HashMap α β × Option 
 instance : GetElem (HashMap α β) α (Option β) fun _ _ => True where
   getElem m k _ := m.find? k
 
-instance : LawfulGetElem (HashMap α β) α (Option β) fun _ _ => True where
-
 @[inline] def contains (m : HashMap α β) (a : α) : Bool :=
   match m with
   | ⟨ m, _ ⟩ => m.contains a

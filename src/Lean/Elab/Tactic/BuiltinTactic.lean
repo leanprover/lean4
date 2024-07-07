@@ -90,11 +90,10 @@ where
               {
                 range? := stxs |>.getRange?
                 task := next.result }]
-            let (_, state) ← withRestoreOrSaveFull reusableResult? do
-              -- set up nested reuse; `evalTactic` will check for `isIncrementalElab`
-              withTheReader Term.Context ({ · with
-                  tacSnap? := some { old? := oldInner?, new := inner } }) do
-                evalTactic tac
+            let (_, state) ← withRestoreOrSaveFull reusableResult?
+                -- set up nested reuse; `evalTactic` will check for `isIncrementalElab`
+                (tacSnap? := some { old? := oldInner?, new := inner }) do
+              evalTactic tac
             finished.resolve { state? := state }
 
         withTheReader Term.Context ({ · with tacSnap? := some {
@@ -199,7 +198,7 @@ def evalTacticCDot : Tactic := fun stx => do
   -- but the token antiquotation does not copy trailing whitespace, leading to
   -- differences in the goal display (#2153)
   let initInfo ← mkInitialTacticInfo stx[0]
-  withRef stx[0] <| closeUsingOrAdmit do
+  withCaseRef stx[0] stx[1] <| closeUsingOrAdmit do
     -- save state before/after entering focus on `·`
     withInfoContext (pure ()) initInfo
     Term.withNarrowedArgTacticReuse (argIdx := 1) evalTactic stx

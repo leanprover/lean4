@@ -11,34 +11,6 @@ import Lean.Meta.Tactic.Util
 import Lean.PrettyPrinter
 
 namespace Lean.Meta
-/-- Controls which new mvars are turned in to goals by the `apply` tactic.
-- `nonDependentFirst`  mvars that don't depend on other goals appear first in the goal list.
-- `nonDependentOnly` only mvars that don't depend on other goals are added to goal list.
-- `all` all unassigned mvars are added to the goal list.
--/
-inductive ApplyNewGoals where
-  | nonDependentFirst | nonDependentOnly | all
-
-/-- Configures the behaviour of the `apply` tactic. -/
-structure ApplyConfig where
-  newGoals := ApplyNewGoals.nonDependentFirst
-  /--
-  If `synthAssignedInstances` is `true`, then `apply` will synthesize instance implicit arguments
-  even if they have assigned by `isDefEq`, and then check whether the synthesized value matches the
-  one inferred. The `congr` tactic sets this flag to false.
-  -/
-  synthAssignedInstances := true
-  /--
-  If `allowSynthFailures` is `true`, then `apply` will return instance implicit arguments
-  for which typeclass search failed as new goals.
-  -/
-  allowSynthFailures := false
-  /--
-  If `approx := true`, then we turn on `isDefEq` approximations. That is, we use
-  the `approxDefEq` combinator.
-  -/
-  approx : Bool := true
-
 /--
   Compute the number of expected arguments and whether the result type is of the form
   (?m ...) where ?m is an unassigned metavariable.
@@ -57,18 +29,73 @@ private def throwApplyError {α} (mvarId : MVarId) (eType : Expr) (targetType : 
     return m!"{indentExpr eType}\nwith{indentExpr targetType}"
   throwTacticEx `apply mvarId m!"failed to unify{explanation}"
 
-def synthAppInstances (tacticName : Name) (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo)
-    (synthAssignedInstances : Bool) (allowSynthFailures : Bool) : MetaM Unit :=
-  newMVars.size.forM fun i => do
-    if binderInfos[i]!.isInstImplicit then
-      let mvar := newMVars[i]!
+def synthAppInstances (tacticName : Name) (mvarId : MVarId) (mvarsNew : Array Expr) (binderInfos : Array BinderInfo)
+    (synthAssignedInstances : Bool) (allowSynthFailures : Bool) : MetaM Unit := do
+  let mut todo := #[]
+  -- Collect metavariables to synthesize
+  for mvar in mvarsNew, binderInfo in binderInfos do
+    if binderInfo.isInstImplicit then
       if synthAssignedInstances || !(← mvar.mvarId!.isAssigned) then
-        let mvarType ← inferType mvar
-        try
-          let mvarVal  ← synthInstance mvarType
-          unless (← isDefEq mvar mvarVal) do
+        todo := todo.push mvar
+  while !todo.isEmpty do
+    todo ← step todo
+where
+  /--
+  Try to synthesize instances for the metavariables `mvars`.
+  Returns metavariables that still need to be synthesized.
+  We can view the resulting array as the set of metavariables that we should try again.
+  This is needed when applying or rewriting with functions with complex instances.
+  For example, consider `rw [@map_smul]` where `map_smul` is
+  ```
+  map_smul {F : Type u_1} {M : Type u_2} {N : Type u_3} {φ : M → N}
+           {X : Type u_4} {Y : Type u_5}
+           [SMul M X] [SMul N Y] [FunLike F X Y] [MulActionSemiHomClass F φ X Y]
+           (f : F) (c : M) (x : X) : DFunLike.coe f (c • x) = φ c • DFunLike.coe f x
+  ```
+  and `MulActionSemiHomClass` is defined as
+  ```
+  class MulActionSemiHomClass (F : Type _)
+     {M N : outParam (Type _)} (φ : outParam (M → N))
+     (X Y : outParam (Type _)) [SMul M X] [SMul N Y] [FunLike F X Y] : Prop where
+  ```
+  The left-hand-side of the equation does not bind `N`. Thus, `SMul N Y` cannot
+  be synthesized until we synthesize `MulActionSemiHomClass F φ X Y`. Note that
+  `N` is an output parameter for `MulActionSemiHomClass`.
+  -/
+  step (mvars : Array Expr) : MetaM (Array Expr) := do
+    -- `ex?` stores the exception for this first synthesis failure in this step.
+    let mut ex? := none
+    -- `true` if we managed to synthesize an instance after we hit a failure.
+    -- That is, there is a chance we may succeed if we try again.
+    let mut progressAfterEx := false
+    -- Metavariables that we failed to synthesize.
+    let mut postponed := #[]
+    for mvar in mvars do
+      let mvarType ← inferType mvar
+      let mvarVal? ← try
+        let mvarVal ← synthInstance mvarType
+        unless postponed.isEmpty do
+          progressAfterEx := true
+        pure (some mvarVal)
+      catch ex =>
+        ex? := some ex
+        postponed := postponed.push mvar
+        pure none
+      if let some mvarVal := mvarVal? then
+        unless (← isDefEq mvar mvarVal) do
+          -- There is no point in trying again for this kind of failure
+          unless allowSynthFailures do
             throwTacticEx tacticName mvarId "failed to assign synthesized instance"
-        catch e => unless allowSynthFailures do throw e
+    if let some ex := ex? then
+      if progressAfterEx then
+        return postponed
+      else
+        -- There is no point in running `step` again. We should give up (`allowSynthFailures`),
+        -- or throw the first exception we found in this `step`.
+        if allowSynthFailures then return #[] else throw ex
+    else
+      -- Done. We successfully synthesized all metavariables.
+      return #[]
 
 def appendParentTag (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo) : MetaM Unit := do
   let parentTag ← mvarId.getTag
@@ -188,10 +215,6 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
     let result := newMVarIds ++ otherMVarIds.toList
     result.forM (·.headBetaType)
     return result
-
-@[deprecated MVarId.apply (since := "2022-07-15")]
-def apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := {}) : MetaM (List MVarId) :=
-  mvarId.apply e cfg
 
 /-- Short-hand for applying a constant to the goal. -/
 def _root_.Lean.MVarId.applyConst (mvar : MVarId) (c : Name) (cfg : ApplyConfig := {}) : MetaM (List MVarId) := do

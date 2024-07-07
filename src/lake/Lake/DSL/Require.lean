@@ -8,54 +8,121 @@ import Lake.Config.Dependency
 import Lake.DSL.Extensions
 import Lake.DSL.DeclUtil
 
-namespace Lake.DSL
+/-! # The `require` syntax
+
+This module contains the macro definition of the `require` DSL syntax
+used to specify package dependencies.
+-/
+
 open Lean Parser Command
+
+namespace Lake.DSL
 
 syntax fromPath :=
   term
 
 syntax fromGit :=
-  &" git " term:max ("@" term:max)? ("/" term)?
+  &"git " term:max ("@" term:max)? ("/" term)?
 
-syntax depSpec :=
-  ident " from " (fromGit <|> fromPath) (" with " term)?
-
-def expandDepSpec (stx : TSyntax ``depSpec) (doc? : Option DocComment) : MacroM Command := do
-  let depTy := mkCIdent ``Dependency
-  match stx with
-  | `(depSpec| $name:ident from git $url $[@ $rev?]? $[/ $path?]? $[with $opts?]?) =>
-    let rev ← match rev? with | some rev => `(some $rev) | none => `(none)
-    let path ← match path? with | some path => `(some $path) | none => `(none)
-    let opts := opts?.getD <| ← `({})
-    `($[$doc?:docComment]? @[package_dep] def $name : $depTy := {
-      name := $(quote name.getId),
-      src := Source.git $url $rev $path,
-      opts := $opts
-    })
-  | `(depSpec| $name:ident from $path:term $[with $opts?]?) => do
-    let opts := opts?.getD <| ← `({})
-    `($[$doc?:docComment]? @[package_dep] def $name : $depTy := {
-      name :=  $(quote name.getId),
-      src := Source.path $path,
-      opts := $opts
-    })
-  | _ => Macro.throwErrorAt stx "ill-formed require syntax"
+syntax fromSource :=
+  fromGit <|> fromPath
 
 /--
-Adds a new package dependency to the workspace. Has two forms:
+Specifies a specific source from which to draw the package dependency.
+Dependencies that are downloaded from a remote source will be placed
+into the workspace's `packagesDir`.
 
-```lean
-require foo from "path"/"to"/"local"/"package" with NameMap.empty
-require bar from git "url.git"@"rev"/"optional"/"path-to"/"dir-with-pkg"
+**Path Dependencies**
+
+```
+from <path>
 ```
 
-Either form supports the optional `with` clause.
-The `@"rev"` and `/"path"/"dir"` parts of the git form of `require`
-are optional.
+Lake loads the package located a fixed `path` relative to the
+requiring package's directory.
 
-The elements of both the `from` and `with` clauses are proper terms so
-normal computation is supported within them (though parentheses made be
-required to disambiguate the syntax).
+**Git Dependencies**
+
+```
+from git <url> [@ <rev>] [/ <subDir>]
+```
+
+Lake clones the Git repository available at the specified fixed Git `url`,
+and checks out the specified revision `rev`. The revision can be a commit hash,
+branch, or tag. If none is provided, Lake defaults to `master`. After checkout,
+Lake loads the package located in `subDir` (or the repository root if no
+subdirectory is specified).
+-/
+syntax fromClause :=
+  " from " fromSource
+
+syntax withClause :=
+  " with " term
+
+/--
+The version of the package to lookup in Lake's package index.
+A Git revision can be specified via `"git#<rev>"`.
+-/
+syntax verSpec :=
+  " @ " term:max
+
+syntax depName :=
+  atomic(str " / ")? identOrStr
+
+syntax depSpec :=
+  depName (verSpec)? (fromClause)? (withClause)?
+
+@[inline] private def quoteOptTerm [Monad m] [MonadQuotation m] (term? : Option Term) : m Term :=
+  if let some term := term? then withRef term `(some $term) else `(none)
+
+def expandDepSpec (stx : TSyntax ``depSpec) (doc? : Option DocComment) : MacroM Command := do
+  let `(depSpec| $fullNameStx $[@ $ver?]? $[from $src?]? $[with $opts?]?) := stx
+    | Macro.throwErrorAt stx "ill-formed require syntax"
+  let src? ← src?.mapM fun src =>
+    match src with
+    | `(fromSource|git%$tk $url $[@ $rev?]? $[/ $subDir?]?) => withRef tk do
+      let rev ← quoteOptTerm rev?
+      let subDir ← quoteOptTerm subDir?
+      ``(DependencySrc.git $url $rev $subDir)
+    | `(fromSource|$path:term) => withRef src do
+      ``(DependencySrc.path $path)
+    | _ => Macro.throwErrorAt src "ill-formed from syntax"
+  let `(depName|$[$scope? /]? $nameStx) := fullNameStx
+    | Macro.throwErrorAt fullNameStx "ill-formed name syntax"
+  let scope :=
+    match scope? with
+    | some scope => scope
+    | none => Syntax.mkStrLit "" (.fromRef fullNameStx)
+  let name := expandIdentOrStrAsIdent nameStx
+  `($[$doc?:docComment]? @[package_dep] def $name : $(mkCIdent ``Dependency) := {
+    name :=  $(quote name.getId),
+    scope := $scope,
+    version? := $(← quoteOptTerm ver?),
+    src? := $(← quoteOptTerm src?),
+    opts := $(opts?.getD <| ← `({})),
+  })
+
+/--
+Adds a new package dependency to the workspace. The general syntax is:
+
+```
+require ["<scope>" /] <pkg-name> [@ <version>]
+  [from <source>] [with <options>]
+```
+
+The `from` clause tells Lake where to locate the dependency.
+See the `fromClause` syntax documentation (e.g., hover over it) to see
+the different forms this clause can take.
+
+Without a `from` clause, Lake will lookup the package in the default
+registry (i.e., Reservoir) and use the information there to download the
+package at the specified `version`. The optional `scope` is used to
+disambiguate which package with `pkg-name` to lookup. In Reservoir, this scope
+is the package owner (e.g., `leanprover` of `@leanprover/doc-gen4`).
+
+The `with` clause specifies a `NameMap String` of Lake options
+used to configure the dependency. This is equivalent to passing `-K`
+options to the dependency on the command line.
 -/
 scoped macro (name := requireDecl)
 doc?:(docComment)? kw:"require " spec:depSpec : command => withRef kw do

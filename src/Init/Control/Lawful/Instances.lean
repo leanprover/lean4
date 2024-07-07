@@ -14,7 +14,7 @@ open Function
 
 namespace ExceptT
 
-theorem ext [Monad m] {x y : ExceptT ε m α} (h : x.run = y.run) : x = y := by
+theorem ext {x y : ExceptT ε m α} (h : x.run = y.run) : x = y := by
   simp [run] at h
   assumption
 
@@ -50,7 +50,7 @@ theorem run_bind [Monad m] (x : ExceptT ε m α)
 protected theorem seq_eq {α β ε : Type u} [Monad m] (mf : ExceptT ε m (α → β)) (x : ExceptT ε m α) : mf <*> x = mf >>= fun f => f <$> x :=
   rfl
 
-protected theorem bind_pure_comp [Monad m] [LawfulMonad m] (f : α → β) (x : ExceptT ε m α) : x >>= pure ∘ f = f <$> x := by
+protected theorem bind_pure_comp [Monad m] (f : α → β) (x : ExceptT ε m α) : x >>= pure ∘ f = f <$> x := by
   intros; rfl
 
 protected theorem seqLeft_eq {α β ε : Type u} {m : Type u → Type v} [Monad m] [LawfulMonad m] (x : ExceptT ε m α) (y : ExceptT ε m β) : x <* y = const β <$> x <*> y := by
@@ -188,7 +188,7 @@ theorem ext {x y : StateT σ m α} (h : ∀ s, x.run s = y.run s) : x = y :=
 
 @[simp] theorem run_lift {α σ : Type u} [Monad m] (x : m α) (s : σ) : (StateT.lift x : StateT σ m α).run s = x >>= fun a => pure (a, s) := rfl
 
-@[simp] theorem run_bind_lift {α σ : Type u} [Monad m] [LawfulMonad m] (x : m α) (f : α → StateT σ m β) (s : σ) : (StateT.lift x >>= f).run s = x >>= fun a => (f a).run s := by
+theorem run_bind_lift {α σ : Type u} [Monad m] [LawfulMonad m] (x : m α) (f : α → StateT σ m β) (s : σ) : (StateT.lift x >>= f).run s = x >>= fun a => (f a).run s := by
   simp [StateT.lift, StateT.run, bind, StateT.bind]
 
 @[simp] theorem run_monadLift {α σ : Type u} [Monad m] [MonadLiftT n m] (x : n α) (s : σ) : (monadLift x : StateT σ m α).run s = (monadLift x : m α) >>= fun a => pure (a, s) := rfl
@@ -200,11 +200,11 @@ theorem ext {x y : StateT σ m α} (h : ∀ s, x.run s = y.run s) : x = y :=
   show (f >>= fun g => g <$> x).run s = _
   simp
 
-@[simp] theorem run_seqRight [Monad m] [LawfulMonad m] (x : StateT σ m α) (y : StateT σ m β) (s : σ) : (x *> y).run s = (x.run s >>= fun p => y.run p.2) := by
+@[simp] theorem run_seqRight [Monad m] (x : StateT σ m α) (y : StateT σ m β) (s : σ) : (x *> y).run s = (x.run s >>= fun p => y.run p.2) := by
   show (x >>= fun _ => y).run s = _
   simp
 
-@[simp] theorem run_seqLeft {α β σ : Type u} [Monad m] [LawfulMonad m] (x : StateT σ m α) (y : StateT σ m β) (s : σ) : (x <* y).run s = (x.run s >>= fun p => y.run p.2 >>= fun p' => pure (p.1, p'.2)) := by
+@[simp] theorem run_seqLeft {α β σ : Type u} [Monad m] (x : StateT σ m α) (y : StateT σ m β) (s : σ) : (x <* y).run s = (x.run s >>= fun p => y.run p.2 >>= fun p' => pure (p.1, p'.2)) := by
   show (x >>= fun a => y >>= fun _ => pure a).run s = _
   simp
 

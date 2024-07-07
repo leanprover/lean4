@@ -786,7 +786,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Congr_0__Lean_applyCongrT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("h_congr_thm", 11);
+x_1 = lean_mk_string_unchecked("h_congr_thm", 11, 11);
 return x_1;
 }
 }
@@ -1486,7 +1486,7 @@ static lean_object* _init_l_Lean_MVarId_congr_x3f___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -1698,7 +1698,7 @@ static lean_object* _init_l_Lean_MVarId_congr_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("congr", 5);
+x_1 = lean_mk_string_unchecked("congr", 5, 5);
 return x_1;
 }
 }
@@ -1841,7 +1841,7 @@ static lean_object* _init_l_Lean_MVarId_hcongr_x3f___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HEq", 3);
+x_1 = lean_mk_string_unchecked("HEq", 3, 3);
 return x_1;
 }
 }
@@ -2183,7 +2183,7 @@ static lean_object* _init_l_Lean_MVarId_congrImplies_x3f___lambda__1___closed__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected number of goals", 26);
+x_1 = lean_mk_string_unchecked("unexpected number of goals", 26, 26);
 return x_1;
 }
 }
@@ -2437,7 +2437,7 @@ static lean_object* _init_l_Lean_MVarId_congrImplies_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("implies_congr", 13);
+x_1 = lean_mk_string_unchecked("implies_congr", 13, 13);
 return x_1;
 }
 }
@@ -2479,7 +2479,7 @@ static lean_object* _init_l_Lean_MVarId_congrCore___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to apply congruence", 26);
+x_1 = lean_mk_string_unchecked("failed to apply congruence", 26, 26);
 return x_1;
 }
 }

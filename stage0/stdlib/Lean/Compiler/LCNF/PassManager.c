@@ -36,7 +36,6 @@ lean_object* l_Lean_Compiler_LCNF_PassManager_findHighestOccurrence___boxed(lean
 static lean_object* l_Lean_Compiler_LCNF_instInhabitedPass___closed__1;
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_instToStringPhase___closed__1;
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_PassInstaller_withEachOccurrence(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_PassManager_findHighestOccurrence___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_PassInstaller_withEachOccurrence___elambda__1___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -72,6 +71,7 @@ lean_object* l_Lean_Compiler_LCNF_PassManager_validate___boxed(lean_object*, lea
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_PassInstaller_installBefore(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Compiler_LCNF_instDecidableLePhase(uint8_t, uint8_t);
+lean_object* l_outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instInhabitedPass;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_PassManager_validate___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -267,7 +267,7 @@ static lean_object* _init_l___auto____x40_Lean_Compiler_LCNF_PassManager___hyg_1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -275,7 +275,7 @@ static lean_object* _init_l___auto____x40_Lean_Compiler_LCNF_PassManager___hyg_1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -283,7 +283,7 @@ static lean_object* _init_l___auto____x40_Lean_Compiler_LCNF_PassManager___hyg_1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -291,7 +291,7 @@ static lean_object* _init_l___auto____x40_Lean_Compiler_LCNF_PassManager___hyg_1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq", 9);
+x_1 = lean_mk_string_unchecked("tacticSeq", 9, 9);
 return x_1;
 }
 }
@@ -320,7 +320,7 @@ static lean_object* _init_l___auto____x40_Lean_Compiler_LCNF_PassManager___hyg_1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq1Indented", 18);
+x_1 = lean_mk_string_unchecked("tacticSeq1Indented", 18, 18);
 return x_1;
 }
 }
@@ -340,7 +340,7 @@ static lean_object* _init_l___auto____x40_Lean_Compiler_LCNF_PassManager___hyg_1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -358,7 +358,7 @@ static lean_object* _init_l___auto____x40_Lean_Compiler_LCNF_PassManager___hyg_1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simpArith", 9);
+x_1 = lean_mk_string_unchecked("simpArith", 9, 9);
 return x_1;
 }
 }
@@ -378,7 +378,7 @@ static lean_object* _init_l___auto____x40_Lean_Compiler_LCNF_PassManager___hyg_1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simp_arith", 10);
+x_1 = lean_mk_string_unchecked("simp_arith", 10, 10);
 return x_1;
 }
 }
@@ -674,7 +674,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_instToStringPhase___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("base", 4);
+x_1 = lean_mk_string_unchecked("base", 4, 4);
 return x_1;
 }
 }
@@ -682,7 +682,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_instToStringPhase___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mono", 4);
+x_1 = lean_mk_string_unchecked("mono", 4, 4);
 return x_1;
 }
 }
@@ -690,7 +690,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_instToStringPhase___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("impure", 6);
+x_1 = lean_mk_string_unchecked("impure", 6, 6);
 return x_1;
 }
 }
@@ -873,7 +873,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_PassM
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -881,7 +881,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_PassM
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" has phase ", 11);
+x_1 = lean_mk_string_unchecked(" has phase ", 11, 11);
 return x_1;
 }
 }
@@ -889,7 +889,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_PassM
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" but should at least have ", 26);
+x_1 = lean_mk_string_unchecked(" but should at least have ", 26, 26);
 return x_1;
 }
 }
@@ -1266,7 +1266,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PassManager_findHighestOccurrence
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Could not find any occurrence of ", 33);
+x_1 = lean_mk_string_unchecked("Could not find any occurrence of ", 33, 33);
 return x_1;
 }
 }
@@ -1702,7 +1702,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PassInstaller_installAfter___elam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tried to insert pass after ", 27);
+x_1 = lean_mk_string_unchecked("Tried to insert pass after ", 27, 27);
 return x_1;
 }
 }
@@ -1710,7 +1710,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PassInstaller_installAfter___elam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", occurrence ", 13);
+x_1 = lean_mk_string_unchecked(", occurrence ", 13, 13);
 return x_1;
 }
 }
@@ -1718,7 +1718,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PassInstaller_installAfter___elam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" but ", 5);
+x_1 = lean_mk_string_unchecked(" but ", 5, 5);
 return x_1;
 }
 }
@@ -1726,7 +1726,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PassInstaller_installAfter___elam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" is not in the pass list", 24);
+x_1 = lean_mk_string_unchecked(" is not in the pass list", 24, 24);
 return x_1;
 }
 }
@@ -1785,7 +1785,7 @@ if (x_29 == 0)
 lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 lean_dec(x_27);
 x_32 = l_Lean_Compiler_LCNF_instInhabitedPass;
-x_33 = l___private_Init_GetElem_0__outOfBounds___rarg(x_32);
+x_33 = l_outOfBounds___rarg(x_32);
 x_34 = lean_apply_1(x_2, x_33);
 x_35 = l_Array_insertAt_x21___rarg(x_4, x_31, x_34);
 lean_dec(x_31);
@@ -1919,7 +1919,7 @@ if (x_29 == 0)
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
 x_30 = l_Lean_Compiler_LCNF_instInhabitedPass;
-x_31 = l___private_Init_GetElem_0__outOfBounds___rarg(x_30);
+x_31 = l_outOfBounds___rarg(x_30);
 x_32 = lean_apply_1(x_2, x_31);
 x_33 = l_Array_insertAt_x21___rarg(x_4, x_27, x_32);
 lean_dec(x_27);
@@ -1982,7 +1982,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_PassInstaller_replacePass___elamb
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tried to replace ", 17);
+x_1 = lean_mk_string_unchecked("Tried to replace ", 17, 17);
 return x_1;
 }
 }
@@ -2038,7 +2038,7 @@ if (x_29 == 0)
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
 x_30 = l_Lean_Compiler_LCNF_instInhabitedPass;
-x_31 = l___private_Init_GetElem_0__outOfBounds___rarg(x_30);
+x_31 = l_outOfBounds___rarg(x_30);
 x_32 = lean_apply_1(x_2, x_31);
 x_33 = lean_array_set(x_4, x_27, x_32);
 lean_dec(x_27);
@@ -2231,7 +2231,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_PassManager_0__Lean_Com
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Compiler", 8);
+x_1 = lean_mk_string_unchecked("Compiler", 8, 8);
 return x_1;
 }
 }
@@ -2239,7 +2239,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_PassManager_0__Lean_Com
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LCNF", 4);
+x_1 = lean_mk_string_unchecked("LCNF", 4, 4);
 return x_1;
 }
 }
@@ -2247,7 +2247,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_PassManager_0__Lean_Com
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PassInstaller", 13);
+x_1 = lean_mk_string_unchecked("PassInstaller", 13, 13);
 return x_1;
 }
 }

@@ -287,7 +287,7 @@ static lean_object* _init_l_Lake_defaultExeRoot___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Main", 4);
+x_1 = lean_mk_string_unchecked("Main", 4, 4);
 return x_1;
 }
 }
@@ -313,7 +313,7 @@ static lean_object* _init_l_Lake_toolchainFileName___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lean-toolchain", 14);
+x_1 = lean_mk_string_unchecked("lean-toolchain", 14, 14);
 return x_1;
 }
 }
@@ -329,7 +329,7 @@ static lean_object* _init_l_Lake_gitignoreContents___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("/", 1);
+x_1 = lean_mk_string_unchecked("/", 1, 1);
 return x_1;
 }
 }
@@ -337,7 +337,7 @@ static lean_object* _init_l_Lake_gitignoreContents___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".lake", 5);
+x_1 = lean_mk_string_unchecked(".lake", 5, 5);
 return x_1;
 }
 }
@@ -355,7 +355,7 @@ static lean_object* _init_l_Lake_gitignoreContents___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n", 1);
+x_1 = lean_mk_string_unchecked("\n", 1, 1);
 return x_1;
 }
 }
@@ -381,7 +381,7 @@ static lean_object* _init_l_Lake_basicFileContents___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("def hello := \"world\"", 20);
+x_1 = lean_mk_string_unchecked("def hello := \"world\"", 20, 20);
 return x_1;
 }
 }
@@ -397,7 +397,7 @@ static lean_object* _init_l_Lake_libRootFileContents___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-- This module serves as the root of the `", 42);
+x_1 = lean_mk_string_unchecked("-- This module serves as the root of the `", 42, 42);
 return x_1;
 }
 }
@@ -405,7 +405,7 @@ static lean_object* _init_l_Lake_libRootFileContents___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` library.\n-- Import modules here that should be built as part of the library.\nimport ", 86);
+x_1 = lean_mk_string_unchecked("` library.\n-- Import modules here that should be built as part of the library.\nimport ", 86, 86);
 return x_1;
 }
 }
@@ -413,7 +413,7 @@ static lean_object* _init_l_Lake_libRootFileContents___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".Basic", 6);
+x_1 = lean_mk_string_unchecked(".Basic", 6, 6);
 return x_1;
 }
 }
@@ -457,7 +457,7 @@ static lean_object* _init_l_Lake_mainFileName___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -475,7 +475,7 @@ static lean_object* _init_l_Lake_mainFileName___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".lean", 5);
+x_1 = lean_mk_string_unchecked(".lean", 5, 5);
 return x_1;
 }
 }
@@ -501,7 +501,7 @@ static lean_object* _init_l_Lake_mainFileContents___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("import ", 7);
+x_1 = lean_mk_string_unchecked("import ", 7, 7);
 return x_1;
 }
 }
@@ -509,7 +509,7 @@ static lean_object* _init_l_Lake_mainFileContents___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n\ndef main : IO Unit :=\n  IO.println s!\"Hello, {hello}!\"\n", 57);
+x_1 = lean_mk_string_unchecked("\n\ndef main : IO Unit :=\n  IO.println s!\"Hello, {hello}!\"\n", 57, 57);
 return x_1;
 }
 }
@@ -531,7 +531,7 @@ static lean_object* _init_l_Lake_exeFileContents___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("def main : IO Unit :=\n  IO.println s!\"Hello, world!\"\n", 53);
+x_1 = lean_mk_string_unchecked("def main : IO Unit :=\n  IO.println s!\"Hello, world!\"\n", 53, 53);
 return x_1;
 }
 }
@@ -547,7 +547,7 @@ static lean_object* _init_l_Lake_stdLeanConfigFileContents___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("import Lake\nopen Lake DSL\n\npackage ", 35);
+x_1 = lean_mk_string_unchecked("import Lake\nopen Lake DSL\n\npackage ", 35, 35);
 return x_1;
 }
 }
@@ -555,7 +555,7 @@ static lean_object* _init_l_Lake_stdLeanConfigFileContents___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" where\n  -- add package configuration options here\n\nlean_lib ", 61);
+x_1 = lean_mk_string_unchecked(" where\n  -- add package configuration options here\n\nlean_lib ", 61, 61);
 return x_1;
 }
 }
@@ -563,7 +563,7 @@ static lean_object* _init_l_Lake_stdLeanConfigFileContents___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" where\n  -- add library configuration options here\n\n@[default_target]\nlean_exe ", 79);
+x_1 = lean_mk_string_unchecked(" where\n  -- add library configuration options here\n\n@[default_target]\nlean_exe ", 79, 79);
 return x_1;
 }
 }
@@ -571,7 +571,7 @@ static lean_object* _init_l_Lake_stdLeanConfigFileContents___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" where\n  root := `Main\n", 23);
+x_1 = lean_mk_string_unchecked(" where\n  root := `Main\n", 23, 23);
 return x_1;
 }
 }
@@ -619,7 +619,7 @@ static lean_object* _init_l_Lake_stdTomlConfigFileContents___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("name = ", 7);
+x_1 = lean_mk_string_unchecked("name = ", 7, 7);
 return x_1;
 }
 }
@@ -627,7 +627,7 @@ static lean_object* _init_l_Lake_stdTomlConfigFileContents___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\ndefaultTargets = [", 19);
+x_1 = lean_mk_string_unchecked("\ndefaultTargets = [", 19, 19);
 return x_1;
 }
 }
@@ -635,7 +635,7 @@ static lean_object* _init_l_Lake_stdTomlConfigFileContents___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]\n\n[[lean_lib]]\nname = ", 23);
+x_1 = lean_mk_string_unchecked("]\n\n[[lean_lib]]\nname = ", 23, 23);
 return x_1;
 }
 }
@@ -643,7 +643,7 @@ static lean_object* _init_l_Lake_stdTomlConfigFileContents___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n\n[[lean_exe]]\nname = ", 22);
+x_1 = lean_mk_string_unchecked("\n\n[[lean_exe]]\nname = ", 22, 22);
 return x_1;
 }
 }
@@ -651,7 +651,7 @@ static lean_object* _init_l_Lake_stdTomlConfigFileContents___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nroot = \"Main\"\n", 15);
+x_1 = lean_mk_string_unchecked("\nroot = \"Main\"\n", 15, 15);
 return x_1;
 }
 }
@@ -707,7 +707,7 @@ static lean_object* _init_l_Lake_exeLeanConfigFileContents___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" where\n  -- add package configuration options here\n\n@[default_target]\nlean_exe ", 79);
+x_1 = lean_mk_string_unchecked(" where\n  -- add package configuration options here\n\n@[default_target]\nlean_exe ", 79, 79);
 return x_1;
 }
 }
@@ -751,7 +751,7 @@ static lean_object* _init_l_Lake_exeTomlConfigFileContents___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]\n\n[[lean_exe]]\nname = ", 23);
+x_1 = lean_mk_string_unchecked("]\n\n[[lean_exe]]\nname = ", 23, 23);
 return x_1;
 }
 }
@@ -798,7 +798,7 @@ static lean_object* _init_l_Lake_libLeanConfigFileContents___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" where\n  -- add package configuration options here\n\n@[default_target]\nlean_lib ", 79);
+x_1 = lean_mk_string_unchecked(" where\n  -- add package configuration options here\n\n@[default_target]\nlean_lib ", 79, 79);
 return x_1;
 }
 }
@@ -806,7 +806,7 @@ static lean_object* _init_l_Lake_libLeanConfigFileContents___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" where\n  -- add library configuration options here\n", 51);
+x_1 = lean_mk_string_unchecked(" where\n  -- add library configuration options here\n", 51, 51);
 return x_1;
 }
 }
@@ -884,7 +884,7 @@ static lean_object* _init_l_Lake_mathLeanConfigFileContents___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" where\n  -- Settings applied to both builds and interactive editing\n  leanOptions := #[\n    ⟨`pp.unicode.fun, true⟩ -- pretty-prints `fun a ↦ b`\n  ]\n  -- add any additional package configuration options here\n\nrequire mathlib from git\n  \"https://github.com/leanprover-community/mathlib4.git\"\n\n@[default_target]\nlean_lib ", 325);
+x_1 = lean_mk_string_unchecked(" where\n  -- Settings applied to both builds and interactive editing\n  leanOptions := #[\n    ⟨`pp.unicode.fun, true⟩ -- pretty-prints `fun a ↦ b`\n  ]\n  -- add any additional package configuration options here\n\nrequire \"leanprover-community\" / \"mathlib\"\n\n@[default_target]\nlean_lib ", 286, 280);
 return x_1;
 }
 }
@@ -892,7 +892,7 @@ static lean_object* _init_l_Lake_mathLeanConfigFileContents___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" where\n  -- add any library configuration options here\n", 55);
+x_1 = lean_mk_string_unchecked(" where\n  -- add any library configuration options here\n", 55, 55);
 return x_1;
 }
 }
@@ -931,7 +931,7 @@ static lean_object* _init_l_Lake_mathTomlConfigFileContents___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]\n\n[leanOptions]\npp.unicode.fun = true # pretty-prints `fun a ↦ b`\n\n[[require]]\nname = \"mathlib\"\ngit = \"https://github.com/leanprover-community/mathlib4.git\"\n\n[[lean_lib]]\nname = ", 181);
+x_1 = lean_mk_string_unchecked("]\n\n[leanOptions]\npp.unicode.fun = true # pretty-prints `fun a ↦ b`\n\n[[require]]\nname = \"mathlib\"\nscope = \"leanprover-community\"\n\n[[lean_lib]]\nname = ", 151, 149);
 return x_1;
 }
 }
@@ -978,7 +978,7 @@ static lean_object* _init_l_Lake_readmeFileContents___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("# ", 2);
+x_1 = lean_mk_string_unchecked("# ", 2, 2);
 return x_1;
 }
 }
@@ -1006,7 +1006,7 @@ static lean_object* _init_l_Lake_mathToolchainBlobUrl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("https://raw.githubusercontent.com/leanprover-community/mathlib4/master/lean-toolchain", 85);
+x_1 = lean_mk_string_unchecked("https://raw.githubusercontent.com/leanprover-community/mathlib4/master/lean-toolchain", 85, 85);
 return x_1;
 }
 }
@@ -1022,7 +1022,7 @@ static lean_object* _init_l_Lake_mathToolchainUrl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("https://github.com/leanprover-community/mathlib4/blob/master/lean-toolchain", 75);
+x_1 = lean_mk_string_unchecked("https://github.com/leanprover-community/mathlib4/blob/master/lean-toolchain", 75, 75);
 return x_1;
 }
 }
@@ -1131,7 +1131,7 @@ static lean_object* _init_l___private_Lake_CLI_Init_0__Lake_reprInitTemplate____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.InitTemplate.std", 21);
+x_1 = lean_mk_string_unchecked("Lake.InitTemplate.std", 21, 21);
 return x_1;
 }
 }
@@ -1215,7 +1215,7 @@ static lean_object* _init_l___private_Lake_CLI_Init_0__Lake_reprInitTemplate____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.InitTemplate.exe", 21);
+x_1 = lean_mk_string_unchecked("Lake.InitTemplate.exe", 21, 21);
 return x_1;
 }
 }
@@ -1281,7 +1281,7 @@ static lean_object* _init_l___private_Lake_CLI_Init_0__Lake_reprInitTemplate____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.InitTemplate.lib", 21);
+x_1 = lean_mk_string_unchecked("Lake.InitTemplate.lib", 21, 21);
 return x_1;
 }
 }
@@ -1347,7 +1347,7 @@ static lean_object* _init_l___private_Lake_CLI_Init_0__Lake_reprInitTemplate____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.InitTemplate.math", 22);
+x_1 = lean_mk_string_unchecked("Lake.InitTemplate.math", 22, 22);
 return x_1;
 }
 }
@@ -1613,7 +1613,7 @@ static lean_object* _init_l_Lake_InitTemplate_ofString_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("std", 3);
+x_1 = lean_mk_string_unchecked("std", 3, 3);
 return x_1;
 }
 }
@@ -1621,7 +1621,7 @@ static lean_object* _init_l_Lake_InitTemplate_ofString_x3f___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("exe", 3);
+x_1 = lean_mk_string_unchecked("exe", 3, 3);
 return x_1;
 }
 }
@@ -1629,7 +1629,7 @@ static lean_object* _init_l_Lake_InitTemplate_ofString_x3f___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lib", 3);
+x_1 = lean_mk_string_unchecked("lib", 3, 3);
 return x_1;
 }
 }
@@ -1637,7 +1637,7 @@ static lean_object* _init_l_Lake_InitTemplate_ofString_x3f___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("math", 4);
+x_1 = lean_mk_string_unchecked("math", 4, 4);
 return x_1;
 }
 }
@@ -1794,7 +1794,7 @@ static lean_object* _init_l_Lake_escapeName_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.CLI.Init", 13);
+x_1 = lean_mk_string_unchecked("Lake.CLI.Init", 13, 13);
 return x_1;
 }
 }
@@ -1802,7 +1802,7 @@ static lean_object* _init_l_Lake_escapeName_x21___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.escapeName!", 16);
+x_1 = lean_mk_string_unchecked("Lake.escapeName!", 16, 16);
 return x_1;
 }
 }
@@ -1810,7 +1810,7 @@ static lean_object* _init_l_Lake_escapeName_x21___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -1820,7 +1820,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_escapeName_x21___closed__1;
 x_2 = l_Lake_escapeName_x21___closed__2;
-x_3 = lean_unsigned_to_nat(179u);
+x_3 = lean_unsigned_to_nat(178u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Lake_escapeName_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -1831,7 +1831,7 @@ static lean_object* _init_l_Lake_escapeName_x21___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -1841,7 +1841,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_escapeName_x21___closed__1;
 x_2 = l_Lake_escapeName_x21___closed__2;
-x_3 = lean_unsigned_to_nat(182u);
+x_3 = lean_unsigned_to_nat(181u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Lake_escapeName_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -2081,7 +2081,7 @@ static lean_object* _init_l_Lake_initPkg___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("downloading mathlib `lean-toolchain` file", 41);
+x_1 = lean_mk_string_unchecked("downloading mathlib `lean-toolchain` file", 41, 41);
 return x_1;
 }
 }
@@ -2101,7 +2101,7 @@ static lean_object* _init_l_Lake_initPkg___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to download mathlib 'lean-toolchain' file; you can manually copy it from:\n  {mathToolchainUrl}", 101);
+x_1 = lean_mk_string_unchecked("failed to download mathlib 'lean-toolchain' file; you can manually copy it from:\n  {mathToolchainUrl}", 101, 101);
 return x_1;
 }
 }
@@ -2121,7 +2121,7 @@ static lean_object* _init_l_Lake_initPkg___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("could not create a `lean-toolchain` file for the new package; ", 62);
+x_1 = lean_mk_string_unchecked("could not create a `lean-toolchain` file for the new package; ", 62, 62);
 return x_1;
 }
 }
@@ -2129,7 +2129,7 @@ static lean_object* _init_l_Lake_initPkg___lambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no known toolchain name for the current Elan/Lean/Lake", 54);
+x_1 = lean_mk_string_unchecked("no known toolchain name for the current Elan/Lean/Lake", 54, 54);
 return x_1;
 }
 }
@@ -2159,7 +2159,7 @@ static lean_object* _init_l_Lake_initPkg___lambda__1___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".gitignore", 10);
+x_1 = lean_mk_string_unchecked(".gitignore", 10, 10);
 return x_1;
 }
 }
@@ -2893,7 +2893,7 @@ static lean_object* _init_l_Lake_initPkg___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".git", 4);
+x_1 = lean_mk_string_unchecked(".git", 4, 4);
 return x_1;
 }
 }
@@ -2901,7 +2901,7 @@ static lean_object* _init_l_Lake_initPkg___lambda__2___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to initialize git repository", 35);
+x_1 = lean_mk_string_unchecked("failed to initialize git repository", 35, 35);
 return x_1;
 }
 }
@@ -2930,7 +2930,7 @@ static lean_object* _init_l_Lake_initPkg___lambda__2___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("init", 4);
+x_1 = lean_mk_string_unchecked("init", 4, 4);
 return x_1;
 }
 }
@@ -2948,7 +2948,7 @@ static lean_object* _init_l_Lake_initPkg___lambda__2___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-q", 2);
+x_1 = lean_mk_string_unchecked("-q", 2, 2);
 return x_1;
 }
 }
@@ -2987,7 +2987,7 @@ static lean_object* _init_l_Lake_initPkg___lambda__2___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("git", 3);
+x_1 = lean_mk_string_unchecked("git", 3, 3);
 return x_1;
 }
 }
@@ -2995,7 +2995,7 @@ static lean_object* _init_l_Lake_initPkg___lambda__2___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("master", 6);
+x_1 = lean_mk_string_unchecked("master", 6, 6);
 return x_1;
 }
 }
@@ -3022,7 +3022,7 @@ static lean_object* _init_l_Lake_initPkg___lambda__2___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("checkout", 8);
+x_1 = lean_mk_string_unchecked("checkout", 8, 8);
 return x_1;
 }
 }
@@ -3040,7 +3040,7 @@ static lean_object* _init_l_Lake_initPkg___lambda__2___closed__17() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-B", 2);
+x_1 = lean_mk_string_unchecked("-B", 2, 2);
 return x_1;
 }
 }
@@ -3263,7 +3263,7 @@ static lean_object* _init_l_Lake_initPkg___lambda__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("README.md", 9);
+x_1 = lean_mk_string_unchecked("README.md", 9, 9);
 return x_1;
 }
 }
@@ -3840,7 +3840,7 @@ static lean_object* _init_l_Lake_initPkg___lambda__6___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Basic.lean", 10);
+x_1 = lean_mk_string_unchecked("Basic.lean", 10, 10);
 return x_1;
 }
 }
@@ -3848,7 +3848,7 @@ static lean_object* _init_l_Lake_initPkg___lambda__6___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lean", 4);
+x_1 = lean_mk_string_unchecked("lean", 4, 4);
 return x_1;
 }
 }
@@ -4859,7 +4859,7 @@ static lean_object* _init_l_Lake_initPkg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("package already initialized", 27);
+x_1 = lean_mk_string_unchecked("package already initialized", 27, 27);
 return x_1;
 }
 }
@@ -5183,7 +5183,7 @@ static lean_object* _init_l_Lake_validatePkgName___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("main", 4);
+x_1 = lean_mk_string_unchecked("main", 4, 4);
 return x_1;
 }
 }
@@ -5203,7 +5203,7 @@ static lean_object* _init_l_Lake_validatePkgName___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lake", 4);
+x_1 = lean_mk_string_unchecked("lake", 4, 4);
 return x_1;
 }
 }
@@ -5247,7 +5247,7 @@ static lean_object* _init_l_Lake_validatePkgName___lambda__1___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reserved package name", 21);
+x_1 = lean_mk_string_unchecked("reserved package name", 21, 21);
 return x_1;
 }
 }
@@ -5304,7 +5304,7 @@ static lean_object* _init_l_Lake_validatePkgName___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("illegal package name '", 22);
+x_1 = lean_mk_string_unchecked("illegal package name '", 22, 22);
 return x_1;
 }
 }
@@ -5312,7 +5312,7 @@ static lean_object* _init_l_Lake_validatePkgName___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -5438,7 +5438,7 @@ static lean_object* _init_l_Lake_init___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("illegal package name: could not derive one from '", 49);
+x_1 = lean_mk_string_unchecked("illegal package name: could not derive one from '", 49, 49);
 return x_1;
 }
 }

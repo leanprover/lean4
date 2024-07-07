@@ -78,8 +78,6 @@ theorem f_eq (n : Nat) :
       cases n <;> simp [f']
       next => contradiction
       next n _ =>
-       have : Nat.succ n - 1 = n := rfl
-       rw [this]
        split <;> try simp
        next r hrn h₁ =>
          split <;> simp

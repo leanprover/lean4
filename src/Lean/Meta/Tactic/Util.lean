@@ -15,16 +15,8 @@ namespace Lean.Meta
 def _root_.Lean.MVarId.getTag (mvarId : MVarId) : MetaM Name :=
   return (← mvarId.getDecl).userName
 
-@[deprecated MVarId.getTag (since := "2022-07-15")]
-def getMVarTag (mvarId : MVarId) : MetaM Name :=
-  mvarId.getTag
-
 def _root_.Lean.MVarId.setTag (mvarId : MVarId) (tag : Name) : MetaM Unit := do
   modify fun s => { s with mctx := s.mctx.setMVarUserName mvarId tag }
-
-@[deprecated MVarId.setTag (since := "2022-07-15")]
-def setMVarTag (mvarId : MVarId) (tag : Name) : MetaM Unit := do
-  mvarId.setTag tag
 
 def appendTag (tag : Name) (suffix : Name) : Name :=
   tag.modifyBase (· ++ suffix.eraseMacroScopes)
@@ -49,17 +41,9 @@ def _root_.Lean.MVarId.checkNotAssigned (mvarId : MVarId) (tacticName : Name) : 
   if (← mvarId.isAssigned) then
     throwTacticEx tacticName mvarId "metavariable has already been assigned"
 
-@[deprecated MVarId.checkNotAssigned (since := "2022-07-15")]
-def checkNotAssigned (mvarId : MVarId) (tacticName : Name) : MetaM Unit := do
-  mvarId.checkNotAssigned tacticName
-
 /-- Get the type the given metavariable. -/
 def _root_.Lean.MVarId.getType (mvarId : MVarId) : MetaM Expr :=
   return (← mvarId.getDecl).type
-
-@[deprecated MVarId.getType (since := "2022-07-15")]
-def getMVarType (mvarId : MVarId) : MetaM Expr :=
-  mvarId.getType
 
 /-- Get the type the given metavariable after instantiating metavariables and reducing to
 weak head normal form. -/
@@ -68,10 +52,6 @@ weak head normal form. -/
 -- We don't need an `instantiateMVars` before the `whnf`, since it instantiates as necessary.
 def _root_.Lean.MVarId.getType' (mvarId : MVarId) : MetaM Expr := do
   instantiateMVars (← whnf (← mvarId.getType))
-
-@[deprecated MVarId.getType' (since := "2022-07-15")]
-def getMVarType' (mvarId : MVarId) : MetaM Expr := do
-  mvarId.getType'
 
 builtin_initialize registerTraceClass `Meta.Tactic
 
@@ -83,17 +63,9 @@ def _root_.Lean.MVarId.admit (mvarId : MVarId) (synthetic := true) : MetaM Unit 
     let val ← mkSorry mvarType synthetic
     mvarId.assign val
 
-@[deprecated MVarId.admit (since := "2022-07-15")]
-def admit (mvarId : MVarId) (synthetic := true) : MetaM Unit :=
-  mvarId.admit synthetic
-
 /-- Beta reduce the metavariable type head -/
 def _root_.Lean.MVarId.headBetaType (mvarId : MVarId) : MetaM Unit := do
   mvarId.setType (← mvarId.getType).headBeta
-
-@[deprecated MVarId.headBetaType (since := "2022-07-15")]
-def headBetaMVarType (mvarId : MVarId) : MetaM Unit := do
-  mvarId.headBetaType
 
 /-- Collect nondependent hypotheses that are propositions. -/
 def _root_.Lean.MVarId.getNondepPropHyps (mvarId : MVarId) : MetaM (Array FVarId) :=
@@ -122,10 +94,6 @@ def _root_.Lean.MVarId.getNondepPropHyps (mvarId : MVarId) : MetaM (Array FVarId
         if candidates.contains localDecl.fvarId then
           result := result.push localDecl.fvarId
       return result
-
-@[deprecated MVarId.getNondepPropHyps (since := "2022-07-15")]
-def getNondepPropHyps (mvarId : MVarId) : MetaM (Array FVarId) :=
-  mvarId.getNondepPropHyps
 
 partial def saturate (mvarId : MVarId) (x : MVarId → MetaM (Option (List MVarId))) : MetaM (List MVarId) := do
   let (_, r) ← go mvarId |>.run #[]

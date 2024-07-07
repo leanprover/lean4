@@ -104,7 +104,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("linter", 6);
+x_1 = lean_mk_string_unchecked("linter", 6, 6);
 return x_1;
 }
 }
@@ -112,7 +112,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("deprecated", 10);
+x_1 = lean_mk_string_unchecked("deprecated", 10, 10);
 return x_1;
 }
 }
@@ -130,7 +130,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -138,7 +138,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("if true, generate deprecation warnings", 38);
+x_1 = lean_mk_string_unchecked("if true, generate deprecation warnings", 38, 38);
 return x_1;
 }
 }
@@ -161,7 +161,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -169,7 +169,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Linter", 6);
+x_1 = lean_mk_string_unchecked("Linter", 6, 6);
 return x_1;
 }
 }
@@ -576,7 +576,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid `[deprecated]` attribute", 32);
+x_1 = lean_mk_string_unchecked("invalid `[deprecated]` attribute", 32, 32);
 return x_1;
 }
 }
@@ -787,7 +787,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("deprecatedAttr", 14);
+x_1 = lean_mk_string_unchecked("deprecatedAttr", 14, 14);
 return x_1;
 }
 }
@@ -816,7 +816,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mark declaration as deprecated", 30);
+x_1 = lean_mk_string_unchecked("mark declaration as deprecated", 30, 30);
 return x_1;
 }
 }
@@ -1079,7 +1079,7 @@ static lean_object* _init_l_Lean_Linter_checkDeprecated___rarg___lambda__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`", 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -1087,7 +1087,7 @@ static lean_object* _init_l_Lean_Linter_checkDeprecated___rarg___lambda__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` has been deprecated", 21);
+x_1 = lean_mk_string_unchecked("` has been deprecated", 21, 21);
 return x_1;
 }
 }
@@ -1095,7 +1095,7 @@ static lean_object* _init_l_Lean_Linter_checkDeprecated___rarg___lambda__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` has been deprecated, use `", 28);
+x_1 = lean_mk_string_unchecked("` has been deprecated, use `", 28, 28);
 return x_1;
 }
 }
@@ -1103,7 +1103,7 @@ static lean_object* _init_l_Lean_Linter_checkDeprecated___rarg___lambda__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` instead", 9);
+x_1 = lean_mk_string_unchecked("` instead", 9, 9);
 return x_1;
 }
 }

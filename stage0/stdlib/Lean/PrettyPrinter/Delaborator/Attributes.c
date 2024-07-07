@@ -56,7 +56,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_At
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pp_using_anonymous_constructor", 30);
+x_1 = lean_mk_string_unchecked("pp_using_anonymous_constructor", 30, 30);
 return x_1;
 }
 }
@@ -74,7 +74,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_At
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -82,7 +82,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_At
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ppUsingAnonymousConstructorAttr", 31);
+x_1 = lean_mk_string_unchecked("ppUsingAnonymousConstructorAttr", 31, 31);
 return x_1;
 }
 }
@@ -100,7 +100,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_At
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mark structure to be pretty printed using `⟨a,b,c⟩` notation", 64);
+x_1 = lean_mk_string_unchecked("mark structure to be pretty printed using `⟨a,b,c⟩` notation", 64, 60);
 return x_1;
 }
 }
@@ -140,7 +140,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_At
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pp_nodot", 8);
+x_1 = lean_mk_string_unchecked("pp_nodot", 8, 8);
 return x_1;
 }
 }
@@ -158,7 +158,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_At
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ppNoDotAttr", 11);
+x_1 = lean_mk_string_unchecked("ppNoDotAttr", 11, 11);
 return x_1;
 }
 }
@@ -176,7 +176,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_At
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mark declaration to never be pretty printed using field notation", 64);
+x_1 = lean_mk_string_unchecked("mark declaration to never be pretty printed using field notation", 64, 64);
 return x_1;
 }
 }

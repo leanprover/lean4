@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Load.Lean.Eval
-// Imports: Init Lake.DSL.Attributes Lake.Config.Workspace
+// Imports: Init Lake.DSL.Attributes Lake.Config.Workspace Lean.DocString
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -233,7 +233,7 @@ static lean_object* _init_l_Lake_unsafeEvalConstCheck_throwUnexpectedType___rarg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected type at '", 20);
+x_1 = lean_mk_string_unchecked("unexpected type at '", 20, 20);
 return x_1;
 }
 }
@@ -241,7 +241,7 @@ static lean_object* _init_l_Lake_unsafeEvalConstCheck_throwUnexpectedType___rarg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', `", 4);
+x_1 = lean_mk_string_unchecked("', `", 4, 4);
 return x_1;
 }
 }
@@ -249,7 +249,7 @@ static lean_object* _init_l_Lake_unsafeEvalConstCheck_throwUnexpectedType___rarg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` expected", 10);
+x_1 = lean_mk_string_unchecked("` expected", 10, 10);
 return x_1;
 }
 }
@@ -286,7 +286,7 @@ static lean_object* _init_l_Lake_unsafeEvalConstCheck___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
+x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
 return x_1;
 }
 }
@@ -294,7 +294,7 @@ static lean_object* _init_l_Lake_unsafeEvalConstCheck___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -5544,7 +5544,7 @@ static lean_object* _init_l_Lake_PackageConfig_loadFromEnv___lambda__1___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake", 4);
+x_1 = lean_mk_string_unchecked("Lake", 4, 4);
 return x_1;
 }
 }
@@ -5552,7 +5552,7 @@ static lean_object* _init_l_Lake_PackageConfig_loadFromEnv___lambda__1___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PackageConfig", 13);
+x_1 = lean_mk_string_unchecked("PackageConfig", 13, 13);
 return x_1;
 }
 }
@@ -5587,7 +5587,7 @@ static lean_object* _init_l_Lake_PackageConfig_loadFromEnv___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("configuration file is missing a `package` declaration", 53);
+x_1 = lean_mk_string_unchecked("configuration file is missing a `package` declaration", 53, 53);
 return x_1;
 }
 }
@@ -5605,7 +5605,7 @@ static lean_object* _init_l_Lake_PackageConfig_loadFromEnv___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("configuration file has multiple `package` declarations", 54);
+x_1 = lean_mk_string_unchecked("configuration file has multiple `package` declarations", 54, 54);
 return x_1;
 }
 }
@@ -8357,7 +8357,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lake_Package_loadFromEnv__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("package is missing script `", 27);
+x_1 = lean_mk_string_unchecked("package is missing script `", 27, 27);
 return x_1;
 }
 }
@@ -8365,7 +8365,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lake_Package_loadFromEnv__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("` marked as a default", 21);
+x_1 = lean_mk_string_unchecked("` marked as a default", 21, 21);
 return x_1;
 }
 }
@@ -18380,7 +18380,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lake_Package_loadFromEnv__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PostUpdateHookDecl", 18);
+x_1 = lean_mk_string_unchecked("PostUpdateHookDecl", 18, 18);
 return x_1;
 }
 }
@@ -18398,7 +18398,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lake_Package_loadFromEnv__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("post-update hook was defined in `", 33);
+x_1 = lean_mk_string_unchecked("post-update hook was defined in `", 33, 33);
 return x_1;
 }
 }
@@ -18406,7 +18406,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lake_Package_loadFromEnv__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`, but was registered in `", 26);
+x_1 = lean_mk_string_unchecked("`, but was registered in `", 26, 26);
 return x_1;
 }
 }
@@ -18414,7 +18414,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lake_Package_loadFromEnv__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`", 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -18531,7 +18531,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lake_Package_loadFromEnv__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Dependency", 10);
+x_1 = lean_mk_string_unchecked("Dependency", 10, 10);
 return x_1;
 }
 }
@@ -18949,7 +18949,7 @@ static lean_object* _init_l_Lake_Package_loadFromEnv___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("/", 1);
+x_1 = lean_mk_string_unchecked("/", 1, 1);
 return x_1;
 }
 }
@@ -18957,7 +18957,7 @@ static lean_object* _init_l_Lake_Package_loadFromEnv___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ScriptFn", 8);
+x_1 = lean_mk_string_unchecked("ScriptFn", 8, 8);
 return x_1;
 }
 }
@@ -19089,7 +19089,7 @@ static lean_object* _init_l_Lake_Package_loadFromEnv___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ExternLibDecl", 13);
+x_1 = lean_mk_string_unchecked("ExternLibDecl", 13, 13);
 return x_1;
 }
 }
@@ -19107,7 +19107,7 @@ static lean_object* _init_l_Lake_Package_loadFromEnv___lambda__2___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("target was defined as `", 23);
+x_1 = lean_mk_string_unchecked("target was defined as `", 23, 23);
 return x_1;
 }
 }
@@ -19115,7 +19115,7 @@ static lean_object* _init_l_Lake_Package_loadFromEnv___lambda__2___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`, but was registered as `", 26);
+x_1 = lean_mk_string_unchecked("`, but was registered as `", 26, 26);
 return x_1;
 }
 }
@@ -19245,7 +19245,7 @@ static lean_object* _init_l_Lake_Package_loadFromEnv___lambda__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("TargetDecl", 10);
+x_1 = lean_mk_string_unchecked("TargetDecl", 10, 10);
 return x_1;
 }
 }
@@ -19417,7 +19417,7 @@ static lean_object* _init_l_Lake_Package_loadFromEnv___lambda__5___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -19425,7 +19425,7 @@ static lean_object* _init_l_Lake_Package_loadFromEnv___lambda__5___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": package configuration option `moreServerArgs` is deprecated in favor of `moreServerOptions`", 93);
+x_1 = lean_mk_string_unchecked(": package configuration option `moreServerArgs` is deprecated in favor of `moreServerOptions`", 93, 93);
 return x_1;
 }
 }
@@ -19470,7 +19470,7 @@ static lean_object* _init_l_Lake_Package_loadFromEnv___lambda__6___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": package configuration option `manifestFile` is deprecated", 59);
+x_1 = lean_mk_string_unchecked(": package configuration option `manifestFile` is deprecated", 59, 59);
 return x_1;
 }
 }
@@ -19522,7 +19522,7 @@ static lean_object* _init_l_Lake_Package_loadFromEnv___lambda__7___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": cannot both set linter and use @[linter]", 42);
+x_1 = lean_mk_string_unchecked(": cannot both set linter and use @[linter]", 42, 42);
 return x_1;
 }
 }
@@ -19530,7 +19530,7 @@ static lean_object* _init_l_Lake_Package_loadFromEnv___lambda__7___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": only one script or executable can be tagged @[linter]", 55);
+x_1 = lean_mk_string_unchecked(": only one script or executable can be tagged @[linter]", 55, 55);
 return x_1;
 }
 }
@@ -19668,7 +19668,7 @@ static lean_object* _init_l_Lake_Package_loadFromEnv___lambda__8___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LeanExeConfig", 13);
+x_1 = lean_mk_string_unchecked("LeanExeConfig", 13, 13);
 return x_1;
 }
 }
@@ -19695,7 +19695,7 @@ static lean_object* _init_l_Lake_Package_loadFromEnv___lambda__9___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LeanLibConfig", 13);
+x_1 = lean_mk_string_unchecked("LeanLibConfig", 13, 13);
 return x_1;
 }
 }
@@ -19778,7 +19778,7 @@ static lean_object* _init_l_Lake_Package_loadFromEnv___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": cannot both set testDriver and use @[test_driver]", 51);
+x_1 = lean_mk_string_unchecked(": cannot both set testDriver and use @[test_driver]", 51, 51);
 return x_1;
 }
 }
@@ -19786,7 +19786,7 @@ static lean_object* _init_l_Lake_Package_loadFromEnv___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": only one script, executable, or library can be tagged @[test_driver]", 70);
+x_1 = lean_mk_string_unchecked(": only one script, executable, or library can be tagged @[test_driver]", 70, 70);
 return x_1;
 }
 }
@@ -23300,7 +23300,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lake_Workspace_addFacets
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ModuleFacetDecl", 15);
+x_1 = lean_mk_string_unchecked("ModuleFacetDecl", 15, 15);
 return x_1;
 }
 }
@@ -23380,7 +23380,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lake_Workspace_addFacets
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PackageFacetDecl", 16);
+x_1 = lean_mk_string_unchecked("PackageFacetDecl", 16, 16);
 return x_1;
 }
 }
@@ -23460,7 +23460,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lake_Workspace_addFacets
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LibraryFacetDecl", 16);
+x_1 = lean_mk_string_unchecked("LibraryFacetDecl", 16, 16);
 return x_1;
 }
 }
@@ -23736,6 +23736,7 @@ return x_4;
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_DSL_Attributes(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_Workspace(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_DocString(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Load_Lean_Eval(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -23748,6 +23749,9 @@ res = initialize_Lake_DSL_Attributes(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Config_Workspace(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_DocString(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_unsafeEvalConstCheck_throwUnexpectedType___rarg___closed__1 = _init_l_Lake_unsafeEvalConstCheck_throwUnexpectedType___rarg___closed__1();

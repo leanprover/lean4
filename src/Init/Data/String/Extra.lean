@@ -69,7 +69,7 @@ where
   decreasing_by exact Nat.sub_lt_sub_left ‹_› (Nat.lt_add_of_pos_right c.utf8Size_pos)
 
 /-- Converts a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded `ByteArray` string to `String`. -/
-@[extern "lean_string_from_utf8"]
+@[extern "lean_string_from_utf8_unchecked"]
 def fromUTF8 (a : @& ByteArray) (h : validateUTF8 a) : String :=
   loop 0 ""
 where

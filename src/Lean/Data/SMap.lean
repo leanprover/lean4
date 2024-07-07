@@ -90,12 +90,6 @@ def switch (m : SMap α β) : SMap α β :=
 def fold {σ : Type w} (f : σ → α → β → σ) (init : σ) (m : SMap α β) : σ :=
   m.map₂.foldl f $ m.map₁.fold f init
 
-def size (m : SMap α β) : Nat :=
-  m.map₁.size + m.map₂.size
-
-def stageSizes (m : SMap α β) : Nat × Nat :=
-  (m.map₁.size, m.map₂.size)
-
 def numBuckets (m : SMap α β) : Nat :=
   m.map₁.numBuckets
 

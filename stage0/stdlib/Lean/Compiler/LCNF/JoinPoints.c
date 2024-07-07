@@ -213,7 +213,6 @@ LEAN_EXPORT lean_object* l_Lean_HashMapImp_expand___at___private_Lean_Compiler_L
 lean_object* l_Lean_Compiler_LCNF_JoinPointContextExtender_withNewAltScope(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointFinder_eraseCandidate(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_JoinPointCommonArgs_AnalysisCtx_jpScopes___default;
-static double l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__7;
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Expr_mapFVarM___at_Lean_Compiler_LCNF_JoinPointContextExtender_extend_go___spec__3___closed__2;
 lean_object* l_Lean_Compiler_LCNF_JoinPointContextExtender_withNewCandidates___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -257,7 +256,6 @@ lean_object* l_Lean_Compiler_LCNF_JoinPointContextExtender_extend_go___lambda__5
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointFinder_removeCandidatesInLetValue___spec__3(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_Compiler_LCNF_JoinPointCommonArgs_reduce_goAnalyze___spec__7___boxed(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_ScopeM_withNewScope___at_Lean_Compiler_LCNF_JoinPointFinder_find_go___spec__2___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__6;
 lean_object* l_Lean_Compiler_LCNF_ScopeM_withBackTrackingScope___at_Lean_Compiler_LCNF_JoinPointContextExtender_withNewAltScope___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_JoinPointContextExtender_extend_go___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_ScopeM_withNewScope___at_Lean_Compiler_LCNF_JoinPointFinder_find_go___spec__2___closed__1;
@@ -360,7 +358,6 @@ lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_JoinPointCommonArgs_reduce_goAnalyzeFunDecl___boxed__const__1;
 lean_object* l_Lean_Compiler_LCNF_ScopeM_withBackTrackingScope___at_Lean_Compiler_LCNF_JoinPointCommonArgs_reduce_goAnalyze___spec__13(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointFinder_modifyCandidates___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__8;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_JoinPointContextExtender_extend_go___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_JoinPoints___hyg_5031____closed__2;
 static lean_object* l___auto____x40_Lean_Compiler_LCNF_JoinPoints___hyg_5016____closed__5;
@@ -429,7 +426,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_JoinP
 lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Expr_mapFVarM___at_Lean_Compiler_LCNF_JoinPointContextExtender_extend_go___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__4;
+static double l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__4;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_JoinPointContextExtender_replaceFVar___closed__3;
@@ -1390,7 +1387,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Expr_forFVarM___at___private_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.FVarUtil", 27);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.FVarUtil", 27, 27);
 return x_1;
 }
 }
@@ -1398,7 +1395,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Expr_forFVarM___at___private_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.Expr.forFVarM", 32);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.Expr.forFVarM", 32, 32);
 return x_1;
 }
 }
@@ -1406,7 +1403,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Expr_forFVarM___at___private_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -2541,7 +2538,7 @@ else
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
-x_6 = lean_name_eq(x_4, x_1);
+x_6 = lean_name_eq(x_1, x_4);
 if (x_6 == 0)
 {
 x_2 = x_5;
@@ -2672,7 +2669,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_ctor_get(x_1, 1);
-x_8 = lean_name_eq(x_6, x_2);
+x_8 = lean_name_eq(x_2, x_6);
 if (x_8 == 0)
 {
 lean_object* x_9; 
@@ -2695,7 +2692,7 @@ x_11 = lean_ctor_get(x_1, 1);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_dec(x_1);
-x_12 = lean_name_eq(x_10, x_2);
+x_12 = lean_name_eq(x_2, x_10);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
@@ -8761,7 +8758,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_JoinPointContextExtender_replaceF
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Data.HashMap", 17);
+x_1 = lean_mk_string_unchecked("Lean.Data.HashMap", 17, 17);
 return x_1;
 }
 }
@@ -8769,7 +8766,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_JoinPointContextExtender_replaceF
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.HashMap.find!", 18);
+x_1 = lean_mk_string_unchecked("Lean.HashMap.find!", 18, 18);
 return x_1;
 }
 }
@@ -8777,7 +8774,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_JoinPointContextExtender_replaceF
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("key is not in the map", 21);
+x_1 = lean_mk_string_unchecked("key is not in the map", 21, 21);
 return x_1;
 }
 }
@@ -10787,7 +10784,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Expr_mapFVarM___at_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.Expr.mapFVarM", 32);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.Expr.mapFVarM", 32, 32);
 return x_1;
 }
 }
@@ -14536,7 +14533,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_JoinPointCommonArgs_isInJpScope__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Data.RBMap", 15);
+x_1 = lean_mk_string_unchecked("Lean.Data.RBMap", 15, 15);
 return x_1;
 }
 }
@@ -14544,7 +14541,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_JoinPointCommonArgs_isInJpScope__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.RBMap.find!", 16);
+x_1 = lean_mk_string_unchecked("Lean.RBMap.find!", 16, 16);
 return x_1;
 }
 }
@@ -17553,7 +17550,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_JoinPointCommonArgs_reduce_goRedu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.Basic", 24);
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.Basic", 24, 24);
 return x_1;
 }
 }
@@ -17561,7 +17558,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_JoinPointCommonArgs_reduce_goRedu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.updateJmpImp", 67);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.updateJmpImp", 67, 67);
 return x_1;
 }
 }
@@ -20045,60 +20042,22 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinP
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__2;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__2;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__2;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__3;
-x_3 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__4;
-x_4 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__5;
-x_5 = lean_alloc_ctor(0, 9, 0);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_1);
-lean_ctor_set(x_5, 2, x_1);
-lean_ctor_set(x_5, 3, x_2);
-lean_ctor_set(x_5, 4, x_3);
-lean_ctor_set(x_5, 5, x_4);
-lean_ctor_set(x_5, 6, x_2);
-lean_ctor_set(x_5, 7, x_3);
-lean_ctor_set(x_5, 8, x_3);
-return x_5;
+x_2 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__2;
+x_3 = lean_alloc_ctor(0, 9, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_1);
+lean_ctor_set(x_3, 2, x_1);
+lean_ctor_set(x_3, 3, x_2);
+lean_ctor_set(x_3, 4, x_2);
+lean_ctor_set(x_3, 5, x_2);
+lean_ctor_set(x_3, 6, x_2);
+lean_ctor_set(x_3, 7, x_2);
+lean_ctor_set(x_3, 8, x_2);
+return x_3;
 }
 }
-static double _init_l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__7() {
+static double _init_l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__4() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; double x_3; 
@@ -20108,11 +20067,11 @@ x_3 = l_Float_ofScientific(x_1, x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__8() {
+static lean_object* _init_l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -20143,7 +20102,7 @@ lean_dec(x_15);
 x_18 = l_Lean_Compiler_LCNF_LCtx_toLocalContext(x_17);
 lean_dec(x_17);
 x_19 = lean_ctor_get(x_5, 2);
-x_20 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__6;
+x_20 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__3;
 lean_inc(x_19);
 x_21 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_21, 0, x_12);
@@ -20165,9 +20124,9 @@ if (x_25 == 0)
 lean_object* x_26; lean_object* x_27; double x_28; uint8_t x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; uint8_t x_36; 
 x_26 = lean_ctor_get(x_22, 1);
 x_27 = lean_ctor_get(x_24, 3);
-x_28 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__7;
+x_28 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__4;
 x_29 = 0;
-x_30 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__8;
+x_30 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__5;
 x_31 = lean_alloc_ctor(0, 2, 17);
 lean_ctor_set(x_31, 0, x_1);
 lean_ctor_set(x_31, 1, x_30);
@@ -20227,9 +20186,9 @@ lean_inc(x_45);
 lean_inc(x_44);
 lean_inc(x_43);
 lean_dec(x_24);
-x_50 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__7;
+x_50 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__4;
 x_51 = 0;
-x_52 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__8;
+x_52 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__5;
 x_53 = lean_alloc_ctor(0, 2, 17);
 lean_ctor_set(x_53, 0, x_1);
 lean_ctor_set(x_53, 1, x_52);
@@ -20310,9 +20269,9 @@ if (lean_is_exclusive(x_63)) {
  lean_dec_ref(x_63);
  x_72 = lean_box(0);
 }
-x_73 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__7;
+x_73 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__4;
 x_74 = 0;
-x_75 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__8;
+x_75 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__5;
 x_76 = lean_alloc_ctor(0, 2, 17);
 lean_ctor_set(x_76, 0, x_1);
 lean_ctor_set(x_76, 1, x_75);
@@ -20377,7 +20336,7 @@ lean_dec(x_87);
 x_90 = l_Lean_Compiler_LCNF_LCtx_toLocalContext(x_89);
 lean_dec(x_89);
 x_91 = lean_ctor_get(x_5, 2);
-x_92 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__6;
+x_92 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__3;
 lean_inc(x_91);
 x_93 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_93, 0, x_12);
@@ -20427,9 +20386,9 @@ if (lean_is_exclusive(x_96)) {
  lean_dec_ref(x_96);
  x_106 = lean_box(0);
 }
-x_107 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__7;
+x_107 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__4;
 x_108 = 0;
-x_109 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__8;
+x_109 = l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__5;
 x_110 = lean_alloc_ctor(0, 2, 17);
 lean_ctor_set(x_110, 0, x_1);
 lean_ctor_set(x_110, 1, x_109);
@@ -20497,7 +20456,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Decl_findJoinPoints___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Compiler", 8);
+x_1 = lean_mk_string_unchecked("Compiler", 8, 8);
 return x_1;
 }
 }
@@ -20505,7 +20464,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Decl_findJoinPoints___closed__2()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("findJoinPoints", 14);
+x_1 = lean_mk_string_unchecked("findJoinPoints", 14, 14);
 return x_1;
 }
 }
@@ -20523,7 +20482,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Decl_findJoinPoints___closed__4()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Found: ", 7);
+x_1 = lean_mk_string_unchecked("Found: ", 7, 7);
 return x_1;
 }
 }
@@ -20540,7 +20499,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Decl_findJoinPoints___closed__6()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" jp candidates", 14);
+x_1 = lean_mk_string_unchecked(" jp candidates", 14, 14);
 return x_1;
 }
 }
@@ -20801,7 +20760,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -20829,7 +20788,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LCNF", 4);
+x_1 = lean_mk_string_unchecked("LCNF", 4, 4);
 return x_1;
 }
 }
@@ -20847,7 +20806,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -20865,7 +20824,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -20913,7 +20872,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("JoinPoints", 10);
+x_1 = lean_mk_string_unchecked("JoinPoints", 10, 10);
 return x_1;
 }
 }
@@ -20931,7 +20890,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -20978,7 +20937,7 @@ static lean_object* _init_l___auto____x40_Lean_Compiler_LCNF_JoinPoints___hyg_50
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -20986,7 +20945,7 @@ static lean_object* _init_l___auto____x40_Lean_Compiler_LCNF_JoinPoints___hyg_50
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -20994,7 +20953,7 @@ static lean_object* _init_l___auto____x40_Lean_Compiler_LCNF_JoinPoints___hyg_50
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq", 9);
+x_1 = lean_mk_string_unchecked("tacticSeq", 9, 9);
 return x_1;
 }
 }
@@ -21014,7 +20973,7 @@ static lean_object* _init_l___auto____x40_Lean_Compiler_LCNF_JoinPoints___hyg_50
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq1Indented", 18);
+x_1 = lean_mk_string_unchecked("tacticSeq1Indented", 18, 18);
 return x_1;
 }
 }
@@ -21034,7 +20993,7 @@ static lean_object* _init_l___auto____x40_Lean_Compiler_LCNF_JoinPoints___hyg_50
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -21052,7 +21011,7 @@ static lean_object* _init_l___auto____x40_Lean_Compiler_LCNF_JoinPoints___hyg_50
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simp", 4);
+x_1 = lean_mk_string_unchecked("simp", 4, 4);
 return x_1;
 }
 }
@@ -21252,7 +21211,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_extendJoinPointContext___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("extendJoinPointContext", 22);
+x_1 = lean_mk_string_unchecked("extendJoinPointContext", 22, 22);
 return x_1;
 }
 }
@@ -21337,7 +21296,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_commonJoinPointArgs___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("commonJoinPointArgs", 19);
+x_1 = lean_mk_string_unchecked("commonJoinPointArgs", 19, 19);
 return x_1;
 }
 }
@@ -21542,14 +21501,8 @@ lean_mark_persistent(l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints
 l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__3 = _init_l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__3();
 lean_mark_persistent(l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__3);
 l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__4 = _init_l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__4();
-lean_mark_persistent(l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__4);
 l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__5 = _init_l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__5();
 lean_mark_persistent(l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__5);
-l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__6 = _init_l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__6();
-lean_mark_persistent(l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__6);
-l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__7 = _init_l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__7();
-l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__8 = _init_l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__8();
-lean_mark_persistent(l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_findJoinPoints___spec__2___closed__8);
 l_Lean_Compiler_LCNF_Decl_findJoinPoints___closed__1 = _init_l_Lean_Compiler_LCNF_Decl_findJoinPoints___closed__1();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Decl_findJoinPoints___closed__1);
 l_Lean_Compiler_LCNF_Decl_findJoinPoints___closed__2 = _init_l_Lean_Compiler_LCNF_Decl_findJoinPoints___closed__2();

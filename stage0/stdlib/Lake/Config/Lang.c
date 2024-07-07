@@ -143,7 +143,7 @@ static lean_object* _init_l___private_Lake_Config_Lang_0__Lake_reprConfigLang___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.ConfigLang.lean", 20);
+x_1 = lean_mk_string_unchecked("Lake.ConfigLang.lean", 20, 20);
 return x_1;
 }
 }
@@ -227,7 +227,7 @@ static lean_object* _init_l___private_Lake_Config_Lang_0__Lake_reprConfigLang___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lake.ConfigLang.toml", 20);
+x_1 = lean_mk_string_unchecked("Lake.ConfigLang.toml", 20, 20);
 return x_1;
 }
 }
@@ -428,7 +428,7 @@ static lean_object* _init_l_Lake_ConfigLang_ofString_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lean", 4);
+x_1 = lean_mk_string_unchecked("lean", 4, 4);
 return x_1;
 }
 }
@@ -436,7 +436,7 @@ static lean_object* _init_l_Lake_ConfigLang_ofString_x3f___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("toml", 4);
+x_1 = lean_mk_string_unchecked("toml", 4, 4);
 return x_1;
 }
 }

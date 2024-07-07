@@ -14,7 +14,7 @@ import Lean.Elab.Match
 import Lean.Elab.DefView
 import Lean.Elab.Deriving.Basic
 import Lean.Elab.PreDefinition.Main
-import Lean.Elab.PreDefinition.WF.TerminationHint
+import Lean.Elab.PreDefinition.TerminationHint
 import Lean.Elab.DeclarationRange
 
 namespace Lean.Elab
@@ -167,7 +167,7 @@ private def elabHeaders (views : Array DefView)
         else
           reuseBody := false
 
-      let mut (newHeader, newState) ← withRestoreOrSaveFull reusableResult? do
+      let mut (newHeader, newState) ← withRestoreOrSaveFull reusableResult? none do
         withRef view.headerRef do
         addDeclarationRanges declName view.ref  -- NOTE: this should be the full `ref`
         applyAttributesAt declName view.modifiers.attrs .beforeElaboration
@@ -320,11 +320,11 @@ private def declValToTerm (declVal : Syntax) : MacroM Syntax := withRef declVal 
     Macro.throwErrorAt declVal "unexpected declaration body"
 
 /-- Elaborates the termination hints in a `declVal` syntax. -/
-private def declValToTerminationHint (declVal : Syntax) : TermElabM WF.TerminationHints :=
+private def declValToTerminationHint (declVal : Syntax) : TermElabM TerminationHints :=
   if declVal.isOfKind ``Parser.Command.declValSimple then
-    WF.elabTerminationHints ⟨declVal[2]⟩
+    elabTerminationHints ⟨declVal[2]⟩
   else if declVal.isOfKind ``Parser.Command.declValEqns then
-    WF.elabTerminationHints ⟨declVal[0][1]⟩
+    elabTerminationHints ⟨declVal[0][1]⟩
   else
     return .none
 
@@ -337,14 +337,9 @@ private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array
         -- elaboration
         if let some old := old.val.get then
           snap.new.resolve <| some old
-          -- also make sure to reuse tactic snapshots if present so that body reuse does not lead to
-          -- missed tactic reuse on further changes
-          if let some tacSnap := header.tacSnap? then
-            if let some oldTacSnap := tacSnap.old? then
-              tacSnap.new.resolve oldTacSnap.val.get
           reusableResult? := some (old.value, old.state)
 
-    let (val, state) ← withRestoreOrSaveFull reusableResult? do
+    let (val, state) ← withRestoreOrSaveFull reusableResult? header.tacSnap? do
       withDeclName header.declName <| withLevelNames header.levelNames do
       let valStx ← liftMacroM <| declValToTerm header.value
       forallBoundedTelescope header.type header.numParams fun xs type => do
@@ -846,7 +841,7 @@ private def levelMVarToParamHeaders (views : Array DefView) (headers : Array Def
   let rec process : StateRefT Nat TermElabM (Array DefViewElabHeader) := do
     let mut newHeaders := #[]
     for view in views, header in headers do
-      if view.kind.isTheorem then
+      if ← pure view.kind.isTheorem <||> isProp header.type then
         newHeaders ←
           withLevelNames header.levelNames do
             return newHeaders.push { header with type := (← levelMVarToParam header.type), levelNames := (← getLevelNames) }

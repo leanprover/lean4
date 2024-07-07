@@ -111,13 +111,10 @@ open Lean PrettyPrinter Delaborator
 
 /--
 Turns a `MetaM FormatWithInfos` into a `MessageData.lazy` which will run the monadic value.
-Uses the `pp.tagAppFns` option to annotate constants with terminfo,
-which is necessary for seeing the type on mouse hover.
 -/
 def ofFormatWithInfosM (fmt : MetaM FormatWithInfos) : MessageData :=
   .lazy fun ctx => ctx.runMetaM <|
-    withOptions (pp.tagAppFns.set · true) <|
-      .ofFormatWithInfos <$> fmt
+    .ofFormatWithInfos <$> fmt
 
 /--
 Turns a `MetaM MessageData` into a `MessageData.lazy` which will run the monadic value.
@@ -137,7 +134,8 @@ argument is implicit, which is what the default `toMessageData` for `Expr` does.
 Panics if `e` is not a constant. -/
 def ofConst (e : Expr) : MessageData :=
   if e.isConst then
-    .ofFormatWithInfosM (PrettyPrinter.ppExprWithInfos (delab := delabConst) e)
+    let delab : Delab := withOptionAtCurrPos `pp.tagAppFns true delabConst
+    .ofFormatWithInfosM (PrettyPrinter.ppExprWithInfos (delab := delab) e)
   else
     panic! "not a constant"
 

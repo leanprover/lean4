@@ -1,0 +1,10 @@
+{"version": 1,
+ "uri": "file:///issue4527.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 1, "character": 2}, "end": {"line": 2, "character": 0}},
+   "message": "unsolved goals\n⊢ True",
+   "fullRange":
+   {"start": {"line": 1, "character": 2}, "end": {"line": 3, "character": 8}}}]}

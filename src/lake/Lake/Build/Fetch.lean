@@ -75,10 +75,10 @@ example : MonadLiftT JobM FetchM := inferInstance
 example : MonadLiftT SpawnM FetchM := inferInstance
 
 /-- The top-level monad for Lake build functions. **Renamed `FetchM`.** -/
-@[deprecated FetchM] abbrev IndexBuildM := FetchM
+@[deprecated FetchM (since := "2024-04-30")] abbrev IndexBuildM := FetchM
 
 /-- The old build monad. **Uses should generally be replaced by `FetchM`.** -/
-@[deprecated FetchM] abbrev BuildM := BuildT LogIO
+@[deprecated FetchM (since := "2024-04-30")] abbrev BuildM := BuildT LogIO
 
 /-- Fetch the result associated with the info using the Lake build index. -/
 @[inline] def BuildInfo.fetch (self : BuildInfo) [FamilyOut BuildData self.key α] : FetchM α :=

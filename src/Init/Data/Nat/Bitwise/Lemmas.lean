@@ -86,7 +86,11 @@ noncomputable def div2Induction {motive : Nat → Sort u}
 @[simp] theorem testBit_zero (x : Nat) : testBit x 0 = decide (x % 2 = 1) := by
   cases mod_two_eq_zero_or_one x with | _ p => simp [testBit, p]
 
-@[simp] theorem testBit_succ (x i : Nat) : testBit x (succ i) = testBit (x/2) i := by
+theorem testBit_succ (x i : Nat) : testBit x (succ i) = testBit (x/2) i := by
+  unfold testBit
+  simp [shiftRight_succ_inside]
+
+@[simp] theorem testBit_add_one (x i : Nat) : testBit x (i + 1) = testBit (x/2) i := by
   unfold testBit
   simp [shiftRight_succ_inside]
 
@@ -306,6 +310,11 @@ theorem testBit_bool_to_nat (b : Bool) (i : Nat) :
         ←Nat.div_div_eq_div_mul _ 2, one_div_two,
         Nat.mod_eq_of_lt]
 
+/-- `testBit 1 i` is true iff the index `i` equals 0. -/
+theorem testBit_one_eq_true_iff_self_eq_zero {i : Nat} :
+    Nat.testBit 1 i = true ↔ i = 0 := by
+  cases i <;> simp
+
 /-! ### bitwise -/
 
 theorem testBit_bitwise
@@ -495,3 +504,27 @@ theorem mul_add_lt_is_or {b : Nat} (b_lt : b < 2^i) (a : Nat) : 2^i * a + b = 2^
 
 @[simp] theorem testBit_shiftRight (x : Nat) : testBit (x >>> i) j = testBit x (i+j) := by
   simp [testBit, ←shiftRight_add]
+
+/-! ### le -/
+
+theorem le_of_testBit {n m : Nat} (h : ∀ i, n.testBit i = true → m.testBit i = true) : n ≤ m := by
+  induction n using div2Induction generalizing m
+  next n ih =>
+  have : n / 2 ≤ m / 2 := by
+    rcases n with (_|n)
+    · simp
+    · exact ih (Nat.succ_pos _) fun i => by simpa using h (i + 1)
+  rw [← div_add_mod n 2, ← div_add_mod m 2]
+  cases hn : n.testBit 0
+  · have hn2 : n % 2 = 0 := by simp at hn; omega
+    rw [hn2]
+    omega
+  · have hn2 : n % 2 = 1 := by simpa using hn
+    have hm2 : m % 2 = 1 := by simpa using h _ hn
+    omega
+
+theorem and_le_left {n m : Nat} : n &&& m ≤ n :=
+  le_of_testBit (by simpa using fun i x _ => x)
+
+theorem and_le_right {n m : Nat} : n &&& m ≤ m :=
+  le_of_testBit (by simp)

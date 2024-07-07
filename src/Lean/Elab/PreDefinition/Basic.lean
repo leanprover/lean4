@@ -10,7 +10,7 @@ import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.ForEachExpr
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.DefView
-import Lean.Elab.PreDefinition.WF.TerminationHint
+import Lean.Elab.PreDefinition.TerminationHint
 
 namespace Lean.Elab
 open Meta
@@ -29,8 +29,11 @@ structure PreDefinition where
   declName    : Name
   type        : Expr
   value       : Expr
-  termination : WF.TerminationHints
+  termination : TerminationHints
   deriving Inhabited
+
+def PreDefinition.filterAttrs (preDef : PreDefinition) (p : Attribute → Bool) : PreDefinition :=
+  { preDef with modifiers := preDef.modifiers.filterAttrs p }
 
 def instantiateMVarsAtPreDecls (preDefs : Array PreDefinition) : TermElabM (Array PreDefinition) :=
   preDefs.mapM fun preDef => do

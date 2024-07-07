@@ -157,7 +157,6 @@ static double l_Lean_addTrace___at_Lean_Elab_Tactic_Omega_lookup___spec__14___cl
 LEAN_EXPORT lean_object* l_Lean_addTrace___at_Lean_Elab_Tactic_Omega_lookup___spec__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMap_insert___at_Lean_Elab_Tactic_Omega_lookup___spec__4(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__25;
-lean_object* l_List_mapTR_loop___at_Lean_MessageData_instCoeListExpr___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__46;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_cfg___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_groundNat_x3f(lean_object*);
@@ -310,6 +309,7 @@ static lean_object* l_Lean_HashMap_toArray___at_Lean_Elab_Tactic_Omega_atoms___s
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_moveEntries___at_Lean_Elab_Tactic_Omega_lookup___spec__7(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFnArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_OmegaM_run(lean_object*);
+lean_object* l_List_map___at_Lean_MessageData_instCoeListExpr___spec__1(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__36;
 static lean_object* l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__13;
 static lean_object* l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__61;
@@ -1113,7 +1113,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_atomsList___rarg___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Int", 3);
+x_1 = lean_mk_string_unchecked("Int", 3, 3);
 return x_1;
 }
 }
@@ -1187,7 +1187,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_atomsCoeffs___rarg___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1195,7 +1195,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_atomsCoeffs___rarg___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Omega", 5);
+x_1 = lean_mk_string_unchecked("Omega", 5, 5);
 return x_1;
 }
 }
@@ -1203,7 +1203,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_atomsCoeffs___rarg___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Coeffs", 6);
+x_1 = lean_mk_string_unchecked("Coeffs", 6, 6);
 return x_1;
 }
 }
@@ -1211,7 +1211,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_atomsCoeffs___rarg___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofList", 6);
+x_1 = lean_mk_string_unchecked("ofList", 6, 6);
 return x_1;
 }
 }
@@ -1661,7 +1661,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_natCast_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Nat", 3);
+x_1 = lean_mk_string_unchecked("Nat", 3, 3);
 return x_1;
 }
 }
@@ -1669,7 +1669,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_natCast_x3f___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cast", 4);
+x_1 = lean_mk_string_unchecked("cast", 4, 4);
 return x_1;
 }
 }
@@ -1985,7 +1985,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_groundNat_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HAdd", 4);
+x_1 = lean_mk_string_unchecked("HAdd", 4, 4);
 return x_1;
 }
 }
@@ -1993,7 +1993,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_groundNat_x3f___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HMul", 4);
+x_1 = lean_mk_string_unchecked("HMul", 4, 4);
 return x_1;
 }
 }
@@ -2001,7 +2001,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_groundNat_x3f___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HSub", 4);
+x_1 = lean_mk_string_unchecked("HSub", 4, 4);
 return x_1;
 }
 }
@@ -2009,7 +2009,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_groundNat_x3f___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HDiv", 4);
+x_1 = lean_mk_string_unchecked("HDiv", 4, 4);
 return x_1;
 }
 }
@@ -2017,7 +2017,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_groundNat_x3f___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HPow", 4);
+x_1 = lean_mk_string_unchecked("HPow", 4, 4);
 return x_1;
 }
 }
@@ -2025,7 +2025,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_groundNat_x3f___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hPow", 4);
+x_1 = lean_mk_string_unchecked("hPow", 4, 4);
 return x_1;
 }
 }
@@ -2041,7 +2041,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_groundNat_x3f___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hDiv", 4);
+x_1 = lean_mk_string_unchecked("hDiv", 4, 4);
 return x_1;
 }
 }
@@ -2057,7 +2057,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_groundNat_x3f___closed__10() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hSub", 4);
+x_1 = lean_mk_string_unchecked("hSub", 4, 4);
 return x_1;
 }
 }
@@ -2073,7 +2073,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_groundNat_x3f___closed__12() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hMul", 4);
+x_1 = lean_mk_string_unchecked("hMul", 4, 4);
 return x_1;
 }
 }
@@ -2089,7 +2089,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_groundNat_x3f___closed__14() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hAdd", 4);
+x_1 = lean_mk_string_unchecked("hAdd", 4, 4);
 return x_1;
 }
 }
@@ -3084,7 +3084,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ite", 3);
+x_1 = lean_mk_string_unchecked("ite", 3, 3);
 return x_1;
 }
 }
@@ -3092,7 +3092,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ite_disjunction", 15);
+x_1 = lean_mk_string_unchecked("ite_disjunction", 15, 15);
 return x_1;
 }
 }
@@ -3142,7 +3142,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HMod", 4);
+x_1 = lean_mk_string_unchecked("HMod", 4, 4);
 return x_1;
 }
 }
@@ -3150,7 +3150,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Min", 3);
+x_1 = lean_mk_string_unchecked("Min", 3, 3);
 return x_1;
 }
 }
@@ -3158,7 +3158,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Max", 3);
+x_1 = lean_mk_string_unchecked("Max", 3, 3);
 return x_1;
 }
 }
@@ -3166,7 +3166,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("max", 3);
+x_1 = lean_mk_string_unchecked("max", 3, 3);
 return x_1;
 }
 }
@@ -3174,7 +3174,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("le_max_left", 11);
+x_1 = lean_mk_string_unchecked("le_max_left", 11, 11);
 return x_1;
 }
 }
@@ -3202,7 +3202,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("le_max_right", 12);
+x_1 = lean_mk_string_unchecked("le_max_right", 12, 12);
 return x_1;
 }
 }
@@ -3230,7 +3230,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__18() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("min", 3);
+x_1 = lean_mk_string_unchecked("min", 3, 3);
 return x_1;
 }
 }
@@ -3238,7 +3238,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__19() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("min_le_left", 11);
+x_1 = lean_mk_string_unchecked("min_le_left", 11, 11);
 return x_1;
 }
 }
@@ -3266,7 +3266,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__22() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("min_le_right", 12);
+x_1 = lean_mk_string_unchecked("min_le_right", 12, 12);
 return x_1;
 }
 }
@@ -3294,7 +3294,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__25() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hMod", 4);
+x_1 = lean_mk_string_unchecked("hMod", 4, 4);
 return x_1;
 }
 }
@@ -3302,7 +3302,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__26() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("emod_ofNat_nonneg", 17);
+x_1 = lean_mk_string_unchecked("emod_ofNat_nonneg", 17, 17);
 return x_1;
 }
 }
@@ -3332,7 +3332,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__29() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LT", 2);
+x_1 = lean_mk_string_unchecked("LT", 2, 2);
 return x_1;
 }
 }
@@ -3340,7 +3340,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__30() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lt", 2);
+x_1 = lean_mk_string_unchecked("lt", 2, 2);
 return x_1;
 }
 }
@@ -3400,7 +3400,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__36() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instLTNat", 9);
+x_1 = lean_mk_string_unchecked("instLTNat", 9, 9);
 return x_1;
 }
 }
@@ -3437,7 +3437,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__40() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pos_pow_of_pos", 14);
+x_1 = lean_mk_string_unchecked("pos_pow_of_pos", 14, 14);
 return x_1;
 }
 }
@@ -3465,7 +3465,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__43() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat_pos_of_pos", 16);
+x_1 = lean_mk_string_unchecked("ofNat_pos_of_pos", 16, 16);
 return x_1;
 }
 }
@@ -3495,7 +3495,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__46() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("emod_nonneg", 11);
+x_1 = lean_mk_string_unchecked("emod_nonneg", 11, 11);
 return x_1;
 }
 }
@@ -3523,7 +3523,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__49() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ne_of_gt", 8);
+x_1 = lean_mk_string_unchecked("ne_of_gt", 8, 8);
 return x_1;
 }
 }
@@ -3569,7 +3569,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__54() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("emod_lt_of_pos", 14);
+x_1 = lean_mk_string_unchecked("emod_lt_of_pos", 14, 14);
 return x_1;
 }
 }
@@ -3597,7 +3597,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__57() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Neg", 3);
+x_1 = lean_mk_string_unchecked("Neg", 3, 3);
 return x_1;
 }
 }
@@ -3605,7 +3605,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__58() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("neg", 3);
+x_1 = lean_mk_string_unchecked("neg", 3, 3);
 return x_1;
 }
 }
@@ -3643,7 +3643,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__62() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instNegInt", 10);
+x_1 = lean_mk_string_unchecked("instNegInt", 10, 10);
 return x_1;
 }
 }
@@ -3728,7 +3728,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__71() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instLTInt", 9);
+x_1 = lean_mk_string_unchecked("instLTInt", 9, 9);
 return x_1;
 }
 }
@@ -3790,7 +3790,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__77() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Ne", 2);
+x_1 = lean_mk_string_unchecked("Ne", 2, 2);
 return x_1;
 }
 }
@@ -3849,7 +3849,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__83() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mul_ediv_self_le", 16);
+x_1 = lean_mk_string_unchecked("mul_ediv_self_le", 16, 16);
 return x_1;
 }
 }
@@ -3877,7 +3877,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__86() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lt_mul_ediv_self_add", 20);
+x_1 = lean_mk_string_unchecked("lt_mul_ediv_self_add", 20, 20);
 return x_1;
 }
 }
@@ -3927,7 +3927,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__91() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat_nonneg", 12);
+x_1 = lean_mk_string_unchecked("ofNat_nonneg", 12, 12);
 return x_1;
 }
 }
@@ -3955,7 +3955,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__94() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Fin", 3);
+x_1 = lean_mk_string_unchecked("Fin", 3, 3);
 return x_1;
 }
 }
@@ -3963,7 +3963,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__95() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("BitVec", 6);
+x_1 = lean_mk_string_unchecked("BitVec", 6, 6);
 return x_1;
 }
 }
@@ -3971,7 +3971,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__96() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("toNat", 5);
+x_1 = lean_mk_string_unchecked("toNat", 5, 5);
 return x_1;
 }
 }
@@ -3979,7 +3979,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__97() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("isLt", 4);
+x_1 = lean_mk_string_unchecked("isLt", 4, 4);
 return x_1;
 }
 }
@@ -4007,7 +4007,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__100() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("val", 3);
+x_1 = lean_mk_string_unchecked("val", 3, 3);
 return x_1;
 }
 }
@@ -4035,7 +4035,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__103() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("natAbs", 6);
+x_1 = lean_mk_string_unchecked("natAbs", 6, 6);
 return x_1;
 }
 }
@@ -4043,7 +4043,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__104() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("le_natAbs", 9);
+x_1 = lean_mk_string_unchecked("le_natAbs", 9, 9);
 return x_1;
 }
 }
@@ -4071,7 +4071,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__107() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("neg_le_natAbs", 13);
+x_1 = lean_mk_string_unchecked("neg_le_natAbs", 13, 13);
 return x_1;
 }
 }
@@ -4101,7 +4101,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__110() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNat_sub_dichotomy", 19);
+x_1 = lean_mk_string_unchecked("ofNat_sub_dichotomy", 19, 19);
 return x_1;
 }
 }
@@ -18224,7 +18224,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Elab_Tactic_Omega_lookup___s
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -18536,7 +18536,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_lookup___lambda__2___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("New facts: ", 11);
+x_1 = lean_mk_string_unchecked("New facts: ", 11, 11);
 return x_1;
 }
 }
@@ -18661,7 +18661,7 @@ lean_inc(x_42);
 x_43 = lean_ctor_get(x_41, 1);
 lean_inc(x_43);
 lean_dec(x_41);
-x_44 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExpr___spec__1(x_42, x_40);
+x_44 = l_List_map___at_Lean_MessageData_instCoeListExpr___spec__1(x_42);
 x_45 = l_Lean_MessageData_ofList(x_44);
 x_46 = l_Lean_Elab_Tactic_Omega_lookup___lambda__2___closed__2;
 lean_ctor_set_tag(x_30, 7);
@@ -18738,7 +18738,7 @@ lean_inc(x_60);
 x_61 = lean_ctor_get(x_59, 1);
 lean_inc(x_61);
 lean_dec(x_59);
-x_62 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExpr___spec__1(x_60, x_58);
+x_62 = l_List_map___at_Lean_MessageData_instCoeListExpr___spec__1(x_60);
 x_63 = l_Lean_MessageData_ofList(x_62);
 x_64 = l_Lean_Elab_Tactic_Omega_lookup___lambda__2___closed__2;
 x_65 = lean_alloc_ctor(7, 2, 0);
@@ -18874,7 +18874,7 @@ lean_inc(x_92);
 x_93 = lean_ctor_get(x_91, 1);
 lean_inc(x_93);
 lean_dec(x_91);
-x_94 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExpr___spec__1(x_92, x_90);
+x_94 = l_List_map___at_Lean_MessageData_instCoeListExpr___spec__1(x_92);
 x_95 = l_Lean_MessageData_ofList(x_94);
 x_96 = l_Lean_Elab_Tactic_Omega_lookup___lambda__2___closed__2;
 if (lean_is_scalar(x_88)) {
@@ -18987,7 +18987,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_lookup___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("omega", 5);
+x_1 = lean_mk_string_unchecked("omega", 5, 5);
 return x_1;
 }
 }
@@ -19005,7 +19005,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_lookup___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("New atom: ", 10);
+x_1 = lean_mk_string_unchecked("New atom: ", 10, 10);
 return x_1;
 }
 }

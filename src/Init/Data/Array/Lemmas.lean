@@ -139,7 +139,8 @@ where
       mapM.map f arr i r = (arr.data.drop i).foldlM (fun bs a => bs.push <$> f a) r := by
     unfold mapM.map; split
     · rw [← List.get_drop_eq_drop _ i ‹_›]
-      simp [aux (i+1), map_eq_pure_bind]; rfl
+      simp only [aux (i + 1), map_eq_pure_bind, data_length, List.foldlM_cons, bind_assoc, pure_bind]
+      rfl
     · rw [List.drop_length_le (Nat.ge_of_not_lt ‹_›)]; rfl
   termination_by arr.size - i
   decreasing_by decreasing_trivial_pre_omega
@@ -219,7 +220,7 @@ theorem getElem?_len_le (a : Array α) {i : Nat} (h : a.size ≤ i) : a[i]? = no
 theorem getD_get? (a : Array α) (i : Nat) (d : α) :
   Option.getD a[i]? d = if p : i < a.size then a[i]'p else d := by
   if h : i < a.size then
-    simp [setD, h, getElem?]
+    simp [setD, h, getElem?_def]
   else
     have p : i ≥ a.size := Nat.le_of_not_gt h
     simp [setD, getElem?_len_le _ p, h]
@@ -241,7 +242,7 @@ theorem get!_eq_getD [Inhabited α] (a : Array α) : a.get! n = a.getD n default
 
 @[simp] theorem getElem_set_ne (a : Array α) (i : Fin a.size) (v : α) {j : Nat} (pj : j < (a.set i v).size)
     (h : i.val ≠ j) : (a.set i v)[j]'pj = a[j]'(size_set a i v ▸ pj) := by
-  simp only [set, getElem_eq_data_getElem, List.getElem_set_ne _ h]
+  simp only [set, getElem_eq_data_getElem, List.getElem_set_ne h]
 
 theorem getElem_set (a : Array α) (i : Fin a.size) (v : α) (j : Nat)
     (h : j < (a.set i v).size) :
@@ -382,18 +383,18 @@ theorem get?_push {a : Array α} : (a.push x)[i]? = if i = a.size then some x el
   | Or.inl g =>
     have h1 : i < a.size + 1 := by omega
     have h2 : i ≠ a.size := by omega
-    simp [getElem?, size_push, g, h1, h2, get_push_lt]
+    simp [getElem?_def, size_push, g, h1, h2, get_push_lt]
   | Or.inr (Or.inl heq) =>
     simp [heq, getElem?_pos, get_push_eq]
   | Or.inr (Or.inr g) =>
-    simp only [getElem?, size_push]
+    simp only [getElem?_def, size_push]
     have h1 : ¬ (i < a.size) := by omega
     have h2 : ¬ (i < a.size + 1) := by omega
     have h3 : i ≠ a.size := by omega
     simp [h1, h2, h3]
 
 @[simp] theorem get?_size {a : Array α} : a[a.size]? = none := by
-  simp only [getElem?, Nat.lt_irrefl, dite_false]
+  simp only [getElem?_def, Nat.lt_irrefl, dite_false]
 
 @[simp] theorem data_set (a : Array α) (i v) : (a.set i v).data = a.data.set i.1 v := rfl
 
@@ -418,7 +419,7 @@ theorem get_set (a : Array α) (i : Fin a.size) (j : Nat) (hj : j < a.size) (v :
 
 @[simp] theorem get_set_ne (a : Array α) (i : Fin a.size) {j : Nat} (v : α) (hj : j < a.size)
     (h : i.1 ≠ j) : (a.set i v)[j]'(by simp [*]) = a[j] := by
-  simp only [set, getElem_eq_data_getElem, List.getElem_set_ne _ h]
+  simp only [set, getElem_eq_data_getElem, List.getElem_set_ne h]
 
 theorem getElem_setD (a : Array α) (i : Nat) (v : α) (h : i < (setD a i v).size) :
   (setD a i v)[i] = v := by
@@ -749,7 +750,7 @@ theorem mem_of_mem_filter {a : α} {l} (h : a ∈ filter p l) : a ∈ l :=
   exact this #[]
   induction l
   · simp_all [Id.run]
-  · simp_all [Id.run]
+  · simp_all [Id.run, List.filterMap_cons]
     split <;> simp_all
 
 @[simp] theorem mem_filterMap (f : α → Option β) (l : Array α) {b : β} :

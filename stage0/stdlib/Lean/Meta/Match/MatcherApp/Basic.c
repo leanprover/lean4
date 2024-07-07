@@ -28,7 +28,6 @@ lean_object* l_Lean_Expr_sort___override(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 extern lean_object* l_Lean_casesOnSuffix;
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Meta_matchMatcherApp_x3f___spec__8___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
@@ -49,6 +48,7 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_matchMatcherApp_x3f___spec__3___
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___rarg___lambda__8(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_getPrefix(lean_object*);
 lean_object* l_Lean_Meta_Match_MatcherInfo_numAlts(lean_object*);
+lean_object* l_outOfBounds___rarg(lean_object*);
 static lean_object* l_List_forIn_loop___at_Lean_Meta_matchMatcherApp_x3f___spec__8___rarg___lambda__3___closed__3;
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 static lean_object* l_List_forIn_loop___at_Lean_Meta_matchMatcherApp_x3f___spec__8___rarg___lambda__3___closed__1;
@@ -56,7 +56,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___rarg___lambda__4(lean
 extern lean_object* l_Lean_levelZero;
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedExpr;
-lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Meta_matchMatcherApp_x3f___spec__8___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f(lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -100,6 +99,7 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_matchMatcherApp_x3f___spec__3(le
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___rarg___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMatcherInfo_x3f___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
+lean_object* l_List_length___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_matchMatcherApp_x3f___spec__1___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -256,7 +256,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Meta_matchMatcherApp_x3f__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Match.MatcherApp.Basic", 32);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Match.MatcherApp.Basic", 32, 32);
 return x_1;
 }
 }
@@ -264,7 +264,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Meta_matchMatcherApp_x3f__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.matchMatcherApp\?", 26);
+x_1 = lean_mk_string_unchecked("Lean.Meta.matchMatcherApp\?", 26, 26);
 return x_1;
 }
 }
@@ -272,7 +272,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Meta_matchMatcherApp_x3f__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -614,9 +614,9 @@ lean_inc(x_29);
 x_30 = lean_ctor_get(x_29, 1);
 lean_inc(x_30);
 lean_dec(x_29);
-x_31 = l_List_lengthTRAux___rarg(x_30, x_11);
+x_31 = l_List_length___rarg(x_30);
 lean_dec(x_30);
-x_32 = l_List_lengthTRAux___rarg(x_3, x_11);
+x_32 = l_List_length___rarg(x_3);
 x_33 = lean_nat_dec_eq(x_31, x_32);
 lean_dec(x_32);
 lean_dec(x_31);
@@ -633,7 +633,7 @@ lean_object* x_37; lean_object* x_38;
 lean_dec(x_10);
 lean_dec(x_2);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
+x_38 = l_outOfBounds___rarg(x_37);
 if (x_33 == 0)
 {
 lean_object* x_39; lean_object* x_40; lean_object* x_41; 
@@ -969,7 +969,7 @@ if (x_18 == 0)
 lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 lean_dec(x_4);
 x_32 = l_Lean_instInhabitedExpr;
-x_33 = l___private_Init_GetElem_0__outOfBounds___rarg(x_32);
+x_33 = l_outOfBounds___rarg(x_32);
 lean_inc(x_25);
 lean_inc(x_13);
 lean_inc(x_12);

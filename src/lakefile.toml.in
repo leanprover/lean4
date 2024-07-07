@@ -32,6 +32,9 @@ name = "Init"
 defaultFacets = ["static", "static.export"]
 
 [[lean_lib]]
+name = "Std"
+
+[[lean_lib]]
 name = "Lean"
 defaultFacets = ["static", "static.export"]
 globs = [

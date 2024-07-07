@@ -19,7 +19,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_tryOnEach___lambda__1___boxed
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_librarySearchEmoji___rarg___boxed(lean_object*);
 extern lean_object* l_Lean_profiler;
 static double l_Lean_withTraceNode___at___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_librarySearch_x27___spec__2___lambda__2___closed__1;
-extern lean_object* l_Lean_trace_profiler_useHearbeats;
 static lean_object* l_Lean_Meta_LibrarySearch_initFn____x40_Lean_Meta_Tactic_LibrarySearch___hyg_5____closed__11;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_librarySearch_x27___spec__2___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -77,6 +76,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_DeclMod_ofNat___boxed(lean_ob
 lean_object* lean_io_get_num_heartbeats(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_librarySearchLemma___lambda__1___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_initFn____x40_Lean_Meta_Tactic_LibrarySearch___hyg_658_(lean_object*);
+extern lean_object* l_Lean_trace_profiler_useHeartbeats;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_LibrarySearch_librarySearchSymm___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_mkLibrarySearchLemma___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -295,8 +295,8 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 lean_object* l_Lean_getMaxHeartbeats(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_mkHeartbeatCheck___elambda__2___rarg(lean_object*);
-lean_object* l_Lean_profileitM___at_Lean_Meta_synthInstance_x3f___spec__10___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_LibrarySearch_DeclMod_ofNat(lean_object*);
+lean_object* l_Lean_profileitM___at_Lean_Meta_synthInstance_x3f___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 double lean_float_sub(double, double);
 static lean_object* l_Lean_Meta_LibrarySearch_droppedKeys___closed__5;
 static lean_object* l_Lean_Meta_LibrarySearch_initFn____x40_Lean_Meta_Tactic_LibrarySearch___hyg_5____closed__10;
@@ -305,7 +305,7 @@ static lean_object* _init_l_Lean_Meta_LibrarySearch_initFn____x40_Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -313,7 +313,7 @@ static lean_object* _init_l_Lean_Meta_LibrarySearch_initFn____x40_Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("librarySearch", 13);
+x_1 = lean_mk_string_unchecked("librarySearch", 13, 13);
 return x_1;
 }
 }
@@ -331,7 +331,7 @@ static lean_object* _init_l_Lean_Meta_LibrarySearch_initFn____x40_Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -349,7 +349,7 @@ static lean_object* _init_l_Lean_Meta_LibrarySearch_initFn____x40_Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -367,7 +367,7 @@ static lean_object* _init_l_Lean_Meta_LibrarySearch_initFn____x40_Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LibrarySearch", 13);
+x_1 = lean_mk_string_unchecked("LibrarySearch", 13, 13);
 return x_1;
 }
 }
@@ -385,7 +385,7 @@ static lean_object* _init_l_Lean_Meta_LibrarySearch_initFn____x40_Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -403,7 +403,7 @@ static lean_object* _init_l_Lean_Meta_LibrarySearch_initFn____x40_Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -461,7 +461,7 @@ static lean_object* _init_l_Lean_Meta_LibrarySearch_initFn____x40_Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -500,7 +500,7 @@ static lean_object* _init_l_Lean_Meta_LibrarySearch_initFn____x40_Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lemmas", 6);
+x_1 = lean_mk_string_unchecked("lemmas", 6, 6);
 return x_1;
 }
 }
@@ -563,7 +563,7 @@ static lean_object* _init_l_Lean_Meta_LibrarySearch_solveByElim___lambda__3___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed", 6);
+x_1 = lean_mk_string_unchecked("failed", 6, 6);
 return x_1;
 }
 }
@@ -1066,7 +1066,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Met
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Iff", 3);
+x_1 = lean_mk_string_unchecked("Iff", 3, 3);
 return x_1;
 }
 }
@@ -1551,7 +1551,7 @@ static lean_object* _init_l_Lean_Meta_LibrarySearch_droppedKeys___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -2170,7 +2170,7 @@ static lean_object* _init_l_Lean_Meta_LibrarySearch_initFn____x40_Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("abortSpeculation", 16);
+x_1 = lean_mk_string_unchecked("abortSpeculation", 16, 16);
 return x_1;
 }
 }
@@ -3101,7 +3101,7 @@ static lean_object* _init_l_Lean_Meta_LibrarySearch_mkLibrarySearchLemma___lambd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mp", 2);
+x_1 = lean_mk_string_unchecked("mp", 2, 2);
 return x_1;
 }
 }
@@ -3130,7 +3130,7 @@ static lean_object* _init_l_Lean_Meta_LibrarySearch_mkLibrarySearchLemma___lambd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mpr", 3);
+x_1 = lean_mk_string_unchecked("mpr", 3, 3);
 return x_1;
 }
 }
@@ -3314,7 +3314,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Met
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -3331,7 +3331,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Met
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" trying ", 8);
+x_1 = lean_mk_string_unchecked(" trying ", 8, 8);
 return x_1;
 }
 }
@@ -3348,7 +3348,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Met
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -3384,7 +3384,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Met
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" with mp", 8);
+x_1 = lean_mk_string_unchecked(" with mp", 8, 8);
 return x_1;
 }
 }
@@ -3411,7 +3411,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Met
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" with mpr", 9);
+x_1 = lean_mk_string_unchecked(" with mpr", 9, 9);
 return x_1;
 }
 }
@@ -5051,7 +5051,7 @@ static lean_object* _init_l_Lean_withTraceNode___at___private_Lean_Meta_Tactic_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("<exception thrown while producing trace node message>", 53);
+x_1 = lean_mk_string_unchecked("<exception thrown while producing trace node message>", 53, 53);
 return x_1;
 }
 }
@@ -5111,7 +5111,7 @@ static lean_object* _init_l_Lean_withTraceNode___at___private_Lean_Meta_Tactic_L
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_trace_profiler_useHearbeats;
+x_1 = l_Lean_trace_profiler_useHeartbeats;
 return x_1;
 }
 }
@@ -6497,7 +6497,7 @@ lean_closure_set(x_11, 2, x_3);
 lean_closure_set(x_11, 3, x_4);
 x_12 = l_Lean_Meta_LibrarySearch_initFn____x40_Lean_Meta_Tactic_LibrarySearch___hyg_5____closed__2;
 x_13 = lean_box(0);
-x_14 = l_Lean_profileitM___at_Lean_Meta_synthInstance_x3f___spec__10___rarg(x_12, x_10, x_11, x_13, x_5, x_6, x_7, x_8, x_9);
+x_14 = l_Lean_profileitM___at_Lean_Meta_synthInstance_x3f___spec__6___rarg(x_12, x_10, x_11, x_13, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_10);
 return x_14;
 }

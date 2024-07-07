@@ -26,7 +26,7 @@ def toMonad [Monad m] [Alternative m] : Option α → m α := getM
   | some _ => true
   | none   => false
 
-@[deprecated isSome, inline] def toBool : Option α → Bool := isSome
+@[deprecated isSome (since := "2024-04-17"), inline] def toBool : Option α → Bool := isSome
 
 /-- Returns `true` on `none` and `false` on `some x`. -/
 @[inline] def isNone : Option α → Bool
@@ -80,7 +80,9 @@ theorem map_id : (Option.map id : Option α → Option α) = id :=
   | none   => false
 
 /--
-Implementation of `OrElse`'s `<|>` syntax for `Option`.
+Implementation of `OrElse`'s `<|>` syntax for `Option`. If the first argument is `some a`, returns
+`some a`, otherwise evaluates and returns the second argument. See also `or` for a version that is
+strict in the second argument.
 -/
 @[always_inline, macro_inline] protected def orElse : Option α → (Unit → Option α) → Option α
   | some a, _ => some a
@@ -88,6 +90,12 @@ Implementation of `OrElse`'s `<|>` syntax for `Option`.
 
 instance : OrElse (Option α) where
   orElse := Option.orElse
+
+/-- If the first argument is `some a`, returns `some a`, otherwise returns the second argument.
+This is similar to `<|>`/`orElse`, but it is strict in the second argument. -/
+@[always_inline, macro_inline] def or : Option α → Option α → Option α
+  | some a, _ => some a
+  | none,   b => b
 
 @[inline] protected def lt (r : α → α → Prop) : Option α → Option α → Prop
   | none, some _     => True
@@ -119,7 +127,7 @@ def merge (fn : α → α → α) : Option α → Option α → Option α
 
 
 /-- An elimination principle for `Option`. It is a nondependent version of `Option.recOn`. -/
-@[simp, inline] protected def elim : Option α → β → (α → β) → β
+@[inline] protected def elim : Option α → β → (α → β) → β
   | some x, _, f => f x
   | none, y, _ => y
 

@@ -1278,12 +1278,46 @@ def Occurrences.isAll : Occurrences → Bool
   | all => true
   | _   => false
 
+/--
+Controls which new mvars are turned in to goals by the `apply` tactic.
+- `nonDependentFirst`  mvars that don't depend on other goals appear first in the goal list.
+- `nonDependentOnly` only mvars that don't depend on other goals are added to goal list.
+- `all` all unassigned mvars are added to the goal list.
+-/
+-- TODO: Consider renaming to `Apply.NewGoals`
+inductive ApplyNewGoals where
+  | nonDependentFirst | nonDependentOnly | all
+
+/-- Configures the behaviour of the `apply` tactic. -/
+-- TODO: Consider renaming to `Apply.Config`
+structure ApplyConfig where
+  newGoals := ApplyNewGoals.nonDependentFirst
+  /--
+  If `synthAssignedInstances` is `true`, then `apply` will synthesize instance implicit arguments
+  even if they have assigned by `isDefEq`, and then check whether the synthesized value matches the
+  one inferred. The `congr` tactic sets this flag to false.
+  -/
+  synthAssignedInstances := true
+  /--
+  If `allowSynthFailures` is `true`, then `apply` will return instance implicit arguments
+  for which typeclass search failed as new goals.
+  -/
+  allowSynthFailures := false
+  /--
+  If `approx := true`, then we turn on `isDefEq` approximations. That is, we use
+  the `approxDefEq` combinator.
+  -/
+  approx : Bool := true
+
 namespace Rewrite
 
+abbrev NewGoals := ApplyNewGoals
+
 structure Config where
-  transparency : TransparencyMode := TransparencyMode.reducible
+  transparency : TransparencyMode := .reducible
   offsetCnstrs : Bool := true
-  occs : Occurrences := Occurrences.all
+  occs : Occurrences := .all
+  newGoals : NewGoals := .nonDependentFirst
 
 end Rewrite
 

@@ -46,7 +46,6 @@ LEAN_EXPORT lean_object* l_Lean_HashMap_find_x21(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMap_foldM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMap_find_x3f(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkHashMap(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -55,7 +54,7 @@ LEAN_EXPORT lean_object* l_Lean_HashMap_toList___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMap_ofList___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMap_numBuckets___rarg___boxed(lean_object*);
 static lean_object* l_Lean_HashMap_find_x21___rarg___closed__1;
-LEAN_EXPORT lean_object* l_Lean_HashMap_instGetElemOptionTrue___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_HashMap_instGetElemOptionTrue___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMap_toArray___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_findEntry_x3f(lean_object*, lean_object*);
 lean_object* l_Nat_nextPowerOfTwo_go(lean_object*, lean_object*, lean_object*);
@@ -81,7 +80,6 @@ LEAN_EXPORT lean_object* l_Lean_HashMap_instInhabited___boxed(lean_object*, lean
 LEAN_EXPORT lean_object* l_Array_groupByKey___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkHashMap___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMap_size___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_HashMap_instGetElemOptionTrue___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_HashMap_toList___spec__1___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_moveEntries(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_HashMapImp_foldBucketsM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -126,7 +124,6 @@ uint8_t l_Lean_AssocList_contains___rarg(lean_object*, lean_object*, lean_object
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_HashMap_foldM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapBucket_update___rarg(lean_object*, size_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_HashMap_instGetElemOptionTrue___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMap_findD___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMap_find_x21___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Lean_HashMap_ofList___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -141,7 +138,6 @@ size_t lean_hashmap_mk_idx(lean_object*, uint64_t);
 LEAN_EXPORT lean_object* l_Lean_HashMap_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_HashMap_toArray___spec__1___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMap_foldM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_HashMap_instGetElemOptionTrue___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_HashMap_instInhabited___closed__1;
 LEAN_EXPORT lean_object* l_Lean_HashMapBucket_update___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_AssocList_foldlM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -158,8 +154,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_HashMapImp_foldBuck
 LEAN_EXPORT lean_object* l_Lean_HashMap_toArray___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_HashMap_fold___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_HashMapImp_moveEntries___spec__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_HashMap_instGetElemOptionTrue___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_HashMap_instGetElemOptionTrue___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMap_size___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -196,6 +190,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_HashMap_toArray___s
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_HashMapImp_forM___spec__1___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_erase___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_AssocList_replace___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_HashMap_instGetElemOptionTrue___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_HashMap_toArray___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_HashMap_toArray___spec__2(lean_object*, lean_object*);
@@ -229,7 +224,6 @@ LEAN_EXPORT lean_object* l_Lean_HashMap_insertIfNew___rarg(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_foldM(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_HashMapImp_forM___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_HashMap_instGetElemOptionTrue___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMap_isEmpty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMap_find_x21___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_AssocList_findEntry_x3f___rarg(lean_object*, lean_object*, lean_object*);
@@ -2635,7 +2629,7 @@ static lean_object* _init_l_Lean_HashMap_find_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Data.HashMap", 17);
+x_1 = lean_mk_string_unchecked("Lean.Data.HashMap", 17, 17);
 return x_1;
 }
 }
@@ -2643,7 +2637,7 @@ static lean_object* _init_l_Lean_HashMap_find_x21___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.HashMap.find!", 18);
+x_1 = lean_mk_string_unchecked("Lean.HashMap.find!", 18, 18);
 return x_1;
 }
 }
@@ -2651,7 +2645,7 @@ static lean_object* _init_l_Lean_HashMap_find_x21___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("key is not in the map", 21);
+x_1 = lean_mk_string_unchecked("key is not in the map", 21, 21);
 return x_1;
 }
 }
@@ -2708,7 +2702,7 @@ lean_dec(x_4);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_HashMap_instGetElemOptionTrue___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Lean_HashMap_instGetElemOptionTrue___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
@@ -2716,110 +2710,21 @@ x_6 = l_Lean_HashMapImp_find_x3f___rarg(x_1, x_2, x_3, x_4);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_HashMap_instGetElemOptionTrue___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint8_t x_5) {
-_start:
-{
-if (x_5 == 0)
-{
-lean_object* x_6; 
-lean_dec(x_4);
-lean_dec(x_2);
-lean_dec(x_1);
-x_6 = lean_box(0);
-return x_6;
-}
-else
-{
-lean_object* x_7; lean_object* x_8; 
-x_7 = l_Lean_HashMapImp_find_x3f___rarg(x_1, x_2, x_3, x_4);
-x_8 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_8, 0, x_7);
-return x_8;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_HashMap_instGetElemOptionTrue___rarg___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, uint8_t x_6) {
-_start:
-{
-if (x_6 == 0)
-{
-lean_object* x_7; 
-lean_dec(x_5);
-lean_dec(x_2);
-lean_dec(x_1);
-x_7 = l___private_Init_GetElem_0__outOfBounds___rarg(x_3);
-return x_7;
-}
-else
-{
-lean_object* x_8; 
-lean_dec(x_3);
-x_8 = l_Lean_HashMapImp_find_x3f___rarg(x_1, x_2, x_4, x_5);
-return x_8;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_HashMap_instGetElemOptionTrue___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-lean_inc(x_2);
-lean_inc(x_1);
-x_3 = lean_alloc_closure((void*)(l_Lean_HashMap_instGetElemOptionTrue___rarg___lambda__1___boxed), 5, 2);
-lean_closure_set(x_3, 0, x_1);
-lean_closure_set(x_3, 1, x_2);
-lean_inc(x_2);
-lean_inc(x_1);
-x_4 = lean_alloc_closure((void*)(l_Lean_HashMap_instGetElemOptionTrue___rarg___lambda__2___boxed), 5, 2);
-lean_closure_set(x_4, 0, x_1);
-lean_closure_set(x_4, 1, x_2);
-x_5 = lean_alloc_closure((void*)(l_Lean_HashMap_instGetElemOptionTrue___rarg___lambda__3___boxed), 6, 2);
-lean_closure_set(x_5, 0, x_1);
-lean_closure_set(x_5, 1, x_2);
-x_6 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_6, 0, x_3);
-lean_ctor_set(x_6, 1, x_4);
-lean_ctor_set(x_6, 2, x_5);
-return x_6;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_HashMap_instGetElemOptionTrue(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_HashMap_instGetElemOptionTrue___rarg), 2, 0);
+x_3 = lean_alloc_closure((void*)(l_Lean_HashMap_instGetElemOptionTrue___rarg___boxed), 5, 0);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_HashMap_instGetElemOptionTrue___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Lean_HashMap_instGetElemOptionTrue___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l_Lean_HashMap_instGetElemOptionTrue___rarg___lambda__1(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_Lean_HashMap_instGetElemOptionTrue___rarg(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_3);
 return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_HashMap_instGetElemOptionTrue___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-uint8_t x_6; lean_object* x_7; 
-x_6 = lean_unbox(x_5);
-lean_dec(x_5);
-x_7 = l_Lean_HashMap_instGetElemOptionTrue___rarg___lambda__2(x_1, x_2, x_3, x_4, x_6);
-lean_dec(x_3);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_HashMap_instGetElemOptionTrue___rarg___lambda__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-uint8_t x_7; lean_object* x_8; 
-x_7 = lean_unbox(x_6);
-lean_dec(x_6);
-x_8 = l_Lean_HashMap_instGetElemOptionTrue___rarg___lambda__3(x_1, x_2, x_3, x_4, x_5, x_7);
-lean_dec(x_4);
-return x_8;
 }
 }
 LEAN_EXPORT uint8_t l_Lean_HashMap_contains___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

@@ -190,7 +190,7 @@ else
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
-x_6 = lean_expr_eqv(x_4, x_1);
+x_6 = lean_expr_eqv(x_1, x_4);
 if (x_6 == 0)
 {
 x_2 = x_5;
@@ -335,7 +335,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_ctor_get(x_1, 1);
-x_8 = lean_expr_eqv(x_6, x_2);
+x_8 = lean_expr_eqv(x_2, x_6);
 if (x_8 == 0)
 {
 lean_object* x_9; 
@@ -358,7 +358,7 @@ x_11 = lean_ctor_get(x_1, 1);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_dec(x_1);
-x_12 = lean_expr_eqv(x_10, x_2);
+x_12 = lean_expr_eqv(x_2, x_10);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 

@@ -163,6 +163,7 @@ lean_object* l_Lean_Parser_withAntiquotSpliceAndSuffix(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Lake_Toml_getInfoExprPos_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_strAtom_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_dynamicNode_parenthesizer___boxed(lean_object*);
+lean_object* l_Lean_Syntax_MonadTraverser_goLeft___at_Lean_PrettyPrinter_Formatter_visitArgs___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_litWithAntiquot(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lake_Toml_skipInsideQuotFn(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -176,7 +177,6 @@ lean_object* l_Lean_Parser_atomicFn(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_epsilon_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_trailing(lean_object*);
-lean_object* l_Lean_Syntax_MonadTraverser_goLeft___at_Lean_PrettyPrinter_Formatter_visitArgs___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Toml_isBinDigit(uint32_t);
 LEAN_EXPORT lean_object* l_Lake_Toml_pushLit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_extendTrailingFn(lean_object*, lean_object*, lean_object*);
@@ -545,7 +545,7 @@ static lean_object* _init_l_Lake_Toml_mkUnexpectedCharError___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -553,7 +553,7 @@ static lean_object* _init_l_Lake_Toml_mkUnexpectedCharError___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected '", 12);
+x_1 = lean_mk_string_unchecked("unexpected '", 12, 12);
 return x_1;
 }
 }
@@ -561,7 +561,7 @@ static lean_object* _init_l_Lake_Toml_mkUnexpectedCharError___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -596,7 +596,7 @@ static lean_object* _init_l_Lake_Toml_satisfyFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected end of input", 23);
+x_1 = lean_mk_string_unchecked("unexpected end of input", 23, 23);
 return x_1;
 }
 }
@@ -1010,7 +1010,7 @@ static lean_object* _init_l_Lake_Toml_sepByChar1Fn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected separator '", 22);
+x_1 = lean_mk_string_unchecked("unexpected separator '", 22, 22);
 return x_1;
 }
 }
@@ -1318,7 +1318,7 @@ static lean_object* _init_l_Lake_Toml_atom_formatter___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PrettyPrinter", 13);
+x_1 = lean_mk_string_unchecked("PrettyPrinter", 13, 13);
 return x_1;
 }
 }
@@ -1326,7 +1326,7 @@ static lean_object* _init_l_Lake_Toml_atom_formatter___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("format", 6);
+x_1 = lean_mk_string_unchecked("format", 6, 6);
 return x_1;
 }
 }
@@ -1334,7 +1334,7 @@ static lean_object* _init_l_Lake_Toml_atom_formatter___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("backtrack", 9);
+x_1 = lean_mk_string_unchecked("backtrack", 9, 9);
 return x_1;
 }
 }
@@ -1361,7 +1361,7 @@ static lean_object* _init_l_Lake_Toml_atom_formatter___rarg___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected syntax '", 19);
+x_1 = lean_mk_string_unchecked("unexpected syntax '", 19, 19);
 return x_1;
 }
 }
@@ -1378,7 +1378,7 @@ static lean_object* _init_l_Lake_Toml_atom_formatter___rarg___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', expected atom", 16);
+x_1 = lean_mk_string_unchecked("', expected atom", 16, 16);
 return x_1;
 }
 }
@@ -1424,7 +1424,7 @@ lean_object* x_14; lean_object* x_15;
 x_14 = lean_ctor_get(x_13, 1);
 lean_inc(x_14);
 lean_dec(x_13);
-x_15 = l_Lean_Syntax_MonadTraverser_goLeft___at_Lean_PrettyPrinter_Formatter_visitArgs___spec__2___rarg(x_2, x_3, x_4, x_14);
+x_15 = l_Lean_Syntax_MonadTraverser_goLeft___at_Lean_PrettyPrinter_Formatter_visitArgs___spec__4___rarg(x_2, x_3, x_4, x_14);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -2604,7 +2604,7 @@ static lean_object* _init_l_Lake_Toml_sepByLinebreak___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sepBy", 5);
+x_1 = lean_mk_string_unchecked("sepBy", 5, 5);
 return x_1;
 }
 }
@@ -2622,7 +2622,7 @@ static lean_object* _init_l_Lake_Toml_sepByLinebreak___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("*", 1);
+x_1 = lean_mk_string_unchecked("*", 1, 1);
 return x_1;
 }
 }
@@ -2639,7 +2639,7 @@ static lean_object* _init_l_Lake_Toml_sepByLinebreak___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("line break", 10);
+x_1 = lean_mk_string_unchecked("line break", 10, 10);
 return x_1;
 }
 }

@@ -54,3 +54,9 @@ sh
    "fullRange":
    {"start": {"line": 1, "character": 24},
     "end": {"line": 6, "character": 18}}}]}
+n 0
+n 1
+n 1.5
+i 0
+i 1
+i 1.5

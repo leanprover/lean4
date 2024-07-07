@@ -4,7 +4,7 @@ set -euo pipefail
 rm -r stage0 || true
 # don't copy untracked files
 # `:!` is git glob flavor for exclude patterns
-for f in $(git ls-files src ':!:src/lake/*' ':!:src/Leanc.lean'); do
+for f in $(git ls-files src ':!:src/lake/*'); do
     if [[ $f == *.lean ]]; then
         f=${f#src/}
         f=${f%.lean}.c

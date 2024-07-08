@@ -37,12 +37,7 @@ theorem pos_iff_nonempty {n : Nat} : 0 < n ↔ Nonempty (Fin n) :=
 
 @[simp] protected theorem eta (a : Fin n) (h : a < n) : (⟨a, h⟩ : Fin n) = a := rfl
 
--- TODO(kmill): remove ext_iff and apply [ext] to ext directly
-protected theorem ext {a b : Fin n} (h : (a : Nat) = b) : a = b := eq_of_val_eq h
-
-protected theorem ext_iff {a b : Fin n} : a = b ↔ a.1 = b.1 := val_inj.symm
-
-attribute [ext] Fin.ext
+@[ext] protected theorem ext {a b : Fin n} (h : (a : Nat) = b) : a = b := eq_of_val_eq h
 
 theorem val_ne_iff {a b : Fin n} : a.1 ≠ b.1 ↔ a ≠ b := not_congr val_inj
 

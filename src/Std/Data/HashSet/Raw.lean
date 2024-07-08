@@ -65,6 +65,9 @@ the empty collection notations `∅` and `{}` to create an empty hash set with t
 instance : EmptyCollection (Raw α) where
   emptyCollection := empty
 
+instance : Inhabited (Raw α) where
+  default := ∅
+
 /--
 Inserts the given element into the set. If the hash set already contains an element that is
 equal (with regard to `==`) to the given element, then the hash set is returned unchanged.

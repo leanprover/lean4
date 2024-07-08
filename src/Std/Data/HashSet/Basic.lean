@@ -64,6 +64,9 @@ capacity.
 instance [BEq α] [Hashable α] : EmptyCollection (HashSet α) where
   emptyCollection := empty
 
+instance [BEq α] [Hashable α] : Inhabited (HashSet α) where
+  default := ∅
+
 /--
 Inserts the given element into the set. If the hash set already contains an element that is
 equal (with regard to `==`) to the given element, then the hash set is returned unchanged.

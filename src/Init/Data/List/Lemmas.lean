@@ -1982,11 +1982,7 @@ theorem head?_dropWhile_not (p : α → Bool) (l : List α) :
 
 theorem head_dropWhile_not (p : α → Bool) (l : List α) (w) :
     p ((l.dropWhile p).head w) = false := by
-  induction l with
-  | nil => simp at w
-  | cons x xs ih =>
-    simp only [dropWhile_cons]
-    split <;> simp_all
+  simpa [head?_eq_head, w] using head?_dropWhile_not p l
 
 theorem takeWhile_map (f : α → β) (p : β → Bool) (l : List α) :
     (l.map f).takeWhile p = (l.takeWhile (p ∘ f)).map f := by

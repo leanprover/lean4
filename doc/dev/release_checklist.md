@@ -177,6 +177,9 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
   - We do this for the same list of repositories as for stable releases, see above.
     As above, there are dependencies between these, and so the process above is iterative.
     It greatly helps if you can merge the `bump/v4.7.0` PRs yourself!
+    It is essential for Mathlib CI that you then create the next `bump/v4.8.0` branch
+    for the next development cycle.
+    Set the `lean-toolchain` file on this branch to same `nightly` you used for this release.
   - For Batteries/Aesop/Mathlib, which maintain a `nightly-testing` branch, make sure there is a tag
     `nightly-testing-2024-02-29` with date corresponding to the nightly used for the release
     (create it if not), and then on the `nightly-testing` branch `git reset --hard master`, and force push.

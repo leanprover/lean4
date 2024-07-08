@@ -202,7 +202,7 @@ private def mkBelowFromRec (recName : Name) (ibelow reflexive : Bool) (nParams :
 
 /--
 For a given inductive type, how many nested inductive types occur in its recursor.
-(Should this number become part of `InductiveVal`?)
+(This number could replace the `is_nested` field of `InductiveVal`)
 -/
 private def numNestedInducts (indName : Name) : MetaM Nat := do
   let .inductInfo indVal ← getConstInfo indName | panic! "{indName} is an inductive"
@@ -214,19 +214,17 @@ private def mkBelowOrIBelow (indName : Name) (ibelow : Bool) : MetaM Unit := do
   unless indVal.isRec do return
   if ← isPropFormerType indVal.type then return
 
-  mkBelowFromRec (mkRecName indName) ibelow indVal.isReflexive indVal.numParams
-    (if ibelow then mkIBelowName indName else mkBelowName indName)
+  let recName := mkRecName indName
+  let belowName := if ibelow then mkIBelowName indName else mkBelowName indName
+  mkBelowFromRec recName ibelow indVal.isReflexive indVal.numParams belowName
 
   -- If this is the first inductive in a mutual group with nested inductives,
-  -- generate the other ones here as well
+  -- generate the constructions for the nested inductives now
   if indVal.all[0]! = indName then
     let numNested ← numNestedInducts indName
     for i in [:numNested] do
-      let recName : Name := .str indName s!"rec_{i+1}"
-      let belowName : Name := if ibelow then
-          .str indName s!"ibelow_{i+1}"
-      else
-          .str indName s!"below_{i+1}"
+      let recName := recName.appendIndexAfter (i + 1)
+      let belowName := belowName.appendIndexAfter (i + 1)
       mkBelowFromRec recName ibelow indVal.isReflexive indVal.numParams belowName
 
 def mkBelow (declName : Name) : MetaM Unit := mkBelowOrIBelow declName true
@@ -414,21 +412,18 @@ def mkBRecOnOrBInductionOn (indName : Name) (ind : Bool) : MetaM Unit := do
   unless indVal.isRec do return
   if ← isPropFormerType indVal.type then return
 
-  mkBRecOnFromRec (mkRecName indName) ind indVal.isReflexive indVal.numParams indVal.all.toArray
-    (if ind then mkBInductionOnName indName else mkBRecOnName indName)
+  let recName := mkRecName indName
+  let brecOnName := if ind then mkBInductionOnName indName else mkBRecOnName indName
+  mkBRecOnFromRec recName ind indVal.isReflexive indVal.numParams indVal.all.toArray brecOnName
 
   -- If this is the first inductive in a mutual group with nested inductives,
-  -- generate the other ones here as well
+  -- generate the constructions for the nested inductives now
   if indVal.all[0]! = indName then
     let numNested ← numNestedInducts indName
     for i in [:numNested] do
-      let recName : Name := .str indName s!"rec_{i+1}"
-      let brecOnName : Name := if ind then
-          .str indName s!"binductionOn_{i+1}"
-      else
-          .str indName s!"brecOn_{i+1}"
-      mkBRecOnFromRec recName ind indVal.isReflexive indVal.numParams
-        indVal.all.toArray brecOnName
+      let recName := recName.appendIndexAfter (i + 1)
+      let brecOnName := brecOnName.appendIndexAfter (i + 1)
+      mkBRecOnFromRec recName ind indVal.isReflexive indVal.numParams indVal.all.toArray brecOnName
 
 
 def mkBRecOn (declName : Name) : MetaM Unit := mkBRecOnOrBInductionOn declName false

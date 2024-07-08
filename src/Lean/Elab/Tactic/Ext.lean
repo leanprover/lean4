@@ -5,6 +5,7 @@ Authors: Gabriel Ebner, Mario Carneiro
 -/
 prelude
 import Init.Ext
+import Lean.Elab.DeclarationRange
 import Lean.Elab.Tactic.RCases
 import Lean.Elab.Tactic.Repeat
 import Lean.Elab.Tactic.BuiltinTactic
@@ -116,6 +117,9 @@ def realizeExtTheorem (structName : Name) (flat : Bool) : Elab.Command.CommandEl
         levelParams := info.levelParams
       }
       modifyEnv fun env => addProtected env extName
+      Lean.addDeclarationRanges extName {
+        range := ← getDeclarationRange (← getRef)
+        selectionRange := ← getDeclarationRange (← getRef) }
   return extName
 
 /--
@@ -149,6 +153,9 @@ def realizeExtIffTheorem (extName : Name) : Elab.Command.CommandElabM Name := do
       -- Only declarations in a namespace can be protected:
       unless extIffName.isAtomic do
         modifyEnv fun env => addProtected env extIffName
+      Lean.addDeclarationRanges extIffName {
+        range := ← getDeclarationRange (← getRef)
+        selectionRange := ← getDeclarationRange (← getRef) }
   return extIffName
 
 
@@ -229,7 +236,7 @@ builtin_initialize registerBuiltinAttribute {
     let flat := flatFalse?.isNone
     let mut declName := declName
     if isStructure (← getEnv) declName then
-      declName ← liftCommandElabM <| realizeExtTheorem declName flat
+      declName ← liftCommandElabM <| withRef stx <| realizeExtTheorem declName flat
     else if let some stx := flatFalse? then
       throwErrorAt stx "unexpected 'flat' configuration on @[ext] theorem"
     -- Validate and add theorem to environment extension
@@ -245,7 +252,7 @@ builtin_initialize registerBuiltinAttribute {
     extExtension.add {declName, keys, priority} kind
     -- Realize iff theorem
     if iff then
-      discard <| liftCommandElabM <| realizeExtIffTheorem declName
+      discard <| liftCommandElabM <| withRef stx <| realizeExtIffTheorem declName
   erase := fun declName => do
     let s := extExtension.getState (← getEnv)
     let s ← s.erase declName

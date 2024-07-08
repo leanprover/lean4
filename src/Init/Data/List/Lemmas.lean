@@ -1614,10 +1614,20 @@ theorem reverse_map (f : α → β) (l : List α) : (l.map f).reverse = l.revers
     simp only [reverse_cons, filterMap_append, filterMap_cons, ih]
     split <;> simp_all
 
-theorem reverse_join {L : List (List α)} : (join L).reverse = join (L.reverse.map reverse) := by
+/-- Reversing a join is the same as reversing the order of parts and reversing all parts. -/
+theorem reverse_join (L : List (List α)) :
+    L.join.reverse = (L.map reverse).reverse.join := by
+  induction L <;> simp_all
+
+/-- Joining a reverse is the same as reversing all parts and reversing the joined result. -/
+theorem join_reverse (L : List (List α)) :
+    L.reverse.join = (L.map reverse).join.reverse := by
   induction L <;> simp_all
 
 theorem reverse_bind {β} (l : List α) (f : α → List β) : (l.bind f).reverse = l.reverse.bind (reverse ∘ f) := by
+  induction l <;> simp_all
+
+theorem bind_reverse {β} (l : List α) (f : α → List β) : (l.reverse.bind f) = (l.bind (reverse ∘ f)).reverse := by
   induction l <;> simp_all
 
 @[simp] theorem reverse_eq_nil_iff {xs : List α} : xs.reverse = [] ↔ xs = [] := by

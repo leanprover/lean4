@@ -12,10 +12,10 @@ Author: Leonardo de Moura
 
 namespace lean {
 /**
-inductive reducibility_hints
-| opaque  : reducibility_hints
-| abbrev  : reducibility_hints
-| regular : nat → reducibility_hints
+inductive ReducibilityHints where
+  | opaque  : ReducibilityHints
+  | abbrev  : ReducibilityHints
+  | regular : UInt32 → ReducibilityHints
 
 Reducibility hints are used in the convertibility checker (aka is_def_eq predicate),
 whenever checking a constraint such as
@@ -54,8 +54,10 @@ public:
 int compare(reducibility_hints const & h1, reducibility_hints const & h2);
 
 /*
-structure constant_val :=
-(id : name) (lparams : list name) (type : expr)
+structure ConstantVal where
+  name : Name
+  levelParams : List Name
+  type : Expr
 */
 class constant_val : public object_ref {
 public:
@@ -70,8 +72,8 @@ public:
 };
 
 /*
-structure axiom_val extends constant_val :=
-(is_unsafe : bool)
+structure AxiomVal extends ConstantVal where
+  isUnsafe : Bool
 */
 class axiom_val : public object_ref {
 public:
@@ -87,11 +89,17 @@ public:
     bool is_unsafe() const;
 };
 
+/*
+inductive DefinitionSafety where
+  | «unsafe» | safe | «partial»
+*/
 enum class definition_safety { unsafe, safe, partial };
 
 /*
-structure definition_val extends constant_val :=
-(value : expr) (hints : reducibility_hints) (is_unsafe : bool)
+structure DefinitionVal extends ConstantVal where
+  value  : Expr
+  hints  : ReducibilityHints
+  safety : DefinitionSafety
 */
 class definition_val : public object_ref {
 public:
@@ -131,8 +139,10 @@ public:
 };
 
 /*
-structure opaque_val extends constant_val :=
-(value : expr)
+structure OpaqueVal extends ConstantVal where
+  value : Expr
+  isUnsafe : Bool
+  all : List Name := [name]
 */
 class opaque_val : public object_ref {
 public:
@@ -150,8 +160,9 @@ public:
 };
 
 /*
-structure constructor :=
-(id : name) (type : expr)
+structure Constructor where
+  name : Name
+  type : Expr
 */
 typedef pair_ref<name, expr> constructor;
 inline name const & constructor_name(constructor const & c) { return c.fst(); }
@@ -159,8 +170,10 @@ inline expr const & constructor_type(constructor const & c) { return c.snd(); }
 typedef list_ref<constructor> constructors;
 
 /**
-structure inductive_type where
-(id : name) (type : expr) (cnstrs : list constructor)
+structure InductiveType where
+  name : Name
+  type : Expr
+  ctors : List Constructor
 */
 class inductive_type : public object_ref {
 public:
@@ -176,14 +189,14 @@ public:
 typedef list_ref<inductive_type> inductive_types;
 
 /*
-inductive declaration
-| axiom_decl       (val : axiom_val)
-| defn_decl        (val : definition_val)
-| thm_decl         (val : theorem_val)
-| opaque_decl      (val : opaque_val)
-| quot_decl        (id : name)
-| mutual_defn_decl (defns : list definition_val) -- All definitions must be marked as `unsafe`
-| induct_decl      (lparams : list name) (nparams : nat) (types : list inductive_type) (is_unsafe : bool)
+inductive Declaration where
+  | axiomDecl       (val : AxiomVal)
+  | defnDecl        (val : DefinitionVal)
+  | thmDecl         (val : TheoremVal)
+  | opaqueDecl      (val : OpaqueVal)
+  | quotDecl
+  | mutualDefnDecl  (defns : List DefinitionVal) -- All definitions must be marked as `unsafe` or `partial`
+  | inductDecl      (lparams : List Name) (nparams : Nat) (types : List InductiveType) (isUnsafe : Bool)
 */
 enum class declaration_kind { Axiom, Definition, Theorem, Opaque, Quot, MutualDefinition, Inductive };
 class declaration : public object_ref {
@@ -261,14 +274,16 @@ public:
 };
 
 /*
-structure inductive_val extends constant_val where
-(nparams : nat)       -- Number of parameters
-(nindices : nat)      -- Number of indices
-(all : list name)     -- List of all (including this one) inductive datatypes in the mutual declaration containing this one
-(cnstrs : list name)  -- List of all constructors for this inductive datatype
-(is_rec : bool)       -- `tt` iff it is recursive
-(is_unsafe : bool)
-(is_reflexive : bool)
+structure InductiveVal extends ConstantVal where
+  numParams : Nat
+  numIndices : Nat
+  all : List Name    -- List of all (including this one) inductive datatypes in the mutual
+                        declaration containing this one
+  ctors : List Name  -- List of the names of the constructors for this inductive datatype
+  isRec : Bool
+  isUnsafe : Bool
+  isReflexive : Bool
+  isNested : Bool
 */
 class inductive_val : public object_ref {
 public:
@@ -291,12 +306,12 @@ public:
 };
 
 /*
-structure constructor_val extends constant_val :=
-(induct  : name)  -- Inductive type this constructor is a member of
-(cidx    : nat)   -- Constructor index (i.e., position in the inductive declaration)
-(nparams : nat)   -- Number of parameters in inductive datatype `induct`
-(nfields : nat)   -- Number of fields (i.e., arity - nparams)
-(is_unsafe : bool)
+structure ConstructorVal extends ConstantVal where
+  induct  : Name  -- Inductive type this constructor is a member of
+  cidx    : Nat   -- Constructor index (i.e., Position in the inductive declaration)
+  numParams : Nat -- Number of parameters in inductive datatype
+  numFields : Nat -- Number of fields (i.e., arity - nparams)
+  isUnsafe : Bool
 */
 class constructor_val : public object_ref {
 public:
@@ -314,10 +329,10 @@ public:
 };
 
 /*
-structure recursor_rule :=
-(cnstr : name)  -- Reduction rule for this constructor
-(nfields : nat) -- Number of fields (i.e., without counting inductive datatype parameters)
-(rhs : expr)    -- Right hand side of the reduction rule
+structure RecursorRule where
+  ctor : Name   -- Reduction rule for this Constructor
+  nfields : Nat -- Number of fields (i.e., without counting inductive datatype parameters)
+  rhs : Expr    -- Right hand side of the reduction rule
 */
 class recursor_rule : public object_ref {
 public:
@@ -334,15 +349,15 @@ public:
 typedef list_ref<recursor_rule> recursor_rules;
 
 /*
-structure recursor_val extends constant_val :=
-(all : list name)            -- List of all inductive datatypes in the mutual declaration that generated this recursor
-(nparams : nat)              -- Number of parameters
-(nindices : nat)             -- Number of indices
-(nmotives : nat)             -- Number of motives
-(nminors : nat)              -- Number of minor premises
-(rules : list recursor_rule) -- A reduction for each constructor
-(k : bool)                   -- It supports K-like reduction
-(is_unsafe : bool)
+structure RecursorVal extends ConstantVal where
+  all : List Name  -- List of all inductive datatypes in the mutual declaration that generated this recursor
+  numParams : Nat
+  numIndices : Nat
+  numMotives : Nat
+  numMinors : Nat
+  rules : List RecursorRule
+  k : Bool         -- It supports K-like reduction.
+  isUnsafe : Bool
 */
 class recursor_val : public object_ref {
 public:
@@ -370,14 +385,14 @@ public:
 enum class quot_kind { Type, Mk, Lift, Ind };
 
 /*
-inductive quot_kind
-| type  -- `quot`
-| cnstr -- `quot.mk`
-| lift  -- `quot.lift`
-| ind   -- `quot.ind`
+inductive QuotKind where
+  | type  -- `Quot`
+  | ctor  -- `Quot.mk`
+  | lift  -- `Quot.lift`
+  | ind   -- `Quot.ind`
 
-structure quot_val extends constant_val :=
-(kind : quot_kind)
+structure QuotVal extends ConstantVal where
+  kind : QuotKind
 */
 class quot_val : public object_ref {
 public:
@@ -395,15 +410,15 @@ public:
 
 /*
 /-- Information associated with constant declarations. -/
-inductive constant_info
-| axiom_info    (val : axiom_val)
-| defn_info     (val : definition_val)
-| thm_info      (val : theorem_val)
-| opaque_info   (val : opaque_val)
-| quot_info     (val : quot_val)
-| induct_info   (val : inductive_val)
-| cnstr_info    (val : constructor_val)
-| rec_info      (val : recursor_val)
+inductive ConstantInfo where
+  | axiomInfo    (val : AxiomVal)
+  | defnInfo     (val : DefinitionVal)
+  | thmInfo      (val : TheoremVal)
+  | opaqueInfo   (val : OpaqueVal)
+  | quotInfo     (val : QuotVal)
+  | inductInfo   (val : InductiveVal)
+  | ctorInfo     (val : ConstructorVal)
+  | recInfo      (val : RecursorVal)l)
 */
 enum class constant_info_kind { Axiom, Definition, Theorem, Opaque, Quot, Inductive, Constructor, Recursor };
 class constant_info : public object_ref {

@@ -55,6 +55,7 @@ static lean_object* l_Lean_setReducibilityStatus___at_Lean_mkNoConfusionCore___s
 static lean_object* l_Lean_mkNoConfusionCore___lambda__1___closed__5;
 static lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusion___closed__1;
 lean_object* l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_InductiveVal_isNested(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusion___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__1;
 static lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusionType___closed__1;
@@ -5186,15 +5187,15 @@ x_32 = l_List_isEmpty___rarg(x_31);
 if (x_32 == 0)
 {
 uint8_t x_33; 
-x_33 = lean_ctor_get_uint8(x_12, sizeof(void*)*5);
+x_33 = lean_ctor_get_uint8(x_12, sizeof(void*)*6);
 if (x_33 == 0)
 {
 uint8_t x_34; 
-x_34 = lean_ctor_get_uint8(x_12, sizeof(void*)*5 + 3);
+x_34 = l_Lean_InductiveVal_isNested(x_12);
 if (x_34 == 0)
 {
 uint8_t x_35; 
-x_35 = lean_ctor_get_uint8(x_12, sizeof(void*)*5 + 1);
+x_35 = lean_ctor_get_uint8(x_12, sizeof(void*)*6 + 1);
 lean_dec(x_12);
 if (x_35 == 0)
 {
@@ -5342,15 +5343,15 @@ x_71 = l_List_isEmpty___rarg(x_70);
 if (x_71 == 0)
 {
 uint8_t x_72; 
-x_72 = lean_ctor_get_uint8(x_48, sizeof(void*)*5);
+x_72 = lean_ctor_get_uint8(x_48, sizeof(void*)*6);
 if (x_72 == 0)
 {
 uint8_t x_73; 
-x_73 = lean_ctor_get_uint8(x_48, sizeof(void*)*5 + 3);
+x_73 = l_Lean_InductiveVal_isNested(x_48);
 if (x_73 == 0)
 {
 uint8_t x_74; 
-x_74 = lean_ctor_get_uint8(x_48, sizeof(void*)*5 + 1);
+x_74 = lean_ctor_get_uint8(x_48, sizeof(void*)*6 + 1);
 lean_dec(x_48);
 if (x_74 == 0)
 {

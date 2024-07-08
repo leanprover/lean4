@@ -74,6 +74,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Std_HashSet_instForIn___s
 LEAN_EXPORT lean_object* l_Std_HashSet_filter___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_forIn___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_HashSet_instInhabited___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Std_HashSet_toList___spec__1___rarg___boxed(lean_object*, lean_object*);
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Std_HashSet_forIn(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -198,6 +199,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashSet_toArray___sp
 size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_HashSet_size___rarg(lean_object*);
 static lean_object* l_Std_HashSet_instRepr___rarg___closed__2;
+LEAN_EXPORT lean_object* l_Std_HashSet_instInhabited(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashSet_foldM___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Std_HashSet_forIn___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_empty___rarg(lean_object* x_1) {
@@ -293,6 +295,24 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_HashSet_instEmptyCollection(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_HashSet_instInhabited(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_HashSet_instEmptyCollection___closed__3;
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_HashSet_instInhabited___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_HashSet_instInhabited(x_1, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_4;

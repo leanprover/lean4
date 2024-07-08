@@ -4155,7 +4155,7 @@ x_51 = lean_ctor_get(x_49, 1);
 lean_inc(x_51);
 x_52 = lean_ctor_get(x_49, 4);
 lean_inc(x_52);
-x_53 = lean_ctor_get_uint8(x_49, sizeof(void*)*5 + 1);
+x_53 = lean_ctor_get_uint8(x_49, sizeof(void*)*6 + 1);
 lean_dec(x_49);
 x_54 = lean_ctor_get(x_50, 1);
 lean_inc(x_54);

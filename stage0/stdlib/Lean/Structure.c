@@ -2474,7 +2474,7 @@ lean_inc(x_11);
 if (lean_obj_tag(x_11) == 0)
 {
 uint8_t x_12; 
-x_12 = lean_ctor_get_uint8(x_7, sizeof(void*)*5);
+x_12 = lean_ctor_get_uint8(x_7, sizeof(void*)*6);
 lean_dec(x_7);
 if (x_12 == 0)
 {
@@ -3894,7 +3894,7 @@ x_7 = lean_ctor_get(x_6, 2);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 4);
 lean_inc(x_8);
-x_9 = lean_ctor_get_uint8(x_6, sizeof(void*)*5);
+x_9 = lean_ctor_get_uint8(x_6, sizeof(void*)*6);
 lean_dec(x_6);
 x_10 = lean_unsigned_to_nat(0u);
 x_11 = lean_nat_dec_eq(x_7, x_10);
@@ -3993,7 +3993,7 @@ x_7 = lean_ctor_get(x_6, 2);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 4);
 lean_inc(x_8);
-x_9 = lean_ctor_get_uint8(x_6, sizeof(void*)*5);
+x_9 = lean_ctor_get_uint8(x_6, sizeof(void*)*6);
 lean_dec(x_6);
 x_10 = lean_unsigned_to_nat(0u);
 x_11 = lean_nat_dec_eq(x_7, x_10);

@@ -15113,7 +15113,7 @@ x_293 = lean_ctor_get_uint8(x_2, sizeof(void*)*2);
 if (x_293 == 0)
 {
 uint8_t x_294; 
-x_294 = lean_ctor_get_uint8(x_10, sizeof(void*)*5);
+x_294 = lean_ctor_get_uint8(x_10, sizeof(void*)*6);
 if (x_294 == 0)
 {
 lean_object* x_295; lean_object* x_296; uint8_t x_297; 

@@ -94,6 +94,7 @@ static lean_object* l_Lean_Elab_Deriving_mkInductiveApp___closed__9;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_mkInductiveApp___spec__1(size_t, size_t, lean_object*);
 lean_object* l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_mkLocalInstanceLetDecls___spec__1___boxed(lean_object**);
+uint8_t l_Lean_InductiveVal_isNested(lean_object*);
 lean_object* l_Lean_mkCIdentFrom(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Elab_getBetterRef(lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_mkLocalInstanceLetDecls___spec__1___closed__5;
@@ -1877,7 +1878,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_mkContext___lambda__1(lean_object*
 _start:
 {
 uint8_t x_12; 
-x_12 = lean_ctor_get_uint8(x_1, sizeof(void*)*5 + 3);
+x_12 = l_Lean_InductiveVal_isNested(x_1);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; 

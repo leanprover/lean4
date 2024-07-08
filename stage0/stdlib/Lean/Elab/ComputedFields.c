@@ -3821,7 +3821,7 @@ x_12 = lean_ctor_get(x_7, 1);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_7, 4);
 lean_inc(x_13);
-x_14 = lean_ctor_get_uint8(x_7, sizeof(void*)*5 + 1);
+x_14 = lean_ctor_get_uint8(x_7, sizeof(void*)*6 + 1);
 lean_dec(x_7);
 x_15 = !lean_is_exclusive(x_8);
 if (x_15 == 0)

@@ -13,3 +13,4 @@ import Init.Data.Array.Mem
 import Init.Data.Array.Attach
 import Init.Data.Array.BasicAux
 import Init.Data.Array.Lemmas
+import Init.Data.Array.TakeDrop

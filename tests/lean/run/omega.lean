@@ -391,6 +391,13 @@ example (n : Nat) : n * n ≥ 0 := by omega
 example (n : Nat) : n * n + n ≥ 0 := by omega
 example (i j k l : Nat) : i * j + k + l - k = i * j + l := by omega
 
+example (n : Nat) : n * 2 = n + n := by omega
+example (n : Nat) : n * n * 2 = n * n + n * n := by omega
+example (n : Nat) : 2 * (n * n) = n * n + n * n := by omega
+-- But not:
+-- example (n : Nat) : 2 * n * n = n * n + n * n := by omega
+-- example (n : Nat) : n * 2 * n = n * n + n * n := by omega
+
 /-! ### Fin -/
 
 -- Test `<`

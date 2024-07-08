@@ -38,7 +38,7 @@ theorem ext {a b : LinearCombo} (w₁ : a.const = b.const) (w₂ : a.coeffs = b.
   subst w₁; subst w₂
   congr
 
-/-- Check if a linear combination is an atom, i.e. the constant term -/
+/-- Check if a linear combination is an atom, i.e. the constant term is zero and there is exactly one nonzero coefficient, which is one. -/
 def isAtom (a : LinearCombo) : Bool :=
   a.const == 0 && (a.coeffs.filter (· == 1)).length == 1 && a.coeffs.all fun c => c == 0 || c == 1
 

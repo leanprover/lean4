@@ -386,6 +386,11 @@ example (x : Nat) : x < 2 →
 example (s : Int) (s0 : s < (0 : Int)) : 63 + (s - 2 ^ 63) ≤ 62 - 2 ^ 63 := by
   omega
 
+-- From https://leanprover.zulipchat.com/#narrow/stream/287929-mathlib4/topic/nat.20fighting
+example (n : Nat) : n * n ≥ 0 := by omega
+example (n : Nat) : n * n + n ≥ 0 := by omega
+example (i j k l : Nat) : i * j + k + l - k = i * j + l := by omega
+
 /-! ### Fin -/
 
 -- Test `<`

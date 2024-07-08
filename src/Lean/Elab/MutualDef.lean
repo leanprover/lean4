@@ -168,13 +168,8 @@ private def elabHeaders (views : Array DefView)
           reuseBody := false
 
       let mut (newHeader, newState) ← withRestoreOrSaveFull reusableResult? none do
-        withRef view.headerRef do
-        addDeclarationRanges declName view.ref  -- NOTE: this should be the full `ref`
+        withReuseContext view.headerRef do
         applyAttributesAt declName view.modifiers.attrs .beforeElaboration
-        -- do not hide header errors on partial body syntax as these two elaboration parts are
-        -- sufficiently independent
-        withTheReader Core.Context ({ · with suppressElabErrors :=
-          view.headerRef.hasMissing && !Command.showPartialSyntaxErrors.get (← getOptions) }) do
         withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|
           elabBindersEx view.binders.getArgs fun xs => do
             let refForElabFunType := view.value
@@ -340,6 +335,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array
           reusableResult? := some (old.value, old.state)
 
     let (val, state) ← withRestoreOrSaveFull reusableResult? header.tacSnap? do
+      withReuseContext header.value do
       withDeclName header.declName <| withLevelNames header.levelNames do
       let valStx ← liftMacroM <| declValToTerm header.value
       forallBoundedTelescope header.type header.numParams fun xs type => do
@@ -933,6 +929,11 @@ where
           checkForHiddenUnivLevels allUserLevelNames preDefs
           addPreDefinitions preDefs
           processDeriving headers
+      for view in views, header in headers do
+        -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
+        -- that depends only on a part of the ref
+        addDeclarationRanges header.declName view.ref
+
 
   processDeriving (headers : Array DefViewElabHeader) := do
     for header in headers, view in views do

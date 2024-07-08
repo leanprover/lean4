@@ -93,7 +93,8 @@ where
             let (_, state) ← withRestoreOrSaveFull reusableResult?
                 -- set up nested reuse; `evalTactic` will check for `isIncrementalElab`
                 (tacSnap? := some { old? := oldInner?, new := inner }) do
-              evalTactic tac
+              Term.withReuseContext tac do
+                evalTactic tac
             finished.resolve { state? := state }
 
         withTheReader Term.Context ({ · with tacSnap? := some {

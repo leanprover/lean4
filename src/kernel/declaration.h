@@ -280,15 +280,15 @@ structure InductiveVal extends ConstantVal where
   all : List Name    -- List of all (including this one) inductive datatypes in the mutual
                         declaration containing this one
   ctors : List Name  -- List of the names of the constructors for this inductive datatype
+  numNested : Nat
   isRec : Bool
   isUnsafe : Bool
   isReflexive : Bool
-  isNested : Bool
 */
 class inductive_val : public object_ref {
 public:
     inductive_val(name const & n, names const & lparams, expr const & type, unsigned nparams,
-                  unsigned nindices, names const & all, names const & cnstrs, bool is_rec, bool is_unsafe, bool is_reflexive, bool is_nested);
+                  unsigned nindices, names const & all, names const & cnstrs, unsigned nnested, bool is_rec, bool is_unsafe, bool is_reflexive);
     inductive_val(inductive_val const & other):object_ref(other) {}
     inductive_val(inductive_val && other):object_ref(other) {}
     inductive_val & operator=(inductive_val const & other) { object_ref::operator=(other); return *this; }
@@ -299,10 +299,10 @@ public:
     names const & get_all() const { return static_cast<names const &>(cnstr_get_ref(*this, 3)); }
     names const & get_cnstrs() const { return static_cast<names const &>(cnstr_get_ref(*this, 4)); }
     unsigned get_ncnstrs() const { return length(get_cnstrs()); }
+    unsigned get_nnested() const { return static_cast<nat const &>(cnstr_get_ref(*this, 5)).get_small_value(); }
     bool is_rec() const;
     bool is_unsafe() const;
     bool is_reflexive() const;
-    bool is_nested() const;
 };
 
 /*

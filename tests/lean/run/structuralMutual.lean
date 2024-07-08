@@ -454,12 +454,13 @@ inductive  B (n : Nat) : Type
 end
 
 /--
-error: its type FixedIndex.Mutual3.A is an inductive datatype
+error: its type is an inductive datatype
   A n
-and parameter
+and the datatype parameter
   n
-depends on (non-fixed) parameter
+depends on the function parameter
   n
+which does not come before the varying parameters and before the indices of the recursion parameter.
 -/
 #guard_msgs in
 set_option linter.constructorNameAsVariable false in

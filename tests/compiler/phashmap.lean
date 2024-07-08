@@ -62,9 +62,7 @@ IO.println m.stats;
 check2 n 0 m;
 let m := delLess 4900 m;
 check2 n 4900 m;
-IO.println m.size;
 IO.println m.stats;
 let m := delLess 4990 m;
 check2 n 4990 m;
-IO.println m.size;
 IO.println m.stats

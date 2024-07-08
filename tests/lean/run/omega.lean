@@ -466,6 +466,31 @@ example (x y : BitVec 64) (_ : x < (y.truncate 32).zeroExtend 64) :
     ~~~x > (1#64 <<< 63) := by
   bv_omega
 
+-- This example, reported from LNSym,
+-- started failing when we changed the definition of `Fin.sub` in https://github.com/leanprover/lean4/pull/4421.
+-- When we use the new definition, `omega` produces a proof term that the kernel is very slow on.
+-- To work around this for now, I've removed `BitVec.toNat_sub` from the `bv_toNat` simp set,
+-- and replaced it with `BitVec.toNat_sub'` which uses the old definition for subtraction.
+-- This is only a workaround, and I would like to understand why the term chokes the kernel.
+example
+    (n : Nat)
+    (addr2 addr1 : BitVec 64)
+    (h0 : n ≤ 18446744073709551616)
+    (h1 : addr2 + 18446744073709551615#64 - addr1 ≤ BitVec.ofNat 64 (n - 1))
+    (h2 : addr2 - addr1 ≤ addr2 + 18446744073709551615#64 - addr1) :
+    n = 18446744073709551616 := by
+  bv_omega
+
+-- This smaller example exhibits the same problem.
+example
+    (n : Nat)
+    (addr2 addr1 : BitVec 16)
+    (h0 : n ≤ 65536)
+    (h1 : addr2 + 65535#16 - addr1 ≤ BitVec.ofNat 16 (n - 1))
+    (h2 : addr2 - addr1 ≤ addr2 + 65535#16 - addr1) :
+    n = 65536 := by
+  bv_omega
+
 /-! ### Error messages -/
 
 /--
@@ -490,8 +515,8 @@ example (x : Nat) : x < 0 := by omega
 /--
 error: omega could not prove the goal:
 a possible counterexample may satisfy the constraints
-  a - b ≥ 0
   a ≥ 0
+  a - b ≥ 0
 where
  a := ↑x
  b := y
@@ -515,12 +540,12 @@ example (x y : Int) : 5 < x ∧ x < 10 → y > 0 := by omega
 error: omega could not prove the goal:
 a possible counterexample may satisfy the constraints
   d ≥ 0
-  a - b ≥ 1
   c ≥ 0
-  a - d ≤ -1
+  c + d ≥ -1
   b ≥ 0
   a ≥ 0
-  c + d ≥ -1
+  a - b ≥ 1
+  a - d ≤ -1
 where
  a := ↑(sizeOf xs)
  b := ↑(sizeOf y)
@@ -544,9 +569,9 @@ theorem sizeOf_snd_lt_sizeOf_list {α : Type u} {β : Type v} [SizeOf α] [SizeO
 error: omega could not prove the goal:
 a possible counterexample may satisfy the constraints
   c ≥ 0
-  a - b - c ≥ 0
   b ≥ 0
   a ≥ 0
+  a - b - c ≥ 0
 where
  a := ↑reallyreallyreallyreally
  b := ↑longlonglonglong
@@ -562,22 +587,22 @@ def a := 1
 /--
 error: omega could not prove the goal:
 a possible counterexample may satisfy the constraints
-  x ≥ 0
-  a_1 ≥ 0
-  v ≥ 0
+  e_1 ≥ 0
+  d_1 ≥ 0
   c_1 ≥ 0
   b_1 ≥ 0
-  e_1 ≥ 0
+  a_1 ≥ 0
   z ≥ 0
-  q ≥ 0
-  s ≥ 0
-  d_1 ≥ 0
+  y ≥ 0
+  x ≥ 0
+  w ≥ 0
+  v ≥ 0
   u ≥ 0
   t ≥ 0
-  w ≥ 0
-  q + r + s + t + u + v + w + x + y + z + a_1 + b_1 + c_1 + d_1 + e_1 ≥ 100
+  s ≥ 0
   r ≥ 0
-  y ≥ 0
+  q ≥ 0
+  q + r + s + t + u + v + w + x + y + z + a_1 + b_1 + c_1 + d_1 + e_1 ≥ 100
 where
  q := ↑b
  r := ↑c

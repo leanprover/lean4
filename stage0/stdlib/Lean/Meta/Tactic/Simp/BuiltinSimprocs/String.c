@@ -444,7 +444,7 @@ static lean_object* _init_l_String_reduceAppend___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HAppend", 7);
+x_1 = lean_mk_string_unchecked("HAppend", 7, 7);
 return x_1;
 }
 }
@@ -452,7 +452,7 @@ static lean_object* _init_l_String_reduceAppend___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hAppend", 7);
+x_1 = lean_mk_string_unchecked("hAppend", 7, 7);
 return x_1;
 }
 }
@@ -528,7 +528,7 @@ static lean_object* _init_l___regBuiltin_String_reduceAppend_declare__1____x40_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("String", 6);
+x_1 = lean_mk_string_unchecked("String", 6, 6);
 return x_1;
 }
 }
@@ -536,7 +536,7 @@ static lean_object* _init_l___regBuiltin_String_reduceAppend_declare__1____x40_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceAppend", 12);
+x_1 = lean_mk_string_unchecked("reduceAppend", 12, 12);
 return x_1;
 }
 }
@@ -736,7 +736,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Stri
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("List", 4);
+x_1 = lean_mk_string_unchecked("List", 4, 4);
 return x_1;
 }
 }
@@ -744,7 +744,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Stri
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("nil", 3);
+x_1 = lean_mk_string_unchecked("nil", 3, 3);
 return x_1;
 }
 }
@@ -762,7 +762,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Stri
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cons", 4);
+x_1 = lean_mk_string_unchecked("cons", 4, 4);
 return x_1;
 }
 }
@@ -935,7 +935,7 @@ static lean_object* _init_l_String_reduceMk___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -953,7 +953,7 @@ static lean_object* _init_l_String_reduceMk___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mk", 2);
+x_1 = lean_mk_string_unchecked("mk", 2, 2);
 return x_1;
 }
 }
@@ -1025,7 +1025,7 @@ static lean_object* _init_l___regBuiltin_String_reduceMk_declare__1____x40_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceMk", 8);
+x_1 = lean_mk_string_unchecked("reduceMk", 8, 8);
 return x_1;
 }
 }
@@ -1306,7 +1306,7 @@ static lean_object* _init_l_String_reduceBoolPred___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Bool", 4);
+x_1 = lean_mk_string_unchecked("Bool", 4, 4);
 return x_1;
 }
 }
@@ -1314,7 +1314,7 @@ static lean_object* _init_l_String_reduceBoolPred___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("false", 5);
+x_1 = lean_mk_string_unchecked("false", 5, 5);
 return x_1;
 }
 }
@@ -1352,7 +1352,7 @@ static lean_object* _init_l_String_reduceBoolPred___lambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("true", 4);
+x_1 = lean_mk_string_unchecked("true", 4, 4);
 return x_1;
 }
 }
@@ -1695,7 +1695,7 @@ static lean_object* _init_l_String_reduceLT___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LT", 2);
+x_1 = lean_mk_string_unchecked("LT", 2, 2);
 return x_1;
 }
 }
@@ -1703,7 +1703,7 @@ static lean_object* _init_l_String_reduceLT___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lt", 2);
+x_1 = lean_mk_string_unchecked("lt", 2, 2);
 return x_1;
 }
 }
@@ -1774,7 +1774,7 @@ static lean_object* _init_l___regBuiltin_String_reduceLT_declare__1____x40_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceLT", 8);
+x_1 = lean_mk_string_unchecked("reduceLT", 8, 8);
 return x_1;
 }
 }
@@ -2020,7 +2020,7 @@ static lean_object* _init_l_String_reduceLE___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LE", 2);
+x_1 = lean_mk_string_unchecked("LE", 2, 2);
 return x_1;
 }
 }
@@ -2028,7 +2028,7 @@ static lean_object* _init_l_String_reduceLE___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("le", 2);
+x_1 = lean_mk_string_unchecked("le", 2, 2);
 return x_1;
 }
 }
@@ -2099,7 +2099,7 @@ static lean_object* _init_l___regBuiltin_String_reduceLE_declare__1____x40_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceLE", 8);
+x_1 = lean_mk_string_unchecked("reduceLE", 8, 8);
 return x_1;
 }
 }
@@ -2336,7 +2336,7 @@ static lean_object* _init_l_String_reduceGT___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("GT", 2);
+x_1 = lean_mk_string_unchecked("GT", 2, 2);
 return x_1;
 }
 }
@@ -2344,7 +2344,7 @@ static lean_object* _init_l_String_reduceGT___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("gt", 2);
+x_1 = lean_mk_string_unchecked("gt", 2, 2);
 return x_1;
 }
 }
@@ -2415,7 +2415,7 @@ static lean_object* _init_l___regBuiltin_String_reduceGT_declare__1____x40_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceGT", 8);
+x_1 = lean_mk_string_unchecked("reduceGT", 8, 8);
 return x_1;
 }
 }
@@ -2590,7 +2590,7 @@ static lean_object* _init_l_String_reduceGE___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("GE", 2);
+x_1 = lean_mk_string_unchecked("GE", 2, 2);
 return x_1;
 }
 }
@@ -2598,7 +2598,7 @@ static lean_object* _init_l_String_reduceGE___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ge", 2);
+x_1 = lean_mk_string_unchecked("ge", 2, 2);
 return x_1;
 }
 }
@@ -2669,7 +2669,7 @@ static lean_object* _init_l___regBuiltin_String_reduceGE_declare__1____x40_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceGE", 8);
+x_1 = lean_mk_string_unchecked("reduceGE", 8, 8);
 return x_1;
 }
 }
@@ -2844,7 +2844,7 @@ static lean_object* _init_l_String_reduceEq___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -2915,7 +2915,7 @@ static lean_object* _init_l___regBuiltin_String_reduceEq_declare__1____x40_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceEq", 8);
+x_1 = lean_mk_string_unchecked("reduceEq", 8, 8);
 return x_1;
 }
 }
@@ -3152,7 +3152,7 @@ static lean_object* _init_l_String_reduceNe___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Ne", 2);
+x_1 = lean_mk_string_unchecked("Ne", 2, 2);
 return x_1;
 }
 }
@@ -3223,7 +3223,7 @@ static lean_object* _init_l___regBuiltin_String_reduceNe_declare__1____x40_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceNe", 8);
+x_1 = lean_mk_string_unchecked("reduceNe", 8, 8);
 return x_1;
 }
 }
@@ -3241,7 +3241,7 @@ static lean_object* _init_l___regBuiltin_String_reduceNe_declare__1____x40_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Not", 3);
+x_1 = lean_mk_string_unchecked("Not", 3, 3);
 return x_1;
 }
 }
@@ -3515,7 +3515,7 @@ static lean_object* _init_l_String_reduceBEq___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("BEq", 3);
+x_1 = lean_mk_string_unchecked("BEq", 3, 3);
 return x_1;
 }
 }
@@ -3523,7 +3523,7 @@ static lean_object* _init_l_String_reduceBEq___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("beq", 3);
+x_1 = lean_mk_string_unchecked("beq", 3, 3);
 return x_1;
 }
 }
@@ -3599,7 +3599,7 @@ static lean_object* _init_l___regBuiltin_String_reduceBEq_declare__1____x40_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceBEq", 9);
+x_1 = lean_mk_string_unchecked("reduceBEq", 9, 9);
 return x_1;
 }
 }
@@ -3873,7 +3873,7 @@ static lean_object* _init_l_String_reduceBNe___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("bne", 3);
+x_1 = lean_mk_string_unchecked("bne", 3, 3);
 return x_1;
 }
 }
@@ -3949,7 +3949,7 @@ static lean_object* _init_l___regBuiltin_String_reduceBNe_declare__1____x40_Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("reduceBNe", 9);
+x_1 = lean_mk_string_unchecked("reduceBNe", 9, 9);
 return x_1;
 }
 }

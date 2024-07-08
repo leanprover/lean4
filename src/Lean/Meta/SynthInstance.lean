@@ -194,9 +194,6 @@ def checkSystem : SynthM Unit := do
   Core.checkInterrupted
   Core.checkMaxHeartbeatsCore "typeclass" `synthInstance.maxHeartbeats (← read).maxHeartbeats
 
-@[inline] def mapMetaM (f : forall {α}, MetaM α → MetaM α) {α} : SynthM α → SynthM α :=
-  monadMap @f
-
 instance : Inhabited (SynthM α) where
   default := fun _ _ => default
 
@@ -337,26 +334,6 @@ def getSubgoals (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array 
   }
 
 /--
-Similar to `mkLambdaFVars`, but ensures result is eta-reduced.
-For example, suppose `e` is the local variable `inst x y`, and `xs` is `#[x, y]`, then
-the result is `inst` instead of `fun x y => inst x y`.
-
-We added this auxiliary function because of aliases such as `DecidablePred`. For example,
-consider the following definition.
-```
-def filter (p : α → Prop) [inst : DecidablePred p] (xs : List α) : List α :=
-  match xs with
-  | [] => []
-  | x :: xs' => if p x then x :: filter p xs' else filter p xs'
-```
-Without `mkLambdaFVars'`, the implicit instance at the `filter` applications would be `fun x => inst x` instead of `inst`.
-Moreover, the equation lemmas associated with `filter` would have `fun x => inst x` on their right-hand-side. Then,
-we would start getting terms such as `fun x => (fun x => inst x) x` when using the equational theorem.
--/
-private def mkLambdaFVars' (xs : Array Expr) (e : Expr) : MetaM Expr :=
-  return (← mkLambdaFVars xs e).eta
-
-/--
   Try to synthesize metavariable `mvar` using the instance `inst`.
   Remark: `mctx` is set using `withMCtx`.
   If it succeeds, the result is a new updated metavariable context and a new list of subgoals.
@@ -373,7 +350,23 @@ def tryResolve (mvar : Expr) (inst : Instance) : MetaM (Option (MetavarContext �
     withTraceNode `Meta.synthInstance.tryResolve (withMCtx (← getMCtx) do
         return m!"{exceptOptionEmoji ·} {← instantiateMVars mvarTypeBody} ≟ {← instantiateMVars instTypeBody}") do
     if (← isDefEq mvarTypeBody instTypeBody) then
-      let instVal ← mkLambdaFVars' xs instVal
+      /-
+      We set `etaReduce := true`.
+      For example, suppose `e` is the local variable `inst x y`, and `xs` is `#[x, y]`, then
+      the result is `inst` instead of `fun x y => inst x y`.
+
+      Consider the following definition.
+      ```
+      def filter (p : α → Prop) [inst : DecidablePred p] (xs : List α) : List α :=
+        match xs with
+        | [] => []
+        | x :: xs' => if p x then x :: filter p xs' else filter p xs'
+      ```
+      Without `etaReduce := true`, the implicit instance at the `filter` applications would be `fun x => inst x` instead of `inst`.
+      Moreover, the equation lemmas associated with `filter` would have `fun x => inst x` on their right-hand-side. Then,
+      we would start getting terms such as `fun x => (fun x => inst x) x` when using the equational theorem.
+      -/
+      let instVal ← mkLambdaFVars xs instVal (etaReduce := true)
       if (← isDefEq mvar instVal) then
         return some ((← getMCtx), subgoals)
     return none
@@ -486,7 +479,7 @@ private def removeUnusedArguments? (mctx : MetavarContext) (mvar : Expr) : MetaM
         let ys := ys.toArray
         let mvarType' ← mkForallFVars ys body
         withLocalDeclD `redf mvarType' fun f => do
-          let transformer ← mkLambdaFVars' #[f] (← mkLambdaFVars' xs (mkAppN f ys))
+          let transformer ← mkLambdaFVars #[f] (← mkLambdaFVars xs (mkAppN f ys) (etaReduce := true)) (etaReduce := true)
           trace[Meta.synthInstance.unusedArgs] "{mvarType}\nhas unused arguments, reduced type{indentExpr mvarType'}\nTransformer{indentExpr transformer}"
           return some (mvarType', transformer)
 
@@ -705,6 +698,83 @@ private def preprocessOutParam (type : Expr) : MetaM Expr :=
   Remark: we use a different option for controlling the maximum result size for coercions.
 -/
 
+private def assignOutParams (type : Expr) (result : Expr) : MetaM Bool := do
+  let resultType ← inferType result
+  /- Output parameters of local instances may be marked as `syntheticOpaque` by the application-elaborator.
+      We use `withAssignableSyntheticOpaque` to make sure this kind of parameter can be assigned by the following `isDefEq`.
+      TODO: rewrite this check to avoid `withAssignableSyntheticOpaque`. -/
+  let defEq ← withDefault <| withAssignableSyntheticOpaque <| isDefEq type resultType
+  unless defEq do
+    trace[Meta.synthInstance] "{crossEmoji} result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"
+  return defEq
+
+/--
+Auxiliary function for converting the `AbstractMVarsResult` returned by `SynthIntance.main` into an `Expr`.
+-/
+private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVarsResult) : MetaM (Option Expr) := do
+  let some abstResult := abstResult? | return none
+  let (_, _, result) ← openAbstractMVarsResult abstResult
+  unless (← assignOutParams type result) do return none
+  let result ← instantiateMVars result
+  /- We use `check` to propagate universe constraints implied by the `result`.
+      Recall that we use `allowLevelAssignments := true` which allows universe metavariables in the current depth to be assigned,
+      but these assignments are discarded by `withNewMCtxDepth`.
+
+      TODO: If this `check` is a performance bottleneck, we can improve performance by tracking whether
+            a universe metavariable from previous universe levels have been assigned or not during TC resolution.
+            We only need to perform the `check` if this kind of assignment have been performed.
+
+      The example in the issue #796 exposed this issue.
+      ```
+      structure A
+      class B (a : outParam A) (α : Sort u)
+      class C {a : A} (α : Sort u) [B a α]
+      class D {a : A} (α : Sort u) [B a α] [c : C α]
+      class E (a : A) where [c (α : Sort u) [B a α] : C α]
+      instance c {a : A} [e : E a] (α : Sort u) [B a α] : C α := e.c α
+
+      def d {a : A} [e : E a] (α : Sort u) [b : B a α] : D α := ⟨⟩
+      ```
+      The term `D α` has two instance implicit arguments. The second one has type `C α`, and TC
+      resolution produces the result `@c.{u} a e α b`.
+      Note that the `e` has type `E.{?v} a`, and `E` is universe polymorphic,
+      but the universe does not occur in the parameter `a`. We have that `?v := u` is implied by `@c.{u} a e α b`,
+      but this assignment is lost.
+  -/
+  check result
+  return some result
+
+/--
+Auxiliary function for converting a cached `AbstractMVarsResult` returned by `SynthIntance.main` into an `Expr`.
+This function tries to avoid the potentially expensive `check` at `applyCachedAbstractResult?`.
+-/
+private def applyCachedAbstractResult? (type : Expr) (abstResult? : Option AbstractMVarsResult) : MetaM (Option Expr) := do
+  let some abstResult := abstResult? | return none
+  if abstResult.numMVars == 0 && abstResult.paramNames.isEmpty then
+    /-
+    Result does not instroduce new metavariables, thus we don't need to perform (again)
+    the `check` at `applyAbstractResult?`.
+    This is an optimization.
+    -/
+    unless (← assignOutParams type abstResult.expr) do
+      return none
+    return some abstResult.expr
+  else
+    applyAbstractResult? type abstResult?
+
+/-- Helper function for caching synthesized type class instances. -/
+private def cacheResult (cacheKey : SynthInstanceCacheKey) (abstResult? : Option AbstractMVarsResult) (result? : Option Expr) : MetaM Unit := do
+  match result? with
+  | none => modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey none }
+  | some result =>
+    let some abstResult := abstResult? | return ()
+    if abstResult.numMVars == 0 && abstResult.paramNames.isEmpty then
+      -- See `applyCachedAbstractResult?` If new metavariables have **not** been introduced,
+      -- we don't need to perform extra checks again when reusing result.
+      modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey (some { expr := result, paramNames := #[], numMVars := 0 }) }
+    else
+      modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey (some abstResult) }
+
 def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do profileitM Exception "typeclass inference" (← getOptions) (decl := type.getAppFn.constName?.getD .anonymous) do
   let opts ← getOptions
   let maxResultSize := maxResultSize?.getD (synthInstance.maxSize.get opts)
@@ -716,66 +786,20 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
     let localInsts ← getLocalInstances
     let type ← instantiateMVars type
     let type ← preprocess type
-    let s ← get
-    let rec assignOutParams (result : Expr) : MetaM Bool := do
-      let resultType ← inferType result
-      /- Output parameters of local instances may be marked as `syntheticOpaque` by the application-elaborator.
-         We use `withAssignableSyntheticOpaque` to make sure this kind of parameter can be assigned by the following `isDefEq`.
-         TODO: rewrite this check to avoid `withAssignableSyntheticOpaque`. -/
-      let defEq ← withDefault <| withAssignableSyntheticOpaque <| isDefEq type resultType
-      unless defEq do
-        trace[Meta.synthInstance] "{crossEmoji} result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"
-      return defEq
     let cacheKey := { localInsts, type, synthPendingDepth := (← read).synthPendingDepth }
-    match s.cache.synthInstance.find? cacheKey with
-    | some result =>
-      trace[Meta.synthInstance] "result {result} (cached)"
-      if let some inst := result then
-        unless (← assignOutParams inst) do
-          return none
-      pure result
-    | none        =>
-      let result? ← withNewMCtxDepth (allowLevelAssignments := true) do
+    match (← get).cache.synthInstance.find? cacheKey with
+    | some abstResult? =>
+      let result? ← applyCachedAbstractResult? type abstResult?
+      trace[Meta.synthInstance] "result {result?} (cached)"
+      return result?
+    | none =>
+      let abstResult? ← withNewMCtxDepth (allowLevelAssignments := true) do
         let normType ← preprocessOutParam type
         SynthInstance.main normType maxResultSize
-      let result? ← match result? with
-        | none        => pure none
-        | some result => do
-          let (_, _, result) ← openAbstractMVarsResult result
-          trace[Meta.synthInstance] "result {result}"
-          if (← assignOutParams result) then
-            let result ← instantiateMVars result
-            /- We use `check` to propagate universe constraints implied by the `result`.
-               Recall that we use `allowLevelAssignments := true` which allows universe metavariables in the current depth to be assigned,
-               but these assignments are discarded by `withNewMCtxDepth`.
-
-               TODO: If this `check` is a performance bottleneck, we can improve performance by tracking whether
-                     a universe metavariable from previous universe levels have been assigned or not during TC resolution.
-                     We only need to perform the `check` if this kind of assignment have been performed.
-
-               The example in the issue #796 exposed this issue.
-               ```
-                structure A
-                class B (a : outParam A) (α : Sort u)
-                class C {a : A} (α : Sort u) [B a α]
-                class D {a : A} (α : Sort u) [B a α] [c : C α]
-                class E (a : A) where [c (α : Sort u) [B a α] : C α]
-                instance c {a : A} [e : E a] (α : Sort u) [B a α] : C α := e.c α
-
-                def d {a : A} [e : E a] (α : Sort u) [b : B a α] : D α := ⟨⟩
-               ```
-               The term `D α` has two instance implicit arguments. The second one has type `C α`, and TC
-               resolution produces the result `@c.{u} a e α b`.
-               Note that the `e` has type `E.{?v} a`, and `E` is universe polymorphic,
-               but the universe does not occur in the parameter `a`. We have that `?v := u` is implied by `@c.{u} a e α b`,
-               but this assignment is lost.
-            -/
-            check result
-            pure (some result)
-          else
-            pure none
-      modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey result? }
-      pure result?
+      let result? ← applyAbstractResult? type abstResult?
+      trace[Meta.synthInstance] "result {result?}"
+      cacheResult cacheKey abstResult? result?
+      return result?
 
 /--
   Return `LOption.some r` if succeeded, `LOption.none` if it failed, and `LOption.undef` if

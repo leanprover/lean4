@@ -10,6 +10,8 @@ import Lean.DeclarationRange
 import Lean.Data.Json
 import Lean.Data.Lsp
 
+import Lean.Parser.Tactic.Doc
+
 import Lean.Server.FileWorker.Utils
 import Lean.Server.Requests
 import Lean.Server.Completion
@@ -23,6 +25,8 @@ namespace Lean.Server.FileWorker
 open Lsp
 open RequestM
 open Snapshots
+
+open Lean.Parser.Tactic.Doc (alternativeOfTactic getTacticExtensionString)
 
 def handleCompletion (p : CompletionParams)
     : RequestM (RequestTask CompletionList) := do
@@ -85,7 +89,8 @@ def handleHover (p : HoverParams)
       let stxDoc? ← match stack? with
         | some stack => stack.findSomeM? fun (stx, _) => do
           let .node _ kind _ := stx | pure none
-          return (← findDocString? snap.env kind).map (·, stx.getRange?.get!)
+          let docStr ← findDocString? snap.env kind
+          return docStr.map (·, stx.getRange?.get!)
         | none => pure none
 
       -- now try info tree
@@ -468,11 +473,11 @@ def computeAbsoluteLspSemanticTokens
     (endPos?  : Option String.Pos)
     (tokens   : Array LeanSemanticToken)
     : Array AbsoluteLspSemanticToken :=
-  tokens.filterMap fun ⟨stx, type⟩ => do
+  tokens.filterMap fun ⟨stx, tokenType⟩ => do
     let (pos, tailPos) := (← stx.getPos?, ← stx.getTailPos?)
     guard <| beginPos <= pos && endPos?.all (pos < ·)
     let (lspPos, lspTailPos) := (text.utf8PosToLspPos pos, text.utf8PosToLspPos tailPos)
-    return ⟨lspPos, lspTailPos, type⟩
+    return ⟨lspPos, lspTailPos, tokenType⟩
 
 /-- Filters all duplicate semantic tokens with the same `pos`, `tailPos` and `type`. -/
 def filterDuplicateSemanticTokens (tokens : Array AbsoluteLspSemanticToken) : Array AbsoluteLspSemanticToken :=
@@ -488,11 +493,11 @@ def computeDeltaLspSemanticTokens (tokens : Array AbsoluteLspSemanticToken) : Se
     pos1 < pos2 || pos1 == pos2 && tailPos1 <= tailPos2
   let mut data : Array Nat := Array.mkEmpty (5*tokens.size)
   let mut lastPos : Lsp.Position := ⟨0, 0⟩
-  for ⟨pos, tailPos, type⟩ in tokens do
+  for ⟨pos, tailPos, tokenType⟩ in tokens do
     let deltaLine := pos.line - lastPos.line
     let deltaStart := pos.character - (if pos.line == lastPos.line then lastPos.character else 0)
     let length := tailPos.character - pos.character
-    let tokenType := type.toNat
+    let tokenType := tokenType.toNat
     let tokenModifiers := 0
     data := data ++ #[deltaLine, deltaStart, length, tokenType, tokenModifiers]
     lastPos := pos

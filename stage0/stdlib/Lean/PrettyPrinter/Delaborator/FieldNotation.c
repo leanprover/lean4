@@ -30,7 +30,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_Delaborator_p
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_fieldNotationCandidate_x3f___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_isParentProj(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
@@ -57,6 +56,7 @@ uint8_t l_Lean_TagAttribute_hasTag(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___spec__2___closed__1;
 lean_object* l_Lean_Name_getPrefix(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_fieldNotationCandidate_x3f___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_parentProj_x3f___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -152,7 +152,7 @@ static lean_object* _init_l___private_Lean_PrettyPrinter_Delaborator_FieldNotati
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed", 6);
+x_1 = lean_mk_string_unchecked("failed", 6, 6);
 return x_1;
 }
 }
@@ -793,7 +793,7 @@ if (x_99 == 0)
 {
 lean_object* x_100; lean_object* x_101; 
 x_100 = l_Lean_instInhabitedExpr;
-x_101 = l___private_Init_GetElem_0__outOfBounds___rarg(x_100);
+x_101 = l_outOfBounds___rarg(x_100);
 x_57 = x_101;
 goto block_98;
 }
@@ -1081,7 +1081,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_PrettyPrint
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("motive", 6);
+x_1 = lean_mk_string_unchecked("motive", 6, 6);
 return x_1;
 }
 }
@@ -1117,7 +1117,7 @@ if (x_58 == 0)
 {
 lean_object* x_59; lean_object* x_60; 
 x_59 = l_Lean_instInhabitedExpr;
-x_60 = l___private_Init_GetElem_0__outOfBounds___rarg(x_59);
+x_60 = l_outOfBounds___rarg(x_59);
 x_23 = x_60;
 goto block_57;
 }
@@ -1542,7 +1542,7 @@ static lean_object* _init_l___private_Lean_PrettyPrinter_Delaborator_FieldNotati
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Function", 8);
+x_1 = lean_mk_string_unchecked("Function", 8, 8);
 return x_1;
 }
 }

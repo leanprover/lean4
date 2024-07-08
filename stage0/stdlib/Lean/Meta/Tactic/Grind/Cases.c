@@ -79,7 +79,7 @@ static lean_object* _init_l_Lean_Meta_Grind_cases_throwInductiveExpected___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("grind", 5);
+x_1 = lean_mk_string_unchecked("grind", 5, 5);
 return x_1;
 }
 }
@@ -87,7 +87,7 @@ static lean_object* _init_l_Lean_Meta_Grind_cases_throwInductiveExpected___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cases", 5);
+x_1 = lean_mk_string_unchecked("cases", 5, 5);
 return x_1;
 }
 }
@@ -105,7 +105,7 @@ static lean_object* _init_l_Lean_Meta_Grind_cases_throwInductiveExpected___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(non-recursive) inductive type expected at ", 43);
+x_1 = lean_mk_string_unchecked("(non-recursive) inductive type expected at ", 43, 43);
 return x_1;
 }
 }
@@ -122,7 +122,7 @@ static lean_object* _init_l_Lean_Meta_Grind_cases_throwInductiveExpected___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -198,7 +198,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Meta_Grind_cases___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected recursor type", 24);
+x_1 = lean_mk_string_unchecked("unexpected recursor type", 24, 24);
 return x_1;
 }
 }

@@ -9,12 +9,12 @@ h : Type
 case a
 ⊢ Type
 refineFiltersOldMVars.lean:66:4-66:11: error: no goals to be solved
-refineFiltersOldMVars.lean:101:2-101:3: error: unsolved goals
+refineFiltersOldMVars.lean:101:2-101:13: error: unsolved goals
 case d
 ⊢ Bool
-refineFiltersOldMVars.lean:102:2-102:3: error: unsolved goals
+refineFiltersOldMVars.lean:102:2-102:13: error: unsolved goals
 case e
 ⊢ Nat
-refineFiltersOldMVars.lean:109:2-109:3: error: unsolved goals
+refineFiltersOldMVars.lean:109:2-109:13: error: unsolved goals
 case e
 ⊢ Bool

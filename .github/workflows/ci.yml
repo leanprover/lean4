@@ -9,6 +9,17 @@ on:
   merge_group:
   schedule:
     - cron: '0 7 * * *'  # 8AM CET/11PM PT
+  # for manual re-release of a nightly
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action'
+        required: true
+        default: 'release nightly'
+        type: choice
+        options:
+        - release nightly
+
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
@@ -41,11 +52,11 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         # don't schedule nightlies on forks
-        if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4'
+        if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4' || inputs.action == 'release nightly'
       - name: Set Nightly
-        if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4'
+        if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4' || inputs.action == 'release nightly'
         id: set-nightly
         run: |
           if [[ -n '${{ secrets.PUSH_NIGHTLY_TOKEN }}' ]]; then
@@ -386,7 +397,7 @@ jobs:
           else
             ${{ matrix.tar || 'tar' }} cf - $dir | zstd -T0 --no-progress -o pack/$dir.tar.zst
           fi
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: matrix.release
         with:
           name: build-${{ matrix.name }}
@@ -467,8 +478,14 @@ jobs:
         with:
           files: artifacts/*/*
           fail_on_unmatched_files: true
+          prerelease: ${{ !startsWith(github.ref, 'refs/tags/v') || contains(github.ref, '-rc') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Update release.lean-lang.org
+        run: |
+          gh workflow -R leanprover/release-index run update-index.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_INDEX_TOKEN }}
 
   # This job creates nightly releases during the cron job.
   # It is responsible for creating the tag, and automatically generating a changelog.
@@ -478,7 +495,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           # needed for tagging
           fetch-depth: 0
@@ -511,3 +528,8 @@ jobs:
           repository: ${{ github.repository_owner }}/lean4-nightly
         env:
           GITHUB_TOKEN: ${{ secrets.PUSH_NIGHTLY_TOKEN }}
+      - name: Update release.lean-lang.org
+        run: |
+          gh workflow -R leanprover/release-index run update-index.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_INDEX_TOKEN }}

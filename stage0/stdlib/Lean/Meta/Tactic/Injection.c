@@ -30,7 +30,6 @@ uint8_t l_Lean_Expr_isRawNatLit(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getCtorNumPropFields___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_injectionCore___lambda__1___closed__10;
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Meta_injectionCore___closed__2;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -48,6 +47,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_injectionIntro___boxed(lean_object*, lean_o
 lean_object* l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FVarId_getDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_injections_go___closed__6;
+lean_object* l_outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Meta_injectionCore___lambda__1___closed__12;
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -131,7 +131,7 @@ if (x_27 == 0)
 lean_object* x_28; lean_object* x_29; lean_object* x_30; 
 lean_dec(x_25);
 x_28 = l_Lean_instInhabitedExpr;
-x_29 = l___private_Init_GetElem_0__outOfBounds___rarg(x_28);
+x_29 = l_outOfBounds___rarg(x_28);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
@@ -507,7 +507,7 @@ static lean_object* _init_l_Lean_Meta_injectionCore___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HEq", 3);
+x_1 = lean_mk_string_unchecked("HEq", 3, 3);
 return x_1;
 }
 }
@@ -525,7 +525,7 @@ static lean_object* _init_l_Lean_Meta_injectionCore___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -543,7 +543,7 @@ static lean_object* _init_l_Lean_Meta_injectionCore___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("equality expected", 17);
+x_1 = lean_mk_string_unchecked("equality expected", 17, 17);
 return x_1;
 }
 }
@@ -580,7 +580,7 @@ static lean_object* _init_l_Lean_Meta_injectionCore___lambda__1___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("equality of constructor applications expected", 45);
+x_1 = lean_mk_string_unchecked("equality of constructor applications expected", 45, 45);
 return x_1;
 }
 }
@@ -617,7 +617,7 @@ static lean_object* _init_l_Lean_Meta_injectionCore___lambda__1___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ill-formed noConfusion auxiliary construction", 45);
+x_1 = lean_mk_string_unchecked("ill-formed noConfusion auxiliary construction", 45, 45);
 return x_1;
 }
 }
@@ -4489,7 +4489,7 @@ static lean_object* _init_l_Lean_Meta_injectionCore___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("injection", 9);
+x_1 = lean_mk_string_unchecked("injection", 9, 9);
 return x_1;
 }
 }
@@ -4900,7 +4900,7 @@ static lean_object* _init_l_Lean_Meta_injections_go___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("injections", 10);
+x_1 = lean_mk_string_unchecked("injections", 10, 10);
 return x_1;
 }
 }
@@ -4918,7 +4918,7 @@ static lean_object* _init_l_Lean_Meta_injections_go___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("recursion depth exceeded", 24);
+x_1 = lean_mk_string_unchecked("recursion depth exceeded", 24, 24);
 return x_1;
 }
 }

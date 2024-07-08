@@ -1,14 +1,23 @@
-termination_by.lean:8:2-8:18: error: unused `termination_by`, function is not recursive
-termination_by.lean:11:2-11:21: error: unused `decreasing_by`, function is not recursive
-termination_by.lean:14:2-15:21: error: unused termination hints, function is not recursive
-termination_by.lean:18:2-18:18: error: unused `termination_by`, function is partial
-termination_by.lean:21:2-21:21: error: unused `decreasing_by`, function is partial
-termination_by.lean:24:2-25:21: error: unused termination hints, function is partial
-termination_by.lean:28:0-28:16: error: unused `termination_by`, function is unsafe
-termination_by.lean:31:2-31:21: error: unused `decreasing_by`, function is unsafe
-termination_by.lean:34:2-35:21: error: unused termination hints, function is unsafe
-termination_by.lean:39:4-39:20: error: unused `termination_by`, function is not recursive
-termination_by.lean:43:4-43:20: error: unused `termination_by`, function is not recursive
-termination_by.lean:53:2-53:18: error: unused `termination_by`, function is not recursive
-termination_by.lean:63:6-63:11: error: Missing `termination_by`; this function is mutually recursive with isEven, which has a `termination_by` clause.
-termination_by.lean:80:6-80:7: error: Missing `termination_by`; this function is mutually recursive with Test.f, which has a `termination_by` clause.
+termination_by.lean:9:2-9:18: error: unused `termination_by`, function is not recursive
+termination_by.lean:12:2-12:21: error: unused `decreasing_by`, function is not recursive
+termination_by.lean:15:2-16:21: error: unused termination hints, function is not recursive
+termination_by.lean:19:2-19:18: error: unused `termination_by`, function is partial
+termination_by.lean:22:2-22:21: error: unused `decreasing_by`, function is partial
+termination_by.lean:25:2-26:21: error: unused termination hints, function is partial
+termination_by.lean:29:0-29:16: error: unused `termination_by`, function is unsafe
+termination_by.lean:32:2-32:21: error: unused `decreasing_by`, function is unsafe
+termination_by.lean:35:2-36:21: error: unused termination hints, function is unsafe
+termination_by.lean:40:4-40:20: error: unused `termination_by`, function is not recursive
+termination_by.lean:44:4-44:20: error: unused `termination_by`, function is not recursive
+termination_by.lean:54:2-54:18: error: unused `termination_by`, function is not recursive
+termination_by.lean:62:2-62:23: error: Incomplete set of `termination_by` annotations:
+This function is mutually with isOdd, which does not have a `termination_by` clause.
+The present clause is ignored.
+Try this: termination_by x1 => x1
+termination_by.lean:79:2-79:27: error: Incomplete set of `termination_by` annotations:
+This function is mutually with Test.f, Test.h and Test.i, which do not have a `termination_by` clause.
+The present clause is ignored.
+termination_by.lean:101:2-101:27: error: Invalid `termination_by`; this function is mutually recursive with Test2.f, which is marked as `termination_by structural` so this one also needs to be marked `structural`.
+termination_by.lean:120:2-120:38: error: Invalid `termination_by`; this function is mutually recursive with Test3.f, which is not marked as `structural` so this one cannot be `structural` either.
+termination_by.lean:144:2-144:38: error: Invalid `termination_by`; this function is mutually recursive with Test4.f, which is not marked as `structural` so this one cannot be `structural` either.
+termination_by.lean:159:2-159:21: error: Invalid `decreasing_by`; this function is marked as structurally recursive, so no explicit termination proof is needed.

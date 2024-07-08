@@ -17,7 +17,7 @@
 
 noncomputable section
 
-/-- info: Try this: exact Nat.lt.base x -/
+/-- info: Try this: exact Nat.lt_add_one x -/
 #guard_msgs in
 example (x : Nat) : x ≠ x.succ := Nat.ne_of_lt (by apply?)
 
@@ -39,7 +39,7 @@ example (n m k : Nat) : n ≤ m → n + k ≤ m + k := by apply?
 #guard_msgs in
 example (_ha : a > 0) (w : b ∣ c) : a * b ∣ a * c := by apply?
 
-/-- info: Try this: Nat.lt.base x -/
+/-- info: Try this: Nat.lt_add_one x -/
 #guard_msgs in
 example : x < x + 1 := exact?%
 
@@ -156,7 +156,23 @@ end synonym
 #guard_msgs in
 example : ∀ P : Prop, ¬(P ↔ ¬P) := by apply?
 
+-- Copy of P for testing purposes.
+inductive Q : Nat → Prop
+  | gt_in_head {n : Nat} : n < 0 → Q n
+
+theorem p_iff_q (i : Nat) : P i ↔ Q i :=
+  Iff.intro (fun ⟨i⟩ => Q.gt_in_head i) (fun ⟨i⟩ => P.gt_in_head i)
+
 -- We even find `iff` results:
+
+/-- info: Try this: exact (p_iff_q a).mp h -/
+#guard_msgs in
+example {a : Nat} (h : P a) : Q a := by apply?
+
+/-- info: Try this: exact (p_iff_q a).mpr h -/
+#guard_msgs in
+example {a : Nat} (h : Q a) : P a := by apply?
+
 /-- info: Try this: exact (Nat.dvd_add_iff_left h₁).mpr h₂ -/
 #guard_msgs in
 example {a b c : Nat} (h₁ : a ∣ c) (h₂ : a ∣ b + c) : a ∣ b := by apply?

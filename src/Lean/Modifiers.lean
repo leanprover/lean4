@@ -10,11 +10,9 @@ namespace Lean
 
 builtin_initialize protectedExt : TagDeclarationExtension ← mkTagDeclarationExtension
 
-@[export lean_add_protected]
 def addProtected (env : Environment) (n : Name) : Environment :=
   protectedExt.tag env n
 
-@[export lean_is_protected]
 def isProtected (env : Environment) (n : Name) : Bool :=
   protectedExt.isTagged env n
 

@@ -97,7 +97,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_4_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("postpone", 8);
+x_1 = lean_mk_string_unchecked("postpone", 8, 8);
 return x_1;
 }
 }
@@ -124,7 +124,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_25
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unsupportedSyntax", 17);
+x_1 = lean_mk_string_unchecked("unsupportedSyntax", 17, 17);
 return x_1;
 }
 }
@@ -151,7 +151,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_46
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("abortCommandElab", 16);
+x_1 = lean_mk_string_unchecked("abortCommandElab", 16, 16);
 return x_1;
 }
 }
@@ -178,7 +178,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_67
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("abortTermElab", 13);
+x_1 = lean_mk_string_unchecked("abortTermElab", 13, 13);
 return x_1;
 }
 }
@@ -205,7 +205,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_88
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("abortTactic", 11);
+x_1 = lean_mk_string_unchecked("abortTactic", 11, 11);
 return x_1;
 }
 }
@@ -232,7 +232,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_10
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("autoBoundImplicit", 17);
+x_1 = lean_mk_string_unchecked("autoBoundImplicit", 17, 17);
 return x_1;
 }
 }
@@ -339,7 +339,7 @@ static lean_object* _init_l_Lean_Elab_throwIllFormedSyntax___rarg___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ill-formed syntax", 17);
+x_1 = lean_mk_string_unchecked("ill-formed syntax", 17, 17);
 return x_1;
 }
 }
@@ -373,7 +373,7 @@ static lean_object* _init_l_Lean_Elab_throwAutoBoundImplicitLocal___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("localId", 7);
+x_1 = lean_mk_string_unchecked("localId", 7, 7);
 return x_1;
 }
 }
@@ -427,7 +427,7 @@ static lean_object* _init_l_Lean_Elab_isAutoBoundImplicitLocalException_x3f___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("x", 1);
+x_1 = lean_mk_string_unchecked("x", 1, 1);
 return x_1;
 }
 }
@@ -489,7 +489,7 @@ static lean_object* _init_l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("a universe level named '", 24);
+x_1 = lean_mk_string_unchecked("a universe level named '", 24, 24);
 return x_1;
 }
 }
@@ -506,7 +506,7 @@ static lean_object* _init_l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' has already been declared", 27);
+x_1 = lean_mk_string_unchecked("' has already been declared", 27, 27);
 return x_1;
 }
 }
@@ -740,7 +740,7 @@ static lean_object* _init_l_Lean_Elab_mkMessageCore___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }

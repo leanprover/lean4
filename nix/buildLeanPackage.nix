@@ -5,7 +5,7 @@ let lean-final' = lean-final; in
 lib.makeOverridable (
 { name, src, fullSrc ? src, srcPrefix ? "", srcPath ? "$PWD/${srcPrefix}",
   # Lean dependencies. Each entry should be an output of buildLeanPackage.
-  deps ? [ lean.Lean ],
+  deps ? [ lean.Init lean.Std lean.Lean ],
   # Static library dependencies. Each derivation `static` should contain a static library in the directory `${static}`.
   staticLibDeps ? [],
   # Whether to wrap static library inputs in a -Wl,--start-group [...] -Wl,--end-group to ensure dependencies are resolved.
@@ -224,7 +224,8 @@ with builtins; let
   allLinkFlags = lib.foldr (shared: acc: acc ++ [ "-L${shared}" "-l${shared.linkName or shared.name}" ]) linkFlags allNativeSharedLibs;
 
   objects   = mapAttrs (_: m: m.obj) mods';
-  staticLib = runCommand "${name}-lib" { buildInputs = [ stdenv.cc.bintools.bintools ]; } ''
+  bintools = if stdenv.isDarwin then darwin.cctools else stdenv.cc.bintools.bintools;
+  staticLib = runCommand "${name}-lib" { buildInputs = [ bintools ]; } ''
     mkdir -p $out
     ar Trcs $out/lib${libName}.a ${lib.concatStringsSep " " (map (drv: "${drv}/${drv.oPath}") (attrValues objects))};
   '';
@@ -249,7 +250,7 @@ in rec {
     ${if stdenv.isDarwin then "-Wl,-force_load,${staticLib}/lib${libName}.a" else "-Wl,--whole-archive ${staticLib}/lib${libName}.a -Wl,--no-whole-archive"} \
     ${lib.concatStringsSep " " (map (d: "${d.sharedLib}/*") deps)}'';
   executable = lib.makeOverridable ({ withSharedStdlib ? true }: let
-      objPaths = map (drv: "${drv}/${drv.oPath}") (attrValues objects) ++ lib.optional withSharedStdlib "${lean-final.libInit_shared}/* ${lean-final.leanshared}/*";
+      objPaths = map (drv: "${drv}/${drv.oPath}") (attrValues objects) ++ lib.optional withSharedStdlib "${lean-final.leanshared}/*";
     in runCommand executableName { buildInputs = [ stdenv.cc leanc ]; } ''
       mkdir -p $out/bin
       leanc ${staticLibLinkWrapper (lib.concatStringsSep " " (objPaths ++ map (d: "${d}/*.a") allStaticLibDeps))} \

@@ -193,7 +193,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -219,7 +219,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -227,7 +227,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -235,7 +235,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -243,7 +243,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("syntheticHole", 13);
+x_1 = lean_mk_string_unchecked("syntheticHole", 13, 13);
 return x_1;
 }
 }
@@ -263,7 +263,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hole", 4);
+x_1 = lean_mk_string_unchecked("hole", 4, 4);
 return x_1;
 }
 }
@@ -283,7 +283,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\?", 1);
+x_1 = lean_mk_string_unchecked("\?", 1, 1);
 return x_1;
 }
 }
@@ -291,7 +291,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rhs", 3);
+x_1 = lean_mk_string_unchecked("rhs", 3, 3);
 return x_1;
 }
 }
@@ -318,7 +318,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -326,7 +326,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("case", 4);
+x_1 = lean_mk_string_unchecked("case", 4, 4);
 return x_1;
 }
 }
@@ -346,7 +346,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("caseArg", 7);
+x_1 = lean_mk_string_unchecked("caseArg", 7, 7);
 return x_1;
 }
 }
@@ -366,7 +366,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("binderIdent", 11);
+x_1 = lean_mk_string_unchecked("binderIdent", 11, 11);
 return x_1;
 }
 }
@@ -384,7 +384,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("=>", 2);
+x_1 = lean_mk_string_unchecked("=>", 2, 2);
 return x_1;
 }
 }
@@ -392,7 +392,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq", 9);
+x_1 = lean_mk_string_unchecked("tacticSeq", 9, 9);
 return x_1;
 }
 }
@@ -412,7 +412,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq1Indented", 18);
+x_1 = lean_mk_string_unchecked("tacticSeq1Indented", 18, 18);
 return x_1;
 }
 }
@@ -432,7 +432,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("withAnnotateState", 17);
+x_1 = lean_mk_string_unchecked("withAnnotateState", 17, 17);
 return x_1;
 }
 }
@@ -452,7 +452,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("with_annotate_state", 19);
+x_1 = lean_mk_string_unchecked("with_annotate_state", 19, 19);
 return x_1;
 }
 }
@@ -469,7 +469,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("skip", 4);
+x_1 = lean_mk_string_unchecked("skip", 4, 4);
 return x_1;
 }
 }
@@ -489,7 +489,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("match", 5);
+x_1 = lean_mk_string_unchecked("match", 5, 5);
 return x_1;
 }
 }
@@ -1262,7 +1262,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("matchAlt", 8);
+x_1 = lean_mk_string_unchecked("matchAlt", 8, 8);
 return x_1;
 }
 }
@@ -1724,7 +1724,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("matchAlts", 9);
+x_1 = lean_mk_string_unchecked("matchAlts", 9, 9);
 return x_1;
 }
 }
@@ -2791,7 +2791,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalMatch___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("refine", 6);
+x_1 = lean_mk_string_unchecked("refine", 6, 6);
 return x_1;
 }
 }
@@ -2811,7 +2811,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalMatch___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("noImplicitLambda", 16);
+x_1 = lean_mk_string_unchecked("noImplicitLambda", 16, 16);
 return x_1;
 }
 }
@@ -2831,7 +2831,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalMatch___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no_implicit_lambda%", 19);
+x_1 = lean_mk_string_unchecked("no_implicit_lambda%", 19, 19);
 return x_1;
 }
 }
@@ -3216,7 +3216,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalMatch__1___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -3224,7 +3224,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalMatch__1___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalMatch", 9);
+x_1 = lean_mk_string_unchecked("evalMatch", 9, 9);
 return x_1;
 }
 }

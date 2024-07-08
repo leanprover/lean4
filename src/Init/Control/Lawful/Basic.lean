@@ -9,7 +9,7 @@ import Init.Meta
 
 open Function
 
-@[simp] theorem monadLift_self [Monad m] (x : m α) : monadLift x = x :=
+@[simp] theorem monadLift_self {m : Type u → Type v} (x : m α) : monadLift x = x :=
   rfl
 
 /--

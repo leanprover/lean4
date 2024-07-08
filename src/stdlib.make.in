@@ -29,17 +29,20 @@ ifeq "${STAGE}" "0"
   LEANMAKE_OPTS+=C_ONLY=1 C_OUT=${LEAN_SOURCE_DIR}/../stdlib/
 endif
 
-.PHONY: Init Lean leanshared Lake lean
+.PHONY: Init Std Lean leanshared Lake lean
 
 # These can be phony since the inner Makefile will have the correct dependencies and avoid rebuilds
 Init:
-	@mkdir -p "${LIB}/lean/Lean" "${LIB}/lean/Lake"
+	@mkdir -p "${LIB}/lean/Lean" "${LIB}/lean/Lake" "${LIB}/lean/Std"
 # Use `+` to use the Make jobserver with `leanmake` for parallelized builds
 # Build `.olean/.o`s of downstream libraries as well for better parallelism
 	+"${LEAN_BIN}/leanmake" objs lib lib.export PKG=Init $(LEANMAKE_OPTS) \
-	  EXTRA_SRC_ROOTS="Lean Lean.lean"
+	  EXTRA_SRC_ROOTS="Std Std.lean Lean Lean.lean"
 
-Lean: Init
+Std: Init
+	+"${LEAN_BIN}/leanmake" lib lib.export PKG=Std $(LEANMAKE_OPTS)
+
+Lean: Std
 	+"${LEAN_BIN}/leanmake" lib lib.export PKG=Lean $(LEANMAKE_OPTS)
 
 ${LIB}/temp/empty.c:
@@ -48,7 +51,7 @@ ${LIB}/temp/empty.c:
 # the following targets are all invoked by separate `make` calls; see src/CMakeLists.txt
 
 # we specify the precise file names here to avoid rebuilds
-${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libInit_shared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${LIB}/temp/libInit.a.export ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LIB}/temp/empty.c
+${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libInit_shared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${LIB}/temp/libInit.a.export ${LIB}/temp/libStd.a.export ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LIB}/temp/empty.c
 ifeq "${INIT_SHARED_LINKER_FLAGS}" ""
   # create empty library on platforms without restrictive symbol limits; avoids costly indirections and troubles with cross-library exceptions
 	"${CMAKE_BINARY_DIR}/leanc.sh" -shared -o $@ ${LIB}/temp/empty.c ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}

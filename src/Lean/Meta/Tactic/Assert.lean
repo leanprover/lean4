@@ -24,10 +24,6 @@ def _root_.Lean.MVarId.assert (mvarId : MVarId) (name : Name) (type : Expr) (val
     mvarId.assign (mkApp newMVar val)
     return newMVar.mvarId!
 
-@[deprecated MVarId.assert (since := "2022-07-15")]
-def assert (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) : MetaM MVarId :=
-  mvarId.assert name type val
-
 /-- Add the hypothesis `h : t`, given `v : t`, and return the new `FVarId`. -/
 def _root_.Lean.MVarId.note (g : MVarId) (h : Name) (v : Expr) (t? : Option Expr := .none) :
     MetaM (FVarId × MVarId) := do
@@ -46,10 +42,6 @@ def _root_.Lean.MVarId.define (mvarId : MVarId) (name : Name) (type : Expr) (val
     mvarId.assign newMVar
     return newMVar.mvarId!
 
-@[deprecated MVarId.define (since := "2022-07-15")]
-def define (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) : MetaM MVarId := do
-  mvarId.define name type val
-
 /--
   Convert the given goal `Ctx |- target` into `Ctx |- (hName : type) -> hName = val -> target`.
   It assumes `val` has type `type` -/
@@ -65,10 +57,6 @@ def _root_.Lean.MVarId.assertExt (mvarId : MVarId) (name : Name) (type : Expr) (
     let rflPrf ← mkEqRefl val
     mvarId.assign (mkApp2 newMVar val rflPrf)
     return newMVar.mvarId!
-
-@[deprecated MVarId.assertExt (since := "2022-07-15")]
-def assertExt (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) (hName : Name := `h) : MetaM MVarId := do
-  mvarId.assertExt name type val hName
 
 structure AssertAfterResult where
   fvarId : FVarId
@@ -89,10 +77,6 @@ def _root_.Lean.MVarId.assertAfter (mvarId : MVarId) (fvarId : FVarId) (userName
   for f in fvarIds, fNew in fvarIdsNew do
     subst := subst.insert f (mkFVar fNew)
   return { fvarId := fvarIdNew, mvarId, subst }
-
-@[deprecated MVarId.assertAfter (since := "2022-07-15")]
-def assertAfter (mvarId : MVarId) (fvarId : FVarId) (userName : Name) (type : Expr) (val : Expr) : MetaM AssertAfterResult := do
-  mvarId.assertAfter fvarId userName type val
 
 structure Hypothesis where
   userName : Name
@@ -115,11 +99,6 @@ def _root_.Lean.MVarId.assertHypotheses (mvarId : MVarId) (hs : Array Hypothesis
     let val := hs.foldl (init := mvarNew) fun val h => mkApp val h.value
     mvarId.assign val
     mvarNew.mvarId!.introNP hs.size
-
-@[deprecated MVarId.assertHypotheses (since := "2022-07-15")]
-def assertHypotheses (mvarId : MVarId) (hs : Array Hypothesis) : MetaM (Array FVarId × MVarId) := do
-  mvarId.assertHypotheses hs
-
 
 /--
 Replace hypothesis `hyp` in goal `g` with `proof : typeNew`.

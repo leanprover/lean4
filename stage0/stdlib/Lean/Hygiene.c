@@ -278,7 +278,7 @@ static lean_object* _init_l_Lean_Unhygienic_instMonadQuotation___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("UnhygienicMain", 14);
+x_1 = lean_mk_string_unchecked("UnhygienicMain", 14, 14);
 return x_1;
 }
 }
@@ -404,7 +404,7 @@ static lean_object* _init_l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserNam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_inaccessible", 13);
+x_1 = lean_mk_string_unchecked("_inaccessible", 13, 13);
 return x_1;
 }
 }
@@ -422,7 +422,7 @@ static lean_object* _init_l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserNam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("✝", 3);
+x_1 = lean_mk_string_unchecked("✝", 3, 1);
 return x_1;
 }
 }
@@ -477,7 +477,7 @@ static lean_object* _init_l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserNam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⁻", 3);
+x_1 = lean_mk_string_unchecked("⁻", 3, 1);
 return x_1;
 }
 }
@@ -558,7 +558,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Hygiene___hyg_342____closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pp", 2);
+x_1 = lean_mk_string_unchecked("pp", 2, 2);
 return x_1;
 }
 }
@@ -566,7 +566,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Hygiene___hyg_342____closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sanitizeNames", 13);
+x_1 = lean_mk_string_unchecked("sanitizeNames", 13, 13);
 return x_1;
 }
 }
@@ -584,7 +584,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Hygiene___hyg_342____closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("add suffix to shadowed/inaccessible variables when pretty printing", 66);
+x_1 = lean_mk_string_unchecked("add suffix to shadowed/inaccessible variables when pretty printing", 66, 66);
 return x_1;
 }
 }
@@ -607,7 +607,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Hygiene___hyg_342____closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }

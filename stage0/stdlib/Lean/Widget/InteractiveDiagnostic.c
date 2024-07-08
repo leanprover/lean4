@@ -74,7 +74,6 @@ static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget
 lean_object* l_Lean_Widget_Lean_Widget_WidgetInstance_instRpcEncodableWidgetInstance_dec____x40_Lean_Widget_Types___hyg_3_(lean_object*, lean_object*);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 lean_object* l_Lean_Widget_Lean_Widget_WidgetInstance_instRpcEncodableWidgetInstance_enc____x40_Lean_Widget_Types___hyg_3_(lean_object*, lean_object*);
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_Lean_Lsp_DiagnosticWith_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_1924____closed__23;
 static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_Lean_Lsp_DiagnosticWith_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_1924____closed__59;
 static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_Lean_Widget_MsgEmbed_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_761____lambda__1___closed__1;
@@ -182,6 +181,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_W
 static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_Lean_Widget_MsgEmbed_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_761____lambda__1___closed__4;
 static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_Lean_Widget_MsgEmbed_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_761____lambda__1___closed__11;
 lean_object* l_Lean_Widget_InteractiveGoal_pretty(lean_object*);
+lean_object* l_outOfBounds___rarg(lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_Lean_Widget_MsgEmbed_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_761____lambda__2___closed__5;
 static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_Lean_Widget_MsgEmbed_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_761____lambda__2___closed__2;
 lean_object* l_MonadExcept_ofExcept___at_Lean_Widget_Lean_Widget_InteractiveTermGoal_instRpcEncodableInteractiveTermGoal_dec____x40_Lean_Widget_InteractiveGoal___hyg_2335____spec__1(lean_object*, lean_object*);
@@ -470,7 +470,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no inductive constructor matched", 32);
+x_1 = lean_mk_string_unchecked("no inductive constructor matched", 32, 32);
 return x_1;
 }
 }
@@ -496,7 +496,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("strict", 6);
+x_1 = lean_mk_string_unchecked("strict", 6, 6);
 return x_1;
 }
 }
@@ -556,7 +556,7 @@ if (x_18 == 0)
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 lean_dec(x_15);
 x_19 = l_Lean_instInhabitedJson;
-x_20 = l___private_Init_GetElem_0__outOfBounds___rarg(x_19);
+x_20 = l_outOfBounds___rarg(x_19);
 x_21 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set(x_6, 0, x_21);
@@ -592,7 +592,7 @@ if (x_31 == 0)
 lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
 lean_dec(x_28);
 x_32 = l_Lean_instInhabitedJson;
-x_33 = l___private_Init_GetElem_0__outOfBounds___rarg(x_32);
+x_33 = l_outOfBounds___rarg(x_32);
 x_34 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_34, 0, x_33);
 x_35 = lean_alloc_ctor(1, 1, 0);
@@ -622,7 +622,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lazy", 4);
+x_1 = lean_mk_string_unchecked("lazy", 4, 4);
 return x_1;
 }
 }
@@ -677,7 +677,7 @@ if (x_16 == 0)
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 lean_dec(x_13);
 x_17 = l_Lean_instInhabitedJson;
-x_18 = l___private_Init_GetElem_0__outOfBounds___rarg(x_17);
+x_18 = l_outOfBounds___rarg(x_17);
 x_19 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_19, 0, x_18);
 lean_ctor_set(x_5, 0, x_19);
@@ -711,7 +711,7 @@ if (x_27 == 0)
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
 lean_dec(x_24);
 x_28 = l_Lean_instInhabitedJson;
-x_29 = l___private_Init_GetElem_0__outOfBounds___rarg(x_28);
+x_29 = l_outOfBounds___rarg(x_28);
 x_30 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_30, 0, x_29);
 x_31 = lean_alloc_ctor(1, 1, 0);
@@ -1297,7 +1297,7 @@ static lean_object* _init_l_Lean_Widget_instImpl____x40_Lean_Widget_InteractiveD
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1305,7 +1305,7 @@ static lean_object* _init_l_Lean_Widget_instImpl____x40_Lean_Widget_InteractiveD
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Widget", 6);
+x_1 = lean_mk_string_unchecked("Widget", 6, 6);
 return x_1;
 }
 }
@@ -1313,7 +1313,7 @@ static lean_object* _init_l_Lean_Widget_instImpl____x40_Lean_Widget_InteractiveD
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LazyTraceChildren", 17);
+x_1 = lean_mk_string_unchecked("LazyTraceChildren", 17, 17);
 return x_1;
 }
 }
@@ -1348,7 +1348,7 @@ static lean_object* _init_l_Lean_Widget_instInhabitedMsgEmbed___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -1384,7 +1384,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("indent", 6);
+x_1 = lean_mk_string_unchecked("indent", 6, 6);
 return x_1;
 }
 }
@@ -1402,7 +1402,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cls", 3);
+x_1 = lean_mk_string_unchecked("cls", 3, 3);
 return x_1;
 }
 }
@@ -1420,7 +1420,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("msg", 3);
+x_1 = lean_mk_string_unchecked("msg", 3, 3);
 return x_1;
 }
 }
@@ -1438,7 +1438,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("collapsed", 9);
+x_1 = lean_mk_string_unchecked("collapsed", 9, 9);
 return x_1;
 }
 }
@@ -1456,7 +1456,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("children", 8);
+x_1 = lean_mk_string_unchecked("children", 8, 8);
 return x_1;
 }
 }
@@ -1543,7 +1543,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("trace", 5);
+x_1 = lean_mk_string_unchecked("trace", 5, 5);
 return x_1;
 }
 }
@@ -1607,7 +1607,7 @@ if (x_18 == 0)
 {
 lean_object* x_86; lean_object* x_87; 
 x_86 = l_Lean_instInhabitedJson;
-x_87 = l___private_Init_GetElem_0__outOfBounds___rarg(x_86);
+x_87 = l_outOfBounds___rarg(x_86);
 x_27 = x_87;
 goto block_85;
 }
@@ -1625,7 +1625,7 @@ if (x_20 == 0)
 {
 lean_object* x_82; lean_object* x_83; 
 x_82 = l_Lean_instInhabitedJson;
-x_83 = l___private_Init_GetElem_0__outOfBounds___rarg(x_82);
+x_83 = l_outOfBounds___rarg(x_82);
 if (x_22 == 0)
 {
 x_28 = x_83;
@@ -1660,16 +1660,16 @@ block_53:
 {
 lean_object* x_29; lean_object* x_30; 
 x_29 = l_Lean_instInhabitedJson;
-x_30 = l___private_Init_GetElem_0__outOfBounds___rarg(x_29);
+x_30 = l_outOfBounds___rarg(x_29);
 if (x_24 == 0)
 {
 lean_object* x_31; 
-x_31 = l___private_Init_GetElem_0__outOfBounds___rarg(x_29);
+x_31 = l_outOfBounds___rarg(x_29);
 if (x_26 == 0)
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 lean_dec(x_14);
-x_32 = l___private_Init_GetElem_0__outOfBounds___rarg(x_29);
+x_32 = l_outOfBounds___rarg(x_29);
 x_33 = lean_alloc_ctor(3, 5, 0);
 lean_ctor_set(x_33, 0, x_27);
 lean_ctor_set(x_33, 1, x_28);
@@ -1716,7 +1716,7 @@ if (x_26 == 0)
 {
 lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; 
 lean_dec(x_14);
-x_43 = l___private_Init_GetElem_0__outOfBounds___rarg(x_29);
+x_43 = l_outOfBounds___rarg(x_29);
 x_44 = lean_alloc_ctor(3, 5, 0);
 lean_ctor_set(x_44, 0, x_27);
 lean_ctor_set(x_44, 1, x_28);
@@ -1764,12 +1764,12 @@ if (x_24 == 0)
 {
 lean_object* x_57; lean_object* x_58; 
 x_57 = l_Lean_instInhabitedJson;
-x_58 = l___private_Init_GetElem_0__outOfBounds___rarg(x_57);
+x_58 = l_outOfBounds___rarg(x_57);
 if (x_26 == 0)
 {
 lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; 
 lean_dec(x_14);
-x_59 = l___private_Init_GetElem_0__outOfBounds___rarg(x_57);
+x_59 = l_outOfBounds___rarg(x_57);
 x_60 = lean_alloc_ctor(3, 5, 0);
 lean_ctor_set(x_60, 0, x_27);
 lean_ctor_set(x_60, 1, x_54);
@@ -1809,7 +1809,7 @@ if (x_26 == 0)
 lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; 
 lean_dec(x_14);
 x_70 = l_Lean_instInhabitedJson;
-x_71 = l___private_Init_GetElem_0__outOfBounds___rarg(x_70);
+x_71 = l_outOfBounds___rarg(x_70);
 x_72 = lean_alloc_ctor(3, 5, 0);
 lean_ctor_set(x_72, 0, x_27);
 lean_ctor_set(x_72, 1, x_54);
@@ -1849,7 +1849,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("wi", 2);
+x_1 = lean_mk_string_unchecked("wi", 2, 2);
 return x_1;
 }
 }
@@ -1867,7 +1867,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("alt", 3);
+x_1 = lean_mk_string_unchecked("alt", 3, 3);
 return x_1;
 }
 }
@@ -1924,7 +1924,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("widget", 6);
+x_1 = lean_mk_string_unchecked("widget", 6, 6);
 return x_1;
 }
 }
@@ -1979,12 +1979,12 @@ if (x_17 == 0)
 {
 lean_object* x_20; lean_object* x_21; 
 x_20 = l_Lean_instInhabitedJson;
-x_21 = l___private_Init_GetElem_0__outOfBounds___rarg(x_20);
+x_21 = l_outOfBounds___rarg(x_20);
 if (x_19 == 0)
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 lean_dec(x_14);
-x_22 = l___private_Init_GetElem_0__outOfBounds___rarg(x_20);
+x_22 = l_outOfBounds___rarg(x_20);
 x_23 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_23, 0, x_21);
 lean_ctor_set(x_23, 1, x_22);
@@ -2014,7 +2014,7 @@ if (x_19 == 0)
 lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
 lean_dec(x_14);
 x_29 = l_Lean_instInhabitedJson;
-x_30 = l___private_Init_GetElem_0__outOfBounds___rarg(x_29);
+x_30 = l_outOfBounds___rarg(x_29);
 x_31 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_31, 0, x_28);
 lean_ctor_set(x_31, 1, x_30);
@@ -2052,12 +2052,12 @@ if (x_39 == 0)
 {
 lean_object* x_42; lean_object* x_43; 
 x_42 = l_Lean_instInhabitedJson;
-x_43 = l___private_Init_GetElem_0__outOfBounds___rarg(x_42);
+x_43 = l_outOfBounds___rarg(x_42);
 if (x_41 == 0)
 {
 lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; 
 lean_dec(x_36);
-x_44 = l___private_Init_GetElem_0__outOfBounds___rarg(x_42);
+x_44 = l_outOfBounds___rarg(x_42);
 x_45 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_45, 0, x_43);
 lean_ctor_set(x_45, 1, x_44);
@@ -2089,7 +2089,7 @@ if (x_41 == 0)
 lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; 
 lean_dec(x_36);
 x_53 = l_Lean_instInhabitedJson;
-x_54 = l___private_Init_GetElem_0__outOfBounds___rarg(x_53);
+x_54 = l_outOfBounds___rarg(x_53);
 x_55 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_55, 0, x_52);
 lean_ctor_set(x_55, 1, x_54);
@@ -2120,7 +2120,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expr", 4);
+x_1 = lean_mk_string_unchecked("expr", 4, 4);
 return x_1;
 }
 }
@@ -2173,7 +2173,7 @@ if (x_17 == 0)
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 lean_dec(x_14);
 x_18 = l_Lean_instInhabitedJson;
-x_19 = l___private_Init_GetElem_0__outOfBounds___rarg(x_18);
+x_19 = l_outOfBounds___rarg(x_18);
 x_20 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_20, 0, x_19);
 lean_ctor_set(x_6, 0, x_20);
@@ -2207,7 +2207,7 @@ if (x_28 == 0)
 lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
 lean_dec(x_25);
 x_29 = l_Lean_instInhabitedJson;
-x_30 = l___private_Init_GetElem_0__outOfBounds___rarg(x_29);
+x_30 = l_outOfBounds___rarg(x_29);
 x_31 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_31, 0, x_30);
 x_32 = lean_alloc_ctor(1, 1, 0);
@@ -2235,7 +2235,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("goal", 4);
+x_1 = lean_mk_string_unchecked("goal", 4, 4);
 return x_1;
 }
 }
@@ -2290,7 +2290,7 @@ if (x_16 == 0)
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 lean_dec(x_13);
 x_17 = l_Lean_instInhabitedJson;
-x_18 = l___private_Init_GetElem_0__outOfBounds___rarg(x_17);
+x_18 = l_outOfBounds___rarg(x_17);
 x_19 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_19, 0, x_18);
 lean_ctor_set(x_5, 0, x_19);
@@ -2324,7 +2324,7 @@ if (x_27 == 0)
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
 lean_dec(x_24);
 x_28 = l_Lean_instInhabitedJson;
-x_29 = l___private_Init_GetElem_0__outOfBounds___rarg(x_28);
+x_29 = l_outOfBounds___rarg(x_28);
 x_30 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_30, 0, x_29);
 x_31 = lean_alloc_ctor(1, 1, 0);
@@ -3860,7 +3860,7 @@ static lean_object* _init_l_Lean_Widget_Lean_Widget_StrictOrLazy_instRpcEncodabl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected JSON array, got '", 26);
+x_1 = lean_mk_string_unchecked("expected JSON array, got '", 26, 26);
 return x_1;
 }
 }
@@ -3868,7 +3868,7 @@ static lean_object* _init_l_Lean_Widget_Lean_Widget_StrictOrLazy_instRpcEncodabl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -4346,7 +4346,7 @@ static lean_object* _init_l_Lean_Widget_Lean_Widget_MsgEmbed_instRpcEncodableMsg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[anonymous]", 11);
+x_1 = lean_mk_string_unchecked("[anonymous]", 11, 11);
 return x_1;
 }
 }
@@ -4354,7 +4354,7 @@ static lean_object* _init_l_Lean_Widget_Lean_Widget_MsgEmbed_instRpcEncodableMsg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected a `Name`, got '", 24);
+x_1 = lean_mk_string_unchecked("expected a `Name`, got '", 24, 24);
 return x_1;
 }
 }
@@ -5369,7 +5369,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("range", 5);
+x_1 = lean_mk_string_unchecked("range", 5, 5);
 return x_1;
 }
 }
@@ -5407,7 +5407,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lsp", 3);
+x_1 = lean_mk_string_unchecked("Lsp", 3, 3);
 return x_1;
 }
 }
@@ -5425,7 +5425,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("DiagnosticWith", 14);
+x_1 = lean_mk_string_unchecked("DiagnosticWith", 14, 14);
 return x_1;
 }
 }
@@ -5443,7 +5443,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("RpcEncodablePacket", 18);
+x_1 = lean_mk_string_unchecked("RpcEncodablePacket", 18, 18);
 return x_1;
 }
 }
@@ -5461,7 +5461,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -5499,7 +5499,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("InteractiveDiagnostic", 21);
+x_1 = lean_mk_string_unchecked("InteractiveDiagnostic", 21, 21);
 return x_1;
 }
 }
@@ -5517,7 +5517,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -5555,7 +5555,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -5603,7 +5603,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -5621,7 +5621,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fullRange", 9);
+x_1 = lean_mk_string_unchecked("fullRange", 9, 9);
 return x_1;
 }
 }
@@ -5629,7 +5629,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fullRange\?", 10);
+x_1 = lean_mk_string_unchecked("fullRange\?", 10, 10);
 return x_1;
 }
 }
@@ -5677,7 +5677,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("severity", 8);
+x_1 = lean_mk_string_unchecked("severity", 8, 8);
 return x_1;
 }
 }
@@ -5685,7 +5685,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("severity\?", 9);
+x_1 = lean_mk_string_unchecked("severity\?", 9, 9);
 return x_1;
 }
 }
@@ -5733,7 +5733,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("code", 4);
+x_1 = lean_mk_string_unchecked("code", 4, 4);
 return x_1;
 }
 }
@@ -5741,7 +5741,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("code\?", 5);
+x_1 = lean_mk_string_unchecked("code\?", 5, 5);
 return x_1;
 }
 }
@@ -5789,7 +5789,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("source", 6);
+x_1 = lean_mk_string_unchecked("source", 6, 6);
 return x_1;
 }
 }
@@ -5797,7 +5797,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("source\?", 7);
+x_1 = lean_mk_string_unchecked("source\?", 7, 7);
 return x_1;
 }
 }
@@ -5845,7 +5845,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("message", 7);
+x_1 = lean_mk_string_unchecked("message", 7, 7);
 return x_1;
 }
 }
@@ -5893,7 +5893,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tags", 4);
+x_1 = lean_mk_string_unchecked("tags", 4, 4);
 return x_1;
 }
 }
@@ -5901,7 +5901,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tags\?", 5);
+x_1 = lean_mk_string_unchecked("tags\?", 5, 5);
 return x_1;
 }
 }
@@ -5949,7 +5949,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("relatedInformation", 18);
+x_1 = lean_mk_string_unchecked("relatedInformation", 18, 18);
 return x_1;
 }
 }
@@ -5957,7 +5957,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("relatedInformation\?", 19);
+x_1 = lean_mk_string_unchecked("relatedInformation\?", 19, 19);
 return x_1;
 }
 }
@@ -6005,7 +6005,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("data", 4);
+x_1 = lean_mk_string_unchecked("data", 4, 4);
 return x_1;
 }
 }
@@ -6013,7 +6013,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("data\?", 5);
+x_1 = lean_mk_string_unchecked("data\?", 5, 5);
 return x_1;
 }
 }
@@ -7388,7 +7388,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Widget_Lean_Lsp_Diagn
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown DiagnosticTag", 21);
+x_1 = lean_mk_string_unchecked("unknown DiagnosticTag", 21, 21);
 return x_1;
 }
 }
@@ -7710,7 +7710,7 @@ static lean_object* _init_l_Lean_Widget_Lean_Lsp_DiagnosticWith_instRpcEncodable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected string or integer diagnostic code, got '", 49);
+x_1 = lean_mk_string_unchecked("expected string or integer diagnostic code, got '", 49, 49);
 return x_1;
 }
 }
@@ -7718,7 +7718,7 @@ static lean_object* _init_l_Lean_Widget_Lean_Lsp_DiagnosticWith_instRpcEncodable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown DiagnosticSeverity '", 28);
+x_1 = lean_mk_string_unchecked("unknown DiagnosticSeverity '", 28, 28);
 return x_1;
 }
 }
@@ -18743,7 +18743,7 @@ static lean_object* _init_l_Lean_Widget_InteractiveDiagnostic_toDiagnostic_prett
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(trace)", 7);
+x_1 = lean_mk_string_unchecked("(trace)", 7, 7);
 return x_1;
 }
 }
@@ -19752,7 +19752,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_InteractiveDia
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("infoview", 8);
+x_1 = lean_mk_string_unchecked("infoview", 8, 8);
 return x_1;
 }
 }
@@ -19760,7 +19760,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_InteractiveDia
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("maxTraceChildren", 16);
+x_1 = lean_mk_string_unchecked("maxTraceChildren", 16, 16);
 return x_1;
 }
 }
@@ -19778,7 +19778,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_InteractiveDia
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Number of trace node children to display by default", 51);
+x_1 = lean_mk_string_unchecked("Number of trace node children to display by default", 51, 51);
 return x_1;
 }
 }
@@ -19927,7 +19927,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_diag", 5);
+x_1 = lean_mk_string_unchecked("_diag", 5, 5);
 return x_1;
 }
 }
@@ -20018,7 +20018,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" more entries...", 16);
+x_1 = lean_mk_string_unchecked(" more entries...", 16, 16);
 return x_1;
 }
 }
@@ -20971,7 +20971,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("goal ", 5);
+x_1 = lean_mk_string_unchecked("goal ", 5, 5);
 return x_1;
 }
 }
@@ -20998,7 +20998,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -21016,7 +21016,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("] ", 2);
+x_1 = lean_mk_string_unchecked("] ", 2, 2);
 return x_1;
 }
 }
@@ -21034,7 +21034,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("MessageData.ofLazy: expected MessageData in Dynamic", 51);
+x_1 = lean_mk_string_unchecked("MessageData.ofLazy: expected MessageData in Dynamic", 51, 51);
 return x_1;
 }
 }
@@ -24230,7 +24230,7 @@ if (x_64 == 0)
 lean_object* x_65; lean_object* x_66; 
 lean_dec(x_6);
 x_65 = l_Lean_Widget_instInhabitedEmbedFmt;
-x_66 = l___private_Init_GetElem_0__outOfBounds___rarg(x_65);
+x_66 = l_outOfBounds___rarg(x_65);
 switch (lean_obj_tag(x_66)) {
 case 0:
 {
@@ -25127,7 +25127,7 @@ static lean_object* _init_l_Lean_Widget_msgToInteractiveDiagnostic___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean 4", 6);
+x_1 = lean_mk_string_unchecked("Lean 4", 6, 6);
 return x_1;
 }
 }
@@ -25161,7 +25161,7 @@ static lean_object* _init_l_Lean_Widget_msgToInteractiveDiagnostic___closed__5()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[error when printing message: ", 30);
+x_1 = lean_mk_string_unchecked("[error when printing message: ", 30, 30);
 return x_1;
 }
 }
@@ -25169,7 +25169,7 @@ static lean_object* _init_l_Lean_Widget_msgToInteractiveDiagnostic___closed__6()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }

@@ -87,8 +87,11 @@ namespace Hash
 @[inline] def ofNat (n : Nat) :=
   mk n.toUInt64
 
+def ofString? (s : String) : Option Hash :=
+  (inline s.toNat?).map ofNat
+
 def load? (hashFile : FilePath) : BaseIO (Option Hash) :=
-  (·.toNat?.map ofNat) <$> IO.FS.readFile hashFile |>.catchExceptions fun _ => pure none
+  ofString? <$> IO.FS.readFile hashFile |>.catchExceptions fun _ => pure none
 
 def nil : Hash :=
   mk <| 1723 -- same as Name.anonymous
@@ -274,7 +277,7 @@ If not, check if the info is newer than this trace's modification time.
 **Deprecated:** Should not be done manually,
 but as part of `buildUnlessUpToDate`.
 -/
-@[deprecated, specialize] def checkAgainstFile
+@[deprecated (since := "2024-06-14"), specialize] def checkAgainstFile
   [CheckExists i] [GetMTime i]
   (info : i) (traceFile : FilePath) (self : BuildTrace)
 : BaseIO Bool := do
@@ -289,7 +292,7 @@ Write trace to a file.
 **Deprecated:** Should not be done manually,
 but as part of `buildUnlessUpToDate`.
 -/
-@[deprecated] def writeToFile (traceFile : FilePath) (self : BuildTrace) : IO PUnit := do
+@[deprecated (since := "2024-06-14")] def writeToFile (traceFile : FilePath) (self : BuildTrace) : IO PUnit := do
   createParentDirs traceFile
   IO.FS.writeFile traceFile self.hash.toString
 

@@ -255,7 +255,7 @@ static lean_object* _init_l_Lean_Json_toStructured_x3f___at_Lean_Lsp_Ipc_shutdow
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected structured object, got '", 33);
+x_1 = lean_mk_string_unchecked("expected structured object, got '", 33, 33);
 return x_1;
 }
 }
@@ -263,7 +263,7 @@ static lean_object* _init_l_Lean_Json_toStructured_x3f___at_Lean_Lsp_Ipc_shutdow
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -631,7 +631,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("exit", 4);
+x_1 = lean_mk_string_unchecked("exit", 4, 4);
 return x_1;
 }
 }
@@ -727,7 +727,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("assertion violation: ", 21);
+x_1 = lean_mk_string_unchecked("assertion violation: ", 21, 21);
 return x_1;
 }
 }
@@ -735,7 +735,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("result.isNull\n      ", 20);
+x_1 = lean_mk_string_unchecked("result.isNull\n      ", 20, 20);
 return x_1;
 }
 }
@@ -753,7 +753,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Data.Lsp.Ipc", 17);
+x_1 = lean_mk_string_unchecked("Lean.Data.Lsp.Ipc", 17, 17);
 return x_1;
 }
 }
@@ -761,7 +761,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Lsp.Ipc.shutdown", 21);
+x_1 = lean_mk_string_unchecked("Lean.Lsp.Ipc.shutdown", 21, 21);
 return x_1;
 }
 }
@@ -782,7 +782,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Expected id ", 12);
+x_1 = lean_mk_string_unchecked("Expected id ", 12, 12);
 return x_1;
 }
 }
@@ -790,7 +790,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", got id ", 9);
+x_1 = lean_mk_string_unchecked(", got id ", 9, 9);
 return x_1;
 }
 }
@@ -798,7 +798,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\"", 1);
+x_1 = lean_mk_string_unchecked("\"", 1, 1);
 return x_1;
 }
 }
@@ -806,7 +806,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -814,7 +814,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -1334,7 +1334,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_shutdown___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("shutdown", 8);
+x_1 = lean_mk_string_unchecked("shutdown", 8, 8);
 return x_1;
 }
 }
@@ -1505,7 +1505,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_readResponseAs___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Unexpected result '", 19);
+x_1 = lean_mk_string_unchecked("Unexpected result '", 19, 19);
 return x_1;
 }
 }
@@ -1513,7 +1513,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_readResponseAs___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'\n", 2);
+x_1 = lean_mk_string_unchecked("'\n", 2, 2);
 return x_1;
 }
 }
@@ -1521,7 +1521,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_readResponseAs___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("2.0", 3);
+x_1 = lean_mk_string_unchecked("2.0", 3, 3);
 return x_1;
 }
 }
@@ -1539,7 +1539,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_readResponseAs___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("jsonrpc", 7);
+x_1 = lean_mk_string_unchecked("jsonrpc", 7, 7);
 return x_1;
 }
 }
@@ -1559,7 +1559,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_readResponseAs___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("message", 7);
+x_1 = lean_mk_string_unchecked("message", 7, 7);
 return x_1;
 }
 }
@@ -1567,7 +1567,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_readResponseAs___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("data", 4);
+x_1 = lean_mk_string_unchecked("data", 4, 4);
 return x_1;
 }
 }
@@ -1575,7 +1575,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_readResponseAs___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("id", 2);
+x_1 = lean_mk_string_unchecked("id", 2, 2);
 return x_1;
 }
 }
@@ -1583,7 +1583,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_readResponseAs___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("code", 4);
+x_1 = lean_mk_string_unchecked("code", 4, 4);
 return x_1;
 }
 }
@@ -1591,7 +1591,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_readResponseAs___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("error", 5);
+x_1 = lean_mk_string_unchecked("error", 5, 5);
 return x_1;
 }
 }
@@ -1599,7 +1599,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_readResponseAs___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Expected JSON-RPC response, got: '", 34);
+x_1 = lean_mk_string_unchecked("Expected JSON-RPC response, got: '", 34, 34);
 return x_1;
 }
 }
@@ -3390,7 +3390,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("textDocument/publishDiagnostics", 31);
+x_1 = lean_mk_string_unchecked("textDocument/publishDiagnostics", 31, 31);
 return x_1;
 }
 }
@@ -3398,7 +3398,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Cannot decode publishDiagnostics parameters\n", 44);
+x_1 = lean_mk_string_unchecked("Cannot decode publishDiagnostics parameters\n", 44, 44);
 return x_1;
 }
 }
@@ -3406,7 +3406,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Waiting for diagnostics failed: ", 32);
+x_1 = lean_mk_string_unchecked("Waiting for diagnostics failed: ", 32, 32);
 return x_1;
 }
 }
@@ -5500,7 +5500,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_collectDiagnostics___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("textDocument/waitForDiagnostics", 31);
+x_1 = lean_mk_string_unchecked("textDocument/waitForDiagnostics", 31, 31);
 return x_1;
 }
 }

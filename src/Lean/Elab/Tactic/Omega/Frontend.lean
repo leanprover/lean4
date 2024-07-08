@@ -543,10 +543,11 @@ def formatErrorMessage (p : Problem) : OmegaM MessageData := do
       division, and modular remainder by constants."
     else
       let as ← atoms
-      let mask ← mentioned p.constraints
-      let names ← varNames mask
-      return m!"a possible counterexample may satisfy the constraints\n" ++
-        m!"{prettyConstraints names p.constraints}\nwhere\n{prettyAtoms names as mask}"
+      return .ofLazyM (es := as) do
+        let mask ← mentioned as p.constraints
+        let names ← varNames mask
+        return m!"a possible counterexample may satisfy the constraints\n" ++
+          m!"{prettyConstraints names p.constraints}\nwhere\n{prettyAtoms names as mask}"
   else
     -- formatErrorMessage should not be used in this case
     return "it is trivially solvable"
@@ -577,9 +578,14 @@ where
         names := names.push "(masked)"
     return names
 
+  -- We sort the constraints; otherwise the order is dependent on details of the hashing
+  -- and this can cause test suite output churn
   prettyConstraints (names : Array String) (constraints : HashMap Coeffs Fact) : String :=
     constraints.toList
+      |>.toArray
+      |>.qsort (·.1 < ·.1)
       |>.map (fun ⟨coeffs, ⟨_, cst, _⟩⟩ => "  " ++ prettyConstraint (prettyCoeffs names coeffs) cst)
+      |>.toList
       |> "\n".intercalate
 
   prettyConstraint (e : String) : Constraint → String
@@ -599,8 +605,8 @@ where
         (if Int.natAbs c = 1 then names[i]! else s!"{c.natAbs}*{names[i]!}"))
       |> String.join
 
-  mentioned (constraints : HashMap Coeffs Fact) : OmegaM (Array Bool) := do
-    let initMask := Array.mkArray (← getThe State).atoms.size false
+  mentioned (atoms : Array Expr) (constraints : HashMap Coeffs Fact) : MetaM (Array Bool) := do
+    let initMask := Array.mkArray atoms.size false
     return constraints.fold (init := initMask) fun mask coeffs _ =>
       coeffs.enum.foldl (init := mask) fun mask (i, c) =>
         if c = 0 then mask else mask.set! i true

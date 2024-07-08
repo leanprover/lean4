@@ -165,11 +165,11 @@ def getReducibilityStatus [Monad m] [MonadEnv m] (declName : Name) : m Reducibil
   return getReducibilityStatusCore (← getEnv) declName
 
 /-- Set the reducibility attribute for the given declaration. -/
-def setReducibilityStatus [Monad m] [MonadEnv m] (declName : Name) (s : ReducibilityStatus) : m Unit := do
+def setReducibilityStatus [MonadEnv m] (declName : Name) (s : ReducibilityStatus) : m Unit :=
   modifyEnv fun env => setReducibilityStatusCore env declName s .global .anonymous
 
 /-- Set the given declaration as `[reducible]` -/
-def setReducibleAttribute [Monad m] [MonadEnv m] (declName : Name) : m Unit := do
+def setReducibleAttribute [MonadEnv m] (declName : Name) : m Unit :=
   setReducibilityStatus declName ReducibilityStatus.reducible
 
 /-- Return `true` if the given declaration has been marked as `[reducible]`. -/
@@ -185,7 +185,7 @@ def isIrreducible [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
   | _ => return false
 
 /-- Set the given declaration as `[irreducible]` -/
-def setIrreducibleAttribute [Monad m] [MonadEnv m] (declName : Name) : m Unit := do
+def setIrreducibleAttribute [MonadEnv m] (declName : Name) : m Unit :=
   setReducibilityStatus declName ReducibilityStatus.irreducible
 
 

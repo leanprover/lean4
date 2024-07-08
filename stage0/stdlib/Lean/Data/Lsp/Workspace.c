@@ -183,7 +183,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_toJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("uri", 3);
+x_1 = lean_mk_string_unchecked("uri", 3, 3);
 return x_1;
 }
 }
@@ -191,7 +191,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_toJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("name", 4);
+x_1 = lean_mk_string_unchecked("name", 4, 4);
 return x_1;
 }
 }
@@ -292,7 +292,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_fromJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -300,7 +300,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_fromJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lsp", 3);
+x_1 = lean_mk_string_unchecked("Lsp", 3, 3);
 return x_1;
 }
 }
@@ -308,7 +308,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_fromJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("WorkspaceFolder", 15);
+x_1 = lean_mk_string_unchecked("WorkspaceFolder", 15, 15);
 return x_1;
 }
 }
@@ -337,7 +337,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_fromJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -385,7 +385,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_fromJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -571,7 +571,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_fromJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("globPattern", 11);
+x_1 = lean_mk_string_unchecked("globPattern", 11, 11);
 return x_1;
 }
 }
@@ -579,7 +579,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_fromJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("FileSystemWatcher", 17);
+x_1 = lean_mk_string_unchecked("FileSystemWatcher", 17, 17);
 return x_1;
 }
 }
@@ -658,7 +658,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_fromJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("kind", 4);
+x_1 = lean_mk_string_unchecked("kind", 4, 4);
 return x_1;
 }
 }
@@ -1112,7 +1112,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected JSON array, got '", 26);
+x_1 = lean_mk_string_unchecked("expected JSON array, got '", 26, 26);
 return x_1;
 }
 }
@@ -1120,7 +1120,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -1213,7 +1213,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_fromJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("watchers", 8);
+x_1 = lean_mk_string_unchecked("watchers", 8, 8);
 return x_1;
 }
 }
@@ -1221,7 +1221,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_fromJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("DidChangeWatchedFilesRegistrationOptions", 40);
+x_1 = lean_mk_string_unchecked("DidChangeWatchedFilesRegistrationOptions", 40, 40);
 return x_1;
 }
 }
@@ -1559,7 +1559,7 @@ static lean_object* _init_l_Lean_Lsp_instFromJsonFileChangeType___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected 1, 2, or 3, got ", 25);
+x_1 = lean_mk_string_unchecked("expected 1, 2, or 3, got ", 25, 25);
 return x_1;
 }
 }
@@ -1567,7 +1567,7 @@ static lean_object* _init_l_Lean_Lsp_instFromJsonFileChangeType___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -2005,7 +2005,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_fromJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("FileEvent", 9);
+x_1 = lean_mk_string_unchecked("FileEvent", 9, 9);
 return x_1;
 }
 }
@@ -2064,7 +2064,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_fromJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("type", 4);
+x_1 = lean_mk_string_unchecked("type", 4, 4);
 return x_1;
 }
 }
@@ -2572,7 +2572,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_fromJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("changes", 7);
+x_1 = lean_mk_string_unchecked("changes", 7, 7);
 return x_1;
 }
 }
@@ -2580,7 +2580,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_fromJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("DidChangeWatchedFilesParams", 27);
+x_1 = lean_mk_string_unchecked("DidChangeWatchedFilesParams", 27, 27);
 return x_1;
 }
 }

@@ -116,7 +116,7 @@ static lean_object* _init_l___private_Lean_Widget_Types_0__Lean_Widget_Lean_Widg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("id", 2);
+x_1 = lean_mk_string_unchecked("id", 2, 2);
 return x_1;
 }
 }
@@ -124,7 +124,7 @@ static lean_object* _init_l___private_Lean_Widget_Types_0__Lean_Widget_Lean_Widg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -142,7 +142,7 @@ static lean_object* _init_l___private_Lean_Widget_Types_0__Lean_Widget_Lean_Widg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Widget", 6);
+x_1 = lean_mk_string_unchecked("Widget", 6, 6);
 return x_1;
 }
 }
@@ -180,7 +180,7 @@ static lean_object* _init_l___private_Lean_Widget_Types_0__Lean_Widget_Lean_Widg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("WidgetInstance", 14);
+x_1 = lean_mk_string_unchecked("WidgetInstance", 14, 14);
 return x_1;
 }
 }
@@ -198,7 +198,7 @@ static lean_object* _init_l___private_Lean_Widget_Types_0__Lean_Widget_Lean_Widg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("RpcEncodablePacket", 18);
+x_1 = lean_mk_string_unchecked("RpcEncodablePacket", 18, 18);
 return x_1;
 }
 }
@@ -216,7 +216,7 @@ static lean_object* _init_l___private_Lean_Widget_Types_0__Lean_Widget_Lean_Widg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -254,7 +254,7 @@ static lean_object* _init_l___private_Lean_Widget_Types_0__Lean_Widget_Lean_Widg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Types", 5);
+x_1 = lean_mk_string_unchecked("Types", 5, 5);
 return x_1;
 }
 }
@@ -272,7 +272,7 @@ static lean_object* _init_l___private_Lean_Widget_Types_0__Lean_Widget_Lean_Widg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -310,7 +310,7 @@ static lean_object* _init_l___private_Lean_Widget_Types_0__Lean_Widget_Lean_Widg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -358,7 +358,7 @@ static lean_object* _init_l___private_Lean_Widget_Types_0__Lean_Widget_Lean_Widg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -376,7 +376,7 @@ static lean_object* _init_l___private_Lean_Widget_Types_0__Lean_Widget_Lean_Widg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("javascriptHash", 14);
+x_1 = lean_mk_string_unchecked("javascriptHash", 14, 14);
 return x_1;
 }
 }
@@ -424,7 +424,7 @@ static lean_object* _init_l___private_Lean_Widget_Types_0__Lean_Widget_Lean_Widg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("props", 5);
+x_1 = lean_mk_string_unchecked("props", 5, 5);
 return x_1;
 }
 }
@@ -823,7 +823,7 @@ static lean_object* _init_l_Lean_Widget_Lean_Widget_WidgetInstance_instRpcEncoda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("value '{j}' is too large for `UInt64`", 37);
+x_1 = lean_mk_string_unchecked("value '{j}' is too large for `UInt64`", 37, 37);
 return x_1;
 }
 }
@@ -841,7 +841,7 @@ static lean_object* _init_l_Lean_Widget_Lean_Widget_WidgetInstance_instRpcEncoda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[anonymous]", 11);
+x_1 = lean_mk_string_unchecked("[anonymous]", 11, 11);
 return x_1;
 }
 }
@@ -849,7 +849,7 @@ static lean_object* _init_l_Lean_Widget_Lean_Widget_WidgetInstance_instRpcEncoda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected a `Name`, got '", 24);
+x_1 = lean_mk_string_unchecked("expected a `Name`, got '", 24, 24);
 return x_1;
 }
 }
@@ -857,7 +857,7 @@ static lean_object* _init_l_Lean_Widget_Lean_Widget_WidgetInstance_instRpcEncoda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }

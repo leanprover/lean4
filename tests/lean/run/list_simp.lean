@@ -1,3 +1,5 @@
+import Lean.Meta.Tactic.Simp.BuiltinSimprocs.List
+
 open List
 
 variable {α : Type _}
@@ -120,6 +122,7 @@ variable (p : β → Option γ) in
 
 #check_simp replicate 0 x ~> []
 #check_simp replicate 1 x ~> [x]
+#check_simp replicate 5 x ~> [x, x, x, x, x]
 
 -- `∈` and `contains
 
@@ -316,6 +319,7 @@ variable (h : n ≤ m) in
 
 -- minimum?
 
+-- Note this relies on the fact that we do not have `replicate_succ` as a `@[simp]` lemma
 #check_simp (replicate (n+1) 7).minimum? ~> some 7
 
 variable (h : 0 < n) in
@@ -323,6 +327,7 @@ variable (h : 0 < n) in
 
 -- maximum?
 
+-- Note this relies on the fact that we do not have `replicate_succ` as a `@[simp]` lemma
 #check_simp (replicate (n+1) 7).maximum? ~> some 7
 
 variable (h : 0 < n) in

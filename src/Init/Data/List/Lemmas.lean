@@ -1158,9 +1158,9 @@ theorem append_left_inj {s₁ s₂ : List α} (t) : s₁ ++ t = s₂ ++ t ↔ s�
 @[simp] theorem append_eq_nil : p ++ q = [] ↔ p = [] ∧ q = [] := by
   cases p <;> simp
 
-@[simp] theorem getLast_concat {a : α} : ∀ (l : List α) h, getLast (l ++ [a]) h = a
-  | [], _ => rfl
-  | a::t, h => by
+@[simp] theorem getLast_concat {a : α} : ∀ (l : List α), getLast (l ++ [a]) (by simp) = a
+  | [] => rfl
+  | a::t => by
     simp [getLast_cons' _ fun H => cons_ne_nil _ _ (append_eq_nil.1 H).2, getLast_concat t]
 
 theorem getElem_append : ∀ {l₁ l₂ : List α} (n : Nat) (h : n < l₁.length),

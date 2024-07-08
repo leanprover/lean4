@@ -31,10 +31,13 @@ theorem utf8Size_eq (c : Char) : c.utf8Size = 1 ∨ c.utf8Size = 2 ∨ c.utf8Siz
   rw [Char.ofNat, dif_pos]
   rfl
 
-@[ext] theorem ext : {a b : Char} → a.val = b.val → a = b
+-- TODO(kmill): remove ext_iff and apply [ext] to ext directly
+protected theorem ext : {a b : Char} → a.val = b.val → a = b
   | ⟨_,_⟩, ⟨_,_⟩, rfl => rfl
 
-theorem ext_iff {x y : Char} : x = y ↔ x.val = y.val := ⟨congrArg _, Char.ext⟩
+protected theorem ext_iff {x y : Char} : x = y ↔ x.val = y.val := ⟨congrArg _, Char.ext⟩
+
+attribute [ext] Char.ext
 
 end Char
 

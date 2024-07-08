@@ -1,4 +1,5 @@
-import Lean.Meta.Tactic.Simp.BuiltinSimprocs.List
+set_option autoImplicit false -- For compatibility with downstream projects, so we can retest after Mathlib.
+set_option relaxedAutoImplicit false
 
 open List
 
@@ -271,7 +272,7 @@ variable {p : α → Bool} (w : ¬ p x) (h : 0 < n) in
 -- findSome?
 
 #check_simp (replicate (n+1) x).findSome? (fun x => some x) ~> some x
-#check_simp (replicate (n+1) x).findSome? (fun _ => none) ~> none
+#check_simp (replicate (n+1) x).findSome? (fun _ => (none : Option β)) ~> none
 
 variable {f : α → Option β} (w : (f x).isSome) in
 #check_tactic (replicate (n+1) x).findSome? f ~> f x by simp [w]
@@ -281,7 +282,7 @@ variable {f : α → Option β} (w : (f x).isNone) in
 variable (h : 0 < n) in
 #check_tactic (replicate n x).findSome? (fun x => some x) ~> some x by simp [h]
 variable (h : 0 < n) in
-#check_tactic (replicate n x).findSome? (fun _ => none) ~> none by simp [h]
+#check_tactic (replicate n x).findSome? (fun _ => (none : Option β)) ~> none by simp [h]
 
 variable {f : α → Option β} (w : (f x).isSome) (h : 0 < n) in
 #check_tactic (replicate n x).findSome? f ~> f x by simp [w, h]

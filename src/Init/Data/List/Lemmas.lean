@@ -1972,6 +1972,22 @@ theorem head_takeWhile (p : α → Bool) (l : List α) (w) :
     simp only [takeWhile_cons] at w
     split <;> simp_all
 
+theorem head?_dropWhile_not (p : α → Bool) (l : List α) :
+    match (l.dropWhile p).head? with | some x => p x = false | none => True := by
+  induction l with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [dropWhile_cons]
+    split <;> rename_i h <;> split at h <;> simp_all
+
+theorem head_dropWhile_not (p : α → Bool) (l : List α) (w) :
+    p ((l.dropWhile p).head w) = false := by
+  induction l with
+  | nil => simp at w
+  | cons x xs ih =>
+    simp only [dropWhile_cons]
+    split <;> simp_all
+
 theorem takeWhile_map (f : α → β) (p : β → Bool) (l : List α) :
     (l.map f).takeWhile p = (l.takeWhile (p ∘ f)).map f := by
   induction l with

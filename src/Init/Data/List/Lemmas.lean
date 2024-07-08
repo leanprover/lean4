@@ -1785,8 +1785,8 @@ theorem take_of_length_le {l : List α} (h : l.length ≤ i) : take i l = l := b
 theorem lt_length_of_take_ne_self {l : List α} {n} (h : l.take n ≠ l) : n < l.length :=
   gt_of_not_le (mt take_of_length_le h)
 
-@[deprecated drop_length_le (since := "2024-07-07")] abbrev drop_length_le := @drop_of_length_le
-@[deprecated take_length_le (since := "2024-07-07")] abbrev take_length_le := @take_of_length_le
+@[deprecated drop_of_length_le (since := "2024-07-07")] abbrev drop_length_le := @drop_of_length_le
+@[deprecated take_of_length_le (since := "2024-07-07")] abbrev take_length_le := @take_of_length_le
 
 @[simp] theorem drop_length (l : List α) : drop l.length l = [] := drop_of_length_le (Nat.le_refl _)
 

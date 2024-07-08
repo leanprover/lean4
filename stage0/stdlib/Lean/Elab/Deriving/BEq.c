@@ -119,6 +119,7 @@ static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_BEq_mkMatch_m
 lean_object* l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfoCtor___at_Lean_Elab_Deriving_BEq_mkMatch_mkAlts___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkBEqEnumCmd(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_InductiveVal_isNested(lean_object*);
 static lean_object* l_Lean_Elab_Deriving_BEq_mkMutualBlock___closed__5;
 static lean_object* l_List_forIn_loop___at_Lean_Elab_Deriving_BEq_mkMatch_mkAlts___spec__5___lambda__1___closed__2;
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_BEq_mkMatch_mkElseAlt___spec__1___closed__3;
@@ -7036,15 +7037,15 @@ x_30 = l_List_isEmpty___rarg(x_29);
 if (x_30 == 0)
 {
 uint8_t x_31; 
-x_31 = lean_ctor_get_uint8(x_10, sizeof(void*)*5);
+x_31 = lean_ctor_get_uint8(x_10, sizeof(void*)*6);
 if (x_31 == 0)
 {
 uint8_t x_32; 
-x_32 = lean_ctor_get_uint8(x_10, sizeof(void*)*5 + 3);
+x_32 = l_Lean_InductiveVal_isNested(x_10);
 if (x_32 == 0)
 {
 uint8_t x_33; 
-x_33 = lean_ctor_get_uint8(x_10, sizeof(void*)*5 + 1);
+x_33 = lean_ctor_get_uint8(x_10, sizeof(void*)*6 + 1);
 lean_dec(x_10);
 if (x_33 == 0)
 {
@@ -7200,15 +7201,15 @@ x_69 = l_List_isEmpty___rarg(x_68);
 if (x_69 == 0)
 {
 uint8_t x_70; 
-x_70 = lean_ctor_get_uint8(x_46, sizeof(void*)*5);
+x_70 = lean_ctor_get_uint8(x_46, sizeof(void*)*6);
 if (x_70 == 0)
 {
 uint8_t x_71; 
-x_71 = lean_ctor_get_uint8(x_46, sizeof(void*)*5 + 3);
+x_71 = l_Lean_InductiveVal_isNested(x_46);
 if (x_71 == 0)
 {
 uint8_t x_72; 
-x_72 = lean_ctor_get_uint8(x_46, sizeof(void*)*5 + 1);
+x_72 = lean_ctor_get_uint8(x_46, sizeof(void*)*6 + 1);
 lean_dec(x_46);
 if (x_72 == 0)
 {

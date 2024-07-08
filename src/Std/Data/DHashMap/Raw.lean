@@ -54,6 +54,9 @@ capacity.
 instance : EmptyCollection (Raw α β) where
   emptyCollection := empty
 
+instance : Inhabited (Raw α β) where
+  default := ∅
+
 /--
 Inserts the given mapping into the map, replacing an existing mapping for the key if there is one.
 -/

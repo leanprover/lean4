@@ -11,7 +11,7 @@ import Lean.Elab.PreDefinition.Structural.Basic
 namespace Lean.Elab.Structural
 open Meta
 
-private partial def replaceIndPredRecApps (recFnName : Name) (recArgInfo : RecArgInfo) (motive : Expr) (e : Expr) : M Expr := do
+private partial def replaceIndPredRecApps (recArgInfo : RecArgInfo) (motive : Expr) (e : Expr) : M Expr := do
   let maxDepth := IndPredBelow.maxBackwardChainingDepth.get (← getOptions)
   let rec loop (e : Expr) : M Expr := do
     match e with
@@ -33,7 +33,7 @@ private partial def replaceIndPredRecApps (recFnName : Name) (recArgInfo : RecAr
     | Expr.app _ _ =>
       let processApp (e : Expr) : M Expr := do
         e.withApp fun f args => do
-          if f.isConstOf recFnName then
+          if f.isConstOf recArgInfo.fnName then
             let ty ← inferType e
             let main ← mkFreshExprSyntheticOpaqueMVar ty
             if (← IndPredBelow.backwardsChaining main.mvarId! maxDepth) then
@@ -44,7 +44,7 @@ private partial def replaceIndPredRecApps (recFnName : Name) (recArgInfo : RecAr
             return mkAppN (← loop f) (← args.mapM loop)
       match (← matchMatcherApp? e) with
       | some matcherApp =>
-        if !recArgHasLooseBVarsAt recFnName recArgInfo.recArgPos e then
+        if !recArgHasLooseBVarsAt recArgInfo.fnName recArgInfo.recArgPos e then
           processApp e
         else
           trace[Elab.definition.structural] "matcherApp before adding below transformation:\n{matcherApp.toExpr}"
@@ -63,42 +63,48 @@ private partial def replaceIndPredRecApps (recFnName : Name) (recArgInfo : RecAr
             trace[Elab.definition.structural] "modified matcher:\n{newApp}"
             processApp newApp
       | none => processApp e
-    | e => ensureNoRecFn recFnName e
+    | e =>
+      ensureNoRecFn #[recArgInfo.fnName] e
+      pure e
   loop e
 
-def mkIndPredBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
-  let type  := (← inferType value).headBeta
-  let major := recArgInfo.ys[recArgInfo.pos]!
-  let otherArgs := recArgInfo.ys.filter fun y => y != major && !recArgInfo.indIndices.contains y
-  trace[Elab.definition.structural] "fixedParams: {recArgInfo.fixedParams}, otherArgs: {otherArgs}"
-  let motive ← mkForallFVars otherArgs type
-  let motive ← mkLambdaFVars (recArgInfo.indIndices.push major) motive
-  trace[Elab.definition.structural] "brecOn motive: {motive}"
-  let brecOn := Lean.mkConst (mkBRecOnName recArgInfo.indName) recArgInfo.indLevels
-  let brecOn := mkAppN brecOn recArgInfo.indParams
-  let brecOn := mkApp brecOn motive
-  let brecOn := mkAppN brecOn recArgInfo.indIndices
-  let brecOn := mkApp brecOn major
-  check brecOn
-  let brecOnType ← inferType brecOn
-  trace[Elab.definition.structural] "brecOn     {brecOn}"
-  trace[Elab.definition.structural] "brecOnType {brecOnType}"
-  -- we need to close the telescope here, because the local context is used:
-  -- The root cause was, that this copied code puts an ih : FType into the
-  -- local context and later, when we use the local context to build the recursive
-  -- call, it uses this ih. But that ih doesn't exist in the actual brecOn call.
-  -- That's why it must go.
-  let FType ← forallBoundedTelescope brecOnType (some 1) fun F _ => do
-    let F := F[0]!
-    let FType ← inferType F
-    trace[Elab.definition.structural] "FType: {FType}"
-    let FType ← instantiateForall FType recArgInfo.indIndices
-    instantiateForall FType #[major]
-  forallBoundedTelescope FType (some 1) fun below _ => do
-    let below := below[0]!
-    let valueNew     ← replaceIndPredRecApps recFnName recArgInfo motive value
-    let Farg         ← mkLambdaFVars (recArgInfo.indIndices ++ #[major, below] ++ otherArgs) valueNew
-    let brecOn       := mkApp brecOn Farg
-    return mkAppN brecOn otherArgs
+/--
+Transform the body of a recursive function into a non-recursive one.
+
+The `value` is the function with (only) the fixed parameters instantiated.
+-/
+def mkIndPredBRecOn (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
+  lambdaTelescope value fun ys value => do
+    let type  := (← inferType value).headBeta
+    let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor ys
+    trace[Elab.definition.structural] "numFixed: {recArgInfo.numFixed}, indexMajorArgs: {indexMajorArgs}, otherArgs: {otherArgs}"
+    let motive ← mkForallFVars otherArgs type
+    let motive ← mkLambdaFVars indexMajorArgs motive
+    trace[Elab.definition.structural] "brecOn motive: {motive}"
+    let brecOn := Lean.mkConst (mkBRecOnName recArgInfo.indName) recArgInfo.indLevels
+    let brecOn := mkAppN brecOn recArgInfo.indParams
+    let brecOn := mkApp brecOn motive
+    let brecOn := mkAppN brecOn indexMajorArgs
+    check brecOn
+    let brecOnType ← inferType brecOn
+    trace[Elab.definition.structural] "brecOn     {brecOn}"
+    trace[Elab.definition.structural] "brecOnType {brecOnType}"
+    -- we need to close the telescope here, because the local context is used:
+    -- The root cause was, that this copied code puts an ih : FType into the
+    -- local context and later, when we use the local context to build the recursive
+    -- call, it uses this ih. But that ih doesn't exist in the actual brecOn call.
+    -- That's why it must go.
+    let FType ← forallBoundedTelescope brecOnType (some 1) fun F _ => do
+      let F := F[0]!
+      let FType ← inferType F
+      trace[Elab.definition.structural] "FType: {FType}"
+      instantiateForall FType indexMajorArgs
+    forallBoundedTelescope FType (some 1) fun below _ => do
+      let below := below[0]!
+      let valueNew     ← replaceIndPredRecApps recArgInfo motive value
+      let Farg         ← mkLambdaFVars (indexMajorArgs ++ #[below] ++ otherArgs) valueNew
+      let brecOn       := mkApp brecOn Farg
+      let brecOn       := mkAppN brecOn otherArgs
+      mkLambdaFVars ys brecOn
 
 end Lean.Elab.Structural

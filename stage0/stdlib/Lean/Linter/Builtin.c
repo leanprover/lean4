@@ -20,7 +20,6 @@ static lean_object* l_Array_forInUnsafe_loop___at_Lean_Linter_suspiciousUnexpand
 static lean_object* l_Array_anyMUnsafe_any___at_Lean_Linter_suspiciousUnexpanderPatterns___elambda__1___spec__5___closed__5;
 static lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___closed__2;
 uint8_t l_Lean_Syntax_matchesIdent(lean_object*, lean_object*);
-lean_object* l_Lean_logAt___at_Lean_Elab_Command_elabCommand___spec__4(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__1___lambda__4___closed__7;
 lean_object* l_Array_sequenceMap___at___aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__1___lambda__4___closed__18;
@@ -123,6 +122,7 @@ extern lean_object* l_Lean_Elab_Command_instInhabitedScope;
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Builtin___hyg_6____closed__9;
 static lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__1___lambda__2___closed__1;
+lean_object* l_Lean_logAt___at_Lean_Elab_Command_withLoggingExceptions___spec__3(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Linter_suspiciousUnexpanderPatterns___elambda__1___spec__4___lambda__1___closed__4;
 static lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__1___lambda__4___closed__2;
@@ -450,7 +450,7 @@ x_20 = lean_alloc_ctor(8, 2, 0);
 lean_ctor_set(x_20, 0, x_8);
 lean_ctor_set(x_20, 1, x_19);
 x_21 = 1;
-x_22 = l_Lean_logAt___at_Lean_Elab_Command_elabCommand___spec__4(x_2, x_20, x_21, x_4, x_5, x_6);
+x_22 = l_Lean_logAt___at_Lean_Elab_Command_withLoggingExceptions___spec__3(x_2, x_20, x_21, x_4, x_5, x_6);
 return x_22;
 }
 else
@@ -487,7 +487,7 @@ x_35 = lean_alloc_ctor(8, 2, 0);
 lean_ctor_set(x_35, 0, x_23);
 lean_ctor_set(x_35, 1, x_34);
 x_36 = 1;
-x_37 = l_Lean_logAt___at_Lean_Elab_Command_elabCommand___spec__4(x_2, x_35, x_36, x_4, x_5, x_6);
+x_37 = l_Lean_logAt___at_Lean_Elab_Command_withLoggingExceptions___spec__3(x_2, x_35, x_36, x_4, x_5, x_6);
 return x_37;
 }
 }

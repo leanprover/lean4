@@ -254,17 +254,17 @@ where
     | _ => match n.getAppFnArgs with
     | (``Nat.succ, #[n]) => rewrite e (.app (.const ``Int.ofNat_succ []) n)
     | (``HAdd.hAdd, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_add []) a b)
-    | (``HMul.hMul, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_mul []) a b)
-      -- -- Don't push the cast into a multiplication unless it produces a non-trivial linear combination.
-      -- let r? ← commitWhen do
-      --   let (lc, prf, r) ← rewrite e (mkApp2 (.const ``Int.ofNat_mul []) a b)
-      --   if lc.isAtom then
-      --     pure (none, false)
-      --   else
-      --     pure (some (lc, prf, r), true)
-      -- match r? with
-      -- | some r => pure r
-      -- | none => mkAtomLinearCombo e
+    | (``HMul.hMul, #[_, _, _, _, a, b]) =>
+      -- Don't push the cast into a multiplication unless it produces a non-trivial linear combination.
+      let r? ← commitWhen do
+        let (lc, prf, r) ← rewrite e (mkApp2 (.const ``Int.ofNat_mul []) a b)
+        if lc.isAtom then
+          pure (none, false)
+        else
+          pure (some (lc, prf, r), true)
+      match r? with
+      | some r => pure r
+      | none => mkAtomLinearCombo e
     | (``HDiv.hDiv, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_ediv []) a b)
     | (``OfNat.ofNat, #[_, n, _]) => rewrite e (.app (.const ``Int.natCast_ofNat []) n)
     | (``HMod.hMod, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_emod []) a b)

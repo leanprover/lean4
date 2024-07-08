@@ -253,6 +253,9 @@ end forall_congr
 
 @[simp] theorem not_exists : (¬∃ x, p x) ↔ ∀ x, ¬p x := exists_imp
 
+theorem forall_not_of_not_exists (h : ¬∃ x, p x) : ∀ x, ¬p x := not_exists.mp h
+theorem not_exists_of_forall_not (h : ∀ x, ¬p x) : ¬∃ x, p x := not_exists.mpr h
+
 theorem forall_and : (∀ x, p x ∧ q x) ↔ (∀ x, p x) ∧ (∀ x, q x) :=
   ⟨fun h => ⟨fun x => (h x).1, fun x => (h x).2⟩, fun ⟨h₁, h₂⟩ x => ⟨h₁ x, h₂ x⟩⟩
 

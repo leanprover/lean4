@@ -383,6 +383,29 @@ theorem minimum?_eq_some_iff' {xs : List Nat} :
     (min_eq_or := fun _ _ => by omega)
     (le_min_iff := fun _ _ _ => by omega)
 
+-- This could be generalized,
+-- but will first require further work on order typeclasses in the core repository.
+theorem minimum?_cons' {a : Nat} {l : List Nat} :
+    (a :: l).minimum? = some (match l.minimum? with
+    | none => a
+    | some m => min a m) := by
+  rw [minimum?_eq_some_iff']
+  split <;> rename_i h m
+  · simp_all
+  · rw [minimum?_eq_some_iff'] at m
+    obtain ⟨m, le⟩ := m
+    rw [Nat.min_def]
+    constructor
+    · split
+      · exact mem_cons_self a l
+      · exact mem_cons_of_mem a m
+    · intro b m
+      cases List.mem_cons.1 m with
+      | inl => split <;> omega
+      | inr h =>
+        specialize le b h
+        split <;> omega
+
 /-! ### maximum? -/
 
 -- A specialization of `maximum?_eq_some_iff` to Nat.
@@ -392,5 +415,28 @@ theorem maximum?_eq_some_iff' {xs : List Nat} :
     (le_refl := Nat.le_refl)
     (max_eq_or := fun _ _ => by omega)
     (max_le_iff := fun _ _ _ => by omega)
+
+-- This could be generalized,
+-- but will first require further work on order typeclasses in the core repository.
+theorem maximum?_cons' {a : Nat} {l : List Nat} :
+    (a :: l).maximum? = some (match l.maximum? with
+    | none => a
+    | some m => max a m) := by
+  rw [maximum?_eq_some_iff']
+  split <;> rename_i h m
+  · simp_all
+  · rw [maximum?_eq_some_iff'] at m
+    obtain ⟨m, le⟩ := m
+    rw [Nat.max_def]
+    constructor
+    · split
+      · exact mem_cons_of_mem a m
+      · exact mem_cons_self a l
+    · intro b m
+      cases List.mem_cons.1 m with
+      | inl => split <;> omega
+      | inr h =>
+        specialize le b h
+        split <;> omega
 
 end List

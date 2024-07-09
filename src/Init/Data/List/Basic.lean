@@ -22,7 +22,7 @@ along with `@[csimp]` lemmas,
 
 In `Init.Data.List.Lemmas` we develop the full API for these functions.
 
-Recall that `length`, `get`, `set`, `fold`, and `concat` have already been defined in `Init.Prelude`.
+Recall that `length`, `get`, `set`, `foldl`, and `concat` have already been defined in `Init.Prelude`.
 
 The operations are organized as follow:
 * Equality: `beq`, `isEqv`.

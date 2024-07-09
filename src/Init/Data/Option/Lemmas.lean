@@ -82,7 +82,7 @@ theorem isSome_iff_exists : isSome x ↔ ∃ a, x = some a := by cases x <;> sim
   cases a <;> simp
 
 theorem eq_some_iff_get_eq : o = some a ↔ ∃ h : o.isSome, o.get h = a := by
-  cases o <;> simp; nofun
+  cases o <;> simp
 
 theorem eq_some_of_isSome : ∀ {o : Option α} (h : o.isSome), o = some (o.get h)
   | some _, _ => rfl

@@ -394,6 +394,26 @@ theorem mem_iff_getElem? {a} {l : List α} : a ∈ l ↔ ∃ n : Nat, l[n]? = so
 theorem mem_iff_get? {a} {l : List α} : a ∈ l ↔ ∃ n, l.get? n = some a := by
   simp [getElem?_eq_some, Fin.exists_iff, mem_iff_get]
 
+theorem forall_getElem (l : List α) (p : α → Prop) :
+    (∀ (n : Nat) h, p (l[n]'h)) ↔ ∀ a, a ∈ l → p a := by
+  induction l with
+  | nil => simp
+  | cons a l ih =>
+    simp only [length_cons, mem_cons, forall_eq_or_imp]
+    constructor
+    · intro w
+      constructor
+      · exact w 0 (by simp)
+      · apply ih.1
+        intro n h
+        simpa using w (n+1) (Nat.add_lt_add_right h 1)
+    · rintro ⟨h, w⟩
+      rintro (_ | n) h
+      · simpa
+      · apply w
+        simp only [getElem_cons_succ]
+        exact getElem_mem l n (lt_of_succ_lt_succ h)
+
 @[simp] theorem decide_mem_cons [BEq α] [LawfulBEq α] {l : List α} :
     decide (y ∈ a :: l) = (y == a || decide (y ∈ l)) := by
   cases h : y == a <;> simp_all
@@ -422,7 +442,6 @@ theorem all_eq {l : List α} : l.all p = decide (∀ x, x ∈ l →  p x) := by 
   match l, i with
   | [], _ => by
     simp at h
-    contradiction
   | _ :: _, 0 => by simp
   | _ :: l, i + 1 => by simp [getElem_set_eq]
 
@@ -1248,6 +1267,9 @@ theorem eq_nil_or_concat : ∀ l : List α, l = [] ∨ ∃ L b, l = concat L b
   | [] => by simp
   | b :: l => by simp [mem_join, or_and_right, exists_or]
 
+@[simp] theorem join_eq_nil_iff {L : List (List α)} : L.join = [] ↔ ∀ l ∈ L, l = [] := by
+  induction L <;> simp_all
+
 theorem exists_of_mem_join : a ∈ join L → ∃ l, l ∈ L ∧ a ∈ l := mem_join.1
 
 theorem mem_join_of_mem (lL : l ∈ L) (al : a ∈ l) : a ∈ join L := mem_join.2 ⟨l, lL, al⟩
@@ -2009,6 +2031,9 @@ instance : Trans Subset (@Sublist α) Subset :=
 instance : Trans (Membership.mem : α → List α → Prop) Sublist Membership.mem :=
   ⟨fun h₁ h₂ => h₂.subset h₁⟩
 
+theorem mem_of_cons_sublist {a : α} {l₁ l₂ : List α} (s : a :: l₁ <+ l₂) : a ∈ l₂ :=
+  (cons_subset.1 s.subset).1
+
 @[simp] theorem sublist_nil {l : List α} : l <+ [] ↔ l = [] :=
   ⟨fun s => subset_nil.1 s.subset, fun H => H ▸ Sublist.refl _⟩
 
@@ -2039,6 +2064,48 @@ protected theorem Sublist.filterMap (f : α → Option β) (s : l₁ <+ l₂) :
 
 protected theorem Sublist.filter (p : α → Bool) {l₁ l₂} (s : l₁ <+ l₂) : filter p l₁ <+ filter p l₂ := by
   rw [← filterMap_eq_filter]; apply s.filterMap
+
+theorem sublist_filterMap_iff {l₁ : List β} {f : α → Option β} :
+    l₁ <+ l₂.filterMap f ↔ ∃ l', l' <+ l₂ ∧ l₁ = l'.filterMap f := by
+  induction l₂ generalizing l₁ with
+  | nil => simp
+  | cons a l₂ ih =>
+    simp only [filterMap_cons]
+    split
+    · simp only [ih]
+      constructor
+      · rintro ⟨l', h, rfl⟩
+        exact ⟨l', Sublist.cons a h, rfl⟩
+      · rintro ⟨l', h, rfl⟩
+        cases h with
+        | cons _ h =>
+          exact ⟨l', h, rfl⟩
+        | cons₂ _ h =>
+          rename_i l'
+          exact ⟨l', h, by simp_all⟩
+    · constructor
+      · intro w
+        cases w with
+        | cons _ h =>
+          obtain ⟨l', s, rfl⟩ := ih.1 h
+          exact ⟨l', Sublist.cons a s, rfl⟩
+        | cons₂ _ h =>
+          rename_i l'
+          obtain ⟨l', s, rfl⟩ := ih.1 h
+          refine ⟨a :: l', Sublist.cons₂ a s, ?_⟩
+          rwa [filterMap_cons_some]
+      · rintro ⟨l', h, rfl⟩
+        replace h := h.filterMap f
+        rwa [filterMap_cons_some] at h
+        assumption
+
+theorem sublist_map_iff {l₁ : List β} {f : α → β} :
+    l₁ <+ l₂.map f ↔ ∃ l', l' <+ l₂ ∧ l₁ = l'.map f := by
+  simp only [← filterMap_eq_map, sublist_filterMap_iff]
+
+theorem sublist_filter_iff {l₁ : List α} {p : α → Bool} :
+    l₁ <+ l₂.filter p ↔ ∃ l', l' <+ l₂ ∧ l₁ = l'.filter p := by
+  simp only [← filterMap_eq_filter, sublist_filterMap_iff]
 
 @[simp] theorem sublist_append_left : ∀ l₁ l₂ : List α, l₁ <+ l₁ ++ l₂
   | [], _ => nil_sublist _
@@ -2074,10 +2141,101 @@ theorem Sublist.append_right : l₁ <+ l₂ → ∀ l, l₁ ++ l <+ l₂ ++ l
 theorem Sublist.append (hl : l₁ <+ l₂) (hr : r₁ <+ r₂) : l₁ ++ r₁ <+ l₂ ++ r₂ :=
   (hl.append_right _).trans ((append_sublist_append_left _).2 hr)
 
+theorem sublist_cons_iff {a : α} {l l'} :
+    l <+ a :: l' ↔ l <+ l' ∨ ∃ r, l = a :: r ∧ r <+ l' := by
+  constructor
+  · intro h
+    cases h with
+    | cons _ h => exact Or.inl h
+    | cons₂ _ h => exact Or.inr ⟨_, rfl, h⟩
+  · rintro (h | ⟨r, rfl, h⟩)
+    · exact h.cons _
+    · exact h.cons₂ _
+
+theorem cons_sublist_iff {a : α} {l l'} :
+    a :: l <+ l' ↔ ∃ r₁ r₂, l' = r₁ ++ r₂ ∧ a ∈ r₁ ∧ l <+ r₂ := by
+  induction l' with
+  | nil => simp
+  | cons a' l' ih =>
+    constructor
+    · intro w
+      cases w with
+      | cons _ w =>
+        obtain ⟨r₁, r₂, rfl, h₁, h₂⟩ := ih.1 w
+        exact ⟨a' :: r₁, r₂, by simp, mem_cons_of_mem a' h₁, h₂⟩
+      | cons₂ _ w =>
+        exact ⟨[a], l', by simp, mem_singleton_self _, w⟩
+    · rintro ⟨r₁, r₂, w, h₁, h₂⟩
+      rw [w, ← singleton_append]
+      exact Sublist.append (by simpa) h₂
+
+theorem sublist_append_iff {l : List α} :
+    l <+ r₁ ++ r₂ ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ l₁ <+ r₁ ∧ l₂ <+ r₂ := by
+  induction r₁ generalizing l with
+  | nil =>
+    constructor
+    · intro w
+      refine ⟨[], l, by simp_all⟩
+    · rintro ⟨l₁, l₂, rfl, w₁, w₂⟩
+      simp_all
+  | cons r r₁ ih =>
+    constructor
+    · intro w
+      simp only [cons_append] at w
+      cases w with
+      | cons _ w =>
+        obtain ⟨l₁, l₂, rfl, w₁, w₂⟩ := ih.1 w
+        exact ⟨l₁, l₂, rfl, Sublist.cons r w₁, w₂⟩
+      | cons₂ _ w =>
+        rename_i l
+        obtain ⟨l₁, l₂, rfl, w₁, w₂⟩ := ih.1 w
+        refine ⟨r :: l₁, l₂, by simp, cons_sublist_cons.mpr w₁, w₂⟩
+    · rintro ⟨l₁, l₂, rfl, w₁, w₂⟩
+      cases w₁ with
+      | cons _ w₁ =>
+        exact Sublist.cons _ (Sublist.append w₁ w₂)
+      | cons₂ _ w₁ =>
+        rename_i l
+        exact Sublist.cons₂ _ (Sublist.append w₁ w₂)
+
+theorem append_sublist_iff {l₁ l₂ : List α} :
+    l₁ ++ l₂ <+ r ↔ ∃ r₁ r₂, r = r₁ ++ r₂ ∧ l₁ <+ r₁ ∧ l₂ <+ r₂ := by
+  induction l₁ generalizing r with
+  | nil =>
+    constructor
+    · intro w
+      refine ⟨[], r, by simp_all⟩
+    · rintro ⟨r₁, r₂, rfl, -, w₂⟩
+      simp only [nil_append]
+      exact sublist_append_of_sublist_right w₂
+  | cons a l₁ ih =>
+    constructor
+    · rw [cons_append, cons_sublist_iff]
+      rintro ⟨r₁, r₂, rfl, h₁, h₂⟩
+      obtain ⟨s₁, s₂, rfl, t₁, t₂⟩ := ih.1 h₂
+      refine ⟨r₁ ++ s₁, s₂, by simp, ?_, t₂⟩
+      rw [← singleton_append]
+      exact Sublist.append (by simpa) t₁
+    · rintro ⟨r₁, r₂, rfl, h₁, h₂⟩
+      exact Sublist.append h₁ h₂
+
 theorem Sublist.reverse : l₁ <+ l₂ → l₁.reverse <+ l₂.reverse
   | .slnil => Sublist.refl _
   | .cons _ h => by rw [reverse_cons]; exact sublist_append_of_sublist_left h.reverse
   | .cons₂ _ h => by rw [reverse_cons, reverse_cons]; exact h.reverse.append_right _
+
+@[simp] theorem reverse_sublist : l₁.reverse <+ l₂.reverse ↔ l₁ <+ l₂ :=
+  ⟨fun h => l₁.reverse_reverse ▸ l₂.reverse_reverse ▸ h.reverse, Sublist.reverse⟩
+
+theorem sublist_reverse_iff : l₁ <+ l₂.reverse ↔ l₁.reverse <+ l₂ :=
+  by rw [← reverse_sublist, reverse_reverse]
+
+@[simp] theorem append_sublist_append_right (l) : l₁ ++ l <+ l₂ ++ l ↔ l₁ <+ l₂ :=
+  ⟨fun h => by
+    have := h.reverse
+    simp only [reverse_append, append_sublist_append_left, reverse_sublist] at this
+    exact this,
+   fun h => h.append_right l⟩
 
 @[simp] theorem replicate_sublist_replicate {m n} (a : α) :
     replicate m a <+ replicate n a ↔ m ≤ n := by
@@ -2087,15 +2245,29 @@ theorem Sublist.reverse : l₁ <+ l₂ → l₁.reverse <+ l₂.reverse
     | refl => apply Sublist.refl
     | step => simp [*, replicate, Sublist.cons]
 
-@[simp] theorem reverse_sublist : l₁.reverse <+ l₂.reverse ↔ l₁ <+ l₂ :=
-  ⟨fun h => l₁.reverse_reverse ▸ l₂.reverse_reverse ▸ h.reverse, Sublist.reverse⟩
-
-@[simp] theorem append_sublist_append_right (l) : l₁ ++ l <+ l₂ ++ l ↔ l₁ <+ l₂ :=
-  ⟨fun h => by
-    have := h.reverse
-    simp only [reverse_append, append_sublist_append_left, reverse_sublist] at this
-    exact this,
-   fun h => h.append_right l⟩
+theorem sublist_replicate_iff : l <+ replicate m a ↔ ∃ n, n ≤ m ∧ l = replicate n a := by
+  induction l generalizing m with
+  | nil =>
+    simp only [nil_sublist, true_iff]
+    exact ⟨0, zero_le m, by simp⟩
+  | cons b l ih =>
+    constructor
+    · intro w
+      cases m with
+      | zero => simp at w
+      | succ m =>
+        simp [replicate_succ] at w
+        cases w with
+        | cons _ w =>
+          obtain ⟨n, le, rfl⟩ := ih.1 (sublist_of_cons_sublist w)
+          obtain rfl := (mem_replicate.1 (mem_of_cons_sublist w)).2
+          exact ⟨n+1, Nat.add_le_add_right le 1, rfl⟩
+        | cons₂ _ w =>
+          obtain ⟨n, le, rfl⟩ := ih.1 w
+          refine ⟨n+1, Nat.add_le_add_right le 1, by simp [replicate_succ]⟩
+    · rintro ⟨n, le, w⟩
+      rw [w]
+      exact (replicate_sublist_replicate a).2 le
 
 theorem sublist_join_of_mem {L : List (List α)} {l} (h : l ∈ L) : l <+ L.join := by
   induction L with
@@ -2104,6 +2276,61 @@ theorem sublist_join_of_mem {L : List (List α)} {l} (h : l ∈ L) : l <+ L.join
     rcases mem_cons.1 h with (rfl | h)
     · simp [h]
     · simp [ih h, join_cons, sublist_append_of_sublist_right]
+
+theorem sublist_join_iff {L : List (List α)} {l} :
+    l <+ L.join ↔
+      ∃ L' : List (List α), l = L'.join ∧ ∀ i (_ : i < L'.length), L'[i] <+ L[i]?.getD [] := by
+  induction L generalizing l with
+  | nil =>
+    constructor
+    · intro w
+      simp only [join_nil, sublist_nil] at w
+      subst w
+      exact ⟨[], by simp, fun i x => by cases x⟩
+    · rintro ⟨L', rfl, h⟩
+      simp only [join_nil, sublist_nil, join_eq_nil_iff]
+      simp only [getElem?_nil, Option.getD_none, sublist_nil] at h
+      exact (forall_getElem L' (· = [])).1 h
+  | cons l' L ih =>
+    simp only [join_cons, sublist_append_iff, ih]
+    constructor
+    · rintro ⟨l₁, l₂, rfl, s, L', rfl, h⟩
+      refine ⟨l₁ :: L', by simp, ?_⟩
+      intro i lt
+      cases i <;> simp_all
+    · rintro ⟨L', rfl, h⟩
+      cases L' with
+      | nil =>
+        exact ⟨[], [], by simp, by simp, [], by simp, fun i x => by cases x⟩
+      | cons l₁ L' =>
+        exact ⟨l₁, L'.join, by simp, by simpa using h 0 (by simp), L', rfl,
+          fun i lt => by simpa using h (i+1) (Nat.add_lt_add_right lt 1)⟩
+
+theorem join_sublist_iff {L : List (List α)} {l} :
+    L.join <+ l ↔
+      ∃ L' : List (List α), l = L'.join ∧ ∀ i (_ : i < L.length), L[i] <+ L'[i]?.getD [] := by
+  induction L generalizing l with
+  | nil =>
+    constructor
+    · intro _
+      exact ⟨[l], by simp, fun i x => by cases x⟩
+    · rintro ⟨L', rfl, _⟩
+      simp only [join_nil, nil_sublist]
+  | cons l' L ih =>
+    simp only [join_cons, append_sublist_iff, ih]
+    constructor
+    · rintro ⟨l₁, l₂, rfl, s, L', rfl, h⟩
+      refine ⟨l₁ :: L', by simp, ?_⟩
+      intro i lt
+      cases i <;> simp_all
+    · rintro ⟨L', rfl, h⟩
+      cases L' with
+      | nil =>
+        exact ⟨[], [], by simp, by simpa using h 0 (by simp), [], by simp,
+          fun i x => by simpa using h (i+1) (Nat.add_lt_add_right x 1)⟩
+      | cons l₁ L' =>
+        exact ⟨l₁, L'.join, by simp, by simpa using h 0 (by simp), L', rfl,
+          fun i lt => by simpa using h (i+1) (Nat.add_lt_add_right lt 1)⟩
 
 @[simp] theorem isSublist_iff_sublist [BEq α] [LawfulBEq α] {l₁ l₂ : List α} :
     l₁.isSublist l₂ ↔ l₁ <+ l₂ := by

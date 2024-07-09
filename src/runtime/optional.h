@@ -31,13 +31,13 @@ public:
     }
     optional(optional && other):m_some(other.m_some) {
         if (other.m_some)
-            new (&m_value) T(std::forward<T>(other.m_value));
+            new (&m_value) T(std::move(other.m_value));
     }
     explicit optional(T const & v):m_some(true) {
         new (&m_value) T(v);
     }
     explicit optional(T && v):m_some(true) {
-        new (&m_value) T(std::forward<T>(v));
+        new (&m_value) T(std::move(v));
     }
     template<typename... Args>
     explicit optional(Args&&... args):m_some(true) {
@@ -84,7 +84,7 @@ public:
             m_value.~T();
         m_some = other.m_some;
         if (m_some)
-            new (&m_value) T(std::forward<T>(other.m_value));
+            new (&m_value) T(std::move(other.m_value));
         return *this;
     }
     optional& operator=(T const & other) {
@@ -98,7 +98,7 @@ public:
         if (m_some)
             m_value.~T();
         m_some = true;
-        new (&m_value) T(std::forward<T>(other));
+        new (&m_value) T(std::move(other));
         return *this;
     }
 
@@ -130,9 +130,9 @@ template<> class optional<P> {                                          \
 public:                                                                 \
     optional():m_value(nullptr) {}                                      \
     optional(optional const & other):m_value(other.m_value) {}          \
-    optional(optional && other):m_value(std::forward<P>(other.m_value)) {} \
+    optional(optional && other):m_value(std::move(other.m_value)) {} \
     explicit optional(P const & v):m_value(v) {}                        \
-    explicit optional(P && v):m_value(std::forward<P>(v)) {}            \
+    explicit optional(P && v):m_value(std::move(v)) {}            \
                                                                         \
     explicit operator bool() const { return m_value.m_ptr != nullptr; } \
     P const * operator->() const { lean_assert(m_value.m_ptr); return &m_value; } \
@@ -142,9 +142,9 @@ public:                                                                 \
     P const & value() const { lean_assert(m_value.m_ptr); return m_value; } \
     P & value() { lean_assert(m_value.m_ptr); return m_value; }         \
     optional & operator=(optional const & other) { m_value = other.m_value; return *this; } \
-    optional& operator=(optional && other) { m_value = std::forward<P>(other.m_value); return *this; } \
+    optional& operator=(optional && other) { m_value = std::move(other.m_value); return *this; } \
     optional& operator=(P const & other) { m_value = other; return *this; } \
-    optional& operator=(P && other) { m_value = std::forward<P>(other); return *this; } \
+    optional& operator=(P && other) { m_value = std::move(other); return *this; } \
     friend bool operator==(optional const & o1, optional const & o2) {  \
         return static_cast<bool>(o1) == static_cast<bool>(o2) && (!o1 || o1.m_value == o2.m_value); \
     }                                                                   \

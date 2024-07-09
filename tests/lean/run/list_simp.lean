@@ -172,11 +172,11 @@ variable (h : n < m) in
 
 #check_simp (replicate 7 x)[5]? ~> some x
 
-variable (w : replicate n a ≠ []) in
-#check_tactic (replicate n a).head w ~> a by simp_all
+variable (w : replicate n x ≠ []) in
+#check_tactic (replicate n x).head w ~> x by simp_all
 
-variable (w : replicate n a ≠ []) in
-#check_tactic (replicate n a).getLast w ~> a by simp_all
+variable (w : replicate n x ≠ []) in
+#check_tactic (replicate n x).getLast w ~> x by simp_all
 
 -- injectivity
 

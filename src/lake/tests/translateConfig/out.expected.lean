@@ -9,7 +9,7 @@ package test where
   lintDriver := "b"
   platformIndependent := true
 
-require "foo" / baz @ "git#abcdef"
+require "foo" / baz @ git "abcdef"
 
 require foo from "-" with Lake.NameMap.empty |>.insert `foo "bar"
 

@@ -169,7 +169,14 @@ protected def Dependency.mkSyntax (cfg : Dependency) : RequireDecl := Unhygienic
       `(fromSource|$(quote dir):term)
     | .git url rev? subDir? =>
       `(fromSource|git $(quote url) $[@ $(rev?.map quote)]? $[/ $(subDir?.map quote)]?)
-  let ver? := cfg.version?.map quote
+  let ver? ←
+    if let some ver := cfg.version? then
+      if ver.startsWith "git#" then
+        some <$> `(verSpec|git $(quote <| ver.drop 4))
+      else
+        some <$> `(verSpec|$(quote ver):term)
+    else
+      pure none
   let scope? := if cfg.scope.isEmpty then none else some (quote cfg.scope)
   let opts? := if cfg.opts.isEmpty then none else some <| Unhygienic.run do
     cfg.opts.foldM (init := mkCIdent ``NameMap.empty) fun stx opt val =>

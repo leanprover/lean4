@@ -19,6 +19,7 @@ def getM [Alternative m] : Option α → m α
   | some a   => pure a
 
 @[deprecated getM (since := "2024-04-17")]
+-- `[Monad m]` is not needed here.
 def toMonad [Monad m] [Alternative m] : Option α → m α := getM
 
 /-- Returns `true` on `some x` and `false` on `none`. -/

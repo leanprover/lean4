@@ -86,7 +86,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_mkCongrSimpCore_x3f_mk_x3f___lambda__2(uint
 lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNames___spec__2___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_CongrTheorems_0__Lean_Meta_shouldUseSubsingletonInst___spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___spec__17___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__2___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_reprCongrArgKind____x40_Lean_Meta_CongrTheorems___hyg_17____closed__4;
 lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_CongrTheorems_0__Lean_Meta_setBinderInfosD___spec__1(lean_object*, size_t, size_t, lean_object*);
@@ -119,6 +118,7 @@ lean_object* lean_st_ref_take(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_panic___at_Lean_Meta_whnfCore_go___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instantiateMVars___at___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___spec__7(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_withNext___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_reprCongrArgKind____x40_Lean_Meta_CongrTheorems___hyg_17____closed__27;
@@ -1967,7 +1967,7 @@ x_14 = lean_alloc_closure((void*)(l_Lean_Meta_mkHCongrWithArity_mkProof___lambda
 lean_closure_set(x_14, 0, x_3);
 lean_closure_set(x_14, 1, x_13);
 x_15 = 1;
-x_16 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__2___rarg(x_3, x_1, x_14, x_15, x_4, x_5, x_6, x_7, x_8);
+x_16 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(x_3, x_1, x_14, x_15, x_4, x_5, x_6, x_7, x_8);
 return x_16;
 }
 else
@@ -1979,7 +1979,7 @@ x_18 = lean_alloc_closure((void*)(l_Lean_Meta_mkHCongrWithArity_mkProof___lambda
 lean_closure_set(x_18, 0, x_3);
 lean_closure_set(x_18, 1, x_17);
 x_19 = 1;
-x_20 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__2___rarg(x_3, x_1, x_18, x_19, x_4, x_5, x_6, x_7, x_8);
+x_20 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(x_3, x_1, x_18, x_19, x_4, x_5, x_6, x_7, x_8);
 return x_20;
 }
 }
@@ -2050,7 +2050,7 @@ x_13 = l_Lean_Meta_mkHCongrWithArity_mkProof___closed__5;
 x_14 = lean_alloc_closure((void*)(l_Lean_Meta_mkHCongrWithArity_mkProof___lambda__4___boxed), 8, 1);
 lean_closure_set(x_14, 0, x_13);
 x_15 = 1;
-x_16 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__2___rarg(x_1, x_13, x_14, x_15, x_2, x_3, x_4, x_5, x_6);
+x_16 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(x_1, x_13, x_14, x_15, x_2, x_3, x_4, x_5, x_6);
 return x_16;
 }
 else
@@ -2882,7 +2882,7 @@ lean_closure_set(x_12, 0, x_5);
 lean_closure_set(x_12, 1, x_1);
 lean_closure_set(x_12, 2, x_2);
 x_13 = 1;
-x_14 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__2___rarg(x_3, x_4, x_12, x_13, x_7, x_8, x_9, x_10, x_11);
+x_14 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(x_3, x_4, x_12, x_13, x_7, x_8, x_9, x_10, x_11);
 return x_14;
 }
 }
@@ -2915,7 +2915,7 @@ lean_closure_set(x_12, 1, x_1);
 lean_closure_set(x_12, 2, x_9);
 lean_closure_set(x_12, 3, x_11);
 x_13 = 1;
-x_14 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__2___rarg(x_9, x_11, x_12, x_13, x_3, x_4, x_5, x_6, x_10);
+x_14 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(x_9, x_11, x_12, x_13, x_3, x_4, x_5, x_6, x_10);
 return x_14;
 }
 else
@@ -6089,7 +6089,7 @@ x_8 = lean_alloc_closure((void*)(l___private_Lean_Meta_CongrTheorems_0__Lean_Met
 lean_closure_set(x_8, 0, x_2);
 x_9 = l_Lean_Meta_mkHCongrWithArity_mkProof___closed__5;
 x_10 = 1;
-x_11 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__2___rarg(x_1, x_9, x_8, x_10, x_3, x_4, x_5, x_6, x_7);
+x_11 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(x_1, x_9, x_8, x_10, x_3, x_4, x_5, x_6, x_7);
 return x_11;
 }
 }
@@ -9295,7 +9295,7 @@ lean_closure_set(x_16, 2, x_3);
 lean_closure_set(x_16, 3, x_4);
 lean_closure_set(x_16, 4, x_13);
 x_17 = 1;
-x_18 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__2___rarg(x_11, x_14, x_16, x_17, x_5, x_6, x_7, x_8, x_12);
+x_18 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(x_11, x_14, x_16, x_17, x_5, x_6, x_7, x_8, x_12);
 if (lean_obj_tag(x_18) == 0)
 {
 uint8_t x_19; 

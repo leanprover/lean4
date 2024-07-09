@@ -234,7 +234,7 @@ jobs:
       # Checkout the Batteries repository with all branches
       - name: Checkout Batteries repository
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: leanprover-community/batteries
           token: ${{ secrets.MATHLIB4_BOT }}
@@ -291,7 +291,7 @@ jobs:
       # Checkout the mathlib4 repository with all branches
       - name: Checkout mathlib4 repository
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: leanprover-community/mathlib4
           token: ${{ secrets.MATHLIB4_BOT }}

@@ -249,6 +249,7 @@ static lean_object* l___private_Lean_Server_Completion_0__Lean_Lsp_fromJsonCompl
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_addKeywordCompletionItem___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_fieldIdCompletion___spec__1___closed__2;
 static double l___private_Lean_Server_Completion_0__Lean_Server_Completion_matchDecl_x3f___lambda__2___closed__2;
+uint8_t l_Lean_InductiveVal_isNested(lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonCompletionIdentifier___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__20(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4248,15 +4249,15 @@ x_32 = l_List_isEmpty___rarg(x_31);
 if (x_32 == 0)
 {
 uint8_t x_33; 
-x_33 = lean_ctor_get_uint8(x_15, sizeof(void*)*5);
+x_33 = lean_ctor_get_uint8(x_15, sizeof(void*)*6);
 if (x_33 == 0)
 {
 uint8_t x_34; 
-x_34 = lean_ctor_get_uint8(x_15, sizeof(void*)*5 + 3);
+x_34 = l_Lean_InductiveVal_isNested(x_15);
 if (x_34 == 0)
 {
 uint8_t x_35; 
-x_35 = lean_ctor_get_uint8(x_15, sizeof(void*)*5 + 1);
+x_35 = lean_ctor_get_uint8(x_15, sizeof(void*)*6 + 1);
 lean_dec(x_15);
 if (x_35 == 0)
 {
@@ -4396,15 +4397,15 @@ x_63 = l_List_isEmpty___rarg(x_62);
 if (x_63 == 0)
 {
 uint8_t x_64; 
-x_64 = lean_ctor_get_uint8(x_43, sizeof(void*)*5);
+x_64 = lean_ctor_get_uint8(x_43, sizeof(void*)*6);
 if (x_64 == 0)
 {
 uint8_t x_65; 
-x_65 = lean_ctor_get_uint8(x_43, sizeof(void*)*5 + 3);
+x_65 = l_Lean_InductiveVal_isNested(x_43);
 if (x_65 == 0)
 {
 uint8_t x_66; 
-x_66 = lean_ctor_get_uint8(x_43, sizeof(void*)*5 + 1);
+x_66 = lean_ctor_get_uint8(x_43, sizeof(void*)*6 + 1);
 lean_dec(x_43);
 if (x_66 == 0)
 {

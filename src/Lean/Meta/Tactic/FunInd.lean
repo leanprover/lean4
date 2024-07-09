@@ -741,6 +741,12 @@ def findRecursor {α} (name : Name) (varNames : Array Name) (e : Expr)
     MatcherApp.withUserNames params varNames do
       if not f.isConst then err else
       if isBRecOnRecursor (← getEnv) f.constName! then
+        -- Bail out on mutual or nested inductives
+        let .str indName _ := f.constName! | unreachable!
+        let indInfo ← getConstInfoInduct indName
+        if indInfo.all.length > 1 then
+          throwError "functional induction: cannot handle mutual inductives"
+
         let elimInfo ← getElimExprInfo f
         let targets : Array Expr := elimInfo.targetsPos.map (args[·]!)
         let body := args[elimInfo.motivePos + 1 + elimInfo.targetsPos.size]!

@@ -98,17 +98,17 @@ s
   {"source": "Lean 4",
    "severity": 1,
    "range":
-   {"start": {"line": 3, "character": 4}, "end": {"line": 3, "character": 10}},
+   {"start": {"line": 3, "character": 4}, "end": {"line": 3, "character": 5}},
    "message": "no goals to be solved",
    "fullRange":
-   {"start": {"line": 3, "character": 4}, "end": {"line": 3, "character": 10}}},
+   {"start": {"line": 3, "character": 4}, "end": {"line": 3, "character": 5}}},
   {"source": "Lean 4",
    "severity": 1,
    "range":
-   {"start": {"line": 4, "character": 2}, "end": {"line": 4, "character": 8}},
+   {"start": {"line": 4, "character": 2}, "end": {"line": 4, "character": 3}},
    "message": "no goals to be solved",
    "fullRange":
-   {"start": {"line": 4, "character": 2}, "end": {"line": 4, "character": 8}}}]}
+   {"start": {"line": 4, "character": 2}, "end": {"line": 4, "character": 3}}}]}
 {"version": 2,
  "uri": "file:///incrementalTactic.lean",
  "diagnostics":

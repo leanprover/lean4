@@ -2616,7 +2616,7 @@ instance [DecidableEq α] (l₁ l₂ : List α) : Decidable (l₁ <+ l₂) :=
 
 /-! ## Pairwise and Nodup -/
 
-/-! ### pairwise -/
+/-! ### Pairwise -/
 
 theorem Pairwise.sublist : l₁ <+ l₂ → l₂.Pairwise R → l₁.Pairwise R
   | .slnil, h => h
@@ -2636,6 +2636,28 @@ theorem pairwise_append {l₁ l₂ : List α} :
 theorem pairwise_reverse {l : List α} :
     l.reverse.Pairwise R ↔ l.Pairwise (fun a b => R b a) := by
   induction l <;> simp [*, pairwise_append, and_comm]
+
+@[simp] theorem pairwise_replicate {n : Nat} {a : α} :
+    (replicate n a).Pairwise R ↔ n ≤ 1 ∨ R a a := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    simp only [replicate_succ, pairwise_cons, mem_replicate, ne_eq, and_imp,
+      forall_eq_apply_imp_iff, ih]
+    constructor
+    · rintro ⟨h, h' | h'⟩
+      · by_cases w : n = 0
+        · left
+          subst w
+          simp
+        · right
+          exact h w
+      · right
+        exact h'
+    · rintro (h | h)
+      · obtain rfl := eq_zero_of_le_zero (le_of_lt_succ h)
+        simp
+      · exact ⟨fun _ => h, Or.inr h⟩
 
 theorem Pairwise.imp {α R S} (H : ∀ {a b}, R a b → S a b) :
     ∀ {l : List α}, l.Pairwise R → l.Pairwise S
@@ -2679,6 +2701,9 @@ theorem getElem?_inj {xs : List α}
       rw [mem_iff_get?]
       simp only [get?_eq_getElem?]
     exact ⟨_, h₂⟩; exact ⟨_ , h₂.symm⟩
+
+@[simp] theorem nodup_replicate {n : Nat} {a : α} :
+    (replicate n a).Nodup ↔ n ≤ 1 := by simp [Nodup]
 
 /-! ## Manipulating elements -/
 

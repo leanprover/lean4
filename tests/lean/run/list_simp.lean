@@ -401,6 +401,36 @@ variable [BEq α] in
 
 /-! ### rotateRight -/
 
+
+/-! ## Pairwise and Nodup -/
+
+/-! ### Pairwise -/
+section Pairwise
+variable (R : α → α → Prop)
+#check_simp Pairwise R [] ~> True
+#check_simp Pairwise R (x :: l) ~> (∀ (a' : α), a' ∈ l → R x a') ∧ Pairwise R l
+#check_simp Pairwise R [x, y, z] ~> (R x y ∧ R x z) ∧ R y z
+
+#check_simp Pairwise R (replicate n x) ~> n ≤ 1 ∨ R x x
+#check_simp Pairwise R (replicate 1 x) ~> True
+#check_simp Pairwise R (replicate (n+2) x) ~> R x x
+#check_simp Pairwise (· < ·) (replicate 2 m) ~> False
+#check_simp Pairwise (· < ·) (replicate n m) ~> n ≤ 1
+#check_simp Pairwise (· < ·) (replicate (n + 2) m) ~> False
+#check_simp Pairwise (· = ·) (replicate 2 m) ~> True
+#check_simp Pairwise (· = ·) (replicate n m) ~> True
+
+end Pairwise
+
+/-! ### Nodup -/
+
+#check_simp Nodup [] ~> True
+#check_simp Nodup (x :: l) ~> ¬x ∈ l ∧ l.Nodup
+#check_simp Nodup [x, y, z] ~> (¬x = y ∧ ¬x = z) ∧ ¬y = z
+
+#check_simp Nodup (replicate (n+2) x) ~> False
+#check_simp Nodup (replicate 2 x) ~> False
+
 /-! ## Manipulating elements -/
 
 /-! ### replace -/

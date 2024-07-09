@@ -942,6 +942,55 @@ def rotateRight (xs : List α) (n : Nat := 1) : List α :=
 
 @[simp] theorem rotateRight_nil : ([] : List α).rotateRight n = [] := rfl
 
+/-! ## Pairwise, Nodup -/
+
+section Pairwise
+
+variable (R : α → α → Prop)
+
+/--
+`Pairwise R l` means that all the elements with earlier indexes are
+`R`-related to all the elements with later indexes.
+```
+Pairwise R [1, 2, 3] ↔ R 1 2 ∧ R 1 3 ∧ R 2 3
+```
+For example if `R = (·≠·)` then it asserts `l` has no duplicates,
+and if `R = (·<·)` then it asserts that `l` is (strictly) sorted.
+-/
+inductive Pairwise : List α → Prop
+  /-- All elements of the empty list are vacuously pairwise related. -/
+  | nil : Pairwise []
+  /-- `a :: l` is `Pairwise R` if `a` `R`-relates to every element of `l`,
+  and `l` is `Pairwise R`. -/
+  | cons : ∀ {a : α} {l : List α}, (∀ a', a' ∈ l → R a a') → Pairwise l → Pairwise (a :: l)
+
+attribute [simp] Pairwise.nil
+
+variable {R}
+
+@[simp] theorem pairwise_cons : Pairwise R (a::l) ↔ (∀ a', a' ∈ l → R a a') ∧ Pairwise R l :=
+  ⟨fun | .cons h₁ h₂ => ⟨h₁, h₂⟩, fun ⟨h₁, h₂⟩ => h₂.cons h₁⟩
+
+instance instDecidablePairwise [DecidableRel R] :
+    (l : List α) → Decidable (Pairwise R l)
+  | [] => isTrue .nil
+  | hd :: tl =>
+    match instDecidablePairwise tl with
+    | isTrue ht =>
+      match decidableBAll (R hd) tl with
+      | isFalse hf => isFalse fun hf' => hf (pairwise_cons.1 hf').1
+      | isTrue ht' => isTrue <| pairwise_cons.mpr (And.intro ht' ht)
+    | isFalse hf => isFalse fun | .cons _ ih => hf ih
+
+end Pairwise
+
+/-- `Nodup l` means that `l` has no duplicates, that is, any element appears at most
+  once in the List. It is defined as `Pairwise (≠)`. -/
+def Nodup : List α → Prop := Pairwise (· ≠ ·)
+
+instance nodupDecidable [DecidableEq α] : ∀ l : List α, Decidable (Nodup l) :=
+  instDecidablePairwise
+
 /-! ## Manipulating elements -/
 
 /-! ### replace -/

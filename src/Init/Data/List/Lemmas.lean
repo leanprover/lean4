@@ -313,6 +313,10 @@ theorem forall_mem_cons {p : α → Prop} {a : α} {l : List α} :
   ⟨fun H => ⟨H _ (.head ..), fun _ h => H _ (.tail _ h)⟩,
    fun ⟨H₁, H₂⟩ _ => fun | .head .. => H₁ | .tail _ h => H₂ _ h⟩
 
+@[simp]
+theorem forall_mem_ne {a : α} {l : List α} : (∀ a' : α, a' ∈ l → ¬a = a') ↔ a ∉ l :=
+  ⟨fun h m => h _ m rfl, fun h _ m e => h (e.symm ▸ m)⟩
+
 theorem exists_mem_nil (p : α → Prop) : ¬ (∃ x, ∃ _ : x ∈ @nil α, p x) := nofun
 
 theorem forall_mem_nil (p : α → Prop) : ∀ (x) (_ : x ∈ @nil α), p x := nofun
@@ -2143,6 +2147,72 @@ instance [DecidableEq α] (l₁ l₂ : List α) : Decidable (l₁ <+ l₂) :=
 -- TODO Batteries defines its own `getElem?_rotate`, which we need to adapt.
 -- TODO Prove `map_rotateRight`, using `ext` and `getElem?_rotateRight`.
 
+/-! ## Pairwise and Nodup -/
+
+/-! ### pairwise -/
+
+theorem Pairwise.sublist : l₁ <+ l₂ → l₂.Pairwise R → l₁.Pairwise R
+  | .slnil, h => h
+  | .cons _ s, .cons _ h₂ => h₂.sublist s
+  | .cons₂ _ s, .cons h₁ h₂ => (h₂.sublist s).cons fun _ h => h₁ _ (s.subset h)
+
+theorem pairwise_map {l : List α} :
+    (l.map f).Pairwise R ↔ l.Pairwise fun a b => R (f a) (f b) := by
+  induction l
+  · simp
+  · simp only [map, pairwise_cons, forall_mem_map_iff, *]
+
+theorem pairwise_append {l₁ l₂ : List α} :
+    (l₁ ++ l₂).Pairwise R ↔ l₁.Pairwise R ∧ l₂.Pairwise R ∧ ∀ a ∈ l₁, ∀ b ∈ l₂, R a b := by
+  induction l₁ <;> simp [*, or_imp, forall_and, and_assoc, and_left_comm]
+
+theorem pairwise_reverse {l : List α} :
+    l.reverse.Pairwise R ↔ l.Pairwise (fun a b => R b a) := by
+  induction l <;> simp [*, pairwise_append, and_comm]
+
+theorem Pairwise.imp {α R S} (H : ∀ {a b}, R a b → S a b) :
+    ∀ {l : List α}, l.Pairwise R → l.Pairwise S
+  | _, .nil => .nil
+  | _, .cons h₁ h₂ => .cons (H ∘ h₁ ·) (h₂.imp H)
+
+/-! ### Nodup -/
+
+@[simp]
+theorem nodup_nil : @Nodup α [] :=
+  Pairwise.nil
+
+@[simp]
+theorem nodup_cons {a : α} {l : List α} : Nodup (a :: l) ↔ a ∉ l ∧ Nodup l := by
+  simp only [Nodup, pairwise_cons, forall_mem_ne]
+
+theorem Nodup.sublist : l₁ <+ l₂ → Nodup l₂ → Nodup l₁ :=
+  Pairwise.sublist
+
+theorem Sublist.nodup : l₁ <+ l₂ → Nodup l₂ → Nodup l₁ :=
+  Nodup.sublist
+
+theorem getElem?_inj {xs : List α}
+    (h₀ : i < xs.length) (h₁ : Nodup xs) (h₂ : xs[i]? = xs[j]?) : i = j := by
+  induction xs generalizing i j with
+  | nil => cases h₀
+  | cons x xs ih =>
+    match i, j with
+    | 0, 0 => rfl
+    | i+1, j+1 =>
+      cases h₁ with
+      | cons ha h₁ =>
+        simp only [getElem?_cons_succ] at h₂
+        exact congrArg (· + 1) (ih (Nat.lt_of_succ_lt_succ h₀) h₁ h₂)
+    | i+1, 0 => ?_
+    | 0, j+1 => ?_
+    all_goals
+      simp only [get?_eq_getElem?, getElem?_cons_zero, getElem?_cons_succ] at h₂
+      cases h₁; rename_i h' h
+      have := h x ?_ rfl; cases this
+      rw [mem_iff_get?]
+      simp only [get?_eq_getElem?]
+    exact ⟨_, h₂⟩; exact ⟨_ , h₂.symm⟩
+
 /-! ## Manipulating elements -/
 
 /-! ### replace -/
@@ -2214,7 +2284,7 @@ theorem eq_or_mem_of_mem_insert {l : List α} (h : a ∈ l.insert b) : a = b ∨
 end insert
 
 /-! ### erase -/
-
+-- Results here can be refactored to use results about `eraseP` if this is later moved to Lean.
 section erase
 variable [BEq α]
 
@@ -2238,6 +2308,37 @@ theorem erase_of_not_mem [LawfulBEq α] {a : α} : ∀ {l : List α}, a ∉ l �
     (replicate n a).erase b = replicate n a := by
   rw [erase_of_not_mem]
   simp_all
+
+theorem erase_sublist (a : α) (l : List α) : l.erase a <+ l := by
+  induction l with
+  | nil => simp
+  | cons b l ih =>
+    simp only [erase_cons]
+    split
+    · exact sublist_cons b l
+    · exact cons_sublist_cons.mpr ih
+
+theorem Nodup.erase_eq_filter [BEq α] [LawfulBEq α] {l} (d : Nodup l) (a : α) : l.erase a = l.filter (· != a) := by
+  induction d with
+  | nil => rfl
+  | cons m _n ih =>
+    rename_i b l
+    by_cases h : b = a
+    · subst h
+      rw [erase_cons_head, filter_cons_of_neg _ (by simp)]
+      apply Eq.symm
+      rw [filter_eq_self]
+      simpa [@eq_comm α] using m
+    · simp [beq_false_of_ne h, ih, h]
+
+theorem Nodup.mem_erase_iff [BEq α] [LawfulBEq α] {a : α} (d : Nodup l) : a ∈ l.erase b ↔ a ≠ b ∧ a ∈ l := by
+  rw [Nodup.erase_eq_filter d, mem_filter, and_comm, bne_iff_ne]
+
+theorem Nodup.not_mem_erase [BEq α] [LawfulBEq α] {a : α} (h : Nodup l) : a ∉ l.erase a := fun H => by
+  simpa using ((Nodup.mem_erase_iff h).mp H).left
+
+theorem Nodup.erase [BEq α] [LawfulBEq α] (a : α) : Nodup l → Nodup (l.erase a) :=
+  Nodup.sublist <| erase_sublist _ _
 
 end erase
 

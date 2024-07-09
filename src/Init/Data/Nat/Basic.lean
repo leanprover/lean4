@@ -100,6 +100,7 @@ def blt (a b : Nat) : Bool :=
   ble a.succ b
 
 attribute [simp] Nat.zero_le
+attribute [simp] Nat.not_lt_zero
 
 /-! # Helper "packing" theorems -/
 

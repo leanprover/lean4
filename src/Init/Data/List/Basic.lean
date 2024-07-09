@@ -32,7 +32,7 @@ The operations are organized as follow:
 * List membership: `isEmpty`, `elem`, `contains`, `mem` (and the `∈` notation),
   and decidability for predicates quantifying over membership in a `List`.
 * Sublists: `take`, `drop`, `takeWhile`, `dropWhile`, `partition`, `dropLast`,
-  `isPrefixOf`, `isPrefixOf?`, `isSuffixOf`, `isSuffixOf?`, `rotateLeft` and `rotateRight`.
+  `isPrefixOf`, `isPrefixOf?`, `isSuffixOf`, `isSuffixOf?`, `Subset`, `Sublist`, `rotateLeft` and `rotateRight`.
 * Manipulating elements: `replace`, `insert`, `erase`, `eraseIdx`, `find?`, `findSome?`, and `lookup`.
 * Logic: `any`, `all`, `or`, and `and`.
 * Zippers: `zipWith`, `zip`, `zipWithAll`, and `unzip`.
@@ -865,6 +865,40 @@ def isSuffixOf [BEq α] (l₁ l₂ : List α) : Bool :=
 /-- `isSuffixOf? l₁ l₂` returns `some t` when `l₂ == t ++ l₁`.-/
 def isSuffixOf? [BEq α] (l₁ l₂ : List α) : Option (List α) :=
   Option.map List.reverse <| isPrefixOf? l₁.reverse l₂.reverse
+
+/-! ### Subset -/
+
+/--
+`l₁ ⊆ l₂` means that every element of `l₁` is also an element of `l₂`, ignoring multiplicity.
+-/
+protected def Subset (l₁ l₂ : List α) := ∀ ⦃a : α⦄, a ∈ l₁ → a ∈ l₂
+
+instance : HasSubset (List α) := ⟨List.Subset⟩
+
+instance [DecidableEq α] : DecidableRel (Subset : List α → List α → Prop) :=
+  fun _ _ => decidableBAll _ _
+
+/-! ### Sublist and isSublist -/
+
+/-- `l₁ <+ l₂`, or `Sublist l₁ l₂`, says that `l₁` is a (non-contiguous) subsequence of `l₂`. -/
+inductive Sublist {α} : List α → List α → Prop
+  /-- the base case: `[]` is a sublist of `[]` -/
+  | slnil : Sublist [] []
+  /-- If `l₁` is a subsequence of `l₂`, then it is also a subsequence of `a :: l₂`. -/
+  | cons a : Sublist l₁ l₂ → Sublist l₁ (a :: l₂)
+  /-- If `l₁` is a subsequence of `l₂`, then `a :: l₁` is a subsequence of `a :: l₂`. -/
+  | cons₂ a : Sublist l₁ l₂ → Sublist (a :: l₁) (a :: l₂)
+
+@[inherit_doc] scoped infixl:50 " <+ " => Sublist
+
+/-- True if the first list is a potentially non-contiguous sub-sequence of the second list. -/
+def isSublist [BEq α] : List α → List α → Bool
+  | [], _ => true
+  | _, [] => false
+  | l₁@(hd₁::tl₁), hd₂::tl₂ =>
+    if hd₁ == hd₂
+    then tl₁.isSublist tl₂
+    else l₁.isSublist tl₂
 
 /-! ### rotateLeft -/
 

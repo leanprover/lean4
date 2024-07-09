@@ -56,24 +56,31 @@ subdirectory is specified).
 syntax fromClause :=
   " from " fromSource
 
+/-
+A `NameMap String` of Lake options used to configure the dependency.
+This is equivalent to passing `-K` options to the dependency on the command line.
+-/
 syntax withClause :=
   " with " term
 
+syntax verSpec :=
+  &"git "? term:max
+
 /--
 The version of the package to lookup in Lake's package index.
-A Git revision can be specified via `"git#<rev>"`.
+A Git revision can be specified via `@ git "<rev>"`.
 -/
-syntax verSpec :=
-  " @ " term:max
+syntax verClause :=
+  " @ " verSpec
 
 syntax depName :=
   atomic(str " / ")? identOrStr
 
 syntax depSpec :=
-  depName (verSpec)? (fromClause)? (withClause)?
+  depName (verClause)? (fromClause)? (withClause)?
 
 @[inline] private def quoteOptTerm [Monad m] [MonadQuotation m] (term? : Option Term) : m Term :=
-  if let some term := term? then withRef term `(some $term) else `(none)
+  if let some term := term? then withRef term ``(some $term) else ``(none)
 
 def expandDepSpec (stx : TSyntax ``depSpec) (doc? : Option DocComment) : MacroM Command := do
   let `(depSpec| $fullNameStx $[@ $ver?]? $[from $src?]? $[with $opts?]?) := stx
@@ -93,11 +100,19 @@ def expandDepSpec (stx : TSyntax ``depSpec) (doc? : Option DocComment) : MacroM 
     match scope? with
     | some scope => scope
     | none => Syntax.mkStrLit "" (.fromRef fullNameStx)
+  let ver ←
+    if let some ver := ver? then withRef ver do
+      match ver with
+      | `(verSpec|git $ver) => ``(some ("git#" ++ $ver))
+      | `(verSpec|$ver:term) => ``(some $ver)
+      | _ => Macro.throwErrorAt ver "ill-formed version syntax"
+    else
+      ``(none)
   let name := expandIdentOrStrAsIdent nameStx
   `($[$doc?:docComment]? @[package_dep] def $name : $(mkCIdent ``Dependency) := {
     name :=  $(quote name.getId),
     scope := $scope,
-    version? := $(← quoteOptTerm ver?),
+    version? := $ver,
     src? := $(← quoteOptTerm src?),
     opts := $(opts?.getD <| ← `({})),
   })

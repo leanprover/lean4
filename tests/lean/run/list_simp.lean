@@ -7,6 +7,8 @@ variable {α : Type _}
 variable {x y z : α}
 variable (l l₁ l₂ l₃ : List α)
 
+variable (L₁ L₂ : List (List α))
+
 variable {β : Type _}
 variable {f g : α → β}
 
@@ -54,6 +56,13 @@ variable (m n : Nat)
 /-! ## Head and tail -/
 
 /-! ### head, head!, head?, headD -/
+
+#check_simp l.headD x ~> l.head?.getD x
+
+#check_simp l.head? = none ~> l = []
+
+variable (w : l ≠ []) in
+#check_simp l.head w ∈ l ~> True
 
 /-! ### tail!, tail?, tailD -/
 
@@ -113,9 +122,17 @@ variable (p : β → Option γ) in
 
 /-! ### append -/
 
+variable (w : l₁ ≠ []) in
+#check_tactic head (l₁ ++ l₂) (by simp_all) ~> head l₁ w by simp_all
+
+#check_simp (l₁ ++ l₂).head? ~> l₁.head?.or l₂.head?
+#check_simp (l₁ ++ l₂).getLast? ~> l₂.getLast?.or l₁.getLast?
+
 /-! ### concat -/
 
 /-! ### join -/
+
+#check_simp (L₁ ++ L₂).join ~> L₁.join ++ L₂.join
 
 /-! ### bind -/
 
@@ -154,6 +171,12 @@ variable (h : n < m) in
 #check_simp (replicate 7 x)[5] ~> x
 
 #check_simp (replicate 7 x)[5]? ~> some x
+
+variable (w : replicate n x ≠ []) in
+#check_tactic (replicate n x).head w ~> x by simp_all
+
+variable (w : replicate n x ≠ []) in
+#check_tactic (replicate n x).getLast w ~> x by simp_all
 
 -- injectivity
 
@@ -337,6 +360,21 @@ variable (h : 0 < n) in
 end
 
 /-! ### reverse -/
+
+variable (p : α → Bool) in
+#check_simp (l.reverse.filter p) ~> (l.filter p).reverse
+
+variable (f : α → Option β) in
+#check_simp (l.reverse.filterMap f) ~> (l.filterMap f).reverse
+
+#check_simp l.reverse.head? ~> l.getLast?
+#check_simp l.reverse.getLast? ~> l.head?
+
+variable (h : l.reverse ≠ []) in
+#check_simp l.reverse.head h ~> l.getLast (by simp_all)
+
+variable (h : l.reverse ≠ []) in
+#check_simp l.reverse.getLast h ~> l.head (by simp_all)
 
 /-! ## List membership -/
 

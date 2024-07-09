@@ -136,7 +136,12 @@ theorem isEmpty_iff {l : List α} : l.isEmpty ↔ l = [] := by
 theorem isEmpty_iff_length_eq_zero {l : List α} : l.isEmpty ↔ l.length = 0 := by
   rw [isEmpty_iff, length_eq_zero]
 
-/-! ### L[i] and L[i]? -/
+/-! ## L[i] and L[i]? -/
+
+/-! ### `get` and `get?`.
+
+We simplify `l.get i` to `l[i.1]'i.2` and `l.get? i` to `l[i]?`.
+-/
 
 @[simp] theorem get_cons_zero : get (a::l) (0 : Fin (l.length + 1)) = a := rfl
 
@@ -145,6 +150,23 @@ theorem isEmpty_iff_length_eq_zero {l : List α} : l.isEmpty ↔ l.length = 0 :=
 
 @[simp] theorem get_cons_succ' {as : List α} {i : Fin as.length} :
   (a :: as).get i.succ = as.get i := rfl
+
+@[deprecated (since := "2024-07-09")]
+theorem get_cons_cons_one : (a₁ :: a₂ :: as).get (1 : Fin (as.length + 2)) = a₂ := rfl
+
+theorem get_mk_zero : ∀ {l : List α} (h : 0 < l.length), l.get ⟨0, h⟩ = l.head (length_pos.mp h)
+  | _::_, _ => rfl
+
+/--
+If one has `l.get i` in an expression (with `i : Fin l.length`) and `h : l = l'`,
+`rw [h]` will give a "motive it not type correct" error, as it cannot rewrite the
+`i : Fin l.length` to `Fin l'.length` directly. The theorem `get_of_eq` can be used to make
+such a rewrite, with `rw [get_of_eq h]`.
+-/
+theorem get_of_eq {l l' : List α} (h : l = l') (i : Fin l.length) :
+    get l i = get l' ⟨i, h ▸ i.2⟩ := by cases h; rfl
+
+theorem get?_zero (l : List α) : l.get? 0 = l.head? := by cases l <;> rfl
 
 theorem get?_len_le : ∀ {l : List α} {n}, length l ≤ n → l.get? n = none
   | [], _, _ => rfl
@@ -170,6 +192,54 @@ theorem get?_eq_none : l.get? n = none ↔ length l ≤ n :=
 
 @[simp] theorem get_eq_getElem (l : List α) (i : Fin l.length) : l.get i = l[i.1]'i.2 := rfl
 
+/-! ### getD
+
+We simplify away `getD`, replacing `getD l n a` with `(l[n]?).getD a`.
+Because of this, there is only minimal API for `getD`.
+-/
+
+@[simp] theorem getD_eq_getElem?_getD (l) (n) (a : α) : getD l n a = (l[n]?).getD a := by
+  simp [getD]
+
+@[deprecated getD_eq_getElem?_getD (since := "2024-06-12")]
+theorem getD_eq_get? : ∀ l n (a : α), getD l n a = (get? l n).getD a := by simp
+
+/-! ### get!
+
+We simplify `l.get! n` to `l[n]!`.
+-/
+
+theorem get!_of_get? [Inhabited α] : ∀ {l : List α} {n}, get? l n = some a → get! l n = a
+  | _a::_, 0, rfl => rfl
+  | _::l, _+1, e => get!_of_get? (l := l) e
+
+theorem get!_eq_getD [Inhabited α] : ∀ (l : List α) n, l.get! n = l.getD n default
+  | [], _      => rfl
+  | _a::_, 0   => rfl
+  | _a::l, n+1 => get!_eq_getD l n
+
+theorem get!_len_le [Inhabited α] : ∀ {l : List α} {n}, length l ≤ n → l.get! n = (default : α)
+  | [], _, _ => rfl
+  | _ :: l, _+1, h => get!_len_le (l := l) <| Nat.le_of_succ_le_succ h
+
+@[simp] theorem get!_eq_getElem! [Inhabited α] (l : List α) (n) : l.get! n = l[n]! := by
+  simp [get!_eq_getD]
+  rfl
+
+/-! ### getElem! -/
+
+@[simp] theorem getElem!_nil [Inhabited α] {n : Nat} : ([] : List α)[n]! = default := rfl
+
+@[simp] theorem getElem!_cons_zero [Inhabited α] {l : List α} : (a::l)[0]! = a := by
+  rw [getElem!_pos] <;> simp
+
+@[simp] theorem getElem!_cons_succ [Inhabited α] {l : List α} : (a::l)[n+1]! = l[n]! := by
+  by_cases h : n < l.length
+  · rw [getElem!_pos, getElem!_pos] <;> simp_all [Nat.succ_lt_succ_iff]
+  · rw [getElem!_neg, getElem!_neg] <;> simp_all [Nat.succ_lt_succ_iff]
+
+/-! ### getElem? and getElem -/
+
 @[simp] theorem getElem?_eq_getElem {l : List α} {n} (h : n < l.length) : l[n]? = some l[n] := by
   simp only [← get?_eq_getElem?, get?_eq_get, h, get_eq_getElem]
 
@@ -194,24 +264,6 @@ theorem getElem?_len_le : ∀ {l : List α} {n}, length l ≤ n → l[n]? = none
   | _ :: l, _+1, h => by
     rw [getElem?_cons_succ, getElem?_len_le (l := l) <| Nat.le_of_succ_le_succ h]
 
-@[simp] theorem getElem!_nil [Inhabited α] {n : Nat} : ([] : List α)[n]! = default := rfl
-
-@[simp] theorem getElem!_cons_zero [Inhabited α] {l : List α} : (a::l)[0]! = a := by
-  rw [getElem!_pos] <;> simp
-
-@[simp] theorem getElem!_cons_succ [Inhabited α] {l : List α} : (a::l)[n+1]! = l[n]! := by
-  by_cases h : n < l.length
-  · rw [getElem!_pos, getElem!_pos] <;> simp_all [Nat.succ_lt_succ_iff]
-  · rw [getElem!_neg, getElem!_neg] <;> simp_all [Nat.succ_lt_succ_iff]
-
-@[simp] theorem get_cons_cons_one : (a₁ :: a₂ :: as).get (1 : Fin (as.length + 2)) = a₂ := rfl
-
-theorem get!_len_le [Inhabited α] : ∀ {l : List α} {n}, length l ≤ n → l.get! n = (default : α)
-  | [], _, _ => rfl
-  | _ :: l, _+1, h => get!_len_le (l := l) <| Nat.le_of_succ_le_succ h
-
-theorem get?_zero (l : List α) : l.get? 0 = l.head? := by cases l <;> rfl
-
 /--
 If one has `l[i]` in an expression and `h : l = l'`,
 `rw [h]` will give a "motive it not type correct" error, as it cannot rewrite the
@@ -220,15 +272,6 @@ such a rewrite, with `rw [getElem_of_eq h]`.
 -/
 theorem getElem_of_eq {l l' : List α} (h : l = l') {i : Nat} (w : i < l.length) :
     l[i] = l'[i]'(h ▸ w) := by cases h; rfl
-
-/--
-If one has `l.get i` in an expression (with `i : Fin l.length`) and `h : l = l'`,
-`rw [h]` will give a "motive it not type correct" error, as it cannot rewrite the
-`i : Fin l.length` to `Fin l'.length` directly. The theorem `get_of_eq` can be used to make
-such a rewrite, with `rw [get_of_eq h]`.
--/
-theorem get_of_eq {l l' : List α} (h : l = l') (i : Fin l.length) :
-    get l i = get l' ⟨i, h ▸ i.2⟩ := by cases h; rfl
 
 @[simp] theorem getElem_singleton (a : α) (h : i < 1) : [a][i] = a :=
   match i, h with
@@ -241,24 +284,12 @@ theorem getElem_zero {l : List α} (h : 0 < l.length) : l[0] = l.head (length_po
   match l, h with
   | _ :: _, _ => rfl
 
-theorem get_mk_zero : ∀ {l : List α} (h : 0 < l.length), l.get ⟨0, h⟩ = l.head (length_pos.mp h)
-  | _::_, _ => rfl
-
 theorem getElem!_of_getElem? [Inhabited α] : ∀ {l : List α} {n : Nat}, l[n]? = some a → l[n]! = a
   | _a::_, 0, _ => by
     rw [getElem!_pos] <;> simp_all
   | _::l, _+1, e => by
     simp at e
     simp_all [getElem!_of_getElem? (l := l) e]
-
-theorem get!_of_get? [Inhabited α] : ∀ {l : List α} {n}, get? l n = some a → get! l n = a
-  | _a::_, 0, rfl => rfl
-  | _::l, _+1, e => get!_of_get? (l := l) e
-
-@[simp] theorem get!_eq_getD [Inhabited α] : ∀ (l : List α) n, l.get! n = l.getD n default
-  | [], _      => rfl
-  | _a::_, 0   => rfl
-  | _a::l, n+1 => get!_eq_getD l n
 
 @[ext] theorem ext_getElem? {l₁ l₂ : List α} (h : ∀ n : Nat, l₁[n]? = l₂[n]?) : l₁ = l₂ :=
   ext_get? fun n => by simp_all
@@ -651,14 +682,6 @@ theorem foldr_map' {α β : Type u} (g : α → β) (f : α → α → α) (f' :
   induction l generalizing a
   · simp
   · simp [*, h]
-
-/-! ### getD -/
-
-@[simp] theorem getD_eq_getElem? (l) (n) (a : α) : getD l n a = (l[n]?).getD a := by
-  simp [getD]
-
-@[deprecated getD_eq_getElem? (since := "2024-06-12")]
-theorem getD_eq_get? : ∀ l n (a : α), getD l n a = (get? l n).getD a := by simp
 
 /-! ### getLast -/
 

@@ -74,6 +74,12 @@ def forM [Monad m] (s : SMap α β) (f : α → β → m PUnit) : m PUnit := do
   s.map₁.forM f
   s.map₂.forM f
 
+instance : ForM m (SMap α β) (α × β) where
+  forM s f := forM s fun x y => f (x, y)
+
+instance : ForIn m (SMap α β) (α × β) where
+  forIn := ForM.forIn
+
 /-- Move from stage 1 into stage 2. -/
 def switch (m : SMap α β) : SMap α β :=
   if m.stage₁ then { m with stage₁ := false } else m
@@ -81,14 +87,13 @@ def switch (m : SMap α β) : SMap α β :=
 @[inline] def foldStage2 {σ : Type w} (f : σ → α → β → σ) (s : σ) (m : SMap α β) : σ :=
   m.map₂.foldl f s
 
+/-- Monadic fold over a staged map. -/
+def foldM {m : Type w → Type w} [Monad m]
+    (f : σ → α → β → m σ) (init : σ) (map : SMap α β) : m σ := do
+  map.map₂.foldlM f (← map.map₁.foldM f init)
+
 def fold {σ : Type w} (f : σ → α → β → σ) (init : σ) (m : SMap α β) : σ :=
   m.map₂.foldl f $ m.map₁.fold f init
-
-def size (m : SMap α β) : Nat :=
-  m.map₁.size + m.map₂.size
-
-def stageSizes (m : SMap α β) : Nat × Nat :=
-  (m.map₁.size, m.map₂.size)
 
 def numBuckets (m : SMap α β) : Nat :=
   m.map₁.numBuckets

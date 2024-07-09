@@ -129,7 +129,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheor
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -137,7 +137,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheor
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -145,7 +145,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheor
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Command", 7);
+x_1 = lean_mk_string_unchecked("Command", 7, 7);
 return x_1;
 }
 }
@@ -153,7 +153,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheor
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("genInjectiveTheorems", 20);
+x_1 = lean_mk_string_unchecked("genInjectiveTheorems", 20, 20);
 return x_1;
 }
 }
@@ -173,7 +173,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheor
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -181,7 +181,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheor
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elabGenInjectiveTheorems", 24);
+x_1 = lean_mk_string_unchecked("elabGenInjectiveTheorems", 24, 24);
 return x_1;
 }
 }

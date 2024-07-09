@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "runtime/load_dynlib.h"
 #include "runtime/array_ref.h"
 #include "runtime/object_ref.h"
+#include "runtime/utf8.h"
 #include "util/timer.h"
 #include "util/macros.h"
 #include "util/io.h"

@@ -435,8 +435,6 @@ structure Pair (α : Type u) (β : Type v) : Type (max u v) where
   "#check " >> termParser
 @[builtin_command_parser] def check_failure  := leading_parser
   "#check_failure " >> termParser -- Like `#check`, but succeeds only if term does not type check
-@[builtin_command_parser] def reduce         := leading_parser
-  "#reduce " >> termParser
 @[builtin_command_parser] def eval           := leading_parser
   "#eval " >> termParser
 @[builtin_command_parser] def synth          := leading_parser
@@ -449,6 +447,11 @@ structure Pair (α : Type u) (β : Type v) : Type (max u v) where
   "#print " >> nonReservedSymbol "axioms " >> ident
 @[builtin_command_parser] def printEqns      := leading_parser
   "#print " >> (nonReservedSymbol "equations " <|> nonReservedSymbol "eqns ") >> ident
+/--
+Displays all available tactic tags, with documentation.
+-/
+@[builtin_command_parser] def printTacTags   := leading_parser
+  "#print " >> nonReservedSymbol "tactic " >> nonReservedSymbol "tags"
 @[builtin_command_parser] def «init_quot»    := leading_parser
   "init_quot"
 def optionValue := nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit
@@ -670,6 +673,26 @@ Documentation can only be added to declarations in the same module.
 -/
 @[builtin_command_parser] def addDocString := leading_parser
   docComment >> "add_decl_doc " >> ident
+
+/--
+Register a tactic tag, saving its user-facing name and docstring.
+
+Tactic tags can be used by documentation generation tools to classify related tactics.
+-/
+@[builtin_command_parser] def «register_tactic_tag» := leading_parser
+  optional (docComment >> ppLine) >>
+  "register_tactic_tag " >> ident >> strLit
+
+/--
+Add more documentation as an extension of the documentation for a given tactic.
+
+The extended documentation is placed in the command's docstring. It is shown as part of a bulleted
+list, so it should be brief.
+-/
+@[builtin_command_parser] def «tactic_extension» := leading_parser
+  optional (docComment >> ppLine) >>
+  "tactic_extension " >> ident
+
 
 /--
   This is an auxiliary command for generation constructor injectivity theorems for

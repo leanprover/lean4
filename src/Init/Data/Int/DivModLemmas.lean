@@ -636,7 +636,7 @@ theorem sub_ediv_of_dvd (a : Int) {b c : Int}
   have := Int.mul_ediv_cancel 1 H; rwa [Int.one_mul] at this
 
 @[simp]
-theorem Int.emod_sub_cancel (x y : Int): (x - y)%y = x%y := by
+theorem emod_sub_cancel (x y : Int): (x - y)%y = x%y := by
   by_cases h : y = 0
   · simp [h]
   · simp only [Int.emod_def, Int.sub_ediv_of_dvd, Int.dvd_refl, Int.ediv_self h, Int.mul_sub]

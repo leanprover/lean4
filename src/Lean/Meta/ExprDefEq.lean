@@ -419,10 +419,10 @@ where the index is the position in the local context.
 -/
 private partial def mkLambdaFVarsWithLetDeps (xs : Array Expr) (v : Expr) : MetaM (Option Expr) := do
   if not (← hasLetDeclsInBetween) then
-    mkLambdaFVars xs v
+    mkLambdaFVars xs v (etaReduce := true)
   else
     let ys ← addLetDeps
-    mkLambdaFVars ys v
+    mkLambdaFVars ys v (etaReduce := true)
 
 where
   /-- Return true if there are let-declarions between `xs[0]` and `xs[xs.size-1]`.
@@ -1775,15 +1775,12 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
         | LBool.true => return LBool.true
         | LBool.false => return LBool.false
         | _ =>
-          if tFn.isMVar || sFn.isMVar then
-            let ctx ← read
-            if ctx.config.isDefEqStuckEx then do
-              trace[Meta.isDefEq.stuck] "{t} =?= {s}"
-              Meta.throwIsDefEqStuck
-            else
-              return LBool.false
+          let ctx ← read
+          if ctx.config.isDefEqStuckEx then do
+            trace[Meta.isDefEq.stuck] "{t} =?= {s}"
+            Meta.throwIsDefEqStuck
           else
-            return LBool.undef
+            return LBool.false
       else
         isDefEqQuickMVarMVar t s
 
@@ -1818,6 +1815,32 @@ end
       let e ← instantiateMVars e
       successK e
     else
+      if (← read).config.isDefEqStuckEx then
+        /-
+        When `isDefEqStuckEx := true` and `mvar` was created in a previous level,
+        we should throw an exception. See issue #2736 for a situation where this can happen.
+        This can happen when we have type classes such as
+        ```
+        class RightDistribClass (R : Type) [Mul R] [Add R] : Prop where
+          right_distrib : ∀ a b c : R, (a + b) * c = a * c + b * c
+        ```
+        and a theorem
+        ```
+        theorem add_one_mul [Add α] [MulOneClass α] [RightDistribClass α] (a b : α)
+                : (a + 1) * b = a * b + b
+        ```
+        and then we try to elaborate
+        ```
+        #check (add_one_mul)
+        ```
+        When we try to synthesize `@RightDistribClass ?α (MulOneClass.toMul ?moInst) ?addInst`
+        we get stuck at the term `(MulOneClass.toMul ?moInst)`, and we should abort
+        type class resolution, which sets `isDefEqStuckEx := true`, because `?moInst : MulOneClass ?α`
+        was **not** created by the type class resolution procedure.
+        -/
+        let mvarDecl ← mvarId.getDecl
+        if mvarDecl.depth < (← getMCtx).depth then
+          Meta.throwIsDefEqStuck
       failK
   | none   => failK
 

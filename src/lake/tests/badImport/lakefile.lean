@@ -3,5 +3,8 @@ open Lake DSL
 
 package test
 
-lean_lib X
 lean_lib Lib
+lean_lib Etc
+
+lean_exe X
+lean_exe X1

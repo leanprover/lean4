@@ -439,9 +439,8 @@ where
   Runs the given unexpanders, returning the resulting syntax if any are applicable, and otherwise fails.
   -/
   tryUnexpand (fs : List Unexpander) (stx : Syntax) : DelabM Syntax := do
-    let ref ← getRef
     fs.firstM fun f =>
-      match f stx |>.run ref |>.run () with
+      match f stx |>.run .missing |>.run () with
       | EStateM.Result.ok stx _ => return stx
       | _ => failure
   /--

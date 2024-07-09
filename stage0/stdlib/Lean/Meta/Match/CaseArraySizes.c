@@ -24,7 +24,6 @@ lean_object* l_Lean_Meta_mkEqSymm(lean_object*, lean_object*, lean_object*, lean
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapIdxM_map___at_Lean_Meta_caseArraySizes___spec__3___boxed(lean_object**);
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_MVarId_assertExt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_FVarSubst_get(lean_object*, lean_object*);
@@ -54,6 +53,7 @@ static lean_object* l_Lean_Meta_CaseArraySizesSubgoal_elems___default___closed__
 lean_object* l_Lean_Meta_substCore(lean_object*, lean_object*, uint8_t, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_caseValues(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_caseArraySizes(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkAppM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkDecideProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -184,7 +184,7 @@ static lean_object* _init_l_Lean_Meta_getArrayArgType___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Array", 5);
+x_1 = lean_mk_string_unchecked("Array", 5, 5);
 return x_1;
 }
 }
@@ -202,7 +202,7 @@ static lean_object* _init_l_Lean_Meta_getArrayArgType___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("array expected", 14);
+x_1 = lean_mk_string_unchecked("array expected", 14, 14);
 return x_1;
 }
 }
@@ -219,7 +219,7 @@ static lean_object* _init_l_Lean_Meta_getArrayArgType___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -392,7 +392,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Met
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("getLit", 6);
+x_1 = lean_mk_string_unchecked("getLit", 6, 6);
 return x_1;
 }
 }
@@ -688,7 +688,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Met
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("toArrayLit_eq", 13);
+x_1 = lean_mk_string_unchecked("toArrayLit_eq", 13, 13);
 return x_1;
 }
 }
@@ -715,7 +715,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Met
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hEqALit", 7);
+x_1 = lean_mk_string_unchecked("hEqALit", 7, 7);
 return x_1;
 }
 }
@@ -1594,7 +1594,7 @@ if (x_82 == 0)
 lean_object* x_83; lean_object* x_84; 
 lean_dec(x_80);
 x_83 = l_Lean_instInhabitedFVarId;
-x_84 = l___private_Init_GetElem_0__outOfBounds___rarg(x_83);
+x_84 = l_outOfBounds___rarg(x_83);
 x_50 = x_84;
 goto block_79;
 }
@@ -1809,7 +1809,7 @@ static lean_object* _init_l_Lean_Meta_caseArraySizes___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("aSize", 5);
+x_1 = lean_mk_string_unchecked("aSize", 5, 5);
 return x_1;
 }
 }
@@ -1827,7 +1827,7 @@ static lean_object* _init_l_Lean_Meta_caseArraySizes___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Nat", 3);
+x_1 = lean_mk_string_unchecked("Nat", 3, 3);
 return x_1;
 }
 }
@@ -1855,7 +1855,7 @@ static lean_object* _init_l_Lean_Meta_caseArraySizes___lambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("h", 1);
+x_1 = lean_mk_string_unchecked("h", 1, 1);
 return x_1;
 }
 }
@@ -2131,7 +2131,7 @@ static lean_object* _init_l_Lean_Meta_caseArraySizes___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("size", 4);
+x_1 = lean_mk_string_unchecked("size", 4, 4);
 return x_1;
 }
 }

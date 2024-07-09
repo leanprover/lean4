@@ -251,10 +251,10 @@ theorem div_mul_le_self : ∀ (m n : Nat), m / n * n ≤ m
 theorem div_lt_iff_lt_mul (Hk : 0 < k) : x / k < y ↔ x < y * k := by
   rw [← Nat.not_le, ← Nat.not_le]; exact not_congr (le_div_iff_mul_le Hk)
 
-@[simp] theorem add_div_right (x : Nat) {z : Nat} (H : 0 < z) : (x + z) / z = succ (x / z) := by
+@[simp] theorem add_div_right (x : Nat) {z : Nat} (H : 0 < z) : (x + z) / z = (x / z) + 1 := by
   rw [div_eq_sub_div H (Nat.le_add_left _ _), Nat.add_sub_cancel]
 
-@[simp] theorem add_div_left (x : Nat) {z : Nat} (H : 0 < z) : (z + x) / z = succ (x / z) := by
+@[simp] theorem add_div_left (x : Nat) {z : Nat} (H : 0 < z) : (z + x) / z = (x / z) + 1 := by
   rw [Nat.add_comm, add_div_right x H]
 
 theorem add_mul_div_left (x z : Nat) {y : Nat} (H : 0 < y) : (x + y * z) / y = x / y + z := by
@@ -285,7 +285,7 @@ theorem add_mul_div_right (x y : Nat) {z : Nat} (H : 0 < z) : (x + y * z) / z = 
 @[simp] theorem mul_mod_left (m n : Nat) : (m * n) % n = 0 := by
   rw [Nat.mul_comm, mul_mod_right]
 
-protected theorem div_eq_of_lt_le (lo : k * n ≤ m) (hi : m < succ k * n) : m / n = k :=
+protected theorem div_eq_of_lt_le (lo : k * n ≤ m) (hi : m < (k + 1) * n) : m / n = k :=
 have npos : 0 < n := (eq_zero_or_pos _).resolve_left fun hn => by
   rw [hn, Nat.mul_zero] at hi lo; exact absurd lo (Nat.not_le_of_gt hi)
 Nat.le_antisymm
@@ -307,7 +307,7 @@ theorem sub_mul_div (x n p : Nat) (h₁ : n*p ≤ x) : (x - n*p) / n = x / n - p
       rw [sub_succ, ← IH h₂, div_eq_sub_div h₀ h₃]
       simp [Nat.pred_succ, mul_succ, Nat.sub_sub]
 
-theorem mul_sub_div (x n p : Nat) (h₁ : x < n*p) : (n * p - succ x) / n = p - succ (x / n) := by
+theorem mul_sub_div (x n p : Nat) (h₁ : x < n*p) : (n * p - (x + 1)) / n = p - ((x / n) + 1) := by
   have npos : 0 < n := (eq_zero_or_pos _).resolve_left fun n0 => by
     rw [n0, Nat.zero_mul] at h₁; exact not_lt_zero _ h₁
   apply Nat.div_eq_of_lt_le

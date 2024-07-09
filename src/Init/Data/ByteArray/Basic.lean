@@ -52,12 +52,8 @@ def get : (a : @& ByteArray) → (@& Fin a.size) → UInt8
 instance : GetElem ByteArray Nat UInt8 fun xs i => i < xs.size where
   getElem xs i h := xs.get ⟨i, h⟩
 
-instance : LawfulGetElem ByteArray Nat UInt8 fun xs i => i < xs.size where
-
 instance : GetElem ByteArray USize UInt8 fun xs i => i.val < xs.size where
   getElem xs i h := xs.uget i h
-
-instance : LawfulGetElem ByteArray USize UInt8 fun xs i => i.val < xs.size where
 
 @[extern "lean_byte_array_set"]
 def set! : ByteArray → (@& Nat) → UInt8 → ByteArray
@@ -96,20 +92,24 @@ protected def append (a : ByteArray) (b : ByteArray) : ByteArray :=
 
 instance : Append ByteArray := ⟨ByteArray.append⟩
 
-partial def toList (bs : ByteArray) : List UInt8 :=
+def toList (bs : ByteArray) : List UInt8 :=
   let rec loop (i : Nat) (r : List UInt8) :=
     if i < bs.size then
       loop (i+1) (bs.get! i :: r)
     else
       r.reverse
+    termination_by bs.size - i
+    decreasing_by decreasing_trivial_pre_omega
   loop 0 []
 
-@[inline] partial def findIdx? (a : ByteArray) (p : UInt8 → Bool) (start := 0) : Option Nat :=
+@[inline] def findIdx? (a : ByteArray) (p : UInt8 → Bool) (start := 0) : Option Nat :=
   let rec @[specialize] loop (i : Nat) :=
     if i < a.size then
       if p (a.get! i) then some i else loop (i+1)
     else
       none
+    termination_by a.size - i
+    decreasing_by decreasing_trivial_pre_omega
   loop start
 
 /--

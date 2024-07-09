@@ -34,7 +34,7 @@ def Config.updateArith (c : Config) : CoreM Config := do
 
 /-- Return true if `e` is of the form `ofNat n` where `n` is a kernel Nat literal -/
 def isOfNatNatLit (e : Expr) : Bool :=
-  e.isAppOfArity ``OfNat.ofNat 3 && e.appFn!.appArg!.isRawNatLit
+  e.isAppOf ``OfNat.ofNat && e.getAppNumArgs >= 3 && (e.getArg! 1).isRawNatLit
 
 /--
 If `e` is a raw Nat literal and `OfNat.ofNat` is not in the list of declarations to unfold,
@@ -430,24 +430,27 @@ private def doNotVisit (pred : Expr → Bool) (declName : Name) : DSimproc := fu
     if (← readThe Simp.Context).isDeclToUnfold declName then
       return .continue e
     else
-      return .done e
+      -- Users may have added a `[simp]` rfl theorem for the literal
+      match (← (← getMethods).dpost e) with
+      | .continue none => return .done e
+      | r => return r
   else
     return .continue e
 
 /--
-Auliliary `dsimproc` for not visiting `OfNat.ofNat` application subterms.
+Auxiliary `dsimproc` for not visiting `OfNat.ofNat` application subterms.
 This is the `dsimp` equivalent of the approach used at `visitApp`.
 Recall that we fold orphan raw Nat literals.
 -/
 private def doNotVisitOfNat : DSimproc := doNotVisit isOfNatNatLit ``OfNat.ofNat
 
 /--
-Auliliary `dsimproc` for not visiting `OfScientific.ofScientific` application subterms.
+Auxiliary `dsimproc` for not visiting `OfScientific.ofScientific` application subterms.
 -/
 private def doNotVisitOfScientific : DSimproc := doNotVisit isOfScientificLit ``OfScientific.ofScientific
 
 /--
-Auliliary `dsimproc` for not visiting `Char` literal subterms.
+Auxiliary `dsimproc` for not visiting `Char` literal subterms.
 -/
 private def doNotVisitCharLit : DSimproc := doNotVisit isCharLit ``Char.ofNat
 
@@ -659,11 +662,11 @@ where
 def main (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Result × Stats) := do
   let ctx := { ctx with config := (← ctx.config.updateArith), lctxInitIndices := (← getLCtx).numIndices }
   withSimpContext ctx do
-    let (r, s) ← simpMain e methods.toMethodsRef ctx |>.run { stats with }
+    let (r, s) ← go e methods.toMethodsRef ctx |>.run { stats with }
     trace[Meta.Tactic.simp.numSteps] "{s.numSteps}"
     return (r, { s with })
 where
-  simpMain (e : Expr) : SimpM Result :=
+  go (e : Expr) : SimpM Result :=
     tryCatchRuntimeEx
       (simp e)
       fun ex => do
@@ -675,10 +678,10 @@ where
 
 def dsimpMain (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Expr × Stats) := do
   withSimpContext ctx do
-    let (r, s) ← dsimpMain e methods.toMethodsRef ctx |>.run { stats with }
+    let (r, s) ← go e methods.toMethodsRef ctx |>.run { stats with }
     pure (r, { s with })
 where
-  dsimpMain (e : Expr) : SimpM Expr :=
+  go (e : Expr) : SimpM Expr :=
     tryCatchRuntimeEx
       (dsimp e)
       fun ex => do

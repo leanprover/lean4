@@ -776,14 +776,8 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (E
   match (matcherExt.getState env).find? (result.value, compile) with
   | some nameNew => return (mkMatcherConst nameNew, none)
   | none =>
-    let decl := Declaration.defnDecl {
-      name
-      levelParams := result.levelParams.toList
-      type        := result.type
-      value       := result.value
-      hints       := ReducibilityHints.abbrev
-      safety      := if env.hasUnsafe result.type || env.hasUnsafe result.value then DefinitionSafety.unsafe else DefinitionSafety.safe
-    }
+    let decl := Declaration.defnDecl (← mkDefinitionValInferrringUnsafe name result.levelParams.toList
+      result.type result.value .abbrev)
     trace[Meta.Match.debug] "{name} : {result.type} := {result.value}"
     let addMatcher : MatcherInfo → MetaM Unit := fun mi => do
       addDecl decl
@@ -836,8 +830,12 @@ Each `AltLHS` has a list of local declarations and a list of patterns.
 The number of patterns must be the same in each `AltLHS`.
 The generated matcher has the structure described at `MatcherInfo`. The motive argument is of the form
 `(motive : (a_1 : A_1) -> (a_2 : A_2[a_1]) -> ... -> (a_n : A_n[a_1, a_2, ... a_{n-1}]) -> Sort v)`
-where `v` is a universe parameter or 0 if `B[a_1, ..., a_n]` is a proposition. -/
-def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor input do
+where `v` is a universe parameter or 0 if `B[a_1, ..., a_n]` is a proposition.
+
+If `exceptionIfContainsSorry := true`, then `mkMatcher` throws an exception if the auxiliary
+declarations contains a `sorry`. We use this argument to workaround a bug at `IndPredBelow.mkBelowMatcher`.
+-/
+def mkMatcher (input : MkMatcherInput) (exceptionIfContainsSorry := false) : MetaM MatcherResult := withCleanLCtxFor input do
   let ⟨matcherName, matchType, discrInfos, lhss⟩ := input
   let numDiscrs := discrInfos.size
   let numEqs := getNumEqsFromDiscrInfos discrInfos
@@ -850,6 +848,11 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
   let uElim ← getLevel matchTypeBody
   let uElimGen ← if uElim == levelZero then pure levelZero else mkFreshLevelMVar
   let mkMatcher (type val : Expr) (minors : Array (Expr × Nat)) (s : State) : MetaM MatcherResult := do
+    let val ← instantiateMVars val
+    let type ← instantiateMVars type
+    if exceptionIfContainsSorry then
+      if type.hasSorry || val.hasSorry then
+        throwError "failed to create auxiliary match declaration `{matcherName}`, it contains `sorry`"
     trace[Meta.Match.debug] "matcher value: {val}\ntype: {type}"
     trace[Meta.Match.debug] "minors num params: {minors.map (·.2)}"
     /- The option `bootstrap.gen_matcher_code` is a helper hack. It is useful, for example,
@@ -863,7 +866,6 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
        | negSucc n => succ n
        ```
        which is defined **before** `Int.decLt` -/
-
     let (matcher, addMatcher) ← mkMatcherAuxDefinition matcherName type val
     trace[Meta.Match.debug] "matcher levels: {matcher.getAppFn.constLevels!}, uElim: {uElimGen}"
     let uElimPos? ← getUElimPos? matcher.getAppFn.constLevels! uElimGen

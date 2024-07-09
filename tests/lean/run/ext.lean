@@ -51,6 +51,9 @@ example (f g : Nat → Nat) (h : f = g) : f = g := by
 @[ext high] theorem Fin.zero_ext (a b : Fin 0) : True → a = b := by cases a.isLt
 example (a b : Fin 0) : a = b := by ext; exact True.intro
 
+/-- info: Fin.zero_ext_iff {a b : Fin 0} : a = b ↔ True -/
+#guard_msgs in #check Fin.zero_ext_iff
+
 def Set (α : Type u) := α → Prop
 @[ext] structure LocalEquiv (α : Type u) (β : Type v) where
   source : Set α
@@ -60,9 +63,12 @@ def Set (α : Type u) := α → Prop
 
 structure MyUnit
 
-@[ext high] theorem MyUnit.ext1 (x y : MyUnit) (_h : 0 = 1) : x = y := rfl
+@[ext (iff := false) high] theorem MyUnit.ext1 (x y : MyUnit) (_h : 0 = 1) : x = y := rfl
 @[ext high] theorem MyUnit.ext2 (x y : MyUnit) (_h : 1 = 1) : x = y := rfl
-@[ext] theorem MyUnit.ext3 (x y : MyUnit) (_h : 2 = 1) : x = y := rfl
+@[ext (iff := false)] theorem MyUnit.ext3 (x y : MyUnit) (_h : 2 = 1) : x = y := rfl
+
+/-- info: MyUnit.ext2_iff {x y : MyUnit} : x = y ↔ 1 = 1 -/
+#guard_msgs in #check MyUnit.ext2_iff
 
 example (x y : MyUnit) : x = y := by ext; rfl
 
@@ -76,7 +82,7 @@ example (f : ℕ × (ℕ → ℕ)) : f = f := by
 example (f : Empty → Empty) : f = f := by
   ext ⟨⟩
 
-@[ext] theorem ext_intros {n m : Nat} (w : ∀ n m : Nat, n = m) : n = m := by apply w
+@[ext (iff := false)] theorem ext_intros {n m : Nat} (w : ∀ n m : Nat, n = m) : n = m := by apply w
 
 #guard_msgs (drop warning) in
 example : 3 = 7 := by
@@ -107,3 +113,18 @@ example : f ∘ f = id := by
   simp [f]
 
 end erasing_ext_attribute
+
+/-!
+Generating ext_iff lemma
+-/
+structure MyFun (α β : Type _) where
+  toFun : α → β
+
+@[ext]
+theorem MyFun.ext {α β : Type _} (x y : MyFun α β) (h : ∀ a, x.toFun a = y.toFun a) : x = y := by
+  cases x; cases y; simp; funext; apply h
+
+/--
+info: MyFun.ext_iff.{u_1, u_2} {α : Type u_1} {β : Type u_2} {x y : MyFun α β} : x = y ↔ ∀ (a : α), x.toFun a = y.toFun a
+-/
+#guard_msgs in #check MyFun.ext_iff

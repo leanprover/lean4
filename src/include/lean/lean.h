@@ -990,7 +990,10 @@ static inline size_t lean_string_capacity(lean_object * o) { return lean_to_stri
 static inline size_t lean_string_byte_size(lean_object * o) { return sizeof(lean_string_object) + lean_string_capacity(o); }
 /* instance : inhabited char := ⟨'A'⟩ */
 static inline uint32_t lean_char_default_value() { return 'A'; }
+LEAN_EXPORT lean_obj_res lean_mk_string_unchecked(char const * s, size_t sz, size_t len);
 LEAN_EXPORT lean_obj_res lean_mk_string_from_bytes(char const * s, size_t sz);
+LEAN_EXPORT lean_obj_res lean_mk_string_from_bytes_unchecked(char const * s, size_t sz);
+LEAN_EXPORT lean_obj_res lean_mk_ascii_string_unchecked(char const * s);
 LEAN_EXPORT lean_obj_res lean_mk_string(char const * s);
 static inline char const * lean_string_cstr(b_lean_obj_arg o) {
     assert(lean_is_string(o));

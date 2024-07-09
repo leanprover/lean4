@@ -1,15 +1,15 @@
-wf1.lean:3:12-3:19: error: fail to show termination for
+wf1.lean:1:4-1:5: error: fail to show termination for
   g
 with errors
-argument #1 was not used for structural recursion
+structural recursion cannot be used:
+
+argument #1 cannot be used for structural recursion
   failed to eliminate recursive application
     g (x - 1)
 
-argument #2 was not used for structural recursion
+argument #2 cannot be used for structural recursion
   insufficient number of parameters at recursive application 
     g (x - 1)
-
-structural recursion cannot be used
 
 Could not find a decreasing measure.
 The arguments relate at each recursive call as follows:

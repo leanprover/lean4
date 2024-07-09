@@ -375,12 +375,13 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = lean_box(0);
-x_3 = lean_alloc_ctor(0, 5, 0);
+x_3 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 lean_ctor_set(x_3, 2, x_2);
-lean_ctor_set(x_3, 3, x_1);
-lean_ctor_set(x_3, 4, x_2);
+lean_ctor_set(x_3, 3, x_2);
+lean_ctor_set(x_3, 4, x_1);
+lean_ctor_set(x_3, 5, x_2);
 return x_3;
 }
 }
@@ -552,7 +553,7 @@ static lean_object* _init_l_Lean_Elab_checkSimprocType___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected type at '", 20);
+x_1 = lean_mk_string_unchecked("unexpected type at '", 20, 20);
 return x_1;
 }
 }
@@ -569,7 +570,7 @@ static lean_object* _init_l_Lean_Elab_checkSimprocType___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', 'Simproc' expected", 21);
+x_1 = lean_mk_string_unchecked("', 'Simproc' expected", 21, 21);
 return x_1;
 }
 }
@@ -586,7 +587,7 @@ static lean_object* _init_l_Lean_Elab_checkSimprocType___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -594,7 +595,7 @@ static lean_object* _init_l_Lean_Elab_checkSimprocType___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -602,7 +603,7 @@ static lean_object* _init_l_Lean_Elab_checkSimprocType___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Simp", 4);
+x_1 = lean_mk_string_unchecked("Simp", 4, 4);
 return x_1;
 }
 }
@@ -610,7 +611,7 @@ static lean_object* _init_l_Lean_Elab_checkSimprocType___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Simproc", 7);
+x_1 = lean_mk_string_unchecked("Simproc", 7, 7);
 return x_1;
 }
 }
@@ -618,7 +619,7 @@ static lean_object* _init_l_Lean_Elab_checkSimprocType___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("DSimproc", 8);
+x_1 = lean_mk_string_unchecked("DSimproc", 8, 8);
 return x_1;
 }
 }
@@ -1413,7 +1414,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabSimprocPattern___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -1421,7 +1422,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabSimprocPattern___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simprocPattern", 14);
+x_1 = lean_mk_string_unchecked("simprocPattern", 14, 14);
 return x_1;
 }
 }
@@ -1500,7 +1501,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabSimprocPattern__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -1508,7 +1509,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabSimprocPattern__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Command", 7);
+x_1 = lean_mk_string_unchecked("Command", 7, 7);
 return x_1;
 }
 }
@@ -1516,7 +1517,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabSimprocPattern__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elabSimprocPattern", 18);
+x_1 = lean_mk_string_unchecked("elabSimprocPattern", 18, 18);
 return x_1;
 }
 }
@@ -1666,7 +1667,7 @@ static lean_object* _init_l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("DiscrTree", 9);
+x_1 = lean_mk_string_unchecked("DiscrTree", 9, 9);
 return x_1;
 }
 }
@@ -1674,7 +1675,7 @@ static lean_object* _init_l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Key", 3);
+x_1 = lean_mk_string_unchecked("Key", 3, 3);
 return x_1;
 }
 }
@@ -1682,7 +1683,7 @@ static lean_object* _init_l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("const", 5);
+x_1 = lean_mk_string_unchecked("const", 5, 5);
 return x_1;
 }
 }
@@ -1713,7 +1714,7 @@ static lean_object* _init_l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fvar", 4);
+x_1 = lean_mk_string_unchecked("fvar", 4, 4);
 return x_1;
 }
 }
@@ -1744,7 +1745,7 @@ static lean_object* _init_l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("FVarId", 6);
+x_1 = lean_mk_string_unchecked("FVarId", 6, 6);
 return x_1;
 }
 }
@@ -1752,7 +1753,7 @@ static lean_object* _init_l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mk", 2);
+x_1 = lean_mk_string_unchecked("mk", 2, 2);
 return x_1;
 }
 }
@@ -1781,7 +1782,7 @@ static lean_object* _init_l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lit", 3);
+x_1 = lean_mk_string_unchecked("lit", 3, 3);
 return x_1;
 }
 }
@@ -1812,7 +1813,7 @@ static lean_object* _init_l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Literal", 7);
+x_1 = lean_mk_string_unchecked("Literal", 7, 7);
 return x_1;
 }
 }
@@ -1820,7 +1821,7 @@ static lean_object* _init_l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("natVal", 6);
+x_1 = lean_mk_string_unchecked("natVal", 6, 6);
 return x_1;
 }
 }
@@ -1849,7 +1850,7 @@ static lean_object* _init_l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("strVal", 6);
+x_1 = lean_mk_string_unchecked("strVal", 6, 6);
 return x_1;
 }
 }
@@ -1878,7 +1879,7 @@ static lean_object* _init_l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("star", 4);
+x_1 = lean_mk_string_unchecked("star", 4, 4);
 return x_1;
 }
 }
@@ -1909,7 +1910,7 @@ static lean_object* _init_l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("other", 5);
+x_1 = lean_mk_string_unchecked("other", 5, 5);
 return x_1;
 }
 }
@@ -1940,7 +1941,7 @@ static lean_object* _init_l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("arrow", 5);
+x_1 = lean_mk_string_unchecked("arrow", 5, 5);
 return x_1;
 }
 }
@@ -1971,7 +1972,7 @@ static lean_object* _init_l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("proj", 4);
+x_1 = lean_mk_string_unchecked("proj", 4, 4);
 return x_1;
 }
 }
@@ -2148,7 +2149,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabSimprocPatternBuiltin___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("List", 4);
+x_1 = lean_mk_string_unchecked("List", 4, 4);
 return x_1;
 }
 }
@@ -2156,7 +2157,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabSimprocPatternBuiltin___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("toArray", 7);
+x_1 = lean_mk_string_unchecked("toArray", 7, 7);
 return x_1;
 }
 }
@@ -2196,7 +2197,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabSimprocPatternBuiltin___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("nil", 3);
+x_1 = lean_mk_string_unchecked("nil", 3, 3);
 return x_1;
 }
 }
@@ -2234,7 +2235,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabSimprocPatternBuiltin___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cons", 4);
+x_1 = lean_mk_string_unchecked("cons", 4, 4);
 return x_1;
 }
 }
@@ -2281,7 +2282,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabSimprocPatternBuiltin___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declare", 7);
+x_1 = lean_mk_string_unchecked("declare", 7, 7);
 return x_1;
 }
 }
@@ -2299,7 +2300,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabSimprocPatternBuiltin___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("registerBuiltinSimproc", 22);
+x_1 = lean_mk_string_unchecked("registerBuiltinSimproc", 22, 22);
 return x_1;
 }
 }
@@ -2329,7 +2330,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabSimprocPatternBuiltin___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("registerBuiltinDSimproc", 23);
+x_1 = lean_mk_string_unchecked("registerBuiltinDSimproc", 23, 23);
 return x_1;
 }
 }
@@ -2534,7 +2535,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabSimprocPatternBuiltin___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simprocPatternBuiltin", 21);
+x_1 = lean_mk_string_unchecked("simprocPatternBuiltin", 21, 21);
 return x_1;
 }
 }
@@ -2612,7 +2613,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabSimprocPatternBui
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elabSimprocPatternBuiltin", 25);
+x_1 = lean_mk_string_unchecked("elabSimprocPatternBuiltin", 25, 25);
 return x_1;
 }
 }

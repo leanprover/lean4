@@ -44,7 +44,6 @@ lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_loop___at_Lean_MVarId_constructor___spec__1___closed__1;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_constructor(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_constructor___lambda__1___closed__3;
 extern lean_object* l_Lean_levelZero;
 static lean_object* l_Lean_MVarId_existsIntro___lambda__2___closed__1;
@@ -75,7 +74,6 @@ static lean_object* l_Lean_MVarId_constructor___lambda__1___closed__1;
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_constructor___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_existsIntro(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Exception_isRuntime(lean_object*);
 static lean_object* l_Lean_MVarId_existsIntro___lambda__1___closed__2;
 static lean_object* l_Lean_MVarId_constructor___lambda__2___closed__5;
@@ -350,7 +348,7 @@ static lean_object* _init_l_Lean_MVarId_constructor___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no applicable constructor found", 31);
+x_1 = lean_mk_string_unchecked("no applicable constructor found", 31, 31);
 return x_1;
 }
 }
@@ -396,7 +394,7 @@ static lean_object* _init_l_Lean_MVarId_constructor___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("target is not an inductive datatype", 35);
+x_1 = lean_mk_string_unchecked("target is not an inductive datatype", 35, 35);
 return x_1;
 }
 }
@@ -706,7 +704,7 @@ static lean_object* _init_l_Lean_MVarId_constructor___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("constructor", 11);
+x_1 = lean_mk_string_unchecked("constructor", 11, 11);
 return x_1;
 }
 }
@@ -747,14 +745,6 @@ lean_dec(x_3);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_constructor(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-lean_object* x_8; 
-x_8 = l_Lean_MVarId_constructor(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-return x_8;
-}
-}
 static lean_object* _init_l_Lean_MVarId_existsIntro___lambda__1___closed__1() {
 _start:
 {
@@ -783,7 +773,7 @@ static lean_object* _init_l_Lean_MVarId_existsIntro___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected number of subgoals", 29);
+x_1 = lean_mk_string_unchecked("unexpected number of subgoals", 29, 29);
 return x_1;
 }
 }
@@ -1112,7 +1102,7 @@ static lean_object* _init_l_Lean_MVarId_existsIntro___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("target is not an inductive datatype with one constructor", 56);
+x_1 = lean_mk_string_unchecked("target is not an inductive datatype with one constructor", 56, 56);
 return x_1;
 }
 }
@@ -1149,7 +1139,7 @@ static lean_object* _init_l_Lean_MVarId_existsIntro___lambda__2___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("constructor must have at least two fields", 41);
+x_1 = lean_mk_string_unchecked("constructor must have at least two fields", 41, 41);
 return x_1;
 }
 }
@@ -1254,7 +1244,7 @@ lean_object* x_25; uint8_t x_26;
 x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
 lean_dec(x_24);
-x_26 = lean_ctor_get_uint8(x_25, sizeof(void*)*5);
+x_26 = lean_ctor_get_uint8(x_25, sizeof(void*)*6);
 if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; uint8_t x_29; 
@@ -1552,7 +1542,7 @@ static lean_object* _init_l_Lean_MVarId_existsIntro___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("exists", 6);
+x_1 = lean_mk_string_unchecked("exists", 6, 6);
 return x_1;
 }
 }
@@ -1587,14 +1577,6 @@ lean_object* x_13;
 x_13 = l_Lean_MVarId_existsIntro___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_7);
 return x_13;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_existsIntro(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-lean_object* x_8; 
-x_8 = l_Lean_MVarId_existsIntro(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-return x_8;
 }
 }
 lean_object* initialize_Lean_Meta_Check(uint8_t builtin, lean_object*);

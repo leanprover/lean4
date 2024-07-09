@@ -233,9 +233,7 @@ def eraseNamedArg (binderName : Name) : M Unit :=
 private def addNewArg (argName : Name) (arg : Expr) : M Unit := do
   modify fun s => { s with f := mkApp s.f arg, fType := s.fType.bindingBody!.instantiate1 arg }
   if arg.isMVar then
-    let mvarId := arg.mvarId!
-    if let some mvarErrorInfo ← getMVarErrorInfo? mvarId then
-      registerMVarErrorInfo { mvarErrorInfo with argName? := argName }
+    registerMVarArgName arg.mvarId! argName
 
 /--
   Elaborate the given `Arg` and add it to the result. See `addNewArg`.
@@ -833,9 +831,7 @@ private def elabArg (arg : Arg) (argExpectedType : Expr) : M Expr := do
 /-- Save information for producing error messages. -/
 def saveArgInfo (arg : Expr) (binderName : Name) : M Unit := do
   if arg.isMVar then
-    let mvarId := arg.mvarId!
-    if let some mvarErrorInfo ← getMVarErrorInfo? mvarId then
-      registerMVarErrorInfo { mvarErrorInfo with argName? := binderName }
+    registerMVarArgName arg.mvarId! binderName
 
 /-- Create an implicit argument using the given `BinderInfo`. -/
 def mkImplicitArg (argExpectedType : Expr) (bi : BinderInfo) : M Expr := do
@@ -1428,8 +1424,27 @@ private def getSuccesses (candidates : Array (TermElabResult Expr)) : TermElabM 
           return false
       return true
     | _ => return false
-  if r₂.size == 0 then return r₁ else return r₂
-
+  if r₂.size == 0 then
+    return r₁
+  if r₂.size == 1 then
+    return r₂
+  /-
+  If there are still more than one solution, discard solutions that have pending metavariables.
+  We added this extra filter to address regressions introduced after fixing
+  `isDefEqStuckEx` behavior at `ExprDefEq.lean`.
+  -/
+  let r₂ ← candidates.filterM fun
+    | .ok _ s => do
+      try
+        s.restore
+        synthesizeSyntheticMVars (postpone := .no)
+        return true
+      catch _ =>
+        return false
+    | _ => return false
+  if r₂.size == 0 then
+    return r₁
+  return r₂
 /--
   Throw an error message that describes why each possible interpretation for the overloaded notation and symbols did not work.
   We use a nested error message to aggregate the exceptions produced by each failure.

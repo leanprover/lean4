@@ -14,6 +14,7 @@ open Lean Meta Simp
 structure Value where
   n     : Nat
   value : Fin n
+  deriving DecidableEq, Repr
 
 def fromExpr? (e : Expr) : SimpM (Option Value) := do
   let some ⟨n, value⟩ ← getFinValue? e | return none

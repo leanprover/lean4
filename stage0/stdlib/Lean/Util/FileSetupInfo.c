@@ -66,7 +66,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Util_F
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid LeanOptions type", 24);
+x_1 = lean_mk_string_unchecked("invalid LeanOptions type", 24, 24);
 return x_1;
 }
 }
@@ -145,7 +145,7 @@ static lean_object* _init_l___private_Lean_Util_FileSetupInfo_0__Lean_fromJsonFi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("paths", 5);
+x_1 = lean_mk_string_unchecked("paths", 5, 5);
 return x_1;
 }
 }
@@ -153,7 +153,7 @@ static lean_object* _init_l___private_Lean_Util_FileSetupInfo_0__Lean_fromJsonFi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -161,7 +161,7 @@ static lean_object* _init_l___private_Lean_Util_FileSetupInfo_0__Lean_fromJsonFi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("FileSetupInfo", 13);
+x_1 = lean_mk_string_unchecked("FileSetupInfo", 13, 13);
 return x_1;
 }
 }
@@ -189,7 +189,7 @@ static lean_object* _init_l___private_Lean_Util_FileSetupInfo_0__Lean_fromJsonFi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -237,7 +237,7 @@ static lean_object* _init_l___private_Lean_Util_FileSetupInfo_0__Lean_fromJsonFi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -255,7 +255,7 @@ static lean_object* _init_l___private_Lean_Util_FileSetupInfo_0__Lean_fromJsonFi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("setupOptions", 12);
+x_1 = lean_mk_string_unchecked("setupOptions", 12, 12);
 return x_1;
 }
 }

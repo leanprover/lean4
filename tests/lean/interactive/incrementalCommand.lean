@@ -38,3 +38,20 @@ elab "wrap" num c:command : command => do
    --v change: "1" "2"
 wrap 1 def wrapped := by
   dbg_trace "w"
+
+/-!
+The example used to result in nothing but "declaration uses 'sorry'" (and using the downstream
+"unreachable tactic" linter, the `simp` would be flagged) as `simp` among other elaborators
+accidentally swallowed the interrupt exception.
+-/
+-- RESET
+import Lean
+
+open Lean Elab Core in
+elab "interrupt" : tactic =>
+  throw <| .internal interruptExceptionId
+
+example : False := by
+  interrupt
+  simp
+--^ collectDiagnostics

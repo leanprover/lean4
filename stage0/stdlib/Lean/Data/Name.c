@@ -17,6 +17,8 @@ LEAN_EXPORT lean_object* l_Lean_Name_getNumParts(lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Name_getString_x21___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Name_quickLt___boxed(lean_object*, lean_object*);
+uint8_t l_String_anyAux___at_String_isNat___spec__1(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Name_isInternalDetail___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Name_isInternal___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_isInternalOrNum___boxed(lean_object*);
 static lean_object* l_Lean_Name_isImplementationDetail___closed__1;
@@ -24,8 +26,10 @@ LEAN_EXPORT uint8_t l_Lean_Name_isStr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_lt___boxed(lean_object*, lean_object*);
 uint8_t lean_uint64_dec_lt(uint64_t, uint64_t);
 LEAN_EXPORT uint8_t l_Lean_Name_isAnonymous(lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Name_isInternalDetail(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_isInternalOrNum(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_quickCmpAux___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_Name_isInternalDetail___closed__4;
 LEAN_EXPORT uint8_t l_Lean_Name_quickCmpAux(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_cmp___boxed(lean_object*, lean_object*);
@@ -33,16 +37,21 @@ LEAN_EXPORT lean_object* l_Lean_Name_isNum___boxed(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_hasNum___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_isPrefixOf(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Name_isInternalDetail___boxed(lean_object*);
+lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_isImplementationDetail(lean_object*);
 uint8_t l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_16_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Name_isStr___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_eqStr(lean_object*, lean_object*);
 LEAN_EXPORT uint64_t lean_name_hash_exported(lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Name_isInternalDetail_matchPrefix(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_cmp(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+static lean_object* l_Lean_Name_isInternalDetail___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Name_quickCmp___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_getPrefix(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_components(lean_object*);
+static lean_object* l_Lean_Name_isInternalDetail___closed__2;
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 uint8_t l_String_startsWith(lean_object*, lean_object*);
 lean_object* l_panic___at_String_fromUTF8_x21___spec__1(lean_object*);
@@ -59,6 +68,7 @@ LEAN_EXPORT lean_object* l_Lean_Name_isAnonymous___boxed(lean_object*);
 static lean_object* l_Lean_Name_getString_x21___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Name_hashEx___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_isAtomic(lean_object*);
+lean_object* lean_string_length(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_isNum(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_hasNum(lean_object*);
@@ -76,11 +86,13 @@ uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
 LEAN_EXPORT uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 static lean_object* l_Lean_Name_getString_x21___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Name_isAtomic___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Name_isInternalDetail_matchPrefix___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_isSuffixOf(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_anyS(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_isInternal(lean_object*);
+lean_object* l_String_drop(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_lt(lean_object*, lean_object*);
 LEAN_EXPORT uint64_t lean_name_hash_exported(lean_object* x_1) {
 _start:
@@ -131,7 +143,7 @@ static lean_object* _init_l_Lean_Name_getString_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Data.Name", 14);
+x_1 = lean_mk_string_unchecked("Lean.Data.Name", 14, 14);
 return x_1;
 }
 }
@@ -139,7 +151,7 @@ static lean_object* _init_l_Lean_Name_getString_x21___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Name.getString!", 20);
+x_1 = lean_mk_string_unchecked("Lean.Name.getString!", 20, 20);
 return x_1;
 }
 }
@@ -147,7 +159,7 @@ static lean_object* _init_l_Lean_Name_getString_x21___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -962,11 +974,192 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
+LEAN_EXPORT uint8_t l_Lean_Name_isInternalDetail_matchPrefix(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; 
+lean_inc(x_2);
+lean_inc(x_1);
+x_3 = l_String_startsWith(x_1, x_2);
+if (x_3 == 0)
+{
+uint8_t x_4; 
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = 0;
+return x_4;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_5 = lean_string_length(x_2);
+lean_dec(x_2);
+x_6 = l_String_drop(x_1, x_5);
+x_7 = lean_string_utf8_byte_size(x_6);
+x_8 = lean_unsigned_to_nat(0u);
+x_9 = l_String_anyAux___at_String_isNat___spec__1(x_6, x_7, x_8);
+lean_dec(x_7);
+lean_dec(x_6);
+if (x_9 == 0)
+{
+uint8_t x_10; 
+x_10 = 1;
+return x_10;
+}
+else
+{
+uint8_t x_11; 
+x_11 = 0;
+return x_11;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Name_isInternalDetail_matchPrefix___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Lean_Name_isInternalDetail_matchPrefix(x_1, x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Name_isInternalDetail___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("_", 1, 1);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Name_isInternalDetail___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("eq_", 3, 3);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Name_isInternalDetail___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("match_", 6, 6);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Name_isInternalDetail___closed__4() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("proof_", 6, 6);
+return x_1;
+}
+}
+LEAN_EXPORT uint8_t l_Lean_Name_isInternalDetail(lean_object* x_1) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 0:
+{
+uint8_t x_2; 
+x_2 = l_Lean_Name_isInternalOrNum(x_1);
+return x_2;
+}
+case 1:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = l_Lean_Name_isInternalDetail___closed__1;
+lean_inc(x_4);
+x_6 = l_String_startsWith(x_4, x_5);
+if (x_6 == 0)
+{
+lean_object* x_7; uint8_t x_8; 
+x_7 = l_Lean_Name_isInternalDetail___closed__2;
+lean_inc(x_4);
+x_8 = l_Lean_Name_isInternalDetail_matchPrefix(x_4, x_7);
+if (x_8 == 0)
+{
+lean_object* x_9; uint8_t x_10; 
+x_9 = l_Lean_Name_isInternalDetail___closed__3;
+lean_inc(x_4);
+x_10 = l_Lean_Name_isInternalDetail_matchPrefix(x_4, x_9);
+if (x_10 == 0)
+{
+lean_object* x_11; uint8_t x_12; 
+x_11 = l_Lean_Name_isInternalDetail___closed__4;
+x_12 = l_Lean_Name_isInternalDetail_matchPrefix(x_4, x_11);
+if (x_12 == 0)
+{
+uint8_t x_13; 
+x_13 = l_Lean_Name_isInternalOrNum(x_3);
+lean_dec(x_3);
+return x_13;
+}
+else
+{
+uint8_t x_14; 
+lean_dec(x_3);
+x_14 = 1;
+return x_14;
+}
+}
+else
+{
+uint8_t x_15; 
+lean_dec(x_4);
+lean_dec(x_3);
+x_15 = 1;
+return x_15;
+}
+}
+else
+{
+uint8_t x_16; 
+lean_dec(x_4);
+lean_dec(x_3);
+x_16 = 1;
+return x_16;
+}
+}
+else
+{
+uint8_t x_17; 
+lean_dec(x_4);
+lean_dec(x_3);
+x_17 = 1;
+return x_17;
+}
+}
+default: 
+{
+uint8_t x_18; 
+lean_dec(x_1);
+x_18 = 1;
+return x_18;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Name_isInternalDetail___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_Name_isInternalDetail(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
 static lean_object* _init_l_Lean_Name_isImplementationDetail___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("__", 2);
+x_1 = lean_mk_string_unchecked("__", 2, 2);
 return x_1;
 }
 }
@@ -1217,6 +1410,14 @@ l_Lean_Name_getString_x21___closed__3 = _init_l_Lean_Name_getString_x21___closed
 lean_mark_persistent(l_Lean_Name_getString_x21___closed__3);
 l_Lean_Name_getString_x21___closed__4 = _init_l_Lean_Name_getString_x21___closed__4();
 lean_mark_persistent(l_Lean_Name_getString_x21___closed__4);
+l_Lean_Name_isInternalDetail___closed__1 = _init_l_Lean_Name_isInternalDetail___closed__1();
+lean_mark_persistent(l_Lean_Name_isInternalDetail___closed__1);
+l_Lean_Name_isInternalDetail___closed__2 = _init_l_Lean_Name_isInternalDetail___closed__2();
+lean_mark_persistent(l_Lean_Name_isInternalDetail___closed__2);
+l_Lean_Name_isInternalDetail___closed__3 = _init_l_Lean_Name_isInternalDetail___closed__3();
+lean_mark_persistent(l_Lean_Name_isInternalDetail___closed__3);
+l_Lean_Name_isInternalDetail___closed__4 = _init_l_Lean_Name_isInternalDetail___closed__4();
+lean_mark_persistent(l_Lean_Name_isInternalDetail___closed__4);
 l_Lean_Name_isImplementationDetail___closed__1 = _init_l_Lean_Name_isImplementationDetail___closed__1();
 lean_mark_persistent(l_Lean_Name_isImplementationDetail___closed__1);
 return lean_io_result_mk_ok(lean_box(0));

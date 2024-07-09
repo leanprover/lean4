@@ -37,7 +37,7 @@ private partial def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (F
   trace[Elab.definition.wf] "{F} : {← inferType F}"
   loop F e |>.run' {}
 where
-  processRec (F : Expr) (e : Expr) : StateRefT (HasConstCache recFnName) TermElabM Expr := do
+  processRec (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
     if e.getAppNumArgs < fixedPrefixSize + 1 then
       loop F (← etaExpand e)
     else
@@ -47,16 +47,16 @@ where
       let r := mkApp r (← mkDecreasingProof decreasingProp)
       return mkAppN r (← args[fixedPrefixSize+1:].toArray.mapM (loop F))
 
-  processApp (F : Expr) (e : Expr) : StateRefT (HasConstCache recFnName) TermElabM Expr := do
+  processApp (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
     if e.isAppOf recFnName then
       processRec F e
     else
       e.withApp fun f args => return mkAppN (← loop F f) (← args.mapM (loop F))
 
-  containsRecFn (e : Expr) : StateRefT (HasConstCache recFnName) TermElabM Bool := do
+  containsRecFn (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Bool := do
     modifyGet (·.contains e)
 
-  loop (F : Expr) (e : Expr) : StateRefT (HasConstCache recFnName) TermElabM Expr := do
+  loop (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
     if !(← containsRecFn e) then
       return e
     match e with
@@ -81,8 +81,8 @@ where
       | some matcherApp =>
         if let some matcherApp ← matcherApp.addArg? F then
           let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
-            lambdaTelescope alt fun xs altBody => do
-              unless xs.size >= numParams do
+            lambdaBoundedTelescope alt numParams fun xs altBody => do
+              unless xs.size = numParams do
                 throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
               let FAlt := xs[numParams - 1]!
               mkLambdaFVars xs (← loop FAlt altBody)
@@ -90,7 +90,9 @@ where
         else
           processApp F e
       | none => processApp F e
-    | e => ensureNoRecFn recFnName e
+    | e =>
+      ensureNoRecFn #[recFnName] e
+      pure e
 
 /-- Refine `F` over `PSum.casesOn` -/
 private partial def processSumCasesOn (x F val : Expr) (k : (x : Expr) → (F : Expr) → (val : Expr) → TermElabM Expr) : TermElabM Expr := do
@@ -103,12 +105,11 @@ private partial def processSumCasesOn (x F val : Expr) (k : (x : Expr) → (F : 
       let type ← mkArrow (FDecl.type.replaceFVar x xs[0]!) type
       return (← mkLambdaFVars xs type, ← getLevel type)
     let mkMinorNew (ctorName : Name) (minor : Expr) : TermElabM Expr :=
-      lambdaTelescope minor fun xs body => do
+      lambdaBoundedTelescope minor 1 fun xs body => do
         let xNew := xs[0]!
-        let valNew ← mkLambdaFVars xs[1:] body
         let FTypeNew := FDecl.type.replaceFVar x (← mkAppOptM ctorName #[α, β, xNew])
         withLocalDeclD FDecl.userName FTypeNew fun FNew => do
-          mkLambdaFVars #[xNew, FNew] (← processSumCasesOn xNew FNew valNew k)
+          mkLambdaFVars #[xNew, FNew] (← processSumCasesOn xNew FNew body k)
     let minorLeft ← mkMinorNew ``PSum.inl args[4]!
     let minorRight ← mkMinorNew ``PSum.inr args[5]!
     let result := mkAppN (mkConst ``PSum.casesOn [u, (← getLevel α), (← getLevel β)]) #[α, β, motiveNew, x, minorLeft, minorRight, F]

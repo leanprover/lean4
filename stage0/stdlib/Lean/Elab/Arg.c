@@ -176,7 +176,7 @@ static lean_object* _init_l_Lean_Elab_Term_addNamedArg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("argument '", 10);
+x_1 = lean_mk_string_unchecked("argument '", 10, 10);
 return x_1;
 }
 }
@@ -193,7 +193,7 @@ static lean_object* _init_l_Lean_Elab_Term_addNamedArg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' was already set", 17);
+x_1 = lean_mk_string_unchecked("' was already set", 17, 17);
 return x_1;
 }
 }
@@ -425,7 +425,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_expandAr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -433,7 +433,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_expandAr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -441,7 +441,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_expandAr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -449,7 +449,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_expandAr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("namedArgument", 13);
+x_1 = lean_mk_string_unchecked("namedArgument", 13, 13);
 return x_1;
 }
 }
@@ -469,7 +469,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_expandAr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ellipsis", 8);
+x_1 = lean_mk_string_unchecked("ellipsis", 8, 8);
 return x_1;
 }
 }
@@ -489,7 +489,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_expandAr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected '..'", 15);
+x_1 = lean_mk_string_unchecked("unexpected '..'", 15, 15);
 return x_1;
 }
 }

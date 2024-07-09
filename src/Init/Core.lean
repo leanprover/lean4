@@ -642,7 +642,7 @@ instance : LawfulBEq String := inferInstance
 
 /-! # Logical connectives and equality -/
 
-@[inherit_doc True.intro] def trivial : True := ⟨⟩
+@[inherit_doc True.intro] theorem trivial : True := ⟨⟩
 
 theorem mt {a b : Prop} (h₁ : a → b) (h₂ : ¬b) : ¬a :=
   fun ha => h₂ (h₁ ha)
@@ -1173,7 +1173,7 @@ def Prod.lexLt [LT α] [LT β] (s : α × β) (t : α × β) : Prop :=
   s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)
 
 instance Prod.lexLtDec
-    [LT α] [LT β] [DecidableEq α] [DecidableEq β]
+    [LT α] [LT β] [DecidableEq α]
     [(a b : α) → Decidable (a < b)] [(a b : β) → Decidable (a < b)]
     : (s t : α × β) → Decidable (Prod.lexLt s t) :=
   fun _ _ => inferInstanceAs (Decidable (_ ∨ _))
@@ -1190,6 +1190,11 @@ by applying `f` to the first component and `g` to the second.
 def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ : Type v₂}
     (f : α₁ → α₂) (g : β₁ → β₂) : α₁ × β₁ → α₂ × β₂
   | (a, b) => (f a, g b)
+
+@[simp] theorem Prod.map_apply (f : α → β) (g : γ → δ) (x) (y) :
+    Prod.map f g (x, y) = (f x, g y) := rfl
+@[simp] theorem Prod.map_fst (f : α → β) (g : γ → δ) (x) : (Prod.map f g x).1 = f x.1 := rfl
+@[simp] theorem Prod.map_snd (f : α → β) (g : γ → δ) (x) : (Prod.map f g x).2 = g x.2 := rfl
 
 /-! # Dependent products -/
 
@@ -1356,6 +1361,9 @@ theorem iff_false_right (ha : ¬a) : (b ↔ a) ↔ ¬b := Iff.comm.trans (iff_fa
 
 theorem of_iff_true    (h : a ↔ True) : a := h.mpr trivial
 theorem iff_true_intro (h : a) : a ↔ True := iff_of_true h trivial
+
+theorem eq_iff_true_of_subsingleton [Subsingleton α] (x y : α) : x = y ↔ True :=
+  iff_true_intro (Subsingleton.elim ..)
 
 theorem not_of_iff_false : (p ↔ False) → ¬p := Iff.mp
 theorem iff_false_intro (h : ¬a) : a ↔ False := iff_of_false h id
@@ -1862,7 +1870,7 @@ instance : Subsingleton (Squash α) where
 /--
 `Antisymm (·≤·)` says that `(·≤·)` is antisymmetric, that is, `a ≤ b → b ≤ a → a = b`.
 -/
-class Antisymm {α : Sort u} (r : α → α → Prop) where
+class Antisymm {α : Sort u} (r : α → α → Prop) : Prop where
   /-- An antisymmetric relation `(·≤·)` satisfies `a ≤ b → b ≤ a → a = b`. -/
   antisymm {a b : α} : r a b → r b a → a = b
 

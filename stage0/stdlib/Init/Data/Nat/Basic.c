@@ -33,9 +33,7 @@ LEAN_EXPORT lean_object* l_Nat_fold___rarg___boxed(lean_object*, lean_object*, l
 LEAN_EXPORT lean_object* l_Nat_max(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_recCompiled___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_blt___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_instAntisymmNotLt;
 LEAN_EXPORT lean_object* l_Prod_foldI___rarg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_instAntisymmLe;
 LEAN_EXPORT lean_object* l_Nat_recAux___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_beq_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_all___boxed(lean_object*, lean_object*);
@@ -789,22 +787,6 @@ _start:
 return lean_box(0);
 }
 }
-static lean_object* _init_l_Nat_instAntisymmLe() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_Nat_instAntisymmNotLt() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Nat_min(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1050,10 +1032,6 @@ l_Nat_instTransLt = _init_l_Nat_instTransLt();
 l_Nat_instTransLe = _init_l_Nat_instTransLe();
 l_Nat_instTransLtLe = _init_l_Nat_instTransLtLe();
 l_Nat_instTransLeLt = _init_l_Nat_instTransLeLt();
-l_Nat_instAntisymmLe = _init_l_Nat_instAntisymmLe();
-lean_mark_persistent(l_Nat_instAntisymmLe);
-l_Nat_instAntisymmNotLt = _init_l_Nat_instAntisymmNotLt();
-lean_mark_persistent(l_Nat_instAntisymmNotLt);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

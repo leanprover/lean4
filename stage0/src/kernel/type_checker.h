@@ -101,6 +101,7 @@ private:
 
     template<typename F> optional<expr> reduce_bin_nat_op(F const & f, expr const & e);
     template<typename F> optional<expr> reduce_bin_nat_pred(F const & f, expr const & e);
+    optional<expr> reduce_pow(expr const & e);
     optional<expr> reduce_nat(expr const & e);
 public:
     type_checker(state & st, local_ctx const & lctx, definition_safety ds = definition_safety::safe);

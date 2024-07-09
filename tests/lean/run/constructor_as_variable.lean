@@ -100,7 +100,7 @@ def ctorSuggestion1 (pair : MyProd) : Nat :=
 /--
 error: invalid pattern, constructor or constant marked with '[match_pattern]' expected
 
-Suggestion: 'List.cons' is similar
+Suggestions: 'List.Sublist.below.cons', 'List.Sublist.cons', 'List.cons'
 ---
 warning: Local variable 'nil' resembles constructor 'List.nil' - write '.nil' (with a dot) or 'List.nil' to use the constructor.
 note: this linter can be disabled with `set_option linter.constructorNameAsVariable false`
@@ -119,7 +119,7 @@ inductive StringList : Type where
 /--
 error: invalid pattern, constructor or constant marked with '[match_pattern]' expected
 
-Suggestions: 'List.cons', 'StringList.cons'
+Suggestions: 'List.Sublist.below.cons', 'List.Sublist.cons', 'List.cons', 'StringList.cons'
 ---
 warning: Local variable 'nil' resembles constructor 'List.nil' - write '.nil' (with a dot) or 'List.nil' to use the constructor.
 note: this linter can be disabled with `set_option linter.constructorNameAsVariable false`

@@ -33,7 +33,7 @@ guessLexFailures.lean:22:4-22:23: error: fail to show termination for
   noNonFixedArguments
 with errors
 failed to infer structural recursion:
-Not considering parameter #0 of noNonFixedArguments:
+Not considering parameter n of noNonFixedArguments:
   it is unchanged in the recursive calls
 no parameters suitable for structural recursion
 
@@ -68,13 +68,13 @@ guessLexFailures.lean:59:6-59:7: error: fail to show termination for
   Mutual.h
 with errors
 failed to infer structural recursion:
-Not considering parameter #0 of Mutual.f:
+Not considering parameter fixed of Mutual.f:
   it is unchanged in the recursive calls
-Not considering parameter #0 of Mutual.g:
+Not considering parameter fixed of Mutual.g:
   it is unchanged in the recursive calls
-Not considering parameter #3 of Mutual.g:
+Not considering parameter H of Mutual.g:
   its type True does not have a recursor
-Not considering parameter #0 of Mutual.h:
+Not considering parameter fixed of Mutual.h:
   it is unchanged in the recursive calls
 Too many possible combinations of parameters of type Nat (or please the recursive argument explicitly using `termination_by structural`).
 

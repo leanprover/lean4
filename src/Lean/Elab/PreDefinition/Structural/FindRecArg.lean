@@ -10,6 +10,24 @@ import Lean.Elab.PreDefinition.TerminationArgument
 namespace Lean.Elab.Structural
 open Meta
 
+def prettyParam (xs : Array Expr) (i : Nat) : MetaM MessageData := do
+  let x := xs[i]!
+  let n ← x.fvarId!.getUserName
+  addMessageContextFull <| if n.hasMacroScopes then m!"#{i+1}" else m!"{x}"
+
+def prettyRecArg (xs : Array Expr) (value : Expr) (recArgInfo : RecArgInfo) : MetaM MessageData := do
+  lambdaTelescope value fun ys _ => prettyParam (xs ++ ys) recArgInfo.recArgPos
+
+def prettyParameterSet (fnNames : Array Name) (xs : Array Expr) (values : Array Expr)
+    (recArgInfos : Array RecArgInfo) : MetaM MessageData := do
+  if fnNames.size = 1 then
+    return m!"parameter " ++ (← prettyRecArg xs values[0]! recArgInfos[0]!)
+  else
+    let mut l := #[]
+    for fnName in fnNames, value in values, recArgInfo in recArgInfos do
+      l := l.push m!"{(← prettyRecArg xs value recArgInfo)} of {fnName}"
+    return m!"parameters " ++ .andList l.toList
+
 private def getIndexMinPos (xs : Array Expr) (indices : Array Expr) : Nat := Id.run do
   let mut minPos := xs.size
   for index in indices do
@@ -112,7 +130,7 @@ def getRecArgInfos (fnName : Name) (xs : Array Expr) (value : Expr)
           let recArgInfo ← getRecArgInfo fnName xs.size (xs ++ ys) idx
           recArgInfos := recArgInfos.push recArgInfo
         catch e =>
-          report := report ++ (m!"Not considering parameter #{idx} of {fnName}:" ++
+          report := report ++ (m!"Not considering parameter {← prettyParam (xs ++ ys) idx} of {fnName}:" ++
             indentD e.toMessageData) ++ "\n"
       trace[Elab.definition.structural] "getRecArgInfos report: {report}"
       return (recArgInfos, report)
@@ -202,23 +220,6 @@ def allCombinations (xss : Array (Array α)) : Option (Array (Array α)) :=
       else
         #[acc]
     some (go 0 #[])
-
-def prettyRecArg (xs : Array Expr) (value : Expr) (recArgInfo : RecArgInfo) : MetaM MessageData := do
-  lambdaTelescope value fun ys _ => do
-    let i := recArgInfo.recArgPos
-    let x := (xs ++ ys)[i]!
-    let n ← x.fvarId!.getUserName
-    addMessageContextFull <| if n.hasMacroScopes then m!"#{i+1}" else m!"{x}"
-
-def prettyParameterSet (fnNames : Array Name) (xs : Array Expr) (values : Array Expr)
-    (recArgInfos : Array RecArgInfo) : MetaM MessageData := do
-  if fnNames.size = 1 then
-    return m!"parameter " ++ (← prettyRecArg xs values[0]! recArgInfos[0]!)
-  else
-    let mut l := #[]
-    for fnName in fnNames, value in values, recArgInfo in recArgInfos do
-      l := l.push m!"{(← prettyRecArg xs value recArgInfo)} of {fnName}"
-    return m!"parameters " ++ .andList l.toList
 
 
 def tryAllArgs (fnNames : Array Name) (xs : Array Expr) (values : Array Expr)

@@ -361,8 +361,7 @@ theorem getLsb_ofNat_one {w i : Nat} :
         and_eq_false_imp, decide_eq_true_eq]
       intros _; simp [testBit, shiftRight_eq_div_pow];
       suffices 1 / 2^i = 0 by simp [this]
-      apply Nat.div_eq_of_lt;
-      exact Nat.one_lt_two_pow_iff.mpr hi
+      apply Nat.div_eq_of_lt (Nat.one_lt_two_pow_iff.mpr hi)
 
 /--
 If `(y &&& z = 0)`, then shifting by `y ||| z` is the same as shifting by `y` and then by `z`.

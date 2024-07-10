@@ -18,6 +18,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Std_HashS
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Std_HashSet_Raw_instForIn___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_toArray___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_contains___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_HashSet_Raw_instInhabited(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashSet_Raw_fold___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Std_HashSet_Raw_foldM___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashSet_Raw_instForM___spec__2___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
@@ -259,6 +260,14 @@ return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_instEmptyCollection(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_HashSet_Raw_instEmptyCollection___closed__3;
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_HashSet_Raw_instInhabited(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 

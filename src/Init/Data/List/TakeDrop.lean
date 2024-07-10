@@ -120,6 +120,43 @@ theorem get?_take_eq_if {l : List α} {n m : Nat} :
     (l.take n).get? m = if m < n then l.get? m else none := by
   simp [getElem?_take_eq_if]
 
+theorem head?_take {l : List α} {n : Nat} :
+    (l.take n).head? = if n = 0 then none else l.head? := by
+  simp [head?_eq_getElem?, getElem?_take_eq_if]
+  split
+  · rw [if_neg (by omega)]
+  · rw [if_pos (by omega)]
+
+theorem head_take {l : List α} {n : Nat} (h : l.take n ≠ []) :
+    (l.take n).head h = l.head (by simp_all) := by
+  apply Option.some_inj.1
+  rw [← head?_eq_head, ← head?_eq_head, head?_take, if_neg]
+  simp_all
+
+theorem getLast?_take {l : List α} : (l.take n).getLast? = if n = 0 then none else l[n - 1]?.or l.getLast? := by
+  rw [getLast?_eq_getElem?, getElem?_take_eq_if, length_take]
+  split
+  · rw [if_neg (by omega)]
+    rw [Nat.min_def]
+    split
+    · rw [getElem?_eq_getElem (by omega)]
+      simp
+    · rw [← getLast?_eq_getElem?, getElem?_eq_none (by omega)]
+      simp
+  · rw [if_pos]
+    omega
+
+theorem getLast_take {l : List α} (h : l.take n ≠ []) :
+    (l.take n).getLast h = l[n - 1]?.getD (l.getLast (by simp_all)) := by
+  rw [getLast_eq_getElem, getElem_take']
+  simp [length_take, Nat.min_def]
+  simp at h
+  split
+  · rw [getElem?_eq_getElem (by omega)]
+    simp
+  · rw [getElem?_eq_none (by omega), getLast_eq_getElem]
+    simp
+
 @[simp]
 theorem take_eq_take :
     ∀ {l : List α} {m n : Nat}, l.take m = l.take n ↔ min m l.length = min n l.length
@@ -244,6 +281,31 @@ theorem getElem?_drop (L : List α) (i j : Nat) : (L.drop i)[j]? = L[i + j]? := 
 @[deprecated getElem?_drop (since := "2024-06-12")]
 theorem get?_drop (L : List α) (i j : Nat) : get? (L.drop i) j = get? L (i + j) := by
   simp
+
+theorem head?_drop (l : List α) (n : Nat) :
+    (l.drop n).head? = l[n]? := by
+  rw [head?_eq_getElem?, getElem?_drop, Nat.add_zero]
+
+theorem head_drop {l : List α} {n : Nat} (h : l.drop n ≠ []) :
+    (l.drop n).head h = l[n]'(by simp_all) := by
+  have w : n < l.length := length_lt_of_drop_ne_nil h
+  simpa [head?_eq_head, getElem?_eq_getElem, h, w] using head?_drop l n
+
+theorem getLast?_drop {l : List α} : (l.drop n).getLast? = if l.length ≤ n then none else l.getLast? := by
+  rw [getLast?_eq_getElem?, getElem?_drop]
+  rw [length_drop]
+  split
+  · rw [getElem?_eq_none (by omega)]
+  · rw [getLast?_eq_getElem?]
+    congr
+    omega
+
+theorem getLast_drop {l : List α} (h : l.drop n ≠ []) :
+    (l.drop n).getLast h = l.getLast (ne_nil_of_length_pos (by simp at h; omega)) := by
+  simp only [ne_eq, drop_eq_nil_iff_le] at h
+  apply Option.some_inj.1
+  simp only [← getLast?_eq_getLast, getLast?_drop, ite_eq_right_iff]
+  omega
 
 theorem set_eq_take_append_cons_drop {l : List α} {n : Nat} {a : α} :
     l.set n a = if n < l.length then l.take n ++ a :: l.drop (n + 1) else l := by
@@ -383,6 +445,29 @@ theorem minimum?_eq_some_iff' {xs : List Nat} :
     (min_eq_or := fun _ _ => by omega)
     (le_min_iff := fun _ _ _ => by omega)
 
+-- This could be generalized,
+-- but will first require further work on order typeclasses in the core repository.
+theorem minimum?_cons' {a : Nat} {l : List Nat} :
+    (a :: l).minimum? = some (match l.minimum? with
+    | none => a
+    | some m => min a m) := by
+  rw [minimum?_eq_some_iff']
+  split <;> rename_i h m
+  · simp_all
+  · rw [minimum?_eq_some_iff'] at m
+    obtain ⟨m, le⟩ := m
+    rw [Nat.min_def]
+    constructor
+    · split
+      · exact mem_cons_self a l
+      · exact mem_cons_of_mem a m
+    · intro b m
+      cases List.mem_cons.1 m with
+      | inl => split <;> omega
+      | inr h =>
+        specialize le b h
+        split <;> omega
+
 /-! ### maximum? -/
 
 -- A specialization of `maximum?_eq_some_iff` to Nat.
@@ -392,5 +477,28 @@ theorem maximum?_eq_some_iff' {xs : List Nat} :
     (le_refl := Nat.le_refl)
     (max_eq_or := fun _ _ => by omega)
     (max_le_iff := fun _ _ _ => by omega)
+
+-- This could be generalized,
+-- but will first require further work on order typeclasses in the core repository.
+theorem maximum?_cons' {a : Nat} {l : List Nat} :
+    (a :: l).maximum? = some (match l.maximum? with
+    | none => a
+    | some m => max a m) := by
+  rw [maximum?_eq_some_iff']
+  split <;> rename_i h m
+  · simp_all
+  · rw [maximum?_eq_some_iff'] at m
+    obtain ⟨m, le⟩ := m
+    rw [Nat.max_def]
+    constructor
+    · split
+      · exact mem_cons_of_mem a m
+      · exact mem_cons_self a l
+    · intro b m
+      cases List.mem_cons.1 m with
+      | inl => split <;> omega
+      | inr h =>
+        specialize le b h
+        split <;> omega
 
 end List

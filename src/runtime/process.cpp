@@ -92,6 +92,22 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg c
     return lean_io_result_mk_ok(box_uint32(exit_code));
 }
 
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_arg child, obj_arg) {
+    HANDLE h = static_cast<HANDLE>(lean_get_external_data(cnstr_get(child, 3)));
+    DWORD exit_code;
+    DWORD ret = WaitForSingleObject(h, 0);
+    if (ret == WAIT_FAILED) {
+        return io_result_mk_error((sstream() << GetLastError()).str());
+    } else if (ret == WAIT_TIMEOUT) {
+        return io_result_mk_ok(mk_option_none());
+    } else {
+        if (!GetExitCodeProcess(h, &exit_code)) {
+            return io_result_mk_error((sstream() << GetLastError()).str());
+        }
+        return lean_io_result_mk_ok(mk_option_some(box_uint32(exit_code)));
+    }
+}
+
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg child, obj_arg) {
     HANDLE h = static_cast<HANDLE>(lean_get_external_data(cnstr_get(child, 3)));
     if (!TerminateProcess(h, 1)) {
@@ -306,6 +322,28 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg c
         lean_assert(WIFSIGNALED(status));
         // use bash's convention
         return lean_io_result_mk_ok(box_uint32(128 + static_cast<unsigned>(WTERMSIG(status))));
+    }
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_arg child, obj_arg) {
+    static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
+    pid_t pid = cnstr_get_uint32(child, 3 * sizeof(object *));
+    int status;
+    int ret = waitpid(pid, &status, WNOHANG);
+    if (ret == -1) {
+        return io_result_mk_error(decode_io_error(errno, nullptr));
+    } else if (ret == 0) {
+        return io_result_mk_ok(mk_option_none());
+    } else {
+        if (WIFEXITED(status)) {
+            obj_res output = box_uint32(static_cast<unsigned>(WEXITSTATUS(status)));
+            return lean_io_result_mk_ok(mk_option_some(output));
+        } else {
+            lean_assert(WIFSIGNALED(status));
+            // use bash's convention
+            obj_res output = box_uint32(128 + static_cast<unsigned>(WTERMSIG(status)));
+            return lean_io_result_mk_ok(mk_option_some(output));
+        }
     }
 }
 

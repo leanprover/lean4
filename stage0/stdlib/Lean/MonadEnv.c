@@ -66,6 +66,7 @@ lean_object* lean_eval_const(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_matchConstRec___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_matchConstRec___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_setEnv___rarg(lean_object*, lean_object*);
+uint8_t l_Lean_InductiveVal_isNested(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_evalConst___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* l_outOfBounds___rarg(lean_object*);
@@ -1623,7 +1624,7 @@ lean_object* x_14; uint8_t x_15;
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
 lean_dec(x_13);
-x_15 = lean_ctor_get_uint8(x_14, sizeof(void*)*5);
+x_15 = lean_ctor_get_uint8(x_14, sizeof(void*)*6);
 if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; uint8_t x_18; 
@@ -2391,15 +2392,15 @@ x_35 = l_List_isEmpty___rarg(x_34);
 if (x_35 == 0)
 {
 uint8_t x_36; 
-x_36 = lean_ctor_get_uint8(x_6, sizeof(void*)*5);
+x_36 = lean_ctor_get_uint8(x_6, sizeof(void*)*6);
 if (x_36 == 0)
 {
 uint8_t x_37; 
-x_37 = lean_ctor_get_uint8(x_6, sizeof(void*)*5 + 3);
+x_37 = l_Lean_InductiveVal_isNested(x_6);
 if (x_37 == 0)
 {
 uint8_t x_38; 
-x_38 = lean_ctor_get_uint8(x_6, sizeof(void*)*5 + 1);
+x_38 = lean_ctor_get_uint8(x_6, sizeof(void*)*6 + 1);
 lean_dec(x_6);
 if (x_38 == 0)
 {

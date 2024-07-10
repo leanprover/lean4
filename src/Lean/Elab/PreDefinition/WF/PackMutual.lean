@@ -10,23 +10,6 @@ import Lean.Elab.PreDefinition.Basic
 namespace Lean.Elab.WF
 open Meta
 
-
-/--
-Checks that all codomians have the same level, throws an error otherwise.
--/
-private def checkCodomainsLevel (fixedPrefixSize : Nat) (arities : Array Nat)
-    (preDefs : Array PreDefinition) : MetaM Unit := do
-  forallBoundedTelescope preDefs[0]!.type  (fixedPrefixSize + arities[0]!)  fun _ type₀ => do
-    let u₀ ← getLevel type₀
-    for i in [1:preDefs.size] do
-      forallBoundedTelescope preDefs[i]!.type  (fixedPrefixSize + arities[i]!) fun _ typeᵢ =>
-      unless ← isLevelDefEq u₀ (← getLevel typeᵢ) do
-        withOptions (fun o => pp.sanitizeNames.set o false) do
-          throwError m!"invalid mutual definition, result types must be in the same universe " ++
-            m!"level, resulting type " ++
-            m!"for `{preDefs[0]!.declName}` is{indentExpr type₀} : {← inferType type₀}\n" ++
-            m!"and for `{preDefs[i]!.declName}` is{indentExpr typeᵢ} : {← inferType typeᵢ}"
-
 /--
   Pass the first `n` arguments of `e` to the continuation, and apply the result to the
   remaining arguments. If `e` does not have enough arguments, it is eta-expanded as needed.
@@ -75,8 +58,6 @@ def packMutual (fixedPrefix : Nat) (argsPacker : ArgsPacker) (preDefs : Array Pr
   if let #[1] := arities then return preDefs[0]!
   let newFn := if argsPacker.numFuncs > 1 then preDefs[0]!.declName ++ `_mutual
                                           else preDefs[0]!.declName ++ `_unary
-
-  checkCodomainsLevel fixedPrefix argsPacker.arities preDefs
   -- Bring the fixed Prefix into scope
   forallBoundedTelescope preDefs[0]!.type (some fixedPrefix) fun ys _ => do
     let types ← preDefs.mapM (instantiateForall ·.type ys)

@@ -65,6 +65,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ToDecl_0__Lean_Compiler_
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLetDeclImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_eraseFunDecl(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at___private_Lean_Compiler_LCNF_ToDecl_0__Lean_Compiler_LCNF_normalizeAlt___spec__2___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_instantiateValueLevelParams(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_toDecl___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -92,7 +93,6 @@ static lean_object* l_Lean_Compiler_LCNF_inlineMatchers___closed__14;
 static lean_object* l_Lean_Compiler_LCNF_inlineMatchers___closed__4;
 static lean_object* l_Lean_Compiler_LCNF_macroInline___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at___private_Lean_Compiler_LCNF_ToDecl_0__Lean_Compiler_LCNF_normalizeAlt___spec__2(lean_object*);
-lean_object* l_Lean_Meta_forallBoundedTelescope___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__5___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_inlineMatchers___lambda__2___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_inlineMatchers___closed__5;
@@ -665,7 +665,7 @@ x_18 = lean_alloc_closure((void*)(l___private_Lean_Compiler_LCNF_ToDecl_0__Lean_
 lean_closure_set(x_18, 0, x_3);
 lean_closure_set(x_18, 1, x_2);
 x_19 = 0;
-x_20 = l_Lean_Meta_forallBoundedTelescope___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__5___rarg(x_14, x_17, x_18, x_19, x_5, x_6, x_7, x_8, x_15);
+x_20 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(x_14, x_17, x_18, x_19, x_5, x_6, x_7, x_8, x_15);
 return x_20;
 }
 else
@@ -1736,7 +1736,7 @@ lean_ctor_set(x_11, 0, x_51);
 x_52 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_inlineMatchers___lambda__1___boxed), 8, 1);
 lean_closure_set(x_52, 0, x_1);
 x_53 = 0;
-x_54 = l_Lean_Meta_forallBoundedTelescope___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__5___rarg(x_49, x_11, x_52, x_53, x_2, x_3, x_4, x_5, x_50);
+x_54 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(x_49, x_11, x_52, x_53, x_2, x_3, x_4, x_5, x_50);
 return x_54;
 }
 else
@@ -1900,7 +1900,7 @@ lean_ctor_set(x_88, 0, x_87);
 x_89 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_inlineMatchers___lambda__1___boxed), 8, 1);
 lean_closure_set(x_89, 0, x_1);
 x_90 = 0;
-x_91 = l_Lean_Meta_forallBoundedTelescope___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__5___rarg(x_85, x_88, x_89, x_90, x_2, x_3, x_4, x_5, x_86);
+x_91 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(x_85, x_88, x_89, x_90, x_2, x_3, x_4, x_5, x_86);
 return x_91;
 }
 else
@@ -2078,7 +2078,7 @@ lean_ctor_set(x_127, 0, x_126);
 x_128 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_inlineMatchers___lambda__1___boxed), 8, 1);
 lean_closure_set(x_128, 0, x_1);
 x_129 = 0;
-x_130 = l_Lean_Meta_forallBoundedTelescope___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__5___rarg(x_124, x_127, x_128, x_129, x_2, x_3, x_4, x_5, x_125);
+x_130 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(x_124, x_127, x_128, x_129, x_2, x_3, x_4, x_5, x_125);
 return x_130;
 }
 else

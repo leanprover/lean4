@@ -361,20 +361,38 @@ instance : MonadBacktrack SavedState TermElabM where
   restoreState b := b.restore
 
 /--
+Incremental elaboration helper. Avoids leakage of data from outside syntax via the monadic context
+when running `act` on `stx` by
+* setting `stx` as the `ref` and
+* deactivating `suppressElabErrors` if `stx` is `missing`-free, which also helps with not hiding
+  useful errors in this part of the input. Note that if `stx` has `missing`, this should always be
+  true for the outer syntax as well, so taking the old value of `suppressElabErrors` into account
+  should not introduce data leakage.
+
+This combinator should always be used when narrowing reuse to a syntax subtree, usually (in the case
+of tactics, to be generalized) via `withNarrowed(Arg)TacticReuse`.
+-/
+def withReuseContext [Monad m] [MonadWithReaderOf Core.Context m] (stx : Syntax) (act : m α) :
+    m α := do
+  withTheReader Core.Context (fun ctx => { ctx with
+      ref := stx
+      suppressElabErrors := ctx.suppressElabErrors && stx.hasMissing }) act
+
+/--
 Manages reuse information for nested tactics by `split`ting given syntax into an outer and inner
 part. `act` is then run on the inner part but with reuse information adjusted as following:
 * If the old (from `tacSnap?`'s `SyntaxGuarded.stx`) and new (from `stx`) outer syntax are not
   identical according to `Syntax.eqWithInfo`, reuse is disabled.
 * Otherwise, the old syntax as stored in `tacSnap?` is updated to the old *inner* syntax.
-* In any case, we also use `withRef` on the inner syntax to avoid leakage of the outer syntax into
-  `act` via this route.
+* In any case, `withReuseContext` is used on the new inner syntax to further prepare the monadic
+  context.
 
 For any tactic that participates in reuse, `withNarrowedTacticReuse` should be applied to the
 tactic's syntax and `act` should be used to do recursive tactic evaluation of nested parts.
 -/
-def withNarrowedTacticReuse [Monad m] [MonadWithReaderOf Context m]
-    [MonadOptions m] [MonadRef m] (split : Syntax → Syntax × Syntax) (act : Syntax → m α)
-    (stx : Syntax) : m α := do
+def withNarrowedTacticReuse [Monad m] [MonadWithReaderOf Core.Context m]
+    [MonadWithReaderOf Context m] [MonadOptions m] (split : Syntax → Syntax × Syntax)
+    (act : Syntax → m α) (stx : Syntax) : m α := do
   let (outer, inner) := split stx
   let opts ← getOptions
   withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.map fun tacSnap =>
@@ -384,8 +402,7 @@ def withNarrowedTacticReuse [Monad m] [MonadWithReaderOf Context m]
       return { old with stx := oldInner }
     }
   }) do
-    withRef inner do
-      act inner
+    withReuseContext inner (act inner)
 
 /--
 A variant of `withNarrowedTacticReuse` that uses `stx[argIdx]` as the inner syntax and all `stx`
@@ -396,8 +413,8 @@ NOTE: child nodes after `argIdx` are not tested (which would almost always disab
 necessarily shifted by changes at `argIdx`) so it must be ensured that the result of `arg` does not
 depend on them (i.e. they should not be inspected beforehand).
 -/
-def withNarrowedArgTacticReuse [Monad m] [MonadWithReaderOf Context m]
-    [MonadOptions m] [MonadRef m] (argIdx : Nat) (act : Syntax → m α) (stx : Syntax) : m α :=
+def withNarrowedArgTacticReuse [Monad m] [MonadWithReaderOf Core.Context m] [MonadWithReaderOf Context m]
+    [MonadOptions m] (argIdx : Nat) (act : Syntax → m α) (stx : Syntax) : m α :=
   withNarrowedTacticReuse (fun stx => (mkNullNode stx.getArgs[:argIdx], stx[argIdx])) act stx
 
 /--
@@ -1810,9 +1827,13 @@ def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
 /--
   Create an `Expr.const` using the given name and explicit levels.
   Remark: fresh universe metavariables are created if the constant has more universe
-  parameters than `explicitLevels`. -/
-def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM Expr := do
-  Linter.checkDeprecated constName -- TODO: check is occurring too early if there are multiple alternatives. Fix if it is not ok in practice
+  parameters than `explicitLevels`.
+
+  If `checkDeprecated := true`, then `Linter.checkDeprecated` is invoked.
+-/
+def mkConst (constName : Name) (explicitLevels : List Level := []) (checkDeprecated := true) : TermElabM Expr := do
+  if checkDeprecated then
+    Linter.checkDeprecated constName
   let cinfo ← getConstInfo constName
   if explicitLevels.length > cinfo.levelParams.length then
     throwError "too many explicit universe levels for '{constName}'"
@@ -1821,10 +1842,21 @@ def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM E
     let us ← mkFreshLevelMVars numMissingLevels
     return Lean.mkConst constName (explicitLevels ++ us)
 
+def checkDeprecated (ref : Syntax) (e : Expr) : TermElabM Unit := do
+  if let .const declName _ := e.getAppFn then
+    withRef ref do Linter.checkDeprecated declName
+
 private def mkConsts (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
   candidates.foldlM (init := []) fun result (declName, projs) => do
     -- TODO: better support for `mkConst` failure. We may want to cache the failures, and report them if all candidates fail.
-    let const ← mkConst declName explicitLevels
+    /-
+    We disable `checkDeprecated` here because there may be many overloaded symbols.
+    Note that, this method and `resolveName` and `resolveName'` return a list of pairs instead of a list of `TermElabResult`s.
+    We perform the `checkDeprecated` test at `resolveId?` and `elabAppFnId`.
+    At `elabAppFnId`, we perform the check when converting the list returned by `resolveName'` into a list of
+    `TermElabResult`s.
+    -/
+    let const ← mkConst declName explicitLevels (checkDeprecated := false)
     return (const, projs) :: result
 
 def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × List String)) := do
@@ -1878,10 +1910,10 @@ def resolveId? (stx : Syntax) (kind := "term") (withInfo := false) : TermElabM (
     | []  => return none
     | [f] =>
       let f ← if withInfo then addTermInfo stx f else pure f
+      checkDeprecated stx f
       return some f
     | _   => throwError "ambiguous {kind}, use fully qualified name, possible interpretations {fs}"
   | _ => throwError "identifier expected"
-
 
 def TermElabM.run (x : TermElabM α) (ctx : Context := {}) (s : State := {}) : MetaM (α × State) :=
   withConfig setElabConfig (x ctx |>.run s)

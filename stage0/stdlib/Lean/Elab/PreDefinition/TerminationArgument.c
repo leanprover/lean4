@@ -26,6 +26,7 @@ static lean_object* l_Lean_Elab_TerminationArgument_elab___closed__2;
 static lean_object* l_Lean_Elab_TerminationArgument_elab___lambda__2___closed__2;
 static lean_object* l_Lean_Elab_TerminationArgument_delab_go___closed__7;
 lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_getExpr___at_Lean_PrettyPrinter_Delaborator_getExprKind___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Array_contains___at_Lean_Meta_arrowDomainsN___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_map___at_Lean_Elab_TerminationArgument_elab___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_TerminationArgument_elab___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_TerminationArgument_elab_parameters___closed__2;
@@ -72,7 +73,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_TerminationArgument_elab___lambda__4(lean_o
 static lean_object* l_Lean_Elab_TerminationArgument_elab_parameters___closed__7;
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 lean_object* l_Lean_Elab_Term_withoutErrToSorryImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Array_contains___at_Lean_Elab_Term_collectUnassignedMVars_go___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_TerminationArgument_delab_go___closed__2;
 static lean_object* l_Lean_Elab_TerminationArgument_elab___closed__4;
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
@@ -624,7 +624,7 @@ lean_inc(x_28);
 lean_dec(x_21);
 lean_inc(x_4);
 x_29 = l_Array_append___rarg(x_4, x_5);
-x_30 = l_Array_contains___at_Lean_Elab_Term_collectUnassignedMVars_go___spec__1(x_29, x_27);
+x_30 = l_Array_contains___at_Lean_Meta_arrowDomainsN___spec__2(x_29, x_27);
 if (x_30 == 0)
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; uint8_t x_48; 

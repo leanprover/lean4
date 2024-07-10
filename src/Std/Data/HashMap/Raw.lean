@@ -63,6 +63,9 @@ namespace Raw
 instance : EmptyCollection (Raw α β) where
   emptyCollection := empty
 
+instance : Inhabited (Raw α β) where
+  default := ∅
+
 @[inline, inherit_doc DHashMap.Raw.insert] def insert [BEq α] [Hashable α] (m : Raw α β) (a : α)
     (b : β) : Raw α β :=
   ⟨m.inner.insert a b⟩

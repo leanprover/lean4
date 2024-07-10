@@ -82,7 +82,7 @@ theorem isSome_iff_exists : isSome x ↔ ∃ a, x = some a := by cases x <;> sim
   cases a <;> simp
 
 theorem eq_some_iff_get_eq : o = some a ↔ ∃ h : o.isSome, o.get h = a := by
-  cases o <;> simp; nofun
+  cases o <;> simp
 
 theorem eq_some_of_isSome : ∀ {o : Option α} (h : o.isSome), o = some (o.get h)
   | some _, _ => rfl
@@ -189,6 +189,9 @@ theorem comp_map (h : β → γ) (g : α → β) (x : Option α) : x.map (h ∘ 
     Option.map g ∘ Option.map f = Option.map (g ∘ f) := by funext x; simp
 
 theorem mem_map_of_mem (g : α → β) (h : a ∈ x) : g a ∈ Option.map g x := h.symm ▸ map_some' ..
+
+@[simp] theorem filter_none (p : α → Bool) : none.filter p = none := rfl
+theorem filter_some : Option.filter p (some a) = if p a then some a else none := rfl
 
 theorem bind_map_comm {α β} {x : Option (Option α)} {f : α → β} :
     x.bind (Option.map f) = (x.map (Option.map f)).bind id := by cases x <;> simp

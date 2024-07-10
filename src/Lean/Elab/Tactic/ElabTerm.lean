@@ -399,8 +399,8 @@ private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := do
     let d ← instantiateMVars d
     -- Get instance from `d`
     let s := d.appArg!
-    -- Reduce the instance rather than `d` itself, since this is more interpretable when creating error messages.
-    let r ← withDefault <| whnf s
+    -- Reduce the instance rather than `d` itself, since that gives a nicer error message on failure.
+    let r ← withAtLeastTransparency .default <| whnf s
     if r.isAppOf ``isFalse then
       throwError "\
         tactic 'decide' proved that the proposition\

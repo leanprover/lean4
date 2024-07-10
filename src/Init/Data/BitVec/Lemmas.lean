@@ -1437,7 +1437,7 @@ theorem toNat_twoPow (w : Nat) (i : Nat) : (twoPow w i).toNat = 2^i % 2^w := by
 @[simp]
 theorem getLsb_twoPow (i j : Nat) : (twoPow w i).getLsb j = ((i < w) && (i = j)) := by
   rcases w with rfl | w
-  · simp; omega
+  · simp
   · simp only [twoPow, getLsb_shiftLeft, getLsb_ofNat]
     by_cases hj : j < i
     · simp only [hj, decide_True, Bool.not_true, Bool.and_false, Bool.false_and, Bool.false_eq,

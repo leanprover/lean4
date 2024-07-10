@@ -423,38 +423,41 @@ private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := do
           let unfoldedInsts ← unfolded |>.qsort Name.lt |>.filterMapM fun n => do
             let e ← mkConstWithLevelParams n
             if (← Meta.isClass? (← inferType e)) == ``Decidable then
-              return MessageData.ofConst e
+              return m!"'{MessageData.ofConst e}'"
             else
               return none
           return (reason, unfoldedInsts)
         let stuckMsg :=
           if unfoldedInsts.isEmpty then
-            m!"Reduction got stuck at the {MessageData.ofConstName ``Decidable} instance{indentExpr reason}"
+            m!"Reduction got stuck at the '{MessageData.ofConstName ``Decidable}' instance{indentExpr reason}"
           else
             let instances := if unfoldedInsts.size == 1 then "instance" else "instances"
             m!"After unfolding the {instances} {MessageData.andList unfoldedInsts.toList}, \
-            reduction got stuck at the {MessageData.ofConstName ``Decidable} instance{indentExpr reason}"
+            reduction got stuck at the '{MessageData.ofConstName ``Decidable}' instance{indentExpr reason}"
         let hint :=
           if reason.isAppOf ``Eq.rec then
             m!"\n\n\
-            Hint: Reduction got stuck on '▸' (Eq.rec), which suggests that one of the decidability instances \
-            is defined using tactics such as 'rw' or 'simp'. Use definitions such as \
-            {MessageData.ofConstName ``inferInstanceAs} or {MessageData.ofConstName ``decidable_of_decidable_of_iff} \
+            Hint: Reduction got stuck on '▸' ({MessageData.ofConstName ``Eq.rec}), \
+            which suggests that one of the '{MessageData.ofConstName ``Decidable}' instances is defined using tactics such as 'rw' or 'simp'. \
+            To avoid tactics, make use of declarations such as \
+            '{MessageData.ofConstName ``inferInstanceAs}' or '{MessageData.ofConstName ``decidable_of_decidable_of_iff}' \
             to alter a proposition."
           else if reason.isAppOf ``Classical.choice then
             m!"\n\n\
-            Hint: Reduction got stuck on {MessageData.ofConstName ``Classical.choice}, suggesting that there are \
-            \"classical\" instances, due to for example an 'open scoped Classical' command. \
-            The 'decide' tactic works by evaluating a decision procedure via reduction, but such \
-            classical instances cannot be evaluated."
+            Hint: Reduction got stuck on '{MessageData.ofConstName ``Classical.choice}', \
+            which indicates that a '{MessageData.ofConstName ``Decidable}' instance \
+            is defined using classical reasoning, proving an instance exists rather than giving a concrete construction. \
+            The 'decide' tactic works by evaluating a decision procedure via reduction, and it cannot make progress with such instances. \
+            This can occur due to the 'opened scoped Classical' command, which enables the instance \
+            '{MessageData.ofConstName ``Classical.propDecidable}'."
           else
             MessageData.nil
         return m!"\
           tactic 'decide' failed for proposition\
           {indentExpr expectedType}\n\
-          since its {MessageData.ofConstName ``Decidable} instance\
+          since its '{MessageData.ofConstName ``Decidable}' instance\
           {indentExpr s}\n\
-          did not reduce to {MessageData.ofConstName ``isTrue} or {MessageData.ofConstName ``isFalse}.\n\n\
+          did not reduce to '{MessageData.ofConstName ``isTrue}' or '{MessageData.ofConstName ``isFalse}'.\n\n\
           {stuckMsg}{hint}"
 
 private def mkNativeAuxDecl (baseName : Name) (type value : Expr) : TermElabM Name := do

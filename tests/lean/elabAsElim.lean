@@ -87,3 +87,12 @@ noncomputable def f : Nat → Nat :=
 
 example : ∀ x, x ≥ 0 :=
   Nat.rec (Nat.le_refl 0) (fun _ ih => Nat.le_succ_of_le ih)
+
+@[elab_as_elim]
+def Foo.induction {P : (α : Type) → Prop} (α : Type) : P α := sorry
+
+example {n : Type} {T : n} : T = T := Foo.induction n -- motive is not type correct
+
+example {n : Type} : {T : n} → T = T := Foo.induction n -- motive is not type correct
+
+example {n : Type} : {T : n} → T = T := no_implicit_lambda% (Foo.induction n)

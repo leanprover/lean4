@@ -128,3 +128,13 @@ theorem MyFun.ext {α β : Type _} (x y : MyFun α β) (h : ∀ a, x.toFun a = y
 info: MyFun.ext_iff.{u_1, u_2} {α : Type u_1} {β : Type u_2} {x y : MyFun α β} : x = y ↔ ∀ (a : α), x.toFun a = y.toFun a
 -/
 #guard_msgs in #check MyFun.ext_iff
+
+
+/-!
+Preserving inst implicits in ext_iff theorem
+-/
+section
+attribute [local ext] Subsingleton.elim
+/-- info: Subsingleton.elim_iff.{u} {α : Sort u} [h : Subsingleton α] {a b : α} : a = b ↔ True -/
+#guard_msgs in #check Subsingleton.elim_iff
+end

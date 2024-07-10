@@ -390,13 +390,14 @@ theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} (hn : n + 
       by_cases h : (↑i : Nat) = 0 <;> simp [h, Bool.and_comm]
     simp [heq]
   case succ n ih =>
-    simp
-    by_cases h : y.getLsb (n + 1) <;> simp [h]
-    · rw [ih (hn := by omega)]
+    simp only [shiftLeftRec_succ, and_twoPow_eq_getLsb]
+    by_cases h : y.getLsb (n + 1)
+    · simp only [h, ↓reduceIte]
+      rw [ih (hn := by omega)]
       rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsb_true h]
       rw [shiftLeft_or_eq_shiftLeft_shiftLeft_of_and_eq_zero]
       · simp
-      · simp;
+      · simp only [toNat_truncate, toNat_twoPow]
         have hpow : 2 ^ (n + 1) < 2 ^ w₂ := by
           apply Nat.pow_lt_pow_of_lt (by decide) (by omega)
         have h₂ : 2 ^ (n + 1) % 2 ^ w₂ = 2 ^ (n + 1) := Nat.mod_eq_of_lt (by omega)
@@ -419,7 +420,8 @@ theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} (hn : n + 
             · apply Nat.pow_le_pow_of_le_right (by decide) (by omega)
           · simp
             apply Nat.pow_le_pow_of_le_right (by decide) (by omega)
-    · rw [ih (hn := by omega)]
+    · simp only [h, false_eq_true, ↓reduceIte, shiftLeft_zero']
+      rw [ih (hn := by omega)]
       rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsb_false (i := n + 1)]
       simp [h]
 

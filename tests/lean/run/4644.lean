@@ -17,11 +17,11 @@ example: check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] := by
 /--
 error: tactic 'decide' failed for proposition
   check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] = true
-since its 'Decidable' instance
+since its Decidable instance
   instDecidableEqBool (check_sorted #[0, 3, 3, 5, 8, 10, 10, 10]) true
-did not reduce to 'isTrue' or 'isFalse'.
+did not reduce to isTrue or isFalse.
 
-After unfolding the instances instDecidableEqBool and Bool.decEq, reduction got stuck at the 'Decidable' instance
+After unfolding the instances instDecidableEqBool and Bool.decEq, reduction got stuck at the Decidable instance
   match check_sorted #[0, 3, 3, 5, 8, 10, 10, 10], true with
   | false, false => isTrue ⋯
   | false, true => isFalse ⋯

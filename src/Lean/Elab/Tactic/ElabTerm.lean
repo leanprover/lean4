@@ -399,17 +399,24 @@ private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := do
     let d ← instantiateMVars d
     -- Get instance from `d`
     let s := d.appArg!
-    -- Reduce the instance rather than `d` itself, since that gives a nicer error message on failure.
+    -- Reduce the instance rather than `d` itself for diagnostics purposes.
     let r ← withAtLeastTransparency .default <| whnf s
-    if r.isAppOf ``isFalse then
-      throwError "\
-        tactic 'decide' proved that the proposition\
-        {indentExpr expectedType}\n\
-        is false"
-    unless r.isAppOf ``isTrue do
-      throwError MessageData.ofLazyM (es := #[expectedType]) do --<| withoutModifyingState do
+    if r.isAppOf ``isTrue then
+      -- Success!
+      -- While we have a proof from reduction, we do not embed it in the proof term,
+      -- and instead we let the kernel recompute it during type checking from the following more efficient term.
+      let rflPrf ← mkEqRefl (toExpr true)
+      return mkApp3 (Lean.mkConst ``of_decide_eq_true) expectedType s rflPrf
+    else
+      -- Diagnose the failure, lazily so that there is no performance impact if `decide` isn't being used interactively.
+      throwError MessageData.ofLazyM (es := #[expectedType]) do
+        if r.isAppOf ``isFalse then
+          return m!"\
+          tactic 'decide' proved that the proposition\
+          {indentExpr expectedType}\n\
+          is false"
         -- Re-reduce the instance and collect diagnostics, to get all unfolded Decidable instances
-        withOptions (fun opt => diagnostics.set opt true) do
+        let (reason, unfoldedInsts) ← withoutModifyingState <| withOptions (fun opt => diagnostics.set opt true) do
           modifyDiag (fun _ => {})
           let reason ← withAtLeastTransparency .default <| blameDecideReductionFailure s
           let unfolded := (← get).diag.unfoldCounter.foldl (init := #[]) fun cs n _ => cs.push n
@@ -419,39 +426,36 @@ private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := do
               return MessageData.ofConst e
             else
               return none
-          let stuckMsg :=
-            if unfoldedInsts.isEmpty then
-              m!"Reduction got stuck at the 'Decidable' instance{indentExpr reason}"
-            else
-              let instances := if unfoldedInsts.size == 1 then "instance" else "instances"
-              m!"After unfolding the {instances} {MessageData.andList unfoldedInsts.toList}, \
-              reduction got stuck at the 'Decidable' instance{indentExpr reason}"
-          let hint :=
-            if reason.isAppOf ``Eq.rec then
-              m!"\n\n\
-              Hint: Reduction got stuck on '▸' (Eq.rec), which suggests that one of the decidability instances \
-              is defined using tactics such as 'rw' or 'simp'. Use definitions such as \
-              '{MessageData.ofConst (.const ``inferInstanceAs [Level.param `u])}' or \
-              '{MessageData.ofConst (.const ``decidable_of_decidable_of_iff [])}' to alter a proposition."
-            else if reason.isAppOf ``Classical.choice then
-              m!"\n\n\
-              Hint: Reduction got stuck on 'Classical.choice', suggesting that there are \
-              \"classical\" instances, for example due to an 'open scoped Classical' command. \
-              The 'decide' tactic works by evaluating a decision procedure via reduction, but such \
-              classical instances cannot be evaluated."
-            else
-              MessageData.nil
-          return m!"\
-            tactic 'decide' failed for proposition\
-            {indentExpr expectedType}\n\
-            since its 'Decidable' instance\
-            {indentExpr s}\n\
-            did not reduce to '{MessageData.ofConst (.const ``isTrue [])}' or '{MessageData.ofConst (.const ``isFalse [])}'.\n\n\
-            {stuckMsg}{hint}"
-    -- While we have a proof from reduction, we do not embed it in the proof term,
-    -- but rather we let the kernel recompute it during type checking from a more efficient term.
-    let rflPrf ← mkEqRefl (toExpr true)
-    return mkApp3 (Lean.mkConst ``of_decide_eq_true) expectedType s rflPrf
+          return (reason, unfoldedInsts)
+        let stuckMsg :=
+          if unfoldedInsts.isEmpty then
+            m!"Reduction got stuck at the {MessageData.ofConstName ``Decidable} instance{indentExpr reason}"
+          else
+            let instances := if unfoldedInsts.size == 1 then "instance" else "instances"
+            m!"After unfolding the {instances} {MessageData.andList unfoldedInsts.toList}, \
+            reduction got stuck at the {MessageData.ofConstName ``Decidable} instance{indentExpr reason}"
+        let hint :=
+          if reason.isAppOf ``Eq.rec then
+            m!"\n\n\
+            Hint: Reduction got stuck on '▸' (Eq.rec), which suggests that one of the decidability instances \
+            is defined using tactics such as 'rw' or 'simp'. Use definitions such as \
+            {MessageData.ofConstName ``inferInstanceAs} or {MessageData.ofConstName ``decidable_of_decidable_of_iff} \
+            to alter a proposition."
+          else if reason.isAppOf ``Classical.choice then
+            m!"\n\n\
+            Hint: Reduction got stuck on {MessageData.ofConstName ``Classical.choice}, suggesting that there are \
+            \"classical\" instances, due to for example an 'open scoped Classical' command. \
+            The 'decide' tactic works by evaluating a decision procedure via reduction, but such \
+            classical instances cannot be evaluated."
+          else
+            MessageData.nil
+        return m!"\
+          tactic 'decide' failed for proposition\
+          {indentExpr expectedType}\n\
+          since its {MessageData.ofConstName ``Decidable} instance\
+          {indentExpr s}\n\
+          did not reduce to {MessageData.ofConstName ``isTrue} or {MessageData.ofConstName ``isFalse}.\n\n\
+          {stuckMsg}{hint}"
 
 private def mkNativeAuxDecl (baseName : Name) (type value : Expr) : TermElabM Name := do
   let auxName ← Term.mkAuxName baseName

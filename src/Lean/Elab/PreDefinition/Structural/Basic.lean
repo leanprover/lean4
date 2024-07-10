@@ -127,3 +127,6 @@ def Positions.mapMwith {α β m} [Monad m] [Inhabited β] (f : α → Array β �
   (Array.zip ys positions).mapM fun ⟨y, poss⟩ => f y (poss.map (xs[·]!))
 
 end Lean.Elab.Structural
+
+builtin_initialize
+  Lean.registerTraceClass `Elab.definition.structural

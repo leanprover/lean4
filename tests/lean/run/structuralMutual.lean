@@ -372,7 +372,9 @@ inductive A
   | empty
 
 /--
-error: Cannot use structural mutual recursion: The recursive argument of DifferentTypes.A.with_nat is of type DifferentTypes.A, the recursive argument of DifferentTypes.Nat.foo is of type Nat, and these are not mutually recursive.
+error: failed to infer structural recursion:
+Skipping arguments of type A, as DifferentTypes.Nat.foo has no compatible argument.
+Skipping arguments of type Nat, as DifferentTypes.A.with_nat has no compatible argument.
 -/
 #guard_msgs in
 mutual
@@ -454,13 +456,14 @@ inductive  B (n : Nat) : Type
 end
 
 /--
-error: its type is an inductive datatype
-  A n
-and the datatype parameter
-  n
-depends on the function parameter
-  n
-which does not come before the varying parameters and before the indices of the recursion parameter.
+error: cannot use specified parameter for structural recursion:
+  its type is an inductive datatype
+    A n
+  and the datatype parameter
+    n
+  depends on the function parameter
+    n
+  which does not come before the varying parameters and before the indices of the recursion parameter.
 -/
 #guard_msgs in
 set_option linter.constructorNameAsVariable false in
@@ -478,8 +481,9 @@ end
 end Mutual3
 
 /--
-error: its type FixedIndex.T is an inductive family and indices are not variables
-  T 37
+error: cannot use specified parameter for structural recursion:
+  its type FixedIndex.T is an inductive family and indices are not variables
+    T 37
 -/
 #guard_msgs in
 def T.size2 : T 37 → Nat
@@ -498,13 +502,14 @@ inductive T (n : Nat) : Nat → Type where
   | n : T n n → T n n
 
 /--
-error: its type is an inductive datatype
-  T n n
-and the datatype parameter
-  n
-depends on the function parameter
-  n
-which does not come before the varying parameters and before the indices of the recursion parameter.
+error: cannot use specified parameter for structural recursion:
+  its type is an inductive datatype
+    T n n
+  and the datatype parameter
+    n
+  depends on the function parameter
+    n
+  which does not come before the varying parameters and before the indices of the recursion parameter.
 -/
 #guard_msgs in
 def T.a (n : Nat) : T n n → Nat
@@ -526,9 +531,9 @@ inductive T (n : Nat) : Type where
   | n : T n → T n
 
 /--
-error: The inductive type of the recursive parameter of DifferentParameters.T.a and DifferentParameters.T.b have different parameters:
-  [23]
-  [42]
+error: failed to infer structural recursion:
+Skipping arguments of type T 23, as DifferentParameters.T.b has no compatible argument.
+Skipping arguments of type T 42, as DifferentParameters.T.a has no compatible argument.
 -/
 #guard_msgs in
 mutual

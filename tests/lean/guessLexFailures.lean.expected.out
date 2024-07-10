@@ -1,15 +1,14 @@
 guessLexFailures.lean:9:4-9:18: error: fail to show termination for
   nonTerminating
 with errors
-structural recursion cannot be used:
-
-argument #1 cannot be used for structural recursion
+failed to infer structural recursion:
+Cannot use parameter #1:
+  failed to eliminate recursive application
+    nonTerminating n.succ m.succ
+Cannot use parameter #2:
   failed to eliminate recursive application
     nonTerminating n.succ m.succ
 
-argument #2 cannot be used for structural recursion
-  failed to eliminate recursive application
-    nonTerminating n.succ m.succ
 
 Could not find a decreasing measure.
 The arguments relate at each recursive call as follows:
@@ -26,16 +25,17 @@ Please use `termination_by` to specify a decreasing measure.
 guessLexFailures.lean:20:4-20:15: error: fail to show termination for
   noArguments
 with errors
-structural recursion cannot be used:
+failed to infer structural recursion:
+no parameters suitable for structural recursion
 
 well-founded recursion cannot be used, 'noArguments' does not take any (non-fixed) arguments
 guessLexFailures.lean:22:4-22:23: error: fail to show termination for
   noNonFixedArguments
 with errors
-structural recursion cannot be used:
-
-argument #1 cannot be used for structural recursion
+failed to infer structural recursion:
+Not considering parameter #0 of noNonFixedArguments:
   it is unchanged in the recursive calls
+no parameters suitable for structural recursion
 
 well-founded recursion cannot be used, 'noNonFixedArguments' does not take any (non-fixed) arguments
 guessLexFailures.lean:27:0-33:31: error: Could not find a decreasing measure.
@@ -67,7 +67,17 @@ guessLexFailures.lean:59:6-59:7: error: fail to show termination for
   Mutual.g
   Mutual.h
 with errors
-mutual structural recursion requires explicit `termination_by` clauses
+failed to infer structural recursion:
+Not considering parameter #0 of Mutual.f:
+  it is unchanged in the recursive calls
+Not considering parameter #0 of Mutual.g:
+  it is unchanged in the recursive calls
+Not considering parameter #3 of Mutual.g:
+  its type True does not have a recursor
+Not considering parameter #0 of Mutual.h:
+  it is unchanged in the recursive calls
+Too many possible combinations of parameters of type Nat (or please the recursive argument explicitly using `termination_by structural`).
+
 
 Could not find a decreasing measure.
 The arguments relate at each recursive call as follows:
@@ -109,15 +119,14 @@ Please use `termination_by` to specify a decreasing measure.
 guessLexFailures.lean:87:4-87:5: error: fail to show termination for
   DuplicatedCall.f
 with errors
-structural recursion cannot be used:
-
-argument #1 cannot be used for structural recursion
+failed to infer structural recursion:
+Cannot use parameter #1:
+  failed to eliminate recursive application
+    DuplicatedCall.f (n + 2) (m + 1)
+Cannot use parameter #2:
   failed to eliminate recursive application
     DuplicatedCall.f (n + 2) (m + 1)
 
-argument #2 cannot be used for structural recursion
-  failed to eliminate recursive application
-    DuplicatedCall.f (n + 2) (m + 1)
 
 Could not find a decreasing measure.
 The arguments relate at each recursive call as follows:

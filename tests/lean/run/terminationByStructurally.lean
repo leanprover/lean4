@@ -18,14 +18,18 @@ termination_by «structural»
 namespace Errors
 -- A few error conditions
 
-/-- error: it is unchanged in the recursive calls -/
+/--
+error: cannot use specified parameter for structural recursion:
+  it is unchanged in the recursive calls
+-/
 #guard_msgs in
 def foo1 (n : Nat) : Nat := foo1 n
 termination_by structural n
 
 /--
-error: its type Nat.le is an inductive family and indices are not variables
-  n.succ.le 100
+error: cannot use specified parameter for structural recursion:
+  its type Nat.le is an inductive family and indices are not variables
+    n.succ.le 100
 -/
 #guard_msgs in
 def foo2 (n : Nat) (h : n < 100) : Nat := match n with
@@ -43,8 +47,10 @@ def foo3 (n : Nat) : Nat → Nat := match n with
 termination_by structural m => m
 
 /--
-error: failed to eliminate recursive application
-  ackermann (n + 1) m
+error: failed to infer structural recursion:
+Cannot use parameter n:
+  failed to eliminate recursive application
+    ackermann (n + 1) m
 -/
 #guard_msgs in
 def ackermann (n m : Nat) := match n, m with
@@ -54,8 +60,10 @@ def ackermann (n m : Nat) := match n, m with
 termination_by structural n
 
 /--
-error: failed to eliminate recursive application
-  ackermann2 n 1
+error: failed to infer structural recursion:
+Cannot use parameter m:
+  failed to eliminate recursive application
+    ackermann2 n 1
 -/
 #guard_msgs in
 def ackermann2 (n m : Nat) := match n, m with

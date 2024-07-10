@@ -5,13 +5,14 @@ inductive  A (n : Nat) : Type
   | b : A n → A n
 
 /--
-error: its type is an inductive datatype
-  A n
-and the datatype parameter
-  n
-depends on the function parameter
-  n
-which does not come before the varying parameters and before the indices of the recursion parameter.
+error: cannot use specified parameter for structural recursion:
+  its type is an inductive datatype
+    A n
+  and the datatype parameter
+    n
+  depends on the function parameter
+    n
+  which does not come before the varying parameters and before the indices of the recursion parameter.
 -/
 #guard_msgs in
 def A.size (acc n : Nat) : A n → Nat

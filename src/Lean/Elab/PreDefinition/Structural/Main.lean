@@ -109,7 +109,7 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Ar
     let maxNumFixed ← getMutualFixedPrefix preDefs
 
     -- We do two passes to get the RecArgInfo values.
-    -- From the first pass, we only keep the  mininum of the `numFixed` reported.
+    -- From the first pass, we only keep the mininum of the `numFixed` reported.
     let numFixed ← lambdaBoundedTelescope preDefs[0]!.value maxNumFixed fun xs _ => do
       assert! xs.size = maxNumFixed
       let values ← preDefs.mapM (instantiateLambda ·.value xs)
@@ -119,6 +119,18 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Ar
         let value := values[i]!
         lambdaTelescope value fun ys _value => do
           getRecArgInfo preDef.declName maxNumFixed (xs ++ ys) recArgPos
+
+      -- Check that the inductive parameters agree. This also ensures that they only depend on the
+      -- trimmed prefix (minimum of all `.numFixed`).
+      for recArgInfo in recArgInfos[1:] do
+        let ok ← Array.allM
+          (fun (e₁, e₂) => isDefEqGuarded e₁ e₂)
+          (Array.zip recArgInfo.indParams recArgInfos[0]!.indParams)
+        unless recArgInfos[0]!.indParams.size = recArgInfo.indParams.size && ok do
+          throwError m!"The inductive type of the recursive parameter of {recArgInfos[0]!.fnName} " ++
+            m!"and {recArgInfo.fnName} have different parameters:" ++
+            indentD m!"{recArgInfos[0]!.indParams}" ++
+            indentD m!"{recArgInfo.indParams}"
 
       return (recArgInfos.map (·.numFixed)).foldl Nat.min maxNumFixed
 

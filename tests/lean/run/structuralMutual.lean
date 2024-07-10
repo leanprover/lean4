@@ -489,6 +489,60 @@ termination_by structural t => t
 
 end FixedIndex
 
+namespace IndexIsParameter
+
+-- Not actual mutual, but since I was at it
+
+inductive T (n : Nat) : Nat → Type where
+  | z : T n n
+  | n : T n n → T n n
+
+/--
+error: its type is an inductive datatype
+  T n n
+and the datatype parameter
+  n
+depends on the function parameter
+  n
+which does not come before the varying parameters and before the indices of the recursion parameter.
+-/
+#guard_msgs in
+def T.a (n : Nat) : T n n → Nat
+  | .z => 0
+  | .n t => t.a + 1
+termination_by structural t => t
+
+
+end IndexIsParameter
+
+
+namespace DifferentParameters
+
+-- An attempt to make it fall over mutual recursion over the same type
+-- but with different parameters.
+
+inductive T (n : Nat) : Type where
+  | z : T n
+  | n : T n → T n
+
+/--
+error: The inductive type of the recursive parameter of DifferentParameters.T.a and DifferentParameters.T.b have different parameters:
+  [23]
+  [42]
+-/
+#guard_msgs in
+mutual
+def T.a : T 23 → Nat
+  | .z => 0
+  | .n t => t.a + 1 + T.b .z
+termination_by structural t => t
+def T.b : T 42 → Nat
+  | .z => 0
+  | .n t => t.b + 1 + T.a .z
+termination_by structural t => t
+end
+
+end DifferentParameters
 
 namespace FunIndTests
 

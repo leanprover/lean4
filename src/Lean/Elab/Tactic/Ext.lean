@@ -85,7 +85,12 @@ def mkExtIffType (extThmName : Name) : MetaM Expr := withLCtx {} {} do
       if fvars.fvarSet.contains fvar.fvarId! then
         throwError "argument {fvar} is depended upon, which is not supported"
     let conj := mkAndN (← toRevert.mapM (inferType ·)).toList
-    withNewBinderInfos (args |>.extract 0 startIdx |>.map (·.fvarId!, .implicit)) do
+    -- Make everything implicit except for inst implicits
+    let mut newBis := #[]
+    for fvar in args[0:startIdx] do
+      if (← fvar.fvarId!.getBinderInfo) matches .default | .strictImplicit then
+        newBis := newBis.push (fvar.fvarId!, .implicit)
+    withNewBinderInfos newBis do
       mkForallFVars args[:startIdx] <| mkIff ty conj
 
 /--

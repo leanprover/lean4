@@ -33,7 +33,7 @@ The operations are organized as follow:
   and decidability for predicates quantifying over membership in a `List`.
 * Sublists: `take`, `drop`, `takeWhile`, `dropWhile`, `partition`, `dropLast`,
   `isPrefixOf`, `isPrefixOf?`, `isSuffixOf`, `isSuffixOf?`, `Subset`, `Sublist`, `rotateLeft` and `rotateRight`.
-* Manipulating elements: `replace`, `insert`, `erase`, `eraseIdx`, `find?`, `findSome?`, and `lookup`.
+* Manipulating elements: `replace`, `insert`, `erase`, `eraseP`, `eraseIdx`, `find?`, `findSome?`, and `lookup`.
 * Logic: `any`, `all`, `or`, and `and`.
 * Zippers: `zipWith`, `zip`, `zipWithAll`, and `unzip`.
 * Ranges and enumeration: `range`, `iota`, `enumFrom`, and `enum`.
@@ -1035,6 +1035,11 @@ protected def erase {α} [BEq α] : List α → α → List α
 theorem erase_cons [BEq α] (a b : α) (l : List α) :
     (b :: l).erase a = if b == a then l else b :: l.erase a := by
   simp only [List.erase]; split <;> simp_all
+
+/-- `eraseP p l` removes the first element of `l` satisfying the predicate `p`. -/
+def eraseP (p : α → Bool) : List α → List α
+  | [] => []
+  | a :: l => bif p a then l else a :: eraseP p l
 
 /-! ### eraseIdx -/
 

@@ -295,6 +295,24 @@ theorem replicateTR_loop_eq : ∀ n, replicateTR.loop a n acc = replicate n a ++
     · rw [IH] <;> simp_all
     · simp
 
+/-- Tail-recursive version of `eraseP`. -/
+@[inline] def erasePTR (p : α → Bool) (l : List α) : List α := go l #[] where
+  /-- Auxiliary for `erasePTR`: `erasePTR.go p l xs acc = acc.toList ++ eraseP p xs`,
+  unless `xs` does not contain any elements satisfying `p`, where it returns `l`. -/
+  @[specialize] go : List α → Array α → List α
+  | [], _ => l
+  | a :: l, acc => bif p a then acc.toListAppend l else go l (acc.push a)
+
+@[csimp] theorem eraseP_eq_erasePTR : @eraseP = @erasePTR := by
+  funext α p l; simp [erasePTR]
+  let rec go (acc) : ∀ xs, l = acc.data ++ xs →
+    erasePTR.go p l xs acc = acc.data ++ xs.eraseP p
+  | [] => fun h => by simp [erasePTR.go, eraseP, h]
+  | x::xs => by
+    simp [erasePTR.go, eraseP]; cases p x <;> simp
+    · intro h; rw [go _ xs]; {simp}; simp [h]
+  exact (go #[] _ rfl).symm
+
 /-! ### eraseIdx -/
 
 /-- Tail recursive version of `List.eraseIdx`. -/

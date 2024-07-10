@@ -2,9 +2,9 @@
   foo.a
 with errors
 failed to infer structural recursion:
-Not considering parameter #0 of foo.a:
+Not considering parameter n of foo.a:
   it is unchanged in the recursive calls
-Not considering parameter #1 of foo.a:
+Not considering parameter nope of foo.a:
   it is unchanged in the recursive calls
 no parameters suitable for structural recursion
 

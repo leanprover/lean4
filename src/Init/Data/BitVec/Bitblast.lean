@@ -379,6 +379,9 @@ theorem getLsb_shiftLeft' {x : BitVec w} {y : BitVec w₂} {i : Nat} :
     (x <<< y).getLsb i = (decide (i < w) && !decide (i < y.toNat) && x.getLsb (i - y.toNat)) := by
   simp [shiftLeft_eq', getLsb_shiftLeft]
 
+/--
+`shiftLeftRec x y n` shifts `x` to the left by the first `n` bits of `y`.
+-/
 theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} (hn : n + 1 ≤ w₂) :
     shiftLeftRec x y n = x <<< (y.truncate (n + 1)).zeroExtend w₂ := by
   induction n generalizing x y

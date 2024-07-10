@@ -638,7 +638,7 @@ List.map.match_1 : {α : Type _} →
 ```
 -/
 @[builtin_delab app]
-partial def delabAppMatch : Delab := whenPPOption getPPNotation <| whenPPOption getPPMatch do
+partial def delabAppMatch : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPNotation <| whenPPOption getPPMatch do
   -- Check that this is a matcher, and then set up overapplication.
   let Expr.const c us := (← getExpr).getAppFn | failure
   let some info ← getMatcherInfo? c | failure

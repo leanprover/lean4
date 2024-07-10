@@ -95,4 +95,4 @@ example {n : Type} {T : n} : T = T := Foo.induction n -- motive is not type corr
 
 example {n : Type} : {T : n} → T = T := Foo.induction n -- motive is not type correct
 
-example {n : Type} : {T : n} → T = T := no_implicit_lambda% (Foo.induction n)
+example {n : Type} : {T : n} → T = T := @(Foo.induction n)

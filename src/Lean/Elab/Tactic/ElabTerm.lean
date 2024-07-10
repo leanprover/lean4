@@ -411,7 +411,7 @@ private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := do
         -- Re-reduce the instance and collect diagnostics, to get all unfolded Decidable instances
         withOptions (fun opt => diagnostics.set opt true) do
           modifyDiag (fun _ => {})
-          let reason ← withDefault <| blameDecideReductionFailure s
+          let reason ← withAtLeastTransparency .default <| blameDecideReductionFailure s
           let unfolded := (← get).diag.unfoldCounter.foldl (init := #[]) fun cs n _ => cs.push n
           let unfoldedInsts ← unfolded |>.qsort Name.lt |>.filterMapM fun n => do
             let e ← mkConstWithLevelParams n

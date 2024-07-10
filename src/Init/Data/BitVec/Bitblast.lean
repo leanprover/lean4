@@ -353,11 +353,12 @@ theorem shiftLeftRec_succ {x : BitVec w₁} {y : BitVec w₂} :
 theorem getLsb_ofNat_one {w i : Nat} :
     (1#w).getLsb i = (decide (i = 0) && decide (i < w)) := by
   rcases w with rfl | w
-  · simp;
-  · simp [getLsb]
+  · simp
+  · simp only [getLsb, toNat_ofNat, testBit_mod_two_pow]
     by_cases hi : i = 0
     · simp [hi]
-    · simp [hi]
+    · simp only  [hi, decide_False, Bool.false_and,
+        and_eq_false_imp, decide_eq_true_eq]
       intros _; simp [testBit, shiftRight_eq_div_pow];
       suffices 1 / 2^i = 0 by simp [this]
       apply Nat.div_eq_of_lt;
@@ -421,7 +422,7 @@ theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} (hn : n + 
             · apply Nat.mod_lt
               · apply Nat.pow_pos (by decide)
             · apply Nat.pow_le_pow_of_le_right (by decide) (by omega)
-          · simp
+          · simp only [pow_eq]
             apply Nat.pow_le_pow_of_le_right (by decide) (by omega)
     · simp only [h, false_eq_true, ↓reduceIte, shiftLeft_zero']
       rw [ih (hn := by omega)]

@@ -439,7 +439,7 @@ private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := do
             m!"\n\n\
             Hint: Reduction got stuck on '▸' ({MessageData.ofConstName ``Eq.rec}), \
             which suggests that one of the '{MessageData.ofConstName ``Decidable}' instances is defined using tactics such as 'rw' or 'simp'. \
-            To avoid tactics, make use of declarations such as \
+            To avoid tactics, make use of functions such as \
             '{MessageData.ofConstName ``inferInstanceAs}' or '{MessageData.ofConstName ``decidable_of_decidable_of_iff}' \
             to alter a proposition."
           else if reason.isAppOf ``Classical.choice then

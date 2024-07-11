@@ -74,7 +74,7 @@ After unfolding the instances 'baz' and 'instDecidableNice', reduction got stuck
   ⋯ ▸ inferInstance
 
 Hint: Reduction got stuck on '▸' (Eq.rec), which suggests that one of the 'Decidable' instances is
-defined using tactics such as 'rw' or 'simp'. To avoid tactics, make use of declarations such as
+defined using tactics such as 'rw' or 'simp'. To avoid tactics, make use of functions such as
 'inferInstanceAs' or 'decidable_of_decidable_of_iff' to alter a proposition.
 -/
 #guard_msgs in
@@ -97,7 +97,7 @@ at the 'Decidable' instance
   ⋯ ▸ inferInstance
 
 Hint: Reduction got stuck on '▸' (Eq.rec), which suggests that one of the 'Decidable' instances is
-defined using tactics such as 'rw' or 'simp'. To avoid tactics, make use of declarations such as
+defined using tactics such as 'rw' or 'simp'. To avoid tactics, make use of functions such as
 'inferInstanceAs' or 'decidable_of_decidable_of_iff' to alter a proposition.
 -/
 #guard_msgs in

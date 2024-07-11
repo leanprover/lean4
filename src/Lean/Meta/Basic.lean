@@ -1492,6 +1492,16 @@ private def withLocalContextImp (lctx : LocalContext) (localInsts : LocalInstanc
 def withLCtx (lctx : LocalContext) (localInsts : LocalInstances) : n α → n α :=
   mapMetaM <| withLocalContextImp lctx localInsts
 
+/--
+Runs `k` in a local envrionment with the the `fvarIds` erased.
+-/
+def withErasedFVars [MonadLCtx n] [MonadLiftT MetaM n] (fvarIds : Array FVarId) (k : n α) : n α := do
+  let lctx ← getLCtx
+  let localInsts ← getLocalInstances
+  let lctx' := fvarIds.foldl (·.erase ·) lctx
+  let localInsts' := localInsts.filter (!fvarIds.contains ·.fvar.fvarId!)
+  withLCtx lctx' localInsts' k
+
 private def withMVarContextImp (mvarId : MVarId) (x : MetaM α) : MetaM α := do
   let mvarDecl ← mvarId.getDecl
   withLocalContextImp mvarDecl.lctx mvarDecl.localInstances x

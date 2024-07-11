@@ -316,9 +316,7 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
           return false
     return true
   if canClear then
-    let lctx := (← getLCtx).erase fvarId
-    let localInsts := (← getLocalInstances).filter (·.fvar.fvarId! != fvarId)
-    withLCtx lctx localInsts do elabTerm body expectedType?
+    withErasedFVars #[fvarId] do elabTerm body expectedType?
   else
     elabTerm body expectedType?
 

@@ -145,9 +145,9 @@ instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a �
   getElem? m a := m.get? a
   getElem! m a := m.get! a
 
-@[inline, inherit_doc DHashMap.remove] def remove [BEq α] [Hashable α] (m : HashMap α β) (a : α) :
+@[inline, inherit_doc DHashMap.erase] def erase [BEq α] [Hashable α] (m : HashMap α β) (a : α) :
     HashMap α β :=
-  ⟨m.inner.remove a⟩
+  ⟨m.inner.erase a⟩
 
 @[inline, inherit_doc DHashMap.size] def size [BEq α] [Hashable α] (m : HashMap α β) : Nat :=
   m.inner.size

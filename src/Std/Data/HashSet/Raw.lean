@@ -103,8 +103,8 @@ instance [BEq α] [Hashable α] {m : Raw α} {a : α} : Decidable (a ∈ m) :=
   inferInstanceAs (Decidable (a ∈ m.inner))
 
 /-- Removes the element if it exists. -/
-@[inline] def remove [BEq α] [Hashable α] (m : Raw α) (a : α) : Raw α :=
-  ⟨m.inner.remove a⟩
+@[inline] def erase [BEq α] [Hashable α] (m : Raw α) (a : α) : Raw α :=
+  ⟨m.inner.erase a⟩
 
 /-- The number of elements present in the set -/
 @[inline] def size (m : Raw α) : Nat :=
@@ -218,8 +218,8 @@ theorem WF.containsThenInsert [BEq α] [Hashable α] {m : Raw α} {a : α} (h : 
     (m.containsThenInsert a).2.WF :=
   ⟨HashMap.Raw.WF.containsThenInsertIfNew h.out⟩
 
-theorem WF.remove [BEq α] [Hashable α] {m : Raw α} {a : α} (h : m.WF) : (m.remove a).WF :=
-  ⟨HashMap.Raw.WF.remove h.out⟩
+theorem WF.erase [BEq α] [Hashable α] {m : Raw α} {a : α} (h : m.WF) : (m.erase a).WF :=
+  ⟨HashMap.Raw.WF.erase h.out⟩
 
 theorem WF.filter [BEq α] [Hashable α] {m : Raw α} {f : α → Bool} (h : m.WF) : (m.filter f).WF :=
   ⟨HashMap.Raw.WF.filter h.out⟩

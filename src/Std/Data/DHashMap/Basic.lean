@@ -115,9 +115,9 @@ instance [BEq α] [Hashable α] {m : DHashMap α β} {a : α} : Decidable (a ∈
     (a : α) (fallback : β a) : β a :=
   Raw₀.getD ⟨m.1, m.2.size_buckets_pos⟩ a fallback
 
-@[inline, inherit_doc Raw.remove] def remove [BEq α] [Hashable α] (m : DHashMap α β) (a : α) :
+@[inline, inherit_doc Raw.erase] def erase [BEq α] [Hashable α] (m : DHashMap α β) (a : α) :
     DHashMap α β :=
-  ⟨Raw₀.remove ⟨m.1, m.2.size_buckets_pos⟩ a, .remove₀ m.2⟩
+  ⟨Raw₀.erase ⟨m.1, m.2.size_buckets_pos⟩ a, .erase₀ m.2⟩
 
 section
 

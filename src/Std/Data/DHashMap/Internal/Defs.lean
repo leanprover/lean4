@@ -79,7 +79,7 @@ maintainable. To this end, we provide theorems `apply_bucket`, `apply_bucket_wit
 `toListModel_updateBucket` and `toListModel_updateAllBuckets`, which do all of the heavy lifting in
 a general way. The verification for each actual operation in `Internal.WF` is then extremely
 straightward, requiring only to plug in some results about lists. See for example the functions
-`containsₘ_eq_containsKey` and the section on `removeₘ` for prototypical examples of this technique.
+`containsₘ_eq_containsKey` and the section on `eraseₘ` for prototypical examples of this technique.
 
 Here is a summary of the steps required to add and verify a new operation:
 1. Write the executable implementation
@@ -197,7 +197,7 @@ where
     if h : i < source.size then
       let idx : Fin source.size := ⟨i, h⟩
       let es := source.get idx
-      -- We remove `es` from `source` to make sure we can reuse its memory cells
+      -- We erase `es` from `source` to make sure we can reuse its memory cells
       -- when performing es.foldl
       let source := source.set idx .nil
       let target := es.foldl (reinsertAux hash) target
@@ -313,13 +313,13 @@ where
   buckets[idx.1].getCast! a
 
 /-- Internal implementation detail of the hash map -/
-@[inline] def remove [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Raw₀ α β :=
+@[inline] def erase [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Raw₀ α β :=
   let ⟨⟨size, buckets⟩, hb⟩ := m
   let ⟨i, h⟩ := mkIdx buckets.size hb (hash a)
   let bkt := buckets[i]
   if bkt.contains a then
     let buckets' := buckets.uset i .nil h
-    ⟨⟨size - 1, buckets'.uset i (bkt.remove a) (by simpa [buckets'])⟩, by simpa [buckets']⟩
+    ⟨⟨size - 1, buckets'.uset i (bkt.erase a) (by simpa [buckets'])⟩, by simpa [buckets']⟩
   else
     ⟨⟨size, buckets⟩, hb⟩
 

@@ -129,9 +129,9 @@ def replace [BEq α] (a : α) (b : β a) : AssocList α β → AssocList α β
   | cons k v l => bif a == k then cons a b l else cons k v (replace a b l)
 
 /-- Internal implementation detail of the hash map -/
-def remove [BEq α] (a : α) : AssocList α β → AssocList α β
+def erase [BEq α] (a : α) : AssocList α β → AssocList α β
   | nil => nil
-  | cons k v l => bif a == k then l else cons k v (l.remove a)
+  | cons k v l => bif a == k then l else cons k v (l.erase a)
 
 /-- Internal implementation detail of the hash map -/
 @[inline] def filterMap (f : (a : α) → β a → Option (γ a)) :

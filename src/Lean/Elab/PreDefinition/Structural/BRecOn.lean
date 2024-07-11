@@ -17,34 +17,46 @@ open Meta
 private def throwToBelowFailed : MetaM α :=
   throwError "toBelow failed"
 
+partial def searchPProd (e : Expr) (F : Expr) (k : Expr → Expr → MetaM α) : MetaM α := do
+  match (← whnf e) with
+  | .app (.app (.const `PProd _) d1) d2 =>
+        (do searchPProd d1 (← mkAppM ``PProd.fst #[F]) k)
+    <|> (do searchPProd d2 (← mkAppM `PProd.snd #[F]) k)
+  | .app (.app (.const `And _) d1) d2 =>
+        (do searchPProd d1 (← mkAppM `And.left #[F]) k)
+    <|> (do searchPProd d2 (← mkAppM `And.right #[F]) k)
+  | .const `PUnit _
+  | .const `True _ => throwToBelowFailed
+  | _ => k e F
+
 /-- See `toBelow` -/
 private partial def toBelowAux (C : Expr) (belowDict : Expr) (arg : Expr) (F : Expr) : MetaM Expr := do
-  let belowDict ← whnf belowDict
-  trace[Elab.definition.structural] "belowDict: {belowDict}, arg: {arg}"
-  match belowDict with
-  | .app (.app (.const `PProd _) d1) d2 =>
-    (do toBelowAux C d1 arg (← mkAppM `PProd.fst #[F]))
-    <|>
-    (do toBelowAux C d2 arg (← mkAppM `PProd.snd #[F]))
-  | .app (.app (.const `And _) d1) d2 =>
-    (do toBelowAux C d1 arg (← mkAppM `And.left #[F]))
-    <|>
-    (do toBelowAux C d2 arg (← mkAppM `And.right #[F]))
-  | _ => forallTelescopeReducing belowDict fun xs belowDict => do
-    let arg ← zetaReduce arg
-    let argArgs := arg.getAppArgs
-    unless argArgs.size >= xs.size do throwToBelowFailed
-    let n := argArgs.size
-    let argTailArgs := argArgs.extract (n - xs.size) n
-    let belowDict := belowDict.replaceFVars xs argTailArgs
-    match belowDict with
-    | .app belowDictFun belowDictArg =>
-      unless belowDictFun.getAppFn == C do throwToBelowFailed
-      unless ← isDefEq belowDictArg arg do throwToBelowFailed
-      pure (mkAppN F argTailArgs)
-    | _ =>
-      trace[Elab.definition.structural] "belowDict not an app: {belowDict}"
-      throwToBelowFailed
+  trace[Elab.definition.structural] "belowDict start:{indentExpr belowDict}\narg:{indentExpr arg}"
+  -- First search through the PProd packing of the different `brecOn` motives
+  searchPProd belowDict F fun belowDict F => do
+    trace[Elab.definition.structural] "belowDict step 1:{indentExpr belowDict}"
+    -- Then instantiate parameters of a reflexive type, if needed
+    forallTelescopeReducing belowDict fun xs belowDict => do
+      let arg ← zetaReduce arg
+      let argArgs := arg.getAppArgs
+      unless argArgs.size >= xs.size do throwToBelowFailed
+      let n := argArgs.size
+      let argTailArgs := argArgs.extract (n - xs.size) n
+      let belowDict := belowDict.replaceFVars xs argTailArgs
+      -- And again search through the PProd packing due to multiple functions recursing on the
+      -- same inductive data type
+      -- (We could use the funIdx and the `positions` array to replace this search with more
+      -- targeted indexing.)
+      searchPProd belowDict (mkAppN F argTailArgs) fun belowDict F => do
+        trace[Elab.definition.structural] "belowDict step 2:{indentExpr belowDict}"
+        match belowDict with
+        | .app belowDictFun belowDictArg =>
+          unless belowDictFun.getAppFn == C do throwToBelowFailed
+          unless ← isDefEq belowDictArg arg do throwToBelowFailed
+          pure F
+        | _ =>
+          trace[Elab.definition.structural] "belowDict not an app:{indentExpr belowDict}"
+          throwToBelowFailed
 
 /-- See `toBelow` -/
 private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat)

@@ -263,9 +263,10 @@ where
               -- save all relevant syntax here for comparison with next document version
               stx := mkNullNode altStxs
               diagnostics := .empty
-              finished := finished.result
-            } (altStxs.zipWith altPromises fun stx prom =>
-                { range? := stx.getRange?, task := prom.result })
+              finished := { range? := none, task := finished.result }
+              next := altStxs.zipWith altPromises fun stx prom =>
+                { range? := stx.getRange?, task := prom.result }
+            }
             goWithIncremental <| altPromises.mapIdx fun i prom => {
               old? := do
                 let old ← tacSnap.old?
@@ -274,10 +275,10 @@ where
                 let old := old.val.get
                 -- use old version of `mkNullNode altsSyntax` as guard, will be compared with new
                 -- version and picked apart in `applyAltStx`
-                return ⟨old.data.stx, (← old.next[i]?)⟩
+                return ⟨old.data.stx, (← old.data.next[i]?)⟩
               new := prom
             }
-            finished.resolve { state? := (← saveState) }
+            finished.resolve { diagnostics := .empty, state? := (← saveState) }
         return
 
     goWithIncremental #[]

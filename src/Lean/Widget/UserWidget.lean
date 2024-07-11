@@ -416,12 +416,9 @@ open Lean Server RequestM in
 def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResponse)) := do
   let doc ← readDoc
   let filemap := doc.meta.text
-  let nextLine := { line := pos.line + 1, character := 0 }
-  let t := doc.cmdSnaps.waitUntil fun snap => filemap.lspPosToUtf8Pos nextLine ≤ snap.endPos
-  mapTask t fun (snaps, _) => do
-    let some snap := snaps.getLast?
-      | return ⟨∅⟩
-    runTermElabM snap do
+  mapTask (findInfoTreeAtPos doc <| filemap.lspPosToUtf8Pos pos) fun
+    | some infoTree@(.context (.commandCtx cc) _) =>
+      ContextInfo.runMetaM { cc with } {} do
       let env ← getEnv
       /- Panels from the environment. -/
       let ws' ← evalPanelWidgets
@@ -436,7 +433,7 @@ def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResp
             return uwd.name
         return { wi with name? }
       /- Panels from the infotree. -/
-      let ws := widgetInfosAt? filemap snap.infoTree pos.line
+      let ws := widgetInfosAt? filemap infoTree pos.line
       let ws : Array PanelWidgetInstance ← ws.toArray.mapM fun (wi : UserWidgetInfo) => do
         let name? ← env.find? wi.id
           |>.filter (·.type.isConstOf ``UserWidgetDefinition)
@@ -445,6 +442,7 @@ def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResp
             return uwd.name
         return { wi with range? := String.Range.toLspRange filemap <$> Syntax.getRange? wi.stx, name? }
       return { widgets := ws' ++ ws }
+    | _ => return ⟨∅⟩
 
 builtin_initialize
   Server.registerBuiltinRpcProcedure ``getWidgets _ _ getWidgets

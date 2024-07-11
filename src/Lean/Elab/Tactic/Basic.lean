@@ -155,7 +155,9 @@ partial def evalTactic (stx : Syntax) : TacticM Unit := do
         -- Macro writers create a sequence of tactics `t₁ ... tₙ` using `mkNullNode #[t₁, ..., tₙ]`
         -- We could support incrementality here by allocating `n` new snapshot bundles but the
         -- practical value is not clear
-        Term.withoutTacticIncrementality true do
+        -- NOTE: `withTacticInfoContext` is used to preserve the invariant of `elabTactic` producing
+        -- exactly one info tree, which is necessary for using `getInfoTreeWithContext`.
+        Term.withoutTacticIncrementality true <| withTacticInfoContext stx do
           stx.getArgs.forM evalTactic
       else withTraceNode `Elab.step (fun _ => return stx) (tag := stx.getKind.toString) do
         let evalFns := tacticElabAttribute.getEntries (← getEnv) stx.getKind
@@ -222,14 +224,18 @@ where
                     snap.new.resolve <| .mk {
                       stx := stx'
                       diagnostics := .empty
-                      finished := .pure { state? := (← Tactic.saveState) }
-                    } #[{ range? := stx'.getRange?, task := promise.result }]
+                      finished := .pure {
+                        diagnostics := .empty
+                        state? := (← Tactic.saveState)
+                      }
+                      next := #[{ range? := stx'.getRange?, task := promise.result }]
+                    }
                     -- Update `tacSnap?` to old unfolding
                     withTheReader Term.Context ({ · with tacSnap? := some {
                       new := promise
                       old? := do
                         let old ← old?
-                        return ⟨old.data.stx, (← old.next.get? 0)⟩
+                        return ⟨old.data.stx, (← old.data.next.get? 0)⟩
                     } }) do
                       evalTactic stx'
                   return

@@ -128,16 +128,31 @@ def ofLazyM (f : MetaM MessageData) (es : Array Expr := #[]) : MessageData :=
         instantiateMVarsCore mvarctxt a |>.1.hasSyntheticSorry
     ))
 
-/-- Pretty print a const expression using `delabConst` and generate terminfo.
+/--
+Pretty print a const expression using `delabConst` and generate terminfo.
 This function avoids inserting `@` if the constant is for a function whose first
 argument is implicit, which is what the default `toMessageData` for `Expr` does.
-Panics if `e` is not a constant. -/
+Panics if `e` is not a constant.
+-/
 def ofConst (e : Expr) : MessageData :=
   if e.isConst then
     let delab : Delab := withOptionAtCurrPos `pp.tagAppFns true delabConst
     .ofFormatWithInfosM (PrettyPrinter.ppExprWithInfos (delab := delab) e)
   else
     panic! "not a constant"
+
+/--
+Pretty print a constant given its name, similar to `Lean.MessageData.ofConst`.
+Uses the constant's universe level parameters when pretty printing.
+If there is no such constant in the environment, the name is simply formatted.
+-/
+def ofConstName (constName : Name) : MessageData :=
+  .ofFormatWithInfosM do
+    if let some info := (← getEnv).find? constName then
+      let delab : Delab := withOptionAtCurrPos `pp.tagAppFns true delabConst
+      PrettyPrinter.ppExprWithInfos (delab := delab) (.const constName <| info.levelParams.map mkLevelParam)
+    else
+      return format constName
 
 /-- Generates `MessageData` for a declaration `c` as `c.{<levels>} <params> : <type>`, with terminfo. -/
 def signature (c : Name) : MessageData :=

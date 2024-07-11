@@ -634,6 +634,10 @@ theorem succ_lt_succ_iff : succ a < succ b ↔ a < b := ⟨lt_of_succ_lt_succ, s
 
 theorem add_one_inj : a + 1 = b + 1 ↔ a = b := succ_inj'
 
+theorem ne_add_one (n : Nat) : n ≠ n + 1 := fun h => by cases h
+
+theorem add_one_ne (n : Nat) : n + 1 ≠ n := fun h => by cases h
+
 theorem add_one_le_add_one_iff : a + 1 ≤ b + 1 ↔ a ≤ b := succ_le_succ_iff
 
 theorem add_one_lt_add_one_iff : a + 1 < b + 1 ↔ a < b := succ_lt_succ_iff
@@ -814,6 +818,9 @@ protected theorem pred_succ (n : Nat) : pred n.succ = n := rfl
 
 @[simp] protected theorem zero_sub_one : 0 - 1 = 0 := rfl
 @[simp] protected theorem add_one_sub_one (n : Nat) : n + 1 - 1 = n := rfl
+
+theorem sub_one_eq_self (n : Nat) : n - 1 = n ↔ n = 0 := by cases n <;> simp [ne_add_one]
+theorem eq_self_sub_one (n : Nat) : n = n - 1 ↔ n = 0 := by cases n <;> simp [add_one_ne]
 
 theorem succ_pred {a : Nat} (h : a ≠ 0) : a.pred.succ = a := by
   induction a with

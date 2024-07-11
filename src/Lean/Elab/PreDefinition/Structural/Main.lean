@@ -123,12 +123,8 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (xs : Array Expr
   let valuesNew ← valuesNew.mapM (mkLambdaFVars xs ·)
   return (Array.zip preDefs valuesNew).map fun ⟨preDef, valueNew⟩ => { preDef with value := valueNew }
 
-private def inferRecArgPos (preDefs : Array PreDefinition) (termArgs? : Option TerminationArguments) :
+private def inferRecArgPos (preDefs : Array PreDefinition) (termArg?s : Array (Option TerminationArgument)) :
     M (Array Nat × Array PreDefinition) := do
-
-  -- TODO: Relax checks earlier
-  let termArg?s : Array (Option TerminationArgument) := termArgs?.casesOn (preDefs.map (fun _ => .none)) (·.map Option.some)
-
   withoutModifyingEnv do
     preDefs.forM (addAsAxiom ·)
     let names := preDefs.map (·.declName)
@@ -166,9 +162,9 @@ def reportTermArg (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit := do
     Tactic.TryThis.addSuggestion ref stx
 
 
-def structuralRecursion (preDefs : Array PreDefinition) (termArgs? : Option TerminationArguments) : TermElabM Unit := do
+def structuralRecursion (preDefs : Array PreDefinition) (termArg?s : Array (Option TerminationArgument)) : TermElabM Unit := do
   let names := preDefs.map (·.declName)
-  let ((recArgPoss, preDefsNonRec), state) ← run <| inferRecArgPos preDefs termArgs?
+  let ((recArgPoss, preDefsNonRec), state) ← run <| inferRecArgPos preDefs termArg?s
   for recArgPos in recArgPoss, preDef in preDefs do
     reportTermArg preDef recArgPos
   state.addMatchers.forM liftM

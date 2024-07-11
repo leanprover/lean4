@@ -1,5 +1,13 @@
 import Lean.Elab.Command
 
+/-!
+Mutual structural recursion.
+
+In this file we often attach a `termination_By structural` annotation to at least
+one of the functions to force strucural recursion. We don't want lean to resort to
+well-founded recursion if structural recursion fails somehow.
+-/
+
 mutual
 inductive A
   | self : A → A
@@ -19,11 +27,11 @@ def A.size : A → Nat
   | .other b => b.size + 1
   | .empty => 0
 termination_by structural x => x
+
 def B.size : B → Nat
   | .self b => b.size + 1
   | .other a => a.size + 1
   | .empty => 0
-termination_by structural x => x
 end
 
 
@@ -87,7 +95,6 @@ def B.subs : (b : B) → (Fin b.size → A ⊕ B)
   | .self b => Fin.lastCases (.inr b) (b.subs)
   | .other a => Fin.lastCases (.inl a) (a.subs)
   | .empty => Fin.elim0
-termination_by structural x => x
 end
 
 
@@ -103,7 +110,6 @@ def B.hasNoBEmpty : B → Prop
   | .self b => b.hasNoBEmpty
   | .other a => a.hasNoBEmpty
   | .empty => False
-termination_by structural x => x
 end
 
 -- Mixing Prop and Nat.
@@ -122,7 +128,6 @@ def B.oddCount : B → Nat
   | .self b => b.oddCount + 1
   | .other a => if a.hasNoAEmpty then 0 else 1
   | .empty => 0
-termination_by structural x => x
 end
 
 -- Higher levels, but the same level `Type u`
@@ -138,7 +143,6 @@ def B.type.{u} : B → Type u
   | .self b => PUnit × b.type
   | .other a => PUnit × a.type
   | .empty => PUnit
-termination_by structural x => x
 end
 
 
@@ -162,7 +166,6 @@ def B.odderCount : B → Nat
   | .self b => b.odderCount + 1
   | .other a => if Nonempty a.strangeType then 0 else 1
   | .empty => 0
-termination_by structural x => x
 end
 
 
@@ -191,7 +194,6 @@ def B.size (m n : Nat): B m n → Nat
   | .self b => b.size + m
   | .other a => a.size + m
   | .empty => 0
-termination_by structural x => x
 end
 
 mutual
@@ -204,7 +206,6 @@ theorem B.size_eq_index (m n : Nat) : (b : B m n) → b.size = n
   | .self b => by dsimp [B.size]; rw [B.size_eq_index]
   | .other a => by dsimp [B.size]; rw [A.size_eq_index]
   | .empty => rfl
-termination_by structural x => x
 end
 
 end Index
@@ -223,7 +224,6 @@ mutual
   def Odd : Nat → Prop
     | 0 => False
     | n+1 => ¬ Even n
-  termination_by structural x => x
 end
 
 mutual
@@ -235,7 +235,6 @@ mutual
   def isOdd : Nat → Bool
     | 0 => false
     | n+1 => ! isEven n
-  termination_by structural x => x
 end
 
 theorem isEven_eq_2 (n : Nat) : isEven (n+1) = ! isOdd n := rfl
@@ -301,12 +300,10 @@ def A.weird_size2 : A → Nat
   | .self a => a.weird_size3 + 1
   | .other _ => 0
   | .empty => 0
-termination_by structural x => x
 def A.weird_size3 : A → Nat
   | .self a => a.weird_size1 + 1
   | .other _ => 0
   | .empty => 0
-termination_by structural x => x
 end
 
 -- We have equality
@@ -385,7 +382,6 @@ termination_by structural x => x
 def Nat.foo : Nat → Nat
   | n+1 => Nat.foo n
   | 0 => A.empty.with_nat
-termination_by structural x => x
 end
 
 end DifferentTypes
@@ -413,7 +409,6 @@ termination_by structural t => t
 def T.size2 (n : Nat) (start : Nat) : T n → Nat
   | .a => 0
   | .b t => 1 + T.size1 n start t
-termination_by structural t => t
 end
 
 end Mutual
@@ -440,7 +435,6 @@ termination_by structural t => t
 
 def B.size (n : Nat) (start : Nat) : B → Nat
   | .a a => 1 + A.size n start (a n)
-termination_by structural t => t
 end
 
 end Mutual2
@@ -475,7 +469,6 @@ termination_by structural t => t
 
 def B.size (n : Nat) (m : Nat) : B m → Nat
   | .a a => 1 + A.size m n a
-termination_by structural t => t
 end
 
 end Mutual3
@@ -544,10 +537,94 @@ termination_by structural t => t
 def T.b : T 42 → Nat
   | .z => 0
   | .n t => t.b + 1 + T.a .z
-termination_by structural t => t
 end
 
 end DifferentParameters
+
+namespace ManyCombinations
+-- A datatype with no size function, to avoid well-founded recursion
+
+inductive Nattish
+  | zero
+  | cons : (Nat → Nattish) → Nattish
+
+/--
+error: fail to show termination for
+  ManyCombinations.f
+  ManyCombinations.g
+with errors
+failed to infer structural recursion:
+Too many possible combinations of parameters of type Nattish (or please the recursive argument explicitly using `termination_by structural`).
+
+
+Could not find a decreasing measure.
+The arguments relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+Call from ManyCombinations.f to ManyCombinations.g at 592:15-29:
+   #1 #2 #3 #4
+#5  ?  ?  ?  ?
+#6  ?  =  ?  ?
+#7  ?  ?  =  ?
+#8  ?  ?  ?  =
+Call from ManyCombinations.g to ManyCombinations.f at 595:15-29:
+   #5 #6 #7 #8
+#1  _  _  _  _
+#2  _  =  _  _
+#3  _  _  =  _
+#4  _  _  _  =
+
+
+#1: sizeOf a
+#2: sizeOf b
+#3: sizeOf c
+#4: sizeOf d
+#5: sizeOf a
+#6: sizeOf b
+#7: sizeOf c
+#8: sizeOf d
+
+Please use `termination_by` to specify a decreasing measure.
+-/
+#guard_msgs in
+mutual
+def f (a b c d : Nattish) : Nat := match a with
+  | .zero => 0
+  | .cons n => g (n 23) b c d
+def g (a b c d : Nattish) : Nat := match a with
+  | .zero => 0
+  | .cons n => f (n 42) b c d
+end
+
+-- specifying one `termination_by structural` helps
+-- TODO: Why can the recursive call not be eliminated?
+
+/--
+error: failed to infer structural recursion:
+Cannot use parameters a of ManyCombinations.f' and a of ManyCombinations.g':
+  failed to eliminate recursive application
+    g' (n 23) b c d
+Cannot use parameters a of ManyCombinations.f' and b of ManyCombinations.g':
+  failed to eliminate recursive application
+    g' (n 23) b c d
+Cannot use parameters a of ManyCombinations.f' and c of ManyCombinations.g':
+  failed to eliminate recursive application
+    g' (n 23) b c d
+Cannot use parameters a of ManyCombinations.f' and d of ManyCombinations.g':
+  failed to eliminate recursive application
+    g' (n 23) b c d
+-/
+#guard_msgs in
+mutual
+def f' (a b c d : Nattish) : Nat := match a with
+  | .zero => 0
+  | .cons n => g' (n 23) b c d
+termination_by structural a
+def g' (a b c d : Nattish) : Nat := match a with
+  | .zero => 0
+  | .cons n => f' (n 42) b c d
+end
+
+end ManyCombinations
 
 namespace FunIndTests
 

@@ -150,7 +150,13 @@ def nonIndicesFirst (recArgInfos : Array RecArgInfo) : Array RecArgInfo := Id.ru
   let (indices,nonIndices) := recArgInfos.partition (indicesPos.contains ·.recArgPos)
   return nonIndices ++ indices
 
--- TODO: Maybe simply an Expr?
+/--
+An instance of an mutually inductive groupa of inductives, identified by the `all` array
+and the level and expressions parameters.
+
+For example this distinguishes between `List α` and `List β` and we will not even attempt
+mutual structural recursion on such incompatible types.
+-/
 structure IndGroupInst where
   all    : Array Name
   levels : List Level

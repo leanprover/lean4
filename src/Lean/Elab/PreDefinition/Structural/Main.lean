@@ -152,7 +152,7 @@ private def inferRecArgPos (preDefs : Array PreDefinition) (termArgs? : Option T
         -- We may have decreased the number of arguments we consider fixed, so update
         -- the recArgInfos, remove the extra arguments from local environment, and recalculate value
         let recArgInfos := recArgInfos.map ({· with numFixed := numFixed })
-        id do -- TODO: with local argument removed
+        withErasedFVars (xs.extract numFixed xs.size |>.map (·.fvarId!)) do
           let xs := xs[:numFixed]
           let preDefs' ← elimMutualRecursion preDefs xs recArgInfos
           return (recArgPoss, preDefs')

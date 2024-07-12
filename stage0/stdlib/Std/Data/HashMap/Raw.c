@@ -47,6 +47,7 @@ LEAN_EXPORT lean_object* l_Std_HashMap_Raw_keysArray___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Prod_repr___at_Std_HashMap_Raw_instRepr___spec__15___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Std_HashMap_Raw_get(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_HashMap_Raw_instInhabited(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_Raw_values(lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_remove___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_Raw_keysArray___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -387,6 +388,14 @@ return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Std_HashMap_Raw_instEmptyCollection(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_HashMap_Raw_instEmptyCollection___closed__3;
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_HashMap_Raw_instInhabited(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 

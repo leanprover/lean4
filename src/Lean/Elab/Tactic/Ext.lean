@@ -5,14 +5,169 @@ Authors: Gabriel Ebner, Mario Carneiro
 -/
 prelude
 import Init.Ext
+import Lean.Elab.DeclarationRange
 import Lean.Elab.Tactic.RCases
 import Lean.Elab.Tactic.Repeat
 import Lean.Elab.Tactic.BuiltinTactic
 import Lean.Elab.Command
 import Lean.Linter.Util
 
+/-!
+# Implementation of the `@[ext]` attribute
+-/
+
 namespace Lean.Elab.Tactic.Ext
 open Meta Term
+
+/-!
+### Meta code for creating ext theorems
+-/
+
+/--
+Constructs the hypotheses for the structure extensionality theorem that
+states that two structures are equal if their fields are equal.
+
+Calls the continuation `k` with the list of parameters to the structure,
+two structure variables `x` and `y`, and a list of pairs `(field, ty)`
+where each `ty` is of the form `x.field = y.field` or `HEq x.field y.field`.
+
+If `flat` parses to `true`, any fields inherited from parent structures
+are treated as fields of the given structure type.
+If it is `false`, then the behind-the-scenes encoding of inherited fields
+is visible in the extensionality lemma.
+-/
+def withExtHyps (struct : Name) (flat : Bool)
+    (k : Array Expr → (x y : Expr) → Array (Name × Expr) → MetaM α) : MetaM α := do
+  unless isStructure (← getEnv) struct do throwError "not a structure: {struct}"
+  let structC ← mkConstWithLevelParams struct
+  forallTelescope (← inferType structC) fun params _ => do
+  withNewBinderInfos (params.map (·.fvarId!, BinderInfo.implicit)) do
+  withLocalDecl `x .implicit (mkAppN structC params) fun x => do
+  withLocalDecl `y .implicit (mkAppN structC params) fun y => do
+    let mut hyps := #[]
+    let fields ← if flat then
+      pure <| getStructureFieldsFlattened (← getEnv) struct (includeSubobjectFields := false)
+    else
+      pure <| getStructureFields (← getEnv) struct
+    for field in fields do
+      let x_f ← mkProjection x field
+      let y_f ← mkProjection y field
+      unless ← isProof x_f do
+        hyps := hyps.push (field, ← mkEqHEq x_f y_f)
+    k params x y hyps
+
+/--
+Creates the type of the extensionality theorem for the given structure,
+returning `∀ {x y : Struct}, x.1 = y.1 → x.2 = y.2 → x = y`, for example.
+-/
+def mkExtType (structName : Name) (flat : Bool) : MetaM Expr := withLCtx {} {} do
+  withExtHyps structName flat fun params x y hyps => do
+    let ty := hyps.foldr (init := ← mkEq x y) fun (f, h) ty => .forallE f h ty .default
+    mkForallFVars (params |>.push x |>.push y) ty
+
+/--
+Derives the type of the `iff` form of an ext theorem.
+-/
+def mkExtIffType (extThmName : Name) : MetaM Expr := withLCtx {} {} do
+  forallTelescopeReducing (← getConstInfo extThmName).type fun args ty => do
+    let failNotEq := throwError "expecting a theorem proving x = y, but instead it proves{indentD ty}"
+    let some (_, x, y) := ty.eq? | failNotEq
+    let some xIdx := args.findIdx? (· == x) | failNotEq
+    let some yIdx := args.findIdx? (· == y) | failNotEq
+    unless xIdx == yIdx + 1 || xIdx + 1 == yIdx do
+      throwError "expecting {x} and {y} to be consecutive arguments"
+    let startIdx := max xIdx yIdx + 1
+    let toRevert := args[startIdx:].toArray
+    let fvars ← toRevert.foldlM (init := {}) (fun st e => return collectFVars st (← inferType e))
+    for fvar in toRevert do
+      unless ← Meta.isProof fvar do
+        throwError "argument {fvar} is not a proof, which is not supported"
+      if fvars.fvarSet.contains fvar.fvarId! then
+        throwError "argument {fvar} is depended upon, which is not supported"
+    let conj := mkAndN (← toRevert.mapM (inferType ·)).toList
+    -- Make everything implicit except for inst implicits
+    let mut newBis := #[]
+    for fvar in args[0:startIdx] do
+      if (← fvar.fvarId!.getBinderInfo) matches .default | .strictImplicit then
+        newBis := newBis.push (fvar.fvarId!, .implicit)
+    withNewBinderInfos newBis do
+      mkForallFVars args[:startIdx] <| mkIff ty conj
+
+/--
+Ensures that the given structure has an ext theorem, without validating any pre-existing theorems.
+Returns the name of the ext theorem.
+
+See `Lean.Elab.Tactic.Ext.withExtHyps` for an explanation of the `flat` argument.
+-/
+def realizeExtTheorem (structName : Name) (flat : Bool) : Elab.Command.CommandElabM Name := do
+  unless isStructure (← getEnv) structName do
+    throwError "'{structName}' is not a structure"
+  let extName := structName.mkStr "ext"
+  unless (← getEnv).contains extName do
+    Elab.Command.liftTermElabM <| withoutErrToSorry <| withDeclName extName do
+      let type ← mkExtType structName flat
+      let pf ← withSynthesize do
+        let indVal ← getConstInfoInduct structName
+        let params := Array.mkArray indVal.numParams (← `(_))
+        Elab.Term.elabTermEnsuringType (expectedType? := type) (implicitLambda := false)
+          -- introduce the params, do cases on 'x' and 'y', and then substitute each equation
+          (← `(by intro $params* {..} {..}; intros; subst_eqs; rfl))
+      let pf ← instantiateMVars pf
+      if pf.hasMVar then throwError "(internal error) synthesized ext proof contains metavariables{indentD pf}"
+      let info ← getConstInfo structName
+      addDecl <| Declaration.thmDecl {
+        name := extName
+        type
+        value := pf
+        levelParams := info.levelParams
+      }
+      modifyEnv fun env => addProtected env extName
+      Lean.addDeclarationRanges extName {
+        range := ← getDeclarationRange (← getRef)
+        selectionRange := ← getDeclarationRange (← getRef) }
+  return extName
+
+/--
+Given an 'ext' theorem, ensures that there is an iff version of the theorem (if possible),
+without validating any pre-existing theorems.
+Returns the name of the 'ext_iff' theorem.
+-/
+def realizeExtIffTheorem (extName : Name) : Elab.Command.CommandElabM Name := do
+  let extIffName : Name :=
+    match extName with
+    | .str n s => .str n (s ++ "_iff")
+    | _ => .str extName "ext_iff"
+  unless (← getEnv).contains extIffName do
+    let info ← getConstInfo extName
+    Elab.Command.liftTermElabM <| withoutErrToSorry <| withDeclName extIffName do
+      let type ← mkExtIffType extName
+      let pf ← withSynthesize do
+        Elab.Term.elabTermEnsuringType (expectedType? := type) <| ← `(by
+          intros
+          refine ⟨?_, ?_⟩
+          · intro h; cases h; and_intros <;> (intros; first | rfl | simp | fail "Failed to prove converse of ext theorem")
+          · intro; (repeat cases ‹_ ∧ _›); apply $(mkCIdent extName) <;> assumption)
+      let pf ← instantiateMVars pf
+      if pf.hasMVar then throwError "(internal error) synthesized ext_iff proof contains metavariables{indentD pf}"
+      addDecl <| Declaration.thmDecl {
+        name := extIffName
+        type
+        value := pf
+        levelParams := info.levelParams
+      }
+      -- Only declarations in a namespace can be protected:
+      unless extIffName.isAtomic do
+        modifyEnv fun env => addProtected env extIffName
+      Lean.addDeclarationRanges extIffName {
+        range := ← getDeclarationRange (← getRef)
+        selectionRange := ← getDeclarationRange (← getRef) }
+  return extIffName
+
+
+/-!
+### Attribute
+-/
+
 /-- Information about an extensionality theorem, stored in the environment extension. -/
 structure ExtTheorem where
   /-- Declaration name of the extensionality theorem. -/
@@ -66,9 +221,9 @@ def ExtTheorems.eraseCore (d : ExtTheorems) (declName : Name) : ExtTheorems :=
  { d with erased := d.erased.insert declName }
 
 /--
-  Erases a name marked as a `ext` attribute.
-  Check that it does in fact have the `ext` attribute by making sure it names a `ExtTheorem`
-  found somewhere in the state's tree, and is not erased.
+Erases a name marked as a `ext` attribute.
+Check that it does in fact have the `ext` attribute by making sure it names a `ExtTheorem`
+found somewhere in the state's tree, and is not erased.
 -/
 def ExtTheorems.erase [Monad m] [MonadError m] (d : ExtTheorems) (declName : Name) :
     m ExtTheorems := do
@@ -79,97 +234,40 @@ def ExtTheorems.erase [Monad m] [MonadError m] (d : ExtTheorems) (declName : Nam
 builtin_initialize registerBuiltinAttribute {
   name := `ext
   descr := "Marks a theorem as an extensionality theorem"
-  add := fun declName stx kind => do
-    let `(attr| ext $[(flat := $f)]? $(prio)?) := stx
-      | throwError "unexpected @[ext] attribute {stx}"
+  add := fun declName stx kind => MetaM.run' do
+    let `(attr| ext $[(iff := false%$iffFalse?)]? $[(flat := false%$flatFalse?)]? $(prio)?) := stx
+      | throwError "invalid syntax for 'ext' attribute"
+    let iff := iffFalse?.isNone
+    let flat := flatFalse?.isNone
+    let mut declName := declName
     if isStructure (← getEnv) declName then
-      liftCommandElabM <| Elab.Command.elabCommand <|
-        ← `(declare_ext_theorems_for $[(flat := $f)]? $(mkCIdentFrom stx declName) $[$prio]?)
-    else MetaM.run' do
-      if let some flat := f then
-        throwErrorAt flat "unexpected 'flat' config on @[ext] theorem"
-      let declTy := (← getConstInfo declName).type
-      let (_, _, declTy) ← withDefault <| forallMetaTelescopeReducing declTy
-      let failNotEq := throwError
-        "@[ext] attribute only applies to structures or theorems proving x = y, got {declTy}"
-      let some (ty, lhs, rhs) := declTy.eq? | failNotEq
-      unless lhs.isMVar && rhs.isMVar do failNotEq
-      let keys ← withReducible <| DiscrTree.mkPath ty extExt.config
-      let priority ← liftCommandElabM do Elab.liftMacroM do
-        evalPrio (prio.getD (← `(prio| default)))
-      extExtension.add {declName, keys, priority} kind
+      declName ← liftCommandElabM <| withRef stx <| realizeExtTheorem declName flat
+    else if let some stx := flatFalse? then
+      throwErrorAt stx "unexpected 'flat' configuration on @[ext] theorem"
+    -- Validate and add theorem to environment extension
+    let declTy := (← getConstInfo declName).type
+    let (_, _, declTy) ← withDefault <| forallMetaTelescopeReducing declTy
+    let failNotEq := throwError "\
+      @[ext] attribute only applies to structures and to theorems proving 'x = y' where 'x' and 'y' are variables, \
+      but this theorem proves{indentD declTy}"
+    let some (ty, lhs, rhs) := declTy.eq? | failNotEq
+    unless lhs.isMVar && rhs.isMVar do failNotEq
+    let keys ← withReducible <| DiscrTree.mkPath ty extExt.config
+    let priority ← liftCommandElabM <| Elab.liftMacroM do evalPrio (prio.getD (← `(prio| default)))
+    extExtension.add {declName, keys, priority} kind
+    -- Realize iff theorem
+    if iff then
+      discard <| liftCommandElabM <| withRef stx <| realizeExtIffTheorem declName
   erase := fun declName => do
     let s := extExtension.getState (← getEnv)
     let s ← s.erase declName
     modifyEnv fun env => extExtension.modifyState env fun _ => s
 }
 
-/--
-Constructs the hypotheses for the structure extensionality theorem that
-states that two structures are equal if their fields are equal.
 
-Calls the continuation `k` with the list of parameters to the structure,
-two structure variables `x` and `y`, and a list of pairs `(field, ty)`
-where `ty` is `x.field = y.field` or `HEq x.field y.field`.
-
-If `flat` parses to `true`, any fields inherited from parent structures
-are treated fields of the given structure type.
-If it is `false`, then the behind-the-scenes encoding of inherited fields
-is visible in the extensionality lemma.
+/-!
+### Implementation of `ext` tactic
 -/
--- TODO: this is probably the wrong place to have this function
-def withExtHyps (struct : Name) (flat : Term)
-    (k : Array Expr → (x y : Expr) → Array (Name × Expr) → MetaM α) : MetaM α := do
-  let flat ← match flat with
-  | `(true) => pure true
-  | `(false) => pure false
-  | _ => throwErrorAt flat "expected 'true' or 'false'"
-  unless isStructure (← getEnv) struct do throwError "not a structure: {struct}"
-  let structC ← mkConstWithLevelParams struct
-  forallTelescope (← inferType structC) fun params _ => do
-  withNewBinderInfos (params.map (·.fvarId!, BinderInfo.implicit)) do
-  withLocalDeclD `x (mkAppN structC params) fun x => do
-  withLocalDeclD `y (mkAppN structC params) fun y => do
-    let mut hyps := #[]
-    let fields ← if flat then
-      pure <| getStructureFieldsFlattened (← getEnv) struct (includeSubobjectFields := false)
-    else
-      pure <| getStructureFields (← getEnv) struct
-    for field in fields do
-      let x_f ← mkProjection x field
-      let y_f ← mkProjection y field
-      if ← isProof x_f then
-        pure ()
-      else if ← isDefEq (← inferType x_f) (← inferType y_f) then
-        hyps := hyps.push (field, ← mkEq x_f y_f)
-      else
-        hyps := hyps.push (field, ← mkHEq x_f y_f)
-    k params x y hyps
-
-/--
-Creates the type of the extensionality theorem for the given structure,
-elaborating to `x.1 = y.1 → x.2 = y.2 → x = y`, for example.
--/
-@[builtin_term_elab extType] def elabExtType : TermElab := fun stx _ => do
-  match stx with
-  | `(ext_type%  $flat:term $struct:ident) => do
-    withExtHyps (← realizeGlobalConstNoOverloadWithInfo struct) flat fun params x y hyps => do
-      let ty := hyps.foldr (init := ← mkEq x y) fun (f, h) ty =>
-        mkForall f BinderInfo.default h ty
-      mkForallFVars (params |>.push x |>.push y) ty
-  | _ => throwUnsupportedSyntax
-
-/--
-Creates the type of the iff-variant of the extensionality theorem for the given structure,
-elaborating to `x = y ↔ x.1 = y.1 ∧ x.2 = y.2`, for example.
--/
-@[builtin_term_elab extIffType] def elabExtIffType : TermElab := fun stx _ => do
-  match stx with
-  | `(ext_iff_type% $flat:term $struct:ident) => do
-    withExtHyps (← realizeGlobalConstNoOverloadWithInfo struct) flat fun params x y hyps => do
-      mkForallFVars (params |>.push x |>.push y) <|
-        mkIff (← mkEq x y) <| mkAndN (hyps.map (·.2)).toList
-  | _ => throwUnsupportedSyntax
 
 /-- Apply a single extensionality theorem to `goal`. -/
 def applyExtTheoremAt (goal : MVarId) : MetaM (List MVarId) := goal.withContext do

@@ -64,3 +64,15 @@ def so : Nat := by
                --^ sync
                --^ insert: ".5"
   exact 0
+
+/-!
+Incomplete syntax should not suppress errors in previous definitions as that would prevent reuse.
+-/
+-- RESET
+mutual
+def e0 : Nat := doesNotExist
+def e1 : Nat := doesNotExist
+en
+--^ sync
+--^ insert: "d"
+--^ collectDiagnostics

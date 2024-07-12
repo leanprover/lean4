@@ -301,6 +301,7 @@ LEAN_EXPORT lean_object* l_Std_HashMap_keysArray___rarg(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_repr___at_Std_HashMap_instRepr___spec__13___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Prod_repr___at_Std_HashMap_instRepr___spec__15___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_HashMap_instInhabited___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_instMembership(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_instForInProd___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_fold___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -316,6 +317,7 @@ size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_HashMap_containsThenInsertIfNew___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Prod_repr___at_Std_HashMap_instRepr___spec__4___rarg___closed__7;
 LEAN_EXPORT lean_object* l_Std_HashMap_keysArray(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_HashMap_instInhabited(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_toArray___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Std_HashMap_instRepr___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_empty___rarg(lean_object* x_1) {
@@ -411,6 +413,24 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_HashMap_instEmptyCollection(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_HashMap_instInhabited(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_HashMap_instEmptyCollection___closed__3;
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_HashMap_instInhabited___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_HashMap_instInhabited(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);
 return x_5;

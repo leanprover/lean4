@@ -57,3 +57,12 @@ def usingIO {α} (x : IO α) : IO α := x
   let (stdin, lean) ← lean.takeStdin
   stdin.putStr "#exit\n"
   lean.wait
+
+#eval usingIO do
+  let child ← spawn { cmd := "sh", args := #["-c", "cat"], stdin := .piped, stdout := .piped }
+  IO.println (← child.tryWait)
+  -- We take stdin in here such that it is closed automatically by dropping the object right away.
+  -- This will kill the `cat` process.
+  let (stdin, child) ← child.takeStdin
+  IO.sleep 1000
+  child.tryWait

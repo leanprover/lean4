@@ -1,6 +1,3 @@
-theorem eq_iff_true_of_subsingleton [Subsingleton α] (x y : α) : x = y ↔ True :=
-  ⟨fun _ => ⟨⟩, fun _ => (Subsingleton.elim ..)⟩
-
 attribute [simp] eq_iff_true_of_subsingleton in
 example : True := trivial
 

@@ -66,6 +66,9 @@ namespace HashMap
 instance [BEq α] [Hashable α] : EmptyCollection (HashMap α β) where
   emptyCollection := empty
 
+instance [BEq α] [Hashable α] : Inhabited (HashMap α β) where
+  default := ∅
+
 @[inline, inherit_doc DHashMap.insert] def insert [BEq α] [Hashable α] (m : HashMap α β) (a : α)
     (b : β) : HashMap α β :=
   ⟨m.inner.insert a b⟩

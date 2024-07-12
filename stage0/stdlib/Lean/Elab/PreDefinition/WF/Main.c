@@ -109,7 +109,6 @@ uint8_t l_Lean_Expr_isLambda(lean_object*);
 static lean_object* l_Lean_Elab_wfRecursion___lambda__8___closed__1;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_wfRecursion___lambda__7___closed__1;
-lean_object* l_Lean_Meta_forallBoundedTelescope___at___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___spec__3___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_Elab_applyAttributesOf(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instMonadControlTOfMonadControl___rarg(lean_object*, lean_object*);
@@ -125,6 +124,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_WF_Main_0__Lean_Ela
 static lean_object* l_Lean_Elab_wfRecursion___lambda__6___closed__1;
 lean_object* l_Lean_Meta_iteToDIte___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_withCommonTelescope___rarg___closed__1;
+lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_PreDefinition_WF_Main___hyg_2728____closed__13;
 static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDefinition_WF_Main_0__Lean_Elab_addNonRecPreDefs___spec__1___lambda__2___closed__1;
 static lean_object* l_Lean_Elab_wfRecursion___lambda__3___closed__2;
@@ -5928,7 +5928,7 @@ x_12 = lean_alloc_closure((void*)(l_Lean_Elab_varyingVarNames___lambda__2___boxe
 lean_closure_set(x_12, 0, x_2);
 lean_closure_set(x_12, 1, x_3);
 x_13 = 0;
-x_14 = l_Lean_Meta_forallBoundedTelescope___at___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___spec__3___rarg(x_10, x_11, x_12, x_13, x_5, x_6, x_7, x_8, x_9);
+x_14 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(x_10, x_11, x_12, x_13, x_5, x_6, x_7, x_8, x_9);
 return x_14;
 }
 }

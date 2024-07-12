@@ -22,7 +22,7 @@ along with `@[csimp]` lemmas,
 
 In `Init.Data.List.Lemmas` we develop the full API for these functions.
 
-Recall that `length`, `get`, `set`, `fold`, and `concat` have already been defined in `Init.Prelude`.
+Recall that `length`, `get`, `set`, `foldl`, and `concat` have already been defined in `Init.Prelude`.
 
 The operations are organized as follow:
 * Equality: `beq`, `isEqv`.
@@ -32,8 +32,8 @@ The operations are organized as follow:
 * List membership: `isEmpty`, `elem`, `contains`, `mem` (and the `∈` notation),
   and decidability for predicates quantifying over membership in a `List`.
 * Sublists: `take`, `drop`, `takeWhile`, `dropWhile`, `partition`, `dropLast`,
-  `isPrefixOf`, `isPrefixOf?`, `isSuffixOf`, `isSuffixOf?`, `rotateLeft` and `rotateRight`.
-* Manipulating elements: `replace`, `insert`, `erase`, `eraseIdx`, `find?`, `findSome?`, and `lookup`.
+  `isPrefixOf`, `isPrefixOf?`, `isSuffixOf`, `isSuffixOf?`, `Subset`, `Sublist`, `rotateLeft` and `rotateRight`.
+* Manipulating elements: `replace`, `insert`, `erase`, `eraseP`, `eraseIdx`, `find?`, `findSome?`, and `lookup`.
 * Logic: `any`, `all`, `or`, and `and`.
 * Zippers: `zipWith`, `zip`, `zipWithAll`, and `unzip`.
 * Ranges and enumeration: `range`, `iota`, `enumFrom`, and `enum`.
@@ -866,6 +866,40 @@ def isSuffixOf [BEq α] (l₁ l₂ : List α) : Bool :=
 def isSuffixOf? [BEq α] (l₁ l₂ : List α) : Option (List α) :=
   Option.map List.reverse <| isPrefixOf? l₁.reverse l₂.reverse
 
+/-! ### Subset -/
+
+/--
+`l₁ ⊆ l₂` means that every element of `l₁` is also an element of `l₂`, ignoring multiplicity.
+-/
+protected def Subset (l₁ l₂ : List α) := ∀ ⦃a : α⦄, a ∈ l₁ → a ∈ l₂
+
+instance : HasSubset (List α) := ⟨List.Subset⟩
+
+instance [DecidableEq α] : DecidableRel (Subset : List α → List α → Prop) :=
+  fun _ _ => decidableBAll _ _
+
+/-! ### Sublist and isSublist -/
+
+/-- `l₁ <+ l₂`, or `Sublist l₁ l₂`, says that `l₁` is a (non-contiguous) subsequence of `l₂`. -/
+inductive Sublist {α} : List α → List α → Prop
+  /-- the base case: `[]` is a sublist of `[]` -/
+  | slnil : Sublist [] []
+  /-- If `l₁` is a subsequence of `l₂`, then it is also a subsequence of `a :: l₂`. -/
+  | cons a : Sublist l₁ l₂ → Sublist l₁ (a :: l₂)
+  /-- If `l₁` is a subsequence of `l₂`, then `a :: l₁` is a subsequence of `a :: l₂`. -/
+  | cons₂ a : Sublist l₁ l₂ → Sublist (a :: l₁) (a :: l₂)
+
+@[inherit_doc] scoped infixl:50 " <+ " => Sublist
+
+/-- True if the first list is a potentially non-contiguous sub-sequence of the second list. -/
+def isSublist [BEq α] : List α → List α → Bool
+  | [], _ => true
+  | _, [] => false
+  | l₁@(hd₁::tl₁), hd₂::tl₂ =>
+    if hd₁ == hd₂
+    then tl₁.isSublist tl₂
+    else l₁.isSublist tl₂
+
 /-! ### rotateLeft -/
 
 /--
@@ -907,6 +941,55 @@ def rotateRight (xs : List α) (n : Nat := 1) : List α :=
     e ++ b
 
 @[simp] theorem rotateRight_nil : ([] : List α).rotateRight n = [] := rfl
+
+/-! ## Pairwise, Nodup -/
+
+section Pairwise
+
+variable (R : α → α → Prop)
+
+/--
+`Pairwise R l` means that all the elements with earlier indexes are
+`R`-related to all the elements with later indexes.
+```
+Pairwise R [1, 2, 3] ↔ R 1 2 ∧ R 1 3 ∧ R 2 3
+```
+For example if `R = (·≠·)` then it asserts `l` has no duplicates,
+and if `R = (·<·)` then it asserts that `l` is (strictly) sorted.
+-/
+inductive Pairwise : List α → Prop
+  /-- All elements of the empty list are vacuously pairwise related. -/
+  | nil : Pairwise []
+  /-- `a :: l` is `Pairwise R` if `a` `R`-relates to every element of `l`,
+  and `l` is `Pairwise R`. -/
+  | cons : ∀ {a : α} {l : List α}, (∀ a', a' ∈ l → R a a') → Pairwise l → Pairwise (a :: l)
+
+attribute [simp] Pairwise.nil
+
+variable {R}
+
+@[simp] theorem pairwise_cons : Pairwise R (a::l) ↔ (∀ a', a' ∈ l → R a a') ∧ Pairwise R l :=
+  ⟨fun | .cons h₁ h₂ => ⟨h₁, h₂⟩, fun ⟨h₁, h₂⟩ => h₂.cons h₁⟩
+
+instance instDecidablePairwise [DecidableRel R] :
+    (l : List α) → Decidable (Pairwise R l)
+  | [] => isTrue .nil
+  | hd :: tl =>
+    match instDecidablePairwise tl with
+    | isTrue ht =>
+      match decidableBAll (R hd) tl with
+      | isFalse hf => isFalse fun hf' => hf (pairwise_cons.1 hf').1
+      | isTrue ht' => isTrue <| pairwise_cons.mpr (And.intro ht' ht)
+    | isFalse hf => isFalse fun | .cons _ ih => hf ih
+
+end Pairwise
+
+/-- `Nodup l` means that `l` has no duplicates, that is, any element appears at most
+  once in the List. It is defined as `Pairwise (≠)`. -/
+def Nodup : List α → Prop := Pairwise (· ≠ ·)
+
+instance nodupDecidable [DecidableEq α] : ∀ l : List α, Decidable (Nodup l) :=
+  instDecidablePairwise
 
 /-! ## Manipulating elements -/
 
@@ -952,6 +1035,11 @@ protected def erase {α} [BEq α] : List α → α → List α
 theorem erase_cons [BEq α] (a b : α) (l : List α) :
     (b :: l).erase a = if b == a then l else b :: l.erase a := by
   simp only [List.erase]; split <;> simp_all
+
+/-- `eraseP p l` removes the first element of `l` satisfying the predicate `p`. -/
+def eraseP (p : α → Bool) : List α → List α
+  | [] => []
+  | a :: l => bif p a then l else a :: eraseP p l
 
 /-! ### eraseIdx -/
 

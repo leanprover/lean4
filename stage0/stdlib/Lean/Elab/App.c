@@ -111,6 +111,7 @@ lean_object* l_Lean_MetavarContext_getDecl(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabPipeProj_declRange__1___closed__1;
 static lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_hasOptAutoParams___closed__1;
 static lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Elab_Term_ElabElim_mkMotive___spec__2___closed__2;
+uint8_t l_Array_contains___at_Lean_Meta_arrowDomainsN___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_App_0__Lean_Elab_Term_getSuccesses___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppFn___closed__16;
 lean_object* l_Lean_Meta_isProp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -481,7 +482,6 @@ static lean_object* l___regBuiltin_Lean_Elab_Term_elabExplicitUniv_declRange__1_
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabAppArgs_getElabAsElimExtraArgsPos___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_App_0__Lean_Elab_Term_mergeFailures___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_ElabAppArgs_synthesizePendingAndNormalizeFunType___closed__2;
-uint8_t l_Array_contains___at_Lean_Elab_Term_collectUnassignedMVars_go___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_propagateExpectedTypeFor___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_elabAppArgs___closed__3;
 static lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_ElabAppArgs_synthesizePendingAndNormalizeFunType___closed__1;
@@ -27404,7 +27404,7 @@ return x_4;
 else
 {
 uint8_t x_5; 
-x_5 = l_Array_contains___at_Lean_Elab_Term_collectUnassignedMVars_go___spec__1(x_1, x_2);
+x_5 = l_Array_contains___at_Lean_Meta_arrowDomainsN___spec__2(x_1, x_2);
 return x_5;
 }
 }

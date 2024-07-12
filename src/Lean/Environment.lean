@@ -868,9 +868,9 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
           -- Recall that the map has not been modified when `cinfoPrev? = some _`.
           unless equivInfo cinfoPrev cinfo do
             throwAlreadyImported s const2ModIdx modIdx cname
-      const2ModIdx := const2ModIdx.insert cname modIdx
+      const2ModIdx := const2ModIdx.insertIfNew cname modIdx |>.1
     for cname in mod.extraConstNames do
-      const2ModIdx := const2ModIdx.insert cname modIdx
+      const2ModIdx := const2ModIdx.insertIfNew cname modIdx |>.1
   let constants : ConstMap := SMap.fromHashMap constantMap false
   let exts ← mkInitialExtensionStates
   let mut env : Environment := {

@@ -183,16 +183,31 @@ def addAndCompilePartialRec (preDefs : Array PreDefinition) : TermElabM Unit := 
             | _ => none
           modifiers := {} }
 
-private def containsRecFn (recFnName : Name) (e : Expr) : Bool :=
-  (e.find? fun e => e.isConstOf recFnName).isSome
+private def containsRecFn (recFnNames : Array Name) (e : Expr) : Bool :=
+  (e.find? fun e => e.isConst && recFnNames.contains e.constName!).isSome
 
-def ensureNoRecFn (recFnName : Name) (e : Expr) : MetaM Expr := do
-  if containsRecFn recFnName e then
+def ensureNoRecFn (recFnNames : Array Name) (e : Expr) : MetaM Unit := do
+  if containsRecFn recFnNames e then
     Meta.forEachExpr e fun e => do
-      if e.isAppOf recFnName then
+      if e.getAppFn.isConst && recFnNames.contains e.getAppFn.constName! then
         throwError "unexpected occurrence of recursive application{indentExpr e}"
-    pure e
-  else
-    pure e
+
+/--
+Checks that all codomains have the same level, throws an error otherwise.
+-/
+def checkCodomainsLevel (preDefs : Array PreDefinition) : MetaM Unit := do
+  if preDefs.size = 1 then return
+  let arities ← preDefs.mapM fun preDef =>
+    lambdaTelescope preDef.value fun xs _ => return xs.size
+  forallBoundedTelescope preDefs[0]!.type arities[0]!  fun _ type₀ => do
+    let u₀ ← getLevel type₀
+    for i in [1:preDefs.size] do
+      forallBoundedTelescope preDefs[i]!.type arities[i]! fun _ typeᵢ =>
+      unless ← isLevelDefEq u₀ (← getLevel typeᵢ) do
+        withOptions (fun o => pp.sanitizeNames.set o false) do
+          throwError m!"invalid mutual definition, result types must be in the same universe " ++
+            m!"level, resulting type " ++
+            m!"for `{preDefs[0]!.declName}` is{indentExpr type₀} : {← inferType type₀}\n" ++
+            m!"and for `{preDefs[i]!.declName}` is{indentExpr typeᵢ} : {← inferType typeᵢ}"
 
 end Lean.Elab

@@ -214,6 +214,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_DHashMap_Raw_keys___
 LEAN_EXPORT lean_object* l_Std_DHashMap_Raw_Const_insertManyUnit___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Std_DHashMap_Raw_toList___spec__1___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Std_DHashMap_Raw_toArray___spec__1___rarg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Raw_instInhabited(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_DHashMap_Raw_filter___spec__2___rarg(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Raw_fold___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Raw_Const_getD___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -415,6 +416,14 @@ return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Std_DHashMap_Raw_instEmptyCollection(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_DHashMap_Raw_instEmptyCollection___closed__3;
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DHashMap_Raw_instInhabited(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 

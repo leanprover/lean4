@@ -378,7 +378,7 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
     -- Get instance from `d`
     let s := d.appArg!
     -- Reduce the instance rather than `d` itself, since that gives a nicer error message on failure.
-    let r ← withDefault <| whnf s
+    let r ← withAtLeastTransparency .default <| whnf s
     if r.isAppOf ``isFalse then
       throwError "\
         tactic 'decide' proved that the proposition\

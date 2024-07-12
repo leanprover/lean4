@@ -326,7 +326,6 @@ static lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_solveCn
 LEAN_EXPORT lean_object* l_List_filterAuxM___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_filterTrivialCnstrs___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_appendTR___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_forallBoundedTelescope___at___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___spec__3___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Match_initFn____x40_Lean_Meta_Match_Match___hyg_10682____closed__7;
 static lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_withAlts_loop___rarg___closed__11;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_isValueOnlyTransitionCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -381,6 +380,7 @@ LEAN_EXPORT lean_object* l_List_map___at___private_Lean_Meta_Match_Match_0__Lean
 static lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_process___closed__4;
 static lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processLeaf_go___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Meta_Match_withCleanLCtxFor___spec__19___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_checkNextPatternTypes___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_withMkMatcherInput___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_map___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_expandVarIntoCtor_x3f___spec__2(lean_object*);
@@ -405,7 +405,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Match_mkMatcher___lambda__14___boxed(lean_o
 static lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_solveCnstrs_go___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_Match_getMkMatcherInputInContext___spec__5(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_mapM_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_expandIntValuePattern___spec__1___closed__6;
-uint8_t l_Array_contains___at_Lean_Elab_Term_collectUnassignedMVars_go___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_withAlts_mkMinorType___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processLeaf_go___closed__2;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_checkNextPatternTypes___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -771,6 +770,7 @@ LEAN_EXPORT lean_object* l_Lean_HashSetImp_expand___at___private_Lean_Meta_Match
 static lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_withAlts_loop___rarg___lambda__1___closed__2;
 lean_object* l_Lean_indentExpr(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processConstructor___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Array_contains___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__4(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_getNumEqsFromDiscrInfos(lean_object*);
 static lean_object* l_Lean_Meta_Match_mkMatcher___lambda__16___closed__2;
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Meta_Match_withCleanLCtxFor___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -13008,7 +13008,7 @@ lean_dec(x_18);
 x_19 = lean_ctor_get(x_8, 0);
 lean_inc(x_19);
 lean_dec(x_8);
-x_20 = lean_ctor_get_uint8(x_19, sizeof(void*)*5);
+x_20 = lean_ctor_get_uint8(x_19, sizeof(void*)*6);
 lean_dec(x_19);
 x_21 = lean_box(x_20);
 lean_ctor_set(x_7, 0, x_21);
@@ -13023,7 +13023,7 @@ lean_dec(x_7);
 x_23 = lean_ctor_get(x_8, 0);
 lean_inc(x_23);
 lean_dec(x_8);
-x_24 = lean_ctor_get_uint8(x_23, sizeof(void*)*5);
+x_24 = lean_ctor_get_uint8(x_23, sizeof(void*)*6);
 lean_dec(x_23);
 x_25 = lean_box(x_24);
 x_26 = lean_alloc_ctor(0, 2, 0);
@@ -18248,7 +18248,7 @@ lean_dec(x_2);
 x_9 = lean_ctor_get(x_7, 0);
 lean_inc(x_9);
 lean_dec(x_7);
-x_10 = l_Array_contains___at_Lean_Elab_Term_collectUnassignedMVars_go___spec__1(x_1, x_9);
+x_10 = l_Array_contains___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__4(x_1, x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; 
@@ -41751,7 +41751,7 @@ lean_closure_set(x_58, 9, x_6);
 lean_closure_set(x_58, 10, x_7);
 lean_closure_set(x_58, 11, x_57);
 x_59 = 0;
-x_60 = l_Lean_Meta_forallBoundedTelescope___at___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___spec__3___rarg(x_11, x_12, x_58, x_59, x_14, x_15, x_16, x_17, x_18);
+x_60 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(x_11, x_12, x_58, x_59, x_14, x_15, x_16, x_17, x_18);
 return x_60;
 }
 }
@@ -42133,7 +42133,7 @@ lean_closure_set(x_17, 5, x_16);
 lean_closure_set(x_17, 6, x_7);
 lean_closure_set(x_17, 7, x_15);
 x_18 = 0;
-x_19 = l_Lean_Meta_forallBoundedTelescope___at___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___spec__3___rarg(x_7, x_15, x_17, x_18, x_8, x_9, x_10, x_11, x_14);
+x_19 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(x_7, x_15, x_17, x_18, x_8, x_9, x_10, x_11, x_14);
 return x_19;
 }
 else
@@ -43460,7 +43460,7 @@ x_17 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_17, 0, x_16);
 x_18 = l_Lean_Meta_Match_getMkMatcherInputInContext___lambda__2___closed__1;
 x_19 = 0;
-x_20 = l_Lean_Meta_forallBoundedTelescope___at___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___spec__3___rarg(x_14, x_17, x_18, x_19, x_7, x_8, x_9, x_10, x_15);
+x_20 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(x_14, x_17, x_18, x_19, x_7, x_8, x_9, x_10, x_15);
 if (lean_obj_tag(x_20) == 0)
 {
 uint8_t x_21; 
@@ -43779,7 +43779,7 @@ lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_41);
-x_47 = l_Lean_Meta_forallBoundedTelescope___at___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___spec__3___rarg(x_41, x_13, x_45, x_46, x_2, x_3, x_4, x_5, x_42);
+x_47 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(x_41, x_13, x_45, x_46, x_2, x_3, x_4, x_5, x_42);
 if (lean_obj_tag(x_47) == 0)
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; 
@@ -43857,7 +43857,7 @@ lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_41);
-x_67 = l_Lean_Meta_forallBoundedTelescope___at___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___spec__3___rarg(x_41, x_13, x_65, x_66, x_2, x_3, x_4, x_5, x_42);
+x_67 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(x_41, x_13, x_65, x_66, x_2, x_3, x_4, x_5, x_42);
 if (lean_obj_tag(x_67) == 0)
 {
 lean_object* x_68; lean_object* x_69; lean_object* x_70; 
@@ -43919,7 +43919,7 @@ lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_41);
-x_79 = l_Lean_Meta_forallBoundedTelescope___at___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___spec__3___rarg(x_41, x_13, x_77, x_78, x_2, x_3, x_4, x_5, x_42);
+x_79 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(x_41, x_13, x_77, x_78, x_2, x_3, x_4, x_5, x_42);
 if (lean_obj_tag(x_79) == 0)
 {
 lean_object* x_80; lean_object* x_81; lean_object* x_82; 
@@ -44088,7 +44088,7 @@ lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_105);
-x_112 = l_Lean_Meta_forallBoundedTelescope___at___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___spec__3___rarg(x_105, x_109, x_110, x_111, x_2, x_3, x_4, x_5, x_106);
+x_112 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(x_105, x_109, x_110, x_111, x_2, x_3, x_4, x_5, x_106);
 if (lean_obj_tag(x_112) == 0)
 {
 lean_object* x_113; lean_object* x_114; lean_object* x_115; 
@@ -44168,7 +44168,7 @@ lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_105);
-x_132 = l_Lean_Meta_forallBoundedTelescope___at___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___spec__3___rarg(x_105, x_109, x_130, x_131, x_2, x_3, x_4, x_5, x_106);
+x_132 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(x_105, x_109, x_130, x_131, x_2, x_3, x_4, x_5, x_106);
 if (lean_obj_tag(x_132) == 0)
 {
 lean_object* x_133; lean_object* x_134; lean_object* x_135; 
@@ -44232,7 +44232,7 @@ lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_105);
-x_144 = l_Lean_Meta_forallBoundedTelescope___at___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___spec__3___rarg(x_105, x_109, x_142, x_143, x_2, x_3, x_4, x_5, x_106);
+x_144 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(x_105, x_109, x_142, x_143, x_2, x_3, x_4, x_5, x_106);
 if (lean_obj_tag(x_144) == 0)
 {
 lean_object* x_145; lean_object* x_146; lean_object* x_147; 
@@ -46251,7 +46251,7 @@ x_33 = lean_alloc_closure((void*)(l_Lean_Meta_Match_withMkMatcherInput___rarg___
 lean_closure_set(x_33, 0, x_29);
 lean_closure_set(x_33, 1, x_2);
 x_34 = 0;
-x_35 = l_Lean_Meta_forallBoundedTelescope___at___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___spec__3___rarg(x_31, x_9, x_33, x_34, x_3, x_4, x_5, x_6, x_30);
+x_35 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(x_31, x_9, x_33, x_34, x_3, x_4, x_5, x_6, x_30);
 return x_35;
 }
 else
@@ -46308,7 +46308,7 @@ x_47 = lean_alloc_closure((void*)(l_Lean_Meta_Match_withMkMatcherInput___rarg___
 lean_closure_set(x_47, 0, x_42);
 lean_closure_set(x_47, 1, x_2);
 x_48 = 0;
-x_49 = l_Lean_Meta_forallBoundedTelescope___at___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___spec__3___rarg(x_44, x_46, x_47, x_48, x_3, x_4, x_5, x_6, x_43);
+x_49 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(x_44, x_46, x_47, x_48, x_3, x_4, x_5, x_6, x_43);
 return x_49;
 }
 else

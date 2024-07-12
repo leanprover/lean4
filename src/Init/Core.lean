@@ -1362,6 +1362,9 @@ theorem iff_false_right (ha : ¬a) : (b ↔ a) ↔ ¬b := Iff.comm.trans (iff_fa
 theorem of_iff_true    (h : a ↔ True) : a := h.mpr trivial
 theorem iff_true_intro (h : a) : a ↔ True := iff_of_true h trivial
 
+theorem eq_iff_true_of_subsingleton [Subsingleton α] (x y : α) : x = y ↔ True :=
+  iff_true_intro (Subsingleton.elim ..)
+
 theorem not_of_iff_false : (p ↔ False) → ¬p := Iff.mp
 theorem iff_false_intro (h : ¬a) : a ↔ False := iff_of_false h id
 
@@ -1867,7 +1870,7 @@ instance : Subsingleton (Squash α) where
 /--
 `Antisymm (·≤·)` says that `(·≤·)` is antisymmetric, that is, `a ≤ b → b ≤ a → a = b`.
 -/
-class Antisymm {α : Sort u} (r : α → α → Prop) where
+class Antisymm {α : Sort u} (r : α → α → Prop) : Prop where
   /-- An antisymmetric relation `(·≤·)` satisfies `a ≤ b → b ≤ a → a = b`. -/
   antisymm {a b : α} : r a b → r b a → a = b
 

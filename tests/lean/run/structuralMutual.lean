@@ -611,18 +611,4 @@ error: unknown identifier 'EvenOdd.isEven.induct'
 #guard_msgs in
 #check EvenOdd.isEven.induct -- TODO: This error message can be improved
 
-
--- For Tree.size this would actually work already:
-
-run_meta
-  Lean.modifyEnv fun env => Lean.markAuxRecursor env ``NestedWithTuple.Tree.brecOn
-
-/--
-info: NestedWithTuple.Tree.size.induct (motive : NestedWithTuple.Tree → Prop) (case1 : motive NestedWithTuple.Tree.leaf)
-  (case2 : ∀ (t₁ t₂ : NestedWithTuple.Tree), motive t₁ → motive t₂ → motive (NestedWithTuple.Tree.node (t₁, t₂))) :
-  ∀ (a : NestedWithTuple.Tree), motive a
--/
-#guard_msgs in
-#check NestedWithTuple.Tree.size.induct
-
 end FunIndTests

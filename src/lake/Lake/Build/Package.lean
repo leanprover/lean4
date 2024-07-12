@@ -28,7 +28,8 @@ def Package.depsFacetConfig : PackageFacetConfig depsFacet :=
 def Package.fetchOptRelease (self : Package) : FetchM (BuildJob Unit) := do
   (← self.optRelease.fetch).bindSync fun success t => do
     unless success do
-      logWarning "failed to fetch cloud release; falling back to local build"
+      logWarning s!"building from source; \
+        failed to fetch cloud release (see '{self.name}:optRelease' for details)"
     return ((), t)
 
 /--
@@ -55,17 +56,17 @@ def Package.extraDepFacetConfig : PackageFacetConfig extraDepFacet :=
 
 /-- Tries to download and unpack the package's prebuilt release archive (from GitHub). -/
 def Package.fetchOptReleaseCore (self : Package) : FetchM (BuildJob Bool) :=
-  withRegisterJob s!"{self.name}:optRelease" <| Job.async do
+  withRegisterJob s!"{self.name}:optRelease" (optional := true) <| Job.async do
   let repo := GitRepo.mk self.dir
   let repoUrl? := self.releaseRepo? <|> self.remoteUrl?
   let some repoUrl := repoUrl? <|> (← repo.getFilteredRemoteUrl?)
-    | logInfo s!"{self.name}: release repository URL not known; \
+    | logError s!"release repository URL not known; \
         the package may need to set 'releaseRepo'"
       updateAction .fetch
       return (false, .nil)
   let some tag ← repo.findTag?
     | let rev ← if let some rev ← repo.getHeadRevision? then pure s!" '{rev}'" else pure ""
-      logInfo s!"{self.name}: no release tag found for revision{rev}"
+      logError s!"no release tag found for revision{rev}"
       updateAction .fetch
       return (false, .nil)
   let url := s!"{repoUrl}/releases/download/{tag}/{self.buildArchive}"
@@ -90,7 +91,7 @@ def Package.releaseFacetConfig : PackageFacetConfig releaseFacet :=
     withRegisterJob s!"{pkg.name}:release" do
       (← pkg.optRelease.fetch).bindSync fun success t => do
         unless success do
-          error "failed to fetch cloud release"
+          error s!"failed to fetch cloud release (see '{pkg.name}:optRelease' for details)"
         return ((), t)
 
 /-- Perform a build job after first checking for an (optional) cloud release for the package. -/

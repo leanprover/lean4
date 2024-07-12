@@ -32,21 +32,21 @@ git -C .lake/packages/dep tag -d release
 # Test that a direct invocation fo `lake build *:release` fails
 REV_STR="'${INIT_REV}'"
 ($LAKE build dep:release && exit 1 || true) | diff -u --strip-trailing-cr <(cat << EOF
-ℹ [1/2] Fetched dep:optRelease
-info: dep: no release tag found for revision ${REV_STR}
+✖ [1/2] (Optional) Fetching dep:optRelease
+error: no release tag found for revision ${REV_STR}
 ✖ [2/2] Running dep:release
-error: failed to fetch cloud release
-Some builds logged failures:
+error: failed to fetch cloud release (see 'dep:optRelease' for details)
+Some required builds logged failures:
 - dep:release
 EOF
 ) -
 
 # Test that an indirect fetch on the release does not cause the build to fail
 $LAKE build Test | diff -u --strip-trailing-cr <(cat << EOF
-ℹ [1/5] Fetched dep:optRelease
-info: dep: no release tag found for revision ${REV_STR}
+✖ [1/5] (Optional) Fetching dep:optRelease
+error: no release tag found for revision ${REV_STR}
 ⚠ [2/5] Ran dep:extraDep
-warning: failed to fetch cloud release; falling back to local build
+warning: building from source; failed to fetch cloud release (see 'dep:optRelease' for details)
 ✔ [4/5] Built Test
 Build completed successfully.
 EOF

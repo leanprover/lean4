@@ -744,8 +744,8 @@ def findRecursor {α} (name : Name) (varNames : Array Name) (e : Expr)
         -- Bail out on mutual or nested inductives
         let .str indName _ := f.constName! | unreachable!
         let indInfo ← getConstInfoInduct indName
-        if indInfo.all.length + indInfo.numNested > 1 then
-          throwError "functional induction: cannot handle mutual inductives"
+        if indInfo.numTypeFormers > 1 then
+          throwError "functional induction: cannot handle mutual or nested inductives"
 
         let elimInfo ← getElimExprInfo f
         let targets : Array Expr := elimInfo.targetsPos.map (args[·]!)

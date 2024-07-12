@@ -244,28 +244,34 @@ the right universe levels, the parameters, and the motives.
 It was already checked earlier in `checkCodomainsLevel` that the functions live in the same universe.
 -/
 def mkBRecOnConst (recArgInfos : Array RecArgInfo) (positions : Positions)
-   (motives : Array Expr) : MetaM (Name → Expr) := do
-  -- For now, just look at the first
-  let recArgInfo := recArgInfos[0]!
+   (motives : Array Expr) : MetaM (Nat → Expr) := do
+  -- Get a representative recArgInfo; in particular
+  let indGroup := IndGroupInst.ofRecArgInfo recArgInfos[0]!
   let motive := motives[0]!
   let brecOnUniv ← lambdaTelescope motive fun _ type => getLevel type
-  let indInfo ← getConstInfoInduct recArgInfo.indName
+  let indInfo ← getConstInfoInduct indGroup.all[0]!
   let useBInductionOn := indInfo.isReflexive && brecOnUniv == levelZero
   let brecOnUniv ←
     if indInfo.isReflexive && brecOnUniv != levelZero then
       decLevel brecOnUniv
     else
       pure brecOnUniv
-  let brecOnCons := fun n =>
+  let brecOnCons := fun idx  =>
     let brecOn :=
-      if useBInductionOn then .const (mkBInductionOnName n) recArgInfo.indLevels
-      else                    .const (mkBRecOnName n) (brecOnUniv :: recArgInfo.indLevels)
-    mkAppN brecOn recArgInfo.indParams
+      if let .some n := indGroup.all[idx]? then
+        if useBInductionOn then .const (mkBInductionOnName n) indGroup.levels
+        else                    .const (mkBRecOnName n) (brecOnUniv :: indGroup.levels)
+      else
+        let n := indGroup.all[0]!
+        let j := idx - indGroup.all.size + 1
+        if useBInductionOn then .const (mkBInductionOnName n |>.appendIndexAfter j) indGroup.levels
+        else                    .const (mkBRecOnName n |>.appendIndexAfter j) (brecOnUniv :: indGroup.levels)
+    mkAppN brecOn indGroup.params
 
   -- Pick one as a prototype
-  let brecOnAux := brecOnCons recArgInfo.indName
+  let brecOnAux := brecOnCons 0
   -- Infer the type of the packed motive arguments
-  let packedMotiveTypes ← inferArgumentTypesN recArgInfo.indAll.size brecOnAux
+  let packedMotiveTypes ← inferArgumentTypesN (← indGroup.numMotives) brecOnAux
   let packedMotives ← positions.mapMwith packMotives packedMotiveTypes motives
 
   return fun n => mkAppN (brecOnCons n) packedMotives
@@ -277,9 +283,9 @@ combinators. This assumes that all `.brecOn` functions of a mutual inductive hav
 It also undoes the permutation and packing done by `packMotives`
 -/
 def inferBRecOnFTypes (recArgInfos : Array RecArgInfo) (positions : Positions)
-    (brecOnConst : Name → Expr) : MetaM (Array Expr) := do
+    (brecOnConst : Nat → Expr) : MetaM (Array Expr) := do
   let recArgInfo := recArgInfos[0]! -- pick an arbitrary one
-  let brecOn := brecOnConst recArgInfo.indName
+  let brecOn := brecOnConst recArgInfo.indIdx
   check brecOn
   let brecOnType ← inferType brecOn
   -- Skip the indices and major argument
@@ -297,11 +303,11 @@ def inferBRecOnFTypes (recArgInfos : Array RecArgInfo) (positions : Positions)
 Completes the `.brecOn` for the given function.
 The `value` is the function with (only) the fixed parameters moved into the context.
 -/
-def mkBrecOnApp (positions : Positions) (fnIdx : Nat) (brecOnConst : Name → Expr)
+def mkBrecOnApp (positions : Positions) (fnIdx : Nat) (brecOnConst : Nat → Expr)
     (FArgs : Array Expr) (recArgInfo : RecArgInfo) (value : Expr) : MetaM Expr := do
   lambdaTelescope value fun ys _value => do
     let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor ys
-    let brecOn := brecOnConst recArgInfo.indName
+    let brecOn := brecOnConst recArgInfo.indIdx
     let brecOn := mkAppN brecOn indexMajorArgs
     let packedFTypes ← inferArgumentTypesN positions.size brecOn
     let packedFArgs ← positions.mapMwith packFArgs packedFTypes FArgs

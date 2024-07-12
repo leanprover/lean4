@@ -91,15 +91,18 @@ def getRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) :
           | some (indParam, y) =>
             throwError "its type is an inductive datatype{indentExpr xType}\nand the datatype parameter{indentExpr indParam}\ndepends on the function parameter{indentExpr y}\nwhich does not come before the varying parameters and before the indices of the recursion parameter."
           | none =>
+            let indAll := indInfo.all.toArray
+            let .some indIdx := indAll.indexOf? indInfo.name | panic! "{indInfo.name} not in {indInfo.all}"
             let indicesPos := indIndices.map fun index => match xs.indexOf? index with | some i => i.val | none => unreachable!
-            return { fnName      := fnName
-                     numFixed    := numFixed
-                     recArgPos   := i
-                     indicesPos  := indicesPos
-                     indName     := indInfo.name
-                     indLevels   := us
-                     indParams   := indParams
-                     indAll      := indInfo.all.toArray }
+            return { fnName       := fnName
+                     numFixed     := numFixed
+                     recArgPos    := i
+                     indicesPos   := indicesPos
+                     indIdx       := indIdx
+                     indLevels    := us
+                     indParams    := indParams
+                     indAll       := indInfo.all.toArray
+                     indNumNested := indInfo.numNested }
     else
       throwError "the index #{i+1} exceeds {xs.size}, the number of parameters"
 
@@ -150,38 +153,6 @@ def nonIndicesFirst (recArgInfos : Array RecArgInfo) : Array RecArgInfo := Id.ru
   let (indices,nonIndices) := recArgInfos.partition (indicesPos.contains ·.recArgPos)
   return nonIndices ++ indices
 
-/--
-An instance of an mutually inductive group of inductives, identified by the `all` array
-and the level and expressions parameters.
-
-For example this distinguishes between `List α` and `List β` and we will not even attempt
-mutual structural recursion on such incompatible types.
--/
-structure IndGroupInst where
-  all    : Array Name
-  levels : List Level
-  params : Array Expr
-
-
-def IndGroupInst.ofRecArgInfo (recArgInfo : RecArgInfo) : IndGroupInst :=
-  { all := recArgInfo.indAll
-    levels := recArgInfo.indLevels
-    params := recArgInfo.indParams
-  }
-
-def IndGroupInst.isDefEq (igi1 igi2 : IndGroupInst) : MetaM Bool := do
-  unless igi1.all[0]! = igi2.all[0]! do return false
-  unless igi1.levels.length = igi2.levels.length do return false
-  unless (igi1.levels.zip igi2.levels).all (fun (l₁, l₂) => Level.isEquiv l₁ l₂) do return false
-  unless igi1.params.size = igi2.params.size do return false
-  unless (← (igi1.params.zip igi2.params).allM (fun (e₁, e₂) => isDefEqGuarded e₁ e₂)) do return false
-  return true
-
-def IndGroupInst.toMessageData (igi : IndGroupInst) : MessageData :=
-  mkAppN (.const igi.all[0]! igi.levels) igi.params
-
-instance : ToMessageData IndGroupInst where
-  toMessageData := IndGroupInst.toMessageData
 
 private def dedup [Monad m] (eq : α → α → m Bool) (xs : Array α) : m (Array α) := do
   let mut ret := #[]

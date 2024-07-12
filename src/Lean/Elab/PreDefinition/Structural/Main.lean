@@ -92,7 +92,7 @@ def getMutualFixedPrefix (preDefs : Array PreDefinition) : M Nat :=
 private def elimMutualRecursion (preDefs : Array PreDefinition) (xs : Array Expr)
     (recArgInfos : Array RecArgInfo) : M (Array PreDefinition) := do
   let values ← preDefs.mapM (instantiateLambda ·.value xs)
-  let indInfo ← getConstInfoInduct recArgInfos[0]!.indName
+  let indInfo ← getConstInfoInduct recArgInfos[0]!.indAll[0]!
   if ← isInductivePredicate indInfo.name then
     -- Here we branch off to the IndPred construction, but only for non-mutual functions
     unless preDefs.size = 1 do
@@ -108,14 +108,18 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (xs : Array Expr
     return #[{ preDef with value := valueNew }]
 
   -- Sort the (indices of the) definitions by their position in indInfo.all
-  let positions : Positions := .groupAndSort (·.indName) recArgInfos indInfo.all.toArray
+  let positions : Positions := .groupAndSort (·.indIdx) recArgInfos (Array.range (indInfo.all.length + indInfo.numNested))
+  trace[Elab.definition.structural] "positions: {positions}"
 
   -- Construct the common `.brecOn` arguments
   let motives ← (Array.zip recArgInfos values).mapM fun (r, v) => mkBRecOnMotive r v
+  trace[Elab.definition.structural] "motives: {motives}"
   let brecOnConst ← mkBRecOnConst recArgInfos positions motives
   let FTypes ← inferBRecOnFTypes recArgInfos positions brecOnConst
+  trace[Elab.definition.structural] "FTypes: {FTypes}"
   let FArgs ← (recArgInfos.zip  (values.zip FTypes)).mapM fun (r, (v, t)) =>
     mkBRecOnF recArgInfos positions r v t
+  trace[Elab.definition.structural] "FArgs: {FArgs}"
   -- Assemble the individual `.brecOn` applications
   let valuesNew ← (Array.zip recArgInfos values).mapIdxM fun i (r, v) =>
     mkBrecOnApp positions i brecOnConst FArgs r v

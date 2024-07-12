@@ -81,7 +81,7 @@ def mkIndPredBRecOn (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
     let motive ← mkForallFVars otherArgs type
     let motive ← mkLambdaFVars indexMajorArgs motive
     trace[Elab.definition.structural] "brecOn motive: {motive}"
-    let brecOn := Lean.mkConst (mkBRecOnName recArgInfo.indName) recArgInfo.indLevels
+    let brecOn := Lean.mkConst (mkBRecOnName recArgInfo.indName!) recArgInfo.indLevels
     let brecOn := mkAppN brecOn recArgInfo.indParams
     let brecOn := mkApp brecOn motive
     let brecOn := mkAppN brecOn indexMajorArgs

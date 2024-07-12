@@ -108,7 +108,7 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (xs : Array Expr
     return #[{ preDef with value := valueNew }]
 
   -- Sort the (indices of the) definitions by their position in indInfo.all
-  let positions : Positions := .groupAndSort (·.indIdx) recArgInfos (Array.range (indInfo.all.length + indInfo.numNested))
+  let positions : Positions := .groupAndSort (·.indIdx) recArgInfos (Array.range indInfo.numTypeFormers)
   trace[Elab.definition.structural] "positions: {positions}"
 
   -- Construct the common `.brecOn` arguments

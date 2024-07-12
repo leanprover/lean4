@@ -142,7 +142,7 @@ def findModuleOf? [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m (O
 
 def isEnumType  [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m Bool := do
   if let ConstantInfo.inductInfo info ← getConstInfo declName then
-    if !info.type.isProp && info.all.length == 1 && info.numIndices == 0 && info.numParams == 0
+    if !info.type.isProp && info.numTypeFormers == 1 && info.numIndices == 0 && info.numParams == 0
        && !info.ctors.isEmpty && !info.isRec && !info.isNested && !info.isUnsafe then
       info.ctors.allM fun ctorName => do
         let ConstantInfo.ctorInfo info ← getConstInfo ctorName | return false

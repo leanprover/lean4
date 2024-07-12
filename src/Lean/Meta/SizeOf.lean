@@ -164,8 +164,6 @@ partial def mkSizeOfFn (recName : Name) (declName : Name): MetaM Unit := do
 -/
 def mkSizeOfFns (typeName : Name) : MetaM (Array Name × NameMap Name) := do
   let indInfo ← getConstInfoInduct typeName
-  let recInfo ← getConstInfoRec (mkRecName typeName)
-  let numExtra := recInfo.numMotives - indInfo.all.length -- numExtra > 0 for nested inductive types
   let mut result := #[]
   let baseName := indInfo.all.head! ++ `_sizeOf -- we use the first inductive type as the base name for `sizeOf` functions
   let mut i := 1
@@ -177,7 +175,7 @@ def mkSizeOfFns (typeName : Name) : MetaM (Array Name × NameMap Name) := do
     recMap := recMap.insert recName sizeOfName
     result := result.push sizeOfName
     i := i + 1
-  for j in [:numExtra] do
+  for j in [:indInfo.numNested] do
     let recName := (mkRecName indInfo.all.head!).appendIndexAfter (j+1)
     let sizeOfName := baseName.appendIndexAfter i
     mkSizeOfFn recName sizeOfName

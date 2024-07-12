@@ -104,10 +104,11 @@ and for each such type, keep track of the order of the functions.
 
 We represent these positions as an `Array (Array Nat)`. We have that
 
-* `positions.size = indInfo.all.length`
+* `positions.size = indInfo.numTypeFormers`
 * `positions.flatten` is a permutation of `[0:n]`, so each of the `n` functions has exactly one
   position, and each position refers to one of the `n` functions.
 * if `k ∈ positions[i]` then the recursive argument of function `k` is has type `indInfo.all[i]`
+  (or corresponding nested inductive type)
 
 -/
 abbrev Positions := Array (Array Nat)

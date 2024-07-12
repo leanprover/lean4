@@ -260,7 +260,7 @@ def tryAllArgs (fnNames : Array Name) (xs : Array Expr) (values : Array Expr)
           -- TODO: Here we used to save and restore the state. But should the `try`-`catch`
           -- not suffice?
           let r ← k comb
-          trace[Elab.definition.structural] "tryTellArgs report:\n{report}"
+          trace[Elab.definition.structural] "tryAllArgs report:\n{report}"
           return r
         catch e =>
           let m ← prettyParameterSet fnNames xs values comb
@@ -269,7 +269,7 @@ def tryAllArgs (fnNames : Array Name) (xs : Array Expr) (values : Array Expr)
           report := report ++ m!"Too many possible combinations of parameters of type {group} (or " ++
             m!"please indicate the recursive argument explicitly using `termination_by structural`).\n"
   report := m!"failed to infer structural recursion:\n" ++ report
-  trace[Elab.definition.structural] "tryTellArgs:\n{report}"
+  trace[Elab.definition.structural] "tryAllArgs:\n{report}"
   throwError report
 
 end Lean.Elab.Structural

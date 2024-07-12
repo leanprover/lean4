@@ -60,7 +60,8 @@ def Package.fetchOptRelease (self : Package) : FetchM (BuildJob Bool) := Job.asy
       updateAction .fetch
       return (false, .nil)
   let some tag ← repo.findTag?
-    | logInfo s!"{self.name}: wanted prebuilt release, but no tag found for revision"
+    | let rev ← if let some rev ← repo.getHeadRevision? then pure s!" '{rev}'" else pure ""
+      logInfo s!"{self.name}: wanted prebuilt release, but no tag found for revision{rev}"
       updateAction .fetch
       return (false, .nil)
   let url := s!"{repoUrl}/releases/download/{tag}/{self.buildArchive}"

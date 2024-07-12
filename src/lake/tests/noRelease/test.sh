@@ -19,12 +19,21 @@ git config user.name test
 git config user.email test@example.com
 git add --all
 git commit -m "initial commit"
+git tag release
+INIT_REV=`git rev-parse release`
+git commit --allow-empty -m "second commit"
 popd
 
+# Clone dependency
+$LAKE update
+# Remove the release tag from the local copy
+git -C .lake/packages/dep tag -d release
+
 # Test that a direct invocation fo `lake build *:release` fails
-($LAKE build dep:release && exit 1 || true) | diff -u --strip-trailing-cr <(cat << 'EOF'
+REV_STR="'${INIT_REV}'"
+($LAKE build dep:release && exit 1 || true) | diff -u --strip-trailing-cr <(cat << EOF
 ✖ [1/1] Fetching dep:release
-info: dep: wanted prebuilt release, but no tag found for revision
+info: dep: wanted prebuilt release, but no tag found for revision ${REV_STR}
 error: failed to fetch cloud release
 Some builds logged failures:
 - dep:release
@@ -32,9 +41,9 @@ EOF
 ) -
 
 # Test that an indirect fetch on the release does not cause the build to fail
-$LAKE build Test | diff -u --strip-trailing-cr <(cat << 'EOF'
+$LAKE build Test | diff -u --strip-trailing-cr <(cat << EOF
 ⚠ [1/3] Fetched dep:optRelease
-info: dep: wanted prebuilt release, but no tag found for revision
+info: dep: wanted prebuilt release, but no tag found for revision ${REV_STR}
 warning: failed to fetch cloud release; falling back to local build
 ✔ [2/3] Built Test
 Build completed successfully.
@@ -42,17 +51,17 @@ EOF
 ) -
 
 # Test download failure
-git -C dep tag release
+$LAKE update # re-fetch release tag
 ($LAKE build dep:release && exit 1 || true) | grep --color "downloading"
 
 # Test automatic cloud release unpacking
-mkdir -p dep/.lake/build
-$LAKE -d dep pack 2>&1 | grep --color "packing"
-test -f dep/.lake/release.tgz
-echo 4225503363911572621 > dep/.lake/release.tgz.trace
-rmdir dep/.lake/build
+mkdir -p .lake/packages/dep/.lake/build
+$LAKE -d .lake/packages/dep pack 2>&1 | grep --color "packing"
+test -f .lake/packages/dep/.lake/release.tgz
+echo 4225503363911572621 > .lake/packages/dep/.lake/release.tgz.trace
+rmdir .lake/packages/dep/.lake/build
 $LAKE build dep:release -v | grep --color "unpacking"
-test -d dep/.lake/build
+test -d .lake/packages/dep/.lake/build
 
 # Test that the job prints nothing if the archive is already fetched and unpacked
 $LAKE build dep:release | diff -u --strip-trailing-cr <(cat << 'EOF'
@@ -65,6 +74,16 @@ $LAKE build Test | diff -u --strip-trailing-cr <(cat << 'EOF'
 Build completed successfully.
 EOF
 ) -
+
+# Test retagging
+git -C dep tag -d release
+git -C dep tag release
+NEW_REV=`git -C dep rev-parse release`
+test ! "$INIT_REV" = "$NEW_REV"
+test `git -C .lake/packages/dep rev-parse HEAD` = "$INIT_REV"
+$LAKE update
+test `git -C .lake/packages/dep rev-parse HEAD` = "$NEW_REV"
+$LAKE build dep:release
 
 # Cleanup git repo
 rm -rf dep/.git

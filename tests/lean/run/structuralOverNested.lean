@@ -82,20 +82,23 @@ inductive Vec (α : Type u) : Nat → Bool → Type u where
 -- Now an example with indices all over the place
 
 inductive VTree (α : Type u) : Bool → Nat → Type u
- | node (b : Bool) (n : Nat) : α → (List Bool → List Nat → Vec (VTree α true 5) n b) → VTree α b n
+ | node (b : Bool) (n : Nat) : α → (List Bool → List Nat → Vec (VTree α true 5) n b) → VTree α (!b) (n+1)
 
 mutual
-def VTree.size {α b n} : VTree α b n → Nat
+def VTree.size : VTree α b n → Nat
   | .node _ _ _ f => 1 + vec_size (f [] [])
-def VTree.vec_size {α n' b'} : Vec (VTree α true 5) n' b' → Nat
+-- We have to write `VTree α true 5` here, and cannot write `VTree α b' n'` here.
+-- This seems to be reasonable, cf. the type of the motives of `VTree.rec`
+def VTree.vec_size : Vec (VTree α true 5) n b → Nat
   | .empty => 0
   | .succ t ts => t.size + vec_size ts
 end
 
 /--
-info: theorem VTree.size.eq_1.{u_1} : ∀ {α : Type u_1} {b : Bool} {n : Nat} (a : α)
-  (f : List Bool → List Nat → Vec (VTree α true 5) n b), (VTree.node b n a f).size = 1 + VTree.vec_size (f [] []) :=
-fun {α} {b} {n} a f => Eq.refl (VTree.node b n a f).size
+info: theorem VTree.size.eq_1.{u_1} : ∀ {α : Type u_1} (b_2 : Bool) (n_2 : Nat) (a : α)
+  (f : List Bool → List Nat → Vec (VTree α true 5) n_2 b_2),
+  (VTree.node b_2 n_2 a f).size = 1 + VTree.vec_size (f [] []) :=
+fun {α} b_2 n_2 a f => Eq.refl (VTree.node b_2 n_2 a f).size
 -/
 #guard_msgs in
 #print VTree.size.eq_1

@@ -62,44 +62,6 @@ def RecArgInfo.indName! (info : RecArgInfo) : Name :=
   info.indAll[info.indIdx]!
 
 
-
-/--
-An instance of an mutually inductive group of inductives, identified by the `all` array
-and the level and expressions parameters.
-
-For example this distinguishes between `List α` and `List β` and we will not even attempt
-mutual structural recursion on such incompatible types.
--/
-structure IndGroupInst where
-  all    : Array Name
-  levels : List Level
-  params : Array Expr
-
-
-def IndGroupInst.ofRecArgInfo (recArgInfo : RecArgInfo) : IndGroupInst :=
-  { all := recArgInfo.indAll
-    levels := recArgInfo.indLevels
-    params := recArgInfo.indParams
-  }
-
-def IndGroupInst.isDefEq (igi1 igi2 : IndGroupInst) : MetaM Bool := do
-  unless igi1.all[0]! = igi2.all[0]! do return false
-  unless igi1.levels.length = igi2.levels.length do return false
-  unless (igi1.levels.zip igi2.levels).all (fun (l₁, l₂) => Level.isEquiv l₁ l₂) do return false
-  unless igi1.params.size = igi2.params.size do return false
-  unless (← (igi1.params.zip igi2.params).allM (fun (e₁, e₂) => Meta.isDefEqGuarded e₁ e₂)) do return false
-  return true
-
-def IndGroupInst.toMessageData (igi : IndGroupInst) : MessageData :=
-  mkAppN (.const igi.all[0]! igi.levels) igi.params
-
-def IndGroupInst.numMotives (igi : IndGroupInst) : MetaM Nat := do
-  let indInfo ← getConstInfoInduct igi.all[0]!
-  return igi.all.size + indInfo.numNested
-
-instance : ToMessageData IndGroupInst where
-  toMessageData := IndGroupInst.toMessageData
-
 structure State where
   /-- As part of the inductive predicates case, we keep adding more and more discriminants from the
      local context and build up a bigger matcher application until we reach a fixed point.

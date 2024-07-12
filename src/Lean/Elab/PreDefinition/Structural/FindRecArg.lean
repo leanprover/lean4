@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Joachim Breitner
 prelude
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.TerminationArgument
+import Lean.Elab.PreDefinition.Structural.IndGroupInst
 
 namespace Lean.Elab.Structural
 open Meta
@@ -171,8 +172,7 @@ def inductiveGroups (recArgInfos : Array RecArgInfo) : MetaM (Array IndGroupInst
 Filters the `recArgInfos` by those that describe an argument that's part of the recursive inductive
 group `group`.
 
-
-Anticipating support for nested inductives this function has the ability to change the `recArgInfo`.
+Because of nested inductives this function has the ability to change the `recArgInfo`.
 Consider
 ```
 inductive Tree where | node : List Tree → Tree
@@ -181,9 +181,50 @@ then when we look for arguments whose type is part of the group `Tree`, we want 
 the argument of type `List Tree`, even though that argument’s `RecArgInfo` refers to initially to
 `List`.
 -/
-def argsInGroup (group : IndGroupInst) (_xs : Array Expr) (_value : Expr)
+def argsInGroup (group : IndGroupInst) (xs : Array Expr) (value : Expr)
     (recArgInfos : Array RecArgInfo) : MetaM (Array RecArgInfo) := do
-  recArgInfos.filterM fun recArgInfo => group.isDefEq (.ofRecArgInfo recArgInfo)
+
+  let nestedTypeFormers ← group.nestedTypeFormers
+
+  recArgInfos.filterMapM fun recArgInfo => do
+    -- Is this argument from the same mutual group of inductives?
+    if (← group.isDefEq (.ofRecArgInfo recArgInfo)) then
+      return (.some recArgInfo)
+
+    -- Can this argument be understood as the auxillary type former of a nested inductive?
+    if nestedTypeFormers.isEmpty then return .none
+    lambdaTelescope value fun ys _ => do
+      let x := (xs++ys)[recArgInfo.recArgPos]!
+      for nestedTypeFormer in nestedTypeFormers, indIdx in [group.all.size : group.numMotives] do
+        let xType ← whnfD (← inferType x)
+        let (indIndices, _, type) ← lambdaMetaTelescope nestedTypeFormer
+        if (← isDefEqGuarded type xType) then
+          let indIndices ← indIndices.mapM instantiateMVars
+          if !indIndices.all Expr.isFVar then
+            -- throwError "indices are not variables{indentExpr xType}"
+            continue
+          if !indIndices.allDiff then
+            -- throwError "indices are not pairwise distinct{indentExpr xType}"
+            continue
+          -- TODO: Do we have to worry about the indices ending up in the fixed prefix here?
+          if let some (_index, _y) ← hasBadIndexDep? ys indIndices then
+            -- throwError "its type {indInfo.name} is an inductive family{indentExpr xType}\nand index{indentExpr index}\ndepends on the non index{indentExpr y}"
+            continue
+          let indicesPos := indIndices.map fun index => match xs.indexOf? index with | some i => i.val | none => unreachable!
+          return .some
+            { fnName       := recArgInfo.fnName
+              numFixed     := recArgInfo.numFixed
+              recArgPos    := recArgInfo.recArgPos
+              indicesPos   := indicesPos
+              indIdx       := indIdx
+              indLevels    := group.levels
+              indParams    := group.params
+              indAll       := group.all
+              indNumNested := group.numNested }
+      return .none
+
+
+
 
 def maxCombinationSize : Nat := 10
 

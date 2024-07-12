@@ -10,6 +10,7 @@ import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.Structural.FunPacker
+import Lean.Elab.PreDefinition.Structural.IndGroupInst
 
 namespace Lean.Elab.Structural
 open Meta
@@ -237,7 +238,6 @@ def mkBRecOnF (recArgInfos : Array RecArgInfo) (positions : Positions)
       let valueNew   ← replaceRecApps recArgInfos positions below value
       mkLambdaFVars (indexMajorArgs ++ #[below] ++ otherArgs) valueNew
 
-
 /--
 Given the `motives`, figures out whether to use `.brecOn` or `.binductionOn`, pass
 the right universe levels, the parameters, and the motives.
@@ -271,7 +271,7 @@ def mkBRecOnConst (recArgInfos : Array RecArgInfo) (positions : Positions)
   -- Pick one as a prototype
   let brecOnAux := brecOnCons 0
   -- Infer the type of the packed motive arguments
-  let packedMotiveTypes ← inferArgumentTypesN (← indGroup.numMotives) brecOnAux
+  let packedMotiveTypes ← inferArgumentTypesN indGroup.numMotives brecOnAux
   let packedMotives ← positions.mapMwith packMotives packedMotiveTypes motives
 
   return fun n => mkAppN (brecOnCons n) packedMotives
@@ -285,15 +285,15 @@ It also undoes the permutation and packing done by `packMotives`
 def inferBRecOnFTypes (recArgInfos : Array RecArgInfo) (positions : Positions)
     (brecOnConst : Nat → Expr) : MetaM (Array Expr) := do
   let recArgInfo := recArgInfos[0]! -- pick an arbitrary one
-  let brecOn := brecOnConst recArgInfo.indIdx
+  let brecOn := brecOnConst 0
   check brecOn
   let brecOnType ← inferType brecOn
   -- Skip the indices and major argument
   let packedFTypes ← forallBoundedTelescope brecOnType (some (recArgInfo.indicesPos.size + 1)) fun _ brecOnType =>
     -- And return the types of of the next arguments
-    arrowDomainsN recArgInfo.indAll.size brecOnType
+    arrowDomainsN (recArgInfo.indAll.size + recArgInfo.indNumNested) brecOnType
 
-  let mut FTypes := Array.mkArray recArgInfos.size (Expr.sort 0)
+  let mut FTypes := Array.mkArray positions.numIndices (Expr.sort 0)
   for packedFType in packedFTypes, poss in positions do
     for pos in poss do
       FTypes := FTypes.set! pos packedFType

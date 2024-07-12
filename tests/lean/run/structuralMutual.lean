@@ -551,10 +551,10 @@ namespace FunIndTests
 
 /--
 error: Failed to realize constant A.size.induct:
-  functional induction: cannot handle mutual inductives
+  functional induction: cannot handle mutual or nested inductives
 ---
 error: Failed to realize constant A.size.induct:
-  functional induction: cannot handle mutual inductives
+  functional induction: cannot handle mutual or nested inductives
 ---
 error: unknown identifier 'A.size.induct'
 -/
@@ -563,10 +563,10 @@ error: unknown identifier 'A.size.induct'
 
 /--
 error: Failed to realize constant A.subs.induct:
-  functional induction: cannot handle mutual inductives
+  functional induction: cannot handle mutual or nested inductives
 ---
 error: Failed to realize constant A.subs.induct:
-  functional induction: cannot handle mutual inductives
+  functional induction: cannot handle mutual or nested inductives
 ---
 error: unknown identifier 'A.subs.induct'
 -/
@@ -575,10 +575,10 @@ error: unknown identifier 'A.subs.induct'
 
 /--
 error: Failed to realize constant MutualIndNonMutualFun.A.self_size.induct:
-  functional induction: cannot handle mutual inductives
+  functional induction: cannot handle mutual or nested inductives
 ---
 error: Failed to realize constant MutualIndNonMutualFun.A.self_size.induct:
-  functional induction: cannot handle mutual inductives
+  functional induction: cannot handle mutual or nested inductives
 ---
 error: unknown identifier 'MutualIndNonMutualFun.A.self_size.induct'
 -/
@@ -587,10 +587,10 @@ error: unknown identifier 'MutualIndNonMutualFun.A.self_size.induct'
 
 /--
 error: Failed to realize constant A.hasNoBEmpty.induct:
-  functional induction: cannot handle mutual inductives
+  functional induction: cannot handle mutual or nested inductives
 ---
 error: Failed to realize constant A.hasNoBEmpty.induct:
-  functional induction: cannot handle mutual inductives
+  functional induction: cannot handle mutual or nested inductives
 ---
 error: unknown identifier 'A.hasNoBEmpty.induct'
 -/

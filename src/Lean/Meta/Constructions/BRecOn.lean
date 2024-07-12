@@ -200,15 +200,6 @@ private def mkBelowFromRec (recName : Name) (ibelow reflexive : Bool) (nParams :
   modifyEnv fun env => markAuxRecursor env decl.name
   modifyEnv fun env => addProtected env decl.name
 
-/--
-For a given inductive type, how many nested inductive types occur in its recursor.
-(This number could replace the `is_nested` field of `InductiveVal`)
--/
-private def numNestedInducts (indName : Name) : MetaM Nat := do
-  let .inductInfo indVal ← getConstInfo indName | panic! "{indName} is an inductive"
-  let .recInfo recVal ← getConstInfo (mkRecName indName) | panic! "{indName} has a recursor"
-  return recVal.numMotives - indVal.all.length
-
 private def mkBelowOrIBelow (indName : Name) (ibelow : Bool) : MetaM Unit := do
   let .inductInfo indVal ← getConstInfo indName | return
   unless indVal.isRec do return
@@ -221,8 +212,7 @@ private def mkBelowOrIBelow (indName : Name) (ibelow : Bool) : MetaM Unit := do
   -- If this is the first inductive in a mutual group with nested inductives,
   -- generate the constructions for the nested inductives now
   if indVal.all[0]! = indName then
-    let numNested ← numNestedInducts indName
-    for i in [:numNested] do
+    for i in [:indVal.numNested] do
       let recName := recName.appendIndexAfter (i + 1)
       let belowName := belowName.appendIndexAfter (i + 1)
       mkBelowFromRec recName ibelow indVal.isReflexive indVal.numParams belowName
@@ -419,8 +409,7 @@ def mkBRecOnOrBInductionOn (indName : Name) (ind : Bool) : MetaM Unit := do
   -- If this is the first inductive in a mutual group with nested inductives,
   -- generate the constructions for the nested inductives now.
   if indVal.all[0]! = indName then
-    let numNested ← numNestedInducts indName
-    for i in [:numNested] do
+    for i in [:indVal.numNested] do
       let recName := recName.appendIndexAfter (i + 1)
       let brecOnName := brecOnName.appendIndexAfter (i + 1)
       mkBRecOnFromRec recName ind indVal.isReflexive indVal.numParams indVal.all.toArray brecOnName

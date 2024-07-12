@@ -327,38 +327,14 @@ inductive Tree where
   | leaf
   | node : (Tree × Tree) → Tree
 
-def Tree.below_1 (motive : Tree → Sort u) : Tree → Sort (max 1 u) :=
-  @Tree.below motive (fun _tt => PUnit)
+-- Nested recursion does not work (yet)
 
--- Assume we had this construction:
-@[reducible] protected noncomputable def Tree.brecOn.{u}
-  {motive : Tree → Sort u}
-  (t : Tree)
-  (F : (t : Tree) → Tree.below_1 motive t → motive t) :
-  motive t :=
-  let motive_below := fun t => PProd (motive t) (Tree.below_1 motive t)
-  (@Tree.rec
-    motive_below
-    -- This is the hypthetical `Pair_Tree.below tt` unfolded
-    (fun ⟨t₁,t₂⟩ => PProd PUnit.{u} (PProd (motive_below t₁) (PProd (motive_below t₂) PUnit)))
-    ⟨F Tree.leaf PUnit.unit, PUnit.unit⟩
-    (fun ⟨a₁,a₂⟩ a_ih => ⟨F (Tree.node ⟨a₁, a₂⟩) ⟨a_ih, PUnit.unit⟩, ⟨a_ih, PUnit.unit⟩⟩)
-    (fun _a _a_1 a_ih a_ih_1 => ⟨PUnit.unit, ⟨a_ih, ⟨a_ih_1, PUnit.unit⟩⟩⟩)
-    t).1
-
--- Then the decrecursifier works just fine! (and FunInd too, see below)
+/-- error: its type NestedWithTuple.Tree is a nested inductive, which is not yet supported -/
 #guard_msgs in
 def Tree.size : Tree → Nat
   | leaf => 0
   | node (t₁, t₂) => t₁.size + t₂.size
 termination_by structural t => t
-
-/--
-info: theorem NestedWithTuple.Tree.size.eq_2 : ∀ (t₁ t₂ : Tree), (Tree.node (t₁, t₂)).size = t₁.size + t₂.size :=
-fun t₁ t₂ => Eq.refl (Tree.node (t₁, t₂)).size
--/
-#guard_msgs in
-#print Tree.size.eq_2
 
 end NestedWithTuple
 

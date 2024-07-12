@@ -52,6 +52,8 @@ def getRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) :
       throwError "its type {indInfo.name} does not have a recursor"
     else if indInfo.isReflexive && !(← hasConst (mkBInductionOnName indInfo.name)) && !(← isInductivePredicate indInfo.name) then
       throwError "its type {indInfo.name} is a reflexive inductive, but {mkBInductionOnName indInfo.name} does not exist and it is not an inductive predicate"
+    else if indInfo.isNested then
+      throwError "its type {indInfo.name} is a nested inductive, which is not yet supported"
     else
       let indArgs    : Array Expr := xType.getAppArgs
       let indParams  : Array Expr := indArgs[0:indInfo.numParams]

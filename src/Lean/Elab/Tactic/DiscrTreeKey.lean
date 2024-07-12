@@ -19,18 +19,18 @@ private def mkKey (e : Expr) (simp : Bool) : MetaM (Array Key) := do
   let type ← whnfR type
   if simp then
     if let some (_, lhs, _) := type.eq? then
-      DiscrTree.mkPath lhs simpDtConfig
+      mkPath lhs simpDtConfig
     else if let some (lhs, _) := type.iff? then
-      DiscrTree.mkPath lhs simpDtConfig
+      mkPath lhs simpDtConfig
     else if let some (_, lhs, _) := type.ne? then
-      DiscrTree.mkPath lhs simpDtConfig
+      mkPath lhs simpDtConfig
     else if let some p := type.not? then
       match p.eq? with
       | some (_, lhs, _) =>
-        DiscrTree.mkPath lhs simpDtConfig
-      | _ => DiscrTree.mkPath p simpDtConfig
+        mkPath lhs simpDtConfig
+      | _ => mkPath p simpDtConfig
     else
-      DiscrTree.mkPath type simpDtConfig
+      mkPath type simpDtConfig
   else
     mkPath type {}
 

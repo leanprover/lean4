@@ -24,23 +24,26 @@ def Package.recComputeDeps (self : Package) : FetchM (Array Package) := do
 def Package.depsFacetConfig : PackageFacetConfig depsFacet :=
   mkFacetConfig Package.recComputeDeps
 
+/-- Tries to download and unpack the package's prebuilt release archive (from GitHub). -/
+def Package.fetchOptRelease (self : Package) : FetchM (BuildJob Unit) := do
+  (← self.optRelease.fetch).bindSync fun success t => do
+    unless success do
+      logWarning "failed to fetch cloud release; falling back to local build"
+    return ((), t)
+
 /--
 Build the `extraDepTargets` for the package and its transitive dependencies.
 Also fetch pre-built releases for the package's' dependencies.
 -/
-def Package.recBuildExtraDepTargets (self : Package) : FetchM (BuildJob Unit) := do
+def Package.recBuildExtraDepTargets (self : Package) : FetchM (BuildJob Unit) :=
+  withRegisterJob s!"{self.name}:extraDep" do
   let mut job := BuildJob.nil
   -- Build dependencies' extra dep targets
   for dep in self.deps do
     job := job.mix <| ← dep.extraDep.fetch
   -- Fetch pre-built release if desired and this package is a dependency
   if self.name ≠ (← getWorkspace).root.name ∧ self.preferReleaseBuild then
-    job := job.add <| ←
-      withRegisterJob s!"{self.name}:optRelease" do
-        (← self.optRelease.fetch).bindSync fun success t => do
-          unless success do
-            logWarning "failed to fetch cloud release; falling back to local build"
-          return ((), t)
+    job := job.add <| ← self.fetchOptRelease
   -- Build this package's extra dep targets
   for target in self.extraDepTargets do
     job := job.mix <| ← self.fetchTargetJob target
@@ -50,18 +53,19 @@ def Package.recBuildExtraDepTargets (self : Package) : FetchM (BuildJob Unit) :=
 def Package.extraDepFacetConfig : PackageFacetConfig extraDepFacet :=
   mkFacetJobConfig Package.recBuildExtraDepTargets
 
-/-- Download and unpack the package's prebuilt release archive (from GitHub). -/
-def Package.fetchOptRelease (self : Package) : FetchM (BuildJob Bool) := Job.async do
+/-- Tries to download and unpack the package's prebuilt release archive (from GitHub). -/
+def Package.fetchOptReleaseCore (self : Package) : FetchM (BuildJob Bool) :=
+  withRegisterJob s!"{self.name}:optRelease" <| Job.async do
   let repo := GitRepo.mk self.dir
   let repoUrl? := self.releaseRepo? <|> self.remoteUrl?
   let some repoUrl := repoUrl? <|> (← repo.getFilteredRemoteUrl?)
-    | logInfo s!"{self.name}: wanted prebuilt release, \
-        but repository URL not known; the package may need to set 'releaseRepo'"
+    | logInfo s!"{self.name}: release repository URL not known; \
+        the package may need to set 'releaseRepo'"
       updateAction .fetch
       return (false, .nil)
   let some tag ← repo.findTag?
     | let rev ← if let some rev ← repo.getHeadRevision? then pure s!" '{rev}'" else pure ""
-      logInfo s!"{self.name}: wanted prebuilt release, but no tag found for revision{rev}"
+      logInfo s!"{self.name}: no release tag found for revision{rev}"
       updateAction .fetch
       return (false, .nil)
   let url := s!"{repoUrl}/releases/download/{tag}/{self.buildArchive}"
@@ -78,7 +82,7 @@ def Package.fetchOptRelease (self : Package) : FetchM (BuildJob Bool) := Job.asy
 
 /-- The `PackageFacetConfig` for the builtin `optReleaseFacet`. -/
 def Package.optReleaseFacetConfig : PackageFacetConfig optReleaseFacet :=
-  mkFacetJobConfig (·.fetchOptRelease)
+  mkFacetJobConfig (·.fetchOptReleaseCore)
 
 /-- The `PackageFacetConfig` for the builtin `releaseFacet`. -/
 def Package.releaseFacetConfig : PackageFacetConfig releaseFacet :=
@@ -89,17 +93,17 @@ def Package.releaseFacetConfig : PackageFacetConfig releaseFacet :=
           error "failed to fetch cloud release"
         return ((), t)
 
-/-- Perform a build job after first checking for a cloud release for the package. -/
+/-- Perform a build job after first checking for an (optional) cloud release for the package. -/
 def Package.afterReleaseAsync (self : Package) (build : SpawnM (Job α)) : FetchM (Job α) := do
   if self.preferReleaseBuild ∧ self.name ≠ (← getRootPackage).name then
-    (← self.release.fetch).bindAsync fun _ _ => build
+    (← self.optRelease.fetch).bindAsync fun _ _ => build
   else
     build
 
-/-- Perform a build after first checking for a cloud release for the package. -/
+/-- Perform a build after first checking for an (optional) cloud release for the package. -/
 def Package.afterReleaseSync (self : Package) (build : JobM α) : FetchM (Job α) := do
   if self.preferReleaseBuild ∧ self.name ≠ (← getRootPackage).name then
-    (← self.release.fetch).bindSync fun _ _ => build
+    (← self.optRelease.fetch).bindSync fun _ _ => build
   else
     Job.async build
 

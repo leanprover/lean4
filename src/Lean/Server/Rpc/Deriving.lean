@@ -125,8 +125,6 @@ private def deriveInstance (declNames : Array Name) : CommandElabM Bool := do
   let indVal ← getConstInfoInduct typeName
   if indVal.all.length ≠ 1 then
     throwError "mutually inductive types are not supported"
-  if indVal.isNested then
-    throwError "nested inductive types are not supported"
   if indVal.numIndices ≠ 0 then
     throwError "indexed inductive families are not supported"
 

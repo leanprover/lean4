@@ -61,19 +61,19 @@ private partial def toBelowAux (C : Expr) (belowDict : Expr) (arg : Expr) (F : E
 /-- See `toBelow` -/
 private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat)
     (positions : Positions) (k : Array Expr → Expr → MetaM α) : MetaM α := do
-  let numIndAll := positions.size
+  let numTypeFormers := positions.size
   let belowType ← inferType below
   trace[Elab.definition.structural] "belowType: {belowType}"
   unless (← isTypeCorrect below) do
     trace[Elab.definition.structural] "not type correct!"
   belowType.withApp fun f args => do
-    unless numIndParams + numIndAll < args.size do
+    unless numIndParams + numTypeFormers < args.size do
       trace[Elab.definition.structural] "unexpected 'below' type{indentExpr belowType}"
       throwToBelowFailed
     let params := args[:numIndParams]
-    let finalArgs := args[numIndParams+numIndAll:]
+    let finalArgs := args[numIndParams+numTypeFormers:]
     let pre := mkAppN f params
-    let motiveTypes ← inferArgumentTypesN numIndAll pre
+    let motiveTypes ← inferArgumentTypesN numTypeFormers pre
     let numMotives : Nat := positions.numIndices
     trace[Elab.definition.structural] "numMotives: {numMotives}"
     let mut CTypes := Array.mkArray numMotives (.sort 37) -- dummy value
@@ -278,6 +278,7 @@ It also undoes the permutation and packing done by `packMotives`
 -/
 def inferBRecOnFTypes (recArgInfos : Array RecArgInfo) (positions : Positions)
     (brecOnConst : Name → Expr) : MetaM (Array Expr) := do
+  let numTypeFormers := positions.size
   let recArgInfo := recArgInfos[0]! -- pick an arbitrary one
   let brecOn := brecOnConst recArgInfo.indName
   check brecOn
@@ -285,7 +286,7 @@ def inferBRecOnFTypes (recArgInfos : Array RecArgInfo) (positions : Positions)
   -- Skip the indices and major argument
   let packedFTypes ← forallBoundedTelescope brecOnType (some (recArgInfo.indicesPos.size + 1)) fun _ brecOnType =>
     -- And return the types of of the next arguments
-    arrowDomainsN recArgInfo.indAll.size brecOnType
+    arrowDomainsN numTypeFormers brecOnType
 
   let mut FTypes := Array.mkArray recArgInfos.size (Expr.sort 0)
   for packedFType in packedFTypes, poss in positions do

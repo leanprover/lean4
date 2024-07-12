@@ -11,6 +11,13 @@ end
 
 example : Tree.list_size (t :: ts) = t.size + Tree.list_size ts := rfl
 
+-- If we only look at the nested type at a finite depth we don't need an auxillary definition:
+
+def Tree.isList : Tree → Bool
+  | .node [] => true
+  | .node [t] => t.isList
+  | .node _ => false
+
 
 -- A nested inductive type
 -- the `Bool → RTree α` prevents well-founded recursion and

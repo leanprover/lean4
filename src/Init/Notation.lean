@@ -716,8 +716,9 @@ For example,
 -- @HAdd.hAdd Nat Nat Nat _ (@HAdd.hAdd Nat Nat Nat _ _ _) _
 ```
 
-`#discr_tree_sim_key` is similar to `#discr_tree_key`, but it assumes the underlying type is
-an equality and prints the left-hand side using the `simp` configuration for generating keys.
+`#discr_tree_simp_key` is similar to `#discr_tree_key`, but treats the underlying type
+as one of a simp lemma, i.e. transforms it into an equality and produces the key of the
+left-hand side.
 -/
 syntax (name := discrTreeKeyCmd) "#discr_tree_key " term : command
 

@@ -181,47 +181,57 @@ then when we look for arguments whose type is part of the group `Tree`, we want 
 the argument of type `List Tree`, even though that argument’s `RecArgInfo` refers to initially to
 `List`.
 -/
-def argsInGroup (group : IndGroupInst) (xs : Array Expr) (value : Expr)
-    (recArgInfos : Array RecArgInfo) : MetaM (Array RecArgInfo) := do
+def argsInGroup (fnName : Name) (group : IndGroupInst) (xs : Array Expr) (value : Expr)
+    (recArgInfos : Array RecArgInfo) (termArg? : Option TerminationArgument) : MetaM (Array RecArgInfo) := do
 
   let nestedTypeFormers ← group.nestedTypeFormers
+  lambdaTelescope value fun ys _ => do
+    let mut r := #[]
+    let toConsider : Std.Range Nat ← if let .some ta := termArg? then
+      let idx ← ta.structuralArg
+      pure [idx:idx+1]
+    else
+      pure [xs.size:xs.size + ys.size]
+    for recArgPos in toConsider do
+      -- Check if any of the already calcualted RecArgInfos are part of the group,
+      -- (cheaper than re-calculating the recArgInfo)
+      if let .some recArgInfo := recArgInfos.find? (·.recArgPos = recArgPos) then
+        if (← group.isDefEq (.ofRecArgInfo recArgInfo)) then
+          r := r.push <| recArgInfo
+          continue
 
-  recArgInfos.filterMapM fun recArgInfo => do
-    -- Is this argument from the same mutual group of inductives?
-    if (← group.isDefEq (.ofRecArgInfo recArgInfo)) then
-      return (.some recArgInfo)
-
-    -- Can this argument be understood as the auxillary type former of a nested inductive?
-    if nestedTypeFormers.isEmpty then return .none
-    lambdaTelescope value fun ys _ => do
-      let x := (xs++ys)[recArgInfo.recArgPos]!
-      for nestedTypeFormer in nestedTypeFormers, indIdx in [group.all.size : group.numMotives] do
+      unless nestedTypeFormers.isEmpty do
+        let x := (xs++ys)[recArgPos]!
         let xType ← whnfD (← inferType x)
-        let (indIndices, _, type) ← lambdaMetaTelescope nestedTypeFormer
-        if (← isDefEqGuarded type xType) then
-          let indIndices ← indIndices.mapM instantiateMVars
-          if !indIndices.all Expr.isFVar then
-            -- throwError "indices are not variables{indentExpr xType}"
-            continue
-          if !indIndices.allDiff then
-            -- throwError "indices are not pairwise distinct{indentExpr xType}"
-            continue
-          -- TODO: Do we have to worry about the indices ending up in the fixed prefix here?
-          if let some (_index, _y) ← hasBadIndexDep? ys indIndices then
-            -- throwError "its type {indInfo.name} is an inductive family{indentExpr xType}\nand index{indentExpr index}\ndepends on the non index{indentExpr y}"
-            continue
-          let indicesPos := indIndices.map fun index => match xs.indexOf? index with | some i => i.val | none => unreachable!
-          return .some
-            { fnName       := recArgInfo.fnName
-              numFixed     := recArgInfo.numFixed
-              recArgPos    := recArgInfo.recArgPos
-              indicesPos   := indicesPos
-              indIdx       := indIdx
-              indLevels    := group.levels
-              indParams    := group.params
-              indAll       := group.all
-              indNumNested := group.numNested }
-      return .none
+        for nestedTypeFormer in nestedTypeFormers, indIdx in [group.all.size : group.numMotives] do
+          let (indIndices, _, type) ← forallMetaTelescope nestedTypeFormer
+          trace[Elab.definition.structural] "argsInGroup: Is {xType} an instance of {type}?"
+          if (← isDefEqGuarded type xType) then
+            let indIndices ← indIndices.mapM instantiateMVars
+            trace[Elab.definition.structural] "argsInGroup: Yes, it is, with indices {indIndices}"
+            -- TODO: Unify these checks with getRetRecArgInfo
+            if !indIndices.all Expr.isFVar then
+              -- throwError "indices are not variables{indentExpr xType}"
+              continue
+            if !indIndices.allDiff then
+              -- throwError "indices are not pairwise distinct{indentExpr xType}"
+              continue
+            -- TODO: Do we have to worry about the indices ending up in the fixed prefix here?
+            if let some (_index, _y) ← hasBadIndexDep? ys indIndices then
+              -- throwError "its type {indInfo.name} is an inductive family{indentExpr xType}\nand index{indentExpr index}\ndepends on the non index{indentExpr y}"
+              continue
+            let indicesPos := indIndices.map fun index => match (xs++ys).indexOf? index with | some i => i.val | none => unreachable!
+            r := r.push
+              { fnName       := fnName
+                numFixed     := xs.size
+                recArgPos    := recArgPos
+                indicesPos   := indicesPos
+                indIdx       := indIdx
+                indLevels    := group.levels
+                indParams    := group.params
+                indAll       := group.all
+                indNumNested := group.numNested }
+    return r
 
 
 
@@ -261,8 +271,9 @@ def tryAllArgs (fnNames : Array Name) (xs : Array Expr) (values : Array Expr)
   for group in groups do
     -- Select those RecArgInfos that are compatible with this inductive group
     let mut recArgInfoss' := #[]
-    for value in values, recArgInfos in recArgInfoss do
-      recArgInfoss' := recArgInfoss'.push (← argsInGroup group xs value recArgInfos)
+    for name in fnNames, value in values, recArgInfos in recArgInfoss, termArg? in termArg?s do
+      let recArgInfos' ← argsInGroup name group xs value recArgInfos termArg?
+      recArgInfoss' := recArgInfoss'.push recArgInfos'
     if let some idx := recArgInfoss'.findIdx? (·.isEmpty) then
       report := report ++ m!"Skipping arguments of type {group}, as {fnNames[idx]!} has no compatible argument.\n"
       continue

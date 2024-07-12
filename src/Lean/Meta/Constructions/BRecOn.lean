@@ -417,7 +417,7 @@ def mkBRecOnOrBInductionOn (indName : Name) (ind : Bool) : MetaM Unit := do
   mkBRecOnFromRec recName ind indVal.isReflexive indVal.numParams indVal.all.toArray brecOnName
 
   -- If this is the first inductive in a mutual group with nested inductives,
-  -- generate the constructions for the nested inductives now
+  -- generate the constructions for the nested inductives now.
   if indVal.all[0]! = indName then
     let numNested ← numNestedInducts indName
     for i in [:numNested] do

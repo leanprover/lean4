@@ -220,6 +220,31 @@ partial def mkPairs (elems : Array Term) : MacroM Term :=
       pure acc
   loop (elems.size - 1) elems.back
 
+/-- Return syntax `PProd.mk elems[0] (PProd.mk elems[1] ... (PProd.mk elems[elems.size - 2] elems[elems.size - 1])))` -/
+partial def mkPPairs (elems : Array Term) : MacroM Term :=
+  let rec loop (i : Nat) (acc : Term) := do
+    if i > 0 then
+      let i    := i - 1
+      let elem := elems[i]!
+      let acc ← `(PProd.mk $elem $acc)
+      loop i acc
+    else
+      pure acc
+  loop (elems.size - 1) elems.back
+
+/-- Return syntax `MProd.mk elems[0] (MProd.mk elems[1] ... (MProd.mk elems[elems.size - 2] elems[elems.size - 1])))` -/
+partial def mkMPairs (elems : Array Term) : MacroM Term :=
+  let rec loop (i : Nat) (acc : Term) := do
+    if i > 0 then
+      let i    := i - 1
+      let elem := elems[i]!
+      let acc ← `(MProd.mk $elem $acc)
+      loop i acc
+    else
+      pure acc
+  loop (elems.size - 1) elems.back
+
+
 open Parser in
 partial def hasCDot : Syntax → Bool
   | Syntax.node _ k args =>
@@ -304,6 +329,17 @@ where
     let pairs ← mkPairs (#[e] ++ es)
     return (← expandCDot? pairs).getD pairs
   | _ => Macro.throwUnsupported
+
+/-
+@[builtin_macro Lean.Parser.Term.ptuple] def expandPTuple : Macro
+  | `(()ₚ) => ``(PUnit.unit)
+  | `(($e, $es,*)ₚ) => mkPPairs (#[e] ++ es)
+  | _ => Macro.throwUnsupported
+
+@[builtin_macro Lean.Parser.Term.mtuple] def expandMTuple : Macro
+  | `(($e, $es,*)ₘ) => mkMPairs (#[e] ++ es)
+  | _ => Macro.throwUnsupported
+-/
 
 @[builtin_macro Lean.Parser.Term.typeAscription] def expandTypeAscription : Macro
   | `(($e : $(type)?)) => do

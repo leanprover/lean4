@@ -554,7 +554,7 @@ error: fail to show termination for
   ManyCombinations.g
 with errors
 failed to infer structural recursion:
-Too many possible combinations of parameters of type Nattish (or please the recursive argument explicitly using `termination_by structural`).
+Too many possible combinations of parameters of type Nattish (or please indicate the recursive argument explicitly using `termination_by structural`).
 
 
 Could not find a decreasing measure.
@@ -596,23 +596,7 @@ def g (a b c d : Nattish) : Nat := match a with
 end
 
 -- specifying one `termination_by structural` helps
--- TODO: Why can the recursive call not be eliminated?
 
-/--
-error: failed to infer structural recursion:
-Cannot use parameters a of ManyCombinations.f' and a of ManyCombinations.g':
-  failed to eliminate recursive application
-    g' (n 23) b c d
-Cannot use parameters a of ManyCombinations.f' and b of ManyCombinations.g':
-  failed to eliminate recursive application
-    g' (n 23) b c d
-Cannot use parameters a of ManyCombinations.f' and c of ManyCombinations.g':
-  failed to eliminate recursive application
-    g' (n 23) b c d
-Cannot use parameters a of ManyCombinations.f' and d of ManyCombinations.g':
-  failed to eliminate recursive application
-    g' (n 23) b c d
--/
 #guard_msgs in
 mutual
 def f' (a b c d : Nattish) : Nat := match a with

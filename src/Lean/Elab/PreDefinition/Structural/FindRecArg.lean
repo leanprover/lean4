@@ -151,7 +151,7 @@ def nonIndicesFirst (recArgInfos : Array RecArgInfo) : Array RecArgInfo := Id.ru
   return nonIndices ++ indices
 
 /--
-An instance of an mutually inductive groupa of inductives, identified by the `all` array
+An instance of an mutually inductive group of inductives, identified by the `all` array
 and the level and expressions parameters.
 
 For example this distinguishes between `List α` and `List β` and we will not even attempt
@@ -267,7 +267,7 @@ def tryAllArgs (fnNames : Array Name) (xs : Array Expr) (values : Array Expr)
           report := report ++ m!"Cannot use {m}:{indentD e.toMessageData}\n"
     else
           report := report ++ m!"Too many possible combinations of parameters of type {group} (or " ++
-            m!"please the recursive argument explicitly using `termination_by structural`).\n"
+            m!"please indicate the recursive argument explicitly using `termination_by structural`).\n"
   report := m!"failed to infer structural recursion:\n" ++ report
   trace[Elab.definition.structural] "tryTellArgs:\n{report}"
   throwError report

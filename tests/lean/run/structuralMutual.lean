@@ -3,8 +3,8 @@ import Lean.Elab.Command
 /-!
 Mutual structural recursion.
 
-In this file we often attach a `termination_By structural` annotation to at least
-one of the functions to force strucural recursion. We don't want lean to resort to
+In this file, we often attach a `termination_by structural` annotation to at least
+one of the functions to force structural recursion. We don't want lean to resort to
 well-founded recursion if structural recursion fails somehow.
 -/
 

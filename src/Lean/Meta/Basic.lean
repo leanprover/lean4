@@ -1493,7 +1493,7 @@ def withLCtx (lctx : LocalContext) (localInsts : LocalInstances) : n α → n α
   mapMetaM <| withLocalContextImp lctx localInsts
 
 /--
-Runs `k` in a local envrionment with the the `fvarIds` erased.
+Runs `k` in a local envrionment with the `fvarIds` erased.
 -/
 def withErasedFVars [MonadLCtx n] [MonadLiftT MetaM n] (fvarIds : Array FVarId) (k : n α) : n α := do
   let lctx ← getLCtx

@@ -73,20 +73,20 @@ theorem mem_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) :
 
 @[simp]
 theorem contains_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
-    (m.insert k v).contains a = (a == k || m.contains a) :=
+    (m.insert k v).contains a = (k == a || m.contains a) :=
   DHashMap.contains_insert
 
 @[simp]
 theorem mem_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
-    a ∈ m.insert k v ↔ a == k ∨ a ∈ m :=
+    a ∈ m.insert k v ↔ k == a ∨ a ∈ m :=
   DHashMap.mem_insert
 
 theorem contains_of_contains_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
-    (m.insert k v).contains a → (a == k) = false → m.contains a :=
+    (m.insert k v).contains a → (k == a) = false → m.contains a :=
   DHashMap.contains_of_contains_insert
 
 theorem mem_of_mem_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
-    a ∈ m.insert k v → (a == k) = false → a ∈ m :=
+    a ∈ m.insert k v → (k == a) = false → a ∈ m :=
   DHashMap.mem_of_mem_insert
 
 @[simp]
@@ -132,12 +132,12 @@ theorem isEmpty_remove [EquivBEq α] [LawfulHashable α] {k : α} :
 
 @[simp]
 theorem contains_remove [EquivBEq α] [LawfulHashable α] {k a : α} :
-    (m.remove k).contains a = (!(a == k) && m.contains a) :=
+    (m.remove k).contains a = (!(k == a) && m.contains a) :=
   DHashMap.contains_remove
 
 @[simp]
 theorem mem_remove [EquivBEq α] [LawfulHashable α] {k a : α} :
-    a ∈ m.remove k ↔ (a == k) = false ∧ a ∈ m :=
+    a ∈ m.remove k ↔ (k == a) = false ∧ a ∈ m :=
   DHashMap.mem_remove
 
 theorem contains_of_contains_remove [EquivBEq α] [LawfulHashable α] {k a : α} :
@@ -185,7 +185,7 @@ theorem getElem?_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} :
   DHashMap.Const.get?_of_isEmpty
 
 theorem getElem?_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
-    (m.insert k v)[a]? = bif a == k then some v else m[a]? :=
+    (m.insert k v)[a]? = bif k == a then some v else m[a]? :=
   DHashMap.Const.get?_insert
 
 @[simp]
@@ -205,7 +205,7 @@ theorem getElem?_eq_none [EquivBEq α] [LawfulHashable α] {a : α} : ¬a ∈ m 
   DHashMap.Const.get?_eq_none
 
 theorem getElem?_remove [EquivBEq α] [LawfulHashable α] {k a : α} :
-    (m.remove k)[a]? = bif a == k then none else m[a]? :=
+    (m.remove k)[a]? = bif k == a then none else m[a]? :=
   DHashMap.Const.get?_remove
 
 @[simp]
@@ -217,7 +217,7 @@ theorem getElem?_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == 
 
 theorem getElem_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} {h₁} :
     (m.insert k v)[a]'h₁ =
-      if h₂ : a == k then v else m[a]'(mem_of_mem_insert h₁ (Bool.eq_false_iff.2 h₂)) :=
+      if h₂ : k == a then v else m[a]'(mem_of_mem_insert h₁ (Bool.eq_false_iff.2 h₂)) :=
   DHashMap.Const.get_insert (h₁ := h₁)
 
 @[simp]
@@ -251,7 +251,7 @@ theorem getElem!_of_isEmpty [EquivBEq α] [LawfulHashable α] [Inhabited β] {a 
   DHashMap.Const.get!_of_isEmpty
 
 theorem getElem!_insert [EquivBEq α] [LawfulHashable α] [Inhabited β] {k a : α} {v : β} :
-    (m.insert k v)[a]! = bif a == k then v else m[a]! :=
+    (m.insert k v)[a]! = bif k == a then v else m[a]! :=
   DHashMap.Const.get!_insert
 
 @[simp]
@@ -268,7 +268,7 @@ theorem getElem!_eq_default [EquivBEq α] [LawfulHashable α] [Inhabited β] {a 
   DHashMap.Const.get!_eq_default
 
 theorem getElem!_remove [EquivBEq α] [LawfulHashable α] [Inhabited β] {k a : α} :
-    (m.remove k)[a]! = bif a == k then default else m[a]! :=
+    (m.remove k)[a]! = bif k == a then default else m[a]! :=
   DHashMap.Const.get!_remove
 
 @[simp]
@@ -310,7 +310,7 @@ theorem getD_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} {fallback : �
   DHashMap.Const.getD_of_isEmpty
 
 theorem getD_insert [EquivBEq α] [LawfulHashable α] {k a : α} {fallback v : β} :
-    (m.insert k v).getD a fallback = bif a == k then v else m.getD a fallback :=
+    (m.insert k v).getD a fallback = bif k == a then v else m.getD a fallback :=
   DHashMap.Const.getD_insert
 
 @[simp]
@@ -327,7 +327,7 @@ theorem getD_eq_fallback [EquivBEq α] [LawfulHashable α] {a : α} {fallback : 
   DHashMap.Const.getD_eq_fallback
 
 theorem getD_remove [EquivBEq α] [LawfulHashable α] {k a : α} {fallback : β} :
-    (m.remove k).getD a fallback = bif a == k then fallback else m.getD a fallback :=
+    (m.remove k).getD a fallback = bif k == a then fallback else m.getD a fallback :=
   DHashMap.Const.getD_remove
 
 @[simp]
@@ -366,12 +366,12 @@ theorem isEmpty_insertIfNew [EquivBEq α] [LawfulHashable α] {k : α} {v : β} 
 
 @[simp]
 theorem contains_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
-    (m.insertIfNew k v).contains a = (a == k || m.contains a) :=
+    (m.insertIfNew k v).contains a = (k == a || m.contains a) :=
   DHashMap.contains_insertIfNew
 
 @[simp]
 theorem mem_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
-    a ∈ m.insertIfNew k v ↔ a == k ∨ a ∈ m :=
+    a ∈ m.insertIfNew k v ↔ k == a ∨ a ∈ m :=
   DHashMap.mem_insertIfNew
 
 theorem contains_insertIfNew_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
@@ -383,23 +383,23 @@ theorem mem_insertIfNew_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β}
   DHashMap.mem_insertIfNew_self
 
 theorem contains_of_contains_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
-    (m.insertIfNew k v).contains a → (a == k) = false → m.contains a :=
+    (m.insertIfNew k v).contains a → (k == a) = false → m.contains a :=
   DHashMap.contains_of_contains_insertIfNew
 
 theorem mem_of_mem_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
-    a ∈ m.insertIfNew k v → (a == k) = false → a ∈ m :=
+    a ∈ m.insertIfNew k v → (k == a) = false → a ∈ m :=
   DHashMap.mem_of_mem_insertIfNew
 
 /-- This is a restatement of `contains_insertIfNew` that is written to exactly match the proof
 obligation in the statement of `getElem_insertIfNew`. -/
 theorem contains_of_contains_insertIfNew' [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
-    (m.insertIfNew k v).contains a → ¬((a == k) ∧ m.contains k = false) → m.contains a :=
+    (m.insertIfNew k v).contains a → ¬((k == a) ∧ m.contains k = false) → m.contains a :=
   DHashMap.contains_of_contains_insertIfNew'
 
 /-- This is a restatement of `mem_insertIfNew` that is written to exactly match the proof obligation
 in the statement of `getElem_insertIfNew`. -/
 theorem mem_of_mem_insertIfNew' [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
-    a ∈ m.insertIfNew k v → ¬((a == k) ∧ ¬k ∈ m) → a ∈ m :=
+    a ∈ m.insertIfNew k v → ¬((k == a) ∧ ¬k ∈ m) → a ∈ m :=
   DHashMap.mem_of_mem_insertIfNew'
 
 theorem size_insertIfNew [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
@@ -411,21 +411,21 @@ theorem size_le_size_insertIfNew [EquivBEq α] [LawfulHashable α] {k : α} {v :
   DHashMap.size_le_size_insertIfNew
 
 theorem getElem?_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
-    (m.insertIfNew k v)[a]? = bif a == k && !m.contains k then some v else m[a]? :=
+    (m.insertIfNew k v)[a]? = bif k == a && !m.contains k then some v else m[a]? :=
   DHashMap.Const.get?_insertIfNew
 
 theorem getElem_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} {h₁} :
     (m.insertIfNew k v)[a]'h₁ =
-      if h₂ : a == k ∧ ¬k ∈ m then v else m[a]'(mem_of_mem_insertIfNew' h₁ h₂) :=
+      if h₂ : k == a ∧ ¬k ∈ m then v else m[a]'(mem_of_mem_insertIfNew' h₁ h₂) :=
   DHashMap.Const.get_insertIfNew (h₁ := h₁)
 
 theorem getElem!_insertIfNew [EquivBEq α] [LawfulHashable α] [Inhabited β] {k a : α} {v : β} :
-    (m.insertIfNew k v)[a]! = bif a == k && !m.contains k then v else m[a]! :=
+    (m.insertIfNew k v)[a]! = bif k == a && !m.contains k then v else m[a]! :=
   DHashMap.Const.get!_insertIfNew
 
 theorem getD_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {fallback v : β} :
     (m.insertIfNew k v).getD a fallback =
-      bif a == k && !m.contains k then v else m.getD a fallback :=
+      bif k == a && !m.contains k then v else m.getD a fallback :=
   DHashMap.Const.getD_insertIfNew
 
 @[simp]

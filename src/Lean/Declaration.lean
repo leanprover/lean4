@@ -286,6 +286,7 @@ def mkInductiveValEx (name : Name) (levelParams : List Name) (type : Expr) (numP
 
 def InductiveVal.numCtors (v : InductiveVal) : Nat := v.ctors.length
 def InductiveVal.isNested (v : InductiveVal) : Bool := v.numNested > 0
+def InductiveVal.numTypeFormers (v : InductiveVal) : Nat := v.all.length + v.numNested
 
 structure ConstructorVal extends ConstantVal where
   /-- Inductive type this constructor is a member of -/

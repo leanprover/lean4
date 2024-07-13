@@ -564,7 +564,7 @@ def getInductiveValFromMajor (major : Expr) : TacticM InductiveVal :=
 
 /--
 Elaborates the term in the `using` clause. We want to allow parameters to be instantiated
-(e.g. `using foo (p := …)`), but preserve other paramters, like the motives, as parameters,
+(e.g. `using foo (p := …)`), but preserve other parameters, like the motives, as parameters,
 without turning them into MVars. So this uses `abstractMVars` at the end. This is inspired by
 `Lean.Elab.Tactic.addSimpTheorem`.
 

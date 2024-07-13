@@ -92,11 +92,11 @@ def getMutualFixedPrefix (preDefs : Array PreDefinition) : M Nat :=
 /-- Checks that all parameter types are mutually inductive -/
 private def checkAllFromSameClique (recArgInfos : Array RecArgInfo) : MetaM Unit := do
   for recArgInfo in recArgInfos do
-    unless recArgInfos[0]!.indAll.contains recArgInfo.indName do
+    unless recArgInfos[0]!.indGroupInst.all.contains recArgInfo.indName! do
       throwError m!"Cannot use structural mutual recursion: The recursive argument of " ++
-        m!"{recArgInfos[0]!.fnName} is of type {recArgInfos[0]!.indName}, " ++
+        m!"{recArgInfos[0]!.fnName} is of type {recArgInfos[0]!.indName!}, " ++
         m!"the recursive argument of {recArgInfo.fnName} is of type " ++
-            m!"{recArgInfo.indName}, and these are not mutually recursive."
+            m!"{recArgInfo.indName!}, and these are not mutually recursive."
 
 private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Array Nat) : M (Array PreDefinition) := do
   withoutModifyingEnv do
@@ -120,17 +120,17 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Ar
         lambdaTelescope value fun ys _value => do
           getRecArgInfo preDef.declName maxNumFixed (xs ++ ys) recArgPos
 
+      checkAllFromSameClique recArgInfos
+
       -- Check that the inductive parameters agree. This also ensures that they only depend on the
       -- trimmed prefix (minimum of all `.numFixed`).
       for recArgInfo in recArgInfos[1:] do
-        let ok ← Array.allM
-          (fun (e₁, e₂) => isDefEqGuarded e₁ e₂)
-          (Array.zip recArgInfo.indParams recArgInfos[0]!.indParams)
-        unless recArgInfos[0]!.indParams.size = recArgInfo.indParams.size && ok do
+        let ok ← IndGroupInst.isDefEq recArgInfo.indGroupInst recArgInfos[0]!.indGroupInst
+        unless ok do
           throwError m!"The inductive type of the recursive parameter of {recArgInfos[0]!.fnName} " ++
             m!"and {recArgInfo.fnName} have different parameters:" ++
-            indentD m!"{recArgInfos[0]!.indParams}" ++
-            indentD m!"{recArgInfo.indParams}"
+            indentD m!"{recArgInfos[0]!.indGroupInst.params}" ++
+            indentD m!"{recArgInfo.indGroupInst.params}"
 
       return (recArgInfos.map (·.numFixed)).foldl Nat.min maxNumFixed
 
@@ -151,7 +151,7 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Ar
       -- Two passes should suffice
       assert! recArgInfos.all (·.numFixed = numFixed)
 
-      let indInfo ← getConstInfoInduct recArgInfos[0]!.indName
+      let indInfo ← getConstInfoInduct recArgInfos[0]!.indName!
       if ← isInductivePredicate indInfo.name then
         -- Here we branch off to the IndPred construction, but only for non-mutual functions
         unless preDefs.size = 1 do
@@ -166,9 +166,8 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (recArgPoss : Ar
         check valueNew
         return #[{ preDef with value := valueNew }]
 
-      checkAllFromSameClique recArgInfos
       -- Sort the (indices of the) definitions by their position in indInfo.all
-      let positions : Positions := .groupAndSort (·.indName) recArgInfos indInfo.all.toArray
+      let positions : Positions := .groupAndSort (·.indName!) recArgInfos indInfo.all.toArray
 
       -- Construct the common `.brecOn` arguments
       let motives ← (Array.zip recArgInfos values).mapM fun (r, v) => mkBRecOnMotive r v
@@ -236,8 +235,6 @@ def structuralRecursion (preDefs : Array PreDefinition) (termArgs? : Option Term
     markAsRecursive preDef.declName
   applyAttributesOf preDefsNonRec AttributeApplicationTime.afterCompilation
 
-builtin_initialize
-  registerTraceClass `Elab.definition.structural
 
 end Structural
 

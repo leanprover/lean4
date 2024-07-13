@@ -326,7 +326,10 @@ inductive Tree where
 
 -- Nested recursion does not work (yet)
 
-/-- error: its type NestedWithTuple.Tree is a nested inductive, which is not yet supported -/
+/--
+error: cannot use specified parameter for structural recursion:
+  its type NestedWithTuple.Tree is a nested inductive, which is not yet supported
+-/
 #guard_msgs in
 def Tree.size : Tree → Nat
   | leaf => 0
@@ -536,13 +539,13 @@ Too many possible combinations of parameters of type Nattish (or please indicate
 Could not find a decreasing measure.
 The arguments relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
-Call from ManyCombinations.f to ManyCombinations.g at 592:15-29:
+Call from ManyCombinations.f to ManyCombinations.g at 571:15-29:
    #1 #2 #3 #4
 #5  ?  ?  ?  ?
 #6  ?  =  ?  ?
 #7  ?  ?  =  ?
 #8  ?  ?  ?  =
-Call from ManyCombinations.g to ManyCombinations.f at 595:15-29:
+Call from ManyCombinations.g to ManyCombinations.f at 574:15-29:
    #5 #6 #7 #8
 #1  _  _  _  _
 #2  _  =  _  _

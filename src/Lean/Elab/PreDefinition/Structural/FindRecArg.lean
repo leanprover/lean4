@@ -4,8 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
 prelude
-import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.TerminationArgument
+import Lean.Elab.PreDefinition.Structural.Basic
+import Lean.Elab.PreDefinition.Structural.RecArgInfo
 
 namespace Lean.Elab.Structural
 open Meta
@@ -93,15 +94,19 @@ def getRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) :
           | some (indParam, y) =>
             throwError "its type is an inductive datatype{indentExpr xType}\nand the datatype parameter{indentExpr indParam}\ndepends on the function parameter{indentExpr y}\nwhich does not come before the varying parameters and before the indices of the recursion parameter."
           | none =>
+            let indAll := indInfo.all.toArray
+            let .some indIdx := indAll.indexOf? indInfo.name | panic! "{indInfo.name} not in {indInfo.all}"
             let indicesPos := indIndices.map fun index => match xs.indexOf? index with | some i => i.val | none => unreachable!
-            return { fnName      := fnName
-                     numFixed    := numFixed
-                     recArgPos   := i
-                     indicesPos  := indicesPos
-                     indName     := indInfo.name
-                     indLevels   := us
-                     indParams   := indParams
-                     indAll      := indInfo.all.toArray }
+            let indGroupInst := {
+              IndGroupInfo.ofInductiveVal indInfo with
+              levels := us
+              params := indParams }
+            return { fnName       := fnName
+                     numFixed     := numFixed
+                     recArgPos    := i
+                     indicesPos   := indicesPos
+                     indGroupInst := indGroupInst
+                     indIdx       := indIdx }
     else
       throwError "the index #{i+1} exceeds {xs.size}, the number of parameters"
 
@@ -152,39 +157,6 @@ def nonIndicesFirst (recArgInfos : Array RecArgInfo) : Array RecArgInfo := Id.ru
   let (indices,nonIndices) := recArgInfos.partition (indicesPos.contains ·.recArgPos)
   return nonIndices ++ indices
 
-/--
-An instance of an mutually inductive group of inductives, identified by the `all` array
-and the level and expressions parameters.
-
-For example this distinguishes between `List α` and `List β` and we will not even attempt
-mutual structural recursion on such incompatible types.
--/
-structure IndGroupInst where
-  all    : Array Name
-  levels : List Level
-  params : Array Expr
-
-
-def IndGroupInst.ofRecArgInfo (recArgInfo : RecArgInfo) : IndGroupInst :=
-  { all := recArgInfo.indAll
-    levels := recArgInfo.indLevels
-    params := recArgInfo.indParams
-  }
-
-def IndGroupInst.isDefEq (igi1 igi2 : IndGroupInst) : MetaM Bool := do
-  unless igi1.all[0]! = igi2.all[0]! do return false
-  unless igi1.levels.length = igi2.levels.length do return false
-  unless (igi1.levels.zip igi2.levels).all (fun (l₁, l₂) => Level.isEquiv l₁ l₂) do return false
-  unless igi1.params.size = igi2.params.size do return false
-  unless (← (igi1.params.zip igi2.params).allM (fun (e₁, e₂) => isDefEqGuarded e₁ e₂)) do return false
-  return true
-
-def IndGroupInst.toMessageData (igi : IndGroupInst) : MessageData :=
-  mkAppN (.const igi.all[0]! igi.levels) igi.params
-
-instance : ToMessageData IndGroupInst where
-  toMessageData := IndGroupInst.toMessageData
-
 private def dedup [Monad m] (eq : α → α → m Bool) (xs : Array α) : m (Array α) := do
   let mut ret := #[]
   for x in xs do
@@ -196,7 +168,7 @@ private def dedup [Monad m] (eq : α → α → m Bool) (xs : Array α) : m (Arr
 Given the `RecArgInfo`s of all the recursive functions, find the inductive groups to consider.
 -/
 def inductiveGroups (recArgInfos : Array RecArgInfo) : MetaM (Array IndGroupInst) :=
-  dedup IndGroupInst.isDefEq (recArgInfos.map (.ofRecArgInfo ·))
+  dedup IndGroupInst.isDefEq (recArgInfos.map (·.indGroupInst))
 
 /--
 Filters the `recArgInfos` by those that describe an argument that's part of the recursive inductive
@@ -214,7 +186,7 @@ the argument of type `List Tree`, even though that argument’s `RecArgInfo` ref
 -/
 def argsInGroup (group : IndGroupInst) (_xs : Array Expr) (_value : Expr)
     (recArgInfos : Array RecArgInfo) : MetaM (Array RecArgInfo) := do
-  recArgInfos.filterM fun recArgInfo => group.isDefEq (.ofRecArgInfo recArgInfo)
+  recArgInfos.filterM (group.isDefEq ·.indGroupInst)
 
 def maxCombinationSize : Nat := 10
 

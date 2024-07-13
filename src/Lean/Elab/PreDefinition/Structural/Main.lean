@@ -92,7 +92,7 @@ def getMutualFixedPrefix (preDefs : Array PreDefinition) : M Nat :=
 private def elimMutualRecursion (preDefs : Array PreDefinition) (xs : Array Expr)
     (recArgInfos : Array RecArgInfo) : M (Array PreDefinition) := do
   let values ← preDefs.mapM (instantiateLambda ·.value xs)
-  let indInfo ← getConstInfoInduct recArgInfos[0]!.indName
+  let indInfo ← getConstInfoInduct recArgInfos[0]!.indName!
   if ← isInductivePredicate indInfo.name then
     -- Here we branch off to the IndPred construction, but only for non-mutual functions
     unless preDefs.size = 1 do
@@ -108,7 +108,7 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (xs : Array Expr
     return #[{ preDef with value := valueNew }]
 
   -- Sort the (indices of the) definitions by their position in indInfo.all
-  let positions : Positions := .groupAndSort (·.indName) recArgInfos indInfo.all.toArray
+  let positions : Positions := .groupAndSort (·.indName!) recArgInfos indInfo.all.toArray
 
   -- Construct the common `.brecOn` arguments
   let motives ← (Array.zip recArgInfos values).mapM fun (r, v) => mkBRecOnMotive r v
@@ -127,16 +127,15 @@ private def inferRecArgPos (preDefs : Array PreDefinition) (termArg?s : Array (O
     M (Array Nat × Array PreDefinition) := do
   withoutModifyingEnv do
     preDefs.forM (addAsAxiom ·)
-    let names := preDefs.map (·.declName)
+    let fnNames := preDefs.map (·.declName)
     let preDefs ← preDefs.mapM fun preDef =>
-      return { preDef with value := (← preprocess preDef.value names) }
+      return { preDef with value := (← preprocess preDef.value fnNames) }
 
     -- The syntactically fixed arguments
     let maxNumFixed ← getMutualFixedPrefix preDefs
 
     lambdaBoundedTelescope preDefs[0]!.value maxNumFixed fun xs _ => do
       assert! xs.size = maxNumFixed
-      let fnNames := preDefs.map (·.declName)
       let values ← preDefs.mapM (instantiateLambda ·.value xs)
 
       tryAllArgs fnNames xs values termArg?s fun recArgInfos => do

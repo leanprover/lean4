@@ -192,6 +192,9 @@ private partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
   return synthed
 
 def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
+  let type := (← getConstInfo declName).type
+  unless (← isClass? type).isSome do
+    throwError "type class instance expected{indentExpr type}"
   let c ← mkConstWithLevelParams declName
   let keys ← mkInstanceKey c
   addGlobalInstance declName attrKind
@@ -203,9 +206,6 @@ builtin_initialize
     name  := `instance
     descr := "type class instance"
     add   := fun declName stx attrKind => do
-      let type := (← getConstInfo declName).type
-      unless (← isClass? type |>.run' {} {}).isSome do
-        throwError "type class instance expected{indentExpr type}"
       let prio ← getAttrParamOptPrio stx[1]
       discard <| addInstance declName attrKind prio |>.run {} {}
     erase := fun declName => do

@@ -235,7 +235,6 @@ It was already checked earlier in `checkCodomainsLevel` that the functions live 
 -/
 def mkBRecOnConst (recArgInfos : Array RecArgInfo) (positions : Positions)
    (motives : Array Expr) : MetaM (Nat → Expr) := do
-  -- Get a representative recArgInfo; in particular
   let indGroup := recArgInfos[0]!.indGroupInst
   let motive := motives[0]!
   let brecOnUniv ← lambdaTelescope motive fun _ type => getLevel type

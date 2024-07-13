@@ -146,26 +146,16 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
         e.withApp fun f args => do
           if let .some fnIdx := recArgInfos.findIdx? (f.isConstOf ·.fnName) then
             let recArgInfo := recArgInfos[fnIdx]!
-            let numFixed  := recArgInfo.numFixed
-            let recArgPos := recArgInfo.recArgPos
-            if recArgPos >= args.size then
-              throwError "insufficient number of parameters at recursive application {indentExpr e}"
-            let recArg := args[recArgPos]!
+            let some recArg := args[recArgInfo.recArgPos]?
+              | throwError "insufficient number of parameters at recursive application {indentExpr e}"
             -- For reflexive type, we may have nested recursive applications in recArg
             let recArg ← loop below recArg
             let f ←
               try toBelow below recArgInfo.indGroupInst.params.size positions fnIdx recArg
               catch _ => throwError "failed to eliminate recursive application{indentExpr e}"
-            -- Recall that the fixed parameters are not in the scope of the `brecOn`. So, we skip them.
-            let argsNonFixed := args.extract numFixed args.size
-            -- The function `f` does not explicitly take `recArg` and its indices as arguments. So, we skip them too.
-            let mut fArgs := #[]
-            for i in [:argsNonFixed.size] do
-              let j := i + numFixed
-              if recArgInfo.recArgPos != j && !recArgInfo.indicesPos.contains j then
-                let arg := argsNonFixed[i]!
-                let arg ← replaceRecApps recArgInfos positions below arg
-                fArgs := fArgs.push arg
+            -- We don't pass the fixed parameters, the indices and the major arg to `f`, only the rest
+            let (_, fArgs) := recArgInfo.pickIndicesMajor args[recArgInfo.numFixed:]
+            let fArgs ← fArgs.mapM (replaceRecApps recArgInfos positions below ·)
             return mkAppN f fArgs
           else
             return mkAppN (← loop below f) (← args.mapM (loop below))

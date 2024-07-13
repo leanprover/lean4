@@ -79,10 +79,9 @@ instance : MonadLift IO MainM := ⟨MonadError.runIO⟩
 @[inline] def runLogIO (x : LogIO α)
   (minLv := LogLevel.info) (ansiMode := AnsiMode.auto) (out := OutStream.stderr)
 : MainM α := do
-  let logger ← out.getLogger minLv ansiMode
   match (← x {}) with
-  | .ok a  log => replay log logger; return a
-  | .error _ log => replay log logger; exit 1
+  | .ok a  log => replay log (← out.getLogger minLv ansiMode); return a
+  | .error _ log => replay log (← out.getLogger .trace ansiMode); exit 1
 where
   -- avoid specialization of this call at each call site
   replay (log : Log) (logger : MonadLog BaseIO) : BaseIO Unit :=

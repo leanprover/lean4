@@ -131,16 +131,15 @@ private def inferRecArgPos (preDefs : Array PreDefinition) (termArg?s : Array (O
     M (Array Nat × Array PreDefinition) := do
   withoutModifyingEnv do
     preDefs.forM (addAsAxiom ·)
-    let names := preDefs.map (·.declName)
+    let fnNames := preDefs.map (·.declName)
     let preDefs ← preDefs.mapM fun preDef =>
-      return { preDef with value := (← preprocess preDef.value names) }
+      return { preDef with value := (← preprocess preDef.value fnNames) }
 
     -- The syntactically fixed arguments
     let maxNumFixed ← getMutualFixedPrefix preDefs
 
     lambdaBoundedTelescope preDefs[0]!.value maxNumFixed fun xs _ => do
       assert! xs.size = maxNumFixed
-      let fnNames := preDefs.map (·.declName)
       let values ← preDefs.mapM (instantiateLambda ·.value xs)
 
       tryAllArgs fnNames xs values termArg?s fun recArgInfos => do

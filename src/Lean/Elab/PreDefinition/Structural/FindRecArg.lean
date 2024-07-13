@@ -155,7 +155,6 @@ def nonIndicesFirst (recArgInfos : Array RecArgInfo) : Array RecArgInfo := Id.ru
   let (indices,nonIndices) := recArgInfos.partition (indicesPos.contains ·.recArgPos)
   return nonIndices ++ indices
 
-
 private def dedup [Monad m] (eq : α → α → m Bool) (xs : Array α) : m (Array α) := do
   let mut ret := #[]
   for x in xs do

@@ -7,6 +7,7 @@ prelude
 import Lean.Meta.IndPredBelow
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
+import Lean.Elab.PreDefinition.Structural.RecArgInfo
 
 namespace Lean.Elab.Structural
 open Meta
@@ -81,8 +82,8 @@ def mkIndPredBRecOn (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
     let motive ← mkForallFVars otherArgs type
     let motive ← mkLambdaFVars indexMajorArgs motive
     trace[Elab.definition.structural] "brecOn motive: {motive}"
-    let brecOn := Lean.mkConst (mkBRecOnName recArgInfo.indName!) recArgInfo.indLevels
-    let brecOn := mkAppN brecOn recArgInfo.indParams
+    let brecOn := Lean.mkConst (mkBRecOnName recArgInfo.indName!) recArgInfo.indGroupInst.levels
+    let brecOn := mkAppN brecOn recArgInfo.indGroupInst.params
     let brecOn := mkApp brecOn motive
     let brecOn := mkAppN brecOn indexMajorArgs
     check brecOn

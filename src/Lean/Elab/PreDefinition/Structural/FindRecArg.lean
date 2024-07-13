@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
 prelude
-import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.TerminationArgument
-import Lean.Elab.PreDefinition.Structural.IndGroupInst
+import Lean.Elab.PreDefinition.Structural.Basic
+import Lean.Elab.PreDefinition.Structural.RecArgInfo
 
 namespace Lean.Elab.Structural
 open Meta
@@ -97,15 +97,16 @@ def getRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) :
             let indAll := indInfo.all.toArray
             let .some indIdx := indAll.indexOf? indInfo.name | panic! "{indInfo.name} not in {indInfo.all}"
             let indicesPos := indIndices.map fun index => match xs.indexOf? index with | some i => i.val | none => unreachable!
+            let indGroupInst := {
+              IndGroupInfo.ofInductiveVal indInfo with
+              levels := us
+              params := indParams }
             return { fnName       := fnName
                      numFixed     := numFixed
                      recArgPos    := i
                      indicesPos   := indicesPos
-                     indIdx       := indIdx
-                     indLevels    := us
-                     indParams    := indParams
-                     indAll       := indInfo.all.toArray
-                     indNumNested := indInfo.numNested }
+                     indGroupInst := indGroupInst
+                     indIdx       := indIdx }
     else
       throwError "the index #{i+1} exceeds {xs.size}, the number of parameters"
 
@@ -168,7 +169,7 @@ private def dedup [Monad m] (eq : α → α → m Bool) (xs : Array α) : m (Arr
 Given the `RecArgInfo`s of all the recursive functions, find the inductive groups to consider.
 -/
 def inductiveGroups (recArgInfos : Array RecArgInfo) : MetaM (Array IndGroupInst) :=
-  dedup IndGroupInst.isDefEq (recArgInfos.map (.ofRecArgInfo ·))
+  dedup IndGroupInst.isDefEq (recArgInfos.map (·.indGroupInst))
 
 /--
 Filters the `recArgInfos` by those that describe an argument that's part of the recursive inductive
@@ -190,7 +191,7 @@ def argsInGroup (group : IndGroupInst) (xs : Array Expr) (value : Expr)
 
   recArgInfos.filterMapM fun recArgInfo => do
     -- Is this argument from the same mutual group of inductives?
-    if (← group.isDefEq (.ofRecArgInfo recArgInfo)) then
+    if (← group.isDefEq recArgInfo.indGroupInst) then
       return (.some recArgInfo)
 
     -- Can this argument be understood as the auxillary type former of a nested inductive?
@@ -218,11 +219,8 @@ def argsInGroup (group : IndGroupInst) (xs : Array Expr) (value : Expr)
               numFixed     := recArgInfo.numFixed
               recArgPos    := recArgInfo.recArgPos
               indicesPos   := indicesPos
-              indIdx       := indIdx
-              indLevels    := group.levels
-              indParams    := group.params
-              indAll       := group.all
-              indNumNested := group.numNested }
+              indGroupInst := group
+              indIdx       := indIdx }
       return .none
 
 def maxCombinationSize : Nat := 10

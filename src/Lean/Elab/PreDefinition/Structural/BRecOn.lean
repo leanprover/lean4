@@ -10,7 +10,7 @@ import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.Structural.FunPacker
-import Lean.Elab.PreDefinition.Structural.IndGroupInst
+import Lean.Elab.PreDefinition.Structural.RecArgInfo
 
 namespace Lean.Elab.Structural
 open Meta
@@ -154,7 +154,7 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
             -- For reflexive type, we may have nested recursive applications in recArg
             let recArg ← loop below recArg
             let f ←
-              try toBelow below recArgInfo.indParams.size positions fnIdx recArg
+              try toBelow below recArgInfo.indGroupInst.params.size positions fnIdx recArg
               catch _ => throwError "failed to eliminate recursive application{indentExpr e}"
             -- Recall that the fixed parameters are not in the scope of the `brecOn`. So, we skip them.
             let argsNonFixed := args.extract numFixed args.size
@@ -246,7 +246,7 @@ It was already checked earlier in `checkCodomainsLevel` that the functions live 
 def mkBRecOnConst (recArgInfos : Array RecArgInfo) (positions : Positions)
    (motives : Array Expr) : MetaM (Nat → Expr) := do
   -- Get a representative recArgInfo; in particular
-  let indGroup := IndGroupInst.ofRecArgInfo recArgInfos[0]!
+  let indGroup := recArgInfos[0]!.indGroupInst
   let motive := motives[0]!
   let brecOnUniv ← lambdaTelescope motive fun _ type => getLevel type
   let indInfo ← getConstInfoInduct indGroup.all[0]!

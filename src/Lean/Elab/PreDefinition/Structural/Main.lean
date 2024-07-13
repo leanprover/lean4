@@ -92,7 +92,7 @@ def getMutualFixedPrefix (preDefs : Array PreDefinition) : M Nat :=
 private def elimMutualRecursion (preDefs : Array PreDefinition) (xs : Array Expr)
     (recArgInfos : Array RecArgInfo) : M (Array PreDefinition) := do
   let values ← preDefs.mapM (instantiateLambda ·.value xs)
-  let indInfo ← getConstInfoInduct recArgInfos[0]!.indAll[0]!
+  let indInfo ← getConstInfoInduct recArgInfos[0]!.indGroupInst.all[0]!
   if ← isInductivePredicate indInfo.name then
     -- Here we branch off to the IndPred construction, but only for non-mutual functions
     unless preDefs.size = 1 do

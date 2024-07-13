@@ -5,6 +5,7 @@ Authors: Leonardo de Moura, Joachim Breitner
 -/
 prelude
 import Lean.Elab.PreDefinition.Structural.Basic
+import Lean.Elab.PreDefinition.Structural.RecArgInfo
 
 namespace Lean.Elab.Structural
 open Meta
@@ -74,15 +75,19 @@ def getRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) :
           | some (indParam, y) =>
             throwError "its type is an inductive datatype{indentExpr xType}\nand the datatype parameter{indentExpr indParam}\ndepends on the function parameter{indentExpr y}\nwhich does not come before the varying parameters and before the indices of the recursion parameter."
           | none =>
+            let indAll := indInfo.all.toArray
+            let .some indIdx := indAll.indexOf? indInfo.name | panic! "{indInfo.name} not in {indInfo.all}"
             let indicesPos := indIndices.map fun index => match xs.indexOf? index with | some i => i.val | none => unreachable!
-            return { fnName      := fnName
-                     numFixed    := numFixed
-                     recArgPos   := i
-                     indicesPos  := indicesPos
-                     indName     := indInfo.name
-                     indLevels   := us
-                     indParams   := indParams
-                     indAll      := indInfo.all.toArray }
+            let indGroupInst := {
+              IndGroupInfo.ofInductiveVal indInfo with
+              levels := us
+              params := indParams }
+            return { fnName       := fnName
+                     numFixed     := numFixed
+                     recArgPos    := i
+                     indicesPos   := indicesPos
+                     indGroupInst := indGroupInst
+                     indIdx       := indIdx }
     else
       throwError "the index #{i+1} exceeds {xs.size}, the number of parameters"
 

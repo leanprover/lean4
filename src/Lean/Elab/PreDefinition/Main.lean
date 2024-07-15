@@ -111,7 +111,7 @@ def checkTerminationByHints (preDefs : Array PreDefinition) : CoreM Unit := do
     preDefWith.termination.terminationBy? matches some {structural := true, ..}
   for preDef in preDefs do
     if let .some termBy := preDef.termination.terminationBy? then
-      if !preDefsWithout.isEmpty then
+      if !structural && !preDefsWithout.isEmpty then
         let m := MessageData.andList (preDefsWithout.toList.map (m!"{·.declName}"))
         let doOrDoes := if preDefsWithout.size = 1 then "does" else "do"
         logErrorAt termBy.ref (m!"Incomplete set of `termination_by` annotations:\n"++
@@ -135,13 +135,12 @@ def checkTerminationByHints (preDefs : Array PreDefinition) : CoreM Unit := do
 /--
 Elaborates the `TerminationHint` in the clique to `TerminationArguments`
 -/
-def elabTerminationByHints (preDefs : Array PreDefinition) : TermElabM (Option TerminationArguments) := do
-  let tas ← preDefs.mapM fun preDef => do
+def elabTerminationByHints (preDefs : Array PreDefinition) : TermElabM (Array (Option TerminationArgument)) := do
+  preDefs.mapM fun preDef => do
     let arity ← lambdaTelescope preDef.value fun xs _ => pure xs.size
     let hints := preDef.termination
     hints.terminationBy?.mapM
       (TerminationArgument.elab preDef.declName preDef.type arity hints.extraParams ·)
-  return tas.sequenceMap id -- only return something if every function has a hint
 
 def shouldUseStructural (preDefs : Array PreDefinition) : Bool :=
   preDefs.any fun preDef =>
@@ -188,16 +187,16 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
       try
         checkCodomainsLevel preDefs
         checkTerminationByHints preDefs
-        let termArgs ← elabTerminationByHints preDefs
+        let termArg?s ← elabTerminationByHints preDefs
         if shouldUseStructural preDefs then
-          structuralRecursion preDefs termArgs
+          structuralRecursion preDefs termArg?s
         else if shouldUseWF preDefs then
-          wfRecursion preDefs termArgs
+          wfRecursion preDefs termArg?s
         else
           withRef (preDefs[0]!.ref) <| mapError
             (orelseMergeErrors
-              (structuralRecursion preDefs termArgs)
-              (wfRecursion preDefs termArgs))
+              (structuralRecursion preDefs termArg?s)
+              (wfRecursion preDefs termArg?s))
             (fun msg =>
               let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
               m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")

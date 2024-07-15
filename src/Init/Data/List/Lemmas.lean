@@ -128,14 +128,6 @@ theorem length_pos {l : List α} : 0 < length l ↔ l ≠ [] :=
 theorem length_eq_one {l : List α} : length l = 1 ↔ ∃ a, l = [a] :=
   ⟨fun h => match l, h with | [_], _ => ⟨_, rfl⟩, fun ⟨_, h⟩ => by simp [h]⟩
 
-/-! ### `isEmpty` -/
-
-theorem isEmpty_iff {l : List α} : l.isEmpty ↔ l = [] := by
-  cases l <;> simp
-
-theorem isEmpty_iff_length_eq_zero {l : List α} : l.isEmpty ↔ l.length = 0 := by
-  rw [isEmpty_iff, length_eq_zero]
-
 /-! ## L[i] and L[i]? -/
 
 /-! ### `get` and `get?`.
@@ -474,6 +466,18 @@ theorem forall_getElem (l : List α) (p : α → Prop) :
 @[simp] theorem decide_mem_cons [BEq α] [LawfulBEq α] {l : List α} :
     decide (y ∈ a :: l) = (y == a || decide (y ∈ l)) := by
   cases h : y == a <;> simp_all
+
+/-! ### `isEmpty` -/
+
+theorem isEmpty_iff {l : List α} : l.isEmpty ↔ l = [] := by
+  cases l <;> simp
+
+theorem isEmpty_false_iff_exists_mem (xs : List α) :
+    (List.isEmpty xs = false) ↔ ∃ x, x ∈ xs := by
+  cases xs <;> simp
+
+theorem isEmpty_iff_length_eq_zero {l : List α} : l.isEmpty ↔ l.length = 0 := by
+  rw [isEmpty_iff, length_eq_zero]
 
 /-! ### any / all -/
 

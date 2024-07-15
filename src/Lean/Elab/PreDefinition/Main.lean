@@ -152,7 +152,7 @@ def shouldUseWF (preDefs : Array PreDefinition) : Bool :=
     preDef.termination.decreasingBy?.isSome
 
 
-def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLCtx {} {} do
+def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLCtx {} {} do profileitM Exception "add pre-definitions" (← getOptions) do
   for preDef in preDefs do
     trace[Elab.definition.body] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
   let preDefs ← preDefs.mapM ensureNoUnassignedMVarsAtPreDef

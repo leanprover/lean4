@@ -1145,6 +1145,18 @@ theorem head_filterMap_of_eq_some {f : α → Option β} {l : List α} (w : l �
     simp only [head_cons] at h
     simp [filterMap_cons, h]
 
+theorem all_none_of_filterMap_eq_nil (h : List.filterMap f xs = []) : ∀ x ∈ xs, f x = none := by
+  intro x hx
+  induction xs with
+  | nil => contradiction
+  | cons y ys ih =>
+    simp only [filterMap_cons] at h
+    split at h
+    . cases hx with
+      | head => assumption
+      | tail _ hmem => exact ih h hmem
+    . contradiction
+
 /-! ### append -/
 
 theorem getElem?_append_right : ∀ {l₁ l₂ : List α} {n : Nat}, l₁.length ≤ n →

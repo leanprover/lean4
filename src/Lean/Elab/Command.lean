@@ -12,17 +12,35 @@ import Lean.Language.Basic
 
 namespace Lean.Elab.Command
 
+/--
+A `Scope` collects context information which is inherently scoped: this contains
+the current namespace and information about `open`, `universe` or `variable` declarations.
+There is always a base scope; scopes can be nested.
+
+`universe`, `open` and `variable` declarations only modify the current scope
+(and all scopes nested below it): these declarations usually *append* to the
+context in the current scope; `variable` statements can also change existing items.
+(XXX Is shadowing possible? If so, this sentence should be reworded.)
+Unclosed scopes are automatically closed at the end of the current module.
+-/
 structure Scope where
   header        : String
   opts          : Options := {}
+  /-- The current namespace: by default, this is an anonymous namespace -/
   currNamespace : Name := Name.anonymous
+  /-- All currently `open`ed namespaces -/
   openDecls     : List OpenDecl := []
+  /-- All universe levels which apply in the current scope -/
   levelNames    : List Name := []
-  /-- section variables -/
+  /-- All variable binders which apply in the current scope -/
   varDecls      : Array (TSyntax ``Parser.Term.bracketedBinder) := #[]
   /-- Globally unique internal identifiers for the `varDecls` -/
   varUIds       : Array Name := #[]
-  /-- noncomputable sections automatically add the `noncomputable` modifier to any declaration we cannot generate code for. -/
+  /-- Whether the current scope is (or is nested inside) a `noncomputable` `section`:
+  in this case, automatically add the `noncomputable` modifier to any declaration
+  we cannot generate code for.
+  A scope is noncomputable if it is a noncomputable section or its parent is noncomputable.
+  -/
   isNoncomputable : Bool := false
   deriving Inhabited
 
@@ -230,6 +248,7 @@ private def ioErrorToMessage (ctx : Context) (ref : Syntax) (err : IO.Error) : M
 instance : MonadLiftT IO CommandElabM where
   monadLift := liftIO
 
+/-- Return the current scope. -/
 def getScope : CommandElabM Scope := do pure (← get).scopes.head!
 
 instance : MonadResolveName CommandElabM where
@@ -612,6 +631,9 @@ Interrupt and abort exceptions are caught but not logged.
 private def liftAttrM {α} (x : AttrM α) : CommandElabM α := do
   liftCoreM x
 
+/-- Return the stack of all currently active scopes:
+the base scope always comes last; new scopes are prepended in the front.
+In particular, the current scope is always the first element. -/
 def getScopes : CommandElabM (List Scope) := do
   pure (← get).scopes
 

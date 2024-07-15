@@ -60,6 +60,7 @@ static lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__2___closed__22;
 static lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__1___closed__10;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitArg___boxed(lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
+static lean_object* l_Lean_IR_EmitC_shouldExport___closed__6;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitUProj(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__4___closed__2;
 static lean_object* l_Lean_IR_EmitC_emitFileHeader___closed__4;
@@ -288,6 +289,7 @@ static lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__1___closed__18;
 static lean_object* l_Lean_IR_EmitC_emitFileHeader___closed__12;
 static lean_object* l_Lean_IR_EmitC_emitFileHeader___closed__23;
 static lean_object* l_Lean_IR_EmitC_emitCtor___closed__1;
+static lean_object* l_Lean_IR_EmitC_shouldExport___closed__5;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Nat_anyTR_loop___at_Lean_IR_EmitC_overwriteParam___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitInitFn___closed__8;
@@ -326,6 +328,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitLns___at_Lean_IR_EmitC_emitMainFn__
 static lean_object* l_Lean_IR_EmitC_emitFileHeader___closed__17;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_toCType___closed__1;
+static lean_object* l_Lean_IR_EmitC_shouldExport___closed__7;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitBoxFn___closed__1;
 static lean_object* l_Lean_IR_EmitC_emitFileHeader___closed__24;
@@ -450,6 +453,8 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emit___rarg(lean_object*, lean_object*,
 LEAN_EXPORT lean_object* l_Nat_forM_loop___at_Lean_IR_EmitC_emitDeclAux___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_getJPParams___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
+static lean_object* l_Lean_IR_EmitC_shouldExport___closed__8;
 lean_object* l_Lean_IR_getDecls(lean_object*);
 static lean_object* l_Lean_IR_EmitC_toCType___closed__5;
 lean_object* l_Lean_ParametricAttribute_getParam_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1814,6 +1819,42 @@ x_4 = l_Lean_Name_mkStr3(x_1, x_2, x_3);
 return x_4;
 }
 }
+static lean_object* _init_l_Lean_IR_EmitC_shouldExport___closed__5() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("IR", 2, 2);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_IR_EmitC_shouldExport___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_IR_EmitC_shouldExport___closed__1;
+x_2 = l_Lean_IR_EmitC_shouldExport___closed__5;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_IR_EmitC_shouldExport___closed__7() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Server", 6, 6);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_IR_EmitC_shouldExport___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_IR_EmitC_shouldExport___closed__1;
+x_2 = l_Lean_IR_EmitC_shouldExport___closed__7;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
 LEAN_EXPORT uint8_t l_Lean_IR_EmitC_shouldExport(lean_object* x_1) {
 _start:
 {
@@ -1822,15 +1863,39 @@ x_2 = l_Lean_IR_EmitC_shouldExport___closed__4;
 x_3 = l_Lean_Name_isPrefixOf(x_2, x_1);
 if (x_3 == 0)
 {
-uint8_t x_4; 
-x_4 = 1;
-return x_4;
+lean_object* x_4; uint8_t x_5; 
+x_4 = l_Lean_IR_EmitC_shouldExport___closed__6;
+x_5 = l_Lean_Name_isPrefixOf(x_4, x_1);
+if (x_5 == 0)
+{
+lean_object* x_6; uint8_t x_7; 
+x_6 = l_Lean_IR_EmitC_shouldExport___closed__8;
+x_7 = l_Lean_Name_isPrefixOf(x_6, x_1);
+if (x_7 == 0)
+{
+uint8_t x_8; 
+x_8 = 1;
+return x_8;
 }
 else
 {
-uint8_t x_5; 
-x_5 = 0;
-return x_5;
+uint8_t x_9; 
+x_9 = 0;
+return x_9;
+}
+}
+else
+{
+uint8_t x_10; 
+x_10 = 0;
+return x_10;
+}
+}
+else
+{
+uint8_t x_11; 
+x_11 = 0;
+return x_11;
 }
 }
 }
@@ -15653,6 +15718,14 @@ l_Lean_IR_EmitC_shouldExport___closed__3 = _init_l_Lean_IR_EmitC_shouldExport___
 lean_mark_persistent(l_Lean_IR_EmitC_shouldExport___closed__3);
 l_Lean_IR_EmitC_shouldExport___closed__4 = _init_l_Lean_IR_EmitC_shouldExport___closed__4();
 lean_mark_persistent(l_Lean_IR_EmitC_shouldExport___closed__4);
+l_Lean_IR_EmitC_shouldExport___closed__5 = _init_l_Lean_IR_EmitC_shouldExport___closed__5();
+lean_mark_persistent(l_Lean_IR_EmitC_shouldExport___closed__5);
+l_Lean_IR_EmitC_shouldExport___closed__6 = _init_l_Lean_IR_EmitC_shouldExport___closed__6();
+lean_mark_persistent(l_Lean_IR_EmitC_shouldExport___closed__6);
+l_Lean_IR_EmitC_shouldExport___closed__7 = _init_l_Lean_IR_EmitC_shouldExport___closed__7();
+lean_mark_persistent(l_Lean_IR_EmitC_shouldExport___closed__7);
+l_Lean_IR_EmitC_shouldExport___closed__8 = _init_l_Lean_IR_EmitC_shouldExport___closed__8();
+lean_mark_persistent(l_Lean_IR_EmitC_shouldExport___closed__8);
 l_Nat_forM_loop___at_Lean_IR_EmitC_emitFnDeclAux___spec__1___closed__1 = _init_l_Nat_forM_loop___at_Lean_IR_EmitC_emitFnDeclAux___spec__1___closed__1();
 lean_mark_persistent(l_Nat_forM_loop___at_Lean_IR_EmitC_emitFnDeclAux___spec__1___closed__1);
 l_Lean_IR_EmitC_emitFnDeclAux___lambda__1___closed__1 = _init_l_Lean_IR_EmitC_emitFnDeclAux___lambda__1___closed__1();

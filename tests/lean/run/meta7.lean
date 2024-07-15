@@ -112,7 +112,7 @@ set_option pp.mvars false in
 info: [Meta.debug] ----- tst4 -----
 [Meta.debug] x y : Nat
     ⊢ Nat
-[Meta.debug] ?_ (Add.add 10 y) y
+[Meta.debug] ?_(z := Add.add 10 y) y
 [Meta.debug] x z y : Nat
     ⊢ Nat
 [Meta.debug] x y z
@@ -175,7 +175,7 @@ set_option pp.mvars false in
 info: [Meta.debug] ----- tst6 -----
 [Meta.debug] x y : Nat
     ⊢ Nat
-[Meta.debug] ?_ (Add.add 10 y)
+[Meta.debug] ?_(z := Add.add 10 y)
 [Meta.debug] x y z : Nat
     ⊢ Nat
 [Meta.debug] x y z

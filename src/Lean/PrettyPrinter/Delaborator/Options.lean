@@ -95,6 +95,11 @@ register_builtin_option pp.mvars.withType : Bool := {
   group    := "pp"
   descr    := "(pretty printer) display metavariables with a type ascription"
 }
+register_builtin_option pp.mvars.delayed : Bool := {
+  defValue := true
+  group    := "pp"
+  descr    := "(pretty printer) display delayed assignment metavariables with '?m(x,y)' syntax"
+}
 register_builtin_option pp.beta : Bool := {
   defValue := false
   group    := "pp"
@@ -244,6 +249,7 @@ def getPPPrivateNames (o : Options) : Bool := o.get pp.privateNames.name (getPPA
 def getPPInstantiateMVars (o : Options) : Bool := o.get pp.instantiateMVars.name pp.instantiateMVars.defValue
 def getPPMVars (o : Options) : Bool := o.get pp.mvars.name pp.mvars.defValue
 def getPPMVarsWithType (o : Options) : Bool := o.get pp.mvars.withType.name pp.mvars.withType.defValue
+def getPPMVarsDelayed (o : Options) : Bool := o.get pp.mvars.delayed.name pp.mvars.delayed.defValue
 def getPPBeta (o : Options) : Bool := o.get pp.beta.name pp.beta.defValue
 def getPPSafeShadowing (o : Options) : Bool := o.get pp.safeShadowing.name pp.safeShadowing.defValue
 def getPPProofs (o : Options) : Bool := o.get pp.proofs.name (pp.proofs.defValue || getPPAll o)

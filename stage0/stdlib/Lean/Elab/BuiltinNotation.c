@@ -91,7 +91,6 @@ static lean_object* l_Lean_Elab_Term_expandAssert___closed__4;
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabUnsafe_declRange__1___closed__5;
 lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_expandHave___closed__3;
-lean_object* l_Lean_getConstInfo___at_Lean_Elab_Term_mkConst___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_expandSuffices__1___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabUnsafe_declRange__1___closed__2;
 static lean_object* l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_elabParserMacroAux___closed__44;
@@ -432,6 +431,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Term_expandParen_declRange__1___clo
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabLeadingParserMacro_declRange__1___closed__2;
 static lean_object* l_Lean_Elab_Term_elabRunElab_unsafe__1___closed__7;
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at_Lean_Elab_Term_elabCDotFunctionAlias_x3f___spec__21___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_getConstInfo___at_Lean_Elab_Term_mkConst___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_mkPairs_loop___closed__7;
 static lean_object* l_Lean_Elab_Term_expandDbgTrace___closed__16;
 static lean_object* l_Lean_Elab_Term_expandHave___closed__5;
@@ -2383,7 +2383,7 @@ _start:
 lean_object* x_9; 
 lean_inc(x_2);
 lean_inc(x_1);
-x_9 = l_Lean_getConstInfo___at_Lean_Elab_Term_mkConst___spec__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+x_9 = l_Lean_getConstInfo___at_Lean_Elab_Term_mkConst___spec__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; 
@@ -29904,7 +29904,7 @@ lean_inc(x_20);
 lean_dec(x_18);
 lean_inc(x_3);
 lean_inc(x_19);
-x_21 = l_Lean_getConstInfo___at_Lean_Elab_Term_mkConst___spec__3(x_19, x_3, x_4, x_5, x_6, x_7, x_8, x_17);
+x_21 = l_Lean_getConstInfo___at_Lean_Elab_Term_mkConst___spec__1(x_19, x_3, x_4, x_5, x_6, x_7, x_8, x_17);
 if (lean_obj_tag(x_21) == 0)
 {
 lean_object* x_22; 

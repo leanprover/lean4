@@ -18,6 +18,7 @@ LEAN_EXPORT lean_object* lean_mk_constructor_val(lean_object*, lean_object*, lea
 LEAN_EXPORT lean_object* lean_mk_axiom_val(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Declaration_0__Lean_beqDefinitionVal____x40_Lean_Declaration___hyg_877____boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Declaration_0__Lean_beqDeclaration____x40_Lean_Declaration___hyg_1806_(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_List_beq___at___private_Lean_Declaration_0__Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3238____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ConstantInfo_value_x21___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_DefinitionSafety_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkQuotValEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -28,7 +29,6 @@ LEAN_EXPORT lean_object* l_Lean_mkInductiveValEx___boxed(lean_object*, lean_obje
 static lean_object* l_Lean_ConstantInfo_value_x21___closed__2;
 LEAN_EXPORT lean_object* l_Lean_instBEqConstructor;
 LEAN_EXPORT lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_697____boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_List_beq___at___private_Lean_Declaration_0__Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3224____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedRecursorRule;
 LEAN_EXPORT lean_object* l_Lean_OpaqueVal_isUnsafeEx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_QuotVal_kindEx___boxed(lean_object*);
@@ -55,22 +55,20 @@ static lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety___
 LEAN_EXPORT uint8_t l_List_beq___at___private_Lean_Declaration_0__Lean_beqDeclaration____x40_Lean_Declaration___hyg_1806____spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_beq___at___private_Lean_Declaration_0__Lean_beqDeclaration____x40_Lean_Declaration___hyg_1806____spec__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_mk_reducibility_hints_regular(uint32_t);
-LEAN_EXPORT uint8_t l___private_Lean_Declaration_0__Lean_beqConstructorVal____x40_Lean_Declaration___hyg_2819_(lean_object*, lean_object*);
 lean_object* l_List_foldlM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_mk_quot_val(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_mkInductiveDeclEs___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Declaration_0__Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3224____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_InductiveVal_isRecEx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instBEqReducibilityHints;
 LEAN_EXPORT uint8_t l___private_Lean_Declaration_0__Lean_beqAxiomVal____x40_Lean_Declaration___hyg_562_(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_697____closed__11;
+LEAN_EXPORT lean_object* l_Lean_InductiveVal_numTypeFormers___boxed(lean_object*);
 lean_object* l_Lean_Expr_bvar___override(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__2___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkRecName___closed__1;
 LEAN_EXPORT lean_object* l_Lean_ConstantInfo_name(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__4___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instBEqDeclaration___closed__1;
-LEAN_EXPORT lean_object* l___private_Lean_Declaration_0__Lean_beqConstructorVal____x40_Lean_Declaration___hyg_2819____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedDeclaration;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedQuotVal;
 LEAN_EXPORT lean_object* l_Lean_RecursorVal_getFirstMinorIdx(lean_object*);
@@ -78,6 +76,7 @@ LEAN_EXPORT lean_object* l_Lean_OpaqueVal_all___default(lean_object*);
 static lean_object* l_Lean_instBEqDefinitionSafety___closed__1;
 LEAN_EXPORT uint8_t l_Lean_ConstantInfo_hasValue(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ConstructorVal_isUnsafeEx___boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Declaration_0__Lean_beqConstructorVal____x40_Lean_Declaration___hyg_2833____boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Declaration_0__Lean_beqDefinitionVal____x40_Lean_Declaration___hyg_877_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkConstructorValEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedAxiomVal___closed__1;
@@ -94,6 +93,7 @@ LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__3(
 LEAN_EXPORT lean_object* l_Lean_DefinitionVal_getSafetyEx___boxed(lean_object*);
 LEAN_EXPORT uint8_t lean_inductive_val_is_unsafe(lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Declaration_0__Lean_beqDefinitionSafety____x40_Lean_Declaration___hyg_679_(uint8_t, uint8_t);
+LEAN_EXPORT lean_object* l_Lean_InductiveVal_numTypeFormers(lean_object*);
 static lean_object* l_Lean_Declaration_definitionVal_x21___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Declaration_foldExprM___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_ReducibilityHints_compare(lean_object*, lean_object*);
@@ -107,6 +107,7 @@ LEAN_EXPORT lean_object* lean_mk_inductive_decl(lean_object*, lean_object*, lean
 static lean_object* l_Lean_instBEqConstantVal___closed__1;
 static lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_697____closed__17;
 LEAN_EXPORT uint8_t lean_quot_val_kind(lean_object*);
+LEAN_EXPORT uint8_t l___private_Lean_Declaration_0__Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3238_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_TheoremVal_all___default(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__3___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RecursorVal_kEx___boxed(lean_object*);
@@ -114,6 +115,7 @@ static lean_object* l_Lean_instInhabitedConstantVal___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Declaration_forExprM___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_697____closed__9;
 LEAN_EXPORT uint8_t lean_definition_val_get_safety(lean_object*);
+LEAN_EXPORT lean_object* l_List_beq___at___private_Lean_Declaration_0__Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3238____spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instBEqDefinitionSafety;
 LEAN_EXPORT lean_object* l_Lean_DefinitionSafety_toCtorIdx___boxed(lean_object*);
 static lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_697____closed__7;
@@ -128,7 +130,6 @@ LEAN_EXPORT lean_object* l_Lean_QuotKind_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RecursorVal_getFirstIndexIdx(lean_object*);
 static lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_697____closed__14;
 LEAN_EXPORT lean_object* l_Lean_AxiomVal_isUnsafeEx___boxed(lean_object*);
-LEAN_EXPORT uint8_t l___private_Lean_Declaration_0__Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3224_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_InductiveVal_isUnsafeEx___boxed(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Lean_instBEqConstructor___closed__1;
@@ -200,8 +201,8 @@ LEAN_EXPORT lean_object* l_Lean_instInhabitedConstructorVal;
 LEAN_EXPORT lean_object* l_Lean_InductiveVal_isReflexiveEx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_697_(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedReducibilityHints;
-LEAN_EXPORT lean_object* l_List_beq___at___private_Lean_Declaration_0__Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3224____spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_697____closed__8;
+LEAN_EXPORT lean_object* l___private_Lean_Declaration_0__Lean_beqRecursorRule____x40_Lean_Declaration___hyg_3048____boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_697____closed__10;
 LEAN_EXPORT lean_object* l_Lean_RecursorVal_getMajorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Declaration_forExprM(lean_object*);
@@ -214,6 +215,7 @@ LEAN_EXPORT uint8_t lean_inductive_val_is_reflexive(lean_object*);
 LEAN_EXPORT lean_object* l_List_beq___at___private_Lean_Declaration_0__Lean_beqInductiveType____x40_Lean_Declaration___hyg_1619____spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_beq___at___private_Lean_Declaration_0__Lean_beqInductiveType____x40_Lean_Declaration___hyg_1619____spec__1(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l___private_Lean_Declaration_0__Lean_beqRecursorRule____x40_Lean_Declaration___hyg_3048_(lean_object*, lean_object*);
 static lean_object* l_Lean_ConstantInfo_value_x21___closed__1;
 static lean_object* l_Lean_instBEqRecursorVal___closed__1;
 LEAN_EXPORT lean_object* l_Lean_QuotKind_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
@@ -221,7 +223,9 @@ static lean_object* l_Lean_instInhabitedInductiveVal___closed__1;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedConstantInfo;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Declaration_0__Lean_beqConstructor____x40_Lean_Declaration___hyg_1500_(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Declaration_0__Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3238____boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Declaration_definitionVal_x21___closed__2;
+LEAN_EXPORT uint8_t l___private_Lean_Declaration_0__Lean_beqConstructorVal____x40_Lean_Declaration___hyg_2833_(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_ConstantInfo_isInductive(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__4(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -238,7 +242,6 @@ LEAN_EXPORT lean_object* l_Lean_instBEqConstructorVal;
 LEAN_EXPORT lean_object* l_Lean_instReprDefinitionSafety;
 LEAN_EXPORT lean_object* l_Lean_ConstantInfo_hints(lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l___private_Lean_Declaration_0__Lean_beqRecursorRule____x40_Lean_Declaration___hyg_3034_(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_ReducibilityHints_isAbbrev(lean_object*);
 static lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_697____closed__5;
@@ -287,7 +290,6 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_ConstantInfo_isPartial(lean_object*);
 LEAN_EXPORT lean_object* lean_mk_opaque_val(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Declaration_0__Lean_beqRecursorRule____x40_Lean_Declaration___hyg_3034____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ConstantInfo_isPartial___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_InductiveVal_numCtors(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_QuotKind_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -3243,6 +3245,27 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_InductiveVal_numTypeFormers(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_2 = lean_ctor_get(x_1, 3);
+x_3 = l_List_length___rarg(x_2);
+x_4 = lean_ctor_get(x_1, 5);
+x_5 = lean_nat_add(x_3, x_4);
+lean_dec(x_3);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_InductiveVal_numTypeFormers___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_InductiveVal_numTypeFormers(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Lean_instInhabitedConstructorVal___closed__1() {
 _start:
 {
@@ -3269,7 +3292,7 @@ x_1 = l_Lean_instInhabitedConstructorVal___closed__1;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l___private_Lean_Declaration_0__Lean_beqConstructorVal____x40_Lean_Declaration___hyg_2819_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l___private_Lean_Declaration_0__Lean_beqConstructorVal____x40_Lean_Declaration___hyg_2833_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; uint8_t x_15; 
@@ -3360,11 +3383,11 @@ return x_14;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Declaration_0__Lean_beqConstructorVal____x40_Lean_Declaration___hyg_2819____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lean_Declaration_0__Lean_beqConstructorVal____x40_Lean_Declaration___hyg_2833____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l___private_Lean_Declaration_0__Lean_beqConstructorVal____x40_Lean_Declaration___hyg_2819_(x_1, x_2);
+x_3 = l___private_Lean_Declaration_0__Lean_beqConstructorVal____x40_Lean_Declaration___hyg_2833_(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -3375,7 +3398,7 @@ static lean_object* _init_l_Lean_instBEqConstructorVal___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Declaration_0__Lean_beqConstructorVal____x40_Lean_Declaration___hyg_2819____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Declaration_0__Lean_beqConstructorVal____x40_Lean_Declaration___hyg_2833____boxed), 2, 0);
 return x_1;
 }
 }
@@ -3455,7 +3478,7 @@ x_1 = l_Lean_instInhabitedRecursorRule___closed__1;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l___private_Lean_Declaration_0__Lean_beqRecursorRule____x40_Lean_Declaration___hyg_3034_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l___private_Lean_Declaration_0__Lean_beqRecursorRule____x40_Lean_Declaration___hyg_3048_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
@@ -3491,11 +3514,11 @@ return x_13;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Declaration_0__Lean_beqRecursorRule____x40_Lean_Declaration___hyg_3034____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lean_Declaration_0__Lean_beqRecursorRule____x40_Lean_Declaration___hyg_3048____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l___private_Lean_Declaration_0__Lean_beqRecursorRule____x40_Lean_Declaration___hyg_3034_(x_1, x_2);
+x_3 = l___private_Lean_Declaration_0__Lean_beqRecursorRule____x40_Lean_Declaration___hyg_3048_(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -3506,7 +3529,7 @@ static lean_object* _init_l_Lean_instBEqRecursorRule___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Declaration_0__Lean_beqRecursorRule____x40_Lean_Declaration___hyg_3034____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Declaration_0__Lean_beqRecursorRule____x40_Lean_Declaration___hyg_3048____boxed), 2, 0);
 return x_1;
 }
 }
@@ -3547,7 +3570,7 @@ x_1 = l_Lean_instInhabitedRecursorVal___closed__1;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l_List_beq___at___private_Lean_Declaration_0__Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3224____spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_List_beq___at___private_Lean_Declaration_0__Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3238____spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -3580,7 +3603,7 @@ x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_ctor_get(x_1, 1);
 x_8 = lean_ctor_get(x_2, 0);
 x_9 = lean_ctor_get(x_2, 1);
-x_10 = l___private_Lean_Declaration_0__Lean_beqRecursorRule____x40_Lean_Declaration___hyg_3034_(x_6, x_8);
+x_10 = l___private_Lean_Declaration_0__Lean_beqRecursorRule____x40_Lean_Declaration___hyg_3048_(x_6, x_8);
 if (x_10 == 0)
 {
 uint8_t x_11; 
@@ -3597,7 +3620,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT uint8_t l___private_Lean_Declaration_0__Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3224_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l___private_Lean_Declaration_0__Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3238_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; uint8_t x_20; lean_object* x_21; uint8_t x_25; 
@@ -3679,7 +3702,7 @@ return x_36;
 else
 {
 uint8_t x_37; 
-x_37 = l_List_beq___at___private_Lean_Declaration_0__Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3224____spec__1(x_9, x_18);
+x_37 = l_List_beq___at___private_Lean_Declaration_0__Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3238____spec__1(x_9, x_18);
 if (x_37 == 0)
 {
 uint8_t x_38; 
@@ -3752,22 +3775,22 @@ return x_20;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_beq___at___private_Lean_Declaration_0__Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3224____spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_beq___at___private_Lean_Declaration_0__Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3238____spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_List_beq___at___private_Lean_Declaration_0__Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3224____spec__1(x_1, x_2);
+x_3 = l_List_beq___at___private_Lean_Declaration_0__Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3238____spec__1(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Declaration_0__Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3224____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lean_Declaration_0__Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3238____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l___private_Lean_Declaration_0__Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3224_(x_1, x_2);
+x_3 = l___private_Lean_Declaration_0__Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3238_(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -3778,7 +3801,7 @@ static lean_object* _init_l_Lean_instBEqRecursorVal___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Declaration_0__Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3224____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Declaration_0__Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3238____boxed), 2, 0);
 return x_1;
 }
 }
@@ -4424,7 +4447,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Declaration_definitionVal_x21___closed__1;
 x_2 = l_Lean_ConstantInfo_value_x21___closed__1;
-x_3 = lean_unsigned_to_nat(455u);
+x_3 = lean_unsigned_to_nat(456u);
 x_4 = lean_unsigned_to_nat(33u);
 x_5 = l_Lean_ConstantInfo_value_x21___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -4583,7 +4606,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Declaration_definitionVal_x21___closed__1;
 x_2 = l_Lean_ConstantInfo_inductiveVal_x21___closed__1;
-x_3 = lean_unsigned_to_nat(471u);
+x_3 = lean_unsigned_to_nat(472u);
 x_4 = lean_unsigned_to_nat(9u);
 x_5 = l_Lean_ConstantInfo_inductiveVal_x21___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

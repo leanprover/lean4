@@ -577,6 +577,7 @@ lean_object* l_Lean_Level_quote(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabOfScientific___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getPPStructureInstances___boxed(lean_object*);
+static lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppMatch___closed__5;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabDoElems___lambda__6___closed__4;
 uint8_t l_Lean_TagAttribute_hasTag(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabSigmaCore___lambda__2(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1434,6 +1435,7 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* l_Array_mkArray2___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_declSigWithId_formatter___closed__6;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabOfNat___closed__5;
+lean_object* l_Lean_PrettyPrinter_Delaborator_whenNotPPOption(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabNeg__1(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_PrettyPrinter_Delaborator_getParamKinds___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabNeg__1___closed__3;
@@ -27800,13 +27802,25 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_delabAppMatch___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_PrettyPrinter_Delaborator_delabAppImplicitCore___lambda__9___closed__1;
+x_2 = l_Lean_PrettyPrinter_Delaborator_delabAppMatch___closed__4;
+x_3 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Delaborator_whenPPOption), 9, 2);
+lean_closure_set(x_3, 0, x_1);
+lean_closure_set(x_3, 1, x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppMatch(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_8 = l_Lean_PrettyPrinter_Delaborator_delabAppImplicitCore___lambda__9___closed__1;
-x_9 = l_Lean_PrettyPrinter_Delaborator_delabAppMatch___closed__4;
-x_10 = l_Lean_PrettyPrinter_Delaborator_whenPPOption(x_8, x_9, x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+x_8 = l_Lean_PrettyPrinter_Delaborator_useAppExplicit___closed__1;
+x_9 = l_Lean_PrettyPrinter_Delaborator_delabAppMatch___closed__5;
+x_10 = l_Lean_PrettyPrinter_Delaborator_whenNotPPOption(x_8, x_9, x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 return x_10;
 }
 }
@@ -51075,6 +51089,8 @@ l_Lean_PrettyPrinter_Delaborator_delabAppMatch___closed__3 = _init_l_Lean_Pretty
 lean_mark_persistent(l_Lean_PrettyPrinter_Delaborator_delabAppMatch___closed__3);
 l_Lean_PrettyPrinter_Delaborator_delabAppMatch___closed__4 = _init_l_Lean_PrettyPrinter_Delaborator_delabAppMatch___closed__4();
 lean_mark_persistent(l_Lean_PrettyPrinter_Delaborator_delabAppMatch___closed__4);
+l_Lean_PrettyPrinter_Delaborator_delabAppMatch___closed__5 = _init_l_Lean_PrettyPrinter_Delaborator_delabAppMatch___closed__5();
+lean_mark_persistent(l_Lean_PrettyPrinter_Delaborator_delabAppMatch___closed__5);
 l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabAppMatch__1___closed__1 = _init_l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabAppMatch__1___closed__1();
 lean_mark_persistent(l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabAppMatch__1___closed__1);
 l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabAppMatch__1___closed__2 = _init_l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabAppMatch__1___closed__2();

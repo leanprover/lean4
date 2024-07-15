@@ -42,7 +42,7 @@ lean_object* l_Lean_RBNode_setBlack___rarg(lean_object*);
 lean_object* l_Lake_BuildInfo_fetch___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_recFetch___at_Lake_FetchM_run___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_ExternLib_recBuildShared___closed__1;
-lean_object* l_Lake_withRegisterJob___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lake_withRegisterJob___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_map___at_Lake_ExternLib_recBuildStatic___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_partition_loop___at_Lake_FetchM_run___spec__5___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lake_Build_Key_0__Lake_decEqBuildKey____x40_Lake_Build_Key___hyg_325_(lean_object*, lean_object*);
@@ -422,7 +422,7 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lake_ExternLib_recBuildStatic(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; lean_object* x_23; 
 x_8 = lean_ctor_get(x_1, 0);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_1, 1);
@@ -449,8 +449,9 @@ lean_closure_set(x_20, 1, lean_box(0));
 x_21 = lean_alloc_closure((void*)(l_Lake_EquipT_map___at_Lake_ExternLib_recBuildStatic___spec__1___rarg), 8, 2);
 lean_closure_set(x_21, 0, x_10);
 lean_closure_set(x_21, 1, x_20);
-x_22 = l_Lake_withRegisterJob___rarg(x_18, x_21, x_2, x_3, x_4, x_5, x_6, x_7);
-return x_22;
+x_22 = 0;
+x_23 = l_Lake_withRegisterJob___rarg(x_18, x_21, x_22, x_2, x_3, x_4, x_5, x_6, x_7);
+return x_23;
 }
 }
 static lean_object* _init_l_Lake_ExternLib_recBuildShared___lambda__1___closed__1() {
@@ -554,7 +555,7 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lake_ExternLib_recBuildShared(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; lean_object* x_22; 
 x_8 = lean_ctor_get(x_1, 1);
 lean_inc(x_8);
 x_9 = l_Lake_ExternLib_recBuildStatic___closed__1;
@@ -577,8 +578,9 @@ lean_closure_set(x_19, 0, x_1);
 x_20 = lean_alloc_closure((void*)(l_Lake_EquipT_bind___at_Lake_LeanExe_recBuildExe___spec__7___rarg), 8, 2);
 lean_closure_set(x_20, 0, x_18);
 lean_closure_set(x_20, 1, x_19);
-x_21 = l_Lake_withRegisterJob___rarg(x_16, x_20, x_2, x_3, x_4, x_5, x_6, x_7);
-return x_21;
+x_21 = 0;
+x_22 = l_Lake_withRegisterJob___rarg(x_16, x_20, x_21, x_2, x_3, x_4, x_5, x_6, x_7);
+return x_22;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_ExternLib_recBuildShared___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
@@ -678,7 +680,7 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lake_ExternLib_recComputeDynlib(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; lean_object* x_22; 
 x_8 = lean_ctor_get(x_1, 1);
 lean_inc(x_8);
 x_9 = l_Lake_ExternLib_recBuildStatic___closed__1;
@@ -699,8 +701,9 @@ x_19 = l_Lake_ExternLib_recComputeDynlib___closed__2;
 x_20 = lean_alloc_closure((void*)(l_Lake_EquipT_bind___at_Lake_LeanExe_recBuildExe___spec__7___rarg), 8, 2);
 lean_closure_set(x_20, 0, x_18);
 lean_closure_set(x_20, 1, x_19);
-x_21 = l_Lake_withRegisterJob___rarg(x_16, x_20, x_2, x_3, x_4, x_5, x_6, x_7);
-return x_21;
+x_21 = 0;
+x_22 = l_Lake_withRegisterJob___rarg(x_16, x_20, x_21, x_2, x_3, x_4, x_5, x_6, x_7);
+return x_22;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_ExternLib_recComputeDynlib___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {

@@ -28,13 +28,14 @@ inductive Xn (e : Sigma.{0} (· → Type)) (α : Type) : Nat → Type where
 | mk2 {n} (s : e.1) (p : e.2 s → Xn e α n) : Xn e α n
 
 /--
-error: its type is an inductive datatype
-  Xn e (Xn e α n) m
-and the datatype parameter
-  Xn e α n
-depends on the function parameter
-  n
-which does not come before the varying parameters and before the indices of the recursion parameter.
+error: cannot use specified parameter for structural recursion:
+  its type is an inductive datatype
+    Xn e (Xn e α n) m
+  and the datatype parameter
+    Xn e α n
+  depends on the function parameter
+    n
+  which does not come before the varying parameters and before the indices of the recursion parameter.
 -/
 #guard_msgs in
 def Xn.zip {e α m n} : Xn e (Xn e α n) m → Xn e α (n+m+1)

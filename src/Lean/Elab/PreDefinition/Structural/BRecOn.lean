@@ -283,7 +283,7 @@ def inferBRecOnFTypes (recArgInfos : Array RecArgInfo) (positions : Positions)
     -- And return the types of of the next arguments
     arrowDomainsN numTypeFormers brecOnType
 
-  let mut FTypes := Array.mkArray recArgInfos.size (Expr.sort 0)
+  let mut FTypes := Array.mkArray positions.numIndices (Expr.sort 0)
   for packedFType in packedFTypes, poss in positions do
     for pos in poss do
       FTypes := FTypes.set! pos packedFType

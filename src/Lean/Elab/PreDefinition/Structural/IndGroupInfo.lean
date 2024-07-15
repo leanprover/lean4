@@ -62,4 +62,32 @@ def IndGroupInst.isDefEq (igi1 igi2 : IndGroupInst) : MetaM Bool := do
   unless (← (igi1.params.zip igi2.params).allM (fun (e₁, e₂) => Meta.isDefEqGuarded e₁ e₂)) do return false
   return true
 
+/--
+Figures out the nested type formers of an inductive group, with parameters instantiated
+and indices still forall-abstracted.
+
+For example given a nested inductive
+```
+inductive Tree α where | node : α → Vector (Tree α) n → Tree α
+```
+(where `n` is an index of `Vector`) and the instantiation `Tree Int` it will return
+```
+#[(n : Nat) → Vector (Tree Int) n]
+```
+
+-/
+def IndGroupInst.nestedTypeFormers (igi : IndGroupInst) : MetaM (Array Expr) := do
+  if igi.numNested = 0 then return #[]
+  -- We extract this information from the motives of the recursor
+  let recName := mkRecName igi.all[0]!
+  let recInfo ← getConstInfoRec recName
+  assert! recInfo.numMotives = igi.numMotives
+  let aux := mkAppN (.const recName (0 :: igi.levels)) igi.params
+  let motives ← inferArgumentTypesN recInfo.numMotives aux
+  let auxMotives : Array Expr := motives[igi.all.size:]
+  auxMotives.mapM fun motive =>
+    forallTelescopeReducing motive fun xs _ => do
+      assert! xs.size > 0
+      mkForallFVars xs.pop (← inferType xs.back)
+
 end Lean.Elab.Structural

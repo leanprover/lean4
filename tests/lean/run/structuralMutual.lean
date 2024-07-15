@@ -318,27 +318,6 @@ info: MutualIndNonMutualFun.A.weird_size1.eq_1 (a : A) : a.self.weird_size1 = a.
 
 end MutualIndNonMutualFun
 
-namespace NestedWithTuple
-
-inductive Tree where
-  | leaf
-  | node : (Tree × Tree) → Tree
-
--- Nested recursion does not work (yet)
-
-/--
-error: cannot use specified parameter for structural recursion:
-  its type NestedWithTuple.Tree is a nested inductive, which is not yet supported
--/
-#guard_msgs in
-def Tree.size : Tree → Nat
-  | leaf => 0
-  | node (t₁, t₂) => t₁.size + t₂.size
-termination_by structural t => t
-
-end NestedWithTuple
-
-
 namespace DifferentTypes
 
 -- Check error message when argument types are not mutually recursive
@@ -539,13 +518,13 @@ Too many possible combinations of parameters of type Nattish (or please indicate
 Could not find a decreasing measure.
 The arguments relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
-Call from ManyCombinations.f to ManyCombinations.g at 571:15-29:
+Call from ManyCombinations.f to ManyCombinations.g at 550:15-29:
    #1 #2 #3 #4
 #5  ?  ?  ?  ?
 #6  ?  =  ?  ?
 #7  ?  ?  =  ?
 #8  ?  ?  ?  =
-Call from ManyCombinations.g to ManyCombinations.f at 574:15-29:
+Call from ManyCombinations.g to ManyCombinations.f at 553:15-29:
    #5 #6 #7 #8
 #1  _  _  _  _
 #2  _  =  _  _

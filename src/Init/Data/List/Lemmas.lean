@@ -3411,6 +3411,16 @@ theorem any_map (f : α → β) (l : List α) (p : β → Bool) : (l.map f).any 
 theorem all_map (f : α → β) (l : List α) (p : β → Bool) : (l.map f).all p = l.all (p ∘ f) := by
   induction l with simp | cons _ _ ih => rw [ih]
 
+@[simp] theorem any_append {x y : List α} : (x ++ y).any f = (x.any f || y.any f) := by
+  induction x with
+  | nil => rfl
+  | cons h t ih => simp_all [Bool.or_assoc]
+
+@[simp] theorem all_append {x y : List α} : (x ++ y).all f = (x.all f && y.all f) := by
+  induction x with
+  | nil => rfl
+  | cons h t ih => simp_all [Bool.and_assoc]
+
 /-! ## Zippers -/
 
 /-! ### zip -/

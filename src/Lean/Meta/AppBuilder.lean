@@ -504,6 +504,14 @@ def mkArrayLit (type : Expr) (xs : List Expr) : MetaM Expr := do
   let listLit ← mkListLit type xs
   return mkApp (mkApp (mkConst ``List.toArray [u]) type) listLit
 
+def mkNone (type : Expr) : MetaM Expr := do
+  let u ← getDecLevel type
+  return mkApp (mkConst ``Option.none [u]) type
+
+def mkSome (type value : Expr) : MetaM Expr := do
+  let u ← getDecLevel type
+  return mkApp2 (mkConst ``Option.some [u]) type value
+
 def mkSorry (type : Expr) (synthetic : Bool) : MetaM Expr := do
   let u ← getLevel type
   return mkApp2 (mkConst ``sorryAx [u]) type (toExpr synthetic)

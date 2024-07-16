@@ -163,16 +163,6 @@ end Lean
   | `($(_) $x $y)          => `(($x, $y))
   | _                      => throw ()
 
-@[app_unexpander PProd.mk] def unexpandPProdMk : Lean.PrettyPrinter.Unexpander
-  | `($(_) $x ⟨$y, $ys,*⟩) => `(⟨$x, $y, $ys,*⟩)
-  | `($(_) $x $y)         => `(⟨$x, $y⟩)
-  | _                     => throw ()
-
-@[app_unexpander MProd.mk] def unexpandMProdMk : Lean.PrettyPrinter.Unexpander
-  | `($(_) $x ⟨$y, $ys,*⟩) => `(⟨$x, $y, $ys,*⟩)
-  | `($(_) $x $y)         => `(⟨$x, $y⟩)
-  | _                     => throw ()
-
 @[app_unexpander ite] def unexpandIte : Lean.PrettyPrinter.Unexpander
   | `($(_) $c $t $e) => `(if $c then $t else $e)
   | _                => throw ()

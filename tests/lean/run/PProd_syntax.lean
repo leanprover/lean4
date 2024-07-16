@@ -33,3 +33,14 @@
 /-- info: PUnit.unit.{u} : PUnit -/
 #guard_msgs in
 #check PUnit.unit
+
+-- check that only `PProd` is flattened, not other structure
+
+@[pp_using_anonymous_constructor]
+structure TwoNats where
+  firstNat : Nat
+  secondNat : Nat
+
+/-- info: ⟨true, 5, ⟨23, 42⟩⟩ : Bool ×' Nat ×' TwoNats -/
+#guard_msgs in
+#check PProd.mk true (PProd.mk 5 (TwoNats.mk 23 42))

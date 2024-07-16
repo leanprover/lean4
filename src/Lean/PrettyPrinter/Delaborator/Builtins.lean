@@ -770,16 +770,6 @@ def delabMData : Delab := do
     withMDataOptions delab
 
 /--
-Check for a `Syntax.ident` of the given name anywhere in the tree.
-This is usually a bad idea since it does not check for shadowing bindings,
-but in the delaborator we assume that bindings are never shadowed.
--/
-partial def hasIdent (id : Name) : Syntax → Bool
-  | Syntax.ident _ _ id' _ => id == id'
-  | Syntax.node _ _ args   => args.any (hasIdent id)
-  | _                      => false
-
-/--
 Return `true` iff current binder should be merged with the nested
 binder, if any, into a single binder group:
 * both binders must have same binder info and domain
@@ -824,7 +814,7 @@ def delabLam : Delab :=
     let e ← getExpr
     let stxT ← withBindingDomain delab
     let ppTypes ← getPPOption getPPFunBinderTypes
-    let usedDownstream := curNames.any (fun n => hasIdent n.getId stxBody)
+    let usedDownstream := curNames.any (fun n => stxBody.hasIdent n.getId)
 
     -- leave lambda implicit if possible
     -- TODO: for now we just always block implicit lambdas when delaborating. We can revisit.

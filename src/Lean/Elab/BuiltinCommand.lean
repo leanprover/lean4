@@ -11,7 +11,6 @@ import Lean.Elab.Eval
 import Lean.Elab.Command
 import Lean.Elab.Open
 import Lean.Elab.SetOption
-import Lean.PrettyPrinter
 
 namespace Lean.Elab.Command
 

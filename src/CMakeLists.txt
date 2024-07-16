@@ -615,7 +615,8 @@ file(COPY ${LEAN_SOURCE_DIR}/bin/leanmake DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
 install(DIRECTORY "${CMAKE_BINARY_DIR}/bin/" USE_SOURCE_PERMISSIONS DESTINATION bin)
 
-if (${STAGE} GREATER 0)
+# cadical is an optional build target in the root CMakeLists.txt
+if (${STAGE} GREATER 0 AND EXISTS "${CMAKE_BINARY_DIR}/../cadical/cadical${CMAKE_EXECUTABLE_SUFFIX}")
   install(FILES "${CMAKE_BINARY_DIR}/../cadical/cadical${CMAKE_EXECUTABLE_SUFFIX}" USE_SOURCE_PERMISSIONS DESTINATION bin)
 endif()
 

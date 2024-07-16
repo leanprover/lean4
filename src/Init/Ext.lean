@@ -33,7 +33,7 @@ Registers an extensionality theorem.
 * An optional natural number argument, e.g. `@[ext 9000]`, specifies a priority for the `ext` lemma.
   Higher-priority lemmas are chosen first, and the default is `1000`.
 
-* The flag `@[ext (iff := false)]` prevents the generation of an `ext_iff` theorem.
+* The flag `@[ext (iff := false)]` disables generating an `ext_iff` theorem.
 
 * The flag `@[ext (flat := false)]` causes generated structure extensionality theorems to show inherited fields based on their representation,
   rather than flattening the parents' fields into the lemma's equality hypotheses.

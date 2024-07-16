@@ -52,7 +52,8 @@ private def getLevelParamsPreDecls (preDefs : Array PreDefinition) (scopeLevelNa
   | Except.error msg      => throwError msg
   | Except.ok levelParams => pure levelParams
 
-def fixLevelParams (preDefs : Array PreDefinition) (scopeLevelNames allUserLevelNames : List Name) : TermElabM (Array PreDefinition) := do
+def fixLevelParams (preDefs : Array PreDefinition) (scopeLevelNames allUserLevelNames : List Name) : TermElabM (Array PreDefinition) :=
+do profileitM Exception s!"fix level params" (← getOptions) do
   -- We used to use `shareCommon` here, but is was a bottleneck
   let levelParams ← getLevelParamsPreDecls preDefs scopeLevelNames allUserLevelNames
   let us := levelParams.map mkLevelParam

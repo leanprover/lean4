@@ -267,8 +267,7 @@ syntax (name := rawNatLit) "nat_lit " num : term
 
 @[inherit_doc] infixr:90 " ∘ "  => Function.comp
 @[inherit_doc] infixr:35 " × "  => Prod
-@[inherit_doc] infixr:35 " ×ₚ "  => PProd
-@[inherit_doc] infixr:35 " ×ₘ "  => MProd
+@[inherit_doc] infixr:35 " ×' " => PProd
 
 @[inherit_doc] infix:50  " ∣ " => Dvd.dvd
 @[inherit_doc] infixl:55 " ||| " => HOr.hOr

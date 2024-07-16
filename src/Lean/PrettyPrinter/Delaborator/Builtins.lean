@@ -1139,6 +1139,24 @@ def delabSigma : Delab := delabSigmaCore (sigma := true)
 @[builtin_delab app.PSigma]
 def delabPSigma : Delab := delabSigmaCore (sigma := false)
 
+-- PProd and MProd value delaborator
+-- (like pp_using_anonymous_constructor but flattening nested tuples)
+
+def delabPProdMkCore (mkName : Name) : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPNotation do
+  guard <| (← getExpr).getAppNumArgs == 4
+  let a ← withAppFn <| withAppArg delab
+  let b ← withAppArg <| delab
+  if (← getExpr).appArg!.isAppOfArity mkName 4 then
+    if let `(⟨$xs,*⟩) := b then
+      return ← `(⟨$a, $xs,*⟩)
+  `(⟨$a, $b⟩)
+
+@[builtin_delab app.PProd.mk]
+def delabPProdMk : Delab := delabPProdMkCore ``PProd.mk
+
+@[builtin_delab app.MProd.mk]
+def delabMProdMk : Delab := delabPProdMkCore ``MProd.mk
+
 partial def delabDoElems : DelabM (List Syntax) := do
   let e ← getExpr
   if e.isAppOfArity ``Bind.bind 6 then

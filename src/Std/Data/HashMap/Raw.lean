@@ -133,9 +133,9 @@ instance [BEq α] [Hashable α] : GetElem? (Raw α β) α β (fun m a => a ∈ m
   getElem? m a := m.get? a
   getElem! m a := m.get! a
 
-@[inline, inherit_doc DHashMap.Raw.remove] def remove [BEq α] [Hashable α] (m : Raw α β)
+@[inline, inherit_doc DHashMap.Raw.erase] def erase [BEq α] [Hashable α] (m : Raw α β)
     (a : α) : Raw α β :=
-  ⟨m.inner.remove a⟩
+  ⟨m.inner.erase a⟩
 
 @[inline, inherit_doc DHashMap.Raw.size] def size (m : Raw α β) : Nat :=
   m.inner.size
@@ -258,8 +258,8 @@ theorem WF.getThenInsertIfNew? [BEq α] [Hashable α] {m : Raw α β} {a : α} {
     (m.getThenInsertIfNew? a b).2.WF :=
   ⟨DHashMap.Raw.WF.Const.getThenInsertIfNew? h.out⟩
 
-theorem WF.remove [BEq α] [Hashable α] {m : Raw α β} {a : α} (h : m.WF) : (m.remove a).WF :=
-  ⟨DHashMap.Raw.WF.remove h.out⟩
+theorem WF.erase [BEq α] [Hashable α] {m : Raw α β} {a : α} (h : m.WF) : (m.erase a).WF :=
+  ⟨DHashMap.Raw.WF.erase h.out⟩
 
 theorem WF.filter [BEq α] [Hashable α] {m : Raw α β} {f : α → β → Bool} (h : m.WF) :
     (m.filter f).WF :=

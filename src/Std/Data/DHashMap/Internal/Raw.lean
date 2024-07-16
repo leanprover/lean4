@@ -135,13 +135,13 @@ theorem get!_val [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} {a : �
     m.val.get! a = m.get! a := by
   simp [Raw.get!, m.2]
 
-theorem remove_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {a : α} :
-    m.remove a = Raw₀.remove ⟨m, h.size_buckets_pos⟩ a := by
-  simp [Raw.remove, h.size_buckets_pos]
+theorem erase_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {a : α} :
+    m.erase a = Raw₀.erase ⟨m, h.size_buckets_pos⟩ a := by
+  simp [Raw.erase, h.size_buckets_pos]
 
-theorem remove_val [BEq α] [Hashable α] {m : Raw₀ α β} {a : α} :
-    m.val.remove a = m.remove a := by
-  simp [Raw.remove, m.2]
+theorem erase_val [BEq α] [Hashable α] {m : Raw₀ α β} {a : α} :
+    m.val.erase a = m.erase a := by
+  simp [Raw.erase, m.2]
 
 theorem filterMap_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF)
     {f : (a : α) → β a → Option (δ a)} : m.filterMap f =

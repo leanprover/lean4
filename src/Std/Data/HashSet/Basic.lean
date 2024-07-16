@@ -23,7 +23,7 @@ set_option autoImplicit false
 
 universe u v
 
-variable {α : Type u}
+variable {α : Type u} {_ : BEq α} {_ : Hashable α}
 
 namespace Std
 
@@ -71,7 +71,7 @@ instance [BEq α] [Hashable α] : Inhabited (HashSet α) where
 Inserts the given element into the set. If the hash set already contains an element that is
 equal (with regard to `==`) to the given element, then the hash set is returned unchanged.
 -/
-@[inline] def insert [BEq α] [Hashable α] (m : HashSet α) (a : α) : HashSet α :=
+@[inline] def insert (m : HashSet α) (a : α) : HashSet α :=
   ⟨m.inner.insertIfNew a ()⟩
 
 /--
@@ -81,7 +81,7 @@ element, then the hash set is returned unchanged.
 
 Equivalent to (but potentially faster than) calling `contains` followed by `insert`.
 -/
-@[inline] def containsThenInsert [BEq α] [Hashable α] (m : HashSet α) (a : α) : Bool × HashSet α :=
+@[inline] def containsThenInsert (m : HashSet α) (a : α) : Bool × HashSet α :=
   let ⟨replaced, r⟩ := m.inner.containsThenInsertIfNew a ()
   ⟨replaced, ⟨r⟩⟩
 
@@ -92,7 +92,7 @@ this: `a ∈ m` is equivalent to `m.contains a = true`.
 Observe that this is different behavior than for lists: for lists, `∈` uses `=` and `contains` use
 `==` for comparisons, while for hash sets, both use `==`.
 -/
-@[inline] def contains [BEq α] [Hashable α] (m : HashSet α) (a : α) : Bool :=
+@[inline] def contains (m : HashSet α) (a : α) : Bool :=
   m.inner.contains a
 
 instance [BEq α] [Hashable α] : Membership α (HashSet α) where
@@ -102,11 +102,11 @@ instance [BEq α] [Hashable α] {m : HashSet α} {a : α} : Decidable (a ∈ m) 
   inferInstanceAs (Decidable (a ∈ m.inner))
 
 /-- Removes the element if it exists. -/
-@[inline] def erase [BEq α] [Hashable α] (m : HashSet α) (a : α) : HashSet α :=
+@[inline] def erase (m : HashSet α) (a : α) : HashSet α :=
   ⟨m.inner.erase a⟩
 
 /-- The number of elements present in the set -/
-@[inline] def size [BEq α] [Hashable α] (m : HashSet α) : Nat :=
+@[inline] def size (m : HashSet α) : Nat :=
   m.inner.size
 
 /--
@@ -116,7 +116,7 @@ Note that if your `BEq` instance is not reflexive or your `Hashable` instance is
 lawful, then it is possible that this function returns `false` even though `m.contains a = false`
 for all `a`.
 -/
-@[inline] def isEmpty [BEq α] [Hashable α] (m : HashSet α) : Bool :=
+@[inline] def isEmpty (m : HashSet α) : Bool :=
   m.inner.isEmpty
 
 section Unverified
@@ -124,29 +124,29 @@ section Unverified
 /-! We currently do not provide lemmas for the functions below. -/
 
 /-- Removes all elements from the hash set for which the given function returns `false`. -/
-@[inline] def filter [BEq α] [Hashable α] (f : α → Bool) (m : HashSet α) : HashSet α :=
+@[inline] def filter (f : α → Bool) (m : HashSet α) : HashSet α :=
   ⟨m.inner.filter fun a _ => f a⟩
 
 /--
 Monadically computes a value by folding the given function over the elements in the hash set in some
 order.
 -/
-@[inline] def foldM [BEq α] [Hashable α] {m : Type v → Type v} [Monad m] {β : Type v}
+@[inline] def foldM {m : Type v → Type v} [Monad m] {β : Type v}
     (f : β → α → m β) (init : β) (b : HashSet α) : m β :=
   b.inner.foldM (fun b a _ => f b a) init
 
 /-- Folds the given function over the elements of the hash set in some order. -/
-@[inline] def fold [BEq α] [Hashable α] {β : Type v} (f : β → α → β) (init : β) (m : HashSet α) :
+@[inline] def fold {β : Type v} (f : β → α → β) (init : β) (m : HashSet α) :
     β :=
   m.inner.fold (fun b a _ => f b a) init
 
 /-- Carries out a monadic action on each element in the hash set in some order. -/
-@[inline] def forM [BEq α] [Hashable α] {m : Type v → Type v} [Monad m] (f : α → m PUnit)
+@[inline] def forM {m : Type v → Type v} [Monad m] (f : α → m PUnit)
     (b : HashSet α) : m PUnit :=
   b.inner.forM (fun a _ => f a)
 
 /-- Support for the `for` loop construct in `do` blocks. -/
-@[inline] def forIn [BEq α] [Hashable α] {m : Type v → Type v} [Monad m] {β : Type v}
+@[inline] def forIn {m : Type v → Type v} [Monad m] {β : Type v}
     (f : α → β → m (ForInStep β)) (init : β) (b : HashSet α) : m β :=
   b.inner.forIn (fun a _ acc => f a acc) init
 
@@ -157,11 +157,11 @@ instance [BEq α] [Hashable α] {m : Type v → Type v} : ForIn m (HashSet α) �
   forIn m init f := m.forIn f init
 
 /-- Transforms the hash set into a list of elements in some order. -/
-@[inline] def toList [BEq α] [Hashable α] (m : HashSet α) : List α :=
+@[inline] def toList (m : HashSet α) : List α :=
   m.inner.keys
 
 /-- Transforms the hash set into an array of elements in some order. -/
-@[inline] def toArray [BEq α] [Hashable α] (m : HashSet α) : Array α :=
+@[inline] def toArray (m : HashSet α) : Array α :=
   m.inner.keysArray
 
 /--
@@ -169,7 +169,7 @@ Inserts multiple elements into the hash set. Note that unlike repeatedly calling
 collection contains multiple elements that are equal (with regard to `==`), then the last element
 in the collection will be present in the returned hash set.
 -/
-@[inline] def insertMany [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] (m : HashSet α) (l : ρ) :
+@[inline] def insertMany {ρ : Type v} [ForIn Id ρ α] (m : HashSet α) (l : ρ) :
     HashSet α :=
   ⟨m.inner.insertManyUnit l⟩
 
@@ -186,7 +186,7 @@ Returns the number of buckets in the internal representation of the hash set. Th
 be useful for things like monitoring system health, but it should be considered an internal
 implementation detail.
 -/
-def Internal.numBuckets [BEq α] [Hashable α] (m : HashSet α) : Nat :=
+def Internal.numBuckets (m : HashSet α) : Nat :=
   HashMap.Internal.numBuckets m.inner
 
 instance [BEq α] [Hashable α] [Repr α] : Repr (HashSet α) where

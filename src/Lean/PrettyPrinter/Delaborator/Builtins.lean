@@ -199,6 +199,10 @@ def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStruct
   let mut fields := #[]
   guard $ fieldNames.size == stx[1].getNumArgs
   if hasPPUsingAnonymousConstructorAttribute env s.induct then
+    /- Note that we don't flatten anonymous constructor notation. Only a complete such notation receives TermInfo,
+       and flattening would cause the flattened-in notation to lose its TermInfo.
+       Potentially it would be justified to flatten anonymous constructor notation when the terms are
+       from the same type family (think `Sigma`), but for now users can write a custom delaborator in such instances. -/
     return ← withTypeAscription (cond := (← withType <| getPPOption getPPStructureInstanceType)) do
       `(⟨$[$(stx[1].getArgs)],*⟩)
   let args := e.getAppArgs

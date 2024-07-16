@@ -286,12 +286,12 @@ def insertIfNewₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a)
   if m.containsₘ a then m else Raw₀.expandIfNecessary (m.consₘ a b)
 
 /-- Internal implementation detail of the hash map -/
-def removeₘaux [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Raw₀ α β :=
-  ⟨⟨m.1.size - 1, updateBucket m.1.buckets m.2 a (fun l => l.remove a)⟩, by simpa using m.2⟩
+def eraseₘaux [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Raw₀ α β :=
+  ⟨⟨m.1.size - 1, updateBucket m.1.buckets m.2 a (fun l => l.erase a)⟩, by simpa using m.2⟩
 
 /-- Internal implementation detail of the hash map -/
-def removeₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Raw₀ α β :=
-  if m.containsₘ a then m.removeₘaux a else m
+def eraseₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Raw₀ α β :=
+  if m.containsₘ a then m.eraseₘaux a else m
 
 /-- Internal implementation detail of the hash map -/
 def filterMapₘ (m : Raw₀ α β) (f : (a : α) → β a → Option (δ a)) : Raw₀ α δ :=
@@ -405,12 +405,12 @@ theorem getThenInsertIfNew?_eq_get?ₘ [BEq α] [Hashable α] [LawfulBEq α] (m 
   dsimp only [Array.ugetElem_eq_getElem, Array.uset]
   split <;> simp_all
 
-theorem remove_eq_removeₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) :
-    m.remove a = m.removeₘ a := by
-  rw [remove, removeₘ, containsₘ, bucket]
+theorem erase_eq_eraseₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) :
+    m.erase a = m.eraseₘ a := by
+  rw [erase, eraseₘ, containsₘ, bucket]
   dsimp only [Array.ugetElem_eq_getElem, Array.uset]
   split
-  · simp only [removeₘaux, Subtype.mk.injEq, Raw.mk.injEq, true_and]
+  · simp only [eraseₘaux, Subtype.mk.injEq, Raw.mk.injEq, true_and]
     rw [Array.set_set, updateBucket]
     simp only [Array.uset, Array.ugetElem_eq_getElem]
   · rfl

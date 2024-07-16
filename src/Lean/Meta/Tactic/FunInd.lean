@@ -14,6 +14,7 @@ import Lean.Meta.Injective -- for elimOptParam
 import Lean.Meta.ArgsPacker
 import Lean.Elab.PreDefinition.WF.Eqns
 import Lean.Elab.PreDefinition.Structural.Eqns
+import Lean.Elab.PreDefinition.Structural.FunPacker
 import Lean.Elab.Command
 import Lean.Meta.Tactic.ElimInfo
 
@@ -871,6 +872,116 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
     { name := inductName, levelParams := us, type := eTyp, value := e' }
   return inductName
 
+def stripPProdProjs (e : Expr) : Expr :=
+  match e with
+  | .proj ``PProd _ e' => stripPProdProjs e'
+  | .proj ``And _ e' => stripPProdProjs e'
+  | e => e
+
+-- TODO: Store numFixed in EqnInfo, just easier
+-- Maybe positions can be recalculated?
+def deriveInductionStructural (names : Array Name) (positions : Structural.Positions) : MetaM Unit := do
+  -- The mutual recursive structural definitions are all essentially the same,
+  -- up to the final projection. So just look at the first one
+  let infos ← names.mapM getConstInfoDefn
+  assert! infos.size = positions.numIndices
+  lambdaTelescope infos[0]!.value fun params body => do
+    -- The body is of the form (brecOn … ).2.2.1 extra1 extra2 etc.
+    let f' := body.getAppFn
+    let args := body.getAppArgs
+    let body' := stripPProdProjs f'
+    let f := body'.getAppFn
+    let args := body'.getAppArgs ++ body.getAppArgs
+
+    let body := stripPProdProjs body
+    let .const brecOnName us := f |
+      throwError "{infos[0]!.name}: unexpected body:{indentExpr infos[0]!.value}"
+    unless isBRecOnRecursor (← getEnv) brecOnName do
+      throwError "{infos[0]!.name}: expected .brecOn application, found:{indentExpr body}"
+
+    unless 1 ≤ us.length do
+      throwError "functional induction: unexpected recursor: {f} has no universe parameters"
+
+    let .str indName _ := brecOnName | unreachable!
+    let indInfo ← getConstInfoInduct indName
+
+    -- we have a `.brecOn` application, so now figure out the length of the fixed prefix
+    -- we can use the recInfo for `.rec`, since `.brecOn` has a similar structure
+    let recInfo ← getConstInfoRec (mkRecName indName)
+    if args.size < recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 +
+      recInfo.numTypeFormers then
+      throwError "insufficient arguments to .brecOn:{indentExpr body}"
+    let brecOnArgs    : Array Expr := args[:recInfo.numParams]
+    let brecOnMotives : Array Expr := args[recInfo.numParams:recInfo.numParams + recInfo.numMotives]
+    let brecOnTargets : Array Expr := args[recInfo.numParams + recInfo.numMotives :
+      recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1]
+    let brecOnMinors  : Array Expr := args[recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 :
+      recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 + recInfo.numMotives]
+    let brecOnExtras  : Array Expr := args[ recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 +
+      recInfo.numMotives:]
+    unless brecOnTargets.all (·.isFVar) do
+      throwError "the indices and major argument of the brecOn application are not variables:{indentExpr body}"
+    unless brecOnExtras.all (·.isFVar) do
+      throwError "the extra arguments to the the brecOn application are not variables:{indentExpr body}"
+    let (varyingParams, fixedParams) := params.partition fun x =>
+      brecOnTargets.contains x || brecOnExtras.contains x
+    unless params == fixedParams ++ varyingParams do
+      throwError "functional induction: unexpected order of fixed and varying parameters:{indentExpr body}"
+
+    -- Below we'll need the types of the motive arguments
+    let motiveTypes ← inferArgumentTypesN recInfo.numMotives (mkAppN f brecOnArgs)
+    assert! motiveTypes.size = positions.size
+
+    -- Remove the varying parameters from the environment
+    withErasedFVars (varyingParams.map (·.fvarId!)) do
+      -- The brecOnArgs, brecOnMotives and brecOnMinor should still be valid in this
+      -- context, and are the parts relevant for every function in the mutual group
+
+      -- Calculate the types of the induction motives for each function
+      let motiveDecls ← infos.mapIdxM fun ⟨i,_⟩ info => do
+        -- TODO: Need the RecArgInfo here.
+        let motiveType ← lambdaTelescope (← instantiateLambda info.value fixedParams) fun ys _ =>
+          mkForallFVars ys (.sort levelZero)
+        let n ←
+          if infos.size = 1 then
+            mkFreshUserName (.mkSimple "motive")
+          else
+            mkFreshUserName (.mkSimple s!"motive_{i+1}")
+        pure (n, fun _ => pure motiveType)
+      withLocalDeclsD motiveDecls fun motives => do
+        -- We need to pack these motives according to the `positions` assignment.
+        -- For that we need to infer the types of the motive parameter
+        let packedMotives ← positions.mapMwith Structural.packMotives motiveTypes motives
+        -- Now we can calcualte the expected types of the minor arguments
+        let minorTypes ← inferArgumentTypesN recInfo.numMinors <|
+          mkAppN f (brecOnArgs ++ packedMotives ++ brecOnTargets)
+        -- So that we can transform them
+        let (minors', mvars) ← StateT.run (s := {}) do
+          let mut minors' := #[]
+          for info in infos, brecOnMinor in brecOnMinors, goal in minorTypes do
+            let minor' ← forallTelescope goal fun xs goal => do
+
+              let arity := varyingParams.size + 1
+              if xs.size ≠ arity then
+                throwError "expected recursor argument to take {arity} parameters, got {xs}" else
+              let targets : Array Expr := xs[:motivePosInBody]
+              let genIH := xs[motivePosInBody]!
+              let extraParams := xs[motivePosInBody+1:]
+              -- open body with the same arg
+              let body ← instantiateLambda body targets
+              removeLamda body fun oldIH body => do
+                let body ← instantiateLambda body extraParams
+                let body' ← buildInductionBody is_wf fn #[genIH.fvarId!] #[] goal oldIH genIH.fvarId! #[] body
+                if body'.containsFVar oldIH then
+                  throwError m!"Did not fully eliminate {mkFVar oldIH} from induction principle body:{indentExpr body}"
+                mkLambdaFVars (targets.push genIH) (← mkLambdaFVars extraParams body')
+            minors' := minors'.push minor'
+          pure minors'
+
+
+
+
+
 /--
 In the type of `value`, reduces
 * Beta-redexes
@@ -999,6 +1110,8 @@ def deriveInduction (name : Name) : MetaM Unit := do
     let unaryInductName ← deriveUnaryInduction eqnInfo.declNameNonRec
     unless eqnInfo.declNameNonRec = name do
       deriveUnpackedInduction eqnInfo unaryInductName
+  else if let some eqnInfo := Structural.eqnInfoExt.find? (← getEnv) name then
+    deriveInductionStructural eqnInfo.declNames eqnInfo.positions
   else
     _ ← deriveUnaryInduction name
 
@@ -1011,6 +1124,9 @@ def isFunInductName (env : Environment) (name : Name) : Bool := Id.run do
     return false
   | "mutual_induct" =>
     if let some eqnInfo := WF.eqnInfoExt.find? env p then
+      if h : eqnInfo.declNames.size > 1 then
+        return eqnInfo.declNames[0] = p
+    if let some eqnInfo := Structural.eqnInfoExt.find? env p then
       if h : eqnInfo.declNames.size > 1 then
         return eqnInfo.declNames[0] = p
     return false

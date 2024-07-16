@@ -21,6 +21,7 @@ namespace Structural
 structure EqnInfo extends EqnInfoCore where
   recArgPos : Nat
   declNames : Array Name
+  positions : Positions
   deriving Inhabited
 
 private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
@@ -81,9 +82,11 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
 
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 
-def registerEqnsInfo (preDef : PreDefinition) (declNames : Array Name) (recArgPos : Nat) : CoreM Unit := do
+def registerEqnsInfo (preDef : PreDefinition) (declNames : Array Name) (recArgPos : Nat)
+    (positions : Positions) : CoreM Unit := do
   ensureEqnReservedNamesAvailable preDef.declName
-  modifyEnv fun env => eqnInfoExt.insert env preDef.declName { preDef with recArgPos, declNames }
+  modifyEnv fun env => eqnInfoExt.insert env preDef.declName
+    { preDef with recArgPos, declNames, positions }
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   if let some info := eqnInfoExt.find? (← getEnv) declName then

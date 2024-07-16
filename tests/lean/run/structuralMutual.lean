@@ -585,6 +585,8 @@ error: unknown identifier 'A.size.induct'
 #guard_msgs in
 #check A.size.induct
 
+#check A.size.mutual_induct
+
 /--
 error: Failed to realize constant A.subs.induct:
   functional induction: cannot handle mutual or nested inductives
@@ -621,18 +623,7 @@ error: unknown identifier 'A.hasNoBEmpty.induct'
 #guard_msgs in
 #check A.hasNoBEmpty.induct
 
-/--
-error: Failed to realize constant EvenOdd.isEven.induct:
-  Function EvenOdd.isEven does not look like a function defined by recursion.
-  NB: If EvenOdd.isEven is not itself recursive, but contains an inner recursive function (via `let rec` or `where`), try `EvenOdd.isEven.go` where `go` is name of the inner function.
----
-error: Failed to realize constant EvenOdd.isEven.induct:
-  Function EvenOdd.isEven does not look like a function defined by recursion.
-  NB: If EvenOdd.isEven is not itself recursive, but contains an inner recursive function (via `let rec` or `where`), try `EvenOdd.isEven.go` where `go` is name of the inner function.
----
-error: unknown identifier 'EvenOdd.isEven.induct'
--/
-#guard_msgs in
+-- #guard_msgs in
 #check EvenOdd.isEven.induct -- TODO: This error message can be improved
 
 end FunIndTests

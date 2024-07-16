@@ -13,16 +13,16 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_IR_Decl_elimDead(lean_object*);
+lean_object* l_Lean_IR_Decl_elimDead(lean_object*);
 extern lean_object* l_Lean_IR_instInhabitedFnBody;
 lean_object* l_Lean_IR_FnBody_flatten(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_IR_FnBody_freeIndices(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_FnBody_elimDead(lean_object*);
+lean_object* l_Lean_IR_FnBody_elimDead(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_FnBody_elimDead___spec__1(size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_reshapeWithoutDead(lean_object*, lean_object*);
+lean_object* l_Lean_IR_reshapeWithoutDead(lean_object*, lean_object*);
 lean_object* lean_array_pop(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_reshapeWithoutDead_reshape(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_IR_reshapeWithoutDead_reshape(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_setBody(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_updateBody_x21(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_FnBody_elimDead___spec__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -37,7 +37,7 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_FnBody_elimDead___spec__2(size_t, size_t, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_reshapeWithoutDead_reshape(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_IR_reshapeWithoutDead_reshape(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -122,7 +122,7 @@ return x_2;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_IR_reshapeWithoutDead(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_IR_reshapeWithoutDead(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
@@ -282,7 +282,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_IR_FnBody_elimDead(lean_object* x_1) {
+lean_object* l_Lean_IR_FnBody_elimDead(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; size_t x_6; size_t x_7; lean_object* x_8; 
@@ -370,7 +370,7 @@ x_6 = l_Array_mapMUnsafe_map___at_Lean_IR_FnBody_elimDead___spec__2(x_4, x_5, x_
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_IR_Decl_elimDead(lean_object* x_1) {
+lean_object* l_Lean_IR_Decl_elimDead(lean_object* x_1) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)

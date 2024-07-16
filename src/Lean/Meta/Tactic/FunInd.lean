@@ -719,7 +719,7 @@ to the continuation
   recursion and extra parameters passed to the recursor)
 * the position of the motive/induction hypothesis in the body's arguments
 * the body, as passed to the recursor. Expected to be a lambda that takes the
-  varying paramters and the motive
+  varying parameters and the motive
 * a function to re-assemble the call with a new Motive. The resulting expression expects
   the new body next, so that the expected type of the body can be inferred
 * a function to finish assembling the call with the new body.
@@ -744,8 +744,8 @@ def findRecursor {α} (name : Name) (varNames : Array Name) (e : Expr)
         -- Bail out on mutual or nested inductives
         let .str indName _ := f.constName! | unreachable!
         let indInfo ← getConstInfoInduct indName
-        if indInfo.all.length > 1 then
-          throwError "functional induction: cannot handle mutual inductives"
+        if indInfo.numTypeFormers > 1 then
+          throwError "functional induction: cannot handle mutual or nested inductives"
 
         let elimInfo ← getElimExprInfo f
         let targets : Array Expr := elimInfo.targetsPos.map (args[·]!)

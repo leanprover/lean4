@@ -32,7 +32,8 @@ t 2
    "severity": 1,
    "range":
    {"start": {"line": 1, "character": 38}, "end": {"line": 4, "character": 3}},
-   "message": "unexpected token '/-!'; expected ')', '_', identifier or term",
+   "message":
+   "unexpected token '/-!'; expected ')', ')ₚ', '_', identifier or term",
    "fullRange":
    {"start": {"line": 1, "character": 38},
     "end": {"line": 4, "character": 3}}}]}

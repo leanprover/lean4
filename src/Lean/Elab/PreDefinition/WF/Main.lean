@@ -86,7 +86,8 @@ def varyingVarNames (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Ar
     let xs : Array Expr := xs[fixedPrefixSize:]
     xs.mapM (·.fvarId!.getUserName)
 
-def wfRecursion (preDefs : Array PreDefinition) (termArgs? : Option TerminationArguments) : TermElabM Unit := do
+def wfRecursion (preDefs : Array PreDefinition) (termArg?s : Array (Option TerminationArgument)) : TermElabM Unit := do
+  let termArgs? := termArg?s.sequenceMap id -- Either all or none, checked by `elabTerminationByHints`
   let preDefs ← preDefs.mapM fun preDef =>
     return { preDef with value := (← preprocess preDef.value) }
   let (fixedPrefixSize, argsPacker, unaryPreDef) ← withoutModifyingEnv do

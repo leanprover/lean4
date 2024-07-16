@@ -35,6 +35,7 @@ mutual
 def even : Nat → Bool
   | 0 => true
   | .succ n => not (odd n)
+decreasing_by decreasing_tactic
 def odd : Nat → Bool
   | 0 => false
   | .succ n => not (even n)
@@ -44,6 +45,7 @@ mutual
 def evenWithFixed (m : String) : Nat → Bool
   | 0 => true
   | .succ n => not (oddWithFixed m n)
+decreasing_by decreasing_tactic
 def oddWithFixed (m : String) : Nat → Bool
   | 0 => false
   | .succ n => not (evenWithFixed m n)
@@ -81,6 +83,7 @@ def blowup : Nat → Nat → Nat → Nat → Nat → Nat → Nat → Nat → Nat
 def confuseLex1 : Nat → @PSigma Nat (fun _ => Nat) → Nat
   | 0, _p => 0
   | .succ n, ⟨x,y⟩ => confuseLex1 n ⟨x, .succ y⟩
+decreasing_by decreasing_tactic
 
 def confuseLex2 : @PSigma Nat (fun _ => Nat) → Nat
   | ⟨_,0⟩ => 0

@@ -294,7 +294,7 @@ def transform
         altType in altTypes do
       let alt' ← forallAltTelescope' origAltType (numParams - numDiscrEqs) 0 fun ys args => do
         let altType ← instantiateForall altType ys
-        -- The splitter inserts its extra paramters after the first ys.size parameters, before
+        -- The splitter inserts its extra parameters after the first ys.size parameters, before
         -- the parameters for the numDiscrEqs
         forallBoundedTelescope altType (splitterNumParams - ys.size) fun ys2 altType => do
           forallBoundedTelescope altType numDiscrEqs fun ys3 altType => do

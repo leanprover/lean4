@@ -34,7 +34,7 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lake_LeanExe_recBuildExe___spec
 static lean_object* l_Lake_LeanExe_recBuildExe___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lake_LeanExe_recBuildExe___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lake_LeanExe_recBuildExe___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lake_withRegisterJob___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lake_withRegisterJob___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExe_recBuildExe___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lake_LeanExe_recBuildExe___spec__6___closed__1;
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
@@ -3439,7 +3439,7 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lake_LeanExe_recBuildExe(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; lean_object* x_24; lean_object* x_25; size_t x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; lean_object* x_24; lean_object* x_25; size_t x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; lean_object* x_36; 
 x_8 = lean_ctor_get(x_1, 0);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_1, 1);
@@ -3499,8 +3499,9 @@ lean_closure_set(x_33, 6, x_1);
 x_34 = lean_alloc_closure((void*)(l_Lake_EquipT_bind___at_Lake_LeanExe_recBuildExe___spec__7___rarg), 8, 2);
 lean_closure_set(x_34, 0, x_30);
 lean_closure_set(x_34, 1, x_33);
-x_35 = l_Lake_withRegisterJob___rarg(x_15, x_34, x_2, x_3, x_4, x_5, x_6, x_7);
-return x_35;
+x_35 = 0;
+x_36 = l_Lake_withRegisterJob___rarg(x_15, x_34, x_35, x_2, x_3, x_4, x_5, x_6, x_7);
+return x_36;
 }
 }
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lake_LeanExe_recBuildExe___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {

@@ -4,10 +4,30 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
 prelude
+import Lean.Elab.PreDefinition.TerminationArgument
 import Lean.Elab.PreDefinition.Structural.Basic
+import Lean.Elab.PreDefinition.Structural.RecArgInfo
 
 namespace Lean.Elab.Structural
 open Meta
+
+def prettyParam (xs : Array Expr) (i : Nat) : MetaM MessageData := do
+  let x := xs[i]!
+  let n ← x.fvarId!.getUserName
+  addMessageContextFull <| if n.hasMacroScopes then m!"#{i+1}" else m!"{x}"
+
+def prettyRecArg (xs : Array Expr) (value : Expr) (recArgInfo : RecArgInfo) : MetaM MessageData := do
+  lambdaTelescope value fun ys _ => prettyParam (xs ++ ys) recArgInfo.recArgPos
+
+def prettyParameterSet (fnNames : Array Name) (xs : Array Expr) (values : Array Expr)
+    (recArgInfos : Array RecArgInfo) : MetaM MessageData := do
+  if fnNames.size = 1 then
+    return m!"parameter " ++ (← prettyRecArg xs values[0]! recArgInfos[0]!)
+  else
+    let mut l := #[]
+    for fnName in fnNames, value in values, recArgInfo in recArgInfos do
+      l := l.push m!"{(← prettyRecArg xs value recArgInfo)} of {fnName}"
+    return m!"parameters " ++ .andList l.toList
 
 private def getIndexMinPos (xs : Array Expr) (indices : Array Expr) : Nat := Id.run do
   let mut minPos := xs.size
@@ -72,60 +92,190 @@ def getRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) :
           | some (indParam, y) =>
             throwError "its type is an inductive datatype{indentExpr xType}\nand the datatype parameter{indentExpr indParam}\ndepends on the function parameter{indentExpr y}\nwhich does not come before the varying parameters and before the indices of the recursion parameter."
           | none =>
+            let indAll := indInfo.all.toArray
+            let .some indIdx := indAll.indexOf? indInfo.name | panic! "{indInfo.name} not in {indInfo.all}"
             let indicesPos := indIndices.map fun index => match xs.indexOf? index with | some i => i.val | none => unreachable!
-            return { fnName      := fnName
-                     numFixed    := numFixed
-                     recArgPos   := i
-                     indicesPos  := indicesPos
-                     indName     := indInfo.name
-                     indLevels   := us
-                     indParams   := indParams
-                     indAll      := indInfo.all.toArray }
+            let indGroupInst := {
+              IndGroupInfo.ofInductiveVal indInfo with
+              levels := us
+              params := indParams }
+            return { fnName       := fnName
+                     numFixed     := numFixed
+                     recArgPos    := i
+                     indicesPos   := indicesPos
+                     indGroupInst := indGroupInst
+                     indIdx       := indIdx }
     else
       throwError "the index #{i+1} exceeds {xs.size}, the number of parameters"
 
 /--
-  Runs `k` on all argument indices, until it succeeds.
-  We use this argument to justify termination using the auxiliary `brecOn` construction.
+Collects the `RecArgInfos` for one function, and returns a report for why the others were not
+considered.
 
-  We give preference for arguments that are *not* indices of inductive types of other arguments.
-  See issue #837 for an example where we can show termination using the index of an inductive family, but
-  we don't get the desired definitional equalities.
+The `xs` are the fixed parameters, `value` the body with the fixed prefix instantiated.
 
-  `value` is the function value (including fixed parameters)
+Takes the optional user annotations into account (`termArg?`). If this is given and the argument
+is unsuitable, throw an error.
 -/
-partial def tryAllArgs (value : Expr) (k : Nat → M α) : M α := do
-  -- It's improtant to keep the call to `k` outside the scope of `lambdaTelescope`:
-  -- The tactics in the IndPred construction search the full local context, so we must not have
-  -- extra FVars there
-  let (indices, nonIndices) ← lambdaTelescope value fun xs _ => do
-    let indicesRef : IO.Ref (Array Nat) ← IO.mkRef {}
-    for x in xs do
-      let xType ← inferType x
-      /- Traverse all sub-expressions in the type of `x` -/
-      forEachExpr xType fun e =>
-        /- If `e` is an inductive family, we store in `indicesRef` all variables in `xs` that occur in "index positions". -/
-        matchConstInduct e.getAppFn (fun _ => pure ()) fun info _ => do
-          if info.numIndices > 0 && info.numParams + info.numIndices == e.getAppNumArgs then
-            for arg in e.getAppArgs[info.numParams:] do
-              forEachExpr arg fun e => do
-                if let .some idx := xs.getIdx? e then
-                  indicesRef.modify (·.push idx)
-    let indices ← indicesRef.get
-    let nonIndices := (Array.range xs.size).filter (fun i => !(indices.contains i))
-    return (indices, nonIndices)
+def getRecArgInfos (fnName : Name) (xs : Array Expr) (value : Expr)
+    (termArg? : Option TerminationArgument) : MetaM (Array RecArgInfo × MessageData) := do
+  lambdaTelescope value fun ys _ => do
+    if let .some termArg := termArg? then
+      -- User explictly asked to use a certain argument, so throw errors eagerly
+      let recArgInfo ← withRef termArg.ref do
+        mapError (f := (m!"cannot use specified parameter for structural recursion:{indentD ·}")) do
+          getRecArgInfo fnName xs.size (xs ++ ys) (← termArg.structuralArg)
+      return (#[recArgInfo], m!"")
+    else
+      let mut recArgInfos := #[]
+      let mut report : MessageData := m!""
+      -- No `termination_by`, so try all, and remember the errors
+      for idx in [:xs.size + ys.size] do
+        try
+          let recArgInfo ← getRecArgInfo fnName xs.size (xs ++ ys) idx
+          recArgInfos := recArgInfos.push recArgInfo
+        catch e =>
+          report := report ++ (m!"Not considering parameter {← prettyParam (xs ++ ys) idx} of {fnName}:" ++
+            indentD e.toMessageData) ++ "\n"
+      trace[Elab.definition.structural] "getRecArgInfos report: {report}"
+      return (recArgInfos, report)
 
-  let mut errors : Array MessageData := Array.mkArray (indices.size  + nonIndices.size) m!""
-  let saveState ← get -- backtrack the state for each argument
-  for i in id (nonIndices ++ indices) do
-    trace[Elab.definition.structural] "findRecArg i: {i}"
-    try
-      set saveState
-      return (← k i)
-    catch e => errors := errors.set! i e.toMessageData
-  throwError
-    errors.foldl
-      (init := m!"structural recursion cannot be used:")
-      (f := (· ++ Format.line ++ Format.line ++ .))
+
+/--
+Reorders the `RecArgInfos` of one function to put arguments that are indices of other arguments
+last.
+See issue #837 for an example where we can show termination using the index of an inductive family, but
+we don't get the desired definitional equalities.
+-/
+def nonIndicesFirst (recArgInfos : Array RecArgInfo) : Array RecArgInfo := Id.run do
+  let mut indicesPos : HashSet Nat := {}
+  for recArgInfo in recArgInfos do
+    for pos in recArgInfo.indicesPos do
+      indicesPos := indicesPos.insert pos
+  let (indices,nonIndices) := recArgInfos.partition (indicesPos.contains ·.recArgPos)
+  return nonIndices ++ indices
+
+private def dedup [Monad m] (eq : α → α → m Bool) (xs : Array α) : m (Array α) := do
+  let mut ret := #[]
+  for x in xs do
+    unless (← ret.anyM (eq · x)) do
+      ret := ret.push x
+  return ret
+
+/--
+Given the `RecArgInfo`s of all the recursive functions, find the inductive groups to consider.
+-/
+def inductiveGroups (recArgInfos : Array RecArgInfo) : MetaM (Array IndGroupInst) :=
+  dedup IndGroupInst.isDefEq (recArgInfos.map (·.indGroupInst))
+
+/--
+Filters the `recArgInfos` by those that describe an argument that's part of the recursive inductive
+group `group`.
+
+Because of nested inductives this function has the ability to change the `recArgInfo`.
+Consider
+```
+inductive Tree where | node : List Tree → Tree
+```
+then when we look for arguments whose type is part of the group `Tree`, we want to also consider
+the argument of type `List Tree`, even though that argument’s `RecArgInfo` refers to initially to
+`List`.
+-/
+def argsInGroup (group : IndGroupInst) (xs : Array Expr) (value : Expr)
+    (recArgInfos : Array RecArgInfo) : MetaM (Array RecArgInfo) := do
+
+  let nestedTypeFormers ← group.nestedTypeFormers
+
+  recArgInfos.filterMapM fun recArgInfo => do
+    -- Is this argument from the same mutual group of inductives?
+    if (← group.isDefEq recArgInfo.indGroupInst) then
+      return (.some recArgInfo)
+
+    -- Can this argument be understood as the auxillary type former of a nested inductive?
+    if nestedTypeFormers.isEmpty then return .none
+    lambdaTelescope value fun ys _ => do
+      let x := (xs++ys)[recArgInfo.recArgPos]!
+      for nestedTypeFormer in nestedTypeFormers, indIdx in [group.all.size : group.numMotives] do
+        let xType ← whnfD (← inferType x)
+        let (indIndices, _, type) ← forallMetaTelescope nestedTypeFormer
+        if (← isDefEqGuarded type xType) then
+          let indIndices ← indIndices.mapM instantiateMVars
+          if !indIndices.all Expr.isFVar then
+            -- throwError "indices are not variables{indentExpr xType}"
+            continue
+          if !indIndices.allDiff then
+            -- throwError "indices are not pairwise distinct{indentExpr xType}"
+            continue
+          -- TODO: Do we have to worry about the indices ending up in the fixed prefix here?
+          if let some (_index, _y) ← hasBadIndexDep? ys indIndices then
+            -- throwError "its type {indInfo.name} is an inductive family{indentExpr xType}\nand index{indentExpr index}\ndepends on the non index{indentExpr y}"
+            continue
+          let indicesPos := indIndices.map fun index => match (xs++ys).indexOf? index with | some i => i.val | none => unreachable!
+          return .some
+            { fnName       := recArgInfo.fnName
+              numFixed     := recArgInfo.numFixed
+              recArgPos    := recArgInfo.recArgPos
+              indicesPos   := indicesPos
+              indGroupInst := group
+              indIdx       := indIdx }
+      return .none
+
+def maxCombinationSize : Nat := 10
+
+def allCombinations (xss : Array (Array α)) : Option (Array (Array α)) :=
+  if xss.foldl (· * ·.size) 1 > maxCombinationSize then
+    none
+  else
+    let rec go i acc : Array (Array α):=
+      if h : i < xss.size then
+        xss[i].concatMap fun x => go (i + 1) (acc.push x)
+      else
+        #[acc]
+    some (go 0 #[])
+
+
+def tryAllArgs (fnNames : Array Name) (xs : Array Expr) (values : Array Expr)
+   (termArg?s : Array (Option TerminationArgument)) (k : Array RecArgInfo → M α) : M α := do
+  let mut report := m!""
+  -- Gather information on all possible recursive arguments
+  let mut recArgInfoss := #[]
+  for fnName in fnNames, value in values, termArg? in termArg?s do
+    let (recArgInfos, thisReport) ← getRecArgInfos fnName xs value termArg?
+    report := report ++ thisReport
+    recArgInfoss := recArgInfoss.push recArgInfos
+  -- Put non-indices first
+  recArgInfoss := recArgInfoss.map nonIndicesFirst
+  trace[Elab.definition.structural] "recArgInfoss: {recArgInfoss.map (·.map (·.recArgPos))}"
+  -- Inductive groups to consider
+  let groups ← inductiveGroups recArgInfoss.flatten
+  trace[Elab.definition.structural] "inductive groups: {groups}"
+  if groups.isEmpty then
+    report := report ++ "no parameters suitable for structural recursion"
+  -- Consider each group
+  for group in groups do
+    -- Select those RecArgInfos that are compatible with this inductive group
+    let mut recArgInfoss' := #[]
+    for value in values, recArgInfos in recArgInfoss do
+      recArgInfoss' := recArgInfoss'.push (← argsInGroup group xs value recArgInfos)
+    if let some idx := recArgInfoss'.findIdx? (·.isEmpty) then
+      report := report ++ m!"Skipping arguments of type {group}, as {fnNames[idx]!} has no compatible argument.\n"
+      continue
+    if let some combs := allCombinations recArgInfoss' then
+      for comb in combs do
+        try
+          -- TODO: Here we used to save and restore the state. But should the `try`-`catch`
+          -- not suffice?
+          let r ← k comb
+          trace[Elab.definition.structural] "tryAllArgs report:\n{report}"
+          return r
+        catch e =>
+          let m ← prettyParameterSet fnNames xs values comb
+          report := report ++ m!"Cannot use {m}:{indentD e.toMessageData}\n"
+    else
+          report := report ++ m!"Too many possible combinations of parameters of type {group} (or " ++
+            m!"please indicate the recursive argument explicitly using `termination_by structural`).\n"
+  report := m!"failed to infer structural recursion:\n" ++ report
+  trace[Elab.definition.structural] "tryAllArgs:\n{report}"
+  throwError report
 
 end Lean.Elab.Structural

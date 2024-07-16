@@ -3172,8 +3172,8 @@ class MonadStateOf (σ : semiOutParam (Type u)) (m : Type u → Type v) where
 export MonadStateOf (set)
 
 /--
-Like `withReader`, but with `ρ` explicit. This is useful if a monad supports
-`MonadWithReaderOf` for multiple different types `ρ`.
+Like `get`, but with `σ` explicit. This is useful if a monad supports
+`MonadStateOf` for multiple different types `σ`.
 -/
 abbrev getThe (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] : m σ :=
   MonadStateOf.get

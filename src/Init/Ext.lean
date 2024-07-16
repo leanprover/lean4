@@ -24,15 +24,16 @@ syntax extFlat := atomic("(" &"flat" " := " &"false" ")")
 /--
 Registers an extensionality theorem.
 
-* When `@[ext]` is applied to a structure, it generates `.ext` and `.ext_iff` theorems and registers
-  them for the `ext` tactic.
-
-* When `@[ext]` is applied to a theorem, the theorem is registered for the `ext` tactic, and it generates an `ext_iff` theorem.
+* When `@[ext]` is applied to a theorem, the theorem is registered for the `ext` tactic, and it generates an "`ext_iff`" theorem.
   The name of the theorem is from adding the suffix `_iff` to the theorem name.
 
-* An optional natural number argument, e.g. `@[ext 9000]`, specifies a priority for the lemma. Higher-priority lemmas are chosen first, and the default is `1000`.
+* When `@[ext]` is applied to a structure, it generates an `.ext` theorem and applies the `@[ext]` attribute to it.
+  The result is an `.ext` and an `.ext_iff` theorem with the `.ext` theorem registered for the `ext` tactic.
 
-* The flag `@[ext (iff := false)]` prevents it from generating an `ext_iff` theorem.
+* An optional natural number argument, e.g. `@[ext 9000]`, specifies a priority for the `ext` lemma.
+  Higher-priority lemmas are chosen first, and the default is `1000`.
+
+* The flag `@[ext (iff := false)]` prevents the generation of an `ext_iff` theorem.
 
 * The flag `@[ext (flat := false)]` causes generated structure extensionality theorems to show inherited fields based on their representation,
   rather than flattening the parents' fields into the lemma's equality hypotheses.

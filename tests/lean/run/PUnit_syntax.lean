@@ -18,9 +18,9 @@
 #guard_msgs in
 #check (⟨true, 5, [()]⟩ : Bool ×' Nat ×' List Unit)
 
-/-- info: ⟨true, 5, [()]⟩ : MProd Bool (Nat ×' List Unit) -/
+/-- info: ⟨true, 5, [()]⟩ : MProd Bool (MProd Nat (List Unit)) -/
 #guard_msgs in
-#check (⟨true, 5, [()]⟩ : MProd Bool (PProd Nat (List Unit)))
+#check (⟨true, 5, [()]⟩ : MProd Bool (MProd Nat (List Unit)))
 
 /-- info: ⟨true, 5, [()]⟩ : Bool ×' Nat ×' List Unit -/
 #guard_msgs in

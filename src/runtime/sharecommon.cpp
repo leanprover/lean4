@@ -416,6 +416,16 @@ class sharecommon_quick_fn {
     }
 
 public:
+
+    /*
+    **TODO:** We did not implement stack overflow detection.
+    We claim it is not needed in the current uses of `shareCommon'`.
+    If this becomes an issue, we can use the following approach to address the issue without
+    affecting the performance.
+    - Add an extra `depth` parameter.
+    - In `operator()`, estimate the maximum depth based on the remaining stack space. See `check_stack`.
+    - If the limit is reached, simply return `a`.
+    */
     lean_object * visit(lean_object * a) {
         if (lean_is_scalar(a)) {
             return a;

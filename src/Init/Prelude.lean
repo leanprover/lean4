@@ -491,7 +491,6 @@ Similar to `Prod`, but `α` and `β` can be propositions.
 You can use `α ×' β` as notation for `PProd α β`.
 We use this type internally to automatically generate the `brecOn` recursor.
 -/
-@[pp_using_anonymous_constructor]
 structure PProd (α : Sort u) (β : Sort v) where
   /-- The first projection out of a pair. if `p : PProd α β` then `p.1 : α`. -/
   fst : α
@@ -502,7 +501,6 @@ structure PProd (α : Sort u) (β : Sort v) where
 Similar to `Prod`, but `α` and `β` are in the same universe.
 We say `MProd` is the universe monomorphic product type.
 -/
-@[pp_using_anonymous_constructor]
 structure MProd (α β : Type u) where
   /-- The first projection out of a pair. if `p : MProd α β` then `p.1 : α`. -/
   fst : α

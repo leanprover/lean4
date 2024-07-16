@@ -60,7 +60,7 @@ variable (m : Raw₀ α β) (h : m.1.WF)
 /-- Internal implementation detail of the hash map -/
 scoped macro "wf_trivial" : tactic => `(tactic|
   repeat (first
-    | apply Raw₀.wfImp_insert | apply Raw₀.wfImp_insertIfNew | apply Raw₀.wfImp_remove
+    | apply Raw₀.wfImp_insert | apply Raw₀.wfImp_insertIfNew | apply Raw₀.wfImp_erase
     | apply Raw.WF.out | assumption | apply Raw₀.wfImp_empty | apply Raw.WFImp.distinct
     | apply Raw.WF.empty₀))
 
@@ -76,7 +76,7 @@ private def queryNames : Array Name :=
     ``Const.get!_eq_getValue!, ``Const.getD_eq_getValueD]
 
 private def modifyNames : Array Name :=
-  #[``toListModel_insert, ``toListModel_remove, ``toListModel_insertIfNew]
+  #[``toListModel_insert, ``toListModel_erase, ``toListModel_insertIfNew]
 
 private def congrNames : MacroM (Array (TSyntax `term)) := do
   return #[← `(Std.DHashMap.Internal.List.Perm.isEmpty_eq), ← `(containsKey_of_perm),
@@ -153,28 +153,28 @@ theorem size_le_size_insert [EquivBEq α] [LawfulHashable α] {k : α} {v : β k
   simp_to_model using List.length_le_length_insertEntry
 
 @[simp]
-theorem remove_empty {k : α} {c : Nat} : (empty c : Raw₀ α β).remove k = empty c := by
-  simp [remove, empty]
+theorem erase_empty {k : α} {c : Nat} : (empty c : Raw₀ α β).erase k = empty c := by
+  simp [erase, empty]
 
-theorem isEmpty_remove [EquivBEq α] [LawfulHashable α] {k : α} :
-    (m.remove k).1.isEmpty = (m.1.isEmpty || (m.1.size == 1 && m.contains k)) := by
-  simp_to_model using List.isEmpty_removeKey
+theorem isEmpty_erase [EquivBEq α] [LawfulHashable α] {k : α} :
+    (m.erase k).1.isEmpty = (m.1.isEmpty || (m.1.size == 1 && m.contains k)) := by
+  simp_to_model using List.isEmpty_eraseKey
 
-theorem contains_remove [EquivBEq α] [LawfulHashable α] {k a : α} :
-    (m.remove k).contains a = (!(k == a) && m.contains a) := by
-  simp_to_model using List.containsKey_removeKey
+theorem contains_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
+    (m.erase k).contains a = (!(k == a) && m.contains a) := by
+  simp_to_model using List.containsKey_eraseKey
 
-theorem contains_of_contains_remove [EquivBEq α] [LawfulHashable α] {k a : α} :
-    (m.remove k).contains a → m.contains a := by
-  simp_to_model using List.containsKey_of_containsKey_removeKey
+theorem contains_of_contains_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
+    (m.erase k).contains a → m.contains a := by
+  simp_to_model using List.containsKey_of_containsKey_eraseKey
 
-theorem size_remove [EquivBEq α] [LawfulHashable α] {k : α} :
-    (m.remove k).1.size = bif m.contains k then m.1.size - 1 else m.1.size := by
-  simp_to_model using List.length_removeKey
+theorem size_erase [EquivBEq α] [LawfulHashable α] {k : α} :
+    (m.erase k).1.size = bif m.contains k then m.1.size - 1 else m.1.size := by
+  simp_to_model using List.length_eraseKey
 
-theorem size_remove_le [EquivBEq α] [LawfulHashable α] {k : α} :
-    (m.remove k).1.size ≤ m.1.size := by
-  simp_to_model using List.length_removeKey_le
+theorem size_erase_le [EquivBEq α] [LawfulHashable α] {k : α} :
+    (m.erase k).1.size ≤ m.1.size := by
+  simp_to_model using List.length_eraseKey_le
 
 @[simp]
 theorem containsThenInsert_fst {k : α} {v : β k} : (m.containsThenInsert k v).1 = m.contains k := by
@@ -214,12 +214,12 @@ theorem contains_eq_isSome_get? [LawfulBEq α] {a : α} : m.contains a = (m.get?
 theorem get?_eq_none [LawfulBEq α] {a : α} : m.contains a = false → m.get? a = none := by
   simp_to_model using List.getValueCast?_eq_none
 
-theorem get?_remove [LawfulBEq α] {k a : α} :
-    (m.remove k).get? a = bif k == a then none else m.get? a := by
-  simp_to_model using List.getValueCast?_removeKey
+theorem get?_erase [LawfulBEq α] {k a : α} :
+    (m.erase k).get? a = bif k == a then none else m.get? a := by
+  simp_to_model using List.getValueCast?_eraseKey
 
-theorem get?_remove_self [LawfulBEq α] {k : α} : (m.remove k).get? k = none := by
-  simp_to_model using List.getValueCast?_removeKey_self
+theorem get?_erase_self [LawfulBEq α] {k : α} : (m.erase k).get? k = none := by
+  simp_to_model using List.getValueCast?_eraseKey_self
 
 namespace Const
 
@@ -249,13 +249,13 @@ theorem get?_eq_none [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = false → get? m a = none := by
   simp_to_model using List.getValue?_eq_none.2
 
-theorem get?_remove [EquivBEq α] [LawfulHashable α] {k a : α} :
-    Const.get? (m.remove k) a = bif k == a then none else get? m a := by
-  simp_to_model using List.getValue?_removeKey
+theorem get?_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
+    Const.get? (m.erase k) a = bif k == a then none else get? m a := by
+  simp_to_model using List.getValue?_eraseKey
 
-theorem get?_remove_self [EquivBEq α] [LawfulHashable α] {k : α} :
-    get? (m.remove k) k = none := by
-  simp_to_model using List.getValue?_removeKey_self
+theorem get?_erase_self [EquivBEq α] [LawfulHashable α] {k : α} :
+    get? (m.erase k) k = none := by
+  simp_to_model using List.getValue?_eraseKey_self
 
 theorem get?_eq_get? [LawfulBEq α] {a : α} : get? m a = m.get? a := by
   simp_to_model using List.getValue?_eq_getValueCast?
@@ -279,9 +279,9 @@ theorem get_insert_self [LawfulBEq α] {k : α} {v : β k} :
   simp_to_model using List.getValueCast_insertEntry_self
 
 @[simp]
-theorem get_remove [LawfulBEq α] {k a : α} {h'} :
-    (m.remove k).get a h' = m.get a (contains_of_contains_remove _ h h') := by
-  simp_to_model using List.getValueCast_removeKey
+theorem get_erase [LawfulBEq α] {k a : α} {h'} :
+    (m.erase k).get a h' = m.get a (contains_of_contains_erase _ h h') := by
+  simp_to_model using List.getValueCast_eraseKey
 
 theorem get?_eq_some_get [LawfulBEq α] {a : α} {h} : m.get? a = some (m.get a h) := by
   simp_to_model using List.getValueCast?_eq_some_getValueCast
@@ -301,9 +301,9 @@ theorem get_insert_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
   simp_to_model using List.getValue_insertEntry_self
 
 @[simp]
-theorem get_remove [EquivBEq α] [LawfulHashable α] {k a : α} {h'} :
-    get (m.remove k) a h' = get m a (contains_of_contains_remove _ h h') := by
-  simp_to_model using List.getValue_removeKey
+theorem get_erase [EquivBEq α] [LawfulHashable α] {k a : α} {h'} :
+    get (m.erase k) a h' = get m a (contains_of_contains_erase _ h h') := by
+  simp_to_model using List.getValue_eraseKey
 
 theorem get?_eq_some_get [EquivBEq α] [LawfulHashable α] {a : α} {h} :
     get? m a = some (get m a h) := by
@@ -339,13 +339,13 @@ theorem get!_eq_default [LawfulBEq α] {a : α} [Inhabited (β a)] :
     m.contains a = false → m.get! a = default := by
   simp_to_model using List.getValueCast!_eq_default
 
-theorem get!_remove [LawfulBEq α] {k a : α} [Inhabited (β a)] :
-    (m.remove k).get! a = bif k == a then default else m.get! a := by
-  simp_to_model using List.getValueCast!_removeKey
+theorem get!_erase [LawfulBEq α] {k a : α} [Inhabited (β a)] :
+    (m.erase k).get! a = bif k == a then default else m.get! a := by
+  simp_to_model using List.getValueCast!_eraseKey
 
-theorem get!_remove_self [LawfulBEq α] {k : α} [Inhabited (β k)] :
-    (m.remove k).get! k = default := by
-  simp_to_model using List.getValueCast!_removeKey_self
+theorem get!_erase_self [LawfulBEq α] {k : α} [Inhabited (β k)] :
+    (m.erase k).get! k = default := by
+  simp_to_model using List.getValueCast!_eraseKey_self
 
 theorem get?_eq_some_get! [LawfulBEq α] {a : α} [Inhabited (β a)] :
     m.contains a = true → m.get? a = some (m.get! a) := by
@@ -383,13 +383,13 @@ theorem get!_eq_default [EquivBEq α] [LawfulHashable α] [Inhabited β] {a : α
     m.contains a = false → get! m a = default := by
   simp_to_model using List.getValue!_eq_default
 
-theorem get!_remove [EquivBEq α] [LawfulHashable α] [Inhabited β] {k a : α} :
-    get! (m.remove k) a = bif k == a then default else get! m a := by
-  simp_to_model using List.getValue!_removeKey
+theorem get!_erase [EquivBEq α] [LawfulHashable α] [Inhabited β] {k a : α} :
+    get! (m.erase k) a = bif k == a then default else get! m a := by
+  simp_to_model using List.getValue!_eraseKey
 
-theorem get!_remove_self [EquivBEq α] [LawfulHashable α] [Inhabited β] {k : α} :
-    get! (m.remove k) k = default := by
-  simp_to_model using List.getValue!_removeKey_self
+theorem get!_erase_self [EquivBEq α] [LawfulHashable α] [Inhabited β] {k : α} :
+    get! (m.erase k) k = default := by
+  simp_to_model using List.getValue!_eraseKey_self
 
 theorem get?_eq_some_get! [EquivBEq α] [LawfulHashable α] [Inhabited β] {a : α} :
     m.contains a = true → get? m a = some (get! m a) := by
@@ -434,13 +434,13 @@ theorem getD_eq_fallback [LawfulBEq α] {a : α} {fallback : β a} :
     m.contains a = false → m.getD a fallback = fallback := by
   simp_to_model using List.getValueCastD_eq_fallback
 
-theorem getD_remove [LawfulBEq α] {k a : α} {fallback : β a} :
-    (m.remove k).getD a fallback = bif k == a then fallback else m.getD a fallback := by
-  simp_to_model using List.getValueCastD_removeKey
+theorem getD_erase [LawfulBEq α] {k a : α} {fallback : β a} :
+    (m.erase k).getD a fallback = bif k == a then fallback else m.getD a fallback := by
+  simp_to_model using List.getValueCastD_eraseKey
 
-theorem getD_remove_self [LawfulBEq α] {k : α} {fallback : β k} :
-    (m.remove k).getD k fallback = fallback := by
-  simp_to_model using List.getValueCastD_removeKey_self
+theorem getD_erase_self [LawfulBEq α] {k : α} {fallback : β k} :
+    (m.erase k).getD k fallback = fallback := by
+  simp_to_model using List.getValueCastD_eraseKey_self
 
 theorem get?_eq_some_getD [LawfulBEq α] {a : α} {fallback : β a} :
     m.contains a = true → m.get? a = some (m.getD a fallback) := by
@@ -482,13 +482,13 @@ theorem getD_eq_fallback [EquivBEq α] [LawfulHashable α] {a : α} {fallback : 
     m.contains a = false → getD m a fallback = fallback := by
   simp_to_model using List.getValueD_eq_fallback
 
-theorem getD_remove [EquivBEq α] [LawfulHashable α] {k a : α} {fallback : β} :
-    getD (m.remove k) a fallback = bif k == a then fallback else getD m a fallback := by
-  simp_to_model using List.getValueD_removeKey
+theorem getD_erase [EquivBEq α] [LawfulHashable α] {k a : α} {fallback : β} :
+    getD (m.erase k) a fallback = bif k == a then fallback else getD m a fallback := by
+  simp_to_model using List.getValueD_eraseKey
 
-theorem getD_remove_self [EquivBEq α] [LawfulHashable α] {k : α} {fallback : β} :
-    getD (m.remove k) k fallback = fallback := by
-  simp_to_model using List.getValueD_removeKey_self
+theorem getD_erase_self [EquivBEq α] [LawfulHashable α] {k : α} {fallback : β} :
+    getD (m.erase k) k fallback = fallback := by
+  simp_to_model using List.getValueD_eraseKey_self
 
 theorem get?_eq_some_getD [EquivBEq α] [LawfulHashable α] {a : α} {fallback : β} :
     m.contains a = true → get? m a = some (getD m a fallback) := by

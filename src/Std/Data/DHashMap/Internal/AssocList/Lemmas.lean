@@ -119,11 +119,11 @@ theorem toList_replace [BEq α] {l : AssocList α β} {a : α} {b : β a} :
   · next k v t ih => cases h : k == a <;> simp_all [replace, List.replaceEntry_cons]
 
 @[simp]
-theorem toList_remove [BEq α] {l : AssocList α β} {a : α} :
-    (l.remove a).toList = removeKey a l.toList := by
+theorem toList_erase [BEq α] {l : AssocList α β} {a : α} :
+    (l.erase a).toList = eraseKey a l.toList := by
   induction l
-  · simp [remove]
-  · next k v t ih => cases h : k == a <;> simp_all [remove, List.removeKey_cons]
+  · simp [erase]
+  · next k v t ih => cases h : k == a <;> simp_all [erase, List.eraseKey_cons]
 
 theorem toList_filterMap {f : (a : α) → β a → Option (γ a)} {l : AssocList α β} :
     Perm (l.filterMap f).toList (l.toList.filterMap fun p => (f p.1 p.2).map (⟨p.1, ·⟩)) := by

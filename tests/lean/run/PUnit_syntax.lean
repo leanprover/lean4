@@ -1,44 +1,32 @@
-/-- info: Bool ×ₚ Nat ×ₚ List Unit : Type -/
+/-- info: Bool ×' Nat ×' List Unit : Type -/
 #guard_msgs in
-#check Bool ×ₚ Nat ×ₚ List Unit
+#check Bool ×' Nat ×' List Unit
 
-/-- info: Bool ×ₚ Nat ×ₚ List Unit : Type -/
+/-- info: Bool ×' Nat ×' List Unit : Type -/
 #guard_msgs in
 #check PProd Bool (PProd Nat (List Unit))
 
-/-- info: (Bool ×ₚ Nat) ×ₚ List Unit : Type -/
+/-- info: (Bool ×' Nat) ×' List Unit : Type -/
 #guard_msgs in
 #check PProd (PProd Bool Nat) (List Unit)
 
-/-- info: Bool ×ₘ Nat ×ₘ List Unit : Type -/
+/-- info: PUnit.{u} : Sort u -/
 #guard_msgs in
-#check Bool ×ₘ Nat ×ₘ List Unit
+#check PUnit
 
-/-- info: Bool ×ₘ Nat ×ₘ List Unit : Type -/
+/-- info: ⟨true, ⟨5, [()]⟩⟩ : Bool ×' Nat ×' List Unit -/
 #guard_msgs in
-#check MProd Bool (MProd Nat (List Unit))
+#check (⟨true, 5, [()]⟩ : Bool ×' Nat ×' List Unit)
 
-/-- info: (Bool ×ₘ Nat) ×ₘ List Unit : Type -/
+/-- info: ⟨true, ⟨5, [()]⟩⟩ : MProd Bool (Nat ×' List Unit) -/
 #guard_msgs in
-#check MProd (MProd Bool Nat) (List Unit)
+#check (⟨true, 5, [()]⟩ : MProd Bool (PProd Nat (List Unit)))
 
-/-- info: PUnit.unit : PUnit -/
-#guard_msgs in
-#check ()ₚ
-
-/-- info: (true, 5, [()])ₚ : Bool ×ₚ Nat ×ₚ List Unit -/
-#guard_msgs in
-#check (true, 5, [()])ₚ
-
-/-- info: (true, 5, [()])ₘ : Bool ×ₘ Nat ×ₘ List Unit -/
-#guard_msgs in
-#check (true, 5, [()])ₘ
-
-/-- info: (true, 5, [()])ₚ : Bool ×ₚ Nat ×ₚ List Unit -/
+/-- info: ⟨true, ⟨5, [()]⟩⟩ : Bool ×' Nat ×' List Unit -/
 #guard_msgs in
 #check PProd.mk true (PProd.mk 5 [()])
 
-/-- info: (true, 5, [()])ₘ : Bool ×ₘ Nat ×ₘ List Unit -/
+/-- info: ⟨true, ⟨5, [()]⟩⟩ : MProd Bool (MProd Nat (List Unit)) -/
 #guard_msgs in
 #check MProd.mk true (MProd.mk 5 [()])
 

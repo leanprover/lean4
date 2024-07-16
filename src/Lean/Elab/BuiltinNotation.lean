@@ -330,15 +330,6 @@ where
     return (← expandCDot? pairs).getD pairs
   | _ => Macro.throwUnsupported
 
-@[builtin_macro Lean.Parser.Term.ptuple] def expandPTuple : Macro
-  | `(()ₚ) => ``(PUnit.unit)
-  | `(($e, $es,*)ₚ) => mkPPairs (#[e] ++ es)
-  | _ => Macro.throwUnsupported
-
-@[builtin_macro Lean.Parser.Term.mtuple] def expandMTuple : Macro
-  | `(($e, $es,*)ₘ) => mkMPairs (#[e] ++ es)
-  | _ => Macro.throwUnsupported
-
 @[builtin_macro Lean.Parser.Term.typeAscription] def expandTypeAscription : Macro
   | `(($e : $(type)?)) => do
     match (← expandCDot? e) with

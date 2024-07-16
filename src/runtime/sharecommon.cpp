@@ -6,6 +6,8 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include <cstring>
+#include <unordered_map>
+#include <unordered_set>
 #include "runtime/object.h"
 #include "runtime/hash.h"
 
@@ -267,5 +269,183 @@ public:
 // def State.shareCommon {α} {σ : @& StateFactory} (s : State σ) (a : α) : α × State σ
 extern "C" LEAN_EXPORT obj_res lean_state_sharecommon(b_obj_arg tc, obj_arg s, obj_arg a) {
     return sharecommon_fn(tc, s)(a);
+}
+
+/*
+A faster version of `sharecommon_fn` which only uses a local state.
+It optimizes the number of RC operations, the strategy for caching results,
+and uses C++ hashmap.
+*/
+class sharecommon_quick_fn {
+    struct set_hash {
+        std::size_t operator()(lean_object * o) const { return lean_sharecommon_hash(o); }
+    };
+    struct set_eq {
+        std::size_t operator()(lean_object * o1, lean_object * o2) const { return lean_sharecommon_eq(o1, o2); }
+    };
+
+    /*
+    We use `m_cache` to ensure we do **not** traverse a DAG as a tree.
+    We use pointer equality for this collection.
+    */
+    std::unordered_map<lean_object *, lean_object *> m_cache;
+    /* Set of maximally shared terms. AKA hash-consing table. */
+    std::unordered_set<lean_object *, set_hash, set_eq> m_set;
+
+    /*
+      We do not increment reference counters when inserting Lean objects at `m_cache` and `m_set`.
+      This is correct because
+      - The domain of `m_cache` contains only sub-objects of `lean_sharecommon_quick` parameter,
+        and we know the object referenced by this parameter will remain alive.
+      - The range of `m_cache` contains only new objects that have been maxed shared, and these
+        objects will be are sub-objects of the object returned by `lean_sharecommon_quick`.
+      - `m_set` is like the range of `m_cache`.
+    */
+
+    lean_object * check_cache(lean_object * a) {
+        if (!lean_is_exclusive(a)) {
+            // We only check the cache if `a` is a shared object
+            auto it = m_cache.find(a);
+            if (it != m_cache.end()) {
+                // All objects stored in the range of `m_cache` are single threaded.
+                lean_assert(lean_is_st(it->second));
+                // We increment the reference counter because this object
+                // will be returned by `lean_sharecommon_quick` or stored into a new object.
+                it->second->m_rc++;
+                return it->second;
+            }
+        }
+        return nullptr;
+    }
+
+    /*
+    `new_a` is a new object that is equal to `a`, but its subobjects are maximally shared.
+    */
+    lean_object * save(lean_object * a, lean_object * new_a) {
+        lean_assert(lean_is_st(new_a));
+        lean_assert(new_a->m_rc == 1);
+        auto it = m_set.find(new_a);
+        lean_object * result;
+        if (it == m_set.end()) {
+            // `new_a` is a new object
+            m_set.insert(new_a);
+            result = new_a;
+        } else {
+            // We already have a maximally shared object that is equal to `new_a`
+            result = *it;
+            DEBUG_CODE({
+                    if (lean_is_ctor(new_a)) {
+                        lean_assert(lean_is_ctor(result));
+                        unsigned num_objs = lean_ctor_num_objs(new_a);
+                        lean_assert(lean_ctor_num_objs(result) == num_objs);
+                        for (unsigned i = 0; i < num_objs; i++) {
+                            lean_assert(lean_ctor_get(result, i) == lean_ctor_get(new_a, i));
+                        }
+                    }
+                });
+            lean_dec_ref(new_a); // delete `new_a`
+            // All objects in `m_set` are single threaded.
+            lean_assert(lean_is_st(result));
+            result->m_rc++;
+            lean_assert(result->m_rc > 1);
+        }
+        if (!lean_is_exclusive(a)) {
+            // We only cache the result if `a` is a shared object.
+            m_cache.insert(std::make_pair(a, result));
+        }
+        lean_assert(result == new_a || result->m_rc > 1);
+        lean_assert(result != new_a || result->m_rc == 1);
+        return result;
+    }
+
+    lean_object * visit_sarray(lean_object * a) {
+        lean_object * r = check_cache(a);
+        if (r != nullptr) { lean_assert(r->m_rc > 1); return r; }
+
+        size_t sz        = lean_sarray_size(a);
+        unsigned elem_sz = lean_sarray_elem_size(a);
+        lean_sarray_object * new_a = (lean_sarray_object*)lean_alloc_sarray(elem_sz, sz, sz);
+        memcpy(new_a->m_data, lean_to_sarray(a)->m_data, elem_sz*sz);
+        return save(a, (lean_object*)new_a);
+    }
+
+    lean_object * visit_string(lean_object * a) {
+        lean_object * r = check_cache(a);
+        if (r != nullptr) { lean_assert(r->m_rc > 1); return r; }
+
+        size_t sz     = lean_string_size(a);
+        size_t len    = lean_string_len(a);
+        lean_string_object * new_a = (lean_string_object*)lean_alloc_string(sz, sz, len);
+        lean_set_st_header((lean_object*)new_a, LeanString, 0);
+        new_a->m_size     = sz;
+        new_a->m_capacity = sz;
+        new_a->m_length   = len;
+        memcpy(new_a->m_data, lean_to_string(a)->m_data, sz);
+        return save(a, (lean_object*)new_a);
+    }
+
+    lean_object * visit_array(lean_object * a) {
+        lean_object * r = check_cache(a);
+        if (r != nullptr) { lean_assert(r->m_rc > 1); return r; }
+
+        size_t sz = array_size(a);
+        lean_array_object * new_a = (lean_array_object*)lean_alloc_array(sz, sz);
+        for (size_t i = 0; i < sz; i++) {
+            lean_array_set_core((lean_object*)new_a, i, visit(lean_array_get_core(a, i)));
+        }
+        return save(a, (lean_object*)new_a);
+    }
+
+    lean_object * visit_ctor(lean_object * a) {
+        lean_object * r = check_cache(a);
+        if (r != nullptr) { lean_assert(r->m_rc > 1); return r; }
+
+        unsigned num_objs      = lean_ctor_num_objs(a);
+        unsigned tag           = lean_ptr_tag(a);
+        unsigned sz            = lean_object_byte_size(a);
+        unsigned scalar_offset = sizeof(lean_object) + num_objs*sizeof(void*);
+        unsigned scalar_sz     = sz - scalar_offset;
+        lean_object * new_a    = lean_alloc_ctor(tag, num_objs, scalar_sz);
+        for (unsigned i = 0; i < num_objs; i++) {
+            lean_ctor_set(new_a, i, visit(lean_ctor_get(a, i)));
+        }
+        if (scalar_sz > 0) {
+            memcpy(reinterpret_cast<char*>(new_a) + scalar_offset, reinterpret_cast<char*>(a) + scalar_offset, scalar_sz);
+        }
+        return save(a, new_a);
+    }
+
+public:
+    lean_object * visit(lean_object * a) {
+        if (lean_is_scalar(a)) {
+            return a;
+        }
+        switch (lean_ptr_tag(a)) {
+        /*
+        Similarly to `sharecommon_fn`, we only maximally share arrays, scalar arrays, strings, and
+        constructor objects.
+        */
+        case LeanMPZ:             lean_inc_ref(a); return a;
+        case LeanClosure:         lean_inc_ref(a); return a;
+        case LeanThunk:           lean_inc_ref(a); return a;
+        case LeanTask:            lean_inc_ref(a); return a;
+        case LeanRef:             lean_inc_ref(a); return a;
+        case LeanExternal:        lean_inc_ref(a); return a;
+        case LeanReserved:        lean_inc_ref(a); return a;
+        case LeanArray:           return visit_array(a);
+        case LeanScalarArray:     return visit_sarray(a);
+        case LeanString:          return visit_string(a);
+        default:                  return visit_ctor(a);
+        }
+    }
+
+    lean_object * operator()(lean_object * a) {
+        return visit(a);
+    }
+};
+
+// def ShareCommon.shareCommon' (a : A) : A := a
+extern "C" LEAN_EXPORT obj_res lean_sharecommon_quick(obj_arg a) {
+    return sharecommon_quick_fn()(a);
 }
 };

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.ShareCommon
 import Lean.Compiler.NoncomputableAttr
 import Lean.Util.CollectLevelParams
 import Lean.Meta.AbstractNestedProofs
@@ -210,5 +211,16 @@ def checkCodomainsLevel (preDefs : Array PreDefinition) : MetaM Unit := do
             m!"level, resulting type " ++
             m!"for `{preDefs[0]!.declName}` is{indentExpr type₀} : {← inferType type₀}\n" ++
             m!"and for `{preDefs[i]!.declName}` is{indentExpr typeᵢ} : {← inferType typeᵢ}"
+
+def shareCommonPreDefs (preDefs : Array PreDefinition) : CoreM (Array PreDefinition) := do profileitM Exception "share common exprs" (← getOptions) do
+  let mut es := #[]
+  for preDef in preDefs do
+    es := es.push preDef.type |>.push preDef.value
+  es := ShareCommon.shareCommon' es
+  let mut result := #[]
+  for h : i in [:preDefs.size] do
+    let preDef := preDefs[i]
+    result := result.push { preDef with type := es[2*i]!, value := es[2*i+1]! }
+  return result
 
 end Lean.Elab

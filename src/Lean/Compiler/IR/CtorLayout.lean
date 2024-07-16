@@ -35,8 +35,15 @@ structure CtorLayout where
   numUSize   : Nat
   scalarSize : Nat
 
-@[extern "lean_ir_get_ctor_layout"]
 opaque getCtorLayout (env : @& Environment) (ctorName : @& Name) : Except String CtorLayout
 
 end IR
+
+-- Expose `getCtorLayout` in the `Lean` namespace to make it available for the benefit of
+-- the test `lean/ctor_layout.lean`
+-- Can be removed once we no longer have to limit the number of exported symbols and
+-- can use `Lean.IR` from the interpreter.
+@[extern "lean_ir_get_ctor_layout"]
+def getCtorLayout := IR.getCtorLayout
+
 end Lean

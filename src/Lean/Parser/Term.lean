@@ -174,9 +174,19 @@ do not yield the right result.
 -/
 @[builtin_term_parser] def typeAscription := leading_parser
   "(" >> (withoutPosition (withoutForbidden (termParser >> " :" >> optional (ppSpace >> termParser)))) >> ")"
+
 /-- Tuple notation; `()` is short for `Unit.unit`, `(a, b, c)` for `Prod.mk a (Prod.mk b c)`, etc. -/
 @[builtin_term_parser] def tuple := leading_parser
   "(" >> optional (withoutPosition (withoutForbidden (termParser >> ", " >> sepBy1 termParser ", " (allowTrailingSep := true)))) >> ")"
+
+/-- Universe polymorphic tuple notation; `()ₚ` is short for `PUnit.unit`, `(a, b, c)ₚ` for `PProd.mk a (PProd.mk b c)`, etc. -/
+@[builtin_term_parser] def ptuple := leading_parser
+  "(" >> optional (withoutPosition (withoutForbidden (termParser >> ", " >> sepBy1 termParser ", " (allowTrailingSep := true)))) >> ")ₚ"
+
+/-- Universe monomorphic tuple notation; `(a, b, c)ₘ` for `MProd.mk a (MProd.mk b c)`, etc. -/
+@[builtin_term_parser] def mtuple := leading_parser
+  "(" >> withoutPosition (withoutForbidden (termParser >> ", " >> sepBy1 termParser ", " (allowTrailingSep := true))) >> ")ₘ"
+
 /--
 Parentheses, used for grouping expressions (e.g., `a * (b + c)`).
 Can also be used for creating simple functions when combined with `·`. Here are some examples:

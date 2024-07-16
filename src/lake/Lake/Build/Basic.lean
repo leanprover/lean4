@@ -51,8 +51,24 @@ Whether the build should show progress information.
 def BuildConfig.showProgress (cfg : BuildConfig) : Bool :=
   (cfg.noBuild ∧ cfg.verbosity == .verbose) ∨ cfg.verbosity != .quiet
 
+/-- The core structure of a Lake job. -/
+structure JobCore (α : Type u)  where
+  /-- The Lean `Task` object for the job. -/
+  task : α
+  /--
+  A caption for the job in Lake's build monitor.
+  Will be formatted like `✔ [3/5] Ran <caption>`.
+  -/
+  caption : String
+  /-- Whether this job failing should cause the build to fail. -/
+  optional : Bool := false
+  deriving Inhabited
+
+/-- A Lake job task with an opaque value type in `Type`. -/
+declare_opaque_type OpaqueJobTask
+
 /-- A Lake job with an opaque value type in `Type`. -/
-declare_opaque_type OpaqueJob
+abbrev OpaqueJob := JobCore OpaqueJobTask
 
 /-- A Lake context with a build configuration and additional build data. -/
 structure BuildContext extends BuildConfig, Context where

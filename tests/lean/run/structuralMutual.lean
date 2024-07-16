@@ -1,5 +1,13 @@
 import Lean.Elab.Command
 
+/-!
+Mutual structural recursion.
+
+In this file, we often attach a `termination_by structural` annotation to at least
+one of the functions to force structural recursion. We don't want lean to resort to
+well-founded recursion if structural recursion fails somehow.
+-/
+
 mutual
 inductive A
   | self : A → A
@@ -19,11 +27,11 @@ def A.size : A → Nat
   | .other b => b.size + 1
   | .empty => 0
 termination_by structural x => x
+
 def B.size : B → Nat
   | .self b => b.size + 1
   | .other a => a.size + 1
   | .empty => 0
-termination_by structural x => x
 end
 
 
@@ -87,7 +95,6 @@ def B.subs : (b : B) → (Fin b.size → A ⊕ B)
   | .self b => Fin.lastCases (.inr b) (b.subs)
   | .other a => Fin.lastCases (.inl a) (a.subs)
   | .empty => Fin.elim0
-termination_by structural x => x
 end
 
 
@@ -103,7 +110,6 @@ def B.hasNoBEmpty : B → Prop
   | .self b => b.hasNoBEmpty
   | .other a => a.hasNoBEmpty
   | .empty => False
-termination_by structural x => x
 end
 
 -- Mixing Prop and Nat.
@@ -122,7 +128,6 @@ def B.oddCount : B → Nat
   | .self b => b.oddCount + 1
   | .other a => if a.hasNoAEmpty then 0 else 1
   | .empty => 0
-termination_by structural x => x
 end
 
 -- Higher levels, but the same level `Type u`
@@ -138,7 +143,6 @@ def B.type.{u} : B → Type u
   | .self b => PUnit × b.type
   | .other a => PUnit × a.type
   | .empty => PUnit
-termination_by structural x => x
 end
 
 
@@ -162,7 +166,6 @@ def B.odderCount : B → Nat
   | .self b => b.odderCount + 1
   | .other a => if Nonempty a.strangeType then 0 else 1
   | .empty => 0
-termination_by structural x => x
 end
 
 
@@ -191,7 +194,6 @@ def B.size (m n : Nat): B m n → Nat
   | .self b => b.size + m
   | .other a => a.size + m
   | .empty => 0
-termination_by structural x => x
 end
 
 mutual
@@ -204,7 +206,6 @@ theorem B.size_eq_index (m n : Nat) : (b : B m n) → b.size = n
   | .self b => by dsimp [B.size]; rw [B.size_eq_index]
   | .other a => by dsimp [B.size]; rw [A.size_eq_index]
   | .empty => rfl
-termination_by structural x => x
 end
 
 end Index
@@ -223,7 +224,6 @@ mutual
   def Odd : Nat → Prop
     | 0 => False
     | n+1 => ¬ Even n
-  termination_by structural x => x
 end
 
 mutual
@@ -235,7 +235,6 @@ mutual
   def isOdd : Nat → Bool
     | 0 => false
     | n+1 => ! isEven n
-  termination_by structural x => x
 end
 
 theorem isEven_eq_2 (n : Nat) : isEven (n+1) = ! isOdd n := rfl
@@ -301,12 +300,10 @@ def A.weird_size2 : A → Nat
   | .self a => a.weird_size3 + 1
   | .other _ => 0
   | .empty => 0
-termination_by structural x => x
 def A.weird_size3 : A → Nat
   | .self a => a.weird_size1 + 1
   | .other _ => 0
   | .empty => 0
-termination_by structural x => x
 end
 
 -- We have equality
@@ -321,48 +318,6 @@ info: MutualIndNonMutualFun.A.weird_size1.eq_1 (a : A) : a.self.weird_size1 = a.
 
 end MutualIndNonMutualFun
 
-namespace NestedWithTuple
-
-inductive Tree where
-  | leaf
-  | node : (Tree × Tree) → Tree
-
-def Tree.below_1 (motive : Tree → Sort u) : Tree → Sort (max 1 u) :=
-  @Tree.below motive (fun _tt => PUnit)
-
--- Assume we had this construction:
-@[reducible] protected noncomputable def Tree.brecOn.{u}
-  {motive : Tree → Sort u}
-  (t : Tree)
-  (F : (t : Tree) → Tree.below_1 motive t → motive t) :
-  motive t :=
-  let motive_below := fun t => PProd (motive t) (Tree.below_1 motive t)
-  (@Tree.rec
-    motive_below
-    -- This is the hypthetical `Pair_Tree.below tt` unfolded
-    (fun ⟨t₁,t₂⟩ => PProd PUnit.{u} (PProd (motive_below t₁) (PProd (motive_below t₂) PUnit)))
-    ⟨F Tree.leaf PUnit.unit, PUnit.unit⟩
-    (fun ⟨a₁,a₂⟩ a_ih => ⟨F (Tree.node ⟨a₁, a₂⟩) ⟨a_ih, PUnit.unit⟩, ⟨a_ih, PUnit.unit⟩⟩)
-    (fun _a _a_1 a_ih a_ih_1 => ⟨PUnit.unit, ⟨a_ih, ⟨a_ih_1, PUnit.unit⟩⟩⟩)
-    t).1
-
--- Then the decrecursifier works just fine! (and FunInd too, see below)
-#guard_msgs in
-def Tree.size : Tree → Nat
-  | leaf => 0
-  | node (t₁, t₂) => t₁.size + t₂.size
-termination_by structural t => t
-
-/--
-info: theorem NestedWithTuple.Tree.size.eq_2 : ∀ (t₁ t₂ : Tree), (Tree.node (t₁, t₂)).size = t₁.size + t₂.size :=
-fun t₁ t₂ => Eq.refl (Tree.node (t₁, t₂)).size
--/
-#guard_msgs in
-#print Tree.size.eq_2
-
-end NestedWithTuple
-
-
 namespace DifferentTypes
 
 -- Check error message when argument types are not mutually recursive
@@ -372,7 +327,9 @@ inductive A
   | empty
 
 /--
-error: Cannot use structural mutual recursion: The recursive argument of DifferentTypes.A.with_nat is of type DifferentTypes.A, the recursive argument of DifferentTypes.Nat.foo is of type Nat, and these are not mutually recursive.
+error: failed to infer structural recursion:
+Skipping arguments of type A, as DifferentTypes.Nat.foo has no compatible argument.
+Skipping arguments of type Nat, as DifferentTypes.A.with_nat has no compatible argument.
 -/
 #guard_msgs in
 mutual
@@ -383,7 +340,6 @@ termination_by structural x => x
 def Nat.foo : Nat → Nat
   | n+1 => Nat.foo n
   | 0 => A.empty.with_nat
-termination_by structural x => x
 end
 
 end DifferentTypes
@@ -411,7 +367,6 @@ termination_by structural t => t
 def T.size2 (n : Nat) (start : Nat) : T n → Nat
   | .a => 0
   | .b t => 1 + T.size1 n start t
-termination_by structural t => t
 end
 
 end Mutual
@@ -438,7 +393,6 @@ termination_by structural t => t
 
 def B.size (n : Nat) (start : Nat) : B → Nat
   | .a a => 1 + A.size n start (a n)
-termination_by structural t => t
 end
 
 end Mutual2
@@ -454,13 +408,14 @@ inductive  B (n : Nat) : Type
 end
 
 /--
-error: its type is an inductive datatype
-  A n
-and the datatype parameter
-  n
-depends on the function parameter
-  n
-which does not come before the varying parameters and before the indices of the recursion parameter.
+error: cannot use specified parameter for structural recursion:
+  its type is an inductive datatype
+    A n
+  and the datatype parameter
+    n
+  depends on the function parameter
+    n
+  which does not come before the varying parameters and before the indices of the recursion parameter.
 -/
 #guard_msgs in
 set_option linter.constructorNameAsVariable false in
@@ -472,14 +427,14 @@ termination_by structural t => t
 
 def B.size (n : Nat) (m : Nat) : B m → Nat
   | .a a => 1 + A.size m n a
-termination_by structural t => t
 end
 
 end Mutual3
 
 /--
-error: its type FixedIndex.T is an inductive family and indices are not variables
-  T 37
+error: cannot use specified parameter for structural recursion:
+  its type FixedIndex.T is an inductive family and indices are not variables
+    T 37
 -/
 #guard_msgs in
 def T.size2 : T 37 → Nat
@@ -498,13 +453,14 @@ inductive T (n : Nat) : Nat → Type where
   | n : T n n → T n n
 
 /--
-error: its type is an inductive datatype
-  T n n
-and the datatype parameter
-  n
-depends on the function parameter
-  n
-which does not come before the varying parameters and before the indices of the recursion parameter.
+error: cannot use specified parameter for structural recursion:
+  its type is an inductive datatype
+    T n n
+  and the datatype parameter
+    n
+  depends on the function parameter
+    n
+  which does not come before the varying parameters and before the indices of the recursion parameter.
 -/
 #guard_msgs in
 def T.a (n : Nat) : T n n → Nat
@@ -526,9 +482,9 @@ inductive T (n : Nat) : Type where
   | n : T n → T n
 
 /--
-error: The inductive type of the recursive parameter of DifferentParameters.T.a and DifferentParameters.T.b have different parameters:
-  [23]
-  [42]
+error: failed to infer structural recursion:
+Skipping arguments of type T 23, as DifferentParameters.T.b has no compatible argument.
+Skipping arguments of type T 42, as DifferentParameters.T.a has no compatible argument.
 -/
 #guard_msgs in
 mutual
@@ -539,10 +495,78 @@ termination_by structural t => t
 def T.b : T 42 → Nat
   | .z => 0
   | .n t => t.b + 1 + T.a .z
-termination_by structural t => t
 end
 
 end DifferentParameters
+
+namespace ManyCombinations
+-- A datatype with no size function, to avoid well-founded recursion
+
+inductive Nattish
+  | zero
+  | cons : (Nat → Nattish) → Nattish
+
+/--
+error: fail to show termination for
+  ManyCombinations.f
+  ManyCombinations.g
+with errors
+failed to infer structural recursion:
+Too many possible combinations of parameters of type Nattish (or please indicate the recursive argument explicitly using `termination_by structural`).
+
+
+Could not find a decreasing measure.
+The arguments relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+Call from ManyCombinations.f to ManyCombinations.g at 550:15-29:
+   #1 #2 #3 #4
+#5  ?  ?  ?  ?
+#6  ?  =  ?  ?
+#7  ?  ?  =  ?
+#8  ?  ?  ?  =
+Call from ManyCombinations.g to ManyCombinations.f at 553:15-29:
+   #5 #6 #7 #8
+#1  _  _  _  _
+#2  _  =  _  _
+#3  _  _  =  _
+#4  _  _  _  =
+
+
+#1: sizeOf a
+#2: sizeOf b
+#3: sizeOf c
+#4: sizeOf d
+#5: sizeOf a
+#6: sizeOf b
+#7: sizeOf c
+#8: sizeOf d
+
+Please use `termination_by` to specify a decreasing measure.
+-/
+#guard_msgs in
+mutual
+def f (a b c d : Nattish) : Nat := match a with
+  | .zero => 0
+  | .cons n => g (n 23) b c d
+def g (a b c d : Nattish) : Nat := match a with
+  | .zero => 0
+  | .cons n => f (n 42) b c d
+end
+
+-- specifying one `termination_by structural` helps
+
+#guard_msgs in
+mutual
+def f' (a b c d : Nattish) : Nat := match a with
+  | .zero => 0
+  | .cons n => g' (n 23) b c d
+termination_by structural a
+def g' (a b c d : Nattish) : Nat := match a with
+  | .zero => 0
+  | .cons n => f' (n 42) b c d
+end
+
+end ManyCombinations
 
 namespace FunIndTests
 
@@ -551,10 +575,10 @@ namespace FunIndTests
 
 /--
 error: Failed to realize constant A.size.induct:
-  functional induction: cannot handle mutual inductives
+  functional induction: cannot handle mutual or nested inductives
 ---
 error: Failed to realize constant A.size.induct:
-  functional induction: cannot handle mutual inductives
+  functional induction: cannot handle mutual or nested inductives
 ---
 error: unknown identifier 'A.size.induct'
 -/
@@ -563,10 +587,10 @@ error: unknown identifier 'A.size.induct'
 
 /--
 error: Failed to realize constant A.subs.induct:
-  functional induction: cannot handle mutual inductives
+  functional induction: cannot handle mutual or nested inductives
 ---
 error: Failed to realize constant A.subs.induct:
-  functional induction: cannot handle mutual inductives
+  functional induction: cannot handle mutual or nested inductives
 ---
 error: unknown identifier 'A.subs.induct'
 -/
@@ -575,10 +599,10 @@ error: unknown identifier 'A.subs.induct'
 
 /--
 error: Failed to realize constant MutualIndNonMutualFun.A.self_size.induct:
-  functional induction: cannot handle mutual inductives
+  functional induction: cannot handle mutual or nested inductives
 ---
 error: Failed to realize constant MutualIndNonMutualFun.A.self_size.induct:
-  functional induction: cannot handle mutual inductives
+  functional induction: cannot handle mutual or nested inductives
 ---
 error: unknown identifier 'MutualIndNonMutualFun.A.self_size.induct'
 -/
@@ -587,10 +611,10 @@ error: unknown identifier 'MutualIndNonMutualFun.A.self_size.induct'
 
 /--
 error: Failed to realize constant A.hasNoBEmpty.induct:
-  functional induction: cannot handle mutual inductives
+  functional induction: cannot handle mutual or nested inductives
 ---
 error: Failed to realize constant A.hasNoBEmpty.induct:
-  functional induction: cannot handle mutual inductives
+  functional induction: cannot handle mutual or nested inductives
 ---
 error: unknown identifier 'A.hasNoBEmpty.induct'
 -/
@@ -610,19 +634,5 @@ error: unknown identifier 'EvenOdd.isEven.induct'
 -/
 #guard_msgs in
 #check EvenOdd.isEven.induct -- TODO: This error message can be improved
-
-
--- For Tree.size this would actually work already:
-
-run_meta
-  Lean.modifyEnv fun env => Lean.markAuxRecursor env ``NestedWithTuple.Tree.brecOn
-
-/--
-info: NestedWithTuple.Tree.size.induct (motive : NestedWithTuple.Tree → Prop) (case1 : motive NestedWithTuple.Tree.leaf)
-  (case2 : ∀ (t₁ t₂ : NestedWithTuple.Tree), motive t₁ → motive t₂ → motive (NestedWithTuple.Tree.node (t₁, t₂))) :
-  ∀ (a : NestedWithTuple.Tree), motive a
--/
-#guard_msgs in
-#check NestedWithTuple.Tree.size.induct
 
 end FunIndTests

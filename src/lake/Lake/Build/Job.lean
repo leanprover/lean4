@@ -101,33 +101,32 @@ abbrev SpawnM := BuildT BaseIO
 @[deprecated SpawnM (since := "2024-05-21")] abbrev SchedulerM := SpawnM
 
 /-- A Lake job. -/
-structure Job (α : Type u)  where
-  task : JobTask α
-  caption : String
+abbrev Job (α : Type u)  := JobCore (JobTask α)
+
+structure BundledJobTask where
+  {Result : Type u}
+  task : JobTask Result
   deriving Inhabited
 
-structure BundledJob where
-  {type : Type u}
-  job : Job type
-  deriving Inhabited
+instance : CoeOut (JobTask α) BundledJobTask := ⟨.mk⟩
 
-instance : CoeOut (Job α) BundledJob := ⟨.mk⟩
+hydrate_opaque_type OpaqueJobTask BundledJobTask
 
-hydrate_opaque_type OpaqueJob BundledJob
+abbrev OpaqueJob.Result (job : OpaqueJob) : Type :=
+  job.task.get.Result
 
-abbrev OpaqueJob.type (job : OpaqueJob) : Type :=
-  job.get.type
+nonrec abbrev OpaqueJob.task (job : OpaqueJob) : JobTask job.Result :=
+  job.task.get.task
 
-abbrev OpaqueJob.toJob (job : OpaqueJob) : Job job.type :=
-  job.get.job
+abbrev OpaqueJob.ofJob (job : Job α) : OpaqueJob :=
+  {job with task := job.task}
 
-abbrev OpaqueJob.task (job : OpaqueJob) : JobTask job.type :=
-  job.toJob.task
+instance : CoeOut (Job α) OpaqueJob := ⟨.ofJob⟩
 
-abbrev OpaqueJob.caption (job : OpaqueJob) : String :=
-  job.toJob.caption
+abbrev OpaqueJob.toJob (job : OpaqueJob) : Job job.Result :=
+  {job with task := job.task}
 
-instance : CoeDep OpaqueJob job (Job job.type) := ⟨job.toJob⟩
+instance : CoeDep OpaqueJob job (Job job.Result) := ⟨job.toJob⟩
 
 namespace Job
 

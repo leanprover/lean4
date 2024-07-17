@@ -22,7 +22,7 @@ set_option autoImplicit false
 
 universe u v
 
-variable {α : Type u} {β : α → Type v} [BEq α] [Hashable α]
+variable {α : Type u} {β : α → Type v} {_ : BEq α} {_ : Hashable α}
 
 namespace Std.DHashMap
 

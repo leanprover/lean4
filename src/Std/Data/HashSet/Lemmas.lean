@@ -20,7 +20,7 @@ set_option autoImplicit false
 
 universe u v
 
-variable {α : Type u} [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
+variable {α : Type u} {_ : BEq α} {_ : Hashable α} [EquivBEq α] [LawfulHashable α]
 
 namespace Std.HashSet
 

@@ -1046,6 +1046,15 @@ def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (O
       return none
     return some v
 
+-- Implementation for `_root_.Lean.MVarId.checkedAssign`
+@[export lean_checked_assign]
+def checkedAssignImpl (mvarId : MVarId) (val : Expr) : MetaM Bool := do
+  if let some val ← checkAssignment mvarId #[] val then
+    mvarId.assign val
+    return true
+  else
+    return false
+
 private def processAssignmentFOApproxAux (mvar : Expr) (args : Array Expr) (v : Expr) : MetaM Bool :=
   match v with
   | .mdata _ e   => processAssignmentFOApproxAux mvar args e

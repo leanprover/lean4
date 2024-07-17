@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
+import Lean.Meta.Tactic.Util
 import Lean.Elab.Term
 
 namespace Lean.Elab
@@ -398,12 +399,19 @@ def ensureHasNoMVars (e : Expr) : TacticM Unit := do
   if e.hasExprMVar then
     throwError "tactic failed, resulting expression contains metavariables{indentExpr e}"
 
-/-- Close main goal using the given expression. If `checkUnassigned == true`, then `val` must not contain unassigned metavariables. -/
-def closeMainGoal (val : Expr) (checkUnassigned := true): TacticM Unit := do
+/--
+Closes main goal using the given expression.
+If `checkUnassigned == true`, then `val` must not contain unassigned metavariables.
+Returns `true` if `val` was successfully used to close the goal.
+-/
+def closeMainGoal (tacName : Name) (val : Expr) (checkUnassigned := true): TacticM Unit := do
   if checkUnassigned then
     ensureHasNoMVars val
-  (← getMainGoal).assign val
-  replaceMainGoal []
+  let mvarId ← getMainGoal
+  if (← mvarId.checkedAssign val) then
+    replaceMainGoal []
+  else
+    throwTacticEx tacName mvarId m!"attempting to close the goal using{indentExpr val}\nthis is often due occurs-check failure"
 
 @[inline] def liftMetaMAtMain (x : MVarId → MetaM α) : TacticM α := do
   withMainContext do x (← getMainGoal)

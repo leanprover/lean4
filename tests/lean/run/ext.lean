@@ -138,3 +138,35 @@ attribute [local ext] Subsingleton.elim
 /-- info: Subsingleton.elim_iff.{u} {α : Sort u} [h : Subsingleton α] {a b : α} : a = b ↔ True -/
 #guard_msgs in #check Subsingleton.elim_iff
 end
+
+
+/-!
+More informative error (issue #4758)
+-/
+
+/--
+warning: declaration uses 'sorry'
+---
+error: Failed to generate an 'ext_iff' theorem from 'weird_prod_ext': argument f is not a proof, which is not supported for arguments after p and q
+
+Try '@[ext (iff := false)]' to prevent generating an 'ext_iff' theorem.
+-/
+#guard_msgs in
+@[ext]
+theorem weird_prod_ext (p q : α × β)
+    (f : α → α') (g : β → β') -- (hf : Function.Injective f) (hg : Function.Injective g)
+    (h : f p.1 = f q.1) (h' : g p.2 = g q.2) :
+  p = q := sorry
+
+/--
+error: Failed to generate an 'ext_iff' theorem from 'ext'': argument h1 is depended upon, which is not supported for arguments after p and q
+
+Try '@[ext (iff := false)]' to prevent generating an 'ext_iff' theorem.
+-/
+#guard_msgs in
+@[ext]
+theorem Sigma.ext' {β : α → Type _} (p q : (i : α) × β i)
+    (h1 : p.1 = q.1)
+    (h2 : h1 ▸ p.2 = q.2) :
+    p = q := by
+  cases p; cases q; cases h1; cases h2; rfl

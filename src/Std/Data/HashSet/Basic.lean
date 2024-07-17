@@ -35,6 +35,9 @@ and an array of buckets, where each bucket is a linked list of keys. The number 
 is always a power of two. The hash set doubles its size upon inserting an element such that the
 number of elements is more than 75% of the number of buckets.
 
+The hash table is backed by an `Array`. Users should make sure that the hash set is used linearly to
+avoid expensive copies.
+
 The hash set uses `==` (provided by the `BEq` typeclass) to compare elements and `hash` (provided by
 the `Hashable` typeclass) to hash them. To ensure that the operations behave as expected, `==`
 should be an equivalence relation and `a == b` should imply `hash a = hash b` (see also the

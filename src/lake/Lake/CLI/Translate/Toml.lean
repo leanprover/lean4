@@ -63,11 +63,6 @@ def LeanConfig.toToml (cfg : LeanConfig) (t : Table := {}) : Table :=
 instance : ToToml LeanConfig := ⟨(toToml ·.toToml)⟩
 instance : ToToml LeanVer := ⟨(toToml <| toString ·)⟩
 
-def Toml.encodeStrPat? (p : StrPat) : Option Value :=
-  match p with
-  | .enum s => toToml s
-  | _ => none
-
 protected def PackageConfig.toToml (cfg : PackageConfig) (t : Table := {}) : Table :=
   t.insert `name cfg.name
   |>.insertD `precompileModules cfg.precompileModules false
@@ -88,7 +83,12 @@ protected def PackageConfig.toToml (cfg : PackageConfig) (t : Table := {}) : Tab
   |> cfg.toLeanConfig.toToml
 where
   encodeVerTags? (pat : StrPat) : Option Value :=
-    match pat with | .enum xs => some (toToml xs) | _ => none
+    match pat with
+    | .mem s => toToml s
+    | .startsWith p =>
+      if p == "v" then none else
+      toToml <| Table.empty.insert `startsWith (toToml p)
+    | _ => none
 
 instance : ToToml PackageConfig := ⟨(toToml ·.toToml)⟩
 

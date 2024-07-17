@@ -128,11 +128,11 @@ def PackageConfig.mkSyntax (cfg : PackageConfig)
   where
     quoteVerTags? (pat : StrPat) : Option Term :=
       match pat with
-      | .enum pat =>
-        if pat.isEmpty then Unhygienic.run `(∅) else some (quote pat)
-      | .pre s =>
-        if s == "v" then none else some <|
-          Syntax.mkCApp `StrPat.pre #[quote s]
+      | .mem xs =>
+        if xs.isEmpty then Unhygienic.run `(∅) else some (quote xs)
+      | .startsWith pre =>
+        if pre == "v" then none else
+        Unhygienic.run `(.$(mkIdent `startsWith) $(quote pre))
       | _ => none
 
 private def getEscapedNameParts? (acc : List String) : Name → Option (List String)

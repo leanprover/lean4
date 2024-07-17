@@ -26,22 +26,27 @@ namespace Lake
 
 /-- A `String` pattern. Matches some subset of strings. -/
 inductive StrPat
-/-- Matches strings that satisfy an arbitrary predicate. -/
-| pred (f : String → Bool)
+/-- Matches a string that satisfies an arbitrary predicate. -/
+| satisfies (f : String → Bool)
 /-- Matches a string that is a member of the the array -/
-| enum (xs : Array String)
+| mem (xs : Array String)
 /-- Matches a string that starts with this prefix. -/
-| pre (s : String)
+| startsWith (pre : String)
 deriving Inhabited
 
-instance : Coe (String → Bool) StrPat := ⟨.pred⟩
-instance : Coe (Array String) StrPat := ⟨.enum⟩
-instance : EmptyCollection StrPat := ⟨.enum #[]⟩
+instance : Coe (Array String) StrPat := ⟨.mem⟩
+instance : Coe (String → Bool) StrPat := ⟨.satisfies⟩
 
+/-- Matches nothing. -/
+def StrPat.none : StrPat := .mem #[]
+
+instance : EmptyCollection StrPat := ⟨.none⟩
+
+/-- Returns whether the string `s` matches the pattern. -/
 def StrPat.matches (s : String) : (self : StrPat) → Bool
-| .pred f => f s
-| .enum xs => xs.contains s
-| .pre p => p.isPrefixOf s
+| .satisfies f => f s
+| .mem xs => xs.contains s
+| .startsWith p => p.isPrefixOf s
 
 --------------------------------------------------------------------------------
 /-! # PackageConfig -/
@@ -254,7 +259,7 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
 
   Defaults to tags with a `v` prefix.
   -/
-  versionTags : StrPat := .pre "v"
+  versionTags : StrPat := .startsWith "v"
 
   /--
   Developer-defined keywords associated with the package.

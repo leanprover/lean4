@@ -28,7 +28,7 @@ weakLinkArgs = []
 backend = "default"
 platformIndependent = true
 version = "0.0.0"
-versionTags = []
+versionTags = {startsWith = "v"}
 keywords = []
 
 [[lean_lib]]

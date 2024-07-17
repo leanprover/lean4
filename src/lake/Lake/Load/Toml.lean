@@ -144,7 +144,10 @@ protected def LeanVer.decodeToml (v : Value) : Except (Array DecodeError) LeanVe
 instance : DecodeToml LeanVer := ⟨(LeanVer.decodeToml ·)⟩
 
 protected def StrPat.decodeToml (v : Value) : Except (Array DecodeError) StrPat :=
-  .enum <$> v.decodeArray
+  match v with
+  | .array _ vs => .mem <$> decodeArray vs
+  | .table _ t => .startsWith <$> t.decode `startsWith
+  | v => throw #[.mk v.ref "expected array or table"]
 
 instance : DecodeToml StrPat := ⟨(StrPat.decodeToml ·)⟩
 
@@ -195,7 +198,7 @@ protected def PackageConfig.decodeToml (t : Table) (ref := Syntax.missing) : Exc
   let lintDriver ← t.tryDecodeD `lintDriver ""
   let lintDriverArgs ← t.tryDecodeD `lintDriverArgs #[]
   let version ← t.tryDecodeD `version v!"0.0.0"
-  let versionTags ← t.tryDecodeD `versionTags (StrPat.pre "v")
+  let versionTags ← t.tryDecodeD `versionTags (.startsWith "v")
   let keywords ← t.tryDecodeD `keywords #[]
   let toLeanConfig ← tryDecode <| LeanConfig.decodeToml t
   let toWorkspaceConfig ← tryDecode <| WorkspaceConfig.decodeToml t

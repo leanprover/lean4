@@ -14,6 +14,7 @@ import Lake.Config.Script
 import Lake.Load.Config
 import Lake.Util.DRBMap
 import Lake.Util.OrdHashSet
+import Lake.Util.Version
 
 open System Lean
 
@@ -22,6 +23,25 @@ namespace Lake
 /-- The default `buildArchive` configuration for a package with `name`. -/
 @[inline] def defaultBuildArchive (name : Name) : String :=
   s!"{name.toString false}-{System.Platform.target}.tar.gz"
+
+/-- A `String` pattern. Matches some subset of strings. -/
+inductive StrPat
+/-- Matches strings that satisfy an arbitrary predicate. -/
+| pred (f : String → Bool)
+/-- Matches a string that is a member of the the array -/
+| enum (xs : Array String)
+/-- Matches a string that starts with this prefix. -/
+| pre (s : String)
+deriving Inhabited
+
+instance : Coe (String → Bool) StrPat := ⟨.pred⟩
+instance : Coe (Array String) StrPat := ⟨.enum⟩
+instance : EmptyCollection StrPat := ⟨.enum #[]⟩
+
+def StrPat.matches (s : String) : (self : StrPat) → Bool
+| .pred f => f s
+| .enum xs => xs.contains s
+| .pre p => p.isPrefixOf s
 
 --------------------------------------------------------------------------------
 /-! # PackageConfig -/
@@ -182,6 +202,72 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   `lake lint -- <args>...`.
   -/
   lintDriverArgs : Array String := #[]
+
+  /--
+  The package version.
+  Versions have the [SemVer](https://semver.org)-like form:
+
+  ```
+  v!"<major>.<minor>.<patch>[-<specialDescr>]"
+  ```
+
+  A version with a `-` suffix is considered a "prerelease".
+
+  Lake suggest the following guidelines for incrementing versions:
+
+  * **Major version increment** *(e.g., v1.3.0 → v2.0.0)*
+    Indicates significant breaking changes in the package.
+    Package users are not expected to update to the new version
+    without manual intervention.
+
+  * **Minor version increment** *(e.g., v1.3.0 → v1.4.0)*
+    Denotes notable changes that are expected to be
+    generally backwards compatible.
+    Package users are expected to update to this version automatically
+    and should be able to fix any breakages and/or warnings easily.
+
+  * **Patch version increment** *(e.g., v1.3.0 → v1.3.1)*
+    Reserved for bug fixes and small touchups.
+    Package users are expected to update automatically and should not expect
+    significant breakage, except in the edge case of users relying on the
+    behavior of patched bugs.
+
+  Unlike rigid SemVer, backwards-incompatible changes may occur at any level.
+  The is because the current nature of Lean (e.g., transitive imports,
+  rich metaprogramming, reducibility in proofs), makes it infeasible to
+  define a completely stable interface for a package.
+  Instead, the different version levels indicate a change's intended significance
+  and how difficult migration is expected to be.
+
+  Versions of form the `0.x.x` are considered development versions prior to
+  first official release. Like prerelease, they are not expected to closely
+  follow the above guidelines.
+
+  Packages without a defined version default to `0.0.0`.
+  -/
+  version : LeanVer := v!"0.0.0"
+
+  /--
+  Git tags of this package's repository that should be treated as versions.
+  Package indices (e.g., Reservoir) can make use of this information to determine
+  the Git revisions corresponding to released versions.
+
+  Defaults to tags with a `v` prefix.
+  -/
+  versionTags : StrPat := .pre "v"
+
+  /--
+  Developer-defined keywords associated with the package.
+  Reservoir can make use of a package's keywords to group related packages
+  together and make it easier for users to discover them.
+
+  Good keywords include the domain (e.g., `math`, `software-verification`,
+  `devtool`), specific subtopics (e.g., `topology`,  `cryptology`), and
+  significant implementation details (e.g., `dsl`, `ffi`, `cli`).
+  For instance, Lake's keywords could be `devtool`, `cli`, `dsl`,
+  `package manager`, `build system`.
+  -/
+  keywords : Array String := #[]
 
 deriving Inhabited
 

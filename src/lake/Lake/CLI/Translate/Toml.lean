@@ -61,6 +61,12 @@ def LeanConfig.toToml (cfg : LeanConfig) (t : Table := {}) : Table :=
   |>.smartInsert `weakLinkArgs cfg.weakLinkArgs
 
 instance : ToToml LeanConfig := ⟨(toToml ·.toToml)⟩
+instance : ToToml LeanVer := ⟨(toToml <| toString ·)⟩
+
+def Toml.encodeStrPat? (p : StrPat) : Option Value :=
+  match p with
+  | .enum s => toToml s
+  | _ => none
 
 protected def PackageConfig.toToml (cfg : PackageConfig) (t : Table := {}) : Table :=
   t.insert `name cfg.name
@@ -75,8 +81,14 @@ protected def PackageConfig.toToml (cfg : PackageConfig) (t : Table := {}) : Tab
   |>.smartInsert `releaseRepo (cfg.releaseRepo <|> cfg.releaseRepo?)
   |>.insertD `buildArchive (cfg.buildArchive?.getD cfg.buildArchive) (defaultBuildArchive cfg.name)
   |>.insertD `preferReleaseBuild cfg.preferReleaseBuild false
+  |>.insertD `version cfg.version v!"0.0.0"
+  |>.insertSome `versionTags (encodeVerTags? cfg.versionTags)
+  |>.smartInsert `keywords cfg.keywords
   |> cfg.toWorkspaceConfig.toToml
   |> cfg.toLeanConfig.toToml
+where
+  encodeVerTags? (pat : StrPat) : Option Value :=
+    match pat with | .enum xs => some (toToml xs) | _ => none
 
 instance : ToToml PackageConfig := ⟨(toToml ·.toToml)⟩
 

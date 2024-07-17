@@ -7,6 +7,7 @@ package test where
   buildArchive := ""
   testDriver := "b"
   lintDriver := "b"
+  versionTags := ∅
   platformIndependent := true
 
 require "foo" / baz @ "git#abcdef"

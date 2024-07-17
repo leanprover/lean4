@@ -20,6 +20,9 @@ open DSL System Lean Syntax Parser Module
 private local instance : Quote FilePath where
   quote path := quote path.toString
 
+private local instance [Quote α] : Quote (Array α) where
+  quote xs := let xs : Array Term := xs.map quote; Unhygienic.run `(#[$xs,*])
+
 private local instance : BEq FilePath where
   beq a b := a.normalize == b.normalize
 
@@ -67,6 +70,13 @@ def quoteLeanOption (opt : LeanOption) : Term := Unhygienic.run do
 
 private local instance : Quote LeanOption := ⟨quoteLeanOption⟩
 
+protected def LeanVer.quote (v : LeanVer) : Term := Unhygienic.run do
+  let lit := Syntax.mkLit interpolatedStrLitKind  v.toString.quote
+  let stx := mkNode interpolatedStrKind #[lit]
+  `(v!$stx)
+
+private local instance : Quote LeanVer := ⟨LeanVer.quote⟩
+
 /-! ## Configuration Encoders -/
 
 def WorkspaceConfig.addDeclFields (cfg : WorkspaceConfig) (fs : Array DeclField) : Array DeclField :=
@@ -91,7 +101,8 @@ def LeanConfig.addDeclFields (cfg : LeanConfig) (fs : Array DeclField) : Array D
 
 def PackageConfig.mkSyntax (cfg : PackageConfig)
   (testDriver := cfg.testDriver) (lintDriver := cfg.lintDriver)
-  : PackageDecl := Unhygienic.run do
+: PackageDecl := Unhygienic.run do
+  have : Quote Term := ⟨id⟩
   let declVal? := mkDeclValWhere? <| Array.empty
     |> addDeclFieldD `precompileModules cfg.precompileModules false
     |> addDeclFieldD `moreGlobalServerArgs cfg.moreGlobalServerArgs #[]
@@ -108,9 +119,21 @@ def PackageConfig.mkSyntax (cfg : PackageConfig)
     |> addDeclFieldD `testDriverArgs cfg.testDriverArgs #[]
     |> addDeclFieldD `lintDriver lintDriver ""
     |> addDeclFieldD `lintDriverArgs cfg.lintDriverArgs #[]
+    |> addDeclFieldD `version cfg.version v!"0.0.0"
+    |> addDeclField? `versionTags (quoteVerTags? cfg.versionTags)
+    |> addDeclFieldD `keywords cfg.keywords #[]
     |> cfg.toWorkspaceConfig.addDeclFields
     |> cfg.toLeanConfig.addDeclFields
   `(packageDecl|package $(mkIdent cfg.name):ident $[$declVal?]?)
+  where
+    quoteVerTags? (pat : StrPat) : Option Term :=
+      match pat with
+      | .enum pat =>
+        if pat.isEmpty then Unhygienic.run `(∅) else some (quote pat)
+      | .pre s =>
+        if s == "v" then none else some <|
+          Syntax.mkCApp `StrPat.pre #[quote s]
+      | _ => none
 
 private def getEscapedNameParts? (acc : List String) : Name → Option (List String)
   | Name.anonymous => if acc.isEmpty then none else some acc

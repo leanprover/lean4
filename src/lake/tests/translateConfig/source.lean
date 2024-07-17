@@ -31,6 +31,9 @@ package test where
   packagesDir := defaultPackagesDir
   leanOptions := #[⟨`pp.unicode.fun, true⟩]
   lintDriver := "b"
+  version := v!"0.0.0"
+  versionTags := fun _ : String => false
+  keywords := #[]
 
 require "foo" / "baz" @ "git#abcdef"
 require foo from "dir" with NameMap.empty.insert `foo "bar"

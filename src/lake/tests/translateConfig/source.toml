@@ -27,6 +27,9 @@ moreLinkArgs = []
 weakLinkArgs = []
 backend = "default"
 platformIndependent = true
+version = "0.0.0"
+versionTags = []
+keywords = []
 
 [[lean_lib]]
 name = "A"

@@ -130,7 +130,7 @@ class DecodeVersion (α : Type u) where
 export DecodeVersion (decodeVersion)
 
 instance : DecodeVersion SemVerCore := ⟨SemVerCore.parse⟩
-instance : DecodeVersion LeanVer := ⟨LeanVer.parse⟩
+@[default_instance] instance : DecodeVersion LeanVer := ⟨LeanVer.parse⟩
 
 private def toResultExpr [ToExpr α] (x : Except String α) : Except String Expr :=
   Functor.map toExpr x

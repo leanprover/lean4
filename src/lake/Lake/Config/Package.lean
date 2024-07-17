@@ -378,6 +378,18 @@ structure PostUpdateHookDecl where
 
 namespace Package
 
+/-- The package version. -/
+@[inline] def version (self : Package) : LeanVer  :=
+  self.config.version
+
+/-- The package's `versionTags` configuration. -/
+@[inline] def versionTags (self : Package) : StrPat  :=
+  self.config.versionTags
+
+/-- The package's `keywords` configuration. -/
+@[inline] def keywords (self : Package) : Array String  :=
+  self.config.keywords
+
 /-- The package's direct dependencies. -/
 @[inline] def deps (self : Package) : Array Package  :=
   self.opaqueDeps.map (·.get)

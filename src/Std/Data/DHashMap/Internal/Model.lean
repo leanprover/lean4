@@ -241,7 +241,7 @@ theorem updateAllBuckets [BEq α] [Hashable α] [LawfulHashable α] {m : Array (
   simp only [Array.getElem_map, Array.size_map]
   refine ⟨fun h p hp => ?_⟩
   rcases containsKey_eq_true_iff_exists_mem.1 (hf _ _ hp) with ⟨q, hq₁, hq₂⟩
-  rw [hash_eq hq₂, (hm.hashes_to _ _).hash_self _ _ hq₁]
+  rw [← hash_eq hq₂, (hm.hashes_to _ _).hash_self _ _ hq₁]
 
 end IsHashSelf
 

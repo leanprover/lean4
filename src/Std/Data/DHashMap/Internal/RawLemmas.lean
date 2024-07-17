@@ -127,11 +127,11 @@ theorem isEmpty_eq_false_iff_exists_contains_eq_true [EquivBEq α] [LawfulHashab
   simp_to_model using List.isEmpty_eq_false_iff_exists_containsKey
 
 theorem contains_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :
-    (m.insert k v).contains a = ((a == k) || m.contains a) := by
+    (m.insert k v).contains a = ((k == a) || m.contains a) := by
   simp_to_model using List.containsKey_insertEntry
 
 theorem contains_of_contains_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :
-    (m.insert k v).contains a → (a == k) = false → m.contains a := by
+    (m.insert k v).contains a → (k == a) = false → m.contains a := by
   simp_to_model using List.containsKey_of_containsKey_insertEntry
 
 theorem contains_insert_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
@@ -161,7 +161,7 @@ theorem isEmpty_erase [EquivBEq α] [LawfulHashable α] {k : α} :
   simp_to_model using List.isEmpty_eraseKey
 
 theorem contains_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
-    (m.erase k).contains a = (!(a == k) && m.contains a) := by
+    (m.erase k).contains a = (!(k == a) && m.contains a) := by
   simp_to_model using List.containsKey_eraseKey
 
 theorem contains_of_contains_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
@@ -202,7 +202,7 @@ theorem get?_of_isEmpty [LawfulBEq α] {a : α} : m.1.isEmpty = true → m.get? 
   simp_to_model; empty
 
 theorem get?_insert [LawfulBEq α] {a k : α} {v : β k} : (m.insert k v).get? a =
-    if h : a == k then some (cast (congrArg β (eq_of_beq h).symm) v) else m.get? a := by
+    if h : k == a then some (cast (congrArg β (eq_of_beq h)) v) else m.get? a := by
   simp_to_model using List.getValueCast?_insertEntry
 
 theorem get?_insert_self [LawfulBEq α] {k : α} {v : β k} : (m.insert k v).get? k = some v := by
@@ -215,7 +215,7 @@ theorem get?_eq_none [LawfulBEq α] {a : α} : m.contains a = false → m.get? a
   simp_to_model using List.getValueCast?_eq_none
 
 theorem get?_erase [LawfulBEq α] {k a : α} :
-    (m.erase k).get? a = bif a == k then none else m.get? a := by
+    (m.erase k).get? a = bif k == a then none else m.get? a := by
   simp_to_model using List.getValueCast?_eraseKey
 
 theorem get?_erase_self [LawfulBEq α] {k : α} : (m.erase k).get? k = none := by
@@ -234,7 +234,7 @@ theorem get?_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} :
   simp_to_model; empty
 
 theorem get?_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
-    get? (m.insert k v) a = bif a == k then some v else get? m a := by
+    get? (m.insert k v) a = bif k == a then some v else get? m a := by
   simp_to_model using List.getValue?_insertEntry
 
 theorem get?_insert_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
@@ -250,7 +250,7 @@ theorem get?_eq_none [EquivBEq α] [LawfulHashable α] {a : α} :
   simp_to_model using List.getValue?_eq_none.2
 
 theorem get?_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
-    Const.get? (m.erase k) a = bif a == k then none else get? m a := by
+    Const.get? (m.erase k) a = bif k == a then none else get? m a := by
   simp_to_model using List.getValue?_eraseKey
 
 theorem get?_erase_self [EquivBEq α] [LawfulHashable α] {k : α} :
@@ -268,8 +268,8 @@ end Const
 
 theorem get_insert [LawfulBEq α] {k a : α} {v : β k} {h₁} :
     (m.insert k v).get a h₁ =
-      if h₂ : a == k then
-        cast (congrArg β (eq_of_beq h₂).symm) v
+      if h₂ : k == a then
+        cast (congrArg β (eq_of_beq h₂)) v
       else
         m.get a (contains_of_contains_insert _ h h₁ (Bool.eq_false_iff.2 h₂)) := by
   simp_to_model using List.getValueCast_insertEntry
@@ -292,7 +292,7 @@ variable {β : Type v} (m : Raw₀ α (fun _ => β)) (h : m.1.WF)
 
 theorem get_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} {h₁} :
     get (m.insert k v) a h₁ =
-      if h₂ : a == k then v
+      if h₂ : k == a then v
       else get m a (contains_of_contains_insert _ h h₁ (Bool.eq_false_iff.2 h₂)) := by
   simp_to_model using List.getValue_insertEntry
 
@@ -328,7 +328,7 @@ theorem get!_of_isEmpty [LawfulBEq α] {a : α} [Inhabited (β a)] :
 
 theorem get!_insert [LawfulBEq α] {k a : α} [Inhabited (β a)] {v : β k} :
     (m.insert k v).get! a =
-      if h : a == k then cast (congrArg β (eq_of_beq h).symm) v else m.get! a := by
+      if h : k == a then cast (congrArg β (eq_of_beq h)) v else m.get! a := by
   simp_to_model using List.getValueCast!_insertEntry
 
 theorem get!_insert_self [LawfulBEq α] {a : α} [Inhabited (β a)] {b : β a} :
@@ -340,7 +340,7 @@ theorem get!_eq_default [LawfulBEq α] {a : α} [Inhabited (β a)] :
   simp_to_model using List.getValueCast!_eq_default
 
 theorem get!_erase [LawfulBEq α] {k a : α} [Inhabited (β a)] :
-    (m.erase k).get! a = bif a == k then default else m.get! a := by
+    (m.erase k).get! a = bif k == a then default else m.get! a := by
   simp_to_model using List.getValueCast!_eraseKey
 
 theorem get!_erase_self [LawfulBEq α] {k : α} [Inhabited (β k)] :
@@ -372,7 +372,7 @@ theorem get!_of_isEmpty [EquivBEq α] [LawfulHashable α] [Inhabited β] {a : α
   simp_to_model; empty
 
 theorem get!_insert [EquivBEq α] [LawfulHashable α] [Inhabited β] {k a : α} {v : β} :
-    get! (m.insert k v) a = bif a == k then v else get! m a := by
+    get! (m.insert k v) a = bif k == a then v else get! m a := by
   simp_to_model using List.getValue!_insertEntry
 
 theorem get!_insert_self [EquivBEq α] [LawfulHashable α] [Inhabited β] {k : α} {v : β} :
@@ -384,7 +384,7 @@ theorem get!_eq_default [EquivBEq α] [LawfulHashable α] [Inhabited β] {a : α
   simp_to_model using List.getValue!_eq_default
 
 theorem get!_erase [EquivBEq α] [LawfulHashable α] [Inhabited β] {k a : α} :
-    get! (m.erase k) a = bif a == k then default else get! m a := by
+    get! (m.erase k) a = bif k == a then default else get! m a := by
   simp_to_model using List.getValue!_eraseKey
 
 theorem get!_erase_self [EquivBEq α] [LawfulHashable α] [Inhabited β] {k : α} :
@@ -423,7 +423,7 @@ theorem getD_of_isEmpty [LawfulBEq α] {a : α} {fallback : β a} :
 
 theorem getD_insert [LawfulBEq α] {k a : α} {fallback : β a} {v : β k} :
     (m.insert k v).getD a fallback =
-      if h : a == k then cast (congrArg β (eq_of_beq h).symm) v else m.getD a fallback := by
+      if h : k == a then cast (congrArg β (eq_of_beq h)) v else m.getD a fallback := by
   simp_to_model using List.getValueCastD_insertEntry
 
 theorem getD_insert_self [LawfulBEq α] {a : α} {fallback b : β a} :
@@ -435,7 +435,7 @@ theorem getD_eq_fallback [LawfulBEq α] {a : α} {fallback : β a} :
   simp_to_model using List.getValueCastD_eq_fallback
 
 theorem getD_erase [LawfulBEq α] {k a : α} {fallback : β a} :
-    (m.erase k).getD a fallback = bif a == k then fallback else m.getD a fallback := by
+    (m.erase k).getD a fallback = bif k == a then fallback else m.getD a fallback := by
   simp_to_model using List.getValueCastD_eraseKey
 
 theorem getD_erase_self [LawfulBEq α] {k : α} {fallback : β k} :
@@ -471,7 +471,7 @@ theorem getD_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} {fallback : �
   simp_to_model; empty
 
 theorem getD_insert [EquivBEq α] [LawfulHashable α] {k a : α} {fallback v : β} :
-    getD (m.insert k v) a fallback = bif a == k then v else getD m a fallback := by
+    getD (m.insert k v) a fallback = bif k == a then v else getD m a fallback := by
   simp_to_model using List.getValueD_insertEntry
 
 theorem getD_insert_self [EquivBEq α] [LawfulHashable α] {k : α} {fallback v : β} :
@@ -483,7 +483,7 @@ theorem getD_eq_fallback [EquivBEq α] [LawfulHashable α] {a : α} {fallback : 
   simp_to_model using List.getValueD_eq_fallback
 
 theorem getD_erase [EquivBEq α] [LawfulHashable α] {k a : α} {fallback : β} :
-    getD (m.erase k) a fallback = bif a == k then fallback else getD m a fallback := by
+    getD (m.erase k) a fallback = bif k == a then fallback else getD m a fallback := by
   simp_to_model using List.getValueD_eraseKey
 
 theorem getD_erase_self [EquivBEq α] [LawfulHashable α] {k : α} {fallback : β} :
@@ -521,7 +521,7 @@ theorem isEmpty_insertIfNew [EquivBEq α] [LawfulHashable α] {k : α} {v : β k
   simp_to_model using List.isEmpty_insertEntryIfNew
 
 theorem contains_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :
-    (m.insertIfNew k v).contains a = (a == k || m.contains a) := by
+    (m.insertIfNew k v).contains a = (k == a || m.contains a) := by
   simp_to_model using List.containsKey_insertEntryIfNew
 
 theorem contains_insertIfNew_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
@@ -529,13 +529,13 @@ theorem contains_insertIfNew_self [EquivBEq α] [LawfulHashable α] {k : α} {v 
   simp_to_model using List.containsKey_insertEntryIfNew_self
 
 theorem contains_of_contains_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :
-    (m.insertIfNew k v).contains a → (a == k) = false → m.contains a := by
+    (m.insertIfNew k v).contains a → (k == a) = false → m.contains a := by
   simp_to_model using List.containsKey_of_containsKey_insertEntryIfNew
 
 /-- This is a restatement of `contains_insertIfNew` that is written to exactly match the proof
 obligation in the statement of `get_insertIfNew`. -/
 theorem contains_of_contains_insertIfNew' [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :
-    (m.insertIfNew k v).contains a → ¬((a == k) ∧ m.contains k = false) → m.contains a := by
+    (m.insertIfNew k v).contains a → ¬((k == a) ∧ m.contains k = false) → m.contains a := by
   simp_to_model using List.containsKey_of_containsKey_insertEntryIfNew'
 
 theorem size_insertIfNew [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
@@ -548,25 +548,25 @@ theorem size_le_size_insertIfNew [EquivBEq α] [LawfulHashable α] {k : α} {v :
 
 theorem get?_insertIfNew [LawfulBEq α] {k a : α} {v : β k} :
     (m.insertIfNew k v).get? a =
-      if h : a == k ∧ m.contains k = false then some (cast (congrArg β (eq_of_beq h.1).symm) v)
+      if h : k == a ∧ m.contains k = false then some (cast (congrArg β (eq_of_beq h.1)) v)
       else m.get? a := by
   simp_to_model using List.getValueCast?_insertEntryIfNew
 
 theorem get_insertIfNew [LawfulBEq α] {k a : α} {v : β k} {h₁} :
     (m.insertIfNew k v).get a h₁ =
-      if h₂ : a == k ∧ m.contains k = false then cast (congrArg β (eq_of_beq h₂.1).symm) v
+      if h₂ : k == a ∧ m.contains k = false then cast (congrArg β (eq_of_beq h₂.1)) v
       else m.get a (contains_of_contains_insertIfNew' _ h h₁ h₂) := by
   simp_to_model using List.getValueCast_insertEntryIfNew
 
 theorem get!_insertIfNew [LawfulBEq α] {k a : α} [Inhabited (β a)] {v : β k} :
     (m.insertIfNew k v).get! a =
-      if h : a == k ∧ m.contains k = false then cast (congrArg β (eq_of_beq h.1).symm) v
+      if h : k == a ∧ m.contains k = false then cast (congrArg β (eq_of_beq h.1)) v
       else m.get! a := by
   simp_to_model using List.getValueCast!_insertEntryIfNew
 
 theorem getD_insertIfNew [LawfulBEq α] {k a : α} {fallback : β a} {v : β k} :
     (m.insertIfNew k v).getD a fallback =
-      if h : a == k ∧ m.contains k = false then cast (congrArg β (eq_of_beq h.1).symm) v
+      if h : k == a ∧ m.contains k = false then cast (congrArg β (eq_of_beq h.1)) v
       else m.getD a fallback := by
   simp_to_model using List.getValueCastD_insertEntryIfNew
 
@@ -575,22 +575,22 @@ namespace Const
 variable {β : Type v} (m : Raw₀ α (fun _ => β)) (h : m.1.WF)
 
 theorem get?_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
-    get? (m.insertIfNew k v) a = bif a == k && !m.contains k then some v else get? m a := by
+    get? (m.insertIfNew k v) a = bif k == a && !m.contains k then some v else get? m a := by
   simp_to_model using List.getValue?_insertEntryIfNew
 
 theorem get_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} {h₁} :
     get (m.insertIfNew k v) a h₁ =
-      if h₂ : a == k ∧ m.contains k = false then v
+      if h₂ : k == a ∧ m.contains k = false then v
       else get m a (contains_of_contains_insertIfNew' _ h h₁ h₂) := by
   simp_to_model using List.getValue_insertEntryIfNew
 
 theorem get!_insertIfNew [EquivBEq α] [LawfulHashable α] [Inhabited β] {k a : α} {v : β} :
-    get! (m.insertIfNew k v) a = bif a == k && !m.contains k then v else get! m a := by
+    get! (m.insertIfNew k v) a = bif k == a && !m.contains k then v else get! m a := by
   simp_to_model using List.getValue!_insertEntryIfNew
 
 theorem getD_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {fallback v : β} :
     getD (m.insertIfNew k v) a fallback =
-      bif a == k && !m.contains k then v else getD m a fallback := by
+      bif k == a && !m.contains k then v else getD m a fallback := by
   simp_to_model using List.getValueD_insertEntryIfNew
 
 end Const

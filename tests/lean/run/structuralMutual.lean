@@ -570,9 +570,6 @@ end ManyCombinations
 
 namespace FunIndTests
 
--- FunInd does not handle mutual structural recursion yet, so make sure we error
--- out nicely
-
 /--
 info: A.size.mutual_induct (motive_1 : A → Prop) (motive_2 : B → Prop) (case1 : ∀ (a : A), motive_1 a → motive_1 a.self)
   (case2 : ∀ (b : B), motive_2 b → motive_1 (A.other b)) (case3 : motive_1 A.empty)

@@ -1009,7 +1009,8 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
                   trace[FunInd] "replacing {Expr.fvar oldIH} with {genIH}"
                   let body ← instantiateLambda body extraParams
                   -- TODO: Pass in all the functions
-                  let fn := mkAppN (.const names[0]! us) brecOnArgs
+                  -- TODO: Which universe levels here?
+                  let fn := mkAppN (.const names[0]! indLevels) brecOnArgs
                   let body' ← buildInductionBody false fn #[genIH.fvarId!] #[] goal oldIH genIH.fvarId! #[] body
                   if body'.containsFVar oldIH then
                     throwError m!"Did not fully eliminate {mkFVar oldIH} from induction principle body:{indentExpr body}"

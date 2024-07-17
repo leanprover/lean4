@@ -187,6 +187,121 @@ def foldlM {β : Type v} {m : Type v → Type w} [Monad m] (f : β → UInt8 →
 def foldl {β : Type v} (f : β → UInt8 → β) (init : β) (as : ByteArray) (start := 0) (stop := as.size) : β :=
   Id.run <| as.foldlM f init start stop
 
+/-- Iterator over the bytes (`UInt8`) of a `ByteArray`.
+
+Typically created by `arr.iter`, where `arr` is a `ByteArray`.
+
+An iterator is *valid* if the position `i` is *valid* for the array `arr`, meaning `0 ≤ i ≤ arr.size`
+
+Most operations on iterators return arbitrary values if the iterator is not valid. The functions in
+the `ByteArray.Iterator` API should rule out the creation of invalid iterators, with two exceptions:
+
+- `Iterator.next iter` is invalid if `iter` is already at the end of the array (`iter.atEnd` is
+  `true`)
+- `Iterator.forward iter n`/`Iterator.nextn iter n` is invalid if `n` is strictly greater than the
+  number of remaining bytes.
+-/
+structure Iterator where
+  /-- The array the iterator is for. -/
+  array : ByteArray
+  /-- The current position.
+
+  This position is not necessarily valid for the array, for instance if one keeps calling
+  `Iterator.next` when `Iterator.atEnd` is true. If the position is not valid, then the
+  current byte is `(default : UInt8)`. -/
+  idx : Nat
+  deriving Inhabited
+
+/-- Creates an iterator at the beginning of an array. -/
+def mkIterator (arr : ByteArray) : Iterator :=
+  ⟨arr, 0⟩
+
+@[inherit_doc mkIterator]
+abbrev iter := mkIterator
+
+/-- The size of an array iterator is the number of bytes remaining. -/
+instance : SizeOf Iterator where
+  sizeOf i := i.array.size - i.idx
+
+theorem Iterator.sizeOf_eq (i : Iterator) : sizeOf i = i.array.size - i.idx :=
+  rfl
+
+namespace Iterator
+
+/-- Number of bytes remaining in the iterator. -/
+def remainingBytes : Iterator → Nat
+  | ⟨arr, i⟩ => arr.size - i
+
+@[inherit_doc Iterator.idx]
+def pos := Iterator.idx
+
+/-- The byte at the current position.
+
+On an invalid position, returns `(default : UInt8)`. -/
+@[inline]
+def curr : Iterator → UInt8
+  | ⟨arr, i⟩ =>
+    if h:i < arr.size then
+      arr[i]'h
+    else
+      default
+
+/-- Moves the iterator's position forward by one byte, unconditionally.
+
+It is only valid to call this function if the iterator is not at the end of the array, *i.e.*
+`Iterator.atEnd` is `false`; otherwise, the resulting iterator will be invalid. -/
+@[inline]
+def next : Iterator → Iterator
+  | ⟨arr, i⟩ => ⟨arr, i + 1⟩
+
+/-- Decreases the iterator's position.
+
+If the position is zero, this function is the identity. -/
+@[inline]
+def prev : Iterator → Iterator
+  | ⟨arr, i⟩ => ⟨arr, i - 1⟩
+
+/-- True if the iterator is past the array's last byte. -/
+@[inline]
+def atEnd : Iterator → Bool
+  | ⟨arr, i⟩ => i ≥ arr.size
+
+/-- True if the iterator is not past the array's last byte. -/
+@[inline]
+def hasNext : Iterator → Bool
+  | ⟨arr, i⟩ => i < arr.size
+
+/-- True if the position is not zero. -/
+@[inline]
+def hasPrev : Iterator → Bool
+  | ⟨_, i⟩ => i > 0
+
+/-- Moves the iterator's position to the end of the array.
+
+Note that `i.toEnd.atEnd` is always `true`. -/
+@[inline]
+def toEnd : Iterator → Iterator
+  | ⟨arr, _⟩ => ⟨arr, arr.size⟩
+
+/-- Moves the iterator's position several bytes forward.
+
+The resulting iterator is only valid if the number of bytes to skip is less than or equal to
+the number of bytes left in the iterator. -/
+@[inline]
+def forward : Iterator → Nat → Iterator
+  | ⟨arr, i⟩, f => ⟨arr, i + f⟩
+
+@[inherit_doc forward, inline]
+def nextn : Iterator → Nat → Iterator := forward
+
+/-- Moves the iterator's position several bytes back.
+
+If asked to go back more bytes than available, stops at the beginning of the array. -/
+@[inline]
+def prevn : Iterator → Nat → Iterator
+  | ⟨arr, i⟩, f => ⟨arr, i - f⟩
+
+end Iterator
 end ByteArray
 
 def List.toByteArray (bs : List UInt8) : ByteArray :=

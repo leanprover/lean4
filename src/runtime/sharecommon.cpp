@@ -358,30 +358,16 @@ class sharecommon_quick_fn {
         return result;
     }
 
-    lean_object * visit_sarray(lean_object * a) {
-        lean_object * r = check_cache(a);
-        if (r != nullptr) { lean_assert(r->m_rc > 1); return r; }
-
-        size_t sz        = lean_sarray_size(a);
-        unsigned elem_sz = lean_sarray_elem_size(a);
-        lean_sarray_object * new_a = (lean_sarray_object*)lean_alloc_sarray(elem_sz, sz, sz);
-        memcpy(new_a->m_data, lean_to_sarray(a)->m_data, elem_sz*sz);
-        return save(a, (lean_object*)new_a);
-    }
-
-    lean_object * visit_string(lean_object * a) {
-        lean_object * r = check_cache(a);
-        if (r != nullptr) { lean_assert(r->m_rc > 1); return r; }
-
-        size_t sz     = lean_string_size(a);
-        size_t len    = lean_string_len(a);
-        lean_string_object * new_a = (lean_string_object*)lean_alloc_string(sz, sz, len);
-        lean_set_st_header((lean_object*)new_a, LeanString, 0);
-        new_a->m_size     = sz;
-        new_a->m_capacity = sz;
-        new_a->m_length   = len;
-        memcpy(new_a->m_data, lean_to_string(a)->m_data, sz);
-        return save(a, (lean_object*)new_a);
+    // `sarray` and `string`
+    lean_object * visit_terminal(lean_object * a) {
+        auto it = m_set.find(a);
+        if (it == m_set.end()) {
+            m_set.insert(a);
+        } else {
+            a = *it;
+        }
+        lean_inc_ref(a);
+        return a;
     }
 
     lean_object * visit_array(lean_object * a) {
@@ -399,7 +385,6 @@ class sharecommon_quick_fn {
     lean_object * visit_ctor(lean_object * a) {
         lean_object * r = check_cache(a);
         if (r != nullptr) { lean_assert(r->m_rc > 1); return r; }
-
         unsigned num_objs      = lean_ctor_num_objs(a);
         unsigned tag           = lean_ptr_tag(a);
         unsigned sz            = lean_object_byte_size(a);
@@ -442,9 +427,9 @@ public:
         case LeanRef:             lean_inc_ref(a); return a;
         case LeanExternal:        lean_inc_ref(a); return a;
         case LeanReserved:        lean_inc_ref(a); return a;
+        case LeanScalarArray:     return visit_terminal(a);
+        case LeanString:          return visit_terminal(a);
         case LeanArray:           return visit_array(a);
-        case LeanScalarArray:     return visit_sarray(a);
-        case LeanString:          return visit_string(a);
         default:                  return visit_ctor(a);
         }
     }

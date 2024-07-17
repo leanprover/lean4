@@ -742,7 +742,10 @@ def mkMotive (discrs : Array Expr) (expectedType : Expr): MetaM Expr := do
     let motiveBody ← kabstract motive discr
     /- We use `transform (usedLetOnly := true)` to eliminate unnecessary let-expressions. -/
     let discrType ← transform (usedLetOnly := true) (← instantiateMVars (← inferType discr))
-    return Lean.mkLambda (← mkFreshBinderName) BinderInfo.default discrType motiveBody
+    let motive := Lean.mkLambda (← mkFreshBinderName) BinderInfo.default discrType motiveBody
+    unless (← isTypeCorrect motive) do
+      throwError "failed to elaborate eliminator, motive is not type correct:{indentD motive}"
+    return motive
 
 /-- If the eliminator is over-applied, we "revert" the extra arguments. -/
 def revertArgs (args : List Arg) (f : Expr) (expectedType : Expr) : TermElabM (Expr × Expr) :=

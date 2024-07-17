@@ -1133,6 +1133,17 @@ static inline void * lean_get_external_data(lean_object * o) {
     return lean_to_external(o)->m_data;
 }
 
+static inline lean_object * lean_set_external_data(lean_object * o, void * data) {
+    if (lean_is_exclusive(o)) {
+        lean_to_external(o)->m_data = data;
+        return o;
+    } else {
+        lean_object * o_new = lean_alloc_external(lean_get_external_class(o), data);
+        lean_dec_ref(o);
+        return o_new;
+    }
+}
+
 /* Natural numbers */
 
 #define LEAN_MAX_SMALL_NAT (SIZE_MAX >> 1)

@@ -113,6 +113,7 @@ def Tree.insert (t : Tree β) (k : Nat) (v : β) : Tree β :=
       node left key value (right.insert k v)
     else
       node left k v right
+termination_by structural t
 
 /--
 info: TreeExample.Tree.insert.induct.{u_1} {β : Type u_1} (motive : Tree β → Nat → β → Prop)

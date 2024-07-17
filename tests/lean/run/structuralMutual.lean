@@ -574,65 +574,54 @@ namespace FunIndTests
 -- out nicely
 
 /--
-info: A.size.mutual_induct :
-  ∀ (motive_1 : A → Prop) (motive_2 : B → Prop),
-    (∀ (a : A), motive_1 a → motive_1 a.self) →
-      (∀ (b : B), motive_2 b → motive_1 (A.other b)) →
-        motive_1 A.empty →
-          (∀ (b : B), motive_2 b → motive_2 b.self) →
-            (∀ (a : A), motive_1 a → motive_2 (B.other a)) →
-              motive_2 B.empty → (∀ (x : A), motive_1 x) ∧ ∀ (x : B), motive_2 x
+info: A.size.mutual_induct (motive_1 : A → Prop) (motive_2 : B → Prop) (case1 : ∀ (a : A), motive_1 a → motive_1 a.self)
+  (case2 : ∀ (b : B), motive_2 b → motive_1 (A.other b)) (case3 : motive_1 A.empty)
+  (case4 : ∀ (b : B), motive_2 b → motive_2 b.self) (case5 : ∀ (a : A), motive_1 a → motive_2 (B.other a))
+  (case6 : motive_2 B.empty) : (∀ (a : A), motive_1 a) ∧ ∀ (a : B), motive_2 a
 -/
 #guard_msgs in
 #check A.size.mutual_induct
 
 /--
-info: A.subs.induct :
-  ∀ (motive_1 : A → Prop) (motive_2 : B → Prop),
-    (∀ (a : A), motive_1 a → motive_1 a.self) →
-      (∀ (b : B), motive_2 b → motive_1 (A.other b)) →
-        motive_1 A.empty →
-          (∀ (b : B), motive_2 b → motive_2 b.self) →
-            (∀ (a : A), motive_1 a → motive_2 (B.other a)) → motive_2 B.empty → ∀ (x : A), motive_1 x
+info: A.subs.induct (motive_1 : A → Prop) (motive_2 : B → Prop) (case1 : ∀ (a : A), motive_1 a → motive_1 a.self)
+  (case2 : ∀ (b : B), motive_2 b → motive_1 (A.other b)) (case3 : motive_1 A.empty)
+  (case4 : ∀ (b : B), motive_2 b → motive_2 b.self) (case5 : ∀ (a : A), motive_1 a → motive_2 (B.other a))
+  (case6 : motive_2 B.empty) (a : A) : motive_1 a
 -/
 #guard_msgs in
 #check A.subs.induct
 
 /--
-info: MutualIndNonMutualFun.A.self_size.induct :
-  ∀ (motive : MutualIndNonMutualFun.A → Prop),
-    (∀ (a : MutualIndNonMutualFun.A), motive a → motive a.self) →
-      (∀ (a : MutualIndNonMutualFun.B), motive (MutualIndNonMutualFun.A.other a)) →
-        motive MutualIndNonMutualFun.A.empty →
-          ∀ (x : MutualIndNonMutualFun.A), (∀ (t : MutualIndNonMutualFun.B), t.ibelow → True) → motive x
+info: MutualIndNonMutualFun.A.self_size.induct (motive : MutualIndNonMutualFun.A → Prop)
+  (case1 : ∀ (a : MutualIndNonMutualFun.A), motive a → motive a.self)
+  (case2 : ∀ (a : MutualIndNonMutualFun.B), motive (MutualIndNonMutualFun.A.other a))
+  (case3 : motive MutualIndNonMutualFun.A.empty) :
+  ∀ (a : MutualIndNonMutualFun.A), (∀ (t : MutualIndNonMutualFun.B), t.ibelow → True) → motive a
 -/
 #guard_msgs in
 #check MutualIndNonMutualFun.A.self_size.induct
 
 /--
-info: A.hasNoBEmpty.induct :
-  ∀ (motive_1 : A → Prop) (motive_2 : B → Prop),
-    (∀ (a : A), motive_1 a → motive_1 a.self) →
-      (∀ (b : B), motive_2 b → motive_1 (A.other b)) →
-        motive_1 A.empty →
-          (∀ (b : B), motive_2 b → motive_2 b.self) →
-            (∀ (a : A), motive_1 a → motive_2 (B.other a)) → motive_2 B.empty → ∀ (x : A), motive_1 x
+info: A.hasNoBEmpty.induct (motive_1 : A → Prop) (motive_2 : B → Prop) (case1 : ∀ (a : A), motive_1 a → motive_1 a.self)
+  (case2 : ∀ (b : B), motive_2 b → motive_1 (A.other b)) (case3 : motive_1 A.empty)
+  (case4 : ∀ (b : B), motive_2 b → motive_2 b.self) (case5 : ∀ (a : A), motive_1 a → motive_2 (B.other a))
+  (case6 : motive_2 B.empty) : ∀ (a : A), motive_1 a
 -/
 #guard_msgs in
 #check A.hasNoBEmpty.induct
 
 /--
-info: EvenOdd.isEven.induct :
-  ∀ (motive_1 motive_2 : Nat → Prop),
-    (∀ (t : Nat),
+info: EvenOdd.isEven.induct (motive_1 motive_2 : Nat → Prop)
+  (case1 :
+    ∀ (t : Nat),
+      (match t with
+        | 0 => True
+        | n.succ => motive_2 n) →
         (match t with
           | 0 => True
-          | n.succ => motive_2 n) →
-          (match t with
-            | 0 => True
-            | n.succ => motive_1 n) →
-            motive_1 t ∧ motive_2 t ∧ True) →
-      ∀ (x : Nat), motive_1 x
+          | n.succ => motive_1 n) →
+          motive_1 t ∧ motive_2 t ∧ True) :
+  ∀ (a : Nat), motive_1 a
 -/
 #guard_msgs in
 #check EvenOdd.isEven.induct

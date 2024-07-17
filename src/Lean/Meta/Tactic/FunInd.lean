@@ -974,18 +974,15 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
         let motiveDecls ← infos.mapIdxM fun ⟨i,_⟩ info => do
           let motiveType ← lambdaTelescope (← instantiateLambda info.value xs) fun ys _ =>
             mkForallFVars ys (.sort levelZero)
-          let n ←
-            if infos.size = 1 then
-              mkFreshUserName (.mkSimple "motive")
-            else
-              mkFreshUserName (.mkSimple s!"motive_{i+1}")
+          let n := if infos.size = 1 then .mkSimple "motive"
+                                     else .mkSimple s!"motive_{i+1}"
           pure (n, fun _ => pure motiveType)
         withLocalDeclsD motiveDecls fun motives => do
           -- Motives with parameters reordered, to put indices and major first
           let motives' ← (Array.zip motives recArgInfos).mapM fun (motive, recArgInfo) => do
             forallTelescope (← inferType motive) fun ys _ => do
               let (indicesMajor, rest) := recArgInfo.pickIndicesMajor ys
-              mkLambdaFVars (indicesMajor ++ rest) (mkAppN motive ys)
+              mkLambdaFVars indicesMajor (← mkForallFVars rest (mkAppN motive ys))
 
           -- We need to pack these motives according to the `positions` assignment.
           let packedMotives ← positions.mapMwith Structural.packMotives motiveTypes motives'
@@ -1026,7 +1023,10 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
 
           let mut brecOnApps := #[]
           for info in infos, recArgInfo in recArgInfos, idx in [:infos.size] do
-            let e ← lambdaTelescope (← instantiateLambda info.value xs) fun ys _ => do
+            -- Take care to pick the `ys` from the type, to get the variable names expected
+            -- by the user, but use the value arity
+            let arity ← lambdaTelescope (← instantiateLambda info.value xs) fun ys _ => pure ys.size
+            let e ← forallBoundedTelescope (← instantiateForall info.type xs) arity fun ys _ => do
               let (indicesMajor, rest) := recArgInfo.pickIndicesMajor ys
               -- Find where in the function packing we are (TODO: abstract out)
               let some indIdx := positions.findIdx? (·.contains idx) | panic! "invalid positions"

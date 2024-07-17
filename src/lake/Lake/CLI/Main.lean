@@ -478,6 +478,17 @@ protected def translateConfig : CliM PUnit := do
   if outFile?.isNone then
     IO.FS.rename pkg.configFile (pkg.configFile.addExtension "bak")
 
+protected def versionTags : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let cfg ← mkLoadConfig opts
+  noArgsRem do
+  let pkg ← loadPackage cfg
+  let tags ← GitRepo.getTags pkg.dir
+  for tag in tags do
+    if pkg.versionTags.matches tag then
+      IO.println tag
+
 protected def selfCheck : CliM PUnit := do
   processOptions lakeOption
   noArgsRem do verifyInstall (← getThe LakeOptions)
@@ -510,6 +521,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "exe" | "exec"        => lake.exe
 | "lean"                => lake.lean
 | "translate-config"    => lake.translateConfig
+| "version-tags"        => lake.versionTags
 | "self-check"          => lake.selfCheck
 | "help"                => lake.help
 | cmd                   => throw <| CliError.unknownCommand cmd

@@ -72,6 +72,13 @@ private partial def skipWs (it : String.Iterator) : String.Iterator :=
 def ws : Parser Unit := fun it =>
   .success (skipWs it) ()
 
+def take (n : Nat) : Parser String := fun it =>
+  let substr := it.extract (it.forward n)
+  if substr.length != n then
+    .error it s!"expected: {n} codepoints"
+  else
+    .success (it.forward n) substr
+
 end String
 end Parsec
 end Lean

@@ -6,3 +6,4 @@ Author: Dany Fabian
 prelude
 import Lean.Data.Parsec.Basic
 import Lean.Data.Parsec.String
+import Lean.Data.Parsec.ByteArray

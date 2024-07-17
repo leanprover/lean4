@@ -65,14 +65,15 @@ def IndGroupInst.isDefEq (igi1 igi2 : IndGroupInst) : MetaM Bool := do
 /-- Instantiates the right `.brecOn` or `.bInductionOn` for the given type former index,
 including universe parameters and fixed prefix.  -/
 def IndGroupInst.brecOn (group : IndGroupInst) (ind : Bool) (lvl : Level) (idx : Nat) : Expr :=
-  if let .some n := group.all[idx]? then
-    if ind then .const (mkBInductionOnName n) group.levels
-    else        .const (mkBRecOnName n)      (lvl :: group.levels)
-  else
-    let n := group.all[0]!
-    let j := idx - group.all.size + 1
-    if ind then .const (mkBInductionOnName n |>.appendIndexAfter j) group.levels
-    else        .const (mkBRecOnName n |>.appendIndexAfter j)       (lvl :: group.levels)
+  let e := if let .some n := group.all[idx]? then
+      if ind then .const (mkBInductionOnName n) group.levels
+      else        .const (mkBRecOnName n)      (lvl :: group.levels)
+    else
+      let n := group.all[0]!
+      let j := idx - group.all.size + 1
+      if ind then .const (mkBInductionOnName n |>.appendIndexAfter j) group.levels
+      else        .const (mkBRecOnName n |>.appendIndexAfter j)       (lvl :: group.levels)
+  mkAppN e group.params
 
 /--
 Figures out the nested type formers of an inductive group, with parameters instantiated

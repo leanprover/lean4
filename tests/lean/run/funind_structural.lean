@@ -95,8 +95,6 @@ info: Finn.min.induct (motive : Bool → {n : Nat} → Nat → Finn n → Finn n
 #guard_msgs in
 #check Finn.min.induct
 
-
-
 namespace TreeExample
 
 inductive Tree (β : Type v) where

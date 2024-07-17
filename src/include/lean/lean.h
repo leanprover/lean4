@@ -481,6 +481,10 @@ static inline bool lean_is_exclusive(lean_object * o) {
     }
 }
 
+static inline uint8_t lean_is_exclusive_obj(lean_object * o) {
+    return lean_is_exclusive(o);
+}
+
 static inline bool lean_is_shared(lean_object * o) {
     if (LEAN_LIKELY(lean_is_st(o))) {
         return o->m_rc > 1;

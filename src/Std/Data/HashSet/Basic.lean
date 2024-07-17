@@ -102,8 +102,8 @@ instance [BEq α] [Hashable α] {m : HashSet α} {a : α} : Decidable (a ∈ m) 
   inferInstanceAs (Decidable (a ∈ m.inner))
 
 /-- Removes the element if it exists. -/
-@[inline] def remove [BEq α] [Hashable α] (m : HashSet α) (a : α) : HashSet α :=
-  ⟨m.inner.remove a⟩
+@[inline] def erase [BEq α] [Hashable α] (m : HashSet α) (a : α) : HashSet α :=
+  ⟨m.inner.erase a⟩
 
 /-- The number of elements present in the set -/
 @[inline] def size [BEq α] [Hashable α] (m : HashSet α) : Nat :=

@@ -448,9 +448,6 @@ static inline void lean_inc(lean_object * o) { if (!lean_is_scalar(o)) lean_inc_
 static inline void lean_inc_n(lean_object * o, size_t n) { if (!lean_is_scalar(o)) lean_inc_ref_n(o, n); }
 static inline void lean_dec(lean_object * o) { if (!lean_is_scalar(o)) lean_dec_ref(o); }
 
-/* Just free memory */
-LEAN_EXPORT void lean_dealloc(lean_object * o);
-
 static inline bool lean_is_ctor(lean_object * o) { return lean_ptr_tag(o) <= LeanMaxCtorTag; }
 static inline bool lean_is_closure(lean_object * o) { return lean_ptr_tag(o) == LeanClosure; }
 static inline bool lean_is_array(lean_object * o) { return lean_ptr_tag(o) == LeanArray; }

@@ -199,6 +199,10 @@ def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStruct
   let mut fields := #[]
   guard $ fieldNames.size == stx[1].getNumArgs
   if hasPPUsingAnonymousConstructorAttribute env s.induct then
+    /- Note that we don't flatten anonymous constructor notation. Only a complete such notation receives TermInfo,
+       and flattening would cause the flattened-in notation to lose its TermInfo.
+       Potentially it would be justified to flatten anonymous constructor notation when the terms are
+       from the same type family (think `Sigma`), but for now users can write a custom delaborator in such instances. -/
     return ← withTypeAscription (cond := (← withType <| getPPOption getPPStructureInstanceType)) do
       `(⟨$[$(stx[1].getArgs)],*⟩)
   let args := e.getAppArgs
@@ -770,16 +774,6 @@ def delabMData : Delab := do
     withMDataOptions delab
 
 /--
-Check for a `Syntax.ident` of the given name anywhere in the tree.
-This is usually a bad idea since it does not check for shadowing bindings,
-but in the delaborator we assume that bindings are never shadowed.
--/
-partial def hasIdent (id : Name) : Syntax → Bool
-  | Syntax.ident _ _ id' _ => id == id'
-  | Syntax.node _ _ args   => args.any (hasIdent id)
-  | _                      => false
-
-/--
 Return `true` iff current binder should be merged with the nested
 binder, if any, into a single binder group:
 * both binders must have same binder info and domain
@@ -824,7 +818,7 @@ def delabLam : Delab :=
     let e ← getExpr
     let stxT ← withBindingDomain delab
     let ppTypes ← getPPOption getPPFunBinderTypes
-    let usedDownstream := curNames.any (fun n => hasIdent n.getId stxBody)
+    let usedDownstream := curNames.any (fun n => stxBody.hasIdent n.getId)
 
     -- leave lambda implicit if possible
     -- TODO: for now we just always block implicit lambdas when delaborating. We can revisit.
@@ -1134,6 +1128,24 @@ def delabSigma : Delab := delabSigmaCore (sigma := true)
 
 @[builtin_delab app.PSigma]
 def delabPSigma : Delab := delabSigmaCore (sigma := false)
+
+-- PProd and MProd value delaborator
+-- (like pp_using_anonymous_constructor but flattening nested tuples)
+
+def delabPProdMkCore (mkName : Name) : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPNotation do
+  guard <| (← getExpr).getAppNumArgs == 4
+  let a ← withAppFn <| withAppArg delab
+  let b ← withAppArg <| delab
+  if (← getExpr).appArg!.isAppOfArity mkName 4 then
+    if let `(⟨$xs,*⟩) := b then
+      return ← `(⟨$a, $xs,*⟩)
+  `(⟨$a, $b⟩)
+
+@[builtin_delab app.PProd.mk]
+def delabPProdMk : Delab := delabPProdMkCore ``PProd.mk
+
+@[builtin_delab app.MProd.mk]
+def delabMProdMk : Delab := delabPProdMkCore ``MProd.mk
 
 partial def delabDoElems : DelabM (List Syntax) := do
   let e ← getExpr

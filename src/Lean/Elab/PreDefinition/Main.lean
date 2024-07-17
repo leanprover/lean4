@@ -153,68 +153,70 @@ def shouldUseWF (preDefs : Array PreDefinition) : Bool :=
 
 
 def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLCtx {} {} do
-  for preDef in preDefs do
-    trace[Elab.definition.body] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
-  let preDefs ← preDefs.mapM ensureNoUnassignedMVarsAtPreDef
-  let preDefs ← betaReduceLetRecApps preDefs
-  let cliques := partitionPreDefs preDefs
-  for preDefs in cliques do
-    trace[Elab.definition.scc] "{preDefs.map (·.declName)}"
-    if preDefs.size == 1 && isNonRecursive preDefs[0]! then
-      /-
-      We must erase `recApp` annotations even when `preDef` is not recursive
-      because it may use another recursive declaration in the same mutual block.
-      See issue #2321
-      -/
-      let preDef ← eraseRecAppSyntax preDefs[0]!
-      ensureEqnReservedNamesAvailable preDef.declName
-      if preDef.modifiers.isNoncomputable then
-        addNonRec preDef
-      else
-        addAndCompileNonRec preDef
-      preDef.termination.ensureNone "not recursive"
-    else if preDefs.any (·.modifiers.isUnsafe) then
-      addAndCompileUnsafe preDefs
-      preDefs.forM (·.termination.ensureNone "unsafe")
-    else if preDefs.any (·.modifiers.isPartial) then
+  profileitM Exception "process pre-definitions" (← getOptions) do
+    withTraceNode `Elab.def.processPreDef (fun _ => return m!"process pre-definitions") do
       for preDef in preDefs do
-        if preDef.modifiers.isPartial && !(← whnfD preDef.type).isForall then
-          withRef preDef.ref <| throwError "invalid use of 'partial', '{preDef.declName}' is not a function{indentExpr preDef.type}"
-      addAndCompilePartial preDefs
-      preDefs.forM (·.termination.ensureNone "partial")
-    else
-      ensureFunIndReservedNamesAvailable preDefs
-      try
-        checkCodomainsLevel preDefs
-        checkTerminationByHints preDefs
-        let termArg?s ← elabTerminationByHints preDefs
-        if shouldUseStructural preDefs then
-          structuralRecursion preDefs termArg?s
-        else if shouldUseWF preDefs then
-          wfRecursion preDefs termArg?s
+        trace[Elab.definition.body] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
+      let preDefs ← preDefs.mapM ensureNoUnassignedMVarsAtPreDef
+      let preDefs ← betaReduceLetRecApps preDefs
+      let cliques := partitionPreDefs preDefs
+      for preDefs in cliques do
+        trace[Elab.definition.scc] "{preDefs.map (·.declName)}"
+        if preDefs.size == 1 && isNonRecursive preDefs[0]! then
+          /-
+          We must erase `recApp` annotations even when `preDef` is not recursive
+          because it may use another recursive declaration in the same mutual block.
+          See issue #2321
+          -/
+          let preDef ← eraseRecAppSyntax preDefs[0]!
+          ensureEqnReservedNamesAvailable preDef.declName
+          if preDef.modifiers.isNoncomputable then
+            addNonRec preDef
+          else
+            addAndCompileNonRec preDef
+          preDef.termination.ensureNone "not recursive"
+        else if preDefs.any (·.modifiers.isUnsafe) then
+          addAndCompileUnsafe preDefs
+          preDefs.forM (·.termination.ensureNone "unsafe")
+        else if preDefs.any (·.modifiers.isPartial) then
+          for preDef in preDefs do
+            if preDef.modifiers.isPartial && !(← whnfD preDef.type).isForall then
+              withRef preDef.ref <| throwError "invalid use of 'partial', '{preDef.declName}' is not a function{indentExpr preDef.type}"
+          addAndCompilePartial preDefs
+          preDefs.forM (·.termination.ensureNone "partial")
         else
-          withRef (preDefs[0]!.ref) <| mapError
-            (orelseMergeErrors
-              (structuralRecursion preDefs termArg?s)
-              (wfRecursion preDefs termArg?s))
-            (fun msg =>
-              let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
-              m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")
-      catch ex =>
-        logException ex
-        let s ← saveState
-        try
-          if preDefs.all fun preDef => preDef.kind == DefKind.def || preDefs.all fun preDef => preDef.kind == DefKind.abbrev then
-            -- try to add as partial definition
+          ensureFunIndReservedNamesAvailable preDefs
+          try
+            checkCodomainsLevel preDefs
+            checkTerminationByHints preDefs
+            let termArg?s ← elabTerminationByHints preDefs
+            if shouldUseStructural preDefs then
+              structuralRecursion preDefs termArg?s
+            else if shouldUseWF preDefs then
+              wfRecursion preDefs termArg?s
+            else
+              withRef (preDefs[0]!.ref) <| mapError
+                (orelseMergeErrors
+                  (structuralRecursion preDefs termArg?s)
+                  (wfRecursion preDefs termArg?s))
+                (fun msg =>
+                  let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
+                  m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")
+          catch ex =>
+            logException ex
+            let s ← saveState
             try
-              addAndCompilePartial preDefs (useSorry := true)
-            catch _ =>
-              -- Compilation failed try again just as axiom
-              s.restore
-              addAsAxioms preDefs
-          else if preDefs.all fun preDef => preDef.kind == DefKind.theorem then
-            addAsAxioms preDefs
-        catch _ => s.restore
+              if preDefs.all fun preDef => preDef.kind == DefKind.def || preDefs.all fun preDef => preDef.kind == DefKind.abbrev then
+                -- try to add as partial definition
+                try
+                  addAndCompilePartial preDefs (useSorry := true)
+                catch _ =>
+                  -- Compilation failed try again just as axiom
+                  s.restore
+                  addAsAxioms preDefs
+              else if preDefs.all fun preDef => preDef.kind == DefKind.theorem then
+                addAsAxioms preDefs
+            catch _ => s.restore
 
 builtin_initialize
   registerTraceClass `Elab.definition.body

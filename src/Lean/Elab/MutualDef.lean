@@ -923,6 +923,7 @@ where
             trace[Elab.definition] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
           let preDefs ← withLevelNames allUserLevelNames <| levelMVarToParamPreDecls preDefs
           let preDefs ← instantiateMVarsAtPreDecls preDefs
+          let preDefs ← shareCommonPreDefs preDefs
           let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
           for preDef in preDefs do
             trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"

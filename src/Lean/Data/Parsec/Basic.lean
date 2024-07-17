@@ -10,118 +10,125 @@ import Init.Data.ToString.Macro
 namespace Lean
 
 namespace Parsec
-inductive ParseResult (α : Type) where
-  | success (pos : String.Iterator) (res : α)
-  | error (pos : String.Iterator) (err : String)
+
+inductive ParseResult (α : Type) (ι : Type) where
+  | success (pos : ι) (res : α)
+  | error (pos : ι) (err : String)
   deriving Repr
+
 end Parsec
 
-def Parsec (α : Type) : Type := String.Iterator → Lean.Parsec.ParseResult α
+def Parsec (ι : Type) (α : Type) : Type := ι → Lean.Parsec.ParseResult α ι
 
 namespace Parsec
 
-open ParseResult
+class Input (ι : Type) (elem : outParam Type) (idx : outParam Type) [DecidableEq idx] [DecidableEq elem] where
+  pos : ι → idx
+  next : ι → ι
+  curr : ι → elem
+  hasNext : ι → Bool
 
-instance (α : Type) : Inhabited (Parsec α) where
-  default := fun it => error it ""
+variable {α : Type} {ι : Type} {elem : Type} {idx : Type}
+variable [DecidableEq idx] [DecidableEq elem] [Input ι elem idx]
+
+instance : Inhabited (Parsec ι α) where
+  default := fun it => .error it ""
 
 @[inline]
-protected def pure (a : α) : Parsec α := fun it =>
-  success it a
+protected def pure (a : α) : Parsec ι α := fun it =>
+  .success it a
 
 @[inline]
-def bind {α β : Type} (f : Parsec α) (g : α → Parsec β) : Parsec β := fun it =>
+def bind {α β : Type} (f : Parsec ι α) (g : α → Parsec ι β) : Parsec ι β := fun it =>
   match f it with
-  | success rem a => g a rem
-  | error pos msg => error pos msg
+  | .success rem a => g a rem
+  | .error pos msg => .error pos msg
 
-instance : Monad Parsec where
+instance : Monad (Parsec ι) where
   pure := Parsec.pure
   bind := Parsec.bind
 
 @[inline]
-def fail (msg : String) : Parsec α := fun it =>
-  error it msg
+def fail (msg : String) : Parsec ι α := fun it =>
+  .error it msg
 
 @[inline]
-def tryCatch (p : Parsec α) (csuccess : α → Parsec β) (cerror : Unit → Parsec β)
-    : Parsec β := fun it =>
+def tryCatch (p : Parsec ι α) (csuccess : α → Parsec ι β) (cerror : Unit → Parsec ι β)
+    : Parsec ι β := fun it =>
   match p it with
   | .success rem a => csuccess a rem
   | .error rem err =>
     -- We assume that it.s never changes as the `Parsec` monad only modifies `it.pos`.
-    if it.pos = rem.pos then cerror () rem else .error rem err
+    if Input.pos it = Input.pos rem then cerror () rem else .error rem err
 
 @[inline]
-def orElse (p : Parsec α) (q : Unit → Parsec α) : Parsec α :=
+def orElse (p : Parsec ι α) (q : Unit → Parsec ι α) : Parsec ι α :=
   tryCatch p pure q
 
 @[inline]
-def attempt (p : Parsec α) : Parsec α := λ it =>
+def attempt (p : Parsec ι α) : Parsec ι α := fun it =>
   match p it with
-  | success rem res => success rem res
-  | error _ err => error it err
+  | .success rem res => .success rem res
+  | .error _ err => .error it err
 
-instance : Alternative Parsec where
+instance : Alternative (Parsec ι) where
   failure := fail ""
   orElse := orElse
-
-protected def run (p : Parsec α) (s : String) : Except String α :=
-  match p s.mkIterator with
-  | Parsec.ParseResult.success _ res => Except.ok res
-  | Parsec.ParseResult.error it err  => Except.error s!"offset {repr it.i.byteIdx}: {err}"
 
 def expectedEndOfInput := "expected end of input"
 
 @[inline]
-def eof : Parsec Unit := fun it =>
-  if it.hasNext then
-    error it expectedEndOfInput
+def eof : Parsec ι Unit := fun it =>
+  if Input.hasNext it then
+    .error it expectedEndOfInput
   else
-    success it ()
+    .success it ()
 
 @[specialize]
-partial def manyCore (p : Parsec α) (acc : Array α) : Parsec $ Array α :=
+partial def manyCore (p : Parsec ι α) (acc : Array α) : Parsec ι <| Array α :=
   tryCatch p (manyCore p <| acc.push ·) (fun _ => pure acc)
 
 @[inline]
-def many (p : Parsec α) : Parsec <| Array α := manyCore p #[]
+def many (p : Parsec ι α) : Parsec ι <| Array α := manyCore p #[]
 
 @[inline]
-def many1 (p : Parsec α) : Parsec <| Array α := do manyCore p #[← p]
+def many1 (p : Parsec ι α) : Parsec ι <| Array α := do manyCore p #[← p]
 
 def unexpectedEndOfInput := "unexpected end of input"
 
 @[inline]
-def anyChar : Parsec Char := fun it =>
-  if it.hasNext then success it.next it.curr else error it unexpectedEndOfInput
+def any : Parsec ι elem := fun it =>
+  if Input.hasNext it then
+    .success (Input.next it) (Input.curr it)
+  else
+    .error it unexpectedEndOfInput
 
 @[inline]
-def satisfy (p : Char → Bool) : Parsec Char := attempt do
-  let c ← anyChar
+def satisfy (p : elem → Bool) : Parsec ι elem := attempt do
+  let c ← any
   if p c then return c else fail "condition not satisfied"
 
 @[inline]
-def notFollowedBy (p : Parsec α) : Parsec Unit := fun it =>
+def notFollowedBy (p : Parsec ι α) : Parsec ι Unit := fun it =>
   match p it with
-  | success _ _ => error it ""
-  | error _ _ => success it ()
+  | .success _ _ => .error it ""
+  | .error _ _ => .success it ()
 
 @[inline]
-def peek? : Parsec (Option Char) := fun it =>
-  if it.hasNext then
-    success it it.curr
+def peek? : Parsec ι (Option elem) := fun it =>
+  if Input.hasNext it then
+    .success it (Input.curr it)
   else
-    success it none
+    .success it none
 
 @[inline]
-def peek! : Parsec Char := do
+def peek! : Parsec ι elem := do
   let some c ← peek? | fail unexpectedEndOfInput
   return c
 
 @[inline]
-def skip : Parsec Unit := fun it =>
-  success it.next ()
+def skip : Parsec ι Unit := fun it =>
+  .success (Input.next it) ()
 
 @[specialize]
 partial def manyCharsCore (p : Parsec ι Char) (acc : String) : Parsec ι String :=

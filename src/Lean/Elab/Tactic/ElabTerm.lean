@@ -56,9 +56,9 @@ def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (mayPostpo
     return e
 
 /-- Try to close main goal using `x target`, where `target` is the type of the main goal.  -/
-def closeMainGoalUsing (x : Expr → TacticM Expr) (checkUnassigned := true) : TacticM Unit :=
+def closeMainGoalUsing (tacName : Name) (x : Expr → TacticM Expr) (checkUnassigned := true) : TacticM Unit :=
   withMainContext do
-    closeMainGoal (checkUnassigned := checkUnassigned) (← x (← getMainTarget))
+    closeMainGoal (tacName := tacName) (checkUnassigned := checkUnassigned) (← x (← getMainTarget))
 
 def logUnassignedAndAbort (mvarIds : Array MVarId) : TacticM Unit := do
    if (← Term.logUnassignedUsingErrorInfos mvarIds) then
@@ -68,13 +68,14 @@ def filterOldMVars (mvarIds : Array MVarId) (mvarCounterSaved : Nat) : MetaM (Ar
   let mctx ← getMCtx
   return mvarIds.filter fun mvarId => (mctx.getDecl mvarId |>.index) >= mvarCounterSaved
 
-@[builtin_tactic «exact»] def evalExact : Tactic := fun stx =>
+@[builtin_tactic «exact»] def evalExact : Tactic := fun stx => do
   match stx with
-  | `(tactic| exact $e) => closeMainGoalUsing (checkUnassigned := false) fun type => do
-    let mvarCounterSaved := (← getMCtx).mvarCounter
-    let r ← elabTermEnsuringType e type
-    logUnassignedAndAbort (← filterOldMVars (← getMVars r) mvarCounterSaved)
-    return r
+  | `(tactic| exact $e) =>
+    closeMainGoalUsing `exact (checkUnassigned := false) fun type => do
+      let mvarCounterSaved := (← getMCtx).mvarCounter
+      let r ← elabTermEnsuringType e type
+      logUnassignedAndAbort (← filterOldMVars (← getMVars r) mvarCounterSaved)
+      return r
   | _ => throwUnsupportedSyntax
 
 def sortMVarIdArrayByIndex [MonadMCtx m] [Monad m] (mvarIds : Array MVarId) : m (Array MVarId) := do
@@ -393,7 +394,7 @@ private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := do
   return inst
 
 @[builtin_tactic Lean.Parser.Tactic.decide] def evalDecide : Tactic := fun _ =>
-  closeMainGoalUsing fun expectedType => do
+  closeMainGoalUsing `decide fun expectedType => do
     let expectedType ← preprocessPropToDecide expectedType
     let d ← mkDecide expectedType
     let d ← instantiateMVars d
@@ -472,7 +473,7 @@ private def mkNativeAuxDecl (baseName : Name) (type value : Expr) : TermElabM Na
   pure auxName
 
 @[builtin_tactic Lean.Parser.Tactic.nativeDecide] def evalNativeDecide : Tactic := fun _ =>
-  closeMainGoalUsing fun expectedType => do
+  closeMainGoalUsing `nativeDecide fun expectedType => do
     let expectedType ← preprocessPropToDecide expectedType
     let d ← mkDecide expectedType
     let auxDeclName ← mkNativeAuxDecl `_nativeDecide (Lean.mkConst `Bool) d

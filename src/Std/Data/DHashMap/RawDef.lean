@@ -26,16 +26,19 @@ inductive types. The well-formedness invariant is called `Raw.WF`. When in doubt
 over `DHashMap.Raw`. Lemmas about the operations on `Std.Data.DHashMap.Raw` are available in the
 module `Std.Data.DHashMap.RawLemmas`.
 
-The hash map uses `==` (provided by the `BEq` typeclass) to compare keys and `hash` (provided by
-the `Hashable` typeclass) to hash them. To ensure that the operations behave as expected, `==`
-should be an equivalence relation and `a == b` should imply `hash a = hash b` (see also the
-`EquivBEq` and `LawfulHashable` typeclasses). Both of these conditions are automatic if the BEq
-instance is lawful, i.e., if `a == b` implies `a = b`.
+The hash table is backed by an `Array`. Users should make sure that the hash map is used linearly to
+avoid expensive copies.
 
 This is a simple separate-chaining hash table. The data of the hash map consists of a cached size
 and an array of buckets, where each bucket is a linked list of key-value pais. The number of buckets
 is always a power of two. The hash map doubles its size upon inserting an element such that the
 number of elements is more than 75% of the number of buckets.
+
+The hash map uses `==` (provided by the `BEq` typeclass) to compare keys and `hash` (provided by
+the `Hashable` typeclass) to hash them. To ensure that the operations behave as expected, `==`
+should be an equivalence relation and `a == b` should imply `hash a = hash b` (see also the
+`EquivBEq` and `LawfulHashable` typeclasses). Both of these conditions are automatic if the BEq
+instance is lawful, i.e., if `a == b` implies `a = b`.
 -/
 structure Raw (α : Type u) (β : α → Type v) where
   /-- The number of mappings present in the hash map -/

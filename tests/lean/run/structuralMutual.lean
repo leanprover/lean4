@@ -587,39 +587,54 @@ info: A.size.mutual_induct :
 #check A.size.mutual_induct
 
 /--
-error: Failed to realize constant A.subs.induct:
-  (kernel) constant has already been declared 'A.subs.mutual_induct'
----
-error: unknown identifier 'A.subs.induct'
+info: A.subs.induct :
+  ∀ (motive_1 : A → Prop) (motive_2 : B → Prop),
+    (∀ (a : A), motive_1 a → motive_1 a.self) →
+      (∀ (b : B), motive_2 b → motive_1 (A.other b)) →
+        motive_1 A.empty →
+          (∀ (b : B), motive_2 b → motive_2 b.self) →
+            (∀ (a : A), motive_1 a → motive_2 (B.other a)) → motive_2 B.empty → ∀ (x : A), motive_1 x
 -/
 #guard_msgs in
 #check A.subs.induct
 
 /--
-error: Failed to realize constant MutualIndNonMutualFun.A.self_size.induct:
-  functional induction: cannot handle mutual or nested inductives
----
-error: Failed to realize constant MutualIndNonMutualFun.A.self_size.induct:
-  functional induction: cannot handle mutual or nested inductives
----
-error: unknown identifier 'MutualIndNonMutualFun.A.self_size.induct'
+info: MutualIndNonMutualFun.A.self_size.induct :
+  ∀ (motive : MutualIndNonMutualFun.A → Prop),
+    (∀ (a : MutualIndNonMutualFun.A), motive a → motive a.self) →
+      (∀ (a : MutualIndNonMutualFun.B), motive (MutualIndNonMutualFun.A.other a)) →
+        motive MutualIndNonMutualFun.A.empty →
+          ∀ (x : MutualIndNonMutualFun.A), (∀ (t : MutualIndNonMutualFun.B), t.ibelow → True) → motive x
 -/
 #guard_msgs in
 #check MutualIndNonMutualFun.A.self_size.induct
 
 /--
-error: Failed to realize constant A.hasNoBEmpty.induct:
-  functional induction: cannot handle mutual or nested inductives
----
-error: Failed to realize constant A.hasNoBEmpty.induct:
-  functional induction: cannot handle mutual or nested inductives
----
-error: unknown identifier 'A.hasNoBEmpty.induct'
+info: A.hasNoBEmpty.induct :
+  ∀ (motive_1 : A → Prop) (motive_2 : B → Prop),
+    (∀ (a : A), motive_1 a → motive_1 a.self) →
+      (∀ (b : B), motive_2 b → motive_1 (A.other b)) →
+        motive_1 A.empty →
+          (∀ (b : B), motive_2 b → motive_2 b.self) →
+            (∀ (a : A), motive_1 a → motive_2 (B.other a)) → motive_2 B.empty → ∀ (x : A), motive_1 x
 -/
 #guard_msgs in
 #check A.hasNoBEmpty.induct
 
--- #guard_msgs in
-#check EvenOdd.isEven.induct -- TODO: This error message can be improved
+/--
+info: EvenOdd.isEven.induct :
+  ∀ (motive_1 motive_2 : Nat → Prop),
+    (∀ (t : Nat),
+        (match t with
+          | 0 => True
+          | n.succ => motive_2 n) →
+          (match t with
+            | 0 => True
+            | n.succ => motive_1 n) →
+            motive_1 t ∧ motive_2 t ∧ True) →
+      ∀ (x : Nat), motive_1 x
+-/
+#guard_msgs in
+#check EvenOdd.isEven.induct
 
 end FunIndTests

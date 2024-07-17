@@ -883,6 +883,25 @@ def stripPProdProjs (e : Expr) : Expr :=
   | .proj ``And _ e' => stripPProdProjs e'
   | e => e
 
+
+-- TODO: put in a better position
+/--  Given `foo.mutual_induct`, defined `foo.induct`, `bar.induct` etc.  -/
+def projectMutualInduct (names : Array Name) (mutualInduct : Name) : MetaM Unit := do
+  let ci ← getConstInfo mutualInduct
+  let levelParams := ci.levelParams
+
+  for name in names, idx in [:names.size] do
+    let inductName := .append name `induct
+    unless ← hasConst inductName do
+      let value ← forallTelescope ci.type fun xs _body => do
+        let value := .const ci.name (levelParams.map mkLevelParam)
+        let value := mkAppN value xs
+        let value := mkProjAndN names.size idx value
+        mkLambdaFVars xs value
+      let type ← inferType value
+      addDecl <| Declaration.thmDecl { name := inductName, levelParams, type, value }
+
+
 def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit := do
   let infos ← names.mapM getConstInfoDefn
   -- First open up the fixed parameters everywhere
@@ -1050,9 +1069,17 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
   -- Prune unused level parameters, preserving the original order
   let us := infos[0]!.levelParams.filter (params.contains ·)
 
-  let inductName := names[0]! ++ `mutual_induct
+  let inductName :=
+    if names.size = 1 then
+      names[0]! ++ `induct
+    else
+      names[0]! ++ `mutual_induct
+
   addDecl <| Declaration.thmDecl
     { name := inductName, levelParams := us, type := eTyp, value := e' }
+
+  if names.size > 1 then
+    projectMutualInduct names inductName
 
 
 /--
@@ -1158,22 +1185,11 @@ def unpackMutualInduction (eqnInfo : WF.EqnInfo) (unaryInductName : Name) : Meta
     { name := inductName, levelParams := ci.levelParams, type, value }
   return inductName
 
+
 /-- Given `foo._unary.induct`, define `foo.mutual_induct` and then `foo.induct`, `bar.induct`, … -/
 def deriveUnpackedInduction (eqnInfo : WF.EqnInfo) (unaryInductName : Name): MetaM Unit := do
   let unpackedInductName ← unpackMutualInduction eqnInfo unaryInductName
-  let ci ← getConstInfo unpackedInductName
-  let levelParams := ci.levelParams
-
-  for name in eqnInfo.declNames, idx in [:eqnInfo.declNames.size] do
-    let inductName := .append name `induct
-    unless ← hasConst inductName do
-      let value ← forallTelescope ci.type fun xs _body => do
-        let value := .const ci.name (levelParams.map mkLevelParam)
-        let value := mkAppN value xs
-        let value := mkProjAndN eqnInfo.declNames.size idx value
-        mkLambdaFVars xs value
-      let type ← inferType value
-      addDecl <| Declaration.thmDecl { name := inductName, levelParams, type, value }
+  projectMutualInduct eqnInfo.declNames unpackedInductName
 
 /--
 Given a recursively defined function `foo`, derives `foo.induct`. See the module doc for details.

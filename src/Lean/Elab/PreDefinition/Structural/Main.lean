@@ -90,7 +90,7 @@ def getMutualFixedPrefix (preDefs : Array PreDefinition) : M Nat :=
     resultRef.get
 
 private def elimMutualRecursion (preDefs : Array PreDefinition) (xs : Array Expr)
-    (recArgInfos : Array RecArgInfo) : M (Array PreDefinition × Positions) := do
+    (recArgInfos : Array RecArgInfo) : M (Array PreDefinition) := do
   let values ← preDefs.mapM (instantiateLambda ·.value xs)
   let indInfo ← getConstInfoInduct recArgInfos[0]!.indGroupInst.all[0]!
   if ← isInductivePredicate indInfo.name then
@@ -105,7 +105,7 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (xs : Array Expr
     let valueNew ← mkLambdaFVars xs valueNew
     trace[Elab.definition.structural] "Nonrecursive value:{indentExpr valueNew}"
     check valueNew
-    return (#[{ preDef with value := valueNew }], #[#[0]])
+    return #[{ preDef with value := valueNew }]
 
   -- Sort the (indices of the) definitions by their position in indInfo.all
   let positions : Positions := .groupAndSort (·.indIdx) recArgInfos (Array.range indInfo.numTypeFormers)
@@ -125,12 +125,10 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (xs : Array Expr
     mkBrecOnApp positions i brecOnConst FArgs r v
   -- Abstract over the fixed prefixed
   let valuesNew ← valuesNew.mapM (mkLambdaFVars xs ·)
-  let preDefsNew :=
-    (Array.zip preDefs valuesNew).map fun ⟨preDef, valueNew⟩ => { preDef with value := valueNew }
-  return (preDefsNew, positions)
+  return (Array.zip preDefs valuesNew).map fun ⟨preDef, valueNew⟩ => { preDef with value := valueNew }
 
 private def inferRecArgPos (preDefs : Array PreDefinition) (termArg?s : Array (Option TerminationArgument)) :
-    M (Array Nat × (Array PreDefinition) × Positions) := do
+    M (Array Nat × (Array PreDefinition) × Nat) := do
   withoutModifyingEnv do
     preDefs.forM (addAsAxiom ·)
     let fnNames := preDefs.map (·.declName)
@@ -155,8 +153,8 @@ private def inferRecArgPos (preDefs : Array PreDefinition) (termArg?s : Array (O
         let recArgInfos := recArgInfos.map ({· with numFixed := numFixed })
         withErasedFVars (xs.extract numFixed xs.size |>.map (·.fvarId!)) do
           let xs := xs[:numFixed]
-          let (preDefs', positions) ← elimMutualRecursion preDefs xs recArgInfos
-          return (recArgPoss, preDefs', positions)
+          let preDefs' ← elimMutualRecursion preDefs xs recArgInfos
+          return (recArgPoss, preDefs', numFixed)
 
 def reportTermArg (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit := do
   if let some ref := preDef.termination.terminationBy?? then
@@ -169,7 +167,7 @@ def reportTermArg (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit := do
 
 def structuralRecursion (preDefs : Array PreDefinition) (termArg?s : Array (Option TerminationArgument)) : TermElabM Unit := do
   let names := preDefs.map (·.declName)
-  let ((recArgPoss, preDefsNonRec, positions), state) ← run <| inferRecArgPos preDefs termArg?s
+  let ((recArgPoss, preDefsNonRec, numFixed), state) ← run <| inferRecArgPos preDefs termArg?s
   for recArgPos in recArgPoss, preDef in preDefs do
     reportTermArg preDef recArgPos
   state.addMatchers.forM liftM
@@ -192,7 +190,7 @@ def structuralRecursion (preDefs : Array PreDefinition) (termArg?s : Array (Opti
         for theorems and definitions that are propositions.
         See issue #2327
         -/
-        registerEqnsInfo preDef (preDefs.map (·.declName)) recArgPos positions
+        registerEqnsInfo preDef (preDefs.map (·.declName)) recArgPos numFixed
     addSmartUnfoldingDef preDef recArgPos
     markAsRecursive preDef.declName
   applyAttributesOf preDefsNonRec AttributeApplicationTime.afterCompilation

@@ -15,6 +15,8 @@ import Lean.Meta.ArgsPacker
 import Lean.Elab.PreDefinition.WF.Eqns
 import Lean.Elab.PreDefinition.Structural.Eqns
 import Lean.Elab.PreDefinition.Structural.FunPacker
+import Lean.Elab.PreDefinition.Structural.IndGroupInfo
+import Lean.Elab.PreDefinition.Structural.FindRecArg
 import Lean.Elab.Command
 import Lean.Meta.Tactic.ElimInfo
 
@@ -495,14 +497,13 @@ def assertIHs (vals : Array Expr) (mvarid : MVarId) : MetaM MVarId := do
 
 
 /--
-Substitutes equations, but makes sure to only substitute variables introduced after the motive
-as the motive could depend on anything before, and `substVar` would happily drop equations
-about these fixed parameters.
+Substitutes equations, but makes sure to only substitute variables introduced after the motives
+(given by the index) as the motive could depend on anything before, and `substVar` would happily
+drop equations about these fixed parameters.
 -/
-def substVarAfter (mvarId : MVarId) (x : FVarId) : MetaM MVarId := do
+def substVarAfter (mvarId : MVarId) (index : Nat) : MetaM MVarId := do
   mvarId.withContext do
     let mut mvarId := mvarId
-    let index := (← x.getDecl).index
     for localDecl in (← getLCtx) do
       if localDecl.index > index then
         mvarId ← trySubstVar mvarId localDecl.fvarId
@@ -666,7 +667,7 @@ partial def buildInductionBody (is_wf : Bool) (fn : Expr) (toClear toPreserve : 
 /--
 Given an expression `e` with metavariables
 * collects all these meta-variables,
-* lifts them to the current context by reverting all local declarations up to `x`
+* lifts them to the current context by reverting all local declarations after index `index`
 * introducing a local variable for each of the meta variable
 * assigning that local variable to the mvar
 * and finally lambda-abstracting over these new local variables.
@@ -680,14 +681,18 @@ be used anymore.
 We are not using `mkLambdaFVars` on mvars directly, nor `abstractMVars`, as these at the moment
 do not handle delayed assignemnts correctly.
 -/
-def abstractIndependentMVars (mvars : Array MVarId) (x : FVarId) (e : Expr) : MetaM Expr := do
+def abstractIndependentMVars (mvars : Array MVarId) (index : Nat) (e : Expr) : MetaM Expr := do
+  trace[FunInd] "abstractIndependentMVars, to revert after {index}, original mvars: {mvars}"
   let mvars ← mvars.mapM fun mvar => do
-    let mvar ← substVarAfter mvar x
-    let (_, mvar) ← mvar.revertAfter x
-    pure mvar
+    let mvar ← substVarAfter mvar index
+    mvar.withContext do
+      let fvarIds := (← getLCtx).foldl (init := #[]) (start := index+1) fun fvarIds decl => fvarIds.push decl.fvarId
+      let (_, mvar) ← mvar.revert fvarIds
+      pure mvar
+  trace[FunInd] "abstractIndependentMVars, reverted mvars: {mvars}"
   let decls := mvars.mapIdx fun i mvar =>
-    (.mkSimple s!"case{i.val+1}", .default, (fun _ => mvar.getType))
-  Meta.withLocalDecls decls fun xs => do
+    (.mkSimple s!"case{i.val+1}", (fun _ => mvar.getType))
+  Meta.withLocalDeclsD decls fun xs => do
       for mvar in mvars, x in xs do
         mvar.assign x
       mkLambdaFVars xs (← instantiateMVars e)
@@ -845,7 +850,7 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
             mkLambdaFVars (targets.push genIH) (← mkLambdaFVars extraParams body')
       let e' := mkAppBody e' body'
       let e' ← mkLambdaFVars varyingParams e'
-      let e' ← abstractIndependentMVars mvars motive.fvarId! e'
+      let e' ← abstractIndependentMVars mvars (← motive.fvarId!.getDecl).index  e'
       let e' ← mkLambdaFVars #[motive] e'
 
       -- We could pass (usedOnly := true) below, and get nicer induction principles that
@@ -878,108 +883,176 @@ def stripPProdProjs (e : Expr) : Expr :=
   | .proj ``And _ e' => stripPProdProjs e'
   | e => e
 
--- TODO: Store numFixed in EqnInfo, just easier
--- Maybe positions can be recalculated?
-def deriveInductionStructural (names : Array Name) (positions : Structural.Positions) : MetaM Unit := do
-  -- The mutual recursive structural definitions are all essentially the same,
-  -- up to the final projection. So just look at the first one
+def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit := do
   let infos ← names.mapM getConstInfoDefn
-  assert! infos.size = positions.numIndices
-  lambdaTelescope infos[0]!.value fun params body => do
-    -- The body is of the form (brecOn … ).2.2.1 extra1 extra2 etc.
-    let f' := body.getAppFn
-    let args := body.getAppArgs
-    let body' := stripPProdProjs f'
-    let f := body'.getAppFn
-    let args := body'.getAppArgs ++ body.getAppArgs
+  -- First open up the fixed parameters everywhere
+  let e' ← lambdaBoundedTelescope infos[0]!.value numFixed fun xs _ => do
+    -- Now look at the body of an arbitrary of the functions (they are essentially the same
+    -- up to the final projections)
+    let body ← instantiateLambda infos[0]!.value xs
 
-    let body := stripPProdProjs body
-    let .const brecOnName us := f |
-      throwError "{infos[0]!.name}: unexpected body:{indentExpr infos[0]!.value}"
-    unless isBRecOnRecursor (← getEnv) brecOnName do
-      throwError "{infos[0]!.name}: expected .brecOn application, found:{indentExpr body}"
+    lambdaTelescope body fun ys body => do
+      -- The body is of the form (brecOn … ).2.2.1 extra1 extra2 etc.
+      let f' := body.getAppFn
+      let body' := stripPProdProjs f'
+      let f := body'.getAppFn
+      let args := body'.getAppArgs ++ body.getAppArgs
 
-    unless 1 ≤ us.length do
-      throwError "functional induction: unexpected recursor: {f} has no universe parameters"
+      let body := stripPProdProjs body
+      let .const brecOnName us := f |
+        throwError "{infos[0]!.name}: unexpected body:{indentExpr infos[0]!.value}"
+      -- TODO: What if the aux brec on comes first?
+      unless isBRecOnRecursor (← getEnv) brecOnName do
+        throwError "{infos[0]!.name}: expected .brecOn application, found:{indentExpr body}"
 
-    let .str indName _ := brecOnName | unreachable!
-    let indInfo ← getConstInfoInduct indName
+      let .str indName _ := brecOnName | unreachable!
+      let indInfo ← getConstInfoInduct indName
 
-    -- we have a `.brecOn` application, so now figure out the length of the fixed prefix
-    -- we can use the recInfo for `.rec`, since `.brecOn` has a similar structure
-    let recInfo ← getConstInfoRec (mkRecName indName)
-    if args.size < recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 +
-      recInfo.numTypeFormers then
-      throwError "insufficient arguments to .brecOn:{indentExpr body}"
-    let brecOnArgs    : Array Expr := args[:recInfo.numParams]
-    let brecOnMotives : Array Expr := args[recInfo.numParams:recInfo.numParams + recInfo.numMotives]
-    let brecOnTargets : Array Expr := args[recInfo.numParams + recInfo.numMotives :
-      recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1]
-    let brecOnMinors  : Array Expr := args[recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 :
-      recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 + recInfo.numMotives]
-    let brecOnExtras  : Array Expr := args[ recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 +
-      recInfo.numMotives:]
-    unless brecOnTargets.all (·.isFVar) do
-      throwError "the indices and major argument of the brecOn application are not variables:{indentExpr body}"
-    unless brecOnExtras.all (·.isFVar) do
-      throwError "the extra arguments to the the brecOn application are not variables:{indentExpr body}"
-    let (varyingParams, fixedParams) := params.partition fun x =>
-      brecOnTargets.contains x || brecOnExtras.contains x
-    unless params == fixedParams ++ varyingParams do
-      throwError "functional induction: unexpected order of fixed and varying parameters:{indentExpr body}"
+      -- we have a `.brecOn` application, so now figure out the length of the fixed prefix
+      -- we can use the recInfo for `.rec`, since `.brecOn` has a similar structure
+      let recInfo ← getConstInfoRec (mkRecName indName)
+      if args.size < recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 + recInfo.numMotives then
+        throwError "insufficient arguments to .brecOn:{indentExpr body}"
+      let brecOnArgs    : Array Expr := args[:recInfo.numParams]
+      let _brecOnMotives : Array Expr := args[recInfo.numParams:recInfo.numParams + recInfo.numMotives]
+      let brecOnTargets : Array Expr := args[recInfo.numParams + recInfo.numMotives :
+        recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1]
+      let brecOnMinors  : Array Expr := args[recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 :
+        recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 + recInfo.numMotives]
+      let brecOnExtras  : Array Expr := args[ recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 +
+        recInfo.numMotives:]
+      unless brecOnTargets.all (·.isFVar) do
+        throwError "the indices and major argument of the brecOn application are not variables:{indentExpr body}"
+      unless brecOnExtras.all (·.isFVar) do
+        throwError "the extra arguments to the the brecOn application are not variables:{indentExpr body}"
+      let lvl :: indLevels := us |throwError "Too few universe parameters in .brecOn application:{indentExpr body}"
 
-    -- Below we'll need the types of the motive arguments
-    let motiveTypes ← inferArgumentTypesN recInfo.numMotives (mkAppN f brecOnArgs)
-    assert! motiveTypes.size = positions.size
+      let group : Structural.IndGroupInst := { Structural.IndGroupInfo.ofInductiveVal indInfo with
+        levels := indLevels, params := brecOnArgs }
 
-    -- Remove the varying parameters from the environment
-    withErasedFVars (varyingParams.map (·.fvarId!)) do
-      -- The brecOnArgs, brecOnMotives and brecOnMinor should still be valid in this
-      -- context, and are the parts relevant for every function in the mutual group
+      let recArgInfos ← infos.mapM fun info => do
+        let some eqnInfo := Structural.eqnInfoExt.find? (← getEnv) info.name | throwError "{info.name} missing eqnInfo"
+        let value ← instantiateLambda info.value xs
+        let recArgInfo' ← lambdaTelescope value fun ys _ =>
+          Structural.getRecArgInfo info.name numFixed (xs ++ ys) eqnInfo.recArgPos
+        let #[recArgInfo] ← Structural.argsInGroup group xs value #[recArgInfo']
+          | throwError "Structural.argsInGroup did not return a recArgInfo"
+        pure recArgInfo
 
-      -- Calculate the types of the induction motives for each function
-      let motiveDecls ← infos.mapIdxM fun ⟨i,_⟩ info => do
-        -- TODO: Need the RecArgInfo here.
-        let motiveType ← lambdaTelescope (← instantiateLambda info.value fixedParams) fun ys _ =>
-          mkForallFVars ys (.sort levelZero)
-        let n ←
-          if infos.size = 1 then
-            mkFreshUserName (.mkSimple "motive")
-          else
-            mkFreshUserName (.mkSimple s!"motive_{i+1}")
-        pure (n, fun _ => pure motiveType)
-      withLocalDeclsD motiveDecls fun motives => do
-        -- We need to pack these motives according to the `positions` assignment.
-        -- For that we need to infer the types of the motive parameter
-        let packedMotives ← positions.mapMwith Structural.packMotives motiveTypes motives
-        -- Now we can calcualte the expected types of the minor arguments
-        let minorTypes ← inferArgumentTypesN recInfo.numMinors <|
-          mkAppN f (brecOnArgs ++ packedMotives ++ brecOnTargets)
-        -- So that we can transform them
-        let (minors', mvars) ← StateT.run (s := {}) do
-          let mut minors' := #[]
-          for info in infos, brecOnMinor in brecOnMinors, goal in minorTypes do
-            let minor' ← forallTelescope goal fun xs goal => do
+      let positions : Structural.Positions := .groupAndSort (·.indIdx) recArgInfos (Array.range indInfo.numTypeFormers)
 
-              let arity := varyingParams.size + 1
-              if xs.size ≠ arity then
-                throwError "expected recursor argument to take {arity} parameters, got {xs}" else
-              let targets : Array Expr := xs[:motivePosInBody]
-              let genIH := xs[motivePosInBody]!
-              let extraParams := xs[motivePosInBody+1:]
-              -- open body with the same arg
-              let body ← instantiateLambda body targets
-              removeLamda body fun oldIH body => do
-                let body ← instantiateLambda body extraParams
-                let body' ← buildInductionBody is_wf fn #[genIH.fvarId!] #[] goal oldIH genIH.fvarId! #[] body
-                if body'.containsFVar oldIH then
-                  throwError m!"Did not fully eliminate {mkFVar oldIH} from induction principle body:{indentExpr body}"
-                mkLambdaFVars (targets.push genIH) (← mkLambdaFVars extraParams body')
-            minors' := minors'.push minor'
-          pure minors'
+      -- Below we'll need the types of the motive arguments
+      let motiveTypes ← inferArgumentTypesN recInfo.numMotives (group.brecOn true lvl 0)
+      trace[FunInd] m!"motiveTypes: {motiveTypes}"
+      assert! motiveTypes.size = positions.size
 
+      -- Remove the varying parameters from the environment
+      withErasedFVars (ys.map (·.fvarId!)) do
+        -- The brecOnArgs, brecOnMotives and brecOnMinor should still be valid in this
+        -- context, and are the parts relevant for every function in the mutual group
 
+        -- Calculate the types of the induction motives for each function
+        let motiveDecls ← infos.mapIdxM fun ⟨i,_⟩ info => do
+          let motiveType ← lambdaTelescope (← instantiateLambda info.value xs) fun ys _ =>
+            mkForallFVars ys (.sort levelZero)
+          let n ←
+            if infos.size = 1 then
+              mkFreshUserName (.mkSimple "motive")
+            else
+              mkFreshUserName (.mkSimple s!"motive_{i+1}")
+          pure (n, fun _ => pure motiveType)
+        withLocalDeclsD motiveDecls fun motives => do
+          -- Motives with parameters reordered, to put indices and major first
+          let motives' ← (Array.zip motives recArgInfos).mapM fun (motive, recArgInfo) => do
+            forallTelescope (← inferType motive) fun ys _ => do
+              let (indicesMajor, rest) := recArgInfo.pickIndicesMajor ys
+              mkLambdaFVars (indicesMajor ++ rest) (mkAppN motive ys)
 
+          -- We need to pack these motives according to the `positions` assignment.
+          let packedMotives ← positions.mapMwith Structural.packMotives motiveTypes motives'
+          trace[FunInd] m!"packedMotives: {packedMotives}"
+
+          -- Now we can calcualte the expected types of the minor arguments
+          let minorTypes ← inferArgumentTypesN recInfo.numMotives <|
+            mkAppN (group.brecOn true lvl 0) (packedMotives ++ brecOnTargets)
+          trace[FunInd] m!"minorTypes: {minorTypes}"
+          -- So that we can transform them
+          let (minors', mvars) ← StateT.run (s := {}) do
+            let mut minors' := #[]
+            for info in infos, brecOnMinor in brecOnMinors, goal in minorTypes, recArgInfo in recArgInfos do
+              let minor' ← forallTelescope goal fun xs goal => do
+                let numTargets := recArgInfo.indicesPos.size + 1
+                unless xs.size ≥ numTargets do
+                  throwError ".brecOn argument for {info.name} has too few parameters, expected at least {numTargets}: {xs}"
+                let targets : Array Expr := xs[:numTargets]
+                let genIH := xs[numTargets]!
+                let extraParams := xs[numTargets+1:]
+                -- open body with the same arg
+                let body ← instantiateLambda brecOnMinor targets
+                removeLamda body fun oldIH body => do
+                  trace[FunInd] "replacing {Expr.fvar oldIH} with {genIH}"
+                  let body ← instantiateLambda body extraParams
+                  -- TODO: Pass in all the functions
+                  let fn := mkAppN (.const names[0]! us) brecOnArgs
+                  let body' ← buildInductionBody false fn #[genIH.fvarId!] #[] goal oldIH genIH.fvarId! #[] body
+                  if body'.containsFVar oldIH then
+                    throwError m!"Did not fully eliminate {mkFVar oldIH} from induction principle body:{indentExpr body}"
+                  mkLambdaFVars (targets.push genIH) (← mkLambdaFVars extraParams body')
+              minors' := minors'.push minor'
+            pure minors'
+          trace[FunInd] "processed minors: {minors'}"
+
+          -- Now assemble the mutual_induct theorem
+          -- Plenty of code duplication here (packed Motive, minors', brecOn applications)!
+
+          let mut brecOnApps := #[]
+          for info in infos, recArgInfo in recArgInfos, idx in [:infos.size] do
+            let e ← lambdaTelescope (← instantiateLambda info.value xs) fun ys _ => do
+              let (indicesMajor, rest) := recArgInfo.pickIndicesMajor ys
+              -- Find where in the function packing we are (TODO: abstract out)
+              let some indIdx := positions.findIdx? (·.contains idx) | panic! "invalid positions"
+              let some pos := positions.find? (·.contains idx) | panic! "invalid positions"
+              let some packIdx := pos.findIdx? (· == idx) | panic! "invalid positions"
+              -- TODO: Always use binduction?
+              let e := group.brecOn true lvl indIdx
+              let e := mkAppN e packedMotives
+              let e := mkAppN e indicesMajor
+              let e := mkAppN e minors'
+              let e ← if pos.size = 1 then pure e else Structural.mkPProdProjN packIdx e
+              let e := mkAppN e rest
+              let e ← mkLambdaFVars ys e
+              trace[FunInd] "assembled call for {info.name}: {e}"
+              pure e
+            brecOnApps := brecOnApps.push e
+          let e' ← mkAndIntroN brecOnApps
+          let e' ← abstractIndependentMVars mvars (← motives.back.fvarId!.getDecl).index  e'
+          let e' ← mkLambdaFVars motives e'
+
+          -- We could pass (usedOnly := true) below, and get nicer induction principles that
+          -- do do not mention odd unused parameters.
+          -- But the downside is that automatic instantiation of the principle (e.g. in a tactic
+          -- that derives them from an function application in the goal) is harder, as
+          -- one would have to infer or keep track of which parameters to pass.
+          -- So for now lets just keep them around.
+          let e' ← mkLambdaFVars (binderInfoForMVars := .default) xs e'
+          let e' ← instantiateMVars e'
+          trace[FunInd] "complete body of mutual induction principle:{indentExpr e'}"
+          pure e'
+
+  unless (← isTypeCorrect e') do
+    logError m!"failed to derive mutual induction priciple:{indentExpr e'}"
+    check e'
+
+  let eTyp ← inferType e'
+  let eTyp ← elimOptParam eTyp
+  -- logInfo m!"eTyp: {eTyp}"
+  let params := (collectLevelParams {} eTyp).params
+  -- Prune unused level parameters, preserving the original order
+  let us := infos[0]!.levelParams.filter (params.contains ·)
+
+  let inductName := names[0]! ++ `mutual_induct
+  addDecl <| Declaration.thmDecl
+    { name := inductName, levelParams := us, type := eTyp, value := e' }
 
 
 /--
@@ -1111,7 +1184,7 @@ def deriveInduction (name : Name) : MetaM Unit := do
     unless eqnInfo.declNameNonRec = name do
       deriveUnpackedInduction eqnInfo unaryInductName
   else if let some eqnInfo := Structural.eqnInfoExt.find? (← getEnv) name then
-    deriveInductionStructural eqnInfo.declNames eqnInfo.positions
+    deriveInductionStructural eqnInfo.declNames eqnInfo.numFixed
   else
     _ ← deriveUnaryInduction name
 
@@ -1143,3 +1216,5 @@ builtin_initialize
     return false
 
 end Lean.Tactic.FunInd
+
+builtin_initialize Lean.registerTraceClass `FunInd

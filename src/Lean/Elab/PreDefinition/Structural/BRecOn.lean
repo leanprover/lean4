@@ -245,18 +245,7 @@ def mkBRecOnConst (recArgInfos : Array RecArgInfo) (positions : Positions)
       decLevel brecOnUniv
     else
       pure brecOnUniv
-  let brecOnCons := fun idx  =>
-    let brecOn :=
-      if let .some n := indGroup.all[idx]? then
-        if useBInductionOn then .const (mkBInductionOnName n) indGroup.levels
-        else                    .const (mkBRecOnName n) (brecOnUniv :: indGroup.levels)
-      else
-        let n := indGroup.all[0]!
-        let j := idx - indGroup.all.size + 1
-        if useBInductionOn then .const (mkBInductionOnName n |>.appendIndexAfter j) indGroup.levels
-        else                    .const (mkBRecOnName n |>.appendIndexAfter j) (brecOnUniv :: indGroup.levels)
-    mkAppN brecOn indGroup.params
-
+  let brecOnCons := fun idx => indGroup.brecOn useBInductionOn brecOnUniv idx
   -- Pick one as a prototype
   let brecOnAux := brecOnCons 0
   -- Infer the type of the packed motive arguments

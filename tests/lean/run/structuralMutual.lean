@@ -574,25 +574,21 @@ namespace FunIndTests
 -- out nicely
 
 /--
-error: Failed to realize constant A.size.induct:
-  functional induction: cannot handle mutual or nested inductives
----
-error: Failed to realize constant A.size.induct:
-  functional induction: cannot handle mutual or nested inductives
----
-error: unknown identifier 'A.size.induct'
+info: A.size.mutual_induct :
+  ∀ (motive_1 : A → Prop) (motive_2 : B → Prop),
+    (∀ (a : A), motive_1 a → motive_1 a.self) →
+      (∀ (b : B), motive_2 b → motive_1 (A.other b)) →
+        motive_1 A.empty →
+          (∀ (b : B), motive_2 b → motive_2 b.self) →
+            (∀ (a : A), motive_1 a → motive_2 (B.other a)) →
+              motive_2 B.empty → (∀ (x : A), motive_1 x) ∧ ∀ (x : B), motive_2 x
 -/
 #guard_msgs in
-#check A.size.induct
-
 #check A.size.mutual_induct
 
 /--
 error: Failed to realize constant A.subs.induct:
-  functional induction: cannot handle mutual or nested inductives
----
-error: Failed to realize constant A.subs.induct:
-  functional induction: cannot handle mutual or nested inductives
+  (kernel) constant has already been declared 'A.subs.mutual_induct'
 ---
 error: unknown identifier 'A.subs.induct'
 -/

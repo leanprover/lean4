@@ -23,8 +23,8 @@ unsafe def cache (key : Expr) (exclusive : Bool)  (result : Expr) : ReplaceM Exp
 @[specialize]
 unsafe def replaceUnsafeM (f? : Expr → Option Expr) (e : Expr) : ReplaceM Expr := do
   let rec @[specialize] visit (e : Expr) := do
-    -- TODO: we need better control over RC operations to ensure
-    -- the following (unsafe) optimization is currently applied
+    -- TODO: We need better control over RC operations to ensure
+    -- the following (unsafe) optimization is correctly applied.
     let excl := isExclusiveUnsafe e
     unless excl do
       if let some result := (← get).find? e then

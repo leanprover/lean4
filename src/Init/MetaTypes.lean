@@ -219,13 +219,13 @@ structure Config where
   -/
   index             : Bool := true
   /--
-  When `true` (default: `false`), `simp` will **not** create a proof for a rewriting rule associated
+  When `true` (default: `true`), `simp` will **not** create a proof for a rewriting rule associated
   with an `rfl`-theorem.
   Rewriting rules are provided by users by annotating theorems with the attribute `@[simp]`.
   If the proof of the theorem is just `rfl` (reflexivity), and `implicitDefEqProofs := true`, `simp`
   will **not** create a proof term which is an application of the annotated theorem.
   -/
-  implicitDefEqProofs : Bool := false
+  implicitDefEqProofs : Bool := true
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`

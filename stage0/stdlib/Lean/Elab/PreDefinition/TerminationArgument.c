@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.TerminationArgument
-// Imports: Lean.Parser.Term Lean.Elab.Term Lean.Elab.Binders Lean.Elab.SyntheticMVars Lean.Elab.PreDefinition.TerminationHint Lean.PrettyPrinter.Delaborator
+// Imports: Lean.Parser.Term Lean.Elab.Term Lean.Elab.Binders Lean.Elab.SyntheticMVars Lean.Elab.PreDefinition.TerminationHint Lean.PrettyPrinter.Delaborator.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -124,7 +124,6 @@ static lean_object* l_Lean_Elab_TerminationArgument_elab_parameters___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Elab_TerminationArgument_delab___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_TerminationArgument_delab_go___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at_Lean_Elab_TerminationArgument_delab_go___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_PrettyPrinter_Delaborator_hasIdent(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_TerminationArgument_elab___closed__13;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -136,6 +135,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_TerminationArgument_delab_go___lambda__2(le
 LEAN_EXPORT lean_object* l_Lean_Elab_TerminationArgument_delab_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Elab_Term_addAutoBoundImplicits_x27___spec__2___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Syntax_hasIdent(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 static lean_object* l_panic___at_Lean_Elab_TerminationArgument_elab___spec__1___closed__1;
 lean_object* l_Array_indexOfAux___at___private_Lean_Meta_FunInfo_0__Lean_Meta_collectDeps_visit___spec__1(lean_object*, lean_object*, lean_object*);
@@ -1524,7 +1524,7 @@ x_8 = lean_array_uget(x_6, x_5);
 x_9 = lean_unsigned_to_nat(0u);
 x_10 = lean_array_uset(x_6, x_5, x_9);
 x_11 = l_Lean_Syntax_getId(x_8);
-x_12 = l_Lean_PrettyPrinter_Delaborator_hasIdent(x_11, x_1);
+x_12 = l_Lean_Syntax_hasIdent(x_11, x_1);
 lean_dec(x_11);
 x_13 = 1;
 x_14 = lean_usize_add(x_5, x_13);
@@ -2418,7 +2418,7 @@ lean_object* initialize_Lean_Elab_Term(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Binders(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_SyntheticMVars(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_TerminationHint(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_PrettyPrinter_Delaborator(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_PrettyPrinter_Delaborator_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_PreDefinition_TerminationArgument(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -2439,7 +2439,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_PreDefinition_TerminationHint(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_PrettyPrinter_Delaborator(builtin, lean_io_mk_world());
+res = initialize_Lean_PrettyPrinter_Delaborator_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_instInhabitedTerminationArgument___closed__1 = _init_l_Lean_Elab_instInhabitedTerminationArgument___closed__1();

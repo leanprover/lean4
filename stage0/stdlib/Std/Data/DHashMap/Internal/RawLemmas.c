@@ -794,7 +794,7 @@ static lean_object* _init_l_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DH
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Raw₀.wfImp_remove", 19, 17);
+x_1 = lean_mk_string_unchecked("Raw₀.wfImp_erase", 18, 16);
 return x_1;
 }
 }
@@ -811,7 +811,7 @@ static lean_object* _init_l_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DH
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("wfImp_remove", 12, 12);
+x_1 = lean_mk_string_unchecked("wfImp_erase", 11, 11);
 return x_1;
 }
 }
@@ -2251,7 +2251,7 @@ static lean_object* _init_l___private_Std_Data_DHashMap_Internal_RawLemmas_0__St
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("toListModel_remove", 18, 18);
+x_1 = lean_mk_string_unchecked("toListModel_erase", 17, 17);
 return x_1;
 }
 }

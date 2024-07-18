@@ -202,7 +202,6 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_evalCase
 static lean_object* l_Lean_Elab_Tactic_evalLeft___rarg___lambda__1___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSubst__1___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSeq1_declRange__1___closed__1;
-lean_object* l_Lean_MVarId_assign___at_Lean_Elab_Tactic_closeMainGoal___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalTacticSeq_declRange__1___closed__4;
 static lean_object* l_Lean_Elab_Tactic_evalCase___closed__3;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalContradiction_declRange__1___closed__3;
@@ -237,6 +236,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalFirst_declRange__1___clo
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_renameInaccessibles___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Meta_withRestoreOrSaveFull___at_Lean_Elab_Tactic_evalSepTactics_goEven___spec__11___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MVarId_assign___at_Lean_Elab_Tactic_refineCore___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalAssumption_declRange__1___closed__7;
 lean_object* l_List_rotateRight___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_evalOpen___spec__27___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -39020,7 +39020,7 @@ lean_object* x_32; lean_object* x_33; uint8_t x_34;
 x_32 = lean_ctor_get(x_31, 1);
 lean_inc(x_32);
 lean_dec(x_31);
-x_33 = l_Lean_MVarId_assign___at_Lean_Elab_Tactic_closeMainGoal___spec__1(x_4, x_21, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_32);
+x_33 = l_Lean_MVarId_assign___at_Lean_Elab_Tactic_refineCore___spec__1(x_4, x_21, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_32);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);

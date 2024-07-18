@@ -951,7 +951,7 @@ static lean_object* _init_l___private_Std_Data_DHashMap_RawLemmas_0__Std_DHashMa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("remove_eq", 9, 9);
+x_1 = lean_mk_string_unchecked("erase_eq", 8, 8);
 return x_1;
 }
 }
@@ -972,7 +972,7 @@ static lean_object* _init_l___private_Std_Data_DHashMap_RawLemmas_0__Std_DHashMa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("remove_val", 10, 10);
+x_1 = lean_mk_string_unchecked("erase_val", 9, 9);
 return x_1;
 }
 }

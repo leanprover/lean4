@@ -1116,7 +1116,7 @@ static uint8_t _init_l_Lean_Meta_Simp_Config_implicitDefEqProofs___default() {
 _start:
 {
 uint8_t x_1; 
-x_1 = 0;
+x_1 = 1;
 return x_1;
 }
 }
@@ -1936,7 +1936,7 @@ lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 14, x_3);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 15, x_3);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 16, x_3);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 17, x_4);
-lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 18, x_3);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 18, x_4);
 return x_6;
 }
 }

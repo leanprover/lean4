@@ -14,7 +14,6 @@ namespace ReplaceImpl
 
 unsafe abbrev ReplaceM := StateM (PtrMap Expr Expr)
 
-@[inline]
 unsafe def cache (key : Expr) (exclusive : Bool)  (result : Expr) : ReplaceM Expr := do
   unless exclusive do
     modify (·.insert key result)
@@ -23,8 +22,23 @@ unsafe def cache (key : Expr) (exclusive : Bool)  (result : Expr) : ReplaceM Exp
 @[specialize]
 unsafe def replaceUnsafeM (f? : Expr → Option Expr) (e : Expr) : ReplaceM Expr := do
   let rec @[specialize] visit (e : Expr) := do
-    -- TODO: We need better control over RC operations to ensure
-    -- the following (unsafe) optimization is correctly applied.
+    /-
+    TODO: We need better control over RC operations to ensure
+    the following (unsafe) optimization is correctly applied.
+    Optimization goal: only cache results for shared objects.
+
+    The main problem is that the current code generator ignores borrow annotations
+    for code written in Lean. These annotations are only taken into account for extern functions.
+
+    Moveover, the borrow inference heuristic currently tags `e` as "owned" since it may be stored
+    in the cache and is used in "update" functions.
+    Thus, when visiting `e` sub-expressions the code generator increases their RC
+    because we are recursively invoking `visit` :(
+
+    Thus, to fix this issue, we must
+    1- Take borrow annotations into account for code written in Lean.
+    2- Mark `e` is borrowed (i.e., `(e : @& Expr)`)
+    -/
     let excl := isExclusiveUnsafe e
     unless excl do
       if let some result := (← get).find? e then

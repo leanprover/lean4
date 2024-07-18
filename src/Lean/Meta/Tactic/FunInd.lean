@@ -276,8 +276,9 @@ partial def foldCalls (is_wf : Bool) (fn : Expr) (oldIH newIH : FVarId) (e : Exp
     if let some (e', args) ← isPProdProjWithArgs oldIH newIH e then
       let t ← whnf (← inferType e')
       let e' ← forallTelescopeReducing t fun xs t' => do
+        let t' := t'.headBeta
         unless t'.getAppFn.eta.isFVar do -- we expect an application of the `motive` FVar here
-          throwError m!"Unexpected type {t} of {e'}: Reduced to application of {t'.getAppFn}"
+          throwError m!"Unexpected type{indentExpr t}\nof {e'}: Reduced to application of {t'.getAppFn}"
         mkLambdaFVars xs (fn.beta t'.getAppArgs)
       let args' ← args.mapM (foldCalls is_wf fn oldIH newIH)
       let e' := e'.beta args'
@@ -377,8 +378,9 @@ partial def collectIHs (is_wf : Bool) (fn : Expr) (oldIH newIH : FVarId) (e : Ex
       let ihs ← args.concatMapM (collectIHs is_wf fn oldIH newIH)
       let t ← whnf (← inferType e')
       let arity ← forallTelescopeReducing t fun xs t' => do
+        let t' := t'.headBeta
         unless t'.getAppFn.eta.isFVar do -- we expect an application of the `motive` FVar here
-          throwError m!"Unexpected type {t} of {e'}: Reduced to application of {t'.getAppFn}"
+          throwError m!"Unexpected type{indentExpr t}\nof {e'}: Reduced to application of {t'.getAppFn}"
         pure xs.size
       let e' := mkAppN e' args'[:arity]
       let eTyp ← inferType e'

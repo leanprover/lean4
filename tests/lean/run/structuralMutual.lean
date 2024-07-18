@@ -215,6 +215,8 @@ namespace EvenOdd
 
 -- Mutual structural recursion over a non-mutual inductive type
 
+-- (The functions don't actually implement even/odd, but that isn't the point here.)
+
 mutual
   def Even : Nat → Prop
     | 0 => True
@@ -518,13 +520,13 @@ Too many possible combinations of parameters of type Nattish (or please indicate
 Could not find a decreasing measure.
 The arguments relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
-Call from ManyCombinations.f to ManyCombinations.g at 550:15-29:
+Call from ManyCombinations.f to ManyCombinations.g at 552:15-29:
    #1 #2 #3 #4
 #5  ?  ?  ?  ?
 #6  ?  =  ?  ?
 #7  ?  ?  =  ?
 #8  ?  ?  ?  =
-Call from ManyCombinations.g to ManyCombinations.f at 553:15-29:
+Call from ManyCombinations.g to ManyCombinations.f at 555:15-29:
    #5 #6 #7 #8
 #1  _  _  _  _
 #2  _  =  _  _
@@ -608,17 +610,9 @@ info: A.hasNoBEmpty.induct (motive_1 : A → Prop) (motive_2 : B → Prop) (case
 #check A.hasNoBEmpty.induct
 
 /--
-info: EvenOdd.isEven.induct (motive_1 motive_2 : Nat → Prop)
-  (case1 :
-    ∀ (t : Nat),
-      (match t with
-        | 0 => True
-        | n.succ => motive_2 n) →
-        (match t with
-          | 0 => True
-          | n.succ => motive_1 n) →
-          motive_1 t ∧ motive_2 t ∧ True) :
-  ∀ (a : Nat), motive_1 a
+info: EvenOdd.isEven.induct (motive_1 motive_2 : Nat → Prop) (case1 : motive_1 0)
+  (case2 : ∀ (n : Nat), motive_2 n → motive_1 n.succ) (case3 : motive_2 0)
+  (case4 : ∀ (n : Nat), motive_1 n → motive_2 n.succ) (case5 : True) : ∀ (a : Nat), motive_1 a
 -/
 #guard_msgs in
 #check EvenOdd.isEven.induct

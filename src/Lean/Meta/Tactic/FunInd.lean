@@ -603,6 +603,17 @@ partial def buildInductionBody (is_wf : Bool) (fn : Expr) (toClear toPreserve : 
       mkLambdaFVars #[h] f'
     let u ← getLevel goal
     return mkApp5 (mkConst ``dite [u]) goal c' h' t' f'
+
+  -- we look in to `PProd.mk`, as it occurs in the mutual structural recursion construction
+  | PProd.mk _α _β e₁ e₂ =>
+    match_expr goal with
+    | And goal₁ goal₂ =>
+      let e₁' ← buildInductionBody is_wf fn toClear toPreserve goal₁ oldIH newIH IHs e₁
+      let e₂' ← buildInductionBody is_wf fn toClear toPreserve goal₂ oldIH newIH IHs e₂
+      return mkApp4 (.const ``And.intro []) goal₁ goal₂ e₁' e₂'
+    | _ =>
+      throwError "Unexpecte type of goal, expected `∧`:{indentExpr goal}"
+
   | _ =>
 
   -- match and casesOn application cause case splitting

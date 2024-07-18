@@ -189,6 +189,42 @@ differences:
 
 set_option autoImplicit false
 
+namespace Lean
+
+def ArrayWriterT α m := StateT (Array α) m
+
+namespace ArrayWriterT
+
+variable {α β : Type}
+variable {m : Type → Type} [Monad m]
+
+instance [Monad m] : Monad (ArrayWriterT α m) := inferInstanceAs (Monad (StateT _ _))
+instance [Monad m] : MonadControlT m (ArrayWriterT α m) := inferInstanceAs (MonadControlT _ (StateT _ _))
+instance [Monad m] : MonadLift m (ArrayWriterT α m) := inferInstanceAs (MonadLift _ (StateT _ _))
+instance {e} [MonadExceptOf e m] : MonadExceptOf e (ArrayWriterT α m) := inferInstanceAs (MonadExceptOf e (StateT _ _))
+instance [MonadRef m] : MonadRef (ArrayWriterT α m) := inferInstanceAs (MonadRef (StateT _ _))
+instance [AddMessageContext m] : AddMessageContext (ArrayWriterT α m) := inferInstanceAs (AddMessageContext (StateT _ _))
+
+def run (act : ArrayWriterT α m β) : m (β × Array α) := StateT.run act #[]
+
+def tell (x : α) : ArrayWriterT α m Unit := fun xs => pure ((), xs.push x)
+
+def localM (f : Array α → m (Array α)) (act : ArrayWriterT α m β) : ArrayWriterT α m β := fun xs => do
+  let (b, xs') ← act #[]
+  pure (b, xs ++ (← f xs'))
+
+def «local» (f : Array α → Array α) (act : ArrayWriterT α m β) : ArrayWriterT α m β :=
+  localM (fun xs => pure (f xs)) act
+
+def localMapM (f : α → m α) (act : ArrayWriterT α m β) : ArrayWriterT α m β :=
+  localM (·.mapM f) act
+
+def localMap (f : α →  α) (act : ArrayWriterT α m β) : ArrayWriterT α m β :=
+  «local» (·.map f) act
+
+end ArrayWriterT
+end Lean
+
 namespace Lean.Tactic.FunInd
 
 open Lean Elab Meta
@@ -252,6 +288,78 @@ def isPProdProjWithArgs (oldIH newIH : FVarId) (e : Expr) : MetaM (Option (Expr 
     if let some e' ← isPProdProj oldIH newIH (e.stripArgsN (arity - 3)) then
       return some (e', args)
   return none
+
+partial def foldAndCollect (oldIH newIH : FVarId) (motive : FVarId) (fn : Expr) (e : Expr) : ArrayWriterT Expr MetaM Expr := do
+  unless e.containsFVar oldIH do
+    return e
+
+  if let some (n, t, v, b) := e.letFun? then
+    let t' ← foldAndCollect oldIH newIH motive fn t
+    let v' ← foldAndCollect oldIH newIH motive fn v
+    return ← withLocalDeclD n t' fun x => do
+      let b' ← foldAndCollect oldIH newIH motive fn (b.instantiate1 x)
+      mkLetFun x v' b'
+
+  -- TODO: Matcher app
+
+  if e.getAppArgs.any (·.isFVarOf oldIH) then
+    -- Sometimes Fix.lean abstracts over oldIH in a proof definition.
+    -- So beta-reduce that definition.
+
+    -- Need to look through theorems here!
+    let e' ← withTransparency .all do whnf e
+    if e == e' then
+      throwError "foldAndCollect: cannot reduce application of {e.getAppFn} in {indentExpr e} "
+    return ← foldAndCollect oldIH newIH motive fn e'
+
+  match e with
+  | .app e1 e2 =>
+    let e' : Expr := .app (← foldAndCollect oldIH newIH motive fn e1) (← foldAndCollect oldIH newIH motive fn e2)
+
+    -- A recursive call necessarily is an application, so this is the point where
+    -- we check if we happen to have a value of type `motive xs` with the right number of arguments
+    -- at hand, and if so, remember it is an IH and rewrite to a function application.
+
+    if e'.getAppFn.isFVarOf motive then
+      let args :=  e.getAppArgs
+      -- TODO: Cache the arity
+      let arity ← forallTelescope (← inferType (mkFVar motive)) fun xs _ => pure xs.size
+      if args.size = arity then
+        ArrayWriterT.tell e'
+        return mkAppN fn args
+
+    return e'
+
+  | .lam n t body bi =>
+    let t' ← foldAndCollect oldIH newIH motive fn t
+    return ← withLocalDecl n bi t' fun x => do
+      let body' ← foldAndCollect oldIH newIH motive fn (body.instantiate1 x)
+      mkLambdaFVars #[x] body'
+
+  | .forallE n t body bi =>
+    let t' ← foldAndCollect oldIH newIH motive fn t
+    return ← withLocalDecl n bi t' fun x => do
+      let body' ← foldAndCollect oldIH newIH motive fn (body.instantiate1 x)
+      mkForallFVars #[x] body'
+
+  | .letE n t v b _ =>
+    let t' ← foldAndCollect oldIH newIH motive fn t
+    let v' ← foldAndCollect oldIH newIH motive fn v
+    return ← withLetDecl n t' v' fun x => do
+      let b' ← foldAndCollect oldIH newIH motive fn (b.instantiate1 x)
+      mkLetFVars  #[x] b'
+
+  | .mdata m b =>
+    return .mdata m (← foldAndCollect oldIH newIH motive fn b)
+
+  | .proj t i e =>
+    return .proj t i (← foldAndCollect oldIH newIH motive fn e)
+
+  | .sort .. | .lit .. | .const .. | .mvar .. | .bvar .. =>
+    unreachable! -- cannot contain free variables, so early exit above kicks in
+
+  | .fvar .. =>
+    throwError m!"collectIHs: cannot eliminate unsaturated call to induction hypothesis"
 
 /--
 Replace calls to oldIH back to calls to the original function. At the end, if `oldIH` occurs, an

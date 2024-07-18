@@ -243,17 +243,17 @@ def removeLamda {n} [MonadLiftT MetaM n] [MonadError n] [MonadNameGenerator n] [
 def mkFst (e : Expr) : MetaM Expr := do
   let t ← whnf (← inferType e)
   match_expr t with
-  | PProd _ _ => mkAppM ``PProd.fst #[e]
-  | And _ _ => mkAppM ``And.left #[e]
-  | _ => throwError "Cannot project out of{indentExpr e}\nof Type{indentExpr t}"
+  | PProd t₁ t₂ => return mkApp3 (.const ``PProd.fst t.getAppFn.constLevels!) t₁ t₂ e
+  | And t₁ t₂ => return mkApp3 (.const ``And.left []) t₁ t₂ e
+  | _ => throwError "Cannot project out of{indentExpr e}\nof type{indentExpr t}"
 
 /-- `PProd.snd` or `And.right` -/
 def mkSnd (e : Expr) : MetaM Expr := do
   let t ← whnf (← inferType e)
   match_expr t with
-  | PProd _ _ => mkAppM ``PProd.snd #[e]
-  | And _ _ => mkAppM ``And.right #[e]
-  | _ => throwError "Cannot project out of{indentExpr e}\nof Type{indentExpr t}"
+  | PProd t₁ t₂ => return mkApp3 (.const ``PProd.snd t.getAppFn.constLevels!) t₁ t₂ e
+  | And t₁ t₂ => return mkApp3 (.const ``And.right []) t₁ t₂ e
+  | _ => throwError "Cannot project out of{indentExpr e}\nof type{indentExpr t}"
 
 /--
 Structural recursion only:
@@ -316,12 +316,13 @@ partial def collectIHs (oldIH newIH : FVarId) (motive : FVarId) (fn : Expr) (e :
 partial def foldAndCollect (oldIH newIH : FVarId) (motive : FVarId) (fn : Expr) (e : Expr) : ArrayWriterT Expr MetaM Expr := do
   unless e.containsFVar oldIH do
     return e
+  trace[FunInd] "foldAndCollect ({mkFVar oldIH} → {mkFVar newIH}):{indentExpr e}"
 
   let e' ← id do
     if let some (n, t, v, b) := e.letFun? then
       let t' ← foldAndCollect oldIH newIH motive fn t
       let v' ← foldAndCollect oldIH newIH motive fn v
-      return ← withLocalDeclD n t' fun x => do
+      return ← withLetDecl n t' v' fun x => do
         ArrayWriterT.localMapM (mkLetFVars (usedLetOnly := true) #[x] ·) do
           let b' ← foldAndCollect oldIH newIH motive fn (b.instantiate1 x)
           mkLetFun x v' b'
@@ -371,6 +372,12 @@ partial def foldAndCollect (oldIH newIH : FVarId) (motive : FVarId) (fn : Expr) 
           (onRemaining := fun _ => pure #[])
         return matcherApp'.toExpr
 
+    -- These projections can be type changing, so re-infer their type arguments
+    match_expr e with
+    | PProd.fst _ _ e => mkFst (← foldAndCollect oldIH newIH motive fn e)
+    | PProd.snd _ _ e => mkSnd (← foldAndCollect oldIH newIH motive fn e)
+    | _ =>
+
     if e.getAppArgs.any (·.isFVarOf oldIH) then
       -- Sometimes Fix.lean abstracts over oldIH in a proof definition.
       -- So beta-reduce that definition. We need to look through theorems here!
@@ -378,12 +385,6 @@ partial def foldAndCollect (oldIH newIH : FVarId) (motive : FVarId) (fn : Expr) 
       if e == e' then
         throwError "foldAndCollect: cannot reduce application of {e.getAppFn} in:{indentExpr e} "
       return ← foldAndCollect oldIH newIH motive fn e'
-
-    -- These projections can be type changing, so re-infer their type arguments
-    match_expr e with
-    | PProd.fst _ _ e => mkFst (← foldAndCollect oldIH newIH motive fn e)
-    | PProd.snd _ _ e => mkSnd (← foldAndCollect oldIH newIH motive fn e)
-    | _ =>
 
     match e with
     | .app e1 e2 =>
@@ -428,13 +429,16 @@ partial def foldAndCollect (oldIH newIH : FVarId) (motive : FVarId) (fn : Expr) 
     -- If it is we want to replace it with the corresponding function application,
     -- and remember the expression as a IH to be used in an inductive case.
 
+  if e'.containsFVar oldIH then
+    throwError "Failed to eliminate {mkFVar oldIH} from:{indentExpr e'}"
+
   let eType ← whnf (← inferType e')
   if eType.getAppFn.isFVarOf motive then
     let args := eType.getAppArgs
     -- TODO: Cache the arity
     let arity ← forallTelescope (← inferType (mkFVar motive)) fun xs _ => pure xs.size
     if args.size = arity then
-      ArrayWriterT.tell e'
+      ArrayWriterT.tell (← mkExpectedTypeHint e' eType)
       return mkAppN fn args
 
   return e'
@@ -996,3 +1000,6 @@ builtin_initialize
     return false
 
 end Lean.Tactic.FunInd
+
+ builtin_initialize
+   Lean.registerTraceClass `FunInd

@@ -333,7 +333,7 @@ def tryContradiction (mvarId : MVarId) : MetaM Bool := do
 partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
   let some eqs ← getEqnsFor? declName | throwError "failed to generate equations for '{declName}'"
   let tryEqns (mvarId : MVarId) : MetaM Bool :=
-    eqs.anyM fun eq => commitWhen do
+    eqs.anyM fun eq => commitWhen do checkpointDefEq (mayPostpone := false) do
       try
         let subgoals ← mvarId.apply (← mkConstWithFreshMVarLevels eq)
         subgoals.allM fun subgoal => do

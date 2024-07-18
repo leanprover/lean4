@@ -289,6 +289,30 @@ def isPProdProjWithArgs (oldIH newIH : FVarId) (e : Expr) : MetaM (Option (Expr 
       return some (e', args)
   return none
 
+
+mutual
+/--
+Replace calls to oldIH back to calls to the original function. At the end, if `oldIH` occurs, an
+error is thrown.
+
+The `newIH` will not show up in the output of `foldCalls`, we use it as a helper to infer the
+argument of nested recursive calls when we have structural recursion.
+-/
+partial def foldCalls (oldIH newIH : FVarId) (motive : FVarId) (fn : Expr) (e : Expr) : MetaM Expr := do
+  let (e, _IHs) ← (foldAndCollect oldIH newIH motive fn e).run
+  pure e
+
+/-
+In non-tail-positions, we collect the induction hypotheses from all the recursive calls.
+-/
+-- We could run `collectIHs` and `foldCalls` together, and save a few traversals. Not sure if it
+-- worth the extra code complexity.
+-- Also, this way of collecting arrays is not as efficient as a left-fold, but we do not expect
+-- large arrays here.
+partial def collectIHs (oldIH newIH : FVarId) (motive : FVarId) (fn : Expr) (e : Expr) : MetaM (Array Expr) := do
+  let (_e, IHs) ← (foldAndCollect oldIH newIH motive fn e).run
+  pure IHs
+
 partial def foldAndCollect (oldIH newIH : FVarId) (motive : FVarId) (fn : Expr) (e : Expr) : ArrayWriterT Expr MetaM Expr := do
   unless e.containsFVar oldIH do
     return e
@@ -302,7 +326,50 @@ partial def foldAndCollect (oldIH newIH : FVarId) (motive : FVarId) (fn : Expr) 
           let b' ← foldAndCollect oldIH newIH motive fn (b.instantiate1 x)
           mkLetFun x v' b'
 
-    -- TODO: Matcher app
+    if let some matcherApp ← matchMatcherApp? e (alsoCasesOn := true) then
+      if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
+        -- We do very different things to the matcher when folding and when collecting
+        -- inductive hypotheses, so we cannot do this in one go.
+
+        -- To collect the IHs, we collect them in each branch, and combine
+        -- them to a type-leve match
+        let ihMatcherApp' ← liftM <| matcherApp.transform
+          (onParams := foldCalls oldIH newIH motive fn)
+          (onMotive := fun xs _body => do
+            -- Remove the old IH that was added in mkFix
+            let eType ← newIH.getType
+            let eTypeAbst ← matcherApp.discrs.size.foldRevM (init := eType) fun i eTypeAbst => do
+              let motiveArg := xs[i]!
+              let discr     := matcherApp.discrs[i]!
+              let eTypeAbst ← kabstract eTypeAbst discr
+              return eTypeAbst.instantiate1 motiveArg
+
+            -- Will later be overriden with a type that’s itself a match
+            -- statement and the infered alt types
+            let dummyGoal := mkConst ``True []
+            mkArrow eTypeAbst dummyGoal)
+          (onAlt := fun altType alt => do
+            removeLamda alt fun oldIH' alt => do
+              forallBoundedTelescope altType (some 1) fun newIH' _goal' => do
+                let #[newIH'] := newIH' | unreachable!
+                let altIHs ← collectIHs oldIH' newIH'.fvarId! motive fn alt
+                let altIH ← mkAndIntroN altIHs
+                mkLambdaFVars #[newIH'] altIH)
+          (onRemaining := fun _ => pure #[mkFVar newIH])
+        let ihMatcherApp'' ← ihMatcherApp'.inferMatchType
+        ArrayWriterT.tell ihMatcherApp''.toExpr
+
+        -- Folding the calls is straight forward
+        let matcherApp' ← liftM <| matcherApp.transform
+          (onParams := foldCalls oldIH newIH motive fn)
+          (onMotive := fun _motiveArgs motiveBody => do
+            let some (_extra, body) := motiveBody.arrow? | throwError "motive not an arrow"
+            foldCalls oldIH newIH motive fn body)
+          (onAlt := fun _altType alt => do
+            removeLamda alt fun oldIH alt => do
+              foldCalls oldIH newIH motive fn alt)
+          (onRemaining := fun _ => pure #[])
+        return matcherApp'.toExpr
 
     if e.getAppArgs.any (·.isFVarOf oldIH) then
       -- Sometimes Fix.lean abstracts over oldIH in a proof definition.
@@ -371,29 +438,8 @@ partial def foldAndCollect (oldIH newIH : FVarId) (motive : FVarId) (fn : Expr) 
       return mkAppN fn args
 
   return e'
+end
 
-/--
-Replace calls to oldIH back to calls to the original function. At the end, if `oldIH` occurs, an
-error is thrown.
-
-The `newIH` will not show up in the output of `foldCalls`, we use it as a helper to infer the
-argument of nested recursive calls when we have structural recursion.
--/
-def foldCalls (oldIH newIH : FVarId) (motive : FVarId) (fn : Expr) (e : Expr) : MetaM Expr := do
-  let (e, _IHs) ← (foldAndCollect oldIH newIH motive fn e).run
-  pure e
-
-
-/-
-In non-tail-positions, we collect the induction hypotheses from all the recursive calls.
--/
--- We could run `collectIHs` and `foldCalls` together, and save a few traversals. Not sure if it
--- worth the extra code complexity.
--- Also, this way of collecting arrays is not as efficient as a left-fold, but we do not expect
--- large arrays here.
-def collectIHs (oldIH newIH : FVarId) (motive : FVarId) (fn : Expr) (e : Expr) : MetaM (Array Expr) := do
-  let (_e, IHs) ← (foldAndCollect oldIH newIH motive fn e).run
-  pure IHs
 
 -- Because of term duplications we might encounter the same IH multiple times.
 -- We deduplicate them (by type, not proof term) here.

@@ -636,7 +636,7 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
        (action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {})
        fun ex =>
          if ex.isRuntime then
-           throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}\n{useDiagnosticMsg}"
+           throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}{useDiagnosticMsg}"
          else
            throw ex
 
@@ -810,7 +810,7 @@ def trySynthInstance (type : Expr) (maxResultSize? : Option Nat := none) : MetaM
     (fun _ => pure LOption.undef)
 
 def throwFailedToSynthesize (type : Expr) : MetaM Expr :=
-  throwError "failed to synthesize{indentExpr type}\n{useDiagnosticMsg}"
+  throwError "failed to synthesize{indentExpr type}{useDiagnosticMsg}"
 
 def synthInstance (type : Expr) (maxResultSize? : Option Nat := none) : MetaM Expr :=
   catchInternalId isDefEqStuckExceptionId

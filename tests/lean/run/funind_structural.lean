@@ -1,6 +1,3 @@
-import Lean.Elab.Command
-import Lean.Elab.PreDefinition.Structural.Eqns
-
 /-!
 This module tests functional induction principles on *structurally* recursive functions.
 -/

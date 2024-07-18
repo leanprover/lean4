@@ -37,6 +37,8 @@ def moduleFromDocumentUri (srcSearchPath : SearchPath) (uri : DocumentUri)
 open Elab in
 def locationLinksFromDecl (srcSearchPath : SearchPath) (uri : DocumentUri) (n : Name)
     (originRange? : Option Range) : MetaM (Array LocationLink) := do
+  -- Potentially this name is a builtin that has not been imported yet:
+  unless (← getEnv).contains n do return #[]
   let mod? ← findModuleOf? n
   let modUri? ← match mod? with
     | some modName => documentUriFromModule srcSearchPath modName

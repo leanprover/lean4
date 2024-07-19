@@ -917,14 +917,14 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
   mkExpectedTypeHint value t
 
 /--
-Takes an induction principle where the motive is a `PSigma`/`PSum` type and
+Takes `foo._unary.induct`, where the motive is a `PSigma`/`PSum` type and
 unpacks it into a n-ary and (possibly) joint induction principle.
 -/
 def unpackMutualInduction (eqnInfo : WF.EqnInfo) (unaryInductName : Name) : MetaM Name := do
   let inductName := if eqnInfo.declNames.size > 1 then
     .append eqnInfo.declNames[0]! `mutual_induct
   else
-    -- If there is no mutual recursion, generate the `foo.induct` directly.
+    -- If there is no mutual recursion, we generate the `foo.induct` directly.
     .append eqnInfo.declNames[0]! `induct
   if ← hasConst inductName then return inductName
 

@@ -728,12 +728,26 @@ def insertReplacementForLetRecs (r : Replacement) (letRecClosures : List LetRecC
   letRecClosures.foldl (init := r) fun r c =>
     r.insert c.toLift.fvarId c.closed
 
+def isApplicable (r : Replacement) (e : Expr) : Bool :=
+  Option.isSome <| e.findExt? fun e =>
+    if e.hasFVar then
+      match e with
+      | .fvar fvarId => if r.contains fvarId then .found else .done
+      | _ => .visit
+    else
+      .done
+
 def Replacement.apply (r : Replacement) (e : Expr) : Expr :=
-  e.replace fun e => match e with
-    | .fvar fvarId => match r.find? fvarId with
-      | some c => some c
-      | _      => none
-    | _ => none
+  -- Remark: if `r` is not a singlenton, then declaration is using `mutual` or `let rec`,
+  -- and there is a big chance `isApplicable r e` is true.
+  if r.isSingleton && !isApplicable r e then
+    e
+  else
+    e.replace fun e => match e with
+      | .fvar fvarId => match r.find? fvarId with
+        | some c => some c
+        | _      => none
+      | _ => none
 
 def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mainVals : Array Expr)
     : TermElabM (Array PreDefinition) :=

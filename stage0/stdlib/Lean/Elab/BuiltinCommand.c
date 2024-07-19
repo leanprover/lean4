@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.BuiltinCommand
-// Imports: Lean.Util.CollectLevelParams Lean.Meta.Reduce Lean.Elab.DeclarationRange Lean.Elab.Eval Lean.Elab.Command Lean.Elab.Open Lean.Elab.SetOption Lean.PrettyPrinter
+// Imports: Lean.Util.CollectLevelParams Lean.Meta.Reduce Lean.Elab.DeclarationRange Lean.Elab.Eval Lean.Elab.Command Lean.Elab.Open Lean.Elab.SetOption
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -35319,7 +35319,6 @@ lean_object* initialize_Lean_Elab_Eval(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Command(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Open(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_SetOption(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_PrettyPrinter(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_BuiltinCommand(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -35344,9 +35343,6 @@ res = initialize_Lean_Elab_Open(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_SetOption(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_PrettyPrinter(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_Command_elabModuleDoc___closed__1 = _init_l_Lean_Elab_Command_elabModuleDoc___closed__1();

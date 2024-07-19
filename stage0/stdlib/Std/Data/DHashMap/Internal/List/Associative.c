@@ -17,6 +17,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_getValueD___rarg(lean_obje
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_List_Associative_0__List_filterMap_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_getValueD(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_getValueCastD___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_eraseKey___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_insertEntryIfNew___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_DHashMap_Internal_List_getValueCast_x21___rarg___closed__4;
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_List_Associative_0__List_filterMap_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
@@ -36,7 +37,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_getValueCast_x21(lean_obje
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_insertEntry___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_getEntry_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_replaceEntry(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_removeKey(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_List_Associative_0__Std_DHashMap_Internal_List_Option_dmap___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_containsKey___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -52,12 +52,12 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_getValueD___rarg___boxed(l
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_getValue_x21___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_getValueCastD___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_insertEntry(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_removeKey___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_getEntry___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_getValue___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_getValueCast_x21___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_List_Associative_0__List_filterMap_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_containsKey(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_eraseKey(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_getValue_x21(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_getEntry_x3f___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_List_Associative_0__Std_DHashMap_Internal_List_getValue_x3f_match__1_splitter(lean_object*, lean_object*, lean_object*);
@@ -89,9 +89,9 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11;
 x_8 = lean_ctor_get(x_5, 0);
 x_9 = lean_ctor_get(x_5, 1);
 lean_inc(x_1);
-lean_inc(x_8);
 lean_inc(x_2);
-x_10 = lean_apply_2(x_1, x_2, x_8);
+lean_inc(x_8);
+x_10 = lean_apply_2(x_1, x_8, x_2);
 x_11 = lean_unbox(x_10);
 lean_dec(x_10);
 if (x_11 == 0)
@@ -122,9 +122,9 @@ lean_inc(x_15);
 lean_inc(x_14);
 lean_dec(x_5);
 lean_inc(x_1);
-lean_inc(x_14);
 lean_inc(x_2);
-x_16 = lean_apply_2(x_1, x_2, x_14);
+lean_inc(x_14);
+x_16 = lean_apply_2(x_1, x_14, x_2);
 x_17 = lean_unbox(x_16);
 lean_dec(x_16);
 if (x_17 == 0)
@@ -229,7 +229,7 @@ lean_inc(x_8);
 lean_dec(x_5);
 lean_inc(x_1);
 lean_inc(x_2);
-x_9 = lean_apply_2(x_1, x_2, x_7);
+x_9 = lean_apply_2(x_1, x_7, x_2);
 x_10 = lean_unbox(x_9);
 lean_dec(x_9);
 if (x_10 == 0)
@@ -329,7 +329,7 @@ lean_inc(x_9);
 lean_dec(x_6);
 lean_inc(x_1);
 lean_inc(x_3);
-x_10 = lean_apply_2(x_1, x_3, x_8);
+x_10 = lean_apply_2(x_1, x_8, x_3);
 x_11 = lean_unbox(x_10);
 lean_dec(x_10);
 if (x_11 == 0)
@@ -428,7 +428,7 @@ lean_inc(x_7);
 lean_dec(x_5);
 lean_inc(x_1);
 lean_inc(x_2);
-x_8 = lean_apply_2(x_1, x_2, x_7);
+x_8 = lean_apply_2(x_1, x_7, x_2);
 x_9 = lean_unbox(x_8);
 lean_dec(x_8);
 if (x_9 == 0)
@@ -723,9 +723,9 @@ x_9 = lean_ctor_get(x_4, 1);
 x_10 = lean_ctor_get(x_7, 0);
 x_11 = lean_ctor_get(x_7, 1);
 lean_inc(x_1);
-lean_inc(x_10);
 lean_inc(x_2);
-x_12 = lean_apply_2(x_1, x_2, x_10);
+lean_inc(x_10);
+x_12 = lean_apply_2(x_1, x_10, x_2);
 x_13 = lean_unbox(x_12);
 lean_dec(x_12);
 if (x_13 == 0)
@@ -755,9 +755,9 @@ lean_inc(x_17);
 lean_inc(x_16);
 lean_dec(x_7);
 lean_inc(x_1);
-lean_inc(x_16);
 lean_inc(x_2);
-x_18 = lean_apply_2(x_1, x_2, x_16);
+lean_inc(x_16);
+x_18 = lean_apply_2(x_1, x_16, x_2);
 x_19 = lean_unbox(x_18);
 lean_dec(x_18);
 if (x_19 == 0)
@@ -806,9 +806,9 @@ if (lean_is_exclusive(x_23)) {
  x_27 = lean_box(0);
 }
 lean_inc(x_1);
-lean_inc(x_25);
 lean_inc(x_2);
-x_28 = lean_apply_2(x_1, x_2, x_25);
+lean_inc(x_25);
+x_28 = lean_apply_2(x_1, x_25, x_2);
 x_29 = lean_unbox(x_28);
 lean_dec(x_28);
 if (x_29 == 0)
@@ -857,7 +857,7 @@ x_3 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_List_replaceEntry___rar
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_removeKey___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_eraseKey___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_3) == 0)
@@ -884,15 +884,15 @@ x_8 = lean_ctor_get(x_3, 1);
 x_9 = lean_ctor_get(x_6, 0);
 x_10 = lean_ctor_get(x_6, 1);
 lean_inc(x_1);
-lean_inc(x_9);
 lean_inc(x_2);
-x_11 = lean_apply_2(x_1, x_2, x_9);
+lean_inc(x_9);
+x_11 = lean_apply_2(x_1, x_9, x_2);
 x_12 = lean_unbox(x_11);
 lean_dec(x_11);
 if (x_12 == 0)
 {
 lean_object* x_13; 
-x_13 = l_Std_DHashMap_Internal_List_removeKey___rarg(x_1, x_2, x_8);
+x_13 = l_Std_DHashMap_Internal_List_eraseKey___rarg(x_1, x_2, x_8);
 lean_ctor_set(x_3, 1, x_13);
 return x_3;
 }
@@ -917,9 +917,9 @@ lean_inc(x_16);
 lean_inc(x_15);
 lean_dec(x_6);
 lean_inc(x_1);
-lean_inc(x_15);
 lean_inc(x_2);
-x_17 = lean_apply_2(x_1, x_2, x_15);
+lean_inc(x_15);
+x_17 = lean_apply_2(x_1, x_15, x_2);
 x_18 = lean_unbox(x_17);
 lean_dec(x_17);
 if (x_18 == 0)
@@ -928,7 +928,7 @@ lean_object* x_19; lean_object* x_20;
 x_19 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_19, 0, x_15);
 lean_ctor_set(x_19, 1, x_16);
-x_20 = l_Std_DHashMap_Internal_List_removeKey___rarg(x_1, x_2, x_14);
+x_20 = l_Std_DHashMap_Internal_List_eraseKey___rarg(x_1, x_2, x_14);
 lean_ctor_set(x_3, 1, x_20);
 lean_ctor_set(x_3, 0, x_19);
 return x_3;
@@ -965,9 +965,9 @@ if (lean_is_exclusive(x_21)) {
  x_25 = lean_box(0);
 }
 lean_inc(x_1);
-lean_inc(x_23);
 lean_inc(x_2);
-x_26 = lean_apply_2(x_1, x_2, x_23);
+lean_inc(x_23);
+x_26 = lean_apply_2(x_1, x_23, x_2);
 x_27 = lean_unbox(x_26);
 lean_dec(x_26);
 if (x_27 == 0)
@@ -980,7 +980,7 @@ if (lean_is_scalar(x_25)) {
 }
 lean_ctor_set(x_28, 0, x_23);
 lean_ctor_set(x_28, 1, x_24);
-x_29 = l_Std_DHashMap_Internal_List_removeKey___rarg(x_1, x_2, x_22);
+x_29 = l_Std_DHashMap_Internal_List_eraseKey___rarg(x_1, x_2, x_22);
 x_30 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_30, 0, x_28);
 lean_ctor_set(x_30, 1, x_29);
@@ -999,11 +999,11 @@ return x_22;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_removeKey(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_List_eraseKey(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_List_removeKey___rarg), 3, 0);
+x_3 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_List_eraseKey___rarg), 3, 0);
 return x_3;
 }
 }

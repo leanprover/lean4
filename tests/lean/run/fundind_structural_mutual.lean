@@ -82,10 +82,9 @@ info: Tree.size_aux1.mutual_induct.{u_1} {α : Type u_1} (motive_1 motive_2 moti
     ∀ (a : α) (tsf : Bool → List (Tree α)), motive_1 (tsf true) → motive_2 (tsf false) → motive_5 (Tree.node a tsf))
   (case3 :
     ∀ (a : α) (tsf : Bool → List (Tree α)), motive_3 (tsf true) → motive_1 (tsf false) → motive_6 (Tree.node a tsf))
-  (case4 : True) (case5 : motive_1 [])
-  (case6 : ∀ (t : Tree α) (ts : List (Tree α)), motive_6 t → motive_2 ts → motive_1 (t :: ts)) (case7 : motive_2 [])
-  (case8 : ∀ (t : Tree α) (ts : List (Tree α)), motive_5 t → motive_3 ts → motive_2 (t :: ts)) (case9 : motive_3 [])
-  (case10 : ∀ (t : Tree α) (ts : List (Tree α)), motive_4 t → motive_1 ts → motive_3 (t :: ts)) (case11 : True) :
+  (case4 : motive_1 []) (case5 : ∀ (t : Tree α) (ts : List (Tree α)), motive_6 t → motive_2 ts → motive_1 (t :: ts))
+  (case6 : motive_2 []) (case7 : ∀ (t : Tree α) (ts : List (Tree α)), motive_5 t → motive_3 ts → motive_2 (t :: ts))
+  (case8 : motive_3 []) (case9 : ∀ (t : Tree α) (ts : List (Tree α)), motive_4 t → motive_1 ts → motive_3 (t :: ts)) :
   (∀ (a : List (Tree α)), motive_1 a) ∧
     (∀ (a : List (Tree α)), motive_2 a) ∧
       (∀ (a : List (Tree α)), motive_3 a) ∧

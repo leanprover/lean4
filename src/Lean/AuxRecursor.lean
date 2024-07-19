@@ -37,7 +37,7 @@ def isAuxRecursor (env : Environment) (declName : Name) : Bool :=
 
 def isAuxRecursorWithSuffix (env : Environment) (declName : Name) (suffix : String) : Bool :=
   match declName with
-  | .str _ s => s == suffix && isAuxRecursor env declName
+  | .str _ s => (s == suffix || s.startsWith s!"{suffix}_") && isAuxRecursor env declName
   | _ => false
 
 def isCasesOnRecursor (env : Environment) (declName : Name) : Bool :=

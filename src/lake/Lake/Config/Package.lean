@@ -274,6 +274,14 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   -/
   keywords : Array String := #[]
 
+  /--
+  When set, Reservoir will not display the package in its public listing,
+  removing it if it was already there (when Reservoir is next updated).
+
+  Defaults to `false`.
+  -/
+  noReservoir : Bool := false
+
 deriving Inhabited
 
 --------------------------------------------------------------------------------
@@ -389,6 +397,10 @@ namespace Package
 /-- The package's `keywords` configuration. -/
 @[inline] def keywords (self : Package) : Array String  :=
   self.config.keywords
+
+/-- The package's `noReservoir` configuration. -/
+@[inline] def noReservoir (self : Package) : Bool  :=
+  self.config.noReservoir
 
 /-- The package's direct dependencies. -/
 @[inline] def deps (self : Package) : Array Package  :=

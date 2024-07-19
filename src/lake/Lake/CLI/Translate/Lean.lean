@@ -122,6 +122,7 @@ def PackageConfig.mkSyntax (cfg : PackageConfig)
     |> addDeclFieldD `version cfg.version v!"0.0.0"
     |> addDeclField? `versionTags (quoteVerTags? cfg.versionTags)
     |> addDeclFieldD `keywords cfg.keywords #[]
+    |> addDeclFieldD `noReservoir cfg.noReservoir false
     |> cfg.toWorkspaceConfig.addDeclFields
     |> cfg.toLeanConfig.addDeclFields
   `(packageDecl|package $(mkIdent cfg.name):ident $[$declVal?]?)

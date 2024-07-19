@@ -30,6 +30,7 @@ platformIndependent = true
 version = "0.0.0"
 versionTags = {startsWith = "v"}
 keywords = []
+noReservoir = false
 
 [[lean_lib]]
 name = "A"

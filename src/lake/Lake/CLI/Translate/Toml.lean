@@ -79,6 +79,7 @@ protected def PackageConfig.toToml (cfg : PackageConfig) (t : Table := {}) : Tab
   |>.insertD `version cfg.version v!"0.0.0"
   |>.insertSome `versionTags (encodeVerTags? cfg.versionTags)
   |>.smartInsert `keywords cfg.keywords
+  |>.insertD `noReservoir cfg.noReservoir false
   |> cfg.toWorkspaceConfig.toToml
   |> cfg.toLeanConfig.toToml
 where

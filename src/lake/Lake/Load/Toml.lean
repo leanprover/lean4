@@ -200,6 +200,7 @@ protected def PackageConfig.decodeToml (t : Table) (ref := Syntax.missing) : Exc
   let version ← t.tryDecodeD `version v!"0.0.0"
   let versionTags ← t.tryDecodeD `versionTags (.startsWith "v")
   let keywords ← t.tryDecodeD `keywords #[]
+  let noReservoir ← t.tryDecodeD `noReservoir false
   let toLeanConfig ← tryDecode <| LeanConfig.decodeToml t
   let toWorkspaceConfig ← tryDecode <| WorkspaceConfig.decodeToml t
   return {
@@ -207,7 +208,7 @@ protected def PackageConfig.decodeToml (t : Table) (ref := Syntax.missing) : Exc
     srcDir, buildDir, leanLibDir, nativeLibDir, binDir, irDir
     releaseRepo, buildArchive?, preferReleaseBuild
     testDriver, testDriverArgs, lintDriver, lintDriverArgs
-    version, versionTags, keywords
+    version, versionTags, keywords, noReservoir
     toLeanConfig, toWorkspaceConfig
   }
 

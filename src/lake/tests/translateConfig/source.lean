@@ -34,6 +34,7 @@ package test where
   version := v!"0.0.0"
   versionTags := fun _ : String => false
   keywords := #[]
+  noReservoir := false
 
 require "foo" / "baz" @ "git#abcdef"
 require foo from "dir" with NameMap.empty.insert `foo "bar"

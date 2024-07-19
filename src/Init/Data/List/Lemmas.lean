@@ -128,14 +128,6 @@ theorem length_pos {l : List α} : 0 < length l ↔ l ≠ [] :=
 theorem length_eq_one {l : List α} : length l = 1 ↔ ∃ a, l = [a] :=
   ⟨fun h => match l, h with | [_], _ => ⟨_, rfl⟩, fun ⟨_, h⟩ => by simp [h]⟩
 
-/-! ### `isEmpty` -/
-
-theorem isEmpty_iff {l : List α} : l.isEmpty ↔ l = [] := by
-  cases l <;> simp
-
-theorem isEmpty_iff_length_eq_zero {l : List α} : l.isEmpty ↔ l.length = 0 := by
-  rw [isEmpty_iff, length_eq_zero]
-
 /-! ## L[i] and L[i]? -/
 
 /-! ### `get` and `get?`.
@@ -474,6 +466,18 @@ theorem forall_getElem (l : List α) (p : α → Prop) :
 @[simp] theorem decide_mem_cons [BEq α] [LawfulBEq α] {l : List α} :
     decide (y ∈ a :: l) = (y == a || decide (y ∈ l)) := by
   cases h : y == a <;> simp_all
+
+/-! ### `isEmpty` -/
+
+theorem isEmpty_iff {l : List α} : l.isEmpty ↔ l = [] := by
+  cases l <;> simp
+
+theorem isEmpty_false_iff_exists_mem (xs : List α) :
+    (List.isEmpty xs = false) ↔ ∃ x, x ∈ xs := by
+  cases xs <;> simp
+
+theorem isEmpty_iff_length_eq_zero {l : List α} : l.isEmpty ↔ l.length = 0 := by
+  rw [isEmpty_iff, length_eq_zero]
 
 /-! ### any / all -/
 
@@ -1140,6 +1144,18 @@ theorem head_filterMap_of_eq_some {f : α → Option β} {l : List α} (w : l �
   | cons a l =>
     simp only [head_cons] at h
     simp [filterMap_cons, h]
+
+theorem forall_none_of_filterMap_eq_nil (h : List.filterMap f xs = []) : ∀ x ∈ xs, f x = none := by
+  intro x hx
+  induction xs with
+  | nil => contradiction
+  | cons y ys ih =>
+    simp only [filterMap_cons] at h
+    split at h
+    . cases hx with
+      | head => assumption
+      | tail _ hmem => exact ih h hmem
+    . contradiction
 
 /-! ### append -/
 
@@ -3394,6 +3410,16 @@ theorem any_map (f : α → β) (l : List α) (p : β → Bool) : (l.map f).any 
 
 theorem all_map (f : α → β) (l : List α) (p : β → Bool) : (l.map f).all p = l.all (p ∘ f) := by
   induction l with simp | cons _ _ ih => rw [ih]
+
+@[simp] theorem any_append {x y : List α} : (x ++ y).any f = (x.any f || y.any f) := by
+  induction x with
+  | nil => rfl
+  | cons h t ih => simp_all [Bool.or_assoc]
+
+@[simp] theorem all_append {x y : List α} : (x ++ y).all f = (x.all f && y.all f) := by
+  induction x with
+  | nil => rfl
+  | cons h t ih => simp_all [Bool.and_assoc]
 
 /-! ## Zippers -/
 

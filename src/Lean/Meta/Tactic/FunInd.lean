@@ -797,19 +797,6 @@ def deriveStructuralInduction (name : Name) : MetaM Unit := do
       unless 1 ≤ f.constLevels!.length do
         throwError "functional induction: unexpected recursor: {f} has no universe parameters"
 
-      -- Some `brecOn` only support eliminating to `Type u`, not `Sort `u`.
-      -- So just use `binductionOn` instead
-      let us := f.constLevels!.drop 1
-      let bInductionName := mkBInductionOnName indInfo.name
-      let value := mkAppN (.const bInductionName us) (args[:elimInfo.motivePos])
-
-      let mkAppMotive := fun newMotive => do
-          -- We may have to reorder the parameters for motive before passing it to brec
-          let brecMotive ← mkLambdaFVars targets
-            (← mkForallFVars extraArgs (mkAppN newMotive varyingParams))
-          return mkAppN (mkApp value brecMotive) targets
-      let mkAppBody := fun value newBody => mkAppN (.app value newBody) extraArgs
-
       let motiveType ← mkForallFVars varyingParams (.sort levelZero)
       withLocalDecl `motive .default motiveType fun motive => do
 
@@ -820,7 +807,15 @@ def deriveStructuralInduction (name : Name) : MetaM Unit := do
         else
           none
 
-      let e' ← mkAppMotive motive
+      -- Sometimes `brecOn` only supports eliminating to `Type u`, not `Sort `u`.
+      -- So just use `binductionOn` instead
+      let us := f.constLevels!.drop 1
+      let bInductionName := mkBInductionOnName indInfo.name
+      let value := mkAppN (.const bInductionName us) (args[:elimInfo.motivePos])
+      -- We may have to reorder the parameters for motive before passing it to brec
+      let brecMotive ← mkLambdaFVars targets
+        (← mkForallFVars extraArgs (mkAppN motive varyingParams))
+      let e' := mkAppN (mkApp value brecMotive) targets
       check e'
       let (body', mvars) ← M2.run do
         forallTelescope (← inferType e').bindingDomain! fun xs goal => do
@@ -838,7 +833,8 @@ def deriveStructuralInduction (name : Name) : MetaM Unit := do
             if body'.containsFVar oldIH then
               throwError m!"Did not fully eliminate {mkFVar oldIH} from induction principle body:{indentExpr body}"
             mkLambdaFVars (targets.push genIH) (← mkLambdaFVars extraParams body')
-      let e' := mkAppBody e' body'
+      let e' := mkApp e' body'
+      let e' := mkAppN e' extraArgs
       let e' ← mkLambdaFVars varyingParams e'
       let e' ← abstractIndependentMVars mvars motive.fvarId! e'
       let e' ← mkLambdaFVars #[motive] e'

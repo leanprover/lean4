@@ -128,7 +128,7 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (xs : Array Expr
   return (Array.zip preDefs valuesNew).map fun ⟨preDef, valueNew⟩ => { preDef with value := valueNew }
 
 private def inferRecArgPos (preDefs : Array PreDefinition) (termArg?s : Array (Option TerminationArgument)) :
-    M (Array Nat × Array PreDefinition) := do
+    M (Array Nat × (Array PreDefinition) × Nat) := do
   withoutModifyingEnv do
     preDefs.forM (addAsAxiom ·)
     let fnNames := preDefs.map (·.declName)
@@ -154,7 +154,7 @@ private def inferRecArgPos (preDefs : Array PreDefinition) (termArg?s : Array (O
         withErasedFVars (xs.extract numFixed xs.size |>.map (·.fvarId!)) do
           let xs := xs[:numFixed]
           let preDefs' ← elimMutualRecursion preDefs xs recArgInfos
-          return (recArgPoss, preDefs')
+          return (recArgPoss, preDefs', numFixed)
 
 def reportTermArg (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit := do
   if let some ref := preDef.termination.terminationBy?? then
@@ -167,7 +167,7 @@ def reportTermArg (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit := do
 
 def structuralRecursion (preDefs : Array PreDefinition) (termArg?s : Array (Option TerminationArgument)) : TermElabM Unit := do
   let names := preDefs.map (·.declName)
-  let ((recArgPoss, preDefsNonRec), state) ← run <| inferRecArgPos preDefs termArg?s
+  let ((recArgPoss, preDefsNonRec, numFixed), state) ← run <| inferRecArgPos preDefs termArg?s
   for recArgPos in recArgPoss, preDef in preDefs do
     reportTermArg preDef recArgPos
   state.addMatchers.forM liftM
@@ -190,7 +190,7 @@ def structuralRecursion (preDefs : Array PreDefinition) (termArg?s : Array (Opti
         for theorems and definitions that are propositions.
         See issue #2327
         -/
-        registerEqnsInfo preDef (preDefs.map (·.declName)) recArgPos
+        registerEqnsInfo preDef (preDefs.map (·.declName)) recArgPos numFixed
     addSmartUnfoldingDef preDef recArgPos
     markAsRecursive preDef.declName
   applyAttributesOf preDefsNonRec AttributeApplicationTime.afterCompilation

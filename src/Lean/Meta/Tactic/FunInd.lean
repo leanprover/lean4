@@ -797,23 +797,12 @@ def deriveStructuralInduction (name : Name) : MetaM Unit := do
       unless 1 ≤ f.constLevels!.length do
         throwError "functional induction: unexpected recursor: {f} has no universe parameters"
 
-      let value ←
-        match (← motiveUniverseParamPos f.constName!) with
-        | .some motiveUnivParam =>
-          let us := f.constLevels!.set motiveUnivParam levelZero
-          pure <| mkAppN (.const f.constName us) (args[:elimInfo.motivePos])
-        | .none =>
-          -- The `brecOn` does not support motives to any `Sort u`, so likely just `Type u`.
-          -- Let's use `binductionOn` instead
-          -- This code assumpes that `brecOn` has `u` first, and that the remaining universe
-          -- parameters correspond
-          let us := f.constLevels!.drop 1
-          let bInductionName ← match f.constName with
-            | .str indDeclName _ => pure <| mkBInductionOnName indDeclName
-            | _ => throwError "Unexpected brecOn name {f.constName}"
-          pure <| mkAppN (.const bInductionName us) (args[:elimInfo.motivePos])
+      -- Some `brecOn` only support eliminating to `Type u`, not `Sort `u`.
+      -- So just use `binductionOn` instead
+      let us := f.constLevels!.drop 1
+      let bInductionName := mkBInductionOnName indInfo.name
+      let value := mkAppN (.const bInductionName us) (args[:elimInfo.motivePos])
 
-      let motivePosInBody := targets.size
       let mkAppMotive := fun newMotive => do
           -- We may have to reorder the parameters for motive before passing it to brec
           let brecMotive ← mkLambdaFVars targets
@@ -838,9 +827,9 @@ def deriveStructuralInduction (name : Name) : MetaM Unit := do
           let arity := varyingParams.size + 1
           if xs.size ≠ arity then
             throwError "expected recursor argument to take {arity} parameters, got {xs}" else
-          let targets : Array Expr := xs[:motivePosInBody]
-          let genIH := xs[motivePosInBody]!
-          let extraParams := xs[motivePosInBody+1:]
+          let targets : Array Expr := xs[:targets.size]
+          let genIH := xs[targets.size]!
+          let extraParams := xs[targets.size+1:]
           -- open body with the same arg
           let body ← instantiateLambda body targets
           removeLamda body fun oldIH body => do

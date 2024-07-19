@@ -680,98 +680,6 @@ def motiveUniverseParamPos (declName : Name) : MetaM (Option Nat) := do
       | _ => throwError "motive result type must be a sort{indentExpr motiveType}"
 
 /--
-This function looks that the body of a recursive function and looks for either users of
-`fix`, `fixF` or a `.brecOn`, and abstracts over the differences between them. It passes
-to the continuation
-
-* whether we are using well-founded recursion
-* the fixed parameters of the function body
-* the varying parameters of the function body (this includes both the targets of the
-  recursion and extra parameters passed to the recursor)
-* the position of the motive/induction hypothesis in the body's arguments
-* the body, as passed to the recursor. Expected to be a lambda that takes the
-  varying parameters and the motive
-* a function to re-assemble the call with a new Motive. The resulting expression expects
-  the new body next, so that the expected type of the body can be inferred
-* a function to finish assembling the call with the new body.
--/
-def findRecursor {α} (name : Name) (varNames : Array Name) (e : Expr)
-    (k :(is_wf : Bool) →
-        (fixedParams : Array Expr) →
-        (varyingParams : Array Expr) →
-        (motivePosInBody : Nat) →
-        (body : Expr) →
-        (mkAppMotive : Expr → MetaM Expr) →
-        (mkAppBody : Expr → Expr → Expr) →
-        MetaM α) :
-    MetaM α := do
-  -- Uses of WellFounded.fix can be partially applied. Here we eta-expand the body
-  -- to avoid dealing with this
-  let e ← lambdaTelescope e fun params body => do mkLambdaFVars params (← etaExpand body)
-  lambdaTelescope e fun params body => body.withApp fun f args => do
-    MatcherApp.withUserNames params varNames do
-      if not f.isConst then err else
-      if isBRecOnRecursor (← getEnv) f.constName! then
-        -- Bail out on mutual or nested inductives
-        let .str indName _ := f.constName! | unreachable!
-        let indInfo ← getConstInfoInduct indName
-        if indInfo.numTypeFormers > 1 then
-          throwError "functional induction: cannot handle mutual or nested inductives"
-
-        let elimInfo ← getElimExprInfo f
-        let targets : Array Expr := elimInfo.targetsPos.map (args[·]!)
-        let body := args[elimInfo.motivePos + 1 + elimInfo.targetsPos.size]!
-        let extraArgs : Array Expr := args[elimInfo.motivePos + 1 + elimInfo.targetsPos.size + 1:]
-
-        let fixedParams := params.filter fun x => !(targets.contains x || extraArgs.contains x)
-        let varyingParams := params.filter fun x => targets.contains x || extraArgs.contains x
-        unless params == fixedParams ++ varyingParams do
-          throwError "functional induction: unexpected order of fixed and varying parameters:{indentExpr e}"
-        unless 1 ≤ f.constLevels!.length do
-          throwError "functional induction: unexpected recursor: {f} has no universe parameters"
-        let value ←
-          match (← motiveUniverseParamPos f.constName!) with
-          | .some motiveUnivParam =>
-            let us := f.constLevels!.set motiveUnivParam levelZero
-            pure <| mkAppN (.const f.constName us) (args[:elimInfo.motivePos])
-          | .none =>
-            -- The `brecOn` does not support motives to any `Sort u`, so likely just `Type u`.
-            -- Let's use `binductionOn` instead
-            -- This code assumpes that `brecOn` has `u` first, and that the remaining universe
-            -- parameters correspond
-            let us := f.constLevels!.drop 1
-            let bInductionName ← match f.constName with
-              | .str indDeclName _ => pure <| mkBInductionOnName indDeclName
-              | _ => throwError "Unexpected brecOn name {f.constName}"
-            pure <| mkAppN (.const bInductionName us) (args[:elimInfo.motivePos])
-
-        k false fixedParams varyingParams targets.size body
-          (fun newMotive => do
-            -- We may have to reorder the parameters for motive before passing it to brec
-            let brecMotive ← mkLambdaFVars targets
-              (← mkForallFVars extraArgs (mkAppN newMotive varyingParams))
-            return mkAppN (mkApp value brecMotive) targets)
-          (fun value newBody => mkAppN (.app value newBody) extraArgs)
-      else if Name.isSuffixOf `brecOn f.constName! then
-        throwError m!"Function {name} is defined in a way not supported by functional induction, " ++
-          "for example by recursion over an inductive predicate."
-      else match_expr body with
-      | WellFounded.fix α _motive rel wf body target =>
-        unless params.back == target do
-          throwError "functional induction: expected the target as last parameter{indentExpr e}"
-        let value := .const ``WellFounded.fix [f.constLevels![0]!, levelZero]
-        k true params.pop #[target] 1 body
-          (fun newMotive => pure (mkApp4 value α newMotive rel wf))
-          (fun value newBody => mkApp2 value newBody target)
-      | _ => err
-  where
-    err := throwError m!"Function {name} does not look like a function defined by recursion." ++
-      m!"\nNB: If {name} is not itself recursive, but contains an inner recursive " ++
-      m!"function (via `let rec` or `where`), try `{name}.go` where `go` is name of the inner " ++
-      "function."
-
-
-/--
 Given a unary definition `foo` defined via `WellFounded.fixF`, derive a suitable induction principle
 `foo.induct` for it. See module doc for details.
  -/
@@ -861,8 +769,52 @@ def deriveStructuralInduction (name : Name) : MetaM Unit := do
 
   let varNames ← forallTelescope info.type fun xs _ => xs.mapM (·.fvarId!.getUserName)
 
-  let e' ← findRecursor name varNames info.value
-    fun _is_wf fixedParams varyingParams motivePosInBody body mkAppMotive mkAppBody => do
+  let e' ← lambdaTelescope info.value fun params body => body.withApp fun f args => do
+    MatcherApp.withUserNames params varNames do
+      unless isBRecOnRecursor (← getEnv) f.constName! do
+        throwError "Body of strucually recursive function not as expected:{indentExpr body}"
+      -- Bail out on mutual or nested inductives
+      let .str indName _ := f.constName! | unreachable!
+      let indInfo ← getConstInfoInduct indName
+      if indInfo.numTypeFormers > 1 then
+        throwError "functional induction: cannot handle mutual or nested inductives"
+
+      let elimInfo ← getElimExprInfo f
+      let targets : Array Expr := elimInfo.targetsPos.map (args[·]!)
+      let body := args[elimInfo.motivePos + 1 + elimInfo.targetsPos.size]!
+      let extraArgs : Array Expr := args[elimInfo.motivePos + 1 + elimInfo.targetsPos.size + 1:]
+
+      let fixedParams := params.filter fun x => !(targets.contains x || extraArgs.contains x)
+      let varyingParams := params.filter fun x => targets.contains x || extraArgs.contains x
+      unless params == fixedParams ++ varyingParams do
+        throwError "functional induction: unexpected order of fixed and varying parameters:{indentExpr body}"
+      unless 1 ≤ f.constLevels!.length do
+        throwError "functional induction: unexpected recursor: {f} has no universe parameters"
+
+      let value ←
+        match (← motiveUniverseParamPos f.constName!) with
+        | .some motiveUnivParam =>
+          let us := f.constLevels!.set motiveUnivParam levelZero
+          pure <| mkAppN (.const f.constName us) (args[:elimInfo.motivePos])
+        | .none =>
+          -- The `brecOn` does not support motives to any `Sort u`, so likely just `Type u`.
+          -- Let's use `binductionOn` instead
+          -- This code assumpes that `brecOn` has `u` first, and that the remaining universe
+          -- parameters correspond
+          let us := f.constLevels!.drop 1
+          let bInductionName ← match f.constName with
+            | .str indDeclName _ => pure <| mkBInductionOnName indDeclName
+            | _ => throwError "Unexpected brecOn name {f.constName}"
+          pure <| mkAppN (.const bInductionName us) (args[:elimInfo.motivePos])
+
+      let motivePosInBody := targets.size
+      let mkAppMotive := fun newMotive => do
+          -- We may have to reorder the parameters for motive before passing it to brec
+          let brecMotive ← mkLambdaFVars targets
+            (← mkForallFVars extraArgs (mkAppN newMotive varyingParams))
+          return mkAppN (mkApp value brecMotive) targets
+      let mkAppBody := fun value newBody => mkAppN (.app value newBody) extraArgs
+
       let motiveType ← mkForallFVars varyingParams (.sort levelZero)
       withLocalDecl `motive .default motiveType fun motive => do
 

@@ -566,16 +566,19 @@ partial def buildInductionBody (toClear toPreserve : Array FVarId) (goal : Expr)
     let u ← getLevel goal
     return mkApp5 (mkConst ``dite [u]) goal c' h' t' f'
 
+  | _ =>
+
   -- we look in to `PProd.mk`, as it occurs in the mutual structural recursion construction
-  | PProd.mk _α _β e₁ e₂ =>
-    match_expr goal with
-    | And goal₁ goal₂ =>
+  match_expr goal with
+  | And goal₁ goal₂ => match_expr e with
+    | PProd.mk _α _β e₁ e₂ =>
       let e₁' ← buildInductionBody toClear toPreserve goal₁ oldIH newIH isRecCall e₁
       let e₂' ← buildInductionBody toClear toPreserve goal₂ oldIH newIH isRecCall e₂
       return mkApp4 (.const ``And.intro []) goal₁ goal₂ e₁' e₂'
     | _ =>
-      throwError "Unexpecte type of goal, expected `∧`:{indentExpr goal}"
-
+      throwError "Goal is PProd, but expression is:{indentExpr e}"
+  | True =>
+    return .const ``True.intro []
   | _ =>
 
   -- match and casesOn application cause case splitting
@@ -905,7 +908,8 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
     let body ← instantiateLambda infos[0]!.value xs
 
     lambdaTelescope body fun ys body => do
-      -- The body is of the form (brecOn … ).2.2.1 extra1 extra2 etc.
+      -- The body is of the form (brecOn … ).2.2.1 extra1 extra2 etc; ignore the
+      -- projection here
       let f' := body.getAppFn
       let body' := stripPProdProjs f'
       let f := body'.getAppFn
@@ -914,7 +918,6 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
       let body := stripPProdProjs body
       let .const brecOnName us := f |
         throwError "{infos[0]!.name}: unexpected body:{indentExpr infos[0]!.value}"
-      -- TODO: What if the aux brec on comes first?
       unless isBRecOnRecursor (← getEnv) brecOnName do
         throwError "{infos[0]!.name}: expected .brecOn application, found:{indentExpr body}"
 
@@ -954,43 +957,45 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
 
       let positions : Structural.Positions := .groupAndSort (·.indIdx) recArgInfos (Array.range indInfo.numTypeFormers)
 
-      -- Below we'll need the types of the motive arguments
-      let motiveTypes ← inferArgumentTypesN recInfo.numMotives (group.brecOn true lvl 0)
-      trace[FunInd] m!"motiveTypes: {motiveTypes}"
-      assert! motiveTypes.size = positions.size
+      -- Below we'll need the types of the motive arguments (brecOn argument order)
+      let brecMotiveTypes ← inferArgumentTypesN recInfo.numMotives (group.brecOn true lvl 0)
+      trace[FunInd] m!"brecMotiveTypes: {brecMotiveTypes}"
+      assert! brecMotiveTypes.size = positions.size
 
       -- Remove the varying parameters from the environment
       withErasedFVars (ys.map (·.fvarId!)) do
         -- The brecOnArgs, brecOnMotives and brecOnMinor should still be valid in this
         -- context, and are the parts relevant for every function in the mutual group
 
-        -- Calculate the types of the induction motives for each function
+        -- Calculate the types of the induction motives (natural argument order) for each function
         let motiveTypes ← infos.mapM fun info => do
           lambdaTelescope (← instantiateLambda info.value xs) fun ys _ =>
             mkForallFVars ys (.sort levelZero)
+        let motiveArities ← infos.mapM fun info => do
+          lambdaTelescope (← instantiateLambda info.value xs) fun ys _ => pure ys.size
         let motiveDecls ← motiveTypes.mapIdxM fun ⟨i,_⟩ motiveType => do
           let n := if infos.size = 1 then .mkSimple "motive"
                                      else .mkSimple s!"motive_{i+1}"
           pure (n, fun _ => pure motiveType)
         withLocalDeclsD motiveDecls fun motives => do
 
-          -- TODO: mutual
-          let fn := mkAppN (.const names[0]! (infos[0]!.levelParams.map mkLevelParam)) xs
-          let arity ← forallTelescope motiveTypes[0]! fun xs _ => pure xs.size
-          let isRecCall : Expr → Option Expr := fun e =>
-            if e.getAppNumArgs = arity && e.getAppFn.isFVarOf motives[0]!.fvarId! then
-              mkAppN fn e.getAppArgs
-            else
-              none
+          -- Prepare the `isRecCall` that recognizes recursive calls
+          let fns := infos.map fun info =>
+            mkAppN (.const info.name (info.levelParams.map mkLevelParam)) xs
+          let isRecCall : Expr → Option Expr := fun e => do
+            if let .some i := motives.indexOf? e.getAppFn then
+              if e.getAppNumArgs = motiveArities[i]! then
+                return mkAppN fns[i]! e.getAppArgs
+            .none
 
           -- Motives with parameters reordered, to put indices and major first
-          let motives' ← (Array.zip motives recArgInfos).mapM fun (motive, recArgInfo) => do
+          let brecMotives ← (Array.zip motives recArgInfos).mapM fun (motive, recArgInfo) => do
             forallTelescope (← inferType motive) fun ys _ => do
               let (indicesMajor, rest) := recArgInfo.pickIndicesMajor ys
               mkLambdaFVars indicesMajor (← mkForallFVars rest (mkAppN motive ys))
 
           -- We need to pack these motives according to the `positions` assignment.
-          let packedMotives ← positions.mapMwith Structural.packMotives motiveTypes motives'
+          let packedMotives ← positions.mapMwith Structural.packMotives brecMotiveTypes brecMotives
           trace[FunInd] m!"packedMotives: {packedMotives}"
 
           -- Now we can calcualte the expected types of the minor arguments
@@ -1000,11 +1005,11 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
           -- So that we can transform them
           let (minors', mvars) ← M2.run do
             let mut minors' := #[]
-            for info in infos, brecOnMinor in brecOnMinors, goal in minorTypes, recArgInfo in recArgInfos do
+            for brecOnMinor in brecOnMinors, goal in minorTypes, poss in positions do
+              let numTargets := recArgInfos[poss[0]!]!.indicesPos.size + 1
               let minor' ← forallTelescope goal fun xs goal => do
-                let numTargets := recArgInfo.indicesPos.size + 1
                 unless xs.size ≥ numTargets do
-                  throwError ".brecOn argument for {info.name} has too few parameters, expected at least {numTargets}: {xs}"
+                  throwError ".brecOn argument has too few parameters, expected at least {numTargets}: {xs}"
                 let targets : Array Expr := xs[:numTargets]
                 let genIH := xs[numTargets]!
                 let extraParams := xs[numTargets+1:]

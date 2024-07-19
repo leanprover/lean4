@@ -1,5 +1,3 @@
-import Lean.Elab.Command
-
 set_option guard_msgs.diff true
 
 /-!
@@ -527,13 +525,13 @@ Too many possible combinations of parameters of type Nattish (or please indicate
 Could not find a decreasing measure.
 The arguments relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
-Call from ManyCombinations.f to ManyCombinations.g at 559:15-29:
+Call from ManyCombinations.f to ManyCombinations.g at 557:15-29:
    #1 #2 #3 #4
 #5  ?  ?  ?  ?
 #6  ?  =  ?  ?
 #7  ?  ?  =  ?
 #8  ?  ?  ?  =
-Call from ManyCombinations.g to ManyCombinations.f at 562:15-29:
+Call from ManyCombinations.g to ManyCombinations.f at 560:15-29:
    #5 #6 #7 #8
 #1  _  _  _  _
 #2  _  =  _  _
@@ -583,73 +581,55 @@ namespace FunIndTests
 -- out nicely
 
 /--
-error: Failed to realize constant A.size.induct:
-  Induction principles for mutually structurally recursive functions are not yet supported
----
-error: Failed to realize constant A.size.induct:
-  Induction principles for mutually structurally recursive functions are not yet supported
----
-error: unknown identifier 'A.size.induct'
+info: A.size.induct (motive_1 : A → Prop) (motive_2 : B → Prop) (case1 : ∀ (a : A), motive_1 a → motive_1 a.self)
+  (case2 : ∀ (b : B), motive_2 b → motive_1 (A.other b)) (case3 : motive_1 A.empty)
+  (case4 : ∀ (b : B), motive_2 b → motive_2 b.self) (case5 : ∀ (a : A), motive_1 a → motive_2 (B.other a))
+  (case6 : motive_2 B.empty) : ∀ (a : A), motive_1 a
 -/
 #guard_msgs in
 #check A.size.induct
 
 /--
-error: Failed to realize constant A.subs.induct:
-  Induction principles for mutually structurally recursive functions are not yet supported
----
-error: Failed to realize constant A.subs.induct:
-  Induction principles for mutually structurally recursive functions are not yet supported
----
-error: unknown identifier 'A.subs.induct'
+info: A.subs.induct (motive_1 : A → Prop) (motive_2 : B → Prop) (case1 : ∀ (a : A), motive_1 a → motive_1 a.self)
+  (case2 : ∀ (b : B), motive_2 b → motive_1 (A.other b)) (case3 : motive_1 A.empty)
+  (case4 : ∀ (b : B), motive_2 b → motive_2 b.self) (case5 : ∀ (a : A), motive_1 a → motive_2 (B.other a))
+  (case6 : motive_2 B.empty) (a : A) : motive_1 a
 -/
 #guard_msgs in
 #check A.subs.induct
 
 /--
-error: Failed to realize constant MutualIndNonMutualFun.A.self_size.induct:
-  functional induction: cannot handle mutual or nested inductives
----
-error: Failed to realize constant MutualIndNonMutualFun.A.self_size.induct:
-  functional induction: cannot handle mutual or nested inductives
----
-error: unknown identifier 'MutualIndNonMutualFun.A.self_size.induct'
+info: MutualIndNonMutualFun.A.self_size.induct (motive : MutualIndNonMutualFun.A → Prop)
+  (case1 : ∀ (a : MutualIndNonMutualFun.A), motive a → motive a.self)
+  (case2 : ∀ (a : MutualIndNonMutualFun.B), motive (MutualIndNonMutualFun.A.other a))
+  (case3 : motive MutualIndNonMutualFun.A.empty) : ∀ (a : MutualIndNonMutualFun.A), motive a
 -/
 #guard_msgs in
 #check MutualIndNonMutualFun.A.self_size.induct
 
 /--
-error: Failed to realize constant MutualIndNonMutualFun.A.self_size_with_param.induct:
-  functional induction: cannot handle mutual or nested inductives
----
-error: Failed to realize constant MutualIndNonMutualFun.A.self_size_with_param.induct:
-  functional induction: cannot handle mutual or nested inductives
----
-error: unknown identifier 'MutualIndNonMutualFun.A.self_size_with_param.induct'
+info: MutualIndNonMutualFun.A.self_size_with_param.induct (motive : Nat → MutualIndNonMutualFun.A → Prop)
+  (case1 : ∀ (n : Nat) (a : MutualIndNonMutualFun.A), motive n a → motive n a.self)
+  (case2 : ∀ (x : Nat) (a : MutualIndNonMutualFun.B), motive x (MutualIndNonMutualFun.A.other a))
+  (case3 : ∀ (x : Nat), motive x MutualIndNonMutualFun.A.empty) :
+  ∀ (a : Nat) (a_1 : MutualIndNonMutualFun.A), motive a a_1
 -/
 #guard_msgs in
 #check MutualIndNonMutualFun.A.self_size_with_param.induct
 
 /--
-error: Failed to realize constant A.hasNoBEmpty.induct:
-  Induction principles for mutually structurally recursive functions are not yet supported
----
-error: Failed to realize constant A.hasNoBEmpty.induct:
-  Induction principles for mutually structurally recursive functions are not yet supported
----
-error: unknown identifier 'A.hasNoBEmpty.induct'
+info: A.hasNoBEmpty.induct (motive_1 : A → Prop) (motive_2 : B → Prop) (case1 : ∀ (a : A), motive_1 a → motive_1 a.self)
+  (case2 : ∀ (b : B), motive_2 b → motive_1 (A.other b)) (case3 : motive_1 A.empty)
+  (case4 : ∀ (b : B), motive_2 b → motive_2 b.self) (case5 : ∀ (a : A), motive_1 a → motive_2 (B.other a))
+  (case6 : motive_2 B.empty) : ∀ (a : A), motive_1 a
 -/
 #guard_msgs in
 #check A.hasNoBEmpty.induct
 
 /--
-error: Failed to realize constant EvenOdd.isEven.induct:
-  Induction principles for mutually structurally recursive functions are not yet supported
----
-error: Failed to realize constant EvenOdd.isEven.induct:
-  Induction principles for mutually structurally recursive functions are not yet supported
----
-error: unknown identifier 'EvenOdd.isEven.induct'
+info: EvenOdd.isEven.induct (motive_1 motive_2 : Nat → Prop) (case1 : motive_1 0)
+  (case2 : ∀ (n : Nat), motive_2 n → motive_1 n.succ) (case3 : motive_2 0)
+  (case4 : ∀ (n : Nat), motive_1 n → motive_2 n.succ) : ∀ (a : Nat), motive_1 a
 -/
 #guard_msgs in
 #check EvenOdd.isEven.induct -- TODO: This error message can be improved

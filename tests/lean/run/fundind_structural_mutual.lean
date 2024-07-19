@@ -4,6 +4,8 @@ A few tests for functional induction theorems generated from mutual recursive in
 Some more tests are in `structuralMutual.lean` and `funind_structural`.
 -/
 
+set_option guard_msgs.diff true
+
 
 inductive Tree (α : Type u) : Type u where
   | node : α → (Bool → List (Tree α)) → Tree α
@@ -71,4 +73,23 @@ def Tree.size3 : Tree α → Nat
   | .node _ tsf => 1 + size_aux1 (tsf true) + size_aux2 (tsf false)
 end
 
+/--
+info: Tree.size_aux1.mutual_induct.{u_1} {α : Type u_1} (motive_1 motive_2 motive_3 : List (Tree α) → Prop)
+  (motive_4 motive_5 motive_6 : Tree α → Prop)
+  (case1 :
+    ∀ (a : α) (tsf : Bool → List (Tree α)), motive_2 (tsf true) → motive_3 (tsf false) → motive_4 (Tree.node a tsf))
+  (case2 :
+    ∀ (a : α) (tsf : Bool → List (Tree α)), motive_1 (tsf true) → motive_2 (tsf false) → motive_5 (Tree.node a tsf))
+  (case3 :
+    ∀ (a : α) (tsf : Bool → List (Tree α)), motive_3 (tsf true) → motive_1 (tsf false) → motive_6 (Tree.node a tsf))
+  (case4 : True) (case5 : motive_1 [])
+  (case6 : ∀ (t : Tree α) (ts : List (Tree α)), motive_6 t → motive_2 ts → motive_1 (t :: ts)) (case7 : motive_2 [])
+  (case8 : ∀ (t : Tree α) (ts : List (Tree α)), motive_5 t → motive_3 ts → motive_2 (t :: ts)) (case9 : motive_3 [])
+  (case10 : ∀ (t : Tree α) (ts : List (Tree α)), motive_4 t → motive_1 ts → motive_3 (t :: ts)) (case11 : True) :
+  (∀ (a : List (Tree α)), motive_1 a) ∧
+    (∀ (a : List (Tree α)), motive_2 a) ∧
+      (∀ (a : List (Tree α)), motive_3 a) ∧
+        (∀ (a : Tree α), motive_4 a) ∧ (∀ (a : Tree α), motive_5 a) ∧ ∀ (a : Tree α), motive_6 a
+-/
+#guard_msgs in
 #check Tree.size_aux1.mutual_induct

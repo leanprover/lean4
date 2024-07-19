@@ -60,24 +60,18 @@ def SubexprInfo.withDiffTag (tag : DiffTag) (c : SubexprInfo) : SubexprInfo :=
 /-- Tags pretty-printed code with infos from the delaborator. -/
 partial def tagCodeInfos (ctx : Elab.ContextInfo) (infos : SubExpr.PosMap Elab.Info) (tt : TaggedText (Nat × Nat))
     : CodeWithInfos :=
-  go tt none
+  go tt
 where
-  go (tt : TaggedText (Nat × Nat)) (parentPos : Option Nat) :=
+  go (tt : TaggedText (Nat × Nat)) :=
     tt.rewrite fun (n, _) subTt =>
-      if some n == parentPos then
-        -- Filters a subexpression if its position is identical to that of its parent.
-        -- This ensures that `(foo)` and its subexpr `foo` do not produce separate subexpressions
-        -- with the same subexpression position.
-        go subTt n
-      else
-        match infos.find? n with
-        | none   => go subTt n
-        | some i =>
-          let t : SubexprInfo := {
-            info := WithRpcRef.mk { ctx, info := i, children := .empty }
-            subexprPos := n
-          }
-          TaggedText.tag t (go subTt n)
+      match infos.find? n with
+      | none   => go subTt
+      | some i =>
+        let t : SubexprInfo := {
+          info := WithRpcRef.mk { ctx, info := i, children := .empty }
+          subexprPos := n
+        }
+        TaggedText.tag t (go subTt)
 
 def ppExprTagged (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := do
   if pp.raw.get (← getOptions) then

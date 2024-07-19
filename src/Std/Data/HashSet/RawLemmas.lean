@@ -102,7 +102,7 @@ theorem isEmpty_eq_size_eq_zero : m.isEmpty = (m.size == 0) :=
   HashMap.Raw.isEmpty_eq_size_eq_zero
 
 theorem size_insert [EquivBEq α] [LawfulHashable α] {k : α} :
-    (m.insert k).size = bif m.contains k then m.size else m.size + 1 :=
+    (m.insert k).size = if k ∈ m then m.size else m.size + 1 :=
   HashMap.Raw.size_insertIfNew h.out
 
 theorem size_le_size_insert [EquivBEq α] [LawfulHashable α] {k : α} : m.size ≤ (m.insert k).size :=
@@ -139,7 +139,7 @@ theorem mem_of_mem_erase [EquivBEq α] [LawfulHashable α] {k a : α} : a ∈ m.
   HashMap.Raw.mem_of_mem_erase h.out
 
 theorem size_erase [EquivBEq α] [LawfulHashable α] {k : α} :
-    (m.erase k).size = bif m.contains k then m.size - 1 else m.size :=
+    (m.erase k).size = if k ∈ m then m.size - 1 else m.size :=
   HashMap.Raw.size_erase h.out
 
 theorem size_erase_le [EquivBEq α] [LawfulHashable α] {k : α} : (m.erase k).size ≤ m.size :=

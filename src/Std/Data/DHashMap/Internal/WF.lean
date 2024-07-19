@@ -472,7 +472,8 @@ theorem wfImp_eraseₘaux [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable �
   buckets_hash_self := isHashSelf_eraseₘaux m a h
   size_eq := by
     rw [(toListModel_eraseₘaux m a h).length_eq, eraseₘaux, length_eraseKey,
-      ← containsₘ_eq_containsKey h, h', cond_true, h.size_eq]
+      ← containsₘ_eq_containsKey h, h']
+    simp [h.size_eq]
   distinct := h.distinct.eraseKey.perm (toListModel_eraseₘaux m a h)
 
 theorem toListModel_perm_eraseKey_of_containsₘ_eq_false [BEq α] [Hashable α] [EquivBEq α]

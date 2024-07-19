@@ -15,7 +15,7 @@ fun x h => id h
 #print ex1
 
 theorem ex1' (x : Prop) (h : x) : p x := by
-  simp
+  simp (config := { implicitDefEqProofs := false })
   assumption
 
 /--

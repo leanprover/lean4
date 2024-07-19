@@ -4,7 +4,7 @@ theorem f_Eq {α} (a b : α) : f a b = a :=
   rfl
 
 theorem ex1 (a b c : α) : f (f a b) c = a := by
-  simp [f_Eq]
+  simp (config := { implicitDefEqProofs := false }) [f_Eq]
 
 /--
 info: theorem ex1.{u_1} : ∀ {α : Sort u_1} (a b c : α), f (f a b) c = a :=

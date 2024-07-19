@@ -3,7 +3,7 @@ def f (x : Nat) := x + 1
 theorem f_eq (x : Nat) : f (x + 1) = x + 2 := rfl
 
 theorem ex1 : f (f (x + 1)) = x + 3 := by
-  simp [f_eq]
+  simp (config := { implicitDefEqProofs := false }) [f_eq]
 
 /--
 info: theorem ex1 : ∀ {x : Nat}, f (f (x + 1)) = x + 3 :=

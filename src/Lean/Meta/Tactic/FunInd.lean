@@ -757,110 +757,6 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
     { name := inductName, levelParams := us, type := eTyp, value := e' }
   return inductName
 
-def stripPProdProjs (e : Expr) : Expr :=
-  match e with
-  | .proj ``PProd _ e' => stripPProdProjs e'
-  | .proj ``And _ e' => stripPProdProjs e'
-  | e => e
-
-/--
-Given a recursive definition `foo` defined via structural recursion, derive `foo.induct` for it. See
-module doc for details.
- -/
-def deriveStructuralInduction (name : Name) : MetaM Unit := do
-  let inductName := .append name `induct
-  if ← hasConst inductName then return
-
-  let info ← getConstInfoDefn name
-
-  let varNames ← forallTelescope info.type fun xs _ => xs.mapM (·.fvarId!.getUserName)
-
-  let e' ← lambdaTelescope info.value fun params body => (stripPProdProjs body).withApp fun f args => do
-    MatcherApp.withUserNames params varNames do
-      unless isBRecOnRecursor (← getEnv) f.constName! do
-        throwError "Body of strucually recursive function not as expected:{indentExpr body}"
-      -- Bail out on mutual or nested inductives
-      let .str indName _ := f.constName! | unreachable!
-      let indInfo ← getConstInfoInduct indName
-      if indInfo.numTypeFormers > 1 then
-        throwError "functional induction: cannot handle mutual or nested inductives"
-
-      let elimInfo ← getElimExprInfo f
-      let targets : Array Expr := elimInfo.targetsPos.map (args[·]!)
-      let body := args[elimInfo.motivePos + 1 + elimInfo.targetsPos.size]!
-      let extraArgs : Array Expr := args[elimInfo.motivePos + 1 + elimInfo.targetsPos.size + 1:]
-
-      let fixedParams := params.filter fun x => !(targets.contains x || extraArgs.contains x)
-      let varyingParams := params.filter fun x => targets.contains x || extraArgs.contains x
-      unless params == fixedParams ++ varyingParams do
-        throwError "functional induction: unexpected order of fixed and varying parameters:{indentExpr body}"
-      unless 1 ≤ f.constLevels!.length do
-        throwError "functional induction: unexpected recursor: {f} has no universe parameters"
-
-      let motiveType ← mkForallFVars varyingParams (.sort levelZero)
-      withLocalDecl `motive .default motiveType fun motive => do
-
-      let fn := mkAppN (.const name (info.levelParams.map mkLevelParam)) fixedParams
-      let isRecCall : Expr → Option Expr := fun e =>
-        if e.getAppNumArgs = varyingParams.size && e.getAppFn.isFVarOf motive.fvarId! then
-           mkAppN fn e.getAppArgs
-        else
-          none
-
-      -- Sometimes `brecOn` only supports eliminating to `Type u`, not `Sort `u`.
-      -- So just use `binductionOn` instead
-      let us := f.constLevels!.drop 1
-      let bInductionName := mkBInductionOnName indInfo.name
-      let value := mkAppN (.const bInductionName us) (args[:elimInfo.motivePos])
-      -- We may have to reorder the parameters for motive before passing it to brec
-      let brecMotive ← mkLambdaFVars targets
-        (← mkForallFVars extraArgs (mkAppN motive varyingParams))
-      let e' := mkAppN (mkApp value brecMotive) targets
-      check e'
-      let (body', mvars) ← M2.run do
-        forallTelescope (← inferType e').bindingDomain! fun xs goal => do
-          let arity := varyingParams.size + 1
-          if xs.size ≠ arity then
-            throwError "expected recursor argument to take {arity} parameters, got {xs}" else
-          let targets : Array Expr := xs[:targets.size]
-          let genIH := xs[targets.size]!
-          let extraParams := xs[targets.size+1:]
-          -- open body with the same arg
-          let body ← instantiateLambda body targets
-          removeLamda body fun oldIH body => do
-            let body ← instantiateLambda body extraParams
-            let body' ← buildInductionBody #[genIH.fvarId!] #[] goal oldIH genIH.fvarId! isRecCall body
-            if body'.containsFVar oldIH then
-              throwError m!"Did not fully eliminate {mkFVar oldIH} from induction principle body:{indentExpr body}"
-            mkLambdaFVars (targets.push genIH) (← mkLambdaFVars extraParams body')
-      let e' := mkApp e' body'
-      let e' := mkAppN e' extraArgs
-      let e' ← mkLambdaFVars varyingParams e'
-      let e' ← abstractIndependentMVars mvars motive.fvarId! e'
-      let e' ← mkLambdaFVars #[motive] e'
-
-      -- We could pass (usedOnly := true) below, and get nicer induction principles that
-      -- do do not mention odd unused parameters.
-      -- But the downside is that automatic instantiation of the principle (e.g. in a tactic
-      -- that derives them from an function application in the goal) is harder, as
-      -- one would have to infer or keep track of which parameters to pass.
-      -- So for now lets just keep them around.
-      let e' ← mkLambdaFVars (binderInfoForMVars := .default) fixedParams e'
-      instantiateMVars e'
-
-  unless (← isTypeCorrect e') do
-    logError m!"failed to derive induction priciple:{indentExpr e'}"
-    check e'
-
-  let eTyp ← inferType e'
-  let eTyp ← elimOptParam eTyp
-  -- logInfo m!"eTyp: {eTyp}"
-  let params := (collectLevelParams {} eTyp).params
-  -- Prune unused level parameters, preserving the original order
-  let us := info.levelParams.filter (params.contains ·)
-
-  addDecl <| Declaration.thmDecl
-    { name := inductName, levelParams := us, type := eTyp, value := e' }
 
 /--
 In the type of `value`, reduces
@@ -981,6 +877,111 @@ def deriveUnpackedInduction (eqnInfo : WF.EqnInfo) (unaryInductName : Name): Met
         mkLambdaFVars xs value
       let type ← inferType value
       addDecl <| Declaration.thmDecl { name := inductName, levelParams, type, value }
+
+def stripPProdProjs (e : Expr) : Expr :=
+  match e with
+  | .proj ``PProd _ e' => stripPProdProjs e'
+  | .proj ``And _ e' => stripPProdProjs e'
+  | e => e
+
+/--
+Given a recursive definition `foo` defined via structural recursion, derive `foo.induct` for it. See
+module doc for details.
+ -/
+def deriveStructuralInduction (name : Name) : MetaM Unit := do
+  let inductName := .append name `induct
+  if ← hasConst inductName then return
+
+  let info ← getConstInfoDefn name
+
+  let varNames ← forallTelescope info.type fun xs _ => xs.mapM (·.fvarId!.getUserName)
+
+  let e' ← lambdaTelescope info.value fun params body => (stripPProdProjs body).withApp fun f args => do
+    MatcherApp.withUserNames params varNames do
+      unless isBRecOnRecursor (← getEnv) f.constName! do
+        throwError "Body of strucually recursive function not as expected:{indentExpr body}"
+      -- Bail out on mutual or nested inductives
+      let .str indName _ := f.constName! | unreachable!
+      let indInfo ← getConstInfoInduct indName
+      if indInfo.numTypeFormers > 1 then
+        throwError "functional induction: cannot handle mutual or nested inductives"
+
+      let elimInfo ← getElimExprInfo f
+      let targets : Array Expr := elimInfo.targetsPos.map (args[·]!)
+      let body := args[elimInfo.motivePos + 1 + elimInfo.targetsPos.size]!
+      let extraArgs : Array Expr := args[elimInfo.motivePos + 1 + elimInfo.targetsPos.size + 1:]
+
+      let fixedParams := params.filter fun x => !(targets.contains x || extraArgs.contains x)
+      let varyingParams := params.filter fun x => targets.contains x || extraArgs.contains x
+      unless params == fixedParams ++ varyingParams do
+        throwError "functional induction: unexpected order of fixed and varying parameters:{indentExpr body}"
+      unless 1 ≤ f.constLevels!.length do
+        throwError "functional induction: unexpected recursor: {f} has no universe parameters"
+
+      let motiveType ← mkForallFVars varyingParams (.sort levelZero)
+      withLocalDecl `motive .default motiveType fun motive => do
+
+      let fn := mkAppN (.const name (info.levelParams.map mkLevelParam)) fixedParams
+      let isRecCall : Expr → Option Expr := fun e =>
+        if e.getAppNumArgs = varyingParams.size && e.getAppFn.isFVarOf motive.fvarId! then
+           mkAppN fn e.getAppArgs
+        else
+          none
+
+      -- Sometimes `brecOn` only supports eliminating to `Type u`, not `Sort `u`.
+      -- So just use `binductionOn` instead
+      let us := f.constLevels!.drop 1
+      let bInductionName := mkBInductionOnName indInfo.name
+      let value := mkAppN (.const bInductionName us) (args[:elimInfo.motivePos])
+      -- We may have to reorder the parameters for motive before passing it to brec
+      let brecMotive ← mkLambdaFVars targets
+        (← mkForallFVars extraArgs (mkAppN motive varyingParams))
+      let e' := mkAppN (mkApp value brecMotive) targets
+      check e'
+      let (body', mvars) ← M2.run do
+        forallTelescope (← inferType e').bindingDomain! fun xs goal => do
+          let arity := varyingParams.size + 1
+          if xs.size ≠ arity then
+            throwError "expected recursor argument to take {arity} parameters, got {xs}" else
+          let targets : Array Expr := xs[:targets.size]
+          let genIH := xs[targets.size]!
+          let extraParams := xs[targets.size+1:]
+          -- open body with the same arg
+          let body ← instantiateLambda body targets
+          removeLamda body fun oldIH body => do
+            let body ← instantiateLambda body extraParams
+            let body' ← buildInductionBody #[genIH.fvarId!] #[] goal oldIH genIH.fvarId! isRecCall body
+            if body'.containsFVar oldIH then
+              throwError m!"Did not fully eliminate {mkFVar oldIH} from induction principle body:{indentExpr body}"
+            mkLambdaFVars (targets.push genIH) (← mkLambdaFVars extraParams body')
+      let e' := mkApp e' body'
+      let e' := mkAppN e' extraArgs
+      let e' ← mkLambdaFVars varyingParams e'
+      let e' ← abstractIndependentMVars mvars motive.fvarId! e'
+      let e' ← mkLambdaFVars #[motive] e'
+
+      -- We could pass (usedOnly := true) below, and get nicer induction principles that
+      -- do do not mention odd unused parameters.
+      -- But the downside is that automatic instantiation of the principle (e.g. in a tactic
+      -- that derives them from an function application in the goal) is harder, as
+      -- one would have to infer or keep track of which parameters to pass.
+      -- So for now lets just keep them around.
+      let e' ← mkLambdaFVars (binderInfoForMVars := .default) fixedParams e'
+      instantiateMVars e'
+
+  unless (← isTypeCorrect e') do
+    logError m!"failed to derive induction priciple:{indentExpr e'}"
+    check e'
+
+  let eTyp ← inferType e'
+  let eTyp ← elimOptParam eTyp
+  -- logInfo m!"eTyp: {eTyp}"
+  let params := (collectLevelParams {} eTyp).params
+  -- Prune unused level parameters, preserving the original order
+  let us := info.levelParams.filter (params.contains ·)
+
+  addDecl <| Declaration.thmDecl
+    { name := inductName, levelParams := us, type := eTyp, value := e' }
 
 /--
 Given a recursively defined function `foo`, derives `foo.induct`. See the module doc for details.

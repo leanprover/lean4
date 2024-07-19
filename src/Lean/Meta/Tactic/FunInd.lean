@@ -756,13 +756,6 @@ def findRecursor {α} (name : Name) (varNames : Array Name) (e : Expr)
         throwError m!"Function {name} is defined in a way not supported by functional induction, " ++
           "for example by recursion over an inductive predicate."
       else match_expr body with
-      | WellFounded.fixF α rel _motive body target acc =>
-        unless params.back == target do
-          throwError "functional induction: expected the target as last parameter{indentExpr e}"
-        let value := .const ``WellFounded.fixF [f.constLevels![0]!, levelZero]
-        k true params.pop #[params.back] 1 body
-          (fun newMotive => pure (mkApp3 value α rel newMotive))
-          (fun value newBody => mkApp2 value newBody acc)
       | WellFounded.fix α _motive rel wf body target =>
         unless params.back == target do
           throwError "functional induction: expected the target as last parameter{indentExpr e}"
@@ -779,12 +772,96 @@ def findRecursor {α} (name : Name) (varNames : Array Name) (e : Expr)
 
 
 /--
-Given a definition `foo` defined via `WellFounded.fixF`, derive a suitable induction principle
+Given a unary definition `foo` defined via `WellFounded.fixF`, derive a suitable induction principle
 `foo.induct` for it. See module doc for details.
  -/
 def deriveUnaryInduction (name : Name) : MetaM Name := do
   let inductName := .append name `induct
   if ← hasConst inductName then return inductName
+
+  let info ← getConstInfoDefn name
+
+  let varNames ← forallTelescope info.type fun xs _ => xs.mapM (·.fvarId!.getUserName)
+
+  -- Uses of WellFounded.fix can be partially applied. Here we eta-expand the body
+  -- to avoid dealing with this
+  let e ← lambdaTelescope info.value fun params body => do mkLambdaFVars params (← etaExpand body)
+  let e' ← lambdaTelescope e fun params body => MatcherApp.withUserNames params varNames do
+    match_expr body with
+    | fix@WellFounded.fix α _motive rel wf body target =>
+      unless params.back == target do
+        throwError "functional induction: expected the target as last parameter{indentExpr e}"
+      let value := .const ``WellFounded.fix [fix.constLevels![0]!, levelZero]
+      let fixedParams := params.pop
+      let varyingParams := #[target]
+      let motivePosInBody := 1
+      let mkAppMotive := (fun newMotive => pure (mkApp4 value α newMotive rel wf))
+      let mkAppBody := (fun value newBody => mkApp2 value newBody target)
+      let motiveType ← mkForallFVars varyingParams (.sort levelZero)
+      withLocalDecl `motive .default motiveType fun motive => do
+
+      let fn := mkAppN (.const name (info.levelParams.map mkLevelParam)) fixedParams
+      let isRecCall : Expr → Option Expr := fun e =>
+        if e.getAppNumArgs = varyingParams.size && e.getAppFn.isFVarOf motive.fvarId! then
+          mkAppN fn e.getAppArgs
+        else
+          none
+
+      let e' ← mkAppMotive motive
+      check e'
+      let (body', mvars) ← M2.run do
+        forallTelescope (← inferType e').bindingDomain! fun xs goal => do
+          let arity := varyingParams.size + 1
+          if xs.size ≠ arity then
+            throwError "expected recursor argument to take {arity} parameters, got {xs}" else
+          let targets : Array Expr := xs[:motivePosInBody]
+          let genIH := xs[motivePosInBody]!
+          let extraParams := xs[motivePosInBody+1:]
+          -- open body with the same arg
+          let body ← instantiateLambda body targets
+          removeLamda body fun oldIH body => do
+            let body ← instantiateLambda body extraParams
+            let body' ← buildInductionBody #[genIH.fvarId!] #[] goal oldIH genIH.fvarId! isRecCall body
+            if body'.containsFVar oldIH then
+              throwError m!"Did not fully eliminate {mkFVar oldIH} from induction principle body:{indentExpr body}"
+            mkLambdaFVars (targets.push genIH) (← mkLambdaFVars extraParams body')
+      let e' := mkAppBody e' body'
+      let e' ← mkLambdaFVars varyingParams e'
+      let e' ← abstractIndependentMVars mvars motive.fvarId! e'
+      let e' ← mkLambdaFVars #[motive] e'
+
+      -- We could pass (usedOnly := true) below, and get nicer induction principles that
+      -- do do not mention odd unused parameters.
+      -- But the downside is that automatic instantiation of the principle (e.g. in a tactic
+      -- that derives them from an function application in the goal) is harder, as
+      -- one would have to infer or keep track of which parameters to pass.
+      -- So for now lets just keep them around.
+      let e' ← mkLambdaFVars (binderInfoForMVars := .default) fixedParams e'
+      instantiateMVars e'
+
+    | _ => throwError "TODO"
+  unless (← isTypeCorrect e') do
+    logError m!"failed to derive induction priciple:{indentExpr e'}"
+    check e'
+
+  let eTyp ← inferType e'
+  let eTyp ← elimOptParam eTyp
+  -- logInfo m!"eTyp: {eTyp}"
+  let params := (collectLevelParams {} eTyp).params
+  -- Prune unused level parameters, preserving the original order
+  let us := info.levelParams.filter (params.contains ·)
+
+  addDecl <| Declaration.thmDecl
+    { name := inductName, levelParams := us, type := eTyp, value := e' }
+  return inductName
+
+/--
+Given a recursive definition `foo` defined via structural recursion, derive `foo.induct` for it. See
+module doc for details.
+ -/
+def deriveStructuralInduction (name : Name) : MetaM Unit := do
+  let inductName := .append name `induct
+  if ← hasConst inductName then return
 
   let info ← getConstInfoDefn name
 
@@ -847,7 +924,6 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
 
   addDecl <| Declaration.thmDecl
     { name := inductName, levelParams := us, type := eTyp, value := e' }
-  return inductName
 
 /--
 In the type of `value`, reduces
@@ -977,8 +1053,10 @@ def deriveInduction (name : Name) : MetaM Unit := do
     let unaryInductName ← deriveUnaryInduction eqnInfo.declNameNonRec
     unless eqnInfo.declNameNonRec = name do
       deriveUnpackedInduction eqnInfo unaryInductName
+  else if let some eqnInfo := Structural.eqnInfoExt.find? (← getEnv) name then
+    deriveStructuralInduction eqnInfo.declName
   else
-    _ ← deriveUnaryInduction name
+    throwError "Cannot derive functional induction principle for {name}: Not defined by structural or well-founded recursion"
 
 def isFunInductName (env : Environment) (name : Name) : Bool := Id.run do
   let .str p s := name | return false

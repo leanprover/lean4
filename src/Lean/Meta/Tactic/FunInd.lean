@@ -189,42 +189,6 @@ differences:
 
 set_option autoImplicit false
 
-namespace Lean
-
-def ArrayWriterT α m := StateT (Array α) m
-
-namespace ArrayWriterT
-
-variable {α β : Type}
-variable {m : Type → Type} [Monad m]
-
-instance [Monad m] : Monad (ArrayWriterT α m) := inferInstanceAs (Monad (StateT _ _))
-instance [Monad m] : MonadControlT m (ArrayWriterT α m) := inferInstanceAs (MonadControlT _ (StateT _ _))
-instance [Monad m] : MonadLift m (ArrayWriterT α m) := inferInstanceAs (MonadLift _ (StateT _ _))
-instance {e} [MonadExceptOf e m] : MonadExceptOf e (ArrayWriterT α m) := inferInstanceAs (MonadExceptOf e (StateT _ _))
-instance [MonadRef m] : MonadRef (ArrayWriterT α m) := inferInstanceAs (MonadRef (StateT _ _))
-instance [AddMessageContext m] : AddMessageContext (ArrayWriterT α m) := inferInstanceAs (AddMessageContext (StateT _ _))
-
-def run (act : ArrayWriterT α m β) : m (β × Array α) := StateT.run act #[]
-
-def tell (x : α) : ArrayWriterT α m Unit := fun xs => pure ((), xs.push x)
-
-def localM (f : Array α → m (Array α)) (act : ArrayWriterT α m β) : ArrayWriterT α m β := fun xs => do
-  let (b, xs') ← act #[]
-  pure (b, xs ++ (← f xs'))
-
-def «local» (f : Array α → Array α) (act : ArrayWriterT α m β) : ArrayWriterT α m β :=
-  localM (fun xs => pure (f xs)) act
-
-def localMapM (f : α → m α) (act : ArrayWriterT α m β) : ArrayWriterT α m β :=
-  localM (·.mapM f) act
-
-def localMap (f : α →  α) (act : ArrayWriterT α m β) : ArrayWriterT α m β :=
-  «local» (·.map f) act
-
-end ArrayWriterT
-end Lean
-
 namespace Lean.Tactic.FunInd
 
 open Lean Elab Meta
@@ -289,31 +253,50 @@ def isPProdProjWithArgs (oldIH newIH : FVarId) (e : Expr) : MetaM (Option (Expr 
       return some (e', args)
   return none
 
-
-mutual
 /--
+A monad to help collecting inductive hypothesis.
+
+In `foldAndCollect` it's a writer monad (with variants of the `local` combinator),
+and in `buildInductionBody` it is more of a reader monad, with inductive hypotheses
+being passed down (hence the `ask` and `branch` combinator).
+-/
+abbrev M := StateT (Array Expr) MetaM
+
+namespace M
+
+variable {α : Type}
+
+def run (act : M α) : MetaM (α × Array Expr) := StateT.run act #[]
+def eval (act : M α) : MetaM α := do return (← run act).1
+def exec (act : M α) : MetaM (Array Expr) := do return (← run act).2
+
+def tell (x : Expr) : M Unit := fun xs => pure ((), xs.push x)
+
+def localM (f : Array Expr → MetaM (Array Expr)) (act : M α) : M α := fun xs => do
+  let n := xs.size
+  let (b, xs') ← act xs
+  pure (b, xs'[:n] ++ (← f xs'[n:]))
+
+def localMapM (f : Expr → MetaM Expr) (act : M α) : M α :=
+  localM (·.mapM f) act
+
+def ask : M (Array Expr) := get
+
+def branch (act : M α) : M α :=
+  localM (fun _ => pure #[]) act
+
+end M
+
+/--
+TODO
+
 Replace calls to oldIH back to calls to the original function. At the end, if `oldIH` occurs, an
 error is thrown.
 
 The `newIH` will not show up in the output of `foldCalls`, we use it as a helper to infer the
 argument of nested recursive calls when we have structural recursion.
 -/
-partial def foldCalls (oldIH newIH : FVarId) (motive : FVarId) (fn : Expr) (e : Expr) : MetaM Expr := do
-  let (e, _IHs) ← (foldAndCollect oldIH newIH motive fn e).run
-  pure e
-
-/-
-In non-tail-positions, we collect the induction hypotheses from all the recursive calls.
--/
--- We could run `collectIHs` and `foldCalls` together, and save a few traversals. Not sure if it
--- worth the extra code complexity.
--- Also, this way of collecting arrays is not as efficient as a left-fold, but we do not expect
--- large arrays here.
-partial def collectIHs (oldIH newIH : FVarId) (motive : FVarId) (fn : Expr) (e : Expr) : MetaM (Array Expr) := do
-  let (_e, IHs) ← (foldAndCollect oldIH newIH motive fn e).run
-  pure IHs
-
-partial def foldAndCollect (oldIH newIH : FVarId) (motive : FVarId) (fn : Expr) (e : Expr) : ArrayWriterT Expr MetaM Expr := do
+partial def foldAndCollect (oldIH newIH : FVarId) (motive : FVarId) (fn : Expr) (e : Expr) : M Expr := do
   unless e.containsFVar oldIH do
     return e
   trace[FunInd] "foldAndCollect ({mkFVar oldIH} → {mkFVar newIH}):{indentExpr e}"
@@ -323,19 +306,22 @@ partial def foldAndCollect (oldIH newIH : FVarId) (motive : FVarId) (fn : Expr) 
       let t' ← foldAndCollect oldIH newIH motive fn t
       let v' ← foldAndCollect oldIH newIH motive fn v
       return ← withLetDecl n t' v' fun x => do
-        ArrayWriterT.localMapM (mkLetFVars (usedLetOnly := true) #[x] ·) do
+        M.localMapM (mkLetFVars (usedLetOnly := true) #[x] ·) do
           let b' ← foldAndCollect oldIH newIH motive fn (b.instantiate1 x)
           mkLetFun x v' b'
 
     if let some matcherApp ← matchMatcherApp? e (alsoCasesOn := true) then
       if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
-        -- We do very different things to the matcher when folding and when collecting
-        -- inductive hypotheses, so we cannot do this in one go.
+        -- We do different things to the matcher when folding recursive calls and when
+        -- collecting inductive hypotheses. Therfore we do it separately,
+        -- droppin got `MetaM` in between, and using `M.eval`/`M.exec` as appropriate
+        -- We could try to do it in one pass by breaking up the `matcherApp.transform`
+        -- abstraction.
 
         -- To collect the IHs, we collect them in each branch, and combine
         -- them to a type-leve match
         let ihMatcherApp' ← liftM <| matcherApp.transform
-          (onParams := foldCalls oldIH newIH motive fn)
+          (onParams := fun e => M.eval <| foldAndCollect oldIH newIH motive fn e)
           (onMotive := fun xs _body => do
             -- Remove the old IH that was added in mkFix
             let eType ← newIH.getType
@@ -353,22 +339,22 @@ partial def foldAndCollect (oldIH newIH : FVarId) (motive : FVarId) (fn : Expr) 
             removeLamda alt fun oldIH' alt => do
               forallBoundedTelescope altType (some 1) fun newIH' _goal' => do
                 let #[newIH'] := newIH' | unreachable!
-                let altIHs ← collectIHs oldIH' newIH'.fvarId! motive fn alt
+                let altIHs ← M.exec <| foldAndCollect oldIH' newIH'.fvarId! motive fn alt
                 let altIH ← mkAndIntroN altIHs
                 mkLambdaFVars #[newIH'] altIH)
           (onRemaining := fun _ => pure #[mkFVar newIH])
         let ihMatcherApp'' ← ihMatcherApp'.inferMatchType
-        ArrayWriterT.tell ihMatcherApp''.toExpr
+        M.tell ihMatcherApp''.toExpr
 
         -- Folding the calls is straight forward
         let matcherApp' ← liftM <| matcherApp.transform
-          (onParams := foldCalls oldIH newIH motive fn)
+          (onParams := fun e => M.eval <| foldAndCollect oldIH newIH motive fn e)
           (onMotive := fun _motiveArgs motiveBody => do
             let some (_extra, body) := motiveBody.arrow? | throwError "motive not an arrow"
-            foldCalls oldIH newIH motive fn body)
+            M.eval (foldAndCollect oldIH newIH motive fn body))
           (onAlt := fun _altType alt => do
             removeLamda alt fun oldIH alt => do
-              foldCalls oldIH newIH motive fn alt)
+              M.eval (foldAndCollect oldIH newIH motive fn alt))
           (onRemaining := fun _ => pure #[])
         return matcherApp'.toExpr
 
@@ -393,14 +379,14 @@ partial def foldAndCollect (oldIH newIH : FVarId) (motive : FVarId) (fn : Expr) 
     | .lam n t body bi =>
       let t' ← foldAndCollect oldIH newIH motive fn t
       withLocalDecl n bi t' fun x => do
-        ArrayWriterT.localMapM (mkLambdaFVars (usedOnly := true) #[x] ·) do
+        M.localMapM (mkLambdaFVars (usedOnly := true) #[x] ·) do
           let body' ← foldAndCollect oldIH newIH motive fn (body.instantiate1 x)
           mkLambdaFVars #[x] body'
 
     | .forallE n t body bi =>
       let t' ← foldAndCollect oldIH newIH motive fn t
       withLocalDecl n bi t' fun x => do
-        ArrayWriterT.localMapM (mkLambdaFVars (usedOnly := true) #[x] ·) do
+        M.localMapM (mkLambdaFVars (usedOnly := true) #[x] ·) do
           let body' ← foldAndCollect oldIH newIH motive fn (body.instantiate1 x)
           mkForallFVars #[x] body'
 
@@ -408,7 +394,7 @@ partial def foldAndCollect (oldIH newIH : FVarId) (motive : FVarId) (fn : Expr) 
       let t' ← foldAndCollect oldIH newIH motive fn t
       let v' ← foldAndCollect oldIH newIH motive fn v
       withLetDecl n t' v' fun x => do
-        ArrayWriterT.localMapM (mkLetFVars (usedLetOnly := true) #[x] ·) do
+        M.localMapM (mkLetFVars (usedLetOnly := true) #[x] ·) do
           let b' ← foldAndCollect oldIH newIH motive fn (b.instantiate1 x)
           mkLetFVars #[x] b'
 
@@ -438,12 +424,10 @@ partial def foldAndCollect (oldIH newIH : FVarId) (motive : FVarId) (fn : Expr) 
     -- TODO: Cache the arity
     let arity ← forallTelescope (← inferType (mkFVar motive)) fun xs _ => pure xs.size
     if args.size = arity then
-      ArrayWriterT.tell (← mkExpectedTypeHint e' eType)
+      M.tell (← mkExpectedTypeHint e' eType)
       return mkAppN fn args
 
   return e'
-end
-
 
 -- Because of term duplications we might encounter the same IH multiple times.
 -- We deduplicate them (by type, not proof term) here.
@@ -481,15 +465,22 @@ def substVarAfter (mvarId : MVarId) (x : FVarId) : MetaM MVarId := do
     return mvarId
 
 /--
-Helper monad to traverse the function body, collecting the cases as mvars
+Second helper monad collecting the cases as mvars
 -/
-abbrev M α := StateT (Array MVarId) MetaM α
+abbrev M2 α := StateT (Array MVarId) M α
+
+def M2.run {α} (act : M2 α) : MetaM (α × Array MVarId) :=
+  M.eval (StateT.run (s := #[]) act)
+
+def M2.branch {α} (act : M2 α) : M2 α :=
+  controlAt M fun runInBase => M.branch (runInBase act)
 
 
 /-- Base case of `buildInductionBody`: Construct a case for the final induction hypthesis.  -/
 def buildInductionCase (oldIH newIH : FVarId) (motive : FVarId) (fn : Expr) (toClear toPreserve : Array FVarId)
-    (goal : Expr) (IHs : Array Expr) (e : Expr) : M Expr := do
-  let IHs := IHs ++ (← collectIHs oldIH newIH motive fn e)
+    (goal : Expr)  (e : Expr) : M2 Expr := do
+  let _e' ← foldAndCollect oldIH newIH motive fn e
+  let IHs : Array Expr ← M.ask
   let IHs ← deduplicateIHs IHs
 
   let mvar ← mkFreshExprSyntheticOpaqueMVar goal (tag := `hyp)
@@ -543,34 +534,32 @@ where it calls `buildInductionCase`. Collects the cases of the final induction h
 as `MVars` as it goes.
 -/
 partial def buildInductionBody (toClear toPreserve : Array FVarId) (goal : Expr)
-    (oldIH newIH : FVarId)  (motive : FVarId) (fn : Expr) (IHs : Array Expr) (e : Expr) : M Expr := do
+    (oldIH newIH : FVarId)  (motive : FVarId) (fn : Expr) (e : Expr) : M2 Expr := do
   -- logInfo m!"buildInductionBody {e}"
 
   -- if-then-else cause case split:
   match_expr e with
   | ite _α c h t f =>
-    let IHs := IHs ++ (← collectIHs oldIH newIH motive fn c)
-    let c' ← foldCalls oldIH newIH motive fn c
-    let h' ← foldCalls oldIH newIH motive fn h
-    let t' ← withLocalDecl `h .default c' fun h => do
-      let t' ← buildInductionBody toClear (toPreserve.push h.fvarId!) goal oldIH newIH motive fn IHs t
+    let c' ← foldAndCollect oldIH newIH motive fn c
+    let h' ← foldAndCollect oldIH newIH motive fn h
+    let t' ← withLocalDecl `h .default c' fun h => M2.branch do
+      let t' ← buildInductionBody toClear (toPreserve.push h.fvarId!) goal oldIH newIH motive fn t
       mkLambdaFVars #[h] t'
-    let f' ← withLocalDecl `h .default (mkNot c') fun h => do
-      let f' ← buildInductionBody toClear (toPreserve.push h.fvarId!) goal oldIH newIH motive fn IHs f
+    let f' ← withLocalDecl `h .default (mkNot c') fun h => M2.branch do
+      let f' ← buildInductionBody toClear (toPreserve.push h.fvarId!) goal oldIH newIH motive fn f
       mkLambdaFVars #[h] f'
     let u ← getLevel goal
     return mkApp5 (mkConst ``dite [u]) goal c' h' t' f'
   | dite _α c h t f =>
-    let IHs := IHs ++ (← collectIHs oldIH newIH motive fn c)
-    let c' ← foldCalls oldIH newIH motive fn c
-    let h' ← foldCalls oldIH newIH motive fn h
-    let t' ← withLocalDecl `h .default c' fun h => do
+    let c' ← foldAndCollect oldIH newIH motive fn c
+    let h' ← foldAndCollect oldIH newIH motive fn h
+    let t' ← withLocalDecl `h .default c' fun h => M2.branch do
       let t ← instantiateLambda t #[h]
-      let t' ← buildInductionBody toClear (toPreserve.push h.fvarId!) goal oldIH newIH motive fn IHs t
+      let t' ← buildInductionBody toClear (toPreserve.push h.fvarId!) goal oldIH newIH motive fn t
       mkLambdaFVars #[h] t'
-    let f' ← withLocalDecl `h .default (mkNot c') fun h => do
+    let f' ← withLocalDecl `h .default (mkNot c') fun h => M2.branch do
       let f ← instantiateLambda f #[h]
-      let f' ← buildInductionBody toClear (toPreserve.push h.fvarId!) goal oldIH newIH motive fn IHs f
+      let f' ← buildInductionBody toClear (toPreserve.push h.fvarId!) goal oldIH newIH motive fn f
       mkLambdaFVars #[h] f'
     let u ← getLevel goal
     return mkApp5 (mkConst ``dite [u]) goal c' h' t' f'
@@ -578,10 +567,6 @@ partial def buildInductionBody (toClear toPreserve : Array FVarId) (goal : Expr)
 
   -- match and casesOn application cause case splitting
   if let some matcherApp ← matchMatcherApp? e (alsoCasesOn := true) then
-    -- Collect IHs from the parameters and discrs of the matcher
-    let paramsAndDiscrs := matcherApp.params ++ matcherApp.discrs
-    let IHs := IHs ++ (← paramsAndDiscrs.concatMapM (collectIHs oldIH newIH motive fn ·))
-
     -- Calculate motive
     let eType ← newIH.getType
     let motiveBody ← mkArrow eType goal
@@ -592,13 +577,13 @@ partial def buildInductionBody (toClear toPreserve : Array FVarId) (goal : Expr)
     if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
       let matcherApp' ← matcherApp.transform (useSplitter := true)
         (addEqualities := mask.map not)
-        (onParams := (foldCalls oldIH newIH motive fn ·))
+        (onParams := (foldAndCollect oldIH newIH motive fn ·))
         (onMotive := fun xs _body => pure (absMotiveBody.beta (maskArray mask xs)))
-        (onAlt := fun expAltType alt => do
+        (onAlt := fun expAltType alt => M2.branch do
           removeLamda alt fun oldIH' alt => do
             forallBoundedTelescope expAltType (some 1) fun newIH' goal' => do
               let #[newIH'] := newIH' | unreachable!
-              let alt' ← buildInductionBody (toClear.push newIH'.fvarId!) toPreserve goal' oldIH' newIH'.fvarId! motive fn IHs alt
+              let alt' ← buildInductionBody (toClear.push newIH'.fvarId!) toPreserve goal' oldIH' newIH'.fvarId! motive fn alt
               mkLambdaFVars #[newIH'] alt')
         (onRemaining := fun _ => pure #[.fvar newIH])
       return matcherApp'.toExpr
@@ -611,29 +596,27 @@ partial def buildInductionBody (toClear toPreserve : Array FVarId) (goal : Expr)
 
       let matcherApp' ← matcherApp.transform (useSplitter := true)
         (addEqualities := mask.map not)
-        (onParams := (foldCalls oldIH newIH motive fn ·))
+        (onParams := (foldAndCollect oldIH newIH motive fn ·))
         (onMotive := fun xs _body => pure (absMotiveBody.beta (maskArray mask xs)))
-        (onAlt := fun expAltType alt => do
-          buildInductionBody toClear toPreserve expAltType oldIH newIH motive fn IHs alt)
+        (onAlt := fun expAltType alt => M2.branch do
+          buildInductionBody toClear toPreserve expAltType oldIH newIH motive fn alt)
       return matcherApp'.toExpr
 
   if let .letE n t v b _ := e then
-    let IHs := IHs ++ (← collectIHs oldIH newIH motive fn v)
-    let t' ← foldCalls oldIH newIH motive fn t
-    let v' ← foldCalls oldIH newIH motive fn v
-    return ← withLetDecl n t' v' fun x => do
-      let b' ← buildInductionBody toClear toPreserve goal oldIH newIH motive fn IHs (b.instantiate1 x)
+    let t' ← foldAndCollect oldIH newIH motive fn t
+    let v' ← foldAndCollect oldIH newIH motive fn v
+    return ← withLetDecl n t' v' fun x => M2.branch do
+      let b' ← buildInductionBody toClear toPreserve goal oldIH newIH motive fn (b.instantiate1 x)
       mkLetFVars #[x] b'
 
   if let some (n, t, v, b) := e.letFun? then
-    let IHs := IHs ++ (← collectIHs oldIH newIH motive fn v)
-    let t' ← foldCalls oldIH newIH motive fn t
-    let v' ← foldCalls oldIH newIH motive fn v
-    return ← withLocalDecl n .default t' fun x => do
-      let b' ← buildInductionBody toClear toPreserve goal oldIH newIH motive fn IHs (b.instantiate1 x)
+    let t' ← foldAndCollect oldIH newIH motive fn t
+    let v' ← foldAndCollect oldIH newIH motive fn v
+    return ← withLocalDecl n .default t' fun x => M2.branch do
+      let b' ← buildInductionBody toClear toPreserve goal oldIH newIH motive fn (b.instantiate1 x)
       mkLetFun x v' b'
 
-  liftM <| buildInductionCase oldIH newIH motive fn toClear toPreserve goal IHs e
+  liftM <| buildInductionCase oldIH newIH motive fn toClear toPreserve goal e
 
 /--
 Given an expression `e` with metavariables
@@ -799,7 +782,7 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
       let fn := mkAppN (.const name (info.levelParams.map mkLevelParam)) fixedParams
       let e' ← mkAppMotive motive
       check e'
-      let (body', mvars) ← StateT.run (s := {}) do
+      let (body', mvars) ← M2.run do
         forallTelescope (← inferType e').bindingDomain! fun xs goal => do
           let arity := varyingParams.size + 1
           if xs.size ≠ arity then
@@ -811,7 +794,7 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
           let body ← instantiateLambda body targets
           removeLamda body fun oldIH body => do
             let body ← instantiateLambda body extraParams
-            let body' ← buildInductionBody #[genIH.fvarId!] #[] goal oldIH genIH.fvarId! motive.fvarId! fn #[] body
+            let body' ← buildInductionBody #[genIH.fvarId!] #[] goal oldIH genIH.fvarId! motive.fvarId! fn body
             if body'.containsFVar oldIH then
               throwError m!"Did not fully eliminate {mkFVar oldIH} from induction principle body:{indentExpr body}"
             mkLambdaFVars (targets.push genIH) (← mkLambdaFVars extraParams body')

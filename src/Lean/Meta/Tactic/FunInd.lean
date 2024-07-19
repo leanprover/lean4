@@ -757,6 +757,12 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
     { name := inductName, levelParams := us, type := eTyp, value := e' }
   return inductName
 
+def stripPProdProjs (e : Expr) : Expr :=
+  match e with
+  | .proj ``PProd _ e' => stripPProdProjs e'
+  | .proj ``And _ e' => stripPProdProjs e'
+  | e => e
+
 /--
 Given a recursive definition `foo` defined via structural recursion, derive `foo.induct` for it. See
 module doc for details.
@@ -769,7 +775,7 @@ def deriveStructuralInduction (name : Name) : MetaM Unit := do
 
   let varNames ← forallTelescope info.type fun xs _ => xs.mapM (·.fvarId!.getUserName)
 
-  let e' ← lambdaTelescope info.value fun params body => body.withApp fun f args => do
+  let e' ← lambdaTelescope info.value fun params body => (stripPProdProjs body).withApp fun f args => do
     MatcherApp.withUserNames params varNames do
       unless isBRecOnRecursor (← getEnv) f.constName! do
         throwError "Body of strucually recursive function not as expected:{indentExpr body}"
@@ -1000,6 +1006,8 @@ def deriveInduction (name : Name) : MetaM Unit := do
     unless eqnInfo.declNameNonRec = name do
       deriveUnpackedInduction eqnInfo unaryInductName
   else if let some eqnInfo := Structural.eqnInfoExt.find? (← getEnv) name then
+    if eqnInfo.declNames.size > 1 then
+      throwError "Induction principles for mutually structurally recursive functions are not yet supported"
     deriveStructuralInduction eqnInfo.declName
   else
     throwError "Cannot derive functional induction principle for {name}: Not defined by structural or well-founded recursion"

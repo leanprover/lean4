@@ -968,7 +968,7 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
         let motiveTypes ← infos.mapM fun info => do
           lambdaTelescope (← instantiateLambda info.value xs) fun ys _ =>
             mkForallFVars ys (.sort levelZero)
-        let motiveDecls ← motiveTypes.mapIdxM fun ⟨i,_⟩ info => do
+        let motiveDecls ← motiveTypes.mapIdxM fun ⟨i,_⟩ motiveType => do
           let n := if infos.size = 1 then .mkSimple "motive"
                                      else .mkSimple s!"motive_{i+1}"
           pure (n, fun _ => pure motiveType)
@@ -976,7 +976,7 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
 
           -- TODO: mutual
           let fn := mkAppN (.const names[0]! (infos[0]!.levelParams.map mkLevelParam)) xs
-          let arity ← forallTelescope (motiveDecls[0]!.2 []) fun xs _ => pure xs.size
+          let arity ← forallTelescope motiveTypes[0]! fun xs _ => pure xs.size
           let isRecCall : Expr → Option Expr := fun e =>
             if e.getAppNumArgs = arity && e.getAppFn.isFVarOf motives[0]!.fvarId! then
               mkAppN fn e.getAppArgs

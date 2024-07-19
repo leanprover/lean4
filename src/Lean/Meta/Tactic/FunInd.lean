@@ -288,13 +288,33 @@ def branch (act : M α) : M α :=
 end M
 
 /--
-TODO
+The `foldAndCollect` function performs two operations together:
 
-Replace calls to oldIH back to calls to the original function. At the end, if `oldIH` occurs, an
-error is thrown.
+ * it fold recursive calls: applications (and projectsions) of `oldIH` in `e` correspond to
+   recursive calls, so this function rewrites that back to recursive calls
+ * it collects induction hypotheses: after replacing `oldIH` with `newIH`, applications thereof
+   are valuable as induction hypotheses for the cases.
 
-The `newIH` will not show up in the output of `foldCalls`, we use it as a helper to infer the
-argument of nested recursive calls when we have structural recursion.
+For well-founded recursion (unary, non-mutual by construction) the terms are rather simple: they
+are `oldIH arg proof`, and can be rewritten to `f arg` resp. `newIH arg proof`. But for
+structural recursion this can be a more complicted mix of function applications (due to reflexive
+data types or extra function arguments) and `PProd` projections (due to the below construction and
+mutual function packing), and the main function argument isn't even present.
+
+To avoid having to think about this, we apply a nice trick:
+
+We compositionally replace `oldIH` with `newIH`. This likely changes the result type, so when
+re-assembling we have to be supple (mainly around `PProd.fst`/`PProd.snd`). As we re-assemble
+the term we check if it has type `motive xs..`. If it has, then know we have just found and
+rewritten a recursive call, and this type nicely provides us the arguments `xs`. So at this point
+we store the rewritten expression as a new induction hypothesis (using `M.tell`) and rewrite to
+`f xs..`, which now again has the same type as the original term, and the furthe re-assembly should
+work. Half this logic is in the `isRecCall` parameter.
+
+If this process fails we’ll get weird type errors (caught later on). We'll see if we need to
+imporve the errors, for example by passing down a flag whether we expect the same type (and no
+occurrences of `newIH`), or whether we are in “supple mode”, and catch it earlier if the rewriting
+fails.
 -/
 partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr) (e : Expr) : M Expr := do
   unless e.containsFVar oldIH do
@@ -531,7 +551,6 @@ as `MVars` as it goes.
 -/
 partial def buildInductionBody (toClear toPreserve : Array FVarId) (goal : Expr)
     (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr) (e : Expr) : M2 Expr := do
-  -- logInfo m!"buildInductionBody {e}"
 
   -- if-then-else cause case split:
   match_expr e with

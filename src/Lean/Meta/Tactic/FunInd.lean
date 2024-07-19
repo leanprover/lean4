@@ -64,7 +64,7 @@ Mutual recursion is supported and results in multiple motives.
 
 For a non-mutual, unary function `foo` (or else for the `_unary` function), we
 
-1. expect its definition, possibly after some `whnf`’ing, to be of the form
+1. expect its definition to be of the form
    ```
    def foo := fun x₁ … xₙ (y : a) => WellFounded.fix (fun y' oldIH => body) y
    ```
@@ -78,7 +78,7 @@ For a non-mutual, unary function `foo` (or else for the `_unary` function), we
     fix (fun y' newIH => T[body])
    ```
 
-3. The first phase, transformation `T1[body]` (implemented in) `buildInductionBody`,
+3. The first phase, transformation `T1[body]` (implemented in `buildInductionBody`)
    mirrors the branching structure of `foo`, i.e. replicates `dite` and some matcher applications,
    while adjusting their motive. It also unfolds calls to `oldIH` and collects induction hypotheses
    in conditions (see below).
@@ -95,36 +95,35 @@ For a non-mutual, unary function `foo` (or else for the `_unary` function), we
    proof by induction, the user can reliably enter the right case. To achieve this
 
    * the matcher is replaced by its splitter, which brings extra assumptions into scope when
-     patterns are overlapping
+     patterns are overlapping (using `matcherApp.transform (useSplitter := true)`)
    * simple discriminants that are mentioned in the goal (i.e plain parameters) are instantiated
-     in the code.
+     in the goal.
    * for discriminants that are not instantiated that way, equalities connecting the discriminant
      to the instantiation are added (just as if the user wrote `match h : x with …`)
 
 4. When a tail position (no more branching) is found, function `buildInductionCase` assembles the
    type of the case: a fresh `MVar` asserts the current goal, unwanted values from the local context
-   are cleared, and the current `body` is searched for recursive calls using `collectIHs`,
+   are cleared, and the current `body` is searched for recursive calls using `foldAndCollect`,
    which are then asserted as inductive hyptheses in the `MVar`.
 
-5. The function `collectIHs` walks the term and collects the induction hypotheses for the current case
-   (with proofs). When it encounters a saturated application of `oldIH x proof`, it returns
-   `newIH x proof : motive x`.
+5. The function `foldAndCollect` walks the term and performs two operations:
 
-   Since `x` and `proof` can contain further recursive calls, it uses
-   `foldCalls` to replace these with calls to `foo`. This assumes that the
-   termination proof `proof` works nevertheless.
+   * collects the induction hypotheses for the current case (with proofs).
+   * recovering the recursive calls
 
-   Again, `collectIHs` may encounter the `Lean.Meta.Matcherapp.addArg?` idiom, and again it threads `newIH`
-   through, replacing the extra argument. The resulting type of this induction hypothesis is now
-   itself a `match` statement (cf. `Lean.Meta.MatcherApp.inferMatchType`)
+   So when it encounters a saturated application of `oldIH arg proof`, it
+   * returns `f arg` and
+   * remembers the expression `newIH arg proof : motive x` as an inductive hypothesis.
 
-   The termination proof of `foo` may have abstracted over some proofs; these proofs must be transferred, so
-   auxillary lemmas are unfolded if needed.
+   Since `arg` and `proof` can contain further recursive calls, they are folded there as well.
+   This assumes that the termination proof `proof` works nevertheless.
 
-6. The function `foldCalls` replaces calls to `oldIH` with calls to `foo` that
-   make sense to the user.
+   Again, `foldAndCollect` may encounter the `Lean.Meta.Matcherapp.addArg?` idiom, and again it
+   threads `newIH` through, replacing the extra argument. The resulting type of this induction
+   hypothesis is now itself a `match` statement (cf. `Lean.Meta.MatcherApp.inferMatchType`)
 
-   At the end of this transformation, no mention of `oldIH` must remain.
+   The termination proof of `foo` may have abstracted over some proofs; these proofs must be
+   transferred, so auxillary lemmas are unfolded if needed.
 
 7. After this construction, the MVars introduced by `buildInductionCase` are turned into parameters.
 
@@ -167,25 +166,11 @@ differences:
   Despite its name, this function does *not* recognize the `.brecOn` of inductive *predicates*,
   which we also do not support at this point.
 
+  Since (for now) we only support `Prop` in the induction principle, we rewrite to `.binductionOn`.
+
 * The elaboration of structurally recursive function can handle extra arguments. We keep the
   `motive` parameters in the original order.
-
-* The “induction hyothesis” in a `.brecOn` call is a `below x` term that contains all the possible
-  recursive calls, whic are projected out using `.fst.snd.…`. The `is_wf` flag that we pass down
-  tells us which form of induction hypothesis we are looking for.
-
-* If we have nested recursion (`foo n (foo m acc))`), then we need to infer the argument `m` of the
-  nested call `ih.fst.snd acc`. To do so reliably, we replace the `ih` with the “new `ih`”, which
-  will have type `motive m acc`, and since `motive` is a FVar we can then read off the arguments
-  off this nicely.
-
-* There exist inductive types where the `.brecOn` only supports motives producing `Type u`, but
-  not `Sort u`, but our induction principles produce `Prop`. We recognize this case and, rather
-  hazardously, replace `.brecOn` with `.binductionOn` (and thus `.below ` with `.ibelow` and
-  `PProd` with `And`). This assumes that these definitions are highly analogous.
-
 -/
-
 
 set_option autoImplicit false
 

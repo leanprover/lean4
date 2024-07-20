@@ -362,29 +362,13 @@ where
   parseHeader (old? : Option HeaderParsedSnapshot) : LeanProcessingM HeaderParsedSnapshot := do
     let ctx ← read
     let ictx := ctx.toInputContext
-    let unchanged old newStx newParserState :=
+    let unchanged old _newParserState :=
       -- when header syntax is unchanged, reuse import processing task as is and continue with
       -- parsing the first command, synchronously if possible
-      -- NOTE: even if the syntax tree is functionally unchanged, its concrete structure and the new
-      -- parser state may still have changed because of trailing whitespace and comments etc., so
-      -- they are passed separately from `old`
-      if let some oldSuccess := old.result? then
-        return {
-          ictx
-          stx := newStx
-          diagnostics := old.diagnostics
-          cancelTk? := ctx.newCancelTk
-          result? := some { oldSuccess with
-            processedSnap := (← oldSuccess.processedSnap.bindIO (sync := true) fun oldProcessed => do
-              if let some oldProcSuccess := oldProcessed.result? then
-                -- also wait on old command parse snapshot as parsing is cheap and may allow for
-                -- elaboration reuse
-                oldProcSuccess.firstCmdSnap.bindIO (sync := true) fun oldCmd =>
-                  return .pure { oldProcessed with result? := some { oldProcSuccess with
-                    firstCmdSnap := (← parseCmd oldCmd newParserState oldProcSuccess.cmdState ctx) } }
-              else
-                return .pure oldProcessed) } }
-      else return old
+      -- NOTE: even if the syntax tree is functionally unchanged, the new parser state may still
+      -- have changed because of trailing whitespace and comments etc., so it is passed separately
+      -- from `old`
+      return old
 
     -- fast path: if we have parsed the header successfully...
     if let some old := old? then
@@ -468,55 +452,24 @@ where
             )).toPArray'
         )].toPArray'
       }}
+      let prom ← IO.Promise.new
+      let parserState := Runtime.markPersistent parserState
+      let cmdState := Runtime.markPersistent cmdState
+      let ctx := Runtime.markPersistent ctx
+      let _ ← IO.asTask (parseCmd none parserState cmdState prom ctx)
       return {
         diagnostics
         infoTree? := cmdState.infoState.trees[0]!
         result? := some {
           cmdState
-          firstCmdSnap := (← parseCmd none parserState cmdState)
+          firstCmdSnap := { range? := none, task := prom.result }
         }
       }
 
   parseCmd (old? : Option CommandParsedSnapshot) (parserState : Parser.ModuleParserState)
-      (cmdState : Command.State) : LeanProcessingM (SnapshotTask CommandParsedSnapshot) := do
+      (cmdState : Command.State) (prom : IO.Promise _) : LeanProcessingM Unit := do
     let ctx ← read
 
-    -- check for cancellation, most likely during elaboration of previous command, before starting
-    -- processing of next command
-    if (← ctx.newCancelTk.isSet) then
-      -- this is a bit ugly as we don't want to adjust our API with `Option`s just for cancellation
-      -- (as no-one should look at this result in that case) but anything containing `Environment`
-      -- is not `Inhabited`
-      return .pure <| .mk (nextCmdSnap? := none) {
-        diagnostics := .empty, stx := .missing, parserState
-        elabSnap := .pure <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
-        finishedSnap := .pure { diagnostics := .empty, cmdState }
-        tacticCache := (← IO.mkRef {})
-      }
-
-    let unchanged old newParserState : BaseIO CommandParsedSnapshot :=
-      -- when syntax is unchanged, reuse command processing task as is
-      -- NOTE: even if the syntax tree is functionally unchanged, the new parser state may still
-      -- have changed because of trailing whitespace and comments etc., so it is passed separately
-      -- from `old`
-      if let some oldNext := old.nextCmdSnap? then
-        return .mk (data := old.data)
-          (nextCmdSnap? := (← old.data.finishedSnap.bindIO (sync := true) fun oldFinished =>
-            -- also wait on old command parse snapshot as parsing is cheap and may allow for
-            -- elaboration reuse
-            oldNext.bindIO (sync := true) fun oldNext => do
-              parseCmd oldNext newParserState oldFinished.cmdState ctx))
-      else return old  -- terminal command, we're done!
-
-    -- fast path, do not even start new task for this snapshot
-    if let some old := old? then
-      if let some nextCom ← old.nextCmdSnap?.bindM (·.get?) then
-        if (← isBeforeEditPos nextCom.data.parserState.pos) then
-          return .pure (← unchanged old old.data.parserState)
-
-    SnapshotTask.ofIO (some ⟨parserState.pos, ctx.input.endPos⟩) (Runtime.markPersistent <| doParseCmd old? parserState cmdState ctx)
-
-  doParseCmd old? parserState cmdState ctx := do
       let beginPos := parserState.pos
       let scope := cmdState.scopes.head!
       let pmctx := {
@@ -537,9 +490,8 @@ where
 
       let next? ← if Parser.isTerminalCommand stx then pure none
         -- for now, wait on "command finished" snapshot before parsing next command
-        else some <$> (finishedSnap.bindIO (sync := true) fun finished =>
-          parseCmd none parserState finished.cmdState ctx)
-      return .mk (nextCmdSnap? := next?) <| Runtime.markPersistent {
+        else some <$> IO.Promise.new
+      prom.resolve <| .mk (nextCmdSnap? := next?.map ({ range? := none, task := ·.result })) <| Runtime.markPersistent {
         diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
         stx
         parserState
@@ -547,6 +499,9 @@ where
         finishedSnap
         tacticCache
       }
+      if let some next := next? then
+        finishedSnap.get |> fun finished =>
+          parseCmd none parserState finished.cmdState next ctx
 
   doElab (stx : Syntax) (cmdState : Command.State) (beginPos : String.Pos)
       (snap : SnapshotBundle DynamicSnapshot) (tacticCache : IO.Ref Tactic.Cache) :
@@ -609,9 +564,7 @@ def processCommands (inputCtx : Parser.InputContext) (parserState : Parser.Modul
     (commandState : Command.State)
     (old? : Option (Parser.InputContext × CommandParsedSnapshot) := none) :
     BaseIO (SnapshotTask CommandParsedSnapshot) := do
-  process.parseCmd (old?.map (·.2)) parserState commandState
-    |>.run (old?.map (·.1))
-    |>.run { inputCtx with }
+  sorry
 
 
 /-- Waits for and returns final environment, if importing was successful. -/

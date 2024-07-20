@@ -6,75 +6,35 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include <memory>
+#include <unordered_map>
 #include "kernel/replace_fn.h"
-#include "kernel/cache_stack.h"
-
-#ifndef LEAN_DEFAULT_REPLACE_CACHE_CAPACITY
-#define LEAN_DEFAULT_REPLACE_CACHE_CAPACITY 1024*8
-#endif
 
 namespace lean {
-struct replace_cache {
-    struct entry {
-        object  *  m_cell;
-        unsigned   m_offset;
-        expr       m_result;
-        entry():m_cell(nullptr) {}
-    };
-    unsigned              m_capacity;
-    std::vector<entry>    m_cache;
-    std::vector<unsigned> m_used;
-    replace_cache(unsigned c):m_capacity(c), m_cache(c) {}
-
-    expr * find(expr const & e, unsigned offset) {
-        unsigned i = hash(hash(e), offset) % m_capacity;
-        if (m_cache[i].m_cell == e.raw() && m_cache[i].m_offset == offset)
-            return &m_cache[i].m_result;
-        else
-            return nullptr;
-    }
-
-    void insert(expr const & e, unsigned offset, expr const & v) {
-        unsigned i = hash(hash(e), offset) % m_capacity;
-        if (m_cache[i].m_cell == nullptr)
-            m_used.push_back(i);
-        m_cache[i].m_cell   = e.raw();
-        m_cache[i].m_offset = offset;
-        m_cache[i].m_result = v;
-    }
-
-    void clear() {
-        for (unsigned i : m_used) {
-            m_cache[i].m_cell   = nullptr;
-            m_cache[i].m_result = expr();
-        }
-        m_used.clear();
-    }
-};
-
-/* CACHE_RESET: NO */
-MK_CACHE_STACK(replace_cache, LEAN_DEFAULT_REPLACE_CACHE_CAPACITY)
 
 class replace_rec_fn {
-    replace_cache_ref                                     m_cache;
+    struct key_hasher {
+        std::size_t operator()(std::pair<lean_object *, unsigned> const & p) const {
+            return hash((size_t)p.first, p.second);
+        }
+    };
+    std::unordered_map<std::pair<lean_object *, unsigned>, expr, key_hasher> m_cache;
     std::function<optional<expr>(expr const &, unsigned)> m_f;
     bool                                                  m_use_cache;
 
     expr save_result(expr const & e, unsigned offset, expr const & r, bool shared) {
         if (shared)
-            m_cache->insert(e, offset, r);
+            m_cache.insert(mk_pair(mk_pair(e.raw(), offset), r));
         return r;
     }
 
     expr apply(expr const & e, unsigned offset) {
         bool shared = false;
         if (m_use_cache && is_shared(e)) {
-            if (auto r = m_cache->find(e, offset))
-                return *r;
+            auto it = m_cache.find(mk_pair(e.raw(), offset));
+            if (it != m_cache.end())
+                return it->second;
             shared = true;
         }
-        check_system("replace");
-
         if (optional<expr> r = m_f(e, offset)) {
             return save_result(e, offset, *r, shared);
         } else {

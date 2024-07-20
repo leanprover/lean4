@@ -33,13 +33,15 @@ endif()
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   string(APPEND CADICAL_CXXFLAGS " -DNUNLOCKED")
 endif()
+# cadical is an optional build target; stage1 will pick up the executable if it has been built
+# beforehand
 ExternalProject_add(cadical
   PREFIX cadical
   GIT_REPOSITORY https://github.com/arminbiere/cadical
   GIT_TAG rel-1.9.5
   CONFIGURE_COMMAND ""
   # https://github.com/arminbiere/cadical/blob/master/BUILD.md#manual-build
-  BUILD_COMMAND bash -c "ccache clang++ -std=c++11 -O3 -DNDEBUG -DNBUILD ${CADICAL_CXXFLAGS} -o cadical${CMAKE_EXECUTABLE_SUFFIX} `ls src/*.cpp | grep -v mobical`"
+  BUILD_COMMAND make -f ${CMAKE_SOURCE_DIR}/src/cadical.mk CMAKE_EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX} CADICAL_CXXFLAGS=${CADICAL_CXXFLAGS}
   BUILD_IN_SOURCE ON
   INSTALL_COMMAND ""
 )
@@ -53,7 +55,6 @@ ExternalProject_add(stage0
   CMAKE_ARGS -DSTAGE=0 -DUSE_GITHASH=OFF ${PLATFORM_ARGS} ${STAGE0_ARGS}
   BUILD_ALWAYS ON  # cmake doesn't auto-detect changes without a download method
   INSTALL_COMMAND ""  # skip install
-  DEPENDS ${EXTRA_DEPENDS}
 )
 ExternalProject_add(stage1
   SOURCE_DIR "${LEAN_SOURCE_DIR}"

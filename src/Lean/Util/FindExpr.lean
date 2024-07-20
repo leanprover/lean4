@@ -38,6 +38,10 @@ unsafe def findUnsafe? (p : Expr → Bool) (e : Expr) : Option Expr :=
 
 end FindImpl
 
+-- TODO: replace `find?` with this one after update-stage0
+@[extern "lean_find_expr"]
+opaque findImpl? (p : @& (Expr → Bool)) (e : @& Expr) : Option Expr
+
 @[implemented_by FindImpl.findUnsafe?]
 def find? (p : Expr → Bool) (e : Expr) : Option Expr :=
   /- This is a reference implementation for the unsafe one above -/
@@ -52,6 +56,7 @@ def find? (p : Expr → Bool) (e : Expr) : Option Expr :=
     | .proj _ _ b      => find? p b
     | _                => none
 
+
 /-- Return true if `e` occurs in `t` -/
 def occurs (e : Expr) (t : Expr) : Bool :=
   (t.find? fun s => s == e).isSome
@@ -63,6 +68,10 @@ inductive FindStep where
   /-- Found desired subterm -/ | found
   /-- Search subterms -/ | visit
   /-- Do not search subterms -/ | done
+
+-- TODO: replace `findExt?` with this one after update-stage0
+@[extern "lean_find_ext_expr"]
+opaque findExtImpl? (p : @& (Expr → FindStep)) (e : @& Expr) : Option Expr
 
 namespace FindExtImpl
 

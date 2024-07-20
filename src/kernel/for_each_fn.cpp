@@ -68,7 +68,7 @@ template<bool partial_apps> class for_each_fn {
             if (partial_apps)
                 apply(app_fn(e));
             else
-                apply_fn(e);
+                apply_fn(app_fn(e));
             apply(app_arg(e));
             return;
         case expr_kind::Lambda: case expr_kind::Pi:

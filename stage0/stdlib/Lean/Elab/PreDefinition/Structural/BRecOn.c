@@ -21270,7 +21270,6 @@ lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 2);
 lean_inc(x_8);
 lean_dec(x_6);
-lean_inc(x_1);
 x_9 = l_Lean_Elab_Structural_recArgHasLooseBVarsAt(x_7, x_8, x_1);
 if (x_9 == 0)
 {
@@ -21283,7 +21282,6 @@ goto _start;
 else
 {
 uint8_t x_13; 
-lean_dec(x_1);
 x_13 = 1;
 return x_13;
 }
@@ -21291,7 +21289,6 @@ return x_13;
 else
 {
 uint8_t x_14; 
-lean_dec(x_1);
 x_14 = 0;
 return x_14;
 }
@@ -28464,7 +28461,6 @@ else
 size_t x_40; size_t x_41; uint8_t x_42; 
 x_40 = 0;
 x_41 = lean_usize_of_nat(x_36);
-lean_inc(x_1);
 x_42 = l_Array_anyMUnsafe_any___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__28(x_1, x_3, x_40, x_41);
 if (x_42 == 0)
 {
@@ -29971,6 +29967,7 @@ x_6 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_7 = l_Array_anyMUnsafe_any___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__28(x_1, x_2, x_5, x_6);
 lean_dec(x_2);
+lean_dec(x_1);
 x_8 = lean_box(x_7);
 return x_8;
 }

@@ -23079,7 +23079,6 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
-lean_inc(x_2);
 x_21 = l_Lean_PrettyPrinter_Delaborator_getUnusedName(x_20, x_2, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_21) == 0)
 {
@@ -28735,6 +28734,7 @@ lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
 x_17 = l_Lean_PrettyPrinter_Delaborator_getUnusedName(x_15, x_16, x_2, x_3, x_4, x_5, x_6, x_7, x_13);
+lean_dec(x_16);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
@@ -34916,7 +34916,6 @@ lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_1);
-lean_inc(x_15);
 x_16 = l_Lean_PrettyPrinter_Delaborator_getUnusedName(x_12, x_15, x_1, x_2, x_3, x_4, x_5, x_6, x_10);
 if (lean_obj_tag(x_16) == 0)
 {
@@ -43777,7 +43776,6 @@ lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_1);
-lean_inc(x_66);
 x_67 = l_Lean_PrettyPrinter_Delaborator_getUnusedName(x_63, x_66, x_1, x_2, x_3, x_4, x_5, x_6, x_62);
 if (lean_obj_tag(x_67) == 0)
 {
@@ -44265,7 +44263,6 @@ lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_1);
-lean_inc(x_174);
 x_175 = l_Lean_PrettyPrinter_Delaborator_getUnusedName(x_171, x_174, x_1, x_2, x_3, x_4, x_5, x_6, x_170);
 if (lean_obj_tag(x_175) == 0)
 {

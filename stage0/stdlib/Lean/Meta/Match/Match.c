@@ -38551,12 +38551,10 @@ if (x_66 == 0)
 lean_object* x_67; lean_object* x_68; uint8_t x_69; 
 x_67 = lean_ctor_get(x_61, 0);
 x_68 = lean_ctor_get(x_61, 1);
-lean_inc(x_67);
 x_69 = l_Lean_Expr_hasSorry(x_67);
 if (x_69 == 0)
 {
 uint8_t x_70; 
-lean_inc(x_59);
 x_70 = l_Lean_Expr_hasSorry(x_59);
 if (x_70 == 0)
 {
@@ -38667,12 +38665,10 @@ x_90 = lean_ctor_get(x_61, 1);
 lean_inc(x_90);
 lean_inc(x_89);
 lean_dec(x_61);
-lean_inc(x_89);
 x_91 = l_Lean_Expr_hasSorry(x_89);
 if (x_91 == 0)
 {
 uint8_t x_92; 
-lean_inc(x_59);
 x_92 = l_Lean_Expr_hasSorry(x_59);
 if (x_92 == 0)
 {
@@ -38816,12 +38812,10 @@ if (lean_is_exclusive(x_115)) {
  lean_dec_ref(x_115);
  x_122 = lean_box(0);
 }
-lean_inc(x_120);
 x_123 = l_Lean_Expr_hasSorry(x_120);
 if (x_123 == 0)
 {
 uint8_t x_124; 
-lean_inc(x_113);
 x_124 = l_Lean_Expr_hasSorry(x_113);
 if (x_124 == 0)
 {
@@ -39961,12 +39955,10 @@ if (x_63 == 0)
 lean_object* x_64; lean_object* x_65; uint8_t x_66; 
 x_64 = lean_ctor_get(x_58, 0);
 x_65 = lean_ctor_get(x_58, 1);
-lean_inc(x_64);
 x_66 = l_Lean_Expr_hasSorry(x_64);
 if (x_66 == 0)
 {
 uint8_t x_67; 
-lean_inc(x_56);
 x_67 = l_Lean_Expr_hasSorry(x_56);
 if (x_67 == 0)
 {
@@ -40079,12 +40071,10 @@ x_87 = lean_ctor_get(x_58, 1);
 lean_inc(x_87);
 lean_inc(x_86);
 lean_dec(x_58);
-lean_inc(x_86);
 x_88 = l_Lean_Expr_hasSorry(x_86);
 if (x_88 == 0)
 {
 uint8_t x_89; 
-lean_inc(x_56);
 x_89 = l_Lean_Expr_hasSorry(x_56);
 if (x_89 == 0)
 {
@@ -40230,12 +40220,10 @@ if (lean_is_exclusive(x_112)) {
  lean_dec_ref(x_112);
  x_119 = lean_box(0);
 }
-lean_inc(x_117);
 x_120 = l_Lean_Expr_hasSorry(x_117);
 if (x_120 == 0)
 {
 uint8_t x_121; 
-lean_inc(x_110);
 x_121 = l_Lean_Expr_hasSorry(x_110);
 if (x_121 == 0)
 {

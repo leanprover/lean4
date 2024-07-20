@@ -195,7 +195,6 @@ static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Contradiction___h
 static lean_object* l_Lean_Meta_ElimEmptyInductive_elim___lambda__3___closed__4;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_MVarId_contradictionCore___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Contradiction___hyg_4434____closed__11;
-lean_object* l_Lean_Expr_FindImpl_findUnsafe_x3f(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Contradiction___hyg_4434____closed__8;
 static lean_object* l_Lean_Meta_ElimEmptyInductive_elim___lambda__7___closed__1;
 static lean_object* l_Lean_MVarId_contradictionCore___closed__4;
@@ -263,6 +262,7 @@ lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_LocalDecl_toExpr(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_MVarId_contradictionCore___spec__4___lambda__1(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_find_expr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Contradiction_0__Lean_Meta_processGenDiseq___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT uint8_t l_Lean_Meta_Contradiction_Config_useDecide___default;
@@ -400,7 +400,8 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12;
 x_9 = lean_ctor_get(x_7, 0);
 x_10 = lean_ctor_get(x_7, 1);
 x_11 = l___private_Lean_Meta_Tactic_Contradiction_0__Lean_Meta_nestedFalseElim___closed__1;
-x_12 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_11, x_9);
+x_12 = lean_find_expr(x_11, x_9);
+lean_dec(x_9);
 if (lean_obj_tag(x_12) == 0)
 {
 uint8_t x_13; lean_object* x_14; 
@@ -543,7 +544,8 @@ lean_inc(x_41);
 lean_inc(x_40);
 lean_dec(x_7);
 x_42 = l___private_Lean_Meta_Tactic_Contradiction_0__Lean_Meta_nestedFalseElim___closed__1;
-x_43 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_42, x_40);
+x_43 = lean_find_expr(x_42, x_40);
+lean_dec(x_40);
 if (lean_obj_tag(x_43) == 0)
 {
 uint8_t x_44; lean_object* x_45; lean_object* x_46; 

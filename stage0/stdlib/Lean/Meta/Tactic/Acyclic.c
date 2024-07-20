@@ -144,7 +144,6 @@ return x_11;
 else
 {
 uint8_t x_12; 
-lean_inc(x_2);
 x_12 = l_Lean_Expr_occurs(x_1, x_2);
 if (x_12 == 0)
 {

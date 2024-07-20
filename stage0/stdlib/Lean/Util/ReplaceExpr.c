@@ -31,7 +31,9 @@ LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceImpl_cache(lean_object*, uint8_t, le
 LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafe(lean_object*, lean_object*);
 size_t lean_ptr_addr(lean_object*);
 uint8_t lean_is_exclusive_obj(lean_object*);
+lean_object* lean_replace_expr(lean_object*, lean_object*);
 uint64_t lean_usize_to_uint64(size_t);
+LEAN_EXPORT lean_object* l_Lean_Expr_replaceImpl___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceImpl_cache___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_contains___at_Lean_Expr_ReplaceImpl_cache___spec__2___boxed(lean_object*, lean_object*);
@@ -1378,6 +1380,16 @@ lean_inc(x_85);
 lean_dec(x_3);
 return x_85;
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Expr_replaceImpl___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_replace_expr(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
 }
 }
 lean_object* initialize_Lean_Expr(uint8_t builtin, lean_object*);

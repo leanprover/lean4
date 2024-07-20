@@ -105,7 +105,7 @@ class replace_fn {
         lean_inc_ref(m_f);
         lean_object * r = lean_apply_1(m_f, e.raw());
         if (!lean_is_scalar(r)) {
-            expr e_new(lean_ctor_get(r, 0));
+            expr e_new(lean_ctor_get(r, 0), true);
             lean_dec_ref(r);
             return save_result(e, e_new, shared);
         }

@@ -77,6 +77,10 @@ def replaceNoCache (f? : Expr → Option Expr) (e : Expr) : Expr :=
     | .proj _ _ b      => let b := replaceNoCache f? b; e.updateProj! b
     | e                => e
 
+
+@[extern "lean_replace_expr"]
+opaque replaceImpl (f? : @& (Expr → Option Expr)) (e : @& Expr) : Expr
+
 @[implemented_by ReplaceImpl.replaceUnsafe]
-partial def replace (f? : Expr → Option Expr) (e : Expr) : Expr :=
+def replace (f? : Expr → Option Expr) (e : Expr) : Expr :=
   e.replaceNoCache f?

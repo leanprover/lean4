@@ -488,20 +488,19 @@ where
           tacticCache
           ctx
 
-      let next? ← if Parser.isTerminalCommand stx then pure none
+      if Parser.isTerminalCommand stx then
+        prom.resolve <| .mk (nextCmdSnap? := none) <| Runtime.markPersistent {
+          diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
+          stx
+          parserState
+          elabSnap := { range? := stx.getRange?, task := elabPromise.result }
+          finishedSnap
+          tacticCache
+        }
         -- for now, wait on "command finished" snapshot before parsing next command
-        else some <$> IO.Promise.new
-      prom.resolve <| .mk (nextCmdSnap? := next?.map ({ range? := none, task := ·.result })) <| Runtime.markPersistent {
-        diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
-        stx
-        parserState
-        elabSnap := { range? := stx.getRange?, task := elabPromise.result }
-        finishedSnap
-        tacticCache
-      }
-      if let some next := next? then
+      else
         finishedSnap.get |> fun finished =>
-          parseCmd none parserState finished.cmdState next ctx
+          parseCmd none parserState finished.cmdState prom ctx
 
   doElab (stx : Syntax) (cmdState : Command.State) (beginPos : String.Pos)
       (snap : SnapshotBundle DynamicSnapshot) (tacticCache : IO.Ref Tactic.Cache) :

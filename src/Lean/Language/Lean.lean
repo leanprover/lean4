@@ -514,7 +514,9 @@ where
         if (← isBeforeEditPos nextCom.data.parserState.pos) then
           return .pure (← unchanged old old.data.parserState)
 
-    SnapshotTask.ofIO (some ⟨parserState.pos, ctx.input.endPos⟩) do
+    SnapshotTask.ofIO (some ⟨parserState.pos, ctx.input.endPos⟩) (Runtime.markPersistent <| doParseCmd old? parserState cmdState ctx)
+
+  doParseCmd old? parserState cmdState ctx := do
       let beginPos := parserState.pos
       let scope := cmdState.scopes.head!
       let pmctx := {
@@ -523,20 +525,6 @@ where
       }
       let (stx, parserState, msgLog) := Parser.parseCommand ctx.toInputContext pmctx parserState
         .empty
-
-      -- semi-fast path
-      if let some old := old? then
-        -- NOTE: as `parserState.pos` includes trailing whitespace, this forces reprocessing even if
-        -- only that whitespace changes, which is wasteful but still necessary because it may
-        -- influence the range of error messages such as from a trailing `exact`
-        if stx.eqWithInfo old.data.stx then
-          -- Here we must make sure to pass the *new* parser state; see NOTE in `unchanged`
-          return (← unchanged old parserState)
-        -- on first change, make sure to cancel old invocation
-        -- TODO: pass token into incrementality-aware elaborators to improve reuse of still-valid,
-        -- still-running elaboration steps?
-        if let some tk := ctx.oldCancelTk? then
-          tk.set
 
       -- definitely resolved in `doElab` task
       let elabPromise ← IO.Promise.new
@@ -549,9 +537,9 @@ where
 
       let next? ← if Parser.isTerminalCommand stx then pure none
         -- for now, wait on "command finished" snapshot before parsing next command
-        else some <$> finishedSnap.bindIO fun finished =>
-          parseCmd none parserState finished.cmdState ctx
-      return .mk (nextCmdSnap? := next?) {
+        else some <$> (finishedSnap.bindIO (sync := true) fun finished =>
+          parseCmd none parserState finished.cmdState ctx)
+      return .mk (nextCmdSnap? := next?) <| Runtime.markPersistent {
         diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
         stx
         parserState
@@ -571,8 +559,8 @@ where
     -- `parseCmd` and containing the entire range of the command will determine the reported
     -- progress and be resolved effectively at the same time as this snapshot task, so `tailPos` is
     -- irrelevant in this case.
-    let tailPos := stx.getTailPos? |>.getD beginPos
-    SnapshotTask.ofIO (some ⟨tailPos, tailPos⟩) do
+    --let tailPos := stx.getTailPos? |>.getD beginPos
+    .pure <$> do  --SnapshotTask.ofIO (some ⟨tailPos, tailPos⟩) do
       let scope := cmdState.scopes.head!
       let cmdStateRef ← IO.mkRef { cmdState with messages := .empty }
       /-
@@ -585,7 +573,7 @@ where
       let cmdCtx : Elab.Command.Context := { ctx with
         cmdPos       := beginPos
         tacticCache? := some tacticCacheNew
-        snap?        := some snap
+        snap?        := none
         cancelTk?    := some ctx.newCancelTk
       }
       let (output, _) ←

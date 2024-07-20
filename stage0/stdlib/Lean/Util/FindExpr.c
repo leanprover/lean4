@@ -30,16 +30,19 @@ LEAN_EXPORT lean_object* l_Lean_Expr_FindImpl_findM_x3f_visit(lean_object*, lean
 static lean_object* l_Lean_Expr_FindStep_noConfusion___rarg___closed__1;
 static lean_object* l_Lean_Expr_FindImpl_findUnsafe_x3f___closed__1;
 size_t lean_ptr_addr(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_findExtImpl_x3f___boxed(lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 uint64_t lean_usize_to_uint64(size_t);
 LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_noConfusion___rarg___lambda__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Lean_Expr_FindImpl_checkVisited___spec__5(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_findImpl_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_FindImpl_checkVisited___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashSetImp_moveEntries___at_Lean_Expr_FindImpl_checkVisited___spec__4(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_elem___at_Lean_Expr_FindImpl_checkVisited___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_FindExtImpl_findUnsafe_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashSetImp_expand___at_Lean_Expr_FindImpl_checkVisited___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_noConfusion(lean_object*);
+lean_object* lean_find_ext_expr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_FindImpl_findUnsafe_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_FindExtImpl_findM_x3f_visit(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -56,6 +59,7 @@ LEAN_EXPORT lean_object* l_List_elem___at_Lean_Expr_FindImpl_checkVisited___spec
 LEAN_EXPORT lean_object* l_Lean_Expr_FindImpl_checkVisited___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_FindExtImpl_findM_x3f_visitApp(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+lean_object* lean_find_expr(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_noConfusion___rarg___lambda__1(lean_object*);
@@ -1425,6 +1429,16 @@ lean_dec(x_4);
 return x_5;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Expr_findImpl_x3f___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_find_expr(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
 LEAN_EXPORT uint8_t l_Lean_Expr_occurs___lambda__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1560,6 +1574,16 @@ x_5 = lean_unbox(x_2);
 lean_dec(x_2);
 x_6 = l_Lean_Expr_FindStep_noConfusion___rarg(x_4, x_5, x_3);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Expr_findExtImpl_x3f___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_find_ext_expr(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Expr_FindExtImpl_findM_x3f_visitApp(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

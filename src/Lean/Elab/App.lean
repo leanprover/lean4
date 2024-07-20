@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Util.FindMVar
+import Lean.Util.CollectFVars
 import Lean.Parser.Term
 import Lean.Meta.KAbstract
 import Lean.Meta.Tactic.ElimInfo
@@ -711,6 +712,12 @@ structure Context where
   ```
   theorem Eq.subst' {α} {motive : α → Prop} {a b : α} (h : a = b) : motive a → motive b
   ```
+  For another example, the term `isEmptyElim (α := α)` is an underapplied eliminator, and it needs
+  argument `α` to be elaborated eagerly to create a type correct motive.
+  ```
+  def isEmptyElim [IsEmpty α] {p : α → Sort _} (a : α) : p a := ...
+  example {α : Type _} [IsEmpty α] : id (α → False) := isEmptyElim (α := α)
+  ```
   -/
   extraArgsPos : Array Nat
 
@@ -725,7 +732,7 @@ structure State where
   /-- User-provided arguments that still have to be processed. -/
   args         : List Arg
   /-- Discriminants processed so far. -/
-  discrs       : Array Expr := #[]
+  discrs       : Array (Option Expr)
   /-- Instance implicit arguments collected so far. -/
   instMVars    : Array MVarId := #[]
   /-- Position of the next argument to be processed. We use it to decide whether the argument is the motive or a discriminant. -/
@@ -742,10 +749,7 @@ def mkMotive (discrs : Array Expr) (expectedType : Expr): MetaM Expr := do
     let motiveBody ← kabstract motive discr
     /- We use `transform (usedLetOnly := true)` to eliminate unnecessary let-expressions. -/
     let discrType ← transform (usedLetOnly := true) (← instantiateMVars (← inferType discr))
-    let motive := Lean.mkLambda (← mkFreshBinderName) BinderInfo.default discrType motiveBody
-    unless (← isTypeCorrect motive) do
-      throwError "failed to elaborate eliminator, motive is not type correct:{indentD motive}"
-    return motive
+    return Lean.mkLambda (← mkFreshBinderName) BinderInfo.default discrType motiveBody
 
 /-- If the eliminator is over-applied, we "revert" the extra arguments. -/
 def revertArgs (args : List Arg) (f : Expr) (expectedType : Expr) : TermElabM (Expr × Expr) :=
@@ -761,7 +765,7 @@ def revertArgs (args : List Arg) (f : Expr) (expectedType : Expr) : TermElabM (E
     return (mkApp f val, mkForall (← mkFreshBinderName) BinderInfo.default valType expectedTypeBody)
 
 /--
-Construct the resulting application after all discriminants have bee elaborated, and we have
+Construct the resulting application after all discriminants have been elaborated, and we have
 consumed as many given arguments as possible.
 -/
 def finalize : M Expr := do
@@ -774,21 +778,36 @@ def finalize : M Expr := do
     let mut f := (← get).f
     if xs.size > 0 then
       assert! (← get).args.isEmpty
-      try
-        expectedType ← instantiateForall expectedType xs
-      catch _ =>
-        throwError "failed to elaborate eliminator, insufficient number of arguments, expected type:{indentExpr expectedType}"
+      for x in xs do
+        expectedType ← whnf expectedType
+        let .forallE _ t b _ := expectedType
+          | throwError "failed to elaborate eliminator, insufficient number of arguments, expected type:{indentExpr (← read).expectedType}"
+        unless ← fullApproxDefEq <| isDefEq t (← inferType x) do
+          throwError "failed to elaborate eliminator, binding domain{indentExpr t}\nis not definitionally equal to{indentExpr (← inferType x)}"
+        expectedType := b.instantiate1 x
     else
-      -- over-application, simulate `revert`
+      -- over-application, simulate `revert` while generalizing
       (f, expectedType) ← revertArgs (← get).args f expectedType
+      unless ← isTypeCorrect expectedType do
+        throwError "failed to elaborate eliminator, after generalizing over-applied arguments, expected type is type incorrect:{indentExpr expectedType}"
     let result := mkAppN f xs
     let mut discrs := (← get).discrs
     let idx := (← get).idx
-    if (← get).discrs.size < (← read).elimInfo.targetsPos.size then
+    if discrs.any Option.isNone then
       for i in [idx:idx + xs.size], x in xs do
-        if (← read).elimInfo.targetsPos.contains i then
-          discrs := discrs.push x
-    let motiveVal ← mkMotive discrs expectedType
+        if let some tidx := (← read).elimInfo.targetsPos.indexOf? i then
+          discrs := discrs.set! tidx x
+    if discrs.any Option.isNone then
+      -- This should not happen.
+      throwError "failed to elaborate eliminator, insufficient number of arguments"
+    trace[Elab.app.elab_as_elim] "xs: {xs}"
+    trace[Elab.app.elab_as_elim] "discrs: {discrs.map Option.get!}"
+    trace[Elab.app.elab_as_elim] "result: {result}"
+    trace[Elab.app.elab_as_elim] "expectedType: {expectedType}"
+    trace[Elab.app.elab_as_elim] "motive: {motive}"
+    let motiveVal ← mkMotive (discrs.map Option.get!) expectedType
+    unless (← isTypeCorrect motiveVal) do
+      throwError "failed to elaborate eliminator, motive is not type correct:{indentD motiveVal}"
     unless (← isDefEq motive motiveVal) do
       throwError "failed to elaborate eliminator, invalid motive{indentExpr motiveVal}"
     synthesizeAppInstMVars (← get).instMVars result
@@ -819,9 +838,9 @@ def getNextArg? (binderName : Name) (binderInfo : BinderInfo) : M (LOption Arg) 
 def setMotive (motive : Expr) : M Unit :=
   modify fun s => { s with motive? := motive }
 
-/-- Push the given expression into the `discrs` field in the state. -/
-def addDiscr (discr : Expr) : M Unit :=
-  modify fun s => { s with discrs := s.discrs.push discr }
+/-- Push the given expression into the `discrs` field in the state, where `i` is which target it is for. -/
+def addDiscr (i : Nat) (discr : Expr) : M Unit :=
+  modify fun s => { s with discrs := s.discrs.set! i discr }
 
 /-- Elaborate the given argument with the given expected type. -/
 private def elabArg (arg : Arg) (argExpectedType : Expr) : M Expr := do
@@ -856,11 +875,11 @@ partial def main : M Expr := do
     let motive ← mkImplicitArg binderType binderInfo
     setMotive motive
     addArgAndContinue motive
-  else if (← read).elimInfo.targetsPos.contains idx then
+  else if let some tidx := (← read).elimInfo.targetsPos.indexOf? idx then
     match (← getNextArg? binderName binderInfo) with
-    | .some arg => let discr ← elabArg arg binderType; addDiscr discr; addArgAndContinue discr
+    | .some arg => let discr ← elabArg arg binderType; addDiscr tidx discr; addArgAndContinue discr
     | .undef => finalize
-    | .none => let discr ← mkImplicitArg binderType binderInfo; addDiscr discr; addArgAndContinue discr
+    | .none => let discr ← mkImplicitArg binderType binderInfo; addDiscr tidx discr; addArgAndContinue discr
   else match (← getNextArg? binderName binderInfo) with
     | .some (.stx stx) =>
       if (← read).extraArgsPos.contains idx then
@@ -922,10 +941,12 @@ def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
     let expectedType ← instantiateMVars expectedType
     if expectedType.getAppFn.isMVar then throwError "failed to elaborate eliminator, expected type is not available"
     let extraArgsPos ← getElabAsElimExtraArgsPos elimInfo
+    trace[Elab.app.elab_as_elim] "extraArgsPos: {extraArgsPos}"
     ElabElim.main.run { elimInfo, expectedType, extraArgsPos } |>.run' {
       f, fType
       args := args.toList
       namedArgs := namedArgs.toList
+      discrs := mkArray elimInfo.targetsPos.size none
     }
   else
     ElabAppArgs.main.run { explicit, ellipsis, resultIsOutParamSupport } |>.run' {
@@ -955,19 +976,28 @@ where
 
   /--
   Collect extra argument positions that must be elaborated eagerly when using `elab_as_elim`.
-  The idea is that the contribute to motive inference. See comment at `ElamElim.Context.extraArgsPos`.
+  The idea is that they contribute to motive inference. See comment at `ElamElim.Context.extraArgsPos`.
   -/
   getElabAsElimExtraArgsPos (elimInfo : ElimInfo) : MetaM (Array Nat) := do
     forallTelescope elimInfo.elimType fun xs type => do
-      let resultArgs := type.getAppArgs
+      let targets := type.getAppArgs
       let mut extraArgsPos := #[]
-      for i in [:xs.size] do
+      /- Transitive closure of fvars appearing in the motive and the targets. -/
+      let mut motiveFVars : CollectFVars.State := collectFVars {} xs[elimInfo.motivePos]!
+      for arg in targets do
+        motiveFVars := collectFVars motiveFVars (← inferType arg)
+      /- Process arguments in reverse order to transitively collect extra args positions -/
+      for i' in [:xs.size] do
+        let i := xs.size - 1 - i'
         let x := xs[i]!
-        unless elimInfo.targetsPos.contains i do
-          let xType ← inferType x
-          /- We only consider "first-order" types because we can reliably "extract" information from them. -/
-          if isFirstOrder xType
-             && Option.isSome (xType.find? fun e => e.isFVar && resultArgs.contains e) then
+        let xType ← x.fvarId!.getType
+        unless elimInfo.motivePos == i || elimInfo.targetsPos.contains i do
+          if motiveFVars.fvarSet.contains x.fvarId! then
+            extraArgsPos := extraArgsPos.push i
+            motiveFVars := collectFVars motiveFVars xType
+          else if isFirstOrder xType
+                  && Option.isSome (xType.find? fun e => e.isFVar && motiveFVars.fvarSet.contains e.fvarId!) then
+            /- We only consider "first-order" types because we can reliably "extract" information from them. -/
             extraArgsPos := extraArgsPos.push i
       return extraArgsPos
 
@@ -1528,5 +1558,6 @@ builtin_initialize
   registerTraceClass `Elab.app.args (inherited := true)
   registerTraceClass `Elab.app.propagateExpectedType (inherited := true)
   registerTraceClass `Elab.app.finalize (inherited := true)
+  registerTraceClass `Elab.app.elab_as_elim (inherited := true)
 
 end Lean.Elab.Term

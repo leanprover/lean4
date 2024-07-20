@@ -96,3 +96,28 @@ example {n : Type} {T : n} : T = T := Foo.induction n -- motive is not type corr
 example {n : Type} : {T : n} → T = T := Foo.induction n -- motive is not type correct
 
 example {n : Type} : {T : n} → T = T := @(Foo.induction n)
+
+/-!
+A "motive is not type correct" regression test.
+The `isEmptyElim` was failing due to being under-applied and the named `(α := α)` argument
+having postponed elaboration.
+-/
+
+class IsEmpty (α : Sort u) : Prop where
+  protected false : α → False
+
+@[elab_as_elim]
+def isEmptyElim [IsEmpty α] {p : α → Sort _} (a : α) : p a :=
+  (IsEmpty.false a).elim
+
+def Set (α : Type u) := α → Prop
+def Set.univ {α : Type _} : Set α := fun _ => True
+instance : Membership α (Set α) := ⟨fun x s => s x⟩
+def Set.pi {α : ι → Type _} (s : Set ι) (t : (i : ι) → Set (α i)) : Set ((i : ι) → α i) := fun f => ∀ i ∈ s, f i ∈ t i
+
+example {α : Type u} [IsEmpty α] {β : α → Type v} (x : (a : α) → β a) (s : (i : α) → Set (β i)) :
+    x ∈ Set.univ.pi s := isEmptyElim (α := α)
+
+-- Simplified version:
+example {α : Type _} [IsEmpty α] :
+  id (α → False) := isEmptyElim (α := α)

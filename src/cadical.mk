@@ -1,5 +1,8 @@
+CXX = $(CADICAL_CXX)
+CXX ?= c++
+
 %.o: src/%.cpp
-	ccache clang++ -O3 -DNDEBUG -DNBUILD $(CADICAL_CXXFLAGS) -c $< -o $@
+	ccache $(CXX) -std=c++11 -O3 -DNDEBUG -DNBUILD $(CXXFLAGS) -c $< -o $@
 
 ../../cadical$(CMAKE_EXECUTABLE_SUFFIX): $(patsubst src/%.cpp,%.o,$(shell ls src/*.cpp | grep -v mobical))
-	ccache clang++ -o $@ $^
+	$(CXX) -o $@ $^

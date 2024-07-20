@@ -49,6 +49,9 @@
 	  # more convenient `ctest` output
 	  CTEST_OUTPUT_ON_FAILURE = 1;
 	} // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
+    # compile cadical against old glibc by using the full old toolchain, it doesn't require any
+    # fancy newer features
+    CADICAL_CXX = "${pkgsDist.stdenv.cc}/bin/c++";
 	  GMP = pkgsDist.gmp.override { withStatic = true; };
 	  GLIBC = pkgsDist.glibc;
 	  GLIBC_DEV = pkgsDist.glibc.dev;

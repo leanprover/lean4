@@ -208,40 +208,6 @@ def mkSnd (e : Expr) : MetaM Expr := do
   | _ => throwError "Cannot project out of{indentExpr e}\nof type{indentExpr t}"
 
 /--
-Structural recursion only:
-Recognizes `oldIH.fst.snd a₁ a₂` and returns `newIH.fst.snd`.
-Possibly switching from `PProd.fst` to `And.left` if needed
- -/
-partial def isPProdProj (oldIH newIH : FVarId) (e : Expr) : MetaM (Option Expr) := do
-  if e.isAppOfArity ``PProd.fst 3 then
-    if let some e' ← isPProdProj oldIH newIH e.appArg! then
-      return some (← mkFst e')
-    else
-      return none
-  else if e.isAppOfArity ``PProd.snd 3 then
-    if let some e' ← isPProdProj oldIH newIH e.appArg! then
-      return some (← mkSnd e')
-    else
-      return none
-  else if e.isFVarOf oldIH then
-    return some (mkFVar newIH)
-  else
-    return none
-
-/--
-Structural recursion only:
-Recognizes `oldIH.fst.snd a₁ a₂` and returns `newIH.fst.snd` and `#[a₁, a₂]`.
--/
-def isPProdProjWithArgs (oldIH newIH : FVarId) (e : Expr) : MetaM (Option (Expr × Array Expr)) := do
-  if e.isAppOf ``PProd.fst || e.isAppOf ``PProd.snd then
-    let arity := e.getAppNumArgs
-    unless 3 ≤ arity do return none
-    let args := e.getAppArgsN (arity - 3)
-    if let some e' ← isPProdProj oldIH newIH (e.stripArgsN (arity - 3)) then
-      return some (e', args)
-  return none
-
-/--
 A monad to help collecting inductive hypothesis.
 
 In `foldAndCollect` it's a writer monad (with variants of the `local` combinator),
@@ -307,7 +273,6 @@ fails.
 partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr) (e : Expr) : M Expr := do
   unless e.containsFVar oldIH do
     return e
-  trace[FunInd] "foldAndCollect ({mkFVar oldIH} → {mkFVar newIH}):{indentExpr e}"
 
   let e' ← id do
     if let some (n, t, v, b) := e.letFun? then
@@ -652,37 +617,20 @@ We are not using `mkLambdaFVars` on mvars directly, nor `abstractMVars`, as thes
 do not handle delayed assignemnts correctly.
 -/
 def abstractIndependentMVars (mvars : Array MVarId) (index : Nat) (e : Expr) : MetaM Expr := do
-  trace[FunInd] "abstractIndependentMVars, to revert after {index}, original mvars: {mvars}"
+  trace[Meta.FunInd] "abstractIndependentMVars, to revert after {index}, original mvars: {mvars}"
   let mvars ← mvars.mapM fun mvar => do
     let mvar ← substVarAfter mvar index
     mvar.withContext do
       let fvarIds := (← getLCtx).foldl (init := #[]) (start := index+1) fun fvarIds decl => fvarIds.push decl.fvarId
       let (_, mvar) ← mvar.revert fvarIds
       pure mvar
-  trace[FunInd] "abstractIndependentMVars, reverted mvars: {mvars}"
+  trace[Meta.FunInd] "abstractIndependentMVars, reverted mvars: {mvars}"
   let decls := mvars.mapIdx fun i mvar =>
     (.mkSimple s!"case{i.val+1}", (fun _ => mvar.getType))
   Meta.withLocalDeclsD decls fun xs => do
       for mvar in mvars, x in xs do
         mvar.assign x
       mkLambdaFVars xs (← instantiateMVars e)
-
-/-
-Given a `brecOn` recursor, figures out which universe parameter has the motive.
-Returns `none` if the the motive type is not of the form `… → Sort u`.
--/
-def motiveUniverseParamPos (declName : Name) : MetaM (Option Nat) := do
-  let info ← getConstInfo declName
-  forallTelescopeReducing info.type fun _ type => do
-    let motive  := type.getAppFn
-    unless motive.isFVar do
-      throwError "unexpected eliminator resulting type{indentExpr type}"
-    let motiveType ← inferType motive
-    forallTelescopeReducing motiveType fun _ motiveResultType => do
-      match motiveResultType with
-      | .sort (.param p) => return info.levelParams.toArray.indexOf? p
-      | .sort _ => return none
-      | _ => throwError "motive result type must be a sort{indentExpr motiveType}"
 
 /--
 Given a unary definition `foo` defined via `WellFounded.fixF`, derive a suitable induction principle
@@ -959,7 +907,7 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
 
       -- Below we'll need the types of the motive arguments (brecOn argument order)
       let brecMotiveTypes ← inferArgumentTypesN recInfo.numMotives (group.brecOn true lvl 0)
-      trace[FunInd] m!"brecMotiveTypes: {brecMotiveTypes}"
+      trace[Meta.FunInd] m!"brecMotiveTypes: {brecMotiveTypes}"
       assert! brecMotiveTypes.size = positions.size
 
       -- Remove the varying parameters from the environment
@@ -996,12 +944,12 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
 
           -- We need to pack these motives according to the `positions` assignment.
           let packedMotives ← positions.mapMwith Structural.packMotives brecMotiveTypes brecMotives
-          trace[FunInd] m!"packedMotives: {packedMotives}"
+          trace[Meta.FunInd] m!"packedMotives: {packedMotives}"
 
           -- Now we can calcualte the expected types of the minor arguments
           let minorTypes ← inferArgumentTypesN recInfo.numMotives <|
             mkAppN (group.brecOn true lvl 0) (packedMotives ++ brecOnTargets)
-          trace[FunInd] m!"minorTypes: {minorTypes}"
+          trace[Meta.FunInd] m!"minorTypes: {minorTypes}"
           -- So that we can transform them
           let (minors', mvars) ← M2.run do
             let mut minors' := #[]
@@ -1016,7 +964,7 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
                 -- open body with the same arg
                 let body ← instantiateLambda brecOnMinor targets
                 removeLamda body fun oldIH body => do
-                  trace[FunInd] "replacing {Expr.fvar oldIH} with {genIH}"
+                  trace[Meta.FunInd] "replacing {Expr.fvar oldIH} with {genIH}"
                   let body ← instantiateLambda body extraParams
                   let body' ← buildInductionBody #[genIH.fvarId!] #[] goal oldIH genIH.fvarId! isRecCall body
                   if body'.containsFVar oldIH then
@@ -1024,7 +972,7 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
                   mkLambdaFVars (targets.push genIH) (← mkLambdaFVars extraParams body')
               minors' := minors'.push minor'
             pure minors'
-          trace[FunInd] "processed minors: {minors'}"
+          trace[Meta.FunInd] "processed minors: {minors'}"
 
           -- Now assemble the mutual_induct theorem
           -- Plenty of code duplication here (packed Motive, minors', brecOn applications)!
@@ -1048,7 +996,7 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
               let e ← if pos.size = 1 then pure e else Structural.mkPProdProjN packIdx e
               let e := mkAppN e rest
               let e ← mkLambdaFVars ys e
-              trace[FunInd] "assembled call for {info.name}: {e}"
+              trace[Meta.FunInd] "assembled call for {info.name}: {e}"
               pure e
             brecOnApps := brecOnApps.push e
           let e' ← mkAndIntroN brecOnApps
@@ -1063,7 +1011,7 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
           -- So for now lets just keep them around.
           let e' ← mkLambdaFVars (binderInfoForMVars := .default) xs e'
           let e' ← instantiateMVars e'
-          trace[FunInd] "complete body of mutual induction principle:{indentExpr e'}"
+          trace[Meta.FunInd] "complete body of mutual induction principle:{indentExpr e'}"
           pure e'
 
   unless (← isTypeCorrect e') do
@@ -1132,4 +1080,4 @@ builtin_initialize
 end Lean.Tactic.FunInd
 
  builtin_initialize
-   Lean.registerTraceClass `FunInd
+   Lean.registerTraceClass `Meta.FunInd

@@ -3440,6 +3440,7 @@ lean_dec(x_11);
 x_14 = lean_ctor_get(x_1, 2);
 lean_inc(x_14);
 x_15 = l_Lean_Expr_instantiateLevelParamsArray(x_14, x_7, x_12);
+lean_dec(x_14);
 x_16 = lean_ctor_get(x_1, 1);
 lean_inc(x_16);
 lean_dec(x_1);

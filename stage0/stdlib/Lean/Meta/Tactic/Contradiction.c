@@ -1261,6 +1261,7 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_3);
+lean_dec(x_2);
 lean_dec(x_1);
 x_15 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_15, 0, x_7);
@@ -1273,7 +1274,9 @@ lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_26; lean
 lean_dec(x_7);
 x_16 = lean_array_uget(x_4, x_6);
 x_26 = lean_ctor_get(x_2, 2);
+lean_inc(x_26);
 x_27 = l_Lean_Meta_FVarSubst_apply(x_26, x_16);
+lean_dec(x_16);
 x_28 = l_Lean_Expr_isFVar(x_27);
 if (x_28 == 0)
 {
@@ -1372,6 +1375,7 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_3);
+lean_dec(x_2);
 lean_dec(x_1);
 x_44 = !lean_is_exclusive(x_37);
 if (x_44 == 0)
@@ -1404,6 +1408,7 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_3);
+lean_dec(x_2);
 lean_dec(x_1);
 x_48 = !lean_is_exclusive(x_31);
 if (x_48 == 0)
@@ -1436,6 +1441,7 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_3);
+lean_dec(x_2);
 lean_dec(x_1);
 x_19 = lean_ctor_get(x_17, 0);
 lean_inc(x_19);
@@ -3018,7 +3024,6 @@ x_15 = lean_unbox_usize(x_6);
 lean_dec(x_6);
 x_16 = l_Array_forInUnsafe_loop___at_Lean_Meta_ElimEmptyInductive_elim___spec__2(x_1, x_2, x_3, x_4, x_14, x_15, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_4);
-lean_dec(x_2);
 return x_16;
 }
 }

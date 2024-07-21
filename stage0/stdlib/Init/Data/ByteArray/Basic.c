@@ -67,6 +67,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_foldl___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_empty;
 uint64_t lean_uint8_to_uint64(uint8_t);
+size_t lean_sarray_size(lean_object*);
 LEAN_EXPORT uint8_t l_ByteArray_instGetElemNatUInt8LtSize(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_foldlM_loop(lean_object*, lean_object*);
 extern uint64_t l_instInhabitedUInt64;
@@ -125,6 +126,7 @@ lean_object* lean_uint8_to_nat(uint8_t);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_ByteArray_forIn_loop(lean_object*, lean_object*);
 static lean_object* l_ByteArray_toUInt64LE_x21___closed__3;
+LEAN_EXPORT lean_object* l_ByteArray_usize___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_foldlMUnsafe_fold___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_foldlMUnsafe_fold___at_ByteArray_foldl___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_toList___boxed(lean_object*);
@@ -218,6 +220,16 @@ lean_object* x_2;
 x_2 = lean_byte_array_size(x_1);
 lean_dec(x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_ByteArray_usize___boxed(lean_object* x_1) {
+_start:
+{
+size_t x_2; lean_object* x_3; 
+x_2 = lean_sarray_size(x_1);
+lean_dec(x_1);
+x_3 = lean_box_usize(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_ByteArray_uget___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1404,7 +1416,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_ByteArray_toUInt64LE_x21___closed__4;
 x_2 = l_ByteArray_toUInt64LE_x21___closed__5;
-x_3 = lean_unsigned_to_nat(202u);
+x_3 = lean_unsigned_to_nat(206u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_ByteArray_toUInt64LE_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -1502,7 +1514,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_ByteArray_toUInt64LE_x21___closed__4;
 x_2 = l_ByteArray_toUInt64BE_x21___closed__1;
-x_3 = lean_unsigned_to_nat(214u);
+x_3 = lean_unsigned_to_nat(218u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_ByteArray_toUInt64LE_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

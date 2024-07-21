@@ -362,4 +362,7 @@ private opaque evalFilePath (stx : Syntax) : TermElabM System.FilePath
     mkStrLit <$> IO.FS.readFile path
   | _, _ => throwUnsupportedSyntax
 
+@[builtin_term_elab Lean.Parser.Term.namedPattern] def elabNamedPatternErr : TermElab := fun stx _ =>
+  throwError "`<identifier>@<term>` is a named pattern and can only be used in pattern matching contexts{indentD stx}"
+
 end Lean.Elab.Term

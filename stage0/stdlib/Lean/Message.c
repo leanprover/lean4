@@ -1855,6 +1855,7 @@ x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 lean_dec(x_3);
 x_5 = l_Lean_Expr_hasSyntheticSorry(x_4);
+lean_dec(x_4);
 return x_5;
 }
 }

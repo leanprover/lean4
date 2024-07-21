@@ -4460,6 +4460,7 @@ x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
 lean_dec(x_7);
 x_9 = l_Lean_Expr_hasSyntheticSorry(x_8);
+lean_dec(x_8);
 if (x_9 == 0)
 {
 size_t x_10; size_t x_11; 

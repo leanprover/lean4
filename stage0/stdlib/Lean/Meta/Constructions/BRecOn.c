@@ -2932,7 +2932,6 @@ x_13 = lean_ctor_get(x_11, 0);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
 lean_dec(x_13);
-lean_inc(x_3);
 lean_inc(x_14);
 x_15 = l_Lean_Environment_hasUnsafe(x_14, x_3);
 lean_inc(x_1);
@@ -2947,7 +2946,6 @@ lean_ctor_set(x_18, 1, x_17);
 if (x_15 == 0)
 {
 uint8_t x_19; 
-lean_inc(x_4);
 x_19 = l_Lean_Environment_hasUnsafe(x_14, x_4);
 if (x_19 == 0)
 {
@@ -3002,7 +3000,6 @@ lean_dec(x_11);
 x_28 = lean_ctor_get(x_26, 0);
 lean_inc(x_28);
 lean_dec(x_26);
-lean_inc(x_3);
 lean_inc(x_28);
 x_29 = l_Lean_Environment_hasUnsafe(x_28, x_3);
 lean_inc(x_1);
@@ -3017,7 +3014,6 @@ lean_ctor_set(x_32, 1, x_31);
 if (x_29 == 0)
 {
 uint8_t x_33; 
-lean_inc(x_4);
 x_33 = l_Lean_Environment_hasUnsafe(x_28, x_4);
 if (x_33 == 0)
 {

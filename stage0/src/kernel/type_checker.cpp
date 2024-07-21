@@ -185,7 +185,7 @@ expr type_checker::infer_app(expr const & e, bool infer_only) {
 
 static void mark_used(unsigned n, expr const * fvars, expr const & b, bool * used) {
     if (!has_fvar(b)) return;
-    for_each(b, [&](expr const & x, unsigned) {
+    for_each(b, [&](expr const & x) {
             if (!has_fvar(x)) return false;
             if (is_fvar(x)) {
                 for (unsigned i = 0; i < n; i++) {

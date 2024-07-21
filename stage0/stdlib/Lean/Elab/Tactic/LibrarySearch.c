@@ -1206,6 +1206,7 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_Elab_LibrarySearch_exact_x3f___lambda__2(x_1, x_2);
+lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }

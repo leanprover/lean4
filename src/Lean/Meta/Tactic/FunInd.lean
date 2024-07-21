@@ -205,40 +205,6 @@ def mkSnd (e : Expr) : MetaM Expr := do
   | _ => throwError "Cannot project out of{indentExpr e}\nof type{indentExpr t}"
 
 /--
-Structural recursion only:
-Recognizes `oldIH.fst.snd a₁ a₂` and returns `newIH.fst.snd`.
-Possibly switching from `PProd.fst` to `And.left` if needed
- -/
-partial def isPProdProj (oldIH newIH : FVarId) (e : Expr) : MetaM (Option Expr) := do
-  if e.isAppOfArity ``PProd.fst 3 then
-    if let some e' ← isPProdProj oldIH newIH e.appArg! then
-      return some (← mkFst e')
-    else
-      return none
-  else if e.isAppOfArity ``PProd.snd 3 then
-    if let some e' ← isPProdProj oldIH newIH e.appArg! then
-      return some (← mkSnd e')
-    else
-      return none
-  else if e.isFVarOf oldIH then
-    return some (mkFVar newIH)
-  else
-    return none
-
-/--
-Structural recursion only:
-Recognizes `oldIH.fst.snd a₁ a₂` and returns `newIH.fst.snd` and `#[a₁, a₂]`.
--/
-def isPProdProjWithArgs (oldIH newIH : FVarId) (e : Expr) : MetaM (Option (Expr × Array Expr)) := do
-  if e.isAppOf ``PProd.fst || e.isAppOf ``PProd.snd then
-    let arity := e.getAppNumArgs
-    unless 3 ≤ arity do return none
-    let args := e.getAppArgsN (arity - 3)
-    if let some e' ← isPProdProj oldIH newIH (e.stripArgsN (arity - 3)) then
-      return some (e', args)
-  return none
-
-/--
 A monad to help collecting inductive hypothesis.
 
 In `foldAndCollect` it's a writer monad (with variants of the `local` combinator),
@@ -304,7 +270,6 @@ fails.
 partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr) (e : Expr) : M Expr := do
   unless e.containsFVar oldIH do
     return e
-  trace[FunInd] "foldAndCollect ({mkFVar oldIH} → {mkFVar newIH}):{indentExpr e}"
 
   let e' ← id do
     if let some (n, t, v, b) := e.letFun? then
@@ -646,23 +611,6 @@ def abstractIndependentMVars (mvars : Array MVarId) (x : FVarId) (e : Expr) : Me
       for mvar in mvars, x in xs do
         mvar.assign x
       mkLambdaFVars xs (← instantiateMVars e)
-
-/-
-Given a `brecOn` recursor, figures out which universe parameter has the motive.
-Returns `none` if the the motive type is not of the form `… → Sort u`.
--/
-def motiveUniverseParamPos (declName : Name) : MetaM (Option Nat) := do
-  let info ← getConstInfo declName
-  forallTelescopeReducing info.type fun _ type => do
-    let motive  := type.getAppFn
-    unless motive.isFVar do
-      throwError "unexpected eliminator resulting type{indentExpr type}"
-    let motiveType ← inferType motive
-    forallTelescopeReducing motiveType fun _ motiveResultType => do
-      match motiveResultType with
-      | .sort (.param p) => return info.levelParams.toArray.indexOf? p
-      | .sort _ => return none
-      | _ => throwError "motive result type must be a sort{indentExpr motiveType}"
 
 /--
 Given a unary definition `foo` defined via `WellFounded.fixF`, derive a suitable induction principle
@@ -1010,4 +958,4 @@ builtin_initialize
 end Lean.Tactic.FunInd
 
  builtin_initialize
-   Lean.registerTraceClass `FunInd
+   Lean.registerTraceClass `Meta.FunInd

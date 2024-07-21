@@ -50,6 +50,13 @@ instance : Inhabited (Array α) where
 def singleton (v : α) : Array α :=
   mkArray 1 v
 
+/-- Low-level version of `size` that directly queries the C array object cached size.
+    While this is not provable, `usize` always returns the exact size of the array since
+    the implementation only supports arrays of size less than `USize.size`.
+-/
+@[extern "lean_array_size", simp]
+def usize (a : @& Array α) : USize := a.size.toUSize
+
 /-- Low-level version of `fget` which is as fast as a C array read.
    `Fin` values are represented as tag pointers in the Lean runtime. Thus,
    `fget` may be slightly slower than `uget`. -/
@@ -174,7 +181,7 @@ def modifyOp (self : Array α) (idx : Nat) (f : α → α) : Array α :=
 
   This kind of low level trick can be removed with a little bit of compiler support. For example, if the compiler simplifies `as.size < usizeSz` to true. -/
 @[inline] unsafe def forInUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
-  let sz := USize.ofNat as.size
+  let sz := as.size.toUSize -- TODO: use usize
   let rec @[specialize] loop (i : USize) (b : β) : m β := do
     if i < sz then
       let a := as.uget i lcProof
@@ -280,7 +287,7 @@ def foldrM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α
 /-- See comment at `forInUnsafe` -/
 @[inline]
 unsafe def mapMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m β) (as : Array α) : m (Array β) :=
-  let sz := USize.ofNat as.size
+  let sz := as.size.toUSize -- TODO: use usize
   let rec @[specialize] map (i : USize) (r : Array NonScalar) : m (Array PNonScalar.{v}) := do
     if i < sz then
      let v    := r.uget i lcProof

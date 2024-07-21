@@ -5,8 +5,13 @@ inductive Vec (α : Type u) : Nat → Type u
 def f1 (xs : Vec α n) : Nat :=
   Vec.casesOn xs 0 fun _ _ => 1
 
+/--
+error: failed to elaborate eliminator, insufficient number of arguments, expected type:
+  Nat
+-/
+#guard_msgs in
 def f2 (xs : Vec α n) : Nat :=
-  xs.casesOn 0 -- Error insufficient number of arguments
+  xs.casesOn 0
 
 def f3 (x : Nat) : Nat → (Nat → Nat) → Nat :=
   x.casesOn
@@ -22,8 +27,10 @@ def f6 (x : Nat) :=
 
 example : f6 (x+1) = 2*x := rfl
 
+/-- error: failed to elaborate eliminator, unused named arguments: [a] -/
+#guard_msgs in
 def f7 (xs : Vec α n) : Nat :=
-  xs.casesOn (a := 10) 0 -- Error unused named args
+  xs.casesOn (a := 10) 0
 
 def f8 (xs : List Nat) : xs ≠ [] → xs.length > 0 :=
   @List.casesOn _ (fun xs => xs ≠ [] → xs.length > 0) xs (by dsimp; intros; contradiction) (by dsimp; intros; simp_arith)
@@ -88,13 +95,30 @@ noncomputable def f : Nat → Nat :=
 example : ∀ x, x ≥ 0 :=
   Nat.rec (Nat.le_refl 0) (fun _ ih => Nat.le_succ_of_le ih)
 
+/-!
+Tests of `@[elab_as_elim]` when the motive is not type correct.
+-/
+
 @[elab_as_elim]
 def Foo.induction {P : (α : Type) → Prop} (α : Type) : P α := sorry
 
-example {n : Type} {T : n} : T = T := Foo.induction n -- motive is not type correct
+/--
+error: failed to elaborate eliminator, motive is not type correct:
+  fun x => T = T
+-/
+#guard_msgs in
+example {n : Type} {T : n} : T = T := Foo.induction n
 
-example {n : Type} : {T : n} → T = T := Foo.induction n -- motive is not type correct
+/--
+error: failed to elaborate eliminator, motive is not type correct:
+  fun x => T✝ = T✝
+-/
+#guard_msgs in
+example {n : Type} : {T : n} → T = T := Foo.induction n
 
+example {n : Type} : (T : n) → T = T := Foo.induction n
+
+-- Disable implicit lambda
 example {n : Type} : {T : n} → T = T := @(Foo.induction n)
 
 /-!
@@ -121,3 +145,16 @@ example {α : Type u} [IsEmpty α] {β : α → Type v} (x : (a : α) → β a) 
 -- Simplified version:
 example {α : Type _} [IsEmpty α] :
   id (α → False) := isEmptyElim (α := α)
+
+/-!
+From mathlib, regression test. Need to eagerly elaborate the `n ≤ m` argument to deduce `m`
+before computing the motive.
+-/
+
+@[elab_as_elim]
+def leRecOn {C : Nat → Sort _} {n : Nat} : ∀ {m}, n ≤ m → (∀ {k}, C k → C (k + 1)) → C n → C m :=
+  sorry
+
+theorem leRecOn_self {C : Nat → Sort _} {n} {next : ∀ {k}, C k → C (k + 1)} (x : C n) :
+    (leRecOn n.le_refl next x : C n) = x :=
+  sorry

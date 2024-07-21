@@ -985,7 +985,7 @@ where
       /- Transitive closure of fvars appearing in the motive and the targets. -/
       let mut motiveFVars : CollectFVars.State := collectFVars {} xs[elimInfo.motivePos]!
       for arg in targets do
-        motiveFVars := collectFVars motiveFVars (← inferType arg)
+        motiveFVars := collectFVars (collectFVars motiveFVars arg) (← inferType arg)
       /- Process arguments in reverse order to transitively collect extra args positions -/
       for i' in [:xs.size] do
         let i := xs.size - 1 - i'

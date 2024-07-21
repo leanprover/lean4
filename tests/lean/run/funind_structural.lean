@@ -1,3 +1,5 @@
+set_option guard_msgs.diff true
+
 /-!
 This module tests functional induction principles on *structurally* recursive functions.
 -/
@@ -186,7 +188,7 @@ info: TermDenote.Term.denote.induct (motive : {ctx : List Ty} → {ty : Ty} → 
       motive a_1 env → motive b env → motive (a_1.plus b) env)
   (case4 :
     ∀ (a : List Ty) (ty dom : Ty) (f : Term a (dom.fn ty)) (a_1 : Term a dom) (env : HList Ty.denote a),
-      motive a_1 env → motive f env → motive (f.app a_1) env)
+      motive f env → motive a_1 env → motive (f.app a_1) env)
   (case5 :
     ∀ (a : List Ty) (dom ran : Ty) (b : Term (dom :: a) ran) (env : HList Ty.denote a),
       (∀ (x : dom.denote), motive b (HList.cons x env)) → motive b.lam env)

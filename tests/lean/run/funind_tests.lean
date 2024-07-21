@@ -2,6 +2,8 @@ import Lean.Elab.Command
 import Lean.Elab.PreDefinition.WF.Eqns
 import Lean.Meta.Tactic.FunInd
 
+set_option guard_msgs.diff true
+
 namespace Unary
 
 def ackermann : (Nat × Nat) → Nat

@@ -1,5 +1,7 @@
 import Lean.Elab.Command
 
+set_option guard_msgs.diff true
+
 /-!
 Mutual structural recursion.
 
@@ -283,12 +285,17 @@ def A.self_size : A → Nat
   | .empty => 0
 termination_by structural x => x
 
-#guard_msgs in
 def B.self_size : B → Nat
   | .self b => b.self_size + 1
   | .other _ => 0
   | .empty => 0
 termination_by structural x => x
+
+def A.self_size_with_param : Nat → A → Nat
+  | n, .self a => a.self_size_with_param n + n
+  | _, .other _ => 0
+  | _, .empty => 0
+termination_by structural _ x => x
 
 -- Structural recursion with more than one function per types of the mutual inductive
 
@@ -520,13 +527,13 @@ Too many possible combinations of parameters of type Nattish (or please indicate
 Could not find a decreasing measure.
 The arguments relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
-Call from ManyCombinations.f to ManyCombinations.g at 552:15-29:
+Call from ManyCombinations.f to ManyCombinations.g at 559:15-29:
    #1 #2 #3 #4
 #5  ?  ?  ?  ?
 #6  ?  =  ?  ?
 #7  ?  ?  =  ?
 #8  ?  ?  ?  =
-Call from ManyCombinations.g to ManyCombinations.f at 555:15-29:
+Call from ManyCombinations.g to ManyCombinations.f at 562:15-29:
    #5 #6 #7 #8
 #1  _  _  _  _
 #2  _  =  _  _
@@ -577,10 +584,10 @@ namespace FunIndTests
 
 /--
 error: Failed to realize constant A.size.induct:
-  functional induction: cannot handle mutual or nested inductives
+  Induction principles for mutually structurally recursive functions are not yet supported
 ---
 error: Failed to realize constant A.size.induct:
-  functional induction: cannot handle mutual or nested inductives
+  Induction principles for mutually structurally recursive functions are not yet supported
 ---
 error: unknown identifier 'A.size.induct'
 -/
@@ -589,10 +596,10 @@ error: unknown identifier 'A.size.induct'
 
 /--
 error: Failed to realize constant A.subs.induct:
-  functional induction: cannot handle mutual or nested inductives
+  Induction principles for mutually structurally recursive functions are not yet supported
 ---
 error: Failed to realize constant A.subs.induct:
-  functional induction: cannot handle mutual or nested inductives
+  Induction principles for mutually structurally recursive functions are not yet supported
 ---
 error: unknown identifier 'A.subs.induct'
 -/
@@ -612,11 +619,23 @@ error: unknown identifier 'MutualIndNonMutualFun.A.self_size.induct'
 #check MutualIndNonMutualFun.A.self_size.induct
 
 /--
-error: Failed to realize constant A.hasNoBEmpty.induct:
+error: Failed to realize constant MutualIndNonMutualFun.A.self_size_with_param.induct:
   functional induction: cannot handle mutual or nested inductives
 ---
-error: Failed to realize constant A.hasNoBEmpty.induct:
+error: Failed to realize constant MutualIndNonMutualFun.A.self_size_with_param.induct:
   functional induction: cannot handle mutual or nested inductives
+---
+error: unknown identifier 'MutualIndNonMutualFun.A.self_size_with_param.induct'
+-/
+#guard_msgs in
+#check MutualIndNonMutualFun.A.self_size_with_param.induct
+
+/--
+error: Failed to realize constant A.hasNoBEmpty.induct:
+  Induction principles for mutually structurally recursive functions are not yet supported
+---
+error: Failed to realize constant A.hasNoBEmpty.induct:
+  Induction principles for mutually structurally recursive functions are not yet supported
 ---
 error: unknown identifier 'A.hasNoBEmpty.induct'
 -/
@@ -625,12 +644,10 @@ error: unknown identifier 'A.hasNoBEmpty.induct'
 
 /--
 error: Failed to realize constant EvenOdd.isEven.induct:
-  Function EvenOdd.isEven does not look like a function defined by recursion.
-  NB: If EvenOdd.isEven is not itself recursive, but contains an inner recursive function (via `let rec` or `where`), try `EvenOdd.isEven.go` where `go` is name of the inner function.
+  Induction principles for mutually structurally recursive functions are not yet supported
 ---
 error: Failed to realize constant EvenOdd.isEven.induct:
-  Function EvenOdd.isEven does not look like a function defined by recursion.
-  NB: If EvenOdd.isEven is not itself recursive, but contains an inner recursive function (via `let rec` or `where`), try `EvenOdd.isEven.go` where `go` is name of the inner function.
+  Induction principles for mutually structurally recursive functions are not yet supported
 ---
 error: unknown identifier 'EvenOdd.isEven.induct'
 -/

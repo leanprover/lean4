@@ -161,7 +161,7 @@ bool declaration::is_unsafe() const {
 
 bool use_unsafe(environment const & env, expr const & e) {
     bool found = false;
-    for_each(e, [&](expr const & e, unsigned) {
+    for_each(e, [&](expr const & e) {
             if (found) return false;
             if (is_constant(e)) {
                 if (auto info = env.find(const_name(e))) {
@@ -181,7 +181,7 @@ declaration::declaration():declaration(*g_dummy) {}
 
 static unsigned get_max_height(environment const & env, expr const & v) {
     unsigned h = 0;
-    for_each(v, [&](expr const & e, unsigned) {
+    for_each(v, [&](expr const & e) {
             if (is_constant(e)) {
                 auto d = env.find(const_name(e));
                 if (d && d->get_hints().get_height() > h)

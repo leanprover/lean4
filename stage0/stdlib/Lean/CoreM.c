@@ -435,7 +435,6 @@ static lean_object* l_Lean_withTraceNode___at_Lean_compileDecl___spec__2___lambd
 static lean_object* l_Lean_initFn____x40_Lean_CoreM___hyg_43____closed__5;
 static lean_object* l_Lean_initFn____x40_Lean_CoreM___hyg_43____closed__3;
 static lean_object* l_Lean_withTraceNode___at_Lean_compileDecl___spec__2___lambda__3___closed__2;
-lean_object* l_Lean_Expr_FindImpl_findUnsafe_x3f(lean_object*, lean_object*);
 static lean_object* l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2___rarg___lambda__2___closed__4;
 static lean_object* l_Lean_useDiagnosticMsg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Core_instMonadLogCoreM___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -618,6 +617,7 @@ LEAN_EXPORT lean_object* l_Lean_Core_withCurrHeartbeats___rarg(lean_object*, lea
 LEAN_EXPORT lean_object* l_Lean_Core_withRestoreOrSaveFull(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ImportM_runCoreM(lean_object*);
 uint8_t lean_level_eq(lean_object*, lean_object*);
+lean_object* lean_find_expr(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Core_instInhabitedCache;
@@ -13223,9 +13223,7 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = lean_ctor_get(x_1, 1);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_2, x_6);
+x_7 = lean_find_expr(x_2, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
@@ -13327,8 +13325,8 @@ lean_dec(x_13);
 lean_inc(x_3);
 x_15 = lean_alloc_closure((void*)(l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_15, 0, x_3);
-lean_inc(x_15);
-x_16 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_15, x_14);
+x_16 = lean_find_expr(x_15, x_14);
+lean_dec(x_14);
 lean_inc(x_2);
 lean_inc(x_1);
 x_17 = lean_alloc_closure((void*)(l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2___rarg___lambda__2___boxed), 5, 4);
@@ -13427,8 +13425,8 @@ lean_dec(x_43);
 lean_inc(x_3);
 x_45 = lean_alloc_closure((void*)(l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_45, 0, x_3);
-lean_inc(x_45);
-x_46 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_45, x_44);
+x_46 = lean_find_expr(x_45, x_44);
+lean_dec(x_44);
 lean_inc(x_2);
 lean_inc(x_1);
 x_47 = lean_alloc_closure((void*)(l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2___rarg___lambda__2___boxed), 5, 4);
@@ -13558,8 +13556,8 @@ lean_inc(x_12);
 x_13 = lean_ctor_get(x_10, 1);
 lean_inc(x_13);
 lean_dec(x_10);
-lean_inc(x_3);
-x_14 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_3, x_13);
+x_14 = lean_find_expr(x_3, x_13);
+lean_dec(x_13);
 lean_inc(x_2);
 lean_inc(x_1);
 x_15 = lean_alloc_closure((void*)(l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__3___rarg___lambda__1), 5, 4);
@@ -13640,8 +13638,8 @@ lean_inc(x_36);
 x_37 = lean_ctor_get(x_34, 1);
 lean_inc(x_37);
 lean_dec(x_34);
-lean_inc(x_3);
-x_38 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_3, x_37);
+x_38 = lean_find_expr(x_3, x_37);
+lean_dec(x_37);
 lean_inc(x_2);
 lean_inc(x_1);
 x_39 = lean_alloc_closure((void*)(l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__3___rarg___lambda__1), 5, 4);
@@ -13771,8 +13769,8 @@ lean_inc(x_13);
 lean_inc(x_3);
 x_14 = lean_alloc_closure((void*)(l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_14, 0, x_3);
-lean_inc(x_14);
-x_15 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_14, x_13);
+x_15 = lean_find_expr(x_14, x_13);
+lean_dec(x_13);
 lean_inc(x_2);
 lean_inc(x_1);
 x_16 = lean_alloc_closure((void*)(l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__4___rarg___lambda__1), 5, 4);
@@ -13868,8 +13866,8 @@ lean_inc(x_42);
 lean_inc(x_3);
 x_43 = lean_alloc_closure((void*)(l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_43, 0, x_3);
-lean_inc(x_43);
-x_44 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_43, x_42);
+x_44 = lean_find_expr(x_43, x_42);
+lean_dec(x_42);
 lean_inc(x_2);
 lean_inc(x_1);
 x_45 = lean_alloc_closure((void*)(l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__4___rarg___lambda__1), 5, 4);
@@ -13963,7 +13961,7 @@ LEAN_EXPORT lean_object* l_Lean_Declaration_foldExprM___at___private_Lean_CoreM_
 _start:
 {
 lean_object* x_6; 
-x_6 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_1, x_2);
+x_6 = lean_find_expr(x_1, x_2);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -14039,7 +14037,9 @@ lean_inc(x_8);
 lean_dec(x_7);
 x_9 = lean_alloc_closure((void*)(l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_9, 0, x_3);
-x_10 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_9, x_8);
+x_10 = lean_find_expr(x_9, x_8);
+lean_dec(x_8);
+lean_dec(x_9);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -14146,8 +14146,8 @@ x_38 = lean_ctor_get(x_1, 1);
 lean_inc(x_38);
 x_39 = lean_alloc_closure((void*)(l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_39, 0, x_3);
-lean_inc(x_39);
-x_40 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_39, x_37);
+x_40 = lean_find_expr(x_39, x_37);
+lean_dec(x_37);
 lean_inc(x_2);
 lean_inc(x_1);
 x_41 = lean_alloc_closure((void*)(l_Lean_Declaration_foldExprM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__1___rarg___lambda__1___boxed), 5, 4);
@@ -14273,6 +14273,8 @@ _start:
 lean_object* x_6; 
 x_6 = l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2___rarg___lambda__2(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_6;
 }
 }
@@ -14282,6 +14284,8 @@ _start:
 lean_object* x_6; 
 x_6 = l_Lean_Declaration_foldExprM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__1___rarg___lambda__1(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_6;
 }
 }
@@ -16254,7 +16258,9 @@ lean_dec(x_32);
 lean_inc(x_1);
 x_34 = lean_alloc_closure((void*)(l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_34, 0, x_1);
-x_35 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_34, x_33);
+x_35 = lean_find_expr(x_34, x_33);
+lean_dec(x_33);
+lean_dec(x_34);
 if (lean_obj_tag(x_35) == 0)
 {
 x_11 = x_6;
@@ -16321,7 +16327,9 @@ lean_dec(x_8);
 lean_inc(x_1);
 x_13 = lean_alloc_closure((void*)(l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_13, 0, x_1);
-x_14 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_13, x_12);
+x_14 = lean_find_expr(x_13, x_12);
+lean_dec(x_12);
+lean_dec(x_13);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; 
@@ -16424,7 +16432,9 @@ lean_dec(x_9);
 lean_inc(x_1);
 x_12 = lean_alloc_closure((void*)(l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_12, 0, x_1);
-x_13 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_12, x_11);
+x_13 = lean_find_expr(x_12, x_11);
+lean_dec(x_11);
+lean_dec(x_12);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; 
@@ -16503,7 +16513,9 @@ lean_dec(x_29);
 lean_inc(x_1);
 x_32 = lean_alloc_closure((void*)(l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_32, 0, x_1);
-x_33 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_32, x_31);
+x_33 = lean_find_expr(x_32, x_31);
+lean_dec(x_31);
+lean_dec(x_32);
 if (lean_obj_tag(x_33) == 0)
 {
 lean_object* x_34; 
@@ -16598,7 +16610,9 @@ lean_inc(x_20);
 lean_inc(x_1);
 x_21 = lean_alloc_closure((void*)(l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_21, 0, x_1);
-x_22 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_21, x_20);
+x_22 = lean_find_expr(x_21, x_20);
+lean_dec(x_20);
+lean_dec(x_21);
 if (lean_obj_tag(x_22) == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; 
@@ -16725,7 +16739,9 @@ lean_inc(x_51);
 lean_inc(x_1);
 x_52 = lean_alloc_closure((void*)(l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_52, 0, x_1);
-x_53 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_52, x_51);
+x_53 = lean_find_expr(x_52, x_51);
+lean_dec(x_51);
+lean_dec(x_52);
 if (lean_obj_tag(x_53) == 0)
 {
 lean_object* x_54; lean_object* x_55; lean_object* x_56; 
@@ -16862,7 +16878,9 @@ lean_inc(x_9);
 lean_dec(x_8);
 x_10 = lean_alloc_closure((void*)(l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_10, 0, x_1);
-x_11 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_10, x_9);
+x_11 = lean_find_expr(x_10, x_9);
+lean_dec(x_9);
+lean_dec(x_10);
 if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_12; lean_object* x_13; 
@@ -16926,7 +16944,9 @@ lean_dec(x_25);
 lean_inc(x_1);
 x_44 = lean_alloc_closure((void*)(l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_44, 0, x_1);
-x_45 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_44, x_27);
+x_45 = lean_find_expr(x_44, x_27);
+lean_dec(x_27);
+lean_dec(x_44);
 if (lean_obj_tag(x_45) == 0)
 {
 x_28 = x_6;
@@ -16987,7 +17007,9 @@ block_43:
 lean_object* x_29; lean_object* x_30; 
 x_29 = lean_alloc_closure((void*)(l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_29, 0, x_1);
-x_30 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_29, x_26);
+x_30 = lean_find_expr(x_29, x_26);
+lean_dec(x_26);
+lean_dec(x_29);
 if (lean_obj_tag(x_30) == 0)
 {
 lean_object* x_31; lean_object* x_32; 
@@ -17052,7 +17074,9 @@ lean_dec(x_59);
 lean_inc(x_1);
 x_78 = lean_alloc_closure((void*)(l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_78, 0, x_1);
-x_79 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_78, x_61);
+x_79 = lean_find_expr(x_78, x_61);
+lean_dec(x_61);
+lean_dec(x_78);
 if (lean_obj_tag(x_79) == 0)
 {
 x_62 = x_6;
@@ -17113,7 +17137,9 @@ block_77:
 lean_object* x_63; lean_object* x_64; 
 x_63 = lean_alloc_closure((void*)(l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_63, 0, x_1);
-x_64 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_63, x_60);
+x_64 = lean_find_expr(x_63, x_60);
+lean_dec(x_60);
+lean_dec(x_63);
 if (lean_obj_tag(x_64) == 0)
 {
 lean_object* x_65; lean_object* x_66; 
@@ -17178,7 +17204,9 @@ lean_dec(x_93);
 lean_inc(x_1);
 x_112 = lean_alloc_closure((void*)(l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_112, 0, x_1);
-x_113 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_112, x_95);
+x_113 = lean_find_expr(x_112, x_95);
+lean_dec(x_95);
+lean_dec(x_112);
 if (lean_obj_tag(x_113) == 0)
 {
 x_96 = x_6;
@@ -17239,7 +17267,9 @@ block_111:
 lean_object* x_97; lean_object* x_98; 
 x_97 = lean_alloc_closure((void*)(l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2___rarg___lambda__1___boxed), 2, 1);
 lean_closure_set(x_97, 0, x_1);
-x_98 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_97, x_94);
+x_98 = lean_find_expr(x_97, x_94);
+lean_dec(x_94);
+lean_dec(x_97);
 if (lean_obj_tag(x_98) == 0)
 {
 lean_object* x_99; lean_object* x_100; 

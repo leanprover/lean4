@@ -498,7 +498,7 @@ optional<expr> has_expr_metavar_strict(expr const & e) {
     if (!has_expr_metavar(e))
         return none_expr();
     optional<expr> r;
-    for_each(e, [&](expr const & e, unsigned) {
+    for_each(e, [&](expr const & e) {
             if (r || !has_expr_metavar(e)) return false;
             if (is_metavar_app(e)) { r = e; return false; }
             return true;

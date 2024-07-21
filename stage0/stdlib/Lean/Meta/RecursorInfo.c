@@ -222,7 +222,6 @@ static lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Meta_RecursorInfo
 LEAN_EXPORT lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkMotiveResultType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2934____lambda__2___closed__10;
 static lean_object* l_List_toString___at_Lean_Meta_RecursorInfo_instToString___spec__7___closed__1;
-lean_object* l_Lean_Expr_FindImpl_findUnsafe_x3f(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getParamsPos___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getParamsPos___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoAux___spec__2___boxed(lean_object**);
@@ -307,6 +306,7 @@ static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2934_
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkMotive___closed__4;
 uint8_t lean_level_eq(lean_object*, lean_object*);
+lean_object* lean_find_expr(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkMotive(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -5168,7 +5168,9 @@ x_15 = lean_ctor_get(x_12, 1);
 lean_inc(x_1);
 x_16 = lean_alloc_closure((void*)(l_Array_getIdx_x3f___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__1___lambda__1___boxed), 2, 1);
 lean_closure_set(x_16, 0, x_1);
-x_17 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_16, x_14);
+x_17 = lean_find_expr(x_16, x_14);
+lean_dec(x_14);
+lean_dec(x_16);
 if (lean_obj_tag(x_17) == 0)
 {
 size_t x_18; size_t x_19; 
@@ -5205,7 +5207,9 @@ lean_dec(x_12);
 lean_inc(x_1);
 x_25 = lean_alloc_closure((void*)(l_Array_getIdx_x3f___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__1___lambda__1___boxed), 2, 1);
 lean_closure_set(x_25, 0, x_1);
-x_26 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_25, x_23);
+x_26 = lean_find_expr(x_25, x_23);
+lean_dec(x_23);
+lean_dec(x_25);
 if (lean_obj_tag(x_26) == 0)
 {
 size_t x_27; size_t x_28; 

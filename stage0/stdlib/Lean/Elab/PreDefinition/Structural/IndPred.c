@@ -4896,7 +4896,6 @@ x_24 = lean_ctor_get(x_1, 0);
 lean_inc(x_24);
 x_25 = lean_ctor_get(x_1, 2);
 lean_inc(x_25);
-lean_inc(x_4);
 lean_inc(x_24);
 x_26 = l_Lean_Elab_Structural_recArgHasLooseBVarsAt(x_24, x_25, x_4);
 if (x_26 == 0)

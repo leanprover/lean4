@@ -1177,7 +1177,6 @@ if (x_52 == 0)
 lean_object* x_53; lean_object* x_54; uint8_t x_55; 
 x_53 = lean_ctor_get(x_51, 0);
 x_54 = lean_ctor_get(x_51, 1);
-lean_inc(x_53);
 lean_inc(x_1);
 x_55 = l_Lean_Expr_occurs(x_1, x_53);
 if (x_55 == 0)
@@ -1285,7 +1284,6 @@ x_70 = lean_ctor_get(x_51, 1);
 lean_inc(x_70);
 lean_inc(x_69);
 lean_dec(x_51);
-lean_inc(x_69);
 lean_inc(x_1);
 x_71 = l_Lean_Expr_occurs(x_1, x_69);
 if (x_71 == 0)
@@ -1435,7 +1433,6 @@ if (x_91 == 0)
 lean_object* x_92; lean_object* x_93; uint8_t x_94; 
 x_92 = lean_ctor_get(x_90, 0);
 x_93 = lean_ctor_get(x_90, 1);
-lean_inc(x_92);
 lean_inc(x_1);
 x_94 = l_Lean_Expr_occurs(x_1, x_92);
 if (x_94 == 0)
@@ -1543,7 +1540,6 @@ x_109 = lean_ctor_get(x_90, 1);
 lean_inc(x_109);
 lean_inc(x_108);
 lean_dec(x_90);
-lean_inc(x_108);
 lean_inc(x_1);
 x_110 = l_Lean_Expr_occurs(x_1, x_108);
 if (x_110 == 0)
@@ -1693,7 +1689,6 @@ if (x_130 == 0)
 lean_object* x_131; lean_object* x_132; uint8_t x_133; 
 x_131 = lean_ctor_get(x_129, 0);
 x_132 = lean_ctor_get(x_129, 1);
-lean_inc(x_131);
 lean_inc(x_1);
 x_133 = l_Lean_Expr_occurs(x_1, x_131);
 if (x_133 == 0)
@@ -1801,7 +1796,6 @@ x_148 = lean_ctor_get(x_129, 1);
 lean_inc(x_148);
 lean_inc(x_147);
 lean_dec(x_129);
-lean_inc(x_147);
 lean_inc(x_1);
 x_149 = l_Lean_Expr_occurs(x_1, x_147);
 if (x_149 == 0)
@@ -1960,7 +1954,6 @@ if (x_171 == 0)
 lean_object* x_172; lean_object* x_173; uint8_t x_174; 
 x_172 = lean_ctor_get(x_170, 0);
 x_173 = lean_ctor_get(x_170, 1);
-lean_inc(x_172);
 lean_inc(x_1);
 x_174 = l_Lean_Expr_occurs(x_1, x_172);
 if (x_174 == 0)
@@ -2068,7 +2061,6 @@ x_189 = lean_ctor_get(x_170, 1);
 lean_inc(x_189);
 lean_inc(x_188);
 lean_dec(x_170);
-lean_inc(x_188);
 lean_inc(x_1);
 x_190 = l_Lean_Expr_occurs(x_1, x_188);
 if (x_190 == 0)
@@ -2320,7 +2312,6 @@ if (x_11 == 0)
 lean_object* x_12; lean_object* x_13; uint8_t x_14; 
 x_12 = lean_ctor_get(x_10, 0);
 x_13 = lean_ctor_get(x_10, 1);
-lean_inc(x_12);
 x_14 = l_Lean_Expr_occurs(x_1, x_12);
 if (x_14 == 0)
 {
@@ -2354,7 +2345,6 @@ x_18 = lean_ctor_get(x_10, 1);
 lean_inc(x_18);
 lean_inc(x_17);
 lean_dec(x_10);
-lean_inc(x_17);
 x_19 = l_Lean_Expr_occurs(x_1, x_17);
 if (x_19 == 0)
 {

@@ -181,7 +181,7 @@ def modifyOp (self : Array α) (idx : Nat) (f : α → α) : Array α :=
 
   This kind of low level trick can be removed with a little bit of compiler support. For example, if the compiler simplifies `as.size < usizeSz` to true. -/
 @[inline] unsafe def forInUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
-  let sz := as.size.toUSize -- TODO: use usize
+  let sz := as.usize
   let rec @[specialize] loop (i : USize) (b : β) : m β := do
     if i < sz then
       let a := as.uget i lcProof
@@ -287,7 +287,7 @@ def foldrM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α
 /-- See comment at `forInUnsafe` -/
 @[inline]
 unsafe def mapMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m β) (as : Array α) : m (Array β) :=
-  let sz := as.size.toUSize -- TODO: use usize
+  let sz := as.usize
   let rec @[specialize] map (i : USize) (r : Array NonScalar) : m (Array PNonScalar.{v}) := do
     if i < sz then
      let v    := r.uget i lcProof

@@ -123,7 +123,7 @@ def toList (bs : ByteArray) : List UInt8 :=
   TODO: avoid code duplication in the future after we improve the compiler.
 -/
 @[inline] unsafe def forInUnsafe {β : Type v} {m : Type v → Type w} [Monad m] (as : ByteArray) (b : β) (f : UInt8 → β → m (ForInStep β)) : m β :=
-  let sz := as.size.toUSize -- TODO: use usize
+  let sz := as.usize
   let rec @[specialize] loop (i : USize) (b : β) : m β := do
     if i < sz then
       let a := as.uget i lcProof

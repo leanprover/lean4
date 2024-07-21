@@ -981,23 +981,24 @@ where
   getElabAsElimExtraArgsPos (elimInfo : ElimInfo) : MetaM (Array Nat) := do
     forallTelescope elimInfo.elimType fun xs type => do
       let targets := type.getAppArgs
+      /- Compute transitive closure of fvars appearing in the motive and the targets. -/
+      let initMotiveFVars : CollectFVars.State := targets.foldl (init := {}) collectFVars
+      let motiveFVars ← xs.size.foldRevM (init := initMotiveFVars) fun i s => do
+        let x := xs[i]!
+        if elimInfo.motivePos == i || elimInfo.targetsPos.contains i || s.fvarSet.contains x.fvarId! then
+          return collectFVars s (← inferType x)
+        else
+          return s
+      /- Collect the extra argument positions -/
       let mut extraArgsPos := #[]
-      /- Transitive closure of fvars appearing in the motive and the targets. -/
-      let mut motiveFVars : CollectFVars.State := collectFVars {} xs[elimInfo.motivePos]!
-      for arg in targets do
-        motiveFVars := collectFVars (collectFVars motiveFVars arg) (← inferType arg)
-      /- Process arguments in reverse order to transitively collect extra args positions -/
-      for i' in [:xs.size] do
-        let i := xs.size - 1 - i'
+      for i in [:xs.size] do
         let x := xs[i]!
         let xType ← x.fvarId!.getType
         unless elimInfo.motivePos == i || elimInfo.targetsPos.contains i do
-          if motiveFVars.fvarSet.contains x.fvarId! then
-            extraArgsPos := extraArgsPos.push i
-            motiveFVars := collectFVars motiveFVars xType
-          else if isFirstOrder xType
-                  && Option.isSome (xType.find? fun e => e.isFVar && motiveFVars.fvarSet.contains e.fvarId!) then
-            /- We only consider "first-order" types because we can reliably "extract" information from them. -/
+          /- We only consider "first-order" types because we can reliably "extract" information from them. -/
+          if motiveFVars.fvarSet.contains x.fvarId!
+             || (isFirstOrder xType
+                 && Option.isSome (xType.find? fun e => e.isFVar && motiveFVars.fvarSet.contains e.fvarId!)) then
             extraArgsPos := extraArgsPos.push i
       return extraArgsPos
 

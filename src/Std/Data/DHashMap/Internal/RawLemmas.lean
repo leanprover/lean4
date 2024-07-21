@@ -123,8 +123,11 @@ theorem contains_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} :
 
 theorem isEmpty_eq_false_iff_exists_contains_eq_true [EquivBEq α] [LawfulHashable α] :
     m.1.isEmpty = false ↔ ∃ a, m.contains a = true := by
-  simp only [contains_eq_containsKey (Raw.WF.out h)]
   simp_to_model using List.isEmpty_eq_false_iff_exists_containsKey
+
+theorem isEmpty_iff_forall_contains [EquivBEq α] [LawfulHashable α] :
+    m.1.isEmpty ↔ ∀ a, m.contains a = false := by
+  simp_to_model using List.isEmpty_iff_forall_containsKey
 
 theorem contains_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :
     (m.insert k v).contains a = ((k == a) || m.contains a) := by
@@ -152,6 +155,10 @@ theorem size_le_size_insert [EquivBEq α] [LawfulHashable α] {k : α} {v : β k
     m.1.size ≤ (m.insert k v).1.size := by
   simp_to_model using List.length_le_length_insertEntry
 
+theorem size_insert_le [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
+    (m.insert k v).1.size ≤ m.1.size + 1 := by
+  simp_to_model using List.length_insertEntry_le
+
 @[simp]
 theorem erase_empty {k : α} {c : Nat} : (empty c : Raw₀ α β).erase k = empty c := by
   simp [erase, empty]
@@ -175,6 +182,10 @@ theorem size_erase [EquivBEq α] [LawfulHashable α] {k : α} :
 theorem size_erase_le [EquivBEq α] [LawfulHashable α] {k : α} :
     (m.erase k).1.size ≤ m.1.size := by
   simp_to_model using List.length_eraseKey_le
+
+theorem size_le_size_erase [EquivBEq α] [LawfulHashable α] {k : α} :
+    m.1.size ≤ (m.erase k).1.size + 1 := by
+  simp_to_model using List.length_le_length_eraseKey
 
 @[simp]
 theorem containsThenInsert_fst {k : α} {v : β k} : (m.containsThenInsert k v).1 = m.contains k := by
@@ -545,6 +556,10 @@ theorem size_insertIfNew [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
 theorem size_le_size_insertIfNew [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
     m.1.size ≤ (m.insertIfNew k v).1.size := by
   simp_to_model using List.length_le_length_insertEntryIfNew
+
+theorem size_insertIfNew_le [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
+    (m.insertIfNew k v).1.size ≤ m.1.size + 1 := by
+  simp_to_model using List.length_insertEntryIfNew_le
 
 theorem get?_insertIfNew [LawfulBEq α] {k a : α} {v : β k} :
     (m.insertIfNew k v).get? a =

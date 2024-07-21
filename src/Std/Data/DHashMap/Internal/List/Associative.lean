@@ -82,6 +82,11 @@ theorem isEmpty_eq_false_iff_exists_isSome_getEntry? [BEq α] [ReflBEq α] :
   | [] => by simp
   | (⟨k, v⟩::l) => by simpa using ⟨k, by simp⟩
 
+theorem isEmpty_iff_forall_isSome_getEntry? [BEq α] [ReflBEq α] :
+    {l : List ((a : α) × β a)} → l.isEmpty ↔ ∀ a, (getEntry? a l).isSome = false
+  | [] => by simp
+  | (⟨k, v⟩::l) => ⟨by simp, fun h => have := h k; by simp at this⟩
+
 section
 
 variable {β : Type v}
@@ -254,6 +259,10 @@ theorem isEmpty_eq_false_of_containsKey [BEq α] {l : List ((a : α) × β a)} {
 theorem isEmpty_eq_false_iff_exists_containsKey [BEq α] [ReflBEq α] {l : List ((a : α) × β a)} :
     l.isEmpty = false ↔ ∃ a, containsKey a l := by
   simp [isEmpty_eq_false_iff_exists_isSome_getEntry?, containsKey_eq_isSome_getEntry?]
+
+theorem isEmpty_iff_forall_containsKey [BEq α] [ReflBEq α] {l : List ((a : α) × β a)} :
+    l.isEmpty ↔ ∀ a, containsKey a l = false := by
+  simp [isEmpty_iff_forall_isSome_getEntry?, containsKey_eq_isSome_getEntry?]
 
 @[simp]
 theorem getEntry?_eq_none [BEq α] {l : List ((a : α) × β a)} {a : α} :
@@ -699,6 +708,11 @@ theorem length_eraseKey_le [BEq α] {l : List ((a : α) × β a)} {k : α} :
     (eraseKey k l).length ≤ l.length :=
   sublist_eraseKey.length_le
 
+theorem length_le_length_eraseKey [BEq α] {l : List ((a : α) × β a)} {k : α} :
+    l.length ≤ (eraseKey k l).length + 1 := by
+  rw [length_eraseKey]
+  split <;> omega
+
 theorem isEmpty_eraseKey [BEq α] {l : List ((a : α) × β a)} {k : α} :
     (eraseKey k l).isEmpty = (l.isEmpty || (l.length == 1 && containsKey k l)) := by
   rw [Bool.eq_iff_iff]
@@ -859,9 +873,12 @@ theorem length_insertEntry [BEq α] {l : List ((a : α) × β a)} {k : α} {v : 
 theorem length_le_length_insertEntry [BEq α] {l : List ((a : α) × β a)} {k : α} {v : β k} :
     l.length ≤ (insertEntry k v l).length := by
   rw [length_insertEntry]
-  cases containsKey k l
-  · simpa using Nat.le_add_right ..
-  · simp
+  split <;> omega
+
+theorem length_insertEntry_le [BEq α] {l : List ((a : α) × β a)} {k : α} {v : β k} :
+    (insertEntry k v l).length ≤ l.length + 1 := by
+  rw [length_insertEntry]
+  split <;> omega
 
 section
 
@@ -1121,9 +1138,12 @@ theorem length_insertEntryIfNew [BEq α] {l : List ((a : α) × β a)} {k : α} 
 theorem length_le_length_insertEntryIfNew [BEq α] {l : List ((a : α) × β a)} {k : α} {v : β k} :
     l.length ≤ (insertEntryIfNew k v l).length := by
   rw [length_insertEntryIfNew]
-  cases containsKey k l
-  · simpa using Nat.le_add_right ..
-  · simp
+  split <;> omega
+
+theorem length_insertEntryIfNew_le [BEq α] {l : List ((a : α) × β a)} {k : α} {v : β k} :
+    (insertEntryIfNew k v l).length ≤ l.length + 1 := by
+  rw [length_insertEntryIfNew]
+  split <;> omega
 
 @[simp]
 theorem keys_eraseKey [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)} {k : α} :

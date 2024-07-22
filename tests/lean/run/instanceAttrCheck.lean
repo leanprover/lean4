@@ -19,8 +19,10 @@ error: type class instance expected
 @[instance] def fn : Foo := ⟨⟩
 
 
--- Checks that the attribute check happens for the right function,
--- even with mutually well-founded recursive functions
+/-!
+Check that intermediate definitions (here produced by WF recursion processing)
+do not also get the `@[instance]` attribute.
+-/
 
 class C (n : Nat) : Type where
 

@@ -205,6 +205,7 @@ builtin_initialize
   registerBuiltinAttribute {
     name  := `instance
     descr := "type class instance"
+    applicationTime := .afterCompilation
     add   := fun declName stx attrKind => do
       let prio ← getAttrParamOptPrio stx[1]
       discard <| addInstance declName attrKind prio |>.run {} {}

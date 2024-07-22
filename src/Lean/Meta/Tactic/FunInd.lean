@@ -844,6 +844,17 @@ def stripPProdProjs (e : Expr) : Expr :=
   | .proj ``And _ e' => stripPProdProjs e'
   | e => e
 
+def withLetDecls {α} (name : Name) (ts : Array Expr) (es : Array Expr) (k : Array Expr → MetaM α) : MetaM α := do
+  assert! es.size = ts.size
+  go 0 #[]
+where
+  go (i : Nat) (acc : Array Expr) := do
+    if h : i < es.size then
+      let n := if es.size = 1 then name else name.appendIndexAfter (i + 1)
+      withLetDecl n ts[i]! es[i] fun x => go (i+1) (acc.push x)
+    else
+      k acc
+
 /--
 Given a recursive definition `foo` defined via structural recursion, derive `foo.mutual_induct`,
 if needed, and `foo.induct` for all functions in the group.
@@ -977,32 +988,32 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
           trace[Meta.FunInd] "processed minors: {minors'}"
 
           -- Now assemble the mutual_induct theorem
-          -- Plenty of code duplication here (packed Motive, minors', brecOn applications)!
-
-          let mut brecOnApps := #[]
-          for info in infos, recArgInfo in recArgInfos, idx in [:infos.size] do
-            -- Take care to pick the `ys` from the type, to get the variable names expected
-            -- by the user, but use the value arity
-            let arity ← lambdaTelescope (← instantiateLambda info.value xs) fun ys _ => pure ys.size
-            let e ← forallBoundedTelescope (← instantiateForall info.type xs) arity fun ys _ => do
-              let (indicesMajor, rest) := recArgInfo.pickIndicesMajor ys
-              -- Find where in the function packing we are (TODO: abstract out)
-              let some indIdx := positions.findIdx? (·.contains idx) | panic! "invalid positions"
-              let some pos := positions.find? (·.contains idx) | panic! "invalid positions"
-              let some packIdx := pos.findIdx? (· == idx) | panic! "invalid positions"
-              -- TODO: Always use binduction?
-              let e := group.brecOn true lvl indIdx
-              let e := mkAppN e packedMotives
-              let e := mkAppN e indicesMajor
-              let e := mkAppN e minors'
-              let e ← if pos.size = 1 then pure e else Structural.mkPProdProjN packIdx e
-              let e := mkAppN e rest
-              let e ← mkLambdaFVars ys e
-              trace[Meta.FunInd] "assembled call for {info.name}: {e}"
-              pure e
-            brecOnApps := brecOnApps.push e
-          let e' ← mkAndIntroN brecOnApps
-          let e' ← abstractIndependentMVars mvars (← motives.back.fvarId!.getDecl).index  e'
+          -- Let-bind the transformed minors to avoid code duplication of possibly very large
+          -- terms when we have mutual induction.
+          let e' ← withLetDecls `minor minorTypes minors' fun minors' => do
+            let mut brecOnApps := #[]
+            for info in infos, recArgInfo in recArgInfos, idx in [:infos.size] do
+              -- Take care to pick the `ys` from the type, to get the variable names expected
+              -- by the user, but use the value arity
+              let arity ← lambdaTelescope (← instantiateLambda info.value xs) fun ys _ => pure ys.size
+              let e ← forallBoundedTelescope (← instantiateForall info.type xs) arity fun ys _ => do
+                let (indicesMajor, rest) := recArgInfo.pickIndicesMajor ys
+                -- Find where in the function packing we are (TODO: abstract out)
+                let some indIdx := positions.findIdx? (·.contains idx) | panic! "invalid positions"
+                let some pos := positions.find? (·.contains idx) | panic! "invalid positions"
+                let some packIdx := pos.findIdx? (· == idx) | panic! "invalid positions"
+                let e := group.brecOn true lvl indIdx -- unconditionally using binduction here
+                let e := mkAppN e packedMotives
+                let e := mkAppN e indicesMajor
+                let e := mkAppN e minors'
+                let e ← if pos.size = 1 then pure e else Structural.mkPProdProjN packIdx e
+                let e := mkAppN e rest
+                let e ← mkLambdaFVars ys e
+                trace[Meta.FunInd] "assembled call for {info.name}: {e}"
+                pure e
+              brecOnApps := brecOnApps.push e
+            mkLetFVars minors' (← mkAndIntroN brecOnApps)
+          let e' ← abstractIndependentMVars mvars (← motives.back.fvarId!.getDecl).index e'
           let e' ← mkLambdaFVars motives e'
 
           -- We could pass (usedOnly := true) below, and get nicer induction principles that

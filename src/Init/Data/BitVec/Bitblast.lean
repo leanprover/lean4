@@ -331,6 +331,10 @@ theorem getLsb_mul (x y : BitVec w) (i : Nat) :
 /--
 A recurrence that describes shifting by an arbitrary bitvector
 as shifting by a constant amount.
+
+This computation is equivalent to `x <<< (y.truncate (n + 1)).zeroExtend w₂`,
+as witnessed by the `shiftLeftRec_eq` theorem further down.
+We phrase it recursively to simplify other proofs
  -/
 def shiftLeftRec (x : BitVec w₁) (y : BitVec w₂) (n : Nat) : BitVec w₁ :=
   let shiftAmt := (y &&& (twoPow w₂ n))

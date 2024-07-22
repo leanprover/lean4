@@ -1,3 +1,10 @@
+/-!
+# Tests of elabAsElim elaborator and the `elab_as_elim` attribute
+-/
+
+-- For debugging:
+-- set_option trace.Elab.app.elab_as_elim true
+
 inductive Vec (α : Type u) : Nat → Type u
   | nil : Vec α 0
   | cons : α → Vec α n → Vec α (n+1)
@@ -5,6 +12,7 @@ inductive Vec (α : Type u) : Nat → Type u
 def f1 (xs : Vec α n) : Nat :=
   Vec.casesOn xs 0 fun _ _ => 1
 
+/-! Under-applied eliminator, and expected type isn't a pi type. -/
 /--
 error: failed to elaborate eliminator, insufficient number of arguments, expected type:
   Nat
@@ -14,6 +22,15 @@ def f2 (xs : Vec α n) : Nat :=
   xs.casesOn 0
 
 def f3 (x : Nat) : Nat → (Nat → Nat) → Nat :=
+  x.casesOn
+
+/-! Under-applied eliminator, expected type's binders do not unify with remaining arguments. -/
+/--
+error: failed to elaborate eliminator, insufficient number of arguments, expected type:
+  (Nat → Nat) → Nat → Nat
+-/
+#guard_msgs in
+def f3' (x : Nat) : (Nat → Nat) → Nat → Nat :=
   x.casesOn
 
 def f4 (xs : List Nat) : xs ≠ [] → xs.length > 0 :=
@@ -124,7 +141,7 @@ example {n : Type} : {T : n} → T = T := @(Foo.induction n)
 /-!
 A "motive is not type correct" regression test.
 The `isEmptyElim` was failing due to being under-applied and the named `(α := α)` argument
-having postponed elaboration.
+having postponed elaboration. This fix is that `α` now elaborates eagerly.
 -/
 
 class IsEmpty (α : Sort u) : Prop where

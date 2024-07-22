@@ -713,7 +713,7 @@ structure Context where
   theorem Eq.subst' {α} {motive : α → Prop} {a b : α} (h : a = b) : motive a → motive b
   ```
   For another example, the term `isEmptyElim (α := α)` is an underapplied eliminator, and it needs
-  argument `α` to be elaborated eagerly to create a type correct motive.
+  argument `α` to be elaborated eagerly to create a type-correct motive.
   ```
   def isEmptyElim [IsEmpty α] {p : α → Sort _} (a : α) : p a := ...
   example {α : Type _} [IsEmpty α] : id (α → False) := isEmptyElim (α := α)
@@ -731,7 +731,7 @@ structure State where
   namedArgs    : List NamedArg
   /-- User-provided arguments that still have to be processed. -/
   args         : List Arg
-  /-- Discriminants processed so far. -/
+  /-- Discriminants (targets) processed so far. -/
   discrs       : Array (Option Expr)
   /-- Instance implicit arguments collected so far. -/
   instMVars    : Array MVarId := #[]
@@ -773,44 +773,50 @@ def finalize : M Expr := do
     throwError "failed to elaborate eliminator, unused named arguments: {(← get).namedArgs.map (·.name)}"
   let some motive := (← get).motive?
     | throwError "failed to elaborate eliminator, insufficient number of arguments"
+  trace[Elab.app.elab_as_elim] "motive: {motive}"
   forallTelescope (← get).fType fun xs _ => do
+    trace[Elab.app.elab_as_elim] "xs: {xs}"
     let mut expectedType := (← read).expectedType
+    trace[Elab.app.elab_as_elim] "expectedType:{indentD expectedType}"
+    let throwInsufficient := do
+      throwError "failed to elaborate eliminator, insufficient number of arguments, expected type:{indentExpr expectedType}"
     let mut f := (← get).f
     if xs.size > 0 then
+      -- under-application, specialize the expected type using `xs`
       assert! (← get).args.isEmpty
       for x in xs do
-        expectedType ← whnf expectedType
-        let .forallE _ t b _ := expectedType
-          | throwError "failed to elaborate eliminator, insufficient number of arguments, expected type:{indentExpr (← read).expectedType}"
+        let .forallE _ t b _ ← whnf expectedType | throwInsufficient
         unless ← fullApproxDefEq <| isDefEq t (← inferType x) do
-          throwError "failed to elaborate eliminator, binding domain{indentExpr t}\nis not definitionally equal to{indentExpr (← inferType x)}"
+          -- We can't assume that these binding domains were supposed to line up, so report insufficient arguments
+          throwInsufficient
         expectedType := b.instantiate1 x
+      trace[Elab.app.elab_as_elim] "xs after specialization of expected type: {xs}"
     else
-      -- over-application, simulate `revert` while generalizing
+      -- over-application, simulate `revert` while generalizing the values of these arguments in the expected type
       (f, expectedType) ← revertArgs (← get).args f expectedType
       unless ← isTypeCorrect expectedType do
         throwError "failed to elaborate eliminator, after generalizing over-applied arguments, expected type is type incorrect:{indentExpr expectedType}"
+    trace[Elab.app.elab_as_elim] "expectedType after processing:{indentD expectedType}"
     let result := mkAppN f xs
+    trace[Elab.app.elab_as_elim] "result:{indentD result}"
     let mut discrs := (← get).discrs
     let idx := (← get).idx
     if discrs.any Option.isNone then
       for i in [idx:idx + xs.size], x in xs do
         if let some tidx := (← read).elimInfo.targetsPos.indexOf? i then
           discrs := discrs.set! tidx x
-    if discrs.any Option.isNone then
+    if let some idx := discrs.findIdx? Option.isNone then
       -- This should not happen.
+      trace[Elab.app.elab_as_elim] "Internal error, missing target at argument index {idx}"
       throwError "failed to elaborate eliminator, insufficient number of arguments"
-    trace[Elab.app.elab_as_elim] "xs: {xs}"
     trace[Elab.app.elab_as_elim] "discrs: {discrs.map Option.get!}"
-    trace[Elab.app.elab_as_elim] "result: {result}"
-    trace[Elab.app.elab_as_elim] "expectedType: {expectedType}"
-    trace[Elab.app.elab_as_elim] "motive: {motive}"
     let motiveVal ← mkMotive (discrs.map Option.get!) expectedType
     unless (← isTypeCorrect motiveVal) do
       throwError "failed to elaborate eliminator, motive is not type correct:{indentD motiveVal}"
     unless (← isDefEq motive motiveVal) do
       throwError "failed to elaborate eliminator, invalid motive{indentExpr motiveVal}"
     synthesizeAppInstMVars (← get).instMVars result
+    trace[Elab.app.elab_as_elim] "completed motive:{indentD motive}"
     let result ← mkLambdaFVars xs (← instantiateMVars result)
     return result
 

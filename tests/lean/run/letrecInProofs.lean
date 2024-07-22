@@ -19,7 +19,7 @@ theorem Tree.acyclic (x t : Tree) : x = t → x ≮ t := by
       have ihl : x ≮ l → node s x ≠ l ∧ node s x ≮ l := right x s l
       have ihr : x ≮ r → node s x ≠ r ∧ node s x ≮ r := right x s r
       have hl : x ≠ l ∧ x ≮ l := h.1
-      have hr : x ≠ r ∧ x ≮ r := h.2.1
+      have hr : x ≠ r ∧ x ≮ r := h.2
       have ihl : node s x ≠ l ∧ node s x ≮ l := ihl hl.2
       have ihr : node s x ≠ r ∧ node s x ≮ r := ihr hr.2
       apply And.intro
@@ -31,7 +31,6 @@ theorem Tree.acyclic (x t : Tree) : x = t → x ≮ t := by
       focus
         apply And.intro
         apply ihl
-        apply And.intro _ trivial
         apply ihr
   let rec left (x t : Tree) (b : Tree) (h : x ≮ b) : node x t ≠ b ∧ node x t ≮ b := by
     match b, h with
@@ -42,7 +41,7 @@ theorem Tree.acyclic (x t : Tree) : x = t → x ≮ t := by
       have ihl : x ≮ l → node x t ≠ l ∧ node x t ≮ l := left x t l
       have ihr : x ≮ r → node x t ≠ r ∧ node x t ≮ r := left x t r
       have hl : x ≠ l ∧ x ≮ l := h.1
-      have hr : x ≠ r ∧ x ≮ r := h.2.1
+      have hr : x ≠ r ∧ x ≮ r := h.2
       have ihl : node x t ≠ l ∧ node x t ≮ l := ihl hl.2
       have ihr : node x t ≠ r ∧ node x t ≮ r := ihr hr.2
       apply And.intro
@@ -54,19 +53,17 @@ theorem Tree.acyclic (x t : Tree) : x = t → x ≮ t := by
       focus
         apply And.intro
         apply ihl
-        apply And.intro _ trivial
         apply ihr
   let rec aux : (x : Tree) → x ≮ x
     | leaf     => trivial
     | node l r => by
         have ih₁ : l ≮ l := aux l
         have ih₂ : r ≮ r := aux r
-        show (node l r ≠ l ∧ node l r ≮ l) ∧ (node l r ≠ r ∧ node l r ≮ r) ∧ True
+        show (node l r ≠ l ∧ node l r ≮ l) ∧ (node l r ≠ r ∧ node l r ≮ r)
         apply And.intro
         focus
           apply left
           assumption
-        apply And.intro _ trivial
         focus
           apply right
           assumption
@@ -78,7 +75,7 @@ open Tree
 
 theorem ex1 (x : Tree) : x ≠ node leaf (node x leaf) := by
   intro h
-  exact absurd rfl $ Tree.acyclic _ _ h |>.2.1.2.1.1
+  exact absurd rfl $ Tree.acyclic _ _ h |>.2.2.1.1
 
 theorem ex2 (x : Tree) : x ≠ node x leaf := by
   intro h
@@ -86,4 +83,4 @@ theorem ex2 (x : Tree) : x ≠ node x leaf := by
 
 theorem ex3 (x y : Tree) : x ≠ node y x := by
   intro h
-  exact absurd rfl $ Tree.acyclic _ _ h |>.2.1.1
+  exact absurd rfl $ Tree.acyclic _ _ h |>.2.1

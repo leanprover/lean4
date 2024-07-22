@@ -999,8 +999,8 @@ where
       let mut extraArgsPos := #[]
       for i in [:xs.size] do
         let x := xs[i]!
-        let xType ← x.fvarId!.getType
         unless elimInfo.motivePos == i || elimInfo.targetsPos.contains i do
+          let xType ← x.fvarId!.getType
           /- We only consider "first-order" types because we can reliably "extract" information from them. -/
           if motiveFVars.fvarSet.contains x.fvarId!
              || (isFirstOrder xType

@@ -807,7 +807,7 @@ def finalize : M Expr := do
           discrs := discrs.set! tidx x
     if let some idx := discrs.findIdx? Option.isNone then
       -- This should not happen.
-      trace[Elab.app.elab_as_elim] "Internal error, missing target at argument index {idx}"
+      trace[Elab.app.elab_as_elim] "Internal error, missing target with index {idx}"
       throwError "failed to elaborate eliminator, insufficient number of arguments"
     trace[Elab.app.elab_as_elim] "discrs: {discrs.map Option.get!}"
     let motiveVal ← mkMotive (discrs.map Option.get!) expectedType

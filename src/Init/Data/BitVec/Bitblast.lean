@@ -417,9 +417,8 @@ theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} (hn : n + 
         · apply Nat.add_lt_add_of_lt_of_le
           · simp only [pow_eq, Nat.mul_eq, Nat.mul_one]
             apply Nat.lt_of_lt_of_le (m := 2 ^ (n + 1))
-            · apply Nat.mod_lt
-              · apply Nat.pow_pos (by decide)
-            · apply Nat.pow_le_pow_of_le_right (by decide) (by omega)
+              (by omega)
+              (Nat.pow_le_pow_of_le_right (by decide) (by omega))
           · simp only [pow_eq]
             apply Nat.pow_le_pow_of_le_right (by decide) (by omega)
     · simp only [h, false_eq_true, ↓reduceIte, shiftLeft_zero']

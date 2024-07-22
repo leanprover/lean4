@@ -1,8 +1,0 @@
-elabAsElim.lean:9:2-9:14: error: failed to elaborate eliminator, insufficient number of arguments, expected type:
-  Nat
-elabAsElim.lean:26:2-26:24: error: failed to elaborate eliminator, unused named arguments: [a]
-elabAsElim.lean:92:4-92:17: warning: declaration uses 'sorry'
-elabAsElim.lean:94:38-94:53: error: failed to elaborate eliminator, motive is not type correct:
-  fun x => T = T
-elabAsElim.lean:96:40-96:55: error: failed to elaborate eliminator, motive is not type correct:
-  fun x => T✝ = T✝

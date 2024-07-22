@@ -397,9 +397,9 @@ theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} (hn : n + 
     simp only [shiftLeftRec_succ, and_twoPow_eq_getLsb]
     by_cases h : y.getLsb (n + 1)
     · simp only [h, ↓reduceIte]
-      rw [ih (hn := by omega)]
-      rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsb_true h]
-      rw [shiftLeft_or_eq_shiftLeft_shiftLeft_of_and_eq_zero]
+      rw [ih (hn := by omega),
+        zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsb_true h,
+        shiftLeft_or_eq_shiftLeft_shiftLeft_of_and_eq_zero]
       · simp
       · simp only [toNat_truncate, toNat_twoPow]
         have hpow : 2 ^ (n + 1) < 2 ^ w₂ := by

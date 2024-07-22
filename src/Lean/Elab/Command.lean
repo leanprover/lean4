@@ -13,9 +13,10 @@ import Lean.Language.Basic
 namespace Lean.Elab.Command
 
 /--
-A `Scope` collects context information which is inherently scoped: this contains
-the current namespace and information about `open`, `universe` or `variable` declarations.
-There is always a base scope; scopes can be nested.
+A `Scope` records the part of the `CommandElabM` state that respects scoping,
+such as the data for `universe`, `open`, and `variable` declarations, the current namespace, and currently enabled options.
+The `CommandElabM` state contains a stack of scopes, and only the top `Scope` on the stack is read from or modified.
+There is always at least one `Scope` on the stack, even outside any `section` or `namespace`, and each new pushed `Scope` starts as a modified copy of the previous top scope.
 
 `universe`, `open` and `variable` declarations only modify the current scope
 (and all scopes nested below it): these declarations usually *append* to the
@@ -24,17 +25,25 @@ context in the current scope; `variable` statements can also change existing ite
 Unclosed scopes are automatically closed at the end of the current module.
 -/
 structure Scope where
+  /-- The component of the `namespace` or `section` that this scope is associated to.
+  For example, `section a.b.c` and `namespace a.b.c` each create three scopes with headers named `a`, `b`, and `c`.
+  This is used for checking the `end` command. The "base scope" has `""` as its header.  -/
   header        : String
+  /-- The current state of all set options at this point in the scope. Note that this is the full current set options and *not* simply the options set while this scope has been active. -/
   opts          : Options := {}
-  /-- The current namespace: by default, this is an anonymous namespace -/
+  /-- The current namespace. The top-level namespace is represented by `Name.anonymous`. -/
   currNamespace : Name := Name.anonymous
-  /-- All currently `open`ed namespaces -/
+  /-- All currently `open`ed namespaces and names. -/
   openDecls     : List OpenDecl := []
-  /-- All universe levels which apply in the current scope -/
+  /-- The current list of names for universe level variables to use for new declarations. This is managed by the `universe` command. -/
   levelNames    : List Name := []
-  /-- All variable binders which apply in the current scope -/
+  /-- The current list of binders to use for new declarations. This is managed by the `variable` command.
+  Each binder is represented in `Syntax` form, and it is re-elaborated within each command that uses this information.
+  
+  This is also used by commands, such as `#check`, to create an initial local context, even if they do not work with binders per se. -/
   varDecls      : Array (TSyntax ``Parser.Term.bracketedBinder) := #[]
-  /-- Globally unique internal identifiers for the `varDecls` -/
+  /-- Globally unique internal identifiers for the `varDecls`. There is one identifier per variable introduced by the binders (recall that a binder such as `(a b c : Ty)` can produce more than one variable), and each identifier is the user-provided variable name with a macro scope.
+  This is used by `TermElabM` in `Lean.Elab.Term.Context` to help with processing macros that capture these variables. -/
   varUIds       : Array Name := #[]
   /-- Whether the current scope is (or is nested inside) a `noncomputable` `section`:
   in this case, automatically add the `noncomputable` modifier to any declaration

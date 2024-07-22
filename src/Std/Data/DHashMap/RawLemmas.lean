@@ -150,7 +150,8 @@ theorem isEmpty_eq_size_eq_zero : m.isEmpty = (m.size == 0) := by
   simp [isEmpty]
 
 theorem size_insert [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
-    (m.insert k v).size = bif m.contains k then m.size else m.size + 1 := by
+    (m.insert k v).size = if k ∈ m then m.size else m.size + 1 := by
+  simp only [mem_iff_contains]
   simp_to_raw using Raw₀.size_insert
 
 theorem size_le_size_insert [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
@@ -189,7 +190,8 @@ theorem mem_of_mem_erase [EquivBEq α] [LawfulHashable α] {k a : α} : a ∈ m.
   simpa [mem_iff_contains] using contains_of_contains_erase h
 
 theorem size_erase [EquivBEq α] [LawfulHashable α] {k : α} :
-    (m.erase k).size = bif m.contains k then m.size - 1 else m.size := by
+    (m.erase k).size = if k ∈ m then m.size - 1 else m.size := by
+  simp only [mem_iff_contains]
   simp_to_raw using Raw₀.size_erase
 
 theorem size_erase_le [EquivBEq α] [LawfulHashable α] {k : α} : (m.erase k).size ≤ m.size := by
@@ -243,7 +245,7 @@ theorem get?_eq_none [LawfulBEq α] {a : α} : ¬a ∈ m → m.get? a = none := 
   simpa [mem_iff_contains] using get?_eq_none_of_contains_eq_false h
 
 theorem get?_erase [LawfulBEq α] {k a : α} :
-    (m.erase k).get? a = bif k == a then none else m.get? a := by
+    (m.erase k).get? a = if k == a then none else m.get? a := by
   simp_to_raw using Raw₀.get?_erase
 
 @[simp]
@@ -267,7 +269,7 @@ theorem get?_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} :
   simp_to_raw using Raw₀.Const.get?_of_isEmpty ⟨m, _⟩
 
 theorem get?_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
-    get? (m.insert k v) a = bif k == a then some v else get? m a := by
+    get? (m.insert k v) a = if k == a then some v else get? m a := by
   simp_to_raw using Raw₀.Const.get?_insert
 
 @[simp]
@@ -287,7 +289,7 @@ theorem get?_eq_none [EquivBEq α] [LawfulHashable α] {a : α} : ¬a ∈ m → 
     simpa [mem_iff_contains] using get?_eq_none_of_contains_eq_false h
 
 theorem get?_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
-    Const.get? (m.erase k) a = bif k == a then none else get? m a := by
+    Const.get? (m.erase k) a = if k == a then none else get? m a := by
   simp_to_raw using Raw₀.Const.get?_erase
 
 @[simp]
@@ -388,7 +390,7 @@ theorem get!_eq_default [LawfulBEq α] {a : α} [Inhabited (β a)] :
   simpa [mem_iff_contains] using get!_eq_default_of_contains_eq_false h
 
 theorem get!_erase [LawfulBEq α] {k a : α} [Inhabited (β a)] :
-    (m.erase k).get! a = bif k == a then default else m.get! a := by
+    (m.erase k).get! a = if k == a then default else m.get! a := by
   simp_to_raw using Raw₀.get!_erase
 
 @[simp]
@@ -429,7 +431,7 @@ theorem get!_of_isEmpty [EquivBEq α] [LawfulHashable α] [Inhabited β] {a : α
   simp_to_raw using Raw₀.Const.get!_of_isEmpty ⟨m, _⟩
 
 theorem get!_insert [EquivBEq α] [LawfulHashable α] [Inhabited β] {k a : α} {v : β} :
-    get! (m.insert k v) a = bif k == a then v else get! m a := by
+    get! (m.insert k v) a = if k == a then v else get! m a := by
   simp_to_raw using Raw₀.Const.get!_insert
 
 @[simp]
@@ -446,7 +448,7 @@ theorem get!_eq_default [EquivBEq α] [LawfulHashable α] [Inhabited β] {a : α
   simpa [mem_iff_contains] using get!_eq_default_of_contains_eq_false h
 
 theorem get!_erase [EquivBEq α] [LawfulHashable α] [Inhabited β] {k a : α} :
-    get! (m.erase k) a = bif k == a then default else get! m a := by
+    get! (m.erase k) a = if k == a then default else get! m a := by
   simp_to_raw using Raw₀.Const.get!_erase
 
 @[simp]
@@ -513,7 +515,7 @@ theorem getD_eq_fallback [LawfulBEq α] {a : α} {fallback : β a} :
   simpa [mem_iff_contains] using getD_eq_fallback_of_contains_eq_false h
 
 theorem getD_erase [LawfulBEq α] {k a : α} {fallback : β a} :
-    (m.erase k).getD a fallback = bif k == a then fallback else m.getD a fallback := by
+    (m.erase k).getD a fallback = if k == a then fallback else m.getD a fallback := by
   simp_to_raw using Raw₀.getD_erase
 
 @[simp]
@@ -559,7 +561,7 @@ theorem getD_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} {fallback : �
   simp_to_raw using Raw₀.Const.getD_of_isEmpty ⟨m, _⟩
 
 theorem getD_insert [EquivBEq α] [LawfulHashable α] {k a : α} {fallback v : β} :
-    getD (m.insert k v) a fallback = bif k == a then v else getD m a fallback := by
+    getD (m.insert k v) a fallback = if k == a then v else getD m a fallback := by
   simp_to_raw using Raw₀.Const.getD_insert
 
 @[simp]
@@ -576,7 +578,7 @@ theorem getD_eq_fallback [EquivBEq α] [LawfulHashable α] {a : α} {fallback : 
   simpa [mem_iff_contains] using getD_eq_fallback_of_contains_eq_false h
 
 theorem getD_erase [EquivBEq α] [LawfulHashable α] {k a : α} {fallback : β} :
-    getD (m.erase k) a fallback = bif k == a then fallback else getD m a fallback := by
+    getD (m.erase k) a fallback = if k == a then fallback else getD m a fallback := by
   simp_to_raw using Raw₀.Const.getD_erase
 
 @[simp]
@@ -658,7 +660,8 @@ theorem mem_of_mem_insertIfNew' [EquivBEq α] [LawfulHashable α] {k a : α} {v 
   simpa [mem_iff_contains] using contains_of_contains_insertIfNew' h
 
 theorem size_insertIfNew [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
-    (m.insertIfNew k v).size = bif m.contains k then m.size else m.size + 1 := by
+    (m.insertIfNew k v).size = if k ∈ m then m.size else m.size + 1 := by
+  simp only [mem_iff_contains]
   simp_to_raw using Raw₀.size_insertIfNew
 
 theorem size_le_size_insertIfNew [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
@@ -697,7 +700,8 @@ namespace Const
 variable {β : Type v} {m : DHashMap.Raw α (fun _ => β)} (h : m.WF)
 
 theorem get?_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
-    get? (m.insertIfNew k v) a = bif k == a && !m.contains k then some v else get? m a := by
+    get? (m.insertIfNew k v) a = if k == a ∧ ¬k ∈ m then some v else get? m a := by
+  simp only [mem_iff_contains, Bool.not_eq_true]
   simp_to_raw using Raw₀.Const.get?_insertIfNew
 
 theorem get_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} {h₁} :
@@ -708,12 +712,14 @@ theorem get_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} {h
   simp_to_raw using Raw₀.Const.get_insertIfNew ⟨m, _⟩
 
 theorem get!_insertIfNew [EquivBEq α] [LawfulHashable α] [Inhabited β] {k a : α} {v : β} :
-    get! (m.insertIfNew k v) a = bif k == a && !m.contains k then v else get! m a := by
+    get! (m.insertIfNew k v) a = if k == a ∧ ¬k ∈ m then v else get! m a := by
+  simp only [mem_iff_contains, Bool.not_eq_true]
   simp_to_raw using Raw₀.Const.get!_insertIfNew
 
 theorem getD_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {fallback v : β} :
     getD (m.insertIfNew k v) a fallback =
-      bif k == a && !m.contains k then v else getD m a fallback := by
+      if k == a ∧ ¬k ∈ m then v else getD m a fallback := by
+  simp only [mem_iff_contains, Bool.not_eq_true]
   simp_to_raw using Raw₀.Const.getD_insertIfNew
 
 end Const

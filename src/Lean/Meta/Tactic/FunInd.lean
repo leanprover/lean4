@@ -822,11 +822,11 @@ def deriveUnpackedInduction (eqnInfo : WF.EqnInfo) (unaryInductName : Name): Met
   let unpackedInductName ← unpackMutualInduction eqnInfo unaryInductName
   projectMutualInduct eqnInfo.declNames unpackedInductName
 
-partial def stripPProdProjs (e : Expr) : Expr :=
+def stripPProdProjs (e : Expr) : Expr :=
   match e with
   | .proj ``PProd _ e' => stripPProdProjs e'
   | .proj ``And _ e' => stripPProdProjs e'
-  | _ => e
+  | e => e
 
 def withLetDecls {α} (name : Name) (ts : Array Expr) (es : Array Expr) (k : Array Expr → MetaM α) : MetaM α := do
   assert! es.size = ts.size

@@ -407,9 +407,7 @@ theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} (hn : n + 
         have h₂ : 2 ^ (n + 1) % 2 ^ w₂ = 2 ^ (n + 1) := Nat.mod_eq_of_lt (by omega)
         have h₁ : y.toNat % 2 ^ (n + 1) % 2 ^ w₂ = y.toNat % 2 ^ (n + 1) := by
           apply Nat.mod_eq_of_lt
-          apply Nat.lt_of_lt_of_le (m := 2 ^ (n + 1))
-          apply Nat.mod_lt
-          apply Nat.pow_pos (by decide); omega
+          apply Nat.lt_of_lt_of_le (m := 2 ^ (n + 1)) <;> omega
         obtain h₁ : y.toNat % 2 ^ (n + 1) % 2 ^ w₂ = y.toNat % 2 ^ (n + 1) := by
           apply Nat.mod_eq_of_lt
           apply Nat.lt_of_lt_of_le (m := 2 ^ (n + 1)) <;> omega

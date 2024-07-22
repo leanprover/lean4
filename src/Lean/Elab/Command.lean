@@ -39,8 +39,7 @@ structure Scope where
   currNamespace : Name := Name.anonymous
   /-- All currently `open`ed namespaces and names. -/
   openDecls     : List OpenDecl := []
-  /-- The current list of names for universe level variables to use for new declarations.
-  This is managed by the `universe` command. -/
+  /-- The current list of names for universe level variables to use for new declarations. This is managed by the `universe` command. -/
   levelNames    : List Name := []
   /--
   The current list of binders to use for new declarations.

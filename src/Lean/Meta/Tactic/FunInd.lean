@@ -1019,7 +1019,7 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
           pure e'
 
   unless (← isTypeCorrect e') do
-    logError m!"failed to derive mutual induction priciple:{indentExpr e'}"
+    logError m!"constructed induction principle is not type correct:{indentExpr e'}"
     check e'
 
   let eTyp ← inferType e'
@@ -1045,14 +1045,15 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
 Given a recursively defined function `foo`, derives `foo.induct`. See the module doc for details.
 -/
 def deriveInduction (name : Name) : MetaM Unit := do
-  if let some eqnInfo := WF.eqnInfoExt.find? (← getEnv) name then
-    let unaryInductName ← deriveUnaryInduction eqnInfo.declNameNonRec
-    unless eqnInfo.declNameNonRec = name do
-      deriveUnpackedInduction eqnInfo unaryInductName
-  else if let some eqnInfo := Structural.eqnInfoExt.find? (← getEnv) name then
-    deriveInductionStructural eqnInfo.declNames eqnInfo.numFixed
-  else
-    throwError "Cannot derive functional induction principle for {name}: Not defined by structural or well-founded recursion"
+  mapError (f := (m!"Cannot derive functional induction principle (please report this issue)\n{indentD ·}")) do
+    if let some eqnInfo := WF.eqnInfoExt.find? (← getEnv) name then
+      let unaryInductName ← deriveUnaryInduction eqnInfo.declNameNonRec
+      unless eqnInfo.declNameNonRec = name do
+        deriveUnpackedInduction eqnInfo unaryInductName
+    else if let some eqnInfo := Structural.eqnInfoExt.find? (← getEnv) name then
+      deriveInductionStructural eqnInfo.declNames eqnInfo.numFixed
+    else
+      throwError "{name} is not defined by structural or well-founded recursion"
 
 def isFunInductName (env : Environment) (name : Name) : Bool := Id.run do
   let .str p s := name | return false

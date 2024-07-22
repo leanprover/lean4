@@ -12,6 +12,7 @@ import Lean.Meta.Tactic.Cleanup
 import Lean.Meta.Tactic.Subst
 import Lean.Meta.Injective -- for elimOptParam
 import Lean.Meta.ArgsPacker
+import Lean.Meta.PProdN
 import Lean.Elab.PreDefinition.WF.Eqns
 import Lean.Elab.PreDefinition.Structural.Eqns
 import Lean.Elab.Command
@@ -188,21 +189,6 @@ def removeLamda {n} [MonadLiftT MetaM n] [MonadError n] [MonadNameGenerator n] [
   let b := b.instantiate1 (.fvar x)
   k x b
 
-/-- `PProd.fst` or `And.left` -/
-def mkFst (e : Expr) : MetaM Expr := do
-  let t ← whnf (← inferType e)
-  match_expr t with
-  | PProd t₁ t₂ => return mkApp3 (.const ``PProd.fst t.getAppFn.constLevels!) t₁ t₂ e
-  | And t₁ t₂ => return mkApp3 (.const ``And.left []) t₁ t₂ e
-  | _ => throwError "Cannot project out of{indentExpr e}\nof type{indentExpr t}"
-
-/-- `PProd.snd` or `And.right` -/
-def mkSnd (e : Expr) : MetaM Expr := do
-  let t ← whnf (← inferType e)
-  match_expr t with
-  | PProd t₁ t₂ => return mkApp3 (.const ``PProd.snd t.getAppFn.constLevels!) t₁ t₂ e
-  | And t₁ t₂ => return mkApp3 (.const ``And.right []) t₁ t₂ e
-  | _ => throwError "Cannot project out of{indentExpr e}\nof type{indentExpr t}"
 
 /--
 A monad to help collecting inductive hypothesis.
@@ -310,7 +296,7 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
               forallBoundedTelescope altType (some 1) fun newIH' _goal' => do
                 let #[newIH'] := newIH' | unreachable!
                 let altIHs ← M.exec <| foldAndCollect oldIH' newIH'.fvarId! isRecCall alt
-                let altIH ← mkAndIntroN altIHs
+                let altIH ← PProdN.mk 0 altIHs
                 mkLambdaFVars #[newIH'] altIH)
           (onRemaining := fun _ => pure #[mkFVar newIH])
         let ihMatcherApp'' ← ihMatcherApp'.inferMatchType
@@ -328,11 +314,6 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
           (onRemaining := fun _ => pure #[])
         return matcherApp'.toExpr
 
-    -- These projections can be type changing, so re-infer their type arguments
-    match_expr e with
-    | PProd.fst _ _ e => mkFst (← foldAndCollect oldIH newIH isRecCall e)
-    | PProd.snd _ _ e => mkSnd (← foldAndCollect oldIH newIH isRecCall e)
-    | _ =>
 
     if e.getAppArgs.any (·.isFVarOf oldIH) then
       -- Sometimes Fix.lean abstracts over oldIH in a proof definition.
@@ -370,6 +351,10 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
 
     | .mdata m b =>
       pure <| .mdata m (← foldAndCollect oldIH newIH isRecCall b)
+
+    -- These projections can be type changing (to And), so re-infer their type arguments
+    | .proj ``PProd 0 e => mkPProdFst (← foldAndCollect oldIH newIH isRecCall e)
+    | .proj ``PProd 1 e => mkPProdSnd (← foldAndCollect oldIH newIH isRecCall e)
 
     | .proj t i e =>
       pure <| .proj t i (← foldAndCollect oldIH newIH isRecCall e)
@@ -690,7 +675,6 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
     { name := inductName, levelParams := us, type := eTyp, value := e' }
   return inductName
 
-
 /--
 In the type of `value`, reduces
 * Beta-redexes
@@ -806,7 +790,7 @@ def deriveUnpackedInduction (eqnInfo : WF.EqnInfo) (unaryInductName : Name): Met
       let value ← forallTelescope ci.type fun xs _body => do
         let value := .const ci.name (levelParams.map mkLevelParam)
         let value := mkAppN value xs
-        let value := mkProjAndN eqnInfo.declNames.size idx value
+        let value ← PProdN.proj eqnInfo.declNames.size idx value
         mkLambdaFVars xs value
       let type ← inferType value
       addDecl <| Declaration.thmDecl { name := inductName, levelParams, type, value }

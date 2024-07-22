@@ -3696,6 +3696,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_3 = l_Lean_ConstantInfo_type(x_1);
 x_4 = l_Lean_ConstantInfo_levelParams(x_1);
 x_5 = l_Lean_Expr_instantiateLevelParams(x_3, x_4, x_2);
+lean_dec(x_3);
 return x_5;
 }
 }
@@ -3715,6 +3716,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_3 = l_Lean_ConstantInfo_value_x21(x_1);
 x_4 = l_Lean_ConstantInfo_levelParams(x_1);
 x_5 = l_Lean_Expr_instantiateLevelParams(x_3, x_4, x_2);
+lean_dec(x_3);
 return x_5;
 }
 }

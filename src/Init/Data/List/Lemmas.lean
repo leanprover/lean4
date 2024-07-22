@@ -3082,7 +3082,7 @@ theorem eraseP_eq_iff {p} {l : List α} :
     (replicate n a).eraseP p = replicate n a := by
   rw [eraseP_of_forall_not (by simp_all)]
 
-theorem Nodup.eraseP [BEq α] [LawfulBEq α] (p) : Nodup l → Nodup (l.eraseP p) :=
+theorem Nodup.eraseP (p) : Nodup l → Nodup (l.eraseP p) :=
   Nodup.sublist <| eraseP_sublist _
 
 theorem eraseP_comm {l : List α} (h : ∀ a ∈ l, ¬ p a ∨ ¬ q a) :

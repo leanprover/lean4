@@ -17307,6 +17307,7 @@ if (x_14 == 0)
 lean_object* x_15; lean_object* x_16; 
 x_15 = lean_ctor_get(x_13, 0);
 x_16 = l_Lean_Expr_instantiateLevelParamsArray(x_7, x_9, x_15);
+lean_dec(x_7);
 lean_ctor_set(x_13, 0, x_16);
 return x_13;
 }
@@ -17319,6 +17320,7 @@ lean_inc(x_18);
 lean_inc(x_17);
 lean_dec(x_13);
 x_19 = l_Lean_Expr_instantiateLevelParamsArray(x_7, x_9, x_17);
+lean_dec(x_7);
 x_20 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_20, 0, x_19);
 lean_ctor_set(x_20, 1, x_18);
@@ -17347,6 +17349,7 @@ if (x_27 == 0)
 lean_object* x_28; lean_object* x_29; 
 x_28 = lean_ctor_get(x_26, 0);
 x_29 = l_Lean_Expr_instantiateLevelParamsArray(x_7, x_21, x_28);
+lean_dec(x_7);
 lean_ctor_set(x_26, 0, x_29);
 return x_26;
 }
@@ -17359,6 +17362,7 @@ lean_inc(x_31);
 lean_inc(x_30);
 lean_dec(x_26);
 x_32 = l_Lean_Expr_instantiateLevelParamsArray(x_7, x_21, x_30);
+lean_dec(x_7);
 x_33 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_33, 0, x_32);
 lean_ctor_set(x_33, 1, x_31);

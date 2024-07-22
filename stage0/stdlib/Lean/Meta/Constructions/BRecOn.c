@@ -4224,6 +4224,7 @@ x_227 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_227, 0, x_226);
 lean_ctor_set(x_227, 1, x_224);
 x_228 = l_Lean_Expr_instantiateLevelParams(x_223, x_225, x_227);
+lean_dec(x_223);
 x_34 = x_228;
 goto block_221;
 }
@@ -4245,6 +4246,7 @@ lean_ctor_set(x_231, 0, x_29);
 lean_ctor_set(x_231, 1, x_230);
 x_232 = l___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___closed__9;
 x_233 = l_Lean_Expr_instantiateLevelParams(x_229, x_231, x_232);
+lean_dec(x_229);
 x_34 = x_233;
 goto block_221;
 }
@@ -12980,6 +12982,7 @@ x_229 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_229, 0, x_228);
 lean_ctor_set(x_229, 1, x_226);
 x_230 = l_Lean_Expr_instantiateLevelParams(x_225, x_227, x_229);
+lean_dec(x_225);
 x_33 = x_230;
 goto block_223;
 }
@@ -13000,6 +13003,7 @@ lean_ctor_set(x_233, 0, x_30);
 lean_ctor_set(x_233, 1, x_232);
 x_234 = l___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___closed__9;
 x_235 = l_Lean_Expr_instantiateLevelParams(x_231, x_233, x_234);
+lean_dec(x_231);
 x_33 = x_235;
 goto block_223;
 }

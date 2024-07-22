@@ -37,6 +37,10 @@ def push : FloatArray → Float → FloatArray
 def size : (@& FloatArray) → Nat
   | ⟨ds⟩ => ds.size
 
+@[extern "lean_sarray_size", simp]
+def usize (a : @& FloatArray) : USize :=
+  a.size.toUSize
+
 @[extern "lean_float_array_uget"]
 def uget : (a : @& FloatArray) → (i : USize) → i.toNat < a.size → Float
   | ⟨ds⟩, i, h => ds[i]
@@ -90,7 +94,7 @@ partial def toList (ds : FloatArray) : List Float :=
 -/
 -- TODO: avoid code duplication in the future after we improve the compiler.
 @[inline] unsafe def forInUnsafe {β : Type v} {m : Type v → Type w} [Monad m] (as : FloatArray) (b : β) (f : Float → β → m (ForInStep β)) : m β :=
-  let sz := USize.ofNat as.size
+  let sz := as.usize
   let rec @[specialize] loop (i : USize) (b : β) : m β := do
     if i < sz then
       let a := as.uget i lcProof

@@ -13311,6 +13311,7 @@ uint8_t x_5;
 x_5 = lean_usize_dec_lt(x_3, x_2);
 if (x_5 == 0)
 {
+lean_dec(x_1);
 return x_4;
 }
 else
@@ -13319,7 +13320,9 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x
 x_6 = lean_array_uget(x_4, x_3);
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_4, x_3, x_7);
+lean_inc(x_1);
 x_9 = l_Lean_Meta_FVarSubst_apply(x_1, x_6);
+lean_dec(x_6);
 x_10 = 1;
 x_11 = lean_usize_add(x_3, x_10);
 x_12 = lean_array_uset(x_8, x_3, x_9);
@@ -13398,6 +13401,7 @@ x_30 = lean_array_get_size(x_29);
 x_31 = lean_usize_of_nat(x_30);
 lean_dec(x_30);
 x_32 = 0;
+lean_inc(x_28);
 x_33 = l_Array_mapMUnsafe_map___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_unifyCasesEqs___spec__1(x_28, x_31, x_32, x_29);
 x_34 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_34, 0, x_27);
@@ -13506,6 +13510,7 @@ x_59 = lean_array_get_size(x_58);
 x_60 = lean_usize_of_nat(x_59);
 lean_dec(x_59);
 x_61 = 0;
+lean_inc(x_57);
 x_62 = l_Array_mapMUnsafe_map___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_unifyCasesEqs___spec__1(x_57, x_60, x_61, x_58);
 x_63 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_63, 0, x_56);
@@ -13635,7 +13640,6 @@ lean_dec(x_2);
 x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_7 = l_Array_mapMUnsafe_map___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_unifyCasesEqs___spec__1(x_1, x_5, x_6, x_4);
-lean_dec(x_1);
 return x_7;
 }
 }

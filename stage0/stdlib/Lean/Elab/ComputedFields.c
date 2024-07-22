@@ -2572,6 +2572,7 @@ x_48 = l_Lean_Expr_getAppFn(x_27);
 x_49 = l_Lean_Expr_constLevels_x21(x_48);
 lean_dec(x_48);
 x_50 = l_Lean_Expr_instantiateLevelParams(x_46, x_47, x_49);
+lean_dec(x_46);
 x_51 = lean_unsigned_to_nat(0u);
 x_52 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_27, x_51);
 x_53 = l_Lean_Elab_ComputedFields_getComputedFieldValue___closed__3;

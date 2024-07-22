@@ -359,7 +359,7 @@ theorem getLsb_ofNat_one {w i : Nat} :
     · simp [hi]
     · simp only  [hi, decide_False, Bool.false_and,
         and_eq_false_imp, decide_eq_true_eq]
-      intros hi'
+      intros _
       simp only [testBit, shiftRight_eq_div_pow, one_and_eq_mod_two, bne_eq_false_iff_eq]
       suffices 1 / 2^i = 0 by simp [this]
       apply Nat.div_eq_of_lt (Nat.one_lt_two_pow_iff.mpr hi)

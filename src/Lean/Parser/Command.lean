@@ -269,7 +269,7 @@ corresponding `end <id>` or the end of the file.
   "namespace " >> checkColGt >> ident
 /--
 `end` closes a `section` or `namespace` scope. If the scope is named `<id>`, it has to be closed
-with `end <id>`.
+with `end <id>`. The `end` command is optional at the end of a file.
 -/
 @[builtin_command_parser] def «end»          := leading_parser
   "end" >> optional (ppSpace >> checkColGt >> ident)

@@ -425,8 +425,8 @@ theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} (hn : n + 
           · simp only [pow_eq]
             apply Nat.pow_le_pow_of_le_right (by decide) (by omega)
     · simp only [h, false_eq_true, ↓reduceIte, shiftLeft_zero']
-      rw [ih (hn := by omega)]
-      rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsb_false (i := n + 1)]
+      rw [ih (hn := by omega),
+        zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsb_false (i := n + 1)]
       simp [h]
 
 theorem shiftLeft_eq_shiftLeftRec (x : BitVec w₁) (y : BitVec w₂) :

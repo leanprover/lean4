@@ -5,7 +5,7 @@ Authors: Joachim Breitner
 -/
 
 prelude
-import Lean.Meta.AppBuilder
+import Lean.Meta.InferType
 
 /-!
 This module provides functios to pack and unpack values using nested `PProd` or `And`,

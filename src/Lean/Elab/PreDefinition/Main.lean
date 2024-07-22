@@ -114,7 +114,7 @@ def checkTerminationByHints (preDefs : Array PreDefinition) : CoreM Unit := do
       if !structural && !preDefsWithout.isEmpty then
         let m := MessageData.andList (preDefsWithout.toList.map (m!"{·.declName}"))
         let doOrDoes := if preDefsWithout.size = 1 then "does" else "do"
-        logErrorAt termBy.ref (m!"Incomplete set of `termination_by` annotations:\n"++
+        logErrorAt termBy.ref (m!"incomplete set of `termination_by` annotations:\n"++
           m!"This function is mutually with {m}, which {doOrDoes} not have " ++
           m!"a `termination_by` clause.\n" ++
           m!"The present clause is ignored.")

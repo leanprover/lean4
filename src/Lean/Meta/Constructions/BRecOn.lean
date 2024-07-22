@@ -8,67 +8,18 @@ import Lean.Meta.InferType
 import Lean.AuxRecursor
 import Lean.AddDecl
 import Lean.Meta.CompletionName
+import Lean.Meta.PProdN
 
 namespace Lean
 open Meta
 
-section PProd
-
-/--!
-Helpers to construct types and values of `PProd` and project out of them, set up to use `And`
-instead of `PProd` if the universes allow. Maybe be extracted into a Utils module when useful
-elsewhere.
--/
-
-private def mkPUnit : Level → Expr
-  | .zero => .const ``True []
-  | lvl   => .const ``PUnit [lvl]
-
-private def mkPProd (e1 e2 : Expr) : MetaM Expr := do
-  let lvl1 ← getLevel e1
-  let lvl2 ← getLevel e2
-  if lvl1 matches .zero && lvl2 matches .zero then
-    return mkApp2 (.const `And []) e1 e2
-  else
-    return mkApp2 (.const ``PProd [lvl1, lvl2]) e1 e2
-
-private def mkNProd (lvl : Level) (es : Array Expr) : MetaM Expr :=
-  es.foldrM (init := mkPUnit lvl) mkPProd
-
-private def mkPUnitMk : Level → Expr
-  | .zero => .const ``True.intro []
-  | lvl   => .const ``PUnit.unit [lvl]
-
-private def mkPProdMk (e1 e2 : Expr) : MetaM Expr := do
-  let t1 ← inferType e1
-  let t2 ← inferType e2
-  let lvl1 ← getLevel t1
-  let lvl2 ← getLevel t2
-  if lvl1 matches .zero && lvl2 matches .zero then
-    return mkApp4 (.const ``And.intro []) t1 t2 e1 e2
-  else
-    return mkApp4 (.const ``PProd.mk [lvl1, lvl2]) t1 t2 e1 e2
-
-private def mkNProdMk (lvl : Level) (es : Array Expr) : MetaM Expr :=
-  es.foldrM (init := mkPUnitMk lvl) mkPProdMk
-
-/-- `PProd.fst` or `And.left` (as projections) -/
-private def mkPProdFst (e : Expr) : MetaM Expr := do
-  let t ← whnf (← inferType e)
-  match_expr t with
-  | PProd _ _ => return .proj ``PProd 0 e
-  | And _ _ =>   return .proj ``And 0 e
-  | _ => throwError "Cannot project .1 out of{indentExpr e}\nof type{indentExpr t}"
-
-/-- `PProd.snd` or `And.right` (as projections) -/
-private def mkPProdSnd (e : Expr) : MetaM Expr := do
-  let t ← whnf (← inferType e)
-  match_expr t with
-  | PProd _ _ => return .proj ``PProd 1 e
-  | And _ _ =>   return .proj ``And 1 e
-  | _ => throwError "Cannot project .2 out of{indentExpr e}\nof type{indentExpr t}"
-
-end PProd
+/-- Transforms `e : xᵢ → (t₁ ×' t₂)` into `(xᵢ → t₁) ×' (xᵢ → t₂) -/
+private def etaPProd (xs : Array Expr) (e : Expr) : MetaM Expr := do
+  if xs.isEmpty then return e
+  let r := mkAppN e xs
+  let r₁ ← mkLambdaFVars xs (← mkPProdFst r)
+  let r₂ ← mkLambdaFVars xs (← mkPProdSnd r)
+  mkPProdMk r₁ r₂
 
 /--
 If `minorType` is the type of a minor premies of a recursor, such as
@@ -91,7 +42,7 @@ private def buildBelowMinorPremise (rlvl : Level) (motives : Array Expr) (minorT
 where
   ibelow := rlvl matches .zero
   go (prods : Array Expr) : List Expr → MetaM Expr
-  | [] => mkNProd rlvl prods
+  | [] => PProdN.pack rlvl prods
   | arg::args => do
     let argType ← inferType arg
     forallTelescope argType fun arg_args arg_type => do
@@ -243,7 +194,7 @@ private def buildBRecOnMinorPremise (rlvl : Level) (motives : Array Expr)
   forallTelescope minorType fun minor_args minor_type => do
     let rec go (prods : Array Expr) : List Expr → MetaM Expr
       | [] => minor_type.withApp fun minor_type_fn minor_type_args => do
-          let b ← mkNProdMk rlvl prods
+          let b ← PProdN.mk rlvl prods
           let .some ⟨idx, _⟩ := motives.indexOf? minor_type_fn
             | throwError m!"Did not find {minor_type} in {motives}"
           mkPProdMk (mkAppN fs[idx]! (minor_type_args.push b)) b
@@ -256,14 +207,8 @@ private def buildBRecOnMinorPremise (rlvl : Level) (motives : Array Expr)
               let type' ← mkForallFVars arg_args
                 (← mkPProd arg_type (mkAppN belows[idx]! arg_type_args) )
               withLocalDeclD name type' fun arg' => do
-                if arg_args.isEmpty then
-                  mkLambdaFVars #[arg'] (← go (prods.push arg') args)
-                else
-                  let r := mkAppN arg' arg_args
-                  let r₁ ← mkLambdaFVars arg_args (← mkPProdFst r)
-                  let r₂ ← mkLambdaFVars arg_args (← mkPProdSnd r)
-                  let r ← mkPProdMk r₁ r₂
-                  mkLambdaFVars #[arg'] (← go (prods.push r) args)
+                let r ← etaPProd arg_args arg'
+                mkLambdaFVars #[arg'] (← go (prods.push r) args)
             else
               mkLambdaFVars #[arg] (← go prods args)
     go #[] minor_args.toList

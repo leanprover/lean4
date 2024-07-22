@@ -12,9 +12,9 @@ import Lean.Meta.Tactic.Cleanup
 import Lean.Meta.Tactic.Subst
 import Lean.Meta.Injective -- for elimOptParam
 import Lean.Meta.ArgsPacker
+import Lean.Meta.PProdN
 import Lean.Elab.PreDefinition.WF.Eqns
 import Lean.Elab.PreDefinition.Structural.Eqns
-import Lean.Elab.PreDefinition.Structural.FunPacker
 import Lean.Elab.PreDefinition.Structural.IndGroupInfo
 import Lean.Elab.PreDefinition.Structural.FindRecArg
 import Lean.Elab.Command
@@ -191,21 +191,6 @@ def removeLamda {n} [MonadLiftT MetaM n] [MonadError n] [MonadNameGenerator n] [
   let b := b.instantiate1 (.fvar x)
   k x b
 
-/-- `PProd.fst` or `And.left` -/
-def mkFst (e : Expr) : MetaM Expr := do
-  let t ← whnf (← inferType e)
-  match_expr t with
-  | PProd t₁ t₂ => return mkApp3 (.const ``PProd.fst t.getAppFn.constLevels!) t₁ t₂ e
-  | And t₁ t₂ => return mkApp3 (.const ``And.left []) t₁ t₂ e
-  | _ => throwError "Cannot project out of{indentExpr e}\nof type{indentExpr t}"
-
-/-- `PProd.snd` or `And.right` -/
-def mkSnd (e : Expr) : MetaM Expr := do
-  let t ← whnf (← inferType e)
-  match_expr t with
-  | PProd t₁ t₂ => return mkApp3 (.const ``PProd.snd t.getAppFn.constLevels!) t₁ t₂ e
-  | And t₁ t₂ => return mkApp3 (.const ``And.right []) t₁ t₂ e
-  | _ => throwError "Cannot project out of{indentExpr e}\nof type{indentExpr t}"
 
 /--
 A monad to help collecting inductive hypothesis.
@@ -313,7 +298,7 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
               forallBoundedTelescope altType (some 1) fun newIH' _goal' => do
                 let #[newIH'] := newIH' | unreachable!
                 let altIHs ← M.exec <| foldAndCollect oldIH' newIH'.fvarId! isRecCall alt
-                let altIH ← mkAndIntroN altIHs
+                let altIH ← PProdN.mk 0 altIHs
                 mkLambdaFVars #[newIH'] altIH)
           (onRemaining := fun _ => pure #[mkFVar newIH])
         let ihMatcherApp'' ← ihMatcherApp'.inferMatchType
@@ -331,11 +316,6 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
           (onRemaining := fun _ => pure #[])
         return matcherApp'.toExpr
 
-    -- These projections can be type changing, so re-infer their type arguments
-    match_expr e with
-    | PProd.fst _ _ e => mkFst (← foldAndCollect oldIH newIH isRecCall e)
-    | PProd.snd _ _ e => mkSnd (← foldAndCollect oldIH newIH isRecCall e)
-    | _ =>
 
     if e.getAppArgs.any (·.isFVarOf oldIH) then
       -- Sometimes Fix.lean abstracts over oldIH in a proof definition.
@@ -373,6 +353,10 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
 
     | .mdata m b =>
       pure <| .mdata m (← foldAndCollect oldIH newIH isRecCall b)
+
+    -- These projections can be type changing (to And), so re-infer their type arguments
+    | .proj ``PProd 0 e => mkPProdFst (← foldAndCollect oldIH newIH isRecCall e)
+    | .proj ``PProd 1 e => mkPProdSnd (← foldAndCollect oldIH newIH isRecCall e)
 
     | .proj t i e =>
       pure <| .proj t i (← foldAndCollect oldIH newIH isRecCall e)
@@ -724,7 +708,7 @@ def projectMutualInduct (names : Array Name) (mutualInduct : Name) : MetaM Unit 
       let value ← forallTelescope ci.type fun xs _body => do
         let value := .const ci.name (levelParams.map mkLevelParam)
         let value := mkAppN value xs
-        let value := mkProjAndN names.size idx value
+        let value ← PProdN.proj names.size idx value
         mkLambdaFVars xs value
       let type ← inferType value
       addDecl <| Declaration.thmDecl { name := inductName, levelParams, type, value }
@@ -838,11 +822,11 @@ def deriveUnpackedInduction (eqnInfo : WF.EqnInfo) (unaryInductName : Name): Met
   let unpackedInductName ← unpackMutualInduction eqnInfo unaryInductName
   projectMutualInduct eqnInfo.declNames unpackedInductName
 
-def stripPProdProjs (e : Expr) : Expr :=
+partial def stripPProdProjs (e : Expr) : Expr :=
   match e with
   | .proj ``PProd _ e' => stripPProdProjs e'
   | .proj ``And _ e' => stripPProdProjs e'
-  | e => e
+  | _ => e
 
 def withLetDecls {α} (name : Name) (ts : Array Expr) (es : Array Expr) (k : Array Expr → MetaM α) : MetaM α := do
   assert! es.size = ts.size
@@ -907,6 +891,14 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
       let group : Structural.IndGroupInst := { Structural.IndGroupInfo.ofInductiveVal indInfo with
         levels := indLevels, params := brecOnArgs }
 
+      -- We also need to know the number of indices of each type former, including the auxillary
+      -- type formers that do not have IndInfo. We can read it off the motives types of the recursor.
+      let numTargetss ← do
+        let aux := mkAppN (.const recInfo.name (0 :: group.levels)) group.params
+        let motives ← inferArgumentTypesN recInfo.numMotives aux
+        motives.mapM fun motive =>
+          forallTelescopeReducing motive fun xs _ => pure xs.size
+
       let recArgInfos ← infos.mapM fun info => do
         let some eqnInfo := Structural.eqnInfoExt.find? (← getEnv) info.name | throwError "{info.name} missing eqnInfo"
         let value ← instantiateLambda info.value xs
@@ -956,7 +948,7 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
               mkLambdaFVars indicesMajor (← mkForallFVars rest (mkAppN motive ys))
 
           -- We need to pack these motives according to the `positions` assignment.
-          let packedMotives ← positions.mapMwith Structural.packMotives brecMotiveTypes brecMotives
+          let packedMotives ← positions.mapMwith PProdN.packLambdas brecMotiveTypes brecMotives
           trace[Meta.FunInd] m!"packedMotives: {packedMotives}"
 
           -- Now we can calcualte the expected types of the minor arguments
@@ -966,8 +958,7 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
           -- So that we can transform them
           let (minors', mvars) ← M2.run do
             let mut minors' := #[]
-            for brecOnMinor in brecOnMinors, goal in minorTypes, poss in positions do
-              let numTargets := recArgInfos[poss[0]!]!.indicesPos.size + 1
+            for brecOnMinor in brecOnMinors, goal in minorTypes, numTargets in numTargetss do
               let minor' ← forallTelescope goal fun xs goal => do
                 unless xs.size ≥ numTargets do
                   throwError ".brecOn argument has too few parameters, expected at least {numTargets}: {xs}"
@@ -1006,13 +997,13 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
                 let e := mkAppN e packedMotives
                 let e := mkAppN e indicesMajor
                 let e := mkAppN e minors'
-                let e ← if pos.size = 1 then pure e else Structural.mkPProdProjN packIdx e
+                let e ← PProdN.proj pos.size packIdx e
                 let e := mkAppN e rest
                 let e ← mkLambdaFVars ys e
                 trace[Meta.FunInd] "assembled call for {info.name}: {e}"
                 pure e
               brecOnApps := brecOnApps.push e
-            mkLetFVars minors' (← mkAndIntroN brecOnApps)
+            mkLetFVars minors' (← PProdN.mk 0 brecOnApps)
           let e' ← abstractIndependentMVars mvars (← motives.back.fvarId!.getDecl).index e'
           let e' ← mkLambdaFVars motives e'
 

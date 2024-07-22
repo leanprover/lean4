@@ -6,6 +6,7 @@ Authors: Joachim Breitner
 
 prelude
 import Lean.Meta.AppBuilder
+import Lean.Meta.PProdN
 import Lean.Meta.ArgsPacker.Basic
 
 /-!
@@ -518,7 +519,7 @@ def curry (argsPacker : ArgsPacker) (e : Expr) : MetaM Expr := do
   let mut es := #[]
   for i in [:argsPacker.numFuncs] do
     es := es.push (← argsPacker.curryProj e i)
-  mkAndIntroN es
+  PProdN.mk 0 es
 
 /--
 Given type `(a ⊗' b ⊕' c ⊗' d) → e`, brings `a → b → e` and `c → d → e`

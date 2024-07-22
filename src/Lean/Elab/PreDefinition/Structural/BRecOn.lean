@@ -5,11 +5,11 @@ Authors: Leonardo de Moura, Joachim Breitner
 -/
 prelude
 import Lean.Util.HasConstCache
+import Lean.Meta.PProdN
 import Lean.Meta.Match.MatcherApp.Transform
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
-import Lean.Elab.PreDefinition.Structural.FunPacker
 import Lean.Elab.PreDefinition.Structural.RecArgInfo
 
 namespace Lean.Elab.Structural
@@ -21,11 +21,11 @@ private def throwToBelowFailed : MetaM α :=
 partial def searchPProd (e : Expr) (F : Expr) (k : Expr → Expr → MetaM α) : MetaM α := do
   match (← whnf e) with
   | .app (.app (.const `PProd _) d1) d2 =>
-        (do searchPProd d1 (← mkAppM ``PProd.fst #[F]) k)
-    <|> (do searchPProd d2 (← mkAppM `PProd.snd #[F]) k)
+        (do searchPProd d1 (.proj ``PProd 0 F) k)
+    <|> (do searchPProd d2 (.proj ``PProd 1 F) k)
   | .app (.app (.const `And _) d1) d2 =>
-        (do searchPProd d1 (← mkAppM `And.left #[F]) k)
-    <|> (do searchPProd d2 (← mkAppM `And.right #[F]) k)
+        (do searchPProd d1 (.proj `And 0 F) k)
+    <|> (do searchPProd d2 (.proj `And 1 F) k)
   | .const `PUnit _
   | .const `True _ => throwToBelowFailed
   | _ => k e F
@@ -85,7 +85,7 @@ private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat)
         return ((← mkFreshUserName `C), fun _ => pure t)
     withLocalDeclsD CDecls fun Cs => do
       -- We have to pack these canary motives like we packed the real motives
-      let packedCs ← positions.mapMwith packMotives motiveTypes Cs
+      let packedCs ← positions.mapMwith PProdN.packLambdas motiveTypes Cs
       let belowDict := mkAppN pre packedCs
       let belowDict := mkAppN belowDict finalArgs
       trace[Elab.definition.structural] "initial belowDict for {Cs}:{indentExpr belowDict}"
@@ -250,7 +250,7 @@ def mkBRecOnConst (recArgInfos : Array RecArgInfo) (positions : Positions)
   let brecOnAux := brecOnCons 0
   -- Infer the type of the packed motive arguments
   let packedMotiveTypes ← inferArgumentTypesN indGroup.numMotives brecOnAux
-  let packedMotives ← positions.mapMwith packMotives packedMotiveTypes motives
+  let packedMotives ← positions.mapMwith PProdN.packLambdas packedMotiveTypes motives
 
   return fun n => mkAppN (brecOnCons n) packedMotives
 
@@ -289,12 +289,11 @@ def mkBrecOnApp (positions : Positions) (fnIdx : Nat) (brecOnConst : Nat → Exp
     let brecOn := brecOnConst recArgInfo.indIdx
     let brecOn := mkAppN brecOn indexMajorArgs
     let packedFTypes ← inferArgumentTypesN positions.size brecOn
-    let packedFArgs ← positions.mapMwith packFArgs packedFTypes FArgs
+    let packedFArgs ← positions.mapMwith PProdN.mkLambdas packedFTypes FArgs
     let brecOn := mkAppN brecOn packedFArgs
     let some poss := positions.find? (·.contains fnIdx)
       | throwError "mkBrecOnApp: Could not find {fnIdx} in {positions}"
-    let brecOn ← if poss.size = 1 then pure brecOn else
-      mkPProdProjN (poss.getIdx? fnIdx).get! brecOn
+    let brecOn ← PProdN.proj poss.size (poss.getIdx? fnIdx).get! brecOn
     mkLambdaFVars ys (mkAppN brecOn otherArgs)
 
 end Lean.Elab.Structural

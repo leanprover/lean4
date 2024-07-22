@@ -710,8 +710,10 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
     { name := inductName, levelParams := us, type := eTyp, value := e' }
   return inductName
 
--- TODO: put in a better position
-/--  Given `foo.mutual_induct`, defined `foo.induct`, `bar.induct` etc.  -/
+/--
+Given `foo.mutual_induct`, defined `foo.induct`, `bar.induct` etc.
+Used for well-founded and structural recursion.
+-/
 def projectMutualInduct (names : Array Name) (mutualInduct : Name) : MetaM Unit := do
   let ci ← getConstInfo mutualInduct
   let levelParams := ci.levelParams

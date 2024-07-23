@@ -1512,9 +1512,14 @@ theorem BitVec.toNat_twoPow {w : Nat} {i : Nat} : (twoPow w i).toNat = 2^i % 2^w
     simp [Nat.mod_eq_of_lt hone, Nat.shiftLeft_eq]
 
 @[simp]
-theorem twoPow_zero_eq_one {w : Nat} : twoPow w 0 = 1#w := by
+theorem twoPow_zero {w : Nat} : twoPow w 0 = 1#w := by
   apply eq_of_toNat_eq
   simp
+
+@[simp]
+theorem getLsb_ofNat_one {w i : Nat} :
+    (1#w).getLsb i = (decide (0 < w) && decide (0 = i)) := by
+  rw [← twoPow_zero, getLsb_twoPow]
 
 /- ### zeroExtend, truncate, and bitwise operations -/
 

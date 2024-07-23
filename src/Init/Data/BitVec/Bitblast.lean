@@ -353,21 +353,6 @@ theorem shiftLeftRec_succ {x : BitVec w₁} {y : BitVec w₂} :
       (shiftLeftRec x y n) <<< (y &&& twoPow w₂ (n + 1)) := by
   simp [shiftLeftRec]
 
-@[simp]
-theorem getLsb_ofNat_one {w i : Nat} :
-    (1#w).getLsb i = (decide (i = 0) && decide (i < w)) := by
-  rcases w with rfl | w
-  · simp
-  · simp only [getLsb, toNat_ofNat, testBit_mod_two_pow]
-    by_cases hi : i = 0
-    · simp [hi]
-    · simp only  [hi, decide_False, Bool.false_and,
-        and_eq_false_imp, decide_eq_true_eq]
-      intros _
-      simp only [testBit, shiftRight_eq_div_pow, one_and_eq_mod_two, bne_eq_false_iff_eq]
-      suffices 1 / 2^i = 0 by simp [this]
-      apply Nat.div_eq_of_lt (Nat.one_lt_two_pow_iff.mpr hi)
-
 /--
 If `(y &&& z = 0)`, then shifting by `y ||| z` is the same as shifting by `y` and then by `z`.
 Note that the hypothesis `h'` is implied by `h : y &&& z = 0#w`,
@@ -392,10 +377,12 @@ theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} (hn : n + 
   induction n generalizing x y
   case zero =>
     ext i
-    simp only [shiftLeftRec_zero, twoPow_zero_eq_one, Nat.reduceAdd, truncate_one_eq_ofBool_getLsb]
+    simp only [shiftLeftRec_zero, twoPow_zero, Nat.reduceAdd, truncate_one_eq_ofBool_getLsb]
     have heq : (y &&& 1#w₂) = zeroExtend w₂ (ofBool (y.getLsb 0)) := by
       ext i
-      by_cases h : (↑i : Nat) = 0 <;> simp [h, Bool.and_comm]
+      by_cases h : (↑i : Nat) = 0
+      · simp [h, Bool.and_comm]
+      · simp [h]; omega
     simp [heq]
   case succ n ih =>
     simp only [shiftLeftRec_succ, and_twoPow_eq_getLsb]

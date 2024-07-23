@@ -314,7 +314,7 @@ theorem mulRec_eq_mul_signExtend_truncate (l r : BitVec w) (s : Nat) :
     have heq :
       (if r.getLsb (s' + 1) = true then l <<< (s' + 1) else 0) =
         (l * (r &&& (BitVec.twoPow w (s' + 1)))) := by
-      simp only [ofNat_eq_ofNat, and_twoPow_eq]
+      simp only [ofNat_eq_ofNat, and_twoPow]
       by_cases hr : r.getLsb (s' + 1) <;> simp [hr]
     rw [heq, ← BitVec.mul_add, ← zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_twoPow]
 
@@ -385,7 +385,7 @@ theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} (hn : n + 
       · simp [h]; omega
     simp [heq]
   case succ n ih =>
-    simp only [shiftLeftRec_succ, and_twoPow_eq]
+    simp only [shiftLeftRec_succ, and_twoPow]
     by_cases h : y.getLsb (n + 1)
     · simp only [h, ↓reduceIte]
       rw [ih (hn := by omega),

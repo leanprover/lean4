@@ -537,6 +537,12 @@ theorem and_assoc (x y z : BitVec w) :
   ext i
   simp [Bool.and_assoc]
 
+theorem and_comm (x y : BitVec w) :
+    x &&& y = y &&& x := by
+  ext i
+  simp [Bool.and_comm]
+
+
 /-! ### xor -/
 
 @[simp] theorem toNat_xor (x y : BitVec v) :
@@ -1477,11 +1483,16 @@ theorem getLsb_twoPow (i j : Nat) : (twoPow w i).getLsb j = ((i < w) && (i = j))
         simp_all
 
 @[simp]
-theorem and_twoPow_eq (x : BitVec w) (i : Nat) :
+theorem and_twoPow (x : BitVec w) (i : Nat) :
     x &&& (twoPow w i) = if x.getLsb i then twoPow w i else 0#w := by
   ext j
   simp only [getLsb_and, getLsb_twoPow]
   by_cases hj : i = j <;> by_cases hx : x.getLsb i <;> simp_all
+
+@[simp]
+theorem twoPow_and (x : BitVec w) (i : Nat) :
+    (twoPow w i) &&& x = if x.getLsb i then twoPow w i else 0#w := by
+  rw [BitVec.and_comm, and_twoPow]
 
 @[simp]
 theorem mul_twoPow_eq_shiftLeft (x : BitVec w) (i : Nat) :

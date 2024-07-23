@@ -8,11 +8,13 @@ where
   | 0 => 2
   | x => f x * 2
 
-#check f
-#check f.g
+#check! f
+#check! f.g
 
-#eval f 0
-#eval f.g 0
+/- Uncomment after stage0
+#eval! f 0
+#eval! f.g 0
+-/
 
 inductive Foo where
   | a | b | c
@@ -25,4 +27,6 @@ def h (x : Nat) : Foo :=
 
 #check h
 
+/- Uncomment after stage0
 #eval h 0
+-/

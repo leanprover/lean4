@@ -108,7 +108,6 @@ static lean_object* l_Lean_Parser_ParserState_allErrors___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parser_SyntaxStack_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_appendTR___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at_Lean_Parser_SyntaxNodeKindSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
-size_t lean_usize_of_nat(lean_object*);
 static size_t l_Lean_PersistentHashMap_insertAux___at_Lean_Parser_SyntaxNodeKindSet_insert___spec__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parser_ParserState_popSyntax(lean_object*);
 static lean_object* l_Lean_Parser_SyntaxStack_back___closed__4;
@@ -279,6 +278,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_Error_expected___default;
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Types_0__Lean_Parser_beqError____x40_Lean_Parser_Types___hyg_444____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_withCacheFn___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
+size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_ParserState_setCache(lean_object*, lean_object*);
 lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_ParserState_mkUnexpectedTokenError(lean_object*, lean_object*, lean_object*);
@@ -3845,16 +3845,14 @@ goto _start;
 LEAN_EXPORT lean_object* l_Lean_Parser_ParserState_toErrorMsg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; size_t x_5; size_t x_6; lean_object* x_7; lean_object* x_8; 
+lean_object* x_3; size_t x_4; size_t x_5; lean_object* x_6; lean_object* x_7; 
 x_3 = l_Lean_Parser_ParserState_allErrors(x_2);
-x_4 = lean_array_get_size(x_3);
-x_5 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
-x_6 = 0;
-x_7 = l_Lean_Parser_instInhabitedInputContext___closed__2;
-x_8 = l_Array_forInUnsafe_loop___at_Lean_Parser_ParserState_toErrorMsg___spec__1(x_1, x_3, x_5, x_6, x_7);
+x_4 = lean_array_size(x_3);
+x_5 = 0;
+x_6 = l_Lean_Parser_instInhabitedInputContext___closed__2;
+x_7 = l_Array_forInUnsafe_loop___at_Lean_Parser_ParserState_toErrorMsg___spec__1(x_1, x_3, x_4, x_5, x_6);
 lean_dec(x_3);
-return x_8;
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Parser_ParserState_toErrorMsg___spec__1___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {

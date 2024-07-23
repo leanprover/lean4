@@ -238,6 +238,7 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Compiler_LCNF_Probe_fi
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_Probe_filterByUnreach___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Compiler_LCNF_Probe_filterByJmp_go___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
+size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_Probe_filterByFunDecl___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Probe_toPass(lean_object*);
 static double l_Lean_addTrace___at_Lean_Compiler_LCNF_Probe_toPass___elambda__1___spec__2___closed__4;
@@ -368,13 +369,11 @@ return x_3;
 lean_object* l_Lean_Compiler_LCNF_Probe_map___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; 
-x_8 = lean_array_get_size(x_2);
-x_9 = lean_usize_of_nat(x_8);
-lean_dec(x_8);
-x_10 = 0;
-x_11 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_Probe_map___spec__1___rarg(x_1, x_9, x_10, x_2, x_3, x_4, x_5, x_6, x_7);
-return x_11;
+size_t x_8; size_t x_9; lean_object* x_10; 
+x_8 = lean_array_size(x_2);
+x_9 = 0;
+x_10 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_Probe_map___spec__1___rarg(x_1, x_8, x_9, x_2, x_3, x_4, x_5, x_6, x_7);
+return x_10;
 }
 }
 lean_object* l_Lean_Compiler_LCNF_Probe_map(lean_object* x_1, lean_object* x_2) {
@@ -810,23 +809,21 @@ return x_8;
 lean_object* l_Lean_Compiler_LCNF_Probe_sortedBySize(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; size_t x_8; size_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_7 = lean_array_get_size(x_1);
-x_8 = lean_usize_of_nat(x_7);
-lean_dec(x_7);
-x_9 = 0;
-x_10 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_Probe_sortedBySize___spec__1(x_8, x_9, x_1);
-x_11 = lean_array_get_size(x_10);
-x_12 = lean_unsigned_to_nat(1u);
-x_13 = lean_nat_sub(x_11, x_12);
-lean_dec(x_11);
-x_14 = lean_unsigned_to_nat(0u);
-x_15 = l_Array_qsort_sort___at_Lean_Compiler_LCNF_Probe_sortedBySize___spec__2(x_10, x_14, x_13);
-lean_dec(x_13);
-x_16 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_16, 0, x_15);
-lean_ctor_set(x_16, 1, x_6);
-return x_16;
+size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+x_7 = lean_array_size(x_1);
+x_8 = 0;
+x_9 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_Probe_sortedBySize___spec__1(x_7, x_8, x_1);
+x_10 = lean_array_get_size(x_9);
+x_11 = lean_unsigned_to_nat(1u);
+x_12 = lean_nat_sub(x_10, x_11);
+lean_dec(x_10);
+x_13 = lean_unsigned_to_nat(0u);
+x_14 = l_Array_qsort_sort___at_Lean_Compiler_LCNF_Probe_sortedBySize___spec__2(x_9, x_13, x_12);
+lean_dec(x_12);
+x_15 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_15, 0, x_14);
+lean_ctor_set(x_15, 1, x_6);
+return x_15;
 }
 }
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_Probe_sortedBySize___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -950,37 +947,35 @@ return x_2;
 lean_object* l_Lean_Compiler_LCNF_Probe_countUnique___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
-lean_object* x_9; size_t x_10; size_t x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
-x_9 = lean_array_get_size(x_3);
-x_10 = lean_usize_of_nat(x_9);
-lean_dec(x_9);
-x_11 = 0;
-x_12 = l_Lean_Compiler_LCNF_Probe_countUnique___rarg___closed__1;
-x_13 = l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_Probe_countUnique___spec__1___rarg(x_1, x_2, x_3, x_10, x_11, x_12, x_4, x_5, x_6, x_7, x_8);
-x_14 = !lean_is_exclusive(x_13);
-if (x_14 == 0)
+size_t x_9; size_t x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
+x_9 = lean_array_size(x_3);
+x_10 = 0;
+x_11 = l_Lean_Compiler_LCNF_Probe_countUnique___rarg___closed__1;
+x_12 = l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_Probe_countUnique___spec__1___rarg(x_1, x_2, x_3, x_9, x_10, x_11, x_4, x_5, x_6, x_7, x_8);
+x_13 = !lean_is_exclusive(x_12);
+if (x_13 == 0)
 {
-lean_object* x_15; lean_object* x_16; 
-x_15 = lean_ctor_get(x_13, 0);
-x_16 = l_Lean_HashMap_toArray___rarg(x_15);
-lean_dec(x_15);
-lean_ctor_set(x_13, 0, x_16);
-return x_13;
+lean_object* x_14; lean_object* x_15; 
+x_14 = lean_ctor_get(x_12, 0);
+x_15 = l_Lean_HashMap_toArray___rarg(x_14);
+lean_dec(x_14);
+lean_ctor_set(x_12, 0, x_15);
+return x_12;
 }
 else
 {
-lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_17 = lean_ctor_get(x_13, 0);
-x_18 = lean_ctor_get(x_13, 1);
-lean_inc(x_18);
+lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+x_16 = lean_ctor_get(x_12, 0);
+x_17 = lean_ctor_get(x_12, 1);
 lean_inc(x_17);
-lean_dec(x_13);
-x_19 = l_Lean_HashMap_toArray___rarg(x_17);
-lean_dec(x_17);
-x_20 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_20, 0, x_19);
-lean_ctor_set(x_20, 1, x_18);
-return x_20;
+lean_inc(x_16);
+lean_dec(x_12);
+x_18 = l_Lean_HashMap_toArray___rarg(x_16);
+lean_dec(x_16);
+x_19 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_19, 0, x_18);
+lean_ctor_set(x_19, 1, x_17);
+return x_19;
 }
 }
 }
@@ -6694,13 +6689,11 @@ goto _start;
 lean_object* l_Lean_Compiler_LCNF_Probe_declNames(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; size_t x_8; size_t x_9; lean_object* x_10; 
-x_7 = lean_array_get_size(x_1);
-x_8 = lean_usize_of_nat(x_7);
-lean_dec(x_7);
-x_9 = 0;
-x_10 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_Probe_declNames___spec__1(x_8, x_9, x_1, x_2, x_3, x_4, x_5, x_6);
-return x_10;
+size_t x_7; size_t x_8; lean_object* x_9; 
+x_7 = lean_array_size(x_1);
+x_8 = 0;
+x_9 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_Probe_declNames___spec__1(x_7, x_8, x_1, x_2, x_3, x_4, x_5, x_6);
+return x_9;
 }
 }
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_Probe_declNames___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
@@ -6773,13 +6766,11 @@ return x_2;
 lean_object* l_Lean_Compiler_LCNF_Probe_toString___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; 
-x_8 = lean_array_get_size(x_2);
-x_9 = lean_usize_of_nat(x_8);
-lean_dec(x_8);
-x_10 = 0;
-x_11 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_Probe_toString___spec__1___rarg(x_1, x_9, x_10, x_2, x_3, x_4, x_5, x_6, x_7);
-return x_11;
+size_t x_8; size_t x_9; lean_object* x_10; 
+x_8 = lean_array_size(x_2);
+x_9 = 0;
+x_10 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_Probe_toString___spec__1___rarg(x_1, x_8, x_9, x_2, x_3, x_4, x_5, x_6, x_7);
+return x_10;
 }
 }
 lean_object* l_Lean_Compiler_LCNF_Probe_toString(lean_object* x_1) {

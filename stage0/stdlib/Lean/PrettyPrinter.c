@@ -185,6 +185,7 @@ lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_PrettyPrinter_registerParserCompilers___closed__4;
+size_t lean_array_size(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_PrettyPrinter_formatterAttribute;
 static lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_765____closed__6;
@@ -3392,40 +3393,36 @@ uint8_t x_41;
 x_41 = !lean_is_exclusive(x_1);
 if (x_41 == 0)
 {
-lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; size_t x_46; size_t x_47; lean_object* x_48; 
+lean_object* x_42; lean_object* x_43; lean_object* x_44; size_t x_45; size_t x_46; lean_object* x_47; 
 x_42 = lean_ctor_get(x_1, 1);
 x_43 = lean_ctor_get(x_1, 2);
 x_44 = l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_noContext(x_42);
-x_45 = lean_array_get_size(x_43);
-x_46 = lean_usize_of_nat(x_45);
-lean_dec(x_45);
-x_47 = 0;
-x_48 = l_Array_mapMUnsafe_map___at___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_noContext___spec__1(x_46, x_47, x_43);
-lean_ctor_set(x_1, 2, x_48);
+x_45 = lean_array_size(x_43);
+x_46 = 0;
+x_47 = l_Array_mapMUnsafe_map___at___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_noContext___spec__1(x_45, x_46, x_43);
+lean_ctor_set(x_1, 2, x_47);
 lean_ctor_set(x_1, 1, x_44);
 return x_1;
 }
 else
 {
-lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; size_t x_54; size_t x_55; lean_object* x_56; lean_object* x_57; 
-x_49 = lean_ctor_get(x_1, 0);
-x_50 = lean_ctor_get(x_1, 1);
-x_51 = lean_ctor_get(x_1, 2);
-lean_inc(x_51);
+lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; size_t x_52; size_t x_53; lean_object* x_54; lean_object* x_55; 
+x_48 = lean_ctor_get(x_1, 0);
+x_49 = lean_ctor_get(x_1, 1);
+x_50 = lean_ctor_get(x_1, 2);
 lean_inc(x_50);
 lean_inc(x_49);
+lean_inc(x_48);
 lean_dec(x_1);
-x_52 = l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_noContext(x_50);
-x_53 = lean_array_get_size(x_51);
-x_54 = lean_usize_of_nat(x_53);
-lean_dec(x_53);
-x_55 = 0;
-x_56 = l_Array_mapMUnsafe_map___at___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_noContext___spec__1(x_54, x_55, x_51);
-x_57 = lean_alloc_ctor(9, 3, 0);
-lean_ctor_set(x_57, 0, x_49);
-lean_ctor_set(x_57, 1, x_52);
-lean_ctor_set(x_57, 2, x_56);
-return x_57;
+x_51 = l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_noContext(x_49);
+x_52 = lean_array_size(x_50);
+x_53 = 0;
+x_54 = l_Array_mapMUnsafe_map___at___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_noContext___spec__1(x_52, x_53, x_50);
+x_55 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_55, 0, x_48);
+lean_ctor_set(x_55, 1, x_51);
+lean_ctor_set(x_55, 2, x_54);
+return x_55;
 }
 }
 default: 

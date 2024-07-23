@@ -188,6 +188,7 @@ LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_map___rarg(lean_object*, l
 static lean_object* l_Lean_Language_SnapshotTree_format_go___closed__1;
 static lean_object* l_Lean_Language_SnapshotTree_format_go___closed__6;
 lean_object* lean_array_uget(lean_object*, size_t);
+size_t lean_array_size(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Language_withAlwaysResolvedPromises___spec__1___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_get___rarg(lean_object*);
@@ -1134,32 +1135,30 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lean_Language_withAlwaysResolvedPromises___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, size_t x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_9 = lean_ctor_get(x_1, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 lean_inc(x_8);
 x_11 = lean_apply_1(x_2, x_8);
-x_12 = lean_array_get_size(x_8);
-x_13 = lean_usize_of_nat(x_12);
-lean_dec(x_12);
-x_14 = lean_box(0);
+x_12 = lean_array_size(x_8);
+x_13 = lean_box(0);
 lean_inc(x_9);
 lean_inc(x_5);
-x_15 = l_Array_forInUnsafe_loop___at_Lean_Language_withAlwaysResolvedPromises___spec__2___rarg(x_1, x_3, x_4, x_5, x_9, x_8, x_13, x_6, x_14);
-x_16 = lean_alloc_closure((void*)(l_Lean_Language_withAlwaysResolvedPromises___rarg___lambda__1___boxed), 2, 1);
-lean_closure_set(x_16, 0, x_9);
-x_17 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_15, x_16);
-x_18 = lean_alloc_closure((void*)(l_Lean_Language_withAlwaysResolvedPromise___rarg___lambda__1___boxed), 2, 1);
-lean_closure_set(x_18, 0, x_17);
-x_19 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_11, x_18);
-x_20 = lean_ctor_get(x_10, 0);
-lean_inc(x_20);
+x_14 = l_Array_forInUnsafe_loop___at_Lean_Language_withAlwaysResolvedPromises___spec__2___rarg(x_1, x_3, x_4, x_5, x_9, x_8, x_12, x_6, x_13);
+x_15 = lean_alloc_closure((void*)(l_Lean_Language_withAlwaysResolvedPromises___rarg___lambda__1___boxed), 2, 1);
+lean_closure_set(x_15, 0, x_9);
+x_16 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_14, x_15);
+x_17 = lean_alloc_closure((void*)(l_Lean_Language_withAlwaysResolvedPromise___rarg___lambda__1___boxed), 2, 1);
+lean_closure_set(x_17, 0, x_16);
+x_18 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_11, x_17);
+x_19 = lean_ctor_get(x_10, 0);
+lean_inc(x_19);
 lean_dec(x_10);
-x_21 = l_Lean_Language_withAlwaysResolvedPromise___rarg___lambda__3___closed__1;
-x_22 = lean_apply_4(x_20, lean_box(0), lean_box(0), x_21, x_19);
-return x_22;
+x_20 = l_Lean_Language_withAlwaysResolvedPromise___rarg___lambda__3___closed__1;
+x_21 = lean_apply_4(x_19, lean_box(0), lean_box(0), x_20, x_18);
+return x_21;
 }
 }
 static lean_object* _init_l_Lean_Language_withAlwaysResolvedPromises___rarg___boxed__const__1() {
@@ -1174,7 +1173,7 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Language_withAlwaysResolvedPromises___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_13; size_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_7 = lean_ctor_get(x_1, 1);
 lean_inc(x_7);
 x_8 = l_List_iota(x_5);
@@ -1182,25 +1181,23 @@ x_9 = l_List_redLength___rarg(x_8);
 x_10 = lean_mk_empty_array_with_capacity(x_9);
 lean_dec(x_9);
 x_11 = l_List_toArrayAux___rarg(x_8, x_10);
-x_12 = lean_array_get_size(x_11);
-x_13 = lean_usize_of_nat(x_12);
-lean_dec(x_12);
-x_14 = 0;
+x_12 = lean_array_size(x_11);
+x_13 = 0;
 lean_inc(x_2);
 lean_inc(x_1);
-x_15 = l_Array_mapMUnsafe_map___at_Lean_Language_withAlwaysResolvedPromises___spec__1___rarg(x_1, x_2, x_13, x_14, x_11);
-x_16 = l_Lean_Language_withAlwaysResolvedPromises___rarg___boxed__const__1;
+x_14 = l_Array_mapMUnsafe_map___at_Lean_Language_withAlwaysResolvedPromises___spec__1___rarg(x_1, x_2, x_12, x_13, x_11);
+x_15 = l_Lean_Language_withAlwaysResolvedPromises___rarg___boxed__const__1;
 lean_inc(x_7);
-x_17 = lean_alloc_closure((void*)(l_Lean_Language_withAlwaysResolvedPromises___rarg___lambda__2___boxed), 8, 7);
-lean_closure_set(x_17, 0, x_1);
-lean_closure_set(x_17, 1, x_6);
-lean_closure_set(x_17, 2, x_2);
-lean_closure_set(x_17, 3, x_4);
-lean_closure_set(x_17, 4, x_7);
-lean_closure_set(x_17, 5, x_16);
-lean_closure_set(x_17, 6, x_3);
-x_18 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_15, x_17);
-return x_18;
+x_16 = lean_alloc_closure((void*)(l_Lean_Language_withAlwaysResolvedPromises___rarg___lambda__2___boxed), 8, 7);
+lean_closure_set(x_16, 0, x_1);
+lean_closure_set(x_16, 1, x_6);
+lean_closure_set(x_16, 2, x_2);
+lean_closure_set(x_16, 3, x_4);
+lean_closure_set(x_16, 4, x_7);
+lean_closure_set(x_16, 5, x_15);
+lean_closure_set(x_16, 6, x_3);
+x_17 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_14, x_16);
+return x_17;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Language_withAlwaysResolvedPromises(lean_object* x_1, lean_object* x_2) {

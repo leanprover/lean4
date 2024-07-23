@@ -283,6 +283,7 @@ LEAN_EXPORT lean_object* l_Lake_Toml_decodeFrExp(lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Toml_elabInlineTable___spec__11___closed__5;
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lake_Toml_elabVal___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+size_t lean_array_size(lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lake_Toml_elabBoolean___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lake_Toml_elabArray___spec__1(lean_object*);
@@ -4506,7 +4507,7 @@ return x_9;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; size_t x_15; size_t x_16; lean_object* x_17; 
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; size_t x_14; size_t x_15; lean_object* x_16; 
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = l_Lean_Syntax_getArg(x_1, x_10);
 lean_dec(x_1);
@@ -4514,12 +4515,10 @@ x_12 = l_Lean_Syntax_getArgs(x_11);
 lean_dec(x_11);
 x_13 = l_Lean_Syntax_TSepArray_getElems___rarg(x_12);
 lean_dec(x_12);
-x_14 = lean_array_get_size(x_13);
-x_15 = lean_usize_of_nat(x_14);
-lean_dec(x_14);
-x_16 = 0;
-x_17 = l_Array_mapMUnsafe_map___at_Lake_Toml_elabArray___spec__3___rarg(x_2, x_15, x_16, x_13, x_3, x_4, x_5);
-return x_17;
+x_14 = lean_array_size(x_13);
+x_15 = 0;
+x_16 = l_Array_mapMUnsafe_map___at_Lake_Toml_elabArray___spec__3___rarg(x_2, x_14, x_15, x_13, x_3, x_4, x_5);
+return x_16;
 }
 }
 }

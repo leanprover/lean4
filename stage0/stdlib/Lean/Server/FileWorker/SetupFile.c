@@ -75,6 +75,7 @@ lean_object* l_String_intercalate(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_runLakeSetupFile___spec__1(size_t, size_t, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
+size_t lean_array_size(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_runLakeSetupFile___closed__2;
 lean_object* l_Lean_Server_FileWorker_runLakeSetupFile_processStderr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -578,34 +579,32 @@ return x_1;
 lean_object* l_Lean_Server_FileWorker_runLakeSetupFile(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; 
+lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; 
 x_7 = l_Lean_Server_FileWorker_runLakeSetupFile___closed__3;
 x_8 = lean_array_push(x_7, x_3);
-x_9 = lean_array_get_size(x_4);
-x_10 = lean_usize_of_nat(x_9);
-lean_dec(x_9);
-x_11 = 0;
-x_12 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_runLakeSetupFile___spec__1(x_10, x_11, x_4);
-x_13 = l_Array_append___rarg(x_8, x_12);
-lean_dec(x_12);
-x_14 = lean_ctor_get_uint8(x_1, sizeof(void*)*3);
-x_15 = lean_box(x_14);
-if (lean_obj_tag(x_15) == 2)
+x_9 = lean_array_size(x_4);
+x_10 = 0;
+x_11 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_runLakeSetupFile___spec__1(x_9, x_10, x_4);
+x_12 = l_Array_append___rarg(x_8, x_11);
+lean_dec(x_11);
+x_13 = lean_ctor_get_uint8(x_1, sizeof(void*)*3);
+x_14 = lean_box(x_13);
+if (lean_obj_tag(x_14) == 2)
 {
-lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_16 = l_Lean_Server_FileWorker_runLakeSetupFile___closed__4;
-x_17 = lean_array_push(x_13, x_16);
-x_18 = lean_box(0);
-x_19 = l_Lean_Server_FileWorker_runLakeSetupFile___lambda__1(x_2, x_5, x_17, x_18, x_6);
-return x_19;
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+x_15 = l_Lean_Server_FileWorker_runLakeSetupFile___closed__4;
+x_16 = lean_array_push(x_12, x_15);
+x_17 = lean_box(0);
+x_18 = l_Lean_Server_FileWorker_runLakeSetupFile___lambda__1(x_2, x_5, x_16, x_17, x_6);
+return x_18;
 }
 else
 {
-lean_object* x_20; lean_object* x_21; 
-lean_dec(x_15);
-x_20 = lean_box(0);
-x_21 = l_Lean_Server_FileWorker_runLakeSetupFile___lambda__1(x_2, x_5, x_13, x_20, x_6);
-return x_21;
+lean_object* x_19; lean_object* x_20; 
+lean_dec(x_14);
+x_19 = lean_box(0);
+x_20 = l_Lean_Server_FileWorker_runLakeSetupFile___lambda__1(x_2, x_5, x_12, x_19, x_6);
+return x_20;
 }
 }
 }

@@ -103,7 +103,6 @@ lean_object* l_Lean_Json_getStr_x3f(lean_object*);
 static lean_object* l_Lean_Widget_Lean_Widget_MsgToInteractive_instFromJsonRpcEncodablePacket___closed__1;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_Lean_Widget_GetGoToLocationParams_fromJsonRpcEncodablePacket____x40_Lean_Server_FileWorker_WidgetRequests___hyg_1605____closed__13;
-size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_Server_registerBuiltinRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_401____spec__1___lambda__2___closed__2;
 extern lean_object* l_Lean_Widget_Lean_Widget_InteractiveGoals_instRpcEncodableInteractiveGoals;
 lean_object* l_Lean_Server_registerBuiltinRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_401____spec__1(lean_object*, lean_object*, lean_object*);
@@ -282,6 +281,7 @@ lean_object* l_ReaderT_bind___at_Lean_Server_wrapRpcProcedure___elambda__1___spe
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_Elab_Info_lctx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_1947____lambda__2(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
+size_t lean_array_size(lean_object*);
 lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_fromJsonGoToKind____x40_Lean_Server_GoTo___hyg_62_(lean_object*);
 static lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_Lean_Widget_GetGoToLocationParams_fromJsonRpcEncodablePacket____x40_Lean_Server_FileWorker_WidgetRequests___hyg_1605____closed__15;
 static lean_object* l_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_1387____closed__3;
@@ -306,7 +306,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Le
 static lean_object* l_Lean_Server_wrapRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_1947____spec__3___closed__2;
 static lean_object* l_Lean_Widget_Lean_Widget_InfoPopup_instRpcEncodableInfoPopup___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_401____lambda__2(lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instToJsonGetInteractiveDiagnosticsParams;
 static lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_Lean_Widget_MsgToInteractive_fromJsonRpcEncodablePacket____x40_Lean_Server_FileWorker_WidgetRequests___hyg_59____closed__23;
 LEAN_EXPORT lean_object* l_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_1429_(lean_object*);
@@ -5694,24 +5693,22 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Widget_lazyTraceChildrenToInteractive(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; size_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_object* x_4; lean_object* x_5; size_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
 lean_dec(x_1);
-x_6 = lean_array_get_size(x_5);
-x_7 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
-x_8 = lean_box_usize(x_7);
-x_9 = l_Lean_Widget_lazyTraceChildrenToInteractive___boxed__const__1;
-x_10 = lean_alloc_closure((void*)(l_Array_mapMUnsafe_map___at_Lean_Widget_lazyTraceChildrenToInteractive___spec__1___boxed), 6, 4);
-lean_closure_set(x_10, 0, x_4);
-lean_closure_set(x_10, 1, x_8);
-lean_closure_set(x_10, 2, x_9);
-lean_closure_set(x_10, 3, x_5);
-x_11 = l_Lean_Server_RequestM_asTask___rarg(x_10, x_2, x_3);
-return x_11;
+x_6 = lean_array_size(x_5);
+x_7 = lean_box_usize(x_6);
+x_8 = l_Lean_Widget_lazyTraceChildrenToInteractive___boxed__const__1;
+x_9 = lean_alloc_closure((void*)(l_Array_mapMUnsafe_map___at_Lean_Widget_lazyTraceChildrenToInteractive___spec__1___boxed), 6, 4);
+lean_closure_set(x_9, 0, x_4);
+lean_closure_set(x_9, 1, x_7);
+lean_closure_set(x_9, 2, x_8);
+lean_closure_set(x_9, 3, x_5);
+x_10 = l_Lean_Server_RequestM_asTask___rarg(x_9, x_2, x_3);
+return x_10;
 }
 }
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_lazyTraceChildrenToInteractive___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {

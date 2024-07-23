@@ -104,6 +104,7 @@ size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_filterMap_u2098___rarg(lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___rarg(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
+size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_get_x21_u2098(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f_u2098___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Model_0__Std_DHashMap_Internal_Raw_u2080_getThenInsertIfNew_x3f_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -237,13 +238,11 @@ return x_4;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_updateAllBuckets___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; size_t x_4; size_t x_5; lean_object* x_6; 
-x_3 = lean_array_get_size(x_1);
-x_4 = lean_usize_of_nat(x_3);
-lean_dec(x_3);
-x_5 = 0;
-x_6 = l_Array_mapMUnsafe_map___at_Std_DHashMap_Internal_updateAllBuckets___spec__1___rarg(x_2, x_4, x_5, x_1);
-return x_6;
+size_t x_3; size_t x_4; lean_object* x_5; 
+x_3 = lean_array_size(x_1);
+x_4 = 0;
+x_5 = l_Array_mapMUnsafe_map___at_Std_DHashMap_Internal_updateAllBuckets___spec__1___rarg(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_updateAllBuckets(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

@@ -326,7 +326,7 @@ theorem getLsb_mul (x y : BitVec w) (i : Nat) :
   · simp
   · omega
 
-/-## shiftLeft recurrence for bitblasting -/
+/-! ## shiftLeft recurrence for bitblasting -/
 
 /--
 `shiftLeftRec x y n` shifts `x` to the left by the first `n` bits of `y`.

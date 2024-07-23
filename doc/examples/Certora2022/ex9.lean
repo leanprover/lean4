@@ -1,8 +1,8 @@
 /- Mutual recursion -/
 
 inductive Term where
- | const : String → Term
- | app   : String → List Term → Term
+  | const : String → Term
+  | app   : String → List Term → Term
 
 namespace Term
 mutual

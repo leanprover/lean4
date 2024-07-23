@@ -94,18 +94,18 @@ inductive PNat : Prop
 | succ : PNat → PNat
 
 def f : Nat → Nat → Nat
- | 0, y   => y
- | x+1, y =>
-   match f x y with
-   | 0 => f x y
-   | v => f x v + 1
+  | 0, y   => y
+  | x+1, y =>
+    match f x y with
+    | 0 => f x y
+    | v => f x v + 1
 
 def pf : PNat → PNat → PNat
- | PNat.zero, y   => y
- | PNat.succ x, y =>
-   match pf x y with
-   | PNat.zero => pf x y
-   | v => PNat.succ $ pf x v
+  | PNat.zero, y   => y
+  | PNat.succ x, y =>
+    match pf x y with
+    | PNat.zero => pf x y
+    | v => PNat.succ $ pf x v
 
 def g (xs : List Nat) : Nat :=
   match xs with
@@ -124,18 +124,18 @@ def pg (xs : PList Nat) : True :=
     | _ => pg ys
 
 def aux : Nat → Nat → Nat
- | 0, y   => y
- | x+1, y =>
-   match f x y with
-   | 0 => f x y
-   | v => f x v + 1
+  | 0, y   => y
+  | x+1, y =>
+    match f x y with
+    | 0 => f x y
+    | v => f x v + 1
 
 def paux : PNat → PNat → PNat
- | PNat.zero, y   => y
- | PNat.succ x, y =>
-   match pf x y with
-   | PNat.zero => pf x y
-   | v => PNat.succ (pf x v)
+  | PNat.zero, y   => y
+  | PNat.succ x, y =>
+    match pf x y with
+    | PNat.zero => pf x y
+    | v => PNat.succ (pf x v)
 
 theorem ex (x y : Nat) : f x y = aux x y := by
   cases x

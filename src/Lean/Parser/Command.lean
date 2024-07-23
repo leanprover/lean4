@@ -437,6 +437,8 @@ structure Pair (α : Type u) (β : Type v) : Type (max u v) where
   "#check_failure " >> termParser -- Like `#check`, but succeeds only if term does not type check
 @[builtin_command_parser] def eval           := leading_parser
   "#eval " >> termParser
+@[builtin_command_parser] def evalBang       := leading_parser
+  "#eval! " >> termParser
 @[builtin_command_parser] def synth          := leading_parser
   "#synth " >> termParser
 @[builtin_command_parser] def exit           := leading_parser

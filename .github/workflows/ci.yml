@@ -423,11 +423,11 @@ jobs:
       - name: Build Stage 2
         run: |
           make -C build -j$NPROC stage2
-        if: matrix.test-speedcenter
+        if: matrix.check-stage3
       - name: Check Stage 3
         run: |
-          make -C build -j$NPROC stage3
-        if: matrix.test-speedcenter
+          make -C build -j$NPROC check-stage3
+        if: matrix.check-stage3
       - name: Test Speedcenter Benchmarks
         run: |
           # Necessary for some timing metrics but does not work on Namespace runners

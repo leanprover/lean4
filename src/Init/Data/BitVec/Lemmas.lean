@@ -633,7 +633,7 @@ theorem shiftLeft_zero_eq (x : BitVec w) : x <<< 0 = x := by
   simp
 
 @[simp]
-theorem zero_shiftLeft_eq (n : Nat) : (0#w) <<< n = 0 := by
+theorem zero_shiftLeft (n : Nat) : (0#w) <<< n = 0 := by
   simp [bv_toNat]
 
 @[simp] theorem getLsb_shiftLeft (x : BitVec m) (n) :

@@ -98,6 +98,17 @@ theorem carry_succ (i : Nat) (x y : BitVec w) (c : Bool) :
     exact mod_two_pow_add_mod_two_pow_add_bool_lt_two_pow_succ ..
   cases x.toNat.testBit i <;> cases y.toNat.testBit i <;> (simp; omega)
 
+theorem carry_of_and_eq_zero (h : x &&& y = 0) : carry i x y false = false := by
+  induction i with
+  | zero => simp
+  | succ i ih =>
+    replace h := congrArg (·.getLsb i) h
+    simp_all [carry_succ]
+
+theorem carry_width {x y : BitVec w} :
+    carry w x y c = decide (x.toNat + y.toNat + c.toNat ≥ 2^w) := by
+  simp [carry]
+
 /-- Carry function for bitwise addition. -/
 def adcb (x y c : Bool) : Bool × Bool := (atLeastTwo x y c, Bool.xor x (Bool.xor y c))
 
@@ -353,16 +364,30 @@ theorem shiftLeftRec_succ {x : BitVec w₁} {y : BitVec w₂} :
   simp [shiftLeftRec]
 
 /--
+If `(x &&& y = 0)`, then addition does not overflow, and thus `(x + y).toNat = x.toNat + y.toNat`.
+-/
+theorem toNat_add_eq_toNat_add_toNat_of_and_eq_zero {x y : BitVec w} (h : x &&& y = 0) :
+    (x + y).toNat = x.toNat + y.toNat := by
+  rw [toNat_add]
+  apply Nat.mod_eq_of_lt
+  suffices ¬ decide (x.toNat + y.toNat + (false : Bool).toNat ≥ 2^w) by
+    simp only [decide_eq_true_eq] at this
+    omega
+  rw [← carry_width]
+  simp [not_eq_true, carry_of_and_eq_zero h]
+
+/--
 If `(y &&& z = 0)`, then shifting by `y ||| z` is the same as shifting by `y` and then by `z`.
 Note that the hypothesis `h'` is implied by `h : y &&& z = 0#w`,
 but we choose to take the additional hypothesis and leave proving it
 as an implication of `h` for a follow up PR.
 -/
 theorem shiftLeft_or_eq_shiftLeft_shiftLeft_of_and_eq_zero {x : BitVec w} {y z : BitVec w₂}
-    (h : y &&& z = 0#w₂) (h' : y.toNat + z.toNat < 2^w₂) :
+    (h : y &&& z = 0#w₂) :
     x <<< (y ||| z) = x <<< y <<< z := by
-  simp [← add_eq_or_of_and_eq_zero _ _ h, shiftLeft_eq', shiftLeft_add,
-    toNat_add, Nat.mod_eq_of_lt h']
+  rw [← add_eq_or_of_and_eq_zero _ _ h]
+  rw [shiftLeft_eq', toNat_add_eq_toNat_add_toNat_of_and_eq_zero h]
+  simp [shiftLeft_add]
 
 theorem getLsb_shiftLeft' {x : BitVec w} {y : BitVec w₂} {i : Nat} :
     (x <<< y).getLsb i = (decide (i < w) && !decide (i < y.toNat) && x.getLsb (i - y.toNat)) := by
@@ -391,26 +416,6 @@ theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} (hn : n + 
         zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsb_true h,
         shiftLeft_or_eq_shiftLeft_shiftLeft_of_and_eq_zero]
       · simp
-      · simp only [toNat_truncate, toNat_twoPow]
-        have hpow : 2 ^ (n + 1) < 2 ^ w₂ := by
-          apply Nat.pow_lt_pow_of_lt (by decide) (by omega)
-        have h₂ : 2 ^ (n + 1) % 2 ^ w₂ = 2 ^ (n + 1) := Nat.mod_eq_of_lt (by omega)
-        have h₁ : y.toNat % 2 ^ (n + 1) % 2 ^ w₂ = y.toNat % 2 ^ (n + 1) := by
-          apply Nat.mod_eq_of_lt
-          apply Nat.lt_of_lt_of_le (m := 2 ^ (n + 1)) <;> omega
-        obtain h₁ : y.toNat % 2 ^ (n + 1) % 2 ^ w₂ = y.toNat % 2 ^ (n + 1) := by
-          apply Nat.mod_eq_of_lt
-          apply Nat.lt_of_lt_of_le (m := 2 ^ (n + 1)) <;> omega
-        rw [h₁, h₂]
-        rcases w₂ with rfl | w₂
-        · omega
-        · apply Nat.add_lt_add_of_lt_of_le
-          · simp only [pow_eq, Nat.mul_eq, Nat.mul_one]
-            apply Nat.lt_of_lt_of_le (m := 2 ^ (n + 1))
-              (by omega)
-              (Nat.pow_le_pow_of_le_right (by decide) (by omega))
-          · simp only [pow_eq]
-            apply Nat.pow_le_pow_of_le_right (by decide) (by omega)
     · simp only [h, false_eq_true, ↓reduceIte, shiftLeft_zero']
       rw [ih (hn := by omega),
         zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsb_false (i := n + 1)]

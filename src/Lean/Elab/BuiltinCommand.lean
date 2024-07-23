@@ -432,7 +432,7 @@ def elabEval : CommandElab
 
 @[builtin_command_elab evalBang]
 def elabEvalBang : CommandElab
-  | `(#eval!%$tk $term) => elabEvalCore true tk term
+  | `(Parser.Command.evalBang|#eval!%$tk $term) => elabEvalCore true tk term
   | _ => throwUnsupportedSyntax
 
 private def checkImportsForRunCmds : CommandElabM Unit := do

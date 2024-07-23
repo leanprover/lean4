@@ -19,10 +19,6 @@ Use `#eval!` to evaluate nevertheless (which may cause lean to crash).
 #guard_msgs in
 #eval #[1,2,3][2]'sorry
 
-/-
-
-Uncomment after stage0 update
-
 /--
 warning: declaration uses 'sorry'
 ---
@@ -38,5 +34,3 @@ info: 3
 -/
 #guard_msgs in
 #eval! (#[1,2,3].pop)[2]'sorry
-
--/

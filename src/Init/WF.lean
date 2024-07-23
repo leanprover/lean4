@@ -68,6 +68,7 @@ noncomputable def recursion {C : α → Sort v} (a : α) (h : ∀ x, (∀ y, r y
   induction (apply hwf a) with
   | intro x₁ _ ih => exact h x₁ ih
 
+include hwf in
 theorem induction {C : α → Prop} (a : α) (h : ∀ x, (∀ y, r y x → C y) → C x) : C a :=
   recursion hwf a h
 

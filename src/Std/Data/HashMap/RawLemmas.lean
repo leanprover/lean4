@@ -27,6 +27,7 @@ namespace Std.HashMap
 namespace Raw
 
 variable {m : Raw α β} (h : m.WF)
+set_option deprecated.oldSectionVars true
 
 private theorem ext {m m' : Raw α β} : m.inner = m'.inner → m = m' := by
   cases m; cases m'; rintro rfl; rfl

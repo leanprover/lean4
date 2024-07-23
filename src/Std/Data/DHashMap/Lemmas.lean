@@ -63,6 +63,30 @@ theorem mem_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) : 
 @[simp] theorem not_mem_emptyc {a : α} : ¬a ∈ (∅ : DHashMap α β) :=
   not_mem_empty
 
+theorem contains_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} :
+    m.isEmpty → m.contains a = false :=
+  Raw₀.contains_of_isEmpty ⟨m.1, _⟩ m.2
+
+theorem not_mem_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} :
+    m.isEmpty → ¬a ∈ m := by
+  simpa [mem_iff_contains] using contains_of_isEmpty
+
+theorem isEmpty_eq_false_iff_exists_contains_eq_true [EquivBEq α] [LawfulHashable α] :
+    m.isEmpty = false ↔ ∃ a, m.contains a = true :=
+  Raw₀.isEmpty_eq_false_iff_exists_contains_eq_true ⟨m.1, _⟩ m.2
+
+theorem isEmpty_eq_false_iff_exists_mem [EquivBEq α] [LawfulHashable α] :
+    m.isEmpty = false ↔ ∃ a, a ∈ m := by
+  simpa [mem_iff_contains] using isEmpty_eq_false_iff_exists_contains_eq_true
+
+theorem isEmpty_iff_forall_contains [EquivBEq α] [LawfulHashable α] :
+    m.isEmpty = true ↔ ∀ a, m.contains a = false :=
+  Raw₀.isEmpty_iff_forall_contains ⟨m.1, _⟩ m.2
+
+theorem isEmpty_iff_forall_not_mem [EquivBEq α] [LawfulHashable α] :
+    m.isEmpty = true ↔ ∀ a, ¬a ∈ m := by
+  simpa [mem_iff_contains] using isEmpty_iff_forall_contains
+
 @[simp]
 theorem contains_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :
     (m.insert k v).contains a = (k == a || m.contains a) :=
@@ -109,6 +133,10 @@ theorem size_le_size_insert [EquivBEq α] [LawfulHashable α] {k : α} {v : β k
     m.size ≤ (m.insert k v).size :=
   Raw₀.size_le_size_insert ⟨m.1, _⟩ m.2
 
+theorem size_insert_le [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
+    (m.insert k v).size ≤ m.size + 1 :=
+  Raw₀.size_insert_le ⟨m.1, _⟩ m.2
+
 @[simp]
 theorem erase_empty {k : α} {c : Nat} : (empty c : DHashMap α β).erase k = empty c :=
   Subtype.eq (congrArg Subtype.val (Raw₀.erase_empty (k := k)) :) -- Lean code is happy
@@ -145,6 +173,10 @@ theorem size_erase [EquivBEq α] [LawfulHashable α] {k : α} :
 
 theorem size_erase_le [EquivBEq α] [LawfulHashable α] {k : α} : (m.erase k).size ≤ m.size :=
   Raw₀.size_erase_le _ m.2
+
+theorem size_le_size_erase [EquivBEq α] [LawfulHashable α] {k : α} :
+    m.size ≤ (m.erase k).size + 1 :=
+  Raw₀.size_le_size_erase ⟨m.1, _⟩ m.2
 
 @[simp]
 theorem containsThenInsert_fst {k : α} {v : β k} : (m.containsThenInsert k v).1 = m.contains k :=
@@ -617,6 +649,10 @@ theorem size_insertIfNew [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
 theorem size_le_size_insertIfNew [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
     m.size ≤ (m.insertIfNew k v).size :=
   Raw₀.size_le_size_insertIfNew ⟨m.1, _⟩ m.2
+
+theorem size_insertIfNew_le [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
+    (m.insertIfNew k v).size ≤ m.size + 1 :=
+  Raw₀.size_insertIfNew_le _ m.2
 
 theorem get?_insertIfNew [LawfulBEq α] {k a : α} {v : β k} : (m.insertIfNew k v).get? a =
     if h : k == a ∧ ¬k ∈ m then some (cast (congrArg β (eq_of_beq h.1)) v) else m.get? a := by

@@ -19,25 +19,11 @@ Call from f to f.g at 3:4-7:
 x1 =
 
 Please use `termination_by` to specify a decreasing measure.
-terminationFailure.lean:11:8-11:9: error: application type mismatch
-  !f
-argument
-  f
-has type
-  Nat → Nat : Type
-but is expected to have type
-  Bool : Type
-!sorryAx Bool true : Bool
-terminationFailure.lean:12:8-12:11: error: application type mismatch
-  !f.g
-argument
-  f.g
-has type
-  Nat → Nat : Type
-but is expected to have type
-  Bool : Type
-!sorryAx Bool true : Bool
-terminationFailure.lean:22:4-22:5: error: fail to show termination for
+f (x : Nat) : Nat
+f.g : Nat → Nat
+1
+2
+terminationFailure.lean:20:4-20:5: error: fail to show termination for
   h
 with errors
 failed to infer structural recursion:
@@ -53,3 +39,4 @@ failed to prove termination, possible solutions:
 x : Nat
 ⊢ False
 h (x : Nat) : Foo
+Foo.a

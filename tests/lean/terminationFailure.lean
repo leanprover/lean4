@@ -8,8 +8,8 @@ where
   | 0 => 2
   | x => f x * 2
 
-#check! f
-#check! f.g
+#check f
+#check f.g
 
 #eval! f 0
 #eval! f.g 0

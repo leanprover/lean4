@@ -363,7 +363,7 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax): CommandElabM Uni
       unless bang do
         let axioms ← collectAxioms declName
         if axioms.contains ``sorryAx then
-          throwError ("Cannot evaluate expression that depends on the `sorry` axiom.\nUse `#eval!` to " ++
+          throwError ("cannot evaluate expression that depends on the `sorry` axiom.\nUse `#eval!` to " ++
             "evaluate nevertheless (which may cause lean to crash).")
     -- Elaborate `term`
     let elabEvalTerm : TermElabM Expr := do

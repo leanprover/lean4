@@ -8,7 +8,7 @@ def somethingBad : MetaM Nat := do
 /--
 error: invalid use of `(<- ...)`, must be nested inside a 'do' expression
 ---
-error: Cannot evaluate expression that depends on the `sorry` axiom.
+error: cannot evaluate expression that depends on the `sorry` axiom.
 Use `#eval!` to evaluate nevertheless (which may cause lean to crash).
 -/
 #guard_msgs in
@@ -21,7 +21,7 @@ def foo : MetaM Bool :=
 /--
 error: invalid use of `(<- ...)`, must be nested inside a 'do' expression
 ---
-error: Cannot evaluate expression that depends on the `sorry` axiom.
+error: cannot evaluate expression that depends on the `sorry` axiom.
 Use `#eval!` to evaluate nevertheless (which may cause lean to crash).
 -/
 #guard_msgs in

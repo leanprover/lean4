@@ -329,12 +329,11 @@ theorem getLsb_mul (x y : BitVec w) (i : Nat) :
 /-## shiftLeft recurrence for bitblasting -/
 
 /--
-A recurrence that describes shifting by an arbitrary bitvector
-as shifting by a constant amount.
+`shiftLeftRec x y n` shifts `x` to the left by the first `n` bits of `y`.
 
-This computation is equivalent to `x <<< (y.truncate (n + 1)).zeroExtend w₂`,
-as witnessed by the `shiftLeftRec_eq` theorem further down.
-We phrase it recursively to simplify other proofs
+This is phrased recursively to infer the equations `shiftLeftRec_zero`,
+`shiftLeftRec_succ`, for bitblasting.
+The theorem `shiftLeftRec_eq` recovers `(x <<< y)` in terms of `shiftLeftRec`.
  -/
 def shiftLeftRec (x : BitVec w₁) (y : BitVec w₂) (n : Nat) : BitVec w₁ :=
   let shiftAmt := (y &&& (twoPow w₂ n))

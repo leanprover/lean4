@@ -385,7 +385,7 @@ theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} (hn : n + 
       · simp [h]; omega
     simp [heq]
   case succ n ih =>
-    simp only [shiftLeftRec_succ, and_twoPow_eq_getLsb]
+    simp only [shiftLeftRec_succ, and_twoPow_eq]
     by_cases h : y.getLsb (n + 1)
     · simp only [h, ↓reduceIte]
       rw [ih (hn := by omega),

@@ -1516,7 +1516,7 @@ theorem twoPow_zero {w : Nat} : twoPow w 0 = 1#w := by
   simp
 
 @[simp]
-theorem getLsb_ofNat_one {w i : Nat} :
+theorem getLsb_one {w i : Nat} :
     (1#w).getLsb i = (decide (0 < w) && decide (0 = i)) := by
   rw [← twoPow_zero, getLsb_twoPow]
 

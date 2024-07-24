@@ -58,10 +58,10 @@ def tst : IO (List Nat) :=
   (if x % 2 == 0 then pure $ some (x + 10) else pure none)
 
 /--
-info: 4
-3
+info: 1
 2
-1
+3
+4
 [12, 14]
 -/
 #guard_msgs in

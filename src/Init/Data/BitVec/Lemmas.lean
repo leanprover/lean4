@@ -709,12 +709,10 @@ theorem shiftLeft_shiftLeft {w : Nat} (x : BitVec w) (n m : Nat) :
 /-! ### shiftLeft reductions from BitVec to Nat -/
 
 @[simp]
-theorem shiftLeft_eq' {x : BitVec w} {y : BitVec w₂} :
-  x <<< y = x <<< y.toNat := by rfl
+theorem shiftLeft_eq' {x : BitVec w} {y : BitVec w₂} : x <<< y = x <<< y.toNat := by rfl
 
 @[simp]
-theorem shiftLeft_zero' {x : BitVec w} :
-    x <<< 0#w₂ = x := by simp
+theorem shiftLeft_zero' {x : BitVec w} : x <<< 0#w₂ = x := by simp
 
 theorem shiftLeft_shiftLeft' {x y z : BitVec w} :
     x <<< y <<< z = x <<< (y.toNat + z.toNat) := by
@@ -1515,8 +1513,7 @@ theorem twoPow_zero {w : Nat} : twoPow w 0 = 1#w := by
   simp
 
 @[simp]
-theorem getLsb_one {w i : Nat} :
-    (1#w).getLsb i = (decide (0 < w) && decide (0 = i)) := by
+theorem getLsb_one {w i : Nat} : (1#w).getLsb i = (decide (0 < w) && decide (0 = i)) := by
   rw [← twoPow_zero, getLsb_twoPow]
 
 /- ### zeroExtend, truncate, and bitwise operations -/

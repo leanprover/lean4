@@ -51,18 +51,14 @@ Checks whether a module of the given name and extension exists in `base`; this u
 path comparisons regardless of underlying file system to ensure the check is consistent across
 platforms.
 -/
-private partial def moduleExists : Name → IO Bool
+private partial def moduleExists : Name → IO Bool := go ext
+where go (ext : String)
   | .mkStr parent str => do
-    unless (← moduleDirExists parent) do
+    -- Case-sensitive check for file with extension in top-level call, for directory recursively
+    let entryName := if ext.isEmpty then str else s!"{str}.{ext}"
+    unless (← go "" parent) do
       return false
-    let fileName := s!"{str}.{ext}"
-    return (← (modToFilePath base parent ext).readDir).any (·.fileName == fileName)
-  | _ => panic! "ill-formed import"
-where moduleDirExists
-  | .mkStr parent str => do
-    unless (← moduleDirExists parent) do
-      return false
-    return (← (modToFilePath base parent "").readDir).any (·.fileName == str)
+    return (← (modToFilePath base parent "").readDir).any (·.fileName == entryName)
   | .anonymous => base.pathExists
   | .num .. => panic! "ill-formed import"
 

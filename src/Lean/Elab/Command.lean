@@ -525,7 +525,7 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
       -- should be true iff the command supports incrementality
       if (← IO.hasFinished snap.new.result) then
         trace[Elab.snapshotTree]
-          Language.ToSnapshotTree.toSnapshotTree snap.new.result.get |>.format
+          (←Language.ToSnapshotTree.toSnapshotTree snap.new.result.get |>.format)
     modify fun st => { st with
       messages := initMsgs ++ msgs
       infoState := { st.infoState with trees := initInfoTrees ++ st.infoState.trees }

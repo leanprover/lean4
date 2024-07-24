@@ -190,33 +190,38 @@ structure SavedState where
   term   : Term.SavedState
   tactic : State
 
-/-- State after finishing execution of a tactic. -/
-structure TacticFinished where
-  /-- Reusable state, if no fatal exception occurred. -/
+/-- Snapshot after finishing execution of a tactic. -/
+structure TacticFinishedSnapshot extends Language.Snapshot where
+  /-- State saved for reuse, if no fatal exception occurred. -/
   state? : Option SavedState
 deriving Inhabited
+instance : ToSnapshotTree TacticFinishedSnapshot where
+  toSnapshotTree s := ⟨s.toSnapshot, #[]⟩
 
 /-- Snapshot just before execution of a tactic. -/
-structure TacticParsedSnapshotData extends Language.Snapshot where
+structure TacticParsedSnapshotData (TacticParsedSnapshot : Type) extends Language.Snapshot where
   /-- Syntax tree of the tactic, stored and compared for incremental reuse. -/
   stx      : Syntax
+  /-- Task for nested incrementality, if enabled for tactic. -/
+  inner?   : Option (SnapshotTask TacticParsedSnapshot) := none
   /-- Task for state after tactic execution. -/
-  finished : Task TacticFinished
+  finished : SnapshotTask TacticFinishedSnapshot
+  /-- Tasks for subsequent, potentially parallel, tactic steps. -/
+  next     : Array (SnapshotTask TacticParsedSnapshot) := #[]
 deriving Inhabited
 
 /-- State after execution of a single synchronous tactic step. -/
 inductive TacticParsedSnapshot where
-  | mk (data : TacticParsedSnapshotData) (next : Array (SnapshotTask TacticParsedSnapshot))
+  | mk (data : TacticParsedSnapshotData TacticParsedSnapshot)
 deriving Inhabited
-abbrev TacticParsedSnapshot.data : TacticParsedSnapshot → TacticParsedSnapshotData
-  | .mk data _ => data
-/-- Potential, potentially parallel, follow-up tactic executions. -/
--- In the first, non-parallel version, each task will depend on its predecessor
-abbrev TacticParsedSnapshot.next : TacticParsedSnapshot → Array (SnapshotTask TacticParsedSnapshot)
-  | .mk _ next => next
+abbrev TacticParsedSnapshot.data : TacticParsedSnapshot → TacticParsedSnapshotData TacticParsedSnapshot
+  | .mk data => data
 partial instance : ToSnapshotTree TacticParsedSnapshot where
   toSnapshotTree := go where
-    go := fun ⟨s, next⟩ => ⟨s.toSnapshot, next.map (·.map (sync := true) go)⟩
+    go := fun ⟨s⟩ => ⟨s.toSnapshot,
+      s.inner?.toArray.map (·.map (sync := true) go) ++
+      #[s.finished.map (sync := true) toSnapshotTree] ++
+      s.next.map (·.map (sync := true) go)⟩
 
 end Snapshot
 end Tactic
@@ -629,6 +634,32 @@ private def withoutModifyingStateWithInfoAndMessagesImpl (x : TermElabM α) : Te
   finally
     let saved := { saved with meta.core.infoState := (← getInfoState), meta.core.messages := (← getThe Core.State).messages }
     restoreState saved
+
+/--
+Wraps the trees returned from `getInfoTrees`, if any, in an `InfoTree.context` node based on the
+current monadic context and state. This is mainly used to report info trees early via
+`Snapshot.infoTree?`. The trees are not removed from the `getInfoTrees` state as the final info tree
+of the elaborated command should be complete and not depend on whether parts have been reported
+early.
+
+As `InfoTree.context` can have only one child, this function panics if `trees` contains more than 1
+tree. Also, `PartialContextInfo.parentDeclCtx` is not currently generated as that information is not
+available in the monadic context and only needed for the final info tree.
+-/
+def getInfoTreeWithContext? : TermElabM (Option InfoTree) := do
+  let st ← getInfoState
+  if st.trees.size > 1 then
+    return panic! "getInfoTreeWithContext: overfull tree"
+  let some t := st.trees[0]? |
+    return none
+  let t := t.substitute st.assignment
+  let ctx ← readThe Core.Context
+  let s ← getThe Core.State
+  let ctx := PartialContextInfo.commandCtx {
+    env := s.env, fileMap := ctx.fileMap, mctx := {}, currNamespace := ctx.currNamespace,
+    openDecls := ctx.openDecls, options := ctx.options, ngen := s.ngen
+  }
+  return InfoTree.context ctx t
 
 /-- For testing `TermElabM` methods. The #eval command will sign the error. -/
 def throwErrorIfErrors : TermElabM Unit := do

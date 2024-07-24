@@ -720,6 +720,10 @@ theorem shiftLeft_shiftLeft' {x y z : BitVec w} :
     x <<< y <<< z = x <<< (y.toNat + z.toNat) := by
   simp [shiftLeft_add]
 
+theorem getLsb_shiftLeft' {x : BitVec w} {y : BitVec w₂} {i : Nat} :
+    (x <<< y).getLsb i = (decide (i < w) && !decide (i < y.toNat) && x.getLsb (i - y.toNat)) := by
+  simp [shiftLeft_eq', getLsb_shiftLeft]
+
 /-! ### ushiftRight -/
 
 @[simp, bv_toNat] theorem toNat_ushiftRight (x : BitVec n) (i : Nat) :

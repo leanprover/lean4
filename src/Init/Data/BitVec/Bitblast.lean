@@ -109,7 +109,7 @@ theorem carry_of_and_eq_zero {x y : BitVec w} (h : x &&& y = 0#w) : carry i x y 
     replace h := congrArg (·.getLsb i) h
     simp_all [carry_succ]
 
-/- Addition produces a carry bit `c` upon overflow, where `x.toNat + y.toNat + c.toNat ≥ 2^w`. -/
+/- The final carry bit when computing `x + y + c` is `true` iff `x.toNat + y.toNat + c.toNat ≥ 2^w`. -/
 theorem carry_width {x y : BitVec w} :
     carry w x y c = decide (x.toNat + y.toNat + c.toNat ≥ 2^w) := by
   simp [carry]
@@ -382,7 +382,7 @@ theorem toNat_add_eq_toNat_add_toNat_of_and_eq_zero {x y : BitVec w} (h : x &&& 
   simp [not_eq_true, carry_of_and_eq_zero h]
 
 /--
-If `y &&& z = 0`, then shifting by `y ||| z` is the same as shifting by `y` and then by `z`.
+If `y &&& z = 0`, `x <<< (y ||| z) = x <<< y <<< z`.
 This follows as `y &&& z = 0` implies `y ||| z = y + z`,
 and thus `x <<< (y ||| z) = x <<< (y + z) = x <<< y <<< z`.
 -/
@@ -392,10 +392,6 @@ theorem shiftLeft_or_eq_shiftLeft_shiftLeft_of_and_eq_zero {x : BitVec w} {y z :
   rw [← add_eq_or_of_and_eq_zero _ _ h]
   rw [shiftLeft_eq', toNat_add_eq_toNat_add_toNat_of_and_eq_zero h]
   simp [shiftLeft_add]
-
-theorem getLsb_shiftLeft' {x : BitVec w} {y : BitVec w₂} {i : Nat} :
-    (x <<< y).getLsb i = (decide (i < w) && !decide (i < y.toNat) && x.getLsb (i - y.toNat)) := by
-  simp [shiftLeft_eq', getLsb_shiftLeft]
 
 /--
 `shiftLeftRec x y n` shifts `x` to the left by the first `n` bits of `y`.

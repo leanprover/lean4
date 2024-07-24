@@ -436,7 +436,7 @@ theorem zeroExtend_ofNat_one_eq_ofNat_one_of_lt {v w : Nat} (hv : 0 < v) :
   have hv := Nat.testBit_one_eq_true_iff_self_eq_zero.mp hi₁
   omega
 
-/-- Truncating to width 1 produces a bitvector equal to the the LSB. -/
+/-- Truncating to width 1 produces a bitvector equal to the the least significant bit. -/
 theorem truncate_one_eq_ofBool_getLsb {x : BitVec w} :
     x.truncate 1 = ofBool (x.getLsb 0) := by
   ext i
@@ -638,7 +638,7 @@ theorem shiftLeft_zero_eq (x : BitVec w) : x <<< 0 = x := by
   simp
 
 @[simp]
-theorem zero_shiftLeft (n : Nat) : (0#w) <<< n = 0 := by
+theorem zero_shiftLeft (n : Nat) : 0#w <<< n = 0#w := by
   simp [bv_toNat]
 
 @[simp] theorem getLsb_shiftLeft (x : BitVec m) (n) :
@@ -714,7 +714,7 @@ theorem shiftLeft_eq' {x : BitVec w} {y : BitVec w₂} :
 
 @[simp]
 theorem shiftLeft_zero' {x : BitVec w} :
-    x <<< (0#w₂) = x := by simp
+    x <<< 0#w₂ = x := by simp
 
 theorem shiftLeft_shiftLeft' {x y z : BitVec w} :
     x <<< y <<< z = x <<< (y.toNat + z.toNat) := by

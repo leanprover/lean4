@@ -98,13 +98,18 @@ theorem carry_succ (i : Nat) (x y : BitVec w) (c : Bool) :
     exact mod_two_pow_add_mod_two_pow_add_bool_lt_two_pow_succ ..
   cases x.toNat.testBit i <;> cases y.toNat.testBit i <;> (simp; omega)
 
-theorem carry_of_and_eq_zero (h : x &&& y = 0) : carry i x y false = false := by
+/--
+If `x.getLsb i`, and `y.getLsb i` are never both `true`,
+then computing `x + y + 0` will never have a carry bit.
+-/
+theorem carry_of_and_eq_zero {x y : BitVec w} (h : x &&& y = 0#w) : carry i x y false = false := by
   induction i with
   | zero => simp
   | succ i ih =>
     replace h := congrArg (·.getLsb i) h
     simp_all [carry_succ]
 
+/- Addition produces a carry bit `c` upon overflow, where `x.toNat + y.toNat + c.toNat ≥ 2^w`. -/
 theorem carry_width {x y : BitVec w} :
     carry w x y c = decide (x.toNat + y.toNat + c.toNat ≥ 2^w) := by
   simp [carry]
@@ -343,8 +348,8 @@ theorem getLsb_mul (x y : BitVec w) (i : Nat) :
 `shiftLeftRec x y n` shifts `x` to the left by the first `n` bits of `y`.
 
 This is phrased recursively to infer the equations `shiftLeftRec_zero`,
-`shiftLeftRec_succ`, for bitblasting.
-The theorem `shiftLeftRec_eq` recovers `(x <<< y)` in terms of `shiftLeftRec`.
+`shiftLeftRec_succ`, which allows us to unfold `shiftLeft` into a circuit for bitblasting.
+The theorem `shiftLeft_eq_shiftLeftRec` proves the equivalence of `(x <<< y)` and `shiftLeftRec`.
  -/
 def shiftLeftRec (x : BitVec w₁) (y : BitVec w₂) (n : Nat) : BitVec w₁ :=
   let shiftAmt := (y &&& (twoPow w₂ n))
@@ -364,9 +369,9 @@ theorem shiftLeftRec_succ {x : BitVec w₁} {y : BitVec w₂} :
   simp [shiftLeftRec]
 
 /--
-If `(x &&& y = 0)`, then addition does not overflow, and thus `(x + y).toNat = x.toNat + y.toNat`.
+If `x &&& y = 0`, then addition does not overflow, and thus `(x + y).toNat = x.toNat + y.toNat`.
 -/
-theorem toNat_add_eq_toNat_add_toNat_of_and_eq_zero {x y : BitVec w} (h : x &&& y = 0) :
+theorem toNat_add_eq_toNat_add_toNat_of_and_eq_zero {x y : BitVec w} (h : x &&& y = 0#w) :
     (x + y).toNat = x.toNat + y.toNat := by
   rw [toNat_add]
   apply Nat.mod_eq_of_lt
@@ -377,10 +382,9 @@ theorem toNat_add_eq_toNat_add_toNat_of_and_eq_zero {x y : BitVec w} (h : x &&& 
   simp [not_eq_true, carry_of_and_eq_zero h]
 
 /--
-If `(y &&& z = 0)`, then shifting by `y ||| z` is the same as shifting by `y` and then by `z`.
-Note that the hypothesis `h'` is implied by `h : y &&& z = 0#w`,
-but we choose to take the additional hypothesis and leave proving it
-as an implication of `h` for a follow up PR.
+If `y &&& z = 0`, then shifting by `y ||| z` is the same as shifting by `y` and then by `z`.
+This follows as `y &&& z = 0` implies `y ||| z = y + z`,
+and thus `x <<< (y ||| z) = x <<< (y + z) = x <<< y <<< z`.
 -/
 theorem shiftLeft_or_eq_shiftLeft_shiftLeft_of_and_eq_zero {x : BitVec w} {y z : BitVec w₂}
     (h : y &&& z = 0#w₂) :
@@ -396,7 +400,7 @@ theorem getLsb_shiftLeft' {x : BitVec w} {y : BitVec w₂} {i : Nat} :
 /--
 `shiftLeftRec x y n` shifts `x` to the left by the first `n` bits of `y`.
 -/
-theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} (hn : n + 1 ≤ w₂) :
+theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} :
     shiftLeftRec x y n = x <<< (y.truncate (n + 1)).zeroExtend w₂ := by
   induction n generalizing x y
   case zero =>
@@ -410,21 +414,20 @@ theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} (hn : n + 
     simp [heq]
   case succ n ih =>
     simp only [shiftLeftRec_succ, and_twoPow]
+    rw [ih]
     by_cases h : y.getLsb (n + 1)
     · simp only [h, ↓reduceIte]
-      rw [ih (hn := by omega),
-        zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsb_true h,
+      rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsb_true h,
         shiftLeft_or_eq_shiftLeft_shiftLeft_of_and_eq_zero]
-      · simp
+      simp
     · simp only [h, false_eq_true, ↓reduceIte, shiftLeft_zero']
-      rw [ih (hn := by omega),
-        zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsb_false (i := n + 1)]
+      rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsb_false (i := n + 1)]
       simp [h]
 
 theorem shiftLeft_eq_shiftLeftRec (x : BitVec w₁) (y : BitVec w₂) :
     x <<< y = shiftLeftRec x y (w₂ - 1) := by
   rcases w₂ with rfl | w₂
   · simp [of_length_zero]
-  · simp [shiftLeftRec_eq (x := x) (y := y) (n := w₂) (by omega)]
+  · simp [shiftLeftRec_eq (x := x) (y := y) (n := w₂)]
 
 end BitVec

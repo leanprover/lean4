@@ -308,11 +308,11 @@ def createLeanActionWorkflow (dir : FilePath) : LogIO PUnit := do
   let workflowDir := dir / ".github" / "workflows"
   let workflowFile := workflowDir / "lean_action_ci.yml"
   if (← workflowFile.pathExists) then
-    logWarning "lean-action CI workflow already exists"
+    logVerbose "lean-action CI workflow already exists"
     return
   IO.FS.createDirAll workflowDir
   IO.FS.writeFile workflowFile leanActionWorkflowContents
-  logInfo s!"created lean-action CI workflow at '{workflowFile}'"
+  logVerbose s!"created lean-action CI workflow at '{workflowFile}'"
 
 def init (name : String) (tmp : InitTemplate) (lang : ConfigLang) (env : Lake.Env) (cwd : FilePath := ".") : LogIO PUnit := do
   let name ← id do

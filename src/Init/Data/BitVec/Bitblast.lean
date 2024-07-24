@@ -116,6 +116,19 @@ theorem carry_width {x y : BitVec w} :
     carry w x y c = decide (x.toNat + y.toNat + c.toNat ≥ 2^w) := by
   simp [carry]
 
+/--
+If `x &&& y = 0`, then addition does not overflow, and thus `(x + y).toNat = x.toNat + y.toNat`.
+-/
+theorem toNat_add_eq_toNat_add_toNat_of_and_eq_zero {x y : BitVec w} (h : x &&& y = 0#w) :
+    (x + y).toNat = x.toNat + y.toNat := by
+  rw [toNat_add]
+  apply Nat.mod_eq_of_lt
+  suffices ¬ decide (x.toNat + y.toNat + (false : Bool).toNat ≥ 2^w) by
+    simp only [decide_eq_true_eq] at this
+    omega
+  rw [← carry_width]
+  simp [not_eq_true, carry_of_and_eq_zero h]
+
 /-- Carry function for bitwise addition. -/
 def adcb (x y c : Bool) : Bool × Bool := (atLeastTwo x y c, Bool.xor x (Bool.xor y c))
 
@@ -369,19 +382,6 @@ theorem shiftLeftRec_succ {x : BitVec w₁} {y : BitVec w₂} :
     shiftLeftRec x y (n + 1) =
       (shiftLeftRec x y n) <<< (y &&& twoPow w₂ (n + 1)) := by
   simp [shiftLeftRec]
-
-/--
-If `x &&& y = 0`, then addition does not overflow, and thus `(x + y).toNat = x.toNat + y.toNat`.
--/
-theorem toNat_add_eq_toNat_add_toNat_of_and_eq_zero {x y : BitVec w} (h : x &&& y = 0#w) :
-    (x + y).toNat = x.toNat + y.toNat := by
-  rw [toNat_add]
-  apply Nat.mod_eq_of_lt
-  suffices ¬ decide (x.toNat + y.toNat + (false : Bool).toNat ≥ 2^w) by
-    simp only [decide_eq_true_eq] at this
-    omega
-  rw [← carry_width]
-  simp [not_eq_true, carry_of_and_eq_zero h]
 
 /--
 If `y &&& z = 0`, `x <<< (y ||| z) = x <<< y <<< z`.

@@ -1510,7 +1510,6 @@ theorem mul_twoPow_eq_shiftLeft (x : BitVec w) (i : Nat) :
       apply Nat.pow_dvd_pow 2 (by omega)
     simp [Nat.mul_mod, hpow]
 
-@[simp]
 theorem twoPow_zero {w : Nat} : twoPow w 0 = 1#w := by
   apply eq_of_toNat_eq
   simp

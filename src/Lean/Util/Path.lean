@@ -137,12 +137,17 @@ def initSearchPath (leanSysroot : FilePath) (sp : SearchPath := ∅) : IO Unit :
 private def initSearchPathInternal : IO Unit := do
   initSearchPath (← getBuildDir)
 
+/-- Returns the path of the .olean file for `mod` if it exists, or else throws an error. -/
 partial def findOLean (mod : Name) : IO FilePath := do
   let sp ← searchPathRef.get
-  if let some fname ← sp.findWithExt "olean" mod then
-    return fname
+  let pkg := mod.getRoot.toString (escape := false)
+  if let some root ← sp.findRoot "olean" pkg then
+    let path := modToFilePath root mod "olean"
+    if (← SearchPath.moduleExists root "olean" mod) then
+      return path
+    else
+      throw <| IO.userError s!"object file '{path}' of module {mod} does not exist"
   else
-    let pkg := FilePath.mk <| mod.getRoot.toString (escape := false)
     let mut msg := s!"unknown module prefix '{pkg}'
 
 No directory '{pkg}' or file '{pkg}.lean' in the search path entries:

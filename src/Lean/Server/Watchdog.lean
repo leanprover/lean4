@@ -997,7 +997,11 @@ section MainLoop
       | WorkerEvent.ioError e =>
         throwServerError s!"IO error while processing events for {fw.doc.uri}: {e}"
       | WorkerEvent.crashed _ =>
-        handleCrash fw.doc.uri #[] .fileWorkerToClientForwarding
+        let queuedMsgs :=
+          match fw.state with
+          | WorkerState.crashed queuedMsgs _ => queuedMsgs
+          | _ => #[]
+        handleCrash fw.doc.uri queuedMsgs .fileWorkerToClientForwarding
         mainLoop clientTask
       | WorkerEvent.terminated =>
         throwServerError <| "Internal server error: got termination event for worker that "

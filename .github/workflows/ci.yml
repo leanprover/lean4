@@ -426,7 +426,7 @@ jobs:
         if: matrix.test-speedcenter
       - name: Check Stage 3
         run: |
-          make -C build -j$NPROC stage3
+          make -C build -j$NPROC check-stage3
         if: matrix.test-speedcenter
       - name: Test Speedcenter Benchmarks
         run: |

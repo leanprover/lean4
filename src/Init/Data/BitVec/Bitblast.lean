@@ -99,8 +99,10 @@ theorem carry_succ (i : Nat) (x y : BitVec w) (c : Bool) :
   cases x.toNat.testBit i <;> cases y.toNat.testBit i <;> (simp; omega)
 
 /--
-If `x.getLsb i`, and `y.getLsb i` are never both `true`,
-then computing `x + y + 0` will never have a carry bit.
+If `x &&& y = 0`, then computing `x + y + 0` cannot produce a carry at any bit `i`.
+Intuitively, this is because a carry is only produced when at least two of `x`, `y`, and the
+previous carry are true. However, since `x &&& y = 0`, at most one of `x, y` can be true,
+and thus we never have a previous carry, which means that the sum cannot produce a carry.
 -/
 theorem carry_of_and_eq_zero {x y : BitVec w} (h : x &&& y = 0#w) : carry i x y false = false := by
   induction i with

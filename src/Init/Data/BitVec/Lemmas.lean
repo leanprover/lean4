@@ -542,7 +542,6 @@ theorem and_comm (x y : BitVec w) :
   ext i
   simp [Bool.and_comm]
 
-
 /-! ### xor -/
 
 @[simp] theorem toNat_xor (x y : BitVec v) :

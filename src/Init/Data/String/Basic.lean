@@ -324,7 +324,7 @@ theorem utf8PrevAux_lt_of_pos : ∀ (cs : List Char) (i p : Pos), p ≠ 0 →
     (utf8PrevAux cs i p).1 < p.1
   | [], i, p, h =>
     Nat.lt_of_le_of_lt (Nat.zero_le _)
-      (Nat.zero_lt_of_ne_zero (mt (congrArg Pos.mk) h))
+      (Nat.zero_lt_of_ne_zero (mt (congrArg (Pos.mk ·)) h))
   | c::cs, i, p, h => by
     simp [utf8PrevAux]
     apply iteInduction (motive := (Pos.byteIdx · < _)) <;> intro h'

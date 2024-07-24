@@ -102,7 +102,7 @@ section Utils
       that are in-flight are errored. Upon receiving the next packet for that file worker, the file
       worker is restarted and the packet is forwarded to it. If the crash was detected while writing
       a packet, we queue that packet until the next packet for the file worker arrives. -/
-    | crashed (queuedMsgs : Array JsonRpc.Message) (origin: CrashOrigin)
+    | crashed (queuedMsgs : Array JsonRpc.Message) (origin : CrashOrigin)
     | running
 
   abbrev PendingRequestMap := RBMap RequestID JsonRpc.Message compare

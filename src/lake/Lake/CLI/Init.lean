@@ -304,7 +304,7 @@ def validatePkgName (pkgName : String) : LogIO PUnit := do
     error "reserved package name"
 
 def createLeanActionWorkflow (dir : FilePath) : LogIO PUnit := do
-  logInfo "creating lean-action CI workflow"
+  logVerbose "creating lean-action CI workflow"
   let workflowDir := dir / ".github" / "workflows"
   let workflowFile := workflowDir / "lean_action_ci.yml"
   if (← workflowFile.pathExists) then

@@ -230,22 +230,28 @@ def mkBelowDecl (ctx : Context) : MetaM Declaration := do
     ctx.typeInfos[0]!.isUnsafe
 
 partial def backwardsChaining (m : MVarId) (depth : Nat) : MetaM Bool := do
-  if depth = 0 then return false
-  else
-    m.withContext do
-    let lctx ← getLCtx
+  m.withContext do
     let mTy ← m.getType
-    lctx.anyM fun localDecl =>
-      if localDecl.isAuxDecl then
-        return false
-      else
-        commitWhen do
-        let (mvars, _, t) ← forallMetaTelescope localDecl.type
-        if ←isDefEq mTy t then
-          m.assign (mkAppN localDecl.toExpr mvars)
-          mvars.allM fun v =>
-            v.mvarId!.isAssigned <||> backwardsChaining v.mvarId! (depth - 1)
-        else return false
+    if depth = 0 then
+      trace[Meta.IndPredBelow.search] "searching for {mTy}: ran out of max depth"
+      return false
+    else
+      let lctx ← getLCtx
+      let r ← lctx.anyM fun localDecl =>
+        if localDecl.isAuxDecl then
+          return false
+        else
+          commitWhen do
+          let (mvars, _, t) ← forallMetaTelescope localDecl.type
+          if (← isDefEq mTy t) then
+            trace[Meta.IndPredBelow.search] "searching for {mTy}: trying {mkFVar localDecl.fvarId} : {localDecl.type}"
+            m.assign (mkAppN localDecl.toExpr mvars)
+            mvars.allM fun v =>
+              v.mvarId!.isAssigned <||> backwardsChaining v.mvarId! (depth - 1)
+          else return false
+      unless r do
+        trace[Meta.IndPredBelow.search] "searching for {mTy} failed"
+      return r
 
 partial def proveBrecOn (ctx : Context) (indVal : InductiveVal) (type : Expr) : MetaM Expr := do
   let main ← mkFreshExprSyntheticOpaqueMVar type
@@ -596,5 +602,6 @@ def mkBelow (declName : Name) : MetaM Unit := do
 builtin_initialize
   registerTraceClass `Meta.IndPredBelow
   registerTraceClass `Meta.IndPredBelow.match
+  registerTraceClass `Meta.IndPredBelow.search
 
 end Lean.Meta.IndPredBelow

@@ -1357,7 +1357,7 @@ private partial def resolveDotName (id : Syntax) (expectedType? : Option Expr) :
   withForallBody expectedType fun resultType => do
     go resultType expectedType #[]
 where
-  /-- A weak version of forallTelescopeReducing that only uses whnfCore. -/
+  /-- A weak version of forallTelescopeReducing that only uses whnfCore, to avoid unfolding definitions except by `unfoldDefinition?` below. -/
   withForallBody {α} (type : Expr) (k : Expr → TermElabM α) : TermElabM α :=
     forallTelescope type fun _ body => do
       let body ← whnfCore body

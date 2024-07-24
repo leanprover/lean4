@@ -315,7 +315,6 @@ def validatePkgName (pkgName : String) : LogIO PUnit := do
   if pkgName.toLower ∈ ["init", "lean", "lake", "main"] then
     error "reserved package name"
 
-
 def init (name : String) (tmp : InitTemplate) (lang : ConfigLang) (env : Lake.Env) (cwd : FilePath := ".") : LogIO PUnit := do
   let name ← id do
     if name == "." then

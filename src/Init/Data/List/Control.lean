@@ -127,12 +127,12 @@ results `y` for which `f x` returns `some y`.
 @[inline]
 def filterMapM {m : Type u → Type v} [Monad m] {α β : Type u} (f : α → m (Option β)) (as : List α) : m (List β) :=
   let rec @[specialize] loop
-    | [],     bs => pure bs
+    | [],     bs => pure bs.reverse
     | a :: as, bs => do
       match (← f a) with
       | none   => loop as bs
       | some b => loop as (b::bs)
-  loop as.reverse []
+  loop as []
 
 /--
 Folds a monadic function over a list from left to right:

@@ -402,12 +402,11 @@ theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} :
   case zero =>
     ext i
     simp only [shiftLeftRec_zero, twoPow_zero, Nat.reduceAdd, truncate_one_eq_ofBool_getLsb]
-    have heq : (y &&& 1#w₂) = zeroExtend w₂ (ofBool (y.getLsb 0)) := by
-      ext i
-      by_cases h : (↑i : Nat) = 0
-      · simp [h, Bool.and_comm]
-      · simp [h]; omega
-    simp [heq]
+    suffices (y &&& 1#w₂) = zeroExtend w₂ (ofBool (y.getLsb 0)) by simp [this]
+    ext i
+    by_cases h : (↑i : Nat) = 0
+    · simp [h, Bool.and_comm]
+    · simp [h]; omega
   case succ n ih =>
     simp only [shiftLeftRec_succ, and_twoPow]
     rw [ih]

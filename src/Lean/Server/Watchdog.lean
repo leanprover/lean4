@@ -961,7 +961,7 @@ section MainLoop
     for (_, fw) in workers do
       -- When the forwarding task crashes, its return value will be stuck at
       -- `WorkerEvent.crashed _`.
-      -- We do not want to handle this event only once, not over and over again,
+      -- We want to handle this event only once, not over and over again,
       -- so once the state becomes `WorkerState.crashed _ .fileWorkerToClientForwarding`
       -- as a result of `WorkerEvent.crashed _`, we stop handling this event until
       -- eventually the file worker is restarted by a notification from the client.

@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 cmake_policy(SET CMP0054 NEW)
+cmake_policy(SET CMP0110 NEW)
 if(NOT (${CMAKE_GENERATOR} MATCHES "Unix Makefiles"))
   message(FATAL_ERROR "The only supported CMake generator at the moment is 'Unix Makefiles'")
 endif()

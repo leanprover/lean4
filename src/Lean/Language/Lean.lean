@@ -362,16 +362,16 @@ where
   parseHeader (old? : Option HeaderParsedSnapshot) : LeanProcessingM HeaderParsedSnapshot := do
     let ctx ← read
     let ictx := ctx.toInputContext
-    let unchanged old newParserState :=
+    let unchanged old newStx newParserState :=
       -- when header syntax is unchanged, reuse import processing task as is and continue with
       -- parsing the first command, synchronously if possible
-      -- NOTE: even if the syntax tree is functionally unchanged, the new parser state may still
-      -- have changed because of trailing whitespace and comments etc., so it is passed separately
-      -- from `old`
+      -- NOTE: even if the syntax tree is functionally unchanged, its concrete structure and the new
+      -- parser state may still have changed because of trailing whitespace and comments etc., so
+      -- they are passed separately from `old`
       if let some oldSuccess := old.result? then
         return {
           ictx
-          stx := old.stx
+          stx := newStx
           diagnostics := old.diagnostics
           cancelTk? := ctx.newCancelTk
           result? := some { oldSuccess with
@@ -394,7 +394,7 @@ where
           if let some nextCom ← processed.firstCmdSnap.get? then
             if (← isBeforeEditPos nextCom.data.parserState.pos) then
               -- ...go immediately to next snapshot
-              return (← unchanged old oldSuccess.parserState)
+              return (← unchanged old old.stx oldSuccess.parserState)
 
     withHeaderExceptions ({ · with
         ictx, stx := .missing, result? := none, cancelTk? := none }) do
@@ -408,16 +408,19 @@ where
           cancelTk? := none
         }
 
-      -- semi-fast path: go to next snapshot if syntax tree is unchanged AND we're still in front
-      -- of the edit location
-      -- TODO: dropping the second condition would require adjusting positions in the state
-      -- NOTE: as `parserState.pos` includes trailing whitespace, this forces reprocessing even if
-      -- only that whitespace changes, which is wasteful but still necessary because it may
-      -- influence the range of error messages such as from a trailing `exact`
+      let trimmedStx := stx.unsetTrailing
+      -- semi-fast path: go to next snapshot if syntax tree is unchanged
+      -- NOTE: We compare modulo `unsetTrailing` in order to ensure that changes in trailing
+      -- whitespace do not invalidate the header. This is safe because we only pass the trimmed
+      -- syntax tree to `processHeader` below, so there cannot be any references to the trailing
+      -- whitespace in its result. We still store the untrimmed syntax tree in the snapshot in order
+      -- to uphold the invariant that concatenating all top-level snapshots' syntax trees results in
+      -- the original file.
       if let some old := old? then
-        if (← isBeforeEditPos parserState.pos) && old.stx == stx then
-          -- Here we must make sure to pass the *new* parser state; see NOTE in `unchanged`
-          return (← unchanged old parserState)
+        if trimmedStx.eqWithInfo old.stx.unsetTrailing then
+          -- Here we must make sure to pass the *new* syntax and parser state; see NOTE in
+          -- `unchanged`
+          return (← unchanged old stx parserState)
         -- on first change, make sure to cancel old invocation
         if let some tk := ctx.oldCancelTk? then
           tk.set
@@ -426,7 +429,7 @@ where
         diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
         result? := some {
           parserState
-          processedSnap := (← processHeader stx parserState)
+          processedSnap := (← processHeader trimmedStx parserState)
         }
         cancelTk? := ctx.newCancelTk
       }
@@ -523,7 +526,10 @@ where
 
       -- semi-fast path
       if let some old := old? then
-        if (← isBeforeEditPos parserState.pos ctx) && old.data.stx == stx then
+        -- NOTE: as `parserState.pos` includes trailing whitespace, this forces reprocessing even if
+        -- only that whitespace changes, which is wasteful but still necessary because it may
+        -- influence the range of error messages such as from a trailing `exact`
+        if stx.eqWithInfo old.data.stx then
           -- Here we must make sure to pass the *new* parser state; see NOTE in `unchanged`
           return (← unchanged old parserState)
         -- on first change, make sure to cancel old invocation

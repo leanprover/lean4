@@ -170,7 +170,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: leanprover/lean-action@v1-beta
+      - uses: leanprover/lean-action@v1
 "
 
 /-- Lake package template identifier. -/

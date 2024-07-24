@@ -211,12 +211,24 @@ def InitTemplate.configFileContents  (tmp : InitTemplate) (lang : ConfigLang) (p
   | .math, .lean => mathLeanConfigFileContents pkgNameStr (escapeName! root)
   | .math, .toml => mathTomlConfigFileContents pkgNameStr root.toString
 
+def createLeanActionWorkflow (dir : FilePath) : LogIO PUnit := do
+  logVerbose "creating lean-action CI workflow"
+  let workflowDir := dir / ".github" / "workflows"
+  let workflowFile := workflowDir / "lean_action_ci.yml"
+  if (← workflowFile.pathExists) then
+    logVerbose "lean-action CI workflow already exists"
+    return
+  IO.FS.createDirAll workflowDir
+  IO.FS.writeFile workflowFile leanActionWorkflowContents
+  logVerbose s!"created lean-action CI workflow at '{workflowFile}'"
+
 /-- Initialize a new Lake package in the given directory with the given name. -/
 def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLang) (env : Lake.Env) : LogIO PUnit := do
   let configFile :=  dir / defaultConfigFile.addExtension lang.fileExtension
   if (← configFile.pathExists) then
     error "package already initialized"
 
+  createLeanActionWorkflow dir
   -- determine the name to use for the root
   -- use upper camel case unless the specific module name already exists
   let (root, rootFile?) ← id do
@@ -303,16 +315,6 @@ def validatePkgName (pkgName : String) : LogIO PUnit := do
   if pkgName.toLower ∈ ["init", "lean", "lake", "main"] then
     error "reserved package name"
 
-def createLeanActionWorkflow (dir : FilePath) : LogIO PUnit := do
-  logVerbose "creating lean-action CI workflow"
-  let workflowDir := dir / ".github" / "workflows"
-  let workflowFile := workflowDir / "lean_action_ci.yml"
-  if (← workflowFile.pathExists) then
-    logVerbose "lean-action CI workflow already exists"
-    return
-  IO.FS.createDirAll workflowDir
-  IO.FS.writeFile workflowFile leanActionWorkflowContents
-  logVerbose s!"created lean-action CI workflow at '{workflowFile}'"
 
 def init (name : String) (tmp : InitTemplate) (lang : ConfigLang) (env : Lake.Env) (cwd : FilePath := ".") : LogIO PUnit := do
   let name ← id do
@@ -327,7 +329,6 @@ def init (name : String) (tmp : InitTemplate) (lang : ConfigLang) (env : Lake.En
   validatePkgName name
   IO.FS.createDirAll cwd
   initPkg cwd (stringToLegalOrSimpleName name) tmp lang env
-  createLeanActionWorkflow cwd
 
 def new (name : String) (tmp : InitTemplate) (lang : ConfigLang)  (env : Lake.Env) (cwd : FilePath := ".") : LogIO PUnit := do
   let name := name.trim
@@ -337,4 +338,3 @@ def new (name : String) (tmp : InitTemplate) (lang : ConfigLang)  (env : Lake.En
   let dir := cwd / dirName
   IO.FS.createDirAll dir
   initPkg dir name tmp lang env
-  createLeanActionWorkflow dir

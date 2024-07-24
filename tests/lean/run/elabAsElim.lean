@@ -175,3 +175,14 @@ def leRecOn {C : Nat → Sort _} {n : Nat} : ∀ {m}, n ≤ m → (∀ {k}, C k 
 theorem leRecOn_self {C : Nat → Sort _} {n} {next : ∀ {k}, C k → C (k + 1)} (x : C n) :
     (leRecOn n.le_refl next x : C n) = x :=
   sorry
+
+/-!
+Issue https://github.com/leanprover/lean4/issues/4347
+
+`False.rec` has `motive` as an explicit argument.
+-/
+
+example (h : False) : Nat := False.rec (fun _ => Nat) h
+example (h : False) : Nat := False.rec _ h
+example (h : False) : Nat := h.rec
+example (h : False) : Nat := h.rec _

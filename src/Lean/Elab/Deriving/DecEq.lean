@@ -91,8 +91,11 @@ def mkAuxFunction (ctx : Context) (auxFunName : Name) (indVal : InductiveVal): T
   let header  ← mkDecEqHeader indVal
   let body    ← mkMatch ctx header indVal
   let binders := header.binders
-  let type    ← `(Decidable ($(mkIdent header.targetNames[0]!) = $(mkIdent header.targetNames[1]!)))
-  `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type:term := $body:term)
+  let target₁ := mkIdent header.targetNames[0]!
+  let target₂ := mkIdent header.targetNames[1]!
+  let type    ← `(Decidable ($target₁ = $target₂))
+  `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type:term := $body:term
+    termination_by structural $target₁)
 
 def mkAuxFunctions (ctx : Context) : TermElabM (TSyntax `command) := do
   let mut res : Array (TSyntax `command) := #[]

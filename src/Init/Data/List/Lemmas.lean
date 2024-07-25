@@ -36,7 +36,7 @@ Of course for any individual operation, not all of these will be relevant or hel
 General principles for `simp` normal forms for `List` operations:
 * Conversion operations (e.g. `toArray`, or `length`) should be moved inwards aggressively,
   to make the conversion effective.
-* Similarly, operation which work on elements should be moved inwards in preference to
+* Similarly, operations which work on elements should be moved inwards in preference to
   "structural" operations on the list, e.g. we prefer to simplify
   `List.map f (L ++ M) ~> (List.map f L) ++ (List.map f M)`,
   `List.map f L.reverse ~> (List.map f L).reverse`, and
@@ -1544,6 +1544,26 @@ theorem foldr_join (f : α → β → β) (b : β) (L : List (List α)) :
 theorem join_concat (L : List (List α)) (l : List α) : join (L ++ [l]) = join L ++ l := by
   simp
 
+theorem join_join {L : List (List (List α))} : join (join L) = join (map join L) := by
+  induction L <;> simp_all
+
+theorem join_eq_join_iff {L L' : List (List α)} :
+    L.join = L'.join ↔ ∃ (M M' : List (List (List α))), M.map join = L ∧ M'.map join = L' ∧ M.join = M'.join := by
+  constructor
+  · intro h
+    induction L' generalizing L with
+    | nil =>
+      simp at h
+      simp
+      refine ⟨L.map fun _ => [], ?_⟩
+      simp [map_]
+      sorry
+    | cons l L' ih =>
+      simp at h
+      sorry
+  · rintro ⟨M, M', rfl, rfl, w⟩
+    simp [← join_join, w]
+#exit
 /-! ### bind -/
 
 theorem bind_def (l : List α) (f : α → List β) : l.bind f = join (map f l) := by rfl

@@ -261,27 +261,62 @@ partial def hasCDot : Syntax → Bool
   - `f · · b` => `fun _a_1 _a_2 => f _a_1 _a_2 b` -/
 partial def expandCDot? (stx : Term) : MacroM (Option Term) := do
   if hasCDot stx then
-    let (newStx, binders) ← (go stx).run #[]
+    let numArgs ← countArgs stx
+    let (newStx, binders) ← withFreshMacroScope <| (go numArgs stx).run #[]
     `(fun $binders* => $(⟨newStx⟩))
   else
     pure none
 where
   /--
-    Auxiliary function for expanding the `·` notation.
-    The extra state `Array Syntax` contains the new binder names.
-    If `stx` is a `·`, we create a fresh identifier, store in the
-    extra state, and return it. Otherwise, we just return `stx`. -/
-  go : Syntax → StateT (Array Ident) MacroM Syntax
-    | stx@`(($(_))) => pure stx
-    | stx@`(·) => withFreshMacroScope do
-      let id ← mkFreshIdent stx (canonical := true)
-      modify (·.push id)
-      pure id
-    | stx => match stx with
-      | .node _ k args => do
-        let args ← args.mapM go
-        return .node (.fromRef stx (canonical := true)) k args
-      | _ => pure stx
+  Count arguments, taking into consideration choice nodes
+  and validating that each alternative has the same number of arguments.
+  -/
+  countArgs : Syntax → MacroM Nat
+  | `(($_)) => return 0
+  | `(·) => return 1
+  | stx =>
+    match stx with
+    | .node _ k args => do
+      if k == choiceKind then
+        if args.isEmpty then
+          Macro.throwUnsupported
+        let counts ← args.mapM countArgs
+        unless counts.all (fun c => counts[0]! == c) do
+          Macro.throwErrorAt stx "Ambiguous notation in cdot function has different numbers of '·' arguments in each alternative."
+        return counts[0]!
+      else
+        args.foldlM (init := 0) (fun acc arg => return acc + (← countArgs arg))
+    | _ => return 0
+  /--
+  Auxiliary function for expanding the `·` notation.
+  The extra state `Array Syntax` contains the new binder names.
+  If `stx` is a `·`, we create a fresh identifier, store it in the
+  extra state, and return it. Otherwise, we just return `stx`.
+  -/
+  go (numArgs : Nat) : Syntax → StateT (Array Ident) MacroM Syntax
+  | stx@`(($(_))) => pure stx
+  | stx@`(·) => do
+    let i := (← get).size
+    let name ← MonadQuotation.addMacroScope <|
+      if numArgs == 1 then
+        `x
+      else
+        Name.mkSimple s!"x{i + 1}"
+    let id := mkIdentFrom stx name (canonical := true)
+    modify (fun s => s.push id)
+    pure id
+  | stx => match stx with
+    | .node _ k args => do
+      let args ←
+        if k == choiceKind then
+          let s ← get
+          let args' ← args.mapM (fun arg => go numArgs arg |>.run s)
+          set args'[0]!.2
+          pure <| args'.map Prod.fst
+        else
+          args.mapM (go numArgs)
+      return .node (.fromRef stx (canonical := true)) k args
+    | _ => pure stx
 
 /--
   Helper method for elaborating terms such as `(.+.)` where a constant name is expected.

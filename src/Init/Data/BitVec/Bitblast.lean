@@ -99,7 +99,7 @@ theorem carry_succ (i : Nat) (x y : BitVec w) (c : Bool) :
   cases x.toNat.testBit i <;> cases y.toNat.testBit i <;> (simp; omega)
 
 /--
-If `x &&& y = 0`, then computing `x + y + 0` cannot produce a carry at any bit `i`.
+If `x &&& y = 0`, then the carry bit `(x + y + 0)` is always `false` for any index `i`.
 Intuitively, this is because a carry is only produced when at least two of `x`, `y`, and the
 previous carry are true. However, since `x &&& y = 0`, at most one of `x, y` can be true,
 and thus we never have a previous carry, which means that the sum cannot produce a carry.
@@ -111,7 +111,7 @@ theorem carry_of_and_eq_zero {x y : BitVec w} (h : x &&& y = 0#w) : carry i x y 
     replace h := congrArg (·.getLsb i) h
     simp_all [carry_succ]
 
-/- The final carry bit when computing `x + y + c` is `true` iff `x.toNat + y.toNat + c.toNat ≥ 2^w`. -/
+/-- The final carry bit when computing `x + y + c` is `true` iff `x.toNat + y.toNat + c.toNat ≥ 2^w`. -/
 theorem carry_width {x y : BitVec w} :
     carry w x y c = decide (x.toNat + y.toNat + c.toNat ≥ 2^w) := by
   simp [carry]
@@ -362,9 +362,10 @@ theorem getLsb_mul (x y : BitVec w) (i : Nat) :
 /--
 `shiftLeftRec x y n` shifts `x` to the left by the first `n` bits of `y`.
 
-This is phrased recursively to infer the equations `shiftLeftRec_zero`,
-`shiftLeftRec_succ`, which allows us to unfold `shiftLeft` into a circuit for bitblasting.
 The theorem `shiftLeft_eq_shiftLeftRec` proves the equivalence of `(x <<< y)` and `shiftLeftRec`.
+
+This in conjecton with equations `shiftLeftRec_zero`, `shiftLeftRec_succ`
+allows us to unfold `shiftLeft` into a circuit for bitblasting.
  -/
 def shiftLeftRec (x : BitVec w₁) (y : BitVec w₂) (n : Nat) : BitVec w₁ :=
   let shiftAmt := (y &&& (twoPow w₂ n))

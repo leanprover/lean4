@@ -140,6 +140,11 @@ section FileWorker
     for ⟨id, _⟩ in pendingRequests do
       hError.writeLspResponseError { id := id, code := code, message := msg }
 
+  def queuedMsgs (fw : FileWorker) : Array JsonRpc.Message :=
+    match fw.state with
+    | .running => #[]
+    | .crashed queuedMsgs _ => queuedMsgs
+
   end FileWorker
 end FileWorker
 
@@ -413,6 +418,19 @@ section ServerM
       | return
     updateFileWorkers { fw with state := WorkerState.crashed queuedMsgs origin }
 
+  def tryDischargeQueuedMessages (uri : DocumentUri) (queuedMsgs : Array JsonRpc.Message) : ServerM Unit := do
+      let some fw ← findFileWorker? uri
+        | throwServerError "Cannot find file worker for '{uri}'."
+      let mut crashedMsgs := #[]
+      -- Try to discharge all queued msgs, tracking the ones that we can't discharge
+      for msg in queuedMsgs do
+        try
+          fw.stdin.writeLspMessage msg
+        catch _ =>
+          crashedMsgs := crashedMsgs.push msg
+      if ¬ crashedMsgs.isEmpty then
+        handleCrash uri crashedMsgs .clientToFileWorkerForwarding
+
   /-- Tries to write a message, sets the state of the FileWorker to `crashed` if it does not succeed
       and restarts the file worker if the `crashed` flag was already set. Just logs an error if
       there is no FileWorker at this `uri`.
@@ -436,17 +454,7 @@ section ServerM
       -- restart the crashed FileWorker
       eraseFileWorker uri
       startFileWorker fw.doc
-      let some newFw ← findFileWorker? uri
-        | throwServerError "Cannot find file worker for '{uri}'."
-      let mut crashedMsgs := #[]
-      -- try to discharge all queued msgs, tracking the ones that we can't discharge
-      for msg in queuedMsgs do
-        try
-          newFw.stdin.writeLspMessage msg
-        catch _ =>
-          crashedMsgs := crashedMsgs.push msg
-      if ¬ crashedMsgs.isEmpty then
-        handleCrash uri crashedMsgs .clientToFileWorkerForwarding
+      tryDischargeQueuedMessages uri queuedMsgs
     | WorkerState.running =>
       let initialQueuedMsgs :=
         if queueFailedMessage then
@@ -997,17 +1005,16 @@ section MainLoop
       | WorkerEvent.ioError e =>
         throwServerError s!"IO error while processing events for {fw.doc.uri}: {e}"
       | WorkerEvent.crashed _ =>
-        let queuedMsgs :=
-          match fw.state with
-          | WorkerState.crashed queuedMsgs _ => queuedMsgs
-          | _ => #[]
-        handleCrash fw.doc.uri queuedMsgs .fileWorkerToClientForwarding
+        handleCrash fw.doc.uri fw.queuedMsgs .fileWorkerToClientForwarding
         mainLoop clientTask
       | WorkerEvent.terminated =>
         throwServerError <| "Internal server error: got termination event for worker that "
           ++ "should have been removed"
       | .importsChanged =>
+        let uri := fw.doc.uri
+        let queuedMsgs := fw.queuedMsgs
         startFileWorker fw.doc
+        tryDischargeQueuedMessages uri queuedMsgs
         mainLoop clientTask
 end MainLoop
 

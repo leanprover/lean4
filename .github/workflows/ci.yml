@@ -460,6 +460,18 @@ jobs:
       with:
         script: |
             core.setFailed('Some jobs failed')
+    - if: ${{ contains(needs.*.result, 'failure') && github.repository == 'leanprover/lean4' && (github.ref == 'master' || github.ref = 'joachim/zulip-integration') }}
+      uses: zulip/github-actions-zulip/send-message@v1
+      with:
+        api-key: ${{ secrets.ZULIP_BOT_KEY }}
+        email: "github-actions-bot@lean-fro.zulip.org"
+        organization-url: "https://lean-fro.zulip.org"
+        to: "infrastructure"
+        topic: "Github actions"
+        type: "stream"
+        content: |
+          A build of ${{ github.ref }} triggered by ${{ github.event_name }} [failed](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+
 
   # This job creates releases from tags
   # (whether they are "unofficial" releases for experiments, or official releases when the tag is "v" followed by a semver string.)

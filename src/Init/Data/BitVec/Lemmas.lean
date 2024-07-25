@@ -719,7 +719,7 @@ theorem shiftLeft_shiftLeft' {x : BitVec w₁} {y : BitVec w₂} {z : BitVec w�
   simp [shiftLeft_add]
 
 theorem getLsb_shiftLeft' {x : BitVec w₁} {y : BitVec w₂} {i : Nat} :
-    (x <<< y).getLsb i = (decide (i < w) && !decide (i < y.toNat) && x.getLsb (i - y.toNat)) := by
+    (x <<< y).getLsb i = (decide (i < w₁) && !decide (i < y.toNat) && x.getLsb (i - y.toNat)) := by
   simp [shiftLeft_eq', getLsb_shiftLeft]
 
 /-! ### ushiftRight -/

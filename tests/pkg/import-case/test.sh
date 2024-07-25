@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 rm -rf .lake/build
-lake build 2>&1 | grep 'no such file or directory'
+lake build 2>&1 | tee | grep 'no such file or directory'

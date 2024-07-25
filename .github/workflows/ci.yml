@@ -291,6 +291,8 @@ jobs:
       CXX: c++
       MACOSX_DEPLOYMENT_TARGET: 10.15
     steps:
+      - name: Fail!
+        run: false
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
         if: runner.os == 'Linux' && !matrix.cmultilib
@@ -460,7 +462,7 @@ jobs:
       with:
         script: |
             core.setFailed('Some jobs failed')
-    - if: ${{ contains(needs.*.result, 'failure') && github.repository == 'leanprover/lean4' && (github.ref == 'master' || github.ref == 'joachim/zulip-integration') }}
+    - if: ${{ contains(needs.*.result, 'failure') && github.repository == 'leanprover/lean4' && (github.ref_name == 'master' || github.head_ref == 'joachim/zulip-integration') }}
       uses: zulip/github-actions-zulip/send-message@v1
       with:
         api-key: ${{ secrets.ZULIP_BOT_KEY }}
@@ -470,7 +472,7 @@ jobs:
         topic: "Github actions"
         type: "stream"
         content: |
-          A build of ${{ github.ref }} triggered by ${{ github.event_name }} [failed](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+          A build of ${{ github.ref_name }} triggered by ${{ github.event_name }} [failed](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
 
 
   # This job creates releases from tags

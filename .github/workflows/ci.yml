@@ -461,8 +461,8 @@ jobs:
       uses: zulip/github-actions-zulip/send-message@v1
       with:
         api-key: ${{ secrets.ZULIP_BOT_KEY }}
-        email: "github-actions-bot@lean-fro.zulip.org"
-        organization-url: "https://lean-fro.zulip.org"
+        email: "github-actions-bot@lean-fro.zulipchat.com"
+        organization-url: "https://lean-fro.zulipchat.com"
         to: "infrastructure"
         topic: "Github actions"
         type: "stream"

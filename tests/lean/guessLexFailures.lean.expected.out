@@ -72,11 +72,10 @@ Not considering parameter fixed of Mutual.f:
   it is unchanged in the recursive calls
 Not considering parameter fixed of Mutual.g:
   it is unchanged in the recursive calls
-Not considering parameter H of Mutual.g:
-  its type True does not have a recursor
 Not considering parameter fixed of Mutual.h:
   it is unchanged in the recursive calls
 Too many possible combinations of parameters of type Nat (or please indicate the recursive argument explicitly using `termination_by structural`).
+Skipping arguments of type True, as Mutual.f has no compatible argument.
 
 
 Could not find a decreasing measure.

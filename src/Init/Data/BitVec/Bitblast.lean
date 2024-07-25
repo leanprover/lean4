@@ -123,7 +123,7 @@ theorem toNat_add_eq_toNat_add_toNat_of_and_eq_zero {x y : BitVec w} (h : x &&& 
     (x + y).toNat = x.toNat + y.toNat := by
   rw [toNat_add]
   apply Nat.mod_eq_of_lt
-  suffices ¬ decide (x.toNat + y.toNat + (false : Bool).toNat ≥ 2^w) by
+  suffices ¬ decide (x.toNat + y.toNat + false.toNat ≥ 2^w) by
     simp only [decide_eq_true_eq] at this
     omega
   rw [← carry_width]

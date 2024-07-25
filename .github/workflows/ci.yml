@@ -460,7 +460,7 @@ jobs:
       with:
         script: |
             core.setFailed('Some jobs failed')
-    - if: ${{ contains(needs.*.result, 'failure') && github.repository == 'leanprover/lean4' && (github.ref == 'master' || github.ref = 'joachim/zulip-integration') }}
+    - if: ${{ contains(needs.*.result, 'failure') && github.repository == 'leanprover/lean4' && (github.ref == 'master' || github.ref == 'joachim/zulip-integration') }}
       uses: zulip/github-actions-zulip/send-message@v1
       with:
         api-key: ${{ secrets.ZULIP_BOT_KEY }}

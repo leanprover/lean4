@@ -12,7 +12,7 @@ import Lean.Elab.PreDefinition.Structural.RecArgInfo
 namespace Lean.Elab.Structural
 open Meta
 
-private partial def replaceIndPredRecApps (recArgInfo : RecArgInfo) (motive : Expr) (e : Expr) : M Expr := do
+private partial def replaceIndPredRecApps (recArgInfo : RecArgInfo) (funType : Expr) (motive : Expr) (e : Expr) : M Expr := do
   let maxDepth := IndPredBelow.maxBackwardChainingDepth.get (← getOptions)
   let rec loop (e : Expr) : M Expr := do
     match e with
@@ -36,7 +36,8 @@ private partial def replaceIndPredRecApps (recArgInfo : RecArgInfo) (motive : Ex
         e.withApp fun f args => do
           if f.isConstOf recArgInfo.fnName then
             -- let ty ← inferType e
-            let ty := mkAppN motive args[recArgInfo.numFixed:]
+            let ty := mkAppN funType args[recArgInfo.numFixed:]
+            trace[Elab.definition.structural] "Recursive call {e} with inferred type {←inferType e} and expected type {ty}"
             unless (← isDefEq ty (← inferType e)) do
               throwError "Recursive call {e} does not have expected type {ty}"
             let main ← mkFreshExprSyntheticOpaqueMVar ty
@@ -82,10 +83,11 @@ def mkIndPredBRecOn (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
     let type  := (← inferType value).headBeta
     let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor ys
     trace[Elab.definition.structural] "numFixed: {recArgInfo.numFixed}, indexMajorArgs: {indexMajorArgs}, otherArgs: {otherArgs}"
-    let motive ← mkForallFVars otherArgs type
-    let motive ← mkLambdaFVars indexMajorArgs motive
-    trace[Elab.definition.structural] "brecOn motive: {motive}"
-    withLetDecl `motive (← inferType motive) motive fun motive => do
+    let funType ← mkLambdaFVars ys type
+    withLetDecl `funType (← inferType funType) funType fun funType => do
+      let motive ← mkForallFVars otherArgs (mkAppN funType ys)
+      let motive ← mkLambdaFVars indexMajorArgs motive
+      trace[Elab.definition.structural] "brecOn motive: {motive}"
       let brecOn := Lean.mkConst (mkBRecOnName recArgInfo.indName!) recArgInfo.indGroupInst.levels
       let brecOn := mkAppN brecOn recArgInfo.indGroupInst.params
       let brecOn := mkApp brecOn motive
@@ -106,11 +108,11 @@ def mkIndPredBRecOn (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
         instantiateForall FType indexMajorArgs
       forallBoundedTelescope FType (some 1) fun below _ => do
         let below := below[0]!
-        let valueNew     ← replaceIndPredRecApps recArgInfo motive value
+        let valueNew     ← replaceIndPredRecApps recArgInfo funType motive value
         let Farg         ← mkLambdaFVars (indexMajorArgs ++ #[below] ++ otherArgs) valueNew
         let brecOn       := mkApp brecOn Farg
         let brecOn       := mkAppN brecOn otherArgs
-        let brecOn ← mkLetFVars #[motive] brecOn
+        let brecOn       ← mkLetFVars #[funType] brecOn
         mkLambdaFVars ys brecOn
 
 end Lean.Elab.Structural

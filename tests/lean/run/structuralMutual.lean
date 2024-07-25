@@ -575,6 +575,53 @@ end
 
 end ManyCombinations
 
+namespace WithTuple
+
+inductive Tree (α : Type) where
+  | node : α → (Tree α × Tree α) → Tree α
+
+mutual
+
+def Tree.map (f : α → β) (x : Tree α): Tree β :=
+  match x with
+    | node x arrs => node (f x) $ Tree.map_tup f arrs
+termination_by structural x
+
+def Tree.map_tup (f : α → β) (x : Tree α × Tree α): (Tree β × Tree β) :=
+  match x with
+    | (t₁,t₂) => (Tree.map f t₁, Tree.map f t₂)
+termination_by structural x
+
+end
+
+end WithTuple
+
+namespace WithArray
+
+inductive Tree (α : Type) where
+  | node : α → Array (Tree α) → Tree α
+
+mutual
+
+def Tree.map (f : α → β) (x : Tree α): Tree β :=
+  match x with
+    | node x arr₁ => node (f x) $ Tree.map_arr f arr₁
+termination_by structural x
+
+def Tree.map_arr (f : α → β) (x : Array (Tree α)): Array (Tree β) :=
+  match x with
+    | .mk arr₁ => .mk (Tree.map_list f arr₁)
+termination_by structural x
+
+def Tree.map_list (f : α → β) (x : List (Tree α)): List (Tree β) :=
+  match x with
+    | [] => []
+    | h₁::t₁ => (Tree.map f h₁)::Tree.map_list f t₁
+termination_by structural x
+end
+
+end WithArray
+
 namespace FunIndTests
 
 -- FunInd does not handle mutual structural recursion yet, so make sure we error
@@ -632,6 +679,28 @@ info: EvenOdd.isEven.induct (motive_1 motive_2 : Nat → Prop) (case1 : motive_1
   (case4 : ∀ (n : Nat), motive_1 n → motive_2 n.succ) : ∀ (a : Nat), motive_1 a
 -/
 #guard_msgs in
-#check EvenOdd.isEven.induct -- TODO: This error message can be improved
+#check EvenOdd.isEven.induct
+
+/--
+info: WithTuple.Tree.map.induct {α β : Type} (f : α → β) (motive_1 : WithTuple.Tree α → Prop)
+  (motive_2 : WithTuple.Tree α × WithTuple.Tree α → Prop)
+  (case1 :
+    ∀ (x : α) (arrs : WithTuple.Tree α × WithTuple.Tree α), motive_2 arrs → motive_1 (WithTuple.Tree.node x arrs))
+  (case2 : ∀ (t₁ t₂ : WithTuple.Tree α), motive_1 t₁ → motive_1 t₂ → motive_2 (t₁, t₂)) (x : WithTuple.Tree α) :
+  motive_1 x
+-/
+#guard_msgs in
+#check WithTuple.Tree.map.induct
+
+/--
+info: WithArray.Tree.map.induct {α β : Type} (f : α → β) (motive_1 : WithArray.Tree α → Prop)
+  (motive_2 : Array (WithArray.Tree α) → Prop) (motive_3 : List (WithArray.Tree α) → Prop)
+  (case1 : ∀ (x : α) (arr₁ : Array (WithArray.Tree α)), motive_2 arr₁ → motive_1 (WithArray.Tree.node x arr₁))
+  (case2 : ∀ (arr₁ : List (WithArray.Tree α)), motive_3 arr₁ → motive_2 { data := arr₁ }) (case3 : motive_3 [])
+  (case4 : ∀ (h₁ : WithArray.Tree α) (t₁ : List (WithArray.Tree α)), motive_1 h₁ → motive_3 t₁ → motive_3 (h₁ :: t₁))
+  (x : WithArray.Tree α) : motive_1 x
+-/
+#guard_msgs in
+#check WithArray.Tree.map.induct
 
 end FunIndTests

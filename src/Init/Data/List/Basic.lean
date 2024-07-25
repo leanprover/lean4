@@ -719,7 +719,7 @@ def take : Nat → List α → List α
 
 @[simp] theorem take_nil : ([] : List α).take i = [] := by cases i <;> rfl
 @[simp] theorem take_zero (l : List α) : l.take 0 = [] := rfl
-@[simp] theorem take_cons_succ : (a::as).take (i+1) = a :: as.take i := rfl
+@[simp] theorem take_succ_cons : (a::as).take (i+1) = a :: as.take i := rfl
 
 /-! ### drop -/
 

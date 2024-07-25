@@ -709,16 +709,16 @@ theorem shiftLeft_shiftLeft {w : Nat} (x : BitVec w) (n m : Nat) :
 /-! ### shiftLeft reductions from BitVec to Nat -/
 
 @[simp]
-theorem shiftLeft_eq' {x : BitVec w} {y : BitVec w₂} : x <<< y = x <<< y.toNat := by rfl
+theorem shiftLeft_eq' {x : BitVec w₁} {y : BitVec w₂} : x <<< y = x <<< y.toNat := by rfl
 
 @[simp]
-theorem shiftLeft_zero' {x : BitVec w} : x <<< 0#w₂ = x := by simp
+theorem shiftLeft_zero' {x : BitVec w₁} : x <<< 0#w₂ = x := by simp
 
-theorem shiftLeft_shiftLeft' {x y z : BitVec w} :
+theorem shiftLeft_shiftLeft' {x : BitVec w₁} {y : BitVec w₂} {z : BitVec w₃} :
     x <<< y <<< z = x <<< (y.toNat + z.toNat) := by
   simp [shiftLeft_add]
 
-theorem getLsb_shiftLeft' {x : BitVec w} {y : BitVec w₂} {i : Nat} :
+theorem getLsb_shiftLeft' {x : BitVec w₁} {y : BitVec w₂} {i : Nat} :
     (x <<< y).getLsb i = (decide (i < w) && !decide (i < y.toNat) && x.getLsb (i - y.toNat)) := by
   simp [shiftLeft_eq', getLsb_shiftLeft]
 

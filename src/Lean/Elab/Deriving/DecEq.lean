@@ -93,9 +93,12 @@ def mkAuxFunction (ctx : Context) (auxFunName : Name) (indVal : InductiveVal): T
   let binders := header.binders
   let target₁ := mkIdent header.targetNames[0]!
   let target₂ := mkIdent header.targetNames[1]!
+  let termSuffix ← if indVal.isRec
+    then `(Parser.Termination.suffix|termination_by structural $target₁)
+    else `(Parser.Termination.suffix|)
   let type    ← `(Decidable ($target₁ = $target₂))
   `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type:term := $body:term
-    termination_by structural $target₁)
+    $termSuffix:suffix)
 
 def mkAuxFunctions (ctx : Context) : TermElabM (TSyntax `command) := do
   let mut res : Array (TSyntax `command) := #[]

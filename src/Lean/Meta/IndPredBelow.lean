@@ -230,7 +230,7 @@ def mkBelowDecl (ctx : Context) : MetaM Declaration := do
     ctx.typeInfos[0]!.isUnsafe
 
 partial def backwardsChaining (m : MVarId) (depth : Nat) : MetaM Bool := do
-  m.withContext do
+  withoutProofIrrelevance do m.withContext do
     let mTy ← m.getType
     if depth = 0 then
       trace[Meta.IndPredBelow.search] "searching for {mTy}: ran out of max depth"
@@ -243,12 +243,20 @@ partial def backwardsChaining (m : MVarId) (depth : Nat) : MetaM Bool := do
         else
           commitWhen do
           let (mvars, _, t) ← forallMetaTelescope localDecl.type
+
+          if t.getAppFn == mTy.getAppFn && t.getAppNumArgs = mTy.getAppNumArgs then
+            if (← (mTy.getAppArgs.zip t.getAppArgs).allM (fun (t,s) => isDefEq t s)) then
+              trace[Meta.IndPredBelow.search] "searching for {mTy}: matching {mkFVar localDecl.fvarId} : {localDecl.type}"
+              m.assign (mkAppN localDecl.toExpr mvars)
+              return ← mvars.allM fun v =>
+                v.mvarId!.isAssigned <||> backwardsChaining v.mvarId! (depth - 1)
+
           if (← isDefEq mTy t) then
             trace[Meta.IndPredBelow.search] "searching for {mTy}: trying {mkFVar localDecl.fvarId} : {localDecl.type}"
             m.assign (mkAppN localDecl.toExpr mvars)
-            mvars.allM fun v =>
+            return ← mvars.allM fun v =>
               v.mvarId!.isAssigned <||> backwardsChaining v.mvarId! (depth - 1)
-          else return false
+          return false
       unless r do
         trace[Meta.IndPredBelow.search] "searching for {mTy} failed"
       return r

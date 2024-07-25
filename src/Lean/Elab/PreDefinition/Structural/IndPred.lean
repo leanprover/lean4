@@ -35,7 +35,10 @@ private partial def replaceIndPredRecApps (recArgInfo : RecArgInfo) (motive : Ex
       let processApp (e : Expr) : M Expr := do
         e.withApp fun f args => do
           if f.isConstOf recArgInfo.fnName then
-            let ty ← inferType e
+            -- let ty ← inferType e
+            let ty := mkAppN motive args[recArgInfo.numFixed:]
+            unless (← isDefEq ty (← inferType e)) do
+              throwError "Recursive call {e} does not have expected type {ty}"
             let main ← mkFreshExprSyntheticOpaqueMVar ty
             if (← IndPredBelow.backwardsChaining main.mvarId! maxDepth) then
               pure main
@@ -82,30 +85,32 @@ def mkIndPredBRecOn (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
     let motive ← mkForallFVars otherArgs type
     let motive ← mkLambdaFVars indexMajorArgs motive
     trace[Elab.definition.structural] "brecOn motive: {motive}"
-    let brecOn := Lean.mkConst (mkBRecOnName recArgInfo.indName!) recArgInfo.indGroupInst.levels
-    let brecOn := mkAppN brecOn recArgInfo.indGroupInst.params
-    let brecOn := mkApp brecOn motive
-    let brecOn := mkAppN brecOn indexMajorArgs
-    check brecOn
-    let brecOnType ← inferType brecOn
-    trace[Elab.definition.structural] "brecOn     {brecOn}"
-    trace[Elab.definition.structural] "brecOnType {brecOnType}"
-    -- we need to close the telescope here, because the local context is used:
-    -- The root cause was, that this copied code puts an ih : FType into the
-    -- local context and later, when we use the local context to build the recursive
-    -- call, it uses this ih. But that ih doesn't exist in the actual brecOn call.
-    -- That's why it must go.
-    let FType ← forallBoundedTelescope brecOnType (some 1) fun F _ => do
-      let F := F[0]!
-      let FType ← inferType F
-      trace[Elab.definition.structural] "FType: {FType}"
-      instantiateForall FType indexMajorArgs
-    forallBoundedTelescope FType (some 1) fun below _ => do
-      let below := below[0]!
-      let valueNew     ← replaceIndPredRecApps recArgInfo motive value
-      let Farg         ← mkLambdaFVars (indexMajorArgs ++ #[below] ++ otherArgs) valueNew
-      let brecOn       := mkApp brecOn Farg
-      let brecOn       := mkAppN brecOn otherArgs
-      mkLambdaFVars ys brecOn
+    withLetDecl `motive (← inferType motive) motive fun motive => do
+      let brecOn := Lean.mkConst (mkBRecOnName recArgInfo.indName!) recArgInfo.indGroupInst.levels
+      let brecOn := mkAppN brecOn recArgInfo.indGroupInst.params
+      let brecOn := mkApp brecOn motive
+      let brecOn := mkAppN brecOn indexMajorArgs
+      check brecOn
+      let brecOnType ← inferType brecOn
+      trace[Elab.definition.structural] "brecOn     {brecOn}"
+      trace[Elab.definition.structural] "brecOnType {brecOnType}"
+      -- we need to close the telescope here, because the local context is used:
+      -- The root cause was, that this copied code puts an ih : FType into the
+      -- local context and later, when we use the local context to build the recursive
+      -- call, it uses this ih. But that ih doesn't exist in the actual brecOn call.
+      -- That's why it must go.
+      let FType ← forallBoundedTelescope brecOnType (some 1) fun F _ => do
+        let F := F[0]!
+        let FType ← inferType F
+        trace[Elab.definition.structural] "FType: {FType}"
+        instantiateForall FType indexMajorArgs
+      forallBoundedTelescope FType (some 1) fun below _ => do
+        let below := below[0]!
+        let valueNew     ← replaceIndPredRecApps recArgInfo motive value
+        let Farg         ← mkLambdaFVars (indexMajorArgs ++ #[below] ++ otherArgs) valueNew
+        let brecOn       := mkApp brecOn Farg
+        let brecOn       := mkAppN brecOn otherArgs
+        let brecOn ← mkLetFVars #[motive] brecOn
+        mkLambdaFVars ys brecOn
 
 end Lean.Elab.Structural

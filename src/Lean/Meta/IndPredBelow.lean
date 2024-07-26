@@ -230,12 +230,12 @@ def mkBelowDecl (ctx : Context) : MetaM Declaration := do
     ctx.typeInfos[0]!.isUnsafe
 
 partial def backwardsChaining (m : MVarId) (depth : Nat) : MetaM Bool := do
-  withoutProofIrrelevance do m.withContext do
+  m.withContext do
     let mTy ← m.getType
-    withTraceNodeBefore `Meta.IndPredBelow.search (do pure m!"searching for {mTy}") do
-      if depth = 0 then
-        trace[Meta.IndPredBelow.search] "ran out of max depth"
-        return false
+    if depth = 0 then
+      trace[Meta.IndPredBelow.search] "searching for {mTy}: ran out of max depth"
+      return false
+    else
       let lctx ← getLCtx
       let r ← lctx.anyM fun localDecl =>
         if localDecl.isAuxDecl then
@@ -243,22 +243,14 @@ partial def backwardsChaining (m : MVarId) (depth : Nat) : MetaM Bool := do
         else
           commitWhen do
           let (mvars, _, t) ← forallMetaTelescope localDecl.type
-
-          if t.getAppFn == mTy.getAppFn && t.getAppNumArgs = mTy.getAppNumArgs then
-            if (← (mTy.getAppArgs.zip t.getAppArgs).allM (fun (t,s) => isDefEq t s)) then
-              trace[Meta.IndPredBelow.search] "eagerly matching {mkFVar localDecl.fvarId} : {localDecl.type}"
-              m.assign (mkAppN localDecl.toExpr mvars)
-              return ← mvars.allM fun v => do
-                v.mvarId!.isAssigned <||> backwardsChaining v.mvarId! (depth - 1)
-
           if (← isDefEq mTy t) then
-            trace[Meta.IndPredBelow.search] "trying {mkFVar localDecl.fvarId} : {localDecl.type}"
+            trace[Meta.IndPredBelow.search] "searching for {mTy}: trying {mkFVar localDecl.fvarId} : {localDecl.type}"
             m.assign (mkAppN localDecl.toExpr mvars)
-            return ← mvars.allM fun v =>
+            mvars.allM fun v =>
               v.mvarId!.isAssigned <||> backwardsChaining v.mvarId! (depth - 1)
-          return false
+          else return false
       unless r do
-        trace[Meta.IndPredBelow.search] "failed"
+        trace[Meta.IndPredBelow.search] "searching for {mTy} failed"
       return r
 
 partial def proveBrecOn (ctx : Context) (indVal : InductiveVal) (type : Expr) : MetaM Expr := do

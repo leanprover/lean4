@@ -364,8 +364,8 @@ theorem getLsb_mul (x y : BitVec w) (i : Nat) :
 
 The theorem `shiftLeft_eq_shiftLeftRec` proves the equivalence of `(x <<< y)` and `shiftLeftRec`.
 
-This in conjecton with equations `shiftLeftRec_zero`, `shiftLeftRec_succ`
-allows us to unfold `shiftLeft` into a circuit for bitblasting.
+Together with equations `shiftLeftRec_zero`, `shiftLeftRec_succ`, 
+this allows us to unfold `shiftLeft` into a circuit for bitblasting.
  -/
 def shiftLeftRec (x : BitVec w₁) (y : BitVec w₂) (n : Nat) : BitVec w₁ :=
   let shiftAmt := (y &&& (twoPow w₂ n))

@@ -119,7 +119,7 @@ theorem carry_width {x y : BitVec w} :
 /--
 If `x &&& y = 0`, then addition does not overflow, and thus `(x + y).toNat = x.toNat + y.toNat`.
 -/
-theorem toNat_add_eq_toNat_add_toNat_of_and_eq_zero {x y : BitVec w} (h : x &&& y = 0#w) :
+theorem toNat_add_of_and_eq_zero {x y : BitVec w} (h : x &&& y = 0#w) :
     (x + y).toNat = x.toNat + y.toNat := by
   rw [toNat_add]
   apply Nat.mod_eq_of_lt
@@ -364,7 +364,7 @@ theorem getLsb_mul (x y : BitVec w) (i : Nat) :
 
 The theorem `shiftLeft_eq_shiftLeftRec` proves the equivalence of `(x <<< y)` and `shiftLeftRec`.
 
-Together with equations `shiftLeftRec_zero`, `shiftLeftRec_succ`, 
+Together with equations `shiftLeftRec_zero`, `shiftLeftRec_succ`,
 this allows us to unfold `shiftLeft` into a circuit for bitblasting.
  -/
 def shiftLeftRec (x : BitVec w₁) (y : BitVec w₂) (n : Nat) : BitVec w₁ :=
@@ -392,7 +392,7 @@ theorem shiftLeft_or_of_and_eq_zero {x : BitVec w₁} {y z : BitVec w₂}
     (h : y &&& z = 0#w₂) :
     x <<< (y ||| z) = x <<< y <<< z := by
   rw [← add_eq_or_of_and_eq_zero _ _ h,
-    shiftLeft_eq', toNat_add_eq_toNat_add_toNat_of_and_eq_zero h]
+    shiftLeft_eq', toNat_add_of_and_eq_zero h]
   simp [shiftLeft_add]
 
 /--
@@ -403,7 +403,7 @@ theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} :
   induction n generalizing x y
   case zero =>
     ext i
-    simp only [shiftLeftRec_zero, twoPow_zero, Nat.reduceAdd, truncate_one_eq_ofBool_getLsb]
+    simp only [shiftLeftRec_zero, twoPow_zero, Nat.reduceAdd, truncate_one]
     suffices (y &&& 1#w₂) = zeroExtend w₂ (ofBool (y.getLsb 0)) by simp [this]
     ext i
     by_cases h : (↑i : Nat) = 0
@@ -415,7 +415,7 @@ theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} :
     by_cases h : y.getLsb (n + 1)
     · simp only [h, ↓reduceIte]
       rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsb_true h,
-        shiftLeft_or_eq_shiftLeft_shiftLeft_of_and_eq_zero]
+        shiftLeft_or_of_and_eq_zero]
       simp
     · simp only [h, false_eq_true, ↓reduceIte, shiftLeft_zero']
       rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsb_false (i := n + 1)]

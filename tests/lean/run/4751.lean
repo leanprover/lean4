@@ -8,7 +8,9 @@ set_option pp.proofs true
 
 def F.asdf1 : (f : F) → True
   | base => trivial
-  | step f => F.asdf1 (f 0)
+  | step g => match g 1 with
+    | base => trivial
+    | step h => F.asdf1 (h 1)
 termination_by structural f => f
 
 def TTrue (_f : F) := True

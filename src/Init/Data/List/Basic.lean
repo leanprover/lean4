@@ -719,7 +719,7 @@ def take : Nat → List α → List α
 
 @[simp] theorem take_nil : ([] : List α).take i = [] := by cases i <;> rfl
 @[simp] theorem take_zero (l : List α) : l.take 0 = [] := rfl
-@[simp] theorem take_cons_succ : (a::as).take (i+1) = a :: as.take i := rfl
+@[simp] theorem take_succ_cons : (a::as).take (i+1) = a :: as.take i := rfl
 
 /-! ### drop -/
 
@@ -1257,6 +1257,14 @@ def unzip : List (α × β) → List α × List β
     (h :: t).unzip = match unzip t with | (al, bl) => (h.1::al, h.2::bl) := rfl
 
 /-! ## Ranges and enumeration -/
+
+/-- Sum of a list of natural numbers. -/
+-- This is not in the `List` namespace as later `List.sum` will be defined polymorphically.
+protected def _root_.Nat.sum (l : List Nat) : Nat := l.foldr (·+·) 0
+
+@[simp] theorem _root_.Nat.sum_nil : Nat.sum ([] : List Nat) = 0 := rfl
+@[simp] theorem _root_.Nat.sum_cons (a : Nat) (l : List Nat) :
+    Nat.sum (a::l) = a + Nat.sum l := rfl
 
 /-! ### range -/
 

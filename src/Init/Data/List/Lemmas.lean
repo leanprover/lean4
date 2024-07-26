@@ -2715,17 +2715,17 @@ theorem IsPrefix.isInfix : l₁ <+: l₂ → l₁ <:+: l₂ := fun ⟨t, h⟩ =>
 
 theorem IsSuffix.isInfix : l₁ <:+ l₂ → l₁ <:+: l₂ := fun ⟨t, h⟩ => ⟨t, [], by rw [h, append_nil]⟩
 
-theorem nil_prefix (l : List α) : [] <+: l := ⟨l, rfl⟩
+@[simp] theorem nil_prefix (l : List α) : [] <+: l := ⟨l, rfl⟩
 
-theorem nil_suffix (l : List α) : [] <:+ l := ⟨l, append_nil _⟩
+@[simp] theorem nil_suffix (l : List α) : [] <:+ l := ⟨l, append_nil _⟩
 
-theorem nil_infix (l : List α) : [] <:+: l := (nil_prefix _).isInfix
+@[simp] theorem nil_infix (l : List α) : [] <:+: l := (nil_prefix _).isInfix
 
-theorem prefix_refl (l : List α) : l <+: l := ⟨[], append_nil _⟩
+@[simp] theorem prefix_refl (l : List α) : l <+: l := ⟨[], append_nil _⟩
 
-theorem suffix_refl (l : List α) : l <:+ l := ⟨[], rfl⟩
+@[simp] theorem suffix_refl (l : List α) : l <:+ l := ⟨[], rfl⟩
 
-theorem infix_refl (l : List α) : l <:+: l := (prefix_refl l).isInfix
+@[simp] theorem infix_refl (l : List α) : l <:+: l := (prefix_refl l).isInfix
 
 @[simp] theorem suffix_cons (a : α) : ∀ l, l <:+ a :: l := suffix_append [a]
 
@@ -2823,6 +2823,28 @@ theorem suffix_or_suffix_of_suffix (h₁ : l₁ <:+ l₃) (h₂ : l₂ <:+ l₃)
   (prefix_or_prefix_of_prefix (reverse_prefix.2 h₁) (reverse_prefix.2 h₂)).imp reverse_prefix.1
     reverse_prefix.1
 
+theorem prefix_cons_iff : l₁ <+: a :: l₂ ↔ l₁ = [] ∨ ∃ t, l₁ = a :: t ∧ t <+: l₂ := by
+  cases l₁ with
+  | nil => simp
+  | cons a' l₁ =>
+    constructor
+    · rintro ⟨t, h⟩
+      simp at h
+      obtain ⟨rfl, rfl⟩ := h
+      exact Or.inr ⟨l₁, rfl, prefix_append l₁ t⟩
+    · rintro (h | ⟨t, w, ⟨s, h'⟩⟩)
+      · simp [h]
+      · simp only [w]
+        refine ⟨s, by simp [h']⟩
+
+@[simp] theorem cons_prefix_cons : a :: l₁ <+: b :: l₂ ↔ a = b ∧ l₁ <+: l₂ := by
+  simp only [prefix_cons_iff, cons.injEq, false_or]
+  constructor
+  · rintro ⟨t, ⟨rfl, rfl⟩, h⟩
+    exact ⟨rfl, h⟩
+  · rintro ⟨rfl, h⟩
+    exact ⟨l₁, ⟨rfl, rfl⟩, h⟩
+
 theorem suffix_cons_iff : l₁ <:+ a :: l₂ ↔ l₁ = a :: l₂ ∨ l₁ <:+ l₂ := by
   constructor
   · rintro ⟨⟨hd, tl⟩, hl₃⟩
@@ -2894,6 +2916,25 @@ theorem IsInfix.filter (p : α → Bool) ⦃l₁ l₂ : List α⦄ (h : l₁ <:+
     l₁.filter p <:+: l₂.filter p := by
   obtain ⟨xs, ys, rfl⟩ := h
   rw [filter_append, filter_append]; apply infix_append _
+
+@[simp] theorem isPrefixOf_iff_prefix [BEq α] [LawfulBEq α] {l₁ l₂ : List α} :
+    l₁.isPrefixOf l₂ ↔ l₁ <+: l₂ := by
+  induction l₁ generalizing l₂ with
+  | nil => simp
+  | cons a l₁ ih =>
+    cases l₂ with
+    | nil => simp
+    | cons a' l₂ => simp [isPrefixOf, ih]
+
+instance [DecidableEq α] (l₁ l₂ : List α) : Decidable (l₁ <+: l₂) :=
+  decidable_of_iff (l₁.isPrefixOf l₂) isPrefixOf_iff_prefix
+
+@[simp] theorem isSuffixOf_iff_suffix [BEq α] [LawfulBEq α] {l₁ l₂ : List α} :
+    l₁.isSuffixOf l₂ ↔ l₁ <:+ l₂ := by
+  simp [isSuffixOf]
+
+instance [DecidableEq α] (l₁ l₂ : List α) : Decidable (l₁ <:+ l₂) :=
+  decidable_of_iff (l₁.isSuffixOf l₂) isSuffixOf_iff_suffix
 
 /-! ### rotateLeft -/
 

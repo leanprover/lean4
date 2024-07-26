@@ -24,14 +24,16 @@ private def replaceIndPredRecApp (numFixed : Nat) (funType : Expr) (e : Expr) : 
       let (mvars, _, t) ← forallMetaTelescope localDecl.type -- NB: do not reduce, we want to see the `funType`
       unless t.getAppFn == funType do return false
       withTraceNodeBefore `Elab.definition.structural (do pure m!"trying {mkFVar localDecl.fvarId} : {localDecl.type}") do
-        if t.getAppNumArgs = args.size then -- TODO: Could this be over-applied?
-          if (← (args.zip t.getAppArgs).allM (fun (t,s) => isDefEq t s)) then
-            main.mvarId!.assign (mkAppN localDecl.toExpr mvars)
-            return ← mvars.allM fun v => do
-              unless (← v.mvarId!.isAssigned) do
-                trace[Elab.definition.structural] "Cannot use {mkFVar localDecl.fvarId}: parameter {v} remains unassigned"
-                return false
-              return true
+        if args.size < t.getAppNumArgs then
+          trace[Elab.definition.structural] "too few arguments. Underapplied recursive call?"
+          return false
+        if (← (t.getAppArgs.zip args).allM (fun (t,s) => isDefEq t s)) then
+          main.mvarId!.assign (mkAppN (mkAppN localDecl.toExpr mvars) args[t.getAppNumArgs:])
+          return ← mvars.allM fun v => do
+            unless (← v.mvarId!.isAssigned) do
+              trace[Elab.definition.structural] "Cannot use {mkFVar localDecl.fvarId}: parameter {v} remains unassigned"
+              return false
+            return true
         trace[Elab.definition.structural] "Arguments do not match"
         return false
     unless r do

@@ -142,8 +142,15 @@ def reparseOptions (opts : Options) : IO Options := do
   for (name, val) in opts do
     let .ofString val := val
       | continue  -- Already parsed by C++
+    -- Options can be prefixed with `weak` in order to turn off the error when the option is not
+    -- defined
+    let weak := name.getRoot == `weak
+    if weak then
+      opts := opts.erase name
+    let name := name.replacePrefix `weak Name.anonymous
     let some decl := decls.find? name
-      | throw <| .userError s!"invalid -D parameter, unknown configuration option '{name}'"
+      | unless weak do
+          throw <| .userError s!"invalid -D parameter, unknown configuration option '{name}'"
 
     match decl.defValue with
     | .ofBool _ =>
@@ -158,7 +165,7 @@ def reparseOptions (opts : Options) : IO Options := do
         | throw <| .userError s!"invalid -D parameter, invalid configuration option '{val}' value, \
             it must be a natural number"
       opts := opts.insert name val
-    | .ofString _ => pure ()
+    | .ofString _ => opts := opts.insert name val
     | _ => throw <| .userError s!"invalid -D parameter, configuration option '{name}' \
               cannot be set in the command line, use set_option command"
 

@@ -6,4 +6,4 @@ name = "UserOpt"
 
 [[lean_lib]]
 name = "UserOptCmdline"
-leanOptions = { myBoolOpt = true, myNatOpt = 4 }
+leanOptions = { myBoolOpt = true, weak.myNatOpt = 4, weak.notMyNatOpt = 5 }

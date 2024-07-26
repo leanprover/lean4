@@ -694,13 +694,11 @@ return x_9;
 LEAN_EXPORT lean_object* l_ByteArray_forInUnsafe___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; size_t x_6; size_t x_7; lean_object* x_8; 
-x_5 = lean_byte_array_size(x_2);
-x_6 = lean_usize_of_nat(x_5);
-lean_dec(x_5);
-x_7 = 0;
-x_8 = l_ByteArray_forInUnsafe_loop___rarg(x_1, x_2, x_4, x_6, x_7, x_3);
-return x_8;
+size_t x_5; size_t x_6; lean_object* x_7; 
+x_5 = lean_sarray_size(x_2);
+x_6 = 0;
+x_7 = l_ByteArray_forInUnsafe_loop___rarg(x_1, x_2, x_4, x_5, x_6, x_3);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_ByteArray_forInUnsafe(lean_object* x_1, lean_object* x_2) {
@@ -818,13 +816,11 @@ return x_7;
 LEAN_EXPORT lean_object* l_ByteArray_instForInUInt8___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; size_t x_6; size_t x_7; lean_object* x_8; 
-x_5 = lean_byte_array_size(x_2);
-x_6 = lean_usize_of_nat(x_5);
-lean_dec(x_5);
-x_7 = 0;
-x_8 = l_ByteArray_forInUnsafe_loop___rarg(x_1, x_2, x_4, x_6, x_7, x_3);
-return x_8;
+size_t x_5; size_t x_6; lean_object* x_7; 
+x_5 = lean_sarray_size(x_2);
+x_6 = 0;
+x_7 = l_ByteArray_forInUnsafe_loop___rarg(x_1, x_2, x_4, x_5, x_6, x_3);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_ByteArray_instForInUInt8(lean_object* x_1, lean_object* x_2) {

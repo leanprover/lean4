@@ -1354,9 +1354,17 @@ private partial def resolveDotName (id : Syntax) (expectedType? : Option Expr) :
   tryPostponeIfNoneOrMVar expectedType?
   let some expectedType := expectedType?
     | throwError "invalid dotted identifier notation, expected type must be known"
-  forallTelescopeReducing expectedType fun _ resultType => do
+  withForallBody expectedType fun resultType => do
     go resultType expectedType #[]
 where
+  /-- A weak version of forallTelescopeReducing that only uses whnfCore, to avoid unfolding definitions except by `unfoldDefinition?` below. -/
+  withForallBody {α} (type : Expr) (k : Expr → TermElabM α) : TermElabM α :=
+    forallTelescope type fun _ body => do
+      let body ← whnfCore body
+      if body.isForall then
+        withForallBody body k
+      else
+        k body
   go (resultType : Expr) (expectedType : Expr) (previousExceptions : Array Exception) : TermElabM Name := do
     let resultType ← instantiateMVars resultType
     let resultTypeFn := resultType.cleanupAnnotations.getAppFn
@@ -1372,7 +1380,8 @@ where
       | ex@(.error ..) =>
         match (← unfoldDefinition? resultType) with
         | some resultType =>
-          go (← whnfCore resultType) expectedType (previousExceptions.push ex)
+          withForallBody resultType fun resultType => do
+            go resultType expectedType (previousExceptions.push ex)
         | none =>
           previousExceptions.forM fun ex => logException ex
           throw ex

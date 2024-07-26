@@ -1383,9 +1383,9 @@ theorem head_append {l₁ l₂ : List α} (w : l₁ ++ l₂ ≠ []) :
 theorem append_ne_nil_of_left_ne_nil {s : List α} (h : s ≠ []) (t : List α) : s ++ t ≠ [] := by simp_all
 theorem append_ne_nil_of_right_ne_nil (s : List α) : t ≠ [] → s ++ t ≠ [] := by simp_all
 
-@[deprecated append_ne_nil_of_ne_nil_left (since := "2024-07-24")]
+@[deprecated append_ne_nil_of_left_ne_nil (since := "2024-07-24")]
 theorem append_ne_nil_of_ne_nil_left {s : List α} (h : s ≠ []) (t : List α) : s ++ t ≠ [] := by simp_all
-@[deprecated append_ne_nil_of_ne_nil_right (since := "2024-07-24")]
+@[deprecated append_ne_nil_of_right_ne_nil (since := "2024-07-24")]
 theorem append_ne_nil_of_ne_nil_right (s : List α) : t ≠ [] → s ++ t ≠ [] := by simp_all
 
 theorem append_eq_cons :

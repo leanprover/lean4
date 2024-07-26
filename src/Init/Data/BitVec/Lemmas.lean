@@ -437,7 +437,7 @@ theorem zeroExtend_ofNat_one_eq_ofNat_one_of_lt {v w : Nat} (hv : 0 < v) :
   omega
 
 /-- Truncating to width 1 produces a bitvector equal to the least significant bit. -/
-theorem truncate_one_eq_ofBool_getLsb {x : BitVec w} :
+theorem truncate_one {x : BitVec w} :
     x.truncate 1 = ofBool (x.getLsb 0) := by
   ext i
   simp [show i = 0 by omega]

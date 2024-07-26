@@ -3,6 +3,7 @@ inductive F: Prop where
   | step (fn: Nat → F)
 
 -- set_option trace.Meta.IndPredBelow.search true
+-- set_option trace.Elab.definition.structural true
 set_option pp.proofs true
 
 def F.asdf1 : (f : F) → True

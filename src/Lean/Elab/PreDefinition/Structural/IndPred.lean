@@ -12,8 +12,33 @@ import Lean.Elab.PreDefinition.Structural.RecArgInfo
 namespace Lean.Elab.Structural
 open Meta
 
+private def replaceIndPredRecApp (numFixed : Nat) (funType : Expr) (e : Expr) : M Expr := do
+  withoutProofIrrelevance do
+  withTraceNode `Elab.definition.structural (fun _ => pure m!"eliminating recursive call {e}") do
+    -- We want to replace `e` with an expression of the same type
+    let main ← mkFreshExprSyntheticOpaqueMVar (← inferType e)
+    let args : Array Expr := e.getAppArgs[numFixed:]
+    let lctx ← getLCtx
+    let r ← lctx.anyM fun localDecl => do
+      if localDecl.isAuxDecl then return false
+      let (mvars, _, t) ← forallMetaTelescope localDecl.type -- NB: do not reduce, we want to see the `funType`
+      unless t.getAppFn == funType do return false
+      withTraceNodeBefore `Elab.definition.structural (do pure m!"trying {mkFVar localDecl.fvarId} : {localDecl.type}") do
+        if t.getAppNumArgs = args.size then -- TODO: Could this be over-applied?
+          if (← (args.zip t.getAppArgs).allM (fun (t,s) => isDefEq t s)) then
+            main.mvarId!.assign (mkAppN localDecl.toExpr mvars)
+            return ← mvars.allM fun v => do
+              unless (← v.mvarId!.isAssigned) do
+                trace[Elab.definition.structural] "Cannot use {mkFVar localDecl.fvarId}: parameter {v} remains unassigned"
+                return false
+              return true
+        trace[Elab.definition.structural] "Arguments do not match"
+        return false
+    unless r do
+      throwError "Could not eliminate recursive call {e}"
+    instantiateMVars main
+
 private partial def replaceIndPredRecApps (recArgInfo : RecArgInfo) (funType : Expr) (motive : Expr) (e : Expr) : M Expr := do
-  let maxDepth := IndPredBelow.maxBackwardChainingDepth.get (← getOptions)
   let rec loop (e : Expr) : M Expr := do
     match e with
     | Expr.lam n d b c =>
@@ -35,16 +60,7 @@ private partial def replaceIndPredRecApps (recArgInfo : RecArgInfo) (funType : E
       let processApp (e : Expr) : M Expr := do
         e.withApp fun f args => do
           if f.isConstOf recArgInfo.fnName then
-            -- let ty ← inferType e
-            let ty := mkAppN funType args[recArgInfo.numFixed:]
-            trace[Elab.definition.structural] "Recursive call {e} with inferred type {←inferType e} and expected type {ty}"
-            unless (← isDefEq ty (← inferType e)) do
-              throwError "Recursive call {e} does not have expected type {ty}"
-            let main ← mkFreshExprSyntheticOpaqueMVar ty
-            if (← IndPredBelow.backwardsChaining main.mvarId! maxDepth) then
-              pure main
-            else
-              throwError "could not solve using backwards chaining {MessageData.ofGoal main.mvarId!}"
+            replaceIndPredRecApp recArgInfo.numFixed funType e
           else
             return mkAppN (← loop f) (← args.mapM loop)
       match (← matchMatcherApp? e) with

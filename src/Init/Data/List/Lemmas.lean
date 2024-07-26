@@ -2152,10 +2152,10 @@ theorem take_concat_get (l : List α) (i : Nat) (h : i < l.length) :
   Eq.symm <| (append_left_inj _).1 <| (take_append_drop (i+1) l).trans <| by
     rw [concat_eq_append, append_assoc, singleton_append, get_drop_eq_drop, take_append_drop]
 
-@[deprecated (since := "2024-07-25")]
+@[deprecated take_succ_cons (since := "2024-07-25")]
 theorem take_cons_succ : (a::as).take (i+1) = a :: as.take i := rfl
 
-@[deprecated (since := "2024-07-25")]
+@[deprecated take_of_length_le (since := "2024-07-25")]
 theorem take_all_of_le {n} {l : List α} (h : length l ≤ n) : take n l = l :=
   take_of_length_le h
 

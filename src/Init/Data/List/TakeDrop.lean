@@ -155,7 +155,7 @@ theorem take_append_of_le_length {l₁ l₂ : List α} {n : Nat} (h : n ≤ l₁
 `i` elements of `l₂` to `l₁`. -/
 theorem take_append {l₁ l₂ : List α} (i : Nat) :
     take (l₁.length + i) (l₁ ++ l₂) = l₁ ++ take i l₂ := by
-  rw [take_append_eq_append_take, take_all_of_le (Nat.le_add_right _ _), Nat.add_sub_cancel_left]
+  rw [take_append_eq_append_take, take_of_length_le (Nat.le_add_right _ _), Nat.add_sub_cancel_left]
 
 @[simp]
 theorem take_eq_take :
@@ -170,7 +170,7 @@ theorem take_add (l : List α) (m n : Nat) : l.take (m + n) = l.take m ++ (l.dro
   suffices take (m + n) (take m l ++ drop m l) = take m l ++ take n (drop m l) by
     rw [take_append_drop] at this
     assumption
-  rw [take_append_eq_append_take, take_all_of_le, append_right_inj]
+  rw [take_append_eq_append_take, take_of_length_le, append_right_inj]
   · simp only [take_eq_take, length_take, length_drop]
     omega
   apply Nat.le_trans (m := m)
@@ -178,8 +178,8 @@ theorem take_add (l : List α) (m n : Nat) : l.take (m + n) = l.take m ++ (l.dro
   · apply Nat.le_add_right
 
 theorem dropLast_take {n : Nat} {l : List α} (h : n < l.length) :
-    (l.take n).dropLast = l.take n.pred := by
-  simp only [dropLast_eq_take, length_take, Nat.le_of_lt h, take_take, pred_le, Nat.min_eq_left]
+    (l.take n).dropLast = l.take (n - 1) := by
+  simp only [dropLast_eq_take, length_take, Nat.le_of_lt h, Nat.min_eq_left, take_take, sub_le]
 
 theorem map_eq_append_split {f : α → β} {l : List α} {s₁ s₂ : List β}
     (h : map f l = s₁ ++ s₂) : ∃ l₁ l₂, l = l₁ ++ l₂ ∧ map f l₁ = s₁ ∧ map f l₂ = s₂ := by

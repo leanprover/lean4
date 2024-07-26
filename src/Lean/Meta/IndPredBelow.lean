@@ -232,10 +232,11 @@ def mkBelowDecl (ctx : Context) : MetaM Declaration := do
 partial def backwardsChaining (m : MVarId) (depth : Nat) : MetaM Bool := do
   m.withContext do
     let mTy ← m.getType
-    if depth = 0 then
-      trace[Meta.IndPredBelow.search] "searching for {mTy}: ran out of max depth"
-      return false
-    else
+    withTraceNodeBefore `Meta.IndPredBelow.search (do pure m!"searching for {mTy}") do
+      trace[Meta.IndPredBelow.search] "Search goal:{m}"
+      if depth = 0 then
+        trace[Meta.IndPredBelow.search] "ran out of max depth"
+        return false
       let lctx ← getLCtx
       let r ← lctx.anyM fun localDecl =>
         if localDecl.isAuxDecl then
@@ -244,11 +245,12 @@ partial def backwardsChaining (m : MVarId) (depth : Nat) : MetaM Bool := do
           commitWhen do
           let (mvars, _, t) ← forallMetaTelescope localDecl.type
           if (← isDefEq mTy t) then
-            trace[Meta.IndPredBelow.search] "searching for {mTy}: trying {mkFVar localDecl.fvarId} : {localDecl.type}"
-            m.assign (mkAppN localDecl.toExpr mvars)
-            mvars.allM fun v =>
-              v.mvarId!.isAssigned <||> backwardsChaining v.mvarId! (depth - 1)
-          else return false
+            withTraceNodeBefore `Meta.IndPredBelow.search (do pure m!"trying {mkFVar localDecl.fvarId} : {localDecl.type}") do
+              m.assign (mkAppN localDecl.toExpr mvars)
+              mvars.allM fun v =>
+                v.mvarId!.isAssigned <||> backwardsChaining v.mvarId! (depth - 1)
+          else
+            return false
       unless r do
         trace[Meta.IndPredBelow.search] "searching for {mTy} failed"
       return r
@@ -302,9 +304,6 @@ where
         args.back.withApp fun ctor _ => do
         let ctorName := ctor.constName!.updatePrefix below.constName!
         let ctor := mkConst ctorName below.constLevels!
-        let ctorInfo ← getConstInfoCtor ctorName
-        let (mvars, _, _) ← forallMetaTelescope ctorInfo.type
-        let ctor := mkAppN ctor mvars
         m.apply ctor
     return mss.foldr List.append []
 

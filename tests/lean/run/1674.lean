@@ -5,3 +5,4 @@ inductive T : Prop where
 def inc: T → T
   | T.nil n => T.nil (n+1)
   | T.fn f => T.fn fun n => inc (f n)
+termination_by structural t => t

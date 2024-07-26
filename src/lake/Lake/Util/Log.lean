@@ -89,18 +89,30 @@ def LogLevel.ansiColor : LogLevel → String
 | .warning => "33"
 | .error => "31"
 
+protected def LogLevel.ofString? : String → Option LogLevel
+| "trace" => some .trace
+| "info" | "information" => some .info
+| "warn" | "warning" => some .warning
+| "error" => some .error
+| _ => none
+
 protected def LogLevel.toString : LogLevel → String
 | .trace => "trace"
 | .info => "info"
 | .warning => "warning"
 | .error => "error"
 
+instance : ToString LogLevel := ⟨LogLevel.toString⟩
+
 protected def LogLevel.ofMessageSeverity : MessageSeverity → LogLevel
 | .information => .info
 | .warning => .warning
 | .error => .error
 
-instance : ToString LogLevel := ⟨LogLevel.toString⟩
+protected def LogLevel.toMessageSeverity : LogLevel → MessageSeverity
+| .info | .trace => .information
+| .warning => .warning
+| .error => .error
 
 def Verbosity.minLogLv : Verbosity → LogLevel
 | .quiet => .warning

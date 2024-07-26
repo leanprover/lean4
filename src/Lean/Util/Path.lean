@@ -40,18 +40,13 @@ where
   | Name.anonymous => base
   | Name.num _ _ => panic! "ill-formed import"
 
-/-- A `.olean' search path. -/
-abbrev SearchPath := System.SearchPath
-
-namespace SearchPath
-
 variable (base : FilePath) (ext : String) in
 /--
 Checks whether a module of the given name and extension exists in `base`; this uses case-sensitive
 path comparisons regardless of underlying file system to ensure the check is consistent across
 platforms.
 -/
-private partial def moduleExists : Name → IO Bool := go ext
+partial def moduleExists : Name → IO Bool := go ext
 where go (ext : String)
   | .mkStr parent str => do
     -- Case-sensitive check for file with extension in top-level call, for directory recursively
@@ -62,6 +57,10 @@ where go (ext : String)
   | .anonymous => base.pathExists
   | .num .. => panic! "ill-formed import"
 
+/-- A `.olean' search path. -/
+abbrev SearchPath := System.SearchPath
+
+namespace SearchPath
 
 def findRoot (sp : SearchPath) (ext : String) (pkg : String) : IO (Option FilePath) := do
   sp.findM? fun p => do
@@ -142,7 +141,7 @@ partial def findOLean (mod : Name) (checkExists := true) : IO FilePath := do
   let pkg := mod.getRoot.toString (escape := false)
   if let some root ← sp.findRoot "olean" pkg then
     let path := modToFilePath root mod "olean"
-    if !checkExists || (← SearchPath.moduleExists root "olean" mod) then
+    if !checkExists || (← moduleExists root "olean" mod) then
       return path
     else
       throw <| IO.userError s!"object file '{path}' of module {mod} does not exist"

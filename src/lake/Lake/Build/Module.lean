@@ -31,6 +31,10 @@ Recursively parse the Lean files of a module and its imports
 building an `Array` product of its direct local imports.
 -/
 def Module.recParseImports (mod : Module) : FetchM (Array Module) := do
+  -- Make sure we fail reading the file independently of the FS case sensitivity
+  unless (← Lean.moduleExists mod.lib.srcDir "lean" mod.name) do
+    logError s!"file {mod.leanFile} of module {mod.name} does not exist"
+    failure
   let contents ← IO.FS.readFile mod.leanFile
   let imports ← Lean.parseImports' contents mod.leanFile.toString
   let mods ← imports.foldlM (init := OrdModuleSet.empty) fun set imp =>

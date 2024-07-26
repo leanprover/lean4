@@ -5,6 +5,7 @@ Authors: Dany Fabian
 -/
 prelude
 import Lean.Meta.IndPredBelow
+import Lean.Meta.Tactic.SolveByElim
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.Structural.RecArgInfo
@@ -62,7 +63,17 @@ private partial def replaceIndPredRecApps (recArgInfo : RecArgInfo) (funType : E
       let processApp (e : Expr) : M Expr := do
         e.withApp fun f args => do
           if f.isConstOf recArgInfo.fnName then
-            replaceIndPredRecApp recArgInfo.numFixed funType e
+            -- let ty ← inferType e
+            let ty := mkAppN funType args[recArgInfo.numFixed:]
+            trace[Elab.definition.structural] "Recursive call {e} with inferred type {←inferType e} and expected type {ty}"
+            unless (← isDefEq ty (← inferType e)) do
+              throwError "Recursive call {e} does not have expected type {ty}"
+            let main ← mkFreshExprSyntheticOpaqueMVar ty
+            let ms ← withoutProofIrrelevance do main.mvarId!.applyRules { backtracking := false, maxDepth := 1 } []
+            if ms.isEmpty then
+              pure main
+            else
+              throwError "could not solve using apply_assumption:{MessageData.ofGoal main.mvarId!}, remaining goals:{ms}"
           else
             return mkAppN (← loop f) (← args.mapM loop)
       match (← matchMatcherApp? e) with

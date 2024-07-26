@@ -41,6 +41,16 @@ private def replaceIndPredRecApp (numFixed : Nat) (funType : Expr) (e : Expr) : 
       throwError "Could not eliminate recursive call {e}"
     instantiateMVars main
 
+def _root_.Lean.LocalDecl.eraseValue : LocalDecl → LocalDecl
+  | .ldecl idx id n t _v _nd k => .cdecl idx id n t .default k
+  | d => d
+
+def withErasedValueImpl (fvarId : FVarId) : MetaM α → MetaM α  :=
+  withReader fun ctx => { ctx with lctx := ctx.lctx.modifyLocalDecl fvarId (·.eraseValue) }
+
+def withErasedValue [Monad n] [MonadControlT MetaM n] (fvarId : FVarId) : n α → n α :=
+  mapMetaM <| withErasedValueImpl fvarId
+
 private partial def replaceIndPredRecApps (recArgInfo : RecArgInfo) (funType : Expr) (motive : Expr) (e : Expr) : M Expr := do
   let rec loop (e : Expr) : M Expr := do
     match e with
@@ -69,7 +79,9 @@ private partial def replaceIndPredRecApps (recArgInfo : RecArgInfo) (funType : E
             unless (← isDefEq ty (← inferType e)) do
               throwError "Recursive call {e} does not have expected type {ty}"
             let main ← mkFreshExprSyntheticOpaqueMVar ty
-            let ms ← withoutProofIrrelevance do main.mvarId!.applyRules { backtracking := false, maxDepth := 1 } []
+            let ms ← withoutProofIrrelevance do
+              withErasedValue funType.fvarId! do
+                main.mvarId!.applyRules { backtracking := false, maxDepth := 1 } []
             if ms.isEmpty then
               pure main
             else

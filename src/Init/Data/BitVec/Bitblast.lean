@@ -388,7 +388,7 @@ If `y &&& z = 0`, `x <<< (y ||| z) = x <<< y <<< z`.
 This follows as `y &&& z = 0` implies `y ||| z = y + z`,
 and thus `x <<< (y ||| z) = x <<< (y + z) = x <<< y <<< z`.
 -/
-theorem shiftLeft_or_eq_shiftLeft_shiftLeft_of_and_eq_zero {x : BitVec w₁} {y z : BitVec w₂}
+theorem shiftLeft_or_of_and_eq_zero {x : BitVec w₁} {y z : BitVec w₂}
     (h : y &&& z = 0#w₂) :
     x <<< (y ||| z) = x <<< y <<< z := by
   rw [← add_eq_or_of_and_eq_zero _ _ h,

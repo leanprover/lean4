@@ -17,32 +17,32 @@ log_fail_target artTrace --fail-level=trace
 
 log_fail() {
   lv=$1; shift
-  log_fail_target top${lv^} "$@"
-  log_fail_target art${lv^} "$@"
-  log_fail_target Log.${lv^} "$@"
+  log_fail_target top$lv "$@"
+  log_fail_target art$lv "$@"
+  log_fail_target Log.$lv "$@"
 }
 
-log_fail info --iofail
-log_fail warning --wfail
-log_fail error
+log_fail Info --iofail
+log_fail Warning --wfail
+log_fail Error
 
 # Test output log level
 
 log_empty() {
   lv=$1; shift
-  rm -f .lake/build/art_$lv
-  $LAKE build art${lv^} "$@" | grep --color foo && exit 1 || true
-  $LAKE build art${lv^} -v # test whole log was saved
-  $LAKE build art${lv^} "$@" | grep --color foo && exit 1 || true # test replay
+  rm -f .lake/build/art$lv
+  $LAKE build art$lv "$@" | grep --color foo && exit 1 || true
+  $LAKE build art$lv -v # test whole log was saved
+  $LAKE build art$lv "$@" | grep --color foo && exit 1 || true # test replay
 }
 
-log_empty info -q
-log_empty info --log-level=warning
-log_empty warning --log-level=error
+log_empty Info -q
+log_empty Info --log-level=warning
+log_empty Warning --log-level=error
 
-log_empty trace -q
-log_empty trace --log-level=info
-log_empty trace
+log_empty Trace -q
+log_empty Trace --log-level=info
+log_empty Trace
 
 # Test configuration-time output log level
 

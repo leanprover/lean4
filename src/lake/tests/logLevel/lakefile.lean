@@ -37,7 +37,7 @@ Test logging in build helper
 -/
 
 def art (pkg : Package) (level : LogLevel) : FetchM (BuildJob Unit) := Job.async do
-  let artFile := pkg.buildDir / s!"art_{level}"
+  let artFile := pkg.buildDir / s!"art{level.toString.capitalize}"
   (((), ·)) <$> buildFileUnlessUpToDate artFile .nil do
     logEntry {level, message := "foo"}
     createParentDirs artFile

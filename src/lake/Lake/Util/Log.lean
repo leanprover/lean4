@@ -89,12 +89,13 @@ def LogLevel.ansiColor : LogLevel → String
 | .warning => "33"
 | .error => "31"
 
-protected def LogLevel.ofString? : String → Option LogLevel
-| "trace" => some .trace
-| "info" | "information" => some .info
-| "warn" | "warning" => some .warning
-| "error" => some .error
-| _ => none
+protected def LogLevel.ofString? (s : String) : Option LogLevel :=
+  match s.toLower with
+  | "trace" => some .trace
+  | "info" | "information" => some .info
+  | "warn" | "warning" => some .warning
+  | "error" => some .error
+  | _ => none
 
 protected def LogLevel.toString : LogLevel → String
 | .trace => "trace"

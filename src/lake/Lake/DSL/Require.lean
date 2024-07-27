@@ -67,8 +67,8 @@ syntax verSpec :=
   &"git "? term:max
 
 /--
-The version of the package to lookup in Lake's package index.
-A Git revision can be specified via `@ git "<rev>"`.
+The version of the package to require.
+To specify a Git revision, use the syntax `@ git <rev>`.
 -/
 syntax verClause :=
   " @ " verSpec
@@ -131,8 +131,8 @@ the different forms this clause can take.
 
 Without a `from` clause, Lake will lookup the package in the default
 registry (i.e., Reservoir) and use the information there to download the
-package at the specified `version`. The optional `scope` is used to
-disambiguate which package with `pkg-name` to lookup. In Reservoir, this scope
+package at the requested `version`. The `scope` is used to disambiguate between
+packages in the registry with the same `pkg-name`. In Reservoir, this scope
 is the package owner (e.g., `leanprover` of `@leanprover/doc-gen4`).
 
 The `with` clause specifies a `NameMap String` of Lake options

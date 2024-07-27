@@ -73,3 +73,7 @@ def g (a : Nat) (b := 1) (c := 2) (d := 3) := a + b + c + d
 
 /-- info: g 0 : Nat -/
 #guard_msgs in #check g 0
+
+-- Both the `start` and `stop` arguments are omitted.
+/-- info: fun a => Array.foldl (fun x y => x + y) 0 a : Array Nat → Nat -/
+#guard_msgs in #check fun (a : Array Nat) => a.foldl (fun x y => x + y) 0

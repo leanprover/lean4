@@ -30,6 +30,8 @@ structure BuildConfig where
   dependent jobs will still continue unimpeded).
   -/
   failLv : LogLevel := .error
+  /-- The minimum log level for an log entry to be reported. -/
+  outLv : LogLevel := verbosity.minLogLv
   /--
   The stream to which Lake reports build progress.
   By default, Lake uses `stderr`.
@@ -37,10 +39,6 @@ structure BuildConfig where
   out : OutStream := .stderr
   /-- Whether to use ANSI escape codes in build output. -/
   ansiMode : AnsiMode := .auto
-
-/-- The minimum log level for an log entry to be reported. -/
-@[inline] def BuildConfig.outLv (cfg : BuildConfig) : LogLevel :=
-  cfg.verbosity.minLogLv
 
 /--
 Whether the build should show progress information.

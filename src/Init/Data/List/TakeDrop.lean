@@ -124,6 +124,14 @@ theorem take_take : ∀ (n m) (l : List α), take n (take m l) = take (min n m) 
   | succ n, succ m, a :: l => by
     simp only [take, succ_min_succ, take_take n m l]
 
+theorem take_set_of_lt (a : α) {n m : Nat} (l : List α) (h : m < n) :
+    (l.set n a).take m = l.take m :=
+  List.ext_getElem? fun i => by
+    rw [getElem?_take_eq_if, getElem?_take_eq_if]
+    split
+    · next h' => rw [getElem?_set_ne (by omega)]
+    · rfl
+
 @[simp] theorem take_replicate (a : α) : ∀ n m : Nat, take n (replicate m a) = replicate (min n m) a
   | n, 0 => by simp [Nat.min_zero]
   | 0, m => by simp [Nat.zero_min]

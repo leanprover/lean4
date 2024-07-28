@@ -227,6 +227,8 @@ def findSomeM? {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f 
 instance : ForIn m (List α) α where
   forIn := List.forIn
 
+@[simp] theorem forIn_eq_forIn [Monad m] : @List.forIn α β m _ = forIn := rfl
+
 @[simp] theorem forIn_nil [Monad m] (f : α → β → m (ForInStep β)) (b : β) : forIn [] b f = pure b :=
   rfl
 

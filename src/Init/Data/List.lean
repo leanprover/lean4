@@ -12,3 +12,4 @@ import Init.Data.List.Attach
 import Init.Data.List.Impl
 import Init.Data.List.TakeDrop
 import Init.Data.List.Notation
+import Init.Data.List.Range

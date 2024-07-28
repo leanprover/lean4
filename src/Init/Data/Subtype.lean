@@ -9,7 +9,7 @@ import Init.Ext
 namespace Subtype
 
 universe u
-variable {α : Type u} {p q : α → Prop}
+variable {α : Sort u} {p q : α → Prop}
 
 @[ext]
 protected theorem ext : ∀ {a1 a2 : { x // p x }}, (a1 : α) = (a2 : α) → a1 = a2

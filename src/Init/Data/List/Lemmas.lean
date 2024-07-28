@@ -2577,6 +2577,10 @@ theorem cons_subset_cons {l₁ l₂ : List α} (a : α) (s : l₁ ⊆ l₂) : a 
 theorem Subset.map {l₁ l₂ : List α} (f : α → β) (H : l₁ ⊆ l₂) : map f l₁ ⊆ map f l₂ :=
   fun x => by simp only [mem_map]; exact .imp fun a => .imp_left (@H _)
 
+@[deprecated (since := "2024-07-28")]
+theorem map_subset {l₁ l₂ : List α} {f : α → β} (h : l₁ ⊆ l₂) : map f l₁ ⊆ map f l₂ :=
+  Subset.map f h
+
 theorem Subset.filter {l₁ l₂ : List α} (p : α → Bool) (H : l₁ ⊆ l₂) : filter p l₁ ⊆ filter p l₂ :=
   fun x => by simp_all [mem_filter, subset_def.1 H]
 

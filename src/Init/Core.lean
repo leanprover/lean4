@@ -1107,6 +1107,7 @@ inductive Relation.TransGen {α : Sort u} (r : α → α → Prop) : α → α �
 /-! # Subtype -/
 
 namespace Subtype
+
 theorem existsOfSubtype {α : Type u} {p : α → Prop} : { x // p x } → Exists (fun x => p x)
   | ⟨a, h⟩ => ⟨a, h⟩
 

@@ -19,6 +19,9 @@ and later these lemmas should be organised into other files more systematically.
 -/
 
 namespace Nat
+
+attribute [simp] not_lt_zero
+
 /-! ## add -/
 
 protected theorem add_add_add_comm (a b c d : Nat) : (a + b) + (c + d) = (a + c) + (b + d) := by
@@ -42,7 +45,7 @@ protected theorem add_left_cancel_iff {n : Nat} : n + m = n + k ↔ m = k :=
 protected theorem add_right_cancel_iff {n : Nat} : m + n = k + n ↔ m = k :=
   ⟨Nat.add_right_cancel, fun | rfl => rfl⟩
 
-protected theorem add_le_add_iff_left {n : Nat} : n + m ≤ n + k ↔ m ≤ k :=
+@[simp] protected theorem add_le_add_iff_left {n : Nat} : n + m ≤ n + k ↔ m ≤ k :=
   ⟨Nat.le_of_add_le_add_left, fun h => Nat.add_le_add_left h _⟩
 
 protected theorem lt_of_add_lt_add_right : ∀ {n : Nat}, k + n < m + n → k < m
@@ -52,10 +55,10 @@ protected theorem lt_of_add_lt_add_right : ∀ {n : Nat}, k + n < m + n → k < 
 protected theorem lt_of_add_lt_add_left {n : Nat} : n + k < n + m → k < m := by
   rw [Nat.add_comm n, Nat.add_comm n]; exact Nat.lt_of_add_lt_add_right
 
-protected theorem add_lt_add_iff_left {k n m : Nat} : k + n < k + m ↔ n < m :=
+@[simp] protected theorem add_lt_add_iff_left {k n m : Nat} : k + n < k + m ↔ n < m :=
   ⟨Nat.lt_of_add_lt_add_left, fun h => Nat.add_lt_add_left h _⟩
 
-protected theorem add_lt_add_iff_right {k n m : Nat} : n + k < m + k ↔ n < m :=
+@[simp] protected theorem add_lt_add_iff_right {k n m : Nat} : n + k < m + k ↔ n < m :=
   ⟨Nat.lt_of_add_lt_add_right, fun h => Nat.add_lt_add_right h _⟩
 
 protected theorem add_lt_add_of_le_of_lt {a b c d : Nat} (hle : a ≤ b) (hlt : c < d) :
@@ -75,10 +78,10 @@ protected theorem pos_of_lt_add_right (h : n < n + k) : 0 < k :=
 protected theorem pos_of_lt_add_left : n < k + n → 0 < k := by
   rw [Nat.add_comm]; exact Nat.pos_of_lt_add_right
 
-protected theorem lt_add_right_iff_pos : n < n + k ↔ 0 < k :=
+@[simp] protected theorem lt_add_right_iff_pos : n < n + k ↔ 0 < k :=
   ⟨Nat.pos_of_lt_add_right, Nat.lt_add_of_pos_right⟩
 
-protected theorem lt_add_left_iff_pos : n < k + n ↔ 0 < k :=
+@[simp] protected theorem lt_add_left_iff_pos : n < k + n ↔ 0 < k :=
   ⟨Nat.pos_of_lt_add_left, Nat.lt_add_of_pos_left⟩
 
 protected theorem add_pos_left (h : 0 < m) (n) : 0 < m + n :=

@@ -288,7 +288,7 @@ theorem drop_length_cons {l : List α} (h : l ≠ []) (a : α) :
     simp only [drop, length]
     by_cases h₁ : l = []
     · simp [h₁]
-    rw [getLast_cons' _ h₁]
+    rw [getLast_cons h₁]
     exact ih h₁ y
 
 /-- Dropping the elements up to `n` in `l₁ ++ l₂` is the same as dropping the elements up to `n`
@@ -307,7 +307,6 @@ theorem drop_append_of_le_length {l₁ l₂ : List α} {n : Nat} (h : n ≤ l₁
     (l₁ ++ l₂).drop n = l₁.drop n ++ l₂ := by
   simp [drop_append_eq_append_drop, Nat.sub_eq_zero_of_le h]
 
-
 /-- Dropping the elements up to `l₁.length + i` in `l₁ + l₂` is the same as dropping the elements
 up to `i` in `l₂`. -/
 @[simp]
@@ -324,7 +323,7 @@ theorem set_eq_take_append_cons_drop {l : List α} {n : Nat} {a : α} :
         getElem?_take h']
     · by_cases h'' : m = n
       · subst h''
-        rw [getElem?_set_eq (by simp; omega), getElem?_append_right, length_take,
+        rw [getElem?_set_eq ‹_›, getElem?_append_right, length_take,
           Nat.min_eq_left (by omega), Nat.sub_self, getElem?_cons_zero]
         rw [length_take]
         exact Nat.min_le_left m l.length
@@ -455,71 +454,5 @@ theorem zip_eq_zip_take_min : ∀ (l₁ : List α) (l₂ : List β),
     zip (replicate m a) (replicate n b) = replicate (min m n) (a, b) := by
   rw [zip_eq_zip_take_min]
   simp
-
-/-! ### minimum? -/
-
--- A specialization of `minimum?_eq_some_iff` to Nat.
-theorem minimum?_eq_some_iff' {xs : List Nat} :
-    xs.minimum? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, a ≤ b) :=
-  minimum?_eq_some_iff
-    (le_refl := Nat.le_refl)
-    (min_eq_or := fun _ _ => by omega)
-    (le_min_iff := fun _ _ _ => by omega)
-
--- This could be generalized,
--- but will first require further work on order typeclasses in the core repository.
-theorem minimum?_cons' {a : Nat} {l : List Nat} :
-    (a :: l).minimum? = some (match l.minimum? with
-    | none => a
-    | some m => min a m) := by
-  rw [minimum?_eq_some_iff']
-  split <;> rename_i h m
-  · simp_all
-  · rw [minimum?_eq_some_iff'] at m
-    obtain ⟨m, le⟩ := m
-    rw [Nat.min_def]
-    constructor
-    · split
-      · exact mem_cons_self a l
-      · exact mem_cons_of_mem a m
-    · intro b m
-      cases List.mem_cons.1 m with
-      | inl => split <;> omega
-      | inr h =>
-        specialize le b h
-        split <;> omega
-
-/-! ### maximum? -/
-
--- A specialization of `maximum?_eq_some_iff` to Nat.
-theorem maximum?_eq_some_iff' {xs : List Nat} :
-    xs.maximum? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, b ≤ a) :=
-  maximum?_eq_some_iff
-    (le_refl := Nat.le_refl)
-    (max_eq_or := fun _ _ => by omega)
-    (max_le_iff := fun _ _ _ => by omega)
-
--- This could be generalized,
--- but will first require further work on order typeclasses in the core repository.
-theorem maximum?_cons' {a : Nat} {l : List Nat} :
-    (a :: l).maximum? = some (match l.maximum? with
-    | none => a
-    | some m => max a m) := by
-  rw [maximum?_eq_some_iff']
-  split <;> rename_i h m
-  · simp_all
-  · rw [maximum?_eq_some_iff'] at m
-    obtain ⟨m, le⟩ := m
-    rw [Nat.max_def]
-    constructor
-    · split
-      · exact mem_cons_of_mem a m
-      · exact mem_cons_self a l
-    · intro b m
-      cases List.mem_cons.1 m with
-      | inl => split <;> omega
-      | inr h =>
-        specialize le b h
-        split <;> omega
 
 end List

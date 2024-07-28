@@ -388,11 +388,11 @@ theorem le_or_eq_of_le_succ {m n : Nat} (h : m ≤ succ n) : m ≤ n ∨ m = suc
 theorem le_or_eq_of_le_add_one {m n : Nat} (h : m ≤ n + 1) : m ≤ n ∨ m = n + 1 :=
   le_or_eq_of_le_succ h
 
-theorem le_add_right : ∀ (n k : Nat), n ≤ n + k
+@[simp] theorem le_add_right : ∀ (n k : Nat), n ≤ n + k
   | n, 0   => Nat.le_refl n
   | n, k+1 => le_succ_of_le (le_add_right n k)
 
-theorem le_add_left (n m : Nat): n ≤ m + n :=
+@[simp] theorem le_add_left (n m : Nat): n ≤ m + n :=
   Nat.add_comm n m ▸ le_add_right n m
 
 theorem le_of_add_right_le {n m k : Nat} (h : n + k ≤ m) : n ≤ m :=
@@ -528,7 +528,7 @@ protected theorem le_of_add_le_add_right {a b c : Nat} : a + b ≤ c + b → a �
   rw [Nat.add_comm _ b, Nat.add_comm _ b]
   apply Nat.le_of_add_le_add_left
 
-protected theorem add_le_add_iff_right {n : Nat} : m + n ≤ k + n ↔ m ≤ k :=
+@[simp] protected theorem add_le_add_iff_right {n : Nat} : m + n ≤ k + n ↔ m ≤ k :=
   ⟨Nat.le_of_add_le_add_right, fun h => Nat.add_le_add_right h _⟩
 
 /-! ### le/lt -/

@@ -265,8 +265,8 @@ theorem testBit_two_pow_add_gt {i j : Nat} (j_lt_i : j < i) (x : Nat) :
       have x_eq : x = y + 2^j := Nat.eq_add_of_sub_eq x_ge_j y_eq
       simp only [Nat.two_pow_pos, x_eq, Nat.le_add_left, true_and, ite_true]
       have y_lt_x : y < x := by
-            simp [x_eq]
-            exact Nat.lt_add_of_pos_right (Nat.two_pow_pos j)
+        simp only [x_eq, Nat.lt_add_right_iff_pos]
+        exact Nat.two_pow_pos j
       simp only [hyp y y_lt_x]
       if i_lt_j : i < j then
         rw [Nat.add_comm _ (2^_), testBit_two_pow_add_gt i_lt_j]

@@ -747,8 +747,8 @@ theorem getLast_eq_get (l : List α) (h : l ≠ []) :
       | a :: l => exact Nat.le_refl _⟩ := by
   simp [getLast_eq_getElem]
 
-theorem getLast_cons' {a : α} {l : List α} : ∀ (h₁ : a :: l ≠ nil) (h₂ : l ≠ nil),
-  getLast (a :: l) h₁ = getLast l h₂ := by
+theorem getLast_cons {a : α} {l : List α} : ∀ (h : l ≠ nil),
+    getLast (a :: l) (cons_ne_nil a l) = getLast l h := by
   induction l <;> intros; {contradiction}; rfl
 
 theorem getLast_eq_getLastD (a l h) : @getLast α (a::l) h = getLastD l a := by
@@ -1352,7 +1352,7 @@ theorem append_left_inj {s₁ s₂ : List α} (t) : s₁ ++ t = s₂ ++ t ↔ s�
 @[simp] theorem getLast_concat {a : α} : ∀ (l : List α), getLast (l ++ [a]) (by simp) = a
   | [] => rfl
   | a::t => by
-    simp [getLast_cons' _ fun H => cons_ne_nil _ _ (append_eq_nil.1 H).2, getLast_concat t]
+    simp [getLast_cons _, getLast_concat t]
 
 theorem getElem_append : ∀ {l₁ l₂ : List α} (n : Nat) (h : n < l₁.length),
     (l₁ ++ l₂)[n]'(length_append .. ▸ Nat.lt_add_right _ h) = l₁[n]
@@ -1963,7 +1963,7 @@ theorem reverseAux_eq (as bs : List α) : reverseAux as bs = reverse as ++ bs :=
     simp
     by_cases h' : l = []
     · simp_all
-    · rw [getLast_cons' _ h', head_append_of_ne_nil, ih]
+    · rw [getLast_cons, head_append_of_ne_nil, ih]
       simp_all
 
 theorem getLast_eq_head_reverse {l : List α} (h : l ≠ []) :

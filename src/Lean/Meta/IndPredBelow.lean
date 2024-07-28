@@ -305,7 +305,10 @@ where
         args.back.withApp fun ctor _ => do
         let ctorName := ctor.constName!.updatePrefix below.constName!
         let ctor := mkConst ctorName below.constLevels!
-        m.apply ctor
+        let ms ← m.apply ctor
+        trace[Meta.IndPredBelow] "new goals {ms}"
+        pure ms.reverse
+
     return mss.foldr List.append []
 
   introNPRec (m : MVarId) : MetaM MVarId := do
@@ -321,12 +324,14 @@ where
 def mkBrecOnDecl (ctx : Context) (idx : Nat) : MetaM Declaration := do
   let type ← mkType
   let indVal := ctx.typeInfos[idx]!
-  let name := indVal.name ++ .mkSimple brecOnSuffix
+  let name := mkBRecOnName indVal.name
+  let value ← proveBrecOn ctx indVal type
+  trace[Meta.IndPredBelow] "brecOn value: {value}"
   return Declaration.thmDecl {
     name := name
     levelParams := indVal.levelParams
     type := type
-    value := ←proveBrecOn ctx indVal type }
+    value := value}
 where
   mkType : MetaM Expr :=
     forallTelescopeReducing ctx.headers[idx]! fun xs _ => do

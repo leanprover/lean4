@@ -6,6 +6,7 @@ Authors: Dany Fabian
 prelude
 import Lean.Meta.Constructions.CasesOn
 import Lean.Meta.Match.Match
+import Lean.Meta.Tactic.SolveByElim
 
 namespace Lean.Meta.IndPredBelow
 open Match
@@ -569,7 +570,7 @@ def findBelowIdx (xs : Array Expr) (motive : Expr) : MetaM $ Option (Expr × Nat
       let below ← mkFreshExprSyntheticOpaqueMVar belowTy
       try
         trace[Meta.IndPredBelow.match] "{←Meta.ppGoal below.mvarId!}"
-        if (← backwardsChaining below.mvarId! 10) then
+        if (← below.mvarId!.applyRules { backtracking := false, maxDepth := 1 } []).isEmpty then
           trace[Meta.IndPredBelow.match] "Found below term in the local context: {below}"
           if (← xs.anyM (isDefEq below)) then pure none else pure (below, idx.val)
         else

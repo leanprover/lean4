@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro
 -/
 prelude
-import Init.Data.List.Lemmas
+import Init.Data.List.TakeDrop
 import Init.Data.Nat.Lemmas
 
 /-!
@@ -17,10 +17,12 @@ open Nat
 
 /-! ## Ranges and enumeration -/
 
-/-! ### range', range -/
+/-! ### range' -/
 
 theorem range'_succ (s n step) : range' s (n + 1) step = s :: range' (s + step) n step := by
   simp [range', Nat.add_succ, Nat.mul_succ]
+
+@[simp] theorem range'_one {s step : Nat} : range' s 1 step = [s] := rfl
 
 @[simp] theorem length_range' (s step) : ∀ n : Nat, length (range' s n step) = n
   | 0 => rfl
@@ -41,6 +43,33 @@ theorem mem_range' : ∀{n}, m ∈ range' s n step ↔ ∃ i < n, m = s + step *
   simp [mem_range']; exact ⟨
     fun ⟨i, h, e⟩ => e ▸ ⟨Nat.le_add_right .., Nat.add_lt_add_left h _⟩,
     fun ⟨h₁, h₂⟩ => ⟨m - s, Nat.sub_lt_left_of_lt_add h₁ h₂, (Nat.add_sub_cancel' h₁).symm⟩⟩
+
+theorem pairwise_lt_range' s n (step := 1) (pos : 0 < step := by simp) :
+    Pairwise (· < ·) (range' s n step) :=
+  match s, n, step, pos with
+  | _, 0, _, _ => Pairwise.nil
+  | s, n + 1, step, pos => by
+    simp only [range'_succ, pairwise_cons]
+    constructor
+    · intros n m
+      rw [mem_range'] at m
+      omega
+    · exact pairwise_lt_range' (s + step) n step pos
+
+theorem pairwise_le_range' s n (step := 1) :
+    Pairwise (· ≤ ·) (range' s n step) :=
+  match s, n, step with
+  | _, 0, _ => Pairwise.nil
+  | s, n + 1, step => by
+    simp only [range'_succ, pairwise_cons]
+    constructor
+    · intros n m
+      rw [mem_range'] at m
+      omega
+    · exact pairwise_le_range' (s + step) n step
+
+theorem nodup_range' (s n : Nat) (step := 1) (h : 0 < step := by simp) : Nodup (range' s n step) :=
+  (pairwise_lt_range' s n step h).imp Nat.ne_of_lt
 
 @[simp]
 theorem map_add_range' (a) : ∀ s n step, map (a + ·) (range' s n step) = range' (a + s) n step
@@ -94,6 +123,8 @@ theorem range'_concat (s n : Nat) : range' s (n + 1) step = range' s n step ++ [
 theorem range'_1_concat (s n : Nat) : range' s (n + 1) = range' s n ++ [s + n] := by
   simp [range'_concat]
 
+/-! ### range -/
+
 theorem range_loop_range' : ∀ s n : Nat, range.loop s (range' s n) = range' 0 (n + s)
   | 0, n => rfl
   | s + 1, n => by rw [← Nat.add_assoc, Nat.add_right_comm n s 1]; exact range_loop_range' s (n + 1)
@@ -104,6 +135,13 @@ theorem range_eq_range' (n : Nat) : range n = range' 0 n :=
 theorem range_succ_eq_map (n : Nat) : range (n + 1) = 0 :: map succ (range n) := by
   rw [range_eq_range', range_eq_range', range', Nat.add_comm, ← map_add_range']
   congr; exact funext (Nat.add_comm 1)
+
+theorem reverse_range' : ∀ s n : Nat, reverse (range' s n) = map (s + n - 1 - ·) (range n)
+  | s, 0 => rfl
+  | s, n + 1 => by
+    rw [range'_1_concat, reverse_append, range_succ_eq_map,
+      show s + (n + 1) - 1 = s + n from rfl, map, map_map]
+    simp [reverse_range', Nat.sub_right_comm, Nat.sub_sub]
 
 theorem range'_eq_map_range (s n : Nat) : range' s n = map (s + ·) (range n) := by
   rw [range_eq_range', map_add_range']; rfl
@@ -130,6 +168,12 @@ theorem not_mem_range_self {n : Nat} : n ∉ range n := by simp
 
 theorem self_mem_range_succ (n : Nat) : n ∈ range (n + 1) := by simp
 
+theorem pairwise_lt_range (n : Nat) : Pairwise (· < ·) (range n) := by
+  simp (config := {decide := true}) only [range_eq_range', pairwise_lt_range']
+
+theorem pairwise_le_range (n : Nat) : Pairwise (· ≤ ·) (range n) :=
+  Pairwise.imp Nat.le_of_lt (pairwise_lt_range _)
+
 theorem getElem?_range {m n : Nat} (h : m < n) : (range n)[m]? = some m := by
   simp [range_eq_range', getElem?_range' _ _ h]
 
@@ -143,6 +187,16 @@ theorem range_add (a b : Nat) : range (a + b) = range a ++ (range b).map (a + ·
   rw [← range'_eq_map_range]
   simpa [range_eq_range', Nat.add_comm] using (range'_append_1 0 a b).symm
 
+theorem take_range (m n : Nat) : take m (range n) = range (min m n) := by
+  apply List.ext_getElem
+  · simp
+  · simp (config := { contextual := true }) [← getElem_take, Nat.lt_min]
+
+theorem nodup_range (n : Nat) : Nodup (range n) := by
+  simp (config := {decide := true}) only [range_eq_range', nodup_range']
+
+/-! ### iota -/
+
 theorem iota_eq_reverse_range' : ∀ n : Nat, iota n = reverse (range' 1 n)
   | 0 => rfl
   | n + 1 => by simp [iota, range'_concat, iota_eq_reverse_range' n, reverse_append, Nat.add_comm]
@@ -153,12 +207,11 @@ theorem iota_eq_reverse_range' : ∀ n : Nat, iota n = reverse (range' 1 n)
 theorem mem_iota {m n : Nat} : m ∈ iota n ↔ 1 ≤ m ∧ m ≤ n := by
   simp [iota_eq_reverse_range', Nat.add_comm, Nat.lt_succ]
 
-theorem reverse_range' : ∀ s n : Nat, reverse (range' s n) = map (s + n - 1 - ·) (range n)
-  | s, 0 => rfl
-  | s, n + 1 => by
-    rw [range'_1_concat, reverse_append, range_succ_eq_map,
-      show s + (n + 1) - 1 = s + n from rfl, map, map_map]
-    simp [reverse_range', Nat.sub_right_comm, Nat.sub_sub]
+theorem pairwise_gt_iota (n : Nat) : Pairwise (· > ·) (iota n) := by
+  simpa only [iota_eq_reverse_range', pairwise_reverse] using pairwise_lt_range' 1 n
+
+theorem nodup_iota (n : Nat) : Nodup (iota n) :=
+  (pairwise_gt_iota n).imp Nat.ne_of_gt
 
 /-! ### enumFrom -/
 
@@ -263,6 +316,14 @@ theorem enumFrom_append (xs ys : List α) (n : Nat) :
     rw [cons_append, enumFrom_cons, IH, ← cons_append, ← enumFrom_cons, length, Nat.add_right_comm,
       Nat.add_assoc]
 
+theorem enumFrom_eq_zip_range' (l : List α) {n : Nat} : l.enumFrom n = (range' n l.length).zip l :=
+  zip_of_prod (enumFrom_map_fst _ _) (enumFrom_map_snd _ _)
+
+@[simp]
+theorem unzip_enumFrom_eq_prod (l : List α) {n : Nat} :
+    (l.enumFrom n).unzip = (range' n l.length, l) := by
+  simp only [enumFrom_eq_zip_range', unzip_zip, length_range']
+
 /-! ### enum -/
 
 theorem enum_cons : (a::as).enum = (0, a) :: as.enumFrom 1 := rfl
@@ -315,5 +376,12 @@ theorem enum_map (l : List α) (f : α → β) : (l.map f).enum = l.enum.map (Pr
 
 theorem enum_append (xs ys : List α) : enum (xs ++ ys) = enum xs ++ enumFrom xs.length ys := by
   simp [enum, enumFrom_append]
+
+theorem enum_eq_zip_range (l : List α) : l.enum = (range l.length).zip l :=
+  zip_of_prod (enum_map_fst _) (enum_map_snd _)
+
+@[simp]
+theorem unzip_enum_eq_prod (l : List α) : l.enum.unzip = (range l.length, l) := by
+  simp only [enum_eq_zip_range, unzip_zip, length_range]
 
 end List

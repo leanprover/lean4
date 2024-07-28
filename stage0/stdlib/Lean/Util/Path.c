@@ -1979,7 +1979,7 @@ static lean_object* _init_l_Lean_findOLean___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(".lean' in the search path entries:\n", 35, 35);
+x_1 = lean_mk_string_unchecked(".olean' in the search path entries:\n", 36, 36);
 return x_1;
 }
 }

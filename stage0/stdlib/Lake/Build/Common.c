@@ -39,6 +39,7 @@ uint64_t lean_uint64_of_nat(lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 lean_object* lean_get_set_stdout(lean_object*, lean_object*);
 static lean_object* l_Lake_computeDynlibOfShared___lambda__2___closed__1;
+lean_object* l_List_bindTR_go___at___private_Lake_Util_Log_0__Lake_toJsonLogEntry____x40_Lake_Util_Log___hyg_1398____spec__1(lean_object*, lean_object*);
 lean_object* l_Lake_compileSharedLib(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_buildStaticLib___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_as_task(lean_object*, lean_object*, lean_object*);
@@ -72,7 +73,6 @@ LEAN_EXPORT lean_object* l_Lake_buildLeanExe(lean_object*, lean_object*, lean_ob
 extern lean_object* l_Lake_instOrdJobAction;
 uint64_t lean_string_hash(lean_object*);
 static lean_object* l_Lake_BuildMetadata_fromJson_x3f___closed__6;
-lean_object* l_List_bindTR_go___at___private_Lake_Util_Log_0__Lake_toJsonLogEntry____x40_Lake_Util_Log___hyg_1315____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_fetchFileTrace(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_buildStaticLib___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_instDecidableRelLt___rarg(lean_object*, lean_object*, lean_object*);
@@ -384,7 +384,7 @@ x_19 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_19, 0, x_9);
 lean_ctor_set(x_19, 1, x_18);
 x_20 = l___private_Lake_Build_Common_0__Lake_toJsonBuildMetadata____x40_Lake_Build_Common___hyg_31____closed__3;
-x_21 = l_List_bindTR_go___at___private_Lake_Util_Log_0__Lake_toJsonLogEntry____x40_Lake_Util_Log___hyg_1315____spec__1(x_19, x_20);
+x_21 = l_List_bindTR_go___at___private_Lake_Util_Log_0__Lake_toJsonLogEntry____x40_Lake_Util_Log___hyg_1398____spec__1(x_19, x_20);
 x_22 = l_Lean_Json_mkObj(x_21);
 return x_22;
 }

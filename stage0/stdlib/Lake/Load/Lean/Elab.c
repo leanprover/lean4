@@ -36,6 +36,7 @@ uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Load_Lean_Elab_0__Lake_fromJsonConfigTrace____x40_Lake_Load_Lean_Elab___hyg_1108____closed__1;
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lake_importModulesUsingCache___spec__7(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_bindTR_go___at___private_Lake_Util_Log_0__Lake_toJsonLogEntry____x40_Lake_Util_Log___hyg_1398____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at_Lake_importModulesUsingCache___spec__12(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instBEqImport__lake;
 static lean_object* l_Lake_importConfigFileCore_lakeExts___closed__49;
@@ -78,7 +79,6 @@ LEAN_EXPORT lean_object* l_Lake_importModulesUsingCache___lambda__1(lean_object*
 lean_object* l_Lean_Elab_headerToImports(lean_object*);
 static lean_object* l_Lake_importConfigFileCore_lakeExts___closed__22;
 static lean_object* l_Lake_importConfigFileCore_lakeExts___closed__29;
-lean_object* l_List_bindTR_go___at___private_Lake_Util_Log_0__Lake_toJsonLogEntry____x40_Lake_Util_Log___hyg_1315____spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Load_Lean_Elab_0__Lake_fromJsonConfigTrace____x40_Lake_Load_Lean_Elab___hyg_1108____closed__4;
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_find_x3f___at_Lake_importModulesUsingCache___spec__11(lean_object*, lean_object*);
 static lean_object* l_Lake_importConfigFileCore_lakeExts___closed__17;
@@ -4543,7 +4543,7 @@ x_30 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_30, 0, x_10);
 lean_ctor_set(x_30, 1, x_29);
 x_31 = l___private_Lake_Load_Lean_Elab_0__Lake_toJsonConfigTrace____x40_Lake_Load_Lean_Elab___hyg_1032____closed__4;
-x_32 = l_List_bindTR_go___at___private_Lake_Util_Log_0__Lake_toJsonLogEntry____x40_Lake_Util_Log___hyg_1315____spec__1(x_30, x_31);
+x_32 = l_List_bindTR_go___at___private_Lake_Util_Log_0__Lake_toJsonLogEntry____x40_Lake_Util_Log___hyg_1398____spec__1(x_30, x_31);
 x_33 = l_Lean_Json_mkObj(x_32);
 return x_33;
 }

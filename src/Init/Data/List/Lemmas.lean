@@ -1383,9 +1383,9 @@ theorem head_append {l₁ l₂ : List α} (w : l₁ ++ l₂ ≠ []) :
 theorem append_ne_nil_of_left_ne_nil {s : List α} (h : s ≠ []) (t : List α) : s ++ t ≠ [] := by simp_all
 theorem append_ne_nil_of_right_ne_nil (s : List α) : t ≠ [] → s ++ t ≠ [] := by simp_all
 
-@[deprecated append_ne_nil_of_ne_nil_left (since := "2024-07-24")]
+@[deprecated append_ne_nil_of_left_ne_nil (since := "2024-07-24")]
 theorem append_ne_nil_of_ne_nil_left {s : List α} (h : s ≠ []) (t : List α) : s ++ t ≠ [] := by simp_all
-@[deprecated append_ne_nil_of_ne_nil_right (since := "2024-07-24")]
+@[deprecated append_ne_nil_of_right_ne_nil (since := "2024-07-24")]
 theorem append_ne_nil_of_ne_nil_right (s : List α) : t ≠ [] → s ++ t ≠ [] := by simp_all
 
 theorem append_eq_cons :
@@ -2574,13 +2574,17 @@ theorem cons_subset_cons {l₁ l₂ : List α} (a : α) (s : l₁ ⊆ l₂) : a 
 @[simp] theorem subset_nil {l : List α} : l ⊆ [] ↔ l = [] :=
   ⟨fun h => match l with | [] => rfl | _::_ => (nomatch h (.head ..)), fun | rfl => Subset.refl _⟩
 
-theorem map_subset {l₁ l₂ : List α} (f : α → β) (H : l₁ ⊆ l₂) : map f l₁ ⊆ map f l₂ :=
+theorem Subset.map {l₁ l₂ : List α} (f : α → β) (H : l₁ ⊆ l₂) : map f l₁ ⊆ map f l₂ :=
   fun x => by simp only [mem_map]; exact .imp fun a => .imp_left (@H _)
 
-theorem filter_subset {l₁ l₂ : List α} (p : α → Bool) (H : l₁ ⊆ l₂) : filter p l₁ ⊆ filter p l₂ :=
+@[deprecated (since := "2024-07-28")]
+theorem map_subset {l₁ l₂ : List α} {f : α → β} (h : l₁ ⊆ l₂) : map f l₁ ⊆ map f l₂ :=
+  Subset.map f h
+
+theorem Subset.filter {l₁ l₂ : List α} (p : α → Bool) (H : l₁ ⊆ l₂) : filter p l₁ ⊆ filter p l₂ :=
   fun x => by simp_all [mem_filter, subset_def.1 H]
 
-theorem filterMap_subset {l₁ l₂ : List α} (f : α → Option β) (H : l₁ ⊆ l₂) :
+theorem Subset.filterMap {l₁ l₂ : List α} (f : α → Option β) (H : l₁ ⊆ l₂) :
     filterMap f l₁ ⊆ filterMap f l₂ := by
   intro x
   simp only [mem_filterMap]

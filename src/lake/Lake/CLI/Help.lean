@@ -35,23 +35,31 @@ COMMANDS:
   translate-config      change language of the package configuration
   serve                 start the Lean language server
 
-OPTIONS:
+BASIC OPTIONS:
   --version             print version and exit
   --help, -h            print help of the program or a command and exit
   --dir, -d=file        use the package configuration in a specific directory
   --file, -f=file       use a specific file for the package configuration
-  --quiet, -q           hide progress messages
-  --verbose, -v         show verbose information (command invocations)
   --lean=cmd            specify the `lean` command used by Lake
   -K key[=value]        set the configuration file option named key
   --old                 only rebuild modified modules (ignore transitive deps)
   --rehash, -H          hash all files for traces (do not trust `.hash` files)
   --update, -U          update manifest before building
   --reconfigure, -R     elaborate configuration files instead of using OLeans
-  --wfail               fail build if warnings are logged
-  --iofail              fail build if any I/O or other info is logged
-  --ansi, --no-ansi     toggle the use of ANSI escape codes to prettify output
   --no-build            exit immediately if a build target is not up-to-date
+
+OUTPUT OPTIONS:
+  --quiet, -q           hide informational logs and the progress indicator
+  --verbose, -v         show trace logs (command invocations) and built targets
+  --ansi, --no-ansi     toggle the use of ANSI escape codes to prettify output
+  --log-level=lv        minimum log level to output on success
+                        (levels: trace, info, warning, error)
+  --fail-level=lv       minimum log level to fail a build (default: error)
+  --iofail              fail build if any I/O or other info is logged
+                        (same as --fail-level=info)
+  --wfail               fail build if warnings are logged
+                        (same as --fail-level=warning)
+
 
 See `lake help <command>` for more information on a specific command."
 

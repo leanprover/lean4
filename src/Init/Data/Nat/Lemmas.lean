@@ -39,10 +39,10 @@ protected theorem eq_zero_of_add_eq_zero_right (h : n + m = 0) : n = 0 :=
 protected theorem add_eq_zero_iff : n + m = 0 ↔ n = 0 ∧ m = 0 :=
   ⟨Nat.eq_zero_of_add_eq_zero, fun ⟨h₁, h₂⟩ => h₂.symm ▸ h₁⟩
 
-protected theorem add_left_cancel_iff {n : Nat} : n + m = n + k ↔ m = k :=
+@[simp] protected theorem add_left_cancel_iff {n : Nat} : n + m = n + k ↔ m = k :=
   ⟨Nat.add_left_cancel, fun | rfl => rfl⟩
 
-protected theorem add_right_cancel_iff {n : Nat} : m + n = k + n ↔ m = k :=
+@[simp] protected theorem add_right_cancel_iff {n : Nat} : m + n = k + n ↔ m = k :=
   ⟨Nat.add_right_cancel, fun | rfl => rfl⟩
 
 @[simp] protected theorem add_le_add_iff_left {n : Nat} : n + m ≤ n + k ↔ m ≤ k :=

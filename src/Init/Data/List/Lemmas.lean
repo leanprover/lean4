@@ -247,6 +247,10 @@ theorem getElem_eq_iff {l : List α} {n : Nat} {h : n < l.length} : l[n] = x ↔
   simp only [getElem?_eq_some]
   exact ⟨fun w => ⟨h, w⟩, fun h => h.2⟩
 
+theorem getElem_eq_getElem? (l : List α) (i : Nat) (h : i < l.length) :
+    l[i] = l[i]?.get (by simp [getElem?_eq_getElem, h]) := by
+  simp [getElem_eq_iff]
+
 @[simp] theorem getElem?_nil {n : Nat} : ([] : List α)[n]? = none := rfl
 
 theorem getElem?_cons_zero {l : List α} : (a::l)[0]? = some a := by simp

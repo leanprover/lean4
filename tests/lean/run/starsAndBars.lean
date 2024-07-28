@@ -1,7 +1,3 @@
-@[simp] def List.count [DecidableEq α] : List α → α → Nat
-  | [], _    => 0
-  | a::as, b => if a = b then as.count b + 1 else as.count b
-
 inductive StarsAndBars : Nat → Nat → Type where
   | nil  : StarsAndBars 0 0
   | star : StarsAndBars s b → StarsAndBars (s+1) b

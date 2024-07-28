@@ -611,7 +611,7 @@ If `l` is initially larger than `n`, just return `l`.
 -/
 def rightpad (n : Nat) (a : α) (l : List α) : List α := l ++ replicate (n - length l) a
 
-/-! ### reduceOption-/
+/-! ### reduceOption -/
 
 /-- Drop `none`s from a list, and replace each remaining `some a` with `a`. -/
 @[inline] def reduceOption {α} : List (Option α) → List α :=
@@ -1168,10 +1168,14 @@ theorem findSome?_cons {f : α → Option β} :
   | [], n => n
   | a :: l, n => bif p a then n else go l (n + 1)
 
+@[simp] theorem findIdx_nil {α : Type _} (p : α → Bool) : [].findIdx p = 0 := rfl
+
 /-! ### indexOf -/
 
 /-- Returns the index of the first element equal to `a`, or the length of the list otherwise. -/
 def indexOf [BEq α] (a : α) : List α → Nat := findIdx (· == a)
+
+@[simp] theorem indexOf_nil [BEq α] : ([] : List α).indexOf x = 0 := rfl
 
 /-! ### findIdx? -/
 

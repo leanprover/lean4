@@ -36,3 +36,4 @@ import Init.Data.Channel
 import Init.Data.Cast
 import Init.Data.Sum
 import Init.Data.BEq
+import Init.Data.Subtype

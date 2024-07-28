@@ -124,6 +124,14 @@ theorem take_take : ∀ (n m) (l : List α), take n (take m l) = take (min n m) 
   | succ n, succ m, a :: l => by
     simp only [take, succ_min_succ, take_take n m l]
 
+theorem take_set_of_lt (a : α) {n m : Nat} (l : List α) (h : m < n) :
+    (l.set n a).take m = l.take m :=
+  List.ext_getElem? fun i => by
+    rw [getElem?_take_eq_if, getElem?_take_eq_if]
+    split
+    · next h' => rw [getElem?_set_ne (by omega)]
+    · rfl
+
 @[simp] theorem take_replicate (a : α) : ∀ n m : Nat, take n (replicate m a) = replicate (min n m) a
   | n, 0 => by simp [Nat.min_zero]
   | 0, m => by simp [Nat.zero_min]
@@ -164,7 +172,7 @@ theorem take_eq_take :
   | _ :: xs, 0, 0 => by simp
   | x :: xs, m + 1, 0 => by simp [Nat.zero_min, succ_min_succ]
   | x :: xs, 0, n + 1 => by simp [Nat.zero_min, succ_min_succ]
-  | x :: xs, m + 1, n + 1 => by simp [succ_min_succ, take_eq_take]; omega
+  | x :: xs, m + 1, n + 1 => by simp [succ_min_succ, take_eq_take]
 
 theorem take_add (l : List α) (m n : Nat) : l.take (m + n) = l.take m ++ (l.drop m).take n := by
   suffices take (m + n) (take m l ++ drop m l) = take m l ++ take n (drop m l) by
@@ -280,7 +288,7 @@ theorem drop_length_cons {l : List α} (h : l ≠ []) (a : α) :
     simp only [drop, length]
     by_cases h₁ : l = []
     · simp [h₁]
-    rw [getLast_cons' _ h₁]
+    rw [getLast_cons h₁]
     exact ih h₁ y
 
 /-- Dropping the elements up to `n` in `l₁ ++ l₂` is the same as dropping the elements up to `n`
@@ -299,7 +307,6 @@ theorem drop_append_of_le_length {l₁ l₂ : List α} {n : Nat} (h : n ≤ l₁
     (l₁ ++ l₂).drop n = l₁.drop n ++ l₂ := by
   simp [drop_append_eq_append_drop, Nat.sub_eq_zero_of_le h]
 
-
 /-- Dropping the elements up to `l₁.length + i` in `l₁ + l₂` is the same as dropping the elements
 up to `i` in `l₂`. -/
 @[simp]
@@ -316,7 +323,7 @@ theorem set_eq_take_append_cons_drop {l : List α} {n : Nat} {a : α} :
         getElem?_take h']
     · by_cases h'' : m = n
       · subst h''
-        rw [getElem?_set_eq (by simp; omega), getElem?_append_right, length_take,
+        rw [getElem?_set_eq ‹_›, getElem?_append_right, length_take,
           Nat.min_eq_left (by omega), Nat.sub_self, getElem?_cons_zero]
         rw [length_take]
         exact Nat.min_le_left m l.length
@@ -420,11 +427,42 @@ theorem drop_reverse {α} {xs : List α} {n : Nat} (h : n ≤ xs.length) :
   induction l₁ generalizing l₂ <;> cases l₂ <;>
     simp_all [succ_min_succ, Nat.zero_min, Nat.min_zero]
 
+theorem lt_length_left_of_zipWith {f : α → β → γ} {i : Nat} {l : List α} {l' : List β}
+    (h : i < (zipWith f l l').length) : i < l.length := by rw [length_zipWith] at h; omega
+
+theorem lt_length_right_of_zipWith {f : α → β → γ} {i : Nat} {l : List α} {l' : List β}
+    (h : i < (zipWith f l l').length) : i < l'.length := by rw [length_zipWith] at h; omega
+
+@[simp]
+theorem getElem_zipWith {f : α → β → γ} {l : List α} {l' : List β}
+    {i : Nat} {h : i < (zipWith f l l').length} :
+    (zipWith f l l')[i] =
+      f (l[i]'(lt_length_left_of_zipWith h))
+        (l'[i]'(lt_length_right_of_zipWith h)) := by
+  rw [← Option.some_inj, ← getElem?_eq_getElem, getElem?_zipWith_eq_some]
+  exact
+    ⟨l[i]'(lt_length_left_of_zipWith h), l'[i]'(lt_length_right_of_zipWith h),
+      by rw [getElem?_eq_getElem], by rw [getElem?_eq_getElem]; exact ⟨rfl, rfl⟩⟩
+
 theorem zipWith_eq_zipWith_take_min : ∀ (l₁ : List α) (l₂ : List β),
     zipWith f l₁ l₂ = zipWith f (l₁.take (min l₁.length l₂.length)) (l₂.take (min l₁.length l₂.length))
   | [], _ => by simp
   | _, [] => by simp
   | a :: l₁, b :: l₂ => by simp [succ_min_succ, zipWith_eq_zipWith_take_min l₁ l₂]
+
+theorem reverse_zipWith (h : l.length = l'.length) :
+    (zipWith f l l').reverse = zipWith f l.reverse l'.reverse := by
+  induction l generalizing l' with
+  | nil => simp
+  | cons hd tl hl =>
+    cases l' with
+    | nil => simp
+    | cons hd' tl' =>
+      simp only [Nat.add_right_cancel_iff, length] at h
+      have : tl.reverse.length = tl'.reverse.length := by simp [h]
+      simp [hl h, zipWith_append _ _ _ _ _ this]
+
+@[deprecated reverse_zipWith (since := "2024-07-28")] abbrev zipWith_distrib_reverse := @reverse_zipWith
 
 @[simp] theorem zipWith_replicate {a : α} {b : β} {m n : Nat} :
     zipWith f (replicate m a) (replicate n b) = replicate (min m n) (f a b) := by
@@ -437,6 +475,20 @@ theorem zipWith_eq_zipWith_take_min : ∀ (l₁ : List α) (l₂ : List β),
     length (zip l₁ l₂) = min (length l₁) (length l₂) := by
   simp [zip]
 
+theorem lt_length_left_of_zip {i : Nat} {l : List α} {l' : List β} (h : i < (zip l l').length) :
+    i < l.length :=
+  lt_length_left_of_zipWith h
+
+theorem lt_length_right_of_zip {i : Nat} {l : List α} {l' : List β} (h : i < (zip l l').length) :
+    i < l'.length :=
+  lt_length_right_of_zipWith h
+
+@[simp]
+theorem getElem_zip {l : List α} {l' : List β} {i : Nat} {h : i < (zip l l').length} :
+    (zip l l')[i] =
+      (l[i]'(lt_length_left_of_zip h), l'[i]'(lt_length_right_of_zip h)) :=
+  getElem_zipWith (h := h)
+
 theorem zip_eq_zip_take_min : ∀ (l₁ : List α) (l₂ : List β),
     zip l₁ l₂ = zip (l₁.take (min l₁.length l₂.length)) (l₂.take (min l₁.length l₂.length))
   | [], _ => by simp
@@ -447,71 +499,5 @@ theorem zip_eq_zip_take_min : ∀ (l₁ : List α) (l₂ : List β),
     zip (replicate m a) (replicate n b) = replicate (min m n) (a, b) := by
   rw [zip_eq_zip_take_min]
   simp
-
-/-! ### minimum? -/
-
--- A specialization of `minimum?_eq_some_iff` to Nat.
-theorem minimum?_eq_some_iff' {xs : List Nat} :
-    xs.minimum? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, a ≤ b) :=
-  minimum?_eq_some_iff
-    (le_refl := Nat.le_refl)
-    (min_eq_or := fun _ _ => by omega)
-    (le_min_iff := fun _ _ _ => by omega)
-
--- This could be generalized,
--- but will first require further work on order typeclasses in the core repository.
-theorem minimum?_cons' {a : Nat} {l : List Nat} :
-    (a :: l).minimum? = some (match l.minimum? with
-    | none => a
-    | some m => min a m) := by
-  rw [minimum?_eq_some_iff']
-  split <;> rename_i h m
-  · simp_all
-  · rw [minimum?_eq_some_iff'] at m
-    obtain ⟨m, le⟩ := m
-    rw [Nat.min_def]
-    constructor
-    · split
-      · exact mem_cons_self a l
-      · exact mem_cons_of_mem a m
-    · intro b m
-      cases List.mem_cons.1 m with
-      | inl => split <;> omega
-      | inr h =>
-        specialize le b h
-        split <;> omega
-
-/-! ### maximum? -/
-
--- A specialization of `maximum?_eq_some_iff` to Nat.
-theorem maximum?_eq_some_iff' {xs : List Nat} :
-    xs.maximum? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, b ≤ a) :=
-  maximum?_eq_some_iff
-    (le_refl := Nat.le_refl)
-    (max_eq_or := fun _ _ => by omega)
-    (max_le_iff := fun _ _ _ => by omega)
-
--- This could be generalized,
--- but will first require further work on order typeclasses in the core repository.
-theorem maximum?_cons' {a : Nat} {l : List Nat} :
-    (a :: l).maximum? = some (match l.maximum? with
-    | none => a
-    | some m => max a m) := by
-  rw [maximum?_eq_some_iff']
-  split <;> rename_i h m
-  · simp_all
-  · rw [maximum?_eq_some_iff'] at m
-    obtain ⟨m, le⟩ := m
-    rw [Nat.max_def]
-    constructor
-    · split
-      · exact mem_cons_of_mem a m
-      · exact mem_cons_self a l
-    · intro b m
-      cases List.mem_cons.1 m with
-      | inl => split <;> omega
-      | inr h =>
-        specialize le b h
-        split <;> omega
 
 end List

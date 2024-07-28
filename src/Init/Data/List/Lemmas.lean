@@ -4319,23 +4319,17 @@ end countP
 
 section count
 
-variable [DecidableEq α]
+variable [BEq α]
 
 @[simp] theorem count_nil (a : α) : count a [] = 0 := rfl
 
 theorem count_cons (a b : α) (l : List α) :
-    count a (b :: l) = count a l + if a = b then 1 else 0 := by
-  simp [count, countP_cons, eq_comm (a := a)]
-
-@[simp] theorem count_cons_self (a : α) (l : List α) : count a (a :: l) = count a l + 1 := by
-  simp [count_cons]
-
-@[simp] theorem count_cons_of_ne (h : a ≠ b) (l : List α) : count a (b :: l) = count a l := by
-  simp [count_cons, h]
+    count a (b :: l) = count a l + if b == a then 1 else 0 := by
+  simp [count, countP_cons]
 
 theorem count_tail : ∀ (l : List α) (a : α) (h : l ≠ []),
-      l.tail.count a = l.count a - if a = l.head h then 1 else 0
-  | head :: tail, a, h => by simp [count_cons]
+      l.tail.count a = l.count a - if l.head h == a then 1 else 0
+  | head :: tail, a, _ => by simp [count_cons]
 
 theorem count_le_length (a : α) (l : List α) : count a l ≤ l.length := countP_le_length _
 
@@ -4344,14 +4338,25 @@ theorem Sublist.count_le (h : l₁ <+ l₂) (a : α) : count a l₁ ≤ count a 
 theorem count_le_count_cons (a b : α) (l : List α) : count a l ≤ count a (b :: l) :=
   (sublist_cons_self _ _).count_le _
 
-theorem count_singleton_self (a : α) : count a [a] = 1 := by simp
-
-theorem count_singleton (a b : α) : count a [b] = if a = b then 1 else 0 := by simp [count_cons]
+theorem count_singleton (a b : α) : count a [b] = if b == a then 1 else 0 := by
+  simp [count_cons]
 
 @[simp] theorem count_append (a : α) : ∀ l₁ l₂, count a (l₁ ++ l₂) = count a l₁ + count a l₂ :=
   countP_append _
 
-theorem count_concat_self (a : α) (l : List α) : count a (concat l a) = (count a l) + 1 := by simp
+variable [LawfulBEq α]
+
+@[simp] theorem count_cons_self (a : α) (l : List α) : count a (a :: l) = count a l + 1 := by
+  simp [count_cons]
+
+@[simp] theorem count_cons_of_ne (h : a ≠ b) (l : List α) : count a (b :: l) = count a l := by
+  simp only [count_cons, cond_eq_if, beq_iff_eq]
+  split <;> simp_all
+
+theorem count_singleton_self (a : α) : count a [a] = 1 := by simp
+
+theorem count_concat_self (a : α) (l : List α) :
+    count a (concat l a) = (count a l) + 1 := by simp
 
 @[simp]
 theorem count_pos_iff_mem {a : α} {l : List α} : 0 < count a l ↔ a ∈ l := by
@@ -4375,29 +4380,21 @@ theorem count_eq_length {l : List α} : count a l = l.length ↔ ∀ b ∈ l, a 
 @[simp] theorem count_replicate_self (a : α) (n : Nat) : count a (replicate n a) = n :=
   (count_eq_length.2 <| fun _ h => (eq_of_mem_replicate h).symm).trans (length_replicate ..)
 
-theorem count_replicate (a b : α) (n : Nat) : count a (replicate n b) = if a = b then n else 0 := by
-  split
-  · exact ‹a = b› ▸ count_replicate_self ..
-  · exact count_eq_zero.2 <| mt eq_of_mem_replicate ‹a ≠ b›
+theorem count_replicate (a b : α) (n : Nat) : count a (replicate n b) = if b == a then n else 0 := by
+  split <;> (rename_i h; simp only [beq_iff_eq] at h)
+  · exact ‹b = a› ▸ count_replicate_self ..
+  · exact count_eq_zero.2 <| mt eq_of_mem_replicate (Ne.symm h)
 
 theorem filter_beq (l : List α) (a : α) : l.filter (· == a) = replicate (count a l) a := by
   simp only [count, countP_eq_length_filter, eq_replicate, mem_filter, beq_iff_eq]
   exact ⟨trivial, fun _ h => h.2⟩
 
-theorem filter_eq (l : List α) (a : α) : l.filter (· = a) = replicate (count a l) a :=
+theorem filter_eq {α} [DecidableEq α] (l : List α) (a : α) : l.filter (· = a) = replicate (count a l) a :=
   filter_beq l a
-
-@[deprecated filter_eq (since := "2023-12-14")]
-theorem filter_eq' (l : List α) (a : α) : l.filter (a = ·) = replicate (count a l) a := by
-  simpa only [eq_comm] using filter_eq l a
-
-@[deprecated filter_beq (since := "2023-12-14")]
-theorem filter_beq' (l : List α) (a : α) : l.filter (a == ·) = replicate (count a l) a := by
-  simpa only [eq_comm (b := a)] using filter_eq l a
 
 theorem le_count_iff_replicate_sublist {l : List α} : n ≤ count a l ↔ replicate n a <+ l := by
   refine ⟨fun h => ?_, fun h => ?_⟩
-  · exact ((replicate_sublist_replicate a).2 h).trans <| filter_eq l a ▸ filter_sublist _
+  · exact ((replicate_sublist_replicate a).2 h).trans <| filter_beq l a ▸ filter_sublist _
   · simpa only [count_replicate_self] using h.count_le a
 
 theorem replicate_count_eq_of_count_eq_length {l : List α} (h : count a l = length l) :
@@ -4407,7 +4404,6 @@ theorem replicate_count_eq_of_count_eq_length {l : List α} (h : count a l = len
 
 @[simp] theorem count_filter {l : List α} (h : p a) : count a (filter p l) = count a l := by
   rw [count, countP_filter]; congr; funext b
-  rw [(by rfl : (b == a) = decide (b = a)), decide_eq_decide]
   simp; rintro rfl; exact h
 
 theorem count_le_count_map [DecidableEq β] (l : List α) (f : α → β) (x : α) :
@@ -4416,7 +4412,7 @@ theorem count_le_count_map [DecidableEq β] (l : List α) (f : α → β) (x : �
   apply countP_mono_left; simp (config := { contextual := true })
 
 theorem count_erase (a b : α) :
-    ∀ l : List α, count a (l.erase b) = count a l - if a = b then 1 else 0
+    ∀ l : List α, count a (l.erase b) = count a l - if b == a then 1 else 0
   | [] => by simp
   | c :: l => by
     rw [erase_cons]
@@ -4426,17 +4422,17 @@ theorem count_erase (a b : α) :
     else
       have hc_beq := beq_false_of_ne hc
       simp only [hc_beq, if_false, count_cons, count_cons, count_erase a b l]
-      if ha : a = b then
-        rw [← ha, eq_comm] at hc
-        rw [if_pos ha, if_neg hc, Nat.add_zero, Nat.add_zero]
+      if ha : b = a then
+        rw [ha, eq_comm] at hc
+        rw [if_pos ((beq_iff_eq _ _).2 ha), if_neg (by simpa using Ne.symm hc), Nat.add_zero, Nat.add_zero]
       else
-        rw [if_neg ha, Nat.sub_zero, Nat.sub_zero]
+        rw [if_neg (by simpa using ha), Nat.sub_zero, Nat.sub_zero]
 
 @[simp] theorem count_erase_self (a : α) (l : List α) :
-    count a (List.erase l a) = count a l - 1 := by rw [count_erase, if_pos rfl]
+    count a (List.erase l a) = count a l - 1 := by rw [count_erase, if_pos (by simp)]
 
 @[simp] theorem count_erase_of_ne (ab : a ≠ b) (l : List α) : count a (l.erase b) = count a l := by
-  rw [count_erase, if_neg ab, Nat.sub_zero]
+  rw [count_erase, if_neg (by simpa using ab.symm), Nat.sub_zero]
 
 end count
 
@@ -5122,5 +5118,226 @@ theorem mapM'_eq_mapM [Monad m] [LawfulMonad m] (f : α → m β) (l : List α) 
 @[simp] theorem forM_append [Monad m] [LawfulMonad m] (l₁ l₂ : List α) (f : α → m PUnit) :
     (l₁ ++ l₂).forM f = (do l₁.forM f; l₂.forM f) := by
   induction l₁ <;> simp [*]
+
+end List
+
+
+namespace List
+
+/-! ### Pairwise -/
+
+theorem rel_of_pairwise_cons (p : (a :: l).Pairwise R) : ∀ {a'}, a' ∈ l → R a a' :=
+  (pairwise_cons.1 p).1 _
+
+theorem Pairwise.of_cons (p : (a :: l).Pairwise R) : Pairwise R l :=
+  (pairwise_cons.1 p).2
+
+theorem Pairwise.tail : ∀ {l : List α} (_p : Pairwise R l), Pairwise R l.tail
+  | [], h => h
+  | _ :: _, h => h.of_cons
+
+theorem Pairwise.drop : ∀ {l : List α} {n : Nat}, List.Pairwise R l → List.Pairwise R (l.drop n)
+  | _, 0, h => h
+  | [], _ + 1, _ => List.Pairwise.nil
+  | _ :: _, n + 1, h => Pairwise.drop (n := n) (pairwise_cons.mp h).right
+
+theorem Pairwise.imp_of_mem {S : α → α → Prop}
+    (H : ∀ {a b}, a ∈ l → b ∈ l → R a b → S a b) (p : Pairwise R l) : Pairwise S l := by
+  induction p with
+  | nil => constructor
+  | @cons a l r _ ih =>
+    constructor
+    · exact fun x h => H (mem_cons_self ..) (mem_cons_of_mem _ h) <| r x h
+    · exact ih fun m m' => H (mem_cons_of_mem _ m) (mem_cons_of_mem _ m')
+
+theorem Pairwise.and (hR : Pairwise R l) (hS : Pairwise S l) :
+    l.Pairwise fun a b => R a b ∧ S a b := by
+  induction hR with
+  | nil => simp only [Pairwise.nil]
+  | cons R1 _ IH =>
+    simp only [Pairwise.nil, pairwise_cons] at hS ⊢
+    exact ⟨fun b bl => ⟨R1 b bl, hS.1 b bl⟩, IH hS.2⟩
+
+theorem pairwise_and_iff : l.Pairwise (fun a b => R a b ∧ S a b) ↔ Pairwise R l ∧ Pairwise S l :=
+  ⟨fun h => ⟨h.imp fun h => h.1, h.imp fun h => h.2⟩, fun ⟨hR, hS⟩ => hR.and hS⟩
+
+theorem Pairwise.imp₂ (H : ∀ a b, R a b → S a b → T a b)
+    (hR : Pairwise R l) (hS : l.Pairwise S) : l.Pairwise T :=
+  (hR.and hS).imp fun ⟨h₁, h₂⟩ => H _ _ h₁ h₂
+
+theorem Pairwise.iff_of_mem {S : α → α → Prop} {l : List α}
+    (H : ∀ {a b}, a ∈ l → b ∈ l → (R a b ↔ S a b)) : Pairwise R l ↔ Pairwise S l :=
+  ⟨Pairwise.imp_of_mem fun m m' => (H m m').1, Pairwise.imp_of_mem fun m m' => (H m m').2⟩
+
+theorem Pairwise.iff {S : α → α → Prop} (H : ∀ a b, R a b ↔ S a b) {l : List α} :
+    Pairwise R l ↔ Pairwise S l :=
+  Pairwise.iff_of_mem fun _ _ => H ..
+
+theorem pairwise_of_forall {l : List α} (H : ∀ x y, R x y) : Pairwise R l := by
+  induction l <;> simp [*]
+
+theorem Pairwise.and_mem {l : List α} :
+    Pairwise R l ↔ Pairwise (fun x y => x ∈ l ∧ y ∈ l ∧ R x y) l :=
+  Pairwise.iff_of_mem <| by simp (config := { contextual := true })
+
+theorem Pairwise.imp_mem {l : List α} :
+    Pairwise R l ↔ Pairwise (fun x y => x ∈ l → y ∈ l → R x y) l :=
+  Pairwise.iff_of_mem <| by simp (config := { contextual := true })
+
+theorem Pairwise.forall_of_forall_of_flip (h₁ : ∀ x ∈ l, R x x) (h₂ : Pairwise R l)
+    (h₃ : l.Pairwise (flip R)) : ∀ ⦃x⦄, x ∈ l → ∀ ⦃y⦄, y ∈ l → R x y := by
+  induction l with
+  | nil => exact forall_mem_nil _
+  | cons a l ih =>
+    rw [pairwise_cons] at h₂ h₃
+    simp only [mem_cons]
+    rintro x (rfl | hx) y (rfl | hy)
+    · exact h₁ _ (l.mem_cons_self _)
+    · exact h₂.1 _ hy
+    · exact h₃.1 _ hx
+    · exact ih (fun x hx => h₁ _ <| mem_cons_of_mem _ hx) h₂.2 h₃.2 hx hy
+
+theorem pairwise_singleton (R) (a : α) : Pairwise R [a] := by simp
+
+theorem pairwise_pair {a b : α} : Pairwise R [a, b] ↔ R a b := by simp
+
+theorem pairwise_append_comm {R : α → α → Prop} (s : ∀ {x y}, R x y → R y x) {l₁ l₂ : List α} :
+    Pairwise R (l₁ ++ l₂) ↔ Pairwise R (l₂ ++ l₁) := by
+  have (l₁ l₂ : List α) (H : ∀ x : α, x ∈ l₁ → ∀ y : α, y ∈ l₂ → R x y)
+    (x : α) (xm : x ∈ l₂) (y : α) (ym : y ∈ l₁) : R x y := s (H y ym x xm)
+  simp only [pairwise_append, and_left_comm]; rw [Iff.intro (this l₁ l₂) (this l₂ l₁)]
+
+theorem pairwise_middle {R : α → α → Prop} (s : ∀ {x y}, R x y → R y x) {a : α} {l₁ l₂ : List α} :
+    Pairwise R (l₁ ++ a :: l₂) ↔ Pairwise R (a :: (l₁ ++ l₂)) := by
+  show Pairwise R (l₁ ++ ([a] ++ l₂)) ↔ Pairwise R ([a] ++ l₁ ++ l₂)
+  rw [← append_assoc, pairwise_append, @pairwise_append _ _ ([a] ++ l₁), pairwise_append_comm s]
+  simp only [mem_append, or_comm]
+
+theorem Pairwise.of_map {S : β → β → Prop} (f : α → β) (H : ∀ a b : α, S (f a) (f b) → R a b)
+    (p : Pairwise S (map f l)) : Pairwise R l :=
+  (pairwise_map.1 p).imp (H _ _)
+
+theorem Pairwise.map {S : β → β → Prop} (f : α → β) (H : ∀ a b : α, R a b → S (f a) (f b))
+    (p : Pairwise R l) : Pairwise S (map f l) :=
+  pairwise_map.2 <| p.imp (H _ _)
+
+theorem pairwise_filterMap (f : β → Option α) {l : List β} :
+    Pairwise R (filterMap f l) ↔ Pairwise (fun a a' : β => ∀ b ∈ f a, ∀ b' ∈ f a', R b b') l := by
+  let _S (a a' : β) := ∀ b ∈ f a, ∀ b' ∈ f a', R b b'
+  simp only [Option.mem_def]
+  induction l with
+  | nil => simp only [filterMap, Pairwise.nil]
+  | cons a l IH => ?_
+  match e : f a with
+  | none =>
+    rw [filterMap_cons_none e, pairwise_cons]
+    simp only [e, false_implies, implies_true, true_and, IH]
+  | some b =>
+    rw [filterMap_cons_some e]
+    simpa [IH, e] using fun _ =>
+      ⟨fun h a ha b hab => h _ _ ha hab, fun h a b ha hab => h _ ha _ hab⟩
+
+theorem Pairwise.filter_map {S : β → β → Prop} (f : α → Option β)
+    (H : ∀ a a' : α, R a a' → ∀ b ∈ f a, ∀ b' ∈ f a', S b b') {l : List α} (p : Pairwise R l) :
+    Pairwise S (filterMap f l) :=
+  (pairwise_filterMap _).2 <| p.imp (H _ _)
+
+theorem pairwise_filter (p : α → Prop) [DecidablePred p] {l : List α} :
+    Pairwise R (filter p l) ↔ Pairwise (fun x y => p x → p y → R x y) l := by
+  rw [← filterMap_eq_filter, pairwise_filterMap]
+  simp
+
+theorem Pairwise.filter (p : α → Bool) : Pairwise R l → Pairwise R (filter p l) :=
+  Pairwise.sublist (filter_sublist _)
+
+theorem pairwise_join {L : List (List α)} :
+    Pairwise R (join L) ↔
+      (∀ l ∈ L, Pairwise R l) ∧ Pairwise (fun l₁ l₂ => ∀ x ∈ l₁, ∀ y ∈ l₂, R x y) L := by
+  induction L with
+  | nil => simp
+  | cons l L IH =>
+    simp only [join, pairwise_append, IH, mem_join, exists_imp, and_imp, forall_mem_cons,
+      pairwise_cons, and_assoc, and_congr_right_iff]
+    rw [and_comm, and_congr_left_iff]
+    intros; exact ⟨fun h a b c d e => h c d e a b, fun h c d e a b => h a b c d e⟩
+
+theorem pairwise_bind {R : β → β → Prop} {l : List α} {f : α → List β} :
+    List.Pairwise R (l.bind f) ↔
+      (∀ a ∈ l, Pairwise R (f a)) ∧ Pairwise (fun a₁ a₂ => ∀ x ∈ f a₁, ∀ y ∈ f a₂, R x y) l := by
+  simp [List.bind, pairwise_join, pairwise_map]
+
+theorem pairwise_iff_forall_sublist : l.Pairwise R ↔ (∀ {a b}, [a,b] <+ l → R a b) := by
+  induction l with
+  | nil => simp
+  | cons hd tl IH =>
+    rw [List.pairwise_cons]
+    constructor <;> intro h
+    · intro
+      | a, b, .cons _ hab => exact IH.mp h.2 hab
+      | _, b, .cons₂ _ hab => refine h.1 _ (hab.subset ?_); simp
+    · constructor
+      · intro x hx
+        apply h
+        rw [List.cons_sublist_cons, List.singleton_sublist]
+        exact hx
+      · apply IH.mpr
+        intro a b hab
+        apply h; exact hab.cons _
+
+
+/-- given a list `is` of monotonically increasing indices into `l`, getting each index
+  produces a sublist of `l`.  -/
+theorem map_get_sublist {l : List α} {is : List (Fin l.length)} (h : is.Pairwise (·.val < ·.val)) :
+    is.map (get l) <+ l := by
+  suffices ∀ n l', l' = l.drop n → (∀ i ∈ is, n ≤ i) → map (get l) is <+ l'
+    from this 0 l (by simp) (by simp)
+  intro n l' hl' his
+  induction is generalizing n l' with
+  | nil => simp
+  | cons hd tl IH =>
+    simp; cases hl'
+    have := IH h.of_cons (hd+1) _ rfl (pairwise_cons.mp h).1
+    specialize his hd (.head _)
+    have := (drop_eq_getElem_cons ..).symm ▸ this.cons₂ (get l hd)
+    have := Sublist.append (nil_sublist (take hd l |>.drop n)) this
+    rwa [nil_append, ← (drop_append_of_le_length ?_), take_append_drop] at this
+    simp [Nat.min_eq_left (Nat.le_of_lt hd.isLt), his]
+
+/-- given a sublist `l' <+ l`, there exists a list of indices `is` such that
+  `l' = map (get l) is`. -/
+theorem sublist_eq_map_get (h : l' <+ l) : ∃ is : List (Fin l.length),
+    l' = map (get l) is ∧ is.Pairwise (· < ·) := by
+  induction h with
+  | slnil => exact ⟨[], by simp⟩
+  | cons _ _ IH =>
+    let ⟨is, IH⟩ := IH
+    refine ⟨is.map (·.succ), ?_⟩
+    simp [comp, pairwise_map]
+    exact IH
+  | cons₂ _ _ IH =>
+    rcases IH with ⟨is,IH⟩
+    refine ⟨⟨0, by simp [Nat.zero_lt_succ]⟩ :: is.map (·.succ), ?_⟩
+    simp [comp_def, pairwise_map, IH, ← get_eq_getElem]
+
+theorem pairwise_iff_getElem : Pairwise R l ↔
+    ∀ (i j : Nat) (_hi : i < l.length) (_hj : j < l.length) (_hij : i < j), R l[i] l[j] := by
+  rw [pairwise_iff_forall_sublist]
+  constructor <;> intro h
+  · intros i j hi hj h'
+    apply h
+    simpa [h'] using map_get_sublist (is := [⟨i, hi⟩, ⟨j, hj⟩])
+  · intros a b h'
+    have ⟨is, h', hij⟩ := sublist_eq_map_get h'
+    rcases is with ⟨⟩ | ⟨a', ⟨⟩ | ⟨b', ⟨⟩⟩⟩ <;> simp at h'
+    rcases h' with ⟨rfl, rfl⟩
+    apply h; simpa using hij
+
+theorem pairwise_iff_get : Pairwise R l ↔ ∀ (i j) (_hij : i < j), R (get l i) (get l j) := by
+  rw [pairwise_iff_getElem]
+  constructor <;> intro h
+  · intros i j h'
+    exact h _ _ _ _ h'
+  · intros i j hi hj h'
+    exact h ⟨i, hi⟩ ⟨j, hj⟩ h'
 
 end List

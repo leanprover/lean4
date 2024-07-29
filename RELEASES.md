@@ -207,12 +207,12 @@ v4.10.0
 * [d85d3d](https://github.com/leanprover/lean4/commit/d85d3d5f3a09ff95b2ee47c6f89ef50b7e339126) fixes criterion for tail-calls in ownership calculation.
 * [#3963](https://github.com/leanprover/lean4/pull/3963) adds validation of UTF-8 at the C++-to-Lean boundary in the runtime.
 * [#4512](https://github.com/leanprover/lean4/pull/4512) fixes missing unboxing in interpreter when loading initialized value.
+* [#4477](https://github.com/leanprover/lean4/pull/4477) exposes the compiler flags for the bundled C compiler (clang).
 
 ### Lake
 
-* [#4384](https://github.com/leanprover/lean4/pull/4384) deprecates `inputFile` and replaces it with `inputBinFile` and `inputTextFile` so that line ending normalization only affects text files.
+* [#4384](https://github.com/leanprover/lean4/pull/4384) deprecates `inputFile` and replaces it with `inputBinFile` and `inputTextFile`. Unlike `inputBinFile` (and `inputFile`), `inputTextFile` normalizes line endings, which helps ensure text file traces are platform-independent. 
 * [#4371](https://github.com/leanprover/lean4/pull/4371) simplifies dependency resolution code.
-* [#4446](https://github.com/leanprover/lean4/pull/4446) switches to use `src/lake/lakefile.toml` to avoid needing to load a version of Lake to build Lake.
 * [#4439](https://github.com/leanprover/lean4/pull/4439) touches up the Lake configuration DSL and makes other improvements:
   string literals can now be used instead of identifiers for names,
   avoids using French quotes in `lake new` and `lake init` templates,
@@ -221,7 +221,6 @@ v4.10.0
   and downgrades unknown configuration fields from an error to a warning to improve cross-version compatibility.
 * [#4496](https://github.com/leanprover/lean4/pull/4496) tweaks `require` syntax and updates docs. Now `require` in TOML for a package name such as `doc-gen4` does not need French quotes.
 * [#4485](https://github.com/leanprover/lean4/pull/4485) fixes a bug where package versions in indirect dependencies would take precedence over direct dependencies.
-* [#4477](https://github.com/leanprover/lean4/pull/4477) exposes the bundled C compiler's compiler flags, which is needed to skip the use of `leanc` in Lake.
 * [#4478](https://github.com/leanprover/lean4/pull/4478) fixes a bug where Lake incorrectly included the module dynamic library in a platform-independent trace.
 * [#4529](https://github.com/leanprover/lean4/pull/4529) fixes some issues with bad import errors.
   A bad import in an executable no longer prevents the executable's root
@@ -230,16 +229,19 @@ v4.10.0
   The root module of the executable now respects `nativeFacets`.
 * [#4564](https://github.com/leanprover/lean4/pull/4564) fixes a bug where non-identifier script names could not be entered on the CLI without French quotes.
 * [#4566](https://github.com/leanprover/lean4/pull/4566) addresses a few issues with precompiled libraries.
-* [#4495](https://github.com/leanprover/lean4/pull/4495)
-  adds a new type of `require` that fetches package metadata from a
+  * Fixes a bug where Lake would always precompile the package of a module.
+  * If a module is precompiled, it now precompiles its imports. Previously, it would only do this if imported.
+* [#4495](https://github.com/leanprover/lean4/pull/4495), [#4692](https://github.com/leanprover/lean4/pull/4692), [#4849](https://github.com/leanprover/lean4/pull/4849)
+  add a new type of `require` that fetches package metadata from a
   registry API endpoint (e.g. Reservoir) and then clones a Git package
   using the information provided. To require such a dependency, the new
   syntax is:
 
   ```lean
-  require <scope> / <pkg-name> [@ "git#<rev>"]
-  -- Example:
+  require <scope> / <pkg-name> [@ git <rev>]
+  -- Examples:
   require "leanprover" / "doc-gen4"
+  require "leanprover-community" / "proofwidgets" @ git "v0.0.39"
   ```
 
   Or in TOML:
@@ -262,11 +264,6 @@ v4.10.0
   configuration options paralleling those of Cargo's [Alternative Registries](https://doc.rust-lang.org/cargo/reference/registries.html)
   and [Source Replacement](https://doc.rust-lang.org/cargo/reference/source-replacement.html)
   will come in the future.
-* [#4692](https://github.com/leanprover/lean4/pull/4692) and [#4849](https://github.com/leanprover/lean4/pull/4849) add and document `require @ git`.
-  This is syntactic sugar specifying a git revision as a dependency version in a `require` command. For example:
-  ```lean
-  require "leanprover-community" / "proofwidgets" @ git "v0.0.39"
-  ```
 
 ### DevOps/CI
 * [#4427](https://github.com/leanprover/lean4/pull/4427) uses Namespace runners for CI for `leanprover/lean4`.
@@ -276,6 +273,7 @@ v4.10.0
 * [6d265b](https://github.com/leanprover/lean4/commit/6d265b42b117eef78089f479790587a399da7690) fixes for `github.event.pull_request.merge_commit_sha` sometimes not being available.
 * [16cad2](https://github.com/leanprover/lean4/commit/16cad2b45c6a77efe4dce850dcdbaafaa7c91fc3) adds optimization for CI to not fetch complete history.
 * [#4544](https://github.com/leanprover/lean4/pull/4544) causes releases to be marked as prerelease on GitHub.
+* [#4446](https://github.com/leanprover/lean4/pull/4446) switches Lake to using `src/lake/lakefile.toml` to avoid needing to load a version of Lake to build Lake.
 * Nix
   * [5eb5fa](https://github.com/leanprover/lean4/commit/5eb5fa49cf9862e99a5bccff8d4ca1a062f81900) fixes `update-stage0-commit` for Nix.
   * [#4476](https://github.com/leanprover/lean4/pull/4476) adds gdb to Nix shell.

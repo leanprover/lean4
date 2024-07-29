@@ -243,6 +243,18 @@ if("${USE_GMP}" MATCHES "ON")
   endif()
 endif()
 
+
+if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
+  # ????
+else()
+  # LibUV
+  find_package(LibUV 1.0.0 REQUIRED)
+  include_directories(${LIBUV_INCLUDE_DIR})
+endif()
+if(NOT LEAN_STANDALONE)
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${LIBUV_LIBRARIES}")
+endif()
+
 # ccache
 if(CCACHE AND NOT CMAKE_CXX_COMPILER_LAUNCHER AND NOT CMAKE_C_COMPILER_LAUNCHER)
   find_program(CCACHE_PATH ccache)

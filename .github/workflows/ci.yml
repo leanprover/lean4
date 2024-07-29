@@ -299,11 +299,11 @@ jobs:
         with:
           msystem: clang64
           # `:` means do not prefix with msystem
-          pacboy: "make: python: cmake clang ccache gmp git: zip: unzip: diffutils: binutils: tree: zstd tar:"
+          pacboy: "make: python: cmake clang ccache gmp libuv git: zip: unzip: diffutils: binutils: tree: zstd tar:"
         if: runner.os == 'Windows'
       - name: Install Brew Packages
         run: |
-          brew install ccache tree zstd coreutils gmp
+          brew install ccache tree zstd coreutils gmp libuv
         if: runner.os == 'macOS'
       - name: Checkout
         uses: actions/checkout@v4

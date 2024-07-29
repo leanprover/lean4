@@ -14,3 +14,9 @@ import Init.Data.List.TakeDrop
 import Init.Data.List.Notation
 import Init.Data.List.Range
 import Init.Data.List.Nat
+import Init.Data.List.Count
+import Init.Data.List.Erase
+import Init.Data.List.Find
+import Init.Data.List.MinMax
+import Init.Data.List.Pairwise
+import Init.Data.List.Zip

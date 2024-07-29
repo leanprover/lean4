@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro
 -/
 prelude
-import Init.Data.List.Lemmas
+import Init.Data.List.Count
+import Init.Data.List.MinMax
 import Init.Data.Nat.Lemmas
 
 /-!

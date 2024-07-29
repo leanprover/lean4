@@ -5,7 +5,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 -/
 prelude
 import Init.Data.List.TakeDrop
-import Init.Data.Nat.Lemmas
+import Init.Data.List.Pairwise
 
 /-!
 # Lemmas about `List.range` and `List.enum`

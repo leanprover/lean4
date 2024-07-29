@@ -8,7 +8,7 @@ error: cannot evaluate expression that depends on the `sorry` axiom.
 Use `#eval!` to evaluate nevertheless (which may cause lean to crash).
 -/
 #guard_msgs in
-#eval show Nat from False.rec (by decide)
+#eval show Nat from False.elim (by decide)
 
 /--
 warning: declaration uses 'sorry'

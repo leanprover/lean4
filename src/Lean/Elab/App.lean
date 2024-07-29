@@ -743,7 +743,7 @@ structure State where
 abbrev M := ReaderT Context $ StateRefT State TermElabM
 
 /-- Infer the `motive` using the expected type by `kabstract`ing the discriminants. -/
-def mkMotive (discrs : Array Expr) (expectedType : Expr): MetaM Expr := do
+def mkMotive (discrs : Array Expr) (expectedType : Expr) : MetaM Expr := do
   discrs.foldrM (init := expectedType) fun discr motive => do
     let discr ← instantiateMVars discr
     let motiveBody ← kabstract motive discr
@@ -878,7 +878,16 @@ partial def main : M Expr := do
     main
   let idx := (← get).idx
   if (← read).elimInfo.motivePos == idx then
-    let motive ← mkImplicitArg binderType binderInfo
+    let motive ←
+      match (← getNextArg? binderName binderInfo) with
+      | .some arg =>
+        /- Due to `Lean.Elab.Term.elabAppArgs.elabAsElim?`, this must be a positional argument that is the syntax `_`. -/
+        elabArg arg binderType
+      | .none | .undef =>
+        /- Note: undef occurs when the motive is explicit but missing.
+           In this case, we treat it as if it were an implicit argument
+           to support writing `h.rec` when `h : False`, rather than requiring `h.rec _`. -/
+        mkImplicitArg binderType binderInfo
     setMotive motive
     addArgAndContinue motive
   else if let some tidx := (← read).elimInfo.targetsPos.indexOf? idx then
@@ -970,15 +979,34 @@ where
     unless (← shouldElabAsElim declName) do return none
     let elimInfo ← getElimInfo declName
     forallTelescopeReducing (← inferType f) fun xs _ => do
-      if h : elimInfo.motivePos < xs.size then
-        let x := xs[elimInfo.motivePos]
+      /- Process arguments similar to `Lean.Elab.Term.ElabElim.main` to see if the motive has been
+         provided, in which case we use the standard app elaborator.
+         If the motive is explicit (like for `False.rec`), then a positional `_` counts as "not provided". -/
+      let mut args := args.toList
+      let mut namedArgs := namedArgs.toList
+      for x in xs[0:elimInfo.motivePos] do
         let localDecl ← x.fvarId!.getDecl
-        if findBinderName? namedArgs.toList localDecl.userName matches some _ then
+        match findBinderName? namedArgs localDecl.userName with
+        | some _ => namedArgs := eraseNamedArg namedArgs localDecl.userName
+        | none   => if localDecl.binderInfo.isExplicit then args := args.tailD []
+      -- Invariant: `elimInfo.motivePos < xs.size` due to construction of `elimInfo`.
+      let some x := xs[elimInfo.motivePos]? | unreachable!
+      let localDecl ← x.fvarId!.getDecl
+      if findBinderName? namedArgs localDecl.userName matches some _ then
+        -- motive has been explicitly provided, so we should use standard app elaborator
+        return none
+      else
+        match localDecl.binderInfo.isExplicit, args with
+        | true, .expr _ :: _  =>
           -- motive has been explicitly provided, so we should use standard app elaborator
           return none
-        return some elimInfo
-      else
-        return none
+        | true, .stx arg :: _ =>
+          if arg.isOfKind ``Lean.Parser.Term.hole then
+            return some elimInfo
+          else
+            -- positional motive is not `_`, so we should use standard app elaborator
+            return none
+        | _, _ => return some elimInfo
 
   /--
   Collect extra argument positions that must be elaborated eagerly when using `elab_as_elim`.

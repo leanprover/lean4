@@ -1204,7 +1204,7 @@ def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ 
 
 /-! # Dependent products -/
 
-theorem PSigma.exists {α : Type u} {p : α → Prop} : (PSigma (fun x => p x)) → Exists (fun x => p x)
+theorem PSigma.exists {α : Sort u} {p : α → Prop} : (PSigma (fun x => p x)) → Exists (fun x => p x)
   | ⟨x, hx⟩ => ⟨x, hx⟩
 
 @[deprecated PSigma.exists (since := "2024-07-27")]

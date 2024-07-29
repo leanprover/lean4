@@ -8,7 +8,7 @@ noncomputable section
 open Lean Meta Elab Command
 
 #eval liftCoreM <| do
-  let x1 := simpExtension.getState (← getEnv) |>.toUnfold.contains <| ``foo
-  let x2 := simpExtension.getState (← getEnv) |>.toUnfold.contains <| ``bar
-  let x3 := simpExtension.getState (← getEnv) |>.toUnfold.contains <| ``baz
+  let x1 := simpExtension.getState (← getEnv) |>.toUnfoldThms.contains ``foo
+  let x2 := simpExtension.getState (← getEnv) |>.toUnfoldThms.contains <| ``bar
+  let x3 := simpExtension.getState (← getEnv) |>.toUnfoldThms.contains <| ``baz
   logInfo m!"{x1} {x2} {x3}" -- should not return: "true true false".

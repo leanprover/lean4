@@ -10,44 +10,18 @@ import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Eqns
 import Lean.Meta.ArgsPacker.Basic
 import Init.Data.Array.Basic
-import Lean.Elab.PreDefinition.Nonrec.Eqns -- imported here to ensure it registers first
 
-namespace Lean.Elab.WF
+namespace Lean.Elab.Nonrec
 open Meta
 open Eqns
 
-structure EqnInfo extends EqnInfoCore where
-  declNames       : Array Name
-  declNameNonRec  : Name
-  fixedPrefixSize : Nat
-  argsPacker      : ArgsPacker
-  deriving Inhabited
-
-private partial def deltaLHSUntilFix (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
-  let target ← mvarId.getType'
-  let some (_, lhs, _) := target.eq? | throwTacticEx `deltaLHSUntilFix mvarId "equality expected"
-  if lhs.isAppOf ``WellFounded.fix then
-    return mvarId
-  else
-    deltaLHSUntilFix (← deltaLHS mvarId)
-
-private def rwFixEq (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
-  let target ← mvarId.getType'
-  let some (_, lhs, rhs) := target.eq? | unreachable!
-  let h := mkAppN (mkConst ``WellFounded.fix_eq lhs.getAppFn.constLevels!) lhs.getAppArgs
-  let some (_, _, lhsNew) := (← inferType h).eq? | unreachable!
-  let targetNew ← mkEq lhsNew rhs
-  let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew
-  mvarId.assign (← mkEqTrans h mvarNew)
-  return mvarNew.mvarId!
-
 private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
-  trace[Elab.definition.wf.eqns] "proving: {type}"
+  trace[Elab.definition.eqns] "proving: {type}"
   withNewMCtxDepth do
     let main ← mkFreshExprSyntheticOpaqueMVar type
     let (_, mvarId) ← main.mvarId!.intros
     let rec go (mvarId : MVarId) : MetaM Unit := do
-      trace[Elab.definition.wf.eqns] "step\n{MessageData.ofGoal mvarId}"
+      trace[Elab.definition.eqns] "step\n{MessageData.ofGoal mvarId}"
       if ← withAtLeastTransparency .all (tryURefl mvarId) then
         return ()
       else if (← tryContradiction mvarId) then
@@ -71,22 +45,22 @@ private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
             -- LHS (introduced in 096e4eb), but it seems that code path was never used,
             -- so #3133 removed it again (and can be recovered from there if this was premature).
             throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
-    go (← rwFixEq (← deltaLHSUntilFix mvarId))
+    go (← deltaLHS mvarId)
     instantiateMVars main
 
-def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
+def mkEqns (declName : Name) (info : DefinitionVal) : MetaM (Array Name) :=
   withOptions (tactic.hygienic.set · false) do
   let baseName := declName
   let eqnTypes ← withNewMCtxDepth <| lambdaTelescope (cleanupAnnotations := true) info.value fun xs body => do
     let us := info.levelParams.map mkLevelParam
     let target ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
     let goal ← mkFreshExprSyntheticOpaqueMVar target
-    withReducible do
-      mkEqnTypes (tryRefl := false) info.declNames goal.mvarId!
+    withReducible do -- check if this is needed
+      mkEqnTypes (tryRefl := false) #[] goal.mvarId!
   let mut thmNames := #[]
   for i in [: eqnTypes.size] do
     let type := eqnTypes[i]!
-    trace[Elab.definition.wf.eqns] "{eqnTypes[i]!}"
+    trace[Elab.definition.eqns] "{eqnTypes[i]!}"
     let name := (Name.str baseName eqnThmSuffixBase).appendIndexAfter (i+1)
     thmNames := thmNames.push name
     let value ← mkProof declName type
@@ -97,37 +71,14 @@ def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
     }
   return thmNames
 
-builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
-
-def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedPrefixSize : Nat)
-    (argsPacker : ArgsPacker) : MetaM Unit := do
-  preDefs.forM fun preDef => ensureEqnReservedNamesAvailable preDef.declName
-  /-
-  See issue #2327.
-  Remark: we could do better for mutual declarations that mix theorems and definitions. However, this is a rare
-  combination, and we would have add support for it in the equation generator. I did not check which assumptions are made there.
-  -/
-  unless preDefs.all fun p => p.kind.isTheorem do
-    unless (← preDefs.allM fun p => isProp p.type) do
-      let declNames := preDefs.map (·.declName)
-      modifyEnv fun env =>
-        preDefs.foldl (init := env) fun env preDef =>
-          eqnInfoExt.insert env preDef.declName { preDef with
-            declNames, declNameNonRec, fixedPrefixSize, argsPacker }
-
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
-  if let some info := eqnInfoExt.find? (← getEnv) declName then
+  if let some (.defnInfo info) := (← getEnv).find? declName then
+    -- TODO: which declarations exactly?
     mkEqns declName info
   else
     return none
 
-def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
-  let env ← getEnv
-  Eqns.getUnfoldFor? declName fun _ => eqnInfoExt.find? env declName |>.map (·.toEqnInfoCore)
-
 builtin_initialize
   registerGetEqnsFn getEqnsFor?
-  registerGetUnfoldEqnFn getUnfoldFor?
-  registerTraceClass `Elab.definition.wf.eqns
 
-end Lean.Elab.WF
+end Lean.Elab.Nonrec

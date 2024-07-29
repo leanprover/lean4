@@ -39,14 +39,12 @@ v4.10.0
   * [#4459](https://github.com/leanprover/lean4/pull/4459) adds incrementality support for `next` and `if` tactics.
   * [#4554](https://github.com/leanprover/lean4/pull/4554) disables incrementality for tactics in terms in tactics.
 
-
 * **Commands**
   * [#4370](https://github.com/leanprover/lean4/pull/4370) makes the `variable` command fully elaborate binders during validation, fixing an issue where some errors would be reported only at the next declaration.
   * [#4408](https://github.com/leanprover/lean4/pull/4408) fixes a discrepency in universe parameter order between `theorem` and `def` declarations.
   * [#4493](https://github.com/leanprover/lean4/pull/4493) and
     [#4482](https://github.com/leanprover/lean4/pull/4482) fix a discrepancy in the elaborators for `theorem`, `def`, and `example`,
     making `Prop`-valued `example`s and other definition commands elaborate like `theorem`s.
-    
   * [8f023b](https://github.com/leanprover/lean4/commit/8f023b85c554186ae562774b8122322d856c674e), [3c4d6b](https://github.com/leanprover/lean4/commit/3c4d6ba8648eb04d90371eb3fdbd114d16949501) and [0783d0](https://github.com/leanprover/lean4/commit/0783d0fcbe31b626fbd3ed2f29d838e717f09101) change the `#reduce` command to be able to control what gets reduced.
     For example, `#reduce (proofs := true) (types := false) e` reduces both proofs and types in the expression `e`.
     By default, neither proofs or types are reduced.
@@ -56,7 +54,6 @@ v4.10.0
 * **Options**
   * [#4576](https://github.com/leanprover/lean4/pull/4576) adds the `debug.byAsSorry` option. Setting `set_option debug.byAsSorry true` causes all `by ...` terms to elaborate as `sorry`.
   * [7b56eb](https://github.com/leanprover/lean4/commit/7b56eb20a03250472f4b145118ae885274d1f8f7) and [d8e719](https://github.com/leanprover/lean4/commit/d8e719f9ab7d049e423473dfc7a32867d32c856f) add the `debug.skipKernelTC` option. Setting `set_option debug.skipKernelTC true` turns off kernel typechecking. This is meant for temporarily working around kernel performance issues, and it compromises soundness since buggy tactics may produce invalid proofs, which will not be caught if this option is set to true.
-
 
 * [#4301](https://github.com/leanprover/lean4/pull/4301) 
   adds a linter to flag situations where a local variable's name is one of
@@ -115,9 +112,8 @@ v4.10.0
 
 ### Pretty printing
 
-  * [#4433](https://github.com/leanprover/lean4/pull/4433) restores fallback pretty printers when context is not available, and documents `addMessageContext`.
+* [#4433](https://github.com/leanprover/lean4/pull/4433) restores fallback pretty printers when context is not available, and documents `addMessageContext`.
 * [#4556](https://github.com/leanprover/lean4/pull/4556) introduces `pp.maxSteps` option and sets the default value of `pp.deepTerms` to `false`. Together, these keep excessively large or deep terms from overwhelming the Infoview.
-
 
 ### Library
 * [#4560](https://github.com/leanprover/lean4/pull/4560) splits `GetElem` class into `GetElem` and `GetElem?`.

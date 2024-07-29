@@ -143,7 +143,10 @@ $(LIB_OUT)/$(STATIC_LIB_NAME): $(NAT_OBJS) | $(LIB_OUT)
 $(TEMP_OUT)/$(STATIC_LIB_NAME).export: $(addsuffix .export,$(NAT_OBJS)) | $(LIB_OUT)
 	@rm -f $@
 	$(file >$@.in) $(foreach O,$^,$(file >>$@.in,"$O"))
-	@$(LEAN_AR) rcs $@ @$@.in
+	# "T"hin archive seems necessary to preserve paths so that we can distinguish
+	# between object files with the same file name when manipulating the archive for
+	# `libleanshared_1`
+	@$(LEAN_AR) rcsT $@ @$@.in
 	@rm -f $@.in
 else
 $(LIB_OUT)/$(STATIC_LIB_NAME): $(NAT_OBJS) | $(LIB_OUT)

@@ -262,7 +262,7 @@ theorem isEmpty_eq_false_iff_exists_containsKey [BEq α] [ReflBEq α] {l : List 
 
 theorem isEmpty_iff_forall_containsKey [BEq α] [ReflBEq α] {l : List ((a : α) × β a)} :
     l.isEmpty ↔ ∀ a, containsKey a l = false := by
-  simp [isEmpty_iff_forall_isSome_getEntry?, containsKey_eq_isSome_getEntry?]
+  simp only [isEmpty_iff_forall_isSome_getEntry?, containsKey_eq_isSome_getEntry?]
 
 @[simp]
 theorem getEntry?_eq_none [BEq α] {l : List ((a : α) × β a)} {a : α} :

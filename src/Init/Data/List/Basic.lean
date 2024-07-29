@@ -719,7 +719,7 @@ def take : Nat → List α → List α
 
 @[simp] theorem take_nil : ([] : List α).take i = [] := by cases i <;> rfl
 @[simp] theorem take_zero (l : List α) : l.take 0 = [] := rfl
-@[simp] theorem take_cons_succ : (a::as).take (i+1) = a :: as.take i := rfl
+@[simp] theorem take_succ_cons : (a::as).take (i+1) = a :: as.take i := rfl
 
 /-! ### drop -/
 
@@ -826,46 +826,6 @@ def dropLast {α} : List α → List α
     have ih := length_dropLast_cons b bs
     simp [dropLast, ih]
 
-/-! ### isPrefixOf -/
-
-/--  `isPrefixOf l₁ l₂` returns `true` Iff `l₁` is a prefix of `l₂`.
-That is, there exists a `t` such that `l₂ == l₁ ++ t`. -/
-def isPrefixOf [BEq α] : List α → List α → Bool
-  | [],    _     => true
-  | _,     []    => false
-  | a::as, b::bs => a == b && isPrefixOf as bs
-
-@[simp] theorem isPrefixOf_nil_left [BEq α] : isPrefixOf ([] : List α) l = true := by
-  simp [isPrefixOf]
-@[simp] theorem isPrefixOf_cons_nil [BEq α] : isPrefixOf (a::as) ([] : List α) = false := rfl
-theorem isPrefixOf_cons₂ [BEq α] {a : α} :
-    isPrefixOf (a::as) (b::bs) = (a == b && isPrefixOf as bs) := rfl
-
-/-! ### isPrefixOf? -/
-
-/-- `isPrefixOf? l₁ l₂` returns `some t` when `l₂ == l₁ ++ t`. -/
-def isPrefixOf? [BEq α] : List α → List α → Option (List α)
-  | [], l₂ => some l₂
-  | _, [] => none
-  | (x₁ :: l₁), (x₂ :: l₂) =>
-    if x₁ == x₂ then isPrefixOf? l₁ l₂ else none
-
-/-! ### isSuffixOf -/
-
-/--  `isSuffixOf l₁ l₂` returns `true` Iff `l₁` is a suffix of `l₂`.
-That is, there exists a `t` such that `l₂ == t ++ l₁`. -/
-def isSuffixOf [BEq α] (l₁ l₂ : List α) : Bool :=
-  isPrefixOf l₁.reverse l₂.reverse
-
-@[simp] theorem isSuffixOf_nil_left [BEq α] : isSuffixOf ([] : List α) l = true := by
-  simp [isSuffixOf]
-
-/-! ### isSuffixOf? -/
-
-/-- `isSuffixOf? l₁ l₂` returns `some t` when `l₂ == t ++ l₁`.-/
-def isSuffixOf? [BEq α] (l₁ l₂ : List α) : Option (List α) :=
-  Option.map List.reverse <| isPrefixOf? l₁.reverse l₂.reverse
-
 /-! ### Subset -/
 
 /--
@@ -899,6 +859,68 @@ def isSublist [BEq α] : List α → List α → Bool
     if hd₁ == hd₂
     then tl₁.isSublist tl₂
     else l₁.isSublist tl₂
+
+/-! ### IsPrefix / isPrefixOf / isPrefixOf? -/
+
+/--
+`IsPrefix l₁ l₂`, or `l₁ <+: l₂`, means that `l₁` is a prefix of `l₂`,
+that is, `l₂` has the form `l₁ ++ t` for some `t`.
+-/
+def IsPrefix (l₁ : List α) (l₂ : List α) : Prop := Exists fun t => l₁ ++ t = l₂
+
+@[inherit_doc] infixl:50 " <+: " => IsPrefix
+
+/--  `isPrefixOf l₁ l₂` returns `true` Iff `l₁` is a prefix of `l₂`.
+That is, there exists a `t` such that `l₂ == l₁ ++ t`. -/
+def isPrefixOf [BEq α] : List α → List α → Bool
+  | [],    _     => true
+  | _,     []    => false
+  | a::as, b::bs => a == b && isPrefixOf as bs
+
+@[simp] theorem isPrefixOf_nil_left [BEq α] : isPrefixOf ([] : List α) l = true := by
+  simp [isPrefixOf]
+@[simp] theorem isPrefixOf_cons_nil [BEq α] : isPrefixOf (a::as) ([] : List α) = false := rfl
+theorem isPrefixOf_cons₂ [BEq α] {a : α} :
+    isPrefixOf (a::as) (b::bs) = (a == b && isPrefixOf as bs) := rfl
+
+/-- `isPrefixOf? l₁ l₂` returns `some t` when `l₂ == l₁ ++ t`. -/
+def isPrefixOf? [BEq α] : List α → List α → Option (List α)
+  | [], l₂ => some l₂
+  | _, [] => none
+  | (x₁ :: l₁), (x₂ :: l₂) =>
+    if x₁ == x₂ then isPrefixOf? l₁ l₂ else none
+
+/-! ### IsSuffix / isSuffixOf / isSuffixOf? -/
+
+/--  `isSuffixOf l₁ l₂` returns `true` Iff `l₁` is a suffix of `l₂`.
+That is, there exists a `t` such that `l₂ == t ++ l₁`. -/
+def isSuffixOf [BEq α] (l₁ l₂ : List α) : Bool :=
+  isPrefixOf l₁.reverse l₂.reverse
+
+@[simp] theorem isSuffixOf_nil_left [BEq α] : isSuffixOf ([] : List α) l = true := by
+  simp [isSuffixOf]
+
+/-- `isSuffixOf? l₁ l₂` returns `some t` when `l₂ == t ++ l₁`.-/
+def isSuffixOf? [BEq α] (l₁ l₂ : List α) : Option (List α) :=
+  Option.map List.reverse <| isPrefixOf? l₁.reverse l₂.reverse
+
+/--
+`IsSuffix l₁ l₂`, or `l₁ <:+ l₂`, means that `l₁` is a suffix of `l₂`,
+that is, `l₂` has the form `t ++ l₁` for some `t`.
+-/
+def IsSuffix (l₁ : List α) (l₂ : List α) : Prop := Exists fun t => t ++ l₁ = l₂
+
+@[inherit_doc] infixl:50 " <:+ " => IsSuffix
+
+/-! ### IsInfix -/
+
+/--
+`IsInfix l₁ l₂`, or `l₁ <:+: l₂`, means that `l₁` is a contiguous
+substring of `l₂`, that is, `l₂` has the form `s ++ l₁ ++ t` for some `s, t`.
+-/
+def IsInfix (l₁ : List α) (l₂ : List α) : Prop := Exists fun s => Exists fun t => s ++ l₁ ++ t = l₂
+
+@[inherit_doc] infixl:50 " <:+: " => IsInfix
 
 /-! ### rotateLeft -/
 
@@ -1235,6 +1257,14 @@ def unzip : List (α × β) → List α × List β
     (h :: t).unzip = match unzip t with | (al, bl) => (h.1::al, h.2::bl) := rfl
 
 /-! ## Ranges and enumeration -/
+
+/-- Sum of a list of natural numbers. -/
+-- This is not in the `List` namespace as later `List.sum` will be defined polymorphically.
+protected def _root_.Nat.sum (l : List Nat) : Nat := l.foldr (·+·) 0
+
+@[simp] theorem _root_.Nat.sum_nil : Nat.sum ([] : List Nat) = 0 := rfl
+@[simp] theorem _root_.Nat.sum_cons (a : Nat) (l : List Nat) :
+    Nat.sum (a::l) = a + Nat.sum l := rfl
 
 /-! ### range -/
 

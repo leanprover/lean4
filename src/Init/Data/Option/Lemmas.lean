@@ -193,6 +193,16 @@ theorem mem_map_of_mem (g : α → β) (h : a ∈ x) : g a ∈ Option.map g x :=
 @[simp] theorem filter_none (p : α → Bool) : none.filter p = none := rfl
 theorem filter_some : Option.filter p (some a) = if p a then some a else none := rfl
 
+@[simp] theorem all_guard (p : α → Prop) [DecidablePred p] (a : α) :
+    Option.all q (guard p a) = (!p a || q a) := by
+  simp only [guard]
+  split <;> simp_all
+
+@[simp] theorem any_guard (p : α → Prop) [DecidablePred p] (a : α) :
+    Option.any q (guard p a) = (p a && q a) := by
+  simp only [guard]
+  split <;> simp_all
+
 theorem bind_map_comm {α β} {x : Option (Option α)} {f : α → β} :
     x.bind (Option.map f) = (x.map (Option.map f)).bind id := by cases x <;> simp
 

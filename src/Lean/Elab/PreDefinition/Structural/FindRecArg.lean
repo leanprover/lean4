@@ -68,9 +68,7 @@ def getRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) :
       throwError "it is a let-binding"
     let xType ← whnfD localDecl.type
     matchConstInduct xType.getAppFn (fun _ => throwError "its type is not an inductive") fun indInfo us => do
-    if !(← hasConst (mkBRecOnName indInfo.name)) then
-      throwError "its type {indInfo.name} does not have a recursor"
-    else if indInfo.isReflexive && !(← hasConst (mkBInductionOnName indInfo.name)) && !(← isInductivePredicate indInfo.name) then
+    if indInfo.isReflexive && !(← hasConst (mkBInductionOnName indInfo.name)) && !(← isInductivePredicate indInfo.name) then
       throwError "its type {indInfo.name} is a reflexive inductive, but {mkBInductionOnName indInfo.name} does not exist and it is not an inductive predicate"
     else
       let indArgs    : Array Expr := xType.getAppArgs
@@ -263,6 +261,11 @@ def tryAllArgs (fnNames : Array Name) (xs : Array Expr) (values : Array Expr)
     if let some combs := allCombinations recArgInfoss' then
       for comb in combs do
         try
+          -- Check that the group actually has a brecOn (we used to check this in getRecArgInfo,
+          -- but in the first phase we do not want to rule-out non-recursive types like `Array`, which
+          -- are ok in a nested group. This logic can maybe simplified)
+          unless (← hasConst (group.brecOnName false 0)) do
+            throwError "the type {group} does not have a `.brecOn` recursor"
           -- TODO: Here we used to save and restore the state. But should the `try`-`catch`
           -- not suffice?
           let r ← k comb

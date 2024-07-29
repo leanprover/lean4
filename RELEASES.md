@@ -51,7 +51,7 @@ v4.10.0
   * [#4576](https://github.com/leanprover/lean4/pull/4576) adds the `debug.byAsSorry` option. Setting `set_option debug.byAsSorry true` causes all `by ...` terms to elaborate as `sorry`.
   * [7b56eb](https://github.com/leanprover/lean4/commit/7b56eb20a03250472f4b145118ae885274d1f8f7) and [d8e719](https://github.com/leanprover/lean4/commit/d8e719f9ab7d049e423473dfc7a32867d32c856f) add the `debug.skipKernelTC` option. Setting `set_option debug.skipKernelTC true` turns off kernel typechecking. This is meant for temporarily working around kernel performance issues, and it compromises soundness since buggy tactics may produce invalid proofs, which will not be caught if this option is set to true.
 
-* [#4301](https://github.com/leanprover/lean4/pull/4301) 
+* [#4301](https://github.com/leanprover/lean4/pull/4301)
   adds a linter to flag situations where a local variable's name is one of
   the argumentless constructors of its type. This can arise when a user either
   doesn't open a namespace or doesn't add a dot or leading qualifier, as
@@ -211,7 +211,7 @@ v4.10.0
 
 ### Lake
 
-* [#4384](https://github.com/leanprover/lean4/pull/4384) deprecates `inputFile` and replaces it with `inputBinFile` and `inputTextFile`. Unlike `inputBinFile` (and `inputFile`), `inputTextFile` normalizes line endings, which helps ensure text file traces are platform-independent. 
+* [#4384](https://github.com/leanprover/lean4/pull/4384) deprecates `inputFile` and replaces it with `inputBinFile` and `inputTextFile`. Unlike `inputBinFile` (and `inputFile`), `inputTextFile` normalizes line endings, which helps ensure text file traces are platform-independent.
 * [#4371](https://github.com/leanprover/lean4/pull/4371) simplifies dependency resolution code.
 * [#4439](https://github.com/leanprover/lean4/pull/4439) touches up the Lake configuration DSL and makes other improvements:
   string literals can now be used instead of identifiers for names,
@@ -292,7 +292,7 @@ v4.10.0
 
 
 v4.9.0
----------- 
+----------
 
 ### Language features, tactics, and metaprograms
 
@@ -362,7 +362,7 @@ v4.9.0
     When `index := false`, only the head function is taken into account, like in Lean 3.
     This feature can help users diagnose tricky simp failures or issues in code from libraries
     developed using Lean 3 and then ported to Lean 4.
-    
+
     In the following example, it will report that `foo` is a problematic theorem.
     ```lean
     opaque f : Nat → Nat → Nat
@@ -382,7 +382,7 @@ v4.9.0
     opaque f : Nat → Nat → Nat
 
     @[simp] theorem foo : f x (no_index (x, y).2) = y := by sorry
-    
+
     example : f a b ≤ b := by
       simp -- `foo` is still applied with `index := true`
     ```
@@ -587,6 +587,7 @@ While most changes could be considered to be a breaking change, this section mak
 
 * `Nat.zero_or` and `Nat.or_zero` have been swapped ([#4094](https://github.com/leanprover/lean4/pull/4094)).
 * `IsLawfulSingleton` is now `LawfulSingleton` ([#4350](https://github.com/leanprover/lean4/pull/4350)).
+* The `BitVec` literal notation is now `<num>#<term>` rather than `<term>#<term>`, and it is global rather than scoped. Use `BitVec.ofNat w x` rather than `x#w` when `x` is a not a numeric literal ([0d3051](https://github.com/leanprover/lean4/commit/0d30517dca094a07bcb462252f718e713b93ffba)).
 * `BitVec.rotateLeft` and `BitVec.rotateRight` now take the shift modulo the bitwidth ([#4229](https://github.com/leanprover/lean4/pull/4229)).
 * These are no longer simp lemmas:
   `List.length_pos` ([#4172](https://github.com/leanprover/lean4/pull/4172)),

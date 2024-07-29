@@ -40,9 +40,9 @@ macro_rules
 
 macro_rules
   | `(∀ $x:ident $pred:binderPred, $p) =>
-    `(∀ $x:ident, satisfies_binder_pred% $x $pred → $p)
+    `(∀ ⦃$x:ident⦄, satisfies_binder_pred% $x $pred → $p)
   | `(∀ _ $pred:binderPred, $p) =>
-    `(∀ x, satisfies_binder_pred% x $pred → $p)
+    `(∀ ⦃x⦄, satisfies_binder_pred% x $pred → $p)
 
 /-- Declare `∃ x > y, ...` as syntax for `∃ x, x > y ∧ ...` -/
 binder_predicate x " > " y:term => `($x > $y)

@@ -456,7 +456,7 @@ where
       let parserState := Runtime.markPersistent parserState
       let cmdState := Runtime.markPersistent cmdState
       let ctx := Runtime.markPersistent ctx
-      let _ ← IO.asTask (parseCmd none parserState cmdState prom ctx)
+      let _ ← IO.asTask (parseCmd none parserState cmdState prom { diagnostics := .empty, cmdState } ctx)
       return {
         diagnostics
         infoTree? := cmdState.infoState.trees[0]!
@@ -467,7 +467,7 @@ where
       }
 
   parseCmd (old? : Option CommandParsedSnapshot) (parserState : Parser.ModuleParserState)
-      (cmdState : Command.State) (prom : IO.Promise _) : LeanProcessingM Unit := do
+      (cmdState : Command.State) (prom : IO.Promise _) (oldFinished : CommandFinishedSnapshot) : LeanProcessingM Unit := do
     let ctx ← read
 
       let beginPos := parserState.pos
@@ -488,19 +488,20 @@ where
           tacticCache
           ctx
 
-      if Parser.isTerminalCommand stx then
-        prom.resolve <| .mk (nextCmdSnap? := none) <| Runtime.markPersistent {
-          diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
-          stx
-          parserState
-          elabSnap := { range? := stx.getRange?, task := elabPromise.result }
-          finishedSnap
-          tacticCache
-        }
+      let next? ← if Parser.isTerminalCommand stx then pure none
         -- for now, wait on "command finished" snapshot before parsing next command
-      else
+        else some <$> IO.Promise.new
+      prom.resolve <| .mk (nextCmdSnap? := next?.map ({ range? := none, task := ·.result })) {
+        diagnostics := .empty
+        stx := .missing
+        parserState := {}
+        elabSnap := { range? := stx.getRange?, task := elabPromise.result }
+        finishedSnap := .pure oldFinished
+        tacticCache
+      }
+      if let some next := next? then
         finishedSnap.get |> fun finished =>
-          parseCmd none parserState finished.cmdState prom ctx
+          parseCmd none parserState finished.cmdState next oldFinished ctx
 
   doElab (stx : Syntax) (cmdState : Command.State) (beginPos : String.Pos)
       (snap : SnapshotBundle DynamicSnapshot) (tacticCache : IO.Ref Tactic.Cache) :

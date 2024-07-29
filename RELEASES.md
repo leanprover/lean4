@@ -35,10 +35,6 @@ v4.10.0
   * [#4579](https://github.com/leanprover/lean4/pull/4579) works around changes to the definition of `Fin.sub` in this release.
 * [#4490](https://github.com/leanprover/lean4/pull/4490) sets up groundwork for a tactic index in generated documentation, as there was in Lean 3. See PR description for details.
 
-* **Incrementality**
-  * [#4459](https://github.com/leanprover/lean4/pull/4459) adds incrementality support for `next` and `if` tactics.
-  * [#4554](https://github.com/leanprover/lean4/pull/4554) disables incrementality for tactics in terms in tactics.
-
 * **Commands**
   * [#4370](https://github.com/leanprover/lean4/pull/4370) makes the `variable` command fully elaborate binders during validation, fixing an issue where some errors would be reported only at the next declaration.
   * [#4408](https://github.com/leanprover/lean4/pull/4408) fixes a discrepency in universe parameter order between `theorem` and `def` declarations.
@@ -181,8 +177,6 @@ v4.10.0
   * [#4497](https://github.com/leanprover/lean4/pull/4497) fixes a name resolution bug for generalized field notation (dot notation).
   * [#4536](https://github.com/leanprover/lean4/pull/4536) blocks the implicit lambda feature for `(e :)` notation.
   * [#4562](https://github.com/leanprover/lean4/pull/4562) makes it be an error for there to be two functions with the same name in a `where`/`let rec` block.
-  * [#4643](https://github.com/leanprover/lean4/pull/4643) fixes issue leading to nested error messages and info trees vanishing, where snapshot subtrees were not restored on reuse.
-  * [#4657](https://github.com/leanprover/lean4/pull/4657) calculates error suppression per snapshot, letting elaboration errors appear even when there are later parse errors ([RFC #3556](https://github.com/leanprover/lean4/issues/3556)).
 * Recursion principles
   * [#4549](https://github.com/leanprover/lean4/pull/4549) refactors `findRecArg`, extracting `withRecArgInfo`.
     Errors are now reported in parameter order rather than the order they are tried (non-indices are tried first).
@@ -191,7 +185,7 @@ v4.10.0
   * [#4474](https://github.com/leanprover/lean4/pull/4474) takes a step to refactor `constructions` toward a future port to Lean.
   * [#4498](https://github.com/leanprover/lean4/pull/4498) ports `mk_definition_inferring_unsafe` to Lean.
   * [#4516](https://github.com/leanprover/lean4/pull/4516) ports `recOn` construction to Lean.
-  * [#4517](https://github.com/leanprover/lean4/pull/4517) and [#4653](https://github.com/leanprover/lean4/pull/4653) port `below` and `brecOn` construction to Lean.
+  * [#4517](https://github.com/leanprover/lean4/pull/4517), [#4653](https://github.com/leanprover/lean4/pull/4653), and [#4651](https://github.com/leanprover/lean4/pull/4651) port `below` and `brecOn` construction to Lean.
 * Documentation
   * [#4501](https://github.com/leanprover/lean4/pull/4501) adds a more-detailed docstring for `PersistentEnvExtension`.
 * **Other fixes or improvements**
@@ -206,8 +200,6 @@ v4.10.0
   * [#4509](https://github.com/leanprover/lean4/pull/4509) adds additional tests for `apply?` tactic.
   * [d6eab3](https://github.com/leanprover/lean4/commit/d6eab393f4df9d473b5736d636b178eb26d197e6) fixes a benchmark.
   * [#4563](https://github.com/leanprover/lean4/pull/4563) adds a workaround for a bug in `IndPredBelow.mkBelowMatcher`.
-  * [#4569](https://github.com/leanprover/lean4/pull/4569) fixes an issue introduced in a merge conflict, where the interrupt exception was swallowed by some `tryCatchRuntimeEx` uses.
-  * [b056a0](https://github.com/leanprover/lean4/commit/b056a0b395bb728512a3f3e83bf9a093059d4301) adapts kernel interruption to the new cancellation system.
 * **Cleanup:** [#4380](https://github.com/leanprover/lean4/pull/4380), [#4431](https://github.com/leanprover/lean4/pull/4431), [#4494](https://github.com/leanprover/lean4/pull/4494), [e8f768](https://github.com/leanprover/lean4/commit/e8f768f9fd8cefc758533bc76e3a12b398ed4a39), [de2690](https://github.com/leanprover/lean4/commit/de269060d17a581ed87f40378dbec74032633b27), [d3a756](https://github.com/leanprover/lean4/commit/d3a7569c97123d022828106468d54e9224ed8207), [#4404](https://github.com/leanprover/lean4/pull/4404), [#4537](https://github.com/leanprover/lean4/pull/4537).
 
 ### Compiler, runtime, and FFI
@@ -229,7 +221,6 @@ v4.10.0
   and downgrades unknown configuration fields from an error to a warning to improve cross-version compatibility.
 * [#4496](https://github.com/leanprover/lean4/pull/4496) tweaks `require` syntax and updates docs. Now `require` in TOML for a package name such as `doc-gen4` does not need French quotes.
 * [#4485](https://github.com/leanprover/lean4/pull/4485) fixes a bug where package versions in indirect dependencies would take precedence over direct dependencies.
-* [#4518](https://github.com/leanprover/lean4/pull/4518) makes trace reading more robust. Lake now rebuilds if trace files are invalid or unreadable and is backwards compatible with previous pure numeric traces.
 * [#4477](https://github.com/leanprover/lean4/pull/4477) exposes the bundled C compiler's compiler flags, which is needed to skip the use of `leanc` in Lake.
 * [#4478](https://github.com/leanprover/lean4/pull/4478) fixes a bug where Lake incorrectly included the module dynamic library in a platform-independent trace.
 * [#4529](https://github.com/leanprover/lean4/pull/4529) fixes some issues with bad import errors.
@@ -285,7 +276,6 @@ v4.10.0
 * [6d265b](https://github.com/leanprover/lean4/commit/6d265b42b117eef78089f479790587a399da7690) fixes for `github.event.pull_request.merge_commit_sha` sometimes not being available.
 * [16cad2](https://github.com/leanprover/lean4/commit/16cad2b45c6a77efe4dce850dcdbaafaa7c91fc3) adds optimization for CI to not fetch complete history.
 * [#4544](https://github.com/leanprover/lean4/pull/4544) causes releases to be marked as prerelease on GitHub.
-* [#4628](https://github.com/leanprover/lean4/pull/4628) fixes the Windows build, which was missing an exported symbol.
 * Nix
   * [5eb5fa](https://github.com/leanprover/lean4/commit/5eb5fa49cf9862e99a5bccff8d4ca1a062f81900) fixes `update-stage0-commit` for Nix.
   * [#4476](https://github.com/leanprover/lean4/pull/4476) adds gdb to Nix shell.
@@ -327,6 +317,8 @@ v4.9.0
   * [#4395](https://github.com/leanprover/lean4/pull/4395) adds conservative fix for whitespace handling to avoid incremental reuse leading to goals in front of the text cursor being shown.
   * [#4407](https://github.com/leanprover/lean4/pull/4407) fixes non-incremental commands in macros blocking further incremental reporting.
   * [#4436](https://github.com/leanprover/lean4/pull/4436) fixes incremental reporting when there are nested tactics in terms.
+  * [#4459](https://github.com/leanprover/lean4/pull/4459) adds incrementality support for `next` and `if` tactics.
+  * [#4554](https://github.com/leanprover/lean4/pull/4554) disables incrementality for tactics in terms in tactics.
 * **Functional induction**
   * [#4135](https://github.com/leanprover/lean4/pull/4135) ensures that the names used for functional induction are reserved.
   * [#4327](https://github.com/leanprover/lean4/pull/4327) adds support for structural recursion on reflexive types.
@@ -410,6 +402,8 @@ v4.9.0
   * [#4267](https://github.com/leanprover/lean4/pull/4267) cases signature elaboration errors to show even if there are parse errors in the body.
   * [#4368](https://github.com/leanprover/lean4/pull/4368) improves error messages when numeric literals fail to synthesize an `OfNat` instance,
     including special messages warning when the expected type of the numeral can be a proposition.
+  * [#4643](https://github.com/leanprover/lean4/pull/4643) fixes issue leading to nested error messages and info trees vanishing, where snapshot subtrees were not restored on reuse.
+  * [#4657](https://github.com/leanprover/lean4/pull/4657) calculates error suppression per snapshot, letting elaboration errors appear even when there are later parse errors ([RFC #3556](https://github.com/leanprover/lean4/issues/3556)).
 * **Metaprogramming**
   * [#4167](https://github.com/leanprover/lean4/pull/4167) adds `Lean.MVarId.revertAll` to revert all free variables.
   * [#4169](https://github.com/leanprover/lean4/pull/4169) adds `Lean.MVarId.ensureNoMVar` to ensure the goal's target contains no expression metavariables.
@@ -526,6 +520,8 @@ v4.9.0
   * [#4192](https://github.com/leanprover/lean4/pull/4192) fixes restoration of infotrees when auto-bound implicit feature is activated,
     fixing a pretty printing error in hovers and strengthening the unused variable linter.
   * [dfb496](https://github.com/leanprover/lean4/commit/dfb496a27123c3864571aec72f6278e2dad1cecf) fixes `declareBuiltin` to allow it to be called multiple times per declaration.
+  * [#4569](https://github.com/leanprover/lean4/pull/4569) fixes an issue introduced in a merge conflict, where the interrupt exception was swallowed by some `tryCatchRuntimeEx` uses.
+  * [b056a0](https://github.com/leanprover/lean4/commit/b056a0b395bb728512a3f3e83bf9a093059d4301) adapts kernel interruption to the new cancellation system.
   * Cleanup: [#4112](https://github.com/leanprover/lean4/pull/4112), [#4126](https://github.com/leanprover/lean4/pull/4126), [#4091](https://github.com/leanprover/lean4/pull/4091), [#4139](https://github.com/leanprover/lean4/pull/4139), [#4153](https://github.com/leanprover/lean4/pull/4153).
   * Tests: [030406](https://github.com/leanprover/lean4/commit/03040618b8f9b35b7b757858483e57340900cdc4), [#4133](https://github.com/leanprover/lean4/pull/4133).
 
@@ -536,6 +532,7 @@ v4.9.0
 * [#3915](https://github.com/leanprover/lean4/pull/3915) documents the runtime memory layout for inductive types.
 
 ### Lake
+* [#4518](https://github.com/leanprover/lean4/pull/4518) makes trace reading more robust. Lake now rebuilds if trace files are invalid or unreadable and is backwards compatible with previous pure numeric traces.
 * [#4057](https://github.com/leanprover/lean4/pull/4057) adds support for docstrings on `require` commands.
 * [#4088](https://github.com/leanprover/lean4/pull/4088) improves hovers for `family_def` and `library_data` commands.
 * [#4147](https://github.com/leanprover/lean4/pull/4147) adds default `README.md` to package templates
@@ -585,6 +582,7 @@ v4.9.0
 * [#4333](https://github.com/leanprover/lean4/pull/4333) adjusts workflow to update Batteries in manifest when creating `lean-pr-testing-NNNN` Mathlib branches.
 * [#4355](https://github.com/leanprover/lean4/pull/4355) simplifies `lean4checker` step of release checklist.
 * [#4361](https://github.com/leanprover/lean4/pull/4361) adds installing elan to `pr-release` CI step.
+* [#4628](https://github.com/leanprover/lean4/pull/4628) fixes the Windows build, which was missing an exported symbol.
 
 ### Breaking changes
 While most changes could be considered to be a breaking change, this section makes special note of API changes.

@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2014 Parikshit Khanna. All rights reserved.
+Copyright (c) 2024 Yury Kudryashov. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro
+Authors: Yury Kudryashov
 -/
 prelude
 import Init.Data.List.Pairwise
@@ -10,6 +10,27 @@ import Init.Data.List.Pairwise
 # Lemmas about `List.eraseP` and `List.erase`.
 -/
 
+@[simp] theorem Nat.exists_ne_zero {P : Nat → Prop} : (∃ n, ¬ n = 0 ∧ P n) ↔ ∃ n, P (n + 1) := by
+  constructor
+  · rintro ⟨n, h, w⟩
+    cases n with
+    | zero => simp_all
+    | succ n => exact ⟨n, w⟩
+  · rintro ⟨n, w⟩
+    exact ⟨n + 1, by simp, w⟩
+
+theorem Nat.exists_iff_or {P : Nat → Prop} : (∃ n, P n) ↔ P 0 ∨ ∃ n, P (n + 1) := by
+  constructor
+  · rintro ⟨n, w⟩
+    cases n with
+    | zero => simp_all
+    | succ n => exact Or.inr ⟨n, w⟩
+  · rintro (h | ⟨n, w⟩)
+    · exact ⟨0, h⟩
+    · exact ⟨n + 1, w⟩
+
+@[congr]
+theorem foo {P Q : Prop} (h : P = Q) (β : P → Prop) : (∃ p, β p) ↔ ∃ q, β (h.mpr q) := by sorry
 namespace List
 
 open Nat
@@ -386,5 +407,106 @@ theorem length_eraseIdx : ∀ {l i}, i < length l → length (@eraseIdx α l i) 
     have : i < length xs := Nat.lt_of_succ_lt_succ h
     simp [eraseIdx, ← Nat.add_one]
     rw [length_eraseIdx this, Nat.sub_add_cancel (Nat.lt_of_le_of_lt (Nat.zero_le _) this)]
+
+@[simp] theorem eraseIdx_zero (l : List α) : eraseIdx l 0 = tail l := by cases l <;> rfl
+
+theorem eraseIdx_eq_take_drop_succ :
+    ∀ (l : List α) (i : Nat), l.eraseIdx i = l.take i ++ l.drop (i + 1)
+  | nil, _ => by simp
+  | a::l, 0 => by simp
+  | a::l, i + 1 => by simp [eraseIdx_eq_take_drop_succ l i]
+
+theorem eraseIdx_sublist : ∀ (l : List α) (k : Nat), eraseIdx l k <+ l
+  | [], _ => by simp
+  | a::l, 0 => by simp
+  | a::l, k + 1 => by simp [eraseIdx_sublist l k]
+
+theorem eraseIdx_subset (l : List α) (k : Nat) : eraseIdx l k ⊆ l := (eraseIdx_sublist l k).subset
+
+@[simp]
+theorem eraseIdx_eq_self : ∀ {l : List α} {k : Nat}, eraseIdx l k = l ↔ length l ≤ k
+  | [], _ => by simp
+  | a::l, 0 => by simp [(cons_ne_self _ _).symm]
+  | a::l, k + 1 => by simp [eraseIdx_eq_self]
+
+theorem eraseIdx_of_length_le {l : List α} {k : Nat} (h : length l ≤ k) : eraseIdx l k = l := by
+  rw [eraseIdx_eq_self.2 h]
+
+theorem eraseIdx_append_of_lt_length {l : List α} {k : Nat} (hk : k < length l) (l' : List α) :
+    eraseIdx (l ++ l') k = eraseIdx l k ++ l' := by
+  induction l generalizing k with
+  | nil => simp_all
+  | cons x l ih =>
+    cases k with
+    | zero => rfl
+    | succ k => simp_all [eraseIdx_cons_succ, Nat.succ_lt_succ_iff]
+
+theorem eraseIdx_append_of_length_le {l : List α} {k : Nat} (hk : length l ≤ k) (l' : List α) :
+    eraseIdx (l ++ l') k = l ++ eraseIdx l' (k - length l) := by
+  induction l generalizing k with
+  | nil => simp_all
+  | cons x l ih =>
+    cases k with
+    | zero => simp_all
+    | succ k => simp_all [eraseIdx_cons_succ, Nat.succ_sub_succ]
+
+protected theorem IsPrefix.eraseIdx {l l' : List α} (h : l <+: l') (k : Nat) :
+    eraseIdx l k <+: eraseIdx l' k := by
+  rcases h with ⟨t, rfl⟩
+  if hkl : k < length l then
+    simp [eraseIdx_append_of_lt_length hkl]
+  else
+    rw [Nat.not_lt] at hkl
+    simp [eraseIdx_append_of_length_le hkl, eraseIdx_of_length_le hkl]
+
+theorem mem_eraseIdx_iff_getElem {x : α} :
+    ∀ {l} {k}, x ∈ eraseIdx l k ↔ ∃ i h, i ≠ k ∧ l[i]'h = x
+  | [], _ => by
+    simp only [eraseIdx, not_mem_nil, false_iff]
+    rintro ⟨i, h, -⟩
+    exact Nat.not_lt_zero _ h
+  | a::l, 0 => by simp [mem_iff_getElem, Nat.succ_lt_succ_iff]
+  | a::l, k+1 => by
+    simp [Fin.exists_fin_succ, mem_eraseIdx_iff_getElem, @eq_comm _ a, k.succ_ne_zero.symm]
+
+theorem mem_eraseIdx_iff_getElem {x : α} :
+    ∀ {l} {k}, x ∈ eraseIdx l k ↔ ∃ i h, i ≠ k ∧ l[i]'h = x
+  | [], _ => by
+    simp only [eraseIdx, not_mem_nil, false_iff]
+    rintro ⟨i, h, -⟩
+    exact Nat.not_lt_zero _ h
+  | a::l, 0 => by
+    simp only [eraseIdx_zero, tail_cons, mem_iff_getElem, get_eq_getElem, length_cons, ne_eq,
+      exists_and_left]
+    constructor
+    · rintro ⟨i, h, rfl⟩
+      refine ⟨i + 1, by simpa [Nat.succ_lt_succ_iff]⟩
+    · rintro ⟨_ | i, _, w, _, rfl⟩
+      · simp_all
+      · refine ⟨i, by simpa [Nat.succ_lt_succ_iff] using w, by simp⟩
+  | a::l, k+1 => by
+    simp only [eraseIdx_cons_succ, mem_cons, mem_eraseIdx_iff_getElem, ne_eq, exists_and_left,
+      length_cons]
+    constructor
+    · sorry
+    · sorry
+
+@[deprecated mem_eraseIdx_iff_getElem (since := "2024-06-12")]
+theorem mem_eraseIdx_iff_get {x : α} {l} {k} :
+    x ∈ eraseIdx l k ↔ ∃ i : Fin l.length, ↑i ≠ k ∧ l.get i = x := by
+  simp [mem_eraseIdx_iff_getElem]
+
+theorem mem_eraseIdx_iff_getElem? {x : α} {l} {k} : x ∈ eraseIdx l k ↔ ∃ i ≠ k, l[i]? = some x := by
+  simp only [mem_eraseIdx_iff_getElem, getElem_eq_iff, Fin.exists_iff, exists_and_left]
+  refine exists_congr fun i => and_congr_right' ?_
+  constructor
+  · rintro ⟨_, h⟩; exact h
+  · rintro h;
+    obtain ⟨h', -⟩ := getElem?_eq_some.1 h
+    exact ⟨h', h⟩
+
+@[deprecated mem_eraseIdx_iff_getElem? (since := "2024-06-12")]
+theorem mem_eraseIdx_iff_get? {x : α} {l} {k} : x ∈ eraseIdx l k ↔ ∃ i ≠ k, l.get? i = x := by
+  simp [mem_eraseIdx_iff_getElem?]
 
 end List

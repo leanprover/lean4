@@ -534,6 +534,8 @@ def sshiftRight (a : BitVec n) (s : Nat) : BitVec n := .ofInt n (a.toInt >>> s)
 instance {n} : HShiftLeft  (BitVec m) (BitVec n) (BitVec m) := ⟨fun x y => x <<< y.toNat⟩
 instance {n} : HShiftRight (BitVec m) (BitVec n) (BitVec m) := ⟨fun x y => x >>> y.toNat⟩
 
+def sshiftRight' (a : BitVec n) (s : BitVec m) : BitVec n := a.sshiftRight s.toNat
+
 /-- Auxiliary function for `rotateLeft`, which does not take into account the case where
 the rotation amount is greater than the bitvector width. -/
 def rotateLeftAux (x : BitVec w) (n : Nat) : BitVec w :=

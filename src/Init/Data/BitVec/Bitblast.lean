@@ -403,12 +403,8 @@ theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} :
   induction n generalizing x y
   case zero =>
     ext i
-    simp only [shiftLeftRec_zero, twoPow_zero, Nat.reduceAdd, truncate_one]
-    suffices (y &&& 1#w₂) = zeroExtend w₂ (ofBool (y.getLsb 0)) by simp [this]
-    ext i
-    by_cases h : (↑i : Nat) = 0
-    · simp [h, Bool.and_comm]
-    · simp [h]; omega
+    simp only [shiftLeftRec_zero, twoPow_zero, Nat.reduceAdd, truncate_one,
+      and_one_eq_zeroExtend_ofBool_getLsb]
   case succ n ih =>
     simp only [shiftLeftRec_succ, and_twoPow]
     rw [ih]
@@ -430,5 +426,66 @@ theorem shiftLeft_eq_shiftLeftRec (x : BitVec w₁) (y : BitVec w₂) :
   rcases w₂ with rfl | w₂
   · simp [of_length_zero]
   · simp [shiftLeftRec_eq]
+
+/- ### Arithmetic shift right (sshiftRight) recurrence -/
+
+/--
+`sshiftRightRec x y n` shifts `x` arithmetically/signed to the right by the first `n` bits of `y`.
+The theorem `sshiftRight_eq_sshiftRightRec` proves the equivalence of `(x.sshiftRight y)` and `sshiftRightRec`.
+Together with equations `sshiftRightRec_zero`, `sshiftRightRec_succ`,
+this allows us to unfold `sshiftRight` into a circuit for bitblasting.
+-/
+def sshiftRightRec (x : BitVec w₁) (y : BitVec w₂) (n : Nat) : BitVec w₁ :=
+  let shiftAmt := (y &&& (twoPow w₂ n))
+  match n with
+  | 0 => x.sshiftRight' shiftAmt
+  | n + 1 => (sshiftRightRec x y n).sshiftRight' shiftAmt
+
+@[simp]
+theorem sshiftRightRec_zero_eq (x : BitVec w₁) (y : BitVec w₂) :
+    sshiftRightRec x y 0 = x.sshiftRight' (y &&& 1#w₂) := by
+  simp only [sshiftRightRec, twoPow_zero]
+
+@[simp]
+theorem sshiftRightRec_succ_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) :
+    sshiftRightRec x y (n + 1) = (sshiftRightRec x y n).sshiftRight' (y &&& twoPow w₂ (n + 1)) := by
+  simp [sshiftRightRec]
+
+/--
+If `y &&& z = 0`, `x.sshiftRight (y ||| z) = (x.sshiftRight y).sshiftRight z`.
+This follows as `y &&& z = 0` implies `y ||| z = y + z`,
+and thus `x.sshiftRight (y ||| z) = x.sshiftRight (y + z) = (x.sshiftRight y).sshiftRight z`.
+-/
+theorem sshiftRight'_or_of_and_eq_zero {x : BitVec w₁} {y z : BitVec w₂}
+    (h : y &&& z = 0#w₂) :
+    x.sshiftRight' (y ||| z) = (x.sshiftRight' y).sshiftRight' z := by
+  simp [sshiftRight', ← add_eq_or_of_and_eq_zero _ _ h,
+    toNat_add_of_and_eq_zero h, sshiftRight_add]
+
+theorem sshiftRightRec_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) :
+    sshiftRightRec x y n = x.sshiftRight' ((y.truncate (n + 1)).zeroExtend w₂) := by
+  induction n generalizing x y
+  case zero =>
+    ext i
+    simp [twoPow_zero, Nat.reduceAdd, and_one_eq_zeroExtend_ofBool_getLsb, truncate_one]
+  case succ n ih =>
+    simp only [sshiftRightRec_succ_eq, and_twoPow, ih]
+    by_cases h : y.getLsb (n + 1)
+    · rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsb_true h,
+        sshiftRight'_or_of_and_eq_zero (by simp), h]
+      simp
+    · rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsb_false (i := n + 1)
+        (by simp [h])]
+      simp [h]
+
+/--
+Show that `x.sshiftRight y` can be written in terms of `sshiftRightRec`.
+This can be unfolded in terms of `sshiftRightRec_zero_eq`, `sshiftRightRec_succ_eq` for bitblasting.
+-/
+theorem sshiftRight_eq_sshiftRightRec (x : BitVec w₁) (y : BitVec w₂) :
+    (x.sshiftRight' y).getLsb i = (sshiftRightRec x y (w₂ - 1)).getLsb i := by
+  rcases w₂ with rfl | w₂
+  · simp [of_length_zero]
+  · simp [sshiftRightRec_eq]
 
 end BitVec

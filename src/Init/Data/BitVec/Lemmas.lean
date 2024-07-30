@@ -774,7 +774,7 @@ theorem sshiftRight_eq_of_msb_true {x : BitVec w} {s : Nat} (h : x.msb = true) :
     · rw [Nat.shiftRight_eq_div_pow]
       apply Nat.lt_of_le_of_lt (Nat.div_le_self _ _) (by omega)
 
-theorem getLsb_sshiftRight (x : BitVec w) (s i : Nat) :
+@[simp] theorem getLsb_sshiftRight (x : BitVec w) (s i : Nat) :
     getLsb (x.sshiftRight s) i =
       (!decide (w ≤ i) && if s + i < w then x.getLsb (s + i) else x.msb) := by
   rcases hmsb : x.msb with rfl | rfl
@@ -794,6 +794,41 @@ theorem getLsb_sshiftRight (x : BitVec w) (s i : Nat) :
         Bool.and_iff_right_iff_imp, Bool.or_eq_true, Bool.not_eq_true', decide_eq_false_iff_not,
         Nat.not_lt, decide_eq_true_eq]
       omega
+
+/-- The msb after arithmetic shifting right equals the original msb. -/
+theorem sshiftRight_msb_eq_msb {n : Nat} {x : BitVec w} :
+    (x.sshiftRight n).msb = x.msb := by
+  rw [msb_eq_getLsb_last, getLsb_sshiftRight, msb_eq_getLsb_last]
+  by_cases hw₀ : w = 0
+  · simp [hw₀]
+  · simp only [show ¬(w ≤ w - 1) by omega, decide_False, Bool.not_false, Bool.true_and,
+      ite_eq_right_iff]
+    intros h
+    simp [show n = 0 by omega]
+
+@[simp] theorem sshiftRight_zero {x : BitVec w} : x.sshiftRight 0 = x := by
+  ext i
+  simp
+
+theorem sshiftRight_add {x : BitVec w} {m n : Nat} :
+    x.sshiftRight (m + n) = (x.sshiftRight m).sshiftRight n := by
+  ext i
+  simp only [getLsb_sshiftRight, Nat.add_assoc]
+  by_cases h₁ : w ≤ (i : Nat)
+  · simp [h₁]
+  · simp only [h₁, decide_False, Bool.not_false, Bool.true_and]
+    by_cases h₂ : n + ↑i < w
+    · simp [h₂]
+    · simp only [h₂, ↓reduceIte]
+      by_cases h₃ : m + (n + ↑i) < w
+      · simp [h₃]
+        omega
+      · simp [h₃, sshiftRight_msb_eq_msb]
+
+/-! ### sshiftRight reductions from BitVec to Nat -/
+
+@[simp]
+theorem sshiftRight_eq' (x : BitVec w) : x.sshiftRight' y = x.sshiftRight y.toNat := rfl
 
 /-! ### signExtend -/
 
@@ -1548,5 +1583,13 @@ theorem zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsb_true
   · subst hik
     simp [hx]
   · by_cases hik' : k < i + 1 <;> simp [hik, hik'] <;> omega
+
+/-- Bitwise `and` of `(x : BitVec w`) with `1#w` equals zero extending the `lsb` to `w`. -/
+theorem and_one_eq_zeroExtend_ofBool_getLsb {x : BitVec w} :
+    (x &&& 1#w) = zeroExtend w (ofBool (x.getLsb 0)) := by
+  ext i
+  simp only [getLsb_and, getLsb_one, getLsb_zeroExtend, Fin.is_lt, decide_True, getLsb_ofBool,
+    Bool.true_and]
+  by_cases h : (0 = (i : Nat)) <;> simp [h] <;> omega
 
 end BitVec

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro
 -/
 prelude
-import Init.Data.List.Lemmas
+import Init.Data.List.Count
 import Init.Data.Subtype
 
 namespace List

@@ -14,6 +14,7 @@ import Init.Data.List.Find
 import Init.Data.List.Impl
 import Init.Data.List.Lemmas
 import Init.Data.List.MinMax
+import Init.Data.List.Monadic
 import Init.Data.List.Nat
 import Init.Data.List.Notation
 import Init.Data.List.Pairwise

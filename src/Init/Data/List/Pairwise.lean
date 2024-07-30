@@ -23,48 +23,10 @@ theorem Pairwise.sublist : l₁ <+ l₂ → l₂.Pairwise R → l₁.Pairwise R
   | .cons _ s, .cons _ h₂ => h₂.sublist s
   | .cons₂ _ s, .cons h₁ h₂ => (h₂.sublist s).cons fun _ h => h₁ _ (s.subset h)
 
-theorem pairwise_map {l : List α} :
-    (l.map f).Pairwise R ↔ l.Pairwise fun a b => R (f a) (f b) := by
-  induction l
-  · simp
-  · simp only [map, pairwise_cons, forall_mem_map, *]
-
-theorem pairwise_append {l₁ l₂ : List α} :
-    (l₁ ++ l₂).Pairwise R ↔ l₁.Pairwise R ∧ l₂.Pairwise R ∧ ∀ a ∈ l₁, ∀ b ∈ l₂, R a b := by
-  induction l₁ <;> simp [*, or_imp, forall_and, and_assoc, and_left_comm]
-
-theorem pairwise_reverse {l : List α} :
-    l.reverse.Pairwise R ↔ l.Pairwise (fun a b => R b a) := by
-  induction l <;> simp [*, pairwise_append, and_comm]
-
-@[simp] theorem pairwise_replicate {n : Nat} {a : α} :
-    (replicate n a).Pairwise R ↔ n ≤ 1 ∨ R a a := by
-  induction n with
-  | zero => simp
-  | succ n ih =>
-    simp only [replicate_succ, pairwise_cons, mem_replicate, ne_eq, and_imp,
-      forall_eq_apply_imp_iff, ih]
-    constructor
-    · rintro ⟨h, h' | h'⟩
-      · by_cases w : n = 0
-        · left
-          subst w
-          simp
-        · right
-          exact h w
-      · right
-        exact h'
-    · rintro (h | h)
-      · obtain rfl := eq_zero_of_le_zero (le_of_lt_succ h)
-        simp
-      · exact ⟨fun _ => h, Or.inr h⟩
-
 theorem Pairwise.imp {α R S} (H : ∀ {a b}, R a b → S a b) :
     ∀ {l : List α}, l.Pairwise R → l.Pairwise S
   | _, .nil => .nil
   | _, .cons h₁ h₂ => .cons (H ∘ h₁ ·) (h₂.imp H)
-
--- Needs reorganization below this point.
 
 theorem rel_of_pairwise_cons (p : (a :: l).Pairwise R) : ∀ {a'}, a' ∈ l → R a a' :=
   (pairwise_cons.1 p).1 _
@@ -75,11 +37,6 @@ theorem Pairwise.of_cons (p : (a :: l).Pairwise R) : Pairwise R l :=
 theorem Pairwise.tail : ∀ {l : List α} (_p : Pairwise R l), Pairwise R l.tail
   | [], h => h
   | _ :: _, h => h.of_cons
-
-theorem Pairwise.drop : ∀ {l : List α} {n : Nat}, List.Pairwise R l → List.Pairwise R (l.drop n)
-  | _, 0, h => h
-  | [], _ + 1, _ => List.Pairwise.nil
-  | _ :: _, n + 1, h => Pairwise.drop (n := n) (pairwise_cons.mp h).right
 
 theorem Pairwise.imp_of_mem {S : α → α → Prop}
     (H : ∀ {a b}, a ∈ l → b ∈ l → R a b → S a b) (p : Pairwise R l) : Pairwise S l := by
@@ -141,17 +98,11 @@ theorem pairwise_singleton (R) (a : α) : Pairwise R [a] := by simp
 
 theorem pairwise_pair {a b : α} : Pairwise R [a, b] ↔ R a b := by simp
 
-theorem pairwise_append_comm {R : α → α → Prop} (s : ∀ {x y}, R x y → R y x) {l₁ l₂ : List α} :
-    Pairwise R (l₁ ++ l₂) ↔ Pairwise R (l₂ ++ l₁) := by
-  have (l₁ l₂ : List α) (H : ∀ x : α, x ∈ l₁ → ∀ y : α, y ∈ l₂ → R x y)
-    (x : α) (xm : x ∈ l₂) (y : α) (ym : y ∈ l₁) : R x y := s (H y ym x xm)
-  simp only [pairwise_append, and_left_comm]; rw [Iff.intro (this l₁ l₂) (this l₂ l₁)]
-
-theorem pairwise_middle {R : α → α → Prop} (s : ∀ {x y}, R x y → R y x) {a : α} {l₁ l₂ : List α} :
-    Pairwise R (l₁ ++ a :: l₂) ↔ Pairwise R (a :: (l₁ ++ l₂)) := by
-  show Pairwise R (l₁ ++ ([a] ++ l₂)) ↔ Pairwise R ([a] ++ l₁ ++ l₂)
-  rw [← append_assoc, pairwise_append, @pairwise_append _ _ ([a] ++ l₁), pairwise_append_comm s]
-  simp only [mem_append, or_comm]
+theorem pairwise_map {l : List α} :
+    (l.map f).Pairwise R ↔ l.Pairwise fun a b => R (f a) (f b) := by
+  induction l
+  · simp
+  · simp only [map, pairwise_cons, forall_mem_map, *]
 
 theorem Pairwise.of_map {S : β → β → Prop} (f : α → β) (H : ∀ a b : α, S (f a) (f b) → R a b)
     (p : Pairwise S (map f l)) : Pairwise R l :=
@@ -177,10 +128,12 @@ theorem pairwise_filterMap (f : β → Option α) {l : List β} :
     simpa [IH, e] using fun _ =>
       ⟨fun h a ha b hab => h _ _ ha hab, fun h a b ha hab => h _ ha _ hab⟩
 
-theorem Pairwise.filter_map {S : β → β → Prop} (f : α → Option β)
+theorem Pairwise.filterMap {S : β → β → Prop} (f : α → Option β)
     (H : ∀ a a' : α, R a a' → ∀ b ∈ f a, ∀ b' ∈ f a', S b b') {l : List α} (p : Pairwise R l) :
     Pairwise S (filterMap f l) :=
   (pairwise_filterMap _).2 <| p.imp (H _ _)
+
+@[deprecated Pairwise.filterMap (since := "2024-07-29")] abbrev Pairwise.filter_map := @Pairwise.filterMap
 
 theorem pairwise_filter (p : α → Prop) [DecidablePred p] {l : List α} :
     Pairwise R (filter p l) ↔ Pairwise (fun x y => p x → p y → R x y) l := by
@@ -189,6 +142,22 @@ theorem pairwise_filter (p : α → Prop) [DecidablePred p] {l : List α} :
 
 theorem Pairwise.filter (p : α → Bool) : Pairwise R l → Pairwise R (filter p l) :=
   Pairwise.sublist (filter_sublist _)
+
+theorem pairwise_append {l₁ l₂ : List α} :
+    (l₁ ++ l₂).Pairwise R ↔ l₁.Pairwise R ∧ l₂.Pairwise R ∧ ∀ a ∈ l₁, ∀ b ∈ l₂, R a b := by
+  induction l₁ <;> simp [*, or_imp, forall_and, and_assoc, and_left_comm]
+
+theorem pairwise_append_comm {R : α → α → Prop} (s : ∀ {x y}, R x y → R y x) {l₁ l₂ : List α} :
+    Pairwise R (l₁ ++ l₂) ↔ Pairwise R (l₂ ++ l₁) := by
+  have (l₁ l₂ : List α) (H : ∀ x : α, x ∈ l₁ → ∀ y : α, y ∈ l₂ → R x y)
+    (x : α) (xm : x ∈ l₂) (y : α) (ym : y ∈ l₁) : R x y := s (H y ym x xm)
+  simp only [pairwise_append, and_left_comm]; rw [Iff.intro (this l₁ l₂) (this l₂ l₁)]
+
+theorem pairwise_middle {R : α → α → Prop} (s : ∀ {x y}, R x y → R y x) {a : α} {l₁ l₂ : List α} :
+    Pairwise R (l₁ ++ a :: l₂) ↔ Pairwise R (a :: (l₁ ++ l₂)) := by
+  show Pairwise R (l₁ ++ ([a] ++ l₂)) ↔ Pairwise R ([a] ++ l₁ ++ l₂)
+  rw [← append_assoc, pairwise_append, @pairwise_append _ _ ([a] ++ l₁), pairwise_append_comm s]
+  simp only [mem_append, or_comm]
 
 theorem pairwise_join {L : List (List α)} :
     Pairwise R (join L) ↔
@@ -205,6 +174,38 @@ theorem pairwise_bind {R : β → β → Prop} {l : List α} {f : α → List β
     List.Pairwise R (l.bind f) ↔
       (∀ a ∈ l, Pairwise R (f a)) ∧ Pairwise (fun a₁ a₂ => ∀ x ∈ f a₁, ∀ y ∈ f a₂, R x y) l := by
   simp [List.bind, pairwise_join, pairwise_map]
+
+theorem pairwise_reverse {l : List α} :
+    l.reverse.Pairwise R ↔ l.Pairwise (fun a b => R b a) := by
+  induction l <;> simp [*, pairwise_append, and_comm]
+
+@[simp] theorem pairwise_replicate {n : Nat} {a : α} :
+    (replicate n a).Pairwise R ↔ n ≤ 1 ∨ R a a := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    simp only [replicate_succ, pairwise_cons, mem_replicate, ne_eq, and_imp,
+      forall_eq_apply_imp_iff, ih]
+    constructor
+    · rintro ⟨h, h' | h'⟩
+      · by_cases w : n = 0
+        · left
+          subst w
+          simp
+        · right
+          exact h w
+      · right
+        exact h'
+    · rintro (h | h)
+      · obtain rfl := eq_zero_of_le_zero (le_of_lt_succ h)
+        simp
+      · exact ⟨fun _ => h, Or.inr h⟩
+
+theorem Pairwise.drop {l : List α} {n : Nat} (h : List.Pairwise R l) : List.Pairwise R (l.drop n) :=
+  h.sublist (drop_sublist _ _)
+
+theorem Pairwise.take {l : List α} {n : Nat} (h : List.Pairwise R l) : List.Pairwise R (l.take n) :=
+  h.sublist (take_sublist _ _)
 
 theorem pairwise_iff_forall_sublist : l.Pairwise R ↔ (∀ {a b}, [a,b] <+ l → R a b) := by
   induction l with

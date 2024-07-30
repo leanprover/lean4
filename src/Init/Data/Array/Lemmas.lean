@@ -6,7 +6,7 @@ Authors: Mario Carneiro
 prelude
 import Init.Data.Nat.MinMax
 import Init.Data.Nat.Lemmas
-import Init.Data.List.Lemmas
+import Init.Data.List.Monadic
 import Init.Data.Fin.Basic
 import Init.Data.Array.Mem
 import Init.TacticsExtra

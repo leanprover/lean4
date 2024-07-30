@@ -47,6 +47,8 @@ theorem minimum?_mem [Min α] (min_eq_or : ∀ a b : α, min a b = a ∨ min a b
         cases min_eq_or x y with | _ q => simp [p, q]
       | inr p => simp [p, mem_cons]
 
+-- See also `Init.Data.List.Nat.Basic` for specialisations of the next two results to `Nat`.
+
 theorem le_minimum?_iff [Min α] [LE α]
     (le_min_iff : ∀ a b c : α, a ≤ min b c ↔ a ≤ b ∧ a ≤ c) :
     {xs : List α} → xs.minimum? = some a → ∀ x, x ≤ a ↔ ∀ b, b ∈ xs → x ≤ b
@@ -109,6 +111,8 @@ theorem maximum?_mem [Max α] (min_eq_or : ∀ a b : α, max a b = a ∨ max a b
     | cons y xs ih =>
       rcases ih (max x y) with h | h <;> simp [h]
       simp [← or_assoc, min_eq_or x y]
+
+-- See also `Init.Data.List.Nat.Basic` for specialisations of the next two results to `Nat`.
 
 theorem maximum?_le_iff [Max α] [LE α]
     (max_le_iff : ∀ a b c : α, max b c ≤ a ↔ b ≤ a ∧ c ≤ a) :

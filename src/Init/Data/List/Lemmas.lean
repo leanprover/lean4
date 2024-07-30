@@ -57,12 +57,20 @@ See also
 * `Init.Data.List.Find` for lemmas about `List.find?`, `List.findSome?`, `List.findIdx`,
   `List.findIdx?`, and `List.indexOf`
 * `Init.Data.List.MinMax` for lemmas about `List.minimum?` and `List.maximum?`.
+* `Init.Data.List.Pairwise` for lemmas about `List.Pairwise` and `List.Nodup`.
 * `Init.Data.List.Sublist` for lemmas about `List.Subset`, `List.Sublist`, `List.IsPrefix`,
   `List.IsSuffix`, and `List.IsInfix`.
+* `Init.Data.List.TakeDrop` for additional lemmas about `List.take` and `List.drop`.
 * `Init.Data.List.Zip` for lemmas about `List.zip`, `List.zipWith`, `List.zipWithAll`,
   and `List.unzip`.
-* `Init.Data.List.TakeDrop` for additional lemmas about `List.take` and `List.drop`
-  (which rely on further `Nat` automation)
+
+Further results, which first require developing further automation around `Nat`, appear in
+* `Init.Data.List.Nat.Basic`: miscellaneous lemmas
+* `Init.Data.List.Nat.Range`: `List.range` and `List.enum`
+* `Init.Data.List.Nat.TakeDrop`: `List.take` and `List.drop`
+
+Also
+* `Init.Data.List.Monadic` for addiation lemmas about `List.mapM` and `List.forM`.
 
 -/
 namespace List
@@ -70,15 +78,6 @@ namespace List
 open Nat
 
 /-! ## Preliminaries -/
-
--- We may want to replace these `simp` attributes with explicit equational lemmas,
--- as we already have for all the non-monadic functions.
-attribute [simp] mapA forA filterAuxM firstM anyM allM findM? findSomeM?
-
--- Previously `range.loop`, `mapM.loop`, `filterMapM.loop`, `forIn.loop`, `forIn'.loop`
--- had attribute `@[simp]`.
--- We don't currently provide simp lemmas,
--- as this is an internal implementation and they don't seem to be needed.
 
 /-! ### cons -/
 
@@ -2049,7 +2048,7 @@ theorem getLast?_replicate (a : α) (n : Nat) : (replicate n a).getLast? = if n 
 
 /-! ### leftpad -/
 
--- `length_leftpad` is in `Init.Data.List.Nat`.
+-- `length_leftpad` is in `Init.Data.List.Nat.Basic`.
 
 theorem leftpad_prefix (n : Nat) (a : α) (l : List α) :
     replicate (n - length l) a <+: leftpad n a l := by
@@ -2529,48 +2528,5 @@ theorem all_eq_not_any_not (l : List α) (p : α → Bool) : l.all p = !l.any (!
 @[simp] theorem all_insert [BEq α] [LawfulBEq α] {l : List α} {a : α} :
     (l.insert a).all f = (f a && l.all f) := by
   simp [all_eq]
-
-/-! ## Monadic operations -/
-
-/-! ### mapM -/
-
-/-- Alternate (non-tail-recursive) form of mapM for proofs. -/
-def mapM' [Monad m] (f : α → m β) : List α → m (List β)
-  | [] => pure []
-  | a :: l => return (← f a) :: (← l.mapM' f)
-
-@[simp] theorem mapM'_nil [Monad m] {f : α → m β} : mapM' f [] = pure [] := rfl
-@[simp] theorem mapM'_cons [Monad m] {f : α → m β} :
-    mapM' f (a :: l) = return ((← f a) :: (← l.mapM' f)) :=
-  rfl
-
-theorem mapM'_eq_mapM [Monad m] [LawfulMonad m] (f : α → m β) (l : List α) :
-    mapM' f l = mapM f l := by simp [go, mapM] where
-  go : ∀ l acc, mapM.loop f l acc = return acc.reverse ++ (← mapM' f l)
-    | [], acc => by simp [mapM.loop, mapM']
-    | a::l, acc => by simp [go l, mapM.loop, mapM']
-
-@[simp] theorem mapM_nil [Monad m] (f : α → m β) : [].mapM f = pure [] := rfl
-
-@[simp] theorem mapM_cons [Monad m] [LawfulMonad m] (f : α → m β) :
-    (a :: l).mapM f = (return (← f a) :: (← l.mapM f)) := by simp [← mapM'_eq_mapM, mapM']
-
-@[simp] theorem mapM_append [Monad m] [LawfulMonad m] (f : α → m β) {l₁ l₂ : List α} :
-    (l₁ ++ l₂).mapM f = (return (← l₁.mapM f) ++ (← l₂.mapM f)) := by induction l₁ <;> simp [*]
-
-/-! ### forM -/
-
--- We use `List.forM` as the simp normal form, rather that `ForM.forM`.
--- As such we need to replace `List.forM_nil` and `List.forM_cons`:
-
-@[simp] theorem forM_nil' [Monad m] : ([] : List α).forM f = (pure .unit : m PUnit) := rfl
-
-@[simp] theorem forM_cons' [Monad m] :
-    (a::as).forM f = (f a >>= fun _ => as.forM f : m PUnit) :=
-  List.forM_cons _ _ _
-
-@[simp] theorem forM_append [Monad m] [LawfulMonad m] (l₁ l₂ : List α) (f : α → m PUnit) :
-    (l₁ ++ l₂).forM f = (do l₁.forM f; l₂.forM f) := by
-  induction l₁ <;> simp [*]
 
 end List

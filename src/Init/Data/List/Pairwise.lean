@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro
 -/
 prelude
-import Init.Data.List.Lemmas
+import Init.Data.List.Sublist
 
 /-!
 # Lemmas about `List.Pairwise` and `List.Nodup`.

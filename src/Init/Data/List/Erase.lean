@@ -30,7 +30,9 @@ theorem Nat.exists_iff_or {P : Nat → Prop} : (∃ n, P n) ↔ P 0 ∨ ∃ n, P
     · exact ⟨n + 1, w⟩
 
 @[congr]
-theorem foo {P Q : Prop} (h : P = Q) (β : P → Prop) : (∃ p, β p) ↔ ∃ q, β (h.mpr q) := by sorry
+theorem exists_prop_congr {P Q : Prop} (h : P = Q) (β : P → Prop) :
+    (∃ p, β p) ↔ ∃ q, β (h.mpr q) := by cases h; rfl
+
 namespace List
 
 open Nat
@@ -467,46 +469,16 @@ theorem mem_eraseIdx_iff_getElem {x : α} :
     exact Nat.not_lt_zero _ h
   | a::l, 0 => by simp [mem_iff_getElem, Nat.succ_lt_succ_iff]
   | a::l, k+1 => by
-    simp [Fin.exists_fin_succ, mem_eraseIdx_iff_getElem, @eq_comm _ a, k.succ_ne_zero.symm]
-
-theorem mem_eraseIdx_iff_getElem {x : α} :
-    ∀ {l} {k}, x ∈ eraseIdx l k ↔ ∃ i h, i ≠ k ∧ l[i]'h = x
-  | [], _ => by
-    simp only [eraseIdx, not_mem_nil, false_iff]
-    rintro ⟨i, h, -⟩
-    exact Nat.not_lt_zero _ h
-  | a::l, 0 => by
-    simp only [eraseIdx_zero, tail_cons, mem_iff_getElem, get_eq_getElem, length_cons, ne_eq,
-      exists_and_left]
-    constructor
-    · rintro ⟨i, h, rfl⟩
-      refine ⟨i + 1, by simpa [Nat.succ_lt_succ_iff]⟩
-    · rintro ⟨_ | i, _, w, _, rfl⟩
-      · simp_all
-      · refine ⟨i, by simpa [Nat.succ_lt_succ_iff] using w, by simp⟩
-  | a::l, k+1 => by
-    simp only [eraseIdx_cons_succ, mem_cons, mem_eraseIdx_iff_getElem, ne_eq, exists_and_left,
-      length_cons]
-    constructor
-    · sorry
-    · sorry
-
-@[deprecated mem_eraseIdx_iff_getElem (since := "2024-06-12")]
-theorem mem_eraseIdx_iff_get {x : α} {l} {k} :
-    x ∈ eraseIdx l k ↔ ∃ i : Fin l.length, ↑i ≠ k ∧ l.get i = x := by
-  simp [mem_eraseIdx_iff_getElem]
+    rw [Nat.exists_iff_or]
+    simp [mem_eraseIdx_iff_getElem, @eq_comm _ a, succ_inj', Nat.succ_lt_succ_iff]
 
 theorem mem_eraseIdx_iff_getElem? {x : α} {l} {k} : x ∈ eraseIdx l k ↔ ∃ i ≠ k, l[i]? = some x := by
-  simp only [mem_eraseIdx_iff_getElem, getElem_eq_iff, Fin.exists_iff, exists_and_left]
+  simp only [mem_eraseIdx_iff_getElem, getElem_eq_iff, exists_and_left]
   refine exists_congr fun i => and_congr_right' ?_
   constructor
   · rintro ⟨_, h⟩; exact h
   · rintro h;
     obtain ⟨h', -⟩ := getElem?_eq_some.1 h
     exact ⟨h', h⟩
-
-@[deprecated mem_eraseIdx_iff_getElem? (since := "2024-06-12")]
-theorem mem_eraseIdx_iff_get? {x : α} {l} {k} : x ∈ eraseIdx l k ↔ ∃ i ≠ k, l.get? i = x := by
-  simp [mem_eraseIdx_iff_getElem?]
 
 end List

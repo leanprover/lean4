@@ -203,8 +203,9 @@ theorem exists_imp : ((∃ x, p x) → b) ↔ ∀ x, p x → b := forall_exists_
   ⟨fun ⟨_, h⟩ => h, i.elim Exists.intro⟩
 
 @[congr]
-theorem exists_prop_congr {P Q : Prop} (h : P = Q) (β : P → Prop) :
-    Exists β ↔ Exists fun q => β (h.mpr q) := by cases h; rfl
+theorem exists_prop_congr {p p' : Prop} {q q' : p → Prop} (hq : ∀ h, q h ↔ q' h) (hp : p ↔ p') :
+    Exists q ↔ ∃ h : p', q' (hp.2 h) :=
+  ⟨fun ⟨_, _⟩ ↦ ⟨hp.1 ‹_›, (hq _).1 ‹_›⟩, fun ⟨_, _⟩ ↦ ⟨_, (hq _).2 ‹_›⟩⟩
 
 theorem exists_prop_of_true {p : Prop} {q : p → Prop} (h : p) : (Exists fun h' : p => q h') ↔ q h :=
   @exists_const (q h) p ⟨h⟩

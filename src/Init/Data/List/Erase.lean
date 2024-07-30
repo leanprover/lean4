@@ -1,7 +1,8 @@
 /-
 Copyright (c) 2014 Parikshit Khanna. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro
+Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro,
+  Yury Kudryashov
 -/
 prelude
 import Init.Data.List.Pairwise
@@ -386,5 +387,59 @@ theorem length_eraseIdx : ∀ {l i}, i < length l → length (@eraseIdx α l i) 
     have : i < length xs := Nat.lt_of_succ_lt_succ h
     simp [eraseIdx, ← Nat.add_one]
     rw [length_eraseIdx this, Nat.sub_add_cancel (Nat.lt_of_le_of_lt (Nat.zero_le _) this)]
+
+@[simp] theorem eraseIdx_zero (l : List α) : eraseIdx l 0 = tail l := by cases l <;> rfl
+
+theorem eraseIdx_eq_take_drop_succ :
+    ∀ (l : List α) (i : Nat), l.eraseIdx i = l.take i ++ l.drop (i + 1)
+  | nil, _ => by simp
+  | a::l, 0 => by simp
+  | a::l, i + 1 => by simp [eraseIdx_eq_take_drop_succ l i]
+
+theorem eraseIdx_sublist : ∀ (l : List α) (k : Nat), eraseIdx l k <+ l
+  | [], _ => by simp
+  | a::l, 0 => by simp
+  | a::l, k + 1 => by simp [eraseIdx_sublist l k]
+
+theorem eraseIdx_subset (l : List α) (k : Nat) : eraseIdx l k ⊆ l := (eraseIdx_sublist l k).subset
+
+@[simp]
+theorem eraseIdx_eq_self : ∀ {l : List α} {k : Nat}, eraseIdx l k = l ↔ length l ≤ k
+  | [], _ => by simp
+  | a::l, 0 => by simp [(cons_ne_self _ _).symm]
+  | a::l, k + 1 => by simp [eraseIdx_eq_self]
+
+theorem eraseIdx_of_length_le {l : List α} {k : Nat} (h : length l ≤ k) : eraseIdx l k = l := by
+  rw [eraseIdx_eq_self.2 h]
+
+theorem eraseIdx_append_of_lt_length {l : List α} {k : Nat} (hk : k < length l) (l' : List α) :
+    eraseIdx (l ++ l') k = eraseIdx l k ++ l' := by
+  induction l generalizing k with
+  | nil => simp_all
+  | cons x l ih =>
+    cases k with
+    | zero => rfl
+    | succ k => simp_all [eraseIdx_cons_succ, Nat.succ_lt_succ_iff]
+
+theorem eraseIdx_append_of_length_le {l : List α} {k : Nat} (hk : length l ≤ k) (l' : List α) :
+    eraseIdx (l ++ l') k = l ++ eraseIdx l' (k - length l) := by
+  induction l generalizing k with
+  | nil => simp_all
+  | cons x l ih =>
+    cases k with
+    | zero => simp_all
+    | succ k => simp_all [eraseIdx_cons_succ, Nat.succ_sub_succ]
+
+protected theorem IsPrefix.eraseIdx {l l' : List α} (h : l <+: l') (k : Nat) :
+    eraseIdx l k <+: eraseIdx l' k := by
+  rcases h with ⟨t, rfl⟩
+  if hkl : k < length l then
+    simp [eraseIdx_append_of_lt_length hkl]
+  else
+    rw [Nat.not_lt] at hkl
+    simp [eraseIdx_append_of_length_le hkl, eraseIdx_of_length_le hkl]
+
+-- See also `mem_eraseIdx_iff_getElem` and `mem_eraseIdx_iff_getElem?` in
+-- `Init/Data/List/Nat/Basic.lean`.
 
 end List

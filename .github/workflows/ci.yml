@@ -298,8 +298,8 @@ jobs:
         uses: msys2/setup-msys2@v2
         with:
           msystem: clang64
-          # `:p` means prefix with appropriate msystem prefix
-          pacboy: "make python cmake:p clang:p ccache:p gmp:p git zip unzip diffutils binutils tree zstd:p tar"
+          # `:` means do not prefix with msystem
+          pacboy: "make: python: cmake clang ccache gmp git: zip: unzip: diffutils: binutils: tree: zstd tar:"
         if: runner.os == 'Windows'
       - name: Install Brew Packages
         run: |

@@ -10,29 +10,6 @@ import Init.Data.List.Pairwise
 # Lemmas about `List.eraseP` and `List.erase`.
 -/
 
-@[simp] theorem Nat.exists_ne_zero {P : Nat → Prop} : (∃ n, ¬ n = 0 ∧ P n) ↔ ∃ n, P (n + 1) := by
-  constructor
-  · rintro ⟨n, h, w⟩
-    cases n with
-    | zero => simp_all
-    | succ n => exact ⟨n, w⟩
-  · rintro ⟨n, w⟩
-    exact ⟨n + 1, by simp, w⟩
-
-theorem Nat.exists_iff_or {P : Nat → Prop} : (∃ n, P n) ↔ P 0 ∨ ∃ n, P (n + 1) := by
-  constructor
-  · rintro ⟨n, w⟩
-    cases n with
-    | zero => simp_all
-    | succ n => exact Or.inr ⟨n, w⟩
-  · rintro (h | ⟨n, w⟩)
-    · exact ⟨0, h⟩
-    · exact ⟨n + 1, w⟩
-
-@[congr]
-theorem exists_prop_congr {P Q : Prop} (h : P = Q) (β : P → Prop) :
-    (∃ p, β p) ↔ ∃ q, β (h.mpr q) := by cases h; rfl
-
 namespace List
 
 open Nat
@@ -461,24 +438,7 @@ protected theorem IsPrefix.eraseIdx {l l' : List α} (h : l <+: l') (k : Nat) :
     rw [Nat.not_lt] at hkl
     simp [eraseIdx_append_of_length_le hkl, eraseIdx_of_length_le hkl]
 
-theorem mem_eraseIdx_iff_getElem {x : α} :
-    ∀ {l} {k}, x ∈ eraseIdx l k ↔ ∃ i h, i ≠ k ∧ l[i]'h = x
-  | [], _ => by
-    simp only [eraseIdx, not_mem_nil, false_iff]
-    rintro ⟨i, h, -⟩
-    exact Nat.not_lt_zero _ h
-  | a::l, 0 => by simp [mem_iff_getElem, Nat.succ_lt_succ_iff]
-  | a::l, k+1 => by
-    rw [Nat.exists_iff_or]
-    simp [mem_eraseIdx_iff_getElem, @eq_comm _ a, succ_inj', Nat.succ_lt_succ_iff]
-
-theorem mem_eraseIdx_iff_getElem? {x : α} {l} {k} : x ∈ eraseIdx l k ↔ ∃ i ≠ k, l[i]? = some x := by
-  simp only [mem_eraseIdx_iff_getElem, getElem_eq_iff, exists_and_left]
-  refine exists_congr fun i => and_congr_right' ?_
-  constructor
-  · rintro ⟨_, h⟩; exact h
-  · rintro h;
-    obtain ⟨h', -⟩ := getElem?_eq_some.1 h
-    exact ⟨h', h⟩
+-- See also `mem_eraseIdx_iff_getElem` and `mem_eraseIdx_iff_getElem?` in
+-- `Init/Data/List/Nat/Basic.lean`.
 
 end List

@@ -102,6 +102,13 @@ def blt (a b : Nat) : Bool :=
 attribute [simp] Nat.zero_le
 attribute [simp] Nat.not_lt_zero
 
+theorem and_forall_add_one {p : Nat → Prop} : p 0 ∧ (∀ n, p (n + 1)) ↔ ∀ n, p n :=
+  ⟨fun h n => Nat.casesOn n h.1 h.2, fun h => ⟨h _, fun _ => h _⟩⟩
+
+theorem or_exists_add_one : p 0 ∨ (Exists fun n => p (n + 1)) ↔ Exists p :=
+  ⟨fun h => h.elim (fun h0 => ⟨0, h0⟩) fun ⟨n, hn⟩ => ⟨n + 1, hn⟩,
+    fun ⟨n, h⟩ => match n with | 0 => Or.inl h | n+1 => Or.inr ⟨n, h⟩⟩
+
 /-! # Helper "packing" theorems -/
 
 @[simp] theorem zero_eq : Nat.zero = 0 := rfl

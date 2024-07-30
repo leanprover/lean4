@@ -34,6 +34,28 @@ theorem leftpad_length (n : Nat) (a : α) (l : List α) :
     (leftpad n a l).length = max n l.length := by
   simp only [leftpad, length_append, length_replicate, Nat.sub_add_eq_max]
 
+/-! ### eraseIdx -/
+
+theorem mem_eraseIdx_iff_getElem {x : α} :
+    ∀ {l} {k}, x ∈ eraseIdx l k ↔ ∃ i h, i ≠ k ∧ l[i]'h = x
+  | [], _ => by
+    simp only [eraseIdx, not_mem_nil, false_iff]
+    rintro ⟨i, h, -⟩
+    exact Nat.not_lt_zero _ h
+  | a::l, 0 => by simp [mem_iff_getElem, Nat.succ_lt_succ_iff]
+  | a::l, k+1 => by
+    rw [← Nat.or_exists_add_one]
+    simp [mem_eraseIdx_iff_getElem, @eq_comm _ a, succ_inj', Nat.succ_lt_succ_iff]
+
+theorem mem_eraseIdx_iff_getElem? {x : α} {l} {k} : x ∈ eraseIdx l k ↔ ∃ i ≠ k, l[i]? = some x := by
+  simp only [mem_eraseIdx_iff_getElem, getElem_eq_iff, exists_and_left]
+  refine exists_congr fun i => and_congr_right' ?_
+  constructor
+  · rintro ⟨_, h⟩; exact h
+  · rintro h;
+    obtain ⟨h', -⟩ := getElem?_eq_some.1 h
+    exact ⟨h', h⟩
+
 /-! ### minimum? -/
 
 -- A specialization of `minimum?_eq_some_iff` to Nat.

@@ -5,8 +5,11 @@ See below for the checklist for release candidates.
 
 We'll use `v4.6.0` as the intended release version as a running example.
 
-- One week before the planned release, ensure that (1) someone has written the release notes and (2) someone has written the first draft of the release blog post.
-  If there is any material in `./releases_drafts/`, then the release notes are not done. (See the section "Writing the release notes".)
+- One week before the planned release, ensure that
+  (1) someone has written the release notes and
+  (2) someone has written the first draft of the release blog post.
+  If there is any material in `./releases_drafts/` on the `releases/v4.6.0` branch, then the release notes are not done.
+  (See the section "Writing the release notes".)
 - `git checkout releases/v4.6.0`
   (This branch should already exist, from the release candidates.)
 - `git pull`
@@ -187,6 +190,8 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
   Please also make sure that whoever is handling social media knows the release is out.
 - Begin the next development cycle (i.e. for `v4.8.0`) on the Lean repository, by making a PR that:
   - Updates `src/CMakeLists.txt` to say `set(LEAN_VERSION_MINOR 8)`
+  - Replaces the "release notes will be copied" text in the `v4.6.0` section of `RELEASES.md` with the
+    finalized release notes from the `releases/v4.6.0` branch.
   - Replaces the "development in progress" in the `v4.7.0` section of `RELEASES.md` with
     ```
     Release candidate, release notes will be copied from `branch releases/v4.7.0` once completed.
@@ -222,12 +227,15 @@ Please read https://leanprover-community.github.io/contribute/tags_and_branches.
   * This can either be done by the person managing this process directly,
     or by soliciting assistance from authors of files, or generally helpful people on Zulip!
 * Each repo has a `bump/v4.7.0` which accumulates reviewed changes adapting to new versions.
-* Once `nightly-testing` is working on a given nightly, say `nightly-2024-02-15`, we:
+* Once `nightly-testing` is working on a given nightly, say `nightly-2024-02-15`, we will create a PR to `bump/v4.7.0`.
+* For Mathlib, there is a script in `scripts/create-adaptation-pr.sh` that automates this process.
+* For Batteries and Aesop is is currently manual.
+* For all of these repositories, the process is the same:
   * Make sure `bump/v4.7.0` is up to date with `master` (by merging `master`, no PR necessary)
   * Create from `bump/v4.7.0` a `bump/nightly-2024-02-15` branch.
-  * In that branch, `git merge --squash nightly-testing` to bring across changes from `nightly-testing`.
+  * In that branch, `git merge nightly-testing` to bring across changes from `nightly-testing`.
   * Sanity check changes, commit, and make a PR to `bump/v4.7.0` from the `bump/nightly-2024-02-15` branch.
-  * Solicit review, merge the PR into `bump/v4,7,0`.
+  * Solicit review, merge the PR into `bump/v4.7.0`.
 * It is always okay to merge in the following directions:
   `master` -> `bump/v4.7.0` -> `bump/nightly-2024-02-15` -> `nightly-testing`.
   Please remember to push any merges you make to intermediate steps!
@@ -239,7 +247,7 @@ The exact steps are a work in progress.
 Here is the general idea:
 
 * The work is done right on the `releases/v4.6.0` branch sometime after it is created but before the stable release is made.
-  The release notes for `v4.6.0` will be copied to `master`.
+  The release notes for `v4.6.0` will later be copied to `master` when we begin a new development cycle.
 * There can be material for release notes entries in commit messages.
 * There can also be pre-written entries in `./releases_drafts`, which should be all incorporated in the release notes and then deleted from the branch.
   See `./releases_drafts/README.md` for more information.

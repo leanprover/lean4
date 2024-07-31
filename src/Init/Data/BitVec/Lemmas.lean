@@ -1561,17 +1561,17 @@ theorem replicate_succ_eq {x : BitVec w} :
 
 /--
 If a number `w * n ≤ i < w * (n + 1)`, then `i - w * n` equals `i % w`.
-Intuitively, this is true by subtracting `w * n` from the inequality, giving
+This is true by subtracting `w * n` from the inequality, giving
 `0 ≤ i - w * n < w`, which uniquely identifies `i % w`.
 -/
 private theorem Nat.sub_mul_eq_mod_of_lt_of_le (hlo : w * n ≤ i) (hhi : i < w * (n + 1)) :
     i - w * n = i % w := by
-  rw [Nat.mul_succ] at hhi
-  rw [Nat.sub_eq_of_eq_add]
-  suffices i / w = n by rw [← this, Nat.add_comm, Nat.div_add_mod]
+  rw [Nat.mod_def]
+  congr
+  symm
   apply Nat.div_eq_of_lt_le
     (by rw [Nat.mul_comm]; omega)
-    (by rw [Nat.mul_comm, Nat.mul_succ]; omega)
+    (by rw [Nat.mul_comm]; omega)
 
 @[simp]
 theorem getLsb_replicate {n w : Nat} (x : BitVec w) :

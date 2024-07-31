@@ -733,14 +733,13 @@ theorem getLsb_shiftLeft' {x : BitVec w₁} {y : BitVec w₂} {i : Nat} :
 
 @[simp]
 theorem ushiftRight_zero_eq (x : BitVec w) : x >>> 0 = x := by
-
   simp [bv_toNat]
 
 /-! ### ushiftRight reductions from BitVec to Nat -/
 
 @[simp]
 theorem ushiftRight_eq' (x : BitVec w₁) (y : BitVec w₂) :
-  x >>> y = x >>> y.toNat := by rfl
+    x >>> y = x >>> y.toNat := by rfl
 
 /-! ### sshiftRight -/
 

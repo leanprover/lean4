@@ -569,7 +569,7 @@ where
       else some <$> IO.Promise.new
     prom.resolve <| .mk (nextCmdSnap? := next?.map ({ range? := some ⟨parserState.pos, ctx.input.endPos⟩, task := ·.result })) {
       diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
-      stx
+      stx := if minimalSnapshots then .missing else stx
       parserState := if minimalSnapshots then {} else parserState
       elabSnap := { range? := stx.getRange?, task := elabPromise.result }
       finishedSnap := .pure <|

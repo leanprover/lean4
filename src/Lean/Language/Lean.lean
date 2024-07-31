@@ -334,6 +334,13 @@ structure SetupImportsResult where
   /-- Kernel trust level. -/
   trustLevel : UInt32 := 0
 
+/-- Performance option used by cmdline driver. -/
+register_builtin_option internal.minimalSnapshots : Bool := {
+  defValue := false
+  descr    := "reduce information stored in snapshots to the minimum necessary for the cmdline \
+driver: diagnostics and environment per command"
+}
+
 /--
 Entry point of the Lean language processor.
 
@@ -482,7 +489,7 @@ where
       }
 
   parseCmd (old? : Option CommandParsedSnapshot) (parserState : Parser.ModuleParserState)
-      (cmdState : Command.State) (prom : IO.Promise _) : LeanProcessingM Unit := do
+      (cmdState : Command.State) (prom : IO.Promise CommandParsedSnapshot) : LeanProcessingM Unit := do
     let ctx ← read
 
     -- check for cancellation, most likely during elaboration of previous command, before starting
@@ -521,53 +528,55 @@ where
         if (← isBeforeEditPos nextCom.data.parserState.pos) then
           return (← unchanged old old.data.parserState)
 
-    do --SnapshotTask.ofIO (some ⟨parserState.pos, ctx.input.endPos⟩) do
-      let beginPos := parserState.pos
-      let scope := cmdState.scopes.head!
-      let pmctx := {
-        env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace
-        openDecls := scope.openDecls
-      }
-      let (stx, parserState, msgLog) := Parser.parseCommand ctx.toInputContext pmctx parserState
-        .empty
+    let beginPos := parserState.pos
+    let scope := cmdState.scopes.head!
+    let pmctx := {
+      env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace
+      openDecls := scope.openDecls
+    }
+    let (stx, parserState, msgLog) := Parser.parseCommand ctx.toInputContext pmctx parserState
+      .empty
 
-      -- semi-fast path
-      if let some old := old? then
-        if (← isBeforeEditPos parserState.pos ctx) && old.data.stx == stx then
-          -- Here we must make sure to pass the *new* parser state; see NOTE in `unchanged`
-          return (← unchanged old parserState)
-        -- on first change, make sure to cancel old invocation
-        -- TODO: pass token into incrementality-aware elaborators to improve reuse of still-valid,
-        -- still-running elaboration steps?
-        if let some tk := ctx.oldCancelTk? then
-          tk.set
+    -- semi-fast path
+    if let some old := old? then
+      if (← isBeforeEditPos parserState.pos ctx) && old.data.stx == stx then
+        -- Here we must make sure to pass the *new* parser state; see NOTE in `unchanged`
+        return (← unchanged old parserState)
+      -- on first change, make sure to cancel old invocation
+      -- TODO: pass token into incrementality-aware elaborators to improve reuse of still-valid,
+      -- still-running elaboration steps?
+      if let some tk := ctx.oldCancelTk? then
+        tk.set
 
-      -- definitely resolved in `doElab` task
-      let elabPromise ← IO.Promise.new
-      let tacticCache ← old?.map (·.data.tacticCache) |>.getDM (IO.mkRef {})
-      let finishedSnap ←
-        doElab stx cmdState beginPos
-          { old? := old?.map fun old => ⟨old.data.stx, old.data.elabSnap⟩, new := elabPromise }
-          tacticCache
-          ctx
-
-      let next? ← if Parser.isTerminalCommand stx then pure none
-        -- for now, wait on "command finished" snapshot before parsing next command
-        else some <$> IO.Promise.new
-      prom.resolve <| .mk (nextCmdSnap? := next?.map ({ range? := none, task := ·.result })) {
-        diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
-        stx
-        parserState := {}
-        elabSnap := { range? := stx.getRange?, task := elabPromise.result }
-        finishedSnap := .pure (finishedSnap |> fun fin => { fin with infoTree? := none, cmdState := { env := fin.cmdState.env, maxRecDepth := 0 } })
+    -- definitely resolved in `doElab` task
+    let elabPromise ← IO.Promise.new
+    let tacticCache ← old?.map (·.data.tacticCache) |>.getDM (IO.mkRef {})
+    let finishedSnap ←
+      doElab stx cmdState beginPos
+        { old? := old?.map fun old => ⟨old.data.stx, old.data.elabSnap⟩, new := elabPromise }
         tacticCache
-      }
-      if let some next := next? then
-        parseCmd none parserState finishedSnap.cmdState next ctx
+        ctx
+
+    let minimalSnapshots := internal.minimalSnapshots.get cmdState.scopes.head!.opts
+    let next? ← if Parser.isTerminalCommand stx then pure none
+      -- for now, wait on "command finished" snapshot before parsing next command
+      else some <$> IO.Promise.new
+    prom.resolve <| .mk (nextCmdSnap? := next?.map ({ range? := some ⟨parserState.pos, ctx.input.endPos⟩, task := ·.result })) {
+      diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
+      stx
+      parserState := if minimalSnapshots then {} else parserState
+      elabSnap := { range? := stx.getRange?, task := elabPromise.result }
+      finishedSnap := if minimalSnapshots then
+          finishedSnap.map (sync := true) fun fin => { fin with infoTree? := none, cmdState := { env := Runtime.markPersistent fin.cmdState.env, maxRecDepth := 0 } }
+        else finishedSnap
+      tacticCache
+    }
+    if let some next := next? then
+      parseCmd none parserState finishedSnap.get.cmdState next ctx
 
   doElab (stx : Syntax) (cmdState : Command.State) (beginPos : String.Pos)
       (snap : SnapshotBundle DynamicSnapshot) (tacticCache : IO.Ref Tactic.Cache) :
-      LeanProcessingM CommandFinishedSnapshot := do
+      LeanProcessingM (SnapshotTask CommandFinishedSnapshot) := do
     let ctx ← read
     -- (Try to) use last line of command as range for final snapshot task. This ensures we do not
     -- retract the progress bar to a previous position in case the command support incremental
@@ -576,48 +585,46 @@ where
     -- `parseCmd` and containing the entire range of the command will determine the reported
     -- progress and be resolved effectively at the same time as this snapshot task, so `tailPos` is
     -- irrelevant in this case.
-    --let tailPos := stx.getTailPos? |>.getD beginPos
-    do  --SnapshotTask.ofIO (some ⟨tailPos, tailPos⟩) do
-      let scope := cmdState.scopes.head!
-      let cmdStateRef ← IO.mkRef { cmdState with messages := .empty }
-      /-
-      The same snapshot may be executed by different tasks. So, to make sure `elabCommandTopLevel`
-      has exclusive access to the cache, we create a fresh reference here. Before this change, the
-      following `tacticCache.modify` would reset the tactic post cache while another snapshot was
-      still using it.
-      -/
-      let tacticCacheNew ← IO.mkRef (← tacticCache.get)
-      let cmdCtx : Elab.Command.Context := { ctx with
-        cmdPos       := beginPos
-        tacticCache? := some tacticCacheNew
-        snap?        := none
-        cancelTk?    := some ctx.newCancelTk
+    let scope := cmdState.scopes.head!
+    let cmdStateRef ← IO.mkRef { cmdState with messages := .empty }
+    /-
+    The same snapshot may be executed by different tasks. So, to make sure `elabCommandTopLevel`
+    has exclusive access to the cache, we create a fresh reference here. Before this change, the
+    following `tacticCache.modify` would reset the tactic post cache while another snapshot was
+    still using it.
+    -/
+    let tacticCacheNew ← IO.mkRef (← tacticCache.get)
+    let cmdCtx : Elab.Command.Context := { ctx with
+      cmdPos       := beginPos
+      tacticCache? := some tacticCacheNew
+      snap?        := if internal.minimalSnapshots.get scope.opts then none else snap
+      cancelTk?    := some ctx.newCancelTk
+    }
+    let (output, _) ←
+      IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get scope.opts) do
+        liftM (m := BaseIO) do
+          withLoggingExceptions
+            (getResetInfoTrees *> Elab.Command.elabCommandTopLevel stx)
+            cmdCtx cmdStateRef
+    let postNew := (← tacticCacheNew.get).post
+    tacticCache.modify fun _ => { pre := postNew, post := {} }
+    let cmdState ← cmdStateRef.get
+    let mut messages := cmdState.messages
+    if !output.isEmpty then
+      messages := messages.add {
+        fileName := ctx.fileName
+        severity := MessageSeverity.information
+        pos      := ctx.fileMap.toPosition beginPos
+        data     := output
       }
-      let (output, _) ←
-        IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get scope.opts) do
-          liftM (m := BaseIO) do
-            withLoggingExceptions
-              (getResetInfoTrees *> Elab.Command.elabCommandTopLevel stx)
-              cmdCtx cmdStateRef
-      let postNew := (← tacticCacheNew.get).post
-      tacticCache.modify fun _ => { pre := postNew, post := {} }
-      let cmdState ← cmdStateRef.get
-      let mut messages := cmdState.messages
-      if !output.isEmpty then
-        messages := messages.add {
-          fileName := ctx.fileName
-          severity := MessageSeverity.information
-          pos      := ctx.fileMap.toPosition beginPos
-          data     := output
-        }
-      let cmdState := { cmdState with messages, env := Runtime.markPersistent cmdState.env }
-      -- definitely resolve eventually
-      snap.new.resolve <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
-      return {
-        diagnostics := (← Snapshot.Diagnostics.ofMessageLog cmdState.messages)
-        infoTree? := some cmdState.infoState.trees[0]!
-        cmdState
-      }
+    let cmdState := { cmdState with messages }
+    -- definitely resolve eventually
+    snap.new.resolve <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
+    return .pure {
+      diagnostics := (← Snapshot.Diagnostics.ofMessageLog cmdState.messages)
+      infoTree? := some cmdState.infoState.trees[0]!
+      cmdState
+    }
 
 /--
 Convenience function for tool uses of the language processor that skips header handling.

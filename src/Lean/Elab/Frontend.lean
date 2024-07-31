@@ -184,6 +184,7 @@ def runFrontend
 
     return (s.commandState.env, !s.commandState.messages.hasErrors)
 
+  let opts := Language.Lean.internal.minimalSnapshots.set opts true
   let ctx := { inputCtx with }
   let processor := Language.Lean.process
   let snap ← processor (fun _ => pure <| .ok { mainModuleName, opts, trustLevel }) none ctx

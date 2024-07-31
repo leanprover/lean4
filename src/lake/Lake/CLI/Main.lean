@@ -500,6 +500,50 @@ protected def translateConfig : CliM PUnit := do
   if outFile?.isNone then
     IO.FS.rename pkg.configFile (pkg.configFile.addExtension "bak")
 
+def ReservoirConfig.currentSchemaVersion : LeanVer := v!"1.0.0"
+
+structure ReservoirConfig where
+  name : String
+  version : LeanVer
+  versionTags : List String
+  keywords : Array String
+  noReservoir : Bool
+  schemaVersion := ReservoirConfig.currentSchemaVersion
+  deriving Lean.ToJson
+
+protected def reservoirConfig : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let cfg ← mkLoadConfig opts
+  let _ ← id do
+    let some verStr ← takeArg?
+      | return ReservoirConfig.currentSchemaVersion
+    match LeanVer.parse verStr with
+    | .ok ver => return ver
+    | .error e => error s!"invalid target version: {e}"
+  noArgsRem do
+  let pkg ← loadPackage cfg
+  let repoTags ← GitRepo.getTags pkg.dir
+  let cfg : ReservoirConfig := {
+    name := pkg.name.toString
+    version := pkg.version
+    versionTags := repoTags.filter pkg.versionTags.matches
+    keywords := pkg.keywords
+    noReservoir := pkg.noReservoir
+  }
+  IO.println (toJson cfg).pretty
+
+protected def versionTags : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let cfg ← mkLoadConfig opts
+  noArgsRem do
+  let pkg ← loadPackage cfg
+  let tags ← GitRepo.getTags pkg.dir
+  for tag in tags do
+    if pkg.versionTags.matches tag then
+      IO.println tag
+
 protected def selfCheck : CliM PUnit := do
   processOptions lakeOption
   noArgsRem do verifyInstall (← getThe LakeOptions)
@@ -532,6 +576,8 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "exe" | "exec"        => lake.exe
 | "lean"                => lake.lean
 | "translate-config"    => lake.translateConfig
+| "reservoir-config"    => lake.reservoirConfig
+| "version-tags"        => lake.versionTags
 | "self-check"          => lake.selfCheck
 | "help"                => lake.help
 | cmd                   => throw <| CliError.unknownCommand cmd

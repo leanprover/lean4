@@ -136,6 +136,21 @@ def decodeLeanOptions (v : Value) : Except (Array DecodeError) (Array LeanOption
   | v =>
     throw #[.mk v.ref "expected array or table"]
 
+protected def LeanVer.decodeToml (v : Value) : Except (Array DecodeError) LeanVer := do
+  match LeanVer.parse (← v.decodeString) with
+  | .ok v => return v
+  | .error e => throw #[.mk v.ref e]
+
+instance : DecodeToml LeanVer := ⟨(LeanVer.decodeToml ·)⟩
+
+protected def StrPat.decodeToml (v : Value) : Except (Array DecodeError) StrPat :=
+  match v with
+  | .array _ vs => .mem <$> decodeArray vs
+  | .table _ t => .startsWith <$> t.decode `startsWith
+  | v => throw #[.mk v.ref "expected array or table"]
+
+instance : DecodeToml StrPat := ⟨(StrPat.decodeToml ·)⟩
+
 /-! ## Configuration Decoders -/
 
 protected def WorkspaceConfig.decodeToml (t : Table) : Except (Array DecodeError) WorkspaceConfig := ensureDecode do
@@ -182,13 +197,18 @@ protected def PackageConfig.decodeToml (t : Table) (ref := Syntax.missing) : Exc
   let testDriverArgs ← t.tryDecodeD `testDriverArgs #[]
   let lintDriver ← t.tryDecodeD `lintDriver ""
   let lintDriverArgs ← t.tryDecodeD `lintDriverArgs #[]
+  let version ← t.tryDecodeD `version v!"0.0.0"
+  let versionTags ← t.tryDecodeD `versionTags (.startsWith "v")
+  let keywords ← t.tryDecodeD `keywords #[]
+  let noReservoir ← t.tryDecodeD `noReservoir false
   let toLeanConfig ← tryDecode <| LeanConfig.decodeToml t
   let toWorkspaceConfig ← tryDecode <| WorkspaceConfig.decodeToml t
   return {
-    name, precompileModules, moreGlobalServerArgs,
-    srcDir, buildDir, leanLibDir, nativeLibDir, binDir, irDir,
+    name, precompileModules, moreGlobalServerArgs
+    srcDir, buildDir, leanLibDir, nativeLibDir, binDir, irDir
     releaseRepo, buildArchive?, preferReleaseBuild
     testDriver, testDriverArgs, lintDriver, lintDriverArgs
+    version, versionTags, keywords, noReservoir
     toLeanConfig, toWorkspaceConfig
   }
 

@@ -107,7 +107,9 @@ def ppTable (t : Table) : String :=
   let (ts, fs) := t.items.foldl (init := ("", "")) fun (ts, fs) (k,v) =>
     match v with
     | .array _ vs =>
-      if vs.all (· matches .table ..) then
+      if vs.isEmpty then
+        (ts.append s!"{ppKey k} = []\n", fs)
+      else if vs.all (· matches .table ..) then
         let fs := vs.foldl (init := fs) fun s v =>
           match v with
           | .table _ t =>

@@ -61,6 +61,7 @@ def LeanConfig.toToml (cfg : LeanConfig) (t : Table := {}) : Table :=
   |>.smartInsert `weakLinkArgs cfg.weakLinkArgs
 
 instance : ToToml LeanConfig := ⟨(toToml ·.toToml)⟩
+instance : ToToml LeanVer := ⟨(toToml <| toString ·)⟩
 
 protected def PackageConfig.toToml (cfg : PackageConfig) (t : Table := {}) : Table :=
   t.insert `name cfg.name
@@ -75,8 +76,20 @@ protected def PackageConfig.toToml (cfg : PackageConfig) (t : Table := {}) : Tab
   |>.smartInsert `releaseRepo (cfg.releaseRepo <|> cfg.releaseRepo?)
   |>.insertD `buildArchive (cfg.buildArchive?.getD cfg.buildArchive) (defaultBuildArchive cfg.name)
   |>.insertD `preferReleaseBuild cfg.preferReleaseBuild false
+  |>.insertD `version cfg.version v!"0.0.0"
+  |>.insertSome `versionTags (encodeVerTags? cfg.versionTags)
+  |>.smartInsert `keywords cfg.keywords
+  |>.insertD `noReservoir cfg.noReservoir false
   |> cfg.toWorkspaceConfig.toToml
   |> cfg.toLeanConfig.toToml
+where
+  encodeVerTags? (pat : StrPat) : Option Value :=
+    match pat with
+    | .mem s => toToml s
+    | .startsWith p =>
+      if p == "v" then none else
+      toToml <| Table.empty.insert `startsWith (toToml p)
+    | _ => none
 
 instance : ToToml PackageConfig := ⟨(toToml ·.toToml)⟩
 

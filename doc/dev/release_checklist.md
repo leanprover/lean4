@@ -229,7 +229,7 @@ Please read https://leanprover-community.github.io/contribute/tags_and_branches.
 * Each repo has a `bump/v4.7.0` which accumulates reviewed changes adapting to new versions.
 * Once `nightly-testing` is working on a given nightly, say `nightly-2024-02-15`, we will create a PR to `bump/v4.7.0`.
 * For Mathlib, there is a script in `scripts/create-adaptation-pr.sh` that automates this process.
-* For Batteries and Aesop is is currently manual.
+* For Batteries and Aesop it is currently manual.
 * For all of these repositories, the process is the same:
   * Make sure `bump/v4.7.0` is up to date with `master` (by merging `master`, no PR necessary)
   * Create from `bump/v4.7.0` a `bump/nightly-2024-02-15` branch.

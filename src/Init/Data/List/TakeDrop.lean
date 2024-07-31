@@ -411,11 +411,11 @@ theorem dropWhile_replicate (p : α → Bool) :
   split <;> simp_all
 
 theorem take_takeWhile {l : List α} (p : α → Bool) n :
-    (l.takeWhile p).take n = (l.takeWhile p).take n := by
-  induction l with
-  | nil => rfl
+    (l.takeWhile p).take n = (l.take n).takeWhile p := by
+  induction l generalizing n with
+  | nil => simp
   | cons x xs ih =>
-    by_cases h : p x <;> simp [takeWhile_cons, h, ih]
+    by_cases h : p x <;> cases n <;> simp [takeWhile_cons, h, ih, take_succ_cons]
 
 @[simp] theorem all_takeWhile {l : List α} : (l.takeWhile p).all p = true := by
   induction l with

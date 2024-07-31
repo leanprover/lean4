@@ -23,6 +23,11 @@ starts as a modified copy of the previous top scope.
 -/
 structure Scope where
   /--
+  A piece of syntax associated to the creation of this scope, for example a `namespace` or `section` command.
+  This is used by the `end` command to check whether this scope is closable by the user.
+  -/
+  ref           : Syntax
+  /--
   The component of the `namespace` or `section` that this scope is associated to.
   For example, `section a.b.c` and `namespace a.b.c` each create three scopes with headers
   named `a`, `b`, and `c`.
@@ -74,13 +79,27 @@ structure Scope where
 structure State where
   env            : Environment
   messages       : MessageLog := {}
-  scopes         : List Scope := [{ header := "" }]
+  scopes         : List Scope := [{ ref := .missing, header := "" }]
   nextMacroScope : Nat := firstFrontendMacroScope + 1
   maxRecDepth    : Nat
   ngen           : NameGenerator := {}
   infoState      : InfoState := {}
   traceState     : TraceState := {}
   deriving Nonempty
+
+/--
+A flag to keep track of what sorts of changes to the state or the environment would be (un)expected.
+This is only used for raising warnings, primarily for the `$cmd1 in $cmd2` command,
+where only local changes are expected by `$cmd1` (so no new global attributes for example)
+and only global changes are expected by `$cmd2` (so for example no `@[local simp] theorem ...`).
+-/
+inductive LocalityExpectation
+  /-- No restriction. -/
+  | any
+  /-- Expecting only global changes. No `local` or `scoped`. -/
+  | globalExpected
+  /-- Expecting only local changes. No `scoped`, must be `local`. -/
+  | localExpected
 
 structure Context where
   fileName       : String
@@ -89,6 +108,7 @@ structure Context where
   cmdPos         : String.Pos := 0
   macroStack     : MacroStack := []
   currMacroScope : MacroScope := firstFrontendMacroScope
+  localityExpectation : LocalityExpectation := .any
   ref            : Syntax := Syntax.missing
   tacticCache?   : Option (IO.Ref Tactic.Cache)
   /--
@@ -147,7 +167,7 @@ instance : MonadExceptOf Exception CommandElabM where
 def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options := {}) : State := {
   env         := env
   messages    := messages
-  scopes      := [{ header := "", opts := opts }]
+  scopes      := [{ ref := .missing, header := "", opts := opts }]
   maxRecDepth := maxRecDepth.get opts
 }
 
@@ -727,7 +747,7 @@ def liftCommandElabM (cmd : CommandElabM α) : CoreM α := do
     } |>.run {
       env := ← getEnv
       maxRecDepth := ← getMaxRecDepth
-      scopes := [{ header := "", opts := ← getOptions }]
+      scopes := [{ ref := .missing, header := "", opts := ← getOptions }]
     }
   modify fun coreState => { coreState with
     traceState.traces := coreState.traceState.traces ++ commandState.traceState.traces

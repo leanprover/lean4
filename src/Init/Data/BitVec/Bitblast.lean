@@ -465,7 +465,7 @@ theorem ushiftRight'_or_of_and_eq_zero {x : BitVec w₁} {y z : BitVec w₂}
   simp [← add_eq_or_of_and_eq_zero _ _ h, toNat_add_of_and_eq_zero h, shiftRight_add]
 
 theorem ushiftRightRec_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) :
-  ushiftRightRec x y n = x >>> (y.truncate (n + 1)).zeroExtend w₂ := by
+    ushiftRightRec x y n = x >>> (y.truncate (n + 1)).zeroExtend w₂ := by
   induction n generalizing x y
   case zero =>
     ext i

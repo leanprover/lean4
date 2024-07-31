@@ -17,6 +17,8 @@ instance : Input ByteArray.Iterator UInt8 Nat where
   next it := it.next
   curr it := it.curr
   hasNext it := it.hasNext
+  next' it := it.next'
+  curr' it := it.curr'
 
 abbrev Parser (α : Type) : Type := Parsec ByteArray.Iterator α
 
@@ -107,10 +109,10 @@ def asciiLetter : Parser Char := attempt do
     fail s!"ASCII letter expected"
 
 private partial def skipWs (it : ByteArray.Iterator) : ByteArray.Iterator :=
-  if it.hasNext then
-    let b := it.curr
+  if h : it.hasNext then
+    let b := it.curr' h
     if b = '\u0009'.toUInt8 ∨ b = '\u000a'.toUInt8 ∨ b = '\u000d'.toUInt8 ∨ b = '\u0020'.toUInt8 then
-      skipWs it.next
+      skipWs (it.next' h)
     else
       it
   else

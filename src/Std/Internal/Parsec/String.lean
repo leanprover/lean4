@@ -15,6 +15,8 @@ instance : Input String.Iterator Char String.Pos where
   next it := it.next
   curr it := it.curr
   hasNext it := it.hasNext
+  next' it := it.next'
+  curr' it := it.curr'
 
 abbrev Parser (α : Type) : Type := Parsec String.Iterator α
 
@@ -59,12 +61,12 @@ private partial def digitsCore (acc : Nat) : Parser Nat := fun it =>
   .success it res
 where
   go (it : String.Iterator) (acc : Nat) : (Nat × String.Iterator) :=
-    if it.hasNext then
+    if h : it.hasNext then
       let candidate := it.curr
       if '0' ≤ candidate ∧ candidate ≤ '9' then
         let digit := digitToNat candidate
         let acc := acc * 10 + digit
-        go it.next acc
+        go (it.next' h) acc
       else
         (acc, it)
     else
@@ -88,10 +90,10 @@ def asciiLetter : Parser Char := attempt do
   if ('A' ≤ c ∧ c ≤ 'Z') ∨ ('a' ≤ c ∧ c ≤ 'z') then return c else fail s!"ASCII letter expected"
 
 private partial def skipWs (it : String.Iterator) : String.Iterator :=
-  if it.hasNext then
-    let c := it.curr
+  if h : it.hasNext then
+    let c := it.curr' h
     if c = '\u0009' ∨ c = '\u000a' ∨ c = '\u000d' ∨ c = '\u0020' then
-      skipWs it.next
+      skipWs (it.next' h)
     else
       it
   else

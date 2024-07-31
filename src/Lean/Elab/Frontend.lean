@@ -110,7 +110,7 @@ where
     let snap := t.get
     let commands := commands.push snap.data.stx
     if let some next := snap.nextCmdSnap? then
-      go initialSnap next commands
+      go initialSnap next.task commands
     else
       -- Opting into reuse also enables incremental reporting, so make sure to collect messages from
       -- all snapshots

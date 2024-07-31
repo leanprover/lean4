@@ -196,7 +196,7 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
   | nCtx, ctx,       compose d₁ d₂            => return (← formatAux nCtx ctx d₁) ++ (← formatAux nCtx ctx d₂)
   | nCtx, ctx,       group d                  => Format.group <$> formatAux nCtx ctx d
   | nCtx, ctx,       trace data header children => do
-    let mut msg := f!"[{data.cls}]"
+    let mut msg := if data.cls = .anonymous then .nil else f!"[{data.cls}]"
     if data.startTime != 0 then
       msg := f!"{msg} [{data.stopTime - data.startTime}]"
     msg := f!"{msg} {(← formatAux nCtx ctx header).nest 2}"

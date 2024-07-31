@@ -1576,7 +1576,7 @@ private theorem Nat.sub_mul_eq_mod_of_lt_of_le (hlo : w * n ≤ i) (hhi : i < w 
 @[simp]
 theorem getLsb_replicate {n w : Nat} (x : BitVec w) :
     (x.replicate n).getLsb i =
-    ((decide (i < w * n)) && (x.getLsb (i % w))) := by
+    (decide (i < w * n) && x.getLsb (i % w)) := by
   induction n generalizing x
   case zero => simp
   case succ n ih =>

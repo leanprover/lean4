@@ -388,7 +388,7 @@ where
                 -- elaboration reuse
                 oldProcSuccess.firstCmdSnap.bindIO (sync := true) fun oldCmd => do
                   let prom ← IO.Promise.new
-                  let _ ← IO.asTask (parseCmd oldCmd newParserState oldProcSuccess.cmdState prom ctx)
+                  let _ ← IO.asTask (parseCmd oldCmd newParserState oldProcSuccess.cmdState oldProcSuccess.cmdState.env prom ctx)
                   return .pure { oldProcessed with result? := some { oldProcSuccess with
                     firstCmdSnap := { range? := none, task := prom.result } } }
               else
@@ -478,7 +478,12 @@ where
         )].toPArray'
       }}
       let prom ← IO.Promise.new
-      let _ ← IO.asTask (parseCmd none parserState cmdState prom ctx)
+      -- The speedup of these `markPersistent`s is negligible but they help in making unexpected
+      -- `inc_ref_cold`s more visible
+      let parserState := Runtime.markPersistent parserState
+      let cmdState := Runtime.markPersistent cmdState
+      let ctx := Runtime.markPersistent ctx
+      let _ ← IO.asTask (parseCmd none parserState cmdState cmdState.env prom ctx)
       return {
         diagnostics
         infoTree? := cmdState.infoState.trees[0]!
@@ -489,7 +494,8 @@ where
       }
 
   parseCmd (old? : Option CommandParsedSnapshot) (parserState : Parser.ModuleParserState)
-      (cmdState : Command.State) (prom : IO.Promise CommandParsedSnapshot) : LeanProcessingM Unit := do
+      (cmdState : Command.State) (initEnv : Environment) (prom : IO.Promise CommandParsedSnapshot) :
+      LeanProcessingM Unit := do
     let ctx ← read
 
     -- check for cancellation, most likely during elaboration of previous command, before starting
@@ -513,11 +519,11 @@ where
       -- from `old`
       if let some oldNext := old.nextCmdSnap? then do
         let newProm ← IO.Promise.new
-        let _ ← old.data.finishedSnap.bindIO (sync := true) fun oldFinished =>
+        let _ ← old.data.finishedSnap.bindIO fun oldFinished =>
           -- also wait on old command parse snapshot as parsing is cheap and may allow for
           -- elaboration reuse
           oldNext.bindIO (sync := true) fun oldNext => do
-            parseCmd oldNext newParserState oldFinished.cmdState newProm ctx
+            parseCmd oldNext newParserState oldFinished.cmdState initEnv newProm ctx
             return .pure ()
         prom.resolve <| .mk (data := old.data) (nextCmdSnap? := some { range? := none, task := newProm.result })
       else prom.resolve old  -- terminal command, we're done!
@@ -566,17 +572,24 @@ where
       stx
       parserState := if minimalSnapshots then {} else parserState
       elabSnap := { range? := stx.getRange?, task := elabPromise.result }
-      finishedSnap := if minimalSnapshots then
-          finishedSnap.map (sync := true) fun fin => { fin with infoTree? := none, cmdState := { env := Runtime.markPersistent fin.cmdState.env, maxRecDepth := 0 } }
+      finishedSnap := .pure <|
+        if minimalSnapshots then
+          { finishedSnap with
+            infoTree? := none
+            cmdState := {
+              env := Runtime.markPersistent (if Parser.isTerminalCommand stx then finishedSnap.cmdState.env else initEnv)
+              maxRecDepth := 0
+            }
+          }
         else finishedSnap
       tacticCache
     }
     if let some next := next? then
-      parseCmd none parserState finishedSnap.get.cmdState next ctx
+      parseCmd none parserState finishedSnap.cmdState initEnv next ctx
 
   doElab (stx : Syntax) (cmdState : Command.State) (beginPos : String.Pos)
       (snap : SnapshotBundle DynamicSnapshot) (tacticCache : IO.Ref Tactic.Cache) :
-      LeanProcessingM (SnapshotTask CommandFinishedSnapshot) := do
+      LeanProcessingM CommandFinishedSnapshot := do
     let ctx ← read
     -- (Try to) use last line of command as range for final snapshot task. This ensures we do not
     -- retract the progress bar to a previous position in case the command support incremental
@@ -620,7 +633,7 @@ where
     let cmdState := { cmdState with messages }
     -- definitely resolve eventually
     snap.new.resolve <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
-    return .pure {
+    return {
       diagnostics := (← Snapshot.Diagnostics.ofMessageLog cmdState.messages)
       infoTree? := some cmdState.infoState.trees[0]!
       cmdState
@@ -634,7 +647,7 @@ def processCommands (inputCtx : Parser.InputContext) (parserState : Parser.Modul
     (old? : Option (Parser.InputContext × CommandParsedSnapshot) := none) :
     BaseIO (Task CommandParsedSnapshot) := do
   let prom ← IO.Promise.new
-  process.parseCmd (old?.map (·.2)) parserState commandState prom
+  process.parseCmd (old?.map (·.2)) parserState commandState commandState.env prom
     |>.run (old?.map (·.1))
     |>.run { inputCtx with }
   return prom.result

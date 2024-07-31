@@ -37,7 +37,7 @@ error: failed to synthesize
 numerals are polymorphic in Lean, but the numeral `1` cannot be used in a context where the expected type is
   String
 due to the absence of the instance above
-use `set_option diagnostics true` to get diagnostic information
+Additional diagnostic information may be available by using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
 #check (1 : String)
@@ -48,7 +48,7 @@ error: failed to synthesize
 numerals are polymorphic in Lean, but the numeral `1` cannot be used in a context where the expected type is
   Bool
 due to the absence of the instance above
-use `set_option diagnostics true` to get diagnostic information
+Additional diagnostic information may be available by using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
 #check (1 : Bool)
@@ -59,7 +59,7 @@ error: failed to synthesize
 numerals are polymorphic in Lean, but the numeral `1` cannot be used in a context where the expected type is
   Bool → Nat
 due to the absence of the instance above
-use `set_option diagnostics true` to get diagnostic information
+Additional diagnostic information may be available by using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
 #check (1 : Bool → Nat)
@@ -70,7 +70,7 @@ error: failed to synthesize
 numerals are polymorphic in Lean, but the numeral `0` cannot be used in a context where the expected type is
   String
 due to the absence of the instance above
-use `set_option diagnostics true` to get diagnostic information
+Additional diagnostic information may be available by using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
 def foo : String :=

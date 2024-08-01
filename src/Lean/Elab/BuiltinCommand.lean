@@ -30,7 +30,9 @@ private def addScope (ref : Syntax) (isNewNamespace : Bool) (isNoncomputable : B
         ref := ref
         header := header
         currNamespace := newNamespace
-        isNoncomputable := s.scopes.head!.isNoncomputable || isNoncomputable }
+        isNoncomputable := s.scopes.head!.isNoncomputable || isNoncomputable
+        -- Explicit `section`/`namespace` (even within a macro) means we shouldn't raise warnings:
+        scopeRestriction := .none }
     { s with
       env    := s.env.registerNamespace newNamespace,
       scopes := newScope :: s.scopes }

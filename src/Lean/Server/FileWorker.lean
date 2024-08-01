@@ -16,7 +16,7 @@ import Lean.Data.Json.FromToJson
 
 import Lean.Util.FileSetupInfo
 import Lean.LoadDynlib
-import Lean.Language.Basic
+import Lean.Language.Lean
 
 import Lean.Server.Utils
 import Lean.Server.AsyncList

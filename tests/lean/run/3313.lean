@@ -41,7 +41,6 @@ info: [type_class] max synth pending failures (maxSynthPendingDepth: 1), use `se
 ---
 error: failed to synthesize
   HasQuotient (Synonym (Synonym R)) (Submodule R (Synonym (Synonym R)))
-use `set_option diagnostics true` to get diagnostic information
 -/
 #guard_msgs in
 set_option diagnostics true in

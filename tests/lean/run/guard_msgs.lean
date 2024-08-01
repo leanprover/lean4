@@ -51,7 +51,7 @@ error: failed to synthesize
 numerals are polymorphic in Lean, but the numeral `22` cannot be used in a context where the expected type is
   α
 due to the absence of the instance above
-use `set_option diagnostics true` to get diagnostic information
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs(error) in
 example : α := 22
@@ -107,7 +107,7 @@ Lax whitespace
 /--
 error: failed to synthesize
   DecidableEq (Nat → Nat)
-use `set_option diagnostics true` to get diagnostic information
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs (whitespace := lax) in
 #synth DecidableEq (Nat → Nat)
@@ -115,7 +115,7 @@ use `set_option diagnostics true` to get diagnostic information
 /--
 error: failed to synthesize
   DecidableEq (Nat → Nat)
-use `set_option diagnostics true` to get diagnostic information
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs (whitespace := lax) in
 #synth DecidableEq (Nat → Nat)

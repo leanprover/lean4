@@ -11,65 +11,49 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 #include "kernel/expr_sets.h"
 
-#ifndef LEAN_EQ_CACHE_CAPACITY
-#define LEAN_EQ_CACHE_CAPACITY 1024*8
-#endif
-
 namespace lean {
-struct eq_cache {
-    struct entry {
-        object * m_a;
-        object * m_b;
-        entry():m_a(nullptr), m_b(nullptr) {}
-    };
-    unsigned              m_capacity;
-    std::vector<entry>    m_cache;
-    std::vector<unsigned> m_used;
-    eq_cache():m_capacity(LEAN_EQ_CACHE_CAPACITY), m_cache(LEAN_EQ_CACHE_CAPACITY) {}
+/**
+\brief Functional object for comparing expressions.
 
-    bool check(expr const & a, expr const & b) {
-        if (!is_shared(a) || !is_shared(b))
-            return false;
-        unsigned i = hash(hash(a), hash(b)) % m_capacity;
-        if (m_cache[i].m_a == a.raw() && m_cache[i].m_b == b.raw()) {
-            return true;
-        } else {
-            if (m_cache[i].m_a == nullptr)
-                m_used.push_back(i);
-            m_cache[i].m_a = a.raw();
-            m_cache[i].m_b = b.raw();
-            return false;
-        }
-    }
-
-    void clear() {
-        for (unsigned i : m_used)
-            m_cache[i].m_a = nullptr;
-        m_used.clear();
-    }
-};
-
-/* CACHE_RESET: No */
-MK_THREAD_LOCAL_GET_DEF(eq_cache, get_eq_cache);
-
-/** \brief Functional object for comparing expressions.
-
-    Remark if CompareBinderInfo is true, then functional object will also compare
-    binder information attached to lambda and Pi expressions */
+Remark if CompareBinderInfo is true, then functional object will also compare
+binder information attached to lambda and Pi expressions
+*/
 template<bool CompareBinderInfo>
 class expr_eq_fn {
-    eq_cache & m_cache;
-
+    struct key_hasher {
+        std::size_t operator()(std::pair<lean_object *, lean_object *> const & p) const {
+            return hash((size_t)p.first >> 3, (size_t)p.first >> 3);
+        }
+    };
+    typedef std::unordered_set<std::pair<lean_object *, lean_object *>, key_hasher> cache;
+    cache * m_cache = nullptr;
+    bool check_cache(expr const & a, expr const & b) {
+        if (!is_shared(a) || !is_shared(b))
+            return false;
+        if (!m_cache)
+            m_cache = new cache();
+        std::pair<lean_object *, lean_object *> key(a.raw(), b.raw());
+        if (m_cache->find(key) != m_cache->end())
+            return true;
+        m_cache->insert(key);
+        return false;
+    }
     static void check_system() {
         ::lean::check_system("expression equality test");
     }
-
-    bool apply(expr const & a, expr const & b) {
+    bool apply(expr const & a, expr const & b, bool root = false) {
         if (is_eqp(a, b))          return true;
         if (hash(a) != hash(b))    return false;
         if (a.kind() != b.kind())  return false;
-        if (is_bvar(a))            return bvar_idx(a) == bvar_idx(b);
-        if (m_cache.check(a, b))
+        switch (a.kind()) {
+        case expr_kind::BVar: return bvar_idx(a) == bvar_idx(b);
+        case expr_kind::Lit:  return lit_value(a) == lit_value(b);
+        case expr_kind::MVar: return mvar_name(a) == mvar_name(b);
+        case expr_kind::FVar: return fvar_name(a) == fvar_name(b);
+        case expr_kind::Sort: return sort_level(a) == sort_level(b);
+        default: break;
+        }
+        if (!root && check_cache(a, b))
             return true;
         /*
            We increase the number of heartbeats here because some code (e.g., `simp`) may spend a lot of time comparing
@@ -78,6 +62,10 @@ class expr_eq_fn {
         lean_inc_heartbeat();
         switch (a.kind()) {
         case expr_kind::BVar:
+        case expr_kind::Lit:
+        case expr_kind::MVar:
+        case expr_kind::FVar:
+        case expr_kind::Sort:
             lean_unreachable(); // LCOV_EXCL_LINE
         case expr_kind::MData:
             return
@@ -88,16 +76,10 @@ class expr_eq_fn {
                 apply(proj_expr(a), proj_expr(b)) &&
                 proj_sname(a) == proj_sname(b) &&
                 proj_idx(a) == proj_idx(b);
-        case expr_kind::Lit:
-            return lit_value(a) == lit_value(b);
         case expr_kind::Const:
             return
                 const_name(a) == const_name(b) &&
                 compare(const_levels(a), const_levels(b), [](level const & l1, level const & l2) { return l1 == l2; });
-        case expr_kind::MVar:
-            return mvar_name(a) == mvar_name(b);
-        case expr_kind::FVar:
-            return fvar_name(a) == fvar_name(b);
         case expr_kind::App:
             check_system();
             return
@@ -117,15 +99,13 @@ class expr_eq_fn {
                 apply(let_value(a), let_value(b)) &&
                 apply(let_body(a), let_body(b)) &&
                 (!CompareBinderInfo || let_name(a) == let_name(b));
-        case expr_kind::Sort:
-            return sort_level(a) == sort_level(b);
         }
         lean_unreachable(); // LCOV_EXCL_LINE
     }
 public:
-    expr_eq_fn():m_cache(get_eq_cache()) {}
-    ~expr_eq_fn() { m_cache.clear(); }
-    bool operator()(expr const & a, expr const & b) { return apply(a, b); }
+    expr_eq_fn() {}
+    ~expr_eq_fn() { if (m_cache) delete m_cache; }
+    bool operator()(expr const & a, expr const & b) { return apply(a, b, true); }
 };
 
 bool is_equal(expr const & a, expr const & b) {

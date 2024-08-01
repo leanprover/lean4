@@ -40,25 +40,52 @@ where
   | Name.anonymous => base
   | Name.num _ _ => panic! "ill-formed import"
 
+variable (base : FilePath) (ext : String) in
+/--
+Checks whether a module of the given name and extension exists in `base`; this uses case-sensitive
+path comparisons regardless of underlying file system to ensure the check is consistent across
+platforms.
+-/
+partial def moduleExists : Name → IO Bool := go ext
+where go (ext : String)
+  | .mkStr parent str => do
+    -- Case-sensitive check for file with extension in top-level call, for directory recursively
+    let entryName := if ext.isEmpty then str else s!"{str}.{ext}"
+    unless (← go "" parent) do
+      return false
+    return (← (modToFilePath base parent "").readDir).any (·.fileName == entryName)
+  | .anonymous => base.pathExists
+  | .num .. => panic! "ill-formed import"
+
 /-- A `.olean' search path. -/
 abbrev SearchPath := System.SearchPath
 
 namespace SearchPath
+
+def findRoot (sp : SearchPath) (ext : String) (pkg : String) : IO (Option FilePath) := do
+  sp.findM? fun p => do
+    unless (← p.isDir) do  -- Lake may pass search roots that do not exist (yet)
+      return false
+    if (← (p / pkg).isDir) then
+      return (← p.readDir).any (·.fileName == pkg)
+    else
+      let fileName := s!"{pkg}.{ext}"
+      return (← p.readDir).any (·.fileName == fileName)
 
 /-- If the package of `mod` can be found in `sp`, return the path with extension
 `ext` (`lean` or `olean`) corresponding to `mod`. Otherwise, return `none`. Does
 not check whether the returned path exists. -/
 def findWithExt (sp : SearchPath) (ext : String) (mod : Name) : IO (Option FilePath) := do
   let pkg := mod.getRoot.toString (escape := false)
-  let root? ← sp.findM? fun p =>
-    (p / pkg).isDir <||> ((p / pkg).addExtension ext).pathExists
+  let root? ← findRoot sp ext pkg
   return root?.map (modToFilePath · mod ext)
 
 /-- Like `findWithExt`, but ensures the returned path exists. -/
 def findModuleWithExt (sp : SearchPath) (ext : String) (mod : Name) : IO (Option FilePath) := do
-  if let some path ← findWithExt sp ext mod then
-    if ← path.pathExists then
-      return some path
+  let pkg := mod.getRoot.toString (escape := false)
+  if let some root ← findRoot sp ext pkg then
+    if (← moduleExists root ext mod) then
+      return some <| modToFilePath root mod ext
   return none
 
 def findAllWithExt (sp : SearchPath) (ext : String) : IO (Array FilePath) := do
@@ -105,12 +132,20 @@ def initSearchPath (leanSysroot : FilePath) (sp : SearchPath := ∅) : IO Unit :
 private def initSearchPathInternal : IO Unit := do
   initSearchPath (← getBuildDir)
 
-partial def findOLean (mod : Name) : IO FilePath := do
+/--
+Returns the path of the .olean file for `mod`. Throws an error if no search path entry for `mod`
+could be located, or if `checkExists` is true and the resulting path does not exist.
+-/
+partial def findOLean (mod : Name) (checkExists := true) : IO FilePath := do
   let sp ← searchPathRef.get
-  if let some fname ← sp.findWithExt "olean" mod then
-    return fname
+  let pkg := mod.getRoot.toString (escape := false)
+  if let some root ← sp.findRoot "olean" pkg then
+    let path := modToFilePath root mod "olean"
+    if !checkExists || (← moduleExists root "olean" mod) then
+      return path
+    else
+      throw <| IO.userError s!"object file '{path}' of module {mod} does not exist"
   else
-    let pkg := FilePath.mk <| mod.getRoot.toString (escape := false)
     let mut msg := s!"unknown module prefix '{pkg}'
 
 No directory '{pkg}' or file '{pkg}.olean' in the search path entries:

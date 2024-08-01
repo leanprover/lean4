@@ -14,7 +14,7 @@ namespace lean {
 class replace_rec_fn {
     struct key_hasher {
         std::size_t operator()(std::pair<lean_object *, unsigned> const & p) const {
-            return hash((size_t)p.first, p.second);
+            return hash((size_t)p.first >> 3, p.second);
         }
     };
     std::unordered_map<std::pair<lean_object *, unsigned>, expr, key_hasher> m_cache;

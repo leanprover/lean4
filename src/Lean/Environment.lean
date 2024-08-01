@@ -806,8 +806,6 @@ partial def importModulesCore (imports : Array Import) : ImportStateM Unit := do
       continue
     modify fun s => { s with moduleNameSet := s.moduleNameSet.insert i.module }
     let mFile ← findOLean i.module
-    unless (← mFile.pathExists) do
-      throw <| IO.userError s!"object file '{mFile}' of module {i.module} does not exist"
     let (mod, region) ← readModuleData mFile
     importModulesCore mod.imports
     modify fun s => { s with

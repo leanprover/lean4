@@ -362,7 +362,6 @@ uint8_t l_Lean_SMap_contains___at_Lean_NameSSet_contains___spec__1(lean_object*,
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 extern lean_object* l_Lean_NameSSet_instInhabited;
 static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_imp___closed__4;
-uint8_t l_List_beq___at___private_Lean_Declaration_0__Lean_beqConstantVal____x40_Lean_Declaration___hyg_437____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Environment_isSafeDefinition___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_finalizeImport___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_EnvExtensionInterfaceUnsafe_imp___elambda__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -526,6 +525,7 @@ static lean_object* l___auto____x40_Lean_Environment___hyg_2607____closed__14;
 static lean_object* l_Lean_instReprImport___closed__1;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_importModulesCore___spec__1___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkStateFromImportedEntries___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
+uint8_t l_List_beq___at___private_Lean_Declaration_0__Lean_beqConstantVal____x40_Lean_Declaration___hyg_433____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___auto____x40_Lean_Environment___hyg_3458_;
 LEAN_EXPORT lean_object* l_Lean_AssocList_replace___at___private_Lean_Environment_0__Lean_Environment_addAux___spec__11(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -12233,7 +12233,7 @@ else
 lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 x_15 = lean_ctor_get(x_5, 1);
 x_16 = lean_ctor_get(x_7, 1);
-x_17 = l_List_beq___at___private_Lean_Declaration_0__Lean_beqConstantVal____x40_Lean_Declaration___hyg_437____spec__1(x_15, x_16);
+x_17 = l_List_beq___at___private_Lean_Declaration_0__Lean_beqConstantVal____x40_Lean_Declaration___hyg_433____spec__1(x_15, x_16);
 if (x_17 == 0)
 {
 uint8_t x_18; 
@@ -12245,7 +12245,7 @@ else
 lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 x_19 = lean_ctor_get(x_3, 2);
 x_20 = lean_ctor_get(x_4, 2);
-x_21 = l_List_beq___at___private_Lean_Declaration_0__Lean_beqConstantVal____x40_Lean_Declaration___hyg_437____spec__1(x_19, x_20);
+x_21 = l_List_beq___at___private_Lean_Declaration_0__Lean_beqConstantVal____x40_Lean_Declaration___hyg_433____spec__1(x_19, x_20);
 return x_21;
 }
 }

@@ -648,8 +648,38 @@ def initializeKeyword := leading_parser
   declModifiers false >> initializeKeyword >>
   optional (atomic (ident >> Term.typeSpec >> ppSpace >> Term.leftArrow)) >> Term.doSeq
 
+/--
+`cmd₁ in cmd₂` runs `cmd₁` and `cmd₂` in a new section.
+-/
 @[builtin_command_parser] def «in»  := trailing_parser
   withOpen (ppDedent (" in " >> commandParser))
+
+/--
+Internal command to push a new scope with the given ref.
+It is similar to `section` but cannot be ended with `end`.
+The command does not need to be a command, and it can be any Syntax.
+-/
+@[builtin_command_parser] def pushScope := leading_parser
+  "push_scope% " >> commandParser
+
+/--
+Internal command to pop the scope with the given ref.
+It is like `end` but for ending a matching `push_scope%`.
+-/
+@[builtin_command_parser] def popScope := leading_parser
+  "pop_scope% " >> commandParser
+
+/-- Switches current scope to having `scopeRestriction := .none` set. -/
+@[builtin_command_parser] def withoutScopeRestriction := leading_parser
+  "without_scope_restriction%"
+
+/-- Switches current scope to having `scopeRestriction := .local` set. -/
+@[builtin_command_parser] def withLocalScopeRestriction := leading_parser
+  "with_local_scope_restriction%"
+
+/-- Switches current scope to having `scopeRestriction := .global` set. -/
+@[builtin_command_parser] def withGlobalScopeRestriction := leading_parser
+  "with_global_scope_restriction%"
 
 /--
 Adds a docstring to an existing declaration, replacing any existing docstring.

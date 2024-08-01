@@ -300,6 +300,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_Omega_Problem_d
 lean_object* l_Lean_Omega_tidy_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_Problem_dealWithHardEquality(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_instToExprConstraint___lambda__1___closed__4;
+uint8_t l___private_Init_Omega_Constraint_0__Lean_Omega_decEqConstraint____x40_Init_Omega_Constraint___hyg_146_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Tactic_Omega_Problem_fourierMotzkinData___spec__2___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
@@ -484,7 +485,6 @@ static lean_object* l_Lean_Elab_Tactic_Omega_Justification_bmodProof___closed__3
 size_t lean_array_size(lean_object*);
 lean_object* l_Lean_instToExprInt_mkNat(lean_object*);
 static lean_object* l_List_map___at_Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect___spec__3___closed__10;
-uint8_t l___private_Init_Omega_Constraint_0__Lean_Omega_decEqConstraint____x40_Init_Omega_Constraint___hyg_150_(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_Justification_bmodProof___closed__24;
 lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_Problem_elimination___closed__2;
@@ -8717,11 +8717,11 @@ lean_object* x_19; uint8_t x_20;
 lean_inc(x_16);
 lean_inc(x_5);
 x_19 = l_Lean_Omega_Constraint_combine(x_5, x_16);
-x_20 = l___private_Init_Omega_Constraint_0__Lean_Omega_decEqConstraint____x40_Init_Omega_Constraint___hyg_150_(x_19, x_16);
+x_20 = l___private_Init_Omega_Constraint_0__Lean_Omega_decEqConstraint____x40_Init_Omega_Constraint___hyg_146_(x_19, x_16);
 if (x_20 == 0)
 {
 uint8_t x_21; 
-x_21 = l___private_Init_Omega_Constraint_0__Lean_Omega_decEqConstraint____x40_Init_Omega_Constraint___hyg_150_(x_19, x_5);
+x_21 = l___private_Init_Omega_Constraint_0__Lean_Omega_decEqConstraint____x40_Init_Omega_Constraint___hyg_146_(x_19, x_5);
 if (x_21 == 0)
 {
 lean_object* x_22; lean_object* x_23; 
@@ -8791,11 +8791,11 @@ lean_object* x_29; uint8_t x_30;
 lean_inc(x_26);
 lean_inc(x_5);
 x_29 = l_Lean_Omega_Constraint_combine(x_5, x_26);
-x_30 = l___private_Init_Omega_Constraint_0__Lean_Omega_decEqConstraint____x40_Init_Omega_Constraint___hyg_150_(x_29, x_26);
+x_30 = l___private_Init_Omega_Constraint_0__Lean_Omega_decEqConstraint____x40_Init_Omega_Constraint___hyg_146_(x_29, x_26);
 if (x_30 == 0)
 {
 uint8_t x_31; 
-x_31 = l___private_Init_Omega_Constraint_0__Lean_Omega_decEqConstraint____x40_Init_Omega_Constraint___hyg_150_(x_29, x_5);
+x_31 = l___private_Init_Omega_Constraint_0__Lean_Omega_decEqConstraint____x40_Init_Omega_Constraint___hyg_146_(x_29, x_5);
 if (x_31 == 0)
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; 

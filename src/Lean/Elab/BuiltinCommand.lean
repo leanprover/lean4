@@ -23,31 +23,31 @@ namespace Lean.Elab.Command
      modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
    | _ => throwErrorAt stx "unexpected module doc string{indentD stx[1]}"
 
-private def addScope (isNewNamespace : Bool) (isNoncomputable : Bool) (header : String) (newNamespace : Name) : CommandElabM Unit := do
-  modify fun s => { s with
-    env    := s.env.registerNamespace newNamespace,
-    scopes := { s.scopes.head! with header := header, currNamespace := newNamespace, isNoncomputable := s.scopes.head!.isNoncomputable || isNoncomputable } :: s.scopes
-  }
+private def addScope (ref : Syntax) (isNewNamespace : Bool) (isNoncomputable : Bool) (header : String) (newNamespace : Name) : CommandElabM Unit := do
+  modify fun s =>
+    let newScope :=
+      { s.scopes.head! with
+        ref := ref
+        header := header
+        currNamespace := newNamespace
+        isNoncomputable := s.scopes.head!.isNoncomputable || isNoncomputable }
+    { s with
+      env    := s.env.registerNamespace newNamespace,
+      scopes := newScope :: s.scopes }
   pushScope
   if isNewNamespace then
     activateScoped newNamespace
 
-private def addScopes (isNewNamespace : Bool) (isNoncomputable : Bool) : Name → CommandElabM Unit
+private def addScopes (ref : Syntax) (isNewNamespace : Bool) (isNoncomputable : Bool) : Name → CommandElabM Unit
   | .anonymous => pure ()
   | .str p header => do
-    addScopes isNewNamespace isNoncomputable p
+    addScopes ref isNewNamespace isNoncomputable p
     let currNamespace ← getCurrNamespace
-    addScope isNewNamespace isNoncomputable header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace)
+    addScope ref isNewNamespace isNoncomputable header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace)
   | _ => throwError "invalid scope"
 
-private def addNamespace (header : Name) : CommandElabM Unit :=
-  addScopes (isNewNamespace := true) (isNoncomputable := false) header
-
-def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) : CommandElabM α := do
-  addNamespace ns
-  let a ← elabFn
-  modify fun s => { s with scopes := s.scopes.drop ns.getNumParts }
-  pure a
+private def addNamespace (ref : Syntax) (header : Name) : CommandElabM Unit :=
+  addScopes ref (isNewNamespace := true) (isNoncomputable := false) header
 
 private def popScopes (numScopes : Nat) : CommandElabM Unit :=
   for _ in [0:numScopes] do
@@ -58,54 +58,73 @@ private def checkAnonymousScope : List Scope → Option Name
   | { header := h, .. }  :: _ => some <| .mkSimple h
   | _                         => some .anonymous -- should not happen
 
-private def checkEndHeader : Name → List Scope → Option Name
-  | .anonymous, _ => none
-  | .str p s, { header := h, .. } :: scopes =>
-    if h == s then
-      (.str · s) <$> checkEndHeader p scopes
-    else
-      some <| .mkSimple h
-  | _, _ => some .anonymous -- should not happen
-
 @[builtin_command_elab «namespace»] def elabNamespace : CommandElab := fun stx =>
   match stx with
-  | `(namespace $n) => addNamespace n.getId
+  | `(namespace $n) => addNamespace stx n.getId
   | _               => throwUnsupportedSyntax
 
 @[builtin_command_elab «section»] def elabSection : CommandElab := fun stx => do
   match stx with
-  | `(section $header:ident) => addScopes (isNewNamespace := false) (isNoncomputable := false) header.getId
-  | `(section)               => addScope (isNewNamespace := false) (isNoncomputable := false) "" (← getCurrNamespace)
+  | `(section $header:ident) => addScopes stx (isNewNamespace := false) (isNoncomputable := false) header.getId
+  | `(section)               => addScope stx (isNewNamespace := false) (isNoncomputable := false) "" (← getCurrNamespace)
   | _                        => throwUnsupportedSyntax
 
 @[builtin_command_elab noncomputableSection] def elabNonComputableSection : CommandElab := fun stx => do
   match stx with
-  | `(noncomputable section $header:ident) => addScopes (isNewNamespace := false) (isNoncomputable := true) header.getId
-  | `(noncomputable section)               => addScope (isNewNamespace := false) (isNoncomputable := true) "" (← getCurrNamespace)
+  | `(noncomputable section $header:ident) => addScopes stx (isNewNamespace := false) (isNoncomputable := true) header.getId
+  | `(noncomputable section)               => addScope stx (isNewNamespace := false) (isNoncomputable := true) "" (← getCurrNamespace)
   | _                        => throwUnsupportedSyntax
 
+/-- Whether or not the scope was created using a `namespace` command. -/
+def Scope.isNamespace (s : Scope) : Bool :=
+  s.ref.isOfKind ``Parser.Command.«namespace»
+
+/-- Whether or not the scope was created using a `section` command. -/
+def Scope.isSection (s : Scope) : Bool :=
+  s.ref.isOfKind ``Parser.Command.«section» || s.ref.isOfKind ``Parser.Command.noncomputableSection
+
 @[builtin_command_elab «end»] def elabEnd : CommandElab := fun stx => do
-  let header? := (stx.getArg 1).getOptionalIdent?;
-  let endSize := match header? with
+  let header? := (stx.getArg 1).getOptionalIdent?
+  let endSize :=
+    match header? with
     | none   => 1
     | some n => n.getNumParts
   let scopes ← getScopes
-  if endSize < scopes.length then
-    modify fun s => { s with scopes := s.scopes.drop endSize }
-    popScopes endSize
-  else -- we keep "root" scope
-    let n := (← get).scopes.length - 1
-    modify fun s => { s with scopes := s.scopes.drop n }
-    popScopes n
+  let maxDroppable := scopes.findIdx (fun scope => !(scope.isNamespace || scope.isSection))
+  unless endSize ≤ maxDroppable do
+    -- we drop all namespace/section scopes (leaving for example the "root" scope) before throwing an error
+    let scopes' := scopes.drop maxDroppable
+    modify fun s => { s with scopes := scopes' }
+    popScopes maxDroppable
     throwError "invalid 'end', insufficient scopes"
+  modify fun s => { s with scopes := s.scopes.drop endSize }
+  popScopes endSize
+  -- Now validate section/namespace headers.
   match header? with
   | none        =>
     if let some name := checkAnonymousScope scopes then
       throwError "invalid 'end', name is missing (expected {name})"
   | some header =>
-    if let some name := checkEndHeader header scopes then
-      addCompletionInfo <| CompletionInfo.endSection stx (scopes.map fun scope => scope.header)
-      throwError "invalid 'end', name mismatch (expected {if name == `«» then `nothing else name})"
+    let comps := header.componentsRev
+    let mut seenNamespace := false
+    let mut seenSection := false
+    for i in [0:comps.length] do
+      let .str _ n := comps[i]! | throwError "invalid 'end', name has numeric component"
+      let scope := scopes[i]!
+      if scope.isNamespace then
+        seenNamespace := true
+        if seenSection then
+          let n' := (comps.take i).foldr (init := Name.anonymous) (fun n acc => Name.appendCore acc n)
+          throwError "invalid 'end', mixed ending of section {n'} and namespace {n}"
+      else
+        seenSection := true
+        if seenNamespace then
+          let n' := (comps.take i).foldr (init := Name.anonymous) (fun n acc => Name.appendCore acc n)
+          throwError "invalid 'end', mixed ending of namespace {n'} and section {n}"
+      if n != scope.header then
+        addCompletionInfo <| CompletionInfo.endSection stx (scopes.map fun scope => scope.header)
+        let name := (scopes.take (i + 1)).foldr (init := Name.anonymous) (fun n acc => .str acc n.header)
+        throwError "invalid 'end', name mismatch (expected {if name == `«» then `nothing else name})"
 
 private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM Unit :=
   if h : i < cmds.size then
@@ -120,6 +139,8 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
   elabChoiceAux stx.getArgs 0
 
 @[builtin_command_elab «universe»] def elabUniverse : CommandElab := fun n => do
+  if (← getScope).scopeRestriction == .global then
+    logWarning m!"unexpected 'universe' in this context, only has local effect"
   n[1].forArgsM addUnivLevel
 
 @[builtin_command_elab «init_quot»] def elabInitQuot : CommandElab := fun _ => do
@@ -143,6 +164,8 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
 
 @[builtin_command_elab «open»] def elabOpen : CommandElab
   | `(open $decl:openDecl) => do
+    if (← getScope).scopeRestriction == .global then
+      logWarning m!"unexpected 'open' in this context, only has local effect"
     let openDecls ← elabOpenDecl decl
     modifyScope fun scope => { scope with openDecls := openDecls }
   | _ => throwUnsupportedSyntax
@@ -228,6 +251,8 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
 
 @[builtin_command_elab «variable»] def elabVariable : CommandElab
   | `(variable $binders*) => do
+    if (← getScope).scopeRestriction == .global then
+      logWarning m!"unexpected 'variable' in this context, only has local effect"
     -- Try to elaborate `binders` for sanity checking
     runTermElabM fun _ => Term.withSynthesize <| Term.withAutoBoundImplicit <|
       Term.elabBinders binders fun _ => pure ()
@@ -483,11 +508,42 @@ def elabRunMeta : CommandElab := fun stx =>
   modify fun s => { s with maxRecDepth := maxRecDepth.get options }
   modifyScope fun scope => { scope with opts := options }
 
+@[builtin_command_elab Parser.Command.pushScope] def elabPushScope : CommandElab := fun stx => do
+  let ref := stx.getArg 1
+  let newScope := { (← getScope) with ref, header := "" }
+  modify fun s => { s with scopes := newScope :: s.scopes }
+  pushScope
+
+@[builtin_command_elab Parser.Command.popScope] def elabPopScope : CommandElab := fun stx => do
+  let ref := stx.getArg 1
+  if let some idx := (← getScopes).findIdx? (fun scope => scope.ref == ref) then
+    modify fun s => { s with scopes := s.scopes.drop (idx + 1) }
+    popScopes (idx + 1)
+    if idx > 0 then
+      throwError "unexpected new scopes"
+  else
+    throwError "unmatched 'pop_scope%' (internal error: please report an issue)"
+
+@[builtin_command_elab Parser.Command.withoutScopeRestriction] def elabWithoutScopeRestriction : CommandElab :=
+  fun _ => setScopeRestriction .none
+
+@[builtin_command_elab Parser.Command.withGlobalScopeRestriction] def elabWithGlobalScopeRestriction : CommandElab :=
+  fun _ => setScopeRestriction .global
+
+@[builtin_command_elab Parser.Command.withLocalScopeRestriction] def elabWithLocalScopeRestriction : CommandElab :=
+  fun _ => setScopeRestriction .local
+
 @[builtin_macro Lean.Parser.Command.«in»] def expandInCmd : Macro
   | `($cmd₁ in%$tk $cmd₂) =>
     -- Limit ref variability for incrementality; see Note [Incremental Macros]
-    withRef tk `(section $cmd₁:command $cmd₂ end)
-  | _                 => Macro.throwUnsupported
+    withRef tk
+      `(push_scope% $(⟨tk⟩)
+        with_local_scope_restriction%
+        $cmd₁
+        with_global_scope_restriction%
+        $cmd₂
+        pop_scope% $(⟨tk⟩))
+  | _ => Macro.throwUnsupported
 
 @[builtin_command_elab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do
   match stx with

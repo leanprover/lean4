@@ -199,7 +199,8 @@ def expandNamespacedDeclaration : Macro := fun stx => do
     -- Limit ref variability for incrementality; see Note [Incremental Macros]
     let declTk := stx[1][0]
     let ns := mkIdentFrom declTk ns
-    withRef declTk `(namespace $ns $(⟨newStx⟩) end $ns)
+    -- It can come as a surprise that this is within a new scope, so add a restriction to raise warnings for local attributes.
+    withRef declTk `(namespace $ns with_global_scope_restriction% $(⟨newStx⟩) end $ns)
   | none => Macro.throwUnsupported
 
 @[builtin_command_elab declaration, builtin_incremental]
@@ -212,18 +213,25 @@ def elabDeclaration : CommandElab := fun stx => do
   else withoutCommandIncrementality true do
     if declKind == ``Lean.Parser.Command.«axiom» then
       let modifiers ← elabModifiers stx[0]
+      checkAttrs modifiers
       elabAxiom modifiers decl
     else if declKind == ``Lean.Parser.Command.«inductive» then
       let modifiers ← elabModifiers stx[0]
+      checkAttrs modifiers
       elabInductive modifiers decl
     else if declKind == ``Lean.Parser.Command.classInductive then
       let modifiers ← elabModifiers stx[0]
+      checkAttrs modifiers
       elabClassInductive modifiers decl
     else if declKind == ``Lean.Parser.Command.«structure» then
       let modifiers ← elabModifiers stx[0]
+      checkAttrs modifiers
       elabStructure modifiers decl
     else
       throwError "unexpected declaration"
+where
+  checkAttrs (modifiers : Modifiers) : CommandElabM Unit := do
+    checkAttrScopeRestrictions modifiers.attrs
 
 /-- Return true if all elements of the mutual-block are inductive declarations. -/
 private def isMutualInductive (stx : Syntax) : Bool :=
@@ -361,6 +369,7 @@ def elabMutual : CommandElab := fun stx => do
     else
       attrInsts := attrInsts.push attrKindStx
   let attrs ← elabAttrs attrInsts
+  checkAttrScopeRestrictions attrs
   let idents := stx[4].getArgs
   for ident in idents do withRef ident <| liftTermElabM do
     /-

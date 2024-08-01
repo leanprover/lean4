@@ -31,7 +31,6 @@ LEAN_EXPORT lean_object* l_Lean_Level_replace(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit(lean_object*, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2;
-uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(uint8_t, uint8_t);
 LEAN_EXPORT size_t l_Lean_Expr_ReplaceLevelImpl_cacheSize;
 lean_object* l_Lean_Expr_letE___override(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3;
@@ -43,6 +42,7 @@ uint8_t l_ptrEqList___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_mkLevelIMax_x27(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_map___at_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit___spec__1(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
+uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__1;
@@ -389,7 +389,7 @@ return x_65;
 else
 {
 uint8_t x_66; 
-x_66 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_48, x_48);
+x_66 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_48, x_48);
 if (x_66 == 0)
 {
 lean_object* x_67; lean_object* x_68; 
@@ -470,7 +470,7 @@ return x_90;
 else
 {
 uint8_t x_91; 
-x_91 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_73, x_73);
+x_91 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_73, x_73);
 if (x_91 == 0)
 {
 lean_object* x_92; lean_object* x_93; 

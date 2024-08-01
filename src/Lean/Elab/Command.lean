@@ -13,6 +13,31 @@ import Lean.Language.Basic
 namespace Lean.Elab.Command
 
 /--
+Represents a restriction to effects on scoped environment extensions.
+In some contexts, commands are run within a hidden scope, which can lead to surprises to users.
+Either global effects occur where they shouldn't, or local effects do not seem to be applied.
+
+Commands can read this restriction information from the command context to decide to emit a warning.
+
+The two main places this is set are
+* `$cmd1 in $cmd2` syntax, where global changes are not expected in `$cmd1`, but also local changes
+  in `$cmd2` are no good since this syntax is equivalent to `section $cmd1 $cmd end`.
+* `def NS.foo ...`, which is a macro for `namespace NS def foo ... end NS`, so local attributes
+  applied to `foo` are no good.
+
+The main uses of this flag are in the definition commands during attribute processing
+and in the `attribute` command.
+-/
+inductive ScopeRestriction
+  /-- No restriction. -/
+  | none
+  /-- Expecting only local changes. No `scoped`, must be `local`. -/
+  | local
+  /-- Expecting only global changes. No `local` or `scoped`. -/
+  | global
+  deriving Inhabited, BEq
+
+/--
 A `Scope` records the part of the `CommandElabM` state that respects scoping,
 such as the data for `universe`, `open`, and `variable` declarations, the current namespace,
 and currently enabled options.
@@ -22,6 +47,11 @@ even outside any `section` or `namespace`, and each new pushed `Scope`
 starts as a modified copy of the previous top scope.
 -/
 structure Scope where
+  /--
+  A piece of syntax associated to the creation of this scope, for example a `namespace` or `section` command.
+  This is used by the `end` command to check whether this scope is closable by the user.
+  -/
+  ref           : Syntax
   /--
   The component of the `namespace` or `section` that this scope is associated to.
   For example, `section a.b.c` and `namespace a.b.c` each create three scopes with headers
@@ -69,12 +99,13 @@ structure Scope where
   so all sections and namespaces nested within a `noncomputable` section also have this flag set.
   -/
   isNoncomputable : Bool := false
+  scopeRestriction : ScopeRestriction := .none
   deriving Inhabited
 
 structure State where
   env            : Environment
   messages       : MessageLog := {}
-  scopes         : List Scope := [{ header := "" }]
+  scopes         : List Scope := [{ ref := .missing, header := "" }]
   nextMacroScope : Nat := firstFrontendMacroScope + 1
   maxRecDepth    : Nat
   ngen           : NameGenerator := {}
@@ -147,7 +178,7 @@ instance : MonadExceptOf Exception CommandElabM where
 def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options := {}) : State := {
   env         := env
   messages    := messages
-  scopes      := [{ header := "", opts := opts }]
+  scopes      := [{ ref := .missing, header := "", opts := opts }]
   maxRecDepth := maxRecDepth.get opts
 }
 
@@ -275,8 +306,36 @@ private def ioErrorToMessage (ctx : Context) (ref : Syntax) (err : IO.Error) : M
 instance : MonadLiftT IO CommandElabM where
   monadLift := liftIO
 
+/--
+Return the stack of all currently active scopes:
+the base scope always comes last; new scopes are prepended in the front.
+In particular, the current scope is always the first element.
+-/
+def getScopes : CommandElabM (List Scope) := do
+  pure (← get).scopes
+
+def modifyScope (f : Scope → Scope) : CommandElabM Unit :=
+  modify fun s => { s with
+    scopes := match s.scopes with
+      | h::t => f h :: t
+      | []   => unreachable!
+  }
+
+def withScope (f : Scope → Scope) (x : CommandElabM α) : CommandElabM α := do
+  match (← get).scopes with
+  | [] => x
+  | h :: t =>
+    try
+      modify fun s => { s with scopes := f h :: t }
+      x
+    finally
+      modify fun s => { s with scopes := h :: t }
+
 /-- Return the current scope. -/
 def getScope : CommandElabM Scope := do pure (← get).scopes.head!
+
+def setScopeRestriction (sr : ScopeRestriction) : CommandElabM Unit := do
+  modifyScope (fun scope => { scope with scopeRestriction := sr })
 
 instance : MonadResolveName CommandElabM where
   getCurrNamespace := return (← getScope).currNamespace
@@ -658,31 +717,6 @@ Interrupt and abort exceptions are caught but not logged.
 private def liftAttrM {α} (x : AttrM α) : CommandElabM α := do
   liftCoreM x
 
-/--
-Return the stack of all currently active scopes:
-the base scope always comes last; new scopes are prepended in the front.
-In particular, the current scope is always the first element.
--/
-def getScopes : CommandElabM (List Scope) := do
-  pure (← get).scopes
-
-def modifyScope (f : Scope → Scope) : CommandElabM Unit :=
-  modify fun s => { s with
-    scopes := match s.scopes with
-      | h::t => f h :: t
-      | []   => unreachable!
-  }
-
-def withScope (f : Scope → Scope) (x : CommandElabM α) : CommandElabM α := do
-  match (← get).scopes with
-  | [] => x
-  | h :: t =>
-    try
-      modify fun s => { s with scopes := f h :: t }
-      x
-    finally
-      modify fun s => { s with scopes := h :: t }
-
 def getLevelNames : CommandElabM (List Name) :=
   return (← getScope).levelNames
 
@@ -727,7 +761,7 @@ def liftCommandElabM (cmd : CommandElabM α) : CoreM α := do
     } |>.run {
       env := ← getEnv
       maxRecDepth := ← getMaxRecDepth
-      scopes := [{ header := "", opts := ← getOptions }]
+      scopes := [{ ref := .missing, header := "", opts := ← getOptions }]
     }
   modify fun coreState => { coreState with
     traceState.traces := coreState.traceState.traces ++ commandState.traceState.traces

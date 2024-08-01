@@ -170,7 +170,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_FunDe
 static lean_object* l_Lean_Compiler_LCNF_instTraverseFVarArg___closed__2;
 static lean_object* l_Lean_Compiler_LCNF_Code_mapFVarM___rarg___lambda__1___closed__3;
 lean_object* l_Lean_Compiler_LCNF_AltCore_getCode(lean_object*);
-uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(uint8_t, uint8_t);
 static lean_object* l_Lean_Compiler_LCNF_instTraverseFVarLetValue___closed__3;
 static lean_object* l_Lean_Compiler_LCNF_instTraverseFVarLetDecl___closed__2;
 lean_object* l_Lean_Compiler_LCNF_Code_forFVarM___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -329,6 +328,7 @@ lean_object* l_Lean_Compiler_LCNF_LetValue_forFVarM___rarg___lambda__1(lean_obje
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Expr_mapFVarM___rarg___lambda__1___closed__1;
 uint8_t lean_usize_dec_lt(size_t, size_t);
+uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(uint8_t, uint8_t);
 lean_object* l_Lean_Compiler_LCNF_allFVarM___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Code_forFVarM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_LetValue_forFVarM___spec__2___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
@@ -699,7 +699,7 @@ return x_21;
 else
 {
 uint8_t x_22; 
-x_22 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_10, x_10);
+x_22 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_10, x_10);
 if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; 
@@ -837,7 +837,7 @@ return x_21;
 else
 {
 uint8_t x_22; 
-x_22 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_10, x_10);
+x_22 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_10, x_10);
 if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; 

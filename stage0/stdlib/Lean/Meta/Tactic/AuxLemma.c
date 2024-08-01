@@ -38,7 +38,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Meta_mkAux
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkAuxLemma___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_mkAuxLemma___spec__5___closed__1;
-uint8_t l_List_beq___at___private_Lean_Declaration_0__Lean_beqConstantVal____x40_Lean_Declaration___hyg_437____spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
@@ -53,6 +52,7 @@ static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_52
 static lean_object* l_Lean_Meta_instInhabitedAuxLemmas___closed__1;
 static size_t l_Lean_PersistentHashMap_findAux___at_Lean_Meta_mkAuxLemma___spec__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_Meta_mkAuxLemma___spec__6(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_List_beq___at___private_Lean_Declaration_0__Lean_beqConstantVal____x40_Lean_Declaration___hyg_433____spec__1(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_environment_main_module(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_AuxLemmas_idx___default;
@@ -1292,7 +1292,7 @@ lean_inc(x_94);
 x_95 = lean_ctor_get(x_93, 1);
 lean_inc(x_95);
 lean_dec(x_93);
-x_96 = l_List_beq___at___private_Lean_Declaration_0__Lean_beqConstantVal____x40_Lean_Declaration___hyg_437____spec__1(x_1, x_95);
+x_96 = l_List_beq___at___private_Lean_Declaration_0__Lean_beqConstantVal____x40_Lean_Declaration___hyg_433____spec__1(x_1, x_95);
 lean_dec(x_95);
 if (x_96 == 0)
 {
@@ -1747,7 +1747,7 @@ lean_inc(x_216);
 x_217 = lean_ctor_get(x_215, 1);
 lean_inc(x_217);
 lean_dec(x_215);
-x_218 = l_List_beq___at___private_Lean_Declaration_0__Lean_beqConstantVal____x40_Lean_Declaration___hyg_437____spec__1(x_1, x_217);
+x_218 = l_List_beq___at___private_Lean_Declaration_0__Lean_beqConstantVal____x40_Lean_Declaration___hyg_433____spec__1(x_1, x_217);
 lean_dec(x_217);
 if (x_218 == 0)
 {

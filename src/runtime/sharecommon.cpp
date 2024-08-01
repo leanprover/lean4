@@ -4,10 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <vector>
 #include <cstring>
-#include <unordered_map>
-#include <unordered_set>
 #include "runtime/sharecommon.h"
 #include "runtime/hash.h"
 
@@ -294,6 +291,15 @@ lean_object * sharecommon_quick_fn::check_cache(lean_object * a) {
             it->second->m_rc++;
             return it->second;
         }
+        if (m_check_set) {
+            auto it = m_set.find(a);
+            if (it != m_set.end()) {
+                lean_object * result = *it;
+                lean_assert(lean_is_st(result));
+                result->m_rc++;
+                return result;
+            }
+        }
     }
     return nullptr;
 }
@@ -415,5 +421,15 @@ lean_object * sharecommon_quick_fn::visit(lean_object * a) {
 // def ShareCommon.shareCommon' (a : A) : A := a
 extern "C" LEAN_EXPORT obj_res lean_sharecommon_quick(obj_arg a) {
     return sharecommon_quick_fn()(a);
+}
+
+lean_object * sharecommon_persistent_fn::operator()(lean_object * e) {
+    lean_object * r = check_cache(e);
+    if (r != nullptr)
+        return r;
+    m_saved.push_back(object_ref(e, true));
+    r = visit(e);
+    m_saved.push_back(object_ref(r, true));
+    return r;
 }
 };

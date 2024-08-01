@@ -43,7 +43,7 @@
     in {
       packages = {
         # to be removed when Nix CI is not needed anymore
-        inherit (lean-packages) cacheRoots tests update-stage0-commit ciShell;
+        inherit (lean-packages) cacheRoots test update-stage0-commit ciShell;
         deprecated = lean-packages;
       };
 

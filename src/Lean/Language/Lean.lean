@@ -338,7 +338,7 @@ structure SetupImportsResult where
 register_builtin_option internal.minimalSnapshots : Bool := {
   defValue := false
   descr    := "reduce information stored in snapshots to the minimum necessary for the cmdline \
-driver: diagnostics and environment per command"
+driver: diagnostics per command and final full snapshot"
 }
 
 /--
@@ -369,16 +369,16 @@ where
   parseHeader (old? : Option HeaderParsedSnapshot) : LeanProcessingM HeaderParsedSnapshot := do
     let ctx ← read
     let ictx := ctx.toInputContext
-    let unchanged old newParserState :=
+    let unchanged old newStx newParserState :=
       -- when header syntax is unchanged, reuse import processing task as is and continue with
       -- parsing the first command, synchronously if possible
-      -- NOTE: even if the syntax tree is functionally unchanged, the new parser state may still
-      -- have changed because of trailing whitespace and comments etc., so it is passed separately
-      -- from `old`
+      -- NOTE: even if the syntax tree is functionally unchanged, its concrete structure and the new
+      -- parser state may still have changed because of trailing whitespace and comments etc., so
+      -- they are passed separately from `old`
       if let some oldSuccess := old.result? then
         return {
           ictx
-          stx := old.stx
+          stx := newStx
           diagnostics := old.diagnostics
           cancelTk? := ctx.newCancelTk
           result? := some { oldSuccess with
@@ -452,31 +452,47 @@ where
       let setup ← match (← setupImports stx) with
         | .ok setup => pure setup
         | .error snap => return snap
+
+      let startTime := (← IO.monoNanosNow).toFloat / 1000000000
       -- allows `headerEnv` to be leaked, which would live until the end of the process anyway
       let (headerEnv, msgLog) ← Elab.processHeader (leakEnv := true) stx setup.opts .empty
         ctx.toInputContext setup.trustLevel
+      let stopTime := (← IO.monoNanosNow).toFloat / 1000000000
       let diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
       if msgLog.hasErrors then
         return { diagnostics, result? := none }
 
       let headerEnv := headerEnv.setMainModule setup.mainModuleName
+      let mut traceState := default
+      if trace.profiler.output.get? setup.opts |>.isSome then
+        traceState := {
+          traces := #[{
+            ref := .missing,
+            msg := .trace { cls := `Import, startTime, stopTime }
+              (.ofFormat "importing") #[]
+            : TraceElem
+          }].toPArray'
+        }
       let cmdState := Elab.Command.mkState headerEnv msgLog setup.opts
-      let cmdState := { cmdState with infoState := {
-        enabled := true
-        trees := #[Elab.InfoTree.context (.commandCtx {
-          env     := headerEnv
-          fileMap := ctx.fileMap
-          ngen    := { namePrefix := `_import }
-        }) (Elab.InfoTree.node
-            (Elab.Info.ofCommandInfo { elaborator := `header, stx })
-            (stx[1].getArgs.toList.map (fun importStx =>
-              Elab.InfoTree.node (Elab.Info.ofCommandInfo {
-                elaborator := `import
-                stx := importStx
-              }) #[].toPArray'
-            )).toPArray'
-        )].toPArray'
-      }}
+      let cmdState := { cmdState with
+        infoState := {
+          enabled := true
+          trees := #[Elab.InfoTree.context (.commandCtx {
+            env     := headerEnv
+            fileMap := ctx.fileMap
+            ngen    := { namePrefix := `_import }
+          }) (Elab.InfoTree.node
+              (Elab.Info.ofCommandInfo { elaborator := `header, stx })
+              (stx[1].getArgs.toList.map (fun importStx =>
+                Elab.InfoTree.node (Elab.Info.ofCommandInfo {
+                  elaborator := `import
+                  stx := importStx
+                }) #[].toPArray'
+              )).toPArray'
+          )].toPArray'
+        }
+        traceState
+      }
       let prom ← IO.Promise.new
       -- The speedup of these `markPersistent`s is negligible but they help in making unexpected
       -- `inc_ref_cold`s more visible
@@ -540,12 +556,16 @@ where
       env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace
       openDecls := scope.openDecls
     }
-    let (stx, parserState, msgLog) := Parser.parseCommand ctx.toInputContext pmctx parserState
-      .empty
+    let (stx, parserState, msgLog) :=
+      profileit "parsing" scope.opts fun _ =>
+        Parser.parseCommand ctx.toInputContext pmctx parserState .empty
 
     -- semi-fast path
     if let some old := old? then
-      if (← isBeforeEditPos parserState.pos ctx) && old.data.stx == stx then
+      -- NOTE: as `parserState.pos` includes trailing whitespace, this forces reprocessing even if
+      -- only that whitespace changes, which is wasteful but still necessary because it may
+      -- influence the range of error messages such as from a trailing `exact`
+      if stx.eqWithInfo old.data.stx then
         -- Here we must make sure to pass the *new* parser state; see NOTE in `unchanged`
         return (← unchanged old parserState)
       -- on first change, make sure to cancel old invocation
@@ -567,23 +587,27 @@ where
     let next? ← if Parser.isTerminalCommand stx then pure none
       -- for now, wait on "command finished" snapshot before parsing next command
       else some <$> IO.Promise.new
-    prom.resolve <| .mk (nextCmdSnap? := next?.map ({ range? := some ⟨parserState.pos, ctx.input.endPos⟩, task := ·.result })) {
-      diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
-      stx := if minimalSnapshots then .missing else stx
-      parserState := if minimalSnapshots then {} else parserState
+    let diagnostics ← Snapshot.Diagnostics.ofMessageLog msgLog
+    let data := if minimalSnapshots && !Parser.isTerminalCommand stx then {
+      diagnostics
+      stx := .missing
+      parserState := {}
       elabSnap := { range? := stx.getRange?, task := elabPromise.result }
-      finishedSnap := .pure <|
-        if minimalSnapshots then
-          { finishedSnap with
-            infoTree? := none
-            cmdState := {
-              env := Runtime.markPersistent (if Parser.isTerminalCommand stx then finishedSnap.cmdState.env else initEnv)
-              maxRecDepth := 0
-            }
-          }
-        else finishedSnap
+      finishedSnap := .pure {
+        diagnostics := finishedSnap.diagnostics
+        infoTree? := none
+        cmdState := {
+          env := initEnv
+          maxRecDepth := 0
+        }
+      }
       tacticCache
+    } else {
+      diagnostics, stx, parserState, tacticCache
+      elabSnap := { range? := stx.getRange?, task := elabPromise.result }
+      finishedSnap := .pure finishedSnap
     }
+    prom.resolve <| .mk (nextCmdSnap? := next?.map ({ range? := some ⟨parserState.pos, ctx.input.endPos⟩, task := ·.result })) data
     if let some next := next? then
       parseCmd none parserState finishedSnap.cmdState initEnv next ctx
 
@@ -652,9 +676,8 @@ def processCommands (inputCtx : Parser.InputContext) (parserState : Parser.Modul
     |>.run { inputCtx with }
   return prom.result
 
-
-/-- Waits for and returns final environment, if importing was successful. -/
-partial def waitForFinalEnv? (snap : InitialSnapshot) : Option Environment := do
+/-- Waits for and returns final command state, if importing was successful. -/
+partial def waitForFinalCmdState? (snap : InitialSnapshot) : Option Command.State := do
   let snap ← snap.result?
   let snap ← snap.processedSnap.get.result?
   goCmd snap.firstCmdSnap.get
@@ -662,6 +685,6 @@ where goCmd snap :=
   if let some next := snap.nextCmdSnap? then
     goCmd next.get
   else
-    snap.data.finishedSnap.get.cmdState.env
+    snap.data.finishedSnap.get.cmdState
 
 end Lean

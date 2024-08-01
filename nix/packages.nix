@@ -42,7 +42,6 @@ let
   }));
 in {
   inherit cc buildLeanPackage llvmPackages;
-  inherit (lean.stage1) cacheRoots tests update-stage0-commit;
   nixpkgs = pkgs;
   ciShell = writeShellScriptBin "ciShell" ''
     set -o pipefail
@@ -50,4 +49,4 @@ in {
     # prefix lines with cumulative and individual execution time
     "$@" |& ts -i "(%.S)]" | ts -s "[%M:%S"
   '';
-}
+} // lean.stage1

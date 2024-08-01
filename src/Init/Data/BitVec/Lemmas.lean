@@ -731,6 +731,16 @@ theorem getLsb_shiftLeft' {x : BitVec w₁} {y : BitVec w₂} {i : Nat} :
     getLsb (x >>> i) j = getLsb x (i+j) := by
   unfold getLsb ; simp
 
+@[simp]
+theorem ushiftRight_zero_eq (x : BitVec w) : x >>> 0 = x := by
+  simp [bv_toNat]
+
+/-! ### ushiftRight reductions from BitVec to Nat -/
+
+@[simp]
+theorem ushiftRight_eq' (x : BitVec w₁) (y : BitVec w₂) :
+    x >>> y = x >>> y.toNat := by rfl
+
 /-! ### sshiftRight -/
 
 theorem sshiftRight_eq {x : BitVec n} {i : Nat} :
@@ -1584,7 +1594,7 @@ theorem zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsb_true
     simp [hx]
   · by_cases hik' : k < i + 1 <;> simp [hik, hik'] <;> omega
 
-/-- Bitwise `and` of `(x : BitVec w`) with `1#w` equals zero extending the `lsb` to `w`. -/
+/-- Bitwise and of `(x : BitVec w)` with `1#w` equals zero extending `x.lsb` to `w`. -/
 theorem and_one_eq_zeroExtend_ofBool_getLsb {x : BitVec w} :
     (x &&& 1#w) = zeroExtend w (ofBool (x.getLsb 0)) := by
   ext i

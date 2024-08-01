@@ -231,6 +231,7 @@ static lean_object* l_Lean_IR_EmitC_toCName___closed__4;
 lean_object* l_Lean_IR_EmitC_toCType(lean_object*);
 lean_object* l_Lean_IR_EmitC_emitBoxFn(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
+static lean_object* l_Lean_IR_EmitC_shouldExport___closed__9;
 static lean_object* l_Lean_IR_EmitC_emitSProj___closed__5;
 LEAN_EXPORT lean_object* l_List_forM___at_Lean_IR_EmitC_emitFns___spec__1(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_closureMaxArgs;
@@ -306,6 +307,7 @@ static lean_object* l_Lean_IR_EmitC_emitInitFn___closed__10;
 lean_object* l_Lean_IR_EmitC_emitMarkPersistent___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_constName_x3f(lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitInitFn___closed__11;
+static lean_object* l_Lean_IR_EmitC_shouldExport___closed__10;
 static lean_object* l_Lean_IR_EmitC_emitApp___closed__1;
 static lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__1___closed__8;
 LEAN_EXPORT lean_object* l_String_foldlAux___at_Lean_IR_EmitC_quoteString___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1855,6 +1857,25 @@ x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Lean_IR_EmitC_shouldExport___closed__9() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("findModuleRefs", 14, 14);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_IR_EmitC_shouldExport___closed__10() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_IR_EmitC_shouldExport___closed__1;
+x_2 = l_Lean_IR_EmitC_shouldExport___closed__7;
+x_3 = l_Lean_IR_EmitC_shouldExport___closed__9;
+x_4 = l_Lean_Name_mkStr3(x_1, x_2, x_3);
+return x_4;
+}
+}
 uint8_t l_Lean_IR_EmitC_shouldExport(lean_object* x_1) {
 _start:
 {
@@ -1879,15 +1900,9 @@ return x_8;
 }
 else
 {
-uint8_t x_9; 
-x_9 = 0;
-return x_9;
-}
-}
-else
-{
-uint8_t x_10; 
-x_10 = 0;
+lean_object* x_9; uint8_t x_10; 
+x_9 = l_Lean_IR_EmitC_shouldExport___closed__10;
+x_10 = lean_name_eq(x_1, x_9);
 return x_10;
 }
 }
@@ -1896,6 +1911,13 @@ else
 uint8_t x_11; 
 x_11 = 0;
 return x_11;
+}
+}
+else
+{
+uint8_t x_12; 
+x_12 = 0;
+return x_12;
 }
 }
 }
@@ -15726,6 +15748,10 @@ l_Lean_IR_EmitC_shouldExport___closed__7 = _init_l_Lean_IR_EmitC_shouldExport___
 lean_mark_persistent(l_Lean_IR_EmitC_shouldExport___closed__7);
 l_Lean_IR_EmitC_shouldExport___closed__8 = _init_l_Lean_IR_EmitC_shouldExport___closed__8();
 lean_mark_persistent(l_Lean_IR_EmitC_shouldExport___closed__8);
+l_Lean_IR_EmitC_shouldExport___closed__9 = _init_l_Lean_IR_EmitC_shouldExport___closed__9();
+lean_mark_persistent(l_Lean_IR_EmitC_shouldExport___closed__9);
+l_Lean_IR_EmitC_shouldExport___closed__10 = _init_l_Lean_IR_EmitC_shouldExport___closed__10();
+lean_mark_persistent(l_Lean_IR_EmitC_shouldExport___closed__10);
 l_Nat_forM_loop___at_Lean_IR_EmitC_emitFnDeclAux___spec__1___closed__1 = _init_l_Nat_forM_loop___at_Lean_IR_EmitC_emitFnDeclAux___spec__1___closed__1();
 lean_mark_persistent(l_Nat_forM_loop___at_Lean_IR_EmitC_emitFnDeclAux___spec__1___closed__1);
 l_Lean_IR_EmitC_emitFnDeclAux___lambda__1___closed__1 = _init_l_Lean_IR_EmitC_emitFnDeclAux___lambda__1___closed__1();

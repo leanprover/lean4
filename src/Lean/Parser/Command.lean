@@ -260,6 +260,8 @@ the section:
 * Within a namespace, declarations can be `protected`, which excludes them from the effects of
   opening the namespace.
 
+Furthermore, scoped attributes associated to the namespaces are activated for the duration of the section.
+
 As with `section`, namespaces can be nested and the scope of a namespace is terminated by a
 corresponding `end <id>` or the end of the file.
 
@@ -267,6 +269,13 @@ corresponding `end <id>` or the end of the file.
 -/
 @[builtin_command_parser] def «namespace»    := leading_parser
   "namespace " >> checkColGt >> ident
+/--
+`weak_namespace <id>` is similar to `namespace`, but any local changes to attributes persist,
+and scoped attributes associated to the namespaces are not activated.
+This is not meant to be used in user code.
+-/
+@[builtin_command_parser] def weakNamespace  := leading_parser
+  "weak_namespace " >> checkColGt >> ident
 /--
 `end` closes a `section` or `namespace` scope. If the scope is named `<id>`, it has to be closed
 with `end <id>`. The `end` command is optional at the end of a file.
@@ -671,8 +680,38 @@ def initializeKeyword := leading_parser
   declModifiers false >> initializeKeyword >>
   optional (atomic (ident >> Term.typeSpec >> ppSpace >> Term.leftArrow)) >> Term.doSeq
 
+/--
+`cmd₁ in cmd₂` runs `cmd₁` and `cmd₂` in a new section.
+-/
 @[builtin_command_parser] def «in»  := trailing_parser
   withOpen (ppDedent (" in " >> commandParser))
+
+/--
+Internal command to push a new scope with the given ref.
+It is similar to `section` but cannot be ended with `end`.
+The command does not need to be a command, and it can be any Syntax.
+-/
+@[builtin_command_parser] def pushScope := leading_parser
+  "push_scope% " >> commandParser
+
+/--
+Internal command to pop the scope with the given ref.
+It is like `end` but for ending a matching `push_scope%`.
+-/
+@[builtin_command_parser] def popScope := leading_parser
+  "pop_scope% " >> commandParser
+
+/-- Switches current scope to having `scopeRestriction := .none` set. -/
+@[builtin_command_parser] def withoutScopeRestriction := leading_parser
+  "without_scope_restriction%"
+
+/-- Switches current scope to having `scopeRestriction := .local` set. -/
+@[builtin_command_parser] def withLocalScopeRestriction := leading_parser
+  "with_local_scope_restriction%"
+
+/-- Switches current scope to having `scopeRestriction := .global` set. -/
+@[builtin_command_parser] def withGlobalScopeRestriction := leading_parser
+  "with_global_scope_restriction%"
 
 /--
 Adds a docstring to an existing declaration, replacing any existing docstring.

@@ -65,7 +65,7 @@ class sharecommon_persistent_fn : private sharecommon_quick_fn {
 public:
     sharecommon_persistent_fn(bool s = false):sharecommon_quick_fn(s) {}
     void set_check_set(bool f) { m_check_set = f; }
-    object_ref operator()(object_ref const & e);
+    lean_object * operator()(lean_object * e);
 };
 
 };

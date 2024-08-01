@@ -423,13 +423,13 @@ extern "C" LEAN_EXPORT obj_res lean_sharecommon_quick(obj_arg a) {
     return sharecommon_quick_fn()(a);
 }
 
-object_ref sharecommon_persistent_fn::operator()(object_ref const & e) {
-    lean_object * r = check_cache(e.raw());
+lean_object * sharecommon_persistent_fn::operator()(lean_object * e) {
+    lean_object * r = check_cache(e);
     if (r != nullptr)
-        return object_ref(r);
-    m_saved.push_back(e);
-    r = visit(e.raw());
-    m_saved.push_back(object_ref(r));
-    return m_saved.back();
+        return r;
+    m_saved.push_back(object_ref(e, true));
+    r = visit(e);
+    m_saved.push_back(object_ref(r, true));
+    return r;
 }
 };

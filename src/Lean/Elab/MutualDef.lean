@@ -962,6 +962,17 @@ where
 end Term
 namespace Command
 
+def checkAttrScopeRestrictions (attrs : Array Attribute) : CommandElabM Unit := do
+  for attr in attrs do
+    match (← getScope).scopeRestriction with
+    | .none => pure ()
+    | .global =>
+      unless attr.kind == .global do
+        logWarningAt attr.stx m!"unexpected non-global attribute, local and scoped attributes do not have the expected effect in this context"
+    | .local =>
+      unless attr.kind == .local do
+        logWarningAt attr.stx m!"unexpected non-'local' attribute, global and scoped attributes do not have the expected effect in this context"
+
 def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
   let opts ← getOptions
   withAlwaysResolvedPromises ds.size fun headerPromises => do
@@ -972,6 +983,7 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
     for h : i in [0:ds.size], headerPromise in headerPromises do
       let d := ds[i]
       let modifiers ← elabModifiers d[0]
+      checkAttrScopeRestrictions modifiers.attrs
       if ds.size > 1 && modifiers.isNonrec then
         throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
       let mut view ← mkDefView modifiers d[1]

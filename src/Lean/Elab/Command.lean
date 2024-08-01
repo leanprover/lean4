@@ -13,6 +13,31 @@ import Lean.Language.Basic
 namespace Lean.Elab.Command
 
 /--
+Represents a restriction to effects on scoped environment extensions.
+In some contexts, commands are run within a hidden scope, which can lead to surprises to users.
+Either global effects occur where they shouldn't, or local effects do not seem to be applied.
+
+Commands can read this restriction information from the command context to decide to emit a warning.
+
+The two main places this is set are
+* `$cmd1 in $cmd2` syntax, where global changes are not expected in `$cmd1`, but also local changes
+  in `$cmd2` are no good since this syntax is equivalent to `section $cmd1 $cmd end`.
+* `def NS.foo ...`, which is a macro for `namespace NS def foo ... end NS`, so local attributes
+  applied to `foo` are no good.
+
+The main uses of this flag are in the definition commands during attribute processing
+and in the `attribute` command.
+-/
+inductive ScopeRestriction
+  /-- No restriction. -/
+  | none
+  /-- Expecting only local changes. No `scoped`, must be `local`. -/
+  | local
+  /-- Expecting only global changes. No `local` or `scoped`. -/
+  | global
+  deriving Inhabited, BEq
+
+/--
 A `Scope` records the part of the `CommandElabM` state that respects scoping,
 such as the data for `universe`, `open`, and `variable` declarations, the current namespace,
 and currently enabled options.
@@ -74,6 +99,7 @@ structure Scope where
   so all sections and namespaces nested within a `noncomputable` section also have this flag set.
   -/
   isNoncomputable : Bool := false
+  scopeRestriction : ScopeRestriction := .none
   deriving Inhabited
 
 structure State where
@@ -87,20 +113,6 @@ structure State where
   traceState     : TraceState := {}
   deriving Nonempty
 
-/--
-A flag to keep track of what sorts of changes to the state or the environment would be (un)expected.
-This is only used for raising warnings, primarily for the `$cmd1 in $cmd2` command,
-where only local changes are expected by `$cmd1` (so no new global attributes for example)
-and only global changes are expected by `$cmd2` (so for example no `@[local simp] theorem ...`).
--/
-inductive LocalityExpectation
-  /-- No restriction. -/
-  | any
-  /-- Expecting only global changes. No `local` or `scoped`. -/
-  | globalExpected
-  /-- Expecting only local changes. No `scoped`, must be `local`. -/
-  | localExpected
-
 structure Context where
   fileName       : String
   fileMap        : FileMap
@@ -108,7 +120,6 @@ structure Context where
   cmdPos         : String.Pos := 0
   macroStack     : MacroStack := []
   currMacroScope : MacroScope := firstFrontendMacroScope
-  localityExpectation : LocalityExpectation := .any
   ref            : Syntax := Syntax.missing
   tacticCache?   : Option (IO.Ref Tactic.Cache)
   /--
@@ -295,8 +306,36 @@ private def ioErrorToMessage (ctx : Context) (ref : Syntax) (err : IO.Error) : M
 instance : MonadLiftT IO CommandElabM where
   monadLift := liftIO
 
+/--
+Return the stack of all currently active scopes:
+the base scope always comes last; new scopes are prepended in the front.
+In particular, the current scope is always the first element.
+-/
+def getScopes : CommandElabM (List Scope) := do
+  pure (← get).scopes
+
+def modifyScope (f : Scope → Scope) : CommandElabM Unit :=
+  modify fun s => { s with
+    scopes := match s.scopes with
+      | h::t => f h :: t
+      | []   => unreachable!
+  }
+
+def withScope (f : Scope → Scope) (x : CommandElabM α) : CommandElabM α := do
+  match (← get).scopes with
+  | [] => x
+  | h :: t =>
+    try
+      modify fun s => { s with scopes := f h :: t }
+      x
+    finally
+      modify fun s => { s with scopes := h :: t }
+
 /-- Return the current scope. -/
 def getScope : CommandElabM Scope := do pure (← get).scopes.head!
+
+def setScopeRestriction (sr : ScopeRestriction) : CommandElabM Unit := do
+  modifyScope (fun scope => { scope with scopeRestriction := sr })
 
 instance : MonadResolveName CommandElabM where
   getCurrNamespace := return (← getScope).currNamespace
@@ -677,31 +716,6 @@ Interrupt and abort exceptions are caught but not logged.
 
 private def liftAttrM {α} (x : AttrM α) : CommandElabM α := do
   liftCoreM x
-
-/--
-Return the stack of all currently active scopes:
-the base scope always comes last; new scopes are prepended in the front.
-In particular, the current scope is always the first element.
--/
-def getScopes : CommandElabM (List Scope) := do
-  pure (← get).scopes
-
-def modifyScope (f : Scope → Scope) : CommandElabM Unit :=
-  modify fun s => { s with
-    scopes := match s.scopes with
-      | h::t => f h :: t
-      | []   => unreachable!
-  }
-
-def withScope (f : Scope → Scope) (x : CommandElabM α) : CommandElabM α := do
-  match (← get).scopes with
-  | [] => x
-  | h :: t =>
-    try
-      modify fun s => { s with scopes := f h :: t }
-      x
-    finally
-      modify fun s => { s with scopes := h :: t }
 
 def getLevelNames : CommandElabM (List Name) :=
   return (← getScope).levelNames

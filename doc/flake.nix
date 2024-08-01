@@ -17,7 +17,7 @@
   };
 
   outputs = inputs@{ self, ... }: inputs.flake-utils.lib.eachDefaultSystem (system:
-    with inputs.lean.packages.${system}; with nixpkgs;
+    with inputs.lean.packages.${system}.deprecated; with nixpkgs;
     let
       doc-src = lib.sourceByRegex ../. ["doc.*" "tests(/lean(/beginEndAsMacro.lean)?)?"];
     in {

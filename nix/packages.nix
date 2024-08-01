@@ -42,8 +42,7 @@ let
   }));
 in {
   inherit cc buildLeanPackage llvmPackages;
-  inherit (lean.stage1) cacheRoots tests;
-  lean = lean.stage1;
+  inherit (lean.stage1) cacheRoots tests update-stage0-commit;
   nixpkgs = pkgs;
   ciShell = writeShellScriptBin "ciShell" ''
     set -o pipefail

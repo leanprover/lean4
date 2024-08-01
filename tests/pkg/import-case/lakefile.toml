@@ -1,5 +1,0 @@
-name = "«import-case»"
-defaultTargets = ["ImportCase"]
-
-[[lean_lib]]
-name = "ImportCase"

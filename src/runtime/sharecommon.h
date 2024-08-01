@@ -19,7 +19,7 @@ A faster version of `sharecommon_fn` which only uses a local state.
 It optimizes the number of RC operations, the strategy for caching results,
 and uses C++ hashmap.
 */
-class sharecommon_quick_fn {
+class LEAN_EXPORT sharecommon_quick_fn {
 protected:
     struct set_hash {
         std::size_t operator()(lean_object * o) const { return lean_sharecommon_hash(o); }
@@ -60,7 +60,7 @@ public:
 Similar to `sharecommon_quick_fn`, but we save the entry points and result values to ensure
 they are not deleted.
 */
-class sharecommon_persistent_fn : private sharecommon_quick_fn {
+class LEAN_EXPORT sharecommon_persistent_fn : private sharecommon_quick_fn {
     std::vector<object_ref> m_saved;
 public:
     sharecommon_persistent_fn(bool s = false):sharecommon_quick_fn(s) {}

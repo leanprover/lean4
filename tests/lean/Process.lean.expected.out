@@ -1,6 +1,5 @@
-hi!
-<stdin>:1:0: warning: using 'exit' to interrupt Lean
 1
+hi!
 0
 "ho!\n"
 "hu!\n"
@@ -9,6 +8,7 @@ flush of broken pipe failed
 100000
 0
 0
+<stdin>:1:0: warning: using 'exit' to interrupt Lean
 0
 0
 none

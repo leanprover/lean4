@@ -1567,4 +1567,46 @@ theorem and_one_eq_zeroExtend_ofBool_getLsb {x : BitVec w} :
     Bool.true_and]
   by_cases h : (0 = (i : Nat)) <;> simp [h] <;> omega
 
+@[simp]
+theorem replicate_zero_eq {x : BitVec w} : x.replicate 0 = 0#0 := by
+  simp [replicate]
+
+@[simp]
+theorem replicate_succ_eq {x : BitVec w} :
+    x.replicate (n + 1) =
+    (x ++ replicate n x).cast (by rw [Nat.mul_succ]; omega) := by
+  simp [replicate]
+
+/--
+If a number `w * n ≤ i < w * (n + 1)`, then `i - w * n` equals `i % w`.
+This is true by subtracting `w * n` from the inequality, giving
+`0 ≤ i - w * n < w`, which uniquely identifies `i % w`.
+-/
+private theorem Nat.sub_mul_eq_mod_of_lt_of_le (hlo : w * n ≤ i) (hhi : i < w * (n + 1)) :
+    i - w * n = i % w := by
+  rw [Nat.mod_def]
+  congr
+  symm
+  apply Nat.div_eq_of_lt_le
+    (by rw [Nat.mul_comm]; omega)
+    (by rw [Nat.mul_comm]; omega)
+
+@[simp]
+theorem getLsb_replicate {n w : Nat} (x : BitVec w) :
+    (x.replicate n).getLsb i =
+    (decide (i < w * n) && x.getLsb (i % w)) := by
+  induction n generalizing x
+  case zero => simp
+  case succ n ih =>
+    simp only [replicate_succ_eq, getLsb_cast, getLsb_append]
+    by_cases hi : i < w * (n + 1)
+    · simp only [hi, decide_True, Bool.true_and]
+      by_cases hi' : i < w * n
+      · simp [hi', ih]
+      · simp only [hi', decide_False, cond_false]
+        rw [Nat.sub_mul_eq_mod_of_lt_of_le] <;> omega
+    · rw [Nat.mul_succ] at hi ⊢
+      simp only [show ¬i < w * n by omega, decide_False, cond_false, hi, Bool.false_and]
+      apply BitVec.getLsb_ge (x := x) (i := i - w * n) (ge := by omega)
+
 end BitVec

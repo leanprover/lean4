@@ -139,6 +139,8 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
   elabChoiceAux stx.getArgs 0
 
 @[builtin_command_elab «universe»] def elabUniverse : CommandElab := fun n => do
+  if (← getScope).scopeRestriction == .global then
+    logWarning m!"unexpected 'universe' in this context, only has local effect"
   n[1].forArgsM addUnivLevel
 
 @[builtin_command_elab «init_quot»] def elabInitQuot : CommandElab := fun _ => do
@@ -162,6 +164,8 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
 
 @[builtin_command_elab «open»] def elabOpen : CommandElab
   | `(open $decl:openDecl) => do
+    if (← getScope).scopeRestriction == .global then
+      logWarning m!"unexpected 'open' in this context, only has local effect"
     let openDecls ← elabOpenDecl decl
     modifyScope fun scope => { scope with openDecls := openDecls }
   | _ => throwUnsupportedSyntax
@@ -247,6 +251,8 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
 
 @[builtin_command_elab «variable»] def elabVariable : CommandElab
   | `(variable $binders*) => do
+    if (← getScope).scopeRestriction == .global then
+      logWarning m!"unexpected 'variable' in this context, only has local effect"
     -- Try to elaborate `binders` for sanity checking
     runTermElabM fun _ => Term.withSynthesize <| Term.withAutoBoundImplicit <|
       Term.elabBinders binders fun _ => pure ()
@@ -502,11 +508,42 @@ def elabRunMeta : CommandElab := fun stx =>
   modify fun s => { s with maxRecDepth := maxRecDepth.get options }
   modifyScope fun scope => { scope with opts := options }
 
+@[builtin_command_elab Parser.Command.pushScope] def elabPushScope : CommandElab := fun stx => do
+  let ref := stx.getArg 1
+  let newScope := { (← getScope) with ref, header := "" }
+  modify fun s => { s with scopes := newScope :: s.scopes }
+  pushScope
+
+@[builtin_command_elab Parser.Command.popScope] def elabPopScope : CommandElab := fun stx => do
+  let ref := stx.getArg 1
+  if let some idx := (← getScopes).findIdx? (fun scope => scope.ref == ref) then
+    modify fun s => { s with scopes := s.scopes.drop (idx + 1) }
+    popScopes (idx + 1)
+    if idx > 0 then
+      throwError "unexpected new scopes"
+  else
+    throwError "unmatched 'pop_scope%' (internal error: please report an issue)"
+
+@[builtin_command_elab Parser.Command.withoutScopeRestriction] def elabWithoutScopeRestriction : CommandElab :=
+  fun _ => setScopeRestriction .none
+
+@[builtin_command_elab Parser.Command.withGlobalScopeRestriction] def elabWithGlobalScopeRestriction : CommandElab :=
+  fun _ => setScopeRestriction .global
+
+@[builtin_command_elab Parser.Command.withLocalScopeRestriction] def elabWithLocalScopeRestriction : CommandElab :=
+  fun _ => setScopeRestriction .local
+
 @[builtin_macro Lean.Parser.Command.«in»] def expandInCmd : Macro
   | `($cmd₁ in%$tk $cmd₂) =>
     -- Limit ref variability for incrementality; see Note [Incremental Macros]
-    withRef tk `(section $cmd₁:command $cmd₂ end)
-  | _                 => Macro.throwUnsupported
+    withRef tk
+      `(push_scope% $(⟨tk⟩)
+        with_local_scope_restriction%
+        $cmd₁
+        with_global_scope_restriction%
+        $cmd₂
+        pop_scope% $(⟨tk⟩))
+  | _ => Macro.throwUnsupported
 
 @[builtin_command_elab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do
   match stx with

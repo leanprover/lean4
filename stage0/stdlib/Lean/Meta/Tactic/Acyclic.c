@@ -144,7 +144,6 @@ return x_11;
 else
 {
 uint8_t x_12; 
-lean_inc(x_2);
 x_12 = l_Lean_Expr_occurs(x_1, x_2);
 if (x_12 == 0)
 {
@@ -344,7 +343,7 @@ lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 14, x_3);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 15, x_3);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 16, x_3);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 17, x_4);
-lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 18, x_3);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 18, x_4);
 return x_6;
 }
 }

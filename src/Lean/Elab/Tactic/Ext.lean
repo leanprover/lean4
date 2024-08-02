@@ -74,18 +74,23 @@ def mkExtIffType (extThmName : Name) : MetaM Expr := withLCtx {} {} do
     let some (_, x, y) := ty.eq? | failNotEq
     let some xIdx := args.findIdx? (· == x) | failNotEq
     let some yIdx := args.findIdx? (· == y) | failNotEq
-    unless xIdx == yIdx + 1 || xIdx + 1 == yIdx do
+    unless xIdx + 1 == yIdx do
       throwError "expecting {x} and {y} to be consecutive arguments"
-    let startIdx := max xIdx yIdx + 1
+    let startIdx := yIdx + 1
     let toRevert := args[startIdx:].toArray
     let fvars ← toRevert.foldlM (init := {}) (fun st e => return collectFVars st (← inferType e))
     for fvar in toRevert do
       unless ← Meta.isProof fvar do
-        throwError "argument {fvar} is not a proof, which is not supported"
+        throwError "argument {fvar} is not a proof, which is not supported for arguments after {x} and {y}"
       if fvars.fvarSet.contains fvar.fvarId! then
-        throwError "argument {fvar} is depended upon, which is not supported"
+        throwError "argument {fvar} is depended upon, which is not supported for arguments after {x} and {y}"
     let conj := mkAndN (← toRevert.mapM (inferType ·)).toList
-    withNewBinderInfos (args |>.extract 0 startIdx |>.map (·.fvarId!, .implicit)) do
+    -- Make everything implicit except for inst implicits
+    let mut newBis := #[]
+    for fvar in args[0:startIdx] do
+      if (← fvar.fvarId!.getBinderInfo) matches .default | .strictImplicit then
+        newBis := newBis.push (fvar.fvarId!, .implicit)
+    withNewBinderInfos newBis do
       mkForallFVars args[:startIdx] <| mkIff ty conj
 
 /--
@@ -99,27 +104,31 @@ def realizeExtTheorem (structName : Name) (flat : Bool) : Elab.Command.CommandEl
     throwError "'{structName}' is not a structure"
   let extName := structName.mkStr "ext"
   unless (← getEnv).contains extName do
-    Elab.Command.liftTermElabM <| withoutErrToSorry <| withDeclName extName do
-      let type ← mkExtType structName flat
-      let pf ← withSynthesize do
-        let indVal ← getConstInfoInduct structName
-        let params := Array.mkArray indVal.numParams (← `(_))
-        Elab.Term.elabTermEnsuringType (expectedType? := type) (implicitLambda := false)
-          -- introduce the params, do cases on 'x' and 'y', and then substitute each equation
-          (← `(by intro $params* {..} {..}; intros; subst_eqs; rfl))
-      let pf ← instantiateMVars pf
-      if pf.hasMVar then throwError "(internal error) synthesized ext proof contains metavariables{indentD pf}"
-      let info ← getConstInfo structName
-      addDecl <| Declaration.thmDecl {
-        name := extName
-        type
-        value := pf
-        levelParams := info.levelParams
-      }
-      modifyEnv fun env => addProtected env extName
-      Lean.addDeclarationRanges extName {
-        range := ← getDeclarationRange (← getRef)
-        selectionRange := ← getDeclarationRange (← getRef) }
+    try
+      Elab.Command.liftTermElabM <| withoutErrToSorry <| withDeclName extName do
+        let type ← mkExtType structName flat
+        let pf ← withSynthesize do
+          let indVal ← getConstInfoInduct structName
+          let params := Array.mkArray indVal.numParams (← `(_))
+          Elab.Term.elabTermEnsuringType (expectedType? := type) (implicitLambda := false)
+            -- introduce the params, do cases on 'x' and 'y', and then substitute each equation
+            (← `(by intro $params* {..} {..}; intros; subst_eqs; rfl))
+        let pf ← instantiateMVars pf
+        if pf.hasMVar then throwError "(internal error) synthesized ext proof contains metavariables{indentD pf}"
+        let info ← getConstInfo structName
+        addDecl <| Declaration.thmDecl {
+          name := extName
+          type
+          value := pf
+          levelParams := info.levelParams
+        }
+        modifyEnv fun env => addProtected env extName
+        Lean.addDeclarationRanges extName {
+          range := ← getDeclarationRange (← getRef)
+          selectionRange := ← getDeclarationRange (← getRef) }
+    catch e =>
+      throwError m!"\
+        Failed to generate an 'ext' theorem for '{MessageData.ofConstName structName}': {e.toMessageData}"
   return extName
 
 /--
@@ -133,29 +142,35 @@ def realizeExtIffTheorem (extName : Name) : Elab.Command.CommandElabM Name := do
     | .str n s => .str n (s ++ "_iff")
     | _ => .str extName "ext_iff"
   unless (← getEnv).contains extIffName do
-    let info ← getConstInfo extName
-    Elab.Command.liftTermElabM <| withoutErrToSorry <| withDeclName extIffName do
-      let type ← mkExtIffType extName
-      let pf ← withSynthesize do
-        Elab.Term.elabTermEnsuringType (expectedType? := type) <| ← `(by
-          intros
-          refine ⟨?_, ?_⟩
-          · intro h; cases h; and_intros <;> (intros; first | rfl | simp | fail "Failed to prove converse of ext theorem")
-          · intro; (repeat cases ‹_ ∧ _›); apply $(mkCIdent extName) <;> assumption)
-      let pf ← instantiateMVars pf
-      if pf.hasMVar then throwError "(internal error) synthesized ext_iff proof contains metavariables{indentD pf}"
-      addDecl <| Declaration.thmDecl {
-        name := extIffName
-        type
-        value := pf
-        levelParams := info.levelParams
-      }
-      -- Only declarations in a namespace can be protected:
-      unless extIffName.isAtomic do
-        modifyEnv fun env => addProtected env extIffName
-      Lean.addDeclarationRanges extIffName {
-        range := ← getDeclarationRange (← getRef)
-        selectionRange := ← getDeclarationRange (← getRef) }
+    try
+      let info ← getConstInfo extName
+      Elab.Command.liftTermElabM <| withoutErrToSorry <| withDeclName extIffName do
+        let type ← mkExtIffType extName
+        let pf ← withSynthesize do
+          Elab.Term.elabTermEnsuringType (expectedType? := type) <| ← `(by
+            intros
+            refine ⟨?_, ?_⟩
+            · intro h; cases h; and_intros <;> (intros; first | rfl | simp | fail "Failed to prove converse of ext theorem")
+            · intro; (repeat cases ‹_ ∧ _›); apply $(mkCIdent extName) <;> assumption)
+        let pf ← instantiateMVars pf
+        if pf.hasMVar then throwError "(internal error) synthesized ext_iff proof contains metavariables{indentD pf}"
+        addDecl <| Declaration.thmDecl {
+          name := extIffName
+          type
+          value := pf
+          levelParams := info.levelParams
+        }
+        -- Only declarations in a namespace can be protected:
+        unless extIffName.isAtomic do
+          modifyEnv fun env => addProtected env extIffName
+        Lean.addDeclarationRanges extIffName {
+          range := ← getDeclarationRange (← getRef)
+          selectionRange := ← getDeclarationRange (← getRef) }
+    catch e =>
+      throwError m!"\
+        Failed to generate an 'ext_iff' theorem from '{MessageData.ofConstName extName}': {e.toMessageData}\n\
+        \n\
+        Try '@[ext (iff := false)]' to prevent generating an 'ext_iff' theorem."
   return extIffName
 
 

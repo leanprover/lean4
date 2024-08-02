@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Morrison
 -/
 prelude
-import Init.Data.List.Lemmas
+import Init.Data.List.Zip
 import Init.Data.Int.DivModLemmas
 import Init.Data.Nat.Gcd
 

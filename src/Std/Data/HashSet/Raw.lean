@@ -37,16 +37,19 @@ inductive types. The well-formedness invariant is called `Raw.WF`. When in doubt
 over `HashSet.Raw`. Lemmas about the operations on `Std.Data.HashSet.Raw` are available in the
 module `Std.Data.HashSet.RawLemmas`.
 
+This is a simple separate-chaining hash table. The data of the hash set consists of a cached size
+and an array of buckets, where each bucket is a linked list of keys. The number of buckets
+is always a power of two. The hash set doubles its size upon inserting an element such that the
+number of elements is more than 75% of the number of buckets.
+
+The hash table is backed by an `Array`. Users should make sure that the hash set is used linearly to
+avoid expensive copies.
+
 The hash set uses `==` (provided by the `BEq` typeclass) to compare elements and `hash` (provided by
 the `Hashable` typeclass) to hash them. To ensure that the operations behave as expected, `==`
 should be an equivalence relation and `a == b` should imply `hash a = hash b` (see also the
 `EquivBEq` and `LawfulHashable` typeclasses). Both of these conditions are automatic if the BEq
 instance is lawful, i.e., if `a == b` implies `a = b`.
-
-This is a simple separate-chaining hash table. The data of the hash set consists of a cached size
-and an array of buckets, where each bucket is a linked list of keys. The number of buckets
-is always a power of two. The hash set doubles its size upon inserting an element such that the
-number of elements is more than 75% of the number of buckets.
 -/
 structure Raw (α : Type u) where
   /-- Internal implementation detail of the hash set. -/
@@ -103,8 +106,8 @@ instance [BEq α] [Hashable α] {m : Raw α} {a : α} : Decidable (a ∈ m) :=
   inferInstanceAs (Decidable (a ∈ m.inner))
 
 /-- Removes the element if it exists. -/
-@[inline] def remove [BEq α] [Hashable α] (m : Raw α) (a : α) : Raw α :=
-  ⟨m.inner.remove a⟩
+@[inline] def erase [BEq α] [Hashable α] (m : Raw α) (a : α) : Raw α :=
+  ⟨m.inner.erase a⟩
 
 /-- The number of elements present in the set -/
 @[inline] def size (m : Raw α) : Nat :=
@@ -218,8 +221,8 @@ theorem WF.containsThenInsert [BEq α] [Hashable α] {m : Raw α} {a : α} (h : 
     (m.containsThenInsert a).2.WF :=
   ⟨HashMap.Raw.WF.containsThenInsertIfNew h.out⟩
 
-theorem WF.remove [BEq α] [Hashable α] {m : Raw α} {a : α} (h : m.WF) : (m.remove a).WF :=
-  ⟨HashMap.Raw.WF.remove h.out⟩
+theorem WF.erase [BEq α] [Hashable α] {m : Raw α} {a : α} (h : m.WF) : (m.erase a).WF :=
+  ⟨HashMap.Raw.WF.erase h.out⟩
 
 theorem WF.filter [BEq α] [Hashable α] {m : Raw α} {f : α → Bool} (h : m.WF) : (m.filter f).WF :=
   ⟨HashMap.Raw.WF.filter h.out⟩

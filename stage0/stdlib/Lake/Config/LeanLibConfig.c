@@ -63,6 +63,7 @@ static lean_object* l_Lake_instInhabitedLeanLibConfig___closed__2;
 LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_extraDepTargets___default;
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
+size_t lean_array_size(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_LeanLibConfig_isBuildableModule(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedLeanLibConfig;
 lean_object* lean_array_get_size(lean_object*);
@@ -135,13 +136,11 @@ goto _start;
 LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_globs___default(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; size_t x_3; size_t x_4; lean_object* x_5; 
-x_2 = lean_array_get_size(x_1);
-x_3 = lean_usize_of_nat(x_2);
-lean_dec(x_2);
-x_4 = 0;
-x_5 = l_Array_mapMUnsafe_map___at_Lake_LeanLibConfig_globs___default___spec__1(x_3, x_4, x_1);
-return x_5;
+size_t x_2; size_t x_3; lean_object* x_4; 
+x_2 = lean_array_size(x_1);
+x_3 = 0;
+x_4 = l_Array_mapMUnsafe_map___at_Lake_LeanLibConfig_globs___default___spec__1(x_2, x_3, x_1);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanLibConfig_globs___default___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

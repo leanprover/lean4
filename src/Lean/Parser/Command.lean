@@ -269,7 +269,7 @@ corresponding `end <id>` or the end of the file.
   "namespace " >> checkColGt >> ident
 /--
 `end` closes a `section` or `namespace` scope. If the scope is named `<id>`, it has to be closed
-with `end <id>`.
+with `end <id>`. The `end` command is optional at the end of a file.
 -/
 @[builtin_command_parser] def «end»          := leading_parser
   "end" >> optional (ppSpace >> checkColGt >> ident)
@@ -437,6 +437,8 @@ structure Pair (α : Type u) (β : Type v) : Type (max u v) where
   "#check_failure " >> termParser -- Like `#check`, but succeeds only if term does not type check
 @[builtin_command_parser] def eval           := leading_parser
   "#eval " >> termParser
+@[builtin_command_parser] def evalBang       := leading_parser
+  "#eval! " >> termParser
 @[builtin_command_parser] def synth          := leading_parser
   "#synth " >> termParser
 @[builtin_command_parser] def exit           := leading_parser
@@ -701,7 +703,10 @@ list, so it should be brief.
 @[builtin_command_parser] def genInjectiveTheorems := leading_parser
   "gen_injective_theorems% " >> ident
 
-/-- No-op parser used as syntax kind for attaching remaining whitespace to at the end of the input. -/
+/-- To be implemented. -/
+@[builtin_command_parser] def «include» := leading_parser "include " >> many1 (checkColGt >> ident)
+
+/-- No-op parser used as syntax kind for attaching remaining whitespace at the end of the input. -/
 @[run_builtin_parser_attribute_hooks] def eoi : Parser := leading_parser ""
 
 builtin_initialize

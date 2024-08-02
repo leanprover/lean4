@@ -583,11 +583,9 @@ instance : HAppend (BitVec w) (BitVec v) (BitVec (w + v)) := ⟨.append⟩
 -- TODO: write this using multiplication
 /-- `replicate i x` concatenates `i` copies of `x` into a new vector of length `w*i`. -/
 def replicate : (i : Nat) → BitVec w → BitVec (w*i)
-  | 0,   _ => 0
+  | 0,   _ => 0#0
   | n+1, x =>
-    have hEq : w + w*n = w*(n + 1) := by
-      rw [Nat.mul_add, Nat.add_comm, Nat.mul_one]
-    hEq ▸ (x ++ replicate n x)
+    (x ++ replicate n x).cast (by rw [Nat.mul_succ]; omega)
 
 /-!
 ### Cons and Concat

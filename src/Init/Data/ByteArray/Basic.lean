@@ -37,6 +37,10 @@ def push : ByteArray → UInt8 → ByteArray
 def size : (@& ByteArray) → Nat
   | ⟨bs⟩ => bs.size
 
+@[extern "lean_sarray_size", simp]
+def usize (a : @& ByteArray) : USize :=
+  a.size.toUSize
+
 @[extern "lean_byte_array_uget"]
 def uget : (a : @& ByteArray) → (i : USize) → i.toNat < a.size → UInt8
   | ⟨bs⟩, i, h => bs[i]
@@ -119,7 +123,7 @@ def toList (bs : ByteArray) : List UInt8 :=
   TODO: avoid code duplication in the future after we improve the compiler.
 -/
 @[inline] unsafe def forInUnsafe {β : Type v} {m : Type v → Type w} [Monad m] (as : ByteArray) (b : β) (f : UInt8 → β → m (ForInStep β)) : m β :=
-  let sz := USize.ofNat as.size
+  let sz := as.usize
   let rec @[specialize] loop (i : USize) (b : β) : m β := do
     if i < sz then
       let a := as.uget i lcProof

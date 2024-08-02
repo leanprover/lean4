@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.ShareCommon
 import Lean.Compiler.NoncomputableAttr
 import Lean.Util.CollectLevelParams
 import Lean.Meta.AbstractNestedProofs
@@ -53,18 +54,20 @@ private def getLevelParamsPreDecls (preDefs : Array PreDefinition) (scopeLevelNa
   | Except.ok levelParams => pure levelParams
 
 def fixLevelParams (preDefs : Array PreDefinition) (scopeLevelNames allUserLevelNames : List Name) : TermElabM (Array PreDefinition) := do
-  -- We used to use `shareCommon` here, but is was a bottleneck
-  let levelParams ← getLevelParamsPreDecls preDefs scopeLevelNames allUserLevelNames
-  let us := levelParams.map mkLevelParam
-  let fixExpr (e : Expr) : Expr :=
-    e.replace fun c => match c with
-      | Expr.const declName _ => if preDefs.any fun preDef => preDef.declName == declName then some $ Lean.mkConst declName us else none
-      | _ => none
-  return preDefs.map fun preDef =>
-    { preDef with
-      type        := fixExpr preDef.type,
-      value       := fixExpr preDef.value,
-      levelParams := levelParams }
+  profileitM Exception s!"fix level params" (← getOptions) do
+    withTraceNode `Elab.def.fixLevelParams (fun _ => return m!"fix level params") do
+      -- We used to use `shareCommon` here, but is was a bottleneck
+      let levelParams ← getLevelParamsPreDecls preDefs scopeLevelNames allUserLevelNames
+      let us := levelParams.map mkLevelParam
+      let fixExpr (e : Expr) : Expr :=
+        e.replace fun c => match c with
+          | Expr.const declName _ => if preDefs.any fun preDef => preDef.declName == declName then some $ Lean.mkConst declName us else none
+          | _ => none
+      return preDefs.map fun preDef =>
+        { preDef with
+          type        := fixExpr preDef.type,
+          value       := fixExpr preDef.value,
+          levelParams := levelParams }
 
 def applyAttributesOf (preDefs : Array PreDefinition) (applicationTime : AttributeApplicationTime) : TermElabM Unit := do
   for preDef in preDefs do
@@ -209,5 +212,18 @@ def checkCodomainsLevel (preDefs : Array PreDefinition) : MetaM Unit := do
             m!"level, resulting type " ++
             m!"for `{preDefs[0]!.declName}` is{indentExpr type₀} : {← inferType type₀}\n" ++
             m!"and for `{preDefs[i]!.declName}` is{indentExpr typeᵢ} : {← inferType typeᵢ}"
+
+def shareCommonPreDefs (preDefs : Array PreDefinition) : CoreM (Array PreDefinition) := do
+  profileitM Exception "share common exprs" (← getOptions) do
+    withTraceNode `Elab.def.maxSharing (fun _ => return m!"share common exprs") do
+      let mut es := #[]
+      for preDef in preDefs do
+        es := es.push preDef.type |>.push preDef.value
+      es := ShareCommon.shareCommon' es
+      let mut result := #[]
+      for h : i in [:preDefs.size] do
+        let preDef := preDefs[i]
+        result := result.push { preDef with type := es[2*i]!, value := es[2*i+1]! }
+      return result
 
 end Lean.Elab

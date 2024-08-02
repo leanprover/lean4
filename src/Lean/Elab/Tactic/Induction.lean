@@ -263,9 +263,10 @@ where
               -- save all relevant syntax here for comparison with next document version
               stx := mkNullNode altStxs
               diagnostics := .empty
-              finished := finished.result
-            } (altStxs.zipWith altPromises fun stx prom =>
-                { range? := stx.getRange?, task := prom.result })
+              finished := { range? := none, task := finished.result }
+              next := altStxs.zipWith altPromises fun stx prom =>
+                { range? := stx.getRange?, task := prom.result }
+            }
             goWithIncremental <| altPromises.mapIdx fun i prom => {
               old? := do
                 let old ← tacSnap.old?
@@ -274,10 +275,10 @@ where
                 let old := old.val.get
                 -- use old version of `mkNullNode altsSyntax` as guard, will be compared with new
                 -- version and picked apart in `applyAltStx`
-                return ⟨old.data.stx, (← old.next[i]?)⟩
+                return ⟨old.data.stx, (← old.data.next[i]?)⟩
               new := prom
             }
-            finished.resolve { state? := (← saveState) }
+            finished.resolve { diagnostics := .empty, state? := (← saveState) }
         return
 
     goWithIncremental #[]
@@ -564,7 +565,7 @@ def getInductiveValFromMajor (major : Expr) : TacticM InductiveVal :=
 
 /--
 Elaborates the term in the `using` clause. We want to allow parameters to be instantiated
-(e.g. `using foo (p := …)`), but preserve other paramters, like the motives, as parameters,
+(e.g. `using foo (p := …)`), but preserve other parameters, like the motives, as parameters,
 without turning them into MVars. So this uses `abstractMVars` at the end. This is inspired by
 `Lean.Elab.Tactic.addSimpTheorem`.
 

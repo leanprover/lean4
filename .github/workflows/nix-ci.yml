@@ -103,7 +103,7 @@ jobs:
         continue-on-error: true
       - name: Build manual
         run: |
-          nix build $NIX_BUILD_ARGS --update-input lean --no-write-lock-file ./doc#{lean-mdbook,leanInk,alectryon,test,inked} -o push-doc
+          nix build $NIX_BUILD_ARGS --update-input lean --no-write-lock-file ./doc#{lean-mdbook,leanInk,alectryon,inked} -o push-doc
           nix build $NIX_BUILD_ARGS --update-input lean --no-write-lock-file ./doc
           # https://github.com/netlify/cli/issues/1809
           cp -r --dereference ./result ./dist
@@ -146,5 +146,3 @@ jobs:
       - name: Fixup CCache Cache
         run: |
           sudo chown -R $USER /nix/var/cache
-      - name: CCache stats
-        run: CCACHE_DIR=/nix/var/cache/ccache nix run .#nixpkgs.ccache -- -s

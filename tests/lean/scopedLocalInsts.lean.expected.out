@@ -1,12 +1,12 @@
 scopedLocalInsts.lean:12:6-12:39: error: failed to synthesize
   ToString A
-use `set_option diagnostics true` to get diagnostic information
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
 "A.mk 10 20"
 scopedLocalInsts.lean:21:6-21:39: error: failed to synthesize
   ToString A
-use `set_option diagnostics true` to get diagnostic information
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
 "{ x := 10, y := 20 }"
 scopedLocalInsts.lean:32:6-32:39: error: failed to synthesize
   ToString A
-use `set_option diagnostics true` to get diagnostic information
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
 "A.mk 10 20"

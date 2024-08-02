@@ -1,8 +1,0 @@
-decideTactic.lean:13:22-13:28: error: tactic 'decide' proved that the proposition
-  1 ≠ 1
-is false
-decideTactic.lean:21:28-21:34: error: tactic 'decide' failed for proposition
-  unknownProp
-since its 'Decidable' instance reduced to
-  Classical.choice ⋯
-rather than to the 'isTrue' constructor.

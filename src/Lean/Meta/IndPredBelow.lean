@@ -6,6 +6,7 @@ Authors: Dany Fabian
 prelude
 import Lean.Meta.Constructions.CasesOn
 import Lean.Meta.Match.Match
+import Lean.Meta.Tactic.SolveByElim
 
 namespace Lean.Meta.IndPredBelow
 open Match
@@ -230,22 +231,28 @@ def mkBelowDecl (ctx : Context) : MetaM Declaration := do
     ctx.typeInfos[0]!.isUnsafe
 
 partial def backwardsChaining (m : MVarId) (depth : Nat) : MetaM Bool := do
-  if depth = 0 then return false
-  else
-    m.withContext do
-    let lctx ← getLCtx
+  m.withContext do
     let mTy ← m.getType
-    lctx.anyM fun localDecl =>
-      if localDecl.isAuxDecl then
-        return false
-      else
-        commitWhen do
-        let (mvars, _, t) ← forallMetaTelescope localDecl.type
-        if ←isDefEq mTy t then
-          m.assign (mkAppN localDecl.toExpr mvars)
-          mvars.allM fun v =>
-            v.mvarId!.isAssigned <||> backwardsChaining v.mvarId! (depth - 1)
-        else return false
+    if depth = 0 then
+      trace[Meta.IndPredBelow.search] "searching for {mTy}: ran out of max depth"
+      return false
+    else
+      let lctx ← getLCtx
+      let r ← lctx.anyM fun localDecl =>
+        if localDecl.isAuxDecl then
+          return false
+        else
+          commitWhen do
+          let (mvars, _, t) ← forallMetaTelescope localDecl.type
+          if (← isDefEq mTy t) then
+            trace[Meta.IndPredBelow.search] "searching for {mTy}: trying {mkFVar localDecl.fvarId} : {localDecl.type}"
+            m.assign (mkAppN localDecl.toExpr mvars)
+            mvars.allM fun v =>
+              v.mvarId!.isAssigned <||> backwardsChaining v.mvarId! (depth - 1)
+          else return false
+      unless r do
+        trace[Meta.IndPredBelow.search] "searching for {mTy} failed"
+      return r
 
 partial def proveBrecOn (ctx : Context) (indVal : InductiveVal) (type : Expr) : MetaM Expr := do
   let main ← mkFreshExprSyntheticOpaqueMVar type
@@ -563,7 +570,7 @@ def findBelowIdx (xs : Array Expr) (motive : Expr) : MetaM $ Option (Expr × Nat
       let below ← mkFreshExprSyntheticOpaqueMVar belowTy
       try
         trace[Meta.IndPredBelow.match] "{←Meta.ppGoal below.mvarId!}"
-        if (← backwardsChaining below.mvarId! 10) then
+        if (← below.mvarId!.applyRules { backtracking := false, maxDepth := 1 } []).isEmpty then
           trace[Meta.IndPredBelow.match] "Found below term in the local context: {below}"
           if (← xs.anyM (isDefEq below)) then pure none else pure (below, idx.val)
         else
@@ -596,5 +603,6 @@ def mkBelow (declName : Name) : MetaM Unit := do
 builtin_initialize
   registerTraceClass `Meta.IndPredBelow
   registerTraceClass `Meta.IndPredBelow.match
+  registerTraceClass `Meta.IndPredBelow.search
 
 end Lean.Meta.IndPredBelow

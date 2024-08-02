@@ -98,6 +98,37 @@ theorem carry_succ (i : Nat) (x y : BitVec w) (c : Bool) :
     exact mod_two_pow_add_mod_two_pow_add_bool_lt_two_pow_succ ..
   cases x.toNat.testBit i <;> cases y.toNat.testBit i <;> (simp; omega)
 
+/--
+If `x &&& y = 0`, then the carry bit `(x + y + 0)` is always `false` for any index `i`.
+Intuitively, this is because a carry is only produced when at least two of `x`, `y`, and the
+previous carry are true. However, since `x &&& y = 0`, at most one of `x, y` can be true,
+and thus we never have a previous carry, which means that the sum cannot produce a carry.
+-/
+theorem carry_of_and_eq_zero {x y : BitVec w} (h : x &&& y = 0#w) : carry i x y false = false := by
+  induction i with
+  | zero => simp
+  | succ i ih =>
+    replace h := congrArg (·.getLsb i) h
+    simp_all [carry_succ]
+
+/-- The final carry bit when computing `x + y + c` is `true` iff `x.toNat + y.toNat + c.toNat ≥ 2^w`. -/
+theorem carry_width {x y : BitVec w} :
+    carry w x y c = decide (x.toNat + y.toNat + c.toNat ≥ 2^w) := by
+  simp [carry]
+
+/--
+If `x &&& y = 0`, then addition does not overflow, and thus `(x + y).toNat = x.toNat + y.toNat`.
+-/
+theorem toNat_add_of_and_eq_zero {x y : BitVec w} (h : x &&& y = 0#w) :
+    (x + y).toNat = x.toNat + y.toNat := by
+  rw [toNat_add]
+  apply Nat.mod_eq_of_lt
+  suffices ¬ decide (x.toNat + y.toNat + false.toNat ≥ 2^w) by
+    simp only [decide_eq_true_eq] at this
+    omega
+  rw [← carry_width]
+  simp [not_eq_true, carry_of_and_eq_zero h]
+
 /-- Carry function for bitwise addition. -/
 def adcb (x y c : Bool) : Bool × Bool := (atLeastTwo x y c, Bool.xor x (Bool.xor y c))
 
@@ -290,7 +321,7 @@ theorem zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_twoPow (x : BitVec w
         simp [hik', hik'']
   · ext k
     simp
-    omega
+    by_cases hi : x.getLsb i <;> simp [hi] <;> omega
 
 /--
 Recurrence lemma: multiplying `l` with the first `s` bits of `r` is the
@@ -314,7 +345,7 @@ theorem mulRec_eq_mul_signExtend_truncate (l r : BitVec w) (s : Nat) :
     have heq :
       (if r.getLsb (s' + 1) = true then l <<< (s' + 1) else 0) =
         (l * (r &&& (BitVec.twoPow w (s' + 1)))) := by
-      simp only [ofNat_eq_ofNat, and_twoPow_eq]
+      simp only [ofNat_eq_ofNat, and_twoPow]
       by_cases hr : r.getLsb (s' + 1) <;> simp [hr]
     rw [heq, ← BitVec.mul_add, ← zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_twoPow]
 
@@ -325,5 +356,138 @@ theorem getLsb_mul (x y : BitVec w) (i : Nat) :
     truncate_truncate_of_le]
   · simp
   · omega
+
+/-! ## shiftLeft recurrence for bitblasting -/
+
+/--
+`shiftLeftRec x y n` shifts `x` to the left by the first `n` bits of `y`.
+
+The theorem `shiftLeft_eq_shiftLeftRec` proves the equivalence of `(x <<< y)` and `shiftLeftRec`.
+
+Together with equations `shiftLeftRec_zero`, `shiftLeftRec_succ`,
+this allows us to unfold `shiftLeft` into a circuit for bitblasting.
+ -/
+def shiftLeftRec (x : BitVec w₁) (y : BitVec w₂) (n : Nat) : BitVec w₁ :=
+  let shiftAmt := (y &&& (twoPow w₂ n))
+  match n with
+  | 0 => x <<< shiftAmt
+  | n + 1 => (shiftLeftRec x y n) <<< shiftAmt
+
+@[simp]
+theorem shiftLeftRec_zero {x : BitVec w₁} {y : BitVec w₂} :
+    shiftLeftRec x y 0 = x <<< (y &&& twoPow w₂ 0)  := by
+  simp [shiftLeftRec]
+
+@[simp]
+theorem shiftLeftRec_succ {x : BitVec w₁} {y : BitVec w₂} :
+    shiftLeftRec x y (n + 1) = (shiftLeftRec x y n) <<< (y &&& twoPow w₂ (n + 1)) := by
+  simp [shiftLeftRec]
+
+/--
+If `y &&& z = 0`, `x <<< (y ||| z) = x <<< y <<< z`.
+This follows as `y &&& z = 0` implies `y ||| z = y + z`,
+and thus `x <<< (y ||| z) = x <<< (y + z) = x <<< y <<< z`.
+-/
+theorem shiftLeft_or_of_and_eq_zero {x : BitVec w₁} {y z : BitVec w₂}
+    (h : y &&& z = 0#w₂) :
+    x <<< (y ||| z) = x <<< y <<< z := by
+  rw [← add_eq_or_of_and_eq_zero _ _ h,
+    shiftLeft_eq', toNat_add_of_and_eq_zero h]
+  simp [shiftLeft_add]
+
+/--
+`shiftLeftRec x y n` shifts `x` to the left by the first `n` bits of `y`.
+-/
+theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} :
+    shiftLeftRec x y n = x <<< (y.truncate (n + 1)).zeroExtend w₂ := by
+  induction n generalizing x y
+  case zero =>
+    ext i
+    simp only [shiftLeftRec_zero, twoPow_zero, Nat.reduceAdd, truncate_one,
+      and_one_eq_zeroExtend_ofBool_getLsb]
+  case succ n ih =>
+    simp only [shiftLeftRec_succ, and_twoPow]
+    rw [ih]
+    by_cases h : y.getLsb (n + 1)
+    · simp only [h, ↓reduceIte]
+      rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsb_true h,
+        shiftLeft_or_of_and_eq_zero]
+      simp
+    · simp only [h, false_eq_true, ↓reduceIte, shiftLeft_zero']
+      rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsb_false (i := n + 1)]
+      simp [h]
+
+/--
+Show that `x <<< y` can be written in terms of `shiftLeftRec`.
+This can be unfolded in terms of `shiftLeftRec_zero`, `shiftLeftRec_succ` for bitblasting.
+-/
+theorem shiftLeft_eq_shiftLeftRec (x : BitVec w₁) (y : BitVec w₂) :
+    x <<< y = shiftLeftRec x y (w₂ - 1) := by
+  rcases w₂ with rfl | w₂
+  · simp [of_length_zero]
+  · simp [shiftLeftRec_eq]
+
+/- ### Logical shift right (ushiftRight) recurrence for bitblasting -/
+
+/--
+`ushiftRightRec x y n` shifts `x` logically to the right by the first `n` bits of `y`.
+
+The theorem `shiftRight_eq_ushiftRightRec` proves the equivalence
+of `(x >>> y)` and `ushiftRightRec`.
+
+Together with equations `ushiftRightRec_zero`, `ushiftRightRec_succ`,
+this allows us to unfold `ushiftRight` into a circuit for bitblasting.
+-/
+def ushiftRightRec (x : BitVec w₁) (y : BitVec w₂) (n : Nat) : BitVec w₁ :=
+  let shiftAmt := (y &&& (twoPow w₂ n))
+  match n with
+  | 0 => x >>> shiftAmt
+  | n + 1 => (ushiftRightRec x y n) >>> shiftAmt
+
+@[simp]
+theorem ushiftRightRec_zero (x : BitVec w₁) (y : BitVec w₂) :
+    ushiftRightRec x y 0 = x >>> (y &&& twoPow w₂ 0) := by
+  simp [ushiftRightRec]
+
+@[simp]
+theorem ushiftRightRec_succ (x : BitVec w₁) (y : BitVec w₂) :
+    ushiftRightRec x y (n + 1) = (ushiftRightRec x y n) >>> (y &&& twoPow w₂ (n + 1)) := by
+  simp [ushiftRightRec]
+
+/--
+If `y &&& z = 0`, `x >>> (y ||| z) = x >>> y >>> z`.
+This follows as `y &&& z = 0` implies `y ||| z = y + z`,
+and thus `x >>> (y ||| z) = x >>> (y + z) = x >>> y >>> z`.
+-/
+theorem ushiftRight'_or_of_and_eq_zero {x : BitVec w₁} {y z : BitVec w₂}
+    (h : y &&& z = 0#w₂) :
+    x >>> (y ||| z) = x >>> y >>> z := by
+  simp [← add_eq_or_of_and_eq_zero _ _ h, toNat_add_of_and_eq_zero h, shiftRight_add]
+
+theorem ushiftRightRec_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) :
+    ushiftRightRec x y n = x >>> (y.truncate (n + 1)).zeroExtend w₂ := by
+  induction n generalizing x y
+  case zero =>
+    ext i
+    simp only [ushiftRightRec_zero, twoPow_zero, Nat.reduceAdd,
+      and_one_eq_zeroExtend_ofBool_getLsb, truncate_one]
+  case succ n ih =>
+    simp only [ushiftRightRec_succ, and_twoPow]
+    rw [ih]
+    by_cases h : y.getLsb (n + 1) <;> simp only [h, ↓reduceIte]
+    · rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsb_true h,
+        ushiftRight'_or_of_and_eq_zero]
+      simp
+    · simp [zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsb_false, h]
+
+/--
+Show that `x >>> y` can be written in terms of `ushiftRightRec`.
+This can be unfolded in terms of `ushiftRightRec_zero`, `ushiftRightRec_succ` for bitblasting.
+-/
+theorem shiftRight_eq_ushiftRightRec (x : BitVec w₁) (y : BitVec w₂) :
+    x >>> y = ushiftRightRec x y (w₂ - 1) := by
+  rcases w₂ with rfl | w₂
+  · simp [of_length_zero]
+  · simp [ushiftRightRec_eq]
 
 end BitVec

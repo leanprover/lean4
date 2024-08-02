@@ -45,6 +45,13 @@ def dbgSleep {α : Type u} (ms : UInt32) (f : Unit → α) : α := f ()
 @[extern "lean_ptr_addr"]
 unsafe opaque ptrAddrUnsafe {α : Type u} (a : @& α) : USize
 
+/--
+Returns `true` if `a` is an exclusive object.
+We say an object is exclusive if it is single-threaded and its reference counter is 1.
+-/
+@[extern "lean_is_exclusive_obj"]
+unsafe opaque isExclusiveUnsafe {α : Type u} (a : @& α) : Bool
+
 set_option linter.unusedVariables.funArgs false in
 @[inline] unsafe def withPtrAddrUnsafe {α : Type u} {β : Type v} (a : α) (k : USize → β) (h : ∀ u₁ u₂, k u₁ = k u₂) : β :=
   k (ptrAddrUnsafe a)

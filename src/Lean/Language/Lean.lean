@@ -10,8 +10,8 @@ Authors: Sebastian Ullrich
 
 prelude
 import Lean.Language.Basic
+import Lean.Language.Lean.Types
 import Lean.Parser.Module
-import Lean.Elab.Command
 import Lean.Elab.Import
 
 /-!
@@ -166,112 +166,12 @@ namespace Lean.Language.Lean
 open Lean.Elab Command
 open Lean.Parser
 
-private def pushOpt (a? : Option α) (as : Array α) : Array α :=
-  match a? with
-  | some a => as.push a
-  | none   => as
-
 /-- Option for capturing output to stderr during elaboration. -/
 register_builtin_option stderrAsMessages : Bool := {
   defValue := true
   group    := "server"
   descr    := "(server) capture output to the Lean stderr channel (such as from `dbg_trace`) during elaboration of a command as a diagnostic message"
 }
-
-/-! The hierarchy of Lean snapshot types -/
-
-/-- Snapshot after elaboration of the entire command. -/
-structure CommandFinishedSnapshot extends Language.Snapshot where
-  /-- Resulting elaboration state. -/
-  cmdState : Command.State
-deriving Nonempty
-instance : ToSnapshotTree CommandFinishedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, #[]⟩
-
-/-- State after a command has been parsed. -/
-structure CommandParsedSnapshotData extends Snapshot where
-  /-- Syntax tree of the command. -/
-  stx : Syntax
-  /-- Resulting parser state. -/
-  parserState : Parser.ModuleParserState
-  /--
-  Snapshot for incremental reporting and reuse during elaboration, type dependent on specific
-  elaborator.
-   -/
-  elabSnap : SnapshotTask DynamicSnapshot
-  /-- State after processing is finished. -/
-  finishedSnap : SnapshotTask CommandFinishedSnapshot
-  /-- Cache for `save`; to be replaced with incrementality. -/
-  tacticCache : IO.Ref Tactic.Cache
-deriving Nonempty
-
-/-- State after a command has been parsed. -/
--- workaround for lack of recursive structures
-inductive CommandParsedSnapshot where
-  /-- Creates a command parsed snapshot. -/
-  | mk (data : CommandParsedSnapshotData)
-    (nextCmdSnap? : Option (SnapshotTask CommandParsedSnapshot))
-deriving Nonempty
-/-- The snapshot data. -/
-abbrev CommandParsedSnapshot.data : CommandParsedSnapshot → CommandParsedSnapshotData
-  | mk data _ => data
-/-- Next command, unless this is a terminal command. -/
-abbrev CommandParsedSnapshot.nextCmdSnap? : CommandParsedSnapshot →
-    Option (SnapshotTask CommandParsedSnapshot)
-  | mk _ next? => next?
-partial instance : ToSnapshotTree CommandParsedSnapshot where
-  toSnapshotTree := go where
-    go s := ⟨s.data.toSnapshot,
-      #[s.data.elabSnap.map (sync := true) toSnapshotTree,
-        s.data.finishedSnap.map (sync := true) toSnapshotTree] |>
-        pushOpt (s.nextCmdSnap?.map (·.map (sync := true) go))⟩
-
-/-- State after successful importing. -/
-structure HeaderProcessedState where
-  /-- The resulting initial elaboration state. -/
-  cmdState : Command.State
-  /-- First command task (there is always at least a terminal command). -/
-  firstCmdSnap : SnapshotTask CommandParsedSnapshot
-
-/-- State after the module header has been processed including imports. -/
-structure HeaderProcessedSnapshot extends Snapshot where
-  /-- State after successful importing. -/
-  result? : Option HeaderProcessedState
-  isFatal := result?.isNone
-instance : ToSnapshotTree HeaderProcessedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, #[] |>
-    pushOpt (s.result?.map (·.firstCmdSnap.map (sync := true) toSnapshotTree))⟩
-
-/-- State after successfully parsing the module header. -/
-structure HeaderParsedState where
-  /-- Resulting parser state. -/
-  parserState : Parser.ModuleParserState
-  /-- Header processing task. -/
-  processedSnap : SnapshotTask HeaderProcessedSnapshot
-
-/-- State after the module header has been parsed. -/
-structure HeaderParsedSnapshot extends Snapshot where
-  /-- Parser input context supplied by the driver, stored here for incremental parsing. -/
-  ictx : Parser.InputContext
-  /-- Resulting syntax tree. -/
-  stx : Syntax
-  /-- State after successful parsing. -/
-  result? : Option HeaderParsedState
-  isFatal := result?.isNone
-  /-- Cancellation token for interrupting processing of this run. -/
-  cancelTk? : Option IO.CancelToken
-
-instance : ToSnapshotTree HeaderParsedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot,
-    #[] |> pushOpt (s.result?.map (·.processedSnap.map (sync := true) toSnapshotTree))⟩
-
-/-- Shortcut accessor to the final header state, if successful. -/
-def HeaderParsedSnapshot.processedResult (snap : HeaderParsedSnapshot) :
-    SnapshotTask (Option HeaderProcessedState) :=
-  snap.result?.bind (·.processedSnap.map (sync := true) (·.result?)) |>.getD (.pure none)
-
-/-- Initial snapshot of the Lean language processor: a "header parsed" snapshot. -/
-abbrev InitialSnapshot := HeaderParsedSnapshot
 
 /-- Lean-specific processing context. -/
 structure LeanProcessingContext extends ProcessingContext where
@@ -362,16 +262,16 @@ where
   parseHeader (old? : Option HeaderParsedSnapshot) : LeanProcessingM HeaderParsedSnapshot := do
     let ctx ← read
     let ictx := ctx.toInputContext
-    let unchanged old newParserState :=
+    let unchanged old newStx newParserState :=
       -- when header syntax is unchanged, reuse import processing task as is and continue with
       -- parsing the first command, synchronously if possible
-      -- NOTE: even if the syntax tree is functionally unchanged, the new parser state may still
-      -- have changed because of trailing whitespace and comments etc., so it is passed separately
-      -- from `old`
+      -- NOTE: even if the syntax tree is functionally unchanged, its concrete structure and the new
+      -- parser state may still have changed because of trailing whitespace and comments etc., so
+      -- they are passed separately from `old`
       if let some oldSuccess := old.result? then
         return {
           ictx
-          stx := old.stx
+          stx := newStx
           diagnostics := old.diagnostics
           cancelTk? := ctx.newCancelTk
           result? := some { oldSuccess with
@@ -394,7 +294,7 @@ where
           if let some nextCom ← processed.firstCmdSnap.get? then
             if (← isBeforeEditPos nextCom.data.parserState.pos) then
               -- ...go immediately to next snapshot
-              return (← unchanged old oldSuccess.parserState)
+              return (← unchanged old old.stx oldSuccess.parserState)
 
     withHeaderExceptions ({ · with
         ictx, stx := .missing, result? := none, cancelTk? := none }) do
@@ -408,16 +308,19 @@ where
           cancelTk? := none
         }
 
-      -- semi-fast path: go to next snapshot if syntax tree is unchanged AND we're still in front
-      -- of the edit location
-      -- TODO: dropping the second condition would require adjusting positions in the state
-      -- NOTE: as `parserState.pos` includes trailing whitespace, this forces reprocessing even if
-      -- only that whitespace changes, which is wasteful but still necessary because it may
-      -- influence the range of error messages such as from a trailing `exact`
+      let trimmedStx := stx.unsetTrailing
+      -- semi-fast path: go to next snapshot if syntax tree is unchanged
+      -- NOTE: We compare modulo `unsetTrailing` in order to ensure that changes in trailing
+      -- whitespace do not invalidate the header. This is safe because we only pass the trimmed
+      -- syntax tree to `processHeader` below, so there cannot be any references to the trailing
+      -- whitespace in its result. We still store the untrimmed syntax tree in the snapshot in order
+      -- to uphold the invariant that concatenating all top-level snapshots' syntax trees results in
+      -- the original file.
       if let some old := old? then
-        if (← isBeforeEditPos parserState.pos) && old.stx == stx then
-          -- Here we must make sure to pass the *new* parser state; see NOTE in `unchanged`
-          return (← unchanged old parserState)
+        if trimmedStx.eqWithInfo old.stx.unsetTrailing then
+          -- Here we must make sure to pass the *new* syntax and parser state; see NOTE in
+          -- `unchanged`
+          return (← unchanged old stx parserState)
         -- on first change, make sure to cancel old invocation
         if let some tk := ctx.oldCancelTk? then
           tk.set
@@ -426,7 +329,7 @@ where
         diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
         result? := some {
           parserState
-          processedSnap := (← processHeader stx parserState)
+          processedSnap := (← processHeader trimmedStx parserState)
         }
         cancelTk? := ctx.newCancelTk
       }
@@ -523,7 +426,10 @@ where
 
       -- semi-fast path
       if let some old := old? then
-        if (← isBeforeEditPos parserState.pos ctx) && old.data.stx == stx then
+        -- NOTE: as `parserState.pos` includes trailing whitespace, this forces reprocessing even if
+        -- only that whitespace changes, which is wasteful but still necessary because it may
+        -- influence the range of error messages such as from a trailing `exact`
+        if stx.eqWithInfo old.data.stx then
           -- Here we must make sure to pass the *new* parser state; see NOTE in `unchanged`
           return (← unchanged old parserState)
         -- on first change, make sure to cancel old invocation

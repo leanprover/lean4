@@ -1492,6 +1492,16 @@ private def withLocalContextImp (lctx : LocalContext) (localInsts : LocalInstanc
 def withLCtx (lctx : LocalContext) (localInsts : LocalInstances) : n α → n α :=
   mapMetaM <| withLocalContextImp lctx localInsts
 
+/--
+Runs `k` in a local envrionment with the `fvarIds` erased.
+-/
+def withErasedFVars [MonadLCtx n] [MonadLiftT MetaM n] (fvarIds : Array FVarId) (k : n α) : n α := do
+  let lctx ← getLCtx
+  let localInsts ← getLocalInstances
+  let lctx' := fvarIds.foldl (·.erase ·) lctx
+  let localInsts' := localInsts.filter (!fvarIds.contains ·.fvar.fvarId!)
+  withLCtx lctx' localInsts' k
+
 private def withMVarContextImp (mvarId : MVarId) (x : MetaM α) : MetaM α := do
   let mvarDecl ← mvarId.getDecl
   withLocalContextImp mvarDecl.lctx mvarDecl.localInstances x
@@ -1855,9 +1865,13 @@ abbrev isDefEqGuarded (t s : Expr) : MetaM Bool :=
 def isDefEqNoConstantApprox (t s : Expr) : MetaM Bool :=
   approxDefEq <| isDefEq t s
 
-/-- Shorthand for `isDefEq (mkMVar mvarId) val` -/
-def _root_.Lean.MVarId.checkedAssign (mvarId : MVarId) (val : Expr) : MetaM Bool :=
-  isDefEq (mkMVar mvarId) val
+/--
+Returns `true` if `mvarId := val` was successfully assigned.
+This method uses the same assignment validation performed by `isDefEq`, but it does not check whether the types match.
+-/
+-- Remark: this method is implemented at `ExprDefEq`
+@[extern "lean_checked_assign"]
+opaque _root_.Lean.MVarId.checkedAssign (mvarId : MVarId) (val : Expr) : MetaM Bool
 
 /--
   Eta expand the given expression.

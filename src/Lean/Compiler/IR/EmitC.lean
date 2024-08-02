@@ -94,7 +94,10 @@ def emitCInitName (n : Name) : M Unit :=
 def shouldExport (n : Name) : Bool :=
   -- HACK: exclude symbols very unlikely to be used by the interpreter or other consumers of
   -- libleanshared to avoid Windows symbol limit
-  !(`Lean.Compiler.LCNF).isPrefixOf n
+  !(`Lean.Compiler.LCNF).isPrefixOf n &&
+  !(`Lean.IR).isPrefixOf n &&
+  -- Lean.Server.findModuleRefs is used in Verso
+  (!(`Lean.Server).isPrefixOf n || n == `Lean.Server.findModuleRefs)
 
 def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M Unit := do
   let ps := decl.params

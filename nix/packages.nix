@@ -1,9 +1,6 @@
-{ src, pkgs, nix, ... } @ args:
+{ src, pkgs, ... } @ args:
 with pkgs;
 let
-  nix-pinned = writeShellScriptBin "nix" ''
-    ${nix.packages.${system}.default}/bin/nix --experimental-features 'nix-command flakes' --extra-substituters https://lean4.cachix.org/ --option warn-dirty false "$@"
-  '';
   # https://github.com/NixOS/nixpkgs/issues/130963
   llvmPackages = if stdenv.isDarwin then llvmPackages_11 else llvmPackages_15;
   cc = (ccacheWrapper.override rec {
@@ -42,40 +39,9 @@ let
     inherit (lean) stdenv;
     lean = lean.stage1;
     inherit (lean.stage1) leanc;
-    inherit lean-emacs lean-vscode;
-    nix = nix-pinned;
   }));
-  lean4-mode = emacsPackages.melpaBuild {
-    pname = "lean4-mode";
-    version = "1";
-    commit = "1";
-    src = args.lean4-mode;
-    packageRequires = with pkgs.emacsPackages.melpaPackages; [ dash f flycheck magit-section lsp-mode s ];
-    recipe = pkgs.writeText "recipe" ''
-      (lean4-mode
-       :repo "leanprover/lean4-mode"
-       :fetcher github
-       :files ("*.el" "data"))
-    '';
-  };
-  lean-emacs = emacsWithPackages [ lean4-mode ];
-  # updating might be nicer by building from source from a flake input, but this is good enough for now
-  vscode-lean4 = vscode-utils.extensionFromVscodeMarketplace {
-      name = "lean4";
-      publisher = "leanprover";
-      version = "0.0.63";
-      sha256 = "sha256-kjEex7L0F2P4pMdXi4NIZ1y59ywJVubqDqsoYagZNkI=";
-  };
-  lean-vscode = vscode-with-extensions.override {
-    vscodeExtensions = [ vscode-lean4 ];
-  };
 in {
-  inherit cc lean4-mode buildLeanPackage llvmPackages vscode-lean4;
-  lean = lean.stage1;
-  stage0print-paths = lean.stage1.Lean.print-paths;
-  HEAD-as-stage0 = (lean.stage1.Lean.overrideArgs { srcTarget = "..#stage0-from-input.stage0"; srcArgs = "(--override-input lean-stage0 ..\?rev=$(git rev-parse HEAD) -- -Dinterpreter.prefer_native=false \"$@\")"; });
-  HEAD-as-stage1 = (lean.stage1.Lean.overrideArgs { srcTarget = "..\?rev=$(git rev-parse HEAD)#stage0"; });
-  nix = nix-pinned;
+  inherit cc buildLeanPackage llvmPackages;
   nixpkgs = pkgs;
   ciShell = writeShellScriptBin "ciShell" ''
     set -o pipefail
@@ -83,5 +49,4 @@ in {
     # prefix lines with cumulative and individual execution time
     "$@" |& ts -i "(%.S)]" | ts -s "[%M:%S"
   '';
-  vscode = lean-vscode;
-} // lean.stage1.Lean // lean.stage1 // lean
+} // lean.stage1

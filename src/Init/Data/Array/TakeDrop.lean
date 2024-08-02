@@ -5,7 +5,7 @@ Authors: Markus Himmel
 -/
 prelude
 import Init.Data.Array.Lemmas
-import Init.Data.List.TakeDrop
+import Init.Data.List.Nat.TakeDrop
 
 namespace Array
 

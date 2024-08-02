@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Hashable
 import Lean.Data.HashSet
+import Lean.Data.HashMap
 
 namespace Lean
 
@@ -32,5 +33,23 @@ unsafe abbrev PtrSet.insert (s : PtrSet α) (a : α) : PtrSet α :=
 
 unsafe abbrev PtrSet.contains (s : PtrSet α) (a : α) : Bool :=
   HashSet.contains s { value := a }
+
+/--
+Map of pointers. It is a low-level auxiliary datastructure used for traversing DAGs.
+-/
+unsafe def PtrMap (α : Type) (β : Type) :=
+  HashMap (Ptr α) β
+
+unsafe def mkPtrMap {α β : Type} (capacity : Nat := 64) : PtrMap α β :=
+  mkHashMap capacity
+
+unsafe abbrev PtrMap.insert (s : PtrMap α β) (a : α) (b : β) : PtrMap α β :=
+  HashMap.insert s { value := a } b
+
+unsafe abbrev PtrMap.contains (s : PtrMap α β) (a : α) : Bool :=
+  HashMap.contains s { value := a }
+
+unsafe abbrev PtrMap.find? (s : PtrMap α β) (a : α) : Option β :=
+  HashMap.find? s { value := a }
 
 end Lean

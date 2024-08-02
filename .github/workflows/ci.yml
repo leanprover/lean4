@@ -298,8 +298,8 @@ jobs:
         uses: msys2/setup-msys2@v2
         with:
           msystem: clang64
-          # `:p` means prefix with appropriate msystem prefix
-          pacboy: "make python cmake:p clang:p ccache:p gmp:p git zip unzip diffutils binutils tree zstd:p tar"
+          # `:` means do not prefix with msystem
+          pacboy: "make: python: cmake clang ccache gmp git: zip: unzip: diffutils: binutils: tree: zstd tar:"
         if: runner.os == 'Windows'
       - name: Install Brew Packages
         run: |
@@ -426,7 +426,7 @@ jobs:
         if: matrix.test-speedcenter
       - name: Check Stage 3
         run: |
-          make -C build -j$NPROC stage3
+          make -C build -j$NPROC check-stage3
         if: matrix.test-speedcenter
       - name: Test Speedcenter Benchmarks
         run: |
@@ -455,11 +455,23 @@ jobs:
     # mark as merely cancelled not failed if builds are cancelled
     if: ${{ !cancelled() }}
     steps:
+    - if: ${{ contains(needs.*.result, 'failure') && github.repository == 'leanprover/lean4' && github.ref_name == 'master' }}
+      uses: zulip/github-actions-zulip/send-message@v1
+      with:
+        api-key: ${{ secrets.ZULIP_BOT_KEY }}
+        email: "github-actions-bot@lean-fro.zulipchat.com"
+        organization-url: "https://lean-fro.zulipchat.com"
+        to: "infrastructure"
+        topic: "Github actions"
+        type: "stream"
+        content: |
+          A build of `${{ github.ref_name }}`, triggered by event `${{ github.event_name }}`, [failed](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
     - if: contains(needs.*.result, 'failure')
       uses: actions/github-script@v7
       with:
         script: |
             core.setFailed('Some jobs failed')
+
 
   # This job creates releases from tags
   # (whether they are "unofficial" releases for experiments, or official releases when the tag is "v" followed by a semver string.)
@@ -533,3 +545,8 @@ jobs:
           gh workflow -R leanprover/release-index run update-index.yml
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_INDEX_TOKEN }}
+      - name: Update toolchain on mathlib4's nightly-testing branch
+        run: |
+          gh workflow -R leanprover-community/mathlib4 run nightly_bump_toolchain.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.MATHLIB4_BOT }}

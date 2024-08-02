@@ -176,4 +176,48 @@ def litToCtor (e : Expr) : MetaM Expr := do
     return mkApp3 (mkConst ``Fin.mk) n i h
   return e
 
+/--
+Check if an expression is a list literal (i.e. a nested chain of `List.cons`, ending at a `List.nil`),
+where each element is "recognised" by a given function `f : Expr → MetaM (Option α)`,
+and return the array of recognised values.
+-/
+partial def getListLitOf? (e : Expr) (f : Expr → MetaM (Option α)) : MetaM (Option (Array α)) := do
+  let mut e ← instantiateMVars e.consumeMData
+  let mut r := #[]
+  while true do
+    match_expr e with
+    | List.nil _ => break
+    | List.cons _ a as => do
+      let some a ← f a | return none
+      r := r.push a
+      e := as
+    | _ => return none
+  return some r
+
+/--
+Check if an expression is a list literal (i.e. a nested chain of `List.cons`, ending at a `List.nil`),
+returning the array of `Expr` values.
+-/
+def getListLit? (e : Expr) : MetaM (Option (Array Expr)) := getListLitOf? e fun s => return some s
+
+/--
+Check if an expression is an array literal
+(i.e. `List.toArray` applied to a nested chain of `List.cons`, ending at a `List.nil`),
+where each element is "recognised" by a given function `f : Expr → MetaM (Option α)`,
+and return the array of recognised values.
+-/
+def getArrayLitOf? (e : Expr) (f : Expr → MetaM (Option α)) : MetaM (Option (Array α)) := do
+  let e ← instantiateMVars e.consumeMData
+  match_expr e with
+  | List.toArray _ as => getListLitOf? as f
+  | _ => return none
+
+/--
+Check if an expression is an array literal
+(i.e. `List.toArray` applied to a nested chain of `List.cons`, ending at a `List.nil`),
+returning the array of `Expr` values.
+-/
+def getArrayLit? (e : Expr) : MetaM (Option (Array Expr)) := getArrayLitOf? e fun s => return some s
+
+
 end Lean.Meta

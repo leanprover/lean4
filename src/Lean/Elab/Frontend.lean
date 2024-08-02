@@ -150,7 +150,9 @@ def reparseOptions (opts : Options) : IO Options := do
     let name := name.replacePrefix `weak Name.anonymous
     let some decl := decls.find? name
       | unless weak do
-          throw <| .userError s!"invalid -D parameter, unknown configuration option '{name}'"
+          throw <| .userError s!"invalid -D parameter, unknown configuration option '{name}'
+          
+If the option is defined in this library, use '-D{`weak ++ name}' to set it conditionally"
 
     match decl.defValue with
     | .ofBool _ =>

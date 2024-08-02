@@ -146,5 +146,3 @@ jobs:
       - name: Fixup CCache Cache
         run: |
           sudo chown -R $USER /nix/var/cache
-      - name: CCache stats
-        run: CCACHE_DIR=/nix/var/cache/ccache nix run .#nixpkgs.ccache -- -s

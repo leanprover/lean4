@@ -473,22 +473,11 @@ partial def Handle.readBinToEnd (h : Handle) : IO ByteArray := do
       loop (acc ++ buf)
   loop ByteArray.empty
 
-partial def Handle.readToEnd (h : Handle) : IO String := do
-  let rec loop (s : String) := do
-    let line ← h.getLine
-    if line.isEmpty then
-      return s
-    else
-      loop (s ++ line)
-  loop ""
-
-def readBinFile (fname : FilePath) : IO ByteArray := do
-  let h ← Handle.mk fname Mode.read
-  h.readBinToEnd
-
-def readFile (fname : FilePath) : IO String := do
-  let h ← Handle.mk fname Mode.read
-  h.readToEnd
+def Handle.readToEnd (h : Handle) : IO String := do
+  let data ← h.readBinToEnd
+  match String.fromUTF8? data with
+  | some s => return s
+  | none => throw <| .userError s!"Tried to read from handle containing non UTF-8 data."
 
 partial def lines (fname : FilePath) : IO (Array String) := do
   let h ← Handle.mk fname Mode.read
@@ -593,6 +582,26 @@ where
 end System.FilePath
 
 namespace IO
+
+namespace FS
+
+def readBinFile (fname : FilePath) : IO ByteArray := do
+  -- Requires metadata so defined after metadata
+  let mdata ← fname.metadata
+  let size := mdata.byteSize.toUSize
+  if size > 0 then
+    let handle ← IO.FS.Handle.mk fname .read
+    handle.read mdata.byteSize.toUSize
+  else
+    return ByteArray.mkEmpty 0
+
+def readFile (fname : FilePath) : IO String := do
+  let data ← readBinFile fname
+  match String.fromUTF8? data with
+  | some s => return s
+  | none => throw <| .userError s!"Tried to read file '{fname}' containing non UTF-8 data."
+
+end FS
 
 def withStdin [Monad m] [MonadFinally m] [MonadLiftT BaseIO m] (h : FS.Stream) (x : m α) : m α := do
   let prev ← setStdin h

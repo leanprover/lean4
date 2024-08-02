@@ -485,36 +485,21 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_write(b_obj_arg h, b_obj_arg 
     }
 }
 
-/*
-  Handle.getLine : (@& Handle) → IO Unit
-  The line returned by `lean_io_prim_handle_get_line`
-  is truncated at the first '\0' character and the
-  rest of the line is discarded. */
+/* Handle.getLine : (@& Handle) → IO Unit */
 extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_get_line(b_obj_arg h, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
-    const int buf_sz = 64;
-    char buf_str[buf_sz]; // NOLINT
-    std::string result;
-    bool first = true;
-    while (true) {
-        char * out = std::fgets(buf_str, buf_sz, fp);
-        if (out != nullptr) {
-            if (strlen(buf_str) < buf_sz-1 || buf_str[buf_sz-2] == '\n') {
-                if (first) {
-                    return io_result_mk_ok(mk_string(out));
-                } else {
-                    result.append(out);
-                    return io_result_mk_ok(mk_string(result));
-                }
-            }
-            result.append(out);
-        } else if (std::feof(fp)) {
-            clearerr(fp);
-            return io_result_mk_ok(mk_string(result));
-        } else {
-            return io_result_mk_error(decode_io_error(errno, nullptr));
-        }
-        first = false;
+    char* buf = NULL;
+    size_t n = 0;
+    ssize_t read = getline(&buf, &n, fp);
+    if (read != -1) {
+        obj_res ret = io_result_mk_ok(mk_string_from_bytes(buf, read));
+        free(buf);
+        return ret;
+    } else if (std::feof(fp)) {
+        clearerr(fp);
+        return io_result_mk_ok(mk_string(""));
+    } else {
+        return io_result_mk_error(decode_io_error(errno, nullptr));
     }
 }
 

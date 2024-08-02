@@ -40,7 +40,7 @@ def useDiagnosticMsg : MessageData :=
     if diagnostics.get ctx.opts then
       pure ""
     else
-      pure s!"\nAdditional diagnostic information may be available by using the `set_option {diagnostics.name} true` command."
+      pure s!"\nAdditional diagnostic information may be available using the `set_option {diagnostics.name} true` command."
 
 namespace Core
 

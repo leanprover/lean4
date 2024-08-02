@@ -64,7 +64,6 @@ static lean_object* l_Lean_Compiler_LCNF_normLevelParams___closed__2;
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_normLevelParams(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__3;
-uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(uint8_t, uint8_t);
 static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normExpr___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_NormLevelParam_State_map___default;
 extern lean_object* l_Lean_instInhabitedExpr;
@@ -119,6 +118,7 @@ LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_Compiler_LCNF_NormLevelParam
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_simpLevelMax_x27(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(uint8_t, uint8_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -1492,7 +1492,7 @@ return x_73;
 else
 {
 uint8_t x_85; 
-x_85 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_69, x_69);
+x_85 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_69, x_69);
 if (x_85 == 0)
 {
 lean_object* x_86; 
@@ -1559,7 +1559,7 @@ return x_99;
 else
 {
 uint8_t x_100; 
-x_100 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_69, x_69);
+x_100 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_69, x_69);
 if (x_100 == 0)
 {
 lean_object* x_101; lean_object* x_102; 
@@ -1645,7 +1645,7 @@ return x_111;
 else
 {
 uint8_t x_123; 
-x_123 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_107, x_107);
+x_123 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_107, x_107);
 if (x_123 == 0)
 {
 lean_object* x_124; 
@@ -1712,7 +1712,7 @@ return x_137;
 else
 {
 uint8_t x_138; 
-x_138 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_107, x_107);
+x_138 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_107, x_107);
 if (x_138 == 0)
 {
 lean_object* x_139; lean_object* x_140; 

@@ -131,6 +131,47 @@ def process (input : String) (env : Environment) (opts : Options) (fileName : Op
   let s ← IO.processCommands inputCtx { : Parser.ModuleParserState } (Command.mkState env {} opts)
   pure (s.commandState.env, s.commandState.messages)
 
+/--
+Parses values of options registered during import and left by the C++ frontend as strings, fails if
+any option names remain unknown.
+-/
+def reparseOptions (opts : Options) : IO Options := do
+  let mut opts := opts
+  let decls ← getOptionDecls
+  for (name, val) in opts do
+    let .ofString val := val
+      | continue  -- Already parsed by C++
+    -- Options can be prefixed with `weak` in order to turn off the error when the option is not
+    -- defined
+    let weak := name.getRoot == `weak
+    if weak then
+      opts := opts.erase name
+    let name := name.replacePrefix `weak Name.anonymous
+    let some decl := decls.find? name
+      | unless weak do
+          throw <| .userError s!"invalid -D parameter, unknown configuration option '{name}'
+
+If the option is defined in this library, use '-D{`weak ++ name}' to set it conditionally"
+
+    match decl.defValue with
+    | .ofBool _ =>
+      match val with
+      | "true"  => opts := opts.insert name true
+      | "false" => opts := opts.insert name false
+      | _ =>
+        throw <| .userError s!"invalid -D parameter, invalid configuration option '{val}' value, \
+          it must be true/false"
+    | .ofNat _ =>
+      let some val := val.toNat?
+        | throw <| .userError s!"invalid -D parameter, invalid configuration option '{val}' value, \
+            it must be a natural number"
+      opts := opts.insert name val
+    | .ofString _ => opts := opts.insert name val
+    | _ => throw <| .userError s!"invalid -D parameter, configuration option '{name}' \
+              cannot be set in the command line, use set_option command"
+
+  return opts
+
 @[export lean_run_frontend]
 def runFrontend
     (input : String)

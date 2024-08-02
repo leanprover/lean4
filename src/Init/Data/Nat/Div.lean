@@ -203,6 +203,10 @@ theorem mod_add_div (m k : Nat) : m % k + k * (m / k) = m := by
   | base x y h => simp [h]
   | ind x y h IH => simp [h]; rw [Nat.mul_succ, ← Nat.add_assoc, IH, Nat.sub_add_cancel h.2]
 
+theorem mod_def (m k : Nat) : m % k = m - k * (m / k) := by
+  rw [Nat.sub_eq_of_eq_add]
+  apply (Nat.mod_add_div _ _).symm
+
 @[simp] protected theorem div_one (n : Nat) : n / 1 = n := by
   have := mod_add_div n 1
   rwa [mod_one, Nat.zero_add, Nat.one_mul] at this

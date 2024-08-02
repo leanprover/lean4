@@ -12037,6 +12037,7 @@ x_10 = lean_ctor_get(x_8, 1);
 lean_inc(x_10);
 lean_dec(x_8);
 x_11 = lean_sharecommon_quick(x_9);
+lean_dec(x_9);
 x_12 = lean_array_get_size(x_1);
 x_13 = lean_unsigned_to_nat(0u);
 x_14 = lean_unsigned_to_nat(1u);

@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <limits>
 #include "runtime/sstream.h"
 #include "runtime/thread.h"
+#include "runtime/sharecommon.h"
 #include "util/map_foreach.h"
 #include "util/io.h"
 #include "kernel/environment.h"
@@ -220,12 +221,15 @@ environment environment::add_theorem(declaration const & d, bool check) const {
     theorem_val const & v = d.to_theorem_val();
     if (check) {
         type_checker checker(*this, diag.get());
-        if (!checker.is_prop(v.get_type()))
-            throw theorem_type_is_not_prop(*this, v.get_name(), v.get_type());
+        sharecommon_persistent_fn share;
+        expr val(share(v.get_value().raw()));
+        expr type(share(v.get_type().raw()));
+        if (!checker.is_prop(type))
+            throw theorem_type_is_not_prop(*this, v.get_name(), type);
         check_constant_val(*this, v.to_constant_val(), checker);
-        check_no_metavar_no_fvar(*this, v.get_name(), v.get_value());
-        expr val_type = checker.check(v.get_value(), v.get_lparams());
-        if (!checker.is_def_eq(val_type, v.get_type()))
+        check_no_metavar_no_fvar(*this, v.get_name(), val);
+        expr val_type = checker.check(val, v.get_lparams());
+        if (!checker.is_def_eq(val_type, type))
             throw definition_type_mismatch_exception(*this, d, val_type);
     }
     return diag.update(add(constant_info(d)));

@@ -334,13 +334,6 @@ structure SetupImportsResult where
   /-- Kernel trust level. -/
   trustLevel : UInt32 := 0
 
-/-- Performance option used by cmdline driver. -/
-register_builtin_option internal.minimalSnapshots : Bool := {
-  defValue := false
-  descr    := "reduce information stored in snapshots to the minimum necessary for the cmdline \
-driver: diagnostics per command and final full snapshot"
-}
-
 /--
 Entry point of the Lean language processor.
 

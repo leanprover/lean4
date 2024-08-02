@@ -321,7 +321,12 @@ Interrupt and abort exceptions are caught but not logged.
 
 /-- Runs the given action in a separate task, discarding its final state. -/
 def runAsync (act : CommandElabM α) : CommandElabM (Task (Except Exception α)) := do
-  EIO.asTask (act.run (← read) |>.run' (← get))
+  --modify fun st => { st with env := Runtime.markPersistent st.env }
+  let st ← get
+  let opts ← getOptions
+  let env := if Language.internal.minimalSnapshots.get opts then Runtime.markPersistent st.env else st.env
+  let infoState := if Language.internal.minimalSnapshots.get opts then Runtime.markPersistent st.infoState else st.infoState
+  EIO.asTask (act.run (← read) |>.run' { st with env, infoState })
 
 /--
 Runs the given action in a separate task, discarding its final state except for the message log,
@@ -582,7 +587,7 @@ def elabCommandTopLevel (stx : Syntax)
           -- TODO: set range?
           elabSnap := { range? := none, task := elabPromise.result }
           lintSnap := { range? := none, task := lintPromise.result }}
-        withReader ({ · with snap? := some {
+        withReader ({ · with snap? := guard (!Language.internal.minimalSnapshots.get (← getOptions)) *> some {
           old? := snap.old?.map (·.mapVal (·.bind (·.elabSnap)))
           new := elabPromise
         }}) do

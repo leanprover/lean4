@@ -390,23 +390,3 @@ private def addDataInDateTime (data : DateBuilder) (typ : Modifier) (value : Sin
 private def addData (data : DateBuilder) : FormatPart → DateBuilder
   | .string s => data
   | .modifier _ m => addDataInDateTime data m sorry
-
--- Internals
-
-/-
-def Format.format (x: Format) (date : ZonedDateTime) : String :=
-  x.map (formatPartWithDate date)
-  |> String.join
-
-def Formats.ISO8601 := Format.spec! "%YYYY-%MM-%DD'T'%hh:%mm:%ss'Z'"
-
--- Tests
-
-def x : Timestamp := 1722631000
-
-def UTCM3 := (TimeZone.mk (Offset.ofSeconds (-10800)) "Brasilia")
-
-def date := ZonedDateTime.ofTimestamp x UTCM3
-
-#eval Formats.ISO8601.format date
--/

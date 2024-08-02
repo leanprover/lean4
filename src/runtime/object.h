@@ -238,6 +238,7 @@ inline size_t string_capacity(object * o) { return lean_string_capacity(o); }
 inline uint32 char_default_value() { return lean_char_default_value(); }
 inline obj_res alloc_string(size_t size, size_t capacity, size_t len) { return lean_alloc_string(size, capacity, len); }
 inline obj_res mk_string(char const * s) { return lean_mk_string(s); }
+inline obj_res mk_string_from_bytes(char const * s, size_t sz) { return lean_mk_string_from_bytes(s, sz); }
 LEAN_EXPORT obj_res mk_ascii_string_unchecked(std::string const & s);
 LEAN_EXPORT obj_res mk_string(std::string const & s);
 LEAN_EXPORT std::string string_to_std(b_obj_arg o);

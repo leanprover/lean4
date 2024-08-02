@@ -169,7 +169,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) (postponeCheck := false) :
       let preDefs ← preDefs.mapM ensureNoUnassignedMVarsAtPreDef
       let preDefs ← betaReduceLetRecApps preDefs
       let cliques := partitionPreDefs preDefs
-      let postponeCheck := postponeCheck && cliques.size == 1
+      let postponeCheck := postponeCheck && cliques.size == 1 && preDefs[0]!.kind == .theorem
       for preDefs in cliques do
         trace[Elab.definition.scc] "{preDefs.map (·.declName)}"
         if preDefs.size == 1 && isNonRecursive preDefs[0]! then

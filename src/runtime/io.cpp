@@ -506,7 +506,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_get_line(b_obj_arg h, obj_arg
 /* Handle.putStr : (@& Handle) → (@& String) → IO Unit */
 extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_put_str(b_obj_arg h, b_obj_arg s, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
-    if (std::fputs(lean_string_cstr(s), fp) != EOF) {
+    usize n = lean_string_size(s) - 1; // - 1 to ignore the terminal NULL byte.
+    usize m = std::fwrite(lean_string_cstr(s), 1, n, fp);
+    if (m == n) {
         return io_result_mk_ok(box(0));
     } else {
         return io_result_mk_error(decode_io_error(errno, nullptr));

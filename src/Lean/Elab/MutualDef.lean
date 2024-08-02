@@ -900,6 +900,9 @@ partial def checkForHiddenUnivLevels (allUserLevelNames : List Name) (preDefs : 
     for preDef in preDefs do
       checkPreDef preDef
 
+@[noinline]
+def BaseIO.delay (f : Unit → BaseIO α) : BaseIO α := f ()
+
 def elabMutualDef (vars : Array Expr) (views : Array DefView) (typeCheckedPromise : IO.Promise SnapshotTree): TermElabM Unit :=
   if isExample views then
     withoutModifyingEnv do
@@ -944,6 +947,8 @@ where
           checkForHiddenUnivLevels allUserLevelNames preDefs
           let preEnv ← getEnv
           if let some postponed ← addPreDefinitions (postponeCheck := true) preDefs then
+            let preEnv := Runtime.markPersistent preEnv
+            let postponed := Runtime.markPersistent postponed
             let opts ← getOptions
             let fileName ← getFileName
             let pos := (← getFileMap).toPosition (← getRefPos)
@@ -951,7 +956,7 @@ where
               diagnostics := .empty
             } #[{
               range? := none
-              task := (← BaseIO.asTask do
+              task := (← BaseIO.asTask <| BaseIO.delay fun _ => do
                 let mut msgLog := .empty
                 if let .error e := preEnv.addDecl opts postponed then
                   msgLog := msgLog.add {
@@ -995,7 +1000,7 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
         throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
       let mut view ← mkDefView modifiers d[1]
       let fullHeaderRef := mkNullNode #[d[0], view.headerRef]
-      if let some snap := snap? then
+      if let some snap := guard (!Language.internal.minimalSnapshots.get (← getOptions)) *> snap? then
         view := { view with headerSnap? := some {
           old? := do
             -- transitioning from `Context.snap?` to `DefView.headerSnap?` invariant: if the

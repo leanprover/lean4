@@ -587,7 +587,7 @@ def elabCommandTopLevel (stx : Syntax)
           -- TODO: set range?
           elabSnap := { range? := none, task := elabPromise.result }
           lintSnap := { range? := none, task := lintPromise.result }}
-        withReader ({ · with snap? := guard (!Language.internal.minimalSnapshots.get (← getOptions)) *> some {
+        withReader ({ · with snap? := some {
           old? := snap.old?.map (·.mapVal (·.bind (·.elabSnap)))
           new := elabPromise
         }}) do

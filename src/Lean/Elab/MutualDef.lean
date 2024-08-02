@@ -945,8 +945,7 @@ where
           for preDef in preDefs do
             trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
           checkForHiddenUnivLevels allUserLevelNames preDefs
-          let preEnv ← getEnv
-          if let some postponed ← addPreDefinitions (postponeCheck := true) preDefs then
+          if let some (preEnv, postponed) ← addPreDefinitions (postponeCheck := false) preDefs then
             let preEnv := Runtime.markPersistent preEnv
             let postponed := Runtime.markPersistent postponed
             let opts ← getOptions

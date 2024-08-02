@@ -161,7 +161,7 @@ private def toDeclaration! : ConstantInfo → Declaration
   | .ctorInfo   _ => panic! "toDeclaration for ctorInfo not implemented"
   | .recInfo    _ => panic! "toDeclaration for recInfo not implemented"
 
-def addPreDefinitions (preDefs : Array PreDefinition) (postponeCheck := false) : TermElabM (Option Declaration) := withLCtx {} {} do
+def addPreDefinitions (preDefs : Array PreDefinition) (postponeCheck := false) : TermElabM (Option (Environment × Declaration)) := withLCtx {} {} do
   profileitM Exception "process pre-definitions" (← getOptions) do
     withTraceNode `Elab.def.processPreDef (fun _ => return m!"process pre-definitions") do
       for preDef in preDefs do
@@ -169,7 +169,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) (postponeCheck := false) :
       let preDefs ← preDefs.mapM ensureNoUnassignedMVarsAtPreDef
       let preDefs ← betaReduceLetRecApps preDefs
       let cliques := partitionPreDefs preDefs
-      let postponeCheck := postponeCheck && preDefs.size == 1 && preDefs[0]!.kind == .theorem
+      let postponeCheck := postponeCheck && cliques.size == 1
       for preDefs in cliques do
         trace[Elab.definition.scc] "{preDefs.map (·.declName)}"
         if preDefs.size == 1 && isNonRecursive preDefs[0]! then
@@ -186,7 +186,8 @@ def addPreDefinitions (preDefs : Array PreDefinition) (postponeCheck := false) :
             else
               addAndCompileNonRec preDef
           preDef.termination.ensureNone "not recursive"
-          if postponeCheck then return toDeclaration! <$> (← getEnv).find? preDef.declName else return none
+          if postponeCheck then
+            return ((← getEnv), toDeclaration! ·) <$> (← getEnv).find? preDef.declName
         else if preDefs.any (·.modifiers.isUnsafe) then
           addAndCompileUnsafe preDefs
           preDefs.forM (·.termination.ensureNone "unsafe")

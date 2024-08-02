@@ -192,7 +192,7 @@ def simpleMeasures (preDefs : Array PreDefinition) (fixedPrefixSize : Nat)
 
 /-- Internal monad used by `withRecApps` -/
 abbrev M (recFnName : Name) (α β : Type) : Type :=
-  StateRefT (Array α) (StateRefT (HasConstCache recFnName) MetaM) β
+  StateRefT (Array α) (StateRefT (HasConstCache #[recFnName]) MetaM) β
 
 /--
 Traverses the given expression `e`, and invokes the continuation `k`
@@ -223,7 +223,7 @@ where
         loop param f
 
   containsRecFn (e : Expr) : M recFnName α Bool := do
-    modifyGetThe (HasConstCache recFnName) (·.contains e)
+    modifyGetThe (HasConstCache #[recFnName]) (·.contains e)
 
   loop (param : Expr) (e : Expr) : M recFnName α Unit := do
     if !(← containsRecFn e) then
@@ -256,8 +256,7 @@ where
           matcherApp.discrs.forM (loop param)
           (Array.zip matcherApp.alts (Array.zip matcherApp.altNumParams altParams)).forM
             fun (alt, altNumParam, altParam) =>
-              lambdaTelescope altParam fun xs altParam => do
-                -- TODO: Use boundedLambdaTelescope
+              lambdaBoundedTelescope altParam altNumParam fun xs altParam => do
                 unless altNumParam = xs.size do
                   throwError "unexpected `casesOn` application alternative{indentExpr alt}\nat application{indentExpr e}"
                 let altBody := alt.beta xs
@@ -267,7 +266,7 @@ where
           processApp param e
       | none => processApp param e
     | e => do
-      let _ ← ensureNoRecFn recFnName e
+      ensureNoRecFn #[recFnName] e
 
 /--
 A `SavedLocalContext` captures the state and local context of a `MetaM`, to be continued later.
@@ -342,9 +341,8 @@ call site.
 def collectRecCalls (unaryPreDef : PreDefinition) (fixedPrefixSize : Nat)
     (argsPacker : ArgsPacker) : MetaM (Array RecCallWithContext) := withoutModifyingState do
   addAsAxiom unaryPreDef
-  lambdaTelescope unaryPreDef.value fun xs body => do
+  lambdaBoundedTelescope unaryPreDef.value (fixedPrefixSize + 1) fun xs body => do
     unless xs.size == fixedPrefixSize + 1 do
-      -- Maybe cleaner to have lambdaBoundedTelescope?
       throwError "Unexpected number of lambdas in unary pre-definition"
     let ys := xs[:fixedPrefixSize]
     let param := xs[fixedPrefixSize]!

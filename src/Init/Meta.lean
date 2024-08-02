@@ -399,9 +399,16 @@ def setTailInfo (stx : Syntax) (info : SourceInfo) : Syntax :=
   | some stx => stx
   | none     => stx
 
+/--
+Replaces the trailing whitespace in `stx`, if any, with an empty substring.
+
+The trailing substring's `startPos` and `str` are preserved in order to ensure that the result could
+have been produced by the parser, in case any syntax consumers rely on such an assumption.
+-/
 def unsetTrailing (stx : Syntax) : Syntax :=
   match stx.getTailInfo with
-  | SourceInfo.original lead pos _ endPos => stx.setTailInfo (SourceInfo.original lead pos "".toSubstring endPos)
+  | SourceInfo.original lead pos trail endPos =>
+    stx.setTailInfo (SourceInfo.original lead pos { trail with stopPos := trail.startPos } endPos)
   | _                                     => stx
 
 @[specialize] private partial def updateFirst {α} [Inhabited α] (a : Array α) (f : α → Option α) (i : Nat) : Option (Array α) :=

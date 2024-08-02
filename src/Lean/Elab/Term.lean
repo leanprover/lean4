@@ -190,33 +190,38 @@ structure SavedState where
   term   : Term.SavedState
   tactic : State
 
-/-- State after finishing execution of a tactic. -/
-structure TacticFinished where
-  /-- Reusable state, if no fatal exception occurred. -/
+/-- Snapshot after finishing execution of a tactic. -/
+structure TacticFinishedSnapshot extends Language.Snapshot where
+  /-- State saved for reuse, if no fatal exception occurred. -/
   state? : Option SavedState
 deriving Inhabited
+instance : ToSnapshotTree TacticFinishedSnapshot where
+  toSnapshotTree s := ⟨s.toSnapshot, #[]⟩
 
 /-- Snapshot just before execution of a tactic. -/
-structure TacticParsedSnapshotData extends Language.Snapshot where
+structure TacticParsedSnapshotData (TacticParsedSnapshot : Type) extends Language.Snapshot where
   /-- Syntax tree of the tactic, stored and compared for incremental reuse. -/
   stx      : Syntax
+  /-- Task for nested incrementality, if enabled for tactic. -/
+  inner?   : Option (SnapshotTask TacticParsedSnapshot) := none
   /-- Task for state after tactic execution. -/
-  finished : Task TacticFinished
+  finished : SnapshotTask TacticFinishedSnapshot
+  /-- Tasks for subsequent, potentially parallel, tactic steps. -/
+  next     : Array (SnapshotTask TacticParsedSnapshot) := #[]
 deriving Inhabited
 
 /-- State after execution of a single synchronous tactic step. -/
 inductive TacticParsedSnapshot where
-  | mk (data : TacticParsedSnapshotData) (next : Array (SnapshotTask TacticParsedSnapshot))
+  | mk (data : TacticParsedSnapshotData TacticParsedSnapshot)
 deriving Inhabited
-abbrev TacticParsedSnapshot.data : TacticParsedSnapshot → TacticParsedSnapshotData
-  | .mk data _ => data
-/-- Potential, potentially parallel, follow-up tactic executions. -/
--- In the first, non-parallel version, each task will depend on its predecessor
-abbrev TacticParsedSnapshot.next : TacticParsedSnapshot → Array (SnapshotTask TacticParsedSnapshot)
-  | .mk _ next => next
+abbrev TacticParsedSnapshot.data : TacticParsedSnapshot → TacticParsedSnapshotData TacticParsedSnapshot
+  | .mk data => data
 partial instance : ToSnapshotTree TacticParsedSnapshot where
   toSnapshotTree := go where
-    go := fun ⟨s, next⟩ => ⟨s.toSnapshot, next.map (·.map (sync := true) go)⟩
+    go := fun ⟨s⟩ => ⟨s.toSnapshot,
+      s.inner?.toArray.map (·.map (sync := true) go) ++
+      #[s.finished.map (sync := true) toSnapshotTree] ++
+      s.next.map (·.map (sync := true) go)⟩
 
 end Snapshot
 end Tactic
@@ -327,14 +332,33 @@ def SavedState.restore (s : SavedState) (restoreInfo : Bool := false) : TermElab
   unless restoreInfo do
     setInfoState infoState
 
-@[specialize, inherit_doc Core.withRestoreOrSaveFull]
-def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState)) (act : TermElabM α) :
+/--
+Like `Meta.withRestoreOrSaveFull` for `TermElabM`, but also takes a `tacSnap?` that
+* when running `act`, is set as `Context.tacSnap?`
+* otherwise (i.e. on restore) is used to update the new snapshot promise to the old task's
+  value.
+This extra restore step is necessary because while `reusableResult?` can be used to replay any
+effects on `State`, `Context.tacSnap?` is not part of it but changed via an `IO` side effect, so
+it needs to be replayed separately.
+
+We use an explicit parameter instead of accessing `Context.tacSnap?` directly because this prevents
+`withRestoreOrSaveFull` and `withReader` from being used in the wrong order.
+-/
+@[specialize]
+def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState))
+    (tacSnap? : Option (Language.SnapshotBundle Tactic.TacticParsedSnapshot)) (act : TermElabM α) :
     TermElabM (α × SavedState) := do
   if let some (_, state) := reusableResult? then
     set state.elab
+    if let some snap := tacSnap? then
+      let some old := snap.old?
+        | throwError "withRestoreOrSaveFull: expected old snapshot in `tacSnap?`"
+      snap.new.resolve old.val.get
+
   let reusableResult? := reusableResult?.map (fun (val, state) => (val, state.meta))
-  let (a, meta) ← controlAt MetaM fun runInBase => do
-    Meta.withRestoreOrSaveFull reusableResult? <| runInBase act
+  let (a, meta) ← withReader ({ · with tacSnap? }) do
+    controlAt MetaM fun runInBase => do
+      Meta.withRestoreOrSaveFull reusableResult? <| runInBase act
   return (a, { meta, «elab» := (← get) })
 
 instance : MonadBacktrack SavedState TermElabM where
@@ -342,20 +366,38 @@ instance : MonadBacktrack SavedState TermElabM where
   restoreState b := b.restore
 
 /--
+Incremental elaboration helper. Avoids leakage of data from outside syntax via the monadic context
+when running `act` on `stx` by
+* setting `stx` as the `ref` and
+* deactivating `suppressElabErrors` if `stx` is `missing`-free, which also helps with not hiding
+  useful errors in this part of the input. Note that if `stx` has `missing`, this should always be
+  true for the outer syntax as well, so taking the old value of `suppressElabErrors` into account
+  should not introduce data leakage.
+
+This combinator should always be used when narrowing reuse to a syntax subtree, usually (in the case
+of tactics, to be generalized) via `withNarrowed(Arg)TacticReuse`.
+-/
+def withReuseContext [Monad m] [MonadWithReaderOf Core.Context m] (stx : Syntax) (act : m α) :
+    m α := do
+  withTheReader Core.Context (fun ctx => { ctx with
+      ref := stx
+      suppressElabErrors := ctx.suppressElabErrors && stx.hasMissing }) act
+
+/--
 Manages reuse information for nested tactics by `split`ting given syntax into an outer and inner
 part. `act` is then run on the inner part but with reuse information adjusted as following:
 * If the old (from `tacSnap?`'s `SyntaxGuarded.stx`) and new (from `stx`) outer syntax are not
   identical according to `Syntax.eqWithInfo`, reuse is disabled.
 * Otherwise, the old syntax as stored in `tacSnap?` is updated to the old *inner* syntax.
-* In any case, we also use `withRef` on the inner syntax to avoid leakage of the outer syntax into
-  `act` via this route.
+* In any case, `withReuseContext` is used on the new inner syntax to further prepare the monadic
+  context.
 
 For any tactic that participates in reuse, `withNarrowedTacticReuse` should be applied to the
 tactic's syntax and `act` should be used to do recursive tactic evaluation of nested parts.
 -/
-def withNarrowedTacticReuse [Monad m] [MonadWithReaderOf Context m]
-    [MonadOptions m] [MonadRef m] (split : Syntax → Syntax × Syntax) (act : Syntax → m α)
-    (stx : Syntax) : m α := do
+def withNarrowedTacticReuse [Monad m] [MonadWithReaderOf Core.Context m]
+    [MonadWithReaderOf Context m] [MonadOptions m] (split : Syntax → Syntax × Syntax)
+    (act : Syntax → m α) (stx : Syntax) : m α := do
   let (outer, inner) := split stx
   let opts ← getOptions
   withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.map fun tacSnap =>
@@ -365,8 +407,7 @@ def withNarrowedTacticReuse [Monad m] [MonadWithReaderOf Context m]
       return { old with stx := oldInner }
     }
   }) do
-    withRef inner do
-      act inner
+    withReuseContext inner (act inner)
 
 /--
 A variant of `withNarrowedTacticReuse` that uses `stx[argIdx]` as the inner syntax and all `stx`
@@ -377,8 +418,8 @@ NOTE: child nodes after `argIdx` are not tested (which would almost always disab
 necessarily shifted by changes at `argIdx`) so it must be ensured that the result of `arg` does not
 depend on them (i.e. they should not be inspected beforehand).
 -/
-def withNarrowedArgTacticReuse [Monad m] [MonadWithReaderOf Context m]
-    [MonadOptions m] [MonadRef m] (argIdx : Nat) (act : Syntax → m α) (stx : Syntax) : m α :=
+def withNarrowedArgTacticReuse [Monad m] [MonadWithReaderOf Core.Context m] [MonadWithReaderOf Context m]
+    [MonadOptions m] (argIdx : Nat) (act : Syntax → m α) (stx : Syntax) : m α :=
   withNarrowedTacticReuse (fun stx => (mkNullNode stx.getArgs[:argIdx], stx[argIdx])) act stx
 
 /--
@@ -593,6 +634,32 @@ private def withoutModifyingStateWithInfoAndMessagesImpl (x : TermElabM α) : Te
   finally
     let saved := { saved with meta.core.infoState := (← getInfoState), meta.core.messages := (← getThe Core.State).messages }
     restoreState saved
+
+/--
+Wraps the trees returned from `getInfoTrees`, if any, in an `InfoTree.context` node based on the
+current monadic context and state. This is mainly used to report info trees early via
+`Snapshot.infoTree?`. The trees are not removed from the `getInfoTrees` state as the final info tree
+of the elaborated command should be complete and not depend on whether parts have been reported
+early.
+
+As `InfoTree.context` can have only one child, this function panics if `trees` contains more than 1
+tree. Also, `PartialContextInfo.parentDeclCtx` is not currently generated as that information is not
+available in the monadic context and only needed for the final info tree.
+-/
+def getInfoTreeWithContext? : TermElabM (Option InfoTree) := do
+  let st ← getInfoState
+  if st.trees.size > 1 then
+    return panic! "getInfoTreeWithContext: overfull tree"
+  let some t := st.trees[0]? |
+    return none
+  let t := t.substitute st.assignment
+  let ctx ← readThe Core.Context
+  let s ← getThe Core.State
+  let ctx := PartialContextInfo.commandCtx {
+    env := s.env, fileMap := ctx.fileMap, mctx := {}, currNamespace := ctx.currNamespace,
+    openDecls := ctx.openDecls, options := ctx.options, ngen := s.ngen
+  }
+  return InfoTree.context ctx t
 
 /-- For testing `TermElabM` methods. The #eval command will sign the error. -/
 def throwErrorIfErrors : TermElabM Unit := do
@@ -929,7 +996,7 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
     if (← read).ignoreTCFailures then
       return false
     else
-      throwError "failed to synthesize{indentExpr type}{extraErrorMsg}\n{useDiagnosticMsg}"
+      throwError "failed to synthesize{indentExpr type}{extraErrorMsg}{useDiagnosticMsg}"
 
 def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
   withTraceNode `Elab.coe (fun _ => return m!"adding coercion for {e} : {← inferType e} =?= {expectedType}") do
@@ -1791,9 +1858,13 @@ def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
 /--
   Create an `Expr.const` using the given name and explicit levels.
   Remark: fresh universe metavariables are created if the constant has more universe
-  parameters than `explicitLevels`. -/
-def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM Expr := do
-  Linter.checkDeprecated constName -- TODO: check is occurring too early if there are multiple alternatives. Fix if it is not ok in practice
+  parameters than `explicitLevels`.
+
+  If `checkDeprecated := true`, then `Linter.checkDeprecated` is invoked.
+-/
+def mkConst (constName : Name) (explicitLevels : List Level := []) (checkDeprecated := true) : TermElabM Expr := do
+  if checkDeprecated then
+    Linter.checkDeprecated constName
   let cinfo ← getConstInfo constName
   if explicitLevels.length > cinfo.levelParams.length then
     throwError "too many explicit universe levels for '{constName}'"
@@ -1802,10 +1873,21 @@ def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM E
     let us ← mkFreshLevelMVars numMissingLevels
     return Lean.mkConst constName (explicitLevels ++ us)
 
+def checkDeprecated (ref : Syntax) (e : Expr) : TermElabM Unit := do
+  if let .const declName _ := e.getAppFn then
+    withRef ref do Linter.checkDeprecated declName
+
 private def mkConsts (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
   candidates.foldlM (init := []) fun result (declName, projs) => do
     -- TODO: better support for `mkConst` failure. We may want to cache the failures, and report them if all candidates fail.
-    let const ← mkConst declName explicitLevels
+    /-
+    We disable `checkDeprecated` here because there may be many overloaded symbols.
+    Note that, this method and `resolveName` and `resolveName'` return a list of pairs instead of a list of `TermElabResult`s.
+    We perform the `checkDeprecated` test at `resolveId?` and `elabAppFnId`.
+    At `elabAppFnId`, we perform the check when converting the list returned by `resolveName'` into a list of
+    `TermElabResult`s.
+    -/
+    let const ← mkConst declName explicitLevels (checkDeprecated := false)
     return (const, projs) :: result
 
 def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × List String)) := do
@@ -1859,10 +1941,10 @@ def resolveId? (stx : Syntax) (kind := "term") (withInfo := false) : TermElabM (
     | []  => return none
     | [f] =>
       let f ← if withInfo then addTermInfo stx f else pure f
+      checkDeprecated stx f
       return some f
     | _   => throwError "ambiguous {kind}, use fully qualified name, possible interpretations {fs}"
   | _ => throwError "identifier expected"
-
 
 def TermElabM.run (x : TermElabM α) (ctx : Context := {}) (s : State := {}) : MetaM (α × State) :=
   withConfig setElabConfig (x ctx |>.run s)

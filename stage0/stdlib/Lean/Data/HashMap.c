@@ -193,6 +193,7 @@ lean_object* l_Lean_AssocList_replace___rarg(lean_object*, lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Lean_HashMap_instGetElemOptionTrue___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_HashMap_toArray___spec__1(lean_object*, lean_object*);
+size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_HashMap_toArray___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_insertIfNew(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Array_groupByKey___spec__1(lean_object*, lean_object*);
@@ -3848,14 +3849,12 @@ return x_3;
 LEAN_EXPORT lean_object* l_Array_groupByKey___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; size_t x_6; size_t x_7; lean_object* x_8; lean_object* x_9; 
-x_5 = lean_array_get_size(x_4);
-x_6 = lean_usize_of_nat(x_5);
-lean_dec(x_5);
-x_7 = 0;
-x_8 = l_Lean_HashMap_instInhabited___closed__1;
-x_9 = l_Array_forInUnsafe_loop___at_Array_groupByKey___spec__1___rarg(x_1, x_2, x_3, x_4, x_6, x_7, x_8);
-return x_9;
+size_t x_5; size_t x_6; lean_object* x_7; lean_object* x_8; 
+x_5 = lean_array_size(x_4);
+x_6 = 0;
+x_7 = l_Lean_HashMap_instInhabited___closed__1;
+x_8 = l_Array_forInUnsafe_loop___at_Array_groupByKey___spec__1___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Array_groupByKey(lean_object* x_1, lean_object* x_2) {

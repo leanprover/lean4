@@ -156,6 +156,22 @@ def mathToolchainBlobUrl : String :=
 def mathToolchainUrl : String :=
   "https://github.com/leanprover-community/mathlib4/blob/master/lean-toolchain"
 
+def leanActionWorkflowContents :=
+"name: Lean Action CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+"
 
 /-- Lake package template identifier. -/
 inductive InitTemplate
@@ -195,12 +211,24 @@ def InitTemplate.configFileContents  (tmp : InitTemplate) (lang : ConfigLang) (p
   | .math, .lean => mathLeanConfigFileContents pkgNameStr (escapeName! root)
   | .math, .toml => mathTomlConfigFileContents pkgNameStr root.toString
 
+def createLeanActionWorkflow (dir : FilePath) : LogIO PUnit := do
+  logVerbose "creating lean-action CI workflow"
+  let workflowDir := dir / ".github" / "workflows"
+  let workflowFile := workflowDir / "lean_action_ci.yml"
+  if (← workflowFile.pathExists) then
+    logVerbose "lean-action CI workflow already exists"
+    return
+  IO.FS.createDirAll workflowDir
+  IO.FS.writeFile workflowFile leanActionWorkflowContents
+  logVerbose s!"created lean-action CI workflow at '{workflowFile}'"
+
 /-- Initialize a new Lake package in the given directory with the given name. -/
 def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLang) (env : Lake.Env) : LogIO PUnit := do
   let configFile :=  dir / defaultConfigFile.addExtension lang.fileExtension
   if (← configFile.pathExists) then
     error "package already initialized"
 
+  createLeanActionWorkflow dir
   -- determine the name to use for the root
   -- use upper camel case unless the specific module name already exists
   let (root, rootFile?) ← id do

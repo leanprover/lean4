@@ -1201,30 +1201,31 @@ private def forallBoundedTelescopeImp (type : Expr) (maxFVars? : Option Nat) (k 
 def forallBoundedTelescope (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
   map2MetaM (fun k => forallBoundedTelescopeImp type maxFVars? k cleanupAnnotations) k
 
-private partial def lambdaTelescopeImp (e : Expr) (consumeLet : Bool) (k : Array Expr → Expr → MetaM α) (cleanupAnnotations := false) : MetaM α := do
-  process consumeLet (← getLCtx) #[] 0 e
+private partial def lambdaTelescopeImp (e : Expr) (consumeLet : Bool) (maxFVars? : Option Nat)
+    (k : Array Expr → Expr → MetaM α) (cleanupAnnotations := false) : MetaM α := do
+  process consumeLet (← getLCtx) #[] e
 where
-  process (consumeLet : Bool) (lctx : LocalContext) (fvars : Array Expr) (j : Nat) (e : Expr) : MetaM α := do
-    match consumeLet, e with
-    | _, .lam n d b bi =>
-      let d := d.instantiateRevRange j fvars.size fvars
+  process (consumeLet : Bool) (lctx : LocalContext) (fvars : Array Expr) (e : Expr) : MetaM α := do
+    match fvarsSizeLtMaxFVars fvars maxFVars?, consumeLet, e with
+    | true, _, .lam n d b bi =>
+      let d := d.instantiateRevRange 0 fvars.size fvars
       let d := if cleanupAnnotations then d.cleanupAnnotations else d
       let fvarId ← mkFreshFVarId
       let lctx := lctx.mkLocalDecl fvarId n d bi
       let fvar := mkFVar fvarId
-      process consumeLet lctx (fvars.push fvar) j b
-    | true, .letE n t v b _ => do
-      let t := t.instantiateRevRange j fvars.size fvars
+      process consumeLet lctx (fvars.push fvar) b
+    | true, true, .letE n t v b _ => do
+      let t := t.instantiateRevRange 0 fvars.size fvars
       let t := if cleanupAnnotations then t.cleanupAnnotations else t
-      let v := v.instantiateRevRange j fvars.size fvars
+      let v := v.instantiateRevRange 0 fvars.size fvars
       let fvarId ← mkFreshFVarId
       let lctx := lctx.mkLetDecl fvarId n t v
       let fvar := mkFVar fvarId
-      process true lctx (fvars.push fvar) j b
-    | _, e =>
-      let e := e.instantiateRevRange j fvars.size fvars
+      process true lctx (fvars.push fvar) b
+    | _, _, e =>
+      let e := e.instantiateRevRange 0 fvars.size fvars
       withReader (fun ctx => { ctx with lctx := lctx }) do
-        withNewLocalInstancesImp fvars j do
+        withNewLocalInstancesImp fvars 0 do
           k fvars e
 
 /--
@@ -1233,7 +1234,7 @@ Similar to `lambdaTelescope` but for lambda and let expressions.
 If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
 -/
 def lambdaLetTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
-  map2MetaM (fun k => lambdaTelescopeImp e true k (cleanupAnnotations := cleanupAnnotations)) k
+  map2MetaM (fun k => lambdaTelescopeImp e true .none k (cleanupAnnotations := cleanupAnnotations)) k
 
 /--
   Given `e` of the form `fun ..xs => A`, execute `k xs A`.
@@ -1243,7 +1244,18 @@ def lambdaLetTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnn
   If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
 -/
 def lambdaTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
-  map2MetaM (fun k => lambdaTelescopeImp e false k (cleanupAnnotations := cleanupAnnotations)) k
+  map2MetaM (fun k => lambdaTelescopeImp e false none k (cleanupAnnotations := cleanupAnnotations)) k
+
+/--
+  Given `e` of the form `fun ..xs ..ys => A`, execute `k xs (fun ..ys => A)` where
+  `xs.size ≤ maxFVars`.
+  This combinator will declare local declarations, create free variables for them,
+  execute `k` with updated local context, and make sure the cache is restored after executing `k`.
+
+  If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
+-/
+def lambdaBoundedTelescope (e : Expr) (maxFVars : Nat) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
+  map2MetaM (fun k => lambdaTelescopeImp e false (.some maxFVars) k (cleanupAnnotations := cleanupAnnotations)) k
 
 /-- Return the parameter names for the given global declaration. -/
 def getParamNames (declName : Name) : MetaM (Array Name) := do
@@ -1479,6 +1491,16 @@ private def withLocalContextImp (lctx : LocalContext) (localInsts : LocalInstanc
 -/
 def withLCtx (lctx : LocalContext) (localInsts : LocalInstances) : n α → n α :=
   mapMetaM <| withLocalContextImp lctx localInsts
+
+/--
+Runs `k` in a local envrionment with the `fvarIds` erased.
+-/
+def withErasedFVars [MonadLCtx n] [MonadLiftT MetaM n] (fvarIds : Array FVarId) (k : n α) : n α := do
+  let lctx ← getLCtx
+  let localInsts ← getLocalInstances
+  let lctx' := fvarIds.foldl (·.erase ·) lctx
+  let localInsts' := localInsts.filter (!fvarIds.contains ·.fvar.fvarId!)
+  withLCtx lctx' localInsts' k
 
 private def withMVarContextImp (mvarId : MVarId) (x : MetaM α) : MetaM α := do
   let mvarDecl ← mvarId.getDecl
@@ -1843,9 +1865,13 @@ abbrev isDefEqGuarded (t s : Expr) : MetaM Bool :=
 def isDefEqNoConstantApprox (t s : Expr) : MetaM Bool :=
   approxDefEq <| isDefEq t s
 
-/-- Shorthand for `isDefEq (mkMVar mvarId) val` -/
-def _root_.Lean.MVarId.checkedAssign (mvarId : MVarId) (val : Expr) : MetaM Bool :=
-  isDefEq (mkMVar mvarId) val
+/--
+Returns `true` if `mvarId := val` was successfully assigned.
+This method uses the same assignment validation performed by `isDefEq`, but it does not check whether the types match.
+-/
+-- Remark: this method is implemented at `ExprDefEq`
+@[extern "lean_checked_assign"]
+opaque _root_.Lean.MVarId.checkedAssign (mvarId : MVarId) (val : Expr) : MetaM Bool
 
 /--
   Eta expand the given expression.

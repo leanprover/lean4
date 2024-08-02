@@ -1,5 +1,4 @@
-import Lean.Elab.Command
-import Lean.Elab.PreDefinition.Structural.Eqns
+set_option guard_msgs.diff true
 
 /-!
 This module tests functional induction principles on *structurally* recursive functions.
@@ -8,6 +7,7 @@ This module tests functional induction principles on *structurally* recursive fu
 def fib : Nat → Nat
   | 0 | 1 => 0
   | n+2 => fib n + fib (n+1)
+termination_by structural x => x
 
 /--
 info: fib.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : motive 1)
@@ -20,6 +20,7 @@ info: fib.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : motive 1)
 def binary : Nat → Nat → Nat
   | 0, acc | 1, acc => 1 + acc
   | n+2, acc => binary n (binary (n+1) acc)
+termination_by structural x => x
 
 /--
 info: binary.induct (motive : Nat → Nat → Prop) (case1 : ∀ (acc : Nat), motive 0 acc) (case2 : ∀ (acc : Nat), motive 1 acc)
@@ -34,6 +35,7 @@ info: binary.induct (motive : Nat → Nat → Prop) (case1 : ∀ (acc : Nat), mo
 def binary' : Bool → Nat → Bool
   | acc, 0 | acc , 1 => not acc
   | acc, n+2 => binary' (binary' acc (n+1)) n
+termination_by structural _ x => x
 
 /--
 info: binary'.induct (motive : Bool → Nat → Prop) (case1 : ∀ (acc : Bool), motive acc 0)
@@ -48,6 +50,7 @@ def zip {α β} : List α → List β → List (α × β)
   | [], _ => []
   | _, [] => []
   | x::xs, y::ys => (x, y) :: zip xs ys
+termination_by structural x => x
 
 /--
 info: zip.induct.{u_1, u_2} {α : Type u_1} {β : Type u_2} (motive : List α → List β → Prop)
@@ -84,6 +87,7 @@ def Finn.min (x : Bool) {n : Nat} (m : Nat) : Finn n → (f : Finn n) → Finn n
   | fzero, _ => fzero
   | _, fzero => fzero
   | fsucc i, fsucc j => fsucc (Finn.min (not x) (m + 1) i j)
+termination_by structural n
 
 /--
 info: Finn.min.induct (motive : Bool → {n : Nat} → Nat → Finn n → Finn n → Prop)
@@ -94,8 +98,6 @@ info: Finn.min.induct (motive : Bool → {n : Nat} → Nat → Finn n → Finn n
 -/
 #guard_msgs in
 #check Finn.min.induct
-
-
 
 namespace TreeExample
 
@@ -113,6 +115,7 @@ def Tree.insert (t : Tree β) (k : Nat) (v : β) : Tree β :=
       node left key value (right.insert k v)
     else
       node left k v right
+termination_by structural t
 
 /--
 info: TreeExample.Tree.insert.induct.{u_1} {β : Type u_1} (motive : Tree β → Nat → β → Prop)
@@ -174,6 +177,7 @@ def Term.denote : Term ctx ty → HList Ty.denote ctx → ty.denote
   | .app f a,   env => f.denote env (a.denote env)
   | .lam b,     env => fun x => b.denote (.cons x env)
   | .let a b,   env => b.denote (.cons (a.denote env) env)
+termination_by structural x => x
 
 /--
 info: TermDenote.Term.denote.induct (motive : {ctx : List Ty} → {ty : Ty} → Term ctx ty → HList Ty.denote ctx → Prop)
@@ -184,7 +188,7 @@ info: TermDenote.Term.denote.induct (motive : {ctx : List Ty} → {ty : Ty} → 
       motive a_1 env → motive b env → motive (a_1.plus b) env)
   (case4 :
     ∀ (a : List Ty) (ty dom : Ty) (f : Term a (dom.fn ty)) (a_1 : Term a dom) (env : HList Ty.denote a),
-      motive a_1 env → motive f env → motive (f.app a_1) env)
+      motive f env → motive a_1 env → motive (f.app a_1) env)
   (case5 :
     ∀ (a : List Ty) (dom ran : Ty) (b : Term (dom :: a) ran) (env : HList Ty.denote a),
       (∀ (x : dom.denote), motive b (HList.cons x env)) → motive b.lam env)

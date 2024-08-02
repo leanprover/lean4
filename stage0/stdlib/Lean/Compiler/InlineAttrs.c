@@ -103,7 +103,6 @@ lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_267____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_267____lambda__1___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_hasInlineAttrAux___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_FindImpl_findUnsafe_x3f(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_hasInlineAttrAux(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_267____closed__15;
 static lean_object* l_Lean_Compiler_setInlineAttribute___closed__1;
@@ -137,6 +136,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_InlineAttributeKind_noConfusion(lean_ob
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_267____closed__30;
 static lean_object* l_Lean_getConstInfo___at___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___spec__1___closed__4;
 uint8_t l_Lean_isAuxRecursorWithSuffix(lean_object*, lean_object*, lean_object*);
+lean_object* lean_find_expr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_getInlineAttribute_x3f(lean_object*, lean_object*);
 uint8_t lean_is_eager_lambda_lifting_name(lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_267____closed__1;
@@ -665,9 +665,8 @@ x_13 = lean_alloc_closure((void*)(l___private_Lean_Compiler_InlineAttrs_0__Lean_
 lean_closure_set(x_13, 0, x_11);
 lean_closure_set(x_13, 1, x_1);
 x_14 = lean_ctor_get(x_2, 1);
-lean_inc(x_14);
-lean_dec(x_2);
-x_15 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_13, x_14);
+x_15 = lean_find_expr(x_13, x_14);
+lean_dec(x_13);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; lean_object* x_17; 
@@ -704,9 +703,8 @@ x_24 = lean_alloc_closure((void*)(l___private_Lean_Compiler_InlineAttrs_0__Lean_
 lean_closure_set(x_24, 0, x_22);
 lean_closure_set(x_24, 1, x_1);
 x_25 = lean_ctor_get(x_2, 1);
-lean_inc(x_25);
-lean_dec(x_2);
-x_26 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_24, x_25);
+x_26 = lean_find_expr(x_24, x_25);
+lean_dec(x_24);
 if (lean_obj_tag(x_26) == 0)
 {
 lean_object* x_27; lean_object* x_28; 
@@ -779,6 +777,7 @@ lean_object* x_17; lean_object* x_18;
 lean_free_object(x_5);
 x_17 = lean_box(0);
 x_18 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lambda__3(x_1, x_10, x_17, x_2, x_3, x_8);
+lean_dec(x_10);
 return x_18;
 }
 }
@@ -817,6 +816,7 @@ else
 lean_object* x_28; lean_object* x_29; 
 x_28 = lean_box(0);
 x_29 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lambda__3(x_1, x_20, x_28, x_2, x_3, x_19);
+lean_dec(x_20);
 return x_29;
 }
 }
@@ -928,6 +928,7 @@ _start:
 lean_object* x_7; 
 x_7 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lambda__3(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_3);
+lean_dec(x_2);
 return x_7;
 }
 }

@@ -6,7 +6,7 @@ Authors: Mario Carneiro
 prelude
 import Init.Data.Nat.MinMax
 import Init.Data.Nat.Lemmas
-import Init.Data.List.Lemmas
+import Init.Data.List.Monadic
 import Init.Data.Fin.Basic
 import Init.Data.Array.Mem
 import Init.TacticsExtra
@@ -51,7 +51,7 @@ theorem foldlM_eq_foldlM_data.aux [Monad m]
     simp [foldlM_eq_foldlM_data.aux f arr i (j+1) H]
     rw (config := {occs := .pos [2]}) [← List.get_drop_eq_drop _ _ ‹_›]
     rfl
-  · rw [List.drop_length_le (Nat.ge_of_not_lt ‹_›)]; rfl
+  · rw [List.drop_of_length_le (Nat.ge_of_not_lt ‹_›)]; rfl
 
 theorem foldlM_eq_foldlM_data [Monad m]
     (f : β → α → m β) (init : β) (arr : Array α) :
@@ -141,7 +141,7 @@ where
     · rw [← List.get_drop_eq_drop _ i ‹_›]
       simp only [aux (i + 1), map_eq_pure_bind, data_length, List.foldlM_cons, bind_assoc, pure_bind]
       rfl
-    · rw [List.drop_length_le (Nat.ge_of_not_lt ‹_›)]; rfl
+    · rw [List.drop_of_length_le (Nat.ge_of_not_lt ‹_›)]; rfl
   termination_by arr.size - i
   decreasing_by decreasing_trivial_pre_omega
 

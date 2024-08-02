@@ -193,6 +193,17 @@ theorem replicateTR_loop_eq : ∀ n, replicateTR.loop a n acc = replicate n a ++
   apply funext; intro α; apply funext; intro n; apply funext; intro a
   exact (replicateTR_loop_replicate_eq _ 0 n).symm
 
+/-! ## Additional functions -/
+
+/-! ### leftpad -/
+
+/-- Optimized version of `leftpad`. -/
+@[inline] def leftpadTR (n : Nat) (a : α) (l : List α) : List α :=
+  replicateTR.loop a (n - length l) l
+
+@[csimp] theorem leftpad_eq_leftpadTR : @leftpad = @leftpadTR := by
+  funext α n a l; simp [leftpad, leftpadTR, replicateTR_loop_eq]
+
 /-! ## Sublists -/
 
 /-! ### take -/
@@ -295,6 +306,24 @@ theorem replicateTR_loop_eq : ∀ n, replicateTR.loop a n acc = replicate n a ++
     · rw [IH] <;> simp_all
     · simp
 
+/-- Tail-recursive version of `eraseP`. -/
+@[inline] def erasePTR (p : α → Bool) (l : List α) : List α := go l #[] where
+  /-- Auxiliary for `erasePTR`: `erasePTR.go p l xs acc = acc.toList ++ eraseP p xs`,
+  unless `xs` does not contain any elements satisfying `p`, where it returns `l`. -/
+  @[specialize] go : List α → Array α → List α
+  | [], _ => l
+  | a :: l, acc => bif p a then acc.toListAppend l else go l (acc.push a)
+
+@[csimp] theorem eraseP_eq_erasePTR : @eraseP = @erasePTR := by
+  funext α p l; simp [erasePTR]
+  let rec go (acc) : ∀ xs, l = acc.data ++ xs →
+    erasePTR.go p l xs acc = acc.data ++ xs.eraseP p
+  | [] => fun h => by simp [erasePTR.go, eraseP, h]
+  | x::xs => by
+    simp [erasePTR.go, eraseP]; cases p x <;> simp
+    · intro h; rw [go _ xs]; {simp}; simp [h]
+  exact (go #[] _ rfl).symm
+
 /-! ### eraseIdx -/
 
 /-- Tail recursive version of `List.eraseIdx`. -/
@@ -347,6 +376,26 @@ def unzipTR (l : List (α × β)) : List α × List β :=
   funext α β l; simp [unzipTR]; induction l <;> simp [*]
 
 /-! ## Ranges and enumeration -/
+
+/-! ### range' -/
+
+/-- Optimized version of `range'`. -/
+@[inline] def range'TR (s n : Nat) (step : Nat := 1) : List Nat := go n (s + step * n) [] where
+  /-- Auxiliary for `range'TR`: `range'TR.go n e = [e-n, ..., e-1] ++ acc`. -/
+  go : Nat → Nat → List Nat → List Nat
+  | 0, _, acc => acc
+  | n+1, e, acc => go n (e-step) ((e-step) :: acc)
+
+@[csimp] theorem range'_eq_range'TR : @range' = @range'TR := by
+  funext s n step
+  let rec go (s) : ∀ n m,
+    range'TR.go step n (s + step * n) (range' (s + step * n) m step) = range' s (n + m) step
+  | 0, m => by simp [range'TR.go]
+  | n+1, m => by
+    simp [range'TR.go]
+    rw [Nat.mul_succ, ← Nat.add_assoc, Nat.add_sub_cancel, Nat.add_right_comm n]
+    exact go s n (m + 1)
+  exact (go s n 0).symm
 
 /-! ### iota -/
 

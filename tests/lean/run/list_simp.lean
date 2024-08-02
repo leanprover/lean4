@@ -1,8 +1,13 @@
+set_option autoImplicit false -- For compatibility with downstream projects, so we can retest after Mathlib.
+set_option relaxedAutoImplicit false
+
 open List
 
 variable {α : Type _}
 variable {x y z : α}
 variable (l l₁ l₂ l₃ : List α)
+
+variable (L₁ L₂ : List (List α))
 
 variable {β : Type _}
 variable {f g : α → β}
@@ -51,6 +56,13 @@ variable (m n : Nat)
 /-! ## Head and tail -/
 
 /-! ### head, head!, head?, headD -/
+
+#check_simp l.headD x ~> l.head?.getD x
+
+#check_simp l.head? = none ~> l = []
+
+variable (w : l ≠ []) in
+#check_simp l.head w ∈ l ~> True
 
 /-! ### tail!, tail?, tailD -/
 
@@ -110,9 +122,17 @@ variable (p : β → Option γ) in
 
 /-! ### append -/
 
+variable (w : l₁ ≠ []) in
+#check_tactic head (l₁ ++ l₂) (by simp_all) ~> head l₁ w by simp_all
+
+#check_simp (l₁ ++ l₂).head? ~> l₁.head?.or l₂.head?
+#check_simp (l₁ ++ l₂).getLast? ~> l₂.getLast?.or l₁.getLast?
+
 /-! ### concat -/
 
 /-! ### join -/
+
+#check_simp (L₁ ++ L₂).join ~> L₁.join ++ L₂.join
 
 /-! ### bind -/
 
@@ -120,6 +140,7 @@ variable (p : β → Option γ) in
 
 #check_simp replicate 0 x ~> []
 #check_simp replicate 1 x ~> [x]
+#check_simp replicate 5 x ~> [x, x, x, x, x]
 
 -- `∈` and `contains
 
@@ -150,6 +171,12 @@ variable (h : n < m) in
 #check_simp (replicate 7 x)[5] ~> x
 
 #check_simp (replicate 7 x)[5]? ~> some x
+
+variable (w : replicate n x ≠ []) in
+#check_tactic (replicate n x).head w ~> x by simp_all
+
+variable (w : replicate n x ≠ []) in
+#check_tactic (replicate n x).getLast w ~> x by simp_all
 
 -- injectivity
 
@@ -268,7 +295,7 @@ variable {p : α → Bool} (w : ¬ p x) (h : 0 < n) in
 -- findSome?
 
 #check_simp (replicate (n+1) x).findSome? (fun x => some x) ~> some x
-#check_simp (replicate (n+1) x).findSome? (fun _ => none) ~> none
+#check_simp (replicate (n+1) x).findSome? (fun _ => (none : Option β)) ~> none
 
 variable {f : α → Option β} (w : (f x).isSome) in
 #check_tactic (replicate (n+1) x).findSome? f ~> f x by simp [w]
@@ -278,7 +305,7 @@ variable {f : α → Option β} (w : (f x).isNone) in
 variable (h : 0 < n) in
 #check_tactic (replicate n x).findSome? (fun x => some x) ~> some x by simp [h]
 variable (h : 0 < n) in
-#check_tactic (replicate n x).findSome? (fun _ => none) ~> none by simp [h]
+#check_tactic (replicate n x).findSome? (fun _ => (none : Option β)) ~> none by simp [h]
 
 variable {f : α → Option β} (w : (f x).isSome) (h : 0 < n) in
 #check_tactic (replicate n x).findSome? f ~> f x by simp [w, h]
@@ -316,6 +343,7 @@ variable (h : n ≤ m) in
 
 -- minimum?
 
+-- Note this relies on the fact that we do not have `replicate_succ` as a `@[simp]` lemma
 #check_simp (replicate (n+1) 7).minimum? ~> some 7
 
 variable (h : 0 < n) in
@@ -323,6 +351,7 @@ variable (h : 0 < n) in
 
 -- maximum?
 
+-- Note this relies on the fact that we do not have `replicate_succ` as a `@[simp]` lemma
 #check_simp (replicate (n+1) 7).maximum? ~> some 7
 
 variable (h : 0 < n) in
@@ -331,6 +360,21 @@ variable (h : 0 < n) in
 end
 
 /-! ### reverse -/
+
+variable (p : α → Bool) in
+#check_simp (l.reverse.filter p) ~> (l.filter p).reverse
+
+variable (f : α → Option β) in
+#check_simp (l.reverse.filterMap f) ~> (l.filterMap f).reverse
+
+#check_simp l.reverse.head? ~> l.getLast?
+#check_simp l.reverse.getLast? ~> l.head?
+
+variable (h : l.reverse ≠ []) in
+#check_simp l.reverse.head h ~> l.getLast (by simp_all)
+
+variable (h : l.reverse ≠ []) in
+#check_simp l.reverse.getLast h ~> l.head (by simp_all)
 
 /-! ## List membership -/
 
@@ -356,6 +400,36 @@ variable [BEq α] in
 /-! ### rotateLeft -/
 
 /-! ### rotateRight -/
+
+
+/-! ## Pairwise and Nodup -/
+
+/-! ### Pairwise -/
+section Pairwise
+variable (R : α → α → Prop)
+#check_simp Pairwise R [] ~> True
+#check_simp Pairwise R (x :: l) ~> (∀ (a' : α), a' ∈ l → R x a') ∧ Pairwise R l
+#check_simp Pairwise R [x, y, z] ~> (R x y ∧ R x z) ∧ R y z
+
+#check_simp Pairwise R (replicate n x) ~> n ≤ 1 ∨ R x x
+#check_simp Pairwise R (replicate 1 x) ~> True
+#check_simp Pairwise R (replicate (n+2) x) ~> R x x
+#check_simp Pairwise (· < ·) (replicate 2 m) ~> False
+#check_simp Pairwise (· < ·) (replicate n m) ~> n ≤ 1
+#check_simp Pairwise (· < ·) (replicate (n + 2) m) ~> False
+#check_simp Pairwise (· = ·) (replicate 2 m) ~> True
+#check_simp Pairwise (· = ·) (replicate n m) ~> True
+
+end Pairwise
+
+/-! ### Nodup -/
+
+#check_simp Nodup [] ~> True
+#check_simp Nodup (x :: l) ~> ¬x ∈ l ∧ l.Nodup
+#check_simp Nodup [x, y, z] ~> (¬x = y ∧ ¬x = z) ∧ ¬y = z
+
+#check_simp Nodup (replicate (n+2) x) ~> False
+#check_simp Nodup (replicate 2 x) ~> False
 
 /-! ## Manipulating elements -/
 

@@ -87,6 +87,11 @@ def switch (m : SMap α β) : SMap α β :=
 @[inline] def foldStage2 {σ : Type w} (f : σ → α → β → σ) (s : σ) (m : SMap α β) : σ :=
   m.map₂.foldl f s
 
+/-- Monadic fold over a staged map. -/
+def foldM {m : Type w → Type w} [Monad m]
+    (f : σ → α → β → m σ) (init : σ) (map : SMap α β) : m σ := do
+  map.map₂.foldlM f (← map.map₁.foldM f init)
+
 def fold {σ : Type w} (f : σ → α → β → σ) (init : σ) (m : SMap α β) : σ :=
   m.map₂.foldl f $ m.map₁.fold f init
 

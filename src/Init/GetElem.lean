@@ -118,6 +118,10 @@ instance (priority := low) [GetElem coll idx elem valid] [∀ xs i, Decidable (v
     GetElem? coll idx elem valid where
   getElem? xs i := decidableGetElem? xs i
 
+theorem getElem_congr_coll [GetElem coll idx elem valid] {c d : coll} {i : idx} {h : valid c i}
+    (h' : c = d) : c[i] = d[i]'(h' ▸ h) := by
+  cases h'; rfl
+
 theorem getElem_congr [GetElem coll idx elem valid] {c : coll} {i j : idx} {h : valid c i}
     (h' : i = j) : c[i] = c[j]'(h' ▸ h) := by
   cases h'; rfl
@@ -175,11 +179,9 @@ instance [GetElem? cont Nat elem dom] [h : LawfulGetElem cont Nat elem dom] :
 @[simp] theorem getElem_fin [GetElem? Cont Nat Elem Dom] (a : Cont) (i : Fin n) (h : Dom a i) :
     a[i] = a[i.1] := rfl
 
-@[simp] theorem getElem?_fin [h : GetElem? Cont Nat Elem Dom] (a : Cont) (i : Fin n)
-    [Decidable (Dom a i)] : a[i]? = a[i.1]? := by rfl
+@[simp] theorem getElem?_fin [h : GetElem? Cont Nat Elem Dom] (a : Cont) (i : Fin n) : a[i]? = a[i.1]? := by rfl
 
-@[simp] theorem getElem!_fin [GetElem? Cont Nat Elem Dom] (a : Cont) (i : Fin n)
-    [Decidable (Dom a i)] [Inhabited Elem] : a[i]! = a[i.1]! := rfl
+@[simp] theorem getElem!_fin [GetElem? Cont Nat Elem Dom] (a : Cont) (i : Fin n) [Inhabited Elem] : a[i]! = a[i.1]! := rfl
 
 macro_rules
   | `(tactic| get_elem_tactic_trivial) => `(tactic| apply Fin.val_lt_of_le; get_elem_tactic_trivial; done)

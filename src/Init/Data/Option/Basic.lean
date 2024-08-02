@@ -19,6 +19,7 @@ def getM [Alternative m] : Option α → m α
   | some a   => pure a
 
 @[deprecated getM (since := "2024-04-17")]
+-- `[Monad m]` is not needed here.
 def toMonad [Monad m] [Alternative m] : Option α → m α := getM
 
 /-- Returns `true` on `some x` and `false` on `none`. -/
@@ -210,6 +211,9 @@ instance (α) [BEq α] [LawfulBEq α] : LawfulBEq (Option α) where
 
 @[simp] theorem all_none : Option.all p none = true := rfl
 @[simp] theorem all_some : Option.all p (some x) = p x := rfl
+
+@[simp] theorem any_none : Option.any p none = false := rfl
+@[simp] theorem any_some : Option.any p (some x) = p x := rfl
 
 /-- The minimum of two optional values. -/
 protected def min [Min α] : Option α → Option α → Option α

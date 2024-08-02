@@ -104,8 +104,8 @@ def ensureJob (x : FetchM (Job α))
 Registers the job for the top-level build monitor,
 (e.g., the Lake CLI progress UI), assigning it `caption`.
 -/
-def registerJob (caption : String) (job : Job α) : FetchM (Job α) := do
-  let job := job.setCaption caption
+def registerJob (caption : String) (job : Job α) (optional := false) : FetchM (Job α) := do
+  let job : Job α := {job with caption, optional}
   (← getBuildContext).registeredJobs.modify (·.push job)
   return job.renew
 
@@ -116,10 +116,10 @@ Registers the produced job for the top-level build monitor
 Stray I/O, logs, and errors produced by `x` will be wrapped into the job.
 -/
 def withRegisterJob
-  (caption : String) (x : FetchM (Job α))
+  (caption : String) (x : FetchM (Job α)) (optional := false)
 : FetchM (Job α) := do
   let job ← ensureJob x
-  registerJob caption job
+  registerJob caption job optional
 
 /--
 Registers the produced job for the top-level build monitor

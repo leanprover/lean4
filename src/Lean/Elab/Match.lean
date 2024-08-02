@@ -672,8 +672,7 @@ partial def main (patternVarDecls : Array PatternVarDecl) (ps : Array Expr) (mat
         throwError "invalid patterns, `{mkFVar explicit}` is an explicit pattern variable, but it only occurs in positions that are inaccessible to pattern matching{indentD (MessageData.joinSep (ps.toList.map (MessageData.ofExpr .)) m!"\n\n")}"
   let packed ← pack patternVars ps matchType
   trace[Elab.match] "packed: {packed}"
-  let lctx := explicitPatternVars.foldl (init := (← getLCtx)) fun lctx d => lctx.erase d
-  withTheReader Meta.Context (fun ctx => { ctx with lctx := lctx }) do
+  withErasedFVars explicitPatternVars do
     check packed
     unpack packed fun patternVars patterns matchType => do
       let localDecls ← patternVars.mapM fun x => x.fvarId!.getDecl

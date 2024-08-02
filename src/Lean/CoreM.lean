@@ -31,7 +31,16 @@ register_builtin_option maxHeartbeats : Nat := {
   descr := "maximum amount of heartbeats per command. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit"
 }
 
-def useDiagnosticMsg := s!"use `set_option {diagnostics.name} true` to get diagnostic information"
+/--
+If the `diagnostics` option is not already set, gives a message explaining this option.
+Begins with a `\n`, so an error message can look like `m!"some error occurred{useDiagnosticMsg}"`.
+-/
+def useDiagnosticMsg : MessageData :=
+  MessageData.lazy fun ctx =>
+    if diagnostics.get ctx.opts then
+      pure ""
+    else
+      pure s!"\nAdditional diagnostic information may be available by using the `set_option {diagnostics.name} true` command."
 
 namespace Core
 
@@ -300,8 +309,10 @@ register_builtin_option debug.moduleNameAtTimeout : Bool := {
 def throwMaxHeartbeat (moduleName : Name) (optionName : Name) (max : Nat) : CoreM Unit := do
   let includeModuleName := debug.moduleNameAtTimeout.get (← getOptions)
   let atModuleName := if includeModuleName then s!" at `{moduleName}`" else ""
-  let msg := s!"(deterministic) timeout{atModuleName}, maximum number of heartbeats ({max/1000}) has been reached\nuse `set_option {optionName} <num>` to set the limit\n{useDiagnosticMsg}"
-  throw <| Exception.error (← getRef) (MessageData.ofFormat (Std.Format.text msg))
+  throw <| Exception.error (← getRef) m!"\
+    (deterministic) timeout{atModuleName}, maximum number of heartbeats ({max/1000}) has been reached\n\
+    Use `set_option {optionName} <num>` to set the limit.\
+    {useDiagnosticMsg}"
 
 def checkMaxHeartbeatsCore (moduleName : String) (optionName : Name) (max : Nat) : CoreM Unit := do
   unless max == 0 do

@@ -12,3 +12,5 @@ import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Char
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.String
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.BitVec
+import Lean.Meta.Tactic.Simp.BuiltinSimprocs.List
+import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Array

@@ -167,14 +167,9 @@ private def elabHeaders (views : Array DefView)
         else
           reuseBody := false
 
-      let mut (newHeader, newState) ← withRestoreOrSaveFull reusableResult? do
-        withRef view.headerRef do
-        addDeclarationRanges declName view.ref  -- NOTE: this should be the full `ref`
+      let mut (newHeader, newState) ← withRestoreOrSaveFull reusableResult? none do
+        withReuseContext view.headerRef do
         applyAttributesAt declName view.modifiers.attrs .beforeElaboration
-        -- do not hide header errors on partial body syntax as these two elaboration parts are
-        -- sufficiently independent
-        withTheReader Core.Context ({ · with suppressElabErrors :=
-          view.headerRef.hasMissing && !Command.showPartialSyntaxErrors.get (← getOptions) }) do
         withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|
           elabBindersEx view.binders.getArgs fun xs => do
             let refForElabFunType := view.value
@@ -337,14 +332,10 @@ private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array
         -- elaboration
         if let some old := old.val.get then
           snap.new.resolve <| some old
-          -- also make sure to reuse tactic snapshots if present so that body reuse does not lead to
-          -- missed tactic reuse on further changes
-          if let some tacSnap := header.tacSnap? then
-            if let some oldTacSnap := tacSnap.old? then
-              tacSnap.new.resolve oldTacSnap.val.get
           reusableResult? := some (old.value, old.state)
 
-    let (val, state) ← withRestoreOrSaveFull reusableResult? do
+    let (val, state) ← withRestoreOrSaveFull reusableResult? header.tacSnap? do
+      withReuseContext header.value do
       withDeclName header.declName <| withLevelNames header.levelNames do
       let valStx ← liftMacroM <| declValToTerm header.value
       forallBoundedTelescope header.type header.numParams fun xs type => do
@@ -737,12 +728,26 @@ def insertReplacementForLetRecs (r : Replacement) (letRecClosures : List LetRecC
   letRecClosures.foldl (init := r) fun r c =>
     r.insert c.toLift.fvarId c.closed
 
+def isApplicable (r : Replacement) (e : Expr) : Bool :=
+  Option.isSome <| e.findExt? fun e =>
+    if e.hasFVar then
+      match e with
+      | .fvar fvarId => if r.contains fvarId then .found else .done
+      | _ => .visit
+    else
+      .done
+
 def Replacement.apply (r : Replacement) (e : Expr) : Expr :=
-  e.replace fun e => match e with
-    | .fvar fvarId => match r.find? fvarId with
-      | some c => some c
-      | _      => none
-    | _ => none
+  -- Remark: if `r` is not a singlenton, then declaration is using `mutual` or `let rec`,
+  -- and there is a big chance `isApplicable r e` is true.
+  if r.isSingleton && !isApplicable r e then
+    e
+  else
+    e.replace fun e => match e with
+      | .fvar fvarId => match r.find? fvarId with
+        | some c => some c
+        | _      => none
+      | _ => none
 
 def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mainVals : Array Expr)
     : TermElabM (Array PreDefinition) :=
@@ -932,6 +937,7 @@ where
             trace[Elab.definition] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
           let preDefs ← withLevelNames allUserLevelNames <| levelMVarToParamPreDecls preDefs
           let preDefs ← instantiateMVarsAtPreDecls preDefs
+          let preDefs ← shareCommonPreDefs preDefs
           let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
           for preDef in preDefs do
             trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
@@ -956,6 +962,11 @@ where
                 return .mk { diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog) } #[])
             }]
           processDeriving headers
+      for view in views, header in headers do
+        -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
+        -- that depends only on a part of the ref
+        addDeclarationRanges header.declName view.ref
+
 
   processDeriving (headers : Array DefViewElabHeader) := do
     for header in headers, view in views do

@@ -180,6 +180,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) (postponeCheck := false) :
           -/
           let preDef ← eraseRecAppSyntax preDefs[0]!
           ensureEqnReservedNamesAvailable preDef.declName
+          let preEnv ← getEnv
           withOptions (fun opts => if postponeCheck then debug.skipKernelTC.set opts true else opts) do
             if preDef.modifiers.isNoncomputable then
               addNonRec preDef
@@ -187,7 +188,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) (postponeCheck := false) :
               addAndCompileNonRec preDef
           preDef.termination.ensureNone "not recursive"
           if postponeCheck then
-            return ((← getEnv), toDeclaration! ·) <$> (← getEnv).find? preDef.declName
+            return (preEnv, toDeclaration! ·) <$> (← getEnv).find? preDef.declName
         else if preDefs.any (·.modifiers.isUnsafe) then
           addAndCompileUnsafe preDefs
           preDefs.forM (·.termination.ensureNone "unsafe")

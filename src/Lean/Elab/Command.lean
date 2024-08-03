@@ -347,7 +347,7 @@ def runLintersAsync (stx : Syntax) (lintPromise : IO.Promise Language.SnapshotTr
     CommandElabM Unit := do
   let opts ← getOptions
   let hasLintTrace := opts.entries.any ((`trace.Elab.lint).isPrefixOf ·.1)
-  if hasLintTrace || trace.profiler.get opts then
+  if true || hasLintTrace || trace.profiler.get opts then
     -- NOTE: can't currently report traces from tasks
     runLinters stx
   else

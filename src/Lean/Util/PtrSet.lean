@@ -22,7 +22,7 @@ unsafe instance : BEq (Ptr α) where
 /--
 Set of pointers. It is a low-level auxiliary datastructure used for traversing DAGs.
 -/
-unsafe def PtrSet (α : Type) :=
+unsafe abbrev PtrSet (α : Type) :=
   HashSet (Ptr α)
 
 unsafe def mkPtrSet {α : Type} (capacity : Nat := 64) : PtrSet α :=
@@ -37,7 +37,7 @@ unsafe abbrev PtrSet.contains (s : PtrSet α) (a : α) : Bool :=
 /--
 Map of pointers. It is a low-level auxiliary datastructure used for traversing DAGs.
 -/
-unsafe def PtrMap (α : Type) (β : Type) :=
+unsafe abbrev PtrMap (α : Type) (β : Type) :=
   HashMap (Ptr α) β
 
 unsafe def mkPtrMap {α β : Type} (capacity : Nat := 64) : PtrMap α β :=

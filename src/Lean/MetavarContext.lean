@@ -336,6 +336,8 @@ structure MetavarContext where
   For more information about delayed abstraction, see the docstring for `DelayedMetavarAssignment`. -/
   dAssignment    : PersistentHashMap MVarId DelayedMetavarAssignment := {}
 
+instance : Inhabited MetavarContext := ⟨{}⟩
+
 /-- A monad with a stateful metavariable context, defining `getMCtx` and `modifyMCtx`. -/
 class MonadMCtx (m : Type → Type) where
   getMCtx    : m MetavarContext
@@ -536,6 +538,9 @@ To avoid this term eta-expanded term, we apply beta-reduction when instantiating
 This operation is performed at `instantiateExprMVars`, `elimMVarDeps`, and `levelMVarToParam`.
 -/
 
+@[extern "lean_instantiate_level_mvars"]
+opaque instantiateLevelMVarsImp (mctx : MetavarContext) (l : Level) : MetavarContext × Level
+
 partial def instantiateLevelMVars [Monad m] [MonadMCtx m] : Level → m Level
   | lvl@(Level.succ lvl₁)      => return Level.updateSucc! lvl (← instantiateLevelMVars lvl₁)
   | lvl@(Level.max lvl₁ lvl₂)  => return Level.updateMax! lvl (← instantiateLevelMVars lvl₁) (← instantiateLevelMVars lvl₂)
@@ -550,6 +555,9 @@ partial def instantiateLevelMVars [Monad m] [MonadMCtx m] : Level → m Level
         pure newLvl'
     | none        => pure lvl
   | lvl => pure lvl
+
+@[extern "lean_instantiate_expr_mvars"]
+opaque instantiateExprMVarsImp (mctx : MetavarContext) (e : Expr) : MetavarContext × Expr
 
 /-- instantiateExprMVars main function -/
 partial def instantiateExprMVars [Monad m] [MonadMCtx m] [STWorld ω m] [MonadLiftT (ST ω) m] (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
@@ -811,8 +819,6 @@ def localDeclDependsOnPred [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (pf :
 
 
 namespace MetavarContext
-
-instance : Inhabited MetavarContext := ⟨{}⟩
 
 @[export lean_mk_metavar_ctx]
 def mkMetavarContext : Unit → MetavarContext := fun _ => {}

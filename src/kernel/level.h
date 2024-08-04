@@ -82,6 +82,8 @@ inline bool operator!=(level const & l1, level const & l2) { return !operator==(
 struct level_hash { unsigned operator()(level const & n) const { return n.hash(); } };
 struct level_eq { bool operator()(level const & n1, level const & n2) const { return n1 == n2; } };
 
+inline bool is_shared(level const & l) { return !is_exclusive(l.raw()); }
+
 inline optional<level> none_level() { return optional<level>(); }
 inline optional<level> some_level(level const & e) { return optional<level>(e); }
 inline optional<level> some_level(level && e) { return optional<level>(std::forward<level>(e)); }

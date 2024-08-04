@@ -541,20 +541,10 @@ This operation is performed at `instantiateExprMVars`, `elimMVarDeps`, and `leve
 @[extern "lean_instantiate_level_mvars"]
 opaque instantiateLevelMVarsImp (mctx : MetavarContext) (l : Level) : MetavarContext × Level
 
-partial def instantiateLevelMVars [Monad m] [MonadMCtx m] : Level → m Level
-  | lvl@(Level.succ lvl₁)      => return Level.updateSucc! lvl (← instantiateLevelMVars lvl₁)
-  | lvl@(Level.max lvl₁ lvl₂)  => return Level.updateMax! lvl (← instantiateLevelMVars lvl₁) (← instantiateLevelMVars lvl₂)
-  | lvl@(Level.imax lvl₁ lvl₂) => return Level.updateIMax! lvl (← instantiateLevelMVars lvl₁) (← instantiateLevelMVars lvl₂)
-  | lvl@(Level.mvar mvarId)    => do
-    match (← getLevelMVarAssignment? mvarId) with
-    | some newLvl =>
-      if !newLvl.hasMVar then pure newLvl
-      else do
-        let newLvl' ← instantiateLevelMVars newLvl
-        assignLevelMVar mvarId newLvl'
-        pure newLvl'
-    | none        => pure lvl
-  | lvl => pure lvl
+partial def instantiateLevelMVars [Monad m] [MonadMCtx m] (l : Level) : m Level := do
+  let (mctx, lNew) := instantiateLevelMVarsImp (← getMCtx) l
+  setMCtx mctx
+  return lNew
 
 @[extern "lean_instantiate_expr_mvars"]
 opaque instantiateExprMVarsImp (mctx : MetavarContext) (e : Expr) : MetavarContext × Expr

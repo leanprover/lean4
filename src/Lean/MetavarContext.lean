@@ -358,13 +358,25 @@ abbrev setMCtx [MonadMCtx m] (mctx : MetavarContext) : m Unit :=
 abbrev getLevelMVarAssignment? [Monad m] [MonadMCtx m] (mvarId : LMVarId) : m (Option Level) :=
   return (← getMCtx).lAssignment.find? mvarId
 
+@[export lean_get_lmvar_assignment]
+def getLevelMVarAssignmentExp (m : MetavarContext) (mvarId : LMVarId) : Option Level :=
+  m.lAssignment.find? mvarId
+
 def MetavarContext.getExprAssignmentCore? (m : MetavarContext) (mvarId : MVarId) : Option Expr :=
+  m.eAssignment.find? mvarId
+
+@[export lean_get_mvar_assignment]
+def MetavarContext.getExprAssignmentExp (m : MetavarContext) (mvarId : MVarId) : Option Expr :=
   m.eAssignment.find? mvarId
 
 def getExprMVarAssignment? [Monad m] [MonadMCtx m] (mvarId : MVarId) : m (Option Expr) :=
   return (← getMCtx).getExprAssignmentCore? mvarId
 
 def MetavarContext.getDelayedMVarAssignmentCore? (mctx : MetavarContext) (mvarId : MVarId) : Option DelayedMetavarAssignment :=
+  mctx.dAssignment.find? mvarId
+
+@[export lean_get_delayed_mvar_assignment]
+def MetavarContext.getDelayedMVarAssignmentExp (mctx : MetavarContext) (mvarId : MVarId) : Option DelayedMetavarAssignment :=
   mctx.dAssignment.find? mvarId
 
 def getDelayedMVarAssignment? [Monad m] [MonadMCtx m] (mvarId : MVarId) : m (Option DelayedMetavarAssignment) :=
@@ -478,6 +490,10 @@ def hasAssignableMVar [Monad m] [MonadMCtx m] : Expr → m Bool
 def assignLevelMVar [MonadMCtx m] (mvarId : LMVarId) (val : Level) : m Unit :=
   modifyMCtx fun m => { m with lAssignment := m.lAssignment.insert mvarId val }
 
+@[export lean_assign_lmvar]
+def assignLevelMVarExp (m : MetavarContext) (mvarId : LMVarId) (val : Level) : MetavarContext :=
+  { m with lAssignment := m.lAssignment.insert mvarId val }
+
 /--
 Add `mvarId := x` to the metavariable assignment.
 This method does not check whether `mvarId` is already assigned, nor it checks whether
@@ -486,6 +502,10 @@ This is a low-level API, and it is safer to use `isDefEq (mkMVar mvarId) x`.
 -/
 def _root_.Lean.MVarId.assign [MonadMCtx m] (mvarId : MVarId) (val : Expr) : m Unit :=
   modifyMCtx fun m => { m with eAssignment := m.eAssignment.insert mvarId val }
+
+@[export lean_assign_mvar]
+def assignExp (m : MetavarContext) (mvarId : MVarId) (val : Expr) : MetavarContext :=
+  { m with eAssignment := m.eAssignment.insert mvarId val }
 
 /--
 Add a delayed assignment for the given metavariable. You must make sure that

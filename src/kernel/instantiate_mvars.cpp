@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Leonardo de Moura
 */
+#include <unordered_map>
 #include "runtime/option_ref.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"

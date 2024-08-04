@@ -415,6 +415,7 @@ you can double check if a theorem depends on `sorry` by using
 macro "sorry" : tactic => `(tactic| exact @sorryAx _ false)
 
 /-- `admit` is a shorthand for `exact sorry`. -/
+@[deprecated (since := "2024-08-04")]
 macro "admit" : tactic => `(tactic| exact @sorryAx _ false)
 
 /--

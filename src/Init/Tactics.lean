@@ -370,11 +370,12 @@ for new reflexive relations.
 Remark: `rfl` is an extensible tactic. We later add `macro_rules` to try different
 reflexivity theorems (e.g., `Iff.rfl`).
 -/
-macro "rfl" : tactic => `(tactic| case' _ => fail "The rfl tactic failed. Possible reasons:
-- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).
-- The arguments of the relation are not equal.
-Try using the reflexivity lemma for your relation explicitly, e.g. `exact Eq.refl _` or
-`exact HEq.rfl` etc.")
+macro "rfl" : tactic => `(tactic| case' _ => fail "\
+  The rfl tactic failed. Possible reasons:\
+  \n  - The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).\
+  \n  - The arguments of the relation are not equal.\
+  \nTry using the reflexivity lemma for your relation explicitly, e.g. `exact Eq.refl _` or \
+  `exact HEq.rfl` etc.")
 
 macro_rules | `(tactic| rfl) => `(tactic| eq_refl)
 macro_rules | `(tactic| rfl) => `(tactic| exact HEq.rfl)
@@ -1592,11 +1593,12 @@ macro "get_elem_tactic" : tactic =>
       -/
     | assumption
     | get_elem_tactic_trivial
-    | fail "failed to prove index is valid, possible solutions:
-  - Use `have`-expressions to prove the index is valid
-  - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
-  - Use `a[i]?` notation instead, result is an `Option` type
-  - Use `a[i]'h` notation instead, where `h` is a proof that index is valid"
+    | fail "\
+      failed to prove index is valid, possible solutions:\
+      \n  - Use `have`-expressions to prove the index is valid\
+      \n  - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid\
+      \n  - Use `a[i]?` notation instead, result is an `Option` type\
+      \n  - Use `a[i]'h` notation instead, where `h` is a proof that index is valid"
    )
 
 /--

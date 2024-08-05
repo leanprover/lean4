@@ -47,10 +47,11 @@ macro "decreasing_with " ts:tacticSeq : tactic =>
     first
     | done
     | $ts
-    | fail "failed to prove termination, possible solutions:
-  - Use `have`-expressions to prove the remaining goals
-  - Use `termination_by` to specify a different well-founded relation
-  - Use `decreasing_by` to specify your own tactic for discharging this kind of goal"))
+    | fail "\
+        failed to prove termination, possible solutions:\
+        \n  - Use `have`-expressions to prove the remaining goals\
+        \n  - Use `termination_by` to specify a different well-founded relation\
+        \n  - Use `decreasing_by` to specify your own tactic for discharging this kind of goal"))
 
 /-- `decreasing_tactic` is called by default on well-founded recursions in order
 to synthesize a proof that recursive calls decrease along the selected

@@ -154,16 +154,16 @@ def emitMainFn : M Unit := do
        emitLn "void lean_initialize();"
     else
        emitLn "void lean_initialize_runtime_module();";
-    emitLn "
-  #if defined(WIN32) || defined(_WIN32)
-  #include <windows.h>
-  #endif
-
-  int main(int argc, char ** argv) {
-  #if defined(WIN32) || defined(_WIN32)
-  SetErrorMode(SEM_FAILCRITICALERRORS);
-  #endif
-  lean_object* in; lean_object* res;";
+    emitLns ["",
+             "#if defined(WIN32) || defined(_WIN32)",
+             "#include <windows.h>",
+             "#endif",
+             "",
+             "int main(int argc, char ** argv) {",
+             "#if defined(WIN32) || defined(_WIN32)",
+             "  SetErrorMode(SEM_FAILCRITICALERRORS);",
+             "#endif",
+             "  lean_object* in; lean_object* res;"]
     if usesLeanAPI then
       emitLn "lean_initialize();"
     else

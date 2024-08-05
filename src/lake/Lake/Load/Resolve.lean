@@ -118,20 +118,19 @@ where
     modifyThe Workspace (·.addPackage pkg)
     return pkg
 
-def stdMismatchError (newName : String) (rev : String) :=
-s!"the 'std' package has been renamed to '{newName}' and moved to the
-'leanprover-community' organization; downstream packages which wish to
-update to the new std should replace
-
-  require std from
-    git \"https://github.com/leanprover/std4\"{rev}
-
-in their Lake configuration file with
-
-  require {newName} from
-    git \"https://github.com/leanprover-community/{newName}\"{rev}
-
-"
+def stdMismatchError (newName : String) (rev : String) := s!"\
+  the 'std' package has been renamed to '{newName}' and moved to the \
+  'leanprover-community' organization; downstream packages which wish to \
+  update to the new std should replace\n\
+  \n\
+  require std from\
+  \n  git \"https://github.com/leanprover/std4\"{rev}\
+  \n\
+  in their Lake configuration file with\n\
+  \n\
+  require {newName} from\
+  \n  git \"https://github.com/leanprover-community/{newName}\"{rev}\n\
+  \n"
 
 /--
 The monad of the manifest updater.

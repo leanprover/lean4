@@ -128,9 +128,9 @@ def registerRpcProcedure (method : Name) : CoreM Unit := do
 
 builtin_initialize registerBuiltinAttribute {
   name := `server_rpc_method
-  descr := "Marks a function as a Lean server RPC method.
-    Shorthand for `registerRpcProcedure`.
-    The function must have type `α → RequestM (RequestTask β)` with
+  descr := "Marks a function as a Lean server RPC method. \
+    Shorthand for `registerRpcProcedure`. \
+    The function must have type `α → RequestM (RequestTask β)` with \
     `[RpcEncodable α]` and `[RpcEncodable β]`."
   applicationTime := AttributeApplicationTime.afterCompilation
   add := fun decl _ _ =>

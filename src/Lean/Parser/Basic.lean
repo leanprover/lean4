@@ -63,10 +63,11 @@ def dbgTraceStateFn (label : String) (p : ParserFn) : ParserFn :=
   fun c s =>
     let sz := s.stxStack.size
     let s' := p c s
-    dbg_trace "{label}
-  pos: {s'.pos}
-  err: {s'.errorMsg}
-  out: {s'.stxStack.extract sz s'.stxStack.size}"
+    dbg_trace "\
+      {label}\n\
+      pos: {s'.pos}\n\
+      err: {s'.errorMsg}\n\
+      out: {s'.stxStack.extract sz s'.stxStack.size}"
     s'
 
 def dbgTraceState (label : String) : Parser → Parser := withFn (dbgTraceStateFn label)

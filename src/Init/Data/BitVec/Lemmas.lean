@@ -12,6 +12,8 @@ import Init.Data.Nat.Lemmas
 import Init.Data.Nat.Mod
 import Init.Data.Int.Bitwise.Lemmas
 
+set_option linter.missingDocs true
+
 namespace BitVec
 
 /--

@@ -28,6 +28,8 @@ https://github.com/mhk119/lean-smt/blob/bitvec/Smt/Data/Bitwise.lean.
 
 -/
 
+set_option linter.missingDocs true
+
 open Nat Bool
 
 namespace Bool

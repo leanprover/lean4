@@ -416,7 +416,9 @@ macro "sorry" : tactic => `(tactic| exact @sorryAx _ false)
 
 /-- `admit` is a shorthand for `exact sorry`. -/
 @[deprecated (since := "2024-08-04")]
-macro "admit" : tactic => `(tactic| exact @sorryAx _ false)
+macro "admit" : tactic => `(tactic|
+    (run_tac logWarning "`admit` is deprecated and will be removed in the future. Use `sorry` instead!"
+     exact @sorryAx _ false))
 
 /--
 `infer_instance` is an abbreviation for `exact inferInstance`.

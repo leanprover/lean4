@@ -534,6 +534,13 @@ def sshiftRight (a : BitVec n) (s : Nat) : BitVec n := .ofInt n (a.toInt >>> s)
 instance {n} : HShiftLeft  (BitVec m) (BitVec n) (BitVec m) := ⟨fun x y => x <<< y.toNat⟩
 instance {n} : HShiftRight (BitVec m) (BitVec n) (BitVec m) := ⟨fun x y => x >>> y.toNat⟩
 
+/--
+Arithmetic right shift for bit vectors. The high bits are filled with the
+most-significant bit.
+As a numeric operation, this is equivalent to `a.toInt >>> s.toNat`.
+
+SMT-Lib name: `bvashr`.
+-/
 def sshiftRight' (a : BitVec n) (s : BitVec m) : BitVec n := a.sshiftRight s.toNat
 
 /-- Auxiliary function for `rotateLeft`, which does not take into account the case where

@@ -1452,28 +1452,26 @@ partial def betaRev (f : Expr) (revArgs : Array Expr) (useZeta := false) (preser
   else
     let sz := revArgs.size
     let rec go (e : Expr) (i : Nat) : Expr :=
+      let done (_ : Unit) : Expr :=
+        let n := sz - i
+        mkAppRevRange (e.instantiateRange n sz revArgs) 0 n revArgs
       match e with
-      | Expr.lam _ _ b _ =>
+      | .lam _ _ b _ =>
         if i + 1 < sz then
           go b (i+1)
         else
-          let n := sz - (i + 1)
-          mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
-      | Expr.letE _ _ v b _ =>
+          b.instantiate revArgs
+      | .letE _ _ v b _ =>
         if useZeta && i < sz then
           go (b.instantiate1 v) i
         else
-          let n := sz - i
-          mkAppRevRange (e.instantiateRange n sz revArgs) 0 n revArgs
-      | Expr.mdata k b =>
+          done ()
+      | .mdata _ b =>
         if preserveMData then
-          let n := sz - i
-          mkMData k (mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs)
+          done ()
         else
           go b i
-      | b =>
-        let n := sz - i
-        mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
+      | _ => done ()
     go f 0
 
 /--

@@ -21,132 +21,132 @@ def defaultExeRoot : Name := `Main
 def toolchainFileName : FilePath := "lean-toolchain"
 
 def gitignoreContents := s!"\
-  /{defaultLakeDir}\
-\n"
+/{defaultLakeDir}
+"
 
 def basicFileContents :=
   s!"def hello := \"world\""
 
 def libRootFileContents (libName : String) (libRoot : Name) := s!"\
-  -- This module serves as the root of the `{libName}` library.\
-\n-- Import modules here that should be built as part of the library.\
-\nimport {libRoot}.Basic"
+-- This module serves as the root of the `{libName}` library.
+-- Import modules here that should be built as part of the library.
+import {libRoot}.Basic"
 
 def mainFileName : FilePath :=
   s!"{defaultExeRoot}.lean"
 
 def mainFileContents (libRoot : Name) := s!"\
-  import {libRoot}\
-\n\
-\ndef main : IO Unit :=\
-\n  IO.println s!\"Hello, \{hello}!\"\
-\n"
+import {libRoot}
+
+def main : IO Unit :=
+  IO.println s!\"Hello, \{hello}!\"
+"
 
 def exeFileContents := s!"\
-  def main : IO Unit :=\
-\n  IO.println s!\"Hello, world!\"\
-\n"
+def main : IO Unit :=
+  IO.println s!\"Hello, world!\"
+"
 
 def stdLeanConfigFileContents (pkgName libRoot exeName : String) := s!"\
-  import Lake\
-\nopen Lake DSL\
-\n\
-\npackage {repr pkgName} where\
-\n  -- add package configuration options here\
-\n\
-\nlean_lib {libRoot} where\
-\n  -- add library configuration options here\
-\n\
-\n@[default_target]\
-\nlean_exe {repr exeName} where\
-\n  root := `Main\
-\n"
+import Lake
+open Lake DSL
+
+package {repr pkgName} where
+  -- add package configuration options here
+
+lean_lib {libRoot} where
+  -- add library configuration options here
+
+@[default_target]
+lean_exe {repr exeName} where
+  root := `Main
+"
 
 def stdTomlConfigFileContents (pkgName libRoot exeName : String) := s!"\
-  name = {repr pkgName}\
-\ndefaultTargets = [{repr exeName}]\
-\n\
-\n[[lean_lib]]\
-\nname = {repr libRoot}\
-\n\
-\n[[lean_exe]]\
-\nname = {repr exeName}\
-\nroot = \"Main\"\
-\n"
+name = {repr pkgName}
+defaultTargets = [{repr exeName}]
+
+[[lean_lib]]
+name = {repr libRoot}
+
+[[lean_exe]]
+name = {repr exeName}
+root = \"Main\"
+"
 
 def exeLeanConfigFileContents (pkgName exeName : String) := s!"\
-  import Lake\
-\nopen Lake DSL\
-\n\
-\npackage {repr pkgName} where\
-\n  -- add package configuration options here\
-\n\
-\n@[default_target]\
-\nlean_exe {repr exeName} where\
-\n  root := `Main\
-\n"
+import Lake
+open Lake DSL
+
+package {repr pkgName} where
+  -- add package configuration options here
+
+@[default_target]
+lean_exe {repr exeName} where
+  root := `Main
+"
 
 def exeTomlConfigFileContents (pkgName exeName : String) := s!"\
-  name = {repr pkgName}\
-\ndefaultTargets = [{repr exeName}]\
-\n\
-\n[[lean_exe]]\
-\nname = {repr exeName}\
-\nroot = \"Main\"\
-\n"
+name = {repr pkgName}
+defaultTargets = [{repr exeName}]
+
+[[lean_exe]]
+name = {repr exeName}
+root = \"Main\"
+"
 
 def libLeanConfigFileContents (pkgName libRoot : String) := s!"\
-  import Lake\
-\nopen Lake DSL\
-\n\
-\npackage {repr pkgName} where\
-\n  -- add package configuration options here\
-\n\
-\n@[default_target]\
-\nlean_lib {libRoot} where\
-\n  -- add library configuration options here\
-\n"
+import Lake
+open Lake DSL
+
+package {repr pkgName} where
+  -- add package configuration options here
+
+@[default_target]
+lean_lib {libRoot} where
+  -- add library configuration options here
+"
 
 def libTomlConfigFileContents (pkgName libRoot : String) := s!"\
-  name = {repr pkgName}\
-\ndefaultTargets = [{repr libRoot}]\
-\n\
-\n[[lean_lib]]\
-\nname = {repr libRoot}\
-\n"
+name = {repr pkgName}
+defaultTargets = [{repr libRoot}]
+
+[[lean_lib]]
+name = {repr libRoot}
+"
 
 def mathLeanConfigFileContents (pkgName libRoot : String) := s!"\
-  import Lake\
-\nopen Lake DSL\
-\n\
-\npackage {repr pkgName} where\
-\n  -- Settings applied to both builds and interactive editing\
-\n  leanOptions := #[\
-\n    ⟨`pp.unicode.fun, true⟩ -- pretty-prints `fun a ↦ b`\
-\n  ]\
-\n  -- add any additional package configuration options here\
-\n\
-\nrequire \"leanprover-community\" / \"mathlib\"\
-\n\
-\n@[default_target]\
-\nlean_lib {libRoot} where\
-\n  -- add any library configuration options here\
-\n"
+import Lake
+open Lake DSL
+
+package {repr pkgName} where
+  -- Settings applied to both builds and interactive editing
+  leanOptions := #[
+    ⟨`pp.unicode.fun, true⟩ -- pretty-prints `fun a ↦ b`
+  ]
+  -- add any additional package configuration options here
+
+require \"leanprover-community\" / \"mathlib\"
+
+@[default_target]
+lean_lib {libRoot} where
+  -- add any library configuration options here
+"
 
 def mathTomlConfigFileContents (pkgName libRoot : String) := s!"\
-  name = {repr pkgName}\
-\ndefaultTargets = [{repr libRoot}]\
-\n\
-\n[leanOptions]\
-\npp.unicode.fun = true # pretty-prints `fun a ↦ b`\
-\n\
-\n[[require]]\
-\nname = \"mathlib\"\
-\nscope = \"leanprover-community\"\
-\n\
-\n[[lean_lib]]\
-\nname = {repr libRoot}\
-\n"
+name = {repr pkgName}
+defaultTargets = [{repr libRoot}]
+
+[leanOptions]
+pp.unicode.fun = true # pretty-prints `fun a ↦ b`
+
+[[require]]
+name = \"mathlib\"
+scope = \"leanprover-community\"
+
+[[lean_lib]]
+name = {repr libRoot}
+"
 
 def readmeFileContents (pkgName : String) := s!"# {pkgName}"
 
@@ -157,21 +157,21 @@ def mathToolchainUrl : String :=
   "https://github.com/leanprover-community/mathlib4/blob/master/lean-toolchain"
 
 def leanActionWorkflowContents := "\
-  name: Lean Action CI\
-\n\
-\non:\
-\n  push:\
-\n  pull_request:\
-\n  workflow_dispatch:\
-\n\
-\njobs:\
-\n  build:\
-\n    runs-on: ubuntu-latest\
-\n\
-\n    steps:\
-\n      - uses: actions/checkout@v4\
-\n      - uses: leanprover/lean-action@v1\
-\n"
+name: Lean Action CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+"
 
 /-- Lake package template identifier. -/
 inductive InitTemplate
@@ -294,9 +294,8 @@ def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLa
     -- Empty githash implies dev build
     unless env.lean.githash.isEmpty do
       unless (← toolchainFile.pathExists) do
-        logWarning <|
-          "could not create a `lean-toolchain` file for the new package; "  ++
-          "no known toolchain name for the current Elan/Lean/Lake"
+        logWarning "could not create a `lean-toolchain` file for the new package; \
+          no known toolchain name for the current Elan/Lean/Lake"
   else
     if tmp = .math then
       logInfo "downloading mathlib `lean-toolchain` file"

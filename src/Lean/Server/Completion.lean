@@ -81,7 +81,7 @@ open Elab
 open Meta
 open FuzzyMatching
 
-abbrev EligibleHeaderDecls := HashMap Name ConstantInfo
+abbrev EligibleHeaderDecls := Std.HashMap Name ConstantInfo
 
 /-- Cached header declarations for which `allowCompletion headerEnv decl` is true. -/
 builtin_initialize eligibleHeaderDeclsRef : IO.Ref (Option EligibleHeaderDecls) ←

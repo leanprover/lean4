@@ -5,8 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Array.QSort
-import Lean.Data.HashMap
-import Lean.Data.HashSet
 import Lean.Data.PersistentHashMap
 import Lean.Data.PersistentHashSet
 import Lean.Hygiene
@@ -614,9 +612,9 @@ where
 
 end Level
 
-abbrev LevelMap (α : Type)  := HashMap Level α
+abbrev LevelMap (α : Type)  := Std.HashMap Level α
 abbrev PersistentLevelMap (α : Type) := PHashMap Level α
-abbrev LevelSet := HashSet Level
+abbrev LevelSet := Std.HashSet Level
 abbrev PersistentLevelSet := PHashSet Level
 abbrev PLevelSet := PersistentLevelSet
 

@@ -903,7 +903,7 @@ structure State where
   mctx           : MetavarContext
   nextMacroScope : MacroScope
   ngen           : NameGenerator
-  cache          : HashMap ExprStructEq Expr := {}
+  cache          : Std.HashMap ExprStructEq Expr := {}
 
 structure Context where
   mainModule         : Name
@@ -1319,7 +1319,7 @@ structure State where
   mctx         : MetavarContext
   paramNames   : Array Name := #[]
   nextParamIdx : Nat
-  cache        : HashMap ExprStructEq Expr := {}
+  cache        : Std.HashMap ExprStructEq Expr := {}
 
 abbrev M := ReaderT Context <| StateM State
 
@@ -1328,7 +1328,7 @@ instance : MonadMCtx M where
   modifyMCtx f := modify fun s => { s with mctx := f s.mctx }
 
 instance : MonadCache ExprStructEq Expr M where
-  findCached? e   := return (← get).cache.find? e
+  findCached? e   := return (← get).cache[e]?
   cache       e v := modify fun s => { s with cache := s.cache.insert e v }
 
 partial def mkParamName : M Name := do

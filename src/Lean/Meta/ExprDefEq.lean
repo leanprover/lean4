@@ -695,7 +695,7 @@ def throwOutOfScopeFVar : CheckAssignmentM α :=
   throw <| Exception.internal outOfScopeExceptionId
 
 private def findCached? (e : Expr) : CheckAssignmentM (Option Expr) := do
-  return (← get).cache.find? e
+  return (← get).cache.get? e
 
 private def cache (e r : Expr) : CheckAssignmentM Unit := do
   modify fun s => { s with cache := s.cache.insert e r }

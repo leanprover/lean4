@@ -248,3 +248,16 @@ instance [BEq α] [Hashable α] [Repr α] [Repr β] : Repr (HashMap α β) where
 end Unverified
 
 end Std.HashMap
+
+/--
+Groups all elements `x`, `y` in `xs` with `key x == key y` into the same array
+`(xs.groupByKey key).find! (key x)`. Groups preserve the relative order of elements in `xs`.
+-/
+def Array.groupByKey [BEq α] [Hashable α] (key : β → α) (xs : Array β)
+    : Std.HashMap α (Array β) := Id.run do
+  let mut groups := ∅
+  for x in xs do
+    let group := groups.getD (key x) #[]
+    groups := groups.erase (key x) -- make `group` referentially unique
+    groups := groups.insert (key x) (group.push x)
+  return groups

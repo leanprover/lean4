@@ -316,7 +316,7 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
     let refs : Lsp.ModuleRefs ← findModuleRefs text trees |>.toLspModuleRefs
     let mut ranges := #[]
     for ident in refs.findAt p.position do
-      if let some info := refs.find? ident then
+      if let some info := refs.get? ident then
         if let some ⟨definitionRange, _⟩ := info.definition? then
           ranges := ranges.push definitionRange
         ranges := ranges.append <| info.usages.map (·.range)

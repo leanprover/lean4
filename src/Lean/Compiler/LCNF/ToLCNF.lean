@@ -199,9 +199,9 @@ structure State where
   /-- Cache from Lean regular expression to LCNF argument. -/
   cache : PHashMap Expr Arg := {}
   /-- `toLCNFType` cache -/
-  typeCache : HashMap Expr Expr := {}
+  typeCache : Std.HashMap Expr Expr := {}
   /-- isTypeFormerType cache -/
-  isTypeFormerTypeCache : HashMap Expr Bool := {}
+  isTypeFormerTypeCache : Std.HashMap Expr Bool := {}
   /-- LCNF sequence, we chain it to create a LCNF `Code` object. -/
   seq : Array Element := #[]
   /--
@@ -257,7 +257,7 @@ private partial def isTypeFormerType (type : Expr) : M Bool := do
   | .true => return true
   | .false => return false
   | .undef =>
-    if let some result := (← get).isTypeFormerTypeCache.find? type then
+    if let some result := (← get).isTypeFormerTypeCache[type]? then
       return result
     let result ← liftMetaM <| Meta.isTypeFormerType type
     modify fun s => { s with isTypeFormerTypeCache := s.isTypeFormerTypeCache.insert type result }
@@ -305,7 +305,7 @@ def applyToAny (type : Expr) : M Expr := do
     | _ => none
 
 def toLCNFType (type : Expr) : M Expr := do
-  match (← get).typeCache.find? type with
+  match (← get).typeCache[type]? with
   | some type' => return type'
   | none =>
     let type' ← liftMetaM <| LCNF.toLCNFType type

@@ -215,8 +215,16 @@ class instantiate_mvars_fn {
             args.push_back(visit(app_arg(e)));
             return visit_args_and_beta(f_new, app_fn(e), args);
         } else {
-            // TODO (zeta := true)
-            return apply_beta(f_new, args.size(), args.data());
+            /*
+            Some of the arguments in `args` are irrelevant after we beta
+            reduce. Also, it may be a bug to not instantiate them, since they
+            may depend on free variables that are not in the context (see
+            issue #4375). So we pass `useZeta := true` to ensure that they are
+            instantiated.
+            */
+            bool preserve_data = false;
+            bool zeta = true;
+            return apply_beta(f_new, args.size(), args.data(), preserve_data, zeta);
         }
     }
 

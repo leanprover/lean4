@@ -252,7 +252,7 @@ def throwUnknownVar {α : Type} (x : VarId) : M α :=
 
 def getJPParams (j : JoinPointId) : M (Array Param) := do
   let ctx ← read;
-  match ctx.jpMap.find? j with
+  match ctx.jpMap[j]? with
   | some ps => pure ps
   | none    => throw "unknown join point"
 

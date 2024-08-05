@@ -650,7 +650,7 @@ def handleCallHierarchyOutgoingCalls (p : CallHierarchyOutgoingCallsParams)
 
   let references ← (← read).references.get
 
-  let some refs := references.allRefs.find? module
+  let some refs := references.allRefs[module]?
     | return #[]
 
   let items ← refs.toArray.filterMapM fun ⟨ident, info⟩ => do
@@ -714,9 +714,9 @@ def handlePrepareRename (p : PrepareRenameParams) : ServerM (Option Range) := do
 def handleRename (p : RenameParams) : ServerM Lsp.WorkspaceEdit := do
   if (String.toName p.newName).isAnonymous then
     throwServerError s!"Can't rename: `{p.newName}` is not an identifier"
-  let mut refs : HashMap DocumentUri (RBMap Lsp.Position Lsp.Position compare) := ∅
+  let mut refs : Std.HashMap DocumentUri (RBMap Lsp.Position Lsp.Position compare) := ∅
   for { uri, range } in (← handleReference { p with context.includeDeclaration := true }) do
-    refs := refs.insert uri <| (refs.findD uri ∅).insert range.start range.end
+    refs := refs.insert uri <| (refs.getD uri ∅).insert range.start range.end
   -- We have to filter the list of changes to put the ranges in order and
   -- remove any duplicates or overlapping ranges, or else the rename will not apply
   let changes := refs.fold (init := ∅) fun changes uri map => Id.run do

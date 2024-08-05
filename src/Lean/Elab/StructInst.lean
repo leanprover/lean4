@@ -445,13 +445,13 @@ private def expandParentFields (s : Struct) : TermElabM Struct := do
           | _ => throwErrorAt ref "failed to access field '{fieldName}' in parent structure"
     | _ => return field
 
-private abbrev FieldMap := HashMap Name Fields
+private abbrev FieldMap := Std.HashMap Name Fields
 
 private def mkFieldMap (fields : Fields) : TermElabM FieldMap :=
   fields.foldlM (init := {}) fun fieldMap field =>
     match field.lhs with
     | .fieldName _ fieldName :: _    =>
-      match fieldMap.find? fieldName with
+      match fieldMap[fieldName]? with
       | some (prevField::restFields) =>
         if field.isSimple || prevField.isSimple then
           throwErrorAt field.ref "field '{fieldName}' has already been specified"

@@ -3498,9 +3498,11 @@ return x_10;
 }
 else
 {
-lean_object* x_11; 
-x_11 = l_BitVec_nil___closed__1;
-return x_11;
+lean_object* x_11; lean_object* x_12; 
+x_11 = lean_nat_mul(x_1, x_4);
+x_12 = l_BitVec_ofNat(x_11, x_4);
+lean_dec(x_11);
+return x_12;
 }
 }
 }

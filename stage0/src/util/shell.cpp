@@ -310,9 +310,7 @@ options set_config_option(options const & opts, char const * in) {
                                   << "' cannot be set in the command line, use set_option command");
         }
     } else {
-        // More options may be registered by imports, so we leave validating them to the Lean side.
-        // This (minor) duplication will be resolved when this file is rewritten in Lean.
-        return opts.update(opt, val.c_str());
+        throw lean::exception(lean::sstream() << "invalid -D parameter, unknown configuration option '" << opt << "'");
     }
 }
 

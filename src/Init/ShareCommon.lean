@@ -109,4 +109,4 @@ A more restrictive but efficient max sharing primitive.
 Remark: it optimizes the number of RC operations, and the strategy for caching results.
 -/
 @[extern "lean_sharecommon_quick"]
-def ShareCommon.shareCommon' (a : α) : α := a
+def ShareCommon.shareCommon' (a : @& α) : α := a

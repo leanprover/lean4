@@ -163,7 +163,6 @@ static lean_object* l_List_format___at_Lean_Meta_instToFormatUnificationHints___
 uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 static lean_object* l_List_format___at_Lean_Meta_instToFormatUnificationHints___spec__4___closed__9;
-uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(uint8_t, uint8_t);
 uint8_t l_Lean_Meta_DiscrTree_Key_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_addUnificationHint___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_UnificationHints_add___spec__1___closed__3;
@@ -304,6 +303,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_UnificationHint_0__Lean_Meta_vali
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_UnificationHints_discrTree___default;
 uint8_t lean_usize_dec_lt(size_t, size_t);
+uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_805____closed__11;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
@@ -5273,7 +5273,7 @@ x_39 = lean_nat_add(x_28, x_38);
 lean_dec(x_28);
 lean_ctor_set(x_25, 1, x_39);
 x_40 = 3;
-x_41 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_37, x_40);
+x_41 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_37, x_40);
 if (x_41 == 0)
 {
 lean_object* x_42; 
@@ -5575,7 +5575,7 @@ lean_ctor_set(x_89, 0, x_27);
 lean_ctor_set(x_89, 1, x_88);
 lean_ctor_set(x_89, 2, x_29);
 x_90 = 3;
-x_91 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_86, x_90);
+x_91 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_86, x_90);
 if (x_91 == 0)
 {
 lean_object* x_92; 
@@ -5864,7 +5864,7 @@ lean_ctor_set(x_136, 0, x_125);
 lean_ctor_set(x_136, 1, x_135);
 lean_ctor_set(x_136, 2, x_127);
 x_137 = 3;
-x_138 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_133, x_137);
+x_138 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_133, x_137);
 if (x_138 == 0)
 {
 lean_object* x_139; lean_object* x_140; 

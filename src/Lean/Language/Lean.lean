@@ -10,8 +10,8 @@ Authors: Sebastian Ullrich
 
 prelude
 import Lean.Language.Basic
+import Lean.Language.Lean.Types
 import Lean.Parser.Module
-import Lean.Elab.Command
 import Lean.Elab.Import
 
 /-!
@@ -166,112 +166,12 @@ namespace Lean.Language.Lean
 open Lean.Elab Command
 open Lean.Parser
 
-private def pushOpt (a? : Option α) (as : Array α) : Array α :=
-  match a? with
-  | some a => as.push a
-  | none   => as
-
 /-- Option for capturing output to stderr during elaboration. -/
 register_builtin_option stderrAsMessages : Bool := {
   defValue := true
   group    := "server"
   descr    := "(server) capture output to the Lean stderr channel (such as from `dbg_trace`) during elaboration of a command as a diagnostic message"
 }
-
-/-! The hierarchy of Lean snapshot types -/
-
-/-- Snapshot after elaboration of the entire command. -/
-structure CommandFinishedSnapshot extends Language.Snapshot where
-  /-- Resulting elaboration state. -/
-  cmdState : Command.State
-deriving Nonempty
-instance : ToSnapshotTree CommandFinishedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, #[]⟩
-
-/-- State after a command has been parsed. -/
-structure CommandParsedSnapshotData extends Snapshot where
-  /-- Syntax tree of the command. -/
-  stx : Syntax
-  /-- Resulting parser state. -/
-  parserState : Parser.ModuleParserState
-  /--
-  Snapshot for incremental reporting and reuse during elaboration, type dependent on specific
-  elaborator.
-   -/
-  elabSnap : SnapshotTask DynamicSnapshot
-  /-- State after processing is finished. -/
-  finishedSnap : SnapshotTask CommandFinishedSnapshot
-  /-- Cache for `save`; to be replaced with incrementality. -/
-  tacticCache : IO.Ref Tactic.Cache
-deriving Nonempty
-
-/-- State after a command has been parsed. -/
--- workaround for lack of recursive structures
-inductive CommandParsedSnapshot where
-  /-- Creates a command parsed snapshot. -/
-  | mk (data : CommandParsedSnapshotData)
-    (nextCmdSnap? : Option (SnapshotTask CommandParsedSnapshot))
-deriving Nonempty
-/-- The snapshot data. -/
-abbrev CommandParsedSnapshot.data : CommandParsedSnapshot → CommandParsedSnapshotData
-  | mk data _ => data
-/-- Next command, unless this is a terminal command. -/
-abbrev CommandParsedSnapshot.nextCmdSnap? : CommandParsedSnapshot →
-    Option (SnapshotTask CommandParsedSnapshot)
-  | mk _ next? => next?
-partial instance : ToSnapshotTree CommandParsedSnapshot where
-  toSnapshotTree := go where
-    go s := ⟨s.data.toSnapshot,
-      #[s.data.elabSnap.map (sync := true) toSnapshotTree,
-        s.data.finishedSnap.map (sync := true) toSnapshotTree] |>
-        pushOpt (s.nextCmdSnap?.map (·.map (sync := true) go))⟩
-
-/-- State after successful importing. -/
-structure HeaderProcessedState where
-  /-- The resulting initial elaboration state. -/
-  cmdState : Command.State
-  /-- First command task (there is always at least a terminal command). -/
-  firstCmdSnap : SnapshotTask CommandParsedSnapshot
-
-/-- State after the module header has been processed including imports. -/
-structure HeaderProcessedSnapshot extends Snapshot where
-  /-- State after successful importing. -/
-  result? : Option HeaderProcessedState
-  isFatal := result?.isNone
-instance : ToSnapshotTree HeaderProcessedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, #[] |>
-    pushOpt (s.result?.map (·.firstCmdSnap.map (sync := true) toSnapshotTree))⟩
-
-/-- State after successfully parsing the module header. -/
-structure HeaderParsedState where
-  /-- Resulting parser state. -/
-  parserState : Parser.ModuleParserState
-  /-- Header processing task. -/
-  processedSnap : SnapshotTask HeaderProcessedSnapshot
-
-/-- State after the module header has been parsed. -/
-structure HeaderParsedSnapshot extends Snapshot where
-  /-- Parser input context supplied by the driver, stored here for incremental parsing. -/
-  ictx : Parser.InputContext
-  /-- Resulting syntax tree. -/
-  stx : Syntax
-  /-- State after successful parsing. -/
-  result? : Option HeaderParsedState
-  isFatal := result?.isNone
-  /-- Cancellation token for interrupting processing of this run. -/
-  cancelTk? : Option IO.CancelToken
-
-instance : ToSnapshotTree HeaderParsedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot,
-    #[] |> pushOpt (s.result?.map (·.processedSnap.map (sync := true) toSnapshotTree))⟩
-
-/-- Shortcut accessor to the final header state, if successful. -/
-def HeaderParsedSnapshot.processedResult (snap : HeaderParsedSnapshot) :
-    SnapshotTask (Option HeaderProcessedState) :=
-  snap.result?.bind (·.processedSnap.map (sync := true) (·.result?)) |>.getD (.pure none)
-
-/-- Initial snapshot of the Lean language processor: a "header parsed" snapshot. -/
-abbrev InitialSnapshot := HeaderParsedSnapshot
 
 /-- Lean-specific processing context. -/
 structure LeanProcessingContext extends ProcessingContext where
@@ -340,6 +240,47 @@ register_builtin_option internal.minimalSnapshots : Bool := {
   descr    := "reduce information stored in snapshots to the minimum necessary for the cmdline \
 driver: diagnostics per command and final full snapshot"
 }
+
+/--
+Parses values of options registered during import and left by the C++ frontend as strings, fails if
+any option names remain unknown.
+-/
+def reparseOptions (opts : Options) : IO Options := do
+  let mut opts := opts
+  let decls ← getOptionDecls
+  for (name, val) in opts do
+    let .ofString val := val
+      | continue  -- Already parsed by C++
+    -- Options can be prefixed with `weak` in order to turn off the error when the option is not
+    -- defined
+    let weak := name.getRoot == `weak
+    if weak then
+      opts := opts.erase name
+    let name := name.replacePrefix `weak Name.anonymous
+    let some decl := decls.find? name
+      | unless weak do
+          throw <| .userError s!"invalid -D parameter, unknown configuration option '{name}'
+
+If the option is defined in this library, use '-D{`weak ++ name}' to set it conditionally"
+
+    match decl.defValue with
+    | .ofBool _ =>
+      match val with
+      | "true"  => opts := opts.insert name true
+      | "false" => opts := opts.insert name false
+      | _ =>
+        throw <| .userError s!"invalid -D parameter, invalid configuration option '{val}' value, \
+          it must be true/false"
+    | .ofNat _ =>
+      let some val := val.toNat?
+        | throw <| .userError s!"invalid -D parameter, invalid configuration option '{val}' value, \
+            it must be a natural number"
+      opts := opts.insert name val
+    | .ofString _ => opts := opts.insert name val
+    | _ => throw <| .userError s!"invalid -D parameter, configuration option '{name}' \
+              cannot be set in the command line, use set_option command"
+
+  return opts
 
 /--
 Entry point of the Lean language processor.
@@ -473,7 +414,9 @@ where
             : TraceElem
           }].toPArray'
         }
-      let cmdState := Elab.Command.mkState headerEnv msgLog setup.opts
+      -- now that imports have been loaded, check options again
+      let opts ← reparseOptions setup.opts
+      let cmdState := Elab.Command.mkState headerEnv msgLog opts
       let cmdState := { cmdState with
         infoState := {
           enabled := true

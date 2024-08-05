@@ -417,7 +417,6 @@ static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_anal
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_instMonadWithReaderOfSubExprAnalyzeM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static uint8_t l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBinOp___lambda__1___closed__54;
 lean_object* l_Lean_FindMVar_main(lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(uint8_t, uint8_t);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isSubstLike___closed__3;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_initFn____x40_Lean_PrettyPrinter_Delaborator_TopDownAnalyze___hyg_10796_(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__30(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -815,6 +814,7 @@ LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at_Lean_PrettyPrinter_Delabor
 static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBinOp___lambda__1___closed__34;
 uint8_t l_Lean_getPPProofs(lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withBindingBody___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_applyFunBinderHeuristic_core___spec__3___closed__1;
+uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withNaryArg___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_maybeSetExplicit___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_maybeSetExplicit___spec__5___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_TopDownAnalyze___hyg_8_(lean_object*);
@@ -8334,12 +8334,12 @@ x_119 = l_outOfBounds___rarg(x_118);
 x_120 = lean_unbox(x_119);
 lean_dec(x_119);
 x_121 = 3;
-x_122 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_120, x_121);
+x_122 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_120, x_121);
 if (x_122 == 0)
 {
 uint8_t x_123; uint8_t x_124; 
 x_123 = 0;
-x_124 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_120, x_123);
+x_124 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_120, x_123);
 if (x_124 == 0)
 {
 lean_object* x_125; 
@@ -8607,12 +8607,12 @@ x_168 = lean_array_fget(x_5, x_8);
 x_169 = lean_unbox(x_168);
 lean_dec(x_168);
 x_170 = 3;
-x_171 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_169, x_170);
+x_171 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_169, x_170);
 if (x_171 == 0)
 {
 uint8_t x_172; uint8_t x_173; 
 x_172 = 0;
-x_173 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_169, x_172);
+x_173 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_169, x_172);
 if (x_173 == 0)
 {
 lean_object* x_174; 
@@ -13732,7 +13732,7 @@ x_175 = l_outOfBounds___rarg(x_174);
 x_176 = lean_unbox(x_175);
 lean_dec(x_175);
 x_177 = 0;
-x_178 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_176, x_177);
+x_178 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_176, x_177);
 if (x_178 == 0)
 {
 lean_object* x_179; lean_object* x_180; 
@@ -13774,7 +13774,7 @@ x_186 = lean_array_fget(x_3, x_7);
 x_187 = lean_unbox(x_186);
 lean_dec(x_186);
 x_188 = 0;
-x_189 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_187, x_188);
+x_189 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_187, x_188);
 if (x_189 == 0)
 {
 lean_object* x_190; lean_object* x_191; 
@@ -14854,7 +14854,7 @@ x_81 = l_outOfBounds___rarg(x_80);
 x_82 = lean_unbox(x_81);
 lean_dec(x_81);
 x_83 = 3;
-x_84 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_82, x_83);
+x_84 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_82, x_83);
 if (x_84 == 0)
 {
 lean_object* x_85; lean_object* x_86; 
@@ -14881,7 +14881,7 @@ x_88 = lean_array_fget(x_3, x_6);
 x_89 = lean_unbox(x_88);
 lean_dec(x_88);
 x_90 = 3;
-x_91 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_89, x_90);
+x_91 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_89, x_90);
 if (x_91 == 0)
 {
 lean_object* x_92; lean_object* x_93; 
@@ -16146,12 +16146,12 @@ x_44 = l_outOfBounds___rarg(x_43);
 x_45 = lean_unbox(x_44);
 lean_dec(x_44);
 x_46 = 1;
-x_47 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_45, x_46);
+x_47 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_45, x_46);
 if (x_47 == 0)
 {
 uint8_t x_48; uint8_t x_49; 
 x_48 = 2;
-x_49 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_45, x_48);
+x_49 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_45, x_48);
 if (x_49 == 0)
 {
 lean_object* x_50; lean_object* x_51; 
@@ -16280,12 +16280,12 @@ x_68 = lean_array_fget(x_3, x_6);
 x_69 = lean_unbox(x_68);
 lean_dec(x_68);
 x_70 = 1;
-x_71 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_69, x_70);
+x_71 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_69, x_70);
 if (x_71 == 0)
 {
 uint8_t x_72; uint8_t x_73; 
 x_72 = 2;
-x_73 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_69, x_72);
+x_73 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_69, x_72);
 if (x_73 == 0)
 {
 lean_object* x_74; lean_object* x_75; 
@@ -18047,7 +18047,7 @@ x_166 = l_outOfBounds___rarg(x_165);
 x_167 = lean_unbox(x_166);
 lean_dec(x_166);
 x_168 = 0;
-x_169 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_167, x_168);
+x_169 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_167, x_168);
 if (x_169 == 0)
 {
 lean_object* x_170; lean_object* x_171; 
@@ -18089,7 +18089,7 @@ x_177 = lean_array_fget(x_3, x_6);
 x_178 = lean_unbox(x_177);
 lean_dec(x_177);
 x_179 = 0;
-x_180 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_178, x_179);
+x_180 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_178, x_179);
 if (x_180 == 0)
 {
 lean_object* x_181; lean_object* x_182; 
@@ -19097,7 +19097,7 @@ x_172 = l_outOfBounds___rarg(x_171);
 x_173 = lean_unbox(x_172);
 lean_dec(x_172);
 x_174 = 1;
-x_175 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_173, x_174);
+x_175 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_173, x_174);
 if (x_175 == 0)
 {
 lean_object* x_176; lean_object* x_177; 
@@ -19139,7 +19139,7 @@ x_183 = lean_array_fget(x_3, x_6);
 x_184 = lean_unbox(x_183);
 lean_dec(x_183);
 x_185 = 1;
-x_186 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_184, x_185);
+x_186 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_184, x_185);
 if (x_186 == 0)
 {
 lean_object* x_187; lean_object* x_188; 
@@ -21040,7 +21040,7 @@ x_156 = l_outOfBounds___rarg(x_155);
 x_157 = lean_unbox(x_156);
 lean_dec(x_156);
 x_158 = 0;
-x_159 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_157, x_158);
+x_159 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_157, x_158);
 if (x_159 == 0)
 {
 lean_object* x_160; lean_object* x_161; 
@@ -21067,7 +21067,7 @@ x_163 = lean_array_fget(x_3, x_5);
 x_164 = lean_unbox(x_163);
 lean_dec(x_163);
 x_165 = 0;
-x_166 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_164, x_165);
+x_166 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_164, x_165);
 if (x_166 == 0)
 {
 lean_object* x_167; lean_object* x_168; 
@@ -21927,7 +21927,7 @@ lean_dec(x_14);
 x_19 = lean_unbox(x_18);
 lean_dec(x_18);
 x_20 = 1;
-x_21 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_19, x_20);
+x_21 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_19, x_20);
 if (x_21 == 0)
 {
 lean_object* x_22; 
@@ -21987,7 +21987,7 @@ lean_dec(x_25);
 x_31 = lean_unbox(x_30);
 lean_dec(x_30);
 x_32 = 1;
-x_33 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_31, x_32);
+x_33 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_31, x_32);
 if (x_33 == 0)
 {
 lean_object* x_34; lean_object* x_35; 
@@ -28763,7 +28763,7 @@ x_44 = l_outOfBounds___rarg(x_43);
 x_45 = lean_unbox(x_44);
 lean_dec(x_44);
 x_46 = 3;
-x_47 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_45, x_46);
+x_47 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_45, x_46);
 if (x_47 == 0)
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; 
@@ -28824,7 +28824,7 @@ x_56 = lean_array_fget(x_1, x_2);
 x_57 = lean_unbox(x_56);
 lean_dec(x_56);
 x_58 = 3;
-x_59 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_57, x_58);
+x_59 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_57, x_58);
 if (x_59 == 0)
 {
 lean_object* x_60; lean_object* x_61; lean_object* x_62; 

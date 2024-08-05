@@ -703,6 +703,9 @@ list, so it should be brief.
 @[builtin_command_parser] def genInjectiveTheorems := leading_parser
   "gen_injective_theorems% " >> ident
 
+/-- To be implemented. -/
+@[builtin_command_parser] def «include» := leading_parser "include " >> many1 (checkColGt >> ident)
+
 /-- No-op parser used as syntax kind for attaching remaining whitespace at the end of the input. -/
 @[run_builtin_parser_attribute_hooks] def eoi : Parser := leading_parser ""
 

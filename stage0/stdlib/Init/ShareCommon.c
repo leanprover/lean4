@@ -534,6 +534,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_sharecommon_quick(x_2);
+lean_dec(x_2);
 return x_3;
 }
 }

@@ -20,6 +20,8 @@ We define many of the bitvector operations from the
 of SMT-LIBv2.
 -/
 
+set_option linter.missingDocs true
+
 /--
 A bitvector of the specified width.
 
@@ -34,9 +36,9 @@ structure BitVec (w : Nat) where
   O(1), because we use `Fin` as the internal representation of a bitvector. -/
   toFin : Fin (2^w)
 
-@[deprecated (since := "2024-04-12")]
-protected abbrev Std.BitVec := _root_.BitVec
-
+/--
+Bitvectors have decidable equality. This should be used via the instance `DecidableEq (BitVec n)`.
+-/
 -- We manually derive the `DecidableEq` instances for `BitVec` because
 -- we want to have builtin support for bit-vector literals, and we
 -- need a name for this function to implement `canUnfoldAtMatcher` at `WHNF.lean`.
@@ -583,11 +585,9 @@ instance : HAppend (BitVec w) (BitVec v) (BitVec (w + v)) := ⟨.append⟩
 -- TODO: write this using multiplication
 /-- `replicate i x` concatenates `i` copies of `x` into a new vector of length `w*i`. -/
 def replicate : (i : Nat) → BitVec w → BitVec (w*i)
-  | 0,   _ => 0
+  | 0,   _ => 0#0
   | n+1, x =>
-    have hEq : w + w*n = w*(n + 1) := by
-      rw [Nat.mul_add, Nat.add_comm, Nat.mul_one]
-    hEq ▸ (x ++ replicate n x)
+    (x ++ replicate n x).cast (by rw [Nat.mul_succ]; omega)
 
 /-!
 ### Cons and Concat

@@ -88,7 +88,7 @@ deriving Nonempty
 
 open Language in
 /--
-Variant of `IO.processCommands` that allows for potential incremental reuse. Pass in result of a
+Variant of `IO.processCommands` that allows for potential incremental reuse. Pass in the result of a
 previous invocation done with the same state (but usually different input context) to allow for
 reuse.
 -/

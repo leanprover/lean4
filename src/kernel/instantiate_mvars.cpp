@@ -33,11 +33,12 @@ option_ref<level> get_lmvar_assignment(metavar_ctx & mctx, name const & mid) {
 
 class instantiate_lmvars_fn {
     metavar_ctx & m_mctx;
-    std::unordered_map<lean_object *, lean_object *> m_cache;
+    std::unordered_map<lean_object *, level> m_cache;
+    std::vector<level> m_saved; // Helper vector to prevent values from being garbagge collected
 
     inline level cache(level const & l, level r, bool shared) {
         if (shared) {
-            m_cache.insert(mk_pair(l.raw(), r.raw()));
+            m_cache.insert(mk_pair(l.raw(), r));
         }
         return r;
     }
@@ -50,7 +51,7 @@ public:
         if (is_shared(l)) {
             auto it = m_cache.find(l.raw());
             if (it != m_cache.end()) {
-                return level(it->second, true);
+                return it->second;
             }
             shared = true;
         }
@@ -72,6 +73,12 @@ public:
                 } else {
                     level a_new = visit(a);
                     if (!is_eqp(a, a_new)) {
+                        /*
+                        We save `a` to ensure it will not be garbage collected
+                        after we update `mctx`. This is necessary because `m_cache`
+                        may contain references to its subterms.
+                        */
+                        m_saved.push_back(a);
                         assign_lmvar(m_mctx, mvar_id(l), a_new);
                     }
                     return a_new;

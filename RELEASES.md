@@ -10,7 +10,7 @@ of each version.
 
 v4.11.0
 ----------
-Development in progress.
+Release notes to be written.
 
 v4.10.0
 ----------

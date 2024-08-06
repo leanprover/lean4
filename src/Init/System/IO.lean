@@ -464,14 +464,17 @@ def withFile (fn : FilePath) (mode : Mode) (f : Handle → IO α) : IO α :=
 def Handle.putStrLn (h : Handle) (s : String) : IO Unit :=
   h.putStr (s.push '\n')
 
-partial def Handle.readBinToEnd (h : Handle) : IO ByteArray := do
+partial def Handle.readBinToEndInto (h : Handle) (buf : ByteArray) : IO ByteArray := do
   let rec loop (acc : ByteArray) : IO ByteArray := do
     let buf ← h.read 1024
     if buf.isEmpty then
       return acc
     else
       loop (acc ++ buf)
-  loop ByteArray.empty
+  loop buf
+
+partial def Handle.readBinToEnd (h : Handle) : IO ByteArray := do
+  h.readBinToEndInto .empty
 
 def Handle.readToEnd (h : Handle) : IO String := do
   let data ← h.readBinToEnd
@@ -589,11 +592,13 @@ def readBinFile (fname : FilePath) : IO ByteArray := do
   -- Requires metadata so defined after metadata
   let mdata ← fname.metadata
   let size := mdata.byteSize.toUSize
-  if size > 0 then
-    let handle ← IO.FS.Handle.mk fname .read
-    handle.read mdata.byteSize.toUSize
-  else
-    return ByteArray.mkEmpty 0
+  let handle ← IO.FS.Handle.mk fname .read
+  let buf ←
+    if size > 0 then
+      handle.read mdata.byteSize.toUSize
+    else
+      pure <| ByteArray.mkEmpty 0
+  handle.readBinToEndInto buf
 
 def readFile (fname : FilePath) : IO String := do
   let data ← readBinFile fname

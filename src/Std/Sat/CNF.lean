@@ -4,5 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
 prelude
-import Std.Sat.Basic
-import Std.Sat.CNF
+import Std.Sat.CNF.Basic
+import Std.Sat.CNF.Literal
+import Std.Sat.CNF.Relabel
+import Std.Sat.CNF.RelabelFin

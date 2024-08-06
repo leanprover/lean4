@@ -733,17 +733,17 @@ theorem getLsb_shiftLeft' {x : BitVec w₁} {y : BitVec w₂} {i : Nat} :
     getLsb (x >>> i) j = getLsb x (i+j) := by
   unfold getLsb ; simp
 
-theorem ushiftRight_xor_distrib (x y : BitVec w) (n : Nat):
+theorem ushiftRight_xor_distrib (x y : BitVec w) (n : Nat) :
     (x ^^^ y) >>> n = (x >>> n) ^^^ (y >>> n) := by
   ext
   simp
 
-theorem ushiftRight_and_distrib (x y : BitVec w) (n : Nat):
+theorem ushiftRight_and_distrib (x y : BitVec w) (n : Nat) :
     (x &&& y) >>> n = (x >>> n) &&& (y >>> n) := by
   ext
   simp
 
-theorem ushiftRight_or_distrib (x y : BitVec w)  (n : Nat):
+theorem ushiftRight_or_distrib (x y : BitVec w)  (n : Nat) :
     (x ||| y) >>> n = (x >>> n) ||| (y >>> n) := by
   ext
   simp

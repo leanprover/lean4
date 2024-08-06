@@ -504,12 +504,60 @@ def elabRunMeta : CommandElab := fun stx =>
 
 @[builtin_command_elab Lean.Parser.Command.include] def elabInclude : CommandElab
   | `(Lean.Parser.Command.include| include $ids*) => do
-    let vars := (← getScope).varDecls.concatMap getBracketedBinderIds
+    let sc ← getScope
+    let vars := sc.varDecls.concatMap getBracketedBinderIds
+    let mut uids := #[]
     for id in ids do
-      unless vars.contains id.getId do
+      if let some idx := vars.findIdx? (· == id.getId) then
+        uids := uids.push sc.varUIds[idx]!
+      else
         throwError "invalid 'include', variable '{id}' has not been declared in the current scope"
-    modifyScope fun sc =>
-      { sc with includedVars := sc.includedVars ++ ids.toList.map (·.getId) }
+    modifyScope fun sc => { sc with
+      includedVars := sc.includedVars ++ uids.toList
+      omittedVars := sc.omittedVars.filter (!uids.contains ·) }
+  | _ => throwUnsupportedSyntax
+
+@[builtin_command_elab Lean.Parser.Command.omit] def elabOmit : CommandElab
+  | `(Lean.Parser.Command.omit| omit $omits*) => do
+    -- TODO: this really shouldn't have to re-elaborate section vars... they should come
+    -- pre-elaborated
+    let omittedVars ← runTermElabM fun vars => do
+      Term.synthesizeSyntheticMVarsNoPostponing
+      -- We don't want to store messages produced when elaborating `(getVarDecls s)` because they have already been saved when we elaborated the `variable`(s) command.
+      -- So, we use `Core.resetMessageLog`.
+      Core.resetMessageLog
+      -- resolve each omit to variable user name or type pattern
+      let elaboratedOmits : Array (Sum Name Expr) ← omits.mapM fun
+        | `(ident| $id:ident) => pure <| Sum.inl id.getId
+        | `(Lean.Parser.Term.instBinder| [$id : $_]) => pure <| Sum.inl id.getId
+        | `(Lean.Parser.Term.instBinder| [$ty]) =>
+          Sum.inr <$> Term.withoutErrToSorry (Term.elabTermAndSynthesize ty none)
+        | _ => throwUnsupportedSyntax
+      -- check that each omit is actually used in the end
+      let mut omitsUsed := omits.map fun _ => false
+      let mut omittedVars := #[]
+      let mut revSectionFVars : HashMap FVarId Name := {}
+      for (uid, var) in (← read).sectionFVars do
+        revSectionFVars := revSectionFVars.insert var.fvarId! uid
+      for var in vars do
+        let ldecl ← var.fvarId!.getDecl
+        if let some idx := (← elaboratedOmits.findIdxM? fun
+            | .inl id => return ldecl.userName == id
+            | .inr ty => do
+              let mctx ← getMCtx
+              isDefEq ty ldecl.type <* setMCtx mctx) then
+          if let some uid := revSectionFVars.find? var.fvarId! then
+            omittedVars := omittedVars.push uid
+            omitsUsed := omitsUsed.set! idx true
+          else
+            throwError "invalid 'omit', '{ldecl.userName}' has not been declared in the current scope"
+      for omit in omits, used in omitsUsed do
+        unless used do
+          throwError "'{omit}' did not match any variables in the current scope"
+      return omittedVars
+    modifyScope fun sc => { sc with
+      omittedVars := sc.omittedVars ++ omittedVars.toList
+      includedVars := sc.includedVars.filter (!omittedVars.contains ·) }
   | _ => throwUnsupportedSyntax
 
 @[builtin_command_elab Parser.Command.exit] def elabExit : CommandElab := fun _ =>

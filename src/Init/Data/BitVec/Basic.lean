@@ -42,8 +42,8 @@ Bitvectors have decidable equality. This should be used via the instance `Decida
 -- We manually derive the `DecidableEq` instances for `BitVec` because
 -- we want to have builtin support for bit-vector literals, and we
 -- need a name for this function to implement `canUnfoldAtMatcher` at `WHNF.lean`.
-def BitVec.decEq (a b : BitVec n) : Decidable (a = b) :=
-  match a, b with
+def BitVec.decEq (x y : BitVec n) : Decidable (x = y) :=
+  match x, y with
   | ⟨n⟩, ⟨m⟩ =>
     if h : n = m then
       isTrue (h ▸ rfl)
@@ -71,7 +71,7 @@ instance natCastInst : NatCast (BitVec w) := ⟨BitVec.ofNat w⟩
 
 /-- Given a bitvector `a`, return the underlying `Nat`. This is O(1) because `BitVec` is a
 (zero-cost) wrapper around a `Nat`. -/
-protected def toNat (a : BitVec n) : Nat := a.toFin.val
+protected def toNat (x : BitVec n) : Nat := x.toFin.val
 
 /-- Return the bound in terms of toNat. -/
 theorem isLt (x : BitVec w) : x.toNat < 2^w := x.toFin.isLt
@@ -123,18 +123,18 @@ section getXsb
 @[inline] def getMsb (x : BitVec w) (i : Nat) : Bool := i < w && getLsb x (w-1-i)
 
 /-- Return most-significant bit in bitvector. -/
-@[inline] protected def msb (a : BitVec n) : Bool := getMsb a 0
+@[inline] protected def msb (x : BitVec n) : Bool := getMsb x 0
 
 end getXsb
 
 section Int
 
 /-- Interpret the bitvector as an integer stored in two's complement form. -/
-protected def toInt (a : BitVec n) : Int :=
-  if 2 * a.toNat < 2^n then
-    a.toNat
+protected def toInt (x : BitVec n) : Int :=
+  if 2 * x.toNat < 2^n then
+    x.toNat
   else
-    (a.toNat : Int) - (2^n : Nat)
+    (x.toNat : Int) - (2^n : Nat)
 
 /-- The `BitVec` with value `(2^n + (i mod 2^n)) mod 2^n`.  -/
 protected def ofInt (n : Nat) (i : Int) : BitVec n := .ofNatLt (i % (Int.ofNat (2^n))).toNat (by
@@ -215,7 +215,7 @@ instance : Neg (BitVec n) := ⟨.neg⟩
 /--
 Return the absolute value of a signed bitvector.
 -/
-protected def abs (s : BitVec n) : BitVec n := if s.msb then .neg s else s
+protected def abs (x : BitVec n) : BitVec n := if x.msb then .neg x else x
 
 /--
 Multiplication for bit vectors. This can be interpreted as either signed or unsigned negation
@@ -373,8 +373,8 @@ end relations
 
 section cast
 
-/-- `cast eq i` embeds `i` into an equal `BitVec` type. -/
-@[inline] def cast (eq : n = m) (i : BitVec n) : BitVec m := .ofNatLt i.toNat (eq ▸ i.isLt)
+/-- `cast eq x` embeds `x` into an equal `BitVec` type. -/
+@[inline] def cast (eq : n = m) (x : BitVec n) : BitVec m := .ofNatLt x.toNat (eq ▸ x.isLt)
 
 @[simp] theorem cast_ofNat {n m : Nat} (h : n = m) (x : Nat) :
     cast h (BitVec.ofNat n x) = BitVec.ofNat m x := by
@@ -391,7 +391,7 @@ Extraction of bits `start` to `start + len - 1` from a bit vector of size `n` to
 new bitvector of size `len`. If `start + len > n`, then the vector will be zero-padded in the
 high bits.
 -/
-def extractLsb' (start len : Nat) (a : BitVec n) : BitVec len := .ofNat _ (a.toNat >>> start)
+def extractLsb' (start len : Nat) (x : BitVec n) : BitVec len := .ofNat _ (x.toNat >>> start)
 
 /--
 Extraction of bits `hi` (inclusive) down to `lo` (inclusive) from a bit vector of size `n` to
@@ -399,12 +399,12 @@ yield a new bitvector of size `hi - lo + 1`.
 
 SMT-Lib name: `extract`.
 -/
-def extractLsb (hi lo : Nat) (a : BitVec n) : BitVec (hi - lo + 1) := extractLsb' lo _ a
+def extractLsb (hi lo : Nat) (x : BitVec n) : BitVec (hi - lo + 1) := extractLsb' lo _ x
 
 /--
 A version of `zeroExtend` that requires a proof, but is a noop.
 -/
-def zeroExtend' {n w : Nat} (le : n ≤ w) (x : BitVec n)  : BitVec w :=
+def zeroExtend' {n w : Nat} (le : n ≤ w) (x : BitVec n) : BitVec w :=
   x.toNat#'(by
     apply Nat.lt_of_lt_of_le x.isLt
     exact Nat.pow_le_pow_of_le_right (by trivial) le)
@@ -413,7 +413,7 @@ def zeroExtend' {n w : Nat} (le : n ≤ w) (x : BitVec n)  : BitVec w :=
 `shiftLeftZeroExtend x n` returns `zeroExtend (w+n) x <<< n` without
 needing to compute `x % 2^(2+n)`.
 -/
-def shiftLeftZeroExtend (msbs : BitVec w) (m : Nat) : BitVec (w+m) :=
+def shiftLeftZeroExtend (msbs : BitVec w) (m : Nat) : BitVec (w + m) :=
   let shiftLeftLt {x : Nat} (p : x < 2^w) (m : Nat) : x <<< m < 2^(w+m) := by
         simp [Nat.shiftLeft_eq, Nat.pow_add]
         apply Nat.mul_lt_mul_of_pos_right p
@@ -502,24 +502,24 @@ instance : Complement (BitVec w) := ⟨.not⟩
 
 /--
 Left shift for bit vectors. The low bits are filled with zeros. As a numeric operation, this is
-equivalent to `a * 2^s`, modulo `2^n`.
+equivalent to `x * 2^s`, modulo `2^n`.
 
 SMT-Lib name: `bvshl` except this operator uses a `Nat` shift value.
 -/
-protected def shiftLeft (a : BitVec n) (s : Nat) : BitVec n := BitVec.ofNat n (a.toNat <<< s)
+protected def shiftLeft (x : BitVec n) (s : Nat) : BitVec n := BitVec.ofNat n (x.toNat <<< s)
 instance : HShiftLeft (BitVec w) Nat (BitVec w) := ⟨.shiftLeft⟩
 
 /--
 (Logical) right shift for bit vectors. The high bits are filled with zeros.
-As a numeric operation, this is equivalent to `a / 2^s`, rounding down.
+As a numeric operation, this is equivalent to `x / 2^s`, rounding down.
 
 SMT-Lib name: `bvlshr` except this operator uses a `Nat` shift value.
 -/
-def ushiftRight (a : BitVec n) (s : Nat) : BitVec n :=
-  (a.toNat >>> s)#'(by
-  let ⟨a, lt⟩ := a
+def ushiftRight (x : BitVec n) (s : Nat) : BitVec n :=
+  (x.toNat >>> s)#'(by
+  let ⟨x, lt⟩ := x
   simp only [BitVec.toNat, Nat.shiftRight_eq_div_pow, Nat.div_lt_iff_lt_mul (Nat.two_pow_pos s)]
-  rw [←Nat.mul_one a]
+  rw [←Nat.mul_one x]
   exact Nat.mul_lt_mul_of_lt_of_le' lt (Nat.two_pow_pos s) (Nat.le_refl 1))
 
 instance : HShiftRight (BitVec w) Nat (BitVec w) := ⟨.ushiftRight⟩
@@ -527,11 +527,11 @@ instance : HShiftRight (BitVec w) Nat (BitVec w) := ⟨.ushiftRight⟩
 /--
 Arithmetic right shift for bit vectors. The high bits are filled with the
 most-significant bit.
-As a numeric operation, this is equivalent to `a.toInt >>> s`.
+As a numeric operation, this is equivalent to `x.toInt >>> s`.
 
 SMT-Lib name: `bvashr` except this operator uses a `Nat` shift value.
 -/
-def sshiftRight (a : BitVec n) (s : Nat) : BitVec n := .ofInt n (a.toInt >>> s)
+def sshiftRight (x : BitVec n) (s : Nat) : BitVec n := .ofInt n (x.toInt >>> s)
 
 instance {n} : HShiftLeft  (BitVec m) (BitVec n) (BitVec m) := ⟨fun x y => x <<< y.toNat⟩
 instance {n} : HShiftRight (BitVec m) (BitVec n) (BitVec m) := ⟨fun x y => x >>> y.toNat⟩

@@ -88,11 +88,20 @@ class expr_eq_fn {
             return
                 const_name(a) == const_name(b) &&
                 compare(const_levels(a), const_levels(b), [](level const & l1, level const & l2) { return l1 == l2; });
-        case expr_kind::App:
+        case expr_kind::App: {
             check_system(depth);
-            return
-                apply(app_fn(a), app_fn(b), depth) &&
-                apply(app_arg(a), app_arg(b), depth);
+            if (!apply(app_arg(a), app_arg(b), depth)) return false;
+            expr const * curr_a = &app_fn(a);
+            expr const * curr_b = &app_fn(b);
+            while (true) {
+                if (!is_app(*curr_a)) break;
+                if (!is_app(*curr_b)) return false;
+                if (!apply(app_arg(*curr_a), app_arg(*curr_b), depth)) return false;
+                curr_a = &app_fn(*curr_a);
+                curr_b = &app_fn(*curr_b);
+            }
+            return apply(*curr_a, *curr_b, depth);
+        }
         case expr_kind::Lambda: case expr_kind::Pi:
             check_system(depth);
             return

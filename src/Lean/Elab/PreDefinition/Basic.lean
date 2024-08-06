@@ -7,6 +7,9 @@ prelude
 import Init.ShareCommon
 import Lean.Compiler.NoncomputableAttr
 import Lean.Util.CollectLevelParams
+import Lean.Util.NumObjs
+import Lean.Util.NumApps
+import Lean.PrettyPrinter
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.ForEachExpr
 import Lean.Elab.RecAppSyntax
@@ -16,7 +19,6 @@ import Lean.Elab.PreDefinition.TerminationHint
 namespace Lean.Elab
 open Meta
 open Term
-
 
 /--
   A (potentially recursive) definition.
@@ -98,15 +100,33 @@ private def compileDecl (decl : Declaration) : TermElabM Bool := do
       throw ex
   return true
 
+register_builtin_option diagnostics.threshold.proofSize : Nat := {
+  defValue := 16384
+  group    := "diagnostics"
+  descr    := "only display proof statistics when proof has at least this number of terms"
+}
+
+private def reportTheoremDiag (d : TheoremVal) : TermElabM Unit := do
+  if (← isDiagnosticsEnabled) then
+    let proofSize ← d.value.numObjs
+    if proofSize > diagnostics.threshold.proofSize.get (← getOptions) then
+      let sizeMsg := MessageData.trace { cls := `size } m!"{proofSize}" #[]
+      let constOccs ← d.value.numApps (threshold := diagnostics.threshold.get (← getOptions))
+      let constOccsMsg ← constOccs.mapM fun (declName, numOccs) => return MessageData.trace { cls := `occs } m!"{MessageData.ofConst (← mkConstWithLevelParams declName)} ↦ {numOccs}" #[]
+      -- let info
+      logInfo <| MessageData.trace { cls := `theorem } m!"{d.name}" (#[sizeMsg] ++ constOccsMsg)
+
 private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List Name) (applyAttrAfterCompilation := true) : TermElabM Unit :=
   withRef preDef.ref do
     let preDef ← abstractNestedProofs preDef
     let decl ←
       match preDef.kind with
       | DefKind.«theorem» =>
-        pure <| Declaration.thmDecl {
+        let d := {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value, all
         }
+        reportTheoremDiag d
+        pure <| Declaration.thmDecl d
       | DefKind.«opaque»  =>
         pure <| Declaration.opaqueDecl {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value

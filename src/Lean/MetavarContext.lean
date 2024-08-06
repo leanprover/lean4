@@ -550,79 +550,10 @@ partial def instantiateLevelMVars [Monad m] [MonadMCtx m] (l : Level) : m Level 
 opaque instantiateExprMVarsImp (mctx : MetavarContext) (e : Expr) : MetavarContext × Expr
 
 /-- instantiateExprMVars main function -/
-partial def instantiateExprMVars [Monad m] [MonadMCtx m] [STWorld ω m] [MonadLiftT (ST ω) m] (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
-  if !e.hasMVar then
-    pure e
-  else checkCache { val := e : ExprStructEq } fun _ => do match e with
-    | .proj _ _ s      => return e.updateProj! (← instantiateExprMVars s)
-    | .forallE _ d b _ => return e.updateForallE! (← instantiateExprMVars d) (← instantiateExprMVars b)
-    | .lam _ d b _     => return e.updateLambdaE! (← instantiateExprMVars d) (← instantiateExprMVars b)
-    | .letE _ t v b _  => return e.updateLet! (← instantiateExprMVars t) (← instantiateExprMVars v) (← instantiateExprMVars b)
-    | .const _ lvls    => return e.updateConst! (← lvls.mapM instantiateLevelMVars)
-    | .sort lvl        => return e.updateSort! (← instantiateLevelMVars lvl)
-    | .mdata _ b       => return e.updateMData! (← instantiateExprMVars b)
-    | .app ..          => e.withApp fun f args => do
-      let instArgs (f : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
-        let args ← args.mapM instantiateExprMVars
-        pure (mkAppN f args)
-      let instApp : MonadCacheT ExprStructEq Expr m Expr := do
-        let wasMVar := f.isMVar
-        let f ← instantiateExprMVars f
-        if wasMVar && f.isLambda then
-          /- Some of the arguments in `args` are irrelevant after we beta
-             reduce. Also, it may be a bug to not instantiate them, since they
-             may depend on free variables that are not in the context (see
-             issue #4375). So we pass `useZeta := true` to ensure that they are
-             instantiated. -/
-          instantiateExprMVars (f.betaRev args.reverse (useZeta := true))
-        else
-          instArgs f
-      match f with
-      | .mvar mvarId =>
-        match (← getDelayedMVarAssignment? mvarId) with
-        | none => instApp
-        | some { fvars, mvarIdPending } =>
-          /-
-             Apply "delayed substitution" (i.e., delayed assignment + application).
-             That is, `f` is some metavariable `?m`, that is delayed assigned to `val`.
-             If after instantiating `val`, we obtain `newVal`, and `newVal` does not contain
-             metavariables, we replace the free variables `fvars` in `newVal` with the first
-             `fvars.size` elements of `args`. -/
-          if fvars.size > args.size then
-            /- We don't have sufficient arguments for instantiating the free variables `fvars`.
-               This can only happen if a tactic or elaboration function is not implemented correctly.
-               We decided to not use `panic!` here and report it as an error in the frontend
-               when we are checking for unassigned metavariables in an elaborated term. -/
-            instArgs f
-          else
-            let newVal ← instantiateExprMVars (mkMVar mvarIdPending)
-            if newVal.hasExprMVar then
-              instArgs f
-            else do
-              let args ← args.mapM instantiateExprMVars
-              /-
-                 Example: suppose we have
-                   `?m t1 t2 t3`
-                 That is, `f := ?m` and `args := #[t1, t2, t3]`
-                 Moreover, `?m` is delayed assigned
-                   `?m #[x, y] := f x y`
-                 where, `fvars := #[x, y]` and `newVal := f x y`.
-                 After abstracting `newVal`, we have `f (Expr.bvar 0) (Expr.bvar 1)`.
-                 After `instantiaterRevRange 0 2 args`, we have `f t1 t2`.
-                 After `mkAppRange 2 3`, we have `f t1 t2 t3` -/
-              let newVal := newVal.abstract fvars
-              let result := newVal.instantiateRevRange 0 fvars.size args
-              let result := mkAppRange result fvars.size args.size args
-              pure result
-      | _ => instApp
-    | e@(.mvar mvarId) => checkCache { val := e : ExprStructEq } fun _ => do
-      match (← getExprMVarAssignment? mvarId) with
-      | some newE => do
-        let newE' ← instantiateExprMVars newE
-        mvarId.assign newE'
-        pure newE'
-      | none => pure e
-    | e => pure e
+def instantiateExprMVars [Monad m] [MonadMCtx m] (e : Expr) : m Expr := do
+  let (mctx, eNew) := instantiateExprMVarsImp (← getMCtx) e
+  setMCtx mctx
+  return eNew
 
 instance : MonadMCtx (StateRefT MetavarContext (ST ω)) where
   getMCtx    := get

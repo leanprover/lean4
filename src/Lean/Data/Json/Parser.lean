@@ -12,10 +12,11 @@ import Lean.Data.RBMap
 namespace Lean.Json.Parser
 
 open Lean.Parsec
+open Lean.Parsec.String
 
 @[inline]
-def hexChar : Parsec Nat := do
-  let c ← anyChar
+def hexChar : Parser Nat := do
+  let c ← any
   if '0' ≤ c ∧ c ≤ '9' then
     pure $ c.val.toNat - '0'.val.toNat
   else if 'a' ≤ c ∧ c ≤ 'f' then
@@ -25,8 +26,8 @@ def hexChar : Parsec Nat := do
   else
     fail "invalid hex character"
 
-def escapedChar : Parsec Char := do
-  let c ← anyChar
+def escapedChar : Parser Char := do
+  let c ← any
   match c with
   | '\\' => return '\\'
   | '"'  => return '"'
@@ -41,13 +42,13 @@ def escapedChar : Parsec Char := do
     return Char.ofNat $ 4096*u1 + 256*u2 + 16*u3 + u4
   | _ => fail "illegal \\u escape"
 
-partial def strCore (acc : String) : Parsec String := do
+partial def strCore (acc : String) : Parser String := do
   let c ← peek!
   if c = '"' then -- "
     skip
     return acc
   else
-    let c ← anyChar
+    let c ← any
     if c = '\\' then
       strCore (acc.push (← escapedChar))
     -- as to whether c.val > 0xffff should be split up and encoded with multiple \u,
@@ -58,9 +59,9 @@ partial def strCore (acc : String) : Parsec String := do
     else
       fail "unexpected character in string"
 
-def str : Parsec String := strCore ""
+def str : Parser String := strCore ""
 
-partial def natCore (acc digits : Nat) : Parsec (Nat × Nat) := do
+partial def natCore (acc digits : Nat) : Parser (Nat × Nat) := do
   let some c ← peek? | return (acc, digits)
   if '0' ≤ c ∧ c ≤ '9' then
     skip
@@ -70,7 +71,7 @@ partial def natCore (acc digits : Nat) : Parsec (Nat × Nat) := do
     return (acc, digits)
 
 @[inline]
-def lookahead (p : Char → Prop) (desc : String) [DecidablePred p] : Parsec Unit := do
+def lookahead (p : Char → Prop) (desc : String) [DecidablePred p] : Parser Unit := do
   let c ← peek!
   if p c then
     return ()
@@ -78,22 +79,22 @@ def lookahead (p : Char → Prop) (desc : String) [DecidablePred p] : Parsec Uni
     fail <| "expected " ++ desc
 
 @[inline]
-def natNonZero : Parsec Nat := do
+def natNonZero : Parser Nat := do
   lookahead (fun c => '1' ≤ c ∧ c ≤ '9') "1-9"
   let (n, _) ← natCore 0 0
   return n
 
 @[inline]
-def natNumDigits : Parsec (Nat × Nat) := do
+def natNumDigits : Parser (Nat × Nat) := do
   lookahead (fun c => '0' ≤ c ∧ c ≤ '9') "digit"
   natCore 0 0
 
 @[inline]
-def natMaybeZero : Parsec Nat := do
+def natMaybeZero : Parser Nat := do
   let (n, _) ← natNumDigits
   return n
 
-def num : Parsec JsonNumber := do
+def num : Parser JsonNumber := do
   let c ← peek!
   let sign ← if c = '-' then
     skip
@@ -132,10 +133,10 @@ def num : Parsec JsonNumber := do
   else
     return res
 
-partial def arrayCore (anyCore : Parsec Json) (acc : Array Json) : Parsec (Array Json) := do
+partial def arrayCore (anyCore : Parser Json) (acc : Array Json) : Parser (Array Json) := do
   let hd ← anyCore
   let acc' := acc.push hd
-  let c ← anyChar
+  let c ← any
   if c = ']' then
     ws
     return acc'
@@ -145,12 +146,12 @@ partial def arrayCore (anyCore : Parsec Json) (acc : Array Json) : Parsec (Array
   else
     fail "unexpected character in array"
 
-partial def objectCore (anyCore : Parsec Json) : Parsec (RBNode String (fun _ => Json)) := do
+partial def objectCore (anyCore : Parser Json) : Parser (RBNode String (fun _ => Json)) := do
   lookahead (fun c => c = '"') "\""; skip; -- "
   let k ← strCore ""; ws
   lookahead (fun c => c = ':') ":"; skip; ws
   let v ← anyCore
-  let c ← anyChar
+  let c ← any
   if c = '}' then
     ws
     return RBNode.singleton k v
@@ -161,7 +162,7 @@ partial def objectCore (anyCore : Parsec Json) : Parsec (RBNode String (fun _ =>
   else
     fail "unexpected character in object"
 
-partial def anyCore : Parsec Json := do
+partial def anyCore : Parser Json := do
   let c ← peek!
   if c = '[' then
     skip; ws
@@ -203,7 +204,7 @@ partial def anyCore : Parsec Json := do
     fail "unexpected input"
 
 
-def any : Parsec Json := do
+def any : Parser Json := do
   ws
   let res ← anyCore
   eof

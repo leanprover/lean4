@@ -13,7 +13,7 @@ namespace Sat
 /--
 A clause in a CNF.
 
-The literal `(i, b)` is satisfied is the assignment to `i` agrees with `b`.
+The literal `(i, b)` is satisfied if the assignment to `i` agrees with `b`.
 -/
 abbrev CNF.Clause (α : Type u) : Type u := List (Literal α)
 

@@ -326,8 +326,8 @@ theorem zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_twoPow (x : BitVec w
     by_cases hi : x.getLsb i <;> simp [hi] <;> omega
 
 /--
-Recurrence lemma: multiplying `l` with the first `s` bits of `r` is the
-same as truncating `r` to `s` bits, then zero extending to the original length,
+Recurrence lemma: multiplying `x` with the first `s` bits of `y` is the
+same as truncating `y` to `s` bits, then zero extending to the original length,
 and performing the multplication. -/
 theorem mulRec_eq_mul_signExtend_truncate (x y : BitVec w) (s : Nat) :
     mulRec x y s = x * ((y.truncate (s + 1)).zeroExtend w) := by

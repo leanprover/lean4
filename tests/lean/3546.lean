@@ -9,4 +9,6 @@ def test : IO Unit := do
   IO.println cond
   IO.FS.removeFile tmpFile
 
+/-- info: true -/
+#guard_msgs in
 #eval test

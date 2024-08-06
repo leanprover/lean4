@@ -678,7 +678,7 @@ private partial def elabStruct (s : Struct) (expectedType? : Option Expr) : Term
             | .ok tacticSyntax =>
               let stx ← `(by $tacticSyntax)
               -- See comment in `Lean.Elab.Term.ElabAppArgs.processExplicitArg` about `tacticSyntax`.
-              -- Adding info for reliable positions for messages.
+              -- We add info to get reliable positions for messages from evaluating the tactic script.
               let info := field.ref.getHeadInfo
               let stx := stx.raw.rewriteBottomUp (·.setInfo info)
               cont (← elabTermEnsuringType stx (d.getArg! 0).consumeTypeAnnotations) field

@@ -592,7 +592,7 @@ mutual
           to this application rather than sometimes being placed at position (1,0) in the file.
           Placing position information on `by` syntax alone is not sufficient since incrementality
           (in particular, `Lean.Elab.Term.withReuseContext`) controls the ref to avoid leakage of outside data.
-          Note that `tacticSyntax` contains no position information.
+          Note that `tacticSyntax` contains no position information itself, since it is erased by `Lean.Elab.Term.quoteAutoTactic`.
           -/
           let info := (← getRef).getHeadInfo
           let tacticBlock := tacticBlock.raw.rewriteBottomUp (·.setInfo info)

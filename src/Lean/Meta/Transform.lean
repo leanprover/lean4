@@ -151,6 +151,22 @@ def zetaReduce (e : Expr) : MetaM Expr := do
     | _ => return .continue
   transform e (pre := pre) (usedLetOnly := true)
 
+/--
+Zeta reduces only the provided fvars, beta reducing the substitutions.
+-/
+def zetaDeltaFVars (e : Expr) (fvars : Array FVarId) : MetaM Expr :=
+  let unfold? (fvarId : FVarId) : MetaM (Option Expr) := do
+    if fvars.contains fvarId then
+      fvarId.getValue?
+    else
+      return none
+  let pre (e : Expr) : MetaM TransformStep := do
+    if let .fvar fvarId := e.getAppFn then
+      if let some val ← unfold? fvarId then
+        return .visit <| (← instantiateMVars val).beta e.getAppArgs
+    return .continue
+  transform e (pre := pre)
+
 /-- Unfold definitions and theorems in `e` that are not in the current environment, but are in `biggerEnv`. -/
 def unfoldDeclsFrom (biggerEnv : Environment) (e : Expr) : CoreM Expr := do
   withoutModifyingEnv do

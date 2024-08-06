@@ -63,38 +63,38 @@ OUTPUT OPTIONS:
 
 See `lake help <command>` for more information on a specific command."
 
-def templateHelp := s!"\
-The initial configuration and starter files are based on the template:
+def templateHelp :=
+s!"The initial configuration and starter files are based on the template:
 
   std                   library and executable; default
   exe                   executable only
   lib                   library only
   math                  library only with a mathlib dependency
 
-Templates can be suffixed with `.lean` or `.toml` to produce a Lean or TOML \
+Templates can be suffixed with `.lean` or `.toml` to produce a Lean or TOML
 version of the configuration file, respectively. The default is Lean."
 
-def helpNew := s!"\
-Create a Lean package in a new directory
+def helpNew :=
+s!"Create a Lean package in a new directory
 
 USAGE:
   lake new <name> [<template>][.<language>]
 
 {templateHelp}"
 
-def helpInit := s!"\
-Create a Lean package in the current directory
+def helpInit :=
+s!"Create a Lean package in the current directory
 
 USAGE:
   lake init [<name>] [<template>][.<language>]
 
 {templateHelp}
 
-You can create a package with current directory's name via `lake init .` \
+You can create a package with current directory's name via `lake init .`
 or a bare `lake init`."
 
-def helpBuild := "\
-Build targets
+def helpBuild :=
+"Build targets
 
 USAGE:
   lake build [<targets>...]
@@ -103,7 +103,7 @@ A target is specified with a string of the form:
 
   [[@]<package>/][<target>|[+]<module>][:<facet>]
 
-The optional `@` and `+` markers can be used to disambiguate packages \
+The optional `@` and `+` markers can be used to disambiguate packages
 and modules from other kinds of targets (i.e., executables and libraries).
 
 LIBRARY FACETS:         build the library's ...
@@ -131,7 +131,7 @@ TARGET EXAMPLES:        build the ...
   a/+A:c                C file of module `A` of package `a`
   :foo                  facet `foo` of the root package
 
-A bare `lake build` command will build the default facet of the root package. \
+A bare `lake build` command will build the default facet of the root package.
 Package dependencies are not updated during a build."
 
 def helpUpdate :=
@@ -142,118 +142,118 @@ USAGE:
 
 ALIAS: lake upgrade
 
-Updates the Lake package manifest (i.e., `lake-manifest.json`), \
-downloading and upgrading packages as needed. For each new (transitive) git \
-dependency, the appropriate commit is cloned into a subdirectory of \
+Updates the Lake package manifest (i.e., `lake-manifest.json`),
+downloading and upgrading packages as needed. For each new (transitive) git
+dependency, the appropriate commit is cloned into a subdirectory of
 `packagesDir`. No copy is made of local dependencies.
 
-If a set of packages are specified, said dependencies are upgraded to \
-the latest version compatible with the package's configuration (or removed if \
-removed from the configuration). If there are dependencies on multiple versions \
+If a set of packages are specified, said dependencies are upgraded to
+the latest version compatible with the package's configuration (or removed if
+removed from the configuration). If there are dependencies on multiple versions
 of the same package, the version materialized is undefined.
 
 A bare `lake update` will upgrade all dependencies."
 
-def helpTest := "\
-Test the workspace's root package using its configured test driver
+def helpTest :=
+"Test the workspace's root package using its configured test driver
 
 USAGE:
   lake test [-- <args>...]
 
-A test driver can be configured by either setting the 'testDriver' \
-package configuration option or by tagging a script, executable, or library \
-`@[test_driver]`. A definition in a dependency can be used as a test driver \
+A test driver can be configured by either setting the 'testDriver'
+package configuration option or by tagging a script, executable, or library
+`@[test_driver]`. A definition in a dependency can be used as a test driver
 by using the `<pkg>/<name>` syntax for the 'testDriver' configuration option.
 
-A script test driver will be run with the  package configuration's \
-`testDriverArgs` plus the CLI `args`. An executable test driver will be \
+A script test driver will be run with the  package configuration's
+`testDriverArgs` plus the CLI `args`. An executable test driver will be
 built and then run like a script. A library test driver will just be built.
 "
 
-def helpCheckTest := "\
-Check if there is a properly configured test driver
+def helpCheckTest :=
+"Check if there is a properly configured test driver
 
 USAGE:
   lake check-test
 
-Exits with code 0 if the workspace's root package has a properly \
+Exits with code 0 if the workspace's root package has a properly
 configured lint driver. Errors (with code 1) otherwise.
 
-Does NOT verify that the configured test driver actually exists in the \
+Does NOT verify that the configured test driver actually exists in the
 package or its dependencies. It merely verifies that one is specified.
 "
 
-def helpLint := "\
-Lint the workspace's root package using its configured lint driver
+def helpLint :=
+"Lint the workspace's root package using its configured lint driver
 
 USAGE:
   lake lint [-- <args>...]
 
-A lint driver can be configured by either setting the `lintDriver` package \
-configuration option by tagging a script or executable `@[lint_driver]`. \
-A definition in dependency can be used as a test driver by using the \
+A lint driver can be configured by either setting the `lintDriver` package
+configuration option by tagging a script or executable `@[lint_driver]`.
+A definition in dependency can be used as a test driver by using the
 `<pkg>/<name>` syntax for the 'testDriver' configuration option.
 
-A script lint driver will be run with the  package configuration's \
-`lintDriverArgs` plus the CLI `args`. An executable lint driver will be \
+A script lint driver will be run with the  package configuration's
+`lintDriverArgs` plus the CLI `args`. An executable lint driver will be
 built and then run like a script.
 "
 
-def helpCheckLint := "\
-Check if there is a properly configured lint driver
+def helpCheckLint :=
+"Check if there is a properly configured lint driver
 
 USAGE:
   lake check-lint
 
-Exits with code 0 if the workspace's root package has a properly \
+Exits with code 0 if the workspace's root package has a properly
 configured lint driver. Errors (with code 1) otherwise.
 
-Does NOT verify that the configured lint driver actually exists in the \
+Does NOT verify that the configured lint driver actually exists in the
 package or its dependencies. It merely verifies that one is specified.
 "
 
-def helpPack := "\
-Pack build artifacts into a archive for distribution
+def helpPack :=
+"Pack build artifacts into a archive for distribution
 
 USAGE:
   lake pack [<file.tgz>]
 
-Packs the root package's `buildDir` into a gzip tar archive using `tar`. \
-If a path for the archive is not specified, creates a archive in the package's \
+Packs the root package's `buildDir` into a gzip tar archive using `tar`.
+If a path for the archive is not specified, creates a archive in the package's
 Lake directory (`.lake`) named according to its `buildArchive` setting.
 
 Does NOT build any artifacts. It just packs the existing ones."
 
-def helpUnpack := "\
-Unpack build artifacts from a distributed archive
+def helpUnpack :=
+"Unpack build artifacts from a distributed archive
 
 USAGE:
   lake unpack [<file.tgz>]
 
-Unpack build artifacts from the gzip tar archive `file.tgz` into the root \
-package's `buildDir`. If a path for the archive is not specified, uses the \
+Unpack build artifacts from the gzip tar archive `file.tgz` into the root
+package's `buildDir`. If a path for the archive is not specified, uses the
 the package's `buildArchive` in its Lake directory (`.lake`)."
 
-def helpUpload := "\
-Upload build artifacts to a GitHub release
+def helpUpload :=
+"Upload build artifacts to a GitHub release
 
 USAGE:
   lake upload <tag>
 
-Packs the root package's `buildDir` into a `tar.gz` archive using `tar` and \
+Packs the root package's `buildDir` into a `tar.gz` archive using `tar` and
 then uploads the asset to the pre-existing GitHub release `tag` using `gh`."
 
-def helpClean := "\
-Remove build outputs
+def helpClean :=
+"Remove build outputs
 
 USAGE:
   lake clean [<package>...]
 
-If no package is specified, deletes the build directories of every package in \
+If no package is specified, deletes the build directories of every package in
 the workspace. Otherwise, just deletes those of the specified packages."
 
-def helpScriptCli := "\
-Manage Lake scripts
+def helpScriptCli :=
+"Manage Lake scripts
 
 USAGE:
   lake script <COMMAND>
@@ -265,8 +265,8 @@ COMMANDS:
 
 See `lake help <command>` for more information on a specific command."
 
-def helpScriptList := "\
-List available scripts
+def helpScriptList :=
+"List available scripts
 
 USAGE:
   lake script list
@@ -275,46 +275,46 @@ ALIAS: lake scripts
 
 This command prints the list of all available scripts in the workspace."
 
-def helpScriptRun := "\
-Run a script
+def helpScriptRun :=
+"Run a script
 
 USAGE:
   lake script run [[<package>/]<script>] [<args>...]
 
 ALIAS: lake run
 
-This command runs the `script` of the workspace (or the specific `package`), \
+This command runs the `script` of the workspace (or the specific `package`),
 passing `args` to it.
 
-A bare `lake run` command will run the default script(s) of the root package \
+A bare `lake run` command will run the default script(s) of the root package
 (with no arguments)."
 
-def helpScriptDoc := "\
-Print a script's docstring
+def helpScriptDoc :=
+"Print a script's docstring
 
 USAGE:
   lake script doc [<package>/]<script>
 
 Print the docstring of `script` in the workspace or the specific `package`."
 
-def helpServe := "\
-Start the Lean language server
+def helpServe :=
+"Start the Lean language server
 
 USAGE:
   lake serve [-- <args>...]
 
-Run the language server of the Lean installation (i.e., via `lean --server`) \
+Run the language server of the Lean installation (i.e., via `lean --server`)
 with the package configuration's `moreServerArgs` field and `args`.
 "
 
-def helpEnv := "\
-Execute a command in Lake's environment
+def helpEnv :=
+"Execute a command in Lake's environment
 
 USAGE:
   lake env [<cmd>] [<args>...]
 
-Spawns a new process executing `cmd` with the given `args` and with \
-the environment set based on the detected Lean/Lake installations and \
+Spawns a new process executing `cmd` with the given `args` and with
+the environment set based on the detected Lean/Lake installations and
 the workspace configuration (if it exists).
 
 Specifically, this command sets the following environment variables:
@@ -331,46 +331,46 @@ Specifically, this command sets the following environment variables:
   DYLD_LIBRARY_PATH     adds Lean's and the workspace's library dirs (MacOS)
   LD_LIBRARY_PATH       adds Lean's and the workspace's library dirs (other)
 
-A bare `lake env` will print out the variables set and their values, \
+A bare `lake env` will print out the variables set and their values,
 using the form NAME=VALUE like the POSIX `env` command."
 
-def helpExe := "\
-Build an executable target and run it in Lake's environment
+def helpExe :=
+"Build an executable target and run it in Lake's environment
 
 USAGE:
   lake exe <exe-target> [<args>...]
 
 ALIAS: lake exec
 
-Looks for the executable target in the workspace (see `lake help build` to \
-learn how to specify targets), builds it if it is out of date, and then runs \
-it with the given `args` in Lake's environment (see `lake help env` for how \
+Looks for the executable target in the workspace (see `lake help build` to
+learn how to specify targets), builds it if it is out of date, and then runs
+it with the given `args` in Lake's environment (see `lake help env` for how
 the environment is set up)."
 
-def helpLean := "\
-Elaborate a Lean file in the context of the Lake workspace
+def helpLean :=
+"Elaborate a Lean file in the context of the Lake workspace
 
 USAGE:
   lake lean <file> [-- <args>...]
 
-Build the imports of the the given file and then runs `lean` on it using \
-the workspace's root package's additional Lean arguments and the given args \
-(in that order). The `lean` process is executed in Lake's environment like \
+Build the imports of the the given file and then runs `lean` on it using
+the workspace's root package's additional Lean arguments and the given args
+(in that order). The `lean` process is executed in Lake's environment like
 `lake env lean` (see `lake help env` for how the environment is set up)."
 
-def helpTranslateConfig := "\
-Translate a Lake configuration file into a different language
+def helpTranslateConfig :=
+"Translate a Lake configuration file into a different language
 
 USAGE:
   lake translate-config <lang> [<out-file>]
 
-Translates the loaded package's configuration into another of \
-Lake's supported configuration languages (i.e., either `lean` or `toml`). \
-The produced file is written to `out-file` or, if not provided, the path of \
-the configuration file with the new language's extension. If the output file \
+Translates the loaded package's configuration into another of
+Lake's supported configuration languages (i.e., either `lean` or `toml`).
+The produced file is written to `out-file` or, if not provided, the path of
+the configuration file with the new language's extension. If the output file
 already exists, Lake will error.
 
-Translation is lossy. It does not preserve comments or formatting and \
+Translation is lossy. It does not preserve comments or formatting and
 non-declarative configuration will be discarded."
 
 def helpScript : (cmd : String) → String

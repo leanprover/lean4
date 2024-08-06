@@ -20,35 +20,35 @@ def defaultExeRoot : Name := `Main
 /-- `elan` toolchain file name -/
 def toolchainFileName : FilePath := "lean-toolchain"
 
-def gitignoreContents := s!"\
-/{defaultLakeDir}
+def gitignoreContents :=
+s!"/{defaultLakeDir}
 "
 
 def basicFileContents :=
   s!"def hello := \"world\""
 
-def libRootFileContents (libName : String) (libRoot : Name) := s!"\
--- This module serves as the root of the `{libName}` library.
+def libRootFileContents (libName : String) (libRoot : Name) :=
+s!"-- This module serves as the root of the `{libName}` library.
 -- Import modules here that should be built as part of the library.
 import {libRoot}.Basic"
 
 def mainFileName : FilePath :=
   s!"{defaultExeRoot}.lean"
 
-def mainFileContents (libRoot : Name) := s!"\
-import {libRoot}
+def mainFileContents (libRoot : Name) :=
+s!"import {libRoot}
 
 def main : IO Unit :=
   IO.println s!\"Hello, \{hello}!\"
 "
 
-def exeFileContents := s!"\
-def main : IO Unit :=
+def exeFileContents :=
+s!"def main : IO Unit :=
   IO.println s!\"Hello, world!\"
 "
 
-def stdLeanConfigFileContents (pkgName libRoot exeName : String) := s!"\
-import Lake
+def stdLeanConfigFileContents (pkgName libRoot exeName : String) :=
+s!"import Lake
 open Lake DSL
 
 package {repr pkgName} where
@@ -62,8 +62,8 @@ lean_exe {repr exeName} where
   root := `Main
 "
 
-def stdTomlConfigFileContents (pkgName libRoot exeName : String) := s!"\
-name = {repr pkgName}
+def stdTomlConfigFileContents (pkgName libRoot exeName : String) :=
+s!"name = {repr pkgName}
 defaultTargets = [{repr exeName}]
 
 [[lean_lib]]
@@ -74,8 +74,8 @@ name = {repr exeName}
 root = \"Main\"
 "
 
-def exeLeanConfigFileContents (pkgName exeName : String) := s!"\
-import Lake
+def exeLeanConfigFileContents (pkgName exeName : String) :=
+s!"import Lake
 open Lake DSL
 
 package {repr pkgName} where
@@ -86,8 +86,8 @@ lean_exe {repr exeName} where
   root := `Main
 "
 
-def exeTomlConfigFileContents (pkgName exeName : String) := s!"\
-name = {repr pkgName}
+def exeTomlConfigFileContents (pkgName exeName : String) :=
+s!"name = {repr pkgName}
 defaultTargets = [{repr exeName}]
 
 [[lean_exe]]
@@ -95,8 +95,8 @@ name = {repr exeName}
 root = \"Main\"
 "
 
-def libLeanConfigFileContents (pkgName libRoot : String) := s!"\
-import Lake
+def libLeanConfigFileContents (pkgName libRoot : String) :=
+s!"import Lake
 open Lake DSL
 
 package {repr pkgName} where
@@ -107,16 +107,16 @@ lean_lib {libRoot} where
   -- add library configuration options here
 "
 
-def libTomlConfigFileContents (pkgName libRoot : String) := s!"\
-name = {repr pkgName}
+def libTomlConfigFileContents (pkgName libRoot : String) :=
+s!"name = {repr pkgName}
 defaultTargets = [{repr libRoot}]
 
 [[lean_lib]]
 name = {repr libRoot}
 "
 
-def mathLeanConfigFileContents (pkgName libRoot : String) := s!"\
-import Lake
+def mathLeanConfigFileContents (pkgName libRoot : String) :=
+s!"import Lake
 open Lake DSL
 
 package {repr pkgName} where
@@ -133,8 +133,8 @@ lean_lib {libRoot} where
   -- add any library configuration options here
 "
 
-def mathTomlConfigFileContents (pkgName libRoot : String) := s!"\
-name = {repr pkgName}
+def mathTomlConfigFileContents (pkgName libRoot : String) :=
+s!"name = {repr pkgName}
 defaultTargets = [{repr libRoot}]
 
 [leanOptions]
@@ -156,8 +156,8 @@ def mathToolchainBlobUrl : String :=
 def mathToolchainUrl : String :=
   "https://github.com/leanprover-community/mathlib4/blob/master/lean-toolchain"
 
-def leanActionWorkflowContents := "\
-name: Lean Action CI
+def leanActionWorkflowContents :=
+"name: Lean Action CI
 
 on:
   push:
@@ -294,8 +294,9 @@ def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLa
     -- Empty githash implies dev build
     unless env.lean.githash.isEmpty do
       unless (← toolchainFile.pathExists) do
-        logWarning "could not create a `lean-toolchain` file for the new package; \
-          no known toolchain name for the current Elan/Lean/Lake"
+        logWarning <|
+          "could not create a `lean-toolchain` file for the new package; "  ++
+          "no known toolchain name for the current Elan/Lean/Lake"
   else
     if tmp = .math then
       logInfo "downloading mathlib `lean-toolchain` file"

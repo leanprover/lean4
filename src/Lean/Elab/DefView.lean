@@ -96,6 +96,7 @@ deriving Nonempty
 structure DefsParsedSnapshot extends Language.Snapshot where
   /-- Definitions of this mutual block. -/
   defs : Array DefParsed
+  /-- Snapshot after kernel checking. -/
   typeCheckedSnap : SnapshotTask SnapshotTree
 deriving Nonempty, TypeName
 instance : Language.ToSnapshotTree DefsParsedSnapshot where

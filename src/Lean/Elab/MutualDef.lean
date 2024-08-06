@@ -900,8 +900,9 @@ partial def checkForHiddenUnivLevels (allUserLevelNames : List Name) (preDefs : 
     for preDef in preDefs do
       checkPreDef preDef
 
+-- TODO: task helper that should be moved up or possibly integrated into `BaseIO.asTask`
 @[noinline]
-def BaseIO.delay (f : Unit → BaseIO α) : BaseIO α := f ()
+private def delayBaseIO (f : Unit → BaseIO α) : BaseIO α := f ()
 
 def elabMutualDef (vars : Array Expr) (views : Array DefView) (typeCheckedPromise : IO.Promise SnapshotTree): TermElabM Unit :=
   if isExample views then
@@ -945,26 +946,22 @@ where
           for preDef in preDefs do
             trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
           checkForHiddenUnivLevels allUserLevelNames preDefs
-          if let some (preEnv, postponed) ← addPreDefinitions (postponeCheck := true) preDefs then
-            let preEnv := Runtime.markPersistent preEnv
-            let postponed := Runtime.markPersistent postponed
+          if let some (preEnv, postponed) ← addPreDefinitionsWithPostpone preDefs then
             let opts ← getOptions
             let fileName ← getFileName
             let pos := (← getFileMap).toPosition (← getRefPos)
-            typeCheckedPromise.resolve <| .mk {
-              diagnostics := .empty
-            } #[{
-              range? := none
-              task := (← BaseIO.asTask <| BaseIO.delay fun _ => do
-                let mut msgLog := .empty
-                if let .error e := preEnv.addDecl opts postponed then
-                  msgLog := msgLog.add {
-                    fileName
-                    pos
-                    data := e.toMessageData opts
-                  }
-                return .mk { diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog) } #[])
-            }]
+            let preEnv := if internal.minimalSnapshots.get opts then Runtime.markPersistent preEnv
+              else preEnv
+            let _ ← BaseIO.asTask <| delayBaseIO fun _ => do
+              let mut msgLog := .empty
+              if let .error e := preEnv.addDecl opts postponed then
+                msgLog := msgLog.add {
+                  fileName
+                  pos
+                  data := e.toMessageData opts
+                }
+              typeCheckedPromise.resolve <|
+                .mk { diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog) } #[])
           processDeriving headers
       for view in views, header in headers do
         -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
@@ -999,6 +996,7 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
         throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
       let mut view ← mkDefView modifiers d[1]
       let fullHeaderRef := mkNullNode #[d[0], view.headerRef]
+      -- term elaboration snapshots are irrelevant for the cmdline driver
       if let some snap := guard (!Language.internal.minimalSnapshots.get (← getOptions)) *> snap? then
         view := { view with headerSnap? := some {
           old? := do
@@ -1023,10 +1021,11 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
         reusedAllHeaders := reusedAllHeaders && view.headerSnap?.any (·.old?.isSome)
       views := views.push view
     if let some snap := snap? then
+      let range? := (fun endPos => ⟨endPos, endPos⟩) <$> (← getRef).getTailPos?
       -- no non-fatal diagnostics at this point
       snap.new.resolve <| .ofTyped {
         defs
-        typeCheckedSnap := { range? := /-TODO-/ (mkNullNode ds).getRange?, task := typeCheckedPromise.result }
+        typeCheckedSnap := { range?, task := typeCheckedPromise.result }
         diagnostics := .empty : DefsParsedSnapshot }
     runTermElabM fun vars => Term.elabMutualDef vars views typeCheckedPromise
 

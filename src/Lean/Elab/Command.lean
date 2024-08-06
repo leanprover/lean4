@@ -321,7 +321,6 @@ Interrupt and abort exceptions are caught but not logged.
 
 /-- Runs the given action in a separate task, discarding its final state. -/
 def runAsync (act : CommandElabM α) : CommandElabM (Task (Except Exception α)) := do
-  --modify fun st => { st with env := Runtime.markPersistent st.env }
   let st ← get
   let opts ← getOptions
   let env := if Language.internal.minimalSnapshots.get opts then Runtime.markPersistent st.env else st.env
@@ -347,7 +346,9 @@ def runLintersAsync (stx : Syntax) (lintPromise : IO.Promise Language.SnapshotTr
     CommandElabM Unit := do
   let opts ← getOptions
   let hasLintTrace := opts.entries.any ((`trace.Elab.lint).isPrefixOf ·.1)
-  if true || hasLintTrace || trace.profiler.get opts then
+  -- TODO: `runAsync` introduces too much overhead for now compared to the actual linters execution,
+  -- re-evaluate once we do more async elaboration anyway
+  if Language.internal.minimalSnapshots.get opts || hasLintTrace || trace.profiler.get opts then
     -- NOTE: can't currently report traces from tasks
     runLinters stx
   else
@@ -582,11 +583,11 @@ def elabCommandTopLevel (stx : Syntax)
     Language.withAlwaysResolvedPromise fun elabPromise =>
     Language.withAlwaysResolvedPromise fun lintPromise => do
       if let some snap := snap? then
+        let endRange? := (fun endPos => ⟨endPos, endPos⟩) <$> stx.getTailPos?
         snap.new.resolve {
           diagnostics := .empty
-          -- TODO: set range?
           elabSnap := { range? := none, task := elabPromise.result }
-          lintSnap := { range? := none, task := lintPromise.result }}
+          lintSnap := { range? := endRange?, task := lintPromise.result }}
         withReader ({ · with snap? := some {
           old? := snap.old?.map (·.mapVal (·.bind (·.elabSnap)))
           new := elabPromise

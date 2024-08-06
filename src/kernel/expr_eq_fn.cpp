@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include <memory>
+#include "runtime/alloc.h"
 #include "runtime/interrupt.h"
 #include "runtime/thread.h"
 #include "kernel/expr.h"
@@ -28,6 +29,7 @@ class expr_eq_fn {
     typedef std::unordered_set<std::pair<lean_object *, lean_object *>, key_hasher> cache;
     cache * m_cache = nullptr;
     size_t m_max_stack_depth = 0;
+    size_t m_counter = 0;
     bool check_cache(expr const & a, expr const & b) {
         if (!is_shared(a) || !is_shared(b))
             return false;
@@ -65,8 +67,9 @@ class expr_eq_fn {
         /*
            We increase the number of heartbeats here because some code (e.g., `simp`) may spend a lot of time comparing
            `Expr`s (e.g., checking a cache with many collisions) without allocating any significant amount of memory.
+           We use the counter to invoke `add_heartbeats` later. Reason: heartbeat is a thread local storage, and morexpensive to update.
          */
-        lean_inc_heartbeat();
+        m_counter++;
         depth++;
         switch (a.kind()) {
         case expr_kind::BVar:
@@ -121,7 +124,10 @@ class expr_eq_fn {
     }
 public:
     expr_eq_fn() {}
-    ~expr_eq_fn() { if (m_cache) delete m_cache; }
+    ~expr_eq_fn() {
+        if (m_cache) delete m_cache;
+        if (m_counter > 0) add_heartbeats(m_counter);
+    }
     bool operator()(expr const & a, expr const & b) { return apply(a, b, 0, true); }
 };
 

@@ -42,6 +42,10 @@ class expr_eq_fn {
         return false;
     }
     void check_system(unsigned depth) {
+        /*
+        We used to use `lean::check_system` here. We claim it is ok to not check memory consumption here.
+        Note that `do_check_interrupted` was set to `false`. Thus, `check_interrupted` and `check_heartbeat` were not being used.
+        */
         if (depth > m_max_stack_depth) {
             if (m_max_stack_depth > 0)
                 throw stack_space_exception("expression equality test");

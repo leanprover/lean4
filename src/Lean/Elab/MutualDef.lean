@@ -323,6 +323,10 @@ private def declValToTerminationHint (declVal : Syntax) : TermElabM TerminationH
   else
     return .none
 
+def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
+  profileitM Exception s!"instantiate metavars" (← getOptions) do
+    instantiateMVars e
+
 private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array Expr) :=
   headers.mapM fun header => do
     let mut reusableResult? := none
@@ -348,7 +352,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array
           elabTermEnsuringType valStx type <* synthesizeSyntheticMVarsNoPostponing
         -- NOTE: without this `instantiatedMVars`, `mkLambdaFVars` may leave around a redex that
         -- leads to more section variables being included than necessary
-        let val ← instantiateMVars val
+        let val ← instantiateMVarsProfiling val
         mkLambdaFVars xs val
     if let some snap := header.bodySnap? then
       snap.new.resolve <| some {
@@ -389,7 +393,7 @@ private def instantiateMVarsAtHeader (header : DefViewElabHeader) : TermElabM De
 
 private def instantiateMVarsAtLetRecToLift (toLift : LetRecToLift) : TermElabM LetRecToLift := do
   let type ← instantiateMVars toLift.type
-  let val ← instantiateMVars toLift.val
+  let val ← instantiateMVarsProfiling toLift.val
   pure { toLift with type, val }
 
 private def typeHasRecFun (type : Expr) (funFVars : Array Expr) (letRecsToLift : List LetRecToLift) : Option FVarId :=
@@ -597,7 +601,7 @@ private def pickMaxFVar? (lctx : LocalContext) (fvarIds : Array FVarId) : Option
   fvarIds.getMax? fun fvarId₁ fvarId₂ => (lctx.get! fvarId₁).index < (lctx.get! fvarId₂).index
 
 private def preprocess (e : Expr) : TermElabM Expr := do
-  let e ← instantiateMVars e
+  let e ← instantiateMVarsProfiling e
   -- which let-decls are dependent. We say a let-decl is dependent if its lambda abstraction is type incorrect.
   Meta.check e
   pure e
@@ -708,7 +712,7 @@ private def mkLetRecClosures (sectionVars : Array Expr) (mainFVarIds : Array FVa
       -- This can happen when this particular let-rec has nested let-rec that have been resolved in previous iterations.
       -- This code relies on the fact that nested let-recs occur before the outer most let-recs at `letRecsToLift`.
       -- Unresolved nested let-recs appear as metavariables before they are resolved. See `assignExprMVar` at `mkLetRecClosureFor`
-      let valNew ← instantiateMVars letRecsToLift[i]!.val
+      let valNew ← instantiateMVarsProfiling letRecsToLift[i]!.val
       letRecsToLift := letRecsToLift.modify i fun t => { t with val := valNew }
       -- We have to recompute the `freeVarMap` in this case. This overhead should not be an issue in practice.
       freeVarMap ← mkFreeVarMap sectionVars mainFVarIds recFVarIds letRecsToLift
@@ -821,10 +825,10 @@ def main (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mai
     let letRecsToLift ← letRecsToLift.mapM fun toLift => withLCtx toLift.lctx toLift.localInstances do
       Meta.check toLift.type
       Meta.check toLift.val
-      return { toLift with val := (← instantiateMVars toLift.val), type := (← instantiateMVars toLift.type) }
+      return { toLift with val := (← instantiateMVarsProfiling toLift.val), type := (← instantiateMVars toLift.type) }
     let letRecClosures ← mkLetRecClosures sectionVars mainFVarIds recFVarIds letRecsToLift
     -- mkLetRecClosures assign metavariables that were placeholders for the lifted declarations.
-    let mainVals    ← mainVals.mapM (instantiateMVars ·)
+    let mainVals    ← mainVals.mapM (instantiateMVarsProfiling ·)
     let mainHeaders ← mainHeaders.mapM instantiateMVarsAtHeader
     let letRecClosures ← letRecClosures.mapM fun closure => do pure { closure with toLift := (← instantiateMVarsAtLetRecToLift closure.toLift) }
     -- Replace fvarIds for functions being defined with closed terms
@@ -927,7 +931,7 @@ where
           try
             let values ← elabFunValues headers
             Term.synthesizeSyntheticMVarsNoPostponing
-            values.mapM (instantiateMVars ·)
+            values.mapM (instantiateMVarsProfiling ·)
           catch ex =>
             logException ex
             headers.mapM fun header => mkSorry header.type (synthetic := true)
@@ -961,7 +965,7 @@ where
                   data := e.toMessageData opts
                 }
               typeCheckedPromise.resolve <|
-                .mk { diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog) } #[])
+                .mk { diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog) } #[]
           processDeriving headers
       for view in views, header in headers do
         -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting

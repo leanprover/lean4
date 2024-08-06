@@ -20,6 +20,8 @@ We define many of the bitvector operations from the
 of SMT-LIBv2.
 -/
 
+set_option linter.missingDocs true
+
 /--
 A bitvector of the specified width.
 
@@ -34,9 +36,9 @@ structure BitVec (w : Nat) where
   O(1), because we use `Fin` as the internal representation of a bitvector. -/
   toFin : Fin (2^w)
 
-@[deprecated (since := "2024-04-12")]
-protected abbrev Std.BitVec := _root_.BitVec
-
+/--
+Bitvectors have decidable equality. This should be used via the instance `DecidableEq (BitVec n)`.
+-/
 -- We manually derive the `DecidableEq` instances for `BitVec` because
 -- we want to have builtin support for bit-vector literals, and we
 -- need a name for this function to implement `canUnfoldAtMatcher` at `WHNF.lean`.

@@ -147,16 +147,10 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
   - You can monitor this at `https://github.com/leanprover/lean4/actions/workflows/ci.yml`, looking for the `v4.7.0-rc1` tag.
   - This step can take up to an hour.
 - (GitHub release notes) Once the release appears at https://github.com/leanprover/lean4/releases/
-  - Edit the release notes on Github to select the "Set as a pre-release box".
-  - If release notes have been written already, copy the section of `RELEASES.md` for this version into the Github release notes
-    and use the title "Changes since v4.6.0 (from RELEASES.md)".
-  - Otherwise, in the "previous tag" dropdown, select `v4.6.0`, and click "Generate release notes".
+  - Verify that the release is marked as a prerelease (this should have been done automatically by the CI release job).
+  - In the "previous tag" dropdown, select `v4.6.0`, and click "Generate release notes".
     This will add a list of all the commits since the last stable version.
-    - Delete anything already mentioned in the hand-written release notes above.
     - Delete "update stage0" commits, and anything with a completely inscrutable commit message.
-    - Briefly rearrange the remaining items by category (e.g. `simp`, `lake`, `bug fixes`),
-      but for minor items don't put any work in expanding on commit messages.
-  - (How we want to release notes to look is evolving: please update this section if it looks wrong!)
 - Next, we will move a curated list of downstream repos to the release candidate.
   - This assumes that there is already a *reviewed* branch `bump/v4.7.0` on each repository
     containing the required adaptations (or no adaptations are required).

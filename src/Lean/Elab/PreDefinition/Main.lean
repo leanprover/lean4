@@ -151,12 +151,8 @@ def shouldUseWF (preDefs : Array PreDefinition) : Bool :=
     preDef.termination.terminationBy? matches some {structural := false, ..} ||
     preDef.termination.decreasingBy?.isSome
 
-/--
-Checks the given pre-definitions in the kernel and adds them to the environment. If `postponeCheck`
-is `true`, the kernel check may be postponed, in which case the environment and declaration are
-returned on which `Environment.addDecl` should be called at some later point to perform the check.
--/
-def addPreDefinitionsCore (preDefs : Array PreDefinition) (postponeCheck := false) : TermElabM (Option (Environment × Declaration)) := withLCtx {} {} do
+private def addPreDefinitionsCore (preDefs : Array PreDefinition) (postponeCheck : Bool) :
+    TermElabM (Option (Environment × Declaration)) := withLCtx {} {} do
   profileitM Exception "process pre-definitions" (← getOptions) do
     withTraceNode `Elab.def.processPreDef (fun _ => return m!"process pre-definitions") do
       for preDef in preDefs do
@@ -231,8 +227,19 @@ def addPreDefinitionsCore (preDefs : Array PreDefinition) (postponeCheck := fals
             catch _ => s.restore
       return none
 
+/-- Checks the given pre-definitions in the kernel and adds them to the environment. -/
 def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit :=
   addPreDefinitionsCore preDefs (postponeCheck := false) |> discard
+
+/--
+Checks the given pre-definitions in the kernel and adds them to the environment. Depending on the
+involved definitions, the kernel check may be postponed, in which case the environment and
+declaration are returned on which `Environment.addDecl` should be called at some later point to
+perform the check.
+-/
+def addPreDefinitionsWithPostpone (preDefs : Array PreDefinition) :
+    TermElabM (Option (Environment × Declaration)) :=
+  addPreDefinitionsCore preDefs (postponeCheck := true)
 
 builtin_initialize
   registerTraceClass `Elab.definition.body

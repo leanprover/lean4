@@ -23,7 +23,7 @@ theorem ofFin_eq_ofNat : @BitVec.ofFin w (Fin.mk x lt) = BitVec.ofNat w x := by
   simp only [BitVec.ofNat, Fin.ofNat', lt, Nat.mod_eq_of_lt]
 
 /-- Prove equality of bitvectors in terms of nat operations. -/
-theorem eq_of_toNat_eq {n} : ∀ {i j : BitVec n}, i.toNat = j.toNat → i = j
+theorem eq_of_toNat_eq {n} : ∀ {x y : BitVec n}, x.toNat = y.toNat → x = y
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
 @[simp] theorem val_toFin (x : BitVec w) : x.toFin.val = x.toNat := rfl
@@ -228,12 +228,12 @@ theorem toNat_ge_of_msb_true {x : BitVec n} (p : BitVec.msb x = true) : x.toNat 
 /-! ### toInt/ofInt -/
 
 /-- Prove equality of bitvectors in terms of nat operations. -/
-theorem toInt_eq_toNat_cond (i : BitVec n) :
-    i.toInt =
-      if 2*i.toNat < 2^n then
-        (i.toNat : Int)
+theorem toInt_eq_toNat_cond (x : BitVec n) :
+    x.toInt =
+      if 2*x.toNat < 2^n then
+        (x.toNat : Int)
       else
-        (i.toNat : Int) - (2^n : Nat) :=
+        (x.toNat : Int) - (2^n : Nat) :=
   rfl
 
 theorem msb_eq_false_iff_two_mul_lt (x : BitVec w) : x.msb = false ↔ 2 * x.toNat < 2^w := by
@@ -260,13 +260,13 @@ theorem toInt_eq_toNat_bmod (x : BitVec n) : x.toInt = Int.bmod x.toNat (2^n) :=
     omega
 
 /-- Prove equality of bitvectors in terms of nat operations. -/
-theorem eq_of_toInt_eq {i j : BitVec n} : i.toInt = j.toInt → i = j := by
+theorem eq_of_toInt_eq {x y : BitVec n} : x.toInt = y.toInt → x = y := by
   intro eq
   simp [toInt_eq_toNat_cond] at eq
   apply eq_of_toNat_eq
   revert eq
-  have _ilt := i.isLt
-  have _jlt := j.isLt
+  have _xlt := x.isLt
+  have _ylt := y.isLt
   split <;> split <;> omega
 
 theorem toInt_inj (x y : BitVec n) : x.toInt = y.toInt ↔ x = y :=

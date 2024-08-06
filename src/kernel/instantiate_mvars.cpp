@@ -206,7 +206,7 @@ class instantiate_mvars_fn {
     */
     expr visit_mvar_app_args(expr const & e) {
         if (is_app(e)) {
-            return update_app(e, visit_app_default(app_fn(e)), visit(app_arg(e)));
+            return update_app(e, visit_mvar_app_args(app_fn(e)), visit(app_arg(e)));
         } else {
             lean_assert(is_mvar(e));
             return e;

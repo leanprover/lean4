@@ -1,3 +1,3 @@
 attrCmd.lean:6:0-6:6: error: failed to synthesize
   Pure M
-use `set_option diagnostics true` to get diagnostic information
+Additional diagnostic information may be available using the `set_option diagnostics true` command.

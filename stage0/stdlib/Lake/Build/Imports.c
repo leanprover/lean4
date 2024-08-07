@@ -39,7 +39,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_buildImportsAndDeps
 static lean_object* l_Array_forInUnsafe_loop___at_Lake_buildImportsAndDeps___spec__8___closed__5;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lake_buildImportsAndDeps___lambda__6(size_t, lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Module_recBuildDeps___spec__15(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_buildImportsAndDeps___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lake_buildImportsAndDeps___spec__6___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lake_Module_recBuildDeps___spec__5(size_t, size_t, lean_object*);
@@ -73,7 +72,6 @@ LEAN_EXPORT lean_object* l_Lake_buildImportsAndDeps___lambda__4___boxed(lean_obj
 lean_object* lean_io_map_task(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lake_buildImportsAndDeps___closed__4;
 lean_object* l_panic___at_String_fromUTF8_x21___spec__1(lean_object*);
-lean_object* l_Functor_mapRev___at_Lake_Module_recParseImports___spec__11___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_buildImportsAndDeps___closed__9;
 extern lean_object* l_Task_Priority_default;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
@@ -92,11 +90,11 @@ lean_object* l_Lake_OrdHashSet_appendArray___at_Lake_collectImportsAux___spec__1
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 lean_object* l_ReaderT_pure___at_Lake_buildStaticLib___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_buildImportsAndDeps___lambda__10(lean_object*);
-lean_object* l_Lake_EquipT_bind___at_Lake_Module_recBuildDeps___spec__16___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lake_buildImportsAndDeps___spec__8___closed__2;
 lean_object* l_Lake_EquipT_lift___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_buildImportsAndDeps___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_buildImportsAndDeps___lambda__7(lean_object*);
+lean_object* l_Functor_mapRev___at_Lake_Module_recParseImports___spec__8___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStderr___at_Lake_buildImportsAndDeps___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lake_OrdHashSet_empty___at_Lake_OrdModuleSet_empty___spec__1;
 static lean_object* l_Lake_buildImportsAndDeps___lambda__6___closed__1;
@@ -113,6 +111,7 @@ lean_object* lean_io_bind_task(lean_object*, lean_object*, lean_object*, uint8_t
 lean_object* lean_get_set_stdin(lean_object*, lean_object*);
 static lean_object* l_Lake_buildImportsAndDeps___lambda__12___closed__3;
 static lean_object* l_Lake_buildImportsAndDeps___closed__5;
+lean_object* l_Lake_EquipT_bind___at_Lake_Module_recBuildDeps___spec__13___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_buildImportsAndDeps___lambda__11___closed__2;
 LEAN_EXPORT lean_object* l_Lake_buildImportsAndDeps___lambda__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lake_buildImportsAndDeps___spec__8___closed__4;
@@ -128,6 +127,7 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lake_buildImportsAndDeps___spec__8___closed__1;
 static lean_object* l_Array_mapMUnsafe_map___at_Lake_buildImportsAndDeps___spec__1___closed__2;
 lean_object* lean_array_get_size(lean_object*);
+lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Module_recBuildDeps___spec__12(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lake_buildImportsAndDeps___spec__8___closed__3;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_buildImportsAndDeps___spec__7(size_t, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7241,7 +7241,7 @@ size_t x_191; lean_object* x_192; lean_object* x_193;
 x_191 = lean_usize_of_nat(x_164);
 lean_dec(x_164);
 x_192 = l_Lake_OrdHashSet_empty___at_Lake_OrdPackageSet_empty___spec__1;
-x_193 = l_Array_foldlMUnsafe_fold___at_Lake_Module_recBuildDeps___spec__15(x_18, x_1, x_191, x_192);
+x_193 = l_Array_foldlMUnsafe_fold___at_Lake_Module_recBuildDeps___spec__12(x_18, x_1, x_191, x_192);
 x_167 = x_193;
 goto block_187;
 }
@@ -8329,7 +8329,7 @@ x_10 = lean_alloc_closure((void*)(l_Lake_BuildInfo_fetch___rarg), 8, 2);
 lean_closure_set(x_10, 0, x_9);
 lean_closure_set(x_10, 1, lean_box(0));
 x_11 = l_Lake_buildImportsAndDeps___lambda__12___closed__3;
-x_12 = l_Functor_mapRev___at_Lake_Module_recParseImports___spec__11___rarg(x_10, x_11, x_2, x_3, x_4, x_5, x_6, x_7);
+x_12 = l_Functor_mapRev___at_Lake_Module_recParseImports___spec__8___rarg(x_10, x_11, x_2, x_3, x_4, x_5, x_6, x_7);
 return x_12;
 }
 }
@@ -8421,7 +8421,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lake_buildImportsAndDeps___closed__8;
 x_2 = l_Lake_buildImportsAndDeps___closed__9;
-x_3 = lean_alloc_closure((void*)(l_Lake_EquipT_bind___at_Lake_Module_recBuildDeps___spec__16___rarg), 8, 2);
+x_3 = lean_alloc_closure((void*)(l_Lake_EquipT_bind___at_Lake_Module_recBuildDeps___spec__13___rarg), 8, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
 return x_3;
@@ -8463,7 +8463,7 @@ lean_closure_set(x_20, 0, x_18);
 lean_closure_set(x_20, 1, x_1);
 lean_closure_set(x_20, 2, x_2);
 lean_closure_set(x_20, 3, x_19);
-x_21 = lean_alloc_closure((void*)(l_Lake_EquipT_bind___at_Lake_Module_recBuildDeps___spec__16___rarg), 8, 2);
+x_21 = lean_alloc_closure((void*)(l_Lake_EquipT_bind___at_Lake_Module_recBuildDeps___spec__13___rarg), 8, 2);
 lean_closure_set(x_21, 0, x_17);
 lean_closure_set(x_21, 1, x_20);
 x_22 = 0;

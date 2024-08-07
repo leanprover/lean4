@@ -108,7 +108,7 @@ def swap (a : Array α) (i j : @& Fin a.size) : Array α :=
   a'.set (size_set a i v₂ ▸ j) v₁
 
 /--
-Swaps two entries in an array, or panics if either index is out of bounds.
+Swaps two entries in an array, or returns the array unchanged if either index is out of bounds.
 
 This will perform the update destructively provided that `a` has a reference
 count of 1 when called.

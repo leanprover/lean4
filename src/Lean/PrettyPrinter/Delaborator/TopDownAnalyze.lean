@@ -198,10 +198,10 @@ def isHBinOp (e : Expr) : Bool := Id.run do
 def replaceLPsWithVars (e : Expr) : MetaM Expr := do
   if !e.hasLevelParam then return e
   let lps := collectLevelParams {} e |>.params
-  let mut replaceMap : HashMap Name Level := {}
+  let mut replaceMap : Std.HashMap Name Level := {}
   for lp in lps do replaceMap := replaceMap.insert lp (← mkFreshLevelMVar)
   return e.replaceLevel fun
-    | Level.param n .. => replaceMap.find! n
+    | Level.param n .. => replaceMap[n]!
     | l => if !l.hasParam then some l else none
 
 def isDefEqAssigning (t s : Expr) : MetaM Bool := do

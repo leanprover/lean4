@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Expr
-import Lean.Util.PtrSet
 
 namespace Lean
 namespace Expr

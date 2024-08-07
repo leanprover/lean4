@@ -23,7 +23,7 @@ public:
     explicit list_ref(list_ref<T> const * l) { if (l) *this = *l; }
     list_ref(T const & h, list_ref<T> const & t):object_ref(mk_cnstr(1, h.raw(), t.raw())) { inc(h.raw()); inc(t.raw()); }
     list_ref(list_ref const & other):object_ref(other) {}
-    list_ref(list_ref && other):object_ref(other) {}
+    list_ref(list_ref && other):object_ref(std::move(other)) {}
     template<typename It> list_ref(It const & begin, It const & end):list_ref() {
         auto it = end;
         while (it != begin) {
@@ -35,7 +35,7 @@ public:
     list_ref(buffer<T> const & b):list_ref(b.begin(), b.end()) {}
 
     list_ref & operator=(list_ref const & other) { object_ref::operator=(other); return *this; }
-    list_ref & operator=(list_ref && other) { object_ref::operator=(other); return *this; }
+    list_ref & operator=(list_ref && other) { object_ref::operator=(std::move(other)); return *this; }
 
     explicit operator bool() const { return !is_scalar(raw()); }
     friend bool is_nil(list_ref const & l) { return is_scalar(l.raw()); }

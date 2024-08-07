@@ -268,7 +268,7 @@ def getFunctionSummary? (env : Environment) (fid : Name) : Option Value :=
 A map from variable identifiers to the `Value` produced by the abstract
 interpreter for them.
 -/
-abbrev Assignment := HashMap FVarId Value
+abbrev Assignment := Std.HashMap FVarId Value
 
 /--
 The context of `InterpM`.
@@ -332,7 +332,7 @@ If none is available return `Value.bot`.
 -/
 def findVarValue (var : FVarId) : InterpM Value := do
   let assignment ← getAssignment
-  return assignment.findD var .bot
+  return assignment.getD var .bot
 
 /--
 Find the value of `arg` using the logic of `findVarValue`.
@@ -547,13 +547,13 @@ where
     | .jp decl k | .fun decl k =>
       return code.updateFun! (← decl.updateValue (← go decl.value)) (← go k)
     | .cases cs =>
-      let discrVal := assignment.findD cs.discr .bot
+      let discrVal := assignment.getD cs.discr .bot
       let processAlt typ alt := do
         match alt with
         | .alt ctor args body =>
           if discrVal.containsCtor ctor then
             let filter param := do
-              if let some val := assignment.find? param.fvarId then
+              if let some val := assignment[param.fvarId]? then
                 if let some literal ← val.getLiteral then
                   return some (param, literal)
               return none

@@ -94,7 +94,10 @@ def emitCInitName (n : Name) : M Unit :=
 def shouldExport (n : Name) : Bool :=
   -- HACK: exclude symbols very unlikely to be used by the interpreter or other consumers of
   -- libleanshared to avoid Windows symbol limit
-  !(`Lean.Compiler.LCNF).isPrefixOf n && !(`Lean.IR).isPrefixOf n && !(`Lean.Server).isPrefixOf n
+  !(`Lean.Compiler.LCNF).isPrefixOf n &&
+  !(`Lean.IR).isPrefixOf n &&
+  -- Lean.Server.findModuleRefs is used in Verso
+  (!(`Lean.Server).isPrefixOf n || n == `Lean.Server.findModuleRefs)
 
 def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M Unit := do
   let ps := decl.params
@@ -249,7 +252,7 @@ def throwUnknownVar {α : Type} (x : VarId) : M α :=
 
 def getJPParams (j : JoinPointId) : M (Array Param) := do
   let ctx ← read;
-  match ctx.jpMap.find? j with
+  match ctx.jpMap[j]? with
   | some ps => pure ps
   | none    => throw "unknown join point"
 

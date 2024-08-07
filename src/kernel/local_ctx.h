@@ -27,11 +27,11 @@ class local_decl : public object_ref {
 public:
     local_decl();
     local_decl(local_decl const & other):object_ref(other) {}
-    local_decl(local_decl && other):object_ref(other) {}
+    local_decl(local_decl && other):object_ref(std::move(other)) {}
     local_decl(obj_arg o):object_ref(o) {}
     local_decl(b_obj_arg o, bool):object_ref(o, true) {}
     local_decl & operator=(local_decl const & other) { object_ref::operator=(other); return *this; }
-    local_decl & operator=(local_decl && other) { object_ref::operator=(other); return *this; }
+    local_decl & operator=(local_decl && other) { object_ref::operator=(std::move(other)); return *this; }
     friend bool is_eqp(local_decl const & d1, local_decl const & d2) { return d1.raw() == d2.raw(); }
     unsigned get_idx() const { return static_cast<nat const &>(cnstr_get_ref(raw(), 0)).get_small_value(); }
     name const & get_name() const { return static_cast<name const &>(cnstr_get_ref(raw(), 1)); }
@@ -54,9 +54,9 @@ public:
     explicit local_ctx(obj_arg o):object_ref(o) {}
     local_ctx(b_obj_arg o, bool):object_ref(o, true) {}
     local_ctx(local_ctx const & other):object_ref(other) {}
-    local_ctx(local_ctx && other):object_ref(other) {}
+    local_ctx(local_ctx && other):object_ref(std::move(other)) {}
     local_ctx & operator=(local_ctx const & other) { object_ref::operator=(other); return *this; }
-    local_ctx & operator=(local_ctx && other) { object_ref::operator=(other); return *this; }
+    local_ctx & operator=(local_ctx && other) { object_ref::operator=(std::move(other)); return *this; }
 
     bool empty() const;
 

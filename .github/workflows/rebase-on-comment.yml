@@ -1,0 +1,30 @@
+# As the PR author, use `!rebase` to rebase a commit
+name: Rebase on Comment
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  rebase:
+    if: github.event.issue.pull_request != '' && github.event.comment.body == '!rebase' && github.event.comment.user.login == github.event.issue.user.login
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.issue.number }}/head
+      - name: Rebase PR branch onto base branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUMBER="${{ github.event.issue.number }}"
+          API_URL="https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER"
+          PR_DETAILS="$(curl -s -H "Authorization: token $GITHUB_TOKEN" $API_URL)"
+          
+          BASE_REF="$(echo $PR_DETAILS | jq -r .base.ref)"
+
+          git checkout -b working-branch
+          git fetch origin $BASE_REF
+          git rebase origin/$BASE_REF
+          git push origin refs/pull/${{ github.event.issue.number }}/head --force-with-lease

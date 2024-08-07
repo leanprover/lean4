@@ -60,6 +60,16 @@ builtin_dsimproc [simp, seval] reducePow ((_ ^ _ : Nat)) := fun e => do
   unless (← checkExponent m) do return .continue
   return .done <| toExpr (n ^ m)
 
+builtin_dsimproc [simp, seval] reduceAnd ((_ &&& _ : Nat)) := reduceBin ``HOr.hOr 6 (· &&& ·)
+builtin_dsimproc [simp, seval] reduceXor ((_ ^^^ _ : Nat)) := reduceBin ``HXor.hXor 6 (· ^^^ ·)
+builtin_dsimproc [simp, seval] reduceOr ((_ ||| _ : Nat)) := reduceBin ``HOr.hOr 6 (· ||| ·)
+
+builtin_dsimproc [simp, seval] reduceShiftLeft ((_ <<< _ : Nat)) :=
+  reduceBin ``HShiftLeft.hShiftLeft 6 (· <<< ·)
+
+builtin_dsimproc [simp, seval] reduceShiftRight ((_ >>> _ : Nat)) :=
+  reduceBin ``HShiftRight.hShiftRight 6 (· >>> ·)
+
 builtin_dsimproc [simp, seval] reduceGcd (gcd _ _)       := reduceBin ``gcd 2 gcd
 
 builtin_simproc [simp, seval] reduceLT  (( _ : Nat) < _)  := reduceBinPred ``LT.lt 4 (. < .)

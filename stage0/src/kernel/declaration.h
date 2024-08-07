@@ -63,9 +63,9 @@ class constant_val : public object_ref {
 public:
     constant_val(name const & n, names const & lparams, expr const & type);
     constant_val(constant_val const & other):object_ref(other) {}
-    constant_val(constant_val && other):object_ref(other) {}
+    constant_val(constant_val && other):object_ref(std::move(other)) {}
     constant_val & operator=(constant_val const & other) { object_ref::operator=(other); return *this; }
-    constant_val & operator=(constant_val && other) { object_ref::operator=(other); return *this; }
+    constant_val & operator=(constant_val && other) { object_ref::operator=(std::move(other)); return *this; }
     name const & get_name() const { return static_cast<name const &>(cnstr_get_ref(*this, 0)); }
     names const & get_lparams() const { return static_cast<names const &>(cnstr_get_ref(*this, 1)); }
     expr const & get_type() const { return static_cast<expr const &>(cnstr_get_ref(*this, 2)); }
@@ -79,9 +79,9 @@ class axiom_val : public object_ref {
 public:
     axiom_val(name const & n, names const & lparams, expr const & type, bool is_unsafe);
     axiom_val(axiom_val const & other):object_ref(other) {}
-    axiom_val(axiom_val && other):object_ref(other) {}
+    axiom_val(axiom_val && other):object_ref(std::move(other)) {}
     axiom_val & operator=(axiom_val const & other) { object_ref::operator=(other); return *this; }
-    axiom_val & operator=(axiom_val && other) { object_ref::operator=(other); return *this; }
+    axiom_val & operator=(axiom_val && other) { object_ref::operator=(std::move(other)); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
     name const & get_name() const { return to_constant_val().get_name(); }
     names const & get_lparams() const { return to_constant_val().get_lparams(); }
@@ -105,9 +105,9 @@ class definition_val : public object_ref {
 public:
     definition_val(name const & n, names const & lparams, expr const & type, expr const & val, reducibility_hints const & hints, definition_safety safety, names const & all);
     definition_val(definition_val const & other):object_ref(other) {}
-    definition_val(definition_val && other):object_ref(other) {}
+    definition_val(definition_val && other):object_ref(std::move(other)) {}
     definition_val & operator=(definition_val const & other) { object_ref::operator=(other); return *this; }
-    definition_val & operator=(definition_val && other) { object_ref::operator=(other); return *this; }
+    definition_val & operator=(definition_val && other) { object_ref::operator=(std::move(other)); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
     name const & get_name() const { return to_constant_val().get_name(); }
     names const & get_lparams() const { return to_constant_val().get_lparams(); }
@@ -128,9 +128,9 @@ class theorem_val : public object_ref {
 public:
     theorem_val(name const & n, names const & lparams, expr const & type, expr const & val, names const & all);
     theorem_val(theorem_val const & other):object_ref(other) {}
-    theorem_val(theorem_val && other):object_ref(other) {}
+    theorem_val(theorem_val && other):object_ref(std::move(other)) {}
     theorem_val & operator=(theorem_val const & other) { object_ref::operator=(other); return *this; }
-    theorem_val & operator=(theorem_val && other) { object_ref::operator=(other); return *this; }
+    theorem_val & operator=(theorem_val && other) { object_ref::operator=(std::move(other)); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
     name const & get_name() const { return to_constant_val().get_name(); }
     names const & get_lparams() const { return to_constant_val().get_lparams(); }
@@ -148,9 +148,9 @@ class opaque_val : public object_ref {
 public:
     opaque_val(name const & n, names const & lparams, expr const & type, expr const & val, bool is_unsafe, names const & all);
     opaque_val(opaque_val const & other):object_ref(other) {}
-    opaque_val(opaque_val && other):object_ref(other) {}
+    opaque_val(opaque_val && other):object_ref(std::move(other)) {}
     opaque_val & operator=(opaque_val const & other) { object_ref::operator=(other); return *this; }
-    opaque_val & operator=(opaque_val && other) { object_ref::operator=(other); return *this; }
+    opaque_val & operator=(opaque_val && other) { object_ref::operator=(std::move(other)); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
     name const & get_name() const { return to_constant_val().get_name(); }
     names const & get_lparams() const { return to_constant_val().get_lparams(); }
@@ -179,9 +179,9 @@ class inductive_type : public object_ref {
 public:
     inductive_type(name const & id, expr const & type, constructors const & cnstrs);
     inductive_type(inductive_type const & other):object_ref(other) {}
-    inductive_type(inductive_type && other):object_ref(other) {}
+    inductive_type(inductive_type && other):object_ref(std::move(other)) {}
     inductive_type & operator=(inductive_type const & other) { object_ref::operator=(other); return *this; }
-    inductive_type & operator=(inductive_type && other) { object_ref::operator=(other); return *this; }
+    inductive_type & operator=(inductive_type && other) { object_ref::operator=(std::move(other)); return *this; }
     name const & get_name() const { return static_cast<name const &>(cnstr_get_ref(*this, 0)); }
     expr const & get_type() const { return static_cast<expr const &>(cnstr_get_ref(*this, 1)); }
     constructors const & get_cnstrs() const { return static_cast<constructors const &>(cnstr_get_ref(*this, 2)); }
@@ -205,7 +205,7 @@ class declaration : public object_ref {
 public:
     declaration();
     declaration(declaration const & other):object_ref(other) {}
-    declaration(declaration && other):object_ref(other) {}
+    declaration(declaration && other):object_ref(std::move(other)) {}
     /* low-level constructors */
     explicit declaration(object * o):object_ref(o) {}
     explicit declaration(b_obj_arg o, bool b):object_ref(o, b) {}
@@ -213,7 +213,7 @@ public:
     declaration_kind kind() const { return static_cast<declaration_kind>(obj_tag(raw())); }
 
     declaration & operator=(declaration const & other) { object_ref::operator=(other); return *this; }
-    declaration & operator=(declaration && other) { object_ref::operator=(other); return *this; }
+    declaration & operator=(declaration && other) { object_ref::operator=(std::move(other)); return *this; }
 
     friend bool is_eqp(declaration const & d1, declaration const & d2) { return d1.raw() == d2.raw(); }
 
@@ -263,10 +263,10 @@ declaration mk_axiom_inferring_unsafe(environment const & env, name const & n,
 class inductive_decl : public object_ref {
 public:
     inductive_decl(inductive_decl const & other):object_ref(other) {}
-    inductive_decl(inductive_decl && other):object_ref(other) {}
+    inductive_decl(inductive_decl && other):object_ref(std::move(other)) {}
     inductive_decl(declaration const & d):object_ref(d) { lean_assert(d.is_inductive()); }
     inductive_decl & operator=(inductive_decl const & other) { object_ref::operator=(other); return *this; }
-    inductive_decl & operator=(inductive_decl && other) { object_ref::operator=(other); return *this; }
+    inductive_decl & operator=(inductive_decl && other) { object_ref::operator=(std::move(other)); return *this; }
     names const & get_lparams() const { return static_cast<names const &>(cnstr_get_ref(raw(), 0)); }
     nat const & get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(raw(), 1)); }
     inductive_types const & get_types() const { return static_cast<inductive_types const &>(cnstr_get_ref(raw(), 2)); }
@@ -290,9 +290,9 @@ public:
     inductive_val(name const & n, names const & lparams, expr const & type, unsigned nparams,
                   unsigned nindices, names const & all, names const & cnstrs, unsigned nnested, bool is_rec, bool is_unsafe, bool is_reflexive);
     inductive_val(inductive_val const & other):object_ref(other) {}
-    inductive_val(inductive_val && other):object_ref(other) {}
+    inductive_val(inductive_val && other):object_ref(std::move(other)) {}
     inductive_val & operator=(inductive_val const & other) { object_ref::operator=(other); return *this; }
-    inductive_val & operator=(inductive_val && other) { object_ref::operator=(other); return *this; }
+    inductive_val & operator=(inductive_val && other) { object_ref::operator=(std::move(other)); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
     unsigned get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 1)).get_small_value(); }
     unsigned get_nindices() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
@@ -317,9 +317,9 @@ class constructor_val : public object_ref {
 public:
     constructor_val(name const & n, names const & lparams, expr const & type, name const & induct, unsigned cidx, unsigned nparams, unsigned nfields, bool is_unsafe);
     constructor_val(constructor_val const & other):object_ref(other) {}
-    constructor_val(constructor_val && other):object_ref(other) {}
+    constructor_val(constructor_val && other):object_ref(std::move(other)) {}
     constructor_val & operator=(constructor_val const & other) { object_ref::operator=(other); return *this; }
-    constructor_val & operator=(constructor_val && other) { object_ref::operator=(other); return *this; }
+    constructor_val & operator=(constructor_val && other) { object_ref::operator=(std::move(other)); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
     name const & get_induct() const { return static_cast<name const &>(cnstr_get_ref(*this, 1)); }
     unsigned get_cidx() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
@@ -338,9 +338,9 @@ class recursor_rule : public object_ref {
 public:
     recursor_rule(name const & cnstr, unsigned nfields, expr const & rhs);
     recursor_rule(recursor_rule const & other):object_ref(other) {}
-    recursor_rule(recursor_rule && other):object_ref(other) {}
+    recursor_rule(recursor_rule && other):object_ref(std::move(other)) {}
     recursor_rule & operator=(recursor_rule const & other) { object_ref::operator=(other); return *this; }
-    recursor_rule & operator=(recursor_rule && other) { object_ref::operator=(other); return *this; }
+    recursor_rule & operator=(recursor_rule && other) { object_ref::operator=(std::move(other)); return *this; }
     name const & get_cnstr() const { return static_cast<name const &>(cnstr_get_ref(*this, 0)); }
     unsigned get_nfields() const { return static_cast<nat const &>(cnstr_get_ref(*this, 1)).get_small_value(); }
     expr const & get_rhs() const { return static_cast<expr const &>(cnstr_get_ref(*this, 2)); }
@@ -365,9 +365,9 @@ public:
                  names const & all, unsigned nparams, unsigned nindices, unsigned nmotives,
                  unsigned nminors, recursor_rules const & rules, bool k, bool is_unsafe);
     recursor_val(recursor_val const & other):object_ref(other) {}
-    recursor_val(recursor_val && other):object_ref(other) {}
+    recursor_val(recursor_val && other):object_ref(std::move(other)) {}
     recursor_val & operator=(recursor_val const & other) { object_ref::operator=(other); return *this; }
-    recursor_val & operator=(recursor_val && other) { object_ref::operator=(other); return *this; }
+    recursor_val & operator=(recursor_val && other) { object_ref::operator=(std::move(other)); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
     name const & get_name() const { return to_constant_val().get_name(); }
     name const & get_induct() const { return get_name().get_prefix(); }
@@ -398,9 +398,9 @@ class quot_val : public object_ref {
 public:
     quot_val(name const & n, names const & lparams, expr const & type, quot_kind k);
     quot_val(quot_val const & other):object_ref(other) {}
-    quot_val(quot_val && other):object_ref(other) {}
+    quot_val(quot_val && other):object_ref(std::move(other)) {}
     quot_val & operator=(quot_val const & other) { object_ref::operator=(other); return *this; }
-    quot_val & operator=(quot_val && other) { object_ref::operator=(other); return *this; }
+    quot_val & operator=(quot_val && other) { object_ref::operator=(std::move(other)); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
     name const & get_name() const { return to_constant_val().get_name(); }
     names const & get_lparams() const { return to_constant_val().get_lparams(); }
@@ -434,14 +434,14 @@ public:
     constant_info(constructor_val const & v);
     constant_info(recursor_val const & v);
     constant_info(constant_info const & other):object_ref(other) {}
-    constant_info(constant_info && other):object_ref(other) {}
+    constant_info(constant_info && other):object_ref(std::move(other)) {}
     explicit constant_info(b_obj_arg o, bool b):object_ref(o, b) {}
     explicit constant_info(obj_arg o):object_ref(o) {}
 
     constant_info_kind kind() const { return static_cast<constant_info_kind>(cnstr_tag(raw())); }
 
     constant_info & operator=(constant_info const & other) { object_ref::operator=(other); return *this; }
-    constant_info & operator=(constant_info && other) { object_ref::operator=(other); return *this; }
+    constant_info & operator=(constant_info && other) { object_ref::operator=(std::move(other)); return *this; }
 
     friend bool is_eqp(constant_info const & d1, constant_info const & d2) { return d1.raw() == d2.raw(); }
 

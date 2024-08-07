@@ -339,19 +339,22 @@ inductive AppImplicitArg
   | skip
   /-- A regular argument. -/
   | regular (s : Term)
+  /-- A regular argument that, if it comes as the last argument, may be omitted. -/
+  | optional (name : Name) (s : Term)
   /-- It's a named argument. Named arguments inhibit applying unexpanders. -/
   | named (s : TSyntax ``Parser.Term.namedArgument)
   deriving Inhabited
 
 /-- Whether unexpanding is allowed with this argument. -/
 def AppImplicitArg.canUnexpand : AppImplicitArg → Bool
-  | .regular .. | .skip => true
+  | .regular .. | .optional .. | .skip => true
   | .named .. => false
 
 /-- If the argument has associated syntax, returns it. -/
 def AppImplicitArg.syntax? : AppImplicitArg → Option Syntax
   | .skip => none
   | .regular s => s
+  | .optional _ s => s
   | .named s => s
 
 /--
@@ -371,13 +374,13 @@ def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (
       appFieldNotationCandidate?
     else
       pure none
-  let (fnStx, args) ←
+  let (fnStx, args') ←
     withBoundedAppFnArgs numArgs
       (do return ((← delabHead), Array.mkEmpty numArgs))
-      (fun (fnStx, args) => do
-        let idx := args.size
-        let arg ← mkArg (numArgs - idx - 1) paramKinds[idx]!
-        return (fnStx, args.push arg))
+      (fun (fnStx, args) => return (fnStx, args.push (← mkArg paramKinds[args.size]!)))
+
+  -- Strip off optional arguments. We save the original `args'` for structure instance notation
+  let args := args'.popWhile (· matches .optional ..)
 
   -- App unexpanders
   if ← pure unexpand <&&> getPPOption getPPNotation then
@@ -385,11 +388,10 @@ def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (
     if let some stx ← (some <$> tryAppUnexpanders fnStx args) <|> pure none then
       return stx
 
-  let stx := Syntax.mkApp fnStx (args.filterMap (·.syntax?))
-
   -- Structure instance notation
-  if ← pure (unexpand && args.all (·.canUnexpand)) <&&> getPPOption getPPStructureInstances then
+  if ← pure (unexpand && args'.all (·.canUnexpand)) <&&> getPPOption getPPStructureInstances then
     -- Try using the structure instance unexpander.
+    let stx := Syntax.mkApp fnStx (args'.filterMap (·.syntax?))
     if let some stx ← (some <$> unexpandStructureInstance stx) <|> pure none then
       return stx
 
@@ -416,7 +418,7 @@ def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (
         return Syntax.mkApp head (args'.filterMap (·.syntax?))
 
   -- Normal application
-  return stx
+  return Syntax.mkApp fnStx (args.filterMap (·.syntax?))
 where
   mkNamedArg (name : Name) : DelabM AppImplicitArg :=
     return .named <| ← `(Parser.Term.namedArgument| ($(mkIdent name) := $(← delab)))
@@ -424,15 +426,16 @@ where
   Delaborates the current argument.
   The argument `remainingArgs` is the number of arguments in the application after this one.
   -/
-  mkArg (remainingArgs : Nat) (param : ParamKind) : DelabM AppImplicitArg := do
+  mkArg (param : ParamKind) : DelabM AppImplicitArg := do
     let arg ← getExpr
     if ← getPPOption getPPAnalysisSkip then return .skip
     else if ← getPPOption getPPAnalysisHole then return .regular (← `(_))
     else if ← getPPOption getPPAnalysisNamedArg then
       mkNamedArg param.name
-    else if param.defVal.isSome && remainingArgs == 0 && param.defVal.get! == arg then
-      -- Assumption: `useAppExplicit` has already detected whether it is ok to omit this argument
-      return .skip
+    else if param.defVal.isSome && param.defVal.get! == arg then
+      -- Assumption: `useAppExplicit` has already detected whether it is ok to omit this argument, if it is the last one.
+      -- We will later remove all optional arguments from the end.
+      return .optional param.name (← delab)
     else if param.bInfo.isExplicit then
       return .regular (← delab)
     else if ← pure (param.name == `motive) <&&> shouldShowMotive arg (← getOptions) then

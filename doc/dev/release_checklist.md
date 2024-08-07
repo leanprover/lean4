@@ -5,8 +5,11 @@ See below for the checklist for release candidates.
 
 We'll use `v4.6.0` as the intended release version as a running example.
 
-- One week before the planned release, ensure that (1) someone has written the release notes and (2) someone has written the first draft of the release blog post.
-  If there is any material in `./releases_drafts/`, then the release notes are not done. (See the section "Writing the release notes".)
+- One week before the planned release, ensure that
+  (1) someone has written the release notes and
+  (2) someone has written the first draft of the release blog post.
+  If there is any material in `./releases_drafts/` on the `releases/v4.6.0` branch, then the release notes are not done.
+  (See the section "Writing the release notes".)
 - `git checkout releases/v4.6.0`
   (This branch should already exist, from the release candidates.)
 - `git pull`
@@ -144,33 +147,31 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
   - You can monitor this at `https://github.com/leanprover/lean4/actions/workflows/ci.yml`, looking for the `v4.7.0-rc1` tag.
   - This step can take up to an hour.
 - (GitHub release notes) Once the release appears at https://github.com/leanprover/lean4/releases/
-  - Edit the release notes on Github to select the "Set as a pre-release box".
-  - If release notes have been written already, copy the section of `RELEASES.md` for this version into the Github release notes
-    and use the title "Changes since v4.6.0 (from RELEASES.md)".
-  - Otherwise, in the "previous tag" dropdown, select `v4.6.0`, and click "Generate release notes".
+  - Verify that the release is marked as a prerelease (this should have been done automatically by the CI release job).
+  - In the "previous tag" dropdown, select `v4.6.0`, and click "Generate release notes".
     This will add a list of all the commits since the last stable version.
-    - Delete anything already mentioned in the hand-written release notes above.
     - Delete "update stage0" commits, and anything with a completely inscrutable commit message.
-    - Briefly rearrange the remaining items by category (e.g. `simp`, `lake`, `bug fixes`),
-      but for minor items don't put any work in expanding on commit messages.
-  - (How we want to release notes to look is evolving: please update this section if it looks wrong!)
 - Next, we will move a curated list of downstream repos to the release candidate.
-  - This assumes that there is already a *reviewed* branch `bump/v4.7.0` on each repository
-    containing the required adaptations (or no adaptations are required).
-    The preparation of this branch is beyond the scope of this document.
+  - This assumes that for each repository either:
+    * There is already a *reviewed* branch `bump/v4.7.0` containing the required adaptations.
+      The preparation of this branch is beyond the scope of this document.
+    * The repository does not need any changes to move to the new version.
   - For each of the target repositories:
-    - Checkout the `bump/v4.7.0` branch.
-    - Verify that the `lean-toolchain` is set to the nightly from which the release candidate was created.
-    - `git merge origin/master`
-    - Change the `lean-toolchain` to `leanprover/lean4:v4.7.0-rc1`
-    - In `lakefile.lean`, change any dependencies which were using `nightly-testing` or `bump/v4.7.0` branches
-      back to `master` or `main`, and run `lake update` for those dependencies.
-    - Run `lake build` to ensure that dependencies are found (but it's okay to stop it after a moment).
-    - `git commit`
-    - `git push`
-    - Open a PR from `bump/v4.7.0` to `master`, and either merge it yourself after CI, if appropriate,
-      or notify the maintainers that it is ready to go.
-    - Once this PR has been merged, tag `master` with `v4.7.0-rc1` and push this tag.
+    - If the repository does not need any changes (i.e. `bump/v4.7.0` does not exist) then create
+      a new PR updating `lean-toolchain` to `leanprover/lean4:v4.7.0-rc1` and running `lake update`.
+    - Otherwise:
+      - Checkout the `bump/v4.7.0` branch.
+      - Verify that the `lean-toolchain` is set to the nightly from which the release candidate was created.
+      - `git merge origin/master`
+      - Change the `lean-toolchain` to `leanprover/lean4:v4.7.0-rc1`
+      - In `lakefile.lean`, change any dependencies which were using `nightly-testing` or `bump/v4.7.0` branches
+        back to `master` or `main`, and run `lake update` for those dependencies.
+      - Run `lake build` to ensure that dependencies are found (but it's okay to stop it after a moment).
+      - `git commit`
+      - `git push`
+      - Open a PR from `bump/v4.7.0` to `master`, and either merge it yourself after CI, if appropriate,
+        or notify the maintainers that it is ready to go.
+    - Once the PR has been merged, tag `master` with `v4.7.0-rc1` and push this tag.
   - We do this for the same list of repositories as for stable releases, see above.
     As above, there are dependencies between these, and so the process above is iterative.
     It greatly helps if you can merge the `bump/v4.7.0` PRs yourself!
@@ -187,6 +188,8 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
   Please also make sure that whoever is handling social media knows the release is out.
 - Begin the next development cycle (i.e. for `v4.8.0`) on the Lean repository, by making a PR that:
   - Updates `src/CMakeLists.txt` to say `set(LEAN_VERSION_MINOR 8)`
+  - Replaces the "release notes will be copied" text in the `v4.6.0` section of `RELEASES.md` with the
+    finalized release notes from the `releases/v4.6.0` branch.
   - Replaces the "development in progress" in the `v4.7.0` section of `RELEASES.md` with
     ```
     Release candidate, release notes will be copied from `branch releases/v4.7.0` once completed.
@@ -222,12 +225,15 @@ Please read https://leanprover-community.github.io/contribute/tags_and_branches.
   * This can either be done by the person managing this process directly,
     or by soliciting assistance from authors of files, or generally helpful people on Zulip!
 * Each repo has a `bump/v4.7.0` which accumulates reviewed changes adapting to new versions.
-* Once `nightly-testing` is working on a given nightly, say `nightly-2024-02-15`, we:
+* Once `nightly-testing` is working on a given nightly, say `nightly-2024-02-15`, we will create a PR to `bump/v4.7.0`.
+* For Mathlib, there is a script in `scripts/create-adaptation-pr.sh` that automates this process.
+* For Batteries and Aesop it is currently manual.
+* For all of these repositories, the process is the same:
   * Make sure `bump/v4.7.0` is up to date with `master` (by merging `master`, no PR necessary)
   * Create from `bump/v4.7.0` a `bump/nightly-2024-02-15` branch.
-  * In that branch, `git merge --squash nightly-testing` to bring across changes from `nightly-testing`.
+  * In that branch, `git merge nightly-testing` to bring across changes from `nightly-testing`.
   * Sanity check changes, commit, and make a PR to `bump/v4.7.0` from the `bump/nightly-2024-02-15` branch.
-  * Solicit review, merge the PR into `bump/v4,7,0`.
+  * Solicit review, merge the PR into `bump/v4.7.0`.
 * It is always okay to merge in the following directions:
   `master` -> `bump/v4.7.0` -> `bump/nightly-2024-02-15` -> `nightly-testing`.
   Please remember to push any merges you make to intermediate steps!
@@ -239,7 +245,7 @@ The exact steps are a work in progress.
 Here is the general idea:
 
 * The work is done right on the `releases/v4.6.0` branch sometime after it is created but before the stable release is made.
-  The release notes for `v4.6.0` will be copied to `master`.
+  The release notes for `v4.6.0` will later be copied to `master` when we begin a new development cycle.
 * There can be material for release notes entries in commit messages.
 * There can also be pre-written entries in `./releases_drafts`, which should be all incorporated in the release notes and then deleted from the branch.
   See `./releases_drafts/README.md` for more information.

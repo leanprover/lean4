@@ -24,13 +24,13 @@ public:
     projection_info(name const & c, unsigned nparams, unsigned i, bool inst_implicit);
     projection_info():projection_info(name(), 0, 0, false) {}
     projection_info(projection_info const & other):object_ref(other) {}
-    projection_info(projection_info && other):object_ref(other) {}
+    projection_info(projection_info && other):object_ref(std::move(other)) {}
     /* low-level constructors */
     explicit projection_info(object * o):object_ref(o) {}
     explicit projection_info(b_obj_arg o, bool b):object_ref(o, b) {}
     explicit projection_info(object_ref const & o):object_ref(o) {}
     projection_info & operator=(projection_info const & other) { object_ref::operator=(other); return *this; }
-    projection_info & operator=(projection_info && other) { object_ref::operator=(other); return *this; }
+    projection_info & operator=(projection_info && other) { object_ref::operator=(std::move(other)); return *this; }
     name const & get_constructor() const { return static_cast<name const &>(cnstr_get_ref(*this, 0)); }
     unsigned get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 1)).get_small_value(); }
     unsigned get_i() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }

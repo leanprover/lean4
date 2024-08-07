@@ -202,6 +202,17 @@ theorem exists_imp : ((∃ x, p x) → b) ↔ ∀ x, p x → b := forall_exists_
 @[simp] theorem exists_const (α) [i : Nonempty α] : (∃ _ : α, b) ↔ b :=
   ⟨fun ⟨_, h⟩ => h, i.elim Exists.intro⟩
 
+@[congr]
+theorem exists_prop_congr {p p' : Prop} {q q' : p → Prop} (hq : ∀ h, q h ↔ q' h) (hp : p ↔ p') :
+    Exists q ↔ ∃ h : p', q' (hp.2 h) :=
+  ⟨fun ⟨_, _⟩ ↦ ⟨hp.1 ‹_›, (hq _).1 ‹_›⟩, fun ⟨_, _⟩ ↦ ⟨_, (hq _).2 ‹_›⟩⟩
+
+theorem exists_prop_of_true {p : Prop} {q : p → Prop} (h : p) : (Exists fun h' : p => q h') ↔ q h :=
+  @exists_const (q h) p ⟨h⟩
+
+@[simp] theorem exists_true_left (p : True → Prop) : Exists p ↔ p True.intro :=
+  exists_prop_of_true _
+
 section forall_congr
 
 theorem forall_congr' (h : ∀ a, p a ↔ q a) : (∀ a, p a) ↔ ∀ a, q a :=

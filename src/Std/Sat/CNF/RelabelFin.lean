@@ -18,20 +18,20 @@ Obtain the literal with the largest identifier in `c`.
 def Clause.maxLiteral (c : Clause Nat) : Option Nat := (c.map (·.1)) |>.maximum?
 
 theorem Clause.of_maxLiteral_eq_some (c : Clause Nat) (h : c.maxLiteral = some maxLit) :
-    ∀ lit, mem lit c → lit ≤ maxLit := by
+    ∀ lit, Mem lit c → lit ≤ maxLit := by
   intro lit hlit
   simp only [maxLiteral, List.maximum?_eq_some_iff', List.mem_map, forall_exists_index, and_imp,
     forall_apply_eq_imp_iff₂] at h
-  simp only [mem] at hlit
+  simp only [Mem] at hlit
   rcases h with ⟨_, hbar⟩
   cases hlit
   all_goals
     have := hbar (lit, _) (by assumption)
     omega
 
-theorem Clause.maxLiteral_eq_some_of_mem (c : Clause Nat) (h : mem l c)
+theorem Clause.maxLiteral_eq_some_of_mem (c : Clause Nat) (h : Mem l c)
     : ∃ maxLit, c.maxLiteral = some maxLit := by
-  dsimp [mem] at h
+  dsimp [Mem] at h
   cases h <;> rename_i h
   all_goals
     have h1 := List.ne_nil_of_mem h
@@ -39,7 +39,7 @@ theorem Clause.maxLiteral_eq_some_of_mem (c : Clause Nat) (h : mem l c)
     simp [← Option.ne_none_iff_exists', h1, h2, maxLiteral]
 
 theorem Clause.of_maxLiteral_eq_none (c : Clause Nat) (h : c.maxLiteral = none) :
-    ∀ lit, ¬mem lit c := by
+    ∀ lit, ¬Mem lit c := by
   intro lit hlit
   simp only [maxLiteral, List.maximum?_eq_none_iff, List.map_eq_nil] at h
   simp only [h, not_mem_nil] at hlit
@@ -58,9 +58,9 @@ theorem of_maxLiteral_eq_some' (c : CNF Nat) (h : c.maxLiteral = some maxLit) :
   apply hclause3 localMax clause hclause1 hclause2
 
 theorem of_maxLiteral_eq_some (c : CNF Nat) (h : c.maxLiteral = some maxLit) :
-    ∀ lit, mem lit c → lit ≤ maxLit := by
+    ∀ lit, Mem lit c → lit ≤ maxLit := by
   intro lit hlit
-  dsimp [mem] at hlit
+  dsimp [Mem] at hlit
   rcases hlit with ⟨clause, ⟨hclause1, hclause2⟩⟩
   rcases Clause.maxLiteral_eq_some_of_mem clause hclause2 with ⟨localMax, hlocal⟩
   have h1 := of_maxLiteral_eq_some' c h clause hclause1 hlocal
@@ -68,10 +68,10 @@ theorem of_maxLiteral_eq_some (c : CNF Nat) (h : c.maxLiteral = some maxLit) :
   omega
 
 theorem of_maxLiteral_eq_none (c : CNF Nat) (h : c.maxLiteral = none) :
-    ∀ lit, ¬mem lit c := by
+    ∀ lit, ¬Mem lit c := by
   intro lit hlit
   simp only [maxLiteral, List.maximum?_eq_none_iff] at h
-  dsimp [mem] at hlit
+  dsimp [Mem] at hlit
   rcases hlit with ⟨clause, ⟨hclause1, hclause2⟩⟩
   have := Clause.of_maxLiteral_eq_none clause (List.forall_none_of_filterMap_eq_nil h clause hclause1) lit
   contradiction
@@ -84,7 +84,7 @@ def numLiterals (g : CNF Nat) :=
   | none => 0
   | some n => n + 1
 
-theorem lt_numLiterals {g : CNF Nat} (h : mem a g) : a < numLiterals g := by
+theorem lt_numLiterals {g : CNF Nat} (h : Mem a g) : a < numLiterals g := by
   dsimp [numLiterals]
   split <;> rename_i h2
   . exfalso
@@ -92,7 +92,7 @@ theorem lt_numLiterals {g : CNF Nat} (h : mem a g) : a < numLiterals g := by
   . have := of_maxLiteral_eq_some g h2 a h
     omega
 
-theorem numLiterals_pos {g : CNF Nat} (h : mem a g) : 0 < numLiterals g :=
+theorem numLiterals_pos {g : CNF Nat} (h : Mem a g) : 0 < numLiterals g :=
   Nat.lt_of_le_of_lt (Nat.zero_le _) (lt_numLiterals h)
 
 /--
@@ -102,7 +102,7 @@ This operation might be useful when e.g. using the literals to index into an arr
 without conducting bounds checks.
 -/
 def relabelFin (g : CNF Nat) : CNF (Fin g.numLiterals) :=
-  if h : ∃ a, mem a g then
+  if h : ∃ a, Mem a g then
     let n := g.numLiterals
     g.relabel fun i =>
       if w : i < n then

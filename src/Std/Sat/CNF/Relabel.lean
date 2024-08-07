@@ -24,7 +24,7 @@ def relabel (f : α → β) (c : Clause α) : Clause β := c.map (fun (i, n) => 
 
 @[simp] theorem relabel_id' : relabel (id : α → α) = id := by funext; simp [relabel]
 
-theorem relabel_congr {x : Clause α} {f g : α → β} (w : ∀ a, mem a x → f a = g a) :
+theorem relabel_congr {x : Clause α} {f g : α → β} (w : ∀ a, Mem a x → f a = g a) :
     relabel f x = relabel g x := by
   simp only [relabel]
   rw [List.map_congr_left]
@@ -63,7 +63,7 @@ def relabel (f : α → β) (g : CNF α) : CNF β := g.map (Clause.relabel f)
 
 @[simp] theorem relabel_id : relabel id x = x := by simp [relabel]
 
-theorem relabel_congr {x : CNF α} {f g : α → β} (w : ∀ a, mem a x → f a = g a) :
+theorem relabel_congr {x : CNF α} {f g : α → β} (w : ∀ a, Mem a x → f a = g a) :
     relabel f x = relabel g x := by
   dsimp only [relabel]
   rw [List.map_congr_left]
@@ -92,23 +92,23 @@ theorem nonempty_or_impossible (x : CNF α) : Nonempty α ∨ ∃ n, x = List.re
     | ⟨a, b⟩ :: c => exact Or.inl ⟨a⟩
 
 theorem unsat_relabel_iff {x : CNF α} {f : α → β}
-    (w : ∀ {a b}, mem a x → mem b x → f a = f b → a = b) :
+    (w : ∀ {a b}, Mem a x → Mem b x → f a = f b → a = b) :
     Unsatisfiable β (relabel f x) ↔ Unsatisfiable α x := by
   rcases nonempty_or_impossible x with (⟨⟨a₀⟩⟩ | ⟨n, rfl⟩)
   · refine ⟨fun h => ?_, unsat_relabel f⟩
     have em := Classical.propDecidable
     let g : β → α := fun b =>
-      if h : ∃ a, mem a x ∧ f a = b then h.choose else a₀
+      if h : ∃ a, Mem a x ∧ f a = b then h.choose else a₀
     have h' := unsat_relabel g h
     suffices w : relabel g (relabel f x) = x by
       rwa [w] at h'
-    have : ∀ a, mem a x → g (f a) = a := by
+    have : ∀ a, Mem a x → g (f a) = a := by
       intro a h
       dsimp [g]
       rw [dif_pos ⟨a, h, rfl⟩]
       apply w _ h
-      · exact (Exists.choose_spec (⟨a, h, rfl⟩ : ∃ a', mem a' x ∧ f a' = f a)).2
-      · exact (Exists.choose_spec (⟨a, h, rfl⟩ : ∃ a', mem a' x ∧ f a' = f a)).1
+      · exact (Exists.choose_spec (⟨a, h, rfl⟩ : ∃ a', Mem a' x ∧ f a' = f a)).2
+      · exact (Exists.choose_spec (⟨a, h, rfl⟩ : ∃ a', Mem a' x ∧ f a' = f a)).1
     rw [relabel_relabel, relabel_congr, relabel_id]
     exact this
   · cases n <;> simp [Unsatisfiable, (· ⊨ ·), relabel, Clause.relabel, List.replicate_succ]

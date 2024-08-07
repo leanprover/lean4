@@ -39,13 +39,13 @@ def Liff (α : Type u) {σ1 : Type v} {σ2 : Type w} [HSat α σ1] [HSat α σ2]
   ∀ (p : α → Bool), p ⊨ f1 ↔ p ⊨ f2
 
 /-- `f1` logically implies `f2` -/
-def Limplies (α : Type u) {σ1 : Type v} {σ2 : Type w} [HSat α σ1] [HSat α σ2] (f1 : σ1) (f2 : σ2)
-    : Prop :=
+def Limplies (α : Type u) {σ1 : Type v} {σ2 : Type w} [HSat α σ1] [HSat α σ2] (f1 : σ1) (f2 : σ2) :
+    Prop :=
   ∀ (p : α → Bool), p ⊨ f1 → p ⊨ f2
 
 /-- `f1` is unsat iff `f2` is unsat -/
-def Equisat (α : Type u) {σ1 : Type v} {σ2 : Type w} [HSat α σ1] [HSat α σ2] (f1 : σ1) (f2 : σ2)
-    : Prop :=
+def Equisat (α : Type u) {σ1 : Type v} {σ2 : Type w} [HSat α σ1] [HSat α σ2] (f1 : σ1) (f2 : σ2) :
+    Prop :=
   Unsatisfiable α f1 ↔ Unsatisfiable α f2
 
 /--
@@ -65,8 +65,8 @@ protected theorem Liff.symm {α : Type u} {σ1 : Type v} {σ2 : Type 2} [HSat α
   rw [h p]
 
 protected theorem Liff.trans {α : Type u} {σ1 : Type v} {σ2 : Type w} {σ3 : Type x} [HSat α σ1]
-    [HSat α σ2] [HSat α σ3] (f1 : σ1) (f2 : σ2) (f3 : σ3)
-    : Liff α f1 f2 → Liff α f2 f3 → Liff α f1 f3 := by
+    [HSat α σ2] [HSat α σ3] (f1 : σ1) (f2 : σ2) (f3 : σ3) :
+    Liff α f1 f2 → Liff α f2 f3 → Liff α f1 f3 := by
   intros f1_eq_f2 f2_eq_f3 p
   rw [f1_eq_f2 p, f2_eq_f3 p]
 
@@ -74,37 +74,37 @@ protected theorem Limplies.refl {α : Type u} {σ : Type v} [HSat α σ] (f : σ
   (fun _ => id)
 
 protected theorem Limplies.trans {α : Type u} {σ1 : Type v} {σ2 : Type w} {σ3 : Type x} [HSat α σ1]
-    [HSat α σ2] [HSat α σ3] (f1 : σ1) (f2 : σ2) (f3 : σ3)
-    : Limplies α f1 f2 → Limplies α f2 f3 → Limplies α f1 f3 := by
+    [HSat α σ2] [HSat α σ3] (f1 : σ1) (f2 : σ2) (f3 : σ3) :
+    Limplies α f1 f2 → Limplies α f2 f3 → Limplies α f1 f3 := by
   intros f1_implies_f2 f2_implies_f3 p p_entails_f1
   exact f2_implies_f3 p <| f1_implies_f2 p p_entails_f1
 
 theorem liff_iff_limplies_and_limplies {α : Type u} {σ1 : Type v} {σ2 : Type w} [HSat α σ1]
-    [HSat α σ2] (f1 : σ1) (f2 : σ2)
-    : Liff α f1 f2 ↔ Limplies α f1 f2 ∧ Limplies α f2 f1 := by
+    [HSat α σ2] (f1 : σ1) (f2 : σ2) :
+    Liff α f1 f2 ↔ Limplies α f1 f2 ∧ Limplies α f2 f1 := by
   simp [Liff, Limplies, iff_iff_implies_and_implies, forall_and]
 
 theorem liff_unsat {α : Type u} {σ1 : Type v} {σ2 : Type w} [HSat α σ1] [HSat α σ2] (f1 : σ1)
-    (f2 : σ2) (h : Liff α f1 f2)
-    : Unsatisfiable α f1 ↔ Unsatisfiable α f2 := by
+    (f2 : σ2) (h : Liff α f1 f2) :
+    Unsatisfiable α f1 ↔ Unsatisfiable α f2 := by
   simp only [Liff] at h
   simp [Unsatisfiable, h]
 
 theorem limplies_unsat {α : Type u} {σ1 : Type v} {σ2 : Type w} [HSat α σ1] [HSat α σ2] (f1 : σ1)
-    (f2 : σ2) (h : Limplies α f2 f1)
-    : Unsatisfiable α f1 → Unsatisfiable α f2 := by
+    (f2 : σ2) (h : Limplies α f2 f1) :
+    Unsatisfiable α f1 → Unsatisfiable α f2 := by
   intros f1_unsat p p_entails_f2
   exact f1_unsat p <| h p p_entails_f2
 
 theorem incompatible_of_unsat (α : Type u) {σ1 : Type v} {σ2 : Type w} [HSat α σ1] [HSat α σ2]
-    (f1 : σ1) (f2 : σ2)
-    : Unsatisfiable α f1 → Incompatible α f1 f2 := by
+    (f1 : σ1) (f2 : σ2) :
+    Unsatisfiable α f1 → Incompatible α f1 f2 := by
   intro h p
   exact Or.inl <| h p
 
 theorem unsat_of_limplies_and_incompatible (α : Type u) {σ1 : Type v} {σ2 : Type w} [HSat α σ1]
-    [HSat α σ2] (f1 : σ1) (f2 : σ2)
-    : Limplies α f1 f2 → Incompatible α f1 f2 → Unsatisfiable α f1 := by
+    [HSat α σ2] (f1 : σ1) (f2 : σ2) :
+    Limplies α f1 f2 → Incompatible α f1 f2 → Unsatisfiable α f1 := by
   intro h1 h2 p pf1
   cases h2 p
   . next h2 =>
@@ -113,8 +113,8 @@ theorem unsat_of_limplies_and_incompatible (α : Type u) {σ1 : Type v} {σ2 : T
     exact h2 <| h1 p pf1
 
 protected theorem Incompatible.symm {α : Type u} {σ1 : Type v} {σ2 : Type w} [HSat α σ1] [HSat α σ2]
-    (f1 : σ1) (f2 : σ2)
-    : Incompatible α f1 f2 ↔ Incompatible α f2 f1 := by
+    (f1 : σ1) (f2 : σ2) :
+    Incompatible α f1 f2 ↔ Incompatible α f2 f1 := by
   constructor
   . intro h p
     exact Or.symm <| h p

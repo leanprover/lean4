@@ -104,7 +104,7 @@ def toTime24Hour (input : LocalTime) : String :=
 Parses a time string in the 12-hour format (`hh:mm:ss aa`) and returns a `LocalTime`.
 -/
 def fromTime12Hour (input : String) : Except String LocalTime :=
-  Formats.Time12Hour.parseBuilder (λh m s a => LocalTime.ofHourMinuteSeconds (HourMarker.toAbsolute' a h) m s) input
+  Formats.Time12Hour.parseBuilder (λh m s a => LocalTime.ofHourMinuteSeconds (HourMarker.toAbsoluteShift a h) m s) input
 
 /--
 Formats a `LocalTime` value into a 12-hour format string (`hh:mm:ss aa`).

@@ -508,7 +508,7 @@ private def addDataInDateTime (data : DateBuilder) (typ : Modifier) (value : Sin
   | .DD | .D | .d => { data with day := value }
   | .EEEE | .EEE => data
   | .hh | .h | .HH | .H => { data with hour := value }
-  | .AA | .aa => { data with hour := HourMarker.toAbsolute' value data.hour }
+  | .AA | .aa => { data with hour := HourMarker.toAbsoluteShift value data.hour }
   | .mm | .m => { data with minute := value }
   | .sss => { data with millisecond := value }
   | .ss | .s => { data with second := value }

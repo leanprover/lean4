@@ -39,7 +39,7 @@ instance : BEq (Bounded rel n m) where
 
 @[always_inline]
 instance {x y : Bounded rel a b} : Decidable (x ≤ y) :=
-  dite (x.val ≤ y.val) isTrue isFalse
+  inferInstanceAs (Decidable (x.val ≤ y.val))
 
 /--
 A `Bounded` integer that the relation used is the the less-equal relation so, it includes all

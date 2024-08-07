@@ -18,6 +18,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git fetch origin refs/pull/${{ github.event.issue.number }}/base
-          git rebase FETCH_HEAD
+          PR_NUMBER=${{ github.event.issue.number }}
+          API_URL="https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER"
+          PR_DETAILS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" $API_URL)
+          
+          BASE_REF=$(echo $PR_DETAILS | jq -r .base.ref)
+
+          git fetch origin $BASE_REF
+          git rebase $BASE_REF
           git push --force-with-lease

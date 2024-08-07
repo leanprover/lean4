@@ -7,6 +7,7 @@ prelude
 import Init.Data.Nat.MinMax
 import Init.Data.Nat.Lemmas
 import Init.Data.List.Monadic
+import Init.Data.List.Nat.Range
 import Init.Data.Fin.Basic
 import Init.Data.Array.Mem
 import Init.TacticsExtra
@@ -336,10 +337,9 @@ theorem not_mem_nil (a : α) : ¬ a ∈ #[] := nofun
 
 /-- # get lemmas -/
 
-theorem lt_of_getElem {x : α} {a : Array α} {idx : Nat} {hidx : idx < a.size}
-    (_h : a[idx]'hidx = x) :
-    idx < a.size := by
-  exact hidx
+theorem lt_of_getElem {x : α} {a : Array α} {idx : Nat} {hidx : idx < a.size} (_ : a[idx] = x) :
+    idx < a.size :=
+  hidx
 
 theorem getElem?_mem {l : Array α} {i : Fin l.size} : l[i] ∈ l := by
   erw [Array.mem_def, getElem_eq_data_getElem]
@@ -510,30 +510,12 @@ theorem size_eq_length_data (as : Array α) : as.size = as.data.length := rfl
     simp only [mkEmpty_eq, size_push] at *
     omega
 
-theorem getElem_range {n : Nat} {x : Nat} (h : x < n) : (Array.range n)[x]'(by simp [h]) = x := by
-  induction n
-  . contradiction
-  . next n ih =>
-    rcases Nat.lt_or_eq_of_le <| Nat.le_of_lt_succ h with x_lt_n | x_eq_n
-    . specialize ih x_lt_n
-      simp only [Array.range, Nat.fold, flip, Array.get_push]
-      simp only [Array.range, flip] at ih
-      split
-      . exact ih
-      . next x_ge_n =>
-        exfalso
-        have h_size_range : (Array.range n).size = n := Array.size_range
-        simp only [Array.mkEmpty_eq, Array.range, flip] at h_size_range
-        simp only [Array.mkEmpty_eq, h_size_range] at x_ge_n
-        exact x_ge_n x_lt_n
-    . simp only [Array.range, Nat.fold, flip, Array.get_push]
-      split
-      . next x_lt_n =>
-        exfalso
-        have h_size_range : (Array.range n).size = n := Array.size_range
-        simp only [Array.range, Array.mkEmpty_eq] at h_size_range
-        simp only [x_eq_n, Array.mkEmpty_eq, h_size_range, Nat.lt_irrefl] at x_lt_n
-      . rw [x_eq_n]
+@[simp] theorem data_range (n : Nat) : (range n).data = List.range n := by
+  induction n <;> simp_all [range, Nat.fold, flip, List.range_succ]
+
+@[simp]
+theorem getElem_range {n : Nat} {x : Nat} (h : x < (Array.range n).size) : (Array.range n)[x] = x := by
+  simp [getElem_eq_data_getElem]
 
 set_option linter.deprecated false in
 @[simp] theorem reverse_data (a : Array α) : a.reverse.data = a.data.reverse := by
@@ -737,25 +719,21 @@ theorem mapIdx_spec (as : Array α) (f : Fin as.size → α → β)
   unfold modify modifyM Id.run
   split <;> simp
 
-theorem getElem_modify {arr : Array α} {x i} (h : i < arr.size) :
-    (arr.modify x f)[i]'(by simp [h]) =
-    if x = i then f (arr[i]'h) else arr[i]'h := by
-  simp [modify, modifyM, Id.run]; split
-  · simp [get_set _ _ _ h]; split <;> simp [*]
+theorem getElem_modify {as : Array α} {x i} (h : i < as.size) :
+    (as.modify x f)[i]'(by simp [h]) = if x = i then f as[i] else as[i] := by
+  simp only [modify, modifyM, get_eq_getElem, Id.run, Id.pure_eq]
+  split
+  · simp only [Id.bind_eq, get_set _ _ _ h]; split <;> simp [*]
   · rw [if_neg (mt (by rintro rfl; exact h) ‹_›)]
 
-theorem getElem_modify_self {a : Array α} {i : Nat} (i_in_bounds : i < a.size) (f : α → α) :
-    (a.modify i f)[i]'(by simp[i_in_bounds]) = f a[i] := by
-  rw [getElem_modify]
-  simp only [↓reduceIte]
-  assumption
+theorem getElem_modify_self {as : Array α} {i : Nat} (h : i < as.size) (f : α → α) :
+    (as.modify i f)[i]'(by simp [h]) = f as[i] := by
+  simp [getElem_modify h]
 
-theorem getElem_modify_of_ne {a : Array α} {i : Nat} {j : Nat} (j_size : j < a.size)
+theorem getElem_modify_of_ne {as : Array α} {i : Nat} (hj : j < as.size)
     (f : α → α) (h : i ≠ j) :
-    (a.modify i f)[j]'(by rw [Array.size_modify]; exact j_size) = a[j] := by
-  rw [getElem_modify]
-  simp only [h, ↓reduceIte]
-  assumption
+    (as.modify i f)[j]'(by rwa [size_modify]) = as[j] := by
+  simp [getElem_modify hj, h]
 
 /-! ### filter -/
 

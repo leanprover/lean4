@@ -33,8 +33,8 @@ option_ref<level> get_lmvar_assignment(metavar_ctx & mctx, name const & mid) {
 
 class instantiate_lmvars_fn {
     metavar_ctx & m_mctx;
-    std::unordered_map<lean_object *, level> m_cache;
     std::vector<level> m_saved; // Helper vector to prevent values from being garbagge collected
+    std::unordered_map<lean_object *, level> m_cache;
 
     inline level cache(level const & l, level r, bool shared) {
         if (shared) {
@@ -71,14 +71,14 @@ public:
                 if (!has_mvar(a)) {
                     return a;
                 } else {
+                    /*
+                    We save `a` to ensure it will not be garbage collected.
+                    This is necessary because `m_cache` may contain references
+                    to it and its subterms, **and** it does not bump their RC's
+                    */
+                    m_saved.push_back(a);
                     level a_new = visit(a);
                     if (!is_eqp(a, a_new)) {
-                        /*
-                        We save `a` to ensure it will not be garbage collected
-                        after we update `mctx`. This is necessary because `m_cache`
-                        may contain references to its subterms.
-                        */
-                        m_saved.push_back(a);
                         assign_lmvar(m_mctx, mvar_id(l), a_new);
                     }
                     return a_new;
@@ -140,9 +140,9 @@ expr replace_fvars(expr const & e, array_ref<expr> const & fvars, expr const * r
 class instantiate_mvars_fn {
     metavar_ctx & m_mctx;
     instantiate_lmvars_fn m_level_fn;
+    std::vector<expr> m_saved; // Helper vector to prevent values from being garbagge collected
     name_set m_already_normalized; // Store metavariables whose assignment has already been normalized.
     std::unordered_map<lean_object *, expr> m_cache;
-    std::vector<expr> m_saved; // Helper vector to prevent values from being garbagge collected
 
     level visit_level(level const & l) {
         return m_level_fn(l);
@@ -172,14 +172,14 @@ class instantiate_mvars_fn {
                 return optional<expr>(a);
             } else {
                 m_already_normalized.insert(mid);
+                /*
+                We save `a` to ensure it will not be garbage collected.
+                This is necessary because `m_cache` may contain references to it and
+                its subterms. Recall that `m_cache` does not bump their RC's.
+                */
+                m_saved.push_back(a);
                 expr a_new = visit(a);
                 if (!is_eqp(a, a_new)) {
-                    /*
-                    We save `a` to ensure it will not be garbage collected
-                    after we update `mctx`. This is necessary because `m_cache`
-                    may contain references to its subterms.
-                    */
-                    m_saved.push_back(a);
                     assign_mvar(m_mctx, mid, a_new);
                 }
                 return optional<expr>(a_new);

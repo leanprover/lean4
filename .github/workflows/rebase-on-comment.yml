@@ -10,20 +10,18 @@ jobs:
     if: github.event.issue.pull_request != '' && contains(github.event.comment.body, '!rebase') && github.event.comment.user.login == github.event.issue.user.login
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ github.event.issue.pull_request.head.ref }}
-
-      - name: Fetch base branch
-        run: git fetch origin ${{ github.event.issue.pull_request.base.ref }}
-
-      - name: Rebase current branch onto base branch
-        run: |
-          git rebase origin/${{ github.event.issue.pull_request.base.ref }}
-      
-      - name: Push changes
+      - name: Rebase PR branch onto base branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          PR_NUMBER=${{ github.event.issue.number }}
+          API_URL="https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER"
+          PR_DETAILS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" $API_URL)
+          
+          BASE_REF=$(echo $PR_DETAILS | jq -r .base.ref)
+          HEAD_REF=$(echo $PR_DETAILS | jq -r .head.ref)
+
+          git checkout $HEAD_REF
+          git fetch origin $BASE_REF
+          git rebase origin/$BASE_REF
           git push --force-with-lease

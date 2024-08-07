@@ -371,10 +371,12 @@ private def mkUnOp' (f : Expr) (arg : Expr) : StateRefT ToExprCache TermElabM Ex
       return e.beta #[arg]
     else
       trace[Elab.binop] "mkUnOp' cache miss"
-      withLocalDeclD `arg argType fun x => do
-        let e ← mkLambdaFVars #[x] (← mk x)
-        modify fun s => { s with unop := s.unop.insert key e }
-        return e.beta #[arg]
+      let x ← mkFreshExprMVar argType
+      let e ← mk x
+      let e' ← mkLambdaFVars #[x] e
+      modify fun s => { s with unop := s.unop.insert key e' }
+      x.mvarId!.assign arg
+      instantiateMVars e
 
 private def mkBinOp' (kind : BinOpKind) (f : Expr) (lhs rhs : Expr) : StateRefT ToExprCache TermElabM Expr := do
   let mk (x y : Expr) := mkBinOp kind f x y
@@ -393,11 +395,14 @@ private def mkBinOp' (kind : BinOpKind) (f : Expr) (lhs rhs : Expr) : StateRefT 
       return e.beta #[lhs, rhs]
     else
       trace[Elab.binop] "mkBinOp' cache miss"
-      withLocalDeclD `lhs lhsType fun x =>
-      withLocalDeclD `rhs rhsType fun y => do
-        let e ← mkLambdaFVars #[x, y] (← mk x y)
-        modify fun s => { s with binop := s.binop.insert key e }
-        return e.beta #[lhs, rhs]
+      let x ← mkFreshExprMVar lhsType
+      let y ← mkFreshExprMVar rhsType
+      let e ← mk x y
+      let e' ← mkLambdaFVars #[x, y] e
+      modify fun s => { s with binop := s.binop.insert key e' }
+      x.mvarId!.assign lhs
+      y.mvarId!.assign rhs
+      instantiateMVars e
 
 private def mkActOp' (kind : ActOpKind) (f : Expr) (act : Syntax) (arg : Expr) : StateRefT ToExprCache TermElabM Expr := do
   let .const fname .. := f
@@ -421,10 +426,12 @@ private def mkActOp' (kind : ActOpKind) (f : Expr) (act : Syntax) (arg : Expr) :
       return e'
     else
       trace[Elab.binop] "mkActOp' cache miss"
-      withLocalDeclD `arg argType fun x => do
-        let e ← mkLambdaFVars #[x] (← mkActOp kind f act x)
-        modify fun s => { s with actop := s.actop.insert key e }
-        return e.beta #[arg]
+      let x ← mkFreshExprMVar argType
+      let e ← mkActOp kind f act x
+      let e' ← mkLambdaFVars #[x] e
+      modify fun s => { s with actop := s.actop.insert key e' }
+      x.mvarId!.assign arg
+      instantiateMVars e
 
 private def toExprCore (t : Tree) : StateRefT ToExprCache TermElabM Expr := do
   match t with

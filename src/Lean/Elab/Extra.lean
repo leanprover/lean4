@@ -154,9 +154,12 @@ Remarks:
 private inductive BinOpKind where
   | regular   -- `binop%`
   | lazy      -- `binop_lazy%`
+  deriving BEq, Hashable
+
+private inductive ActOpKind where
   | leftact   -- `leftact%`
   | rightact  -- `rightact%`
-deriving BEq
+  deriving BEq, Hashable
 
 private inductive Tree where
   /--
@@ -169,6 +172,7 @@ private inductive Tree where
   `ref` is the original syntax that expanded into `binop%/...`.
   -/
   | binop (ref : Syntax) (kind : BinOpKind) (f : Expr) (lhs rhs : Tree)
+  | actop (ref : Syntax) (kind : ActOpKind) (f : Expr) (act : Syntax) (arg : Tree)
   /--
   `ref` is the original syntax that expanded into `unop%`.
   -/
@@ -196,8 +200,8 @@ where
     | `(binop% $f $lhs $rhs) => processBinOp s .regular f lhs rhs
     | `(binop_lazy% $f $lhs $rhs) => processBinOp s .lazy f lhs rhs
     | `(unop% $f $arg) => processUnOp s f arg
-    | `(leftact% $f $lhs $rhs) => processBinOp s .leftact f lhs rhs
-    | `(rightact% $f $lhs $rhs) => processBinOp s .rightact f lhs rhs
+    | `(leftact% $f $lhs $rhs) => processActOp s .leftact f lhs rhs
+    | `(rightact% $f $lhs $rhs) => processActOp s .rightact f rhs lhs
     | `(($e)) =>
       if hasCDot e then
         processLeaf s
@@ -214,10 +218,11 @@ where
 
   processBinOp (ref : Syntax) (kind : BinOpKind) (f lhs rhs : Syntax) := do
     let some f ← resolveId? f | throwUnknownConstant f.getId
-    -- treat corresponding argument as leaf for `leftact/rightact`
-    let lhs ← if kind == .leftact then processLeaf lhs else go lhs
-    let rhs ← if kind == .rightact then processLeaf rhs else go rhs
-    return .binop ref kind f lhs rhs
+    return .binop ref kind f (← go lhs) (← go rhs)
+
+  processActOp (ref : Syntax) (kind : ActOpKind) (f act arg : Syntax) := do
+    let some f ← resolveId? f | throwUnknownConstant f.getId
+    return .actop ref kind f act (← go arg)
 
   processUnOp (ref : Syntax) (f arg : Syntax) := do
     let some f ← resolveId? f | throwUnknownConstant f.getId
@@ -266,9 +271,8 @@ where
      unless (← get).hasUncomparable do
        match t with
        | .macroExpansion _ _ _ nested => go nested
-       | .binop _ .leftact  _ _ rhs => go rhs
-       | .binop _ .rightact _ lhs _ => go lhs
        | .binop _ _ _ lhs rhs => go lhs; go rhs
+       | .actop _ _ _ _ arg => go arg
        | .unop _ _ arg => go arg
        | .term _ _ val =>
          let type := (← instantiateMVars (← inferType val)).cleanupAnnotations
@@ -313,27 +317,130 @@ where
                  trace[Elab.binop] "uncomparable types: {max}, {type}"
                  modify fun s => { s with hasUncomparable := true }
 
-private def mkBinOp (lazy : Bool) (f : Expr) (lhs rhs : Expr) : TermElabM Expr := do
-  let mut rhs := rhs
-  if lazy then
-    rhs ← mkFunUnit rhs
+private def mkBinOp (kind : BinOpKind) (f : Expr) (lhs rhs : Expr) : TermElabM Expr := do
+  let rhs ←
+    match kind with
+    | .regular => pure rhs
+    | .lazy => mkFunUnit rhs
   elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] (expectedType? := none) (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
+
+private def mkActOp (kind : ActOpKind) (f : Expr) (act : Syntax) (arg : Expr) : TermElabM Expr := do
+  let (lhs, rhs) :=
+    match kind with
+    | .leftact => (Arg.stx act, Arg.expr arg)
+    | .rightact => (Arg.expr arg, Arg.stx act)
+  elabAppArgs f #[] #[lhs, rhs] (expectedType? := none) (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
 
 private def mkUnOp (f : Expr) (arg : Expr) : TermElabM Expr := do
   elabAppArgs f #[] #[Arg.expr arg] (expectedType? := none) (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
 
-private def toExprCore (t : Tree) : TermElabM Expr := do
+deriving instance Hashable for Syntax.Preresolved
+
+/-- `Syntax` without source info, for keys in `ToExprCache`. -/
+inductive KSyntax where
+  | missing : KSyntax
+  | node (kind : SyntaxNodeKind) (args : Array KSyntax) : KSyntax
+  | atom (val : String) : KSyntax
+  | ident (rawVal : String) (val : Name) (preresolved : List Syntax.Preresolved) : KSyntax
+  deriving Hashable, BEq, Inhabited, Repr
+
+partial def KSyntax.ofSyntax : Syntax → KSyntax
+  | .missing => .missing
+  | .node _ kind args => .node kind (args.map KSyntax.ofSyntax)
+  | .atom _ val => .atom val
+  | .ident _ rawVal val preresolved => .ident rawVal.toString val preresolved
+
+structure ToExprCache where
+  unop : HashMap (Name × Expr) Expr := {}
+  binop : HashMap (Name × BinOpKind × Expr × Expr) Expr := {}
+  actop : HashMap (Name × ActOpKind × KSyntax × Expr) Expr := {}
+
+private def mkUnOp' (f : Expr) (arg : Expr) : StateRefT ToExprCache TermElabM Expr := do
+  let mk (x : Expr) := mkUnOp f x
+  let .const fname .. := f
+    | mk arg
+  let argType ← instantiateMVars (← inferType arg)
+  if isUnknown argType then
+    trace[Elab.binop] "mkUnOp' type insufficient"
+    mk arg
+  else
+    let key := (fname, argType)
+    trace[Elab.binop] "mkUnOp' key {key}"
+    if let some e := (← get).unop.find? key then
+      trace[Elab.binop] "mkUnOp' cache hit"
+      return e.beta #[arg]
+    else
+      trace[Elab.binop] "mkUnOp' cache miss"
+      withLocalDeclD `arg argType fun x => do
+        let e ← mkLambdaFVars #[x] (← mk x)
+        modify fun s => { s with unop := s.unop.insert key e }
+        return e.beta #[arg]
+
+private def mkBinOp' (kind : BinOpKind) (f : Expr) (lhs rhs : Expr) : StateRefT ToExprCache TermElabM Expr := do
+  let mk (x y : Expr) := mkBinOp kind f x y
+  let .const fname .. := f
+    | mk lhs rhs
+  let lhsType ← instantiateMVars (← inferType lhs)
+  let rhsType ← instantiateMVars (← inferType rhs)
+  if isUnknown lhsType || isUnknown rhsType then
+    trace[Elab.binop] "mkBinOp' types insufficient"
+    mk lhs rhs
+  else
+    let key := (fname, kind, lhsType, rhsType)
+    trace[Elab.binop] "mkBinOp' key {(fname, lhsType, rhsType)}"
+    if let some e := (← get).binop.find? key then
+      trace[Elab.binop] "mkBinOp' cache hit"
+      return e.beta #[lhs, rhs]
+    else
+      trace[Elab.binop] "mkBinOp' cache miss"
+      withLocalDeclD `lhs lhsType fun x =>
+      withLocalDeclD `rhs rhsType fun y => do
+        let e ← mkLambdaFVars #[x, y] (← mk x y)
+        modify fun s => { s with binop := s.binop.insert key e }
+        return e.beta #[lhs, rhs]
+
+private def mkActOp' (kind : ActOpKind) (f : Expr) (act : Syntax) (arg : Expr) : StateRefT ToExprCache TermElabM Expr := do
+  let .const fname .. := f
+    | mkActOp kind f act arg
+  let argType ← instantiateMVars (← inferType arg)
+  if isUnknown argType then
+    trace[Elab.binop] "mkActOp' type insufficient"
+    mkActOp kind f act arg
+  else
+    let key := (fname, kind, KSyntax.ofSyntax act, argType)
+    trace[Elab.binop] "mkActOp' key {(fname, repr <| KSyntax.ofSyntax act, argType)}"
+    if let some e := (← get).actop.find? key then
+      trace[Elab.binop] "mkActOp' cache hit"
+      -- Need to elaborate act and unify it with the pre-elaborated version.
+      -- Assumption: last two arguments are the arguments
+      let e' ← instantiateMVars (e.beta #[arg])
+      let arg := match kind with | .leftact => e'.appFn!.appArg! | .rightact => e'.appArg!
+      let act' ← elabTerm act (← inferType arg)
+      unless ← isDefEqGuarded act' arg do
+        logWarningAt act m!"Is not defeq to cached value"
+      return e'
+    else
+      trace[Elab.binop] "mkActOp' cache miss"
+      withLocalDeclD `arg argType fun x => do
+        let e ← mkLambdaFVars #[x] (← mkActOp kind f act x)
+        modify fun s => { s with actop := s.actop.insert key e }
+        return e.beta #[arg]
+
+private def toExprCore (t : Tree) : StateRefT ToExprCache TermElabM Expr := do
   match t with
   | .term _ trees e =>
     modifyInfoState (fun s => { s with trees := s.trees ++ trees }); return e
   | .binop ref kind f lhs rhs =>
-    withRef ref <| withInfoContext' ref (mkInfo := mkTermInfo .anonymous ref) do
-      mkBinOp (kind == .lazy) f (← toExprCore lhs) (← toExprCore rhs)
+    withRef ref <| withInfoContext' ref (mkInfo := (mkTermInfo .anonymous ref ·)) do
+      mkBinOp' kind f (← toExprCore lhs) (← toExprCore rhs)
+  | .actop ref kind f act arg =>
+    withRef ref <| withInfoContext' ref (mkInfo := (mkTermInfo .anonymous ref ·)) do
+      mkActOp' kind f act (← toExprCore arg)
   | .unop ref f arg =>
-    withRef ref <| withInfoContext' ref (mkInfo := mkTermInfo .anonymous ref) do
-      mkUnOp f (← toExprCore arg)
+    withRef ref <| withInfoContext' ref (mkInfo := (mkTermInfo .anonymous ref ·)) do
+      mkUnOp' f (← toExprCore arg)
   | .macroExpansion macroName stx stx' nested =>
-    withRef stx <| withInfoContext' stx (mkInfo := mkTermInfo macroName stx) do
+    withRef stx <| withInfoContext' stx (mkInfo := (mkTermInfo macroName stx ·)) do
       withMacroExpansion stx stx' do
         toExprCore nested
 
@@ -414,10 +521,8 @@ mutual
   where
     go (t : Tree) (f? : Option Expr) (lhs : Bool) (isPred : Bool) : TermElabM Tree := do
       match t with
-      | .binop ref .leftact f lhs rhs =>
-        return .binop ref .leftact f lhs (← go rhs none false false)
-      | .binop ref .rightact f lhs rhs =>
-        return .binop ref .rightact f (← go lhs none false false) rhs
+      | .actop ref kind f act arg =>
+        return .actop ref kind f act (← go arg none false false)
       | .binop ref kind f lhs rhs =>
         /-
           We only keep applying coercions to `maxType` if `f` is predicate or
@@ -429,7 +534,7 @@ mutual
           return .binop ref kind f (← go lhs f true false) (← go rhs f false false)
         else
           let r ← withRef ref do
-            mkBinOp (kind == .lazy) f (← toExpr lhs none) (← toExpr rhs none)
+            mkBinOp kind f (← toExpr lhs none) (← toExpr rhs none)
           let infoTrees ← getResetInfoTrees
           return .term ref infoTrees r
       | .unop ref f arg =>
@@ -455,10 +560,10 @@ mutual
     let r ← analyze tree expectedType?
     trace[Elab.binop] "hasUncomparable: {r.hasUncomparable}, hasUnknown: {r.hasUnknown}, maxType: {r.max?}"
     if r.hasUncomparable || r.max?.isNone then
-      let result ← toExprCore tree
+      let result ← toExprCore tree |>.run' {}
       ensureHasType expectedType? result
     else
-      let result ← toExprCore (← applyCoe tree r.max?.get! (isPred := false))
+      let result ← toExprCore (← applyCoe tree r.max?.get! (isPred := false)) |>.run' {}
       unless r.hasUnknown do
         -- Record the resulting maxType calculation.
         -- We can do this when all the types are known, since in this case `hasUncomparable` is valid.
@@ -532,8 +637,7 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
     trace[Elab.binrel] "hasUncomparable: {r.hasUncomparable}, hasUnknown: {r.hasUnknown}, maxType: {r.max?}"
     if r.hasUncomparable || r.max?.isNone then
       -- Use default elaboration strategy + `toBoolIfNecessary`
-      let lhs ← toExprCore lhs
-      let rhs ← toExprCore rhs
+      let (lhs, rhs) ← (do return (← toExprCore lhs, ← toExprCore rhs)) |>.run' {}
       let lhs ← withRef lhsStx <| toBoolIfNecessary lhs
       let rhs ← withRef rhsStx <| toBoolIfNecessary rhs
       let lhsType ← inferType lhs
@@ -545,7 +649,7 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
       if noProp then
         if (← withNewMCtxDepth <| isDefEq maxType (mkSort levelZero)) then
           maxType := Lean.mkConst ``Bool
-      let result ← toExprCore (← applyCoe tree maxType (isPred := true))
+      let result ← toExprCore (← applyCoe tree maxType (isPred := true)) |>.run' {}
       trace[Elab.binrel] "result: {result}"
       return result
   | none   => throwUnknownConstant stx[1].getId

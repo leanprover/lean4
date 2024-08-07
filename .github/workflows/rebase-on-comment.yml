@@ -1,0 +1,29 @@
+# As the PR author, use `!rebase` to rebase a commit
+name: Rebase on Comment
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  rebase:
+    if: github.event.issue.pull_request != '' && contains(github.event.comment.body, '!rebase') && github.event.comment.user.login == github.event.issue.user.login
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.issue.pull_request.head.ref }}
+
+      - name: Fetch base branch
+        run: git fetch origin ${{ github.event.issue.pull_request.base.ref }}
+
+      - name: Rebase current branch onto base branch
+        run: |
+          git rebase origin/${{ github.event.issue.pull_request.base.ref }}
+      
+      - name: Push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git push --force-with-lease

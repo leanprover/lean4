@@ -5,6 +5,7 @@ Authors: Kim Morrison
 -/
 prelude
 import Init.Data.List.Lemmas
+import Init.Data.List.Impl
 import Std.Sat.CNF.Literal
 
 namespace Std

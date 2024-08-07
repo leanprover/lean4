@@ -51,9 +51,13 @@ Change the literal type in a `CNF` formula from `α` to `β` by using `r`.
 -/
 def relabel (r : α → β) (f : CNF α) : CNF β := f.map (Clause.relabel r)
 
+@[simp] theorem relabel_nil {r : α → β} : relabel r [] = [] := by simp [relabel]
+@[simp] theorem relabel_cons {r : α → β} : relabel r (c :: f) = (c.relabel r) :: relabel r f := by
+  simp [relabel]
+
 @[simp] theorem eval_relabel (r : α → β) (a : β → Bool) (f : CNF α) :
     (relabel r f).eval a = f.eval (a ∘ r) := by
-  induction f <;> simp_all [relabel]
+  induction f <;> simp_all
 
 @[simp] theorem relabel_append : relabel r (f1 ++ f2) = relabel r f1 ++ relabel r f2 :=
   List.map_append _ _ _
@@ -111,7 +115,7 @@ theorem unsat_relabel_iff {f : CNF α} {r : α → β}
       · exact (Exists.choose_spec (⟨v, h, rfl⟩ : ∃ a', Mem a' f ∧ r a' = r v)).1
     rw [relabel_relabel, relabel_congr, relabel_id]
     exact this
-  · cases n <;> simp [Unsatisfiable, (· ⊨ ·), relabel, Clause.relabel, List.replicate_succ]
+  · cases n <;> simp [Unsatisfiable, (· ⊨ ·), List.replicate_succ]
 
 end CNF
 

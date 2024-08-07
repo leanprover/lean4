@@ -53,7 +53,7 @@ theorem sat_def (a : α → Bool) (f : CNF α) : Sat a f ↔ (eval a f = true) :
 theorem unsat_def (f : CNF α) : Unsat f ↔ (∀ a, eval a f = false) := by rfl
 
 
-@[simp] theorem not_unsatisfiable_nil : ¬Unsat ([] : CNF α) :=
+@[simp] theorem not_unsat_nil : ¬Unsat ([] : CNF α) :=
   fun h => by simp [unsat_def] at h
 
 @[simp] theorem sat_nil {assign : α → Bool} : Sat assign ([] : CNF α) := by

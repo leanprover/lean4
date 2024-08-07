@@ -113,8 +113,7 @@ def relabelFin (f : CNF Nat) : CNF (Fin f.numLiterals) :=
   else
     List.replicate f.length []
 
-theorem unsat_relabelFin {f : CNF Nat} :
-    Unsat f.relabelFin ↔ Unsat f := by
+@[simp] theorem unsat_relabelFin {f : CNF Nat} : Unsat f.relabelFin ↔ Unsat f := by
   dsimp [relabelFin]
   split <;> rename_i h
   · apply unsat_relabel_iff

@@ -17,7 +17,6 @@ CNF literals identified by some type `α`. The `Bool` is the polarity of the lit
 abbrev Literal (α : Type u) := α × Bool
 
 namespace Literal
-variable (α : Type) [Hashable α]
 
 /--
 Flip the polarity of `l`.

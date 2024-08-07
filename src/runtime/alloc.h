@@ -10,10 +10,10 @@ Author: Leonardo de Moura
 
 namespace lean {
 void init_thread_heap();
-void * alloc(size_t sz);
-void dealloc(void * o, size_t sz);
-void add_heartbeats(uint64_t count);
-uint64_t get_num_heartbeats();
+LEAN_EXPORT void * alloc(size_t sz);
+LEAN_EXPORT void dealloc(void * o, size_t sz);
+LEAN_EXPORT void add_heartbeats(uint64_t count);
+LEAN_EXPORT uint64_t get_num_heartbeats();
 void initialize_alloc();
 void finalize_alloc();
 }

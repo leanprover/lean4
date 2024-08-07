@@ -12,18 +12,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.issue.number }}/head
       - name: Rebase PR branch onto base branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          PR_NUMBER=${{ github.event.issue.number }}
-          API_URL="https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER"
-          PR_DETAILS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" $API_URL)
-          
-          BASE_REF=$(echo $PR_DETAILS | jq -r .base.ref)
-          HEAD_REF=$(echo $PR_DETAILS | jq -r .head.ref)
-
-          git checkout $HEAD_REF
-          git fetch origin $BASE_REF
-          git rebase origin/$BASE_REF
+          git fetch origin refs/pull/${{ github.event.issue.number }}/base
+          git rebase FETCH_HEAD
           git push --force-with-lease

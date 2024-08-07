@@ -10,6 +10,8 @@ jobs:
     if: github.event.issue.pull_request != '' && contains(github.event.comment.body, '!rebase') && github.event.comment.user.login == github.event.issue.user.login
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Rebase PR branch onto base branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

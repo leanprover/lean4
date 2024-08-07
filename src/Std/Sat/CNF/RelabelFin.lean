@@ -60,7 +60,7 @@ theorem of_maxLiteral_eq_some' (c : CNF Nat) (h : c.maxLiteral = some maxLit) :
 theorem of_maxLiteral_eq_some (c : CNF Nat) (h : c.maxLiteral = some maxLit) :
     ∀ lit, mem lit c → lit ≤ maxLit := by
   intro lit hlit
-  dsimp[mem] at hlit
+  dsimp [mem] at hlit
   rcases hlit with ⟨clause, ⟨hclause1, hclause2⟩⟩
   rcases Clause.maxLiteral_eq_some_of_mem clause hclause2 with ⟨localMax, hlocal⟩
   have h1 := of_maxLiteral_eq_some' c h clause hclause1 hlocal
@@ -85,7 +85,7 @@ def numLiterals (g : CNF Nat) :=
   | some n => n + 1
 
 theorem lt_numLiterals {g : CNF Nat} (h : mem a g) : a < numLiterals g := by
-  dsimp[numLiterals]
+  dsimp [numLiterals]
   split <;> rename_i h2
   . exfalso
     apply of_maxLiteral_eq_none g h2 a h

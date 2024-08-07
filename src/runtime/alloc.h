@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <stddef.h>
 #include <stdint.h>
+#include <lean/lean.h>
 
 namespace lean {
 void init_thread_heap();

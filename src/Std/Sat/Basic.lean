@@ -5,6 +5,7 @@ Authors: Josh Clune, Henrik Böving
 -/
 prelude
 import Init.NotationExtra
+import Init.PropLemmas
 
 namespace Std
 namespace Sat
@@ -81,30 +82,13 @@ protected theorem Limplies.trans {α : Type u} {σ1 : Type v} {σ2 : Type w} {σ
 theorem liff_iff_limplies_and_limplies {α : Type u} {σ1 : Type v} {σ2 : Type w} [HSat α σ1]
     [HSat α σ2] (f1 : σ1) (f2 : σ2)
     : Liff α f1 f2 ↔ Limplies α f1 f2 ∧ Limplies α f2 f1 := by
-  constructor
-  . intro h
-    constructor
-    . intro p
-      rw [h p]
-      exact id
-    . intro p
-      rw [h p]
-      exact id
-  . intros h p
-    constructor
-    . exact h.1 p
-    . exact h.2 p
+  simp [Liff, Limplies, iff_iff_implies_and_implies, forall_and]
 
 theorem liff_unsat {α : Type u} {σ1 : Type v} {σ2 : Type w} [HSat α σ1] [HSat α σ2] (f1 : σ1)
     (f2 : σ2) (h : Liff α f1 f2)
     : Unsatisfiable α f1 ↔ Unsatisfiable α f2 := by
-  constructor
-  . intros f1_unsat p p_entails_f2
-    rw [← h p] at p_entails_f2
-    exact f1_unsat p p_entails_f2
-  . intros f2_unsat p p_entails_f1
-    rw [h p] at p_entails_f1
-    exact f2_unsat p p_entails_f1
+  simp only [Liff] at h
+  simp [Unsatisfiable, h]
 
 theorem limplies_unsat {α : Type u} {σ1 : Type v} {σ2 : Type w} [HSat α σ1] [HSat α σ2] (f1 : σ1)
     (f2 : σ2) (h : Limplies α f2 f1)

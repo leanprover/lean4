@@ -262,12 +262,12 @@ sdiv 5#4 -2 = -2#4
 sdiv (-7#4) (-2) = 3#4
 ```
 -/
-def sdiv (s t : BitVec n) : BitVec n :=
-  match s.msb, t.msb with
-  | false, false => udiv s t
-  | false, true  => .neg (udiv s (.neg t))
-  | true,  false => .neg (udiv (.neg s) t)
-  | true,  true  => udiv (.neg s) (.neg t)
+def sdiv (x y : BitVec n) : BitVec n :=
+  match x.msb, y.msb with
+  | false, false => udiv x y
+  | false, true  => .neg (udiv x (.neg y))
+  | true,  false => .neg (udiv (.neg x) y)
+  | true,  true  => udiv (.neg x) (.neg y)
 
 /--
 Signed division for bit vectors using SMTLIB rules for division by zero.
@@ -276,40 +276,40 @@ Specifically, `smtSDiv x 0 = if x >= 0 then -1 else 1`
 
 SMT-Lib name: `bvsdiv`.
 -/
-def smtSDiv (s t : BitVec n) : BitVec n :=
-  match s.msb, t.msb with
-  | false, false => smtUDiv s t
-  | false, true  => .neg (smtUDiv s (.neg t))
-  | true,  false => .neg (smtUDiv (.neg s) t)
-  | true,  true  => smtUDiv (.neg s) (.neg t)
+def smtSDiv (x y : BitVec n) : BitVec n :=
+  match x.msb, y.msb with
+  | false, false => smtUDiv x y
+  | false, true  => .neg (smtUDiv x (.neg y))
+  | true,  false => .neg (smtUDiv (.neg x) y)
+  | true,  true  => smtUDiv (.neg x) (.neg y)
 
 /--
 Remainder for signed division rounding to zero.
 
 SMT_Lib name: `bvsrem`.
 -/
-def srem (s t : BitVec n) : BitVec n :=
-  match s.msb, t.msb with
-  | false, false => umod s t
-  | false, true  => umod s (.neg t)
-  | true,  false => .neg (umod (.neg s) t)
-  | true,  true  => .neg (umod (.neg s) (.neg t))
+def srem (x y : BitVec n) : BitVec n :=
+  match x.msb, y.msb with
+  | false, false => umod x y
+  | false, true  => umod x (.neg y)
+  | true,  false => .neg (umod (.neg x) y)
+  | true,  true  => .neg (umod (.neg x) (.neg y))
 
 /--
 Remainder for signed division rounded to negative infinity.
 
 SMT_Lib name: `bvsmod`.
 -/
-def smod (s t : BitVec m) : BitVec m :=
-  match s.msb, t.msb with
-  | false, false => umod s t
+def smod (x y : BitVec m) : BitVec m :=
+  match x.msb, y.msb with
+  | false, false => umod x y
   | false, true =>
-    let u := umod s (.neg t)
-    (if u = .zero m then u else .add u t)
+    let u := umod x (.neg y)
+    (if u = .zero m then u else .add u y)
   | true, false =>
-    let u := umod (.neg s) t
-    (if u = .zero m then u else .sub t u)
-  | true, true => .neg (umod (.neg s) (.neg t))
+    let u := umod (.neg x) y
+    (if u = .zero m then u else .sub y u)
+  | true, true => .neg (umod (.neg x) (.neg y))
 
 end arithmetic
 

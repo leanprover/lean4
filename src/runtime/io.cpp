@@ -488,18 +488,24 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_write(b_obj_arg h, b_obj_arg 
 /* Handle.getLine : (@& Handle) → IO Unit */
 extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_get_line(b_obj_arg h, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
-    char* buf = NULL;
-    size_t n = 0;
-    ssize_t read = getline(&buf, &n, fp);
-    if (read != -1) {
-        obj_res ret = io_result_mk_ok(mk_string_from_bytes(buf, read));
-        free(buf);
-        return ret;
+
+    std::string result;
+    int c; // Note: int, not char, required to handle EOF
+    while ((c = std::fgetc(fp)) != EOF) {
+        result.push_back(c);
+        if (c == '\n') {
+            break;
+        }
+    }
+
+    if (std::ferror(fp)) {
+        return io_result_mk_error(decode_io_error(errno, nullptr));
     } else if (std::feof(fp)) {
         clearerr(fp);
-        return io_result_mk_ok(mk_string(""));
+        return io_result_mk_ok(mk_string(result));
     } else {
-        return io_result_mk_error(decode_io_error(errno, nullptr));
+        obj_res ret = io_result_mk_ok(mk_string(result));
+        return ret;
     }
 }
 

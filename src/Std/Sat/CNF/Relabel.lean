@@ -75,8 +75,8 @@ theorem relabel_congr {x : CNF α} {f g : α → β} (w : ∀ a, Mem a x → f a
 theorem sat_relabel {x : CNF α} (h : (g ∘ f) ⊨ x) : g ⊨ (relabel f x) := by
   simp_all [(· ⊨ ·)]
 
-theorem unsat_relabel {x : CNF α} (f : α → β) (h : Unsatisfiable α x)
-    : Unsatisfiable β (relabel f x) := by
+theorem unsat_relabel {x : CNF α} (f : α → β) (h : Unsatisfiable α x) :
+    Unsatisfiable β (relabel f x) := by
   simp_all [Unsatisfiable, (· ⊨ ·)]
 
 theorem nonempty_or_impossible (x : CNF α) : Nonempty α ∨ ∃ n, x = List.replicate n [] := by

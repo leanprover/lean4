@@ -29,8 +29,8 @@ theorem Clause.of_maxLiteral_eq_some (c : Clause Nat) (h : c.maxLiteral = some m
     have := hbar (lit, _) (by assumption)
     omega
 
-theorem Clause.maxLiteral_eq_some_of_mem (c : Clause Nat) (h : Mem l c)
-    : ∃ maxLit, c.maxLiteral = some maxLit := by
+theorem Clause.maxLiteral_eq_some_of_mem (c : Clause Nat) (h : Mem l c) :
+    ∃ maxLit, c.maxLiteral = some maxLit := by
   dsimp [Mem] at h
   cases h <;> rename_i h
   all_goals

@@ -7,9 +7,11 @@ In this exaple, that is 'n'.
 
 def foo {n : Nat} := 2*n
 
+set_option pp.mvars false
+
 /--
 error: don't know how to synthesize implicit argument 'n'
-  @foo ?m.64
+  @foo ?_
 context:
 ⊢ Nat
 -/

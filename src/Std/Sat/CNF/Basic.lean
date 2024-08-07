@@ -46,10 +46,10 @@ def eval (a : α → Bool) (f : CNF α) : Bool := f.all fun c => c.eval a
 @[simp] theorem eval_append (a : α → Bool) (f1 f2 : CNF α) :
     eval a (f1 ++ f2) = (eval a f1 && eval a f2) := List.all_append
 
-instance : HSat α (Clause α) where
+instance : Entails α (Clause α) where
   eval assign clause := Clause.eval assign clause
 
-instance : HSat α (CNF α) where
+instance : Entails α (CNF α) where
   eval assign cnf := eval assign cnf
 
 @[simp] theorem not_unsatisfiable_nil : ¬Unsatisfiable α ([] : CNF α) :=

@@ -20,7 +20,7 @@ abbrev Literal (α : Type u) := α × Bool
 namespace Literal
 variable (α : Type) [Hashable α]
 
-instance : HSat α (Literal α) where
+instance : Entails α (Literal α) where
   eval := fun p l => p l.1 = l.2
 
 instance (p : α → Bool) (l : Literal α) : Decidable (p ⊨ l) :=

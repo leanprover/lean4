@@ -158,22 +158,26 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
       but for minor items don't put any work in expanding on commit messages.
   - (How we want to release notes to look is evolving: please update this section if it looks wrong!)
 - Next, we will move a curated list of downstream repos to the release candidate.
-  - This assumes that there is already a *reviewed* branch `bump/v4.7.0` on each repository
-    containing the required adaptations (or no adaptations are required).
-    The preparation of this branch is beyond the scope of this document.
+  - This assumes that for each repository either:
+    * There is already a *reviewed* branch `bump/v4.7.0` containing the required adaptations.
+      The preparation of this branch is beyond the scope of this document.
+    * The repository does not need any changes to move to the new version.
   - For each of the target repositories:
-    - Checkout the `bump/v4.7.0` branch.
-    - Verify that the `lean-toolchain` is set to the nightly from which the release candidate was created.
-    - `git merge origin/master`
-    - Change the `lean-toolchain` to `leanprover/lean4:v4.7.0-rc1`
-    - In `lakefile.lean`, change any dependencies which were using `nightly-testing` or `bump/v4.7.0` branches
-      back to `master` or `main`, and run `lake update` for those dependencies.
-    - Run `lake build` to ensure that dependencies are found (but it's okay to stop it after a moment).
-    - `git commit`
-    - `git push`
-    - Open a PR from `bump/v4.7.0` to `master`, and either merge it yourself after CI, if appropriate,
-      or notify the maintainers that it is ready to go.
-    - Once this PR has been merged, tag `master` with `v4.7.0-rc1` and push this tag.
+    - If the repository does not need any changes (i.e. `bump/v4.7.0` does not exist) then create
+      a new PR updating `lean-toolchain` to `leanprover/lean4:v4.7.0-rc1` and running `lake update`.
+    - Otherwise:
+      - Checkout the `bump/v4.7.0` branch.
+      - Verify that the `lean-toolchain` is set to the nightly from which the release candidate was created.
+      - `git merge origin/master`
+      - Change the `lean-toolchain` to `leanprover/lean4:v4.7.0-rc1`
+      - In `lakefile.lean`, change any dependencies which were using `nightly-testing` or `bump/v4.7.0` branches
+        back to `master` or `main`, and run `lake update` for those dependencies.
+      - Run `lake build` to ensure that dependencies are found (but it's okay to stop it after a moment).
+      - `git commit`
+      - `git push`
+      - Open a PR from `bump/v4.7.0` to `master`, and either merge it yourself after CI, if appropriate,
+        or notify the maintainers that it is ready to go.
+    - Once the PR has been merged, tag `master` with `v4.7.0-rc1` and push this tag.
   - We do this for the same list of repositories as for stable releases, see above.
     As above, there are dependencies between these, and so the process above is iterative.
     It greatly helps if you can merge the `bump/v4.7.0` PRs yourself!

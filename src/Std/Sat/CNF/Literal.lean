@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune
 -/
 prelude
+import Init.Data.Hashable
 import Init.Data.ToString
 import Std.Sat.Basic
 
@@ -11,14 +12,13 @@ namespace Std
 namespace Sat
 
 /--
-CNF literals identified by some type `α`.
+CNF literals identified by some type `α`. The `Bool` is the polarity of the literal.
+`true` means positive polarity.
 -/
 abbrev Literal (α : Type u) := α × Bool
 
 namespace Literal
-
-instance [Hashable α] : Hashable (Literal α) where
-  hash := fun x => if x.2 then hash x.1 else hash x.1 + 1
+variable (α : Type) [Hashable α]
 
 instance : HSat α (Literal α) where
   eval := fun p l => p l.1 = l.2

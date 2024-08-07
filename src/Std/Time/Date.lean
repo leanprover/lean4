@@ -5,6 +5,5 @@ Authors: Sofia Rodrigues
 -/
 prelude
 import Std.Time.Date.Basic
-import Std.Time.Date.Scalar
-import Std.Time.Date.Date
 import Std.Time.Date.WeekDate
+import Std.Time.Date.LocalDate

@@ -4,10 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Std.Time.Bounded
+import Std.Time.Internal.Bounded
 
 namespace Std
 namespace Time
+namespace Internal
 
 set_option linter.all true
 
@@ -40,5 +41,6 @@ def apply (sign : Sign) (val : Int) : Int :=
   val * sign.val
 
 end Sign
+end Internal
 end Time
 end Std

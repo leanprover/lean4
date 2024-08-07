@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Std.Time.Time.Unit.Basic
-import Std.Time.Zoned.Basic
+import Std.Time.Time
+import Std.Time.Zoned.Offset
 
 namespace Std
 namespace Time
@@ -16,7 +16,7 @@ An enumeration representing different time zones.
 structure TimeZone where
   offset : TimeZone.Offset
   name : String
-  deriving Inhabited
+  deriving Inhabited, Repr
 
 namespace TimeZone
 

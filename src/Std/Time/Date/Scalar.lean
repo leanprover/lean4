@@ -4,12 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Std.Time.UnitVal
+import Std.Time.Internal
 import Std.Time.Date.Basic
 
 namespace Std
 namespace Time
-namespace Date
+namespace LocalDate
+open Internal
 
 /--
 `Scalar` represents a date offset, using the number of day as the underlying unit.
@@ -63,5 +64,5 @@ def ofOffset (offset : Day.Offset) : Scalar :=
   ⟨offset⟩
 
 end Scalar
-end Date
+end LocalDate
 end Time

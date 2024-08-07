@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Std.Time.Time.HourMarker
 import Std.Time.Time.Basic
-import Std.Time.Time.Scalar
-import Std.Time.Time.Time
+import Std.Time.Time.HourMarker
+import Std.Time.Time.LocalTime

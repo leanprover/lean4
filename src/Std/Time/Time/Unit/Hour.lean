@@ -4,9 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Std.Time.UnitVal
-import Std.Time.Bounded
-import Std.Time.LessEq
+import Std.Time.Internal
 import Lean.Data.Rat
 import Std.Time.Time.Unit.Minute
 import Std.Time.Time.Unit.Second
@@ -14,11 +12,13 @@ import Std.Time.Time.Unit.Second
 namespace Std
 namespace Time
 namespace Hour
+open Internal
 
 set_option linter.all true
 
 /--
-`Ordinal` represents a bounded value for hour, which ranges between 0 and 23.
+`Ordinal` represents a bounded value for hour, which ranges between 0 and 24. It is bounded to 24
+because 24:00:00 is a valid date with leap seconds.
 -/
 def Ordinal := Bounded.LE 0 24
   deriving Repr, BEq, LE, LT

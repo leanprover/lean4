@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Std.Time.DateTime.NaiveDateTime
+import Std.Time.DateTime.LocalDateTime
 import Std.Time.DateTime.Timestamp
 
 namespace Std
@@ -14,15 +14,15 @@ namespace Timestamp
 set_option linter.all true
 
 /--
-Converts a `NaiveDateTime` to a `Timestamp`
+Converts a `LocalDateTime` to a `Timestamp`
 -/
 @[inline]
-def ofNaiveDateTime (naive : NaiveDateTime) : Timestamp :=
-  naive.toTimestamp
+def ofLocalDateTime (Local : LocalDateTime) : Timestamp :=
+  Local.toTimestamp
 
 /--
-Converts a `Timestamp` to a `NaiveDateTime`
+Converts a `Timestamp` to a `LocalDateTime`
 -/
 @[inline]
-def toNaiveDateTime (timestamp : Timestamp) : NaiveDateTime :=
-  NaiveDateTime.ofTimestamp timestamp
+def toLocalDateTime (timestamp : Timestamp) : LocalDateTime :=
+  LocalDateTime.ofTimestamp timestamp

@@ -6,10 +6,12 @@ Authors: Sofia Rodrigues
 prelude
 import Init
 import Lean.Data.Rat
-import Std.Time.Sign
+import Std.Time.Internal.Sign
 
 namespace Std
 namespace Time
+namespace Internal
+
 open Lean
 
 set_option linter.all true
@@ -104,5 +106,6 @@ instance : Neg (UnitVal α) where neg x := ⟨-x.val⟩
 instance : ToString (UnitVal n) where toString n := toString n.val
 
 end UnitVal
+end Internal
 end Time
 end Std

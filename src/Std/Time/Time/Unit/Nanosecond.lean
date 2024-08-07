@@ -4,22 +4,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Std.Time.UnitVal
-import Std.Time.Bounded
-import Std.Time.LessEq
+import Std.Time.Internal
 import Lean.Data.Rat
 import Std.Time.Time.Unit.Millisecond
 
 namespace Std
 namespace Time
+namespace Nanosecond
+open Internal
 
 set_option linter.all true
 
-namespace Nanosecond
-
 /--
-`Ordinal` represents a bounded value for second, which ranges between 0 and 60.
-This accounts for potential leap second.
+`Ordinal` represents a bounded value for nanoseconds, which ranges between 0 and 999999999.
 -/
 def Ordinal := Bounded.LE 0 999999999
   deriving Repr, BEq, LE, LT
@@ -29,6 +26,12 @@ instance : OfNat Ordinal n where ofNat := Bounded.LE.ofFin (Fin.ofNat n)
 instance : Inhabited Ordinal where default := 0
 
 namespace Ordinal
+
+/--
+`Ordinal` represents a bounded value for nanoseconds in a day, which ranges between 0 and 86400000000000.
+-/
+def OfDay := Bounded.LE 0 86400000000000
+  deriving Repr, BEq, LE, LT
 
 /--
 Convert to `Millisecond.Ordinal`

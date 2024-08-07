@@ -12,37 +12,37 @@ namespace Time
 /--
 Represents a specific point in time, including hours, minutes, seconds, and nanoseconds.
 -/
-structure Time where
+structure LocalTime where
   hour : Hour.Ordinal
   minute : Minute.Ordinal
   second : Second.Ordinal
   nano : Nanosecond.Ordinal
   deriving Repr, Inhabited, BEq
 
-namespace Time
+namespace LocalTime
 
 /--
-Creates a `Time` value from hours, minutes, and seconds, setting nanoseconds to zero.
+Creates a `LocalTime` value from hours, minutes, and seconds, setting nanoseconds to zero.
 -/
-def ofHourMinuteSeconds (hour : Hour.Ordinal) (minute : Minute.Ordinal) (second : Second.Ordinal) : Time :=
+def ofHourMinuteSeconds (hour : Hour.Ordinal) (minute : Minute.Ordinal) (second : Second.Ordinal) : LocalTime :=
   ⟨hour, minute, second, 0⟩
 
 /--
-Converts a `Time` value to the total number of seconds since midnight.
+Converts a `LocalTime` value to the total number of seconds since midnight.
 -/
-def toSeconds (time : Time) : Second.Offset :=
+def toSeconds (time : LocalTime) : Second.Offset :=
   time.hour.toOffset.toSeconds +
   time.minute.toOffset.toSeconds +
   time.second.toOffset
 
 /--
-Converts a `Time` value to the total number of minutes since midnight.
+Converts a `LocalTime` value to the total number of minutes since midnight.
 -/
-def toMinutes (time : Time) : Minute.Offset :=
+def toMinutes (time : LocalTime) : Minute.Offset :=
   time.hour.toOffset.toMinutes +
   time.minute.toOffset +
   time.second.toOffset.toMinutes
 
-end Time
+end LocalTime
 end Time
 end Std

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Std.Time.UnitVal
+import Std.Time.Internal
 import Std.Time.Time.Unit.Hour
 import Std.Time.Time.Unit.Minute
 import Std.Time.Time.Unit.Second
@@ -13,6 +13,7 @@ import Std.Time.Time.Unit.Nanosecond
 namespace Std
 namespace Time
 namespace Second.Offset
+open Internal
 
 set_option linter.all true
 

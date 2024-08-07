@@ -12,8 +12,10 @@ import Lean.Data.Parsec
 
 namespace Std
 namespace Time
+open Internal
 
-open Lean.Parsec Lean Time Date TimeZone DateTime
+open Lean.Parsec.String
+open Lean.Parsec Lean LocalTime LocalDate TimeZone DateTime
 
 /--
 The `Modifier` inductive type represents various formatting options for date and time components.
@@ -130,7 +132,7 @@ structure Format (awareness : Awareness) where
 
 private def isNonLetter : Char → Bool := not ∘ Char.isAlpha
 
-private def parseModifier : Lean.Parsec Modifier
+private def parseModifier : Parser Modifier
   :=  pstring "YYYY" *> pure .YYYY
   <|> pstring "YY" *> pure .YY
   <|> pstring "MMMM" *> pure .MMMM
@@ -161,19 +163,19 @@ private def parseModifier : Lean.Parsec Modifier
 
 def isFormatStart : Char → Bool := Char.isAlpha
 
-private def pnumber : Lean.Parsec Nat := do
+private def pnumber : Parser Nat := do
   let numbers ← manyChars digit
   return numbers.foldl (λacc char => acc * 10 + (char.toNat - 48)) 0
 
-private def parseFormatPart : Lean.Parsec FormatPart
+private def parseFormatPart : Parser FormatPart
   := (.modifier <$> parseModifier)
-  <|> (pchar '\\') *> anyChar <&> (.string ∘ toString)
+  <|> (pchar '\\') *> any <&> (.string ∘ toString)
   <|> (pchar '\"' *>  many1Chars (satisfy (· ≠ '\"')) <* pchar '\"') <&> .string
   <|> (pchar '\'' *>  many1Chars (satisfy (· ≠ '\'')) <* pchar '\'') <&> .string
   <|> many1Chars (satisfy (fun x => ¬isFormatStart x ∧ x ≠ '\'' ∧ x ≠ '\"')) <&> .string
 
-private def specParser : Lean.Parsec FormatString :=
-  (Array.toList <$> Lean.Parsec.many parseFormatPart) <* eof
+private def specParser : Parser FormatString :=
+  (Array.toList <$> many parseFormatPart) <* eof
 
 private def specParse (s: String) : Except String FormatString :=
   specParser.run s
@@ -334,21 +336,21 @@ def FormatType (result: Type) : FormatString → Type
   | .string _ :: xs => (FormatType result xs)
   | [] => result
 
-private def position : Parsec Nat := λs => (ParseResult.success s (s.pos.byteIdx))
+private def position : Parser Nat := λs => (ParseResult.success s (s.pos.byteIdx))
 
-private def size (data : Parsec α) : Parsec (α × Nat) := do
+private def size (data : Parser α) : Parser (α × Nat) := do
   let st ← position
   let res ← data
   let en ← position
   pure (res, en-st)
 
-private def transform (n: β → Option α) (p: Lean.Parsec β) : Lean.Parsec α := do
+private def transform (n: β → Option α) (p: Parser β) : Parser α := do
   let res ← p
   match n res with
   | some n => pure n
   | none => fail "cannot parse"
 
-private def parseMonth : Lean.Parsec Month.Ordinal
+private def parseMonth : Parser Month.Ordinal
   :=  (pstring "Jan" *> pure 1)
   <|> (pstring "Feb" *> pure 2)
   <|> (pstring "Mar" *> pure 3)
@@ -362,7 +364,7 @@ private def parseMonth : Lean.Parsec Month.Ordinal
   <|> (pstring "Nov" *> pure 11)
   <|> (pstring "Dec" *> pure 12)
 
-private def parseMonthUnabbrev : Lean.Parsec Month.Ordinal
+private def parseMonthUnabbrev : Parser Month.Ordinal
   :=  (pstring "January" *> pure 1)
   <|> (pstring "February" *> pure 2)
   <|> (pstring "March" *> pure 3)
@@ -376,7 +378,7 @@ private def parseMonthUnabbrev : Lean.Parsec Month.Ordinal
   <|> (pstring "November" *> pure 11)
   <|> (pstring "December" *> pure 12)
 
-private def parseWeekday : Lean.Parsec Weekday
+private def parseWeekday : Parser Weekday
   :=  (pstring "Mon" *> pure Weekday.mon)
   <|> (pstring "Tue" *> pure Weekday.tue)
   <|> (pstring "Wed" *> pure Weekday.wed)
@@ -385,7 +387,7 @@ private def parseWeekday : Lean.Parsec Weekday
   <|> (pstring "Sat" *> pure Weekday.sat)
   <|> (pstring "Sun" *> pure Weekday.sun)
 
-private def parseWeekdayUnnabrev : Lean.Parsec Weekday
+private def parseWeekdayUnnabrev : Parser Weekday
   :=  (pstring "Monday" *> pure Weekday.mon)
   <|> (pstring "Tuesday" *> pure Weekday.tue)
   <|> (pstring "Wednesday" *> pure Weekday.wed)
@@ -394,55 +396,55 @@ private def parseWeekdayUnnabrev : Lean.Parsec Weekday
   <|> (pstring "Saturday" *> pure Weekday.sat)
   <|> (pstring "Sunday" *> pure Weekday.sun)
 
-private def parserUpperHourMarker : Lean.Parsec HourMarker
+private def parserUpperHourMarker : Parser HourMarker
   :=  (pstring "AM" *> pure HourMarker.am)
   <|> (pstring "PM" *> pure HourMarker.pm)
 
-private def parserLowerHourMarker : Lean.Parsec HourMarker
+private def parserLowerHourMarker : Parser HourMarker
   :=  (pstring "am" *> pure HourMarker.am)
   <|> (pstring "pm" *> pure HourMarker.pm)
 
-private def threeDigit : Lean.Parsec Int := do
-  let digit1 ← Lean.Parsec.digit
-  let digit2 ← Lean.Parsec.digit
-  let digit3 ← Lean.Parsec.digit
+private def threeDigit : Parser Int := do
+  let digit1 ← digit
+  let digit2 ← digit
+  let digit3 ← digit
   return String.toNat! s!"{digit1}{digit2}{digit3}"
 
-private def twoDigit : Lean.Parsec Int := do
-  let digit1 ← Lean.Parsec.digit
-  let digit2 ← Lean.Parsec.digit
+private def twoDigit : Parser Int := do
+  let digit1 ← digit
+  let digit2 ← digit
   return String.toNat! s!"{digit1}{digit2}"
 
-private def parseYearTwo : Lean.Parsec Int :=do
+private def parseYearTwo : Parser Int :=do
   let year ← twoDigit
   return if year < 70 then 2000 + year else 1900 + year
 
-private def timeOffset (colon: Bool) : Lean.Parsec Offset := do
+private def timeOffset (colon: Bool) : Parser Offset := do
   let sign : Int ← (pstring "-" *> pure (-1)) <|> (pstring "+" *> pure 1)
   let hour ← twoDigit
-  if colon then let _ ← pstring ":"
+  if colon then discard <| pstring ":"
   let minutes ← twoDigit
   let res := (hour * 3600 + minutes * 60) * sign
   pure (Offset.ofSeconds (UnitVal.ofInt res))
 
-private def timeOrUTC (utcString: String) (colon: Bool) : Lean.Parsec Offset :=
+private def timeOrUTC (utcString: String) (colon: Bool) : Parser Offset :=
   (pstring utcString *> pure Offset.zero) <|> timeOffset colon
 
-private def number : Lean.Parsec Nat := do
-  String.toNat! <$> Lean.Parsec.many1Chars Lean.Parsec.digit
+private def number : Parser Nat := do
+  String.toNat! <$> many1Chars digit
 
-private def singleDigit : Lean.Parsec Nat := do
-  let digit1 ← Lean.Parsec.digit
+private def singleDigit : Parser Nat := do
+  let digit1 ← digit
   return String.toNat! s!"{digit1}"
 
-private def fourDigit : Lean.Parsec Int := do
-  let digit1 ← Lean.Parsec.digit
-  let digit2 ← Lean.Parsec.digit
-  let digit3 ← Lean.Parsec.digit
-  let digit4 ← Lean.Parsec.digit
+private def fourDigit : Parser Int := do
+  let digit1 ← digit
+  let digit2 ← digit
+  let digit3 ← digit
+  let digit4 ← digit
   return String.toNat! s!"{digit1}{digit2}{digit3}{digit4}"
 
-private def parserWithFormat : (typ: Modifier) → Lean.Parsec (SingleFormatType typ)
+private def parserWithFormat : (typ: Modifier) → Parser (SingleFormatType typ)
   | .YYYY => fourDigit
   | .YY => parseYearTwo
   | .MMMM => parseMonthUnabbrev
@@ -451,7 +453,7 @@ private def parserWithFormat : (typ: Modifier) → Lean.Parsec (SingleFormatType
   | .M => transform Bounded.LE.ofInt number
   | .DD => transform Bounded.LE.ofInt twoDigit
   | .D => transform Bounded.LE.ofInt number
-  | .d => transform Bounded.LE.ofInt (Lean.Parsec.orElse twoDigit (λ_ => pchar ' ' *> (singleDigit)))
+  | .d => transform Bounded.LE.ofInt (orElse twoDigit (λ_ => pchar ' ' *> (singleDigit)))
   | .EEEE => parseWeekdayUnnabrev
   | .EEE => parseWeekday
   | .hh => transform Bounded.LE.ofInt twoDigit
@@ -487,9 +489,9 @@ private structure DateBuilder where
   millisecond : Millisecond.Ordinal := 0
 
 private def DateBuilder.build (builder : DateBuilder) (aw : Awareness) : aw.type :=
-  let build := DateTime.ofNaiveDateTime {
-      date := Date.force builder.year builder.month builder.day
-      time := Time.mk builder.hour builder.minute builder.second (.ofMillisecond builder.millisecond)
+  let build := DateTime.ofLocalDateTime {
+      date := LocalDate.clip builder.year builder.month builder.day
+      time := LocalTime.mk builder.hour builder.minute builder.second (.ofMillisecond builder.millisecond)
   }
 
   match aw with
@@ -506,7 +508,7 @@ private def addDataInDateTime (data : DateBuilder) (typ : Modifier) (value : Sin
   | .DD | .D | .d => { data with day := value }
   | .EEEE | .EEE => data
   | .hh | .h | .HH | .H => { data with hour := value }
-  | .AA | .aa => { data with hour := HourMarker.toAbsolute! value data.hour }
+  | .AA | .aa => { data with hour := HourMarker.toAbsolute' value data.hour }
   | .mm | .m => { data with minute := value }
   | .sss => { data with millisecond := value }
   | .ss | .s => { data with second := value }
@@ -514,7 +516,7 @@ private def addDataInDateTime (data : DateBuilder) (typ : Modifier) (value : Sin
   | .Z => { data with tz := value }
   | .z => { data with tzName := value }
 
-private def formatParser (date : DateBuilder) : FormatPart → Lean.Parsec DateBuilder
+private def formatParser (date : DateBuilder) : FormatPart → Parser DateBuilder
   | .modifier mod => addDataInDateTime date mod <$> parserWithFormat mod
   | .string s => skipString s *> pure date
 
@@ -595,8 +597,8 @@ def formatBuilder (format : Format aw) : FormatType String format.string :=
 /--
 Parser for a ZonedDateTime.
 -/
-def parser (format : FormatString) (aw : Awareness) : Parsec (aw.type) :=
-  let rec go (date : DateBuilder) (x : FormatString) : Parsec aw.type :=
+def parser (format : FormatString) (aw : Awareness) : Parser (aw.type) :=
+  let rec go (date : DateBuilder) (x : FormatString) : Parser aw.type :=
     match x with
     | x :: xs => formatParser date x >>= (go · xs)
     | [] => pure (date.build aw)
@@ -605,8 +607,8 @@ def parser (format : FormatString) (aw : Awareness) : Parsec (aw.type) :=
 /--
 Parser for a format with a builder.
 -/
-def builderParser (format: FormatString) (func: FormatType α format) : Lean.Parsec α :=
-  let rec go (format : FormatString) (func: FormatType α format) : Parsec α :=
+def builderParser (format: FormatString) (func: FormatType α format) : Parser α :=
+  let rec go (format : FormatString) (func: FormatType α format) : Parser α :=
     match format with
     | .modifier x :: xs => do
       let res ← parserWithFormat x

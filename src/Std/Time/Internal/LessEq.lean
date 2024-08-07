@@ -8,6 +8,8 @@ import Init
 import Lean.Data.Rat
 
 namespace Std
+namespace Time
+namespace Internal
 
 set_option linter.all true
 
@@ -26,3 +28,7 @@ instance (m : Nat) : Le 0 m where
 
 instance {n m : Nat} [Le n m] : Le (Nat.succ n) (Nat.succ m) where
   p := Nat.succ_le_succ (Le.p)
+
+end Internal
+end Time
+end Std

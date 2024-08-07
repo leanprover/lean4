@@ -4,16 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Std.Time.UnitVal
-import Std.Time.Bounded
-import Std.Time.LessEq
+import Std.Time.Internal
 import Lean.Data.Rat
 import Std.Time.Time.Basic
 import Std.Time.Date.Unit.Day
 
 namespace Std
 namespace Time
-open Lean Time
+open Internal
 
 namespace Month
 /--
@@ -111,12 +109,12 @@ Size in days of each month if the year is not leap.
 -/
 @[inline]
 def monthSizesNonLeap : { val : Array Day.Ordinal // val.size = 12 } :=
-  ⟨#[ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ], by simp⟩
+  ⟨#[31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31], by simp⟩
 
 /--
-Gets the number of days in a month.
+Gets the number of days in a month without a proof of validity of the ordinal in a month and year.
 -/
-def days' (leap : Bool) (month : Ordinal) : Day.Ordinal :=
+def daysWithoutProof (leap : Bool) (month : Ordinal) : Day.Ordinal :=
   if month.val = 2 then
     if leap then 29 else 28
   else by
@@ -126,27 +124,27 @@ def days' (leap : Bool) (month : Ordinal) : Day.Ordinal :=
     exact months.get r
 
 /--
-Check if the day is valid in a Month and a leap Year.
+Check if the day is valid in a month and a leap year.
 -/
 @[inline]
-def valid (leap : Bool) (month : Month.Ordinal) (day : Day.Ordinal) : Prop :=
-  day ≤ days' leap month
+def Valid (leap : Bool) (month : Month.Ordinal) (day : Day.Ordinal) : Prop :=
+  day ≤ daysWithoutProof leap month
 
-instance : Decidable (valid leap month day) :=
-  dite (day ≤ days' leap month) isTrue isFalse
-
-/--
-Gets the number of days in a month.
--/
-@[inline]
-def days (leap : Bool) (month : Ordinal) : { day : Day.Ordinal // valid leap month day } :=
-  ⟨days' leap month, Int.le_refl ((days' leap month).val)⟩
+instance : Decidable (Valid leap month day) :=
+  dite (day ≤ daysWithoutProof leap month) isTrue isFalse
 
 /--
-Forces the day to be on the valid range.
+Gets the number of days in a month along side a proof of it's validity.
 -/
 @[inline]
-def forceDay (leap : Bool) (month : Month.Ordinal) (day : Day.Ordinal) : { day : Day.Ordinal //valid leap month day } :=
+def days (leap : Bool) (month : Ordinal) : { day : Day.Ordinal // Valid leap month day } :=
+  ⟨daysWithoutProof leap month, Int.le_refl ((daysWithoutProof leap month).val)⟩
+
+/--
+Clips the day to be on the valid range.
+-/
+@[inline]
+def clipDay (leap : Bool) (month : Month.Ordinal) (day : Day.Ordinal) : { day : Day.Ordinal // Valid leap month day } :=
   let max : Day.Ordinal := month.days leap
   if h : day.val > max.val
     then ⟨max, Int.le_refl max.val⟩
@@ -156,33 +154,30 @@ def forceDay (leap : Bool) (month : Month.Ordinal) (day : Day.Ordinal) : { day :
 Transforms a `Day.Ordinal.OfYear` into a tuple of a `Month` and a `Day`.
 -/
 @[inline]
-def ofOrdinal (ordinal : Day.Ordinal.OfYear leap) : { val : Month.Ordinal × Day.Ordinal // valid leap (Prod.fst val) (Prod.snd val) } := Id.run do
+def ofOrdinal (ordinal : Day.Ordinal.OfYear leap) : { val : Month.Ordinal × Day.Ordinal // Valid leap (Prod.fst val) (Prod.snd val) } := Id.run do
   let rec go (idx : Fin 12) (cumulative : Fin 366) :=
     let month := Month.Ordinal.ofFin idx.succ
     let ⟨days, valid⟩ := days leap month
 
     if h : cumulative.val < ordinal.val ∧ ordinal.val ≤ cumulative.val + days.val then
-      let bounded :=
-        Bounded.LE.mk ordinal.val h |>.sub ↑↑cumulative
-      let bounded : Bounded.LE 1 days.val := by
-        simp [← Int.add_comm, Int.sub_self] at bounded
-        rw [← Int.add_comm 1 (↑↑cumulative), Int.add_sub_assoc, Int.sub_self] at bounded
-        exact bounded
-      let p₁ := bounded.property.right
-      let p := And.intro bounded.property.left (Int.le_trans bounded.property.right days.property.right)
-      let days₁ : Day.Ordinal := ⟨bounded.val, p⟩
-      let h1 : Month.Ordinal.valid leap month days₁ := Int.le_trans p₁ valid
-      ⟨⟨month, days₁⟩, h1⟩
+      let bounded := Bounded.LE.mk ordinal.val h |>.sub cumulative
+
+      let bounded : Bounded.LE 1 days.val := bounded.cast
+        (by simp [Int.add_comm _ 1, Int.add_assoc, ←Int.sub_eq_add_neg];)
+        (by simp [Int.add_comm _ days.val, Int.add_assoc, ←Int.sub_eq_add_neg];)
+
+      let ⟨left, right⟩ := bounded.property
+      let days₁ : Day.Ordinal := ⟨bounded.val, And.intro left (Int.le_trans right days.property.right)⟩
+      ⟨⟨month, days₁⟩, Int.le_trans right valid⟩
     else
       if h : idx.val ≥ 11 then
         -- Need to remove this in the future.
-        let ⟨day, valid⟩ := forceDay leap 1 1
+        let ⟨day, valid⟩ := clipDay leap 1 1
         ⟨⟨1, day⟩, valid⟩
       else
         go ⟨idx.val + 1, Nat.succ_le_succ (Nat.not_le.mp h)⟩ cumulative
   termination_by 12 - idx.val
-
-  go 1 0
+  go 0 0
 
 end Ordinal
 end Month

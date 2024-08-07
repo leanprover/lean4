@@ -4,37 +4,37 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Init.Data.Int
-import Std.Time.LessEq
 import Std.Time.Date
 import Std.Time.Time
+import Std.Time.Internal
 import Std.Time.DateTime.Timestamp
 
 namespace Std
 namespace Time
+open Internal
 
 /--
 Date time format with Year, Month, Day, Hour, Minute, Seconds and Nanoseconds.
 -/
-structure NaiveDateTime where
-  date : Date
-  time : Time
+structure LocalDateTime where
+  date : LocalDate
+  time : LocalTime
   deriving Repr, Inhabited
 
-namespace NaiveDateTime
+namespace LocalDateTime
 
 /--
-Converts a `NaiveDateTime` into a `Timestamp`
+Converts a `LocalDateTime` into a `Std.Time.Timestamp`
 -/
-def toTimestamp (dt : NaiveDateTime) : Timestamp :=
-  let days := dt.date.toScalar.day
+def toTimestamp (dt : LocalDateTime) : Timestamp :=
+  let days := dt.date.toDaysSinceUNIXEpoch
   let second := dt.time.toSeconds
   days.toSeconds + second
 
 /--
-Converts a UNIX `Timestamp` into a `NaiveDateTime`.
+Converts a UNIX `Timestamp` into a `LocalDateTime`.
 -/
-def ofTimestamp (stamp : Timestamp) : NaiveDateTime := Id.run do
+def ofTimestamp (stamp : Timestamp) : LocalDateTime := Id.run do
   let leapYearEpoch := 11017
   let daysPer400Y := 365 * 400 + 97
   let daysPer100Y := 365 * 100 + 24
@@ -108,47 +108,47 @@ def ofTimestamp (stamp : Timestamp) : NaiveDateTime := Id.run do
   let hour : Bounded.LE 0 23 := remSecs.div 3600 (by decide)
 
   return {
-    date := Date.force year hmon (Day.Ordinal.ofFin (Fin.succ mday))
-    time := Time.mk (hour.expandTop (by decide)) minute (second.expandTop (by decide)) 0
+    date := LocalDate.clip year hmon (Day.Ordinal.ofFin (Fin.succ mday))
+    time := LocalTime.mk (hour.expandTop (by decide)) minute (second.expandTop (by decide)) 0
   }
 
 /--
-Getter for the `Year` inside of a `NaiveDateTime`
+Getter for the `Year` inside of a `LocalDateTime`
 -/
 @[inline]
-def year (dt : NaiveDateTime) : Year.Offset :=
+def year (dt : LocalDateTime) : Year.Offset :=
   dt.date.year
 /--
-Getter for the `Month` inside of a `NaiveDateTime`
+Getter for the `Month` inside of a `LocalDateTime`
 -/
 @[inline]
-def month (dt : NaiveDateTime) : Month.Ordinal :=
+def month (dt : LocalDateTime) : Month.Ordinal :=
   dt.date.month
 /--
-Getter for the `Day` inside of a `NaiveDateTime`
+Getter for the `Day` inside of a `LocalDateTime`
 -/
 @[inline]
-def day (dt : NaiveDateTime) : Day.Ordinal :=
+def day (dt : LocalDateTime) : Day.Ordinal :=
   dt.date.day
 /--
-Getter for the `Hour` inside of a `NaiveDateTime`
+Getter for the `Hour` inside of a `LocalDateTime`
 -/
 @[inline]
-def hour (dt : NaiveDateTime) : Hour.Ordinal :=
+def hour (dt : LocalDateTime) : Hour.Ordinal :=
   dt.time.hour
 /--
-Getter for the `Minute` inside of a `NaiveDateTime`
+Getter for the `Minute` inside of a `LocalDateTime`
 -/
 @[inline]
-def minute (dt : NaiveDateTime) : Minute.Ordinal :=
+def minute (dt : LocalDateTime) : Minute.Ordinal :=
   dt.time.minute
 /--
-Getter for the `Second` inside of a `NaiveDateTime`
+Getter for the `Second` inside of a `LocalDateTime`
 -/
 @[inline]
-def second (dt : NaiveDateTime) : Second.Ordinal :=
+def second (dt : LocalDateTime) : Second.Ordinal :=
   dt.time.second
 
-end NaiveDateTime
+end LocalDateTime
 end Time
 end Std

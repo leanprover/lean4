@@ -4,8 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Std.Time.Time
-import Std.Time.Date
 import Std.Time.DateTime
 import Std.Time.Zoned.TimeZone
 
@@ -13,12 +11,12 @@ namespace Std
 namespace Time
 
 /--
-It stores a `Timestamp`, a `NaiveDateTime` and a `TimeZone`
+It stores a `Timestamp`, a `LocalDateTime` and a `TimeZone`
 -/
 structure DateTime (tz : TimeZone) where
   private mk ::
   timestamp : Timestamp
-  date : NaiveDateTime
+  date : LocalDateTime
   deriving Repr, Inhabited
 
 namespace DateTime
@@ -28,7 +26,7 @@ Creates a new `DateTime` out of a `Timestamp`
 -/
 @[inline]
 def ofTimestamp (tm : Timestamp) (tz : TimeZone) : DateTime tz :=
-  let date := (tm + tz.toSeconds).toNaiveDateTime
+  let date := (tm + tz.toSeconds).toLocalDateTime
   DateTime.mk tm date
 
 /--
@@ -46,11 +44,11 @@ def convertTimeZone (date : DateTime tz) (tz₁ : TimeZone) : DateTime tz₁ :=
   ofTimestamp (date.toTimestamp) tz₁
 
 /--
-Creates a new DateTime out of a `NaiveDateTime`
+Creates a new DateTime out of a `LocalDateTime`
 -/
 @[inline]
-def ofNaiveDateTime (date : NaiveDateTime) (tz : TimeZone) : DateTime tz :=
-  let tm := date.toTimestamp
+def ofLocalDateTime (date : LocalDateTime) (tz : TimeZone) : DateTime tz :=
+  let tm := date.toTimestamp - tz.toSeconds
   DateTime.mk tm date
 
 /--

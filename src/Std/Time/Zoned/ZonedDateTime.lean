@@ -4,15 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Std.Time.Time
-import Std.Time.Date
-import Std.Time.DateTime
 import Std.Time.Zoned.TimeZone
 import Std.Time.Zoned.DateTime
 
 namespace Std
 namespace Time
-open Time Date DateTime
 
 def ZonedDateTime := Sigma DateTime
 
@@ -47,11 +43,11 @@ def convertTimeZone (date : ZonedDateTime) (tz₁ : TimeZone) : ZonedDateTime :=
   ofTimestamp (date.toTimestamp) tz₁
 
 /--
-Creates a new `ZonedDateTime` out of a `NaiveDateTime`
+Creates a new `ZonedDateTime` out of a `LocalDateTime`
 -/
 @[inline]
-def ofNaiveDateTime (date : NaiveDateTime) (tz : TimeZone) : ZonedDateTime :=
-  ⟨tz, DateTime.ofNaiveDateTime date tz⟩
+def ofLocalDateTime (date : LocalDateTime) (tz : TimeZone) : ZonedDateTime :=
+  ⟨tz, DateTime.ofLocalDateTime date tz⟩
 
 /--
 Getter for the `Year` inside of a `ZonedDateTime`

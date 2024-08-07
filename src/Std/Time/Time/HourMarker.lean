@@ -8,6 +8,7 @@ import Std.Time.Time.Basic
 
 namespace Std
 namespace Time
+open Internal
 
 set_option linter.all true
 
@@ -32,7 +33,7 @@ def HourMarker.toAbsolute (marker : HourMarker) (time : Hour.Ordinal) (h₀ : ti
 /--
 Converts a 12-hour clock time to a 24-hour clock time based on the `HourMarker` without a proof.
 -/
-def HourMarker.toAbsolute! (marker : HourMarker) (time : Hour.Ordinal) : Hour.Ordinal :=
+def HourMarker.toAbsolute' (marker : HourMarker) (time : Hour.Ordinal) : Hour.Ordinal :=
   match marker with
   | .am => time
   | .pm => Bounded.LE.ofFin (Fin.ofNat (time.val.toNat + 12))

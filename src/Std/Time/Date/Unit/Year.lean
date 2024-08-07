@@ -4,15 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Std.Time.UnitVal
-import Std.Time.Bounded
-import Std.Time.LessEq
+import Std.Time.Internal
 import Lean.Data.Rat
 import Std.Time.Date.Unit.Day
 import Std.Time.Date.Unit.Month
 
 namespace Std
 namespace Time
+open Internal
 
 set_option linter.all true
 
@@ -53,11 +52,11 @@ def isLeap (y : Offset) : Bool :=
 Forces the day to be on the valid range.
 -/
 @[inline]
-def valid (year : Offset) (month : Month.Ordinal) (day : Day.Ordinal) : Prop :=
-  month.valid year.isLeap day
+def Valid (year : Offset) (month : Month.Ordinal) (day : Day.Ordinal) : Prop :=
+  month.Valid year.isLeap day
 
-instance : Decidable (valid year month day) :=
-  dite (month.valid year.isLeap day) isTrue isFalse
+instance : Decidable (Valid year month day) :=
+  dite (month.Valid year.isLeap day) isTrue isFalse
 
 end Offset
 end Year

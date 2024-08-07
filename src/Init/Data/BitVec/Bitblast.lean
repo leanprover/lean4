@@ -335,20 +335,20 @@ theorem mulRec_eq_mul_signExtend_truncate (x y : BitVec w) (s : Nat) :
   case zero =>
     simp only [mulRec_zero_eq, ofNat_eq_ofNat, Nat.reduceAdd]
     by_cases y.getLsb 0
-    case pos hr =>
-      simp only [hr, ↓reduceIte, truncate, zeroExtend_one_eq_ofBool_getLsb_zero,
-        hr, ofBool_true, ofNat_eq_ofNat]
+    case pos hy =>
+      simp only [hy, ↓reduceIte, truncate, zeroExtend_one_eq_ofBool_getLsb_zero,
+        ofBool_true, ofNat_eq_ofNat]
       rw [zeroExtend_ofNat_one_eq_ofNat_one_of_lt (by omega)]
       simp
-    case neg hr =>
-      simp [hr, zeroExtend_one_eq_ofBool_getLsb_zero]
+    case neg hy =>
+      simp [hy, zeroExtend_one_eq_ofBool_getLsb_zero]
   case succ s' hs =>
     rw [mulRec_succ_eq, hs]
     have heq :
       (if y.getLsb (s' + 1) = true then x <<< (s' + 1) else 0) =
         (x * (y &&& (BitVec.twoPow w (s' + 1)))) := by
       simp only [ofNat_eq_ofNat, and_twoPow]
-      by_cases hr : y.getLsb (s' + 1) <;> simp [hr]
+      by_cases hy : y.getLsb (s' + 1) <;> simp [hy]
     rw [heq, ← BitVec.mul_add, ← zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_twoPow]
 
 theorem getLsb_mul (x y : BitVec w) (i : Nat) :

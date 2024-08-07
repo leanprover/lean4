@@ -31,7 +31,6 @@ static lean_object* l_panic___at_Lean_CodeAction_cmdCodeActionProvider___spec__1
 LEAN_EXPORT lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_findTactic_x3f_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_instInhabited___rarg(lean_object*, lean_object*);
-uint8_t l_List_elem___at_Lean_NameHashSet_insert___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_findTactic_x3f_visit___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__3___closed__12;
 uint8_t l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_95_(lean_object*, lean_object*);
@@ -65,6 +64,7 @@ size_t lean_usize_of_nat(lean_object*);
 extern lean_object* l_Lean_Server_instInhabitedRequestError;
 LEAN_EXPORT lean_object* l_Lean_CodeAction_findTactic_x3f_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_lspPosToUtf8Pos(lean_object*, lean_object*);
+uint8_t l_List_elem___at_Lean_addAliasEntry___spec__16(lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__3___closed__9;
 LEAN_EXPORT lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__3___closed__11;
@@ -461,7 +461,7 @@ x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
 lean_dec(x_7);
 x_9 = l_Lean_CodeAction_holeCodeActionProvider___lambda__3___closed__12;
-x_10 = l_List_elem___at_Lean_NameHashSet_insert___spec__2(x_8, x_9);
+x_10 = l_List_elem___at_Lean_addAliasEntry___spec__16(x_8, x_9);
 lean_dec(x_8);
 if (x_10 == 0)
 {

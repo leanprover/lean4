@@ -27,7 +27,6 @@ static lean_object* l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverse
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__12;
 static lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___closed__5;
-uint8_t l_List_elem___at_Lean_NameHashSet_insert___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Level_addOffsetAux(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -60,6 +59,7 @@ size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_285_(lean_object*);
 static lean_object* l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_285____closed__8;
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__9;
+uint8_t l_List_elem___at_Lean_addAliasEntry___spec__16(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_mkFreshLevelMVar___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___lambda__1(lean_object*, lean_object*);
@@ -1616,7 +1616,7 @@ x_53 = lean_ctor_get(x_3, 1);
 lean_inc(x_53);
 x_54 = lean_ctor_get(x_3, 2);
 lean_inc(x_54);
-x_55 = l_List_elem___at_Lean_NameHashSet_insert___spec__2(x_51, x_54);
+x_55 = l_List_elem___at_Lean_addAliasEntry___spec__16(x_51, x_54);
 if (x_55 == 0)
 {
 if (x_10 == 0)
@@ -2438,7 +2438,7 @@ x_258 = lean_ctor_get(x_3, 1);
 lean_inc(x_258);
 x_259 = lean_ctor_get(x_3, 2);
 lean_inc(x_259);
-x_260 = l_List_elem___at_Lean_NameHashSet_insert___spec__2(x_256, x_259);
+x_260 = l_List_elem___at_Lean_addAliasEntry___spec__16(x_256, x_259);
 if (x_260 == 0)
 {
 if (x_216 == 0)

@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+uint8_t l_Lean_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__2(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_GlobalInstances___hyg_4____closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_addGlobalInstance(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_insert___at_Lean_NameSSet_insert___spec__2(lean_object*, lean_object*, lean_object*);
@@ -45,7 +46,6 @@ lean_object* l_Lean_ScopedEnvExtension_addCore___rarg(lean_object*, lean_object*
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_GlobalInstances___hyg_4____closed__6;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__3(lean_object*, lean_object*);
 extern lean_object* l_Lean_Name_instBEq;
 static lean_object* l_Lean_Meta_isGlobalInstance___closed__1;
 extern lean_object* l_Lean_instHashableName;
@@ -450,7 +450,7 @@ x_3 = l_Lean_Meta_isGlobalInstance___closed__1;
 x_4 = l_Lean_Meta_addGlobalInstance___closed__1;
 x_5 = l_Lean_ScopedEnvExtension_getState___rarg(x_3, x_4, x_1);
 lean_dec(x_1);
-x_6 = l_Lean_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__3(x_5, x_2);
+x_6 = l_Lean_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__2(x_5, x_2);
 lean_dec(x_2);
 return x_6;
 }

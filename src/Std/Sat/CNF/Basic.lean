@@ -52,14 +52,14 @@ instance : HSat α (Clause α) where
 instance : HSat α (CNF α) where
   eval assign cnf := eval assign cnf
 
-@[simp] theorem not_unsatisfiable_nil : ¬unsatisfiable α ([] : CNF α) :=
-  ⟨fun h => by simp [unsatisfiable, (· ⊨ ·)] at h, by simp⟩
+@[simp] theorem not_unsatisfiable_nil : ¬Unsatisfiable α ([] : CNF α) :=
+  fun h => by simp [Unsatisfiable, (· ⊨ ·)] at h
 
 @[simp] theorem sat_nil {assign : α → Bool} : assign ⊨ ([] : CNF α) ↔ True := by
   simp [(· ⊨ ·)]
 
-@[simp] theorem unsat_nil_cons {g : CNF α} : unsatisfiable α ([] :: g) ↔ True := by
-  simp [unsatisfiable, (· ⊨ ·)]
+@[simp] theorem unsat_nil_cons {g : CNF α} : Unsatisfiable α ([] :: g) ↔ True := by
+  simp [Unsatisfiable, (· ⊨ ·)]
 
 namespace Clause
 
@@ -88,7 +88,7 @@ theorem eval_congr (f g : α → Bool) (c : Clause α) (w : ∀ i, mem i c → f
   induction c
   case nil => rfl
   case cons i c ih =>
-    simp only [eval_succ]
+    simp only [eval_cons]
     rw [ih, w]
     · rcases i with ⟨b, (_|_)⟩ <;> simp [mem]
     · intro j h
@@ -131,7 +131,7 @@ theorem any_not_isEmpty_iff_exists_mem {g : CNF α} :
       | inr hr => exact Exists.intro _ hr
 
 @[simp] theorem not_exists_mem : (¬ ∃ a, mem a g) ↔ ∃ n, g = List.replicate n [] := by
-  simp only [← any_nonEmpty_iff_exists_mem]
+  simp only [← any_not_isEmpty_iff_exists_mem]
   simp only [List.any_eq_true, Bool.not_eq_true', not_exists, not_and, Bool.not_eq_false]
   induction g with
   | nil =>
@@ -149,7 +149,7 @@ theorem any_not_isEmpty_iff_exists_mem {g : CNF α} :
         exact ⟨_, rfl⟩
 
 instance {g : CNF α} [DecidableEq α] : Decidable (∃ a, mem a g) :=
-  decidable_of_iff (g.any fun c => !c.isEmpty) any_nonEmpty_iff_exists_mem
+  decidable_of_iff (g.any fun c => !c.isEmpty) any_not_isEmpty_iff_exists_mem
 
 @[simp] theorem not_mem_nil {a : α} : mem a ([] : CNF α) ↔ False := by simp [mem]
 @[simp] theorem mem_cons {a : α} {i} {c : CNF α} :
@@ -176,7 +176,7 @@ theorem eval_congr (f g : α → Bool) (x : CNF α) (w : ∀ i, mem i x → f i 
   induction x
   case nil => rfl
   case cons c x ih =>
-    simp only [eval_succ]
+    simp only [eval_cons]
     rw [ih, Clause.eval_congr] <;>
     · intro i h
       apply w

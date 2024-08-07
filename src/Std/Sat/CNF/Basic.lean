@@ -46,20 +46,20 @@ def eval (a : α → Bool) (f : CNF α) : Bool := f.all fun c => c.eval a
 @[simp] theorem eval_append (a : α → Bool) (f1 f2 : CNF α) :
     eval a (f1 ++ f2) = (eval a f1 && eval a f2) := List.all_append
 
-def sat (a : α → Bool) (f : CNF α) : Prop := eval a f = true
-def unsat (f : CNF α) : Prop := ∀ a, eval a f = false
+def Sat (a : α → Bool) (f : CNF α) : Prop := eval a f = true
+def Unsat (f : CNF α) : Prop := ∀ a, eval a f = false
 
-theorem sat_def (a : α → Bool) (f : CNF α) : sat a f ↔ (eval a f = true) := by rfl
-theorem unsat_def (f : CNF α) : unsat f ↔ (∀ a, eval a f = false) := by rfl
+theorem sat_def (a : α → Bool) (f : CNF α) : Sat a f ↔ (eval a f = true) := by rfl
+theorem unsat_def (f : CNF α) : Unsat f ↔ (∀ a, eval a f = false) := by rfl
 
 
-@[simp] theorem not_unsatisfiable_nil : ¬unsat ([] : CNF α) :=
+@[simp] theorem not_unsatisfiable_nil : ¬Unsat ([] : CNF α) :=
   fun h => by simp [unsat_def] at h
 
-@[simp] theorem sat_nil {assign : α → Bool} : sat assign ([] : CNF α) := by
+@[simp] theorem sat_nil {assign : α → Bool} : Sat assign ([] : CNF α) := by
   simp [sat_def]
 
-@[simp] theorem unsat_nil_cons {g : CNF α} : unsat ([] :: g) := by
+@[simp] theorem unsat_nil_cons {g : CNF α} : Unsat ([] :: g) := by
   simp [unsat_def]
 
 namespace Clause

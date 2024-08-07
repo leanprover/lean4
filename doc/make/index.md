@@ -29,7 +29,7 @@ cd lean4
 cmake --preset release
 make -C build/release -j$(nproc)  # see below for macOS
 ```
-You can replace `$(nproc)`, which is not available on macOS and some alternative shells, with the desired parallelism amount.
+You can replace `$(nproc)`, which is not available on macOS and some alternative shells, with the desired parallelism amount or with `$(sysctl -n hw.physicalcpu)`.
 
 The above commands will compile the Lean library and binaries into the
 `stage1` subfolder; see below for details.

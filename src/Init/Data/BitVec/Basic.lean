@@ -414,7 +414,7 @@ def zeroExtend' {n w : Nat} (le : n ≤ w) (x : BitVec n) : BitVec w :=
 needing to compute `x % 2^(2+n)`.
 -/
 def shiftLeftZeroExtend (msbs : BitVec w) (m : Nat) : BitVec (w + m) :=
-  let shiftLeftLt {x : Nat} (p : x < 2^w) (m : Nat) : x <<< m < 2^(w+m) := by
+  let shiftLeftLt {x : Nat} (p : x < 2^w) (m : Nat) : x <<< m < 2^(w + m) := by
         simp [Nat.shiftLeft_eq, Nat.pow_add]
         apply Nat.mul_lt_mul_of_pos_right p
         exact (Nat.two_pow_pos m)

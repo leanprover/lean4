@@ -14,7 +14,7 @@ For variables of type `α` and formulas of type `β`, `HSat.eval a f` is meant t
 a formula `f` is true under assignment `a`.
 -/
 class HSat (α : Type u) (β : Type v) :=
-  (eval : (α → Bool) → β → Prop)
+  eval : (α → Bool) → β → Prop
 
 /--
 `a ⊨ f` reads formula `f` is true under assignment `a`.
@@ -29,7 +29,7 @@ scoped notation:25 p:25 " ⊭ " f:30 => ¬(HSat.eval p f)
 /--
 `f` is not true under any assignment.
 -/
-def unsatisfiable (α : Type u) {σ : Type v} [HSat α σ] (f : σ) : Prop :=
+def Unsatisfiable (α : Type u) {σ : Type v} [HSat α σ] (f : σ) : Prop :=
   ∀ (p : α → Bool), p ⊭ f
 
 /-- `f1` and `f2` are logically equivalent -/
@@ -58,8 +58,8 @@ protected theorem liff.refl {α : Type u} {σ : Type v} [HSat α σ] (f : σ) : 
   (fun _ => Iff.rfl)
 
 protected theorem liff.symm {α : Type u} {σ1 : Type v} {σ2 : Type 2} [HSat α σ1] [HSat α σ2]
-    (f1 : σ1) (f2 : σ2)
-    : liff α f1 f2 → liff α f2 f1 := by
+    (f1 : σ1) (f2 : σ2) :
+    liff α f1 f2 → liff α f2 f1 := by
   intros h p
   rw [h p]
 

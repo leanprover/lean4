@@ -32,7 +32,7 @@ Evaluating a `Clause` with respect to an assignment `f`.
 def Clause.eval (f : α → Bool) (c : Clause α) : Bool := c.any fun (i, n) => f i == n
 
 @[simp] theorem Clause.eval_nil (f : α → Bool) : Clause.eval f [] = false := rfl
-@[simp] theorem Clause.eval_succ (f : α → Bool) :
+@[simp] theorem Clause.eval_cons (f : α → Bool) :
     Clause.eval f (i :: c) = (f i.1 == i.2 || Clause.eval f c) := rfl
 
 /--
@@ -41,7 +41,7 @@ Evaluating a `CNF` formula with respect to an assignment `f`.
 def eval (f : α → Bool) (g : CNF α) : Bool := g.all fun c => c.eval f
 
 @[simp] theorem eval_nil (f : α → Bool) : eval f [] = true := rfl
-@[simp] theorem eval_succ (f : α → Bool) : eval f (c :: g) = (c.eval f && eval f g) := rfl
+@[simp] theorem eval_cons (f : α → Bool) : eval f (c :: g) = (c.eval f && eval f g) := rfl
 
 @[simp] theorem eval_append (f : α → Bool) (g h : CNF α) :
     eval f (g ++ h) = (eval f g && eval f h) := List.all_append
@@ -52,7 +52,7 @@ instance : HSat α (Clause α) where
 instance : HSat α (CNF α) where
   eval assign cnf := eval assign cnf
 
-@[simp] theorem unsat_nil_iff_false : unsatisfiable α ([] : CNF α) ↔ False :=
+@[simp] theorem not_unsatisfiable_nil : ¬unsatisfiable α ([] : CNF α) :=
   ⟨fun h => by simp [unsatisfiable, (· ⊨ ·)] at h, by simp⟩
 
 @[simp] theorem sat_nil {assign : α → Bool} : assign ⊨ ([] : CNF α) ↔ True := by
@@ -64,7 +64,7 @@ instance : HSat α (CNF α) where
 namespace Clause
 
 /--
-Literal `a` occurs in `Clause` `c`.
+Variable `a` occurs in `Clause` `c`.
 -/
 def mem (a : α) (c : Clause α) : Prop := (a, false) ∈ c ∨ (a, true) ∈ c
 
@@ -109,7 +109,7 @@ def mem (a : α) (g : CNF α) : Prop := ∃ c, c ∈ g ∧ c.mem a
 instance {a : α} {g : CNF α} [DecidableEq α] : Decidable (mem a g) :=
   inferInstanceAs <| Decidable (∃ _, _)
 
-theorem any_nonEmpty_iff_exists_mem {g : CNF α} :
+theorem any_not_isEmpty_iff_exists_mem {g : CNF α} :
     (List.any g fun c => !List.isEmpty c) = true ↔ ∃ a, mem a g := by
   simp only [List.any_eq_true, Bool.not_eq_true', List.isEmpty_false_iff_exists_mem, mem,
     Clause.mem]
@@ -130,7 +130,7 @@ theorem any_nonEmpty_iff_exists_mem {g : CNF α} :
       | inl hl => exact Exists.intro _ hl
       | inr hr => exact Exists.intro _ hr
 
-@[simp] theorem not_mem_cons : (¬ ∃ a, mem a g) ↔ ∃ n, g = List.replicate n [] := by
+@[simp] theorem not_exists_mem : (¬ ∃ a, mem a g) ↔ ∃ n, g = List.replicate n [] := by
   simp only [← any_nonEmpty_iff_exists_mem]
   simp only [List.any_eq_true, Bool.not_eq_true', not_exists, not_and, Bool.not_eq_false]
   induction g with

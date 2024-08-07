@@ -31,12 +31,12 @@ theorem Clause.of_maxLiteral_eq_some (c : Clause Nat) (h : c.maxLiteral = some m
 
 theorem Clause.maxLiteral_eq_some_of_mem (c : Clause Nat) (h : mem l c)
     : ∃ maxLit, c.maxLiteral = some maxLit := by
-  dsimp[mem] at h
+  dsimp [mem] at h
   cases h <;> rename_i h
   all_goals
     have h1 := List.ne_nil_of_mem h
     have h2 := not_congr <| @List.maximum?_eq_none_iff _ (c.map (·.1)) _
-    simp[← Option.ne_none_iff_exists', h1, h2, maxLiteral]
+    simp [← Option.ne_none_iff_exists', h1, h2, maxLiteral]
 
 theorem Clause.of_maxLiteral_eq_none (c : Clause Nat) (h : c.maxLiteral = none) :
     ∀ lit, ¬mem lit c := by

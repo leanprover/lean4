@@ -21,11 +21,10 @@ instance [Hashable α] : Hashable (Literal α) where
   hash := fun x => if x.2 then hash x.1 else hash x.1 + 1
 
 instance : HSat α (Literal α) where
-  eval := fun p l => (p l.1) = l.2
+  eval := fun p l => p l.1 = l.2
 
-instance (p : α → Bool) (l : Literal α) : Decidable (p ⊨ l) := by
-  rw [HSat.eval, instHSat]
-  exact Bool.decEq (p l.fst) l.snd
+instance (p : α → Bool) (l : Literal α) : Decidable (p ⊨ l) :=
+  inferInstanceAs (Decidable (p l.1 = l.2))
 
 /--
 Flip the polarity of `l`.

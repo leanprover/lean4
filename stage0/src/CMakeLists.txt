@@ -579,13 +579,13 @@ else()
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -lInit_shared -lleanshared")
 endif()
 
-#if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-#  add_custom_target(lake ALL
-#    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
-#    DEPENDS leanshared
-#    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Lake
-#    VERBATIM)
-#endif()
+if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+  add_custom_target(lake ALL
+    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+    DEPENDS leanshared
+    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Lake
+    VERBATIM)
+endif()
 
 if(PREV_STAGE)
   add_custom_target(update-stage0

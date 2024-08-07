@@ -25,23 +25,23 @@ scoped infix:25 " ⊨ " => HSat.eval
 /--
 `a ⊭ f` reads formula `f` is false under assignment `a`.
 -/
-scoped notation:25 p:25 " ⊭ " f:30 => ¬(HSat.eval p f)
+scoped notation:25 a:25 " ⊭ " f:30 => ¬(HSat.eval a f)
 
 /--
 `f` is not true under any assignment.
 -/
 def Unsatisfiable (α : Type u) {σ : Type v} [HSat α σ] (f : σ) : Prop :=
-  ∀ (p : α → Bool), p ⊭ f
+  ∀ (a : α → Bool), a ⊭ f
 
 /-- `f1` and `f2` are logically equivalent -/
 def Liff (α : Type u) {σ1 : Type v} {σ2 : Type w} [HSat α σ1] [HSat α σ2] (f1 : σ1) (f2 : σ2) :
     Prop :=
-  ∀ (p : α → Bool), p ⊨ f1 ↔ p ⊨ f2
+  ∀ (a : α → Bool), a ⊨ f1 ↔ a ⊨ f2
 
 /-- `f1` logically implies `f2` -/
 def Limplies (α : Type u) {σ1 : Type v} {σ2 : Type w} [HSat α σ1] [HSat α σ2] (f1 : σ1) (f2 : σ2) :
     Prop :=
-  ∀ (p : α → Bool), p ⊨ f1 → p ⊨ f2
+  ∀ (a : α → Bool), a ⊨ f1 → a ⊨ f2
 
 /-- `f1` is unsat iff `f2` is unsat -/
 def Equisat (α : Type u) {σ1 : Type v} {σ2 : Type w} [HSat α σ1] [HSat α σ2] (f1 : σ1) (f2 : σ2) :
@@ -53,7 +53,7 @@ For any given assignment `f1` or `f2` is not true.
 -/
 def Incompatible (α : Type u) {σ1 : Type v} {σ2 : Type w} [HSat α σ1] [HSat α σ2] (f1 : σ1)
     (f2 : σ2) : Prop :=
-  ∀ (p : α → Bool), (p ⊭ f1) ∨ (p ⊭ f2)
+  ∀ (a : α → Bool), (a ⊭ f1) ∨ (a ⊭ f2)
 
 protected theorem Liff.refl {α : Type u} {σ : Type v} [HSat α σ] (f : σ) : Liff α f f :=
   (fun _ => Iff.rfl)
@@ -67,8 +67,8 @@ protected theorem Liff.symm {α : Type u} {σ1 : Type v} {σ2 : Type 2} [HSat α
 protected theorem Liff.trans {α : Type u} {σ1 : Type v} {σ2 : Type w} {σ3 : Type x} [HSat α σ1]
     [HSat α σ2] [HSat α σ3] (f1 : σ1) (f2 : σ2) (f3 : σ3) :
     Liff α f1 f2 → Liff α f2 f3 → Liff α f1 f3 := by
-  intros f1_eq_f2 f2_eq_f3 p
-  rw [f1_eq_f2 p, f2_eq_f3 p]
+  intros f1_eq_f2 f2_eq_f3 a
+  rw [f1_eq_f2 a, f2_eq_f3 a]
 
 protected theorem Limplies.refl {α : Type u} {σ : Type v} [HSat α σ] (f : σ) : Limplies α f f :=
   (fun _ => id)
@@ -76,8 +76,8 @@ protected theorem Limplies.refl {α : Type u} {σ : Type v} [HSat α σ] (f : σ
 protected theorem Limplies.trans {α : Type u} {σ1 : Type v} {σ2 : Type w} {σ3 : Type x} [HSat α σ1]
     [HSat α σ2] [HSat α σ3] (f1 : σ1) (f2 : σ2) (f3 : σ3) :
     Limplies α f1 f2 → Limplies α f2 f3 → Limplies α f1 f3 := by
-  intros f1_implies_f2 f2_implies_f3 p p_entails_f1
-  exact f2_implies_f3 p <| f1_implies_f2 p p_entails_f1
+  intros f1_implies_f2 f2_implies_f3 a a_entails_f1
+  exact f2_implies_f3 a <| f1_implies_f2 a a_entails_f1
 
 theorem liff_iff_limplies_and_limplies {α : Type u} {σ1 : Type v} {σ2 : Type w} [HSat α σ1]
     [HSat α σ2] (f1 : σ1) (f2 : σ2) :
@@ -93,33 +93,33 @@ theorem liff_unsat {α : Type u} {σ1 : Type v} {σ2 : Type w} [HSat α σ1] [HS
 theorem limplies_unsat {α : Type u} {σ1 : Type v} {σ2 : Type w} [HSat α σ1] [HSat α σ2] (f1 : σ1)
     (f2 : σ2) (h : Limplies α f2 f1) :
     Unsatisfiable α f1 → Unsatisfiable α f2 := by
-  intros f1_unsat p p_entails_f2
-  exact f1_unsat p <| h p p_entails_f2
+  intros f1_unsat a a_entails_f2
+  exact f1_unsat a <| h a a_entails_f2
 
 theorem incompatible_of_unsat (α : Type u) {σ1 : Type v} {σ2 : Type w} [HSat α σ1] [HSat α σ2]
     (f1 : σ1) (f2 : σ2) :
     Unsatisfiable α f1 → Incompatible α f1 f2 := by
-  intro h p
-  exact Or.inl <| h p
+  intro h a
+  exact Or.inl <| h a
 
 theorem unsat_of_limplies_and_incompatible (α : Type u) {σ1 : Type v} {σ2 : Type w} [HSat α σ1]
     [HSat α σ2] (f1 : σ1) (f2 : σ2) :
     Limplies α f1 f2 → Incompatible α f1 f2 → Unsatisfiable α f1 := by
-  intro h1 h2 p pf1
-  cases h2 p
+  intro h1 h2 a af1
+  cases h2 a
   . next h2 =>
-    exact h2 pf1
+    exact h2 af1
   . next h2 =>
-    exact h2 <| h1 p pf1
+    exact h2 <| h1 a af1
 
 protected theorem Incompatible.symm {α : Type u} {σ1 : Type v} {σ2 : Type w} [HSat α σ1] [HSat α σ2]
     (f1 : σ1) (f2 : σ2) :
     Incompatible α f1 f2 ↔ Incompatible α f2 f1 := by
   constructor
-  . intro h p
-    exact Or.symm <| h p
-  . intro h p
-    exact Or.symm <| h p
+  . intro h a
+    exact Or.symm <| h a
+  . intro h a
+    exact Or.symm <| h a
 
 end Sat
 end Std

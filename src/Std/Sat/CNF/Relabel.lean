@@ -14,26 +14,26 @@ namespace CNF
 namespace Clause
 
 /--
-Change the literal type in a `Clause` from `α` to `β` by using `f`.
+Change the literal type in a `Clause` from `α` to `β` by using `r`.
 -/
-def relabel (f : α → β) (c : Clause α) : Clause β := c.map (fun (i, n) => (f i, n))
+def relabel (r : α → β) (c : Clause α) : Clause β := c.map (fun (i, n) => (r i, n))
 
-@[simp] theorem eval_relabel {f : α → β} {g : β → Bool} {x : Clause α} :
-    (relabel f x).eval g = x.eval (g ∘ f) := by
-  induction x <;> simp_all [relabel]
+@[simp] theorem eval_relabel {r : α → β} {a : β → Bool} {c : Clause α} :
+    (relabel r c).eval a = c.eval (a ∘ r) := by
+  induction c <;> simp_all [relabel]
 
 @[simp] theorem relabel_id' : relabel (id : α → α) = id := by funext; simp [relabel]
 
-theorem relabel_congr {x : Clause α} {f g : α → β} (w : ∀ a, Mem a x → f a = g a) :
-    relabel f x = relabel g x := by
+theorem relabel_congr {c : Clause α} {r1 r2 : α → β} (hw : ∀ v, Mem v c → r1 v = r2 v) :
+    relabel r1 c = relabel r2 c := by
   simp only [relabel]
   rw [List.map_congr_left]
-  intro ⟨i, b⟩ h
+  intro ⟨v, p⟩ h
   congr
-  apply w _ (mem_of h)
+  apply hw _ (mem_of h)
 
 -- We need the unapplied equality later.
-@[simp] theorem relabel_relabel' : relabel f ∘ relabel g = relabel (f ∘ g) := by
+@[simp] theorem relabel_relabel' : relabel r1 ∘ relabel r2 = relabel (r1 ∘ r2) := by
   funext i
   simp only [Function.comp_apply, relabel, List.map_map]
   rfl
@@ -47,40 +47,40 @@ but eventually we need to embed in `Nat`.
 -/
 
 /--
-Change the literal type in a `CNF` formula from `α` to `β` by using `f`.
+Change the literal type in a `CNF` formula from `α` to `β` by using `r`.
 -/
-def relabel (f : α → β) (g : CNF α) : CNF β := g.map (Clause.relabel f)
+def relabel (r : α → β) (f : CNF α) : CNF β := f.map (Clause.relabel r)
 
-@[simp] theorem eval_relabel (f : α → β) (g : β → Bool) (x : CNF α) :
-    (relabel f x).eval g = x.eval (g ∘ f) := by
-  induction x <;> simp_all [relabel]
+@[simp] theorem eval_relabel (r : α → β) (a : β → Bool) (f : CNF α) :
+    (relabel r f).eval a = f.eval (a ∘ r) := by
+  induction f <;> simp_all [relabel]
 
-@[simp] theorem relabel_append : relabel f (g ++ h) = relabel f g ++ relabel f h :=
+@[simp] theorem relabel_append : relabel r (f1 ++ f2) = relabel r f1 ++ relabel r f2 :=
   List.map_append _ _ _
 
-@[simp] theorem relabel_relabel : relabel f (relabel g x) = relabel (f ∘ g) x := by
+@[simp] theorem relabel_relabel : relabel r1 (relabel r2 f) = relabel (r1 ∘ r2) f := by
   simp only [relabel, List.map_map, Clause.relabel_relabel']
 
 @[simp] theorem relabel_id : relabel id x = x := by simp [relabel]
 
-theorem relabel_congr {x : CNF α} {f g : α → β} (w : ∀ a, Mem a x → f a = g a) :
-    relabel f x = relabel g x := by
+theorem relabel_congr {f : CNF α} {r1 r2 : α → β} (hw : ∀ v, Mem v f → r1 v = r2 v) :
+    relabel r1 f = relabel r2 f := by
   dsimp only [relabel]
   rw [List.map_congr_left]
   intro c h
   apply Clause.relabel_congr
-  intro a m
-  exact w _ (mem_of h m)
+  intro v m
+  exact hw _ (mem_of h m)
 
-theorem sat_relabel {x : CNF α} (h : (g ∘ f) ⊨ x) : g ⊨ (relabel f x) := by
+theorem sat_relabel {f : CNF α} (h : (r1 ∘ r2) ⊨ f) : r1 ⊨ (relabel r2 f) := by
   simp_all [(· ⊨ ·)]
 
-theorem unsat_relabel {x : CNF α} (f : α → β) (h : Unsatisfiable α x) :
-    Unsatisfiable β (relabel f x) := by
+theorem unsat_relabel {f : CNF α} (r : α → β) (h : Unsatisfiable α f) :
+    Unsatisfiable β (relabel r f) := by
   simp_all [Unsatisfiable, (· ⊨ ·)]
 
-theorem nonempty_or_impossible (x : CNF α) : Nonempty α ∨ ∃ n, x = List.replicate n [] := by
-  induction x with
+theorem nonempty_or_impossible (f : CNF α) : Nonempty α ∨ ∃ n, f = List.replicate n [] := by
+  induction f with
   | nil => exact Or.inr ⟨0, rfl⟩
   | cons c x ih => match c with
     | [] => cases ih with
@@ -91,24 +91,24 @@ theorem nonempty_or_impossible (x : CNF α) : Nonempty α ∨ ∃ n, x = List.re
         exact ⟨n + 1, rfl⟩
     | ⟨a, b⟩ :: c => exact Or.inl ⟨a⟩
 
-theorem unsat_relabel_iff {x : CNF α} {f : α → β}
-    (w : ∀ {a b}, Mem a x → Mem b x → f a = f b → a = b) :
-    Unsatisfiable β (relabel f x) ↔ Unsatisfiable α x := by
-  rcases nonempty_or_impossible x with (⟨⟨a₀⟩⟩ | ⟨n, rfl⟩)
-  · refine ⟨fun h => ?_, unsat_relabel f⟩
+theorem unsat_relabel_iff {f : CNF α} {r : α → β}
+    (hw : ∀ {v1 v2}, Mem v1 f → Mem v2 f → r v1 = r v2 → v1 = v2) :
+    Unsatisfiable β (relabel r f) ↔ Unsatisfiable α f := by
+  rcases nonempty_or_impossible f with (⟨⟨a₀⟩⟩ | ⟨n, rfl⟩)
+  · refine ⟨fun h => ?_, unsat_relabel r⟩
     have em := Classical.propDecidable
     let g : β → α := fun b =>
-      if h : ∃ a, Mem a x ∧ f a = b then h.choose else a₀
+      if h : ∃ a, Mem a f ∧ r a = b then h.choose else a₀
     have h' := unsat_relabel g h
-    suffices w : relabel g (relabel f x) = x by
+    suffices w : relabel g (relabel r f) = f by
       rwa [w] at h'
-    have : ∀ a, Mem a x → g (f a) = a := by
-      intro a h
+    have : ∀ a, Mem a f → g (r a) = a := by
+      intro v h
       dsimp [g]
-      rw [dif_pos ⟨a, h, rfl⟩]
-      apply w _ h
-      · exact (Exists.choose_spec (⟨a, h, rfl⟩ : ∃ a', Mem a' x ∧ f a' = f a)).2
-      · exact (Exists.choose_spec (⟨a, h, rfl⟩ : ∃ a', Mem a' x ∧ f a' = f a)).1
+      rw [dif_pos ⟨v, h, rfl⟩]
+      apply hw _ h
+      · exact (Exists.choose_spec (⟨v, h, rfl⟩ : ∃ a', Mem a' f ∧ r a' = r v)).2
+      · exact (Exists.choose_spec (⟨v, h, rfl⟩ : ∃ a', Mem a' f ∧ r a' = r v)).1
     rw [relabel_relabel, relabel_congr, relabel_id]
     exact this
   · cases n <;> simp [Unsatisfiable, (· ⊨ ·), relabel, Clause.relabel, List.replicate_succ]

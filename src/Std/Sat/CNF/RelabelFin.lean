@@ -45,30 +45,30 @@ theorem Clause.of_maxLiteral_eq_none (c : Clause Nat) (h : c.maxLiteral = none) 
   simp only [h, not_mem_nil] at hlit
 
 /--
-Obtain the literal with the largest identifier in `g`.
+Obtain the literal with the largest identifier in `f`.
 -/
-def maxLiteral (g : CNF Nat) : Option Nat :=
-  List.filterMap Clause.maxLiteral g |>.maximum?
+def maxLiteral (f : CNF Nat) : Option Nat :=
+  List.filterMap Clause.maxLiteral f |>.maximum?
 
-theorem of_maxLiteral_eq_some' (c : CNF Nat) (h : c.maxLiteral = some maxLit) :
-    ∀ clause, clause ∈ c → clause.maxLiteral = some localMax → localMax ≤ maxLit := by
+theorem of_maxLiteral_eq_some' (f : CNF Nat) (h : f.maxLiteral = some maxLit) :
+    ∀ clause, clause ∈ f → clause.maxLiteral = some localMax → localMax ≤ maxLit := by
   intro clause hclause1 hclause2
   simp [maxLiteral, List.maximum?_eq_some_iff'] at h
   rcases h with ⟨_, hclause3⟩
   apply hclause3 localMax clause hclause1 hclause2
 
-theorem of_maxLiteral_eq_some (c : CNF Nat) (h : c.maxLiteral = some maxLit) :
-    ∀ lit, Mem lit c → lit ≤ maxLit := by
+theorem of_maxLiteral_eq_some (f : CNF Nat) (h : f.maxLiteral = some maxLit) :
+    ∀ lit, Mem lit f → lit ≤ maxLit := by
   intro lit hlit
   dsimp [Mem] at hlit
   rcases hlit with ⟨clause, ⟨hclause1, hclause2⟩⟩
   rcases Clause.maxLiteral_eq_some_of_mem clause hclause2 with ⟨localMax, hlocal⟩
-  have h1 := of_maxLiteral_eq_some' c h clause hclause1 hlocal
+  have h1 := of_maxLiteral_eq_some' f h clause hclause1 hlocal
   have h2 := Clause.of_maxLiteral_eq_some clause hlocal lit hclause2
   omega
 
-theorem of_maxLiteral_eq_none (c : CNF Nat) (h : c.maxLiteral = none) :
-    ∀ lit, ¬Mem lit c := by
+theorem of_maxLiteral_eq_none (f : CNF Nat) (h : f.maxLiteral = none) :
+    ∀ lit, ¬Mem lit f := by
   intro lit hlit
   simp only [maxLiteral, List.maximum?_eq_none_iff] at h
   dsimp [Mem] at hlit
@@ -77,44 +77,44 @@ theorem of_maxLiteral_eq_none (c : CNF Nat) (h : c.maxLiteral = none) :
   contradiction
 
 /--
-An upper bound for the amount of distinct literals in `g`.
+An upper bound for the amount of distinct literals in `f`.
 -/
-def numLiterals (g : CNF Nat) :=
-  match g.maxLiteral with
+def numLiterals (f : CNF Nat) :=
+  match f.maxLiteral with
   | none => 0
   | some n => n + 1
 
-theorem lt_numLiterals {g : CNF Nat} (h : Mem a g) : a < numLiterals g := by
+theorem lt_numLiterals {f : CNF Nat} (h : Mem v f) : v < numLiterals f := by
   dsimp [numLiterals]
   split <;> rename_i h2
   . exfalso
-    apply of_maxLiteral_eq_none g h2 a h
-  . have := of_maxLiteral_eq_some g h2 a h
+    apply of_maxLiteral_eq_none f h2 v h
+  . have := of_maxLiteral_eq_some f h2 v h
     omega
 
-theorem numLiterals_pos {g : CNF Nat} (h : Mem a g) : 0 < numLiterals g :=
+theorem numLiterals_pos {f : CNF Nat} (h : Mem v f) : 0 < numLiterals f :=
   Nat.lt_of_le_of_lt (Nat.zero_le _) (lt_numLiterals h)
 
 /--
-Relabel `g` to a `CNF` formula with a known upper bound for its literals.
+Relabel `f` to a `CNF` formula with a known upper bound for its literals.
 
 This operation might be useful when e.g. using the literals to index into an array of known size
 without conducting bounds checks.
 -/
-def relabelFin (g : CNF Nat) : CNF (Fin g.numLiterals) :=
-  if h : ∃ a, Mem a g then
-    let n := g.numLiterals
-    g.relabel fun i =>
+def relabelFin (f : CNF Nat) : CNF (Fin f.numLiterals) :=
+  if h : ∃ v, Mem v f then
+    let n := f.numLiterals
+    f.relabel fun i =>
       if w : i < n then
         -- This branch will always hold
         ⟨i, w⟩
       else
         ⟨0, numLiterals_pos h.choose_spec⟩
   else
-    List.replicate g.length []
+    List.replicate f.length []
 
-theorem unsat_relabelFin {g : CNF Nat} :
-    Unsatisfiable (Fin g.numLiterals) g.relabelFin ↔ Unsatisfiable Nat g := by
+theorem unsat_relabelFin {f : CNF Nat} :
+    Unsatisfiable (Fin f.numLiterals) f.relabelFin ↔ Unsatisfiable Nat f := by
   dsimp [relabelFin]
   split <;> rename_i h
   · apply unsat_relabel_iff
@@ -124,7 +124,7 @@ theorem unsat_relabelFin {g : CNF Nat} :
     split <;> rename_i a_lt
     · simp
     · contradiction
-  · cases g with
+  · cases f with
     | nil => simp
     | cons c g =>
       simp only [not_exists_mem] at h

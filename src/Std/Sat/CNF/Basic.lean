@@ -27,24 +27,24 @@ abbrev CNF (α : Type u) : Type u := List (CNF.Clause α)
 namespace CNF
 
 /--
-Evaluating a `Clause` with respect to an assignment `f`.
+Evaluating a `Clause` with respect to an assignment `a`.
 -/
-def Clause.eval (f : α → Bool) (c : Clause α) : Bool := c.any fun (i, n) => f i == n
+def Clause.eval (a : α → Bool) (c : Clause α) : Bool := c.any fun (i, n) => a i == n
 
-@[simp] theorem Clause.eval_nil (f : α → Bool) : Clause.eval f [] = false := rfl
-@[simp] theorem Clause.eval_cons (f : α → Bool) :
-    Clause.eval f (i :: c) = (f i.1 == i.2 || Clause.eval f c) := rfl
+@[simp] theorem Clause.eval_nil (a : α → Bool) : Clause.eval a [] = false := rfl
+@[simp] theorem Clause.eval_cons (a : α → Bool) :
+    Clause.eval a (i :: c) = (a i.1 == i.2 || Clause.eval a c) := rfl
 
 /--
-Evaluating a `CNF` formula with respect to an assignment `f`.
+Evaluating a `CNF` formula with respect to an assignment `a`.
 -/
-def eval (f : α → Bool) (g : CNF α) : Bool := g.all fun c => c.eval f
+def eval (a : α → Bool) (f : CNF α) : Bool := f.all fun c => c.eval a
 
-@[simp] theorem eval_nil (f : α → Bool) : eval f [] = true := rfl
-@[simp] theorem eval_cons (f : α → Bool) : eval f (c :: g) = (c.eval f && eval f g) := rfl
+@[simp] theorem eval_nil (a : α → Bool) : eval a [] = true := rfl
+@[simp] theorem eval_cons (a : α → Bool) : eval a (c :: f) = (c.eval a && eval a f) := rfl
 
-@[simp] theorem eval_append (f : α → Bool) (g h : CNF α) :
-    eval f (g ++ h) = (eval f g && eval f h) := List.all_append
+@[simp] theorem eval_append (a : α → Bool) (f1 f2 : CNF α) :
+    eval a (f1 ++ f2) = (eval a f1 && eval a f2) := List.all_append
 
 instance : HSat α (Clause α) where
   eval assign clause := Clause.eval assign clause
@@ -64,35 +64,35 @@ instance : HSat α (CNF α) where
 namespace Clause
 
 /--
-Variable `a` occurs in `Clause` `c`.
+Variable `v` occurs in `Clause` `c`.
 -/
-def Mem (a : α) (c : Clause α) : Prop := (a, false) ∈ c ∨ (a, true) ∈ c
+def Mem (v : α) (c : Clause α) : Prop := (v, false) ∈ c ∨ (v, true) ∈ c
 
-instance {a : α} {c : Clause α} [DecidableEq α] : Decidable (Mem a c) :=
+instance {v : α} {c : Clause α} [DecidableEq α] : Decidable (Mem v c) :=
   inferInstanceAs <| Decidable (_ ∨ _)
 
-@[simp] theorem not_mem_nil {a : α} : ¬Mem a ([] : Clause α) := by simp [Mem]
-@[simp] theorem mem_cons {a : α} : Mem a (i :: c : Clause α) ↔ (a = i.1 ∨ Mem a c) := by
-  rcases i with ⟨b, (_|_)⟩
+@[simp] theorem not_mem_nil {v : α} : ¬Mem v ([] : Clause α) := by simp [Mem]
+@[simp] theorem mem_cons {v : α} : Mem v (l :: c : Clause α) ↔ (v = l.1 ∨ Mem v c) := by
+  rcases l with ⟨b, (_|_)⟩
   · simp [Mem, or_assoc]
   · simp [Mem]
     rw [or_left_comm]
 
-theorem mem_of (h : (a, b) ∈ c) : Mem a c := by
-  cases b
+theorem mem_of (h : (v, p) ∈ c) : Mem v c := by
+  cases p
   · left; exact h
   · right; exact h
 
-theorem eval_congr (f g : α → Bool) (c : Clause α) (w : ∀ i, Mem i c → f i = g i) :
-    eval f c = eval g c := by
+theorem eval_congr (a1 a2 : α → Bool) (c : Clause α) (hw : ∀ i, Mem i c → a1 i = a2 i) :
+    eval a1 c = eval a2 c := by
   induction c
   case nil => rfl
   case cons i c ih =>
     simp only [eval_cons]
-    rw [ih, w]
+    rw [ih, hw]
     · rcases i with ⟨b, (_|_)⟩ <;> simp [Mem]
     · intro j h
-      apply w
+      apply hw
       rcases h with h | h
       · left
         apply List.mem_cons_of_mem _ h
@@ -102,15 +102,15 @@ theorem eval_congr (f g : α → Bool) (c : Clause α) (w : ∀ i, Mem i c → f
 end Clause
 
 /--
-Literal `a` occurs in `CNF` formula `g`.
+Variable `v` occurs in `CNF` formula `f`.
 -/
-def Mem (a : α) (g : CNF α) : Prop := ∃ c, c ∈ g ∧ c.Mem a
+def Mem (v : α) (f : CNF α) : Prop := ∃ c, c ∈ f ∧ c.Mem v
 
-instance {a : α} {g : CNF α} [DecidableEq α] : Decidable (Mem a g) :=
+instance {v : α} {f : CNF α} [DecidableEq α] : Decidable (Mem v f) :=
   inferInstanceAs <| Decidable (∃ _, _)
 
-theorem any_not_isEmpty_iff_exists_mem {g : CNF α} :
-    (List.any g fun c => !List.isEmpty c) = true ↔ ∃ a, Mem a g := by
+theorem any_not_isEmpty_iff_exists_mem {f : CNF α} :
+    (List.any f fun c => !List.isEmpty c) = true ↔ ∃ v, Mem v f := by
   simp only [List.any_eq_true, Bool.not_eq_true', List.isEmpty_false_iff_exists_mem, Mem,
     Clause.Mem]
   constructor
@@ -130,14 +130,14 @@ theorem any_not_isEmpty_iff_exists_mem {g : CNF α} :
       | inl hl => exact Exists.intro _ hl
       | inr hr => exact Exists.intro _ hr
 
-@[simp] theorem not_exists_mem : (¬ ∃ a, Mem a g) ↔ ∃ n, g = List.replicate n [] := by
+@[simp] theorem not_exists_mem : (¬ ∃ v, Mem v f) ↔ ∃ n, f = List.replicate n [] := by
   simp only [← any_not_isEmpty_iff_exists_mem]
   simp only [List.any_eq_true, Bool.not_eq_true', not_exists, not_and, Bool.not_eq_false]
-  induction g with
+  induction f with
   | nil =>
     simp only [List.not_mem_nil, List.isEmpty_iff, false_implies, forall_const, true_iff]
     exact ⟨0, rfl⟩
-  | cons c g ih =>
+  | cons c f ih =>
     simp_all [ih, List.isEmpty_iff]
     constructor
     · rintro ⟨rfl, n, rfl⟩
@@ -148,38 +148,38 @@ theorem any_not_isEmpty_iff_exists_mem {g : CNF α} :
       · simp_all only [List.replicate, List.cons.injEq, true_and]
         exact ⟨_, rfl⟩
 
-instance {g : CNF α} [DecidableEq α] : Decidable (∃ a, Mem a g) :=
-  decidable_of_iff (g.any fun c => !c.isEmpty) any_not_isEmpty_iff_exists_mem
+instance {f : CNF α} [DecidableEq α] : Decidable (∃ v, Mem v f) :=
+  decidable_of_iff (f.any fun c => !c.isEmpty) any_not_isEmpty_iff_exists_mem
 
-@[simp] theorem not_mem_nil {a : α} : ¬Mem a ([] : CNF α) := by simp [Mem]
-@[simp] theorem mem_cons {a : α} {i} {c : CNF α} :
-    Mem a (i :: c : CNF α) ↔ (Clause.Mem a i ∨ Mem a c) := by simp [Mem]
+@[simp] theorem not_mem_nil {v : α} : ¬Mem v ([] : CNF α) := by simp [Mem]
+@[simp] theorem mem_cons {v : α} {c} {f : CNF α} :
+    Mem v (c :: f : CNF α) ↔ (Clause.Mem v c ∨ Mem v f) := by simp [Mem]
 
-theorem mem_of (h : c ∈ g) (w : Clause.Mem a c) : Mem a g := by
+theorem mem_of (h : c ∈ f) (w : Clause.Mem v c) : Mem v f := by
   apply Exists.intro c
   constructor <;> assumption
 
-@[simp] theorem mem_append {a : α} {x y : CNF α} : Mem a (x ++ y) ↔ Mem a x ∨ Mem a y := by
+@[simp] theorem mem_append {v : α} {f1 f2 : CNF α} : Mem v (f1 ++ f2) ↔ Mem v f1 ∨ Mem v f2 := by
   simp [Mem, List.mem_append]
   constructor
-  · rintro ⟨c, (mx | my), mc⟩
+  · rintro ⟨c, (mf1 | mf2), mc⟩
     · left
-      exact ⟨c, mx, mc⟩
+      exact ⟨c, mf1, mc⟩
     · right
-      exact ⟨c, my, mc⟩
-  · rintro (⟨c, mx, mc⟩ | ⟨c, my, mc⟩)
-    · exact ⟨c, Or.inl mx, mc⟩
-    · exact ⟨c, Or.inr my, mc⟩
+      exact ⟨c, mf2, mc⟩
+  · rintro (⟨c, mf1, mc⟩ | ⟨c, mf2, mc⟩)
+    · exact ⟨c, Or.inl mf1, mc⟩
+    · exact ⟨c, Or.inr mf2, mc⟩
 
-theorem eval_congr (f g : α → Bool) (x : CNF α) (w : ∀ i, Mem i x → f i = g i) :
-    eval f x = eval g x := by
-  induction x
+theorem eval_congr (a1 a2 : α → Bool) (f : CNF α) (hw : ∀ v, Mem v f → a1 v = a2 v) :
+    eval a1 f = eval a2 f := by
+  induction f
   case nil => rfl
   case cons c x ih =>
     simp only [eval_cons]
     rw [ih, Clause.eval_congr] <;>
     · intro i h
-      apply w
+      apply hw
       simp [h]
 
 end CNF

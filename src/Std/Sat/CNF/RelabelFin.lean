@@ -114,7 +114,7 @@ def relabelFin (f : CNF Nat) : CNF (Fin f.numLiterals) :=
     List.replicate f.length []
 
 theorem unsat_relabelFin {f : CNF Nat} :
-    Unsatisfiable (Fin f.numLiterals) f.relabelFin ↔ Unsatisfiable Nat f := by
+    unsat f.relabelFin ↔ unsat f := by
   dsimp [relabelFin]
   split <;> rename_i h
   · apply unsat_relabel_iff

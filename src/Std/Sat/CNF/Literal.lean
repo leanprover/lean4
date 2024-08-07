@@ -6,7 +6,6 @@ Authors: Josh Clune
 prelude
 import Init.Data.Hashable
 import Init.Data.ToString
-import Std.Sat.Basic
 
 namespace Std
 namespace Sat
@@ -19,12 +18,6 @@ abbrev Literal (α : Type u) := α × Bool
 
 namespace Literal
 variable (α : Type) [Hashable α]
-
-instance : Entails α (Literal α) where
-  eval := fun p l => p l.1 = l.2
-
-instance (p : α → Bool) (l : Literal α) : Decidable (p ⊨ l) :=
-  inferInstanceAs (Decidable (p l.1 = l.2))
 
 /--
 Flip the polarity of `l`.

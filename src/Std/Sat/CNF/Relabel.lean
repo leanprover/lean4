@@ -76,12 +76,12 @@ theorem relabel_congr {f : CNF α} {r1 r2 : α → β} (hw : ∀ v, Mem v f → 
   intro v m
   exact hw _ (mem_of h m)
 
-theorem sat_relabel {f : CNF α} (h : (r1 ∘ r2) ⊨ f) : r1 ⊨ (relabel r2 f) := by
-  simp_all [(· ⊨ ·)]
+theorem sat_relabel {f : CNF α} (h : sat (r1 ∘ r2) f) : sat r1 (relabel r2 f) := by
+  simp_all [sat_def]
 
-theorem unsat_relabel {f : CNF α} (r : α → β) (h : Unsatisfiable α f) :
-    Unsatisfiable β (relabel r f) := by
-  simp_all [Unsatisfiable, (· ⊨ ·)]
+theorem unsat_relabel {f : CNF α} (r : α → β) (h : unsat f) :
+    unsat (relabel r f) := by
+  simp_all [unsat_def]
 
 theorem nonempty_or_impossible (f : CNF α) : Nonempty α ∨ ∃ n, f = List.replicate n [] := by
   induction f with
@@ -97,7 +97,7 @@ theorem nonempty_or_impossible (f : CNF α) : Nonempty α ∨ ∃ n, f = List.re
 
 theorem unsat_relabel_iff {f : CNF α} {r : α → β}
     (hw : ∀ {v1 v2}, Mem v1 f → Mem v2 f → r v1 = r v2 → v1 = v2) :
-    Unsatisfiable β (relabel r f) ↔ Unsatisfiable α f := by
+    unsat (relabel r f) ↔ unsat f := by
   rcases nonempty_or_impossible f with (⟨⟨a₀⟩⟩ | ⟨n, rfl⟩)
   · refine ⟨fun h => ?_, unsat_relabel r⟩
     have em := Classical.propDecidable
@@ -115,7 +115,7 @@ theorem unsat_relabel_iff {f : CNF α} {r : α → β}
       · exact (Exists.choose_spec (⟨v, h, rfl⟩ : ∃ a', Mem a' f ∧ r a' = r v)).1
     rw [relabel_relabel, relabel_congr, relabel_id]
     exact this
-  · cases n <;> simp [Unsatisfiable, (· ⊨ ·), List.replicate_succ]
+  · cases n <;> simp [unsat_def, List.replicate_succ]
 
 end CNF
 

@@ -112,6 +112,10 @@ Tries to retrieve the mapping for the given key, returning `none` if no such map
 @[inline] def get? (m : HashMap α β) (a : α) : Option β :=
   DHashMap.Const.get? m.inner a
 
+@[deprecated get? "Use `m[a]?` or `m.get? a` instead", inherit_doc get?]
+def find? (m : HashMap α β) (a : α) : Option β :=
+  m.get? a
+
 @[inline, inherit_doc DHashMap.contains] def contains (m : HashMap α β)
     (a : α) : Bool :=
   m.inner.contains a
@@ -135,6 +139,10 @@ Retrieves the mapping for the given key. Ensures that such a mapping exists by r
     (fallback : β) : β :=
   DHashMap.Const.getD m.inner a fallback
 
+@[deprecated getD, inherit_doc getD]
+def findD (m : HashMap α β) (a : α) (fallback : β) : β :=
+  m.getD a fallback
+
 /--
 The notation `m[a]!` is preferred over calling this function directly.
 
@@ -142,6 +150,10 @@ Tries to retrieve the mapping for the given key, panicking if no such mapping is
 -/
 @[inline] def get! [Inhabited β] (m : HashMap α β) (a : α) : β :=
   DHashMap.Const.get! m.inner a
+
+@[deprecated get! "Use `m[a]!` or `m.get! a` instead", inherit_doc get!]
+def find! [Inhabited β] (m : HashMap α β) (a : α) : Option β :=
+  m.get! a
 
 instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a ∈ m) where
   getElem m a h := m.get a h

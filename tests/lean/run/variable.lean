@@ -159,3 +159,16 @@ include α in
 omit α in
 include α in
 theorem t14 : True := trivial
+
+/-! But you probably shouldn't use it -/
+
+set_option linter.omit true in
+/--
+warning: `omit` should be avoided in favor of restructuring your `variable` declarations
+note: this linter can be disabled with `set_option linter.omit false`
+-/
+#guard_msgs in
+variable (α : Type) in
+include α in
+omit α in
+theorem t15 : True := trivial

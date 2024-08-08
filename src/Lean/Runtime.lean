@@ -20,4 +20,10 @@ def closureMaxArgs : Nat :=
 def maxSmallNat : Nat :=
   maxSmallNatFn ()
 
+@[extern "lean_libuv_version"]
+opaque libUvVersionFn : Unit → Nat
+
+def libUvVersion : Nat :=
+  libUvVersionFn ()
+
 end Lean

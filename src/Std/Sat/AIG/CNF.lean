@@ -68,7 +68,8 @@ theorem gateToCNF_eval :
     (gateToCNF output lhs rhs linv rinv).eval assign
       =
     (assign output == ((xor (assign lhs) linv) && (xor (assign rhs) rinv))) := by
-  simp [gateToCNF, CNF.eval, CNF.Clause.eval]
+  simp only [CNF.eval, gateToCNF, CNF.Clause.eval, List.all_cons, List.any_cons, beq_false,
+    List.any_nil, Bool.or_false, beq_true, List.all_nil, Bool.and_true]
   cases assign output
     <;> cases assign lhs
       <;> cases assign rhs
@@ -246,7 +247,7 @@ theorem Cache.IsExtensionBy_set (cache1 : Cache aig cnf1) (cache2 : Cache aig cn
   apply IsExtensionBy.mk
   . intro idx hidx hmark
     simp [Array.getElem_set, hmark, h]
-  . simp[h]
+  . simp [h]
 
 /--
 A cache with no entries is valid for an empty CNF.
@@ -283,11 +284,12 @@ def Cache.addConst (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size
           rw [Array.getElem_set] at hmarked
           split at hmarked
           . next heq =>
-            simp at heq
-            simp [heq] at htip heval
-            simp [heval, denote_idx_const htip]
+            dsimp at heq
+            simp only [heq, CNF.eval_append, Decl.constToCNF_eval, Bool.and_eq_true, beq_iff_eq]
+              at htip heval
+            simp only [denote_idx_const htip, projectRightAssign_property, heval]
           . next heq =>
-            simp at heval
+            simp only [CNF.eval_append, Decl.constToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
             have := cache.inv.heval assign heval.right idx hbound hmarked
             rw [this]
     }
@@ -320,11 +322,11 @@ def Cache.addAtom (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size)
           rw [Array.getElem_set] at hmarked
           split at hmarked
           . next heq =>
-            simp at heq
-            simp [heq] at htip heval
+            dsimp at heq
+            simp only [heq, CNF.eval_append, Decl.atomToCNF_eval, Bool.and_eq_true, beq_iff_eq] at htip heval
             simp [heval, denote_idx_atom htip]
           . next heq =>
-            simp at heval
+            simp only [CNF.eval_append, Decl.atomToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
             have := cache.inv.heval assign heval.right idx hbound hmarked
             rw [this]
     }
@@ -361,8 +363,8 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
           rw [Array.getElem_set] at hmarked
           split at hmarked
           . next heq2 =>
-            simp at heq2
-            simp [heq2] at htip
+            simp only at heq2
+            simp only [heq2] at htip
             rw [htip] at heq
             cases heq
             simp [Array.getElem_set, hl, hr]
@@ -372,13 +374,14 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
           rw [Array.getElem_set] at hmarked
           split at hmarked
           . next heq =>
-            simp at heq
-            simp [heq] at htip heval
+            dsimp at heq
+            simp only [heq, CNF.eval_append, Decl.gateToCNF_eval, Bool.and_eq_true, beq_iff_eq]
+              at htip heval
             have hleval := cache.inv.heval assign heval.right lhs (by omega) hl
             have hreval := cache.inv.heval assign heval.right rhs (by omega) hr
-            simp [heval, hleval, hreval, denote_idx_gate htip]
+            simp only [denote_idx_gate htip, hleval, projectRightAssign_property, hreval, heval]
           . next heq =>
-            simp at heval
+            simp only [CNF.eval_append, Decl.gateToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
             have := cache.inv.heval assign heval.right idx hbound hmarked
             rw [this]
     }
@@ -505,7 +508,7 @@ def State.addConst (state : State aig) (idx : Nat) (h : idx < aig.decls.size)
   let newCnf := Decl.constToCNF (.inr ⟨idx, h⟩) b
   have hinv := toCNF.State.Inv_constToCNF htip
   let ⟨cache, hcache⟩ := cache.addConst idx h htip
-  ⟨⟨newCnf ++ cnf, cache, State.Inv_append hinv inv⟩, by simp[hcache]⟩
+  ⟨⟨newCnf ++ cnf, cache, State.Inv_append hinv inv⟩, by simp [hcache]⟩
 
 /--
 Add the CNF for a `Decl.atom` to the state.
@@ -517,7 +520,7 @@ def State.addAtom (state : State aig) (idx : Nat) (h : idx < aig.decls.size)
   let newCnf := Decl.atomToCNF (.inr ⟨idx, h⟩) (.inl a)
   have hinv := toCNF.State.Inv_atomToCNF htip
   let ⟨cache, hcache⟩ := cache.addAtom idx h htip
-  ⟨⟨newCnf ++ cnf, cache, State.Inv_append hinv inv⟩, by simp[hcache]⟩
+  ⟨⟨newCnf ++ cnf, cache, State.Inv_append hinv inv⟩, by simp [hcache]⟩
 
 /--
 Add the CNF for a `Decl.gate` to the state.
@@ -537,7 +540,7 @@ def State.addGate (state : State aig) {hlb} {hrb} (idx : Nat) (h : idx < aig.dec
       rinv
   have hinv := toCNF.State.Inv_gateToCNF htip
   let ⟨cache, hcache⟩ := cache.addGate idx h htip hl hr
-  ⟨⟨newCnf ++ cnf, cache, State.Inv_append hinv inv⟩, by simp[hcache]⟩
+  ⟨⟨newCnf ++ cnf, cache, State.Inv_append hinv inv⟩, by simp [hcache]⟩
 
 /--
 Evaluate the CNF contained within the state.
@@ -673,7 +676,7 @@ theorem toCNF.go_as_denote (aig : AIG Nat) (start) (h1) (assign1) :
     (⟦aig, ⟨start, h1⟩, assign1⟧ = sat?) := by
   intro h
   have := go_sat aig start h1 assign1 (.empty aig)
-  simp [CNF.sat_def, State.Sat] at this
+  simp only [State.Sat, CNF.sat_def] at this
   simpa [this] using h
 
 /--
@@ -688,7 +691,7 @@ theorem toCNF.denote_as_go {assign : AIG.CNFVar aig → Bool}:
   | true =>
     have heval2 := (go aig start h1 (.empty aig)).val.cache.inv.heval
     specialize heval2 assign heval1 start h1 go_marked
-    simp [h] at heval2
+    simp only [h, projectRightAssign_property, Bool.false_eq] at heval2
     simp [heval2]
   | false =>
     simp [heval1]

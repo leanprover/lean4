@@ -281,7 +281,7 @@ theorem denote_congr (assign1 assign2 : α → Bool) (aig : AIG α) (idx : Nat)
     rw [Array.mem_def]
     apply Array.getElem_mem_data
   . intro lhs rhs linv rinv heq
-    simp [denote_idx_gate heq]
+    simp only [denote_idx_gate heq]
     have := aig.inv idx lhs rhs linv rinv hidx heq
     rw [denote_congr assign1 assign2 aig lhs (by omega) h]
     rw [denote_congr assign1 assign2 aig rhs (by omega) h]

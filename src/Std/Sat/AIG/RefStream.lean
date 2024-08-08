@@ -81,7 +81,7 @@ theorem get_push_ref_eq' (s : RefStream aig len) (ref : AIG.Ref aig) (idx : Nat)
 theorem get_push_ref_lt (s : RefStream aig len) (ref : AIG.Ref aig) (idx : Nat)
     (hidx : idx < len) :
     (s.push ref).get idx (by omega) = s.get idx hidx := by
-  simp [get, push]
+  simp only [get, push, Ref.mk.injEq]
   cases ref
   simp only [Ref.mk.injEq]
   rw [Array.get_push_lt]

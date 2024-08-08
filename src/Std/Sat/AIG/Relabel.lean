@@ -120,7 +120,7 @@ theorem denote_relabel (aig : AIG α) (r : α → β) (start : Nat) {hidx}
     rw [denote_relabel aig r rhs assign]
 
 theorem unsat_relabel {aig : AIG α} (r : α → β) {hidx} :
-    aig.UnsatAt idx hidx → (aig.relabel r).UnsatAt idx (by simp[hidx]) := by
+    aig.UnsatAt idx hidx → (aig.relabel r).UnsatAt idx (by simp [hidx]) := by
   intro h assign
   specialize h (assign ∘ r)
   simp [h]
@@ -139,7 +139,7 @@ theorem relabel_unsat_iff [Nonempty α] {aig : AIG α} {r : α → β} {hidx1} {
     rw [← h']
     apply denote_congr
     . intro a hmem
-      simp [g]
+      simp only [Function.comp_apply, g]
       split
       . next h =>
         rcases Exists.choose_spec h with ⟨_, heq⟩

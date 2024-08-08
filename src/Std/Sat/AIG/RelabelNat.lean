@@ -37,7 +37,7 @@ theorem Inv1.lt_of_get?_eq_some [EquivBEq α] {n m : Nat} (map : HashMap α Nat)
       simp only [hx, beq_self_eq_true, ↓reduceIte, Option.some.injEq]
       omega
     | false =>
-      simp [BEq.symm_false hx]
+      simp only [BEq.symm_false hx, Bool.false_eq_true, ↓reduceIte]
       intro h
       specialize ih3 h
       omega
@@ -343,11 +343,11 @@ theorem relabelNat_unsat_iff [Nonempty α] {aig : AIG α} {hidx1} {hidx2} :
     . next hcase2 =>
       exfalso
       rcases RelabelNat.State.ofAIG_find_some y hy with ⟨n, hn⟩
-      simp[hcase2] at hn
+      simp [hcase2] at hn
   . next hcase =>
     exfalso
     rcases RelabelNat.State.ofAIG_find_some x hx with ⟨n, hn⟩
-    simp[hcase] at hn
+    simp [hcase] at hn
 
 namespace Entrypoint
 
@@ -367,7 +367,7 @@ identifiers.
 def relabelNat (entry : Entrypoint α) : Entrypoint Nat :=
   { entry with
       aig := entry.aig.relabelNat
-      ref.hgate := by simp[entry.ref.hgate]
+      ref.hgate := by simp [entry.ref.hgate]
   }
 
 /--

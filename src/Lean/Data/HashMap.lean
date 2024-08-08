@@ -6,6 +6,8 @@ Author: Leonardo de Moura
 prelude
 import Init.Data.Nat.Power2
 import Lean.Data.AssocList
+import Std.Data.HashMap.Basic
+import Std.Data.HashMap.Raw
 namespace Lean
 
 def HashMapBucket (α : Type u) (β : Type v) :=
@@ -268,5 +270,12 @@ def ofListWith (l : List (α × β)) (f : β → β → β) : HashMap α β :=
       match m.find? p.fst with
         | none   => m.insert p.fst p.snd
         | some v => m.insert p.fst $ f v p.snd)
+
+attribute [deprecated Std.HashMap] HashMap
+attribute [deprecated Std.HashMap.Raw] HashMapImp
+attribute [deprecated Std.HashMap.Raw.empty] mkHashMapImp
+attribute [deprecated Std.HashMap.empty] mkHashMap
+attribute [deprecated Std.HashMap.empty] HashMap.empty
+attribute [deprecated Std.HashMap.ofList] HashMap.ofList
 
 end Lean.HashMap

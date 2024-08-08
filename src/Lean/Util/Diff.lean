@@ -5,6 +5,7 @@ Authors: David Thrane Christiansen
 -/
 prelude
 import Init.Data
+import Lean.Data.HashMap
 import Std.Data.HashMap.Basic
 import Init.Omega
 

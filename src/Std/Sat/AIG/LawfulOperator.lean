@@ -51,7 +51,7 @@ theorem denote.go_eq_of_IsPrefix (decls1 decls2 : Array (Decl α)) (start : Nat)
     split <;> simp_all
   . next lhs rhs linv rinv heq =>
     rw [hidx1] at heq
-    have := hdag1 start lhs rhs linv rinv hbounds1 heq
+    have := hdag1 hbounds1 heq
     have hidx2 := hprefix.idx_eq lhs (by omega)
     have hidx3 := hprefix.idx_eq rhs (by omega)
     split

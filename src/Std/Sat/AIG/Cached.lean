@@ -35,7 +35,6 @@ def mkAtomCached (aig : AIG α) (n : α) : Entrypoint α :=
     let decls := decls.push decl
     have inv := by
       intro i lhs rhs linv rinv h1 h2
-      simp only [decls] at *
       simp only [Array.get_push] at h2
       split at h2
       . apply inv <;> assumption
@@ -58,7 +57,6 @@ def mkConstCached (aig : AIG α) (val : Bool) : Entrypoint α :=
     let decls := decls.push decl
     have inv := by
       intro i lhs rhs linv rinv h1 h2
-      simp only [decls] at *
       simp only [Array.get_push] at h2
       split at h2
       . apply inv <;> assumption

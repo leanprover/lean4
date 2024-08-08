@@ -224,9 +224,9 @@ theorem denote_idx_gate {aig : AIG α} {hstart} (h : aig.decls[start] = .gate lh
     ⟦aig, ⟨start, hstart⟩, assign⟧
       =
     (
-      (xor ⟦aig, ⟨lhs, by have := aig.inv start lhs rhs linv rinv hstart h; omega⟩, assign⟧ linv)
+      (xor ⟦aig, ⟨lhs, by have := aig.inv hstart h; omega⟩, assign⟧ linv)
         &&
-      (xor ⟦aig, ⟨rhs, by have := aig.inv start lhs rhs linv rinv hstart h; omega⟩, assign⟧ rinv)
+      (xor ⟦aig, ⟨rhs, by have := aig.inv hstart h; omega⟩, assign⟧ rinv)
     ) := by
   unfold denote
   conv =>
@@ -280,7 +280,7 @@ theorem denote_congr (assign1 assign2 : α → Bool) (aig : AIG α) (idx : Nat)
     apply Array.getElem_mem_data
   . intro lhs rhs linv rinv heq
     simp only [denote_idx_gate heq]
-    have := aig.inv idx lhs rhs linv rinv hidx heq
+    have := aig.inv hidx heq
     rw [denote_congr assign1 assign2 aig lhs (by omega) h]
     rw [denote_congr assign1 assign2 aig rhs (by omega) h]
 

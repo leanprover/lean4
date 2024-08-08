@@ -115,7 +115,7 @@ theorem denote_relabel (aig : AIG α) (r : α → β) (start : Nat) {hidx}
     have heq2 := relabel_gate heq1
     rw [denote_idx_gate heq1]
     rw [denote_idx_gate heq2]
-    have := aig.inv start lhs rhs linv rinv (by rw [← relabel_size_eq_size (r := r)]; omega) heq2
+    have := aig.inv (by rw [← relabel_size_eq_size (r := r)]; omega) heq2
     rw [denote_relabel aig r lhs assign]
     rw [denote_relabel aig r rhs assign]
 

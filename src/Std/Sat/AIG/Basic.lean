@@ -188,7 +188,7 @@ opaque Cache.get? (cache : Cache α decls) (decl : Decl α) : Option (CacheHit d
 An `Array Decl` is a Direct Acyclic Graph (DAG) if a gate at index `i` only points to nodes with index lower than `i`. 
 -/
 def IsDag (α : Type) (decls : Array (Decl α)) : Prop :=
-  ∀ i lhs rhs linv rinv (h : i < decls.size),
+  ∀ {i lhs rhs linv rinv} (h : i < decls.size),
       decls[i] = .gate lhs rhs linv rinv → lhs < i ∧ rhs < i
 
 /--
@@ -319,7 +319,7 @@ where
     | Decl.atom _ => return acc
     | Decl.gate lidx ridx linv rinv =>
       let curr := s!"{idx} -> {lidx}{invEdgeStyle linv}; {idx} -> {ridx}{invEdgeStyle rinv};"
-      let hlr := hinv idx lidx ridx linv rinv hidx elem
+      let hlr := hinv hidx elem
       let laig ← go (acc ++ curr) decls hinv lidx (by omega)
       go laig decls hinv ridx (by omega)
   invEdgeStyle (isInv : Bool) : String :=
@@ -372,7 +372,7 @@ where
     | .const b => b
     | .atom v => assign v
     | .gate lhs rhs linv rinv =>
-      have := h2 x _ _ _ _ h1 h3
+      have := h2 h1 h3
       let lval := go lhs decls assign (by omega) h2
       let rval := go rhs decls assign (by omega) h2
       xor lval linv && xor rval rinv
@@ -453,55 +453,49 @@ Build an AIG gate in `aig`. Note that this version is only meant for proving,
 for production purposes use `AIG.mkGateCached` and equality theorems to this one.
 -/
 def mkGate (aig : AIG α) (input : GateInput aig) : Entrypoint α :=
-  let lhs := input.lhs
-  let rhs := input.rhs
-  let g := aig.decls.size
-  let decls := aig.decls.push (.gate lhs.ref.gate rhs.ref.gate lhs.inv rhs.inv)
+  let decls :=
+    aig.decls.push <| .gate input.lhs.ref.gate input.rhs.ref.gate input.lhs.inv input.rhs.inv
   let cache := aig.cache.noUpdate
   have inv := by
     intro i lhs' rhs' linv' rinv' h1 h2
-    simp only [decls, Array.get_push] at h2
+    simp only [Array.get_push] at h2
     split at h2
     . apply aig.inv <;> assumption
     . injections
-      have := lhs.ref.hgate
-      have := rhs.ref.hgate
+      have := input.lhs.ref.hgate
+      have := input.rhs.ref.hgate
       omega
-  ⟨{ aig with decls, inv, cache }, ⟨g, by simp [g, decls]⟩⟩
+  ⟨{ aig with decls, inv, cache }, ⟨aig.decls.size, by simp [decls]⟩⟩
 
 /--
 Add a new input node to the AIG in `aig`. Note that this version is only meant for proving,
 for production purposes use `AIG.mkAtomCached` and equality theorems to this one.
 -/
 def mkAtom (aig : AIG α) (n : α) : Entrypoint α :=
-  let g := aig.decls.size
   let decls := aig.decls.push (.atom n)
   let cache := aig.cache.noUpdate
   have inv := by
     intro i lhs rhs linv rinv h1 h2
-    simp only [decls] at *
     simp only [Array.get_push] at h2
     split at h2
     . apply aig.inv <;> assumption
     . contradiction
-  ⟨{ decls, inv, cache }, ⟨g, by simp [g, decls]⟩⟩
+  ⟨{ decls, inv, cache }, ⟨aig.decls.size, by simp [decls]⟩⟩
 
 /--
 Build a constant node in `aig`. Note that this version is only meant for proving,
 for production purposes use `AIG.mkConstCached` and equality theorems to this one.
 -/
 def mkConst (aig : AIG α) (val : Bool) : Entrypoint α :=
-  let g := aig.decls.size
   let decls := aig.decls.push (.const val)
   let cache := aig.cache.noUpdate
   have inv := by
     intro i lhs rhs linv rinv h1 h2
-    simp only [decls] at *
     simp only [Array.get_push] at h2
     split at h2
     . apply aig.inv <;> assumption
     . contradiction
-  ⟨{ decls, inv, cache }, ⟨g, by simp [g, decls]⟩⟩
+  ⟨{ decls, inv, cache }, ⟨aig.decls.size, by simp [decls]⟩⟩
 
 end AIG
 

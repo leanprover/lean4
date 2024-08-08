@@ -771,6 +771,7 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
   let isUnsafe          := view0.modifiers.isUnsafe
   withRef view0.ref <| Term.withLevelNames allUserLevelNames do
     let rs ← elabHeader views
+    Term.synthesizeSyntheticMVarsNoPostponing
     withInductiveLocalDecls rs fun params indFVars => do
       trace[Elab.inductive] "indFVars: {indFVars}"
       let mut indTypesArray := #[]
@@ -783,7 +784,6 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
         let type  ← mkForallFVars params type
         let ctors ← withExplicitToImplicit params (elabCtors indFVars indFVar params r)
         indTypesArray := indTypesArray.push { name := r.view.declName, type, ctors }
-      Term.synthesizeSyntheticMVarsNoPostponing
       let numExplicitParams ← fixedIndicesToParams params.size indTypesArray indFVars
       trace[Elab.inductive] "numExplicitParams: {numExplicitParams}"
       let indTypes := indTypesArray.toList

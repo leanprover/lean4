@@ -47,7 +47,7 @@ echo -n " -DLEAN_EXTRA_CXX_FLAGS='${EXTRA_FLAGS:-}'"
 if [[ -L llvm-host ]]; then
   echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang"
   gcp $GMP/lib/libgmp.a stage1/lib/
-  gcp $LIBUV/lib/libuv.so stage1/lib/
+  gcp $LIBUV/lib/libuv.a stage1/lib/
   echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='-L ROOT/lib -L ROOT/lib/libc -fuse-ld=lld'"
   echo -n " -DLEAN_EXTRA_LINKER_FLAGS='-lgmp -luv'"
 else

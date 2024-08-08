@@ -735,6 +735,12 @@ theorem getElem_modify_of_ne {as : Array α} {i : Nat} (hj : j < as.size)
     (as.modify i f)[j]'(by rwa [size_modify]) = as[j] := by
   simp [getElem_modify hj, h]
 
+@[deprecated (since := "2024-08-08")]
+theorem get_modify {arr : Array α} {x i} (h : i < arr.size) :
+    (arr.modify x f).get ⟨i, by simp [h]⟩ =
+    if x = i then f (arr.get ⟨i, h⟩) else arr.get ⟨i, h⟩ := by
+  simp [getElem_modify h]
+
 /-! ### filter -/
 
 @[simp] theorem filter_data (p : α → Bool) (l : Array α) :

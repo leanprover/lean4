@@ -318,17 +318,17 @@ where
 /--
 A stream of references into `aig`. This is the `AIG` analog of `BitVec`.
 -/
-structure RefStream (aig : AIG α) (length : Nat) where
+structure RefStream (aig : AIG α) (w : Nat) where
   refs : Array Nat
-  hlen : refs.size = length
-  hrefs : ∀ (h : i < length), refs[i] < aig.decls.size
+  hlen : refs.size = w
+  hrefs : ∀ (h : i < w), refs[i] < aig.decls.size
 
 /--
 A sequence of references bundled with their AIG. In some sense a generalization of `Entrypoint`.
 -/
-structure RefStreamEntry (α : Type) [DecidableEq α] [Hashable α] [DecidableEq α] (length : Nat) where
+structure RefStreamEntry (α : Type) [DecidableEq α] [Hashable α] [DecidableEq α] (w : Nat) where
   aig : AIG α
-  stream : RefStream aig length
+  stream : RefStream aig w
 
 structure ShiftTarget (aig : AIG α) (w : Nat) where
   stream : AIG.RefStream aig w

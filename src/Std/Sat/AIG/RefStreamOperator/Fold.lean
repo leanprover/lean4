@@ -23,7 +23,7 @@ structure FoldTarget (aig : AIG α) where
 attribute [instance] FoldTarget.lawful
 
 @[inline]
-def FoldTarget.mkAnd {aig : AIG α} (stream : RefStream aig length) : FoldTarget aig where
+def FoldTarget.mkAnd {aig : AIG α} (stream : RefStream aig w) : FoldTarget aig where
   stream := stream
   func := mkAndCached
 

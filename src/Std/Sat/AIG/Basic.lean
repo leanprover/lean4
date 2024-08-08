@@ -95,7 +95,7 @@ structure CacheHit (decls : Array (Decl α)) (decl : Decl α) where
   hvalid : decls[idx]'hbound = decl
 
 /--
-For a `c : Cache α decls`, any index `idx` that is a cache hit for some `decl` is within bounds of `decls` (i.e. `idx < decls.size`). 
+For a `c : Cache α decls`, any index `idx` that is a cache hit for some `decl` is within bounds of `decls` (i.e. `idx < decls.size`).
 -/
 theorem Cache.get?_bounds {decls : Array (Decl α)} {idx : Nat} (c : Cache α decls) (decl : Decl α)
     (hfound : c.val[decl]? = some idx) :
@@ -240,27 +240,43 @@ structure Ref (aig : AIG α) where
   gate : Nat
   hgate : gate < aig.decls.size
 
+/--
+A `Ref` into `aig1` is also valid for `aig2` if `aig1` is smaller than `aig2`.
+-/
 @[inline]
 def Ref.cast {aig1 aig2 : AIG α} (ref : Ref aig1)
     (h : aig1.decls.size ≤ aig2.decls.size) :
     Ref aig2 :=
   { ref with hgate := by have := ref.hgate; omega }
 
+/--
+A pair of `Ref`s, useful for `LawfulOperator`s that act on two `Ref`s at a time.
+-/
 structure BinaryInput (aig : AIG α) where
   lhs : Ref aig
   rhs : Ref aig
 
+/--
+The `Ref.cast` equivalent for `BinaryInput`.
+-/
 @[inline]
 def BinaryInput.cast {aig1 aig2 : AIG α} (input : BinaryInput aig1)
     (h : aig1.decls.size ≤ aig2.decls.size) :
     BinaryInput aig2 :=
   { input with lhs := input.lhs.cast h, rhs := input.rhs.cast h }
 
+/--
+A collection of 3 of `Ref`s, useful for `LawfulOperator`s that act on three `Ref`s at a time,
+in particular multiplexer style functions.
+-/
 structure TernaryInput (aig : AIG α) where
   discr : Ref aig
   lhs : Ref aig
   rhs : Ref aig
 
+/--
+The `Ref.cast` equivalent for `TernaryInput`.
+-/
 @[inline]
 def TernaryInput.cast {aig1 aig2 : AIG α} (input : TernaryInput aig1)
     (h : aig1.decls.size ≤ aig2.decls.size) :
@@ -361,7 +377,14 @@ where
       let rval := go rhs decls assign (by omega) h2
       xor lval linv && xor rval rinv
 
+/--
+Denotation of an `AIG` at a specific `Ref`.
+-/
 scoped syntax "⟦" term ", " term "⟧" : term
+
+/--
+Denotation of an `AIG` at a specific `Ref` with the `Ref` being constructed on the fly.
+-/
 scoped syntax "⟦" term ", " term ", " term "⟧" : term
 
 macro_rules
@@ -381,6 +404,9 @@ The denotation of the sub-DAG in the `aig` at node `start` is false for all assi
 def UnsatAt (aig : AIG α) (start : Nat) (h : start < aig.decls.size) : Prop :=
   ∀ assign, ⟦aig, ⟨start, h⟩, assign⟧ = false
 
+/--
+The denotation of the `Entrypoint` is false for all assignments.
+-/
 def Entrypoint.Unsat (entry : Entrypoint α) : Prop :=
   entry.aig.UnsatAt entry.ref.gate entry.ref.hgate
 
@@ -397,6 +423,9 @@ structure Fanin (aig : AIG α) where
   -/
   inv : Bool
 
+/--
+The `Ref.cast` equivalent for `Fanin`.
+-/
 @[inline]
 def Fanin.cast {aig1 aig2 : AIG α} (fanin : Fanin aig1)
     (h : aig1.decls.size ≤ aig2.decls.size) :
@@ -410,6 +439,9 @@ structure GateInput (aig : AIG α) where
   lhs : Fanin aig
   rhs : Fanin aig
 
+/--
+The `Ref.cast` equivalent for `GateInput`.
+-/
 @[inline]
 def GateInput.cast {aig1 aig2 : AIG α} (input : GateInput aig1)
     (h : aig1.decls.size ≤ aig2.decls.size) :

@@ -664,19 +664,22 @@ theorem shiftLeft_xor_distrib (x y : BitVec w) (n : Nat) :
     (x ^^^ y) <<< n = (x <<< n) ^^^ (y <<< n) := by
   ext i
   simp
-  by_cases h : i < n <;> simp [h]
+  by_cases h : i < n
+    <;> simp [h]
 
 theorem shiftLeft_and_distrib (x y : BitVec w) (n : Nat) :
     (x &&& y) <<< n = (x <<< n) &&& (y <<< n) := by
   ext i
   simp
-  by_cases h : i < n <;> simp [h]
+  by_cases h : i < n
+    <;> simp [h]
 
 theorem shiftLeft_or_distrib (x y : BitVec w) (n : Nat) :
     (x ||| y) <<< n = (x <<< n) ||| (y <<< n) := by
   ext i
   simp
-  by_cases h : i < n <;> simp [h]
+  by_cases h : i < n
+    <;> simp [h]
 
 @[simp] theorem getMsb_shiftLeft (x : BitVec w) (i) :
     (x <<< i).getMsb k = x.getMsb (k + i) := by
@@ -853,25 +856,25 @@ theorem sshiftRight_xor_distrib (x y : BitVec w) (n : Nat) :
     (x ^^^ y).sshiftRight n = (x.sshiftRight n) ^^^ (y.sshiftRight n) := by
   ext i
   simp
-  split <;>
-  by_cases w ≤ i <;>
-  simp [*]
+  split
+    <;> by_cases w ≤ i
+    <;> simp [*]
 
 theorem sshiftRight_and_distrib (x y : BitVec w) (n : Nat) :
     (x &&& y).sshiftRight n = (x.sshiftRight n) &&& (y.sshiftRight n) := by
   ext i
   simp
-  split <;>
-  by_cases w ≤ i <;>
-  simp [*]
+  split
+    <;> by_cases w ≤ i
+    <;> simp [*]
 
 theorem sshiftRight_or_distrib (x y : BitVec w) (n : Nat) :
     (x ||| y).sshiftRight n = (x.sshiftRight n) ||| (y.sshiftRight n) := by
   ext i
   simp
-  split <;>
-  by_cases w ≤ i <;>
-  simp [*]
+  split
+    <;> by_cases w ≤ i
+    <;> simp [*]
 
 /-- The msb after arithmetic shifting right equals the original msb. -/
 theorem sshiftRight_msb_eq_msb {n : Nat} {x : BitVec w} :

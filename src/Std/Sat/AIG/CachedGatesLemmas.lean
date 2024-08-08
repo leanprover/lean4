@@ -18,31 +18,31 @@ namespace Sat
 namespace AIG
 
 /--
-Encoding not as boolean expression in AIG form.
+Encoding of not as boolean expression in AIG form.
 -/
 private theorem not_as_aig : ∀ (b : Bool), (true && !b) = !b := by
   decide
 
 /--
-Encoding or as boolean expression in AIG form.
+Encoding of or as boolean expression in AIG form.
 -/
 private theorem or_as_aig : ∀ (a b : Bool), (!(!a && !b)) = (a || b) := by
   decide
 
 /--
-Encoding XOR as boolean expression in AIG form.
+Encoding of XOR as boolean expression in AIG form.
 -/
 private theorem xor_as_aig : ∀ (a b : Bool), (!(a && b) && !(!a && !b)) = (xor a b) := by
   decide
 
 /--
-Encoding BEq as boolean expression in AIG form.
+Encoding of BEq as boolean expression in AIG form.
 -/
 private theorem beq_as_aig : ∀ (a b : Bool), (!(a && !b) && !(!a && b)) = (a == b) := by
   decide
 
 /--
-Encoding implication as boolean expression in AIG form.
+Encoding of implication as boolean expression in AIG form.
 -/
 private theorem imp_as_aig : ∀ (a b : Bool), (!(a && !b)) = (!a || b) := by
   decide

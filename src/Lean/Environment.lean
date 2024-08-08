@@ -8,6 +8,7 @@ import Init.Control.StateRef
 import Init.Data.Array.BinSearch
 import Init.Data.Stream
 import Lean.ImportingFlag
+import Lean.Data.HashMap
 import Lean.Data.SMap
 import Lean.Declaration
 import Lean.LocalContext

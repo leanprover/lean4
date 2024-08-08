@@ -69,7 +69,7 @@ theorem mkAtomCached_decl_eq (aig : AIG α) (var : α) (idx : Nat) {h : idx < ai
 -/
 theorem mkAtomCached_le_size (aig : AIG α) (var : α) :
     aig.decls.size ≤ (aig.mkAtomCached var).aig.decls.size := by
-  dsimp [mkAtomCached]
+  dsimp only [mkAtomCached]
   split
   . simp
   . simp_arith
@@ -143,7 +143,7 @@ theorem mkConstCached_decl_eq (aig : AIG α) (val : Bool) (idx : Nat) {h : idx <
 -/
 theorem mkConstCached_le_size (aig : AIG α) (val : Bool) :
     aig.decls.size ≤ (aig.mkConstCached val).aig.decls.size := by
-  dsimp [mkConstCached]
+  dsimp only [mkConstCached]
   split
   . simp
   . simp_arith
@@ -185,7 +185,7 @@ theorem denote_mkGate_cached {aig : AIG α} {input} {hit} :
 
 theorem mkGateCached.go_le_size (aig : AIG α) (input : GateInput aig) :
     aig.decls.size ≤ (go aig input).aig.decls.size := by
-  dsimp [go]
+  dsimp only [go]
   split
   . simp
   . split
@@ -206,7 +206,7 @@ theorem mkGateCached.go_le_size (aig : AIG α) (input : GateInput aig) :
 -/
 theorem mkGateCached_le_size (aig : AIG α) (input : GateInput aig)
     : aig.decls.size ≤ (aig.mkGateCached input).aig.decls.size := by
-  dsimp [mkGateCached]
+  dsimp only [mkGateCached]
   split
   . apply mkGateCached.go_le_size
   . apply mkGateCached.go_le_size
@@ -215,7 +215,7 @@ theorem mkGateCached.go_decl_eq (aig : AIG α) (input : GateInput aig) :
     ∀ (idx : Nat) (h1) (h2), (go aig input).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
     generalize hres : go aig input = res
     unfold go at hres
-    dsimp at hres
+    dsimp only at hres
     split at hres
     . rw [← hres]
       intros
@@ -254,7 +254,7 @@ theorem mkGateCached.go_decl_eq (aig : AIG α) (input : GateInput aig) :
             intros
             rw [AIG.LawfulOperator.decl_eq (f := AIG.mkConstCached)]
           . rw [← hres]
-            dsimp
+            dsimp only
             intro idx h1 h2
             rw [Array.get_push]
             simp [h2]
@@ -267,7 +267,7 @@ theorem mkGateCached_decl_eq (aig : AIG α) (input : GateInput aig) :
     ∀ (idx : Nat) (h1) (h2), (aig.mkGateCached input).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
     generalize hres : mkGateCached aig input = res
     unfold mkGateCached at hres
-    dsimp at hres
+    dsimp only at hres
     split at hres
     all_goals
       rw [← hres]

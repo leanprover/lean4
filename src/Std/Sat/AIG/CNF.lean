@@ -284,7 +284,7 @@ def Cache.addConst (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size
           rw [Array.getElem_set] at hmarked
           split at hmarked
           . next heq =>
-            dsimp at heq
+            dsimp only at heq
             simp only [heq, CNF.eval_append, Decl.constToCNF_eval, Bool.and_eq_true, beq_iff_eq]
               at htip heval
             simp only [denote_idx_const htip, projectRightAssign_property, heval]
@@ -322,7 +322,7 @@ def Cache.addAtom (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size)
           rw [Array.getElem_set] at hmarked
           split at hmarked
           . next heq =>
-            dsimp at heq
+            dsimp only at heq
             simp only [heq, CNF.eval_append, Decl.atomToCNF_eval, Bool.and_eq_true, beq_iff_eq] at htip heval
             simp [heval, denote_idx_atom htip]
           . next heq =>
@@ -374,7 +374,7 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
           rw [Array.getElem_set] at hmarked
           split at hmarked
           . next heq =>
-            dsimp at heq
+            dsimp only at heq
             simp only [heq, CNF.eval_append, Decl.gateToCNF_eval, Bool.and_eq_true, beq_iff_eq]
               at htip heval
             have hleval := cache.inv.heval assign heval.right lhs (by omega) hl
@@ -632,21 +632,21 @@ theorem toCNF.inj_is_injection {aig : AIG Nat} (a b : CNFVar aig) :
   | inl =>
     cases b with
     | inl =>
-      dsimp [inj] at h
+      dsimp only [inj] at h
       congr
       omega
     | inr rhs =>
       exfalso
-      dsimp [inj] at h
+      dsimp only [inj] at h
       have := rhs.isLt
       omega
   | inr lhs =>
     cases b with
     | inl =>
-      dsimp [inj] at h
+      dsimp only [inj] at h
       omega
     | inr =>
-      dsimp [inj] at h
+      dsimp only [inj] at h
       congr
       omega
 
@@ -700,7 +700,7 @@ theorem toCNF.denote_as_go {assign : AIG.CNFVar aig → Bool}:
 An AIG is unsat iff its CNF is unsat.
 -/
 theorem toCNF_equisat (entry : Entrypoint Nat) : (toCNF entry).Unsat ↔ entry.Unsat := by
-  dsimp [toCNF]
+  dsimp only [toCNF]
   rw [CNF.unsat_relabel_iff]
   . constructor
     . intro h assign1

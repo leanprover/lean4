@@ -265,7 +265,7 @@ The map returned by `ofAIG` fulfills the `Inv1` property.
 -/
 theorem ofAIG.Inv1 (aig : AIG α) : ∃ n, Inv1 n (ofAIG aig) := by
   exists (ofAIGAux aig).max
-  dsimp [ofAIG]
+  dsimp only [ofAIG]
   exact (ofAIGAux aig).inv1
 
 /--
@@ -329,7 +329,7 @@ theorem relabelNat_size_eq_size {aig : AIG α} : aig.relabelNat.decls.size = aig
 -/
 theorem relabelNat_unsat_iff [Nonempty α] {aig : AIG α} {hidx1} {hidx2} :
     (aig.relabelNat).UnsatAt idx hidx1 ↔ aig.UnsatAt idx hidx2 := by
-  dsimp [relabelNat, relabelNat']
+  dsimp only [relabelNat, relabelNat']
   rw [relabel_unsat_iff]
   intro x y hx hy heq
   split at heq

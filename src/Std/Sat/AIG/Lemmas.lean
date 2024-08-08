@@ -110,7 +110,7 @@ theorem denote_mkGate {aig : AIG α} {input : GateInput aig} :
   . next heq =>
     rw [mkGate, Array.get_push_eq] at heq
     injection heq with heq1 heq2 heq3 heq4
-    dsimp
+    dsimp only
     congr 2
     . unfold denote
       simp only [heq1]

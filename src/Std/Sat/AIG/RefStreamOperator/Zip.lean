@@ -111,7 +111,7 @@ theorem zip.go_le_size {aig : AIG α} (idx : Nat) (hidx) (s : RefStream aig idx)
     aig.decls.size ≤ (go aig idx s hidx lhs rhs f).1.decls.size := by
   unfold go
   split
-  . dsimp
+  . dsimp only
     refine Nat.le_trans ?_ (by apply zip.go_le_size)
     apply LawfulOperator.le_size
   . simp
@@ -129,7 +129,7 @@ theorem zip.go_decl_eq {aig : AIG α} (i) (hi) (lhs rhs : RefStream aig len)
   generalize hgo : go aig i s hi lhs rhs f = res
   unfold go at hgo
   split at hgo
-  . dsimp at hgo
+  . dsimp only at hgo
     rw [← hgo]
     intros
     intros
@@ -137,7 +137,7 @@ theorem zip.go_decl_eq {aig : AIG α} (i) (hi) (lhs rhs : RefStream aig len)
     rw [LawfulOperator.decl_eq]
     apply LawfulOperator.lt_size_of_lt_aig_size
     assumption
-  . dsimp at hgo
+  . dsimp only at hgo
     rw [← hgo]
     intros
     simp
@@ -168,7 +168,7 @@ theorem go_get_aux {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefSt
   generalize hgo : go aig curr s hcurr lhs rhs f = res
   unfold go at hgo
   split at hgo
-  . dsimp at hgo
+  . dsimp only at hgo
     rw [← hgo]
     intro hfoo
     rw [go_get_aux]
@@ -178,7 +178,7 @@ theorem go_get_aux {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefSt
       . simp
       . assumption
     . apply go_le_size
-  . dsimp at hgo
+  . dsimp only at hgo
     rw [← hgo]
     simp only [Nat.le_refl, get, Ref_cast', Ref.mk.injEq, true_implies]
     have : curr = len := by omega
@@ -231,7 +231,7 @@ theorem denote_go {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefStr
   generalize hgo : go aig curr s hcurr lhs rhs f = res
   unfold go at hgo
   split at hgo
-  . dsimp at hgo
+  . dsimp only at hgo
     cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       rw [← hgo]

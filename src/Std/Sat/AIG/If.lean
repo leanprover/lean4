@@ -37,7 +37,7 @@ instance : LawfulOperator α TernaryInput mkIfCached where
   le_size := by
     intros
     unfold mkIfCached
-    dsimp
+    dsimp only
     apply LawfulOperator.le_size_of_le_aig_size (f := mkOrCached)
     apply LawfulOperator.le_size_of_le_aig_size (f := mkAndCached)
     apply LawfulOperator.le_size_of_le_aig_size (f := mkNotCached)
@@ -45,7 +45,7 @@ instance : LawfulOperator α TernaryInput mkIfCached where
   decl_eq := by
     intros
     unfold mkIfCached
-    dsimp
+    dsimp only
     rw [LawfulOperator.decl_eq (f := mkOrCached)]
     rw [LawfulOperator.decl_eq (f := mkAndCached)]
     rw [LawfulOperator.decl_eq (f := mkNotCached)]
@@ -71,7 +71,7 @@ theorem denote_mkIfCached {aig : AIG α} {input : TernaryInput aig} :
     if ⟦aig, input.discr, assign⟧ then ⟦aig, input.lhs, assign⟧ else ⟦aig, input.rhs, assign⟧ := by
   rw [if_as_bool]
   unfold mkIfCached
-  dsimp
+  dsimp only
   simp only [TernaryInput.cast, Ref_cast', id_eq, Int.reduceNeg, denote_mkOrCached,
     denote_projected_entry, denote_mkAndCached, denote_mkNotCached]
   congr 2
@@ -120,7 +120,7 @@ theorem go_le_size (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (discr : Ref
     (lhs rhs : RefStream aig w) (s : RefStream aig curr) :
     aig.decls.size ≤ (go aig curr hcurr discr lhs rhs s).aig.decls.size := by
   unfold go
-  dsimp
+  dsimp only
   split
   . refine Nat.le_trans ?_ (by apply go_le_size)
     apply LawfulOperator.le_size (f := mkIfCached)
@@ -133,7 +133,7 @@ theorem go_decl_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (discr : Ref
       (go aig curr hcurr discr lhs rhs s).aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
   generalize hgo : go aig curr hcurr discr lhs rhs s = res
   unfold go at hgo
-  dsimp at hgo
+  dsimp only at hgo
   split at hgo
   . rw [← hgo]
     intro idx h1 h2
@@ -167,7 +167,7 @@ theorem go_get_aux {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (d
   intro idx hidx
   generalize hgo : go aig curr hcurr discr lhs rhs s = res
   unfold go at hgo
-  dsimp at hgo
+  dsimp only at hgo
   split at hgo
   . rw [← hgo]
     intros
@@ -228,7 +228,7 @@ theorem denote_go {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (di
   intro idx hidx1 hidx2
   generalize hgo : go aig curr hcurr discr lhs rhs s = res
   unfold go at hgo
-  dsimp at hgo
+  dsimp only at hgo
   split at hgo
   . cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
@@ -267,7 +267,7 @@ theorem denote_ite {aig : AIG α} {input : IfInput aig w} :
       ⟦aig, input.rhs.get idx hidx, assign⟧ := by
   intro idx hidx
   unfold ite
-  dsimp
+  dsimp only
   rw [ite.denote_go]
   omega
 end RefStream

@@ -83,7 +83,7 @@ theorem map.go_le_size {aig : AIG α} (idx : Nat) (hidx) (s : RefStream aig idx)
   unfold go
   split
   . next h =>
-    dsimp
+    dsimp only
     refine Nat.le_trans ?_ (by apply map.go_le_size)
     apply LawfulOperator.le_size
   . simp
@@ -101,14 +101,14 @@ theorem map.go_decl_eq {aig : AIG α} (i) (hi)
   generalize hgo : go aig i hi s input f = res
   unfold go at hgo
   split at hgo
-  . dsimp at hgo
+  . dsimp only at hgo
     rw [← hgo]
     intros
     rw [go_decl_eq]
     rw [LawfulOperator.decl_eq]
     apply LawfulOperator.lt_size_of_lt_aig_size
     assumption
-  . dsimp at hgo
+  . dsimp only at hgo
     rw [← hgo]
     intros
     simp
@@ -141,7 +141,7 @@ theorem go_get_aux {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefSt
   generalize hgo : go aig curr hcurr s input f = res
   unfold go at hgo
   split at hgo
-  . dsimp at hgo
+  . dsimp only at hgo
     rw [← hgo]
     intro hfoo
     rw [go_get_aux]
@@ -151,7 +151,7 @@ theorem go_get_aux {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefSt
       . simp
       . assumption
     . apply go_le_size
-  . dsimp at hgo
+  . dsimp only at hgo
     rw [← hgo]
     simp only [Nat.le_refl, get, Ref_cast', Ref.mk.injEq, true_implies]
     have : curr = len := by omega
@@ -200,7 +200,7 @@ theorem denote_go {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefStr
   generalize hgo : go aig curr hcurr s input f = res
   unfold go at hgo
   split at hgo
-  . dsimp at hgo
+  . dsimp only at hgo
     cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       rw [← hgo]

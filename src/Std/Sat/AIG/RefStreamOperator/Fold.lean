@@ -61,7 +61,7 @@ theorem fold.go_le_size {aig : AIG α} (acc : Ref aig) (idx : Nat) (s : RefStrea
   unfold go
   split
   . next h =>
-    dsimp
+    dsimp only
     refine Nat.le_trans ?_ (by apply fold.go_le_size)
     apply LawfulOperator.le_size
   . simp
@@ -70,7 +70,7 @@ theorem fold.go_le_size {aig : AIG α} (acc : Ref aig) (idx : Nat) (s : RefStrea
 theorem fold_le_size {aig : AIG α} (target : FoldTarget aig) :
     aig.decls.size ≤ (fold aig target).1.decls.size := by
   unfold fold
-  dsimp
+  dsimp only
   refine Nat.le_trans ?_ (by apply fold.go_le_size)
   apply LawfulOperator.le_size (f := mkConstCached)
 
@@ -81,7 +81,7 @@ theorem fold.go_decl_eq {aig : AIG α} (acc : Ref aig) (i : Nat) (s : RefStream 
   generalize hgo : go aig acc i len s f = res
   unfold go at hgo
   split at hgo
-  . dsimp at hgo
+  . dsimp only at hgo
     rw [← hgo]
     intros
     rw [go_decl_eq]
@@ -100,7 +100,7 @@ theorem fold_decl_eq {aig : AIG α} (target : FoldTarget aig) :
       aig.decls[idx]'h1 := by
   intros
   unfold fold
-  dsimp
+  dsimp only
   rw [fold.go_decl_eq]
   rw [LawfulOperator.decl_eq (f := mkConstCached)]
   apply LawfulOperator.lt_size_of_lt_aig_size (f := mkConstCached)
@@ -128,7 +128,7 @@ theorem denote_go_and {aig : AIG α} (acc : AIG.Ref aig) (curr : Nat) (hcurr : c
   generalize hgo : go aig acc curr len input mkAndCached = res
   unfold go at hgo
   split at hgo
-  . dsimp at hgo
+  . dsimp only at hgo
     rw [← hgo]
     rw [denote_go_and]
     . simp only [denote_projected_entry, denote_mkAndCached, Bool.and_eq_true, get_cast,

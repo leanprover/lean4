@@ -20,7 +20,7 @@ variable {α : Type} [Hashable α] [DecidableEq α]
 namespace AIG
 
 /--
-A circuit node declaration. These are not recursive but instead contain indices into an `AIG`.
+A circuit node declaration. These are not recursive but instead contain indices into an `AIG`, with inputs indexed by `α`.
 -/
 inductive Decl (α : Type) where
   /--
@@ -95,8 +95,7 @@ structure CacheHit (decls : Array (Decl α)) (decl : Decl α) where
   hvalid : decls[idx]'hbound = decl
 
 /--
-All indices, found in a `Cache` that is valid with respect to some `decls`, are within bounds of
-`decls`.
+For a `c : Cache α decls`, any index `idx` that is a cache hit for some `decl` is within bounds of `decls` (i.e. `idx < decls.size`). 
 -/
 theorem Cache.get?_bounds {decls : Array (Decl α)} {idx : Nat} (c : Cache α decls) (decl : Decl α)
     (hfound : c.val[decl]? = some idx) :
@@ -186,7 +185,7 @@ opaque Cache.get? (cache : Cache α decls) (decl : Decl α) : Option (CacheHit d
   | none => none
 
 /--
-An `Array Decl` is a Direct Acyclic Graph (DAG) if this holds.
+An `Array Decl` is a Direct Acyclic Graph (DAG) if a gate at index `i` only points to nodes with index lower than `i`. 
 -/
 def IsDag (α : Type) (decls : Array (Decl α)) : Prop :=
   ∀ i lhs rhs linv rinv (h : i < decls.size),
@@ -366,7 +365,7 @@ scoped syntax "⟦" term ", " term "⟧" : term
 scoped syntax "⟦" term ", " term ", " term "⟧" : term
 
 macro_rules
-| `(⟦$entry, $assign⟧) => `(denote $assign $entry )
+| `(⟦$entry, $assign⟧) => `(denote $assign $entry)
 | `(⟦$aig, $ref, $assign⟧) => `(denote $assign (Entrypoint.mk $aig $ref))
 
 @[app_unexpander AIG.denote]
@@ -376,6 +375,9 @@ def unexpandDenote : Lean.PrettyPrinter.Unexpander
   | `($(_) $entry $assign) => `(⟦$entry, $assign⟧)
   | _ => throw ()
 
+/--
+The denotation of the sub-DAG in the `aig` at node `start` is false for all assignments.
+-/
 def UnsatAt (aig : AIG α) (start : Nat) (h : start < aig.decls.size) : Prop :=
   ∀ assign, ⟦aig, ⟨start, h⟩, assign⟧ = false
 

@@ -10,7 +10,7 @@ namespace Std
 namespace Sat
 
 /-!
-This module contains the basic definitions for an AIG (And-Inverter Graph) in the style of AIGNET,
+This module contains the basic definitions for an AIG (And Inverter Graph) in the style of AIGNET,
 as described in https://arxiv.org/pdf/1304.7861.pdf section 3. It consists of an AIG definition,
 a description of its semantics and basic operations to construct nodes in the AIG.
 -/
@@ -415,7 +415,7 @@ def GateInput.cast {aig1 aig2 : AIG α} (input : GateInput aig1)
   { input with lhs := input.lhs.cast h, rhs := input.rhs.cast h }
 
 /--
-Build an AIG gate in `aig`. Note that his version is only meant for proving,
+Build an AIG gate in `aig`. Note that this version is only meant for proving,
 for production purposes use `AIG.mkGateCached` and equality theorems to this one.
 -/
 def mkGate (aig : AIG α) (input : GateInput aig) : Entrypoint α :=
@@ -436,7 +436,7 @@ def mkGate (aig : AIG α) (input : GateInput aig) : Entrypoint α :=
   ⟨{ aig with decls, inv, cache }, ⟨g, by simp [g, decls]⟩⟩
 
 /--
-Add a new input node to the AIG in `aig`. Note that his version is only meant for proving,
+Add a new input node to the AIG in `aig`. Note that this version is only meant for proving,
 for production purposes use `AIG.mkAtomCached` and equality theorems to this one.
 -/
 def mkAtom (aig : AIG α) (n : α) : Entrypoint α :=
@@ -453,7 +453,7 @@ def mkAtom (aig : AIG α) (n : α) : Entrypoint α :=
   ⟨{ decls, inv, cache }, ⟨g, by simp [g, decls]⟩⟩
 
 /--
-Build a constant node in `aig`. Note that his version is only meant for proving,
+Build a constant node in `aig`. Note that this version is only meant for proving,
 for production purposes use `AIG.mkConstCached` and equality theorems to this one.
 -/
 def mkConst (aig : AIG α) (val : Bool) : Entrypoint α :=

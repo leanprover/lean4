@@ -146,7 +146,7 @@ structure Cache.Inv (cnf : CNF (CNFVar aig)) (marks : Array Bool) (hmarks : mark
               marks[rhs]'(by have := aig.inv idx lhs rhs linv rinv hbound heq; omega) = true
   /--
   Relate satisfiability results about our produced CNF to satisfiability results about the AIG that
-  we are processing. The intuition for this is: If a node is marked, its CNF (and all required
+  we are processing. The intuition for this is: if a node is marked, its CNF (and all required
   children CNFs according to `hmark`) are already part of the current CNF. Thus the current CNF is
   already mirroring the semantics of the marked node. This means that if the CNF is satisfiable at
   some assignment, we can evaluate the marked node under the atom part of that assignment and will

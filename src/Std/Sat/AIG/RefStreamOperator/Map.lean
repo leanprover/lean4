@@ -132,7 +132,7 @@ namespace map
 theorem go_get_aux {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefStream aig curr)
     (input : RefStream aig len) (f : (aig : AIG α) → Ref aig → Entrypoint α)
     [LawfulOperator α Ref f] [LawfulMapOperator α f] :
-    -- The hfoo here is a trick to make the dependent type gods happy
+    -- The hfoo here is a trick to make the dependent type gods happy.
     ∀ (idx : Nat) (hidx : idx < curr) (hfoo),
       (go aig curr hcurr s input f).stream.get idx (by omega)
         =

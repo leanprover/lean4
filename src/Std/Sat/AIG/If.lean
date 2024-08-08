@@ -270,8 +270,6 @@ theorem denote_ite {aig : AIG α} {input : IfInput aig w} :
   dsimp
   rw [ite.denote_go]
   omega
-
-
 end RefStream
 
 end AIG

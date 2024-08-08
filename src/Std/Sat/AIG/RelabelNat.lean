@@ -303,7 +303,7 @@ end RelabelNat
 def relabelNat' (aig : AIG α) : (AIG Nat × HashMap α Nat) :=
   let map := RelabelNat.State.ofAIG aig
   let aig := aig.relabel fun x =>
-    -- The none branch never gets hit, we prove this below
+    -- The none branch never gets hit, we prove this below.
     match map[x]? with
     | some var => var
     | none => 0

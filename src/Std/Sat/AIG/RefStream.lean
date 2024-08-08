@@ -71,7 +71,7 @@ theorem get_push_ref_eq (s : RefStream aig len) (ref : AIG.Ref aig) :
   have := s.hlen
   simp [get, push, ← this]
 
--- This variant exists because it is sometimes hard to rewrite properly with DTT
+-- This variant exists because it is sometimes hard to rewrite properly with DTT.
 theorem get_push_ref_eq' (s : RefStream aig len) (ref : AIG.Ref aig) (idx : Nat)
     (hidx : idx = len) :
     (s.push ref).get idx (by omega) = ref := by

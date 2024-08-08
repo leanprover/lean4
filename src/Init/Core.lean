@@ -1102,6 +1102,13 @@ inductive Relation.TransGen {α : Sort u} (r : α → α → Prop) : α → α �
 /-- Deprecated synonym for `Relation.TransGen`. -/
 @[deprecated Relation.TransGen (since := "2024-07-16")] abbrev TC := @Relation.TransGen
 
+theorem Relation.TransGen.trans {α : Sort u} {r : α → α → Prop} {a b c} :
+    TransGen r a b → TransGen r b c → TransGen r a c := by
+  intro hab hbc
+  induction hbc with
+  | single h => exact TransGen.tail hab h
+  | tail _ h ih => exact TransGen.tail ih h
+
 /-! # Subtype -/
 
 namespace Subtype

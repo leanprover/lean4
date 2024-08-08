@@ -82,8 +82,8 @@ We require the `decls` as an explicit attribute because we use `decls.size` so a
 `decls` before calling `Cache.insert` will destroy `decl` linearity.
 -/
 @[inherit_doc Cache.WF.push_cache, irreducible]
-def Cache.insert (decls : Array (Decl α)) (cache : Cache α decls) (decl : Decl α)
-    : Cache α (decls.push decl) :=
+def Cache.insert (decls : Array (Decl α)) (cache : Cache α decls) (decl : Decl α) :
+    Cache α (decls.push decl) :=
   ⟨cache.val.insert decl decls.size, Cache.WF.push_cache cache.property⟩
 
 /--

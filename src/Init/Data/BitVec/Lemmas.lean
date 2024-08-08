@@ -664,19 +664,19 @@ theorem shiftLeft_xor_distrib (x y : BitVec w) (n : Nat) :
     (x ^^^ y) <<< n = (x <<< n) ^^^ (y <<< n) := by
   ext i
   simp
-  by_cases h : (i < n) <;> simp [h]
+  by_cases h : i < n <;> simp [h]
 
 theorem shiftLeft_and_distrib (x y : BitVec w) (n : Nat) :
     (x &&& y) <<< n = (x <<< n) &&& (y <<< n) := by
   ext i
   simp
-  by_cases h : (i < n) <;> simp [h]
+  by_cases h : i < n <;> simp [h]
 
 theorem shiftLeft_or_distrib (x y : BitVec w) (n : Nat) :
     (x ||| y) <<< n = (x <<< n) ||| (y <<< n) := by
   ext i
   simp
-  by_cases h : (i < n) <;> simp [h]
+  by_cases h : i < n <;> simp [h]
 
 @[simp] theorem getMsb_shiftLeft (x : BitVec w) (i) :
     (x <<< i).getMsb k = x.getMsb (k + i) := by

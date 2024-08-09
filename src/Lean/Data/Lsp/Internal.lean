@@ -150,7 +150,7 @@ instance : FromJson RefInfo where
     pure { definition?, usages }
 
 /-- References from a single module/file -/
-def ModuleRefs := HashMap RefIdent RefInfo
+def ModuleRefs := Std.HashMap RefIdent RefInfo
 
 instance : ToJson ModuleRefs where
   toJson m := Json.mkObj <| m.toList.map fun (ident, info) => (ident.toJson.compress, toJson info)
@@ -158,7 +158,7 @@ instance : ToJson ModuleRefs where
 instance : FromJson ModuleRefs where
   fromJson? j := do
     let node ← j.getObj?
-    node.foldM (init := HashMap.empty) fun m k v =>
+    node.foldM (init := Std.HashMap.empty) fun m k v =>
       return m.insert (← RefIdent.fromJson? (← Json.parse k)) (← fromJson? v)
 
 /--

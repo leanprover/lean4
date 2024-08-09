@@ -96,9 +96,9 @@ deriving FromJson, ToJson
 
 /-- Thread with maps necessary for computing max sharing indices -/
 structure ThreadWithMaps extends Thread where
-  stringMap : HashMap String Nat := {}
-  funcMap : HashMap Nat Nat := {}
-  stackMap : HashMap (Nat × Option Nat) Nat := {}
+  stringMap : Std.HashMap String Nat := {}
+  funcMap : Std.HashMap Nat Nat := {}
+  stackMap : Std.HashMap (Nat × Option Nat) Nat := {}
   /-- Last timestamp encountered: stop time of preceding sibling, or else start time of parent.  -/
   lastTime : Float := 0
 
@@ -123,7 +123,7 @@ where
       if pp then
         funcName := s!"{funcName}: {← msg.format}"
       let strIdx ← modifyGet fun thread =>
-        if let some idx := thread.stringMap.find? funcName then
+        if let some idx := thread.stringMap[funcName]? then
           (idx, thread)
         else
           (thread.stringMap.size, { thread with
@@ -131,7 +131,7 @@ where
             stringMap := thread.stringMap.insert funcName thread.stringMap.size })
       let category := categories.findIdx? (·.name == data.cls.getRoot.toString) |>.getD 0
       let funcIdx ← modifyGet fun thread =>
-        if let some idx := thread.funcMap.find? strIdx then
+        if let some idx := thread.funcMap[strIdx]? then
           (idx, thread)
         else
           (thread.funcMap.size, { thread with
@@ -151,7 +151,7 @@ where
             funcMap := thread.funcMap.insert strIdx thread.funcMap.size })
       let frameIdx := funcIdx
       let stackIdx ← modifyGet fun thread =>
-        if let some idx := thread.stackMap.find? (frameIdx, parentStackIdx?) then
+        if let some idx := thread.stackMap[(frameIdx, parentStackIdx?)]? then
           (idx, thread)
         else
           (thread.stackMap.size, { thread with
@@ -222,7 +222,7 @@ def Profile.export (name : String) (startTime : Milliseconds) (traceState : Trac
 
 structure ThreadWithCollideMaps extends ThreadWithMaps where
   /-- Max sharing map for samples -/
-  sampleMap : HashMap Nat Nat := {}
+  sampleMap : Std.HashMap Nat Nat := {}
 
 /--
 Adds samples from `add` to `thread`, increasing the weight of existing samples with identical stacks
@@ -237,7 +237,7 @@ where
       let oldStackIdx := add.samples.stack[oldSampleIdx]!
       let stackIdx ← collideStacks oldStackIdx
       modify fun thread =>
-        if let some idx := thread.sampleMap.find? stackIdx then
+        if let some idx := thread.sampleMap[stackIdx]? then
           -- imperative to preserve linear use of arrays here!
           let ⟨⟨⟨t1, t2, t3, samples, t5, t6, t7, t8, t9, t10⟩, o2, o3, o4, o5⟩, o6⟩ := thread
           let ⟨s1, s2, weight, s3, s4⟩ := samples
@@ -265,7 +265,7 @@ where
     let oldStrIdx := add.funcTable.name[oldFuncIdx]!
     let strIdx ← getStrIdx add.stringArray[oldStrIdx]!
     let funcIdx ← modifyGet fun thread =>
-      if let some idx := thread.funcMap.find? strIdx then
+      if let some idx := thread.funcMap[strIdx]? then
         (idx, thread)
       else
         (thread.funcMap.size, { thread with
@@ -284,7 +284,7 @@ where
           funcMap := thread.funcMap.insert strIdx thread.funcMap.size })
     let frameIdx := funcIdx
     modifyGet fun thread =>
-      if let some idx := thread.stackMap.find? (frameIdx, parentStackIdx?) then
+      if let some idx := thread.stackMap[(frameIdx, parentStackIdx?)]? then
         (idx, thread)
       else
         (thread.stackMap.size,
@@ -302,7 +302,7 @@ where
           ⟨⟨⟨t1,t2, t3, t4, t5, stackTable, t7, t8, t9, t10⟩, o2, o3, stackMap, o5⟩, o6⟩)
   getStrIdx (s : String) :=
     modifyGet fun thread =>
-      if let some idx := thread.stringMap.find? s then
+      if let some idx := thread.stringMap[s]? then
         (idx, thread)
       else
         (thread.stringMap.size, { thread with

@@ -96,8 +96,13 @@ def shouldExport (n : Name) : Bool :=
   -- libleanshared to avoid Windows symbol limit
   !(`Lean.Compiler.LCNF).isPrefixOf n &&
   !(`Lean.IR).isPrefixOf n &&
-  -- Lean.Server.findModuleRefs is used in Verso
-  (!(`Lean.Server).isPrefixOf n || n == `Lean.Server.findModuleRefs)
+  -- Lean.Server.findModuleRefs is used in SubVerso, and the contents of RequestM are used by the
+  -- full Verso as well as anything else that extends the LSP server.
+  (!(`Lean.Server.Watchdog).isPrefixOf n) &&
+  (!(`Lean.Server.ImportCompletion).isPrefixOf n) &&
+  (!(`Lean.Server.Completion).isPrefixOf n)
+
+
 
 def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M Unit := do
   let ps := decl.params
@@ -252,7 +257,7 @@ def throwUnknownVar {α : Type} (x : VarId) : M α :=
 
 def getJPParams (j : JoinPointId) : M (Array Param) := do
   let ctx ← read;
-  match ctx.jpMap.find? j with
+  match ctx.jpMap[j]? with
   | some ps => pure ps
   | none    => throw "unknown join point"
 

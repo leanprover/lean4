@@ -69,8 +69,9 @@ instance : EmptyCollection (Raw α β) where
 instance : Inhabited (Raw α β) where
   default := ∅
 
-@[inline, inherit_doc DHashMap.Raw.insert] def insert [BEq α] [Hashable α] (m : Raw α β) (a : α)
-    (b : β) : Raw α β :=
+set_option linter.unusedVariables false in
+@[inline, inherit_doc DHashMap.Raw.insert] def insert [beq : BEq α] [Hashable α] (m : Raw α β)
+    (a : α) (b : β) : Raw α β :=
   ⟨m.inner.insert a b⟩
 
 @[inline, inherit_doc DHashMap.Raw.insertIfNew] def insertIfNew [BEq α] [Hashable α] (m : Raw α β)
@@ -93,12 +94,13 @@ instance : Inhabited (Raw α β) where
   let ⟨previous, r⟩ := DHashMap.Raw.Const.getThenInsertIfNew? m.inner a b
   ⟨previous, ⟨r⟩⟩
 
+set_option linter.unusedVariables false in
 /--
 The notation `m[a]?` is preferred over calling this function directly.
 
 Tries to retrieve the mapping for the given key, returning `none` if no such mapping is present.
 -/
-@[inline] def get? [BEq α] [Hashable α] (m : Raw α β) (a : α) : Option β :=
+@[inline] def get? [beq : BEq α] [Hashable α] (m : Raw α β) (a : α) : Option β :=
   DHashMap.Raw.Const.get? m.inner a
 
 @[inline, inherit_doc DHashMap.Raw.contains] def contains [BEq α] [Hashable α] (m : Raw α β)

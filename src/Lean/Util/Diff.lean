@@ -6,6 +6,7 @@ Authors: David Thrane Christiansen
 prelude
 import Init.Data
 import Lean.Data.HashMap
+import Std.Data.HashMap.Basic
 import Init.Omega
 
 namespace Lean.Diff
@@ -57,7 +58,7 @@ structure Histogram.Entry (α : Type u) (lsize rsize : Nat) where
 
 /-- A histogram for arrays maps each element to a count and, if applicable, an index.-/
 def Histogram (α : Type u) (lsize rsize : Nat) [BEq α] [Hashable α] :=
-  Lean.HashMap α (Histogram.Entry α lsize rsize)
+  Std.HashMap α (Histogram.Entry α lsize rsize)
 
 
 section
@@ -67,7 +68,7 @@ variable [BEq α] [Hashable α]
 /-- Add an element from the left array to a histogram -/
 def Histogram.addLeft (histogram : Histogram α lsize rsize) (index : Fin lsize) (val : α)
     : Histogram α lsize rsize :=
-  match histogram.find? val with
+  match histogram.get? val with
   | none => histogram.insert val {
       leftCount := 1, leftIndex := some index,
       leftWF := by simp,
@@ -81,7 +82,7 @@ def Histogram.addLeft (histogram : Histogram α lsize rsize) (index : Fin lsize)
 /-- Add an element from the right array to a histogram -/
 def Histogram.addRight (histogram : Histogram α lsize rsize) (index : Fin rsize) (val : α)
     : Histogram α lsize rsize :=
-  match histogram.find? val with
+  match histogram.get? val with
   | none => histogram.insert val {
       leftCount := 0, leftIndex := none,
       leftWF := by simp,

@@ -32,7 +32,7 @@ def mkSimpDiagSummary (counters : PHashMap Origin Nat) (usedCounters? : Option (
         if let some c := usedCounters.find? thmId then pure s!", succeeded: {c}" else pure s!" {crossEmoji}" -- not used
       else
         pure ""
-      data := data.push m!"{if data.isEmpty then "  " else "\n"}{key} ↦ {counter}{usedMsg}"
+      data := data.push <| .trace { cls := `simp } m!"{key} ↦ {counter}{usedMsg}" #[]
     return { data, max := entries[0]!.2 }
 
 private def mkTheoremsWithBadKeySummary (thms : PArray SimpTheorem) : MetaM DiagSummary := do
@@ -41,7 +41,7 @@ private def mkTheoremsWithBadKeySummary (thms : PArray SimpTheorem) : MetaM Diag
   else
     let mut data := #[]
     for thm in thms do
-      data := data.push m!"{if data.isEmpty then "  " else "\n"}{← originToKey thm.origin}, key: {← DiscrTree.keysAsPattern thm.keys}"
+      data := data.push <| .trace { cls := `simp } m!"{← originToKey thm.origin}, key: {← DiscrTree.keysAsPattern thm.keys}" #[]
       pure ()
     return { data }
 
@@ -49,7 +49,7 @@ def reportDiag (diag : Simp.Diagnostics) : MetaM Unit := do
   if (← isDiagnosticsEnabled) then
     let used ← mkSimpDiagSummary diag.usedThmCounter
     let tried ← mkSimpDiagSummary diag.triedThmCounter diag.usedThmCounter
-    let congr ← mkDiagSummary diag.congrThmCounter
+    let congr ← mkDiagSummary `simp diag.congrThmCounter
     let thmsWithBadKeys ← mkTheoremsWithBadKeySummary diag.thmsWithBadKeys
     unless used.isEmpty && tried.isEmpty && congr.isEmpty && thmsWithBadKeys.isEmpty do
       let m := MessageData.nil

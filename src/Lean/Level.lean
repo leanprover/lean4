@@ -614,9 +614,9 @@ where
 
 end Level
 
-abbrev LevelMap (α : Type)  := HashMap Level α
+abbrev LevelMap (α : Type)  := Std.HashMap Level α
 abbrev PersistentLevelMap (α : Type) := PHashMap Level α
-abbrev LevelSet := HashSet Level
+abbrev LevelSet := Std.HashSet Level
 abbrev PersistentLevelSet := PHashSet Level
 abbrev PLevelSet := PersistentLevelSet
 

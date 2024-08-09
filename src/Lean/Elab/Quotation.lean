@@ -596,7 +596,7 @@ private partial def compileStxMatch (discrs : List Term) (alts : List Alt) : Ter
     `(have __discr := $discr; $stx)
   | _, _ => unreachable!
 
-abbrev IdxSet := HashSet Nat
+abbrev IdxSet := Std.HashSet Nat
 
 private partial def hasNoErrorIfUnused : Syntax → Bool
   | `(no_error_if_unused% $_) => true

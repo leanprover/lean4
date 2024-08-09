@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include <memory>
+#include <utility>
 #include <unordered_map>
 #include "kernel/replace_fn.h"
 
@@ -21,7 +22,7 @@ class replace_rec_fn {
     std::function<optional<expr>(expr const &, unsigned)> m_f;
     bool                                                  m_use_cache;
 
-    expr save_result(expr const & e, unsigned offset, expr const & r, bool shared) {
+    expr save_result(expr const & e, unsigned offset, expr r, bool shared) {
         if (shared)
             m_cache.insert(mk_pair(mk_pair(e.raw(), offset), r));
         return r;
@@ -36,7 +37,7 @@ class replace_rec_fn {
             shared = true;
         }
         if (optional<expr> r = m_f(e, offset)) {
-            return save_result(e, offset, *r, shared);
+            return save_result(e, offset, std::move(*r), shared);
         } else {
             switch (e.kind()) {
             case expr_kind::Const: case expr_kind::Sort:

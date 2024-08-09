@@ -26,9 +26,9 @@ instance : Hashable Key := ⟨getHash⟩
 end OwnedSet
 
 open OwnedSet (Key) in
-abbrev OwnedSet := HashMap Key Unit
-def OwnedSet.insert (s : OwnedSet) (k : OwnedSet.Key) : OwnedSet := HashMap.insert s k ()
-def OwnedSet.contains (s : OwnedSet) (k : OwnedSet.Key) : Bool   := HashMap.contains s k
+abbrev OwnedSet := Std.HashMap Key Unit
+def OwnedSet.insert (s : OwnedSet) (k : OwnedSet.Key) : OwnedSet := Std.HashMap.insert s k ()
+def OwnedSet.contains (s : OwnedSet) (k : OwnedSet.Key) : Bool   := Std.HashMap.contains s k
 
 /-! We perform borrow inference in a block of mutually recursive functions.
    Join points are viewed as local functions, and are identified using
@@ -49,7 +49,7 @@ instance : Hashable Key := ⟨getHash⟩
 end ParamMap
 
 open ParamMap (Key)
-abbrev ParamMap := HashMap Key (Array Param)
+abbrev ParamMap := Std.HashMap Key (Array Param)
 
 def ParamMap.fmt (map : ParamMap) : Format :=
   let fmts := map.fold (fun fmt k ps =>
@@ -109,7 +109,7 @@ partial def visitFnBody (fn : FunId) (paramMap : ParamMap) : FnBody → FnBody
   | FnBody.jdecl j _  v b =>
     let v := visitFnBody fn paramMap v
     let b := visitFnBody fn paramMap b
-    match paramMap.find? (ParamMap.Key.jp fn j) with
+    match paramMap[ParamMap.Key.jp fn j]? with
     | some ys => FnBody.jdecl j ys v b
     | none    => unreachable!
   | FnBody.case tid x xType alts =>
@@ -125,7 +125,7 @@ def visitDecls (decls : Array Decl) (paramMap : ParamMap) : Array Decl :=
   decls.map fun decl => match decl with
     | Decl.fdecl f _  ty b info =>
       let b := visitFnBody f paramMap b
-      match paramMap.find? (ParamMap.Key.decl f) with
+      match paramMap[ParamMap.Key.decl f]? with
       | some xs => Decl.fdecl f xs ty b info
       | none    => unreachable!
     | other => other
@@ -178,7 +178,7 @@ def isOwned (x : VarId) : M Bool := do
 /-- Updates `map[k]` using the current set of `owned` variables. -/
 def updateParamMap (k : ParamMap.Key) : M Unit := do
   let s ← get
-  match s.paramMap.find? k with
+  match s.paramMap[k]? with
   | some ps => do
     let ps ← ps.mapM fun (p : Param) => do
       if !p.borrow then pure p
@@ -192,7 +192,7 @@ def updateParamMap (k : ParamMap.Key) : M Unit := do
 
 def getParamInfo (k : ParamMap.Key) : M (Array Param) := do
   let s ← get
-  match s.paramMap.find? k with
+  match s.paramMap[k]? with
   | some ps => pure ps
   | none    =>
     match k with

@@ -18,7 +18,9 @@ LEAN_EXPORT lean_object* l_Lean_getRecAppSyntax_x3f(lean_object*);
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_insertCore(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkRecAppWithSyntax(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_hasRecAppSyntax(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_hasRecAppSyntax___boxed(lean_object*);
 static lean_object* l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey;
 lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
@@ -164,6 +166,35 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_MData_isRecApp(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT uint8_t l_Lean_hasRecAppSyntax(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 10)
+{
+lean_object* x_2; lean_object* x_3; uint8_t x_4; 
+x_2 = lean_ctor_get(x_1, 0);
+x_3 = l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey;
+x_4 = l_Lean_KVMap_contains(x_2, x_3);
+return x_4;
+}
+else
+{
+uint8_t x_5; 
+x_5 = 0;
+return x_5;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_hasRecAppSyntax___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_hasRecAppSyntax(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;

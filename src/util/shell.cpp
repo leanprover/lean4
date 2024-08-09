@@ -191,43 +191,44 @@ static void display_features(std::ostream & out) {
 static void display_help(std::ostream & out) {
     display_header(out);
     std::cout << "Miscellaneous:\n";
-    std::cout << "  --help -h          display this message\n";
-    std::cout << "  --features -f      display features compiler provides (eg. LLVM support)\n";
-    std::cout << "  --version -v       display version number\n";
-    std::cout << "  --githash          display the git commit hash number used to build this binary\n";
-    std::cout << "  --run              call the 'main' definition in a file with the remaining arguments\n";
-    std::cout << "  --o=oname -o       create olean file\n";
-    std::cout << "  --i=iname -i       create ilean file\n";
-    std::cout << "  --c=fname -c       name of the C output file\n";
-    std::cout << "  --bc=fname -b      name of the LLVM bitcode file\n";
-    std::cout << "  --stdin            take input from stdin\n";
-    std::cout << "  --root=dir         set package root directory from which the module name of the input file is calculated\n"
-              << "                     (default: current working directory)\n";
-    std::cout << "  --trust=num -t     trust level (default: max) 0 means do not trust any macro,\n"
-              << "                     and type check all imported modules\n";
-    std::cout << "  --quiet -q         do not print verbose messages\n";
-    std::cout << "  --memory=num -M    maximum amount of memory that should be used by Lean\n";
-    std::cout << "                     (in megabytes)\n";
-    std::cout << "  --timeout=num -T   maximum number of memory allocations per task\n";
-    std::cout << "                     this is a deterministic way of interrupting long running tasks\n";
+    std::cout << "  -h, --help             display this message\n";
+    std::cout << "  -f, --features         display features compiler provides (eg. LLVM support)\n";
+    std::cout << "  -v, --version          display version number\n";
+    std::cout << "      --githash          display the git commit hash number used to build this binary\n";
+    std::cout << "      --run              call the 'main' definition in a file with the remaining arguments\n";
+    std::cout << "  -o, --o=oname          create olean file\n";
+    std::cout << "  -i, --i=iname          create ilean file\n";
+    std::cout << "  -c, --c=fname          name of the C output file\n";
+    std::cout << "  -b, --bc=fname         name of the LLVM bitcode file\n";
+    std::cout << "      --stdin            take input from stdin\n";
+    std::cout << "      --root=dir         set package root directory from which the module name\n"
+              << "                         of the input file is calculated\n"
+              << "                         (default: current working directory)\n";
+    std::cout << "  -t, --trust=num        trust level (default: max) 0 means do not trust any macro,\n"
+              << "                         and type check all imported modules\n";
+    std::cout << "  -q, --quiet            do not print verbose messages\n";
+    std::cout << "  -M, --memory=num       maximum amount of memory that should be used by Lean\n";
+    std::cout << "                         (in megabytes)\n";
+    std::cout << "  -T, --timeout=num      maximum number of memory allocations per task\n";
+    std::cout << "                         this is a deterministic way of interrupting long running tasks\n";
 #if defined(LEAN_MULTI_THREAD)
-    std::cout << "  --threads=num -j   number of threads used to process lean files\n";
-    std::cout << "  --tstack=num -s    thread stack size in Kb\n";
-    std::cout << "  --server           start lean in server mode\n";
-    std::cout << "  --worker           start lean in server-worker mode\n";
+    std::cout << "  -j, --threads=num      number of threads used to process lean files\n";
+    std::cout << "  -s, --tstack=num       thread stack size in Kb\n";
+    std::cout << "      --server           start lean in server mode\n";
+    std::cout << "      --worker           start lean in server-worker mode\n";
 #endif
-    std::cout << "  --plugin=file      load and initialize Lean shared library for registering linters etc.\n";
-    std::cout << "  --load-dynlib=file load shared library to make its symbols available to the interpreter\n";
-    std::cout << "  --json             report Lean output (e.g., messages) as JSON (one per line)\n";
-    std::cout << "  --deps             just print dependencies of a Lean input\n";
-    std::cout << "  --print-prefix     print the installation prefix for Lean and exit\n";
-    std::cout << "  --print-libdir     print the installation directory for Lean's built-in libraries and exit\n";
-    std::cout << "  --profile          display elaboration/type checking time for each definition/theorem\n";
-    std::cout << "  --stats            display environment statistics\n";
+    std::cout << "      --plugin=file      load and initialize Lean shared library for registering linters etc.\n";
+    std::cout << "      --load-dynlib=file load shared library to make its symbols available to the interpreter\n";
+    std::cout << "      --json             report Lean output (e.g., messages) as JSON (one per line)\n";
+    std::cout << "      --deps             just print dependencies of a Lean input\n";
+    std::cout << "      --print-prefix     print the installation prefix for Lean and exit\n";
+    std::cout << "      --print-libdir     print the installation directory for Lean's built-in libraries and exit\n";
+    std::cout << "      --profile          display elaboration/type checking time for each definition/theorem\n";
+    std::cout << "      --stats            display environment statistics\n";
     DEBUG_CODE(
-    std::cout << "  --debug=tag        enable assertions with the given tag\n";
+    std::cout << "      --debug=tag        enable assertions with the given tag\n";
         )
-    std::cout << "  -D name=value      set a configuration option (see set_option command)\n";
+    std::cout << "      -D name=value      set a configuration option (see set_option command)\n";
 }
 
 static int print_prefix = 0;

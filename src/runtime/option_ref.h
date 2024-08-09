@@ -28,6 +28,8 @@ public:
     explicit operator bool() const { return !is_scalar(raw()); }
     optional<T> get() const { return *this ? some(static_cast<T const &>(cnstr_get_ref(*this, 0))) : optional<T>(); }
 
+    T get_val() const { lean_assert(*this); return static_cast<T const &>(cnstr_get_ref(*this, 0)); }
+
     /** \brief Structural equality. */
     friend bool operator==(option_ref const & o1, option_ref const & o2) {
         return o1.get() == o2.get();

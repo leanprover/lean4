@@ -49,7 +49,6 @@ lean_object* l_Lean_initSearchPath(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_runLakeSetupFile___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_List_mapM_loop___at_Lean_Server_FileWorker_setupFile___spec__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_FS_Handle_readToEnd_loop(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LeanOptions_toOptions(lean_object*);
 lean_object* l_System_FilePath_fileName(lean_object*);
 lean_object* lean_array_to_list(lean_object*, lean_object*);
@@ -77,6 +76,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_runL
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_runLakeSetupFile___closed__2;
+lean_object* l_IO_FS_Handle_readToEnd(lean_object*, lean_object*);
 lean_object* l_Lean_Server_FileWorker_runLakeSetupFile_processStderr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -372,7 +372,7 @@ lean_inc(x_20);
 lean_dec(x_18);
 x_21 = lean_ctor_get(x_12, 1);
 lean_inc(x_21);
-x_22 = l_IO_FS_Handle_readToEnd_loop(x_21, x_14, x_20);
+x_22 = l_IO_FS_Handle_readToEnd(x_21, x_20);
 lean_dec(x_21);
 if (lean_obj_tag(x_22) == 0)
 {

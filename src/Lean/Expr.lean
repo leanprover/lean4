@@ -8,6 +8,7 @@ import Init.Data.Hashable
 import Lean.Data.KVMap
 import Lean.Data.SMap
 import Lean.Level
+import Std.Data.HashSet.Basic
 
 namespace Lean
 
@@ -244,7 +245,7 @@ def FVarIdSet.insert (s : FVarIdSet) (fvarId : FVarId) : FVarIdSet :=
 A set of unique free variable identifiers implemented using hashtables.
 Hashtables are faster than red-black trees if they are used linearly.
 They are not persistent data-structures. -/
-def FVarIdHashSet := HashSet FVarId
+def FVarIdHashSet := Std.HashSet FVarId
   deriving Inhabited, EmptyCollection
 
 /--
@@ -1388,11 +1389,11 @@ def mkDecIsTrue (pred proof : Expr) :=
 def mkDecIsFalse (pred proof : Expr) :=
   mkAppB (mkConst `Decidable.isFalse) pred proof
 
-abbrev ExprMap (α : Type)  := HashMap Expr α
+abbrev ExprMap (α : Type)  := Std.HashMap Expr α
 abbrev PersistentExprMap (α : Type) := PHashMap Expr α
 abbrev SExprMap (α : Type)  := SMap Expr α
 
-abbrev ExprSet := HashSet Expr
+abbrev ExprSet := Std.HashSet Expr
 abbrev PersistentExprSet := PHashSet Expr
 abbrev PExprSet := PersistentExprSet
 
@@ -1417,7 +1418,7 @@ instance : ToString ExprStructEq := ⟨fun e => toString e.val⟩
 
 end ExprStructEq
 
-abbrev ExprStructMap (α : Type) := HashMap ExprStructEq α
+abbrev ExprStructMap (α : Type) := Std.HashMap ExprStructEq α
 abbrev PersistentExprStructMap (α : Type) := PHashMap ExprStructEq α
 
 namespace Expr
@@ -1452,28 +1453,26 @@ partial def betaRev (f : Expr) (revArgs : Array Expr) (useZeta := false) (preser
   else
     let sz := revArgs.size
     let rec go (e : Expr) (i : Nat) : Expr :=
+      let done (_ : Unit) : Expr :=
+        let n := sz - i
+        mkAppRevRange (e.instantiateRange n sz revArgs) 0 n revArgs
       match e with
-      | Expr.lam _ _ b _ =>
+      | .lam _ _ b _ =>
         if i + 1 < sz then
           go b (i+1)
         else
-          let n := sz - (i + 1)
-          mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
-      | Expr.letE _ _ v b _ =>
+          b.instantiate revArgs
+      | .letE _ _ v b _ =>
         if useZeta && i < sz then
           go (b.instantiate1 v) i
         else
-          let n := sz - i
-          mkAppRevRange (e.instantiateRange n sz revArgs) 0 n revArgs
-      | Expr.mdata k b =>
+          done ()
+      | .mdata _ b =>
         if preserveMData then
-          let n := sz - i
-          mkMData k (mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs)
+          done ()
         else
           go b i
-      | b =>
-        let n := sz - i
-        mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
+      | _ => done ()
     go f 0
 
 /--

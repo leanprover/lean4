@@ -512,7 +512,7 @@ def mkCongrSimp? (f : Expr) : SimpM (Option CongrTheorem) := do
   if kinds.all fun k => match k with | CongrArgKind.fixed => true | CongrArgKind.eq => true | _ => false then
     /- See remark above. -/
     return none
-  match (← get).congrCache.find? f with
+  match (← get).congrCache[f]? with
   | some thm? => return thm?
   | none =>
     let thm? ← mkCongrSimpCore? f info kinds

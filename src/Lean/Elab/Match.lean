@@ -425,7 +425,7 @@ private def applyRefMap (e : Expr) (map : ExprMap Expr) : Expr :=
   e.replace fun e =>
     match patternWithRef? e with
     | some _ => some e -- stop `e` already has annotation
-    | none => match map.find? e with
+    | none => match map[e]? with
       | some eWithRef => some eWithRef -- stop `e` found annotation
       | none => none -- continue
 

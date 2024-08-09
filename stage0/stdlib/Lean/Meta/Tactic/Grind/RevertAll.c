@@ -17,15 +17,18 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_MVarId_revertAll___
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_MVarId_checkNotAssigned(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lean_MVarId_getTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_setKind(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_nextPowerOfTwo_go(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Lean_MVarId_revertAll___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_MVarId_revertAll___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_revertAll___closed__2;
 LEAN_EXPORT lean_object* l_Lean_MVarId_revertAll(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_revertAll___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_MVarId_revertAll___lambda__2___closed__4;
 static lean_object* l_Lean_MVarId_revertAll___lambda__2___closed__2;
 size_t lean_usize_of_nat(lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
@@ -37,6 +40,7 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_revertAll___lambda__2___closed__3;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_MVarId_revertAll___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+static lean_object* l_Lean_MVarId_revertAll___lambda__2___closed__5;
 uint8_t l_Lean_LocalDecl_isAuxDecl(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_environment_main_module(lean_object*);
@@ -45,7 +49,6 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_revertAll___lambda__1___boxed(lean_object
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 LEAN_EXPORT lean_object* l_Array_filterMapM___at_Lean_MVarId_revertAll___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_mkHashMapImp___rarg(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_Expr_fvar___override(lean_object*);
@@ -266,13 +269,36 @@ return x_15;
 static lean_object* _init_l_Lean_MVarId_revertAll___lambda__2___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(8u);
-x_2 = l_Lean_mkHashMapImp___rarg(x_1);
-return x_2;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(10u);
+x_2 = lean_unsigned_to_nat(1u);
+x_3 = l_Nat_nextPowerOfTwo_go(x_1, x_2, lean_box(0));
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_MVarId_revertAll___lambda__2___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_MVarId_revertAll___lambda__2___closed__1;
+x_3 = lean_mk_array(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_MVarId_revertAll___lambda__2___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = l_Lean_MVarId_revertAll___lambda__2___closed__2;
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_MVarId_revertAll___lambda__2___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -280,11 +306,11 @@ x_1 = lean_mk_string_unchecked("failed to create binder due to failure when reve
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_MVarId_revertAll___lambda__2___closed__3() {
+static lean_object* _init_l_Lean_MVarId_revertAll___lambda__2___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_MVarId_revertAll___lambda__2___closed__2;
+x_1 = l_Lean_MVarId_revertAll___lambda__2___closed__4;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -374,7 +400,7 @@ lean_ctor_set(x_85, 0, x_89);
 x_90 = lean_ctor_get(x_87, 1);
 lean_inc(x_90);
 lean_dec(x_87);
-x_91 = l_Lean_MVarId_revertAll___lambda__2___closed__1;
+x_91 = l_Lean_MVarId_revertAll___lambda__2___closed__3;
 x_92 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_92, 0, x_80);
 lean_ctor_set(x_92, 1, x_90);
@@ -636,7 +662,7 @@ x_166 = lean_st_ref_set(x_6, x_161, x_162);
 x_167 = lean_ctor_get(x_166, 1);
 lean_inc(x_167);
 lean_dec(x_166);
-x_168 = l_Lean_MVarId_revertAll___lambda__2___closed__3;
+x_168 = l_Lean_MVarId_revertAll___lambda__2___closed__5;
 x_169 = l_Lean_throwError___at_Lean_MVarId_revertAll___spec__3(x_168, x_3, x_4, x_5, x_6, x_167);
 x_45 = x_169;
 goto block_72;
@@ -667,7 +693,7 @@ x_176 = lean_st_ref_set(x_6, x_175, x_162);
 x_177 = lean_ctor_get(x_176, 1);
 lean_inc(x_177);
 lean_dec(x_176);
-x_178 = l_Lean_MVarId_revertAll___lambda__2___closed__3;
+x_178 = l_Lean_MVarId_revertAll___lambda__2___closed__5;
 x_179 = l_Lean_throwError___at_Lean_MVarId_revertAll___spec__3(x_178, x_3, x_4, x_5, x_6, x_177);
 x_45 = x_179;
 goto block_72;
@@ -740,7 +766,7 @@ x_197 = lean_st_ref_set(x_6, x_196, x_189);
 x_198 = lean_ctor_get(x_197, 1);
 lean_inc(x_198);
 lean_dec(x_197);
-x_199 = l_Lean_MVarId_revertAll___lambda__2___closed__3;
+x_199 = l_Lean_MVarId_revertAll___lambda__2___closed__5;
 x_200 = l_Lean_throwError___at_Lean_MVarId_revertAll___spec__3(x_199, x_3, x_4, x_5, x_6, x_198);
 x_45 = x_200;
 goto block_72;
@@ -762,7 +788,7 @@ lean_ctor_set(x_204, 1, x_10);
 x_205 = lean_ctor_get(x_201, 1);
 lean_inc(x_205);
 lean_dec(x_201);
-x_206 = l_Lean_MVarId_revertAll___lambda__2___closed__1;
+x_206 = l_Lean_MVarId_revertAll___lambda__2___closed__3;
 x_207 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_207, 0, x_80);
 lean_ctor_set(x_207, 1, x_205);
@@ -986,7 +1012,7 @@ x_265 = lean_st_ref_set(x_6, x_264, x_257);
 x_266 = lean_ctor_get(x_265, 1);
 lean_inc(x_266);
 lean_dec(x_265);
-x_267 = l_Lean_MVarId_revertAll___lambda__2___closed__3;
+x_267 = l_Lean_MVarId_revertAll___lambda__2___closed__5;
 x_268 = l_Lean_throwError___at_Lean_MVarId_revertAll___spec__3(x_267, x_3, x_4, x_5, x_6, x_266);
 x_45 = x_268;
 goto block_72;
@@ -1395,6 +1421,10 @@ l_Lean_MVarId_revertAll___lambda__2___closed__2 = _init_l_Lean_MVarId_revertAll_
 lean_mark_persistent(l_Lean_MVarId_revertAll___lambda__2___closed__2);
 l_Lean_MVarId_revertAll___lambda__2___closed__3 = _init_l_Lean_MVarId_revertAll___lambda__2___closed__3();
 lean_mark_persistent(l_Lean_MVarId_revertAll___lambda__2___closed__3);
+l_Lean_MVarId_revertAll___lambda__2___closed__4 = _init_l_Lean_MVarId_revertAll___lambda__2___closed__4();
+lean_mark_persistent(l_Lean_MVarId_revertAll___lambda__2___closed__4);
+l_Lean_MVarId_revertAll___lambda__2___closed__5 = _init_l_Lean_MVarId_revertAll___lambda__2___closed__5();
+lean_mark_persistent(l_Lean_MVarId_revertAll___lambda__2___closed__5);
 l_Lean_MVarId_revertAll___closed__1 = _init_l_Lean_MVarId_revertAll___closed__1();
 lean_mark_persistent(l_Lean_MVarId_revertAll___closed__1);
 l_Lean_MVarId_revertAll___closed__2 = _init_l_Lean_MVarId_revertAll___closed__2();

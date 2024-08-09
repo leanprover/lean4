@@ -1,0 +1,32 @@
+{"version": 1,
+ "uri": "file:///4880.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 16, "character": 12},
+    "end": {"line": 16, "character": 17}},
+   "message":
+   "failed to synthesize\n  A\nAdditional diagnostic information may be available using the `set_option diagnostics true` command.",
+   "fullRange":
+   {"start": {"line": 16, "character": 12},
+    "end": {"line": 16, "character": 17}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 22, "character": 17},
+    "end": {"line": 22, "character": 20}},
+   "message":
+   "failed to synthesize\n  A\nAdditional diagnostic information may be available using the `set_option diagnostics true` command.",
+   "fullRange":
+   {"start": {"line": 22, "character": 17},
+    "end": {"line": 22, "character": 20}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 34, "character": 13},
+    "end": {"line": 34, "character": 18}},
+   "message": "unsolved goals\n⊢ A",
+   "fullRange":
+   {"start": {"line": 34, "character": 13},
+    "end": {"line": 34, "character": 18}}}]}

@@ -65,8 +65,8 @@ structure Context (llvmctx : LLVM.Context) where
   llvmmodule : LLVM.Module llvmctx
 
 structure State (llvmctx : LLVM.Context) where
-  var2val : HashMap VarId (LLVM.LLVMType llvmctx × LLVM.Value llvmctx)
-  jp2bb   : HashMap JoinPointId (LLVM.BasicBlock llvmctx)
+  var2val : Std.HashMap VarId (LLVM.LLVMType llvmctx × LLVM.Value llvmctx)
+  jp2bb   : Std.HashMap JoinPointId (LLVM.BasicBlock llvmctx)
 
 abbrev Error := String
 
@@ -84,7 +84,7 @@ def addJpTostate (jp : JoinPointId) (bb : LLVM.BasicBlock llvmctx) : M llvmctx U
 
 def emitJp (jp : JoinPointId) : M llvmctx (LLVM.BasicBlock llvmctx) := do
   let state ← get
-  match state.jp2bb.find? jp with
+  match state.jp2bb[jp]? with
   | .some bb => return bb
   | .none => throw s!"unable to find join point {jp}"
 
@@ -531,7 +531,7 @@ def emitFnDecls : M llvmctx Unit := do
 
 def emitLhsSlot_ (x : VarId) : M llvmctx (LLVM.LLVMType llvmctx × LLVM.Value llvmctx) := do
   let state ← get
-  match state.var2val.find? x with
+  match state.var2val[x]? with
   | .some v => return v
   | .none => throw s!"unable to find variable {x}"
 
@@ -1029,7 +1029,7 @@ def emitTailCall (builder : LLVM.Builder llvmctx) (f : FunId) (v : Expr) : M llv
 
 def emitJmp (builder : LLVM.Builder llvmctx) (jp : JoinPointId) (xs : Array Arg) : M llvmctx Unit := do
  let llvmctx ← read
-  let ps ← match llvmctx.jpMap.find? jp with
+  let ps ← match llvmctx.jpMap[jp]? with
   | some ps => pure ps
   | none    => throw s!"Unknown join point {jp}"
   unless xs.size == ps.size do throw s!"Invalid goto, mismatched sizes between arguments, formal parameters."

@@ -4,10 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.Util.ShareCommon
 import Lean.Data.HashMap
+import Lean.Util.ShareCommon
 import Lean.Meta.Basic
 import Lean.Meta.FunInfo
+import Std.Data.HashMap.Raw
 
 namespace Lean.Meta
 namespace Canonicalizer
@@ -47,12 +48,12 @@ State for the `CanonM` monad.
 -/
 structure State where
   /-- Mapping from `Expr` to hash. -/
-  -- We use `HashMapImp` to ensure we don't have to tag `State` as `unsafe`.
-  cache      : HashMapImp ExprVisited UInt64 := mkHashMapImp
+  -- We use `HashMap.Raw` to ensure we don't have to tag `State` as `unsafe`.
+  cache      : Std.HashMap.Raw ExprVisited UInt64 := Std.HashMap.Raw.empty
   /--
   Given a hashcode `k` and `keyToExprs.find? h = some es`, we have that all `es` have hashcode `k`, and
   are not definitionally equal modulo the transparency setting used. -/
-  keyToExprs : HashMap UInt64 (List Expr) := mkHashMap
+  keyToExprs : Std.HashMap UInt64 (List Expr) := ∅
 
 instance : Inhabited State where
   default := {}
@@ -70,7 +71,7 @@ def CanonM.run (x : CanonM α) (transparency := TransparencyMode.instances) (s :
   StateRefT'.run (x transparency) s
 
 private partial def mkKey (e : Expr) : CanonM UInt64 := do
-  if let some hash := unsafe (← get).cache.find? { e } then
+  if let some hash := unsafe (← get).cache.get? { e } then
     return hash
   else
     let key ← match e with
@@ -107,7 +108,7 @@ private partial def mkKey (e : Expr) : CanonM UInt64 := do
         return mixHash (← mkKey v) (← mkKey b)
       | .proj _ i s =>
         return mixHash i.toUInt64 (← mkKey s)
-    unsafe modify fun { cache, keyToExprs} => { keyToExprs, cache := cache.insert { e } key |>.1 }
+    unsafe modify fun { cache, keyToExprs} => { keyToExprs, cache := cache.insert { e } key }
     return key
 
 /--
@@ -116,7 +117,7 @@ private partial def mkKey (e : Expr) : CanonM UInt64 := do
 def canon (e : Expr) : CanonM Expr := do
   let k ← mkKey e
   -- Find all expressions canonicalized before that have the same key.
-  if let some es' := unsafe (← get).keyToExprs.find? k then
+  if let some es' := unsafe (← get).keyToExprs[k]? then
     withTransparency (← read) do
       for e' in es' do
         -- Found an expression `e'` that is definitionally equal to `e` and share the same key.

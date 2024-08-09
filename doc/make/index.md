@@ -27,9 +27,9 @@ Setting up a basic parallelized release build:
 git clone https://github.com/leanprover/lean4
 cd lean4
 cmake --preset release
-make -C build/release -j$(nproc)  # see below for macOS
+make -C build/release -j$(nproc || sysctl -n hw.logicalcpu)
 ```
-You can replace `$(nproc)`, which is not available on macOS and some alternative shells, with the desired parallelism amount.
+You can replace `$(nproc || sysctl -n hw.logicalcpu)` with the desired parallelism amount.
 
 The above commands will compile the Lean library and binaries into the
 `stage1` subfolder; see below for details.

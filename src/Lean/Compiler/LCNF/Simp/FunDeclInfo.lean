@@ -40,7 +40,7 @@ structure FunDeclInfoMap where
   /--
   Mapping from local function name to inlining information.
   -/
-  map : HashMap FVarId FunDeclInfo := {}
+  map : Std.HashMap FVarId FunDeclInfo := {}
   deriving Inhabited
 
 def FunDeclInfoMap.format (s : FunDeclInfoMap) : CompilerM Format := do
@@ -56,7 +56,7 @@ Add new occurrence for the local function with binder name `key`.
 def FunDeclInfoMap.add (s : FunDeclInfoMap) (fvarId : FVarId) : FunDeclInfoMap :=
   match s with
   | { map } =>
-    match map.find? fvarId with
+    match map[fvarId]? with
     | some .once => { map := map.insert fvarId .many }
     | none       => { map := map.insert fvarId .once }
     | _          => { map }
@@ -67,7 +67,7 @@ Add new occurrence for the local function occurring as an argument for another f
 def FunDeclInfoMap.addHo (s : FunDeclInfoMap) (fvarId : FVarId) : FunDeclInfoMap :=
   match s with
   | { map } =>
-    match map.find? fvarId with
+    match map[fvarId]? with
     | some .once | none => { map := map.insert fvarId .many }
     | _ => { map }
 

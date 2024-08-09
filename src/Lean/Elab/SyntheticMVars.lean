@@ -246,7 +246,7 @@ private def getSomeSyntheticMVarsRef : TermElabM Syntax := do
 private def throwStuckAtUniverseCnstr : TermElabM Unit := do
   -- This code assumes `entries` is not empty. Note that `processPostponed` uses `exceptionOnFailure` to guarantee this property
   let entries ← getPostponed
-  let mut found : HashSet (Level × Level) := {}
+  let mut found : Std.HashSet (Level × Level) := {}
   let mut uniqueEntries := #[]
   for entry in entries do
     let mut lhs := entry.lhs

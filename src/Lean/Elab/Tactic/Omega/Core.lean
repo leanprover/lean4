@@ -8,8 +8,6 @@ import Init.Omega.Constraint
 import Lean.Elab.Tactic.Omega.OmegaM
 import Lean.Elab.Tactic.Omega.MinNatAbs
 
-open Lean (HashMap HashSet)
-
 namespace Lean.Elab.Tactic.Omega
 
 initialize Lean.registerTraceClass `omega
@@ -167,11 +165,11 @@ structure Problem where
   /-- The number of variables in the problem. -/
   numVars : Nat := 0
   /-- The current constraints, indexed by their coefficients. -/
-  constraints : HashMap Coeffs Fact := ∅
+  constraints : Std.HashMap Coeffs Fact := ∅
   /--
   The coefficients for which `constraints` contains an exact constraint (i.e. an equality).
   -/
-  equalities : HashSet Coeffs := ∅
+  equalities : Std.HashSet Coeffs := ∅
   /--
   Equations that have already been used to eliminate variables,
   along with the variable which was removed, and its coefficient (either `1` or `-1`).
@@ -251,7 +249,7 @@ combining it with any existing constraints for the same coefficients.
 def addConstraint (p : Problem) : Fact → Problem
   | f@⟨x, s, j⟩ =>
     if p.possible then
-      match p.constraints.find? x with
+      match p.constraints[x]? with
       | none =>
         match s with
         | .trivial => p
@@ -313,7 +311,7 @@ After solving, the variable will have been eliminated from all constraints.
 def solveEasyEquality (p : Problem) (c : Coeffs) : Problem :=
   let i := c.findIdx? (·.natAbs = 1) |>.getD 0 -- findIdx? is always some
   let sign := c.get i |> Int.sign
-  match p.constraints.find? c with
+  match p.constraints[c]? with
   | some f =>
     let init :=
     { assumptions := p.assumptions
@@ -335,7 +333,7 @@ After solving the easy equality,
 the minimum lexicographic value of `(c.minNatAbs, c.maxNatAbs)` will have been reduced.
 -/
 def dealWithHardEquality (p : Problem) (c : Coeffs) : OmegaM Problem :=
-  match p.constraints.find? c with
+  match p.constraints[c]? with
   | some ⟨_, ⟨some r, some r'⟩, j⟩ => do
     let m := c.minNatAbs + 1
     -- We have to store the valid value of the newly introduced variable in the atoms.
@@ -479,7 +477,7 @@ def fourierMotzkinData (p : Problem) : Array FourierMotzkinData := Id.run do
   let n := p.numVars
   let mut data : Array FourierMotzkinData :=
     (List.range p.numVars).foldl (fun a i => a.push { var := i}) #[]
-  for (_, f@⟨xs, s, _⟩) in p.constraints.toList do -- We could make a forIn instance for HashMap
+  for (_, f@⟨xs, s, _⟩) in p.constraints do
     for i in [0:n] do
       let x := Coeffs.get xs i
       data := data.modify i fun d =>

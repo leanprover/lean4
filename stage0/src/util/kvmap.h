@@ -30,9 +30,9 @@ public:
     explicit data_value(name const & v):object_ref(mk_cnstr(static_cast<unsigned>(data_value_kind::Name), v.raw())) { inc(v.raw()); }
     data_value():data_value(false) {}
     data_value(data_value const & other):object_ref(other) {}
-    data_value(data_value && other):object_ref(other) {}
+    data_value(data_value && other):object_ref(std::move(other)) {}
     data_value & operator=(data_value const & other) { object_ref::operator=(other); return *this; }
-    data_value & operator=(data_value && other) { object_ref::operator=(other); return *this; }
+    data_value & operator=(data_value && other) { object_ref::operator=(std::move(other)); return *this; }
 
     data_value_kind kind() const { return static_cast<data_value_kind>(cnstr_tag(raw())); }
     string_ref const & get_string() const { lean_assert(kind() == data_value_kind::String); return static_cast<string_ref const &>(cnstr_get_ref(*this, 0)); }

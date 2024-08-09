@@ -146,7 +146,7 @@ See issue #837 for an example where we can show termination using the index of a
 we don't get the desired definitional equalities.
 -/
 def nonIndicesFirst (recArgInfos : Array RecArgInfo) : Array RecArgInfo := Id.run do
-  let mut indicesPos : HashSet Nat := {}
+  let mut indicesPos : Std.HashSet Nat := {}
   for recArgInfo in recArgInfos do
     for pos in recArgInfo.indicesPos do
       indicesPos := indicesPos.insert pos

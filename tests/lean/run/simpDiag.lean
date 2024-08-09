@@ -9,11 +9,10 @@ axiom q_eq (x : Nat) : q x = x
 
 /--
 info: [simp] used theorems (max: 50, num: 2):
-    f_eq ↦ 50
-  ⏎
-  q_eq ↦ 50[simp] tried theorems (max: 101, num: 2):
-    f_eq ↦ 101, succeeded: 50
-   q_eq ↦ 50, succeeded: 50use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+  [simp] f_eq ↦ 50
+  [simp] q_eq ↦ 50[simp] tried theorems (max: 101, num: 2):
+  [simp] f_eq ↦ 101, succeeded: 50
+  [simp] q_eq ↦ 50, succeeded: 50use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
 example : f (x + 50) = f x := by
@@ -31,14 +30,11 @@ def ack : Nat → Nat → Nat
 
 /--
 info: [simp] used theorems (max: 1201, num: 3):
-    ack.eq_3 ↦ 1201
-  ⏎
-  Nat.reduceAdd (builtin simproc) ↦ 771
-  ⏎
-  ack.eq_1 ↦ 768[simp] tried theorems (max: 1973, num: 2):
-    ack.eq_3 ↦ 1973, succeeded: 1201
-  ⏎
-  ack.eq_1 ↦ 768, succeeded: 768use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+  [simp] ack.eq_3 ↦ 1201
+  [simp] Nat.reduceAdd (builtin simproc) ↦ 771
+  [simp] ack.eq_1 ↦ 768[simp] tried theorems (max: 1973, num: 2):
+  [simp] ack.eq_3 ↦ 1973, succeeded: 1201
+  [simp] ack.eq_1 ↦ 768, succeeded: 768use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 ---
 error: tactic 'simp' failed, nested error:
 maximum recursion depth has been reached
@@ -97,15 +93,14 @@ opaque q1 : Nat → Nat → Prop
 
 /--
 info: [simp] used theorems (max: 1, num: 1):
-    q1_ax ↦ 1[simp] tried theorems (max: 1, num: 1):
-    q1_ax ↦ 1, succeeded: 1use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+  [simp] q1_ax ↦ 1[simp] tried theorems (max: 1, num: 1):
+  [simp] q1_ax ↦ 1, succeeded: 1use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 ---
 info: [reduction] unfolded declarations (max: 246, num: 2):
-    Nat.rec ↦ 246
-  ⏎
-  OfNat.ofNat ↦ 24[reduction] unfolded reducible declarations (max: 246, num: 2):
-    h ↦ 246
-   Nat.casesOn ↦ 246use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+  [reduction] Nat.rec ↦ 246
+  [reduction] OfNat.ofNat ↦ 24[reduction] unfolded reducible declarations (max: 246, num: 2):
+  [reduction] h ↦ 246
+  [reduction] Nat.casesOn ↦ 246use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
 example : q1 x (h 40) := by

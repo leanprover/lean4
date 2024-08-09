@@ -144,7 +144,7 @@ ENDFOREACH(T)
 # LEAN PACKAGE TESTS
 file(GLOB LEANPKGTESTS "${LEAN_SOURCE_DIR}/../tests/pkg/*")
 FOREACH(T ${LEANPKGTESTS})
-  if(IS_DIRECTORY ${T})
+  if(EXISTS ${T}/test.sh)
     GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
     add_test(NAME "leanpkgtest_${T_NAME}"
             WORKING_DIRECTORY "${T}"

@@ -28,17 +28,17 @@ such as `contradiction`.
 -/
 private def _root_.Lean.MVarId.contradictionQuick (mvarId : MVarId) : MetaM Bool := do
   mvarId.withContext do
-    let mut posMap : HashMap Expr FVarId := {}
-    let mut negMap : HashMap Expr FVarId := {}
+    let mut posMap : Std.HashMap Expr FVarId := {}
+    let mut negMap : Std.HashMap Expr FVarId := {}
     for localDecl in (← getLCtx) do
       unless localDecl.isImplementationDetail do
         if let some p ← matchNot? localDecl.type then
-          if let some pFVarId := posMap.find? p then
+          if let some pFVarId := posMap[p]? then
             mvarId.assign (← mkAbsurd (← mvarId.getType) (mkFVar pFVarId) localDecl.toExpr)
             return true
           negMap := negMap.insert p localDecl.fvarId
         if (← isProp localDecl.type) then
-          if let some nFVarId := negMap.find? localDecl.type then
+          if let some nFVarId := negMap[localDecl.type]? then
             mvarId.assign (← mkAbsurd (← mvarId.getType) localDecl.toExpr (mkFVar nFVarId))
             return true
           posMap := posMap.insert localDecl.type localDecl.fvarId

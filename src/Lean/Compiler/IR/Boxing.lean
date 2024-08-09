@@ -11,6 +11,7 @@ import Lean.Compiler.IR.Basic
 import Lean.Compiler.IR.CompilerM
 import Lean.Compiler.IR.FreeVars
 import Lean.Compiler.IR.ElimDeadVars
+import Lean.Data.AssocList
 
 namespace Lean.IR.ExplicitBoxing
 /-!

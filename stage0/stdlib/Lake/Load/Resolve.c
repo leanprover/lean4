@@ -43,7 +43,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_Workspace_materializeD
 LEAN_EXPORT lean_object* l_Lake_Workspace_materializeDeps___lambda__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_resolveDeps_go___rarg___lambda__23(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_depCycleError___at_Lake_Workspace_updateAndMaterialize___spec__13___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_List_elem___at_Lean_NameHashSet_insert___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_depCycleError(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Workspace_materializeDeps___spec__5___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_quote(lean_object*);
@@ -118,6 +117,7 @@ LEAN_EXPORT lean_object* l_Lake_Workspace_resolveDeps_go___rarg___lambda__12(lea
 LEAN_EXPORT lean_object* l_Lake_stdMismatchError(lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_appendTrees___rarg(lean_object*, lean_object*);
 uint8_t l_instDecidableNot___rarg(uint8_t);
+uint8_t l_List_elem___at_Lean_addAliasEntry___spec__16(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_Workspace_updateAndMaterialize___spec__8___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_updateDep___lambda__3___closed__1;
 lean_object* l_Lake_createParentDirs(lean_object*, lean_object*);
@@ -18081,7 +18081,7 @@ lean_inc(x_9);
 x_10 = lean_ctor_get(x_9, 2);
 lean_inc(x_10);
 lean_dec(x_9);
-x_11 = l_List_elem___at_Lean_NameHashSet_insert___spec__2(x_10, x_4);
+x_11 = l_List_elem___at_Lean_addAliasEntry___spec__16(x_10, x_4);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
@@ -27469,7 +27469,7 @@ lean_inc(x_11);
 x_12 = lean_ctor_get(x_11, 2);
 lean_inc(x_12);
 lean_dec(x_11);
-x_13 = l_List_elem___at_Lean_NameHashSet_insert___spec__2(x_12, x_7);
+x_13 = l_List_elem___at_Lean_addAliasEntry___spec__16(x_12, x_7);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 

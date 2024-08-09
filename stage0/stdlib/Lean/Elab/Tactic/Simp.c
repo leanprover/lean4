@@ -68,7 +68,6 @@ lean_object* l_Lean_LocalContext_findFromUserName_x3f(lean_object*, lean_object*
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
 lean_object* l_Lean_Elab_Term_synthesizeSyntheticMVars(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at_Lean_Elab_Tactic_elabSimpArgs___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_List_elem___at_Lean_NameHashSet_insert___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabTerm(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_simpLocation___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalUnsafe____x40_Lean_Elab_Tactic_Simp___hyg_6____closed__4;
@@ -193,6 +192,7 @@ lean_object* l_Lean_MVarId_getNondepPropHyps(lean_object*, lean_object*, lean_ob
 static lean_object* l_Lean_Elab_Tactic_tacticToDischarge___closed__14;
 static lean_object* l_Lean_Elab_Tactic_simpLocation_go___closed__3;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSimp__1___closed__5;
+uint8_t l_List_elem___at_Lean_addAliasEntry___spec__16(lean_object*, lean_object*);
 lean_object* lean_local_ctx_find(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_mkSimpOnly___closed__5;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
@@ -14010,7 +14010,7 @@ if (x_29 == 0)
 {
 lean_object* x_271; uint8_t x_272; 
 x_271 = l_Lean_Elab_Tactic_simpOnlyBuiltins___closed__6;
-x_272 = l_List_elem___at_Lean_NameHashSet_insert___spec__2(x_27, x_271);
+x_272 = l_List_elem___at_Lean_addAliasEntry___spec__16(x_27, x_271);
 if (x_272 == 0)
 {
 uint8_t x_273; 

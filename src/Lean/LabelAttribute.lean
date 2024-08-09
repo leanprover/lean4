@@ -31,7 +31,7 @@ namespace Lean
 abbrev LabelExtension := SimpleScopedEnvExtension Name (Array Name)
 
 /-- The collection of all current `LabelExtension`s, indexed by name. -/
-abbrev LabelExtensionMap := HashMap Name LabelExtension
+abbrev LabelExtensionMap := Std.HashMap Name LabelExtension
 
 /-- Store the current `LabelExtension`s. -/
 builtin_initialize labelExtensionMapRef : IO.Ref LabelExtensionMap ← IO.mkRef {}
@@ -88,7 +88,7 @@ macro (name := _root_.Lean.Parser.Command.registerLabelAttr)
 /-- When `attrName` is an attribute created using `register_labelled_attr`,
 return the names of all declarations labelled using that attribute. -/
 def labelled (attrName : Name) : CoreM (Array Name) := do
-  match (← labelExtensionMapRef.get).find? attrName with
+  match (← labelExtensionMapRef.get)[attrName]? with
   | none => throwError "No extension named {attrName}"
   | some ext => pure <| ext.getState (← getEnv)
 

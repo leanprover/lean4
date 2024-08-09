@@ -67,7 +67,7 @@ structure TraceState where
   traces  : PersistentArray TraceElem := {}
   deriving Inhabited
 
-builtin_initialize inheritedTraceOptions : IO.Ref (HashSet Name) ← IO.mkRef ∅
+builtin_initialize inheritedTraceOptions : IO.Ref (Std.HashSet Name) ← IO.mkRef ∅
 
 class MonadTrace (m : Type → Type) where
   modifyTraceState : (TraceState → TraceState) → m Unit
@@ -88,7 +88,7 @@ def printTraces : m Unit := do
 def resetTraceState : m Unit :=
   modifyTraceState (fun _ => {})
 
-private def checkTraceOption (inherited : HashSet Name) (opts : Options) (cls : Name) : Bool :=
+private def checkTraceOption (inherited : Std.HashSet Name) (opts : Options) (cls : Name) : Bool :=
   !opts.isEmpty && go (`trace ++ cls)
 where
   go (opt : Name) : Bool :=

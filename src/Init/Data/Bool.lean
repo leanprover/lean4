@@ -438,6 +438,24 @@ Added for confluence between `if_true_left` and `ite_false_same` on
 -/
 @[simp] theorem eq_true_imp_eq_false : ∀(b:Bool), (b = true → b = false) ↔ (b = false) := by decide
 
+/-! ### forall -/
+
+theorem forall_bool' {p : Bool → Prop} (b : Bool) : (∀ x, p x) ↔ p b ∧ p !b :=
+  ⟨fun h ↦ ⟨h _, h _⟩, fun ⟨h₁, h₂⟩ x ↦ by cases b <;> cases x <;> assumption⟩
+
+@[simp]
+theorem forall_bool {p : Bool → Prop} : (∀ b, p b) ↔ p false ∧ p true :=
+  forall_bool' false
+
+/-! ### exists -/
+
+theorem exists_bool' {p : Bool → Prop} (b : Bool) : (∃ x, p x) ↔ p b ∨ p !b :=
+  ⟨fun ⟨x, hx⟩ ↦ by cases x <;> cases b <;> first | exact .inl ‹_› | exact .inr ‹_›,
+    fun h ↦ by cases h <;> exact ⟨_, ‹_›⟩⟩
+
+@[simp]
+theorem exists_bool {p : Bool → Prop} : (∃ b, p b) ↔ p false ∨ p true :=
+  exists_bool' false
 
 /-! ### cond -/
 

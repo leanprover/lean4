@@ -6,6 +6,8 @@ Author: Leonardo de Moura
 prelude
 import Init.Data.Nat.Power2
 import Init.Data.List.Control
+import Std.Data.HashSet.Basic
+import Std.Data.HashSet.Raw
 namespace Lean
 universe u v w
 
@@ -217,3 +219,9 @@ def insertMany [ForIn Id ρ α] (s : HashSet α) (as : ρ) : HashSet α := Id.ru
 def merge {α : Type u} [BEq α] [Hashable α] (s t : HashSet α) : HashSet α :=
   t.fold (init := s) fun s a => s.insert a
   -- We don't use `insertMany` here because it gives weird universes.
+
+attribute [deprecated Std.HashSet] HashSet
+attribute [deprecated Std.HashSet.Raw] HashSetImp
+attribute [deprecated Std.HashSet.Raw.empty] mkHashSetImp
+attribute [deprecated Std.HashSet.empty] mkHashSet
+attribute [deprecated Std.HashSet.empty] HashSet.empty

@@ -5,14 +5,15 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Expr
+import Std.Data.HashMap.Raw
 
 namespace Lean
 
 structure HasConstCache (declNames : Array Name) where
-  cache : HashMapImp Expr Bool := mkHashMapImp
+  cache : Std.HashMap.Raw Expr Bool := Std.HashMap.Raw.empty
 
 unsafe def HasConstCache.containsUnsafe (e : Expr) : StateM (HasConstCache declNames) Bool := do
-  if let some r := (← get).cache.find? (beq := ⟨ptrEq⟩) e then
+  if let some r := (← get).cache.get? (beq := ⟨ptrEq⟩) e then
     return r
   else
     match e with
@@ -26,7 +27,7 @@ unsafe def HasConstCache.containsUnsafe (e : Expr) : StateM (HasConstCache declN
     | _                  => return false
 where
   cache (e : Expr) (r : Bool) : StateM (HasConstCache declNames) Bool := do
-    modify fun ⟨cache⟩ => ⟨cache.insert (beq := ⟨ptrEq⟩) e r |>.1⟩
+    modify fun ⟨cache⟩ => ⟨cache.insert (beq := ⟨ptrEq⟩) e r⟩
     return r
 
 /--

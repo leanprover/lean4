@@ -43,14 +43,14 @@ public:
     explicit level(obj_arg o):object_ref(o) {}
     explicit level(b_obj_arg o, bool b):object_ref(o, b) {}
     level(level const & other):object_ref(other) {}
-    level(level && other):object_ref(other) {}
+    level(level && other):object_ref(std::move(other)) {}
     level_kind kind() const {
       return lean_is_scalar(raw()) ? level_kind::Zero : static_cast<level_kind>(lean_ptr_tag(raw()));
     }
     unsigned hash() const;
 
     level & operator=(level const & other) { object_ref::operator=(other); return *this; }
-    level & operator=(level && other) { object_ref::operator=(other); return *this; }
+    level & operator=(level && other) { object_ref::operator=(std::move(other)); return *this; }
 
     friend bool is_eqp(level const & l1, level const & l2) { return l1.raw() == l2.raw(); }
 
@@ -81,6 +81,8 @@ inline bool operator!=(level const & l1, level const & l2) { return !operator==(
 
 struct level_hash { unsigned operator()(level const & n) const { return n.hash(); } };
 struct level_eq { bool operator()(level const & n1, level const & n2) const { return n1 == n2; } };
+
+inline bool is_shared(level const & l) { return !is_exclusive(l.raw()); }
 
 inline optional<level> none_level() { return optional<level>(); }
 inline optional<level> some_level(level const & e) { return optional<level>(e); }

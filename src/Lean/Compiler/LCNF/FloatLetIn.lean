@@ -59,7 +59,7 @@ structure FloatState where
   /--
   A map from identifiers of declarations to their current decision.
   -/
-  decision : HashMap FVarId Decision
+  decision : Std.HashMap FVarId Decision
   /--
   A map from decisions (excluding `unknown`) to the declarations with
   these decisions (in correct order). Basically:
@@ -67,7 +67,7 @@ structure FloatState where
   - Which declarations do we move into a certain arm
   - Which declarations do we move into the default arm
   -/
-  newArms : HashMap Decision (List CodeDecl)
+  newArms : Std.HashMap Decision (List CodeDecl)
 
 /--
 Use to collect relevant declarations for the floating mechanism.
@@ -116,8 +116,8 @@ up to this point, with respect to `cs`. The initial decisions are:
 - `arm` or `default` if we see the declaration only being used in exactly one cases arm
 - `unknown` otherwise
 -/
-def initialDecisions (cs : Cases) : BaseFloatM (HashMap FVarId Decision) := do
-  let mut map := mkHashMap (← read).decls.length
+def initialDecisions (cs : Cases) : BaseFloatM (Std.HashMap FVarId Decision) := do
+  let mut map := Std.HashMap.empty (← read).decls.length
   let folder val acc := do
     if let .let decl := val then
       if (← ignore? decl) then
@@ -130,25 +130,25 @@ def initialDecisions (cs : Cases) : BaseFloatM (HashMap FVarId Decision) := do
   (_, map) ← goCases cs |>.run map
   return map
 where
-  goFVar (plannedDecision : Decision) (var : FVarId) : StateRefT (HashMap FVarId Decision) BaseFloatM Unit := do
-    if let some decision := (← get).find? var then
+  goFVar (plannedDecision : Decision) (var : FVarId) : StateRefT (Std.HashMap FVarId Decision) BaseFloatM Unit := do
+    if let some decision := (← get)[var]? then
       if decision == .unknown then
         modify fun s => s.insert var plannedDecision
       else if decision != plannedDecision then
           modify fun s => s.insert var .dont
       -- otherwise we already have the proper decision
 
-  goAlt (alt : Alt) : StateRefT (HashMap FVarId Decision) BaseFloatM Unit :=
+  goAlt (alt : Alt) : StateRefT (Std.HashMap FVarId Decision) BaseFloatM Unit :=
     forFVarM (goFVar (.ofAlt alt)) alt
-  goCases (cs : Cases) : StateRefT (HashMap FVarId Decision) BaseFloatM Unit :=
+  goCases (cs : Cases) : StateRefT (Std.HashMap FVarId Decision) BaseFloatM Unit :=
     cs.alts.forM goAlt
 
 /--
 Compute the initial new arms. This will just set up a map from all arms of
 `cs` to empty `Array`s, plus one additional entry for `dont`.
 -/
-def initialNewArms (cs : Cases) : HashMap Decision (List CodeDecl) := Id.run do
-  let mut map := mkHashMap (cs.alts.size + 1)
+def initialNewArms (cs : Cases) : Std.HashMap Decision (List CodeDecl) := Id.run do
+  let mut map := Std.HashMap.empty (cs.alts.size + 1)
   map := map.insert .dont []
   cs.alts.foldr (init := map) fun val acc => acc.insert (.ofAlt val) []
 
@@ -170,7 +170,7 @@ respectively but since `z` can't be moved we don't want that to move `x` and `y`
 -/
 def dontFloat (decl : CodeDecl) : FloatM Unit := do
   forFVarM goFVar decl
-  modify fun s => { s with newArms := s.newArms.insert .dont (decl :: s.newArms.find! .dont) }
+  modify fun s => { s with newArms := s.newArms.insert .dont (decl :: s.newArms[Decision.dont]!) }
 where
   goFVar (fvar : FVarId) : FloatM Unit := do
     if (← get).decision.contains fvar then
@@ -223,12 +223,12 @@ Will:
     If we are at `y` `x` is still marked to be moved but we don't want that.
 -/
 def float (decl : CodeDecl) : FloatM Unit := do
-  let arm := (← get).decision.find! decl.fvarId
+  let arm := (← get).decision[decl.fvarId]!
   forFVarM (goFVar · arm) decl
-  modify fun s => { s with newArms := s.newArms.insert arm (decl :: s.newArms.find! arm) }
+  modify fun s => { s with newArms := s.newArms.insert arm (decl :: s.newArms[arm]!) }
 where
   goFVar (fvar : FVarId) (arm : Decision) : FloatM Unit := do
-    let some decision := (← get).decision.find? fvar | return ()
+    let some decision := (← get).decision[fvar]? | return ()
     if decision != arm then
       modify fun s => { s with decision := s.decision.insert fvar .dont }
     else if decision == .unknown then
@@ -249,7 +249,7 @@ where
   -/
   goCases : FloatM Unit := do
     for decl in (← read).decls do
-      let currentDecision := (← get).decision.find! decl.fvarId
+      let currentDecision := (← get).decision[decl.fvarId]!
       if currentDecision == .unknown then
         /-
         If the decision is still unknown by now this means `decl` is
@@ -284,10 +284,10 @@ where
         newArms := initialNewArms cs
       }
       let (_, res) ← goCases |>.run base
-      let remainders := res.newArms.find! .dont
+      let remainders := res.newArms[Decision.dont]!
       let altMapper alt := do
-        let decision := .ofAlt alt
-        let newCode := res.newArms.find! decision
+        let decision := Decision.ofAlt alt
+        let newCode := res.newArms[decision]!
         trace[Compiler.floatLetIn] "Size of code that was pushed into arm: {repr decision} {newCode.length}"
         let fused ← withNewScope do
           go (attachCodeDecls newCode.toArray alt.getCode)

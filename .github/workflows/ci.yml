@@ -327,7 +327,7 @@ jobs:
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update
-          sudo apt-get install -y gcc-multilib g++-multilib ccache libuv1-devel:i386
+          sudo apt-get install -y gcc-multilib g++-multilib ccache libuv1-dev:i386
         if: matrix.cmultilib
       - name: Cache
         uses: actions/cache@v3

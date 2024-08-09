@@ -335,6 +335,13 @@ theorem mem_data {a : α} {l : Array α} : a ∈ l.data ↔ a ∈ l := (mem_def 
 
 theorem not_mem_nil (a : α) : ¬ a ∈ #[] := nofun
 
+theorem getElem_of_mem {a : α} {as : Array α} :
+    a ∈ as → (∃ (n : Nat) (h : n < as.size), as[n]'h = a) := by
+  intro ha
+  rcases List.getElem_of_mem ha.val with ⟨i, hbound, hi⟩
+  exists i
+  exists hbound
+
 /-- # get lemmas -/
 
 theorem lt_of_getElem {x : α} {a : Array α} {idx : Nat} {hidx : idx < a.size} (_ : a[idx] = x) :

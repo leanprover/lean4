@@ -530,17 +530,25 @@ where
       -- for now, wait on "command finished" snapshot before parsing next command
       else some <$> IO.Promise.new
     let diagnostics ← Snapshot.Diagnostics.ofMessageLog msgLog
-    let traceSnap := {
-      range? := none
-      task := if (← isTracingEnabledForCore `Elab.snapshotTree cmdState.scopes.head!.opts) then
+    let traceTask ←
+      if (← isTracingEnabledForCore `Elab.snapshotTree cmdState.scopes.head!.opts) then
         BaseIO.bindTask elabPromise.result fun elabSnap => do
           let tree := toSnapshotTree elabSnap
-          tree.waitAll
-          let f ←Language.ToSnapshotTree.toSnapshotTree snap.new.result.get |>.format
-          .pure <| .mk { diagnostics := #[] } #[]
-          --trace[Elab.snapshotTree]
+          BaseIO.bindTask (← tree.waitAll) fun _ => do
+            let .ok f ← EIO.toBaseIO <| tree.format ctx.fileMap
+              | pure <| .pure <| .mk { diagnostics := .empty } #[]
+            let msgLog := MessageLog.empty.add {
+              fileName := ctx.fileName
+              severity := MessageSeverity.information
+              pos      := ctx.fileMap.toPosition beginPos
+              data     := .trace { cls := `Elab.snapshotTree } f #[]
+            }
+            return .pure <| .mk { diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog) } #[]
       else
-        .pure <| .mk { diagnostics := .empty } #[]
+        pure <| .pure <| .mk { diagnostics := .empty } #[]
+    let traceSnap := {
+      range? := none
+      task := traceTask
     }
     let data := if minimalSnapshots && !Parser.isTerminalCommand stx then {
       diagnostics

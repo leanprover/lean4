@@ -213,7 +213,7 @@ private def addTraceAsMessagesCore (ctx : Context) (log : MessageLog) (traceStat
     log := log.add <| mkMessageCore ctx.fileName ctx.fileMap data .information pos endPos
   return log
 
-private def addTraceAsMessages : CommandElabM Unit := do
+def addTraceAsMessages : CommandElabM Unit := do
   let ctx ← read
   -- do not add trace messages if `trace.profiler.output` is set as it would be redundant and
   -- pretty printing the trace messages is expensive
@@ -598,6 +598,8 @@ def elabCommandTopLevel (stx : Syntax)
           -- recovery more coarse. In particular, If `c` in `set_option ... in $c` fails, the remaining
           -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
           elabCommand stx
+      else
+        elabCommand stx
       withLogging do
       runLinters stx
   finally

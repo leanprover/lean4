@@ -10,6 +10,7 @@ info: 12776324570088369205
 #guard_msgs in
 #eval (123456789012345678901).toUInt64.toNat
 
+set_option trace.Elab.snapshotTree true
 /--
 error: application type mismatch
   Lean.ofReduceBool false._nativeDecide_1 true (Eq.refl true)

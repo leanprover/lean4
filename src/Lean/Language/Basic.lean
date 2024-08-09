@@ -210,11 +210,9 @@ abbrev SnapshotTree.children : SnapshotTree → Array (SnapshotTask SnapshotTree
   | mk _ children => children
 
 /-- Produces debug tree format of given snapshot tree, synchronously waiting on all children. -/
-partial def SnapshotTree.format [Monad m] [MonadFileMap m] [MonadLiftT IO m] :
-    SnapshotTree → m Format :=
+partial def SnapshotTree.format (file : FileMap) : SnapshotTree → IO Format :=
   go none
 where go range? s := do
-  let file ← getFileMap
   let mut desc := f!"• {s.element.desc}"
   if let some range := range? then
     desc := desc ++ f!"{file.toPosition range.start}-{file.toPosition range.stop} "

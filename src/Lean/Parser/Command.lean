@@ -53,6 +53,13 @@ multiple times in the same file.
 def moduleDoc := leading_parser ppDedent <|
   "/-!" >> commentBody >> ppLine
 
+-- A low-priority parser to be able to log an error that it's not attached to anything.
+-- This is more friendly than a parser error, and it saves needing to add `docComment` before
+-- every command that doesn't accept a doc comment.
+-- It is trailed by an optional command so that the error can give a hint.
+@[builtin_command_parser low]
+def looseDocComment := leading_parser ppDedent (docComment >> optional commandParser)
+
 def namedPrio := leading_parser
   atomic (" (" >> nonReservedSymbol "priority") >> " := " >> withoutPosition priorityParser >> ")"
 def optNamedPrio := optional namedPrio

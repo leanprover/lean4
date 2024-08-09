@@ -179,18 +179,19 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
       else
         let (binders, type) := expandDeclSig fieldBinder[3]
         pure (binders, some type)
-    let value? ← if binfo != BinderInfo.default then
-      pure none
-    else
-      let optBinderTacticDefault := fieldBinder[4]
-      -- trace[Elab.struct] ">>> {optBinderTacticDefault}"
-      if optBinderTacticDefault.isNone then
-        pure none
-      else if optBinderTacticDefault[0].getKind == ``Parser.Term.binderTactic then
+    let value? ←
+      if binfo != BinderInfo.default then
         pure none
       else
-        -- binderDefault := leading_parser " := " >> termParser
-        pure (some optBinderTacticDefault[0][1])
+        let optBinderTacticDefault := fieldBinder[4]
+        -- trace[Elab.struct] ">>> {optBinderTacticDefault}"
+        if optBinderTacticDefault.isNone then
+          pure none
+        else if optBinderTacticDefault[0].getKind == ``Parser.Term.binderTactic then
+          pure none
+        else
+          -- binderDefault := leading_parser " := " >> termParser
+          pure (some optBinderTacticDefault[0][1])
     let idents := fieldBinder[2].getArgs
     idents.foldlM (init := views) fun (views : Array StructFieldView) ident => withRef ident do
       let rawName := ident.getId
@@ -671,7 +672,17 @@ private def addCtorFields (fieldInfos : Array StructFieldInfo) : Nat → Expr �
       let val := decl.value
       addCtorFields fieldInfos i (type.instantiate1 val)
     | _  =>
-      addCtorFields fieldInfos i (mkForall decl.userName decl.binderInfo decl.type type)
+      let declType ←
+        if info.kind == .newField && info.value?.isSome then
+          /- For simpler structures, users sometimes use constructors directly rather than use structure instance notation,
+          and they find it to be counterintuitive when the default values are not used.
+          In that case, it is useful having `optParam` encoded directly into the constructor.
+          Doing this just for new fields does not conflict with the behavior of the structure instance notation defaulting system,
+          since new fields will always use this value as the default value. -/
+          mkAppM ``optParam #[decl.type, info.value?.get!]
+        else
+          pure decl.type
+      addCtorFields fieldInfos i (mkForall decl.userName decl.binderInfo declType type)
 
 private def mkCtor (view : StructView) (levelParams : List Name) (params : Array Expr) (fieldInfos : Array StructFieldInfo) : TermElabM Constructor :=
   withRef view.ref do
@@ -680,6 +691,7 @@ private def mkCtor (view : StructView) (levelParams : List Name) (params : Array
   let type ← mkForallFVars params type
   let type ← instantiateMVars type
   let type := type.inferImplicit params.size true
+  withLCtx {} {} do trace[Elab.structure] "mkCtor type:{indentD type}"
   pure { name := view.ctor.declName, type }
 
 @[extern "lean_mk_projections"]

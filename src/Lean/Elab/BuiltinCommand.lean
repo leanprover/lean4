@@ -23,6 +23,17 @@ namespace Lean.Elab.Command
      modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
    | _ => throwErrorAt stx "unexpected module doc string{indentD stx[1]}"
 
+@[builtin_command_elab looseDocComment] def elabLooseDocComment : CommandElab := fun stx => do
+  let trailingKind := stx[1][0].getKind
+  let addlHint :=
+    if trailingKind == ``Lean.Parser.Command.in then
+      "\n\nHint: the docstring must come after '... in', immediately before the declaration that accepts a docstring."
+    else
+      ""
+  logError m!"unexpected doc string{addlHint}"
+  if stx[1].getNumArgs == 1 then
+    elabCommand stx[1]
+
 private def addScope (isNewNamespace : Bool) (isNoncomputable : Bool) (header : String) (newNamespace : Name) : CommandElabM Unit := do
   modify fun s => { s with
     env    := s.env.registerNamespace newNamespace,

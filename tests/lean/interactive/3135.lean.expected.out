@@ -1,0 +1,32 @@
+{"version": 1,
+ "uri": "file:///3135.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 9, "character": 0}, "end": {"line": 10, "character": 0}},
+   "message": "unexpected doc string",
+   "fullRange":
+   {"start": {"line": 9, "character": 0}, "end": {"line": 11, "character": 3}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 14, "character": 0}, "end": {"line": 15, "character": 0}},
+   "message":
+   "unexpected doc string\n\nHint: the docstring must come after '... in', immediately before the declaration that accepts a docstring.",
+   "fullRange":
+   {"start": {"line": 14, "character": 0},
+    "end": {"line": 17, "character": 10}}},
+  {"source": "Lean 4",
+   "severity": 3,
+   "range":
+   {"start": {"line": 20, "character": 0}, "end": {"line": 20, "character": 6}},
+   "message": "x : Nat",
+   "fullRange":
+   {"start": {"line": 20, "character": 0},
+    "end": {"line": 20, "character": 6}}}]}
+{"textDocument": {"uri": "file:///3135.lean"},
+ "position": {"line": 20, "character": 7}}
+{"range":
+ {"start": {"line": 20, "character": 7}, "end": {"line": 20, "character": 8}},
+ "contents": {"value": "```lean\nx : Nat\n```", "kind": "markdown"}}

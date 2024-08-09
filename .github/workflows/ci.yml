@@ -257,7 +257,7 @@ jobs:
                 "cross": true,
                 "shell": "bash -euxo pipefail {0}",
                 // Just a few selected tests because wasm is slow
-                "CTEST_OPTIONS": "-R \"leantest_1007\\.lean|leantest_Format\\.lean|leanruntest\\_1037.lean|leanruntest_ac_rfl\\.lean\""
+                "CTEST_OPTIONS": "-R \"leantest_1007\\.lean|leantest_Format\\.lean|leanruntest\\_1037.lean|leanruntest_ac_rfl\\.lean|leanruntest_libuv\\.lean\""
               }
             ];
             console.log(`matrix:\n${JSON.stringify(matrix, null, 2)}`)

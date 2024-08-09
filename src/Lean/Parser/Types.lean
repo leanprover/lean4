@@ -7,6 +7,7 @@ prelude
 import Lean.Data.Trie
 import Lean.Syntax
 import Lean.Message
+import Lean.DocString
 
 namespace Lean.Parser
 
@@ -428,7 +429,7 @@ def withCacheFn (parserName : Name) (p : ParserFn) : ParserFn := fun c s => Id.r
     panic! s!"withCacheFn: unexpected stack growth {s.stxStack.raw}"
   { s with cache.parserCache := s.cache.parserCache.insert key ⟨s.stxStack.back, s.lhsPrec, s.pos, s.errorMsg⟩ }
 
-@[inherit_doc withCacheFn]
+@[inherit_doc withCacheFn, builtin_doc]
 def withCache (parserName : Name) : Parser → Parser := withFn (withCacheFn parserName)
 
 def ParserFn.run (p : ParserFn) (ictx : InputContext) (pmctx : ParserModuleContext) (tokens : TokenTable) (s : ParserState) : ParserState :=

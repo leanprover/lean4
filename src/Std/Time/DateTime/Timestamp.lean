@@ -20,6 +20,15 @@ def Timestamp := Second.Offset
 
 namespace Timestamp
 
+/--
+Get the current monotonic time.
+-/
+@[extern "lean_get_current_timestamp"]
+protected opaque now : IO Timestamp
+
+/--
+A function to transform `Timestamp` to `Second.Offset`
+-/
 @[inline]
 def toSeconds (tm : Timestamp) : Second.Offset :=
   tm

@@ -73,7 +73,7 @@ structure TZifV2 extends TZifV1 where
 Represents a TZif file, which can be either version 1 or version 2.
 -/
 structure TZif where
-  v1: TZifV1
+  v1 : TZifV1
   v2 : Option TZifV2
   deriving Repr, Inhabited
 
@@ -134,7 +134,7 @@ private def parseLeapSecond (p : Parser Int) : Parser LeapSecond :=
     <$> p
     <*> pi32
 
-private def parseTransitionTimes (size: Parser Int32) (n : UInt32) : Parser (Array Int32) :=
+private def parseTransitionTimes (size : Parser Int32) (n : UInt32) : Parser (Array Int32) :=
   manyN (n.toNat) size
 
 private def parseTransitionIndices (n : UInt32) : Parser (Array UInt8) :=
@@ -143,7 +143,7 @@ private def parseTransitionIndices (n : UInt32) : Parser (Array UInt8) :=
 private def parseLocalTimeTypes (n : UInt32) : Parser (Array LocalTimeType) :=
   manyN (n.toNat) parseLocalTimeType
 
-private def parseAbbreviations (times: Array LocalTimeType) (n : UInt32) : Parser (Array String) := do
+private def parseAbbreviations (times : Array LocalTimeType) (n : UInt32) : Parser (Array String) := do
   let mut strings := #[]
   let mut current := ""
   let mut chars ← manyN n.toNat pu8

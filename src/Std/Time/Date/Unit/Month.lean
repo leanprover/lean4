@@ -13,6 +13,8 @@ namespace Std
 namespace Time
 open Internal
 
+set_option linter.all true
+
 namespace Month
 /--
 `Ordinal` represents a bounded value for months, which ranges between 1 and 12.
@@ -35,17 +37,64 @@ instance : OfNat Offset n := ⟨Int.ofNat n⟩
 
 namespace Ordinal
 
+/--
+The ordinal value representing the month of January.
+-/
 @[inline] def january : Ordinal := 1
+
+/--
+The ordinal value representing the month of February.
+-/
 @[inline] def february : Ordinal := 2
+
+/--
+The ordinal value representing the month of March.
+-/
 @[inline] def march : Ordinal := 3
+
+/--
+The ordinal value representing the month of April.
+-/
 @[inline] def april : Ordinal := 4
+
+/--
+The ordinal value representing the month of May.
+-/
 @[inline] def may : Ordinal := 5
+
+/--
+The ordinal value representing the month of June.
+-/
 @[inline] def june : Ordinal := 6
+
+/--
+The ordinal value representing the month of July.
+-/
 @[inline] def july : Ordinal := 7
+
+/--
+The ordinal value representing the month of August.
+-/
 @[inline] def august : Ordinal := 8
+
+/--
+The ordinal value representing the month of September.
+-/
 @[inline] def september : Ordinal := 9
+
+/--
+The ordinal value representing the month of October.
+-/
 @[inline] def october : Ordinal := 10
+
+/--
+The ordinal value representing the month of November.
+-/
 @[inline] def november : Ordinal := 11
+
+/--
+The ordinal value representing the month of December.
+-/
 @[inline] def december : Ordinal := 12
 
 /--

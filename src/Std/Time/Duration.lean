@@ -32,6 +32,12 @@ structure Duration where
 namespace Instant
 
 /--
+Get the current monotonic time.
+-/
+@[extern "lean_get_current_time"]
+protected opaque now : IO Instant
+
+/--
 Gets the difference of two `Instant` in a `Duration`.
 -/
 def sub (t₁ t₂ : Instant) : Duration :=

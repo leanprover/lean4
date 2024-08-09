@@ -528,6 +528,27 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_put_str(b_obj_arg h, b_obj_ar
     }
 }
 
+extern "C" LEAN_EXPORT lean_obj_res lean_get_current_time() {
+    std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::duration duration = now.time_since_epoch();
+
+    long long secs = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+    long long nano = std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count() % 1000000000;
+
+    lean_object *lean_ts = lean_alloc_ctor(0, 2, 0);
+    lean_ctor_set(lean_ts, 0, lean_int_to_int(static_cast<int>(secs)));
+    lean_ctor_set(lean_ts, 1, lean_int_to_int(static_cast<int>(nano)));
+
+    return lean_io_result_mk_ok(lean_ts);
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_get_current_timestamp() {
+    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+    long long timestamp = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
+    lean_object *lean_timestamp = lean_int_to_int((int)timestamp);
+    return lean_io_result_mk_ok(lean_timestamp);
+}
+
 /* monoMsNow : BaseIO Nat */
 extern "C" LEAN_EXPORT obj_res lean_io_mono_ms_now(obj_arg /* w */) {
     static_assert(sizeof(std::chrono::milliseconds::rep) <= sizeof(uint64), "size of std::chrono::nanoseconds::rep may not exceed 64");

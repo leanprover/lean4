@@ -6,6 +6,7 @@ Authors: Sofia Rodrigues
 prelude
 import Std.Time.DateTime
 import Std.Time.Zoned.TimeZone
+import Std.Time.Zoned.ZoneRules
 
 namespace Std
 namespace Time
@@ -16,8 +17,10 @@ It stores a `Timestamp`, a `LocalDateTime` and a `TimeZone`
 structure DateTime (tz : TimeZone) where
   private mk ::
   timestamp : Timestamp
-  date : LocalDateTime
-  deriving Repr, Inhabited
+  date : Thunk LocalDateTime
+
+instance : Inhabited (DateTime tz) where
+  default := ⟨Inhabited.default, Thunk.mk λ_ => Inhabited.default⟩
 
 namespace DateTime
 
@@ -26,8 +29,7 @@ Creates a new `DateTime` out of a `Timestamp`
 -/
 @[inline]
 def ofTimestamp (tm : Timestamp) (tz : TimeZone) : DateTime tz :=
-  let date := (tm + tz.toSeconds).toLocalDateTime
-  DateTime.mk tm date
+  DateTime.mk tm (Thunk.mk <| λ_ => (tm + tz.toSeconds).toLocalDateTime)
 
 /--
 Creates a new `Timestamp` out of a `DateTime`
@@ -56,55 +58,55 @@ Getter for the `Year` inside of a `DateTime`
 -/
 @[inline]
 def year (dt : DateTime tz) : Year.Offset :=
-  dt.date.year
+  dt.date.get.year
 
 /--
 Getter for the `Month` inside of a `DateTime`
 -/
 @[inline]
 def month (dt : DateTime tz) : Month.Ordinal :=
-  dt.date.month
+  dt.date.get.month
 
 /--
 Getter for the `Day` inside of a `DateTime`
 -/
 @[inline]
 def day (dt : DateTime tz) : Day.Ordinal :=
-  dt.date.day
+  dt.date.get.day
 
 /--
 Getter for the `Hour` inside of a `DateTime`
 -/
 @[inline]
 def hour (dt : DateTime tz) : Hour.Ordinal :=
-  dt.date.hour
+  dt.date.get.hour
 
 /--
 Getter for the `Minute` inside of a `DateTime`
 -/
 @[inline]
 def minute (dt : DateTime tz) : Minute.Ordinal :=
-  dt.date.minute
+  dt.date.get.minute
 
 /--
 Getter for the `Second` inside of a `DateTime`
 -/
 @[inline]
 def second (dt : DateTime tz) : Second.Ordinal :=
-  dt.date.second
+  dt.date.get.second
 
 /--
 Getter for the `Milliseconds` inside of a `DateTime`
 -/
 @[inline]
 def milliseconds (dt : DateTime tz) : Millisecond.Ordinal :=
-  dt.date.time.nano.toMillisecond
+  dt.date.get.time.nano.toMillisecond
 /--
 Gets the `Weekday` of a DateTime.
 -/
 @[inline]
 def weekday (dt : DateTime tz) : Weekday :=
-  dt.date.date.weekday
+  dt.date.get.date.weekday
 
 end DateTime
 end Time

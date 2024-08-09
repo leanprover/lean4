@@ -177,12 +177,12 @@ private def parseFormatPart : Parser FormatPart
 private def specParser : Parser FormatString :=
   (Array.toList <$> many parseFormatPart) <* eof
 
-private def specParse (s: String) : Except String FormatString :=
+private def specParse (s : String) : Except String FormatString :=
   specParser.run s
 
 -- Pretty printer
 
-private def unabbrevMonth (month: Month.Ordinal) : String :=
+private def unabbrevMonth (month : Month.Ordinal) : String :=
   match month.val, month.property with
   | 1, _ => "January"
   | 2, _ => "February"
@@ -197,7 +197,7 @@ private def unabbrevMonth (month: Month.Ordinal) : String :=
   | 11, _ => "November"
   | 12, _ => "December"
 
-private def abbrevMonth (month: Month.Ordinal) : String :=
+private def abbrevMonth (month : Month.Ordinal) : String :=
   match month.val, month.property with
   | 1, _ => "Jan"
   | 2, _ => "Feb"
@@ -212,7 +212,7 @@ private def abbrevMonth (month: Month.Ordinal) : String :=
   | 11, _ => "Nov"
   | 12, _ => "Dec"
 
-private def abbrevDayOfWeek (day: Weekday) : String :=
+private def abbrevDayOfWeek (day : Weekday) : String :=
   match day with
   | .sun => "Sun"
   | .mon => "Mon"
@@ -222,7 +222,7 @@ private def abbrevDayOfWeek (day: Weekday) : String :=
   | .fri => "Fri"
   | .sat => "Sat"
 
-private def dayOfWeek (day: Weekday) : String :=
+private def dayOfWeek (day : Weekday) : String :=
   match day with
   | .sun => "Sunday"
   | .mon => "Monday"
@@ -237,26 +237,26 @@ private def leftPad (n : Nat) (a : Char) (s : String) : String :=
 
 private def formatWithDate (date : DateTime tz) : Modifier → String
   | .YYYY  => s!"{leftPad 4 '0' (toString date.year)}"
-  | .YY    => s!"{leftPad 2 '0' (toString $ date.year.toNat % 100)}"
+  | .YY    => s!"{leftPad 2 '0' (toString <| date.year.toNat % 100)}"
   | .MMMM  => unabbrevMonth date.month
   | .MMM   => abbrevMonth date.month
-  | .MM    => s!"{leftPad 2 '0' (toString $ date.month.toNat)}"
+  | .MM    => s!"{leftPad 2 '0' (toString <| date.month.toNat)}"
   | .M     => s!"{date.month.toNat}"
-  | .DD    => s!"{leftPad 2 '0' (toString $ date.day.toNat)}"
+  | .DD    => s!"{leftPad 2 '0' (toString <| date.day.toNat)}"
   | .D     => s!"{date.day.toNat}"
-  | .d     => s!"{leftPad 2 ' ' $ toString date.day.toNat}"
+  | .d     => s!"{leftPad 2 ' ' <| toString date.day.toNat}"
   | .EEEE  => dayOfWeek date.weekday
   | .EEE   => abbrevDayOfWeek date.weekday
   | .hh    => s!"{leftPad 2 '0' (toString date.hour.toNat)}"
   | .h     => s!"{date.hour.toNat}"
-  | .HH    => let hour := date.hour.val % 12; if hour == 0 then "12" else s!"{leftPad 2 '0' $ toString hour}"
+  | .HH    => let hour := date.hour.val % 12; if hour == 0 then "12" else s!"{leftPad 2 '0' <| toString hour}"
   | .H     => let hour := date.hour.val % 12; if hour == 0 then "12" else s!"{hour}"
   | .AA    => if date.hour.toNat < 12 then "AM" else "PM"
   | .aa    => if date.hour.toNat < 12 then "am" else "pm"
-  | .mm    => s!"{leftPad 2 '0' $ toString date.minute.toNat}"
+  | .mm    => s!"{leftPad 2 '0' <| toString date.minute.toNat}"
   | .m     => s!"{date.minute.toNat}"
-  | .sss    => s!"{leftPad 3 '0' $ toString date.milliseconds.toNat}"
-  | .ss    => s!"{leftPad 2 '0' $ toString date.second.toNat}"
+  | .sss    => s!"{leftPad 3 '0' <| toString date.milliseconds.toNat}"
+  | .ss    => s!"{leftPad 2 '0' <| toString date.second.toNat}"
   | .s     => s!"{date.second.toNat}"
   | .ZZZZZ => tz.offset.toIsoString true
   | .ZZZZ  => tz.offset.toIsoString false
@@ -303,26 +303,26 @@ private def SingleFormatType : Modifier → Type
 private def formatPart (modifier : Modifier) (data : SingleFormatType modifier) : String :=
   match modifier with
   | .YYYY  => s!"{leftPad 4 '0' (toString data.toNat)}"
-  | .YY    => s!"{leftPad 2 '0' (toString $ data.toNat % 100)}"
+  | .YY    => s!"{leftPad 2 '0' (toString <| data.toNat % 100)}"
   | .MMMM  => unabbrevMonth data
   | .MMM   => abbrevMonth data
-  | .MM    => s!"{leftPad 2 '0' (toString $ data.toNat)}"
+  | .MM    => s!"{leftPad 2 '0' (toString <| data.toNat)}"
   | .M     => s!"{data.toNat}"
-  | .DD    => s!"{leftPad 2 '0' (toString $ data.toNat)}"
+  | .DD    => s!"{leftPad 2 '0' (toString <| data.toNat)}"
   | .D     => s!"{data.toNat}"
-  | .d     => s!"{leftPad 2 ' ' $ toString data.toNat}"
+  | .d     => s!"{leftPad 2 ' ' <| toString data.toNat}"
   | .EEEE  => dayOfWeek data
   | .EEE   => abbrevDayOfWeek data
   | .hh    => s!"{leftPad 2 '0' (toString data.toNat)}"
   | .h     => s!"{data.toNat}"
-  | .HH    => let hour := data.val % 12; if hour == 0 then "12" else s!"{leftPad 2 '0' $ toString hour}"
+  | .HH    => let hour := data.val % 12; if hour == 0 then "12" else s!"{leftPad 2 '0' <| toString hour}"
   | .H     => let hour := data.val % 12; if hour == 0 then "12" else s!"{hour}"
   | .AA    => match data with | .am => "AM" | .pm => "PM"
   | .aa    => match data with | .am => "am" | .pm => "pm"
-  | .mm    => s!"{leftPad 2 '0' $ toString data.toNat}"
+  | .mm    => s!"{leftPad 2 '0' <| toString data.toNat}"
   | .m     => s!"{data.toNat}"
-  | .sss    => s!"{leftPad 3 '0' $ toString data.toNat}"
-  | .ss    => s!"{leftPad 2 '0' $ toString data.toNat}"
+  | .sss    => s!"{leftPad 3 '0' <| toString data.toNat}"
+  | .ss    => s!"{leftPad 2 '0' <| toString data.toNat}"
   | .s     => s!"{data.toNat}"
   | .ZZZZZ => data.toIsoString true
   | .ZZZZ  => data.toIsoString false
@@ -331,7 +331,7 @@ private def formatPart (modifier : Modifier) (data : SingleFormatType modifier) 
   | .z     => data
 
 @[simp]
-def FormatType (result: Type) : FormatString → Type
+def FormatType (result : Type) : FormatString → Type
   | .modifier entry :: xs => (SingleFormatType entry) → (FormatType result xs)
   | .string _ :: xs => (FormatType result xs)
   | [] => result

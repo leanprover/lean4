@@ -6,10 +6,16 @@ Authors: Sofia Rodrigues
 prelude
 import Std.Time.Zoned.TimeZone
 import Std.Time.Zoned.DateTime
+import Std.Time.Zoned.ZoneRules
 
 namespace Std
 namespace Time
 
+set_option linter.all true
+
+/--
+The existential version of `DateTime` that instead of storing the timezone with a
+-/
 def ZonedDateTime := Sigma DateTime
 
 instance : CoeDep ZonedDateTime d (DateTime d.fst) where
@@ -34,6 +40,15 @@ Creates a new `Timestamp` out of a `ZonedDateTime`
 @[inline]
 def toTimestamp (date : ZonedDateTime) : Timestamp :=
   date.snd.toTimestamp
+
+/--
+Creates a new `DateTime` out of a `Timestamp`
+-/
+@[inline]
+def ofZoneRules (tm : Timestamp) (rules : TimeZone.ZoneRules) : Option ZonedDateTime := do
+  let transition ← rules.findTransitionForTimestamp tm
+  return ofTimestamp tm transition.localTimeType.getTimeZone
+
 
 /--
 Changes the `TimeZone` to a new one.

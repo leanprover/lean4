@@ -7,6 +7,8 @@ prelude
 import Std.Time.Time
 import Std.Time.DateTime
 import Std.Time.Internal
+import Std.Time.Zoned.Offset
+import Std.Time.Zoned.TimeZone
 
 namespace Std
 namespace Time
@@ -33,12 +35,22 @@ inductive StdWall
 Represents a type of local time, including offset and daylight saving information.
 -/
 structure LocalTimeType where
-  gmtOffset : Second.Offset
+  gmtOffset : TimeZone.Offset
   isDst : Bool
   abbreviation : String
   wall : StdWall
   utLocal : UTLocal
   deriving Repr, Inhabited
+
+namespace LocalTimeType
+
+/--
+Gets the `TimeZone` offset from a `LocalTimeType`.
+-/
+def getTimeZone (time : LocalTimeType) : TimeZone :=
+  ⟨time.gmtOffset, time.abbreviation⟩
+
+end LocalTimeType
 
 /--
 Represents a leap second event, including the time of the transition and the correction applied.
@@ -60,10 +72,10 @@ structure Transition where
 Represents the rules for a time zone, abstracting away binary data and focusing on key transitions and types.
 -/
 structure ZoneRules where
+  localTimes : Array LocalTimeType
   transitions : Array Transition
   leapSeconds : Array LeapSecond
   deriving Repr, Inhabited
-
 
 namespace ZoneRules
 

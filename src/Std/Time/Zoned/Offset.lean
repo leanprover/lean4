@@ -12,13 +12,21 @@ namespace Time
 namespace TimeZone
 open Internal
 
+set_option linter.all true
+
 /--
 Represents a timezone offset with an hour and second component.
 -/
 structure Offset where
   private mk ::
-  hour: Hour.Offset
-  second: Second.Offset
+  /--
+  The timezone offset in Hours.
+  -/
+  hour : Hour.Offset
+  /--
+  The same timezone offset in seconds.
+  -/
+  second : Second.Offset
   deriving Repr, Inhabited
 
 namespace Offset
@@ -46,20 +54,20 @@ def zero : Offset :=
 /--
 Creates an `Offset` from a given number of hour.
 -/
-def ofHours (n: Hour.Offset) : Offset :=
+def ofHours (n : Hour.Offset) : Offset :=
   mk n n.toSeconds
 
 /--
 Creates an `Offset` from a given number of hour and minuets.
 -/
-def ofHoursAndMinutes (n: Hour.Offset) (m: Minute.Offset) : Offset :=
+def ofHoursAndMinutes (n : Hour.Offset) (m : Minute.Offset) : Offset :=
   let secs := n.toSeconds + m.toSeconds
   mk secs.toHours secs
 
 /--
 Creates an `Offset` from a given number of second.
 -/
-def ofSeconds (n: Second.Offset) : Offset :=
+def ofSeconds (n : Second.Offset) : Offset :=
   mk n.toHours n
 
 end Offset

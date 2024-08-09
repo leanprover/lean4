@@ -10,11 +10,19 @@ import Std.Time.Zoned.Offset
 namespace Std
 namespace Time
 
+set_option linter.all true
+
 /--
 An enumeration representing different time zones.
 -/
 structure TimeZone where
+  /--
+  The `Offset` of the date time.
+  -/
   offset : TimeZone.Offset
+  /--
+  The name of the time zone.
+  -/
   name : String
   deriving Inhabited, Repr
 
@@ -35,13 +43,13 @@ def GMT : TimeZone :=
 /--
 Creates a `Timestamp` from a given number of hour.
 -/
-def ofHours (name : String) (n: Hour.Offset) : TimeZone :=
+def ofHours (name : String) (n : Hour.Offset) : TimeZone :=
   TimeZone.mk (Offset.ofHours n) name
 
 /--
 Creates a `Timestamp` from a given number of second.
 -/
-def ofSeconds (name : String) (n: Second.Offset) : TimeZone :=
+def ofSeconds (name : String) (n : Second.Offset) : TimeZone :=
   TimeZone.mk (Offset.ofSeconds n) name
 
 /--

@@ -32,7 +32,7 @@ def toDays (wd : WeekDate) : Day.Offset :=
 /--
 Creates a `WeekDate` from a `Day.Offset`.
 -/
-def fromScalar (scalar : Day.Offset) : WeekDate :=
+def fromDays (scalar : Day.Offset) : WeekDate :=
   let totalDays := scalar.val
   let year := totalDays / 365
   let week :=

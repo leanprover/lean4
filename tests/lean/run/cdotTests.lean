@@ -31,3 +31,15 @@ rfl
 
 theorem ex4 : sum [1, 2, 3, 4] = 10 :=
 rfl
+
+/-!
+Check that ambiguous notation inside cdot notation still has only a single argument.
+(Need to process choice nodes specially.)
+-/
+
+def tag (_ : α) (y : α) := y
+notation "f" x => tag 1 x
+notation "f" x => tag "2" x
+/-- info: fun x => (f x).length : String → Nat -/
+#guard_msgs in
+#check (String.length <| f ·)

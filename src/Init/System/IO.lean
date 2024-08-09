@@ -496,7 +496,7 @@ partial def lines (fname : FilePath) : IO (Array String) := do
       pure lines
     else if line.back == '\n' then
       let line := line.dropRight 1
-      let line := if System.Platform.isWindows && line.back == '\x0d' then line.dropRight 1 else line
+      let line := if line.back == '\r' then line.dropRight 1 else line
       read <| lines.push line
     else
       pure <| lines.push line

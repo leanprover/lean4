@@ -259,16 +259,17 @@ partial def hasCDot : Syntax → Bool
   Examples:
   - `· + 1` => `fun x => x + 1`
   - `f · · b` => `fun x1 x2 => f x1 x2 b` -/
-partial def expandCDot? (stx : Term) : MacroM (Option Term) := withFreshMacroScope do
+partial def expandCDot? (stx : Term) : MacroM (Option Term) := do
   if hasCDot stx then
-    let mut (newStx, binders) ← (go stx).run #[]
-    if binders.size == 1 then
-      -- It is nicer using `x` over `x1` if there's only a single binder.
-      let x1 := binders[0]!
-      let x := mkIdentFrom x1 (← MonadQuotation.addMacroScope `x) (canonical := true)
-      binders := binders.set! 0 x
-      newStx ← newStx.replaceM fun s => pure (if s == x1 then x else none)
-    `(fun $binders* => $(⟨newStx⟩))
+    withFreshMacroScope do
+      let mut (newStx, binders) ← (go stx).run #[]
+      if binders.size == 1 then
+        -- It is nicer using `x` over `x1` if there's only a single binder.
+        let x1 := binders[0]!
+        let x := mkIdentFrom x1 (← MonadQuotation.addMacroScope `x) (canonical := true)
+        binders := binders.set! 0 x
+        newStx ← newStx.replaceM fun s => pure (if s == x1 then x else none)
+      `(fun $binders* => $(⟨newStx⟩))
   else
     pure none
 where

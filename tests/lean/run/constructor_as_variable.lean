@@ -39,6 +39,12 @@ set_option linter.constructorNameAsVariable false in
 def g' : A → Unit
   | x => ()
 
+-- Check that turning it off via `linter.all` works
+#guard_msgs in
+set_option linter.all false in
+def g'' : A → Unit
+  | x => ()
+
 -- Avoid false positives
 #guard_msgs in
 def h : A → Unit

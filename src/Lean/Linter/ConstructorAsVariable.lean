@@ -23,6 +23,9 @@ register_builtin_option linter.constructorNameAsVariable : Bool := {
   descr := "enable the linter that warns when bound variable names are nullary constructor names"
 }
 
+/-- Get the value of `linter.constructorNameAsVariable`, respecting `linter.all`. -/
+def getLinterConstructorNameAsVariable (o : Options) : Bool := getLinterValue linter.constructorNameAsVariable o
+
 /--
 Reports when bound variables' names overlap with constructor names for their type. This is to warn
 especially new users that they have built a pattern that matches anything, rather than one that
@@ -30,6 +33,8 @@ matches a particular constructor. Use `linter.constructorNameAsVariable` to disa
 -/
 def constructorNameAsVariable : Linter where
   run cmdStx := do
+    unless getLinterConstructorNameAsVariable (← getOptions) do
+      return
     let some cmdStxRange := cmdStx.getRange?
       | return
 
@@ -53,7 +58,7 @@ def constructorNameAsVariable : Linter where
               if !cmdStxRange.contains range.start || ldecl.userName.hasMacroScopes then return
               let opts := ci.options
               -- we have to check for the option again here because it can be set locally
-              if !linter.constructorNameAsVariable.get opts then return
+              if !getLinterValue linter.constructorNameAsVariable opts then return
               if let n@(.str .anonymous s) := info.stx.getId then
                 -- Check whether the type is an inductive type, and get its constructors
                 let ty ←

@@ -5,8 +5,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include "runtime/object.h"
 
 namespace lean {
-void initialize_util_module();
-void finalize_util_module();
+LEAN_EXPORT void initialize_util_module();
+LEAN_EXPORT void finalize_util_module();
 }

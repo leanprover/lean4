@@ -3,7 +3,10 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 set(SRC ${SRC} manifest.rc)
 endif()
 
-add_library(shell OBJECT ${SRC})
+add_library(leanmain STATIC ${SRC})
+set_target_properties(leanmain PROPERTIES
+  ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/temp
+  OUTPUT_NAME leanmain)
 
 if(LLVM)
   if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -28,8 +31,8 @@ endif()
 
 add_custom_target(lean ALL
   WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
-  DEPENDS leanshared shell
-  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make lean LEAN_SHELL="$<TARGET_OBJECTS:shell>"
+  DEPENDS leanshared leanmain
+  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make lean
   COMMAND_EXPAND_LISTS)
 
 # use executable of current stage for tests

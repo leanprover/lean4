@@ -382,6 +382,12 @@ jobs:
           make -C build install
       - name: Check Binaries
         run: ${{ matrix.binary-check }} lean-*/bin/* || true
+      - name: Count binary symbols
+        run: |
+          for f in lean-*/bin/*; do
+            echo "$f: $(nm $f | grep " T " | wc -l) exported symbols"
+          done
+        if: matrix.name == 'Windows'
       - name: List Install Tree
         run: |
           # omit contents of Init/, ...

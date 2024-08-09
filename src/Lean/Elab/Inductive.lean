@@ -630,7 +630,7 @@ private def replaceIndFVarsWithConsts (views : Array InductiveView) (indFVars : 
         let type := type.replace fun e =>
           if !e.isFVar then
             none
-          else match indFVar2Const.find? e with
+          else match indFVar2Const[e]? with
             | none   => none
             | some c => mkAppN c (params.extract 0 numVars)
         instantiateMVars (← mkForallFVars params type)

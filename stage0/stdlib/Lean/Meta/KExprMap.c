@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.KExprMap
-// Imports: Lean.HeadIndex Lean.Meta.Basic
+// Imports: Lean.Data.AssocList Lean.HeadIndex Lean.Meta.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2509,6 +2509,7 @@ x_8 = l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_KExprMap_insert___spec__
 return x_8;
 }
 }
+lean_object* initialize_Lean_Data_AssocList(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_HeadIndex(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -2516,6 +2517,9 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_KExprMap(uint8_t builtin, lean_obj
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Lean_Data_AssocList(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_HeadIndex(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

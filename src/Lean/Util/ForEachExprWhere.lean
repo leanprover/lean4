@@ -28,7 +28,7 @@ structure State where
   Set of visited subterms that satisfy the predicate `p`.
   We have to use this set to make sure `f` is applied at most once of each subterm that satisfies `p`.
   -/
-  checked : HashSet Expr
+  checked : Std.HashSet Expr
 
 unsafe def initCache : State := {
   visited := mkArray cacheSize.toNat (cast lcProof ())

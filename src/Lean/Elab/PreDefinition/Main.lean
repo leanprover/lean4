@@ -69,12 +69,15 @@ private def ensureNoUnassignedMVarsAtPreDef (preDef : PreDefinition) : TermElabM
   This method beta-reduces them to make sure they can be eliminated by the well-founded recursion module. -/
 private def betaReduceLetRecApps (preDefs : Array PreDefinition) : MetaM (Array PreDefinition) :=
   preDefs.mapM fun preDef => do
-    let value ← Core.transform preDef.value fun e => do
-      if e.isApp && e.getAppFn.isLambda && e.getAppArgs.all fun arg => arg.getAppFn.isConst && preDefs.any fun preDef => preDef.declName == arg.getAppFn.constName! then
-        return .visit e.headBeta
-      else
-        return .continue
-    return { preDef with value }
+    if preDef.value.find? (fun e => e.isConst && preDefs.any fun preDef => preDef.declName == e.constName!) |>.isSome then
+      let value ← Core.transform preDef.value fun e => do
+        if e.isApp && e.getAppFn.isLambda && e.getAppArgs.all fun arg => arg.getAppFn.isConst && preDefs.any fun preDef => preDef.declName == arg.getAppFn.constName! then
+          return .visit e.headBeta
+        else
+          return .continue
+      return { preDef with value }
+    else
+      return preDef
 
 private def addAsAxioms (preDefs : Array PreDefinition) : TermElabM Unit := do
   for preDef in preDefs do

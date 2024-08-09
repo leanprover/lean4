@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Std.Data.HashMap.Basic
 import Lean.Data.HashMap
 import Lean.Data.PersistentHashMap
 universe u v w w'
@@ -28,7 +29,7 @@ namespace Lean
 -/
 structure SMap (α : Type u) (β : Type v) [BEq α] [Hashable α] where
   stage₁ : Bool         := true
-  map₁   : HashMap α β  := {}
+  map₁   : Std.HashMap α β  := {}
   map₂   : PHashMap α β := {}
 
 namespace SMap
@@ -37,7 +38,7 @@ variable {α : Type u} {β : Type v} [BEq α] [Hashable α]
 instance : Inhabited (SMap α β) := ⟨{}⟩
 def empty : SMap α β := {}
 
-@[inline] def fromHashMap (m : HashMap α β) (stage₁ := true) : SMap α β :=
+@[inline] def fromHashMap (m : Std.HashMap α β) (stage₁ := true) : SMap α β :=
   { map₁ := m, stage₁ := stage₁ }
 
 @[specialize] def insert : SMap α β → α → β → SMap α β
@@ -49,8 +50,8 @@ def empty : SMap α β := {}
   | ⟨false, m₁, m₂⟩, k, v => ⟨false, m₁, m₂.insert k v⟩
 
 @[specialize] def find? : SMap α β → α → Option β
-  | ⟨true, m₁, _⟩, k   => m₁.find? k
-  | ⟨false, m₁, m₂⟩, k => (m₂.find? k).orElse fun _ => m₁.find? k
+  | ⟨true, m₁, _⟩, k   => m₁[k]?
+  | ⟨false, m₁, m₂⟩, k => (m₂.find? k).orElse fun _ => m₁[k]?
 
 @[inline] def findD (m : SMap α β) (a : α) (b₀ : β) : β :=
   (m.find? a).getD b₀
@@ -67,8 +68,8 @@ def empty : SMap α β := {}
 /-- Similar to `find?`, but searches for result in the hashmap first.
    So, the result is correct only if we never "overwrite" `map₁` entries using `map₂`. -/
 @[specialize] def find?' : SMap α β → α → Option β
-  | ⟨true, m₁, _⟩, k   => m₁.find? k
-  | ⟨false, m₁, m₂⟩, k => (m₁.find? k).orElse fun _ => m₂.find? k
+  | ⟨true, m₁, _⟩, k   => m₁[k]?
+  | ⟨false, m₁, m₂⟩, k => m₁[k]?.orElse fun _ => m₂.find? k
 
 def forM [Monad m] (s : SMap α β) (f : α → β → m PUnit) : m PUnit := do
   s.map₁.forM f
@@ -96,7 +97,7 @@ def fold {σ : Type w} (f : σ → α → β → σ) (init : σ) (m : SMap α β
   m.map₂.foldl f $ m.map₁.fold f init
 
 def numBuckets (m : SMap α β) : Nat :=
-  m.map₁.numBuckets
+  Std.HashMap.Internal.numBuckets m.map₁
 
 def toList (m : SMap α β) : List (α × β) :=
   m.fold (init := []) fun es a b => (a, b)::es

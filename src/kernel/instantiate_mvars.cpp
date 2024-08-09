@@ -192,12 +192,15 @@ class instantiate_mvars_fn {
     instantiate metavariables.
     */
     expr visit_app_default(expr const & e) {
-        if (is_app(e)) {
-            return update_app(e, visit_app_default(app_fn(e)), visit(app_arg(e)));
-        } else {
-            lean_assert(!is_mvar(e));
-            return visit(e);
+        buffer<expr> args;
+        expr const * curr = &e;
+        while (is_app(*curr)) {
+            args.push_back(visit(app_arg(*curr)));
+            curr = &app_fn(*curr);
         }
+        lean_assert(!is_mvar(*curr));
+        expr f = visit(*curr);
+        return mk_rev_app(f, args.size(), args.data());
     }
 
     /*
@@ -205,12 +208,14 @@ class instantiate_mvars_fn {
     the metavariables in the arguments `a_i` have been instantiated.
     */
     expr visit_mvar_app_args(expr const & e) {
-        if (is_app(e)) {
-            return update_app(e, visit_app_default(app_fn(e)), visit(app_arg(e)));
-        } else {
-            lean_assert(is_mvar(e));
-            return e;
+        buffer<expr> args;
+        expr const * curr = &e;
+        while (is_app(*curr)) {
+            args.push_back(visit(app_arg(*curr)));
+            curr = &app_fn(*curr);
         }
+        lean_assert(is_mvar(*curr));
+        return mk_rev_app(*curr, args.size(), args.data());
     }
 
     /*
@@ -218,21 +223,21 @@ class instantiate_mvars_fn {
     where `a_i'` is `visit(a_i)`. `args` is an accumulator for the new arguments.
     */
     expr visit_args_and_beta(expr const & f_new, expr const & e, buffer<expr> & args) {
-        if (is_app(e)) {
-            args.push_back(visit(app_arg(e)));
-            return visit_args_and_beta(f_new, app_fn(e), args);
-        } else {
-            /*
-            Some of the arguments in `args` are irrelevant after we beta
-            reduce. Also, it may be a bug to not instantiate them, since they
-            may depend on free variables that are not in the context (see
-            issue #4375). So we pass `useZeta := true` to ensure that they are
-            instantiated.
-            */
-            bool preserve_data = false;
-            bool zeta = true;
-            return apply_beta(f_new, args.size(), args.data(), preserve_data, zeta);
+        expr const * curr = &e;
+        while (is_app(*curr)) {
+            args.push_back(visit(app_arg(*curr)));
+            curr = &app_fn(*curr);
         }
+        /*
+          Some of the arguments in `args` are irrelevant after we beta
+          reduce. Also, it may be a bug to not instantiate them, since they
+          may depend on free variables that are not in the context (see
+          issue #4375). So we pass `useZeta := true` to ensure that they are
+          instantiated.
+        */
+        bool preserve_data = false;
+        bool zeta = true;
+        return apply_beta(f_new, args.size(), args.data(), preserve_data, zeta);
     }
 
     /*
@@ -247,13 +252,13 @@ class instantiate_mvars_fn {
     `ti'`s are `visit(ti)`.
     */
     expr visit_delayed(array_ref<expr> const & fvars, expr const & val, expr const & e, buffer<expr> & args) {
-        if (is_app(e)) {
-            args.push_back(visit(app_arg(e)));
-            return visit_delayed(fvars, val, app_fn(e), args);
-        } else {
-            expr val_new = replace_fvars(val, fvars, args.data() + (args.size() - fvars.size()));
-            return mk_rev_app(val_new, args.size() - fvars.size(), args.data());
+        expr const * curr = &e;
+        while (is_app(*curr)) {
+            args.push_back(visit(app_arg(*curr)));
+            curr = &app_fn(*curr);
         }
+        expr val_new = replace_fvars(val, fvars, args.data() + (args.size() - fvars.size()));
+        return mk_rev_app(val_new, args.size() - fvars.size(), args.data());
     }
 
     expr visit_app(expr const & e) {

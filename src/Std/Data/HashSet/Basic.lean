@@ -184,6 +184,10 @@ in the collection will be present in the returned hash set.
 @[inline] def ofList [BEq α] [Hashable α] (l : List α) : HashSet α :=
   ⟨HashMap.unitOfList l⟩
 
+/-- Computes the union of the given hash sets. -/
+@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : HashSet α) : HashSet α :=
+  m₂.fold (init := m₁) fun acc x => acc.insert x
+
 /--
 Returns the number of buckets in the internal representation of the hash set. This function may
 be useful for things like monitoring system health, but it should be considered an internal

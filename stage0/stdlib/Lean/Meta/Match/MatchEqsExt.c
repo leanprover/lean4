@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* l_Lean_Name_reprPrec(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Match_MatchEqsExt_0__Lean_Meta_Match_reprMatchEqns____x40_Lean_Meta_Match_MatchEqsExt___hyg_45____closed__8;
+uint8_t l_Lean_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__2(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Match_MatchEqsExt_0__Lean_Meta_Match_reprMatchEqns____x40_Lean_Meta_Match_MatchEqsExt___hyg_45____closed__9;
 static lean_object* l___private_Lean_Meta_Match_MatchEqsExt_0__Lean_Meta_Match_reprMatchEqns____x40_Lean_Meta_Match_MatchEqsExt___hyg_45____closed__7;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -117,7 +118,6 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_shift_left(size_t, size_t);
 static lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_Match_registerMatchEqns___spec__2___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_instInhabitedMatchEqnsExtState;
-uint8_t l_Lean_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__3(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -1829,7 +1829,7 @@ x_5 = l_Lean_EnvExtension_getState___rarg(x_3, x_4, x_1);
 x_6 = lean_ctor_get(x_5, 1);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = l_Lean_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__3(x_6, x_2);
+x_7 = l_Lean_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__2(x_6, x_2);
 return x_7;
 }
 }

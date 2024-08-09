@@ -51,6 +51,8 @@ structure Scope where
   even if they do not work with binders per se.
   -/
   varDecls      : Array (TSyntax ``Parser.Term.bracketedBinder) := #[]
+  /-- `include`d section variable names -/
+  includedVars  : List Name := []
   /--
   Globally unique internal identifiers for the `varDecls`.
   There is one identifier per variable introduced by the binders
@@ -198,12 +200,12 @@ def mkMessageAux (ctx : Context) (ref : Syntax) (msgData : MessageData) (severit
 
 private def addTraceAsMessagesCore (ctx : Context) (log : MessageLog) (traceState : TraceState) : MessageLog := Id.run do
   if traceState.traces.isEmpty then return log
-  let mut traces : HashMap (String.Pos × String.Pos) (Array MessageData) := ∅
+  let mut traces : Std.HashMap (String.Pos × String.Pos) (Array MessageData) := ∅
   for traceElem in traceState.traces do
     let ref := replaceRef traceElem.ref ctx.ref
     let pos := ref.getPos?.getD 0
     let endPos := ref.getTailPos?.getD pos
-    traces := traces.insert (pos, endPos) <| traces.findD (pos, endPos) #[] |>.push traceElem.msg
+    traces := traces.insert (pos, endPos) <| traces.getD (pos, endPos) #[] |>.push traceElem.msg
   let mut log := log
   let traces' := traces.toArray.qsort fun ((a, _), _) ((b, _), _) => a < b
   for ((pos, endPos), traceMsg) in traces' do

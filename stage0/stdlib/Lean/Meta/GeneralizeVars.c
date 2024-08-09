@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitApp___at_Lean_Meta_getFVarSetToGeneralize___spec__3___at_Lean_Meta_getFVarSetToGeneralize___spec__11(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___at_Lean_Meta_getFVarSetToGeneralize___spec__2___at_Lean_Meta_getFVarSetToGeneralize___spec__10(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkGeneralizationForbiddenSet_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyMAux___at_Lean_Meta_getFVarSetToGeneralize___spec__16___boxed(lean_object*, lean_object*, lean_object*);
@@ -40,11 +41,11 @@ LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyMAux___at_Lean_Meta_getFVarSe
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__12___at_Lean_Meta_getFVarSetToGeneralize___spec__20(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_getFVarSetToGeneralize___spec__7(lean_object*, lean_object*, lean_object*, size_t, size_t);
-lean_object* l_Lean_mkHashSetImp___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyMAux___at_Lean_Meta_getFVarSetToGeneralize___spec__27___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_getFVarSetToGeneralize___spec__74___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getFVarsToGeneralize(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkGeneralizationForbiddenSet_visit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_getFVarSetToGeneralize___spec__57___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentArray_anyM___at_Lean_Meta_getFVarSetToGeneralize___spec__26(lean_object*, lean_object*, lean_object*);
@@ -54,6 +55,7 @@ lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitApp___at_Lean_Meta_getFVarSetToGeneralize___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_getFVarSetToGeneralize___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___at_Lean_Meta_getFVarSetToGeneralize___spec__13___at_Lean_Meta_getFVarSetToGeneralize___spec__21(lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_nextPowerOfTwo_go(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyM___at_Lean_Meta_getFVarSetToGeneralize___spec__4___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_findCore___at_Lean_Meta_mkGeneralizationForbiddenSet_visit___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_getFVarSetToGeneralize___spec__65___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -123,6 +125,7 @@ lean_object* l_Lean_LocalDecl_fvarId(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_getFVarSetToGeneralize___spec__46___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentArray_anyMAux___at_Lean_Meta_getFVarSetToGeneralize___spec__16(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_LocalDecl_isAuxDecl(lean_object*);
+static lean_object* l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__5;
 lean_object* l_Lean_CollectFVars_main(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_Meta_getFVarSetToGeneralize___spec__62___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_getFVarSetToGeneralize___spec__8(lean_object*, lean_object*, lean_object*, size_t, size_t);
@@ -682,13 +685,36 @@ return x_28;
 static lean_object* _init_l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(8u);
-x_2 = l_Lean_mkHashSetImp___rarg(x_1);
-return x_2;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(10u);
+x_2 = lean_unsigned_to_nat(1u);
+x_3 = l_Nat_nextPowerOfTwo_go(x_1, x_2, lean_box(0));
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
+x_3 = lean_mk_array(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__2;
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -697,13 +723,13 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3() {
+static lean_object* _init_l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
-x_3 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__2;
+x_2 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
+x_3 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__4;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_2);
 lean_ctor_set(x_4, 1, x_1);
@@ -732,7 +758,7 @@ lean_inc(x_14);
 x_15 = lean_ctor_get(x_13, 1);
 lean_inc(x_15);
 lean_dec(x_13);
-x_16 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
+x_16 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__5;
 x_17 = l_Lean_CollectFVars_main(x_14, x_16);
 x_18 = l_Lean_LocalDecl_value_x3f(x_10);
 lean_dec(x_10);
@@ -1138,8 +1164,8 @@ LEAN_EXPORT lean_object* l_Lean_Meta_mkGeneralizationForbiddenSet(lean_object* x
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; lean_object* x_14; 
-x_8 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
-x_9 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__2;
+x_8 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
+x_9 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__4;
 x_10 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_10, 0, x_8);
 lean_ctor_set(x_10, 1, x_2);
@@ -8081,7 +8107,7 @@ x_76 = lean_ctor_get(x_73, 1);
 x_77 = lean_ctor_get(x_75, 0);
 lean_inc(x_77);
 lean_dec(x_75);
-x_78 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
+x_78 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
 lean_inc(x_77);
 lean_ctor_set(x_73, 1, x_77);
 lean_ctor_set(x_73, 0, x_78);
@@ -8373,7 +8399,7 @@ lean_dec(x_73);
 x_154 = lean_ctor_get(x_152, 0);
 lean_inc(x_154);
 lean_dec(x_152);
-x_155 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
+x_155 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
 lean_inc(x_154);
 x_156 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_156, 0, x_155);
@@ -8607,7 +8633,7 @@ x_213 = lean_ctor_get(x_210, 1);
 x_246 = lean_ctor_get(x_212, 0);
 lean_inc(x_246);
 lean_dec(x_212);
-x_247 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
+x_247 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
 lean_ctor_set(x_210, 1, x_246);
 lean_ctor_set(x_210, 0, x_247);
 x_248 = l_Lean_Expr_hasFVar(x_208);
@@ -8786,7 +8812,7 @@ lean_dec(x_210);
 x_290 = lean_ctor_get(x_259, 0);
 lean_inc(x_290);
 lean_dec(x_259);
-x_291 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
+x_291 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
 x_292 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_292, 0, x_291);
 lean_ctor_set(x_292, 1, x_290);
@@ -9475,7 +9501,7 @@ x_76 = lean_ctor_get(x_73, 1);
 x_77 = lean_ctor_get(x_75, 0);
 lean_inc(x_77);
 lean_dec(x_75);
-x_78 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
+x_78 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
 lean_inc(x_77);
 lean_ctor_set(x_73, 1, x_77);
 lean_ctor_set(x_73, 0, x_78);
@@ -9767,7 +9793,7 @@ lean_dec(x_73);
 x_154 = lean_ctor_get(x_152, 0);
 lean_inc(x_154);
 lean_dec(x_152);
-x_155 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
+x_155 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
 lean_inc(x_154);
 x_156 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_156, 0, x_155);
@@ -10001,7 +10027,7 @@ x_213 = lean_ctor_get(x_210, 1);
 x_246 = lean_ctor_get(x_212, 0);
 lean_inc(x_246);
 lean_dec(x_212);
-x_247 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
+x_247 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
 lean_ctor_set(x_210, 1, x_246);
 lean_ctor_set(x_210, 0, x_247);
 x_248 = l_Lean_Expr_hasFVar(x_208);
@@ -10180,7 +10206,7 @@ lean_dec(x_210);
 x_290 = lean_ctor_get(x_259, 0);
 lean_inc(x_290);
 lean_dec(x_259);
-x_291 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
+x_291 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
 x_292 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_292, 0, x_291);
 lean_ctor_set(x_292, 1, x_290);
@@ -11019,7 +11045,7 @@ x_76 = lean_ctor_get(x_73, 1);
 x_77 = lean_ctor_get(x_75, 0);
 lean_inc(x_77);
 lean_dec(x_75);
-x_78 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
+x_78 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
 lean_inc(x_77);
 lean_ctor_set(x_73, 1, x_77);
 lean_ctor_set(x_73, 0, x_78);
@@ -11311,7 +11337,7 @@ lean_dec(x_73);
 x_154 = lean_ctor_get(x_152, 0);
 lean_inc(x_154);
 lean_dec(x_152);
-x_155 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
+x_155 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
 lean_inc(x_154);
 x_156 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_156, 0, x_155);
@@ -11545,7 +11571,7 @@ x_213 = lean_ctor_get(x_210, 1);
 x_246 = lean_ctor_get(x_212, 0);
 lean_inc(x_246);
 lean_dec(x_212);
-x_247 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
+x_247 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
 lean_ctor_set(x_210, 1, x_246);
 lean_ctor_set(x_210, 0, x_247);
 x_248 = l_Lean_Expr_hasFVar(x_208);
@@ -11724,7 +11750,7 @@ lean_dec(x_210);
 x_290 = lean_ctor_get(x_259, 0);
 lean_inc(x_290);
 lean_dec(x_259);
-x_291 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
+x_291 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
 x_292 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_292, 0, x_291);
 lean_ctor_set(x_292, 1, x_290);
@@ -12401,7 +12427,7 @@ x_76 = lean_ctor_get(x_73, 1);
 x_77 = lean_ctor_get(x_75, 0);
 lean_inc(x_77);
 lean_dec(x_75);
-x_78 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
+x_78 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
 lean_inc(x_77);
 lean_ctor_set(x_73, 1, x_77);
 lean_ctor_set(x_73, 0, x_78);
@@ -12693,7 +12719,7 @@ lean_dec(x_73);
 x_154 = lean_ctor_get(x_152, 0);
 lean_inc(x_154);
 lean_dec(x_152);
-x_155 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
+x_155 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
 lean_inc(x_154);
 x_156 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_156, 0, x_155);
@@ -12927,7 +12953,7 @@ x_213 = lean_ctor_get(x_210, 1);
 x_246 = lean_ctor_get(x_212, 0);
 lean_inc(x_246);
 lean_dec(x_212);
-x_247 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
+x_247 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
 lean_ctor_set(x_210, 1, x_246);
 lean_ctor_set(x_210, 0, x_247);
 x_248 = l_Lean_Expr_hasFVar(x_208);
@@ -13106,7 +13132,7 @@ lean_dec(x_210);
 x_290 = lean_ctor_get(x_259, 0);
 lean_inc(x_290);
 lean_dec(x_259);
-x_291 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
+x_291 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
 x_292 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_292, 0, x_291);
 lean_ctor_set(x_292, 1, x_290);
@@ -13971,7 +13997,7 @@ x_76 = lean_ctor_get(x_73, 1);
 x_77 = lean_ctor_get(x_75, 0);
 lean_inc(x_77);
 lean_dec(x_75);
-x_78 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
+x_78 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
 lean_inc(x_77);
 lean_ctor_set(x_73, 1, x_77);
 lean_ctor_set(x_73, 0, x_78);
@@ -14263,7 +14289,7 @@ lean_dec(x_73);
 x_154 = lean_ctor_get(x_152, 0);
 lean_inc(x_154);
 lean_dec(x_152);
-x_155 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
+x_155 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
 lean_inc(x_154);
 x_156 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_156, 0, x_155);
@@ -14497,7 +14523,7 @@ x_213 = lean_ctor_get(x_210, 1);
 x_246 = lean_ctor_get(x_212, 0);
 lean_inc(x_246);
 lean_dec(x_212);
-x_247 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
+x_247 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
 lean_ctor_set(x_210, 1, x_246);
 lean_ctor_set(x_210, 0, x_247);
 x_248 = l_Lean_Expr_hasFVar(x_208);
@@ -14676,7 +14702,7 @@ lean_dec(x_210);
 x_290 = lean_ctor_get(x_259, 0);
 lean_inc(x_290);
 lean_dec(x_259);
-x_291 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
+x_291 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
 x_292 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_292, 0, x_291);
 lean_ctor_set(x_292, 1, x_290);
@@ -15353,7 +15379,7 @@ x_76 = lean_ctor_get(x_73, 1);
 x_77 = lean_ctor_get(x_75, 0);
 lean_inc(x_77);
 lean_dec(x_75);
-x_78 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
+x_78 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
 lean_inc(x_77);
 lean_ctor_set(x_73, 1, x_77);
 lean_ctor_set(x_73, 0, x_78);
@@ -15645,7 +15671,7 @@ lean_dec(x_73);
 x_154 = lean_ctor_get(x_152, 0);
 lean_inc(x_154);
 lean_dec(x_152);
-x_155 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
+x_155 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
 lean_inc(x_154);
 x_156 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_156, 0, x_155);
@@ -15879,7 +15905,7 @@ x_213 = lean_ctor_get(x_210, 1);
 x_246 = lean_ctor_get(x_212, 0);
 lean_inc(x_246);
 lean_dec(x_212);
-x_247 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
+x_247 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
 lean_ctor_set(x_210, 1, x_246);
 lean_ctor_set(x_210, 0, x_247);
 x_248 = l_Lean_Expr_hasFVar(x_208);
@@ -16058,7 +16084,7 @@ lean_dec(x_210);
 x_290 = lean_ctor_get(x_259, 0);
 lean_inc(x_290);
 lean_dec(x_259);
-x_291 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
+x_291 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
 x_292 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_292, 0, x_291);
 lean_ctor_set(x_292, 1, x_290);
@@ -17335,7 +17361,7 @@ LEAN_EXPORT lean_object* l_Lean_RBTree_toArray___at_Lean_Meta_getFVarsToGenerali
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__2;
+x_2 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__4;
 x_3 = l_Lean_RBNode_fold___at_Lean_Meta_getFVarsToGeneralize___spec__2(x_2, x_1);
 return x_3;
 }
@@ -17429,6 +17455,10 @@ l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__2 = _init_l_Lean_Meta_m
 lean_mark_persistent(l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__2);
 l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3 = _init_l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3();
 lean_mark_persistent(l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3);
+l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__4 = _init_l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__4();
+lean_mark_persistent(l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__4);
+l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__5 = _init_l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__5();
+lean_mark_persistent(l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__5);
 l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___at_Lean_Meta_getFVarSetToGeneralize___spec__2___at_Lean_Meta_getFVarSetToGeneralize___spec__10___closed__1 = _init_l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___at_Lean_Meta_getFVarSetToGeneralize___spec__2___at_Lean_Meta_getFVarSetToGeneralize___spec__10___closed__1();
 lean_mark_persistent(l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___at_Lean_Meta_getFVarSetToGeneralize___spec__2___at_Lean_Meta_getFVarSetToGeneralize___spec__10___closed__1);
 l_Lean_Meta_getFVarSetToGeneralize___closed__1 = _init_l_Lean_Meta_getFVarSetToGeneralize___closed__1();

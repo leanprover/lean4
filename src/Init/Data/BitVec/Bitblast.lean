@@ -289,18 +289,18 @@ theorem sle_eq_carry (x y : BitVec w) :
 A recurrence that describes multiplication as repeated addition.
 Is useful for bitblasting multiplication.
 -/
-def mulRec (l r : BitVec w) (s : Nat) : BitVec w :=
-  let cur := if r.getLsb s then (l <<< s) else 0
+def mulRec (x y : BitVec w) (s : Nat) : BitVec w :=
+  let cur := if y.getLsb s then (x <<< s) else 0
   match s with
   | 0 => cur
-  | s + 1 => mulRec l r s + cur
+  | s + 1 => mulRec x y s + cur
 
-theorem mulRec_zero_eq (l r : BitVec w) :
-    mulRec l r 0 = if r.getLsb 0 then l else 0 := by
+theorem mulRec_zero_eq (x y : BitVec w) :
+    mulRec x y 0 = if y.getLsb 0 then x else 0 := by
   simp [mulRec]
 
-theorem mulRec_succ_eq (l r : BitVec w) (s : Nat) :
-    mulRec l r (s + 1) = mulRec l r s + if r.getLsb (s + 1) then (l <<< (s + 1)) else 0 := rfl
+theorem mulRec_succ_eq (x y : BitVec w) (s : Nat) :
+    mulRec x y (s + 1) = mulRec x y s + if y.getLsb (s + 1) then (x <<< (s + 1)) else 0 := rfl
 
 /--
 Recurrence lemma: truncating to `i+1` bits and then zero extending to `w`
@@ -326,29 +326,29 @@ theorem zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_twoPow (x : BitVec w
     by_cases hi : x.getLsb i <;> simp [hi] <;> omega
 
 /--
-Recurrence lemma: multiplying `l` with the first `s` bits of `r` is the
-same as truncating `r` to `s` bits, then zero extending to the original length,
+Recurrence lemma: multiplying `x` with the first `s` bits of `y` is the
+same as truncating `y` to `s` bits, then zero extending to the original length,
 and performing the multplication. -/
-theorem mulRec_eq_mul_signExtend_truncate (l r : BitVec w) (s : Nat) :
-    mulRec l r s = l * ((r.truncate (s + 1)).zeroExtend w) := by
+theorem mulRec_eq_mul_signExtend_truncate (x y : BitVec w) (s : Nat) :
+    mulRec x y s = x * ((y.truncate (s + 1)).zeroExtend w) := by
   induction s
   case zero =>
     simp only [mulRec_zero_eq, ofNat_eq_ofNat, Nat.reduceAdd]
-    by_cases r.getLsb 0
-    case pos hr =>
-      simp only [hr, ↓reduceIte, truncate, zeroExtend_one_eq_ofBool_getLsb_zero,
-        hr, ofBool_true, ofNat_eq_ofNat]
+    by_cases y.getLsb 0
+    case pos hy =>
+      simp only [hy, ↓reduceIte, truncate, zeroExtend_one_eq_ofBool_getLsb_zero,
+        ofBool_true, ofNat_eq_ofNat]
       rw [zeroExtend_ofNat_one_eq_ofNat_one_of_lt (by omega)]
       simp
-    case neg hr =>
-      simp [hr, zeroExtend_one_eq_ofBool_getLsb_zero]
+    case neg hy =>
+      simp [hy, zeroExtend_one_eq_ofBool_getLsb_zero]
   case succ s' hs =>
     rw [mulRec_succ_eq, hs]
     have heq :
-      (if r.getLsb (s' + 1) = true then l <<< (s' + 1) else 0) =
-        (l * (r &&& (BitVec.twoPow w (s' + 1)))) := by
+      (if y.getLsb (s' + 1) = true then x <<< (s' + 1) else 0) =
+        (x * (y &&& (BitVec.twoPow w (s' + 1)))) := by
       simp only [ofNat_eq_ofNat, and_twoPow]
-      by_cases hr : r.getLsb (s' + 1) <;> simp [hr]
+      by_cases hy : y.getLsb (s' + 1) <;> simp [hy]
     rw [heq, ← BitVec.mul_add, ← zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_twoPow]
 
 theorem getLsb_mul (x y : BitVec w) (i : Nat) :
@@ -428,6 +428,67 @@ theorem shiftLeft_eq_shiftLeftRec (x : BitVec w₁) (y : BitVec w₂) :
   rcases w₂ with rfl | w₂
   · simp [of_length_zero]
   · simp [shiftLeftRec_eq]
+
+/- ### Arithmetic shift right (sshiftRight) recurrence -/
+
+/--
+`sshiftRightRec x y n` shifts `x` arithmetically/signed to the right by the first `n` bits of `y`.
+The theorem `sshiftRight_eq_sshiftRightRec` proves the equivalence of `(x.sshiftRight y)` and `sshiftRightRec`.
+Together with equations `sshiftRightRec_zero`, `sshiftRightRec_succ`,
+this allows us to unfold `sshiftRight` into a circuit for bitblasting.
+-/
+def sshiftRightRec (x : BitVec w₁) (y : BitVec w₂) (n : Nat) : BitVec w₁ :=
+  let shiftAmt := (y &&& (twoPow w₂ n))
+  match n with
+  | 0 => x.sshiftRight' shiftAmt
+  | n + 1 => (sshiftRightRec x y n).sshiftRight' shiftAmt
+
+@[simp]
+theorem sshiftRightRec_zero_eq (x : BitVec w₁) (y : BitVec w₂) :
+    sshiftRightRec x y 0 = x.sshiftRight' (y &&& 1#w₂) := by
+  simp only [sshiftRightRec, twoPow_zero]
+
+@[simp]
+theorem sshiftRightRec_succ_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) :
+    sshiftRightRec x y (n + 1) = (sshiftRightRec x y n).sshiftRight' (y &&& twoPow w₂ (n + 1)) := by
+  simp [sshiftRightRec]
+
+/--
+If `y &&& z = 0`, `x.sshiftRight (y ||| z) = (x.sshiftRight y).sshiftRight z`.
+This follows as `y &&& z = 0` implies `y ||| z = y + z`,
+and thus `x.sshiftRight (y ||| z) = x.sshiftRight (y + z) = (x.sshiftRight y).sshiftRight z`.
+-/
+theorem sshiftRight'_or_of_and_eq_zero {x : BitVec w₁} {y z : BitVec w₂}
+    (h : y &&& z = 0#w₂) :
+    x.sshiftRight' (y ||| z) = (x.sshiftRight' y).sshiftRight' z := by
+  simp [sshiftRight', ← add_eq_or_of_and_eq_zero _ _ h,
+    toNat_add_of_and_eq_zero h, sshiftRight_add]
+
+theorem sshiftRightRec_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) :
+    sshiftRightRec x y n = x.sshiftRight' ((y.truncate (n + 1)).zeroExtend w₂) := by
+  induction n generalizing x y
+  case zero =>
+    ext i
+    simp [twoPow_zero, Nat.reduceAdd, and_one_eq_zeroExtend_ofBool_getLsb, truncate_one]
+  case succ n ih =>
+    simp only [sshiftRightRec_succ_eq, and_twoPow, ih]
+    by_cases h : y.getLsb (n + 1)
+    · rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsb_true h,
+        sshiftRight'_or_of_and_eq_zero (by simp), h]
+      simp
+    · rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsb_false (i := n + 1)
+        (by simp [h])]
+      simp [h]
+
+/--
+Show that `x.sshiftRight y` can be written in terms of `sshiftRightRec`.
+This can be unfolded in terms of `sshiftRightRec_zero_eq`, `sshiftRightRec_succ_eq` for bitblasting.
+-/
+theorem sshiftRight_eq_sshiftRightRec (x : BitVec w₁) (y : BitVec w₂) :
+    (x.sshiftRight' y).getLsb i = (sshiftRightRec x y (w₂ - 1)).getLsb i := by
+  rcases w₂ with rfl | w₂
+  · simp [of_length_zero]
+  · simp [sshiftRightRec_eq]
 
 /- ### Logical shift right (ushiftRight) recurrence for bitblasting -/
 

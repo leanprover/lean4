@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Time.Internal
-import Time.Time
+import Std.Time.Internal
+import Std.Time.Time
 
 namespace Std
 namespace Time

@@ -1,6 +1,6 @@
 import Lean.Runtime
 
--- 77824 -> 0x013000 -> 0x01.0x30.0x00 -> 1.48.0
-/-- info: 77824 -/
+-- This is the major version of LibUV
+/-- info: 1 -/
 #guard_msgs in
-#eval Lean.libUvVersion
+#eval Lean.libUVVersion >>> 16

@@ -243,10 +243,7 @@ if("${USE_GMP}" MATCHES "ON")
   endif()
 endif()
 
-
-if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
-  # ????
-else()
+if(NOT "${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
   # LibUV
   find_package(LibUV 1.0.0 REQUIRED)
   include_directories(${LIBUV_INCLUDE_DIR})

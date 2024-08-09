@@ -6,6 +6,5 @@ Author: Markus Himmel
 */
 #pragma once
 #include <lean/lean.h>
-#include <uv.h>
 
 extern "C" LEAN_EXPORT lean_obj_res lean_libuv_version(lean_obj_arg);

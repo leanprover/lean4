@@ -663,21 +663,21 @@ theorem zero_shiftLeft (n : Nat) : 0#w <<< n = 0#w := by
 theorem shiftLeft_xor_distrib (x y : BitVec w) (n : Nat) :
     (x ^^^ y) <<< n = (x <<< n) ^^^ (y <<< n) := by
   ext i
-  simp
+  simp only [getLsb_shiftLeft, Fin.is_lt, decide_True, Bool.true_and, getLsb_xor]
   by_cases h : i < n
     <;> simp [h]
 
 theorem shiftLeft_and_distrib (x y : BitVec w) (n : Nat) :
     (x &&& y) <<< n = (x <<< n) &&& (y <<< n) := by
   ext i
-  simp
+  simp only [getLsb_shiftLeft, Fin.is_lt, decide_True, Bool.true_and, getLsb_and]
   by_cases h : i < n
     <;> simp [h]
 
 theorem shiftLeft_or_distrib (x y : BitVec w) (n : Nat) :
     (x ||| y) <<< n = (x <<< n) ||| (y <<< n) := by
   ext i
-  simp
+  simp only [getLsb_shiftLeft, Fin.is_lt, decide_True, Bool.true_and, getLsb_or]
   by_cases h : i < n
     <;> simp [h]
 
@@ -855,7 +855,7 @@ theorem sshiftRight_eq_of_msb_true {x : BitVec w} {s : Nat} (h : x.msb = true) :
 theorem sshiftRight_xor_distrib (x y : BitVec w) (n : Nat) :
     (x ^^^ y).sshiftRight n = (x.sshiftRight n) ^^^ (y.sshiftRight n) := by
   ext i
-  simp
+  simp only [getLsb_sshiftRight, getLsb_xor, msb_xor]
   split
     <;> by_cases w ≤ i
     <;> simp [*]
@@ -863,7 +863,7 @@ theorem sshiftRight_xor_distrib (x y : BitVec w) (n : Nat) :
 theorem sshiftRight_and_distrib (x y : BitVec w) (n : Nat) :
     (x &&& y).sshiftRight n = (x.sshiftRight n) &&& (y.sshiftRight n) := by
   ext i
-  simp
+  simp only [getLsb_sshiftRight, getLsb_and, msb_and]
   split
     <;> by_cases w ≤ i
     <;> simp [*]
@@ -871,7 +871,7 @@ theorem sshiftRight_and_distrib (x y : BitVec w) (n : Nat) :
 theorem sshiftRight_or_distrib (x y : BitVec w) (n : Nat) :
     (x ||| y).sshiftRight n = (x.sshiftRight n) ||| (y.sshiftRight n) := by
   ext i
-  simp
+  simp only [getLsb_sshiftRight, getLsb_or, msb_or]
   split
     <;> by_cases w ≤ i
     <;> simp [*]

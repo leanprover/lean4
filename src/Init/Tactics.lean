@@ -415,7 +415,10 @@ you can double check if a theorem depends on `sorry` by using
 macro "sorry" : tactic => `(tactic| exact @sorryAx _ false)
 
 /-- `admit` is a shorthand for `exact sorry`. -/
-macro "admit" : tactic => `(tactic| exact @sorryAx _ false)
+@[deprecated (since := "2024-08-04")]
+macro "admit" : tactic => `(tactic|
+    (run_tac logWarning "`admit` is deprecated and will be removed in the future. Use `sorry` instead!"
+     exact @sorryAx _ false))
 
 /--
 `infer_instance` is an abbreviation for `exact inferInstance`.

@@ -115,9 +115,9 @@ unsafe def mkParenthesizerAttribute : IO (KeyedDeclsAttribute Parenthesizer) :=
   KeyedDeclsAttribute.init {
     builtinName := `builtin_parenthesizer,
     name := `parenthesizer,
-    descr := "Register a parenthesizer for a parser.
-
-  [parenthesizer k] registers a declaration of type `Lean.PrettyPrinter.Parenthesizer` for the `SyntaxNodeKind` `k`.",
+    descr := "Register a parenthesizer for a parser.\
+      \n\
+      \n[parenthesizer k] registers a declaration of type `Lean.PrettyPrinter.Parenthesizer` for the `SyntaxNodeKind` `k`.",
     valueTypeName := `Lean.PrettyPrinter.Parenthesizer,
     evalKey := fun builtin stx => do
       let env ← getEnv
@@ -139,12 +139,12 @@ unsafe def mkCategoryParenthesizerAttribute : IO (KeyedDeclsAttribute CategoryPa
   KeyedDeclsAttribute.init {
     builtinName := `builtin_category_parenthesizer,
     name := `category_parenthesizer,
-    descr := "Register a parenthesizer for a syntax category.
-
-  [category_parenthesizer cat] registers a declaration of type `Lean.PrettyPrinter.CategoryParenthesizer` for the category `cat`,
-  which is used when parenthesizing calls of `categoryParser cat prec`. Implementations should call `maybeParenthesize`
-  with the precedence and `cat`. If no category parenthesizer is registered, the category will never be parenthesized,
-  but still be traversed for parenthesizing nested categories.",
+    descr := "Register a parenthesizer for a syntax category.\
+      \n\
+      \n[category_parenthesizer cat] registers a declaration of type `Lean.PrettyPrinter.CategoryParenthesizer` for the category `cat`, \
+      which is used when parenthesizing calls of `categoryParser cat prec`. Implementations should call `maybeParenthesize` \
+      with the precedence and `cat`. If no category parenthesizer is registered, the category will never be parenthesized, \
+      but still be traversed for parenthesizing nested categories.",
     valueTypeName := `Lean.PrettyPrinter.CategoryParenthesizer,
     evalKey := fun _ stx => do
       let env ← getEnv
@@ -161,12 +161,12 @@ unsafe def mkCategoryParenthesizerAttribute : IO (KeyedDeclsAttribute CategoryPa
 unsafe def mkCombinatorParenthesizerAttribute : IO ParserCompiler.CombinatorAttribute :=
   ParserCompiler.registerCombinatorAttribute
     `combinator_parenthesizer
-    "Register a parenthesizer for a parser combinator.
-
-  [combinator_parenthesizer c] registers a declaration of type `Lean.PrettyPrinter.Parenthesizer` for the `Parser` declaration `c`.
-  Note that, unlike with [parenthesizer], this is not a node kind since combinators usually do not introduce their own node kinds.
-  The tagged declaration may optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced
-  with `Parenthesizer` in the parameter types."
+    "Register a parenthesizer for a parser combinator.\
+    \n\
+    \n[combinator_parenthesizer c] registers a declaration of type `Lean.PrettyPrinter.Parenthesizer` for the `Parser` declaration `c`. \
+    Note that, unlike with [parenthesizer], this is not a node kind since combinators usually do not introduce their own node kinds. \
+    The tagged declaration may optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced \
+    with `Parenthesizer` in the parameter types."
 @[builtin_init mkCombinatorParenthesizerAttribute] opaque combinatorParenthesizerAttribute : ParserCompiler.CombinatorAttribute
 
 namespace Parenthesizer

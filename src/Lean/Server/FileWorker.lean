@@ -132,9 +132,9 @@ section Elab
     defValue := 200
     group := "server"
     descr := "(server) time in milliseconds to wait before reporting progress and diagnostics on \
-      document edit in order to reduce flickering
-
-This option can only be set on the command line, not in the lakefile or via `set_option`."
+      document edit in order to reduce flickering.\
+      \n\
+      \nThis option can only be set on the command line, not in the lakefile or via `set_option`."
   }
 
   /--

@@ -14,15 +14,16 @@ def main (args : List String) : IO UInt32 := do
   let mut cc := "@LEANC_CC@".replace "ROOT" root.toString
 
   if args.isEmpty then
-    IO.println s!"Lean C compiler
-
-A simple wrapper around a C compiler. Defaults to `{cc}`,
-which can be overridden with the environment variable `LEAN_CC`. All parameters are passed
-as-is to the wrapped compiler.
-
-Interesting options:
-* `--print-cflags`: print C compiler flags necessary for building against the Lean runtime and exit
-* `--print-ldflags`: print C compiler flags necessary for statically linking against the Lean library and exit"
+    IO.println s!"\
+      Lean C compiler\n\
+      \n\
+      A simple wrapper around a C compiler. Defaults to `{cc}`, \
+      which can be overridden with the environment variable `LEAN_CC`. All parameters are passed \
+      as-is to the wrapped compiler.\n\
+      \n\
+      Interesting options:\n\
+      * `--print-cflags`: print C compiler flags necessary for building against the Lean runtime and exit\n\
+      * `--print-ldflags`: print C compiler flags necessary for statically linking against the Lean library and exit"
     return 1
 
   -- It is difficult to identify the correct minor version here, leading to linking warnings like:

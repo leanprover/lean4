@@ -111,10 +111,11 @@ partial def findOLean (mod : Name) : IO FilePath := do
     return fname
   else
     let pkg := FilePath.mk <| mod.getRoot.toString (escape := false)
-    let mut msg := s!"unknown module prefix '{pkg}'
-
-No directory '{pkg}' or file '{pkg}.olean' in the search path entries:
-{"\n".intercalate <| sp.map (·.toString)}"
+    let mut msg := s!"\
+      unknown module prefix '{pkg}'\n\
+      \n\
+      No directory '{pkg}' or file '{pkg}.olean' in the search path entries:\n\
+      {"\n".intercalate <| sp.map (·.toString)}"
     throw <| IO.userError msg
 
 /-- Infer module name of source file name. -/

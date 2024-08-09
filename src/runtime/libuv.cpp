@@ -13,7 +13,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_libuv_version(lean_obj_arg o) {
     return lean_unsigned_to_nat(uv_version());
 }
 
-#elif
+#else
 
 extern "C" LEAN_EXPORT lean_obj_res lean_libuv_version(lean_obj_arg o) {
     return lean_box(0);

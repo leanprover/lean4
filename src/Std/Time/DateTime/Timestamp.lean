@@ -18,6 +18,12 @@ Seconds since the UNIX Epoch.
 def Timestamp := Second.Offset
   deriving Repr, BEq, Inhabited
 
+namespace Timestamp
+
+@[inline]
+def toSeconds (tm : Timestamp) : Second.Offset :=
+  tm
+
 instance : OfNat Timestamp n where
   ofNat := UnitVal.ofNat n
 
@@ -27,5 +33,6 @@ instance : HAdd Timestamp Second.Offset Timestamp where
 instance : HSub Timestamp Second.Offset Timestamp where
   hSub x y := UnitVal.sub x y
 
+end Timestamp
 end Time
 end Std

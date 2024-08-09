@@ -35,7 +35,7 @@ Offsets represent unbounded shifts in specific date or time units. They are typi
 like `date.addDays` where a `Day.Offset` is the parameter. Some offsets, such as `Month.Offset`, do not
 correspond directly to a specific duration in seconds, as their value depends on the context (if
 the year is leap or the size of the month). Offsets with a clear correspondent to seconds can be
-converted because they use a internal type called `UnitVal`.
+converted because they use an internal type called `UnitVal`.
 
 - Types with a correspondence to seconds:
   - `Day.Offset`
@@ -51,7 +51,7 @@ converted because they use a internal type called `UnitVal`.
 
 ## Ordinal
 
-Ordinal types represent specific bounded values in reference to another unit, e.g, `Day.Ordinal`
+Ordinal types represent specific bounded values in reference to another unit, e.g., `Day.Ordinal`
 represents a day in a month, ranging from 1 to 31. Some ordinal types like `Hour.Ordinal` and `Second.Ordinal`,
 allow for values beyond the normal range (e.g, 24 hours and 61 seconds) to accomodate special cases
 with leap seconds like `24:00:00` that is valid in ISO 8601.
@@ -81,15 +81,12 @@ nanoseconds corresponds to one second.
 
 Dates and times are composed of these components. Dates are "absolute" value in contrast with Offsets
 that are just shifts in dates and times. Types like `Date` are made using of components such as `Year.Offset`,
-`Month.Ordinal`, and `Day.Ordinal`, with a proof of the date's validity. Some types, like `Date.Scalar`,
-are wrappers around offsets (e.g., `Day.Offset`) and represent absolute dates relative to the UNIX Epoch.
+`Month.Ordinal`, and `Day.Ordinal`, with a proof of the date's validity.
 
 ## Date
 These types provide precision down to the day level, useful for representing and manipulating dates.
 
 - **`LocalDate`:** Represents a calendar date in the format `YYYY-MM-DD`.
-- **`LocalDate.Scalar`:** : Represents an absolute date with day-level precision in a compact format `DD`.
-  It encapsulates days since the UNIX Epoch.
 - **`WeekDate`:** Uses the `YYYY-Www` format with week level precision.
 
 ## Time
@@ -101,13 +98,14 @@ These types offer precision down to the nanosecond level, useful for representin
 Combines date and time into a single representation, useful for precise timestamps and scheduling.
 
 - **`LocalDateTime`**: Represents both date and time in the format `YYYY-MM-DDTHH:mm:ss.SSSSSSSSS`.
-- **`Timestamp`**: Represents a point in time with second-level precision.
+- **`Timestamp`**: Represents a point in time with second-level precision. It starts on the UNIX
+dpoch and it should be used when you receive or need to send timestamps to another systems.
 
 ## Zoned date and times.
 Combines date, time and time zones.
 
 - **`DateTime`**: Represents both date and time but with a time zone in the type constructor.
-- **`ZonedDateTime`**: An existencial version of the `DateTime`.
+- **`ZonedDateTime`**: An existential version of the `DateTime`.
 
 ## Duration
 Represents spans of time and the difference between two points in time.
@@ -170,5 +168,4 @@ In order to help the user build dates easily, there are a lot of macros availabl
 - **`offset% +HH:mm`**: Defines a timezone offset in the format `+HH:mm`.
 - **`timezone% NAME/ID offset% +HH:mm`**: Defines a timezone with a name and an offset.
 - **`date-spec% "format"`**: Defines a date specification format at compile time using the provided format string.
-
 -/

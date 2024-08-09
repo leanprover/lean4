@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 prelude
 import Std.Time.Internal
 import Std.Time.Date.Basic
-import Std.Time.Date.Scalar
 
 namespace Std
 namespace Time
@@ -116,18 +115,6 @@ def toDaysSinceUNIXEpoch (date : LocalDate) : Day.Offset :=
   let doe := yoe * 365 + yoe / 4 - yoe / 100 + doy
 
   .ofInt (era * 146097 + doe - 719468)
-
-/--
-Convert a `Scalar` to a `LocalDate` since the UNIX Epoch.
--/
-def ofScalar (day : Scalar) : LocalDate :=
-  ofDaysSinceUNIXEpoch day.day
-
-/--
-Convert a `LocalDate` to a `Scalar` since the UNIX Epoch.
--/
-def toScalar (date : LocalDate) : Scalar :=
-  ⟨toDaysSinceUNIXEpoch date⟩
 
 /--
 Calculate the Year.Offset from a LocalDate

@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 prelude
 import Std.Time.Date.Unit.Year
 import Std.Time.Date.Unit.WeekOfYear
-import Std.Time.Date.Scalar
 import Std.Time.Date.LocalDate
 
 namespace Std
@@ -24,17 +23,17 @@ structure WeekDate where
 namespace WeekDate
 
 /--
-Converts a `WeekDate` to a `Scalar`.
+Converts a `WeekDate` to a `Day.Offset`.
 -/
-def toScalar (wd : WeekDate) : LocalDate.Scalar :=
+def toDays (wd : WeekDate) : Day.Offset :=
   let days := wd.year.toInt * 365 + wd.week.val * 7
-  LocalDate.Scalar.ofDays days
+  UnitVal.mk days
 
 /--
-Creates a `WeekDate` from a `Scalar`.
+Creates a `WeekDate` from a `Day.Offset`.
 -/
-def fromScalar (scalar : LocalDate.Scalar) : WeekDate :=
-  let totalDays := scalar.toDays
+def fromScalar (scalar : Day.Offset) : WeekDate :=
+  let totalDays := scalar.val
   let year := totalDays / 365
   let week :=
     Bounded.LE.byEmod totalDays 365 (by decide)

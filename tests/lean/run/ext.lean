@@ -82,6 +82,11 @@ example (f : ℕ × (ℕ → ℕ)) : f = f := by
 example (f : Empty → Empty) : f = f := by
   ext ⟨⟩
 
+example (xs : Array α) : xs.map id = xs := by
+  ext
+  . simp
+  . simp
+
 @[ext (iff := false)] theorem ext_intros {n m : Nat} (w : ∀ n m : Nat, n = m) : n = m := by apply w
 
 #guard_msgs (drop warning) in

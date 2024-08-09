@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.HashMap
-// Imports: Init.Data.Nat.Power2 Lean.Data.AssocList
+// Imports: Init.Data.Nat.Power2 Lean.Data.AssocList Std.Data.HashMap.Basic Std.Data.HashMap.Raw
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2648,7 +2648,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_HashMap_find_x21___rarg___closed__1;
 x_2 = l_Lean_HashMap_find_x21___rarg___closed__2;
-x_3 = lean_unsigned_to_nat(221u);
+x_3 = lean_unsigned_to_nat(223u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_HashMap_find_x21___rarg___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -3768,6 +3768,8 @@ return x_3;
 }
 lean_object* initialize_Init_Data_Nat_Power2(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_AssocList(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_HashMap_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_HashMap_Raw(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_HashMap(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -3777,6 +3779,12 @@ res = initialize_Init_Data_Nat_Power2(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_AssocList(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_HashMap_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_HashMap_Raw(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_HashMap_instInhabited___closed__1 = _init_l_Lean_HashMap_instInhabited___closed__1();

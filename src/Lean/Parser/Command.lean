@@ -242,10 +242,10 @@ def «structure»          := leading_parser
 @[builtin_command_parser] def noncomputableSection := leading_parser
   "noncomputable " >> "section" >> optional (ppSpace >> checkColGt >> ident)
 /--
-A `section`/`end` pair delimits the scope of `variable`, `open`, `set_option`, and `local` commands.
-Sections can be nested. `section <id>` provides a label to the section that has to appear with the
-matching `end`. In either case, the `end` can be omitted, in which case the section is closed at the
-end of the file.
+A `section`/`end` pair delimits the scope of `variable`, `include, `open`, `set_option`, and `local`
+commands. Sections can be nested. `section <id>` provides a label to the section that has to appear
+with the matching `end`. In either case, the `end` can be omitted, in which case the section is
+closed at the end of the file.
 -/
 @[builtin_command_parser] def «section»      := leading_parser
   "section" >> optional (ppSpace >> checkColGt >> ident)
@@ -274,12 +274,12 @@ with `end <id>`. The `end` command is optional at the end of a file.
 @[builtin_command_parser] def «end»          := leading_parser
   "end" >> optional (ppSpace >> checkColGt >> ident)
 /-- Declares one or more typed variables, or modifies whether already-declared variables are
-implicit.
+  implicit.
 
 Introduces variables that can be used in definitions within the same `namespace` or `section` block.
-When a definition mentions a variable, Lean will add it as an argument of the definition. The
-`variable` command is also able to add typeclass parameters. This is useful in particular when
-writing many definitions that have parameters in common (see below for an example).
+When a definition mentions a variable, Lean will add it as an argument of the definition. This is
+useful in particular when writing many definitions that have parameters in common (see below for an
+example).
 
 Variable declarations have the same flexibility as regular function paramaters. In particular they
 can be [explicit, implicit][binder docs], or [instance implicit][tpil classes] (in which case they
@@ -287,17 +287,22 @@ can be anonymous). This can be changed, for instance one can turn explicit varia
 implicit one with `variable {x}`. Note that currently, you should avoid changing how variables are
 bound and declare new variables at the same time; see [issue 2789] for more on this topic.
 
+In *theorem bodies* (i.e. proofs), variables are not included based on usage in order to ensure that
+changes to the proof cannot change the statement of the overall theorem. Instead, variables are only
+available to the proof if they have been mentioned in the theorem header or in an `include` command
+or are instance implicit and depend only on such variables.
+
 See [*Variables and Sections* from Theorem Proving in Lean][tpil vars] for a more detailed
 discussion.
 
-[tpil vars]: https://lean-lang.org/theorem_proving_in_lean4/dependent_type_theory.html#variables-and-sections
-(Variables and Sections on Theorem Proving in Lean)
-[tpil classes]: https://lean-lang.org/theorem_proving_in_lean4/type_classes.html
-(Type classes on Theorem Proving in Lean)
-[binder docs]: https://leanprover-community.github.io/mathlib4_docs/Lean/Expr.html#Lean.BinderInfo
-(Documentation for the BinderInfo type)
-[issue 2789]: https://github.com/leanprover/lean4/issues/2789
-(Issue 2789 on github)
+[tpil vars]:
+https://lean-lang.org/theorem_proving_in_lean4/dependent_type_theory.html#variables-and-sections
+(Variables and Sections on Theorem Proving in Lean) [tpil classes]:
+https://lean-lang.org/theorem_proving_in_lean4/type_classes.html (Type classes on Theorem Proving in
+Lean) [binder docs]:
+https://leanprover-community.github.io/mathlib4_docs/Lean/Expr.html#Lean.BinderInfo (Documentation
+for the BinderInfo type) [issue 2789]: https://github.com/leanprover/lean4/issues/2789 (Issue 2789
+on github)
 
 ## Examples
 
@@ -368,6 +373,24 @@ namespace Logger
 end Logger
 ```
 
+The following example demonstrates availability of variables in proofs:
+```lean
+variable
+  {α : Type}    -- available in the proof as indirectly mentioned through `a`
+  [ToString α]  -- available in the proof as `α` is included
+  (a : α)       -- available in the proof as mentioned in the header
+  {β : Type}    -- not available in the proof
+  [ToString β]  -- not available in the proof
+
+theorem ex : a = a := rfl
+```
+After elaboration of the proof, the following warning will be generated to highlight the unused
+hypothesis:
+```
+included section variable '[ToString α]' is not used in 'ex', consider excluding it
+```
+In such cases, the offending variable declaration should be moved down or into a section so that
+only theorems that do depend on it follow it until the end of the section.
 -/
 @[builtin_command_parser] def «variable»     := leading_parser
   "variable" >> many1 (ppSpace >> checkColGt >> Term.bracketedBinder)
@@ -703,8 +726,13 @@ list, so it should be brief.
 @[builtin_command_parser] def genInjectiveTheorems := leading_parser
   "gen_injective_theorems% " >> ident
 
-/-- To be implemented. -/
-@[builtin_command_parser] def «include» := leading_parser "include " >> many1 (checkColGt >> ident)
+/--
+`include eeny meeny` instructs Lean to include the section `variable`s `eeny` and `meeny` in all
+declarations in the remainder of the current section, differing from the default behavior of
+conditionally including variables based on use in the declaration header. `include` is usually
+followed by the `in` combinator to limit the inclusion to the subsequent declaration.
+-/
+@[builtin_command_parser] def «include» := leading_parser "include " >> many1 ident
 
 /-- No-op parser used as syntax kind for attaching remaining whitespace at the end of the input. -/
 @[run_builtin_parser_attribute_hooks] def eoi : Parser := leading_parser ""

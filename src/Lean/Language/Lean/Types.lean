@@ -42,8 +42,8 @@ structure CommandParsedSnapshotData extends Snapshot where
   /--
   Snapshot for incremental reporting and reuse during elaboration, type dependent on specific
   elaborator.
-   -/
-  elabSnap : SnapshotTask DynamicSnapshot
+  -/
+  elabSnap : SnapshotTask CommandProcessingSnapshot
   /-- State after processing is finished. -/
   finishedSnap : SnapshotTask CommandFinishedSnapshot
   /-- Cache for `save`; to be replaced with incrementality. -/

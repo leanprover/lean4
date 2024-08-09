@@ -234,13 +234,6 @@ structure SetupImportsResult where
   /-- Kernel trust level. -/
   trustLevel : UInt32 := 0
 
-/-- Performance option used by cmdline driver. -/
-register_builtin_option internal.minimalSnapshots : Bool := {
-  defValue := false
-  descr    := "reduce information stored in snapshots to the minimum necessary for the cmdline \
-driver: diagnostics per command and final full snapshot"
-}
-
 /--
 Parses values of options registered during import and left by the C++ frontend as strings, fails if
 any option names remain unknown.
@@ -465,7 +458,7 @@ where
       -- is not `Inhabited`
       prom.resolve <| .mk (nextCmdSnap? := none) {
         diagnostics := .empty, stx := .missing, parserState
-        elabSnap := .pure <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
+        elabSnap := default
         finishedSnap := .pure { diagnostics := .empty, cmdState }
         tacticCache := (← IO.mkRef {})
       }
@@ -555,7 +548,7 @@ where
       parseCmd none parserState finishedSnap.cmdState initEnv next ctx
 
   doElab (stx : Syntax) (cmdState : Command.State) (beginPos : String.Pos)
-      (snap : SnapshotBundle DynamicSnapshot) (tacticCache : IO.Ref Tactic.Cache) :
+      (snap : SnapshotBundle CommandProcessingSnapshot) (tacticCache : IO.Ref Tactic.Cache) :
       LeanProcessingM CommandFinishedSnapshot := do
     let ctx ← read
     -- (Try to) use last line of command as range for final snapshot task. This ensures we do not
@@ -577,14 +570,13 @@ where
     let cmdCtx : Elab.Command.Context := { ctx with
       cmdPos       := beginPos
       tacticCache? := some tacticCacheNew
-      snap?        := if internal.minimalSnapshots.get scope.opts then none else snap
       cancelTk?    := some ctx.newCancelTk
     }
     let (output, _) ←
       IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get scope.opts) do
-        liftM (m := BaseIO) do
+        EIO.toBaseIO do
           withLoggingExceptions
-            (getResetInfoTrees *> Elab.Command.elabCommandTopLevel stx)
+            (getResetInfoTrees *> Elab.Command.elabCommandTopLevel stx snap)
             cmdCtx cmdStateRef
     let postNew := (← tacticCacheNew.get).post
     tacticCache.modify fun _ => { pre := postNew, post := {} }
@@ -599,7 +591,7 @@ where
       }
     let cmdState := { cmdState with messages }
     -- definitely resolve eventually
-    snap.new.resolve <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
+    snap.new.resolve default
     return {
       diagnostics := (← Snapshot.Diagnostics.ofMessageLog cmdState.messages)
       infoTree? := some cmdState.infoState.trees[0]!

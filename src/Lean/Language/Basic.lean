@@ -134,6 +134,10 @@ structure SyntaxGuarded (α : Type) where
   /-- Potentially reusable value. -/
   val : α
 
+/-- Applies `f` to `s.val`. -/
+def SyntaxGuarded.mapVal (s : SyntaxGuarded α) (f : α → β) : SyntaxGuarded β :=
+  { s with val := f s.val }
+
 /--
 Pair of (optional) old snapshot task usable for incremental reuse and new snapshot promise for
 incremental reporting. Inside the elaborator, we build snapshots by carrying such bundles and then
@@ -228,6 +232,9 @@ class ToSnapshotTree (α : Type) where
   toSnapshotTree : α → SnapshotTree
 export ToSnapshotTree (toSnapshotTree)
 
+instance : ToSnapshotTree SnapshotTree where
+  toSnapshotTree t := t
+
 instance [ToSnapshotTree α] : ToSnapshotTree (Option α) where
   toSnapshotTree
     | some a => toSnapshotTree a
@@ -235,7 +242,7 @@ instance [ToSnapshotTree α] : ToSnapshotTree (Option α) where
 
 /-- Snapshot type without child nodes. -/
 structure SnapshotLeaf extends Snapshot
-deriving Nonempty, TypeName
+deriving Inhabited, TypeName
 
 instance : ToSnapshotTree SnapshotLeaf where
   toSnapshotTree s := SnapshotTree.mk s.toSnapshot #[]
@@ -335,6 +342,13 @@ def withHeaderExceptions (ex : Snapshot → α) (act : ProcessingT IO α) : Proc
   match (← (act (← read)).toBaseIO) with
   | .error e => return ex { diagnostics := (← diagnosticsOfHeaderError e.toString) }
   | .ok a => return a
+
+/-- Performance option used by cmdline driver. -/
+register_builtin_option internal.minimalSnapshots : Bool := {
+  defValue := false
+  descr    := "reduce information stored in snapshots to the minimum necessary for the cmdline \
+driver: diagnostics per command and final full snapshot"
+}
 
 end Language
 

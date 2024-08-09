@@ -32,7 +32,7 @@ rfl
 theorem ex4 : sum [1, 2, 3, 4] = 10 :=
 rfl
 
-/-
+/-!
 Check that ambiguous notation inside cdot notation still has only a single argument.
 (Need to process choice nodes specially.)
 -/

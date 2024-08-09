@@ -194,28 +194,40 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) (config : WhnfCoreConfig
   match e.getAppFn with
   | .lit v         => return (.lit v, #[])
   | .const c _     =>
+    let nargs := e.getAppNumArgs
     if (← getConfig).isDefEqStuckEx && e.hasExprMVar then
       if (← isReducible c) then
-        /- `e` is a term `c ...` s.t. `c` is reducible and `e` has metavariables, but it was not
-            unfolded.  This can happen if the metavariables in `e` are "blocking" smart unfolding.
-           If `isDefEqStuckEx` is enabled, then we must throw the `isDefEqStuck` exception to
-           postpone TC resolution.
+        /- `e` is a term `c ...` s.t. `c` is reducible and `e` has metavariables, but it was not unfolded.
+           This can happen if the metavariables in `e` are "blocking" smart unfolding.
+           If `isDefEqStuckEx` is enabled, then we must throw the `isDefEqStuck` exception to postpone TC resolution.
+           Here is an example. Suppose we have
+           ```
+            inductive Ty where
+              | bool | fn (a ty : Ty)
+
+
+            @[reducible] def Ty.interp : Ty → Type
+              | bool   => Bool
+              | fn a b => a.interp → b.interp
+           ```
+           and we are trying to synthesize `BEq (Ty.interp ?m)`
         -/
         Meta.throwIsDefEqStuck
+      /- Similar to the previous case, but for `match` and recursor applications. It may be stuck (i.e., did not reduce)
+          because of metavariables. -/
       else if let some matcherInfo := isMatcherAppCore? (← getEnv) e then
         -- A matcher application is stuck if one of the discriminants has a metavariable
         let args := e.getAppArgs
-        let start := matcherInfo.getFirstDiscrPos
-        for arg in args[ start : start + matcherInfo.numDiscrs ] do
+        for arg in args[matcherInfo.getFirstDiscrPos : matcherInfo.getFirstDiscrPos + matcherInfo.numDiscrs] do
           if arg.hasExprMVar then
             Meta.throwIsDefEqStuck
-      else if (← isRec c) then
-        /- Similar to the previous case, but for `match` and recursor applications. It may be stuck
-           (i.e., did not reduce) because of metavariables. -/
-        Meta.throwIsDefEqStuck
-    let nargs := e.getAppNumArgs
-    return (.const c nargs, e.getAppRevArgs)
-  | .fvar fvarId   =>
+      else if let .recInfo recVal ← getConstInfo c then
+        -- A recursor application is stuck if the major has a metavariable
+        let majorIdx := recVal.getMajorIdx
+        if majorIdx < nargs then
+          if (e.getArg! majorIdx).hasExprMVar then
+            Meta.throwIsDefEqStuck
+    return (.const c nargs, e.getAppRevArgs)  | .fvar fvarId   =>
     let nargs := e.getAppNumArgs
     return (.fvar fvarId nargs, e.getAppRevArgs)
   | .mvar mvarId   =>

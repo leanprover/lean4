@@ -37,6 +37,7 @@ cmake -DCMAKE_CXX_COMPILER=g++ ...
 ```bash
 brew install cmake
 brew install gmp
+brew install libuv
 ```
 
 ## Recommended Packages: CCache

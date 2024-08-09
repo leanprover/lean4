@@ -8,6 +8,7 @@ Requirements
 - C++14 compatible compiler
 - [CMake](http://www.cmake.org)
 - [GMP (GNU multiprecision library)](http://gmplib.org/)
+- [LibUV](https://libuv.org/)
 
 Platform-Specific Setup
 -----------------------

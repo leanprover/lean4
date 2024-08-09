@@ -226,7 +226,7 @@ jobs:
               },
               {
                 "name": "Linux aarch64",
-                "os": "ubuntu-latest",
+                "os": "nscloud-ubuntu-22.04-arm64-4x8",
                 "CMAKE_OPTIONS": "-DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-linux_aarch64",
                 "release": true,
                 "check-level": 2,

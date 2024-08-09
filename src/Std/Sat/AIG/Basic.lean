@@ -453,6 +453,7 @@ Build an AIG gate in `aig`. Note that this version is only meant for proving,
 for production purposes use `AIG.mkGateCached` and equality theorems to this one.
 -/
 def mkGate (aig : AIG α) (input : GateInput aig) : Entrypoint α :=
+  let g := aig.decls.size
   let decls :=
     aig.decls.push <| .gate input.lhs.ref.gate input.rhs.ref.gate input.lhs.inv input.rhs.inv
   let cache := aig.cache.noUpdate
@@ -465,13 +466,14 @@ def mkGate (aig : AIG α) (input : GateInput aig) : Entrypoint α :=
       have := input.lhs.ref.hgate
       have := input.rhs.ref.hgate
       omega
-  ⟨{ aig with decls, inv, cache }, ⟨aig.decls.size, by simp [decls]⟩⟩
+  ⟨{ aig with decls, inv, cache }, ⟨g, by simp [decls]⟩⟩
 
 /--
 Add a new input node to the AIG in `aig`. Note that this version is only meant for proving,
 for production purposes use `AIG.mkAtomCached` and equality theorems to this one.
 -/
 def mkAtom (aig : AIG α) (n : α) : Entrypoint α :=
+  let g := aig.decls.size
   let decls := aig.decls.push (.atom n)
   let cache := aig.cache.noUpdate
   have inv := by
@@ -480,13 +482,14 @@ def mkAtom (aig : AIG α) (n : α) : Entrypoint α :=
     split at h2
     . apply aig.inv <;> assumption
     . contradiction
-  ⟨{ decls, inv, cache }, ⟨aig.decls.size, by simp [decls]⟩⟩
+  ⟨{ decls, inv, cache }, ⟨g, by simp [decls]⟩⟩
 
 /--
 Build a constant node in `aig`. Note that this version is only meant for proving,
 for production purposes use `AIG.mkConstCached` and equality theorems to this one.
 -/
 def mkConst (aig : AIG α) (val : Bool) : Entrypoint α :=
+  let g := aig.decls.size
   let decls := aig.decls.push (.const val)
   let cache := aig.cache.noUpdate
   have inv := by
@@ -495,7 +498,7 @@ def mkConst (aig : AIG α) (val : Bool) : Entrypoint α :=
     split at h2
     . apply aig.inv <;> assumption
     . contradiction
-  ⟨{ decls, inv, cache }, ⟨aig.decls.size, by simp [decls]⟩⟩
+  ⟨{ decls, inv, cache }, ⟨g, by simp [decls]⟩⟩
 
 end AIG
 

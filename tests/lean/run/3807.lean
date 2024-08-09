@@ -2085,9 +2085,10 @@ variable {R : Type u} {A : Type v} {B : Type w} {C : Type u₁}
 
 section Semiring
 
-variable [Semiring R] [Semiring A] [Semiring B] [Semiring C]
-variable [Algebra R A] [Algebra R B] [Algebra R C]
+variable [Semiring R] [Semiring A] [Semiring B]
+variable [Algebra R A] [Algebra R B]
 
+variable [Semiring C] [Algebra R C] in
 instance funLike : FunLike (A →ₐ[R] B) A B where
   coe f := f.toFun
 
@@ -2101,6 +2102,7 @@ instance algHomClass : AlgHomClass (A →ₐ[R] B) R A B where
 @[ext]
 theorem ext {φ₁ φ₂ : A →ₐ[R] B} (H : ∀ x, φ₁ x = φ₂ x) : φ₁ = φ₂ := sorry
 
+variable [Semiring C] [Algebra R C] in
 def comp (φ₁ : B →ₐ[R] C) (φ₂ : A →ₐ[R] B) : A →ₐ[R] C :=
   { φ₁.toRingHom.comp φ₂ with
     commutes' := sorry }
@@ -2400,7 +2402,7 @@ end Mathlib.FieldTheory.Subfield
 
 section Mathlib.FieldTheory.IntermediateField
 
-variable (K L L' : Type _) [Field K] [Field L] [Field L'] [Algebra K L] [Algebra K L']
+variable (K L L' : Type _) [Field K] [Field L] [Field L'] [Algebra K L]
 
 structure IntermediateField extends Subalgebra K L where
   inv_mem' : ∀ x ∈ carrier, x⁻¹ ∈ carrier
@@ -2430,7 +2432,7 @@ end IntermediateField
 
 namespace AlgHom
 
-variable (f : L →ₐ[K] L')
+variable [Algebra K L'] (f : L →ₐ[K] L')
 
 def fieldRange : IntermediateField K L' :=
   { f.range, (f : L →+* L').fieldRange with
@@ -2446,8 +2448,9 @@ def inclusion {E F : IntermediateField K L} (hEF : E ≤ F) : E →ₐ[K] F :=
 section RestrictScalars
 
 variable (K)
-variable [Algebra L' L] [IsScalarTower K L' L]
+variable [Algebra L' L]
 
+variable [Algebra K L'] [IsScalarTower K L' L] in
 def restrictScalars (E : IntermediateField L' L) : IntermediateField K L :=
   { E.toSubfield, E.toSubalgebra.restrictScalars K with
     carrier := E.carrier
@@ -2470,17 +2473,20 @@ namespace IntermediateField
 
 section AdjoinDef
 
-variable (F : Type _) [Field F] {E : Type _} [Field E] [Algebra F E] (S : Set E)
+variable (F : Type _) {E : Type _} [Field E] (S : Set E)
 
+variable [Field F] [Algebra F E] in
 def adjoin : IntermediateField F E :=
   { Subfield.closure (Set.range (algebraMap F E) ∪ S) with
     inv_mem' := sorry }
 
+variable [Field F] [Algebra F E] in
 theorem subset_adjoin : S ⊆ adjoin F S := sorry
 
 theorem subset_adjoin_of_subset_left {F : Subfield E} {T : Set E} (HT : T ⊆ F) : T ⊆ adjoin F S :=
   sorry
 
+variable [Field F] [Algebra F E] in
 theorem adjoin_subset_adjoin_iff {F' : Type _} [Field F'] [Algebra F' E] {S S' : Set E} :
     (adjoin F S : Set E) ⊆ adjoin F' S' ↔
       Set.range (algebraMap F E) ⊆ adjoin F' S' ∧ S ⊆ adjoin F' S' := sorry

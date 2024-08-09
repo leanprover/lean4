@@ -354,7 +354,7 @@ theorem erase_eq_iff [LawfulBEq α] {a : α} {l : List α} :
   rw [erase_of_not_mem]
   simp_all
 
-theorem Nodup.erase_eq_filter [BEq α] [LawfulBEq α] {l} (d : Nodup l) (a : α) : l.erase a = l.filter (· != a) := by
+theorem Nodup.erase_eq_filter [LawfulBEq α] {l} (d : Nodup l) (a : α) : l.erase a = l.filter (· != a) := by
   induction d with
   | nil => rfl
   | cons m _n ih =>
@@ -367,13 +367,13 @@ theorem Nodup.erase_eq_filter [BEq α] [LawfulBEq α] {l} (d : Nodup l) (a : α)
       simpa [@eq_comm α] using m
     · simp [beq_false_of_ne h, ih, h]
 
-theorem Nodup.mem_erase_iff [BEq α] [LawfulBEq α] {a : α} (d : Nodup l) : a ∈ l.erase b ↔ a ≠ b ∧ a ∈ l := by
+theorem Nodup.mem_erase_iff [LawfulBEq α] {a : α} (d : Nodup l) : a ∈ l.erase b ↔ a ≠ b ∧ a ∈ l := by
   rw [Nodup.erase_eq_filter d, mem_filter, and_comm, bne_iff_ne]
 
-theorem Nodup.not_mem_erase [BEq α] [LawfulBEq α] {a : α} (h : Nodup l) : a ∉ l.erase a := fun H => by
+theorem Nodup.not_mem_erase [LawfulBEq α] {a : α} (h : Nodup l) : a ∉ l.erase a := fun H => by
   simpa using ((Nodup.mem_erase_iff h).mp H).left
 
-theorem Nodup.erase [BEq α] [LawfulBEq α] (a : α) : Nodup l → Nodup (l.erase a) :=
+theorem Nodup.erase [LawfulBEq α] (a : α) : Nodup l → Nodup (l.erase a) :=
   Nodup.sublist <| erase_sublist _ _
 
 end erase

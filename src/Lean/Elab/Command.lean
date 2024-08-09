@@ -51,6 +51,8 @@ structure Scope where
   even if they do not work with binders per se.
   -/
   varDecls      : Array (TSyntax ``Parser.Term.bracketedBinder) := #[]
+  /-- `include`d section variable names -/
+  includedVars  : List Name := []
   /--
   Globally unique internal identifiers for the `varDecls`.
   There is one identifier per variable introduced by the binders

@@ -27,6 +27,7 @@ namespace Std.HashSet
 namespace Raw
 
 variable {m : Raw α} (h : m.WF)
+set_option deprecated.oldSectionVars true
 
 private theorem ext {m m' : Raw α} : m.inner = m'.inner → m = m' := by
   cases m; cases m'; rintro rfl; rfl

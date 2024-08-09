@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.HashSet
-// Imports: Init.Data.Nat.Power2 Init.Data.List.Control
+// Imports: Init.Data.Nat.Power2 Init.Data.List.Control Std.Data.HashSet.Basic Std.Data.HashSet.Raw
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3354,6 +3354,8 @@ return x_5;
 }
 lean_object* initialize_Init_Data_Nat_Power2(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Control(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_HashSet_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_HashSet_Raw(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_HashSet(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -3363,6 +3365,12 @@ res = initialize_Init_Data_Nat_Power2(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Control(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_HashSet_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_HashSet_Raw(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_HashSet_empty___closed__1 = _init_l_Lean_HashSet_empty___closed__1();

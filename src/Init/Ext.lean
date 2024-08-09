@@ -82,3 +82,6 @@ attribute [ext] funext propext Subtype.eq
 
 @[ext] protected theorem PUnit.ext (x y : PUnit) : x = y := rfl
 protected theorem Unit.ext (x y : Unit) : x = y := rfl
+
+@[ext] protected theorem Thunk.ext : {a b : Thunk α} → a.get = b.get → a = b
+  | {..}, {..}, heq => congrArg _ <| funext fun _ => heq

@@ -20,7 +20,7 @@ open Std.DHashMap.Internal.List
 
 universe u v
 
-variable {α : Type u} {β : α → Type v} [BEq α] [Hashable α]
+variable {α : Type u} {β : α → Type v}
 
 namespace Std.DHashMap.Internal
 
@@ -41,6 +41,8 @@ theorem Raw.buckets_emptyc {i : Nat} {h} :
     (∅ : Raw α β).buckets[i]'h = AssocList.nil :=
   buckets_empty
 
+variable [BEq α] [Hashable α]
+
 @[simp]
 theorem buckets_empty {c} {i : Nat} {h} :
     (empty c : DHashMap α β).1.buckets[i]'h = AssocList.nil := by
@@ -55,7 +57,9 @@ end empty
 
 namespace Raw₀
 
+variable [BEq α] [Hashable α]
 variable (m : Raw₀ α β) (h : m.1.WF)
+set_option deprecated.oldSectionVars true
 
 /-- Internal implementation detail of the hash map -/
 scoped macro "wf_trivial" : tactic => `(tactic|

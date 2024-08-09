@@ -502,6 +502,16 @@ def elabRunMeta : CommandElab := fun stx =>
     addDocString declName (← getDocStringText doc)
   | _ => throwUnsupportedSyntax
 
+@[builtin_command_elab Lean.Parser.Command.include] def elabInclude : CommandElab
+  | `(Lean.Parser.Command.include| include $ids*) => do
+    let vars := (← getScope).varDecls.concatMap getBracketedBinderIds
+    for id in ids do
+      unless vars.contains id.getId do
+        throwError "invalid 'include', variable '{id}' has not been declared in the current scope"
+    modifyScope fun sc =>
+      { sc with includedVars := sc.includedVars ++ ids.toList.map (·.getId) }
+  | _ => throwUnsupportedSyntax
+
 @[builtin_command_elab Parser.Command.exit] def elabExit : CommandElab := fun _ =>
   logWarning "using 'exit' to interrupt Lean"
 

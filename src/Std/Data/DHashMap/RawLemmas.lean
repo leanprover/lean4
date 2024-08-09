@@ -75,6 +75,7 @@ namespace Raw
 open Internal.Raw₀ Internal.Raw
 
 variable {m : Raw α β} (h : m.WF)
+set_option deprecated.oldSectionVars true
 
 @[simp]
 theorem isEmpty_empty {c} : (empty c : Raw α β).isEmpty := by

@@ -4346,15 +4346,16 @@ x_2 = l_Lean_Language_Lean_initFn____x40_Lean_Language_Lean___hyg_444____closed_
 x_3 = lean_box(0);
 x_4 = l_Lean_Language_Lean_process_parseCmd___lambda__2___closed__9;
 x_5 = 0;
-x_6 = lean_alloc_ctor(0, 7, 1);
+x_6 = lean_alloc_ctor(0, 8, 1);
 lean_ctor_set(x_6, 0, x_2);
 lean_ctor_set(x_6, 1, x_1);
 lean_ctor_set(x_6, 2, x_3);
 lean_ctor_set(x_6, 3, x_1);
 lean_ctor_set(x_6, 4, x_1);
 lean_ctor_set(x_6, 5, x_4);
-lean_ctor_set(x_6, 6, x_4);
-lean_ctor_set_uint8(x_6, sizeof(void*)*7, x_5);
+lean_ctor_set(x_6, 6, x_1);
+lean_ctor_set(x_6, 7, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*8, x_5);
 return x_6;
 }
 }

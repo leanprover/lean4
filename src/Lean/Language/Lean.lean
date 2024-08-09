@@ -519,12 +519,17 @@ where
 
     -- definitely resolved in `doElab` task
     let elabPromise ← IO.Promise.new
+    let finishedPromise ← IO.Promise.new
+    -- (Try to) use last line of command as range for final snapshot task. This ensures we do not
+    -- retract the progress bar to a previous position in case the command support incremental
+    -- reporting but has significant work after resolving its last incremental promise, such as
+    -- final type checking; if it does not support incrementality, `elabSnap` constructed in
+    -- `parseCmd` and containing the entire range of the command will determine the reported
+    -- progress and be resolved effectively at the same time as this snapshot task, so `tailPos` is
+    -- irrelevant in this case.
+    let endRange? := stx.getTailPos?.map fun pos => ⟨pos, pos⟩
+    let finishedSnap := { range? := endRange?, task := finishedPromise.result }
     let tacticCache ← old?.map (·.data.tacticCache) |>.getDM (IO.mkRef {})
-    let finishedSnap ←
-      doElab stx cmdState beginPos
-        { old? := old?.map fun old => ⟨old.data.stx, old.data.elabSnap⟩, new := elabPromise }
-        tacticCache
-        ctx
 
     let minimalSnapshots := internal.minimalSnapshots.get cmdState.scopes.head!.opts
     let next? ← if Parser.isTerminalCommand stx then pure none
@@ -536,35 +541,31 @@ where
       stx := .missing
       parserState := {}
       elabSnap := { range? := stx.getRange?, task := elabPromise.result }
-      finishedSnap := .pure {
+      finishedSnap := { range? := none, task := finishedPromise.result.map fun finishedSnap => {
         diagnostics := finishedSnap.diagnostics
         infoTree? := none
         cmdState := {
           env := initEnv
           maxRecDepth := 0
         }
-      }
+      }}
       tacticCache
     } else {
       diagnostics, stx, parserState, tacticCache
       elabSnap := { range? := stx.getRange?, task := elabPromise.result }
-      finishedSnap := .pure finishedSnap
+      finishedSnap
     }
     prom.resolve <| .mk (nextCmdSnap? := next?.map ({ range? := some ⟨parserState.pos, ctx.input.endPos⟩, task := ·.result })) data
+    doElab stx cmdState beginPos
+      { old? := old?.map fun old => ⟨old.data.stx, old.data.elabSnap⟩, new := elabPromise }
+      finishedPromise tacticCache ctx
     if let some next := next? then
-      parseCmd none parserState finishedSnap.cmdState initEnv next ctx
+      parseCmd none parserState finishedSnap.get.cmdState initEnv next ctx
 
   doElab (stx : Syntax) (cmdState : Command.State) (beginPos : String.Pos)
-      (snap : SnapshotBundle DynamicSnapshot) (tacticCache : IO.Ref Tactic.Cache) :
-      LeanProcessingM CommandFinishedSnapshot := do
+      (snap : SnapshotBundle DynamicSnapshot) (finishedPromise : IO.Promise CommandFinishedSnapshot)
+      (tacticCache : IO.Ref Tactic.Cache) : LeanProcessingM Unit := do
     let ctx ← read
-    -- (Try to) use last line of command as range for final snapshot task. This ensures we do not
-    -- retract the progress bar to a previous position in case the command support incremental
-    -- reporting but has significant work after resolving its last incremental promise, such as
-    -- final type checking; if it does not support incrementality, `elabSnap` constructed in
-    -- `parseCmd` and containing the entire range of the command will determine the reported
-    -- progress and be resolved effectively at the same time as this snapshot task, so `tailPos` is
-    -- irrelevant in this case.
     let scope := cmdState.scopes.head!
     let cmdStateRef ← IO.mkRef { cmdState with messages := .empty }
     /-
@@ -600,7 +601,7 @@ where
     let cmdState := { cmdState with messages }
     -- definitely resolve eventually
     snap.new.resolve <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
-    return {
+    finishedPromise.resolve {
       diagnostics := (← Snapshot.Diagnostics.ofMessageLog cmdState.messages)
       infoTree? := some cmdState.infoState.trees[0]!
       cmdState

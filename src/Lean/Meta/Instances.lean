@@ -191,7 +191,14 @@ private partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
 
   return synthed
 
+/--
+Adds the `instance` attribute to `declName` with the specified attribute kind and priority.
+Throws an error if the type of the declaration is not a class.
+-/
 def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
+  let type := (← getConstInfo declName).type
+  unless (← isClass? type).isSome do
+    throwError "type class instance expected{indentExpr type}"
   let c ← mkConstWithLevelParams declName
   let keys ← mkInstanceKey c
   addGlobalInstance declName attrKind
@@ -202,6 +209,7 @@ builtin_initialize
   registerBuiltinAttribute {
     name  := `instance
     descr := "type class instance"
+    applicationTime := .afterCompilation
     add   := fun declName stx attrKind => do
       let prio ← getAttrParamOptPrio stx[1]
       discard <| addInstance declName attrKind prio |>.run {} {}

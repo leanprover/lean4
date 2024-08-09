@@ -2,6 +2,8 @@ structure Foo where
   x : Nat
   y : Nat := 10
 
+attribute [class] Foo
+
 @[instance]
 def f (x : Nat) : Foo :=
   { x := x + x }

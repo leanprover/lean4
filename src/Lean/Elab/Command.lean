@@ -598,24 +598,14 @@ def elabCommandTopLevel (stx : Syntax)
           -- recovery more coarse. In particular, If `c` in `set_option ... in $c` fails, the remaining
           -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
           elabCommand stx
-        withLogging do
-          runLintersAsync stx lintPromise
-      else
-        elabCommand stx
-        withLogging do
-          runLinters stx
+      withLogging do
+      runLinters stx
   finally
     -- note the order: first process current messages & info trees, then add back old messages & trees,
     -- then convert new traces to messages
     let mut msgs := (← get).messages
     for tree in (← getInfoTrees) do
       trace[Elab.info] (← tree.format)
-    if let some snap := (← read).snap? then
-      -- We can assume that the root command snapshot is not involved in parallelism yet, so this
-      -- should be true iff the command supports incrementality
-      if (← IO.hasFinished snap.new.result) then
-        trace[Elab.snapshotTree]
-          (←Language.ToSnapshotTree.toSnapshotTree snap.new.result.get |>.format)
     modify fun st => { st with
       messages := initMsgs ++ msgs
       infoState := { st.infoState with trees := initInfoTrees ++ st.infoState.trees }

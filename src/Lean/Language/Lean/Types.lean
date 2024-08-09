@@ -44,8 +44,10 @@ structure CommandParsedSnapshotData extends Snapshot where
   elaborator.
   -/
   elabSnap : SnapshotTask CommandProcessingSnapshot
-  /-- State after processing is finished. -/
+  /-- State after final `cmdState` is produced, other tasks may continue in the background. -/
   finishedSnap : SnapshotTask CommandFinishedSnapshot
+  /-- Currently used for `trace.Elab.snapshotTree`, waits on full `elabSnap` tree. -/
+  traceSnap : SnapshotTask SnapshotTree
   /-- Cache for `save`; to be replaced with incrementality. -/
   tacticCache : IO.Ref Tactic.Cache
 deriving Nonempty
@@ -68,7 +70,8 @@ partial instance : ToSnapshotTree CommandParsedSnapshot where
   toSnapshotTree := go where
     go s := ⟨s.data.toSnapshot,
       #[s.data.elabSnap.map (sync := true) toSnapshotTree,
-        s.data.finishedSnap.map (sync := true) toSnapshotTree] |>
+        s.data.finishedSnap.map (sync := true) toSnapshotTree,
+        s.data.traceSnap.map (sync := true) toSnapshotTree] |>
         pushOpt (s.nextCmdSnap?.map (·.map (sync := true) go))⟩
 
 /-- State after successful importing. -/

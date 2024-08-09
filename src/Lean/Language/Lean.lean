@@ -460,6 +460,7 @@ where
         diagnostics := .empty, stx := .missing, parserState
         elabSnap := default
         finishedSnap := .pure { diagnostics := .empty, cmdState }
+        traceSnap := default
         tacticCache := (← IO.mkRef {})
       }
       return
@@ -524,6 +525,18 @@ where
       -- for now, wait on "command finished" snapshot before parsing next command
       else some <$> IO.Promise.new
     let diagnostics ← Snapshot.Diagnostics.ofMessageLog msgLog
+    let traceSnap := {
+      range? := none
+      task := if (← isTracingEnabledForCore `Elab.snapshotTree cmdState.scopes.head!.opts) then
+        BaseIO.bindTask elabPromise.result fun elabSnap => do
+          let tree := toSnapshotTree elabSnap
+          tree.waitAll
+          let f ←Language.ToSnapshotTree.toSnapshotTree snap.new.result.get |>.format
+          .pure <| .mk { diagnostics := #[] } #[]
+          --trace[Elab.snapshotTree]
+      else
+        .pure <| .mk { diagnostics := .empty } #[]
+    }
     let data := if minimalSnapshots && !Parser.isTerminalCommand stx then {
       diagnostics
       stx := .missing
@@ -537,11 +550,13 @@ where
           maxRecDepth := 0
         }
       }
+      traceSnap
       tacticCache
     } else {
       diagnostics, stx, parserState, tacticCache
       elabSnap := { range? := stx.getRange?, task := elabPromise.result }
       finishedSnap := .pure finishedSnap
+      traceSnap
     }
     prom.resolve <| .mk (nextCmdSnap? := next?.map ({ range? := some ⟨parserState.pos, ctx.input.endPos⟩, task := ·.result })) data
     if let some next := next? then

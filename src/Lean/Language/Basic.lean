@@ -306,6 +306,14 @@ def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options) (json := false
 def SnapshotTree.getAll (s : SnapshotTree) : Array Snapshot :=
   s.forM (m := StateM _) (fun s => modify (·.push s)) |>.run #[] |>.2
 
+/-- Returns a task that waits on all snapshots in the tree. -/
+def SnapshotTree.waitAll : SnapshotTree → BaseIO (Task Unit)
+  | mk _ children => go children.toList
+where
+  go : List (SnapshotTask SnapshotTree) → BaseIO (Task Unit)
+    | [] => return .pure ()
+    | t::ts => BaseIO.bindTask t.task fun _ => go ts
+
 /-- Context of an input processing invocation. -/
 structure ProcessingContext extends Parser.InputContext
 

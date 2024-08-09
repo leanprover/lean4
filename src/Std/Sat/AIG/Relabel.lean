@@ -9,9 +9,6 @@ import Std.Sat.AIG.Lemmas
 namespace Std
 namespace Sat
 
-variable {α : Type} [Hashable α] [DecidableEq α]
-variable {β : Type} [Hashable β] [DecidableEq β]
-
 namespace AIG
 
 namespace Decl
@@ -55,6 +52,9 @@ theorem relabel_gate {decls : Array (Decl α)} {r : α → β} {hidx : idx < dec
   split at h <;> simp_all
 
 end Decl
+
+variable {α : Type} [Hashable α] [DecidableEq α]
+variable {β : Type} [Hashable β] [DecidableEq β]
 
 def relabel (r : α → β) (aig : AIG α) : AIG β :=
   let decls := aig.decls.map (Decl.relabel r)

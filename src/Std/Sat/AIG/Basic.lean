@@ -185,7 +185,7 @@ opaque Cache.get? (cache : Cache α decls) (decl : Decl α) : Option (CacheHit d
   | none => none
 
 /--
-An `Array Decl` is a Direct Acyclic Graph (DAG) if a gate at index `i` only points to nodes with index lower than `i`. 
+An `Array Decl` is a Direct Acyclic Graph (DAG) if a gate at index `i` only points to nodes with index lower than `i`.
 -/
 def IsDag (α : Type) (decls : Array (Decl α)) : Prop :=
   ∀ {i lhs rhs linv rinv} (h : i < decls.size),
@@ -194,7 +194,7 @@ def IsDag (α : Type) (decls : Array (Decl α)) : Prop :=
 /--
 The empty array is a DAG.
 -/
-theorem IsDag.empty : IsDag α #[] := by
+theorem IsDag.empty {α : Type} : IsDag α #[] := by
   intro i lhs rhs linv rinv h
   simp only [Array.size_toArray, List.length_nil] at h
   omega

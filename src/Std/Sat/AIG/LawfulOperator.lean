@@ -15,8 +15,6 @@ namespace Sat
 
 namespace AIG
 
-variable {α : Type} [Hashable α] [DecidableEq α]
-
 /--
 `decls1` is a prefix of `decls2`
 -/
@@ -64,6 +62,8 @@ theorem denote.go_eq_of_IsPrefix (decls1 decls2 : Array (Decl α)) (start : Nat)
       . apply denote.go_eq_of_IsPrefix
         assumption
 termination_by start
+
+variable {α : Type} [Hashable α] [DecidableEq α]
 
 @[inherit_doc denote.go_eq_of_IsPrefix ]
 theorem denote.eq_of_IsPrefix (entry : Entrypoint α) (newAIG : AIG α)

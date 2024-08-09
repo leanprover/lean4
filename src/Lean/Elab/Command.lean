@@ -310,7 +310,11 @@ def runLinters (stx : Syntax) : CommandElabM Unit := do
             try
               linter.run stx
             catch ex =>
-              logException ex
+              match ex with
+              | Exception.error ref msg =>
+                logException (.error ref m!"linter {linter.name} failed: {msg}")
+              | Exception.internal _ _ =>
+                logException ex
             finally
               modify fun s => { savedState with messages := s.messages }
 

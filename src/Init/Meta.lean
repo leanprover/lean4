@@ -119,26 +119,32 @@ def isInaccessibleUserName : Name → Bool
   | Name.num p _   => isInaccessibleUserName p
   | _              => false
 
-def escapePart (s : String) : Option String :=
-  if s.length > 0 && isIdFirst (s.get 0) && (s.toSubstring.drop 1).all isIdRest then s
+def escapePart (s : String) (force : Bool := false) : Option String :=
+  if s.length > 0 && !force && isIdFirst (s.get 0) && (s.toSubstring.drop 1).all isIdRest then s
   else if s.any isIdEndEscape then none
   else some <| idBeginEscape.toString ++ s ++ idEndEscape.toString
 
 -- NOTE: does not roundtrip even with `escape = true` if name is anonymous or contains numeric part or `idEndEscape`
-variable (sep : String) (escape : Bool)
-def toStringWithSep : Name → String
+variable (sep : String) (escape : Bool) in
+def toStringWithSep (n : Name) (isToken : String → Bool := fun _ => false) : String :=
+  match n with
   | anonymous       => "[anonymous]"
-  | str anonymous s => maybeEscape s
+  | str anonymous s => maybeEscape s (isToken s)
   | num anonymous v => toString v
-  | str n s         => toStringWithSep n ++ sep ++ maybeEscape s
-  | num n v         => toStringWithSep n ++ sep ++ Nat.repr v
+  | str n s         =>
+    -- Escape the last component if the identifier would otherwise be a token
+    let r := toStringWithSep n isToken
+    let r' := r ++ sep ++ maybeEscape s false
+    if isToken r' then r ++ sep ++ maybeEscape s true else r'
+  | num n v         => toStringWithSep n isToken ++ sep ++ Nat.repr v
 where
-  maybeEscape s := if escape then escapePart s |>.getD s else s
+  maybeEscape s force := if escape || force then escapePart s force |>.getD s else s
 
-protected def toString (n : Name) (escape := true) : String :=
+protected def toString (n : Name) (escape := true) (isToken? : Option (String → Bool) := none) : String :=
   -- never escape "prettified" inaccessible names or macro scopes or pseudo-syntax introduced by the delaborator
-  toStringWithSep "." (escape && !n.isInaccessibleUserName && !n.hasMacroScopes && !maybePseudoSyntax) n
+  toStringWithSep "." (escape && !n.isInaccessibleUserName && !n.hasMacroScopes && !maybePseudoSyntax) n isToken
 where
+  isToken := isToken?.getD fun _ => false
   maybePseudoSyntax :=
     if let .str _ s := n.getRoot then
       -- could be pseudo-syntax for loose bvar or universe mvar, output as is

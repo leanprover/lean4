@@ -135,10 +135,10 @@ def toStringWithSep (n : Name) (isToken : String → Bool := fun _ => false) : S
     -- Escape the last component if the identifier would otherwise be a token
     let r := toStringWithSep n isToken
     let r' := r ++ sep ++ maybeEscape s false
-    if isToken r' then r ++ sep ++ maybeEscape s true else r'
-  | num n v         => toStringWithSep n isToken ++ sep ++ Nat.repr v
+    if escape && isToken r' then r ++ sep ++ maybeEscape s true else r'
+  | num n v         => toStringWithSep n (isToken := fun _ => false) ++ sep ++ Nat.repr v
 where
-  maybeEscape s force := if escape || force then escapePart s force |>.getD s else s
+  maybeEscape s force := if escape then escapePart s force |>.getD s else s
 
 protected def toString (n : Name) (escape := true) (isToken? : Option (String → Bool) := none) : String :=
   -- never escape "prettified" inaccessible names or macro scopes or pseudo-syntax introduced by the delaborator
@@ -146,7 +146,10 @@ protected def toString (n : Name) (escape := true) (isToken? : Option (String �
 where
   isToken := isToken?.getD fun _ => false
   maybePseudoSyntax :=
-    if let .str _ s := n.getRoot then
+    if n == .str .anonymous "_" then
+      -- output hole as is
+      true
+    else if let .str _ s := n.getRoot then
       -- could be pseudo-syntax for loose bvar or universe mvar, output as is
       "#".isPrefixOf s || "?".isPrefixOf s
     else

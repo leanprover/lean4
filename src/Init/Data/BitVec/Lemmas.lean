@@ -162,6 +162,16 @@ theorem toNat_zero (n : Nat) : (0#n).toNat = 0 := by trivial
 @[simp] theorem toNat_mod_cancel (x : BitVec n) : x.toNat % (2^n) = x.toNat :=
   Nat.mod_eq_of_lt x.isLt
 
+@[simp] theorem sub_toNat_mod_cancel {x : BitVec w} (h : ¬ x = 0#w) :
+    (2 ^ w - x.toNat) % 2 ^ w = 2 ^ w - x.toNat := by
+  simp [bv_toNat] at h
+  rw [Nat.mod_eq_of_lt (by omega)]
+
+@[simp] theorem sub_sub_toNat_cancel {x : BitVec w} :
+    2 ^ w - (2 ^ w - x.toNat) = x.toNat := by
+  simp [Nat.sub_sub_eq_min, Nat.min_eq_right]
+  omega
+
 private theorem lt_two_pow_of_le {x m n : Nat} (lt : x < 2 ^ m) (le : m ≤ n) : x < 2 ^ n :=
   Nat.lt_of_lt_of_le lt (Nat.pow_le_pow_of_le_right (by trivial : 0 < 2) le)
 
@@ -1250,13 +1260,9 @@ theorem neg_eq_not_add (x : BitVec w) : -x = ~~~x + 1 := by
 
 @[simp]
 theorem neg_neg {x : BitVec w} : - - x = x := by
-  by_cases h : x = 0
+  by_cases h : x = 0#w
   · simp [h]
-  · simp only [toNat_eq, ofNat_eq_ofNat, toNat_ofNat, Nat.zero_mod] at h
-    simp only [toNat_eq, toNat_neg]
-    rw [Nat.mod_eq_of_lt (a := 2 ^ w - x.toNat) (by omega)]
-    rw [Nat.mod_eq_of_lt (by omega)]
-    omega
+  · simp [bv_toNat, h]
 
 theorem neg_ne_iff_ne_neg {x y : BitVec w} : -x ≠ y ↔ x ≠ -y := by
   constructor

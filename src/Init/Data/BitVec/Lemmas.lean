@@ -310,8 +310,7 @@ theorem truncate_eq_zeroExtend {v : Nat} {x : BitVec w} :
 
 @[simp, bv_toNat] theorem toNat_zeroExtend' {m n : Nat} (p : m ≤ n) (x : BitVec m) :
     (zeroExtend' p x).toNat = x.toNat := by
-  unfold zeroExtend'
-  simp [p, x.isLt, Nat.mod_eq_of_lt]
+  simp [zeroExtend']
 
 @[bv_toNat] theorem toNat_zeroExtend (i : Nat) (x : BitVec n) :
     BitVec.toNat (zeroExtend i x) = x.toNat % 2^i := by

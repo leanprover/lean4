@@ -89,6 +89,8 @@ def fieldNotationCandidate? (f : Expr) (args : Array Expr) (useGeneralizedFieldN
   -- Handle structure projections
   try
     let (field, numParams, _) ← projInfo c
+    unless numParams + 1 ≤ args.size do return none
+    unless (← whnf <| ← inferType args[numParams]!).isAppOf c.getPrefix do return none
     return (field, numParams)
   catch _ => pure ()
   -- Handle generalized field notation

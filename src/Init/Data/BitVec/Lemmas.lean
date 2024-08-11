@@ -1265,9 +1265,10 @@ theorem neg_neg {x : BitVec w} : - - x = x := by
 
 theorem neg_ne_iff_ne_neg {x y : BitVec w} : -x ≠ y ↔ x ≠ -y := by
   constructor
-    <;> intro h h'
-    <;> subst h'
-    <;> simp [BitVec.neg_neg] at h
+  all_goals
+    intro h h'
+    subst h'
+    simp at h
 
 /-! ### mul -/
 

@@ -507,6 +507,13 @@ theorem or_assoc (x y z : BitVec w) :
     x ||| y ||| z = x ||| (y ||| z) := by
   ext i
   simp [Bool.or_assoc]
+instance : Std.Associative (α := BitVec n) (· ||| ·) := ⟨BitVec.or_assoc⟩
+
+theorem or_comm (x y : BitVec w) :
+    x ||| y = y ||| x := by
+  ext i
+  simp [Bool.or_comm]
+instance : Std.Commutative (fun (x y : BitVec w) => x ||| y) := ⟨BitVec.or_comm⟩
 
 /-! ### and -/
 
@@ -538,11 +545,13 @@ theorem and_assoc (x y z : BitVec w) :
     x &&& y &&& z = x &&& (y &&& z) := by
   ext i
   simp [Bool.and_assoc]
+instance : Std.Associative (α := BitVec n) (· &&& ·) := ⟨BitVec.and_assoc⟩
 
 theorem and_comm (x y : BitVec w) :
     x &&& y = y &&& x := by
   ext i
   simp [Bool.and_comm]
+instance : Std.Commutative (fun (x y : BitVec w) => x &&& y) := ⟨BitVec.and_comm⟩
 
 /-! ### xor -/
 
@@ -568,6 +577,13 @@ theorem xor_assoc (x y z : BitVec w) :
     x ^^^ y ^^^ z = x ^^^ (y ^^^ z) := by
   ext i
   simp [Bool.xor_assoc]
+instance : Std.Associative (fun (x y : BitVec w) => x ^^^ y) := ⟨BitVec.xor_assoc⟩
+
+theorem xor_comm (x y : BitVec w) :
+    x ^^^ y = y ^^^ x := by
+  ext i
+  simp [Bool.xor_comm]
+instance : Std.Commutative (fun (x y : BitVec w) => x ^^^ y) := ⟨BitVec.xor_comm⟩
 
 /-! ### not -/
 

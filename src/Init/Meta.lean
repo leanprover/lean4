@@ -119,13 +119,21 @@ def isInaccessibleUserName : Name → Bool
   | Name.num p _   => isInaccessibleUserName p
   | _              => false
 
+/--
+Creates a round-trippable string name component if possible, otherwise returns `none`.
+Names that are valid identifiers are not escaped, and otherwise, if they do not contain `»`, they are escaped.
+- If `force` is `true`, then even valid identifiers are escaped.
+-/
 def escapePart (s : String) (force : Bool := false) : Option String :=
   if s.length > 0 && !force && isIdFirst (s.get 0) && (s.toSubstring.drop 1).all isIdRest then s
   else if s.any isIdEndEscape then none
   else some <| idBeginEscape.toString ++ s ++ idEndEscape.toString
 
--- NOTE: does not roundtrip even with `escape = true` if name is anonymous or contains numeric part or `idEndEscape`
 variable (sep : String) (escape : Bool) in
+/--
+Uses the separator `sep` (usually `"."`) to combine the components of the `Name` into a string.
+See the documentation for `Name.toString` for an explanation of `escape` and `isToken`.
+-/
 def toStringWithSep (n : Name) (isToken : String → Bool := fun _ => false) : String :=
   match n with
   | anonymous       => "[anonymous]"
@@ -140,6 +148,17 @@ def toStringWithSep (n : Name) (isToken : String → Bool := fun _ => false) : S
 where
   maybeEscape s force := if escape then escapePart s force |>.getD s else s
 
+/--
+Converts a name to a string.
+
+- If `escape` is `true`, then escapes name components using `«` and `»` to ensure that
+  those names that can appear in source files round trip.
+  Names with number components, anonymous names, and names containing `»` might not round trip.
+  Furthermore, "pseudo-syntax" produced by the elaborator, such as `_`, `#0` or `?u`, is not escaped.
+- The optional `isToken?` function is used when `escape` is `true` to determine whether more
+  escaping is necessary to avoid parser tokens.
+  The insertion algorithm works so long as parser tokens do not themselves contain `«` or `»`.
+-/
 protected def toString (n : Name) (escape := true) (isToken? : Option (String → Bool) := none) : String :=
   -- never escape "prettified" inaccessible names or macro scopes or pseudo-syntax introduced by the delaborator
   toStringWithSep "." (escape && !n.isInaccessibleUserName && !n.hasMacroScopes && !maybePseudoSyntax) n isToken

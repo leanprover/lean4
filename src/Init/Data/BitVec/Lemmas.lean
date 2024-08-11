@@ -164,7 +164,7 @@ theorem toNat_zero (n : Nat) : (0#n).toNat = 0 := by trivial
 
 @[simp] theorem sub_toNat_mod_cancel {x : BitVec w} (h : ¬ x = 0#w) :
     (2 ^ w - x.toNat) % 2 ^ w = 2 ^ w - x.toNat := by
-  simp [bv_toNat] at h
+  simp only [toNat_eq, toNat_ofNat, Nat.zero_mod] at h
   rw [Nat.mod_eq_of_lt (by omega)]
 
 @[simp] theorem sub_sub_toNat_cancel {x : BitVec w} :

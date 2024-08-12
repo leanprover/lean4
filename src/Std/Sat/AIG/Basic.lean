@@ -34,15 +34,15 @@ inductive Decl (α : Type) where
   /--
   An AIG gate with configurable input nodes and polarity. `l` and `r` are the
   input node indices while `linv` and `rinv` say whether there is an inverter on
-  the left or right input.
+  the left and right inputs, respectively.
   -/
   | gate (l r : Nat) (linv rinv : Bool)
   deriving Hashable, Repr, DecidableEq, Inhabited
 
 
 /--
-A `Cache` is valid with respect to a list of declarations iff:
-Whenever `cache.find? decl` returns an index into `xs : Array Decl`, `xs[index] = decl`.
+A `Cache` is valid with respect to an array of declarations if
+whenever `cache.find? decl` returns an index into `xs : Array Decl`, `xs[index] = decl`.
 This predicate limits a `HashMap Decl Nat` to this behavior.
 -/
 inductive Cache.WF : Array (Decl α) → HashMap (Decl α) Nat → Prop where
@@ -57,7 +57,7 @@ inductive Cache.WF : Array (Decl α) → HashMap (Decl α) Nat → Prop where
   | push_id (h : WF decls cache) : WF (decls.push decl) cache
   /--
   Given a `cache`, valid with respect to some `decls`, we can extend the `decls`
-  and the `cache` at the same time with the same values and remaind valid.
+  and the `cache` at the same time with the same values and remain valid.
   -/
   | push_cache (h : WF decls cache) : WF (decls.push decl) (cache.insert decl decls.size)
 
@@ -78,7 +78,7 @@ def Cache.noUpdate (cache : Cache α decls) : Cache α (decls.push decl) :=
   ⟨cache.val, Cache.WF.push_id cache.property⟩
 
 /-
-We require the `decls` as an explicit attribute because we use `decls.size` so accidentally mutating
+We require the `decls` as an explicit argument because we use `decls.size` so accidentally mutating
 `decls` before calling `Cache.insert` will destroy `decl` linearity.
 -/
 @[inherit_doc Cache.WF.push_cache, irreducible]
@@ -107,8 +107,7 @@ theorem Cache.get?_bounds {decls : Array (Decl α)} {idx : Nat} (c : Cache α de
     specialize ih hfound
     simp
     omega
-  | push_cache wf ih =>
-    rename_i decl'
+  | @push_cache _ _ decl' wf ih =>
     simp only [HashMap.getElem?_insert] at hfound
     match heq:decl == decl' with
     | true =>
@@ -362,7 +361,7 @@ structure ExtendTarget (aig : AIG α) (newWidth : Nat) where
 /--
 Evaluate an `AIG.Entrypoint` using some assignment for atoms.
 -/
-def denote (assign : α → Bool) (entry : Entrypoint α)  : Bool :=
+def denote (assign : α → Bool) (entry : Entrypoint α) : Bool :=
   go entry.ref.gate entry.aig.decls assign entry.ref.hgate entry.aig.inv
 where
   go (x : Nat) (decls : Array (Decl α)) (assign : α → Bool) (h1 : x < decls.size)
@@ -378,7 +377,7 @@ where
       xor lval linv && xor rval rinv
 
 /--
-Denotation of an `AIG` at a specific `Ref`.
+Denotation of an `AIG` at a specific `Entrypoint`.
 -/
 scoped syntax "⟦" term ", " term "⟧" : term
 
@@ -449,7 +448,7 @@ def GateInput.cast {aig1 aig2 : AIG α} (input : GateInput aig1)
   { input with lhs := input.lhs.cast h, rhs := input.rhs.cast h }
 
 /--
-Build an AIG gate in `aig`. Note that this version is only meant for proving,
+Add a new and inverter gate to the AIG in `aig`. Note that this version is only meant for proving,
 for production purposes use `AIG.mkGateCached` and equality theorems to this one.
 -/
 def mkGate (aig : AIG α) (input : GateInput aig) : Entrypoint α :=
@@ -485,7 +484,7 @@ def mkAtom (aig : AIG α) (n : α) : Entrypoint α :=
   ⟨{ decls, inv, cache }, ⟨g, by simp [decls]⟩⟩
 
 /--
-Build a constant node in `aig`. Note that this version is only meant for proving,
+Add a new constant node to `aig`. Note that this version is only meant for proving,
 for production purposes use `AIG.mkConstCached` and equality theorems to this one.
 -/
 def mkConst (aig : AIG α) (val : Bool) : Entrypoint α :=

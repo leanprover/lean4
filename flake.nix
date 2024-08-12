@@ -21,7 +21,7 @@
           stdenv = pkgs.overrideCC pkgs.stdenv lean-packages.llvmPackages.clang;
         } ({
           buildInputs = with pkgs; [
-            cmake gmp ccache
+            cmake gmp libuv ccache
             lean-packages.llvmPackages.llvm  # llvm-symbolizer for asan/lsan
             gdb
             # TODO: only add when proven to not affect the flakification
@@ -34,6 +34,7 @@
           CTEST_OUTPUT_ON_FAILURE = 1;
         } // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
           GMP = pkgsDist.gmp.override { withStatic = true; };
+          LIBUV = pkgsDist.libuv.overrideAttrs (attrs: { configureFlags = ["--enable-static"]; });
           GLIBC = pkgsDist.glibc;
           GLIBC_DEV = pkgsDist.glibc.dev;
           GCC_LIB = pkgsDist.gcc.cc.lib;

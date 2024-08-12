@@ -27,13 +27,13 @@ def cast' {aig1 aig2 : AIG α} (s : RefVec aig1 len)
         → ∀ {i : Nat} (h : i < len), s.refs[i]'(by have := s.hlen; omega) < aig2.decls.size) :
     RefVec aig2 len :=
   { s with
-      hrefs := by
-        intros
-        apply h
-        · intros
-          apply s.hrefs
-          assumption
-        · assumption
+    hrefs := by
+      intros
+      apply h
+      · intros
+        apply s.hrefs
+        assumption
+      · assumption
   }
 
 @[inline]

@@ -187,11 +187,11 @@ def addAtom {decls : Array (Decl α)} {hidx} (state : State α decls idx) (a : �
   match hmap : state.map[a]? with
   | some _ =>
     { state with
-        inv2 := by
-          apply Inv2.oldAtom
-          . exact state.inv2
-          . assumption
-          . assumption
+      inv2 := by
+        apply Inv2.oldAtom
+        . exact state.inv2
+        . assumption
+        . assumption
     }
   | none =>
     {
@@ -215,10 +215,10 @@ def addConst {decls : Array (Decl α)} {hidx} (state : State α decls idx) (b : 
     (h : decls[idx]'hidx = .const b) :
     State α decls (idx + 1) :=
   { state with
-      inv2 := by
-        apply Inv2.const
-        . exact state.inv2
-        . assumption
+    inv2 := by
+      apply Inv2.const
+      . exact state.inv2
+      . assumption
   }
 
 /--
@@ -228,10 +228,10 @@ def addGate {decls : Array (Decl α)} {hidx} (state : State α decls idx) (lhs r
     (linv rinv : Bool) (h : decls[idx]'hidx = .gate lhs rhs linv rinv) :
     State α decls (idx + 1) :=
   { state with
-      inv2 := by
-        apply Inv2.gate
-        . exact state.inv2
-        . assumption
+    inv2 := by
+      apply Inv2.gate
+      . exact state.inv2
+      . assumption
   }
 
 /--
@@ -353,9 +353,10 @@ namespace Entrypoint
 
 def relabelNat' (entry : Entrypoint α) : (Entrypoint Nat × HashMap α Nat) :=
   let res := entry.aig.relabelNat'
-  let entry := { entry with
-      aig := res.fst,
-      ref.hgate := by simp [entry.ref.hgate, res]
+  let entry :=
+  { entry with
+    aig := res.fst,
+    ref.hgate := by simp [entry.ref.hgate, res]
   }
   (entry, res.snd)
 
@@ -366,8 +367,8 @@ identifiers.
 -/
 def relabelNat (entry : Entrypoint α) : Entrypoint Nat :=
   { entry with
-      aig := entry.aig.relabelNat
-      ref.hgate := by simp [entry.ref.hgate]
+    aig := entry.aig.relabelNat
+    ref.hgate := by simp [entry.ref.hgate]
   }
 
 /--

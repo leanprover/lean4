@@ -26,30 +26,24 @@ def mkNotCached (aig : AIG α) (gate : Ref aig) : Entrypoint α :=
   let res := aig.mkConstCached true
   let aig := res.aig
   let constRef := res.ref
-  aig.mkGateCached
-    { lhs := 
-      { ref := constRef
-        inv := false }
-      rhs := 
-      { ref := gate.cast <| by
-          intros
-          apply LawfulOperator.le_size_of_le_aig_size (f := mkConstCached)
-          omega
-        inv := true } }
+  aig.mkGateCached {
+    lhs := {
+      ref := constRef
+      inv := false
+    }
+    rhs := {
+      ref := gate.cast <| by
+        intros
+        apply LawfulOperator.le_size_of_le_aig_size (f := mkConstCached)
+        omega
+      inv := true
+    }
+  }
 
 @[inline]
 def BinaryInput.asGateInput {aig : AIG α} (input : BinaryInput aig) (linv rinv : Bool) :
     GateInput aig :=
-  {
-    lhs := {
-      ref := input.lhs
-      inv := linv
-    },
-    rhs := {
-      ref := input.rhs
-      inv := rinv
-    }
-  }
+  { lhs := { ref := input.lhs, inv := linv }, rhs := { ref := input.rhs, inv := rinv } }
 
 /--
 Create an and gate in the input AIG. This uses the builtin cache to enable automated subterm
@@ -69,8 +63,7 @@ def mkOrCached (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
   let res := aig.mkConstCached true
   let aig := res.aig
   let constRef := res.ref
-  aig.mkGateCached
-    {
+  aig.mkGateCached {
       lhs := {
         ref := constRef
         inv := false
@@ -103,20 +96,19 @@ def mkXorCached (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
   let res := aig.mkGateCached rinput
   let aig := res.aig
   let aux2Ref := res.ref
-  aig.mkGateCached
-    {
-      lhs := {
-        ref := aux1Ref.cast <| by
-          simp (config := { zetaDelta := true }) only
-          apply LawfulOperator.le_size_of_le_aig_size (f := mkGateCached)
-          omega
-        inv := true
-      },
-      rhs := {
-        ref := aux2Ref
-        inv := true
-      }
+  aig.mkGateCached {
+    lhs := {
+      ref := aux1Ref.cast <| by
+        simp (config := { zetaDelta := true }) only
+        apply LawfulOperator.le_size_of_le_aig_size (f := mkGateCached)
+        omega
+      inv := true
+    },
+    rhs := {
+      ref := aux2Ref
+      inv := true
     }
+  }
 
 /--
 Create an equality gate in the input AIG. This uses the builtin cache to enable automated subterm
@@ -136,20 +128,19 @@ def mkBEqCached (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
   let res := aig.mkGateCached rinput
   let aig := res.aig
   let aux2Ref := res.ref
-  aig.mkGateCached
-    {
-      lhs := {
-        ref := aux1Ref.cast <| by
-          simp (config := { zetaDelta := true }) only
-          apply LawfulOperator.le_size_of_le_aig_size (f := mkGateCached)
-          omega
-        inv := true
-      },
-      rhs := {
-        ref := aux2Ref
-        inv := true
-      }
+  aig.mkGateCached {
+    lhs := {
+      ref := aux1Ref.cast <| by
+        simp (config := { zetaDelta := true }) only
+        apply LawfulOperator.le_size_of_le_aig_size (f := mkGateCached)
+        omega
+      inv := true
+    },
+    rhs := {
+      ref := aux2Ref
+      inv := true
     }
+  }
 
 /--
 Create an implication gate in the input AIG. This uses the builtin cache to enable automated subterm
@@ -163,21 +154,20 @@ def mkImpCached (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
   let res := aig.mkConstCached true
   let aig := res.aig
   let constRef := res.ref
-  aig.mkGateCached
-    {
-      lhs := {
-        ref := constRef
-        inv := false
-      },
-      rhs := {
-        ref := auxRef.cast <| by
-          intros
-          simp (config := { zetaDelta := true }) only
-          apply LawfulOperator.le_size_of_le_aig_size (f := mkConstCached)
-          omega
-        inv := true
-      }
+  aig.mkGateCached {
+    lhs := {
+      ref := constRef
+      inv := false
+    },
+    rhs := {
+      ref := auxRef.cast <| by
+        intros
+        simp (config := { zetaDelta := true }) only
+        apply LawfulOperator.le_size_of_le_aig_size (f := mkConstCached)
+        omega
+      inv := true
     }
+  }
 
 end AIG
 

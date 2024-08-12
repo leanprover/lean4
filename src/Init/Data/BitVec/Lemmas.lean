@@ -880,7 +880,7 @@ theorem umod_eq {x y : BitVec n} :
 
 @[simp, bv_toNat]
 theorem toNat_umod {x y : BitVec n} :
-    (x.umod y).toNat = x.toNat % y.toNat := by rfl
+    (x.umod y).toNat = x.toNat % y.toNat := rfl
 
 /-! ### signExtend -/
 

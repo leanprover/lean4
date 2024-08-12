@@ -215,14 +215,14 @@ structure AIG (α : Type) [DecidableEq α] [Hashable α] where
   /--
   In order to be a valid AIG, `decls` must form a DAG.
   -/
-  inv : AIG.IsDag α decls
+  invariant : AIG.IsDag α decls
 
 namespace AIG
 
 /--
 An `AIG` with an empty AIG and cache.
 -/
-def empty : AIG α := { decls := #[], cache := Cache.empty #[], inv := IsDag.empty }
+def empty : AIG α := { decls := #[], cache := Cache.empty #[], invariant := IsDag.empty }
 
 /--
 The atom `a` occurs in `aig`.
@@ -362,7 +362,7 @@ structure ExtendTarget (aig : AIG α) (newWidth : Nat) where
 Evaluate an `AIG.Entrypoint` using some assignment for atoms.
 -/
 def denote (assign : α → Bool) (entry : Entrypoint α) : Bool :=
-  go entry.ref.gate entry.aig.decls assign entry.ref.hgate entry.aig.inv
+  go entry.ref.gate entry.aig.decls assign entry.ref.hgate entry.aig.invariant
 where
   go (x : Nat) (decls : Array (Decl α)) (assign : α → Bool) (h1 : x < decls.size)
       (h2 : IsDag α decls) :
@@ -456,16 +456,16 @@ def mkGate (aig : AIG α) (input : GateInput aig) : Entrypoint α :=
   let decls :=
     aig.decls.push <| .gate input.lhs.ref.gate input.rhs.ref.gate input.lhs.inv input.rhs.inv
   let cache := aig.cache.noUpdate
-  have inv := by
+  have invariant := by
     intro i lhs' rhs' linv' rinv' h1 h2
     simp only [Array.get_push] at h2
     split at h2
-    . apply aig.inv <;> assumption
+    . apply aig.invariant <;> assumption
     . injections
       have := input.lhs.ref.hgate
       have := input.rhs.ref.hgate
       omega
-  ⟨{ aig with decls, inv, cache }, ⟨g, by simp [decls]⟩⟩
+  ⟨{ aig with decls, invariant, cache }, ⟨g, by simp [decls]⟩⟩
 
 /--
 Add a new input node to the AIG in `aig`. Note that this version is only meant for proving,
@@ -475,13 +475,13 @@ def mkAtom (aig : AIG α) (n : α) : Entrypoint α :=
   let g := aig.decls.size
   let decls := aig.decls.push (.atom n)
   let cache := aig.cache.noUpdate
-  have inv := by
+  have invariant := by
     intro i lhs rhs linv rinv h1 h2
     simp only [Array.get_push] at h2
     split at h2
-    . apply aig.inv <;> assumption
+    . apply aig.invariant <;> assumption
     . contradiction
-  ⟨{ decls, inv, cache }, ⟨g, by simp [decls]⟩⟩
+  ⟨{ decls, invariant, cache }, ⟨g, by simp [decls]⟩⟩
 
 /--
 Add a new constant node to `aig`. Note that this version is only meant for proving,
@@ -491,13 +491,13 @@ def mkConst (aig : AIG α) (val : Bool) : Entrypoint α :=
   let g := aig.decls.size
   let decls := aig.decls.push (.const val)
   let cache := aig.cache.noUpdate
-  have inv := by
+  have invariant := by
     intro i lhs rhs linv rinv h1 h2
     simp only [Array.get_push] at h2
     split at h2
-    . apply aig.inv <;> assumption
+    . apply aig.invariant <;> assumption
     . contradiction
-  ⟨{ decls, inv, cache }, ⟨g, by simp [decls]⟩⟩
+  ⟨{ decls, invariant, cache }, ⟨g, by simp [decls]⟩⟩
 
 end AIG
 

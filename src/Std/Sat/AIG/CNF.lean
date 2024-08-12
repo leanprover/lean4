@@ -142,9 +142,9 @@ structure Cache.Inv (cnf : CNF (CNFVar aig)) (marks : Array Bool) (hmarks : mark
   -/
   hmark : ∀ (lhs rhs : Nat) (linv rinv : Bool) (idx : Nat) (hbound : idx < aig.decls.size)
             (_hmarked : marks[idx] = true) (heq : aig.decls[idx] = .gate lhs rhs linv rinv),
-              marks[lhs]'(by have := aig.inv hbound heq; omega) = true
+              marks[lhs]'(by have := aig.invariant hbound heq; omega) = true
                 ∧
-              marks[rhs]'(by have := aig.inv hbound heq; omega) = true
+              marks[rhs]'(by have := aig.invariant hbound heq; omega) = true
   /--
   Relate satisfiability results about our produced CNF to satisfiability results about the AIG that
   we are processing. The intuition for this is: if a node is marked, its CNF (and all required
@@ -343,15 +343,15 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
               aig
               (Decl.gateToCNF
                 (.inr ⟨idx, h⟩)
-                (.inr ⟨lhs, by have := aig.inv h htip; omega⟩)
-                (.inr ⟨rhs, by have := aig.inv h htip; omega⟩)
+                (.inr ⟨lhs, by have := aig.invariant h htip; omega⟩)
+                (.inr ⟨rhs, by have := aig.invariant h htip; omega⟩)
                 linv
                 rinv
                 ++ cnf)
         //
       Cache.IsExtensionBy cache out idx h
     } :=
-  have := aig.inv h htip
+  have := aig.invariant h htip
   have hmarkbound : idx < cache.marks.size := by have := cache.hmarks; omega
   let out :=
     { cache with
@@ -436,8 +436,8 @@ theorem State.Inv_gateToCNF {aig : AIG Nat} {h}
       (aig := aig)
       (Decl.gateToCNF
         (.inr ⟨upper, h⟩)
-        (.inr ⟨lhs, by have := aig.inv h heq; omega⟩)
-        (.inr ⟨rhs, by have := aig.inv h heq; omega⟩)
+        (.inr ⟨lhs, by have := aig.invariant h heq; omega⟩)
+        (.inr ⟨rhs, by have := aig.invariant h heq; omega⟩)
         linv
         rinv)
     := by
@@ -529,7 +529,7 @@ def State.addGate (state : State aig) {hlb} {hrb} (idx : Nat) (h : idx < aig.dec
     (htip : aig.decls[idx]'h = .gate lhs rhs linv rinv) (hl : state.cache.marks[lhs]'hlb = true)
     (hr : state.cache.marks[rhs]'hrb = true) :
     { out : State aig // State.IsExtensionBy state out idx h } :=
-  have := aig.inv h htip
+  have := aig.invariant h htip
   let ⟨cnf, cache, inv⟩ := state
   let newCnf :=
     Decl.gateToCNF
@@ -601,7 +601,7 @@ where
       | .const b => state.addConst upper h heq
       | .atom a => state.addAtom upper h heq
       | .gate lhs rhs linv rinv =>
-        have := aig.inv h heq
+        have := aig.invariant h heq
         let ⟨lstate, hlstate⟩ := go aig lhs (by omega) state
         let ⟨rstate, hrstate⟩ := go aig rhs (by omega) lstate
 

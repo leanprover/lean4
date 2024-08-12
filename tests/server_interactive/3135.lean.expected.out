@@ -13,7 +13,7 @@
    "range":
    {"start": {"line": 14, "character": 0}, "end": {"line": 15, "character": 0}},
    "message":
-   "unexpected doc string\n\nHint: the docstring must come after '... in', immediately before the declaration that accepts a docstring.",
+   "unexpected doc string\n\nHint: the docstring must come after the 'in' keyword, immediately before the declaration that accepts a docstring.",
    "fullRange":
    {"start": {"line": 14, "character": 0},
     "end": {"line": 17, "character": 10}}},

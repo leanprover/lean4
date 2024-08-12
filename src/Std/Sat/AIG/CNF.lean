@@ -593,11 +593,11 @@ where
     | .inr var => var.val
   go (aig : AIG Nat) (upper : Nat) (h : upper < aig.decls.size) (state : toCNF.State aig) :
       { out : toCNF.State aig // toCNF.State.IsExtensionBy state out upper h } :=
-    if hmarked:state.cache.marks[upper]'(by have := state.cache.hmarks; omega) then
+    if hmarked : state.cache.marks[upper]'(by have := state.cache.hmarks; omega) then
       ⟨state, by apply toCNF.State.IsExtensionBy_rfl <;> assumption⟩
     else
       let decl := aig.decls[upper]
-      match heq:decl with
+      match heq : decl with
       | .const b => state.addConst upper h heq
       | .atom a => state.addAtom upper h heq
       | .gate lhs rhs linv rinv =>
@@ -653,7 +653,7 @@ theorem toCNF.inj_is_injection {aig : AIG Nat} (a b : CNFVar aig) :
 /--
 The node that we started CNF conversion at will always be marked as visited in the CNF cache.
 -/
-theorem toCNF.go_marked :
+theorem toCNF.go_marks :
     (go aig start h state).val.cache.marks[start]'(by have := (go aig start h state).val.cache.hmarks; omega) = true :=
   (go aig start h state).property.trueAt
 
@@ -667,6 +667,12 @@ theorem toCNF.go_sat (aig : AIG Nat) (start : Nat) (h1 : start < aig.decls.size)
   rw [State.sat_iff]
   simp [this]
 
+theorem toCNF.go_as_denote' (aig : AIG Nat) (start) (h1) (assign1) :
+    ⟦aig, ⟨start, h1⟩, assign1⟧ → (go aig start h1 (.empty aig)).val.eval (cnfSatAssignment aig assign1) := by
+  have := go_sat aig start h1 assign1 (.empty aig)
+  simp only [State.Sat, CNF.sat_def] at this
+  simp [this]
+
 /--
 Connect SAT results about the CNF to SAT results about the AIG.
 -/
@@ -674,10 +680,8 @@ theorem toCNF.go_as_denote (aig : AIG Nat) (start) (h1) (assign1) :
     ((⟦aig, ⟨start, h1⟩, assign1⟧ && (go aig start h1 (.empty aig)).val.eval (cnfSatAssignment aig assign1)) = sat?)
       →
     (⟦aig, ⟨start, h1⟩, assign1⟧ = sat?) := by
-  intro h
-  have := go_sat aig start h1 assign1 (.empty aig)
-  simp only [State.Sat, CNF.sat_def] at this
-  simpa [this] using h
+  have := go_as_denote' aig start h1 assign1
+  by_cases CNF.eval (cnfSatAssignment aig assign1) (go aig start h1 (State.empty aig)).val.cnf <;> simp_all
 
 /--
 Connect SAT results about the AIG to SAT results about the CNF.
@@ -690,7 +694,7 @@ theorem toCNF.denote_as_go {assign : AIG.CNFVar aig → Bool}:
   match heval1:(go aig start h1 (State.empty aig)).val.cnf.eval assign with
   | true =>
     have heval2 := (go aig start h1 (.empty aig)).val.cache.inv.heval
-    specialize heval2 assign heval1 start h1 go_marked
+    specialize heval2 assign heval1 start h1 go_marks
     simp only [h, projectRightAssign_property, Bool.false_eq] at heval2
     simp [heval2]
   | false =>

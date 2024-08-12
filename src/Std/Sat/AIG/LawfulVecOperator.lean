@@ -13,10 +13,6 @@ namespace AIG
 
 variable {α : Type} [Hashable α] [DecidableEq α]
 
--- TODO: Find a way to merge this with LawfulOperator that preserves nice automation
--- This consists mostly of figuring out how to merge `RefVecEntry` with `Entrypoint` without
--- loosing automation.
-
 class LawfulVecOperator (α : Type) [Hashable α] [DecidableEq α]
     (β : AIG α → Nat → Type) (f : {len : Nat} → (aig : AIG α) → β aig len → RefVecEntry α len) where
   le_size : ∀ (aig : AIG α) (input : β aig len), aig.decls.size ≤ (f aig input).aig.decls.size

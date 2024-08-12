@@ -184,7 +184,7 @@ Insert a `Decl.atom` into the `State` structure.
 def addAtom {decls : Array (Decl α)} {hidx} (state : State α decls idx) (a : α)
     (h : decls[idx]'hidx = .atom a) :
     State α decls (idx + 1) :=
-  match hmap:state.map[a]? with
+  match hmap : state.map[a]? with
   | some _ =>
     { state with
         inv2 := by
@@ -241,9 +241,9 @@ def ofAIGAux (aig : AIG α) : State α aig.decls aig.decls.size :=
   go aig.decls 0 .empty
 where
   go (decls : Array (Decl α)) (idx : Nat) (state : State α decls idx) : State α decls decls.size :=
-    if hidx:idx < decls.size then
+    if hidx : idx < decls.size then
       let decl := decls[idx]
-      match hdecl:decl with
+      match hdecl : decl with
       | .atom a => go decls (idx + 1) (state.addAtom a hdecl)
       | .const b => go decls (idx + 1) (state.addConst b hdecl)
       | .gate lhs rhs linv rinv => go decls (idx + 1) (state.addGate lhs rhs linv rinv hdecl)

@@ -132,7 +132,7 @@ theorem relabel_unsat_iff [Nonempty α] {aig : AIG α} {r : α → β} {hidx1} {
   . intro h assign
     let g : β → α := fun b =>
       have em := Classical.propDecidable
-      if h:∃ a, a ∈ aig ∧ r a = b then h.choose else Classical.choice inferInstance
+      if h : ∃ a, a ∈ aig ∧ r a = b then h.choose else Classical.choice inferInstance
     have h' := unsat_relabel g h
     specialize h' assign
     simp only [denote_relabel] at h'

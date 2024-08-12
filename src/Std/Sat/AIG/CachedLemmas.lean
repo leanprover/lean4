@@ -53,7 +53,7 @@ both.
 theorem mkAtomCached_decl_eq (aig : AIG α) (var : α) (idx : Nat) {h : idx < aig.decls.size}
     {hbound} :
     (aig.mkAtomCached var).aig.decls[idx]'hbound = aig.decls[idx] := by
-  match hcache:aig.cache.get? (.atom var) with
+  match hcache : aig.cache.get? (.atom var) with
   | some gate =>
     have := mkAtomCached_hit_aig aig hcache
     simp [this]
@@ -127,7 +127,7 @@ both.
 theorem mkConstCached_decl_eq (aig : AIG α) (val : Bool) (idx : Nat) {h : idx < aig.decls.size}
     {hbound} :
     (aig.mkConstCached val).aig.decls[idx]'hbound = aig.decls[idx] := by
-  match hcache:aig.cache.get? (.const val) with
+  match hcache : aig.cache.get? (.const val) with
   | some gate =>
     have := mkConstCached_hit_aig aig hcache
     simp [this]

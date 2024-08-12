@@ -117,7 +117,7 @@ theorem get_append (lhs : RefVec aig lw) (rhs : RefVec aig rw) (idx : Nat)
     (hidx : idx < lw + rw) :
     (lhs.append rhs).get idx hidx
       =
-    if h:idx < lw then
+    if h : idx < lw then
       lhs.get idx h
     else
       rhs.get (idx - lw) (by omega) := by
@@ -133,7 +133,7 @@ theorem get_append (lhs : RefVec aig lw) (rhs : RefVec aig rw) (idx : Nat)
 
 @[inline]
 def getD (s : RefVec aig len) (idx : Nat) (alt : Ref aig) : Ref aig :=
-  if hidx:idx < len then
+  if hidx : idx < len then
     s.get idx hidx
   else
     alt

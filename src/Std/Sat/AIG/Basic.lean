@@ -20,7 +20,7 @@ variable {α : Type} [Hashable α] [DecidableEq α]
 namespace AIG
 
 /--
-A circuit node declaration. These are not recursive but instead contain indices into an `AIG`, with inputs indexed by `α`.
+A circuit node. These are not recursive but instead contain indices into an `AIG`, with inputs indexed by `α`.
 -/
 inductive Decl (α : Type) where
   /--
@@ -108,16 +108,11 @@ theorem Cache.get?_bounds {decls : Array (Decl α)} {idx : Nat} (c : Cache α de
     simp
     omega
   | @push_cache _ _ decl' wf ih =>
-    simp only [HashMap.getElem?_insert] at hfound
-    match heq:decl == decl' with
-    | true =>
-      simp only [beq_iff_eq] at heq
-      simp only [heq, beq_self_eq_true, ↓reduceIte, Option.some.injEq] at hfound
-      simp
-      omega
-    | false =>
-      simp only [BEq.symm_false heq, Bool.false_eq_true, ↓reduceIte] at hfound
-      specialize ih hfound
+    simp only [HashMap.getElem?_insert, beq_iff_eq] at hfound
+    split at hfound <;> rename_i h
+    · subst h
+      simp_all
+    · specialize ih hfound
       simp
       omega
 
@@ -146,7 +141,7 @@ theorem Cache.get?_property {decls : Array (Decl α)} {idx : Nat} (c : Cache α 
     rw [Array.get_push]
     split
     . simp only [HashMap.getElem?_insert] at hfound
-      match heq:decl == decl' with
+      match heq : decl == decl' with
       | true =>
         simp only [beq_iff_eq] at heq
         simp [heq] at hfound
@@ -156,7 +151,7 @@ theorem Cache.get?_property {decls : Array (Decl α)} {idx : Nat} (c : Cache α 
         simpa [BEq.symm_false heq] using hfound
     . next hbounds =>
       simp only [HashMap.getElem?_insert] at hfound
-      match heq:decl == decl' with
+      match heq : decl == decl' with
       | true =>
         apply Eq.symm
         simpa using heq
@@ -178,7 +173,7 @@ opaque Cache.get? (cache : Cache α decls) (decl : Decl α) : Option (CacheHit d
   it either in `whnf` or in the kernel. This causes *huge* performance issues in practice.
   The function can still be fully verified as all the proofs we need are in `CacheHit`.
   -/
-  match hfound:cache.val[decl]? with
+  match hfound : cache.val[decl]? with
   | some hit =>
     some ⟨hit, Cache.get?_bounds _ _ hfound, Cache.get?_property _ _ hfound⟩
   | none => none
@@ -186,14 +181,14 @@ opaque Cache.get? (cache : Cache α decls) (decl : Decl α) : Option (CacheHit d
 /--
 An `Array Decl` is a Direct Acyclic Graph (DAG) if a gate at index `i` only points to nodes with index lower than `i`.
 -/
-def IsDag (α : Type) (decls : Array (Decl α)) : Prop :=
+def IsDAG (α : Type) (decls : Array (Decl α)) : Prop :=
   ∀ {i lhs rhs linv rinv} (h : i < decls.size),
       decls[i] = .gate lhs rhs linv rinv → lhs < i ∧ rhs < i
 
 /--
 The empty array is a DAG.
 -/
-theorem IsDag.empty {α : Type} : IsDag α #[] := by
+theorem IsDAG.empty {α : Type} : IsDAG α #[] := by
   intro i lhs rhs linv rinv h
   simp only [Array.size_toArray, List.length_nil] at h
   omega
@@ -201,7 +196,7 @@ theorem IsDag.empty {α : Type} : IsDag α #[] := by
 end AIG
 
 /--
-An And Inverter Graph (AIG α) together with a cache for subterm sharing.
+An And Inverter Graph together with a cache for subterm sharing.
 -/
 structure AIG (α : Type) [DecidableEq α] [Hashable α] where
   /--
@@ -215,14 +210,14 @@ structure AIG (α : Type) [DecidableEq α] [Hashable α] where
   /--
   In order to be a valid AIG, `decls` must form a DAG.
   -/
-  invariant : AIG.IsDag α decls
+  invariant : AIG.IsDAG α decls
 
 namespace AIG
 
 /--
 An `AIG` with an empty AIG and cache.
 -/
-def empty : AIG α := { decls := #[], cache := Cache.empty #[], invariant := IsDag.empty }
+def empty : AIG α := { decls := #[], cache := Cache.empty #[], invariant := IsDAG.empty }
 
 /--
 The atom `a` occurs in `aig`.
@@ -307,7 +302,7 @@ def toGraphviz {α : Type} [DecidableEq α] [ToString α] [Hashable α] (entry :
   "Digraph AIG {" ++ nodes ++ dag ++ "}"
 where
   go {α : Type} [DecidableEq α] [ToString α] [Hashable α] (acc : String) (decls : Array (Decl α))
-      (hinv : IsDag α decls) (idx : Nat) (hidx : idx < decls.size)
+      (hinv : IsDAG α decls) (idx : Nat) (hidx : idx < decls.size)
         : StateM (HashSet (Fin decls.size)) String := do
     let fidx : Fin decls.size := Fin.mk idx hidx
     if (← get).contains fidx then
@@ -339,7 +334,7 @@ structure RefVec (aig : AIG α) (w : Nat) where
   hrefs : ∀ (h : i < w), refs[i] < aig.decls.size
 
 /--
-A sequence of references bundled with their AIG. In some sense a generalization of `Entrypoint`.
+A sequence of references bundled with their AIG.
 -/
 structure RefVecEntry (α : Type) [DecidableEq α] [Hashable α] [DecidableEq α] (w : Nat) where
   aig : AIG α
@@ -365,7 +360,7 @@ def denote (assign : α → Bool) (entry : Entrypoint α) : Bool :=
   go entry.ref.gate entry.aig.decls assign entry.ref.hgate entry.aig.invariant
 where
   go (x : Nat) (decls : Array (Decl α)) (assign : α → Bool) (h1 : x < decls.size)
-      (h2 : IsDag α decls) :
+      (h2 : IsDAG α decls) :
       Bool :=
     match h3 : decls[x] with
     | .const b => b
@@ -382,7 +377,7 @@ Denotation of an `AIG` at a specific `Entrypoint`.
 scoped syntax "⟦" term ", " term "⟧" : term
 
 /--
-Denotation of an `AIG` at a specific `Ref` with the `Ref` being constructed on the fly.
+Denotation of an `AIG` at a specific `Entrypoint` with the `Entrypoint` being constructed on the fly.
 -/
 scoped syntax "⟦" term ", " term ", " term "⟧" : term
 
@@ -432,7 +427,7 @@ def Fanin.cast {aig1 aig2 : AIG α} (fanin : Fanin aig1)
   { fanin with ref := fanin.ref.cast h }
 
 /--
-The input type for creating AIG and gates from scratch.
+The input type for creating AIG and gates.
 -/
 structure GateInput (aig : AIG α) where
   lhs : Fanin aig

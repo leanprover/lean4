@@ -244,7 +244,7 @@ theorem idx_trichotomy (aig : AIG α) (hstart : start < aig.decls.size) {prop : 
     (hatom : ∀ a, aig.decls[start]'hstart = .atom a → prop)
     (hgate : ∀ lhs rhs linv rinv, aig.decls[start]'hstart = .gate lhs rhs linv rinv → prop)
     : prop := by
-  match h:aig.decls[start]'hstart with
+  match h : aig.decls[start]'hstart with
   | .const b => apply hconst; assumption
   | .atom a => apply hatom; assumption
   | .gate lhs rhs linv rinv => apply hgate; assumption

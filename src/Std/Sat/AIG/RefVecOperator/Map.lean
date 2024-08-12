@@ -59,7 +59,7 @@ where
       (input : RefVec aig len) (f : (aig : AIG α) → Ref aig → Entrypoint α)
       [LawfulOperator α Ref f] [LawfulMapOperator α f] :
       RefVecEntry α len :=
-    if hidx:idx < len then
+    if hidx : idx < len then
       let res := f aig (input.get idx hidx)
       let aig := res.aig
       let newRef := res.ref

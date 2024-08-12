@@ -42,7 +42,7 @@ where
   go (aig : AIG α) (acc : Ref aig) (idx : Nat) (len : Nat) (input : RefVec aig len)
      (f : (aig : AIG α) → BinaryInput aig → Entrypoint α) [LawfulOperator α BinaryInput f] :
      Entrypoint α :=
-    if hidx:idx < len then
+    if hidx : idx < len then
       let res := f aig ⟨acc, input.get idx hidx⟩
       let aig := res.aig
       let newAcc := res.ref

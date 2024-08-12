@@ -192,7 +192,7 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
     finalized release notes from the `releases/v4.6.0` branch.
   - Replaces the "development in progress" in the `v4.7.0` section of `RELEASES.md` with
     ```
-    Release candidate, release notes will be copied from `branch releases/v4.7.0` once completed.
+    Release candidate, release notes will be copied from the branch `releases/v4.7.0` once completed.
     ```
     and inserts the following section before that section:
     ```
@@ -201,6 +201,8 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
     Development in progress.
     ```
   - Removes all the entries from the `./releases_drafts/` folder.
+  - Titled "chore: begin development cycle for v4.8.0"
+
 
 ## Time estimates:
 Slightly longer than the corresponding steps for a stable release.

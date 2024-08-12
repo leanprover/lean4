@@ -201,6 +201,8 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
     Development in progress.
     ```
   - Removes all the entries from the `./releases_drafts/` folder.
+  - Titled "chore: begin development cycle for v4.8.0"
+
 
 ## Time estimates:
 Slightly longer than the corresponding steps for a stable release.

@@ -6,6 +6,29 @@ Authors: Henrik Böving
 import Std.Sat.AIG.CachedGatesLemmas
 import Std.Sat.AIG.LawfulVecOperator
 
+/-!
+Besides introducing a way to construct an if statement in an `AIG`, this module also demonstrates
+a style of writing Lean code that minimizes the risk of linearity issues on the `AIG`.
+
+The idea is to always keep one `aig` variable around that contains the `AIG` and continously
+shadow it. However, applying multiple operations to the `AIG` does often require `Ref.cast` to use
+other inputs or `Ref`s created by previous operations in later ones. Applying a `Ref.cast` would
+usually require keeping around the old `AIG` to state the theorem statement. Luckily in this
+situation Lean is usually always able to infer the theorem statement on it's own. For this
+reason the style goes as follows:
+```
+let res := someLawfulOperator aig input
+let aig := res.aig
+let ref := res.ref
+have := LawfulOperator.le_size (f := mkIfCached) ..
+let input1 := input1.cast this
+let input2 := input2.cast this
+-- ...
+-- Next `LawfulOperator` application
+```
+This style also generalizes to applications of `LawfulVecOperator`s.
+-/
+
 namespace Std
 namespace Sat
 

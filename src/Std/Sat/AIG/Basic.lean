@@ -340,15 +340,24 @@ structure RefVecEntry (α : Type) [DecidableEq α] [Hashable α] [DecidableEq α
   aig : AIG α
   stream : RefVec aig w
 
+/--
+A `RefVec` bundled with constant distance to be shifted by.
+-/
 structure ShiftTarget (aig : AIG α) (w : Nat) where
   stream : AIG.RefVec aig w
   distance : Nat
 
+/--
+A `RefVec` bundled with a `RefVec` as distance to be shifted by.
+-/
 structure ArbitraryShiftTarget (aig : AIG α) (m : Nat) where
   n : Nat
   target : AIG.RefVec aig m
   distance : AIG.RefVec aig n
 
+/--
+A `RefVec` to be extended to `newWidth`.
+-/
 structure ExtendTarget (aig : AIG α) (newWidth : Nat) where
   w : Nat
   stream : AIG.RefVec aig w

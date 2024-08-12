@@ -79,8 +79,8 @@ theorem denote.eq_of_IsPrefix (entry : Entrypoint α) (newAIG : AIG α)
 abbrev ExtendingEntrypoint (aig : AIG α) : Type :=
   { entry : Entrypoint α // aig.decls.size ≤ entry.aig.decls.size }
 
-abbrev ExtendingRefStreamEntry (aig : AIG α) (len : Nat) : Type :=
-  { ref : RefStreamEntry α len // aig.decls.size ≤ ref.aig.decls.size }
+abbrev ExtendingRefVecEntry (aig : AIG α) (len : Nat) : Type :=
+  { ref : RefVecEntry α len // aig.decls.size ≤ ref.aig.decls.size }
 
 /--
 A function `f` that takes some `aig : AIG α` and an argument of type `β aig` is called a lawful

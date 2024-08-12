@@ -3,14 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
-import Std.Sat.AIG.RefStream
-import Std.Sat.AIG.LawfulStreamOperator
+import Std.Sat.AIG.RefVec
+import Std.Sat.AIG.LawfulVecOperator
 
 namespace Std
 namespace Sat
 
 namespace AIG
-namespace RefStream
+namespace RefVec
 
 variable {α : Type} [Hashable α] [DecidableEq α] {aig : AIG α}
 
@@ -71,7 +71,7 @@ instance : LawfulZipOperator α mkImpCached where
 end LawfulZipOperator
 
 structure ZipTarget (aig : AIG α) (len : Nat) where
-  input : BinaryRefStream aig len
+  input : BinaryRefVec aig len
   func : (aig : AIG α) → BinaryInput aig → Entrypoint α
   [lawful : LawfulOperator α BinaryInput func]
   [chainable : LawfulZipOperator α func]
@@ -80,14 +80,14 @@ attribute [instance] ZipTarget.lawful
 attribute [instance] ZipTarget.chainable
 
 @[specialize]
-def zip (aig : AIG α) (target : ZipTarget aig len) : RefStreamEntry α len :=
+def zip (aig : AIG α) (target : ZipTarget aig len) : RefVecEntry α len :=
   go aig 0 .empty (by omega) target.input.lhs target.input.rhs target.func
 where
   @[specialize]
-  go (aig : AIG α) (idx : Nat) (s : RefStream aig idx) (hidx : idx ≤ len)
-      (lhs rhs : RefStream aig len) (f : (aig : AIG α) → BinaryInput aig → Entrypoint α)
+  go (aig : AIG α) (idx : Nat) (s : RefVec aig idx) (hidx : idx ≤ len)
+      (lhs rhs : RefVec aig len) (f : (aig : AIG α) → BinaryInput aig → Entrypoint α)
       [LawfulOperator α BinaryInput f] [chainable : LawfulZipOperator α f] :
-      RefStreamEntry α len :=
+      RefVecEntry α len :=
     if hidx:idx < len then
       let res := f aig ⟨lhs.get idx hidx, rhs.get idx hidx⟩
       let aig := res.aig
@@ -104,8 +104,8 @@ where
       ⟨aig, this ▸ s⟩
   termination_by len - idx
 
-theorem zip.go_le_size {aig : AIG α} (idx : Nat) (hidx) (s : RefStream aig idx)
-    (lhs rhs : RefStream aig len)
+theorem zip.go_le_size {aig : AIG α} (idx : Nat) (hidx) (s : RefVec aig idx)
+    (lhs rhs : RefVec aig len)
     (f : (aig : AIG α) → BinaryInput aig → Entrypoint α) [LawfulOperator α BinaryInput f]
     [chainable : LawfulZipOperator α f] :
     aig.decls.size ≤ (go aig idx s hidx lhs rhs f).1.decls.size := by
@@ -122,8 +122,8 @@ theorem zip_le_size {aig : AIG α} (target : ZipTarget aig len) :
   unfold zip
   apply zip.go_le_size
 
-theorem zip.go_decl_eq {aig : AIG α} (i) (hi) (lhs rhs : RefStream aig len)
-    (s : RefStream aig i) (f : (aig : AIG α) → BinaryInput aig → Entrypoint α)
+theorem zip.go_decl_eq {aig : AIG α} (i) (hi) (lhs rhs : RefVec aig len)
+    (s : RefVec aig i) (f : (aig : AIG α) → BinaryInput aig → Entrypoint α)
     [LawfulOperator α BinaryInput f] [chainable : LawfulZipOperator α f] :
     ∀ (idx : Nat) (h1) (h2), (go aig i s hi lhs rhs f).1.decls[idx]'h2 = aig.decls[idx]'h1 := by
   generalize hgo : go aig i s hi lhs rhs f = res
@@ -150,14 +150,14 @@ theorem zip_decl_eq {aig : AIG α} (target : ZipTarget aig len) :
   unfold zip
   apply zip.go_decl_eq
 
-instance : LawfulStreamOperator α ZipTarget zip where
+instance : LawfulVecOperator α ZipTarget zip where
   le_size := by intros; apply zip_le_size
   decl_eq := by intros; apply zip_decl_eq
 
 namespace zip
 
-theorem go_get_aux {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefStream aig curr)
-    (lhs rhs : RefStream aig len) (f : (aig : AIG α) → BinaryInput aig → Entrypoint α)
+theorem go_get_aux {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVec aig curr)
+    (lhs rhs : RefVec aig len) (f : (aig : AIG α) → BinaryInput aig → Entrypoint α)
     [LawfulOperator α BinaryInput f] [chainable : LawfulZipOperator α f] :
     -- The hfoo here is a trick to make the dependent type gods happy
     ∀ (idx : Nat) (hidx : idx < curr) (hfoo),
@@ -172,9 +172,9 @@ theorem go_get_aux {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefSt
     rw [← hgo]
     intro hfoo
     rw [go_get_aux]
-    rw [AIG.RefStream.get_push_ref_lt]
+    rw [AIG.RefVec.get_push_ref_lt]
     . simp only [Ref.cast, Ref.mk.injEq]
-      rw [AIG.RefStream.get_cast]
+      rw [AIG.RefVec.get_cast]
       . simp
       . assumption
     . apply go_le_size
@@ -186,8 +186,8 @@ theorem go_get_aux {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefSt
     simp
 termination_by len - curr
 
-theorem go_get {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefStream aig curr)
-    (lhs rhs : RefStream aig len) (f : (aig : AIG α) → BinaryInput aig → Entrypoint α)
+theorem go_get {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVec aig curr)
+    (lhs rhs : RefVec aig len) (f : (aig : AIG α) → BinaryInput aig → Entrypoint α)
     [LawfulOperator α BinaryInput f] [chainable : LawfulZipOperator α f] :
     ∀ (idx : Nat) (hidx : idx < curr),
       (go aig curr s hcurr lhs rhs f).stream.get idx (by omega)
@@ -197,7 +197,7 @@ theorem go_get {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefStream
   apply go_get_aux
 
 theorem go_denote_mem_prefix {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len)
-    (s : RefStream aig curr) (lhs rhs : RefStream aig len)
+    (s : RefVec aig curr) (lhs rhs : RefVec aig len)
     (f : (aig : AIG α) → BinaryInput aig → Entrypoint α) [LawfulOperator α BinaryInput f]
     [chainable : LawfulZipOperator α f] (start : Nat) (hstart) :
     ⟦
@@ -214,8 +214,8 @@ theorem go_denote_mem_prefix {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len)
   . intros
     apply go_le_size
 
-theorem denote_go {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefStream aig curr)
-    (lhs rhs : RefStream aig len) (f : (aig : AIG α) → BinaryInput aig → Entrypoint α)
+theorem denote_go {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVec aig curr)
+    (lhs rhs : RefVec aig len) (f : (aig : AIG α) → BinaryInput aig → Entrypoint α)
     [LawfulOperator α BinaryInput f] [chainable : LawfulZipOperator α f] :
     ∀ (idx : Nat) (hidx1 : idx < len),
       curr ≤ idx
@@ -236,7 +236,7 @@ theorem denote_go {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefStr
     | inl heq =>
       rw [← hgo]
       rw [go_get]
-      rw [AIG.RefStream.get_push_ref_eq']
+      rw [AIG.RefVec.get_push_ref_eq']
       . simp only [← heq]
         rw [go_denote_mem_prefix]
         . simp
@@ -262,7 +262,7 @@ theorem denote_zip {aig : AIG α} (target : ZipTarget aig len) :
   apply zip.denote_go
   omega
 
-end RefStream
+end RefVec
 end AIG
 
 end Sat

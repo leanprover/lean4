@@ -333,7 +333,7 @@ where
 /--
 A stream of references into `aig`. This is the `AIG` analog of `BitVec`.
 -/
-structure RefStream (aig : AIG α) (w : Nat) where
+structure RefVec (aig : AIG α) (w : Nat) where
   refs : Array Nat
   hlen : refs.size = w
   hrefs : ∀ (h : i < w), refs[i] < aig.decls.size
@@ -341,22 +341,22 @@ structure RefStream (aig : AIG α) (w : Nat) where
 /--
 A sequence of references bundled with their AIG. In some sense a generalization of `Entrypoint`.
 -/
-structure RefStreamEntry (α : Type) [DecidableEq α] [Hashable α] [DecidableEq α] (w : Nat) where
+structure RefVecEntry (α : Type) [DecidableEq α] [Hashable α] [DecidableEq α] (w : Nat) where
   aig : AIG α
-  stream : RefStream aig w
+  stream : RefVec aig w
 
 structure ShiftTarget (aig : AIG α) (w : Nat) where
-  stream : AIG.RefStream aig w
+  stream : AIG.RefVec aig w
   distance : Nat
 
 structure ArbitraryShiftTarget (aig : AIG α) (m : Nat) where
   n : Nat
-  target : AIG.RefStream aig m
-  distance : AIG.RefStream aig n
+  target : AIG.RefVec aig m
+  distance : AIG.RefVec aig n
 
 structure ExtendTarget (aig : AIG α) (newWidth : Nat) where
   w : Nat
-  stream : AIG.RefStream aig w
+  stream : AIG.RefVec aig w
 
 /--
 Evaluate an `AIG.Entrypoint` using some assignment for atoms.

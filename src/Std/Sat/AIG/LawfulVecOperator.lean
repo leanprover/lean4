@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
 import Std.Sat.AIG.LawfulOperator
-import Std.Sat.AIG.RefStream
+import Std.Sat.AIG.RefVec
 
 namespace Std
 namespace Sat
@@ -14,20 +14,20 @@ namespace AIG
 variable {α : Type} [Hashable α] [DecidableEq α]
 
 -- TODO: Find a way to merge this with LawfulOperator that preserves nice automation
--- This consists mostly of figuring out how to merge `RefStreamEntry` with `Entrypoint` without
+-- This consists mostly of figuring out how to merge `RefVecEntry` with `Entrypoint` without
 -- loosing automation.
 
-class LawfulStreamOperator (α : Type) [Hashable α] [DecidableEq α]
-    (β : AIG α → Nat → Type) (f : {len : Nat} → (aig : AIG α) → β aig len → RefStreamEntry α len) where
+class LawfulVecOperator (α : Type) [Hashable α] [DecidableEq α]
+    (β : AIG α → Nat → Type) (f : {len : Nat} → (aig : AIG α) → β aig len → RefVecEntry α len) where
   le_size : ∀ (aig : AIG α) (input : β aig len), aig.decls.size ≤ (f aig input).aig.decls.size
   decl_eq : ∀ (aig : AIG α) (input : β aig len) (idx : Nat) (h1 : idx < aig.decls.size) (h2),
     (f aig input).aig.decls[idx]'h2 = aig.decls[idx]'h1
 
-namespace LawfulStreamOperator
+namespace LawfulVecOperator
 
 variable {β : AIG α → Nat → Type}
-variable {f : {len : Nat} → (aig : AIG α) → β aig len → RefStreamEntry α len}
-variable [LawfulStreamOperator α β f]
+variable {f : {len : Nat} → (aig : AIG α) → β aig len → RefVecEntry α len}
+variable [LawfulVecOperator α β f]
 
 theorem IsPrefix_aig (aig : AIG α) (input : β aig len) :
     IsPrefix aig.decls (f aig input).aig.decls := by
@@ -77,14 +77,14 @@ theorem denote_mem_prefix {aig : AIG α} {input : β aig len} (h) :
   rw [denote_input_entry ⟨aig, start, h⟩]
 
 @[simp]
-theorem denote_input_stream (s : RefStreamEntry α len) {input : β s.aig len} {hcast} :
+theorem denote_input_stream (s : RefVecEntry α len) {input : β s.aig len} {hcast} :
     ⟦(f s.aig input).aig, (s.stream.get idx hidx).cast hcast, assign⟧
       =
     ⟦s.aig, s.stream.get idx hidx, assign⟧ :=  by
   rw [denote_mem_prefix]
   rfl
 
-end LawfulStreamOperator
+end LawfulVecOperator
 end AIG
 
 end Sat

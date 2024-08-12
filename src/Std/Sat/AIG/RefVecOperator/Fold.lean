@@ -3,27 +3,27 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
-import Std.Sat.AIG.RefStream
-import Std.Sat.AIG.LawfulStreamOperator
+import Std.Sat.AIG.RefVec
+import Std.Sat.AIG.LawfulVecOperator
 
 namespace Std
 namespace Sat
 
 namespace AIG
-namespace RefStream
+namespace RefVec
 
 variable {α : Type} [Hashable α] [DecidableEq α] {aig : AIG α}
 
 structure FoldTarget (aig : AIG α) where
   {len : Nat}
-  stream : RefStream aig len
+  stream : RefVec aig len
   func : (aig : AIG α) → BinaryInput aig → Entrypoint α
   [lawful : LawfulOperator α BinaryInput func]
 
 attribute [instance] FoldTarget.lawful
 
 @[inline]
-def FoldTarget.mkAnd {aig : AIG α} (stream : RefStream aig w) : FoldTarget aig where
+def FoldTarget.mkAnd {aig : AIG α} (stream : RefVec aig w) : FoldTarget aig where
   stream := stream
   func := mkAndCached
 
@@ -39,7 +39,7 @@ def fold (aig : AIG α) (target : FoldTarget aig) : Entrypoint α :=
   go aig acc 0 target.len input target.func
 where
   @[specialize]
-  go (aig : AIG α) (acc : Ref aig) (idx : Nat) (len : Nat) (input : RefStream aig len)
+  go (aig : AIG α) (acc : Ref aig) (idx : Nat) (len : Nat) (input : RefVec aig len)
      (f : (aig : AIG α) → BinaryInput aig → Entrypoint α) [LawfulOperator α BinaryInput f] :
      Entrypoint α :=
     if hidx:idx < len then
@@ -55,7 +55,7 @@ where
       ⟨aig, acc⟩
   termination_by len - idx
 
-theorem fold.go_le_size {aig : AIG α} (acc : Ref aig) (idx : Nat) (s : RefStream aig len)
+theorem fold.go_le_size {aig : AIG α} (acc : Ref aig) (idx : Nat) (s : RefVec aig len)
     (f : (aig : AIG α) → BinaryInput aig → Entrypoint α) [LawfulOperator α BinaryInput f] :
     aig.decls.size ≤ (go aig acc idx len s f).1.decls.size := by
   unfold go
@@ -74,7 +74,7 @@ theorem fold_le_size {aig : AIG α} (target : FoldTarget aig) :
   refine Nat.le_trans ?_ (by apply fold.go_le_size)
   apply LawfulOperator.le_size (f := mkConstCached)
 
-theorem fold.go_decl_eq {aig : AIG α} (acc : Ref aig) (i : Nat) (s : RefStream aig len)
+theorem fold.go_decl_eq {aig : AIG α} (acc : Ref aig) (i : Nat) (s : RefVec aig len)
     (f : (aig : AIG α) → BinaryInput aig → Entrypoint α) [LawfulOperator α BinaryInput f] :
     ∀ (idx : Nat) (h1) (h2),
       (go aig acc i len s f).1.decls[idx]'h2 = aig.decls[idx]'h1 := by
@@ -113,7 +113,7 @@ instance : LawfulOperator α FoldTarget fold where
 namespace fold
 
 theorem denote_go_and {aig : AIG α} (acc : AIG.Ref aig) (curr : Nat) (hcurr : curr ≤ len)
-    (input : RefStream aig len) :
+    (input : RefVec aig len) :
     ⟦
       (go aig acc curr len input mkAndCached).aig,
       (go aig acc curr len input mkAndCached).ref,
@@ -166,7 +166,7 @@ termination_by len - curr
 end fold
 
 @[simp]
-theorem denote_fold_and {aig : AIG α} (s : RefStream aig len) :
+theorem denote_fold_and {aig : AIG α} (s : RefVec aig len) :
     ⟦(fold aig (FoldTarget.mkAnd s)), assign⟧
       ↔
     (∀ (idx : Nat) (hidx : idx < len), ⟦aig, s.get idx hidx, assign⟧) := by
@@ -184,11 +184,11 @@ theorem denote_fold_and {aig : AIG α} (s : RefStream aig len) :
       specialize h idx hidx
       rw [AIG.LawfulOperator.denote_mem_prefix (f := mkConstCached)]
       . simp only [← h]
-      . apply RefStream.hrefs
+      . apply RefVec.hrefs
         simp [FoldTarget.mkAnd, hidx]
   . omega
 
-end RefStream
+end RefVec
 end AIG
 
 end Sat

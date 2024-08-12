@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
 import Std.Sat.AIG.CachedGatesLemmas
-import Std.Sat.AIG.LawfulStreamOperator
+import Std.Sat.AIG.LawfulVecOperator
 
 namespace Std
 namespace Sat
@@ -83,19 +83,19 @@ theorem denote_mkIfCached {aig : AIG α} {input : TernaryInput aig} :
   . rw [LawfulOperator.denote_mem_prefix]
     rw [LawfulOperator.denote_mem_prefix]
 
-namespace RefStream
+namespace RefVec
 
 structure IfInput (aig : AIG α) (w : Nat) where
   discr : Ref aig
-  lhs : RefStream aig w
-  rhs : RefStream aig w
+  lhs : RefVec aig w
+  rhs : RefVec aig w
 
-def ite (aig : AIG α) (input : IfInput aig w) : RefStreamEntry α w :=
+def ite (aig : AIG α) (input : IfInput aig w) : RefVecEntry α w :=
   let ⟨discr, lhs, rhs⟩ := input
   go aig 0 (by omega) discr lhs rhs .empty
 where
   go {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (discr : Ref aig)
-      (lhs rhs : RefStream aig w) (s : RefStream aig curr) : RefStreamEntry α w :=
+      (lhs rhs : RefVec aig w) (s : RefVec aig curr) : RefVecEntry α w :=
     if hcurr:curr < w then
       let input := ⟨discr, lhs.get curr hcurr, rhs.get curr hcurr⟩
       let res := mkIfCached aig input
@@ -117,7 +117,7 @@ termination_by w - curr
 namespace ite
 
 theorem go_le_size (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (discr : Ref aig)
-    (lhs rhs : RefStream aig w) (s : RefStream aig curr) :
+    (lhs rhs : RefVec aig w) (s : RefVec aig curr) :
     aig.decls.size ≤ (go aig curr hcurr discr lhs rhs s).aig.decls.size := by
   unfold go
   dsimp only
@@ -128,7 +128,7 @@ theorem go_le_size (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (discr : Ref
 termination_by w - curr
 
 theorem go_decl_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (discr : Ref aig)
-    (lhs rhs : RefStream aig w) (s : RefStream aig curr) :
+    (lhs rhs : RefVec aig w) (s : RefVec aig curr) :
     ∀ (idx : Nat) (h1) (h2),
       (go aig curr hcurr discr lhs rhs s).aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
   generalize hgo : go aig curr hcurr discr lhs rhs s = res
@@ -146,7 +146,7 @@ termination_by w - curr
 
 end ite
 
-instance : LawfulStreamOperator α IfInput ite where
+instance : LawfulVecOperator α IfInput ite where
   le_size := by
     intros
     unfold ite
@@ -159,7 +159,7 @@ instance : LawfulStreamOperator α IfInput ite where
 namespace ite
 
 theorem go_get_aux {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (discr : Ref aig)
-    (lhs rhs : RefStream aig w) (s : RefStream aig curr) :
+    (lhs rhs : RefVec aig w) (s : RefVec aig curr) :
     ∀ (idx : Nat) (hidx : idx < curr) (hfoo),
       (go aig curr hcurr discr lhs rhs s).stream.get idx (by omega)
         =
@@ -172,9 +172,9 @@ theorem go_get_aux {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (d
   . rw [← hgo]
     intros
     rw [go_get_aux]
-    rw [AIG.RefStream.get_push_ref_lt]
+    rw [AIG.RefVec.get_push_ref_lt]
     . simp only [Ref.cast, Ref.mk.injEq]
-      rw [AIG.RefStream.get_cast]
+      rw [AIG.RefVec.get_cast]
       . simp
       . assumption
     . apply go_le_size
@@ -186,7 +186,7 @@ theorem go_get_aux {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (d
 termination_by w - curr
 
 theorem go_get {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (discr : Ref aig)
-    (lhs rhs : RefStream aig w) (s : RefStream aig curr) :
+    (lhs rhs : RefVec aig w) (s : RefVec aig curr) :
     ∀ (idx : Nat) (hidx : idx < curr),
       (go aig curr hcurr discr lhs rhs s).stream.get idx (by omega)
         =
@@ -195,7 +195,7 @@ theorem go_get {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (discr
   apply go_get_aux
 
 theorem go_denote_mem_prefix {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w)
-    (discr : Ref aig) (lhs rhs : RefStream aig w) (s : RefStream aig curr) (start : Nat) (hstart) :
+    (discr : Ref aig) (lhs rhs : RefVec aig w) (s : RefVec aig curr) (start : Nat) (hstart) :
     ⟦
       (go aig curr hcurr discr lhs rhs s).aig,
       ⟨start, by apply Nat.lt_of_lt_of_le; exact hstart; apply go_le_size⟩,
@@ -211,7 +211,7 @@ theorem go_denote_mem_prefix {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr
     apply go_le_size
 
 theorem denote_go {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (discr : Ref aig)
-    (lhs rhs : RefStream aig w) (s : RefStream aig curr) :
+    (lhs rhs : RefVec aig w) (s : RefVec aig curr) :
     ∀ (idx : Nat) (hidx1 : idx < w),
       curr ≤ idx
         →
@@ -235,7 +235,7 @@ theorem denote_go {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (di
       subst heq
       rw [← hgo]
       rw [go_get]
-      rw [AIG.RefStream.get_push_ref_eq']
+      rw [AIG.RefVec.get_push_ref_eq']
       . rw [go_denote_mem_prefix]
         . simp
         . simp [Ref.hgate]
@@ -270,7 +270,7 @@ theorem denote_ite {aig : AIG α} {input : IfInput aig w} :
   dsimp only
   rw [ite.denote_go]
   omega
-end RefStream
+end RefVec
 
 end AIG
 

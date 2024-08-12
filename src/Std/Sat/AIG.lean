@@ -13,7 +13,7 @@ import Std.Sat.AIG.CachedGatesLemmas
 import Std.Sat.AIG.CNF
 import Std.Sat.AIG.Relabel
 import Std.Sat.AIG.RelabelNat
-import Std.Sat.AIG.RefStream
-import Std.Sat.AIG.RefStreamOperator
-import Std.Sat.AIG.LawfulStreamOperator
+import Std.Sat.AIG.RefVec
+import Std.Sat.AIG.RefVecOperator
+import Std.Sat.AIG.LawfulVecOperator
 import Std.Sat.AIG.If

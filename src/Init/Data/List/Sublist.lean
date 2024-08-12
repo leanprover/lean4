@@ -1,7 +1,8 @@
 /-
 Copyright (c) 2014 Parikshit Khanna. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro
+Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro,
+  Kim Morrison
 -/
 prelude
 import Init.Data.List.TakeDrop
@@ -527,17 +528,17 @@ theorem IsPrefix.isInfix : l₁ <+: l₂ → l₁ <:+: l₂ := fun ⟨t, h⟩ =>
 
 theorem IsSuffix.isInfix : l₁ <:+ l₂ → l₁ <:+: l₂ := fun ⟨t, h⟩ => ⟨t, [], by rw [h, append_nil]⟩
 
-@[simp] theorem nil_prefix (l : List α) : [] <+: l := ⟨l, rfl⟩
+@[simp] theorem nil_prefix {l : List α} : [] <+: l := ⟨l, rfl⟩
 
-@[simp] theorem nil_suffix (l : List α) : [] <:+ l := ⟨l, append_nil _⟩
+@[simp] theorem nil_suffix {l : List α} : [] <:+ l := ⟨l, append_nil _⟩
 
-@[simp] theorem nil_infix (l : List α) : [] <:+: l := (nil_prefix _).isInfix
+@[simp] theorem nil_infix {l : List α} : [] <:+: l := nil_prefix.isInfix
 
-@[simp] theorem prefix_refl (l : List α) : l <+: l := ⟨[], append_nil _⟩
+@[simp] theorem prefix_refl {l : List α} : l <+: l := ⟨[], append_nil _⟩
 
-@[simp] theorem suffix_refl (l : List α) : l <:+ l := ⟨[], rfl⟩
+@[simp] theorem suffix_refl {l : List α} : l <:+ l := ⟨[], rfl⟩
 
-@[simp] theorem infix_refl (l : List α) : l <:+: l := (prefix_refl l).isInfix
+@[simp] theorem infix_refl {l : List α} : l <:+: l := prefix_refl.isInfix
 
 @[simp] theorem suffix_cons (a : α) : ∀ l, l <:+ a :: l := suffix_append [a]
 
@@ -573,6 +574,16 @@ protected theorem IsSuffix.sublist (h : l₁ <:+ l₂) : l₁ <+ l₂ :=
 protected theorem IsSuffix.subset (hl : l₁ <:+ l₂) : l₁ ⊆ l₂ :=
   hl.sublist.subset
 
+@[simp] theorem infix_nil : l <:+: [] ↔ l = [] := ⟨(sublist_nil.1 ·.sublist), (· ▸ infix_refl)⟩
+
+@[simp] theorem prefix_nil : l <+: [] ↔ l = [] := ⟨(sublist_nil.1 ·.sublist), (· ▸ prefix_refl)⟩
+
+@[simp] theorem suffix_nil : l <:+ [] ↔ l = [] := ⟨(sublist_nil.1 ·.sublist), (· ▸ suffix_refl)⟩
+
+theorem eq_nil_of_infix_nil (h : l <:+: []) : l = [] := infix_nil.mp h
+theorem eq_nil_of_prefix_nil (h : l <+: []) : l = [] := prefix_nil.mp h
+theorem eq_nil_of_suffix_nil (h : l <:+ []) : l = [] := suffix_nil.mp h
+
 @[simp] theorem reverse_suffix : reverse l₁ <:+ reverse l₂ ↔ l₁ <+: l₂ :=
   ⟨fun ⟨r, e⟩ => ⟨reverse r, by rw [← reverse_reverse l₁, ← reverse_append, e, reverse_reverse]⟩,
    fun ⟨r, e⟩ => ⟨reverse r, by rw [← reverse_append, e]⟩⟩
@@ -586,6 +597,17 @@ protected theorem IsSuffix.subset (hl : l₁ <:+ l₂) : l₁ ⊆ l₂ :=
       reverse_reverse]
   · rw [append_assoc, ← reverse_append, ← reverse_append, e]
 
+theorem IsInfix.reverse : l₁ <:+: l₂ → reverse l₁ <:+: reverse l₂ :=
+  reverse_infix.2
+
+theorem IsSuffix.reverse : l₁ <:+ l₂ → reverse l₁ <+: reverse l₂ :=
+  reverse_prefix.2
+
+theorem IsPrefix.reverse : l₁ <+: l₂ → reverse l₁ <:+ reverse l₂ :=
+  reverse_suffix.2
+
+theorem prefix_concat (a : α) (l) : l <+: concat l a := by simp
+
 theorem IsInfix.length_le (h : l₁ <:+: l₂) : l₁.length ≤ l₂.length :=
   h.sublist.length_le
 
@@ -595,15 +617,13 @@ theorem IsPrefix.length_le (h : l₁ <+: l₂) : l₁.length ≤ l₂.length :=
 theorem IsSuffix.length_le (h : l₁ <:+ l₂) : l₁.length ≤ l₂.length :=
   h.sublist.length_le
 
-@[simp] theorem infix_nil : l <:+: [] ↔ l = [] := ⟨(sublist_nil.1 ·.sublist), (· ▸ infix_refl _)⟩
-
-@[simp] theorem prefix_nil : l <+: [] ↔ l = [] := ⟨(sublist_nil.1 ·.sublist), (· ▸ prefix_refl _)⟩
-
-@[simp] theorem suffix_nil : l <:+ [] ↔ l = [] := ⟨(sublist_nil.1 ·.sublist), (· ▸ suffix_refl _)⟩
-
-theorem infix_iff_prefix_suffix (l₁ l₂ : List α) : l₁ <:+: l₂ ↔ ∃ t, l₁ <+: t ∧ t <:+ l₂ :=
+theorem infix_iff_prefix_suffix {l₁ l₂ : List α} : l₁ <:+: l₂ ↔ ∃ t, l₁ <+: t ∧ t <:+ l₂ :=
   ⟨fun ⟨_, t, e⟩ => ⟨l₁ ++ t, ⟨_, rfl⟩, e ▸ append_assoc .. ▸ ⟨_, rfl⟩⟩,
     fun ⟨_, ⟨t, rfl⟩, s, e⟩ => ⟨s, t, append_assoc .. ▸ e⟩⟩
+
+theorem infix_iff_suffix_prefix {l₁ l₂ : List α} : l₁ <:+: l₂ ↔ ∃ t, l₁ <:+ t ∧ t <+: l₂ :=
+  ⟨fun ⟨s, t, e⟩ => ⟨s ++ l₁, ⟨_, rfl⟩, ⟨t, e⟩⟩,
+    fun ⟨_, ⟨s, rfl⟩, t, e⟩ => ⟨s, t, append_assoc .. ▸ e⟩⟩
 
 theorem IsInfix.eq_of_length (h : l₁ <:+: l₂) : l₁.length = l₂.length → l₁ = l₂ :=
   h.sublist.eq_of_length
@@ -616,7 +636,7 @@ theorem IsSuffix.eq_of_length (h : l₁ <:+ l₂) : l₁.length = l₂.length �
 
 theorem prefix_of_prefix_length_le :
     ∀ {l₁ l₂ l₃ : List α}, l₁ <+: l₃ → l₂ <+: l₃ → length l₁ ≤ length l₂ → l₁ <+: l₂
-  | [], l₂, _, _, _, _ => nil_prefix _
+  | [], l₂, _, _, _, _ => nil_prefix
   | a :: l₁, b :: l₂, _, ⟨r₁, rfl⟩, ⟨r₂, e⟩, ll => by
     injection e with _ e'; subst b
     rcases prefix_of_prefix_length_le ⟨_, rfl⟩ ⟨_, e'⟩ (le_of_succ_le_succ ll) with ⟨r₃, rfl⟩
@@ -679,6 +699,41 @@ theorem infix_cons_iff : l₁ <:+: a :: l₂ ↔ l₁ <+: a :: l₂ ∨ l₁ <:+
     · exact h.isInfix
     · exact infix_cons hl₁
 
+theorem prefix_concat_iff {l₁ l₂ : List α} {a : α} :
+    l₁ <+: l₂ ++ [a] ↔ l₁ = l₂ ++ [a] ∨ l₁ <+: l₂ := by
+  simp only [← concat_eq_append, ← reverse_suffix, reverse_concat, suffix_cons_iff]
+  simp only [concat_eq_append, ← reverse_concat, reverse_eq_iff, reverse_reverse]
+
+theorem suffix_concat_iff {l₁ l₂ : List α} {a : α} :
+    l₁ <:+ l₂ ++ [a] ↔ l₁ = [] ∨ ∃ t, l₁ = t ++ [a] ∧ t <:+ l₂ := by
+  rw [← reverse_prefix, ← concat_eq_append, reverse_concat, prefix_cons_iff]
+  simp only [reverse_eq_nil_iff]
+  apply or_congr_right
+  constructor
+  · rintro ⟨t, w, h⟩
+    exact ⟨t.reverse, by simpa using congrArg reverse w, by simpa using h.reverse⟩
+  · rintro ⟨t, rfl, h⟩
+    exact ⟨t.reverse, by simp, by simpa using h.reverse⟩
+
+theorem infix_concat_iff {l₁ l₂ : List α} {a : α} :
+    l₁ <:+: l₂ ++ [a] ↔ l₁ <:+ l₂ ++ [a] ∨ l₁ <:+: l₂ := by
+  rw [← reverse_infix, ← concat_eq_append, reverse_concat, infix_cons_iff, reverse_infix,
+    ← reverse_prefix, reverse_concat]
+
+theorem isPrefix_iff : l₁ <+: l₂ ↔ ∀ i (h : i < l₁.length), l₂[i]? = some l₁[i] := by
+  induction l₁ generalizing l₂ with
+  | nil => simp
+  | cons a l₁ ih =>
+    cases l₂ with
+    | nil =>
+      simpa using ⟨0, by simp⟩
+    | cons b l₂ =>
+      simp only [cons_append, cons_prefix_cons, ih]
+      rw (config := {occs := .pos [2]}) [← Nat.and_forall_add_one]
+      simp [Nat.succ_lt_succ_iff, eq_comm]
+
+-- See `Init.Data.List.Nat.Sublist` for `isSuffix_iff` and `ifInfix_iff`.
+
 theorem infix_of_mem_join : ∀ {L : List (List α)}, l ∈ L → l <:+: join L
   | l' :: _, h =>
     match h with
@@ -716,6 +771,48 @@ theorem mem_of_mem_take {l : List α} (h : a ∈ l.take n) : a ∈ l :=
 
 theorem mem_of_mem_drop {n} {l : List α} (h : a ∈ l.drop n) : a ∈ l :=
   drop_subset _ _ h
+
+theorem drop_suffix_drop_left (l : List α) {m n : Nat} (h : m ≤ n) : drop n l <:+ drop m l := by
+  rw [← Nat.sub_add_cancel h, ← drop_drop]
+  apply drop_suffix
+
+-- See `Init.Data.List.Nat.TakeDrop` for `take_prefix_take_left`.
+
+theorem drop_sublist_drop_left (l : List α) {m n : Nat} (h : m ≤ n) : drop n l <+ drop m l :=
+  (drop_suffix_drop_left l h).sublist
+
+theorem drop_subset_drop_left (l : List α) {m n : Nat} (h : m ≤ n) : drop n l ⊆ drop m l :=
+  (drop_sublist_drop_left l h).subset
+
+theorem takeWhile_prefix (p : α → Bool) : l.takeWhile p <+: l :=
+  ⟨l.dropWhile p, takeWhile_append_dropWhile p l⟩
+
+theorem dropWhile_suffix (p : α → Bool) : l.dropWhile p <:+ l :=
+  ⟨l.takeWhile p, takeWhile_append_dropWhile p l⟩
+
+theorem takeWhile_sublist (p : α → Bool) : l.takeWhile p <+ l :=
+  (takeWhile_prefix p).sublist
+
+theorem dropWhile_sublist (p : α → Bool) : l.dropWhile p <+ l :=
+  (dropWhile_suffix p).sublist
+
+theorem takeWhile_subset {l : List α} (p : α → Bool) : l.takeWhile p ⊆ l :=
+  (takeWhile_sublist p).subset
+
+theorem dropWhile_subset {l : List α} (p : α → Bool) : l.dropWhile p ⊆ l :=
+  (dropWhile_sublist p).subset
+
+theorem dropLast_prefix : ∀ l : List α, l.dropLast <+: l
+  | [] => ⟨nil, by rw [dropLast, List.append_nil]⟩
+  | a :: l => ⟨_, dropLast_concat_getLast (cons_ne_nil a l)⟩
+
+theorem dropLast_sublist (l : List α) : l.dropLast <+ l :=
+  (dropLast_prefix l).sublist
+
+theorem dropLast_subset (l : List α) : l.dropLast ⊆ l :=
+  (dropLast_sublist l).subset
+
+theorem tail_suffix (l : List α) : tail l <:+ l := by rw [← drop_one]; apply drop_suffix
 
 theorem IsPrefix.filter (p : α → Bool) ⦃l₁ l₂ : List α⦄ (h : l₁ <+: l₂) :
     l₁.filter p <+: l₂.filter p := by

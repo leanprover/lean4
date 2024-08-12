@@ -541,30 +541,25 @@ where
       stx := .missing
       parserState := {}
       elabSnap := { range? := stx.getRange?, task := elabPromise.result }
-      finishedSnap := { range? := none, task := finishedPromise.result.map fun finishedSnap => {
-        diagnostics := finishedSnap.diagnostics
-        infoTree? := none
-        cmdState := {
-          env := initEnv
-          maxRecDepth := 0
-        }
-      }}
+      finishedSnap
       tacticCache
     } else {
       diagnostics, stx, parserState, tacticCache
       elabSnap := { range? := stx.getRange?, task := elabPromise.result }
       finishedSnap
     }
-    prom.resolve <| .mk (nextCmdSnap? := next?.map ({ range? := some ⟨parserState.pos, ctx.input.endPos⟩, task := ·.result })) data
-    doElab stx cmdState beginPos
+    prom.resolve <| .mk (nextCmdSnap? := next?.map
+      ({ range? := some ⟨parserState.pos, ctx.input.endPos⟩, task := ·.result })) data
+    let cmdState ← doElab stx cmdState beginPos
       { old? := old?.map fun old => ⟨old.data.stx, old.data.elabSnap⟩, new := elabPromise }
-      finishedPromise tacticCache ctx
+      finishedPromise tacticCache initEnv ctx
     if let some next := next? then
-      parseCmd none parserState finishedSnap.get.cmdState initEnv next ctx
+      parseCmd none parserState cmdState initEnv next ctx
 
   doElab (stx : Syntax) (cmdState : Command.State) (beginPos : String.Pos)
       (snap : SnapshotBundle DynamicSnapshot) (finishedPromise : IO.Promise CommandFinishedSnapshot)
-      (tacticCache : IO.Ref Tactic.Cache) : LeanProcessingM Unit := do
+      (tacticCache : IO.Ref Tactic.Cache) (initEnv : Environment) :
+      LeanProcessingM Command.State := do
     let ctx ← read
     let scope := cmdState.scopes.head!
     let cmdStateRef ← IO.mkRef { cmdState with messages := .empty }
@@ -601,11 +596,18 @@ where
     let cmdState := { cmdState with messages }
     -- definitely resolve eventually
     snap.new.resolve <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
+    let minimal := internal.minimalSnapshots.get scope.opts && !Parser.isTerminalCommand stx
     finishedPromise.resolve {
       diagnostics := (← Snapshot.Diagnostics.ofMessageLog cmdState.messages)
-      infoTree? := some cmdState.infoState.trees[0]!
-      cmdState
+      infoTree? := guard (!minimal) *> cmdState.infoState.trees[0]!
+      cmdState := if minimal then {
+        env := initEnv
+        maxRecDepth := 0
+      } else cmdState
     }
+    -- The reported `cmdState` in the snapshot may be minimized as seen above, so we return the full
+    -- state here for further processing on the same thread
+    return cmdState
 
 /--
 Convenience function for tool uses of the language processor that skips header handling.

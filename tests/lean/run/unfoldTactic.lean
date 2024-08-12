@@ -83,10 +83,10 @@ example : True := by
 Conv tactic
 -/
 
-example : id true = true := by
-  unfold id
-  guard_target =ₛ true = true
-  rfl
+example (h : False) : id true = false := by
+  conv => unfold id
+  guard_target =ₛ true = false
+  exact h.elim
 
 example : let x := 1; let y := 2; x + y = y + x := by
   intro x y

@@ -118,7 +118,6 @@ static void print_backtrace() {
 }
 
 extern "C" LEAN_EXPORT object * lean_panic_fn(object * default_val, object * msg) {
-    // TODO(Leo, Kha): add thread local buffer for interpreter.
     if (g_panic_messages) {
         panic_eprintln(lean_string_cstr(msg));
 #ifdef __GLIBC__

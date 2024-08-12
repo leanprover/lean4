@@ -16,14 +16,14 @@ public:
     option_ref(b_obj_arg o, bool b):object_ref(o, b) {}
     option_ref():object_ref(box(0)) {}
     option_ref(option_ref const & other):object_ref(other) {}
-    option_ref(option_ref && other):object_ref(other) {}
+    option_ref(option_ref && other):object_ref(std::move(other)) {}
     explicit option_ref(T const & a):object_ref(mk_cnstr(1, a.raw())) { inc(a.raw()); }
     explicit option_ref(T const * a) { if (a) *this = option_ref(*a); }
     explicit option_ref(option_ref<T> const * o) { if (o) *this = *o; }
     explicit option_ref(optional<T> const & o):option_ref(o ? &*o : nullptr) {}
 
     option_ref & operator=(option_ref const & other) { object_ref::operator=(other); return *this; }
-    option_ref & operator=(option_ref && other) { object_ref::operator=(other); return *this; }
+    option_ref & operator=(option_ref && other) { object_ref::operator=(std::move(other)); return *this; }
 
     explicit operator bool() const { return !is_scalar(raw()); }
     optional<T> get() const { return *this ? some(static_cast<T const &>(cnstr_get_ref(*this, 0))) : optional<T>(); }

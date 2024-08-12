@@ -74,7 +74,7 @@ public:
     name(std::string const & s):name(name(), string_ref(s)) {}
     name(string_ref const & s):name(name(), s) {}
     name(name const & other):object_ref(other) {}
-    name(name && other):object_ref(other) {}
+    name(name && other):object_ref(std::move(other)) {}
     /**
        \brief Create a hierarchical name using the given strings.
        Example: <code>name{"foo", "bla", "tst"}</code> creates the hierarchical
@@ -97,7 +97,7 @@ public:
     */
     static name mk_internal_unique_name();
     name & operator=(name const & other) { object_ref::operator=(other); return *this; }
-    name & operator=(name && other) { object_ref::operator=(other); return *this; }
+    name & operator=(name && other) { object_ref::operator=(std::move(other)); return *this; }
     static uint64_t hash(b_obj_arg n) {
        lean_assert(lean_name_hash(n) == lean_name_hash_exported_b(n));
        return lean_name_hash(n);

@@ -326,7 +326,7 @@ where
     | Decl.gate _ _ _ _ => s!"{idx} [label=\"{idx} ∧\",shape=trapezium];"
 
 /--
-A stream of references into `aig`. This is the `AIG` analog of `BitVec`.
+A vector of references into `aig`. This is the `AIG` analog of `BitVec`.
 -/
 structure RefVec (aig : AIG α) (w : Nat) where
   refs : Array Nat
@@ -338,13 +338,13 @@ A sequence of references bundled with their AIG.
 -/
 structure RefVecEntry (α : Type) [DecidableEq α] [Hashable α] [DecidableEq α] (w : Nat) where
   aig : AIG α
-  stream : RefVec aig w
+  vec : RefVec aig w
 
 /--
 A `RefVec` bundled with constant distance to be shifted by.
 -/
 structure ShiftTarget (aig : AIG α) (w : Nat) where
-  stream : AIG.RefVec aig w
+  vec : AIG.RefVec aig w
   distance : Nat
 
 /--
@@ -360,7 +360,7 @@ A `RefVec` to be extended to `newWidth`.
 -/
 structure ExtendTarget (aig : AIG α) (newWidth : Nat) where
   w : Nat
-  stream : AIG.RefVec aig w
+  vec : AIG.RefVec aig w
 
 /--
 Evaluate an `AIG.Entrypoint` using some assignment for atoms.

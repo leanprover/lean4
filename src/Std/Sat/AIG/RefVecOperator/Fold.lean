@@ -16,15 +16,15 @@ variable {α : Type} [Hashable α] [DecidableEq α] {aig : AIG α}
 
 structure FoldTarget (aig : AIG α) where
   {len : Nat}
-  stream : RefVec aig len
+  vec : RefVec aig len
   func : (aig : AIG α) → BinaryInput aig → Entrypoint α
   [lawful : LawfulOperator α BinaryInput func]
 
 attribute [instance] FoldTarget.lawful
 
 @[inline]
-def FoldTarget.mkAnd {aig : AIG α} (stream : RefVec aig w) : FoldTarget aig where
-  stream := stream
+def FoldTarget.mkAnd {aig : AIG α} (vec : RefVec aig w) : FoldTarget aig where
+  vec := vec
   func := mkAndCached
 
 @[specialize]
@@ -32,7 +32,7 @@ def fold (aig : AIG α) (target : FoldTarget aig) : Entrypoint α :=
   let res := aig.mkConstCached true
   let aig := res.aig
   let acc := res.ref
-  let input := target.stream.cast <| by
+  let input := target.vec.cast <| by
     intros
     apply LawfulOperator.le_size_of_le_aig_size (f := mkConstCached)
     omega

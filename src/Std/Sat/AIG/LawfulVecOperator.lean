@@ -73,10 +73,10 @@ theorem denote_mem_prefix {aig : AIG α} {input : β aig len} (h) :
   rw [denote_input_entry ⟨aig, start, h⟩]
 
 @[simp]
-theorem denote_input_stream (s : RefVecEntry α len) {input : β s.aig len} {hcast} :
-    ⟦(f s.aig input).aig, (s.stream.get idx hidx).cast hcast, assign⟧
+theorem denote_input_vec (s : RefVecEntry α len) {input : β s.aig len} {hcast} :
+    ⟦(f s.aig input).aig, (s.vec.get idx hidx).cast hcast, assign⟧
       =
-    ⟦s.aig, s.stream.get idx hidx, assign⟧ :=  by
+    ⟦s.aig, s.vec.get idx hidx, assign⟧ :=  by
   rw [denote_mem_prefix]
   rfl
 

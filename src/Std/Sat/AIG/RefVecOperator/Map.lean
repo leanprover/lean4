@@ -42,7 +42,7 @@ instance : LawfulMapOperator α mkNotCached where
 end LawfulMapOperator
 
 structure MapTarget (aig : AIG α) (len : Nat) where
-  stream : RefVec aig len
+  vec : RefVec aig len
   func : (aig : AIG α) → Ref aig → Entrypoint α
   [lawful : LawfulOperator α Ref func]
   [chainable : LawfulMapOperator α func]
@@ -52,7 +52,7 @@ attribute [instance] MapTarget.chainable
 
 @[specialize]
 def map (aig : AIG α) (target : MapTarget aig len) : RefVecEntry α len :=
-  go aig 0 (by omega) .empty target.stream target.func
+  go aig 0 (by omega) .empty target.vec target.func
 where
   @[specialize]
   go {len : Nat} (aig : AIG α) (idx : Nat) (hidx : idx ≤ len) (s : RefVec aig idx)
@@ -134,7 +134,7 @@ theorem go_get_aux {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVe
     [LawfulOperator α Ref f] [LawfulMapOperator α f] :
     -- The hfoo here is a trick to make the dependent type gods happy.
     ∀ (idx : Nat) (hidx : idx < curr) (hfoo),
-      (go aig curr hcurr s input f).stream.get idx (by omega)
+      (go aig curr hcurr s input f).vec.get idx (by omega)
         =
       (s.get idx hidx).cast hfoo := by
   intro idx hidx
@@ -163,7 +163,7 @@ theorem go_get {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVec ai
     (input : RefVec aig len) (f : (aig : AIG α) → Ref aig → Entrypoint α)
     [LawfulOperator α Ref f] [LawfulMapOperator α f] :
     ∀ (idx : Nat) (hidx : idx < curr),
-      (go aig curr hcurr s input f).stream.get idx (by omega)
+      (go aig curr hcurr s input f).vec.get idx (by omega)
         =
       (s.get idx hidx).cast (by apply go_le_size) := by
   intros
@@ -193,7 +193,7 @@ theorem denote_go {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVec
     ∀ (idx : Nat) (hidx1 : idx < len),
       curr ≤ idx
         →
-      ⟦(go aig curr hcurr s input f).aig, (go aig curr hcurr s input f).stream.get idx hidx1, assign⟧
+      ⟦(go aig curr hcurr s input f).aig, (go aig curr hcurr s input f).vec.get idx hidx1, assign⟧
         =
       ⟦f aig (input.get idx hidx1), assign⟧ := by
   intro idx hidx1 hidx2
@@ -224,9 +224,9 @@ end map
 @[simp]
 theorem denote_map {aig : AIG α} (target : MapTarget aig len) :
     ∀ (idx : Nat) (hidx : idx < len),
-      ⟦(map aig target).aig, (map aig target).stream.get idx hidx, assign⟧
+      ⟦(map aig target).aig, (map aig target).vec.get idx hidx, assign⟧
         =
-      ⟦target.func aig (target.stream.get idx hidx), assign⟧ := by
+      ⟦target.func aig (target.vec.get idx hidx), assign⟧ := by
   intro idx hidx
   unfold map
   apply map.denote_go

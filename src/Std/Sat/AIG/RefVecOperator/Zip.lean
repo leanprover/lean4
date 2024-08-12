@@ -161,7 +161,7 @@ theorem go_get_aux {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVe
     [LawfulOperator α BinaryInput f] [chainable : LawfulZipOperator α f] :
     -- The hfoo here is a trick to make the dependent type gods happy
     ∀ (idx : Nat) (hidx : idx < curr) (hfoo),
-      (go aig curr s hcurr lhs rhs f).stream.get idx (by omega)
+      (go aig curr s hcurr lhs rhs f).vec.get idx (by omega)
         =
       (s.get idx hidx).cast hfoo := by
   intro idx hidx
@@ -190,7 +190,7 @@ theorem go_get {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVec ai
     (lhs rhs : RefVec aig len) (f : (aig : AIG α) → BinaryInput aig → Entrypoint α)
     [LawfulOperator α BinaryInput f] [chainable : LawfulZipOperator α f] :
     ∀ (idx : Nat) (hidx : idx < curr),
-      (go aig curr s hcurr lhs rhs f).stream.get idx (by omega)
+      (go aig curr s hcurr lhs rhs f).vec.get idx (by omega)
         =
       (s.get idx hidx).cast (by apply go_le_size) := by
   intros
@@ -222,7 +222,7 @@ theorem denote_go {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVec
         →
       ⟦
         (go aig curr s hcurr lhs rhs f).aig,
-        (go aig curr s hcurr lhs rhs f).stream.get idx hidx1,
+        (go aig curr s hcurr lhs rhs f).vec.get idx hidx1,
         assign
       ⟧
         =
@@ -255,7 +255,7 @@ end zip
 @[simp]
 theorem denote_zip {aig : AIG α} (target : ZipTarget aig len) :
     ∀ (idx : Nat) (hidx : idx < len),
-      ⟦(zip aig target).aig, (zip aig target).stream.get idx hidx, assign⟧
+      ⟦(zip aig target).aig, (zip aig target).vec.get idx hidx, assign⟧
         =
       ⟦target.func aig ⟨target.input.lhs.get idx hidx, target.input.rhs.get idx hidx⟩, assign⟧ := by
   intros

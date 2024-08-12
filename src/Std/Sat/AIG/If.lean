@@ -101,8 +101,7 @@ where
       let res := mkIfCached aig input
       let aig := res.aig
       let ref := res.ref
-      have := by
-        apply LawfulOperator.le_size (f := mkIfCached)
+      have := LawfulOperator.le_size (f := mkIfCached) ..
       let discr := discr.cast this
       let lhs := lhs.cast this
       let rhs := rhs.cast this
@@ -161,7 +160,7 @@ namespace ite
 theorem go_get_aux {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (discr : Ref aig)
     (lhs rhs : RefVec aig w) (s : RefVec aig curr) :
     ∀ (idx : Nat) (hidx : idx < curr) (hfoo),
-      (go aig curr hcurr discr lhs rhs s).stream.get idx (by omega)
+      (go aig curr hcurr discr lhs rhs s).vec.get idx (by omega)
         =
       (s.get idx hidx).cast hfoo := by
   intro idx hidx
@@ -188,7 +187,7 @@ termination_by w - curr
 theorem go_get {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (discr : Ref aig)
     (lhs rhs : RefVec aig w) (s : RefVec aig curr) :
     ∀ (idx : Nat) (hidx : idx < curr),
-      (go aig curr hcurr discr lhs rhs s).stream.get idx (by omega)
+      (go aig curr hcurr discr lhs rhs s).vec.get idx (by omega)
         =
       (s.get idx hidx).cast (by apply go_le_size) := by
   intro idx hidx
@@ -217,7 +216,7 @@ theorem denote_go {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (di
         →
       ⟦
         (go aig curr hcurr discr lhs rhs s).aig,
-        (go aig curr hcurr discr lhs rhs s).stream.get idx hidx1,
+        (go aig curr hcurr discr lhs rhs s).vec.get idx hidx1,
         assign
       ⟧
         =
@@ -259,7 +258,7 @@ end ite
 @[simp]
 theorem denote_ite {aig : AIG α} {input : IfInput aig w} :
   ∀ (idx : Nat) (hidx : idx < w),
-    ⟦(ite aig input).aig, (ite aig input).stream.get idx hidx, assign⟧
+    ⟦(ite aig input).aig, (ite aig input).vec.get idx hidx, assign⟧
       =
     if ⟦aig, input.discr, assign⟧ then
       ⟦aig, input.lhs.get idx hidx, assign⟧

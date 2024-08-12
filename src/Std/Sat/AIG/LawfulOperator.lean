@@ -31,7 +31,7 @@ structure IsPrefix (decls1 decls2 : Array (Decl α)) : Prop where
 
 /--
 If `decls1` is a prefix of `decls2` and we start evaluating `decls2` at an
-index in bounds of `decls1` we can evluate at `decls1`.
+index in bounds of `decls1` we can evaluate at `decls1`.
 -/
 theorem denote.go_eq_of_IsPrefix (decls1 decls2 : Array (Decl α)) (start : Nat) {hdag1} {hdag2}
     {hbounds1} {hbounds2} (hprefix : IsPrefix decls1 decls2) :
@@ -65,7 +65,7 @@ termination_by start
 
 variable {α : Type} [Hashable α] [DecidableEq α]
 
-@[inherit_doc denote.go_eq_of_IsPrefix ]
+@[inherit_doc denote.go_eq_of_IsPrefix]
 theorem denote.eq_of_IsPrefix (entry : Entrypoint α) (newAIG : AIG α)
       (hprefix : IsPrefix entry.aig.decls newAIG.decls) :
     ⟦newAIG, ⟨entry.ref.gate, (by have := entry.ref.hgate; have := hprefix.size_le; omega)⟩, assign⟧

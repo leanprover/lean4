@@ -27,23 +27,19 @@ def mkNotCached (aig : AIG α) (gate : Ref aig) : Entrypoint α :=
   let aig := res.aig
   let constRef := res.ref
   aig.mkGateCached
-    {
-      lhs := {
-        ref := constRef
-        inv := false
-      }
-      rhs := {
-        ref := gate.cast <| by
+    { lhs := 
+      { ref := constRef
+        inv := false }
+      rhs := 
+      { ref := gate.cast <| by
           intros
           apply LawfulOperator.le_size_of_le_aig_size (f := mkConstCached)
           omega
-        inv := true
-      }
-    }
+        inv := true } }
 
 @[inline]
-def BinaryInput.asGateInput {aig : AIG α} (input : BinaryInput aig) (linv rinv : Bool)
-    : GateInput aig :=
+def BinaryInput.asGateInput {aig : AIG α} (input : BinaryInput aig) (linv rinv : Bool) :
+    GateInput aig :=
   {
     lhs := {
       ref := input.lhs

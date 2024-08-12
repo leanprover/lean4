@@ -54,4 +54,16 @@ unsafe abbrev PtrMap.contains (s : PtrMap α β) (a : α) : Bool :=
 unsafe abbrev PtrMap.find? (s : PtrMap α β) (a : α) : Option β :=
   Std.HashMap.get? s { value := a }
 
+unsafe instance : EmptyCollection (PtrSet α) where
+  emptyCollection := mkPtrSet
+
+unsafe instance : EmptyCollection (PtrMap α β) where
+  emptyCollection := mkPtrMap
+
+unsafe instance : Insert α (PtrSet α) where
+  insert := fun a s => PtrSet.insert s a
+
+unsafe instance : Membership α (PtrSet α) where
+  mem := fun a s => PtrSet.contains s a
+
 end Lean

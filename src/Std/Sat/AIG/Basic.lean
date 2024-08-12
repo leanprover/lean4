@@ -41,9 +41,10 @@ inductive Decl (α : Type) where
 
 
 /--
-A `Cache` is valid with respect to an array of declarations if
-whenever `cache.find? decl` returns an index into `xs : Array Decl`, `xs[index] = decl`.
-This predicate limits a `HashMap Decl Nat` to this behavior.
+`Cache.WF xs` is a predicate asserting that a `cache : HashMap (Decl α) Nat` is a valid lookup
+cache for `xs : Array (Decl α)`, that is, whenever `cache.find? decl` returns an index into
+`xs : Array Decl`, `xs[index] = decl`. Note that this predicate does not force the cache to be
+complete, if there is no entry in the cache for some node, it can still exist in the AIG.
 -/
 inductive Cache.WF : Array (Decl α) → HashMap (Decl α) Nat → Prop where
   /--

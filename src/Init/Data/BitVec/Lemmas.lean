@@ -860,8 +860,7 @@ theorem sshiftRight_eq' (x : BitVec w) : x.sshiftRight' y = x.sshiftRight y.toNa
 /-! ### udiv -/
 
 theorem udiv_eq {x y : BitVec n} : x.udiv y = BitVec.ofNat n (x.toNat / y.toNat) := by
-  have h : x.toNat / y.toNat < 2 ^ n := by
-    exact Nat.lt_of_le_of_lt (Nat.div_le_self ..) (by omega)
+  have h : x.toNat / y.toNat < 2 ^ n := Nat.lt_of_le_of_lt (Nat.div_le_self ..) (by omega)
   simp [udiv, bv_toNat, h, Nat.mod_eq_of_lt]
 
 @[simp, bv_toNat]
@@ -876,8 +875,7 @@ theorem toNat_udiv {x y : BitVec n} : (x.udiv y).toNat = x.toNat / y.toNat := by
 
 theorem umod_eq {x y : BitVec n} :
     x.umod y = BitVec.ofNat n (x.toNat % y.toNat) := by
-  have h : x.toNat % y.toNat < 2 ^ n := by
-    apply Nat.lt_of_le_of_lt (Nat.mod_le _ _) x.isLt
+  have h : x.toNat % y.toNat < 2 ^ n := Nat.lt_of_le_of_lt (Nat.mod_le _ _) x.isLt
   simp [umod, bv_toNat, Nat.mod_eq_of_lt h]
 
 @[simp, bv_toNat]

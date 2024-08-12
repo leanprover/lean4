@@ -58,3 +58,38 @@ example : True := by
     guard_target =ₛ 1 + 2 = 3
     rfl
   trivial
+
+/-!
+Nothing to unfold
+-/
+/--
+error: tactic 'unfold' failed to unfold 'id' at
+  True
+-/
+#guard_msgs in
+example : True := by
+  unfold id
+/--
+error: tactic 'unfold' failed to unfold 'x' at
+  True
+-/
+#guard_msgs in
+example : True := by
+  let x := 2
+  unfold x
+
+
+/-!
+Conv tactic
+-/
+
+example : id true = true := by
+  unfold id
+  guard_target =ₛ true = true
+  rfl
+
+example : let x := 1; let y := 2; x + y = y + x := by
+  intro x y
+  conv => unfold x
+  guard_target =ₛ 1 + y = y + 1
+  rfl

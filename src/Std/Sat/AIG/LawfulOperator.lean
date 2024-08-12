@@ -33,7 +33,7 @@ structure IsPrefix (decls1 decls2 : Array (Decl α)) : Prop where
 If `decls1` is a prefix of `decls2` and we start evaluating `decls2` at an
 index in bounds of `decls1` we can evaluate at `decls1`.
 -/
-theorem denote.go_eq_of_IsPrefix (decls1 decls2 : Array (Decl α)) (start : Nat) {hdag1} {hdag2}
+theorem denote.go_eq_of_isPrefix (decls1 decls2 : Array (Decl α)) (start : Nat) {hdag1} {hdag2}
     {hbounds1} {hbounds2} (hprefix : IsPrefix decls1 decls2) :
     denote.go start decls2 assign hbounds2 hdag2
       =
@@ -57,23 +57,23 @@ theorem denote.go_eq_of_IsPrefix (decls1 decls2 : Array (Decl α)) (start : Nat)
     . simp_all
     . simp_all
       congr 2
-      . apply denote.go_eq_of_IsPrefix
+      . apply denote.go_eq_of_isPrefix
         assumption
-      . apply denote.go_eq_of_IsPrefix
+      . apply denote.go_eq_of_isPrefix
         assumption
 termination_by start
 
 variable {α : Type} [Hashable α] [DecidableEq α]
 
-@[inherit_doc denote.go_eq_of_IsPrefix]
-theorem denote.eq_of_IsPrefix (entry : Entrypoint α) (newAIG : AIG α)
+@[inherit_doc denote.go_eq_of_isPrefix]
+theorem denote.eq_of_isPrefix (entry : Entrypoint α) (newAIG : AIG α)
       (hprefix : IsPrefix entry.aig.decls newAIG.decls) :
     ⟦newAIG, ⟨entry.ref.gate, (by have := entry.ref.hgate; have := hprefix.size_le; omega)⟩, assign⟧
       =
     ⟦entry, assign⟧
     := by
   unfold denote
-  apply denote.go_eq_of_IsPrefix
+  apply denote.go_eq_of_isPrefix
   assumption
 
 abbrev ExtendingEntrypoint (aig : AIG α) : Type :=
@@ -100,7 +100,7 @@ namespace LawfulOperator
 variable {β : AIG α → Type}
 variable {f : (aig : AIG α) → β aig → Entrypoint α} [LawfulOperator α β f]
 
-theorem IsPrefix_aig (aig : AIG α) (input : β aig) :
+theorem isPrefix_aig (aig : AIG α) (input : β aig) :
     IsPrefix aig.decls (f aig input).aig.decls := by
   apply IsPrefix.of
   . intro idx h
@@ -131,8 +131,8 @@ theorem denote_input_entry (entry : Entrypoint α) {input} {h} :
     ⟦(f entry.aig input).aig, ⟨entry.ref.gate, h⟩, assign⟧
       =
     ⟦entry, assign⟧ :=  by
-  apply denote.eq_of_IsPrefix
-  apply IsPrefix_aig
+  apply denote.eq_of_isPrefix
+  apply isPrefix_aig
 
 @[simp]
 theorem denote_cast_entry (entry : Entrypoint α) {input} {h} :

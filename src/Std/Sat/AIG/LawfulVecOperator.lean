@@ -25,7 +25,7 @@ variable {β : AIG α → Nat → Type}
 variable {f : {len : Nat} → (aig : AIG α) → β aig len → RefVecEntry α len}
 variable [LawfulVecOperator α β f]
 
-theorem IsPrefix_aig (aig : AIG α) (input : β aig len) :
+theorem isPrefix_aig (aig : AIG α) (input : β aig len) :
     IsPrefix aig.decls (f aig input).aig.decls := by
   apply IsPrefix.of
   . intro idx h
@@ -56,8 +56,8 @@ theorem denote_input_entry (entry : Entrypoint α) {input : β entry.aig len} {h
     ⟦(f entry.aig input).aig, ⟨entry.ref.gate, h⟩, assign ⟧
       =
     ⟦entry, assign⟧ :=  by
-  apply denote.eq_of_IsPrefix
-  apply IsPrefix_aig
+  apply denote.eq_of_isPrefix
+  apply isPrefix_aig
 
 @[simp]
 theorem denote_cast_entry (entry : Entrypoint α) {input : β entry.aig len} {h} :

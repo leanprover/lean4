@@ -114,13 +114,13 @@ theorem denote_mkGate {aig : AIG α} {input : GateInput aig} :
     congr 2
     . unfold denote
       simp only [heq1]
-      apply denote.go_eq_of_IsPrefix
-      apply LawfulOperator.IsPrefix_aig
+      apply denote.go_eq_of_isPrefix
+      apply LawfulOperator.isPrefix_aig
     . simp [heq3]
     . unfold denote
       simp only [heq2]
-      apply denote.go_eq_of_IsPrefix
-      apply LawfulOperator.IsPrefix_aig
+      apply denote.go_eq_of_isPrefix
+      apply LawfulOperator.isPrefix_aig
     . simp [heq4]
 
 /--

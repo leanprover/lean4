@@ -13,6 +13,12 @@ Author: Leonardo de Moura
 #include "kernel/expr_sets.h"
 
 namespace lean {
+inline void update_child(object_ref const & a, unsigned i, object_ref const & new_child) {
+    inc_ref(new_child.raw());
+    dec_ref(cnstr_get(a.raw(), i));
+    cnstr_set(a.raw(), i, new_child.raw());
+}
+
 /**
 \brief Functional object for comparing expressions.
 
@@ -21,12 +27,17 @@ binder information attached to lambda and Pi expressions
 */
 template<bool CompareBinderInfo>
 class expr_eq_fn {
-    struct key_hasher {
-        std::size_t operator()(std::pair<lean_object *, lean_object *> const & p) const {
-            return hash((size_t)p.first >> 3, (size_t)p.first >> 3);
+    struct key_hash {
+        std::size_t operator()(std::pair<expr, expr> const & p) const {
+            return hash((size_t)p.first.raw() >> 3, (size_t)p.second.raw() >> 3);
         }
     };
-    typedef std::unordered_set<std::pair<lean_object *, lean_object *>, key_hasher> cache;
+    struct key_eq {
+        bool operator()(std::pair<expr, expr> const & p1, std::pair<expr, expr> const & p2) const {
+            return p1.first.raw() == p2.first.raw() && p1.second.raw() == p2.second.raw();
+        }
+    };
+    typedef std::unordered_set<std::pair<expr, expr>, key_hash, key_eq> cache;
     cache * m_cache = nullptr;
     size_t m_max_stack_depth = 0;
     size_t m_counter = 0;
@@ -35,7 +46,7 @@ class expr_eq_fn {
             return false;
         if (!m_cache)
             m_cache = new cache();
-        std::pair<lean_object *, lean_object *> key(a.raw(), b.raw());
+        std::pair<expr, expr> key(a, b);
         if (m_cache->find(key) != m_cache->end())
             return true;
         m_cache->insert(key);
@@ -97,17 +108,12 @@ class expr_eq_fn {
                 compare(const_levels(a), const_levels(b), [](level const & l1, level const & l2) { return l1 == l2; });
         case expr_kind::App: {
             check_system(depth);
+            bool b_shared = is_shared(b);
             if (!apply(app_arg(a), app_arg(b), depth)) return false;
-            expr const * curr_a = &app_fn(a);
-            expr const * curr_b = &app_fn(b);
-            while (true) {
-                if (!is_app(*curr_a)) break;
-                if (!is_app(*curr_b)) return false;
-                if (!apply(app_arg(*curr_a), app_arg(*curr_b), depth)) return false;
-                curr_a = &app_fn(*curr_a);
-                curr_b = &app_fn(*curr_b);
-            }
-            return apply(*curr_a, *curr_b, depth);
+            if (!b_shared) update_child(b, 1, app_arg(a));
+            if (!apply(app_fn(a), app_fn(b), depth)) return false;
+            if (!b_shared) update_child(b, 0, app_fn(a));
+            return true;
         }
         case expr_kind::Lambda: case expr_kind::Pi:
             check_system(depth);

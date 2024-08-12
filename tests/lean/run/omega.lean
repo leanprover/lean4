@@ -398,6 +398,9 @@ example (n : Nat) : 2 * (n * n) = n * n + n * n := by omega
 -- example (n : Nat) : 2 * n * n = n * n + n * n := by omega
 -- example (n : Nat) : n * 2 * n = n * n + n * n := by omega
 
+-- From https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/omega.20regression/near/456539091
+example (a : Nat) : a * 1 = a := by omega
+
 /-! ### Fin -/
 
 -- Test `<`

@@ -80,9 +80,9 @@ def mkCoordinateEvalAtomsEq (e : Expr) (n : Nat) : OmegaM Expr := do
     mkEqTrans eq (← mkEqSymm (mkApp2 (.const ``LinearCombo.coordinate_eval []) n atoms))
 
 /-- Construct the linear combination (and its associated proof and new facts) for an atom. -/
-def mkAtomLinearCombo (e : Expr) : OmegaM (LinearCombo × OmegaM Expr × Std.HashSet Expr × Expr) := do
+def mkAtomLinearCombo (e : Expr) : OmegaM (LinearCombo × OmegaM Expr × Std.HashSet Expr) := do
   let (n, facts) ← lookup e
-  return ⟨LinearCombo.coordinate n, mkCoordinateEvalAtomsEq e n, facts.getD ∅, e⟩
+  return ⟨LinearCombo.coordinate n, mkCoordinateEvalAtomsEq e n, facts.getD ∅⟩
 
 mutual
 
@@ -101,7 +101,7 @@ partial def asLinearCombo (e : Expr) : OmegaM (LinearCombo × OmegaM Expr × Std
     trace[omega] "Found in cache: {e}"
     return (lc, prf, ∅)
   | none =>
-    let (lc, proof, r, _) ← asLinearComboImpl e
+    let (lc, proof, r) ← asLinearComboImpl e
     modifyThe Cache fun cache => (cache.insert e (lc, proof.run' cache))
     pure (lc, proof, r)
 
@@ -120,12 +120,12 @@ We also transform the expression as we descend into it:
 * pushing coercions: `↑(x + y)`, `↑(x * y)`, `↑(x / k)`, `↑(x % k)`, `↑k`
 * unfolding `emod`: `x % k` → `x - x / k`
 -/
-partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr × Std.HashSet Expr × Expr) := do
+partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr × Std.HashSet Expr) := do
   trace[omega] "processing {e}"
   match groundInt? e with
   | some i =>
     let lc := {const := i}
-    return ⟨lc, mkEvalRflProof e lc, ∅, e⟩
+    return ⟨lc, mkEvalRflProof e lc, ∅⟩
   | none =>
     if e.isFVar then
       if let some v ← e.fvarId!.getValue? then
@@ -142,7 +142,7 @@ partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr ×
       mkEqTrans
         (← mkAppM ``Int.add_congr #[← prf₁, ← prf₂])
         (← mkEqSymm add_eval)
-    pure (l₁ + l₂, prf, facts₁.union facts₂, e)
+    pure (l₁ + l₂, prf, facts₁.union facts₂)
   | (``HSub.hSub, #[_, _, _, _, e₁, e₂]) => do
     let (l₁, prf₁, facts₁) ← asLinearCombo e₁
     let (l₂, prf₂, facts₂) ← asLinearCombo e₂
@@ -152,7 +152,7 @@ partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr ×
       mkEqTrans
         (← mkAppM ``Int.sub_congr #[← prf₁, ← prf₂])
         (← mkEqSymm sub_eval)
-    pure (l₁ - l₂, prf, facts₁.union facts₂, e)
+    pure (l₁ - l₂, prf, facts₁.union facts₂)
   | (``Neg.neg, #[_, _, e']) => do
     let (l, prf, facts) ← asLinearCombo e'
     let prf' : OmegaM Expr := do
@@ -160,7 +160,7 @@ partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr ×
       mkEqTrans
         (← mkAppM ``Int.neg_congr #[← prf])
         (← mkEqSymm neg_eval)
-    pure (-l, prf', facts, e)
+    pure (-l, prf', facts)
   | (``HMul.hMul, #[_, _, _, _, x, y]) =>
     -- If we decide not to expand out the multiplication,
     -- we have to revert the `OmegaM` state so that any new facts about the factors
@@ -182,7 +182,7 @@ partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr ×
       else
         pure (none, false)
     match r? with
-    | some (lc, proof, r) => pure (lc, proof, r, e)
+    | some r => pure r
     | none => mkAtomLinearCombo e
   | (``HMod.hMod, #[_, _, _, _, n, k]) =>
     match groundNat? k with
@@ -235,15 +235,15 @@ where
   Apply a rewrite rule to an expression, and interpret the result as a `LinearCombo`.
   (We're not rewriting any subexpressions here, just the top level, for efficiency.)
   -/
-  rewrite (lhs rw : Expr) : OmegaM (LinearCombo × OmegaM Expr × Std.HashSet Expr × Expr) := do
+  rewrite (lhs rw : Expr) : OmegaM (LinearCombo × OmegaM Expr × Std.HashSet Expr) := do
     trace[omega] "rewriting {lhs} via {rw} : {← inferType rw}"
     match (← inferType rw).eq? with
     | some (_, _lhs', rhs) =>
       let (lc, prf, facts) ← asLinearCombo rhs
       let prf' : OmegaM Expr := do mkEqTrans rw (← prf)
-      pure (lc, prf', facts, rhs)
+      pure (lc, prf', facts)
     | none => panic! "Invalid rewrite rule in 'asLinearCombo'"
-  handleNatCast (e i n : Expr) : OmegaM (LinearCombo × OmegaM Expr × Std.HashSet Expr × Expr) := do
+  handleNatCast (e i n : Expr) : OmegaM (LinearCombo × OmegaM Expr × Std.HashSet Expr) := do
     match n with
     | .fvar h =>
       if let some v ← h.getValue? then
@@ -255,9 +255,9 @@ where
     | (``Nat.succ, #[n]) => rewrite e (.app (.const ``Int.ofNat_succ []) n)
     | (``HAdd.hAdd, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_add []) a b)
     | (``HMul.hMul, #[_, _, _, _, a, b]) =>
-      let (lc, prf, r, e') ← rewrite e (mkApp2 (.const ``Int.ofNat_mul []) a b)
+      let (lc, prf, r) ← rewrite e (mkApp2 (.const ``Int.ofNat_mul []) a b)
       -- Add the fact that the multiplication is non-negative.
-      pure (lc, prf, r.insert (mkApp2 (.const ``Int.ofNat_mul_nonneg []) a b), e')
+      pure (lc, prf, r.insert (mkApp2 (.const ``Int.ofNat_mul_nonneg []) a b))
     | (``HDiv.hDiv, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_ediv []) a b)
     | (``OfNat.ofNat, #[_, n, _]) => rewrite e (.app (.const ``Int.natCast_ofNat []) n)
     | (``HMod.hMod, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_emod []) a b)
@@ -289,7 +289,7 @@ where
     | (``Fin.val, #[n, x]) =>
       handleFinVal e i n x
     | _ => mkAtomLinearCombo e
-  handleFinVal (e i n x : Expr) : OmegaM (LinearCombo × OmegaM Expr × Std.HashSet Expr × Expr) := do
+  handleFinVal (e i n x : Expr) : OmegaM (LinearCombo × OmegaM Expr × Std.HashSet Expr) := do
     match x with
     | .fvar h =>
       if let some v ← h.getValue? then

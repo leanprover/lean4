@@ -536,7 +536,7 @@ def elabRunMeta : CommandElab := fun stx =>
       -- check that each omit is actually used in the end
       let mut omitsUsed := omits.map fun _ => false
       let mut omittedVars := #[]
-      let mut revSectionFVars : HashMap FVarId Name := {}
+      let mut revSectionFVars : Std.HashMap FVarId Name := {}
       for (uid, var) in (← read).sectionFVars do
         revSectionFVars := revSectionFVars.insert var.fvarId! uid
       for var in vars do
@@ -546,7 +546,7 @@ def elabRunMeta : CommandElab := fun stx =>
             | .inr ty => do
               let mctx ← getMCtx
               isDefEq ty ldecl.type <* setMCtx mctx) then
-          if let some uid := revSectionFVars.find? var.fvarId! then
+          if let some uid := revSectionFVars[var.fvarId!]? then
             omittedVars := omittedVars.push uid
             omitsUsed := omitsUsed.set! idx true
           else

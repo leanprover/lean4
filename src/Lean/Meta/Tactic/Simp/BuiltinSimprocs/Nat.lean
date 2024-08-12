@@ -55,8 +55,9 @@ builtin_dsimproc [simp, seval] reduceDiv ((_ / _ : Nat)) := reduceBin ``HDiv.hDi
 builtin_dsimproc [simp, seval] reduceMod ((_ % _ : Nat)) := reduceBin ``HMod.hMod 6 (· % ·)
 
 builtin_dsimproc [simp, seval] reducePow ((_ ^ _ : Nat)) := fun e => do
-  let some n ← fromExpr? e.appFn!.appArg! | return .continue
-  let some m ← fromExpr? e.appArg! | return .continue
+  let_expr HPow.hPow _ _ _ _ n m := e | return .continue
+  let some n ← fromExpr? n | return .continue
+  let some m ← fromExpr? m | return .continue
   unless (← checkExponent m) do return .continue
   return .done <| toExpr (n ^ m)
 

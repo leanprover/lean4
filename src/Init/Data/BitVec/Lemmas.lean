@@ -577,6 +577,15 @@ instance : Std.Commutative (fun (x y : BitVec w) => x &&& y) := ⟨BitVec.and_co
   rw [← testBit_toNat, getLsb, getLsb]
   simp
 
+@[simp] theorem getMsb_xor {x y : BitVec w} :
+    (x ^^^ y).getMsb i = (xor (x.getMsb i) (y.getMsb i)) := by
+  simp only [getMsb]
+  by_cases h : i < w <;> simp [h]
+
+@[simp] theorem msb_xor {x y : BitVec w} :
+    (x ^^^ y).msb = (xor x.msb y.msb) := by
+  simp [BitVec.msb]
+
 @[simp] theorem truncate_xor {x y : BitVec w} :
     (x ^^^ y).truncate k = x.truncate k ^^^ y.truncate k := by
   ext
@@ -675,6 +684,27 @@ theorem zero_shiftLeft (n : Nat) : 0#w <<< n = 0#w := by
   -- This step could be a case bashing tactic.
   cases h₁ : decide (i < m) <;> cases h₂ : decide (n ≤ i) <;> cases h₃ : decide (i < n)
   all_goals { simp_all <;> omega }
+
+theorem shiftLeft_xor_distrib (x y : BitVec w) (n : Nat) :
+    (x ^^^ y) <<< n = (x <<< n) ^^^ (y <<< n) := by
+  ext i
+  simp only [getLsb_shiftLeft, Fin.is_lt, decide_True, Bool.true_and, getLsb_xor]
+  by_cases h : i < n
+    <;> simp [h]
+
+theorem shiftLeft_and_distrib (x y : BitVec w) (n : Nat) :
+    (x &&& y) <<< n = (x <<< n) &&& (y <<< n) := by
+  ext i
+  simp only [getLsb_shiftLeft, Fin.is_lt, decide_True, Bool.true_and, getLsb_and]
+  by_cases h : i < n
+    <;> simp [h]
+
+theorem shiftLeft_or_distrib (x y : BitVec w) (n : Nat) :
+    (x ||| y) <<< n = (x <<< n) ||| (y <<< n) := by
+  ext i
+  simp only [getLsb_shiftLeft, Fin.is_lt, decide_True, Bool.true_and, getLsb_or]
+  by_cases h : i < n
+    <;> simp [h]
 
 @[simp] theorem getMsb_shiftLeft (x : BitVec w) (i) :
     (x <<< i).getMsb k = x.getMsb (k + i) := by
@@ -846,6 +876,30 @@ theorem sshiftRight_eq_of_msb_true {x : BitVec w} {s : Nat} (h : x.msb = true) :
         Bool.and_iff_right_iff_imp, Bool.or_eq_true, Bool.not_eq_true', decide_eq_false_iff_not,
         Nat.not_lt, decide_eq_true_eq]
       omega
+
+theorem sshiftRight_xor_distrib (x y : BitVec w) (n : Nat) :
+    (x ^^^ y).sshiftRight n = (x.sshiftRight n) ^^^ (y.sshiftRight n) := by
+  ext i
+  simp only [getLsb_sshiftRight, getLsb_xor, msb_xor]
+  split
+    <;> by_cases w ≤ i
+    <;> simp [*]
+
+theorem sshiftRight_and_distrib (x y : BitVec w) (n : Nat) :
+    (x &&& y).sshiftRight n = (x.sshiftRight n) &&& (y.sshiftRight n) := by
+  ext i
+  simp only [getLsb_sshiftRight, getLsb_and, msb_and]
+  split
+    <;> by_cases w ≤ i
+    <;> simp [*]
+
+theorem sshiftRight_or_distrib (x y : BitVec w) (n : Nat) :
+    (x ||| y).sshiftRight n = (x.sshiftRight n) ||| (y.sshiftRight n) := by
+  ext i
+  simp only [getLsb_sshiftRight, getLsb_or, msb_or]
+  split
+    <;> by_cases w ≤ i
+    <;> simp [*]
 
 /-- The msb after arithmetic shifting right equals the original msb. -/
 theorem sshiftRight_msb_eq_msb {n : Nat} {x : BitVec w} :

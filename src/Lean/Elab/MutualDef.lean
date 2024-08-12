@@ -226,10 +226,16 @@ private def elabHeaders (views : Array DefView)
       headers := headers.push newHeader
     return headers
 where
-  getBodyTerm? (stx : Syntax) : Option Syntax :=
+  getBodyTerm? (stx : Syntax) : Option Syntax := do
     -- TODO: does not work with partial syntax
-    --| `(Parser.Command.declVal| := $body $_suffix:suffix $[$_where]?) => body
-    guard (stx.isOfKind ``Parser.Command.declValSimple) *> some stx[1]
+    --| `(Parser.Command.declVal| := $body $_suffix:suffix) => body
+    guard (stx.isOfKind ``Parser.Command.declValSimple)
+    let body := stx[1]
+    let whereDeclsOpt := stx[3]
+    -- We currently disable incrementality in presence of `where` as we would have to handle the
+    -- generated leading `let rec` specially
+    guard whereDeclsOpt.isNone
+    return body
 
   /-- Creates snapshot task with appropriate range from body syntax and promise. -/
   mkBodyTask (body : Syntax) (new : IO.Promise (Option BodyProcessedSnapshot)) :

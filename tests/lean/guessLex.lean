@@ -233,6 +233,6 @@ def bar : OddNat3 → Nat
   | Nat.zero => 0
   | n+1 => if h : n < 41 then foo (40 - n) else 0
   -- termination_by x1 => sizeOf x1
-  decreasing_by simp_wf; omega
+  decreasing_by simp_wf; simp; omega
 end
 end MutualNotNat3

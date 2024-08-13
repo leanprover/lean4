@@ -72,7 +72,7 @@ def weird (xs : Array Nat) (i : Nat) : Bool :=
       weird xs (i+1)
   else
     true
-decreasing_by all_goals simp_wf; omega
+decreasing_by all_goals simp_wf; simp; omega
 
 /--
 This checks

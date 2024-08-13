@@ -36,7 +36,7 @@ theorem denote_prefix_cast_ref {aig : AIG α} {input1 input2 : Ref aig}
 instance : LawfulMapOperator α mkNotCached where
   chainable := by
     intros
-    simp only [Ref_cast', denote_mkNotCached]
+    simp only [Ref.gate_cast, denote_mkNotCached]
     rw [LawfulOperator.denote_mem_prefix (f := mkNotCached)]
 
 end LawfulMapOperator
@@ -153,7 +153,7 @@ theorem go_get_aux {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVe
     . apply go_le_size
   . dsimp only at hgo
     rw [← hgo]
-    simp only [Nat.le_refl, get, Ref_cast', Ref.mk.injEq, true_implies]
+    simp only [Nat.le_refl, get, Ref.cast_eq, Ref.mk.injEq, true_implies]
     have : curr = len := by omega
     subst this
     rfl
@@ -214,7 +214,7 @@ theorem denote_go {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVec
     | inr hlt =>
       rw [← hgo]
       rw [denote_go]
-      . simp [get_cast, -Ref_cast']
+      . simp [get_cast, -Ref.cast_eq]
       . omega
   . omega
 termination_by len - curr

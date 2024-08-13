@@ -51,7 +51,7 @@ theorem go_get_aux (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
       rw [AIG.RefVec.get_push_ref_lt]
   . dsimp only at hgo
     rw [← hgo]
-    simp only [Nat.le_refl, get, Ref_cast', Ref.mk.injEq, true_implies]
+    simp only [Nat.le_refl, get, Ref.gate_cast, Ref.mk.injEq, true_implies]
     have : curr = w := by omega
     subst this
     simp
@@ -135,7 +135,7 @@ theorem go_denote_eq (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
         . next hidx =>
           rw [← hgo]
           rw [go_denote_eq]
-          . simp only [hidx, ↓reduceDIte, RefVec.get_cast, Ref_cast']
+          . simp only [hidx, ↓reduceDIte, RefVec.get_cast, Ref.cast_eq]
             rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
           . omega
       . split
@@ -194,7 +194,7 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
   . split
     . next hif1 =>
       rw [← hg]
-      simp only [RefVec.denote_ite, RefVec.get_cast, Ref_cast',
+      simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq,
         blastShiftLeftConst_denote_eq]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftLeftConst)]
       rw [hright]
@@ -217,7 +217,7 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
     . next hif1 =>
       simp only [Bool.not_eq_true] at hif1
       rw [← hg]
-      simp only [RefVec.denote_ite, RefVec.get_cast, Ref_cast',
+      simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq,
         blastShiftLeftConst_denote_eq]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftLeftConst)]
       rw [hright]

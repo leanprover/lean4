@@ -46,7 +46,7 @@ theorem go_get_aux (aig : AIG α) (c : BitVec w) (curr : Nat) (hcurr : curr ≤ 
     . apply go_le_size
   . dsimp only at hgo
     rw [← hgo]
-    simp only [Nat.le_refl, get, Ref_cast', Ref.mk.injEq, true_implies]
+    simp only [Nat.le_refl, get, Ref.gate_cast, Ref.mk.injEq, true_implies]
     have : curr = w := by omega
     subst this
     simp

@@ -49,20 +49,20 @@ theorem go_denote_eq {w : Nat} (aig : AIG BVBit) (curr : Nat) (hcurr : curr + 1 
     rw [← hgo]
     rw [go_denote_eq]
     . intro idx hidx
-      simp only [RefVec.get_cast, Ref_cast']
+      simp only [RefVec.get_cast, Ref.cast_eq]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := RefVec.ite)]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastAdd)]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftLeftConst)]
       rw [hleft]
     . intro idx hidx
-      simp only [RefVec.get_cast, Ref_cast']
+      simp only [RefVec.get_cast, Ref.cast_eq]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := RefVec.ite)]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastAdd)]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftLeftConst)]
       rw [hright]
     . intro idx hidx
       rw [BitVec.mulRec_succ_eq]
-      simp only [RefVec.denote_ite, RefVec.get_cast, Ref_cast', BitVec.ofNat_eq_ofNat]
+      simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq, BitVec.ofNat_eq_ofNat]
       split
       . next hdiscr =>
         have : rexpr.getLsb (curr + 1) = true := by
@@ -73,7 +73,7 @@ theorem go_denote_eq {w : Nat} (aig : AIG BVBit) (curr : Nat) (hcurr : curr + 1 
         simp only [this, ↓reduceIte]
         rw [blastAdd_denote_eq]
         . intros
-          simp only [RefVec.get_cast, Ref_cast']
+          simp only [RefVec.get_cast, Ref.cast_eq]
           rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftLeftConst)]
           rw [hacc]
         . intros
@@ -144,7 +144,7 @@ theorem blastMul_denote_eq (aig : AIG BVBit) (lhs rhs : BitVec w) (assign : Assi
     . intro idx hidx
       rw [BitVec.mulRec_zero_eq]
       simp only [Nat.succ_eq_add_one, RefVec.denote_ite, BinaryRefVec.rhs_get_cast,
-        Ref_cast', BinaryRefVec.lhs_get_cast, blastConst_denote_eq,
+        Ref.gate_cast, BinaryRefVec.lhs_get_cast, blastConst_denote_eq,
         BitVec.ofNat_eq_ofNat, eval_const, BitVec.getLsb_zero, Bool.if_false_right,
         Bool.decide_eq_true]
       split

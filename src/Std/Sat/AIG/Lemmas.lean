@@ -19,37 +19,37 @@ namespace AIG
 variable {α : Type} [Hashable α] [DecidableEq α]
 
 @[simp]
-theorem Ref_cast {aig1 aig2 : AIG α} (ref : Ref aig1)
+theorem Ref.gate_cast {aig1 aig2 : AIG α} (ref : Ref aig1)
     (h : aig1.decls.size ≤ aig2.decls.size) :
     (ref.cast h).gate = ref.gate := rfl
 
 @[simp]
-theorem Ref_cast' {aig1 aig2 : AIG α} (ref : Ref aig1)
+theorem Ref.cast_eq {aig1 aig2 : AIG α} (ref : Ref aig1)
     (h : aig1.decls.size ≤ aig2.decls.size) :
     (ref.cast h) = ⟨ref.gate, by have := ref.hgate; omega⟩ := rfl
 
 @[simp]
-theorem Fanin_cast_ref {aig1 aig2 : AIG α} (fanin : Fanin aig1)
+theorem Fanin.ref_cast {aig1 aig2 : AIG α} (fanin : Fanin aig1)
     (h : aig1.decls.size ≤ aig2.decls.size) :
     (fanin.cast h).ref = fanin.ref.cast h := rfl
 
 @[simp]
-theorem Fanin_cast_inv {aig1 aig2 : AIG α} (fanin : Fanin aig1)
+theorem Fanin.inv_cast {aig1 aig2 : AIG α} (fanin : Fanin aig1)
     (h : aig1.decls.size ≤ aig2.decls.size) :
     (fanin.cast h).inv = fanin.inv := rfl
 
 @[simp]
-theorem GateInput_cast_lhs {aig1 aig2 : AIG α} (input : GateInput aig1)
+theorem GateInput.lhs_cast {aig1 aig2 : AIG α} (input : GateInput aig1)
     (h : aig1.decls.size ≤ aig2.decls.size) :
     (input.cast h).lhs = input.lhs.cast h := rfl
 
 @[simp]
-theorem GateInput_cast_rhs {aig1 aig2 : AIG α} (input : GateInput aig1)
+theorem GateInput.rhs_cast {aig1 aig2 : AIG α} (input : GateInput aig1)
     (h : aig1.decls.size ≤ aig2.decls.size) :
     (input.cast h).rhs = input.rhs.cast h := rfl
 
 @[simp]
-theorem BinaryInput.cast_each {aig1 aig2 : AIG α} (lhs rhs : Ref aig1)
+theorem BinaryInput.each_cast {aig1 aig2 : AIG α} (lhs rhs : Ref aig1)
     (h1 h2 : aig1.decls.size ≤ aig2.decls.size) :
     BinaryInput.mk (lhs.cast h1) (rhs.cast h2) = (BinaryInput.mk lhs rhs).cast h2 := by
   simp [BinaryInput.cast]

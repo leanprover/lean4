@@ -36,35 +36,35 @@ theorem denote_prefix_cast_ref {aig : AIG α} {input1 input2 : BinaryInput aig}
 instance : LawfulZipOperator α mkAndCached where
   chainable := by
     intros
-    simp only [BinaryInput.cast, Ref_cast', denote_mkAndCached]
+    simp only [BinaryInput.cast, Ref.cast_eq, denote_mkAndCached]
     rw [LawfulOperator.denote_mem_prefix (f := mkAndCached)]
     rw [LawfulOperator.denote_mem_prefix (f := mkAndCached)]
 
 instance : LawfulZipOperator α mkOrCached where
   chainable := by
     intros
-    simp only [BinaryInput.cast, Ref_cast', denote_mkOrCached]
+    simp only [BinaryInput.cast, Ref.cast_eq, denote_mkOrCached]
     rw [LawfulOperator.denote_mem_prefix (f := mkOrCached)]
     rw [LawfulOperator.denote_mem_prefix (f := mkOrCached)]
 
 instance : LawfulZipOperator α mkXorCached where
   chainable := by
     intros
-    simp only [BinaryInput.cast, Ref_cast', denote_mkXorCached]
+    simp only [BinaryInput.cast, Ref.cast_eq, denote_mkXorCached]
     rw [LawfulOperator.denote_mem_prefix (f := mkXorCached)]
     rw [LawfulOperator.denote_mem_prefix (f := mkXorCached)]
 
 instance : LawfulZipOperator α mkBEqCached where
   chainable := by
     intros
-    simp only [BinaryInput.cast, Ref_cast', denote_mkBEqCached]
+    simp only [BinaryInput.cast, Ref.cast_eq, denote_mkBEqCached]
     rw [LawfulOperator.denote_mem_prefix (f := mkBEqCached)]
     rw [LawfulOperator.denote_mem_prefix (f := mkBEqCached)]
 
 instance : LawfulZipOperator α mkImpCached where
   chainable := by
     intros
-    simp only [BinaryInput.cast, Ref_cast', denote_mkImpCached]
+    simp only [BinaryInput.cast, Ref.cast_eq, denote_mkImpCached]
     rw [LawfulOperator.denote_mem_prefix (f := mkImpCached)]
     rw [LawfulOperator.denote_mem_prefix (f := mkImpCached)]
 
@@ -180,7 +180,7 @@ theorem go_get_aux {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVe
     . apply go_le_size
   . dsimp only at hgo
     rw [← hgo]
-    simp only [Nat.le_refl, get, Ref_cast', Ref.mk.injEq, true_implies]
+    simp only [Nat.le_refl, get, Ref.cast_eq, Ref.mk.injEq, true_implies]
     have : curr = len := by omega
     subst this
     simp
@@ -245,7 +245,7 @@ theorem denote_go {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVec
     | inr hlt =>
       rw [← hgo]
       rw [denote_go]
-      . simp [-Ref_cast']
+      . simp [-Ref.cast_eq]
       . omega
   . omega
 termination_by len - curr

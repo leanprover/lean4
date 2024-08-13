@@ -72,7 +72,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
     apply BitVec.lt_of_getLsb
   | append lhs rhs lih rih =>
     rename_i lw rw
-    simp only [go, blastAppend_denote_eq, RefVec.get_cast, Ref_cast', eval_append,
+    simp only [go, blastAppend_denote_eq, RefVec.get_cast, Ref.cast_eq, eval_append,
       BitVec.getLsb_append]
     split
     . next hsplit =>

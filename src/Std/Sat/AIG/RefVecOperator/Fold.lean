@@ -174,7 +174,7 @@ theorem denote_fold_and {aig : AIG α} (s : RefVec aig len) :
   simp only [FoldTarget.mkAnd]
   rw [fold.denote_go_and]
   . simp only [denote_projected_entry, mkConstCached_eval_eq_mkConst_eval, denote_mkConst,
-    Nat.zero_le, get_cast, Ref_cast', true_implies, true_and]
+    Nat.zero_le, get_cast, Ref.cast_eq, true_implies, true_and]
     constructor
     . intro h idx hidx
       specialize h idx hidx

@@ -137,7 +137,7 @@ structure TwoPowShiftTarget (aig : AIG α) (w : Nat) where
 def twoPowShift (aig : AIG α) (target : TwoPowShiftTarget aig w) : AIG.RefVecEntry α w :=
   let ⟨n, lhs, rhs, pow⟩ := target
   if h : pow < n then
-    let res := blastShiftRightConst aig ⟨lhs, (2 ^ pow) % 2^n⟩
+    let res := blastShiftRightConst aig ⟨lhs, 2 ^ pow⟩
     let aig := res.aig
     let shifted := res.vec
 

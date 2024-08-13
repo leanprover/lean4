@@ -288,10 +288,12 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftRightConst)]
       rw [hright]
       simp only [hif1, ↓reduceIte]
+      have hmod : 2 ^ pow % 2 ^ n = 2 ^ pow := by
+        apply Nat.mod_eq_of_lt
+        apply Nat.pow_lt_pow_of_lt <;> omega
       split
-      . next hif2 =>
-        rw [hleft]
-        simp
+      . rw [hleft]
+        simp [hmod]
       . simp only [BitVec.ushiftRight_eq', BitVec.toNat_twoPow, BitVec.getLsb_ushiftRight,
         Bool.false_eq]
         apply BitVec.getLsb_ge

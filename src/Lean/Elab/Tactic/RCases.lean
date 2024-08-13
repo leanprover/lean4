@@ -442,23 +442,30 @@ Given a list of targets of the form `e` or `h : e`, and a pattern, match all the
 against the pattern. Returns the list of produced subgoals.
 -/
 def rcases (tgts : Array (Option Ident × Syntax))
-  (pat : RCasesPatt) (g : MVarId) : TermElabM (List MVarId) := Term.withSynthesize do
-  let pats ← match tgts.size with
-  | 0 => return [g]
-  | 1 => pure [pat]
-  | _ => pure (processConstructor pat.ref (tgts.map fun _ => {}) false 0 pat.asTuple.2).2
-  let (pats, args) := Array.unzip <|← (tgts.zip pats.toArray).mapM fun ((hName?, tgt), pat) => do
-    let (pat, ty) ← match pat with
-    | .typed ref pat ty => withRef ref do
-      let ty ← Term.elabType ty
-      pure (.typed ref pat (← Term.exprToSyntax ty), some ty)
-    | _ => pure (pat, none)
-    let expr ← Term.ensureHasType ty (← Term.elabTerm tgt ty)
-    pure (pat, { expr, xName? := pat.name?, hName? := hName?.map (·.getId) : GeneralizeArg })
+  (pat : RCasesPatt) (g : MVarId) : TacticM (List MVarId) := Term.withSynthesize do
+  let pats' ←
+    match tgts.size with
+    | 0 => return [g]
+    | 1 => pure [pat]
+    | _ => pure (processConstructor pat.ref (tgts.map fun _ => {}) false 0 pat.asTuple.2).2
+  let mut pats : Array RCasesPatt := #[]
+  let mut args : Array GeneralizeArg := #[]
+  let mut auxGoals : Array MVarId := #[]
+  for (hName?, tgt) in tgts, pat in pats' do
+    let (pat, ty) ←
+      match pat with
+      | .typed ref pat ty => withRef ref do
+        let ty ← Term.withSynthesize <| Term.elabType ty
+        pure (.typed ref pat (← Term.exprToSyntax ty), some ty)
+      | _ => pure (pat, none)
+    let (expr, exprGoals) ← elabTermWithHoles tgt ty `rcases
+    pats := pats.push pat
+    args := args.push { expr, xName? := pat.name?, hName? := hName?.map (·.getId) : GeneralizeArg }
+    auxGoals := auxGoals ++ exprGoals
   let (vs, hs, g) ← generalizeExceptFVar g args
   let toTag := tgts.filterMap (·.1) |>.zip hs
   let gs ← rcasesContinue g {} #[] #[] (pats.zip vs).toList (finish (toTag := toTag))
-  pure gs.toList
+  pure (gs ++ auxGoals).toList
 
 /--
 The `obtain` tactic in the no-target case. Given a type `T`, create a goal `|- T` and

@@ -209,3 +209,33 @@ example (b c : Nat) : True := by
   obtain h : b = c ^ 2 := test_sorry
   subst h
   trivial
+
+
+/-!
+Issue #4331, rcases was not keeping track of new goals from term elaboration,
+leading to "goal teleportation" outside the `have`.
+-/
+
+example : True := by
+  have : ∃ k, 5 = 2 + k := by
+    rcases Nat.exists_eq_add_of_le (?_ : 2 ≤ 5) with ⟨k, hk⟩
+    · exact ⟨k, hk⟩
+    · guard_target =ₛ 2 ≤ 5
+      decide
+  guard_target =ₛ True; trivial
+
+-- Checking that the goal from the `let` is not captured by `rcases`:
+example : True := by
+  have : ∃ k, 5 = 2 + k :=
+    let h := Nat.exists_eq_add_of_le (?_ : 2 ≤ 5)
+    by
+      rcases h with ⟨k, hk⟩
+      exact ⟨k, hk⟩
+  guard_target =ₛ True; trivial
+  guard_target =ₛ 2 ≤ 5; decide
+
+example (f : (n : Nat) → n = 1 → ∃ m, n = m) : False := by
+  let n : Nat := 1
+  obtain ⟨m, hm⟩ := f n ?g1
+  guard_target =ₛ False; sorry
+  guard_target =ₛ n = 1; sorry

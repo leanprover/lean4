@@ -142,7 +142,7 @@ private partial def processPSigmaCasesOn (x F val : Expr) (k : (F : Expr) → (v
 
 private def applyDefaultDecrTactic (mvarId : MVarId) : TermElabM Unit := do
   let remainingGoals ← Tactic.run mvarId do
-    Tactic.evalTactic (← `(tactic| simp_wf))
+    Tactic.evalTactic (← `(tactic| all_goals simp_wf))
     Tactic.evalTactic (← `(tactic| decreasing_tactic))
   unless remainingGoals.isEmpty do
     Term.reportUnsolvedGoals remainingGoals
@@ -203,7 +203,7 @@ def solveDecreasingGoals (argsPacker : ArgsPacker) (decrTactics : Array (Option 
         goals.forM fun goal => pushInfoTree (.hole goal)
         let remainingGoals ← Tactic.run goals[0]! do
           Tactic.setGoals goals.toList
-          Tactic.evalTactic (← `(tactic| simp_wf))
+          Tactic.evalTactic (← `(tactic| all_goals simp_wf))
           Tactic.withTacticInfoContext decrTactic.ref do
             Tactic.evalTactic decrTactic.tactic
         unless remainingGoals.isEmpty do

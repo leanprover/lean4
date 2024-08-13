@@ -1,7 +1,7 @@
-import Lean.Elab.Tactic.BvDecide.BitBlast.BoolExpr
+import Lean.Elab.Tactic.BVDecide.Bitblast.BoolExpr
 
 open Std.Sat
-open Lean.Elab.Tactic.BvDecide
+open Lean.Elab.Tactic.BVDecide
 
 def mkSharedTree (n : Nat) : BoolExpr Nat :=
   match n with

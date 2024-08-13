@@ -50,45 +50,21 @@ theorem denote_mkFullAdderCarry (assign : α → Bool) (aig : AIG α) (input : F
   simp only [mkFullAdderCarry, Ref_cast', Int.reduceNeg, denote_mkOrCached,
     LawfulOperator.denote_input_entry, denote_mkAndCached, denote_projected_entry',
     denote_mkXorCached, denote_projected_entry]
-  -- The underlying term here is huge -> conv mode to speed up the proof
-  conv =>
-    lhs
-    lhs
-    rw [LawfulOperator.denote_mem_prefix (f := mkXorCached) (h := input.cin.hgate)]
-  conv =>
-    lhs
-    rhs
-    lhs
-    rw [
+  congr 2
+  · rw [LawfulOperator.denote_mem_prefix (f := mkXorCached) (h := input.cin.hgate)]
+  · rw [LawfulOperator.denote_mem_prefix
+        (f := mkAndCached)
+        (h := by
+          apply LawfulOperator.lt_size_of_lt_aig_size (f := mkXorCached)
+          apply Ref.hgate),
+      LawfulOperator.denote_mem_prefix (f := mkXorCached) (h := input.lhs.hgate)]
+  · rw [
       LawfulOperator.denote_mem_prefix
         (f := mkAndCached)
         (h := by
           apply LawfulOperator.lt_size_of_lt_aig_size (f := mkXorCached)
-          apply Ref.hgate
-        )
-    ]
-  conv =>
-    lhs
-    rhs
-    lhs
-    rw [LawfulOperator.denote_mem_prefix (f := mkXorCached) (h := input.lhs.hgate)]
-  conv =>
-    lhs
-    rhs
-    rhs
-    rw [
-      LawfulOperator.denote_mem_prefix
-        (f := mkAndCached)
-        (h := by
-          apply LawfulOperator.lt_size_of_lt_aig_size (f := mkXorCached)
-          apply Ref.hgate
-        )
-    ]
-  conv =>
-    lhs
-    rhs
-    rhs
-    rw [LawfulOperator.denote_mem_prefix (f := mkXorCached) (h := input.rhs.hgate)]
+          apply Ref.hgate),
+      LawfulOperator.denote_mem_prefix (f := mkXorCached) (h := input.rhs.hgate)]
 
 theorem mkFullAdder_denote_mem_prefix (aig : AIG α) (input : FullAdderInput aig) (start : Nat)
     (hstart) :

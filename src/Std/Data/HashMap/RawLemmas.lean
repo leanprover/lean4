@@ -332,7 +332,7 @@ theorem getElem!_eq_get!_getElem? [EquivBEq α] [LawfulHashable α] [Inhabited �
 
 theorem getElem_eq_getElem! [EquivBEq α] [LawfulHashable α] [Inhabited β] (h : m.WF) {a : α} {h'} :
     m[a]'h' = m[a]! :=
-  @DHashMap.Raw.Const.get_eq_get! _ _ _ _ _ _ _ h.out _ _ h'
+  @DHashMap.Raw.Const.get_eq_get! _ _ _ _ _ _ _ _ h.out _ h'
 
 theorem getElem!_congr [EquivBEq α] [LawfulHashable α] [Inhabited β] (h : m.WF) {a b : α}
     (hab : a == b) : m[a]! = m[b]! :=

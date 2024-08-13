@@ -263,7 +263,7 @@ The notion of variable assignments for `BVExpr`.
 abbrev Assignment := List PackedBitVec
 
 /--
-Obtaining the value of a `BVExpr.var` from an `Assignment`.
+Get the value of a `BVExpr.var` from an `Assignment`.
 -/
 def Assignment.getD (assign : Assignment) (idx : Nat) : PackedBitVec :=
   List.getD assign idx ⟨BitVec.zero 0⟩

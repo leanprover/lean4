@@ -35,7 +35,7 @@ def bitblast (aig : AIG BVBit) (pred : BVPred) : AIG.Entrypoint BVBit :=
     | .ult => mkUlt aig ⟨lhsRefs, rhsRefs⟩
   | .getLsb expr idx =>
     /-
-    Note: This blasts the entire rexpression up to `w` despite only needing it up to `idx`.
+    Note: This blasts the entire expression up to `w` despite only needing it up to `idx`.
     However the vast majority of operations are interested in all bits so the API is currently
     not designed to support this use case.
     -/

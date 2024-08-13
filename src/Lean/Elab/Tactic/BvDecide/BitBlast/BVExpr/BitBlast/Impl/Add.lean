@@ -59,7 +59,7 @@ def mkFullAdderOut (aig : AIG α) (input : FullAdderInput aig) : AIG.Entrypoint 
   -- let subExpr = XOR lhs rhs
   -- out = XOR subExpr cin
   -- subExpr is shared in `mkFullAdderOut` and `mkFullAdderCarry`
-  -- Due to automated subterm sharing in the AIG we don't have to make this explicitly sure
+  -- Due to automated subterm sharing in the AIG we don't have to ensure this explicitly.
   let ⟨lhs, rhs, cin⟩ := input
   let res := aig.mkXorCached ⟨lhs, rhs⟩
   let aig := res.aig
@@ -87,7 +87,7 @@ def mkFullAdderCarry (aig : AIG α) (input : FullAdderInput aig) : AIG.Entrypoin
   -- let subExpr = XOR lhs rhs
   -- cout = OR (AND subExpr cin) (AND lhs rhs)
   -- subExpr is shared in `mkFullAdderOut` and `mkFullAdderCarry`
-  -- Due to automated subterm sharing in the AIG we don't have to make this explicitly sure
+  -- Due to automated subterm sharing in the AIG we don't have to ensure this explicitly.
   let ⟨lhs, rhs, cin⟩ := input
   let res := aig.mkXorCached ⟨lhs, rhs⟩
   let aig := res.aig

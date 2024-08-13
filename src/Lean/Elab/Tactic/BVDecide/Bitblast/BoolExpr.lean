@@ -5,7 +5,7 @@ Authors: Henrik Böving
 -/
 prelude
 import Lean.Elab.Tactic.BVDecide.Bitblast.BoolExpr.Basic
-import Lean.Elab.Tactic.BVDecide.Bitblast.BoolExpr.Bitblast
+import Lean.Elab.Tactic.BVDecide.Bitblast.BoolExpr.Circuit
 
 /-!
 This directory contains the definition and bitblaster of generic boolean substructures for

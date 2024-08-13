@@ -5,7 +5,7 @@ Authors: Henrik Böving
 -/
 prelude
 import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Basic
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Bitblast
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit
 
 /-!
 This directory contains the definition and bitblaster of `BitVec` problems with boolean substructure.

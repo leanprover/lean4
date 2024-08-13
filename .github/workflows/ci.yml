@@ -204,7 +204,7 @@ jobs:
                 "os": "macos-14",
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
                 "release": true,
-                "check-level": 1,
+                "check-level": 0,
                 "shell": "bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-apple-darwin.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",

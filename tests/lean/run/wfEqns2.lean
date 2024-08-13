@@ -6,7 +6,6 @@ def g (i j : Nat) : Nat :=
   | Nat.succ j => h i j
 termination_by (i + j, 0)
 decreasing_by
-  simp_wf
   · apply Prod.Lex.left
     apply Nat.lt_succ_self
 
@@ -16,7 +15,6 @@ def h (i j : Nat) : Nat :=
   | Nat.succ j => g i j
 termination_by (i + j, 1)
 decreasing_by
-  all_goals simp_wf
   · apply Prod.Lex.right
     decide
   · apply Prod.Lex.left

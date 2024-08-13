@@ -314,7 +314,7 @@ def List.permutationsAux.rec' {C : List α → List α → Sort v} (H0 : ∀ is,
   | t :: ts, is =>
       H1 t ts is (permutationsAux.rec' H0 H1 ts (t :: is)) (permutationsAux.rec' H0 H1 is [])
   termination_by ts is => (length ts + length is, length ts)
-  decreasing_by all_goals simp_wf; simp; omega
+  decreasing_by all_goals simp; omega
 
 example {x y w z : Nat} (h : Prod.Lex (· < ·) (· < ·) (x + 1, y + 1) (w, z)) :
     Prod.Lex (· < ·) (· < ·) (x, y) (w, z) := by omega

@@ -23,7 +23,9 @@ namespace blastVar
 
 theorem go_get_aux (aig : AIG BVBit) (a : Nat) (curr : Nat) (hcurr : curr ≤ w)
     (s : AIG.RefVec aig curr) :
-    -- The hfoo here is a trick to make the dependent type gods happy
+    -- `hfoo` makes it possible to `generalize` below. With a concrete proof term this
+    -- `generalize` would produce a type incorrect term as the proof term would talk about
+    -- a `go` application instead of the fresh variable.
     ∀ (idx : Nat) (hidx : idx < curr) (hfoo),
         (go aig w a curr s hcurr).vec.get idx (by omega) = (s.get idx hidx).cast hfoo := by
   intro idx hidx

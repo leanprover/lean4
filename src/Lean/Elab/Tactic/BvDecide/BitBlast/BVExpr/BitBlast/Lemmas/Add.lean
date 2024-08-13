@@ -98,7 +98,9 @@ theorem go_denote_mem_prefix (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (c
 
 theorem go_get_aux (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref aig)
     (s : AIG.RefVec aig curr) (lhs rhs : AIG.RefVec aig w) :
-    -- The hfoo here is a trick to make the dependent type gods happy
+    -- `hfoo` makes it possible to `generalize` below. With a concrete proof term this
+    -- `generalize` would produce a type incorrect term as the proof term would talk about
+    -- a `go` application instead of the fresh variable.
     ∀ (idx : Nat) (hidx : idx < curr) (hfoo),
         (go aig lhs rhs curr hcurr cin s).vec.get idx (by omega)
           =

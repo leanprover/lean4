@@ -47,7 +47,7 @@ jobs:
     #  uses: DeterminateSystems/magic-nix-cache-action@v2
     - if: env.should_update_stage0 == 'yes'
       name: Restore Build Cache
-      uses: actions/cache/restore@v3
+      uses: actions/cache/restore@v4
       with:
         path: nix-store-cache
         key: Nix Linux-nix-store-cache-${{ github.sha }}

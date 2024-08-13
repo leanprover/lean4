@@ -1,7 +1,8 @@
 /-
 Copyright (c) 2014 Parikshit Khanna. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro
+Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro,
+  Kim Morrison, Jannis Limperg
 -/
 prelude
 import Init.Data.List.Lemmas
@@ -135,14 +136,23 @@ where
       cases p head <;> simp only [cond_false, cond_true]
       exact findIdx_go_succ p tail (n + 1)
 
-theorem findIdx_of_get?_eq_some {xs : List α} (w : xs.get? (xs.findIdx p) = some y) : p y := by
+theorem findIdx_of_getElem?_eq_some {xs : List α} (w : xs[xs.findIdx p]? = some y) : p y := by
   induction xs with
   | nil => simp_all
   | cons x xs ih => by_cases h : p x <;> simp_all [findIdx_cons]
 
+theorem findIdx_getElem {xs : List α} {w : xs.findIdx p < xs.length} :
+    p xs[xs.findIdx p] :=
+  xs.findIdx_of_getElem?_eq_some (getElem?_eq_getElem w)
+
+@[deprecated findIdx_of_getElem?_eq_some (since := "2024-08-12")]
+theorem findIdx_of_get?_eq_some {xs : List α} (w : xs.get? (xs.findIdx p) = some y) : p y :=
+  findIdx_of_getElem?_eq_some (by simpa using w)
+
+@[deprecated findIdx_getElem (since := "2024-08-12")]
 theorem findIdx_get {xs : List α} {w : xs.findIdx p < xs.length} :
     p (xs.get ⟨xs.findIdx p, w⟩) :=
-  xs.findIdx_of_get?_eq_some (get?_eq_get w)
+  xs.findIdx_of_getElem?_eq_some (getElem?_eq_getElem w)
 
 theorem findIdx_lt_length_of_exists {xs : List α} (h : ∃ x ∈ xs, p x) :
     xs.findIdx p < xs.length := by
@@ -158,11 +168,89 @@ theorem findIdx_lt_length_of_exists {xs : List α} (h : ∃ x ∈ xs, p x) :
       obtain ⟨x', m', h'⟩ := h
       exact ih x' m' h'
 
+theorem findIdx_getElem?_eq_getElem_of_exists {xs : List α} (h : ∃ x ∈ xs, p x) :
+    xs[xs.findIdx p]? = some (xs[xs.findIdx p]'(xs.findIdx_lt_length_of_exists h)) :=
+  getElem?_eq_getElem (findIdx_lt_length_of_exists h)
+
+@[deprecated findIdx_getElem?_eq_getElem_of_exists (since := "2024-08-12")]
 theorem findIdx_get?_eq_get_of_exists {xs : List α} (h : ∃ x ∈ xs, p x) :
     xs.get? (xs.findIdx p) = some (xs.get ⟨xs.findIdx p, xs.findIdx_lt_length_of_exists h⟩) :=
   get?_eq_get (findIdx_lt_length_of_exists h)
 
-  /-! ### findIdx? -/
+@[simp]
+theorem findIdx_eq_length {p : α → Bool} {xs : List α} :
+    xs.findIdx p = xs.length ↔ ∀ x ∈ xs, p x = false := by
+  induction xs with
+  | nil => simp_all
+  | cons x xs ih =>
+    rw [findIdx_cons, length_cons]
+    simp only [cond_eq_if]
+    split <;> simp_all [Nat.succ.injEq]
+
+theorem findIdx_le_length (p : α → Bool) {xs : List α} : xs.findIdx p ≤ xs.length := by
+  by_cases e : ∃ x ∈ xs, p x
+  · exact Nat.le_of_lt (findIdx_lt_length_of_exists e)
+  · simp at e
+    exact Nat.le_of_eq (findIdx_eq_length.mpr e)
+
+@[simp]
+theorem findIdx_lt_length {p : α → Bool} {xs : List α} :
+    xs.findIdx p < xs.length ↔ ∃ x ∈ xs, p x := by
+  rw [← Decidable.not_iff_not, Nat.not_lt]
+  have := @Nat.le_antisymm_iff (xs.findIdx p) xs.length
+  simp only [findIdx_le_length, true_and] at this
+  rw [← this, findIdx_eq_length, not_exists]
+  simp only [Bool.not_eq_true, not_and]
+
+/-- `p` does not hold for elements with indices less than `xs.findIdx p`. -/
+theorem not_of_lt_findIdx {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs.findIdx p) :
+    ¬p (xs[i]'(Nat.le_trans h (findIdx_le_length p))) := by
+  revert i
+  induction xs with
+  | nil => intro i h; rw [findIdx_nil] at h; simp at h
+  | cons x xs ih =>
+    intro i h
+    have ho := h
+    rw [findIdx_cons] at h
+    have npx : ¬p x := by intro y; rw [y, cond_true] at h; simp at h
+    simp [npx, cond_false] at h
+    cases i.eq_zero_or_pos with
+    | inl e => simpa only [e, Fin.zero_eta, get_cons_zero]
+    | inr e =>
+      have ipm := Nat.succ_pred_eq_of_pos e
+      have ilt := Nat.le_trans ho (findIdx_le_length p)
+      simp (config := { singlePass := true }) only [← ipm, getElem_cons_succ]
+      rw [← ipm, Nat.succ_lt_succ_iff] at h
+      simpa using ih h
+
+/-- If `¬ p xs[j]` for all `j < i`, then `i ≤ xs.findIdx p`. -/
+theorem le_findIdx_of_not {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs.length)
+    (h2 : ∀ j (hji : j < i), ¬p (xs[j]'(Nat.lt_trans hji h))) : i ≤ xs.findIdx p := by
+  apply Decidable.byContradiction
+  intro f
+  simp only [Nat.not_le] at f
+  exact absurd (@findIdx_getElem _ p xs (Nat.lt_trans f h)) (h2 (xs.findIdx p) f)
+
+/-- If `¬ p xs[j]` for all `j ≤ i`, then `i < xs.findIdx p`. -/
+theorem lt_findIdx_of_not {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs.length)
+    (h2 : ∀ j (hji : j ≤ i), ¬p (xs.get ⟨j, Nat.lt_of_le_of_lt hji h⟩)) : i < xs.findIdx p := by
+  apply Decidable.byContradiction
+  intro f
+  simp only [Nat.not_lt] at f
+  exact absurd (@findIdx_getElem _ p xs (Nat.lt_of_le_of_lt f h)) (h2 (xs.findIdx p) f)
+
+/-- `xs.findIdx p = i` iff `p xs[i]` and `¬ p xs [j]` for all `j < i`. -/
+theorem findIdx_eq {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs.length) :
+    xs.findIdx p = i ↔ p xs[i] ∧ ∀ j (hji : j < i), ¬p (xs[j]'(Nat.lt_trans hji h)) := by
+  refine ⟨fun f ↦ ⟨f ▸ (@findIdx_getElem _ p xs (f ▸ h)), fun _ hji ↦ not_of_lt_findIdx (f ▸ hji)⟩,
+    fun ⟨h1, h2⟩ ↦ ?_⟩
+  apply Nat.le_antisymm _ (le_findIdx_of_not h h2)
+  apply Decidable.byContradiction
+  intro h3
+  simp at h3
+  exact not_of_lt_findIdx h3 h1
+
+/-! ### findIdx? -/
 
 @[simp] theorem findIdx?_nil : ([] : List α).findIdx? p i = none := rfl
 

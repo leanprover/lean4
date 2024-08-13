@@ -2,7 +2,7 @@ set(RUNTIME_OBJS debug.cpp thread.cpp mpz.cpp utf8.cpp
 object.cpp apply.cpp exception.cpp interrupt.cpp memory.cpp
 stackinfo.cpp compact.cpp init_module.cpp load_dynlib.cpp io.cpp hash.cpp
 platform.cpp alloc.cpp allocprof.cpp sharecommon.cpp stack_overflow.cpp
-process.cpp object_ref.cpp mpn.cpp mutex.cpp)
+process.cpp object_ref.cpp mpn.cpp mutex.cpp libuv.cpp)
 add_library(leanrt_initial-exec STATIC ${RUNTIME_OBJS})
 set_target_properties(leanrt_initial-exec PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})

@@ -226,21 +226,19 @@ jobs:
               },
               {
                 "name": "Linux aarch64",
-                "os": "ubuntu-latest",
+                "os": "nscloud-ubuntu-22.04-arm64-4x8",
                 "CMAKE_OPTIONS": "-DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-linux_aarch64",
                 "release": true,
                 "check-level": 2,
-                "cross": true,
-                "cross_target": "aarch64-unknown-linux-gnu",
                 "shell": "nix develop .#oldGlibcAArch -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-linux-gnu.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm-aarch64-* lean-llvm-x86_64-*"
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-linux-gnu.tar.zst",
+                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*"
               },
               {
                 "name": "Linux 32bit",
                 "os": "ubuntu-latest",
                 // Use 32bit on stage0 and stage1 to keep oleans compatible
-                "CMAKE_OPTIONS": "-DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_MMAP=OFF -DUSE_GMP=OFF -DLEAN_EXTRA_CXX_FLAGS='-m32' -DLEANC_OPTS='-m32' -DMMAP=OFF -DLEAN_INSTALL_SUFFIX=-linux_x86",
+                "CMAKE_OPTIONS": "-DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_MMAP=OFF -DUSE_GMP=OFF -DLEAN_EXTRA_CXX_FLAGS='-m32' -DLEANC_OPTS='-m32' -DMMAP=OFF -DLEAN_INSTALL_SUFFIX=-linux_x86 -DCMAKE_LIBRARY_PATH=/usr/lib/i386-linux-gnu/",
                 "cmultilib": true,
                 "release": true,
                 "check-level": 2,
@@ -259,7 +257,7 @@ jobs:
                 "cross": true,
                 "shell": "bash -euxo pipefail {0}",
                 // Just a few selected tests because wasm is slow
-                "CTEST_OPTIONS": "-R \"leantest_1007\\.lean|leantest_Format\\.lean|leanruntest\\_1037.lean|leanruntest_ac_rfl\\.lean\""
+                "CTEST_OPTIONS": "-R \"leantest_1007\\.lean|leantest_Format\\.lean|leanruntest\\_1037.lean|leanruntest_ac_rfl\\.lean|leanruntest_libuv\\.lean\""
               }
             ];
             console.log(`matrix:\n${JSON.stringify(matrix, null, 2)}`)
@@ -299,11 +297,11 @@ jobs:
         with:
           msystem: clang64
           # `:` means do not prefix with msystem
-          pacboy: "make: python: cmake clang ccache gmp git: zip: unzip: diffutils: binutils: tree: zstd tar:"
+          pacboy: "make: python: cmake clang ccache gmp libuv git: zip: unzip: diffutils: binutils: tree: zstd tar:"
         if: runner.os == 'Windows'
       - name: Install Brew Packages
         run: |
-          brew install ccache tree zstd coreutils gmp
+          brew install ccache tree zstd coreutils gmp libuv
         if: runner.os == 'macOS'
       - name: Checkout
         uses: actions/checkout@v4
@@ -327,17 +325,19 @@ jobs:
         if: matrix.wasm
       - name: Install 32bit c libs
         run: |
+          sudo dpkg --add-architecture i386
           sudo apt-get update
-          sudo apt-get install -y gcc-multilib g++-multilib ccache
+          sudo apt-get install -y gcc-multilib g++-multilib ccache libuv1-dev:i386
         if: matrix.cmultilib
       - name: Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: .ccache
           key: ${{ matrix.name }}-build-v3-${{ github.event.pull_request.head.sha }}
           # fall back to (latest) previous cache
           restore-keys: |
             ${{ matrix.name }}-build-v3
+          save-always: true
       # open nix-shell once for initial setup
       - name: Setup
         run: |
@@ -382,6 +382,12 @@ jobs:
           make -C build install
       - name: Check Binaries
         run: ${{ matrix.binary-check }} lean-*/bin/* || true
+      - name: Count binary symbols
+        run: |
+          for f in lean-*/bin/*; do
+            echo "$f: $(nm $f | grep " T " | wc -l) exported symbols"
+          done
+        if: matrix.name == 'Windows'
       - name: List Install Tree
         run: |
           # omit contents of Init/, ...

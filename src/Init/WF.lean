@@ -173,7 +173,7 @@ namespace Nat
 
 -- less-than is well-founded
 def lt_wfRel : WellFoundedRelation Nat where
-  rel := Nat.lt
+  rel := (· < ·)
   wf  := by
     apply WellFounded.intro
     intro n

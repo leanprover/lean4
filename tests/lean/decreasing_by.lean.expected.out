@@ -15,14 +15,14 @@ Please use `termination_by` to specify a decreasing measure.
 decreasing_by.lean:81:13-83:3: error: unexpected token 'end'; expected '{' or tactic
 decreasing_by.lean:81:0-81:13: error: unsolved goals
 n m : Nat
-⊢ (invImage (fun x => PSigma.casesOn x fun n m => (n, m)) Prod.instWellFoundedRelation).1 ⟨n, dec2 m⟩ ⟨n, m⟩
+⊢ Prod.Lex (fun a₁ a₂ => a₁ < a₂) (fun a₁ a₂ => a₁ < a₂) (n, dec2 m) (n, m)
 
 n m : Nat
 ⊢ (invImage (fun x => PSigma.casesOn x fun n m => (n, m)) Prod.instWellFoundedRelation).1 ⟨dec1 n, 100⟩ ⟨n, m⟩
 decreasing_by.lean:91:0-91:22: error: unsolved goals
 case a
 n m : Nat
-⊢ (invImage (fun x => PSigma.casesOn x fun n m => (n, m)) Prod.instWellFoundedRelation).1 ⟨n, dec2 m⟩ ⟨n, m⟩
+⊢ Prod.Lex (fun a₁ a₂ => a₁ < a₂) (fun a₁ a₂ => a₁ < a₂) (n, dec2 m) (n, m)
 
 n m : Nat
 ⊢ (invImage (fun x => PSigma.casesOn x fun n m => (n, m)) Prod.instWellFoundedRelation).1 ⟨dec1 n, 100⟩ ⟨n, m⟩

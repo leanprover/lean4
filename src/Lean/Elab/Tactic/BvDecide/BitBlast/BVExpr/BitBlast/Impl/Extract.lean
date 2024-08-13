@@ -37,7 +37,7 @@ def blastExtract (aig : AIG α) (target : ExtractTarget aig newWidth) :
   if h : lo ≤ hi then
     ⟨aig, go input lo falseRef 0 (by omega) .empty⟩
   else
-    have : 1 = newWidth  := by omega
+    have : 1 = newWidth := by omega
     let base := AIG.RefVec.empty
     let base := base.push (input.getD lo falseRef)
     ⟨aig, this ▸ base⟩

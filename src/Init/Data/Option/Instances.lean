@@ -19,7 +19,7 @@ theorem eq_of_eq_some {α : Type u} : ∀ {x y : Option α}, (∀z, x = some z �
 theorem eq_none_of_isNone {α : Type u} : ∀ {o : Option α}, o.isNone → o = none
   | none, _ => rfl
 
-instance : Membership α (Option α) := ⟨fun a b => b = some a⟩
+instance : Membership α (Option α) := ⟨fun b a => b = some a⟩
 
 @[simp] theorem mem_def {a : α} {b : Option α} : a ∈ b ↔ b = some a := .rfl
 

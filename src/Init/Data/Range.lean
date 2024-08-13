@@ -15,7 +15,7 @@ structure Range where
   step  : Nat := 1
 
 instance : Membership Nat Range where
-  mem i r := r.start ≤ i ∧ i < r.stop
+  mem r i := r.start ≤ i ∧ i < r.stop
 
 namespace Range
 universe u v

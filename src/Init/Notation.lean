@@ -336,7 +336,7 @@ macro_rules | `($x == $y) => `(binrel_no_prop% BEq.beq $x $y)
 @[inherit_doc] infixl:30 " || " => or
 @[inherit_doc] notation:max "!" b:40 => not b
 
-@[inherit_doc] infix:50 " ∈ " => Membership.mem
+@[inherit_doc] notation:50 a:50 " ∈ " b:50 => Membership.mem b a
 /-- `a ∉ b` is negated elementhood. It is notation for `¬ (a ∈ b)`. -/
 notation:50 a:50 " ∉ " b:50 => ¬ (a ∈ b)
 

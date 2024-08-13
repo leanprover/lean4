@@ -12,7 +12,6 @@ inductive And₂ (F: α → α → Prop) (a : α) : α → (Nat → α) → Nat 
   | mk (b : α) (f : Nat → α) (n : Nat): R F a (f n) → F (f n) b → And₂ F a b f n
 end
 
-
 structure Salg (n k: Nat) where
   D: Type
 

@@ -7,6 +7,10 @@ prelude
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Lemmas.Basic
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Impl.ZeroExtend
 
+/-!
+This module contains the verification of the bitblaster `BitVec.zeroExtend` from `Impl.ZeroExtend`.
+-/
+
 namespace Lean.Elab.Tactic.BvDecide
 
 open Std.Sat

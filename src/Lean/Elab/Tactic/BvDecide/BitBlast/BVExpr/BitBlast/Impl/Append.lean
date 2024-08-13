@@ -7,6 +7,10 @@ prelude
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.Basic
 import Std.Sat.AIG.LawfulVecOperator
 
+/-!
+This module contains the implementation of a bitblaster for `BitVec.append`.
+-/
+
 namespace Lean.Elab.Tactic.BvDecide
 
 open Std.Sat

@@ -7,6 +7,11 @@ prelude
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Impl.Pred
 import Lean.Elab.Tactic.BvDecide.BitBlast.BoolExpr.BitBlast
 
+/-!
+This module contains the implementation of a bitblaster for general `BitVec` problems with boolean
+substructure (`BVLogicalExpr`). It is the main entrypoint into the bitblasting framework.
+-/
+
 namespace Lean.Elab.Tactic.BvDecide
 
 open Std.Sat

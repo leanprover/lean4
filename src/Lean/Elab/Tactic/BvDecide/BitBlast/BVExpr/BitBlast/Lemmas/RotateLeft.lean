@@ -7,6 +7,11 @@ prelude
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Lemmas.Basic
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Impl.RotateLeft
 
+/-!
+This module contains the verification of the bitblaster for `BitVec.rotateLeft` from
+`Impl.RotateLeft`.
+-/
+
 namespace Lean.Elab.Tactic.BvDecide
 
 open Std.Sat

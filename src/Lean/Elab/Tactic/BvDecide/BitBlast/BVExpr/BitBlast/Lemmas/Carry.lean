@@ -8,6 +8,10 @@ import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Lemmas.Basic
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Lemmas.Add
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Impl.Carry
 
+/-!
+This module contains the verification of the overflow detection bitblaster from `Impl.Carry`.
+-/
+
 namespace Lean.Elab.Tactic.BvDecide
 
 open Std.Sat

@@ -8,6 +8,10 @@ import Std.Sat.AIG.CachedGatesLemmas
 import Std.Sat.AIG.LawfulVecOperator
 import Std.Sat.AIG.RefVecOperator
 
+/-!
+This module contains the implementation of a bitblaster for `BitVec` equality.
+-/
+
 namespace Lean.Elab.Tactic.BvDecide
 
 open Std.Sat

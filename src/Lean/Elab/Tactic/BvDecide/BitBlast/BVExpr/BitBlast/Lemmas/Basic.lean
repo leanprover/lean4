@@ -7,6 +7,12 @@ prelude
 import Std.Sat.AIG.Basic
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.Basic
 
+/-!
+This module contains basic infrastructure for converting between variable assignments of `BVExpr`
+and `AIG`. This is necessary because `BVExpr` needs to use a list and indices into said list instead
+of a function due to the way that it is used in `bv_decide`.
+-/
+
 namespace Lean.Elab.Tactic.BvDecide
 
 namespace BVExpr

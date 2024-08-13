@@ -19,6 +19,12 @@ import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Impl.RotateRight
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Impl.SignExtend
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Impl.Mul
 
+/-!
+This module contains the implementation of a bitblaster for `BitVec` expressions (`BVExpr`).
+That is, expressions that evaluate to `BitVec` again. Its used as a building block in bitblasting
+general `BitVec` problems with boolean substructure.
+-/
+
 namespace Lean.Elab.Tactic.BvDecide
 
 open Std.Sat

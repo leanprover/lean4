@@ -8,6 +8,11 @@ import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.Basic
 import Std.Sat.AIG.CachedGatesLemmas
 import Std.Sat.AIG.LawfulVecOperator
 
+/-!
+This module contains the implementation of a bitblaster for `BitVec.add`. The implemented
+circuit is a ripple carry adder.
+-/
+
 namespace Lean.Elab.Tactic.BvDecide
 
 open Std.Sat

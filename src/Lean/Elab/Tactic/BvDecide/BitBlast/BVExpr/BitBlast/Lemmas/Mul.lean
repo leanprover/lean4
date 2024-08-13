@@ -10,6 +10,11 @@ import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Lemmas.ShiftLeft
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Lemmas.Const
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Impl.Mul
 
+
+/-!
+This module contains the verification of the bitblaster for `BitVec.mul` from `Impl.Mul`.
+-/
+
 namespace Lean.Elab.Tactic.BvDecide
 
 open Std.Sat

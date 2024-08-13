@@ -6,6 +6,13 @@ Authors: Henrik Böving
 prelude
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Impl.Add
 
+/-!
+This module contains the implementation of a circuit to determine whether a certain addition would
+overflow. This is provided separately from the addition circuit for two reasons:
+1. Determining whether an overflow will occur does not require to build a full ripple carry adder.
+2. Other operations such as unsigned less than may be implemented in terms of overflow detection.
+-/
+
 namespace Lean.Elab.Tactic.BvDecide
 
 open Std.Sat

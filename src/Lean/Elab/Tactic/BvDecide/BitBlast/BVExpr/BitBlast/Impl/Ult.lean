@@ -7,6 +7,11 @@ prelude
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Impl.Carry
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Impl.Not
 
+/-!
+This module contains the implementation of a bitblaster for `BitVec.ult`. The implementation
+makes use of the reduction provided by `BitVec.ult_eq_not_carry`.
+-/
+
 namespace Lean.Elab.Tactic.BvDecide
 
 open Std.Sat

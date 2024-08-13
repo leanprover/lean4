@@ -7,6 +7,11 @@ prelude
 import Init.Notation
 import Init.Data.Bool
 
+/-!
+This module contains the definition of a generic boolean substructure for SMT problems with
+`BoolExpr`. For verification purposes `BoolExpr.Sat` and `BoolExpr.Unsat` are provided.
+-/
+
 namespace Lean.Elab.Tactic.BvDecide
 
 inductive Gate

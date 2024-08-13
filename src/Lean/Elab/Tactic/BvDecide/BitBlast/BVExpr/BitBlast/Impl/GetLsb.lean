@@ -7,6 +7,10 @@ prelude
 import Std.Sat.AIG.CachedGatesLemmas
 import Std.Sat.AIG.RefVec
 
+/-!
+This module contains the implementation of a bitblaster for `BitVec.getLsb`.
+-/
+
 namespace Lean.Elab.Tactic.BvDecide
 
 open Std.Sat

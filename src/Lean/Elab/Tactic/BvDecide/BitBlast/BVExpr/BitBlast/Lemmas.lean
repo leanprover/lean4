@@ -7,6 +7,12 @@ prelude
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Impl
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Lemmas.Pred
 
+/-!
+This module contains the verification of the bitblaster for general `BitVec` problems with boolean
+substructure (`BVLogicalExpr`). It is the main entrypoint for verification of the bitblasting
+framework.
+-/
+
 namespace Lean.Elab.Tactic.BvDecide
 
 open Std.Sat

@@ -8,6 +8,11 @@ import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.Basic
 import Std.Sat.AIG.CachedGatesLemmas
 import Std.Sat.AIG.LawfulVecOperator
 
+/-!
+This module contains the implementation of a bitblaster for `BitVec.rotateRight`. Note that only
+rotating with a known rotation distance is supported because `rotateRight` takes a `Nat` as distance.
+-/
+
 namespace Lean.Elab.Tactic.BvDecide
 
 open Std.Sat

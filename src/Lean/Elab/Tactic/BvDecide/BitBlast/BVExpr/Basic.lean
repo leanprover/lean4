@@ -8,6 +8,13 @@ import Init.Data.Hashable
 import Init.Data.BitVec
 import Lean.Elab.Tactic.BvDecide.BitBlast.BoolExpr.Basic
 
+/-!
+This module contains the definition of the `BitVec` fragment that `bv_decide` internally operates
+on as `BVLogicalExpr`. The preprocessing steps of `bv_decide` reduce all supported `BitVec`
+operations to the ones provided in this file. For verification purposes `BVLogicalExpr.Sat` and
+`BVLogicalExpr.Unsat` are provided.
+-/
+
 namespace Lean.Elab.Tactic.BvDecide
 
 /--

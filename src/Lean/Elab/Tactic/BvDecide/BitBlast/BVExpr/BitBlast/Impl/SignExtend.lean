@@ -9,6 +9,10 @@ import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Impl.ZeroExtend
 import Std.Sat.AIG.CachedGatesLemmas
 import Std.Sat.AIG.LawfulVecOperator
 
+/-!
+This module contains the implementation of a bitblaster for `BitVec.signExtend`.
+-/
+
 namespace Lean.Elab.Tactic.BvDecide
 
 open Std.Sat

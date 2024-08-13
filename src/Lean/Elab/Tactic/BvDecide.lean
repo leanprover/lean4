@@ -5,3 +5,9 @@ Authors: Henrik Böving
 -/
 prelude
 import Lean.Elab.Tactic.BvDecide.BitBlast
+
+/-!
+This directory implements the `bv_decide` tactic as a verified bitblaster with subterm sharing.
+It makes use of proof by reflection and `ofReduceBool`, thus adding the Lean compiler to the trusted
+code base.
+-/

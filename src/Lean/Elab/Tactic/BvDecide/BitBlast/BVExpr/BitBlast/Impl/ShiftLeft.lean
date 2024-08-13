@@ -9,6 +9,13 @@ import Std.Sat.AIG.CachedGatesLemmas
 import Std.Sat.AIG.LawfulVecOperator
 import Std.Sat.AIG.If
 
+/-!
+This module contains the implementation of a bitblaster for `BitVec.shiftLeft`.
+It distinguishes two cases:
+1. Shifting by a constant distance (trivial)
+2. Shifting by a symbolic `BitVec` distance (requires symbolic branches over the distance).
+-/
+
 namespace Lean.Elab.Tactic.BvDecide
 
 open Std.Sat

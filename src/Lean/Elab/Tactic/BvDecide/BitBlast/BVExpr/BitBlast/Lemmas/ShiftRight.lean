@@ -7,6 +7,11 @@ prelude
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Lemmas.Basic
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Impl.ShiftRight
 
+/-!
+This module contains the verification of the bitblasters for `BitVec.shiftRight` from
+`Impl.ShiftRight`.
+-/
+
 namespace Lean.Elab.Tactic.BvDecide
 
 open Std.Sat

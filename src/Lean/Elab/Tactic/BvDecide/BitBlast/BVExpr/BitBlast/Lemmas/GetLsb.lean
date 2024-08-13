@@ -7,6 +7,10 @@ prelude
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Lemmas.Basic
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Impl.GetLsb
 
+/-!
+This module contains the verification of the `BitVec.getLsb` bitblaster from `Impl.Extract`.
+-/
+
 namespace Lean.Elab.Tactic.BvDecide
 
 open Std.Sat

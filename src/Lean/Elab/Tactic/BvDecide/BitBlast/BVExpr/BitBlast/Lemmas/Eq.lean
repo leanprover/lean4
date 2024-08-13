@@ -7,6 +7,10 @@ prelude
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Lemmas.Basic
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Impl.Eq
 
+/-!
+This module contains the verification of the `BitVec` equality bitblaster from `Impl.Eq`.
+-/
+
 namespace Lean.Elab.Tactic.BvDecide
 
 open Std.Sat

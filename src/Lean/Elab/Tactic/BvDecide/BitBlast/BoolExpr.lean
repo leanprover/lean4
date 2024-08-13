@@ -6,3 +6,8 @@ Authors: Henrik Böving
 prelude
 import Lean.Elab.Tactic.BvDecide.BitBlast.BoolExpr.Basic
 import Lean.Elab.Tactic.BvDecide.BitBlast.BoolExpr.BitBlast
+
+/-!
+This directory contains the definition and bitblaster of generic boolean substructures for
+SMT-like problems.
+-/

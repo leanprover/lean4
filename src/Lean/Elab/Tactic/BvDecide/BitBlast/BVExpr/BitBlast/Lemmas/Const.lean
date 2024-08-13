@@ -7,6 +7,10 @@ prelude
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Lemmas.Basic
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Impl.Const
 
+/-!
+This module contains the verification of the `BitVec` constant bitblaster from `Impl.Const`.
+-/
+
 namespace Lean.Elab.Tactic.BvDecide
 
 open Std.Sat

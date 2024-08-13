@@ -8,6 +8,11 @@ import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Lemmas.Basic
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Lemmas.ZeroExtend
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Impl.SignExtend
 
+/-!
+This module contains the verification of the bitblaster for `BitVec.signExtend` from
+`Impl.SignExtend`.
+-/
+
 namespace Lean.Elab.Tactic.BvDecide
 
 open Std.Sat

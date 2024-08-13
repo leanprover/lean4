@@ -7,6 +7,10 @@ prelude
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Lemmas.Basic
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Impl.Append
 
+/-!
+This module contains the verification of the `BitVec.append` bitblaster from `Impl.Append`.
+-/
+
 namespace Lean.Elab.Tactic.BvDecide
 
 open Std.Sat

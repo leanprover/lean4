@@ -9,6 +9,11 @@ import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Impl.Ult
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Impl.GetLsb
 import Lean.Elab.Tactic.BvDecide.BitBlast.BVExpr.BitBlast.Impl.Expr
 
+/-!
+This module contains the implementation of a bitblaster for predicates over `BitVec` expressions
+(`BVPred`).
+-/
+
 namespace Lean.Elab.Tactic.BvDecide
 
 open Std.Sat

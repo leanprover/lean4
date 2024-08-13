@@ -70,7 +70,7 @@ theorem mkFullAdder_denote_mem_prefix (aig : AIG α) (input : FullAdderInput aig
     (hstart) :
     ⟦
       (mkFullAdder aig input).aig,
-      ⟨start, by apply Nat.lt_of_lt_of_le; exact hstart; apply FullAdderOutput.hle⟩,
+      ⟨start, Nat.lt_of_lt_of_le hstart (FullAdderOutput.hle _)⟩,
       assign
     ⟧
       =

@@ -119,8 +119,7 @@ theorem go_get_aux (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref a
     . apply go_le_size
   . rw [← hgo]
     simp only [Nat.le_refl, get, Ref_cast', Ref.mk.injEq, true_implies]
-    have : curr = w := by omega
-    subst this
+    obtain rfl : curr = w := by omega
     simp
 termination_by w - curr
 

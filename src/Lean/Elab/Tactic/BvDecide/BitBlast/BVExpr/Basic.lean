@@ -78,7 +78,7 @@ def toString : BVBinOp → String
 instance : ToString BVBinOp := ⟨toString⟩
 
 /--
-The denotational semantics for `BVBinOp`.
+The semantics for `BVBinOp`.
 -/
 def eval : BVBinOp → (BitVec w → BitVec w → BitVec w)
   | and => (· &&& ·)
@@ -149,7 +149,7 @@ def toString : BVUnOp → String
 instance : ToString BVUnOp := ⟨toString⟩
 
 /--
-The denotational semantics for `BVUnOp`.
+The semantics for `BVUnOp`.
 -/
 def eval : BVUnOp → (BitVec w → BitVec w)
   | not => (~~~ ·)
@@ -269,7 +269,7 @@ def Assignment.getD (assign : Assignment) (idx : Nat) : PackedBitVec :=
   List.getD assign idx ⟨BitVec.zero 0⟩
 
 /--
-The denotational semantics for `BVExpr`.
+The semantics for `BVExpr`.
 -/
 def eval (assign : Assignment) : BVExpr w → BitVec w
   | .var idx =>
@@ -353,7 +353,7 @@ def toString : BVBinPred → String
 instance : ToString BVBinPred := ⟨toString⟩
 
 /--
-The denotational semantics for `BVBinPred`.
+The semantics for `BVBinPred`.
 -/
 def eval : BVBinPred → (BitVec w → BitVec w → Bool)
   | .eq => (· == ·)
@@ -394,7 +394,7 @@ def toString : BVPred → String
 instance : ToString BVPred := ⟨toString⟩
 
 /--
-The denotational semantics for `BVPred`.
+The semantics for `BVPred`.
 -/
 def eval (assign : BVExpr.Assignment) : BVPred → Bool
   | bin lhs op rhs => op.eval (lhs.eval assign) (rhs.eval assign)
@@ -418,7 +418,7 @@ abbrev BVLogicalExpr := BoolExpr BVPred
 namespace BVLogicalExpr
 
 /--
-The denotational semantics of boolean problems involving BitVec predicates as atoms.
+The semantics of boolean problems involving BitVec predicates as atoms.
 -/
 def eval (assign : BVExpr.Assignment) (expr : BVLogicalExpr) : Bool :=
   BoolExpr.eval (·.eval assign) expr

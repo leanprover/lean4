@@ -45,3 +45,25 @@ def f2 (x : List Nat) (y : Nat) : Nat := f1 x.tail y
 termination_by x.length
 decreasing_by fail
 end
+
+/--
+error: tactic 'fail' failed
+x : List Nat
+y : Nat
+⊢ (invImage
+        (fun x =>
+          PSum.casesOn x (fun _x => PSigma.casesOn _x fun x y => x.length) fun _x =>
+            PSigma.casesOn _x fun x y => x.length)
+        instWellFoundedRelationOfSizeOf).1
+    (PSum.inr ⟨x.tail, y⟩) (PSum.inl ⟨x, y⟩)
+-/
+#guard_msgs in
+set_option cleanDecreasingByGoal false in
+mutual
+def g1 (x : List Nat) (y : Nat) : Nat := g2 x.tail y
+termination_by x.length
+decreasing_by fail
+def g2 (x : List Nat) (y : Nat) : Nat := g1 x.tail y
+termination_by x.length
+decreasing_by fail
+end

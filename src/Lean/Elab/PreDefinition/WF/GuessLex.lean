@@ -15,6 +15,7 @@ import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.TerminationArgument
+import Lean.Elab.PreDefinition.WF.Basic
 import Lean.Data.Array
 
 
@@ -445,7 +446,7 @@ def evalRecCall (decrTactic? : Option DecreasingBy) (callerMeasures calleeMeasur
         else do
           Lean.Elab.Term.TermElabM.run' do Term.withoutErrToSorry do
             let remainingGoals ← Tactic.run mvarId do Tactic.withoutRecover do
-              Tactic.evalTactic (← `(tactic| clean_wf))
+              applyCleanWfTactic
               let tacticStx : Syntax ←
                 match decrTactic? with
                 | none => pure (← `(tactic| decreasing_tactic)).raw

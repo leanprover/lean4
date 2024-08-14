@@ -18,11 +18,11 @@ Converts a `LocalDateTime` to a `Timestamp`
 -/
 @[inline]
 def ofLocalDateTime (Local : LocalDateTime) : Timestamp :=
-  Local.toTimestamp
+  Local.toUTCTimestamp
 
 /--
 Converts a `Timestamp` to a `LocalDateTime`
 -/
 @[inline]
 def toLocalDateTime (timestamp : Timestamp) : LocalDateTime :=
-  LocalDateTime.ofTimestamp timestamp
+  LocalDateTime.ofUTCTimestamp timestamp

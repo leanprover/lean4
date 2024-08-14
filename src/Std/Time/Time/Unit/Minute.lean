@@ -21,7 +21,7 @@ set_option linter.all true
 def Ordinal := Bounded.LE 0 59
   deriving Repr, BEq, LE
 
-instance [Le n 59] : OfNat Ordinal n where ofNat := Bounded.LE.ofNat n Le.p
+instance : OfNat Ordinal n := inferInstanceAs (OfNat (Bounded.LE 0 (0 + (59 : Nat))) n)
 
 instance : Inhabited Ordinal where default := 0
 

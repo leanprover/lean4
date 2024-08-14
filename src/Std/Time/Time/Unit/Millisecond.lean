@@ -12,13 +12,15 @@ namespace Time
 namespace Millisecond
 open Internal
 
+set_option linter.all true
+
 /--
 `Ordinal` represents a bounded value for milliseconds, which ranges between 0 and 999.
 -/
 def Ordinal := Bounded.LE 0 999
   deriving Repr, BEq, LE, LT
 
-instance : OfNat Ordinal n where ofNat := Bounded.LE.ofFin (Fin.ofNat n)
+instance : OfNat Ordinal n := inferInstanceAs (OfNat (Bounded.LE 0 (0 + (999 : Nat))) n)
 
 instance : Inhabited Ordinal where default := 0
 

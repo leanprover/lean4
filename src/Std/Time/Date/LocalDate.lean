@@ -9,15 +9,35 @@ import Std.Time.Date.Basic
 
 namespace Std
 namespace Time
+open Internal
+
+set_option linter.all true
 
 /--
 Date in YMD format.
 -/
 structure LocalDate where
+
+  /--
+  The year component of the date. It is represented as an `Offset` type from `Year`.
+  -/
   year : Year.Offset
+
+  /--
+  The month component of the date. It is represented as an `Ordinal` type from `Month`.
+  -/
   month : Month.Ordinal
+
+  /--
+  The day component of the date. It is represented as an `Ordinal` type from `Day`.
+  -/
   day : Day.Ordinal
+
+  /--
+  Validates the date by ensuring that the year, month, and day form a correct and valid date.
+  -/
   valid : year.Valid month day
+
   deriving Repr
 
 namespace LocalDate
@@ -44,7 +64,7 @@ def ofYearMonthDay (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordin
 Creates a new `LocalDate` using YO.
 -/
 def ofYearOrdinal (year : Year.Offset) (ordinal : Day.Ordinal.OfYear year.isLeap) : LocalDate :=
-  let ⟨⟨month, day⟩, valid⟩ := ordinal.toMonthAndDay
+  let ⟨⟨month, day⟩, valid⟩ := Month.Ordinal.ofOrdinal ordinal
   LocalDate.mk year month day valid
 
 /--
@@ -122,8 +142,122 @@ Calculate the Year.Offset from a LocalDate
 def yearsSince (date : LocalDate) (year : Year.Offset) : Year.Offset :=
   date.year - year
 
+/--
+Add `Day.Offset` to a `LocalDate`.
+-/
+@[inline]
+def addDays (date : LocalDate) (days : Day.Offset) : LocalDate :=
+  let dateDays := date.toDaysSinceUNIXEpoch
+  ofDaysSinceUNIXEpoch (Add.add dateDays days)
+
+/--
+Subtracts `Day.Offset` to a `LocalDate`.
+-/
+@[inline]
+def subDays (date : LocalDate) (days : Day.Offset) : LocalDate :=
+  addDays date (-days)
+
+/--
+Add `Month.Offset` to a `LocalDate`, it clips the day to the last valid day of that month.
+-/
+def addMonthsClip (date : LocalDate) (months : Month.Offset) : LocalDate :=
+  let yearsOffset := months.div 12
+  let monthOffset := Bounded.LE.byMod months 12 (by decide)
+  let months := date.month.addBounds monthOffset
+
+  let (yearsOffset, months) : Year.Offset × Month.Ordinal := by
+    if h₁ : months.val > 12 then
+      let months := months |>.truncateBottom h₁ |>.sub 12
+      exact (yearsOffset.add 1, months.expandTop (by decide))
+    else if h₂ : months.val < 1 then
+      let months := months |>.truncateTop (Int.le_sub_one_of_lt h₂) |>.add 12
+      exact (yearsOffset.sub 1, months.expandBottom (by decide))
+    else
+      exact (yearsOffset, months.truncateTop (Int.not_lt.mp h₁) |>.truncateBottom (Int.not_lt.mp h₂))
+
+  LocalDate.clip (date.year.add yearsOffset) months date.day
+
+/--
+Subtracts `Month.Offset` from a `LocalDate`, it clips the day to the last valid day of that month.
+-/
+@[inline]
+def subMonthsClip (date : LocalDate) (months : Month.Offset) : LocalDate :=
+  addMonthsClip date (-months)
+
+/--
+Add `Month.Offset` to a `LocalDate`, this function rolls over any excess days into the following
+month.
+-/
+def addMonthsRollOver (date : LocalDate) (months : Month.Offset) : LocalDate :=
+  let yearsOffset := months.div 12
+  let monthOffset := Bounded.LE.byMod months 12 (by decide)
+  let months := date.month.addBounds monthOffset
+
+  let (yearsOffset, months) : Year.Offset × Month.Ordinal := by
+    if h₁ : months.val > 12 then
+      let months := months |>.truncateBottom h₁ |>.sub 12
+      exact (yearsOffset.add 1, months.expandTop (by decide))
+    else if h₂ : months.val < 1 then
+      let months := months |>.truncateTop (Int.le_sub_one_of_lt h₂) |>.add 12
+      exact (yearsOffset.sub 1, months.expandBottom (by decide))
+    else
+      exact (yearsOffset, months.truncateTop (Int.not_lt.mp h₁) |>.truncateBottom (Int.not_lt.mp h₂))
+
+  let year : Year.Offset := date.year.add yearsOffset
+  let ⟨days, proof⟩ := Month.Ordinal.days year.isLeap months
+
+  if h : days.val ≥ date.day.val then
+    let p : year.Valid months date.day := by
+      simp_all [Year.Offset.Valid, Month.Ordinal.Valid]
+      exact Int.le_trans h proof
+    dbg_trace s!"roll {days.val} {date.day.val}"
+    LocalDate.mk year months date.day p
+  else
+    let roll : Day.Offset := UnitVal.mk (date.day.val - days.toInt)
+    let date := LocalDate.clip (date.year.add yearsOffset) months date.day
+    let days := date.toDaysSinceUNIXEpoch + roll
+    LocalDate.ofDaysSinceUNIXEpoch days
+
+/--
+Subtract `Month.Offset` from a `LocalDate`, this function rolls over any excess days into the following
+month.
+-/
+@[inline]
+def subMonthsRollOver (date : LocalDate) (months : Month.Offset) : LocalDate :=
+  addMonthsRollOver date (-months)
+
+/--
+Add `Year.Offset` to a `LocalDate`, this function rolls over any excess days into the following
+month.
+-/
+@[inline]
+def addYearsRollOver (date : LocalDate) (years : Year.Offset) : LocalDate :=
+  addMonthsRollOver date (years.mul 12)
+
+/--
+Add `Year.Offset` to a `LocalDate`, it clips the day to the last valid day of that month.
+-/
+@[inline]
+def addYearsClip (date : LocalDate) (years : Year.Offset) : LocalDate :=
+  addMonthsClip date (years.mul 12)
+
+/--
+Subtract `Year.Offset` from a `LocalDate`, this function rolls over any excess days into the following
+month.
+-/
+@[inline]
+def subYearsRollOver (date : LocalDate) (years : Year.Offset) : LocalDate :=
+  addMonthsRollOver date (- years.mul 12)
+
+/--
+Subtract `Year.Offset` from a `LocalDate`, it clips the day to the last valid day of that month.
+-/
+@[inline]
+def subYearsClip (date : LocalDate) (years : Year.Offset) : LocalDate :=
+  addMonthsClip date (- years.mul 12)
+
 instance : HAdd LocalDate Day.Offset LocalDate where
-  hAdd date day :=  ofDaysSinceUNIXEpoch (toDaysSinceUNIXEpoch date + day)
+  hAdd date day := ofDaysSinceUNIXEpoch (toDaysSinceUNIXEpoch date + day)
 
 end LocalDate
 end Time

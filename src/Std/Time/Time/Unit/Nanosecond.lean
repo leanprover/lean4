@@ -37,7 +37,7 @@ def OfDay := Bounded.LE 0 86400000000000
 Convert to `Millisecond.Ordinal`
 -/
 def toMillisecond (nano : Ordinal) : Millisecond.Ordinal :=
-  nano.div 1000000 (by decide)
+  nano.ediv 1000000 (by decide)
 
 /--
 Convert from `Millisecond.Ordinal`

@@ -16,14 +16,14 @@ open Internal
 set_option linter.all true
 
 namespace Month
+
 /--
 `Ordinal` represents a bounded value for months, which ranges between 1 and 12.
 -/
 def Ordinal := Bounded.LE 1 12
   deriving Repr, BEq, LE
 
-instance [Le 1 n] [Le n 12] : OfNat Ordinal n where
-  ofNat := Bounded.LE.mk (Int.ofNat n) (And.intro (Int.ofNat_le.mpr Le.p) (Int.ofNat_le.mpr Le.p))
+instance : OfNat Ordinal n := inferInstanceAs (OfNat (Bounded.LE 1 (1 + (11 : Nat))) n)
 
 instance : Inhabited Ordinal where default := 1
 
@@ -133,17 +133,17 @@ def toSeconds (leap : Bool) (month : Ordinal) : Second.Offset :=
 Transforms `Month.Ordinal` into `Minute.Offset`.
 -/
 @[inline]
-def toMinute (leap : Bool) (month : Ordinal) : Minute.Offset :=
+def toMinutes (leap : Bool) (month : Ordinal) : Minute.Offset :=
   toSeconds leap month
-  |>.div 60
+  |>.ediv 60
 
 /--
 Transforms `Month.Ordinal` into `Hour.Offset`.
 -/
 @[inline]
 def toHours (leap : Bool) (month : Ordinal) : Hour.Offset :=
-  toMinute leap month
-  |>.div 60
+  toMinutes leap month
+  |>.ediv 60
 
 /--
 Transforms `Month.Ordinal` into `Day.Offset`.
@@ -177,7 +177,7 @@ Check if the day is valid in a month and a leap year.
 -/
 @[inline]
 def Valid (leap : Bool) (month : Month.Ordinal) (day : Day.Ordinal) : Prop :=
-  day ≤ daysWithoutProof leap month
+  day.val ≤ (daysWithoutProof leap month).val
 
 instance : Decidable (Valid leap month day) :=
   dite (day ≤ daysWithoutProof leap month) isTrue isFalse

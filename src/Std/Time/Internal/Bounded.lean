@@ -5,7 +5,6 @@ Authors: Sofia Rodrigues
 -/
 prelude
 import Init.Data.Int
-import Std.Time.Internal.LessEq
 
 namespace Std
 namespace Time
@@ -47,12 +46,6 @@ integers that `lo ≤ val ≤ hi`.
 -/
 abbrev LE := @Bounded LE.le
 
-instance [Le lo n] [Le n hi] : OfNat (Bounded.LE lo hi) n where
-  ofNat := ⟨n, And.intro (Int.ofNat_le.mpr Le.p) (Int.ofNat_le.mpr Le.p)⟩
-
-instance [Le lo hi] : Inhabited (Bounded.LE lo hi) where
-  default := ⟨lo, And.intro (Int.le_refl lo) (Int.ofNat_le.mpr Le.p)⟩
-
 def cast {rel : Int → Int → Prop} {lo₁ lo₂ hi₁ hi₂ : Int} (h₁ : lo₁ = lo₂) (h₂ : hi₁ = hi₂)
     (b : Bounded rel lo₁ hi₁) : Bounded rel lo₂ hi₂ :=
   .mk b.val ⟨h₁ ▸ b.property.1, h₂ ▸ b.property.2⟩
@@ -71,6 +64,35 @@ def mk {rel : Int → Int → Prop} (val : Int) (proof : rel lo val ∧ rel val 
   ⟨val, proof⟩
 
 namespace LE
+
+/--
+Convert a `Nat` to a `Bounded.LE` by wrapping it.
+-/
+@[inline]
+def ofNatWrapping { lo hi : Int } (val : Int) (h : lo ≤ hi): Bounded.LE lo hi := by
+  let range := hi - lo + 1
+  have range_pos := Int.add_pos_of_nonneg_of_pos (b := 1) (Int.sub_nonneg_of_le h) (by decide)
+  have not_zero := Int.ne_iff_lt_or_gt.mpr (Or.inl range_pos)
+  have mod_nonneg : 0 ≤ (val - lo) % range := Int.emod_nonneg (val - lo) not_zero.symm
+  have add_nonneg : lo ≤ lo + (val - lo) % range := Int.le_add_of_nonneg_right mod_nonneg
+  have mod_range : (val - lo) % (hi - lo + 1) < range := Int.emod_lt_of_pos (a := val - lo) range_pos
+  refine ⟨((val - lo) % range + range) % range + lo, And.intro ?_ ?_⟩
+  · simp_all [range]
+    rw [Int.add_comm] at add_nonneg
+    exact add_nonneg
+  · apply Int.add_le_of_le_sub_right
+    simp_all [range]
+    exact Int.le_of_lt_add_one mod_range
+
+instance {k : Nat} : OfNat (Bounded.LE lo (lo + k)) n where
+  ofNat :=
+    let h : lo ≤ lo + k := Int.le_add_of_nonneg_right (Int.ofNat_zero_le k)
+    ofNatWrapping n h
+
+instance {k : Nat} : Inhabited (Bounded.LE lo (lo + k)) where
+  default :=
+    let h : lo ≤ lo + k := Int.le_add_of_nonneg_right (Int.ofNat_zero_le k)
+    ofNatWrapping lo h
 
 /--
 Creates a new `Bounded` integer that the relation is less-equal.
@@ -122,17 +144,6 @@ def clip (val : Int) (h : lo ≤ hi) : Bounded.LE lo hi :=
       then ⟨val, And.intro h₀ h₁⟩
       else ⟨hi, And.intro h (Int.le_refl hi)⟩
   else ⟨lo, And.intro (Int.le_refl lo) h⟩
-
-/--
-Convert a `Nat` to a `Bounded.LE` using the lower boundary too.
--/
-@[inline]
-def clip! [Le lo hi] (val : Int) : Bounded.LE lo hi :=
-  if h₀ : lo ≤ val then
-    if h₁ : val ≤ hi
-      then ⟨val, And.intro h₀ h₁⟩
-      else panic! "greater than hi"
-  else panic! "lower than lo"
 
 /--
 Convert a `Bounded.LE` to a Nat.
@@ -270,9 +281,9 @@ def add (bounded : Bounded.LE n m) (num : Int) : Bounded.LE (n + num) (m + num) 
 Adjust the bounds of a `Bounded` by adding a constant value to the upper bounds.
 -/
 @[inline]
-def addTop (bounded : Bounded.LE n m) (num : Nat) : Bounded.LE n (m + num) := by
+def addTop (bounded : Bounded.LE n m) (num : Int) (h : num ≥ 0) : Bounded.LE n (m + num) := by
   refine ⟨bounded.val + num, And.intro ?_ ?_⟩
-  · let h := Int.add_le_add bounded.property.left (Int.ofNat_zero_le num)
+  · let h := Int.add_le_add bounded.property.left h
     simp at h
     exact h
   · exact Int.add_le_add bounded.property.right (Int.le_refl num)
@@ -281,10 +292,10 @@ def addTop (bounded : Bounded.LE n m) (num : Nat) : Bounded.LE n (m + num) := by
 Adjust the bounds of a `Bounded` by adding a constant value to the lower bounds.
 -/
 @[inline]
-def subBottom (bounded : Bounded.LE n m) (num : Nat) : Bounded.LE (n - num) m := by
+def subBottom (bounded : Bounded.LE n m) (num : Int) (h : num ≥ 0) : Bounded.LE (n - num) m := by
   refine ⟨bounded.val - num, And.intro ?_ ?_⟩
   · exact Int.add_le_add bounded.property.left (Int.le_refl (-num))
-  · let h := Int.sub_le_sub bounded.property.right (Int.ofNat_zero_le num)
+  · let h := Int.sub_le_sub bounded.property.right h
     simp at h
     exact h
 
@@ -292,7 +303,7 @@ def subBottom (bounded : Bounded.LE n m) (num : Nat) : Bounded.LE (n - num) m :=
 Adds two `Bounded` and adjust the boundaries.
 -/
 @[inline]
-def addBounds (bounded : Bounded.LE n m) (bounded₂ : Bounded.LE n m) : Bounded.LE (n + n) (m + m) := by
+def addBounds (bounded : Bounded.LE n m) (bounded₂ : Bounded.LE i j) : Bounded.LE (n + i) (m + j) := by
   refine ⟨bounded.val + bounded₂.val, And.intro ?_ ?_⟩
   · exact Int.add_le_add bounded.property.left bounded₂.property.left
   · exact Int.add_le_add bounded.property.right bounded₂.property.right
@@ -349,9 +360,9 @@ def mul_neg (bounded : Bounded.LE n m) (num : Int) (h : num ≤ 0) : Bounded.LE 
 Adjust the bounds of a `Bounded` by applying the div operation.
 -/
 @[inline]
-def div (bounded : Bounded.LE n m) (num : Int) (h : num > 0) : Bounded.LE (n / num) (m / num) := by
+def ediv (bounded : Bounded.LE n m) (num : Int) (h : num > 0) : Bounded.LE (n / num) (m / num) := by
   let ⟨left, right⟩ := bounded.property
-  refine ⟨bounded.val / num, And.intro ?_ ?_⟩
+  refine ⟨bounded.val.ediv num, And.intro ?_ ?_⟩
   apply Int.ediv_le_ediv
   · exact h
   · exact left
@@ -359,6 +370,9 @@ def div (bounded : Bounded.LE n m) (num : Int) (h : num > 0) : Bounded.LE (n / n
     · exact h
     · exact right
 
+@[inline]
+def eq {n : Int} : Bounded.LE n n :=
+  ⟨n, And.intro (Int.le_refl n) (Int.le_refl n)⟩
 /--
 Expand the bottom of the bounded to a number `nhi` is `hi` is less or equal to the previous higher bound.
 -/

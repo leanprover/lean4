@@ -5,6 +5,5 @@ Authors: Sofia Rodrigues
 -/
 prelude
 import Std.Time.Internal.Bounded
-import Std.Time.Internal.LessEq
 import Std.Time.Internal.Sign
 import Std.Time.Internal.UnitVal

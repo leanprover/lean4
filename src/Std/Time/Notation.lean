@@ -208,10 +208,6 @@ macro_rules
     let syn := Syntax.mkStrLit name
     do `(Std.Time.TimeZone.mk $(← parseOffset offset) $syn)
 
-/--
-Macro for creating formats
--/
-
 private def convertModifier : Modifier → MacroM (TSyntax `term)
   | .YYYY => `(Std.Time.Modifier.YYYY)
   | .YY => `(Std.Time.Modifier.YY)

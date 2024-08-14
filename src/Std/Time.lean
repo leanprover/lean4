@@ -11,7 +11,10 @@ import Std.Time.DateTime
 import Std.Time.Notation
 import Std.Time.Duration
 
+namespace Std
 namespace Time
+
+set_option linter.all true
 
 /-!
 # Time
@@ -100,7 +103,7 @@ Combines date and time into a single representation, useful for precise timestam
 
 - **`LocalDateTime`**: Represents both date and time in the format `YYYY-MM-DDTHH:mm:ss.SSSSSSSSS`.
 - **`Timestamp`**: Represents a point in time with second-level precision. It starts on the UNIX
-dpoch and it should be used when you receive or need to send timestamps to another systems.
+epoch and it should be used when you receive or need to send timestamps to another systems.
 
 ## Zoned date and times.
 Combines date, time and time zones.
@@ -111,9 +114,7 @@ Combines date, time and time zones.
 ## Duration
 Represents spans of time and the difference between two points in time.
 
-- **`Instant`**: Represents a non-negative instant in time with nanosecond precision, represents a
-  specific point on the time axis.
-- **`Duration`**: Represents the time span or difference between two `Instant` values with nanosecond precision.
+- **`Duration`**: Represents the time span or difference between two `Timestamp`s values with nanosecond precision.
 
 # Formats
 

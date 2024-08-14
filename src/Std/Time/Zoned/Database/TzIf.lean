@@ -11,23 +11,52 @@ import Lean.Data.Parsec.ByteArray
 namespace Std
 namespace Time
 namespace TimeZone
-namespace Database
 namespace TZif
 open Lean.Parsec Lean.Parsec.ByteArray
 
-abbrev Int32 := Int
-abbrev Int64 := Int
+set_option linter.all true
+
+private abbrev Int32 := Int
+
+private abbrev Int64 := Int
 
 /--
 Represents the header of a TZif file, containing metadata about the file's structure.
 -/
 structure Header where
+  /--
+  The version of the TZif file format.
+  -/
   version : UInt8
+
+  /--
+  The count of UT local indicators in the file.
+  -/
   isutcnt : UInt32
+
+  /--
+  The count of standard/wall indicators in the file.
+  -/
   isstdcnt : UInt32
+
+  /--
+  The number of leap second records.
+  -/
   leapcnt : UInt32
+
+  /--
+  The number of transition times in the file.
+  -/
   timecnt : UInt32
+
+  /--
+  The number of local time types in the file.
+  -/
   typecnt : UInt32
+
+  /--
+  The total number of characters used in abbreviations.
+  -/
   charcnt : UInt32
   deriving Repr, Inhabited
 
@@ -35,8 +64,19 @@ structure Header where
 Represents the local time type information, including offset and daylight saving details.
 -/
 structure LocalTimeType where
+  /--
+  The GMT offset in seconds for this local time type.
+  -/
   gmtOffset : Int32
+
+  /--
+  Indicates if this local time type observes daylight saving time.
+  -/
   isDst : Bool
+
+  /--
+  The index into the abbreviation string table for this time type.
+  -/
   abbreviationIndex : UInt8
   deriving Repr, Inhabited
 
@@ -44,7 +84,14 @@ structure LocalTimeType where
 Represents a leap second record, including the transition time and the correction applied.
 -/
 structure LeapSecond where
+  /--
+  The transition time of the leap second event.
+  -/
   transitionTime : Int64
+
+  /--
+  The correction applied during the leap second event in seconds.
+  -/
   correction : Int64
   deriving Repr, Inhabited
 
@@ -52,13 +99,44 @@ structure LeapSecond where
 Represents version 1 of the TZif format.
 -/
 structure TZifV1 where
+  /--
+  The header information of the TZif file.
+  -/
   header : Header
+
+  /--
+  The array of transition times in seconds since the epoch.
+  -/
   transitionTimes : Array Int32
+
+  /--
+  The array of local time type indices corresponding to each transition time.
+  -/
   transitionIndices : Array UInt8
+
+  /--
+  The array of local time type structures.
+  -/
   localTimeTypes : Array LocalTimeType
+
+  /--
+  The array of abbreviation strings used by local time types.
+  -/
   abbreviations : Array String
+
+  /--
+  The array of leap second records.
+  -/
   leapSeconds : Array LeapSecond
+
+  /--
+  The array indicating whether each transition time uses wall clock time or standard time.
+  -/
   stdWallIndicators : Array Bool
+
+  /--
+  The array indicating whether each transition time uses universal time or local time.
+  -/
   utLocalIndicators : Array Bool
   deriving Repr, Inhabited
 
@@ -66,6 +144,9 @@ structure TZifV1 where
 Represents version 2 of the TZif format, extending TZifV1 with an optional footer.
 -/
 structure TZifV2 extends TZifV1 where
+  /--
+  An optional footer for additional metadata in version 2.
+  -/
   footer : Option String
   deriving Repr, Inhabited
 
@@ -73,12 +154,16 @@ structure TZifV2 extends TZifV1 where
 Represents a TZif file, which can be either version 1 or version 2.
 -/
 structure TZif where
+  /--
+  The data for version 1 of the TZif file.
+  -/
   v1 : TZifV1
+
+  /--
+  Optionally, the data for version 2 of the TZif file.
+  -/
   v2 : Option TZifV2
   deriving Repr, Inhabited
-
-namespace TZif
-open Lean.Parsec Lean.Parsec.ByteArray
 
 private def toUInt32 (bs : ByteArray) : UInt32 :=
   assert! bs.size == 4

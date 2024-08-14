@@ -60,8 +60,8 @@ def mul (unit : UnitVal a) (factor : Int) : UnitVal (a / factor) :=
 Divides the `UnitVal` by an `Int`, resulting in a new `UnitVal` with an adjusted ratio.
 -/
 @[inline]
-def div (unit : UnitVal a) (divisor : Int) : UnitVal (a * divisor) :=
-  ⟨unit.val / divisor⟩
+def ediv (unit : UnitVal a) (divisor : Int) : UnitVal (a * divisor) :=
+  ⟨unit.val.ediv divisor⟩
 
 /--
 Adds two `UnitVal` values of the same ratio.

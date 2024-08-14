@@ -23,8 +23,7 @@ namespace WeekOfYear
 def Ordinal := Bounded.LE 1 53
   deriving Repr, BEq, LE, LT
 
-instance [Le 1 n] [Le n 53] : OfNat Ordinal n where
-  ofNat := Bounded.LE.mk (Int.ofNat n) (And.intro (Int.ofNat_le.mpr Le.p) (Int.ofNat_le.mpr Le.p))
+instance : OfNat Ordinal n := inferInstanceAs (OfNat (Bounded.LE 1 (1 + (52 : Nat))) n)
 
 instance : Inhabited Ordinal where default := 1
 

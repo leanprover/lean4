@@ -49,7 +49,6 @@ def ofZoneRules (tm : Timestamp) (rules : TimeZone.ZoneRules) : Option ZonedDate
   let transition ← rules.findTransitionForTimestamp tm
   return ofTimestamp tm transition.localTimeType.getTimeZone
 
-
 /--
 Changes the `TimeZone` to a new one.
 -/
@@ -63,6 +62,14 @@ Creates a new `ZonedDateTime` out of a `LocalDateTime`
 @[inline]
 def ofLocalDateTime (date : LocalDateTime) (tz : TimeZone) : ZonedDateTime :=
   ⟨tz, DateTime.ofLocalDateTime date tz⟩
+
+/--
+Gets the current `ZonedDataTime`.
+-/
+@[inline]
+def now (tz : TimeZone) : IO ZonedDateTime := do
+  let loca ← LocalDateTime.now
+  return ofLocalDateTime loca tz
 
 /--
 Getter for the `Year` inside of a `ZonedDateTime`
@@ -89,8 +96,8 @@ def day (zdt : ZonedDateTime) : Day.Ordinal :=
 Getter for the `Hour` inside of a `ZonedDateTime`
 -/
 @[inline]
-def hour (zdt : ZonedDateTime) : Hour.Ordinal :=
-  zdt.snd.hour
+def hour (zdt : ZonedDateTime) : Hour.Ordinal zdt.snd.date.get.time.hour.fst :=
+  zdt.snd.date.get.time.hour.snd
 
 /--
 Getter for the `Minute` inside of a `ZonedDateTime`
@@ -103,8 +110,8 @@ def minute (zdt : ZonedDateTime) : Minute.Ordinal :=
 Getter for the `Second` inside of a `ZonedDateTime`
 -/
 @[inline]
-def second (zdt : ZonedDateTime) : Second.Ordinal :=
-  zdt.snd.second
+def second (zdt : ZonedDateTime) : Second.Ordinal zdt.snd.date.get.time.second.fst :=
+  zdt.snd.date.get.time.second.snd
 
 /--
 Getter for the `TimeZone.Offset` inside of a `ZonedDateTime`
@@ -112,6 +119,7 @@ Getter for the `TimeZone.Offset` inside of a `ZonedDateTime`
 @[inline]
 def offset (zdt : ZonedDateTime) : TimeZone.Offset :=
   zdt.fst.offset
+
 /--
 Getter for the `TimeZone.Offset` inside of a `ZonedDateTime`
 -/
@@ -125,6 +133,49 @@ Returns the weekday.
 @[inline]
 def weekday (zdt : ZonedDateTime) : Weekday :=
   zdt.snd.weekday
+
+/--
+Add `Month.Offset` to a `ZonedDateTime`, it clips the day to the last valid day of that month.
+-/
+def addMonthsClip (dt : ZonedDateTime) (months : Month.Offset) : ZonedDateTime :=
+  Sigma.mk dt.fst (dt.snd.addMonthsClip months)
+
+/--
+Subtracts `Month.Offset` to a `ZonedDateTime`, it clips the day to the last valid day of that month.
+-/
+@[inline]
+def subMonthsClip (dt : ZonedDateTime) (months : Month.Offset) : ZonedDateTime :=
+  Sigma.mk dt.fst (dt.snd.subMonthsClip months)
+
+/--
+Add `Month.Offset` to a `ZonedDateTime`, this function rolls over any excess days into the following
+month.
+-/
+def addMonthsRollOver (dt : ZonedDateTime) (months : Month.Offset) : ZonedDateTime :=
+  Sigma.mk dt.fst (dt.snd.addMonthsRollOver months)
+
+/--
+Add `Month.Offset` to a `ZonedDateTime`, this function rolls over any excess days into the following
+month.
+-/
+@[inline]
+def subMonthsRollOver (dt : ZonedDateTime) (months : Month.Offset) : ZonedDateTime :=
+  Sigma.mk dt.fst (dt.snd.subMonthsRollOver months)
+
+/--
+Add `Year.Offset` to a `ZonedDateTime`, this function rolls over any excess days into the following
+month.
+-/
+@[inline]
+def addYearsRollOver (dt : ZonedDateTime) (years : Year.Offset) : ZonedDateTime :=
+  Sigma.mk dt.fst (dt.snd.addYearsRollOver years)
+
+/--
+Add `Year.Offset` to a `ZonedDateTime`, it clips the day to the last valid day of that month.
+-/
+@[inline]
+def addYearsClip (dt : ZonedDateTime) (years : Year.Offset) : ZonedDateTime :=
+  Sigma.mk dt.fst (dt.snd.addYearsClip years)
 
 end ZonedDateTime
 end Time

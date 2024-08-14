@@ -10,8 +10,24 @@ import Std.Time.DateTime
 
 namespace Std
 namespace Time
+
+set_option linter.all true
+
+/--
+A timezone database that we can read the `ZoneRules` of some area by it's id.
+-/
+class Database (α : Type) where
+  /--
+  Loads a `ZoneRules` by it's id.
+  -/
+  load : α → String → IO TimeZone.ZoneRules
+
+  /--
+  Loads a `ZoneRules` that is setted by the local computer.
+  -/
+  localRules : α → IO TimeZone.ZoneRules
+
 namespace TimeZone
-namespace Database
 
 /--
 Converts a Boolean value to a corresponding `StdWall` type.
@@ -36,11 +52,11 @@ def convertLeapSecond (tz : TZif.LeapSecond) : LeapSecond :=
 /--
 Converts a LocalTime.
 -/
-def convetLocalTime (index : Nat) (tz : TZif.TZifV1) : Option LocalTimeType := do
+def convetLocalTime (index : Nat) (tz : TZif.TZifV1) (identifier : String) : Option LocalTimeType := do
   let localType ← tz.localTimeTypes.get? index
-  let abbreviation ← tz.abbreviations.get? index
-  let wallflag ← convertWall <$> tz.stdWallIndicators.get? index
-  let utLocal ← convertUt <$> tz.utLocalIndicators.get? index
+  let abbreviation ← tz.abbreviations.getD index "Unknown"
+  let wallflag := convertWall (tz.stdWallIndicators.getD index true)
+  let utLocal := convertUt (tz.utLocalIndicators.getD index true)
 
   return {
     gmtOffset := Offset.ofSeconds <| Internal.UnitVal.mk localType.gmtOffset
@@ -48,6 +64,7 @@ def convetLocalTime (index : Nat) (tz : TZif.TZifV1) : Option LocalTimeType := d
     abbreviation
     wall := wallflag
     utLocal
+    identifier
   }
 
 /--
@@ -62,11 +79,11 @@ def convertTransition (times: Array LocalTimeType) (index : Nat) (tz : TZif.TZif
 /--
 Converts a `TZif.TZifV1` structure to a `ZoneRules` structure.
 -/
-def convertTZifV1 (tz : TZif.TZifV1) : Except String ZoneRules := do
+def convertTZifV1 (tz : TZif.TZifV1) (id : String) : Except String ZoneRules := do
   let mut times : Array LocalTimeType := #[]
 
   for i in [0:tz.header.typecnt.toNat] do
-    if let some result := convetLocalTime i tz
+    if let some result := convetLocalTime i tz id
       then times := times.push result
       else .error s!"cannot convert local time {i} of the file"
 
@@ -83,13 +100,13 @@ def convertTZifV1 (tz : TZif.TZifV1) : Except String ZoneRules := do
 /--
 Converts a `TZif.TZifV2` structure to a `ZoneRules` structure.
 -/
-def convertTZifV2 (tz : TZif.TZifV2) : Except String ZoneRules := do
-   convertTZifV1 tz.toTZifV1
+def convertTZifV2 (tz : TZif.TZifV2) (id : String) : Except String ZoneRules := do
+   convertTZifV1 tz.toTZifV1 id
 
 /--
 Converts a `TZif.TZif` structure to a `ZoneRules` structure.
 -/
-def convertTZif (tz : TZif.TZif) : Except String ZoneRules := do
+def convertTZif (tz : TZif.TZif) (id : String) : Except String ZoneRules := do
   if let some v2 := tz.v2
-    then convertTZifV2 v2
-    else convertTZifV1 tz.v1
+    then convertTZifV2 v2 id
+    else convertTZifV1 tz.v1 id

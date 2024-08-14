@@ -12,11 +12,21 @@ namespace Std
 namespace Time
 open Internal
 
+set_option linter.all true
+
 /--
 `WeekDate` represents a date using a combination of a week of the year and the year.
 -/
 structure WeekDate where
+
+  /--
+  The year component of the date. It is represented as an `Offset` type from `Year`.
+  -/
   year : Year.Offset
+
+  /--
+  The week of the year component. It is represented as an `Ordinal` type from `WeekOfYear`.
+  -/
   week : WeekOfYear.Ordinal
   deriving Repr, BEq, Inhabited
 
@@ -37,7 +47,7 @@ def fromDays (scalar : Day.Offset) : WeekDate :=
   let year := totalDays / 365
   let week :=
     Bounded.LE.byEmod totalDays 365 (by decide)
-    |>.div 7 (by decide)
+    |>.ediv 7 (by decide)
     |>.add 1
   { year := year, week := week }
 

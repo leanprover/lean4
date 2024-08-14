@@ -52,7 +52,7 @@ def isLeap (y : Offset) : Bool :=
 Forces the day to be on the valid range.
 -/
 @[inline]
-def Valid (year : Offset) (month : Month.Ordinal) (day : Day.Ordinal) : Prop :=
+abbrev Valid (year : Offset) (month : Month.Ordinal) (day : Day.Ordinal) : Prop :=
   month.Valid year.isLeap day
 
 instance : Decidable (Valid year month day) :=

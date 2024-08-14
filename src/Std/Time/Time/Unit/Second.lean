@@ -19,12 +19,19 @@ set_option linter.all true
 `Ordinal` represents a bounded value for second, which ranges between 0 and 60.
 This accounts for potential leap second.
 -/
-def Ordinal := Bounded.LE 0 60
-  deriving Repr, BEq, LE
+def Ordinal (leap : Bool) := Bounded.LE 0 (.ofNat (if leap then 60 else 59))
 
-instance [Le n 60] : OfNat Ordinal n where ofNat := Bounded.LE.ofNat n Le.p
+instance : Repr (Ordinal l) where
+  reprPrec r l := reprPrec r.val l
 
-instance : Inhabited Ordinal where default := 0
+instance : OfNat (Ordinal leap) n := by
+  have inst := inferInstanceAs (OfNat (Bounded.LE 0 (0 + (59 : Nat))) n)
+  cases leap
+  · exact inst
+  · exact ⟨inst.ofNat.expandTop (by decide)⟩
+
+instance : OfNat (Ordinal true) 60 where
+  ofNat := Bounded.LE.mk (Int.ofNat 60) (by decide)
 
 /--
 `Offset` represents an offset in second. It is defined as an `Int`.
@@ -40,21 +47,23 @@ namespace Ordinal
 Creates an `Ordinal` from a natural number, ensuring the value is within bounds.
 -/
 @[inline]
-def ofNat (data : Nat) (h : data ≤ 60 := by decide) : Ordinal :=
+def ofNat (data : Nat) (h : data ≤ (if leap then 60 else 59)) : Ordinal leap :=
   Bounded.LE.ofNat data h
 
 /--
 Creates an `Ordinal` from a `Fin`, ensuring the value is within bounds.
 -/
 @[inline]
-def ofFin (data : Fin 61) : Ordinal :=
-  Bounded.LE.ofFin data
+def ofFin (data : Fin (if leap then 61 else 60)) : Ordinal leap :=
+  match leap with
+  | true => Bounded.LE.ofFin data
+  | false => Bounded.LE.ofFin data
 
 /--
 Converts an `Ordinal` to an `Offset`.
 -/
 @[inline]
-def toOffset (ordinal : Ordinal) : Offset :=
+def toOffset (ordinal : Ordinal leap) : Offset :=
   UnitVal.ofInt ordinal.val
 
 end Ordinal

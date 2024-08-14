@@ -38,8 +38,8 @@ and minute components are separated by a colon (e.g., "+01:00" or "+0100").
 def toIsoString (offset : Offset) (colon : Bool) : String :=
   let sign := Sign.ofInt offset.second.val
   let time := offset.second.apply sign
-  let hour : Hour.Offset := time.div 3600
-  let minute := Int.div (Int.mod time.val 3600) 60
+  let hour : Hour.Offset := time.ediv 3600
+  let minute := Int.ediv (Int.mod time.val 3600) 60
   let hourStr := if hour.val < 10 then s!"0{hour.val}" else toString hour.val
   let minuteStr := if minute < 10 then s!"0{minute}" else toString minute
     if colon then s!"{sign}{hourStr}:{minuteStr}"

@@ -20,12 +20,12 @@ set_option linter.all true
 /-- Convert `Second.Offset` to `Minute.Offset` -/
 @[inline]
 def toMinutes (offset : Second.Offset) : Minute.Offset :=
-  offset.div 60
+  offset.ediv 60
 
 /-- Convert `Second.Offset` to `Hour.Offset` -/
 @[inline]
 def toHours (offset : Second.Offset) : Hour.Offset :=
-  offset.div 3600
+  offset.ediv 3600
 
 end Second.Offset
 
@@ -34,7 +34,7 @@ namespace Minute.Offset
 /-- Convert `Minute.Offset` to `Hour.Offset` -/
 @[inline]
 def toHours (offset : Minute.Offset) : Hour.Offset :=
-  offset.div 60
+  offset.ediv 60
 
 end Minute.Offset
 

@@ -19759,7 +19759,7 @@ lean_inc(x_89);
 x_90 = lean_ctor_get(x_88, 1);
 lean_inc(x_90);
 lean_dec(x_88);
-x_91 = lean_unsigned_to_nat(1000000u);
+x_91 = lean_unsigned_to_nat(100u);
 x_17 = x_91;
 x_18 = x_89;
 x_19 = x_90;

@@ -53,16 +53,16 @@ typedef list_ref<kvmap_entry> kvmap;
 
 optional<data_value> find(kvmap m, name const & k);
 
-optional<string_ref> get_string(kvmap const & m, name const & k);
-optional<nat> get_nat(kvmap const & m, name const & k);
-optional<bool> get_bool(kvmap const & m, name const & k);
-optional<name> get_name(kvmap const & m, name const & k);
+LEAN_EXPORT optional<string_ref> get_string(kvmap const & m, name const & k);
+LEAN_EXPORT optional<nat> get_nat(kvmap const & m, name const & k);
+LEAN_EXPORT optional<bool> get_bool(kvmap const & m, name const & k);
+LEAN_EXPORT optional<name> get_name(kvmap const & m, name const & k);
 
-kvmap set_string(kvmap const & m, name const & k, string_ref const & v);
+LEAN_EXPORT kvmap set_string(kvmap const & m, name const & k, string_ref const & v);
 inline kvmap set_string(kvmap const & m, name const & k, char const * v) { return set_string(m, k, string_ref(v)); }
 inline kvmap set_string(kvmap const & m, name const & k, std::string const & v) { return set_string(m, k, string_ref(v)); }
-kvmap set_bool(kvmap const & m, name const & k, bool v);
-kvmap set_name(kvmap const & m, name const & k, name const & v);
-kvmap set_nat(kvmap const & m, name const & k, nat const & v);
+LEAN_EXPORT kvmap set_bool(kvmap const & m, name const & k, bool v);
+LEAN_EXPORT kvmap set_name(kvmap const & m, name const & k, name const & v);
+LEAN_EXPORT kvmap set_nat(kvmap const & m, name const & k, nat const & v);
 inline kvmap set_nat(kvmap const & m, name const & k, unsigned v) { return set_nat(m, k, nat(v)); }
 }

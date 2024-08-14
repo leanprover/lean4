@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Nat
-// Imports: Init.Data.List.Nat.Basic Init.Data.List.Nat.Pairwise Init.Data.List.Nat.Range Init.Data.List.Nat.TakeDrop
+// Imports: Init.Data.List.Nat.Basic Init.Data.List.Nat.Pairwise Init.Data.List.Nat.Range Init.Data.List.Nat.Sublist Init.Data.List.Nat.TakeDrop
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,7 @@ extern "C" {
 lean_object* initialize_Init_Data_List_Nat_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Nat_Pairwise(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Nat_Range(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Nat_Sublist(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Nat_TakeDrop(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_Nat(uint8_t builtin, lean_object* w) {
@@ -29,6 +30,9 @@ res = initialize_Init_Data_List_Nat_Pairwise(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Nat_Range(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Nat_Sublist(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Nat_TakeDrop(builtin, lean_io_mk_world());

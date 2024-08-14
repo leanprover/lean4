@@ -472,10 +472,18 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
 @[simp] theorem extractLsb_toNat (hi lo : Nat) (x : BitVec n) :
   (extractLsb hi lo x).toNat = (x.toNat >>> lo) % 2^(hi-lo+1) := rfl
 
+@[simp] theorem getLsb_extractLsb' (start len : Nat) (x : BitVec n) (i : Nat) :
+    (extractLsb' start len x).getLsb i = (i < len && x.getLsb (start+i)) := by
+  simp [getLsb, Nat.lt_succ]
+
 @[simp] theorem getLsb_extract (hi lo : Nat) (x : BitVec n) (i : Nat) :
     getLsb (extractLsb hi lo x) i = (i ≤ (hi-lo) && getLsb x (lo+i)) := by
-  unfold getLsb
-  simp [Nat.lt_succ]
+  simp [getLsb, Nat.lt_succ]
+
+theorem extractLsb'_eq_extractLsb {w : Nat} (x : BitVec w) (start len : Nat) (h : len > 0) :
+    x.extractLsb' start len = (x.extractLsb (len - 1 + start) start).cast (by omega) := by
+  apply eq_of_toNat_eq
+  simp [extractLsb, show len - 1 + 1 = len by omega]
 
 /-! ### allOnes -/
 

@@ -13,7 +13,7 @@ namespace Time
 namespace Database
 
 /--
-Reads the TZDb from the system from the TZDb database usually available in ""/usr/share/zoneinfo/".",
+Represents a Time Zone Database (TZdb) configuration with paths to local and general timezone data.
 -/
 structure TZdb where
   localPath : System.FilePath := "/etc/localtime"
@@ -23,29 +23,27 @@ namespace TZdb
 open TimeZone
 
 /--
-Returns a default TZdb with all the fields completed with the default location for timezones in most
-linux distributions and MacOS.
+Returns a default `TZdb` instance with common timezone data paths for most Linux distributions and macOS.
 -/
 @[inline]
 def default : TZdb := {}
 
 /--
-Parses a binary data into a zone rules.
+Parses binary timezone data into zone rules based on a given timezone ID.
 -/
 def parseTZif (bin : ByteArray) (id : String) : Except String ZoneRules := do
   let database ← TZif.parse.run bin
   convertTZif database id
 
 /--
-Gets the ZoneRules from the a TZIf file.
+Reads a TZif file from disk and retrieves the zone rules for the specified timezone ID.
 -/
 def parseTZIfFromDisk (path : System.FilePath) (id : String) : IO ZoneRules := do
   let binary ← IO.FS.readBinFile path
   IO.ofExcept (parseTZif binary id)
 
 /--
-Creates an id out of a `FilePath`, e.g, "/var/db/timezone/zoneinfo/America/Sao_Paulo" returns
-"America/Sao_Paulo".
+Extracts a timezone ID from a file path.
 -/
 def idFromPath (path : System.FilePath) : Option String := do
   let res := path.components.toArray
@@ -55,8 +53,9 @@ def idFromPath (path : System.FilePath) : Option String := do
   if last₁ = some "zoneinfo"
     then last
     else last₁ ++ "/" ++ last
+
 /--
-Gets the rules from local
+Retrieves the timezone rules from the local timezone data file.
 -/
 def localRules (path : System.FilePath) : IO ZoneRules := do
   let localtimePath ← IO.Process.run { cmd := "readlink", args := #["-f", path.toString] }
@@ -66,7 +65,7 @@ def localRules (path : System.FilePath) : IO ZoneRules := do
     else throw (IO.userError "cannot read the id of the path.")
 
 /--
-Gets the rules from local
+Reads timezone rules from disk based on the provided file path and timezone ID.
 -/
 def readRulesFromDisk (path : System.FilePath) (id : String) : IO ZoneRules := do
   parseTZIfFromDisk (System.FilePath.join path id) id

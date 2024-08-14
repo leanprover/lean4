@@ -3,8 +3,10 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+prelude
 import Lean.Data.Parsec
 import Lean.Data.Parsec.ByteArray
+import Init.Data.Range
 
 -- Based on: https://www.rfc-editor.org/rfc/rfc8536.html
 

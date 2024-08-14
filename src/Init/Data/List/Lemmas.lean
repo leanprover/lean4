@@ -1391,16 +1391,22 @@ theorem get_append_right (as bs : List α) (h : ¬ i < as.length) {h' h''} :
     (as ++ bs).get ⟨i, h'⟩ = bs.get ⟨i - as.length, h''⟩ := by
   simp [getElem_append_right, h, h', h'']
 
-theorem getElem?_append {l₁ l₂ : List α} {n : Nat} (hn : n < l₁.length) :
+theorem getElem?_append_left {l₁ l₂ : List α} {n : Nat} (hn : n < l₁.length) :
     (l₁ ++ l₂)[n]? = l₁[n]? := by
   have hn' : n < (l₁ ++ l₂).length := Nat.lt_of_lt_of_le hn <|
     length_append .. ▸ Nat.le_add_right ..
   simp_all [getElem?_eq_getElem, getElem_append]
 
-@[deprecated (since := "2024-06-12")]
+@[deprecated getElem?_append_left (since := "2024-06-12")]
 theorem get?_append {l₁ l₂ : List α} {n : Nat} (hn : n < l₁.length) :
     (l₁ ++ l₂).get? n = l₁.get? n := by
-  simp [getElem?_append hn]
+  simp [getElem?_append_left hn]
+
+theorem getElem?_append {l₁ l₂ : List α} {n : Nat} :
+    (l₁ ++ l₂)[n]? = if n < l₁.length then l₁[n]? else l₂[n - l₁.length]? := by
+  split <;> rename_i h
+  · exact getElem?_append_left h
+  · exact getElem?_append_right (by simpa using h)
 
 @[simp] theorem head_append_of_ne_nil {l : List α} (w : l ≠ []) :
     head (l ++ l') (by simp_all) = head l w := by
@@ -1868,24 +1874,35 @@ theorem bind_replicate {β} (f : α → List β) : (replicate n a).bind f = (rep
   | [] => simp
   | x :: xs => simp
 
+@[simp] theorem reverse_ne_nil_iff {xs : List α} : xs.reverse ≠ [] ↔ xs ≠ [] :=
+  not_congr reverse_eq_nil_iff
+
 theorem getElem?_reverse' : ∀ {l : List α} (i j), i + j + 1 = length l →
     l.reverse[i]? = l[j]?
   | [], _, _, _ => rfl
   | a::l, i, 0, h => by simp [Nat.succ.injEq] at h; simp [h, getElem?_append_right, Nat.succ.injEq]
   | a::l, i, j+1, h => by
     have := Nat.succ.inj h; simp at this ⊢
-    rw [getElem?_append, getElem?_reverse' _ _ this]
+    rw [getElem?_append_left, getElem?_reverse' _ _ this]
     rw [length_reverse, ← this]; apply Nat.lt_add_of_pos_right (Nat.succ_pos _)
 
 @[deprecated getElem?_reverse' (since := "2024-06-12")]
 theorem get?_reverse' {l : List α} (i j) (h : i + j + 1 = length l) : get? l.reverse i = get? l j := by
   simp [getElem?_reverse' _ _ h]
 
+@[simp]
 theorem getElem?_reverse {l : List α} {i} (h : i < length l) :
     l.reverse[i]? = l[l.length - 1 - i]? :=
   getElem?_reverse' _ _ <| by
     rw [Nat.add_sub_of_le (Nat.le_sub_one_of_lt h),
       Nat.sub_add_cancel (Nat.lt_of_le_of_lt (Nat.zero_le _) h)]
+
+@[simp]
+theorem getElem_reverse {l : List α} {i} (h : i < l.reverse.length) :
+    l.reverse[i] = l[l.length - 1 - i]'(Nat.sub_one_sub_lt_of_lt (by simpa using h)) := by
+  apply Option.some.inj
+  rw [← getElem?_eq_getElem, ← getElem?_eq_getElem]
+  rw [getElem?_reverse (by simpa using h)]
 
 @[deprecated getElem?_reverse (since := "2024-06-12")]
 theorem get?_reverse {l : List α} {i} (h : i < length l) :
@@ -2143,6 +2160,14 @@ theorem head?_dropLast (xs : List α) : xs.dropLast.head? = if 1 < xs.length the
 theorem dropLast_cons_of_ne_nil {α : Type u} {x : α}
     {l : List α} (h : l ≠ []) : (x :: l).dropLast = x :: l.dropLast := by
   simp [dropLast, h]
+
+theorem dropLast_concat_getLast : ∀ {l : List α} (h : l ≠ []), dropLast l ++ [getLast l h] = l
+  | [], h => absurd rfl h
+  | [a], h => rfl
+  | a :: b :: l, h => by
+    rw [dropLast_cons₂, cons_append, getLast_cons (cons_ne_nil _ _)]
+    congr
+    exact dropLast_concat_getLast (cons_ne_nil b l)
 
 @[simp] theorem map_dropLast (f : α → β) (l : List α) : l.dropLast.map f = (l.map f).dropLast := by
   induction l with

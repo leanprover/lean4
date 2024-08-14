@@ -2554,4 +2554,17 @@ theorem all_eq_not_any_not (l : List α) (p : α → Bool) : l.all p = !l.any (!
     (l.insert a).all f = (f a && l.all f) := by
   simp [all_eq]
 
+def foldlRecOn {C : β → Sort _} (l : List α) (op : β → α → β) (b : β) (hb : C b)
+    (hl : ∀ (b : β) (_ : C b) (a : α) (_ : a ∈ l), C (op b a)) :
+    C (List.foldl op b l) := by
+  cases l with
+  | nil => exact hb
+  | cons hd tl =>
+    have IH : (b : β) → C b → ((b : β) → C b → (a : α) → a ∈ tl → C (op b a)) → C (List.foldl op b tl) :=
+      foldlRecOn _ _
+    refine' IH _ _ _
+    · exact hl b hb hd (List.mem_cons_self hd tl)
+    · intro y hy x hx
+      exact hl y hy x (List.mem_cons_of_mem hd hx)
+
 end List

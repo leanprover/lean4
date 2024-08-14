@@ -338,7 +338,7 @@ Runs `k` with a restricted local context where only section variables from `vars
 -/
 private def withHeaderSecVars {α} (vars : Array Expr) (sc : Command.Scope) (headers : Array DefViewElabHeader)
     (k : Array Expr → TermElabM α) : TermElabM α := do
-  let mut revSectionFVars : HashMap FVarId Name := {}
+  let mut revSectionFVars : Std.HashMap FVarId Name := {}
   for (uid, var) in (← read).sectionFVars do
     revSectionFVars := revSectionFVars.insert var.fvarId! uid
   let (_, used) ← collectUsed revSectionFVars |>.run {}
@@ -350,20 +350,20 @@ where
     headers.forM (·.type.collectFVars)
     -- included by `include`
     for var in vars do
-      if let some uid := revSectionFVars.find? var.fvarId! then
+      if let some uid := revSectionFVars[var.fvarId!]? then
         if sc.includedVars.contains uid then
           modify (·.add var.fvarId!)
     -- transitively referenced
     get >>= (·.addDependencies) >>= set
     for var in (← get).fvarIds do
-      if let some uid := revSectionFVars.find? var then
+      if let some uid := revSectionFVars[var]? then
         if sc.omittedVars.contains uid then
           throwError "cannot omit referenced section variable '{Expr.fvar var}'"
     -- instances (`addDependencies` unnecessary as by definition they may only reference variables
     -- already included)
     for var in vars do
       let ldecl ← getFVarLocalDecl var
-      if let some uid := revSectionFVars.find? var.fvarId! then
+      if let some uid := revSectionFVars[var.fvarId!]? then
         if sc.omittedVars.contains uid then
           continue
       let st ← get

@@ -10,13 +10,13 @@ import Init.WF
 
 /--
 Unfold definitions commonly used in well founded relation definitions.
-This is primarily intended for internal use in `decreasing_tactic`.
+
+Since Lean 4.12, Lean unfolds these definitions automatically before presenting the goal to the
+user, and this tactic should no longer be necessary. Calls to `simp_wf` can be removed or replaced
+by plain calls to `simp`.
 -/
 macro "simp_wf" : tactic =>
-  `(tactic| simp
-     (config := { unfoldPartialApp := true, zetaDelta := true, failIfUnchanged := false })
-     only [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel,
-           WellFoundedRelation.rel, sizeOf_nat])
+  `(tactic| try simp (config := { unfoldPartialApp := true, zetaDelta := true }) [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel, WellFoundedRelation.rel])
 
 /--
 This tactic is used internally by lean before presenting the proof obligations from a well-founded

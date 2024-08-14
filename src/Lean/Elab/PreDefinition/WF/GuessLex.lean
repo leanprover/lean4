@@ -445,7 +445,7 @@ def evalRecCall (decrTactic? : Option DecreasingBy) (callerMeasures calleeMeasur
         else do
           Lean.Elab.Term.TermElabM.run' do Term.withoutErrToSorry do
             let remainingGoals ← Tactic.run mvarId do Tactic.withoutRecover do
-              Tactic.evalTactic (← `(tactic| simp_wf))
+              Tactic.evalTactic (← `(tactic| clean_wf))
               let tacticStx : Syntax ←
                 match decrTactic? with
                 | none => pure (← `(tactic| decreasing_tactic)).raw

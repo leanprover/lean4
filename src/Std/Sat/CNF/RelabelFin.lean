@@ -87,9 +87,9 @@ def numLiterals (f : CNF Nat) :=
 theorem lt_numLiterals {f : CNF Nat} (h : Mem v f) : v < numLiterals f := by
   dsimp [numLiterals]
   split <;> rename_i h2
-  . exfalso
+  · exfalso
     apply of_maxLiteral_eq_none f h2 v h
-  . have := of_maxLiteral_eq_some f h2 v h
+  · have := of_maxLiteral_eq_some f h2 v h
     omega
 
 theorem numLiterals_pos {f : CNF Nat} (h : Mem v f) : 0 < numLiterals f :=

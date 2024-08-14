@@ -36,35 +36,35 @@ theorem denote_prefix_cast_ref {aig : AIG α} {input1 input2 : BinaryInput aig}
 instance : LawfulZipOperator α mkAndCached where
   chainable := by
     intros
-    simp only [BinaryInput.cast, Ref_cast', denote_mkAndCached]
+    simp only [BinaryInput.cast, Ref.cast_eq, denote_mkAndCached]
     rw [LawfulOperator.denote_mem_prefix (f := mkAndCached)]
     rw [LawfulOperator.denote_mem_prefix (f := mkAndCached)]
 
 instance : LawfulZipOperator α mkOrCached where
   chainable := by
     intros
-    simp only [BinaryInput.cast, Ref_cast', denote_mkOrCached]
+    simp only [BinaryInput.cast, Ref.cast_eq, denote_mkOrCached]
     rw [LawfulOperator.denote_mem_prefix (f := mkOrCached)]
     rw [LawfulOperator.denote_mem_prefix (f := mkOrCached)]
 
 instance : LawfulZipOperator α mkXorCached where
   chainable := by
     intros
-    simp only [BinaryInput.cast, Ref_cast', denote_mkXorCached]
+    simp only [BinaryInput.cast, Ref.cast_eq, denote_mkXorCached]
     rw [LawfulOperator.denote_mem_prefix (f := mkXorCached)]
     rw [LawfulOperator.denote_mem_prefix (f := mkXorCached)]
 
 instance : LawfulZipOperator α mkBEqCached where
   chainable := by
     intros
-    simp only [BinaryInput.cast, Ref_cast', denote_mkBEqCached]
+    simp only [BinaryInput.cast, Ref.cast_eq, denote_mkBEqCached]
     rw [LawfulOperator.denote_mem_prefix (f := mkBEqCached)]
     rw [LawfulOperator.denote_mem_prefix (f := mkBEqCached)]
 
 instance : LawfulZipOperator α mkImpCached where
   chainable := by
     intros
-    simp only [BinaryInput.cast, Ref_cast', denote_mkImpCached]
+    simp only [BinaryInput.cast, Ref.cast_eq, denote_mkImpCached]
     rw [LawfulOperator.denote_mem_prefix (f := mkImpCached)]
     rw [LawfulOperator.denote_mem_prefix (f := mkImpCached)]
 
@@ -111,10 +111,10 @@ theorem zip.go_le_size {aig : AIG α} (idx : Nat) (hidx) (s : RefVec aig idx)
     aig.decls.size ≤ (go aig idx s hidx lhs rhs f).1.decls.size := by
   unfold go
   split
-  . dsimp only
+  · dsimp only
     refine Nat.le_trans ?_ (by apply zip.go_le_size)
     apply LawfulOperator.le_size
-  . simp
+  · simp
   termination_by len - idx
 
 theorem zip_le_size {aig : AIG α} (target : ZipTarget aig len) :
@@ -129,7 +129,7 @@ theorem zip.go_decl_eq {aig : AIG α} (i) (hi) (lhs rhs : RefVec aig len)
   generalize hgo : go aig i s hi lhs rhs f = res
   unfold go at hgo
   split at hgo
-  . dsimp only at hgo
+  · dsimp only at hgo
     rw [← hgo]
     intros
     intros
@@ -137,7 +137,7 @@ theorem zip.go_decl_eq {aig : AIG α} (i) (hi) (lhs rhs : RefVec aig len)
     rw [LawfulOperator.decl_eq]
     apply LawfulOperator.lt_size_of_lt_aig_size
     assumption
-  . dsimp only at hgo
+  · dsimp only at hgo
     rw [← hgo]
     intros
     simp
@@ -168,19 +168,19 @@ theorem go_get_aux {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVe
   generalize hgo : go aig curr s hcurr lhs rhs f = res
   unfold go at hgo
   split at hgo
-  . dsimp only at hgo
+  · dsimp only at hgo
     rw [← hgo]
     intro hfoo
     rw [go_get_aux]
     rw [AIG.RefVec.get_push_ref_lt]
-    . simp only [Ref.cast, Ref.mk.injEq]
+    · simp only [Ref.cast, Ref.mk.injEq]
       rw [AIG.RefVec.get_cast]
-      . simp
-      . assumption
-    . apply go_le_size
-  . dsimp only at hgo
+      · simp
+      · assumption
+    · apply go_le_size
+  · dsimp only at hgo
     rw [← hgo]
-    simp only [Nat.le_refl, get, Ref_cast', Ref.mk.injEq, true_implies]
+    simp only [Nat.le_refl, get, Ref.cast_eq, Ref.mk.injEq, true_implies]
     have : curr = len := by omega
     subst this
     simp
@@ -209,9 +209,9 @@ theorem go_denote_mem_prefix {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len)
     ⟦aig, ⟨start, hstart⟩, assign⟧ := by
   apply denote.eq_of_isPrefix (entry := ⟨aig, start,hstart⟩)
   apply IsPrefix.of
-  . intros
+  · intros
     apply go_decl_eq
-  . intros
+  · intros
     apply go_le_size
 
 theorem denote_go {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVec aig curr)
@@ -231,23 +231,23 @@ theorem denote_go {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVec
   generalize hgo : go aig curr s hcurr lhs rhs f = res
   unfold go at hgo
   split at hgo
-  . dsimp only at hgo
+  · dsimp only at hgo
     cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       rw [← hgo]
       rw [go_get]
       rw [AIG.RefVec.get_push_ref_eq']
-      . simp only [← heq]
+      · simp only [← heq]
         rw [go_denote_mem_prefix]
-        . simp
-        . simp [Ref.hgate]
-      . rw [heq]
+        · simp
+        · simp [Ref.hgate]
+      · rw [heq]
     | inr hlt =>
       rw [← hgo]
       rw [denote_go]
-      . simp [-Ref_cast']
-      . omega
-  . omega
+      · simp [-Ref.cast_eq]
+      · omega
+  · omega
 termination_by len - curr
 
 end zip

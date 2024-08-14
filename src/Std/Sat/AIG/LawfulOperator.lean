@@ -41,25 +41,25 @@ theorem denote.go_eq_of_isPrefix (decls1 decls2 : Array (Decl α)) (start : Nat)
   unfold denote.go
   have hidx1 := hprefix.idx_eq start hbounds1
   split
-  . next heq =>
+  · next heq =>
     rw [hidx1] at heq
     split <;> simp_all
-  . next heq =>
+  · next heq =>
     rw [hidx1] at heq
     split <;> simp_all
-  . next lhs rhs linv rinv heq =>
+  · next lhs rhs linv rinv heq =>
     rw [hidx1] at heq
     have := hdag1 hbounds1 heq
     have hidx2 := hprefix.idx_eq lhs (by omega)
     have hidx3 := hprefix.idx_eq rhs (by omega)
     split
-    . simp_all
-    . simp_all
-    . simp_all
+    · simp_all
+    · simp_all
+    · simp_all
       congr 2
-      . apply denote.go_eq_of_isPrefix
+      · apply denote.go_eq_of_isPrefix
         assumption
-      . apply denote.go_eq_of_isPrefix
+      · apply denote.go_eq_of_isPrefix
         assumption
 termination_by start
 
@@ -103,9 +103,9 @@ variable {f : (aig : AIG α) → β aig → Entrypoint α} [LawfulOperator α β
 theorem isPrefix_aig (aig : AIG α) (input : β aig) :
     IsPrefix aig.decls (f aig input).aig.decls := by
   apply IsPrefix.of
-  . intro idx h
+  · intro idx h
     apply decl_eq
-  . apply le_size
+  · apply le_size
 
 theorem lt_size (entry : Entrypoint α) (input : β entry.aig) :
     entry.ref.gate < (f entry.aig input).aig.decls.size := by
@@ -117,14 +117,14 @@ theorem lt_size (entry : Entrypoint α) (input : β entry.aig) :
 theorem lt_size_of_lt_aig_size (aig : AIG α) (input : β aig) (h : x < aig.decls.size) :
     x < (f aig input).aig.decls.size := by
   apply Nat.lt_of_lt_of_le
-  . exact h
-  . exact le_size aig input
+  · exact h
+  · exact le_size aig input
 
 theorem le_size_of_le_aig_size (aig : AIG α) (input : β aig) (h : x ≤ aig.decls.size) :
     x ≤ (f aig input).aig.decls.size := by
   apply Nat.le_trans
-  . exact h
-  . exact le_size aig input
+  · exact h
+  · exact le_size aig input
 
 @[simp]
 theorem denote_input_entry (entry : Entrypoint α) {input} {h} :

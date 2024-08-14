@@ -5,6 +5,7 @@ Authors: Kim Morrison
 -/
 prelude
 import Init.Data.List.Sublist
+import Init.Data.List.Nat.Basic
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.Nat.Lemmas
 
@@ -16,6 +17,13 @@ as they required importing more lemmas about natural numbers, and use `omega`.
 -/
 
 namespace List
+
+theorem IsSuffix.getElem {x y : List α} (h : x <:+ y) {n} (hn : n < x.length) :
+    x[n] = y[y.length - x.length + n]'(by have := h.length_le; omega) := by
+  rw [getElem_eq_getElem_reverse, h.reverse.getElem, getElem_reverse]
+  congr
+  have := h.length_le
+  omega
 
 theorem isSuffix_iff : l₁ <:+ l₂ ↔
     l₁.length ≤ l₂.length ∧ ∀ i (h : i < l₁.length), l₂[i + l₂.length - l₁.length]? = some l₁[i] := by
@@ -79,5 +87,43 @@ theorem isInfix_iff : l₁ <:+: l₂ ↔
       congr
       simp_all
       omega
+
+theorem suffix_iff_eq_append : l₁ <:+ l₂ ↔ take (length l₂ - length l₁) l₂ ++ l₁ = l₂ :=
+  ⟨by rintro ⟨r, rfl⟩; simp only [length_append, Nat.add_sub_cancel_right, take_left], fun e =>
+    ⟨_, e⟩⟩
+
+theorem prefix_take_iff {x y : List α} {n : Nat} : x <+: y.take n ↔ x <+: y ∧ x.length ≤ n := by
+  constructor
+  · intro h
+    constructor
+    · exact List.IsPrefix.trans h <| List.take_prefix n y
+    · replace h := h.length_le
+      rw [length_take, Nat.le_min] at h
+      exact h.left
+  · intro ⟨hp, hl⟩
+    have hl' := hp.length_le
+    rw [List.prefix_iff_eq_take] at *
+    rw [hp, List.take_take]
+    simp [Nat.min_eq_left, hl, hl']
+
+theorem suffix_iff_eq_drop : l₁ <:+ l₂ ↔ l₁ = drop (length l₂ - length l₁) l₂ :=
+  ⟨fun h => append_cancel_left <| (suffix_iff_eq_append.1 h).trans (take_append_drop _ _).symm,
+    fun e => e.symm ▸ drop_suffix _ _⟩
+
+theorem prefix_take_le_iff {L : List α} (hm : m < L.length) :
+    L.take m <+: L.take n ↔ m ≤ n := by
+  simp only [prefix_iff_eq_take, length_take]
+  induction m generalizing L n with
+  | zero => simp [Nat.min_eq_left, eq_self_iff_true, Nat.zero_le, take]
+  | succ m IH =>
+    cases L with
+    | nil => simp_all
+    | cons l ls =>
+      cases n with
+      | zero =>
+        simp
+      | succ n =>
+        simp only [length_cons, Nat.succ_eq_add_one, Nat.add_lt_add_iff_right] at hm
+        simp [← @IH n ls hm, Nat.min_eq_left, Nat.le_of_lt hm]
 
 end List

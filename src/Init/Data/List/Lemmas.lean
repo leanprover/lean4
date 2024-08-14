@@ -1874,6 +1874,9 @@ theorem bind_replicate {β} (f : α → List β) : (replicate n a).bind f = (rep
   | [] => simp
   | x :: xs => simp
 
+@[simp] theorem reverse_ne_nil_iff {xs : List α} : xs.reverse ≠ [] ↔ xs ≠ [] :=
+  not_congr reverse_eq_nil_iff
+
 theorem getElem?_reverse' : ∀ {l : List α} (i j), i + j + 1 = length l →
     l.reverse[i]? = l[j]?
   | [], _, _, _ => rfl

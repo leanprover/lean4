@@ -5,11 +5,11 @@ Authors: Henrik Böving
 -/
 prelude
 import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.ShiftLeft
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftLeft
 
 /-!
 This module contains the verification of the bitblasters for `BitVec.shiftLeft` from
-`Impl.ShiftLeft`.
+`Impl.Operations.ShiftLeft`.
 -/
 
 namespace Lean.Elab.Tactic.BVDecide

@@ -5,7 +5,7 @@ Authors: Henrik Böving
 -/
 prelude
 import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Carry
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Not
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Not
 
 /-!
 This module contains the implementation of a bitblaster for `BitVec.ult`. The implementation

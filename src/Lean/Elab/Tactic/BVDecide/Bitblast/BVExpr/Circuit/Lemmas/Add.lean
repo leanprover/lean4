@@ -5,10 +5,10 @@ Authors: Henrik Böving
 -/
 prelude
 import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Add
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Add
 
 /-!
-This module contains the verification of the `BitVec.add` bitblaster from `Impl.Add`.
+This module contains the verification of the `BitVec.add` bitblaster from `Impl.Operations.Add`.
 -/
 
 namespace Lean.Elab.Tactic.BVDecide

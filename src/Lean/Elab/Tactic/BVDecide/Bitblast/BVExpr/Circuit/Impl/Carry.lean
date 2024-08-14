@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
 prelude
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Add
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Add
 
 /-!
 This module contains the implementation of a circuit to determine whether a certain addition would

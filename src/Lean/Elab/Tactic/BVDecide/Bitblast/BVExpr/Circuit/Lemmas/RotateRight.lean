@@ -5,11 +5,11 @@ Authors: Henrik Böving
 -/
 prelude
 import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.RotateRight
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateRight
 
 /-!
 This module contains the verification of the bitblaster for `BitVec.rotateRight` from
-`Impl.RotateRight`.
+`Impl.Operations.RotateRight`.
 -/
 
 namespace Lean.Elab.Tactic.BVDecide

@@ -6,18 +6,18 @@ Authors: Henrik Böving
 prelude
 import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Var
 import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Not
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.ShiftLeft
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.ShiftRight
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Add
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.ZeroExtend
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Append
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Replicate
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Extract
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.RotateLeft
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.RotateRight
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.SignExtend
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Mul
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Not
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftLeft
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftRight
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Add
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ZeroExtend
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Append
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Replicate
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Extract
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateLeft
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateRight
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.SignExtend
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Mul
 
 /-!
 This module contains the implementation of a bitblaster for `BitVec` expressions (`BVExpr`).

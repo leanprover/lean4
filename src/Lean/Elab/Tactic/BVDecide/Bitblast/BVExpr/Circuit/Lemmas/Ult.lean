@@ -7,10 +7,10 @@ prelude
 import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
 import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Carry
 import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Not
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Ult
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Ult
 
 /-!
-This module contains the verification of the bitblaster for `BitVec.ult` from `Impl.Ult`.
+This module contains the verification of the bitblaster for `BitVec.ult` from `Impl.Operations.Ult`.
 -/
 
 namespace Lean.Elab.Tactic.BVDecide

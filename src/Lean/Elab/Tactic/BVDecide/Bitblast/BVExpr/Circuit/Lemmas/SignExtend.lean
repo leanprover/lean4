@@ -6,11 +6,11 @@ Authors: Henrik Böving
 prelude
 import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
 import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.ZeroExtend
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.SignExtend
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.SignExtend
 
 /-!
 This module contains the verification of the bitblaster for `BitVec.signExtend` from
-`Impl.SignExtend`.
+`Impl.Operations.SignExtend`.
 -/
 
 namespace Lean.Elab.Tactic.BVDecide

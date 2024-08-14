@@ -8,11 +8,11 @@ import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
 import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Add
 import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.ShiftLeft
 import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Mul
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Mul
 
 
 /-!
-This module contains the verification of the bitblaster for `BitVec.mul` from `Impl.Mul`.
+This module contains the verification of the bitblaster for `BitVec.mul` from `Impl.Operations.Mul`.
 -/
 
 namespace Lean.Elab.Tactic.BVDecide

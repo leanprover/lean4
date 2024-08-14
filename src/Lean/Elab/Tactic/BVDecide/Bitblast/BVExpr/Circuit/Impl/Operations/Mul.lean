@@ -5,8 +5,8 @@ Authors: Henrik Böving
 -/
 prelude
 import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Basic
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Add
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.ShiftLeft
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Add
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftLeft
 import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const
 
 /-!

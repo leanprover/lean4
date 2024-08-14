@@ -89,7 +89,7 @@ termination_by w - curr
 end blastRotateRight
 
 @[simp]
-theorem blastRotateRight_denote_eq (aig : AIG α) (target : ShiftTarget aig w)
+theorem denote_blastRotateRight (aig : AIG α) (target : ShiftTarget aig w)
   (assign : α → Bool) :
   ∀ (idx : Nat) (hidx : idx < w),
       ⟦

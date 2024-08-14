@@ -62,17 +62,17 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
   intro idx hidx
   induction expr generalizing aig idx with
   | const =>
-    simp [go, blastConst_denote_eq]
+    simp [go, denote_blastConst]
   | var =>
-    simp [go, hidx, blastVar_denote_eq]
+    simp [go, hidx, denote_blastVar]
   | zeroExtend v inner ih =>
-    simp only [go, blastZeroExtend_denote_eq, ih, dite_eq_ite, Bool.if_false_right,
+    simp only [go, denote_blastZeroExtend, ih, dite_eq_ite, Bool.if_false_right,
       eval_zeroExtend, BitVec.getLsb_zeroExtend, hidx, decide_True, Bool.true_and,
       Bool.and_iff_right_iff_imp, decide_eq_true_eq]
     apply BitVec.lt_of_getLsb
   | append lhs rhs lih rih =>
     rename_i lw rw
-    simp only [go, blastAppend_denote_eq, RefVec.get_cast, Ref.cast_eq, eval_append,
+    simp only [go, denote_blastAppend, RefVec.get_cast, Ref.cast_eq, eval_append,
       BitVec.getLsb_append]
     split
     . next hsplit =>
@@ -94,7 +94,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
       . rw [← hgo]
         simp only [eval_signExtend]
         rw [BitVec.signExtend_eq_not_zeroExtend_not_of_msb_false]
-        . simp only [blastZeroExtend_denote_eq, ih, dite_eq_ite, Bool.if_false_right,
+        . simp only [denote_blastZeroExtend, ih, dite_eq_ite, Bool.if_false_right,
             BitVec.getLsb_zeroExtend, hidx, decide_True, Bool.true_and, Bool.and_iff_right_iff_imp,
             decide_eq_true_eq]
           apply BitVec.lt_of_getLsb
@@ -103,7 +103,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
       . simp [heq]
     | inr hlt =>
       rw [← hgo]
-      rw [blastSignExtend_denote_eq]
+      rw [denote_blastSignExtend]
       simp only [eval_signExtend]
       rw [BitVec.getLsb_signExtend]
       . simp only [hidx, decide_True, Bool.true_and]
@@ -113,7 +113,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
           rw [ih]
       . dsimp only; omega
   | extract hi lo inner ih =>
-    simp only [go, blastExtract_denote_eq, Bool.if_false_right, eval_extract,
+    simp only [go, denote_blastExtract, Bool.if_false_right, eval_extract,
       BitVec.getLsb_extract]
     have : idx ≤ hi - lo := by omega
     simp only [this, decide_True, Bool.true_and]
@@ -125,7 +125,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
       omega
   | shiftLeft lhs rhs lih rih =>
     simp only [go, eval_shiftLeft]
-    apply blastShiftLeft_denote_eq
+    apply denote_blastShiftLeft
     . intros
       dsimp only
       rw [go_denote_mem_prefix]
@@ -137,7 +137,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
       rw [← rih]
   | shiftRight lhs rhs lih rih =>
     simp only [go, eval_shiftRight]
-    apply blastShiftRight_denote_eq
+    apply denote_blastShiftRight
     . intros
       dsimp only
       rw [go_denote_mem_prefix]
@@ -172,7 +172,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
       rw [lih]
     | add =>
       simp only [go, eval_bin, BVBinOp.eval_add]
-      apply blastAdd_denote_eq
+      apply denote_blastAdd
       . intros
         dsimp only
         rw [go_denote_mem_prefix]
@@ -184,7 +184,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
         rw [← rih]
     | mul =>
       simp only [go, eval_bin, BVBinOp.eval_mul]
-      apply blastMul_denote_eq
+      apply denote_blastMul
       . intros
         dsimp only
         rw [go_denote_mem_prefix]
@@ -199,7 +199,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
     | not => simp [go, ih, hidx]
     | shiftLeftConst => simp [go, ih, hidx]
     | shiftRightConst =>
-      simp only [go, blastShiftRightConst_denote_eq, ih, dite_eq_ite, Bool.if_false_right, eval_un,
+      simp only [go, denote_blastShiftRightConst, ih, dite_eq_ite, Bool.if_false_right, eval_un,
         BVUnOp.eval_shiftRightConst, BitVec.getLsb_ushiftRight, Bool.and_iff_right_iff_imp,
         decide_eq_true_eq]
       intro h
@@ -215,7 +215,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
 end bitblast
 
 @[simp]
-theorem bitblast_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
+theorem denote_bitblast (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦(bitblast aig expr).aig, (bitblast aig expr).vec.get idx hidx, assign.toAIGAssignment⟧
           =

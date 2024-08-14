@@ -142,7 +142,7 @@ termination_by newWidth - curr
 end blastZeroExtend
 
 @[simp]
-theorem blastZeroExtend_denote_eq (aig : AIG α) (target : ExtendTarget aig newWidth)
+theorem denote_blastZeroExtend (aig : AIG α) (target : ExtendTarget aig newWidth)
     (assign : α → Bool) :
     ∀ (idx : Nat) (hidx : idx < newWidth),
         ⟦(blastZeroExtend aig target).aig, (blastZeroExtend aig target).vec.get idx hidx, assign⟧

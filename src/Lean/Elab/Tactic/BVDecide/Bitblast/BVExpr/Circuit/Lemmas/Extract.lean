@@ -69,7 +69,7 @@ termination_by newWidth - curr
 end blastExtract
 
 @[simp]
-theorem blastExtract_denote_eq (aig : AIG α) (target : ExtractTarget aig newWidth)
+theorem denote_blastExtract (aig : AIG α) (target : ExtractTarget aig newWidth)
     (assign : α → Bool) :
     ∀ (idx : Nat) (hidx : idx < newWidth),
         ⟦(blastExtract aig target).aig, (blastExtract aig target).vec.get idx hidx, assign⟧

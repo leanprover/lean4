@@ -23,7 +23,7 @@ open Std.Sat.AIG
 namespace BVPred
 
 @[simp]
-theorem bitblast_denote_eq (aig : AIG BVBit) (pred : BVPred) (assign : BVExpr.Assignment) :
+theorem denote_bitblast (aig : AIG BVBit) (pred : BVPred) (assign : BVExpr.Assignment) :
     ⟦bitblast aig pred, assign.toAIGAssignment⟧ = pred.eval assign := by
   cases pred with
   | bin lhs op rhs =>
@@ -34,7 +34,7 @@ theorem bitblast_denote_eq (aig : AIG BVBit) (pred : BVPred) (assign : BVExpr.As
       . intros
         rw [AIG.LawfulVecOperator.denote_mem_prefix (f := BVExpr.bitblast)]
         . simp
-          rw [BVExpr.bitblast_denote_eq]
+          rw [BVExpr.denote_bitblast]
         . simp [Ref.hgate]
       . intros
         simp
@@ -44,12 +44,12 @@ theorem bitblast_denote_eq (aig : AIG BVBit) (pred : BVPred) (assign : BVExpr.As
       . intros
         rw [AIG.LawfulVecOperator.denote_mem_prefix (f := BVExpr.bitblast)]
         . simp
-          rw [BVExpr.bitblast_denote_eq]
+          rw [BVExpr.denote_bitblast]
         . simp [Ref.hgate]
       . intros
         simp
   | getLsb expr idx =>
-    simp only [bitblast, blastGetLsb_denote_eq, BVExpr.bitblast_denote_eq, dite_eq_ite,
+    simp only [bitblast, denote_blastGetLsb, BVExpr.denote_bitblast, dite_eq_ite,
       Bool.if_false_right, eval_getLsb, Bool.and_iff_right_iff_imp, decide_eq_true_eq]
     apply BitVec.lt_of_getLsb
 

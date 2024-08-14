@@ -22,7 +22,7 @@ namespace bitblast
 variable [Hashable α] [DecidableEq α]
 
 @[simp]
-theorem blastNot_denote_eq (aig : AIG α) (target : RefVec aig w)
+theorem denote_blastNot (aig : AIG α) (target : RefVec aig w)
     (assign : α → Bool) :
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦(blastNot aig target).aig, (blastNot aig target).vec.get idx hidx, assign⟧

@@ -146,7 +146,7 @@ termination_by w - curr
 end blastShiftRightConst
 
 @[simp]
-theorem blastShiftRightConst_denote_eq (aig : AIG α) (target : ShiftTarget aig w)
+theorem denote_blastShiftRightConst (aig : AIG α) (target : ShiftTarget aig w)
     (assign : α → Bool) :
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦
@@ -240,7 +240,7 @@ theorem go_denote_eq (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
 end blastArithShiftRightConst
 
 @[simp]
-theorem blastArithShiftRightConst_denote_eq (aig : AIG α) (target : ShiftTarget aig w)
+theorem denote_blastArithShiftRightConst (aig : AIG α) (target : ShiftTarget aig w)
     (assign : α → Bool) :
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦
@@ -284,7 +284,7 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
     . next hif1 =>
       rw [← hg]
       simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq,
-        blastShiftRightConst_denote_eq]
+        denote_blastShiftRightConst]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftRightConst)]
       rw [hright]
       simp only [hif1, ↓reduceIte]
@@ -302,7 +302,7 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
       simp only [Bool.not_eq_true] at hif1
       rw [← hg]
       simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq,
-        blastShiftRightConst_denote_eq]
+        denote_blastShiftRightConst]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftRightConst)]
       rw [hright]
       simp only [hif1, Bool.false_eq_true, ↓reduceIte]
@@ -354,7 +354,7 @@ termination_by n - 1 - curr
 
 end blastShiftRight
 
-theorem blastShiftRight_denote_eq (aig : AIG α) (target : ArbitraryShiftTarget aig w0)
+theorem denote_blastShiftRight (aig : AIG α) (target : ArbitraryShiftTarget aig w0)
     (lhs : BitVec w0) (rhs : BitVec target.n) (assign : α → Bool)
     (hleft : ∀ (idx : Nat) (hidx : idx < w0), ⟦aig, target.target.get idx hidx, assign⟧ = lhs.getLsb idx)
     (hright : ∀ (idx : Nat) (hidx : idx < target.n), ⟦aig, target.distance.get idx hidx, assign⟧ = rhs.getLsb idx) :

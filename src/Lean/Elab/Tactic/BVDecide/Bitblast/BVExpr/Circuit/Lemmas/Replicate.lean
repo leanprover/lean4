@@ -101,7 +101,7 @@ termination_by n - curr
 end blastReplicate
 
 @[simp]
-theorem blastReplicate_denote_eq (aig : AIG α) (target : ReplicateTarget aig newWidth)
+theorem denote_blastReplicate (aig : AIG α) (target : ReplicateTarget aig newWidth)
     (assign : α → Bool) :
     ∀ (idx : Nat) (hidx : idx < newWidth),
         ⟦(blastReplicate aig target).aig, (blastReplicate aig target).vec.get idx hidx, assign⟧

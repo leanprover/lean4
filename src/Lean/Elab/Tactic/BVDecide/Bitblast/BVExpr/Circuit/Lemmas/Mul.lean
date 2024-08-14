@@ -71,13 +71,13 @@ theorem go_denote_eq {w : Nat} (aig : AIG BVBit) (curr : Nat) (hcurr : curr + 1 
           rw [hright] at hdiscr
           exact hdiscr
         simp only [this, ↓reduceIte]
-        rw [blastAdd_denote_eq]
+        rw [denote_blastAdd]
         . intros
           simp only [RefVec.get_cast, Ref.cast_eq]
           rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftLeftConst)]
           rw [hacc]
         . intros
-          simp only [blastShiftLeftConst_denote_eq, BitVec.getLsb_shiftLeft]
+          simp only [denote_blastShiftLeftConst, BitVec.getLsb_shiftLeft]
           split
           . next hdiscr => simp [hdiscr]
           . next hidx hdiscr =>
@@ -110,7 +110,7 @@ decreasing_by
 
 end blastMul
 
-theorem blastMul_denote_eq (aig : AIG BVBit) (lhs rhs : BitVec w) (assign : Assignment)
+theorem denote_blastMul (aig : AIG BVBit) (lhs rhs : BitVec w) (assign : Assignment)
       (input : BinaryRefVec aig w)
       (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.lhs.get idx hidx, assign.toAIGAssignment⟧ = lhs.getLsb idx)
       (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.rhs.get idx hidx, assign.toAIGAssignment⟧ = rhs.getLsb idx) :
@@ -144,7 +144,7 @@ theorem blastMul_denote_eq (aig : AIG BVBit) (lhs rhs : BitVec w) (assign : Assi
     . intro idx hidx
       rw [BitVec.mulRec_zero_eq]
       simp only [Nat.succ_eq_add_one, RefVec.denote_ite, BinaryRefVec.rhs_get_cast,
-        Ref.gate_cast, BinaryRefVec.lhs_get_cast, blastConst_denote_eq,
+        Ref.gate_cast, BinaryRefVec.lhs_get_cast, denote_blastConst,
         BitVec.ofNat_eq_ofNat, eval_const, BitVec.getLsb_zero, Bool.if_false_right,
         Bool.decide_eq_true]
       split

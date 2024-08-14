@@ -151,7 +151,7 @@ termination_by w - curr
 end blastShiftLeftConst
 
 @[simp]
-theorem blastShiftLeftConst_denote_eq (aig : AIG α) (target : ShiftTarget aig w)
+theorem denote_blastShiftLeftConst (aig : AIG α) (target : ShiftTarget aig w)
     (assign : α → Bool) :
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦
@@ -195,7 +195,7 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
     . next hif1 =>
       rw [← hg]
       simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq,
-        blastShiftLeftConst_denote_eq]
+        denote_blastShiftLeftConst]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftLeftConst)]
       rw [hright]
       simp only [hif1, ↓reduceIte]
@@ -218,7 +218,7 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
       simp only [Bool.not_eq_true] at hif1
       rw [← hg]
       simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq,
-        blastShiftLeftConst_denote_eq]
+        denote_blastShiftLeftConst]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftLeftConst)]
       rw [hright]
       simp only [hif1, Bool.false_eq_true, ↓reduceIte]
@@ -270,7 +270,7 @@ termination_by n - 1 - curr
 
 end blastShiftLeft
 
-theorem blastShiftLeft_denote_eq (aig : AIG α) (target : ArbitraryShiftTarget aig w0)
+theorem denote_blastShiftLeft (aig : AIG α) (target : ArbitraryShiftTarget aig w0)
     (lhs : BitVec w0) (rhs : BitVec target.n) (assign : α → Bool)
     (hleft : ∀ (idx : Nat) (hidx : idx < w0), ⟦aig, target.target.get idx hidx, assign⟧ = lhs.getLsb idx)
     (hright : ∀ (idx : Nat) (hidx : idx < target.n), ⟦aig, target.distance.get idx hidx, assign⟧ = rhs.getLsb idx) :

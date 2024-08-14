@@ -114,7 +114,7 @@ termination_by w - curr
 end blastConst
 
 @[simp]
-theorem blastConst_denote_eq (aig : AIG α) (c : BitVec w) (assign : α → Bool) :
+theorem denote_blastConst (aig : AIG α) (c : BitVec w) (assign : α → Bool) :
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦(blastConst aig c).aig, (blastConst aig c).vec.get idx hidx, assign⟧
           =

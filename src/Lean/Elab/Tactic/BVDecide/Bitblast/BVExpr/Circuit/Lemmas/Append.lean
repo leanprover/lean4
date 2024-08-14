@@ -22,7 +22,7 @@ namespace bitblast
 variable [Hashable α] [DecidableEq α]
 
 @[simp]
-theorem blastAppend_denote_eq (aig : AIG α) (target : AppendTarget aig newWidth)
+theorem denote_blastAppend (aig : AIG α) (target : AppendTarget aig newWidth)
   (assign : α → Bool) :
   ∀ (idx : Nat) (hidx : idx < newWidth),
       ⟦

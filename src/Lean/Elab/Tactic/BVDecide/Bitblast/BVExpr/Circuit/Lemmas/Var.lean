@@ -115,7 +115,7 @@ termination_by w - curr
 end blastVar
 
 @[simp]
-theorem blastVar_denote_eq (aig : AIG BVBit) (var : BVVar w) (assign : Assignment) :
+theorem denote_blastVar (aig : AIG BVBit) (var : BVVar w) (assign : Assignment) :
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦(blastVar aig var).aig, (blastVar aig var).vec.get idx hidx, assign.toAIGAssignment⟧
           =

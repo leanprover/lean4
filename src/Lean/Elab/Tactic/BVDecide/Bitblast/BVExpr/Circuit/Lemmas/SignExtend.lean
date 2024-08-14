@@ -83,7 +83,7 @@ theorem blastSignExtend_empty_eq_zeroExtend (aig : AIG α) (target : ExtendTarge
   unfold blastSignExtend
   simp [htarget]
 
-theorem blastSignExtend_denote_eq (aig : AIG α) (target : ExtendTarget aig newWidth)
+theorem denote_blastSignExtend (aig : AIG α) (target : ExtendTarget aig newWidth)
     (assign : α → Bool) (htarget : 0 < target.w) :
     ∀ (idx : Nat) (hidx : idx < newWidth),
         ⟦(blastSignExtend aig target).aig, (blastSignExtend aig target).vec.get idx hidx, assign⟧

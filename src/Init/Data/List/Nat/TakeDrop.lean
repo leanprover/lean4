@@ -5,6 +5,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 -/
 prelude
 import Init.Data.List.Zip
+import Init.Data.List.Sublist
 import Init.Data.Nat.Lemmas
 
 /-!
@@ -199,6 +200,19 @@ theorem map_eq_append_split {f : α → β} {l : List α} {s₁ s₂ : List β}
   rw [← length_map l f, h, length_append]
   apply Nat.le_add_right
 
+theorem take_prefix_take_left (l : List α) {m n : Nat} (h : m ≤ n) : take m l <+: take n l := by
+  rw [isPrefix_iff]
+  intro i w
+  rw [getElem?_take, getElem_take', getElem?_eq_getElem]
+  simp only [length_take] at w
+  exact Nat.lt_of_lt_of_le (Nat.lt_of_lt_of_le w (Nat.min_le_left _ _)) h
+
+theorem take_sublist_take_left (l : List α) {m n : Nat} (h : m ≤ n) : take m l <+ take n l :=
+  (take_prefix_take_left l h).sublist
+
+theorem take_subset_take_left (l : List α) {m n : Nat} (h : m ≤ n) : take m l ⊆ take n l :=
+  (take_sublist_take_left l h).subset
+
 /-! ### drop -/
 
 theorem lt_length_drop (L : List α) {i j : Nat} (h : i + j < L.length) : j < (L.drop i).length := by
@@ -319,7 +333,7 @@ theorem set_eq_take_append_cons_drop {l : List α} {n : Nat} {a : α} :
   split <;> rename_i h
   · ext1 m
     by_cases h' : m < n
-    · rw [getElem?_append (by simp [length_take]; omega), getElem?_set_ne (by omega),
+    · rw [getElem?_append_left (by simp [length_take]; omega), getElem?_set_ne (by omega),
         getElem?_take h']
     · by_cases h'' : m = n
       · subst h''

@@ -92,7 +92,7 @@ theorem Perm.map (f : α → β) {l₁ l₂ : List α} (h : Perm l₁ l₂) : Pe
   induction h
   · exact .refl _
   · exact .cons _ ‹_›
-  . exact .swap _ _ ‹_›
+  · exact .swap _ _ ‹_›
   · exact .trans ‹_› ‹_›
 
 theorem reverse_perm {l : List α} : Perm l.reverse l := by

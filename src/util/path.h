@@ -35,9 +35,9 @@ bool has_file_ext(std::string const & fname, char const * ext);
 std::string resolve(std::string const & rel_or_abs, std::string const & base);
 std::string dirname(std::string const & fn);
 /** \brief Get the file name without the extension. */
-std::string stem(std::string const & fn);
+LEAN_EXPORT std::string stem(std::string const & fn);
 
-std::string read_file(std::string const & fname, std::ios_base::openmode mode = std::ios_base::in);
+LEAN_EXPORT std::string read_file(std::string const & fname, std::ios_base::openmode mode = std::ios_base::in);
 
 bool is_directory(std::string const & fn);
 optional<bool> is_dir(std::string const & fn);
@@ -45,5 +45,5 @@ std::vector<std::string> read_dir(std::string const & dirname);
 
 time_t get_mtime(std::string const & fname);
 
-std::string lrealpath(std::string const & fname);
+LEAN_EXPORT std::string lrealpath(std::string const & fname);
 }

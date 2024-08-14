@@ -350,10 +350,10 @@ def withHeaderExceptions (ex : Snapshot → α) (act : ProcessingT IO α) : Proc
   | .ok a => return a
 
 /-- Performance option used by cmdline driver. -/
-register_builtin_option internal.minimalSnapshots : Bool := {
+register_builtin_option internal.cmdlineSnapshots : Bool := {
   defValue := false
-  descr    := "reduce information stored in snapshots to the minimum necessary for the cmdline \
-driver: diagnostics per command and final full snapshot"
+  descr    := "mark persistent and reduce information stored in snapshots to the minimum necessary \
+    for the cmdline driver: diagnostics per command and final full snapshot"
 }
 
 end Language

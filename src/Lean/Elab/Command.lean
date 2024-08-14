@@ -309,7 +309,11 @@ def runLinters (stx : Syntax) : CommandElabM Unit := do
             try
               linter.run stx
             catch ex =>
-              logException ex
+              match ex with
+              | Exception.error ref msg =>
+                logException (.error ref m!"linter {linter.name} failed: {msg}")
+              | Exception.internal _ _ =>
+                logException ex
             finally
               modify fun s => { savedState with messages := s.messages }
 
@@ -323,11 +327,11 @@ Interrupt and abort exceptions are caught but not logged.
 
 /-- Runs the given action in a separate task, discarding its final state. -/
 def runAsync (act : CommandElabM α) : CommandElabM (Task (Except Exception α)) := do
-  let st ← get
-  let opts ← getOptions
-  let env := if Language.internal.minimalSnapshots.get opts then Runtime.markPersistent st.env else st.env
-  let infoState := if Language.internal.minimalSnapshots.get opts then Runtime.markPersistent st.infoState else st.infoState
-  EIO.asTask (act.run (← read) |>.run' { st with env, infoState })
+  let mut st ← get
+  if Language.internal.cmdlineSnapshots.get (← getOptions) then
+    st := { st with
+      env := Runtime.markPersistent st.env, infoState := Runtime.markPersistent st.infoState }
+  EIO.asTask (act.run (← read) |>.run' st)
 
 /--
 Runs the given action in a separate task, discarding its final state except for the message log,
@@ -350,7 +354,7 @@ def runLintersAsync (stx : Syntax) (lintPromise : IO.Promise Language.SnapshotTr
   let hasLintTrace := opts.entries.any ((`trace.Elab.lint).isPrefixOf ·.1)
   -- TODO: `runAsync` introduces too much overhead for now compared to the actual linters execution,
   -- re-evaluate once we do more async elaboration anyway
-  if Language.internal.minimalSnapshots.get opts || hasLintTrace || trace.profiler.get opts then
+  if Language.internal.cmdlineSnapshots.get opts || hasLintTrace || trace.profiler.get opts then
     -- NOTE: can't currently report traces from tasks
     runLinters stx
   else

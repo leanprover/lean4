@@ -163,7 +163,8 @@ jobs:
             # so keep in sync
 
             # Use GitHub API to check if a comment already exists
-            existing_comment="$(curl -L -s -H "Authorization: token ${{ secrets.MATHLIB4_BOT }}" \
+            existing_comment="$(curl --retry 3 --location --silent \
+                                    -H "Authorization: token ${{ secrets.MATHLIB4_BOT }}" \
                                     -H "Accept: application/vnd.github.v3+json" \
                                     "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments" \
                                     | jq 'first(.[] | select(.body | test("^- . Mathlib") or startswith("Mathlib CI status")) | select(.user.login == "leanprover-community-mathlib4-bot"))')"
@@ -328,7 +329,7 @@ jobs:
             git switch -c lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }} "$BASE"
             echo "leanprover/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}" > lean-toolchain
             git add lean-toolchain
-            sed -i 's,require "leanprover-community" / "batteries" @ ".\+",require "leanprover-community" / "batteries" @ "git#nightly-testing-'"${MOST_RECENT_NIGHTLY}"'",' lakefile.lean
+            sed -i 's,require "leanprover-community" / "batteries" @ git ".\+",require "leanprover-community" / "batteries" @ git "nightly-testing-'"${MOST_RECENT_NIGHTLY}"'",' lakefile.lean
             lake update batteries
             git add lakefile.lean lake-manifest.json
             git commit -m "Update lean-toolchain for testing https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"

@@ -101,9 +101,9 @@ partial def asLinearCombo (e : Expr) : OmegaM (LinearCombo × OmegaM Expr × Std
     trace[omega] "Found in cache: {e}"
     return (lc, prf, ∅)
   | none =>
-    let r ← asLinearComboImpl e
-    modifyThe Cache fun cache => (cache.insert e (r.1, r.2.1.run' cache))
-    pure r
+    let (lc, proof, r) ← asLinearComboImpl e
+    modifyThe Cache fun cache => (cache.insert e (lc, proof.run' cache))
+    pure (lc, proof, r)
 
 /--
 Translates an expression into a `LinearCombo`.
@@ -255,16 +255,9 @@ where
     | (``Nat.succ, #[n]) => rewrite e (.app (.const ``Int.ofNat_succ []) n)
     | (``HAdd.hAdd, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_add []) a b)
     | (``HMul.hMul, #[_, _, _, _, a, b]) =>
-      -- Don't push the cast into a multiplication unless it produces a non-trivial linear combination.
-      let r? ← commitWhen do
-        let (lc, prf, r) ← rewrite e (mkApp2 (.const ``Int.ofNat_mul []) a b)
-        if lc.isAtom then
-          pure (none, false)
-        else
-          pure (some (lc, prf, r), true)
-      match r? with
-      | some r => pure r
-      | none => mkAtomLinearCombo e
+      let (lc, prf, r) ← rewrite e (mkApp2 (.const ``Int.ofNat_mul []) a b)
+      -- Add the fact that the multiplication is non-negative.
+      pure (lc, prf, r.insert (mkApp2 (.const ``Int.ofNat_mul_nonneg []) a b))
     | (``HDiv.hDiv, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_ediv []) a b)
     | (``OfNat.ofNat, #[_, n, _]) => rewrite e (.app (.const ``Int.natCast_ofNat []) n)
     | (``HMod.hMod, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_emod []) a b)

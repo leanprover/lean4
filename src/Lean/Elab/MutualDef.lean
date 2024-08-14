@@ -226,10 +226,16 @@ private def elabHeaders (views : Array DefView)
       headers := headers.push newHeader
     return headers
 where
-  getBodyTerm? (stx : Syntax) : Option Syntax :=
+  getBodyTerm? (stx : Syntax) : Option Syntax := do
     -- TODO: does not work with partial syntax
-    --| `(Parser.Command.declVal| := $body $_suffix:suffix $[$_where]?) => body
-    guard (stx.isOfKind ``Parser.Command.declValSimple) *> some stx[1]
+    --| `(Parser.Command.declVal| := $body $_suffix:suffix) => body
+    guard (stx.isOfKind ``Parser.Command.declValSimple)
+    let body := stx[1]
+    let whereDeclsOpt := stx[3]
+    -- We currently disable incrementality in presence of `where` as we would have to handle the
+    -- generated leading `let rec` specially
+    guard whereDeclsOpt.isNone
+    return body
 
   /-- Creates snapshot task with appropriate range from body syntax and promise. -/
   mkBodyTask (body : Syntax) (new : IO.Promise (Option BodyProcessedSnapshot)) :
@@ -1013,7 +1019,7 @@ where
               let endPos := ref.getTailPos?.getD pos
               let pos    := fileMap.toPosition pos
               let endPos := fileMap.toPosition endPos
-              let preEnv := if internal.minimalSnapshots.get opts then Runtime.markPersistent preEnv
+              let preEnv := if internal.cmdlineSnapshots.get opts then Runtime.markPersistent preEnv
                 else preEnv
               let _ ← BaseIO.asTask <| delayBaseIO fun _ => do
                 let mut msgLog := .empty
@@ -1062,7 +1068,7 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
       let mut view ← mkDefView modifiers d[1]
       let fullHeaderRef := mkNullNode #[d[0], view.headerRef]
       -- term elaboration snapshots are irrelevant for the cmdline driver
-      if let some snap := guard (!Language.internal.minimalSnapshots.get (← getOptions)) *> snap? then
+      if let some snap := guard (!Language.internal.cmdlineSnapshots.get (← getOptions)) *> snap? then
         view := { view with headerSnap? := some {
           old? := do
             -- transitioning from `Context.snap?` to `DefView.headerSnap?` invariant: if the
@@ -1095,7 +1101,8 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
           typeCheckedSnap := { range?, task := typeCheckedPromise.result }
           diagnostics := .empty : DefsParsedSnapshot }
       let includedVars := (← getScope).includedVars
-      runTermElabM fun vars => Term.elabMutualDef vars includedVars views (guard snap?.isSome *> typeCheckedPromise)
+      runTermElabM fun vars =>
+        Term.elabMutualDef vars includedVars views (guard snap?.isSome *> typeCheckedPromise)
     catch ex =>
       typeCheckedPromise.resolve default
       throw ex

@@ -107,6 +107,7 @@ void initialize_stack_overflow() {
     action.sa_flags = SA_SIGINFO | SA_ONSTACK;
     action.sa_sigaction = segv_handler;
     sigaction(SIGSEGV, &action, nullptr);
+    sigaction(SIGBUS, &action, nullptr);
 #endif
 }
 

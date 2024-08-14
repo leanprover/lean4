@@ -1087,6 +1087,10 @@ protected theorem sub_eq_iff_eq_add {c : Nat} (h : b ≤ a) : a - b = c ↔ a = 
 protected theorem sub_eq_iff_eq_add' {c : Nat} (h : b ≤ a) : a - b = c ↔ a = b + c := by
   rw [Nat.add_comm, Nat.sub_eq_iff_eq_add h]
 
+protected theorem sub_one_sub_lt_of_lt (h : a < b) : b - 1 - a < b := by
+  rw [← Nat.sub_add_eq]
+  exact sub_lt (zero_lt_of_lt h) (Nat.lt_add_right a Nat.one_pos)
+
 /-! ## Mul sub distrib -/
 
 theorem pred_mul (n m : Nat) : pred n * m = n * m - m := by

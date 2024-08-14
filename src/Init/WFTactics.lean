@@ -18,6 +18,16 @@ macro "simp_wf" : tactic =>
      only [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel,
            WellFoundedRelation.rel, sizeOf_nat])
 
+/--
+This tactic is used internally by lean before presenting the proof obligations from a well-founded
+definition to the user via `decreasing_by`. It is not necessary to use this tactic manuall.
+-/
+macro "clean_wf" : tactic =>
+  `(tactic| simp
+     (config := { unfoldPartialApp := true, zetaDelta := true, failIfUnchanged := false })
+     only [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel,
+           WellFoundedRelation.rel, sizeOf_nat])
+
 /-- Extensible helper tactic for `decreasing_tactic`. This handles the "base case"
 reasoning after applying lexicographic order lemmas.
 It can be extended by adding more macro definitions, e.g.
@@ -46,7 +56,7 @@ lexicographic order lemmas and finally using `ts` to solve the base case. If it 
 it prints a message to help the user diagnose an ill-founded recursive definition. -/
 macro "decreasing_with " ts:tacticSeq : tactic =>
  `(tactic|
-   (simp_wf -- remove after next stage0 update
+   (clean_wf -- remove after next stage0 update
     try simp
     repeat (first | apply Prod.Lex.right | apply Prod.Lex.left)
     repeat (first | apply PSigma.Lex.right | apply PSigma.Lex.left)

@@ -14,7 +14,8 @@ namespace Time
 set_option linter.all true
 
 /--
-The existential version of `DateTime` that instead of storing the timezone with a
+An existential version of `DateTime` that encapsulates a `DateTime` value without explicitly storing
+the time zone.
 -/
 def ZonedDateTime := Sigma DateTime
 

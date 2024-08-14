@@ -599,7 +599,7 @@ where
     let minimal := internal.minimalSnapshots.get scope.opts && !Parser.isTerminalCommand stx
     finishedPromise.resolve {
       diagnostics := (← Snapshot.Diagnostics.ofMessageLog cmdState.messages)
-      infoTree? := cmdState.infoState.trees[0]!
+      infoTree? := Runtime.markPersistent cmdState.infoState.trees[0]!
       cmdState := if minimal then {
         env := initEnv
         maxRecDepth := 0

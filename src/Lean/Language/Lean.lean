@@ -593,13 +593,13 @@ where
         pos      := ctx.fileMap.toPosition beginPos
         data     := output
       }
-    let cmdState := { cmdState with messages }
+    let cmdState := { cmdState with messages, env := Runtime.markPersistent cmdState.env }
     -- definitely resolve eventually
     snap.new.resolve <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
     let minimal := internal.minimalSnapshots.get scope.opts && !Parser.isTerminalCommand stx
     finishedPromise.resolve {
       diagnostics := (← Snapshot.Diagnostics.ofMessageLog cmdState.messages)
-      infoTree? := guard (!minimal) *> cmdState.infoState.trees[0]!
+      infoTree? := cmdState.infoState.trees[0]!
       cmdState := if minimal then {
         env := initEnv
         maxRecDepth := 0

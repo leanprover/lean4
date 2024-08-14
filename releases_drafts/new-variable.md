@@ -1,6 +1,6 @@
 **breaking change**
 
-The effect of the `variable` command on proofs of `theorem`s has been changed. Such section variables are now accessible in the proof only depending on the theorem signature and other top-level commands, not on the proof itself.
+The effect of the `variable` command on proofs of `theorem`s has been changed. Whether such section variables are accessible in the proof now depends only on the theorem signature and other top-level commands, not on the proof itself.
 This change ensures that
 * the statement of a theorem is independent of its proof. In other words, changes in the proof cannot change the theorem statement.
 * tactics such as `induction` cannot accidentally include a section variable.

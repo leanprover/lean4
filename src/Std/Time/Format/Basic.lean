@@ -217,7 +217,10 @@ end Awareness
 A specification on how to format a data or parse some string.
 -/
 structure Format (awareness : Awareness) where
-  /-- The format that is not aware of the timezone. -/
+
+  /--
+  The format that is not aware of the timezone.
+  -/
   string : FormatString
   deriving Inhabited, Repr
 

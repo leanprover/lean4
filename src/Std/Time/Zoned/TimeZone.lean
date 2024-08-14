@@ -16,10 +16,12 @@ set_option linter.all true
 An enumeration representing different time zones.
 -/
 structure TimeZone where
+
   /--
   The `Offset` of the date time.
   -/
   offset : TimeZone.Offset
+
   /--
   The name of the time zone.
   -/

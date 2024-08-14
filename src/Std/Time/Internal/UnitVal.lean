@@ -20,6 +20,7 @@ set_option linter.all true
 A structure representing a unit of a given ratio type `α`.
 -/
 structure UnitVal (α : Rat) where
+
   /--
   Value inside the UnitVal Value
   -/

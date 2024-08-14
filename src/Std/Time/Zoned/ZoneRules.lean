@@ -51,6 +51,7 @@ inductive StdWall
 Represents a type of local time, including offset and daylight saving information.
 -/
 structure LocalTimeType where
+
   /--
   The offset from GMT for this local time.
   -/
@@ -96,6 +97,7 @@ end LocalTimeType
 Represents a leap second event, including the time of the transition and the correction applied.
 -/
 structure LeapSecond where
+
   /--
   The time when the leap second transition occurs.
   -/
@@ -111,6 +113,7 @@ structure LeapSecond where
 Represents a time zone transition, mapping a time to a local time type.
 -/
 structure Transition where
+
   /--
   The specific time of the transition event.
   -/
@@ -126,6 +129,7 @@ structure Transition where
 Represents the rules for a time zone, abstracting away binary data and focusing on key transitions and types.
 -/
 structure ZoneRules where
+
   /--
   The array of local time types for the time zone.
   -/

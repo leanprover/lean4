@@ -17,6 +17,7 @@ set_option linter.all true
 A timezone database that we can read the `ZoneRules` of some area by it's id.
 -/
 class Database (α : Type) where
+
   /--
   Loads a `ZoneRules` by it's id.
   -/

@@ -24,6 +24,7 @@ private abbrev Int64 := Int
 Represents the header of a TZif file, containing metadata about the file's structure.
 -/
 structure Header where
+
   /--
   The version of the TZif file format.
   -/
@@ -64,6 +65,7 @@ structure Header where
 Represents the local time type information, including offset and daylight saving details.
 -/
 structure LocalTimeType where
+
   /--
   The GMT offset in seconds for this local time type.
   -/
@@ -84,6 +86,7 @@ structure LocalTimeType where
 Represents a leap second record, including the transition time and the correction applied.
 -/
 structure LeapSecond where
+
   /--
   The transition time of the leap second event.
   -/
@@ -99,6 +102,7 @@ structure LeapSecond where
 Represents version 1 of the TZif format.
 -/
 structure TZifV1 where
+
   /--
   The header information of the TZif file.
   -/
@@ -144,6 +148,7 @@ structure TZifV1 where
 Represents version 2 of the TZif format, extending TZifV1 with an optional footer.
 -/
 structure TZifV2 extends TZifV1 where
+
   /--
   An optional footer for additional metadata in version 2.
   -/
@@ -154,6 +159,7 @@ structure TZifV2 extends TZifV1 where
 Represents a TZif file, which can be either version 1 or version 2.
 -/
 structure TZif where
+
   /--
   The data for version 1 of the TZif file.
   -/

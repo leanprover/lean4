@@ -16,6 +16,7 @@ set_option linter.all true
 Represents a specific point in time, including hours, minutes, seconds, and nanoseconds.
 -/
 structure LocalTime where
+
   /--
   `Hour` component of the `LocalTime`
   -/

@@ -19,10 +19,12 @@ Represents a timezone offset with an hour and second component.
 -/
 structure Offset where
   private mk ::
+
   /--
   The timezone offset in Hours.
   -/
   hour : Hour.Offset
+
   /--
   The same timezone offset in seconds.
   -/

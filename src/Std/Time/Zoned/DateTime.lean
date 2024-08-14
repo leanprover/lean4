@@ -71,7 +71,6 @@ def now : IO (DateTime tz) := do
   let loca ← LocalDateTime.now
   return ofLocalDateTime loca tz
 
-
 /--
 Add `Day.Offset` to a `DateTime`.
 -/

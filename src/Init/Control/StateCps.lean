@@ -35,7 +35,7 @@ instance : Monad (StateCpsT σ m) where
   bind x f := fun δ s k => x δ s fun a s => f a δ s k
 
 instance : LawfulMonad (StateCpsT σ m) := by
-  refine' { .. } <;> intros <;> rfl
+  refine LawfulMonad.mk' _ ?_ ?_ ?_ <;> intros <;> rfl
 
 @[always_inline]
 instance : MonadStateOf σ (StateCpsT σ m) where

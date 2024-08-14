@@ -34,7 +34,7 @@ instance : Monad (ExceptCpsT ε m) where
   bind x f := fun _ k₁ k₂ => x _ (fun a => f a _ k₁ k₂) k₂
 
 instance : LawfulMonad (ExceptCpsT σ m) := by
-  refine' { .. } <;> intros <;> rfl
+  refine LawfulMonad.mk' _ ?_ ?_ ?_ <;> intros <;> rfl
 
 instance : MonadExceptOf ε (ExceptCpsT ε m) where
   throw e  := fun _ _ k => k e

@@ -85,8 +85,6 @@ Apply the `Sign` to a value.
 def apply (u1 : UnitVal α) (sign : Sign) : UnitVal α :=
   ⟨u1.val * sign.val⟩
 
-
-
 /--
 Converts an `Offset` to another unit type.
 -/

@@ -48,7 +48,6 @@ Category of dates like `DD-MM-YYYY`.
 -/
 declare_syntax_cat date
 
-
 /--
 Date in `DD-MM-YYYY` format.
 -/

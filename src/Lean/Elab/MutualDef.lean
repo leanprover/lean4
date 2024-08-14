@@ -371,6 +371,11 @@ register_builtin_option deprecated.oldSectionVars : Bool := {
   descr    := "re-enable deprecated behavior of including exactly the section variables used in a declaration"
 }
 
+register_builtin_option linter.unusedSectionVars : Bool := {
+  defValue := true
+  descr := "enable the 'unused section variables in theorem body' linter"
+}
+
 private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr) (includedVars : List Name) : TermElabM (Array Expr) :=
   headers.mapM fun header => do
     let mut reusableResult? := none
@@ -399,18 +404,19 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
         -- leads to more section variables being included than necessary
         let val ← instantiateMVarsProfiling val
         let val ← mkLambdaFVars xs val
-        unless header.type.hasSorry || val.hasSorry do
+        if linter.unusedSectionVars.get (← getOptions) && !header.type.hasSorry && !val.hasSorry then
           for var in vars do
             unless header.type.containsFVar var.fvarId! ||
                 val.containsFVar var.fvarId! ||
                 (← vars.anyM (fun v => return (← v.fvarId!.getType).containsFVar var.fvarId!)) do
               let varDecl ← var.fvarId!.getDecl
               let var := if varDecl.userName.hasMacroScopes && varDecl.binderInfo.isInstImplicit then
-                m!"[{varDecl.type}]".group
+                m!"{indentD m!"[{varDecl.type}]"}{Format.line}".group
               else
-                var
-              logWarningAt header.ref m!"included section variable '{var}' is not used in \
-                '{header.declName}', consider excluding it"
+                m!" '{var}' "
+              Linter.logLint linter.unusedSectionVars header.ref
+                m!"included section variable{var}is unused in theorem, consider restructuring \
+                  your `variable`/`include` declarations or `omit`ting it"
         return val
     if let some snap := header.bodySnap? then
       snap.new.resolve <| some {

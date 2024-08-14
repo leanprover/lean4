@@ -7,19 +7,19 @@ prelude
 import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
 import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const
 import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Var
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Not
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.ShiftLeft
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.ShiftRight
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Add
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.ZeroExtend
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Append
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Replicate
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Extract
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.RotateLeft
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.RotateRight
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.SignExtend
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Not
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ShiftLeft
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ShiftRight
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Add
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ZeroExtend
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Append
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Replicate
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Extract
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.RotateLeft
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.RotateRight
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.SignExtend
 import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Mul
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Mul
 
 /-!
 This module contains the verification of the `BitVec` expressions (`BVExpr`) bitblaster from

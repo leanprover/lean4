@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
 prelude
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Eq
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Ult
-import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.GetLsb
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Eq
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Ult
+import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.GetLsb
 import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Expr
 import Lean.Elab.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Pred
 

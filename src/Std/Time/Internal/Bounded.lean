@@ -16,7 +16,7 @@ set_option linter.all true in
 A `Bounded` is represented by an `Int` that is constrained by a lower and higher bounded using some
 relation `rel`. It includes all the integers that `rel lo val ∧ rel val hi`.
 -/
-def Bounded (rel : Int → Int → Prop) (lo : Int) (hi : Int) := { val : Int // rel lo val ∧ rel val hi}
+def Bounded (rel : Int → Int → Prop) (lo : Int) (hi : Int) := { val : Int // rel lo val ∧ rel val hi }
 
 namespace Bounded
 

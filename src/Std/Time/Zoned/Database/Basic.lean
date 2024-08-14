@@ -54,7 +54,7 @@ def convertLeapSecond (tz : TZif.LeapSecond) : LeapSecond :=
 /--
 Converts a LocalTime.
 -/
-def convetLocalTime (index : Nat) (tz : TZif.TZifV1) (identifier : String) : Option LocalTimeType := do
+def convertLocalTime (index : Nat) (tz : TZif.TZifV1) (identifier : String) : Option LocalTimeType := do
   let localType ← tz.localTimeTypes.get? index
   let abbreviation ← tz.abbreviations.getD index "Unknown"
   let wallflag := convertWall (tz.stdWallIndicators.getD index true)
@@ -85,7 +85,7 @@ def convertTZifV1 (tz : TZif.TZifV1) (id : String) : Except String ZoneRules := 
   let mut times : Array LocalTimeType := #[]
 
   for i in [0:tz.header.typecnt.toNat] do
-    if let some result := convetLocalTime i tz id
+    if let some result := convertLocalTime i tz id
       then times := times.push result
       else .error s!"cannot convert local time {i} of the file"
 

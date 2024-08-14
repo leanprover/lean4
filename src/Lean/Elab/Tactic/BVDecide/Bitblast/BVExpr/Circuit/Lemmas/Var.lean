@@ -45,8 +45,7 @@ theorem go_get_aux (aig : AIG BVBit) (a : Nat) (curr : Nat) (hcurr : curr ≤ w)
   . dsimp only at hgo
     rw [← hgo]
     simp only [Nat.le_refl, get, Ref.gate_cast, Ref.mk.injEq, true_implies]
-    have : curr = w := by omega
-    subst this
+    obtain rfl : curr = w := by omega
     simp
 termination_by w - curr
 

@@ -52,8 +52,7 @@ theorem go_get_aux (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
   . dsimp only at hgo
     rw [← hgo]
     simp only [Nat.le_refl, get, Ref.gate_cast, Ref.mk.injEq, true_implies]
-    have : curr = w := by omega
-    subst this
+    obtain rfl : curr = w := by omega
     simp
 termination_by w - curr
 

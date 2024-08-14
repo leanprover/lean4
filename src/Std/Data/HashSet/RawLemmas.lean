@@ -20,17 +20,29 @@ set_option autoImplicit false
 
 universe u v
 
-variable {α : Type u} [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
+variable {α : Type u}
 
 namespace Std.HashSet
 
 namespace Raw
 
-variable {m : Raw α} (h : m.WF)
-set_option deprecated.oldSectionVars true
+variable {m : Raw α}
 
 private theorem ext {m m' : Raw α} : m.inner = m'.inner → m = m' := by
   cases m; cases m'; rintro rfl; rfl
+
+@[simp]
+theorem size_empty {c} : (empty c : Raw α).size = 0 :=
+  HashMap.Raw.size_empty
+
+@[simp]
+theorem size_emptyc : (∅ : Raw α).size = 0 :=
+  HashMap.Raw.size_emptyc
+
+theorem isEmpty_eq_size_eq_zero : m.isEmpty = (m.size == 0) :=
+  HashMap.Raw.isEmpty_eq_size_eq_zero
+
+variable [BEq α] [Hashable α]
 
 @[simp]
 theorem isEmpty_empty {c} : (empty c : Raw α).isEmpty :=
@@ -41,17 +53,19 @@ theorem isEmpty_emptyc : (∅ : Raw α).isEmpty :=
   HashMap.Raw.isEmpty_emptyc
 
 @[simp]
-theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] {a : α} : (m.insert a).isEmpty = false :=
+theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    (m.insert a).isEmpty = false :=
   HashMap.Raw.isEmpty_insertIfNew h.out
 
 theorem mem_iff_contains {a : α} : a ∈ m ↔ m.contains a :=
   HashMap.Raw.mem_iff_contains
 
-theorem contains_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) :
+theorem contains_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {a b : α} (hab : a == b) :
     m.contains a = m.contains b :=
   HashMap.Raw.contains_congr h.out hab
 
-theorem mem_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) : a ∈ m ↔ b ∈ m :=
+theorem mem_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {a b : α} (hab : a == b) :
+    a ∈ m ↔ b ∈ m :=
   HashMap.Raw.mem_congr h.out hab
 
 @[simp] theorem contains_empty {a : α} {c} : (empty c : Raw α).contains a = false :=
@@ -66,74 +80,67 @@ theorem mem_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) : 
 @[simp] theorem not_mem_emptyc {a : α} : ¬a ∈ (∅ : Raw α) :=
   HashMap.Raw.not_mem_emptyc
 
-theorem contains_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} :
+theorem contains_of_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     m.isEmpty → m.contains a = false :=
   HashMap.Raw.contains_of_isEmpty h.out
 
-theorem not_mem_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} :
+theorem not_mem_of_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     m.isEmpty → ¬a ∈ m :=
   HashMap.Raw.not_mem_of_isEmpty h.out
 
-theorem isEmpty_eq_false_iff_exists_contains_eq_true [EquivBEq α] [LawfulHashable α] :
+theorem isEmpty_eq_false_iff_exists_contains_eq_true [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.isEmpty = false ↔ ∃ a, m.contains a = true :=
   HashMap.Raw.isEmpty_eq_false_iff_exists_contains_eq_true h.out
 
-theorem isEmpty_eq_false_iff_exists_mem [EquivBEq α] [LawfulHashable α] :
+theorem isEmpty_eq_false_iff_exists_mem [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.isEmpty = false ↔ ∃ a, a ∈ m :=
   HashMap.Raw.isEmpty_eq_false_iff_exists_mem h.out
 
-theorem isEmpty_iff_forall_contains [EquivBEq α] [LawfulHashable α] :
+theorem isEmpty_iff_forall_contains [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.isEmpty = true ↔ ∀ a, m.contains a = false :=
   HashMap.Raw.isEmpty_iff_forall_contains h.out
 
-theorem isEmpty_iff_forall_not_mem [EquivBEq α] [LawfulHashable α] :
+theorem isEmpty_iff_forall_not_mem [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.isEmpty = true ↔ ∀ a, ¬a ∈ m :=
   HashMap.Raw.isEmpty_iff_forall_not_mem h.out
 
 @[simp]
-theorem contains_insert [EquivBEq α] [LawfulHashable α] {k a : α} :
+theorem contains_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
     (m.insert k).contains a = (k == a || m.contains a) :=
   HashMap.Raw.contains_insertIfNew h.out
 
 @[simp]
-theorem mem_insert [EquivBEq α] [LawfulHashable α] {k a : α} : a ∈ m.insert k ↔ k == a ∨ a ∈ m :=
+theorem mem_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
+    a ∈ m.insert k ↔ k == a ∨ a ∈ m :=
   HashMap.Raw.mem_insertIfNew h.out
 
-theorem contains_of_contains_insert [EquivBEq α] [LawfulHashable α] {k a : α} :
+theorem contains_of_contains_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
     (m.insert k).contains a → (k == a) = false → m.contains a :=
   HashMap.Raw.contains_of_contains_insertIfNew h.out
 
-theorem mem_of_mem_insert [EquivBEq α] [LawfulHashable α] {k a : α} :
+theorem mem_of_mem_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
     a ∈ m.insert k → (k == a) = false → a ∈ m :=
   HashMap.Raw.mem_of_mem_insertIfNew h.out
 
 @[simp]
-theorem contains_insert_self [EquivBEq α] [LawfulHashable α] {k : α}  : (m.insert k).contains k :=
+theorem contains_insert_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+    (m.insert k).contains k :=
   HashMap.Raw.contains_insertIfNew_self h.out
 
 @[simp]
-theorem mem_insert_self [EquivBEq α] [LawfulHashable α] {k : α} : k ∈ m.insert k :=
+theorem mem_insert_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} : k ∈ m.insert k :=
   HashMap.Raw.mem_insertIfNew_self h.out
 
-@[simp]
-theorem size_empty {c} : (empty c : Raw α).size = 0 :=
-  HashMap.Raw.size_empty
-
-@[simp]
-theorem size_emptyc : (∅ : Raw α).size = 0 :=
-  HashMap.Raw.size_emptyc
-
-theorem isEmpty_eq_size_eq_zero : m.isEmpty = (m.size == 0) :=
-  HashMap.Raw.isEmpty_eq_size_eq_zero
-
-theorem size_insert [EquivBEq α] [LawfulHashable α] {k : α} :
+theorem size_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
     (m.insert k).size = if k ∈ m then m.size else m.size + 1 :=
   HashMap.Raw.size_insertIfNew h.out
 
-theorem size_le_size_insert [EquivBEq α] [LawfulHashable α] {k : α} : m.size ≤ (m.insert k).size :=
+theorem size_le_size_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+    m.size ≤ (m.insert k).size :=
   HashMap.Raw.size_le_size_insertIfNew h.out
 
-theorem size_insert_le [EquivBEq α] [LawfulHashable α] {k : α} : (m.insert k).size ≤ m.size + 1 :=
+theorem size_insert_le [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+    (m.insert k).size ≤ m.size + 1 :=
   HashMap.Raw.size_insertIfNew_le h.out
 
 @[simp]
@@ -145,44 +152,46 @@ theorem erase_emptyc {k : α} : (∅ : Raw α).erase k = ∅ :=
   ext HashMap.Raw.erase_emptyc
 
 @[simp]
-theorem isEmpty_erase [EquivBEq α] [LawfulHashable α] {k : α} :
+theorem isEmpty_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
     (m.erase k).isEmpty = (m.isEmpty || (m.size == 1 && m.contains k)) :=
   HashMap.Raw.isEmpty_erase h.out
 
 @[simp]
-theorem contains_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
+theorem contains_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
     (m.erase k).contains a = (!(k == a) && m.contains a) :=
   HashMap.Raw.contains_erase h.out
 
 @[simp]
-theorem mem_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
+theorem mem_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
     a ∈ m.erase k ↔ (k == a) = false ∧ a ∈ m :=
   HashMap.Raw.mem_erase h.out
 
-theorem contains_of_contains_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
+theorem contains_of_contains_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
     (m.erase k).contains a → m.contains a :=
   HashMap.Raw.contains_of_contains_erase h.out
 
-theorem mem_of_mem_erase [EquivBEq α] [LawfulHashable α] {k a : α} : a ∈ m.erase k → a ∈ m :=
+theorem mem_of_mem_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
+    a ∈ m.erase k → a ∈ m :=
   HashMap.Raw.mem_of_mem_erase h.out
 
-theorem size_erase [EquivBEq α] [LawfulHashable α] {k : α} :
+theorem size_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
     (m.erase k).size = if k ∈ m then m.size - 1 else m.size :=
   HashMap.Raw.size_erase h.out
 
-theorem size_erase_le [EquivBEq α] [LawfulHashable α] {k : α} : (m.erase k).size ≤ m.size :=
+theorem size_erase_le [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+    (m.erase k).size ≤ m.size :=
   HashMap.Raw.size_erase_le h.out
 
-theorem size_le_size_erase [EquivBEq α] [LawfulHashable α] {k : α} :
+theorem size_le_size_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
     m.size ≤ (m.erase k).size + 1 :=
   HashMap.Raw.size_le_size_erase h.out
 
 @[simp]
-theorem containsThenInsert_fst {k : α} : (m.containsThenInsert k).1 = m.contains k :=
+theorem containsThenInsert_fst (h : m.WF) {k : α} : (m.containsThenInsert k).1 = m.contains k :=
   HashMap.Raw.containsThenInsertIfNew_fst h.out
 
 @[simp]
-theorem containsThenInsert_snd {k : α} : (m.containsThenInsert k).2 = m.insert k :=
+theorem containsThenInsert_snd (h : m.WF) {k : α} : (m.containsThenInsert k).2 = m.insert k :=
   ext (HashMap.Raw.containsThenInsertIfNew_snd h.out)
 
 end Raw

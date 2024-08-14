@@ -54,12 +54,12 @@ instance {w : Nat} : AIG.LawfulOperator α (AIG.BinaryRefVec · w) mkUlt where
     rw [AIG.LawfulOperator.decl_eq (f := BVExpr.bitblast.mkOverflowBit)]
     rw [AIG.LawfulOperator.decl_eq (f := AIG.mkConstCached)]
     rw [AIG.LawfulVecOperator.decl_eq (f := BVExpr.bitblast.blastNot)]
-    . apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := BVExpr.bitblast.blastNot)
+    · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := BVExpr.bitblast.blastNot)
       assumption
-    . apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkConstCached)
+    · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkConstCached)
       apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := BVExpr.bitblast.blastNot)
       assumption
-    . apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVExpr.bitblast.mkOverflowBit)
+    · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVExpr.bitblast.mkOverflowBit)
       apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkConstCached)
       apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := BVExpr.bitblast.blastNot)
       assumption

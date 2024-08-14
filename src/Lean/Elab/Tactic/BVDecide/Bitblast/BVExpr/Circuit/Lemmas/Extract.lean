@@ -31,11 +31,11 @@ theorem go_get_aux (aig : AIG α) (input : RefVec aig w) (lo : Nat) (curr : Nat)
   generalize hgo : go input lo falseRef curr hcurr s = res
   unfold go at hgo
   split at hgo
-  . dsimp only at hgo
+  · dsimp only at hgo
     rw [← hgo]
     rw [go_get_aux]
     rw [AIG.RefVec.get_push_ref_lt]
-  . dsimp only at hgo
+  · dsimp only at hgo
     rw [← hgo]
     simp only [RefVec.get, Ref.mk.injEq]
     have : curr = newWidth := by omega
@@ -53,17 +53,17 @@ theorem go_get (aig : AIG α) (input : RefVec aig w) (lo : Nat) (curr : Nat)
   unfold go at hgo
   dsimp only at hgo
   split at hgo
-  . rw [← hgo]
+  · rw [← hgo]
     cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       rw [go_get_aux]
       rw [AIG.RefVec.get_push_ref_eq']
-      . simp [heq]
-      . simp [heq]
+      · simp [heq]
+      · simp [heq]
     | inr heq =>
       rw [go_get]
       omega
-  . omega
+  · omega
 termination_by newWidth - curr
 
 end blastExtract
@@ -86,32 +86,32 @@ theorem denote_blastExtract (aig : AIG α) (target : ExtractTarget aig newWidth)
   unfold blastExtract at hextract
   dsimp only at hextract
   split at hextract
-  . rw [← hextract]
+  · rw [← hextract]
     rw [blastExtract.go_get]
-    . dsimp only
+    · dsimp only
       split
-      . rw [RefVec.get_in_bound]
+      · rw [RefVec.get_in_bound]
         rw [LawfulOperator.denote_mem_prefix (f := mkConstCached)]
-        . congr 1
-        . assumption
-      . rw [RefVec.get_out_bound]
-        . simp
-        . omega
-    . omega
-  . have : idx = 0 := by omega
+        · congr 1
+        · assumption
+      · rw [RefVec.get_out_bound]
+        · simp
+        · omega
+    · omega
+  · have : idx = 0 := by omega
     simp only [this]
     have : 1 = newWidth := by omega
     subst this
     rw [← hextract]
     split
-    . rw [RefVec.get_in_bound]
+    · rw [RefVec.get_in_bound]
       dsimp only
       rw [LawfulOperator.denote_mem_prefix (f := mkConstCached)]
-      . congr 2
-      . omega
-    . rw [RefVec.get_out_bound]
-      . simp
-      . omega
+      · congr 2
+      · omega
+    · rw [RefVec.get_out_bound]
+      · simp
+      · omega
 
 
 end bitblast

@@ -31,22 +31,22 @@ theorem denote_bitblast (aig : AIG BVBit) (pred : BVPred) (assign : BVExpr.Assig
     | eq =>
       simp only [bitblast, eval_bin, BVBinPred.eval_eq]
       rw [mkEq_denote_eq]
-      . intros
+      · intros
         rw [AIG.LawfulVecOperator.denote_mem_prefix (f := BVExpr.bitblast)]
-        . simp
+        · simp
           rw [BVExpr.denote_bitblast]
-        . simp [Ref.hgate]
-      . intros
+        · simp [Ref.hgate]
+      · intros
         simp
     | ult =>
       simp only [bitblast, eval_bin, BVBinPred.eval_ult]
       rw [mkUlt_denote_eq]
-      . intros
+      · intros
         rw [AIG.LawfulVecOperator.denote_mem_prefix (f := BVExpr.bitblast)]
-        . simp
+        · simp
           rw [BVExpr.denote_bitblast]
-        . simp [Ref.hgate]
-      . intros
+        · simp [Ref.hgate]
+      · intros
         simp
   | getLsb expr idx =>
     simp only [bitblast, denote_blastGetLsb, BVExpr.denote_bitblast, dite_eq_ite,

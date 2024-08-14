@@ -127,12 +127,12 @@ instance : AIG.LawfulOperator α FullAdderInput mkFullAdderCarry where
     rw [AIG.LawfulOperator.decl_eq]
     rw [AIG.LawfulOperator.decl_eq]
     rw [AIG.LawfulOperator.decl_eq]
-    . apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkXorCached)
+    · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkXorCached)
       assumption
-    . apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkAndCached)
+    · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkAndCached)
       apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkXorCached)
       assumption
-    . apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkAndCached)
+    · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkAndCached)
       apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkAndCached)
       apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkXorCached)
       assumption
@@ -196,10 +196,10 @@ theorem go_le_size (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : AIG.R
   unfold go
   dsimp only
   split
-  . refine Nat.le_trans ?_ (by apply go_le_size)
+  · refine Nat.le_trans ?_ (by apply go_le_size)
     apply AIG.LawfulOperator.le_size_of_le_aig_size (f := mkFullAdderCarry)
     apply AIG.LawfulOperator.le_size (f := mkFullAdderOut)
-  . simp
+  · simp
 termination_by w - curr
 
 theorem go_decl_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : AIG.Ref aig)
@@ -210,18 +210,18 @@ theorem go_decl_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : AIG.R
   unfold go at hgo
   dsimp only at hgo
   split at hgo
-  . rw [← hgo]
+  · rw [← hgo]
     intros
     rw [go_decl_eq]
     unfold mkFullAdder
     rw [AIG.LawfulOperator.decl_eq (f := mkFullAdderCarry)]
     rw [AIG.LawfulOperator.decl_eq (f := mkFullAdderOut)]
-    . apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := mkFullAdderOut)
+    · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := mkFullAdderOut)
       assumption
-    . apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := mkFullAdderCarry)
+    · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := mkFullAdderCarry)
       apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := mkFullAdderOut)
       assumption
-  . simp [← hgo]
+  · simp [← hgo]
 termination_by w - curr
 
 instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blastAdd where

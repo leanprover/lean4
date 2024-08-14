@@ -60,9 +60,9 @@ def push (s : RefVec aig len) (ref : AIG.Ref aig) : RefVec aig (len + 1) :=
       intro i hi
       simp only [Array.get_push]
       split
-      . apply hrefs
+      · apply hrefs
         omega
-      . apply AIG.Ref.hgate
+      · apply AIG.Ref.hgate
   ⟩
 
 @[simp]
@@ -104,13 +104,13 @@ def append (lhs : RefVec aig lw) (rhs : RefVec aig rw) : RefVec aig (lw + rw) :=
     by
       intro i h
       by_cases hsplit : i < lrefs.size
-      . rw [Array.get_append_left]
+      · rw [Array.get_append_left]
         apply hl2
         omega
-      . rw [Array.get_append_right]
-        . apply hr2
+      · rw [Array.get_append_right]
+        · apply hr2
           omega
-        . omega
+        · omega
   ⟩
 
 theorem get_append (lhs : RefVec aig lw) (rhs : RefVec aig rw) (idx : Nat)
@@ -123,12 +123,12 @@ theorem get_append (lhs : RefVec aig lw) (rhs : RefVec aig rw) (idx : Nat)
       rhs.get (idx - lw) (by omega) := by
   simp only [get, append]
   split
-  . simp [Ref.mk.injEq]
+  · simp [Ref.mk.injEq]
     rw [Array.get_append_left]
-  . simp only [Ref.mk.injEq]
+  · simp only [Ref.mk.injEq]
     rw [Array.get_append_right]
-    . simp [lhs.hlen]
-    . rw [lhs.hlen]
+    · simp [lhs.hlen]
+    · rw [lhs.hlen]
       omega
 
 @[inline]
@@ -147,8 +147,8 @@ theorem get_out_bound (s : RefVec aig len) (idx : Nat) (alt : Ref aig) (hidx : l
     s.getD idx alt = alt := by
   unfold getD
   split
-  . omega
-  . rfl
+  · omega
+  · rfl
 
 end RefVec
 

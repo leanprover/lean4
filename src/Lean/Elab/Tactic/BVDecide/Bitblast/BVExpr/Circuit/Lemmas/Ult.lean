@@ -32,22 +32,22 @@ theorem mkUlt_denote_eq (aig : AIG α) (lhs rhs : BitVec w) (input : BinaryRefVe
   simp only [denote_projected_entry, denote_mkNotCached, denote_projected_entry']
   congr 1
   rw [BVExpr.bitblast.mkOverflowBit_eq_carry (input := ⟨w, _, _⟩) (lhs := lhs) (rhs := ~~~rhs)]
-  . simp
-  . dsimp only
+  · simp
+  · dsimp only
     intro idx hidx
     rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
     rw [AIG.LawfulVecOperator.denote_mem_prefix (f := BVExpr.bitblast.blastNot)]
     apply hleft
     assumption
-  . dsimp only
+  · dsimp only
     intro idx hidx
     rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
-    . simp only [RefVec.get_cast, Ref.gate_cast, BitVec.getLsb_not, hidx, decide_True,
+    · simp only [RefVec.get_cast, Ref.gate_cast, BitVec.getLsb_not, hidx, decide_True,
         Bool.true_and]
       rw [BVExpr.bitblast.denote_blastNot]
       congr 1
       apply hright
-    . simp [Ref.hgate]
+    · simp [Ref.hgate]
 
 end BVPred
 

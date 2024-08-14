@@ -28,9 +28,9 @@ variable [LawfulVecOperator α β f]
 theorem isPrefix_aig (aig : AIG α) (input : β aig len) :
     IsPrefix aig.decls (f aig input).aig.decls := by
   apply IsPrefix.of
-  . intro idx h
+  · intro idx h
     apply decl_eq
-  . apply le_size
+  · apply le_size
 
 theorem lt_size (entry : Entrypoint α) (input : β entry.aig len) :
     entry.ref.gate < (f entry.aig input).aig.decls.size := by
@@ -42,14 +42,14 @@ theorem lt_size (entry : Entrypoint α) (input : β entry.aig len) :
 theorem lt_size_of_lt_aig_size (aig : AIG α) (input : β aig len) (h : x < aig.decls.size) :
     x < (f aig input).aig.decls.size := by
   apply Nat.lt_of_lt_of_le
-  . exact h
-  . exact le_size aig input
+  · exact h
+  · exact le_size aig input
 
 theorem le_size_of_le_aig_size (aig : AIG α) (input : β aig len) (h : x ≤ aig.decls.size) :
     x ≤ (f aig input).aig.decls.size := by
   apply Nat.le_trans
-  . exact h
-  . exact le_size aig input
+  · exact h
+  · exact le_size aig input
 
 @[simp]
 theorem denote_input_entry (entry : Entrypoint α) {input : β entry.aig len} {h} :

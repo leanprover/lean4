@@ -72,9 +72,9 @@ instance : AIG.LawfulOperator BVBit (fun _ => BVPred) bitblast where
         rw [AIG.LawfulOperator.decl_eq (f := mkEq)]
         rw [AIG.LawfulVecOperator.decl_eq (f := BVExpr.bitblast)]
         rw [AIG.LawfulVecOperator.decl_eq (f := BVExpr.bitblast)]
-        . apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := BVExpr.bitblast)
+        · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := BVExpr.bitblast)
           assumption
-        . apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := BVExpr.bitblast)
+        · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := BVExpr.bitblast)
           apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := BVExpr.bitblast)
           assumption
       | ult =>
@@ -82,9 +82,9 @@ instance : AIG.LawfulOperator BVBit (fun _ => BVPred) bitblast where
         rw [AIG.LawfulOperator.decl_eq (f := mkUlt)]
         rw [AIG.LawfulVecOperator.decl_eq (f := BVExpr.bitblast)]
         rw [AIG.LawfulVecOperator.decl_eq (f := BVExpr.bitblast)]
-        . apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := BVExpr.bitblast)
+        · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := BVExpr.bitblast)
           assumption
-        . apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := BVExpr.bitblast)
+        · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := BVExpr.bitblast)
           apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := BVExpr.bitblast)
           assumption
     | getLsb expr idx =>

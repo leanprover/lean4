@@ -34,22 +34,22 @@ theorem go_get_aux (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
   generalize hgo : go aig input distance curr hcurr s = res
   unfold go at hgo
   split at hgo
-  . dsimp only at hgo
+  · dsimp only at hgo
     split at hgo
-    . rw [← hgo]
+    · rw [← hgo]
       intros
       rw [go_get_aux]
       rw [AIG.RefVec.get_push_ref_lt]
-    . rw [← hgo]
+    · rw [← hgo]
       intros
       rw [go_get_aux]
       rw [AIG.RefVec.get_push_ref_lt]
-      . simp only [Ref.cast, Ref.mk.injEq]
+      · simp only [Ref.cast, Ref.mk.injEq]
         rw [AIG.RefVec.get_cast]
-        . simp
-        . assumption
-      . apply go_le_size
-  . dsimp only at hgo
+        · simp
+        · assumption
+      · apply go_le_size
+  · dsimp only at hgo
     rw [← hgo]
     simp only [Nat.le_refl, get, Ref.gate_cast, Ref.mk.injEq, true_implies]
     obtain rfl : curr = w := by omega
@@ -76,9 +76,9 @@ theorem go_denote_mem_prefix (aig : AIG α) (distance : Nat) (input : AIG.RefVec
     ⟦aig, ⟨start, hstart⟩, assign⟧ := by
   apply denote.eq_of_isPrefix (entry := ⟨aig, start,hstart⟩)
   apply IsPrefix.of
-  . intros
+  · intros
     apply go_decl_eq
-  . intros
+  · intros
     apply go_le_size
 
 theorem go_denote_eq (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
@@ -101,45 +101,45 @@ theorem go_denote_eq (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
   generalize hgo : go aig input distance curr hcurr s = res
   unfold go at hgo
   split at hgo
-  . dsimp only at hgo
+  · dsimp only at hgo
     cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       split at hgo
-      . split
-        . rw [← hgo]
+      · split
+        · rw [← hgo]
           rw [go_get]
           rw [AIG.RefVec.get_push_ref_eq']
-          . rw [go_denote_mem_prefix]
-            . simp [heq]
-            . simp [Ref.hgate]
-          . rw [heq]
-        . omega
-      . split
-        . omega
-        . rw [← hgo]
+          · rw [go_denote_mem_prefix]
+            · simp [heq]
+            · simp [Ref.hgate]
+          · rw [heq]
+        · omega
+      · split
+        · omega
+        · rw [← hgo]
           rw [go_get]
           rw [AIG.RefVec.get_push_ref_eq']
-          . rw [go_denote_mem_prefix]
-            . simp
-            . simp [Ref.hgate]
-          . rw [heq]
+          · rw [go_denote_mem_prefix]
+            · simp
+            · simp [Ref.hgate]
+          · rw [heq]
     | inr =>
       split at hgo
-      . split
+      · split
         all_goals
           next hidx =>
             rw [← hgo]
             rw [go_denote_eq]
-            . simp [hidx]
-            . omega
-      . split
-        . omega
-        . next hidx =>
+            · simp [hidx]
+            · omega
+      · split
+        · omega
+        · next hidx =>
           rw [← hgo]
           rw [go_denote_eq]
-          . simp [hidx]
-          . omega
-  . omega
+          · simp [hidx]
+          · omega
+  · omega
 termination_by w - curr
 
 end blastShiftRightConst
@@ -175,11 +175,11 @@ theorem go_get (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
   intro idx hidx
   unfold go
   split
-  . split
+  · split
     all_goals
       rw [go_get]
       rw [AIG.RefVec.get_push_ref_lt]
-  . simp only [get, Ref.mk.injEq]
+  · simp only [get, Ref.mk.injEq]
     have : curr = w := by omega
     subst this
     simp
@@ -204,26 +204,26 @@ theorem go_denote_eq (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
   generalize hgo : go input distance curr hcurr s = res
   unfold go at hgo
   split at hgo
-  . cases Nat.eq_or_lt_of_le hidx2 with
+  · cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       split at hgo
-      . next hlt =>
+      · next hlt =>
         rw [heq] at hlt
         simp only [hlt, ↓reduceDIte]
         dsimp only at hgo
         rw [← hgo]
         rw [go_get]
         rw [AIG.RefVec.get_push_ref_eq']
-        . simp [heq]
-        . omega
-      . next hlt =>
+        · simp [heq]
+        · omega
+      · next hlt =>
         rw [heq] at hlt
         simp only [hlt, ↓reduceDIte]
         dsimp only at hgo
         rw [← hgo]
         rw [go_get]
         rw [AIG.RefVec.get_push_ref_eq']
-        . simp [heq]
+        · simp [heq]
     | inr =>
       split at hgo
       all_goals
@@ -232,9 +232,9 @@ theorem go_denote_eq (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
           next hidx =>
             rw [← hgo]
             rw [go_denote_eq]
-            . simp [hidx]
-            . omega
-  . omega
+            · simp [hidx]
+            · omega
+  · omega
 
 end blastArithShiftRightConst
 
@@ -279,8 +279,8 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
   unfold twoPowShift at hg
   dsimp only at hg
   split at hg
-  . split
-    . next hif1 =>
+  · split
+    · next hif1 =>
       rw [← hg]
       simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq,
         denote_blastShiftRightConst]
@@ -291,13 +291,13 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
         apply Nat.mod_eq_of_lt
         apply Nat.pow_lt_pow_of_lt <;> omega
       split
-      . rw [hleft]
+      · rw [hleft]
         simp [hmod]
-      . simp only [BitVec.ushiftRight_eq', BitVec.toNat_twoPow, BitVec.getLsb_ushiftRight,
+      · simp only [BitVec.ushiftRight_eq', BitVec.toNat_twoPow, BitVec.getLsb_ushiftRight,
         Bool.false_eq]
         apply BitVec.getLsb_ge
         omega
-    . next hif1 =>
+    · next hif1 =>
       simp only [Bool.not_eq_true] at hif1
       rw [← hg]
       simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq,
@@ -308,7 +308,7 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftRightConst)]
       rw [hleft]
       simp
-  . have : rhs.getLsb pow = false := by
+  · have : rhs.getLsb pow = false := by
       apply BitVec.getLsb_ge
       dsimp only
       omega
@@ -335,18 +335,18 @@ theorem go_denote_eq (aig : AIG α) (distance : AIG.RefVec aig n) (curr : Nat)
   unfold go at hgo
   dsimp only at hgo
   split at hgo
-  . rw [← hgo]
+  · rw [← hgo]
     rw [go_denote_eq]
-    . intro idx hidx
+    · intro idx hidx
       simp only [BitVec.ushiftRightRec_succ]
       rw [twoPowShift_eq (lhs := BitVec.ushiftRightRec lhs rhs curr)]
-      . simp [hacc]
-      . simp [hright]
-    . intro idx hidx
+      · simp [hacc]
+      · simp [hright]
+    · intro idx hidx
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := twoPowShift)]
-      . simp [hright]
-      . simp [Ref.hgate]
-  . have : curr = n - 1 := by omega
+      · simp [hright]
+      · simp [Ref.hgate]
+  · have : curr = n - 1 := by omega
     rw [← hgo]
     simp [hacc, this]
 termination_by n - 1 - curr
@@ -372,22 +372,22 @@ theorem denote_blastShiftRight (aig : AIG α) (target : ArbitraryShiftTarget aig
   unfold blastShiftRight at hres
   dsimp only at hres
   split at hres
-  . next hzero =>
+  · next hzero =>
     dsimp only
     subst hzero
     rw [← hres]
     simp [hleft, BitVec.and_twoPow]
-  . rw [← hres]
+  · rw [← hres]
     rw [blastShiftRight.go_denote_eq]
-    . intro idx hidx
+    · intro idx hidx
       simp only [BitVec.ushiftRightRec_zero]
       rw [blastShiftRight.twoPowShift_eq]
-      . simp [hleft]
-      . simp [hright]
-    . intros
+      · simp [hleft]
+      · simp [hright]
+    · intros
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftRight.twoPowShift)]
-      . simp [hright]
-      . simp [Ref.hgate]
+      · simp [hright]
+      · simp [Ref.hgate]
 
 end bitblast
 end BVExpr

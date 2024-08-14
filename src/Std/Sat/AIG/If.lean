@@ -73,12 +73,12 @@ instance : LawfulOperator α TernaryInput mkIfCached where
     rw [LawfulOperator.decl_eq (f := mkAndCached)]
     rw [LawfulOperator.decl_eq (f := mkNotCached)]
     rw [LawfulOperator.decl_eq (f := mkAndCached)]
-    . apply LawfulOperator.lt_size_of_lt_aig_size (f := mkAndCached)
+    · apply LawfulOperator.lt_size_of_lt_aig_size (f := mkAndCached)
       omega
-    . apply LawfulOperator.lt_size_of_lt_aig_size (f := mkNotCached)
+    · apply LawfulOperator.lt_size_of_lt_aig_size (f := mkNotCached)
       apply LawfulOperator.lt_size_of_lt_aig_size (f := mkAndCached)
       omega
-    . apply LawfulOperator.lt_size_of_lt_aig_size (f := mkAndCached)
+    · apply LawfulOperator.lt_size_of_lt_aig_size (f := mkAndCached)
       apply LawfulOperator.lt_size_of_lt_aig_size (f := mkNotCached)
       apply LawfulOperator.lt_size_of_lt_aig_size (f := mkAndCached)
       omega
@@ -98,12 +98,12 @@ theorem denote_mkIfCached {aig : AIG α} {input : TernaryInput aig} :
   simp only [TernaryInput.cast, Ref.cast_eq, id_eq, Int.reduceNeg, denote_mkOrCached,
     denote_projected_entry, denote_mkAndCached, denote_mkNotCached]
   congr 2
-  . rw [LawfulOperator.denote_mem_prefix]
+  · rw [LawfulOperator.denote_mem_prefix]
     rw [LawfulOperator.denote_mem_prefix]
-    . simp
-    . simp [Ref.hgate]
-  . rw [LawfulOperator.denote_mem_prefix]
-  . rw [LawfulOperator.denote_mem_prefix]
+    · simp
+    · simp [Ref.hgate]
+  · rw [LawfulOperator.denote_mem_prefix]
+  · rw [LawfulOperator.denote_mem_prefix]
     rw [LawfulOperator.denote_mem_prefix]
 
 namespace RefVec
@@ -144,9 +144,9 @@ theorem go_le_size (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (discr : Ref
   unfold go
   dsimp only
   split
-  . refine Nat.le_trans ?_ (by apply go_le_size)
+  · refine Nat.le_trans ?_ (by apply go_le_size)
     apply LawfulOperator.le_size (f := mkIfCached)
-  . simp
+  · simp
 termination_by w - curr
 
 theorem go_decl_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (discr : Ref aig)
@@ -157,13 +157,13 @@ theorem go_decl_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (discr : Ref
   unfold go at hgo
   dsimp only at hgo
   split at hgo
-  . rw [← hgo]
+  · rw [← hgo]
     intro idx h1 h2
     rw [go_decl_eq]
     rw [AIG.LawfulOperator.decl_eq (f := AIG.mkIfCached)]
     apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkIfCached)
     assumption
-  . simp [← hgo]
+  · simp [← hgo]
 termination_by w - curr
 
 end ite
@@ -191,16 +191,16 @@ theorem go_get_aux {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (d
   unfold go at hgo
   dsimp only at hgo
   split at hgo
-  . rw [← hgo]
+  · rw [← hgo]
     intros
     rw [go_get_aux]
     rw [AIG.RefVec.get_push_ref_lt]
-    . simp only [Ref.cast, Ref.mk.injEq]
+    · simp only [Ref.cast, Ref.mk.injEq]
       rw [AIG.RefVec.get_cast]
-      . simp
-      . assumption
-    . apply go_le_size
-  . rw [← hgo]
+      · simp
+      · assumption
+    · apply go_le_size
+  · rw [← hgo]
     simp only [Nat.le_refl, get, Ref.gate_cast, Ref.mk.injEq, true_implies]
     have : curr = w := by omega
     subst this
@@ -227,9 +227,9 @@ theorem go_denote_mem_prefix {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr
     ⟦aig, ⟨start, hstart⟩, assign⟧ := by
   apply denote.eq_of_isPrefix (entry := ⟨aig, start,hstart⟩)
   apply IsPrefix.of
-  . intros
+  · intros
     apply go_decl_eq
-  . intros
+  · intros
     apply go_le_size
 
 theorem denote_go {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (discr : Ref aig)
@@ -252,28 +252,28 @@ theorem denote_go {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (di
   unfold go at hgo
   dsimp only at hgo
   split at hgo
-  . cases Nat.eq_or_lt_of_le hidx2 with
+  · cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       subst heq
       rw [← hgo]
       rw [go_get]
       rw [AIG.RefVec.get_push_ref_eq']
-      . rw [go_denote_mem_prefix]
-        . simp
-        . simp [Ref.hgate]
-      . omega
+      · rw [go_denote_mem_prefix]
+        · simp
+        · simp [Ref.hgate]
+      · omega
     | inr heq =>
       rw [← hgo]
       rw [denote_go]
-      . rw [LawfulOperator.denote_mem_prefix (f := mkIfCached)]
+      · rw [LawfulOperator.denote_mem_prefix (f := mkIfCached)]
         rw [LawfulOperator.denote_mem_prefix (f := mkIfCached)]
         rw [LawfulOperator.denote_mem_prefix (f := mkIfCached)]
-        . simp
-        . simp [Ref.hgate]
-        . simp [Ref.hgate]
-        . simp [Ref.hgate]
-      . omega
-  . omega
+        · simp
+        · simp [Ref.hgate]
+        · simp [Ref.hgate]
+        · simp [Ref.hgate]
+      · omega
+  · omega
 termination_by w - curr
 
 end ite

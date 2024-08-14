@@ -45,10 +45,10 @@ theorem blastVar.go_le_size {aig : AIG BVBit} (curr : Nat) (s : AIG.RefVec aig c
     aig.decls.size ≤ (go aig w a curr s hcurr).aig.decls.size := by
   unfold go
   split
-  . dsimp only
+  · dsimp only
     refine Nat.le_trans ?_ (by apply go_le_size)
     apply AIG.LawfulOperator.le_size (f := AIG.mkAtomCached)
-  . simp
+  · simp
 termination_by w - curr
 
 theorem blastVar.go_decl_eq {aig : AIG BVBit} (curr : Nat) (s : AIG.RefVec aig curr) (a : Nat)
@@ -57,14 +57,14 @@ theorem blastVar.go_decl_eq {aig : AIG BVBit} (curr : Nat) (s : AIG.RefVec aig c
   generalize hgo : go aig w a curr s hcurr = res
   unfold go at hgo
   split at hgo
-  . dsimp only at hgo
+  · dsimp only at hgo
     rw [← hgo]
     intro curr h1 h2
     rw [blastVar.go_decl_eq]
     rw [AIG.LawfulOperator.decl_eq (f := AIG.mkAtomCached)]
     apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkAtomCached)
     assumption
-  . dsimp only at hgo
+  · dsimp only at hgo
     rw [← hgo]
     intros
     simp

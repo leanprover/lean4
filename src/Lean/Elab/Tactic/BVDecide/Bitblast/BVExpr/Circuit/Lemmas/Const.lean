@@ -34,17 +34,17 @@ theorem go_get_aux (aig : AIG α) (c : BitVec w) (curr : Nat) (hcurr : curr ≤ 
   generalize hgo : go aig c curr s hcurr = res
   unfold go at hgo
   split at hgo
-  . dsimp only at hgo
+  · dsimp only at hgo
     rw [← hgo]
     intro hfoo
     rw [go_get_aux]
     rw [AIG.RefVec.get_push_ref_lt]
-    . simp only [Ref.cast, Ref.mk.injEq]
+    · simp only [Ref.cast, Ref.mk.injEq]
       rw [AIG.RefVec.get_cast]
-      . simp
-      . assumption
-    . apply go_le_size
-  . dsimp only at hgo
+      · simp
+      · assumption
+    · apply go_le_size
+  · dsimp only at hgo
     rw [← hgo]
     simp only [Nat.le_refl, get, Ref.gate_cast, Ref.mk.injEq, true_implies]
     obtain rfl : curr = w := by omega
@@ -71,9 +71,9 @@ theorem go_denote_mem_prefix (aig : AIG α) (idx : Nat) (hidx)
     ⟦aig, ⟨start, hstart⟩, assign⟧ := by
   apply denote.eq_of_isPrefix (entry := ⟨aig, start,hstart⟩)
   apply IsPrefix.of
-  . intros
+  · intros
     apply go_decl_eq
-  . intros
+  · intros
     apply go_le_size
 
 theorem go_denote_eq (aig : AIG α) (c : BitVec w) (assign : α → Bool)
@@ -92,22 +92,22 @@ theorem go_denote_eq (aig : AIG α) (c : BitVec w) (assign : α → Bool)
   generalize hgo : go aig c curr s hcurr = res
   unfold go at hgo
   split at hgo
-  . dsimp only at hgo
+  · dsimp only at hgo
     cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       rw [← hgo]
       rw [go_get]
       rw [AIG.RefVec.get_push_ref_eq']
-      . rw [← heq]
+      · rw [← heq]
         rw [go_denote_mem_prefix]
-        . simp
-        . simp [Ref.hgate]
-      . rw [heq]
+        · simp
+        · simp [Ref.hgate]
+      · rw [heq]
     | inr =>
       rw [← hgo]
       rw [go_denote_eq]
       omega
-  . omega
+  · omega
 termination_by w - curr
 
 end blastConst

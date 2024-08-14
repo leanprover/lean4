@@ -35,22 +35,22 @@ theorem go_eq_carry (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref 
   unfold go
   dsimp only
   split
-  . rw [go_eq_carry]
-    . congr 1
+  · rw [go_eq_carry]
+    · congr 1
       rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderCarry)]
-    . intros
+    · intros
       rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderCarry)]
-      . simp [hleft]
-      . simp [Ref.hgate]
-    . intros
+      · simp [hleft]
+      · simp [Ref.hgate]
+    · intros
       rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderCarry)]
-      . simp [hright]
-      . simp [Ref.hgate]
-    . simp only [denote_projected_entry, blastAdd.denote_mkFullAdderCarry, BitVec.carry_succ]
+      · simp [hright]
+      · simp [Ref.hgate]
+    · simp only [denote_projected_entry, blastAdd.denote_mkFullAdderCarry, BitVec.carry_succ]
       rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderCarry)]
       rw [hleft, hright, hcin]
       rw [blastAdd.atLeastTwo_eq_halfAdder]
-  . have : w = curr := by omega
+  · have : w = curr := by omega
     rw [hcin]
     simp [this]
 termination_by w - curr
@@ -67,9 +67,9 @@ theorem mkOverflowBit_eq_carry (aig : AIG α) (input : OverflowInput aig) (lhs r
   unfold mkOverflowBit
   dsimp only
   apply mkOverflowBit.go_eq_carry
-  . assumption
-  . assumption
-  . simp [BitVec.carry_zero]
+  · assumption
+  · assumption
+  · simp [BitVec.carry_zero]
 
 end bitblast
 end BVExpr

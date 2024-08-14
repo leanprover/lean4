@@ -38,12 +38,12 @@ theorem relabel_atom {decls : Array (Decl α)} {r : α → β} {hidx : idx < dec
     ∃ x, decls[idx] = .atom x ∧ a = r x := by
   unfold relabel at h
   split at h
-  . contradiction
-  . next x heq =>
+  · contradiction
+  · next x heq =>
     injection h with h
     exists x
     simp [heq, h]
-  . contradiction
+  · contradiction
 
 theorem relabel_gate {decls : Array (Decl α)} {r : α → β} {hidx : idx < decls.size}
     (h : relabel r decls[idx] = .gate lhs rhs linv rinv) :
@@ -101,17 +101,17 @@ theorem denote_relabel (aig : AIG α) (r : α → β) (start : Nat) {hidx}
       =
     ⟦aig, ⟨start, by rw [← relabel_size_eq_size (r := r)]; omega⟩, (assign ∘ r)⟧ := by
   apply denote_idx_trichotomy
-  . intro b heq1
+  · intro b heq1
     have heq2 := relabel_const heq1
     rw [denote_idx_const heq1]
     rw [denote_idx_const heq2]
-  . intro a heq1
+  · intro a heq1
     rw [denote_idx_atom heq1]
     rcases relabel_atom heq1 with ⟨x, ⟨hlx, hrx⟩⟩
     rw [hrx] at heq1
     rw [denote_idx_atom hlx]
     simp [hrx]
-  . intro lhs rhs linv rinv heq1
+  · intro lhs rhs linv rinv heq1
     have heq2 := relabel_gate heq1
     rw [denote_idx_gate heq1]
     rw [denote_idx_gate heq2]
@@ -129,7 +129,7 @@ theorem relabel_unsat_iff [Nonempty α] {aig : AIG α} {r : α → β} {hidx1} {
     (hinj : ∀ x y, x ∈ aig → y ∈ aig → r x = r y → x = y) :
     (aig.relabel r).UnsatAt idx hidx1 ↔ aig.UnsatAt idx hidx2 := by
   constructor
-  . intro h assign
+  · intro h assign
     let g : β → α := fun b =>
       have em := Classical.propDecidable
       if h : ∃ a, a ∈ aig ∧ r a = b then h.choose else Classical.choice inferInstance
@@ -138,18 +138,18 @@ theorem relabel_unsat_iff [Nonempty α] {aig : AIG α} {r : α → β} {hidx1} {
     simp only [denote_relabel] at h'
     rw [← h']
     apply denote_congr
-    . intro a hmem
+    · intro a hmem
       simp only [Function.comp_apply, g]
       split
-      . next h =>
+      · next h =>
         rcases Exists.choose_spec h with ⟨_, heq⟩
         specialize hinj _ _ (by assumption) (by assumption) heq
         simp [hinj]
-      . next h =>
+      · next h =>
         simp only [not_exists, not_and] at h
         specialize h a hmem
         contradiction
-  . apply unsat_relabel
+  · apply unsat_relabel
 
 namespace Entrypoint
 

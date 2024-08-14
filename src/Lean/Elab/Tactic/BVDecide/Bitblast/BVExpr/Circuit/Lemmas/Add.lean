@@ -91,9 +91,9 @@ theorem go_denote_mem_prefix (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (c
     ⟦aig, ⟨start, hstart⟩, assign⟧ := by
   apply denote.eq_of_isPrefix (entry := ⟨aig, start,hstart⟩)
   apply IsPrefix.of
-  . intros
+  · intros
     apply go_decl_eq
-  . intros
+  · intros
     apply go_le_size
 
 theorem go_get_aux (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref aig)
@@ -110,16 +110,16 @@ theorem go_get_aux (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref a
   unfold go at hgo
   dsimp only at hgo
   split at hgo
-  . rw [← hgo]
+  · rw [← hgo]
     intro hfoo
     rw [go_get_aux]
     rw [AIG.RefVec.get_push_ref_lt]
-    . simp only [Ref.cast, Ref.mk.injEq]
+    · simp only [Ref.cast, Ref.mk.injEq]
       rw [AIG.RefVec.get_cast]
-      . simp
-      . assumption
-    . apply go_le_size
-  . rw [← hgo]
+      · simp
+      · assumption
+    · apply go_le_size
+  · rw [← hgo]
     simp only [Nat.le_refl, get, Ref.gate_cast, Ref.mk.injEq, true_implies]
     obtain rfl : curr = w := by omega
     simp
@@ -164,7 +164,7 @@ theorem go_denote_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref
   unfold go at hgo
   dsimp only at hgo
   split at hgo
-  . next hlt =>
+  · next hlt =>
     cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       rw [← hgo]
@@ -172,29 +172,29 @@ theorem go_denote_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref
       rw [AIG.RefVec.get_push_ref_eq' (hidx := by rw [heq])]
       simp only [← heq]
       rw [go_denote_mem_prefix]
-      . unfold mkFullAdder
+      · unfold mkFullAdder
         simp [hcin]
-      . simp only [Ref.gate_cast]
+      · simp only [Ref.gate_cast]
         apply Ref.hgate
     | inr hlt =>
       rw [← hgo]
       rw [go_denote_eq (lhsExpr := lhsExpr) (rhsExpr := rhsExpr) (curr := curr + 1)]
-      . rw [mkFullAdder_denote_mem_prefix]
+      · rw [mkFullAdder_denote_mem_prefix]
         rw [mkFullAdder_denote_mem_prefix]
-        . simp
-        . simp [Ref.hgate]
-        . simp [Ref.hgate]
-      . intro idx hidx
+        · simp
+        · simp [Ref.hgate]
+        · simp [Ref.hgate]
+      · intro idx hidx
         rw [mkFullAdder_denote_mem_prefix]
         rw [← hleft idx hidx]
-        . simp
-        . simp [Ref.hgate]
-      . intro idx hidx
+        · simp
+        · simp [Ref.hgate]
+      · intro idx hidx
         rw [mkFullAdder_denote_mem_prefix]
         rw [← hright idx hidx]
-        . simp
-        . simp [Ref.hgate]
-      . unfold mkFullAdder
+        · simp
+        · simp [Ref.hgate]
+      · unfold mkFullAdder
         simp only [Ref.cast_eq, id_eq, Int.reduceNeg, denote_projected_entry, denote_mkFullAdderCarry,
           FullAdderInput.lhs_cast, FullAdderInput.rhs_cast, FullAdderInput.cin_cast,
           BitVec.carry_succ]
@@ -203,8 +203,8 @@ theorem go_denote_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref
         rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderOut)]
         rw [hleft, hright, hcin]
         simp [atLeastTwo_eq_halfAdder]
-      . omega
-  . omega
+      · omega
+  · omega
 termination_by w - curr
 
 end blastAdd
@@ -219,25 +219,25 @@ theorem denote_blastAdd (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Boo
           (lhs + rhs).getLsb idx := by
   intro idx hidx
   rw [BitVec.getLsb_add]
-  . rw [← hleft idx hidx]
+  · rw [← hleft idx hidx]
     rw [← hright idx hidx]
     unfold blastAdd
     dsimp only
     rw [blastAdd.go_denote_eq _ 0 (by omega) _ _ _ _ assign lhs rhs _ _]
-    . simp only [BinaryRefVec.lhs_get_cast, Ref.cast_eq, BinaryRefVec.rhs_get_cast]
+    · simp only [BinaryRefVec.lhs_get_cast, Ref.cast_eq, BinaryRefVec.rhs_get_cast]
       rw [LawfulOperator.denote_mem_prefix (f := mkConstCached)]
       rw [LawfulOperator.denote_mem_prefix (f := mkConstCached)]
-    . simp
-    . omega
-    . intros
+    · simp
+    · omega
+    · intros
       simp only [BinaryRefVec.lhs_get_cast, Ref.cast_eq]
       rw [LawfulOperator.denote_mem_prefix (f := mkConstCached)]
       rw [hleft]
-    . intros
+    · intros
       simp only [BinaryRefVec.rhs_get_cast, Ref.cast_eq]
       rw [LawfulOperator.denote_mem_prefix (f := mkConstCached)]
       rw [hright]
-  . assumption
+  · assumption
 
 end bitblast
 end BVExpr

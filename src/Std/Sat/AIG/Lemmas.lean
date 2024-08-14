@@ -79,8 +79,8 @@ theorem mkGate_decl_eq idx (aig : AIG α) (input : GateInput aig) {h : idx < aig
     (aig.mkGate input).aig.decls[idx]'(by omega) = aig.decls[idx] := by
   simp only [mkGate, Array.get_push]
   split
-  . rfl
-  . contradiction
+  · rfl
+  · contradiction
 
 instance : LawfulOperator α GateInput mkGate where
   le_size := mkGate_le_size
@@ -101,27 +101,27 @@ theorem denote_mkGate {aig : AIG α} {input : GateInput aig} :
     lhs
     unfold denote denote.go
   split
-  . next heq =>
+  · next heq =>
     rw [mkGate, Array.get_push_eq] at heq
     contradiction
-  . next heq =>
+  · next heq =>
     rw [mkGate, Array.get_push_eq] at heq
     contradiction
-  . next heq =>
+  · next heq =>
     rw [mkGate, Array.get_push_eq] at heq
     injection heq with heq1 heq2 heq3 heq4
     dsimp only
     congr 2
-    . unfold denote
+    · unfold denote
       simp only [heq1]
       apply denote.go_eq_of_isPrefix
       apply LawfulOperator.isPrefix_aig
-    . simp [heq3]
-    . unfold denote
+    · simp [heq3]
+    · unfold denote
       simp only [heq2]
       apply denote.go_eq_of_isPrefix
       apply LawfulOperator.isPrefix_aig
-    . simp [heq4]
+    · simp [heq4]
 
 /--
 `AIG.mkAtom` never shrinks the underlying AIG.
@@ -137,8 +137,8 @@ theorem mkAtom_decl_eq (aig : AIG α) (var : α) (idx : Nat) {h : idx < aig.decl
     (aig.mkAtom var).aig.decls[idx]'hbound = aig.decls[idx] := by
   simp only [mkAtom, Array.get_push]
   split
-  . rfl
-  . contradiction
+  · rfl
+  · contradiction
 
 instance : LawfulOperator α (fun _ => α) mkAtom where
   le_size := mkAtom_le_size
@@ -151,14 +151,14 @@ theorem denote_mkAtom {aig : AIG α} :
     ⟦(aig.mkAtom var), assign⟧ = assign var := by
   unfold denote denote.go
   split
-  . next heq =>
+  · next heq =>
     rw [mkAtom, Array.get_push_eq] at heq
     contradiction
-  . next heq =>
+  · next heq =>
     rw [mkAtom, Array.get_push_eq] at heq
     injection heq with heq
     rw [heq]
-  . next heq =>
+  · next heq =>
     rw [mkAtom, Array.get_push_eq] at heq
     contradiction
 
@@ -177,8 +177,8 @@ theorem mkConst_decl_eq (aig : AIG α) (val : Bool) (idx : Nat) {h : idx < aig.d
     (aig.mkConst val).aig.decls[idx]'(by omega) = aig.decls[idx] := by
   simp only [mkConst, Array.get_push]
   split
-  . rfl
-  . contradiction
+  · rfl
+  · contradiction
 
 instance : LawfulOperator α (fun _ => Bool) mkConst where
   le_size := mkConst_le_size
@@ -190,14 +190,14 @@ instance : LawfulOperator α (fun _ => Bool) mkConst where
 theorem denote_mkConst {aig : AIG α} : ⟦(aig.mkConst val), assign⟧ = val := by
   unfold denote denote.go
   split
-  . next heq =>
+  · next heq =>
     rw [mkConst, Array.get_push_eq] at heq
     injection heq with heq
     rw [heq]
-  . next heq =>
+  · next heq =>
     rw [mkConst, Array.get_push_eq] at heq
     contradiction
-  . next heq =>
+  · next heq =>
     rw [mkConst, Array.get_push_eq] at heq
     contradiction
 
@@ -233,9 +233,9 @@ theorem denote_idx_gate {aig : AIG α} {hstart} (h : aig.decls[start] = .gate lh
     lhs
     unfold denote.go
   split
-  . simp_all
-  . simp_all
-  . next heq =>
+  · simp_all
+  · simp_all
+  · next heq =>
     rw [h] at heq
     simp_all
 
@@ -260,9 +260,9 @@ theorem denote_idx_trichotomy {aig : AIG α} {hstart : start < aig.decls.size}
     ) :
     ⟦aig, ⟨start, hstart⟩, assign⟧ = res := by
   apply idx_trichotomy aig hstart
-  . exact hconst
-  . exact hatom
-  . exact hgate
+  · exact hconst
+  · exact hatom
+  · exact hgate
 
 theorem mem_def {aig : AIG α} {a : α} : (a ∈ aig) ↔ ((.atom a) ∈ aig.decls) := by
   simp [Membership.mem, Mem]
@@ -271,14 +271,14 @@ theorem denote_congr (assign1 assign2 : α → Bool) (aig : AIG α) (idx : Nat)
     (hidx : idx < aig.decls.size) (h : ∀ a, a ∈ aig → assign1 a = assign2 a) :
     ⟦aig, ⟨idx, hidx⟩, assign1⟧ = ⟦aig, ⟨idx, hidx⟩, assign2⟧ := by
   apply denote_idx_trichotomy
-  . intro b heq
+  · intro b heq
     simp [denote_idx_const heq]
-  . intro a heq
+  · intro a heq
     simp only [denote_idx_atom heq]
     apply h
     rw [mem_def, ← heq, Array.mem_def]
     apply Array.getElem_mem_data
-  . intro lhs rhs linv rinv heq
+  · intro lhs rhs linv rinv heq
     simp only [denote_idx_gate heq]
     have := aig.invariant hidx heq
     rw [denote_congr assign1 assign2 aig lhs (by omega) h]

@@ -33,22 +33,22 @@ theorem go_get_aux (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWidth
   generalize hgo : go aig w input newWidth curr hcurr s = res
   unfold go at hgo
   split at hgo
-  . dsimp only at hgo
+  · dsimp only at hgo
     split at hgo
-    . rw [← hgo]
+    · rw [← hgo]
       intros
       rw [go_get_aux]
       rw [AIG.RefVec.get_push_ref_lt]
-    . rw [← hgo]
+    · rw [← hgo]
       intros
       rw [go_get_aux]
       rw [AIG.RefVec.get_push_ref_lt]
-      . simp only [Ref.cast, Ref.mk.injEq]
+      · simp only [Ref.cast, Ref.mk.injEq]
         rw [AIG.RefVec.get_cast]
-        . simp
-        . assumption
-      . apply go_le_size
-  . dsimp only at hgo
+        · simp
+        · assumption
+      · apply go_le_size
+  · dsimp only at hgo
     rw [← hgo]
     simp only [Nat.le_refl, get, Ref.gate_cast, Ref.mk.injEq, true_implies]
     have : curr = newWidth := by omega
@@ -76,9 +76,9 @@ theorem go_denote_mem_prefix (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w)
     ⟦aig, ⟨start, hstart⟩, assign⟧ := by
   apply denote.eq_of_isPrefix (entry := ⟨aig, start,hstart⟩)
   apply IsPrefix.of
-  . intros
+  · intros
     apply go_decl_eq
-  . intros
+  · intros
     apply go_le_size
 
 theorem go_denote_eq (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWidth curr : Nat)
@@ -101,42 +101,42 @@ theorem go_denote_eq (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWid
   generalize hgo : go aig w input newWidth curr hcurr s = res
   unfold go at hgo
   split at hgo
-  . dsimp only at hgo
+  · dsimp only at hgo
     cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       split at hgo
-      . next hsplit =>
+      · next hsplit =>
         rw [heq] at hsplit
         simp only [hsplit, ↓reduceDIte]
         rw [← hgo]
         rw [go_get]
         rw [AIG.RefVec.get_push_ref_eq']
-        . rw [go_denote_mem_prefix]
-          . simp [heq]
-          . simp [Ref.hgate]
-        . omega
-      . next hsplit =>
+        · rw [go_denote_mem_prefix]
+          · simp [heq]
+          · simp [Ref.hgate]
+        · omega
+      · next hsplit =>
         rw [heq] at hsplit
         simp only [hsplit, ↓reduceDIte]
         rw [← hgo]
         rw [go_get]
         rw [AIG.RefVec.get_push_ref_eq']
-        . rw [go_denote_mem_prefix]
-          . simp [heq]
-          . simp [Ref.hgate]
-        . omega
+        · rw [go_denote_mem_prefix]
+          · simp [heq]
+          · simp [Ref.hgate]
+        · omega
     | inr =>
       split at hgo
-      . rw [← hgo]
+      · rw [← hgo]
         rw [go_denote_eq]
         omega
-      . rw [← hgo]
+      · rw [← hgo]
         rw [go_denote_eq]
-        . split
-          . omega
-          . rfl
-        . omega
-  . omega
+        · split
+          · omega
+          · rfl
+        · omega
+  · omega
 termination_by newWidth - curr
 
 end blastZeroExtend

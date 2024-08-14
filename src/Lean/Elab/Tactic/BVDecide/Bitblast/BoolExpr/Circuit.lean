@@ -115,9 +115,9 @@ theorem ofBoolExprCached.go_decl_eq (idx) (aig : AIG β) (h : idx < aig.decls.si
 theorem ofBoolExprCached.go_isPrefix_aig {aig : AIG β} :
     IsPrefix aig.decls (go aig expr atomHandler).val.aig.decls := by
   apply IsPrefix.of
-  . intro idx h
+  · intro idx h
     apply ofBoolExprCached.go_decl_eq
-  . apply ofBoolExprCached.go_decls_size_le
+  · apply ofBoolExprCached.go_decls_size_le
 
 @[simp]
 theorem ofBoolExprCached.go_denote_entry (entry : Entrypoint β) {h} :

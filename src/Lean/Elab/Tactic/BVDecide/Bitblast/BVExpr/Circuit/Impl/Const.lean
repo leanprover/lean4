@@ -43,10 +43,10 @@ theorem blastConst.go_le_size {aig : AIG α} (curr : Nat) (s : AIG.RefVec aig cu
     aig.decls.size ≤ (go aig val curr s hcurr).aig.decls.size := by
   unfold go
   split
-  . dsimp only
+  · dsimp only
     refine Nat.le_trans ?_ (by apply go_le_size)
     apply AIG.LawfulOperator.le_size
-  . simp
+  · simp
 termination_by w - curr
 
 theorem blastConst.go_decl_eq {aig : AIG α} (i : Nat) (s : AIG.RefVec aig i) (val : BitVec w)
@@ -56,14 +56,14 @@ theorem blastConst.go_decl_eq {aig : AIG α} (i : Nat) (s : AIG.RefVec aig i) (v
   generalize hgo : go aig val i s hi = res
   unfold go at hgo
   split at hgo
-  . dsimp only at hgo
+  · dsimp only at hgo
     rw [← hgo]
     intro curr h1 h2
     rw [blastConst.go_decl_eq]
     rw [AIG.LawfulOperator.decl_eq (f := AIG.mkConstCached)]
     apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkConstCached)
     assumption
-  . dsimp only at hgo
+  · dsimp only at hgo
     rw [← hgo]
     intros
     simp

@@ -54,12 +54,12 @@ theorem go_get_aux (aig : AIG α) (n : Nat) (curr : Nat) (hcurr : curr ≤ n)
   intro idx hidx
   unfold go
   split
-  . dsimp only
+  · dsimp only
     rw [go_get_aux]
     rw [AIG.RefVec.get_append]
     simp only [hidx, ↓reduceDIte]
     omega
-  . dsimp only
+  · dsimp only
     simp only [RefVec.get, Ref.mk.injEq]
     have : curr = n := by omega
     subst this
@@ -78,22 +78,22 @@ theorem go_get (aig : AIG α) (n : Nat) (curr : Nat) (hcurr : curr ≤ n)
   unfold go
   dsimp only
   split
-  . cases Nat.lt_or_ge idx (w * (curr + 1)) with
+  · cases Nat.lt_or_ge idx (w * (curr + 1)) with
     | inl h =>
       rw [go_get_aux]
       rw [AIG.RefVec.get_append]
-      . have : ¬ (idx < w * curr) := by omega
+      · have : ¬ (idx < w * curr) := by omega
         simp only [this, ↓reduceDIte]
         congr 1
         rw [← Nat.sub_mul_mod (k := curr)]
-        . rw [Nat.mod_eq_of_lt]
+        · rw [Nat.mod_eq_of_lt]
           apply Nat.sub_lt_left_of_lt_add <;> assumption
-        . assumption
-      . simpa using h
+        · assumption
+      · simpa using h
     | inr h =>
       rw [go_get]
       assumption
-  . have : curr = n := by omega
+  · have : curr = n := by omega
     rw [this] at hidx2
     omega
 termination_by n - curr

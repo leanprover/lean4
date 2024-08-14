@@ -55,9 +55,9 @@ theorem go_le_size {aig : AIG α} {cin} {lhs rhs : AIG.RefVec aig w} :
   unfold go
   dsimp only
   split
-  . refine Nat.le_trans ?_ (by apply go_le_size)
+  · refine Nat.le_trans ?_ (by apply go_le_size)
     apply AIG.LawfulOperator.le_size (f := mkFullAdderCarry)
-  . dsimp only
+  · dsimp only
     omega
 termination_by w - curr
 
@@ -68,13 +68,13 @@ theorem go_decl_eq {aig : AIG α} {cin} {lhs rhs : AIG.RefVec aig w} :
   unfold go at hgo
   dsimp only at hgo
   split at hgo
-  . rw [← hgo]
+  · rw [← hgo]
     intros
     rw [go_decl_eq]
     rw [AIG.LawfulOperator.decl_eq (f := mkFullAdderCarry)]
     apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := mkFullAdderCarry)
     assumption
-  . simp [← hgo]
+  · simp [← hgo]
 termination_by w - curr
 
 instance : AIG.LawfulOperator α OverflowInput mkOverflowBit where

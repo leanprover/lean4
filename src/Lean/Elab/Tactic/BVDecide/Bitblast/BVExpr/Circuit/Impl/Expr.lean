@@ -217,8 +217,8 @@ theorem bitblast.go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) :
       have := (bitblast.go aig lhs).property
       rw [AIG.LawfulVecOperator.decl_eq]
       rw [rih, lih]
-      . omega
-      . apply Nat.lt_of_lt_of_le h1 -- omega cannot do this :(
+      · omega
+      · apply Nat.lt_of_lt_of_le h1 -- omega cannot do this :(
         apply Nat.le_trans <;> assumption
   | un op expr ih =>
     match op with
@@ -248,8 +248,8 @@ theorem bitblast.go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) :
     have := (go (go aig lhs).1.aig rhs).property
     rw [AIG.LawfulVecOperator.decl_eq (f := blastAppend)]
     rw [rih, lih]
-    . omega
-    . apply Nat.lt_of_lt_of_le h1
+    · omega
+    · apply Nat.lt_of_lt_of_le h1
       apply Nat.le_trans <;> assumption
   | replicate n inner ih =>
     dsimp only [go]
@@ -270,8 +270,8 @@ theorem bitblast.go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) :
     have := (go (go aig lhs).1.aig rhs).property
     rw [AIG.LawfulVecOperator.decl_eq (f := blastShiftLeft)]
     rw [rih, lih]
-    . omega
-    . apply Nat.lt_of_lt_of_le h1
+    · omega
+    · apply Nat.lt_of_lt_of_le h1
       apply Nat.le_trans <;> assumption
   | shiftRight lhs rhs lih rih =>
     dsimp only [go]
@@ -280,8 +280,8 @@ theorem bitblast.go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) :
     have := (go (go aig lhs).1.aig rhs).property
     rw [AIG.LawfulVecOperator.decl_eq (f := blastShiftRight)]
     rw [rih, lih]
-    . omega
-    . apply Nat.lt_of_lt_of_le h1
+    · omega
+    · apply Nat.lt_of_lt_of_le h1
       apply Nat.le_trans <;> assumption
 
 instance : AIG.LawfulVecOperator BVBit (fun _ w => BVExpr w) bitblast where

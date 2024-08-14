@@ -35,14 +35,14 @@ instance : AIG.LawfulOperator α GetLsbTarget blastGetLsb where
     intros
     unfold blastGetLsb
     split
-    . simp
-    . apply AIG.LawfulOperator.le_size (f := AIG.mkConstCached)
+    · simp
+    · apply AIG.LawfulOperator.le_size (f := AIG.mkConstCached)
   decl_eq := by
     intros
     unfold blastGetLsb
     split
-    . simp
-    . rw [AIG.LawfulOperator.decl_eq (f := AIG.mkConstCached)]
+    · simp
+    · rw [AIG.LawfulOperator.decl_eq (f := AIG.mkConstCached)]
 
 end BVPred
 

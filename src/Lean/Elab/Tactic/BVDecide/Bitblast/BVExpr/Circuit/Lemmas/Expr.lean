@@ -49,9 +49,9 @@ theorem go_denote_mem_prefix (aig : AIG BVBit) (expr : BVExpr w) (assign : Assig
     ⟦aig, ⟨start, hstart⟩, assign.toAIGAssignment⟧ := by
   apply denote.eq_of_isPrefix (entry := ⟨aig, start,hstart⟩)
   apply IsPrefix.of
-  . intros
+  · intros
     apply go_decl_eq
-  . intros
+  · intros
     apply (go aig expr).property
 
 theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
@@ -75,10 +75,10 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
     simp only [go, denote_blastAppend, RefVec.get_cast, Ref.cast_eq, eval_append,
       BitVec.getLsb_append]
     split
-    . next hsplit =>
+    · next hsplit =>
       simp only [hsplit, decide_True, cond_true]
       rw [rih]
-    . next hsplit =>
+    · next hsplit =>
       simp only [hsplit, decide_False, cond_false]
       rw [go_denote_mem_prefix, lih]
   | replicate n expr ih => simp [go, ih, hidx]
@@ -91,61 +91,61 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
     cases Nat.eq_or_lt_of_le this with
     | inl heq =>
       rw [blastSignExtend_empty_eq_zeroExtend] at hgo
-      . rw [← hgo]
+      · rw [← hgo]
         simp only [eval_signExtend]
         rw [BitVec.signExtend_eq_not_zeroExtend_not_of_msb_false]
-        . simp only [denote_blastZeroExtend, ih, dite_eq_ite, Bool.if_false_right,
+        · simp only [denote_blastZeroExtend, ih, dite_eq_ite, Bool.if_false_right,
             BitVec.getLsb_zeroExtend, hidx, decide_True, Bool.true_and, Bool.and_iff_right_iff_imp,
             decide_eq_true_eq]
           apply BitVec.lt_of_getLsb
-        . subst heq
+        · subst heq
           rw [BitVec.msb_zero_length]
-      . simp [heq]
+      · simp [heq]
     | inr hlt =>
       rw [← hgo]
       rw [denote_blastSignExtend]
       simp only [eval_signExtend]
       rw [BitVec.getLsb_signExtend]
-      . simp only [hidx, decide_True, Bool.true_and]
+      · simp only [hidx, decide_True, Bool.true_and]
         split
-        . rw [ih]
-        . rw [BitVec.msb_eq_getLsb_last]
+        · rw [ih]
+        · rw [BitVec.msb_eq_getLsb_last]
           rw [ih]
-      . dsimp only; omega
+      · dsimp only; omega
   | extract hi lo inner ih =>
     simp only [go, denote_blastExtract, Bool.if_false_right, eval_extract,
       BitVec.getLsb_extract]
     have : idx ≤ hi - lo := by omega
     simp only [this, decide_True, Bool.true_and]
     split
-    . next hsplit =>
+    · next hsplit =>
       rw [ih]
-    . apply Eq.symm
+    · apply Eq.symm
       apply BitVec.getLsb_ge
       omega
   | shiftLeft lhs rhs lih rih =>
     simp only [go, eval_shiftLeft]
     apply denote_blastShiftLeft
-    . intros
+    · intros
       dsimp only
       rw [go_denote_mem_prefix]
       rw [← lih (aig := aig)]
-      . simp
-      . assumption
-      . simp [Ref.hgate]
-    . intros
+      · simp
+      · assumption
+      · simp [Ref.hgate]
+    · intros
       rw [← rih]
   | shiftRight lhs rhs lih rih =>
     simp only [go, eval_shiftRight]
     apply denote_blastShiftRight
-    . intros
+    · intros
       dsimp only
       rw [go_denote_mem_prefix]
       rw [← lih (aig := aig)]
-      . simp
-      . assumption
-      . simp [Ref.hgate]
-    . intros
+      · simp
+      · assumption
+      · simp [Ref.hgate]
+    · intros
       rw [← rih]
   | bin lhs op rhs lih rih =>
     cases op with
@@ -173,26 +173,26 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
     | add =>
       simp only [go, eval_bin, BVBinOp.eval_add]
       apply denote_blastAdd
-      . intros
+      · intros
         dsimp only
         rw [go_denote_mem_prefix]
         rw [← lih (aig := aig)]
-        . simp
-        . assumption
-        . simp [Ref.hgate]
-      . intros
+        · simp
+        · assumption
+        · simp [Ref.hgate]
+      · intros
         rw [← rih]
     | mul =>
       simp only [go, eval_bin, BVBinOp.eval_mul]
       apply denote_blastMul
-      . intros
+      · intros
         dsimp only
         rw [go_denote_mem_prefix]
         rw [← lih (aig := aig)]
-        . simp
-        . assumption
-        . simp [Ref.hgate]
-      . intros
+        · simp
+        · assumption
+        · simp [Ref.hgate]
+      · intros
         rw [← rih]
   | un op expr ih =>
     cases op with

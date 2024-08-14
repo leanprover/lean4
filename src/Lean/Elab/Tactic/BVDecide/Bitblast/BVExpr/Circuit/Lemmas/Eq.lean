@@ -29,13 +29,13 @@ theorem mkEq_denote_eq (aig : AIG α) (pair : AIG.BinaryRefVec aig w) (assign : 
   rw [Bool.eq_iff_iff]
   simp only [RefVec.denote_fold_and, RefVec.denote_zip, denote_mkBEqCached, beq_iff_eq]
   constructor
-  . intro h
+  · intro h
     ext
     rw [← hleft, ← hright]
-    . simp [h]
-    . omega
-    . omega
-  . intro h idx hidx
+    · simp [h]
+    · omega
+    · omega
+  · intro h idx hidx
     rw [hleft, hright]
     simp [h]
 

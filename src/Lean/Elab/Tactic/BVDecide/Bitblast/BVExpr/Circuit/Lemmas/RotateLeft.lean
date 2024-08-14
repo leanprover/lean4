@@ -33,13 +33,13 @@ theorem go_get_aux (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
   intro idx hidx
   unfold go
   split
-  . dsimp only
+  · dsimp only
     split
-    . rw [go_get_aux]
+    · rw [go_get_aux]
       rw [AIG.RefVec.get_push_ref_lt]
-    . rw [go_get_aux]
+    · rw [go_get_aux]
       rw [AIG.RefVec.get_push_ref_lt]
-  . dsimp only
+  · dsimp only
     simp only [RefVec.get, Ref.mk.injEq]
     obtain rfl : curr = w := by omega
     simp
@@ -60,29 +60,29 @@ theorem go_get (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
   intro idx hidx1 hidx2
   unfold go
   split
-  . dsimp only
+  · dsimp only
     cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       split
-      . split
-        . rw [go_get_aux]
+      · split
+        · rw [go_get_aux]
           rw [AIG.RefVec.get_push_ref_eq']
-          . simp [heq]
-          . omega
-        . omega
-      . split
-        . omega
-        . rw [go_get_aux]
+          · simp [heq]
+          · omega
+        · omega
+      · split
+        · omega
+        · rw [go_get_aux]
           rw [AIG.RefVec.get_push_ref_eq']
-          . simp [heq]
-          . omega
+          · simp [heq]
+          · omega
     | inr heq =>
       split
-      . rw [go_get]
+      · rw [go_get]
         omega
-      . rw [go_get]
+      · rw [go_get]
         omega
-  . omega
+  · omega
 termination_by w - curr
 
 end blastRotateLeft
@@ -106,10 +106,10 @@ theorem denote_blastRotateLeft (aig : AIG α) (target : ShiftTarget aig w)
   unfold blastRotateLeft
   dsimp only
   rw [blastRotateLeft.go_get]
-  . split
-    . rfl
-    . rfl
-  . omega
+  · split
+    · rfl
+    · rfl
+  · omega
 
 end bitblast
 end BVExpr

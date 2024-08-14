@@ -82,11 +82,11 @@ theorem map.go_le_size {aig : AIG α} (idx : Nat) (hidx) (s : RefVec aig idx)
     aig.decls.size ≤ (go aig idx hidx s input f).aig.decls.size := by
   unfold go
   split
-  . next h =>
+  · next h =>
     dsimp only
     refine Nat.le_trans ?_ (by apply map.go_le_size)
     apply LawfulOperator.le_size
-  . simp
+  · simp
   termination_by len - idx
 
 theorem map_le_size {aig : AIG α} (target : MapTarget aig len) :
@@ -101,14 +101,14 @@ theorem map.go_decl_eq {aig : AIG α} (i) (hi)
   generalize hgo : go aig i hi s input f = res
   unfold go at hgo
   split at hgo
-  . dsimp only at hgo
+  · dsimp only at hgo
     rw [← hgo]
     intros
     rw [go_decl_eq]
     rw [LawfulOperator.decl_eq]
     apply LawfulOperator.lt_size_of_lt_aig_size
     assumption
-  . dsimp only at hgo
+  · dsimp only at hgo
     rw [← hgo]
     intros
     simp
@@ -141,17 +141,17 @@ theorem go_get_aux {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVe
   generalize hgo : go aig curr hcurr s input f = res
   unfold go at hgo
   split at hgo
-  . dsimp only at hgo
+  · dsimp only at hgo
     rw [← hgo]
     intro hfoo
     rw [go_get_aux]
     rw [AIG.RefVec.get_push_ref_lt]
-    . simp only [Ref.cast, Ref.mk.injEq]
+    · simp only [Ref.cast, Ref.mk.injEq]
       rw [AIG.RefVec.get_cast]
-      . simp
-      . assumption
-    . apply go_le_size
-  . dsimp only at hgo
+      · simp
+      · assumption
+    · apply go_le_size
+  · dsimp only at hgo
     rw [← hgo]
     simp only [Nat.le_refl, get, Ref.cast_eq, Ref.mk.injEq, true_implies]
     have : curr = len := by omega
@@ -182,9 +182,9 @@ theorem go_denote_mem_prefix {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len)
     ⟦aig, ⟨start, hstart⟩, assign⟧ := by
   apply denote.eq_of_isPrefix (entry := ⟨aig, start,hstart⟩)
   apply IsPrefix.of
-  . intros
+  · intros
     apply go_decl_eq
-  . intros
+  · intros
     apply go_le_size
 
 theorem denote_go {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVec aig curr)
@@ -200,23 +200,23 @@ theorem denote_go {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVec
   generalize hgo : go aig curr hcurr s input f = res
   unfold go at hgo
   split at hgo
-  . dsimp only at hgo
+  · dsimp only at hgo
     cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       rw [← hgo]
       rw [go_get]
       rw [AIG.RefVec.get_push_ref_eq']
-      . simp only [← heq]
+      · simp only [← heq]
         rw [go_denote_mem_prefix]
-        . simp
-        . simp [Ref.hgate]
-      . rw [heq]
+        · simp
+        · simp [Ref.hgate]
+      · rw [heq]
     | inr hlt =>
       rw [← hgo]
       rw [denote_go]
-      . simp [get_cast, -Ref.cast_eq]
-      . omega
-  . omega
+      · simp [get_cast, -Ref.cast_eq]
+      · omega
+  · omega
 termination_by len - curr
 
 end map

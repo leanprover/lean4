@@ -54,13 +54,13 @@ theorem go_le_size (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWidth
     aig.decls.size ≤ (go aig w input newWidth curr hcurr s).aig.decls.size := by
   unfold go
   split
-  . dsimp only
+  · dsimp only
     split
-    . refine Nat.le_trans ?_ (by apply go_le_size)
+    · refine Nat.le_trans ?_ (by apply go_le_size)
       omega
-    . refine Nat.le_trans ?_ (by apply go_le_size)
+    · refine Nat.le_trans ?_ (by apply go_le_size)
       apply AIG.LawfulOperator.le_size (f := AIG.mkConstCached)
-  . simp
+  · simp
 termination_by newWidth - curr
 
 theorem go_decl_eq (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWidth curr : Nat)
@@ -70,18 +70,18 @@ theorem go_decl_eq (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWidth
   generalize hgo : go aig w input newWidth curr hcurr s = res
   unfold go at hgo
   split at hgo
-  . dsimp only at hgo
+  · dsimp only at hgo
     split at hgo
-    . rw [← hgo]
+    · rw [← hgo]
       intro idx h1 h2
       rw [go_decl_eq]
-    . rw [← hgo]
+    · rw [← hgo]
       intro idx h1 h2
       rw [go_decl_eq]
       rw [AIG.LawfulOperator.decl_eq (f := AIG.mkConstCached)]
       apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkConstCached)
       assumption
-  . simp [← hgo]
+  · simp [← hgo]
 termination_by newWidth - curr
 
 end blastZeroExtend

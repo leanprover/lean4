@@ -34,12 +34,12 @@ theorem go_get_aux (aig : AIG α) (w : Nat) (hw : 0 < w) (input : RefVec aig w) 
   intro idx hidx
   unfold go
   split
-  . dsimp only
+  · dsimp only
     split
     all_goals
       rw [go_get_aux]
       rw [AIG.RefVec.get_push_ref_lt]
-  . dsimp only
+  · dsimp only
     simp only [RefVec.get, Ref.mk.injEq]
     have : curr = newWidth := by omega
     subst this
@@ -102,8 +102,8 @@ theorem denote_blastSignExtend (aig : AIG α) (target : ExtendTarget aig newWidt
   rw [← hg]
   dsimp only
   rw [blastSignExtend.go_get]
-  . split <;> simp only
-  . omega
+  · split <;> simp only
+  · omega
 
 end bitblast
 end BVExpr

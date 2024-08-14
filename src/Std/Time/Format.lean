@@ -81,6 +81,31 @@ Parses a date string in the American format (`MM/DD/YYYY`) and returns a `LocalD
 def fromAmericanDateString (input : String) : Except String LocalDate := do
   Formats.AmericanDate.parseBuilder (λm d y => LocalDate.ofYearMonthDay y m d) input
 
+/--
+Converts a Date in the American format (`MM/DD/YYYY`) into a `String`.
+-/
+def toAmericanDateString (input : LocalDate) : String :=
+  Formats.AmericanDate.formatBuilder input.month input.day input.year
+
+/--
+Parses a date string in the American format (`MM/DD/YYYY`) and returns a `LocalDate`.
+-/
+def fromSQLDateString (input : String) : Except String LocalDate := do
+  Formats.SQLDate.parseBuilder (λy m d => LocalDate.ofYearMonthDay y m d) input
+
+/--
+Converts a Date in the SQL format (`MM/DD/YYYY`) into a `String`.
+-/
+def toSQLDateString (input : LocalDate) : String :=
+  Formats.SQLDate.formatBuilder input.year input.month input.day
+
+/--
+Parses a `String` in the `AmericanDate` or `SQLDate` format and returns a `LocalDate`.
+-/
+def parse (input : String) : Except String LocalDate :=
+  fromAmericanDateString input
+  <|> fromSQLDateString input
+
 end LocalDate
 
 namespace LocalTime
@@ -109,12 +134,19 @@ Formats a `LocalTime` value into a 12-hour format string (`hh:mm:ss aa`).
 def toTime12Hour (input : LocalTime) : String :=
   Formats.Time12Hour.formatBuilder input.hour input.minute input.second (if input.hour.snd.val ≥ 12 then HourMarker.pm else HourMarker.am)
 
+/--
+Parses a `String` in the `Time12Hour` or `Time24Hour` format and returns a `LocalTime`.
+-/
+def parse (input : String) : Except String LocalTime :=
+  fromTime12Hour input
+  <|> fromTime24Hour input
+
 end LocalTime
 
 namespace ZonedDateTime
 
 /--
-Parses a `String` in the `ISO8601` format and returns a `DateTime`.
+Parses a `String` in the `ISO8601` format and returns a `ZonedDateTime`.
 -/
 def fromISO8601String (input : String) : Except String ZonedDateTime :=
   Formats.ISO8601.parse input
@@ -126,7 +158,7 @@ def toISO8601String (date : ZonedDateTime) : String :=
   Formats.ISO8601.format date.snd
 
 /--
-Parses a `String` in the `RFC822` format and returns a `DateTime`.
+Parses a `String` in the `RFC822` format and returns a `ZonedDateTime`.
 -/
 def fromRFC822String (input : String) : Except String ZonedDateTime :=
   Formats.RFC822.parse input
@@ -138,7 +170,7 @@ def toRFC822String (date : ZonedDateTime) : String :=
   Formats.RFC822.format date.snd
 
 /--
-Parses a `String` in the `RFC850` format and returns a `DateTime`.
+Parses a `String` in the `RFC850` format and returns a `ZonedDateTime`.
 -/
 def fromRFC850String (input : String) : Except String ZonedDateTime :=
   Formats.RFC850.parse input
@@ -148,6 +180,14 @@ Formats a `ZonedDateTime` value into an RFC850 format string.
 -/
 def toRFC850String (date : ZonedDateTime) : String :=
   Formats.RFC850.format date.snd
+
+/--
+Parses a `String` in the `ISO8601`, `RFC822` or `RFC850` format and returns a `ZonedDateTime`.
+-/
+def parse (input : String) : Except String ZonedDateTime :=
+  fromISO8601String input
+  <|> fromRFC822String input
+  <|> fromRFC850String input
 
 end ZonedDateTime
 
@@ -178,7 +218,7 @@ def toLongDateFormatString (datetime : DateTime .GMT) : String :=
   Formats.LongDateFormat.format datetime
 
 /--
-Formats a `ZonedDateTime` value into an ISO8601 string.
+Formats a `DateTime` value into an ISO8601 string.
 -/
 def toISO8601String (date : DateTime tz) : String :=
   Formats.ISO8601.format date
@@ -194,5 +234,12 @@ Formats a `ZonedDateTime` value into an RFC850 format string.
 -/
 def toRFC850String (date : DateTime tz) : String :=
   Formats.RFC850.format date
+
+/--
+Parses a `String` in the `AscTime` or `LongDate` format and returns a `DateTime`.
+-/
+def parse (date : String) : Except String (DateTime .GMT) :=
+  fromAscTimeString date
+  <|> fromLongDateFormatString date
 
 end DateTime

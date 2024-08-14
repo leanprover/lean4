@@ -714,7 +714,7 @@ def popWhile (p : α → Bool) (as : Array α) : Array α :=
   else
     as
 termination_by as.size
-decreasing_by simp_wf; simp; decreasing_trivial_pre_omega
+decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 def takeWhile (p : α → Bool) (as : Array α) : Array α :=
   let rec go (i : Nat) (r : Array α) : Array α :=
@@ -727,7 +727,7 @@ def takeWhile (p : α → Bool) (as : Array α) : Array α :=
     else
       r
     termination_by as.size - i
-    decreasing_by simp_wf; simp; decreasing_trivial_pre_omega
+    decreasing_by simp_wf; decreasing_trivial_pre_omega
   go 0 #[]
 
 /-- Remove the element at a given index from an array without bounds checks, using a `Fin` index.
@@ -742,7 +742,7 @@ def feraseIdx (a : Array α) (i : Fin a.size) : Array α :=
   else
     a.pop
 termination_by a.size - i.val
-decreasing_by simp_wf; simp; exact Nat.sub_succ_lt_self _ _ i.isLt
+decreasing_by simp_wf; exact Nat.sub_succ_lt_self _ _ i.isLt
 
 theorem size_feraseIdx (a : Array α) (i : Fin a.size) : (a.feraseIdx i).size = a.size - 1 := by
   induction a, i using Array.feraseIdx.induct with

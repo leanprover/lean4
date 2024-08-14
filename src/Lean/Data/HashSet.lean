@@ -90,7 +90,7 @@ def moveEntries [Hashable α] (i : Nat) (source : Array (List α)) (target : Has
   else
     target
 termination_by source.size - i
-decreasing_by simp_wf; simp; decreasing_trivial_pre_omega
+decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 def expand [Hashable α] (size : Nat) (buckets : HashSetBucket α) : HashSetImp α :=
   let bucketsNew : HashSetBucket α := ⟨

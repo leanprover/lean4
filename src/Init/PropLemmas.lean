@@ -198,6 +198,7 @@ theorem Exists.imp' {β} {q : β → Prop} (f : α → β) (hpq : ∀ a, p a →
   | ⟨_, hp⟩ => ⟨_, hpq _ hp⟩
 
 theorem exists_imp : ((∃ x, p x) → b) ↔ ∀ x, p x → b := forall_exists_index
+theorem exists₂_imp {P : (x : α) → p x → Prop} : (∃ x h, P x h) → b ↔ ∀ x h, P x h → b := by simp
 
 @[simp] theorem exists_const (α) [i : Nonempty α] : (∃ _ : α, b) ↔ b :=
   ⟨fun ⟨_, h⟩ => h, i.elim Exists.intro⟩

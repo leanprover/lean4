@@ -12,19 +12,26 @@ namespace Lean.Elab.Deriving.Ord
 open Lean.Parser.Term
 open Meta
 
-def mkOrdHeader (indVal : InductiveVal) : TermElabM Header := do
-  mkHeader `Ord 2 indVal
+def mkOrdHeader (argNames : Array Name) (nestedOcc : NestedOccurence) : TermElabM Header := do
+  mkHeader `Ord 2 argNames nestedOcc
 
-def mkMatch (header : Header) (indVal : InductiveVal) : TermElabM Term := do
+def mkMatch (ctx : Context) (header : Header) (e : Expr) (fvars : Array Expr) : TermElabM Term := do
+  let f := e.getAppFn
+  let ind := f.constName!
+  let lvls := f.constLevels!
+  let indVal ← getConstInfoInduct ind
   let discrs ← mkDiscrs header indVal
-  let alts ← mkAlts
+  let alts ← mkAlts indVal lvls
   `(match $[$discrs],* with $alts:matchAlt*)
 where
-  mkAlts : TermElabM (Array (TSyntax ``matchAlt)) := do
+  mkAlts (indVal : InductiveVal) (lvl : List Level) : TermElabM (Array (TSyntax ``matchAlt)) := do
     let mut alts := #[]
     for ctorName in indVal.ctors do
+      let args := e.getAppArgs
       let ctorInfo ← getConstInfoCtor ctorName
-      let alt ← forallTelescopeReducing ctorInfo.type fun xs type => do
+      let ctorApp := mkAppN (mkConst ctorInfo.name lvl) args[:ctorInfo.numParams]
+      let ctorType ← inferType ctorApp
+      let alt ← forallTelescopeReducing ctorType fun xs type => do
         let type ← Core.betaReduce type -- we 'beta-reduce' to eliminate "artificial" dependencies
         let mut indPatterns := #[]
         -- add `_` pattern for indices
@@ -39,8 +46,9 @@ where
           ctorArgs1 := ctorArgs1.push (← `(_))
           ctorArgs2 := ctorArgs2.push (← `(_))
         for i in [:ctorInfo.numFields] do
-          let x := xs[indVal.numParams + i]!
-          if type.containsFVar x.fvarId! || (←isProp (←inferType x)) then
+          let x := xs[i]!
+          let xType ← inferType x
+          if type.containsFVar x.fvarId! || (←isProp xType) then
             -- If resulting type depends on this field or is a proof, we don't need to compare
             ctorArgs1 := ctorArgs1.push (← `(_))
             ctorArgs2 := ctorArgs2.push (← `(_))
@@ -49,7 +57,12 @@ where
             let b := mkIdent (← mkFreshUserName `b)
             ctorArgs1 := ctorArgs1.push a
             ctorArgs2 := ctorArgs2.push b
-            rhsCont := fun rhs => `(Ordering.then (compare $a $b) $rhs) >>= rhsCont
+            let compare ←
+              if let some auxFunName ← ctx.getFunName? header xType fvars then
+                `($(mkIdent auxFunName) $a $b)
+              else
+                `(compare $a $b)
+            rhsCont := fun rhs => `(Ordering.then $compare $rhs) >>= rhsCont
         let lPat ← `(@$(mkIdent ctorName):ident $ctorArgs1:term*)
         let rPat ← `(@$(mkIdent ctorName):ident $ctorArgs2:term*)
         let patterns := indPatterns ++ #[lPat, rPat]
@@ -64,17 +77,14 @@ where
 
 def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
   let auxFunName := ctx.auxFunNames[i]!
-  let indVal     := ctx.typeInfos[i]!
-  let header     ← mkOrdHeader indVal
-  let mut body   ← mkMatch header indVal
-  if ctx.usePartial || indVal.isRec then
-    let letDecls ← mkLocalInstanceLetDecls ctx `Ord header.argNames
-    body ← mkLet letDecls body
+  let nestedOcc  := ctx.typeInfos[i]!
+  let argNames   := ctx.typeArgNames[i]!
+  let header     ← mkOrdHeader argNames nestedOcc
   let binders    := header.binders
-  if ctx.usePartial || indVal.isRec then
-    `(private partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Ordering := $body:term)
-  else
-    `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Ordering := $body:term)
+  Term.elabBinders binders fun xs => do
+  let type ← Term.elabTerm header.targetType none
+  let body ←  mkMatch ctx header type xs
+  `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Ordering := $body:term)
 
 def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]
@@ -87,7 +97,7 @@ def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
 
 private def mkOrdInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
   let ctx ← mkContext "ord" declName
-  let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `Ord #[declName])
+  let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `Ord)
   trace[Elab.Deriving.ord] "\n{cmds}"
   return cmds
 

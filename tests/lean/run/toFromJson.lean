@@ -42,7 +42,6 @@ def checkRoundTrip [Repr α] [BEq α] [ToJson α] [FromJson α] (obj : α) : Met
   else
     throwError "couldn't parse: {repr obj} ≟ {obj |> toJson}"
 
--- set_option trace.Meta.debug true in
 structure Foo where
   x : Nat
   y : String

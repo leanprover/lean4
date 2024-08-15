@@ -138,7 +138,7 @@ def setOf {α : Type u} (p : α → Prop) : Set α := p
 
 namespace Set
 
-protected def Mem (a : α) (s : Set α) : Prop := s a
+protected def Mem (s : Set α) (a : α) : Prop := s a
 
 instance : Membership α (Set α) := ⟨Set.Mem⟩
 
@@ -747,7 +747,7 @@ variable {A : Type _} {B : Type _} [i : SetLike A B]
 instance : CoeTC A (Set B) where coe := SetLike.coe
 
 instance (priority := 100) instMembership : Membership B A :=
-  ⟨fun x p => x ∈ (p : Set B)⟩
+  ⟨fun p x => x ∈ (p : Set B)⟩
 
 instance (priority := 100) : CoeSort A (Type _) :=
   ⟨fun p => { x : B // x ∈ p }⟩
@@ -2050,6 +2050,8 @@ instance id : Algebra R R where
   map_zero' := sorry
   map_add' := sorry
 
+instance (S : Subsemiring R) : SMul S A := Submonoid.smul ..
+
 instance ofSubsemiring (S : Subsemiring R) : Algebra S A where
   toRingHom := (algebraMap R A).comp S.subtype
   smul := (· • ·)
@@ -2274,6 +2276,8 @@ def inclusion {S T : Subalgebra R A} (h : S ≤ T) : S →ₐ[R] T where
   map_zero' := sorry
   commutes' _ := sorry
 
+instance Subalgebra.instSMul [Semiring S] [Algebra R S] [SMul S T] (S' : Subalgebra R S) : SMul S' T := S'.smul
+
 instance isScalarTower_mid {R S T : Type _} [Semiring R] [Semiring S] [AddMonoid T]
     [Algebra R S] [MulAction R T] [MulAction S T] [IsScalarTower R S T] (S' : Subalgebra R S) :
     IsScalarTower R S' T := sorry
@@ -2420,13 +2424,26 @@ def toSubfield : Subfield L :=
 
 instance : SubfieldClass (IntermediateField K L) L where
 
+instance toAlgebra : Algebra S L :=
+  inferInstanceAs (Algebra S.toSubsemiring L)
+
+instance algebra' {R' K L : Type _} [Field K] [Field L] [Algebra K L] (S : IntermediateField K L)
+    [Semiring R'] [SMul R' K] [Algebra R' L] [IsScalarTower R' K L] : Algebra R' S :=
+  inferInstanceAs (Algebra R' S.toSubalgebra)
+
+instance {E} [Field E] [Algebra L E] : Algebra S E := Algebra.ofSubsemiring S.toSubsemiring
+
 instance isScalarTower {R} [Semiring R] [SMul R K] [SMul R L] [SMul R S] [IsScalarTower R K L] :
     IsScalarTower R K S := sorry
 
 variable {E} [Field E] [Algebra L E] (T : IntermediateField S E) {S}
 instance : Algebra S T := T.algebra
-instance : SMul S T := Algebra.toSMul
-instance [Algebra K E] [IsScalarTower K L E] : IsScalarTower K S T := T.isScalarTower
+-- instance : Algebra K T := sorry
+-- instance : Algebra K E := sorry
+-- instance : IsScalarTower K S E := sorry
+-- instance : SMul S T := Algebra.toSMul
+-- set_option trace.Meta.synthInstance true in
+-- instance [Algebra K E] [IsScalarTower K L E] : IsScalarTower K S T := T.isScalarTower
 
 end IntermediateField
 

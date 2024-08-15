@@ -122,7 +122,11 @@ def registerGetEqnsFn (f : GetEqnsFn) : IO Unit := do
 /-- Returns `true` iff `declName` is a definition and its type is not a proposition. -/
 private def shouldGenerateEqnThms (declName : Name) : MetaM Bool := do
   if let some (.defnInfo info) := (← getEnv).find? declName then
-    return !(← isProp info.type)
+    if (← isProp info.type) then return false
+    -- The simplifiers has special support for structure and class projections, and gets
+    -- confused when they suddenly rewrite. And they are hardly useful, so let's not generate them
+    if (← isProjectionFn declName) then return false
+    return true
   else
     return false
 
@@ -212,7 +216,6 @@ def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := withLCtx {} {
 If any equation theorem affecting option is not the default value, create the equations now.
 -/
 def generateEagerEqns (declName : Name) : MetaM Unit := do
-  unless (← shouldGenerateEqnThms declName) do return
   let opts ← getOptions
   if eqnAffectingOptions.any fun o => o.get opts != o.defValue then
     let _ ← getEqnsFor?Core declName

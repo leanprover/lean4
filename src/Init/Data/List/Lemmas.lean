@@ -745,6 +745,58 @@ theorem foldr_hom (f : β₁ → β₂) (g₁ : α → β₁ → β₁) (g₂ : 
     (H : ∀ x y, g₂ x (f y) = f (g₁ x y)) : l.foldr g₂ (f init) = f (l.foldr g₁ init) := by
   induction l <;> simp [*, H]
 
+/--
+Prove a proposition about the result of `List.foldl`,
+by proving it for the initial data,
+and the implication that the operation applied to any element of the list preserves the property.
+
+The motive `C` can take values in `Sort _`, so this may be used to construct data,
+as well as to prove propositions.
+-/
+def foldlRecOn {C : β → Sort _} : ∀ (l : List α) (op : β → α → β) (b : β) (_ : C b)
+    (_ : ∀ (b : β) (_ : C b) (a : α) (_ : a ∈ l), C (op b a)), C (List.foldl op b l)
+  | [], _, _, hb, _ => hb
+  | hd :: tl, op, b, hb, hl =>
+    foldlRecOn tl op (op b hd) (hl b hb hd (mem_cons_self hd tl))
+      fun y hy x hx => hl y hy x (mem_cons_of_mem hd hx)
+
+@[simp] theorem foldlRecOn_nil {C : β → Sort _} (hb : C b)
+    (hl : ∀ (b : β) (_ : C b) (a : α) (_ : a ∈ []), C (op b a)) :
+    foldlRecOn [] op b hb hl = hb := rfl
+
+@[simp] theorem foldlRecOn_cons {C : β → Sort _} (hb : C b)
+    (hl : ∀ (b : β) (_ : C b) (a : α) (_ : a ∈ x :: l), C (op b a)) :
+    foldlRecOn (x :: l) op b hb hl =
+      foldlRecOn l op (op b x) (hl b hb x (mem_cons_self x l))
+        (fun b c a m => hl b c a (mem_cons_of_mem x m)) :=
+  rfl
+
+/--
+Prove a proposition about the result of `List.foldr`,
+by proving it for the initial data,
+and the implication that the operation applied to any element of the list preserves the property.
+
+The motive `C` can take values in `Sort _`, so this may be used to construct data,
+as well as to prove propositions.
+-/
+def foldrRecOn {C : β → Sort _} : ∀ (l : List α) (op : α → β → β) (b : β) (_ : C b)
+    (_ : ∀ (b : β) (_ : C b) (a : α) (_ : a ∈ l), C (op a b)), C (List.foldr op b l)
+  | nil, _, _, hb, _ => hb
+  | x :: l, op, b, hb, hl =>
+    hl (foldr op b l)
+      (foldrRecOn l op b hb fun b c a m => hl b c a (mem_cons_of_mem x m)) x (mem_cons_self x l)
+
+@[simp] theorem foldrRecOn_nil {C : β → Sort _} (hb : C b)
+    (hl : ∀ (b : β) (_ : C b) (a : α) (_ : a ∈ []), C (op a b)) :
+    foldrRecOn [] op b hb hl = hb := rfl
+
+@[simp] theorem foldrRecOn_cons {C : β → Sort _} (hb : C b)
+    (hl : ∀ (b : β) (_ : C b) (a : α) (_ : a ∈ x :: l), C (op a b)) :
+    foldrRecOn (x :: l) op b hb hl =
+      hl _ (foldrRecOn l op b hb fun b c a m => hl b c a (mem_cons_of_mem x m))
+        x (mem_cons_self x l) :=
+  rfl
+
 /-! ### getLast -/
 
 theorem getLast_eq_getElem : ∀ (l : List α) (h : l ≠ []),
@@ -2553,19 +2605,5 @@ theorem all_eq_not_any_not (l : List α) (p : α → Bool) : l.all p = !l.any (!
 @[simp] theorem all_insert [BEq α] [LawfulBEq α] {l : List α} {a : α} :
     (l.insert a).all f = (f a && l.all f) := by
   simp [all_eq]
-
-@[elab_as_elim]
-def foldlRecOn {C : β → Sort _} (l : List α) (op : β → α → β) (b : β) (hb : C b)
-    (hl : ∀ (b : β) (_ : C b) (a : α) (_ : a ∈ l), C (op b a)) :
-    C (List.foldl op b l) := by
-  cases l with
-  | nil => exact hb
-  | cons hd tl =>
-    have IH : (b : β) → C b → ((b : β) → C b → (a : α) → a ∈ tl → C (op b a)) → C (List.foldl op b tl) :=
-      foldlRecOn _ _
-    refine' IH _ _ _
-    · exact hl b hb hd (List.mem_cons_self hd tl)
-    · intro y hy x hx
-      exact hl y hy x (List.mem_cons_of_mem hd hx)
 
 end List

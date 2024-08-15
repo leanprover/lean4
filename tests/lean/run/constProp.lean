@@ -339,13 +339,14 @@ instance : Repr State where
 
 @[simp] theorem Expr.eval_simplify (e : Expr) : e.simplify.eval σ = e.eval σ := by
   induction e with
+    -- Due to fine-grained equational theorems we have to pass `eq_def` lemmas here
     simp only [simplify, BinOp.simplify.eq_def, eval, UnaryOp.simplify.eq_def]
   | bin lhs op rhs ih_lhs ih_rhs =>
     simp [← ih_lhs, ← ih_rhs]
-    split <;> simp [*, BinOp.eval.eq_def]
+    split <;> simp [*]
   | una op arg ih_arg =>
     simp [← ih_arg]
-    split <;> simp [*, UnaryOp.eval.eq_def]
+    split <;> simp [*]
 
 @[simp] def Stmt.simplify : Stmt → Stmt
   | skip => skip

@@ -190,6 +190,14 @@ theorem comp_map (h : β → γ) (g : α → β) (x : Option α) : x.map (h ∘ 
 
 theorem mem_map_of_mem (g : α → β) (h : a ∈ x) : g a ∈ Option.map g x := h.symm ▸ map_some' ..
 
+@[simp] theorem map_if {f : α → β} [Decidable c] :
+     (if c then some a else none).map f = if c then some (f a) else none := by
+  split <;> rfl
+
+@[simp] theorem map_dif {f : α → β} [Decidable c] {a : c → α} :
+     (if h : c then some (a h) else none).map f = if h : c then some (f (a h)) else none := by
+  split <;> rfl
+
 @[simp] theorem filter_none (p : α → Bool) : none.filter p = none := rfl
 theorem filter_some : Option.filter p (some a) = if p a then some a else none := rfl
 

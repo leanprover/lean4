@@ -159,6 +159,15 @@ theorem eraseP_append (l₁ l₂ : List α) :
     rw [eraseP_append_right _]
     simp_all
 
+protected theorem IsPrefix.eraseP (h : l₁ <+: l₂) : l₁.eraseP p <+: l₂.eraseP p := by
+  rw [IsPrefix] at h
+  obtain ⟨t, rfl⟩ := h
+  rw [eraseP_append]
+  split
+  · exact prefix_append (eraseP p l₁) t
+  · rw [eraseP_of_forall_not (by simp_all)]
+    exact prefix_append l₁ (eraseP p t)
+
 theorem eraseP_eq_iff {p} {l : List α} :
     l.eraseP p = l' ↔
       ((∀ a ∈ l, ¬ p a) ∧ l = l') ∨
@@ -269,6 +278,9 @@ theorem erase_sublist (a : α) (l : List α) : l.erase a <+ l :=
 theorem erase_subset (a : α) (l : List α) : l.erase a ⊆ l := (erase_sublist a l).subset
 
 theorem Sublist.erase (a : α) {l₁ l₂ : List α} (h : l₁ <+ l₂) : l₁.erase a <+ l₂.erase a := by
+  simp only [erase_eq_eraseP']; exact h.eraseP
+
+theorem IsPrefix.erase (a : α) {l₁ l₂ : List α} (h : l₁ <+: l₂) : l₁.erase a <+: l₂.erase a := by
   simp only [erase_eq_eraseP']; exact h.eraseP
 
 theorem length_erase_le (a : α) (l : List α) : (l.erase a).length ≤ l.length :=

@@ -30,7 +30,7 @@ instance : Coe String DataEntry where
 
 namespace DataEntry
 
-def isOf (e : DataEntry) (t : DataType) : Prop :=
+@[simp] def isOf (e : DataEntry) (t : DataType) : Prop :=
   match e, t with
   | EInt _,    TInt    => True
   | EFloat _,  TFloat  => True
@@ -38,7 +38,8 @@ def isOf (e : DataEntry) (t : DataType) : Prop :=
   | NULL,      _       => True
   | _,         _       => False
 
-attribute [simp] isOf.eq_def
+-- Needed since the introduction of the fine-grained lemmas
+@[simp] theorem isOf_lit (n : Nat) : isOf (no_index (OfNat.ofNat n)) TInt = True := rfl
 
 end DataEntry
 

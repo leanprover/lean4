@@ -21,4 +21,8 @@ def getRight? : α ⊕ β → Option β
   | inr b => some b
   | inl _ => none
 
+/-- Define a function on `α ⊕ β` by giving separate definitions on `α` and `β`. -/
+protected def elim {α β γ} (f : α → γ) (g : β → γ) : α ⊕ β → γ :=
+  fun x => Sum.casesOn x f g
+
 end Sum

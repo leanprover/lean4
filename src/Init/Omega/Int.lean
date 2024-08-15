@@ -83,6 +83,10 @@ theorem neg_congr {a b : Int} (h₁ : a = b) : -a = -b := by
 theorem lt_of_gt {x y : Int} (h : x > y) : y < x := gt_iff_lt.mp h
 theorem le_of_ge {x y : Int} (h : x ≥ y) : y ≤ x := ge_iff_le.mp h
 
+theorem ofNat_mul_nonneg {a b : Nat} : 0 ≤ (a : Int) * b := by
+  rw [← Int.ofNat_mul]
+  exact Int.ofNat_zero_le (a * b)
+
 theorem ofNat_sub_eq_zero {b a : Nat} (h : ¬ b ≤ a) : ((a - b : Nat) : Int) = 0 :=
   Int.ofNat_eq_zero.mpr (Nat.sub_eq_zero_of_le (Nat.le_of_lt (Nat.not_le.mp h)))
 
@@ -187,7 +191,7 @@ theorem ofNat_val_add {x y : Fin n} :
     (((x + y : Fin n)) : Int) = ((x : Int) + (y : Int)) % n := rfl
 
 theorem ofNat_val_sub {x y : Fin n} :
-    (((x - y : Fin n)) : Int) = ((x : Int) + ((n - y : Nat) : Int)) % n := rfl
+    (((x - y : Fin n)) : Int) = (((n - y : Nat) + (x : Int) : Int)) % n := rfl
 
 theorem ofNat_val_mul {x y : Fin n} :
     (((x * y : Fin n)) : Int) = ((x : Int) * (y : Int)) % n := rfl

@@ -12,8 +12,11 @@ import Lean.Meta.Tactic.Cleanup
 import Lean.Meta.Tactic.Subst
 import Lean.Meta.Injective -- for elimOptParam
 import Lean.Meta.ArgsPacker
+import Lean.Meta.PProdN
 import Lean.Elab.PreDefinition.WF.Eqns
 import Lean.Elab.PreDefinition.Structural.Eqns
+import Lean.Elab.PreDefinition.Structural.IndGroupInfo
+import Lean.Elab.PreDefinition.Structural.FindRecArg
 import Lean.Elab.Command
 import Lean.Meta.Tactic.ElimInfo
 
@@ -64,7 +67,7 @@ Mutual recursion is supported and results in multiple motives.
 
 For a non-mutual, unary function `foo` (or else for the `_unary` function), we
 
-1. expect its definition, possibly after some `whnf`’ing, to be of the form
+1. expect its definition to be of the form
    ```
    def foo := fun x₁ … xₙ (y : a) => WellFounded.fix (fun y' oldIH => body) y
    ```
@@ -78,7 +81,7 @@ For a non-mutual, unary function `foo` (or else for the `_unary` function), we
     fix (fun y' newIH => T[body])
    ```
 
-3. The first phase, transformation `T1[body]` (implemented in) `buildInductionBody`,
+3. The first phase, transformation `T1[body]` (implemented in `buildInductionBody`)
    mirrors the branching structure of `foo`, i.e. replicates `dite` and some matcher applications,
    while adjusting their motive. It also unfolds calls to `oldIH` and collects induction hypotheses
    in conditions (see below).
@@ -95,36 +98,35 @@ For a non-mutual, unary function `foo` (or else for the `_unary` function), we
    proof by induction, the user can reliably enter the right case. To achieve this
 
    * the matcher is replaced by its splitter, which brings extra assumptions into scope when
-     patterns are overlapping
+     patterns are overlapping (using `matcherApp.transform (useSplitter := true)`)
    * simple discriminants that are mentioned in the goal (i.e plain parameters) are instantiated
-     in the code.
+     in the goal.
    * for discriminants that are not instantiated that way, equalities connecting the discriminant
      to the instantiation are added (just as if the user wrote `match h : x with …`)
 
 4. When a tail position (no more branching) is found, function `buildInductionCase` assembles the
    type of the case: a fresh `MVar` asserts the current goal, unwanted values from the local context
-   are cleared, and the current `body` is searched for recursive calls using `collectIHs`,
+   are cleared, and the current `body` is searched for recursive calls using `foldAndCollect`,
    which are then asserted as inductive hyptheses in the `MVar`.
 
-5. The function `collectIHs` walks the term and collects the induction hypotheses for the current case
-   (with proofs). When it encounters a saturated application of `oldIH x proof`, it returns
-   `newIH x proof : motive x`.
+5. The function `foldAndCollect` walks the term and performs two operations:
 
-   Since `x` and `proof` can contain further recursive calls, it uses
-   `foldCalls` to replace these with calls to `foo`. This assumes that the
-   termination proof `proof` works nevertheless.
+   * collects the induction hypotheses for the current case (with proofs).
+   * recovering the recursive calls
 
-   Again, `collectIHs` may encounter the `Lean.Meta.Matcherapp.addArg?` idiom, and again it threads `newIH`
-   through, replacing the extra argument. The resulting type of this induction hypothesis is now
-   itself a `match` statement (cf. `Lean.Meta.MatcherApp.inferMatchType`)
+   So when it encounters a saturated application of `oldIH arg proof`, it
+   * returns `f arg` and
+   * remembers the expression `newIH arg proof : motive x` as an inductive hypothesis.
 
-   The termination proof of `foo` may have abstracted over some proofs; these proofs must be transferred, so
-   auxillary lemmas are unfolded if needed.
+   Since `arg` and `proof` can contain further recursive calls, they are folded there as well.
+   This assumes that the termination proof `proof` works nevertheless.
 
-6. The function `foldCalls` replaces calls to `oldIH` with calls to `foo` that
-   make sense to the user.
+   Again, `foldAndCollect` may encounter the `Lean.Meta.Matcherapp.addArg?` idiom, and again it
+   threads `newIH` through, replacing the extra argument. The resulting type of this induction
+   hypothesis is now itself a `match` statement (cf. `Lean.Meta.MatcherApp.inferMatchType`)
 
-   At the end of this transformation, no mention of `oldIH` must remain.
+   The termination proof of `foo` may have abstracted over some proofs; these proofs must be
+   transferred, so auxillary lemmas are unfolded if needed.
 
 7. After this construction, the MVars introduced by `buildInductionCase` are turned into parameters.
 
@@ -167,19 +169,11 @@ differences:
   Despite its name, this function does *not* recognize the `.brecOn` of inductive *predicates*,
   which we also do not support at this point.
 
+  Since (for now) we only support `Prop` in the induction principle, we rewrite to `.binductionOn`.
+
 * The elaboration of structurally recursive function can handle extra arguments. We keep the
   `motive` parameters in the original order.
-
-* The “induction hyothesis” in a `.brecOn` call is a `below x` term that contains all the possible
-  recursive calls, whic are projected out using `.fst.snd.…`. The `is_wf` flag that we pass down
-  tells us which form of induction hypothesis we are looking for.
-
-* If we have nested recursion (`foo n (foo m acc))`), then we need to infer the argument `m` of the
-  nested call `ih.fst.snd acc`. To do so reliably, we replace the `ih` with the “new `ih`”, which
-  will have type `motive m acc`, and since `motive` is a FVar we can then read off the arguments
-  off this nicely..
 -/
-
 
 set_option autoImplicit false
 
@@ -197,254 +191,196 @@ def removeLamda {n} [MonadLiftT MetaM n] [MonadError n] [MonadNameGenerator n] [
   let b := b.instantiate1 (.fvar x)
   k x b
 
-/-- Structural recursion only: recognizes `oldIH.fst.snd a₁ a₂` and returns `newIH.fst.snd`. -/
-partial def isPProdProj (oldIH newIH : FVarId) (e : Expr) : MetaM (Option Expr) := do
-  if e.isAppOfArity ``PProd.fst 3 then
-    if let some e' ← isPProdProj oldIH newIH e.appArg! then
-      return some (← mkAppM ``PProd.fst #[e'])
-    else
-      return none
-  else if e.isAppOfArity ``PProd.snd 3 then
-    if let some e' ← isPProdProj oldIH newIH e.appArg! then
-      return some (← mkAppM ``PProd.snd #[e'])
-    else
-      return none
-  else if e.isFVarOf oldIH then
-    return some (mkFVar newIH)
-  else
-    return none
 
 /--
-Structural recursion only:
-Recognizes `oldIH.fst.snd a₁ a₂` and returns `newIH.fst.snd` and `#[a₁, a₂]`.
+A monad to help collecting inductive hypothesis.
+
+In `foldAndCollect` it's a writer monad (with variants of the `local` combinator),
+and in `buildInductionBody` it is more of a reader monad, with inductive hypotheses
+being passed down (hence the `ask` and `branch` combinator).
 -/
-def isPProdProjWithArgs (oldIH newIH : FVarId) (e : Expr) : MetaM (Option (Expr × Array Expr)) := do
-  if e.isAppOf ``PProd.fst || e.isAppOf ``PProd.snd then
-    let arity := e.getAppNumArgs
-    unless 3 ≤ arity do return none
-    let args := e.getAppArgsN (arity - 3)
-    if let some e' ← isPProdProj oldIH newIH (e.stripArgsN (arity - 3)) then
-      return some (e', args)
-  return none
+abbrev M := StateT (Array Expr) MetaM
+
+namespace M
+
+variable {α : Type}
+
+def run (act : M α) : MetaM (α × Array Expr) := StateT.run act #[]
+def eval (act : M α) : MetaM α := do return (← run act).1
+def exec (act : M α) : MetaM (Array Expr) := do return (← run act).2
+
+def tell (x : Expr) : M Unit := fun xs => pure ((), xs.push x)
+
+def localM (f : Array Expr → MetaM (Array Expr)) (act : M α) : M α := fun xs => do
+  let n := xs.size
+  let (b, xs') ← act xs
+  pure (b, xs'[:n] ++ (← f xs'[n:]))
+
+def localMapM (f : Expr → MetaM Expr) (act : M α) : M α :=
+  localM (·.mapM f) act
+
+def ask : M (Array Expr) := get
+
+def branch (act : M α) : M α :=
+  localM (fun _ => pure #[]) act
+
+end M
 
 /--
-Replace calls to oldIH back to calls to the original function. At the end, if `oldIH` occurs, an
-error is thrown.
+The `foldAndCollect` function performs two operations together:
 
-The `newIH` will not show up in the output of `foldCalls`, we use it as a helper to infer the
-argument of nested recursive calls when we have structural recursion.
+ * it fold recursive calls: applications (and projectsions) of `oldIH` in `e` correspond to
+   recursive calls, so this function rewrites that back to recursive calls
+ * it collects induction hypotheses: after replacing `oldIH` with `newIH`, applications thereof
+   are valuable as induction hypotheses for the cases.
+
+For well-founded recursion (unary, non-mutual by construction) the terms are rather simple: they
+are `oldIH arg proof`, and can be rewritten to `f arg` resp. `newIH arg proof`. But for
+structural recursion this can be a more complicted mix of function applications (due to reflexive
+data types or extra function arguments) and `PProd` projections (due to the below construction and
+mutual function packing), and the main function argument isn't even present.
+
+To avoid having to think about this, we apply a nice trick:
+
+We compositionally replace `oldIH` with `newIH`. This likely changes the result type, so when
+re-assembling we have to be supple (mainly around `PProd.fst`/`PProd.snd`). As we re-assemble
+the term we check if it has type `motive xs..`. If it has, then know we have just found and
+rewritten a recursive call, and this type nicely provides us the arguments `xs`. So at this point
+we store the rewritten expression as a new induction hypothesis (using `M.tell`) and rewrite to
+`f xs..`, which now again has the same type as the original term, and the furthe re-assembly should
+work. Half this logic is in the `isRecCall` parameter.
+
+If this process fails we’ll get weird type errors (caught later on). We'll see if we need to
+imporve the errors, for example by passing down a flag whether we expect the same type (and no
+occurrences of `newIH`), or whether we are in “supple mode”, and catch it earlier if the rewriting
+fails.
 -/
-partial def foldCalls (is_wf : Bool) (fn : Expr) (oldIH newIH : FVarId) (e : Expr) : MetaM Expr := do
+partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr) (e : Expr) : M Expr := do
   unless e.containsFVar oldIH do
     return e
 
-  if is_wf then
-    if e.getAppNumArgs = 2 && e.getAppFn.isFVarOf oldIH then
-      let #[arg, _proof] := e.getAppArgs | unreachable!
-      let arg' ← foldCalls is_wf fn oldIH newIH arg
-      return .app fn arg'
-  else
-    if let some (e', args) ← isPProdProjWithArgs oldIH newIH e then
-      let t ← whnf (← inferType e')
-      let e' ← forallTelescopeReducing t fun xs t' => do
-        unless t'.getAppFn.isFVar do -- we expect an application of the `motive` FVar here
-          throwError m!"Unexpected type {t} of {e}: Reduced to application of {t'.getAppFn}"
-        mkLambdaFVars xs (fn.beta t'.getAppArgs)
-      let args' ← args.mapM (foldCalls is_wf fn oldIH newIH)
-      let e' := e'.beta args'
-      unless ← isTypeCorrect e' do
-        throwError m!"foldCalls: type incorrect after replacing recursive call:{indentExpr e'}"
-      return e'
+  let e' ← id do
+    if let some (n, t, v, b) := e.letFun? then
+      let t' ← foldAndCollect oldIH newIH isRecCall t
+      let v' ← foldAndCollect oldIH newIH isRecCall v
+      return ← withLetDecl n t' v' fun x => do
+        M.localMapM (mkLetFVars (usedLetOnly := true) #[x] ·) do
+          let b' ← foldAndCollect oldIH newIH isRecCall (b.instantiate1 x)
+          mkLetFun x v' b'
 
-  if let some matcherApp ← matchMatcherApp? e (alsoCasesOn := true) then
-    if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
-      let matcherApp' ← matcherApp.transform
-        (onParams := foldCalls is_wf fn oldIH newIH)
-        (onMotive := fun _motiveArgs motiveBody => do
-          let some (_extra, body) := motiveBody.arrow? | throwError "motive not an arrow"
-          foldCalls is_wf fn oldIH newIH body)
-        (onAlt := fun _altType alt => do
-          removeLamda alt fun oldIH alt => do
-            foldCalls is_wf fn oldIH newIH alt)
-        (onRemaining := fun _ => pure #[])
-      return matcherApp'.toExpr
+    if let some matcherApp ← matchMatcherApp? e (alsoCasesOn := true) then
+      if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
+        -- We do different things to the matcher when folding recursive calls and when
+        -- collecting inductive hypotheses. Therfore we do it separately,
+        -- droppin got `MetaM` in between, and using `M.eval`/`M.exec` as appropriate
+        -- We could try to do it in one pass by breaking up the `matcherApp.transform`
+        -- abstraction.
 
-  if e.getAppArgs.any (·.isFVarOf oldIH) then
-    -- Sometimes Fix.lean abstracts over oldIH in a proof definition.
-    -- So beta-reduce that definition.
+        -- To collect the IHs, we collect them in each branch, and combine
+        -- them to a type-leve match
+        let ihMatcherApp' ← liftM <| matcherApp.transform
+          (onParams := fun e => M.eval <| foldAndCollect oldIH newIH isRecCall e)
+          (onMotive := fun xs _body => do
+            -- Remove the old IH that was added in mkFix
+            let eType ← newIH.getType
+            let eTypeAbst ← matcherApp.discrs.size.foldRevM (init := eType) fun i eTypeAbst => do
+              let motiveArg := xs[i]!
+              let discr     := matcherApp.discrs[i]!
+              let eTypeAbst ← kabstract eTypeAbst discr
+              return eTypeAbst.instantiate1 motiveArg
 
-    -- Need to look through theorems here!
-    let e' ← withTransparency .all do whnf e
-    if e == e' then
-      throwError "foldCalls: cannot reduce application of {e.getAppFn} in {indentExpr e} "
-    return ← foldCalls is_wf fn oldIH newIH e'
+            -- Will later be overriden with a type that’s itself a match
+            -- statement and the infered alt types
+            let dummyGoal := mkConst ``True []
+            mkArrow eTypeAbst dummyGoal)
+          (onAlt := fun altType alt => do
+            removeLamda alt fun oldIH' alt => do
+              forallBoundedTelescope altType (some 1) fun newIH' _goal' => do
+                let #[newIH'] := newIH' | unreachable!
+                let altIHs ← M.exec <| foldAndCollect oldIH' newIH'.fvarId! isRecCall alt
+                let altIH ← PProdN.mk 0 altIHs
+                mkLambdaFVars #[newIH'] altIH)
+          (onRemaining := fun _ => pure #[mkFVar newIH])
+        let ihMatcherApp'' ← ihMatcherApp'.inferMatchType
+        M.tell ihMatcherApp''.toExpr
 
-  if let some (n, t, v, b) := e.letFun? then
-    let t' ← foldCalls is_wf fn oldIH newIH t
-    let v' ← foldCalls is_wf fn oldIH newIH v
-    return ← withLocalDecl n .default t' fun x => do
-      let b' ← foldCalls is_wf fn oldIH newIH (b.instantiate1 x)
-      mkLetFun x v' b'
-
-  match e with
-  | .app e1 e2 =>
-    return .app (← foldCalls is_wf fn oldIH newIH e1) (← foldCalls is_wf fn oldIH newIH e2)
-
-  | .lam n t body bi =>
-    let t' ← foldCalls is_wf fn oldIH newIH t
-    return ← withLocalDecl n bi t' fun x => do
-      let body' ← foldCalls is_wf fn oldIH newIH (body.instantiate1 x)
-      mkLambdaFVars #[x] body'
-
-  | .forallE n t body bi =>
-    let t' ← foldCalls is_wf fn oldIH newIH t
-    return ← withLocalDecl n bi t' fun x => do
-      let body' ← foldCalls is_wf fn oldIH newIH (body.instantiate1 x)
-      mkForallFVars #[x] body'
-
-  | .letE n t v b _ =>
-    let t' ← foldCalls is_wf fn oldIH newIH t
-    let v' ← foldCalls is_wf fn oldIH newIH v
-    return ← withLetDecl n t' v' fun x => do
-      let b' ← foldCalls is_wf fn oldIH newIH (b.instantiate1 x)
-      mkLetFVars  #[x] b'
-
-  | .mdata m b =>
-    return .mdata m (← foldCalls is_wf fn oldIH newIH b)
-
-  | .proj t i e =>
-    return .proj t i (← foldCalls is_wf fn oldIH newIH e)
-
-  | .sort .. | .lit .. | .const .. | .mvar .. | .bvar .. =>
-    unreachable! -- cannot contain free variables, so early exit above kicks in
-
-  | .fvar .. =>
-    throwError m!"collectIHs: cannot eliminate unsaturated call to induction hypothesis"
+        -- Folding the calls is straight forward
+        let matcherApp' ← liftM <| matcherApp.transform
+          (onParams := fun e => M.eval <| foldAndCollect oldIH newIH isRecCall e)
+          (onMotive := fun _motiveArgs motiveBody => do
+            let some (_extra, body) := motiveBody.arrow? | throwError "motive not an arrow"
+            M.eval (foldAndCollect oldIH newIH isRecCall body))
+          (onAlt := fun _altType alt => do
+            removeLamda alt fun oldIH alt => do
+              M.eval (foldAndCollect oldIH newIH isRecCall alt))
+          (onRemaining := fun _ => pure #[])
+        return matcherApp'.toExpr
 
 
-/-
-In non-tail-positions, we collect the induction hypotheses from all the recursive calls.
--/
--- We could run `collectIHs` and `foldCalls` together, and save a few traversals. Not sure if it
--- worth the extra code complexity.
--- Also, this way of collecting arrays is not as efficient as a left-fold, but we do not expect
--- large arrays here.
-partial def collectIHs (is_wf : Bool) (fn : Expr) (oldIH newIH : FVarId) (e : Expr) : MetaM (Array Expr) := do
-  unless e.containsFVar oldIH do
-    return #[]
+    if e.getAppArgs.any (·.isFVarOf oldIH) then
+      -- Sometimes Fix.lean abstracts over oldIH in a proof definition.
+      -- So beta-reduce that definition. We need to look through theorems here!
+      let e' ← withTransparency .all do whnf e
+      if e == e' then
+        throwError "foldAndCollect: cannot reduce application of {e.getAppFn} in:{indentExpr e} "
+      return ← foldAndCollect oldIH newIH isRecCall e'
 
-  if is_wf then
-    if e.getAppNumArgs = 2 && e.getAppFn.isFVarOf oldIH then
-      let #[arg, proof] := e.getAppArgs  | unreachable!
+    match e with
+    | .app e1 e2 =>
+      pure <|.app (← foldAndCollect oldIH newIH isRecCall e1) (← foldAndCollect oldIH newIH isRecCall e2)
 
-      let arg' ← foldCalls is_wf fn oldIH newIH arg
-      let proof' ← foldCalls is_wf fn oldIH newIH proof
-      let ihs ← collectIHs is_wf fn oldIH newIH arg
+    | .lam n t body bi =>
+      let t' ← foldAndCollect oldIH newIH isRecCall t
+      withLocalDecl n bi t' fun x => do
+        M.localMapM (mkLambdaFVars (usedOnly := true) #[x] ·) do
+          let body' ← foldAndCollect oldIH newIH isRecCall (body.instantiate1 x)
+          mkLambdaFVars #[x] body'
 
-      return ihs.push (mkApp2 (.fvar newIH) arg' proof')
-  else
-    if let some (e', args) ← isPProdProjWithArgs oldIH newIH e then
-      let args' ← args.mapM (foldCalls is_wf fn oldIH newIH)
-      let ihs ← args.concatMapM (collectIHs is_wf fn oldIH newIH)
-      let t ← whnf (← inferType e')
-      let arity ← forallTelescopeReducing t fun xs t' => do
-        unless t'.getAppFn.isFVar do -- we expect an application of the `motive` FVar here
-          throwError m!"Unexpected type {t} of {e}: Reduced to application of {t'.getAppFn}"
-        pure xs.size
-      let e' := mkAppN e' args'[:arity]
-      let eTyp ← inferType e'
-      -- The inferred type that comes out of motive projections has beta redexes
-      let eType' := eTyp.headBeta
-      return ihs.push (← mkExpectedTypeHint e' eType')
+    | .forallE n t body bi =>
+      let t' ← foldAndCollect oldIH newIH isRecCall t
+      withLocalDecl n bi t' fun x => do
+        M.localMapM (mkLambdaFVars (usedOnly := true) #[x] ·) do
+          let body' ← foldAndCollect oldIH newIH isRecCall (body.instantiate1 x)
+          mkForallFVars #[x] body'
 
+    | .letE n t v b _ =>
+      let t' ← foldAndCollect oldIH newIH isRecCall t
+      let v' ← foldAndCollect oldIH newIH isRecCall v
+      withLetDecl n t' v' fun x => do
+        M.localMapM (mkLetFVars (usedLetOnly := true) #[x] ·) do
+          let b' ← foldAndCollect oldIH newIH isRecCall (b.instantiate1 x)
+          mkLetFVars #[x] b'
 
-  if let some (n, t, v, b) := e.letFun? then
-    let ihs1 ← collectIHs is_wf fn oldIH newIH v
-    let v' ← foldCalls is_wf fn oldIH newIH v
-    return ← withLetDecl n t v' fun x => do
-      let ihs2 ← collectIHs is_wf fn oldIH newIH (b.instantiate1 x)
-      let ihs2 ← ihs2.mapM (mkLetFVars (usedLetOnly := true) #[x] ·)
-      return ihs1 ++ ihs2
+    | .mdata m b =>
+      pure <| .mdata m (← foldAndCollect oldIH newIH isRecCall b)
 
+    -- These projections can be type changing (to And), so re-infer their type arguments
+    | .proj ``PProd 0 e => mkPProdFst (← foldAndCollect oldIH newIH isRecCall e)
+    | .proj ``PProd 1 e => mkPProdSnd (← foldAndCollect oldIH newIH isRecCall e)
 
-  if let some matcherApp ← matchMatcherApp? e (alsoCasesOn := true) then
-    if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
+    | .proj t i e =>
+      pure <| .proj t i (← foldAndCollect oldIH newIH isRecCall e)
 
-      let matcherApp' ← matcherApp.transform
-        (onParams := foldCalls is_wf fn oldIH newIH)
-        (onMotive := fun xs _body => do
-          -- Remove the old IH that was added in mkFix
-          let eType ← newIH.getType
-          let eTypeAbst ← matcherApp.discrs.size.foldRevM (init := eType) fun i eTypeAbst => do
-            let motiveArg := xs[i]!
-            let discr     := matcherApp.discrs[i]!
-            let eTypeAbst ← kabstract eTypeAbst discr
-            return eTypeAbst.instantiate1 motiveArg
+    | .sort .. | .lit .. | .const .. | .mvar .. | .bvar .. =>
+      unreachable! -- cannot contain free variables, so early exit above kicks in
 
-          -- Will later be overriden with a type that’s itself a match
-          -- statement and the infered alt types
-          let dummyGoal := mkConst ``True []
-          mkArrow eTypeAbst dummyGoal)
-        (onAlt := fun altType alt => do
-          removeLamda alt fun oldIH' alt => do
-            forallBoundedTelescope altType (some 1) fun newIH' _goal' => do
-              let #[newIH'] := newIH' | unreachable!
-              let altIHs ← collectIHs is_wf fn oldIH' newIH'.fvarId! alt
-              let altIH ← mkAndIntroN altIHs
-              mkLambdaFVars #[newIH'] altIH)
-        (onRemaining := fun _ => pure #[mkFVar newIH])
-      let matcherApp'' ← matcherApp'.inferMatchType
+    | .fvar fvar =>
+      assert! fvar == oldIH
+      pure <| mkFVar newIH
 
-      return #[ matcherApp''.toExpr ]
+    -- Now see if the type o/--f the expression we are building is a motive application.
+    -- If it is we want to replace it with the corresponding function application,
+    -- and remember the expression as a IH to be used in an inductive case.
 
-  if e.getAppArgs.any (·.isFVarOf oldIH) then
-    -- Sometimes Fix.lean abstracts over oldIH in a proof definition.
-    -- So beta-reduce that definition.
+  if e'.containsFVar oldIH then
+    throwError "Failed to eliminate {mkFVar oldIH} from:{indentExpr e'}"
 
-    -- Need to look through theorems here!
-    let e' ← withTransparency .all do whnf e
-    if e == e' then
-      throwError "collectIHs: cannot reduce application of {e.getAppFn} in {indentExpr e} "
-    return ← collectIHs is_wf fn oldIH newIH e'
+  let eType ← whnf (← inferType e')
+  if let .some call := isRecCall eType then
+    M.tell (← mkExpectedTypeHint e' eType)
+    return call
 
-  if e.getAppArgs.any (·.isFVarOf oldIH) then
-    throwError "collectIHs: could not collect recursive calls from call {indentExpr e}"
-
-  match e with
-  | .letE n t v b _ =>
-    let ihs1 ← collectIHs is_wf fn oldIH newIH v
-    let v' ← foldCalls is_wf fn oldIH newIH v
-    return ← withLetDecl n t v' fun x => do
-      let ihs2 ← collectIHs is_wf fn oldIH newIH (b.instantiate1 x)
-      let ihs2 ← ihs2.mapM (mkLetFVars (usedLetOnly := true) #[x] ·)
-      return ihs1 ++ ihs2
-
-  | .app e1 e2 =>
-    return (← collectIHs is_wf fn oldIH newIH e1) ++ (← collectIHs is_wf fn oldIH newIH e2)
-
-  | .proj _ _ e =>
-    return ← collectIHs is_wf fn oldIH newIH e
-
-  | .forallE n t body bi =>
-    let t' ← foldCalls is_wf fn oldIH newIH t
-    return ← withLocalDecl n bi t' fun x => do
-      let ihs ← collectIHs is_wf fn oldIH newIH (body.instantiate1 x)
-      ihs.mapM (mkLambdaFVars (usedOnly := true) #[x])
-
-  | .lam n t body bi =>
-    let t' ← foldCalls is_wf fn oldIH newIH t
-    return ← withLocalDecl n bi t' fun x => do
-      let ihs ← collectIHs is_wf fn oldIH newIH (body.instantiate1 x)
-      ihs.mapM (mkLambdaFVars (usedOnly := true) #[x])
-
-  | .mdata _m b =>
-    return ← collectIHs is_wf fn oldIH newIH b
-
-  | .sort .. | .lit .. | .const .. | .mvar .. | .bvar .. =>
-    unreachable! -- cannot contain free variables, so early exit above kicks in
-
-  | .fvar _ =>
-    throwError "collectIHs: could not collect recursive calls, unsaturated application of old induction hypothesis"
+  return e'
 
 -- Because of term duplications we might encounter the same IH multiple times.
 -- We deduplicate them (by type, not proof term) here.
@@ -468,29 +404,35 @@ def assertIHs (vals : Array Expr) (mvarid : MVarId) : MetaM MVarId := do
 
 
 /--
-Substitutes equations, but makes sure to only substitute variables introduced after the motive
-as the motive could depend on anything before, and `substVar` would happily drop equations
-about these fixed parameters.
+Substitutes equations, but makes sure to only substitute variables introduced after the motives
+(given by the index) as the motive could depend on anything before, and `substVar` would happily
+drop equations about these fixed parameters.
 -/
-def substVarAfter (mvarId : MVarId) (x : FVarId) : MetaM MVarId := do
+def substVarAfter (mvarId : MVarId) (index : Nat) : MetaM MVarId := do
   mvarId.withContext do
     let mut mvarId := mvarId
-    let index := (← x.getDecl).index
     for localDecl in (← getLCtx) do
       if localDecl.index > index then
         mvarId ← trySubstVar mvarId localDecl.fvarId
     return mvarId
 
 /--
-Helper monad to traverse the function body, collecting the cases as mvars
+Second helper monad collecting the cases as mvars
 -/
-abbrev M α := StateT (Array MVarId) MetaM α
+abbrev M2 α := StateT (Array MVarId) M α
+
+def M2.run {α} (act : M2 α) : MetaM (α × Array MVarId) :=
+  M.eval (StateT.run (s := #[]) act)
+
+def M2.branch {α} (act : M2 α) : M2 α :=
+  controlAt M fun runInBase => M.branch (runInBase act)
 
 
 /-- Base case of `buildInductionBody`: Construct a case for the final induction hypthesis.  -/
-def buildInductionCase (is_wf : Bool) (fn : Expr) (oldIH newIH : FVarId) (toClear toPreserve : Array FVarId)
-    (goal : Expr) (IHs : Array Expr) (e : Expr) : M Expr := do
-  let IHs := IHs ++ (← collectIHs is_wf fn oldIH newIH e)
+def buildInductionCase (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr) (toClear toPreserve : Array FVarId)
+    (goal : Expr)  (e : Expr) : M2 Expr := do
+  let _e' ← foldAndCollect oldIH newIH isRecCall e
+  let IHs : Array Expr ← M.ask
   let IHs ← deduplicateIHs IHs
 
   let mvar ← mkFreshExprSyntheticOpaqueMVar goal (tag := `hyp)
@@ -543,46 +485,53 @@ Builds an expression of type `goal` by replicating the expression `e` into its t
 where it calls `buildInductionCase`. Collects the cases of the final induction hypothesis
 as `MVars` as it goes.
 -/
-partial def buildInductionBody (is_wf : Bool) (fn : Expr) (toClear toPreserve : Array FVarId)
-    (goal : Expr) (oldIH newIH : FVarId) (IHs : Array Expr) (e : Expr) : M Expr := do
-  -- logInfo m!"buildInductionBody {e}"
+partial def buildInductionBody (toClear toPreserve : Array FVarId) (goal : Expr)
+    (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr) (e : Expr) : M2 Expr := do
 
   -- if-then-else cause case split:
   match_expr e with
   | ite _α c h t f =>
-    let IHs := IHs ++ (← collectIHs is_wf fn oldIH newIH c)
-    let c' ← foldCalls is_wf fn oldIH newIH c
-    let h' ← foldCalls is_wf fn oldIH newIH h
-    let t' ← withLocalDecl `h .default c' fun h => do
-      let t' ← buildInductionBody is_wf fn toClear (toPreserve.push h.fvarId!) goal oldIH newIH IHs t
+    let c' ← foldAndCollect oldIH newIH isRecCall c
+    let h' ← foldAndCollect oldIH newIH isRecCall h
+    let t' ← withLocalDecl `h .default c' fun h => M2.branch do
+      let t' ← buildInductionBody toClear (toPreserve.push h.fvarId!) goal oldIH newIH isRecCall t
       mkLambdaFVars #[h] t'
-    let f' ← withLocalDecl `h .default (mkNot c') fun h => do
-      let f' ← buildInductionBody is_wf fn toClear (toPreserve.push h.fvarId!) goal oldIH newIH IHs f
+    let f' ← withLocalDecl `h .default (mkNot c') fun h => M2.branch do
+      let f' ← buildInductionBody toClear (toPreserve.push h.fvarId!) goal oldIH newIH isRecCall f
       mkLambdaFVars #[h] f'
     let u ← getLevel goal
     return mkApp5 (mkConst ``dite [u]) goal c' h' t' f'
   | dite _α c h t f =>
-    let IHs := IHs ++ (← collectIHs is_wf fn oldIH newIH c)
-    let c' ← foldCalls is_wf fn oldIH newIH c
-    let h' ← foldCalls is_wf fn oldIH newIH h
-    let t' ← withLocalDecl `h .default c' fun h => do
+    let c' ← foldAndCollect oldIH newIH isRecCall c
+    let h' ← foldAndCollect oldIH newIH isRecCall h
+    let t' ← withLocalDecl `h .default c' fun h => M2.branch do
       let t ← instantiateLambda t #[h]
-      let t' ← buildInductionBody is_wf fn toClear (toPreserve.push h.fvarId!) goal oldIH newIH IHs t
+      let t' ← buildInductionBody toClear (toPreserve.push h.fvarId!) goal oldIH newIH isRecCall t
       mkLambdaFVars #[h] t'
-    let f' ← withLocalDecl `h .default (mkNot c') fun h => do
+    let f' ← withLocalDecl `h .default (mkNot c') fun h => M2.branch do
       let f ← instantiateLambda f #[h]
-      let f' ← buildInductionBody is_wf fn toClear (toPreserve.push h.fvarId!) goal oldIH newIH IHs f
+      let f' ← buildInductionBody toClear (toPreserve.push h.fvarId!) goal oldIH newIH isRecCall f
       mkLambdaFVars #[h] f'
     let u ← getLevel goal
     return mkApp5 (mkConst ``dite [u]) goal c' h' t' f'
+
+  | _ =>
+
+  -- we look in to `PProd.mk`, as it occurs in the mutual structural recursion construction
+  match_expr goal with
+  | And goal₁ goal₂ => match_expr e with
+    | PProd.mk _α _β e₁ e₂ =>
+      let e₁' ← buildInductionBody toClear toPreserve goal₁ oldIH newIH isRecCall e₁
+      let e₂' ← buildInductionBody toClear toPreserve goal₂ oldIH newIH isRecCall e₂
+      return mkApp4 (.const ``And.intro []) goal₁ goal₂ e₁' e₂'
+    | _ =>
+      throwError "Goal is PProd, but expression is:{indentExpr e}"
+  | True =>
+    return .const ``True.intro []
   | _ =>
 
   -- match and casesOn application cause case splitting
   if let some matcherApp ← matchMatcherApp? e (alsoCasesOn := true) then
-    -- Collect IHs from the parameters and discrs of the matcher
-    let paramsAndDiscrs := matcherApp.params ++ matcherApp.discrs
-    let IHs := IHs ++ (← paramsAndDiscrs.concatMapM (collectIHs is_wf fn oldIH newIH ·))
-
     -- Calculate motive
     let eType ← newIH.getType
     let motiveBody ← mkArrow eType goal
@@ -593,13 +542,13 @@ partial def buildInductionBody (is_wf : Bool) (fn : Expr) (toClear toPreserve : 
     if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
       let matcherApp' ← matcherApp.transform (useSplitter := true)
         (addEqualities := mask.map not)
-        (onParams := (foldCalls is_wf fn oldIH newIH ·))
+        (onParams := (foldAndCollect oldIH newIH isRecCall ·))
         (onMotive := fun xs _body => pure (absMotiveBody.beta (maskArray mask xs)))
-        (onAlt := fun expAltType alt => do
+        (onAlt := fun expAltType alt => M2.branch do
           removeLamda alt fun oldIH' alt => do
             forallBoundedTelescope expAltType (some 1) fun newIH' goal' => do
               let #[newIH'] := newIH' | unreachable!
-              let alt' ← buildInductionBody is_wf fn (toClear.push newIH'.fvarId!) toPreserve goal' oldIH' newIH'.fvarId! IHs alt
+              let alt' ← buildInductionBody (toClear.push newIH'.fvarId!) toPreserve goal' oldIH' newIH'.fvarId! isRecCall alt
               mkLambdaFVars #[newIH'] alt')
         (onRemaining := fun _ => pure #[.fvar newIH])
       return matcherApp'.toExpr
@@ -612,34 +561,32 @@ partial def buildInductionBody (is_wf : Bool) (fn : Expr) (toClear toPreserve : 
 
       let matcherApp' ← matcherApp.transform (useSplitter := true)
         (addEqualities := mask.map not)
-        (onParams := (foldCalls is_wf fn oldIH newIH ·))
+        (onParams := (foldAndCollect oldIH newIH isRecCall ·))
         (onMotive := fun xs _body => pure (absMotiveBody.beta (maskArray mask xs)))
-        (onAlt := fun expAltType alt => do
-          buildInductionBody is_wf fn toClear toPreserve expAltType oldIH newIH IHs alt)
+        (onAlt := fun expAltType alt => M2.branch do
+          buildInductionBody toClear toPreserve expAltType oldIH newIH isRecCall alt)
       return matcherApp'.toExpr
 
   if let .letE n t v b _ := e then
-    let IHs := IHs ++ (← collectIHs is_wf fn oldIH newIH v)
-    let t' ← foldCalls is_wf fn oldIH newIH t
-    let v' ← foldCalls is_wf fn oldIH newIH v
-    return ← withLetDecl n t' v' fun x => do
-      let b' ← buildInductionBody is_wf fn toClear toPreserve goal oldIH newIH IHs (b.instantiate1 x)
+    let t' ← foldAndCollect oldIH newIH isRecCall t
+    let v' ← foldAndCollect oldIH newIH isRecCall v
+    return ← withLetDecl n t' v' fun x => M2.branch do
+      let b' ← buildInductionBody toClear toPreserve goal oldIH newIH isRecCall (b.instantiate1 x)
       mkLetFVars #[x] b'
 
   if let some (n, t, v, b) := e.letFun? then
-    let IHs := IHs ++ (← collectIHs is_wf fn oldIH newIH v)
-    let t' ← foldCalls is_wf fn oldIH newIH t
-    let v' ← foldCalls is_wf fn oldIH newIH v
-    return ← withLocalDecl n .default t' fun x => do
-      let b' ← buildInductionBody is_wf fn toClear toPreserve goal oldIH newIH IHs (b.instantiate1 x)
+    let t' ← foldAndCollect oldIH newIH isRecCall t
+    let v' ← foldAndCollect oldIH newIH isRecCall v
+    return ← withLocalDecl n .default t' fun x => M2.branch do
+      let b' ← buildInductionBody toClear toPreserve goal oldIH newIH isRecCall (b.instantiate1 x)
       mkLetFun x v' b'
 
-  liftM <| buildInductionCase is_wf fn oldIH newIH toClear toPreserve goal IHs e
+  liftM <| buildInductionCase oldIH newIH isRecCall toClear toPreserve goal e
 
 /--
 Given an expression `e` with metavariables
 * collects all these meta-variables,
-* lifts them to the current context by reverting all local declarations up to `x`
+* lifts them to the current context by reverting all local declarations after index `index`
 * introducing a local variable for each of the meta variable
 * assigning that local variable to the mvar
 * and finally lambda-abstracting over these new local variables.
@@ -653,101 +600,24 @@ be used anymore.
 We are not using `mkLambdaFVars` on mvars directly, nor `abstractMVars`, as these at the moment
 do not handle delayed assignemnts correctly.
 -/
-def abstractIndependentMVars (mvars : Array MVarId) (x : FVarId) (e : Expr) : MetaM Expr := do
+def abstractIndependentMVars (mvars : Array MVarId) (index : Nat) (e : Expr) : MetaM Expr := do
+  trace[Meta.FunInd] "abstractIndependentMVars, to revert after {index}, original mvars: {mvars}"
   let mvars ← mvars.mapM fun mvar => do
-    let mvar ← substVarAfter mvar x
-    let (_, mvar) ← mvar.revertAfter x
-    pure mvar
+    let mvar ← substVarAfter mvar index
+    mvar.withContext do
+      let fvarIds := (← getLCtx).foldl (init := #[]) (start := index+1) fun fvarIds decl => fvarIds.push decl.fvarId
+      let (_, mvar) ← mvar.revert fvarIds
+      pure mvar
+  trace[Meta.FunInd] "abstractIndependentMVars, reverted mvars: {mvars}"
   let decls := mvars.mapIdx fun i mvar =>
-    (.mkSimple s!"case{i.val+1}", .default, (fun _ => mvar.getType))
-  Meta.withLocalDecls decls fun xs => do
+    (.mkSimple s!"case{i.val+1}", (fun _ => mvar.getType))
+  Meta.withLocalDeclsD decls fun xs => do
       for mvar in mvars, x in xs do
         mvar.assign x
       mkLambdaFVars xs (← instantiateMVars e)
 
 /--
-This function looks that the body of a recursive function and looks for either users of
-`fix`, `fixF` or a `.brecOn`, and abstracts over the differences between them. It passes
-to the continuation
-
-* whether we are using well-founded recursion
-* the fixed parameters of the function body
-* the varying parameters of the function body (this includes both the targets of the
-  recursion and extra parameters passed to the recursor)
-* the position of the motive/induction hypothesis in the body's arguments
-* the body, as passed to the recursor. Expected to be a lambda that takes the
-  varying paramters and the motive
-* a function to re-assemble the call with a new Motive. The resulting expression expects
-  the new body next, so that the expected type of the body can be inferred
-* a function to finish assembling the call with the new body.
--/
-def findRecursor {α} (name : Name) (varNames : Array Name) (e : Expr)
-    (k :(is_wf : Bool) →
-        (fixedParams : Array Expr) →
-        (varyingParams : Array Expr) →
-        (motivePosInBody : Nat) →
-        (body : Expr) →
-        (mkAppMotive : Expr → MetaM Expr) →
-        (mkAppBody : Expr → Expr → Expr) →
-        MetaM α) :
-    MetaM α := do
-  -- Uses of WellFounded.fix can be partially applied. Here we eta-expand the body
-  -- to avoid dealing with this
-  let e ← lambdaTelescope e fun params body => do mkLambdaFVars params (← etaExpand body)
-  lambdaTelescope e fun params body => body.withApp fun f args => do
-    MatcherApp.withUserNames params varNames do
-      if not f.isConst then err else
-      if isBRecOnRecursor (← getEnv) f.constName! then
-        let elimInfo ← getElimExprInfo f
-        let targets : Array Expr := elimInfo.targetsPos.map (args[·]!)
-        let body := args[elimInfo.motivePos + 1 + elimInfo.targetsPos.size]!
-        let extraArgs : Array Expr := args[elimInfo.motivePos + 1 + elimInfo.targetsPos.size + 1:]
-
-        let fixedParams := params.filter fun x => !(targets.contains x || extraArgs.contains x)
-        let varyingParams := params.filter fun x => targets.contains x || extraArgs.contains x
-        unless params == fixedParams ++ varyingParams do
-          throwError "functional induction: unexpected order of fixed and varying parameters:{indentExpr e}"
-        -- we assume the motive's universe parameter is the first
-        unless 1 ≤ f.constLevels!.length do
-          throwError "functional induction: unexpected recursor: {f} has no universe parameters"
-        let us := f.constLevels!.set 0 levelZero
-
-        let value := mkAppN (.const f.constName us) (args[:elimInfo.motivePos])
-        k false fixedParams varyingParams targets.size body
-          (fun newMotive => do
-            -- We may have to reorder the parameters for motive before passing it to brec
-            let brecMotive ← mkLambdaFVars targets
-              (← mkForallFVars extraArgs (mkAppN newMotive varyingParams))
-            return mkAppN (mkApp value brecMotive) targets)
-          (fun value newBody => mkAppN (.app value newBody) extraArgs)
-      else if Name.isSuffixOf `brecOn f.constName! then
-        throwError m!"Function {name} is defined in a way not supported by functional induction, " ++
-          "for example by recursion over an inductive predicate."
-      else match_expr body with
-      | WellFounded.fixF α rel _motive body target acc =>
-        unless params.back == target do
-          throwError "functional induction: expected the target as last parameter{indentExpr e}"
-        let value := .const ``WellFounded.fixF [f.constLevels![0]!, levelZero]
-        k true params.pop #[params.back] 1 body
-          (fun newMotive => pure (mkApp3 value α rel newMotive))
-          (fun value newBody => mkApp2 value newBody acc)
-      | WellFounded.fix α _motive rel wf body target =>
-        unless params.back == target do
-          throwError "functional induction: expected the target as last parameter{indentExpr e}"
-        let value := .const ``WellFounded.fix [f.constLevels![0]!, levelZero]
-        k true params.pop #[target] 1 body
-          (fun newMotive => pure (mkApp4 value α newMotive rel wf))
-          (fun value newBody => mkApp2 value newBody target)
-      | _ => err
-  where
-    err := throwError m!"Function {name} does not look like a function defined by recursion." ++
-      m!"\nNB: If {name} is not itself recursive, but contains an inner recursive " ++
-      m!"function (via `let rec` or `where`), try `{name}.go` where `go` is name of the inner " ++
-      "function."
-
-
-/--
-Given a definition `foo` defined via `WellFounded.fixF`, derive a suitable induction principle
+Given a unary definition `foo` defined via `WellFounded.fixF`, derive a suitable induction principle
 `foo.induct` for it. See module doc for details.
  -/
 def deriveUnaryInduction (name : Name) : MetaM Name := do
@@ -758,45 +628,59 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
 
   let varNames ← forallTelescope info.type fun xs _ => xs.mapM (·.fvarId!.getUserName)
 
-  let e' ← findRecursor name varNames info.value
-    fun is_wf fixedParams varyingParams motivePosInBody body mkAppMotive mkAppBody => do
-      let motiveType ← mkForallFVars varyingParams (.sort levelZero)
-      withLocalDecl `motive .default motiveType fun motive => do
-      let fn := mkAppN (.const name (info.levelParams.map mkLevelParam)) fixedParams
-      let e' ← mkAppMotive motive
-      check e'
-      let (body', mvars) ← StateT.run (s := {}) do
-        forallTelescope (← inferType e').bindingDomain! fun xs goal => do
-          let arity := varyingParams.size + 1
-          if xs.size ≠ arity then
-            throwError "expected recursor argument to take {arity} parameters, got {xs}" else
-          let targets : Array Expr := xs[:motivePosInBody]
-          let genIH := xs[motivePosInBody]!
-          let extraParams := xs[motivePosInBody+1:]
-          -- open body with the same arg
-          let body ← instantiateLambda body targets
-          removeLamda body fun oldIH body => do
-            let body ← instantiateLambda body extraParams
-            let body' ← buildInductionBody is_wf fn #[genIH.fvarId!] #[] goal oldIH genIH.fvarId! #[] body
-            if body'.containsFVar oldIH then
-              throwError m!"Did not fully eliminate {mkFVar oldIH} from induction principle body:{indentExpr body}"
-            mkLambdaFVars (targets.push genIH) (← mkLambdaFVars extraParams body')
-      let e' := mkAppBody e' body'
-      let e' ← mkLambdaFVars varyingParams e'
-      let e' ← abstractIndependentMVars mvars motive.fvarId! e'
-      let e' ← mkLambdaFVars #[motive] e'
+  -- Uses of WellFounded.fix can be partially applied. Here we eta-expand the body
+  -- to avoid dealing with this
+  let e ← lambdaTelescope info.value fun params body => do mkLambdaFVars params (← etaExpand body)
+  let e' ← lambdaTelescope e fun params funBody => MatcherApp.withUserNames params varNames do
+    match_expr funBody with
+    | fix@WellFounded.fix α _motive rel wf body target =>
+      unless params.back == target do
+        throwError "functional induction: expected the target as last parameter{indentExpr e}"
+      let fixedParams := params.pop
+      let motiveType ← mkForallFVars #[target] (.sort levelZero)
+      withLocalDeclD `motive motiveType fun motive => do
+        let fn := mkAppN (← mkConstWithLevelParams name) fixedParams
+        let isRecCall : Expr → Option Expr := fun e =>
+          if e.isApp && e.appFn!.isFVarOf motive.fvarId! then
+            mkApp fn e.appArg!
+          else
+            none
 
-      -- We could pass (usedOnly := true) below, and get nicer induction principles that
-      -- do do not mention odd unused parameters.
-      -- But the downside is that automatic instantiation of the principle (e.g. in a tactic
-      -- that derives them from an function application in the goal) is harder, as
-      -- one would have to infer or keep track of which parameters to pass.
-      -- So for now lets just keep them around.
-      let e' ← mkLambdaFVars (binderInfoForMVars := .default) fixedParams e'
-      instantiateMVars e'
+        let e' := .const ``WellFounded.fix [fix.constLevels![0]!, levelZero]
+        let e' := mkApp4 e' α motive rel wf
+        check e'
+        let (body', mvars) ← M2.run do
+          forallTelescope (← inferType e').bindingDomain! fun xs goal => do
+            if xs.size ≠ 2 then
+              throwError "expected recursor argument to take 2 parameters, got {xs}" else
+            let targets : Array Expr := xs[:1]
+            let genIH := xs[1]!
+            let extraParams := xs[2:]
+            -- open body with the same arg
+            let body ← instantiateLambda body targets
+            removeLamda body fun oldIH body => do
+              let body ← instantiateLambda body extraParams
+              let body' ← buildInductionBody #[genIH.fvarId!] #[] goal oldIH genIH.fvarId! isRecCall body
+              if body'.containsFVar oldIH then
+                throwError m!"Did not fully eliminate {mkFVar oldIH} from induction principle body:{indentExpr body}"
+              mkLambdaFVars (targets.push genIH) (← mkLambdaFVars extraParams body')
+        let e' := mkApp2 e' body' target
+        let e' ← mkLambdaFVars #[target] e'
+        let e' ← abstractIndependentMVars mvars (← motive.fvarId!.getDecl).index e'
+        let e' ← mkLambdaFVars #[motive] e'
+
+        -- We could pass (usedOnly := true) below, and get nicer induction principles that
+        -- do do not mention odd unused parameters.
+        -- But the downside is that automatic instantiation of the principle (e.g. in a tactic
+        -- that derives them from an function application in the goal) is harder, as
+        -- one would have to infer or keep track of which parameters to pass.
+        -- So for now lets just keep them around.
+        let e' ← mkLambdaFVars (binderInfoForMVars := .default) fixedParams e'
+        instantiateMVars e'
+    | _ => throwError "Function {name} not defined via WellFounded.fix:{indentExpr funBody}"
 
   unless (← isTypeCorrect e') do
-    logError m!"failed to derive induction priciple:{indentExpr e'}"
+    logError m!"failed to derive a type-correct induction principle:{indentExpr e'}"
     check e'
 
   let eTyp ← inferType e'
@@ -809,6 +693,25 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
   addDecl <| Declaration.thmDecl
     { name := inductName, levelParams := us, type := eTyp, value := e' }
   return inductName
+
+/--
+Given `foo.mutual_induct`, defined `foo.induct`, `bar.induct` etc.
+Used for well-founded and structural recursion.
+-/
+def projectMutualInduct (names : Array Name) (mutualInduct : Name) : MetaM Unit := do
+  let ci ← getConstInfo mutualInduct
+  let levelParams := ci.levelParams
+
+  for name in names, idx in [:names.size] do
+    let inductName := .append name `induct
+    unless ← hasConst inductName do
+      let value ← forallTelescope ci.type fun xs _body => do
+        let value := .const ci.name (levelParams.map mkLevelParam)
+        let value := mkAppN value xs
+        let value ← PProdN.proj names.size idx value
+        mkLambdaFVars xs value
+      let type ← inferType value
+      addDecl <| Declaration.thmDecl { name := inductName, levelParams, type, value }
 
 /--
 In the type of `value`, reduces
@@ -865,14 +768,14 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
   mkExpectedTypeHint value t
 
 /--
-Takes an induction principle where the motive is a `PSigma`/`PSum` type and
+Takes `foo._unary.induct`, where the motive is a `PSigma`/`PSum` type and
 unpacks it into a n-ary and (possibly) joint induction principle.
 -/
 def unpackMutualInduction (eqnInfo : WF.EqnInfo) (unaryInductName : Name) : MetaM Name := do
   let inductName := if eqnInfo.declNames.size > 1 then
     .append eqnInfo.declNames[0]! `mutual_induct
   else
-    -- If there is no mutual recursion, generate the `foo.induct` directly.
+    -- If there is no mutual recursion, we generate the `foo.induct` directly.
     .append eqnInfo.declNames[0]! `induct
   if ← hasConst inductName then return inductName
 
@@ -913,33 +816,244 @@ def unpackMutualInduction (eqnInfo : WF.EqnInfo) (unaryInductName : Name) : Meta
     { name := inductName, levelParams := ci.levelParams, type, value }
   return inductName
 
+
 /-- Given `foo._unary.induct`, define `foo.mutual_induct` and then `foo.induct`, `bar.induct`, … -/
 def deriveUnpackedInduction (eqnInfo : WF.EqnInfo) (unaryInductName : Name): MetaM Unit := do
   let unpackedInductName ← unpackMutualInduction eqnInfo unaryInductName
-  let ci ← getConstInfo unpackedInductName
-  let levelParams := ci.levelParams
+  projectMutualInduct eqnInfo.declNames unpackedInductName
 
-  for name in eqnInfo.declNames, idx in [:eqnInfo.declNames.size] do
-    let inductName := .append name `induct
-    unless ← hasConst inductName do
-      let value ← forallTelescope ci.type fun xs _body => do
-        let value := .const ci.name (levelParams.map mkLevelParam)
-        let value := mkAppN value xs
-        let value := mkProjAndN eqnInfo.declNames.size idx value
-        mkLambdaFVars xs value
-      let type ← inferType value
-      addDecl <| Declaration.thmDecl { name := inductName, levelParams, type, value }
+def stripPProdProjs (e : Expr) : Expr :=
+  match e with
+  | .proj ``PProd _ e' => stripPProdProjs e'
+  | .proj ``And _ e' => stripPProdProjs e'
+  | e => e
+
+def withLetDecls {α} (name : Name) (ts : Array Expr) (es : Array Expr) (k : Array Expr → MetaM α) : MetaM α := do
+  assert! es.size = ts.size
+  go 0 #[]
+where
+  go (i : Nat) (acc : Array Expr) := do
+    if h : i < es.size then
+      let n := if es.size = 1 then name else name.appendIndexAfter (i + 1)
+      withLetDecl n ts[i]! es[i] fun x => go (i+1) (acc.push x)
+    else
+      k acc
+
+/--
+Given a recursive definition `foo` defined via structural recursion, derive `foo.mutual_induct`,
+if needed, and `foo.induct` for all functions in the group.
+See module doc for details.
+ -/
+def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit := do
+  let infos ← names.mapM getConstInfoDefn
+  -- First open up the fixed parameters everywhere
+  let e' ← lambdaBoundedTelescope infos[0]!.value numFixed fun xs _ => do
+    -- Now look at the body of an arbitrary of the functions (they are essentially the same
+    -- up to the final projections)
+    let body ← instantiateLambda infos[0]!.value xs
+
+    lambdaTelescope body fun ys body => do
+      -- The body is of the form (brecOn … ).2.2.1 extra1 extra2 etc; ignore the
+      -- projection here
+      let f' := body.getAppFn
+      let body' := stripPProdProjs f'
+      let f := body'.getAppFn
+      let args := body'.getAppArgs ++ body.getAppArgs
+
+      let body := stripPProdProjs body
+      let .const brecOnName us := f |
+        throwError "{infos[0]!.name}: unexpected body:{indentExpr infos[0]!.value}"
+      unless isBRecOnRecursor (← getEnv) brecOnName do
+        throwError "{infos[0]!.name}: expected .brecOn application, found:{indentExpr body}"
+
+      let .str indName _ := brecOnName | unreachable!
+      let indInfo ← getConstInfoInduct indName
+
+      -- we have a `.brecOn` application, so now figure out the length of the fixed prefix
+      -- we can use the recInfo for `.rec`, since `.brecOn` has a similar structure
+      let recInfo ← getConstInfoRec (mkRecName indName)
+      if args.size < recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 + recInfo.numMotives then
+        throwError "insufficient arguments to .brecOn:{indentExpr body}"
+      let brecOnArgs    : Array Expr := args[:recInfo.numParams]
+      let _brecOnMotives : Array Expr := args[recInfo.numParams:recInfo.numParams + recInfo.numMotives]
+      let brecOnTargets : Array Expr := args[recInfo.numParams + recInfo.numMotives :
+        recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1]
+      let brecOnMinors  : Array Expr := args[recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 :
+        recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 + recInfo.numMotives]
+      let brecOnExtras  : Array Expr := args[ recInfo.numParams + recInfo.numMotives + recInfo.numIndices + 1 +
+        recInfo.numMotives:]
+      unless brecOnTargets.all (·.isFVar) do
+        throwError "the indices and major argument of the brecOn application are not variables:{indentExpr body}"
+      unless brecOnExtras.all (·.isFVar) do
+        throwError "the extra arguments to the the brecOn application are not variables:{indentExpr body}"
+      let lvl :: indLevels := us |throwError "Too few universe parameters in .brecOn application:{indentExpr body}"
+
+      let group : Structural.IndGroupInst := { Structural.IndGroupInfo.ofInductiveVal indInfo with
+        levels := indLevels, params := brecOnArgs }
+
+      -- We also need to know the number of indices of each type former, including the auxillary
+      -- type formers that do not have IndInfo. We can read it off the motives types of the recursor.
+      let numTargetss ← do
+        let aux := mkAppN (.const recInfo.name (0 :: group.levels)) group.params
+        let motives ← inferArgumentTypesN recInfo.numMotives aux
+        motives.mapM fun motive =>
+          forallTelescopeReducing motive fun xs _ => pure xs.size
+
+      let recArgInfos ← infos.mapM fun info => do
+        let some eqnInfo := Structural.eqnInfoExt.find? (← getEnv) info.name | throwError "{info.name} missing eqnInfo"
+        let value ← instantiateLambda info.value xs
+        let recArgInfo' ← lambdaTelescope value fun ys _ =>
+          Structural.getRecArgInfo info.name numFixed (xs ++ ys) eqnInfo.recArgPos
+        let #[recArgInfo] ← Structural.argsInGroup group xs value #[recArgInfo']
+          | throwError "Structural.argsInGroup did not return a recArgInfo"
+        pure recArgInfo
+
+      let positions : Structural.Positions := .groupAndSort (·.indIdx) recArgInfos (Array.range indInfo.numTypeFormers)
+
+      -- Below we'll need the types of the motive arguments (brecOn argument order)
+      let brecMotiveTypes ← inferArgumentTypesN recInfo.numMotives (group.brecOn true lvl 0)
+      trace[Meta.FunInd] m!"brecMotiveTypes: {brecMotiveTypes}"
+      assert! brecMotiveTypes.size = positions.size
+
+      -- Remove the varying parameters from the environment
+      withErasedFVars (ys.map (·.fvarId!)) do
+        -- The brecOnArgs, brecOnMotives and brecOnMinor should still be valid in this
+        -- context, and are the parts relevant for every function in the mutual group
+
+        -- Calculate the types of the induction motives (natural argument order) for each function
+        let motiveTypes ← infos.mapM fun info => do
+          lambdaTelescope (← instantiateLambda info.value xs) fun ys _ =>
+            mkForallFVars ys (.sort levelZero)
+        let motiveArities ← infos.mapM fun info => do
+          lambdaTelescope (← instantiateLambda info.value xs) fun ys _ => pure ys.size
+        let motiveDecls ← motiveTypes.mapIdxM fun ⟨i,_⟩ motiveType => do
+          let n := if infos.size = 1 then .mkSimple "motive"
+                                     else .mkSimple s!"motive_{i+1}"
+          pure (n, fun _ => pure motiveType)
+        withLocalDeclsD motiveDecls fun motives => do
+
+          -- Prepare the `isRecCall` that recognizes recursive calls
+          let fns := infos.map fun info =>
+            mkAppN (.const info.name (info.levelParams.map mkLevelParam)) xs
+          let isRecCall : Expr → Option Expr := fun e => do
+            if let .some i := motives.indexOf? e.getAppFn then
+              if e.getAppNumArgs = motiveArities[i]! then
+                return mkAppN fns[i]! e.getAppArgs
+            .none
+
+          -- Motives with parameters reordered, to put indices and major first
+          let brecMotives ← (Array.zip motives recArgInfos).mapM fun (motive, recArgInfo) => do
+            forallTelescope (← inferType motive) fun ys _ => do
+              let (indicesMajor, rest) := recArgInfo.pickIndicesMajor ys
+              mkLambdaFVars indicesMajor (← mkForallFVars rest (mkAppN motive ys))
+
+          -- We need to pack these motives according to the `positions` assignment.
+          let packedMotives ← positions.mapMwith PProdN.packLambdas brecMotiveTypes brecMotives
+          trace[Meta.FunInd] m!"packedMotives: {packedMotives}"
+
+          -- Now we can calcualte the expected types of the minor arguments
+          let minorTypes ← inferArgumentTypesN recInfo.numMotives <|
+            mkAppN (group.brecOn true lvl 0) (packedMotives ++ brecOnTargets)
+          trace[Meta.FunInd] m!"minorTypes: {minorTypes}"
+          -- So that we can transform them
+          let (minors', mvars) ← M2.run do
+            let mut minors' := #[]
+            for brecOnMinor in brecOnMinors, goal in minorTypes, numTargets in numTargetss do
+              let minor' ← forallTelescope goal fun xs goal => do
+                unless xs.size ≥ numTargets do
+                  throwError ".brecOn argument has too few parameters, expected at least {numTargets}: {xs}"
+                let targets : Array Expr := xs[:numTargets]
+                let genIH := xs[numTargets]!
+                let extraParams := xs[numTargets+1:]
+                -- open body with the same arg
+                let body ← instantiateLambda brecOnMinor targets
+                removeLamda body fun oldIH body => do
+                  trace[Meta.FunInd] "replacing {Expr.fvar oldIH} with {genIH}"
+                  let body ← instantiateLambda body extraParams
+                  let body' ← buildInductionBody #[genIH.fvarId!] #[] goal oldIH genIH.fvarId! isRecCall body
+                  if body'.containsFVar oldIH then
+                    throwError m!"Did not fully eliminate {mkFVar oldIH} from induction principle body:{indentExpr body}"
+                  mkLambdaFVars (targets.push genIH) (← mkLambdaFVars extraParams body')
+              minors' := minors'.push minor'
+            pure minors'
+          trace[Meta.FunInd] "processed minors: {minors'}"
+
+          -- Now assemble the mutual_induct theorem
+          -- Let-bind the transformed minors to avoid code duplication of possibly very large
+          -- terms when we have mutual induction.
+          let e' ← withLetDecls `minor minorTypes minors' fun minors' => do
+            let mut brecOnApps := #[]
+            for info in infos, recArgInfo in recArgInfos, idx in [:infos.size] do
+              -- Take care to pick the `ys` from the type, to get the variable names expected
+              -- by the user, but use the value arity
+              let arity ← lambdaTelescope (← instantiateLambda info.value xs) fun ys _ => pure ys.size
+              let e ← forallBoundedTelescope (← instantiateForall info.type xs) arity fun ys _ => do
+                let (indicesMajor, rest) := recArgInfo.pickIndicesMajor ys
+                -- Find where in the function packing we are (TODO: abstract out)
+                let some indIdx := positions.findIdx? (·.contains idx) | panic! "invalid positions"
+                let some pos := positions.find? (·.contains idx) | panic! "invalid positions"
+                let some packIdx := pos.findIdx? (· == idx) | panic! "invalid positions"
+                let e := group.brecOn true lvl indIdx -- unconditionally using binduction here
+                let e := mkAppN e packedMotives
+                let e := mkAppN e indicesMajor
+                let e := mkAppN e minors'
+                let e ← PProdN.proj pos.size packIdx e
+                let e := mkAppN e rest
+                let e ← mkLambdaFVars ys e
+                trace[Meta.FunInd] "assembled call for {info.name}: {e}"
+                pure e
+              brecOnApps := brecOnApps.push e
+            mkLetFVars minors' (← PProdN.mk 0 brecOnApps)
+          let e' ← abstractIndependentMVars mvars (← motives.back.fvarId!.getDecl).index e'
+          let e' ← mkLambdaFVars motives e'
+
+          -- We could pass (usedOnly := true) below, and get nicer induction principles that
+          -- do do not mention odd unused parameters.
+          -- But the downside is that automatic instantiation of the principle (e.g. in a tactic
+          -- that derives them from an function application in the goal) is harder, as
+          -- one would have to infer or keep track of which parameters to pass.
+          -- So for now lets just keep them around.
+          let e' ← mkLambdaFVars (binderInfoForMVars := .default) xs e'
+          let e' ← instantiateMVars e'
+          trace[Meta.FunInd] "complete body of mutual induction principle:{indentExpr e'}"
+          pure e'
+
+  unless (← isTypeCorrect e') do
+    logError m!"constructed induction principle is not type correct:{indentExpr e'}"
+    check e'
+
+  let eTyp ← inferType e'
+  let eTyp ← elimOptParam eTyp
+  -- logInfo m!"eTyp: {eTyp}"
+  let params := (collectLevelParams {} eTyp).params
+  -- Prune unused level parameters, preserving the original order
+  let us := infos[0]!.levelParams.filter (params.contains ·)
+
+  let inductName :=
+    if names.size = 1 then
+      names[0]! ++ `induct
+    else
+      names[0]! ++ `mutual_induct
+
+  addDecl <| Declaration.thmDecl
+    { name := inductName, levelParams := us, type := eTyp, value := e' }
+
+  if names.size > 1 then
+    projectMutualInduct names inductName
 
 /--
 Given a recursively defined function `foo`, derives `foo.induct`. See the module doc for details.
 -/
 def deriveInduction (name : Name) : MetaM Unit := do
-  if let some eqnInfo := WF.eqnInfoExt.find? (← getEnv) name then
-    let unaryInductName ← deriveUnaryInduction eqnInfo.declNameNonRec
-    unless eqnInfo.declNameNonRec = name do
-      deriveUnpackedInduction eqnInfo unaryInductName
-  else
-    _ ← deriveUnaryInduction name
+  mapError (f := (m!"Cannot derive functional induction principle (please report this issue)\n{indentD ·}")) do
+    if let some eqnInfo := WF.eqnInfoExt.find? (← getEnv) name then
+      let unaryInductName ← deriveUnaryInduction eqnInfo.declNameNonRec
+      unless eqnInfo.declNameNonRec = name do
+        deriveUnpackedInduction eqnInfo unaryInductName
+    else if let some eqnInfo := Structural.eqnInfoExt.find? (← getEnv) name then
+      deriveInductionStructural eqnInfo.declNames eqnInfo.numFixed
+    else
+      throwError "{name} is not defined by structural or well-founded recursion"
 
 def isFunInductName (env : Environment) (name : Name) : Bool := Id.run do
   let .str p s := name | return false
@@ -950,6 +1064,9 @@ def isFunInductName (env : Environment) (name : Name) : Bool := Id.run do
     return false
   | "mutual_induct" =>
     if let some eqnInfo := WF.eqnInfoExt.find? env p then
+      if h : eqnInfo.declNames.size > 1 then
+        return eqnInfo.declNames[0] = p
+    if let some eqnInfo := Structural.eqnInfoExt.find? env p then
       if h : eqnInfo.declNames.size > 1 then
         return eqnInfo.declNames[0] = p
     return false
@@ -966,3 +1083,6 @@ builtin_initialize
     return false
 
 end Lean.Tactic.FunInd
+
+ builtin_initialize
+   Lean.registerTraceClass `Meta.FunInd

@@ -445,13 +445,13 @@ private def expandParentFields (s : Struct) : TermElabM Struct := do
           | _ => throwErrorAt ref "failed to access field '{fieldName}' in parent structure"
     | _ => return field
 
-private abbrev FieldMap := HashMap Name Fields
+private abbrev FieldMap := Std.HashMap Name Fields
 
 private def mkFieldMap (fields : Fields) : TermElabM FieldMap :=
   fields.foldlM (init := {}) fun fieldMap field =>
     match field.lhs with
     | .fieldName _ fieldName :: _    =>
-      match fieldMap.find? fieldName with
+      match fieldMap[fieldName]? with
       | some (prevField::restFields) =>
         if field.isSimple || prevField.isSimple then
           throwErrorAt field.ref "field '{fieldName}' has already been specified"
@@ -677,6 +677,10 @@ private partial def elabStruct (s : Struct) (expectedType? : Option Expr) : Term
             | .error err       => throwError err
             | .ok tacticSyntax =>
               let stx ← `(by $tacticSyntax)
+              -- See comment in `Lean.Elab.Term.ElabAppArgs.processExplicitArg` about `tacticSyntax`.
+              -- We add info to get reliable positions for messages from evaluating the tactic script.
+              let info := field.ref.getHeadInfo
+              let stx := stx.raw.rewriteBottomUp (·.setInfo info)
               cont (← elabTermEnsuringType stx (d.getArg! 0).consumeTypeAnnotations) field
           | _ =>
             if bi == .instImplicit then
@@ -957,6 +961,8 @@ private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (sour
     else
       elabStructInstAux stx expectedType? sourceView
 
-builtin_initialize registerTraceClass `Elab.struct
+builtin_initialize
+  registerTraceClass `Elab.struct
+  registerTraceClass `Elab.struct.modifyOp
 
 end Lean.Elab.Term.StructInst

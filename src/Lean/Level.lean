@@ -258,8 +258,7 @@ def ctorToNat : Level → Nat
   | max ..   => 4
   | imax ..  => 5
 
-/- TODO: use well founded recursion. -/
-partial def normLtAux : Level → Nat → Level → Nat → Bool
+def normLtAux : Level → Nat → Level → Nat → Bool
   | succ l₁, k₁, l₂, k₂ => normLtAux l₁ (k₁+1) l₂ k₂
   | l₁, k₁, succ l₂, k₂ => normLtAux l₁ k₁ l₂ (k₂+1)
   | l₁@(max l₁₁ l₁₂), k₁, l₂@(max l₂₁ l₂₂), k₂ =>
@@ -615,9 +614,9 @@ where
 
 end Level
 
-abbrev LevelMap (α : Type)  := HashMap Level α
+abbrev LevelMap (α : Type)  := Std.HashMap Level α
 abbrev PersistentLevelMap (α : Type) := PHashMap Level α
-abbrev LevelSet := HashSet Level
+abbrev LevelSet := Std.HashSet Level
 abbrev PersistentLevelSet := PHashSet Level
 abbrev PLevelSet := PersistentLevelSet
 

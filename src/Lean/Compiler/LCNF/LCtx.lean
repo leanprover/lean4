@@ -13,9 +13,9 @@ namespace Lean.Compiler.LCNF
 LCNF local context.
 -/
 structure LCtx where
-  params   : HashMap FVarId Param := {}
-  letDecls : HashMap FVarId LetDecl := {}
-  funDecls : HashMap FVarId FunDecl := {}
+  params   : Std.HashMap FVarId Param := {}
+  letDecls : Std.HashMap FVarId LetDecl := {}
+  funDecls : Std.HashMap FVarId FunDecl := {}
   deriving Inhabited
 
 def LCtx.addParam (lctx : LCtx) (param : Param) : LCtx :=

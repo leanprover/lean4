@@ -63,6 +63,7 @@ lean_object* l_Lean_throwError___at_Lean_Elab_Term_throwErrorIfErrors___spec__1(
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardExpr_MatchKind_isEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instantiateMVars___at_Lean_Elab_Term_MVarErrorInfo_logError___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_GuardExpr_evalGuardExprConv_declRange__1___closed__6;
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_GuardExpr_evalGuardExpr__1(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_GuardExpr_evalGuardTarget_declRange__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardExpr_evalGuardTargetConv(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -140,6 +141,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_GuardExpr_evalGuardHyp__1___
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_GuardExpr_evalGuardExprCmd__1___closed__3;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_GuardExpr_evalGuardHyp_declRange__1___closed__3;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_GuardExpr_evalGuardCmd_declRange__1___closed__6;
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardExpr_elabAndEvalMatchKind___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_GuardExpr_evalGuardTarget___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_GuardExpr_evalGuardHypConv_declRange__1___closed__7;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_GuardExpr_evalGuardCmd__1(lean_object*);
@@ -167,6 +169,7 @@ static lean_object* l_Lean_Elab_Tactic_GuardExpr_colon_toMatchKind___closed__14;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_GuardExpr_colonEq_toMatchKind___closed__2;
 static lean_object* l_Lean_Elab_Tactic_GuardExpr_evalGuardCmd_unsafe__1___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_GuardExpr_evalGuardExprCmd_declRange__1___closed__7;
 static lean_object* l_Lean_Elab_Tactic_GuardExpr_colon_toMatchKind___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardExpr_evalGuardExpr___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -205,6 +208,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_GuardExpr_evalGuardExprCmd_d
 static lean_object* l_Lean_Elab_Tactic_GuardExpr_evalGuardTarget___lambda__1___closed__2;
 static lean_object* l_Lean_Elab_Tactic_GuardExpr_equal_toMatchKind___closed__3;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_GuardExpr_evalGuardExprCmd__1___closed__4;
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardExpr_MatchKind_isEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_GuardExpr_equal_toMatchKind___closed__9;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_GuardExpr_evalGuardHyp_declRange__1___closed__6;
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalFirst___spec__1___rarg(lean_object*);
@@ -301,7 +305,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_colon_toMatchKind___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -309,7 +313,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_colon_toMatchKind___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -317,7 +321,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_colon_toMatchKind___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("colon", 5);
+x_1 = lean_mk_string_unchecked("colon", 5, 5);
 return x_1;
 }
 }
@@ -336,7 +340,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_colon_toMatchKind___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("colonR", 6);
+x_1 = lean_mk_string_unchecked("colonR", 6, 6);
 return x_1;
 }
 }
@@ -355,7 +359,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_colon_toMatchKind___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("colonD", 6);
+x_1 = lean_mk_string_unchecked("colonD", 6, 6);
 return x_1;
 }
 }
@@ -374,7 +378,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_colon_toMatchKind___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("colonS", 6);
+x_1 = lean_mk_string_unchecked("colonS", 6, 6);
 return x_1;
 }
 }
@@ -393,7 +397,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_colon_toMatchKind___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("colonA", 6);
+x_1 = lean_mk_string_unchecked("colonA", 6, 6);
 return x_1;
 }
 }
@@ -551,7 +555,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_colonEq_toMatchKind___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("colonEq", 7);
+x_1 = lean_mk_string_unchecked("colonEq", 7, 7);
 return x_1;
 }
 }
@@ -570,7 +574,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_colonEq_toMatchKind___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("colonEqR", 8);
+x_1 = lean_mk_string_unchecked("colonEqR", 8, 8);
 return x_1;
 }
 }
@@ -589,7 +593,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_colonEq_toMatchKind___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("colonEqD", 8);
+x_1 = lean_mk_string_unchecked("colonEqD", 8, 8);
 return x_1;
 }
 }
@@ -608,7 +612,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_colonEq_toMatchKind___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("colonEqS", 8);
+x_1 = lean_mk_string_unchecked("colonEqS", 8, 8);
 return x_1;
 }
 }
@@ -627,7 +631,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_colonEq_toMatchKind___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("colonEqA", 8);
+x_1 = lean_mk_string_unchecked("colonEqA", 8, 8);
 return x_1;
 }
 }
@@ -725,7 +729,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_equal_toMatchKind___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("equal", 5);
+x_1 = lean_mk_string_unchecked("equal", 5, 5);
 return x_1;
 }
 }
@@ -744,7 +748,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_equal_toMatchKind___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("equalR", 6);
+x_1 = lean_mk_string_unchecked("equalR", 6, 6);
 return x_1;
 }
 }
@@ -763,7 +767,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_equal_toMatchKind___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("equalD", 6);
+x_1 = lean_mk_string_unchecked("equalD", 6, 6);
 return x_1;
 }
 }
@@ -782,7 +786,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_equal_toMatchKind___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("equalS", 6);
+x_1 = lean_mk_string_unchecked("equalS", 6, 6);
 return x_1;
 }
 }
@@ -801,7 +805,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_equal_toMatchKind___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("equalA", 6);
+x_1 = lean_mk_string_unchecked("equalA", 6, 6);
 return x_1;
 }
 }
@@ -1268,7 +1272,6 @@ case 1:
 {
 uint8_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_14 = lean_ctor_get_uint8(x_3, 0);
-lean_dec(x_3);
 x_15 = lean_box(x_14);
 x_16 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_GuardExpr_MatchKind_isEq___lambda__1___boxed), 8, 3);
 lean_closure_set(x_16, 0, x_15);
@@ -1304,6 +1307,15 @@ x_9 = lean_unbox(x_1);
 lean_dec(x_1);
 x_10 = l_Lean_Elab_Tactic_GuardExpr_MatchKind_isEq___lambda__1(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardExpr_MatchKind_isEq___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+lean_object* x_9; 
+x_9 = l_Lean_Elab_Tactic_GuardExpr_MatchKind_isEq(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+lean_dec(x_3);
+return x_9;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_withoutErrToSorry___at_Lean_Elab_Tactic_GuardExpr_elabAndEvalMatchKind___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
@@ -1432,7 +1444,6 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
 x_38 = !lean_is_exclusive(x_29);
 if (x_38 == 0)
 {
@@ -1464,7 +1475,6 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
 x_42 = !lean_is_exclusive(x_25);
 if (x_42 == 0)
 {
@@ -1497,7 +1507,6 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
 x_46 = !lean_is_exclusive(x_22);
 if (x_46 == 0)
 {
@@ -1529,7 +1538,6 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
 x_50 = !lean_is_exclusive(x_19);
 if (x_50 == 0)
 {
@@ -1560,7 +1568,6 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
 x_54 = !lean_is_exclusive(x_16);
 if (x_54 == 0)
 {
@@ -1590,7 +1597,6 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 x_58 = !lean_is_exclusive(x_13);
@@ -1619,7 +1625,7 @@ _start:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_11 = lean_box(0);
-x_12 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_GuardExpr_elabAndEvalMatchKind___lambda__1), 11, 4);
+x_12 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_GuardExpr_elabAndEvalMatchKind___lambda__1___boxed), 11, 4);
 lean_closure_set(x_12, 0, x_2);
 lean_closure_set(x_12, 1, x_11);
 lean_closure_set(x_12, 2, x_3);
@@ -1628,11 +1634,20 @@ x_13 = l_Lean_Elab_Term_withoutErrToSorryImp___rarg(x_12, x_4, x_5, x_6, x_7, x_
 return x_13;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardExpr_elabAndEvalMatchKind___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
+_start:
+{
+lean_object* x_12; 
+x_12 = l_Lean_Elab_Tactic_GuardExpr_elabAndEvalMatchKind___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
+lean_dec(x_4);
+return x_12;
+}
+}
 static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_evalGuardExpr___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed: ", 8);
+x_1 = lean_mk_string_unchecked("failed: ", 8, 8);
 return x_1;
 }
 }
@@ -1649,7 +1664,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_evalGuardExpr___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -1666,7 +1681,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_evalGuardExpr___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -1683,7 +1698,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_evalGuardExpr___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" is not true", 12);
+x_1 = lean_mk_string_unchecked(" is not true", 12, 12);
 return x_1;
 }
 }
@@ -1829,7 +1844,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_evalGuardExpr___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -1837,7 +1852,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_evalGuardExpr___closed__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("guardExpr", 9);
+x_1 = lean_mk_string_unchecked("guardExpr", 9, 9);
 return x_1;
 }
 }
@@ -1857,7 +1872,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_evalGuardExpr___closed__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("guardExprConv", 13);
+x_1 = lean_mk_string_unchecked("guardExprConv", 13, 13);
 return x_1;
 }
 }
@@ -2048,7 +2063,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_GuardExpr_evalGuardExp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -2056,7 +2071,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_GuardExpr_evalGuardExp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("GuardExpr", 9);
+x_1 = lean_mk_string_unchecked("GuardExpr", 9, 9);
 return x_1;
 }
 }
@@ -2064,7 +2079,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_GuardExpr_evalGuardExp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalGuardExpr", 13);
+x_1 = lean_mk_string_unchecked("evalGuardExpr", 13, 13);
 return x_1;
 }
 }
@@ -2223,7 +2238,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_GuardExpr_evalGuardExp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalGuardExprConv", 17);
+x_1 = lean_mk_string_unchecked("evalGuardExprConv", 17, 17);
 return x_1;
 }
 }
@@ -2366,7 +2381,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_evalGuardTarget___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("target of main goal is", 22);
+x_1 = lean_mk_string_unchecked("target of main goal is", 22, 22);
 return x_1;
 }
 }
@@ -2383,7 +2398,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_evalGuardTarget___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nnot", 4);
+x_1 = lean_mk_string_unchecked("\nnot", 4, 4);
 return x_1;
 }
 }
@@ -2404,10 +2419,6 @@ lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
-lean_inc(x_6);
-lean_inc(x_5);
-lean_inc(x_4);
-lean_inc(x_3);
 x_12 = l_Lean_Elab_Tactic_Conv_getLhs(x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_12) == 0)
 {
@@ -2489,6 +2500,7 @@ lean_inc(x_7);
 lean_inc(x_17);
 lean_inc(x_25);
 x_30 = l_Lean_Elab_Tactic_GuardExpr_MatchKind_isEq(x_25, x_17, x_29, x_7, x_8, x_9, x_10, x_26);
+lean_dec(x_29);
 if (lean_obj_tag(x_30) == 0)
 {
 lean_object* x_31; uint8_t x_32; 
@@ -2744,6 +2756,7 @@ lean_inc(x_7);
 lean_inc(x_61);
 lean_inc(x_69);
 x_74 = l_Lean_Elab_Tactic_GuardExpr_MatchKind_isEq(x_69, x_61, x_73, x_7, x_8, x_9, x_10, x_70);
+lean_dec(x_73);
 if (lean_obj_tag(x_74) == 0)
 {
 lean_object* x_75; uint8_t x_76; 
@@ -2965,14 +2978,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardExpr_evalGuardTarget___lambda__
 _start:
 {
 lean_object* x_12; 
-lean_inc(x_10);
-lean_inc(x_9);
-lean_inc(x_8);
-lean_inc(x_7);
-lean_inc(x_6);
-lean_inc(x_5);
-lean_inc(x_4);
-lean_inc(x_3);
 x_12 = l_Lean_Elab_Tactic_getMainTarget(x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_12) == 0)
 {
@@ -3054,6 +3059,7 @@ lean_inc(x_7);
 lean_inc(x_17);
 lean_inc(x_25);
 x_30 = l_Lean_Elab_Tactic_GuardExpr_MatchKind_isEq(x_25, x_17, x_29, x_7, x_8, x_9, x_10, x_26);
+lean_dec(x_29);
 if (lean_obj_tag(x_30) == 0)
 {
 lean_object* x_31; uint8_t x_32; 
@@ -3309,6 +3315,7 @@ lean_inc(x_7);
 lean_inc(x_61);
 lean_inc(x_69);
 x_74 = l_Lean_Elab_Tactic_GuardExpr_MatchKind_isEq(x_69, x_61, x_73, x_7, x_8, x_9, x_10, x_70);
+lean_dec(x_73);
 if (lean_obj_tag(x_74) == 0)
 {
 lean_object* x_75; uint8_t x_76; 
@@ -3530,7 +3537,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_evalGuardTarget___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("guardTarget", 11);
+x_1 = lean_mk_string_unchecked("guardTarget", 11, 11);
 return x_1;
 }
 }
@@ -3550,7 +3557,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_evalGuardTarget___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("guardTargetConv", 15);
+x_1 = lean_mk_string_unchecked("guardTargetConv", 15, 15);
 return x_1;
 }
 }
@@ -3629,7 +3636,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_GuardExpr_evalGuardTar
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalGuardTarget", 15);
+x_1 = lean_mk_string_unchecked("evalGuardTarget", 15, 15);
 return x_1;
 }
 }
@@ -3780,7 +3787,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_GuardExpr_evalGuardTar
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalGuardTargetConv", 19);
+x_1 = lean_mk_string_unchecked("evalGuardTargetConv", 19, 19);
 return x_1;
 }
 }
@@ -3961,7 +3968,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___lambda__1_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" is not a let binding", 21);
+x_1 = lean_mk_string_unchecked(" is not a let binding", 21, 21);
 return x_1;
 }
 }
@@ -3978,7 +3985,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___lambda__1_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" is a let binding", 17);
+x_1 = lean_mk_string_unchecked(" is a let binding", 17, 17);
 return x_1;
 }
 }
@@ -3995,7 +4002,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___lambda__1_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hypothesis ", 11);
+x_1 = lean_mk_string_unchecked("hypothesis ", 11, 11);
 return x_1;
 }
 }
@@ -4012,7 +4019,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___lambda__1_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" has value", 10);
+x_1 = lean_mk_string_unchecked(" has value", 10, 10);
 return x_1;
 }
 }
@@ -4194,6 +4201,7 @@ lean_inc(x_10);
 lean_inc(x_45);
 lean_inc(x_41);
 x_47 = l_Lean_Elab_Tactic_GuardExpr_MatchKind_isEq(x_41, x_45, x_37, x_10, x_11, x_12, x_13, x_46);
+lean_dec(x_37);
 if (lean_obj_tag(x_47) == 0)
 {
 lean_object* x_48; uint8_t x_49; 
@@ -4332,6 +4340,7 @@ lean_inc(x_10);
 lean_inc(x_74);
 lean_inc(x_41);
 x_76 = l_Lean_Elab_Tactic_GuardExpr_MatchKind_isEq(x_41, x_74, x_37, x_10, x_11, x_12, x_13, x_75);
+lean_dec(x_37);
 if (lean_obj_tag(x_76) == 0)
 {
 lean_object* x_77; uint8_t x_78; 
@@ -4534,6 +4543,7 @@ lean_inc(x_10);
 lean_inc(x_114);
 lean_inc(x_111);
 x_117 = l_Lean_Elab_Tactic_GuardExpr_MatchKind_isEq(x_111, x_114, x_106, x_10, x_11, x_12, x_13, x_115);
+lean_dec(x_106);
 if (lean_obj_tag(x_117) == 0)
 {
 lean_object* x_118; uint8_t x_119; 
@@ -4707,7 +4717,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___lambda__2_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" has type", 9);
+x_1 = lean_mk_string_unchecked(" has type", 9, 9);
 return x_1;
 }
 }
@@ -4729,7 +4739,6 @@ lean_object* x_16; lean_object* x_17;
 lean_dec(x_5);
 x_16 = lean_box(0);
 x_17 = l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___lambda__1(x_6, x_1, x_2, x_3, x_16, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
-lean_dec(x_6);
 return x_17;
 }
 else
@@ -4740,7 +4749,6 @@ lean_object* x_18; lean_object* x_19;
 lean_dec(x_4);
 x_18 = lean_box(0);
 x_19 = l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___lambda__1(x_6, x_1, x_2, x_3, x_18, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
-lean_dec(x_6);
 return x_19;
 }
 else
@@ -4765,7 +4773,6 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_6);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -4829,6 +4836,7 @@ lean_inc(x_11);
 lean_inc(x_37);
 lean_inc(x_32);
 x_39 = l_Lean_Elab_Tactic_GuardExpr_MatchKind_isEq(x_32, x_37, x_28, x_11, x_12, x_13, x_14, x_38);
+lean_dec(x_28);
 if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_40; uint8_t x_41; 
@@ -4839,7 +4847,6 @@ lean_dec(x_40);
 if (x_41 == 0)
 {
 lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; uint8_t x_56; 
-lean_dec(x_6);
 lean_dec(x_3);
 lean_dec(x_1);
 x_42 = lean_ctor_get(x_39, 1);
@@ -4909,7 +4916,6 @@ lean_inc(x_60);
 lean_dec(x_39);
 x_61 = lean_box(0);
 x_62 = l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___lambda__1(x_6, x_1, x_2, x_3, x_61, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_60);
-lean_dec(x_6);
 return x_62;
 }
 }
@@ -4927,7 +4933,6 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_6);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -4966,6 +4971,7 @@ lean_inc(x_11);
 lean_inc(x_67);
 lean_inc(x_32);
 x_69 = l_Lean_Elab_Tactic_GuardExpr_MatchKind_isEq(x_32, x_67, x_28, x_11, x_12, x_13, x_14, x_68);
+lean_dec(x_28);
 if (lean_obj_tag(x_69) == 0)
 {
 lean_object* x_70; uint8_t x_71; 
@@ -4976,7 +4982,6 @@ lean_dec(x_70);
 if (x_71 == 0)
 {
 lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; 
-lean_dec(x_6);
 lean_dec(x_3);
 lean_dec(x_1);
 x_72 = lean_ctor_get(x_69, 1);
@@ -5047,7 +5052,6 @@ lean_inc(x_91);
 lean_dec(x_69);
 x_92 = lean_box(0);
 x_93 = l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___lambda__1(x_6, x_1, x_2, x_3, x_92, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_91);
-lean_dec(x_6);
 return x_93;
 }
 }
@@ -5064,7 +5068,6 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_6);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -5103,7 +5106,6 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_6);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -5135,7 +5137,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___lambda__3_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" not found", 10);
+x_1 = lean_mk_string_unchecked(" not found", 10, 10);
 return x_1;
 }
 }
@@ -5224,6 +5226,7 @@ x_30 = lean_ctor_get(x_19, 0);
 lean_inc(x_30);
 lean_dec(x_19);
 x_31 = l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___lambda__2(x_2, x_1, x_3, x_4, x_5, x_30, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_17);
+lean_dec(x_30);
 return x_31;
 }
 }
@@ -5282,10 +5285,8 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___lambda__5(l
 _start:
 {
 lean_object* x_15; lean_object* x_16; uint8_t x_17; 
-lean_dec(x_3);
 x_15 = lean_unsigned_to_nat(3u);
 x_16 = l_Lean_Syntax_getArg(x_1, x_15);
-lean_dec(x_1);
 x_17 = l_Lean_Syntax_isNone(x_16);
 if (x_17 == 0)
 {
@@ -5343,7 +5344,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("guardHyp", 8);
+x_1 = lean_mk_string_unchecked("guardHyp", 8, 8);
 return x_1;
 }
 }
@@ -5363,7 +5364,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("guardHypConv", 12);
+x_1 = lean_mk_string_unchecked("guardHypConv", 12, 12);
 return x_1;
 }
 }
@@ -5450,6 +5451,7 @@ x_27 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_27, 0, x_25);
 x_28 = lean_box(0);
 x_29 = l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___lambda__5(x_1, x_17, x_28, x_26, x_27, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+lean_dec(x_1);
 return x_29;
 }
 }
@@ -5460,6 +5462,7 @@ lean_dec(x_19);
 x_30 = lean_box(0);
 x_31 = lean_box(0);
 x_32 = l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___lambda__5(x_1, x_17, x_31, x_30, x_30, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+lean_dec(x_1);
 return x_32;
 }
 }
@@ -5507,6 +5510,7 @@ x_44 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_44, 0, x_42);
 x_45 = lean_box(0);
 x_46 = l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___lambda__5(x_1, x_34, x_45, x_43, x_44, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+lean_dec(x_1);
 return x_46;
 }
 }
@@ -5517,6 +5521,7 @@ lean_dec(x_36);
 x_47 = lean_box(0);
 x_48 = lean_box(0);
 x_49 = l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___lambda__5(x_1, x_34, x_48, x_47, x_47, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+lean_dec(x_1);
 return x_49;
 }
 }
@@ -5548,6 +5553,15 @@ lean_dec(x_1);
 return x_15;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15) {
+_start:
+{
+lean_object* x_16; 
+x_16 = l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
+lean_dec(x_6);
+return x_16;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___lambda__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15) {
 _start:
 {
@@ -5557,11 +5571,21 @@ lean_dec(x_4);
 return x_16;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___lambda__5___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14) {
+_start:
+{
+lean_object* x_15; 
+x_15 = l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___lambda__5(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
+lean_dec(x_3);
+lean_dec(x_1);
+return x_15;
+}
+}
 static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_GuardExpr_evalGuardHyp__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalGuardHyp", 12);
+x_1 = lean_mk_string_unchecked("evalGuardHyp", 12, 12);
 return x_1;
 }
 }
@@ -5712,7 +5736,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_GuardExpr_evalGuardHyp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalGuardHypConv", 16);
+x_1 = lean_mk_string_unchecked("evalGuardHypConv", 16, 16);
 return x_1;
 }
 }
@@ -6065,7 +6089,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_evalGuardExprCmd___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Command", 7);
+x_1 = lean_mk_string_unchecked("Command", 7, 7);
 return x_1;
 }
 }
@@ -6073,7 +6097,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_evalGuardExprCmd___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("guardExprCmd", 12);
+x_1 = lean_mk_string_unchecked("guardExprCmd", 12, 12);
 return x_1;
 }
 }
@@ -6185,7 +6209,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_GuardExpr_evalGuardExp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalGuardExprCmd", 16);
+x_1 = lean_mk_string_unchecked("evalGuardExprCmd", 16, 16);
 return x_1;
 }
 }
@@ -6336,7 +6360,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_evalGuardCmd_unsafe__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Bool", 4);
+x_1 = lean_mk_string_unchecked("Bool", 4, 4);
 return x_1;
 }
 }
@@ -6374,7 +6398,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_evalGuardCmd___lambda__1_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expression", 10);
+x_1 = lean_mk_string_unchecked("expression", 10, 10);
 return x_1;
 }
 }
@@ -6391,7 +6415,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_evalGuardCmd___lambda__1_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\ndid not evaluate to `true`", 27);
+x_1 = lean_mk_string_unchecked("\ndid not evaluate to `true`", 27, 27);
 return x_1;
 }
 }
@@ -7052,7 +7076,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_evalGuardCmd___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("guardCmd", 8);
+x_1 = lean_mk_string_unchecked("guardCmd", 8, 8);
 return x_1;
 }
 }
@@ -7123,7 +7147,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_GuardExpr_evalGuardCmd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalGuardCmd", 12);
+x_1 = lean_mk_string_unchecked("evalGuardCmd", 12, 12);
 return x_1;
 }
 }

@@ -468,11 +468,13 @@ class Singleton (α : outParam <| Type u) (β : Type v) where
 export Singleton (singleton)
 
 /-- `insert x ∅ = {x}` -/
-class IsLawfulSingleton (α : Type u) (β : Type v) [EmptyCollection β] [Insert α β] [Singleton α β] :
+class LawfulSingleton (α : Type u) (β : Type v) [EmptyCollection β] [Insert α β] [Singleton α β] :
     Prop where
   /-- `insert x ∅ = {x}` -/
   insert_emptyc_eq (x : α) : (insert x ∅ : β) = singleton x
-export IsLawfulSingleton (insert_emptyc_eq)
+export LawfulSingleton (insert_emptyc_eq)
+
+attribute [simp] insert_emptyc_eq
 
 /-- Type class used to implement the notation `{ a ∈ c | p a }` -/
 class Sep (α : outParam <| Type u) (γ : Type v) where
@@ -642,7 +644,7 @@ instance : LawfulBEq String := inferInstance
 
 /-! # Logical connectives and equality -/
 
-@[inherit_doc True.intro] def trivial : True := ⟨⟩
+@[inherit_doc True.intro] theorem trivial : True := ⟨⟩
 
 theorem mt {a b : Prop} (h₁ : a → b) (h₂ : ¬b) : ¬a :=
   fun ha => h₂ (h₁ ha)
@@ -701,7 +703,7 @@ theorem Ne.elim (h : a ≠ b) : a = b → False := h
 
 theorem Ne.irrefl (h : a ≠ a) : False := h rfl
 
-theorem Ne.symm (h : a ≠ b) : b ≠ a := fun h₁ => h (h₁.symm)
+@[symm] theorem Ne.symm (h : a ≠ b) : b ≠ a := fun h₁ => h (h₁.symm)
 
 theorem ne_comm {α} {a b : α} : a ≠ b ↔ b ≠ a := ⟨Ne.symm, Ne.symm⟩
 
@@ -754,7 +756,7 @@ noncomputable def HEq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (
 theorem HEq.subst {p : (T : Sort u) → T → Prop} (h₁ : HEq a b) (h₂ : p α a) : p β b :=
   HEq.ndrecOn h₁ h₂
 
-theorem HEq.symm (h : HEq a b) : HEq b a :=
+@[symm] theorem HEq.symm (h : HEq a b) : HEq b a :=
   h.rec (HEq.refl a)
 
 theorem heq_of_eq (h : a = a') : HEq a a' :=
@@ -810,15 +812,15 @@ instance : Trans Iff Iff Iff where
 theorem Eq.comm {a b : α} : a = b ↔ b = a := Iff.intro Eq.symm Eq.symm
 theorem eq_comm {a b : α} : a = b ↔ b = a := Eq.comm
 
-theorem Iff.symm (h : a ↔ b) : b ↔ a := Iff.intro h.mpr h.mp
+@[symm] theorem Iff.symm (h : a ↔ b) : b ↔ a := Iff.intro h.mpr h.mp
 theorem Iff.comm: (a ↔ b) ↔ (b ↔ a) := Iff.intro Iff.symm Iff.symm
 theorem iff_comm : (a ↔ b) ↔ (b ↔ a) := Iff.comm
 
-theorem And.symm : a ∧ b → b ∧ a := fun ⟨ha, hb⟩ => ⟨hb, ha⟩
+@[symm] theorem And.symm : a ∧ b → b ∧ a := fun ⟨ha, hb⟩ => ⟨hb, ha⟩
 theorem And.comm : a ∧ b ↔ b ∧ a := Iff.intro And.symm And.symm
 theorem and_comm : a ∧ b ↔ b ∧ a := And.comm
 
-theorem Or.symm : a ∨ b → b ∨ a := .rec .inr .inl
+@[symm] theorem Or.symm : a ∨ b → b ∨ a := .rec .inr .inl
 theorem Or.comm : a ∨ b ↔ b ∨ a := Iff.intro Or.symm Or.symm
 theorem or_comm : a ∨ b ↔ b ∨ a := Or.comm
 
@@ -1089,19 +1091,30 @@ def InvImage {α : Sort u} {β : Sort v} (r : β → β → Prop) (f : α → β
   fun a₁ a₂ => r (f a₁) (f a₂)
 
 /--
-The transitive closure `r⁺` of a relation `r` is the smallest relation which is
-transitive and contains `r`. `r⁺ a z` if and only if there exists a sequence
+The transitive closure `TransGen r` of a relation `r` is the smallest relation which is
+transitive and contains `r`. `TransGen r a z` if and only if there exists a sequence
 `a r b r ... r z` of length at least 1 connecting `a` to `z`.
 -/
-inductive TC {α : Sort u} (r : α → α → Prop) : α → α → Prop where
-  /-- If `r a b` then `r⁺ a b`. This is the base case of the transitive closure. -/
-  | base  : ∀ a b, r a b → TC r a b
+inductive Relation.TransGen {α : Sort u} (r : α → α → Prop) : α → α → Prop
+  /-- If `r a b` then `TransGen r a b`. This is the base case of the transitive closure. -/
+  | single {a b} : r a b → TransGen r a b
   /-- The transitive closure is transitive. -/
-  | trans : ∀ a b c, TC r a b → TC r b c → TC r a c
+  | tail {a b c} : TransGen r a b → r b c → TransGen r a c
+
+/-- Deprecated synonym for `Relation.TransGen`. -/
+@[deprecated Relation.TransGen (since := "2024-07-16")] abbrev TC := @Relation.TransGen
+
+theorem Relation.TransGen.trans {α : Sort u} {r : α → α → Prop} {a b c} :
+    TransGen r a b → TransGen r b c → TransGen r a c := by
+  intro hab hbc
+  induction hbc with
+  | single h => exact TransGen.tail hab h
+  | tail _ h ih => exact TransGen.tail ih h
 
 /-! # Subtype -/
 
 namespace Subtype
+
 theorem existsOfSubtype {α : Type u} {p : α → Prop} : { x // p x } → Exists (fun x => p x)
   | ⟨a, h⟩ => ⟨a, h⟩
 
@@ -1173,7 +1186,7 @@ def Prod.lexLt [LT α] [LT β] (s : α × β) (t : α × β) : Prop :=
   s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)
 
 instance Prod.lexLtDec
-    [LT α] [LT β] [DecidableEq α] [DecidableEq β]
+    [LT α] [LT β] [DecidableEq α]
     [(a b : α) → Decidable (a < b)] [(a b : β) → Decidable (a < b)]
     : (s t : α × β) → Decidable (Prod.lexLt s t) :=
   fun _ _ => inferInstanceAs (Decidable (_ ∨ _))
@@ -1191,10 +1204,19 @@ def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ 
     (f : α₁ → α₂) (g : β₁ → β₂) : α₁ × β₁ → α₂ × β₂
   | (a, b) => (f a, g b)
 
+@[simp] theorem Prod.map_apply (f : α → β) (g : γ → δ) (x) (y) :
+    Prod.map f g (x, y) = (f x, g y) := rfl
+@[simp] theorem Prod.map_fst (f : α → β) (g : γ → δ) (x) : (Prod.map f g x).1 = f x.1 := rfl
+@[simp] theorem Prod.map_snd (f : α → β) (g : γ → δ) (x) : (Prod.map f g x).2 = g x.2 := rfl
+
 /-! # Dependent products -/
 
-theorem ex_of_PSigma {α : Type u} {p : α → Prop} : (PSigma (fun x => p x)) → Exists (fun x => p x)
+theorem Exists.of_psigma_prop {α : Sort u} {p : α → Prop} : (PSigma (fun x => p x)) → Exists (fun x => p x)
   | ⟨x, hx⟩ => ⟨x, hx⟩
+
+@[deprecated Exists.of_psigma_prop (since := "2024-07-27")]
+theorem ex_of_PSigma {α : Type u} {p : α → Prop} : (PSigma (fun x => p x)) → Exists (fun x => p x) :=
+  Exists.of_psigma_prop
 
 protected theorem PSigma.eta {α : Sort u} {β : α → Sort v} {a₁ a₂ : α} {b₁ : β a₁} {b₂ : β a₂}
     (h₁ : a₁ = a₂) (h₂ : Eq.ndrec b₁ h₁ = b₂) : PSigma.mk a₁ b₁ = PSigma.mk a₂ b₂ := by
@@ -1356,6 +1378,9 @@ theorem iff_false_right (ha : ¬a) : (b ↔ a) ↔ ¬b := Iff.comm.trans (iff_fa
 
 theorem of_iff_true    (h : a ↔ True) : a := h.mpr trivial
 theorem iff_true_intro (h : a) : a ↔ True := iff_of_true h trivial
+
+theorem eq_iff_true_of_subsingleton [Subsingleton α] (x y : α) : x = y ↔ True :=
+  iff_true_intro (Subsingleton.elim ..)
 
 theorem not_of_iff_false : (p ↔ False) → ¬p := Iff.mp
 theorem iff_false_intro (h : ¬a) : a ↔ False := iff_of_false h id
@@ -1534,7 +1559,7 @@ protected abbrev rec
     (q : Quot r) : motive q :=
   Eq.ndrecOn (Quot.liftIndepPr1 f h q) ((lift (Quot.indep f) (Quot.indepCoherent f h) q).2)
 
-@[inherit_doc Quot.rec] protected abbrev recOn
+@[inherit_doc Quot.rec, elab_as_elim] protected abbrev recOn
     (q : Quot r)
     (f : (a : α) → motive (Quot.mk r a))
     (h : (a b : α) → (p : r a b) → Eq.ndrec (f a) (sound p) = f b)
@@ -1545,7 +1570,7 @@ protected abbrev rec
 Dependent induction principle for a quotient, when the target type is a `Subsingleton`.
 In this case the quotient's side condition is trivial so any function can be lifted.
 -/
-protected abbrev recOnSubsingleton
+@[elab_as_elim] protected abbrev recOnSubsingleton
     [h : (a : α) → Subsingleton (motive (Quot.mk r a))]
     (q : Quot r)
     (f : (a : α) → motive (Quot.mk r a))
@@ -1862,7 +1887,7 @@ instance : Subsingleton (Squash α) where
 /--
 `Antisymm (·≤·)` says that `(·≤·)` is antisymmetric, that is, `a ≤ b → b ≤ a → a = b`.
 -/
-class Antisymm {α : Sort u} (r : α → α → Prop) where
+class Antisymm {α : Sort u} (r : α → α → Prop) : Prop where
   /-- An antisymmetric relation `(·≤·)` satisfies `a ≤ b → b ≤ a → a = b`. -/
   antisymm {a b : α} : r a b → r b a → a = b
 

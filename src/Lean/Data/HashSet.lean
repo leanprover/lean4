@@ -6,6 +6,8 @@ Author: Leonardo de Moura
 prelude
 import Init.Data.Nat.Power2
 import Init.Data.List.Control
+import Std.Data.HashSet.Basic
+import Std.Data.HashSet.Raw
 namespace Lean
 universe u v w
 
@@ -15,6 +17,10 @@ def HashSetBucket (α : Type u) :=
 def HashSetBucket.update {α : Type u} (data : HashSetBucket α) (i : USize) (d : List α) (h : i.toNat < data.val.size) : HashSetBucket α :=
   ⟨ data.val.uset i d h,
     by erw [Array.size_set]; apply data.property ⟩
+
+@[simp] theorem HashSetBucket.size_update {α : Type u} (data : HashSetBucket α) (i : USize) (d : List α) (h : i.toNat < data.val.size) :
+    (data.update i d h).val.size = data.val.size := by
+  simp [update, Array.uset]
 
 structure HashSetImp (α : Type u) where
   size       : Nat
@@ -100,7 +106,10 @@ def insert [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : HashSetImp α :
     let ⟨i, h⟩ := mkIdx (hash a) buckets.property
     let bkt    := buckets.val[i]
     if bkt.contains a
-    then ⟨size, buckets.update i (bkt.replace a a) h⟩
+    then
+      -- make sure `bkt` is used linearly in the following call to `replace`
+      let buckets' := buckets.update i .nil h
+      ⟨size, buckets'.update i (bkt.replace a a) (by simpa [buckets'])⟩
     else
       let size'    := size + 1
       let buckets' := buckets.update i (a :: bkt) h
@@ -114,7 +123,9 @@ def erase [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : HashSetImp α :=
     let ⟨i, h⟩ := mkIdx (hash a) buckets.property
     let bkt    := buckets.val[i]
     if bkt.contains a then
-      ⟨size - 1, buckets.update i (bkt.erase a) h⟩
+      -- make sure `bkt` is used linearly in the following call to `erase`
+      let buckets' := buckets.update i .nil h
+      ⟨size - 1, buckets'.update i (bkt.erase a) (by simpa [buckets'])⟩
     else
       ⟨size, buckets⟩
 
@@ -208,3 +219,9 @@ def insertMany [ForIn Id ρ α] (s : HashSet α) (as : ρ) : HashSet α := Id.ru
 def merge {α : Type u} [BEq α] [Hashable α] (s t : HashSet α) : HashSet α :=
   t.fold (init := s) fun s a => s.insert a
   -- We don't use `insertMany` here because it gives weird universes.
+
+attribute [deprecated Std.HashSet] HashSet
+attribute [deprecated Std.HashSet.Raw] HashSetImp
+attribute [deprecated Std.HashSet.Raw.empty] mkHashSetImp
+attribute [deprecated Std.HashSet.empty] mkHashSet
+attribute [deprecated Std.HashSet.empty] HashSet.empty

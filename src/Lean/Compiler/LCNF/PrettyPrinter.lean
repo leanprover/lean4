@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.PrettyPrinter
+import Lean.PrettyPrinter.Delaborator.Options
 import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.Internalize
 

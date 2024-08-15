@@ -20,14 +20,14 @@ static lean_object* l_Lean_instToStringLOption___rarg___closed__3;
 static lean_object* l_Lean_instToStringLOption___rarg___closed__4;
 LEAN_EXPORT lean_object* l_Lean_instBEqLOption(lean_object*);
 LEAN_EXPORT lean_object* l_toLOptionM___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Data_LOption_0__Lean_beqLOption____x40_Lean_Data_LOption___hyg_41_(lean_object*);
 LEAN_EXPORT lean_object* l_toLOptionM___rarg___lambda__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Data_LOption_0__Lean_beqLOption____x40_Lean_Data_LOption___hyg_39____rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToStringLOption(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instBEqLOption___rarg(lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Data_LOption_0__Lean_beqLOption____x40_Lean_Data_LOption___hyg_39_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToStringLOption___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_instToStringLOption___rarg___closed__1;
 lean_object* lean_string_append(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Data_LOption_0__Lean_beqLOption____x40_Lean_Data_LOption___hyg_41____rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_toLOption(lean_object*);
 LEAN_EXPORT lean_object* l_Option_toLOption___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedLOption(lean_object* x_1) {
@@ -38,7 +38,7 @@ x_2 = lean_box(0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Data_LOption_0__Lean_beqLOption____x40_Lean_Data_LOption___hyg_39____rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Lean_Data_LOption_0__Lean_beqLOption____x40_Lean_Data_LOption___hyg_41____rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 switch (lean_obj_tag(x_2)) {
@@ -108,11 +108,11 @@ return x_16;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Data_LOption_0__Lean_beqLOption____x40_Lean_Data_LOption___hyg_39_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lean_Data_LOption_0__Lean_beqLOption____x40_Lean_Data_LOption___hyg_41_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Lean_Data_LOption_0__Lean_beqLOption____x40_Lean_Data_LOption___hyg_39____rarg), 3, 0);
+x_2 = lean_alloc_closure((void*)(l___private_Lean_Data_LOption_0__Lean_beqLOption____x40_Lean_Data_LOption___hyg_41____rarg), 3, 0);
 return x_2;
 }
 }
@@ -120,7 +120,7 @@ LEAN_EXPORT lean_object* l_Lean_instBEqLOption___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Lean_Data_LOption_0__Lean_beqLOption____x40_Lean_Data_LOption___hyg_39____rarg), 3, 1);
+x_2 = lean_alloc_closure((void*)(l___private_Lean_Data_LOption_0__Lean_beqLOption____x40_Lean_Data_LOption___hyg_41____rarg), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -137,7 +137,7 @@ static lean_object* _init_l_Lean_instToStringLOption___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("none", 4);
+x_1 = lean_mk_string_unchecked("none", 4, 4);
 return x_1;
 }
 }
@@ -145,7 +145,7 @@ static lean_object* _init_l_Lean_instToStringLOption___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(some ", 6);
+x_1 = lean_mk_string_unchecked("(some ", 6, 6);
 return x_1;
 }
 }
@@ -153,7 +153,7 @@ static lean_object* _init_l_Lean_instToStringLOption___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -161,7 +161,7 @@ static lean_object* _init_l_Lean_instToStringLOption___rarg___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("undef", 5);
+x_1 = lean_mk_string_unchecked("undef", 5, 5);
 return x_1;
 }
 }

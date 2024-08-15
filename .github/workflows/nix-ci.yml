@@ -13,18 +13,36 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # see ci.yml
+  configure:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.result }}
+    steps:
+      - name: Configure build matrix
+        id: set-matrix
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let large = ${{ github.repository == 'leanprover/lean4' }};
+            let matrix = [
+              {
+                "name": "Nix Linux",
+                "os": large ? "nscloud-ubuntu-22.04-amd64-8x8" : "ubuntu-latest",
+              }
+            ];
+            console.log(`matrix:\n${JSON.stringify(matrix, null, 2)}`);
+            return matrix;
+
   Build:
+    needs: [configure]
     runs-on: ${{ matrix.os }}
     defaults:
       run:
         shell: nix run .#ciShell -- bash -euxo pipefail {0}
     strategy:
       matrix:
-        include:
-          - name: Nix Linux
-            os: ubuntu-latest
-          #- name: Nix macOS
-          #  os: macos-latest
+        include: ${{fromJson(needs.configure.outputs.matrix)}}
       # complete all jobs
       fail-fast: false
     name: ${{ matrix.name }}
@@ -32,18 +50,19 @@ jobs:
       NIX_BUILD_ARGS: --print-build-logs --fallback
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           # the default is to use a virtual merge commit between the PR and master: just use the PR
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Set Up Nix Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: nix-store-cache
           key: ${{ matrix.name }}-nix-store-cache-${{ github.sha }}
           # fall back to (latest) previous cache
           restore-keys: |
             ${{ matrix.name }}-nix-store-cache
+          save-always: true
       - name: Further Set Up Nix Cache
         shell: bash -euxo pipefail {0}
         run: |
@@ -60,13 +79,14 @@ jobs:
           sudo mkdir -m0770 -p /nix/var/cache/ccache
           sudo chown -R $USER /nix/var/cache/ccache
       - name: Setup CCache Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /nix/var/cache/ccache
           key: ${{ matrix.name }}-nix-ccache-${{ github.sha }}
           # fall back to (latest) previous cache
           restore-keys: |
             ${{ matrix.name }}-nix-ccache
+          save-always: true
       - name: Further Set Up CCache Cache
         run: |
           sudo chown -R root:nixbld /nix/var/cache
@@ -85,7 +105,7 @@ jobs:
         continue-on-error: true
       - name: Build manual
         run: |
-          nix build $NIX_BUILD_ARGS --update-input lean --no-write-lock-file ./doc#{lean-mdbook,leanInk,alectryon,test,inked} -o push-doc
+          nix build $NIX_BUILD_ARGS --update-input lean --no-write-lock-file ./doc#{lean-mdbook,leanInk,alectryon,inked} -o push-doc
           nix build $NIX_BUILD_ARGS --update-input lean --no-write-lock-file ./doc
           # https://github.com/netlify/cli/issues/1809
           cp -r --dereference ./result ./dist
@@ -128,5 +148,3 @@ jobs:
       - name: Fixup CCache Cache
         run: |
           sudo chown -R $USER /nix/var/cache
-      - name: CCache stats
-        run: CCACHE_DIR=/nix/var/cache/ccache nix run .#nixpkgs.ccache -- -s

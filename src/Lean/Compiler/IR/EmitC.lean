@@ -91,11 +91,6 @@ def toCInitName (n : Name) : M String := do
 def emitCInitName (n : Name) : M Unit :=
   toCInitName n >>= emit
 
-def shouldExport (n : Name) : Bool :=
-  -- HACK: exclude symbols very unlikely to be used by the interpreter or other consumers of
-  -- libleanshared to avoid Windows symbol limit
-  !(`Lean.Compiler.LCNF).isPrefixOf n
-
 def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M Unit := do
   let ps := decl.params
   let env ← getEnv
@@ -104,7 +99,7 @@ def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M U
     else if isExternal then emit "extern "
     else emit "LEAN_EXPORT "
   else
-    if !isExternal && shouldExport decl.name then emit "LEAN_EXPORT "
+    if !isExternal then emit "LEAN_EXPORT "
   emit (toCType decl.resultType ++ " " ++ cppBaseName)
   unless ps.isEmpty do
     emit "("
@@ -249,7 +244,7 @@ def throwUnknownVar {α : Type} (x : VarId) : M α :=
 
 def getJPParams (j : JoinPointId) : M (Array Param) := do
   let ctx ← read;
-  match ctx.jpMap.find? j with
+  match ctx.jpMap[j]? with
   | some ps => pure ps
   | none    => throw "unknown join point"
 
@@ -499,7 +494,11 @@ def emitLit (z : VarId) (t : IRType) (v : LitVal) : M Unit := do
   emitLhs z;
   match v with
   | LitVal.num v => emitNumLit t v; emitLn ";"
-  | LitVal.str v => emit "lean_mk_string_from_bytes("; emit (quoteString v); emit ", "; emit v.utf8ByteSize; emitLn ");"
+  | LitVal.str v =>
+    emit "lean_mk_string_unchecked(";
+    emit (quoteString v); emit ", ";
+    emit v.utf8ByteSize; emit ", ";
+    emit v.length; emitLn ");"
 
 def emitVDecl (z : VarId) (t : IRType) (v : Expr) : M Unit :=
   match v with
@@ -646,7 +645,7 @@ def emitDeclAux (d : Decl) : M Unit := do
       let baseName ← toCName f;
       if xs.size == 0 then
         emit "static "
-      else if shouldExport f then
+      else
         emit "LEAN_EXPORT "  -- make symbol visible to the interpreter
       emit (toCType t); emit " ";
       if xs.size > 0 then

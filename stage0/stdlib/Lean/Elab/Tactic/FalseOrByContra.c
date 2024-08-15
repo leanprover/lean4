@@ -37,6 +37,7 @@ static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_MVarId_elabFals
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_falseOrByContra___lambda__1___closed__9;
 lean_object* l_Lean_MVarId_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_MVarId_elabFalseOrByContra___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_withMainContext___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_falseOrByContra___closed__5;
 static lean_object* l_Lean_MVarId_falseOrByContra___lambda__1___closed__4;
@@ -105,7 +106,7 @@ static lean_object* _init_l_Lean_MVarId_falseOrByContra___lambda__1___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("False", 5);
+x_1 = lean_mk_string_unchecked("False", 5, 5);
 return x_1;
 }
 }
@@ -113,7 +114,7 @@ static lean_object* _init_l_Lean_MVarId_falseOrByContra___lambda__1___closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elim", 4);
+x_1 = lean_mk_string_unchecked("elim", 4, 4);
 return x_1;
 }
 }
@@ -146,7 +147,7 @@ static lean_object* _init_l_Lean_MVarId_falseOrByContra___lambda__1___closed__5(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.Tactic.FalseOrByContra", 32);
+x_1 = lean_mk_string_unchecked("Lean.Elab.Tactic.FalseOrByContra", 32, 32);
 return x_1;
 }
 }
@@ -154,7 +155,7 @@ static lean_object* _init_l_Lean_MVarId_falseOrByContra___lambda__1___closed__6(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.MVarId.falseOrByContra", 27);
+x_1 = lean_mk_string_unchecked("Lean.MVarId.falseOrByContra", 27, 27);
 return x_1;
 }
 }
@@ -162,7 +163,7 @@ static lean_object* _init_l_Lean_MVarId_falseOrByContra___lambda__1___closed__7(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected one sugoal", 19);
+x_1 = lean_mk_string_unchecked("expected one sugoal", 19, 19);
 return x_1;
 }
 }
@@ -183,7 +184,7 @@ static lean_object* _init_l_Lean_MVarId_falseOrByContra___lambda__1___closed__9(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected one subgoal", 20);
+x_1 = lean_mk_string_unchecked("expected one subgoal", 20, 20);
 return x_1;
 }
 }
@@ -406,7 +407,7 @@ static lean_object* _init_l_Lean_MVarId_falseOrByContra___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Decidable", 9);
+x_1 = lean_mk_string_unchecked("Decidable", 9, 9);
 return x_1;
 }
 }
@@ -414,7 +415,7 @@ static lean_object* _init_l_Lean_MVarId_falseOrByContra___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("byContradiction", 15);
+x_1 = lean_mk_string_unchecked("byContradiction", 15, 15);
 return x_1;
 }
 }
@@ -432,7 +433,7 @@ static lean_object* _init_l_Lean_MVarId_falseOrByContra___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Classical", 9);
+x_1 = lean_mk_string_unchecked("Classical", 9, 9);
 return x_1;
 }
 }
@@ -450,7 +451,7 @@ static lean_object* _init_l_Lean_MVarId_falseOrByContra___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Not", 3);
+x_1 = lean_mk_string_unchecked("Not", 3, 3);
 return x_1;
 }
 }
@@ -6229,14 +6230,6 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_elabFalseOrByContra___lambda__1(lean_obje
 _start:
 {
 lean_object* x_10; 
-lean_inc(x_8);
-lean_inc(x_7);
-lean_inc(x_6);
-lean_inc(x_5);
-lean_inc(x_4);
-lean_inc(x_3);
-lean_inc(x_2);
-lean_inc(x_1);
 x_10 = l_Lean_Elab_Tactic_getMainGoal(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_10) == 0)
 {
@@ -6265,6 +6258,10 @@ x_18 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_18, 0, x_15);
 lean_ctor_set(x_18, 1, x_17);
 x_19 = l_Lean_Elab_Tactic_replaceMainGoal(x_18, x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_16);
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_5);
 return x_19;
 }
 else
@@ -6274,10 +6271,6 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
 x_20 = !lean_is_exclusive(x_14);
 if (x_20 == 0)
 {
@@ -6305,10 +6298,6 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
 x_24 = !lean_is_exclusive(x_10);
 if (x_24 == 0)
 {
@@ -6334,7 +6323,7 @@ static lean_object* _init_l_Lean_MVarId_elabFalseOrByContra___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -6342,7 +6331,7 @@ static lean_object* _init_l_Lean_MVarId_elabFalseOrByContra___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -6350,7 +6339,7 @@ static lean_object* _init_l_Lean_MVarId_elabFalseOrByContra___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -6358,7 +6347,7 @@ static lean_object* _init_l_Lean_MVarId_elabFalseOrByContra___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("falseOrByContra", 15);
+x_1 = lean_mk_string_unchecked("falseOrByContra", 15, 15);
 return x_1;
 }
 }
@@ -6378,7 +6367,7 @@ static lean_object* _init_l_Lean_MVarId_elabFalseOrByContra___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_MVarId_elabFalseOrByContra___lambda__1), 9, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_MVarId_elabFalseOrByContra___lambda__1___boxed), 9, 0);
 return x_1;
 }
 }
@@ -6427,11 +6416,23 @@ lean_dec(x_1);
 return x_9;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_MVarId_elabFalseOrByContra___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+_start:
+{
+lean_object* x_10; 
+x_10 = l_Lean_MVarId_elabFalseOrByContra___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_10;
+}
+}
 static lean_object* _init_l___regBuiltin_Lean_MVarId_elabFalseOrByContra__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("MVarId", 6);
+x_1 = lean_mk_string_unchecked("MVarId", 6, 6);
 return x_1;
 }
 }
@@ -6439,7 +6440,7 @@ static lean_object* _init_l___regBuiltin_Lean_MVarId_elabFalseOrByContra__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elabFalseOrByContra", 19);
+x_1 = lean_mk_string_unchecked("elabFalseOrByContra", 19, 19);
 return x_1;
 }
 }

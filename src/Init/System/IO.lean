@@ -253,12 +253,9 @@ instance : ToString TaskState := ⟨TaskState.toString⟩
 @[extern "lean_io_wait"] opaque wait (t : Task α) : BaseIO α :=
   return t.get
 
-local macro "nonempty_list" : tactic =>
-  `(tactic| exact Nat.zero_lt_succ _)
-
 /-- Wait until any of the tasks in the given list has finished, then return its result. -/
 @[extern "lean_io_wait_any"] opaque waitAny (tasks : @& List (Task α))
-    (h : tasks.length > 0 := by nonempty_list) : BaseIO α :=
+    (h : tasks.length > 0 := by exact Nat.zero_lt_succ _) : BaseIO α :=
   return tasks[0].get
 
 /-- Helper method for implementing "deterministic" timeouts. It is the number of "small" memory allocations performed by the current execution thread. -/
@@ -438,6 +435,12 @@ Note that EOF does not actually close a handle, so further reads may block and r
 
 end Handle
 
+/--
+Resolves a pathname to an absolute pathname with no '.', '..', or symbolic links.
+
+This function coincides with the [POSIX `realpath` function](https://pubs.opengroup.org/onlinepubs/9699919799/functions/realpath.html),
+see there for more information.
+-/
 @[extern "lean_io_realpath"] opaque realPath (fname : FilePath) : IO FilePath
 @[extern "lean_io_remove_file"] opaque removeFile (fname : @& FilePath) : IO Unit
 /-- Remove given directory. Fails if not empty; see also `IO.FS.removeDirAll`. -/
@@ -467,31 +470,23 @@ def withFile (fn : FilePath) (mode : Mode) (f : Handle → IO α) : IO α :=
 def Handle.putStrLn (h : Handle) (s : String) : IO Unit :=
   h.putStr (s.push '\n')
 
-partial def Handle.readBinToEnd (h : Handle) : IO ByteArray := do
+partial def Handle.readBinToEndInto (h : Handle) (buf : ByteArray) : IO ByteArray := do
   let rec loop (acc : ByteArray) : IO ByteArray := do
     let buf ← h.read 1024
     if buf.isEmpty then
       return acc
     else
       loop (acc ++ buf)
-  loop ByteArray.empty
+  loop buf
 
-partial def Handle.readToEnd (h : Handle) : IO String := do
-  let rec loop (s : String) := do
-    let line ← h.getLine
-    if line.isEmpty then
-      return s
-    else
-      loop (s ++ line)
-  loop ""
+partial def Handle.readBinToEnd (h : Handle) : IO ByteArray := do
+  h.readBinToEndInto .empty
 
-def readBinFile (fname : FilePath) : IO ByteArray := do
-  let h ← Handle.mk fname Mode.read
-  h.readBinToEnd
-
-def readFile (fname : FilePath) : IO String := do
-  let h ← Handle.mk fname Mode.read
-  h.readToEnd
+def Handle.readToEnd (h : Handle) : IO String := do
+  let data ← h.readBinToEnd
+  match String.fromUTF8? data with
+  | some s => return s
+  | none => throw <| .userError s!"Tried to read from handle containing non UTF-8 data."
 
 partial def lines (fname : FilePath) : IO (Array String) := do
   let h ← Handle.mk fname Mode.read
@@ -501,7 +496,7 @@ partial def lines (fname : FilePath) : IO (Array String) := do
       pure lines
     else if line.back == '\n' then
       let line := line.dropRight 1
-      let line := if System.Platform.isWindows && line.back == '\x0d' then line.dropRight 1 else line
+      let line := if line.back == '\r' then line.dropRight 1 else line
       read <| lines.push line
     else
       pure <| lines.push line
@@ -596,6 +591,28 @@ where
 end System.FilePath
 
 namespace IO
+
+namespace FS
+
+def readBinFile (fname : FilePath) : IO ByteArray := do
+  -- Requires metadata so defined after metadata
+  let mdata ← fname.metadata
+  let size := mdata.byteSize.toUSize
+  let handle ← IO.FS.Handle.mk fname .read
+  let buf ←
+    if size > 0 then
+      handle.read mdata.byteSize.toUSize
+    else
+      pure <| ByteArray.mkEmpty 0
+  handle.readBinToEndInto buf
+
+def readFile (fname : FilePath) : IO String := do
+  let data ← readBinFile fname
+  match String.fromUTF8? data with
+  | some s => return s
+  | none => throw <| .userError s!"Tried to read file '{fname}' containing non UTF-8 data."
+
+end FS
 
 def withStdin [Monad m] [MonadFinally m] [MonadLiftT BaseIO m] (h : FS.Stream) (x : m α) : m α := do
   let prev ← setStdin h
@@ -715,7 +732,16 @@ structure Child (cfg : StdioConfig) where
 
 @[extern "lean_io_process_spawn"] opaque spawn (args : SpawnArgs) : IO (Child args.toStdioConfig)
 
+/--
+Block until the child process has exited and return its exit code.
+-/
 @[extern "lean_io_process_child_wait"] opaque Child.wait {cfg : @& StdioConfig} : @& Child cfg → IO UInt32
+
+/--
+Check whether the child has exited yet. If it hasn't return none, otherwise its exit code.
+-/
+@[extern "lean_io_process_child_try_wait"] opaque Child.tryWait {cfg : @& StdioConfig} : @& Child cfg →
+    IO (Option UInt32)
 
 /-- Terminates the child process using the SIGTERM signal or a platform analogue.
     If the process was started using `SpawnArgs.setsid`, terminates the entire process group instead. -/
@@ -816,6 +842,10 @@ def set (tk : CancelToken) : BaseIO Unit :=
 /-- Checks whether the cancellation token has been activated. -/
 def isSet (tk : CancelToken) : BaseIO Bool :=
   tk.ref.get
+
+-- separate definition as otherwise no unboxed version is generated
+@[export lean_io_cancel_token_is_set]
+private def isSetExport := @isSet
 
 end CancelToken
 

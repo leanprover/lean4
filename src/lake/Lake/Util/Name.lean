@@ -7,13 +7,19 @@ import Lean.Data.Json
 import Lean.Data.NameMap
 import Lake.Util.DRBMap
 import Lake.Util.RBArray
-import Lake.Util.Compare
 
 open Lean
 
 namespace Lake
 
 export Lean (Name NameMap)
+
+/--
+First tries to convert a string into a legal name.
+If that fails, defaults to making it a simple name (e.g., `Lean.Name.mkSimple`).
+-/
+def stringToLegalOrSimpleName (s : String) : Name :=
+  if s.toName.isAnonymous then Lean.Name.mkSimple s else s.toName
 
 @[inline] def NameMap.empty : NameMap α := RBMap.empty
 
@@ -88,7 +94,6 @@ instance : LawfulCmpEq Name Name.quickCmp where
   eq_of_cmp := eq_of_quickCmp
   cmp_rfl := quickCmp_rfl
 
-open Syntax
-
+open Syntax in
 def quoteFrom (ref : Syntax) (n : Name) : Term :=
   ⟨copyHeadTailInfoFrom (quote n : Term) ref⟩

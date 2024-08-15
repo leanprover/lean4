@@ -13,6 +13,7 @@ import Lean.Data.PersistentHashSet
 open ShareCommon
 namespace Lean.ShareCommon
 
+set_option linter.deprecated false in
 def objectFactory :=
   StateFactory.mk {
     Map := HashMap, mkMap := (mkHashMap ·), mapFind? := (·.find?), mapInsert := (·.insert)

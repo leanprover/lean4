@@ -174,7 +174,7 @@ static lean_object* _init_l_Lean_Elab_elabSetOption_setOption___rarg___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("type mismatch at set_option", 27);
+x_1 = lean_mk_string_unchecked("type mismatch at set_option", 27, 27);
 return x_1;
 }
 }
@@ -388,7 +388,7 @@ static lean_object* _init_l_Lean_Elab_elabSetOption___rarg___lambda__2___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected set_option value ", 28);
+x_1 = lean_mk_string_unchecked("unexpected set_option value ", 28, 28);
 return x_1;
 }
 }
@@ -405,7 +405,7 @@ static lean_object* _init_l_Lean_Elab_elabSetOption___rarg___lambda__2___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -422,7 +422,7 @@ static lean_object* _init_l_Lean_Elab_elabSetOption___rarg___lambda__2___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("true", 4);
+x_1 = lean_mk_string_unchecked("true", 4, 4);
 return x_1;
 }
 }
@@ -430,7 +430,7 @@ static lean_object* _init_l_Lean_Elab_elabSetOption___rarg___lambda__2___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("false", 5);
+x_1 = lean_mk_string_unchecked("false", 5, 5);
 return x_1;
 }
 }
@@ -712,6 +712,7 @@ x_13 = lean_unsigned_to_nat(0u);
 x_14 = lean_unsigned_to_nat(3u);
 x_15 = l_Array_toSubarray___rarg(x_12, x_13, x_14);
 x_16 = l_Array_ofSubarray___rarg(x_15);
+lean_dec(x_15);
 lean_inc(x_11);
 x_17 = l_Lean_Syntax_setArgs(x_11, x_16);
 x_18 = lean_alloc_ctor(5, 1, 0);

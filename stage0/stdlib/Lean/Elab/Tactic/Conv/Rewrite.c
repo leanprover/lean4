@@ -76,14 +76,6 @@ lean_inc(x_16);
 x_17 = lean_ctor_get(x_15, 1);
 lean_inc(x_17);
 lean_dec(x_15);
-lean_inc(x_12);
-lean_inc(x_11);
-lean_inc(x_10);
-lean_inc(x_9);
-lean_inc(x_8);
-lean_inc(x_7);
-lean_inc(x_6);
-lean_inc(x_5);
 x_18 = l_Lean_Elab_Tactic_getMainGoal(x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_17);
 if (lean_obj_tag(x_18) == 0)
 {
@@ -97,10 +89,6 @@ lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
-lean_inc(x_8);
-lean_inc(x_7);
-lean_inc(x_6);
-lean_inc(x_5);
 x_21 = l_Lean_Elab_Tactic_Conv_getLhs(x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_20);
 if (lean_obj_tag(x_21) == 0)
 {
@@ -131,10 +119,6 @@ lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
-lean_inc(x_8);
-lean_inc(x_7);
-lean_inc(x_6);
-lean_inc(x_5);
 x_29 = l_Lean_Elab_Tactic_Conv_updateLhs(x_27, x_28, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_26);
 if (lean_obj_tag(x_29) == 0)
 {
@@ -142,14 +126,6 @@ lean_object* x_30; lean_object* x_31;
 x_30 = lean_ctor_get(x_29, 1);
 lean_inc(x_30);
 lean_dec(x_29);
-lean_inc(x_12);
-lean_inc(x_11);
-lean_inc(x_10);
-lean_inc(x_9);
-lean_inc(x_8);
-lean_inc(x_7);
-lean_inc(x_6);
-lean_inc(x_5);
 x_31 = l_Lean_Elab_Tactic_getMainGoal(x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_30);
 if (lean_obj_tag(x_31) == 0)
 {
@@ -166,6 +142,14 @@ x_35 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_35, 0, x_32);
 lean_ctor_set(x_35, 1, x_34);
 x_36 = l_Lean_Elab_Tactic_replaceMainGoal(x_35, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_33);
+lean_dec(x_12);
+lean_dec(x_11);
+lean_dec(x_10);
+lean_dec(x_9);
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_5);
 return x_36;
 }
 else
@@ -480,7 +464,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalRewrite__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -488,7 +472,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalRewrite__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -496,7 +480,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalRewrite__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -504,7 +488,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalRewrite__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Conv", 4);
+x_1 = lean_mk_string_unchecked("Conv", 4, 4);
 return x_1;
 }
 }
@@ -512,7 +496,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalRewrite__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rewrite", 7);
+x_1 = lean_mk_string_unchecked("rewrite", 7, 7);
 return x_1;
 }
 }
@@ -533,7 +517,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalRewrite__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -541,7 +525,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalRewrite__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalRewrite", 11);
+x_1 = lean_mk_string_unchecked("evalRewrite", 11, 11);
 return x_1;
 }
 }

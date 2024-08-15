@@ -115,18 +115,14 @@ ENDFOREACH(T)
 
 # LEAN BENCHMARK TESTS
 # do not test all .lean files in bench/
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  message(STATUS "Skipping compiler tests on Windows because of shared library limit on number of exported symbols")
-else()
-  file(GLOB LEANBENCHTESTS "${LEAN_SOURCE_DIR}/../tests/bench/*.lean.expected.out")
-  FOREACH(T_OUT ${LEANBENCHTESTS})
-    string(REPLACE ".expected.out" "" T ${T_OUT})
-    GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-    add_test(NAME "leanbenchtest_${T_NAME}"
-             WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/bench"
-             COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
-  ENDFOREACH(T_OUT)
-endif()
+file(GLOB LEANBENCHTESTS "${LEAN_SOURCE_DIR}/../tests/bench/*.lean.expected.out")
+FOREACH(T_OUT ${LEANBENCHTESTS})
+  string(REPLACE ".expected.out" "" T ${T_OUT})
+  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+  add_test(NAME "leanbenchtest_${T_NAME}"
+            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/bench"
+            COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
+ENDFOREACH(T_OUT)
 
 file(GLOB LEANINTERPTESTS "${LEAN_SOURCE_DIR}/../tests/plugin/*.lean")
 FOREACH(T ${LEANINTERPTESTS})
@@ -146,19 +142,15 @@ FOREACH(T ${LEANT0TESTS})
 ENDFOREACH(T)
 
 # LEAN PACKAGE TESTS
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  message(STATUS "Skipping compiler tests on Windows because of shared library limit on number of exported symbols")
-else()
-  file(GLOB LEANPKGTESTS "${LEAN_SOURCE_DIR}/../tests/pkg/*")
-  FOREACH(T ${LEANPKGTESTS})
-    if(IS_DIRECTORY ${T})
-      GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-      add_test(NAME "leanpkgtest_${T_NAME}"
-              WORKING_DIRECTORY "${T}"
-              COMMAND bash -c "${TEST_VARS} ./test.sh")
-    endif()
-  ENDFOREACH(T)
-endif()
+file(GLOB LEANPKGTESTS "${LEAN_SOURCE_DIR}/../tests/pkg/*")
+FOREACH(T ${LEANPKGTESTS})
+  if(EXISTS ${T}/test.sh)
+    GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+    add_test(NAME "leanpkgtest_${T_NAME}"
+            WORKING_DIRECTORY "${T}"
+            COMMAND bash -c "${TEST_VARS} ./test.sh")
+  endif()
+ENDFOREACH(T)
 
 # LEAN SERVER TESTS
 file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/server/*.lean")
@@ -186,11 +178,12 @@ ENDFOREACH(T)
 # which contains a `test.sh` file, excluding the following test(s):
 # bootstrap: too slow
 # toolchain: requires elan to download toolchain
+# online: downloads remote repositories
 file(GLOB_RECURSE LEANLAKETESTS
   "${LEAN_SOURCE_DIR}/lake/tests/test.sh"
   "${LEAN_SOURCE_DIR}/lake/examples/test.sh")
 FOREACH(T ${LEANLAKETESTS})
-  if(NOT T MATCHES ".*(lake-packages|bootstrap|toolchain).*")
+  if(NOT T MATCHES ".*(lake-packages|bootstrap|toolchain|online).*")
     GET_FILENAME_COMPONENT(T_DIR ${T} DIRECTORY)
     GET_FILENAME_COMPONENT(DIR_NAME ${T_DIR} NAME)
     add_test(NAME "leanlaketest_${DIR_NAME}"

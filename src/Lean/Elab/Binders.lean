@@ -8,7 +8,7 @@ import Lean.Elab.Quotation.Precheck
 import Lean.Elab.Term
 import Lean.Elab.BindersUtil
 import Lean.Elab.SyntheticMVars
-import Lean.Elab.PreDefinition.WF.TerminationHint
+import Lean.Elab.PreDefinition.TerminationHint
 
 namespace Lean.Elab.Term
 open Meta
@@ -782,6 +782,9 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : B
 @[builtin_term_elab «let_tmp»] def elabLetTmpDecl : TermElab :=
   fun stx expectedType? => elabLetDeclCore stx expectedType? (useLetExpr := true) (elabBodyFirst := false) (usedLetOnly := true)
 
-builtin_initialize registerTraceClass `Elab.let
+builtin_initialize
+  registerTraceClass `Elab.let
+  registerTraceClass `Elab.let.decl
+  registerTraceClass `Elab.autoParam
 
 end Lean.Elab.Term

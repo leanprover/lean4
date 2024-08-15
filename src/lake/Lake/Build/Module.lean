@@ -94,7 +94,7 @@ Recursively build a module's dependencies, including:
 * Shared libraries (e.g., `extern_lib` targets or precompiled modules)
 * `extraDepTargets` of its library
 -/
-def Module.recBuildDeps (mod : Module) : FetchM (BuildJob (SearchPath × Array FilePath)) := do
+def Module.recBuildDeps (mod : Module) : FetchM (BuildJob (SearchPath × Array FilePath)) := ensureJob do
   let extraDepJob ← mod.lib.extraDep.fetch
 
   /-
@@ -102,30 +102,29 @@ def Module.recBuildDeps (mod : Module) : FetchM (BuildJob (SearchPath × Array F
   precompiled imports so that errors in the import block of transitive imports
   will not kill this job before the direct imports are built.
   -/
-  let directImports ← try mod.imports.fetch
-    catch errPos => return Job.error (← takeLogFrom errPos)
+  let directImports ← mod.imports.fetch
   let importJob ← BuildJob.mixArray <| ← directImports.mapM fun imp => do
     if imp.name = mod.name then
       logError s!"{mod.leanFile}: module imports itself"
     imp.olean.fetch
-  let precompileImports ← try mod.precompileImports.fetch
-    catch errPos => return Job.error (← takeLogFrom errPos)
-  let modJobs ← precompileImports.mapM (·.dynlib.fetch)
-  let pkgs := precompileImports.foldl (·.insert ·.pkg)
-    OrdPackageSet.empty |>.insert mod.pkg |>.toArray
-  let (externJobs, libDirs) ← recBuildExternDynlibs pkgs
+  let precompileImports ← if mod.shouldPrecompile then
+    mod.transImports.fetch else mod.precompileImports.fetch
+  let modLibJobs ← precompileImports.mapM (·.dynlib.fetch)
+  let pkgs := precompileImports.foldl (·.insert ·.pkg) OrdPackageSet.empty
+  let pkgs := if mod.shouldPrecompile then pkgs.insert mod.pkg else pkgs
+  let (externJobs, libDirs) ← recBuildExternDynlibs pkgs.toArray
   let externDynlibsJob ← BuildJob.collectArray externJobs
-  let modDynlibsJob ← BuildJob.collectArray modJobs
+  let modDynlibsJob ← BuildJob.collectArray modLibJobs
 
   extraDepJob.bindAsync fun _ extraDepTrace => do
   importJob.bindAsync fun _ importTrace => do
-  modDynlibsJob.bindAsync fun modDynlibs modTrace => do
+  modDynlibsJob.bindAsync fun modDynlibs modLibTrace => do
   return externDynlibsJob.mapWithTrace fun externDynlibs externTrace =>
-    let depTrace := extraDepTrace.mix <| importTrace.mix <| modTrace
+    let depTrace := extraDepTrace.mix <| importTrace
     let depTrace :=
       match mod.platformIndependent with
-      | none => depTrace.mix <| externTrace
-      | some false => depTrace.mix <| externTrace.mix <| platformTrace
+      | none => depTrace.mix <| modLibTrace.mix <| externTrace
+      | some false => depTrace.mix <| modLibTrace.mix <| externTrace.mix <| platformTrace
       | some true => depTrace
     /-
     Requirements:
@@ -143,6 +142,22 @@ def Module.recBuildDeps (mod : Module) : FetchM (BuildJob (SearchPath × Array F
 def Module.depsFacetConfig : ModuleFacetConfig depsFacet :=
   mkFacetJobConfig (·.recBuildDeps)
 
+/-- Remove cached file hashes of the module build outputs (in `.hash` files). -/
+def Module.clearOutputHashes (mod : Module) : IO PUnit := do
+  clearFileHash mod.oleanFile
+  clearFileHash mod.ileanFile
+  clearFileHash mod.cFile
+  if Lean.Internal.hasLLVMBackend () then
+    clearFileHash mod.bcFile
+
+/-- Cache the file hashes of the module build outputs in `.hash` files. -/
+def Module.cacheOutputHashes (mod : Module) : IO PUnit := do
+  cacheFileHash mod.oleanFile
+  cacheFileHash mod.ileanFile
+  cacheFileHash mod.cFile
+  if Lean.Internal.hasLLVMBackend () then
+    cacheFileHash mod.bcFile
+
 /--
 Recursively build a Lean module.
 Fetch its dependencies and then elaborate the Lean source file, producing
@@ -154,20 +169,12 @@ def Module.recBuildLean (mod : Module) : FetchM (BuildJob Unit) := do
     let argTrace : BuildTrace := pureHash mod.leanArgs
     let srcTrace : BuildTrace ← computeTrace { path := mod.leanFile : TextFilePath }
     let modTrace := (← getLeanTrace).mix <| argTrace.mix <| srcTrace.mix depTrace
-    let upToDate ← buildUnlessUpToDate? (oldTrace := srcTrace) mod modTrace mod.traceFile do
-      let hasLLVM := Lean.Internal.hasLLVMBackend ()
-      let bcFile? := if hasLLVM then some mod.bcFile else none
-      cacheBuildLog mod.logFile do
-        compileLeanModule mod.leanFile mod.oleanFile mod.ileanFile mod.cFile bcFile?
-          (← getLeanPath) mod.rootDir dynlibs dynlibPath (mod.weakLeanArgs ++ mod.leanArgs) (← getLean)
-      discard <| cacheFileHash mod.oleanFile
-      discard <| cacheFileHash mod.ileanFile
-      discard <| cacheFileHash mod.cFile
-      if hasLLVM then
-        discard <| cacheFileHash mod.bcFile
-    if upToDate then
-      updateAction .replay
-      replayBuildLog mod.logFile
+    let upToDate ← buildUnlessUpToDate? (oldTrace := srcTrace.mtime) mod modTrace mod.traceFile do
+      compileLeanModule mod.leanFile mod.oleanFile mod.ileanFile mod.cFile mod.bcFile?
+        (← getLeanPath) mod.rootDir dynlibs dynlibPath (mod.weakLeanArgs ++ mod.leanArgs) (← getLean)
+      mod.clearOutputHashes
+    unless upToDate && (← getTrustHash) do
+      mod.cacheOutputHashes
     return ((), depTrace)
 
 /-- The `ModuleFacetConfig` for the builtin `leanArtsFacet`. -/

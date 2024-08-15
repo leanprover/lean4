@@ -10,9 +10,9 @@ import Lean.Elab.RecAppSyntax
 namespace Lean.Elab.Structural
 open Meta
 
-private def shouldBetaReduce (e : Expr) (recFnName : Name) : Bool :=
+private def shouldBetaReduce (e : Expr) (recFnNames : Array Name) : Bool :=
   if e.isHeadBetaTarget then
-    e.getAppFn.find? (·.isConstOf recFnName) |>.isSome
+    e.getAppFn.find? (fun e => e.isConst && recFnNames.contains e.constName!) |>.isSome
   else
     false
 
@@ -35,10 +35,10 @@ Preprocesses the expessions to improve the effectiveness of `elimRecursion`.
     | i+1 => (f x) i
   ```
 -/
-def preprocess (e : Expr) (recFnName : Name) : CoreM Expr :=
+def preprocess (e : Expr) (recFnNames : Array Name) : CoreM Expr :=
   Core.transform e
     (pre := fun e =>
-      if shouldBetaReduce e recFnName then
+      if shouldBetaReduce e recFnNames then
         return .visit e.headBeta
       else
         return .continue)

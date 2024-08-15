@@ -2,6 +2,8 @@ import Lean.Elab.Command
 import Lean.Elab.PreDefinition.WF.Eqns
 import Lean.Meta.Tactic.FunInd
 
+set_option guard_msgs.diff true
+
 namespace Unary
 
 def ackermann : (Nat × Nat) → Nat
@@ -41,7 +43,6 @@ info: Binary.ackermann.induct (motive : Nat → Nat → Prop) (case1 : ∀ (m : 
 end Binary
 
 universe u
-opaque _root_.List.attach : {α : Type u} → (l : List α) → List { x // x ∈ l }
 
 inductive Tree | node : List Tree → Tree
 def Tree.rev : Tree → Tree
@@ -632,6 +633,15 @@ info: Tree.Tree.map_forest.induct (f : Tree → Tree) (motive1 : Tree → Prop) 
 -/
 #guard_msgs in
 #check Tree.map_forest.induct
+
+/--
+info: Tree.Tree.map.mutual_induct (f : Tree → Tree) (motive1 : Tree → Prop) (motive2 : List Tree → Prop)
+  (case1 : ∀ (ts : List Tree), motive2 ts → motive1 (Tree.node ts))
+  (case2 : ∀ (ts : List Tree), (∀ (t : Tree), t ∈ ts → motive1 t) → motive2 ts) :
+  (∀ (a : Tree), motive1 a) ∧ ∀ (ts : List Tree), motive2 ts
+-/
+#guard_msgs in
+#check Tree.map.mutual_induct
 
 end Tree
 

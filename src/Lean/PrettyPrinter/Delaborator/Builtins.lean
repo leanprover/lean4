@@ -199,6 +199,10 @@ def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStruct
   let mut fields := #[]
   guard $ fieldNames.size == stx[1].getNumArgs
   if hasPPUsingAnonymousConstructorAttribute env s.induct then
+    /- Note that we don't flatten anonymous constructor notation. Only a complete such notation receives TermInfo,
+       and flattening would cause the flattened-in notation to lose its TermInfo.
+       Potentially it would be justified to flatten anonymous constructor notation when the terms are
+       from the same type family (think `Sigma`), but for now users can write a custom delaborator in such instances. -/
     return ← withTypeAscription (cond := (← withType <| getPPOption getPPStructureInstanceType)) do
       `(⟨$[$(stx[1].getArgs)],*⟩)
   let args := e.getAppArgs
@@ -335,19 +339,22 @@ inductive AppImplicitArg
   | skip
   /-- A regular argument. -/
   | regular (s : Term)
+  /-- A regular argument that, if it comes as the last argument, may be omitted. -/
+  | optional (name : Name) (s : Term)
   /-- It's a named argument. Named arguments inhibit applying unexpanders. -/
   | named (s : TSyntax ``Parser.Term.namedArgument)
   deriving Inhabited
 
 /-- Whether unexpanding is allowed with this argument. -/
 def AppImplicitArg.canUnexpand : AppImplicitArg → Bool
-  | .regular .. | .skip => true
+  | .regular .. | .optional .. | .skip => true
   | .named .. => false
 
 /-- If the argument has associated syntax, returns it. -/
 def AppImplicitArg.syntax? : AppImplicitArg → Option Syntax
   | .skip => none
   | .regular s => s
+  | .optional _ s => s
   | .named s => s
 
 /--
@@ -367,13 +374,13 @@ def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (
       appFieldNotationCandidate?
     else
       pure none
-  let (fnStx, args) ←
+  let (fnStx, args') ←
     withBoundedAppFnArgs numArgs
       (do return ((← delabHead), Array.mkEmpty numArgs))
-      (fun (fnStx, args) => do
-        let idx := args.size
-        let arg ← mkArg (numArgs - idx - 1) paramKinds[idx]!
-        return (fnStx, args.push arg))
+      (fun (fnStx, args) => return (fnStx, args.push (← mkArg paramKinds[args.size]!)))
+
+  -- Strip off optional arguments. We save the original `args'` for structure instance notation
+  let args := args'.popWhile (· matches .optional ..)
 
   -- App unexpanders
   if ← pure unexpand <&&> getPPOption getPPNotation then
@@ -381,11 +388,10 @@ def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (
     if let some stx ← (some <$> tryAppUnexpanders fnStx args) <|> pure none then
       return stx
 
-  let stx := Syntax.mkApp fnStx (args.filterMap (·.syntax?))
-
   -- Structure instance notation
-  if ← pure (unexpand && args.all (·.canUnexpand)) <&&> getPPOption getPPStructureInstances then
+  if ← pure (unexpand && args'.all (·.canUnexpand)) <&&> getPPOption getPPStructureInstances then
     -- Try using the structure instance unexpander.
+    let stx := Syntax.mkApp fnStx (args'.filterMap (·.syntax?))
     if let some stx ← (some <$> unexpandStructureInstance stx) <|> pure none then
       return stx
 
@@ -412,7 +418,7 @@ def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (
         return Syntax.mkApp head (args'.filterMap (·.syntax?))
 
   -- Normal application
-  return stx
+  return Syntax.mkApp fnStx (args.filterMap (·.syntax?))
 where
   mkNamedArg (name : Name) : DelabM AppImplicitArg :=
     return .named <| ← `(Parser.Term.namedArgument| ($(mkIdent name) := $(← delab)))
@@ -420,15 +426,16 @@ where
   Delaborates the current argument.
   The argument `remainingArgs` is the number of arguments in the application after this one.
   -/
-  mkArg (remainingArgs : Nat) (param : ParamKind) : DelabM AppImplicitArg := do
+  mkArg (param : ParamKind) : DelabM AppImplicitArg := do
     let arg ← getExpr
     if ← getPPOption getPPAnalysisSkip then return .skip
     else if ← getPPOption getPPAnalysisHole then return .regular (← `(_))
     else if ← getPPOption getPPAnalysisNamedArg then
       mkNamedArg param.name
-    else if param.defVal.isSome && remainingArgs == 0 && param.defVal.get! == arg then
-      -- Assumption: `useAppExplicit` has already detected whether it is ok to omit this argument
-      return .skip
+    else if param.defVal.isSome && param.defVal.get! == arg then
+      -- Assumption: `useAppExplicit` has already detected whether it is ok to omit this argument, if it is the last one.
+      -- We will later remove all optional arguments from the end.
+      return .optional param.name (← delab)
     else if param.bInfo.isExplicit then
       return .regular (← delab)
     else if ← pure (param.name == `motive) <&&> shouldShowMotive arg (← getOptions) then
@@ -439,9 +446,8 @@ where
   Runs the given unexpanders, returning the resulting syntax if any are applicable, and otherwise fails.
   -/
   tryUnexpand (fs : List Unexpander) (stx : Syntax) : DelabM Syntax := do
-    let ref ← getRef
     fs.firstM fun f =>
-      match f stx |>.run ref |>.run () with
+      match f stx |>.run .missing |>.run () with
       | EStateM.Result.ok stx _ => return stx
       | _ => failure
   /--
@@ -639,7 +645,7 @@ List.map.match_1 : {α : Type _} →
 ```
 -/
 @[builtin_delab app]
-partial def delabAppMatch : Delab := whenPPOption getPPNotation <| whenPPOption getPPMatch do
+partial def delabAppMatch : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPNotation <| whenPPOption getPPMatch do
   -- Check that this is a matcher, and then set up overapplication.
   let Expr.const c us := (← getExpr).getAppFn | failure
   let some info ← getMatcherInfo? c | failure
@@ -771,16 +777,6 @@ def delabMData : Delab := do
     withMDataOptions delab
 
 /--
-Check for a `Syntax.ident` of the given name anywhere in the tree.
-This is usually a bad idea since it does not check for shadowing bindings,
-but in the delaborator we assume that bindings are never shadowed.
--/
-partial def hasIdent (id : Name) : Syntax → Bool
-  | Syntax.ident _ _ id' _ => id == id'
-  | Syntax.node _ _ args   => args.any (hasIdent id)
-  | _                      => false
-
-/--
 Return `true` iff current binder should be merged with the nested
 binder, if any, into a single binder group:
 * both binders must have same binder info and domain
@@ -825,7 +821,7 @@ def delabLam : Delab :=
     let e ← getExpr
     let stxT ← withBindingDomain delab
     let ppTypes ← getPPOption getPPFunBinderTypes
-    let usedDownstream := curNames.any (fun n => hasIdent n.getId stxBody)
+    let usedDownstream := curNames.any (fun n => stxBody.hasIdent n.getId)
 
     -- leave lambda implicit if possible
     -- TODO: for now we just always block implicit lambdas when delaborating. We can revisit.
@@ -1135,6 +1131,24 @@ def delabSigma : Delab := delabSigmaCore (sigma := true)
 
 @[builtin_delab app.PSigma]
 def delabPSigma : Delab := delabSigmaCore (sigma := false)
+
+-- PProd and MProd value delaborator
+-- (like pp_using_anonymous_constructor but flattening nested tuples)
+
+def delabPProdMkCore (mkName : Name) : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPNotation do
+  guard <| (← getExpr).getAppNumArgs == 4
+  let a ← withAppFn <| withAppArg delab
+  let b ← withAppArg <| delab
+  if (← getExpr).appArg!.isAppOfArity mkName 4 then
+    if let `(⟨$xs,*⟩) := b then
+      return ← `(⟨$a, $xs,*⟩)
+  `(⟨$a, $b⟩)
+
+@[builtin_delab app.PProd.mk]
+def delabPProdMk : Delab := delabPProdMkCore ``PProd.mk
+
+@[builtin_delab app.MProd.mk]
+def delabMProdMk : Delab := delabPProdMkCore ``MProd.mk
 
 partial def delabDoElems : DelabM (List Syntax) := do
   let e ← getExpr

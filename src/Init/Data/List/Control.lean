@@ -127,12 +127,12 @@ results `y` for which `f x` returns `some y`.
 @[inline]
 def filterMapM {m : Type u → Type v} [Monad m] {α β : Type u} (f : α → m (Option β)) (as : List α) : m (List β) :=
   let rec @[specialize] loop
-    | [],     bs => pure bs
+    | [],     bs => pure bs.reverse
     | a :: as, bs => do
       match (← f a) with
       | none   => loop as bs
       | some b => loop as (b::bs)
-  loop as.reverse []
+  loop as []
 
 /--
 Folds a monadic function over a list from left to right:
@@ -151,6 +151,11 @@ protected def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w
     let s' ← f s a
     List.foldlM f s' as
 
+@[simp] theorem foldlM_nil [Monad m] (f : β → α → m β) (b) : [].foldlM f b = pure b := rfl
+@[simp] theorem foldlM_cons [Monad m] (f : β → α → m β) (b) (a) (l : List α) :
+    (a :: l).foldlM f b = f b a >>= l.foldlM f := by
+  simp [List.foldlM]
+
 /--
 Folds a monadic function over a list from right to left:
 ```
@@ -164,6 +169,8 @@ foldrM f x₀ [a, b, c] = do
 @[inline]
 def foldrM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} (f : α → s → m s) (init : s) (l : List α) : m s :=
   l.reverse.foldlM (fun s a => f a s) init
+
+@[simp] theorem foldrM_nil [Monad m] (f : α → β → m β) (b) : [].foldrM f b = pure b := rfl
 
 /--
 Maps `f` over the list and collects the results with `<|>`.
@@ -219,6 +226,8 @@ def findSomeM? {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f 
 
 instance : ForIn m (List α) α where
   forIn := List.forIn
+
+@[simp] theorem forIn_eq_forIn [Monad m] : @List.forIn α β m _ = forIn := rfl
 
 @[simp] theorem forIn_nil [Monad m] (f : α → β → m (ForInStep β)) (b : β) : forIn [] b f = pure b :=
   rfl

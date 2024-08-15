@@ -10,14 +10,16 @@ Inferred termination argument:
 termination_by (xs.size - i, i - j)
 Inferred termination argument:
 termination_by (xs.size - i, i)
-guessLexDiff.lean:85:26-85:38: error: fail to show termination for
+guessLexDiff.lean:84:4-84:11: error: fail to show termination for
   failure
 with errors
-argument #2 was not used for structural recursion
+failed to infer structural recursion:
+Not considering parameter xs of failure:
+  it is unchanged in the recursive calls
+Cannot use parameter i:
   failed to eliminate recursive application
     _root_.failure xs i
 
-structural recursion cannot be used
 
 Could not find a decreasing measure.
 The arguments relate at each recursive call as follows:
@@ -41,7 +43,15 @@ guessLexDiff.lean:102:4-102:18: error: fail to show termination for
   mutual_failure
   mutual_failure2
 with errors
-structural recursion does not handle mutually recursive functions
+failed to infer structural recursion:
+Not considering parameter xs of mutual_failure:
+  it is unchanged in the recursive calls
+Not considering parameter xs of mutual_failure2:
+  it is unchanged in the recursive calls
+Cannot use parameters i of mutual_failure and i of mutual_failure2:
+  failed to eliminate recursive application
+    mutual_failure2 xs i
+
 
 Could not find a decreasing measure.
 The arguments relate at each recursive call as follows:

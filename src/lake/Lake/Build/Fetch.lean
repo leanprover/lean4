@@ -75,10 +75,10 @@ example : MonadLiftT JobM FetchM := inferInstance
 example : MonadLiftT SpawnM FetchM := inferInstance
 
 /-- The top-level monad for Lake build functions. **Renamed `FetchM`.** -/
-@[deprecated FetchM] abbrev IndexBuildM := FetchM
+@[deprecated FetchM (since := "2024-04-30")] abbrev IndexBuildM := FetchM
 
 /-- The old build monad. **Uses should generally be replaced by `FetchM`.** -/
-@[deprecated FetchM] abbrev BuildM := BuildT LogIO
+@[deprecated FetchM (since := "2024-04-30")] abbrev BuildM := BuildT LogIO
 
 /-- Fetch the result associated with the info using the Lake build index. -/
 @[inline] def BuildInfo.fetch (self : BuildInfo) [FamilyOut BuildData self.key α] : FetchM α :=
@@ -104,8 +104,8 @@ def ensureJob (x : FetchM (Job α))
 Registers the job for the top-level build monitor,
 (e.g., the Lake CLI progress UI), assigning it `caption`.
 -/
-def registerJob (caption : String) (job : Job α) : FetchM (Job α) := do
-  let job := job.setCaption caption
+def registerJob (caption : String) (job : Job α) (optional := false) : FetchM (Job α) := do
+  let job : Job α := {job with caption, optional}
   (← getBuildContext).registeredJobs.modify (·.push job)
   return job.renew
 
@@ -116,10 +116,10 @@ Registers the produced job for the top-level build monitor
 Stray I/O, logs, and errors produced by `x` will be wrapped into the job.
 -/
 def withRegisterJob
-  (caption : String) (x : FetchM (Job α))
+  (caption : String) (x : FetchM (Job α)) (optional := false)
 : FetchM (Job α) := do
   let job ← ensureJob x
-  registerJob caption job
+  registerJob caption job optional
 
 /--
 Registers the produced job for the top-level build monitor

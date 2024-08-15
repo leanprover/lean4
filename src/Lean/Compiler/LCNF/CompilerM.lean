@@ -64,34 +64,34 @@ instance : AddMessageContext CompilerM where
 
 def getType (fvarId : FVarId) : CompilerM Expr := do
   let lctx := (← get).lctx
-  if let some decl := lctx.letDecls.find? fvarId then
+  if let some decl := lctx.letDecls[fvarId]? then
     return decl.type
-  else if let some decl := lctx.params.find? fvarId then
+  else if let some decl := lctx.params[fvarId]? then
     return decl.type
-  else if let some decl := lctx.funDecls.find? fvarId then
+  else if let some decl := lctx.funDecls[fvarId]? then
     return decl.type
   else
     throwError "unknown free variable {fvarId.name}"
 
 def getBinderName (fvarId : FVarId) : CompilerM Name := do
   let lctx := (← get).lctx
-  if let some decl := lctx.letDecls.find? fvarId then
+  if let some decl := lctx.letDecls[fvarId]? then
     return decl.binderName
-  else if let some decl := lctx.params.find? fvarId then
+  else if let some decl := lctx.params[fvarId]? then
     return decl.binderName
-  else if let some decl := lctx.funDecls.find? fvarId then
+  else if let some decl := lctx.funDecls[fvarId]? then
     return decl.binderName
   else
     throwError "unknown free variable {fvarId.name}"
 
 def findParam? (fvarId : FVarId) : CompilerM (Option Param) :=
-  return (← get).lctx.params.find? fvarId
+  return (← get).lctx.params[fvarId]?
 
 def findLetDecl? (fvarId : FVarId) : CompilerM (Option LetDecl) :=
-  return (← get).lctx.letDecls.find? fvarId
+  return (← get).lctx.letDecls[fvarId]?
 
 def findFunDecl? (fvarId : FVarId) : CompilerM (Option FunDecl) :=
-  return (← get).lctx.funDecls.find? fvarId
+  return (← get).lctx.funDecls[fvarId]?
 
 def findLetValue? (fvarId : FVarId) : CompilerM (Option LetValue) := do
   let some { value, .. } ← findLetDecl? fvarId | return none
@@ -166,7 +166,7 @@ it is a free variable, a type (or type former), or `lcErased`.
 
 `Check.lean` contains a substitution validator.
 -/
-abbrev FVarSubst := HashMap FVarId Expr
+abbrev FVarSubst := Std.HashMap FVarId Expr
 
 /--
 Replace the free variables in `e` using the given substitution.
@@ -190,7 +190,7 @@ where
   go (e : Expr) : Expr :=
     if e.hasFVar then
       match e with
-      | .fvar fvarId => match s.find? fvarId with
+      | .fvar fvarId => match s[fvarId]? with
         | some e => if translator then e else go e
         | none => e
       | .lit .. | .const .. | .sort .. | .mvar .. | .bvar .. => e
@@ -224,7 +224,7 @@ That is, it is not a type (or type former), nor `lcErased`. Recall that a valid 
 expressions that are free variables, `lcErased`, or type formers.
 -/
 private partial def normFVarImp (s : FVarSubst) (fvarId : FVarId) (translator : Bool) : NormFVarResult :=
-  match s.find? fvarId with
+  match s[fvarId]? with
   | some (.fvar fvarId') =>
     if translator then
       .fvar fvarId'
@@ -246,7 +246,7 @@ private partial def normArgImp (s : FVarSubst) (arg : Arg) (translator : Bool) :
   match arg with
   | .erased => arg
   | .fvar fvarId =>
-    match s.find? fvarId with
+    match s[fvarId]? with
     | some (.fvar fvarId') =>
       let arg' := .fvar fvarId'
       if translator then arg' else normArgImp s arg' translator

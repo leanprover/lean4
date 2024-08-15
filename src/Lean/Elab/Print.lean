@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.Util.FoldConsts
 import Lean.Meta.Eqns
+import Lean.Util.CollectAxioms
 import Lean.Elab.Command
 
 namespace Lean.Elab.Command
@@ -78,19 +78,19 @@ private def printStructure (id : Name) (levelParams : List Name) (numParams : Na
   logInfo m
 where
   doFields := liftTermElabM do
-    forallTelescope (← getConstInfo id).type fun params type =>
-      withLocalDeclD `self type fun self => do
+    forallTelescope (← getConstInfo id).type fun params _ =>
+      withLocalDeclD `self (mkAppN (Expr.const id (levelParams.map .param)) params) fun self => do
         let params := params.push self
-        let mut m : Format := ""
+        let mut m : MessageData := ""
         for field in fields do
           match getProjFnForField? (← getEnv) id field with
           | some proj =>
             let field : Format := if isPrivateName proj then "private " ++ toString field else toString field
             let cinfo ← getConstInfo proj
             let ftype ← instantiateForall cinfo.type params
-            m := m ++ Format.line ++ field ++ " : " ++ (← ppExpr ftype) -- Why ppExpr here?
+            m := m ++ Format.line ++ field ++ " : " ++ ftype
           | none => panic! "missing structure field info"
-        return m
+        addMessageContext m
 
 private def printIdCore (id : Name) : CommandElabM Unit := do
   let env ← getEnv
@@ -120,40 +120,12 @@ private def printId (id : Syntax) : CommandElabM Unit := do
   | `(#print%$tk $s:str)    => logInfoAt tk s.getString
   | _                       => throwError "invalid #print command"
 
-namespace CollectAxioms
-
-structure State where
-  visited : NameSet    := {}
-  axioms  : Array Name := #[]
-
-abbrev M := ReaderT Environment $ StateM State
-
-partial def collect (c : Name) : M Unit := do
-  let collectExpr (e : Expr) : M Unit := e.getUsedConstants.forM collect
-  let s ← get
-  unless s.visited.contains c do
-    modify fun s => { s with visited := s.visited.insert c }
-    let env ← read
-    match env.find? c with
-    | some (ConstantInfo.axiomInfo _)  => modify fun s => { s with axioms := s.axioms.push c }
-    | some (ConstantInfo.defnInfo v)   => collectExpr v.type *> collectExpr v.value
-    | some (ConstantInfo.thmInfo v)    => collectExpr v.type *> collectExpr v.value
-    | some (ConstantInfo.opaqueInfo v) => collectExpr v.type *> collectExpr v.value
-    | some (ConstantInfo.quotInfo _)   => pure ()
-    | some (ConstantInfo.ctorInfo v)   => collectExpr v.type
-    | some (ConstantInfo.recInfo v)    => collectExpr v.type
-    | some (ConstantInfo.inductInfo v) => collectExpr v.type *> v.ctors.forM collect
-    | none                             => pure ()
-
-end CollectAxioms
-
 private def printAxiomsOf (constName : Name) : CommandElabM Unit := do
-  let env ← getEnv
-  let (_, s) := ((CollectAxioms.collect constName).run env).run {}
-  if s.axioms.isEmpty then
+  let axioms ← collectAxioms constName
+  if axioms.isEmpty then
     logInfo m!"'{constName}' does not depend on any axioms"
   else
-    logInfo m!"'{constName}' depends on axioms: {s.axioms.toList}"
+    logInfo m!"'{constName}' depends on axioms: {axioms.qsort Name.lt |>.toList}"
 
 @[builtin_command_elab «printAxioms»] def elabPrintAxioms : CommandElab
   | `(#print%$tk axioms $id) => withRef tk do

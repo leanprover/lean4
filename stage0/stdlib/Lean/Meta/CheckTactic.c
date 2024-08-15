@@ -26,6 +26,7 @@ static lean_object* l_Lean_Meta_CheckTactic_mkCheckGoalType___closed__3;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_CheckTactic_matchCheckGoalType___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_CheckTactic_matchCheckGoalType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_CheckTactic_mkCheckGoalType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_Meta_CheckTactic_matchCheckGoalType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_CheckTactic_matchCheckGoalType___closed__2;
@@ -35,6 +36,7 @@ static lean_object* l_Lean_Meta_CheckTactic_matchCheckGoalType___closed__4;
 static lean_object* l_Lean_Meta_CheckTactic_mkCheckGoalType___closed__4;
 static lean_object* l_Lean_Meta_CheckTactic_mkCheckGoalType___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_CheckTactic_matchCheckGoalType___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_Meta_CheckTactic_matchCheckGoalType___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_CheckTactic_matchCheckGoalType___closed__3;
 lean_object* l_Lean_indentExpr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_CheckTactic_matchCheckGoalType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -51,7 +53,7 @@ static lean_object* _init_l_Lean_Meta_CheckTactic_mkCheckGoalType___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -59,7 +61,7 @@ static lean_object* _init_l_Lean_Meta_CheckTactic_mkCheckGoalType___closed__2() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -67,7 +69,7 @@ static lean_object* _init_l_Lean_Meta_CheckTactic_mkCheckGoalType___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CheckTactic", 11);
+x_1 = lean_mk_string_unchecked("CheckTactic", 11, 11);
 return x_1;
 }
 }
@@ -75,7 +77,7 @@ static lean_object* _init_l_Lean_Meta_CheckTactic_mkCheckGoalType___closed__4() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CheckGoalType", 13);
+x_1 = lean_mk_string_unchecked("CheckGoalType", 13, 13);
 return x_1;
 }
 }
@@ -194,13 +196,9 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11;
 x_9 = lean_ctor_get(x_5, 5);
 x_10 = l_Lean_replaceRef(x_1, x_9);
 lean_dec(x_9);
-lean_dec(x_1);
 lean_ctor_set(x_5, 5, x_10);
 x_11 = l_Lean_throwError___at_Lean_Meta_CheckTactic_matchCheckGoalType___spec__2(x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 return x_11;
 }
 else
@@ -235,7 +233,6 @@ lean_inc(x_12);
 lean_dec(x_5);
 x_26 = l_Lean_replaceRef(x_1, x_17);
 lean_dec(x_17);
-lean_dec(x_1);
 x_27 = lean_alloc_ctor(0, 12, 2);
 lean_ctor_set(x_27, 0, x_12);
 lean_ctor_set(x_27, 1, x_13);
@@ -252,10 +249,7 @@ lean_ctor_set(x_27, 11, x_24);
 lean_ctor_set_uint8(x_27, sizeof(void*)*12, x_23);
 lean_ctor_set_uint8(x_27, sizeof(void*)*12 + 1, x_25);
 x_28 = l_Lean_throwError___at_Lean_Meta_CheckTactic_matchCheckGoalType___spec__2(x_2, x_3, x_4, x_27, x_6, x_7);
-lean_dec(x_6);
 lean_dec(x_27);
-lean_dec(x_4);
-lean_dec(x_3);
 return x_28;
 }
 }
@@ -289,7 +283,7 @@ static lean_object* _init_l_Lean_Meta_CheckTactic_matchCheckGoalType___closed__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Goal", 4);
+x_1 = lean_mk_string_unchecked("Goal", 4, 4);
 return x_1;
 }
 }
@@ -306,7 +300,7 @@ static lean_object* _init_l_Lean_Meta_CheckTactic_matchCheckGoalType___closed__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nis expected to match ", 22);
+x_1 = lean_mk_string_unchecked("\nis expected to match ", 22, 22);
 return x_1;
 }
 }
@@ -323,7 +317,7 @@ static lean_object* _init_l_Lean_Meta_CheckTactic_matchCheckGoalType___closed__6
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -385,6 +379,7 @@ x_29 = lean_array_push(x_28, x_18);
 lean_inc(x_23);
 x_30 = lean_array_push(x_29, x_23);
 x_31 = l_Lean_mkAppN(x_27, x_30);
+lean_dec(x_30);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
@@ -426,6 +421,9 @@ x_42 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_42, 0, x_40);
 lean_ctor_set(x_42, 1, x_41);
 x_43 = l_Lean_throwErrorAt___at_Lean_Meta_CheckTactic_matchCheckGoalType___spec__1(x_1, x_42, x_3, x_4, x_5, x_6, x_35);
+lean_dec(x_6);
+lean_dec(x_4);
+lean_dec(x_3);
 x_44 = !lean_is_exclusive(x_43);
 if (x_44 == 0)
 {
@@ -452,7 +450,6 @@ lean_dec(x_31);
 lean_free_object(x_16);
 lean_free_object(x_8);
 lean_dec(x_2);
-lean_dec(x_1);
 x_48 = lean_ctor_get(x_32, 1);
 lean_inc(x_48);
 lean_dec(x_32);
@@ -479,7 +476,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 x_51 = !lean_is_exclusive(x_32);
 if (x_51 == 0)
 {
@@ -521,6 +517,7 @@ x_62 = lean_array_push(x_61, x_18);
 lean_inc(x_55);
 x_63 = lean_array_push(x_62, x_55);
 x_64 = l_Lean_mkAppN(x_60, x_63);
+lean_dec(x_63);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
@@ -562,6 +559,9 @@ x_75 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_75, 0, x_73);
 lean_ctor_set(x_75, 1, x_74);
 x_76 = l_Lean_throwErrorAt___at_Lean_Meta_CheckTactic_matchCheckGoalType___spec__1(x_1, x_75, x_3, x_4, x_5, x_6, x_68);
+lean_dec(x_6);
+lean_dec(x_4);
+lean_dec(x_3);
 x_77 = lean_ctor_get(x_76, 0);
 lean_inc(x_77);
 x_78 = lean_ctor_get(x_76, 1);
@@ -590,7 +590,6 @@ lean_dec(x_64);
 lean_free_object(x_16);
 lean_free_object(x_8);
 lean_dec(x_2);
-lean_dec(x_1);
 x_81 = lean_ctor_get(x_65, 1);
 lean_inc(x_81);
 lean_dec(x_65);
@@ -617,7 +616,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 x_84 = lean_ctor_get(x_65, 0);
 lean_inc(x_84);
 x_85 = lean_ctor_get(x_65, 1);
@@ -684,6 +682,7 @@ x_100 = lean_array_push(x_99, x_88);
 lean_inc(x_92);
 x_101 = lean_array_push(x_100, x_92);
 x_102 = l_Lean_mkAppN(x_98, x_101);
+lean_dec(x_101);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
@@ -725,6 +724,9 @@ x_114 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_114, 0, x_112);
 lean_ctor_set(x_114, 1, x_113);
 x_115 = l_Lean_throwErrorAt___at_Lean_Meta_CheckTactic_matchCheckGoalType___spec__1(x_1, x_114, x_3, x_4, x_5, x_6, x_106);
+lean_dec(x_6);
+lean_dec(x_4);
+lean_dec(x_3);
 x_116 = lean_ctor_get(x_115, 0);
 lean_inc(x_116);
 x_117 = lean_ctor_get(x_115, 1);
@@ -752,7 +754,6 @@ lean_object* x_120; lean_object* x_121; lean_object* x_122;
 lean_dec(x_102);
 lean_free_object(x_8);
 lean_dec(x_2);
-lean_dec(x_1);
 x_120 = lean_ctor_get(x_103, 1);
 lean_inc(x_120);
 lean_dec(x_103);
@@ -778,7 +779,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 x_123 = lean_ctor_get(x_103, 0);
 lean_inc(x_123);
 x_124 = lean_ctor_get(x_103, 1);
@@ -865,6 +865,7 @@ x_147 = lean_array_push(x_146, x_134);
 lean_inc(x_139);
 x_148 = lean_array_push(x_147, x_139);
 x_149 = l_Lean_mkAppN(x_145, x_148);
+lean_dec(x_148);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
@@ -911,6 +912,9 @@ x_162 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_162, 0, x_160);
 lean_ctor_set(x_162, 1, x_161);
 x_163 = l_Lean_throwErrorAt___at_Lean_Meta_CheckTactic_matchCheckGoalType___spec__1(x_1, x_162, x_3, x_4, x_5, x_6, x_153);
+lean_dec(x_6);
+lean_dec(x_4);
+lean_dec(x_3);
 x_164 = lean_ctor_get(x_163, 0);
 lean_inc(x_164);
 x_165 = lean_ctor_get(x_163, 1);
@@ -938,7 +942,6 @@ lean_object* x_168; lean_object* x_169; lean_object* x_170;
 lean_dec(x_149);
 lean_dec(x_136);
 lean_dec(x_2);
-lean_dec(x_1);
 x_168 = lean_ctor_get(x_150, 1);
 lean_inc(x_168);
 lean_dec(x_150);
@@ -964,7 +967,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 x_171 = lean_ctor_get(x_150, 0);
 lean_inc(x_171);
 x_172 = lean_ctor_get(x_150, 1);
@@ -1001,6 +1003,18 @@ lean_dec(x_2);
 return x_7;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_Meta_CheckTactic_matchCheckGoalType___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_Lean_throwErrorAt___at_Lean_Meta_CheckTactic_matchCheckGoalType___spec__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+lean_dec(x_6);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_1);
+return x_8;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Meta_CheckTactic_matchCheckGoalType___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -1012,6 +1026,15 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 return x_10;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_CheckTactic_matchCheckGoalType___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_Lean_Meta_CheckTactic_matchCheckGoalType(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+lean_dec(x_1);
+return x_8;
 }
 }
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin, lean_object*);

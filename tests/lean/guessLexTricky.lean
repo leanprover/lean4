@@ -39,24 +39,28 @@ macro_rules | `(tactic|search_lex $ts:tacticSeq) => `(tactic| (
 mutual
 def prod (x y z : Nat) : Nat :=
   if y % 2 = 0 then eprod x y z else oprod x y z
+-- termination_by (y, 1, 0)
 decreasing_by
-  -- TODO: Why does it not work to wrap it all in `all_goals`?
-  all_goals simp_wf
-  · search_lex solve
-      | decreasing_trivial
-      | apply Nat.bitwise_rec_lemma; assumption
-  · search_lex solve
+  all_goals
+    simp_wf
+    search_lex solve
       | decreasing_trivial
       | apply Nat.bitwise_rec_lemma; assumption
 
 def oprod (x y z : Nat) := eprod x (y - 1) (z + x)
+-- termination_by (y, 0, 1)
 decreasing_by
   simp_wf
-  search_lex solve
-    | decreasing_trivial
-    | apply Nat.bitwise_rec_lemma; assumption
+  try -- the need for `try` here is fishy
+      -- the proof with explicit `termination_by` does not need it, so it should not throw
+      -- GuessLex off, but without `try` it does
+      -- This appeared after #4522, which made Nat.sub_le a simp lemma
+    search_lex solve
+      | decreasing_trivial
+      | apply Nat.bitwise_rec_lemma; assumption
 
 def eprod (x y z : Nat) := if y = 0 then z else prod (2 * x) (y / 2) z
+-- termination_by (y, 0, 0)
 decreasing_by
   simp_wf
   search_lex solve
@@ -64,7 +68,3 @@ decreasing_by
     | apply Nat.bitwise_rec_lemma; assumption
 
 end
--- termination_by
---   prod x y z => (y, 2)
---   oprod x y z => (y, 1)
---   eprod x y z => (y, 0)

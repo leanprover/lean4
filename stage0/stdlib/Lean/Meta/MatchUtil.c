@@ -314,7 +314,7 @@ static lean_object* _init_l_Lean_Meta_matchEq_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -359,9 +359,7 @@ return x_10;
 else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-lean_inc(x_12);
 x_15 = l_Lean_Expr_appFn_x21(x_12);
-lean_inc(x_15);
 x_16 = l_Lean_Expr_appFn_x21(x_15);
 x_17 = l_Lean_Expr_appArg_x21(x_16);
 lean_dec(x_16);
@@ -403,9 +401,7 @@ return x_27;
 else
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
-lean_inc(x_23);
 x_28 = l_Lean_Expr_appFn_x21(x_23);
-lean_inc(x_28);
 x_29 = l_Lean_Expr_appFn_x21(x_28);
 x_30 = l_Lean_Expr_appArg_x21(x_29);
 lean_dec(x_29);
@@ -458,9 +454,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_inc(x_1);
 x_41 = l_Lean_Expr_appFn_x21(x_1);
-lean_inc(x_41);
 x_42 = l_Lean_Expr_appFn_x21(x_41);
 x_43 = l_Lean_Expr_appArg_x21(x_42);
 lean_dec(x_42);
@@ -487,7 +481,7 @@ static lean_object* _init_l_Lean_Meta_matchHEq_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("HEq", 3);
+x_1 = lean_mk_string_unchecked("HEq", 3, 3);
 return x_1;
 }
 }
@@ -532,11 +526,8 @@ return x_10;
 else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-lean_inc(x_12);
 x_15 = l_Lean_Expr_appFn_x21(x_12);
-lean_inc(x_15);
 x_16 = l_Lean_Expr_appFn_x21(x_15);
-lean_inc(x_16);
 x_17 = l_Lean_Expr_appFn_x21(x_16);
 x_18 = l_Lean_Expr_appArg_x21(x_17);
 lean_dec(x_17);
@@ -583,11 +574,8 @@ return x_30;
 else
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; 
-lean_inc(x_26);
 x_31 = l_Lean_Expr_appFn_x21(x_26);
-lean_inc(x_31);
 x_32 = l_Lean_Expr_appFn_x21(x_31);
-lean_inc(x_32);
 x_33 = l_Lean_Expr_appFn_x21(x_32);
 x_34 = l_Lean_Expr_appArg_x21(x_33);
 lean_dec(x_33);
@@ -645,11 +633,8 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_inc(x_1);
 x_47 = l_Lean_Expr_appFn_x21(x_1);
-lean_inc(x_47);
 x_48 = l_Lean_Expr_appFn_x21(x_47);
-lean_inc(x_48);
 x_49 = l_Lean_Expr_appFn_x21(x_48);
 x_50 = l_Lean_Expr_appArg_x21(x_49);
 lean_dec(x_49);
@@ -1468,7 +1453,7 @@ static lean_object* _init_l_Lean_Meta_matchNot_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Not", 3);
+x_1 = lean_mk_string_unchecked("Not", 3, 3);
 return x_1;
 }
 }
@@ -1969,7 +1954,7 @@ static lean_object* _init_l_Lean_Meta_matchNe_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Ne", 2);
+x_1 = lean_mk_string_unchecked("Ne", 2, 2);
 return x_1;
 }
 }
@@ -2101,9 +2086,7 @@ return x_91;
 else
 {
 lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; 
-lean_inc(x_1);
 x_92 = l_Lean_Expr_appFn_x21(x_1);
-lean_inc(x_92);
 x_93 = l_Lean_Expr_appFn_x21(x_92);
 x_94 = l_Lean_Expr_appArg_x21(x_93);
 lean_dec(x_93);
@@ -2235,9 +2218,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_inc(x_11);
 x_31 = l_Lean_Expr_appFn_x21(x_11);
-lean_inc(x_31);
 x_32 = l_Lean_Expr_appFn_x21(x_31);
 x_33 = l_Lean_Expr_appArg_x21(x_32);
 lean_dec(x_32);
@@ -2357,9 +2338,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_inc(x_39);
 x_57 = l_Lean_Expr_appFn_x21(x_39);
-lean_inc(x_57);
 x_58 = l_Lean_Expr_appFn_x21(x_57);
 x_59 = l_Lean_Expr_appArg_x21(x_58);
 lean_dec(x_58);

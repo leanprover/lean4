@@ -110,7 +110,7 @@ def PackageConfig.mkSyntax (cfg : PackageConfig)
     |> addDeclFieldD `lintDriverArgs cfg.lintDriverArgs #[]
     |> cfg.toWorkspaceConfig.addDeclFields
     |> cfg.toLeanConfig.addDeclFields
-  `(packageDecl|package $(mkIdent cfg.name) $[$declVal?]?)
+  `(packageDecl|package $(mkIdent cfg.name):ident $[$declVal?]?)
 
 private def getEscapedNameParts? (acc : List String) : Name → Option (List String)
   | Name.anonymous => if acc.isEmpty then none else some acc
@@ -148,7 +148,7 @@ protected def LeanLibConfig.mkSyntax
     |> addDeclFieldD `defaultFacets cfg.defaultFacets #[LeanLib.leanArtsFacet]
     |> cfg.toLeanConfig.addDeclFields
   let attrs? ← if defaultTarget then some <$> `(Term.attributes|@[default_target]) else pure none
-  `(leanLibDecl|$[$attrs?:attributes]? lean_lib $(mkIdent cfg.name) $[$declVal?]?)
+  `(leanLibDecl|$[$attrs?:attributes]? lean_lib $(mkIdent cfg.name):ident $[$declVal?]?)
 
 protected def LeanExeConfig.mkSyntax
   (cfg : LeanExeConfig) (defaultTarget := false)
@@ -160,18 +160,29 @@ protected def LeanExeConfig.mkSyntax
     |> addDeclFieldD `supportInterpreter cfg.supportInterpreter false
     |> cfg.toLeanConfig.addDeclFields
     let attrs? ← if defaultTarget then some <$> `(Term.attributes|@[default_target]) else pure none
-  `(leanExeDecl|$[$attrs?:attributes]? lean_exe $(mkIdent cfg.name) $[$declVal?]?)
+  `(leanExeDecl|$[$attrs?:attributes]? lean_exe $(mkIdent cfg.name):ident $[$declVal?]?)
 
 protected def Dependency.mkSyntax (cfg : Dependency) : RequireDecl := Unhygienic.run do
+  let src? ← cfg.src?.mapM fun src =>
+    match src with
+    | .path dir =>
+      `(fromSource|$(quote dir):term)
+    | .git url rev? subDir? =>
+      `(fromSource|git $(quote url) $[@ $(rev?.map quote)]? $[/ $(subDir?.map quote)]?)
+  let ver? ←
+    if let some ver := cfg.version? then
+      if ver.startsWith "git#" then
+        some <$> `(verSpec|git $(quote <| ver.drop 4))
+      else
+        some <$> `(verSpec|$(quote ver):term)
+    else
+      pure none
+  let scope? := if cfg.scope.isEmpty then none else some (quote cfg.scope)
   let opts? := if cfg.opts.isEmpty then none else some <| Unhygienic.run do
     cfg.opts.foldM (init := mkCIdent ``NameMap.empty) fun stx opt val =>
       `($stx |>.insert $(quote opt) $(quote val))
-  match cfg.src with
-  | .path dir =>
-    `(requireDecl|require $(mkIdent cfg.name) from $(quote dir):term $[with $opts?]?)
-  | .git url rev? subDir? =>
-    `(requireDecl|require $(mkIdent cfg.name) from git $(quote url)
-      $[@ $(rev?.map quote)]? $[/ $(subDir?.map quote)]? $[with $opts?]?)
+  `(requireDecl|require $[$scope? /]? $(mkIdent cfg.name):ident $[@ $ver?]?
+    $[from $src?]? $[with $opts?]?)
 
 /-! ## Root Encoder -/
 

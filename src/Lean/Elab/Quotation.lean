@@ -596,7 +596,7 @@ private partial def compileStxMatch (discrs : List Term) (alts : List Alt) : Ter
     `(have __discr := $discr; $stx)
   | _, _ => unreachable!
 
-abbrev IdxSet := HashSet Nat
+abbrev IdxSet := Std.HashSet Nat
 
 private partial def hasNoErrorIfUnused : Syntax → Bool
   | `(no_error_if_unused% $_) => true
@@ -690,5 +690,6 @@ builtin_initialize
   registerTraceClass `Elab.match_syntax
   registerTraceClass `Elab.match_syntax.alt (inherited := true)
   registerTraceClass `Elab.match_syntax.result (inherited := true)
+  registerTraceClass `Elab.match_syntax.onMatch
 
 end Lean.Elab.Term.Quotation

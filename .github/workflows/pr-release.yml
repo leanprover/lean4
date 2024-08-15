@@ -163,7 +163,8 @@ jobs:
             # so keep in sync
 
             # Use GitHub API to check if a comment already exists
-            existing_comment="$(curl -L -s -H "Authorization: token ${{ secrets.MATHLIB4_BOT }}" \
+            existing_comment="$(curl --retry 3 --location --silent \
+                                    -H "Authorization: token ${{ secrets.MATHLIB4_BOT }}" \
                                     -H "Accept: application/vnd.github.v3+json" \
                                     "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments" \
                                     | jq 'first(.[] | select(.body | test("^- . Mathlib") or startswith("Mathlib CI status")) | select(.user.login == "leanprover-community-mathlib4-bot"))')"
@@ -234,7 +235,7 @@ jobs:
       # Checkout the Batteries repository with all branches
       - name: Checkout Batteries repository
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: leanprover-community/batteries
           token: ${{ secrets.MATHLIB4_BOT }}
@@ -291,12 +292,19 @@ jobs:
       # Checkout the mathlib4 repository with all branches
       - name: Checkout mathlib4 repository
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: leanprover-community/mathlib4
           token: ${{ secrets.MATHLIB4_BOT }}
           ref: nightly-testing
           fetch-depth: 0 # This ensures we check out all tags and branches.
+
+      - name: install elan
+        run: |
+          set -o pipefail
+          curl -sSfL https://github.com/leanprover/elan/releases/download/v3.0.0/elan-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          ./elan-init -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "${GITHUB_PATH}"
 
       - name: Check if tag exists
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
@@ -321,8 +329,9 @@ jobs:
             git switch -c lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }} "$BASE"
             echo "leanprover/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}" > lean-toolchain
             git add lean-toolchain
-            sed -i "s/require batteries from git \"https:\/\/github.com\/leanprover-community\/batteries\" @ \".\+\"/require batteries from git \"https:\/\/github.com\/leanprover-community\/batteries\" @ \"nightly-testing-${MOST_RECENT_NIGHTLY}\"/" lakefile.lean
-            git add lakefile.lean
+            sed -i 's,require "leanprover-community" / "batteries" @ git ".\+",require "leanprover-community" / "batteries" @ git "nightly-testing-'"${MOST_RECENT_NIGHTLY}"'",' lakefile.lean
+            lake update batteries
+            git add lakefile.lean lake-manifest.json
             git commit -m "Update lean-toolchain for testing https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
           else
             echo "Branch already exists, pushing an empty commit."

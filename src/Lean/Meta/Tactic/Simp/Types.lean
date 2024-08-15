@@ -96,13 +96,31 @@ structure Context where
   invalidating the cache.
   -/
   lctxInitIndices   : Nat := 0
+  /--
+  If `inDSimp := true`, then `simp` is in `dsimp` mode, and only applying
+  transformations that presereve definitional equality.
+  -/
+  inDSimp : Bool := false
   deriving Inhabited
 
 def Context.isDeclToUnfold (ctx : Context) (declName : Name) : Bool :=
   ctx.simpTheorems.isDeclToUnfold declName
 
--- We should use `PHashMap` because we backtrack the contents of `UsedSimps`
-abbrev UsedSimps := PHashMap Origin Nat
+structure UsedSimps where
+  -- We should use `PHashMap` because we backtrack the contents of `UsedSimps`
+  -- The natural number tracks the insertion order
+  map  : PHashMap Origin Nat := {}
+  size : Nat := 0
+  deriving Inhabited
+
+def UsedSimps.insert (s : UsedSimps) (thmId : Origin) : UsedSimps :=
+  if s.map.contains thmId then
+    s
+  else match s with
+    | { map, size } => { map := map.insert thmId size, size := size + 1 }
+
+def UsedSimps.toArray (s : UsedSimps) : Array Origin :=
+  s.map.toArray.qsort (·.2 < ·.2) |>.map (·.1)
 
 structure Diagnostics where
   /-- Number of times each simp theorem has been used/applied. -/
@@ -312,6 +330,13 @@ def getSimpTheorems : SimpM SimpTheoremsArray :=
 def getSimpCongrTheorems : SimpM SimpCongrTheorems :=
   return (← readThe Context).congrTheorems
 
+/--
+Returns `true` if `simp` is in `dsimp` mode.
+That is, only transformations that preserve definitional equality should be applied.
+-/
+def inDSimp : SimpM Bool :=
+  return (← readThe Context).inDSimp
+
 @[inline] def withPreservedCache (x : SimpM α) : SimpM α := do
   -- Recall that `cache.map₁` should be used linearly but `cache.map₂` is great for copies.
   let savedMap₂   := (← get).cache.map₂
@@ -355,9 +380,7 @@ def recordSimpTheorem (thmId : Origin) : SimpM Unit := do
       else
         pure thmId
     | _ => pure thmId
-  modify fun s => if s.usedTheorems.contains thmId then s else
-    let n := s.usedTheorems.size
-    { s with usedTheorems := s.usedTheorems.insert thmId n }
+  modify fun s => { s with usedTheorems := s.usedTheorems.insert thmId }
 
 def recordCongrTheorem (declName : Name) : SimpM Unit := do
   modifyDiag fun s =>
@@ -489,7 +512,7 @@ def mkCongrSimp? (f : Expr) : SimpM (Option CongrTheorem) := do
   if kinds.all fun k => match k with | CongrArgKind.fixed => true | CongrArgKind.eq => true | _ => false then
     /- See remark above. -/
     return none
-  match (← get).congrCache.find? f with
+  match (← get).congrCache[f]? with
   | some thm? => return thm?
   | none =>
     let thm? ← mkCongrSimpCore? f info kinds
@@ -522,7 +545,11 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
         i := i + 1
         continue
     match kind with
-    | CongrArgKind.fixed => argsNew := argsNew.push (← dsimp arg)
+    | CongrArgKind.fixed =>
+      let argNew ← dsimp arg
+      if arg != argNew then
+        simplified := true
+      argsNew := argsNew.push argNew
     | CongrArgKind.cast  => hasCast := true; argsNew := argsNew.push arg
     | CongrArgKind.subsingletonInst => argsNew := argsNew.push arg
     | CongrArgKind.eq =>
@@ -558,19 +585,26 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
     equal using `TransparencyMode.reducible` (`Nat.pred` is not reducible).
     Thus, we decided to return here only if the auto generated congruence theorem does not introduce casts.
   -/
-  if !hasProof && !hasCast then return some { expr := mkAppN f argsNew }
+  if !hasProof && !hasCast then
+    return some { expr := mkAppN f argsNew }
   let mut proof := cgrThm.proof
   let mut type  := cgrThm.type
   let mut j := 0 -- index at argResults
   let mut subst := #[]
-  for arg in args, kind in cgrThm.argKinds do
+  for arg in args, argNew in argsNew, kind in cgrThm.argKinds do
     proof := mkApp proof arg
-    subst := subst.push arg
     type := type.bindingBody!
     match kind with
-    | CongrArgKind.fixed => pure ()
-    | CongrArgKind.cast  => pure ()
+    | CongrArgKind.fixed =>
+      /-
+      We use `argNew` here because `dsimp` may have simplified the fixed argument.
+      See issue #4339
+      -/
+      subst := subst.push argNew
+    | CongrArgKind.cast  =>
+      subst := subst.push arg
     | CongrArgKind.subsingletonInst =>
+      subst := subst.push arg
       let clsNew := type.bindingDomain!.instantiateRev subst
       let instNew ← if (← isDefEq (← inferType arg) clsNew) then
         pure arg
@@ -584,6 +618,7 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
       subst := subst.push instNew
       type := type.bindingBody!
     | CongrArgKind.eq =>
+      subst := subst.push arg
       let argResult := argResults[j]!
       let argProof ← argResult.getProof' arg
       j := j + 1

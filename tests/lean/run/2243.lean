@@ -2,7 +2,7 @@ import Lean
 
 open Lean Elab Tactic in
 elab "exact_false" : tactic =>
-  closeMainGoal (mkConst ``Bool.false)
+  closeMainGoal `exact_false (mkConst ``Bool.false)
 
 def f (b : Bool := by exact_false) : Nat := bif b then 1 else 0
 

@@ -45,6 +45,8 @@ structure Context where
   depth          : Nat := 0
 
 structure State where
+  /-- The number of `delab` steps so far. Used by `pp.maxSteps` to stop delaboration. -/
+  steps : Nat := 0
   /-- We attach `Elab.Info` at various locations in the `Syntax` output in order to convey
   its semantics. While the elaborator emits `InfoTree`s, here we have no real text location tree
   to traverse, so we use a flattened map. -/
@@ -120,6 +122,12 @@ unsafe def mkDelabAttribute : IO (KeyedDeclsAttribute Delab) :=
       pure kind
   } `Lean.PrettyPrinter.Delaborator.delabAttribute
 @[builtin_init mkDelabAttribute] opaque delabAttribute : KeyedDeclsAttribute Delab
+
+macro "app_delab" id:ident : attr => do
+  match ← Macro.resolveGlobalName id.getId with
+  | [] => Macro.throwErrorAt id s!"unknown declaration '{id.getId}'"
+  | [(c, [])] => `(attr| delab $(mkIdentFrom (canonical := true) id (`app ++ c)))
+  | _ => Macro.throwErrorAt id s!"ambiguous declaration '{id.getId}'"
 
 def getExprKind : DelabM Name := do
   let e ← getExpr
@@ -262,10 +270,12 @@ def withBindingBodyUnusedName {α} (d : Syntax → DelabM α) : DelabM α := do
 inductive OmissionReason
   | deep
   | proof
+  | maxSteps
 
 def OmissionReason.toString : OmissionReason → String
   | deep => "Term omitted due to its depth (see option `pp.deepTerms`)."
   | proof => "Proof omitted (see option `pp.proofs`)."
+  | maxSteps => "Term omitted due to reaching the maximum number of steps allowed for pretty printing this expression (see option `pp.maxSteps`)."
 
 def addOmissionInfo (pos : Pos) (stx : Syntax) (e : Expr) (reason : OmissionReason) : DelabM Unit := do
   let info := Info.ofOmissionInfo <| ← mkOmissionInfo stx e
@@ -361,6 +371,11 @@ partial def delabFor : Name → Delab
 
 partial def delab : Delab := do
   checkSystem "delab"
+
+  if (← get).steps ≥ (← getPPOption getPPMaxSteps) then
+    return ← omission .maxSteps
+  modify fun s => {s with steps := s.steps + 1}
+
   let e ← getExpr
 
   if ← shouldOmitExpr e then
@@ -437,6 +452,8 @@ def delab (e : Expr) (optionsPerPos : OptionsPerPos := {}) : MetaM Term := do
   let (stx, _) ← delabCore e optionsPerPos Delaborator.delab
   return stx
 
-builtin_initialize registerTraceClass `PrettyPrinter.delab
+builtin_initialize
+  registerTraceClass `PrettyPrinter.delab
+  registerTraceClass `PrettyPrinter.delab.input
 
 end Lean.PrettyPrinter

@@ -19,6 +19,7 @@ structure Literal where
   n     : Nat
   /-- Actual value. -/
   value : BitVec n
+  deriving DecidableEq, Repr
 
 /--
 Try to convert `OfNat.ofNat`/`BitVec.OfNat` application into a
@@ -227,6 +228,9 @@ builtin_dsimproc [simp, seval] reduceOfNat (BitVec.ofNat _ _) := fun e => do
   if bv.toNat == v then return .continue -- already normalized
   return .done <| toExpr (BitVec.ofNat n v)
 
+builtin_simproc [simp, seval] reduceEq  (( _ : BitVec _) = _)  := reduceBinPred ``Eq 3 (. = .)
+builtin_simproc [simp, seval] reduceNe  (( _ : BitVec _) ≠ _)  := reduceBinPred ``Ne 3 (. ≠ .)
+
 /-- Simplification procedure for `<` on `BitVec`s. -/
 builtin_simproc [simp, seval] reduceLT (( _ : BitVec _) < _)  := reduceBinPred ``LT.lt 4 (· < ·)
 /-- Simplification procedure for `≤` on `BitVec`s. -/
@@ -318,11 +322,12 @@ natural number literals.
   let i_add_j := toExpr (i + j)
   let expr ← mkAppM declName #[x, i_add_j]
   let proof ← mkAppM thmName #[x, aux.appArg!, e.appArg!]
+  let proof ← mkEqSymm proof -- we rewrite (x <<< i) <<< j ↦ x <<< (i + j) [the opposite direction]
   return .visit { expr, proof? := some proof }
 
 builtin_simproc reduceShiftLeftShiftLeft (((_ <<< _ : BitVec _) <<< _ : BitVec _)) :=
-  reduceShiftShift ``HShiftLeft.hShiftLeft ``shiftLeft_shiftLeft
+  reduceShiftShift ``HShiftLeft.hShiftLeft ``shiftLeft_add
 builtin_simproc reduceShiftRightShiftRight (((_ >>> _ : BitVec _) >>> _ : BitVec _)) :=
-  reduceShiftShift ``HShiftRight.hShiftRight ``shiftRight_shiftRight
+  reduceShiftShift ``HShiftRight.hShiftRight ``shiftRight_add
 
 end BitVec

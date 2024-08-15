@@ -102,7 +102,7 @@ static lean_object* _init_l_tacticBy__cases___x3a_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticBy_cases_:_", 17);
+x_1 = lean_mk_string_unchecked("tacticBy_cases_:_", 17, 17);
 return x_1;
 }
 }
@@ -120,7 +120,7 @@ static lean_object* _init_l_tacticBy__cases___x3a_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("andthen", 7);
+x_1 = lean_mk_string_unchecked("andthen", 7, 7);
 return x_1;
 }
 }
@@ -138,7 +138,7 @@ static lean_object* _init_l_tacticBy__cases___x3a_____closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("by_cases ", 9);
+x_1 = lean_mk_string_unchecked("by_cases ", 9, 9);
 return x_1;
 }
 }
@@ -158,7 +158,7 @@ static lean_object* _init_l_tacticBy__cases___x3a_____closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("optional", 8);
+x_1 = lean_mk_string_unchecked("optional", 8, 8);
 return x_1;
 }
 }
@@ -176,7 +176,7 @@ static lean_object* _init_l_tacticBy__cases___x3a_____closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("atomic", 6);
+x_1 = lean_mk_string_unchecked("atomic", 6, 6);
 return x_1;
 }
 }
@@ -194,7 +194,7 @@ static lean_object* _init_l_tacticBy__cases___x3a_____closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ident", 5);
+x_1 = lean_mk_string_unchecked("ident", 5, 5);
 return x_1;
 }
 }
@@ -222,7 +222,7 @@ static lean_object* _init_l_tacticBy__cases___x3a_____closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" : ", 3);
+x_1 = lean_mk_string_unchecked(" : ", 3, 3);
 return x_1;
 }
 }
@@ -292,7 +292,7 @@ static lean_object* _init_l_tacticBy__cases___x3a_____closed__20() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term", 4);
+x_1 = lean_mk_string_unchecked("term", 4, 4);
 return x_1;
 }
 }
@@ -358,7 +358,7 @@ static lean_object* _init_l___aux__Init__ByCases______macroRules__tacticBy__case
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("by_cases", 8);
+x_1 = lean_mk_string_unchecked("by_cases", 8, 8);
 return x_1;
 }
 }
@@ -366,7 +366,7 @@ static lean_object* _init_l___aux__Init__ByCases______macroRules__tacticBy__case
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -384,7 +384,7 @@ static lean_object* _init_l___aux__Init__ByCases______macroRules__tacticBy__case
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("h", 1);
+x_1 = lean_mk_string_unchecked("h", 1, 1);
 return x_1;
 }
 }
@@ -411,7 +411,7 @@ static lean_object* _init_l___aux__Init__ByCases______macroRules__tacticBy__case
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
@@ -461,6 +461,7 @@ x_16 = lean_ctor_get(x_2, 5);
 lean_inc(x_16);
 x_17 = 0;
 x_18 = l_Lean_SourceInfo_fromRef(x_16, x_17);
+lean_dec(x_16);
 x_19 = lean_ctor_get(x_2, 2);
 lean_inc(x_19);
 x_20 = lean_ctor_get(x_2, 1);
@@ -502,7 +503,7 @@ static lean_object* _init_l___aux__Init__ByCases______macroRules__tacticBy__case
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -510,7 +511,7 @@ static lean_object* _init_l___aux__Init__ByCases______macroRules__tacticBy__case
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -518,7 +519,7 @@ static lean_object* _init_l___aux__Init__ByCases______macroRules__tacticBy__case
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -526,7 +527,7 @@ static lean_object* _init_l___aux__Init__ByCases______macroRules__tacticBy__case
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("open", 4);
+x_1 = lean_mk_string_unchecked("open", 4, 4);
 return x_1;
 }
 }
@@ -546,7 +547,7 @@ static lean_object* _init_l___aux__Init__ByCases______macroRules__tacticBy__case
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Command", 7);
+x_1 = lean_mk_string_unchecked("Command", 7, 7);
 return x_1;
 }
 }
@@ -554,7 +555,7 @@ static lean_object* _init_l___aux__Init__ByCases______macroRules__tacticBy__case
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("openSimple", 10);
+x_1 = lean_mk_string_unchecked("openSimple", 10, 10);
 return x_1;
 }
 }
@@ -574,7 +575,7 @@ static lean_object* _init_l___aux__Init__ByCases______macroRules__tacticBy__case
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Classical", 9);
+x_1 = lean_mk_string_unchecked("Classical", 9, 9);
 return x_1;
 }
 }
@@ -623,7 +624,7 @@ static lean_object* _init_l___aux__Init__ByCases______macroRules__tacticBy__case
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("in", 2);
+x_1 = lean_mk_string_unchecked("in", 2, 2);
 return x_1;
 }
 }
@@ -631,7 +632,7 @@ static lean_object* _init_l___aux__Init__ByCases______macroRules__tacticBy__case
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq", 9);
+x_1 = lean_mk_string_unchecked("tacticSeq", 9, 9);
 return x_1;
 }
 }
@@ -651,7 +652,7 @@ static lean_object* _init_l___aux__Init__ByCases______macroRules__tacticBy__case
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq1Indented", 18);
+x_1 = lean_mk_string_unchecked("tacticSeq1Indented", 18, 18);
 return x_1;
 }
 }
@@ -671,7 +672,7 @@ static lean_object* _init_l___aux__Init__ByCases______macroRules__tacticBy__case
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("refine", 6);
+x_1 = lean_mk_string_unchecked("refine", 6, 6);
 return x_1;
 }
 }
@@ -691,7 +692,7 @@ static lean_object* _init_l___aux__Init__ByCases______macroRules__tacticBy__case
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("termDepIfThenElse", 17);
+x_1 = lean_mk_string_unchecked("termDepIfThenElse", 17, 17);
 return x_1;
 }
 }
@@ -709,7 +710,7 @@ static lean_object* _init_l___aux__Init__ByCases______macroRules__tacticBy__case
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("if", 2);
+x_1 = lean_mk_string_unchecked("if", 2, 2);
 return x_1;
 }
 }
@@ -717,7 +718,7 @@ static lean_object* _init_l___aux__Init__ByCases______macroRules__tacticBy__case
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("binderIdent", 11);
+x_1 = lean_mk_string_unchecked("binderIdent", 11, 11);
 return x_1;
 }
 }
@@ -735,7 +736,7 @@ static lean_object* _init_l___aux__Init__ByCases______macroRules__tacticBy__case
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("then", 4);
+x_1 = lean_mk_string_unchecked("then", 4, 4);
 return x_1;
 }
 }
@@ -743,7 +744,7 @@ static lean_object* _init_l___aux__Init__ByCases______macroRules__tacticBy__case
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -751,7 +752,7 @@ static lean_object* _init_l___aux__Init__ByCases______macroRules__tacticBy__case
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("syntheticHole", 13);
+x_1 = lean_mk_string_unchecked("syntheticHole", 13, 13);
 return x_1;
 }
 }
@@ -771,7 +772,7 @@ static lean_object* _init_l___aux__Init__ByCases______macroRules__tacticBy__case
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\?", 1);
+x_1 = lean_mk_string_unchecked("\?", 1, 1);
 return x_1;
 }
 }
@@ -779,7 +780,7 @@ static lean_object* _init_l___aux__Init__ByCases______macroRules__tacticBy__case
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pos", 3);
+x_1 = lean_mk_string_unchecked("pos", 3, 3);
 return x_1;
 }
 }
@@ -806,7 +807,7 @@ static lean_object* _init_l___aux__Init__ByCases______macroRules__tacticBy__case
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("else", 4);
+x_1 = lean_mk_string_unchecked("else", 4, 4);
 return x_1;
 }
 }
@@ -814,7 +815,7 @@ static lean_object* _init_l___aux__Init__ByCases______macroRules__tacticBy__case
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("neg", 3);
+x_1 = lean_mk_string_unchecked("neg", 3, 3);
 return x_1;
 }
 }
@@ -887,6 +888,7 @@ x_17 = lean_ctor_get(x_2, 5);
 lean_inc(x_17);
 x_18 = 0;
 x_19 = l_Lean_SourceInfo_fromRef(x_17, x_18);
+lean_dec(x_17);
 x_20 = lean_ctor_get(x_2, 2);
 lean_inc(x_20);
 x_21 = lean_ctor_get(x_2, 1);

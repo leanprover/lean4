@@ -19,6 +19,7 @@ static lean_object* l_stdNext___closed__9;
 static lean_object* l_stdNext___closed__10;
 LEAN_EXPORT lean_object* l_IO_setRandSeed(lean_object*, lean_object*);
 static lean_object* l_instRandomGenStdGen___closed__2;
+LEAN_EXPORT lean_object* l_initFn____x40_Init_Data_Random___hyg_764_(lean_object*);
 LEAN_EXPORT lean_object* l_randNat(lean_object*);
 LEAN_EXPORT lean_object* l_randNat___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_stdNext___closed__6;
@@ -88,7 +89,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_io_get_random_bytes(size_t, lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_randNat___at_IO_rand___spec__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_initFn____x40_Init_Data_Random___hyg_752_(lean_object*);
 static lean_object* _init_l_instInhabitedStdGen___closed__1() {
 _start:
 {
@@ -132,7 +132,7 @@ static lean_object* _init_l_instReprStdGen___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", ", 2);
+x_1 = lean_mk_string_unchecked(", ", 2, 2);
 return x_1;
 }
 }
@@ -150,7 +150,7 @@ static lean_object* _init_l_instReprStdGen___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⟨", 3);
+x_1 = lean_mk_string_unchecked("⟨", 3, 1);
 return x_1;
 }
 }
@@ -186,7 +186,7 @@ static lean_object* _init_l_instReprStdGen___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⟩", 3);
+x_1 = lean_mk_string_unchecked("⟩", 3, 1);
 return x_1;
 }
 }
@@ -1346,7 +1346,7 @@ x_2 = lean_alloc_closure((void*)(l_randBool___rarg), 2, 0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_initFn____x40_Init_Data_Random___hyg_752_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_initFn____x40_Init_Data_Random___hyg_764_(lean_object* x_1) {
 _start:
 {
 size_t x_2; lean_object* x_3; 
@@ -1361,6 +1361,7 @@ x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec(x_3);
 x_6 = l_ByteArray_toUInt64LE_x21(x_4);
+lean_dec(x_4);
 x_7 = lean_unbox_uint64(x_6);
 lean_dec(x_6);
 x_8 = lean_uint64_to_nat(x_7);
@@ -1906,7 +1907,7 @@ l_instRandomGenStdGen___closed__4 = _init_l_instRandomGenStdGen___closed__4();
 lean_mark_persistent(l_instRandomGenStdGen___closed__4);
 l_instRandomGenStdGen = _init_l_instRandomGenStdGen();
 lean_mark_persistent(l_instRandomGenStdGen);
-res = l_initFn____x40_Init_Data_Random___hyg_752_(lean_io_mk_world());
+res = l_initFn____x40_Init_Data_Random___hyg_764_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_IO_stdGenRef = lean_io_result_get_value(res);
 lean_mark_persistent(l_IO_stdGenRef);

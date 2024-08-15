@@ -94,7 +94,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Rfl_evalApplyRfl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -102,7 +102,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Rfl_evalApplyRfl___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -110,7 +110,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Rfl_evalApplyRfl___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -118,7 +118,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Rfl_evalApplyRfl___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("applyRfl", 8);
+x_1 = lean_mk_string_unchecked("applyRfl", 8, 8);
 return x_1;
 }
 }
@@ -201,7 +201,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Rfl_evalApplyRfl__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -209,7 +209,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Rfl_evalApplyRfl__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Rfl", 3);
+x_1 = lean_mk_string_unchecked("Rfl", 3, 3);
 return x_1;
 }
 }
@@ -217,7 +217,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Rfl_evalApplyRfl__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalApplyRfl", 12);
+x_1 = lean_mk_string_unchecked("evalApplyRfl", 12, 12);
 return x_1;
 }
 }

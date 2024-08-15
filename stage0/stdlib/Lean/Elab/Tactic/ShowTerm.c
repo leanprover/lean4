@@ -35,6 +35,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_ShowTerm_evalShowTerm(lean_object*, 
 lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_ShowTerm_elabShowTerm__1___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_ShowTerm_evalShowTerm__1___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_ShowTerm_evalShowTerm___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mvar___override(lean_object*);
@@ -125,14 +126,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_ShowTerm_evalShowTerm___lambda__1(le
 _start:
 {
 lean_object* x_12; 
-lean_inc(x_10);
-lean_inc(x_9);
-lean_inc(x_8);
-lean_inc(x_7);
-lean_inc(x_6);
-lean_inc(x_5);
-lean_inc(x_4);
-lean_inc(x_3);
 x_12 = l_Lean_Elab_Tactic_getMainGoal(x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_12) == 0)
 {
@@ -176,6 +169,7 @@ lean_ctor_set(x_23, 0, x_21);
 x_24 = lean_box(0);
 x_25 = 0;
 x_26 = l_Lean_Meta_Tactic_TryThis_addExactSuggestion(x_2, x_22, x_23, x_25, x_24, x_7, x_8, x_9, x_10, x_20);
+lean_dec(x_23);
 return x_26;
 }
 else
@@ -190,7 +184,6 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
 x_27 = !lean_is_exclusive(x_15);
 if (x_27 == 0)
 {
@@ -222,7 +215,6 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 x_31 = !lean_is_exclusive(x_12);
 if (x_31 == 0)
@@ -249,7 +241,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_ShowTerm_evalShowTerm___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -257,7 +249,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_ShowTerm_evalShowTerm___closed__2()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -265,7 +257,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_ShowTerm_evalShowTerm___closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -273,7 +265,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_ShowTerm_evalShowTerm___closed__4()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("showTerm", 8);
+x_1 = lean_mk_string_unchecked("showTerm", 8, 8);
 return x_1;
 }
 }
@@ -319,7 +311,7 @@ x_15 = l_Lean_Syntax_getArg(x_1, x_14);
 x_16 = lean_unsigned_to_nat(1u);
 x_17 = l_Lean_Syntax_getArg(x_1, x_16);
 lean_dec(x_1);
-x_18 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_ShowTerm_evalShowTerm___lambda__1), 11, 2);
+x_18 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_ShowTerm_evalShowTerm___lambda__1___boxed), 11, 2);
 lean_closure_set(x_18, 0, x_17);
 lean_closure_set(x_18, 1, x_15);
 x_19 = l_Lean_Elab_Tactic_withMainContext___rarg(x_18, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
@@ -343,11 +335,20 @@ lean_dec(x_1);
 return x_9;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_ShowTerm_evalShowTerm___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
+_start:
+{
+lean_object* x_12; 
+x_12 = l_Lean_Elab_Tactic_ShowTerm_evalShowTerm___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
+lean_dec(x_2);
+return x_12;
+}
+}
 static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_ShowTerm_evalShowTerm__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -355,7 +356,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_ShowTerm_evalShowTerm_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ShowTerm", 8);
+x_1 = lean_mk_string_unchecked("ShowTerm", 8, 8);
 return x_1;
 }
 }
@@ -363,7 +364,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_ShowTerm_evalShowTerm_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalShowTerm", 12);
+x_1 = lean_mk_string_unchecked("evalShowTerm", 12, 12);
 return x_1;
 }
 }
@@ -514,7 +515,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_ShowTerm_elabShowTerm___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -522,7 +523,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_ShowTerm_elabShowTerm___closed__2()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("showTermElabImpl", 16);
+x_1 = lean_mk_string_unchecked("showTermElabImpl", 16, 16);
 return x_1;
 }
 }
@@ -542,7 +543,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_ShowTerm_elabShowTerm___closed__4()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Try this: ", 10);
+x_1 = lean_mk_string_unchecked("Try this: ", 10, 10);
 return x_1;
 }
 }
@@ -623,6 +624,8 @@ x_31 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_31, 0, x_29);
 x_32 = l_Lean_Elab_Tactic_ShowTerm_elabShowTerm___closed__4;
 x_33 = l_Lean_Meta_Tactic_TryThis_addTermSuggestion(x_14, x_30, x_31, x_32, x_17, x_5, x_6, x_7, x_8, x_28);
+lean_dec(x_31);
+lean_dec(x_14);
 if (lean_obj_tag(x_33) == 0)
 {
 uint8_t x_34; 
@@ -738,7 +741,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_ShowTerm_elabShowTerm_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elabShowTerm", 12);
+x_1 = lean_mk_string_unchecked("elabShowTerm", 12, 12);
 return x_1;
 }
 }
@@ -787,7 +790,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_ShowTerm_elabShowTerm_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Implementation of `show_term` term elaborator. ", 47);
+x_1 = lean_mk_string_unchecked("Implementation of `show_term` term elaborator. ", 47, 47);
 return x_1;
 }
 }

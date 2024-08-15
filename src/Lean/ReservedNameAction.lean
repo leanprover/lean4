@@ -48,8 +48,8 @@ def realizeGlobalName (id : Name) : CoreM (List (Name × List String)) := do
         executeReservedNameAction c
         return (← getEnv).contains c
       catch ex =>
-        -- We record the error produced by then reserved name action generator
-        logError ex.toMessageData
+        -- We record the error produced by the reserved name action generator
+        logError m!"Failed to realize constant {id}:{indentD ex.toMessageData}"
         return false
 
 /--

@@ -10,7 +10,7 @@ import Lean.Compiler.IR.FreeVars
 
 namespace Lean.IR.ExpandResetReuse
 /-- Mapping from variable to projections -/
-abbrev ProjMap  := HashMap VarId Expr
+abbrev ProjMap  := Std.HashMap VarId Expr
 namespace CollectProjMap
 abbrev Collector := ProjMap → ProjMap
 @[inline] def collectVDecl (x : VarId) (v : Expr) : Collector := fun m =>
@@ -148,20 +148,20 @@ def setFields (y : VarId) (zs : Array Arg) (b : FnBody) : FnBody :=
 def isSelfSet (ctx : Context) (x : VarId) (i : Nat) (y : Arg) : Bool :=
   match y with
   | Arg.var y =>
-    match ctx.projMap.find? y with
+    match ctx.projMap[y]? with
     | some (Expr.proj j w) => j == i && w == x
     | _ => false
   | _ => false
 
 /-- Given `uset x[i] := y`, return true iff `y := uproj[i] x` -/
 def isSelfUSet (ctx : Context) (x : VarId) (i : Nat) (y : VarId) : Bool :=
-  match ctx.projMap.find? y with
+  match ctx.projMap[y]? with
   | some (Expr.uproj j w) => j == i && w == x
   | _                     => false
 
 /-- Given `sset x[n, i] := y`, return true iff `y := sproj[n, i] x` -/
 def isSelfSSet (ctx : Context) (x : VarId) (n : Nat) (i : Nat) (y : VarId) : Bool :=
-  match ctx.projMap.find? y with
+  match ctx.projMap[y]? with
   | some (Expr.sproj m j w) => n == m && j == i && w == x
   | _                       => false
 

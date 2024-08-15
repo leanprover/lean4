@@ -44,7 +44,6 @@ lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_loop___at_Lean_MVarId_constructor___spec__1___closed__1;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_constructor(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_constructor___lambda__1___closed__3;
 extern lean_object* l_Lean_levelZero;
 static lean_object* l_Lean_MVarId_existsIntro___lambda__2___closed__1;
@@ -75,7 +74,6 @@ static lean_object* l_Lean_MVarId_constructor___lambda__1___closed__1;
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_constructor___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_existsIntro(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Exception_isRuntime(lean_object*);
 static lean_object* l_Lean_MVarId_existsIntro___lambda__1___closed__2;
 static lean_object* l_Lean_MVarId_constructor___lambda__2___closed__5;
@@ -350,7 +348,7 @@ static lean_object* _init_l_Lean_MVarId_constructor___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no applicable constructor found", 31);
+x_1 = lean_mk_string_unchecked("no applicable constructor found", 31, 31);
 return x_1;
 }
 }
@@ -396,7 +394,7 @@ static lean_object* _init_l_Lean_MVarId_constructor___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("target is not an inductive datatype", 35);
+x_1 = lean_mk_string_unchecked("target is not an inductive datatype", 35, 35);
 return x_1;
 }
 }
@@ -445,8 +443,6 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_constructor___lambda__2(lean_object* x_1,
 _start:
 {
 lean_object* x_9; 
-lean_inc(x_6);
-lean_inc(x_4);
 lean_inc(x_2);
 lean_inc(x_1);
 x_9 = l_Lean_MVarId_checkNotAssigned(x_1, x_2, x_4, x_5, x_6, x_7, x_8);
@@ -498,7 +494,9 @@ lean_dec(x_3);
 x_22 = l_Lean_MVarId_constructor___lambda__2___closed__4;
 x_23 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_22, x_4, x_5, x_6, x_7, x_19);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 return x_23;
 }
 else
@@ -540,7 +538,9 @@ lean_dec(x_28);
 x_32 = lean_box(0);
 x_33 = l_Lean_MVarId_constructor___lambda__1(x_2, x_1, x_32, x_4, x_5, x_6, x_7, x_31);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 return x_33;
 }
 else
@@ -618,7 +618,9 @@ lean_dec(x_3);
 x_44 = l_Lean_MVarId_constructor___lambda__2___closed__4;
 x_45 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_44, x_4, x_5, x_6, x_7, x_19);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 return x_45;
 }
 }
@@ -631,7 +633,9 @@ lean_dec(x_3);
 x_46 = l_Lean_MVarId_constructor___lambda__2___closed__4;
 x_47 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_46, x_4, x_5, x_6, x_7, x_13);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 return x_47;
 }
 }
@@ -700,7 +704,7 @@ static lean_object* _init_l_Lean_MVarId_constructor___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("constructor", 11);
+x_1 = lean_mk_string_unchecked("constructor", 11, 11);
 return x_1;
 }
 }
@@ -734,17 +738,11 @@ _start:
 lean_object* x_9; 
 x_9 = l_Lean_MVarId_constructor___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 lean_dec(x_3);
 return x_9;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_constructor(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-lean_object* x_8; 
-x_8 = l_Lean_MVarId_constructor(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-return x_8;
 }
 }
 static lean_object* _init_l_Lean_MVarId_existsIntro___lambda__1___closed__1() {
@@ -775,7 +773,7 @@ static lean_object* _init_l_Lean_MVarId_existsIntro___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected number of subgoals", 29);
+x_1 = lean_mk_string_unchecked("unexpected number of subgoals", 29, 29);
 return x_1;
 }
 }
@@ -831,7 +829,9 @@ x_23 = lean_ctor_get(x_1, 3);
 lean_inc(x_23);
 x_24 = l_Array_toSubarray___rarg(x_22, x_16, x_23);
 x_25 = l_Array_ofSubarray___rarg(x_24);
+lean_dec(x_24);
 x_26 = l_Lean_mkAppN(x_15, x_25);
+lean_dec(x_25);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
@@ -874,6 +874,7 @@ x_39 = lean_ctor_get(x_37, 0);
 lean_inc(x_39);
 lean_dec(x_37);
 x_40 = l_Lean_mkAppN(x_26, x_39);
+lean_dec(x_39);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
@@ -909,7 +910,9 @@ lean_dec(x_45);
 x_48 = l_Lean_MVarId_existsIntro___lambda__1___closed__6;
 x_49 = l_Lean_Meta_throwTacticEx___rarg(x_6, x_5, x_48, x_8, x_9, x_10, x_11, x_47);
 lean_dec(x_11);
+lean_dec(x_10);
 lean_dec(x_9);
+lean_dec(x_8);
 return x_49;
 }
 else
@@ -964,7 +967,9 @@ lean_dec(x_45);
 x_58 = l_Lean_MVarId_existsIntro___lambda__1___closed__6;
 x_59 = l_Lean_Meta_throwTacticEx___rarg(x_6, x_5, x_58, x_8, x_9, x_10, x_11, x_57);
 lean_dec(x_11);
+lean_dec(x_10);
 lean_dec(x_9);
+lean_dec(x_8);
 return x_59;
 }
 }
@@ -1097,7 +1102,7 @@ static lean_object* _init_l_Lean_MVarId_existsIntro___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("target is not an inductive datatype with one constructor", 56);
+x_1 = lean_mk_string_unchecked("target is not an inductive datatype with one constructor", 56, 56);
 return x_1;
 }
 }
@@ -1134,7 +1139,7 @@ static lean_object* _init_l_Lean_MVarId_existsIntro___lambda__2___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("constructor must have at least two fields", 41);
+x_1 = lean_mk_string_unchecked("constructor must have at least two fields", 41, 41);
 return x_1;
 }
 }
@@ -1171,8 +1176,6 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_existsIntro___lambda__2(lean_object* x_1,
 _start:
 {
 lean_object* x_9; 
-lean_inc(x_6);
-lean_inc(x_4);
 lean_inc(x_2);
 lean_inc(x_1);
 x_9 = l_Lean_MVarId_checkNotAssigned(x_1, x_2, x_4, x_5, x_6, x_7, x_8);
@@ -1224,7 +1227,9 @@ lean_dec(x_3);
 x_22 = l_Lean_MVarId_existsIntro___lambda__2___closed__4;
 x_23 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_22, x_4, x_5, x_6, x_7, x_19);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 return x_23;
 }
 else
@@ -1239,7 +1244,7 @@ lean_object* x_25; uint8_t x_26;
 x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
 lean_dec(x_24);
-x_26 = lean_ctor_get_uint8(x_25, sizeof(void*)*5);
+x_26 = lean_ctor_get_uint8(x_25, sizeof(void*)*6);
 if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; uint8_t x_29; 
@@ -1258,7 +1263,9 @@ lean_dec(x_3);
 x_30 = l_Lean_MVarId_existsIntro___lambda__2___closed__4;
 x_31 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_30, x_4, x_5, x_6, x_7, x_19);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 return x_31;
 }
 else
@@ -1276,7 +1283,9 @@ lean_dec(x_3);
 x_33 = l_Lean_MVarId_existsIntro___lambda__2___closed__4;
 x_34 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_33, x_4, x_5, x_6, x_7, x_19);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 return x_34;
 }
 else
@@ -1327,7 +1336,9 @@ lean_dec(x_3);
 x_46 = l_Lean_MVarId_existsIntro___lambda__2___closed__8;
 x_47 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_46, x_4, x_5, x_6, x_7, x_39);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 x_48 = !lean_is_exclusive(x_47);
 if (x_48 == 0)
 {
@@ -1361,7 +1372,9 @@ lean_dec(x_37);
 x_53 = l_Lean_MVarId_existsIntro___lambda__2___closed__4;
 x_54 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_53, x_4, x_5, x_6, x_7, x_52);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 return x_54;
 }
 }
@@ -1408,7 +1421,9 @@ lean_dec(x_3);
 x_59 = l_Lean_MVarId_existsIntro___lambda__2___closed__4;
 x_60 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_59, x_4, x_5, x_6, x_7, x_19);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 return x_60;
 }
 }
@@ -1424,7 +1439,9 @@ lean_dec(x_3);
 x_61 = l_Lean_MVarId_existsIntro___lambda__2___closed__4;
 x_62 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_61, x_4, x_5, x_6, x_7, x_19);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 return x_62;
 }
 }
@@ -1438,7 +1455,9 @@ lean_dec(x_3);
 x_63 = l_Lean_MVarId_existsIntro___lambda__2___closed__4;
 x_64 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_63, x_4, x_5, x_6, x_7, x_19);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 return x_64;
 }
 }
@@ -1452,7 +1471,9 @@ lean_dec(x_3);
 x_65 = l_Lean_MVarId_existsIntro___lambda__2___closed__4;
 x_66 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_65, x_4, x_5, x_6, x_7, x_13);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 return x_66;
 }
 }
@@ -1521,7 +1542,7 @@ static lean_object* _init_l_Lean_MVarId_existsIntro___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("exists", 6);
+x_1 = lean_mk_string_unchecked("exists", 6, 6);
 return x_1;
 }
 }
@@ -1556,14 +1577,6 @@ lean_object* x_13;
 x_13 = l_Lean_MVarId_existsIntro___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_7);
 return x_13;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_existsIntro(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-lean_object* x_8; 
-x_8 = l_Lean_MVarId_existsIntro(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-return x_8;
 }
 }
 lean_object* initialize_Lean_Meta_Check(uint8_t builtin, lean_object*);

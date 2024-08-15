@@ -59,7 +59,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("backtrackFormatter", 18);
+x_1 = lean_mk_string_unchecked("backtrackFormatter", 18, 18);
 return x_1;
 }
 }
@@ -238,7 +238,6 @@ lean_inc(x_8);
 lean_dec(x_6);
 x_9 = lean_ctor_get(x_2, 2);
 x_10 = lean_eval_const(x_8, x_9, x_1);
-lean_dec(x_1);
 lean_dec(x_8);
 x_11 = l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__3___rarg(x_10, x_2, x_3, x_7);
 return x_11;
@@ -256,7 +255,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -264,7 +263,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ParserDescr", 11);
+x_1 = lean_mk_string_unchecked("ParserDescr", 11, 11);
 return x_1;
 }
 }
@@ -282,7 +281,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("TrailingParserDescr", 19);
+x_1 = lean_mk_string_unchecked("TrailingParserDescr", 19, 19);
 return x_1;
 }
 }
@@ -300,7 +299,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__6
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no declaration of attribute [", 29);
+x_1 = lean_mk_string_unchecked("no declaration of attribute [", 29, 29);
 return x_1;
 }
 }
@@ -317,7 +316,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__8
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("] found for '", 13);
+x_1 = lean_mk_string_unchecked("] found for '", 13, 13);
 return x_1;
 }
 }
@@ -334,7 +333,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -361,9 +360,8 @@ x_10 = lean_ctor_get(x_7, 1);
 x_11 = lean_ctor_get(x_9, 0);
 lean_inc(x_11);
 lean_dec(x_9);
-lean_inc(x_2);
-lean_inc(x_1);
 x_12 = l_Lean_KeyedDeclsAttribute_getValues___rarg(x_1, x_11, x_2);
+lean_dec(x_11);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; 
@@ -425,6 +423,7 @@ else
 lean_object* x_33; 
 lean_dec(x_1);
 x_33 = l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg(x_2, x_4, x_5, x_15);
+lean_dec(x_2);
 if (lean_obj_tag(x_33) == 0)
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; 
@@ -469,6 +468,7 @@ lean_object* x_41;
 lean_dec(x_16);
 lean_dec(x_1);
 x_41 = l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg(x_2, x_4, x_5, x_15);
+lean_dec(x_2);
 if (lean_obj_tag(x_41) == 0)
 {
 lean_object* x_42; lean_object* x_43; lean_object* x_44; 
@@ -561,9 +561,8 @@ lean_dec(x_7);
 x_56 = lean_ctor_get(x_54, 0);
 lean_inc(x_56);
 lean_dec(x_54);
-lean_inc(x_2);
-lean_inc(x_1);
 x_57 = l_Lean_KeyedDeclsAttribute_getValues___rarg(x_1, x_56, x_2);
+lean_dec(x_56);
 if (lean_obj_tag(x_57) == 0)
 {
 lean_object* x_58; 
@@ -624,6 +623,7 @@ else
 lean_object* x_78; 
 lean_dec(x_1);
 x_78 = l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg(x_2, x_4, x_5, x_60);
+lean_dec(x_2);
 if (lean_obj_tag(x_78) == 0)
 {
 lean_object* x_79; lean_object* x_80; lean_object* x_81; 
@@ -670,6 +670,7 @@ lean_object* x_86;
 lean_dec(x_61);
 lean_dec(x_1);
 x_86 = l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg(x_2, x_4, x_5, x_60);
+lean_dec(x_2);
 if (lean_obj_tag(x_86) == 0)
 {
 lean_object* x_87; lean_object* x_88; lean_object* x_89; 
@@ -804,6 +805,7 @@ lean_object* x_5;
 x_5 = l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_5;
 }
 }

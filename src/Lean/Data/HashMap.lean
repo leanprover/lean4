@@ -6,6 +6,8 @@ Author: Leonardo de Moura
 prelude
 import Init.Data.Nat.Power2
 import Lean.Data.AssocList
+import Std.Data.HashMap.Basic
+import Std.Data.HashMap.Raw
 namespace Lean
 
 def HashMapBucket (α : Type u) (β : Type v) :=
@@ -14,6 +16,10 @@ def HashMapBucket (α : Type u) (β : Type v) :=
 def HashMapBucket.update {α : Type u} {β : Type v} (data : HashMapBucket α β) (i : USize) (d : AssocList α β) (h : i.toNat < data.val.size) : HashMapBucket α β :=
   ⟨ data.val.uset i d h,
     by erw [Array.size_set]; apply data.property ⟩
+
+@[simp] theorem HashMapBucket.size_update {α : Type u} {β : Type v} (data : HashMapBucket α β) (i : USize) (d : AssocList α β)
+    (h : i.toNat < data.val.size) : (data.update i d h).val.size = data.val.size := by
+  simp [update, Array.uset]
 
 structure HashMapImp (α : Type u) (β : Type v) where
   size       : Nat
@@ -108,7 +114,9 @@ def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapI
     let ⟨i, h⟩ := mkIdx (hash a) buckets.property
     let bkt    := buckets.val[i]
     if bkt.contains a then
-      (⟨size, buckets.update i (bkt.replace a b) h⟩, true)
+      -- make sure `bkt` is used linearly in the following call to `replace`
+      let buckets' := buckets.update i .nil h
+      (⟨size, buckets'.update i (bkt.replace a b) (by simpa [buckets'])⟩, true)
     else
       let size'    := size + 1
       let buckets' := buckets.update i (AssocList.cons a b bkt) h
@@ -139,7 +147,9 @@ def erase [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : HashMapImp α
     let ⟨i, h⟩ := mkIdx (hash a) buckets.property
     let bkt    := buckets.val[i]
     if bkt.contains a then
-      ⟨size - 1, buckets.update i (bkt.erase a) h⟩
+      -- make sure `bkt` is used linearly in the following call to `erase`
+      let buckets' := buckets.update i .nil h
+      ⟨size - 1, buckets'.update i (bkt.erase a) (by simpa [buckets'])⟩
     else
       ⟨size, buckets⟩
 
@@ -215,8 +225,6 @@ def insertIfNew (m : HashMap α β) (a : α) (b : β) : HashMap α β × Option 
 instance : GetElem (HashMap α β) α (Option β) fun _ _ => True where
   getElem m k _ := m.find? k
 
-instance : LawfulGetElem (HashMap α β) α (Option β) fun _ _ => True where
-
 @[inline] def contains (m : HashMap α β) (a : α) : Bool :=
   match m with
   | ⟨ m, _ ⟩ => m.contains a
@@ -263,17 +271,11 @@ def ofListWith (l : List (α × β)) (f : β → β → β) : HashMap α β :=
         | none   => m.insert p.fst p.snd
         | some v => m.insert p.fst $ f v p.snd)
 
-end Lean.HashMap
+attribute [deprecated Std.HashMap] HashMap
+attribute [deprecated Std.HashMap.Raw] HashMapImp
+attribute [deprecated Std.HashMap.Raw.empty] mkHashMapImp
+attribute [deprecated Std.HashMap.empty] mkHashMap
+attribute [deprecated Std.HashMap.empty] HashMap.empty
+attribute [deprecated Std.HashMap.ofList] HashMap.ofList
 
-/--
-Groups all elements `x`, `y` in `xs` with `key x == key y` into the same array
-`(xs.groupByKey key).find! (key x)`. Groups preserve the relative order of elements in `xs`.
--/
-def Array.groupByKey [BEq α] [Hashable α] (key : β → α) (xs : Array β)
-    : Lean.HashMap α (Array β) := Id.run do
-  let mut groups := ∅
-  for x in xs do
-    let group := groups.findD (key x) #[]
-    groups := groups.erase (key x) -- make `group` referentially unique
-    groups := groups.insert (key x) (group.push x)
-  return groups
+end Lean.HashMap

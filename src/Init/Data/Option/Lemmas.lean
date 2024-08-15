@@ -167,6 +167,9 @@ theorem isSome_map {x : Option α} : (f <$> x).isSome = x.isSome := by
 @[simp] theorem isSome_map' {x : Option α} : (x.map f).isSome = x.isSome := by
   cases x <;> simp
 
+@[simp] theorem isNone_map' {x : Option α} : (x.map f).isNone = x.isNone := by
+  cases x <;> simp
+
 theorem map_eq_none : f <$> x = none ↔ x = none := map_eq_none'
 
 theorem map_eq_bind {x : Option α} : x.map f = x.bind (some ∘ f) := by
@@ -322,3 +325,11 @@ theorem map_or : f <$> or o o' = (f <$> o).or (f <$> o') := by
 
 theorem map_or' : (or o o').map f = (o.map f).or (o'.map f) := by
   cases o <;> rfl
+
+theorem or_of_isSome {o o' : Option α} (h : o.isSome) : o.or o' = o := by
+  match o, h with
+  | some _, _ => simp
+
+theorem or_of_isNone {o o' : Option α} (h : o.isNone) : o.or o' = o' := by
+  match o, h with
+  | none, _ => simp

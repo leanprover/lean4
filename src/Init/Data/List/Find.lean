@@ -227,7 +227,7 @@ theorem findIdx_lt_length_of_exists {xs : List α} (h : ∃ x ∈ xs, p x) :
     · simp_all only [forall_exists_index, and_imp, mem_cons, exists_eq_or_imp, true_or,
         findIdx_cons, cond_true, length_cons]
       apply Nat.succ_pos
-    · simp_all [findIdx_cons]
+    · simp_all [findIdx_cons, Nat.succ_lt_succ_iff]
       obtain ⟨x', m', h'⟩ := h
       exact ih x' m' h'
 
@@ -362,8 +362,25 @@ theorem IsPrefix.findIdx_eq_of_findIdx_lt_length {l₁ l₂ : List α} {p : α �
   induction xs generalizing i with simp
   | cons _ _ _ => split <;> simp_all
 
-theorem findIdx?_isSome_eq {xs : List α} {p : α → Bool} :
+@[simp]
+theorem findIdx?_eq_none_iff {xs : List α} {p : α → Bool} :
+    xs.findIdx? p = none ↔ ∀ x, x ∈ xs → p x = false := by
+  induction xs with
+  | nil => simp_all
+  | cons x xs ih =>
+    simp only [findIdx?_cons]
+    split <;> simp_all [cond_eq_if]
+
+theorem findIdx?_isSome {xs : List α} {p : α → Bool} :
     (xs.findIdx? p).isSome = xs.any p := by
+  induction xs with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [findIdx?_cons]
+    split <;> simp_all
+
+theorem findIdx?_isNone {xs : List α} {p : α → Bool} :
+    (xs.findIdx? p).isNone = xs.all (¬p ·) := by
   induction xs with
   | nil => simp
   | cons x xs ih =>
@@ -383,25 +400,20 @@ theorem findIdx?_eq_some_iff_findIdx_eq {xs : List α} {p : α → Bool} {i : Na
     · simp_all [cond_eq_if, and_assoc]
       constructor
       · rintro ⟨a, lt, rfl, rfl⟩
-        simp_all
+        simp_all [Nat.succ_lt_succ_iff]
       · rintro ⟨h, rfl⟩
-        exact ⟨_, by simp_all, rfl, rfl⟩
+        exact ⟨_, by simp_all [Nat.succ_lt_succ_iff], rfl, rfl⟩
 
-
-@[simp]
-theorem findIdx?_eq_none_iff {xs : List α} {p : α → Bool} :
-    xs.findIdx? p = none ↔ ∀ x, x ∈ xs → p x = false := by
-  induction xs with
-  | nil => simp_all
-  | cons x xs ih =>
-    simp only [findIdx?_cons]
-    split <;> simp_all [cond_eq_if]
+theorem findIdx?_eq_some_of_exists {xs : List α} {p : α → Bool} (h : ∃ x, x ∈ xs ∧ p x) :
+    xs.findIdx? p = some (xs.findIdx p) := by
+  rw [findIdx?_eq_some_iff_findIdx_eq]
+  exact ⟨findIdx_lt_length_of_exists h, rfl⟩
 
 theorem findIdx?_eq_none_iff_findIdx_eq {xs : List α} {p : α → Bool} :
     xs.findIdx? p = none ↔ xs.findIdx p = xs.length := by
   simp
 
-theorem findIdx?_eq_some_iff (xs : List α) (p : α → Bool) :
+theorem findIdx?_eq_some_iff_getElem (xs : List α) (p : α → Bool) :
     xs.findIdx? p = some i ↔
       ∃ h : i < xs.length, p xs[i] ∧ ∀ j (hji : j < i), ¬p (xs[j]'(Nat.lt_trans hji h)) := by
   induction xs generalizing i with
@@ -456,18 +468,46 @@ theorem findIdx?_of_eq_none {xs : List α} {p : α → Bool} (w : xs.findIdx? p 
       apply ih
       split at w <;> simp_all
 
+@[simp] theorem findIdx?_map (f : β → α) (l : List β) : findIdx? p (l.map f) = l.findIdx? (p ∘ f) := by
+  induction l with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [map_cons, findIdx?]
+    split <;> simp_all
+
 @[simp] theorem findIdx?_append :
     (xs ++ ys : List α).findIdx? p =
-      (xs.findIdx? p <|> (ys.findIdx? p).map fun i => i + xs.length) := by
+      (xs.findIdx? p).or ((ys.findIdx? p).map fun i => i + xs.length) := by
   induction xs with simp
-  | cons _ _ _ => split <;> simp_all [Option.map_orElse, Option.map_map]; rfl
+  | cons _ _ _ => split <;> simp_all [Option.map_or', Option.map_map]; rfl
+
+theorem findIdx?_join {l : List (List α)} {p : α → Bool} :
+    l.join.findIdx? p =
+      (l.findIdx? (·.any p)).map
+        fun i => Nat.sum ((l.take i).map List.length) +
+          (l[i]?.map fun xs => xs.findIdx p).getD 0 := by
+  induction l with
+  | nil => simp
+  | cons xs l ih =>
+    simp only [join, findIdx?_append, map_take, map_cons, findIdx?, any_eq_true, Nat.zero_add,
+      findIdx?_succ]
+    split
+    · simp only [Option.map_some', take_zero, sum_nil, length_cons, zero_lt_succ,
+        getElem?_eq_getElem, getElem_cons_zero, Option.getD_some, Nat.zero_add]
+      rw [Option.or_of_isSome (by simpa [findIdx?_isSome])]
+      rw [findIdx?_eq_some_of_exists ‹_›]
+    · simp_all only [map_take, not_exists, not_and, Bool.not_eq_true, Option.map_map]
+      rw [Option.or_of_isNone (by simpa [findIdx?_isNone])]
+      congr 1
+      ext i
+      simp [Nat.add_comm, Nat.add_assoc]
 
 @[simp] theorem findIdx?_replicate :
     (replicate n a).findIdx? p = if 0 < n ∧ p a then some 0 else none := by
-  induction n with
+  cases n with
   | zero => simp
-  | succ n ih =>
-    simp only [replicate, findIdx?_cons, Nat.zero_add, findIdx?_succ, Nat.zero_lt_succ, true_and]
+  | succ n =>
+    simp only [replicate, findIdx?_cons, Nat.zero_add, findIdx?_succ, zero_lt_succ, true_and]
     split <;> simp_all
 
 theorem findIdx?_eq_enum_findSome? {xs : List α} {p : α → Bool} :
@@ -483,15 +523,21 @@ theorem findIdx?_eq_enum_findSome? {xs : List α} {p : α → Bool} :
 
 theorem Sublist.findIdx?_isSome {l₁ l₂ : List α} (h : l₁ <+ l₂) :
     (l₁.findIdx? p).isSome → (l₂.findIdx? p).isSome := by
-  sorry
+  simp only [List.findIdx?_isSome, any_eq_true]
+  rintro ⟨w, m, q⟩
+  exact ⟨w, h.mem m, q⟩
 
 theorem Sublist.findIdx?_eq_none {l₁ l₂ : List α} (h : l₁ <+ l₂) :
     l₂.findIdx? p = none → l₁.findIdx? p = none := by
-  sorry
+  simp only [findIdx?_eq_none_iff]
+  exact fun w x m => w x (h.mem m)
 
 theorem IsPrefix.findIdx?_eq_some {l₁ l₂ : List α} {p : α → Bool} (h : l₁ <+: l₂) :
     List.findIdx? p l₁ = some i → List.findIdx? p l₂ = some i := by
-  sorry
+  rw [IsPrefix] at h
+  obtain ⟨t, rfl⟩ := h
+  intro h
+  simp [findIdx?_append, h]
 theorem IsPrefix.findIdx?_eq_none {l₁ l₂ : List α} {p : α → Bool} (h : l₁ <+: l₂) :
     List.findIdx? p l₂ = none → List.findIdx? p l₁ = none :=
   h.sublist.findIdx?_eq_none
@@ -501,7 +547,6 @@ theorem IsSuffix.findIdx?_eq_none {l₁ l₂ : List α} {p : α → Bool} (h : l
 theorem IsInfix.findIdx?_eq_none {l₁ l₂ : List α} {p : α → Bool} (h : l₁ <:+: l₂) :
     List.findIdx? p l₂ = none → List.findIdx? p l₁ = none :=
   h.sublist.findIdx?_eq_none
-
 
 /-! ### indexOf -/
 

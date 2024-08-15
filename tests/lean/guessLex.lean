@@ -207,10 +207,10 @@ def foo : Nat → Nat
   | n+1 =>
     if h : n < 42 then bar (42 - n) else 0
   -- termination_by x1 => x1
-  decreasing_by simp_wf; simp [OddNat3]; omega
+  decreasing_by simp; omega
 def bar (o : OddNat3) : Nat := if h : @id Nat o < 41 then foo (41 - @id Nat o) else 0
   -- termination_by sizeOf o
-  decreasing_by simp_wf; simp [id] at *; omega
+  decreasing_by simp [id] at *; omega
 end
 end MutualNotNat2
 
@@ -228,11 +228,11 @@ def foo : Nat → Nat
   | n+1 =>
     if h : n < 42 then bar (42 - n) else 0
   -- termination_by x1 => x1
-  decreasing_by simp_wf; simp [OddNat3]; omega
+  decreasing_by simp; omega
 def bar : OddNat3 → Nat
   | Nat.zero => 0
   | n+1 => if h : n < 41 then foo (40 - n) else 0
   -- termination_by x1 => sizeOf x1
-  decreasing_by simp_wf; omega
+  decreasing_by simp; omega
 end
 end MutualNotNat3

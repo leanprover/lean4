@@ -28,7 +28,7 @@ structure Offset where
   The same timezone offset in seconds.
   -/
   second : Second.Offset
-  deriving Repr, Inhabited
+  deriving Repr, Inhabited, BEq
 
 namespace Offset
 

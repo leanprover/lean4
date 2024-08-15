@@ -36,6 +36,9 @@ structure Timestamp where
   proof : (second.val ≥ 0 ∧ nano.val ≥ 0) ∨ (second.val ≤ 0 ∧ nano.val ≤ 0)
   deriving Repr
 
+instance : BEq Timestamp where
+  beq x y := x.second == y.second && y.nano == x.nano
+
 instance : Inhabited Timestamp where
   default := ⟨0, Bounded.LE.mk 0 (by decide), by decide⟩
 

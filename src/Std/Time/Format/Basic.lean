@@ -322,7 +322,7 @@ private def dayOfWeek (day : Weekday) : String :=
   | .mon => "Monday"
   | .tue => "Tuesday"
   | .wed => "Wednesday"
-  | .thu => "Thusday"
+  | .thu => "Thursday"
   | .fri => "Friday"
   | .sat => "Saturday"
 

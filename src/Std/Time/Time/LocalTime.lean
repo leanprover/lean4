@@ -46,6 +46,11 @@ structure LocalTime where
 instance : Inhabited LocalTime where
   default := ⟨Sigma.mk false 0, 0, Sigma.mk false 0, 0, by simp; decide⟩
 
+
+instance : BEq LocalTime where
+  beq x y := x.hour.snd.val == y.hour.snd.val && x.minute == y.minute
+          && x.second.snd.val == y.second.snd.val && x.nano.val == y.nano.val
+
 namespace LocalTime
 
 /--
@@ -112,6 +117,25 @@ Converts a `LocalTime` value to the total number of hours.
 def toHours (time : LocalTime) : Hour.Offset :=
   let hour : Hour.Offset := time.minute.toOffset.ediv 60
   time.hour.snd.toOffset + hour + time.second.snd.toOffset.toHours
+
+/--
+Creates a `LocalTime` value from a total number of nanoseconds.
+-/
+def ofNanoseconds (nanos : Nanosecond.Offset) : LocalTime :=
+  have totalSeconds := nanos.ediv 1000000000
+  have remainingNanos := Bounded.LE.byEmod nanos.val 1000000000 (by decide)
+  have hours := Bounded.LE.byEmod (totalSeconds.val / 3600) 24 (by decide)
+  have minutes := (Bounded.LE.byEmod totalSeconds.val 3600 (by decide)).ediv 60 (by decide)
+  have seconds := Bounded.LE.byEmod totalSeconds.val 60 (by decide)
+  let nanos := Bounded.LE.byEmod nanos.val 1000000000 (by decide)
+  ofValidHourMinuteSecondsNano hours minutes seconds nanos
+
+/--
+Creates a `LocalTime` value from a total number of seconds.
+-/
+@[inline]
+def ofSeconds (secs : Second.Offset) : LocalTime :=
+  ofNanoseconds (secs.mul 1000000000)
 
 end LocalTime
 end Time

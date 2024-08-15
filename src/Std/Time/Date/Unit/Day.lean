@@ -104,6 +104,27 @@ Convert `Day.Offset` into `Hour.Offset`.
 def toHours (days : Offset) : Hour.Offset :=
   days.mul 24
 
+/--
+Convert `Second.Offset` into `Day.Offset`.
+-/
+@[inline]
+def ofSeconds (secs : Second.Offset) : Offset :=
+  secs.ediv 86400
+
+/--
+Convert `Minute.Offset` into `Day.Offset`.
+-/
+@[inline]
+def ofMinutes (minutes : Minute.Offset) : Offset :=
+  minutes.ediv 1440
+
+/--
+Convert `Hour.Offset` into `Day.Offset`.
+-/
+@[inline]
+def ofHours (hours : Hour.Offset) : Offset :=
+  hours.ediv 24
+
 end Offset
 end Day
 end Time

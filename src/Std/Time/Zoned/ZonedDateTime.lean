@@ -18,6 +18,9 @@ the time zone.
 -/
 def ZonedDateTime := Sigma DateTime
 
+instance : BEq ZonedDateTime where
+  beq x y := x.fst == y.fst && x.snd.timestamp == y.snd.timestamp
+
 instance : CoeDep ZonedDateTime d (DateTime d.fst) where
   coe := d.snd
 
@@ -31,8 +34,8 @@ open DateTime
 Creates a new `ZonedDateTime` out of a `Timestamp`
 -/
 @[inline]
-def ofTimestamp (tm : Timestamp) (tz : TimeZone) : ZonedDateTime :=
-  ⟨tz, DateTime.ofTimestamp tm tz⟩
+def ofUTCTimestamp (tm : Timestamp) (tz : TimeZone) : ZonedDateTime :=
+  ⟨tz, DateTime.ofUTCTimestamp tm tz⟩
 
 /--
 Creates a new `Timestamp` out of a `ZonedDateTime`
@@ -47,14 +50,14 @@ Creates a new `DateTime` out of a `Timestamp`
 @[inline]
 def ofZoneRules (tm : Timestamp) (rules : TimeZone.ZoneRules) : Option ZonedDateTime := do
   let transition ← rules.findTransitionForTimestamp tm
-  return ofTimestamp tm transition.localTimeType.getTimeZone
+  return ofUTCTimestamp tm transition.localTimeType.getTimeZone
 
 /--
 Changes the `TimeZone` to a new one.
 -/
 @[inline]
 def convertTimeZone (date : ZonedDateTime) (tz₁ : TimeZone) : ZonedDateTime :=
-  ofTimestamp (date.toTimestamp) tz₁
+  ofUTCTimestamp (date.toTimestamp) tz₁
 
 /--
 Creates a new `ZonedDateTime` out of a `LocalDateTime`

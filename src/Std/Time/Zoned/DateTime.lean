@@ -19,7 +19,7 @@ structure DateTime (tz : TimeZone) where
   private mk ::
 
   /--
-  `Timestamp` represents the exact moment in time.
+  `Timestamp` represents the exact moment in time. It's a UTC related `Timestamp`.
   -/
   timestamp : Timestamp
 
@@ -29,20 +29,23 @@ structure DateTime (tz : TimeZone) where
   -/
   date : Thunk LocalDateTime
 
+instance : BEq (DateTime tz) where
+  beq x y := x.timestamp == y.timestamp
+
 instance : Inhabited (DateTime tz) where
   default := ⟨Inhabited.default, Thunk.mk λ_ => Inhabited.default⟩
 
 namespace DateTime
 
 /--
-Creates a new `DateTime` out of a `Timestamp`
+Creates a new `DateTime` out of a `Timestamp` that is in a `TimeZone`.
 -/
 @[inline]
-def ofTimestamp (tm : Timestamp) (tz : TimeZone) : DateTime tz :=
+def ofUTCTimestamp (tm : Timestamp) (tz : TimeZone) : DateTime tz :=
   DateTime.mk tm (Thunk.mk <| λ_ => (tm.addSeconds tz.toSeconds).toLocalDateTime)
 
 /--
-Creates a new `Timestamp` out of a `DateTime`
+Creates a new zone aware `Timestamp` out of a `DateTime`.
 -/
 @[inline]
 def toTimestamp (date : DateTime tz) : Timestamp :=
@@ -53,14 +56,16 @@ Changes the `TimeZone` to a new one.
 -/
 @[inline]
 def convertTimeZone (date : DateTime tz) (tz₁ : TimeZone) : DateTime tz₁ :=
-  ofTimestamp (date.toTimestamp) tz₁
+  ofUTCTimestamp date.timestamp tz₁
+
 
 /--
-Creates a new DateTime out of a `LocalDateTime`
+Creates a new `DateTime` out of a `LocalDateTime`
 -/
 @[inline]
 def ofLocalDateTime (date : LocalDateTime) (tz : TimeZone) : DateTime tz :=
-  DateTime.ofTimestamp date.toUTCTimestamp tz
+  let tm := Timestamp.ofLocalDateTime date
+  DateTime.mk (tm.subSeconds tz.toSeconds) (Thunk.mk <| λ_ => date)
 
 /--
 Gets the current `DateTime`.
@@ -141,6 +146,13 @@ Subtract `Year.Offset` from to a `DateTime`, it clips the day to the last valid 
 @[inline]
 def subYearsClip (dt : DateTime tz) (years : Year.Offset) : DateTime tz :=
   ofLocalDateTime (dt.timestamp.toLocalDateTime.subYearsClip years) tz
+
+/--
+Converts a `Timestamp` to a `LocalDateTime`
+-/
+@[inline]
+def toLocalDateTime (timestamp : Timestamp) : LocalDateTime :=
+  LocalDateTime.ofUTCTimestamp timestamp
 
 /--
 Getter for the `Year` inside of a `DateTime`

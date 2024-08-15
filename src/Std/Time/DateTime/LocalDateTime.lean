@@ -30,14 +30,14 @@ structure LocalDateTime where
   -/
   time : LocalTime
 
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 namespace LocalDateTime
 
 /--
 Converts a `LocalDateTime` into a `Std.Time.Timestamp`
 -/
-def toUTCTimestamp (dt : LocalDateTime) : Timestamp :=
+def toLocalTimestamp (dt : LocalDateTime) : Timestamp :=
   let days := dt.date.toDaysSinceUNIXEpoch
   let nanos : Nanosecond.Offset := days.toSeconds + dt.time.toSeconds |>.mul 1000000000
   let nanos := nanos.val + dt.time.nano.val

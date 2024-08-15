@@ -40,6 +40,9 @@ structure LocalDate where
 
   deriving Repr
 
+instance : BEq LocalDate where
+  beq x y := x.day == y.day && x.month == y.month && x.year == y.year
+
 namespace LocalDate
 
 /--

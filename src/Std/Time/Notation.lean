@@ -73,9 +73,9 @@ syntax date_component noWs ":" noWs date_component noWs ":" noWs date_component 
 
 private def parseTime : TSyntax `time -> MacroM (TSyntax `term)
   | `(time| $hour:date_component:$minute:date_component:$second:date_component) => do
-    `(Std.Time.LocalTime.mk $(← parseComponent hour) $(← parseComponent minute) $(← parseComponent second) 0)
+    `(Std.Time.LocalTime.mk ⟨true, $(← parseComponent hour)⟩ $(← parseComponent minute) ⟨true, $(← parseComponent second)⟩ 0 (by decide))
   | `(time| $hour:date_component:$minute:date_component:$second:date_component.$nanos:date_component) => do
-    `(Std.Time.LocalTime.mk $(← parseComponent hour) $(← parseComponent minute) $(← parseComponent second) $(← parseComponent nanos))
+    `(Std.Time.LocalTime.mk ⟨true, $(← parseComponent hour)⟩ $(← parseComponent minute) ⟨true, $(← parseComponent second)⟩ $(← parseComponent nanos) (by decide))
   | syn => Macro.throwErrorAt syn "unsupported syntax"
 
 /--
@@ -95,9 +95,9 @@ syntax date_component : datetime
 
 private def parseDateTime : TSyntax `datetime -> MacroM (TSyntax `term)
   | `(datetime| $date:date:$time:time) => do
-    `(Std.Time.LocalDateTime.mk $(← parseDate date)  $(← parseTime time))
+    `(Std.Time.LocalDateTime.mk $(← parseDate date) $(← parseTime time))
   | `(datetime|$tm:date_component) => do
-    `(Std.Time.LocalDateTime.ofTimestamp $(← parseComponent tm))
+    `(Std.Time.LocalDateTime.ofUTCTimestamp $(← parseComponent tm))
   | syn => Macro.throwErrorAt syn "unsupported syntax"
 
 /--
@@ -132,7 +132,7 @@ private def parseZone : TSyntax `zone -> MacroM (TSyntax `term)
   | `(zone| UTC) => do `(Std.Time.TimeZone.UTC)
   | `(zone| GMT) => do `(Std.Time.TimeZone.GMT)
   | `(zone| Z) => do `(Std.Time.TimeZone.UTC)
-  | `(zone| $offset:offset) => do `(Std.Time.TimeZone.mk $(← parseOffset offset) "Offset")
+  | `(zone| $offset:offset) => do `(Std.Time.TimeZone.mk $(← parseOffset offset) "Unknown" false)
   | syn => Macro.throwErrorAt syn "unsupported syntax"
 
 /--
@@ -147,7 +147,7 @@ syntax datetime zone : zoned
 
 private def parseZoned : TSyntax `zoned -> MacroM (TSyntax `term)
   | `(zoned| $timestamp:num $zone) => do
-    `(Std.Time.DateTime.ofTimestamp $timestamp $(← parseZone zone))
+    `(Std.Time.DateTime.ofUTCTimestamp $timestamp $(← parseZone zone))
   | `(zoned| $datetime:datetime $zone) => do
     `(Std.Time.DateTime.ofLocalDateTime $(← parseDateTime datetime) $(← parseZone zone))
   | syn => Macro.throwErrorAt syn "unsupported syntax"
@@ -175,7 +175,7 @@ syntax (name := dateDate) "date%" date : term
 /--
 Macro for defining times.
 -/
-syntax "date%" time : term
+syntax "time%" time : term
 
 /--
 Macro for creating offsets
@@ -194,9 +194,9 @@ syntax "timezone%" str offset : term
 
 macro_rules
   | `(date% $date:date) => parseDate date
-  | `(date% $time:time) => parseTime time
   | `(date% $datetime:datetime) => parseDateTime datetime
   | `(date% $zoned:zoned) => parseZoned zoned
+  | `(time% $time:time) => parseTime time
   | `(offset% $offset:offset) => parseOffset offset
   | `(timezone% $str $offset:offset) => do
     do `(Std.Time.TimeZone.mk $(← parseOffset offset) $str false)

@@ -9,6 +9,7 @@ import Std.Time.Time.Unit.Hour
 import Std.Time.Time.Unit.Minute
 import Std.Time.Time.Unit.Second
 import Std.Time.Time.Unit.Nanosecond
+import Std.Time.Time.Unit.Millisecond
 
 namespace Std
 namespace Time

@@ -6,6 +6,7 @@ Authors: Sofia Rodrigues
 prelude
 import Std.Time.Zoned.ZonedDateTime
 import Std.Time.Zoned.Database.Basic
+import Std.Time.Zoned.Database.TZdb
 
 namespace Std
 namespace Time
@@ -35,8 +36,8 @@ def getTimeZoneAt [Database α] (db : α) (id : String) (tm : Timestamp) : IO Ti
 /--
 Get the local ZonedDataTime given a UTC `Timestamp`.
 -/
-def ofTimestamp [Database α] (db : α) (tm : Timestamp) : IO ZonedDateTime := do
+def ofUTCTimestamp [Database α] (db : α) (tm : Timestamp) : IO ZonedDateTime := do
   let rules ← Database.localRules db
   let tz ← IO.ofExcept <| timezoneAt rules tm
   let tm := applyLeapSeconds tm rules.leapSeconds
-  return ZonedDateTime.ofTimestamp tm tz
+  return ZonedDateTime.ofUTCTimestamp tm tz

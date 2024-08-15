@@ -153,9 +153,9 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List N
       modifyEnv fun env => addNoncomputable env preDef.declName
     if compile && shouldGenCodeFor preDef then
       discard <| compileDecl decl
+    generateEagerEqns preDef.declName
     if applyAttrAfterCompilation then
       applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
-    generateEagerEqns preDef.declName
 
 def addAndCompileNonRec (preDef : PreDefinition) (all : List Name := [preDef.declName]) : TermElabM Unit := do
   addNonRecAux preDef (compile := true) (all := all)

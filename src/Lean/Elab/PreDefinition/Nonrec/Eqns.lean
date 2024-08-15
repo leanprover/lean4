@@ -63,7 +63,11 @@ private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
             -- LHS (introduced in 096e4eb), but it seems that code path was never used,
             -- so #3133 removed it again (and can be recovered from there if this was premature).
             throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
-    go (← deltaLHS mvarId)
+
+    -- Try rfl before deltaLHS to avoid `id` checkpoints in the proof, which would make
+    -- the lemma ineligible for dsmip
+    unless ← withAtLeastTransparency .all (tryURefl mvarId) do
+      go (← deltaLHS mvarId)
     instantiateMVars main
 
 def mkEqns (declName : Name) (info : DefinitionVal) : MetaM (Array Name) :=

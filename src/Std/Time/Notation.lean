@@ -6,16 +6,14 @@ Authors: Sofia Rodrigues
 prelude
 import Std.Time.Date
 import Std.Time.Time
-import Std.Time.DateTime
 import Std.Time.Zoned
+import Std.Time.DateTime
 import Std.Time.Format.Basic
 import Lean.Elab.Command
 
 namespace Std
 namespace Time
 open Lean.Elab Term Lean Parser Command Std
-
-set_option linter.all true
 
 /--
 Category of units that are valid inside a date.

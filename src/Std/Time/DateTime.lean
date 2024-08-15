@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Std.Time.DateTime.LocalDateTime
 import Std.Time.DateTime.Timestamp
+import Std.Time.DateTime.LocalDateTime
 
 namespace Std
 namespace Time

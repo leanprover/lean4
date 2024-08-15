@@ -7,6 +7,7 @@ prelude
 import Std.Time.Internal
 import Init.Data.Int
 import Std.Time.Time
+import Std.Time.Date
 
 namespace Std
 namespace Time
@@ -159,3 +160,58 @@ Adds a `Second.Offset` to a `Timestamp`
 @[inline]
 def addSeconds (t : Timestamp) (s : Second.Offset) : Timestamp :=
   t.add (ofSeconds s)
+
+/--
+Subtracts a `Second.Offset` from a `Timestamp`
+-/
+@[inline]
+def subSeconds (t : Timestamp) (s : Second.Offset) : Timestamp :=
+  t.sub (ofSeconds s)
+
+/--
+Adds a `Minute.Offset` to a `Timestamp`
+-/
+@[inline]
+def addMinutes (t : Timestamp) (m : Minute.Offset) : Timestamp :=
+  let seconds := m.mul 60
+  t.addSeconds seconds
+
+/--
+Subtracts a `Minute.Offset` from a `Timestamp`
+-/
+@[inline]
+def subMinutes (t : Timestamp) (m : Minute.Offset) : Timestamp :=
+  let seconds := m.mul 60
+  t.subSeconds seconds
+
+/--
+Adds an `Hour.Offset` to a `Timestamp`
+-/
+@[inline]
+def addHours (t : Timestamp) (h : Hour.Offset) : Timestamp :=
+  let seconds := h.mul 3600
+  t.addSeconds seconds
+
+/--
+Subtracts an `Hour.Offset` from a `Timestamp`
+-/
+@[inline]
+def subHours (t : Timestamp) (h : Hour.Offset) : Timestamp :=
+  let seconds := h.mul 3600
+  t.subSeconds seconds
+
+/--
+Adds a `Day.Offset` to a `Timestamp`
+-/
+@[inline]
+def addDays (t : Timestamp) (d : Day.Offset) : Timestamp :=
+  let seconds := d.mul 86400
+  t.addSeconds seconds
+
+/--
+Subtracts a `Day.Offset` from a `Timestamp`
+-/
+@[inline]
+def subDays (t : Timestamp) (d : Day.Offset) : Timestamp :=
+  let seconds := d.mul 86400
+  t.subSeconds seconds

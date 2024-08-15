@@ -4,20 +4,31 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Std.Time.Zoned.Database.Basic
-import Std.Time.Zoned.ZoneRules
-import Std.Time.Zoned.TimeZone
 import Std.Time.DateTime
+import Std.Time.Zoned.TimeZone
+import Std.Time.Zoned.ZoneRules
+import Std.Time.Zoned.Database.Basic
 
 namespace Std
 namespace Time
 namespace Database
 
+set_option linter.all true
+
 /--
 Represents a Time Zone Database (TZdb) configuration with paths to local and general timezone data.
 -/
 structure TZdb where
+  /--
+  The path to the local timezone file. This is typically a symlink to a file within the timezone
+  database that corresponds to the current local time zone.
+  -/
   localPath : System.FilePath := "/etc/localtime"
+
+  /--
+  The path to the directory containing all available time zone files. These files define various
+  time zones and their rules.
+  -/
   zonesPath : System.FilePath := "/usr/share/zoneinfo/"
 
 namespace TZdb

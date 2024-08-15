@@ -14,8 +14,6 @@ import Std.Time.Duration
 namespace Std
 namespace Time
 
-set_option linter.all true
-
 /-!
 # Time
 

@@ -11,11 +11,10 @@ import Std.Time.Date.Unit.Month
 
 namespace Std
 namespace Time
+namespace Year
 open Internal
 
 set_option linter.all true
-
-namespace Year
 
 /--
 `Offset` represents an offset in years. It is defined as an `Int`.

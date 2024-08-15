@@ -80,7 +80,7 @@ def ofValidHourMinuteSecondsNano (hour : Hour.Ordinal false) (minute : Minute.Or
   exact λx => nomatch (Int.ne_iff_lt_or_gt.mpr (Or.inl (Int.lt_add_one_iff.mpr hour.property.right)) x)
 
 /--
-Converts a `LocalTime` value to the total number of seconds since midnight.
+Converts a `LocalTime` value to the total number of seconds.
 -/
 def toNanoseconds (time : LocalTime) : Nanosecond.Offset :=
   let secs :=
@@ -91,7 +91,7 @@ def toNanoseconds (time : LocalTime) : Nanosecond.Offset :=
   UnitVal.mk (nanos.val + time.nano.val)
 
 /--
-Converts a `LocalTime` value to the total number of seconds since midnight.
+Converts a `LocalTime` value to the total number of seconds.
 -/
 def toSeconds (time : LocalTime) : Second.Offset :=
   time.hour.snd.toOffset.toSeconds +
@@ -99,12 +99,19 @@ def toSeconds (time : LocalTime) : Second.Offset :=
   time.second.snd.toOffset
 
 /--
-Converts a `LocalTime` value to the total number of minutes since midnight.
+Converts a `LocalTime` value to the total number of minutes.
 -/
 def toMinutes (time : LocalTime) : Minute.Offset :=
   time.hour.snd.toOffset.toMinutes +
   time.minute.toOffset +
   time.second.snd.toOffset.toMinutes
+
+/--
+Converts a `LocalTime` value to the total number of hours.
+-/
+def toHours (time : LocalTime) : Hour.Offset :=
+  let hour : Hour.Offset := time.minute.toOffset.ediv 60
+  time.hour.snd.toOffset + hour + time.second.snd.toOffset.toHours
 
 end LocalTime
 end Time

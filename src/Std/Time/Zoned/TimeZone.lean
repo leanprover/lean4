@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Std.Time.Time
 import Std.Time.Zoned.Offset
 
 namespace Std

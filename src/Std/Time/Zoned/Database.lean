@@ -4,18 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Std.Time.Zoned.Database.Basic
-import Std.Time.Zoned.Database.TZdb
 import Std.Time.Zoned.ZonedDateTime
-import Std.Time.Zoned.ZoneRules
-import Std.Time.Zoned.TimeZone
-import Std.Time.Zoned.DateTime
-import Std.Time.DateTime
+import Std.Time.Zoned.Database.Basic
 
 namespace Std
 namespace Time
 namespace Database
 open TimeZone.ZoneRules
+
+set_option linter.all true
 
 /--
 Apply leap seconds rules and transition rules on a UTC Timestamp to make it aware of the timezone.

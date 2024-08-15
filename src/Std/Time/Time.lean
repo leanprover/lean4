@@ -7,5 +7,3 @@ prelude
 import Std.Time.Time.Basic
 import Std.Time.Time.HourMarker
 import Std.Time.Time.LocalTime
-
-set_option linter.all true

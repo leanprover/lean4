@@ -4,18 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Std.Time.Internal
 import Lean.Data.Rat
 import Std.Time.Date.Unit.Day
-import Std.Time.Date.Unit.Month
 
 namespace Std
 namespace Time
+namespace WeekOfYear
 open Internal
 
 set_option linter.all true
-
-namespace WeekOfYear
 
 /--
 `Ordinal` represents a bounded value for weeks, which ranges between 1 and 53.

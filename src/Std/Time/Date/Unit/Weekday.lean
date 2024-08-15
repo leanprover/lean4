@@ -4,10 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Std.Time.Internal
 import Lean.Data.Rat
 import Std.Time.Date.Unit.Day
-import Std.Time.Date.Unit.Month
 
 namespace Std
 namespace Time
@@ -106,6 +104,14 @@ def next : Weekday → Weekday
   | .fri => .thu
   | .sat => .fri
   | .sun => .sat
+
+/--
+Check if it's a Weekend.
+-/
+def weekend : Weekday → Bool
+  | .sat => true
+  | .sun => true
+  | _ => false
 
 end Weekday
 end Time

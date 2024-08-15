@@ -4,17 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Std.Time.Time
-import Std.Time.Internal
 import Lean.Data.Rat
+import Std.Time.Time
 
 namespace Std
 namespace Time
+namespace Day
 open Lean Internal
 
 set_option linter.all true
-
-namespace Day
 
 /--
 `Ordinal` represents a bounded value for days, which ranges between 1 and 31.

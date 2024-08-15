@@ -10,5 +10,3 @@ import Std.Time.Zoned.ZoneRules
 import Std.Time.Zoned.ZonedDateTime
 import Std.Time.Zoned.ZonedDateTime
 import Std.Time.Zoned.Database.Basic
-
-set_option linter.all true

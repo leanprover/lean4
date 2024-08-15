@@ -4,10 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Std.Time.Zoned.Database.TzIf
 import Std.Time.Zoned.ZoneRules
-import Std.Time.Zoned.TimeZone
-import Std.Time.DateTime
+import Std.Time.Zoned.Database.TzIf
 
 namespace Std
 namespace Time

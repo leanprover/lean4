@@ -4,18 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Std.Time.Internal
 import Lean.Data.Rat
-import Std.Time.Time.Basic
 import Std.Time.Date.Unit.Day
 
 namespace Std
 namespace Time
+namespace Month
 open Internal
 
 set_option linter.all true
-
-namespace Month
 
 /--
 `Ordinal` represents a bounded value for months, which ranges between 1 and 12.

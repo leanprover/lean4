@@ -4,9 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Init
+import Init.Data
 import Lean.Data.Rat
-import Std.Time.Internal.Sign
 
 namespace Std
 namespace Time
@@ -79,15 +78,9 @@ def sub (u1 : UnitVal α) (u2 : UnitVal α) : UnitVal α :=
   ⟨u1.val - u2.val⟩
 
 /--
-Apply the `Sign` to a value.
--/
-@[inline]
-def apply (u1 : UnitVal α) (sign : Sign) : UnitVal α :=
-  ⟨u1.val * sign.val⟩
-
-/--
 Converts an `Offset` to another unit type.
 -/
+@[inline]
 def convert (val : UnitVal a) : UnitVal b :=
   let ratio := a.div b
   ofInt <| val.toInt * ratio.num / ratio.den

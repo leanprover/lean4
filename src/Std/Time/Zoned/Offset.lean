@@ -5,7 +5,6 @@ Authors: Sofia Rodrigues
 -/
 prelude
 import Std.Time.Time
-import Std.Time.Internal
 
 namespace Std
 namespace Time
@@ -38,8 +37,7 @@ Converts an `Offset` to a string in ISO 8601 format. The `colon` parameter deter
 and minute components are separated by a colon (e.g., "+01:00" or "+0100").
 -/
 def toIsoString (offset : Offset) (colon : Bool) : String :=
-  let sign := Sign.ofInt offset.second.val
-  let time := offset.second.apply sign
+  let (sign, time) := if offset.second.val > 0 then ("+", offset.second) else ("-", -offset.second)
   let hour : Hour.Offset := time.ediv 3600
   let minute := Int.ediv (Int.mod time.val 3600) 60
   let hourStr := if hour.val < 10 then s!"0{hour.val}" else toString hour.val

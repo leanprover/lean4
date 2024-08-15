@@ -256,6 +256,10 @@ theorem getElem?_eq_some {l : List α} : l[n]? = some a ↔ ∃ h : n < l.length
 
 theorem getElem?_eq_none (h : length l ≤ n) : l[n]? = none := getElem?_eq_none_iff.mpr h
 
+theorem getElem?_eq (l : List α) (i : Nat) :
+    l[i]? = if h : i < l.length then some l[i] else none := by
+  split <;> simp_all
+
 theorem getElem_eq_iff {l : List α} {n : Nat} {h : n < l.length} : l[n] = x ↔ l[n]? = some x := by
   simp only [getElem?_eq_some]
   exact ⟨fun w => ⟨h, w⟩, fun h => h.2⟩

@@ -77,7 +77,7 @@ ifeq "${CMAKE_SYSTEM_NAME}" "Windows"
 	  ${LIB}/temp/Lean/Meta/WHNF.o.export -Wl,--start-group ${LIB}/temp/libLean.a.export -Wl,--whole-archive ${LIB}/temp/libleancpp_1.a -Wl,--no-whole-archive -Wl,--end-group -lInit_shared -Wl,--out-implib,${LIB}/lean/libleanshared_1.dll.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS} -Wl,-Map=${LIB}/temp/libleanshared_1.map
 # now delete included symbols from libLean.a
 	cp ${LIB}/temp/libLean.a.export ${LIB}/temp/diff.a
-	sed -En 's/.*(\.\.[^:]*\.o\.export):.*/\1/p' ${LIB}/temp/libleanshared_1.map > ${LIB}/temp/diff.a.in
+	sed -En 's/.*\s(\S*\.o\.export):.*/\1/p' ${LIB}/temp/libleanshared_1.map > ${LIB}/temp/diff.a.in
 # can't use bundled llvm-ar before LLVM 16, https://github.com/llvm/llvm-project/issues/55023
 	ar dP ${LIB}/temp/diff.a @${LIB}/temp/diff.a.in
 	"${CMAKE_AR}" tP ${LIB}/temp/diff.a

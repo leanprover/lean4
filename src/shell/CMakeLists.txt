@@ -4,7 +4,8 @@ set_target_properties(leanmain PROPERTIES
   OUTPUT_NAME leanmain)
 
 # library must contain at least one non-manifest file
-file(WRITE ${CMAKE_BINARY_DIR}/temp/empty.c)
+# We use `CONFIGURE` instead of `WRITE` so as to avoid touching the file on each run
+file(CONFIGURE OUTPUT ${CMAKE_BINARY_DIR}/temp/empty.c CONTENT "")
 add_library(leanmanifest STATIC ${CMAKE_BINARY_DIR}/temp/empty.c manifest.rc)
 set_target_properties(leanmanifest PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/lean

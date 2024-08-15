@@ -362,17 +362,44 @@ theorem IsPrefix.findIdx_eq_of_findIdx_lt_length {l₁ l₂ : List α} {p : α �
   induction xs generalizing i with simp
   | cons _ _ _ => split <;> simp_all
 
-theorem findIdx?_isSome_eq {xs : List α} {p : α → Bool} {i : Nat} :
-    (xs.findIdx? p).isSome = xs.any p :=
-  sorry
+theorem findIdx?_isSome_eq {xs : List α} {p : α → Bool} :
+    (xs.findIdx? p).isSome = xs.any p := by
+  induction xs with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [findIdx?_cons]
+    split <;> simp_all
 
 theorem findIdx?_eq_some_iff_findIdx_eq {xs : List α} {p : α → Bool} {i : Nat} :
-    xs.findIdx? p = some i ↔ xs.findIdx p = i := by
-  sorry
+    xs.findIdx? p = some i ↔ i < xs.length ∧ xs.findIdx p = i := by
+  induction xs generalizing i with
+  | nil => simp_all
+  | cons x xs ih =>
+    simp only [findIdx?_cons, findIdx_cons]
+    split
+    · simp_all [cond_eq_if]
+      rintro rfl
+      exact zero_lt_succ xs.length
+    · simp_all [cond_eq_if, and_assoc]
+      constructor
+      · rintro ⟨a, lt, rfl, rfl⟩
+        simp_all
+      · rintro ⟨h, rfl⟩
+        exact ⟨_, by simp_all, rfl, rfl⟩
 
-theorem findIdx_eq_none_iff_findIdx_eq {xs : List α} {p : α → Bool} :
+
+@[simp]
+theorem findIdx?_eq_none_iff {xs : List α} {p : α → Bool} :
+    xs.findIdx? p = none ↔ ∀ x, x ∈ xs → p x = false := by
+  induction xs with
+  | nil => simp_all
+  | cons x xs ih =>
+    simp only [findIdx?_cons]
+    split <;> simp_all [cond_eq_if]
+
+theorem findIdx?_eq_none_iff_findIdx_eq {xs : List α} {p : α → Bool} :
     xs.findIdx? p = none ↔ xs.findIdx p = xs.length := by
-  sorry
+  simp
 
 theorem findIdx?_eq_some_iff (xs : List α) (p : α → Bool) :
     xs.findIdx? p = some i ↔

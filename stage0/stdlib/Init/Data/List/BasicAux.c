@@ -1323,7 +1323,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Nat.lt_trans", 12, 12);
+x_1 = lean_mk_string_unchecked("Nat.lt_of_lt_of_le", 18, 18);
 return x_1;
 }
 }
@@ -1348,7 +1348,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("lt_trans", 8, 8);
+x_1 = lean_mk_string_unchecked("lt_of_lt_of_le", 14, 14);
 return x_1;
 }
 }

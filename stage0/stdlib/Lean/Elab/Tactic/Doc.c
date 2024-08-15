@@ -81,6 +81,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Doc_0__Lean_Elab_Tactic_Do
 static lean_object* l_Lean_Elab_Tactic_Doc_elabTacticExtension___closed__5;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Doc_elabTacticExtension_declRange__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Doc_allTacticDocs___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_RBNode_fold___at_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_1609____spec__1(lean_object*, lean_object*);
 lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*, lean_object*);
@@ -110,7 +111,6 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_Doc_elabTacticExtension__1__
 static lean_object* l_Lean_Elab_Tactic_Doc_elabRegisterTacticTag___lambda__1___closed__3;
 static lean_object* l_List_mapM_loop___at_Lean_Elab_Tactic_Doc_elabPrintTacTags___spec__9___closed__9;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Doc_0__Lean_Elab_Tactic_Doc_showParserName___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_RBNode_find___at_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2577____spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Doc_elabTacticExtension___closed__7;
@@ -151,6 +151,7 @@ extern lean_object* l_Lean_Parser_Tactic_Doc_tacticDocExtExt;
 lean_object* l_Lean_Elab_Command_liftTermElabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_mapM_loop___at_Lean_Elab_Tactic_Doc_elabPrintTacTags___spec__9___closed__10;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
+lean_object* l_Lean_RBNode_find___at_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2559____spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Doc_elabTacticExtension___closed__12;
 extern lean_object* l_Lean_Parser_parserExtension;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_Doc_allTacticDocs___spec__6(lean_object*, lean_object*, lean_object*);
@@ -269,7 +270,6 @@ lean_object* l_Lean_Elab_addMacroStack___at_Lean_Elab_Command_instAddErrorMessag
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_Doc_elabTacticExtension_declRange__1(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Doc_0__Lean_Elab_Tactic_Doc_getFirstTk(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFnArgs(lean_object*);
-lean_object* l_Lean_RBNode_fold___at_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_1615____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_Doc_allTacticDocs___spec__6___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Doc_elabTacticExtension___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -7803,7 +7803,7 @@ lean_inc(x_11);
 x_12 = lean_ctor_get(x_10, 1);
 lean_inc(x_12);
 lean_dec(x_10);
-x_13 = l_Lean_RBNode_find___at_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2577____spec__1(x_4, x_12);
+x_13 = l_Lean_RBNode_find___at_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2559____spec__1(x_4, x_12);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; size_t x_18; size_t x_19; 
@@ -8047,7 +8047,7 @@ if (x_21 == 0)
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
 x_22 = lean_ctor_get(x_20, 0);
 x_23 = l_Lean_Parser_Tactic_Doc_allTagsWithInfo___at_Lean_Elab_Tactic_Doc_elabPrintTacTags___spec__3___closed__2;
-x_24 = l_Lean_RBNode_fold___at_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_1615____spec__1(x_23, x_22);
+x_24 = l_Lean_RBNode_fold___at_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_1609____spec__1(x_23, x_22);
 lean_dec(x_22);
 x_25 = lean_array_get_size(x_24);
 x_26 = lean_unsigned_to_nat(1u);
@@ -8069,7 +8069,7 @@ lean_inc(x_32);
 lean_inc(x_31);
 lean_dec(x_20);
 x_33 = l_Lean_Parser_Tactic_Doc_allTagsWithInfo___at_Lean_Elab_Tactic_Doc_elabPrintTacTags___spec__3___closed__2;
-x_34 = l_Lean_RBNode_fold___at_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_1615____spec__1(x_33, x_31);
+x_34 = l_Lean_RBNode_fold___at_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_1609____spec__1(x_33, x_31);
 lean_dec(x_31);
 x_35 = lean_array_get_size(x_34);
 x_36 = lean_unsigned_to_nat(1u);
@@ -9633,7 +9633,7 @@ lean_inc(x_13);
 x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec(x_12);
-x_15 = l_Lean_RBNode_find___at_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2577____spec__1(x_4, x_13);
+x_15 = l_Lean_RBNode_find___at_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2559____spec__1(x_4, x_13);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; size_t x_20; size_t x_21; 
@@ -10520,7 +10520,7 @@ lean_object* x_14; lean_object* x_15; lean_object* x_16;
 x_14 = lean_ctor_get(x_12, 0);
 lean_inc(x_2);
 x_15 = l_Lean_Parser_Tactic_Doc_getTacticExtensions(x_1, x_2);
-x_16 = l_Lean_RBNode_find___at_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2577____spec__1(x_3, x_2);
+x_16 = l_Lean_RBNode_find___at_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2559____spec__1(x_3, x_2);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
@@ -10586,7 +10586,7 @@ lean_inc(x_29);
 lean_dec(x_12);
 lean_inc(x_2);
 x_31 = l_Lean_Parser_Tactic_Doc_getTacticExtensions(x_1, x_2);
-x_32 = l_Lean_RBNode_find___at_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2577____spec__1(x_3, x_2);
+x_32 = l_Lean_RBNode_find___at_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2559____spec__1(x_3, x_2);
 if (lean_obj_tag(x_32) == 0)
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 

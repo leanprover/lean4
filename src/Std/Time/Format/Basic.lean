@@ -576,7 +576,7 @@ private def DateBuilder.build (builder : DateBuilder) (aw : Awareness) : Except 
     match aw with
     | .only tz => .ok (build tz)
     | .any =>
-      let tz₁ := TimeZone.mk builder.tz builder.tzName
+      let tz₁ := TimeZone.mk builder.tz builder.tzName false
       .ok ⟨tz₁, build tz₁⟩
   else
     .error "invalid leap seconds {} {} {}"

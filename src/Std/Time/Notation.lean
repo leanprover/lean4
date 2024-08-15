@@ -199,11 +199,11 @@ macro_rules
   | `(date% $zoned:zoned) => parseZoned zoned
   | `(offset% $offset:offset) => parseOffset offset
   | `(timezone% $str $offset:offset) => do
-    do `(Std.Time.TimeZone.mk $(← parseOffset offset) $str)
+    do `(Std.Time.TimeZone.mk $(← parseOffset offset) $str false)
   | `(timezone% $name/$sub $offset:offset) => do
     let name := s!"{name.getId.toString}/{sub.getId.toString}"
     let syn := Syntax.mkStrLit name
-    do `(Std.Time.TimeZone.mk $(← parseOffset offset) $syn)
+    do `(Std.Time.TimeZone.mk $(← parseOffset offset) $syn false)
 
 private def convertModifier : Modifier → MacroM (TSyntax `term)
   | .YYYY => `(Std.Time.Modifier.YYYY)

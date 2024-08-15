@@ -25,6 +25,11 @@ structure TimeZone where
   The name of the time zone.
   -/
   name : String
+
+  /--
+  Day light saving flag.
+  -/
+  isDST : Bool
   deriving Inhabited, Repr
 
 namespace TimeZone
@@ -33,25 +38,25 @@ namespace TimeZone
 A zeroed `Timezone` representing UTC (no offset).
 -/
 def UTC : TimeZone :=
-  TimeZone.mk (Offset.zero) "Coordinated Universal Time"
+  TimeZone.mk (Offset.zero) "Coordinated Universal Time" false
 
 /--
 A zeroed `Timezone` representing GMT (no offset).
 -/
 def GMT : TimeZone :=
-  TimeZone.mk (Offset.zero) "Greenwich Mean Time"
+  TimeZone.mk (Offset.zero) "Greenwich Mean Time" false
 
 /--
 Creates a `Timestamp` from a given number of hour.
 -/
-def ofHours (name : String) (n : Hour.Offset) : TimeZone :=
-  TimeZone.mk (Offset.ofHours n) name
+def ofHours (name : String) (n : Hour.Offset) (isDST : Bool := false) : TimeZone :=
+  TimeZone.mk (Offset.ofHours n) name isDST
 
 /--
 Creates a `Timestamp` from a given number of second.
 -/
-def ofSeconds (name : String) (n : Second.Offset) : TimeZone :=
-  TimeZone.mk (Offset.ofSeconds n) name
+def ofSeconds (name : String) (n : Second.Offset) (isDST : Bool := false) : TimeZone :=
+  TimeZone.mk (Offset.ofSeconds n) name isDST
 
 /--
 Gets the number of seconds in a timezone offset.

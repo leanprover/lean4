@@ -597,7 +597,7 @@ where
     -- definitely resolve eventually
     snap.new.resolve <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
 
-    let mut infoTree := Runtime.markPersistent cmdState.infoState.trees[0]!
+    let mut infoTree := cmdState.infoState.trees[0]!
     let cmdline := internal.cmdlineSnapshots.get scope.opts && !Parser.isTerminalCommand stx
     if cmdline then
       infoTree := Runtime.markPersistent infoTree

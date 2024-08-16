@@ -6,6 +6,7 @@ Authors: Sofia Rodrigues
 prelude
 import Std.Time.Notation
 import Std.Time.Format.Basic
+import Std.Time.Internal.Bounded
 
 namespace Std
 namespace Time
@@ -125,8 +126,12 @@ def toTime24Hour (input : LocalTime) : String :=
 /--
 Parses a time string in the 12-hour format (`hh:mm:ss aa`) and returns a `LocalTime`.
 -/
-def fromTime12Hour (input : String) : Except String LocalTime :=
-  Formats.Time12Hour.parseBuilder (λh m s a => LocalTime.ofHourMinuteSeconds? (HourMarker.toAbsolute a h.snd) m s.snd) input
+def fromTime12Hour (input : String) : Except String LocalTime := do
+  let builder h m s a : Option LocalTime := do
+    let value ← Internal.Bounded.ofInt? h.snd.val
+    LocalTime.ofHourMinuteSeconds? (leap₂ := false) (HourMarker.toAbsolute a value) m s.snd
+
+  Formats.Time12Hour.parseBuilder builder input
 
 /--
 Formats a `LocalTime` value into a 12-hour format string (`hh:mm:ss aa`).

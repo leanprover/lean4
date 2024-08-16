@@ -6,11 +6,13 @@ def RFC1123 : Format .any := date-spec% "EEE, DD MMM YYYY hh:mm:ss ZZZ"
 def ShortDate : Format .any := date-spec% "MM/DD/YYYY"
 def LongDate : Format .any := date-spec% "MMMM D, YYYY"
 def ShortDateTime : Format .any := date-spec% "MM/DD/YYYY hh:mm:ss"
-def LongDateTime : Format .any := date-spec% "MMMM D, YYYY h:mm aa"
+def LongDateTime : Format .any := date-spec% "MMMM D, YYYY h:mm AA"
 def Time24Hour : Format .any := date-spec% "hh:mm:ss"
 def Time12Hour : Format .any := date-spec% "HH:mm:ss aa"
 def FullDayTimeZone : Format .any := date-spec% "EEEE, MMMM D, YYYY hh:mm:ss ZZZZ"
 def CustomDayTime : Format .any := date-spec% "EEE D MMM YYYY hh:mm"
+
+def Full12HourWrong : Format .any := date-spec% "MM/DD/YYYY hh:mm:ss aa Z"
 
 -- Dates
 
@@ -26,7 +28,7 @@ info: "2014-06-16T03:03:03-0300"
 -/
 #guard_msgs in
 #eval
-    let t : ZonedDateTime := FullDayTimeZone.parse! "Monday, June 16, 2014 03:03:03 -0300"
+    let t : ZonedDateTime := ISO8601UTC.parse! "2014-06-16T03:03:03-0300"
     ISO8601UTC.format t.snd
 
 def tm := date₁.timestamp
@@ -37,21 +39,19 @@ info: "2014-06-16T03:03:03-0300"
 -/
 #guard_msgs in
 #eval
-    let t : ZonedDateTime := FullDayTimeZone.parse! "Monday, June 16, 2014 03:03:03 -0300"
+    let t : ZonedDateTime := RFC1123.parse! "Mon, 16 Jun 2014 03:03:03 -0300"
     ISO8601UTC.format t.snd
 
 def tm₃ := date₁.toTimestamp
 def date₃ := DateTime.ofUTCTimestamp tm₃ brTZ
 
 /--
-info: "2014-06-16T03:03:03-0300"
+info: "2014-06-16T00:00:00UTC"
 -/
 #guard_msgs in
 #eval
-    let t : ZonedDateTime := FullDayTimeZone.parse! "Monday, June 16, 2014 03:03:03 -0300"
+    let t : ZonedDateTime := ShortDate.parse! "06/16/2014"
     ISO8601UTC.format t.snd
-
--- Section for testing timezone conversion.
 
 -- the timestamp is always related to UTC.
 
@@ -75,27 +75,27 @@ info: "2024-08-15T13:28:12-0300"
     ISO8601UTC.format t.snd
 
 /--
-info: "2024-08-16T01:28:12+0900"
+info: "2024-08-16T01:28:00UTC"
 -/
 #guard_msgs in
 #eval
-    let t : ZonedDateTime := FullDayTimeZone.parse! "Friday, August 16, 2024 01:28:12 +0900"
+    let t : ZonedDateTime := LongDateTime.parse! "August 16, 2024 1:28 AM"
     ISO8601UTC.format t.snd
 
 /--
-info: "2024-08-15T13:28:12-0300"
+info: "00-1-12-31T22:28:12+0900"
 -/
 #guard_msgs in
 #eval
-    let t : ZonedDateTime := FullDayTimeZone.parse! "Thursday, August 15, 2024 13:28:12 -0300"
-    ISO8601UTC.format t.snd
+    let t : ZonedDateTime := Time24Hour.parse! "13:28:12"
+    ISO8601UTC.format (t.snd.convertTimeZone jpTZ)
 
 /--
-info: "2024-08-15T13:28:12-0300"
+info: "00-1-12-31T09:28:12-0300"
 -/
 #guard_msgs in
 #eval
-    let t1 : ZonedDateTime := FullDayTimeZone.parse! "Thursday, August 15, 2024 13:28:12 -0300"
+    let t1 : ZonedDateTime := Time12Hour.parse! "12:28:12 am"
     ISO8601UTC.format (t1.snd.convertTimeZone brTZ)
 
 /--
@@ -107,11 +107,11 @@ info: "Thu 15 Aug 2024 16:28"
     CustomDayTime.format t2.snd
 
 /--
-info: "2024-08-16T01:28:12+0900"
+info: "2024-08-16T13:28:00UTC"
 -/
 #guard_msgs in
 #eval
-    let t5 : ZonedDateTime := FullDayTimeZone.parse! "Friday, August 16, 2024 01:28:12 +0900"
+    let t5 : ZonedDateTime := CustomDayTime.parse! "Thu 16 Aug 2024 13:28"
     ISO8601UTC.format t5.snd
 
 /--
@@ -175,3 +175,35 @@ info: "2014-06-16T03:03:03-0300"
 #eval
     let t2 : ZonedDateTime := FullDayTimeZone.parse! "Monday, June 16, 2014 03:03:03 -0300"
     ISO8601UTC.format t2.snd
+
+/--
+info: Except.ok "1993-05-10T10:30:23+0300"
+-/
+#guard_msgs in
+#eval
+    let t2 := Full12HourWrong.parse "05/10/1993 10:30:23 am +03:00"
+    (ISO8601UTC.format ·.snd) <$> t2
+
+/--
+info: Except.ok "1993-05-10T22:30:23+0300"
+-/
+#guard_msgs in
+#eval
+    let t2 := Full12HourWrong.parse "05/10/1993 10:30:23 pm +03:00"
+    (ISO8601UTC.format ·.snd) <$> t2
+
+/--
+info: Except.error "offset 29: The 24-hour is out of the range and cannot be transformed into a 12-hour with a marker."
+-/
+#guard_msgs in
+#eval
+    let t2 := Full12HourWrong.parse "05/10/1993 20:30:23 am +03:00"
+    (ISO8601UTC.format ·.snd) <$> t2
+
+/--
+info: Except.error "offset 29: The 24-hour is out of the range and cannot be transformed into a 12-hour with a marker."
+-/
+#guard_msgs in
+#eval
+    let t2 := Full12HourWrong.parse "05/10/1993 20:30:23 pm +03:00"
+    (ISO8601UTC.format ·.snd) <$> t2

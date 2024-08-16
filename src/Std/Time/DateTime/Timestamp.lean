@@ -42,6 +42,12 @@ instance : BEq Timestamp where
 instance : Inhabited Timestamp where
   default := ⟨0, Bounded.LE.mk 0 (by decide), by decide⟩
 
+instance : OfNat Timestamp n where
+  ofNat := by
+    refine ⟨UnitVal.mk n, ⟨0, by decide⟩, ?_⟩
+    simp <;> exact Int.le_total s.val 0 |>.symm
+    exact Int.le_total 0 n
+
 namespace Timestamp
 
 /--

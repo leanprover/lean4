@@ -565,12 +565,22 @@ private structure DateBuilder where
   minute : Minute.Ordinal := 0
   second : Sigma Second.Ordinal := ⟨true, 0⟩
   millisecond : Millisecond.Ordinal := 0
+  marker : Option HourMarker := none
 
-private def DateBuilder.build (builder : DateBuilder) (aw : Awareness) : Except String aw.type :=
-  if let .isTrue p := inferInstanceAs (Decidable (ValidTime builder.hour.snd builder.minute builder.second.snd)) then
+private def DateBuilder.build (builder : DateBuilder) (aw : Awareness) : Except String aw.type := do
+
+  let hour ←
+    if let some marker := builder.marker then
+      match Bounded.ofInt? builder.hour.snd.val with
+      | some res => pure ⟨true, marker.toAbsolute res⟩
+      | none => .error "The 24-hour is out of the range and cannot be transformed into a 12-hour with a marker."
+    else
+      pure builder.hour
+
+  if let .isTrue p := inferInstanceAs (Decidable (ValidTime hour.snd builder.minute builder.second.snd)) then
     let build := DateTime.ofLocalDateTime {
       date := LocalDate.clip builder.year builder.month builder.day
-      time := LocalTime.mk builder.hour builder.minute builder.second (.ofMillisecond builder.millisecond) p
+      time := LocalTime.mk hour builder.minute builder.second (.ofMillisecond builder.millisecond) p
     }
 
     match aw with
@@ -581,23 +591,27 @@ private def DateBuilder.build (builder : DateBuilder) (aw : Awareness) : Except 
   else
     .error "invalid leap seconds {} {} {}"
 
-private def addDataInDateTime (data : DateBuilder) (typ : Modifier) (value : SingleFormatType typ) : DateBuilder :=
+private def addDataInDateTime (data : DateBuilder) (typ : Modifier) (value : SingleFormatType typ) : Except String DateBuilder :=
   match typ with
-  | .YYYY | .YY => { data with year := value }
-  | .MMMM | .MMM | .MM | .M => { data with month := value }
-  | .DD | .D | .d => { data with day := value }
-  | .EEEE | .EEE => data
-  | .hh | .h | .HH | .H => { data with hour := value }
-  | .AA | .aa => { data with hour := ⟨data.hour.fst, HourMarker.toAbsolute value data.hour.snd⟩ }
-  | .mm | .m => { data with minute := value }
-  | .sss => { data with millisecond := value }
-  | .ss | .s => { data with second := value }
+  | .AA | .aa => do pure { data with marker := some value }
+  | .YYYY | .YY => .ok { data with year := value }
+  | .MMMM | .MMM | .MM | .M => .ok { data with month := value }
+  | .DD | .D | .d => .ok { data with day := value }
+  | .EEEE | .EEE => .ok data
+  | .hh | .h | .HH | .H => .ok { data with hour := value }
+  | .mm | .m => .ok { data with minute := value }
+  | .sss => .ok { data with millisecond := value }
+  | .ss | .s => .ok { data with second := value }
   | .ZZZZZ | .ZZZZ | .ZZZ
-  | .Z => { data with tz := value }
-  | .z => { data with tzName := value }
+  | .Z => .ok { data with tz := value }
+  | .z => .ok { data with tzName := value }
 
 private def formatParser (date : DateBuilder) : FormatPart → Parser DateBuilder
-  | .modifier mod => addDataInDateTime date mod <$> parserWithFormat mod
+  | .modifier mod => do
+    let res ← addDataInDateTime date mod <$> parserWithFormat mod
+    match res with
+    | .error err => fail err
+    | .ok res => pure res
   | .string s => skipString s *> pure date
 
 namespace Format

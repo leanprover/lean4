@@ -98,7 +98,7 @@ The ordinal value representing the month of December.
 @[inline] def december : Ordinal := 12
 
 /--
-Creates an `Ordinal` from a natural number, ensuring the value is within bounds.
+Creates an `Ordinal` from a `Nat`, ensuring the value is within bounds.
 -/
 @[inline]
 def ofNat (data : Nat) (h : data ≥ 1 ∧ data ≤ 12 := by decide) : Ordinal :=

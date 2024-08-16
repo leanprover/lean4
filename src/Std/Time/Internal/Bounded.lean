@@ -63,6 +63,16 @@ Creates a new `Bounded` Integer.
 def mk {rel : Int → Int → Prop} (val : Int) (proof : rel lo val ∧ rel val hi) : @Bounded rel lo hi :=
   ⟨val, proof⟩
 
+/--
+Convert a `Int` to a `Bounded` if it checks.
+-/
+@[inline]
+def ofInt? [DecidableRel rel] (val : Int) : Option (Bounded rel lo hi) :=
+  if h : rel lo ↑val ∧ rel ↑val hi then
+    some ⟨val, h⟩
+  else
+    none
+
 namespace LE
 
 /--

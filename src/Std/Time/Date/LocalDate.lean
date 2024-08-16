@@ -109,25 +109,6 @@ def weekday (date : LocalDate) : Weekday :=
   .ofFin ⟨d.toNat % 7, Nat.mod_lt d.toNat (by decide)⟩
 
 /--
-Calculates the `Weekday` of a given `LocalDate` using Zeller's Congruence for the Julian calendar.
--/
-def weekdayJulian (date : LocalDate) : Weekday :=
-  let month := date.month.toInt
-  let year := date.year.toInt
-
-  let q := date.day.toInt
-  let m := if month < 3 then month + 12 else month
-  let y := if month < 3 then year - 1 else year
-
-  let k := y % 100
-  let j := y / 100
-
-  let h := (q + (13 * (m + 1)) / 5 + k + (k / 4) + 5 - j) % 7
-  let d := (h + 5 - 1) % 7
-
-  .ofFin ⟨d.toNat % 7, Nat.mod_lt d.toNat (by decide)⟩
-
-/--
 Converts a `LocalDate` to the number of days since the UNIX epoch.
 -/
 def toDaysSinceUNIXEpoch (date : LocalDate) : Day.Offset :=

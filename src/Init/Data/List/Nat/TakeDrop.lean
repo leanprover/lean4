@@ -70,20 +70,20 @@ theorem get?_take_eq_none {l : List α} {n m : Nat} (h : n ≤ m) :
     (l.take n).get? m = none := by
   simp [getElem?_take_eq_none h]
 
-theorem getElem?_take_eq_if {l : List α} {n m : Nat} :
+theorem getElem?_take {l : List α} {n m : Nat} :
     (l.take n)[m]? = if m < n then l[m]? else none := by
   split
-  · next h => exact getElem?_take h
+  · next h => exact getElem?_take_of_lt h
   · next h => exact getElem?_take_eq_none (Nat.le_of_not_lt h)
 
-@[deprecated getElem?_take_eq_if (since := "2024-06-12")]
+@[deprecated getElem?_take (since := "2024-06-12")]
 theorem get?_take_eq_if {l : List α} {n m : Nat} :
     (l.take n).get? m = if m < n then l.get? m else none := by
-  simp [getElem?_take_eq_if]
+  simp [getElem?_take]
 
 theorem head?_take {l : List α} {n : Nat} :
     (l.take n).head? = if n = 0 then none else l.head? := by
-  simp [head?_eq_getElem?, getElem?_take_eq_if]
+  simp [head?_eq_getElem?, getElem?_take]
   split
   · rw [if_neg (by omega)]
   · rw [if_pos (by omega)]
@@ -95,7 +95,7 @@ theorem head_take {l : List α} {n : Nat} (h : l.take n ≠ []) :
   simp_all
 
 theorem getLast?_take {l : List α} : (l.take n).getLast? = if n = 0 then none else l[n - 1]?.or l.getLast? := by
-  rw [getLast?_eq_getElem?, getElem?_take_eq_if, length_take]
+  rw [getLast?_eq_getElem?, getElem?_take, length_take]
   split
   · rw [if_neg (by omega)]
     rw [Nat.min_def]
@@ -128,7 +128,7 @@ theorem take_take : ∀ (n m) (l : List α), take n (take m l) = take (min n m) 
 theorem take_set_of_lt (a : α) {n m : Nat} (l : List α) (h : m < n) :
     (l.set n a).take m = l.take m :=
   List.ext_getElem? fun i => by
-    rw [getElem?_take_eq_if, getElem?_take_eq_if]
+    rw [getElem?_take, getElem?_take]
     split
     · next h' => rw [getElem?_set_ne (by omega)]
     · rfl
@@ -203,7 +203,7 @@ theorem map_eq_append_split {f : α → β} {l : List α} {s₁ s₂ : List β}
 theorem take_prefix_take_left (l : List α) {m n : Nat} (h : m ≤ n) : take m l <+: take n l := by
   rw [isPrefix_iff]
   intro i w
-  rw [getElem?_take, getElem_take', getElem?_eq_getElem]
+  rw [getElem?_take_of_lt, getElem_take', getElem?_eq_getElem]
   simp only [length_take] at w
   exact Nat.lt_of_lt_of_le (Nat.lt_of_lt_of_le w (Nat.min_le_left _ _)) h
 
@@ -334,7 +334,7 @@ theorem set_eq_take_append_cons_drop {l : List α} {n : Nat} {a : α} :
   · ext1 m
     by_cases h' : m < n
     · rw [getElem?_append_left (by simp [length_take]; omega), getElem?_set_ne (by omega),
-        getElem?_take h']
+        getElem?_take_of_lt h']
     · by_cases h'' : m = n
       · subst h''
         rw [getElem?_set_eq ‹_›, getElem?_append_right, length_take,

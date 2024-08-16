@@ -260,7 +260,7 @@ theorem enumFrom_map_snd : ∀ (n) (l : List α), map Prod.snd (enumFrom n l) = 
 theorem snd_mem_of_mem_enumFrom {x : Nat × α} {n : Nat} {l : List α} (h : x ∈ enumFrom n l) : x.2 ∈ l :=
   enumFrom_map_snd n l ▸ mem_map_of_mem _ h
 
-theorem mem_enumFrom {x : α} {i j : Nat} (xs : List α) (h : (i, x) ∈ xs.enumFrom j) :
+theorem mem_enumFrom {x : α} {i j : Nat} {xs : List α} (h : (i, x) ∈ xs.enumFrom j) :
     j ≤ i ∧ i < j + xs.length ∧ x ∈ xs :=
   ⟨le_fst_of_mem_enumFrom h, fst_lt_add_of_mem_enumFrom h, snd_mem_of_mem_enumFrom h⟩
 

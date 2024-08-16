@@ -276,6 +276,9 @@ theorem getElem?_cons_zero {l : List α} : (a::l)[0]? = some a := by simp
   simp only [← get?_eq_getElem?]
   rfl
 
+theorem getElem?_cons : (a :: l)[i]? = if i = 0 then some a else l[i-1]? := by
+  cases i <;> simp
+
 theorem getElem?_len_le : ∀ {l : List α} {n}, length l ≤ n → l[n]? = none
   | [], _, _ => rfl
   | _ :: l, _+1, h => by

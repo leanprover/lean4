@@ -356,6 +356,7 @@ def mul_neg (bounded : Bounded.LE n m) (num : Int) (h : num ≤ 0) : Bounded.LE 
   refine ⟨bounded.val * num, And.intro ?_ ?_⟩
   · exact Int.mul_le_mul_of_nonpos_right bounded.property.right h
   · exact Int.mul_le_mul_of_nonpos_right bounded.property.left h
+
 /--
 Adjust the bounds of a `Bounded` by applying the div operation.
 -/
@@ -373,6 +374,7 @@ def ediv (bounded : Bounded.LE n m) (num : Int) (h : num > 0) : Bounded.LE (n / 
 @[inline]
 def eq {n : Int} : Bounded.LE n n :=
   ⟨n, And.intro (Int.le_refl n) (Int.le_refl n)⟩
+
 /--
 Expand the bottom of the bounded to a number `nhi` is `hi` is less or equal to the previous higher bound.
 -/

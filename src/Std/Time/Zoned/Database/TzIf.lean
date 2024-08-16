@@ -294,7 +294,7 @@ private def parseFooter : Parser (Option String) := do
 
   return str
 
-private def parseTZifV2 : Parser (Option TZifV2) := optional $ do
+private def parseTZifV2 : Parser (Option TZifV2) := optional do
   let header ← parseHeader
 
   let transitionTimes ← parseTransitionTimes pi64 header.timecnt

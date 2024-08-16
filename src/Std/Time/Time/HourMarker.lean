@@ -25,15 +25,13 @@ inductive HourMarker
 /--
 Converts a 12-hour clock time to a 24-hour clock time based on the `HourMarker`.
 -/
-def HourMarker.toAbsolute (marker : HourMarker) (time : Hour.Ordinal l) : Hour.Ordinal l :=
+def HourMarker.toAbsolute (marker : HourMarker) (time : Bounded.LE 0 12) : Hour.Ordinal l :=
   match marker with
-  | .am => time
+  | .am => by
+    refine time.expandTop ?_
+    split <;> decide
   | .pm => by
-    let mod := Int.mod_lt_of_pos (b := 24) (time.val + 12) (by decide)
-    let l := time.property.left
-    refine Bounded.LE.mk ((time.val + 12).mod 24) (And.intro ?_ ?_)
-    · have h : 0 + 0 ≤ time.val + 12 := Int.add_le_add l (by decide)
-      exact Int.mod_nonneg 24 h
-    · split
-      · exact Int.le_of_lt mod
-      · exact Int.le_sub_one_of_lt mod
+    have time := time.add 12 |>.emod 24 (by decide)
+    cases l
+    · exact time
+    · exact time.expandTop (by decide)

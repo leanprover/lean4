@@ -45,10 +45,7 @@ Creates a `WeekDate` from a `Day.Offset`.
 def fromDays (scalar : Day.Offset) : WeekDate :=
   let totalDays := scalar.val
   let year := totalDays / 365
-  let week :=
-    Bounded.LE.byEmod totalDays 365 (by decide)
-    |>.ediv 7 (by decide)
-    |>.add 1
+  let week := Bounded.LE.byEmod totalDays 365 (by decide) |>.ediv 7 (by decide) |>.add 1
   { year := year, week := week }
 
 end WeekDate

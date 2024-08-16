@@ -20,9 +20,11 @@ set_option linter.all true
 def Ordinal := Bounded.LE 1 53
   deriving Repr, BEq, LE, LT
 
-instance : OfNat Ordinal n := inferInstanceAs (OfNat (Bounded.LE 1 (1 + (52 : Nat))) n)
+instance : OfNat Ordinal n :=
+  inferInstanceAs (OfNat (Bounded.LE 1 (1 + (52 : Nat))) n)
 
-instance : Inhabited Ordinal where default := 1
+instance : Inhabited Ordinal where
+  default := 1
 
 /--
 `Offset` represents an offset in weeks. It is defined as an `Int`.

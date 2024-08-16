@@ -15,14 +15,16 @@ open Internal
 set_option linter.all true
 
 /--
-`Ordinal` represents a bounded value for nanoseconds, which ranges between 0 and 999999999.
+`Ordinal` represents a nanosecond value that is bounded between 0 and 999,999,999 nanoseconds.
 -/
 def Ordinal := Bounded.LE 0 999999999
   deriving Repr, BEq, LE, LT
 
-instance : OfNat Ordinal n where ofNat := Bounded.LE.ofFin (Fin.ofNat n)
+instance : OfNat Ordinal n where
+  ofNat := Bounded.LE.ofFin (Fin.ofNat n)
 
-instance : Inhabited Ordinal where default := 0
+instance : Inhabited Ordinal where
+  default := 0
 
 namespace Ordinal
 
@@ -33,13 +35,13 @@ def OfDay := Bounded.LE 0 86400000000000
   deriving Repr, BEq, LE, LT
 
 /--
-Convert to `Millisecond.Ordinal`
+Converts a `Nanosecond.Ordinal` value to `Millisecond.Ordinal`.
 -/
 def toMillisecond (nano : Ordinal) : Millisecond.Ordinal :=
   nano.ediv 1000000 (by decide)
 
 /--
-Convert from `Millisecond.Ordinal`
+Converts a `Millisecond.Ordinal` value to `Nanosecond.Ordinal`.
 -/
 def ofMillisecond (nano : Millisecond.Ordinal) : Nanosecond.Ordinal :=
   nano.mul_pos 1000000 (by decide)
@@ -48,7 +50,7 @@ def ofMillisecond (nano : Millisecond.Ordinal) : Nanosecond.Ordinal :=
 end Ordinal
 
 /--
-`Offset` represents an offset in nanoseconds. It is defined as an `Int`.
+`Offset` represents a time offset in nanoseconds and is defined as an `Int`.
 -/
 def Offset : Type := UnitVal (1 / 1000000000)
   deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, LE, LT, ToString

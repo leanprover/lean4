@@ -19,6 +19,7 @@ set_option linter.all true
 Represents a Time Zone Database (TZdb) configuration with paths to local and general timezone data.
 -/
 structure TZdb where
+
   /--
   The path to the local timezone file. This is typically a symlink to a file within the timezone
   database that corresponds to the current local time zone.

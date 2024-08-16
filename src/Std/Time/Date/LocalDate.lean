@@ -14,7 +14,8 @@ open Internal
 set_option linter.all true
 
 /--
-Date in YMD format.
+`LocalDate` represents a date in the Year-Month-Day (YMD) format. It encapsulates the year, month,
+and day components, with validation to ensure the date is valid.
 -/
 structure LocalDate where
 
@@ -46,7 +47,8 @@ instance : BEq LocalDate where
 namespace LocalDate
 
 /--
-Force the date to be valid.
+Creates a `LocalDate` by clipping the day to ensure validity. This function forces the date to be
+valid by adjusting the day to fit within the valid range to fit the given month and year.
 -/
 def clip (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordinal) : LocalDate :=
   let ⟨day, valid⟩ := month.clipDay year.isLeap day
@@ -56,7 +58,7 @@ instance : Inhabited LocalDate where
   default := clip 0 1 1
 
 /--
-Creates a new `LocalDate` using YMD.
+Creates a new `LocalDate` from year, month, and day components.
 -/
 def ofYearMonthDay (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordinal) : Option LocalDate :=
   if valid : year.Valid month day
@@ -64,14 +66,14 @@ def ofYearMonthDay (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordin
     else none
 
 /--
-Creates a new `LocalDate` using YO.
+Creates a `LocalDate` from a year and a day ordinal within that year.
 -/
 def ofYearOrdinal (year : Year.Offset) (ordinal : Day.Ordinal.OfYear year.isLeap) : LocalDate :=
   let ⟨⟨month, day⟩, valid⟩ := Month.Ordinal.ofOrdinal ordinal
   LocalDate.mk year month day valid
 
 /--
-Creates a new `LocalDate` using the `Day.Offset` which `0` corresponds the UNIX Epoch.
+Creates a `LocalDate` from the number of days since the UNIX epoch (January 1st, 1970).
 -/
 def ofDaysSinceUNIXEpoch (day : Day.Offset) : LocalDate :=
   let z := day.toInt + 719468
@@ -88,7 +90,7 @@ def ofDaysSinceUNIXEpoch (day : Day.Offset) : LocalDate :=
   .clip y (.clip m (by decide)) (.clip (d + 1) (by decide))
 
 /--
-Returns the `Weekday` of a `LocalDate`.
+Calculates the `Weekday` of a given `LocalDate` using Zeller's Congruence for the Gregorian calendar.
 -/
 def weekday (date : LocalDate) : Weekday :=
   let q := date.day.toInt
@@ -107,7 +109,7 @@ def weekday (date : LocalDate) : Weekday :=
   .ofFin ⟨d.toNat % 7, Nat.mod_lt d.toNat (by decide)⟩
 
 /--
-Returns the `Weekday` of a `LocalDate` using Zeller's Congruence for the Julian calendar.
+Calculates the `Weekday` of a given `LocalDate` using Zeller's Congruence for the Julian calendar.
 -/
 def weekdayJulian (date : LocalDate) : Weekday :=
   let month := date.month.toInt
@@ -126,7 +128,7 @@ def weekdayJulian (date : LocalDate) : Weekday :=
   .ofFin ⟨d.toNat % 7, Nat.mod_lt d.toNat (by decide)⟩
 
 /--
-Convert `LocalDate` to `Day.Offset` since the UNIX Epoch.
+Converts a `LocalDate` to the number of days since the UNIX epoch.
 -/
 def toDaysSinceUNIXEpoch (date : LocalDate) : Day.Offset :=
   let y : Int := if date.month.toInt > 2 then date.year else date.year.toInt - 1
@@ -140,13 +142,13 @@ def toDaysSinceUNIXEpoch (date : LocalDate) : Day.Offset :=
   .ofInt (era * 146097 + doe - 719468)
 
 /--
-Calculate the Year.Offset from a LocalDate
+Calculates the difference in years between a `LocalDate` and a given year.
 -/
 def yearsSince (date : LocalDate) (year : Year.Offset) : Year.Offset :=
   date.year - year
 
 /--
-Add `Day.Offset` to a `LocalDate`.
+Adds a given number of days to a `LocalDate`.
 -/
 @[inline]
 def addDays (date : LocalDate) (days : Day.Offset) : LocalDate :=
@@ -154,14 +156,14 @@ def addDays (date : LocalDate) (days : Day.Offset) : LocalDate :=
   ofDaysSinceUNIXEpoch (Add.add dateDays days)
 
 /--
-Subtracts `Day.Offset` to a `LocalDate`.
+Subtracts a given number of days from a `LocalDate`.
 -/
 @[inline]
 def subDays (date : LocalDate) (days : Day.Offset) : LocalDate :=
   addDays date (-days)
 
 /--
-Add `Month.Offset` to a `LocalDate`, it clips the day to the last valid day of that month.
+Adds a given number of months to a `LocalDate`, clipping the day to the last valid day of the month.
 -/
 def addMonthsClip (date : LocalDate) (months : Month.Offset) : LocalDate :=
   let yearsOffset := months.div 12
@@ -188,8 +190,7 @@ def subMonthsClip (date : LocalDate) (months : Month.Offset) : LocalDate :=
   addMonthsClip date (-months)
 
 /--
-Add `Month.Offset` to a `LocalDate`, this function rolls over any excess days into the following
-month.
+Adds a given number of months to a `LocalDate`, rolling over any excess days into the following month.
 -/
 def addMonthsRollOver (date : LocalDate) (months : Month.Offset) : LocalDate :=
   let yearsOffset := months.div 12
@@ -222,38 +223,35 @@ def addMonthsRollOver (date : LocalDate) (months : Month.Offset) : LocalDate :=
     LocalDate.ofDaysSinceUNIXEpoch days
 
 /--
-Subtract `Month.Offset` from a `LocalDate`, this function rolls over any excess days into the following
-month.
+Subtracts `Month.Offset` from a `LocalDate`, rolling over excess days as needed.
 -/
 @[inline]
 def subMonthsRollOver (date : LocalDate) (months : Month.Offset) : LocalDate :=
   addMonthsRollOver date (-months)
 
 /--
-Add `Year.Offset` to a `LocalDate`, this function rolls over any excess days into the following
-month.
+Adds `Year.Offset` to a `LocalDate`, rolling over excess days to the next month, or next year.
 -/
 @[inline]
 def addYearsRollOver (date : LocalDate) (years : Year.Offset) : LocalDate :=
   addMonthsRollOver date (years.mul 12)
 
 /--
-Add `Year.Offset` to a `LocalDate`, it clips the day to the last valid day of that month.
--/
-@[inline]
-def addYearsClip (date : LocalDate) (years : Year.Offset) : LocalDate :=
-  addMonthsClip date (years.mul 12)
-
-/--
-Subtract `Year.Offset` from a `LocalDate`, this function rolls over any excess days into the following
-month.
+Subtracts `Year.Offset` from a `LocalDate`, rolling over excess days to the next month.
 -/
 @[inline]
 def subYearsRollOver (date : LocalDate) (years : Year.Offset) : LocalDate :=
   addMonthsRollOver date (- years.mul 12)
 
 /--
-Subtract `Year.Offset` from a `LocalDate`, it clips the day to the last valid day of that month.
+Adds `Year.Offset` to a `LocalDate`, clipping the day to the last valid day of the month.
+-/
+@[inline]
+def addYearsClip (date : LocalDate) (years : Year.Offset) : LocalDate :=
+  addMonthsClip date (years.mul 12)
+
+/--
+Subtracts `Year.Offset` from a `LocalDate`, clipping the day to the last valid day of the month.
 -/
 @[inline]
 def subYearsClip (date : LocalDate) (years : Year.Offset) : LocalDate :=

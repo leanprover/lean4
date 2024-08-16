@@ -20,9 +20,11 @@ set_option linter.all true
 def Ordinal := Bounded.LE 1 12
   deriving Repr, BEq, LE
 
-instance : OfNat Ordinal n := inferInstanceAs (OfNat (Bounded.LE 1 (1 + (11 : Nat))) n)
+instance : OfNat Ordinal n :=
+  inferInstanceAs (OfNat (Bounded.LE 1 (1 + (11 : Nat))) n)
 
-instance : Inhabited Ordinal where default := 1
+instance : Inhabited Ordinal where
+  default := 1
 
 /--
 `Offset` represents an offset in months. It is defined as an `Int`.
@@ -30,7 +32,8 @@ instance : Inhabited Ordinal where default := 1
 def Offset : Type := Int
   deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, ToString
 
-instance : OfNat Offset n := ⟨Int.ofNat n⟩
+instance : OfNat Offset n :=
+  ⟨Int.ofNat n⟩
 
 namespace Ordinal
 
@@ -151,14 +154,15 @@ def toDays (leap : Bool) (month : Ordinal) : Day.Offset :=
   |>.convert
 
 /--
-Size in days of each month if the year is not leap.
+Size in days of each month if the year is not a leap year.
 -/
 @[inline]
 def monthSizesNonLeap : { val : Array Day.Ordinal // val.size = 12 } :=
   ⟨#[31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31], by simp⟩
 
 /--
-Gets the number of days in a month without a proof of validity of the ordinal in a month and year.
+Gets the number of days in a month without requiring a proof of the validity of the ordinal in a
+month and year.
 -/
 def daysWithoutProof (leap : Bool) (month : Ordinal) : Day.Ordinal :=
   if month.val = 2 then
@@ -180,14 +184,14 @@ instance : Decidable (Valid leap month day) :=
   dite (day ≤ daysWithoutProof leap month) isTrue isFalse
 
 /--
-Gets the number of days in a month along side a proof of it's validity.
+Gets the number of days in a month along with a proof of its validity.
 -/
 @[inline]
 def days (leap : Bool) (month : Ordinal) : { day : Day.Ordinal // Valid leap month day } :=
   ⟨daysWithoutProof leap month, Int.le_refl ((daysWithoutProof leap month).val)⟩
 
 /--
-Clips the day to be on the valid range.
+Clips the day to be within the valid range.
 -/
 @[inline]
 def clipDay (leap : Bool) (month : Month.Ordinal) (day : Day.Ordinal) : { day : Day.Ordinal // Valid leap month day } :=
@@ -199,7 +203,6 @@ def clipDay (leap : Bool) (month : Month.Ordinal) (day : Day.Ordinal) : { day : 
 /--
 Transforms a `Day.Ordinal.OfYear` into a tuple of a `Month` and a `Day`.
 -/
-@[inline]
 def ofOrdinal (ordinal : Day.Ordinal.OfYear leap) : { val : Month.Ordinal × Day.Ordinal // Valid leap (Prod.fst val) (Prod.snd val) } := Id.run do
   let rec go (idx : Fin 12) (cumulative : Fin 366) :=
     let month := Month.Ordinal.ofFin idx.succ

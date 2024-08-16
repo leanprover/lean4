@@ -16,7 +16,7 @@ open Internal
 set_option linter.all true
 
 /--
-Nanoseconds since the UNIX Epoch.
+Represents a point in time relative to the UNIX Epoch, with nanoseconds precision.
 -/
 structure Timestamp where
 
@@ -31,7 +31,7 @@ structure Timestamp where
   nano : Nanosecond.Span
 
   /--
-  Proof that it's a valid timestamp.
+  Proof that the timestamp is valid, ensuring that the `second` and `nano` values are correctly related.
   -/
   proof : (second.val ≥ 0 ∧ nano.val ≥ 0) ∨ (second.val ≤ 0 ∧ nano.val ≤ 0)
   deriving Repr
@@ -45,20 +45,20 @@ instance : Inhabited Timestamp where
 namespace Timestamp
 
 /--
-Get the current monotonic time.
+Fetches the current timestamp from the system.
 -/
 @[extern "lean_get_current_time"]
 opaque now : IO Timestamp
 
 /--
-Transforms a `Timestamp` into a `Second.Offset`
+Converts a `Timestamp` into its equivalent `Second.Offset`.
 -/
 @[inline]
 def toSeconds (t : Timestamp) : Second.Offset :=
   t.second
 
 /--
-Negates the `Timestamp`
+Negates a `Timestamp`, flipping its second and nanosecond values.
 -/
 @[inline]
 def neg (t : Timestamp) : Timestamp := by
@@ -68,7 +68,7 @@ def neg (t : Timestamp) : Timestamp := by
   | inr n => exact Or.inl (n.imp Int.neg_le_neg Int.neg_le_neg)
 
 /--
-Adds two timestamps.
+Adds two timestamps together, handling any carry-over in nanoseconds.
 -/
 def add (t₁ t₂ : Timestamp) : Timestamp := by
   let diffSecs := t₁.second + t₂.second
@@ -109,18 +109,16 @@ def add (t₁ t₂ : Timestamp) : Timestamp := by
       simp at h₃
       exact Int.le_trans h₃ (by decide)
   else
-    let h  := not_and.mp h
-    let h₁ := not_and.mp h₁
     refine ⟨diffSecs, diffNano, ?_⟩
     if h₂ : diffSecs.val > 0 then
-      exact Or.inl (And.intro (Int.le_of_lt h₂) (Int.not_lt.mp (h h₂)))
+      exact Or.inl (And.intro (Int.le_of_lt h₂) (Int.not_lt.mp (not_and.mp h h₂)))
     else if h₃ : diffSecs.val < 0 then
-      exact Or.inr (And.intro (Int.le_of_lt h₃) (Int.not_lt.mp (h₁ h₃)))
+      exact Or.inr (And.intro (Int.le_of_lt h₃) (Int.not_lt.mp (not_and.mp h₁ h₃)))
     else
       exact Int.le_total diffNano.val 0 |>.symm.imp (And.intro (Int.not_lt.mp h₃)) (And.intro (Int.not_lt.mp h₂))
 
 /--
-Subtracts two `Timestamp`.
+Subtracts one `Timestamp` from another.
 -/
 @[inline]
 def sub (t₁ t₂ : Timestamp) : Timestamp :=

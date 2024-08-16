@@ -16,7 +16,7 @@ open Internal
 set_option linter.all true
 
 /--
-Date time format with Year, Month, Day, Hour, Minute, Seconds and Nanoseconds.
+Represents a date and time with components for Year, Month, Day, Hour, Minute, Second, and Nanosecond.
 -/
 structure LocalDateTime where
 
@@ -35,7 +35,7 @@ structure LocalDateTime where
 namespace LocalDateTime
 
 /--
-Converts a `LocalDateTime` into a `Std.Time.Timestamp`
+Converts a `LocalDateTime` to a `Timestamp`
 -/
 def toLocalTimestamp (dt : LocalDateTime) : Timestamp :=
   let days := dt.date.toDaysSinceUNIXEpoch
@@ -44,7 +44,7 @@ def toLocalTimestamp (dt : LocalDateTime) : Timestamp :=
   Timestamp.ofNanoseconds (UnitVal.mk nanos)
 
 /--
-Converts a UNIX `Timestamp` into a `LocalDateTime`.
+Converts a UNIX `Timestamp` to a `LocalDateTime`.
 -/
 def ofUTCTimestamp (stamp : Timestamp) : LocalDateTime := Id.run do
   let leapYearEpoch := 11017
@@ -127,21 +127,22 @@ def ofUTCTimestamp (stamp : Timestamp) : LocalDateTime := Id.run do
   }
 
 /--
-Add `Day.Offset` to a `LocalDateTime`.
+Adds a `Day.Offset` to a `LocalDateTime`.
 -/
 @[inline]
 def addDays (dt : LocalDateTime) (days : Day.Offset) : LocalDateTime :=
   { dt with date := dt.date.addDays days }
 
 /--
-Subtracts `Day.Offset` to a `LocalDateTime`.
+Subtracts a `Day.Offset` from a `LocalDateTime`.
 -/
 @[inline]
 def subDays (dt : LocalDateTime) (days : Day.Offset) : LocalDateTime :=
   { dt with date := dt.date.subDays days }
 
 /--
-Add `Month.Offset` to a `LocalDateTime`, it clips the day to the last valid day of that month.
+Adds a `Month.Offset` to a `LocalDateTime`, adjusting the day to the last valid day of the resulting
+month.
 -/
 def addMonthsClip (dt : LocalDateTime) (months : Month.Offset) : LocalDateTime :=
   { dt with date := dt.date.addMonthsClip months }
@@ -154,104 +155,105 @@ def subMonthsClip (dt : LocalDateTime) (months : Month.Offset) : LocalDateTime :
   { dt with date := dt.date.subMonthsClip months }
 
 /--
-Add `Month.Offset` to a `LocalDateTime`, this function rolls over any excess days into the following
-month.
+Adds a `Month.Offset` to a `LocalDateTime`, rolling over excess days to the following month if needed.
 -/
 def addMonthsRollOver (dt : LocalDateTime) (months : Month.Offset) : LocalDateTime :=
   { dt with date := dt.date.addMonthsRollOver months }
 
 /--
-Subtract `Month.Offset` from a `LocalDateTime`, this function rolls over any excess days into the following
-month.
+Subtracts a `Month.Offset` from a `LocalDateTime`, adjusting the day to the last valid day of the
+resulting month.
 -/
 @[inline]
 def subMonthsRollOver (dt : LocalDateTime) (months : Month.Offset) : LocalDateTime :=
   { dt with date := dt.date.subMonthsRollOver months }
 
 /--
-Add `Year.Offset` to a `LocalDateTime`, this function rolls over any excess days into the following
-month.
+Adds a `Month.Offset` to a `LocalDateTime`, rolling over excess days to the following month if needed.
 -/
 @[inline]
 def addYearsRollOver (dt : LocalDateTime) (years : Year.Offset) : LocalDateTime :=
   { dt with date := dt.date.addYearsRollOver years }
 
 /--
-Add `Year.Offset` to a `LocalDateTime`, it clips the day to the last valid day of that month.
+Subtracts a `Month.Offset` from a `LocalDateTime`, rolling over excess days to the following month if
+needed.
 -/
 @[inline]
 def addYearsClip (dt : LocalDateTime) (years : Year.Offset) : LocalDateTime :=
   { dt with date := dt.date.addYearsClip years }
 
 /--
-Subtracts `Year.Offset` from a `LocalDateTime`, this function rolls over any excess days into the following
-month.
+Subtracts a `Year.Offset` from a `LocalDateTime`, this function rolls over any excess days into the
+following month.
 -/
 @[inline]
 def subYearsRollOver (dt : LocalDateTime) (years : Year.Offset) : LocalDateTime :=
   { dt with date := dt.date.subYearsRollOver years }
 
 /--
-Subtracts `Year.Offset` from a `LocalDateTime`, it clips the day to the last valid day of that month.
+Subtracts a `Year.Offset` from a `LocalDateTime`, adjusting the day to the last valid day of the
+resulting month.
 -/
 @[inline]
 def subYearsClip (dt : LocalDateTime) (years : Year.Offset) : LocalDateTime :=
   { dt with date := dt.date.subYearsClip years }
 
 /--
-Get the current monotonic time.
--/
-def now : IO LocalDateTime :=
-  ofUTCTimestamp <$> Timestamp.now
-
-/--
-Getter for the `Year` inside of a `LocalDateTime`
+Getter for the `Year` inside of a `LocalDateTime`.
 -/
 @[inline]
 def year (dt : LocalDateTime) : Year.Offset :=
   dt.date.year
 
 /--
-Getter for the `Month` inside of a `LocalDateTime`
+Getter for the `Month` inside of a `LocalDateTime`.
 -/
 @[inline]
 def month (dt : LocalDateTime) : Month.Ordinal :=
   dt.date.month
 
 /--
-Getter for the `Day` inside of a `LocalDateTime`
+Getter for the `Day` inside of a `LocalDateTime`.
 -/
 @[inline]
 def day (dt : LocalDateTime) : Day.Ordinal :=
   dt.date.day
 
 /--
-Getter for the `Hour` inside of a `LocalDateTime`
+Getter for the `Hour` inside of a `LocalDateTime`.
 -/
 @[inline]
 def hour (dt : LocalDateTime) : Hour.Ordinal dt.time.hour.fst :=
   dt.time.hour.snd
 
 /--
-Getter for the `Minute` inside of a `LocalDateTime`
+Getter for the `Minute` inside of a `LocalDateTime`.
 -/
 @[inline]
 def minute (dt : LocalDateTime) : Minute.Ordinal :=
   dt.time.minute
 
 /--
-Getter for the `Second` inside of a `LocalDateTime`
+Getter for the `Second` inside of a `LocalDateTime`.
 -/
 @[inline]
 def second (dt : LocalDateTime) : Second.Ordinal dt.time.second.fst :=
   dt.time.second.snd
 
 /--
-Getter for the `Second` inside of a `LocalDateTime`
+Getter for the `Second` inside of a `LocalDateTime`.
 -/
 @[inline]
 def nanosecond (dt : LocalDateTime) : Nanosecond.Ordinal :=
   dt.time.nano
+
+/--
+Get the current monotonic time.
+-/
+@[inline]
+def now : IO LocalDateTime :=
+  ofUTCTimestamp <$> Timestamp.now
 
 end LocalDateTime
 end Time

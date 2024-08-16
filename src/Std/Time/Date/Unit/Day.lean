@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Lean.Data.Rat
 import Std.Time.Time
 
 namespace Std
@@ -20,7 +19,8 @@ set_option linter.all true
 def Ordinal := Bounded.LE 1 31
   deriving Repr, BEq, LE, LT
 
-instance : OfNat Ordinal n := inferInstanceAs (OfNat (Bounded.LE 1 (1 + (30 : Nat))) n)
+instance : OfNat Ordinal n :=
+  inferInstanceAs (OfNat (Bounded.LE 1 (1 + (30 : Nat))) n)
 
 instance { x y : Ordinal } : Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.val ≤ y.val))
@@ -28,8 +28,8 @@ instance { x y : Ordinal } : Decidable (x ≤ y) :=
 instance : Inhabited Ordinal where default := 1
 
 /--
-`Ordinal.OfYear` represents a bounded value for days, which ranges between 0 and 366 if the year
-is a leap year or 365.
+`Ordinal.OfYear` represents the number of days in a year, accounting for leap years. It ensures that
+the day is within the correct bounds—either 1 to 365 for regular years or 1 to 366 for leap years.
 -/
 def Ordinal.OfYear (leap : Bool) := Bounded.LE 1 (.ofNat (if leap then 366 else 365))
 

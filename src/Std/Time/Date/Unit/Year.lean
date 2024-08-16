@@ -17,7 +17,7 @@ open Internal
 set_option linter.all true
 
 /--
-`Offset` represents an offset in years. It is defined as an `Int`.
+`Offset` represents a year offset, defined as an `Int`.
 -/
 def Offset : Type := Int
   deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, ToString
@@ -27,28 +27,28 @@ instance : OfNat Offset n := ⟨Int.ofNat n⟩
 namespace Offset
 
 /--
-Convert the `Year` offset to an `Int`.
+Converts the `Year` offset to an `Int`.
 -/
 @[inline]
 def toInt (offset : Offset) : Int :=
   offset
 
 /--
-Convert the `Year` offset to a `Month` Offset.
+Converts the `Year` offset to a `Month` offset (i.e., multiplies by 12).
 -/
 @[inline]
 def toMonths (val : Offset) : Month.Offset :=
   val.mul 12
 
 /--
-Checks if the `Year` is a Gregorian Leap Year.
+Determines if a year is a Gregorian Leap Year.
 -/
 @[inline]
 def isLeap (y : Offset) : Bool :=
   y.toInt.mod 4 = 0 ∧ (y.toInt.mod 100 ≠ 0 ∨ y.toInt.mod 400 = 0)
 
 /--
-Forces the day to be on the valid range.
+Checks if the given date is valid for the specified year, month, and day.
 -/
 @[inline]
 abbrev Valid (year : Offset) (month : Month.Ordinal) (day : Day.Ordinal) : Prop :=

@@ -13,8 +13,9 @@ open Internal
 
 set_option linter.all true
 
-/-- Defines the enumeration for days of the week. Each variant corresponds to a day of the week,
-from Monday to Sunday. -/
+/--
+Defines the enumeration for days of the week. Each variant corresponds to a day of the week, from Monday to Sunday.
+-/
 inductive Weekday
   /-- Monday. -/
   | mon
@@ -35,8 +36,8 @@ inductive Weekday
 namespace Weekday
 
 /--
-Converts a `Fin 7` representing a day index into a corresponding `Weekday`. This function is
-useful for mapping numerical representations to days of the week.
+Converts a `Fin 7` representing a day index into a corresponding `Weekday`. This function is useful
+for mapping numerical representations to days of the week.
 -/
 def ofFin : Fin 7 → Weekday
   | 0 => .mon
@@ -72,7 +73,7 @@ def toFin : Weekday → Nat
   | .sun => 6
 
 /--
-Converts a `Nat` to a `Option Weekday`.
+Converts a `Nat` to an `Option Weekday`.
 -/
 def ofNat? : Nat → Option Weekday
   | 0 => some .mon

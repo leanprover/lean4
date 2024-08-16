@@ -1,5 +1,8 @@
 import Lean
 
+-- Restore options to default state:
+set_option internal.minimalSnapshots false
+
 /-- info: -- In root namespace with initial scope -/
 #guard_msgs in #where
 
@@ -17,7 +20,8 @@ variable (x : Nat) (α : Type)
 -/
 #guard_msgs in #where
 
-universe u v w
+universe u v
+universe w
 
 /--
 info: namespace WhereTest

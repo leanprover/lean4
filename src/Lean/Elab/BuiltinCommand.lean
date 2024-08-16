@@ -521,4 +521,79 @@ def elabRunMeta : CommandElab := fun stx =>
 @[builtin_command_elab Parser.Command.eoi] def elabEoi : CommandElab := fun _ =>
   return
 
+@[builtin_command_elab Parser.Command.where] def elabWhere : CommandElab := fun _ => do
+  let scope ← getScope
+  let mut msg : Array MessageData := #[]
+  -- Noncomputable
+  if scope.isNoncomputable then
+    msg := msg.push <| ← `(command| noncomputable section)
+  -- Namespace
+  if !scope.currNamespace.isAnonymous then
+    msg := msg.push <| ← `(command| namespace $(mkIdent scope.currNamespace))
+  -- Open namespaces
+  if let some openMsg ← describeOpenDecls scope.openDecls.reverse then
+    msg := msg.push openMsg
+  -- Universe levels
+  if !scope.levelNames.isEmpty then
+    let levels := scope.levelNames.reverse.map mkIdent
+    msg := msg.push <| ← `(command| universe $levels.toArray*)
+  -- Variables
+  if !scope.varDecls.isEmpty then
+    msg := msg.push <| ← `(command| variable $scope.varDecls*)
+  -- Included variables
+  if !scope.includedVars.isEmpty then
+    msg := msg.push <| ← `(command| include $(scope.includedVars.toArray.map mkIdent)*)
+  -- Options
+  if let some optionsMsg ← describeOptions scope.opts then
+    msg := msg.push optionsMsg
+  if msg.isEmpty then
+    logInfo m!"-- In root namespace with initial scope"
+  else
+    logInfo <| MessageData.joinSep msg.toList "\n\n"
+where
+  /--
+  'Delaborate' open declarations.
+  Current limitations:
+  - does not check whether or not successive namespaces need `_root_`
+  - does not combine commands with `renaming` clauses into a single command
+  -/
+  describeOpenDecls (ds : List OpenDecl) : CommandElabM (Option MessageData) := do
+    let mut lines : Array MessageData := #[]
+    let mut simple : Array Name := #[]
+    let flush (lines : Array MessageData) (simple : Array Name) : CommandElabM (Array MessageData × Array Name) := do
+      if simple.isEmpty then
+        return (lines, simple)
+      else
+        return (lines.push <| ← `(command| open $(simple.map mkIdent)*), #[])
+    for d in ds do
+      match d with
+      | .explicit id decl =>
+        (lines, simple) ← flush lines simple
+        let ns := decl.getPrefix
+        let «from» := Name.mkSimple decl.getString!
+        lines := lines.push <| ← `(command| open $(mkIdent ns) renaming $(mkIdent «from») → $(mkIdent id))
+      | .simple ns ex =>
+        if ex == [] then
+          simple := simple.push ns
+        else
+          (lines, simple) ← flush lines simple
+          lines := lines.push <| ← `(command| open $(mkIdent ns) hiding $[$(ex.toArray.map mkIdent)]*)
+    (lines, _) ← flush lines simple
+    return if lines.isEmpty then none else MessageData.joinSep lines.toList "\n"
+
+  describeOptions (opts : Options) : CommandElabM (Option MessageData) := do
+    let mut lines : Array MessageData := #[]
+    for (name, val) in opts do
+      let dval ← getOptionDefaultValue name
+      if val != dval then
+        let cmd ←
+          match val with
+          | .ofBool true  => `(set_option $(mkIdent name) true)
+          | .ofBool false => `(set_option $(mkIdent name) false)
+          | .ofString str => `(set_option $(mkIdent name) $(Syntax.mkStrLit str))
+          | .ofNat n      => `(set_option $(mkIdent name) $(Syntax.mkNatLit n))
+          | _             => `(set_option $(mkIdent name) 0 /- unrepresentable value -/)
+        lines := lines.push cmd
+    return if lines.isEmpty then none else MessageData.joinSep lines.toList "\n"
+
 end Lean.Elab.Command

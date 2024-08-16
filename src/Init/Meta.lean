@@ -602,6 +602,9 @@ def mkStrLit (val : String) (info := SourceInfo.none) : StrLit :=
 def mkNumLit (val : String) (info := SourceInfo.none) : NumLit :=
   mkLit numLitKind val info
 
+def mkNatLit (val : Nat) (info := SourceInfo.none) : NumLit :=
+  mkLit numLitKind (toString val) info
+
 def mkScientificLit (val : String) (info := SourceInfo.none) : TSyntax scientificLitKind :=
   mkLit scientificLitKind val info
 

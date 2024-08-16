@@ -779,6 +779,14 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
         let indFVar := indFVars[i]!
         Term.addLocalVarInfo views[i]!.declId indFVar
         let r     := rs[i]!
+        /- At this point, because of `withInductiveLocalDecls`, the only fvars that are in context are the ones related to the first inductive type.
+           Because of this, we need to replace the fvars present in each inductive type's header of the mutual block with those of the first inductive.
+           However, some mvars may still be uninstantiated there, and might hide some of the old fvars.
+           As such we first need to synthesize all possible mvars at this stage, instantiate them in the header types and only
+           then replace the parameters' fvars in the header type.
+
+           See issue #3242 (`https://github.com/leanprover/lean4/issues/3242`)
+        -/
         let type  ←  instantiateMVars r.type
         let type  := type.replaceFVars r.params params
         let type  ← mkForallFVars params type

@@ -34,6 +34,7 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 #else
 #include <dlfcn.h>
 #endif
+#include "library/compiler/ir_interpreter.h"
 #include "runtime/flet.h"
 #include "runtime/apply.h"
 #include "runtime/interrupt.h"

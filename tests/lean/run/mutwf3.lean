@@ -5,7 +5,6 @@ mutual
     | n, a, b => g a n b |>.1
   termination_by n _ _ => (n, 2)
   decreasing_by
-    simp_wf
     apply Prod.Lex.right
     decide
 
@@ -14,7 +13,6 @@ mutual
     | a, n, b => (h a b n, a)
   termination_by _ n _ => (n, 1)
   decreasing_by
-    simp_wf
     apply Prod.Lex.right
     decide
 
@@ -23,7 +21,6 @@ mutual
     | a, b, n+1 => f n a b
   termination_by _ _ n => (n, 0)
   decreasing_by
-    simp_wf
     apply Prod.Lex.left
     apply Nat.lt_succ_self
 end

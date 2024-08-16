@@ -4,7 +4,7 @@ def zero_out (arr : Array Nat) (i : Nat) : Array Nat :=
   else
     arr
 termination_by arr.size - i
-decreasing_by simp_wf; apply Nat.sub_succ_lt_self _ _ h
+decreasing_by simp; apply Nat.sub_succ_lt_self _ _ h
 
 -- set_option trace.Elab.definition true
 theorem size_zero_out (arr : Array Nat) (i : Nat) : (zero_out arr i).size = arr.size := by
@@ -14,4 +14,4 @@ theorem size_zero_out (arr : Array Nat) (i : Nat) : (zero_out arr i).size = arr.
     rw [Array.size_set]
   · rfl
 termination_by arr.size - i
-decreasing_by simp_wf; apply Nat.sub_succ_lt_self; assumption
+decreasing_by simp; apply Nat.sub_succ_lt_self; assumption

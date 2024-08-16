@@ -373,13 +373,13 @@ def rewritePost (rflOnly := false) : Simproc := fun e => do
 
 def drewritePre : DSimproc := fun e => do
   for thms in (← getContext).simpTheorems do
-    if let some r ← rewrite? e thms.pre thms.erased (tag := "pre") (rflOnly := true) then
+    if let some r ← rewrite? e thms.pre thms.erased (tag := "dpre") (rflOnly := true) then
       return .visit r.expr
   return .continue
 
 def drewritePost : DSimproc := fun e => do
   for thms in (← getContext).simpTheorems do
-    if let some r ← rewrite? e thms.post thms.erased (tag := "post") (rflOnly := true) then
+    if let some r ← rewrite? e thms.post thms.erased (tag := "dpost") (rflOnly := true) then
       return .visit r.expr
   return .continue
 

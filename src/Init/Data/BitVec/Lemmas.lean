@@ -472,10 +472,18 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
 @[simp] theorem extractLsb_toNat (hi lo : Nat) (x : BitVec n) :
   (extractLsb hi lo x).toNat = (x.toNat >>> lo) % 2^(hi-lo+1) := rfl
 
+@[simp] theorem getLsb_extractLsb' (start len : Nat) (x : BitVec n) (i : Nat) :
+    (extractLsb' start len x).getLsb i = (i < len && x.getLsb (start+i)) := by
+  simp [getLsb, Nat.lt_succ]
+
 @[simp] theorem getLsb_extract (hi lo : Nat) (x : BitVec n) (i : Nat) :
     getLsb (extractLsb hi lo x) i = (i ≤ (hi-lo) && getLsb x (lo+i)) := by
-  unfold getLsb
-  simp [Nat.lt_succ]
+  simp [getLsb, Nat.lt_succ]
+
+theorem extractLsb'_eq_extractLsb {w : Nat} (x : BitVec w) (start len : Nat) (h : len > 0) :
+    x.extractLsb' start len = (x.extractLsb (len - 1 + start) start).cast (by omega) := by
+  apply eq_of_toNat_eq
+  simp [extractLsb, show len - 1 + 1 = len by omega]
 
 /-! ### allOnes -/
 
@@ -935,6 +943,31 @@ theorem sshiftRight_add {x : BitVec w} {m n : Nat} :
 
 @[simp]
 theorem sshiftRight_eq' (x : BitVec w) : x.sshiftRight' y = x.sshiftRight y.toNat := rfl
+
+/-! ### udiv -/
+
+theorem udiv_eq {x y : BitVec n} : x.udiv y = BitVec.ofNat n (x.toNat / y.toNat) := by
+  have h : x.toNat / y.toNat < 2 ^ n := Nat.lt_of_le_of_lt (Nat.div_le_self ..) (by omega)
+  simp [udiv, bv_toNat, h, Nat.mod_eq_of_lt]
+
+@[simp, bv_toNat]
+theorem toNat_udiv {x y : BitVec n} : (x.udiv y).toNat = x.toNat / y.toNat := by
+  simp only [udiv_eq]
+  by_cases h : y = 0
+  · simp [h]
+  · rw [toNat_ofNat, Nat.mod_eq_of_lt]
+    exact Nat.lt_of_le_of_lt (Nat.div_le_self ..) (by omega)
+
+/-! ### umod -/
+
+theorem umod_eq {x y : BitVec n} :
+    x.umod y = BitVec.ofNat n (x.toNat % y.toNat) := by
+  have h : x.toNat % y.toNat < 2 ^ n := Nat.lt_of_le_of_lt (Nat.mod_le _ _) x.isLt
+  simp [umod, bv_toNat, Nat.mod_eq_of_lt h]
+
+@[simp, bv_toNat]
+theorem toNat_umod {x y : BitVec n} :
+    (x.umod y).toNat = x.toNat % y.toNat := rfl
 
 /-! ### signExtend -/
 

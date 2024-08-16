@@ -32,11 +32,12 @@ following to use `g++`.
 cmake -DCMAKE_CXX_COMPILER=g++ ...
 ```
 
-## Required Packages: CMake, GMP
+## Required Packages: CMake, GMP, libuv
 
 ```bash
 brew install cmake
 brew install gmp
+brew install libuv
 ```
 
 ## Recommended Packages: CCache

@@ -113,8 +113,7 @@ structure DiagnosticWith (α : Type) where
 def DiagnosticWith.fullRange (d : DiagnosticWith α) : Range :=
   d.fullRange?.getD d.range
 
-local instance [Ord α] : Ord (Array α) := Ord.arrayOrd
-
+attribute [local instance] Ord.arrayOrd in
 /-- Restriction of `DiagnosticWith` to properties that are displayed to users in the InfoView. -/
 private structure DiagnosticWith.UserVisible (α : Type) where
   range               : Range

@@ -780,7 +780,7 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
         Term.addLocalVarInfo views[i]!.declId indFVar
         let r     := rs[i]!
         let type  ←  instantiateMVars r.type
-        let type  := type |>.abstract r.params |>.instantiateRev params
+        let type  := type.replaceFVars r.params params
         let type  ← mkForallFVars params type
         let ctors ← withExplicitToImplicit params (elabCtors indFVars indFVar params r)
         indTypesArray := indTypesArray.push { name := r.view.declName, type, ctors }

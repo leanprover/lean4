@@ -177,6 +177,24 @@ def withAlwaysResolvedPromise [Monad m] [MonadLiftT BaseIO m] [MonadFinally m] [
     p.resolve default
 
 /--
+Runs `act` with a newly created promise and resolves it to `default` if `act` is interrupted by an
+exception.
+
+This is a weaker variant of `withAlwaysResolvedPromise` that is necessary when the promise is
+resolved on another thread that may terminate after `act`. Care must be taken that all control flow
+does eventually lead to resolution of the promise in this case.
+-/
+def withPromiseResolvedOnException [Monad m] [MonadLiftT BaseIO m] [always : MonadAlwaysExcept ε m]
+    [Inhabited α] (act : IO.Promise α → m β) : m β := do
+  let p ← IO.Promise.new
+  let _ := always.except
+  try
+    act p
+  catch e =>
+    p.resolve default
+    throw e
+
+/--
 Runs `act` with `count` newly created promises and finally resolves them to `default` if not done by
 `act`.
 

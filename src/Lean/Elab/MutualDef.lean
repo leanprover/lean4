@@ -1091,21 +1091,19 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
         }
         reusedAllHeaders := reusedAllHeaders && view.headerSnap?.any (·.old?.isSome)
       views := views.push view
-    let typeCheckedPromise ← IO.Promise.new
-    try
+    let includedVars := (← getScope).includedVars
+    runTermElabM fun vars =>
       if let some snap := snap? then
-        let range? := (fun endPos => ⟨endPos, endPos⟩) <$> (← getRef).getTailPos?
-        -- no non-fatal diagnostics at this point
-        snap.new.resolve <| .ofTyped {
-          defs
-          typeCheckedSnap := { range?, task := typeCheckedPromise.result }
-          diagnostics := .empty : DefsParsedSnapshot }
-      let includedVars := (← getScope).includedVars
-      runTermElabM fun vars =>
-        Term.elabMutualDef vars includedVars views (guard snap?.isSome *> typeCheckedPromise)
-    catch ex =>
-      typeCheckedPromise.resolve default
-      throw ex
+        withPromiseResolvedOnException fun typeCheckedPromise => do
+          let range? := (fun endPos => ⟨endPos, endPos⟩) <$> (← getRef).getTailPos?
+          -- no non-fatal diagnostics at this point
+          snap.new.resolve <| .ofTyped {
+            defs
+            typeCheckedSnap := { range?, task := typeCheckedPromise.result }
+            diagnostics := .empty : DefsParsedSnapshot }
+          Term.elabMutualDef vars includedVars views typeCheckedPromise
+      else
+        Term.elabMutualDef vars includedVars views none
 
 builtin_initialize
   registerTraceClass `Elab.definition.mkClosure

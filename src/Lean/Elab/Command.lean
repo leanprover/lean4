@@ -357,6 +357,7 @@ def runLintersAsync (stx : Syntax) (lintPromise : IO.Promise Language.SnapshotTr
   if Language.internal.cmdlineSnapshots.get opts || hasLintTrace || trace.profiler.get opts then
     -- NOTE: can't currently report traces from tasks
     runLinters stx
+    lintPromise.resolve default
   else
     -- We only start one task for all linters for now as most linters are fast and we simply want
     -- to unblock elaboration of the next command
@@ -586,9 +587,9 @@ def elabCommandTopLevel (stx : Syntax)
   let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
   let initInfoTrees ← getResetInfoTrees
   try
-    Language.withAlwaysResolvedPromise fun elabPromise =>
-    Language.withAlwaysResolvedPromise fun lintPromise => do
-      if let some snap := snap? then
+    if let some snap := snap? then
+      Language.withAlwaysResolvedPromise fun elabPromise =>
+      Language.withPromiseResolvedOnException fun lintPromise => do
         let endRange? := (fun endPos => ⟨endPos, endPos⟩) <$> stx.getTailPos?
         snap.new.resolve {
           diagnostics := .empty
@@ -602,10 +603,12 @@ def elabCommandTopLevel (stx : Syntax)
           -- recovery more coarse. In particular, If `c` in `set_option ... in $c` fails, the remaining
           -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
           elabCommand stx
+        withLogging do
+          runLintersAsync stx lintPromise
       else
         elabCommand stx
-      withLogging do
-      runLinters stx
+        withLogging do
+          runLinters stx
   finally
     -- note the order: first process current messages & info trees, then add back old messages & trees,
     -- then convert new traces to messages

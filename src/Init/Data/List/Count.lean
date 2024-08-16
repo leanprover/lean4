@@ -81,6 +81,10 @@ theorem Sublist.countP_le (s : l₁ <+ l₂) : countP p l₁ ≤ countP p l₂ :
   simp only [countP_eq_length_filter]
   apply s.filter _ |>.length_le
 
+theorem IsPrefix.countP_le (s : l₁ <+: l₂) : countP p l₁ ≤ countP p l₂ := s.sublist.countP_le _
+theorem IsSuffix.countP_le (s : l₁ <:+ l₂) : countP p l₁ ≤ countP p l₂ := s.sublist.countP_le _
+theorem IsInfix.countP_le (s : l₁ <:+: l₂) : countP p l₁ ≤ countP p l₂ := s.sublist.countP_le _
+
 theorem countP_filter (l : List α) :
     countP p (filter q l) = countP (fun a => p a ∧ q a) l := by
   simp only [countP_eq_length_filter, filter_filter]
@@ -139,6 +143,10 @@ theorem count_tail : ∀ (l : List α) (a : α) (h : l ≠ []),
 theorem count_le_length (a : α) (l : List α) : count a l ≤ l.length := countP_le_length _
 
 theorem Sublist.count_le (h : l₁ <+ l₂) (a : α) : count a l₁ ≤ count a l₂ := h.countP_le _
+
+theorem IsPrefix.count_le (h : l₁ <+: l₂) (a : α) : count a l₁ ≤ count a l₂ := h.sublist.count_le _
+theorem IsSuffix.count_le (h : l₁ <:+ l₂) (a : α) : count a l₁ ≤ count a l₂ := h.sublist.count_le _
+theorem IsInfix.count_le (h : l₁ <:+: l₂) (a : α) : count a l₁ ≤ count a l₂ := h.sublist.count_le _
 
 theorem count_le_count_cons (a b : α) (l : List α) : count a l ≤ count a (b :: l) :=
   (sublist_cons_self _ _).count_le _

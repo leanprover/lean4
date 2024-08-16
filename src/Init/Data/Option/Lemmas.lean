@@ -167,6 +167,9 @@ theorem isSome_map {x : Option α} : (f <$> x).isSome = x.isSome := by
 @[simp] theorem isSome_map' {x : Option α} : (x.map f).isSome = x.isSome := by
   cases x <;> simp
 
+@[simp] theorem isNone_map' {x : Option α} : (x.map f).isNone = x.isNone := by
+  cases x <;> simp
+
 theorem map_eq_none : f <$> x = none ↔ x = none := map_eq_none'
 
 theorem map_eq_bind {x : Option α} : x.map f = x.bind (some ∘ f) := by
@@ -189,6 +192,14 @@ theorem comp_map (h : β → γ) (g : α → β) (x : Option α) : x.map (h ∘ 
     Option.map g ∘ Option.map f = Option.map (g ∘ f) := by funext x; simp
 
 theorem mem_map_of_mem (g : α → β) (h : a ∈ x) : g a ∈ Option.map g x := h.symm ▸ map_some' ..
+
+@[simp] theorem map_if {f : α → β} [Decidable c] :
+     (if c then some a else none).map f = if c then some (f a) else none := by
+  split <;> rfl
+
+@[simp] theorem map_dif {f : α → β} [Decidable c] {a : c → α} :
+     (if h : c then some (a h) else none).map f = if h : c then some (f (a h)) else none := by
+  split <;> rfl
 
 @[simp] theorem filter_none (p : α → Bool) : none.filter p = none := rfl
 theorem filter_some : Option.filter p (some a) = if p a then some a else none := rfl
@@ -314,3 +325,11 @@ theorem map_or : f <$> or o o' = (f <$> o).or (f <$> o') := by
 
 theorem map_or' : (or o o').map f = (o.map f).or (o'.map f) := by
   cases o <;> rfl
+
+theorem or_of_isSome {o o' : Option α} (h : o.isSome) : o.or o' = o := by
+  match o, h with
+  | some _, _ => simp
+
+theorem or_of_isNone {o o' : Option α} (h : o.isNone) : o.or o' = o' := by
+  match o, h with
+  | none, _ => simp

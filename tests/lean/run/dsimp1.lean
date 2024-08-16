@@ -14,10 +14,11 @@ example (x : Nat) : (1 + id x.succ.pred).isZero = false := by
   simp [Nat.succ_add]
   dsimp [Nat.isZero]
 
-#check Nat.pred_succ
-
 example (x : Nat) : (id x.succ.succ).isZero = false := by
   dsimp [Nat.isZero]
+
+example (x : Nat) : (id x.succ.succ).isZero = false := by
+  dsimp [Nat.isZero.eq_2]
 
 example (x : Nat) : (id x.succ.succ).isZero = false := by
   dsimp!

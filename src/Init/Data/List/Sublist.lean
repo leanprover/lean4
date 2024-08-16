@@ -320,6 +320,12 @@ theorem Sublist.append_right : l₁ <+ l₂ → ∀ l, l₁ ++ l <+ l₂ ++ l
 theorem Sublist.append (hl : l₁ <+ l₂) (hr : r₁ <+ r₂) : l₁ ++ r₁ <+ l₂ ++ r₂ :=
   (hl.append_right _).trans ((append_sublist_append_left _).2 hr)
 
+theorem Sublist.of_sublist_append_left (w : ∀ a, a ∈ l → a ∉ l₂) (h : l <+ l₁ ++ l₂) : l <+ l₁ := by
+  sorry
+
+theorem Sublist.of_sublist_append_right (w : ∀ a, a ∈ l → a ∉ l₁) (h : l <+ l₁ ++ l₂) : l <+ l₂ := by
+  sorry
+
 theorem sublist_cons_iff {a : α} {l l'} :
     l <+ a :: l' ↔ l <+ l' ∨ ∃ r, l = a :: r ∧ r <+ l' := by
   constructor
@@ -397,6 +403,11 @@ theorem append_sublist_iff {l₁ l₂ : List α} :
       exact Sublist.append (by simpa) t₁
     · rintro ⟨r₁, r₂, rfl, h₁, h₂⟩
       exact Sublist.append h₁ h₂
+
+theorem Sublist.middle {l : List α} (h : l <+ l₁ ++ l₂) (a : α) : l <+ l₁ ++ a :: l₂ := by
+  rw [sublist_append_iff] at h
+  obtain ⟨l₁', l₂', rfl, h₁, h₂⟩ := h
+  exact Sublist.append h₁ (h₂.cons a)
 
 theorem Sublist.reverse : l₁ <+ l₂ → l₁.reverse <+ l₂.reverse
   | .slnil => Sublist.refl _

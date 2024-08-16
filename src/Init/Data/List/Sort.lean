@@ -253,9 +253,30 @@ theorem merge_stable : ∀ (xs ys) (_ : ∀ x y, x ∈ xs → y ∈ ys → x.1 �
       rw [merge_stable, map_cons]
       exact fun x' y' mx my => h x' y' mx (mem_cons_of_mem (j, y) my)
 
--- TODO: replace this with a proof via `Perm`
-@[simp] theorem mem_mergeSort {a : α} {l : List α} : a ∈ mergeSort le l ↔ a ∈ l := by
-  sorry
+theorem merge_perm_append : ∀ {xs ys : List α}, merge le xs ys ~ xs ++ ys
+  | [], ys => by simp [merge]
+  | xs, [] => by simp [merge]
+  | x :: xs, y :: ys => by
+    simp only [merge]
+    split
+    · exact merge_perm_append.cons x
+    · exact (merge_perm_append.cons y).trans
+        ((Perm.swap x y _).trans (perm_middle.symm.cons x))
+
+theorem mergeSort_perm : ∀ {l : List α}, mergeSort le l ~ l
+  | [] => by simp [mergeSort]
+  | [a] => by simp [mergeSort]
+  | a :: b :: xs => by
+    simp only [mergeSort]
+    have : (splitInTwo ⟨a :: b :: xs, rfl⟩).1.1.length < xs.length + 1 + 1 := by simp [splitInTwo_fst]; omega
+    have : (splitInTwo ⟨a :: b :: xs, rfl⟩).2.1.length < xs.length + 1 + 1 := by simp [splitInTwo_snd]; omega
+    exact merge_perm_append.trans
+      ((mergeSort_perm.append mergeSort_perm).trans
+        (Perm.of_eq (splitInTwo_fst_append_splitInTwo_snd _)))
+termination_by l => l.length
+
+@[simp] theorem mem_mergeSort {a : α} {l : List α} : a ∈ mergeSort le l ↔ a ∈ l :=
+  mergeSort_perm.mem_iff
 
 /--
 The result of `mergeSort` is sorted,
@@ -327,26 +348,59 @@ theorem mergeSort_stable : ∀ {i : Nat} {l : List α},
       omega
 termination_by _ l => l.length
 
+theorem mergeSort_cons (le) : ∀ (a : α) (l : List α),
+    ∃ l₁ l₂, mergeSort le (a :: l) = l₁ ++ a :: l₂ ∧ mergeSort le l = l₁ ++ l₂ ∧
+      ∀ b, b ∈ l₁ → !le a b
+  | a, [] => by
+    simp only [mergeSort]
+    exact ⟨[], [], by simp⟩
+  | a, b :: l => by
+    simp [mergeSort]
+    rw [take_cons]
+    rw [h₁, h₂]
+    exact ⟨a :: l₁, l₂, rfl, rfl, fun b m => h₃ _ (mem_cons_of_mem _ m)⟩
+
+
+/--
+Another statement of stability of merge sort.
+If `c` is a sorted sublist of `l`,
+then `c` is still a sublist of `mergeSort le l`.
+-/
+theorem mergeSort_stable_sublist : ∀ {c : List α} (_ : c.Sorted le) (_ : c <+ l),
+    c <+ mergeSort le l
+  | _, _, .slnil => nil_sublist _
+  | c, hc, @Sublist.cons _ _ l a h => by
+    obtain ⟨l₁, l₂, h₁, h₂, -⟩ := mergeSort_cons le a l
+    rw [h₁]
+    have h' := mergeSort_stable_sublist hc h
+    rw [h₂] at h'
+    exact h'.middle a
+  | _, _, @Sublist.cons₂ _ l₁ l₂ a h => by
+    rename_i hc
+    obtain ⟨l₃, l₄, h₁, h₂, h₃⟩ := mergeSort_cons le a l₂
+    rw [h₁]
+    have h' := mergeSort_stable_sublist hc.tail h
+    rw [h₂] at h'
+    simp at h₃ h'
+    apply sublist_append_of_sublist_right
+    apply Sublist.cons₂ a
+    apply h'.of_sublist_append_right
+    intro b m₁ m₃
+    specialize h₃ _ m₃
+    have := rel_of_pairwise_cons hc m₁
+    simp_all
+
 /--
 Another statement of stability of merge sort.
 If a pair `[a, b]` is a sublist of `l` and `le a b`,
 then `[a, b]` is still a sublist of `mergeSort le l`.
 -/
-theorem mergeSort_stable_pair (h : [a, b] <+ l) (hab : le a b) : [a, b] <+ mergeSort le l := by
-  sorry
-
-/--
-Another statement of stability of merge sort.
-If `c` is a sublist of `l` and `c` is pairwise `le`,
-then `c` is still a sublist of `mergeSort le l`.
--/
-theorem mergeSort_stable_antichain {c : List α} (hc : c.Pairwise (fun a b => le a b)) (h : c <+ l) :
-    c <+ mergeSort le l := by
-  sorry
+theorem mergeSort_stable_pair (hab : le a b) (h : [a, b] <+ l) : [a, b] <+ mergeSort le l :=
+  mergeSort_stable_sublist (pairwise_pair.mpr hab) h
 
 end List
 
 open List
 
-#time
-#eval (mergeSort (· ≤ ·) (iota (10^6))).length
+-- #time
+-- #eval (mergeSort (· ≤ ·) (iota (10^6))).length

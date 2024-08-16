@@ -9,6 +9,7 @@ import Lean.Parser.Term
 import Lean.Meta.Structure
 import Lean.Elab.App
 import Lean.Elab.Binders
+import Lean.PrettyPrinter
 
 namespace Lean.Elab.Term.StructInst
 

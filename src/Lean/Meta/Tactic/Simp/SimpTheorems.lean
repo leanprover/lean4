@@ -482,7 +482,11 @@ def SimpTheorems.unfoldEvenWithEqns (declName : Name) : CoreM Bool := do
   return false
 
 def SimpTheorems.addDeclToUnfold (d : SimpTheorems) (declName : Name) : MetaM SimpTheorems := do
-  if let some eqns ← getEqnsFor? declName then
+  -- The simplifiers has special support for structure and class projections, and gets
+  -- confused when they suddenly rewrite, so ignore equations for them
+  if (← isProjectionFn declName) then
+    return d.addDeclToUnfoldCore declName
+  else if let some eqns ← getEqnsFor? declName then
     let mut d := d
     for h : i in [:eqns.size] do
       let eqn := eqns[i]

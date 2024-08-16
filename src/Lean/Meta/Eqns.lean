@@ -123,9 +123,6 @@ def registerGetEqnsFn (f : GetEqnsFn) : IO Unit := do
 private def shouldGenerateEqnThms (declName : Name) : MetaM Bool := do
   if let some (.defnInfo info) := (← getEnv).find? declName then
     if (← isProp info.type) then return false
-    -- The simplifiers has special support for structure and class projections, and gets
-    -- confused when they suddenly rewrite. And they are hardly useful, so let's not generate them
-    if (← isProjectionFn declName) then return false
     return true
   else
     return false

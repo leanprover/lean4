@@ -2436,15 +2436,6 @@ instance {E} [Field E] [Algebra L E] : Algebra S E := Algebra.ofSubsemiring S.to
 instance isScalarTower {R} [Semiring R] [SMul R K] [SMul R L] [SMul R S] [IsScalarTower R K L] :
     IsScalarTower R K S := sorry
 
-variable {E} [Field E] [Algebra L E] (T : IntermediateField S E) {S}
-instance : Algebra S T := T.algebra
--- instance : Algebra K T := sorry
--- instance : Algebra K E := sorry
--- instance : IsScalarTower K S E := sorry
--- instance : SMul S T := Algebra.toSMul
--- set_option trace.Meta.synthInstance true in
--- instance [Algebra K E] [IsScalarTower K L E] : IsScalarTower K S T := T.isScalarTower
-
 end IntermediateField
 
 namespace AlgHom
@@ -2500,6 +2491,8 @@ def adjoin : IntermediateField F E :=
 variable [Field F] [Algebra F E] in
 theorem subset_adjoin : S ⊆ adjoin F S := sorry
 
+instance (F : Subfield E) : Algebra F E := inferInstanceAs (Algebra F.toSubsemiring E)
+
 theorem subset_adjoin_of_subset_left {F : Subfield E} {T : Set E} (HT : T ⊆ F) : T ⊆ adjoin F S :=
   sorry
 
@@ -2520,6 +2513,11 @@ namespace IntermediateField
 
 variable {F E K : Type _} [Field F] [Field E] [Field K] [Algebra F E] [Algebra F K] {S : Set E}
 
+instance (L : IntermediateField F E) : IsScalarTower F L E := sorry
+
+instance (L : IntermediateField F E) : Algebra F (adjoin L S) :=
+  (IntermediateField.adjoin { x // x ∈ L } S).algebra'
+
 private theorem exists_algHom_adjoin_of_splits'' {L : IntermediateField F E}
     (f : L →ₐ[F] K) :
     ∃ φ : adjoin L S →ₐ[F] K, φ.comp (IsScalarTower.toAlgHom F L _) = f := by
@@ -2529,7 +2527,7 @@ variable {L : Type _} [Field L] [Algebra F L] [Algebra L E] [IsScalarTower F L E
   (f : L →ₐ[F] K)
 
 -- This only required 16,000 heartbeats prior to #3807, and now takes ~210,000.
-set_option maxHeartbeats 30000
+set_option maxHeartbeats 20000
 theorem exists_algHom_adjoin_of_splits''' :
     ∃ φ : adjoin L S →ₐ[F] K, φ.comp (IsScalarTower.toAlgHom F L _) = f := by
   let L' := (IsScalarTower.toAlgHom F L E).fieldRange

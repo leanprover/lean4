@@ -266,13 +266,13 @@ def toISO8601String (date : DateTime tz) : String :=
   Formats.ISO8601.format date
 
 /--
-Formats a `ZonedDateTime` value into an RFC822 format string.
+Formats a `DateTime` value into an RFC822 format string.
 -/
 def toRFC822String (date : DateTime tz) : String :=
   Formats.RFC822.format date
 
 /--
-Formats a `ZonedDateTime` value into an RFC850 format string.
+Formats a `DateTime` value into an RFC850 format string.
 -/
 def toRFC850String (date : DateTime tz) : String :=
   Formats.RFC850.format date

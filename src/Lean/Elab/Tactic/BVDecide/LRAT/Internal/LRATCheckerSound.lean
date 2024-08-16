@@ -3,6 +3,7 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune
 -/
+prelude
 import Lean.Elab.Tactic.BVDecide.LRAT.Internal.LRATChecker
 import Lean.Elab.Tactic.BVDecide.LRAT.Internal.CNF
 import Lean.Elab.Tactic.BVDecide.LRAT.Internal.Actions

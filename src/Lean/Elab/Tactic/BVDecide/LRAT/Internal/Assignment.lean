@@ -3,6 +3,8 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune
 -/
+prelude
+import Init.ByCases
 import Lean.Elab.Tactic.BVDecide.LRAT.Internal.Entails
 import Lean.Elab.Tactic.BVDecide.LRAT.Internal.PosFin
 

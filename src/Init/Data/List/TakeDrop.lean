@@ -127,7 +127,7 @@ theorem drop_tail (l : List α) (n : Nat) : l.tail.drop n = l.drop (n + 1) := by
 
 @[simp]
 theorem drop_eq_nil_iff_le {l : List α} {k : Nat} : l.drop k = [] ↔ l.length ≤ k := by
-  refine' ⟨fun h => _, drop_eq_nil_of_le⟩
+  refine ⟨fun h => ?_, drop_eq_nil_of_le⟩
   induction k generalizing l with
   | zero =>
     simp only [drop] at h

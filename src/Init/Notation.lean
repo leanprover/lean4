@@ -705,6 +705,17 @@ syntax (name := checkSimp) "#check_simp " term "~>" term : command
 syntax (name := checkSimpFailure) "#check_simp " term "!~>" : command
 
 /--
+Time the elaboration of a command, and print the result (in milliseconds).
+
+Example usage:
+```
+set_option maxRecDepth 100000 in
+#time example : (List.range 500).length = 500 := rfl
+```
+-/
+syntax (name := timeCmd) "#time " command : command
+
+/--
 `#discr_tree_key  t` prints the discrimination tree keys for a term `t` (or, if it is a single identifier, the type of that constant).
 It uses the default configuration for generating keys.
 

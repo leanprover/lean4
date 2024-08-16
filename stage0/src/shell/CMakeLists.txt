@@ -1,9 +1,14 @@
-set(SRC lean.cpp)
-if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-set(SRC ${SRC} manifest.rc)
-endif()
+add_library(leanmain STATIC lean.cpp)
+set_target_properties(leanmain PROPERTIES
+  ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/temp
+  OUTPUT_NAME leanmain)
 
-add_library(shell OBJECT ${SRC})
+# library must contain at least one non-manifest file
+file(WRITE ${CMAKE_BINARY_DIR}/temp/empty.c)
+add_library(leanmanifest STATIC ${CMAKE_BINARY_DIR}/temp/empty.c manifest.rc)
+set_target_properties(leanmanifest PROPERTIES
+  ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/lean
+  OUTPUT_NAME leanmanifest)
 
 if(LLVM)
   if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -28,8 +33,8 @@ endif()
 
 add_custom_target(lean ALL
   WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
-  DEPENDS leanshared shell
-  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make lean LEAN_SHELL="$<TARGET_OBJECTS:shell>"
+  DEPENDS leanshared leanmain
+  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make lean
   COMMAND_EXPAND_LISTS)
 
 # use executable of current stage for tests

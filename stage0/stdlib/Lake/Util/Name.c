@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Name
-// Imports: Init Lean.Data.Json Lean.Data.NameMap Lake.Util.DRBMap Lake.Util.RBArray Lake.Util.Compare
+// Imports: Init Lean.Data.Json Lean.Data.NameMap Lake.Util.DRBMap Lake.Util.RBArray
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1025,7 +1025,6 @@ lean_object* initialize_Lean_Data_Json(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_NameMap(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_DRBMap(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_RBArray(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Util_Compare(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Util_Name(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1044,9 +1043,6 @@ res = initialize_Lake_Util_DRBMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Util_RBArray(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lake_Util_Compare(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_instCoeRBMapNameQuickCmpNameMap__lake___closed__1 = _init_l_Lake_instCoeRBMapNameQuickCmpNameMap__lake___closed__1();

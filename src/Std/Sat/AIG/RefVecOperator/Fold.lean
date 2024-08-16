@@ -60,11 +60,11 @@ theorem fold.go_le_size {aig : AIG α} (acc : Ref aig) (idx : Nat) (s : RefVec a
     aig.decls.size ≤ (go aig acc idx len s f).1.decls.size := by
   unfold go
   split
-  . next h =>
+  · next h =>
     dsimp only
     refine Nat.le_trans ?_ (by apply fold.go_le_size)
     apply LawfulOperator.le_size
-  . simp
+  · simp
   termination_by len - idx
 
 theorem fold_le_size {aig : AIG α} (target : FoldTarget aig) :
@@ -81,14 +81,14 @@ theorem fold.go_decl_eq {aig : AIG α} (acc : Ref aig) (i : Nat) (s : RefVec aig
   generalize hgo : go aig acc i len s f = res
   unfold go at hgo
   split at hgo
-  . dsimp only at hgo
+  · dsimp only at hgo
     rw [← hgo]
     intros
     rw [go_decl_eq]
     rw [LawfulOperator.decl_eq]
     apply LawfulOperator.lt_size_of_lt_aig_size
     assumption
-  . rw [← hgo]
+  · rw [← hgo]
     intros
     simp
 termination_by len - i
@@ -128,37 +128,37 @@ theorem denote_go_and {aig : AIG α} (acc : AIG.Ref aig) (curr : Nat) (hcurr : c
   generalize hgo : go aig acc curr len input mkAndCached = res
   unfold go at hgo
   split at hgo
-  . dsimp only at hgo
+  · dsimp only at hgo
     rw [← hgo]
     rw [denote_go_and]
-    . simp only [denote_projected_entry, denote_mkAndCached, Bool.and_eq_true, get_cast,
+    · simp only [denote_projected_entry, denote_mkAndCached, Bool.and_eq_true, get_cast,
         eq_iff_iff]
       constructor
-      . intro h
+      · intro h
         rcases h with ⟨⟨h1, h2⟩, h3⟩
         constructor
-        . assumption
-        . intro idx hidx1 hidx2
+        · assumption
+        · intro idx hidx1 hidx2
           cases Nat.eq_or_lt_of_le hidx2 with
           | inl heq => simpa [heq] using h2
           | inr hlt =>
             specialize h3 idx hidx1 (by omega)
             rw [← h3]
             rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkAndCached)]
-            . simp
-            . simp [Ref.hgate]
-      . simp only [and_imp]
+            · simp
+            · simp [Ref.hgate]
+      · simp only [and_imp]
         intro hacc hrest
         constructor
-        . simp [hacc, hrest]
-        . intro idx hidx1 hidx2
+        · simp [hacc, hrest]
+        · intro idx hidx1 hidx2
           specialize hrest idx hidx1 (by omega)
           rw [← hrest]
           rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkAndCached)]
-          . simp
-          . simp [Ref.hgate]
-    . omega
-  . rw [← hgo]
+          · simp
+          · simp [Ref.hgate]
+    · omega
+  · rw [← hgo]
     simp only [eq_iff_iff, iff_self_and]
     omega
 termination_by len - curr
@@ -173,20 +173,20 @@ theorem denote_fold_and {aig : AIG α} (s : RefVec aig len) :
   unfold fold
   simp only [FoldTarget.mkAnd]
   rw [fold.denote_go_and]
-  . simp only [denote_projected_entry, mkConstCached_eval_eq_mkConst_eval, denote_mkConst,
-    Nat.zero_le, get_cast, Ref_cast', true_implies, true_and]
+  · simp only [denote_projected_entry, mkConstCached_eval_eq_mkConst_eval, denote_mkConst,
+    Nat.zero_le, get_cast, Ref.cast_eq, true_implies, true_and]
     constructor
-    . intro h idx hidx
+    · intro h idx hidx
       specialize h idx hidx
       rw [AIG.LawfulOperator.denote_mem_prefix (f := mkConstCached)] at h
       rw [← h]
-    . intro h idx hidx
+    · intro h idx hidx
       specialize h idx hidx
       rw [AIG.LawfulOperator.denote_mem_prefix (f := mkConstCached)]
-      . simp only [← h]
-      . apply RefVec.hrefs
+      · simp only [← h]
+      · apply RefVec.hrefs
         simp [FoldTarget.mkAnd, hidx]
-  . omega
+  · omega
 
 end RefVec
 end AIG

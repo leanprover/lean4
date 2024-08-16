@@ -267,44 +267,48 @@ class instantiate_mvars_fn {
             return visit_app_default(e);
         } else {
             name const & mid = mvar_name(f);
+            /*
+            Regular assignments take precedence over delayed ones.
+            When an error occurs, Lean assigns `sorry` to unassigned metavariables.
+            The idea is to ensure we can submit the declaration to the kernel and proceed.
+            Some of the metavariables may have been delayed assigned.
+            */
+            if (auto f_new = get_assignment(mid)) {
+                // `f` is an assigned metavariable.
+                buffer<expr> args;
+                return visit_args_and_beta(*f_new, e, args);
+            }
             option_ref<delayed_assignment> d = get_delayed_mvar_assignment(m_mctx, mid);
             if (!d) {
                 // mvar is not delayed assigned
-                expr f_new = visit(f);
-                if (is_eqp(f, f_new)) {
-                    return visit_mvar_app_args(e);
-                } else {
-                    buffer<expr> args;
-                    return visit_args_and_beta(f_new, e, args);
-                }
-            } else {
-                /*
-                Apply "delayed substitution" (i.e., delayed assignment + application).
-                That is, `f` is some metavariable `?m`, that is delayed assigned to `val`.
-                If after instantiating `val`, we obtain `newVal`, and `newVal` does not contain
-                metavariables, we replace the free variables `fvars` in `newVal` with the first
-                `fvars.size` elements of `args`.
-                */
-                array_ref<expr> fvars(cnstr_get(d.get_val().raw(), 0), true);
-                name mid_pending(cnstr_get(d.get_val().raw(), 1), true);
-                if (fvars.size() > get_app_num_args(e)) {
-                    /*
-                    We don't have sufficient arguments for instantiating the free variables `fvars`.
-                    This can only happen if a tactic or elaboration function is not implemented correctly.
-                    We decided to not use `panic!` here and report it as an error in the frontend
-                    when we are checking for unassigned metavariables in an elaborated term. */
-                    return visit_mvar_app_args(e);
-                }
-                optional<expr> val = get_assignment(mid_pending);
-                if (!val)
-                    // mid_pending has not been assigned yet.
-                    return visit_mvar_app_args(e);
-                if (has_expr_mvar(*val))
-                    // mid_pending has been assigned, but assignment contains mvars.
-                    return visit_mvar_app_args(e);
-                buffer<expr> args;
-                return visit_delayed(fvars, *val, e, args);
+                return visit_mvar_app_args(e);
             }
+            /*
+            Apply "delayed substitution" (i.e., delayed assignment + application).
+            That is, `f` is some metavariable `?m`, that is delayed assigned to `val`.
+            If after instantiating `val`, we obtain `newVal`, and `newVal` does not contain
+            metavariables, we replace the free variables `fvars` in `newVal` with the first
+            `fvars.size` elements of `args`.
+            */
+            array_ref<expr> fvars(cnstr_get(d.get_val().raw(), 0), true);
+            name mid_pending(cnstr_get(d.get_val().raw(), 1), true);
+            if (fvars.size() > get_app_num_args(e)) {
+                /*
+                We don't have sufficient arguments for instantiating the free variables `fvars`.
+                This can only happen if a tactic or elaboration function is not implemented correctly.
+                We decided to not use `panic!` here and report it as an error in the frontend
+                when we are checking for unassigned metavariables in an elaborated term. */
+                return visit_mvar_app_args(e);
+            }
+            optional<expr> val = get_assignment(mid_pending);
+            if (!val)
+                // mid_pending has not been assigned yet.
+                return visit_mvar_app_args(e);
+            if (has_expr_mvar(*val))
+                // mid_pending has been assigned, but assignment contains mvars.
+                return visit_mvar_app_args(e);
+            buffer<expr> args;
+            return visit_delayed(fvars, *val, e, args);
         }
     }
 

@@ -81,6 +81,7 @@ lean_object* lean_io_mono_nanos_now(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_elabCommandAtFrontend___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Option_set___at_Lean_Elab_Term_withoutMacroStackAtErr___spec__1(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_processCommand___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Language_Lean_internal_cmdlineSnapshots;
 lean_object* lean_task_get_own(lean_object*);
 lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_toJsonProfile____x40_Lean_Util_Profiler___hyg_3604_(lean_object*);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
@@ -128,7 +129,6 @@ lean_object* l_Lean_Language_SnapshotTask_get___rarg(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_getParserState___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_IO_FS_writeFile(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Language_Lean_internal_minimalSnapshots;
 lean_object* lean_string_append(lean_object*, lean_object*);
 extern lean_object* l_Lean_trace_profiler_output;
 lean_object* lean_array_get_size(lean_object*);
@@ -3677,7 +3677,7 @@ static lean_object* _init_l_Lean_Elab_runFrontend___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Language_Lean_internal_minimalSnapshots;
+x_1 = l_Lean_Language_Lean_internal_cmdlineSnapshots;
 return x_1;
 }
 }

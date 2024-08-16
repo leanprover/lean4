@@ -106,7 +106,7 @@ void initialize_stack_overflow() {
     for (auto signum : {SIGSEGV, SIGBUS}) {
         struct sigaction action;
         memset(&action, 0, sizeof(struct sigaction));
-        sigaction(SIGSEGV, nullptr, &action);
+        sigaction(signum, nullptr, &action);
         // Configure our signal handler if one is not already set.
         if (action.sa_handler == SIG_DFL) {
             action.sa_flags = SA_SIGINFO | SA_ONSTACK;

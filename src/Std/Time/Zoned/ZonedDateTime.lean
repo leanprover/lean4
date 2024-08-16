@@ -67,6 +67,13 @@ def ofLocalDateTime (date : LocalDateTime) (tz : TimeZone) : ZonedDateTime :=
   ⟨tz, DateTime.ofLocalDateTime date tz⟩
 
 /--
+Converts a `ZonedDateTime` to a `LocalDateTime`
+-/
+@[inline]
+def toLocalDateTime (dt : ZonedDateTime) : LocalDateTime :=
+  DateTime.toLocalDateTime dt.snd
+
+/--
 Gets the current `ZonedDataTime`.
 -/
 @[inline]

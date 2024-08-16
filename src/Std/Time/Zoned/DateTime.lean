@@ -151,8 +151,8 @@ def subYearsClip (dt : DateTime tz) (years : Year.Offset) : DateTime tz :=
 Converts a `Timestamp` to a `LocalDateTime`
 -/
 @[inline]
-def toLocalDateTime (timestamp : Timestamp) : LocalDateTime :=
-  LocalDateTime.ofUTCTimestamp timestamp
+def toLocalDateTime (dt : DateTime tz) : LocalDateTime :=
+  dt.date.get
 
 /--
 Getter for the `Year` inside of a `DateTime`

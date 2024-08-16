@@ -196,6 +196,43 @@ def parse (input : String) : Except String ZonedDateTime :=
 
 end ZonedDateTime
 
+namespace LocalDateTime
+
+/--
+Parses a `String` in the `AscTime` format and returns a `LocalDateTime` object in the GMT time zone.
+-/
+def fromAscTimeString (input : String) : Except String LocalDateTime :=
+  Formats.AscTime.parse input
+  |>.map DateTime.toLocalDateTime
+
+/--
+Formats a `LocalDateTime` value into an AscTime format string.
+-/
+def toAscTimeString (ldt : LocalDateTime) : String :=
+  Formats.AscTime.format (DateTime.ofLocalDateTime ldt .UTC)
+
+/--
+Parses a `String` in the `LongDateFormat` and returns a `LocalDateTime` object in the GMT time zone.
+-/
+def fromLongDateFormatString (input : String) : Except String LocalDateTime :=
+  Formats.LongDateFormat.parse input
+  |>.map DateTime.toLocalDateTime
+
+/--
+Formats a `LocalDateTime` value into a LongDateFormat string.
+-/
+def toLongDateFormatString (ldt : LocalDateTime) : String :=
+  Formats.LongDateFormat.format (DateTime.ofLocalDateTime ldt .UTC)
+
+/--
+Parses a `String` in the `AscTime` or `LongDate` format and returns a `LocalDateTime`.
+-/
+def parse (date : String) : Except String LocalDateTime :=
+  fromAscTimeString date
+  <|> fromLongDateFormatString date
+
+end LocalDateTime
+
 namespace DateTime
 
 /--

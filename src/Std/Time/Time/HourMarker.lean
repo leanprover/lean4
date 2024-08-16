@@ -13,7 +13,7 @@ open Internal
 set_option linter.all true
 
 /--
-`HourMarker` represents the two 12-hour periods of the day: `am` for hour between 12:00 AM and
+`HourMarker` represents the two 12-hour periods of the day: `am` for hours between 12:00 AM and
 11:59 AM, and `pm` for hours between 12:00 PM and 11:59 PM.
 -/
 inductive HourMarker

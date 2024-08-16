@@ -33,7 +33,6 @@ def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension)
             if let some eqns ← getEqnsFor? declName then
               for eqn in eqns do
                 addSimpTheorem ext eqn post (inv := false) attrKind prio
-              -- See SimpTheorems.addDeclToUnfold for when to add this to unfolding
               ext.add (SimpEntry.toUnfoldThms declName eqns) attrKind
               if (← SimpTheorems.unfoldEvenWithEqns declName) then
                 ext.add (SimpEntry.toUnfold declName) attrKind

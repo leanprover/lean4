@@ -433,7 +433,7 @@ private def expandParentFields (s : Struct) : TermElabM Struct := do
     | { lhs := .fieldName ref fieldName :: _,    .. } =>
       addCompletionInfo <| CompletionInfo.fieldId ref fieldName (← getLCtx) s.structName
       match findField? env s.structName fieldName with
-      | none => throwErrorAt ref "'{fieldName}' is not a field of structure '{s.structName}'"
+      | none => throwErrorAt ref "'{fieldName}' is not a field of structure '{MessageData.ofConstName s.structName}'"
       | some baseStructName =>
         if baseStructName == s.structName then pure field
         else match getPathToBaseStructure? env baseStructName s.structName with

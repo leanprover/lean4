@@ -15,7 +15,7 @@ register_builtin_option linter.omit : Bool := {
   descr := "enable the 'avoid omit' linter"
 }
 
-def omit : Linter where
+def «omit» : Linter where
   run stx := do
     unless linter.omit.get (← getOptions) do
       return
@@ -23,4 +23,4 @@ def omit : Linter where
       logLint linter.omit stx m!"`omit` should be avoided in favor of restructuring your \
         `variable` declarations"
 
-builtin_initialize addLinter omit
+builtin_initialize addLinter «omit»

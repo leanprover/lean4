@@ -89,8 +89,8 @@ private def modifyNames : Array Name :=
   #[``toListModel_insert, ``toListModel_erase, ``toListModel_insertIfNew]
 
 private def congrNames : MacroM (Array (TSyntax `term)) := do
-  return #[← `(Std.DHashMap.Internal.List.Perm.isEmpty_eq), ← `(containsKey_of_perm),
-    ← `(Std.DHashMap.Internal.List.Perm.length_eq), ← `(getValueCast?_of_perm _),
+  return #[← `(_root_.List.Perm.isEmpty_eq), ← `(containsKey_of_perm),
+    ← `(_root_.List.Perm.length_eq), ← `(getValueCast?_of_perm _),
     ← `(getValue?_of_perm _), ← `(getValue_of_perm _), ← `(getValueCast_of_perm _),
     ← `(getValueCast!_of_perm _), ← `(getValueCastD_of_perm _), ← `(getValue!_of_perm _),
     ← `(getValueD_of_perm _) ]

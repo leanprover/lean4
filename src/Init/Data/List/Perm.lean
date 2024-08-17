@@ -400,6 +400,11 @@ theorem Pairwise.perm {R : α → α → Prop} {l l' : List α} (hR : l.Pairwise
 theorem Perm.pairwise {R : α → α → Prop} {l l' : List α} (hl : l ~ l') (hR : l.Pairwise R)
     (hsymm : ∀ {x y}, R x y → R y x) : l'.Pairwise R := hR.perm hl hsymm
 
+theorem Nodup.perm {l l' : List α} (hR : l.Nodup) (hl : l ~ l') : l'.Nodup :=
+  Pairwise.perm hR hl (by intro x y h h'; simp_all)
+
+theorem Perm.nodup {l l' : List α} (hl : l ~ l') (hR : l.Nodup) : l'.Nodup := hR.perm hl
+
 theorem Perm.nodup_iff {l₁ l₂ : List α} : l₁ ~ l₂ → (Nodup l₁ ↔ Nodup l₂) :=
   Perm.pairwise_iff <| @Ne.symm α
 

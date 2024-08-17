@@ -232,6 +232,12 @@ theorem Pairwise.rel_of_mem_take_of_mem_drop
   rw [← take_append_drop n l, sublist_append_iff]
   refine ⟨[x], [y], rfl, by simpa, by simpa⟩
 
+theorem Pairwise.rel_of_mem_append
+    {l₁ l₂ : List α} (h : (l₁ ++ l₂).Pairwise R) (hx : x ∈ l₁) (hy : y ∈ l₂) : R x y := by
+  apply pairwise_iff_forall_sublist.mp h
+  rw [sublist_append_iff]
+  exact ⟨[x], [y], rfl, by simpa, by simpa⟩
+
 theorem pairwise_of_forall_mem_list {l : List α} {r : α → α → Prop} (h : ∀ a ∈ l, ∀ b ∈ l, r a b) :
     l.Pairwise r := by
   rw [pairwise_iff_forall_sublist]

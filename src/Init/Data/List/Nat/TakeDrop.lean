@@ -393,8 +393,6 @@ theorem take_reverse {α} {xs : List α} {n : Nat} (h : n ≤ xs.length) :
     rw [length_append, length_reverse]
     rfl
 
-@[deprecated (since := "2024-06-15")] abbrev reverse_take := @take_reverse
-
 theorem drop_reverse {α} {xs : List α} {n : Nat} (h : n ≤ xs.length) :
     xs.reverse.drop n = (xs.take (xs.length - n)).reverse := by
   conv =>
@@ -407,6 +405,26 @@ theorem drop_reverse {α} {xs : List α} {n : Nat} (h : n ≤ xs.length) :
     congr
     omega
   · simp only [length_reverse, sub_le]
+
+theorem reverse_take {l : List α} {n : Nat} :
+    (l.take n).reverse = l.reverse.drop (l.length - n) := by
+  by_cases h : n ≤ l.length
+  · rw [drop_reverse (by omega)]
+    congr
+    omega
+  · have w : l.length - n = 0 := by omega
+    rw [w, drop_zero, take_of_length_le]
+    omega
+
+theorem reverse_drop {l : List α} {n : Nat} :
+    (l.drop n).reverse = l.reverse.take (l.length - n) := by
+  by_cases h : n ≤ l.length
+  · rw [take_reverse (by omega)]
+    congr
+    omega
+  · have w : l.length - n = 0 := by omega
+    rw [w, take_zero, drop_of_length_le, reverse_nil]
+    omega
 
 /-! ### rotateLeft -/
 

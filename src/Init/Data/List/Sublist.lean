@@ -579,11 +579,14 @@ theorem IsSuffix.isInfix : l₁ <:+ l₂ → l₁ <:+: l₂ := fun ⟨t, h⟩ =>
 
 @[simp] theorem nil_infix {l : List α} : [] <:+: l := nil_prefix.isInfix
 
-@[simp] theorem prefix_refl {l : List α} : l <+: l := ⟨[], append_nil _⟩
+theorem prefix_refl (l : List α) : l <+: l := ⟨[], append_nil _⟩
+@[simp] theorem prefix_rfl {l : List α} : l <+: l := prefix_refl l
 
-@[simp] theorem suffix_refl {l : List α} : l <:+ l := ⟨[], rfl⟩
+theorem suffix_refl (l : List α) : l <:+ l := ⟨[], rfl⟩
+@[simp] theorem suffix_rfl {l : List α} : l <:+ l := suffix_refl l
 
-@[simp] theorem infix_refl {l : List α} : l <:+: l := prefix_refl.isInfix
+theorem infix_refl (l : List α) : l <:+: l := prefix_rfl.isInfix
+@[simp] theorem infix_rfl {l : List α} : l <:+: l := infix_refl l
 
 @[simp] theorem suffix_cons (a : α) : ∀ l, l <:+ a :: l := suffix_append [a]
 
@@ -619,11 +622,11 @@ protected theorem IsSuffix.sublist (h : l₁ <:+ l₂) : l₁ <+ l₂ :=
 protected theorem IsSuffix.subset (hl : l₁ <:+ l₂) : l₁ ⊆ l₂ :=
   hl.sublist.subset
 
-@[simp] theorem infix_nil : l <:+: [] ↔ l = [] := ⟨(sublist_nil.1 ·.sublist), (· ▸ infix_refl)⟩
+@[simp] theorem infix_nil : l <:+: [] ↔ l = [] := ⟨(sublist_nil.1 ·.sublist), (· ▸ infix_rfl)⟩
 
-@[simp] theorem prefix_nil : l <+: [] ↔ l = [] := ⟨(sublist_nil.1 ·.sublist), (· ▸ prefix_refl)⟩
+@[simp] theorem prefix_nil : l <+: [] ↔ l = [] := ⟨(sublist_nil.1 ·.sublist), (· ▸ prefix_rfl)⟩
 
-@[simp] theorem suffix_nil : l <:+ [] ↔ l = [] := ⟨(sublist_nil.1 ·.sublist), (· ▸ suffix_refl)⟩
+@[simp] theorem suffix_nil : l <:+ [] ↔ l = [] := ⟨(sublist_nil.1 ·.sublist), (· ▸ suffix_rfl)⟩
 
 theorem eq_nil_of_infix_nil (h : l <:+: []) : l = [] := infix_nil.mp h
 theorem eq_nil_of_prefix_nil (h : l <+: []) : l = [] := prefix_nil.mp h

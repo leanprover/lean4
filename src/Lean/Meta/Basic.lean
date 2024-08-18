@@ -560,16 +560,31 @@ def useEtaStruct (inductName : Name) : MetaM Bool := do
   | .all  => return true
   | .notClasses => return !isClass (← getEnv) inductName
 
-/-! WARNING: The following 4 constants are a hack for simulating forward declarations.
-   They are defined later using the `export` attribute. This is hackish because we
-   have to hard-code the true arity of these definitions here, and make sure the C names match.
-   We have used another hack based on `IO.Ref`s in the past, it was safer but less efficient. -/
+/-!
+WARNING: The following 4 constants are a hack for simulating forward declarations.
+They are defined later using the `export` attribute. This is hackish because we
+have to hard-code the true arity of these definitions here, and make sure the C names match.
+We have used another hack based on `IO.Ref`s in the past, it was safer but less efficient.
+-/
 
-/-- Reduces an expression to its Weak Head Normal Form.
-This is when the topmost expression has been fully reduced,
-but may contain subexpressions which have not been reduced. -/
+/--
+Reduces an expression to its *weak head normal form*.
+This is when the "head" of the top-level expression has been fully reduced.
+The result may contain subexpressions that have not been reduced.
+
+See `Lean.Meta.whnfImp` for the implementation.
+-/
 @[extern 6 "lean_whnf"] opaque whnf : Expr → MetaM Expr
-/-- Returns the inferred type of the given expression, or fails if it is not type-correct. -/
+/--
+Returns the inferred type of the given expression.
+
+The type inference algorithm assumes the expression is type-correct for efficiency,
+but in certain circumstances it can detect type errors and fail.
+If `inferType` succeeds for a given expression it does *not* mean it is type-correct.
+For type checking, use `Lean.Meta.check`.
+
+See `Lean.Meta.inferTypeImp` for the implementation.
+-/
 @[extern 6 "lean_infer_type"] opaque inferType : Expr → MetaM Expr
 @[extern 7 "lean_is_expr_def_eq"] opaque isExprDefEqAux : Expr → Expr → MetaM Bool
 @[extern 7 "lean_is_level_def_eq"] opaque isLevelDefEqAux : Level → Level → MetaM Bool

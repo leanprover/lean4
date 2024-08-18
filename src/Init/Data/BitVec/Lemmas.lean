@@ -303,6 +303,9 @@ theorem toInt_ofNat {n : Nat} (x : Nat) :
 @[simp] theorem ofInt_natCast (w n : Nat) :
   BitVec.ofInt w (n : Int) = BitVec.ofNat w n := rfl
 
+@[simp] theorem ofInt_ofNat (w n : Nat) :
+  BitVec.ofInt w (no_index (OfNat.ofNat n)) = BitVec.ofNat w n := rfl
+
 /-! ### zeroExtend and truncate -/
 
 theorem truncate_eq_zeroExtend {v : Nat} {x : BitVec w} :

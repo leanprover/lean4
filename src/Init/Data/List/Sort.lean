@@ -1,27 +1,68 @@
-import Lean
+prelude
+
+import Init.Data.List.Nat.Sublist
+import Init.Data.List.Nat.Pairwise
+import Init.Data.List.Nat.Range
+import Init.Data.List.Perm
+import Init.Data.List.Impl
+-- import Lean.Eval
 
 namespace List
 
+/--
+Split a list at an index.
+```
+splitAt 2 [a, b, c] = ([a, b], [c])
+```
+-/
 def splitAt (n : Nat) (l : List α) : List α × List α := go l n [] where
-  /-- Auxiliary for `splitAt`: `splitAt.go xs n acc = (acc.reverse ++ take n xs, drop n xs)`
-  if `n < length xs`, else `(l, [])`. -/
+  /--
+  Auxiliary for `splitAt`:
+  `splitAt.go l xs n acc = (acc.reverse ++ take n xs, drop n xs)` if `n < xs.length`,
+  and `(l, [])` otherwise.
+  -/
   go : List α → Nat → List α → List α × List α
+  | [], _, _ => (l, []) -- This branch ensures the pointer equality of the result with the input
+                        -- without any runtime branching cost.
   | x :: xs, n+1, acc => go xs n (x :: acc)
   | xs, _, acc => (acc.reverse, xs)
 
 theorem splitAt_go (n : Nat) (l acc : List α) :
-    splitAt.go l n acc = (acc.reverse ++ l.take n, l.drop n) := by
-  induction l generalizing n acc with
+    splitAt.go l xs n acc =
+      if n < xs.length then (acc.reverse ++ xs.take n, xs.drop n) else (l, []) := by
+  induction xs generalizing n acc with
   | nil => simp [splitAt.go]
   | cons x xs ih =>
     cases n with
     | zero => simp [splitAt.go]
     | succ n =>
       rw [splitAt.go, take_succ_cons, drop_succ_cons, ih n (x :: acc),
-        reverse_cons, append_assoc, singleton_append]
+        reverse_cons, append_assoc, singleton_append, length_cons]
+      simp only [Nat.succ_lt_succ_iff]
 
 theorem splitAt_eq (n : Nat) (l : List α) : splitAt n l = (l.take n, l.drop n) := by
   rw [splitAt, splitAt_go, reverse_nil, nil_append]
+  split <;> simp_all [take_of_length_le, drop_of_length_le]
+
+def splitRevAt (n : Nat) (l : List α) : List α × List α := go l n [] where
+  /-- Auxiliary for `splitAtRev`: `splitAtRev.go xs n acc = ((take n xs).reverse ++ acc, drop n xs)`. -/
+  go : List α → Nat → List α → List α × List α
+  | x :: xs, n+1, acc => go xs n (x :: acc)
+  | xs, _, acc => (acc, xs)
+
+theorem splitRevAt_go (xs : List α) (n : Nat) (acc : List α) :
+    splitRevAt.go xs n acc = ((take n xs).reverse ++ acc, drop n xs) := by
+  induction xs generalizing n acc with
+  | nil => simp [splitRevAt.go]
+  | cons x xs ih =>
+    cases n with
+    | zero => simp [splitRevAt.go]
+    | succ n =>
+      rw [splitRevAt.go, ih n (x :: acc), take_succ_cons, reverse_cons, drop_succ_cons,
+        append_assoc, singleton_append]
+
+theorem splitRevAt_eq (n : Nat) (l : List α) : splitRevAt n l = ((l.take n).reverse, l.drop n) := by
+  rw [splitRevAt, splitRevAt_go, append_nil]
 
 /--
 `O(min |l| |r|)`. Merge two lists using `le` as a switch.
@@ -60,6 +101,11 @@ def splitInTwo (l : { l : List α // l.length = n }) :
   let r := splitAt ((n+1)/2) l.1
   (⟨r.1, by simp [r, splitAt_eq, l.2]; omega⟩, ⟨r.2, by simp [r, splitAt_eq, l.2]; omega⟩)
 
+def splitRevInTwo (l : { l : List α // l.length = n }) :
+    { l : List α // l.length = n/2 } × { l : List α // l.length = (n+1)/2 } :=
+  let r := splitRevAt (n/2) l.1
+  (⟨r.1, by simp [r, splitRevAt_eq, l.2]; omega⟩, ⟨r.2, by simp [r, splitRevAt_eq, l.2]; omega⟩)
+
 /--
 Simplified implementation of stable merge sort.
 
@@ -77,6 +123,11 @@ def mergeSort (le : α → α → Bool) : List α → List α
     merge le (mergeSort le lr.1) (mergeSort le lr.2)
 termination_by l => l.length
 
+-- Performance is dominated by the linear term:
+-- best fit of runtime against `A * n + B * n * log n` (`n` in millions of items, ranging over 1 to 10)
+-- gives A = 0.135, B = 0.010
+-- (As measured in `tests/bench/mergeSort/` via `python3 bench.py`)
+-- A = 0.143, B = 0.107
 def mergeSortTR (le : α → α → Bool) (l : List α) : List α :=
   run ⟨l, rfl⟩
 where run : {n : Nat} → { l : List α // l.length = n } → List α
@@ -86,9 +137,30 @@ where run : {n : Nat} → { l : List α // l.length = n } → List α
     let (l, r) := splitInTwo xs
     mergeTR le (run l) (run r)
 
-#eval mergeSortTR (· ≤ ·) [3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5]
+-- A = 0.128, B = 0.107
+def mergeSortTR₂ (le : α → α → Bool) (l : List α) : List α :=
+  run ⟨l, rfl⟩
+where
+  run : {n : Nat} → { l : List α // l.length = n } → List α
+  | 0, ⟨[], _⟩ => []
+  | 1, ⟨[a], _⟩ => [a]
+  | n+2, xs =>
+    let (l, r) := splitRevInTwo xs
+    mergeTR le (run' l) (run r)
+  run' : {n : Nat} → { l : List α // l.length = n } → List α
+  | 0, ⟨[], _⟩ => []
+  | 1, ⟨[a], _⟩ => [a]
+  | n+2, xs =>
+    let (l, r) := splitRevInTwo xs
+    mergeTR le (run' r) (run l)
 
-#eval mergeSortTR (fun x y => x/10 ≤ y/10) [3, 100 + 1, 4, 100 + 1, 5, 100 + 9, 2, 10 + 6, 5, 10 + 3, 5]
+unseal mergeSortTR.run mergeTR.go in
+example : mergeSortTR (· ≤ ·) [3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5] = [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9] :=
+  rfl
+
+unseal mergeSortTR.run mergeTR.go in
+example : mergeSortTR (fun x y => x/10 ≤ y/10) [3, 100 + 1, 4, 100 + 1, 5, 100 + 9, 2, 10 + 6, 5, 10 + 3, 5] = [3, 4, 5, 2, 5, 5, 16, 13, 101, 101, 109] :=
+  rfl
 
 abbrev Sorted (r : α → α → Bool) (xs : List α) : Prop := xs.Pairwise (fun x y => r x y)
 
@@ -100,6 +172,9 @@ abbrev Sorted (r : α → α → Bool) (xs : List α) : Prop := xs.Pairwise (fun
 
 theorem splitInTwo_fst_append_splitInTwo_snd (l : { l : List α // l.length = n }) : (splitInTwo l).1.1 ++ (splitInTwo l).2.1 = l.1 := by
   simp
+
+theorem splitRevInTwo_fst (l : { l : List α // l.length = n }) : (splitRevInTwo l).1 = ⟨(splitInTwo l).1.1.reverse, sorry⟩ := sorry
+theorem splitRevInTwo_snd (l : { l : List α // l.length = n }) : (splitRevInTwo l).2 = ⟨(splitInTwo l).2.1, sorry⟩ := sorry
 
 variable {le : α → α → Bool}
 
@@ -127,9 +202,46 @@ theorem mergeSortTR_run_eq_mergeSort : {n : Nat} → (l : { l : List α // l.len
   | 1, ⟨[a], _⟩ => by simp [mergeSortTR.run, mergeSort]
   | n+2, ⟨a :: b :: l, h⟩ => by
     cases h
-    simp [mergeSortTR.run, mergeSort]
+    simp only [mergeSortTR.run, mergeSortTR.run, mergeSort]
     rw [merge_eq_mergeTR]
     rw [mergeSortTR_run_eq_mergeSort, mergeSortTR_run_eq_mergeSort]
+
+mutual
+theorem mergeSortTR₂_run_eq_mergeSort : {n : Nat} → (l : { l : List α // l.length = n }) → mergeSortTR₂.run le l = mergeSort le l.1
+  | 0, ⟨[], _⟩
+  | 1, ⟨[a], _⟩ => by simp [mergeSortTR₂.run, mergeSort]
+  | n+2, ⟨a :: b :: l, h⟩ => by
+    cases h
+    simp only [mergeSortTR₂.run, mergeSort]
+    rw [splitRevInTwo_fst, splitRevInTwo_snd]
+    rw [mergeSortTR₂_run_eq_mergeSort, mergeSortTR₂_run'_eq_mergeSort]
+    rw [merge_eq_mergeTR]
+    rw [reverse_reverse]
+
+theorem mergeSortTR₂_run'_eq_mergeSort : {n : Nat} → (l : { l : List α // l.length = n }) → (w : l' = l.1.reverse) → mergeSortTR₂.run' le l = mergeSort le l'
+  | 0, ⟨[], _⟩, w
+  | 1, ⟨[a], _⟩, w => by simp_all [mergeSortTR₂.run', mergeSort]
+  | n+2, ⟨a :: b :: l, h⟩, w => by
+    cases h
+    simp only [mergeSortTR₂.run', mergeSort]
+    rw [splitRevInTwo_fst, splitRevInTwo_snd]
+    rw [mergeSortTR₂_run_eq_mergeSort, mergeSortTR₂_run'_eq_mergeSort _ rfl]
+    rw [← merge_eq_mergeTR]
+    cases l' with
+    | nil => sorry
+    | cons x l' =>
+      cases l' with
+      | nil => sorry
+      | cons y l' =>
+        rw [mergeSort]
+        congr 2
+        dsimp at w
+        simp only [w]
+        simp only [splitInTwo_fst, splitInTwo_snd]
+        simp only [reverse_drop]
+        sorry
+
+end
 
 @[csimp] theorem mergeSort_eq_mergeSortTR : @mergeSort = @mergeSortTR := by
   funext

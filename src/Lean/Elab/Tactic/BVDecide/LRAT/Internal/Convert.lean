@@ -112,7 +112,7 @@ format for usage with `bv_decide`'s `LRAT.Internal`.
 
 Notably this:
 1. Increments all variables as DIMACS variables start at 1 instead of 0
-2. Adds a leading `none` clause. This clause *must* be persistet as the LRAT cecker wants to have
+2. Adds a leading `none` clause. This clause *must* be persistent as the LRAT checker wants to have
   the DIMACS file line by line and the DIMACS file begins with the `p cnf x y` meta instruction.
 -/
 def CNF.convertLRAT (cnf : CNF Nat) : DefaultFormula (cnf.numLiterals + 1) :=

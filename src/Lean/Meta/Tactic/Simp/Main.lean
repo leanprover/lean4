@@ -138,7 +138,20 @@ private def unfold? (e : Expr) : SimpM (Option Expr) := do
     return none
   let fName := f.constName!
   let ctx ← getContext
-  let rec unfoldDeclToUnfold? : SimpM (Option Expr) := do
+  if (← isProjectionFn fName) then
+    return none -- should be reduced by `reduceProjFn?`
+  else if ctx.config.autoUnfold then
+    if ctx.simpTheorems.isErased (.decl fName) then
+      return none
+    else if hasSmartUnfoldingDecl (← getEnv) fName then
+      withDefault <| unfoldDefinition? e
+    else if (← isMatchDef fName) then
+      let some value ← withDefault <| unfoldDefinition? e | return none
+      let .reduced value ← reduceMatcher? value | return none
+      return some value
+    else
+      return none
+  else if ctx.isDeclToUnfold fName then
     let options ← getOptions
     let cfg ← getConfig
     -- Support for issue #2042
@@ -155,21 +168,6 @@ private def unfold? (e : Expr) : SimpM (Option Expr) := do
       -- Partially applied function, return `none`. See issue #2042
       if arity > e.getAppNumArgs then return none
       withDefault <| unfoldDefinition? e
-  if (← isProjectionFn fName) then
-    return none -- should be reduced by `reduceProjFn?`
-  else if ctx.config.autoUnfold then
-    if ctx.simpTheorems.isErased (.decl fName) then
-      return none
-    else if hasSmartUnfoldingDecl (← getEnv) fName then
-      withDefault <| unfoldDefinition? e
-    else if (← isMatchDef fName) then
-      let some value ← withDefault <| unfoldDefinition? e | return none
-      let .reduced value ← reduceMatcher? value | return none
-      return some value
-    else
-      return none
-  else if ctx.isDeclToUnfold fName then
-    unfoldDeclToUnfold?
   else
     return none
 

@@ -3,7 +3,7 @@
 Benchmarking `List.mergeSort`.
 
 Run `lake exe mergeSort k` to run a benchmark on lists of size `k * 10^5`.
-This reports the average time to sort:
+This reports the average time (in milliseconds) to sort:
 * an already sorted list
 * a reverse sorted list
 * an almost sorted list

@@ -28,27 +28,20 @@ def check (lratProof : Array IntAction) (cnf : CNF Nat) : Bool :=
   let internalFormula := CNF.convertLRAT cnf
   let lratProof := lratProof.toList
   let lratProof := lratProof.map (intActionToDefaultClauseAction _)
-  let lratProof : List { act // WellFormedAction act } :=
+  let lratProof :=
     lratProof.filterMap
       (fun actOpt =>
         match actOpt with
         | none => none
-        | some (LRAT.Action.addEmpty id rupHints) =>
-          some ⟨LRAT.Action.addEmpty id rupHints, by simp only [WellFormedAction]⟩
-        | some (LRAT.Action.addRup id c rupHints) =>
-          some ⟨LRAT.Action.addRup id c rupHints, by simp only [WellFormedAction]⟩
-        | some (LRAT.Action.del ids) =>
-          some ⟨LRAT.Action.del ids, by simp only [WellFormedAction]⟩
+        | some (LRAT.Action.addEmpty id rupHints) => some (LRAT.Action.addEmpty id rupHints)
+        | some (LRAT.Action.addRup id c rupHints) => some (LRAT.Action.addRup id c rupHints)
+        | some (LRAT.Action.del ids) => some (LRAT.Action.del ids)
         | some (LRAT.Action.addRat id c pivot rupHints ratHints) =>
-          if h : pivot ∈ Clause.toList c then
-            some ⟨
-              LRAT.Action.addRat id c pivot rupHints ratHints,
-              by simp [WellFormedAction, Clause.limplies_iff_mem, h]
-            ⟩
+          if pivot ∈ Clause.toList c then
+            some (LRAT.Action.addRat id c pivot rupHints ratHints)
           else
             none
       )
-  let lratProof := lratProof.map Subtype.val
   let checkerResult := lratChecker internalFormula lratProof
   checkerResult = .success
 
@@ -69,10 +62,20 @@ theorem check_sound (lratProof : Array IntAction) (cnf : CNF Nat) :
       _
       (by
         intro action h
-        simp only [List.mem_map, List.mem_filterMap] at h
+        simp only [Array.toList_eq, List.filterMap_map, List.mem_filterMap, Function.comp_apply] at h
         rcases h with ⟨WellFormedActions, _, h2⟩
-        rw [← h2]
-        exact WellFormedActions.property)
+        split at h2
+        . contradiction
+        . simp only [Option.some.injEq] at h2
+          simp [← h2, WellFormedAction]
+        . simp only [Option.some.injEq] at h2
+          simp [← h2, WellFormedAction]
+        . simp only [Option.some.injEq] at h2
+          simp [← h2, WellFormedAction]
+        . simp only [ite_some_none_eq_some] at h2
+          rcases h2 with ⟨hleft, hright⟩
+          simp [WellFormedAction, hleft, ← hright, Clause.limplies_iff_mem]
+      )
       h1
   apply CNF.unsat_of_convertLRAT_unsat
   assumption

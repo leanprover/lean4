@@ -49,8 +49,8 @@ namespace lean {
 struct olean_header {
     // 5 bytes: magic number
     char marker[5] = {'o', 'l', 'e', 'a', 'n'};
-    // 1 byte: version, currently always `1`
-    uint8_t version = 1;
+    // 1 byte: version, currently `2`
+    uint8_t version = 2;
     // 42 bytes: build githash, padded with `\0` to the right
     char githash[42];
     // address at which the beginning of the file (including header) is attempted to be mmapped

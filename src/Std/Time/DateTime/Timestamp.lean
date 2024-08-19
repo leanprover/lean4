@@ -74,7 +74,8 @@ def neg (t : Timestamp) : Timestamp := by
   | inr n => exact Or.inl (n.imp Int.neg_le_neg Int.neg_le_neg)
 
 /--
-Adds two timestamps together, handling any carry-over in nanoseconds.
+Adds two timestamps together, handling any carry-over in nanoseconds. It should not be used for `Timestamp`.
+The subtraction of two `Timestamp` returns a duration but the addition does not make sense at all.
 -/
 def add (t₁ t₂ : Timestamp) : Timestamp := by
   let diffSecs := t₁.second + t₂.second

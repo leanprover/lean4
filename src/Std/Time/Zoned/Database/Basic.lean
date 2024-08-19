@@ -95,7 +95,7 @@ def convertTZifV1 (tz : TZif.TZifV1) (id : String) : Except String ZoneRules := 
       then transitions := transitions.push result
       else .error s!"cannot convert transtiion {i} of the file"
 
-  .ok { leapSeconds,transitions, localTimes := times }
+  .ok { leapSeconds, transitions, localTimes := times }
 
 /--
 Converts a `TZif.TZifV2` structure to a `ZoneRules` structure.

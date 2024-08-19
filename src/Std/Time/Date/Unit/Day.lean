@@ -22,7 +22,7 @@ def Ordinal := Bounded.LE 1 31
 instance : OfNat Ordinal n :=
   inferInstanceAs (OfNat (Bounded.LE 1 (1 + (30 : Nat))) n)
 
-instance { x y : Ordinal } : Decidable (x ≤ y) :=
+instance {x y : Ordinal} : Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.val ≤ y.val))
 
 instance : Inhabited Ordinal where default := 1

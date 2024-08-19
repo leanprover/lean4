@@ -618,7 +618,7 @@ namespace Format
 
 /--
 Constructs a new `Format` specification for a date-time string. Modifiers can be combined to create
-custom formats, such as %YYYY, MMMM, D".
+custom formats, such as "YYYY, MMMM, D".
 -/
 def spec (input : String) : Except String (Format tz) := do
   let string ← specParser.run input

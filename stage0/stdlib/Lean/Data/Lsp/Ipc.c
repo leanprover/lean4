@@ -79,6 +79,7 @@ static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__32;
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__30;
 static lean_object* l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___spec__5___closed__10;
 static lean_object* l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___spec__5___closed__9;
+lean_object* l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2452_(lean_object*);
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_ipcStdioConfig;
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__26;
@@ -112,7 +113,6 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_Lsp_Ipc_shutdown___spec__3(lean_objec
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__23;
 static lean_object* l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___spec__5___closed__11;
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__59;
-lean_object* l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2480_(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeLspRequest___at_Lean_Lsp_Ipc_shutdown___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__9;
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__56;
@@ -255,7 +255,7 @@ static lean_object* _init_l_Lean_Json_toStructured_x3f___at_Lean_Lsp_Ipc_shutdow
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("expected structured object, got '", 33);
+x_1 = lean_mk_string_unchecked("expected structured object, got '", 33, 33);
 return x_1;
 }
 }
@@ -263,7 +263,7 @@ static lean_object* _init_l_Lean_Json_toStructured_x3f___at_Lean_Lsp_Ipc_shutdow
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -631,7 +631,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("exit", 4);
+x_1 = lean_mk_string_unchecked("exit", 4, 4);
 return x_1;
 }
 }
@@ -727,7 +727,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("assertion violation: ", 21);
+x_1 = lean_mk_string_unchecked("assertion violation: ", 21, 21);
 return x_1;
 }
 }
@@ -735,7 +735,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("result.isNull\n      ", 20);
+x_1 = lean_mk_string_unchecked("result.isNull\n      ", 20, 20);
 return x_1;
 }
 }
@@ -753,7 +753,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Data.Lsp.Ipc", 17);
+x_1 = lean_mk_string_unchecked("Lean.Data.Lsp.Ipc", 17, 17);
 return x_1;
 }
 }
@@ -761,7 +761,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Lsp.Ipc.shutdown", 21);
+x_1 = lean_mk_string_unchecked("Lean.Lsp.Ipc.shutdown", 21, 21);
 return x_1;
 }
 }
@@ -782,7 +782,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Expected id ", 12);
+x_1 = lean_mk_string_unchecked("Expected id ", 12, 12);
 return x_1;
 }
 }
@@ -790,7 +790,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", got id ", 9);
+x_1 = lean_mk_string_unchecked(", got id ", 9, 9);
 return x_1;
 }
 }
@@ -798,7 +798,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\"", 1);
+x_1 = lean_mk_string_unchecked("\"", 1, 1);
 return x_1;
 }
 }
@@ -806,7 +806,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -814,7 +814,7 @@ static lean_object* _init_l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -1334,7 +1334,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_shutdown___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("shutdown", 8);
+x_1 = lean_mk_string_unchecked("shutdown", 8, 8);
 return x_1;
 }
 }
@@ -1505,7 +1505,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_readResponseAs___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Unexpected result '", 19);
+x_1 = lean_mk_string_unchecked("Unexpected result '", 19, 19);
 return x_1;
 }
 }
@@ -1513,7 +1513,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_readResponseAs___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'\n", 2);
+x_1 = lean_mk_string_unchecked("'\n", 2, 2);
 return x_1;
 }
 }
@@ -1521,7 +1521,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_readResponseAs___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("2.0", 3);
+x_1 = lean_mk_string_unchecked("2.0", 3, 3);
 return x_1;
 }
 }
@@ -1539,7 +1539,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_readResponseAs___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("jsonrpc", 7);
+x_1 = lean_mk_string_unchecked("jsonrpc", 7, 7);
 return x_1;
 }
 }
@@ -1559,7 +1559,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_readResponseAs___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("message", 7);
+x_1 = lean_mk_string_unchecked("message", 7, 7);
 return x_1;
 }
 }
@@ -1567,7 +1567,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_readResponseAs___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("data", 4);
+x_1 = lean_mk_string_unchecked("data", 4, 4);
 return x_1;
 }
 }
@@ -1575,7 +1575,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_readResponseAs___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("id", 2);
+x_1 = lean_mk_string_unchecked("id", 2, 2);
 return x_1;
 }
 }
@@ -1583,7 +1583,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_readResponseAs___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("code", 4);
+x_1 = lean_mk_string_unchecked("code", 4, 4);
 return x_1;
 }
 }
@@ -1591,7 +1591,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_readResponseAs___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("error", 5);
+x_1 = lean_mk_string_unchecked("error", 5, 5);
 return x_1;
 }
 }
@@ -1599,7 +1599,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_readResponseAs___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Expected JSON-RPC response, got: '", 34);
+x_1 = lean_mk_string_unchecked("Expected JSON-RPC response, got: '", 34, 34);
 return x_1;
 }
 }
@@ -3390,7 +3390,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("textDocument/publishDiagnostics", 31);
+x_1 = lean_mk_string_unchecked("textDocument/publishDiagnostics", 31, 31);
 return x_1;
 }
 }
@@ -3398,7 +3398,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Cannot decode publishDiagnostics parameters\n", 44);
+x_1 = lean_mk_string_unchecked("Cannot decode publishDiagnostics parameters\n", 44, 44);
 return x_1;
 }
 }
@@ -3406,7 +3406,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Waiting for diagnostics failed: ", 32);
+x_1 = lean_mk_string_unchecked("Waiting for diagnostics failed: ", 32, 32);
 return x_1;
 }
 }
@@ -3484,7 +3484,7 @@ if (x_20 == 0)
 {
 lean_object* x_21; 
 lean_ctor_set_tag(x_19, 4);
-x_21 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2480_(x_19);
+x_21 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2452_(x_19);
 if (lean_obj_tag(x_21) == 0)
 {
 uint8_t x_22; 
@@ -3662,7 +3662,7 @@ lean_inc(x_55);
 lean_dec(x_19);
 x_56 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_56, 0, x_55);
-x_57 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2480_(x_56);
+x_57 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2452_(x_56);
 if (lean_obj_tag(x_57) == 0)
 {
 lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; 
@@ -3812,7 +3812,7 @@ if (x_81 == 0)
 {
 lean_object* x_82; 
 lean_ctor_set_tag(x_19, 5);
-x_82 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2480_(x_19);
+x_82 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2452_(x_19);
 if (lean_obj_tag(x_82) == 0)
 {
 uint8_t x_83; 
@@ -3990,7 +3990,7 @@ lean_inc(x_116);
 lean_dec(x_19);
 x_117 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_117, 0, x_116);
-x_118 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2480_(x_117);
+x_118 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2452_(x_117);
 if (lean_obj_tag(x_118) == 0)
 {
 lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; 
@@ -4158,7 +4158,7 @@ if (lean_is_scalar(x_144)) {
  lean_ctor_set_tag(x_145, 4);
 }
 lean_ctor_set(x_145, 0, x_143);
-x_146 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2480_(x_145);
+x_146 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2452_(x_145);
 if (lean_obj_tag(x_146) == 0)
 {
 lean_object* x_147; lean_object* x_148; lean_object* x_149; lean_object* x_150; lean_object* x_151; lean_object* x_152; lean_object* x_153; 
@@ -4316,7 +4316,7 @@ if (lean_is_scalar(x_172)) {
  lean_ctor_set_tag(x_173, 5);
 }
 lean_ctor_set(x_173, 0, x_171);
-x_174 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2480_(x_173);
+x_174 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2452_(x_173);
 if (lean_obj_tag(x_174) == 0)
 {
 lean_object* x_175; lean_object* x_176; lean_object* x_177; lean_object* x_178; lean_object* x_179; lean_object* x_180; lean_object* x_181; 
@@ -4516,7 +4516,7 @@ if (lean_is_scalar(x_208)) {
  lean_ctor_set_tag(x_209, 4);
 }
 lean_ctor_set(x_209, 0, x_207);
-x_210 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2480_(x_209);
+x_210 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2452_(x_209);
 if (lean_obj_tag(x_210) == 0)
 {
 lean_object* x_211; lean_object* x_212; lean_object* x_213; lean_object* x_214; lean_object* x_215; lean_object* x_216; lean_object* x_217; 
@@ -4678,7 +4678,7 @@ if (lean_is_scalar(x_237)) {
  lean_ctor_set_tag(x_238, 5);
 }
 lean_ctor_set(x_238, 0, x_236);
-x_239 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2480_(x_238);
+x_239 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2452_(x_238);
 if (lean_obj_tag(x_239) == 0)
 {
 lean_object* x_240; lean_object* x_241; lean_object* x_242; lean_object* x_243; lean_object* x_244; lean_object* x_245; lean_object* x_246; 
@@ -4892,7 +4892,7 @@ if (lean_is_scalar(x_276)) {
  lean_ctor_set_tag(x_277, 4);
 }
 lean_ctor_set(x_277, 0, x_275);
-x_278 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2480_(x_277);
+x_278 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2452_(x_277);
 if (lean_obj_tag(x_278) == 0)
 {
 lean_object* x_279; lean_object* x_280; lean_object* x_281; lean_object* x_282; lean_object* x_283; lean_object* x_284; lean_object* x_285; lean_object* x_286; 
@@ -5062,7 +5062,7 @@ if (lean_is_scalar(x_306)) {
  lean_ctor_set_tag(x_307, 5);
 }
 lean_ctor_set(x_307, 0, x_305);
-x_308 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2480_(x_307);
+x_308 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2452_(x_307);
 if (lean_obj_tag(x_308) == 0)
 {
 lean_object* x_309; lean_object* x_310; lean_object* x_311; lean_object* x_312; lean_object* x_313; lean_object* x_314; lean_object* x_315; lean_object* x_316; 
@@ -5500,7 +5500,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_collectDiagnostics___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("textDocument/waitForDiagnostics", 31);
+x_1 = lean_mk_string_unchecked("textDocument/waitForDiagnostics", 31, 31);
 return x_1;
 }
 }

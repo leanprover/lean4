@@ -22,7 +22,7 @@ structure LetRecDeclView where
   type          : Expr
   mvar          : Expr -- auxiliary metavariable used to lift the 'let rec'
   valStx        : Syntax
-  termination   : WF.TerminationHints
+  termination   : TerminationHints
 
 structure LetRecView where
   decls     : Array LetRecDeclView
@@ -30,20 +30,24 @@ structure LetRecView where
 
 /-  group ("let " >> nonReservedSymbol "rec ") >> sepBy1 (group (optional «attributes» >> letDecl)) ", " >> "; " >> termParser -/
 private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
-  let decls ← letRec[1][0].getSepArgs.mapM fun (attrDeclStx : Syntax) => do
+  let mut decls : Array LetRecDeclView := #[]
+  for attrDeclStx in letRec[1][0].getSepArgs do
     let docStr? ← expandOptDocComment? attrDeclStx[0]
     let attrOptStx := attrDeclStx[1]
     let attrs ← if attrOptStx.isNone then pure #[] else elabDeclAttrs attrOptStx[0]
     let decl := attrDeclStx[2][0]
     if decl.isOfKind `Lean.Parser.Term.letPatDecl then
       throwErrorAt decl "patterns are not allowed in 'let rec' expressions"
-    else if decl.isOfKind `Lean.Parser.Term.letIdDecl || decl.isOfKind `Lean.Parser.Term.letEqnsDecl then
+    else if decl.isOfKind ``Lean.Parser.Term.letIdDecl || decl.isOfKind ``Lean.Parser.Term.letEqnsDecl then
       let declId := decl[0]
       unless declId.isIdent do
         throwErrorAt declId "'let rec' expressions must be named"
       let shortDeclName := declId.getId
       let currDeclName? ← getDeclName?
       let declName := currDeclName?.getD Name.anonymous ++ shortDeclName
+      if decls.any fun decl => decl.declName == declName then
+        withRef declId do
+          throwError "'{declName}' has already been declared"
       checkNotAlreadyDeclared declName
       applyAttributesAt declName attrs AttributeApplicationTime.beforeElaboration
       addDocString' declName docStr?
@@ -61,9 +65,11 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
         pure decl[4]
       else
         liftMacroM <| expandMatchAltsIntoMatch decl decl[3]
-      let termination ← WF.elabTerminationHints ⟨attrDeclStx[3]⟩
-      pure { ref := declId, attrs, shortDeclName, declName, binderIds, type, mvar, valStx,
-             termination : LetRecDeclView }
+      let termination ← elabTerminationHints ⟨attrDeclStx[3]⟩
+      decls := decls.push {
+        ref := declId, attrs, shortDeclName, declName,
+        binderIds, type, mvar, valStx, termination
+      }
     else
       throwUnsupportedSyntax
   return { decls, body := letRec[3] }

@@ -24,7 +24,7 @@ inline expr instantiate_rev(expr const & e, buffer<expr> const & s) {
     return instantiate_rev(e, s.size(), s.data());
 }
 
-expr apply_beta(expr f, unsigned num_rev_args, expr const * rev_args);
+expr apply_beta(expr f, unsigned num_rev_args, expr const * rev_args, bool preserve_data = true, bool zeta = false);
 bool is_head_beta(expr const & t);
 expr head_beta_reduce(expr const & t);
 /* If `e` is of the form `(fun x, t) a` return `head_beta_const_fn(t)` if `t` does not depend on `x`,

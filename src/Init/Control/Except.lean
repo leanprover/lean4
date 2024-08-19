@@ -131,7 +131,7 @@ protected def adapt {ε' α : Type u} (f : ε → ε') : ExceptT ε m α → Exc
 end ExceptT
 
 @[always_inline]
-instance (m : Type u → Type v) (ε₁ : Type u) (ε₂ : Type u) [Monad m] [MonadExceptOf ε₁ m] : MonadExceptOf ε₁ (ExceptT ε₂ m) where
+instance (m : Type u → Type v) (ε₁ : Type u) (ε₂ : Type u) [MonadExceptOf ε₁ m] : MonadExceptOf ε₁ (ExceptT ε₂ m) where
   throw e := ExceptT.mk <| throwThe ε₁ e
   tryCatch x handle := ExceptT.mk <| tryCatchThe ε₁ x handle
 

@@ -51,6 +51,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_foldM___at_Lean_RBMap_forM___spec__1___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_RBMap_size___spec__1___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_fold___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_RBMap_isSingleton___rarg(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT uint8_t l_Lean_RBMap_contains___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_isBlack(lean_object*, lean_object*);
@@ -94,10 +95,12 @@ static lean_object* l_Prod_repr___at_Lean_RBMap_instRepr___spec__3___rarg___clos
 static lean_object* l_Lean_RBColor_noConfusion___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_RBNode_all(lean_object*, lean_object*);
 static lean_object* l_List_repr___at_Lean_RBMap_instRepr___spec__1___rarg___closed__7;
+LEAN_EXPORT lean_object* l_Lean_RBMap_isSingleton___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_instRepr(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_size___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_lowerBound___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_instForInProd___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBMap_isSingleton(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_contains___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_revFold___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_min___rarg___boxed(lean_object*);
@@ -135,6 +138,7 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_setBlack___rarg(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_mapM___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_rbmapOf(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_RBNode_isSingleton___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_findCore_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_forIn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_forIn_visit___at_Lean_RBMap_forIn___spec__1___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -253,6 +257,7 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_foldM___rarg___lambda__1(lean_object*, le
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_insert(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_isSingleton___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_maxDepth___rarg___boxed(lean_object*);
 static lean_object* l_List_repr___at_Lean_RBMap_instRepr___spec__1___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_RBNode_balLeft(lean_object*, lean_object*);
@@ -299,10 +304,12 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_RBMap_mergeBy___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Lean_RBMap_instRepr___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_singleton(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_isSingleton(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Lean_rbmapOf___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_foldM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_repr___at_Lean_RBMap_instRepr___spec__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBMap_isSingleton___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_forIn_visit___at_Lean_RBMap_instForInProd___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_map(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_max_x21___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -1117,6 +1124,63 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l_Lean_RBNode_singleton___rarg), 2, 0);
+return x_3;
+}
+}
+LEAN_EXPORT uint8_t l_Lean_RBNode_isSingleton___rarg(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+uint8_t x_2; 
+x_2 = 0;
+return x_2;
+}
+else
+{
+lean_object* x_3; 
+x_3 = lean_ctor_get(x_1, 0);
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_4; 
+x_4 = lean_ctor_get(x_1, 3);
+if (lean_obj_tag(x_4) == 0)
+{
+uint8_t x_5; 
+x_5 = 1;
+return x_5;
+}
+else
+{
+uint8_t x_6; 
+x_6 = 0;
+return x_6;
+}
+}
+else
+{
+uint8_t x_7; 
+x_7 = 0;
+return x_7;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_RBNode_isSingleton(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Lean_RBNode_isSingleton___rarg___boxed), 1, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_RBNode_isSingleton___rarg___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_RBNode_isSingleton___rarg(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
 return x_3;
 }
 }
@@ -20282,6 +20346,41 @@ lean_dec(x_3);
 return x_4;
 }
 }
+LEAN_EXPORT uint8_t l_Lean_RBMap_isSingleton___rarg(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; 
+x_2 = l_Lean_RBNode_isSingleton___rarg(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_RBMap_isSingleton(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_Lean_RBMap_isSingleton___rarg___boxed), 1, 0);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_RBMap_isSingleton___rarg___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_RBMap_isSingleton___rarg(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_RBMap_isSingleton___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_RBMap_isSingleton(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_RBMap_fold___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -21085,7 +21184,7 @@ static lean_object* _init_l_Prod_repr___at_Lean_RBMap_instRepr___spec__3___rarg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -21115,7 +21214,7 @@ static lean_object* _init_l_Prod_repr___at_Lean_RBMap_instRepr___spec__3___rarg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -21151,7 +21250,7 @@ static lean_object* _init_l_Prod_repr___at_Lean_RBMap_instRepr___spec__3___rarg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -21396,7 +21495,7 @@ static lean_object* _init_l_List_repr___at_Lean_RBMap_instRepr___spec__1___rarg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[]", 2);
+x_1 = lean_mk_string_unchecked("[]", 2, 2);
 return x_1;
 }
 }
@@ -21414,7 +21513,7 @@ static lean_object* _init_l_List_repr___at_Lean_RBMap_instRepr___spec__1___rarg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -21450,7 +21549,7 @@ static lean_object* _init_l_List_repr___at_Lean_RBMap_instRepr___spec__1___rarg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -21544,7 +21643,7 @@ static lean_object* _init_l_Lean_RBMap_instRepr___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.rbmapOf ", 13);
+x_1 = lean_mk_string_unchecked("Lean.rbmapOf ", 13, 13);
 return x_1;
 }
 }
@@ -22175,7 +22274,7 @@ static lean_object* _init_l_Lean_RBMap_min_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Data.RBMap", 15);
+x_1 = lean_mk_string_unchecked("Lean.Data.RBMap", 15, 15);
 return x_1;
 }
 }
@@ -22183,7 +22282,7 @@ static lean_object* _init_l_Lean_RBMap_min_x21___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.RBMap.min!", 15);
+x_1 = lean_mk_string_unchecked("Lean.RBMap.min!", 15, 15);
 return x_1;
 }
 }
@@ -22191,7 +22290,7 @@ static lean_object* _init_l_Lean_RBMap_min_x21___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("map is empty", 12);
+x_1 = lean_mk_string_unchecked("map is empty", 12, 12);
 return x_1;
 }
 }
@@ -22201,7 +22300,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_RBMap_min_x21___rarg___closed__1;
 x_2 = l_Lean_RBMap_min_x21___rarg___closed__2;
-x_3 = lean_unsigned_to_nat(366u);
+x_3 = lean_unsigned_to_nat(373u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_RBMap_min_x21___rarg___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -22298,7 +22397,7 @@ static lean_object* _init_l_Lean_RBMap_max_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.RBMap.max!", 15);
+x_1 = lean_mk_string_unchecked("Lean.RBMap.max!", 15, 15);
 return x_1;
 }
 }
@@ -22308,7 +22407,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_RBMap_min_x21___rarg___closed__1;
 x_2 = l_Lean_RBMap_max_x21___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(371u);
+x_3 = lean_unsigned_to_nat(378u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_RBMap_min_x21___rarg___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -22386,7 +22485,7 @@ static lean_object* _init_l_Lean_RBMap_find_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.RBMap.find!", 16);
+x_1 = lean_mk_string_unchecked("Lean.RBMap.find!", 16, 16);
 return x_1;
 }
 }
@@ -22394,7 +22493,7 @@ static lean_object* _init_l_Lean_RBMap_find_x21___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("key is not in the map", 21);
+x_1 = lean_mk_string_unchecked("key is not in the map", 21, 21);
 return x_1;
 }
 }
@@ -22404,7 +22503,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_RBMap_min_x21___rarg___closed__1;
 x_2 = l_Lean_RBMap_find_x21___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(377u);
+x_3 = lean_unsigned_to_nat(384u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_RBMap_find_x21___rarg___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

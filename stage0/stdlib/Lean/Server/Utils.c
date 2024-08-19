@@ -1196,7 +1196,7 @@ static lean_object* _init_l_Lean_Server_instInhabitedDocumentMeta___closed__2() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -1316,7 +1316,7 @@ static lean_object* _init_l_Lean_Server_maybeTee___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LEAN_SERVER_LOG_DIR", 19);
+x_1 = lean_mk_string_unchecked("LEAN_SERVER_LOG_DIR", 19, 19);
 return x_1;
 }
 }
@@ -1621,7 +1621,7 @@ static lean_object* _init_l_Lean_Server_mkPublishDiagnosticsNotification___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("textDocument/publishDiagnostics", 31);
+x_1 = lean_mk_string_unchecked("textDocument/publishDiagnostics", 31, 31);
 return x_1;
 }
 }
@@ -1652,7 +1652,7 @@ static lean_object* _init_l_Lean_Server_mkFileProgressNotification___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("$/lean/fileProgress", 19);
+x_1 = lean_mk_string_unchecked("$/lean/fileProgress", 19, 19);
 return x_1;
 }
 }
@@ -1757,7 +1757,7 @@ static lean_object* _init_l_Lean_Server_mkApplyWorkspaceEditRequest___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("workspace/applyEdit", 19);
+x_1 = lean_mk_string_unchecked("workspace/applyEdit", 19, 19);
 return x_1;
 }
 }

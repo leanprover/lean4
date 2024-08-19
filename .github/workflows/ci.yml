@@ -9,6 +9,17 @@ on:
   merge_group:
   schedule:
     - cron: '0 7 * * *'  # 8AM CET/11PM PT
+  # for manual re-release of a nightly
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action'
+        required: true
+        default: 'release nightly'
+        type: choice
+        options:
+        - release nightly
+
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
@@ -41,11 +52,11 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         # don't schedule nightlies on forks
-        if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4'
+        if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4' || inputs.action == 'release nightly'
       - name: Set Nightly
-        if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4'
+        if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4' || inputs.action == 'release nightly'
         id: set-nightly
         run: |
           if [[ -n '${{ secrets.PUSH_NIGHTLY_TOKEN }}' ]]; then
@@ -193,7 +204,7 @@ jobs:
                 "os": "macos-14",
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
                 "release": true,
-                "check-level": 1,
+                "check-level": 0,
                 "shell": "bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-apple-darwin.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
@@ -215,21 +226,19 @@ jobs:
               },
               {
                 "name": "Linux aarch64",
-                "os": "ubuntu-latest",
+                "os": "nscloud-ubuntu-22.04-arm64-4x8",
                 "CMAKE_OPTIONS": "-DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-linux_aarch64",
                 "release": true,
                 "check-level": 2,
-                "cross": true,
-                "cross_target": "aarch64-unknown-linux-gnu",
                 "shell": "nix develop .#oldGlibcAArch -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-linux-gnu.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm-aarch64-* lean-llvm-x86_64-*"
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-linux-gnu.tar.zst",
+                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*"
               },
               {
                 "name": "Linux 32bit",
                 "os": "ubuntu-latest",
                 // Use 32bit on stage0 and stage1 to keep oleans compatible
-                "CMAKE_OPTIONS": "-DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_MMAP=OFF -DUSE_GMP=OFF -DLEAN_EXTRA_CXX_FLAGS='-m32' -DLEANC_OPTS='-m32' -DMMAP=OFF -DLEAN_INSTALL_SUFFIX=-linux_x86",
+                "CMAKE_OPTIONS": "-DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_MMAP=OFF -DUSE_GMP=OFF -DLEAN_EXTRA_CXX_FLAGS='-m32' -DLEANC_OPTS='-m32' -DMMAP=OFF -DLEAN_INSTALL_SUFFIX=-linux_x86 -DCMAKE_LIBRARY_PATH=/usr/lib/i386-linux-gnu/ -DSTAGE0_CMAKE_LIBRARY_PATH=/usr/lib/i386-linux-gnu/",
                 "cmultilib": true,
                 "release": true,
                 "check-level": 2,
@@ -240,7 +249,7 @@ jobs:
                 "name": "Web Assembly",
                 "os": "ubuntu-latest",
                 // Build a native 32bit binary in stage0 and use it to compile the oleans and the wasm build
-                "CMAKE_OPTIONS": "-DCMAKE_C_COMPILER_WORKS=1 -DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_CMAKE_CXX_COMPILER=clang++ -DSTAGE0_CMAKE_C_COMPILER=clang -DSTAGE0_CMAKE_EXECUTABLE_SUFFIX=\"\" -DUSE_GMP=OFF -DMMAP=OFF -DSTAGE0_MMAP=OFF -DCMAKE_AR=../emsdk/emsdk-main/upstream/emscripten/emar -DCMAKE_TOOLCHAIN_FILE=../emsdk/emsdk-main/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DLEAN_INSTALL_SUFFIX=-linux_wasm32",
+                "CMAKE_OPTIONS": "-DCMAKE_C_COMPILER_WORKS=1 -DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_CMAKE_CXX_COMPILER=clang++ -DSTAGE0_CMAKE_C_COMPILER=clang -DSTAGE0_CMAKE_EXECUTABLE_SUFFIX=\"\" -DUSE_GMP=OFF -DMMAP=OFF -DSTAGE0_MMAP=OFF -DCMAKE_AR=../emsdk/emsdk-main/upstream/emscripten/emar -DCMAKE_TOOLCHAIN_FILE=../emsdk/emsdk-main/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DLEAN_INSTALL_SUFFIX=-linux_wasm32 -DSTAGE0_CMAKE_LIBRARY_PATH=/usr/lib/i386-linux-gnu/",
                 "wasm": true,
                 "cmultilib": true,
                 "release": true,
@@ -248,7 +257,7 @@ jobs:
                 "cross": true,
                 "shell": "bash -euxo pipefail {0}",
                 // Just a few selected tests because wasm is slow
-                "CTEST_OPTIONS": "-R \"leantest_1007\\.lean|leantest_Format\\.lean|leanruntest\\_1037.lean|leanruntest_ac_rfl\\.lean\""
+                "CTEST_OPTIONS": "-R \"leantest_1007\\.lean|leantest_Format\\.lean|leanruntest\\_1037.lean|leanruntest_ac_rfl\\.lean|leanruntest_libuv\\.lean\""
               }
             ];
             console.log(`matrix:\n${JSON.stringify(matrix, null, 2)}`)
@@ -287,12 +296,12 @@ jobs:
         uses: msys2/setup-msys2@v2
         with:
           msystem: clang64
-          # `:p` means prefix with appropriate msystem prefix
-          pacboy: "make python cmake:p clang:p ccache:p gmp:p git zip unzip diffutils binutils tree zstd:p tar"
+          # `:` means do not prefix with msystem
+          pacboy: "make: python: cmake clang ccache gmp libuv git: zip: unzip: diffutils: binutils: tree: zstd tar:"
         if: runner.os == 'Windows'
       - name: Install Brew Packages
         run: |
-          brew install ccache tree zstd coreutils gmp
+          brew install ccache tree zstd coreutils gmp libuv
         if: runner.os == 'macOS'
       - name: Checkout
         uses: actions/checkout@v4
@@ -304,7 +313,7 @@ jobs:
       # (needs to be after "Install *" to use the right shell)
       - name: CI Merge Checkout
         run: |
-          git fetch origin ${{ github.event.pull_request.merge_commit_sha }}
+          git fetch --depth=1 origin ${{ github.sha }}
           git checkout FETCH_HEAD flake.nix flake.lock
         if: github.event_name == 'pull_request'
       # (needs to be after "Checkout" so files don't get overriden)
@@ -316,17 +325,19 @@ jobs:
         if: matrix.wasm
       - name: Install 32bit c libs
         run: |
+          sudo dpkg --add-architecture i386
           sudo apt-get update
-          sudo apt-get install -y gcc-multilib g++-multilib ccache
+          sudo apt-get install -y gcc-multilib g++-multilib ccache libuv1-dev:i386
         if: matrix.cmultilib
       - name: Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: .ccache
-          key: ${{ matrix.name }}-build-v3-${{ github.sha }}
+          key: ${{ matrix.name }}-build-v3-${{ github.event.pull_request.head.sha }}
           # fall back to (latest) previous cache
           restore-keys: |
             ${{ matrix.name }}-build-v3
+          save-always: true
       # open nix-shell once for initial setup
       - name: Setup
         run: |
@@ -372,6 +383,12 @@ jobs:
           make -C build install
       - name: Check Binaries
         run: ${{ matrix.binary-check }} lean-*/bin/* || true
+      - name: Count binary symbols
+        run: |
+          for f in lean-*/bin/*; do
+            echo "$f: $(nm $f | grep " T " | wc -l) exported symbols"
+          done
+        if: matrix.name == 'Windows'
       - name: List Install Tree
         run: |
           # omit contents of Init/, ...
@@ -387,7 +404,7 @@ jobs:
           else
             ${{ matrix.tar || 'tar' }} cf - $dir | zstd -T0 --no-progress -o pack/$dir.tar.zst
           fi
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: matrix.release
         with:
           name: build-${{ matrix.name }}
@@ -416,7 +433,7 @@ jobs:
         if: matrix.test-speedcenter
       - name: Check Stage 3
         run: |
-          make -C build -j$NPROC stage3
+          make -C build -j$NPROC check-stage3
         if: matrix.test-speedcenter
       - name: Test Speedcenter Benchmarks
         run: |
@@ -445,11 +462,23 @@ jobs:
     # mark as merely cancelled not failed if builds are cancelled
     if: ${{ !cancelled() }}
     steps:
+    - if: ${{ contains(needs.*.result, 'failure') && github.repository == 'leanprover/lean4' && github.ref_name == 'master' }}
+      uses: zulip/github-actions-zulip/send-message@v1
+      with:
+        api-key: ${{ secrets.ZULIP_BOT_KEY }}
+        email: "github-actions-bot@lean-fro.zulipchat.com"
+        organization-url: "https://lean-fro.zulipchat.com"
+        to: "infrastructure"
+        topic: "Github actions"
+        type: "stream"
+        content: |
+          A build of `${{ github.ref_name }}`, triggered by event `${{ github.event_name }}`, [failed](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
     - if: contains(needs.*.result, 'failure')
       uses: actions/github-script@v7
       with:
         script: |
             core.setFailed('Some jobs failed')
+
 
   # This job creates releases from tags
   # (whether they are "unofficial" releases for experiments, or official releases when the tag is "v" followed by a semver string.)
@@ -460,7 +489,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           path: artifacts
       - name: Release
@@ -468,8 +497,14 @@ jobs:
         with:
           files: artifacts/*/*
           fail_on_unmatched_files: true
+          prerelease: ${{ !startsWith(github.ref, 'refs/tags/v') || contains(github.ref, '-rc') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Update release.lean-lang.org
+        run: |
+          gh workflow -R leanprover/release-index run update-index.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_INDEX_TOKEN }}
 
   # This job creates nightly releases during the cron job.
   # It is responsible for creating the tag, and automatically generating a changelog.
@@ -479,12 +514,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           # needed for tagging
           fetch-depth: 0
           token: ${{ secrets.PUSH_NIGHTLY_TOKEN }}
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           path: artifacts
       - name: Prepare Nightly Release
@@ -512,3 +547,13 @@ jobs:
           repository: ${{ github.repository_owner }}/lean4-nightly
         env:
           GITHUB_TOKEN: ${{ secrets.PUSH_NIGHTLY_TOKEN }}
+      - name: Update release.lean-lang.org
+        run: |
+          gh workflow -R leanprover/release-index run update-index.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_INDEX_TOKEN }}
+      - name: Update toolchain on mathlib4's nightly-testing branch
+        run: |
+          gh workflow -R leanprover-community/mathlib4 run nightly_bump_toolchain.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.MATHLIB4_BOT }}

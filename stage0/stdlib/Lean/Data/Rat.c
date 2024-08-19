@@ -38,6 +38,7 @@ LEAN_EXPORT lean_object* l_Lean_Rat_add(lean_object*, lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedRat___closed__2;
 static lean_object* l_Lean_instInhabitedRat___closed__1;
+LEAN_EXPORT uint8_t l___private_Lean_Data_Rat_0__Lean_decEqRat____x40_Lean_Data_Rat___hyg_110_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Rat_0__Lean_beqRat____x40_Lean_Data_Rat___hyg_36____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Rat_instMul;
 LEAN_EXPORT lean_object* l_Lean_Rat_instLT;
@@ -60,18 +61,19 @@ LEAN_EXPORT lean_object* l_Lean_Rat_instDecidableLe___boxed(lean_object*, lean_o
 static lean_object* l_Lean_instToStringRat___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Rat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instReprRat___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Data_Rat_0__Lean_decEqRat____x40_Lean_Data_Rat___hyg_110____boxed(lean_object*, lean_object*);
 lean_object* lean_int_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Rat_isInt___boxed(lean_object*);
 lean_object* lean_int_div(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 lean_object* lean_int_mul(lean_object*, lean_object*);
 static lean_object* l_Lean_Rat_floor___closed__1;
-LEAN_EXPORT lean_object* l___private_Lean_Data_Rat_0__Lean_decEqRat____x40_Lean_Data_Rat___hyg_114____boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Rat_instAdd;
 LEAN_EXPORT uint8_t l_Lean_Rat_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Rat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Rat_mul___boxed(lean_object*, lean_object*);
+lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 static lean_object* l_Lean_instToStringRat___closed__3;
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -79,7 +81,6 @@ lean_object* lean_int_mod(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Rat_floor(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Rat_ceil(lean_object*);
-LEAN_EXPORT uint8_t l___private_Lean_Data_Rat_0__Lean_decEqRat____x40_Lean_Data_Rat___hyg_114_(lean_object*, lean_object*);
 static lean_object* l_Lean_mkRat___closed__1;
 lean_object* lean_int_add(lean_object*, lean_object*);
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
@@ -180,7 +181,7 @@ x_1 = l_Lean_instBEqRat___closed__1;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l___private_Lean_Data_Rat_0__Lean_decEqRat____x40_Lean_Data_Rat___hyg_114_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l___private_Lean_Data_Rat_0__Lean_decEqRat____x40_Lean_Data_Rat___hyg_110_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
@@ -203,11 +204,11 @@ return x_9;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Data_Rat_0__Lean_decEqRat____x40_Lean_Data_Rat___hyg_114____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lean_Data_Rat_0__Lean_decEqRat____x40_Lean_Data_Rat___hyg_110____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l___private_Lean_Data_Rat_0__Lean_decEqRat____x40_Lean_Data_Rat___hyg_114_(x_1, x_2);
+x_3 = l___private_Lean_Data_Rat_0__Lean_decEqRat____x40_Lean_Data_Rat___hyg_110_(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -218,7 +219,7 @@ LEAN_EXPORT uint8_t l_Lean_instDecidableEqRat(lean_object* x_1, lean_object* x_2
 _start:
 {
 uint8_t x_3; 
-x_3 = l___private_Lean_Data_Rat_0__Lean_decEqRat____x40_Lean_Data_Rat___hyg_114_(x_1, x_2);
+x_3 = l___private_Lean_Data_Rat_0__Lean_decEqRat____x40_Lean_Data_Rat___hyg_110_(x_1, x_2);
 return x_3;
 }
 }
@@ -237,7 +238,7 @@ static lean_object* _init_l_Lean_instToStringRat___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -245,7 +246,7 @@ static lean_object* _init_l_Lean_instToStringRat___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("/", 1);
+x_1 = lean_mk_string_unchecked("/", 1, 1);
 return x_1;
 }
 }
@@ -253,7 +254,7 @@ static lean_object* _init_l_Lean_instToStringRat___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-", 1);
+x_1 = lean_mk_string_unchecked("-", 1, 1);
 return x_1;
 }
 }
@@ -353,7 +354,7 @@ static lean_object* _init_l_Lean_instReprRat___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -361,7 +362,7 @@ static lean_object* _init_l_Lean_instReprRat___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" : Rat)/", 8);
+x_1 = lean_mk_string_unchecked(" : Rat)/", 8, 8);
 return x_1;
 }
 }
@@ -430,16 +431,33 @@ return x_33;
 }
 else
 {
-lean_object* x_34; lean_object* x_35; lean_object* x_36; 
+lean_object* x_34; lean_object* x_35; uint8_t x_36; 
 lean_dec(x_3);
 x_34 = lean_ctor_get(x_1, 0);
 lean_inc(x_34);
 lean_dec(x_1);
-x_35 = l_Int_repr(x_34);
+x_35 = l_Lean_instInhabitedRat___closed__1;
+x_36 = lean_int_dec_lt(x_34, x_35);
+if (x_36 == 0)
+{
+lean_object* x_37; lean_object* x_38; 
+x_37 = l_Int_repr(x_34);
 lean_dec(x_34);
-x_36 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_36, 0, x_35);
-return x_36;
+x_38 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_38, 0, x_37);
+return x_38;
+}
+else
+{
+lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; 
+x_39 = l_Int_repr(x_34);
+lean_dec(x_34);
+x_40 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_40, 0, x_39);
+x_41 = lean_unsigned_to_nat(0u);
+x_42 = l_Repr_addAppParen(x_40, x_41);
+return x_42;
+}
 }
 }
 }

@@ -102,3 +102,11 @@ instance ShareCommonT.monadShareCommon [Monad m] : MonadShareCommon (ShareCommon
 
 @[inline] def ShareCommonT.run [Monad m] (x : ShareCommonT σ m α) : m α := x.run' default
 @[inline] def ShareCommonM.run (x : ShareCommonM σ α) : α := ShareCommonT.run x
+
+/--
+A more restrictive but efficient max sharing primitive.
+
+Remark: it optimizes the number of RC operations, and the strategy for caching results.
+-/
+@[extern "lean_sharecommon_quick"]
+def ShareCommon.shareCommon' (a : @& α) : α := a

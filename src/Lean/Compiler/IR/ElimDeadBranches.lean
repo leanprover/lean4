@@ -152,7 +152,7 @@ def getFunctionSummary? (env : Environment) (fid : FunId) : Option Value :=
   | some modIdx => findAtSorted? (functionSummariesExt.getModuleEntries env modIdx) fid
   | none        => functionSummariesExt.getState env |>.find? fid
 
-abbrev Assignment := HashMap VarId Value
+abbrev Assignment := Std.HashMap VarId Value
 
 structure InterpContext where
   currFnIdx : Nat := 0
@@ -172,7 +172,7 @@ def findVarValue (x : VarId) : M Value := do
   let ctx ← read
   let s ← get
   let assignment := s.assignments[ctx.currFnIdx]!
-  return assignment.findD x bot
+  return assignment.getD x bot
 
 def findArgValue (arg : Arg) : M Value :=
   match arg with
@@ -303,7 +303,7 @@ partial def elimDeadAux (assignment : Assignment) : FnBody → FnBody
   | FnBody.vdecl x t e b  => FnBody.vdecl x t e (elimDeadAux assignment b)
   | FnBody.jdecl j ys v b => FnBody.jdecl j ys (elimDeadAux assignment v) (elimDeadAux assignment b)
   | FnBody.case tid x xType alts =>
-    let v := assignment.findD x bot
+    let v := assignment.getD x bot
     let alts := alts.map fun alt =>
       match alt with
       | Alt.ctor i b  => Alt.ctor i <| if containsCtor v i then elimDeadAux assignment b else FnBody.unreachable

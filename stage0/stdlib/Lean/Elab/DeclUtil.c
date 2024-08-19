@@ -38,7 +38,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompati
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompatibleAux___spec__14(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompatibleAux___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_List_elem___at_Lean_NameHashSet_insert___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompatibleAux___spec__10___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompatibleAux___spec__12___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -68,6 +67,7 @@ LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_Elab_sortDeclLevelParams__
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompatibleAux___spec__12(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompatibleAux___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_List_elem___at_Lean_addAliasEntry___spec__16(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__3___closed__4;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompatibleAux___spec__18___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompatibleAux___spec__8(lean_object*);
@@ -89,7 +89,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompati
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompatibleAux___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompatibleAux___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___closed__3;
 LEAN_EXPORT lean_object* l_List_foldl___at_Lean_Elab_sortDeclLevelParams___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_expandDeclSig(lean_object*);
@@ -162,6 +161,7 @@ static lean_object* l_Lean_Meta_forallTelescopeCompatible___rarg___lambda__2___c
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompatibleAux___spec__7(lean_object*);
+uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(uint8_t, uint8_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompatibleAux___spec__13(lean_object*);
@@ -1270,7 +1270,7 @@ static lean_object* _init_l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lamb
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("parameter '", 11);
+x_1 = lean_mk_string_unchecked("parameter '", 11, 11);
 return x_1;
 }
 }
@@ -1287,7 +1287,7 @@ static lean_object* _init_l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lamb
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' ", 2);
+x_1 = lean_mk_string_unchecked("' ", 2, 2);
 return x_1;
 }
 }
@@ -1304,7 +1304,7 @@ static lean_object* _init_l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lamb
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -1480,7 +1480,7 @@ static lean_object* _init_l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lamb
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("parameter name mismatch '", 25);
+x_1 = lean_mk_string_unchecked("parameter name mismatch '", 25, 25);
 return x_1;
 }
 }
@@ -1497,7 +1497,7 @@ static lean_object* _init_l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lamb
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("', expected '", 13);
+x_1 = lean_mk_string_unchecked("', expected '", 13, 13);
 return x_1;
 }
 }
@@ -1514,7 +1514,7 @@ static lean_object* _init_l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lamb
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -1658,7 +1658,7 @@ static lean_object* _init_l_Lean_Meta_forallTelescopeCompatibleAux___rarg___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected number of parameters", 31);
+x_1 = lean_mk_string_unchecked("unexpected number of parameters", 31, 31);
 return x_1;
 }
 }
@@ -1675,7 +1675,7 @@ static lean_object* _init_l_Lean_Meta_forallTelescopeCompatibleAux___rarg___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("binder annotation mismatch at parameter '", 41);
+x_1 = lean_mk_string_unchecked("binder annotation mismatch at parameter '", 41, 41);
 return x_1;
 }
 }
@@ -2007,7 +2007,7 @@ x_69 = lean_ctor_get(x_40, 2);
 lean_inc(x_69);
 x_70 = lean_ctor_get_uint8(x_40, sizeof(void*)*3 + 8);
 lean_dec(x_40);
-x_71 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_412_(x_66, x_70);
+x_71 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_66, x_70);
 if (x_71 == 0)
 {
 lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; uint8_t x_79; 
@@ -2879,7 +2879,7 @@ if (x_6 == 0)
 {
 lean_object* x_7; uint8_t x_8; size_t x_9; size_t x_10; 
 x_7 = lean_array_uget(x_2, x_3);
-x_8 = l_List_elem___at_Lean_NameHashSet_insert___spec__2(x_7, x_1);
+x_8 = l_List_elem___at_Lean_addAliasEntry___spec__16(x_7, x_1);
 x_9 = 1;
 x_10 = lean_usize_add(x_3, x_9);
 if (x_8 == 0)
@@ -2911,7 +2911,7 @@ x_4 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_1, x_3)
 if (x_4 == 0)
 {
 uint8_t x_5; 
-x_5 = l_List_elem___at_Lean_NameHashSet_insert___spec__2(x_3, x_2);
+x_5 = l_List_elem___at_Lean_addAliasEntry___spec__16(x_3, x_2);
 if (x_5 == 0)
 {
 uint8_t x_6; 
@@ -2956,7 +2956,7 @@ static lean_object* _init_l_Lean_Elab_sortDeclLevelParams___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unused universe parameter '", 27);
+x_1 = lean_mk_string_unchecked("unused universe parameter '", 27, 27);
 return x_1;
 }
 }

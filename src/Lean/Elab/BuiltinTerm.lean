@@ -157,9 +157,19 @@ private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr :=
   registerSyntheticMVar ref mvarId <| SyntheticMVarKind.tactic tacticCode (← saveContext)
   return mvar
 
+register_builtin_option debug.byAsSorry : Bool := {
+  defValue := false
+  group    := "debug"
+  descr    := "replace `by ..` blocks with `sorry` IF the expected type is a proposition"
+}
+
 @[builtin_term_elab byTactic] def elabByTactic : TermElab := fun stx expectedType? => do
   match expectedType? with
-  | some expectedType => mkTacticMVar expectedType stx
+  | some expectedType =>
+    if ← pure (debug.byAsSorry.get (← getOptions)) <&&> isProp expectedType then
+      mkSorry expectedType false
+    else
+      mkTacticMVar expectedType stx
   | none =>
     tryPostpone
     throwError ("invalid 'by' tactic, expected type has not been provided")
@@ -306,9 +316,7 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
           return false
     return true
   if canClear then
-    let lctx := (← getLCtx).erase fvarId
-    let localInsts := (← getLocalInstances).filter (·.fvar.fvarId! != fvarId)
-    withLCtx lctx localInsts do elabTerm body expectedType?
+    withErasedFVars #[fvarId] do elabTerm body expectedType?
   else
     elabTerm body expectedType?
 
@@ -353,5 +361,8 @@ private opaque evalFilePath (stx : Syntax) : TermElabM System.FilePath
     let path := srcDir / path
     mkStrLit <$> IO.FS.readFile path
   | _, _ => throwUnsupportedSyntax
+
+@[builtin_term_elab Lean.Parser.Term.namedPattern] def elabNamedPatternErr : TermElab := fun stx _ =>
+  throwError "`<identifier>@<term>` is a named pattern and can only be used in pattern matching contexts{indentD stx}"
 
 end Lean.Elab.Term

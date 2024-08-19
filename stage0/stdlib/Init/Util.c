@@ -33,10 +33,12 @@ LEAN_EXPORT lean_object* l___private_Init_Util_0__mkPanicMessage(lean_object*, l
 LEAN_EXPORT lean_object* l_panicWithPos___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panicWithPos(lean_object*);
 size_t lean_ptr_addr(lean_object*);
+uint8_t lean_is_exclusive_obj(lean_object*);
 lean_object* l_panic___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_withPtrEqUnsafe___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ptrEq(lean_object*);
 LEAN_EXPORT lean_object* l_Runtime_markMultiThreaded___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_isExclusiveUnsafe___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl___closed__1;
 LEAN_EXPORT lean_object* l_panicWithPosWithDecl___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ptrEqList(lean_object*);
@@ -139,7 +141,7 @@ static lean_object* _init_l___private_Init_Util_0__mkPanicMessage___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("PANIC at ", 9);
+x_1 = lean_mk_string_unchecked("PANIC at ", 9, 9);
 return x_1;
 }
 }
@@ -147,7 +149,7 @@ static lean_object* _init_l___private_Init_Util_0__mkPanicMessage___closed__2() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
@@ -155,7 +157,7 @@ static lean_object* _init_l___private_Init_Util_0__mkPanicMessage___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -221,7 +223,7 @@ static lean_object* _init_l___private_Init_Util_0__mkPanicMessageWithDecl___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" ", 1);
+x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
@@ -295,6 +297,16 @@ size_t x_3; lean_object* x_4;
 x_3 = lean_ptr_addr(x_2);
 lean_dec(x_2);
 x_4 = lean_box_usize(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_isExclusiveUnsafe___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = lean_is_exclusive_obj(x_2);
+lean_dec(x_2);
+x_4 = lean_box(x_3);
 return x_4;
 }
 }

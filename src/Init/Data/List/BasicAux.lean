@@ -5,13 +5,16 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Data.Nat.Linear
-import Init.Ext
 
 universe u
 
 namespace List
 /-! The following functions can't be defined at `Init.Data.List.Basic`, because they depend on `Init.Util`,
    and `Init.Util` depends on `Init.Data.List.Basic`. -/
+
+/-! ## Alternative getters -/
+
+/-! ### get! -/
 
 /--
 Returns the `i`-th element in the list (zero-based).
@@ -24,108 +27,12 @@ def get! [Inhabited α] : (as : List α) → (i : Nat) → α
   | _::as, n+1 => get! as n
   | _,     _   => panic! "invalid index"
 
-/--
-Returns the `i`-th element in the list (zero-based).
+theorem get!_nil [Inhabited α] (n : Nat) : [].get! n = (default : α) := rfl
+theorem get!_cons_succ [Inhabited α] (l : List α) (a : α) (n : Nat) :
+    (a::l).get! (n+1) = get! l n := rfl
+theorem get!_cons_zero [Inhabited α] (l : List α) (a : α) : (a::l).get! 0 = a := rfl
 
-If the index is out of bounds (`i ≥ as.length`), this function returns `none`.
-Also see `get`, `getD` and `get!`.
--/
-def get? : (as : List α) → (i : Nat) → Option α
-  | a::_,  0   => some a
-  | _::as, n+1 => get? as n
-  | _,     _   => none
-
-/--
-Returns the `i`-th element in the list (zero-based).
-
-If the index is out of bounds (`i ≥ as.length`), this function returns `fallback`.
-See also `get?` and `get!`.
--/
-def getD (as : List α) (i : Nat) (fallback : α) : α :=
-  (as.get? i).getD fallback
-
-@[ext] theorem ext : ∀ {l₁ l₂ : List α}, (∀ n, l₁.get? n = l₂.get? n) → l₁ = l₂
-  | [], [], _ => rfl
-  | a :: l₁, [], h => nomatch h 0
-  | [], a' :: l₂, h => nomatch h 0
-  | a :: l₁, a' :: l₂, h => by
-    have h0 : some a = some a' := h 0
-    injection h0 with aa; simp only [aa, ext fun n => h (n+1)]
-
-/--
-Returns the first element in the list.
-
-If the list is empty, this function panics when executed, and returns `default`.
-See `head` and `headD` for safer alternatives.
--/
-def head! [Inhabited α] : List α → α
-  | []   => panic! "empty list"
-  | a::_ => a
-
-/--
-Returns the first element in the list.
-
-If the list is empty, this function returns `none`.
-Also see `headD` and `head!`.
--/
-def head? : List α → Option α
-  | []   => none
-  | a::_ => some a
-
-/--
-Returns the first element in the list.
-
-If the list is empty, this function returns `fallback`.
-Also see `head?` and `head!`.
--/
-def headD : (as : List α) → (fallback : α) → α
-  | [],   fallback => fallback
-  | a::_, _  => a
-
-/--
-Returns the first element of a non-empty list.
--/
-def head : (as : List α) → as ≠ [] → α
-  | a::_, _ => a
-
-/--
-Drops the first element of the list.
-
-If the list is empty, this function panics when executed, and returns the empty list.
-See `tail` and `tailD` for safer alternatives.
--/
-def tail! : List α → List α
-  | []    => panic! "empty list"
-  | _::as => as
-
-/--
-Drops the first element of the list.
-
-If the list is empty, this function returns `none`.
-Also see `tailD` and `tail!`.
--/
-def tail? : List α → Option (List α)
-  | []    => none
-  | _::as => some as
-
-/--
-Drops the first element of the list.
-
-If the list is empty, this function returns `fallback`.
-Also see `head?` and `head!`.
--/
-def tailD (list fallback : List α) : List α :=
-  match list with
-  | [] => fallback
-  | _ :: tl => tl
-
-/--
-Returns the last element of a non-empty list.
--/
-def getLast : ∀ (as : List α), as ≠ [] → α
-  | [],       h => absurd rfl h
-  | [a],      _ => a
-  | _::b::as, _ => getLast (b::as) (fun h => List.noConfusion h)
+/-! ### getLast! -/
 
 /--
 Returns the last element in the list.
@@ -137,61 +44,118 @@ def getLast! [Inhabited α] : List α → α
   | []    => panic! "empty list"
   | a::as => getLast (a::as) (fun h => List.noConfusion h)
 
-/--
-Returns the last element in the list.
+/-! ## Head and tail -/
 
-If the list is empty, this function returns `none`.
-Also see `getLastD` and `getLast!`.
--/
-def getLast? : List α → Option α
-  | []    => none
-  | a::as => some (getLast (a::as) (fun h => List.noConfusion h))
+/-! ### head! -/
 
 /--
-Returns the last element in the list.
+Returns the first element in the list.
 
-If the list is empty, this function returns `fallback`.
-Also see `getLast?` and `getLast!`.
+If the list is empty, this function panics when executed, and returns `default`.
+See `head` and `headD` for safer alternatives.
 -/
-def getLastD : (as : List α) → (fallback : α) → α
-  | [],   a₀ => a₀
-  | a::as, _ => getLast (a::as) (fun h => List.noConfusion h)
+def head! [Inhabited α] : List α → α
+  | []   => panic! "empty list"
+  | a::_ => a
+
+/-! ### tail! -/
 
 /--
-`O(n)`. Rotates the elements of `xs` to the left such that the element at
-`xs[i]` rotates to `xs[(i - n) % l.length]`.
-* `rotateLeft [1, 2, 3, 4, 5] 3 = [4, 5, 1, 2, 3]`
-* `rotateLeft [1, 2, 3, 4, 5] 5 = [1, 2, 3, 4, 5]`
-* `rotateLeft [1, 2, 3, 4, 5] = [2, 3, 4, 5, 1]`
+Drops the first element of the list.
+
+If the list is empty, this function panics when executed, and returns the empty list.
+See `tail` and `tailD` for safer alternatives.
 -/
-def rotateLeft (xs : List α) (n : Nat := 1) : List α :=
-  let len := xs.length
-  if len ≤ 1 then
-    xs
-  else
-    let n := n % len
-    let b := xs.take n
-    let e := xs.drop n
-    e ++ b
+def tail! : List α → List α
+  | []    => panic! "empty list"
+  | _::as => as
+
+@[simp] theorem tail!_cons : @tail! α (a::l) = l := rfl
+
+/-! ### partitionM -/
 
 /--
-`O(n)`. Rotates the elements of `xs` to the right such that the element at
-`xs[i]` rotates to `xs[(i + n) % l.length]`.
-* `rotateRight [1, 2, 3, 4, 5] 3 = [3, 4, 5, 1, 2]`
-* `rotateRight [1, 2, 3, 4, 5] 5 = [1, 2, 3, 4, 5]`
-* `rotateRight [1, 2, 3, 4, 5] = [5, 1, 2, 3, 4]`
--/
-def rotateRight (xs : List α) (n : Nat := 1) : List α :=
-  let len := xs.length
-  if len ≤ 1 then
-    xs
-  else
-    let n := len - n % len
-    let b := xs.take n
-    let e := xs.drop n
-    e ++ b
+Monadic generalization of `List.partition`.
 
-theorem get_append_left (as bs : List α) (h : i < as.length) {h'} : (as ++ bs).get ⟨i, h'⟩ = as.get ⟨i, h⟩ := by
+This uses `Array.toList` and which isn't imported by `Init.Data.List.Basic` or `Init.Data.List.Control`.
+```
+def posOrNeg (x : Int) : Except String Bool :=
+  if x > 0 then pure true
+  else if x < 0 then pure false
+  else throw "Zero is not positive or negative"
+
+partitionM posOrNeg [-1, 2, 3] = Except.ok ([2, 3], [-1])
+partitionM posOrNeg [0, 2, 3] = Except.error "Zero is not positive or negative"
+```
+-/
+@[inline] def partitionM [Monad m] (p : α → m Bool) (l : List α) : m (List α × List α) :=
+  go l #[] #[]
+where
+  /-- Auxiliary for `partitionM`:
+  `partitionM.go p l acc₁ acc₂` returns `(acc₁.toList ++ left, acc₂.toList ++ right)`
+  if `partitionM p l` returns `(left, right)`. -/
+  @[specialize] go : List α → Array α → Array α → m (List α × List α)
+  | [], acc₁, acc₂ => pure (acc₁.toList, acc₂.toList)
+  | x :: xs, acc₁, acc₂ => do
+    if ← p x then
+      go xs (acc₁.push x) acc₂
+    else
+      go xs acc₁ (acc₂.push x)
+
+/-! ### partitionMap -/
+
+/--
+Given a function `f : α → β ⊕ γ`, `partitionMap f l` maps the list by `f`
+whilst partitioning the result into a pair of lists, `List β × List γ`,
+partitioning the `.inl _` into the left list, and the `.inr _` into the right List.
+```
+partitionMap (id : Nat ⊕ Nat → Nat ⊕ Nat) [inl 0, inr 1, inl 2] = ([0, 2], [1])
+```
+-/
+@[inline] def partitionMap (f : α → β ⊕ γ) (l : List α) : List β × List γ := go l #[] #[] where
+  /-- Auxiliary for `partitionMap`:
+  `partitionMap.go f l acc₁ acc₂ = (acc₁.toList ++ left, acc₂.toList ++ right)`
+  if `partitionMap f l = (left, right)`. -/
+  @[specialize] go : List α → Array β → Array γ → List β × List γ
+  | [], acc₁, acc₂ => (acc₁.toList, acc₂.toList)
+  | x :: xs, acc₁, acc₂ =>
+    match f x with
+    | .inl a => go xs (acc₁.push a) acc₂
+    | .inr b => go xs acc₁ (acc₂.push b)
+
+/-! ### mapMono
+
+This is a performance optimization for `List.mapM` that avoids allocating a new list when the result of each `f a` is a pointer equal value `a`.
+
+For verification purposes, `List.mapMono = List.map`.
+-/
+
+@[specialize] private unsafe def mapMonoMImp [Monad m] (as : List α) (f : α → m α) : m (List α) := do
+  match as with
+  | [] => return as
+  | b :: bs =>
+    let b'  ← f b
+    let bs' ← mapMonoMImp bs f
+    if ptrEq b' b && ptrEq bs' bs then
+      return as
+    else
+      return b' :: bs'
+
+/--
+Monomorphic `List.mapM`. The internal implementation uses pointer equality, and does not allocate a new list
+if the result of each `f a` is a pointer equal value `a`.
+-/
+@[implemented_by mapMonoMImp] def mapMonoM [Monad m] (as : List α) (f : α → m α) : m (List α) :=
+  match as with
+  | [] => return []
+  | a :: as => return (← f a) :: (← mapMonoM as f)
+
+def mapMono (as : List α) (f : α → α) : List α :=
+  Id.run <| as.mapMonoM f
+
+/-! ## Additional lemmas required for bootstrapping `Array`. -/
+
+theorem getElem_append_left (as bs : List α) (h : i < as.length) {h'} : (as ++ bs)[i] = as[i] := by
   induction as generalizing i with
   | nil => trivial
   | cons a as ih =>
@@ -199,7 +163,7 @@ theorem get_append_left (as bs : List α) (h : i < as.length) {h'} : (as ++ bs).
     | zero => rfl
     | succ i => apply ih
 
-theorem get_append_right (as bs : List α) (h : ¬ i < as.length) {h' h''} : (as ++ bs).get ⟨i, h'⟩ = bs.get ⟨i - as.length, h''⟩ := by
+theorem getElem_append_right (as bs : List α) (h : ¬ i < as.length) {h' h''} : (as ++ bs)[i]'h' = bs[i - as.length]'h'' := by
   induction as generalizing i with
   | nil => trivial
   | cons a as ih =>
@@ -228,7 +192,7 @@ macro "sizeOf_list_dec" : tactic =>
   `(tactic| first
     | with_reducible apply sizeOf_lt_of_mem; assumption; done
     | with_reducible
-        apply Nat.lt_trans (sizeOf_lt_of_mem ?h)
+        apply Nat.lt_of_lt_of_le (sizeOf_lt_of_mem ?h)
         case' h => assumption
       simp_arith)
 
@@ -284,75 +248,5 @@ theorem le_antisymm [LT α] [s : Antisymm (¬ · < · : α → α → Prop)] {as
 
 instance [LT α] [Antisymm (¬ · < · : α → α → Prop)] : Antisymm (· ≤ · : List α → List α → Prop) where
   antisymm h₁ h₂ := le_antisymm h₁ h₂
-
-@[specialize] private unsafe def mapMonoMImp [Monad m] (as : List α) (f : α → m α) : m (List α) := do
-  match as with
-  | [] => return as
-  | b :: bs =>
-    let b'  ← f b
-    let bs' ← mapMonoMImp bs f
-    if ptrEq b' b && ptrEq bs' bs then
-      return as
-    else
-      return b' :: bs'
-
-/--
-Monomorphic `List.mapM`. The internal implementation uses pointer equality, and does not allocate a new list
-if the result of each `f a` is a pointer equal value `a`.
--/
-@[implemented_by mapMonoMImp] def mapMonoM [Monad m] (as : List α) (f : α → m α) : m (List α) :=
-  match as with
-  | [] => return []
-  | a :: as => return (← f a) :: (← mapMonoM as f)
-
-def mapMono (as : List α) (f : α → α) : List α :=
-  Id.run <| as.mapMonoM f
-
-/--
-Monadic generalization of `List.partition`.
-
-This uses `Array.toList` and which isn't imported by `Init.Data.List.Basic`.
-```
-def posOrNeg (x : Int) : Except String Bool :=
-  if x > 0 then pure true
-  else if x < 0 then pure false
-  else throw "Zero is not positive or negative"
-
-partitionM posOrNeg [-1, 2, 3] = Except.ok ([2, 3], [-1])
-partitionM posOrNeg [0, 2, 3] = Except.error "Zero is not positive or negative"
-```
--/
-@[inline] def partitionM [Monad m] (p : α → m Bool) (l : List α) : m (List α × List α) :=
-  go l #[] #[]
-where
-  /-- Auxiliary for `partitionM`:
-  `partitionM.go p l acc₁ acc₂` returns `(acc₁.toList ++ left, acc₂.toList ++ right)`
-  if `partitionM p l` returns `(left, right)`. -/
-  @[specialize] go : List α → Array α → Array α → m (List α × List α)
-  | [], acc₁, acc₂ => pure (acc₁.toList, acc₂.toList)
-  | x :: xs, acc₁, acc₂ => do
-    if ← p x then
-      go xs (acc₁.push x) acc₂
-    else
-      go xs acc₁ (acc₂.push x)
-
-/--
-Given a function `f : α → β ⊕ γ`, `partitionMap f l` maps the list by `f`
-whilst partitioning the result it into a pair of lists, `List β × List γ`,
-partitioning the `.inl _` into the left list, and the `.inr _` into the right List.
-```
-partitionMap (id : Nat ⊕ Nat → Nat ⊕ Nat) [inl 0, inr 1, inl 2] = ([0, 2], [1])
-```
--/
-@[inline] def partitionMap (f : α → β ⊕ γ) (l : List α) : List β × List γ := go l #[] #[] where
-  /-- Auxiliary for `partitionMap`:
-  `partitionMap.go f l acc₁ acc₂ = (acc₁.toList ++ left, acc₂.toList ++ right)`
-  if `partitionMap f l = (left, right)`. -/
-  @[specialize] go : List α → Array β → Array γ → List β × List γ
-  | [], acc₁, acc₂ => (acc₁.toList, acc₂.toList)
-  | x :: xs, acc₁, acc₂ =>
-    match f x with
-    | .inl a => go xs (acc₁.push a) acc₂
-    | .inr b => go xs acc₁ (acc₂.push b)
 
 end List

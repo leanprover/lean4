@@ -270,14 +270,14 @@ pointer identity and does not store the objects, so it is important not to store
 pointer to an object in the map, or it can be freed and reused, resulting in incorrect behavior.
 
 Returns `true` if the object was not already in the set. -/
-unsafe def insertObjImpl {α : Type} (set : IO.Ref (HashSet USize)) (a : α) : IO Bool := do
+unsafe def insertObjImpl {α : Type} (set : IO.Ref (Std.HashSet USize)) (a : α) : IO Bool := do
   if (← set.get).contains (ptrAddrUnsafe a) then
     return false
   set.modify (·.insert (ptrAddrUnsafe a))
   return true
 
 @[inherit_doc insertObjImpl, implemented_by insertObjImpl]
-opaque insertObj {α : Type} (set : IO.Ref (HashSet USize)) (a : α) : IO Bool
+opaque insertObj {α : Type} (set : IO.Ref (Std.HashSet USize)) (a : α) : IO Bool
 
 /--
 Collects into `fvarUses` all `fvar`s occurring in the `Expr`s in `assignments`.
@@ -285,8 +285,8 @@ This implementation respects subterm sharing in both the `PersistentHashMap` and
 to ensure that pointer-equal subobjects are not visited multiple times, which is important
 in practice because these expressions are very frequently highly shared.
 -/
-partial def visitAssignments (set : IO.Ref (HashSet USize))
-    (fvarUses : IO.Ref (HashSet FVarId))
+partial def visitAssignments (set : IO.Ref (Std.HashSet USize))
+    (fvarUses : IO.Ref (Std.HashSet FVarId))
     (assignments : Array (PersistentHashMap MVarId Expr)) : IO Unit := do
   MonadCacheT.run do
     for assignment in assignments do
@@ -316,8 +316,8 @@ where
 /-- Given `aliases` as a map from an alias to what it aliases, we get the original
 term by recursion. This has no cycle detection, so if `aliases` contains a loop
 then this function will recurse infinitely. -/
-partial def followAliases (aliases : HashMap FVarId FVarId) (x : FVarId) : FVarId :=
-  match aliases.find? x with
+partial def followAliases (aliases : Std.HashMap FVarId FVarId) (x : FVarId) : FVarId :=
+  match aliases[x]? with
   | none => x
   | some y => followAliases aliases y
 
@@ -343,17 +343,17 @@ structure References where
   the spans for `foo`, `bar`, and `baz`. Global definitions are always treated as used.
   (It would be nice to be able to detect unused global definitions but this requires more
   information than the linter framework can provide.) -/
-  constDecls : HashSet String.Range := .empty
+  constDecls : Std.HashSet String.Range := .empty
   /-- The collection of all local declarations, organized by the span of the declaration.
   We collapse all declarations declared at the same position into a single record using
   `FVarDefinition.aliases`. -/
-  fvarDefs : HashMap String.Range FVarDefinition := .empty
+  fvarDefs : Std.HashMap String.Range FVarDefinition := .empty
   /-- The set of `FVarId`s that are used directly. These may or may not be aliases. -/
-  fvarUses : HashSet FVarId := .empty
+  fvarUses : Std.HashSet FVarId := .empty
   /-- A mapping from alias to original FVarId. We don't guarantee that the value is not itself
   an alias, but we use `followAliases` when adding new elements to try to avoid long chains. -/
   -- TODO: use a `UnionFind` data structure here
-  fvarAliases : HashMap FVarId FVarId := .empty
+  fvarAliases : Std.HashMap FVarId FVarId := .empty
   /-- Collection of all `MetavarContext`s following the execution of a tactic. We trawl these
   if needed to find additional `fvarUses`. -/
   assignments : Array (PersistentHashMap MVarId Expr) := #[]
@@ -391,7 +391,7 @@ def collectReferences (infoTrees : Array Elab.InfoTree) (cmdStxRange : String.Ra
               if s.startsWith "_" then return
             -- Record this either as a new `fvarDefs`, or an alias of an existing one
             modify fun s =>
-              if let some ref := s.fvarDefs.find? range then
+              if let some ref := s.fvarDefs[range]? then
                 { s with fvarDefs := s.fvarDefs.insert range { ref with aliases := ref.aliases.push id } }
               else
                 { s with fvarDefs := s.fvarDefs.insert range { userName := ldecl.userName, stx, opts, aliases := #[id] } }
@@ -444,7 +444,7 @@ def unusedVariables : Linter where
     -- Resolve all recursive references in `fvarAliases`.
     -- At this point everything in `fvarAliases` is guaranteed not to be itself an alias,
     -- and should point to some element of `FVarDefinition.aliases` in `s.fvarDefs`
-    let fvarAliases : HashMap FVarId FVarId := s.fvarAliases.fold (init := {}) fun m id baseId =>
+    let fvarAliases : Std.HashMap FVarId FVarId := s.fvarAliases.fold (init := {}) fun m id baseId =>
       m.insert id (followAliases s.fvarAliases baseId)
 
     -- Collect all non-alias fvars corresponding to `fvarUses` by resolving aliases in the list.
@@ -461,7 +461,7 @@ def unusedVariables : Linter where
       let fvarUses ← fvarUsesRef.get
       -- If any of the `fvar`s corresponding to this declaration is (an alias of) a variable in
       -- `fvarUses`, then it is used
-      if aliases.any fun id => fvarUses.contains (fvarAliases.findD id id) then continue
+      if aliases.any fun id => fvarUses.contains (fvarAliases.getD id id) then continue
       -- If this is a global declaration then it is (potentially) used after the command
       if s.constDecls.contains range then continue
 
@@ -496,7 +496,7 @@ def unusedVariables : Linter where
         initializedMVars := true
         let fvarUses ← fvarUsesRef.get
         -- Redo the initial check because `fvarUses` could be bigger now
-        if aliases.any fun id => fvarUses.contains (fvarAliases.findD id id) then continue
+        if aliases.any fun id => fvarUses.contains (fvarAliases.getD id id) then continue
 
       -- If we made it this far then the variable is unused and not ignored
       unused := unused.push (declStx, userName)

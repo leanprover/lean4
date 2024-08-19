@@ -572,7 +572,7 @@ infixr:25 " →+* " => RingHom
 namespace RingHom
 
 def id (α : Type _) : α →+* α := by
-  refine' { toFun := _root_.id.. }
+  refine { toFun := _root_.id.. }
 
 def comp (g : β →+* γ) (f : α →+* β) : α →+* γ :=
   { toFun := g.toFun ∘ f.toFun }
@@ -1323,7 +1323,7 @@ instance instAlgebra
 /-!
 Typeclass synthesis should remain fast when multiple `with` patterns are nested
 
-Prior to #2478, this requires over 30000 hearbeats.
+Prior to #2478, this requires over 30000 heartbeats.
 -/
 set_option synthInstance.maxHeartbeats 400 in
 instance instAlgebra' (R M : Type _) [CommRing R] (I : Ideal (Quot_r R M)) :

@@ -24,7 +24,7 @@ def Vec.casesOn
   | ⟨as, h⟩ => go n as h
 
 /--
-info: α : Type _
+info: α : Type u_1
 n✝ : Nat
 a✝ : α
 as✝ : Vec α n✝
@@ -43,7 +43,7 @@ example (n : Nat) (a : α) (as : Vec α n) : Vec.cons a (Vec.cons a as) = Vec.co
     constructor
 
 /--
-info: α : Type _
+info: α : Type u_1
 n✝ : Nat
 a✝ : α
 as✝ : Vec α n✝
@@ -62,7 +62,7 @@ example (n : Nat) (a : α) (as : Vec α n) : Vec.cons a (Vec.cons a as) = Vec.co
     constructor
 
 /--
-info: α : Type _
+info: α : Type u_1
 n : Nat
 a : α
 as : Vec α n

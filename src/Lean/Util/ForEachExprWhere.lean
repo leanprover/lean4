@@ -16,8 +16,6 @@ if the number of subterms satisfying `p` is a small subset of the set of subterm
 If `p` holds for most subterms, then it is more efficient to use `forEach f e`.
 -/
 
-variable {ω : Type} {m : Type → Type} [STWorld ω m] [MonadLiftT (ST ω) m] [Monad m]
-
 namespace ForEachExprWhere
 abbrev cacheSize : USize := 8192 - 1
 
@@ -30,14 +28,16 @@ structure State where
   Set of visited subterms that satisfy the predicate `p`.
   We have to use this set to make sure `f` is applied at most once of each subterm that satisfies `p`.
   -/
-  checked : HashSet Expr
+  checked : Std.HashSet Expr
 
 unsafe def initCache : State := {
   visited := mkArray cacheSize.toNat (cast lcProof ())
   checked := {}
 }
 
-abbrev ForEachM {ω : Type} (m : Type → Type) [STWorld ω m] [MonadLiftT (ST ω) m] [Monad m] := StateRefT' ω State m
+abbrev ForEachM {ω : Type} (m : Type → Type) [STWorld ω m] := StateRefT' ω State m
+
+variable {ω : Type} {m : Type → Type} [STWorld ω m] [MonadLiftT (ST ω) m] [Monad m]
 
 unsafe def visited (e : Expr) : ForEachM m Bool := do
   let s ← get

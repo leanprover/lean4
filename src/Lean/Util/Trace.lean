@@ -67,7 +67,7 @@ structure TraceState where
   traces  : PersistentArray TraceElem := {}
   deriving Inhabited
 
-builtin_initialize inheritedTraceOptions : IO.Ref (HashSet Name) ← IO.mkRef ∅
+builtin_initialize inheritedTraceOptions : IO.Ref (Std.HashSet Name) ← IO.mkRef ∅
 
 class MonadTrace (m : Type → Type) where
   modifyTraceState : (TraceState → TraceState) → m Unit
@@ -88,7 +88,7 @@ def printTraces : m Unit := do
 def resetTraceState : m Unit :=
   modifyTraceState (fun _ => {})
 
-private def checkTraceOption (inherited : HashSet Name) (opts : Options) (cls : Name) : Bool :=
+private def checkTraceOption (inherited : Std.HashSet Name) (opts : Options) (cls : Name) : Bool :=
   !opts.isEmpty && go (`trace ++ cls)
 where
   go (opt : Name) : Bool :=
@@ -164,7 +164,7 @@ register_builtin_option trace.profiler.threshold : Nat := {
     traces below threshold will not be activated"
 }
 
-register_builtin_option trace.profiler.useHearbeats : Bool := {
+register_builtin_option trace.profiler.useHeartbeats : Bool := {
   defValue := false
   group    := "profiler"
   descr    :=
@@ -190,7 +190,7 @@ invocations, which is the common case."
 
 @[inline] private def withStartStop [Monad m] [MonadLiftT BaseIO m] (opts : Options) (act : m α) :
     m (α × Float × Float) := do
-  if trace.profiler.useHearbeats.get opts then
+  if trace.profiler.useHeartbeats.get opts then
     let start ← IO.getNumHeartbeats
     let a ← act
     let stop ← IO.getNumHeartbeats
@@ -202,7 +202,7 @@ invocations, which is the common case."
     return (a, start.toFloat / 1000000000, stop.toFloat / 1000000000)
 
 @[inline] def trace.profiler.threshold.unitAdjusted (o : Options) : Float :=
-  if trace.profiler.useHearbeats.get o then
+  if trace.profiler.useHeartbeats.get o then
     (trace.profiler.threshold.get o).toFloat
   else
     -- milliseconds to seconds

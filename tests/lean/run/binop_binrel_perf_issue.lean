@@ -58,9 +58,6 @@ section Mathlib.Data.Subtype
 
 variable {α : Sort _} {p : α → Prop}
 
-protected theorem Subtype.ext : ∀ {a1 a2 : { x // p x }}, (a1 : α) = (a2 : α) → a1 = a2
-  | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
-
 theorem Subtype.coe_injective : Function.Injective (fun (a : Subtype p) ↦ (a : α)) := fun _ _ ↦ Subtype.ext
 
 end Mathlib.Data.Subtype

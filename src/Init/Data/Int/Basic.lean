@@ -322,8 +322,8 @@ protected def pow (m : Int) : Nat → Int
   | 0      => 1
   | succ n => Int.pow m n * m
 
-instance : HPow Int Nat Int where
-  hPow := Int.pow
+instance : NatPow Int where
+  pow := Int.pow
 
 instance : LawfulBEq Int where
   eq_of_beq h := by simp [BEq.beq] at h; assumption

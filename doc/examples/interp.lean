@@ -149,4 +149,4 @@ def fact : Expr ctx (Ty.fn Ty.int Ty.int) :=
            (op (·*·) (delay fun _ => app fact (op (·-·) (var stop) (val 1))) (var stop)))
   decreasing_by sorry
 
-#eval fact.interp Env.nil 10
+#eval! fact.interp Env.nil 10

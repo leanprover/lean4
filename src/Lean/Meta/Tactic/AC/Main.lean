@@ -66,9 +66,9 @@ inductive PreExpr
 def toACExpr (op l r : Expr) : MetaM (Array Expr × ACExpr) := do
   let (preExpr, vars) ←
     toPreExpr (mkApp2 op l r)
-    |>.run HashSet.empty
+    |>.run Std.HashSet.empty
   let vars := vars.toArray.insertionSort Expr.lt
-  let varMap := vars.foldl (fun xs x => xs.insert x xs.size) HashMap.empty |>.find!
+  let varMap := vars.foldl (fun xs x => xs.insert x xs.size) Std.HashMap.empty |>.get!
 
   return (vars, toACExpr varMap preExpr)
   where
@@ -101,11 +101,10 @@ def buildNormProof (preContext : PreContext) (l r : Expr) : MetaM (Lean.Expr × 
 where
   mkContext (α : Expr) (u : Level) (vars : Array Expr) : MetaM (Array Bool × Expr) := do
     let arbitrary := vars[0]!
-    let zero := mkLevelZeroEx ()
-    let plift := mkApp (mkConst ``PLift [zero])
-    let pliftUp := mkApp2 (mkConst ``PLift.up [zero])
-    let noneE tp   := mkApp  (mkConst ``Option.none [zero]) (plift tp)
-    let someE tp v := mkApp2 (mkConst ``Option.some [zero]) (plift tp) (pliftUp tp v)
+    let plift := mkApp (mkConst ``PLift [.zero])
+    let pliftUp := mkApp2 (mkConst ``PLift.up [.zero])
+    let noneE tp   := mkApp  (mkConst ``Option.none [.zero]) (plift tp)
+    let someE tp v := mkApp2 (mkConst ``Option.some [.zero]) (plift tp) (pliftUp tp v)
     let vars ← vars.mapM fun x => do
       let isNeutral :=
         let isNeutralClass := mkApp3 (mkConst ``LawfulIdentity [u]) α preContext.op x

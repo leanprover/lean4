@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.WF.TerminationArgument
+import Lean.Elab.PreDefinition.TerminationArgument
 import Lean.Elab.PreDefinition.WF.PackMutual
 import Lean.Elab.PreDefinition.WF.Preprocess
 import Lean.Elab.PreDefinition.WF.Rel
@@ -86,7 +86,8 @@ def varyingVarNames (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Ar
     let xs : Array Expr := xs[fixedPrefixSize:]
     xs.mapM (·.fvarId!.getUserName)
 
-def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
+def wfRecursion (preDefs : Array PreDefinition) (termArg?s : Array (Option TerminationArgument)) : TermElabM Unit := do
+  let termArgs? := termArg?s.sequenceMap id -- Either all or none, checked by `elabTerminationByHints`
   let preDefs ← preDefs.mapM fun preDef =>
     return { preDef with value := (← preprocess preDef.value) }
   let (fixedPrefixSize, argsPacker, unaryPreDef) ← withoutModifyingEnv do
@@ -100,21 +101,9 @@ def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
     return (fixedPrefixSize, argsPacker, ← packMutual fixedPrefixSize argsPacker preDefsDIte)
 
   let wf : TerminationArguments ← do
-    let (preDefsWith, preDefsWithout) := preDefs.partition (·.termination.terminationBy?.isSome)
-    if preDefsWith.isEmpty then
-      -- No termination_by anywhere, so guess one
-      guessLex preDefs unaryPreDef fixedPrefixSize argsPacker
-    else if preDefsWithout.isEmpty then
-      preDefsWith.mapIdxM fun funIdx predef => do
-        let arity := fixedPrefixSize + argsPacker.varNamess[funIdx]!.size
-        let hints := predef.termination
-        TerminationArgument.elab predef.declName predef.type arity hints.extraParams hints.terminationBy?.get!
-    else
-      -- Some have, some do not, so report errors
-      preDefsWithout.forM fun preDef => do
-        logErrorAt preDef.ref (m!"Missing `termination_by`; this function is mutually " ++
-          m!"recursive with {preDefsWith[0]!.declName}, which has a `termination_by` clause.")
-      return
+    if let some tas := termArgs? then pure tas else
+    -- No termination_by here, so use GuessLex to infer one
+    guessLex preDefs unaryPreDef fixedPrefixSize argsPacker
 
   let preDefNonRec ← forallBoundedTelescope unaryPreDef.type fixedPrefixSize fun prefixArgs type => do
     let type ← whnfForall type
@@ -129,7 +118,15 @@ def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
         eraseRecAppSyntaxExpr value
       /- `mkFix` invokes `decreasing_tactic` which may add auxiliary theorems to the environment. -/
       let value ← unfoldDeclsFrom envNew value
-      return { unaryPreDef with value }
+      let unaryPreDef := { unaryPreDef with value }
+      /-
+      We must remove `implemented_by` attributes from the auxiliary application because
+      this attribute is only relevant for code that is compiled. Moreover, the `[implemented_by <decl>]`
+      attribute would check whether the `unaryPreDef` type matches with `<decl>`'s type, and produce
+      and error. See issue #2899
+      -/
+      let unaryPreDef := unaryPreDef.filterAttrs fun attr => attr.name != `implemented_by
+      return unaryPreDef
   trace[Elab.definition.wf] ">> {preDefNonRec.declName} :=\n{preDefNonRec.value}"
   let preDefs ← preDefs.mapM fun d => eraseRecAppSyntax d
   -- Do not complain if the user sets @[semireducible], which usually is a noop,

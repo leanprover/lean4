@@ -81,10 +81,6 @@ end Frontend
 
 open Frontend
 
-def IO.processCommands (inputCtx : Parser.InputContext) (parserState : Parser.ModuleParserState) (commandState : Command.State) : IO State := do
-  let (_, s) ← (Frontend.processCommands.run { inputCtx := inputCtx }).run { commandState := commandState, parserState := parserState, cmdPos := parserState.pos }
-  pure s
-
 structure IncrementalState extends State where
   inputCtx    : Parser.InputContext
   initialSnap : Language.Lean.CommandParsedSnapshot
@@ -92,12 +88,10 @@ deriving Nonempty
 
 open Language in
 /--
-Variant of `IO.processCommands` that uses the new Lean language processor implementation for
-potential incremental reuse. Pass in result of a previous invocation done with the same state
-(but usually different input context) to allow for reuse.
+Variant of `IO.processCommands` that allows for potential incremental reuse. Pass in the result of a
+previous invocation done with the same state (but usually different input context) to allow for
+reuse.
 -/
--- `IO.processCommands` can be reimplemented on top of this as soon as the additional tasks speed up
--- things instead of slowing them down
 partial def IO.processCommandsIncrementally (inputCtx : Parser.InputContext)
     (parserState : Parser.ModuleParserState) (commandState : Command.State)
     (old? : Option IncrementalState) :
@@ -110,7 +104,7 @@ where
     let snap := t.get
     let commands := commands.push snap.data.stx
     if let some next := snap.nextCmdSnap? then
-      go initialSnap next commands
+      go initialSnap next.task commands
     else
       -- Opting into reuse also enables incremental reporting, so make sure to collect messages from
       -- all snapshots
@@ -125,6 +119,11 @@ where
         cmdPos := snap.data.parserState.pos
         inputCtx, initialSnap, commands
       }
+
+def IO.processCommands (inputCtx : Parser.InputContext) (parserState : Parser.ModuleParserState)
+    (commandState : Command.State) : IO State := do
+  let st ← IO.processCommandsIncrementally inputCtx parserState commandState none
+  return st.toState
 
 def process (input : String) (env : Environment) (opts : Options) (fileName : Option String := none) : IO (Environment × MessageLog) := do
   let fileName   := fileName.getD "<input>"
@@ -144,62 +143,31 @@ def runFrontend
     : IO (Environment × Bool) := do
   let startTime := (← IO.monoNanosNow).toFloat / 1000000000
   let inputCtx := Parser.mkInputContext input fileName
-  if true then
-    -- Temporarily keep alive old cmdline driver for the Lean language so that we don't pay the
-    -- overhead of passing the environment between snapshots until we actually make good use of it
-    -- outside the server
-    let (header, parserState, messages) ← Parser.parseHeader inputCtx
-    -- allow `env` to be leaked, which would live until the end of the process anyway
-    let (env, messages) ← processHeader (leakEnv := true) header opts messages inputCtx trustLevel
-    let env := env.setMainModule mainModuleName
-    let mut commandState := Command.mkState env messages opts
-    let elabStartTime := (← IO.monoNanosNow).toFloat / 1000000000
-
-    if ileanFileName?.isSome then
-      -- Collect InfoTrees so we can later extract and export their info to the ilean file
-      commandState := { commandState with infoState.enabled := true }
-
-    let s ← IO.processCommands inputCtx parserState commandState
-    Language.reportMessages s.commandState.messages opts jsonOutput
-
-    if let some ileanFileName := ileanFileName? then
-      let trees := s.commandState.infoState.trees.toArray
-      let references ←
-        Lean.Server.findModuleRefs inputCtx.fileMap trees (localVars := false) |>.toLspModuleRefs
-      let ilean := { module := mainModuleName, references : Lean.Server.Ilean }
-      IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean
-
-    if let some out := trace.profiler.output.get? opts then
-      let traceState := s.commandState.traceState
-      -- importing does not happen in an elaboration monad, add now
-      let traceState := { traceState with
-        traces := #[{
-          ref := .missing,
-          msg := .trace { cls := `Import, startTime, stopTime := elabStartTime }
-            (.ofFormat "importing") #[]
-        }].toPArray' ++ traceState.traces
-      }
-      let profile ← Firefox.Profile.export mainModuleName.toString startTime traceState opts
-      IO.FS.writeFile ⟨out⟩ <| Json.compress <| toJson profile
-
-    return (s.commandState.env, !s.commandState.messages.hasErrors)
-
+  let opts := Language.Lean.internal.cmdlineSnapshots.set opts true
   let ctx := { inputCtx with }
   let processor := Language.Lean.process
   let snap ← processor (fun _ => pure <| .ok { mainModuleName, opts, trustLevel }) none ctx
   let snaps := Language.toSnapshotTree snap
   snaps.runAndReport opts jsonOutput
+
   if let some ileanFileName := ileanFileName? then
     let trees := snaps.getAll.concatMap (match ·.infoTree? with | some t => #[t] | _ => #[])
     let references := Lean.Server.findModuleRefs inputCtx.fileMap trees (localVars := false)
     let ilean := { module := mainModuleName, references := ← references.toLspModuleRefs : Lean.Server.Ilean }
     IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean
 
-  let hasErrors := snaps.getAll.any (·.diagnostics.msgLog.hasErrors)
   -- TODO: remove default when reworking cmdline interface in Lean; currently the only case
   -- where we use the environment despite errors in the file is `--stats`
-  let env := Language.Lean.waitForFinalEnv? snap |>.getD (← mkEmptyEnvironment)
-  pure (env, !hasErrors)
+  let some cmdState := Language.Lean.waitForFinalCmdState? snap
+    | return (← mkEmptyEnvironment, false)
+
+  if let some out := trace.profiler.output.get? opts then
+    let traceState := cmdState.traceState
+    let profile ← Firefox.Profile.export mainModuleName.toString startTime traceState opts
+    IO.FS.writeFile ⟨out⟩ <| Json.compress <| toJson profile
+
+  let hasErrors := snaps.getAll.any (·.diagnostics.msgLog.hasErrors)
+  pure (cmdState.env, !hasErrors)
 
 
 end Lean.Elab

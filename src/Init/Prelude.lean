@@ -320,7 +320,7 @@ Because this is in the `Eq` namespace, if you have a variable `h : a = b`,
 
 For more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
 -/
-theorem Eq.symm {α : Sort u} {a b : α} (h : Eq a b) : Eq b a :=
+@[symm] theorem Eq.symm {α : Sort u} {a b : α} (h : Eq a b) : Eq b a :=
   h ▸ rfl
 
 /--
@@ -488,9 +488,9 @@ attribute [unbox] Prod
 
 /--
 Similar to `Prod`, but `α` and `β` can be propositions.
+You can use `α ×' β` as notation for `PProd α β`.
 We use this type internally to automatically generate the `brecOn` recursor.
 -/
-@[pp_using_anonymous_constructor]
 structure PProd (α : Sort u) (β : Sort v) where
   /-- The first projection out of a pair. if `p : PProd α β` then `p.1 : α`. -/
   fst : α
@@ -740,7 +740,7 @@ prove `p` given any element `x : α`, then `p` holds. Note that it is essential
 that `p` is a `Prop` here; the version with `p` being a `Sort u` is equivalent
 to `Classical.choice`.
 -/
-protected def Nonempty.elim {α : Sort u} {p : Prop} (h₁ : Nonempty α) (h₂ : α → p) : p :=
+protected theorem Nonempty.elim {α : Sort u} {p : Prop} (h₁ : Nonempty α) (h₂ : α → p) : p :=
   match h₁ with
   | intro a => h₂ a
 
@@ -914,6 +914,9 @@ is `Bool` valued instead of `Prop` valued, and it also does not have any
 axioms like being reflexive or agreeing with `=`. It is mainly intended for
 programming applications. See `LawfulBEq` for a version that requires that
 `==` and `=` coincide.
+
+Typically we prefer to put the "more variable" term on the left,
+and the "more constant" term on the right.
 -/
 class BEq (α : Type u) where
   /-- Boolean equality, notated as `a == b`. -/
@@ -1068,11 +1071,15 @@ This type is special-cased by both the kernel and the compiler:
   library (usually [GMP](https://gmplib.org/)).
 -/
 inductive Nat where
-  /-- `Nat.zero`, normally written `0 : Nat`, is the smallest natural number.
-  This is one of the two constructors of `Nat`. -/
+  /-- `Nat.zero`, is the smallest natural number. This is one of the two
+  constructors of `Nat`. Using `Nat.zero` should usually be avoided in favor of
+  `0 : Nat` or simply `0`, in order to remain compatible with the simp normal
+  form defined by `Nat.zero_eq`. -/
   | zero : Nat
   /-- The successor function on natural numbers, `succ n = n + 1`.
-  This is one of the two constructors of `Nat`. -/
+  This is one of the two constructors of `Nat`. Using `succ n` should usually
+  be avoided in favor of `n + 1`, in order to remain compatible with the simp
+  normal form defined by `Nat.succ_eq_add_one`. -/
   | succ (n : Nat) : Nat
 
 instance : Inhabited Nat where
@@ -1838,14 +1845,11 @@ theorem Fin.eq_of_val_eq {n} : ∀ {i j : Fin n}, Eq i.val j.val → Eq i j
 theorem Fin.val_eq_of_eq {n} {i j : Fin n} (h : Eq i j) : Eq i.val j.val :=
   h ▸ rfl
 
-theorem Fin.ne_of_val_ne {n} {i j : Fin n} (h : Not (Eq i.val j.val)) : Not (Eq i j) :=
-  fun h' => absurd (val_eq_of_eq h') h
-
 instance (n : Nat) : DecidableEq (Fin n) :=
   fun i j =>
     match decEq i.val j.val with
     | isTrue h  => isTrue (Fin.eq_of_val_eq h)
-    | isFalse h => isFalse (Fin.ne_of_val_ne h)
+    | isFalse h => isFalse (fun h' => absurd (Fin.val_eq_of_eq h') h)
 
 instance {n} : LT (Fin n) where
   lt a b := LT.lt a.val b.val
@@ -2207,11 +2211,16 @@ def Char.utf8Size (c : Char) : Nat :=
 or `none`. In functional programming languages, this type is used to represent
 the possibility of failure, or sometimes nullability.
 
-For example, the function `HashMap.find? : HashMap α β → α → Option β` looks up
+For example, the function `HashMap.get? : HashMap α β → α → Option β` looks up
 a specified key `a : α` inside the map. Because we do not know in advance
 whether the key is actually in the map, the return type is `Option β`, where
 `none` means the value was not in the map, and `some b` means that the value
 was found and `b` is the value retrieved.
+
+The `xs[i]` syntax, which is used to index into collections, has a variant
+`xs[i]?` that returns an optional value depending on whether the given index
+is valid. For example, if `m : HashMap α β` and `a : α`, then `m[a]?` is
+equivalent to `HashMap.get? m a`.
 
 To extract a value from an `Option α`, we use pattern matching:
 ```
@@ -2300,24 +2309,6 @@ protected def List.hasDecEq {α : Type u} [DecidableEq α] : (a b : List α) →
 instance {α : Type u} [DecidableEq α] : DecidableEq (List α) := List.hasDecEq
 
 /--
-Folds a function over a list from the left:
-`foldl f z [a, b, c] = f (f (f z a) b) c`
--/
-@[specialize]
-def List.foldl {α : Type u} {β : Type v} (f : α → β → α) : (init : α) → List β → α
-  | a, nil      => a
-  | a, cons b l => foldl f (f a b) l
-
-/--
-`l.set n a` sets the value of list `l` at (zero-based) index `n` to `a`:
-`[a, b, c, d].set 1 b' = [a, b', c, d]`
--/
-def List.set : List α → Nat → α → List α
-  | cons _ as, 0,          b => cons b as
-  | cons a as, Nat.succ n, b => cons a (set as n b)
-  | nil,       _,          _ => nil
-
-/--
 The length of a list: `[].length = 0` and `(a :: l).length = l.length + 1`.
 
 This function is overridden in the compiler to `lengthTR`, which uses constant
@@ -2340,14 +2331,6 @@ without running out of stack space.
 def List.lengthTR (as : List α) : Nat :=
   lengthTRAux as 0
 
-@[simp] theorem List.length_cons {α} (a : α) (as : List α) : Eq (cons a as).length as.length.succ :=
-  rfl
-
-/-- `l.concat a` appends `a` at the *end* of `l`, that is, `l ++ [a]`. -/
-def List.concat {α : Type u} : List α → α → List α
-  | nil,       b => cons b nil
-  | cons a as, b => cons a (concat as b)
-
 /--
 `as.get i` returns the `i`'th element of the list `as`.
 This version of the function uses `i : Fin as.length` to ensure that it will
@@ -2356,6 +2339,29 @@ not index out of bounds.
 def List.get {α : Type u} : (as : List α) → Fin as.length → α
   | cons a _,  ⟨0, _⟩ => a
   | cons _ as, ⟨Nat.succ i, h⟩ => get as ⟨i, Nat.le_of_succ_le_succ h⟩
+
+/--
+`l.set n a` sets the value of list `l` at (zero-based) index `n` to `a`:
+`[a, b, c, d].set 1 b' = [a, b', c, d]`
+-/
+def List.set : List α → Nat → α → List α
+  | cons _ as, 0,          b => cons b as
+  | cons a as, Nat.succ n, b => cons a (set as n b)
+  | nil,       _,          _ => nil
+
+/--
+Folds a function over a list from the left:
+`foldl f z [a, b, c] = f (f (f z a) b) c`
+-/
+@[specialize]
+def List.foldl {α : Type u} {β : Type v} (f : α → β → α) : (init : α) → List β → α
+  | a, nil      => a
+  | a, cons b l => foldl f (f a b) l
+
+/-- `l.concat a` appends `a` at the *end* of `l`, that is, `l ++ [a]`. -/
+def List.concat {α : Type u} : List α → α → List α
+  | nil,       b => cons b nil
+  | cons a as, b => cons a (concat as b)
 
 /--
 `String` is the type of (UTF-8 encoded) strings.
@@ -2969,7 +2975,7 @@ def MonadExcept.ofExcept [Monad m] [MonadExcept ε m] : Except ε α → m α
 
 export MonadExcept (throw tryCatch ofExcept)
 
-instance (ε : outParam (Type u)) (m : Type v → Type w) [MonadExceptOf ε m] : MonadExcept ε m where
+instance (ε : Type u) (m : Type v → Type w) [MonadExceptOf ε m] : MonadExcept ε m where
   throw    := throwThe ε
   tryCatch := tryCatchThe ε
 
@@ -3143,7 +3149,7 @@ instance (ρ : Type u) (m : Type u → Type v) [MonadWithReaderOf ρ m] : MonadW
 instance {ρ : Type u} {m : Type u → Type v} {n : Type u → Type v} [MonadFunctor m n] [MonadWithReaderOf ρ m] : MonadWithReaderOf ρ n where
   withReader f := monadMap (m := m) (withTheReader ρ f)
 
-instance {ρ : Type u} {m : Type u → Type v} [Monad m] : MonadWithReaderOf ρ (ReaderT ρ m) where
+instance {ρ : Type u} {m : Type u → Type v} : MonadWithReaderOf ρ (ReaderT ρ m) where
   withReader f x := fun ctx => x (f ctx)
 
 /--
@@ -3168,8 +3174,8 @@ class MonadStateOf (σ : semiOutParam (Type u)) (m : Type u → Type v) where
 export MonadStateOf (set)
 
 /--
-Like `withReader`, but with `ρ` explicit. This is useful if a monad supports
-`MonadWithReaderOf` for multiple different types `ρ`.
+Like `get`, but with `σ` explicit. This is useful if a monad supports
+`MonadStateOf` for multiple different types `σ`.
 -/
 abbrev getThe (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] : m σ :=
   MonadStateOf.get
@@ -3226,7 +3232,7 @@ def modify {σ : Type u} {m : Type u → Type v} [MonadState σ m] (f : σ → �
 of the state. It is equivalent to `get <* modify f` but may be more efficient.
 -/
 @[always_inline, inline]
-def getModify {σ : Type u} {m : Type u → Type v} [MonadState σ m] [Monad m] (f : σ → σ) : m σ :=
+def getModify {σ : Type u} {m : Type u → Type v} [MonadState σ m] (f : σ → σ) : m σ :=
   modifyGet fun s => (s, f s)
 
 -- NOTE: The Ordering of the following two instances determines that the top-most `StateT` Monad layer

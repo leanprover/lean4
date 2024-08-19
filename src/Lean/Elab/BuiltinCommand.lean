@@ -5,13 +5,13 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Util.CollectLevelParams
+import Lean.Util.CollectAxioms
 import Lean.Meta.Reduce
 import Lean.Elab.DeclarationRange
 import Lean.Elab.Eval
 import Lean.Elab.Command
 import Lean.Elab.Open
 import Lean.Elab.SetOption
-import Lean.PrettyPrinter
 
 namespace Lean.Elab.Command
 
@@ -262,16 +262,22 @@ def elabCheckCore (ignoreStuckTC : Bool) : CommandElab
 
 @[builtin_command_elab Lean.Parser.Command.check] def elabCheck : CommandElab := elabCheckCore (ignoreStuckTC := true)
 
-@[builtin_command_elab Lean.Parser.Command.reduce] def elabReduce : CommandElab
-  | `(#reduce%$tk $term) => withoutModifyingEnv <| runTermElabM fun _ => Term.withDeclName `_reduce do
-    let e ← Term.elabTerm term none
-    Term.synthesizeSyntheticMVarsNoPostponing
-    let e ← Term.levelMVarToParam (← instantiateMVars e)
-    -- TODO: add options or notation for setting the following parameters
-    withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.setBool `smartUnfolding false }) do
-      let e ← withTransparency (mode := TransparencyMode.all) <| reduce e (skipProofs := false) (skipTypes := false)
-      logInfoAt tk e
+@[builtin_command_elab Lean.reduceCmd] def elabReduce : CommandElab
+  | `(#reduce%$tk $term) => go tk term
+  | `(#reduce%$tk (proofs := true) $term) => go tk term (skipProofs := false)
+  | `(#reduce%$tk (types := true) $term) => go tk term (skipTypes := false)
+  | `(#reduce%$tk (proofs := true) (types := true) $term) => go tk term (skipProofs := false) (skipTypes := false)
   | _ => throwUnsupportedSyntax
+where
+  go (tk : Syntax) (term : Syntax) (skipProofs := true) (skipTypes := true) : CommandElabM Unit :=
+    withoutModifyingEnv <| runTermElabM fun _ => Term.withDeclName `_reduce do
+      let e ← Term.elabTerm term none
+      Term.synthesizeSyntheticMVarsNoPostponing
+      let e ← Term.levelMVarToParam (← instantiateMVars e)
+      -- TODO: add options or notation for setting the following parameters
+      withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.setBool `smartUnfolding false }) do
+        let e ← withTransparency (mode := TransparencyMode.all) <| reduce e (skipProofs := skipProofs) (skipTypes := skipTypes)
+        logInfoAt tk e
 
 def hasNoErrorMessages : CommandElabM Bool := do
   return !(← get).messages.hasErrors
@@ -335,8 +341,7 @@ private def mkRunEval (e : Expr) : MetaM Expr := do
   let instVal ← mkEvalInstCore ``Lean.Eval e
   instantiateMVars (mkAppN (mkConst ``Lean.runEval [u]) #[α, instVal, mkSimpleThunk e])
 
-unsafe def elabEvalUnsafe : CommandElab
-  | `(#eval%$tk $term) => do
+unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax): CommandElabM Unit := do
     let declName := `_eval
     let addAndCompile (value : Expr) : TermElabM Unit := do
       let value ← Term.levelMVarToParam (← instantiateMVars value)
@@ -353,6 +358,13 @@ unsafe def elabEvalUnsafe : CommandElab
       }
       Term.ensureNoUnassignedMVars decl
       addAndCompile decl
+    -- Check for sorry axioms
+    let checkSorry (declName : Name) : MetaM Unit := do
+      unless bang do
+        let axioms ← collectAxioms declName
+        if axioms.contains ``sorryAx then
+          throwError ("cannot evaluate expression that depends on the `sorry` axiom.\nUse `#eval!` to " ++
+            "evaluate nevertheless (which may cause lean to crash).")
     -- Elaborate `term`
     let elabEvalTerm : TermElabM Expr := do
       let e ← Term.elabTerm term none
@@ -381,6 +393,7 @@ unsafe def elabEvalUnsafe : CommandElab
           else
             let e ← mkRunMetaEval e
             addAndCompile e
+            checkSorry declName
             let act ← evalConst (Environment → Options → IO (String × Except IO.Error Environment)) declName
             pure <| Sum.inr act
       match act with
@@ -397,6 +410,7 @@ unsafe def elabEvalUnsafe : CommandElab
       -- modify e to `runEval e`
       let e ← mkRunEval (← elabEvalTerm)
       addAndCompile e
+      checkSorry declName
       let act ← evalConst (IO (String × Except IO.Error Unit)) declName
       let (out, res) ← liftM (m := IO) act
       logInfoAt tk out
@@ -407,10 +421,19 @@ unsafe def elabEvalUnsafe : CommandElab
       elabMetaEval
     else
       elabEval
+
+@[implemented_by elabEvalCoreUnsafe]
+opaque elabEvalCore (bang : Bool) (tk term : Syntax): CommandElabM Unit
+
+@[builtin_command_elab «eval»]
+def elabEval : CommandElab
+  | `(#eval%$tk $term) => elabEvalCore false tk term
   | _ => throwUnsupportedSyntax
 
-@[builtin_command_elab «eval», implemented_by elabEvalUnsafe]
-opaque elabEval : CommandElab
+@[builtin_command_elab evalBang]
+def elabEvalBang : CommandElab
+  | `(Parser.Command.evalBang|#eval!%$tk $term) => elabEvalCore true tk term
+  | _ => throwUnsupportedSyntax
 
 private def checkImportsForRunCmds : CommandElabM Unit := do
   unless (← getEnv).contains ``CommandElabM do
@@ -477,6 +500,16 @@ def elabRunMeta : CommandElab := fun stx =>
       -- in particular `Quot.mk` et al which are added by `init_quot`
       addAuxDeclarationRanges declName stx id
     addDocString declName (← getDocStringText doc)
+  | _ => throwUnsupportedSyntax
+
+@[builtin_command_elab Lean.Parser.Command.include] def elabInclude : CommandElab
+  | `(Lean.Parser.Command.include| include $ids*) => do
+    let vars := (← getScope).varDecls.concatMap getBracketedBinderIds
+    for id in ids do
+      unless vars.contains id.getId do
+        throwError "invalid 'include', variable '{id}' has not been declared in the current scope"
+    modifyScope fun sc =>
+      { sc with includedVars := sc.includedVars ++ ids.toList.map (·.getId) }
   | _ => throwUnsupportedSyntax
 
 @[builtin_command_elab Parser.Command.exit] def elabExit : CommandElab := fun _ =>

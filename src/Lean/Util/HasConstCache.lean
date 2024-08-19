@@ -5,18 +5,19 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Expr
+import Std.Data.HashMap.Raw
 
 namespace Lean
 
-structure HasConstCache (declName : Name) where
-  cache : HashMapImp Expr Bool := mkHashMapImp
+structure HasConstCache (declNames : Array Name) where
+  cache : Std.HashMap.Raw Expr Bool := Std.HashMap.Raw.empty
 
-unsafe def HasConstCache.containsUnsafe (e : Expr) : StateM (HasConstCache declName) Bool := do
-  if let some r := (← get).cache.find? (beq := ⟨ptrEq⟩) e then
+unsafe def HasConstCache.containsUnsafe (e : Expr) : StateM (HasConstCache declNames) Bool := do
+  if let some r := (← get).cache.get? (beq := ⟨ptrEq⟩) e then
     return r
   else
     match e with
-    | .const n ..        => return n == declName
+    | .const n ..        => return declNames.contains n
     | .app f a           => cache e (← containsUnsafe f <||> containsUnsafe a)
     | .lam _ d b _       => cache e (← containsUnsafe d <||> containsUnsafe b)
     | .forallE _ d b _   => cache e (← containsUnsafe d <||> containsUnsafe b)
@@ -25,14 +26,14 @@ unsafe def HasConstCache.containsUnsafe (e : Expr) : StateM (HasConstCache declN
     | .proj _ _ b        => cache e (← containsUnsafe b)
     | _                  => return false
 where
-  cache (e : Expr) (r : Bool) : StateM (HasConstCache declName) Bool := do
-    modify fun ⟨cache⟩ => ⟨cache.insert (beq := ⟨ptrEq⟩) e r |>.1⟩
+  cache (e : Expr) (r : Bool) : StateM (HasConstCache declNames) Bool := do
+    modify fun ⟨cache⟩ => ⟨cache.insert (beq := ⟨ptrEq⟩) e r⟩
     return r
 
 /--
   Return true iff `e` contains the constant `declName`.
   Remark: the results for visited expressions are stored in the state cache. -/
 @[implemented_by HasConstCache.containsUnsafe]
-opaque HasConstCache.contains (e : Expr) : StateM (HasConstCache declName) Bool
+opaque HasConstCache.contains (e : Expr) : StateM (HasConstCache declNames) Bool
 
 end Lean

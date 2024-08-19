@@ -14,7 +14,7 @@ def IsGood [DecidableEq dOut] [DecidableEq dOut₂] (Λ : Mappish dIn dOut) (Λ�
 /--
 error: failed to synthesize
   Fintype v
-use `set_option diagnostics true` to get diagnostic information
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
 def MappishOrder [DecidableEq dIn] : Preorder

@@ -483,8 +483,8 @@ let m1 ← mkFreshExprMVar (← mkArrow nat nat);
 let m2 ← mkFreshExprMVar nat;
 let m3 ← mkFreshExprMVar nat;
 checkM $ approxDefEq $ isDefEq (mkApp m1 m2) m3;
-checkM $ do { let b ← isExprMVarAssigned $ m1.mvarId!; pure (!b) };
-checkM $ isExprMVarAssigned $ m3.mvarId!;
+checkM $ do { let b ← m1.mvarId!.isAssigned; pure (!b) };
+checkM $ m3.mvarId!.isAssigned;
 pure ()
 
 /-- info: [Meta.debug] ----- tst26 ----- -/
@@ -682,7 +682,7 @@ withLocalDeclD `α type $ fun α => do
   let m1 ← mkFreshExprMVar type;
   let m2 ← mkFreshExprMVar (← mkArrow nat type);
   let v := mkLambda `x BinderInfo.default nat m1;
-  assignExprMVar m2.mvarId! v;
+  m2.mvarId!.assign v;
   let w := mkApp m2 zero;
   let t1 ← mkLambdaFVars #[α] (← mkArrow w w);
   print t1;

@@ -25,8 +25,8 @@ def CNF.lift (cnf : CNF Nat) : CNF (PosFin (cnf.numLiterals + 1)) :=
   let cnf := cnf.relabelFin
   cnf.relabel (fun lit => ⟨lit.val + 1, by omega⟩)
 
-theorem CNF.unsat_of_lift_unsat (cnf : CNF Nat)
-    : (CNF.lift cnf).Unsat → cnf.Unsat := by
+theorem CNF.unsat_of_lift_unsat (cnf : CNF Nat) :
+    (CNF.lift cnf).Unsat → cnf.Unsat := by
   intro h2
   have h3 :=
     CNF.unsat_relabel_iff
@@ -123,12 +123,12 @@ def CNF.convertLRAT (cnf : CNF Nat) : DefaultFormula (cnf.numLiterals + 1) :=
 theorem CNF.convertLRAT_readyForRupAdd (cnf : CNF Nat) :
     DefaultFormula.ReadyForRupAdd (CNF.convertLRAT cnf) := by
   unfold CNF.convertLRAT
-  apply DefaultFormula.ofArray_readyForRupAdd
+  apply DefaultFormula.readyForRupAdd_ofArray
 
 theorem CNF.convertLRAT_readyForRatAdd (cnf : CNF Nat) :
     DefaultFormula.ReadyForRatAdd (CNF.convertLRAT cnf) := by
   unfold CNF.convertLRAT
-  apply DefaultFormula.ofArray_readyForRatAdd
+  apply DefaultFormula.readyForRatAdd_ofArray
 
 theorem unsat_of_cons_none_unsat (clauses : List (Option (DefaultClause n))) :
     Unsatisfiable (PosFin n) (DefaultFormula.ofArray (none :: clauses).toArray)

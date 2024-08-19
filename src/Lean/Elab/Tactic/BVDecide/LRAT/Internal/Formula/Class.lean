@@ -30,18 +30,18 @@ class Formula (α : outParam (Type u)) (β : outParam (Type v)) [Clause α β] (
   /-- A predicate that indicates whether a formula can soundly be passed into performRatAdd. -/
   ReadyForRatAdd : σ → Prop
   ofArray : Array (Option β) → σ
-  ofArray_readyForRupAdd : ∀ arr : Array (Option β), ReadyForRupAdd (ofArray arr)
-  ofArray_readyForRatAdd : ∀ arr : Array (Option β), ReadyForRatAdd (ofArray arr)
+  readyForRupAdd_ofArray : ∀ arr : Array (Option β), ReadyForRupAdd (ofArray arr)
+  readyForRatAdd_ofArray : ∀ arr : Array (Option β), ReadyForRatAdd (ofArray arr)
   insert : σ → β → σ
   insert_iff : ∀ f : σ, ∀ c1 : β, ∀ c2 : β,
     c2 ∈ toList (insert f c1) ↔ c2 = c1 ∨ c2 ∈ toList f
-  insert_readyForRupAdd : ∀ f : σ, ∀ c : β, ReadyForRupAdd f → ReadyForRupAdd (insert f c)
-  insert_readyForRatAdd : ∀ f : σ, ∀ c : β, ReadyForRatAdd f → ReadyForRatAdd (insert f c)
+  readyForRupAdd_insert : ∀ f : σ, ∀ c : β, ReadyForRupAdd f → ReadyForRupAdd (insert f c)
+  readyForRatAdd_insert : ∀ f : σ, ∀ c : β, ReadyForRatAdd f → ReadyForRatAdd (insert f c)
   delete : σ → Array Nat → σ
   delete_subset : ∀ f : σ, ∀ arr : Array Nat, ∀ c : β,
     c ∈ toList (delete f arr) → c ∈ toList f
-  delete_readyForRupAdd : ∀ f : σ, ∀ arr : Array Nat, ReadyForRupAdd f → ReadyForRupAdd (delete f arr)
-  delete_readyForRatAdd : ∀ f : σ, ∀ arr : Array Nat, ReadyForRatAdd f → ReadyForRatAdd (delete f arr)
+  readyForRupAdd_delete : ∀ f : σ, ∀ arr : Array Nat, ReadyForRupAdd f → ReadyForRupAdd (delete f arr)
+  readyForRatAdd_delete : ∀ f : σ, ∀ arr : Array Nat, ReadyForRatAdd f → ReadyForRatAdd (delete f arr)
   formulaEntails_def : ∀ p : α → Bool, ∀ f : σ, Entails.eval p f = (toList f).all (fun c => p ⊨ c)
   performRupAdd : σ → β → Array Nat → σ × Bool
   rupAdd_result : ∀ f : σ, ∀ c : β, ∀ rupHints : Array Nat, ∀ f' : σ,

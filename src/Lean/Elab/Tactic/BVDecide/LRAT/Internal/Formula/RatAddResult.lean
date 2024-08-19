@@ -20,11 +20,11 @@ namespace DefaultFormula
 open Std.Sat
 open DefaultClause DefaultFormula Assignment
 
-theorem insertRatUnits_preserves_assignments_size {n : Nat} (f : DefaultFormula n)
+theorem size_assignments_insertRatUnits {n : Nat} (f : DefaultFormula n)
     (units : CNF.Clause (PosFin n)) :
     (f.insertRatUnits units).1.assignments.size = f.assignments.size := by
   simp only [insertRatUnits]
-  exact insertUnit_fold_preserves_size f.ratUnits f.assignments false
+  exact size_insertUnit_fold f.ratUnits f.assignments false
 
 theorem insertRatUnits_postcondition {n : Nat} (f : DefaultFormula n)
     (hf : f.ratUnits = #[] ∧ f.assignments.size = n)
@@ -32,7 +32,7 @@ theorem insertRatUnits_postcondition {n : Nat} (f : DefaultFormula n)
     let assignments := (insertRatUnits f units).fst.assignments
     have hsize : assignments.size = n := by
       rw [← hf.2]
-      exact insertRatUnits_preserves_assignments_size f units
+      exact size_assignments_insertRatUnits f units
     let ratUnits := (insertRatUnits f units).1.ratUnits
     InsertUnitInvariant f.assignments hf.2 ratUnits assignments hsize := by
   simp only [insertRatUnits]
@@ -44,9 +44,9 @@ theorem insertRatUnits_postcondition {n : Nat} (f : DefaultFormula n)
     intro j
     simp only [hf.1, Array.size_toArray, List.length_nil] at j
     exact Fin.elim0 j
-  exact insertUnit_fold_preserves_invariant f.assignments hf.2 f.ratUnits f.assignments hsize false units h0
+  exact insertUnitInvariant_insertUnit_fold f.assignments hf.2 f.ratUnits f.assignments hsize false units h0
 
-theorem insertRatUnits_nodup {n : Nat} (f : DefaultFormula n)
+theorem nodup_insertRatUnits {n : Nat} (f : DefaultFormula n)
     (hf : f.ratUnits = #[] ∧ f.assignments.size = n) (units : CNF.Clause (PosFin n)) :
     ∀ i : Fin (f.insertRatUnits units).1.ratUnits.size, ∀ j : Fin (f.insertRatUnits units).1.ratUnits.size,
       i ≠ j → (f.insertRatUnits units).1.ratUnits[i] ≠ (f.insertRatUnits units).1.ratUnits[j] := by
@@ -114,7 +114,7 @@ theorem clear_insertRat_base_case {n : Nat} (f : DefaultFormula n)
     (hf : f.ratUnits = #[] ∧ f.assignments.size = n) (units : CNF.Clause (PosFin n)) :
     let insertRat_res := insertRatUnits f units
     ClearInsertInductionMotive f hf.2 insertRat_res.1.ratUnits 0 insertRat_res.1.assignments := by
-  have insertRatUnits_assignments_size := insertRatUnits_preserves_assignments_size f units
+  have insertRatUnits_assignments_size := size_assignments_insertRatUnits f units
   rw [hf.2] at insertRatUnits_assignments_size
   apply Exists.intro insertRatUnits_assignments_size
   intro i
@@ -135,7 +135,7 @@ theorem clear_insertRat {n : Nat} (f : DefaultFormula n)
     have h_inductive (idx : Fin (insertRatUnits f units).1.ratUnits.size) (assignments : Array Assignment)
       (ih : motive idx.val assignments) : motive (idx.val + 1) (clearUnit assignments (insertRatUnits f units).1.ratUnits[idx]) :=
       clear_insert_inductive_case f hf.2 (insertRatUnits f units).1.ratUnits
-        (insertRatUnits_nodup f hf units) idx assignments ih
+        (nodup_insertRatUnits f hf units) idx assignments ih
     rcases Array.foldl_induction motive h_base h_inductive with ⟨h_size, h⟩
     apply Array.ext
     · rw [h_size, hf.2]
@@ -147,7 +147,7 @@ theorem clear_insertRat {n : Nat} (f : DefaultFormula n)
       · omega
       · omega
 
-theorem performRatCheck_preserves_formula {n : Nat} (f : DefaultFormula n)
+theorem formula_performRatCheck {n : Nat} (f : DefaultFormula n)
     (hf : f.ratUnits = #[] ∧ f.assignments.size = n) (p : Literal (PosFin n))
     (ratHint : Nat × Array Nat) :
     (performRatCheck f p ratHint).1 = f := by
@@ -157,19 +157,19 @@ theorem performRatCheck_preserves_formula {n : Nat} (f : DefaultFormula n)
     split
     · rw [clear_insertRat f hf]
     · let fc := (insertRatUnits f (negate (DefaultClause.delete c p))).1
-      have fc_assignments_size : fc.assignments.size = n := by rw [insertRatUnits_preserves_assignments_size, hf.2]
+      have fc_assignments_size : fc.assignments.size = n := by rw [size_assignments_insertRatUnits, hf.2]
       have insertRatUnits_rw : (insertRatUnits f (negate (DefaultClause.delete c p))).1 =
         ⟨(insertRatUnits f (negate (DefaultClause.delete c p))).1.clauses,
          (insertRatUnits f (negate (DefaultClause.delete c p))).1.rupUnits,
          (insertRatUnits f (negate (DefaultClause.delete c p))).1.ratUnits,
          (insertRatUnits f (negate (DefaultClause.delete c p))).1.assignments⟩ := rfl
-      simp only [performRupCheck_preserves_clauses, performRupCheck_preserves_rupUnits, performRupCheck_preserves_ratUnits]
+      simp only [clauses_performRupCheck, rupUnits_performRupCheck, ratUnits_performRupCheck]
       rw [restoreAssignments_performRupCheck fc fc_assignments_size ratHint.2, ← insertRatUnits_rw,
         clear_insertRat f hf (negate (DefaultClause.delete c p))]
       split <;> rfl
   · rfl
 
-theorem performRatCheck_fold_preserves_formula {n : Nat} (f : DefaultFormula n)
+theorem performRatCheck_fold_formula_eq {n : Nat} (f : DefaultFormula n)
     (hf : f.ratUnits = #[] ∧ f.assignments.size = n) (p : Literal (PosFin n))
     (ratHints : Array (Nat × Array Nat)) :
     let performRatCheck_fold_res :=
@@ -187,7 +187,7 @@ theorem performRatCheck_fold_preserves_formula {n : Nat} (f : DefaultFormula n)
     intro ih
     rw [ih]
     split
-    · exact performRatCheck_preserves_formula f hf p ratHints[idx]
+    · exact formula_performRatCheck f hf p ratHints[idx]
     · rfl
   exact Array.foldl_induction motive h_base h_inductive
 
@@ -210,22 +210,22 @@ theorem ratAdd_result {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) (p 
             simp only [Bool.not_eq_false] at performRatCheck_fold_success
             let fc := (insertRupUnits f (negate c)).1
             have fc_assignments_size : (insertRupUnits f (negate c)).1.assignments.size = n := by
-              rw [insertRupUnits_preserves_assignments_size f (negate c)]
+              rw [size_assignments_insertRupUnits f (negate c)]
               exact f_readyForRatAdd.2.2.1
-            simp only [performRupCheck_preserves_clauses, performRupCheck_preserves_rupUnits, performRupCheck_preserves_ratUnits,
+            simp only [clauses_performRupCheck, rupUnits_performRupCheck, ratUnits_performRupCheck,
               restoreAssignments_performRupCheck fc fc_assignments_size, Prod.mk.injEq, and_true] at ratAddSuccess
             rw [← ratAddSuccess]
             clear f' ratAddSuccess
             let performRupCheck_res := (performRupCheck (insertRupUnits f (negate c)).1 rupHints).1
             have h_performRupCheck_res : performRupCheck_res.ratUnits = #[] ∧ performRupCheck_res.assignments.size = n := by
               have hsize : performRupCheck_res.assignments.size = n := by
-                rw [performRupCheck_preserves_assignments_size, insertRupUnits_preserves_assignments_size, f_readyForRatAdd.2.2.1]
+                rw [size_assignments_performRupCheck, size_assignments_insertRupUnits, f_readyForRatAdd.2.2.1]
               exact And.intro f_readyForRatAdd.1 hsize
             have insertRupUnits_rw : (insertRupUnits f (negate c)).1 =
               ⟨(insertRupUnits f (negate c)).1.clauses, (insertRupUnits f (negate c)).1.rupUnits,
                (insertRupUnits f (negate c)).1.ratUnits, (insertRupUnits f (negate c)).1.assignments⟩ := rfl
-            simp only [performRatCheck_fold_preserves_formula performRupCheck_res h_performRupCheck_res (Literal.negate p) ratHints,
-              performRupCheck_preserves_clauses, performRupCheck_preserves_rupUnits, performRupCheck_preserves_ratUnits,
+            simp only [performRatCheck_fold_formula_eq performRupCheck_res h_performRupCheck_res (Literal.negate p) ratHints,
+              clauses_performRupCheck, rupUnits_performRupCheck, ratUnits_performRupCheck,
               restoreAssignments_performRupCheck fc fc_assignments_size, ← insertRupUnits_rw,
               clear_insertRup f f_readyForRatAdd.2 (negate c), fc, performRupCheck_res]
   · simp at ratAddSuccess

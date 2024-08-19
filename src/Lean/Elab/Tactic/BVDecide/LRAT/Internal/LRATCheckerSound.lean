@@ -49,10 +49,10 @@ theorem addRupCaseSound [DecidableEq α] [Clause α β] [Entails α σ] [Formula
   have f'_def := rupAdd_result f c rupHints f' f_readyForRupAdd heq
   have f'_readyForRupAdd : ReadyForRupAdd f' := by
     rw [f'_def]
-    exact insert_readyForRupAdd f c f_readyForRupAdd
+    exact readyForRupAdd_insert f c f_readyForRupAdd
   have f'_readyForRatAdd : ReadyForRatAdd f' := by
     rw [f'_def]
-    exact insert_readyForRatAdd f c f_readyForRatAdd
+    exact readyForRatAdd_insert f c f_readyForRatAdd
   specialize ih f' f'_readyForRupAdd f'_readyForRatAdd restPrfWellFormed f'_success
   have f_liff_f' : Liff α f f' := rupAdd_sound f c rupHints f' f_readyForRupAdd heq
   intro p pf
@@ -73,10 +73,10 @@ theorem addRatCaseSound [DecidableEq α] [Clause α β] [Entails α σ] [Formula
   have f'_def := ratAdd_result f c pivot rupHints ratHints f' f_readyForRatAdd pivot_limplies_c heq
   have f'_readyForRupAdd : ReadyForRupAdd f' := by
     rw [f'_def]
-    exact insert_readyForRupAdd f c f_readyForRupAdd
+    exact readyForRupAdd_insert f c f_readyForRupAdd
   have f'_readyForRatAdd : ReadyForRatAdd f' := by
     rw [f'_def]
-    exact insert_readyForRatAdd f c f_readyForRatAdd
+    exact readyForRatAdd_insert f c f_readyForRatAdd
   specialize ih f' f'_readyForRupAdd f'_readyForRatAdd restPrfWellFormed f'_success
   have f_equisat_f' : Equisat α f f' := ratAdd_sound f c pivot rupHints ratHints f' f_readyForRatAdd pivot_limplies_c heq
   intro p pf
@@ -94,8 +94,8 @@ theorem delCaseSound [DecidableEq α] [Clause α β] [Entails α σ] [Formula α
     (h : lratChecker (Formula.delete f ids) restPrf = success) :
     Unsatisfiable α f := by
   intro p pf
-  have f_del_readyForRupAdd : ReadyForRupAdd (Formula.delete f ids) := delete_readyForRupAdd f ids f_readyForRupAdd
-  have f_del_readyForRatAdd : ReadyForRatAdd (Formula.delete f ids) := delete_readyForRatAdd f ids f_readyForRatAdd
+  have f_del_readyForRupAdd : ReadyForRupAdd (Formula.delete f ids) := readyForRupAdd_delete f ids f_readyForRupAdd
+  have f_del_readyForRatAdd : ReadyForRatAdd (Formula.delete f ids) := readyForRatAdd_delete f ids f_readyForRatAdd
   exact ih (delete f ids) f_del_readyForRupAdd f_del_readyForRatAdd restPrfWellFormed h p (limplies_delete p pf)
 
 theorem lratCheckerSound [DecidableEq α] [Clause α β] [Entails α σ] [Formula α β σ] (f : σ)

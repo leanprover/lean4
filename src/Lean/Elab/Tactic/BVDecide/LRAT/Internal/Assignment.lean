@@ -142,15 +142,15 @@ theorem remove_add_cancel {assignment : Assignment} {b : Bool} (h : ¬(hasAssign
     simp only [hasAssignment, hb, ite_false] at h
     exact removeNeg_addNeg_cancel h
 
-theorem add_of_both_eq_both (b : Bool) : addAssignment b both = both := by
+theorem add_both_eq_both (b : Bool) : addAssignment b both = both := by
   rw [addAssignment]
   split <;> decide
 
-theorem has_of_both (b : Bool) : hasAssignment b both = true := by
+theorem has_both (b : Bool) : hasAssignment b both = true := by
   rw [hasAssignment]
   split <;> decide
 
-theorem has_of_add (assignment : Assignment) (b : Bool) :
+theorem has_add (assignment : Assignment) (b : Bool) :
     hasAssignment b (addAssignment b assignment) := by
   rw [addAssignment, hasAssignment]
   split
@@ -159,25 +159,25 @@ theorem has_of_add (assignment : Assignment) (b : Bool) :
   · rw [hasNegAssignment, addNegAssignment]
     cases assignment <;> simp
 
-theorem not_hasPos_of_removePos (assignment : Assignment) :
+theorem not_hasPos_removePos (assignment : Assignment) :
     ¬hasPosAssignment (removePosAssignment assignment) := by
   simp only [removePosAssignment, hasPosAssignment, Bool.not_eq_true]
   cases assignment <;> simp
 
-theorem not_hasNeg_of_removeNeg (assignment : Assignment) :
+theorem not_hasNeg_removeNeg (assignment : Assignment) :
     ¬hasNegAssignment (removeNegAssignment assignment) := by
   simp only [removeNegAssignment, hasNegAssignment, Bool.not_eq_true]
   cases assignment <;> simp
 
-theorem not_has_of_remove (assignment : Assignment) (b : Bool) :
+theorem not_has_remove (assignment : Assignment) (b : Bool) :
     ¬hasAssignment b (removeAssignment b assignment) := by
   by_cases hb : b
-  · have h := not_hasPos_of_removePos assignment
+  · have h := not_hasPos_removePos assignment
     simp [hb, h, removeAssignment, hasAssignment]
-  · have h := not_hasNeg_of_removeNeg assignment
+  · have h := not_hasNeg_removeNeg assignment
     simp [hb, h, removeAssignment, hasAssignment]
 
-theorem has_of_remove_irrelevant (assignment : Assignment) (b : Bool) :
+theorem has_remove_irrelevant (assignment : Assignment) (b : Bool) :
     hasAssignment b (removeAssignment (!b) assignment) → hasAssignment b assignment := by
   by_cases hb : b
   · simp only [hb, removeAssignment, Bool.not_true, ite_false, hasAssignment, ite_true]
@@ -192,26 +192,26 @@ theorem unassigned_of_has_neither (assignment : Assignment) (lacks_pos : ¬(hasP
   simp only [hasPosAssignment, Bool.not_eq_true] at lacks_pos
   split at lacks_pos <;> simp_all (config := { decide := true })
 
-theorem hasPos_of_addNeg (assignment : Assignment) :
+theorem hasPos_addNeg (assignment : Assignment) :
     hasPosAssignment (addNegAssignment assignment) = hasPosAssignment assignment := by
   rw [hasPosAssignment, addNegAssignment]
   cases assignment <;> simp (config := { decide := true })
 
-theorem hasNeg_of_addPos (assignment : Assignment) :
+theorem hasNeg_addPos (assignment : Assignment) :
     hasNegAssignment (addPosAssignment assignment) = hasNegAssignment assignment := by
   rw [hasNegAssignment, addPosAssignment]
   cases assignment <;> simp (config := { decide := true })
 
-theorem has_iff_has_of_add_complement (assignment : Assignment) (b : Bool) :
+theorem has_iff_has_add_complement (assignment : Assignment) (b : Bool) :
     hasAssignment b assignment ↔ hasAssignment b (addAssignment (¬b) assignment) := by
-  by_cases hb : b <;> simp [hb, hasAssignment, addAssignment, hasPos_of_addNeg, hasNeg_of_addPos]
+  by_cases hb : b <;> simp [hb, hasAssignment, addAssignment, hasPos_addNeg, hasNeg_addPos]
 
-theorem addPos_of_addNeg_eq_both (assignment : Assignment) :
+theorem addPos_addNeg_eq_both (assignment : Assignment) :
     addPosAssignment (addNegAssignment assignment) = both := by
   rw [addPosAssignment, addNegAssignment]
   cases assignment <;> simp
 
-theorem addNeg_of_addPos_eq_both (assignment : Assignment) :
+theorem addNeg_addPos_eq_both (assignment : Assignment) :
     addNegAssignment (addPosAssignment assignment) = both := by
   rw [addNegAssignment, addPosAssignment]
   cases assignment <;> simp

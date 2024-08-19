@@ -107,7 +107,7 @@ theorem sat_iff_forall [Clause α β] [Entails α σ] [Formula α β σ] (p : α
   simp only [(· ⊨ ·), formulaEntails_def p f]
   simp only [List.all_eq_true, decide_eq_true_eq]
 
-theorem limplies_of_insert [Clause α β] [Entails α σ] [Formula α β σ] {c : β} {f : σ} :
+theorem limplies_insert [Clause α β] [Entails α σ] [Formula α β σ] {c : β} {f : σ} :
     Limplies α (insert f c) f := by
   intro p
   simp only [formulaEntails_def, List.all_eq_true, decide_eq_true_eq]

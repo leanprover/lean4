@@ -81,7 +81,7 @@ end Clause
 /--
 The `DefaultClause` structure is primarily a list of literals. The additional field `nodupkey` is
 included to ensure that `not_tautology` is provable (which is needed to prove `insertRup_entails_hsat`
-and `insertRat_entails_hsat` in `LRAT.Formula.RupAddSound.lean` and `LRAT.Formula.RatAddSound.lean`).
+and `insertRat_entails_hsat` in `LRAT.Formula.Internal.RupAddSound` and `LRAT.Formula.Internal.RatAddSound`).
 The additional field `nodup` is included to ensure that `delete` can be implemented by simply calling
 `erase` on the `clause` field. Without `nodup`, it would be necessary to iterate through the entire
 `clause` field and erase all instances of the literal to be deleted, since there would potentially
@@ -107,7 +107,7 @@ namespace DefaultClause
 def toList (c : DefaultClause n) : CNF.Clause (PosFin n) := c.clause
 
 theorem not_tautology (c : DefaultClause n) (l : Literal (PosFin n)) :
-    ¬ l ∈ toList c ∨ ¬Literal.negate l ∈ toList c := by
+    l ∉ toList c ∨ ¬Literal.negate l ∈ toList c := by
   simp only [toList, Literal.negate]
   have h := c.nodupkey l.1
   by_cases hl : l.2

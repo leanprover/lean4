@@ -634,7 +634,7 @@ theorem ratAdd_sound {n : Nat} (f : DefaultFormula n) (c : DefaultClause n)
     Equisat (PosFin n) f f' := by
   have f'_def := ratAdd_result f c pivot rupHints ratHints f' f_readyForRatAdd pivot_in_c ratAddSuccess
   rw [performRatAdd] at ratAddSuccess
-  simp at ratAddSuccess
+  simp only [Bool.not_eq_true'] at ratAddSuccess
   split at ratAddSuccess
   · next ratHintsExhaustive_eq_true =>
     split at ratAddSuccess

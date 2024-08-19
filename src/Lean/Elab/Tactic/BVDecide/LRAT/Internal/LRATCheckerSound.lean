@@ -15,7 +15,7 @@ namespace Internal
 open LRAT Result Formula Clause Std Sat
 
 theorem addEmptyCaseSound [DecidableEq α] [Clause α β] [Entails α σ] [Formula α β σ] (f : σ)
-    (f_readyForRupAdd : ReadyForRupAdd f) (rupHints: Array Nat)
+    (f_readyForRupAdd : ReadyForRupAdd f) (rupHints : Array Nat)
     (rupAddSuccess : (Formula.performRupAdd f Clause.empty rupHints).snd = true) :
     Unsatisfiable α f := by
   let f' := (performRupAdd f empty rupHints).1

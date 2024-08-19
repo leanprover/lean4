@@ -113,7 +113,7 @@ theorem insertRatUnits_nodup {n : Nat} (f : DefaultFormula n)
 theorem clear_insertRat_base_case {n : Nat} (f : DefaultFormula n)
     (hf : f.ratUnits = #[] ∧ f.assignments.size = n) (units : CNF.Clause (PosFin n)) :
     let insertRat_res := insertRatUnits f units
-    clear_insert_induction_motive f hf.2 insertRat_res.1.ratUnits 0 insertRat_res.1.assignments := by
+    ClearInsertInductionMotive f hf.2 insertRat_res.1.ratUnits 0 insertRat_res.1.assignments := by
   have insertRatUnits_assignments_size := insertRatUnits_preserves_assignments_size f units
   rw [hf.2] at insertRatUnits_assignments_size
   apply Exists.intro insertRatUnits_assignments_size
@@ -130,7 +130,7 @@ theorem clear_insertRat {n : Nat} (f : DefaultFormula n)
   · simp only [insertRatUnits]
   · rw [hf.1]
   · simp only
-    let motive := clear_insert_induction_motive f hf.2 (insertRatUnits f units).1.ratUnits
+    let motive := ClearInsertInductionMotive f hf.2 (insertRatUnits f units).1.ratUnits
     have h_base : motive 0 (insertRatUnits f units).1.assignments := clear_insertRat_base_case f hf units
     have h_inductive (idx : Fin (insertRatUnits f units).1.ratUnits.size) (assignments : Array Assignment)
       (ih : motive idx.val assignments) : motive (idx.val + 1) (clearUnit assignments (insertRatUnits f units).1.ratUnits[idx]) :=
@@ -196,7 +196,7 @@ theorem ratAdd_result {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) (p 
   (f_readyForRatAdd : ReadyForRatAdd f) (_pc : p ∈ Clause.toList c)
   (ratAddSuccess : performRatAdd f c p rupHints ratHints = (f', true)) : f' = insert f c := by
   rw [performRatAdd] at ratAddSuccess
-  simp at ratAddSuccess
+  simp only [Bool.not_eq_true'] at ratAddSuccess
   split at ratAddSuccess
   · split at ratAddSuccess
     · simp at ratAddSuccess

@@ -373,43 +373,52 @@ theorem drop_take : ∀ (m n : Nat) (l : List α), drop n (take m l) = take (m -
     congr 1
     omega
 
-theorem take_reverse {α} {xs : List α} {n : Nat} (h : n ≤ xs.length) :
+theorem take_reverse {α} {xs : List α} {n : Nat} :
     xs.reverse.take n = (xs.drop (xs.length - n)).reverse := by
-  induction xs generalizing n <;>
-    simp only [reverse_cons, drop, reverse_nil, Nat.zero_sub, length, take_nil]
-  next xs_hd xs_tl xs_ih =>
-  cases Nat.lt_or_eq_of_le h with
-  | inl h' =>
-    have h' := Nat.le_of_succ_le_succ h'
-    rw [take_append_of_le_length, xs_ih h']
-    rw [show xs_tl.length + 1 - n = succ (xs_tl.length - n) from _, drop]
-    · rwa [succ_eq_add_one, Nat.sub_add_comm]
-    · rwa [length_reverse]
-  | inr h' =>
-    subst h'
-    rw [length, Nat.sub_self, drop]
-    suffices xs_tl.length + 1 = (xs_tl.reverse ++ [xs_hd]).length by
-      rw [this, take_length, reverse_cons]
-    rw [length_append, length_reverse]
-    rfl
-
-theorem drop_reverse {α} {xs : List α} {n : Nat} (h : n ≤ xs.length) :
-    xs.reverse.drop n = (xs.take (xs.length - n)).reverse := by
-  conv =>
-    rhs
-    rw [← reverse_reverse xs]
-  rw [← reverse_reverse xs] at h
-  generalize xs.reverse = xs' at h ⊢
-  rw [take_reverse]
-  · simp only [length_reverse, reverse_reverse] at *
-    congr
+  by_cases h : n ≤ xs.length
+  · induction xs generalizing n <;>
+      simp only [reverse_cons, drop, reverse_nil, Nat.zero_sub, length, take_nil]
+    next xs_hd xs_tl xs_ih =>
+    cases Nat.lt_or_eq_of_le h with
+    | inl h' =>
+      have h' := Nat.le_of_succ_le_succ h'
+      rw [take_append_of_le_length, xs_ih h']
+      rw [show xs_tl.length + 1 - n = succ (xs_tl.length - n) from _, drop]
+      · rwa [succ_eq_add_one, Nat.sub_add_comm]
+      · rwa [length_reverse]
+    | inr h' =>
+      subst h'
+      rw [length, Nat.sub_self, drop]
+      suffices xs_tl.length + 1 = (xs_tl.reverse ++ [xs_hd]).length by
+        rw [this, take_length, reverse_cons]
+      rw [length_append, length_reverse]
+      rfl
+  · have w : xs.length - n = 0 := by omega
+    rw [take_of_length_le, w, drop_zero]
+    simp
     omega
-  · simp only [length_reverse, sub_le]
+
+theorem drop_reverse {α} {xs : List α} {n : Nat} :
+    xs.reverse.drop n = (xs.take (xs.length - n)).reverse := by
+  by_cases h : n ≤ xs.length
+  · conv =>
+      rhs
+      rw [← reverse_reverse xs]
+    rw [← reverse_reverse xs] at h
+    generalize xs.reverse = xs' at h ⊢
+    rw [take_reverse]
+    · simp only [length_reverse, reverse_reverse] at *
+      congr
+      omega
+  · have w : xs.length - n = 0 := by omega
+    rw [drop_of_length_le, w, take_zero, reverse_nil]
+    simp
+    omega
 
 theorem reverse_take {l : List α} {n : Nat} :
     (l.take n).reverse = l.reverse.drop (l.length - n) := by
   by_cases h : n ≤ l.length
-  · rw [drop_reverse (by omega)]
+  · rw [drop_reverse]
     congr
     omega
   · have w : l.length - n = 0 := by omega
@@ -419,7 +428,7 @@ theorem reverse_take {l : List α} {n : Nat} :
 theorem reverse_drop {l : List α} {n : Nat} :
     (l.drop n).reverse = l.reverse.take (l.length - n) := by
   by_cases h : n ≤ l.length
-  · rw [take_reverse (by omega)]
+  · rw [take_reverse]
     congr
     omega
   · have w : l.length - n = 0 := by omega

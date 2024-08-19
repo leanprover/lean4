@@ -438,6 +438,12 @@ theorem take_takeWhile {l : List α} (p : α → Bool) n :
   | nil => rfl
   | cons h t ih => by_cases p h <;> simp_all
 
+/-! ### splitAt -/
+
+@[simp] theorem splitAt_eq (n : Nat) (l : List α) : splitAt n l = (l.take n, l.drop n) := by
+  rw [splitAt, splitAt_go, reverse_nil, nil_append]
+  split <;> simp_all [take_of_length_le, drop_of_length_le]
+
 /-! ### rotateLeft -/
 
 @[simp] theorem rotateLeft_zero (l : List α) : rotateLeft l 0 = l := by

@@ -2371,6 +2371,27 @@ theorem dropLast_append {l₁ l₂ : List α} :
     dropLast (a :: replicate n a) = replicate n a := by
   rw [← replicate_succ, dropLast_replicate, Nat.add_sub_cancel]
 
+/-!
+### splitAt
+
+We don't provide any API for `splitAt`, beyond the `@[simp]` lemma
+`splitAt n l = (l.take n, l.drop n)`,
+which is proved in `Init.Data.List.TakeDrop`.
+-/
+
+theorem splitAt_go (n : Nat) (l acc : List α) :
+    splitAt.go l xs n acc =
+      if n < xs.length then (acc.reverse ++ xs.take n, xs.drop n) else (l, []) := by
+  induction xs generalizing n acc with
+  | nil => simp [splitAt.go]
+  | cons x xs ih =>
+    cases n with
+    | zero => simp [splitAt.go]
+    | succ n =>
+      rw [splitAt.go, take_succ_cons, drop_succ_cons, ih n (x :: acc),
+        reverse_cons, append_assoc, singleton_append, length_cons]
+      simp only [Nat.succ_lt_succ_iff]
+
 /-! ## Manipulating elements -/
 
 /-! ### replace -/

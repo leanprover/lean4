@@ -58,7 +58,7 @@ y : Nat
     (PSum.inr ⟨x.tail, y⟩) (PSum.inl ⟨x, y⟩)
 -/
 #guard_msgs in
-set_option debug.cleanDecreasingByGoal false in
+set_option debug.rawDecreasingByGoal true in
 mutual
 def g1 (x : List Nat) (y : Nat) : Nat := g2 x.tail y
 termination_by x.length

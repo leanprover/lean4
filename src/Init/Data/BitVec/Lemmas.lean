@@ -304,13 +304,7 @@ theorem toInt_ofNat {n : Nat} (x : Nat) :
   BitVec.ofInt w (n : Int) = BitVec.ofNat w n := rfl
 
 @[simp] theorem ofInt_ofNat (w n : Nat) :
-    BitVec.ofInt w (no_index (OfNat.ofNat n)) = BitVec.ofNat w n :=
-  rfl
-
-@[simp] theorem ofInt_ofNat_no_noindex (w n : Nat) :
-    BitVec.ofInt w (OfNat.ofNat n) = BitVec.ofNat w n :=
-  rfl
-
+  BitVec.ofInt w (no_index (OfNat.ofNat n)) = BitVec.ofNat w n := rfl
 
 /-! ### zeroExtend and truncate -/
 
@@ -1794,13 +1788,5 @@ theorem getLsb_replicate {n w : Nat} (x : BitVec w) :
     · rw [Nat.mul_succ] at hi ⊢
       simp only [show ¬i < w * n by omega, decide_False, cond_false, hi, Bool.false_and]
       apply BitVec.getLsb_ge (x := x) (i := i - w * n) (ge := by omega)
-
-example : BitVec.ofInt w 1 = 1#w + 0#w := by
-  simp only [ofInt_ofNat] -- this one works
-  simp only [BitVec.add_zero]
-
-example : BitVec.ofInt w 1 = 1#w + 0#w := by
-  simp only [ofInt_ofNat_no_noindex] -- this one fails
-  simp only [BitVec.add_zero]
 
 end BitVec

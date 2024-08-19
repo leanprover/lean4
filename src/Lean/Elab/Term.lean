@@ -1667,6 +1667,12 @@ def addDotCompletionInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr)
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (implicitLambda := true) : TermElabM Expr :=
   withRef stx <| elabTermAux expectedType? catchExPostpone implicitLambda stx
 
+register_builtin_option debug.sorryProps : Bool := {
+  defValue := false
+  group    := "debug"
+  descr    := "replace elaboration of any term with a propositional type with no metavariables with `sorry`"
+}
+
 /--
 Similar to `Lean.Elab.Term.elabTerm`, but ensures that the type of the elaborated term is `expectedType?`
 by inserting coercions if necessary.
@@ -1675,6 +1681,9 @@ If `errToSorry` is true, then if coercion insertion fails, this function returns
 Otherwise, it throws the error.
 -/
 def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (implicitLambda := true) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
+  if let some expectedType := expectedType? then
+    if !expectedType.hasMVar && (← pure (debug.sorryProps.get (← getOptions)) <&&> isProp expectedType) then
+      return ← mkSorry expectedType false
   let e ← elabTerm stx expectedType? catchExPostpone implicitLambda
   try
     withRef stx <| ensureHasType expectedType? e errorMsgHeader?

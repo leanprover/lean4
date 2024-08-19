@@ -80,8 +80,8 @@ end Clause
 
 /--
 The `DefaultClause` structure is primarily a list of literals. The additional field `nodupkey` is
-included to ensure that `not_tautology` is provable (which is needed to prove `insertRup_entails_hsat`
-and `insertRat_entails_hsat` in `LRAT.Formula.Internal.RupAddSound` and `LRAT.Formula.Internal.RatAddSound`).
+included to ensure that `not_tautology` is provable (which is needed to prove `sat_of_insertRup`
+and `sat_of_insertRat` in `LRAT.Formula.Internal.RupAddSound` and `LRAT.Formula.Internal.RatAddSound`).
 The additional field `nodup` is included to ensure that `delete` can be implemented by simply calling
 `erase` on the `clause` field. Without `nodup`, it would be necessary to iterate through the entire
 `clause` field and erase all instances of the literal to be deleted, since there would potentially

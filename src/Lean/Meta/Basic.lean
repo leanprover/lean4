@@ -576,14 +576,52 @@ See `Lean.Meta.whnfImp` for the implementation.
 -/
 @[extern 6 "lean_whnf"] opaque whnf : Expr → MetaM Expr
 /--
-Returns the inferred type of the given expression.
+Returns the inferred type of the given expression. Assumes the expression is type-correct.
 
-The type inference algorithm assumes the expression is type-correct for efficiency,
-but in certain circumstances it can detect type errors and fail.
-If `inferType` succeeds for a given expression it does *not* mean it is type-correct.
-For type checking, use `Lean.Meta.check`.
+The type inference algorithm does not do general type checking,
+which is instead handled by the `Lean.Meta.check` algorithm.
+Type inference only looks at subterms that are necessary for determining an expression's type,
+and as such if `inferType` succeeds it does *not* mean the term is type-correct.
+If an expression is sufficiently ill-formed that it prevents `inferType` from computing a type,
+then it will fail with a type error.
 
-See `Lean.Meta.inferTypeImp` for the implementation.
+Here are examples of type-incorrect terms for which `inferType` succeeds:
+```lean
+import Lean
+
+open Lean Meta
+
+/--
+`@id.{1} Bool Nat.zero`.
+In general, the type of `@id α x` is `α`.
+-/
+def e1 : Expr := mkApp2 (.const ``id [1]) (.const ``Bool []) (.const ``Nat.zero [])
+#eval inferType e1
+-- Lean.Expr.const `Bool []
+#eval check e1
+-- error: application type mismatch
+
+/--
+`let x : Int := Nat.zero; true`.
+In general, the type of `let x := v; e`, if `e` does not reference `x`, is the type of `e`.
+-/
+def e2 : Expr := .letE `x (.const ``Int []) (.const ``Nat.zero []) (.const ``true []) false
+#eval inferType e2
+-- Lean.Expr.const `Bool []
+#eval check e2
+-- error: invalid let declaration
+```
+Here is an example of a type-incorrect term that makes `inferType` fail:
+```lean
+/--
+`Nat.zero Nat.zero`
+-/
+def e3 : Expr := .app (.const ``Nat.zero []) (.const ``Nat.zero [])
+#eval inferType e3
+-- error: function expected
+```
+
+See `Lean.Meta.inferTypeImp` for the implementation of `inferType`.
 -/
 @[extern 6 "lean_infer_type"] opaque inferType : Expr → MetaM Expr
 @[extern 7 "lean_is_expr_def_eq"] opaque isExprDefEqAux : Expr → Expr → MetaM Bool

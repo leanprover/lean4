@@ -1682,7 +1682,7 @@ Otherwise, it throws the error.
 -/
 def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (implicitLambda := true) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
   if let some expectedType := expectedType? then
-    if !expectedType.hasMVar && (← pure (debug.sorryProps.get (← getOptions)) <&&> isProp expectedType) then
+    if (← pure (debug.sorryProps.get (← getOptions))) && !expectedType.hasMVar && (← isProp expectedType) then
       return ← mkSorry expectedType false
   let e ← elabTerm stx expectedType? catchExPostpone implicitLambda
   try

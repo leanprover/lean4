@@ -400,6 +400,35 @@ theorem Pairwise.perm {R : α → α → Prop} {l l' : List α} (hR : l.Pairwise
 theorem Perm.pairwise {R : α → α → Prop} {l l' : List α} (hl : l ~ l') (hR : l.Pairwise R)
     (hsymm : ∀ {x y}, R x y → R y x) : l'.Pairwise R := hR.perm hl hsymm
 
+/--
+If two lists are sorted by an antisymmetric relation, and permutations of each other,
+they must be equal.
+-/
+theorem Perm.eq_of_sorted : ∀ {l₁ l₂ : List α}
+    (_ : ∀ a b, a ∈ l₁ → b ∈ l₂ → le a b → le b a → a = b)
+    (_ : l₁.Pairwise le) (_ : l₂.Pairwise le) (_ : l₁ ~ l₂), l₁ = l₂
+  | [], [], _, _, _, _ => rfl
+  | [], b :: l₂, _, _, _, h => by simp_all
+  | a :: l₁, [], _, _, _, h => by simp_all
+  | a :: l₁, b :: l₂, w, h₁, h₂, h => by
+    have am : a ∈ b :: l₂ := h.subset (mem_cons_self _ _)
+    have bm : b ∈ a :: l₁ := h.symm.subset (mem_cons_self _ _)
+    have ab : a = b := by
+      simp only [mem_cons] at am
+      rcases am with rfl | am
+      · rfl
+      · simp only [mem_cons] at bm
+        rcases bm with rfl | bm
+        · rfl
+        · exact w _ _ (mem_cons_self _ _) (mem_cons_self _ _)
+            (rel_of_pairwise_cons h₁ bm) (rel_of_pairwise_cons h₂ am)
+    subst ab
+    simp only [perm_cons] at h
+    have := Perm.eq_of_sorted
+      (fun x y hx hy => w x y (mem_cons_of_mem a hx) (mem_cons_of_mem a hy))
+      h₁.tail h₂.tail h
+    simp_all
+
 theorem Nodup.perm {l l' : List α} (hR : l.Nodup) (hl : l ~ l') : l'.Nodup :=
   Pairwise.perm hR hl (by intro x y h h'; simp_all)
 

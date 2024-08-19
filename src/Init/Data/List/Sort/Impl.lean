@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
 prelude
-import Init.Data.List.Sort.Basic
+import Init.Data.List.Sort.Lemmas
 
 /-!
 # Replacing `merge` and `mergeSort` at runtime with tail-recursive and faster versions.
@@ -15,11 +15,13 @@ We replace `mergeSort` in two steps:
 * first with `mergeSortTR`, which while not tail-recursive itself (it can't be),
   uses `mergeTR` internally.
 * second with `mergeSortTR₂`, which achieves an ~20% speed-up over `mergeSortTR`
-  by avoiding unnecessary list reversals.
+  by avoiding some unnecessary list reversals.
 
-There is not public API in this file; it solely exists to implement the `@[csimp]` lemmas
+There is no public API in this file; it solely exists to implement the `@[csimp]` lemmas
 affecting runtime behaviour.
 -/
+
+open List
 
 namespace List.MergeSort.Internal
 

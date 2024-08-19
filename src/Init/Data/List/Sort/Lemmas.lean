@@ -13,7 +13,7 @@ import Init.Data.List.Sort.Basic
 * `mergeSort_sorted`: `mergeSort` produces a sorted list.
 * `mergeSort_perm`: `mergeSort` is a permutation of the input list.
 * `mergeSort_of_sorted`: `mergeSort` does not change a sorted list.
-* `mergeSort_cons`: a description of the `mergeSort le (x :: xs) = l₁ ++ x :: l₂` for some `l₁, l₂`
+* `mergeSort_cons`: proves `mergeSort le (x :: xs) = l₁ ++ x :: l₂` for some `l₁, l₂`
   so that `mergeSort le xs = l₁ ++ l₂`, and no `a ∈ l₁` satisfies `le a x`.
 * `mergeSort_stable`: if `c` is a sorted sublist of `l`, then `c` is still a sublist of `mergeSort le l`.
 

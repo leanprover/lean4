@@ -313,12 +313,6 @@ instance optionCoe {α : Type u} : Coe α (Option α) where
 instance subtypeCoe {α : Sort u} {p : α → Prop} : CoeOut (Subtype p) α where
   coe v := v.val
 
-instance boolPredToPred : Coe (α → Bool) (α  → Prop) where
-  coe r := fun a => Eq (r a) true
-
-instance boolRelToRel : Coe (α → α → Bool) (α → α → Prop) where
-  coe r := fun a b => Eq (r a b) true
-
 /-! # Coe bridge -/
 
 /--

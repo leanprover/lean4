@@ -549,3 +549,19 @@ export Bool (cond_eq_if)
 
 @[simp] theorem true_eq_decide_iff {p : Prop} [h : Decidable p] : true = decide p ↔ p := by
   cases h with | _ q => simp [q]
+
+/-! ### coercions -/
+
+/--
+This should not be turned on globally as an instance because it degrade performancy in Mathlib,
+but may be used locally.
+-/
+def boolPredToPred : Coe (α → Bool) (α  → Prop) where
+  coe r := fun a => Eq (r a) true
+
+/--
+This should not be turned on globally as an instance because it degrade performancy in Mathlib,
+but may be used locally.
+-/
+def boolRelToRel : Coe (α → α → Bool) (α → α → Prop) where
+  coe r := fun a b => Eq (r a b) true

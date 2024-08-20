@@ -6,6 +6,7 @@ Authors: Kim Morrison
 prelude
 import Init.Data.List.Perm
 import Init.Data.List.Sort.Basic
+import Init.Data.Bool
 
 /-!
 # Basic properties of `mergeSort`.
@@ -20,6 +21,9 @@ import Init.Data.List.Sort.Basic
 -/
 
 namespace List
+
+-- We enable this instance locally so we can write `Sorted le` instead of `Sorted (le · ·)` everywhere.
+attribute [local instance] boolRelToRel
 
 variable {le : α → α → Bool}
 

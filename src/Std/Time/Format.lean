@@ -110,6 +110,9 @@ def parse (input : String) : Except String LocalDate :=
 instance : ToString LocalDate where
   toString := toSQLDateString
 
+instance : Repr LocalDate where
+  reprPrec data _ := toString data
+
 end LocalDate
 
 namespace LocalTime
@@ -151,6 +154,9 @@ def parse (input : String) : Except String LocalTime :=
 
 instance : ToString LocalTime where
   toString := toTime24Hour
+
+instance : Repr LocalTime where
+  reprPrec data _ := toString data
 
 end LocalTime
 
@@ -203,6 +209,9 @@ def parse (input : String) : Except String ZonedDateTime :=
 instance : ToString ZonedDateTime where
   toString := toRFC822String
 
+instance : Repr ZonedDateTime where
+  reprPrec data _ := toString data
+
 end ZonedDateTime
 
 namespace LocalDateTime
@@ -239,6 +248,12 @@ Parses a `String` in the `AscTime` or `LongDate` format and returns a `LocalDate
 def parse (date : String) : Except String LocalDateTime :=
   fromAscTimeString date
   <|> fromLongDateFormatString date
+
+instance : ToString LocalDateTime where
+  toString := toLongDateFormatString
+
+instance : Repr LocalDateTime where
+  reprPrec s _ := toLongDateFormatString s
 
 end LocalDateTime
 
@@ -295,5 +310,8 @@ def parse (date : String) : Except String (DateTime .GMT) :=
 
 instance : ToString (DateTime tz) where
   toString := toRFC822String
+
+instance : Repr (DateTime tz) where
+  reprPrec data _ := toString data
 
 end DateTime

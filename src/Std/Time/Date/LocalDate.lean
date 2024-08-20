@@ -41,8 +41,6 @@ structure LocalDate where
   -/
   valid : year.Valid month day
 
-  deriving Repr
-
 instance : BEq LocalDate where
   beq x y := x.day == y.day && x.month == y.month && x.year == y.year
 
@@ -60,16 +58,27 @@ def clip (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordinal) : Loca
 Creates a `LocalDate` by rolling over the extra days to the next month.
 -/
 def rollOver (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordinal) : LocalDate := by
-  let ⟨max, valid, gt⟩ := month.days year.isLeap
-  let max : Bounded.LE 28 31 := max.truncateBottom gt
+  let max : Day.Ordinal := month.days year.isLeap
+  have p := month.all_greater_than_27 year.isLeap
   if h : day.val > max.val then
-    let day := day.truncateBottom h
-    let off := day.sub max.val
-    simp at off
-    sorry
+    if h₁ : month.val > 11 then
+      let eq : month.val = 12 := Int.eq_iff_le_and_ge.mpr (And.intro month.property.right h₁)
+      let h : max.val = 31 := by simp [max, Month.Ordinal.days, Month.Ordinal.daysWithoutProof, Bounded.LE.sub , Bounded.LE.add, Bounded.LE.toFin, eq]; rfl
+      let h₂ := Int.le_trans day.property.right (Int.eq_iff_le_and_ge.mp h |>.right) |> Int.not_lt.mpr
+      contradiction
+    else
+      let max₂ : Bounded.LE 28 31 := max.truncateBottom p
+      let sub := Int.sub_nonneg_of_le h
+      simp [←Int.sub_sub] at sub
+      let roll := day.addBounds (max₂.neg) |>.truncateBottom (Int.add_le_of_le_sub_left sub)
+      let day : Day.Ordinal := roll.expandTop (by decide)
+      let h₂ : roll.val ≤ 27 := Int.le_trans roll.property.right (by decide)
+      let month := month.truncateTop (Int.not_lt.mp h₁) |>.addTop 1 (by decide)
+      refine ⟨year, month, day, ?_⟩
+      exact Int.le_of_lt (Int.le_trans (Int.add_le_add_right h₂ 1) (Month.Ordinal.all_greater_than_27 year.isLeap month))
   else
-    sorry
-
+    let h := Int.not_lt.mp h
+    exact ⟨year, month, day, h⟩
 
 instance : Inhabited LocalDate where
   default := clip 0 1 1
@@ -137,8 +146,6 @@ def toDaysSinceUNIXEpoch (date : LocalDate) : Day.Offset :=
   let doe := yoe * 365 + yoe.div 4 - yoe.div 100 + doy
 
   .ofInt (era * 146097 + doe - 719468)
-
-
 
 /--
 Calculates the difference in years between a `LocalDate` and a given year.

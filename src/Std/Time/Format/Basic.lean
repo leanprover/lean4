@@ -336,27 +336,27 @@ private def leftPadNum (n : Nat) (s : Int) : String :=
 
 private def formatWithDate (date : DateTime tz) : Modifier → String
   | .YYYY  => s!"{leftPadNum 4 (date.year)}"
-  | .YY    => s!"{leftPadNum 2 (date.year.toNat % 100)}"
+  | .YY    => s!"{leftPadNum 2 (date.year.toInt % 100)}"
   | .MMMM  => unabbrevMonth date.month
   | .MMM   => abbrevMonth date.month
-  | .MM    => s!"{leftPadNum 2 (date.month.toNat)}"
-  | .M     => s!"{date.month.toNat}"
-  | .DD    => s!"{leftPadNum 2 (date.day.toNat)}"
-  | .D     => s!"{date.day.toNat}"
-  | .d     => s!"{leftPad 2 ' ' <| toString date.day.toNat}"
+  | .MM    => s!"{leftPadNum 2 (date.month.toInt)}"
+  | .M     => s!"{date.month.toInt}"
+  | .DD    => s!"{leftPadNum 2 (date.day.toInt)}"
+  | .D     => s!"{date.day.toInt}"
+  | .d     => s!"{leftPad 2 ' ' <| toString date.day.toInt}"
   | .EEEE  => dayOfWeek date.weekday
   | .EEE   => abbrevDayOfWeek date.weekday
-  | .hh    => s!"{leftPadNum 2 (date.hour.toNat)}"
-  | .h     => s!"{date.hour.toNat}"
+  | .hh    => s!"{leftPadNum 2 (date.hour.toInt)}"
+  | .h     => s!"{date.hour.toInt}"
   | .HH    => let hour := date.hour.val % 12; if hour == 0 then "12" else s!"{leftPadNum 2 <| hour}"
   | .H     => let hour := date.hour.val % 12; if hour == 0 then "12" else s!"{hour}"
-  | .AA    => if date.hour.toNat < 12 then "AM" else "PM"
-  | .aa    => if date.hour.toNat < 12 then "am" else "pm"
-  | .mm    => s!"{leftPadNum 2 <| date.minute.toNat}"
-  | .m     => s!"{date.minute.toNat}"
-  | .sss    => s!"{leftPadNum 3 <| date.milliseconds.toNat}"
-  | .ss    => s!"{leftPadNum 2 <| date.second.toNat}"
-  | .s     => s!"{date.second.toNat}"
+  | .AA    => if date.hour.toInt < 12 then "AM" else "PM"
+  | .aa    => if date.hour.toInt < 12 then "am" else "pm"
+  | .mm    => s!"{leftPadNum 2 <| date.minute.toInt}"
+  | .m     => s!"{date.minute.toInt}"
+  | .sss    => s!"{leftPadNum 3 <| date.milliseconds.toInt}"
+  | .ss    => s!"{leftPadNum 2 <| date.second.toInt}"
+  | .s     => s!"{date.second.toInt}"
   | .ZZZZZ => tz.offset.toIsoString true
   | .ZZZZ  => tz.offset.toIsoString false
   | .ZZZ   => if tz.offset.second.val = 0 then "UTC" else tz.offset.toIsoString false
@@ -385,28 +385,28 @@ private def SingleFormatType : Modifier → Type
 
 private def formatPart (modifier : Modifier) (data : SingleFormatType modifier) : String :=
   match modifier with
-  | .YYYY  => s!"{leftPadNum 4 (data.toNat)}"
-  | .YY    => s!"{leftPadNum 2 (data.toNat % 100)}"
+  | .YYYY  => s!"{leftPadNum 4 (data.toInt)}"
+  | .YY    => s!"{leftPadNum 2 (data.toInt % 100)}"
   | .MMMM  => unabbrevMonth data
   | .MMM   => abbrevMonth data
-  | .MM    => s!"{leftPadNum 2 (data.toNat)}"
-  | .M     => s!"{data.toNat}"
-  | .DD    => s!"{leftPadNum 2 (data.toNat)}"
-  | .D     => s!"{data.toNat}"
-  | .d     => s!"{leftPad 2 ' ' <| toString data.toNat}"
+  | .MM    => s!"{leftPadNum 2 (data.toInt)}"
+  | .M     => s!"{data.toInt}"
+  | .DD    => s!"{leftPadNum 2 (data.toInt)}"
+  | .D     => s!"{data.toInt}"
+  | .d     => s!"{leftPad 2 ' ' <| toString data.toInt}"
   | .EEEE  => dayOfWeek data
   | .EEE   => abbrevDayOfWeek data
-  | .hh    => s!"{leftPadNum 2 (data.snd.toNat)}"
-  | .h     => s!"{data.snd.toNat}"
+  | .hh    => s!"{leftPadNum 2 (data.snd.toInt)}"
+  | .h     => s!"{data.snd.toInt}"
   | .HH    => let hour := data.snd.val % 12; if hour == 0 then "12" else s!"{leftPadNum 2 hour}"
   | .H     => let hour := data.snd.val % 12; if hour == 0 then "12" else s!"{hour}"
   | .AA    => match data with | .am => "AM" | .pm => "PM"
   | .aa    => match data with | .am => "am" | .pm => "pm"
-  | .mm    => s!"{leftPadNum 2 data.toNat}"
-  | .m     => s!"{data.toNat}"
-  | .sss    => s!"{leftPadNum 3 data.toNat}"
-  | .ss    => s!"{leftPadNum 2 data.snd.toNat}"
-  | .s     => s!"{data.snd.toNat}"
+  | .mm    => s!"{leftPadNum 2 data.toInt}"
+  | .m     => s!"{data.toInt}"
+  | .sss    => s!"{leftPadNum 3 data.toInt}"
+  | .ss    => s!"{leftPadNum 2 data.snd.toInt}"
+  | .s     => s!"{data.snd.toInt}"
   | .ZZZZZ => data.toIsoString true
   | .ZZZZ  => data.toIsoString false
   | .ZZZ   => if data.second.val = 0 then "UTC" else data.toIsoString false

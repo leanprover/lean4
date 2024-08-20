@@ -69,7 +69,10 @@ info: Std.Time.Weekday.friday
 #guard_msgs in
 #eval LocalDate.weekday date₃
 
-
+/--
+info: #[]
+-/
+#guard_msgs in
 #eval Id.run do
   let mut res := #[]
 

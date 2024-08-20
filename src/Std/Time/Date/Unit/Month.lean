@@ -183,8 +183,7 @@ theorem all_greater_than_27 (leap : Bool) (i: Month.Ordinal) : daysWithoutProof 
 /--
 Check if the day is valid in a month and a leap year.
 -/
-@[inline]
-def Valid (leap : Bool) (month : Month.Ordinal) (day : Day.Ordinal) : Prop :=
+abbrev Valid (leap : Bool) (month : Month.Ordinal) (day : Day.Ordinal) : Prop :=
   day.val ≤ (daysWithoutProof leap month).val
 
 instance : Decidable (Valid leap month day) :=
@@ -205,7 +204,8 @@ def clipDay (leap : Bool) (month : Month.Ordinal) (day : Day.Ordinal) : { day : 
   let max : Day.Ordinal := month.days leap
   if h : day.val > max.val
     then ⟨max, Int.le_refl max.val⟩
-    else ⟨⟨day.val, day.property⟩, Int.not_lt.mp h⟩
+    else ⟨day, Int.not_lt.mp h⟩
+
 
 /--
 Transforms a `Day.Ordinal.OfYear` into a tuple of a `Month` and a `Day`.

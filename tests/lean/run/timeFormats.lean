@@ -225,3 +225,39 @@ info: "-0221-09-04"
 -/
 #guard_msgs in
 #eval Formats.sqlDate.format (DateTime.ofLocalDate (LocalDate.ofDaysSinceUNIXEpoch ⟨-800000⟩) .UTC)
+
+/--
+info: -0221-09-04
+-/
+#guard_msgs in
+#eval (LocalDate.ofDaysSinceUNIXEpoch ⟨-800000⟩)
+
+/--
+info: "-0221-09-04"
+-/
+#guard_msgs in
+#eval toString (LocalDate.ofDaysSinceUNIXEpoch ⟨-800000⟩)
+
+/--
+info: 2002-07-14
+-/
+#guard_msgs in
+#eval date% 2002-07-14
+
+/--
+info: 14:13:12
+-/
+#guard_msgs in
+#eval time% 14:13:12
+
+/--
+info: Sunday, July 14, 2002 14:13:12
+-/
+#guard_msgs in
+#eval date% 2002-07-14:14:13:12
+
+/--
+info: Sun, 14 Jul 2002 14:13:12 +0900
+-/
+#guard_msgs in
+#eval date% 2002-07-14:14:13:12+09:00

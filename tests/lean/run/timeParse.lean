@@ -83,15 +83,15 @@ info: "2024-08-16T01:28:00UTC"
     ISO8601UTC.format t.snd
 
 /--
-info: "00-1-12-31T22:28:12+0900"
+info: "-0001-12-31T22:28:12+0900"
 -/
 #guard_msgs in
 #eval
     let t : ZonedDateTime := Time24Hour.parse! "13:28:12"
-    ISO8601UTC.format (t.snd.convertTimeZone dateUTC)
+    ISO8601UTC.format (t.snd.convertTimeZone jpTZ)
 
 /--
-info: "00-1-12-31T09:28:12-0300"
+info: "-0001-12-31T09:28:12-0300"
 -/
 #guard_msgs in
 #eval

@@ -464,6 +464,16 @@ def SimpTheorems.add (s : SimpTheorems) (id : Origin) (levelParams : Array Name)
     return simpThms.foldl addSimpTheoremEntry s
 
 /--
+Reducible functions and projection functions should always be put in `toUnfold`, instead
+of trying to use equational theorems.
+
+The simplifiers has special support for structure and class projections, and gets
+confused when they suddenly rewrite, so ignore equations for them
+-/
+def SimpTheorems.ignoreEquations (declName : Name) : CoreM Bool := do
+  return (← isProjectionFn declName) || (← isReducible declName)
+
+/--
 Even if a function has equation theorems,
 we also store it in the `toUnfold` set in the following two cases:
 1- It was defined by structural recursion and has a smart-unfolding associated declaration.
@@ -482,9 +492,7 @@ def SimpTheorems.unfoldEvenWithEqns (declName : Name) : CoreM Bool := do
   return false
 
 def SimpTheorems.addDeclToUnfold (d : SimpTheorems) (declName : Name) : MetaM SimpTheorems := do
-  -- The simplifiers has special support for structure and class projections, and gets
-  -- confused when they suddenly rewrite, so ignore equations for them
-  if (← isProjectionFn declName) then
+  if (← ignoreEquations declName) then
     return d.addDeclToUnfoldCore declName
   else if let some eqns ← getEqnsFor? declName then
     let mut d := d

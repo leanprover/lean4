@@ -18,19 +18,19 @@ Defines the enumeration for days of the week. Each variant corresponds to a day 
 -/
 inductive Weekday
   /-- Monday. -/
-  | mon
+  | monday
   /-- Tuesday. -/
-  | tue
+  | tuesday
   /-- Wednesday. -/
-  | wed
+  | wednesday
   /-- Thursday. -/
-  | thu
+  | thursday
   /-- Friday. -/
-  | fri
+  | friday
   /-- Saturday. -/
-  | sat
+  | saturday
   /-- Sunday. -/
-  | sun
+  | sunday
   deriving Repr, Inhabited, BEq
 
 namespace Weekday
@@ -40,49 +40,49 @@ Converts a `Fin 7` representing a day index into a corresponding `Weekday`. This
 for mapping numerical representations to days of the week.
 -/
 def ofFin : Fin 7 → Weekday
-  | 0 => .mon
-  | 1 => .tue
-  | 2 => .wed
-  | 3 => .thu
-  | 4 => .fri
-  | 5 => .sat
-  | 6 => .sun
+  | 0 => .monday
+  | 1 => .tuesday
+  | 2 => .wednesday
+  | 3 => .thursday
+  | 4 => .friday
+  | 5 => .saturday
+  | 6 => .sunday
 
 /--
 Converts a `Weekday` to a `Nat`.
 -/
 def toNat : Weekday → Nat
-  | .mon => 0
-  | .tue => 1
-  | .wed => 2
-  | .thu => 3
-  | .fri => 4
-  | .sat => 5
-  | .sun => 6
+  | .monday => 0
+  | .tuesday => 1
+  | .wednesday => 2
+  | .thursday => 3
+  | .friday => 4
+  | .saturday => 5
+  | .sunday => 6
 
 /--
 Converts a `Weekday` to a `Fin`.
 -/
 def toFin : Weekday → Nat
-  | .mon => 0
-  | .tue => 1
-  | .wed => 2
-  | .thu => 3
-  | .fri => 4
-  | .sat => 5
-  | .sun => 6
+  | .monday => 0
+  | .tuesday => 1
+  | .wednesday => 2
+  | .thursday => 3
+  | .friday => 4
+  | .saturday => 5
+  | .sunday => 6
 
 /--
 Converts a `Nat` to an `Option Weekday`.
 -/
 def ofNat? : Nat → Option Weekday
-  | 0 => some .mon
-  | 1 => some .tue
-  | 2 => some .wed
-  | 3 => some .thu
-  | 4 => some .fri
-  | 5 => some .sat
-  | 6 => some .sun
+  | 0 => some .monday
+  | 1 => some .tuesday
+  | 2 => some .wednesday
+  | 3 => some .thursday
+  | 4 => some .friday
+  | 5 => some .saturday
+  | 6 => some .sunday
   | _ => none
 
 /--
@@ -98,20 +98,19 @@ def ofNat! (n : Nat) : Weekday :=
 Gets the next `Weekday`.
 -/
 def next : Weekday → Weekday
-  | .mon => .sun
-  | .tue => .mon
-  | .wed => .tue
-  | .thu => .wed
-  | .fri => .thu
-  | .sat => .fri
-  | .sun => .sat
-
+  | .monday => .tuesday
+  | .tuesday => .wednesday
+  | .wednesday => .thursday
+  | .thursday => .friday
+  | .friday => .saturday
+  | .saturday => .sunday
+  | .sunday => .monday
 /--
 Check if it's a Weekend.
 -/
 def weekend : Weekday → Bool
-  | .sat => true
-  | .sun => true
+  | .saturday => true
+  | .sunday => true
   | _ => false
 
 end Weekday

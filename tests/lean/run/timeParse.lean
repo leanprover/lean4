@@ -19,7 +19,7 @@ def Full12HourWrong : Format .any := date-spec% "MM/DD/YYYY hh:mm:ss aa Z"
 def brTZ : TimeZone := timezone% "America/Sao_Paulo" -03:00
 def jpTZ : TimeZone := timezone% "Asia/Tokyo" +09:00
 
-def date₁ := date% 16-06-2014:03:03:03(brTZ)
+def date₁ := date% 2014-06-16:03:03:03(brTZ)
 def time₁ := time% 14:11:01
 def time₂ := time% 03:11:01
 
@@ -88,7 +88,7 @@ info: "00-1-12-31T22:28:12+0900"
 #guard_msgs in
 #eval
     let t : ZonedDateTime := Time24Hour.parse! "13:28:12"
-    ISO8601UTC.format (t.snd.convertTimeZone jpTZ)
+    ISO8601UTC.format (t.snd.convertTimeZone dateUTC)
 
 /--
 info: "00-1-12-31T09:28:12-0300"

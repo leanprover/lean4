@@ -6,10 +6,12 @@ Authors: Sofia Rodrigues
 prelude
 import Std.Time.Internal
 import Std.Time.Date.Basic
+import Lean.Data.Rat
 
 namespace Std
 namespace Time
 open Internal
+open Lean
 
 set_option linter.all true
 
@@ -54,6 +56,21 @@ def clip (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordinal) : Loca
   let ⟨day, valid⟩ := month.clipDay year.isLeap day
   LocalDate.mk year month day valid
 
+/--
+Creates a `LocalDate` by rolling over the extra days to the next month.
+-/
+def rollOver (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordinal) : LocalDate := by
+  let ⟨max, valid, gt⟩ := month.days year.isLeap
+  let max : Bounded.LE 28 31 := max.truncateBottom gt
+  if h : day.val > max.val then
+    let day := day.truncateBottom h
+    let off := day.sub max.val
+    simp at off
+    sorry
+  else
+    sorry
+
+
 instance : Inhabited LocalDate where
   default := clip 0 1 1
 
@@ -77,17 +94,16 @@ Creates a `LocalDate` from the number of days since the UNIX epoch (January 1st,
 -/
 def ofDaysSinceUNIXEpoch (day : Day.Offset) : LocalDate :=
   let z := day.toInt + 719468
-  let era := (if z ≥ 0 then z else z - 146096) / 146097
+  let era := (if z ≥ 0 then z else z - 146096).div 146097
   let doe := z - era * 146097
-  let yoe := (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365
+  let yoe := (doe - doe.div 1460 + doe.div 36524 - doe.div 146096).div 365
   let y := yoe + era * 400
-  let doy := doe - (365 * yoe + yoe / 4 - yoe / 100)
-  let mp : Int := (5 * doy + 2) / 153
-  let d := doy - (153 * mp + 2) / 5
+  let doy := doe - (365 * yoe + yoe.div 4 - yoe.div 100)
+  let mp := (5 * doy + 2).div 153
+  let d := doy - (153 * mp + 2).div 5 + 1
   let m := mp + (if mp < 10 then 3 else -9)
   let y := y + (if m <= 2 then 1 else 0)
-
-  .clip y (.clip m (by decide)) (.clip (d + 1) (by decide))
+  .clip y (.clip m (by decide)) (.clip d (by decide))
 
 /--
 Calculates the `Weekday` of a given `LocalDate` using Zeller's Congruence for the Gregorian calendar.
@@ -101,9 +117,9 @@ def weekday (date : LocalDate) : Weekday :=
   let m := if m < 2 then m + 12 else m
 
   let k := y % 100
-  let j := y / 100
-  let part := q + (13 * (m + 1)) / 5 + k + (k / 4)
-  let h :=  if y ≥ 1582 then part + (j/4) - 2*j else part + 5 - j
+  let j := y.div 100
+  let part := q + (13 * (m + 1)).div 5 + k + (k.div 4)
+  let h := part + (j.div 4) - 2*j
   let d := (h + 5) % 7
 
   .ofFin ⟨d.toNat % 7, Nat.mod_lt d.toNat (by decide)⟩
@@ -113,14 +129,16 @@ Converts a `LocalDate` to the number of days since the UNIX epoch.
 -/
 def toDaysSinceUNIXEpoch (date : LocalDate) : Day.Offset :=
   let y : Int := if date.month.toInt > 2 then date.year else date.year.toInt - 1
-  let era : Int := (if y ≥ 0 then y else y - 399) / 400
+  let era : Int := (if y ≥ 0 then y else y - 399).div 400
   let yoe : Int := y - era * 400
   let m : Int := date.month.toInt
   let d : Int := date.day.toInt
-  let doy := (153 * (m + (if m > 2 then -3 else 9)) + 2) / 5 + d - 1
-  let doe := yoe * 365 + yoe / 4 - yoe / 100 + doy
+  let doy := (153 * (m + (if m > 2 then -3 else 9)) + 2).div 5 + d - 1
+  let doe := yoe * 365 + yoe.div 4 - yoe.div 100 + doy
 
   .ofInt (era * 146097 + doe - 719468)
+
+
 
 /--
 Calculates the difference in years between a `LocalDate` and a given year.
@@ -134,7 +152,7 @@ Adds a given number of days to a `LocalDate`.
 @[inline]
 def addDays (date : LocalDate) (days : Day.Offset) : LocalDate :=
   let dateDays := date.toDaysSinceUNIXEpoch
-  ofDaysSinceUNIXEpoch (Add.add dateDays days)
+  ofDaysSinceUNIXEpoch (dateDays + days)
 
 /--
 Subtracts a given number of days from a `LocalDate`.
@@ -189,13 +207,12 @@ def addMonthsRollOver (date : LocalDate) (months : Month.Offset) : LocalDate :=
       exact (yearsOffset, months.truncateTop (Int.not_lt.mp h₁) |>.truncateBottom (Int.not_lt.mp h₂))
 
   let year : Year.Offset := date.year.add yearsOffset
-  let ⟨days, proof⟩ := Month.Ordinal.days year.isLeap months
+  let ⟨days, proof, _⟩ := Month.Ordinal.days year.isLeap months
 
   if h : days.val ≥ date.day.val then
-    let p : year.Valid months date.day := by
+    have p : year.Valid months date.day := by
       simp_all [Year.Offset.Valid, Month.Ordinal.Valid]
       exact Int.le_trans h proof
-    dbg_trace s!"roll {days.val} {date.day.val}"
     LocalDate.mk year months date.day p
   else
     let roll : Day.Offset := UnitVal.mk (date.day.val - days.toInt)

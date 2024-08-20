@@ -35,8 +35,18 @@ Variables inside of the date.
 -/
 syntax ident : date_component
 
-private def parseComponent : TSyntax `date_component -> MacroM (TSyntax `term)
-  | `(date_component| $num:num) => `($num)
+private def parseComponent (lower : Option Int := none) (upper : Option Int := none) : TSyntax `date_component -> MacroM (TSyntax `term)
+  | `(date_component| $num:num) => do
+    let res := Int.ofNat num.getNat
+    if let some lower := lower then
+      if res < lower then
+        Macro.throwErrorAt num s!"the number should be bigger than {lower}"
+
+    if let some upper := upper then
+      if res > upper then
+        Macro.throwErrorAt num s!"the number should be lower than {upper}"
+
+    `($num)
   | `(date_component| $str:str) => `($(Syntax.mkNumLit str.getString))
   | `(date_component| $ident:ident) => `($ident:ident)
   | syn => Macro.throwErrorAt syn "unsupported syntax"
@@ -52,8 +62,8 @@ Date in `DD-MM-YYYY` format.
 syntax date_component noWs "-" noWs date_component noWs "-" noWs date_component : date
 
 private def parseDate : TSyntax `date -> MacroM (TSyntax `term)
-  | `(date|$day:date_component-$month:date_component-$year:date_component) => do
-    `(Std.Time.LocalDate.mk $(← parseComponent year) $(← parseComponent month) $(← parseComponent day) (by decide))
+  | `(date|$year:date_component-$month:date_component-$day:date_component) => do
+    `(Std.Time.LocalDate.mk $(← parseComponent none none year) $(← parseComponent (some 1) (some 12) month) $(← parseComponent (some 1) (some 31) day) (by decide))
   | syn => Macro.throwErrorAt syn "unsupported type"
 
 /--
@@ -73,9 +83,9 @@ syntax date_component noWs ":" noWs date_component noWs ":" noWs date_component 
 
 private def parseTime : TSyntax `time -> MacroM (TSyntax `term)
   | `(time| $hour:date_component:$minute:date_component:$second:date_component) => do
-    `(Std.Time.LocalTime.mk ⟨true, $(← parseComponent hour)⟩ $(← parseComponent minute) ⟨true, $(← parseComponent second)⟩ 0 (by decide))
+    `(Std.Time.LocalTime.mk ⟨true, $(← parseComponent (some 0) (some 24) hour)⟩ $(← parseComponent (some 0) (some 59) minute) ⟨true, $(← parseComponent (some 0) (some 60) second)⟩ 0 (by decide))
   | `(time| $hour:date_component:$minute:date_component:$second:date_component.$nanos:date_component) => do
-    `(Std.Time.LocalTime.mk ⟨true, $(← parseComponent hour)⟩ $(← parseComponent minute) ⟨true, $(← parseComponent second)⟩ $(← parseComponent nanos) (by decide))
+    `(Std.Time.LocalTime.mk ⟨true, $(← parseComponent (some 0) (some 24) hour)⟩ $(← parseComponent (some 0) (some 59) minute) ⟨true, $(← parseComponent (some 0) (some 60) second)⟩ $(← parseComponent (some 0) (some 999) nanos) (by decide))
   | syn => Macro.throwErrorAt syn "unsupported syntax"
 
 /--
@@ -97,7 +107,7 @@ private def parseDateTime : TSyntax `datetime -> MacroM (TSyntax `term)
   | `(datetime| $date:date:$time:time) => do
     `(Std.Time.LocalDateTime.mk $(← parseDate date) $(← parseTime time))
   | `(datetime|$tm:date_component) => do
-    `(Std.Time.LocalDateTime.ofUTCTimestamp $(← parseComponent tm))
+    `(Std.Time.LocalDateTime.ofUTCTimestamp $(← parseComponent none none tm))
   | syn => Macro.throwErrorAt syn "unsupported syntax"
 
 /--
@@ -112,9 +122,9 @@ syntax ("+" <|> "-") date_component ":" date_component : offset
 
 private def parseOffset : TSyntax `offset -> MacroM (TSyntax `term)
   | `(offset| +$hour:date_component:$minutes:date_component) => do
-    `(Std.Time.TimeZone.Offset.ofHoursAndMinutes $(← parseComponent hour) $(← parseComponent minutes))
+    `(Std.Time.TimeZone.Offset.ofHoursAndMinutes $(← parseComponent (some 0) (some 24) hour) $(← parseComponent (some 0) (some 59) minutes))
   | `(offset| -$hour:date_component:$minutes:date_component) => do
-    `(Std.Time.TimeZone.Offset.ofHoursAndMinutes (- $(← parseComponent hour)) (-$(← parseComponent minutes)))
+    `(Std.Time.TimeZone.Offset.ofHoursAndMinutes (- $(← parseComponent (some 0) (some 24) hour)) (-$(← parseComponent (some 0) (some 59) minutes)))
   | syn => Macro.throwErrorAt syn "unsupported syntax"
 
 /--

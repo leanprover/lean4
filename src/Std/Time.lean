@@ -160,7 +160,7 @@ The supported formats include:
 
 In order to help the user build dates easily, there are a lot of macros available for creating dates.
 
-- **`date% DD-MM-YYYY`**: Defines a date in the `DD-MM-YYYY` format.
+- **`date% YYYY-MM-DD`**: Defines a date in the `YYYY-MM-DD` format.
 - **`date% HH:mm:ss`**: Defines a time in the `HH:mm:ss` format.
 - **`date% HH:mm:ss.sssssss`**: Defines a time in the `HH:mm:ss.sssssss` format, including fractional seconds.
 - **`date% YYYY-MM-DD:HH:mm:ss`**: Defines a datetime in the `YYYY-MM-DD:HH:mm:ss` format.

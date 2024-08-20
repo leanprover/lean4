@@ -25,6 +25,9 @@ instance : OfNat Ordinal n :=
 instance {x y : Ordinal} : Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.val ≤ y.val))
 
+instance {x y : Ordinal} : Decidable (x < y) :=
+  inferInstanceAs (Decidable (x.val < y.val))
+
 instance : Inhabited Ordinal where default := 1
 
 /--
@@ -82,6 +85,20 @@ def toOffset (ordinal : Ordinal) : Offset :=
 end Ordinal
 
 namespace Offset
+
+/--
+Creates an `Offset` from a natural number.
+-/
+@[inline]
+def ofNat (data : Nat) : Offset :=
+  UnitVal.mk data
+
+/--
+Creates an `Offset` from an integer.
+-/
+@[inline]
+def ofInt (data : Int) : Offset :=
+  UnitVal.mk data
 
 /--
 Convert `Day.Offset` into `Second.Offset`.

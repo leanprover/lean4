@@ -89,13 +89,13 @@ def toAmericanDateString (input : LocalDate) : String :=
   Formats.americanDate.formatBuilder input.month input.day input.year
 
 /--
-Parses a date string in the American format (`MM/DD/YYYY`) and returns a `LocalDate`.
+Converts a Date in the SQL format (`YYYY-MM-DD`) into a `String`.
 -/
 def fromSQLDateString (input : String) : Except String LocalDate := do
   Formats.sqlDate.parseBuilder (λy m d => LocalDate.ofYearMonthDay y m d) input
 
 /--
-Converts a Date in the SQL format (`MM/DD/YYYY`) into a `String`.
+Converts a Date in the SQL format (`YYYY-MM-DD`) into a `String`.
 -/
 def toSQLDateString (input : LocalDate) : String :=
   Formats.sqlDate.formatBuilder input.year input.month input.day
@@ -106,6 +106,9 @@ Parses a `String` in the `AmericanDate` or `SQLDate` format and returns a `Local
 def parse (input : String) : Except String LocalDate :=
   fromAmericanDateString input
   <|> fromSQLDateString input
+
+instance : ToString LocalDate where
+  toString := toSQLDateString
 
 end LocalDate
 
@@ -145,6 +148,9 @@ Parses a `String` in the `Time12Hour` or `Time24Hour` format and returns a `Loca
 def parse (input : String) : Except String LocalTime :=
   fromTime12Hour input
   <|> fromTime24Hour input
+
+instance : ToString LocalTime where
+  toString := toTime24Hour
 
 end LocalTime
 
@@ -193,6 +199,9 @@ def parse (input : String) : Except String ZonedDateTime :=
   fromISO8601String input
   <|> fromRFC822String input
   <|> fromRFC850String input
+
+instance : ToString ZonedDateTime where
+  toString := toRFC822String
 
 end ZonedDateTime
 
@@ -283,5 +292,8 @@ Parses a `String` in the `AscTime` or `LongDate` format and returns a `DateTime`
 def parse (date : String) : Except String (DateTime .GMT) :=
   fromAscTimeString date
   <|> fromLongDateFormatString date
+
+instance : ToString (DateTime tz) where
+  toString := toRFC822String
 
 end DateTime

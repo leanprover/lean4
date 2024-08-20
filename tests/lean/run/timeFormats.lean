@@ -17,7 +17,7 @@ def CustomDayTime : Format .any := date-spec% "EEE D MMM YYYY hh:mm"
 def brTZ : TimeZone := timezone% "America/Sao_Paulo" -03:00
 def jpTZ : TimeZone := timezone% "Asia/Tokyo" +09:00
 
-def date₁ := date% 16-06-2014:03:03:03(brTZ)
+def date₁ := date% 2014-06-16:03:03:03(brTZ)
 def time₁ := time% 14:11:01
 def time₂ := time% 03:11:01
 
@@ -201,3 +201,27 @@ info: "06/16/2014"
 -/
 #guard_msgs in
 #eval ShortDate.formatBuilder date₁.month date₁.day date₁.year
+
+/--
+info: "0053-06-19"
+-/
+#guard_msgs in
+#eval Formats.sqlDate.format (DateTime.ofLocalDate (LocalDate.ofDaysSinceUNIXEpoch ⟨-700000⟩) .UTC)
+
+/--
+info: "-0002-09-16"
+-/
+#guard_msgs in
+#eval Formats.sqlDate.format (DateTime.ofLocalDate (LocalDate.ofDaysSinceUNIXEpoch ⟨-720000⟩) .UTC)
+
+/--
+info: "-0084-07-28"
+-/
+#guard_msgs in
+#eval Formats.sqlDate.format (DateTime.ofLocalDate (LocalDate.ofDaysSinceUNIXEpoch ⟨-750000⟩) .UTC)
+
+/--
+info: "-0221-09-04"
+-/
+#guard_msgs in
+#eval Formats.sqlDate.format (DateTime.ofLocalDate (LocalDate.ofDaysSinceUNIXEpoch ⟨-800000⟩) .UTC)

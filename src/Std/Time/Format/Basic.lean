@@ -308,49 +308,54 @@ private def abbrevMonth (month : Month.Ordinal) : String :=
 
 private def abbrevDayOfWeek (day : Weekday) : String :=
   match day with
-  | .sun => "Sun"
-  | .mon => "Mon"
-  | .tue => "Tue"
-  | .wed => "Wed"
-  | .thu => "Thu"
-  | .fri => "Fri"
-  | .sat => "Sat"
+  | .sunday => "Sun"
+  | .monday => "Mon"
+  | .tuesday => "Tue"
+  | .wednesday => "Wed"
+  | .thursday => "Thu"
+  | .friday => "Fri"
+  | .saturday => "Sat"
 
 private def dayOfWeek (day : Weekday) : String :=
   match day with
-  | .sun => "Sunday"
-  | .mon => "Monday"
-  | .tue => "Tuesday"
-  | .wed => "Wednesday"
-  | .thu => "Thursday"
-  | .fri => "Friday"
-  | .sat => "Saturday"
+  | .sunday => "Sunday"
+  | .monday => "Monday"
+  | .tuesday => "Tuesday"
+  | .wednesday => "Wednesday"
+  | .thursday => "Thursday"
+  | .friday => "Friday"
+  | .saturday => "Saturday"
 
 private def leftPad (n : Nat) (a : Char) (s : String) : String :=
   "".pushn a (n - s.length) ++ s
 
+private def leftPadNum (n : Nat) (s : Int) : String :=
+  let str := if s < 0 then toString (-s) else toString s
+  let start := if s < 0 then "-" else ""
+  start ++ "".pushn '0' (n - str.length) ++ str
+
 private def formatWithDate (date : DateTime tz) : Modifier → String
-  | .YYYY  => s!"{leftPad 4 '0' (toString date.year)}"
-  | .YY    => s!"{leftPad 2 '0' (toString <| date.year.toNat % 100)}"
+  | .YYYY  => s!"{leftPadNum 4 (date.year)}"
+  | .YY    => s!"{leftPadNum 2 (date.year.toNat % 100)}"
   | .MMMM  => unabbrevMonth date.month
   | .MMM   => abbrevMonth date.month
-  | .MM    => s!"{leftPad 2 '0' (toString <| date.month.toNat)}"
+  | .MM    => s!"{leftPadNum 2 (date.month.toNat)}"
   | .M     => s!"{date.month.toNat}"
-  | .DD    => s!"{leftPad 2 '0' (toString <| date.day.toNat)}"
+  | .DD    => s!"{leftPadNum 2 (date.day.toNat)}"
   | .D     => s!"{date.day.toNat}"
   | .d     => s!"{leftPad 2 ' ' <| toString date.day.toNat}"
   | .EEEE  => dayOfWeek date.weekday
   | .EEE   => abbrevDayOfWeek date.weekday
-  | .hh    => s!"{leftPad 2 '0' (toString date.hour.toNat)}"
+  | .hh    => s!"{leftPadNum 2 (date.hour.toNat)}"
   | .h     => s!"{date.hour.toNat}"
-  | .HH    => let hour := date.hour.val % 12; if hour == 0 then "12" else s!"{leftPad 2 '0' <| toString hour}"
+  | .HH    => let hour := date.hour.val % 12; if hour == 0 then "12" else s!"{leftPadNum 2 <| hour}"
   | .H     => let hour := date.hour.val % 12; if hour == 0 then "12" else s!"{hour}"
   | .AA    => if date.hour.toNat < 12 then "AM" else "PM"
   | .aa    => if date.hour.toNat < 12 then "am" else "pm"
-  | .mm    => s!"{leftPad 2 '0' <| toString date.minute.toNat}"
+  | .mm    => s!"{leftPadNum 2 <| date.minute.toNat}"
   | .m     => s!"{date.minute.toNat}"
-  | .sss    => s!"{leftPad 3 '0' <| toString date.milliseconds.toNat}"
-  | .ss    => s!"{leftPad 2 '0' <| toString date.second.toNat}"
+  | .sss    => s!"{leftPadNum 3 <| date.milliseconds.toNat}"
+  | .ss    => s!"{leftPadNum 2 <| date.second.toNat}"
   | .s     => s!"{date.second.toNat}"
   | .ZZZZZ => tz.offset.toIsoString true
   | .ZZZZ  => tz.offset.toIsoString false
@@ -380,27 +385,27 @@ private def SingleFormatType : Modifier → Type
 
 private def formatPart (modifier : Modifier) (data : SingleFormatType modifier) : String :=
   match modifier with
-  | .YYYY  => s!"{leftPad 4 '0' (toString data.toNat)}"
-  | .YY    => s!"{leftPad 2 '0' (toString <| data.toNat % 100)}"
+  | .YYYY  => s!"{leftPadNum 4 (data.toNat)}"
+  | .YY    => s!"{leftPadNum 2 (data.toNat % 100)}"
   | .MMMM  => unabbrevMonth data
   | .MMM   => abbrevMonth data
-  | .MM    => s!"{leftPad 2 '0' (toString <| data.toNat)}"
+  | .MM    => s!"{leftPadNum 2 (data.toNat)}"
   | .M     => s!"{data.toNat}"
-  | .DD    => s!"{leftPad 2 '0' (toString <| data.toNat)}"
+  | .DD    => s!"{leftPadNum 2 (data.toNat)}"
   | .D     => s!"{data.toNat}"
   | .d     => s!"{leftPad 2 ' ' <| toString data.toNat}"
   | .EEEE  => dayOfWeek data
   | .EEE   => abbrevDayOfWeek data
-  | .hh    => s!"{leftPad 2 '0' (toString data.snd.toNat)}"
+  | .hh    => s!"{leftPadNum 2 (data.snd.toNat)}"
   | .h     => s!"{data.snd.toNat}"
-  | .HH    => let hour := data.snd.val % 12; if hour == 0 then "12" else s!"{leftPad 2 '0' <| toString hour}"
+  | .HH    => let hour := data.snd.val % 12; if hour == 0 then "12" else s!"{leftPadNum 2 hour}"
   | .H     => let hour := data.snd.val % 12; if hour == 0 then "12" else s!"{hour}"
   | .AA    => match data with | .am => "AM" | .pm => "PM"
   | .aa    => match data with | .am => "am" | .pm => "pm"
-  | .mm    => s!"{leftPad 2 '0' <| toString data.toNat}"
+  | .mm    => s!"{leftPadNum 2 data.toNat}"
   | .m     => s!"{data.toNat}"
-  | .sss    => s!"{leftPad 3 '0' <| toString data.toNat}"
-  | .ss    => s!"{leftPad 2 '0' <| toString data.snd.toNat}"
+  | .sss    => s!"{leftPadNum 3 data.toNat}"
+  | .ss    => s!"{leftPadNum 2 data.snd.toNat}"
   | .s     => s!"{data.snd.toNat}"
   | .ZZZZZ => data.toIsoString true
   | .ZZZZ  => data.toIsoString false
@@ -457,22 +462,22 @@ private def parseMonthUnabbrev : Parser Month.Ordinal
   <|> (pstring "December" *> pure 12)
 
 private def parseWeekday : Parser Weekday
-  :=  (pstring "Mon" *> pure Weekday.mon)
-  <|> (pstring "Tue" *> pure Weekday.tue)
-  <|> (pstring "Wed" *> pure Weekday.wed)
-  <|> (pstring "Thu" *> pure Weekday.thu)
-  <|> (pstring "Fri" *> pure Weekday.fri)
-  <|> (pstring "Sat" *> pure Weekday.sat)
-  <|> (pstring "Sun" *> pure Weekday.sun)
+  :=  (pstring "Mon" *> pure Weekday.monday)
+  <|> (pstring "Tue" *> pure Weekday.tuesday)
+  <|> (pstring "Wed" *> pure Weekday.wednesday)
+  <|> (pstring "Thu" *> pure Weekday.thursday)
+  <|> (pstring "Fri" *> pure Weekday.friday)
+  <|> (pstring "Sat" *> pure Weekday.saturday)
+  <|> (pstring "Sun" *> pure Weekday.sunday)
 
 private def parseWeekdayUnnabrev : Parser Weekday
-  :=  (pstring "Monday" *> pure Weekday.mon)
-  <|> (pstring "Tuesday" *> pure Weekday.tue)
-  <|> (pstring "Wednesday" *> pure Weekday.wed)
-  <|> (pstring "Thursday" *> pure Weekday.thu)
-  <|> (pstring "Friday" *> pure Weekday.fri)
-  <|> (pstring "Saturday" *> pure Weekday.sat)
-  <|> (pstring "Sunday" *> pure Weekday.sun)
+  :=  (pstring "Monday" *> pure Weekday.monday)
+  <|> (pstring "Tuesday" *> pure Weekday.tuesday)
+  <|> (pstring "Wednesday" *> pure Weekday.wednesday)
+  <|> (pstring "Thursday" *> pure Weekday.thursday)
+  <|> (pstring "Friday" *> pure Weekday.friday)
+  <|> (pstring "Saturday" *> pure Weekday.saturday)
+  <|> (pstring "Sunday" *> pure Weekday.sunday)
 
 private def parserUpperHourMarker : Parser HourMarker
   :=  (pstring "AM" *> pure HourMarker.am)

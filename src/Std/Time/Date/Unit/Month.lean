@@ -173,6 +173,13 @@ def daysWithoutProof (leap : Bool) (month : Ordinal) : Day.Ordinal :=
     rw [← p] at r
     exact months.get r
 
+theorem all_greater_than_27 (leap : Bool) (i: Month.Ordinal) : daysWithoutProof leap i > 27 := by
+  simp [daysWithoutProof, monthSizesNonLeap, Bounded.LE.sub, Bounded.LE.add, Bounded.LE.toFin]
+  match i with
+  | ⟨2, _⟩ => split <;> (simp; try split); all_goals decide
+  | ⟨1, _⟩ | ⟨3, _⟩ | ⟨4, _⟩ | ⟨5, _⟩ | ⟨6, _⟩ | ⟨7, _⟩
+  | ⟨8, _⟩ | ⟨9, _⟩ | ⟨10, _⟩ | ⟨11, _⟩ | ⟨12, _⟩ => simp; decide
+
 /--
 Check if the day is valid in a month and a leap year.
 -/
@@ -187,8 +194,8 @@ instance : Decidable (Valid leap month day) :=
 Gets the number of days in a month along with a proof of its validity.
 -/
 @[inline]
-def days (leap : Bool) (month : Ordinal) : { day : Day.Ordinal // Valid leap month day } :=
-  ⟨daysWithoutProof leap month, Int.le_refl ((daysWithoutProof leap month).val)⟩
+def days (leap : Bool) (month : Ordinal) : { day : Day.Ordinal // Valid leap month day ∧ day.val > 27 } := by
+  refine ⟨daysWithoutProof leap month, ⟨Int.le_refl ((daysWithoutProof leap month).val), all_greater_than_27 leap month⟩⟩
 
 /--
 Clips the day to be within the valid range.
@@ -206,7 +213,7 @@ Transforms a `Day.Ordinal.OfYear` into a tuple of a `Month` and a `Day`.
 def ofOrdinal (ordinal : Day.Ordinal.OfYear leap) : { val : Month.Ordinal × Day.Ordinal // Valid leap (Prod.fst val) (Prod.snd val) } := Id.run do
   let rec go (idx : Fin 12) (cumulative : Fin 366) :=
     let month := Month.Ordinal.ofFin idx.succ
-    let ⟨days, valid⟩ := days leap month
+    let ⟨days, valid, _⟩ := days leap month
 
     if h : cumulative.val < ordinal.val ∧ ordinal.val ≤ cumulative.val + days.val then
       let bounded := Bounded.LE.mk ordinal.val h |>.sub cumulative

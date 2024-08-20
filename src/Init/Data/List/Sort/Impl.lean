@@ -19,6 +19,16 @@ We replace `mergeSort` in two steps:
 
 There is no public API in this file; it solely exists to implement the `@[csimp]` lemmas
 affecting runtime behaviour.
+
+## Future work
+The current runtime implementation could be further improved in a number of ways, e.g.:
+* only walking the list once during splitting,
+* using insertion sort for small chunks rather than splitting all the way down to singletons,
+* identifying already sorted or reverse sorted chunks and skipping them.
+
+Because the theory developed for `mergeSort` is independent of the runtime implementation,
+as long as such improvements are carefully validated by benchmarking,
+they can be done without changing the theory, as long as a `@[csimp]` lemma is provided.
 -/
 
 open List

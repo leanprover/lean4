@@ -50,7 +50,8 @@ def markJP (j : JoinPointId) : M Unit :=
 def getDecl (c : Name) : M Decl := do
   let ctx ← read
   match findEnvDecl' ctx.env c ctx.decls with
-  | none   => throw s!"unknown declaration '{c}'"
+  | none   => throw (s!"The definition depends on '{c}', but its executable code can't be found. " ++
+    "Consider marking the definition as 'noncomputable'.")
   | some d => pure d
 
 def checkVar (x : VarId) : M Unit := do

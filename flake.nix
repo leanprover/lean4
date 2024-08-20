@@ -33,9 +33,8 @@
           # more convenient `ctest` output
           CTEST_OUTPUT_ON_FAILURE = 1;
         } // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
-          # compile cadical against old glibc by using the full old toolchain, it doesn't require any
-          # fancy newer features
-          CADICAL_CXX = "${pkgsDist.stdenv.cc}/bin/c++";
+          # use statically-linked cadical on Linux to avoid glibc versioning troubles
+          CADICAL_BIN_DEPLOY = "${pkgs.pkgsStatic.cadical}/bin";
           GMP = pkgsDist.gmp.override { withStatic = true; };
           LIBUV = pkgsDist.libuv.overrideAttrs (attrs: { configureFlags = ["--enable-static"]; });
           GLIBC = pkgsDist.glibc;

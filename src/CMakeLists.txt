@@ -635,7 +635,7 @@ install(DIRECTORY "${CMAKE_BINARY_DIR}/bin/" USE_SOURCE_PERMISSIONS DESTINATION 
 
 # cadical is an optional build target in the root CMakeLists.txt
 if (${STAGE} GREATER 0 AND EXISTS "${CMAKE_BINARY_DIR}/../cadical/cadical${CMAKE_EXECUTABLE_SUFFIX}")
-  install(FILES "${CMAKE_BINARY_DIR}/../cadical/cadical${CMAKE_EXECUTABLE_SUFFIX}" USE_SOURCE_PERMISSIONS DESTINATION bin)
+  install(PROGRAMS "${CMAKE_BINARY_DIR}/../cadical/cadical${CMAKE_EXECUTABLE_SUFFIX}" DESTINATION bin)
 endif()
 
 add_custom_target(clean-stdlib

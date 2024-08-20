@@ -119,7 +119,7 @@ where
 /--
 Call the SAT solver in `solverPath` with `problemPath` as CNF input and ask it to output an LRAT
 UNSAT proof (binary or non-binary depending on `binaryProofs`) into `proofOutput`. To avoid runaway
-solvers the the solver is runwith `timeout` in seconds as a maximum time limit to solve the problem.
+solvers the solver is run with `timeout` in seconds as a maximum time limit to solve the problem.
 
 Note: This function currently assume that the solver has the same CLI as CaDiCal.
 -/

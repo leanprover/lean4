@@ -36,6 +36,9 @@ namespace Text
 /-
 This implements a (corrected) version of the grammar presented in:
 https://www.cs.cmu.edu/~mheule/publications/lrat.pdf
+
+The production rules ⟨clause⟩ and ⟨rat⟩ in Fig. 3. would mandate to put two 0 after the new
+clause that the current proof step is producing, that is not the case.
 -/
 
 @[inline]

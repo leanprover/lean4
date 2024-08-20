@@ -578,12 +578,15 @@ See `Lean.Meta.whnfImp` for the implementation.
 /--
 Returns the inferred type of the given expression. Assumes the expression is type-correct.
 
-The type inference algorithm does not do general type checking,
-which is instead handled by the `Lean.Meta.check` algorithm.
+The type inference algorithm does not do general type checking.
 Type inference only looks at subterms that are necessary for determining an expression's type,
 and as such if `inferType` succeeds it does *not* mean the term is type-correct.
 If an expression is sufficiently ill-formed that it prevents `inferType` from computing a type,
 then it will fail with a type error.
+
+For typechecking during elaboration, see `Lean.Meta.check`.
+(Note that we do not guarantee that the elaborator typechecker is as correct or as efficient as
+the kernel typechecker. The kernel typechecker is invoked when a definition is added to the environment.)
 
 Here are examples of type-incorrect terms for which `inferType` succeeds:
 ```lean

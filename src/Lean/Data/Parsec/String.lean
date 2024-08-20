@@ -47,6 +47,35 @@ def digit : Parser Char := attempt do
   if '0' ≤ c ∧ c ≤ '9' then return c else fail s!"digit expected"
 
 @[inline]
+private def digitToNat (b : Char) : Nat := b.toNat - '0'.toNat
+
+@[inline]
+private partial def digitsCore (acc : Nat) : Parser Nat := fun it =>
+  /-
+  With this design instead of combinators we can avoid allocating and branching over .success values
+  all of the time.
+  -/
+  let ⟨res, it⟩ := go it acc
+  .success it res
+where
+  go (it : String.Iterator) (acc : Nat) : (Nat × String.Iterator) :=
+    if it.hasNext then
+      let candidate := it.curr
+      if '0' ≤ candidate ∧ candidate ≤ '9' then
+        let digit := digitToNat candidate
+        let acc := acc * 10 + digit
+        go it.next acc
+      else
+        (acc, it)
+    else
+      (acc, it)
+
+@[inline]
+def digits : Parser Nat := do
+  let d ← digit
+  digitsCore (digitToNat d)
+
+@[inline]
 def hexDigit : Parser Char := attempt do
   let c ← any
   if ('0' ≤ c ∧ c ≤ '9')

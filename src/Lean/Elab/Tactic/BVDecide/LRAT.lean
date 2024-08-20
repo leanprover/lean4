@@ -7,6 +7,7 @@ prelude
 import Lean.Elab.Tactic.BVDecide.LRAT.Actions
 import Lean.Elab.Tactic.BVDecide.LRAT.Checker
 import Lean.Elab.Tactic.BVDecide.LRAT.Trim
+import Lean.Elab.Tactic.BVDecide.LRAT.Parser
 
 /-!
 This directory contains the implementation of the LRAT certificate checking and the LRAT trimming

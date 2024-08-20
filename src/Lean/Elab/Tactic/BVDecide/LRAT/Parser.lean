@@ -258,16 +258,10 @@ where
     parseZero
     return .del idList
 
-partial def parseActions : Parser (Array IntAction) := do
-  go #[]
-where
-  go (actions : Array IntAction) : Parser (Array IntAction) := do
-    let action ← parseAction
-    let actions := actions.push action
-    if ← eof? then
-      return actions
-    else
-      go actions
+def parseActions : Parser (Array IntAction) := do
+  let actions ← many parseAction
+  eof
+  return actions
 
 end Binary
 

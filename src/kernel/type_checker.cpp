@@ -549,13 +549,14 @@ static expr * g_lean_reduce_bool = nullptr;
 static expr * g_lean_reduce_nat  = nullptr;
 
 namespace ir {
-object * run_boxed(environment const & env, options const & opts, name const & fn, unsigned n, object **args);
+//object * run_boxed(environment const & env, options const & opts, name const & fn, unsigned n, object **args);
 }
 
 expr mk_bool_true();
 expr mk_bool_false();
 
 optional<expr> reduce_native(environment const & env, expr const & e) {
+    /*
     if (!is_app(e)) return none_expr();
     expr const & arg = app_arg(e);
     if (!is_constant(arg)) return none_expr();
@@ -575,6 +576,7 @@ optional<expr> reduce_native(environment const & env, expr const & e) {
             throw kernel_exception(env, "type checker failure, unexpected result value for 'Lean.reduceNat'");
         }
     }
+    */
     return none_expr();
 }
 

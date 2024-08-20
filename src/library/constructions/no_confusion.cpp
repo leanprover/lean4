@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include "runtime/sstream.h"
 #include "kernel/kernel_exception.h"
-#include "kernel/environment.h"
+#include "library/elab_environment.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/type_checker.h"
@@ -22,7 +22,7 @@ static void throw_corrupted(name const & n) {
     throw exception(sstream() << "error in '" << g_no_confusion << "' generation, '" << n << "' inductive datatype declaration is corrupted");
 }
 
-static declaration mk_no_confusion_type(environment const & env, name const & n) {
+static declaration mk_no_confusion_type(elab_environment const & env, name const & n) {
     constant_info ind_info = env.get(n);
     inductive_val ind_val    = ind_info.to_inductive_val();
     local_ctx lctx;
@@ -122,10 +122,10 @@ static declaration mk_no_confusion_type(environment const & env, name const & n)
 }
 
 extern "C" LEAN_EXPORT object * lean_mk_no_confusion_type(object * env, object * n) {
-    return catch_kernel_exceptions<declaration>([&]() { return mk_no_confusion_type(environment(env), name(n, true)); });
+    return catch_kernel_exceptions<declaration>([&]() { return mk_no_confusion_type(elab_environment(env), name(n, true)); });
 }
 
-declaration mk_no_confusion(environment const & env, name const & n) {
+declaration mk_no_confusion(elab_environment const & env, name const & n) {
     local_ctx lctx;
     name_generator ngen                  = mk_constructions_name_generator();
     constant_info ind_info               = env.get(n);
@@ -229,6 +229,6 @@ declaration mk_no_confusion(environment const & env, name const & n) {
 }
 
 extern "C" LEAN_EXPORT object * lean_mk_no_confusion(object * env, object * n) {
-    return catch_kernel_exceptions<declaration>([&]() { return mk_no_confusion(environment(env), name(n, true)); });
+    return catch_kernel_exceptions<declaration>([&]() { return mk_no_confusion(elab_environment(env), name(n, true)); });
 }
 }

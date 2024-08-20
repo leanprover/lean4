@@ -384,6 +384,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
 
     let (val, state) ← withRestoreOrSaveFull reusableResult? header.tacSnap? do
       withReuseContext header.value do
+      withTheReader Core.Context ({ · with envFrozen := header.kind.isTheorem }) do
       withDeclName header.declName <| withLevelNames header.levelNames do
       let valStx ← liftMacroM <| declValToTerm header.value
       (if header.kind.isTheorem && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars includedVars #[header] else fun x => x #[]) fun vars => do

@@ -37,6 +37,7 @@ bool is_do_notation_joinpoint(name const & n) {
 
 class to_lcnf_fn {
     typedef rb_expr_map<expr> cache;
+    elab_environment    m_env;
     type_checker::state m_st;
     local_ctx           m_lctx;
     cache               m_cache;
@@ -44,10 +45,10 @@ class to_lcnf_fn {
     name                m_x;
     unsigned            m_next_idx{1};
 public:
-    to_lcnf_fn(environment const & env, local_ctx const & lctx):
-        m_st(env), m_lctx(lctx), m_x("_x") {}
+    to_lcnf_fn(elab_environment const & env, local_ctx const & lctx):
+        m_env(env), m_st(env), m_lctx(lctx), m_x("_x") {}
 
-    environment & env() { return m_st.env(); }
+    elab_environment & env() { return m_env; }
 
     name_generator & ngen() { return m_st.ngen(); }
 
@@ -637,7 +638,7 @@ public:
     }
 };
 
-expr to_lcnf_core(environment const & env, local_ctx const & lctx, expr const & e) {
+expr to_lcnf_core(elab_environment const & env, local_ctx const & lctx, expr const & e) {
     expr new_e = unfold_macro_defs(env, e);
     return to_lcnf_fn(env, lctx)(new_e);
 }

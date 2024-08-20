@@ -102,6 +102,7 @@ structure Context where
   errors; see also `logMessage` below.
   -/
   suppressElabErrors : Bool := false
+  envFrozen : Bool := false
   deriving Nonempty
 
 /-- CoreM is a monad for manipulating the Lean environment.
@@ -128,7 +129,10 @@ instance : MonadRef CoreM where
 
 instance : MonadEnv CoreM where
   getEnv := return (← get).env
-  modifyEnv f := modify fun s => { s with env := f s.env, cache := {} }
+  modifyEnv f := do
+    if (← read).envFrozen then
+      throw <| .error (← getRef) (dbgStackTrace fun _ => "`modifyEnv` is no longer implemented in `CoreM`")
+    modify fun s => { s with env := f s.env, cache := {} }
 
 instance : MonadOptions CoreM where
   getOptions := return (← read).options
@@ -173,7 +177,7 @@ protected def withFreshMacroScope (x : CoreM α) : CoreM α := do
 
 instance : MonadQuotation CoreM where
   getCurrMacroScope   := return (← read).currMacroScope
-  getMainModule       := return (← get).env.mainModule
+  getMainModule       := return (← getEnv).mainModule
   withFreshMacroScope := Core.withFreshMacroScope
 
 instance : Elab.MonadInfoTree CoreM where
@@ -443,7 +447,7 @@ def compileDecl (decl : Declaration) : CoreM Unit := do
     return (← getEnv).compileDecl opts decl
   match res with
   | Except.ok env => setEnv env
-  | Except.error (KernelException.other msg) =>
+  | Except.error (.other msg) =>
     checkUnsupported decl -- Generate nicer error message for unsupported recursors and axioms
     throwError msg
   | Except.error ex =>
@@ -455,7 +459,7 @@ def compileDecls (decls : List Name) : CoreM Unit := do
     compileDeclsNew decls
   match (← getEnv).compileDecls opts decls with
   | Except.ok env   => setEnv env
-  | Except.error (KernelException.other msg) =>
+  | Except.error (.other msg) =>
     throwError msg
   | Except.error ex =>
     throwKernelException ex

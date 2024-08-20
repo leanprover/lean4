@@ -206,7 +206,7 @@ end Ilean
 
 /-- Gets the name of the module that contains `declName`. -/
 def getModuleContainingDecl? (env : Environment) (declName : Name) : Option Name := do
-  if env.constants.map₂.contains declName then
+  if env.toKernelEnv.constants.map₂.contains declName then
     return env.header.mainModule
   let modIdx ← env.getModuleIdxFor? declName
   env.allImportedModuleNames.get? modIdx

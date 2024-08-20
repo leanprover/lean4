@@ -921,7 +921,7 @@ def createLocalPreDiscrTree
   let cacheRef ← IO.mkRef (Cache.empty ngen)
   let act (t : PreDiscrTree α) (n : Name) (c : ConstantInfo) : BaseIO (PreDiscrTree α) :=
         addConstImportData cctx env modName d cacheRef t act n c
-  let r ← (env.constants.map₂.foldlM (init := {}) act : BaseIO (PreDiscrTree α))
+  let r ← (env.toKernelEnv.constants.map₂.foldlM (init := {}) act : BaseIO (PreDiscrTree α))
   pure r
 
 def dropKeys (t : LazyDiscrTree α) (keys : List (List LazyDiscrTree.Key)) : MetaM (LazyDiscrTree α) := do

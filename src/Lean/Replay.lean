@@ -32,7 +32,7 @@ structure Context where
   newConstants : Std.HashMap Name ConstantInfo
 
 structure State where
-  env : Environment
+  env : Kernel.Environment
   remaining : NameSet := {}
   pending : NameSet := {}
   postponedConstructors : NameSet := {}
@@ -51,9 +51,7 @@ def isTodo (name : Name) : M Bool := do
 
 /-- Use the current `Environment` to throw a `KernelException`. -/
 def throwKernelException (ex : KernelException) : M Unit := do
-    let ctx := { fileName := "", options := ({} : KVMap), fileMap := default }
-    let state := { env := (← get).env }
-    Prod.fst <$> (Lean.Core.CoreM.toIO · ctx state) do Lean.throwKernelException ex
+  throw <| .userError <| (← ex.toMessageData {} |>.toString)
 
 /-- Add a declaration, possibly throwing a `KernelException`. -/
 def addDecl (d : Declaration) : M Unit := do
@@ -155,7 +153,7 @@ open Replay
 Throws a `IO.userError` if the kernel rejects a constant,
 or if there are malformed recursors or constructors for inductive types.
 -/
-def replay (newConstants : Std.HashMap Name ConstantInfo) (env : Environment) : IO Environment := do
+def replay (newConstants : Std.HashMap Name ConstantInfo) (env : Kernel.Environment) : IO Kernel.Environment := do
   let mut remaining : NameSet := ∅
   for (n, ci) in newConstants.toList do
     -- We skip unsafe constants, and also partial constants.

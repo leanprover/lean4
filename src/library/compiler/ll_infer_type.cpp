@@ -17,12 +17,13 @@ static expr * g_bot = nullptr;
 
 /* Infer type of expressions in ENF or LLNF. */
 class ll_infer_type_fn {
+    elab_environment     m_env;
     type_checker::state  m_st;
     local_ctx            m_lctx;
     buffer<name> const * m_new_decl_names{nullptr};
     buffer<expr> const * m_new_decl_types{nullptr};
 
-    environment const & env() const { return m_st.env(); }
+    elab_environment const & env() const { return m_env; }
     name_generator & ngen() { return m_st.ngen(); }
 
     bool may_use_bot() const { return m_new_decl_types != nullptr; }
@@ -227,14 +228,14 @@ class ll_infer_type_fn {
     }
 
 public:
-    ll_infer_type_fn(environment const & env, buffer<name> const & ns, buffer<expr> const & ts):
-        m_st(env), m_new_decl_names(&ns), m_new_decl_types(&ts) {}
-    ll_infer_type_fn(environment const & env, local_ctx const & lctx):
-        m_st(env), m_lctx(lctx) {}
+    ll_infer_type_fn(elab_environment const & env, buffer<name> const & ns, buffer<expr> const & ts):
+        m_env(env), m_st(env), m_new_decl_names(&ns), m_new_decl_types(&ts) {}
+    ll_infer_type_fn(elab_environment const & env, local_ctx const & lctx):
+        m_env(env), m_st(env), m_lctx(lctx) {}
     expr operator()(expr const & e) { return infer(e); }
 };
 
-void ll_infer_type(environment const & env, comp_decls const & ds, buffer<expr> & ts) {
+void ll_infer_type(elab_environment const & env, comp_decls const & ds, buffer<expr> & ts) {
     buffer<name> ns;
     ts.clear();
     /* Initialize `ts` */
@@ -272,7 +273,7 @@ void ll_infer_type(environment const & env, comp_decls const & ds, buffer<expr> 
     lean_assert(ts.size() == length(ds));
 }
 
-expr ll_infer_type(environment const & env, local_ctx const & lctx, expr const & e) {
+expr ll_infer_type(elab_environment const & env, local_ctx const & lctx, expr const & e) {
     return ll_infer_type_fn(env, lctx)(e);
 }
 

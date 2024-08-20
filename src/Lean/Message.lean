@@ -481,10 +481,11 @@ macro_rules
 def toMessageList (msgs : Array MessageData) : MessageData :=
   indentD (MessageData.joinSep msgs.toList m!"\n\n")
 
-namespace KernelException
+namespace Kernel.Exception
 
-private def mkCtx (env : Environment) (lctx : LocalContext) (opts : Options) (msg : MessageData) : MessageData :=
-  MessageData.withContext { env := env, mctx := {}, lctx := lctx, opts := opts } msg
+private def mkCtx (_env : Kernel.Environment) (_lctx : LocalContext) (_opts : Options) (msg : MessageData) : MessageData :=
+  msg
+  --MessageData.withContext { env := env, mctx := {}, lctx := lctx, opts := opts } msg
 
 def toMessageData (e : KernelException) (opts : Options) : MessageData :=
   match e with
@@ -514,5 +515,5 @@ def toMessageData (e : KernelException) (opts : Options) : MessageData :=
   | deepRecursion                       => "(kernel) deep recursion detected"
   | interrupted                         => "(kernel) interrupted"
 
-end KernelException
+end Kernel.Exception
 end Lean

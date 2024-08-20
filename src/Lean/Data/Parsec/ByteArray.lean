@@ -74,7 +74,7 @@ private partial def digitsCore (acc : Nat) : Parser Nat := fun it =>
   let ⟨res, it⟩ := go it acc
   .success it res
 where
-  go (it : ByteArray.Iterator) (acc : Nat) : (Nat × ByteArray.Iterator) :=
+  go (it : ByteArray.Iterator) (acc : Nat) : Nat × ByteArray.Iterator :=
     if it.hasNext then
       let candidate := it.curr
       if '0'.toUInt8 ≤ candidate ∧ candidate ≤ '9'.toUInt8 then

@@ -553,14 +553,14 @@ export Bool (cond_eq_if)
 /-! ### coercions -/
 
 /--
-This should not be turned on globally as an instance because it degrades performancy in Mathlib,
+This should not be turned on globally as an instance because it degrades performance in Mathlib,
 but may be used locally.
 -/
 def boolPredToPred : Coe (α → Bool) (α  → Prop) where
   coe r := fun a => Eq (r a) true
 
 /--
-This should not be turned on globally as an instance because it degrades performancy in Mathlib,
+This should not be turned on globally as an instance because it degrades performance in Mathlib,
 but may be used locally.
 -/
 def boolRelToRel : Coe (α → α → Bool) (α → α → Prop) where

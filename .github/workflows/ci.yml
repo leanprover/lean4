@@ -176,7 +176,7 @@ jobs:
                 "check-level": 2,
                 "CMAKE_PRESET": "debug",
                 // exclude seriously slow tests
-                "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest'"
+                "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest|bv_bitblast_stress'"
               },
               // TODO: suddenly started failing in CI
               /*{

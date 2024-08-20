@@ -158,7 +158,7 @@ lib.warn "The Nix-based build is deprecated" rec {
       test = buildCMake {
         name = "lean-test-${desc}";
         realSrc = lib.sourceByRegex src [ "src.*" "tests.*" ];
-        buildInputs = [ gmp libuv perl git ];
+        buildInputs = [ gmp libuv perl git cadical ];
         preConfigure = ''
           cd src
         '';

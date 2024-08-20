@@ -134,6 +134,10 @@ structure SyntaxGuarded (α : Type) where
   /-- Potentially reusable value. -/
   val : α
 
+/-- Applies `f` to `s.val`. -/
+def SyntaxGuarded.mapVal (s : SyntaxGuarded α) (f : α → β) : SyntaxGuarded β :=
+  { s with val := f s.val }
+
 /--
 Pair of (optional) old snapshot task usable for incremental reuse and new snapshot promise for
 incremental reporting. Inside the elaborator, we build snapshots by carrying such bundles and then
@@ -173,6 +177,24 @@ def withAlwaysResolvedPromise [Monad m] [MonadLiftT BaseIO m] [MonadFinally m] [
     p.resolve default
 
 /--
+Runs `act` with a newly created promise and resolves it to `default` if `act` is interrupted by an
+exception.
+
+This is a weaker variant of `withAlwaysResolvedPromise` that is necessary when the promise is
+resolved on another thread that may terminate after `act`. Care must be taken that all control flow
+does eventually lead to resolution of the promise in this case.
+-/
+def withPromiseResolvedOnException [Monad m] [MonadLiftT BaseIO m] [always : MonadAlwaysExcept ε m]
+    [Inhabited α] (act : IO.Promise α → m β) : m β := do
+  let p ← IO.Promise.new
+  let _ := always.except
+  try
+    act p
+  catch e =>
+    p.resolve default
+    throw e
+
+/--
 Runs `act` with `count` newly created promises and finally resolves them to `default` if not done by
 `act`.
 
@@ -206,11 +228,9 @@ abbrev SnapshotTree.children : SnapshotTree → Array (SnapshotTask SnapshotTree
   | mk _ children => children
 
 /-- Produces debug tree format of given snapshot tree, synchronously waiting on all children. -/
-partial def SnapshotTree.format [Monad m] [MonadFileMap m] [MonadLiftT IO m] :
-    SnapshotTree → m Format :=
+partial def SnapshotTree.format (file : FileMap) : SnapshotTree → IO Format :=
   go none
 where go range? s := do
-  let file ← getFileMap
   let mut desc := f!"• {s.element.desc}"
   if let some range := range? then
     desc := desc ++ f!"{file.toPosition range.start}-{file.toPosition range.stop} "
@@ -228,6 +248,9 @@ class ToSnapshotTree (α : Type) where
   toSnapshotTree : α → SnapshotTree
 export ToSnapshotTree (toSnapshotTree)
 
+instance : ToSnapshotTree SnapshotTree where
+  toSnapshotTree t := t
+
 instance [ToSnapshotTree α] : ToSnapshotTree (Option α) where
   toSnapshotTree
     | some a => toSnapshotTree a
@@ -235,7 +258,7 @@ instance [ToSnapshotTree α] : ToSnapshotTree (Option α) where
 
 /-- Snapshot type without child nodes. -/
 structure SnapshotLeaf extends Snapshot
-deriving Nonempty, TypeName
+deriving Inhabited, TypeName
 
 instance : ToSnapshotTree SnapshotLeaf where
   toSnapshotTree s := SnapshotTree.mk s.toSnapshot #[]
@@ -299,6 +322,14 @@ def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options) (json := false
 def SnapshotTree.getAll (s : SnapshotTree) : Array Snapshot :=
   s.forM (m := StateM _) (fun s => modify (·.push s)) |>.run #[] |>.2
 
+/-- Returns a task that waits on all snapshots in the tree. -/
+def SnapshotTree.waitAll : SnapshotTree → BaseIO (Task Unit)
+  | mk _ children => go children.toList
+where
+  go : List (SnapshotTask SnapshotTree) → BaseIO (Task Unit)
+    | [] => return .pure ()
+    | t::ts => BaseIO.bindTask t.task fun _ => go ts
+
 /-- Context of an input processing invocation. -/
 structure ProcessingContext extends Parser.InputContext
 
@@ -335,6 +366,13 @@ def withHeaderExceptions (ex : Snapshot → α) (act : ProcessingT IO α) : Proc
   match (← (act (← read)).toBaseIO) with
   | .error e => return ex { diagnostics := (← diagnosticsOfHeaderError e.toString) }
   | .ok a => return a
+
+/-- Performance option used by cmdline driver. -/
+register_builtin_option internal.cmdlineSnapshots : Bool := {
+  defValue := false
+  descr    := "mark persistent and reduce information stored in snapshots to the minimum necessary \
+    for the cmdline driver: diagnostics per command and final full snapshot"
+}
 
 end Language
 

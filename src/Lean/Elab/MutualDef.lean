@@ -962,7 +962,12 @@ partial def checkForHiddenUnivLevels (allUserLevelNames : List Name) (preDefs : 
     for preDef in preDefs do
       checkPreDef preDef
 
-def elabMutualDef (vars : Array Expr) (includedVars : List Name) (views : Array DefView) : TermElabM Unit :=
+-- TODO: task helper that should be moved up or possibly integrated into `BaseIO.asTask`
+@[noinline]
+private def delayBaseIO (f : Unit → BaseIO α) : BaseIO α := f ()
+
+def elabMutualDef (vars : Array Expr) (includedVars : List Name) (views : Array DefView)
+    (typeCheckedPromise? : Option (IO.Promise SnapshotTree)) : TermElabM Unit :=
   if isExample views then
     withoutModifyingEnv do
       -- save correct environment in info tree
@@ -1004,7 +1009,31 @@ where
           for preDef in preDefs do
             trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
           checkForHiddenUnivLevels allUserLevelNames preDefs
-          addPreDefinitions preDefs
+          if let some typeCheckedPromise := typeCheckedPromise? then
+            if let some (preEnv, postponed) ← addPreDefinitionsWithPostpone preDefs then
+              let opts ← getOptions
+              let fileName ← getFileName
+              let fileMap ← getFileMap
+              let ref := preDefs[0]!.ref
+              let pos    := ref.getPos?.getD 0
+              let endPos := ref.getTailPos?.getD pos
+              let pos    := fileMap.toPosition pos
+              let endPos := fileMap.toPosition endPos
+              let preEnv := if internal.cmdlineSnapshots.get opts then Runtime.markPersistent preEnv
+                else preEnv
+              let _ ← BaseIO.asTask <| delayBaseIO fun _ => do
+                let mut msgLog := .empty
+                if let .error e := preEnv.addDecl opts postponed then
+                  msgLog := msgLog.add {
+                    fileName, pos, endPos
+                    data := e.toMessageData opts
+                  }
+                typeCheckedPromise.resolve <|
+                  .mk { diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog) } #[]
+            else
+              typeCheckedPromise.resolve default
+          else
+            addPreDefinitions preDefs
           processDeriving headers
       for view in views, header in headers do
         -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
@@ -1038,7 +1067,8 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
         throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
       let mut view ← mkDefView modifiers d[1]
       let fullHeaderRef := mkNullNode #[d[0], view.headerRef]
-      if let some snap := snap? then
+      -- term elaboration snapshots are irrelevant for the cmdline driver
+      if let some snap := guard (!Language.internal.cmdlineSnapshots.get (← getOptions)) *> snap? then
         view := { view with headerSnap? := some {
           old? := do
             -- transitioning from `Context.snap?` to `DefView.headerSnap?` invariant: if the
@@ -1061,11 +1091,19 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
         }
         reusedAllHeaders := reusedAllHeaders && view.headerSnap?.any (·.old?.isSome)
       views := views.push view
-    if let some snap := snap? then
-      -- no non-fatal diagnostics at this point
-      snap.new.resolve <| .ofTyped { defs, diagnostics := .empty : DefsParsedSnapshot }
     let includedVars := (← getScope).includedVars
-    runTermElabM fun vars => Term.elabMutualDef vars includedVars views
+    runTermElabM fun vars =>
+      if let some snap := snap? then
+        withPromiseResolvedOnException fun typeCheckedPromise => do
+          let range? := (fun endPos => ⟨endPos, endPos⟩) <$> (← getRef).getTailPos?
+          -- no non-fatal diagnostics at this point
+          snap.new.resolve <| .ofTyped {
+            defs
+            typeCheckedSnap := { range?, task := typeCheckedPromise.result }
+            diagnostics := .empty : DefsParsedSnapshot }
+          Term.elabMutualDef vars includedVars views typeCheckedPromise
+      else
+        Term.elabMutualDef vars includedVars views none
 
 builtin_initialize
   registerTraceClass `Elab.definition.mkClosure

@@ -234,13 +234,6 @@ structure SetupImportsResult where
   /-- Kernel trust level. -/
   trustLevel : UInt32 := 0
 
-/-- Performance option used by cmdline driver. -/
-register_builtin_option internal.cmdlineSnapshots : Bool := {
-  defValue := false
-  descr    := "mark persistent and reduce information stored in snapshots to the minimum necessary \
-    for the cmdline driver: diagnostics per command and final full snapshot"
-}
-
 /--
 Parses values of options registered during import and left by the C++ frontend as strings, fails if
 any option names remain unknown.
@@ -465,8 +458,9 @@ where
       -- is not `Inhabited`
       prom.resolve <| .mk (nextCmdSnap? := none) {
         diagnostics := .empty, stx := .missing, parserState
-        elabSnap := .pure <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
+        elabSnap := default
         finishedSnap := .pure { diagnostics := .empty, cmdState }
+        traceSnap := default
         tacticCache := (← IO.mkRef {})
       }
       return
@@ -536,17 +530,39 @@ where
       -- for now, wait on "command finished" snapshot before parsing next command
       else some <$> IO.Promise.new
     let diagnostics ← Snapshot.Diagnostics.ofMessageLog msgLog
+    let traceTask ←
+      if (← isTracingEnabledForCore `Elab.snapshotTree cmdState.scopes.head!.opts) then
+        BaseIO.bindTask elabPromise.result fun elabSnap => do
+          let tree := toSnapshotTree elabSnap
+          BaseIO.bindTask (← tree.waitAll) fun _ => do
+            let .ok f ← EIO.toBaseIO <| tree.format ctx.fileMap
+              | pure <| .pure <| .mk { diagnostics := .empty } #[]
+            let msgLog := MessageLog.empty.add {
+              fileName := ctx.fileName
+              severity := MessageSeverity.information
+              pos      := ctx.fileMap.toPosition beginPos
+              data     := .trace { cls := `Elab.snapshotTree } f #[]
+            }
+            return .pure <| .mk { diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog) } #[]
+      else
+        pure <| .pure <| .mk { diagnostics := .empty } #[]
+    let traceSnap := {
+      range? := none
+      task := traceTask
+    }
     let data := if minimalSnapshots && !Parser.isTerminalCommand stx then {
       diagnostics
       stx := .missing
       parserState := {}
       elabSnap := { range? := stx.getRange?, task := elabPromise.result }
       finishedSnap
+      traceSnap
       tacticCache
     } else {
       diagnostics, stx, parserState, tacticCache
       elabSnap := { range? := stx.getRange?, task := elabPromise.result }
       finishedSnap
+      traceSnap
     }
     prom.resolve <| .mk (nextCmdSnap? := next?.map
       ({ range? := some ⟨parserState.pos, ctx.input.endPos⟩, task := ·.result })) data
@@ -557,8 +573,9 @@ where
       parseCmd none parserState cmdState next ctx
 
   doElab (stx : Syntax) (cmdState : Command.State) (beginPos : String.Pos)
-      (snap : SnapshotBundle DynamicSnapshot) (finishedPromise : IO.Promise CommandFinishedSnapshot)
-      (tacticCache : IO.Ref Tactic.Cache) :
+      (snap : SnapshotBundle CommandProcessingSnapshot)
+      (finishedPromise : IO.Promise CommandFinishedSnapshot) (tacticCache : IO.Ref Tactic.Cache) :
+
       LeanProcessingM Command.State := do
     let ctx ← read
     let scope := cmdState.scopes.head!
@@ -573,14 +590,13 @@ where
     let cmdCtx : Elab.Command.Context := { ctx with
       cmdPos       := beginPos
       tacticCache? := some tacticCacheNew
-      snap?        := if internal.cmdlineSnapshots.get scope.opts then none else snap
       cancelTk?    := some ctx.newCancelTk
     }
     let (output, _) ←
       IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get scope.opts) do
-        liftM (m := BaseIO) do
+        EIO.toBaseIO do
           withLoggingExceptions
-            (getResetInfoTrees *> Elab.Command.elabCommandTopLevel stx)
+            (getResetInfoTrees *> Elab.Command.elabCommandTopLevel stx snap)
             cmdCtx cmdStateRef
     let postNew := (← tacticCacheNew.get).post
     tacticCache.modify fun _ => { pre := postNew, post := {} }
@@ -595,7 +611,7 @@ where
       }
     let cmdState := { cmdState with messages }
     -- definitely resolve eventually
-    snap.new.resolve <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
+    snap.new.resolve default
 
     let mut infoTree := cmdState.infoState.trees[0]!
     let cmdline := internal.cmdlineSnapshots.get scope.opts && !Parser.isTerminalCommand stx

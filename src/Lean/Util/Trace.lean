@@ -99,9 +99,12 @@ where
     else
       false
 
+def isTracingEnabledForCore (cls : Name) (opts : Options) : BaseIO Bool := do
+  let inherited ← (inheritedTraceOptions.get : BaseIO _)
+  pure (checkTraceOption inherited opts cls)
+
 def isTracingEnabledFor (cls : Name) : m Bool := do
-  let inherited ← (inheritedTraceOptions.get : IO _)
-  pure (checkTraceOption inherited (← getOptions) cls)
+  isTracingEnabledForCore cls (← getOptions) |>.toIO
 
 @[inline] def getTraces : m (PersistentArray TraceElem) := do
   let s ← getTraceState

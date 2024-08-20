@@ -398,6 +398,27 @@ theorem append_sublist_iff {l₁ l₂ : List α} :
     · rintro ⟨r₁, r₂, rfl, h₁, h₂⟩
       exact Sublist.append h₁ h₂
 
+theorem Sublist.of_sublist_append_left (w : ∀ a, a ∈ l → a ∉ l₂) (h : l <+ l₁ ++ l₂) : l <+ l₁ := by
+  rw [sublist_append_iff] at h
+  obtain ⟨l₁', l₂', rfl, h₁, h₂⟩ := h
+  have : l₂' = [] := by
+    rw [eq_nil_iff_forall_not_mem]
+    exact fun x m => w x (mem_append_of_mem_right l₁' m) (h₂.mem m)
+  simp_all
+
+theorem Sublist.of_sublist_append_right (w : ∀ a, a ∈ l → a ∉ l₁) (h : l <+ l₁ ++ l₂) : l <+ l₂ := by
+  rw [sublist_append_iff] at h
+  obtain ⟨l₁', l₂', rfl, h₁, h₂⟩ := h
+  have : l₁' = [] := by
+    rw [eq_nil_iff_forall_not_mem]
+    exact fun x m => w x (mem_append_of_mem_left l₂' m) (h₁.mem m)
+  simp_all
+
+theorem Sublist.middle {l : List α} (h : l <+ l₁ ++ l₂) (a : α) : l <+ l₁ ++ a :: l₂ := by
+  rw [sublist_append_iff] at h
+  obtain ⟨l₁', l₂', rfl, h₁, h₂⟩ := h
+  exact Sublist.append h₁ (h₂.cons a)
+
 theorem Sublist.reverse : l₁ <+ l₂ → l₁.reverse <+ l₂.reverse
   | .slnil => Sublist.refl _
   | .cons _ h => by rw [reverse_cons]; exact sublist_append_of_sublist_left h.reverse

@@ -311,7 +311,7 @@ where
     | .addRup id c hints =>
       s!"{id} {serializeClause c}0 {serializeIdList hints}0"
     | .addRat id c _ rupHints ratHints =>
-      s!"{id} {serializeClause c}0 {serializeIdList rupHints}0 {serializeRatHints ratHints}0"
+      s!"{id} {serializeClause c}0 {serializeIdList rupHints}{serializeRatHints ratHints}0"
     | .del ids =>
       -- Note: 1 is not the actual step id but step ids don't matter for deletes
       s!"1 d {serializeIdList ids}0"

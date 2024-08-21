@@ -6,7 +6,7 @@ Authors: Henrik Böving
 prelude
 import Init.System.IO
 import Std.Tactic.BVDecide.LRAT.Actions
-import Lean.Data.Parsec
+import Std.Internal.Parsec
 
 /-!
 This module implements parsers and serializers for both the binary and non-binary LRAT format.
@@ -28,8 +28,8 @@ private def getPivot (clause : Array Int) : Literal Nat :=
     (pivotInt.natAbs, false)
 
 
-open Lean.Parsec
-open Lean.Parsec.ByteArray
+open Std.Internal.Parsec
+open Std.Internal.Parsec.ByteArray
 
 namespace Text
 

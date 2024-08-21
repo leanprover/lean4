@@ -4,8 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Dany Fabian
 -/
 prelude
-import Lean.Data.Parsec
+import Std.Internal.Parsec
 import Lean.Data.Xml.Basic
+
 open System
 open Lean
 
@@ -14,8 +15,8 @@ namespace Xml
 
 namespace Parser
 
-open Lean.Parsec
-open Lean.Parsec.String
+open Std.Internal.Parsec
+open Std.Internal.Parsec.String
 
 abbrev LeanChar := Char
 

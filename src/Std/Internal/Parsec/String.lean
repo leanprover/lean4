@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Dany Fabian, Henrik Böving
 -/
 prelude
-import Lean.Data.Parsec.Basic
+import Std.Internal.Parsec.Basic
 
-namespace Lean
+namespace Std.Internal
 namespace Parsec
 namespace String
 
@@ -110,4 +110,4 @@ def take (n : Nat) : Parser String := fun it =>
 
 end String
 end Parsec
-end Lean
+end Std.Internal

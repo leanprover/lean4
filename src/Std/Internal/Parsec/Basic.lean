@@ -7,7 +7,7 @@ prelude
 import Init.NotationExtra
 import Init.Data.ToString.Macro
 
-namespace Lean
+namespace Std.Internal
 
 namespace Parsec
 
@@ -18,7 +18,7 @@ inductive ParseResult (α : Type) (ι : Type) where
 
 end Parsec
 
-def Parsec (ι : Type) (α : Type) : Type := ι → Lean.Parsec.ParseResult α ι
+def Parsec (ι : Type) (α : Type) : Type := ι → Parsec.ParseResult α ι
 
 namespace Parsec
 
@@ -144,5 +144,6 @@ def manyChars (p : Parsec ι Char) : Parsec ι String := manyCharsCore p ""
 @[inline]
 def many1Chars (p : Parsec ι Char) : Parsec ι String := do manyCharsCore p (← p).toString
 
-
 end Parsec
+
+end Std.Internal

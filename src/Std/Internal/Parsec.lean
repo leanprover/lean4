@@ -4,6 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Dany Fabian
 -/
 prelude
-import Lean.Data.Parsec.Basic
-import Lean.Data.Parsec.String
-import Lean.Data.Parsec.ByteArray
+import Std.Internal.Parsec.Basic
+import Std.Internal.Parsec.String
+import Std.Internal.Parsec.ByteArray

@@ -33,13 +33,13 @@ Calculates a `Duration` out of two `Timestamp`s.
 -/
 def since (f : Timestamp) : IO Duration := do
   let cur ← Timestamp.now
-  return cur.sub f
+  return Std.Time.Timestamp.sub cur f
 
 /--
 Adds a `Duration` to a `Timestamp`.
 -/
 def add (f : Timestamp) (d : Duration) : Timestamp :=
-  f.add d
+  Std.Time.Timestamp.add f d
 
 /--
 Checks if the duration is zero seconds ands zero nanoseconds.

@@ -19,7 +19,7 @@ set_option linter.all true
 Apply leap seconds rules and transition rules on a UTC Timestamp to make it aware of the timezone.
 -/
 def applyLeapSecondsOnUTCTimestamp [Database α] (db : α) (tm : Timestamp) : IO Timestamp := do
-  (applyLeapSeconds tm ·.leapSeconds) <$> Database.localRules db
+  (applyLeapSeconds tm ·) <$> Database.localRules db
 
 /--
 Gets the TimeZone at the local timezone.
@@ -39,5 +39,5 @@ Get the local ZonedDataTime given a UTC `Timestamp`.
 def ofUTCTimestamp [Database α] (db : α) (tm : Timestamp) : IO ZonedDateTime := do
   let rules ← Database.localRules db
   let tz ← IO.ofExcept <| timezoneAt rules tm
-  let tm := applyLeapSeconds tm rules.leapSeconds
+  let tm := applyLeapSeconds tm rules
   return ZonedDateTime.ofUTCTimestamp tm tz

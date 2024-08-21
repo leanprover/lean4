@@ -111,7 +111,7 @@ instance : ToString LocalDate where
   toString := toSQLDateString
 
 instance : Repr LocalDate where
-  reprPrec data _ := toString data
+  reprPrec data := Repr.addAppParen (toString data)
 
 end LocalDate
 
@@ -156,7 +156,7 @@ instance : ToString LocalTime where
   toString := toTime24Hour
 
 instance : Repr LocalTime where
-  reprPrec data _ := toString data
+  reprPrec data := Repr.addAppParen (toString data)
 
 end LocalTime
 
@@ -210,7 +210,7 @@ instance : ToString ZonedDateTime where
   toString := toRFC822String
 
 instance : Repr ZonedDateTime where
-  reprPrec data _ := toString data
+  reprPrec data := Repr.addAppParen (toString data)
 
 end ZonedDateTime
 
@@ -253,7 +253,7 @@ instance : ToString LocalDateTime where
   toString := toLongDateFormatString
 
 instance : Repr LocalDateTime where
-  reprPrec s _ := toLongDateFormatString s
+  reprPrec data := Repr.addAppParen (toString data)
 
 end LocalDateTime
 
@@ -312,6 +312,6 @@ instance : ToString (DateTime tz) where
   toString := toRFC822String
 
 instance : Repr (DateTime tz) where
-  reprPrec data _ := toString data
+  reprPrec data := Repr.addAppParen (toString data)
 
 end DateTime

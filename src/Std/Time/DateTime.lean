@@ -34,7 +34,7 @@ Converts a `LocalDate` to a `Timestamp`
 def ofLocalDate (ld : LocalDate) : Timestamp :=
   let days := ld.toDaysSinceUNIXEpoch
   let secs := days.toSeconds
-  Timestamp.ofSeconds secs
+  Timestamp.ofSecondsSinceUnixEpoch secs
 
 /--
 Converts a `Timestamp` to a `LocalDate`
@@ -51,7 +51,7 @@ Converts a `LocalTime` to a `Timestamp`
 @[inline]
 def ofLocalTime (lt : LocalTime) : Timestamp :=
   let nanos := lt.toNanoseconds
-  Timestamp.ofNanoseconds nanos
+  Timestamp.ofNanosecondsSinceUnixEpoch nanos
 
 /--
 Converts a `Timestamp` to a `LocalTime`

@@ -67,7 +67,7 @@ def toSeconds (t : Timestamp) : Second.Offset :=
 Negates a `Timestamp`, flipping its second and nanosecond values.
 -/
 @[inline]
-def neg (t : Timestamp) : Timestamp := by
+protected def neg (t : Timestamp) : Timestamp := by
   refine ⟨-t.second, t.nano.neg, ?_⟩
   cases t.proof with
   | inl n => exact Or.inr (n.imp Int.neg_le_neg Int.neg_le_neg)
@@ -77,7 +77,7 @@ def neg (t : Timestamp) : Timestamp := by
 Adds two timestamps together, handling any carry-over in nanoseconds. It should not be used for `Timestamp`.
 The subtraction of two `Timestamp` returns a duration but the addition does not make sense at all.
 -/
-def add (t₁ t₂ : Timestamp) : Timestamp := by
+protected def add (t₁ t₂ : Timestamp) : Timestamp := by
   let diffSecs := t₁.second + t₂.second
   let diffNano := t₁.nano.addBounds t₂.nano
 
@@ -128,14 +128,14 @@ def add (t₁ t₂ : Timestamp) : Timestamp := by
 Subtracts one `Timestamp` from another.
 -/
 @[inline]
-def sub (t₁ t₂ : Timestamp) : Timestamp :=
+protected def sub (t₁ t₂ : Timestamp) : Timestamp :=
   t₁.add t₂.neg
 
 /--
 Creates a new `Timestamp` out of `Second.Offset`.
 -/
 @[inline]
-def ofSeconds (s : Second.Offset) : Timestamp := by
+def ofSecondsSinceUnixEpoch (s : Second.Offset) : Timestamp := by
   refine ⟨s, ⟨0, by decide⟩, ?_⟩
   simp <;> exact Int.le_total s.val 0 |>.symm
 
@@ -143,7 +143,7 @@ def ofSeconds (s : Second.Offset) : Timestamp := by
 Creates a new `Timestamp` out of `Second.Offset`.
 -/
 @[inline]
-def ofNanoseconds (s : Nanosecond.Offset) : Timestamp := by
+def ofNanosecondsSinceUnixEpoch (s : Nanosecond.Offset) : Timestamp := by
     refine ⟨s.ediv 1000000000, Bounded.LE.byMod s.val 1000000000 (by decide), ?_⟩
     cases Int.le_total s.val 0
     next n => exact Or.inr (And.intro (Int.ediv_le_ediv (by decide) n) (mod_nonpos 1000000000 n (by decide)))
@@ -167,14 +167,14 @@ Adds a `Second.Offset` to a `Timestamp`
 -/
 @[inline]
 def addSeconds (t : Timestamp) (s : Second.Offset) : Timestamp :=
-  t.add (ofSeconds s)
+  t.add (ofSecondsSinceUnixEpoch s)
 
 /--
 Subtracts a `Second.Offset` from a `Timestamp`
 -/
 @[inline]
 def subSeconds (t : Timestamp) (s : Second.Offset) : Timestamp :=
-  t.sub (ofSeconds s)
+  t.sub (ofSecondsSinceUnixEpoch s)
 
 /--
 Adds a `Minute.Offset` to a `Timestamp`

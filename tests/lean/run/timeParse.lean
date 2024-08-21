@@ -62,9 +62,9 @@ BR: 15 August 2024 13:28:12 GMT-03:00
 -/
 def tm₄ : Second.Offset := 1723739292
 
-def dateBR := DateTime.ofUTCTimestamp (Timestamp.ofSeconds tm₄) brTZ
-def dateJP := DateTime.ofUTCTimestamp (Timestamp.ofSeconds tm₄) jpTZ
-def dateUTC := DateTime.ofUTCTimestamp (Timestamp.ofSeconds tm₄) .UTC
+def dateBR := DateTime.ofUTCTimestamp (Timestamp.ofSecondsSinceUnixEpoch tm₄) brTZ
+def dateJP := DateTime.ofUTCTimestamp (Timestamp.ofSecondsSinceUnixEpoch tm₄) jpTZ
+def dateUTC := DateTime.ofUTCTimestamp (Timestamp.ofSecondsSinceUnixEpoch tm₄) .UTC
 
 /--
 info: "2024-08-15T13:28:12-0300"
@@ -140,7 +140,7 @@ def localTm : Second.Offset := 1723730627
 /--
 This localDate is relative to the local time.
 -/
-def localDate : LocalDateTime := Timestamp.toLocalDateTime (Timestamp.ofSeconds localTm)
+def localDate : LocalDateTime := Timestamp.toLocalDateTime (Timestamp.ofSecondsSinceUnixEpoch localTm)
 
 /--
 info: "08/15/2024 14:03:47"

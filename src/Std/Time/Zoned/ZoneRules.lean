@@ -186,8 +186,9 @@ def timezoneAt (rules : ZoneRules) (tm : Timestamp) : Except String TimeZone :=
 /--
 Applies a `LeapSecond` sequence in a `Timestamp`.
 -/
-def applyLeapSeconds (tm : Timestamp) (leapSeconds : Array LeapSecond) : Timestamp := Id.run do
+def applyLeapSeconds (tm : Timestamp) (leapSeconds : ZoneRules) : Timestamp := Id.run do
     let mut currentTime := tm
+    let leapSeconds := leapSeconds.leapSeconds
     for i in [:leapSeconds.size] do
       let leapSec := leapSeconds.get! i
       if currentTime.second.val >= leapSec.transitionTime.val then
@@ -197,8 +198,8 @@ def applyLeapSeconds (tm : Timestamp) (leapSeconds : Array LeapSecond) : Timesta
 /--
 Adjust a UTC timestamp according to `ZoneRules`.
 -/
-def apply (rules : ZoneRules) (tm : Timestamp) : Timestamp :=
-    let tm := applyLeapSeconds tm rules.leapSeconds
+protected def applyToTimestamp (rules : ZoneRules) (tm : Timestamp) : Timestamp :=
+    let tm := applyLeapSeconds tm rules
     if let some transition := findTransitionForTimestamp rules tm
       then transition.apply tm
       else tm

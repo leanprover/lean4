@@ -50,6 +50,7 @@ Creates a new `DateTime` out of a `Timestamp`
 @[inline]
 def ofZoneRules (tm : Timestamp) (rules : TimeZone.ZoneRules) : Option ZonedDateTime := do
   let transition ← rules.findTransitionForTimestamp tm
+  let tm := rules.applyLeapSeconds tm
   return ofUTCTimestamp tm transition.localTimeType.getTimeZone
 
 /--

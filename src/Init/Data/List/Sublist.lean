@@ -68,12 +68,12 @@ instance : Trans (Membership.mem : α → List α → Prop) Subset Membership.me
 instance : Trans (Subset : List α → List α → Prop) Subset Subset :=
   ⟨Subset.trans⟩
 
-@[simp] theorem subset_cons_self (a : α) (l : List α) : l ⊆ a :: l := fun _ => Mem.tail _
+theorem subset_cons_self (a : α) (l : List α) : l ⊆ a :: l := fun _ => Mem.tail _
 
 theorem subset_of_cons_subset {a : α} {l₁ l₂ : List α} : a :: l₁ ⊆ l₂ → l₁ ⊆ l₂ :=
   fun s _ i => s (mem_cons_of_mem _ i)
 
-theorem subset_cons_of_subset (a : α) {l₁ l₂ : List α} : l₁ ⊆ l₂ → l₁ ⊆ a :: l₂ :=
+@[simp] theorem subset_cons_of_subset (a : α) {l₁ l₂ : List α} : l₁ ⊆ l₂ → l₁ ⊆ a :: l₂ :=
   fun s _ i => .tail _ (s i)
 
 theorem cons_subset_cons {l₁ l₂ : List α} (a : α) (s : l₁ ⊆ l₂) : a :: l₁ ⊆ a :: l₂ :=
@@ -100,14 +100,14 @@ theorem filterMap_subset {l₁ l₂ : List α} (f : α → Option β) (H : l₁ 
   rintro ⟨a, h, w⟩
   exact ⟨a, H h, w⟩
 
-@[simp] theorem subset_append_left (l₁ l₂ : List α) : l₁ ⊆ l₁ ++ l₂ := fun _ => mem_append_left _
+theorem subset_append_left (l₁ l₂ : List α) : l₁ ⊆ l₁ ++ l₂ := fun _ => mem_append_left _
 
-@[simp] theorem subset_append_right (l₁ l₂ : List α) : l₂ ⊆ l₁ ++ l₂ := fun _ => mem_append_right _
+theorem subset_append_right (l₁ l₂ : List α) : l₂ ⊆ l₁ ++ l₂ := fun _ => mem_append_right _
 
-theorem subset_append_of_subset_left (l₂ : List α) : l ⊆ l₁ → l ⊆ l₁ ++ l₂ :=
+@[simp] theorem subset_append_of_subset_left (l₂ : List α) : l ⊆ l₁ → l ⊆ l₁ ++ l₂ :=
 fun s => Subset.trans s <| subset_append_left _ _
 
-theorem subset_append_of_subset_right (l₁ : List α) : l ⊆ l₂ → l ⊆ l₁ ++ l₂ :=
+@[simp] theorem subset_append_of_subset_right (l₁ : List α) : l ⊆ l₂ → l ⊆ l₁ ++ l₂ :=
 fun s => Subset.trans s <| subset_append_right _ _
 
 @[simp] theorem append_subset {l₁ l₂ l : List α} :
@@ -155,7 +155,9 @@ theorem Sublist.trans {l₁ l₂ l₃ : List α} (h₁ : l₁ <+ l₂) (h₂ : l
 
 instance : Trans (@Sublist α) Sublist Sublist := ⟨Sublist.trans⟩
 
-@[simp] theorem sublist_cons_self (a : α) (l : List α) : l <+ a :: l := (Sublist.refl l).cons _
+attribute [simp] Sublist.cons
+
+theorem sublist_cons_self (a : α) (l : List α) : l <+ a :: l := (Sublist.refl l).cons _
 
 theorem sublist_of_cons_sublist : a :: l₁ <+ l₂ → l₁ <+ l₂ :=
   (sublist_cons_self a l₁).trans
@@ -286,11 +288,11 @@ theorem sublist_filter_iff {l₁ : List α} {p : α → Bool} :
     l₁ <+ l₂.filter p ↔ ∃ l', l' <+ l₂ ∧ l₁ = l'.filter p := by
   simp only [← filterMap_eq_filter, sublist_filterMap_iff]
 
-@[simp] theorem sublist_append_left : ∀ l₁ l₂ : List α, l₁ <+ l₁ ++ l₂
+theorem sublist_append_left : ∀ l₁ l₂ : List α, l₁ <+ l₁ ++ l₂
   | [], _ => nil_sublist _
   | _ :: l₁, l₂ => (sublist_append_left l₁ l₂).cons₂ _
 
-@[simp] theorem sublist_append_right : ∀ l₁ l₂ : List α, l₂ <+ l₁ ++ l₂
+theorem sublist_append_right : ∀ l₁ l₂ : List α, l₂ <+ l₁ ++ l₂
   | [], _ => Sublist.refl _
   | _ :: l₁, l₂ => (sublist_append_right l₁ l₂).cons _
 
@@ -299,10 +301,10 @@ theorem sublist_filter_iff {l₁ : List α} {p : α → Bool} :
   obtain ⟨_, _, rfl⟩ := append_of_mem h
   exact ((nil_sublist _).cons₂ _).trans (sublist_append_right ..)
 
-theorem sublist_append_of_sublist_left (s : l <+ l₁) : l <+ l₁ ++ l₂ :=
+@[simp] theorem sublist_append_of_sublist_left (s : l <+ l₁) : l <+ l₁ ++ l₂ :=
   s.trans <| sublist_append_left ..
 
-theorem sublist_append_of_sublist_right (s : l <+ l₂) : l <+ l₁ ++ l₂ :=
+@[simp] theorem sublist_append_of_sublist_right (s : l <+ l₂) : l <+ l₁ ++ l₂ :=
   s.trans <| sublist_append_right ..
 
 @[simp] theorem append_sublist_append_left : ∀ l, l ++ l₁ <+ l ++ l₂ ↔ l₁ <+ l₂

@@ -1968,9 +1968,9 @@ theorem append_eq_replicate {l₁ l₂ : List α} {a : α} :
   split <;> simp
 
 theorem filter_replicate : (replicate n a).filter p = if p a then replicate n a else [] := by
-  induction n with
+  cases n with
   | zero => simp
-  | succ n ih =>
+  | succ n =>
     simp only [replicate_succ, filter_cons]
     split <;> simp_all
 

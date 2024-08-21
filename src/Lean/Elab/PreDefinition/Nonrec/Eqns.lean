@@ -59,13 +59,10 @@ private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
           else if let some mvarIds ← splitTarget? mvarId then
             mvarIds.forM go
           else
-            -- At some point in the past, we looked for occurences of Wf.fix to fold on the
-            -- LHS (introduced in 096e4eb), but it seems that code path was never used,
-            -- so #3133 removed it again (and can be recovered from there if this was premature).
             throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
 
     -- Try rfl before deltaLHS to avoid `id` checkpoints in the proof, which would make
-    -- the lemma ineligible for dsmip
+    -- the lemma ineligible for dsimp
     unless ← withAtLeastTransparency .all (tryURefl mvarId) do
       go (← deltaLHS mvarId)
     instantiateMVars main
@@ -77,12 +74,12 @@ def mkEqns (declName : Name) (info : DefinitionVal) : MetaM (Array Name) :=
     let us := info.levelParams.map mkLevelParam
     let target ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
     let goal ← mkFreshExprSyntheticOpaqueMVar target
-    withReducible do -- check if this is needed
+    withReducible do
       mkEqnTypes (tryRefl := false) #[] goal.mvarId!
   let mut thmNames := #[]
   for i in [: eqnTypes.size] do
     let type := eqnTypes[i]!
-    trace[Elab.definition.eqns] "{eqnTypes[i]!}"
+    trace[Elab.definition.eqns] "eqnType[{i}]: {eqnTypes[i]!}"
     let name := (Name.str baseName eqnThmSuffixBase).appendIndexAfter (i+1)
     thmNames := thmNames.push name
     let value ← mkProof declName type
@@ -94,8 +91,9 @@ def mkEqns (declName : Name) (info : DefinitionVal) : MetaM (Array Name) :=
   return thmNames
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
+  if (← isRecursiveDefinition declName) then
+    return none
   if let some (.defnInfo info) := (← getEnv).find? declName then
-    -- TODO: which declarations exactly?
     if eqns.nonrecursive.get (← getOptions) then
       mkEqns declName info
     else

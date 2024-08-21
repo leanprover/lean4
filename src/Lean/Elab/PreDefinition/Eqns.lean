@@ -75,10 +75,12 @@ private def findMatchToSplit? (env : Environment) (e : Expr) (declNames : Array 
           break
       unless hasFVarDiscr do
         return Expr.FindStep.visit
-      -- Hack: if `declNames` is empty, skip this check. To be revisited:
+      -- For non-recursive functions (`declNames` empty), we split here
       if declNames.isEmpty then
           return Expr.FindStep.found
-      -- At least one alternative must contain a `declNames` application with loose bound variables.
+      -- For recursive functions we only split when at least one alternatives contains a `declNames`
+      -- application with loose bound variables.
+      -- (We plan to disable this by default and treat recursive and non-recursie functions the same)
       for i in [info.getFirstAltPos : info.getFirstAltPos + info.numAlts] do
         let alt := args[i]!
         if Option.isSome <| alt.find? fun e => declNames.any e.isAppOf && e.hasLooseBVars then

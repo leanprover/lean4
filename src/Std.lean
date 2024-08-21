@@ -6,3 +6,4 @@ Authors: Sebastian Ullrich
 prelude
 import Std.Data
 import Std.Sat
+import Std.Tactic

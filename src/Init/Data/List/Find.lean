@@ -47,7 +47,7 @@ theorem find?_some : ∀ {l}, find? p l = some a → p a
     simp only [map_cons, find?]
     by_cases h : p (f x) <;> simp [h, ih]
 
-theorem find?_append {l₁ l₂ : List α} : (l₁ ++ l₂).find? p = (l₁.find? p).or (l₂.find? p) := by
+@[simp] theorem find?_append {l₁ l₂ : List α} : (l₁ ++ l₂).find? p = (l₁.find? p).or (l₂.find? p) := by
   induction l₁ with
   | nil => simp
   | cons x xs ih =>

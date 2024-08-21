@@ -192,7 +192,7 @@ macro "sizeOf_list_dec" : tactic =>
   `(tactic| first
     | with_reducible apply sizeOf_lt_of_mem; assumption; done
     | with_reducible
-        apply Nat.lt_trans (sizeOf_lt_of_mem ?h)
+        apply Nat.lt_of_lt_of_le (sizeOf_lt_of_mem ?h)
         case' h => assumption
       simp_arith)
 

@@ -209,27 +209,27 @@ theorem Cache.IsExtensionBy_trans_left (cache1 : Cache aig cnf1) (cache2 : Cache
     (cache3 : Cache aig cnf3) (h12 : IsExtensionBy cache1 cache2 new1 hnew1)
     (h23 : IsExtensionBy cache2 cache3 new2 hnew2) : IsExtensionBy cache1 cache3 new1 hnew1 := by
   apply IsExtensionBy.mk
-  . intro idx hidx hmarked
+  · intro idx hidx hmarked
     apply h23.extension
-    . apply h12.extension
-      . exact hmarked
-      . omega
-    . omega
-  . apply h23.extension
-    . exact h12.trueAt
-    . omega
+    · apply h12.extension
+      · exact hmarked
+      · omega
+    · omega
+  · apply h23.extension
+    · exact h12.trueAt
+    · omega
 
 theorem Cache.IsExtensionBy_trans_right (cache1 : Cache aig cnf1) (cache2 : Cache aig cnf2)
     (cache3 : Cache aig cnf3) (h12 : IsExtensionBy cache1 cache2 new1 hnew1)
     (h23 : IsExtensionBy cache2 cache3 new2 hnew2) : IsExtensionBy cache1 cache3 new2 hnew2 := by
   apply IsExtensionBy.mk
-  . intro idx hidx hmarked
+  · intro idx hidx hmarked
     apply h23.extension
-    . apply h12.extension
-      . exact hmarked
-      . omega
-    . omega
-  . exact h23.trueAt
+    · apply h12.extension
+      · exact hmarked
+      · omega
+    · omega
+  · exact h23.trueAt
 
 /--
 Cache extension is a reflexive relation.
@@ -237,17 +237,17 @@ Cache extension is a reflexive relation.
 theorem Cache.IsExtensionBy_rfl (cache : Cache aig cnf) {h} (hmarked : cache.marks[idx]'h = true) :
     Cache.IsExtensionBy cache cache idx (have := cache.hmarks; omega) := by
   apply IsExtensionBy.mk
-  . intros
+  · intros
     assumption
-  . exact hmarked
+  · exact hmarked
 
 theorem Cache.IsExtensionBy_set (cache1 : Cache aig cnf1) (cache2 : Cache aig cnf2) (idx : Nat)
     (hbound : idx < cache1.marks.size) (h : cache2.marks = cache1.marks.set ⟨idx, hbound⟩ true) :
     IsExtensionBy cache1 cache2 idx (by have := cache1.hmarks; omega) := by
   apply IsExtensionBy.mk
-  . intro idx hidx hmark
+  · intro idx hidx hmark
     simp [Array.getElem_set, hmark, h]
-  . simp [h]
+  · simp [h]
 
 /--
 A cache with no entries is valid for an empty CNF.
@@ -274,21 +274,21 @@ def Cache.addConst (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size
       hmarks := by simp [cache.hmarks]
       inv := by
         constructor
-        . intro lhs rhs linv rinv idx hbound hmarked heq
+        · intro lhs rhs linv rinv idx hbound hmarked heq
           rw [Array.getElem_set] at hmarked
           split at hmarked
-          . simp_all
-          . have := cache.inv.hmark lhs rhs linv rinv idx hbound hmarked heq
+          · simp_all
+          · have := cache.inv.hmark lhs rhs linv rinv idx hbound hmarked heq
             simp [Array.getElem_set, this]
-        . intro assign heval idx hbound hmarked
+        · intro assign heval idx hbound hmarked
           rw [Array.getElem_set] at hmarked
           split at hmarked
-          . next heq =>
+          · next heq =>
             dsimp only at heq
             simp only [heq, CNF.eval_append, Decl.constToCNF_eval, Bool.and_eq_true, beq_iff_eq]
               at htip heval
             simp only [denote_idx_const htip, projectRightAssign_property, heval]
-          . next heq =>
+          · next heq =>
             simp only [CNF.eval_append, Decl.constToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
             have := cache.inv.heval assign heval.right idx hbound hmarked
             rw [this]
@@ -312,20 +312,20 @@ def Cache.addAtom (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size)
       hmarks := by simp [cache.hmarks]
       inv := by
         constructor
-        . intro lhs rhs linv rinv idx hbound hmarked heq
+        · intro lhs rhs linv rinv idx hbound hmarked heq
           rw [Array.getElem_set] at hmarked
           split at hmarked
-          . simp_all
-          . have := cache.inv.hmark lhs rhs linv rinv idx hbound hmarked heq
+          · simp_all
+          · have := cache.inv.hmark lhs rhs linv rinv idx hbound hmarked heq
             simp [Array.getElem_set, this]
-        . intro assign heval idx hbound hmarked
+        · intro assign heval idx hbound hmarked
           rw [Array.getElem_set] at hmarked
           split at hmarked
-          . next heq =>
+          · next heq =>
             dsimp only at heq
             simp only [heq, CNF.eval_append, Decl.atomToCNF_eval, Bool.and_eq_true, beq_iff_eq] at htip heval
             simp [heval, denote_idx_atom htip]
-          . next heq =>
+          · next heq =>
             simp only [CNF.eval_append, Decl.atomToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
             have := cache.inv.heval assign heval.right idx hbound hmarked
             rw [this]
@@ -359,28 +359,28 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
       hmarks := by simp [cache.hmarks]
       inv := by
         constructor
-        . intro lhs rhs linv rinv idx hbound hmarked heq
+        · intro lhs rhs linv rinv idx hbound hmarked heq
           rw [Array.getElem_set] at hmarked
           split at hmarked
-          . next heq2 =>
+          · next heq2 =>
             simp only at heq2
             simp only [heq2] at htip
             rw [htip] at heq
             cases heq
             simp [Array.getElem_set, hl, hr]
-          . have := cache.inv.hmark lhs rhs linv rinv idx hbound hmarked heq
+          · have := cache.inv.hmark lhs rhs linv rinv idx hbound hmarked heq
             simp [Array.getElem_set, this]
-        . intro assign heval idx hbound hmarked
+        · intro assign heval idx hbound hmarked
           rw [Array.getElem_set] at hmarked
           split at hmarked
-          . next heq =>
+          · next heq =>
             dsimp only at heq
             simp only [heq, CNF.eval_append, Decl.gateToCNF_eval, Bool.and_eq_true, beq_iff_eq]
               at htip heval
             have hleval := cache.inv.heval assign heval.right lhs (by omega) hl
             have hreval := cache.inv.heval assign heval.right rhs (by omega) hr
             simp only [denote_idx_gate htip, hleval, projectRightAssign_property, hreval, heval]
-          . next heq =>
+          · next heq =>
             simp only [CNF.eval_append, Decl.gateToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
             have := cache.inv.heval assign heval.right idx hbound hmarked
             rw [this]
@@ -480,15 +480,15 @@ theorem State.IsExtensionBy_trans_left (state1 : State aig) (state2 : State aig)
     (state3 : State aig) (h12 : IsExtensionBy state1 state2 new1 hnew1)
     (h23 : IsExtensionBy state2 state3 new2 hnew2) : IsExtensionBy state1 state3 new1 hnew1 := by
   apply  Cache.IsExtensionBy_trans_left
-  . exact h12
-  . exact h23
+  · exact h12
+  · exact h23
 
 theorem State.IsExtensionBy_trans_right (state1 : State aig) (state2 : State aig)
     (state3 : State aig) (h12 : IsExtensionBy state1 state2 new1 hnew1)
     (h23 : IsExtensionBy state2 state3 new2 hnew2) : IsExtensionBy state1 state3 new2 hnew2 := by
   apply  Cache.IsExtensionBy_trans_right
-  . exact h12
-  . exact h23
+  · exact h12
+  · exact h23
 
 /--
 State extension is a reflexive relation.
@@ -607,18 +607,18 @@ where
 
         have : toCNF.State.IsExtensionBy state rstate lhs (by omega) := by
           apply toCNF.State.IsExtensionBy_trans_left
-          . exact hlstate
-          . exact hrstate
+          · exact hlstate
+          · exact hrstate
 
         let ⟨ret, hretstate⟩ := rstate.addGate upper h heq this.trueAt hrstate.trueAt
         ⟨
           ret,
           by
             apply toCNF.State.IsExtensionBy_trans_right
-            . exact hlstate
-            . apply toCNF.State.IsExtensionBy_trans_right
-              . exact hrstate
-              . exact hretstate
+            · exact hlstate
+            · apply toCNF.State.IsExtensionBy_trans_right
+              · exact hrstate
+              · exact hretstate
         ⟩
 
 /--
@@ -706,16 +706,16 @@ An AIG is unsat iff its CNF is unsat.
 theorem toCNF_equisat (entry : Entrypoint Nat) : (toCNF entry).Unsat ↔ entry.Unsat := by
   dsimp only [toCNF]
   rw [CNF.unsat_relabel_iff]
-  . constructor
-    . intro h assign1
+  · constructor
+    · intro h assign1
       apply toCNF.go_as_denote
       specialize h (toCNF.cnfSatAssignment entry.aig assign1)
       simpa using h
-    . intro h assign
+    · intro h assign
       apply toCNF.denote_as_go
       specialize h (toCNF.projectLeftAssign assign)
       assumption
-  . intro a b _ _ hinj
+  · intro a b _ _ hinj
     apply toCNF.inj_is_injection
     assumption
 

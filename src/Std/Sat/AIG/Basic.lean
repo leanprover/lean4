@@ -129,9 +129,9 @@ theorem Cache.get?_property {decls : Array (Decl α)} {idx : Nat} (c : Cache α 
   | push_id wf ih =>
     rw [Array.get_push]
     split
-    . apply ih
+    · apply ih
       simp [hfound]
-    . next hbounds =>
+    · next hbounds =>
       exfalso
       apply hbounds
       specialize ih _ hfound
@@ -141,7 +141,7 @@ theorem Cache.get?_property {decls : Array (Decl α)} {idx : Nat} (c : Cache α 
     rename_i decl'
     rw [Array.get_push]
     split
-    . simp only [HashMap.getElem?_insert] at hfound
+    · simp only [HashMap.getElem?_insert] at hfound
       match heq : decl == decl' with
       | true =>
         simp only [beq_iff_eq] at heq
@@ -150,7 +150,7 @@ theorem Cache.get?_property {decls : Array (Decl α)} {idx : Nat} (c : Cache α 
       | false =>
         apply ih
         simpa [BEq.symm_false heq] using hfound
-    . next hbounds =>
+    · next hbounds =>
       simp only [HashMap.getElem?_insert] at hfound
       match heq : decl == decl' with
       | true =>
@@ -465,8 +465,8 @@ def mkGate (aig : AIG α) (input : GateInput aig) : Entrypoint α :=
     intro i lhs' rhs' linv' rinv' h1 h2
     simp only [Array.get_push] at h2
     split at h2
-    . apply aig.invariant <;> assumption
-    . injections
+    · apply aig.invariant <;> assumption
+    · injections
       have := input.lhs.ref.hgate
       have := input.rhs.ref.hgate
       omega
@@ -484,8 +484,8 @@ def mkAtom (aig : AIG α) (n : α) : Entrypoint α :=
     intro i lhs rhs linv rinv h1 h2
     simp only [Array.get_push] at h2
     split at h2
-    . apply aig.invariant <;> assumption
-    . contradiction
+    · apply aig.invariant <;> assumption
+    · contradiction
   ⟨{ decls, invariant, cache }, ⟨g, by simp [decls]⟩⟩
 
 /--
@@ -500,8 +500,8 @@ def mkConst (aig : AIG α) (val : Bool) : Entrypoint α :=
     intro i lhs rhs linv rinv h1 h2
     simp only [Array.get_push] at h2
     split at h2
-    . apply aig.invariant <;> assumption
-    . contradiction
+    · apply aig.invariant <;> assumption
+    · contradiction
   ⟨{ decls, invariant, cache }, ⟨g, by simp [decls]⟩⟩
 
 end AIG

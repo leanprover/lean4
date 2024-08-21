@@ -104,6 +104,11 @@ structure Config where
   That is, given a local context containing entry `x : t := e`, the free variable `x` reduces to `e`.
   -/
   zetaDelta         : Bool := false
+  /--
+  When `index` (default : `true`) is `false`, `simp` will only use the root symbol
+  to find candidate `simp` theorems. It approximates Lean 3 `simp` behavior.
+  -/
+  index             : Bool := true
   deriving Inhabited, BEq
 
 end DSimp

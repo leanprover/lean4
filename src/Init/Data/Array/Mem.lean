@@ -38,8 +38,8 @@ macro "array_get_dec" : tactic =>
     -- subsumed by simp
     -- | with_reducible apply sizeOf_get
     -- | with_reducible apply sizeOf_getElem
-    | (with_reducible apply Nat.lt_trans (sizeOf_get ..)); simp_arith
-    | (with_reducible apply Nat.lt_trans (sizeOf_getElem ..)); simp_arith
+    | (with_reducible apply Nat.lt_of_lt_of_le (sizeOf_get ..)); simp_arith
+    | (with_reducible apply Nat.lt_of_lt_of_le (sizeOf_getElem ..)); simp_arith
     )
 
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| array_get_dec)
@@ -52,7 +52,7 @@ macro "array_mem_dec" : tactic =>
   `(tactic| first
     | with_reducible apply Array.sizeOf_lt_of_mem; assumption; done
     | with_reducible
-        apply Nat.lt_trans (Array.sizeOf_lt_of_mem ?h)
+        apply Nat.lt_of_lt_of_le (Array.sizeOf_lt_of_mem ?h)
         case' h => assumption
       simp_arith)
 

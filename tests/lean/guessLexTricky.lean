@@ -42,7 +42,6 @@ def prod (x y z : Nat) : Nat :=
 -- termination_by (y, 1, 0)
 decreasing_by
   all_goals
-    simp_wf
     search_lex solve
       | decreasing_trivial
       | apply Nat.bitwise_rec_lemma; assumption
@@ -50,19 +49,13 @@ decreasing_by
 def oprod (x y z : Nat) := eprod x (y - 1) (z + x)
 -- termination_by (y, 0, 1)
 decreasing_by
-  simp_wf
-  try -- the need for `try` here is fishy
-      -- the proof with explicit `termination_by` does not need it, so it should not throw
-      -- GuessLex off, but without `try` it does
-      -- This appeared after #4522, which made Nat.sub_le a simp lemma
-    search_lex solve
-      | decreasing_trivial
-      | apply Nat.bitwise_rec_lemma; assumption
+  search_lex solve
+    | decreasing_trivial
+    | apply Nat.bitwise_rec_lemma; assumption
 
 def eprod (x y z : Nat) := if y = 0 then z else prod (2 * x) (y / 2) z
 -- termination_by (y, 0, 0)
 decreasing_by
-  simp_wf
   search_lex solve
     | decreasing_trivial
     | apply Nat.bitwise_rec_lemma; assumption

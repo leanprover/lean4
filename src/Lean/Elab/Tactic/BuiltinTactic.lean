@@ -518,14 +518,16 @@ where
 @[builtin_tactic «case», builtin_incremental]
 def evalCase : Tactic
   | stx@`(tactic| case $[$tag $hs*]|* =>%$arr $tac:tacticSeq1Indented) =>
-    for tag in tag, hs in hs do
-      let (g, gs) ← getCaseGoals tag
-      let g ← renameInaccessibles g hs
-      setGoals [g]
-      g.setTag Name.anonymous
-      withCaseRef arr tac <| closeUsingOrAdmit <| withTacticInfoContext stx <|
-        Term.withNarrowedArgTacticReuse (argIdx := 3) (evalTactic ·) stx
-      setGoals gs
+    -- disable incrementality if body is run multiple times
+    Term.withoutTacticIncrementality (tag.size > 1) do
+      for tag in tag, hs in hs do
+        let (g, gs) ← getCaseGoals tag
+        let g ← renameInaccessibles g hs
+        setGoals [g]
+        g.setTag Name.anonymous
+        withCaseRef arr tac <| closeUsingOrAdmit <| withTacticInfoContext stx <|
+          Term.withNarrowedArgTacticReuse (argIdx := 3) (evalTactic ·) stx
+        setGoals gs
   | _ => throwUnsupportedSyntax
 
 @[builtin_tactic «case'»] def evalCase' : Tactic

@@ -34,7 +34,7 @@ theorem find?_some : ∀ {l}, find? p l = some a → p a
     · exact H ▸ h
     · exact find?_some H
 
-@[simp] theorem mem_of_find?_eq_some : ∀ {l}, find? p l = some a → a ∈ l
+theorem mem_of_find?_eq_some : ∀ {l}, find? p l = some a → a ∈ l
   | b :: l, H => by
     by_cases h : p b <;> simp [find?, h] at H
     · exact H ▸ .head _

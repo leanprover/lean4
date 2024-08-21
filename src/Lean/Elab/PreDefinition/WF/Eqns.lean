@@ -10,7 +10,6 @@ import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Eqns
 import Lean.Meta.ArgsPacker.Basic
 import Init.Data.Array.Basic
-import Lean.Elab.PreDefinition.Nonrec.Eqns -- imported here to ensure it registers first
 
 namespace Lean.Elab.WF
 open Meta

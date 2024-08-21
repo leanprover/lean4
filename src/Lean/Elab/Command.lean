@@ -51,8 +51,6 @@ structure Scope where
   even if they do not work with binders per se.
   -/
   varDecls      : Array (TSyntax ``Parser.Term.bracketedBinder) := #[]
-  /-- `include`d section variable names -/
-  includedVars  : List Name := []
   /--
   Globally unique internal identifiers for the `varDecls`.
   There is one identifier per variable introduced by the binders
@@ -62,6 +60,10 @@ structure Scope where
   that capture these variables.
   -/
   varUIds       : Array Name := #[]
+  /-- `include`d section variable names (from `varUIds`) -/
+  includedVars  : List Name := []
+  /-- `omit`ted section variable names (from `varUIds`) -/
+  omittedVars  : List Name := []
   /--
   If true (default: false), all declarations that fail to compile
   automatically receive the `noncomputable` modifier.

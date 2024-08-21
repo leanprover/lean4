@@ -29760,7 +29760,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCode
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intent to mutate but define `", 121, 121);
+x_1 = lean_mk_string_unchecked("` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intend to mutate but define `", 121, 121);
 return x_1;
 }
 }

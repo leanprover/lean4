@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 static lean_object* l_Lean_Parsec_ByteArray_Parser_run___rarg___closed__1;
+uint8_t lean_uint8_sub(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Parsec_ByteArray_Parser_run___rarg(lean_object*, lean_object*);
 lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_uint8_of_nat(lean_object*);
@@ -30,6 +31,7 @@ LEAN_EXPORT lean_object* l_Lean_Parsec_ByteArray_instInputIteratorUInt8Nat___lam
 static uint8_t l_Lean_Parsec_ByteArray_hexDigit___closed__5;
 static lean_object* l_Lean_Parsec_ByteArray_instInputIteratorUInt8Nat___closed__3;
 static lean_object* l_Lean_Parsec_ByteArray_take___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Parsec_ByteArray_digits(lean_object*);
 static uint8_t l___private_Lean_Data_Parsec_ByteArray_0__Lean_Parsec_ByteArray_skipWs___closed__4;
 lean_object* l_ByteArray_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parsec_ByteArray_instInputIteratorUInt8Nat___closed__7;
@@ -66,6 +68,7 @@ extern lean_object* l_Std_Format_defWidth;
 static lean_object* l_Lean_Parsec_ByteArray_digit___closed__2;
 static uint8_t l_Lean_Parsec_ByteArray_asciiLetter___closed__3;
 static uint8_t l___private_Lean_Data_Parsec_ByteArray_0__Lean_Parsec_ByteArray_skipWs___closed__3;
+LEAN_EXPORT lean_object* l___private_Lean_Data_Parsec_ByteArray_0__Lean_Parsec_ByteArray_digitsCore_go(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_ByteArray_Parser_run(lean_object*);
 static lean_object* l_Lean_Parsec_ByteArray_hexDigit___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parsec_ByteArray_skipByte(uint8_t, lean_object*);
@@ -75,12 +78,14 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_ByteArray_instInputIteratorUInt8Nat;
 LEAN_EXPORT lean_object* l_Lean_Parsec_ByteArray_hexDigit(lean_object*);
 static lean_object* l_Lean_Parsec_ByteArray_instInputIteratorUInt8Nat___closed__1;
+LEAN_EXPORT lean_object* l___private_Lean_Data_Parsec_ByteArray_0__Lean_Parsec_ByteArray_digitToNat___boxed(lean_object*);
 static uint8_t l___private_Lean_Data_Parsec_ByteArray_0__Lean_Parsec_ByteArray_skipWs___closed__1;
 static lean_object* l_Lean_Parsec_ByteArray_pbyte___closed__2;
 lean_object* lean_string_to_utf8(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_ByteArray_instInputIteratorUInt8Nat___lambda__2(lean_object*);
 static uint8_t l_Lean_Parsec_ByteArray_asciiLetter___closed__2;
 static uint8_t l_Lean_Parsec_ByteArray_hexDigit___closed__4;
+lean_object* lean_nat_mul(lean_object*, lean_object*);
 uint8_t lean_uint8_dec_le(uint8_t, uint8_t);
 lean_object* lean_uint8_to_nat(uint8_t);
 size_t lean_usize_add(size_t, size_t);
@@ -95,8 +100,10 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 static uint8_t l_Lean_Parsec_ByteArray_hexDigit___closed__3;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_ByteArray_digit(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Data_Parsec_ByteArray_0__Lean_Parsec_ByteArray_digitsCore(lean_object*, lean_object*);
 lean_object* lean_byte_array_size(lean_object*);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
+LEAN_EXPORT lean_object* l___private_Lean_Data_Parsec_ByteArray_0__Lean_Parsec_ByteArray_digitToNat(uint8_t);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_forInUnsafe_loop___at_Lean_Parsec_ByteArray_skipBytes___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_ByteArray_instInputIteratorUInt8Nat___lambda__1(lean_object* x_1) {
@@ -1146,6 +1153,237 @@ lean_ctor_set(x_27, 0, x_10);
 lean_ctor_set(x_27, 1, x_26);
 return x_27;
 }
+}
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Data_Parsec_ByteArray_0__Lean_Parsec_ByteArray_digitToNat(uint8_t x_1) {
+_start:
+{
+uint8_t x_2; uint8_t x_3; lean_object* x_4; 
+x_2 = l_Lean_Parsec_ByteArray_digit___closed__1;
+x_3 = lean_uint8_sub(x_1, x_2);
+x_4 = lean_uint8_to_nat(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Data_Parsec_ByteArray_0__Lean_Parsec_ByteArray_digitToNat___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = lean_unbox(x_1);
+lean_dec(x_1);
+x_3 = l___private_Lean_Data_Parsec_ByteArray_0__Lean_Parsec_ByteArray_digitToNat(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Data_Parsec_ByteArray_0__Lean_Parsec_ByteArray_digitsCore_go(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+x_5 = lean_byte_array_size(x_3);
+x_6 = lean_nat_dec_lt(x_4, x_5);
+lean_dec(x_5);
+if (x_6 == 0)
+{
+lean_object* x_7; 
+lean_dec(x_4);
+lean_dec(x_3);
+x_7 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_7, 0, x_2);
+lean_ctor_set(x_7, 1, x_1);
+return x_7;
+}
+else
+{
+uint8_t x_8; uint8_t x_9; uint8_t x_10; 
+x_8 = lean_byte_array_fget(x_3, x_4);
+x_9 = l_Lean_Parsec_ByteArray_digit___closed__1;
+x_10 = lean_uint8_dec_le(x_9, x_8);
+if (x_10 == 0)
+{
+lean_object* x_11; 
+lean_dec(x_4);
+lean_dec(x_3);
+x_11 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_11, 0, x_2);
+lean_ctor_set(x_11, 1, x_1);
+return x_11;
+}
+else
+{
+uint8_t x_12; uint8_t x_13; 
+x_12 = l_Lean_Parsec_ByteArray_digit___closed__3;
+x_13 = lean_uint8_dec_le(x_8, x_12);
+if (x_13 == 0)
+{
+lean_object* x_14; 
+lean_dec(x_4);
+lean_dec(x_3);
+x_14 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_14, 0, x_2);
+lean_ctor_set(x_14, 1, x_1);
+return x_14;
+}
+else
+{
+uint8_t x_15; 
+x_15 = !lean_is_exclusive(x_1);
+if (x_15 == 0)
+{
+lean_object* x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
+x_16 = lean_ctor_get(x_1, 1);
+lean_dec(x_16);
+x_17 = lean_ctor_get(x_1, 0);
+lean_dec(x_17);
+x_18 = lean_uint8_sub(x_8, x_9);
+x_19 = lean_uint8_to_nat(x_18);
+x_20 = lean_unsigned_to_nat(10u);
+x_21 = lean_nat_mul(x_2, x_20);
+lean_dec(x_2);
+x_22 = lean_nat_add(x_21, x_19);
+lean_dec(x_19);
+lean_dec(x_21);
+x_23 = lean_unsigned_to_nat(1u);
+x_24 = lean_nat_add(x_4, x_23);
+lean_dec(x_4);
+lean_ctor_set(x_1, 1, x_24);
+x_2 = x_22;
+goto _start;
+}
+else
+{
+uint8_t x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
+lean_dec(x_1);
+x_26 = lean_uint8_sub(x_8, x_9);
+x_27 = lean_uint8_to_nat(x_26);
+x_28 = lean_unsigned_to_nat(10u);
+x_29 = lean_nat_mul(x_2, x_28);
+lean_dec(x_2);
+x_30 = lean_nat_add(x_29, x_27);
+lean_dec(x_27);
+lean_dec(x_29);
+x_31 = lean_unsigned_to_nat(1u);
+x_32 = lean_nat_add(x_4, x_31);
+lean_dec(x_4);
+x_33 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_33, 0, x_3);
+lean_ctor_set(x_33, 1, x_32);
+x_1 = x_33;
+x_2 = x_30;
+goto _start;
+}
+}
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Data_Parsec_ByteArray_0__Lean_Parsec_ByteArray_digitsCore(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; uint8_t x_4; 
+x_3 = l___private_Lean_Data_Parsec_ByteArray_0__Lean_Parsec_ByteArray_digitsCore_go(x_2, x_1);
+x_4 = !lean_is_exclusive(x_3);
+if (x_4 == 0)
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_ctor_get(x_3, 0);
+x_6 = lean_ctor_get(x_3, 1);
+lean_ctor_set(x_3, 1, x_5);
+lean_ctor_set(x_3, 0, x_6);
+return x_3;
+}
+else
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_7 = lean_ctor_get(x_3, 0);
+x_8 = lean_ctor_get(x_3, 1);
+lean_inc(x_8);
+lean_inc(x_7);
+lean_dec(x_3);
+x_9 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_9, 0, x_8);
+lean_ctor_set(x_9, 1, x_7);
+return x_9;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Parsec_ByteArray_digits(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_2 = lean_ctor_get(x_1, 0);
+lean_inc(x_2);
+x_3 = lean_ctor_get(x_1, 1);
+lean_inc(x_3);
+x_4 = lean_byte_array_size(x_2);
+x_5 = lean_nat_dec_lt(x_3, x_4);
+lean_dec(x_4);
+if (x_5 == 0)
+{
+lean_object* x_6; lean_object* x_7; 
+lean_dec(x_3);
+lean_dec(x_2);
+x_6 = l_Lean_Parsec_unexpectedEndOfInput;
+x_7 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_7, 0, x_1);
+lean_ctor_set(x_7, 1, x_6);
+return x_7;
+}
+else
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; uint8_t x_12; uint8_t x_13; 
+x_8 = lean_unsigned_to_nat(1u);
+x_9 = lean_nat_add(x_3, x_8);
+lean_inc(x_2);
+x_10 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_10, 0, x_2);
+lean_ctor_set(x_10, 1, x_9);
+x_11 = lean_byte_array_fget(x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
+x_12 = l_Lean_Parsec_ByteArray_digit___closed__1;
+x_13 = lean_uint8_dec_le(x_12, x_11);
+if (x_13 == 0)
+{
+lean_object* x_14; lean_object* x_15; 
+lean_dec(x_10);
+x_14 = l_Lean_Parsec_ByteArray_digit___closed__2;
+x_15 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_15, 0, x_1);
+lean_ctor_set(x_15, 1, x_14);
+return x_15;
+}
+else
+{
+uint8_t x_16; uint8_t x_17; 
+x_16 = l_Lean_Parsec_ByteArray_digit___closed__3;
+x_17 = lean_uint8_dec_le(x_11, x_16);
+if (x_17 == 0)
+{
+lean_object* x_18; lean_object* x_19; 
+lean_dec(x_10);
+x_18 = l_Lean_Parsec_ByteArray_digit___closed__2;
+x_19 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_19, 0, x_1);
+lean_ctor_set(x_19, 1, x_18);
+return x_19;
+}
+else
+{
+uint32_t x_20; uint8_t x_21; uint8_t x_22; lean_object* x_23; lean_object* x_24; 
+lean_dec(x_1);
+x_20 = lean_uint8_to_uint32(x_11);
+x_21 = lean_uint32_to_uint8(x_20);
+x_22 = lean_uint8_sub(x_21, x_12);
+x_23 = lean_uint8_to_nat(x_22);
+x_24 = l___private_Lean_Data_Parsec_ByteArray_0__Lean_Parsec_ByteArray_digitsCore(x_23, x_10);
+return x_24;
 }
 }
 }

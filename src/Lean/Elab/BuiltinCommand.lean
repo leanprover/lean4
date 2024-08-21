@@ -551,9 +551,9 @@ def elabRunMeta : CommandElab := fun stx =>
             omitsUsed := omitsUsed.set! idx true
           else
             throwError "invalid 'omit', '{ldecl.userName}' has not been declared in the current scope"
-      for omit in omits, used in omitsUsed do
+      for o in omits, used in omitsUsed do
         unless used do
-          throwError "'{omit}' did not match any variables in the current scope"
+          throwError "'{o}' did not match any variables in the current scope"
       return omittedVars
     modifyScope fun sc => { sc with
       omittedVars := sc.omittedVars ++ omittedVars.toList

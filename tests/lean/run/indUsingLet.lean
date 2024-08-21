@@ -12,3 +12,9 @@ example (n : Nat) : n = n := by
   case zero => rfl
   case succ n _h _m _IH =>
     rfl
+
+example (n : Nat) : n = n := by
+  induction n using some_induction with
+  | zero => rfl
+  | succ n _h _m _IH =>
+    rfl

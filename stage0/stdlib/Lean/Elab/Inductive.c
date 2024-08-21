@@ -34006,7 +34006,7 @@ return x_1;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; lean_object* x_24; lean_object* x_25; 
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; uint8_t x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; lean_object* x_25; lean_object* x_26; 
 x_10 = lean_ctor_get(x_1, 0);
 x_11 = lean_ctor_get(x_1, 1);
 x_12 = lean_ctor_get(x_1, 2);
@@ -34015,7 +34015,9 @@ x_14 = lean_ctor_get(x_1, 4);
 x_15 = lean_ctor_get(x_1, 5);
 x_16 = lean_ctor_get(x_1, 6);
 x_17 = lean_ctor_get(x_1, 7);
-x_18 = lean_ctor_get_uint8(x_1, sizeof(void*)*8);
+x_18 = lean_ctor_get(x_1, 8);
+x_19 = lean_ctor_get_uint8(x_1, sizeof(void*)*9);
+lean_inc(x_18);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -34025,23 +34027,24 @@ lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_dec(x_1);
-x_19 = l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_applyComputedFields___lambda__1___closed__2;
-x_20 = 0;
-x_21 = l_Lean_KVMap_setBool(x_11, x_19, x_20);
-x_22 = l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_applyComputedFields___lambda__1___closed__4;
-x_23 = 1;
-x_24 = l_Lean_KVMap_setBool(x_21, x_22, x_23);
-x_25 = lean_alloc_ctor(0, 8, 1);
-lean_ctor_set(x_25, 0, x_10);
-lean_ctor_set(x_25, 1, x_24);
-lean_ctor_set(x_25, 2, x_12);
-lean_ctor_set(x_25, 3, x_13);
-lean_ctor_set(x_25, 4, x_14);
-lean_ctor_set(x_25, 5, x_15);
-lean_ctor_set(x_25, 6, x_16);
-lean_ctor_set(x_25, 7, x_17);
-lean_ctor_set_uint8(x_25, sizeof(void*)*8, x_18);
-return x_25;
+x_20 = l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_applyComputedFields___lambda__1___closed__2;
+x_21 = 0;
+x_22 = l_Lean_KVMap_setBool(x_11, x_20, x_21);
+x_23 = l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_applyComputedFields___lambda__1___closed__4;
+x_24 = 1;
+x_25 = l_Lean_KVMap_setBool(x_22, x_23, x_24);
+x_26 = lean_alloc_ctor(0, 9, 1);
+lean_ctor_set(x_26, 0, x_10);
+lean_ctor_set(x_26, 1, x_25);
+lean_ctor_set(x_26, 2, x_12);
+lean_ctor_set(x_26, 3, x_13);
+lean_ctor_set(x_26, 4, x_14);
+lean_ctor_set(x_26, 5, x_15);
+lean_ctor_set(x_26, 6, x_16);
+lean_ctor_set(x_26, 7, x_17);
+lean_ctor_set(x_26, 8, x_18);
+lean_ctor_set_uint8(x_26, sizeof(void*)*9, x_19);
+return x_26;
 }
 }
 }

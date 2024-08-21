@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.BVDecide.LRAT.Trim
-// Imports: Lean.Elab.Tactic.BVDecide.LRAT.Actions Lean.Data.RBMap Std.Data.HashMap
+// Imports: Lean.Data.RBMap Std.Tactic.BVDecide.LRAT.Actions Std.Data.HashMap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -95,7 +95,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_run___rarg___bo
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_mapStep___spec__1(size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_getInitialId(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_registerIdMap(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_instInhabitedAction(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_getProofStep___spec__1(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -138,6 +137,7 @@ LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Elab_Ta
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_mapStep(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_run___spec__6(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Tactic_BVDecide_LRAT_instInhabitedAction(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_LRAT_trim_State_used___default() {
 _start:
 {
@@ -6249,7 +6249,7 @@ static lean_object* _init_l_panic___at_Lean_Elab_Tactic_BVDecide_LRAT_trim_mappi
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_Tactic_BVDecide_LRAT_instInhabitedAction(lean_box(0), lean_box(0));
+x_1 = l_Std_Tactic_BVDecide_LRAT_instInhabitedAction(lean_box(0), lean_box(0));
 return x_1;
 }
 }
@@ -6853,18 +6853,18 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Lean_Elab_Tactic_BVDecide_LRAT_Actions(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_RBMap(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Tactic_BVDecide_LRAT_Actions(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_HashMap(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_BVDecide_LRAT_Trim(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_Tactic_BVDecide_LRAT_Actions(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_RBMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_RBMap(builtin, lean_io_mk_world());
+res = initialize_Std_Tactic_BVDecide_LRAT_Actions(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_HashMap(builtin, lean_io_mk_world());

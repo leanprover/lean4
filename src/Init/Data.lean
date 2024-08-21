@@ -37,3 +37,5 @@ import Init.Data.Cast
 import Init.Data.Sum
 import Init.Data.BEq
 import Init.Data.Subtype
+import Init.Data.ULift
+import Init.Data.PLift

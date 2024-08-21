@@ -376,7 +376,7 @@ jobs:
           fi
           # contortion to support empty OPTIONS with old macOS bash
           cmake .. --preset ${{ matrix.CMAKE_PRESET || 'release' }} -B . ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
-          time make -j$NPROC cadical
+          [ -n "${CADICAL_BIN_DEPLOY}" ] || time make -j$NPROC cadical
           time make -j$NPROC
       - name: Install
         run: |

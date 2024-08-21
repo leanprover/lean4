@@ -4,11 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
 prelude
-import Lean.Data.Parsec.Basic
+import Std.Internal.Parsec.Basic
 import Init.Data.ByteArray.Basic
 import Init.Data.String.Extra
 
-namespace Lean
+namespace Std.Internal
 namespace Parsec
 namespace ByteArray
 
@@ -129,4 +129,4 @@ def take (n : Nat) : Parser ByteArray := fun it =>
 
 end ByteArray
 end Parsec
-end Lean
+end Std.Internal

@@ -6,7 +6,7 @@ Authors: Henrik Böving
 prelude
 import Lean.Elab.Tactic.BVDecide.LRAT.Parser
 import Lean.CoreM
-import Lean.Data.Parsec
+import Std.Internal.Parsec
 
 /-!
 This module implements the logic to call CaDiCal (or CLI interface compatible SAT solvers) and
@@ -32,14 +32,14 @@ inductive SolverResult where
 
 namespace ModelParser
 
-open Lean.Parsec
-open Lean.Parsec.ByteArray
+open Std.Internal.Parsec
+open Std.Internal.Parsec.ByteArray
 
 def parsePartialAssignment : Parser (Bool × (Array (Bool × Nat))) := do
   skipByteChar 'v'
   let idents ← many (attempt wsLit)
   let idents := idents.map (fun i => if i > 0 then (true, i.natAbs) else (false, i.natAbs))
-  Parsec.tryCatch
+  tryCatch
     (skipString " 0")
     (csuccess := fun _ => pure (true, idents))
     (cerror := fun _ => do

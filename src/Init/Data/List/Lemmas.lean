@@ -858,10 +858,13 @@ theorem get_cons_length (x : α) (xs : List α) (n : Nat) (h : n = xs.length) :
 
 /-! ### getLast? -/
 
-theorem getLast?_cons : @getLast? α (a::l) = getLastD l a := by
-  simp only [getLast?, getLast_eq_getLastD]
-
 @[simp] theorem getLast?_singleton (a : α) : getLast? [a] = a := rfl
+
+theorem getLast?_cons {a : α} : (a::l).getLast? = l.getLast?.getD a := by
+  cases l <;> simp [getLast?, getLast]
+
+@[simp] theorem getLast?_cons_cons : (a :: b :: l).getLast? = (b :: l).getLast? := by
+  simp [getLast?_cons]
 
 theorem getLast?_eq_getLast : ∀ l h, @getLast? α l = some (getLast l h)
   | [], h => nomatch h rfl

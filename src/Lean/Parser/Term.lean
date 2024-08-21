@@ -145,7 +145,7 @@ def optSemicolon (p : Parser) : Parser :=
 /-- Parses a "synthetic hole", that is, `?foo` or `?_`.
 This syntax is used to construct named metavariables. -/
 @[builtin_term_parser] def syntheticHole := leading_parser
-  "?" >> (ident <|> hole)
+  "?" >> (ident <|> "_")
 /--
 The `⋯` term denotes a term that was omitted by the pretty printer.
 The presence of `⋯` in pretty printer output is controlled by the `pp.deepTerms` and `pp.proofs` options,

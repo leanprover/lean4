@@ -210,7 +210,7 @@ theorem mergeSortTR₂_run'_eq_mergeSort : {n : Nat} → (l : { l : List α // l
     | nil => simp at w'
     | cons x l' =>
       cases l' with
-      | nil => simp at w'; omega
+      | nil => simp at w'
       | cons y l' =>
         rw [mergeSort]
         congr 2

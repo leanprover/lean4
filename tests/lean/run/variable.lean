@@ -33,9 +33,10 @@ theorem t5 (a : α) : a = a := _
 /-! Accidentally included variables should be warned for. -/
 variable {α : Type} [ToString α] in
 /--
-warning: included section variable
+warning: automatically included section variable(s) unused in theorem 't6':
   [ToString α]
-is unused in theorem, consider restructuring your `variable`/`include` declarations or `omit`ting it
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [ToString α] in theorem ...
 note: this linter can be disabled with `set_option linter.unusedSectionVars false`
 -/
 #guard_msgs in
@@ -51,9 +52,10 @@ variable {M N : Type} (r : N → N → Prop)
 class IsTrans (N : Type) (r : N → N → Prop) : Prop
 variable [IsTrans N r] {a b c d : N}
 /--
-warning: included section variable
+warning: automatically included section variable(s) unused in theorem 'act_rel_of_rel_of_act_rel':
   [IsTrans N r]
-is unused in theorem, consider restructuring your `variable`/`include` declarations or `omit`ting it
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [IsTrans N r] in theorem ...
 note: this linter can be disabled with `set_option linter.unusedSectionVars false`
 -/
 #guard_msgs in

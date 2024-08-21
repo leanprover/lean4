@@ -405,18 +405,24 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
         let val ← instantiateMVarsProfiling val
         let val ← mkLambdaFVars xs val
         if linter.unusedSectionVars.get (← getOptions) && !header.type.hasSorry && !val.hasSorry then
-          for var in vars do
-            unless header.type.containsFVar var.fvarId! ||
-                val.containsFVar var.fvarId! ||
-                (← vars.anyM (fun v => return (← v.fvarId!.getType).containsFVar var.fvarId!)) do
-              let varDecl ← var.fvarId!.getDecl
-              let var := if varDecl.userName.hasMacroScopes && varDecl.binderInfo.isInstImplicit then
-                m!"{indentD m!"[{varDecl.type}]"}{Format.line}".group
+          let unusedVars ← vars.filterMapM fun var => do
+            let varDecl ← var.fvarId!.getDecl
+            return if includedVars.contains varDecl.userName ||
+                header.type.containsFVar var.fvarId! || val.containsFVar var.fvarId! ||
+                (← vars.anyM (fun v => return (← v.fvarId!.getType).containsFVar var.fvarId!)) then
+              none
+            else
+              if varDecl.userName.hasMacroScopes && varDecl.binderInfo.isInstImplicit then
+                some m!"[{varDecl.type}]"
               else
-                m!" '{var}' "
-              Linter.logLint linter.unusedSectionVars header.ref
-                m!"included section variable{var}is unused in theorem, consider restructuring \
-                  your `variable`/`include` declarations or `omit`ting it"
+                some m!"{var}"
+          if unusedVars.size > 0 then
+            Linter.logLint linter.unusedSectionVars header.ref
+              m!"automatically included section variable(s) unused in theorem '{header.declName}':\
+              \n  {MessageData.joinSep unusedVars.toList "\n  "}\
+              \nconsider restructuring your `variable` declarations so that the variables are not \
+                in scope or explicitly omit them:\
+              \n  omit {MessageData.joinSep unusedVars.toList " "} in theorem ..."
         return val
     if let some snap := header.bodySnap? then
       snap.new.resolve <| some {

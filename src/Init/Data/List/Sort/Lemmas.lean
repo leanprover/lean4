@@ -215,6 +215,10 @@ theorem merge_perm_append : ∀ {xs ys : List α}, merge le xs ys ~ xs ++ ys
 
 /-! ### mergeSort -/
 
+@[simp] theorem mergeSort_nil : [].mergeSort r = [] := by rw [List.mergeSort]
+
+@[simp] theorem mergeSort_singleton (a : α) : [a].mergeSort r = [a] := by rw [List.mergeSort]
+
 variable (le) in
 theorem mergeSort_perm : ∀ (l : List α), mergeSort le l ~ l
   | [] => by simp [mergeSort]
@@ -227,6 +231,9 @@ theorem mergeSort_perm : ∀ (l : List α), mergeSort le l ~ l
       (((mergeSort_perm _).append (mergeSort_perm _)).trans
         (Perm.of_eq (splitInTwo_fst_append_splitInTwo_snd _)))
 termination_by l => l.length
+
+@[simp] theorem mergeSort_length (l : List α) : (mergeSort le l).length = l.length :=
+  (mergeSort_perm le l).length_eq
 
 @[simp] theorem mem_mergeSort {a : α} {l : List α} : a ∈ mergeSort le l ↔ a ∈ l :=
   (mergeSort_perm le l).mem_iff

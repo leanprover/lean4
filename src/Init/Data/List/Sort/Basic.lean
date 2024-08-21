@@ -30,8 +30,8 @@ def merge (le : α → α → Bool) : List α → List α → List α
     else
       y :: merge le (x :: xs) ys
 
-@[simp] theorem merge_nil_left (ys : List α) : merge le [] ys = ys := by simp [merge]
-@[simp] theorem merge_nil_right (xs : List α) : merge le xs [] = xs := by
+@[simp] theorem nil_merge (ys : List α) : merge le [] ys = ys := by simp [merge]
+@[simp] theorem merge_right (xs : List α) : merge le xs [] = xs := by
   induction xs with
   | nil => simp [merge]
   | cons x xs ih => simp [merge, ih]

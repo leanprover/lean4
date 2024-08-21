@@ -30,24 +30,26 @@ if(NOT (DEFINED STAGE0_CMAKE_EXECUTABLE_SUFFIX))
     set(STAGE0_CMAKE_EXECUTABLE_SUFFIX "${CMAKE_EXECUTABLE_SUFFIX}")
 endif()
 
-if(NOT ${CADICAL_BIN_DEPLOY})
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  string(APPEND CADICAL_CXXFLAGS " -DNUNLOCKED")
+# On CI Linux, we source cadical from Nix instead; see flake.nix
+if(NOT DEFINED CADICAL_BIN_DEPLOY)
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    string(APPEND CADICAL_CXXFLAGS " -DNUNLOCKED")
+  endif()
+  # cadical is an optional build target; stage1 will pick up the executable if it has been built
+  # beforehand
+  ExternalProject_add(cadical
+    PREFIX cadical
+    GIT_REPOSITORY https://github.com/arminbiere/cadical
+    GIT_TAG rel-1.9.5
+    CONFIGURE_COMMAND ""
+    # https://github.com/arminbiere/cadical/blob/master/BUILD.md#manual-build
+    BUILD_COMMAND $(MAKE) -f ${CMAKE_SOURCE_DIR}/src/cadical.mk CMAKE_EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX} CXXFLAGS=${CADICAL_CXXFLAGS}
+    BUILD_IN_SOURCE ON
+    INSTALL_COMMAND ""
+  )
+  set(CADICAL_BIN_DEPLOY ${CMAKE_BINARY_DIR}/cadical)
 endif()
-# cadical is an optional build target; stage1 will pick up the executable if it has been built
-# beforehand
-ExternalProject_add(cadical
-  PREFIX cadical
-  GIT_REPOSITORY https://github.com/arminbiere/cadical
-  GIT_TAG rel-1.9.5
-  CONFIGURE_COMMAND ""
-  # https://github.com/arminbiere/cadical/blob/master/BUILD.md#manual-build
-  BUILD_COMMAND $(MAKE) -f ${CMAKE_SOURCE_DIR}/src/cadical.mk CMAKE_EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX} CXXFLAGS=${CADICAL_CXXFLAGS}
-  BUILD_IN_SOURCE ON
-  INSTALL_COMMAND ""
-)
-set(CADICAL_BIN_DEPLOY ${CMAKE_BINARY_DIR}/cadical)
-endif()
+
 ExternalProject_add(stage0
   SOURCE_DIR "${LEAN_SOURCE_DIR}/stage0"
   SOURCE_SUBDIR src

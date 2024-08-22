@@ -42,7 +42,7 @@ theorem exists_of_findSome?_eq_some {l : List α} {f : α → Option β} (w : l.
     (l.findSome? f).map g = l.findSome? (Option.map g ∘ f) := by
   induction l <;> simp [findSome?_cons]; split <;> simp [*]
 
-@[simp] theorem findSome?_map (f : β → γ) (l : List β) : findSome? p (l.map f) = l.findSome? (p ∘ f) := by
+theorem findSome?_map (f : β → γ) (l : List β) : findSome? p (l.map f) = l.findSome? (p ∘ f) := by
   induction l with
   | nil => simp
   | cons x xs ih =>
@@ -238,7 +238,7 @@ theorem find?_join_eq_none (xs : List (List α)) (p : α → Bool) :
 
 @[simp] theorem find?_bind (xs : List α) (f : α → List β) (p : β → Bool) :
     (xs.bind f).find? p = xs.findSome? (fun x => (f x).find? p) := by
-  simp [bind_def]; rfl
+  simp [bind_def, findSome?_map]; rfl
 
 theorem find?_replicate : find? p (replicate n a) = if n = 0 then none else if p a then some a else none := by
   cases n
@@ -633,7 +633,7 @@ theorem findIdx?_eq_enum_findSome? {xs : List α} {p : α → Bool} :
     split
     · simp_all
     · simp_all only [enumFrom_cons, ite_false, Option.isNone_none, findSome?_cons_of_isNone]
-      simp [Function.comp_def, ← map_fst_add_enum_eq_enumFrom]
+      simp [Function.comp_def, ← map_fst_add_enum_eq_enumFrom, findSome?_map]
 
 theorem Sublist.findIdx?_isSome {l₁ l₂ : List α} (h : l₁ <+ l₂) :
     (l₁.findIdx? p).isSome → (l₂.findIdx? p).isSome := by

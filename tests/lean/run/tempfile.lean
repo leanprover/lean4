@@ -4,9 +4,7 @@ def test : IO Unit := do
   handle.putStr toWrite
   let handle2 ← IO.FS.Handle.mk path .read
   let content ← handle2.getLine
-  IO.println (content == toWrite)
+  assert! (content == toWrite)
+  IO.FS.removeFile path
 
-
-/-- info: true -/
-#guard_msgs in
 #eval test

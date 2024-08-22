@@ -831,20 +831,41 @@ extern "C" LEAN_EXPORT obj_res lean_io_rename(b_obj_arg from, b_obj_arg to, lean
 /* createTempFile : IO (Handle × FilePath) */
 extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile(lean_object * /* w */) {
     char path[PATH_MAX];
+    const char* file_pattern = "tmp.XXXXXXXX";
+    const int file_pattern_size = strlen(file_pattern);
 #if defined(LEAN_WINDOWS)
     // https://learn.microsoft.com/en-us/windows/win32/fileio/creating-and-using-a-temporary-file
     DWORD retval = GetTempPath(MAX_PATH, path);
     if (retval > MAX_PATH || (retval == 0)) {
         return io_result_mk_error((sstream() << GetLastError()).str());
     }
+    // On Windows we have a guarantee that GetTempPath ends on a \.
     // If the temp dir is so long that we can't put files into it something is seriously wrong.
-    const char* file_pattern = "tmp.XXXXXXXX";
-    const int file_pattern_size = strlen(file_pattern);
-    lean_always_assert(PATH_MAX >= strlen(path) + strnlen(file_pattern, file_pattern_size) + 1);
-    strncat(path, file_pattern, file_pattern_size);
+    lean_always_assert(PATH_MAX >= strlen(path) + file_pattern_size + 1);
+    strcat(path, file_pattern);
 #else
-    const char* path_template = "/tmp/tmp.XXXXXXXX";
-    strcpy(path, path_template);
+    char* tmpdir = getenv("TMPDIR");
+    if (tmpdir == NULL) {
+        const char* path_template = "/tmp/tmp.XXXXXXXX";
+        strcpy(path, path_template);
+    } else {
+        strcpy(path, tmpdir);
+        int base_len = strlen(path);
+        if (base_len == 0) {
+            lean_io_result_mk_error(lean_decode_io_error(ENOENT, mk_string("")));
+        }
+        // No guarantee that we have a trailing / in TMPDIR.
+        if (path[base_len - 1] != '/') {
+            // If the temp dir is so long that we can't put files into it something is seriously wrong.
+            lean_always_assert(PATH_MAX >= strlen(path) + 1 + file_pattern_size + 1);
+            strcat(path, "/");
+            strcat(path, file_pattern);
+        } else {
+            // If the temp dir is so long that we can't put files into it something is seriously wrong.
+            lean_always_assert(PATH_MAX >= strlen(path) + file_pattern_size + 1);
+            strcat(path, file_pattern);
+        }
+    }
 #endif
 
     int fd = mkstemp(path);

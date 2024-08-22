@@ -950,13 +950,14 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile(lean_object * /* w */) {
     lean_always_assert(PATH_MAX >= strlen(path) + file_pattern_size + 1);
     strcat(path, file_pattern);
 
-    int fd = mkstemp(path);
-    if (fd == -1) {
+    uv_fs_t req;
+    ret = uv_fs_mkstemp(NULL, &req, path, NULL);
+    if (ret < 0) {
         // If mkstemp throws an error we cannot rely on path to contain a proper file name.
-        return io_result_mk_error(decode_io_error(errno, nullptr));
+        return io_result_mk_error(decode_uv_error(ret, nullptr));
     } else {
-        FILE* handle = fdopen(fd, "r+");
-        object_ref pair = mk_cnstr(0, io_wrap_handle(handle), mk_string(path));
+        FILE* handle = fdopen(req.result, "r+");
+        object_ref pair = mk_cnstr(0, io_wrap_handle(handle), mk_string(req.path));
         return lean_io_result_mk_ok(pair.steal());
     }
 }

@@ -32,7 +32,7 @@ endif()
 
 # On CI Linux, we source cadical from Nix instead; see flake.nix
 find_program(CADICAL cadical)
-if(NOT DEFINED CADICAL)
+if(NOT CADICAL)
   if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     string(APPEND CADICAL_CXXFLAGS " -DNUNLOCKED")
   endif()

@@ -17,10 +17,10 @@
       # An old nixpkgs for creating releases with an old glibc
       pkgsDist-old-aarch = import nixpkgs-old { localSystem.config = "aarch64-unknown-linux-gnu"; };
       pkgsCadical = import inputs.nixpkgs-cadical { inherit system; };
-      cadical = if pkgs.stdenv.isLinux then 
+      cadical = if pkgs.stdenv.isLinux then
         # use statically-linked cadical on Linux to avoid glibc versioning troubles
-        "${pkgsCadical.pkgsStatic.cadical.override { doCheck = false; }}/bin/cadical"
-      else "${pkgsCadical.cadical}/bin/cadical";
+        pkgsCadical.pkgsStatic.cadical.overrideAttrs { doCheck = false; }
+      else pkgsCadical.cadical;
 
       lean-packages = pkgs.callPackage (./nix/packages.nix) { src = ./.; };
 

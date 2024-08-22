@@ -31,7 +31,7 @@ if(NOT (DEFINED STAGE0_CMAKE_EXECUTABLE_SUFFIX))
 endif()
 
 # On CI Linux, we source cadical from Nix instead; see flake.nix
-find_program(CADICAL cadical)
+#find_program(CADICAL cadical)
 if(NOT CADICAL)
   if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     string(APPEND CADICAL_CXXFLAGS " -DNUNLOCKED")
@@ -46,7 +46,7 @@ if(NOT CADICAL)
     BUILD_IN_SOURCE ON
     INSTALL_COMMAND "")
   set(CADICAL ${CMAKE_BINARY_DIR}/cadical/cadical${CMAKE_EXECUTABLE_SUFFIX} CACHE FILEPATH "path to cadical binary")
-  string(APPEND EXTRA_DEPENDS " cadical")
+  set(EXTRA_DEPENDS "cadical")
 endif()
 list(APPEND CL_ARGS -DCADICAL=${CADICAL})
 

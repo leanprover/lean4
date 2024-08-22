@@ -236,9 +236,53 @@ theorem find?_join_eq_none (xs : List (List α)) (p : α → Bool) :
     xs.join.find? p = none ↔ ∀ ys ∈ xs, ∀ x ∈ ys, !p x := by
   simp
 
+/--
+If `find? p` returns `some a` from `xs.join`, then `p a` holds, and
+some list in `xs` contains `a`, and no earlier element of that list satisfies `p`.
+Moreover, no earlier list in `xs` has an element satisfying `p`.
+-/
+theorem find?_join_eq_some (xs : List (List α)) (p : α → Bool) (a : α) :
+    xs.join.find? p = some a ↔
+      p a ∧ ∃ as ys zs bs, xs = as ++ (ys ++ a :: zs) :: bs ∧
+        (∀ a ∈ as, ∀ x ∈ a, !p x) ∧ (∀ x ∈ ys, !p x) := by
+  rw [find?_eq_some]
+  constructor
+  · rintro ⟨h, ⟨ys, zs, h₁, h₂⟩⟩
+    refine ⟨h, ?_⟩
+    rw [join_eq_append] at h₁
+    obtain (⟨as, bs, rfl, rfl, h₁⟩ | ⟨as, bs, c, cs, ds, rfl, rfl, h₁⟩) := h₁
+    · replace h₁ := h₁.symm
+      rw [join_eq_cons] at h₁
+      obtain ⟨bs, cs, ds, rfl, h₁, rfl⟩ := h₁
+      refine ⟨as ++ bs, [], cs, ds, by simp, ?_⟩
+      simp
+      rintro a (ma | mb) x m
+      · simpa using h₂ x (by simpa using ⟨a, ma, m⟩)
+      · specialize h₁ _ mb
+        simp_all
+    · simp [h₁]
+      refine ⟨as, bs, ?_⟩
+      refine ⟨?_, ?_, ?_⟩
+      · simp_all
+      · intro l ml a m
+        simpa using h₂ a (by simpa using .inl ⟨l, ml, m⟩)
+      · intro x m
+        simpa using h₂ x (by simpa using .inr m)
+  · rintro ⟨h, ⟨as, ys, zs, bs, rfl, h₁, h₂⟩⟩
+    refine ⟨h, as.join ++ ys, zs ++ bs.join, by simp, ?_⟩
+    intro a m
+    simp at m
+    obtain ⟨l, ml, m⟩ | m := m
+    · exact h₁ l ml a m
+    · exact h₂ a m
+
 @[simp] theorem find?_bind (xs : List α) (f : α → List β) (p : β → Bool) :
     (xs.bind f).find? p = xs.findSome? (fun x => (f x).find? p) := by
   simp [bind_def]; rfl
+
+theorem find?_bind_eq_none (xs : List α) (f : α → List β) (p : β → Bool) :
+    (xs.bind f).find? p = none ↔ ∀ x ∈ xs, ∀ y ∈ f x, !p y := by
+  simp
 
 theorem find?_replicate : find? p (replicate n a) = if n = 0 then none else if p a then some a else none := by
   cases n

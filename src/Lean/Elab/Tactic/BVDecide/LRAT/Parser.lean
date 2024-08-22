@@ -5,8 +5,8 @@ Authors: Henrik Böving
 -/
 prelude
 import Init.System.IO
-import Lean.Elab.Tactic.BVDecide.LRAT.Actions
-import Lean.Data.Parsec
+import Std.Tactic.BVDecide.LRAT.Actions
+import Std.Internal.Parsec
 
 /-!
 This module implements parsers and serializers for both the binary and non-binary LRAT format.
@@ -14,11 +14,11 @@ This module implements parsers and serializers for both the binary and non-binar
 
 namespace Lean.Elab.Tactic.BVDecide
 
+open Std.Sat
+open Std.Tactic.BVDecide.LRAT (IntAction)
+
 namespace LRAT
 namespace Parser
-
-open Std.Sat
-open Lean.Elab.Tactic.BVDecide.LRAT (IntAction)
 
 private def getPivot (clause : Array Int) : Literal Nat :=
   let pivotInt := clause[0]!
@@ -28,8 +28,8 @@ private def getPivot (clause : Array Int) : Literal Nat :=
     (pivotInt.natAbs, false)
 
 
-open Lean.Parsec
-open Lean.Parsec.ByteArray
+open Std.Internal.Parsec
+open Std.Internal.Parsec.ByteArray
 
 namespace Text
 

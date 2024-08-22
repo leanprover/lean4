@@ -838,7 +838,7 @@ theorem getLast_eq_getLastD (a l h) : @getLast α (a::l) h = getLastD l a := by
 theorem getLast!_cons [Inhabited α] : @getLast! α _ (a::l) = getLastD l a := by
   simp [getLast!, getLast_eq_getLastD]
 
-theorem getLast_mem : ∀ {l : List α} (h : l ≠ []), getLast l h ∈ l
+@[simp] theorem getLast_mem : ∀ {l : List α} (h : l ≠ []), getLast l h ∈ l
   | [], h => absurd rfl h
   | [_], _ => .head ..
   | _::a::l, _ => .tail _ <| getLast_mem (cons_ne_nil a l)
@@ -858,10 +858,13 @@ theorem get_cons_length (x : α) (xs : List α) (n : Nat) (h : n = xs.length) :
 
 /-! ### getLast? -/
 
-theorem getLast?_cons : @getLast? α (a::l) = getLastD l a := by
-  simp only [getLast?, getLast_eq_getLastD]
-
 @[simp] theorem getLast?_singleton (a : α) : getLast? [a] = a := rfl
+
+theorem getLast?_cons {a : α} : (a::l).getLast? = l.getLast?.getD a := by
+  cases l <;> simp [getLast?, getLast]
+
+@[simp] theorem getLast?_cons_cons : (a :: b :: l).getLast? = (b :: l).getLast? := by
+  simp [getLast?_cons]
 
 theorem getLast?_eq_getLast : ∀ l h, @getLast? α l = some (getLast l h)
   | [], h => nomatch h rfl
@@ -1116,7 +1119,7 @@ theorem filter_length_eq_length {l} : (filter p l).length = l.length ↔ ∀ a �
     · simp_all [or_and_left]
     · simp_all [or_and_right]
 
-theorem filter_eq_nil {l} : filter p l = [] ↔ ∀ a, a ∈ l → ¬p a := by
+@[simp] theorem filter_eq_nil {l} : filter p l = [] ↔ ∀ a, a ∈ l → ¬p a := by
   simp only [eq_nil_iff_forall_not_mem, mem_filter, not_and]
 
 theorem forall_mem_filter {l : List α} {p : α → Bool} {P : α → Prop} :
@@ -1303,7 +1306,7 @@ theorem forall_none_of_filterMap_eq_nil (h : filterMap f xs = []) : ∀ x ∈ xs
       | tail _ hmem => exact ih h hmem
     · contradiction
 
-theorem filterMap_eq_nil {l} : filterMap f l = [] ↔ ∀ a ∈ l, f a = none := by
+@[simp] theorem filterMap_eq_nil {l} : filterMap f l = [] ↔ ∀ a ∈ l, f a = none := by
   constructor
   · exact forall_none_of_filterMap_eq_nil
   · intro h
@@ -1974,9 +1977,9 @@ theorem append_eq_replicate {l₁ l₂ : List α} {a : α} :
   split <;> simp
 
 theorem filter_replicate : (replicate n a).filter p = if p a then replicate n a else [] := by
-  induction n with
+  cases n with
   | zero => simp
-  | succ n ih =>
+  | succ n =>
     simp only [replicate_succ, filter_cons]
     split <;> simp_all
 
@@ -2148,7 +2151,7 @@ theorem reverse_bind {β} (l : List α) (f : α → List β) : (l.bind f).revers
 theorem bind_reverse {β} (l : List α) (f : α → List β) : (l.reverse.bind f) = (l.bind (reverse ∘ f)).reverse := by
   induction l <;> simp_all
 
-theorem reverseAux_eq (as bs : List α) : reverseAux as bs = reverse as ++ bs :=
+@[simp] theorem reverseAux_eq (as bs : List α) : reverseAux as bs = reverse as ++ bs :=
   reverseAux_eq_append ..
 
 @[simp] theorem foldrM_reverse [Monad m] (l : List α) (f : α → β → m β) (b) :

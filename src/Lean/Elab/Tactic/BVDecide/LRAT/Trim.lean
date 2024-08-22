@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
 prelude
-import Lean.Elab.Tactic.BVDecide.LRAT.Actions
 import Lean.Data.RBMap
+import Std.Tactic.BVDecide.LRAT.Actions
 import Std.Data.HashMap
 
 /-!
@@ -18,6 +18,7 @@ namespace Lean.Elab.Tactic.BVDecide
 namespace LRAT
 
 open Lean (RBMap)
+open Std.Tactic.BVDecide.LRAT (IntAction)
 
 namespace trim
 

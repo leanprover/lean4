@@ -426,18 +426,15 @@ theorem c_without_negPivot_of_performRatCheck_success {n : Nat} (f : DefaultForm
   simp only [performRatCheck, hc, Bool.or_eq_true, Bool.not_eq_true'] at performRatCheck_success
   split at performRatCheck_success
   · next h =>
-    exact sat_of_insertRat f hf (DefaultClause.delete c negPivot) p pf h
+    exact sat_of_insertRat f hf (c.delete negPivot) p pf h
   · split at performRatCheck_success
     · exact False.elim performRatCheck_success
     · next h =>
       simp only [not_or, Bool.not_eq_true, Bool.not_eq_false] at h
-      have pfc := safe_insert_of_performRupCheck_insertRat f hf (DefaultClause.delete c negPivot) ratHint.2 h.2 p pf
-      simp only [( · ⊨ ·), Clause.eval, List.any_eq_true, Prod.exists, Bool.exists_bool,
-        Bool.decide_coe, List.all_eq_true] at pfc
-      have c_negPivot_in_fc : (DefaultClause.delete c negPivot) ∈ toList (insert f (DefaultClause.delete c negPivot)) := by
-        rw [insert_iff]
-        exact Or.inl rfl
-      exact of_decide_eq_true <| pfc (DefaultClause.delete c negPivot) c_negPivot_in_fc
+      have pfc : p ⊨ f.insert (c.delete negPivot) :=
+        safe_insert_of_performRupCheck_insertRat f hf (c.delete negPivot) ratHint.2 h.2 p pf
+      rw [DefaultFormula.formulaEntails_def, List.all_eq_true] at pfc
+      exact of_decide_eq_true (pfc (c.delete negPivot) (by simp [insert_iff]))
 
 theorem existsRatHint_of_ratHintsExhaustive {n : Nat} (f : DefaultFormula n)
     (f_readyForRatAdd : ReadyForRatAdd f) (pivot : Literal (PosFin n))
@@ -569,8 +566,7 @@ theorem safe_insert_of_performRatCheck_fold_success {n : Nat} (f : DefaultFormul
       · rw [← c'_eq_c] at p'_entails_c
         exact p'_not_entails_c' p'_entails_c
       · have pc' : p ⊨ c' := by
-          simp only [(· ⊨ ·), Clause.eval, List.any_eq_true, Prod.exists, Bool.exists_bool,
-            Bool.decide_coe, List.all_eq_true] at pf
+          rw [DefaultFormula.formulaEntails_def, List.all_eq_true] at pf
           exact of_decide_eq_true <| pf c' c'_in_f
         have negPivot_in_c' : Literal.negate pivot ∈ Clause.toList c' := mem_of_necessary_assignment pc' p'_not_entails_c'
         have h : p ⊨ (c'.delete (Literal.negate pivot)) := by

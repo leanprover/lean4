@@ -717,8 +717,13 @@ theorem foldr_eq_foldrM (f : α → β → β) (b) (l : List α) :
 
 /-! ### foldl and foldr -/
 
-@[simp] theorem foldr_self_append (l : List α) : l.foldr cons l' = l ++ l' := by
+@[simp] theorem foldr_cons_eq_append (l : List α) : l.foldr cons l' = l ++ l' := by
   induction l <;> simp [*]
+
+@[deprecated foldr_cons_eq_append (since := "2024-08-22")] abbrev foldr_self_append := @foldr_cons_eq_append
+
+@[simp] theorem foldl_flip_cons_eq_append (l : List α) : l.foldl (fun x y => y :: x) l' = l.reverse ++ l' := by
+  induction l generalizing l' <;> simp [*]
 
 theorem foldr_self (l : List α) : l.foldr cons [] = l := by simp
 
@@ -930,9 +935,11 @@ theorem tail_eq_tail? (l) : @tail α l = (tail? l).getD [] := by simp [tail_eq_t
 
 /-! ### map -/
 
-@[simp] theorem map_id (l : List α) : map id l = l := by induction l <;> simp_all
+@[simp] theorem map_id : map (id : α → α) = id := by
+  funext l
+  induction l <;> simp_all
 
-@[simp] theorem map_id' (l : List α) : map (fun a => a) l = l := by induction l <;> simp_all
+@[simp] theorem map_id' : map (fun (a : α) => a) = id := map_id
 
 theorem map_id'' {f : α → α} (h : ∀ x, f x = x) (l : List α) : map f l = l := by
   simp [show f = id from funext h]
@@ -1208,7 +1215,8 @@ theorem filterMap_eq_map (f : α → β) : filterMap (some ∘ f) = map f := by
   funext l; induction l <;> simp [*, filterMap_cons]
 
 @[simp] theorem filterMap_some (l : List α) : filterMap some l = l := by
-  erw [filterMap_eq_map, map_id]
+  erw [filterMap_eq_map]
+  simp
 
 theorem map_filterMap_some_eq_filter_map_isSome (f : α → Option β) (l : List α) :
     (l.filterMap f).map some = (l.map f).filter fun b => b.isSome := by
@@ -1761,6 +1769,12 @@ theorem join_filter_ne_nil [DecidablePred fun l : List α => l ≠ []] {L : List
     join (L.filter fun l => l ≠ []) = L.join := by
   simp only [ne_eq, ← isEmpty_iff, Bool.not_eq_true, Bool.decide_eq_false,
     join_filter_not_isEmpty]
+
+@[simp] theorem join_map_filter (p : α → Bool) (l : List (List α)) : (l.map (filter p)).join = (l.join).filter p := by
+  induction l with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [ih, map_cons, join_cons, filter_append]
 
 @[simp] theorem join_append (L₁ L₂ : List (List α)) : join (L₁ ++ L₂) = join L₁ ++ join L₂ := by
   induction L₁ <;> simp_all

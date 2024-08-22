@@ -557,19 +557,21 @@ private def mkMetaContext : Meta.Context := {
 
 open Lean.Parser.Term in
 /-- Return identifier names in the given bracketed binder. -/
-def getBracketedBinderIds : Syntax → Array Name
-  | `(bracketedBinderF|($ids* $[: $ty?]? $(_annot?)?)) => ids.map Syntax.getId
-  | `(bracketedBinderF|{$ids* $[: $ty?]?})             => ids.map Syntax.getId
-  | `(bracketedBinderF|[$id : $_])                     => #[id.getId]
-  | `(bracketedBinderF|[$_])                           => #[Name.anonymous]
-  | _                                                 => #[]
+def getBracketedBinderIds : Syntax → CommandElabM (Array Name)
+  | `(bracketedBinderF|($ids* $[: $ty?]? $(_annot?)?)) => return ids.map Syntax.getId
+  | `(bracketedBinderF|{$ids* $[: $ty?]?})             => return ids.map Syntax.getId
+  | `(bracketedBinderF|⦃$ids* : $_⦄)                   => return ids.map Syntax.getId
+  | `(bracketedBinderF|[$id : $_])                     => return #[id.getId]
+  | `(bracketedBinderF|[$_])                           => return #[Name.anonymous]
+  | _                                                  => throwUnsupportedSyntax
 
-private def mkTermContext (ctx : Context) (s : State) : Term.Context := Id.run do
+private def mkTermContext (ctx : Context) (s : State) : CommandElabM Term.Context := do
   let scope      := s.scopes.head!
   let mut sectionVars := {}
-  for id in scope.varDecls.concatMap getBracketedBinderIds, uid in scope.varUIds do
+  for id in (← scope.varDecls.concatMapM getBracketedBinderIds), uid in scope.varUIds do
     sectionVars := sectionVars.insert id uid
-  { macroStack             := ctx.macroStack
+  return {
+    macroStack             := ctx.macroStack
     sectionVars            := sectionVars
     isNoncomputableSection := scope.isNoncomputable
     tacticCache?           := ctx.tacticCache? }
@@ -609,7 +611,7 @@ def liftTermElabM (x : TermElabM α) : CommandElabM α := do
   -- make sure `observing` below also catches runtime exceptions (like we do by default in
   -- `CommandElabM`)
   let _ := MonadAlwaysExcept.except (m := TermElabM)
-  let x : MetaM _ := (observing (try x finally Meta.reportDiag)).run (mkTermContext ctx s) { levelNames := scope.levelNames }
+  let x : MetaM _ := (observing (try x finally Meta.reportDiag)).run (← mkTermContext ctx s) { levelNames := scope.levelNames }
   let x : CoreM _ := x.run mkMetaContext {}
   let ((ea, _), _) ← runCore x
   MonadExcept.ofExcept ea
@@ -706,7 +708,7 @@ def expandDeclId (declId : Syntax) (modifiers : Modifiers) : CommandElabM Expand
   let currNamespace ← getCurrNamespace
   let currLevelNames ← getLevelNames
   let r ← Elab.expandDeclId currNamespace currLevelNames declId modifiers
-  for id in (← getScope).varDecls.concatMap getBracketedBinderIds do
+  for id in (← (← getScope).varDecls.concatMapM getBracketedBinderIds) do
     if id == r.shortName then
       throwError "invalid declaration name '{r.shortName}', there is a section variable with the same name"
   return r

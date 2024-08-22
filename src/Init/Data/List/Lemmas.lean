@@ -1425,6 +1425,18 @@ theorem append_right_inj {t₁ t₂ : List α} (s) : s ++ t₁ = s ++ t₂ ↔ t
 theorem append_left_inj {s₁ s₂ : List α} (t) : s₁ ++ t = s₂ ++ t ↔ s₁ = s₂ :=
   ⟨fun h => append_inj_left' h rfl, congrArg (· ++ _)⟩
 
+@[simp] theorem append_left_eq_self {x y : List α} : x ++ y = y ↔ x = [] := by
+  rw [← append_left_inj (s₁ := x), nil_append]
+
+@[simp] theorem self_eq_append_left {x y : List α} : y = x ++ y ↔ x = [] := by
+  rw [eq_comm, append_left_eq_self]
+
+@[simp] theorem append_right_eq_self {x y : List α} : x ++ y = x ↔ y = [] := by
+  rw [← append_right_inj (t₁ := y), append_nil]
+
+@[simp] theorem self_eq_append_right {x y : List α} : x = x ++ y ↔ y = [] := by
+  rw [eq_comm, append_right_eq_self]
+
 @[simp] theorem append_eq_nil : p ++ q = [] ↔ p = [] ∧ q = [] := by
   cases p <;> simp
 

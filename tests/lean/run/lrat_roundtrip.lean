@@ -1,5 +1,6 @@
 import Lean.Elab.Tactic.BVDecide.LRAT.Parser
 
+open Std.Tactic.BVDecide.LRAT
 open Lean.Elab.Tactic.BVDecide.LRAT
 
 -- This is a nonsensical LRAT proof, merely used for testing.

@@ -220,8 +220,14 @@ private def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : Tacti
 private def getNumExplicitFields (altMVarId : MVarId) (numFields : Nat) : MetaM Nat := altMVarId.withContext do
   let target ← altMVarId.getType
   withoutModifyingState do
+    -- The `numFields` count includes explicit, implicit and let-bound variables.
+    -- `forallMetaBoundTelescope` will reduce let-bindings, so we don't just count how many
+    -- explicit binders are in `bis`, but how many implicit ones.
+    -- If this turns out to be insufficient, then the real (and complicated) logic for which
+    -- arguments are explicit or implicit can be found in  `introNImp`,
     let (_, bis, _) ← forallMetaBoundedTelescope target numFields
-    return bis.foldl (init := 0) fun r bi => if bi.isExplicit then r + 1 else r
+    let numImplicits := (bis.filter (!·.isExplicit)).size
+    return numFields - numImplicits
 
 private def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Array FVarId) : TermElabM Unit :=
   withSaveInfoContext <| altMVarId.withContext do

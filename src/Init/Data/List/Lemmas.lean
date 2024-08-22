@@ -1699,8 +1699,14 @@ theorem join_singleton (l : List α) : [l].join = l := by simp
   | [] => by simp
   | b :: l => by simp [mem_join, or_and_right, exists_or]
 
-@[simp] theorem join_eq_nil_iff {L : List (List α)} : L.join = [] ↔ ∀ l ∈ L, l = [] := by
+@[simp] theorem join_eq_nil {L : List (List α)} : L.join = [] ↔ ∀ l ∈ L, l = [] := by
   induction L <;> simp_all
+
+@[deprecated join_eq_nil (since := "2024-08-22")]
+theorem join_eq_nil_iff {L : List (List α)} : L.join = [] ↔ ∀ l ∈ L, l = [] := join_eq_nil
+
+theorem join_ne_nil (xs : List (List α)) : xs.join ≠ [] ↔ ∃ x, x ∈ xs ∧ x ≠ [] := by
+  simp
 
 theorem exists_of_mem_join : a ∈ join L → ∃ l, l ∈ L ∧ a ∈ l := mem_join.1
 
@@ -1799,7 +1805,7 @@ theorem mem_bind_of_mem {b : β} {l : List α} {f : α → List β} {a} (al : a 
 
 @[simp]
 theorem bind_eq_nil {l : List α} {f : α → List β} : List.bind l f = [] ↔ ∀ x ∈ l, f x = [] :=
-  join_eq_nil_iff.trans <| by
+  join_eq_nil.trans <| by
     simp only [mem_map, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂]
 
 theorem forall_mem_bind {p : β → Prop} {l : List α} {f : α → List β} :
@@ -2101,6 +2107,12 @@ theorem reverse_eq_iff {as bs : List α} : as.reverse = bs ↔ as = bs.reverse :
 
 @[simp] theorem head?_reverse (l : List α) : l.reverse.head? = l.getLast? := by
   rw [← getLast?_reverse, reverse_reverse]
+
+theorem getLast?_eq_head?_reverse {xs : List α} : xs.getLast? = xs.reverse.head? := by
+  simp
+
+theorem head?_eq_getLast?_reverse {xs : List α} : xs.head? = xs.reverse.getLast? := by
+  simp
 
 @[simp] theorem map_reverse (f : α → β) (l : List α) : l.reverse.map f = (l.map f).reverse := by
   induction l <;> simp [*]

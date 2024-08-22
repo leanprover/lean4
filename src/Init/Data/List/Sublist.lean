@@ -490,7 +490,7 @@ theorem sublist_join_iff {L : List (List α)} {l} :
       subst w
       exact ⟨[], by simp, fun i x => by cases x⟩
     · rintro ⟨L', rfl, h⟩
-      simp only [join_nil, sublist_nil, join_eq_nil_iff]
+      simp only [join_nil, sublist_nil, join_eq_nil]
       simp only [getElem?_nil, Option.getD_none, sublist_nil] at h
       exact (forall_getElem L' (· = [])).1 h
   | cons l' L ih =>

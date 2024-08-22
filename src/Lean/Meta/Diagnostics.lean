@@ -35,7 +35,7 @@ structure DiagSummary where
 def DiagSummary.isEmpty (s : DiagSummary) : Bool :=
   s.data.isEmpty
 
-def mkDiagSummary (counters : PHashMap Name Nat) (p : Name → Bool := fun _ => true) : MetaM DiagSummary := do
+def mkDiagSummary (cls : Name) (counters : PHashMap Name Nat) (p : Name → Bool := fun _ => true) : MetaM DiagSummary := do
   let threshold := diagnostics.threshold.get (← getOptions)
   let entries := collectAboveThreshold counters threshold p Name.lt
   if entries.isEmpty then
@@ -43,22 +43,22 @@ def mkDiagSummary (counters : PHashMap Name Nat) (p : Name → Bool := fun _ => 
   else
     let mut data := #[]
     for (declName, counter) in entries do
-      data := data.push m!"{if data.isEmpty then "  " else "\n"}{MessageData.ofConst (← mkConstWithLevelParams declName)} ↦ {counter}"
+      data := data.push <| .trace { cls } m!"{MessageData.ofConst (← mkConstWithLevelParams declName)} ↦ {counter}" #[]
     return { data, max := entries[0]!.2 }
 
 def mkDiagSummaryForUnfolded (counters : PHashMap Name Nat) (instances := false) : MetaM DiagSummary := do
   let env ← getEnv
-  mkDiagSummary counters fun declName =>
+  mkDiagSummary `reduction counters fun declName =>
     getReducibilityStatusCore env declName matches .semireducible
     && isInstanceCore env declName == instances
 
 def mkDiagSummaryForUnfoldedReducible (counters : PHashMap Name Nat) : MetaM DiagSummary := do
   let env ← getEnv
-  mkDiagSummary counters fun declName =>
+  mkDiagSummary `reduction counters fun declName =>
     getReducibilityStatusCore env declName matches .reducible
 
 def mkDiagSummaryForUsedInstances : MetaM DiagSummary := do
-  mkDiagSummary (← get).diag.instanceCounter
+  mkDiagSummary `type_class (← get).diag.instanceCounter
 
 def mkDiagSynthPendingFailure (failures : PHashMap Expr MessageData) : MetaM DiagSummary := do
   if failures.isEmpty then
@@ -66,7 +66,7 @@ def mkDiagSynthPendingFailure (failures : PHashMap Expr MessageData) : MetaM Dia
   else
     let mut data := #[]
     for (_, msg) in failures do
-      data := data.push m!"{if data.isEmpty then "  " else "\n"}{msg}"
+      data := data.push <| .trace { cls := `type_class } msg #[]
     return { data }
 
 /--
@@ -85,10 +85,10 @@ def reportDiag : MetaM Unit := do
     let unfoldDefault ← mkDiagSummaryForUnfolded unfoldCounter
     let unfoldInstance ← mkDiagSummaryForUnfolded unfoldCounter (instances := true)
     let unfoldReducible ← mkDiagSummaryForUnfoldedReducible unfoldCounter
-    let heu ← mkDiagSummary (← get).diag.heuristicCounter
+    let heu ← mkDiagSummary `def_eq (← get).diag.heuristicCounter
     let inst ← mkDiagSummaryForUsedInstances
     let synthPending ← mkDiagSynthPendingFailure (← get).diag.synthPendingFailures
-    let unfoldKernel ← mkDiagSummary (Kernel.getDiagnostics (← getEnv)).unfoldCounter
+    let unfoldKernel ← mkDiagSummary `kernel (Kernel.getDiagnostics (← getEnv)).unfoldCounter
     let m := MessageData.nil
     let m := appendSection m `reduction "unfolded declarations" unfoldDefault
     let m := appendSection m `reduction "unfolded instances" unfoldInstance

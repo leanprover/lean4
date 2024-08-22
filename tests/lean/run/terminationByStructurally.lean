@@ -19,7 +19,7 @@ namespace Errors
 -- A few error conditions
 
 /--
-error: argument #1 cannot be used for structural recursion
+error: cannot use specified parameter for structural recursion:
   it is unchanged in the recursive calls
 -/
 #guard_msgs in
@@ -27,8 +27,8 @@ def foo1 (n : Nat) : Nat := foo1 n
 termination_by structural n
 
 /--
-error: argument #2 cannot be used for structural recursion
-  its type is an inductive family and indices are not variables
+error: cannot use specified parameter for structural recursion:
+  its type Nat.le is an inductive family and indices are not variables
     n.succ.le 100
 -/
 #guard_msgs in
@@ -47,7 +47,8 @@ def foo3 (n : Nat) : Nat → Nat := match n with
 termination_by structural m => m
 
 /--
-error: argument #1 cannot be used for structural recursion
+error: failed to infer structural recursion:
+Cannot use parameter n:
   failed to eliminate recursive application
     ackermann (n + 1) m
 -/
@@ -59,7 +60,8 @@ def ackermann (n m : Nat) := match n, m with
 termination_by structural n
 
 /--
-error: argument #2 cannot be used for structural recursion
+error: failed to infer structural recursion:
+Cannot use parameter m:
   failed to eliminate recursive application
     ackermann2 n 1
 -/
@@ -81,5 +83,32 @@ def foo4 (n : Nat) : Nat → Nat := match n with
   | n+1 => foo4 n
 termination_by structural id n + 1
 
+/--
+error: failed to infer structural recursion:
+Cannot use parameter #2:
+  the type Nat × Nat does not have a `.brecOn` recursor
+-/
+#guard_msgs in
+def foo5 : Nat → (Nat × Nat) → Nat
+ | 0, _ => 0
+ | n+1, t => foo5 n t
+termination_by structural n t => t
+
+/--
+error: failed to infer structural recursion:
+Cannot use parameters #2 of Errors.foo6 and #2 of Errors.bar6:
+  the type Nat × Nat does not have a `.brecOn` recursor
+-/
+#guard_msgs in
+mutual
+def foo6 : Nat → (Nat × Nat) → Nat
+ | 0, _ => 0
+ | n+1, t => bar6 n t
+termination_by structural n t => t
+def bar6 : Nat → (Nat × Nat) → Nat
+ | 0, _ => 0
+ | n+1, t => foo6 n t
+termination_by structural n t => t
+end
 
 end Errors

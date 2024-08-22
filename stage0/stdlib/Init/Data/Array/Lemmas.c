@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Lemmas
-// Imports: Init.Data.Nat.MinMax Init.Data.Nat.Lemmas Init.Data.List.Lemmas Init.Data.Fin.Basic Init.Data.Array.Mem Init.TacticsExtra
+// Imports: Init.Data.Nat.MinMax Init.Data.Nat.Lemmas Init.Data.List.Monadic Init.Data.List.Nat.Range Init.Data.Fin.Basic Init.Data.Array.Mem Init.TacticsExtra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -588,7 +588,8 @@ return x_5;
 }
 lean_object* initialize_Init_Data_Nat_MinMax(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Monadic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Nat_Range(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Fin_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Mem(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_TacticsExtra(uint8_t builtin, lean_object*);
@@ -603,7 +604,10 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_Monadic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Nat_Range(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Fin_Basic(builtin, lean_io_mk_world());

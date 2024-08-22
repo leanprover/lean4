@@ -2761,14 +2761,12 @@ if (x_9 == 0)
 {
 uint8_t x_10; uint8_t x_11; 
 x_10 = 0;
-lean_inc(x_1);
 x_11 = l_Lean_Declaration_foldExprM___at_Lean_Declaration_hasSorry___spec__1(x_1, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
 x_12 = lean_box(0);
 x_13 = l_Lean_addDecl___lambda__2(x_1, x_12, x_2, x_3, x_7);
-lean_dec(x_1);
 return x_13;
 }
 else
@@ -2784,7 +2782,6 @@ lean_inc(x_17);
 lean_dec(x_15);
 x_18 = l_Lean_addDecl___lambda__2(x_1, x_16, x_2, x_3, x_17);
 lean_dec(x_16);
-lean_dec(x_1);
 return x_18;
 }
 }
@@ -2793,7 +2790,6 @@ else
 lean_object* x_19; lean_object* x_20; 
 x_19 = lean_box(0);
 x_20 = l_Lean_addDecl___lambda__2(x_1, x_19, x_2, x_3, x_7);
-lean_dec(x_1);
 return x_20;
 }
 }
@@ -3053,6 +3049,7 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_addDecl___lambda__3(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
+lean_dec(x_1);
 return x_5;
 }
 }

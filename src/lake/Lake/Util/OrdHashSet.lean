@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lean.Data.HashSet
+import Std.Data.HashSet.Basic
 
 open Lean
 
@@ -11,13 +12,13 @@ namespace Lake
 
 /-- A `HashSet` that preserves insertion order. -/
 structure OrdHashSet (α) [Hashable α] [BEq α] where
-  toHashSet : HashSet α
+  toHashSet : Std.HashSet α
   toArray : Array α
 
 namespace OrdHashSet
 variable [Hashable α] [BEq α]
 
-instance : Coe (OrdHashSet α) (HashSet α) := ⟨toHashSet⟩
+instance : Coe (OrdHashSet α) (Std.HashSet α) := ⟨toHashSet⟩
 
 def empty : OrdHashSet α :=
   ⟨.empty, .empty⟩

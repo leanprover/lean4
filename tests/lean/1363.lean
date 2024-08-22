@@ -1,5 +1,5 @@
-import Lean.Data.Parsec
-open Lean Parsec
+import Std.Internal.Parsec
+open Std Internal Parsec String
 
 @[macro_inline] -- Error
 def f : Nat → Nat
@@ -19,7 +19,7 @@ def h : Nat → Nat → Nat
 termination_by x y => x
 
 @[macro_inline] -- Error
-partial def skipMany (p : Parsec α) (it : String.Iterator) : Parsec PUnit := do
+partial def skipMany (p : Parser α) (it : String.Iterator) : Parser PUnit := do
   match p it with
   | .success it _ => skipMany p it
   | .error _ _  => pure ()

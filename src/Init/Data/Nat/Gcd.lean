@@ -46,6 +46,9 @@ theorem gcd_succ (x y : Nat) : gcd (succ x) y = gcd (y % succ x) (succ x) := by
 theorem gcd_add_one (x y : Nat) : gcd (x + 1) y = gcd (y % (x + 1)) (x + 1) := by
   rw [gcd]; rfl
 
+theorem gcd_def (x y : Nat) : gcd x y = if x = 0 then y else gcd (y % x) x := by
+  cases x <;> simp [Nat.gcd_add_one]
+
 @[simp] theorem gcd_one_left (n : Nat) : gcd 1 n = 1 := by
   rw [gcd_succ, mod_one]
   rfl

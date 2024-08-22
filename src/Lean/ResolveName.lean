@@ -314,7 +314,7 @@ def ensureNoOverload [Monad m] [MonadError m] (n : Name) (cs : List Name) : m Na
 def resolveGlobalConstNoOverloadCore [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (n : Name) : m Name := do
   ensureNoOverload n (← resolveGlobalConstCore n)
 
-def preprocessSyntaxAndResolve [Monad m] [MonadEnv m] [MonadError m] (stx : Syntax) (k : Name → m (List Name)) : m (List Name) := do
+def preprocessSyntaxAndResolve [Monad m] [MonadError m] (stx : Syntax) (k : Name → m (List Name)) : m (List Name) := do
   match stx with
   | .ident _ _ n pre => do
     let pre := pre.filterMap fun
@@ -424,5 +424,16 @@ where
         if potentialMatch == n₀ then
           return some candidate
     return none
+
+def unresolveNameGlobalAvoidingLocals [Monad m] [MonadResolveName m] [MonadEnv m] [MonadLCtx m]
+    (n₀ : Name) (fullNames := false) : m Name := do
+  let mut n ← unresolveNameGlobal n₀ fullNames
+  unless (← getLCtx).usesUserName n do return n
+  -- `n` is also a local declaration
+  if n == n₀ then
+    -- `n` is the fully qualified name. So, we append the `_root_` prefix
+    return `_root_ ++ n
+  else
+    return n₀
 
 end Lean

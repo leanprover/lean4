@@ -2,6 +2,8 @@ import Lean.Elab.Command
 import Lean.Elab.PreDefinition.WF.Eqns
 import Lean.Meta.Tactic.FunInd
 
+set_option guard_msgs.diff true
+
 namespace Unary
 
 def ackermann : (Nat × Nat) → Nat
@@ -493,9 +495,7 @@ def sum_below (n : Nat) (f : (i : Nat) → below n i → Nat) :=
 def foo (n : Nat) :=
   1 + sum_below n (fun i _ => foo i)
 termination_by n
-decreasing_by
-  simp_wf
-  simp [below_lt, *]
+decreasing_by simp [below_lt, *]
 
 /--
 info: GramSchmidt.foo.induct (motive : Nat → Prop) (case1 : ∀ (x : Nat), (∀ (i : Nat), below x i → motive i) → motive x)
@@ -631,6 +631,15 @@ info: Tree.Tree.map_forest.induct (f : Tree → Tree) (motive1 : Tree → Prop) 
 -/
 #guard_msgs in
 #check Tree.map_forest.induct
+
+/--
+info: Tree.Tree.map.mutual_induct (f : Tree → Tree) (motive1 : Tree → Prop) (motive2 : List Tree → Prop)
+  (case1 : ∀ (ts : List Tree), motive2 ts → motive1 (Tree.node ts))
+  (case2 : ∀ (ts : List Tree), (∀ (t : Tree), t ∈ ts → motive1 t) → motive2 ts) :
+  (∀ (a : Tree), motive1 a) ∧ ∀ (ts : List Tree), motive2 ts
+-/
+#guard_msgs in
+#check Tree.map.mutual_induct
 
 end Tree
 

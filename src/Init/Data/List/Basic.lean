@@ -22,29 +22,37 @@ along with `@[csimp]` lemmas,
 
 In `Init.Data.List.Lemmas` we develop the full API for these functions.
 
-Recall that `length`, `get`, `set`, `fold`, and `concat` have already been defined in `Init.Prelude`.
+Recall that `length`, `get`, `set`, `foldl`, and `concat` have already been defined in `Init.Prelude`.
 
 The operations are organized as follow:
 * Equality: `beq`, `isEqv`.
 * Lexicographic ordering: `lt`, `le`, and instances.
+* Head and tail operators: `head`, `head?`, `headD?`, `tail`, `tail?`, `tailD`.
 * Basic operations:
-  `map`, `filter`, `filterMap`, `foldr`, `append`, `join`, `pure`, `bind`, `replicate`, and `reverse`.
+  `map`, `filter`, `filterMap`, `foldr`, `append`, `join`, `pure`, `bind`, `replicate`, and
+  `reverse`.
+* Additional functions defined in terms of these: `leftpad`, `rightPad`, and `reduceOption`.
 * List membership: `isEmpty`, `elem`, `contains`, `mem` (and the `∈` notation),
   and decidability for predicates quantifying over membership in a `List`.
 * Sublists: `take`, `drop`, `takeWhile`, `dropWhile`, `partition`, `dropLast`,
-  `isPrefixOf`, `isPrefixOf?`, `isSuffixOf`, `isSuffixOf?`, `rotateLeft` and `rotateRight`.
-* Manipulating elements: `replace`, `insert`, `erase`, `eraseIdx`, `find?`, `findSome?`, and `lookup`.
+  `isPrefixOf`, `isPrefixOf?`, `isSuffixOf`, `isSuffixOf?`, `Subset`, `Sublist`,
+  `rotateLeft` and `rotateRight`.
+* Manipulating elements: `replace`, `insert`, `erase`, `eraseP`, `eraseIdx`.
+* Finding elements: `find?`, `findSome?`, `findIdx`, `indexOf`, `findIdx?`, `indexOf?`,
+ `countP`, `count`, and `lookup`.
 * Logic: `any`, `all`, `or`, and `and`.
 * Zippers: `zipWith`, `zip`, `zipWithAll`, and `unzip`.
 * Ranges and enumeration: `range`, `iota`, `enumFrom`, and `enum`.
 * Minima and maxima: `minimum?` and `maximum?`.
-* Other functions: `intersperse`, `intercalate`, `eraseDups`, `eraseReps`, `span`, `groupBy`, `removeAll`
+* Other functions: `intersperse`, `intercalate`, `eraseDups`, `eraseReps`, `span`, `groupBy`,
+  `removeAll`
   (currently these functions are mostly only used in meta code,
   and do not have API suitable for verification).
 
-Further operations are defined in `Init.Data.List.BasicAux` (because they use `Array` in their implementations), namely:
+Further operations are defined in `Init.Data.List.BasicAux`
+(because they use `Array` in their implementations), namely:
 * Variant getters: `get!`, `get?`, `getD`, `getLast`, `getLast!`, `getLast?`, and `getLastD`.
-* Head and tail: `head`, `head!`, `head?`, `headD`, `tail!`, `tail?`, and `tailD`.
+* Head and tail: `head!`, `tail!`.
 * Other operations on sublists: `partitionMap`, `rotateLeft`, and `rotateRight`.
 -/
 
@@ -88,7 +96,7 @@ namespace List
 
 /-! ### concat -/
 
-@[simp] theorem length_concat (as : List α) (a : α) : (concat as a).length = as.length + 1 := by
+@[simp high] theorem length_concat (as : List α) (a : α) : (concat as a).length = as.length + 1 := by
   induction as with
   | nil => rfl
   | cons _ xs ih => simp [concat, ih]
@@ -314,6 +322,16 @@ def headD : (as : List α) → (fallback : α) → α
 
 @[simp 1100] theorem headD_nil : @headD α [] d = d := rfl
 @[simp 1100] theorem headD_cons : @headD α (a::l) d = a := rfl
+
+/-! ### tail -/
+
+/-- Get the tail of a nonempty list, or return `[]` for `[]`. -/
+def tail : List α → List α
+  | []    => []
+  | _::as => as
+
+@[simp] theorem tail_nil : @tail α [] = [] := rfl
+@[simp] theorem tail_cons : @tail α (a::as) = as := rfl
 
 /-! ### tail? -/
 
@@ -577,6 +595,28 @@ theorem replicate_succ (a : α) (n) : replicate (n+1) a = a :: replicate n a := 
   | zero => simp
   | succ n ih => simp only [ih, replicate_succ, length_cons, Nat.succ_eq_add_one]
 
+/-! ## Additional functions -/
+
+/-! ### leftpad and rightpad -/
+
+/--
+Pads `l : List α` on the left with repeated occurrences of `a : α` until it is of length `n`.
+If `l` is initially larger than `n`, just return `l`.
+-/
+def leftpad (n : Nat) (a : α) (l : List α) : List α := replicate (n - length l) a ++ l
+
+/--
+Pads `l : List α` on the right with repeated occurrences of `a : α` until it is of length `n`.
+If `l` is initially larger than `n`, just return `l`.
+-/
+def rightpad (n : Nat) (a : α) (l : List α) : List α := l ++ replicate (n - length l) a
+
+/-! ### reduceOption -/
+
+/-- Drop `none`s from a list, and replace each remaining `some a` with `a`. -/
+@[inline] def reduceOption {α} : List (Option α) → List α :=
+  List.filterMap id
+
 /-! ## List membership
 
 * `L.contains a : Bool` determines, using a `[BEq α]` instance, whether `L` contains an element `· == a`.
@@ -719,7 +759,7 @@ def take : Nat → List α → List α
 
 @[simp] theorem take_nil : ([] : List α).take i = [] := by cases i <;> rfl
 @[simp] theorem take_zero (l : List α) : l.take 0 = [] := rfl
-@[simp] theorem take_cons_succ : (a::as).take (i+1) = a :: as.take i := rfl
+@[simp] theorem take_succ_cons : (a::as).take (i+1) = a :: as.take i := rfl
 
 /-! ### drop -/
 
@@ -817,6 +857,8 @@ def dropLast {α} : List α → List α
 @[simp] theorem dropLast_cons₂ :
     (x::y::zs).dropLast = x :: (y::zs).dropLast := rfl
 
+-- Later this can be proved by `simp` via `[List.length_dropLast, List.length_cons, Nat.add_sub_cancel]`,
+-- but we need this while bootstrapping `Array`.
 @[simp] theorem length_dropLast_cons (a : α) (as : List α) : (a :: as).dropLast.length = as.length := by
   match as with
   | []       => rfl
@@ -824,7 +866,49 @@ def dropLast {α} : List α → List α
     have ih := length_dropLast_cons b bs
     simp [dropLast, ih]
 
-/-! ### isPrefixOf -/
+/-! ### Subset -/
+
+/--
+`l₁ ⊆ l₂` means that every element of `l₁` is also an element of `l₂`, ignoring multiplicity.
+-/
+protected def Subset (l₁ l₂ : List α) := ∀ ⦃a : α⦄, a ∈ l₁ → a ∈ l₂
+
+instance : HasSubset (List α) := ⟨List.Subset⟩
+
+instance [DecidableEq α] : DecidableRel (Subset : List α → List α → Prop) :=
+  fun _ _ => decidableBAll _ _
+
+/-! ### Sublist and isSublist -/
+
+/-- `l₁ <+ l₂`, or `Sublist l₁ l₂`, says that `l₁` is a (non-contiguous) subsequence of `l₂`. -/
+inductive Sublist {α} : List α → List α → Prop
+  /-- the base case: `[]` is a sublist of `[]` -/
+  | slnil : Sublist [] []
+  /-- If `l₁` is a subsequence of `l₂`, then it is also a subsequence of `a :: l₂`. -/
+  | cons a : Sublist l₁ l₂ → Sublist l₁ (a :: l₂)
+  /-- If `l₁` is a subsequence of `l₂`, then `a :: l₁` is a subsequence of `a :: l₂`. -/
+  | cons₂ a : Sublist l₁ l₂ → Sublist (a :: l₁) (a :: l₂)
+
+@[inherit_doc] scoped infixl:50 " <+ " => Sublist
+
+/-- True if the first list is a potentially non-contiguous sub-sequence of the second list. -/
+def isSublist [BEq α] : List α → List α → Bool
+  | [], _ => true
+  | _, [] => false
+  | l₁@(hd₁::tl₁), hd₂::tl₂ =>
+    if hd₁ == hd₂
+    then tl₁.isSublist tl₂
+    else l₁.isSublist tl₂
+
+/-! ### IsPrefix / isPrefixOf / isPrefixOf? -/
+
+/--
+`IsPrefix l₁ l₂`, or `l₁ <+: l₂`, means that `l₁` is a prefix of `l₂`,
+that is, `l₂` has the form `l₁ ++ t` for some `t`.
+-/
+def IsPrefix (l₁ : List α) (l₂ : List α) : Prop := Exists fun t => l₁ ++ t = l₂
+
+@[inherit_doc] infixl:50 " <+: " => IsPrefix
 
 /--  `isPrefixOf l₁ l₂` returns `true` Iff `l₁` is a prefix of `l₂`.
 That is, there exists a `t` such that `l₂ == l₁ ++ t`. -/
@@ -839,8 +923,6 @@ def isPrefixOf [BEq α] : List α → List α → Bool
 theorem isPrefixOf_cons₂ [BEq α] {a : α} :
     isPrefixOf (a::as) (b::bs) = (a == b && isPrefixOf as bs) := rfl
 
-/-! ### isPrefixOf? -/
-
 /-- `isPrefixOf? l₁ l₂` returns `some t` when `l₂ == l₁ ++ t`. -/
 def isPrefixOf? [BEq α] : List α → List α → Option (List α)
   | [], l₂ => some l₂
@@ -848,7 +930,7 @@ def isPrefixOf? [BEq α] : List α → List α → Option (List α)
   | (x₁ :: l₁), (x₂ :: l₂) =>
     if x₁ == x₂ then isPrefixOf? l₁ l₂ else none
 
-/-! ### isSuffixOf -/
+/-! ### IsSuffix / isSuffixOf / isSuffixOf? -/
 
 /--  `isSuffixOf l₁ l₂` returns `true` Iff `l₁` is a suffix of `l₂`.
 That is, there exists a `t` such that `l₂ == t ++ l₁`. -/
@@ -858,11 +940,47 @@ def isSuffixOf [BEq α] (l₁ l₂ : List α) : Bool :=
 @[simp] theorem isSuffixOf_nil_left [BEq α] : isSuffixOf ([] : List α) l = true := by
   simp [isSuffixOf]
 
-/-! ### isSuffixOf? -/
-
 /-- `isSuffixOf? l₁ l₂` returns `some t` when `l₂ == t ++ l₁`.-/
 def isSuffixOf? [BEq α] (l₁ l₂ : List α) : Option (List α) :=
   Option.map List.reverse <| isPrefixOf? l₁.reverse l₂.reverse
+
+/--
+`IsSuffix l₁ l₂`, or `l₁ <:+ l₂`, means that `l₁` is a suffix of `l₂`,
+that is, `l₂` has the form `t ++ l₁` for some `t`.
+-/
+def IsSuffix (l₁ : List α) (l₂ : List α) : Prop := Exists fun t => t ++ l₁ = l₂
+
+@[inherit_doc] infixl:50 " <:+ " => IsSuffix
+
+/-! ### IsInfix -/
+
+/--
+`IsInfix l₁ l₂`, or `l₁ <:+: l₂`, means that `l₁` is a contiguous
+substring of `l₂`, that is, `l₂` has the form `s ++ l₁ ++ t` for some `s, t`.
+-/
+def IsInfix (l₁ : List α) (l₂ : List α) : Prop := Exists fun s => Exists fun t => s ++ l₁ ++ t = l₂
+
+@[inherit_doc] infixl:50 " <:+: " => IsInfix
+
+/-! ### splitAt -/
+
+/--
+Split a list at an index.
+```
+splitAt 2 [a, b, c] = ([a, b], [c])
+```
+-/
+def splitAt (n : Nat) (l : List α) : List α × List α := go l n [] where
+  /--
+  Auxiliary for `splitAt`:
+  `splitAt.go l xs n acc = (acc.reverse ++ take n xs, drop n xs)` if `n < xs.length`,
+  and `(l, [])` otherwise.
+  -/
+  go : List α → Nat → List α → List α × List α
+  | [], _, _ => (l, []) -- This branch ensures the pointer equality of the result with the input
+                        -- without any runtime branching cost.
+  | x :: xs, n+1, acc => go xs n (x :: acc)
+  | xs, _, acc => (acc.reverse, xs)
 
 /-! ### rotateLeft -/
 
@@ -905,6 +1023,55 @@ def rotateRight (xs : List α) (n : Nat := 1) : List α :=
     e ++ b
 
 @[simp] theorem rotateRight_nil : ([] : List α).rotateRight n = [] := rfl
+
+/-! ## Pairwise, Nodup -/
+
+section Pairwise
+
+variable (R : α → α → Prop)
+
+/--
+`Pairwise R l` means that all the elements with earlier indexes are
+`R`-related to all the elements with later indexes.
+```
+Pairwise R [1, 2, 3] ↔ R 1 2 ∧ R 1 3 ∧ R 2 3
+```
+For example if `R = (·≠·)` then it asserts `l` has no duplicates,
+and if `R = (·<·)` then it asserts that `l` is (strictly) sorted.
+-/
+inductive Pairwise : List α → Prop
+  /-- All elements of the empty list are vacuously pairwise related. -/
+  | nil : Pairwise []
+  /-- `a :: l` is `Pairwise R` if `a` `R`-relates to every element of `l`,
+  and `l` is `Pairwise R`. -/
+  | cons : ∀ {a : α} {l : List α}, (∀ a', a' ∈ l → R a a') → Pairwise l → Pairwise (a :: l)
+
+attribute [simp] Pairwise.nil
+
+variable {R}
+
+@[simp] theorem pairwise_cons : Pairwise R (a::l) ↔ (∀ a', a' ∈ l → R a a') ∧ Pairwise R l :=
+  ⟨fun | .cons h₁ h₂ => ⟨h₁, h₂⟩, fun ⟨h₁, h₂⟩ => h₂.cons h₁⟩
+
+instance instDecidablePairwise [DecidableRel R] :
+    (l : List α) → Decidable (Pairwise R l)
+  | [] => isTrue .nil
+  | hd :: tl =>
+    match instDecidablePairwise tl with
+    | isTrue ht =>
+      match decidableBAll (R hd) tl with
+      | isFalse hf => isFalse fun hf' => hf (pairwise_cons.1 hf').1
+      | isTrue ht' => isTrue <| pairwise_cons.mpr (And.intro ht' ht)
+    | isFalse hf => isFalse fun | .cons _ ih => hf ih
+
+end Pairwise
+
+/-- `Nodup l` means that `l` has no duplicates, that is, any element appears at most
+  once in the List. It is defined as `Pairwise (≠)`. -/
+def Nodup : List α → Prop := Pairwise (· ≠ ·)
+
+instance nodupDecidable [DecidableEq α] : ∀ l : List α, Decidable (Nodup l) :=
+  instDecidablePairwise
 
 /-! ## Manipulating elements -/
 
@@ -951,6 +1118,11 @@ theorem erase_cons [BEq α] (a b : α) (l : List α) :
     (b :: l).erase a = if b == a then l else b :: l.erase a := by
   simp only [List.erase]; split <;> simp_all
 
+/-- `eraseP p l` removes the first element of `l` satisfying the predicate `p`. -/
+def eraseP (p : α → Bool) : List α → List α
+  | [] => []
+  | a :: l => bif p a then l else a :: eraseP p l
+
 /-! ### eraseIdx -/
 
 /--
@@ -967,6 +1139,8 @@ def eraseIdx : List α → Nat → List α
 @[simp] theorem eraseIdx_nil : ([] : List α).eraseIdx i = [] := rfl
 @[simp] theorem eraseIdx_cons_zero : (a::as).eraseIdx 0 = as := rfl
 @[simp] theorem eraseIdx_cons_succ : (a::as).eraseIdx (i+1) = a :: as.eraseIdx i := rfl
+
+/-! Finding elements -/
 
 /-! ### find? -/
 
@@ -1005,6 +1179,50 @@ theorem findSome?_cons {f : α → Option β} :
     (a::as).findSome? f = match f a with | some b => some b | none => as.findSome? f :=
   rfl
 
+/-! ### findIdx -/
+
+/-- Returns the index of the first element satisfying `p`, or the length of the list otherwise. -/
+@[inline] def findIdx (p : α → Bool) (l : List α) : Nat := go l 0 where
+  /-- Auxiliary for `findIdx`: `findIdx.go p l n = findIdx p l + n` -/
+  @[specialize] go : List α → Nat → Nat
+  | [], n => n
+  | a :: l, n => bif p a then n else go l (n + 1)
+
+@[simp] theorem findIdx_nil {α : Type _} (p : α → Bool) : [].findIdx p = 0 := rfl
+
+/-! ### indexOf -/
+
+/-- Returns the index of the first element equal to `a`, or the length of the list otherwise. -/
+def indexOf [BEq α] (a : α) : List α → Nat := findIdx (· == a)
+
+@[simp] theorem indexOf_nil [BEq α] : ([] : List α).indexOf x = 0 := rfl
+
+/-! ### findIdx? -/
+
+/-- Return the index of the first occurrence of an element satisfying `p`. -/
+def findIdx? (p : α → Bool) : List α → (start : Nat := 0) → Option Nat
+| [], _ => none
+| a :: l, i => if p a then some i else findIdx? p l (i + 1)
+
+/-! ### indexOf? -/
+
+/-- Return the index of the first occurrence of `a` in the list. -/
+@[inline] def indexOf? [BEq α] (a : α) : List α → Option Nat := findIdx? (· == a)
+
+/-! ### countP -/
+
+/-- `countP p l` is the number of elements of `l` that satisfy `p`. -/
+@[inline] def countP (p : α → Bool) (l : List α) : Nat := go l 0 where
+  /-- Auxiliary for `countP`: `countP.go p l acc = countP p l + acc`. -/
+  @[specialize] go : List α → Nat → Nat
+  | [], acc => acc
+  | x :: xs, acc => bif p x then go xs (acc + 1) else go xs acc
+
+/-! ### count -/
+
+/-- `count a l` is the number of occurrences of `a` in `l`. -/
+@[inline] def count [BEq α] (a : α) : List α → Nat := countP (· == a)
+
 /-! ### lookup -/
 
 /--
@@ -1024,6 +1242,36 @@ def lookup [BEq α] : α → List (α × β) → Option β
 theorem lookup_cons [BEq α] {k : α} :
     ((k,b)::es).lookup a = match a == k with | true => some b | false => es.lookup a :=
   rfl
+
+/-! ## Permutations -/
+
+/-! ### Perm -/
+
+/--
+`Perm l₁ l₂` or `l₁ ~ l₂` asserts that `l₁` and `l₂` are permutations
+of each other. This is defined by induction using pairwise swaps.
+-/
+inductive Perm : List α → List α → Prop
+  /-- `[] ~ []` -/
+  | nil : Perm [] []
+  /-- `l₁ ~ l₂ → x::l₁ ~ x::l₂` -/
+  | cons (x : α) {l₁ l₂ : List α} : Perm l₁ l₂ → Perm (x :: l₁) (x :: l₂)
+  /-- `x::y::l ~ y::x::l` -/
+  | swap (x y : α) (l : List α) : Perm (y :: x :: l) (x :: y :: l)
+  /-- `Perm` is transitive. -/
+  | trans {l₁ l₂ l₃ : List α} : Perm l₁ l₂ → Perm l₂ l₃ → Perm l₁ l₃
+
+@[inherit_doc] scoped infixl:50 " ~ " => Perm
+
+/-! ### isPerm -/
+
+/--
+`O(|l₁| * |l₂|)`. Computes whether `l₁` is a permutation of `l₂`. See `isPerm_iff` for a
+characterization in terms of `List.Perm`.
+-/
+def isPerm [BEq α] : List α → List α → Bool
+  | [], l₂ => l₂.isEmpty
+  | a :: l₁, l₂ => l₂.contains a && l₁.isPerm (l₂.erase a)
 
 /-! ## Logical operations -/
 
@@ -1146,6 +1394,14 @@ def unzip : List (α × β) → List α × List β
 
 /-! ## Ranges and enumeration -/
 
+/-- Sum of a list of natural numbers. -/
+-- This is not in the `List` namespace as later `List.sum` will be defined polymorphically.
+protected def _root_.Nat.sum (l : List Nat) : Nat := l.foldr (·+·) 0
+
+@[simp] theorem _root_.Nat.sum_nil : Nat.sum ([] : List Nat) = 0 := rfl
+@[simp] theorem _root_.Nat.sum_cons (a : Nat) (l : List Nat) :
+    Nat.sum (a::l) = a + Nat.sum l := rfl
+
 /-! ### range -/
 
 /--
@@ -1160,6 +1416,14 @@ where
   | n+1, ns => loop n (n::ns)
 
 @[simp] theorem range_zero : range 0 = [] := rfl
+
+/-! ### range' -/
+
+/-- `range' start len step` is the list of numbers `[start, start+step, ..., start+(len-1)*step]`.
+  It is intended mainly for proving properties of `range` and `iota`. -/
+def range' : (start len : Nat) → (step : Nat := 1) → List Nat
+  | _, 0, _ => []
+  | s, n+1, step => s :: range' (s+step) n step
 
 /-! ### iota -/
 

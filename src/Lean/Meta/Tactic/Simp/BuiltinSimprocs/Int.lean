@@ -82,6 +82,7 @@ builtin_dsimproc [simp, seval] reducePow ((_ : Int) ^ (_ : Nat)) := fun e => do
   let_expr HPow.hPow _ _ _ _ a b ← e | return .continue
   let some v₁ ← fromExpr? a | return .continue
   let some v₂ ← Nat.fromExpr? b | return .continue
+  unless (← checkExponent v₂) do return .continue
   return .done <| toExpr (v₁ ^ v₂)
 
 builtin_simproc [simp, seval] reduceLT  (( _ : Int) < _)  := reduceBinPred ``LT.lt 4 (. < .)

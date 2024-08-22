@@ -320,7 +320,7 @@ Because this is in the `Eq` namespace, if you have a variable `h : a = b`,
 
 For more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
 -/
-theorem Eq.symm {α : Sort u} {a b : α} (h : Eq a b) : Eq b a :=
+@[symm] theorem Eq.symm {α : Sort u} {a b : α} (h : Eq a b) : Eq b a :=
   h ▸ rfl
 
 /--
@@ -488,9 +488,9 @@ attribute [unbox] Prod
 
 /--
 Similar to `Prod`, but `α` and `β` can be propositions.
+You can use `α ×' β` as notation for `PProd α β`.
 We use this type internally to automatically generate the `brecOn` recursor.
 -/
-@[pp_using_anonymous_constructor]
 structure PProd (α : Sort u) (β : Sort v) where
   /-- The first projection out of a pair. if `p : PProd α β` then `p.1 : α`. -/
   fst : α
@@ -1845,14 +1845,11 @@ theorem Fin.eq_of_val_eq {n} : ∀ {i j : Fin n}, Eq i.val j.val → Eq i j
 theorem Fin.val_eq_of_eq {n} {i j : Fin n} (h : Eq i j) : Eq i.val j.val :=
   h ▸ rfl
 
-theorem Fin.ne_of_val_ne {n} {i j : Fin n} (h : Not (Eq i.val j.val)) : Not (Eq i j) :=
-  fun h' => absurd (val_eq_of_eq h') h
-
 instance (n : Nat) : DecidableEq (Fin n) :=
   fun i j =>
     match decEq i.val j.val with
     | isTrue h  => isTrue (Fin.eq_of_val_eq h)
-    | isFalse h => isFalse (Fin.ne_of_val_ne h)
+    | isFalse h => isFalse (fun h' => absurd (Fin.val_eq_of_eq h') h)
 
 instance {n} : LT (Fin n) where
   lt a b := LT.lt a.val b.val
@@ -2214,11 +2211,16 @@ def Char.utf8Size (c : Char) : Nat :=
 or `none`. In functional programming languages, this type is used to represent
 the possibility of failure, or sometimes nullability.
 
-For example, the function `HashMap.find? : HashMap α β → α → Option β` looks up
+For example, the function `HashMap.get? : HashMap α β → α → Option β` looks up
 a specified key `a : α` inside the map. Because we do not know in advance
 whether the key is actually in the map, the return type is `Option β`, where
 `none` means the value was not in the map, and `some b` means that the value
 was found and `b` is the value retrieved.
+
+The `xs[i]` syntax, which is used to index into collections, has a variant
+`xs[i]?` that returns an optional value depending on whether the given index
+is valid. For example, if `m : HashMap α β` and `a : α`, then `m[a]?` is
+equivalent to `HashMap.get? m a`.
 
 To extract a value from an `Option α`, we use pattern matching:
 ```
@@ -3172,8 +3174,8 @@ class MonadStateOf (σ : semiOutParam (Type u)) (m : Type u → Type v) where
 export MonadStateOf (set)
 
 /--
-Like `withReader`, but with `ρ` explicit. This is useful if a monad supports
-`MonadWithReaderOf` for multiple different types `ρ`.
+Like `get`, but with `σ` explicit. This is useful if a monad supports
+`MonadStateOf` for multiple different types `σ`.
 -/
 abbrev getThe (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] : m σ :=
   MonadStateOf.get

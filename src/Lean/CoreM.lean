@@ -31,7 +31,16 @@ register_builtin_option maxHeartbeats : Nat := {
   descr := "maximum amount of heartbeats per command. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit"
 }
 
-def useDiagnosticMsg := s!"use `set_option {diagnostics.name} true` to get diagnostic information"
+/--
+If the `diagnostics` option is not already set, gives a message explaining this option.
+Begins with a `\n`, so an error message can look like `m!"some error occurred{useDiagnosticMsg}"`.
+-/
+def useDiagnosticMsg : MessageData :=
+  MessageData.lazy fun ctx =>
+    if diagnostics.get ctx.opts then
+      pure ""
+    else
+      pure s!"\nAdditional diagnostic information may be available using the `set_option {diagnostics.name} true` command."
 
 namespace Core
 
@@ -300,8 +309,10 @@ register_builtin_option debug.moduleNameAtTimeout : Bool := {
 def throwMaxHeartbeat (moduleName : Name) (optionName : Name) (max : Nat) : CoreM Unit := do
   let includeModuleName := debug.moduleNameAtTimeout.get (← getOptions)
   let atModuleName := if includeModuleName then s!" at `{moduleName}`" else ""
-  let msg := s!"(deterministic) timeout{atModuleName}, maximum number of heartbeats ({max/1000}) has been reached\nuse `set_option {optionName} <num>` to set the limit\n{useDiagnosticMsg}"
-  throw <| Exception.error (← getRef) (MessageData.ofFormat (Std.Format.text msg))
+  throw <| Exception.error (← getRef) m!"\
+    (deterministic) timeout{atModuleName}, maximum number of heartbeats ({max/1000}) has been reached\n\
+    Use `set_option {optionName} <num>` to set the limit.\
+    {useDiagnosticMsg}"
 
 def checkMaxHeartbeatsCore (moduleName : String) (optionName : Name) (max : Nat) : CoreM Unit := do
   unless max == 0 do
@@ -518,5 +529,17 @@ instance : MonadRuntimeException CoreM where
 
 @[inline] def mapCoreM [MonadControlT CoreM m] [Monad m] (f : forall {α}, CoreM α → CoreM α) {α} (x : m α) : m α :=
   controlAt CoreM fun runInBase => f <| runInBase x
+
+/--
+Returns `true` if the given message kind has not been reported in the message log,
+and then mark it as reported. Otherwise, returns `false`.
+We use this API to ensure we don't report the same kind of warning multiple times.
+-/
+def reportMessageKind (kind : Name) : CoreM Bool := do
+  if (← get).messages.reportedKinds.contains kind then
+    return false
+  else
+    modify fun s => { s with messages.reportedKinds := s.messages.reportedKinds.insert kind }
+    return true
 
 end Lean

@@ -376,6 +376,7 @@ static lean_object* l___private_Lean_Compiler_IR_Basic_0__Lean_IR_reprIRType____
 LEAN_EXPORT lean_object* l_Lean_IR_addParamsRename(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_IR_addParamRename(lean_object*, lean_object*, lean_object*);
+size_t lean_array_size(lean_object*);
 static lean_object* l_Lean_IR_getUnboxOpName___closed__5;
 static lean_object* l_Lean_IR_mkIf___closed__5;
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___private_Lean_Compiler_IR_Basic_0__Lean_IR_reprIRType____x40_Lean_Compiler_IR_Basic___hyg_320____spec__3(lean_object*, lean_object*);
@@ -5259,7 +5260,7 @@ x_13 = l_Lean_IR_reshapeAux___closed__2;
 x_14 = lean_string_append(x_12, x_13);
 x_15 = l_Lean_IR_reshapeAux___closed__3;
 x_16 = l_Lean_IR_reshapeAux___closed__4;
-x_17 = lean_unsigned_to_nat(127u);
+x_17 = lean_unsigned_to_nat(134u);
 x_18 = lean_unsigned_to_nat(4u);
 x_19 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_15, x_16, x_17, x_18, x_14);
 lean_dec(x_14);
@@ -5378,13 +5379,11 @@ goto _start;
 LEAN_EXPORT lean_object* l_Lean_IR_modifyJPs(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; size_t x_4; size_t x_5; lean_object* x_6; 
-x_3 = lean_array_get_size(x_1);
-x_4 = lean_usize_of_nat(x_3);
-lean_dec(x_3);
-x_5 = 0;
-x_6 = l_Array_mapMUnsafe_map___at_Lean_IR_modifyJPs___spec__1(x_2, x_4, x_5, x_1);
-return x_6;
+size_t x_3; size_t x_4; lean_object* x_5; 
+x_3 = lean_array_size(x_1);
+x_4 = 0;
+x_5 = l_Array_mapMUnsafe_map___at_Lean_IR_modifyJPs___spec__1(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_modifyJPs___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -5516,13 +5515,11 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_IR_mmodifyJPs___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; size_t x_5; size_t x_6; lean_object* x_7; 
-x_4 = lean_array_get_size(x_2);
-x_5 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
-x_6 = 0;
-x_7 = l_Array_mapMUnsafe_map___at_Lean_IR_mmodifyJPs___spec__1___rarg(x_1, x_3, x_5, x_6, x_2);
-return x_7;
+size_t x_4; size_t x_5; lean_object* x_6; 
+x_4 = lean_array_size(x_2);
+x_5 = 0;
+x_6 = l_Array_mapMUnsafe_map___at_Lean_IR_mmodifyJPs___spec__1___rarg(x_1, x_3, x_4, x_5, x_2);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_IR_mmodifyJPs(lean_object* x_1) {

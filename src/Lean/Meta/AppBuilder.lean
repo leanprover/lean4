@@ -504,6 +504,14 @@ def mkArrayLit (type : Expr) (xs : List Expr) : MetaM Expr := do
   let listLit ← mkListLit type xs
   return mkApp (mkApp (mkConst ``List.toArray [u]) type) listLit
 
+def mkNone (type : Expr) : MetaM Expr := do
+  let u ← getDecLevel type
+  return mkApp (mkConst ``Option.none [u]) type
+
+def mkSome (type value : Expr) : MetaM Expr := do
+  let u ← getDecLevel type
+  return mkApp2 (mkConst ``Option.some [u]) type value
+
 def mkSorry (type : Expr) (synthetic : Bool) : MetaM Expr := do
   let u ← getLevel type
   return mkApp2 (mkConst ``sorryAx [u]) type (toExpr synthetic)
@@ -656,27 +664,6 @@ def mkIffOfEq (h : Expr) : MetaM Expr := do
     return h.appArg!
   else
     mkAppM ``Iff.of_eq #[h]
-
-/--
-Given proofs of `P₁`, …, `Pₙ`, returns a proof of `P₁ ∧ … ∧ Pₙ`.
-If `n = 0` returns a proof of `True`.
-If `n = 1` returns the proof of `P₁`.
--/
-def mkAndIntroN : Array Expr → MetaM Expr
-| #[] => return mkConst ``True.intro []
-| #[e] => return e
-| es => es.foldrM (start := es.size - 1) (fun a b => mkAppM ``And.intro #[a,b]) es.back
-
-
-/-- Given a proof of `P₁ ∧ … ∧ Pᵢ ∧ … ∧ Pₙ`, return the proof of `Pᵢ` -/
-def mkProjAndN (n i : Nat) (e : Expr) : Expr := Id.run do
-  let mut value := e
-  for _ in [:i] do
-      value := mkProj ``And 1 value
-  if i + 1 < n then
-      value := mkProj ``And 0 value
-  return value
-
 
 builtin_initialize do
   registerTraceClass `Meta.appBuilder

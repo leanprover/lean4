@@ -7,7 +7,7 @@ Simple queue implemented using two lists.
 Note: this is only a temporary placeholder.
 -/
 prelude
-import Init.Data.List
+import Init.Data.Array.Basic
 
 namespace Std
 

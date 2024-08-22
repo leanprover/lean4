@@ -57,12 +57,16 @@ def Lean.Widget.GetWidgetsResponse.debugJson (r : Widget.GetWidgetsResponse) : J
     )
   ]
 
-def word : Parsec String :=
-  Parsec.many1Chars <| Parsec.digit <|> Parsec.asciiLetter <|> Parsec.pchar '_'
+open Std.Internal.Parsec in
+open Std.Internal.Parsec.String in
+def word : Parser String :=
+  many1Chars <| digit <|> asciiLetter <|> pchar '_'
 
-def ident : Parsec Name := do
+open Std.Internal.Parsec in
+open Std.Internal.Parsec.String in
+def ident : Parser Name := do
   let head ← word
-  let xs ← Parsec.many1 (Parsec.pchar '.' *> word)
+  let xs ← many1 (pchar '.' *> word)
   return xs.foldl .str $ .mkSimple head
 
 partial def main (args : List String) : IO Unit := do

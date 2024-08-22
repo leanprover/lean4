@@ -220,8 +220,14 @@ private def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : Tacti
 private def getNumExplicitFields (altMVarId : MVarId) (numFields : Nat) : MetaM Nat := altMVarId.withContext do
   let target ← altMVarId.getType
   withoutModifyingState do
+    -- The `numFields` count includes explicit, implicit and let-bound variables.
+    -- `forallMetaBoundTelescope` will reduce let-bindings, so we don't just count how many
+    -- explicit binders are in `bis`, but how many implicit ones.
+    -- If this turns out to be insufficient, then the real (and complicated) logic for which
+    -- arguments are explicit or implicit can be found in  `introNImp`,
     let (_, bis, _) ← forallMetaBoundedTelescope target numFields
-    return bis.foldl (init := 0) fun r bi => if bi.isExplicit then r + 1 else r
+    let numImplicits := (bis.filter (!·.isExplicit)).size
+    return numFields - numImplicits
 
 private def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Array FVarId) : TermElabM Unit :=
   withSaveInfoContext <| altMVarId.withContext do
@@ -263,9 +269,10 @@ where
               -- save all relevant syntax here for comparison with next document version
               stx := mkNullNode altStxs
               diagnostics := .empty
-              finished := finished.result
-            } (altStxs.zipWith altPromises fun stx prom =>
-                { range? := stx.getRange?, task := prom.result })
+              finished := { range? := none, task := finished.result }
+              next := altStxs.zipWith altPromises fun stx prom =>
+                { range? := stx.getRange?, task := prom.result }
+            }
             goWithIncremental <| altPromises.mapIdx fun i prom => {
               old? := do
                 let old ← tacSnap.old?
@@ -274,10 +281,10 @@ where
                 let old := old.val.get
                 -- use old version of `mkNullNode altsSyntax` as guard, will be compared with new
                 -- version and picked apart in `applyAltStx`
-                return ⟨old.data.stx, (← old.next[i]?)⟩
+                return ⟨old.data.stx, (← old.data.next[i]?)⟩
               new := prom
             }
-            finished.resolve { state? := (← saveState) }
+            finished.resolve { diagnostics := .empty, state? := (← saveState) }
         return
 
     goWithIncremental #[]
@@ -564,7 +571,7 @@ def getInductiveValFromMajor (major : Expr) : TacticM InductiveVal :=
 
 /--
 Elaborates the term in the `using` clause. We want to allow parameters to be instantiated
-(e.g. `using foo (p := …)`), but preserve other paramters, like the motives, as parameters,
+(e.g. `using foo (p := …)`), but preserve other parameters, like the motives, as parameters,
 without turning them into MVars. So this uses `abstractMVars` at the end. This is inspired by
 `Lean.Elab.Tactic.addSimpTheorem`.
 

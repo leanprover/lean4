@@ -3,7 +3,7 @@ import Lean
 inductive MyEmpty
 
 def f (x : MyEmpty) : Nat :=
-  MyEmpty.casesOn x
+  MyEmpty.casesOn _ x
 
 set_option trace.Compiler.result true
 /--

@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Joachim Breitner
 -/
 prelude
 import Lean.Elab.PreDefinition.TerminationArgument
@@ -59,55 +59,129 @@ private def getFixedPrefix (declName : Name) (xs : Array Expr) (value : Expr) : 
       return true
   numFixedRef.get
 
-private def elimRecursion (preDef : PreDefinition) (termArg? : Option TerminationArgument) : M (Nat × PreDefinition) := do
-  trace[Elab.definition.structural] "{preDef.declName} := {preDef.value}"
-  withoutModifyingEnv do lambdaTelescope preDef.value fun xs value => do
-    addAsAxiom preDef
-    let value ← preprocess value preDef.declName
-    trace[Elab.definition.structural] "{preDef.declName} {xs} :=\n{value}"
-    let numFixed ← getFixedPrefix preDef.declName xs value
-    trace[Elab.definition.structural] "numFixed: {numFixed}"
-    let go := fun recArgInfo => do
-      let valueNew ← if recArgInfo.indPred then
-        mkIndPredBRecOn preDef.declName recArgInfo value
-      else
-        mkBRecOn preDef.declName recArgInfo value
-      let valueNew ← mkLambdaFVars xs valueNew
-      trace[Elab.definition.structural] "result: {valueNew}"
-      -- Recursive applications may still occur in expressions that were not visited by replaceRecApps (e.g., in types)
-      let valueNew ← ensureNoRecFn preDef.declName valueNew
-      let recArgPos := recArgInfo.fixedParams.size + recArgInfo.pos
-      return (recArgPos, { preDef with value := valueNew })
-    -- Use termination_by annotation to find argument to recurse on, or just try all
-    match termArg? with
-    | .some termArg =>
-        assert! termArg.structural
-        withRecArgInfo numFixed xs (← termArg.structuralArg) go
-    | .none => findRecArg numFixed xs go
+partial def withCommonTelescope (preDefs : Array PreDefinition) (k : Array Expr → Array Expr → M α) : M α :=
+  go #[] (preDefs.map (·.value))
+where
+  go (fvars : Array Expr) (vals : Array Expr) : M α := do
+    if !(vals.all fun val => val.isLambda) then
+      k fvars vals
+    else if !(← vals.allM fun val=> isDefEq val.bindingDomain! vals[0]!.bindingDomain!) then
+      k fvars vals
+    else
+      withLocalDecl vals[0]!.bindingName! vals[0]!.binderInfo vals[0]!.bindingDomain! fun x =>
+        go (fvars.push x) (vals.map fun val => val.bindingBody!.instantiate1 x)
+
+def getMutualFixedPrefix (preDefs : Array PreDefinition) : M Nat :=
+  withCommonTelescope preDefs fun xs vals => do
+    let resultRef ← IO.mkRef xs.size
+    for val in vals do
+      if (← resultRef.get) == 0 then return 0
+      forEachExpr' val fun e => do
+        if preDefs.any fun preDef => e.isAppOf preDef.declName then
+          let args := e.getAppArgs
+          resultRef.modify (min args.size ·)
+          for arg in args, x in xs do
+            if !(← withoutProofIrrelevance <| withReducible <| isDefEq arg x) then
+              -- We continue searching if e's arguments are not a prefix of `xs`
+              return true
+          return false
+        else
+          return true
+    resultRef.get
+
+private def elimMutualRecursion (preDefs : Array PreDefinition) (xs : Array Expr)
+    (recArgInfos : Array RecArgInfo) : M (Array PreDefinition) := do
+  let values ← preDefs.mapM (instantiateLambda ·.value xs)
+  let indInfo ← getConstInfoInduct recArgInfos[0]!.indGroupInst.all[0]!
+  if ← isInductivePredicate indInfo.name then
+    -- Here we branch off to the IndPred construction, but only for non-mutual functions
+    unless preDefs.size = 1 do
+      throwError "structural mutual recursion over inductive predicates is not supported"
+    trace[Elab.definition.structural] "Using mkIndPred construction"
+    let preDef := preDefs[0]!
+    let recArgInfo := recArgInfos[0]!
+    let value := values[0]!
+    let valueNew ← mkIndPredBRecOn recArgInfo value
+    let valueNew ← mkLambdaFVars xs valueNew
+    trace[Elab.definition.structural] "Nonrecursive value:{indentExpr valueNew}"
+    check valueNew
+    return #[{ preDef with value := valueNew }]
+
+  -- Sort the (indices of the) definitions by their position in indInfo.all
+  let positions : Positions := .groupAndSort (·.indIdx) recArgInfos (Array.range indInfo.numTypeFormers)
+  trace[Elab.definition.structural] "positions: {positions}"
+
+  -- Construct the common `.brecOn` arguments
+  let motives ← (Array.zip recArgInfos values).mapM fun (r, v) => mkBRecOnMotive r v
+  trace[Elab.definition.structural] "motives: {motives}"
+  let brecOnConst ← mkBRecOnConst recArgInfos positions motives
+  let FTypes ← inferBRecOnFTypes recArgInfos positions brecOnConst
+  trace[Elab.definition.structural] "FTypes: {FTypes}"
+  let FArgs ← (recArgInfos.zip  (values.zip FTypes)).mapM fun (r, (v, t)) =>
+    mkBRecOnF recArgInfos positions r v t
+  trace[Elab.definition.structural] "FArgs: {FArgs}"
+  -- Assemble the individual `.brecOn` applications
+  let valuesNew ← (Array.zip recArgInfos values).mapIdxM fun i (r, v) =>
+    mkBrecOnApp positions i brecOnConst FArgs r v
+  -- Abstract over the fixed prefixed
+  let valuesNew ← valuesNew.mapM (mkLambdaFVars xs ·)
+  return (Array.zip preDefs valuesNew).map fun ⟨preDef, valueNew⟩ => { preDef with value := valueNew }
+
+private def inferRecArgPos (preDefs : Array PreDefinition) (termArg?s : Array (Option TerminationArgument)) :
+    M (Array Nat × (Array PreDefinition) × Nat) := do
+  withoutModifyingEnv do
+    preDefs.forM (addAsAxiom ·)
+    let fnNames := preDefs.map (·.declName)
+    let preDefs ← preDefs.mapM fun preDef =>
+      return { preDef with value := (← preprocess preDef.value fnNames) }
+
+    -- The syntactically fixed arguments
+    let maxNumFixed ← getMutualFixedPrefix preDefs
+
+    lambdaBoundedTelescope preDefs[0]!.value maxNumFixed fun xs _ => do
+      assert! xs.size = maxNumFixed
+      let values ← preDefs.mapM (instantiateLambda ·.value xs)
+
+      tryAllArgs fnNames xs values termArg?s fun recArgInfos => do
+        let recArgPoss := recArgInfos.map (·.recArgPos)
+        trace[Elab.definition.structural] "Trying argument set {recArgPoss}"
+        let numFixed := recArgInfos.foldl (·.min ·.numFixed) maxNumFixed
+        if numFixed < maxNumFixed then
+          trace[Elab.definition.structural] "Reduced numFixed from {maxNumFixed} to {numFixed}"
+        -- We may have decreased the number of arguments we consider fixed, so update
+        -- the recArgInfos, remove the extra arguments from local environment, and recalculate value
+        let recArgInfos := recArgInfos.map ({· with numFixed := numFixed })
+        withErasedFVars (xs.extract numFixed xs.size |>.map (·.fvarId!)) do
+          let xs := xs[:numFixed]
+          let preDefs' ← elimMutualRecursion preDefs xs recArgInfos
+          return (recArgPoss, preDefs', numFixed)
 
 def reportTermArg (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit := do
   if let some ref := preDef.termination.terminationBy?? then
     let fn ← lambdaTelescope preDef.value fun xs _ => mkLambdaFVars xs xs[recArgPos]!
-    let termArg : TerminationArgument := {ref := .missing, structural := true, fn}
+    let termArg : TerminationArgument:= {ref := .missing, structural := true, fn}
     let arity ← lambdaTelescope preDef.value fun xs _ => pure xs.size
     let stx ← termArg.delab arity (extraParams := preDef.termination.extraParams)
     Tactic.TryThis.addSuggestion ref stx
 
-def structuralRecursion (preDefs : Array PreDefinition) (termArgs? : Option TerminationArguments) : TermElabM Unit :=
-  if preDefs.size != 1 then
-    throwError "structural recursion does not handle mutually recursive functions"
-  else do
-    let termArg? := termArgs?.map (·[0]!)
-    let ((recArgPos, preDefNonRec), state) ← run <| elimRecursion preDefs[0]! termArg?
-    reportTermArg preDefNonRec recArgPos
+
+def structuralRecursion (preDefs : Array PreDefinition) (termArg?s : Array (Option TerminationArgument)) : TermElabM Unit := do
+  let names := preDefs.map (·.declName)
+  let ((recArgPoss, preDefsNonRec, numFixed), state) ← run <| inferRecArgPos preDefs termArg?s
+  for recArgPos in recArgPoss, preDef in preDefs do
+    reportTermArg preDef recArgPos
+  state.addMatchers.forM liftM
+  preDefsNonRec.forM fun preDefNonRec => do
     let preDefNonRec ← eraseRecAppSyntax preDefNonRec
-    let mut preDef ← eraseRecAppSyntax preDefs[0]!
-    state.addMatchers.forM liftM
-    mapError (addNonRec preDefNonRec (applyAttrAfterCompilation := false)) fun msg =>
-      m!"structural recursion failed, produced type incorrect term{indentD msg}"
-    -- We create the `_unsafe_rec` before we abstract nested proofs.
-    -- Reason: the nested proofs may be referring to the _unsafe_rec.
-    addAndCompilePartialRec #[preDef]
+    -- state.addMatchers.forM liftM
+    mapError (f := (m!"structural recursion failed, produced type incorrect term{indentD ·}")) do
+      -- We create the `_unsafe_rec` before we abstract nested proofs.
+      -- Reason: the nested proofs may be referring to the _unsafe_rec.
+      addNonRec preDefNonRec (applyAttrAfterCompilation := false) (all := names.toList)
+  let preDefs ← preDefs.mapM (eraseRecAppSyntax ·)
+  addAndCompilePartialRec preDefs
+  for preDef in preDefs, recArgPos in recArgPoss do
+    let mut preDef := preDef
     unless preDef.kind.isTheorem do
       unless (← isProp preDef.type) do
         preDef ← abstractNestedProofs preDef
@@ -116,13 +190,11 @@ def structuralRecursion (preDefs : Array PreDefinition) (termArgs? : Option Term
         for theorems and definitions that are propositions.
         See issue #2327
         -/
-        registerEqnsInfo preDef recArgPos
+        registerEqnsInfo preDef (preDefs.map (·.declName)) recArgPos numFixed
     addSmartUnfoldingDef preDef recArgPos
     markAsRecursive preDef.declName
-    applyAttributesOf #[preDefNonRec] AttributeApplicationTime.afterCompilation
+  applyAttributesOf preDefsNonRec AttributeApplicationTime.afterCompilation
 
-builtin_initialize
-  registerTraceClass `Elab.definition.structural
 
 end Structural
 

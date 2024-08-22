@@ -97,8 +97,8 @@ namespace  MkTableKey
 
 structure State where
   nextIdx : Nat := 0
-  lmap    : HashMap LMVarId Level := {}
-  emap    : HashMap MVarId Expr := {}
+  lmap    : Std.HashMap LMVarId Level := {}
+  emap    : Std.HashMap MVarId Expr := {}
   mctx    : MetavarContext
 
 abbrev M := StateM State
@@ -120,7 +120,7 @@ partial def normLevel (u : Level) : M Level := do
         return u
       else
         let s ← get
-        match (← get).lmap.find? mvarId with
+        match (← get).lmap[mvarId]? with
         | some u' => pure u'
         | none    =>
           let u' := mkLevelParam <| Name.mkNum `_tc s.nextIdx
@@ -145,7 +145,7 @@ partial def normExpr (e : Expr) : M Expr := do
         return e
       else
         let s ← get
-        match s.emap.find? mvarId with
+        match s.emap[mvarId]? with
         | some e' => pure e'
         | none    => do
           let e' := mkFVar { name := Name.mkNum `_tc s.nextIdx }
@@ -186,7 +186,7 @@ structure State where
   result?        : Option AbstractMVarsResult    := none
   generatorStack : Array GeneratorNode           := #[]
   resumeStack    : Array (ConsumerNode × Answer) := #[]
-  tableEntries   : HashMap Expr TableEntry       := {}
+  tableEntries   : Std.HashMap Expr TableEntry       := {}
 
 abbrev SynthM := ReaderT Context $ StateRefT State MetaM
 
@@ -265,7 +265,7 @@ def newSubgoal (mctx : MetavarContext) (key : Expr) (mvar : Expr) (waiter : Wait
       pure ((), m!"new goal {key}")
 
 def findEntry? (key : Expr) : SynthM (Option TableEntry) := do
-  return (← get).tableEntries.find? key
+  return (← get).tableEntries[key]?
 
 def getEntry (key : Expr) : SynthM TableEntry := do
   match (← findEntry? key) with
@@ -553,7 +553,7 @@ def generate : SynthM Unit := do
     /- See comment at `typeHasMVars` -/
     if backward.synthInstance.canonInstances.get (← getOptions) then
       unless gNode.typeHasMVars do
-        if let some entry := (← get).tableEntries.find? key then
+        if let some entry := (← get).tableEntries[key]? then
           if entry.answers.any fun answer => answer.result.numMVars == 0 then
             /-
             We already have an answer that:
@@ -636,7 +636,7 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
        (action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {})
        fun ex =>
          if ex.isRuntime then
-           throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}\n{useDiagnosticMsg}"
+           throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}{useDiagnosticMsg}"
          else
            throw ex
 
@@ -810,7 +810,7 @@ def trySynthInstance (type : Expr) (maxResultSize? : Option Nat := none) : MetaM
     (fun _ => pure LOption.undef)
 
 def throwFailedToSynthesize (type : Expr) : MetaM Expr :=
-  throwError "failed to synthesize{indentExpr type}\n{useDiagnosticMsg}"
+  throwError "failed to synthesize{indentExpr type}{useDiagnosticMsg}"
 
 def synthInstance (type : Expr) (maxResultSize? : Option Nat := none) : MetaM Expr :=
   catchInternalId isDefEqStuckExceptionId

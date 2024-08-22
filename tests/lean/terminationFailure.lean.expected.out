@@ -2,7 +2,11 @@ terminationFailure.lean:7:2-7:3: error: fail to show termination for
   f.g
   f
 with errors
-structural recursion does not handle mutually recursive functions
+failed to infer structural recursion:
+Cannot use parameters #1 of f.g and x of f:
+  failed to eliminate recursive application
+    _root_.f x
+
 
 Could not find a decreasing measure.
 The arguments relate at each recursive call as follows:
@@ -22,11 +26,11 @@ f.g : Nat → Nat
 terminationFailure.lean:20:4-20:5: error: fail to show termination for
   h
 with errors
-structural recursion cannot be used:
-
-argument #1 cannot be used for structural recursion
+failed to infer structural recursion:
+Cannot use parameter x:
   failed to eliminate recursive application
     h x
+
 
 failed to prove termination, possible solutions:
   - Use `have`-expressions to prove the remaining goals

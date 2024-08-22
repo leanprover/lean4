@@ -314,7 +314,7 @@ def List.permutationsAux.rec' {C : List α → List α → Sort v} (H0 : ∀ is,
   | t :: ts, is =>
       H1 t ts is (permutationsAux.rec' H0 H1 ts (t :: is)) (permutationsAux.rec' H0 H1 is [])
   termination_by ts is => (length ts + length is, length ts)
-  decreasing_by all_goals simp_wf; omega
+  decreasing_by all_goals simp; omega
 
 example {x y w z : Nat} (h : Prod.Lex (· < ·) (· < ·) (x + 1, y + 1) (w, z)) :
     Prod.Lex (· < ·) (· < ·) (x, y) (w, z) := by omega
@@ -385,6 +385,21 @@ example (x : Nat) : x < 2 →
 -- Reported in Lean FRO office hours 2024-05-16 by Michael George
 example (s : Int) (s0 : s < (0 : Int)) : 63 + (s - 2 ^ 63) ≤ 62 - 2 ^ 63 := by
   omega
+
+-- From https://leanprover.zulipchat.com/#narrow/stream/287929-mathlib4/topic/nat.20fighting
+example (n : Nat) : n * n ≥ 0 := by omega
+example (n : Nat) : n * n + n ≥ 0 := by omega
+example (i j k l : Nat) : i * j + k + l - k = i * j + l := by omega
+
+example (n : Nat) : n * 2 = n + n := by omega
+example (n : Nat) : n * n * 2 = n * n + n * n := by omega
+example (n : Nat) : 2 * (n * n) = n * n + n * n := by omega
+-- But not:
+-- example (n : Nat) : 2 * n * n = n * n + n * n := by omega
+-- example (n : Nat) : n * 2 * n = n * n + n * n := by omega
+
+-- From https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/omega.20regression/near/456539091
+example (a : Nat) : a * 1 = a := by omega
 
 /-! ### Fin -/
 

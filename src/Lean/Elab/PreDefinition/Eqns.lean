@@ -228,16 +228,12 @@ private def shouldUseSimpMatch (e : Expr) : MetaM Bool := do
             throwThe Unit ()
   return (← (find e).run) matches .error _
 
-partial def mkEqnTypes (tryRefl : Bool) (declNames : Array Name) (mvarId : MVarId) : MetaM (Array Expr) := do
+partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) : MetaM (Array Expr) := do
   let (_, eqnTypes) ← go mvarId |>.run { declNames } |>.run #[]
   return eqnTypes
 where
   go (mvarId : MVarId) : ReaderT Context (StateRefT (Array Expr) MetaM) Unit := do
     trace[Elab.definition.eqns] "mkEqnTypes step\n{MessageData.ofGoal mvarId}"
-    if tryRefl then
-      if (← tryURefl mvarId) then
-        saveEqn mvarId
-        return ()
 
     if let some mvarId ← expandRHS? mvarId then
       return (← go mvarId)
@@ -333,7 +329,7 @@ def tryContradiction (mvarId : MVarId) : MetaM Bool := do
 partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
   let some eqs ← getEqnsFor? declName | throwError "failed to generate equations for '{declName}'"
   let tryEqns (mvarId : MVarId) : MetaM Bool :=
-    eqs.anyM fun eq => commitWhen do
+    eqs.anyM fun eq => commitWhen do checkpointDefEq (mayPostpone := false) do
       try
         let subgoals ← mvarId.apply (← mkConstWithFreshMVarLevels eq)
         subgoals.allM fun subgoal => do

@@ -145,7 +145,7 @@ def optSemicolon (p : Parser) : Parser :=
 /-- Parses a "synthetic hole", that is, `?foo` or `?_`.
 This syntax is used to construct named metavariables. -/
 @[builtin_term_parser] def syntheticHole := leading_parser
-  "?" >> (ident <|> hole)
+  "?" >> (ident <|> "_")
 /--
 The `⋯` term denotes a term that was omitted by the pretty printer.
 The presence of `⋯` in pretty printer output is controlled by the `pp.deepTerms` and `pp.proofs` options,
@@ -174,9 +174,11 @@ do not yield the right result.
 -/
 @[builtin_term_parser] def typeAscription := leading_parser
   "(" >> (withoutPosition (withoutForbidden (termParser >> " :" >> optional (ppSpace >> termParser)))) >> ")"
+
 /-- Tuple notation; `()` is short for `Unit.unit`, `(a, b, c)` for `Prod.mk a (Prod.mk b c)`, etc. -/
 @[builtin_term_parser] def tuple := leading_parser
   "(" >> optional (withoutPosition (withoutForbidden (termParser >> ", " >> sepBy1 termParser ", " (allowTrailingSep := true)))) >> ")"
+
 /--
 Parentheses, used for grouping expressions (e.g., `a * (b + c)`).
 Can also be used for creating simple functions when combined with `·`. Here are some examples:

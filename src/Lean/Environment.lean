@@ -7,8 +7,8 @@ prelude
 import Init.Control.StateRef
 import Init.Data.Array.BinSearch
 import Init.Data.Stream
-import Lean.Data.HashMap
 import Lean.ImportingFlag
+import Lean.Data.HashMap
 import Lean.Data.SMap
 import Lean.Declaration
 import Lean.LocalContext
@@ -134,7 +134,7 @@ structure Environment where
   the field `constants`. These auxiliary constants are invisible to the Lean kernel and elaborator.
   Only the code generator uses them.
   -/
-  const2ModIdx : HashMap Name ModuleIdx
+  const2ModIdx : Std.HashMap Name ModuleIdx
   /--
   Mapping from constant name to `ConstantInfo`. It contains all constants (definitions, theorems, axioms, etc)
   that have been already type checked by the kernel.
@@ -205,7 +205,7 @@ private def getTrustLevel (env : Environment) : UInt32 :=
   env.header.trustLevel
 
 def getModuleIdxFor? (env : Environment) (declName : Name) : Option ModuleIdx :=
-  env.const2ModIdx.find? declName
+  env.const2ModIdx[declName]?
 
 def isConstructor (env : Environment) (declName : Name) : Bool :=
   match env.find? declName with
@@ -721,7 +721,7 @@ def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
 Construct a mapping from persistent extension name to entension index at the array of persistent extensions.
 We only consider extensions starting with index `>= startingAt`.
 -/
-def mkExtNameMap (startingAt : Nat) : IO (HashMap Name Nat) := do
+def mkExtNameMap (startingAt : Nat) : IO (Std.HashMap Name Nat) := do
   let descrs ← persistentEnvExtensionsRef.get
   let mut result := {}
   for h : i in [startingAt : descrs.size] do
@@ -742,7 +742,7 @@ private def setImportedEntries (env : Environment) (mods : Array ModuleData) (st
     have : modIdx < mods.size := h.upper
     let mod := mods[modIdx]
     for (extName, entries) in mod.entries do
-      if let some entryIdx := extNameIdx.find? extName then
+      if let some entryIdx := extNameIdx[extName]? then
         env := extDescrs[entryIdx]!.toEnvExtension.modifyState env fun s => { s with importedEntries := s.importedEntries.set! modIdx entries }
   return env
 
@@ -790,9 +790,9 @@ structure ImportState where
   moduleData    : Array ModuleData := #[]
   regions       : Array CompactedRegion := #[]
 
-def throwAlreadyImported (s : ImportState) (const2ModIdx : HashMap Name ModuleIdx) (modIdx : Nat) (cname : Name) : IO α := do
+def throwAlreadyImported (s : ImportState) (const2ModIdx : Std.HashMap Name ModuleIdx) (modIdx : Nat) (cname : Name) : IO α := do
   let modName := s.moduleNames[modIdx]!
-  let constModName := s.moduleNames[const2ModIdx[cname].get!.toNat]!
+  let constModName := s.moduleNames[const2ModIdx[cname]!.toNat]!
   throw <| IO.userError s!"import {modName} failed, environment already contains '{cname}' from {constModName}"
 
 abbrev ImportStateM := StateRefT ImportState IO
@@ -856,21 +856,21 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     (leakEnv := false) : IO Environment := do
   let numConsts := s.moduleData.foldl (init := 0) fun numConsts mod =>
     numConsts + mod.constants.size + mod.extraConstNames.size
-  let mut const2ModIdx : HashMap Name ModuleIdx := mkHashMap (capacity := numConsts)
-  let mut constantMap : HashMap Name ConstantInfo := mkHashMap (capacity := numConsts)
+  let mut const2ModIdx : Std.HashMap Name ModuleIdx := Std.HashMap.empty (capacity := numConsts)
+  let mut constantMap : Std.HashMap Name ConstantInfo := Std.HashMap.empty (capacity := numConsts)
   for h:modIdx in [0:s.moduleData.size] do
     let mod := s.moduleData[modIdx]'h.upper
     for cname in mod.constNames, cinfo in mod.constants do
-      match constantMap.insertIfNew cname cinfo with
-      | (constantMap', cinfoPrev?) =>
+      match constantMap.getThenInsertIfNew? cname cinfo with
+      | (cinfoPrev?, constantMap') =>
         constantMap := constantMap'
         if let some cinfoPrev := cinfoPrev? then
           -- Recall that the map has not been modified when `cinfoPrev? = some _`.
           unless equivInfo cinfoPrev cinfo do
             throwAlreadyImported s const2ModIdx modIdx cname
-      const2ModIdx := const2ModIdx.insert cname modIdx
+      const2ModIdx := const2ModIdx.insertIfNew cname modIdx
     for cname in mod.extraConstNames do
-      const2ModIdx := const2ModIdx.insert cname modIdx
+      const2ModIdx := const2ModIdx.insertIfNew cname modIdx
   let constants : ConstMap := SMap.fromHashMap constantMap false
   let exts ← mkInitialExtensionStates
   let mut env : Environment := {
@@ -936,7 +936,7 @@ builtin_initialize namespacesExt : SimplePersistentEnvExtension Name NameSSet �
       6.18% of the runtime is here. It was 9.31% before the `HashMap` optimization.
       -/
       let capacity := as.foldl (init := 0) fun r e => r + e.size
-      let map : HashMap Name Unit := mkHashMap capacity
+      let map : Std.HashMap Name Unit := Std.HashMap.empty capacity
       let map := mkStateFromImportedEntries (fun map name => map.insert name ()) map as
       SMap.fromHashMap map |>.switch
     addEntryFn      := fun s n => s.insert n

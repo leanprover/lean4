@@ -4,8 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.ShareCommon
 import Lean.Compiler.NoncomputableAttr
 import Lean.Util.CollectLevelParams
+import Lean.Util.NumObjs
+import Lean.Util.NumApps
+import Lean.PrettyPrinter
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.ForEachExpr
 import Lean.Elab.RecAppSyntax
@@ -15,7 +19,6 @@ import Lean.Elab.PreDefinition.TerminationHint
 namespace Lean.Elab
 open Meta
 open Term
-
 
 /--
   A (potentially recursive) definition.
@@ -53,18 +56,20 @@ private def getLevelParamsPreDecls (preDefs : Array PreDefinition) (scopeLevelNa
   | Except.ok levelParams => pure levelParams
 
 def fixLevelParams (preDefs : Array PreDefinition) (scopeLevelNames allUserLevelNames : List Name) : TermElabM (Array PreDefinition) := do
-  -- We used to use `shareCommon` here, but is was a bottleneck
-  let levelParams ← getLevelParamsPreDecls preDefs scopeLevelNames allUserLevelNames
-  let us := levelParams.map mkLevelParam
-  let fixExpr (e : Expr) : Expr :=
-    e.replace fun c => match c with
-      | Expr.const declName _ => if preDefs.any fun preDef => preDef.declName == declName then some $ Lean.mkConst declName us else none
-      | _ => none
-  return preDefs.map fun preDef =>
-    { preDef with
-      type        := fixExpr preDef.type,
-      value       := fixExpr preDef.value,
-      levelParams := levelParams }
+  profileitM Exception s!"fix level params" (← getOptions) do
+    withTraceNode `Elab.def.fixLevelParams (fun _ => return m!"fix level params") do
+      -- We used to use `shareCommon` here, but is was a bottleneck
+      let levelParams ← getLevelParamsPreDecls preDefs scopeLevelNames allUserLevelNames
+      let us := levelParams.map mkLevelParam
+      let fixExpr (e : Expr) : Expr :=
+        e.replace fun c => match c with
+          | Expr.const declName _ => if preDefs.any fun preDef => preDef.declName == declName then some $ Lean.mkConst declName us else none
+          | _ => none
+      return preDefs.map fun preDef =>
+        { preDef with
+          type        := fixExpr preDef.type,
+          value       := fixExpr preDef.value,
+          levelParams := levelParams }
 
 def applyAttributesOf (preDefs : Array PreDefinition) (applicationTime : AttributeApplicationTime) : TermElabM Unit := do
   for preDef in preDefs do
@@ -95,15 +100,33 @@ private def compileDecl (decl : Declaration) : TermElabM Bool := do
       throw ex
   return true
 
+register_builtin_option diagnostics.threshold.proofSize : Nat := {
+  defValue := 16384
+  group    := "diagnostics"
+  descr    := "only display proof statistics when proof has at least this number of terms"
+}
+
+private def reportTheoremDiag (d : TheoremVal) : TermElabM Unit := do
+  if (← isDiagnosticsEnabled) then
+    let proofSize ← d.value.numObjs
+    if proofSize > diagnostics.threshold.proofSize.get (← getOptions) then
+      let sizeMsg := MessageData.trace { cls := `size } m!"{proofSize}" #[]
+      let constOccs ← d.value.numApps (threshold := diagnostics.threshold.get (← getOptions))
+      let constOccsMsg ← constOccs.mapM fun (declName, numOccs) => return MessageData.trace { cls := `occs } m!"{MessageData.ofConst (← mkConstWithLevelParams declName)} ↦ {numOccs}" #[]
+      -- let info
+      logInfo <| MessageData.trace { cls := `theorem } m!"{d.name}" (#[sizeMsg] ++ constOccsMsg)
+
 private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List Name) (applyAttrAfterCompilation := true) : TermElabM Unit :=
   withRef preDef.ref do
     let preDef ← abstractNestedProofs preDef
     let decl ←
       match preDef.kind with
       | DefKind.«theorem» =>
-        pure <| Declaration.thmDecl {
+        let d := {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value, all
         }
+        reportTheoremDiag d
+        pure <| Declaration.thmDecl d
       | DefKind.«opaque»  =>
         pure <| Declaration.opaqueDecl {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
@@ -141,8 +164,11 @@ def addNonRec (preDef : PreDefinition) (applyAttrAfterCompilation := true) (all 
 /--
   Eliminate recursive application annotations containing syntax. These annotations are used by the well-founded recursion module
   to produce better error messages. -/
-def eraseRecAppSyntaxExpr (e : Expr) : CoreM Expr :=
-  Core.transform e (post := fun e => pure <| TransformStep.done <| if (getRecAppSyntax? e).isSome then e.mdataExpr! else e)
+def eraseRecAppSyntaxExpr (e : Expr) : CoreM Expr := do
+  if e.find? hasRecAppSyntax |>.isSome then
+    Core.transform e (post := fun e => pure <| TransformStep.done <| if hasRecAppSyntax e then e.mdataExpr! else e)
+  else
+    return e
 
 def eraseRecAppSyntax (preDef : PreDefinition) : CoreM PreDefinition :=
   return { preDef with value := (← eraseRecAppSyntaxExpr preDef.value) }
@@ -183,16 +209,44 @@ def addAndCompilePartialRec (preDefs : Array PreDefinition) : TermElabM Unit := 
             | _ => none
           modifiers := {} }
 
-private def containsRecFn (recFnName : Name) (e : Expr) : Bool :=
-  (e.find? fun e => e.isConstOf recFnName).isSome
+private def containsRecFn (recFnNames : Array Name) (e : Expr) : Bool :=
+  (e.find? fun e => e.isConst && recFnNames.contains e.constName!).isSome
 
-def ensureNoRecFn (recFnName : Name) (e : Expr) : MetaM Expr := do
-  if containsRecFn recFnName e then
+def ensureNoRecFn (recFnNames : Array Name) (e : Expr) : MetaM Unit := do
+  if containsRecFn recFnNames e then
     Meta.forEachExpr e fun e => do
-      if e.isAppOf recFnName then
+      if e.getAppFn.isConst && recFnNames.contains e.getAppFn.constName! then
         throwError "unexpected occurrence of recursive application{indentExpr e}"
-    pure e
-  else
-    pure e
+
+/--
+Checks that all codomains have the same level, throws an error otherwise.
+-/
+def checkCodomainsLevel (preDefs : Array PreDefinition) : MetaM Unit := do
+  if preDefs.size = 1 then return
+  let arities ← preDefs.mapM fun preDef =>
+    lambdaTelescope preDef.value fun xs _ => return xs.size
+  forallBoundedTelescope preDefs[0]!.type arities[0]!  fun _ type₀ => do
+    let u₀ ← getLevel type₀
+    for i in [1:preDefs.size] do
+      forallBoundedTelescope preDefs[i]!.type arities[i]! fun _ typeᵢ =>
+      unless ← isLevelDefEq u₀ (← getLevel typeᵢ) do
+        withOptions (fun o => pp.sanitizeNames.set o false) do
+          throwError m!"invalid mutual definition, result types must be in the same universe " ++
+            m!"level, resulting type " ++
+            m!"for `{preDefs[0]!.declName}` is{indentExpr type₀} : {← inferType type₀}\n" ++
+            m!"and for `{preDefs[i]!.declName}` is{indentExpr typeᵢ} : {← inferType typeᵢ}"
+
+def shareCommonPreDefs (preDefs : Array PreDefinition) : CoreM (Array PreDefinition) := do
+  profileitM Exception "share common exprs" (← getOptions) do
+    withTraceNode `Elab.def.maxSharing (fun _ => return m!"share common exprs") do
+      let mut es := #[]
+      for preDef in preDefs do
+        es := es.push preDef.type |>.push preDef.value
+      es := ShareCommon.shareCommon' es
+      let mut result := #[]
+      for h : i in [:preDefs.size] do
+        let preDef := preDefs[i]
+        result := result.push { preDef with type := es[2*i]!, value := es[2*i+1]! }
+      return result
 
 end Lean.Elab

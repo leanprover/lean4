@@ -6,7 +6,8 @@ Authors: Mario Carneiro
 prelude
 import Init.Data.Nat.MinMax
 import Init.Data.Nat.Lemmas
-import Init.Data.List.Lemmas
+import Init.Data.List.Monadic
+import Init.Data.List.Nat.Range
 import Init.Data.Fin.Basic
 import Init.Data.Array.Mem
 import Init.TacticsExtra
@@ -51,7 +52,7 @@ theorem foldlM_eq_foldlM_data.aux [Monad m]
     simp [foldlM_eq_foldlM_data.aux f arr i (j+1) H]
     rw (config := {occs := .pos [2]}) [← List.get_drop_eq_drop _ _ ‹_›]
     rfl
-  · rw [List.drop_length_le (Nat.ge_of_not_lt ‹_›)]; rfl
+  · rw [List.drop_of_length_le (Nat.ge_of_not_lt ‹_›)]; rfl
 
 theorem foldlM_eq_foldlM_data [Monad m]
     (f : β → α → m β) (init : β) (arr : Array α) :
@@ -141,7 +142,7 @@ where
     · rw [← List.get_drop_eq_drop _ i ‹_›]
       simp only [aux (i + 1), map_eq_pure_bind, data_length, List.foldlM_cons, bind_assoc, pure_bind]
       rfl
-    · rw [List.drop_length_le (Nat.ge_of_not_lt ‹_›)]; rfl
+    · rw [List.drop_of_length_le (Nat.ge_of_not_lt ‹_›)]; rfl
   termination_by arr.size - i
   decreasing_by decreasing_trivial_pre_omega
 
@@ -334,7 +335,18 @@ theorem mem_data {a : α} {l : Array α} : a ∈ l.data ↔ a ∈ l := (mem_def 
 
 theorem not_mem_nil (a : α) : ¬ a ∈ #[] := nofun
 
+theorem getElem_of_mem {a : α} {as : Array α} :
+    a ∈ as → (∃ (n : Nat) (h : n < as.size), as[n]'h = a) := by
+  intro ha
+  rcases List.getElem_of_mem ha.val with ⟨i, hbound, hi⟩
+  exists i
+  exists hbound
+
 /-- # get lemmas -/
+
+theorem lt_of_getElem {x : α} {a : Array α} {idx : Nat} {hidx : idx < a.size} (_ : a[idx] = x) :
+    idx < a.size :=
+  hidx
 
 theorem getElem?_mem {l : Array α} {i : Fin l.size} : l[i] ∈ l := by
   erw [Array.mem_def, getElem_eq_data_getElem]
@@ -504,6 +516,13 @@ theorem size_eq_length_data (as : Array α) : as.size = as.data.length := rfl
     rw [Nat.fold, flip]
     simp only [mkEmpty_eq, size_push] at *
     omega
+
+@[simp] theorem data_range (n : Nat) : (range n).data = List.range n := by
+  induction n <;> simp_all [range, Nat.fold, flip, List.range_succ]
+
+@[simp]
+theorem getElem_range {n : Nat} {x : Nat} (h : x < (Array.range n).size) : (Array.range n)[x] = x := by
+  simp [getElem_eq_data_getElem]
 
 set_option linter.deprecated false in
 @[simp] theorem reverse_data (a : Array α) : a.reverse.data = a.data.reverse := by
@@ -707,12 +726,27 @@ theorem mapIdx_spec (as : Array α) (f : Fin as.size → α → β)
   unfold modify modifyM Id.run
   split <;> simp
 
+theorem getElem_modify {as : Array α} {x i} (h : i < as.size) :
+    (as.modify x f)[i]'(by simp [h]) = if x = i then f as[i] else as[i] := by
+  simp only [modify, modifyM, get_eq_getElem, Id.run, Id.pure_eq]
+  split
+  · simp only [Id.bind_eq, get_set _ _ _ h]; split <;> simp [*]
+  · rw [if_neg (mt (by rintro rfl; exact h) ‹_›)]
+
+theorem getElem_modify_self {as : Array α} {i : Nat} (h : i < as.size) (f : α → α) :
+    (as.modify i f)[i]'(by simp [h]) = f as[i] := by
+  simp [getElem_modify h]
+
+theorem getElem_modify_of_ne {as : Array α} {i : Nat} (hj : j < as.size)
+    (f : α → α) (h : i ≠ j) :
+    (as.modify i f)[j]'(by rwa [size_modify]) = as[j] := by
+  simp [getElem_modify hj, h]
+
+@[deprecated getElem_modify (since := "2024-08-08")]
 theorem get_modify {arr : Array α} {x i} (h : i < arr.size) :
     (arr.modify x f).get ⟨i, by simp [h]⟩ =
     if x = i then f (arr.get ⟨i, h⟩) else arr.get ⟨i, h⟩ := by
-  simp [modify, modifyM, Id.run]; split
-  · simp [get_set _ _ _ h]; split <;> simp [*]
-  · rw [if_neg (mt (by rintro rfl; exact h) ‹_›)]
+  simp [getElem_modify h]
 
 /-! ### filter -/
 

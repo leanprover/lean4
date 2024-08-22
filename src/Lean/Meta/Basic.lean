@@ -664,10 +664,6 @@ Return `none` if `mvarId` has no declaration in the current metavariable context
 def _root_.Lean.MVarId.findDecl? (mvarId : MVarId) : MetaM (Option MetavarDecl) :=
   return (← getMCtx).findDecl? mvarId
 
-@[deprecated MVarId.findDecl? (since := "2022-07-15")]
-def findMVarDecl? (mvarId : MVarId) : MetaM (Option MetavarDecl) :=
-  mvarId.findDecl?
-
 /--
 Return `mvarId` declaration in the current metavariable context.
 Throw an exception if `mvarId` is not declared in the current metavariable context.
@@ -677,19 +673,11 @@ def _root_.Lean.MVarId.getDecl (mvarId : MVarId) : MetaM MetavarDecl := do
   | some d => pure d
   | none   => throwError "unknown metavariable '?{mvarId.name}'"
 
-@[deprecated MVarId.getDecl (since := "2022-07-15")]
-def getMVarDecl (mvarId : MVarId) : MetaM MetavarDecl := do
-  mvarId.getDecl
-
 /--
 Return `mvarId` kind. Throw an exception if `mvarId` is not declared in the current metavariable context.
 -/
 def _root_.Lean.MVarId.getKind (mvarId : MVarId) : MetaM MetavarKind :=
   return (← mvarId.getDecl).kind
-
-@[deprecated MVarId.getKind (since := "2022-07-15")]
-def getMVarDeclKind (mvarId : MVarId) : MetaM MetavarKind :=
-  mvarId.getKind
 
 /-- Return `true` if `e` is a synthetic (or synthetic opaque) metavariable -/
 def isSyntheticMVar (e : Expr) : MetaM Bool := do
@@ -704,18 +692,10 @@ Set `mvarId` kind in the current metavariable context.
 def _root_.Lean.MVarId.setKind (mvarId : MVarId) (kind : MetavarKind) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.setMVarKind mvarId kind
 
-@[deprecated MVarId.setKind (since := "2022-07-15")]
-def setMVarKind (mvarId : MVarId) (kind : MetavarKind) : MetaM Unit :=
-  mvarId.setKind kind
-
 /-- Update the type of the given metavariable. This function assumes the new type is
    definitionally equal to the current one -/
 def _root_.Lean.MVarId.setType (mvarId : MVarId) (type : Expr) : MetaM Unit := do
   modifyMCtx fun mctx => mctx.setMVarType mvarId type
-
-@[deprecated MVarId.setType (since := "2022-07-15")]
-def setMVarType (mvarId : MVarId) (type : Expr) : MetaM Unit := do
-  mvarId.setType type
 
 /--
 Return true if the given metavariable is "read-only".
@@ -723,10 +703,6 @@ That is, its `depth` is different from the current metavariable context depth.
 -/
 def _root_.Lean.MVarId.isReadOnly (mvarId : MVarId) : MetaM Bool := do
   return (← mvarId.getDecl).depth != (← getMCtx).depth
-
-@[deprecated MVarId.isReadOnly (since := "2022-07-15")]
-def isReadOnlyExprMVar (mvarId : MVarId) : MetaM Bool := do
-  mvarId.isReadOnly
 
 /--
 Returns true if `mvarId.isReadOnly` returns true or if `mvarId` is a synthetic opaque metavariable.
@@ -742,10 +718,6 @@ def _root_.Lean.MVarId.isReadOnlyOrSyntheticOpaque (mvarId : MVarId) : MetaM Boo
     | MetavarKind.syntheticOpaque => return !(← getConfig).assignSyntheticOpaque
     | _ => return false
 
-@[deprecated MVarId.isReadOnlyOrSyntheticOpaque (since := "2022-07-15")]
-def isReadOnlyOrSyntheticOpaqueExprMVar (mvarId : MVarId) : MetaM Bool := do
-  mvarId.isReadOnlyOrSyntheticOpaque
-
 /--
 Return the level of the given universe level metavariable.
 -/
@@ -754,10 +726,6 @@ def _root_.Lean.LMVarId.getLevel (mvarId : LMVarId) : MetaM Nat := do
   | some depth => return depth
   | _          => throwError "unknown universe metavariable '?{mvarId.name}'"
 
-@[deprecated LMVarId.getLevel (since := "2022-07-15")]
-def getLevelMVarDepth (mvarId : LMVarId) : MetaM Nat :=
-  mvarId.getLevel
-
 /--
 Return true if the given universe metavariable is "read-only".
 That is, its `depth` is different from the current metavariable context depth.
@@ -765,19 +733,11 @@ That is, its `depth` is different from the current metavariable context depth.
 def _root_.Lean.LMVarId.isReadOnly (mvarId : LMVarId) : MetaM Bool :=
   return (← mvarId.getLevel) < (← getMCtx).levelAssignDepth
 
-@[deprecated LMVarId.isReadOnly (since := "2022-07-15")]
-def isReadOnlyLevelMVar (mvarId : LMVarId) : MetaM Bool := do
-  mvarId.isReadOnly
-
 /--
 Set the user-facing name for the given metavariable.
 -/
 def _root_.Lean.MVarId.setUserName (mvarId : MVarId) (newUserName : Name) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.setMVarUserName mvarId newUserName
-
-@[deprecated MVarId.setUserName (since := "2022-07-15")]
-def setMVarUserName (mvarId : MVarId) (userNameNew : Name) : MetaM Unit :=
-  mvarId.setUserName userNameNew
 
 /--
 Throw an exception saying `fvarId` is not declared in the current local context.
@@ -785,19 +745,11 @@ Throw an exception saying `fvarId` is not declared in the current local context.
 def _root_.Lean.FVarId.throwUnknown (fvarId : FVarId) : CoreM α :=
   throwError "unknown free variable '{mkFVar fvarId}'"
 
-@[deprecated FVarId.throwUnknown (since := "2022-07-15")]
-def throwUnknownFVar (fvarId : FVarId) : MetaM α :=
-  fvarId.throwUnknown
-
 /--
 Return `some decl` if `fvarId` is declared in the current local context.
 -/
 def _root_.Lean.FVarId.findDecl? (fvarId : FVarId) : MetaM (Option LocalDecl) :=
   return (← getLCtx).find? fvarId
-
-@[deprecated FVarId.findDecl? (since := "2022-07-15")]
-def findLocalDecl? (fvarId : FVarId) : MetaM (Option LocalDecl) :=
-  fvarId.findDecl?
 
 /--
   Return the local declaration for the given free variable.
@@ -807,10 +759,6 @@ def _root_.Lean.FVarId.getDecl (fvarId : FVarId) : MetaM LocalDecl := do
   match (← getLCtx).find? fvarId with
   | some d => return d
   | none   => fvarId.throwUnknown
-
-@[deprecated FVarId.getDecl (since := "2022-07-15")]
-def getLocalDecl (fvarId : FVarId) : MetaM LocalDecl := do
-  fvarId.getDecl
 
 /-- Return the type of the given free variable. -/
 def _root_.Lean.FVarId.getType (fvarId : FVarId) : MetaM Expr :=
@@ -886,20 +834,12 @@ contain a metavariable `?m` s.t. local context of `?m` contains a free variable 
 def _root_.Lean.Expr.abstractRangeM (e : Expr) (n : Nat) (xs : Array Expr) : MetaM Expr :=
   liftMkBindingM <| MetavarContext.abstractRange e n xs
 
-@[deprecated Expr.abstractRangeM (since := "2022-07-15")]
-def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : MetaM Expr :=
-  e.abstractRangeM n xs
-
 /--
 Replace free (or meta) variables `xs` with loose bound variables.
 Similar to `Expr.abstract`, but handles metavariables correctly.
 -/
 def _root_.Lean.Expr.abstractM (e : Expr) (xs : Array Expr) : MetaM Expr :=
   e.abstractRangeM xs.size xs
-
-@[deprecated Expr.abstractM (since := "2022-07-15")]
-def abstract (e : Expr) (xs : Array Expr) : MetaM Expr :=
-  e.abstractM xs
 
 /--
 Collect forward dependencies for the free variables in `toRevert`.
@@ -1261,30 +1201,31 @@ private def forallBoundedTelescopeImp (type : Expr) (maxFVars? : Option Nat) (k 
 def forallBoundedTelescope (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
   map2MetaM (fun k => forallBoundedTelescopeImp type maxFVars? k cleanupAnnotations) k
 
-private partial def lambdaTelescopeImp (e : Expr) (consumeLet : Bool) (k : Array Expr → Expr → MetaM α) (cleanupAnnotations := false) : MetaM α := do
-  process consumeLet (← getLCtx) #[] 0 e
+private partial def lambdaTelescopeImp (e : Expr) (consumeLet : Bool) (maxFVars? : Option Nat)
+    (k : Array Expr → Expr → MetaM α) (cleanupAnnotations := false) : MetaM α := do
+  process consumeLet (← getLCtx) #[] e
 where
-  process (consumeLet : Bool) (lctx : LocalContext) (fvars : Array Expr) (j : Nat) (e : Expr) : MetaM α := do
-    match consumeLet, e with
-    | _, .lam n d b bi =>
-      let d := d.instantiateRevRange j fvars.size fvars
+  process (consumeLet : Bool) (lctx : LocalContext) (fvars : Array Expr) (e : Expr) : MetaM α := do
+    match fvarsSizeLtMaxFVars fvars maxFVars?, consumeLet, e with
+    | true, _, .lam n d b bi =>
+      let d := d.instantiateRevRange 0 fvars.size fvars
       let d := if cleanupAnnotations then d.cleanupAnnotations else d
       let fvarId ← mkFreshFVarId
       let lctx := lctx.mkLocalDecl fvarId n d bi
       let fvar := mkFVar fvarId
-      process consumeLet lctx (fvars.push fvar) j b
-    | true, .letE n t v b _ => do
-      let t := t.instantiateRevRange j fvars.size fvars
+      process consumeLet lctx (fvars.push fvar) b
+    | true, true, .letE n t v b _ => do
+      let t := t.instantiateRevRange 0 fvars.size fvars
       let t := if cleanupAnnotations then t.cleanupAnnotations else t
-      let v := v.instantiateRevRange j fvars.size fvars
+      let v := v.instantiateRevRange 0 fvars.size fvars
       let fvarId ← mkFreshFVarId
       let lctx := lctx.mkLetDecl fvarId n t v
       let fvar := mkFVar fvarId
-      process true lctx (fvars.push fvar) j b
-    | _, e =>
-      let e := e.instantiateRevRange j fvars.size fvars
+      process true lctx (fvars.push fvar) b
+    | _, _, e =>
+      let e := e.instantiateRevRange 0 fvars.size fvars
       withReader (fun ctx => { ctx with lctx := lctx }) do
-        withNewLocalInstancesImp fvars j do
+        withNewLocalInstancesImp fvars 0 do
           k fvars e
 
 /--
@@ -1293,7 +1234,7 @@ Similar to `lambdaTelescope` but for lambda and let expressions.
 If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
 -/
 def lambdaLetTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
-  map2MetaM (fun k => lambdaTelescopeImp e true k (cleanupAnnotations := cleanupAnnotations)) k
+  map2MetaM (fun k => lambdaTelescopeImp e true .none k (cleanupAnnotations := cleanupAnnotations)) k
 
 /--
   Given `e` of the form `fun ..xs => A`, execute `k xs A`.
@@ -1303,7 +1244,18 @@ def lambdaLetTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnn
   If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
 -/
 def lambdaTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
-  map2MetaM (fun k => lambdaTelescopeImp e false k (cleanupAnnotations := cleanupAnnotations)) k
+  map2MetaM (fun k => lambdaTelescopeImp e false none k (cleanupAnnotations := cleanupAnnotations)) k
+
+/--
+  Given `e` of the form `fun ..xs ..ys => A`, execute `k xs (fun ..ys => A)` where
+  `xs.size ≤ maxFVars`.
+  This combinator will declare local declarations, create free variables for them,
+  execute `k` with updated local context, and make sure the cache is restored after executing `k`.
+
+  If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
+-/
+def lambdaBoundedTelescope (e : Expr) (maxFVars : Nat) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
+  map2MetaM (fun k => lambdaTelescopeImp e false (.some maxFVars) k (cleanupAnnotations := cleanupAnnotations)) k
 
 /-- Return the parameter names for the given global declaration. -/
 def getParamNames (declName : Name) : MetaM (Array Name) := do
@@ -1540,6 +1492,16 @@ private def withLocalContextImp (lctx : LocalContext) (localInsts : LocalInstanc
 def withLCtx (lctx : LocalContext) (localInsts : LocalInstances) : n α → n α :=
   mapMetaM <| withLocalContextImp lctx localInsts
 
+/--
+Runs `k` in a local envrionment with the `fvarIds` erased.
+-/
+def withErasedFVars [MonadLCtx n] [MonadLiftT MetaM n] (fvarIds : Array FVarId) (k : n α) : n α := do
+  let lctx ← getLCtx
+  let localInsts ← getLocalInstances
+  let lctx' := fvarIds.foldl (·.erase ·) lctx
+  let localInsts' := localInsts.filter (!fvarIds.contains ·.fvar.fvarId!)
+  withLCtx lctx' localInsts' k
+
 private def withMVarContextImp (mvarId : MVarId) (x : MetaM α) : MetaM α := do
   let mvarDecl ← mvarId.getDecl
   withLocalContextImp mvarDecl.lctx mvarDecl.localInstances x
@@ -1550,10 +1512,6 @@ private def withMVarContextImp (mvarId : MVarId) (x : MetaM α) : MetaM α := do
   different from the current ones. -/
 def _root_.Lean.MVarId.withContext (mvarId : MVarId) : n α → n α :=
   mapMetaM <| withMVarContextImp mvarId
-
-@[deprecated MVarId.withContext (since := "2022-07-15")]
-def withMVarContext (mvarId : MVarId) : n α → n α :=
-  mvarId.withContext
 
 private def withMCtxImp (mctx : MetavarContext) (x : MetaM α) : MetaM α := do
   let mctx' ← getMCtx
@@ -1907,9 +1865,13 @@ abbrev isDefEqGuarded (t s : Expr) : MetaM Bool :=
 def isDefEqNoConstantApprox (t s : Expr) : MetaM Bool :=
   approxDefEq <| isDefEq t s
 
-/-- Shorthand for `isDefEq (mkMVar mvarId) val` -/
-def _root_.Lean.MVarId.checkedAssign (mvarId : MVarId) (val : Expr) : MetaM Bool :=
-  isDefEq (mkMVar mvarId) val
+/--
+Returns `true` if `mvarId := val` was successfully assigned.
+This method uses the same assignment validation performed by `isDefEq`, but it does not check whether the types match.
+-/
+-- Remark: this method is implemented at `ExprDefEq`
+@[extern "lean_checked_assign"]
+opaque _root_.Lean.MVarId.checkedAssign (mvarId : MVarId) (val : Expr) : MetaM Bool
 
 /--
   Eta expand the given expression.

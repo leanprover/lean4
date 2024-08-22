@@ -290,7 +290,7 @@ structure RewriteResultConfig where
   side : SideConditions := .solveByElim
   mctx : MetavarContext
 
-def takeListAux (cfg : RewriteResultConfig) (seen : HashMap String Unit) (acc : Array RewriteResult)
+def takeListAux (cfg : RewriteResultConfig) (seen : Std.HashMap String Unit) (acc : Array RewriteResult)
     (xs : List ((Expr ⊕ Name) × Bool × Nat)) : MetaM (Array RewriteResult) := do
   let mut seen := seen
   let mut acc := acc

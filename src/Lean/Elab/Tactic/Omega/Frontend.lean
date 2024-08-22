@@ -58,7 +58,7 @@ structure MetaProblem where
   -/
   disjunctions : List Expr := []
   /-- Facts which have already been processed; we keep these to avoid duplicates. -/
-  processedFacts : HashSet Expr := ∅
+  processedFacts : Std.HashSet Expr := ∅
 
 /-- Construct the `rfl` proof that `lc.eval atoms = e`. -/
 def mkEvalRflProof (e : Expr) (lc : LinearCombo) : OmegaM Expr := do
@@ -80,7 +80,7 @@ def mkCoordinateEvalAtomsEq (e : Expr) (n : Nat) : OmegaM Expr := do
     mkEqTrans eq (← mkEqSymm (mkApp2 (.const ``LinearCombo.coordinate_eval []) n atoms))
 
 /-- Construct the linear combination (and its associated proof and new facts) for an atom. -/
-def mkAtomLinearCombo (e : Expr) : OmegaM (LinearCombo × OmegaM Expr × HashSet Expr) := do
+def mkAtomLinearCombo (e : Expr) : OmegaM (LinearCombo × OmegaM Expr × Std.HashSet Expr) := do
   let (n, facts) ← lookup e
   return ⟨LinearCombo.coordinate n, mkCoordinateEvalAtomsEq e n, facts.getD ∅⟩
 
@@ -94,16 +94,16 @@ Gives a small (10%) speedup in testing.
 I tried using a pointer based cache,
 but there was never enough subexpression sharing to make it effective.
 -/
-partial def asLinearCombo (e : Expr) : OmegaM (LinearCombo × OmegaM Expr × HashSet Expr) := do
+partial def asLinearCombo (e : Expr) : OmegaM (LinearCombo × OmegaM Expr × Std.HashSet Expr) := do
   let cache ← get
-  match cache.find? e with
+  match cache.get? e with
   | some (lc, prf) =>
     trace[omega] "Found in cache: {e}"
     return (lc, prf, ∅)
   | none =>
-    let r ← asLinearComboImpl e
-    modifyThe Cache fun cache => (cache.insert e (r.1, r.2.1.run' cache))
-    pure r
+    let (lc, proof, r) ← asLinearComboImpl e
+    modifyThe Cache fun cache => (cache.insert e (lc, proof.run' cache))
+    pure (lc, proof, r)
 
 /--
 Translates an expression into a `LinearCombo`.
@@ -120,7 +120,7 @@ We also transform the expression as we descend into it:
 * pushing coercions: `↑(x + y)`, `↑(x * y)`, `↑(x / k)`, `↑(x % k)`, `↑k`
 * unfolding `emod`: `x % k` → `x - x / k`
 -/
-partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr × HashSet Expr) := do
+partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr × Std.HashSet Expr) := do
   trace[omega] "processing {e}"
   match groundInt? e with
   | some i =>
@@ -142,7 +142,7 @@ partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr ×
       mkEqTrans
         (← mkAppM ``Int.add_congr #[← prf₁, ← prf₂])
         (← mkEqSymm add_eval)
-    pure (l₁ + l₂, prf, facts₁.merge facts₂)
+    pure (l₁ + l₂, prf, facts₁.union facts₂)
   | (``HSub.hSub, #[_, _, _, _, e₁, e₂]) => do
     let (l₁, prf₁, facts₁) ← asLinearCombo e₁
     let (l₂, prf₂, facts₂) ← asLinearCombo e₂
@@ -152,7 +152,7 @@ partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr ×
       mkEqTrans
         (← mkAppM ``Int.sub_congr #[← prf₁, ← prf₂])
         (← mkEqSymm sub_eval)
-    pure (l₁ - l₂, prf, facts₁.merge facts₂)
+    pure (l₁ - l₂, prf, facts₁.union facts₂)
   | (``Neg.neg, #[_, _, e']) => do
     let (l, prf, facts) ← asLinearCombo e'
     let prf' : OmegaM Expr := do
@@ -178,7 +178,7 @@ partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr ×
           mkEqTrans
             (← mkAppM ``Int.mul_congr #[← xprf, ← yprf])
             (← mkEqSymm mul_eval)
-        pure (some (LinearCombo.mul xl yl, prf, xfacts.merge yfacts), true)
+        pure (some (LinearCombo.mul xl yl, prf, xfacts.union yfacts), true)
       else
         pure (none, false)
     match r? with
@@ -235,7 +235,7 @@ where
   Apply a rewrite rule to an expression, and interpret the result as a `LinearCombo`.
   (We're not rewriting any subexpressions here, just the top level, for efficiency.)
   -/
-  rewrite (lhs rw : Expr) : OmegaM (LinearCombo × OmegaM Expr × HashSet Expr) := do
+  rewrite (lhs rw : Expr) : OmegaM (LinearCombo × OmegaM Expr × Std.HashSet Expr) := do
     trace[omega] "rewriting {lhs} via {rw} : {← inferType rw}"
     match (← inferType rw).eq? with
     | some (_, _lhs', rhs) =>
@@ -243,7 +243,7 @@ where
       let prf' : OmegaM Expr := do mkEqTrans rw (← prf)
       pure (lc, prf', facts)
     | none => panic! "Invalid rewrite rule in 'asLinearCombo'"
-  handleNatCast (e i n : Expr) : OmegaM (LinearCombo × OmegaM Expr × HashSet Expr) := do
+  handleNatCast (e i n : Expr) : OmegaM (LinearCombo × OmegaM Expr × Std.HashSet Expr) := do
     match n with
     | .fvar h =>
       if let some v ← h.getValue? then
@@ -254,7 +254,10 @@ where
     | _ => match n.getAppFnArgs with
     | (``Nat.succ, #[n]) => rewrite e (.app (.const ``Int.ofNat_succ []) n)
     | (``HAdd.hAdd, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_add []) a b)
-    | (``HMul.hMul, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_mul []) a b)
+    | (``HMul.hMul, #[_, _, _, _, a, b]) =>
+      let (lc, prf, r) ← rewrite e (mkApp2 (.const ``Int.ofNat_mul []) a b)
+      -- Add the fact that the multiplication is non-negative.
+      pure (lc, prf, r.insert (mkApp2 (.const ``Int.ofNat_mul_nonneg []) a b))
     | (``HDiv.hDiv, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_ediv []) a b)
     | (``OfNat.ofNat, #[_, n, _]) => rewrite e (.app (.const ``Int.natCast_ofNat []) n)
     | (``HMod.hMod, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_emod []) a b)
@@ -286,7 +289,7 @@ where
     | (``Fin.val, #[n, x]) =>
       handleFinVal e i n x
     | _ => mkAtomLinearCombo e
-  handleFinVal (e i n x : Expr) : OmegaM (LinearCombo × OmegaM Expr × HashSet Expr) := do
+  handleFinVal (e i n x : Expr) : OmegaM (LinearCombo × OmegaM Expr × Std.HashSet Expr) := do
     match x with
     | .fvar h =>
       if let some v ← h.getValue? then
@@ -332,7 +335,7 @@ We solve equalities as they are discovered, as this often results in an earlier 
 -/
 def addIntEquality (p : MetaProblem) (h x : Expr) : OmegaM MetaProblem := do
   let (lc, prf, facts) ← asLinearCombo x
-  let newFacts : HashSet Expr := facts.fold (init := ∅) fun s e =>
+  let newFacts : Std.HashSet Expr := facts.fold (init := ∅) fun s e =>
     if p.processedFacts.contains e then s else s.insert e
   trace[omega] "Adding proof of {lc} = 0"
   pure <|
@@ -348,7 +351,7 @@ We solve equalities as they are discovered, as this often results in an earlier 
 -/
 def addIntInequality (p : MetaProblem) (h y : Expr) : OmegaM MetaProblem := do
   let (lc, prf, facts) ← asLinearCombo y
-  let newFacts : HashSet Expr := facts.fold (init := ∅) fun s e =>
+  let newFacts : Std.HashSet Expr := facts.fold (init := ∅) fun s e =>
     if p.processedFacts.contains e then s else s.insert e
   trace[omega] "Adding proof of {lc} ≥ 0"
   pure <|
@@ -580,7 +583,7 @@ where
 
   -- We sort the constraints; otherwise the order is dependent on details of the hashing
   -- and this can cause test suite output churn
-  prettyConstraints (names : Array String) (constraints : HashMap Coeffs Fact) : String :=
+  prettyConstraints (names : Array String) (constraints : Std.HashMap Coeffs Fact) : String :=
     constraints.toList
       |>.toArray
       |>.qsort (·.1 < ·.1)
@@ -605,7 +608,7 @@ where
         (if Int.natAbs c = 1 then names[i]! else s!"{c.natAbs}*{names[i]!}"))
       |> String.join
 
-  mentioned (atoms : Array Expr) (constraints : HashMap Coeffs Fact) : MetaM (Array Bool) := do
+  mentioned (atoms : Array Expr) (constraints : Std.HashMap Coeffs Fact) : MetaM (Array Bool) := do
     let initMask := Array.mkArray atoms.size false
     return constraints.fold (init := initMask) fun mask coeffs _ =>
       coeffs.enum.foldl (init := mask) fun mask (i, c) =>

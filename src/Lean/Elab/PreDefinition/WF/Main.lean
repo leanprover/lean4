@@ -36,7 +36,7 @@ where
   go (fvars : Array Expr) (vals : Array Expr) : TermElabM α := do
     if !(vals.all fun val => val.isLambda) then
       k fvars vals
-    else if !(← vals.allM fun val => return val.bindingName! == vals[0]!.bindingName! && val.binderInfo == vals[0]!.binderInfo && (← isDefEq val.bindingDomain! vals[0]!.bindingDomain!)) then
+    else if !(← vals.allM fun val => isDefEq val.bindingDomain! vals[0]!.bindingDomain!) then
       k fvars vals
     else
       withLocalDecl vals[0]!.bindingName! vals[0]!.binderInfo vals[0]!.bindingDomain! fun x =>
@@ -86,7 +86,8 @@ def varyingVarNames (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Ar
     let xs : Array Expr := xs[fixedPrefixSize:]
     xs.mapM (·.fvarId!.getUserName)
 
-def wfRecursion (preDefs : Array PreDefinition) (termArgs? : Option TerminationArguments) : TermElabM Unit := do
+def wfRecursion (preDefs : Array PreDefinition) (termArg?s : Array (Option TerminationArgument)) : TermElabM Unit := do
+  let termArgs? := termArg?s.sequenceMap id -- Either all or none, checked by `elabTerminationByHints`
   let preDefs ← preDefs.mapM fun preDef =>
     return { preDef with value := (← preprocess preDef.value) }
   let (fixedPrefixSize, argsPacker, unaryPreDef) ← withoutModifyingEnv do

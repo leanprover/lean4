@@ -19,8 +19,8 @@ It contains:
 - The actual procedure associated with a name.
 -/
 structure BuiltinSimprocs where
-  keys  : HashMap Name (Array SimpTheoremKey) := {}
-  procs : HashMap Name (Sum Simproc DSimproc) := {}
+  keys  : Std.HashMap Name (Array SimpTheoremKey) := {}
+  procs : Std.HashMap Name (Sum Simproc DSimproc) := {}
   deriving Inhabited
 
 /--
@@ -37,7 +37,7 @@ structure SimprocDecl where
   deriving Inhabited
 
 structure SimprocDeclExtState where
-  builtin    : HashMap Name (Array SimpTheoremKey)
+  builtin    : Std.HashMap Name (Array SimpTheoremKey)
   newEntries : PHashMap Name (Array SimpTheoremKey) := {}
   deriving Inhabited
 
@@ -65,7 +65,7 @@ def getSimprocDeclKeys? (declName : Name) : CoreM (Option (Array SimpTheoremKey)
   if let some keys := keys? then
     return some keys
   else
-    return (simprocDeclExt.getState env).builtin.find? declName
+    return (simprocDeclExt.getState env).builtin[declName]?
 
 def isBuiltinSimproc (declName : Name) : CoreM Bool := do
   let s := simprocDeclExt.getState (← getEnv)
@@ -160,7 +160,7 @@ def Simprocs.addCore (s : Simprocs) (keys : Array SimpTheoremKey) (declName : Na
 Implements attributes `builtin_simproc` and `builtin_sevalproc`.
 -/
 def addSimprocBuiltinAttrCore (ref : IO.Ref Simprocs) (declName : Name) (post : Bool) (proc : Sum Simproc DSimproc) : IO Unit := do
-  let some keys := (← builtinSimprocDeclsRef.get).keys.find? declName |
+  let some keys := (← builtinSimprocDeclsRef.get).keys[declName]? |
     throw (IO.userError "invalid [builtin_simproc] attribute, '{declName}' is not a builtin simproc")
   ref.modify fun s => s.addCore keys declName post proc
 
@@ -176,7 +176,7 @@ def Simprocs.add (s : Simprocs) (declName : Name) (post : Bool) : CoreM Simprocs
       getSimprocFromDecl declName
     catch e =>
       if (← isBuiltinSimproc declName) then
-        let some proc := (← builtinSimprocDeclsRef.get).procs.find? declName
+        let some proc := (← builtinSimprocDeclsRef.get).procs[declName]?
           | throwError "invalid [simproc] attribute, '{declName}' is not a simproc"
         pure proc
       else
@@ -384,7 +384,7 @@ def mkSimprocAttr (attrName : Name) (attrDescr : String) (ext : SimprocExtension
     erase := eraseSimprocAttr ext
   }
 
-abbrev SimprocExtensionMap := HashMap Name SimprocExtension
+abbrev SimprocExtensionMap := Std.HashMap Name SimprocExtension
 
 builtin_initialize simprocExtensionMapRef : IO.Ref SimprocExtensionMap ← IO.mkRef {}
 
@@ -438,7 +438,7 @@ def getSEvalSimprocs : CoreM Simprocs :=
   return simprocSEvalExtension.getState (← getEnv)
 
 def getSimprocExtensionCore? (attrName : Name) : IO (Option SimprocExtension) :=
-  return (← simprocExtensionMapRef.get).find? attrName
+  return (← simprocExtensionMapRef.get)[attrName]?
 
 def simpAttrNameToSimprocAttrName (attrName : Name) : Name :=
   if attrName == `simp then `simprocAttr

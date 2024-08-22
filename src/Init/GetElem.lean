@@ -118,6 +118,14 @@ instance (priority := low) [GetElem coll idx elem valid] [∀ xs i, Decidable (v
     GetElem? coll idx elem valid where
   getElem? xs i := decidableGetElem? xs i
 
+theorem getElem_congr_coll [GetElem coll idx elem valid] {c d : coll} {i : idx} {h : valid c i}
+    (h' : c = d) : c[i] = d[i]'(h' ▸ h) := by
+  cases h'; rfl
+
+theorem getElem_congr [GetElem coll idx elem valid] {c : coll} {i j : idx} {h : valid c i}
+    (h' : i = j) : c[i] = c[j]'(h' ▸ h) := by
+  cases h'; rfl
+
 class LawfulGetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w))
    (dom : outParam (cont → idx → Prop)) [ge : GetElem? cont idx elem dom] : Prop where
 
@@ -171,14 +179,12 @@ instance [GetElem? cont Nat elem dom] [h : LawfulGetElem cont Nat elem dom] :
 @[simp] theorem getElem_fin [GetElem? Cont Nat Elem Dom] (a : Cont) (i : Fin n) (h : Dom a i) :
     a[i] = a[i.1] := rfl
 
-@[simp] theorem getElem?_fin [h : GetElem? Cont Nat Elem Dom] (a : Cont) (i : Fin n)
-    [Decidable (Dom a i)] : a[i]? = a[i.1]? := by rfl
+@[simp] theorem getElem?_fin [h : GetElem? Cont Nat Elem Dom] (a : Cont) (i : Fin n) : a[i]? = a[i.1]? := by rfl
 
-@[simp] theorem getElem!_fin [GetElem? Cont Nat Elem Dom] (a : Cont) (i : Fin n)
-    [Decidable (Dom a i)] [Inhabited Elem] : a[i]! = a[i.1]! := rfl
+@[simp] theorem getElem!_fin [GetElem? Cont Nat Elem Dom] (a : Cont) (i : Fin n) [Inhabited Elem] : a[i]! = a[i.1]! := rfl
 
 macro_rules
-  | `(tactic| get_elem_tactic_trivial) => `(tactic| apply Fin.val_lt_of_le; get_elem_tactic_trivial; done)
+  | `(tactic| get_elem_tactic_trivial) => `(tactic| (with_reducible apply Fin.val_lt_of_le); get_elem_tactic_trivial; done)
 
 end Fin
 
@@ -190,12 +196,12 @@ instance : GetElem (List α) Nat α fun as i => i < as.length where
 @[simp] theorem getElem_cons_zero (a : α) (as : List α) (h : 0 < (a :: as).length) : getElem (a :: as) 0 h = a := by
   rfl
 
-@[deprecated (since := "2024-6-12")] abbrev cons_getElem_zero := @getElem_cons_zero
+@[deprecated (since := "2024-06-12")] abbrev cons_getElem_zero := @getElem_cons_zero
 
 @[simp] theorem getElem_cons_succ (a : α) (as : List α) (i : Nat) (h : i + 1 < (a :: as).length) : getElem (a :: as) (i+1) h = getElem as i (Nat.lt_of_succ_lt_succ h) := by
   rfl
 
-@[deprecated (since := "2024-6-12")] abbrev cons_getElem_succ := @getElem_cons_succ
+@[deprecated (since := "2024-06-12")] abbrev cons_getElem_succ := @getElem_cons_succ
 
 theorem get_drop_eq_drop (as : List α) (i : Nat) (h : i < as.length) : as[i] :: as.drop (i+1) = as.drop i :=
   match as, i with

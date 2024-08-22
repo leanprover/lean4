@@ -630,7 +630,7 @@ private def replaceIndFVarsWithConsts (views : Array InductiveView) (indFVars : 
         let type := type.replace fun e =>
           if !e.isFVar then
             none
-          else match indFVar2Const.find? e with
+          else match indFVar2Const[e]? with
             | none   => none
             | some c => mkAppN c (params.extract 0 numVars)
         instantiateMVars (← mkForallFVars params type)
@@ -771,6 +771,7 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
   let isUnsafe          := view0.modifiers.isUnsafe
   withRef view0.ref <| Term.withLevelNames allUserLevelNames do
     let rs ← elabHeader views
+    Term.synthesizeSyntheticMVarsNoPostponing
     withInductiveLocalDecls rs fun params indFVars => do
       trace[Elab.inductive] "indFVars: {indFVars}"
       let mut indTypesArray := #[]
@@ -778,11 +779,19 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
         let indFVar := indFVars[i]!
         Term.addLocalVarInfo views[i]!.declId indFVar
         let r     := rs[i]!
-        let type  := r.type |>.abstract r.params |>.instantiateRev params
+        /- At this point, because of `withInductiveLocalDecls`, the only fvars that are in context are the ones related to the first inductive type.
+           Because of this, we need to replace the fvars present in each inductive type's header of the mutual block with those of the first inductive.
+           However, some mvars may still be uninstantiated there, and might hide some of the old fvars.
+           As such we first need to synthesize all possible mvars at this stage, instantiate them in the header types and only
+           then replace the parameters' fvars in the header type.
+
+           See issue #3242 (`https://github.com/leanprover/lean4/issues/3242`)
+        -/
+        let type  ←  instantiateMVars r.type
+        let type  := type.replaceFVars r.params params
         let type  ← mkForallFVars params type
         let ctors ← withExplicitToImplicit params (elabCtors indFVars indFVar params r)
         indTypesArray := indTypesArray.push { name := r.view.declName, type, ctors }
-      Term.synthesizeSyntheticMVarsNoPostponing
       let numExplicitParams ← fixedIndicesToParams params.size indTypesArray indFVars
       trace[Elab.inductive] "numExplicitParams: {numExplicitParams}"
       let indTypes := indTypesArray.toList

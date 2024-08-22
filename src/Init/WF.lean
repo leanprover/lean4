@@ -68,6 +68,7 @@ noncomputable def recursion {C : α → Sort v} (a : α) (h : ∀ x, (∀ y, r y
   induction (apply hwf a) with
   | intro x₁ _ ih => exact h x₁ ih
 
+include hwf in
 theorem induction {C : α → Prop} (a : α) (h : ∀ x, (∀ y, r y x → C y) → C x) : C a :=
   recursion hwf a h
 
@@ -148,27 +149,31 @@ end InvImage
   wf  := InvImage.wf f h.wf
 
 -- The transitive closure of a well-founded relation is well-founded
-namespace TC
-variable {α : Sort u} {r : α → α → Prop}
+open Relation
 
-theorem accessible {z : α} (ac : Acc r z) : Acc (TC r) z := by
-  induction ac with
-  | intro x acx ih =>
-    apply Acc.intro x
-    intro y rel
-    induction rel with
-    | base a b rab => exact ih a rab
-    | trans a b c rab _ _ ih₂ => apply Acc.inv (ih₂ acx ih) rab
+theorem Acc.transGen (h : Acc r a) : Acc (TransGen r) a := by
+  induction h with
+  | intro x _ H =>
+    refine Acc.intro x fun y hy ↦ ?_
+    cases hy with
+    | single hyx =>
+      exact H y hyx
+    | tail hyz hzx =>
+      exact (H _ hzx).inv hyz
 
-theorem wf (h : WellFounded r) : WellFounded (TC r) :=
-  ⟨fun a => accessible (apply h a)⟩
-end TC
+theorem acc_transGen_iff : Acc (TransGen r) a ↔ Acc r a :=
+  ⟨Subrelation.accessible TransGen.single, Acc.transGen⟩
 
+theorem WellFounded.transGen (h : WellFounded r) : WellFounded (TransGen r) :=
+  ⟨fun a ↦ (h.apply a).transGen⟩
+
+@[deprecated Acc.transGen (since := "2024-07-16")] abbrev TC.accessible := @Acc.transGen
+@[deprecated WellFounded.transGen (since := "2024-07-16")] abbrev TC.wf := @WellFounded.transGen
 namespace Nat
 
 -- less-than is well-founded
 def lt_wfRel : WellFoundedRelation Nat where
-  rel := Nat.lt
+  rel := (· < ·)
   wf  := by
     apply WellFounded.intro
     intro n
@@ -288,7 +293,7 @@ instance [ha : WellFoundedRelation α] [hb : WellFoundedRelation β] : WellFound
   lex ha hb
 
 -- relational product is a Subrelation of the Lex
-def RProdSubLex (a : α × β) (b : α × β) (h : RProd ra rb a b) : Prod.Lex ra rb a b := by
+theorem RProdSubLex (a : α × β) (b : α × β) (h : RProd ra rb a b) : Prod.Lex ra rb a b := by
   cases h with
   | intro h₁ h₂ => exact Prod.Lex.left _ _ h₁
 
@@ -320,7 +325,7 @@ section
 variable {α : Sort u} {β : α → Sort v}
 variable {r  : α → α → Prop} {s : ∀ (a : α), β a → β a → Prop}
 
-def lexAccessible {a} (aca : Acc r a) (acb : (a : α) → WellFounded (s a)) (b : β a) : Acc (Lex r s) ⟨a, b⟩ := by
+theorem lexAccessible {a} (aca : Acc r a) (acb : (a : α) → WellFounded (s a)) (b : β a) : Acc (Lex r s) ⟨a, b⟩ := by
   induction aca with
   | intro xa _ iha =>
     induction (WellFounded.apply (acb xa) b) with

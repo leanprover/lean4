@@ -420,12 +420,12 @@ def mkSimpExt (name : Name := by exact decl_name%) : IO SimpExtension :=
       | .toUnfoldThms n thms => d.registerDeclToUnfoldThms n thms
   }
 
-abbrev SimpExtensionMap := HashMap Name SimpExtension
+abbrev SimpExtensionMap := Std.HashMap Name SimpExtension
 
 builtin_initialize simpExtensionMapRef : IO.Ref SimpExtensionMap ← IO.mkRef {}
 
 def getSimpExtension? (attrName : Name) : IO (Option SimpExtension) :=
-  return (← simpExtensionMapRef.get).find? attrName
+  return (← simpExtensionMapRef.get)[attrName]?
 
 /-- Auxiliary method for adding a global declaration to a `SimpTheorems` datastructure. -/
 def SimpTheorems.addConst (s : SimpTheorems) (declName : Name) (post := true) (inv := false) (prio : Nat := eval_prio default) : MetaM SimpTheorems := do
@@ -483,7 +483,6 @@ def SimpTheorems.addDeclToUnfold (d : SimpTheorems) (declName : Name) : MetaM Si
         if i + 1 = eqns.size then 0 else 1
       else
         100 - i
-      -- We assign very low priority to equational le
       d ← SimpTheorems.addConst d eqn (prio := prio)
     /-
     Even if a function has equation theorems,

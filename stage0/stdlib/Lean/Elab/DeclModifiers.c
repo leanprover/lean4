@@ -41,7 +41,6 @@ static lean_object* l_Lean_Elab_instToStringVisibility___closed__2;
 lean_object* l_Lean_indentD(lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_expandDeclId___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_List_elem___at_Lean_NameHashSet_insert___spec__2(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_expandDeclIdCore___closed__3;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_checkIfShadowingStructureField___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_elabModifiers___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
@@ -112,6 +111,7 @@ static lean_object* l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__2;
 static lean_object* l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__8___closed__1;
 static lean_object* l_Lean_Elab_instToFormatModifiers___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_mkDeclName___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_List_elem___at_Lean_addAliasEntry___spec__16(lean_object*, lean_object*);
 static lean_object* l_List_map___at_Lean_Elab_instToFormatModifiers___spec__1___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -249,6 +249,7 @@ lean_object* l_Function_comp___rarg(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Visibility_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
+size_t lean_array_size(lean_object*);
 static lean_object* l_List_map___at_Lean_Elab_instToFormatModifiers___spec__1___closed__10;
 static lean_object* l_Lean_Elab_instToFormatModifiers___closed__7;
 LEAN_EXPORT uint8_t l_Lean_Elab_Modifiers_isNonrec(lean_object*);
@@ -3648,22 +3649,20 @@ return x_6;
 LEAN_EXPORT lean_object* l_Lean_Elab_checkIfShadowingStructureField___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-uint8_t x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+uint8_t x_7; lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_7 = 1;
 lean_inc(x_1);
 x_8 = l_Lean_getStructureFieldsFlattened(x_6, x_1, x_7);
-x_9 = lean_array_get_size(x_8);
-x_10 = lean_usize_of_nat(x_9);
-lean_dec(x_9);
-x_11 = 0;
-x_12 = lean_box(0);
+x_9 = lean_array_size(x_8);
+x_10 = 0;
+x_11 = lean_box(0);
 lean_inc(x_5);
 lean_inc(x_2);
-x_13 = l_Array_forInUnsafe_loop___at_Lean_Elab_checkIfShadowingStructureField___spec__1___rarg(x_2, x_3, x_4, x_1, x_5, x_8, x_10, x_11, x_12);
-x_14 = lean_alloc_closure((void*)(l_Lean_Elab_checkIfShadowingStructureField___rarg___lambda__1___boxed), 2, 1);
-lean_closure_set(x_14, 0, x_2);
-x_15 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_13, x_14);
-return x_15;
+x_12 = l_Array_forInUnsafe_loop___at_Lean_Elab_checkIfShadowingStructureField___spec__1___rarg(x_2, x_3, x_4, x_1, x_5, x_8, x_9, x_10, x_11);
+x_13 = lean_alloc_closure((void*)(l_Lean_Elab_checkIfShadowingStructureField___rarg___lambda__1___boxed), 2, 1);
+lean_closure_set(x_13, 0, x_2);
+x_14 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_12, x_13);
+return x_14;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_checkIfShadowingStructureField___rarg___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -4408,7 +4407,7 @@ x_9 = lean_ctor_get(x_1, 1);
 lean_inc(x_9);
 x_10 = lean_array_uget(x_4, x_5);
 x_11 = l_Lean_Syntax_getId(x_10);
-x_12 = l_List_elem___at_Lean_NameHashSet_insert___spec__2(x_11, x_7);
+x_12 = l_List_elem___at_Lean_addAliasEntry___spec__16(x_11, x_7);
 x_13 = lean_box_usize(x_5);
 x_14 = lean_box_usize(x_6);
 lean_inc(x_3);

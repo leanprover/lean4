@@ -18,6 +18,7 @@ Port of the corresponding Rust code (see links below).
 #include <cstdlib>
 #include <cstring>
 #include <lean/lean.h>
+#include <initializer_list>
 #include "runtime/stack_overflow.h"
 
 namespace lean {
@@ -45,7 +46,7 @@ stack_guard::stack_guard() {
 stack_guard::~stack_guard() {}
 #else
 // Install a segfault signal handler and abort with custom message if address is within stack guard.
-// https://github.com/rust-lang/rust/blob/master/src/libstd/sys/unix/stack_overflow.rs
+// https://github.com/rust-lang/rust/blob/master/library/std/src/sys/pal/unix/stack_overflow.rs
 
 
 // https://github.com/rust-lang/rust/blob/7c8dbd969dd0ef2af6d8bab9e03ba7ce6cac41a2/src/libstd/sys/unix/thread.rs#L293
@@ -102,11 +103,17 @@ void initialize_stack_overflow() {
 #ifdef LEAN_WINDOWS
     AddVectoredExceptionHandler(0, stack_overflow_handler);
 #else
-    struct sigaction action;
-    memset(&action, 0, sizeof(struct sigaction));
-    action.sa_flags = SA_SIGINFO | SA_ONSTACK;
-    action.sa_sigaction = segv_handler;
-    sigaction(SIGSEGV, &action, nullptr);
+    for (auto signum : {SIGSEGV, SIGBUS}) {
+        struct sigaction action;
+        memset(&action, 0, sizeof(struct sigaction));
+        sigaction(signum, nullptr, &action);
+        // Configure our signal handler if one is not already set.
+        if (action.sa_handler == SIG_DFL) {
+            action.sa_flags = SA_SIGINFO | SA_ONSTACK;
+            action.sa_sigaction = segv_handler;
+            sigaction(signum, &action, nullptr);
+        }
+    }
 #endif
 }
 

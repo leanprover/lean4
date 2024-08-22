@@ -35,6 +35,7 @@ mutual
 def even : Nat → Bool
   | 0 => true
   | .succ n => not (odd n)
+decreasing_by decreasing_tactic
 def odd : Nat → Bool
   | 0 => false
   | .succ n => not (even n)
@@ -44,6 +45,7 @@ mutual
 def evenWithFixed (m : String) : Nat → Bool
   | 0 => true
   | .succ n => not (oddWithFixed m n)
+decreasing_by decreasing_tactic
 def oddWithFixed (m : String) : Nat → Bool
   | 0 => false
   | .succ n => not (evenWithFixed m n)
@@ -81,6 +83,7 @@ def blowup : Nat → Nat → Nat → Nat → Nat → Nat → Nat → Nat → Nat
 def confuseLex1 : Nat → @PSigma Nat (fun _ => Nat) → Nat
   | 0, _p => 0
   | .succ n, ⟨x,y⟩ => confuseLex1 n ⟨x, .succ y⟩
+decreasing_by decreasing_tactic
 
 def confuseLex2 : @PSigma Nat (fun _ => Nat) → Nat
   | ⟨_,0⟩ => 0
@@ -204,10 +207,10 @@ def foo : Nat → Nat
   | n+1 =>
     if h : n < 42 then bar (42 - n) else 0
   -- termination_by x1 => x1
-  decreasing_by simp_wf; simp [OddNat3]; omega
+  decreasing_by simp; omega
 def bar (o : OddNat3) : Nat := if h : @id Nat o < 41 then foo (41 - @id Nat o) else 0
   -- termination_by sizeOf o
-  decreasing_by simp_wf; simp [id] at *; omega
+  decreasing_by simp [id] at *; omega
 end
 end MutualNotNat2
 
@@ -225,11 +228,11 @@ def foo : Nat → Nat
   | n+1 =>
     if h : n < 42 then bar (42 - n) else 0
   -- termination_by x1 => x1
-  decreasing_by simp_wf; simp [OddNat3]; omega
+  decreasing_by simp; omega
 def bar : OddNat3 → Nat
   | Nat.zero => 0
   | n+1 => if h : n < 41 then foo (40 - n) else 0
   -- termination_by x1 => sizeOf x1
-  decreasing_by simp_wf; omega
+  decreasing_by simp; omega
 end
 end MutualNotNat3

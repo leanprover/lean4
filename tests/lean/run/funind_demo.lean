@@ -14,11 +14,6 @@ info: ackermann.induct (motive : Nat → Nat → Prop) (case1 : ∀ (m : Nat), m
 #guard_msgs in
 #check ackermann.induct
 
--- TODO: Remove when `List.attach` is upstreamed from std
-def List.attach {α} : (l : List α) → List {x // x ∈ l}
-| [] => []
-| x::xs => ⟨x, List.mem_cons_self _ _⟩ :: xs.attach.map (fun ⟨y, hy⟩ => ⟨y, mem_cons_of_mem _ hy⟩)
-
 inductive Tree | node : List Tree → Tree
 def Tree.rev : Tree → Tree | node ts => .node (ts.attach.map (fun ⟨t, _ht⟩ => t.rev) |>.reverse)
 

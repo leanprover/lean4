@@ -71,16 +71,17 @@ def TerminationArgument.elab (funName : Name) (type : Expr) (arity extraParams :
         let body ← Lean.Elab.Term.withSynthesize <| elabTermEnsuringType hint.body none
 
         -- Structural recursion: The body has to be a single parameter, whose index we return
-        if hint.structurally then unless (ys ++ xs).contains body do
-            throwErrorAt hint.ref m!"The terminination argument of a structurally recursive " ++
-              "function must be one of the parameters {ys ++ xs}, but the given {body} isn't " ++
-              "one of these."
+        if hint.structural then unless (ys ++ xs).contains body do
+          let params := MessageData.andList ((ys ++ xs).toList.map (m!"'{·}'"))
+          throwErrorAt hint.ref m!"The termination argument of a structurally recursive " ++
+            m!"function must be one of the parameters {params}, but{indentExpr body}\nisn't " ++
+            m!"one of these."
 
         -- Now abstract also over the remaining extra parameters
         forallBoundedTelescope type'.get! (extraParams - hint.vars.size) fun zs _ => do
           mkLambdaFVars (ys ++ xs ++ zs) body
   check r
-  pure { ref := hint.ref, structural := hint.structurally, fn := r}
+  pure { ref := hint.ref, structural := hint.structural, fn := r}
   where
     parameters : Nat → MessageData
     | 1 => "one parameter"
@@ -121,9 +122,9 @@ def TerminationArgument.delab (arity : Nat) (extraParams : Nat) (termArg : Termi
       while ! vars.isEmpty && vars.back.raw.isOfKind ``hole do vars := vars.pop
       if termArg.structural then
         if vars.isEmpty then
-          `(terminationBy|termination_by structurally $stxBody)
+          `(terminationBy|termination_by structural $stxBody)
         else
-          `(terminationBy|termination_by structurally $vars* => $stxBody)
+          `(terminationBy|termination_by structural $vars* => $stxBody)
       else
         if vars.isEmpty then
           `(terminationBy|termination_by $stxBody)

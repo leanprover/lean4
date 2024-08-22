@@ -42,8 +42,14 @@ public:
 
 LEAN_EXPORT void check_heartbeat();
 
+/* Update the thread local `IO.CancelToken` (`nullptr` if unset) */
+class scope_cancel_tk : flet<lean_object *> {
+public:
+    scope_cancel_tk(lean_object *);
+};
+
 /**
-   \brief Throw an interrupted exception if the current task is marked cancelled.
+   \brief Throw an interrupted exception if the current thread's cancel token is set.
 */
 LEAN_EXPORT void check_interrupted();
 

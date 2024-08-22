@@ -126,8 +126,7 @@ package {repr pkgName} where
   ]
   -- add any additional package configuration options here
 
-require mathlib from git
-  \"https://github.com/leanprover-community/mathlib4.git\"
+require \"leanprover-community\" / \"mathlib\"
 
 @[default_target]
 lean_lib {libRoot} where
@@ -143,7 +142,7 @@ pp.unicode.fun = true # pretty-prints `fun a ↦ b`
 
 [[require]]
 name = \"mathlib\"
-git = \"https://github.com/leanprover-community/mathlib4.git\"
+scope = \"leanprover-community\"
 
 [[lean_lib]]
 name = {repr libRoot}

@@ -265,8 +265,9 @@ def validateManifest
       logWarning <|
         s!"manifest out of date: {what} of dependency '{dep.name}' changed; \
         use `lake update {dep.name}` to update it"
-    if let .some entry := pkgEntries.find? dep.name then
-    match dep.src, entry.src with
+    let some src := dep.src? | return
+    let some entry := pkgEntries.find? dep.name | return
+    match src, entry.src with
     | .git (url := url) (rev := rev) .., .git (url := url') (inputRev? := rev')  .. =>
       if url ≠ url' then warnOutOfDate "git url"
       if rev ≠ rev' then warnOutOfDate "git revision"

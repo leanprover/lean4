@@ -50,7 +50,6 @@ static lean_object* l_List_forIn_loop___at_Lean_Elab_Deriving_Ord_mkMatch_mkAlts
 static lean_object* l_List_forIn_loop___at_Lean_Elab_Deriving_Ord_mkMatch_mkAlts___spec__7___lambda__2___closed__33;
 lean_object* l_Lean_Elab_Deriving_mkInstanceCmds(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Deriving_mkDiscrs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Elab_Deriving_Ord_initFn____x40_Lean_Elab_Deriving_Ord___hyg_2786____closed__2;
 static lean_object* l_Lean_Elab_Deriving_Ord_initFn____x40_Lean_Elab_Deriving_Ord___hyg_2786____closed__9;
 lean_object* l_Lean_Elab_Command_elabCommand(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -132,6 +131,7 @@ static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_Ord_mkMatch_m
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_Ord_mkMatch_mkAlts___spec__5___lambda__1___closed__11;
 lean_object* l_Lean_Elab_getBetterRef(lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_Ord_mkMatch_mkAlts___spec__5___closed__1;
+lean_object* l_outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_Elab_Command_liftTermElabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* lean_array_pop(lean_object*);
@@ -1238,7 +1238,7 @@ if (x_132 == 0)
 lean_object* x_133; lean_object* x_134; 
 lean_dec(x_130);
 x_133 = l_Lean_instInhabitedExpr;
-x_134 = l___private_Init_GetElem_0__outOfBounds___rarg(x_133);
+x_134 = l_outOfBounds___rarg(x_133);
 x_32 = x_134;
 goto block_129;
 }
@@ -5686,7 +5686,7 @@ if (x_12 == 0)
 {
 lean_object* x_73; lean_object* x_74; 
 x_73 = l_Lean_instInhabitedName;
-x_74 = l___private_Init_GetElem_0__outOfBounds___rarg(x_73);
+x_74 = l_outOfBounds___rarg(x_73);
 x_16 = x_74;
 goto block_72;
 }
@@ -5704,7 +5704,7 @@ if (x_15 == 0)
 {
 lean_object* x_69; lean_object* x_70; 
 x_69 = l_Lean_instInhabitedInductiveVal;
-x_70 = l___private_Init_GetElem_0__outOfBounds___rarg(x_69);
+x_70 = l_outOfBounds___rarg(x_69);
 x_17 = x_70;
 goto block_68;
 }

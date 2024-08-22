@@ -244,9 +244,21 @@ inductive KernelException where
 
 namespace Environment
 
-/-- Type check given declaration and add it to the environment -/
+/--
+Type check given declaration and add it to the environment
+-/
 @[extern "lean_add_decl"]
-opaque addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration) : Except KernelException Environment
+opaque addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
+  (cancelTk? : @& Option IO.CancelToken) : Except KernelException Environment
+
+/--
+Add declaration to kernel without type checking it.
+**WARNING** This function is meant for temporarily working around kernel performance issues.
+It compromises soundness because, for example, a buggy tactic may produce an invalid proof,
+and the kernel will not catch it if the new option is set to true.
+-/
+@[extern "lean_add_decl_without_checking"]
+opaque addDeclWithoutChecking (env : Environment) (decl : @& Declaration) : Except KernelException Environment
 
 end Environment
 

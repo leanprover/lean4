@@ -186,11 +186,12 @@ ENDFOREACH(T)
 # which contains a `test.sh` file, excluding the following test(s):
 # bootstrap: too slow
 # toolchain: requires elan to download toolchain
+# online: downloads remote repositories
 file(GLOB_RECURSE LEANLAKETESTS
   "${LEAN_SOURCE_DIR}/lake/tests/test.sh"
   "${LEAN_SOURCE_DIR}/lake/examples/test.sh")
 FOREACH(T ${LEANLAKETESTS})
-  if(NOT T MATCHES ".*(lake-packages|bootstrap|toolchain).*")
+  if(NOT T MATCHES ".*(lake-packages|bootstrap|toolchain|online).*")
     GET_FILENAME_COMPONENT(T_DIR ${T} DIRECTORY)
     GET_FILENAME_COMPONENT(DIR_NAME ${T_DIR} NAME)
     add_test(NAME "leanlaketest_${DIR_NAME}"

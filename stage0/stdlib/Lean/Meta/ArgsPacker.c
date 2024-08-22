@@ -79,7 +79,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_ArgsPacker_Mutual_mkCodomain___lambda__1___
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_Unary_casesOn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_ArgsPacker_Mutual_uncurryType___spec__2(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_ArgsPacker_Mutual_pack_go___spec__1___closed__8;
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_Unary_curry___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_ArgsPacker_Unary_pack_go___closed__3;
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_ArgsPacker_Mutual_packType___spec__1___closed__1;
@@ -160,6 +159,7 @@ static lean_object* l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_Mut
 lean_object* l_Lean_Meta_getLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_ArgsPacker_Mutual_pack_go___spec__1___closed__1;
+lean_object* l_outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_Unary_casesOn___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_Unary_curry_go___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ArgsPacker_curryProj(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -798,7 +798,7 @@ if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; 
 x_9 = l_Lean_instInhabitedExpr;
-x_10 = l___private_Init_GetElem_0__outOfBounds___rarg(x_9);
+x_10 = l_outOfBounds___rarg(x_9);
 return x_10;
 }
 else
@@ -829,7 +829,7 @@ else
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; 
 x_18 = l_Lean_instInhabitedExpr;
-x_19 = l___private_Init_GetElem_0__outOfBounds___rarg(x_18);
+x_19 = l_outOfBounds___rarg(x_18);
 x_20 = l_Lean_Expr_getAppFn(x_3);
 x_21 = l_Lean_Expr_constLevels_x21(x_20);
 lean_dec(x_20);
@@ -1505,7 +1505,7 @@ if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; uint8_t x_29; uint8_t x_30; lean_object* x_31; 
 x_27 = l_Lean_instInhabitedName;
-x_28 = l___private_Init_GetElem_0__outOfBounds___rarg(x_27);
+x_28 = l_outOfBounds___rarg(x_27);
 x_29 = 0;
 x_30 = 0;
 x_31 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_28, x_29, x_16, x_20, x_30, x_6, x_7, x_8, x_9, x_17);
@@ -3851,7 +3851,7 @@ if (x_27 == 0)
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; 
 x_28 = l_Lean_instInhabitedExpr;
-x_29 = l___private_Init_GetElem_0__outOfBounds___rarg(x_28);
+x_29 = l_outOfBounds___rarg(x_28);
 lean_inc(x_29);
 x_30 = l_Lean_Meta_ArgsPacker_Mutual_pack_go(x_1, x_2, x_3, x_26, x_29, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_26);
@@ -3874,7 +3874,7 @@ if (x_37 == 0)
 {
 lean_object* x_38; lean_object* x_39; 
 lean_dec(x_6);
-x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_28);
+x_38 = l_outOfBounds___rarg(x_28);
 x_39 = l_Lean_mkApp3(x_35, x_38, x_29, x_32);
 lean_ctor_set(x_30, 0, x_39);
 return x_30;
@@ -3908,7 +3908,7 @@ if (x_48 == 0)
 {
 lean_object* x_49; lean_object* x_50; lean_object* x_51; 
 lean_dec(x_6);
-x_49 = l___private_Init_GetElem_0__outOfBounds___rarg(x_28);
+x_49 = l_outOfBounds___rarg(x_28);
 x_50 = l_Lean_mkApp3(x_46, x_49, x_29, x_42);
 x_51 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_51, 0, x_50);
@@ -3982,7 +3982,7 @@ if (x_67 == 0)
 lean_object* x_68; lean_object* x_69; lean_object* x_70; 
 lean_dec(x_6);
 x_68 = l_Lean_instInhabitedExpr;
-x_69 = l___private_Init_GetElem_0__outOfBounds___rarg(x_68);
+x_69 = l_outOfBounds___rarg(x_68);
 x_70 = l_Lean_mkApp3(x_65, x_69, x_59, x_62);
 lean_ctor_set(x_60, 0, x_70);
 return x_60;
@@ -4017,7 +4017,7 @@ if (x_79 == 0)
 lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; 
 lean_dec(x_6);
 x_80 = l_Lean_instInhabitedExpr;
-x_81 = l___private_Init_GetElem_0__outOfBounds___rarg(x_80);
+x_81 = l_outOfBounds___rarg(x_80);
 x_82 = l_Lean_mkApp3(x_77, x_81, x_59, x_73);
 x_83 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_83, 0, x_82);
@@ -4085,12 +4085,12 @@ if (x_95 == 0)
 {
 lean_object* x_98; lean_object* x_99; 
 x_98 = l_Lean_instInhabitedExpr;
-x_99 = l___private_Init_GetElem_0__outOfBounds___rarg(x_98);
+x_99 = l_outOfBounds___rarg(x_98);
 if (x_97 == 0)
 {
 lean_object* x_100; lean_object* x_101; lean_object* x_102; 
 lean_dec(x_6);
-x_100 = l___private_Init_GetElem_0__outOfBounds___rarg(x_98);
+x_100 = l_outOfBounds___rarg(x_98);
 x_101 = l_Lean_mkApp3(x_93, x_99, x_100, x_3);
 x_102 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_102, 0, x_101);
@@ -4118,7 +4118,7 @@ if (x_97 == 0)
 lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; 
 lean_dec(x_6);
 x_107 = l_Lean_instInhabitedExpr;
-x_108 = l___private_Init_GetElem_0__outOfBounds___rarg(x_107);
+x_108 = l_outOfBounds___rarg(x_107);
 x_109 = l_Lean_mkApp3(x_93, x_106, x_108, x_3);
 x_110 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_110, 0, x_109);
@@ -4649,7 +4649,7 @@ if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; uint8_t x_18; uint8_t x_19; lean_object* x_20; 
 x_13 = l_Lean_instInhabitedExpr;
-x_14 = l___private_Init_GetElem_0__outOfBounds___rarg(x_13);
+x_14 = l_outOfBounds___rarg(x_13);
 x_15 = l_Lean_Expr_bindingBody_x21(x_14);
 lean_dec(x_14);
 x_16 = lean_expr_instantiate1(x_15, x_5);
@@ -4813,7 +4813,7 @@ lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean
 lean_dec(x_4);
 lean_dec(x_1);
 x_15 = l_Lean_instInhabitedExpr;
-x_16 = l___private_Init_GetElem_0__outOfBounds___rarg(x_15);
+x_16 = l_outOfBounds___rarg(x_15);
 x_17 = l_Lean_Expr_bindingBody_x21(x_16);
 lean_dec(x_16);
 x_18 = lean_expr_instantiate1(x_17, x_3);
@@ -4950,7 +4950,7 @@ if (x_64 == 0)
 {
 lean_object* x_109; lean_object* x_110; 
 x_109 = l_Lean_instInhabitedExpr;
-x_110 = l___private_Init_GetElem_0__outOfBounds___rarg(x_109);
+x_110 = l_outOfBounds___rarg(x_109);
 x_66 = x_110;
 goto block_108;
 }
@@ -4997,7 +4997,7 @@ if (x_75 == 0)
 lean_object* x_77; lean_object* x_78; lean_object* x_79; 
 lean_dec(x_40);
 x_77 = l_Lean_instInhabitedExpr;
-x_78 = l___private_Init_GetElem_0__outOfBounds___rarg(x_77);
+x_78 = l_outOfBounds___rarg(x_77);
 x_79 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_73, x_67, x_78, x_76, x_68, x_5, x_6, x_7, x_8, x_74);
 if (lean_obj_tag(x_79) == 0)
 {
@@ -5297,7 +5297,7 @@ if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; 
 x_11 = l_Lean_instInhabitedExpr;
-x_12 = l___private_Init_GetElem_0__outOfBounds___rarg(x_11);
+x_12 = l_outOfBounds___rarg(x_11);
 x_13 = l_Lean_Meta_ArgsPacker_Unary_uncurry___closed__1;
 x_14 = l_Lean_Meta_ArgsPacker_Mutual_mkCodomain___closed__1;
 x_15 = 0;
@@ -6338,7 +6338,7 @@ lean_inc(x_29);
 x_30 = lean_ctor_get(x_28, 1);
 lean_inc(x_30);
 lean_dec(x_28);
-x_31 = l___private_Init_GetElem_0__outOfBounds___rarg(x_19);
+x_31 = l_outOfBounds___rarg(x_19);
 x_32 = l_Lean_mkArrow(x_29, x_31, x_4, x_5, x_30);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -7920,7 +7920,7 @@ if (x_24 == 0)
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 lean_dec(x_21);
 x_25 = l_Lean_instInhabitedExpr;
-x_26 = l___private_Init_GetElem_0__outOfBounds___rarg(x_25);
+x_26 = l_outOfBounds___rarg(x_25);
 x_27 = lean_unsigned_to_nat(0u);
 x_28 = l_Lean_Meta_ArgsPacker_Unary_pack_go(x_4, x_27, x_26);
 lean_dec(x_26);
@@ -8013,7 +8013,7 @@ if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_16 = l_Lean_Meta_ArgsPacker_Unary_unpack___closed__1;
-x_17 = l___private_Init_GetElem_0__outOfBounds___rarg(x_16);
+x_17 = l_outOfBounds___rarg(x_16);
 x_18 = lean_array_get_size(x_17);
 lean_dec(x_17);
 x_19 = l_Lean_Meta_ArgsPacker_Unary_unpack(x_18, x_14, x_3, x_4, x_5, x_6, x_11);
@@ -8145,7 +8145,7 @@ if (x_43 == 0)
 {
 lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; 
 x_44 = l_Lean_Meta_ArgsPacker_Unary_unpack___closed__1;
-x_45 = l___private_Init_GetElem_0__outOfBounds___rarg(x_44);
+x_45 = l_outOfBounds___rarg(x_44);
 x_46 = lean_array_get_size(x_45);
 lean_dec(x_45);
 x_47 = l_Lean_Meta_ArgsPacker_Unary_unpack(x_46, x_42, x_3, x_4, x_5, x_6, x_11);
@@ -8772,7 +8772,7 @@ if (x_14 == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; uint8_t x_20; lean_object* x_21; 
 x_16 = l_Lean_instInhabitedExpr;
-x_17 = l___private_Init_GetElem_0__outOfBounds___rarg(x_16);
+x_17 = l_outOfBounds___rarg(x_16);
 x_18 = l_Lean_Meta_ArgsPacker_Mutual_uncurryType___closed__2;
 x_19 = 0;
 x_20 = 0;
@@ -8795,7 +8795,7 @@ if (x_24 == 0)
 lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 lean_dec(x_2);
 x_25 = l_Lean_Meta_ArgsPacker_Unary_unpack___closed__1;
-x_26 = l___private_Init_GetElem_0__outOfBounds___rarg(x_25);
+x_26 = l_outOfBounds___rarg(x_25);
 x_27 = l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_Unary_curry(x_26, x_22, x_8, x_9, x_10, x_11, x_23);
 return x_27;
 }
@@ -8863,7 +8863,7 @@ if (x_41 == 0)
 lean_object* x_42; lean_object* x_43; lean_object* x_44; 
 lean_dec(x_2);
 x_42 = l_Lean_Meta_ArgsPacker_Unary_unpack___closed__1;
-x_43 = l___private_Init_GetElem_0__outOfBounds___rarg(x_42);
+x_43 = l_outOfBounds___rarg(x_42);
 x_44 = l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_Unary_curry(x_43, x_39, x_8, x_9, x_10, x_11, x_40);
 return x_44;
 }

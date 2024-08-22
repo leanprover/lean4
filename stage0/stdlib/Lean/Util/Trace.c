@@ -35,7 +35,6 @@ static lean_object* l___auto____x40_Lean_Util_Trace___hyg_2988____closed__20;
 static lean_object* l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___lambda__1___closed__28;
 extern lean_object* l_Lean_profiler;
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_trace_profiler_useHearbeats;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_printTraces___spec__5___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___closed__6;
@@ -146,6 +145,7 @@ size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_instInhabitedTraceState___closed__4;
 static lean_object* l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___closed__5;
 static lean_object* l_Lean_initFn____x40_Lean_Util_Trace___hyg_1333____closed__4;
+LEAN_EXPORT lean_object* l_Lean_trace_profiler_useHeartbeats;
 LEAN_EXPORT lean_object* l_Lean_addRawTrace(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addTrace___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2724,7 +2724,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_Trace___hyg_1427____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("useHearbeats", 12, 12);
+x_1 = lean_mk_string_unchecked("useHeartbeats", 13, 13);
 return x_1;
 }
 }
@@ -3123,7 +3123,7 @@ static lean_object* _init_l___private_Lean_Util_Trace_0__Lean_withStartStop___ra
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_trace_profiler_useHearbeats;
+x_1 = l_Lean_trace_profiler_useHeartbeats;
 return x_1;
 }
 }
@@ -8424,8 +8424,8 @@ l_Lean_initFn____x40_Lean_Util_Trace___hyg_1427____closed__5 = _init_l_Lean_init
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Util_Trace___hyg_1427____closed__5);
 if (builtin) {res = l_Lean_initFn____x40_Lean_Util_Trace___hyg_1427_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
-l_Lean_trace_profiler_useHearbeats = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_trace_profiler_useHearbeats);
+l_Lean_trace_profiler_useHeartbeats = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_trace_profiler_useHeartbeats);
 lean_dec_ref(res);
 }l_Lean_initFn____x40_Lean_Util_Trace___hyg_1521____closed__1 = _init_l_Lean_initFn____x40_Lean_Util_Trace___hyg_1521____closed__1();
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Util_Trace___hyg_1521____closed__1);

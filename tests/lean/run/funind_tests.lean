@@ -41,7 +41,6 @@ info: Binary.ackermann.induct (motive : Nat → Nat → Prop) (case1 : ∀ (m : 
 end Binary
 
 universe u
-opaque _root_.List.attach : {α : Type u} → (l : List α) → List { x // x ∈ l }
 
 inductive Tree | node : List Tree → Tree
 def Tree.rev : Tree → Tree

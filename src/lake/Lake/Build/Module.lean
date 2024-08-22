@@ -107,11 +107,12 @@ def Module.recBuildDeps (mod : Module) : FetchM (BuildJob (SearchPath × Array F
     if imp.name = mod.name then
       logError s!"{mod.leanFile}: module imports itself"
     imp.olean.fetch
-  let precompileImports ← mod.precompileImports.fetch
+  let precompileImports ← if mod.shouldPrecompile then
+    mod.transImports.fetch else mod.precompileImports.fetch
   let modLibJobs ← precompileImports.mapM (·.dynlib.fetch)
-  let pkgs := precompileImports.foldl (·.insert ·.pkg)
-    OrdPackageSet.empty |>.insert mod.pkg |>.toArray
-  let (externJobs, libDirs) ← recBuildExternDynlibs pkgs
+  let pkgs := precompileImports.foldl (·.insert ·.pkg) OrdPackageSet.empty
+  let pkgs := if mod.shouldPrecompile then pkgs.insert mod.pkg else pkgs
+  let (externJobs, libDirs) ← recBuildExternDynlibs pkgs.toArray
   let externDynlibsJob ← BuildJob.collectArray externJobs
   let modDynlibsJob ← BuildJob.collectArray modLibJobs
 

@@ -1,8 +1,18 @@
-set -ex
+#!/usr/bin/env bash
+set -euxo pipefail
+
+LAKE=${LAKE:-../../.lake/build/bin/lake}
 
 ./clean.sh
-./package.sh
+
+# Tests that a non-precmpiled build does not load anything as a dynlib
+# https://github.com/leanprover/lean4/issues/4565
+$LAKE -d app build -v | (grep --color load-dynlib && exit 1 || true)
+$LAKE -d lib build -v | (grep --color load-dynlib && exit 1 || true)
+
 ./app/.lake/build/bin/app
 ./lib/.lake/build/bin/test
 
-${LAKE:-../../.lake/build/bin/lake} -d app build -v Test
+# Tests the successful precompilation of an `extern_lib`
+# Also tests a module with `precompileModules` always precompiles its imports
+$LAKE -d app build Test

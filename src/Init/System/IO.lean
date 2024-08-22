@@ -460,7 +460,7 @@ see there for more information.
 Creates a temporary file in the most secure manner possible. There are no race conditions in the
 file’s creation. The file is readable and writable only by the creating user ID. Additionally
 on UNIX style platforms the file is executable by nobody. The function returns both a `Handle`
-to the already opened file as well as its `FilePath` in case that is of interest.
+to the already opened file as well as its `FilePath`.
 
 Note that it is the caller's job to remove the file after use.
 -/

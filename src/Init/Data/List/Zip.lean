@@ -26,10 +26,10 @@ theorem zip_map (f : α → γ) (g : β → δ) :
     simp only [map, zip_cons_cons, zip_map, Prod.map]; constructor
 
 theorem zip_map_left (f : α → γ) (l₁ : List α) (l₂ : List β) :
-    zip (l₁.map f) l₂ = (zip l₁ l₂).map (Prod.map f id) := by rw [← zip_map, map_id, id]
+    zip (l₁.map f) l₂ = (zip l₁ l₂).map (Prod.map f id) := by rw [← zip_map, map_id]
 
 theorem zip_map_right (f : β → γ) (l₁ : List α) (l₂ : List β) :
-    zip l₁ (l₂.map f) = (zip l₁ l₂).map (Prod.map id f) := by rw [← zip_map, map_id, id]
+    zip l₁ (l₂.map f) = (zip l₁ l₂).map (Prod.map id f) := by rw [← zip_map, map_id]
 
 theorem zip_append :
     ∀ {l₁ r₁ : List α} {l₂ r₂ : List β} (_h : length l₁ = length l₂),

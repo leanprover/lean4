@@ -32,7 +32,13 @@ theorem t5 (a : α) : a = a := _
 
 /-! Accidentally included variables should be warned for. -/
 variable {α : Type} [ToString α] in
-/-- warning: included section variable '[ToString α]' is not used in 't6', consider excluding it -/
+/--
+warning: automatically included section variable(s) unused in theorem 't6':
+  [ToString α]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [ToString α] in theorem ...
+note: this linter can be disabled with `set_option linter.unusedSectionVars false`
+-/
 #guard_msgs in
 theorem t6 (a : α) : a = a := rfl
 
@@ -46,7 +52,11 @@ variable {M N : Type} (r : N → N → Prop)
 class IsTrans (N : Type) (r : N → N → Prop) : Prop
 variable [IsTrans N r] {a b c d : N}
 /--
-warning: included section variable '[IsTrans N r]' is not used in 'act_rel_of_rel_of_act_rel', consider excluding it
+warning: automatically included section variable(s) unused in theorem 'act_rel_of_rel_of_act_rel':
+  [IsTrans N r]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [IsTrans N r] in theorem ...
+note: this linter can be disabled with `set_option linter.unusedSectionVars false`
 -/
 #guard_msgs in
 theorem act_rel_of_rel_of_act_rel (ab : r a b) : r a b := ab
@@ -152,7 +162,13 @@ include α in
 omit α in
 theorem t13 : True := trivial
 
-/-- warning: included section variable 'α' is not used in 't14', consider excluding it -/
+/--
+warning: automatically included section variable(s) unused in theorem 't14':
+  α
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit α in theorem ...
+note: this linter can be disabled with `set_option linter.unusedSectionVars false`
+-/
 #guard_msgs in
 variable (α : Type) in
 include α in

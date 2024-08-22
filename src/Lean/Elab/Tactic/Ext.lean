@@ -10,7 +10,7 @@ import Lean.Elab.Tactic.RCases
 import Lean.Elab.Tactic.Repeat
 import Lean.Elab.Tactic.BuiltinTactic
 import Lean.Elab.Command
-import Lean.Linter.Util
+import Lean.Linter.Basic
 
 /-!
 # Implementation of the `@[ext]` attribute

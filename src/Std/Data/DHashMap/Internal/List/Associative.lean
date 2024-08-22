@@ -18,7 +18,6 @@ File contents: Verification of associative lists
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-
 universe u v w
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w}

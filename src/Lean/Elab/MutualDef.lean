@@ -383,6 +383,11 @@ register_builtin_option deprecated.oldSectionVars : Bool := {
   descr    := "re-enable deprecated behavior of including exactly the section variables used in a declaration"
 }
 
+register_builtin_option linter.unusedSectionVars : Bool := {
+  defValue := true
+  descr := "enable the 'unused section variables in theorem body' linter"
+}
+
 private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr) (sc : Command.Scope) : TermElabM (Array Expr) :=
   headers.mapM fun header => do
     let mut reusableResult? := none
@@ -411,18 +416,25 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
         -- leads to more section variables being included than necessary
         let val ← instantiateMVarsProfiling val
         let val ← mkLambdaFVars xs val
-        unless header.type.hasSorry || val.hasSorry do
-          for var in vars do
-            unless header.type.containsFVar var.fvarId! ||
-                val.containsFVar var.fvarId! ||
-                (← vars.anyM (fun v => return (← v.fvarId!.getType).containsFVar var.fvarId!)) do
-              let varDecl ← var.fvarId!.getDecl
-              let var := if varDecl.userName.hasMacroScopes && varDecl.binderInfo.isInstImplicit then
-                m!"[{varDecl.type}]".group
+        if linter.unusedSectionVars.get (← getOptions) && !header.type.hasSorry && !val.hasSorry then
+          let unusedVars ← vars.filterMapM fun var => do
+            let varDecl ← var.fvarId!.getDecl
+            return if sc.includedVars.contains varDecl.userName ||
+                header.type.containsFVar var.fvarId! || val.containsFVar var.fvarId! ||
+                (← vars.anyM (fun v => return (← v.fvarId!.getType).containsFVar var.fvarId!)) then
+              none
+            else
+              if varDecl.userName.hasMacroScopes && varDecl.binderInfo.isInstImplicit then
+                some m!"[{varDecl.type}]"
               else
-                var
-              logWarningAt header.ref m!"included section variable '{var}' is not used in \
-                '{header.declName}', consider excluding it"
+                some m!"{var}"
+          if unusedVars.size > 0 then
+            Linter.logLint linter.unusedSectionVars header.ref
+              m!"automatically included section variable(s) unused in theorem '{header.declName}':\
+              \n  {MessageData.joinSep unusedVars.toList "\n  "}\
+              \nconsider restructuring your `variable` declarations so that the variables are not \
+                in scope or explicitly omit them:\
+              \n  omit {MessageData.joinSep unusedVars.toList " "} in theorem ..."
         return val
     if let some snap := header.bodySnap? then
       snap.new.resolve <| some {

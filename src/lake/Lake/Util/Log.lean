@@ -435,7 +435,7 @@ instance [Monad m] : MonadLog (LogT m) := .ofMonadState
 
 namespace LogT
 
-abbrev run [Functor m] (self : LogT m α) (log : Log := {})  : m (α × Log) :=
+abbrev run (self : LogT m α) (log : Log := {})  : m (α × Log) :=
   StateT.run self log
 
 abbrev run' [Functor m] (self : LogT m α) (log : Log := {}) :  m α :=
@@ -451,7 +451,7 @@ Thus, this is best used when the lift cannot fail.
   [Monad n] [MonadStateOf Log n] [MonadLiftT m n] [MonadFinally n]
   (self : LogT m α)
 : n α := do
-  let (a, log) ← self (← takeLog)
+  let (a, log) ← self.run (← takeLog)
   set log
   return a
 
@@ -460,7 +460,7 @@ Runs `self` in `n` and then replays the entries of the resulting log
 using the new monad's `logger`.
 -/
 @[inline] def replayLog [Monad n] [logger : MonadLog n] [MonadLiftT m n] (self : LogT m α) : n α := do
-  let (a, log) ← self {}
+  let (a, log) ← self.run {}
   log.replay (logger := logger)
   return a
 

@@ -121,7 +121,7 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
     (below : Expr) (e : Expr) : M Expr :=
   let recFnNames := recArgInfos.map (·.fnName)
   let containsRecFn (e : Expr) : StateRefT (HasConstCache recFnNames) M Bool :=
-    modifyGet (·.contains e)
+    modifyGet (HasConstCache.contains e |>.run ·)
   let rec loop (below : Expr) (e : Expr) : StateRefT (HasConstCache recFnNames) M Expr := do
     if !(← containsRecFn e) then
       return e

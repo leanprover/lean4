@@ -44,7 +44,7 @@ a cancellation token in `f` and checking it when appropriate. -/
 partial def unfoldAsync (f : StateT σ (EIO ε) $ Option α) (init : σ)
     : BaseIO (AsyncList ε α) := do
   let rec step (s : σ) : EIO ε (AsyncList ε α) := do
-    let (aNext, sNext) ← f s
+    let (aNext, sNext) ← f.run s
     match aNext with
       | none => return nil
       | some aNext => do

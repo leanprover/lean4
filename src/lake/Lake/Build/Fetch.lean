@@ -42,7 +42,7 @@ instance : MonadLift JobM RecBuildM := ⟨RecBuildM.runJobM⟩
 @[inline] def RecBuildM.run
   (stack : CallStack BuildKey) (store : BuildStore) (build : RecBuildM α)
 : CoreBuildM (α × BuildStore) := fun ctx log => do
-  match (← build stack ctx log store) with
+  match (← build stack ctx log |>.run store) with
   | (.ok a log, store) => return .ok (a, store) log
   | (.error e log, _) => return .error e log
 
@@ -90,7 +90,7 @@ export BuildInfo (fetch)
 def ensureJob (x : FetchM (Job α))
 : FetchM (Job α) := fun fetch stack ctx log store => do
   let iniPos := log.endPos
-  match (← (withLoggedIO x) fetch stack ctx log store) with
+  match (← (withLoggedIO x) fetch stack ctx log |>.run store) with
   | (.ok job log, store) =>
     let (log, jobLog) := log.split iniPos
     let job := if jobLog.isEmpty then job else job.mapResult (sync := true)

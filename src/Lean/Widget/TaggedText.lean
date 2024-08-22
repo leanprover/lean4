@@ -88,7 +88,7 @@ instance : Std.Format.MonadPrettyFormat (StateM TaggedState) where
 is the indentation level at this point. The latter is used to print sub-trees accurately by passing
 it again as the `indent` argument. -/
 def prettyTagged (f : Format) (indent := 0) (w : Nat := Std.Format.defWidth) : TaggedText (Nat × Nat) :=
-  (f.prettyM w indent : StateM TaggedState Unit) {} |>.snd.out
+  (f.prettyM w indent : StateM TaggedState Unit).run {} |>.snd.out
 
 /-- Remove tags, leaving just the pretty-printed string. -/
 partial def stripTags (tt : TaggedText α) : String :=

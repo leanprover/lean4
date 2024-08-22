@@ -311,7 +311,7 @@ Renders a `Format` to a string.
 @[export lean_format_pretty]
 def pretty (f : Format) (width : Nat := defWidth) (indent : Nat := 0) (column := 0) : String :=
   let act : StateM State Unit := prettyM f width indent
-  State.out <| act (State.mk "" column) |>.snd
+  State.out <| act.run (State.mk "" column) |>.snd
 
 end Format
 

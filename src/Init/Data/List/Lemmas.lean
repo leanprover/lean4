@@ -935,11 +935,16 @@ theorem tail_eq_tail? (l) : @tail α l = (tail? l).getD [] := by simp [tail_eq_t
 
 /-! ### map -/
 
-@[simp] theorem map_id : map (id : α → α) = id := by
+@[simp] theorem map_id_fun : map (id : α → α) = id := by
   funext l
   induction l <;> simp_all
 
-@[simp] theorem map_id' : map (fun (a : α) => a) = id := map_id
+@[simp] theorem map_id_fun' : map (fun (a : α) => a) = id := map_id_fun
+
+theorem map_id (l : List α) : map (id : α → α) l = l := by
+  induction l <;> simp_all
+
+theorem map_id' (l : List α) : map (fun (a : α) => a) l = l := map_id l
 
 theorem map_id'' {f : α → α} (h : ∀ x, f x = x) (l : List α) : map f l = l := by
   simp [show f = id from funext h]

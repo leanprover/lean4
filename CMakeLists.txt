@@ -31,12 +31,11 @@ if(NOT (DEFINED STAGE0_CMAKE_EXECUTABLE_SUFFIX))
 endif()
 
 # On CI Linux, we source cadical from Nix instead; see flake.nix
-if(NOT DEFINED CADICAL_BIN_DEPLOY)
+find_program(CADICAL cadical)
+if(NOT DEFINED CADICAL)
   if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     string(APPEND CADICAL_CXXFLAGS " -DNUNLOCKED")
   endif()
-  # cadical is an optional build target; stage1 will pick up the executable if it has been built
-  # beforehand
   ExternalProject_add(cadical
     PREFIX cadical
     GIT_REPOSITORY https://github.com/arminbiere/cadical
@@ -45,10 +44,11 @@ if(NOT DEFINED CADICAL_BIN_DEPLOY)
     # https://github.com/arminbiere/cadical/blob/master/BUILD.md#manual-build
     BUILD_COMMAND $(MAKE) -f ${CMAKE_SOURCE_DIR}/src/cadical.mk CMAKE_EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX} CXXFLAGS=${CADICAL_CXXFLAGS}
     BUILD_IN_SOURCE ON
-    INSTALL_COMMAND ""
-  )
-  set(CADICAL_BIN_DEPLOY ${CMAKE_BINARY_DIR}/cadical)
+    INSTALL_COMMAND "")
+  set(CADICAL ${CMAKE_BINARY_DIR}/cadical/cadical${CMAKE_EXECUTABLE_SUFFIX} CACHE FILEPATH "path to cadical binary")
+  string(APPEND EXTRA_DEPENDS " cadical")
 endif()
+list(APPEND CL_ARGS -DCADICAL=${CADICAL})
 
 ExternalProject_add(stage0
   SOURCE_DIR "${LEAN_SOURCE_DIR}/stage0"
@@ -60,12 +60,13 @@ ExternalProject_add(stage0
   CMAKE_ARGS -DSTAGE=0 -DUSE_GITHASH=OFF ${PLATFORM_ARGS} ${STAGE0_ARGS}
   BUILD_ALWAYS ON  # cmake doesn't auto-detect changes without a download method
   INSTALL_COMMAND ""  # skip install
+  DEPENDS ${EXTRA_DEPENDS}
 )
 ExternalProject_add(stage1
   SOURCE_DIR "${LEAN_SOURCE_DIR}"
   SOURCE_SUBDIR src
   BINARY_DIR stage1
-  CMAKE_ARGS -DSTAGE=1 -DPREV_STAGE=${CMAKE_BINARY_DIR}/stage0 -DPREV_STAGE_CMAKE_EXECUTABLE_SUFFIX=${STAGE0_CMAKE_EXECUTABLE_SUFFIX} -DCADICAL_BIN_DEPLOY=${CADICAL_BIN_DEPLOY} ${CL_ARGS}
+  CMAKE_ARGS -DSTAGE=1 -DPREV_STAGE=${CMAKE_BINARY_DIR}/stage0 -DPREV_STAGE_CMAKE_EXECUTABLE_SUFFIX=${STAGE0_CMAKE_EXECUTABLE_SUFFIX} ${CL_ARGS}
   BUILD_ALWAYS ON
   INSTALL_COMMAND ""
   DEPENDS stage0

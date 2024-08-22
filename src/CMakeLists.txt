@@ -633,9 +633,8 @@ file(COPY ${LEAN_SOURCE_DIR}/bin/leanmake DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
 install(DIRECTORY "${CMAKE_BINARY_DIR}/bin/" USE_SOURCE_PERMISSIONS DESTINATION bin)
 
-# cadical is an optional build target in the root CMakeLists.txt
-if (EXISTS "${CADICAL_BIN_DEPLOY}/cadical${CMAKE_EXECUTABLE_SUFFIX}")
-  install(PROGRAMS "${CADICAL_BIN_DEPLOY}/cadical${CMAKE_EXECUTABLE_SUFFIX}" DESTINATION bin)
+if (${STAGE} GREATER 0)
+  install(PROGRAMS "${CADICAL}" DESTINATION bin)
 endif()
 
 add_custom_target(clean-stdlib

@@ -17,6 +17,10 @@
       # An old nixpkgs for creating releases with an old glibc
       pkgsDist-old-aarch = import nixpkgs-old { localSystem.config = "aarch64-unknown-linux-gnu"; };
       pkgsCadical = import inputs.nixpkgs-cadical { inherit system; };
+      cadical = if pkgs.stdenv.isLinux then 
+        # use statically-linked cadical on Linux to avoid glibc versioning troubles
+        "${pkgsCadical.pkgsStatic.cadical.override { doCheck = false; }}/bin/cadical"
+      else "${pkgsCadical.cadical}/bin/cadical";
 
       lean-packages = pkgs.callPackage (./nix/packages.nix) { src = ./.; };
 
@@ -24,11 +28,9 @@
           stdenv = pkgs.overrideCC pkgs.stdenv lean-packages.llvmPackages.clang;
         } ({
           buildInputs = with pkgs; [
-            cmake gmp libuv ccache
+            cmake gmp libuv ccache cadical
             lean-packages.llvmPackages.llvm  # llvm-symbolizer for asan/lsan
             gdb
-            # TODO: only add when proven to not affect the flakification
-            #pkgs.python3
             tree  # for CI
           ];
           # https://github.com/NixOS/nixpkgs/issues/60919
@@ -36,8 +38,6 @@
           # more convenient `ctest` output
           CTEST_OUTPUT_ON_FAILURE = 1;
         } // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
-          # use statically-linked cadical on Linux to avoid glibc versioning troubles
-          CADICAL_BIN_DEPLOY = "${pkgsCadical.pkgsStatic.cadical}/bin";
           GMP = pkgsDist.gmp.override { withStatic = true; };
           LIBUV = pkgsDist.libuv.overrideAttrs (attrs: { configureFlags = ["--enable-static"]; });
           GLIBC = pkgsDist.glibc;

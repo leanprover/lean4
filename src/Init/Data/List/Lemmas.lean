@@ -1802,7 +1802,7 @@ theorem mem_bind_of_mem {b : β} {l : List α} {f : α → List β} {a} (al : a 
 
 @[simp]
 theorem bind_eq_nil {l : List α} {f : α → List β} : List.bind l f = [] ↔ ∀ x ∈ l, f x = [] :=
-  join_eq_nil_iff.trans <| by
+  join_eq_nil.trans <| by
     simp only [mem_map, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂]
 
 theorem forall_mem_bind {p : β → Prop} {l : List α} {f : α → List β} :

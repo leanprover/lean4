@@ -1219,10 +1219,13 @@ theorem head_filter_of_pos {p : α → Bool} {l : List α} (w : l ≠ []) (h : p
 theorem filterMap_eq_map (f : α → β) : filterMap (some ∘ f) = map f := by
   funext l; induction l <;> simp [*, filterMap_cons]
 
-@[simp] theorem filterMap_some : filterMap (some : α → Option α) = id := by
+@[simp] theorem filterMap_some_fun : filterMap (some : α → Option α) = id := by
   funext l
   erw [filterMap_eq_map]
   simp
+
+theorem filterMap_some (l : List α) : filterMap some l = l := by
+  rw [filterMap_some_fun, id]
 
 theorem map_filterMap_some_eq_filter_map_isSome (f : α → Option β) (l : List α) :
     (l.filterMap f).map some = (l.map f).filter fun b => b.isSome := by

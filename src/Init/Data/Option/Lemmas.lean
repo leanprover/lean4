@@ -87,6 +87,9 @@ theorem eq_some_iff_get_eq : o = some a ↔ ∃ h : o.isSome, o.get h = a := by
 theorem eq_some_of_isSome : ∀ {o : Option α} (h : o.isSome), o = some (o.get h)
   | some _, _ => rfl
 
+theorem isSome_iff_ne_none : o.isSome ↔ o ≠ none := by
+  cases o <;> simp
+
 theorem not_isSome_iff_eq_none : ¬o.isSome ↔ o = none := by
   cases o <;> simp
 
@@ -238,6 +241,15 @@ theorem map_orElse {x y : Option α} : (x <|> y).map f = (x.map f <|> y.map f) :
 @[simp] theorem guard_eq_some [DecidablePred p] : guard p a = some b ↔ a = b ∧ p a :=
   if h : p a then by simp [Option.guard, h] else by simp [Option.guard, h]
 
+@[simp] theorem guard_isSome [DecidablePred p] : (Option.guard p a).isSome ↔ p a :=
+  if h : p a then by simp [Option.guard, h] else by simp [Option.guard, h]
+
+@[simp] theorem guard_eq_none [DecidablePred p] : Option.guard p a = none ↔ ¬ p a :=
+  if h : p a then by simp [Option.guard, h] else by simp [Option.guard, h]
+
+@[simp] theorem guard_pos [DecidablePred p] (h : p a) : Option.guard p a = some a := by
+  simp [Option.guard, h]
+
 theorem liftOrGet_eq_or_eq {f : α → α → α} (h : ∀ a b, f a b = a ∨ f a b = b) :
     ∀ o₁ o₂, liftOrGet f o₁ o₂ = o₁ ∨ liftOrGet f o₁ o₂ = o₂
   | none, none => .inl rfl
@@ -298,7 +310,7 @@ theorem or_eq_bif : or o o' = bif o.isSome then o else o' := by
 @[simp] theorem or_eq_none : or o o' = none ↔ o = none ∧ o' = none := by
   cases o <;> simp
 
-theorem or_eq_some : or o o' = some a ↔ o = some a ∨ (o = none ∧ o' = some a) := by
+@[simp] theorem or_eq_some : or o o' = some a ↔ o = some a ∨ (o = none ∧ o' = some a) := by
   cases o <;> simp
 
 theorem or_assoc : or (or o₁ o₂) o₃ = or o₁ (or o₂ o₃) := by

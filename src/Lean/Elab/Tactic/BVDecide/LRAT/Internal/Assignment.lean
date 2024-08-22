@@ -122,15 +122,11 @@ def hasAssignment (b : Bool) : Assignment → Bool :=
 
 theorem removePos_addPos_cancel {assignment : Assignment} (h : ¬(hasPosAssignment assignment)) :
   removePosAssignment (addPosAssignment assignment) = assignment := by
-  rw [removePosAssignment, addPosAssignment]
-  rw [hasPosAssignment] at h
-  cases assignment <;> simp_all
+  cases assignment <;> simp_all [removePosAssignment, addPosAssignment, hasPosAssignment]
 
 theorem removeNeg_addNeg_cancel {assignment : Assignment} (h : ¬(hasNegAssignment assignment)) :
   removeNegAssignment (addNegAssignment assignment) = assignment := by
-  rw [removeNegAssignment, addNegAssignment]
-  rw [hasNegAssignment] at h
-  cases assignment <;> simp_all
+  cases assignment <;> simp_all [removeNegAssignment, addNegAssignment, hasNegAssignment]
 
 theorem remove_add_cancel {assignment : Assignment} {b : Bool} (h : ¬(hasAssignment b assignment)) :
   removeAssignment b (addAssignment b assignment) = assignment := by
@@ -152,30 +148,21 @@ theorem has_both (b : Bool) : hasAssignment b both = true := by
 
 theorem has_add (assignment : Assignment) (b : Bool) :
     hasAssignment b (addAssignment b assignment) := by
-  rw [addAssignment, hasAssignment]
-  split
-  · rw [hasPosAssignment, addPosAssignment]
-    cases assignment <;> simp
-  · rw [hasNegAssignment, addNegAssignment]
-    cases assignment <;> simp
+  by_cases b <;> cases assignment <;> simp_all [hasAssignment, hasPosAssignment, addAssignment,
+    addPosAssignment, addNegAssignment, hasNegAssignment]
 
 theorem not_hasPos_removePos (assignment : Assignment) :
     ¬hasPosAssignment (removePosAssignment assignment) := by
-  simp only [removePosAssignment, hasPosAssignment, Bool.not_eq_true]
-  cases assignment <;> simp
+  cases assignment <;> simp [removePosAssignment, hasPosAssignment]
 
 theorem not_hasNeg_removeNeg (assignment : Assignment) :
     ¬hasNegAssignment (removeNegAssignment assignment) := by
-  simp only [removeNegAssignment, hasNegAssignment, Bool.not_eq_true]
-  cases assignment <;> simp
+  cases assignment <;> simp [removeNegAssignment, hasNegAssignment]
 
 theorem not_has_remove (assignment : Assignment) (b : Bool) :
     ¬hasAssignment b (removeAssignment b assignment) := by
-  by_cases hb : b
-  · have h := not_hasPos_removePos assignment
-    simp [hb, h, removeAssignment, hasAssignment]
-  · have h := not_hasNeg_removeNeg assignment
-    simp [hb, h, removeAssignment, hasAssignment]
+  by_cases b <;> cases assignment <;> simp_all [hasAssignment, removeAssignment,
+    removePosAssignment, hasPosAssignment, removeNegAssignment, hasNegAssignment]
 
 theorem has_remove_irrelevant (assignment : Assignment) (b : Bool) :
     hasAssignment b (removeAssignment (!b) assignment) → hasAssignment b assignment := by
@@ -194,13 +181,11 @@ theorem unassigned_of_has_neither (assignment : Assignment) (lacks_pos : ¬(hasP
 
 theorem hasPos_addNeg (assignment : Assignment) :
     hasPosAssignment (addNegAssignment assignment) = hasPosAssignment assignment := by
-  rw [hasPosAssignment, addNegAssignment]
-  cases assignment <;> simp (config := { decide := true })
+  cases assignment <;> simp [hasPosAssignment, addNegAssignment]
 
 theorem hasNeg_addPos (assignment : Assignment) :
     hasNegAssignment (addPosAssignment assignment) = hasNegAssignment assignment := by
-  rw [hasNegAssignment, addPosAssignment]
-  cases assignment <;> simp (config := { decide := true })
+  cases assignment <;> simp [hasNegAssignment, addPosAssignment]
 
 theorem has_iff_has_add_complement (assignment : Assignment) (b : Bool) :
     hasAssignment b assignment ↔ hasAssignment b (addAssignment (¬b) assignment) := by
@@ -208,13 +193,11 @@ theorem has_iff_has_add_complement (assignment : Assignment) (b : Bool) :
 
 theorem addPos_addNeg_eq_both (assignment : Assignment) :
     addPosAssignment (addNegAssignment assignment) = both := by
-  rw [addPosAssignment, addNegAssignment]
-  cases assignment <;> simp
+  cases assignment <;> simp [addPosAssignment, addNegAssignment]
 
 theorem addNeg_addPos_eq_both (assignment : Assignment) :
     addNegAssignment (addPosAssignment assignment) = both := by
-  rw [addNegAssignment, addPosAssignment]
-  cases assignment <;> simp
+  cases assignment <;> simp [addNegAssignment, addPosAssignment]
 
 instance {n : Nat} : Entails (PosFin n) (Array Assignment) where
   eval := fun p arr => ∀ i : PosFin n, ¬(hasAssignment (¬p i) arr[i.1]!)

@@ -369,7 +369,7 @@ theorem unsat_of_encounteredBoth {n : Nat} (c : DefaultClause n)
     (l : Literal (PosFin n)) (_ : l ∈ c.clause) :
     (reduce_fold_fn assignment res l) = encounteredBoth → Unsatisfiable (PosFin n) assignment := by
     intro h
-    rw [reduce_fold_fn] at h
+    rw [reduce_fold_fn.eq_def] at h
     split at h
     · exact ih rfl
     · split at h
@@ -408,7 +408,7 @@ theorem reduce_fold_fn_preserves_induction_motive {c_arr : Array (Literal (PosFi
   simp only [ReducePostconditionInductionMotive, Fin.getElem_fin, forall_exists_index, and_imp, Prod.forall]
   constructor
   · intro h p
-    rw [reduce_fold_fn] at h
+    rw [reduce_fold_fn.eq_def] at h
     split at h
     · simp only at h
     · split at h
@@ -460,7 +460,7 @@ theorem reduce_fold_fn_preserves_induction_motive {c_arr : Array (Literal (PosFi
       · simp only at h
     · simp only at h
   · intro i b h p hp j j_lt_idx_add_one p_entails_c_arr_j
-    rw [reduce_fold_fn] at h
+    rw [reduce_fold_fn.eq_def] at h
     split at h
     · simp only at h
     · split at h
@@ -831,4 +831,3 @@ end DefaultFormula
 end Internal
 end LRAT
 end Lean.Elab.Tactic.BVDecide
-

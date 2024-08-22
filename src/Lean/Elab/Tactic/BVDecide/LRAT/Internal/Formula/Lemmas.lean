@@ -96,7 +96,7 @@ theorem ratUnits_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) :
 theorem size_ofArray_fold_fn {n : Nat} (assignments : Array Assignment)
     (cOpt : Option (DefaultClause n)) :
     (ofArray_fold_fn assignments cOpt).size = assignments.size := by
-  rw [ofArray_fold_fn]
+  rw [ofArray_fold_fn.eq_def]
   split
   · rfl
   · split <;> simp [Array.size_modify]
@@ -376,7 +376,7 @@ theorem mem_of_insertRupUnits {n : Nat} (f : DefaultFormula n) (units : CNF.Clau
     (unit : Literal (PosFin n)) (unit_in_units : unit ∈ units) :
     ∀ l : Literal (PosFin n), l ∈ (insertUnit acc unit).1.data → (l ∈ f.rupUnits.data ∨ l ∈ units) := by
     intro l hl
-    rw [insertUnit] at hl
+    rw [insertUnit.eq_def] at hl
     dsimp at hl
     split at hl
     · exact ih l hl
@@ -413,7 +413,7 @@ theorem mem_of_insertRatUnits {n : Nat} (f : DefaultFormula n) (units : CNF.Clau
     (unit : Literal (PosFin n)) (unit_in_units : unit ∈ units) :
     ∀ l : Literal (PosFin n), l ∈ (insertUnit acc unit).1.data → (l ∈ f.ratUnits.data ∨ l ∈ units) := by
     intro l hl
-    rw [insertUnit] at hl
+    rw [insertUnit.eq_def] at hl
     dsimp at hl
     split at hl
     · exact ih l hl

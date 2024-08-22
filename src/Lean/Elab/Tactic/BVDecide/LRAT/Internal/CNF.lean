@@ -21,11 +21,11 @@ theorem sat_negate_iff_not_sat {p : α → Bool} {l : Literal α} : p ⊨ Litera
   simp only [Literal.negate, sat_iff]
   constructor
   · intro h pl
-    rw [sat_iff, h, not] at pl
+    rw [sat_iff, h, not.eq_def] at pl
     split at pl <;> simp_all
   · intro h
     rw [sat_iff] at h
-    rw [not]
+    rw [not.eq_def]
     split <;> simp_all
 
 theorem unsat_of_limplies_complement [Entails α t] (x : t) (l : Literal α) :
@@ -131,4 +131,3 @@ end Formula
 end Internal
 end LRAT
 end Lean.Elab.Tactic.BVDecide
-

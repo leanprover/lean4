@@ -1214,7 +1214,8 @@ theorem head_filter_of_pos {p : α → Bool} {l : List α} (w : l ≠ []) (h : p
 theorem filterMap_eq_map (f : α → β) : filterMap (some ∘ f) = map f := by
   funext l; induction l <;> simp [*, filterMap_cons]
 
-@[simp] theorem filterMap_some (l : List α) : filterMap some l = l := by
+@[simp] theorem filterMap_some : filterMap (some : α → Option α) = id := by
+  funext l
   erw [filterMap_eq_map]
   simp
 
@@ -1291,7 +1292,7 @@ theorem forall_mem_filterMap {f : α → Option β} {l : List α} {P : β → Pr
   induction l <;> simp [filterMap_cons]; split <;> simp [*]
 
 theorem map_filterMap_of_inv (f : α → Option β) (g : β → α) (H : ∀ x : α, (f x).map g = some x)
-    (l : List α) : map g (filterMap f l) = l := by simp only [map_filterMap, H, filterMap_some]
+    (l : List α) : map g (filterMap f l) = l := by simp only [map_filterMap, H, filterMap_some, id]
 
 theorem head_filterMap_of_eq_some {f : α → Option β} {l : List α} (w : l ≠ []) {b : β} (h : f (l.head w) = some b) :
     (filterMap f l).head ((ne_nil_of_mem (mem_filterMap.2 ⟨_, head_mem w, h⟩))) =

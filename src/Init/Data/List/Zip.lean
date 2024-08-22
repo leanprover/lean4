@@ -26,10 +26,10 @@ theorem zip_map (f : α → γ) (g : β → δ) :
     simp only [map, zip_cons_cons, zip_map, Prod.map]; constructor
 
 theorem zip_map_left (f : α → γ) (l₁ : List α) (l₂ : List β) :
-    zip (l₁.map f) l₂ = (zip l₁ l₂).map (Prod.map f id) := by rw [← zip_map, map_id]
+    zip (l₁.map f) l₂ = (zip l₁ l₂).map (Prod.map f id) := by rw [← zip_map, map_id, id]
 
 theorem zip_map_right (f : β → γ) (l₁ : List α) (l₂ : List β) :
-    zip l₁ (l₂.map f) = (zip l₁ l₂).map (Prod.map id f) := by rw [← zip_map, map_id]
+    zip l₁ (l₂.map f) = (zip l₁ l₂).map (Prod.map id f) := by rw [← zip_map, map_id, id]
 
 theorem zip_append :
     ∀ {l₁ r₁ : List α} {l₂ r₂ : List β} (_h : length l₁ = length l₂),
@@ -78,13 +78,13 @@ theorem map_prod_left_eq_zip {l : List α} (f : α → β) :
     (l.map fun x => (x, f x)) = l.zip (l.map f) := by
   rw [← zip_map']
   congr
-  exact map_id _
+  simp
 
 theorem map_prod_right_eq_zip {l : List α} (f : α → β) :
     (l.map fun x => (f x, x)) = (l.map f).zip l := by
   rw [← zip_map']
   congr
-  exact map_id _
+  simp
 
 /-- See also `List.zip_replicate` in `Init.Data.List.TakeDrop` for a generalization with different lengths. -/
 @[simp] theorem zip_replicate' {a : α} {b : β} {n : Nat} :

@@ -101,7 +101,7 @@ theorem map_add_range' (a) : ∀ s n step, map (a + ·) (range' s n step) = rang
 theorem map_sub_range' (a s n : Nat) (h : a ≤ s) :
     map (· - a) (range' s n step) = range' (s - a) n step := by
   conv => lhs; rw [← Nat.add_sub_cancel' h]
-  rw [← map_add_range', map_map, (?_ : _∘_ = _), map_id]
+  rw [← map_add_range', map_map, (?_ : _∘_ = _), map_id, id]
   funext x; apply Nat.add_sub_cancel_left
 
 theorem range'_append : ∀ s m n step : Nat,

@@ -1886,6 +1886,9 @@ theorem forall_mem_replicate {p : α → Prop} {a : α} {n} :
 @[simp] theorem replicate_succ_ne_nil (n : Nat) (a : α) : replicate (n+1) a ≠ [] := by
   simp [replicate_succ]
 
+@[simp] theorem replicate_eq_nil (n : Nat) (a : α) : replicate n a = [] ↔ n = 0 := by
+  cases n <;> simp
+
 @[simp] theorem getElem_replicate (a : α) {n : Nat} {m} (h : m < (replicate n a).length) :
     (replicate n a)[m] = a :=
   eq_of_mem_replicate (get_mem _ _ _)
@@ -1909,6 +1912,9 @@ theorem head?_replicate (a : α) (n : Nat) : (replicate n a).head? = if n = 0 th
   cases n
   · simp at w
   · simp_all [replicate_succ]
+
+@[simp] theorem tail_replicate (n : Nat) (a : α) : (replicate n a).tail = replicate (n - 1) a := by
+  cases n <;> simp [replicate_succ]
 
 @[simp] theorem replicate_inj : replicate n a = replicate m b ↔ n = m ∧ (n = 0 ∨ a = b) :=
   ⟨fun h => have eq : n = m := by simpa using congrArg length h

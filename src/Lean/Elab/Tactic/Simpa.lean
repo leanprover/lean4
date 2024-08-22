@@ -7,7 +7,7 @@ prelude
 import Lean.Meta.Tactic.Assumption
 import Lean.Meta.Tactic.TryThis
 import Lean.Elab.Tactic.Simp
-import Lean.Linter.Util
+import Lean.Linter.Basic
 
 /--
 Enables the 'unnecessary `simpa`' linter. This will report if a use of

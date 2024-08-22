@@ -25,6 +25,40 @@ theorem length_filter_lt_length_iff_exists (l) :
   simpa [length_eq_countP_add_countP p l, countP_eq_length_filter] using
   countP_pos (fun x => ¬p x) (l := l)
 
+/-! ### append -/
+
+@[simp] theorem append_left_eq_self (xs ys : List α) : xs ++ ys = ys ↔ xs = [] := by
+  constructor
+  · intro h
+    replace h := congrArg length h
+    simp_all [Nat.add_left_eq_self]
+  · rintro rfl
+    rfl
+
+@[simp] theorem append_right_eq_self (xs ys : List α) : xs ++ ys = xs ↔ ys = [] := by
+  constructor
+  · intro h
+    replace h := congrArg length h
+    simp_all [Nat.add_right_eq_self]
+  · rintro rfl
+    simp
+
+@[simp] theorem self_eq_append_right (xs ys : List α) : xs = xs ++ ys ↔ ys = [] := by
+  constructor
+  · intro h
+    replace h := congrArg length h
+    simp_all [Nat.self_eq_add_right]
+  · rintro rfl
+    simp
+
+@[simp] theorem self_eq_append_left (xs ys : List α) : xs = ys ++ xs ↔ ys = [] := by
+  constructor
+  · intro h
+    replace h := congrArg length h
+    simp_all [Nat.self_eq_add_left]
+  · rintro rfl
+    simp
+
 /-! ### reverse -/
 
 theorem getElem_eq_getElem_reverse {l : List α} {i} (h : i < l.length) :

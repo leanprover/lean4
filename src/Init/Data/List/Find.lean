@@ -254,7 +254,8 @@ theorem find?_replicate : find? p (replicate n a) = if n = 0 then none else if p
 @[simp] theorem find?_replicate_of_neg (h : ¬ p a) : find? p (replicate n a) = none := by
   simp [find?_replicate, h]
 
-@[simp] theorem find?_replicate_eq_none (n : Nat) (a : α) (p : α → Bool) :
+-- This isn't a `@[simp]` lemma since there is already a lemma for `l.find? p = none` for any `l`.
+theorem find?_replicate_eq_none (n : Nat) (a : α) (p : α → Bool) :
     (replicate n a).find? p = none ↔ n = 0 ∨ !p a := by
   simp [Classical.or_iff_not_imp_left]
 

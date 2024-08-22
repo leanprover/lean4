@@ -18,6 +18,7 @@ File contents: Verification of associative lists
 set_option linter.missingDocs true
 set_option autoImplicit false
 
+
 universe u v w
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w}
@@ -25,6 +26,8 @@ variable {α : Type u} {β : α → Type v} {γ : α → Type w}
 open List (Perm)
 
 namespace Std.DHashMap.Internal.List
+
+attribute [-simp] List.isEmpty_eq_false
 
 @[elab_as_elim]
 theorem assoc_induction {motive : List ((a : α) × β a) → Prop} (nil : motive [])

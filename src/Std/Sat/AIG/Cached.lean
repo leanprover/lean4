@@ -37,8 +37,8 @@ def mkAtomCached (aig : AIG α) (n : α) : Entrypoint α :=
       intro i lhs rhs linv rinv h1 h2
       simp only [Array.get_push] at h2
       split at h2
-      . apply inv <;> assumption
-      . contradiction
+      · apply inv <;> assumption
+      · contradiction
   ⟨⟨decls, cache, inv⟩, ⟨g, by simp [g, decls]⟩⟩
 
 /--
@@ -59,8 +59,8 @@ def mkConstCached (aig : AIG α) (val : Bool) : Entrypoint α :=
       intro i lhs rhs linv rinv h1 h2
       simp only [Array.get_push] at h2
       split at h2
-      . apply inv <;> assumption
-      . contradiction
+      · apply inv <;> assumption
+      · contradiction
   ⟨⟨decls, cache, inv⟩, ⟨g, by simp [g, decls]⟩⟩
 
 /--
@@ -122,8 +122,8 @@ where
             simp only [decls] at *
             simp only [Array.get_push] at h2
             split at h2
-            . apply inv <;> assumption
-            . injections; omega
+            · apply inv <;> assumption
+            · injections; omega
           ⟨⟨decls, cache, inv⟩, ⟨g, by simp [g, decls]⟩⟩
 
 end AIG

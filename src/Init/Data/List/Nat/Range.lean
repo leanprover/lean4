@@ -5,6 +5,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 -/
 prelude
 import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.Range
 import Init.Data.List.Pairwise
 
 /-!
@@ -219,31 +220,6 @@ theorem nodup_iota (n : Nat) : Nodup (iota n) :=
 theorem enumFrom_singleton (x : α) (n : Nat) : enumFrom n [x] = [(n, x)] :=
   rfl
 
-@[simp]
-theorem enumFrom_eq_nil {n : Nat} {l : List α} : List.enumFrom n l = [] ↔ l = [] := by
-  cases l <;> simp
-
-@[simp] theorem enumFrom_length : ∀ {n} {l : List α}, (enumFrom n l).length = l.length
-  | _, [] => rfl
-  | _, _ :: _ => congrArg Nat.succ enumFrom_length
-
-@[simp]
-theorem getElem?_enumFrom :
-    ∀ n (l : List α) m, (enumFrom n l)[m]? = l[m]?.map fun a => (n + m, a)
-  | n, [], m => rfl
-  | n, a :: l, 0 => by simp
-  | n, a :: l, m + 1 => by
-    simp only [enumFrom_cons, getElem?_cons_succ]
-    exact (getElem?_enumFrom (n + 1) l m).trans <| by rw [Nat.add_right_comm]; rfl
-
-@[simp]
-theorem getElem_enumFrom (l : List α) (n) (i : Nat) (h : i < (l.enumFrom n).length) :
-    (l.enumFrom n)[i] = (n + i, l[i]'(by simpa [enumFrom_length] using h)) := by
-  simp only [enumFrom_length] at h
-  rw [getElem_eq_getElem?]
-  simp only [getElem?_enumFrom, getElem?_eq_getElem h]
-  simp
-
 theorem mk_add_mem_enumFrom_iff_getElem? {n i : Nat} {x : α} {l : List α} :
     (n + i, x) ∈ enumFrom n l ↔ l[i]? = some x := by
   simp [mem_iff_get?]
@@ -284,17 +260,24 @@ theorem enumFrom_map_snd : ∀ (n) (l : List α), map Prod.snd (enumFrom n l) = 
 theorem snd_mem_of_mem_enumFrom {x : Nat × α} {n : Nat} {l : List α} (h : x ∈ enumFrom n l) : x.2 ∈ l :=
   enumFrom_map_snd n l ▸ mem_map_of_mem _ h
 
-theorem mem_enumFrom {x : α} {i j : Nat} (xs : List α) (h : (i, x) ∈ xs.enumFrom j) :
-    j ≤ i ∧ i < j + xs.length ∧ x ∈ xs :=
-  ⟨le_fst_of_mem_enumFrom h, fst_lt_add_of_mem_enumFrom h, snd_mem_of_mem_enumFrom h⟩
+theorem snd_eq_of_mem_enumFrom {x : Nat × α} {n : Nat} {l : List α} (h : x ∈ enumFrom n l) :
+    x.2 = l[x.1 - n]'(by have := le_fst_of_mem_enumFrom h; have := fst_lt_add_of_mem_enumFrom h; omega) := by
+  induction l generalizing n with
+  | nil => cases h
+  | cons hd tl ih =>
+    cases h with
+    | head h => simp
+    | tail h m =>
+      specialize ih m
+      have : x.1 - n = x.1 - (n + 1) + 1 := by
+        have := le_fst_of_mem_enumFrom m
+        omega
+      simp [this, ih]
 
-theorem map_fst_add_enumFrom_eq_enumFrom (l : List α) (n k : Nat) :
-    map (Prod.map (· + n) id) (enumFrom k l) = enumFrom (n + k) l :=
-  ext_getElem? fun i ↦ by simp [(· ∘ ·), Nat.add_comm, Nat.add_left_comm]; rfl
-
-theorem map_fst_add_enum_eq_enumFrom (l : List α) (n : Nat) :
-    map (Prod.map (· + n) id) (enum l) = enumFrom n l :=
-  map_fst_add_enumFrom_eq_enumFrom l _ _
+theorem mem_enumFrom {x : α} {i j : Nat} {xs : List α} (h : (i, x) ∈ xs.enumFrom j) :
+    j ≤ i ∧ i < j + xs.length ∧
+      x = xs[i - j]'(by have := le_fst_of_mem_enumFrom h; have := fst_lt_add_of_mem_enumFrom h; omega) :=
+  ⟨le_fst_of_mem_enumFrom h, fst_lt_add_of_mem_enumFrom h, snd_eq_of_mem_enumFrom h⟩
 
 theorem enumFrom_cons' (n : Nat) (x : α) (xs : List α) :
     enumFrom n (x :: xs) = (n, x) :: (enumFrom n xs).map (Prod.map (· + 1) id) := by
@@ -360,6 +343,14 @@ theorem fst_lt_of_mem_enum {x : Nat × α} {l : List α} (h : x ∈ enum l) : x.
 
 theorem snd_mem_of_mem_enum {x : Nat × α} {l : List α} (h : x ∈ enum l) : x.2 ∈ l :=
   snd_mem_of_mem_enumFrom h
+
+theorem snd_eq_of_mem_enum {x : Nat × α} {l : List α} (h : x ∈ enum l) :
+    x.2 = l[x.1]'(fst_lt_of_mem_enum h) :=
+  snd_eq_of_mem_enumFrom h
+
+theorem mem_enum {x : α} {i : Nat} {xs : List α} (h : (i, x) ∈ xs.enum) :
+    i < xs.length ∧ x = xs[i]'(fst_lt_of_mem_enum h) :=
+  by simpa using mem_enumFrom h
 
 theorem map_enum (f : α → β) (l : List α) : map (Prod.map id f) (enum l) = enum (map f l) :=
   map_enumFrom f 0 l

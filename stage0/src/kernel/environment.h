@@ -59,7 +59,7 @@ public:
     diagnostics * get() const { return m_diag; }
 };
 
-class environment : public object_ref {
+class LEAN_EXPORT environment : public object_ref {
     friend class add_inductive_fn;
 
     void check_name(name const & n) const;

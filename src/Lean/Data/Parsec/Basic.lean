@@ -84,6 +84,10 @@ def eof : Parsec ι Unit := fun it =>
   else
     .success it ()
 
+@[inline]
+def eof? : Parsec ι Bool := fun it =>
+  .success it (!Input.hasNext it)
+
 @[specialize]
 partial def manyCore (p : Parsec ι α) (acc : Array α) : Parsec ι <| Array α :=
   tryCatch p (manyCore p <| acc.push ·) (fun _ => pure acc)

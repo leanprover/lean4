@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_IR_CtorFieldInfo_format(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_IR_CtorFieldInfo_format(lean_object*);
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__2;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__4;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__3;
@@ -30,7 +30,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_CtorFieldInfo_instToFormat;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__13;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__8;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__6;
-lean_object* l_Lean_IR_getCtorLayout___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_IR_getCtorLayout___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Lean_IR_CtorFieldInfo_instToFormat___closed__1;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__5;
@@ -160,7 +160,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_IR_CtorFieldInfo_format(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_IR_CtorFieldInfo_format(lean_object* x_1) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
@@ -312,7 +312,7 @@ x_1 = l_Lean_IR_CtorFieldInfo_instToFormat___closed__1;
 return x_1;
 }
 }
-lean_object* l_Lean_IR_getCtorLayout___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_IR_getCtorLayout___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 

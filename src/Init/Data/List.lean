@@ -21,3 +21,5 @@ import Init.Data.List.Pairwise
 import Init.Data.List.Sublist
 import Init.Data.List.TakeDrop
 import Init.Data.List.Zip
+import Init.Data.List.Perm
+import Init.Data.List.Sort

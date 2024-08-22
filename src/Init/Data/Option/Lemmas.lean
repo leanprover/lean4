@@ -167,6 +167,9 @@ theorem isSome_map {x : Option α} : (f <$> x).isSome = x.isSome := by
 @[simp] theorem isSome_map' {x : Option α} : (x.map f).isSome = x.isSome := by
   cases x <;> simp
 
+@[simp] theorem isNone_map' {x : Option α} : (x.map f).isNone = x.isNone := by
+  cases x <;> simp
+
 theorem map_eq_none : f <$> x = none ↔ x = none := map_eq_none'
 
 theorem map_eq_bind {x : Option α} : x.map f = x.bind (some ∘ f) := by
@@ -189,6 +192,14 @@ theorem comp_map (h : β → γ) (g : α → β) (x : Option α) : x.map (h ∘ 
     Option.map g ∘ Option.map f = Option.map (g ∘ f) := by funext x; simp
 
 theorem mem_map_of_mem (g : α → β) (h : a ∈ x) : g a ∈ Option.map g x := h.symm ▸ map_some' ..
+
+@[simp] theorem map_if {f : α → β} [Decidable c] :
+     (if c then some a else none).map f = if c then some (f a) else none := by
+  split <;> rfl
+
+@[simp] theorem map_dif {f : α → β} [Decidable c] {a : c → α} :
+     (if h : c then some (a h) else none).map f = if h : c then some (f (a h)) else none := by
+  split <;> rfl
 
 @[simp] theorem filter_none (p : α → Bool) : none.filter p = none := rfl
 theorem filter_some : Option.filter p (some a) = if p a then some a else none := rfl
@@ -250,7 +261,7 @@ theorem liftOrGet_eq_or_eq {f : α → α → α} (h : ∀ a b, f a b = a ∨ f 
 @[simp] theorem getD_map (f : α → β) (x : α) (o : Option α) :
   (o.map f).getD (f x) = f (getD o x) := by cases o <;> rfl
 
-section
+section choice
 
 attribute [local instance] Classical.propDecidable
 
@@ -266,7 +277,7 @@ theorem choice_eq {α : Type _} [Subsingleton α] (a : α) : choice α = some a 
 theorem choice_isSome_iff_nonempty {α : Type _} : (choice α).isSome ↔ Nonempty α :=
   ⟨fun h => ⟨(choice α).get h⟩, fun h => by simp only [choice, dif_pos h, isSome_some]⟩
 
-end
+end choice
 
 @[simp] theorem toList_some (a : α) : (a : Option α).toList = [a] := rfl
 
@@ -314,3 +325,51 @@ theorem map_or : f <$> or o o' = (f <$> o).or (f <$> o') := by
 
 theorem map_or' : (or o o').map f = (o.map f).or (o'.map f) := by
   cases o <;> rfl
+
+theorem or_of_isSome {o o' : Option α} (h : o.isSome) : o.or o' = o := by
+  match o, h with
+  | some _, _ => simp
+
+theorem or_of_isNone {o o' : Option α} (h : o.isNone) : o.or o' = o' := by
+  match o, h with
+  | none, _ => simp
+
+section ite
+
+@[simp] theorem isSome_dite {p : Prop} [Decidable p] {b : p → β} :
+    (if h : p then some (b h) else none).isSome = true ↔ p := by
+  split <;> simpa
+@[simp] theorem isSome_ite {p : Prop} [Decidable p] :
+    (if p then some b else none).isSome = true ↔ p := by
+  split <;> simpa
+@[simp] theorem isSome_dite' {p : Prop} [Decidable p] {b : ¬ p → β} :
+    (if h : p then none else some (b h)).isSome = true ↔ ¬ p := by
+  split <;> simpa
+@[simp] theorem isSome_ite' {p : Prop} [Decidable p] :
+    (if p then none else some b).isSome = true ↔ ¬ p := by
+  split <;> simpa
+
+@[simp] theorem get_dite {p : Prop} [Decidable p] (b : p → β) (w) :
+    (if h : p then some (b h) else none).get w = b (by simpa using w) := by
+  split
+  · simp
+  · exfalso
+    simp at w
+    contradiction
+@[simp] theorem get_ite {p : Prop} [Decidable p] (h) :
+    (if p then some b else none).get h = b := by
+  simpa using get_dite (p := p) (fun _ => b) (by simpa using h)
+@[simp] theorem get_dite' {p : Prop} [Decidable p] (b : ¬ p → β) (w) :
+    (if h : p then none else some (b h)).get w = b (by simpa using w) := by
+  split
+  · exfalso
+    simp at w
+    contradiction
+  · simp
+@[simp] theorem get_ite' {p : Prop} [Decidable p] (h) :
+    (if p then none else some b).get h = b := by
+  simpa using get_dite' (p := p) (fun _ => b) (by simpa using h)
+
+end ite
+
+end Option

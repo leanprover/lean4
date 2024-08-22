@@ -513,7 +513,6 @@ def SimpTheorems.addDeclToUnfold (d : SimpTheorems) (declName : Name) : MetaM Si
         if i + 1 = eqns.size then 0 else 1
       else
         100 - i
-      -- We assign very low priority to equational le
       d ← SimpTheorems.addConst d eqn (prio := prio)
     if (← unfoldEvenWithEqns declName) then
       d := d.addDeclToUnfoldCore declName

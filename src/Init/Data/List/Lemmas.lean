@@ -79,6 +79,11 @@ open Nat
 
 /-! ## Preliminaries -/
 
+/-! ### nil -/
+
+@[simp] theorem nil_eq {α} (xs : List α) : [] = xs ↔ xs = [] := by
+  cases xs <;> simp
+
 /-! ### cons -/
 
 theorem cons_ne_nil (a : α) (l : List α) : a :: l ≠ [] := nofun
@@ -1770,6 +1775,55 @@ theorem join_concat (L : List (List α)) (l : List α) : join (L ++ [l]) = join 
 
 theorem join_join {L : List (List (List α))} : join (join L) = join (map join L) := by
   induction L <;> simp_all
+
+theorem join_eq_cons (xs : List (List α)) (y : α) (ys : List α) :
+    xs.join = y :: ys ↔
+      ∃ as bs cs, xs = as ++ (y :: bs) :: cs ∧ (∀ l, l ∈ as → l = []) ∧ ys = bs ++ cs.join := by
+  constructor
+  · induction xs with
+    | nil => simp
+    | cons x xs ih =>
+      intro h
+      simp only [join_cons] at h
+      replace h := h.symm
+      rw [cons_eq_append] at h
+      obtain (⟨rfl, h⟩ | ⟨z⟩) := h
+      · obtain ⟨as, bs, cs, rfl, _, rfl⟩ := ih h
+        refine ⟨[] :: as, bs, cs, ?_⟩
+        simpa
+      · obtain ⟨a', rfl, rfl⟩ := z
+        refine ⟨[], a', xs, ?_⟩
+        simp
+  · rintro ⟨as, bs, cs, rfl, h₁, rfl⟩
+    simp [join_eq_nil.mpr h₁]
+
+theorem join_eq_append (xs : List (List α)) (ys zs : List α) :
+    xs.join = ys ++ zs ↔
+      (∃ as bs, xs = as ++ bs ∧ ys = as.join ∧ zs = bs.join) ∨
+        ∃ as bs c cs ds, xs = as ++ (bs ++ c :: cs) :: ds ∧ ys = as.join ++ bs ∧
+          zs = c :: cs ++ ds.join := by
+  constructor
+  · induction xs generalizing ys with
+    | nil =>
+      simp only [join_nil, nil_eq, append_eq_nil, and_false, cons_append, false_and, exists_const,
+        exists_false, or_false, and_imp]
+      rintro rfl rfl
+      exact ⟨[], [], by simp⟩
+    | cons x xs ih =>
+      intro h
+      simp only [join_cons] at h
+      rw [append_eq_append_iff] at h
+      obtain (⟨ys, rfl, h⟩ | ⟨c', rfl, h⟩) := h
+      · obtain (⟨as, bs, rfl, rfl, rfl⟩ | ⟨as, bs, c, cs, ds, rfl, rfl, rfl⟩) := ih _ h
+        · exact .inl ⟨x :: as, bs, by simp⟩
+        · exact .inr ⟨x :: as, bs, c, cs, ds, by simp⟩
+      · simp only [h]
+        cases c' with
+        | nil => exact .inl ⟨[ys], xs, by simp⟩
+        | cons x c' => exact .inr ⟨[], ys, x, c', xs, by simp⟩
+  · rintro (⟨as, bs, rfl, rfl, rfl⟩ | ⟨as, bs, c, cs, ds, rfl, rfl, rfl⟩)
+    · simp
+    · simp
 
 /-- Two lists of sublists are equal iff their joins coincide, as well as the lengths of the
 sublists. -/

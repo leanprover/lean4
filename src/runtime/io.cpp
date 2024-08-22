@@ -39,6 +39,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include <cstdlib>
 #include <cctype>
 #include <sys/stat.h>
+#include <uv.h>
 #include "util/io.h"
 #include "runtime/alloc.h"
 #include "runtime/io.h"
@@ -245,6 +246,101 @@ extern "C" LEAN_EXPORT obj_res lean_decode_io_error(int errnum, b_obj_arg fname)
         lean_assert(fname == nullptr);
         return lean_mk_io_error_unsupported_operation(errnum, details);
     case EFAULT:
+    default:
+        lean_assert(fname == nullptr);
+        return lean_mk_io_error_other_error(errnum, details);
+    }
+}
+
+extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_obj_arg fname) {
+    object * details = mk_string(uv_strerror(errnum));
+    switch (errnum) {
+    case UV_EINTR:
+        lean_assert(fname != nullptr);
+        inc_ref(fname);
+        return lean_mk_io_error_interrupted(fname, errnum, details);
+    case UV_ELOOP: case UV_ENAMETOOLONG: case UV_EDESTADDRREQ:
+    case UV_EBADF: case UV_EINVAL: case UV_EILSEQ:
+    case UV_ENOTCONN: case UV_ENOTSOCK:
+        if (fname == nullptr) {
+            return lean_mk_io_error_invalid_argument(errnum, details);
+        } else {
+            inc_ref(fname);
+            return lean_mk_io_error_invalid_argument_file(fname, errnum, details);
+        }
+    case UV_ENOENT:
+        lean_assert(fname != nullptr);
+        inc_ref(fname);
+        return lean_mk_io_error_no_file_or_directory(fname, errnum, details);
+    case UV_EACCES: case UV_EROFS: case UV_ECONNABORTED: case UV_EFBIG:
+    case UV_EPERM:
+        if (fname == nullptr) {
+            return lean_mk_io_error_permission_denied(errnum, details);
+        } else {
+            inc_ref(fname);
+            return lean_mk_io_error_permission_denied_file(fname, errnum, details);
+        }
+    case UV_EMFILE: case UV_ENFILE: case UV_ENOSPC:
+    case UV_E2BIG:  case UV_EAGAIN: case UV_EMLINK:
+    case UV_EMSGSIZE: case UV_ENOBUFS:
+    case UV_ENOMEM:
+        if (fname == nullptr) {
+            return lean_mk_io_error_resource_exhausted(errnum, details);
+        } else {
+            inc_ref(fname);
+            return lean_mk_io_error_resource_exhausted_file(fname, errnum, details);
+        }
+    case UV_EISDIR: case UV_ENOTDIR:
+        if (fname == nullptr) {
+            return lean_mk_io_error_inappropriate_type(errnum, details);
+        } else {
+            inc_ref(fname);
+            return lean_mk_io_error_inappropriate_type_file(fname, errnum, details);
+        }
+    case UV_ENXIO: case UV_EHOSTUNREACH: case UV_ENETUNREACH:
+    case UV_ECONNREFUSED: case UV_ENODATA:
+    case UV_ESRCH:
+        if (fname == nullptr) {
+            return lean_mk_io_error_no_such_thing(errnum, details);
+        } else {
+            inc_ref(fname);
+            return lean_mk_io_error_no_such_thing_file(fname, errnum, details);
+        }
+    case UV_EEXIST: case UV_EISCONN:
+        if (fname == nullptr) {
+            return lean_mk_io_error_already_exists(errnum, details);
+        } else {
+            inc_ref(fname);
+            return lean_mk_io_error_already_exists_file(fname, errnum, details);
+        }
+    case UV_EIO:
+        lean_assert(fname == nullptr);
+        return lean_mk_io_error_hardware_fault(errnum, details);
+    case UV_ENOTEMPTY:
+        lean_assert(fname == nullptr);
+        return lean_mk_io_error_unsatisfied_constraints(errnum, details);
+    case UV_ENOTTY:
+        lean_assert(fname == nullptr);
+        return lean_mk_io_error_illegal_operation(errnum, details);
+    case UV_ECONNRESET: case UV_ENETDOWN:
+    case UV_EPIPE:
+        lean_assert(fname == nullptr);
+        return lean_mk_io_error_resource_vanished(errnum, details);
+    case UV_EPROTO: case UV_EPROTONOSUPPORT: case UV_EPROTOTYPE:
+        lean_assert(fname == nullptr);
+        return lean_mk_io_error_protocol_error(errnum, details);
+    case UV_ETIMEDOUT:
+        lean_assert(fname == nullptr);
+        return lean_mk_io_error_time_expired(errnum, details);
+    case UV_EADDRINUSE: case UV_EBUSY: case UV_ETXTBSY:
+        lean_assert(fname == nullptr);
+        return lean_mk_io_error_resource_busy(errnum, details);
+    case UV_EADDRNOTAVAIL: case UV_EAFNOSUPPORT: case UV_ENODEV:
+    case UV_ENOPROTOOPT: case UV_ENOSYS: case UV_ENOTSUP:
+    case UV_ERANGE: case UV_ESPIPE: case UV_EXDEV:
+        lean_assert(fname == nullptr);
+        return lean_mk_io_error_unsupported_operation(errnum, details);
+    case UV_EFAULT:
     default:
         lean_assert(fname == nullptr);
         return lean_mk_io_error_other_error(errnum, details);

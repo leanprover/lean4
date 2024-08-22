@@ -40,21 +40,26 @@ termination_by n => n
 
 /--
 info: equations:
-theorem bar.eq_1 : ∀ (a a_1 : Nat), bar a a_1 = bar._unary ⟨a, a_1⟩
+theorem bar.eq_1 : ∀ (x : Nat),
+  bar 0 x =
+    match x with
+    | 0 => 0
+    | m => m
+theorem bar.eq_2 : ∀ (x n : Nat), bar n.succ x = bar n x
 -/
 #guard_msgs in
 #print equations bar
 
 /--
-info: foo.eq_def :
+info: bar.eq_def :
   ∀ (x x_1 : Nat),
-    foo x x_1 =
+    bar x x_1 =
       match x, x_1 with
       | 0, m =>
         match m with
         | 0 => 0
         | m => m
-      | n.succ, m => foo n m
+      | n.succ, m => bar n m
 -/
 #guard_msgs in
 #check bar.eq_def

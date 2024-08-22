@@ -11,4 +11,4 @@ def MyRel : Nat → Nat → Prop := SymmGen fun x y => y = x + 2
 theorem preserve_add' {a : Nat} : ∀ {x y : Nat}, MyRel x y → MyRel (x + a) (y + a)
 | _, _, SymmGen.rel _ _ h => SymmGen.rel _ _ (by rw [h, Nat.add_right_comm])
 | _, _, SymmGen.symm _ _ h => SymmGen.symm _ _ (preserve_add' h)
-termination_by structurally _ _ r => r
+termination_by structural _ _ r => r

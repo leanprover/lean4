@@ -6,4 +6,5 @@ add_library(library OBJECT expr_lt.cpp
   projection.cpp
   aux_recursors.cpp
   profiling.cpp time_task.cpp
-  formatter.cpp)
+  formatter.cpp
+  elab_environment.cpp)

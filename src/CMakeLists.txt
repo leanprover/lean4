@@ -335,8 +335,8 @@ endif()
 # flags for user binaries = flags for toolchain binaries + Lake
 set(LEANC_STATIC_LINKER_FLAGS " ${TOOLCHAIN_STATIC_LINKER_FLAGS} -lLake")
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  set(LEANC_SHARED_LINKER_FLAGS " ${TOOLCHAIN_SHARED_LINKER_FLAGS} -Wl,-as-needed -lLake_shared -Wl,--no-as-needed")
-else
+  set(LEANC_SHARED_LINKER_FLAGS " ${TOOLCHAIN_SHARED_LINKER_FLAGS} -Wl,--as-needed -lLake_shared -Wl,--no-as-needed")
+else()
   set(LEANC_SHARED_LINKER_FLAGS " ${TOOLCHAIN_SHARED_LINKER_FLAGS} -lLake_shared")
 endif()
 

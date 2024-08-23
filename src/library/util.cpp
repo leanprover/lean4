@@ -816,6 +816,9 @@ optional<name> is_unsafe_rec_name(name const & n) {
     return option_ref<name>(lean_is_unsafe_rec_name(n.to_obj_arg())).get();
 }
 
+static std::string * g_short_version_string = nullptr;
+std::string const & get_short_version_string() { return *g_short_version_string; }
+
 static std::string * g_version_string = nullptr;
 std::string const & get_version_string() { return *g_version_string; }
 
@@ -863,6 +866,7 @@ void initialize_library_util() {
     if (std::strlen(LEAN_SPECIAL_VERSION_DESC) > 0) {
         out << "-" << LEAN_SPECIAL_VERSION_DESC;
     }
+    g_short_version_string = new std::string(out.str());
     if (std::strlen(LEAN_PLATFORM_TARGET) > 0) {
         out << ", " << LEAN_PLATFORM_TARGET;
     }

@@ -43,15 +43,6 @@ def expandRHS? (mvarId : MVarId) : MetaM (Option MVarId) := do
   let (true, rhs') := expand false rhs | return none
   return some (← mvarId.replaceTargetDefEq (← mkEq lhs rhs'))
 
-def funext? (mvarId : MVarId) : MetaM (Option MVarId) := do
-  let target ← mvarId.getType'
-  let some (_, _, rhs) := target.eq? | return none
-  unless rhs.isLambda do return none
-  commitWhenSome? do
-    let [mvarId] ← mvarId.apply (← mkConstWithFreshMVarLevels ``funext) | return none
-    let (_, mvarId) ← mvarId.intro1
-    return some mvarId
-
 def simpMatch? (mvarId : MVarId) : MetaM (Option MVarId) := do
   let mvarId' ← Split.simpMatchTarget mvarId
   if mvarId != mvarId' then return some mvarId' else return none
@@ -243,11 +234,6 @@ where
     if let some mvarId ← expandRHS? mvarId then
       return (← go mvarId)
 
-    --  The following `funext?` was producing an overapplied `lhs`. Possible refinement: only do it
-    --  if we want to apply `splitMatch` on the body of the lambda
-    /- if let some mvarId ← funext? mvarId then
-        return (← go mvarId) -/
-
     if (← shouldUseSimpMatch (← mvarId.getType')) then
       if let some mvarId ← simpMatch? mvarId then
         return (← go mvarId)
@@ -347,9 +333,6 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
   let rec go (mvarId : MVarId) : MetaM Unit := do
     if (← tryEqns mvarId) then
       return ()
-    -- Remark: we removed funext? from `mkEqnTypes`
-    -- else if let some mvarId ← funext? mvarId then
-    --  go mvarId
 
     if (← shouldUseSimpMatch (← mvarId.getType')) then
       if let some mvarId ← simpMatch? mvarId then

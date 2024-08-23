@@ -1,0 +1,39 @@
+def Option_map (f : α → β) : Option α → Option β
+  | none => none
+  | some x => some (f x)
+
+/--
+info: equations:
+theorem Option_map.eq_1.{u_1, u_2} : ∀ {α : Type u_1} {β : Type u_2} (f : α → β), Option_map f none = none
+theorem Option_map.eq_2.{u_1, u_2} : ∀ {α : Type u_1} {β : Type u_2} (f : α → β) (x_1 : α),
+  Option_map f (some x_1) = some (f x_1)
+-/
+#guard_msgs in
+#print equations Option_map
+
+/--
+info: Option_map.eq_def.{u_1, u_2} {α : Type u_1} {β : Type u_2} (f : α → β) :
+  ∀ (x : Option α),
+    Option_map f x =
+      match x with
+      | none => none
+      | some x => some (f x)
+-/
+#guard_msgs in
+#check Option_map.eq_def
+
+/--
+info: Option_map.unfold.{u_1, u_2} :
+  @Option_map = fun {α} {β} f x =>
+    match x with
+    | none => none
+    | some x => some (f x)
+-/
+#guard_msgs in
+#check Option_map.unfold
+
+def answer := 42
+
+/-- info: answer.unfold : answer = 42 -/
+#guard_msgs in
+#check answer.unfold

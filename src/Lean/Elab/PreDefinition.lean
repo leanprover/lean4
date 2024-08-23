@@ -11,3 +11,4 @@ import Lean.Elab.PreDefinition.MkInhabitant
 import Lean.Elab.PreDefinition.WF
 import Lean.Elab.PreDefinition.Eqns
 import Lean.Elab.PreDefinition.Nonrec.Eqns
+import Lean.Elab.PreDefinition.ConstUnfold

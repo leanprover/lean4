@@ -60,7 +60,7 @@ opaque now : IO Timestamp
 Converts a `Timestamp` into its equivalent `Second.Offset`.
 -/
 @[inline]
-def toSeconds (t : Timestamp) : Second.Offset :=
+def toSecondsSinceUnixEpoch (t : Timestamp) : Second.Offset :=
   t.second
 
 /--
@@ -158,7 +158,7 @@ Converts a `Timestamp` from a `Nanosecond.Offset`
 -/
 @[inline]
 def toNanosecondsSinceUnixEpoch (tm : Timestamp) : Nanosecond.Offset :=
-  let nanos := tm.toSeconds.mul 1000000000
+  let nanos := tm.toSecondsSinceUnixEpoch.mul 1000000000
   let nanos := nanos + (UnitVal.mk tm.nano.val)
   nanos
 

@@ -41,7 +41,7 @@ Converts a `Timestamp` to a `LocalDate`
 -/
 @[inline]
 def toLocalDate (timestamp : Timestamp) : LocalDate :=
-  let secs := timestamp.toSeconds
+  let secs := timestamp.toSecondsSinceUnixEpoch
   let days := Day.Offset.ofSeconds secs
   LocalDate.ofDaysSinceUNIXEpoch days
 

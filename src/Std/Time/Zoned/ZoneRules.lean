@@ -170,7 +170,7 @@ Finds the transition corresponding to a given timestamp in `ZoneRules`.
 If the timestamp falls between two transitions, it returns the most recent transition before the timestamp.
 -/
 def findTransitionForTimestamp (zoneRules : ZoneRules) (timestamp : Timestamp) : Option Transition :=
-  let value := timestamp.toSeconds
+  let value := timestamp.toSecondsSinceUnixEpoch
   if let some idx := zoneRules.transitions.findIdx? (λ t => t.time.val > value.val)
     then zoneRules.transitions.get? (idx - 1)
     else zoneRules.transitions.back?

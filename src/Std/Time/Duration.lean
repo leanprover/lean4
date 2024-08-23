@@ -29,6 +29,18 @@ instance : ToString Duration where
 namespace Duration
 
 /--
+Creates a new `Duration` out of `Second.Offset`.
+-/
+def ofSeconds (secs : Second.Offset) : Duration :=
+  Timestamp.ofSecondsSinceUnixEpoch secs
+
+/--
+Creates a new `Duration` out of `Nanosecond.Offset`.
+-/
+def ofNanosecond (secs : Nanosecond.Offset) : Duration :=
+  Timestamp.ofNanosecondsSinceUnixEpoch secs
+
+/--
 Calculates a `Duration` out of two `Timestamp`s.
 -/
 def since (f : Timestamp) : IO Duration := do

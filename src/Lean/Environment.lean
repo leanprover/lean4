@@ -88,11 +88,6 @@ structure EnvironmentHeader where
   -/
   trustLevel   : UInt32       := 0
   /--
-  `quotInit = true` if the command `init_quot` has already been executed for the environment, and
-  `Quot` declarations have been added to the environment.
-  -/
-  quotInit     : Bool         := false
-  /--
   Name of the module being compiled.
   -/
   mainModule   : Name         := default
@@ -105,6 +100,15 @@ structure EnvironmentHeader where
   /-- Module data for all imported modules. -/
   moduleData   : Array ModuleData := #[]
   deriving Nonempty
+
+namespace Kernel
+
+structure Diagnostics where
+  /-- Number of times each declaration has been unfolded by the kernel. -/
+  unfoldCounter : PHashMap Name Nat := {}
+  /-- If `enabled = true`, kernel records declarations that have been unfolded. -/
+  enabled : Bool := false
+  deriving Inhabited
 
 /--
 An environment stores declarations provided by the user. The kernel
@@ -125,105 +129,29 @@ structure Environment where
   that bypasses the kernel. -/
   private mk ::
   /--
-  Mapping from constant name to module (index) where constant has been declared.
-  Recall that a Lean file has a header where previously compiled modules can be imported.
-  Each imported module has a unique `ModuleIdx`.
-  Many extensions use the `ModuleIdx` to efficiently retrieve information stored in imported modules.
-
-  Remark: this mapping also contains auxiliary constants, created by the code generator, that are **not** in
-  the field `constants`. These auxiliary constants are invisible to the Lean kernel and elaborator.
-  Only the code generator uses them.
-  -/
-  const2ModIdx : Std.HashMap Name ModuleIdx
-  /--
   Mapping from constant name to `ConstantInfo`. It contains all constants (definitions, theorems, axioms, etc)
   that have been already type checked by the kernel.
   -/
-  constants    : ConstMap
+  constants   : ConstMap
   /--
-  Environment extensions. It also includes user-defined extensions.
+  `quotInit = true` if the command `init_quot` has already been executed for the environment, and
+  `Quot` declarations have been added to the environment.
   -/
-  extensions   : Array EnvExtensionState
+  quotInit    : Bool := false
   /--
-  Constant names to be saved in the field `extraConstNames` at `ModuleData`.
-  It contains auxiliary declaration names created by the code generator which are not in `constants`.
-  When importing modules, we want to insert them at `const2ModIdx`.
+  Diagnostic information collected during kernel execution.
+
+  Remark: We store kernel diagnostic information in an environment field to simplify
+  the interface with the kernel implemented in C/C++. Thus, we can only track
+  declarations in methods, such as `addDecl`, which return a new environment.
+  `Kernel.isDefEq` and `Kernel.whnf` do not update the statistics. We claim
+  this is ok since these methods are mainly used for debugging.
   -/
-  extraConstNames : NameSet
-  /-- The header contains additional information that is not updated often. -/
-  header       : EnvironmentHeader := {}
-  deriving Nonempty
+  diagnostics : Diagnostics := {}
+deriving Nonempty
 
-namespace Environment
-
-private def addAux (env : Environment) (cinfo : ConstantInfo) : Environment :=
-  { env with constants := env.constants.insert cinfo.name cinfo }
-
-/--
-Save an extra constant name that is used to populate `const2ModIdx` when we import
-.olean files. We use this feature to save in which module an auxiliary declaration
-created by the code generator has been created.
--/
-def addExtraName (env : Environment) (name : Name) : Environment :=
-  if env.constants.contains name then
-    env
-  else
-    { env with extraConstNames := env.extraConstNames.insert name }
-
-@[export lean_environment_find]
-def find? (env : Environment) (n : Name) : Option ConstantInfo :=
-  /- It is safe to use `find'` because we never overwrite imported declarations. -/
-  env.constants.find?' n
-
-def contains (env : Environment) (n : Name) : Bool :=
-  env.constants.contains n
-
-def imports (env : Environment) : Array Import :=
-  env.header.imports
-
-def allImportedModuleNames (env : Environment) : Array Name :=
-  env.header.moduleNames
-
-@[export lean_environment_set_main_module]
-def setMainModule (env : Environment) (m : Name) : Environment :=
-  { env with header := { env.header with mainModule := m } }
-
-@[export lean_environment_main_module]
-def mainModule (env : Environment) : Name :=
-  env.header.mainModule
-
-@[export lean_environment_mark_quot_init]
-private def markQuotInit (env : Environment) : Environment :=
-  { env with header := { env.header with quotInit := true } }
-
-@[export lean_environment_quot_init]
-private def isQuotInit (env : Environment) : Bool :=
-  env.header.quotInit
-
-@[export lean_environment_trust_level]
-private def getTrustLevel (env : Environment) : UInt32 :=
-  env.header.trustLevel
-
-def getModuleIdxFor? (env : Environment) (declName : Name) : Option ModuleIdx :=
-  env.const2ModIdx[declName]?
-
-def isConstructor (env : Environment) (declName : Name) : Bool :=
-  match env.find? declName with
-  | some (.ctorInfo _) => true
-  | _                  => false
-
-def isSafeDefinition (env : Environment) (declName : Name) : Bool :=
-  match env.find? declName with
-  | some (.defnInfo { safety := .safe, .. }) => true
-  | _ => false
-
-def getModuleIdx? (env : Environment) (moduleName : Name) : Option ModuleIdx :=
-  env.header.moduleNames.findIdx? (· == moduleName)
-
-end Environment
-
-/-- Exceptions that can be raised by the Kernel when type checking new declarations. -/
-inductive KernelException where
+/-- Exceptions that can be raised by the kernel when type checking new declarations. -/
+inductive Exception where
   | unknownConstant  (env : Environment) (name : Name)
   | alreadyDeclared  (env : Environment) (name : Name)
   | declTypeMismatch (env : Environment) (decl : Declaration) (givenType : Expr)
@@ -244,12 +172,28 @@ inductive KernelException where
 
 namespace Environment
 
+@[export lean_environment_find]
+def find? (env : Environment) (n : Name) : Option ConstantInfo :=
+  /- It is safe to use `find'` because we never overwrite imported declarations. -/
+  env.constants.find?' n
+
+@[export lean_environment_mark_quot_init]
+private def markQuotInit (env : Environment) : Environment :=
+  { env with quotInit := true }
+
+@[export lean_environment_quot_init]
+private def isQuotInit (env : Environment) : Bool :=
+  env.quotInit
+
 /--
 Type check given declaration and add it to the environment
+
+**NOTE**: This function does not implement `ofReduceBool`/`ofReduceNat` special reduction rules.
+Use `Lean.Environment.addDeclCore` to activate them, adding the code generator to the TCB.
 -/
 @[extern "lean_add_decl"]
 opaque addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
-  (cancelTk? : @& Option IO.CancelToken) : Except KernelException Environment
+  (cancelTk? : @& Option IO.CancelToken) : Except Exception Environment
 
 /--
 Add declaration to kernel without type checking it.
@@ -258,7 +202,138 @@ It compromises soundness because, for example, a buggy tactic may produce an inv
 and the kernel will not catch it if the new option is set to true.
 -/
 @[extern "lean_add_decl_without_checking"]
-opaque addDeclWithoutChecking (env : Environment) (decl : @& Declaration) : Except KernelException Environment
+opaque addDeclWithoutChecking (env : Environment) (decl : @& Declaration) : Except Exception Environment
+
+@[export lean_environment_add]
+private def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
+  { env with constants := env.constants.insert cinfo.name cinfo }
+
+@[export lean_kernel_diag_is_enabled]
+def Diagnostics.isEnabled (d : Diagnostics) : Bool :=
+  d.enabled
+
+/-- Enables/disables kernel diagnostics. -/
+def enableDiag (env : Environment) (flag : Bool) : Environment :=
+  { env with diagnostics.enabled := flag }
+
+def isDiagnosticsEnabled (env : Environment) : Bool :=
+  env.diagnostics.enabled
+
+def resetDiag (env : Environment) : Environment :=
+  { env with diagnostics.unfoldCounter := {} }
+
+@[export lean_kernel_record_unfold]
+def Diagnostics.recordUnfold (d : Diagnostics) (declName : Name) : Diagnostics :=
+  if d.enabled then
+    let cNew := if let some c := d.unfoldCounter.find? declName then c + 1 else 1
+    { d with unfoldCounter := d.unfoldCounter.insert declName cNew }
+  else
+    d
+
+@[export lean_kernel_get_diag]
+def getDiagnostics (env : Environment) : Diagnostics :=
+  env.diagnostics
+
+@[export lean_kernel_set_diag]
+def setDiagnostics (env : Environment) (diag : Diagnostics) : Environment :=
+  { env with diagnostics := diag}
+
+end Kernel.Environment
+
+@[deprecated Kernel.Exception]
+abbrev KernelException := Kernel.Exception
+
+/--
+Extension of `Kernel.Environment` that adds tracking of compiler IR, arbitrary environment
+extensions, and asynchronously elaborated declarations.
+-/
+structure Environment where
+  /-
+  Unlike `Kernel.Environment`, there is no safety concern in making the constructor public, but not
+  doing so still leads to a cleaner API.
+  -/
+  private mk ::
+  private base            : Kernel.Environment
+  /--
+  Mapping from constant name to module (index) where constant has been declared.
+  Recall that a Lean file has a header where previously compiled modules can be imported.
+  Each imported module has a unique `ModuleIdx`.
+  Many extensions use the `ModuleIdx` to efficiently retrieve information stored in imported modules.
+
+  Remark: this mapping also contains auxiliary constants, created by the code generator, that are **not** in
+  the field `constants`. These auxiliary constants are invisible to the Lean kernel and elaborator.
+  Only the code generator uses them.
+  -/
+  private const2ModIdx    : Std.HashMap Name ModuleIdx
+  /--
+  Environment extensions. It also includes user-defined extensions.
+  -/
+  private extensions      : Array EnvExtensionState
+  /--
+  Constant names to be saved in the field `extraConstNames` at `ModuleData`.
+  It contains auxiliary declaration names created by the code generator which are not in `constants`.
+  When importing modules, we want to insert them at `const2ModIdx`.
+  -/
+  private extraConstNames : NameSet
+  /-- The header contains additional information that is set at import time. -/
+  header                  : EnvironmentHeader := {}
+deriving Nonempty
+
+namespace Environment
+
+@[export lean_elab_environment_to_kernel_env]
+def toKernelEnv (env : Environment) : Kernel.Environment :=
+  env.base
+
+@[inherit_doc Kernel.Environment.constants]
+def constants (env : Environment) : ConstMap :=
+  env.toKernelEnv.constants
+
+/--
+Save an extra constant name that is used to populate `const2ModIdx` when we import
+.olean files. We use this feature to save in which module an auxiliary declaration
+created by the code generator has been created.
+-/
+def addExtraName (env : Environment) (name : Name) : Environment :=
+  if env.toKernelEnv.constants.contains name then
+    env
+  else
+    { env with extraConstNames := env.extraConstNames.insert name }
+
+def find? (env : Environment) (n : Name) : Option ConstantInfo :=
+  /- It is safe to use `find'` because we never overwrite imported declarations. -/
+  env.toKernelEnv.constants.find?' n
+
+def contains (env : Environment) (n : Name) : Bool :=
+  env.toKernelEnv.constants.contains n
+
+def imports (env : Environment) : Array Import :=
+  env.header.imports
+
+def allImportedModuleNames (env : Environment) : Array Name :=
+  env.header.moduleNames
+
+def setMainModule (env : Environment) (m : Name) : Environment :=
+  { env with header.mainModule := m }
+
+def mainModule (env : Environment) : Name :=
+  env.header.mainModule
+
+def getModuleIdxFor? (env : Environment) (declName : Name) : Option ModuleIdx :=
+  env.const2ModIdx[declName]?
+
+def isConstructor (env : Environment) (declName : Name) : Bool :=
+  match env.find? declName with
+  | some (.ctorInfo _) => true
+  | _                  => false
+
+def isSafeDefinition (env : Environment) (declName : Name) : Bool :=
+  match env.find? declName with
+  | some (.defnInfo { safety := .safe, .. }) => true
+  | _ => false
+
+def getModuleIdx? (env : Environment) (moduleName : Name) : Option ModuleIdx :=
+  env.header.moduleNames.findIdx? (· == moduleName)
 
 end Environment
 
@@ -419,8 +494,8 @@ def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
   let exts ← mkInitialExtensionStates
   pure {
     const2ModIdx    := {}
-    constants       := {}
-    header          := { trustLevel := trustLevel }
+    base.constants  := {}
+    header          := { trustLevel }
     extraConstNames := {}
     extensions      := exts
   }
@@ -705,8 +780,8 @@ def mkModuleData (env : Environment) : IO ModuleData := do
   let entries := pExts.map fun pExt =>
     let state := pExt.getState env
     (pExt.name, pExt.exportEntriesFn state)
-  let constNames := env.constants.foldStage2 (fun names name _ => names.push name) #[]
-  let constants  := env.constants.foldStage2 (fun cs _ c => cs.push c) #[]
+  let constNames := env.toKernelEnv.constants.foldStage2 (fun names name _ => names.push name) #[]
+  let constants  := env.toKernelEnv.constants.foldStage2 (fun cs _ c => cs.push c) #[]
   return {
     imports         := env.header.imports
     extraConstNames := env.extraConstNames.toArray
@@ -875,11 +950,11 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
   let exts ← mkInitialExtensionStates
   let mut env : Environment := {
     const2ModIdx    := const2ModIdx
-    constants       := constants
+    base.constants  := constants
+    base.quotInit   := !imports.isEmpty -- We assume `core.lean` initializes quotient module
     extraConstNames := {}
     extensions      := exts
-    header          := {
-      quotInit     := !imports.isEmpty -- We assume `core.lean` initializes quotient module
+    header     := {
       trustLevel   := trustLevel
       imports      := imports
       regions      := s.regions
@@ -942,54 +1017,21 @@ builtin_initialize namespacesExt : SimplePersistentEnvExtension Name NameSSet �
     addEntryFn      := fun s n => s.insert n
   }
 
-structure Kernel.Diagnostics where
-  /-- Number of times each declaration has been unfolded by the kernel. -/
-  unfoldCounter : PHashMap Name Nat := {}
-  /-- If `enabled = true`, kernel records declarations that have been unfolded. -/
-  enabled : Bool := false
-  deriving Inhabited
+@[inherit_doc Kernel.Environment.enableDiag]
+def Kernel.enableDiag (env : Lean.Environment) (flag : Bool) : Lean.Environment :=
+  { env with base := env.base.enableDiag flag }
 
-/--
-Extension for storting diagnostic information.
+def Kernel.isDiagnosticsEnabled (env : Lean.Environment) : Bool :=
+  env.base.isDiagnosticsEnabled
 
-Remark: We store kernel diagnostic information in an environment extension to simplify
-the interface with the kernel implemented in C/C++. Thus, we can only track
-declarations in methods, such as `addDecl`, which return a new environment.
-`Kernel.isDefEq` and `Kernel.whnf` do not update the statistics. We claim
-this is ok since these methods are mainly used for debugging.
--/
-builtin_initialize diagExt : EnvExtension Kernel.Diagnostics ←
-  registerEnvExtension (pure {})
+def Kernel.resetDiag (env : Lean.Environment) : Lean.Environment :=
+  { env with base := env.base.resetDiag }
 
-@[export lean_kernel_diag_is_enabled]
-def Kernel.Diagnostics.isEnabled (d : Diagnostics) : Bool :=
-  d.enabled
+def Kernel.getDiagnostics (env : Lean.Environment) : Diagnostics :=
+  env.base.diagnostics
 
-/-- Enables/disables kernel diagnostics. -/
-def Kernel.enableDiag (env : Environment) (flag : Bool) : Environment :=
-  diagExt.modifyState env fun s => { s with enabled := flag }
-
-def Kernel.isDiagnosticsEnabled (env : Environment) : Bool :=
-  diagExt.getState env |>.enabled
-
-def Kernel.resetDiag (env : Environment) : Environment :=
-  diagExt.modifyState env fun s => { s with unfoldCounter := {} }
-
-@[export lean_kernel_record_unfold]
-def Kernel.Diagnostics.recordUnfold (d : Diagnostics) (declName : Name) : Diagnostics :=
-  if d.enabled then
-    let cNew := if let some c := d.unfoldCounter.find? declName then c + 1 else 1
-    { d with unfoldCounter := d.unfoldCounter.insert declName cNew }
-  else
-    d
-
-@[export lean_kernel_get_diag]
-def Kernel.getDiagnostics (env : Environment) : Diagnostics :=
-  diagExt.getState env
-
-@[export lean_kernel_set_diag]
-def Kernel.setDiagnostics (env : Environment) (diag : Diagnostics) : Environment :=
-  diagExt.setState env diag
+def Kernel.setDiagnostics (env : Lean.Environment) (diag : Diagnostics) : Lean.Environment :=
+  { env with base := env.base.setDiagnostics diag }
 
 namespace Environment
 
@@ -1014,10 +1056,26 @@ private def registerNamePrefixes : Environment → Name → Environment
   | env, .str p _ => if isNamespaceName p then registerNamePrefixes (registerNamespace env p) p else env
   | env, _        => env
 
-@[export lean_environment_add]
-private def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
-  let env := registerNamePrefixes env cinfo.name
-  env.addAux cinfo
+private def setBase (env : Environment) (base : Kernel.Environment) : Environment :=
+  { env with base }
+
+private def updateBaseAfterKernelAdd (env : Environment) (added : List Name) (base : Kernel.Environment) : Environment :=
+  let env := added.foldl registerNamePrefixes env
+  env.setBase base
+
+@[export lean_elab_environment_update_base_after_kernel_add]
+private def updateBaseAfterKernelAddEx (env : Environment) (added : ConstantInfo) (base : Kernel.Environment) : Environment :=
+  env.updateBaseAfterKernelAdd [added.name] base
+
+/--
+Type check given declaration and add it to the environment
+-/
+@[extern "lean_elab_add_decl"]
+opaque addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
+  (cancelTk? : @& Option IO.CancelToken) : Except Kernel.Exception Environment
+
+@[inherit_doc Kernel.Environment.addDeclWithoutChecking, extern "lean_elab_add_decl_without_checking"]
+opaque addDeclWithoutChecking (env : Environment) (decl : @& Declaration) : Except Kernel.Exception Environment
 
 @[export lean_display_stats]
 def displayStats (env : Environment) : IO Unit := do
@@ -1025,7 +1083,7 @@ def displayStats (env : Environment) : IO Unit := do
   IO.println ("direct imports:                        " ++ toString env.header.imports);
   IO.println ("number of imported modules:            " ++ toString env.header.regions.size);
   IO.println ("number of memory-mapped modules:       " ++ toString (env.header.regions.filter (·.isMemoryMapped) |>.size));
-  IO.println ("number of buckets for imported consts: " ++ toString env.constants.numBuckets);
+  IO.println ("number of buckets for imported consts: " ++ toString env.toKernelEnv.constants.numBuckets);
   IO.println ("trust level:                           " ++ toString env.header.trustLevel);
   IO.println ("number of extensions:                  " ++ toString env.extensions.size);
   pExtDescrs.forM fun extDescr => do
@@ -1076,7 +1134,7 @@ namespace Kernel
   Recall that the Kernel type checker does not support metavariables.
   When implementing automation, consider using the `MetaM` methods. -/
 @[extern "lean_kernel_is_def_eq"]
-opaque isDefEq (env : Environment) (lctx : LocalContext) (a b : Expr) : Except KernelException Bool
+opaque isDefEq (env : Environment) (lctx : LocalContext) (a b : Expr) : Except Kernel.Exception Bool
 
 def isDefEqGuarded (env : Environment) (lctx : LocalContext) (a b : Expr) : Bool :=
   if let .ok result := isDefEq env lctx a b then result else false
@@ -1086,7 +1144,7 @@ def isDefEqGuarded (env : Environment) (lctx : LocalContext) (a b : Expr) : Bool
   Recall that the Kernel type checker does not support metavariables.
   When implementing automation, consider using the `MetaM` methods. -/
 @[extern "lean_kernel_whnf"]
-opaque whnf (env : Environment) (lctx : LocalContext) (a : Expr) : Except KernelException Expr
+opaque whnf (env : Environment) (lctx : LocalContext) (a : Expr) : Except Kernel.Exception Expr
 
 end Kernel
 

@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "kernel/environment.h"
+#include "library/elab_environment.h"
 
 namespace lean {
 /** \brief Given an inductive datatype \c n (which is not a proposition) in \c env,
@@ -15,7 +15,7 @@ namespace lean {
     If the environment has an impredicative Prop, it also assumes heq is defined.
     If the environment does not have an impredicative Prop, then it also assumes lift is defined.
 */
-declaration mk_no_confusion_type(environment const & env, name const & n);
+declaration mk_no_confusion_type(elab_environment const & env, name const & n);
 
 /** \brief Given an inductive datatype \c n (which is not a proposition) in \c env,
     returns the declaration for <tt>n.no_confusion</tt>.
@@ -24,5 +24,5 @@ declaration mk_no_confusion_type(environment const & env, name const & n);
     If the environment has an impredicative Prop, it also assumes heq is defined.
     If the environment does not have an impredicative Prop, then it also assumes lift is defined.
 */
-declaration mk_no_confusion(environment const & env, name const & n);
+declaration mk_no_confusion(elab_environment const & env, name const & n);
 }

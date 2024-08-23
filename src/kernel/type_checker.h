@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include <utility>
 #include <algorithm>
+#include "runtime/flet.h"
 #include "util/lbool.h"
 #include "util/name_set.h"
 #include "util/name_generator.h"
@@ -18,6 +19,15 @@ Author: Leonardo de Moura
 #include "kernel/equiv_manager.h"
 
 namespace lean {
+typedef std::function<object *(name const &)> native_reduce_fn;
+
+/** \brief Sets a function for native reduction, extending the TCB. By default, no native reduction
+    is done. */
+class scope_native_reduce_fn: flet<native_reduce_fn *> {
+public:
+    scope_native_reduce_fn(native_reduce_fn *);
+};
+
 /** \brief Lean Type Checker. It can also be used to infer types, check whether a
     type \c A is convertible to a type \c B, etc. */
 class type_checker {

@@ -41,6 +41,10 @@ static expr * g_nat_xor      = nullptr;
 static expr * g_nat_shiftLeft  = nullptr;
 static expr * g_nat_shiftRight = nullptr;
 
+LEAN_THREAD_VALUE(native_reduce_fn *, g_native_reduce_fn, nullptr);
+scope_native_reduce_fn::scope_native_reduce_fn(native_reduce_fn * fn):
+  flet<native_reduce_fn *>(g_native_reduce_fn, fn) {}
+
 type_checker::state::state(environment const & env):
     m_env(env), m_ngen(*g_kernel_fresh) {}
 
@@ -548,19 +552,16 @@ optional<expr> type_checker::unfold_definition(expr const & e) {
 static expr * g_lean_reduce_bool = nullptr;
 static expr * g_lean_reduce_nat  = nullptr;
 
-namespace ir {
-object * run_boxed(environment const & env, options const & opts, name const & fn, unsigned n, object **args);
-}
-
 expr mk_bool_true();
 expr mk_bool_false();
 
 optional<expr> reduce_native(environment const & env, expr const & e) {
+    if (!g_native_reduce_fn) return none_expr();
     if (!is_app(e)) return none_expr();
     expr const & arg = app_arg(e);
     if (!is_constant(arg)) return none_expr();
     if (app_fn(e) == *g_lean_reduce_bool) {
-        object * r = ir::run_boxed(env, options(), const_name(arg), 0, nullptr);
+        object * r = (*g_native_reduce_fn)(const_name(arg));
         if (!lean_is_scalar(r)) {
             lean_dec_ref(r);
             throw kernel_exception(env, "type checker failure, unexpected result value for 'Lean.reduceBool'");
@@ -568,7 +569,7 @@ optional<expr> reduce_native(environment const & env, expr const & e) {
         return lean_unbox(r) == 0 ? some_expr(mk_bool_false()) : some_expr(mk_bool_true());
     }
     if (app_fn(e) == *g_lean_reduce_nat) {
-        object * r = ir::run_boxed(env, options(), const_name(arg), 0, nullptr);
+        object * r = (*g_native_reduce_fn)(const_name(arg));
         if (lean_is_scalar(r) || lean_is_mpz(r)) {
             return some_expr(mk_lit(literal(nat(r))));
         } else {

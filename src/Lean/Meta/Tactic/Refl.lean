@@ -28,7 +28,7 @@ def _root_.Lean.MVarId.refl (mvarId : MVarId) : MetaM Unit := do
     let lhs ← instantiateMVars targetType.appFn!.appArg!
     let rhs ← instantiateMVars targetType.appArg!
     let success ← if (← useKernel lhs rhs) then
-      ofExceptKernelException (Kernel.isDefEq (← getEnv) {} lhs rhs)
+      ofExceptKernelException (Kernel.isDefEq (← getEnv).toKernelEnv {} lhs rhs)
     else
       isDefEq lhs rhs
     unless success do

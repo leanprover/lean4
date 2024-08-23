@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "kernel/environment.h"
+#include "library/elab_environment.h"
 namespace lean {
 struct csimp_cfg {
     /* If `m_inline` == false, then we will not inline `c` even if it is marked with the attribute `[inline]`. */
@@ -23,11 +23,11 @@ public:
     csimp_cfg();
 };
 
-expr csimp_core(environment const & env, local_ctx const & lctx, expr const & e, bool before_erasure, csimp_cfg const & cfg);
-inline expr csimp(environment const & env, expr const & e, csimp_cfg const & cfg = csimp_cfg()) {
+expr csimp_core(elab_environment const & env, local_ctx const & lctx, expr const & e, bool before_erasure, csimp_cfg const & cfg);
+inline expr csimp(elab_environment const & env, expr const & e, csimp_cfg const & cfg = csimp_cfg()) {
     return csimp_core(env, local_ctx(), e, true, cfg);
 }
-inline expr cesimp(environment const & env, expr const & e, csimp_cfg const & cfg = csimp_cfg()) {
+inline expr cesimp(elab_environment const & env, expr const & e, csimp_cfg const & cfg = csimp_cfg()) {
     return csimp_core(env, local_ctx(), e, false, cfg);
 }
 }

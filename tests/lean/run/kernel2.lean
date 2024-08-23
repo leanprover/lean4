@@ -6,13 +6,13 @@ def checkDefEq (a b : Name) : CoreM Unit := do
   let env ← getEnv
   let a := mkConst a
   let b := mkConst b
-  let r ← ofExceptKernelException (Kernel.isDefEq env {} a b)
+  let r ← ofExceptKernelException (Kernel.isDefEq env.toKernelEnv {} a b)
   IO.println (toString a ++ " =?= " ++ toString b ++ " := " ++ toString r)
 
 def whnf (a : Name) : CoreM Unit := do
   let env ← getEnv
   let a := mkConst a
-  let r ← ofExceptKernelException (Kernel.whnf env {} a)
+  let r ← ofExceptKernelException (Kernel.whnf env.toKernelEnv {} a)
   IO.println (toString a ++ " ==> " ++ toString r)
 
 partial def fact : Nat → Nat

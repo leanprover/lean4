@@ -11,13 +11,14 @@ Author: Leonardo de Moura
 namespace lean {
 /* Make sure every argument of applications and projections is a free variable (or neutral element). */
 class simp_app_args_fn {
+    elab_environment    m_env;
     type_checker::state m_st;
     local_ctx           m_lctx;
     buffer<expr>        m_fvars;
     name                m_x;
     unsigned            m_next_idx{1};
 
-    environment const & env() const { return m_st.env(); }
+    elab_environment const & env() const { return m_env; }
     name_generator & ngen() { return m_st.ngen(); }
 
     name next_name() {
@@ -125,14 +126,14 @@ class simp_app_args_fn {
     }
 
 public:
-    simp_app_args_fn(environment const & env):m_st(env), m_x("_x") {}
+    simp_app_args_fn(elab_environment const & env):m_env(env), m_st(env), m_x("_x") {}
 
     expr operator()(expr const & e) {
         return mk_let(0, visit(e));
     }
 };
 
-expr simp_app_args(environment const & env, expr const & e) {
+expr simp_app_args(elab_environment const & env, expr const & e) {
     return simp_app_args_fn(env)(e);
 }
 }

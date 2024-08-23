@@ -98,7 +98,7 @@ def getEligibleHeaderDecls (env : Environment) : IO EligibleHeaderDecls := do
       let (_, eligibleHeaderDecls) :=
         StateT.run (m := Id) (s := {}) do
           -- `map₁` are the header decls
-          env.constants.map₁.forM fun declName c => do
+          env.toKernelEnv.constants.map₁.forM fun declName c => do
             modify fun eligibleHeaderDecls =>
               if allowCompletion env declName then
                 eligibleHeaderDecls.insert declName c
@@ -112,7 +112,7 @@ private def forEligibleDeclsM [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorl
   let env ← getEnv
   (← getEligibleHeaderDecls env).forM f
   -- map₂ are exactly the local decls
-  env.constants.map₂.forM fun name c => do
+  env.toKernelEnv.constants.map₂.forM fun name c => do
     if allowCompletion env name then
       f name c
 
@@ -120,7 +120,7 @@ private def forEligibleDeclsM [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorl
 private def allowCompletion (eligibleHeaderDecls : EligibleHeaderDecls) (env : Environment)
     (declName : Name) : Bool :=
   eligibleHeaderDecls.contains declName ||
-    env.constants.map₂.contains declName && Lean.Meta.allowCompletion env declName
+    env.toKernelEnv.constants.map₂.contains declName && Lean.Meta.allowCompletion env declName
 
 /--
 Sorts `items` descendingly according to their score and ascendingly according to their label

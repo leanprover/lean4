@@ -126,13 +126,13 @@ $(TEMP_OUT)/%.o: $(TEMP_OUT)/%.o.export
 	ln -f $< $@
 endif
 
-$(BIN_OUT)/$(BIN_NAME): $(TEMP_OUT)/$(STATIC_LIB_NAME).export | $(BIN_OUT)
+$(BIN_OUT)/$(BIN_NAME): $(patsubst %.lean,$(TEMP_OUT)/%.o,$(EXTRA_SRC_ROOTS)) $(TEMP_OUT)/$(STATIC_LIB_NAME).export | $(BIN_OUT)
 ifdef CMAKE_LIKE_OUTPUT
 	@echo "[    ] Linking $@"
 endif
 # on Windows, must remove binary before writing a new one (since the old one may be in use)
 	@rm -f $@
-	$(LEANC) -o "$@" $< $(LEANC_OPTS) $(LINK_OPTS)
+	$(LEANC) -o "$@" $^ $(LEANC_OPTS) $(LINK_OPTS)
 
 ifeq (@CMAKE_SYSTEM_NAME@, Windows)
 $(LIB_OUT)/$(STATIC_LIB_NAME): $(NAT_OBJS) | $(LIB_OUT)

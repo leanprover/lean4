@@ -185,6 +185,12 @@ theorem Sublist.subset : l₁ <+ l₂ → l₁ ⊆ l₂
 protected theorem Sublist.mem (hx : a ∈ l₁) (hl : l₁ <+ l₂) : a ∈ l₂ :=
   hl.subset hx
 
+theorem Sublist.head_mem (s : ys <+ xs) (h) : ys.head h ∈ xs :=
+  s.mem (List.head_mem h)
+
+theorem Sublist.getLast_mem (s : ys <+ xs) (h) : ys.getLast h ∈ xs :=
+  s.mem (List.getLast_mem h)
+
 instance : Trans (@Sublist α) Subset Subset :=
   ⟨fun h₁ h₂ => trans h₁.subset h₂⟩
 
@@ -245,6 +251,12 @@ protected theorem Sublist.filterMap (f : α → Option β) (s : l₁ <+ l₂) :
 
 protected theorem Sublist.filter (p : α → Bool) {l₁ l₂} (s : l₁ <+ l₂) : filter p l₁ <+ filter p l₂ := by
   rw [← filterMap_eq_filter]; apply s.filterMap
+
+theorem head_filter_mem (xs : List α) (p : α → Bool) (h) : (xs.filter p).head h ∈ xs :=
+  (filter_sublist xs).head_mem h
+
+theorem getLast_filter_mem (xs : List α) (p : α → Bool) (h) : (xs.filter p).getLast h ∈ xs :=
+  (filter_sublist xs).getLast_mem h
 
 theorem sublist_filterMap_iff {l₁ : List β} {f : α → Option β} :
     l₁ <+ l₂.filterMap f ↔ ∃ l', l' <+ l₂ ∧ l₁ = l'.filterMap f := by

@@ -448,10 +448,15 @@ def withAnonymousAntiquot := leading_parser
 @[builtin_term_parser] def «trailing_parser» := leading_parser:leadPrec
   "trailing_parser" >> optExprPrecedence >> optExprPrecedence >> ppSpace >> termParser
 
-/-- Marks a function argument of an `@[extern]`ed function as borrowed.
+/-- 
+Indicates that an argument to a function marked `@[extern]` is borrowed.
 
-See https://lean-lang.org/lean4/doc/dev/ffi.html#borrowing;
-currently this annotation is ignored on `@[export]`ed functions and return values. -/
+Being borrowed only affects the way C code interacts with the function. From the perspective of Lean, this annotation has no effect. It similarly has no effect on functions not marked `@[extern]`.
+
+When a function argument is borrowed, the function does not consume the value. This means that the function will not decrement the value's reference count or deallocate it, and the caller is responsible for doing so.
+
+Please see https://lean-lang.org/lean4/doc/dev/ffi.html#borrowing for a complete description.
+-/
 @[builtin_term_parser] def borrowed   := leading_parser
   "@& " >> termParser leadPrec
 /-- A literal of type `Name`. -/

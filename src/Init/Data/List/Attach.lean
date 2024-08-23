@@ -86,7 +86,7 @@ theorem attach_map_val (l : List α) (f : α → β) : (l.attach.map fun i => f 
 
 @[simp]
 theorem attach_map_subtype_val (l : List α) : l.attach.map Subtype.val = l :=
-  (attach_map_coe _ _).trans l.map_id
+  (attach_map_coe _ _).trans (List.map_id _)
 
 theorem countP_attach (l : List α) (p : α → Bool) : l.attach.countP (fun a : {x // x ∈ l} => p a) = l.countP p := by
   simp only [← Function.comp_apply (g := Subtype.val), ← countP_map, attach_map_subtype_val]

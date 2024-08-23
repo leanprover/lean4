@@ -113,8 +113,6 @@ variable (L : List (List α)) in
 
 variable (p : β → Bool) in
 #check_simp (l.map f).find? p ~> (l.find? (p ∘ f)).map f
-variable (p : β → Option γ) in
-#check_simp (l.map f).findSome? p ~> l.findSome? (p ∘ f)
 
 /-! ### filter -/
 

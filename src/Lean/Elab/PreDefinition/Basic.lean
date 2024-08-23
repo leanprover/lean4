@@ -12,6 +12,7 @@ import Lean.Util.NumApps
 import Lean.PrettyPrinter
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.ForEachExpr
+import Lean.Meta.Eqns
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.DefView
 import Lean.Elab.PreDefinition.TerminationHint
@@ -153,6 +154,7 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List N
     if compile && shouldGenCodeFor preDef then
       discard <| compileDecl decl
     if applyAttrAfterCompilation then
+      generateEagerEqns preDef.declName
       applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
 
 def addAndCompileNonRec (preDef : PreDefinition) (all : List Name := [preDef.declName]) : TermElabM Unit := do

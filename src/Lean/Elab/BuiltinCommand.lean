@@ -235,7 +235,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
       Term.elabBinders binders fun _ => pure ()
     -- Remark: if we want to produce error messages when variables shadow existing ones, here is the place to do it.
     for binder in binders do
-      let varUIds ← getBracketedBinderIds binder |>.mapM (withFreshMacroScope ∘ MonadQuotation.addMacroScope)
+      let varUIds ← (← getBracketedBinderIds binder) |>.mapM (withFreshMacroScope ∘ MonadQuotation.addMacroScope)
       modifyScope fun scope => { scope with varDecls := scope.varDecls.push binder, varUIds := scope.varUIds ++ varUIds }
   | _ => throwUnsupportedSyntax
 
@@ -505,7 +505,7 @@ def elabRunMeta : CommandElab := fun stx =>
 @[builtin_command_elab Lean.Parser.Command.include] def elabInclude : CommandElab
   | `(Lean.Parser.Command.include| include $ids*) => do
     let sc ← getScope
-    let vars := sc.varDecls.concatMap getBracketedBinderIds
+    let vars ← sc.varDecls.concatMapM getBracketedBinderIds
     let mut uids := #[]
     for id in ids do
       if let some idx := vars.findIdx? (· == id.getId) then

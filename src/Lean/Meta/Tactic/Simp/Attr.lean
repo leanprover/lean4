@@ -30,11 +30,13 @@ def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension)
           if (← isProp info.type) then
             addSimpTheorem ext declName post (inv := false) attrKind prio
           else if info.hasValue then
-            if let some eqns ← getEqnsFor? declName then
+            if (← SimpTheorems.ignoreEquations declName) then
+              ext.add (SimpEntry.toUnfold declName) attrKind
+            else if let some eqns ← getEqnsFor? declName then
               for eqn in eqns do
                 addSimpTheorem ext eqn post (inv := false) attrKind prio
               ext.add (SimpEntry.toUnfoldThms declName eqns) attrKind
-              if hasSmartUnfoldingDecl (← getEnv) declName then
+              if (← SimpTheorems.unfoldEvenWithEqns declName) then
                 ext.add (SimpEntry.toUnfold declName) attrKind
             else
               ext.add (SimpEntry.toUnfold declName) attrKind

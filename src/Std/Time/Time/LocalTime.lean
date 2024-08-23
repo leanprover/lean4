@@ -148,6 +148,87 @@ Creates a `LocalTime` value from a total number of seconds.
 def ofSeconds (secs : Second.Offset) : LocalTime :=
   ofNanoseconds (secs.mul 1000000000)
 
+/--
+Adds seconds to a `LocalTime`.
+-/
+@[inline]
+def addSeconds (time : LocalTime) (secondsToAdd : Second.Offset) : LocalTime :=
+  let totalSeconds := time.toSeconds + secondsToAdd
+  ofSeconds totalSeconds
+
+/--
+Subtracts seconds from a `LocalTime`.
+-/
+@[inline]
+def subSeconds (time : LocalTime) (secondsToSub : Second.Offset) : LocalTime :=
+  addSeconds time (-secondsToSub)
+
+/--
+Adds minutes to a `LocalTime`.
+-/
+@[inline]
+def addMinutes (time : LocalTime) (minutesToAdd : Minute.Offset) : LocalTime :=
+  let totalMinutes := time.toMinutes + minutesToAdd
+  ofSeconds (totalMinutes.toSeconds)
+
+/--
+Subtracts minutes from a `LocalTime`.
+-/
+@[inline]
+def subMinutes (time : LocalTime) (minutesToSub : Minute.Offset) : LocalTime :=
+  addMinutes time (-minutesToSub)
+
+/--
+Adds hours to a `LocalTime`.
+-/
+def addHours (time : LocalTime) (hoursToAdd : Hour.Offset) : LocalTime :=
+  let totalHours := time.toHours + hoursToAdd
+  ofSeconds (totalHours.toSeconds)
+
+/--
+Subtracts hours from a `LocalTime`.
+-/
+@[inline]
+def subHours (time : LocalTime) (hoursToSub : Hour.Offset) : LocalTime :=
+  addHours time (-hoursToSub)
+
+/--
+Adds nanoseconds to a `LocalTime`.
+-/
+def addNanoseconds (time : LocalTime) (nanosToAdd : Nanosecond.Offset) : LocalTime :=
+  let totalNanos := time.toNanoseconds + nanosToAdd
+  ofNanoseconds totalNanos
+
+/--
+Subtracts nanoseconds from a `LocalTime`.
+-/
+def subNanoseconds (time : LocalTime) (nanosToSub : Nanosecond.Offset) : LocalTime :=
+  addNanoseconds time (-nanosToSub)
+
+instance : HAdd LocalTime Nanosecond.Offset LocalTime where
+  hAdd := addNanoseconds
+
+instance : HSub LocalTime Nanosecond.Offset LocalTime where
+  hSub := subNanoseconds
+
+instance : HAdd LocalTime Second.Offset LocalTime where
+  hAdd := addSeconds
+
+instance : HSub LocalTime Second.Offset LocalTime where
+  hSub := subSeconds
+
+instance : HAdd LocalTime Minute.Offset LocalTime where
+  hAdd := addMinutes
+
+instance : HSub LocalTime Minute.Offset LocalTime where
+  hSub := subMinutes
+
+instance : HAdd LocalTime Hour.Offset LocalTime where
+  hAdd := addHours
+
+instance : HSub LocalTime Hour.Offset LocalTime where
+  hSub := subHours
+
 end LocalTime
 end Time
 end Std

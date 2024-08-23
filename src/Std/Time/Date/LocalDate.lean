@@ -263,7 +263,10 @@ def subYearsClip (date : LocalDate) (years : Year.Offset) : LocalDate :=
   addMonthsClip date (- years.mul 12)
 
 instance : HAdd LocalDate Day.Offset LocalDate where
-  hAdd date day := ofDaysSinceUNIXEpoch (toDaysSinceUNIXEpoch date + day)
+  hAdd := addDays
+
+instance : HSub LocalDate Day.Offset LocalDate where
+  hSub := subDays
 
 end LocalDate
 end Time

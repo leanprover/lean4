@@ -223,3 +223,31 @@ Subtracts a `Day.Offset` from a `Timestamp`
 def subDays (t : Timestamp) (d : Day.Offset) : Timestamp :=
   let seconds := d.mul 86400
   t.subSeconds seconds
+
+instance : HAdd Timestamp Day.Offset Timestamp where
+  hAdd := addDays
+
+instance : HSub Timestamp Day.Offset Timestamp where
+  hSub := subDays
+
+instance : HAdd Timestamp Hour.Offset Timestamp where
+  hAdd := addHours
+
+instance : HSub Timestamp Hour.Offset Timestamp where
+  hSub := subHours
+
+instance : HAdd Timestamp Minute.Offset Timestamp where
+  hAdd := addMinutes
+
+instance : HSub Timestamp Minute.Offset Timestamp where
+  hSub := subMinutes
+
+instance : HAdd Timestamp Second.Offset Timestamp where
+  hAdd := addSeconds
+
+instance : HSub Timestamp Second.Offset Timestamp where
+  hSub := subSeconds
+
+end Timestamp
+end Time
+end Std

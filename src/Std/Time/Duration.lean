@@ -46,3 +46,9 @@ Checks if the duration is zero seconds ands zero nanoseconds.
 -/
 def isZero (d : Duration) : Bool :=
   d.second.val = 0 ∧ d.nano.val = 0
+
+instance : HAdd Timestamp Duration Timestamp where
+  hAdd := add
+
+instance : HAdd Timestamp Timestamp Duration where
+  hAdd := Std.Time.Timestamp.sub

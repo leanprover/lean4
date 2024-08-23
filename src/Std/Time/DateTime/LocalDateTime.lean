@@ -133,12 +133,18 @@ Adds a `Day.Offset` to a `LocalDateTime`.
 def addDays (dt : LocalDateTime) (days : Day.Offset) : LocalDateTime :=
   { dt with date := dt.date.addDays days }
 
+instance : HAdd LocalDateTime Day.Offset LocalDateTime where
+  hAdd := addDays
+
 /--
 Subtracts a `Day.Offset` from a `LocalDateTime`.
 -/
 @[inline]
 def subDays (dt : LocalDateTime) (days : Day.Offset) : LocalDateTime :=
   { dt with date := dt.date.subDays days }
+
+instance : HSub LocalDateTime Day.Offset LocalDateTime where
+  hSub := subDays
 
 /--
 Adds a `Month.Offset` to a `LocalDateTime`, adjusting the day to the last valid day of the resulting
@@ -199,6 +205,77 @@ resulting month.
 def subYearsClip (dt : LocalDateTime) (years : Year.Offset) : LocalDateTime :=
   { dt with date := dt.date.subYearsClip years }
 
+
+/--
+Adds an `Hour.Offset` to a `LocalDateTime`, adjusting the date if the hour overflows.
+-/
+@[inline]
+def addHour (dt : LocalDateTime) (hours : Hour.Offset) : LocalDateTime :=
+  let totalSeconds := dt.time.toSeconds + hours.toSeconds
+  let days := totalSeconds.ediv 86400
+  let newTime := dt.time.addSeconds (hours.toSeconds)
+  { dt with date := dt.date.addDays days, time := newTime }
+
+/--
+Subtracts an `Hour.Offset` from a `LocalDateTime`, adjusting the date if the hour underflows.
+-/
+@[inline]
+def subHour (dt : LocalDateTime) (hours : Hour.Offset) : LocalDateTime :=
+  addHour dt (-hours)
+
+/--
+Adds a `Minute.Offset` to a `LocalDateTime`, adjusting the hour and date if the minutes overflow.
+-/
+@[inline]
+def addMinute (dt : LocalDateTime) (minutes : Minute.Offset) : LocalDateTime :=
+  let totalSeconds := dt.time.toSeconds + minutes.toSeconds
+  let days := totalSeconds.ediv 86400
+  let newTime := dt.time.addSeconds (minutes.toSeconds)
+  { dt with date := dt.date.addDays days, time := newTime }
+
+/--
+Subtracts a `Minute.Offset` from a `LocalDateTime`, adjusting the hour and date if the minutes underflow.
+-/
+@[inline]
+def subMinute (dt : LocalDateTime) (minutes : Minute.Offset) : LocalDateTime :=
+  addMinute dt (-minutes)
+
+/--
+Adds a `Second.Offset` to a `LocalDateTime`, adjusting the minute, hour, and date if the seconds overflow.
+-/
+@[inline]
+def addSecond (dt : LocalDateTime) (seconds : Second.Offset) : LocalDateTime :=
+  let totalSeconds := dt.time.toSeconds + seconds
+  let days := totalSeconds.ediv 86400
+  let newTime := dt.time.addSeconds seconds
+  { dt with date := dt.date.addDays days, time := newTime }
+
+/--
+Subtracts a `Second.Offset` from a `LocalDateTime`, adjusting the minute, hour, and date if the seconds underflow.
+-/
+@[inline]
+def subSecond (dt : LocalDateTime) (seconds : Second.Offset) : LocalDateTime :=
+  addSecond dt (-seconds)
+
+/--
+Adds a `Nanosecond.Offset` to a `LocalDateTime`, adjusting the seconds, minutes, hours, and date if the nanoseconds overflow.
+-/
+@[inline]
+def addNanosecond (dt : LocalDateTime) (nanos : Nanosecond.Offset) : LocalDateTime :=
+  let nano : Nanosecond.Offset := UnitVal.mk dt.time.nano.val
+  let totalNanos := nano + nanos
+  let extraSeconds : Second.Offset := totalNanos.ediv 1000000000
+  let nano := Bounded.LE.byEmod totalNanos.val 1000000000 (by decide)
+  let newTime := dt.time.addSeconds extraSeconds
+  { dt with time := { newTime with nano } }
+
+/--
+Subtracts a `Nanosecond.Offset` from a `LocalDateTime`, adjusting the seconds, minutes, hours, and date if the nanoseconds underflow.
+-/
+@[inline]
+def subNanosecond (dt : LocalDateTime) (nanos : Nanosecond.Offset) : LocalDateTime :=
+  addNanosecond dt (-nanos)
+
 /--
 Getter for the `Year` inside of a `LocalDateTime`.
 -/
@@ -247,6 +324,30 @@ Getter for the `Second` inside of a `LocalDateTime`.
 @[inline]
 def nanosecond (dt : LocalDateTime) : Nanosecond.Ordinal :=
   dt.time.nano
+
+instance : HAdd LocalDateTime Hour.Offset LocalDateTime where
+  hAdd := addHour
+
+instance : HSub LocalDateTime Hour.Offset LocalDateTime where
+  hSub := subHour
+
+instance : HAdd LocalDateTime Minute.Offset LocalDateTime where
+  hAdd := addMinute
+
+instance : HSub LocalDateTime Minute.Offset LocalDateTime where
+  hSub := subMinute
+
+instance : HAdd LocalDateTime Second.Offset LocalDateTime where
+  hAdd := addSecond
+
+instance : HSub LocalDateTime Second.Offset LocalDateTime where
+  hSub := subSecond
+
+instance : HAdd LocalDateTime Nanosecond.Offset LocalDateTime where
+  hAdd := addNanosecond
+
+instance : HSub LocalDateTime Nanosecond.Offset LocalDateTime where
+  hSub := subNanosecond
 
 end LocalDateTime
 end Time

@@ -81,10 +81,10 @@ def elabConfigFile (pkgDir : FilePath) (lakeOpts : NameMap String)
     return s.commandState.env
 
 /--
-`Lean.Environment.add` is now private, but exported as `lean_environment_add`.
+`Lean.Environment.add` is now private, but exported as `lean_elab_environment_add`.
 We call it here via `@[extern]` with a mock implementation.
 -/
-@[extern "lean_environment_add"]
+@[extern "lean_elab_environment_add"]
 private opaque addToEnv (env : Environment) (_ : ConstantInfo) : Environment
 
 /--

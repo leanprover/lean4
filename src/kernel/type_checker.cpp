@@ -549,7 +549,7 @@ static expr * g_lean_reduce_bool = nullptr;
 static expr * g_lean_reduce_nat  = nullptr;
 
 namespace ir {
-object * run_boxed(environment const & env, options const & opts, name const & fn, unsigned n, object **args);
+object * run_boxed_kernel(environment const & env, options const & opts, name const & fn, unsigned n, object **args);
 }
 
 expr mk_bool_true();
@@ -560,7 +560,7 @@ optional<expr> reduce_native(environment const & env, expr const & e) {
     expr const & arg = app_arg(e);
     if (!is_constant(arg)) return none_expr();
     if (app_fn(e) == *g_lean_reduce_bool) {
-        object * r = ir::run_boxed(env, options(), const_name(arg), 0, nullptr);
+        object * r = ir::run_boxed_kernel(env, options(), const_name(arg), 0, nullptr);
         if (!lean_is_scalar(r)) {
             lean_dec_ref(r);
             throw kernel_exception(env, "type checker failure, unexpected result value for 'Lean.reduceBool'");
@@ -568,7 +568,7 @@ optional<expr> reduce_native(environment const & env, expr const & e) {
         return lean_unbox(r) == 0 ? some_expr(mk_bool_false()) : some_expr(mk_bool_true());
     }
     if (app_fn(e) == *g_lean_reduce_nat) {
-        object * r = ir::run_boxed(env, options(), const_name(arg), 0, nullptr);
+        object * r = ir::run_boxed_kernel(env, options(), const_name(arg), 0, nullptr);
         if (lean_is_scalar(r) || lean_is_mpz(r)) {
             return some_expr(mk_lit(literal(nat(r))));
         } else {
@@ -1191,24 +1191,6 @@ type_checker::type_checker(type_checker && src):
 type_checker::~type_checker() {
     if (m_st_owner)
         delete m_st;
-}
-
-extern "C" LEAN_EXPORT lean_object * lean_kernel_is_def_eq(lean_object * env, lean_object * lctx, lean_object * a, lean_object * b) {
-    return catch_kernel_exceptions<object*>([&]() {
-        return lean_box(type_checker(environment(env), local_ctx(lctx)).is_def_eq(expr(a), expr(b)));
-    });
-}
-
-extern "C" LEAN_EXPORT lean_object * lean_kernel_whnf(lean_object * env, lean_object * lctx, lean_object * a) {
-    return catch_kernel_exceptions<object*>([&]() {
-        return type_checker(environment(env), local_ctx(lctx)).whnf(expr(a)).steal();
-    });
-}
-
-extern "C" LEAN_EXPORT lean_object * lean_kernel_check(lean_object * env, lean_object * lctx, lean_object * a) {
-    return catch_kernel_exceptions<object*>([&]() {
-        return type_checker(environment(env), local_ctx(lctx)).check(expr(a)).steal();
-    });
 }
 
 inline static expr * new_persistent_expr_const(name const & n) {

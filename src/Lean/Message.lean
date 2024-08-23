@@ -537,12 +537,12 @@ macro_rules
 def toMessageList (msgs : Array MessageData) : MessageData :=
   indentD (MessageData.joinSep msgs.toList m!"\n\n")
 
-namespace KernelException
+namespace Kernel.Exception
 
 private def mkCtx (env : Environment) (lctx : LocalContext) (opts : Options) (msg : MessageData) : MessageData :=
-  MessageData.withContext { env := env, mctx := {}, lctx := lctx, opts := opts } msg
+  MessageData.withContext { env := .ofKernelEnv env, mctx := {}, lctx := lctx, opts := opts } msg
 
-def toMessageData (e : KernelException) (opts : Options) : MessageData :=
+def toMessageData (e : Kernel.Exception) (opts : Options) : MessageData :=
   match e with
   | unknownConstant env constName       => mkCtx env {} opts m!"(kernel) unknown constant '{constName}'"
   | alreadyDeclared env constName       => mkCtx env {} opts m!"(kernel) constant has already been declared '{.ofConstName constName true}'"
@@ -570,5 +570,5 @@ def toMessageData (e : KernelException) (opts : Options) : MessageData :=
   | deepRecursion                       => "(kernel) deep recursion detected"
   | interrupted                         => "(kernel) interrupted"
 
-end KernelException
+end Kernel.Exception
 end Lean

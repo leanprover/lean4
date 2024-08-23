@@ -553,10 +553,10 @@ extern "C" LEAN_EXPORT obj_res lean_get_timezone_offset(obj_arg /* w */) {
     auto now_time_t = system_clock::to_time_t(now);
 
     std::tm tm_info;
-#if defined(_MSC_VER) // For Microsoft Visual C++
-    localtime_s(&tm_info, &now_time_t); // localtime_s for thread safety
+#if defined(_MSC_VER)
+    localtime_s(&tm_info, &now_time_t);
 #else
-    localtime_r(&now_time_t, &tm_info); // localtime_r for POSIX systems
+    localtime_r(&now_time_t, &tm_info);
 #endif
 
     int offset_hour = tm_info.tm_gmtoff / 3600;

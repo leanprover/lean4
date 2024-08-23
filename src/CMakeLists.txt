@@ -389,6 +389,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   string(APPEND INIT_SHARED_LINKER_FLAGS " -install_name @rpath/libInit_shared.dylib")
   string(APPEND LEANSHARED_1_LINKER_FLAGS " -install_name @rpath/libleanshared_1.dylib")
   string(APPEND LEANSHARED_LINKER_FLAGS " -install_name @rpath/libleanshared.dylib")
+  string(APPEND LAKESHARED_LINKER_FLAGS " -install_name @rpath/libLake_shared.dylib")
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../lib/lean")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   string(APPEND CMAKE_CXX_FLAGS " -fPIC")
@@ -586,7 +587,12 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   )
   add_custom_target(leanshared ALL
     DEPENDS Init_shared leancpp
+    COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_1${CMAKE_SHARED_LIBRARY_SUFFIX}
     COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}
+  )
+  add_custom_target(lake_shared ALL
+    DEPENDS leanshared
+    COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}
   )
 else()
   add_custom_target(Init_shared ALL
@@ -605,15 +611,20 @@ else()
 endif()
 
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  add_custom_target(lake ALL
+  add_custom_target(lake_lib ALL
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
     DEPENDS leanshared
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Lake
     VERBATIM)
   add_custom_target(lake_shared ALL
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
-    DEPENDS lake
+    DEPENDS lake_lib
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make libLake_shared
+    VERBATIM)
+  add_custom_target(lake ALL
+    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+    DEPENDS lake_shared
+    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make lake
     VERBATIM)
 endif()
 

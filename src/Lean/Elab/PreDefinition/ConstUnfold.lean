@@ -37,7 +37,7 @@ def getConstUnfoldEqnFor? (declName : Name) : MetaM (Option Name) := do
     if (← tryURefl main.mvarId!) then -- try to make a rfl lemma if possible
       instantiateMVars main
     else forallTelescope info.type fun xs _eq => do
-      let mut proof := Expr.const unfoldEqnName (info.levelParams.map mkLevelParam)
+      let mut proof ← mkConstWithLevelParams unfoldEqnName
       proof := mkAppN proof xs
       for x in xs.reverse do
         proof ← mkLambdaFVars #[x] proof

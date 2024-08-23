@@ -31,8 +31,14 @@ if(NOT (DEFINED STAGE0_CMAKE_EXECUTABLE_SUFFIX))
 endif()
 
 # On CI Linux, we source cadical from Nix instead; see flake.nix
-#find_program(CADICAL cadical)
+find_program(CADICAL cadical)
 if(NOT CADICAL)
+  set(CADICAL_CXX c++)
+  find_program(CCACHE ccache)
+  if(CCACHE)
+    set(CADICAL_CXX "${CCACHE} ${CADICAL_CXX}")
+  endif()
+  # missing stdio locking API on Windows
   if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     string(APPEND CADICAL_CXXFLAGS " -DNUNLOCKED")
   endif()
@@ -42,7 +48,7 @@ if(NOT CADICAL)
     GIT_TAG rel-1.9.5
     CONFIGURE_COMMAND ""
     # https://github.com/arminbiere/cadical/blob/master/BUILD.md#manual-build
-    BUILD_COMMAND $(MAKE) -f ${CMAKE_SOURCE_DIR}/src/cadical.mk CMAKE_EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX} CXXFLAGS=${CADICAL_CXXFLAGS}
+    BUILD_COMMAND $(MAKE) -f ${CMAKE_SOURCE_DIR}/src/cadical.mk CMAKE_EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX} CXX=${CADICAL_CXX} CXXFLAGS=${CADICAL_CXXFLAGS}
     BUILD_IN_SOURCE ON
     INSTALL_COMMAND "")
   set(CADICAL ${CMAKE_BINARY_DIR}/cadical/cadical${CMAKE_EXECUTABLE_SUFFIX} CACHE FILEPATH "path to cadical binary")

@@ -5,7 +5,7 @@
   # old nixpkgs used for portable release with older glibc (2.27)
   inputs.nixpkgs-old.url = "github:NixOS/nixpkgs/nixos-19.03";
   inputs.nixpkgs-old.flake = false;
-  # for cadical 1.9.5, sync with CMakeLists.txt
+  # for cadical 1.9.5; sync with CMakeLists.txt
   inputs.nixpkgs-cadical.url = "github:NixOS/nixpkgs/12bf09802d77264e441f48e25459c10c93eada2e";
   inputs.flake-utils.url = "github:numtide/flake-utils";
 

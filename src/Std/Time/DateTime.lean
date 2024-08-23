@@ -58,7 +58,7 @@ Converts a `Timestamp` to a `LocalTime`
 -/
 @[inline]
 def toLocalTime (timestamp : Timestamp) : LocalTime :=
-  let nanos := timestamp.toNanoseconds
+  let nanos := timestamp.toNanosecondsSinceUnixEpoch
   LocalTime.ofNanoseconds nanos
 
 end Timestamp

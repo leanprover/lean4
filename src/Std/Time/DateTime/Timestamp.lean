@@ -157,10 +157,24 @@ def ofNanosecondsSinceUnixEpoch (s : Nanosecond.Offset) : Timestamp := by
 Converts a `Timestamp` from a `Nanosecond.Offset`
 -/
 @[inline]
-def toNanoseconds (tm : Timestamp) : Nanosecond.Offset :=
+def toNanosecondsSinceUnixEpoch (tm : Timestamp) : Nanosecond.Offset :=
   let nanos := tm.toSeconds.mul 1000000000
   let nanos := nanos + (UnitVal.mk tm.nano.val)
   nanos
+
+/--
+Adds a `Nanosecond.Offset` to a `Timestamp`
+-/
+@[inline]
+def addNanoseconds (t : Timestamp) (s : Nanosecond.Offset) : Timestamp :=
+  t.add (ofNanosecondsSinceUnixEpoch s)
+
+/--
+Adds a `Nanosecond.Offset` to a `Timestamp`
+-/
+@[inline]
+def subNanoseconds (t : Timestamp) (s : Nanosecond.Offset) : Timestamp :=
+  t.sub (ofNanosecondsSinceUnixEpoch s)
 
 /--
 Adds a `Second.Offset` to a `Timestamp`
@@ -247,6 +261,12 @@ instance : HAdd Timestamp Second.Offset Timestamp where
 
 instance : HSub Timestamp Second.Offset Timestamp where
   hSub := subSeconds
+
+instance : HAdd Timestamp Nanosecond.Offset Timestamp where
+  hAdd := addNanoseconds
+
+instance : HSub Timestamp Nanosecond.Offset Timestamp where
+  hSub := subNanoseconds
 
 end Timestamp
 end Time

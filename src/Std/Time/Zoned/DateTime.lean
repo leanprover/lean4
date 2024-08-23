@@ -67,6 +67,62 @@ def ofLocalDateTime (date : LocalDateTime) (tz : TimeZone) : DateTime tz :=
   DateTime.mk (tm.subSeconds tz.toSeconds) (Thunk.mk <| λ_ => date)
 
 /--
+Add `Hour.Offset` to a `DateTime`.
+-/
+@[inline]
+def addHours (dt : DateTime tz) (hours : Hour.Offset) : DateTime tz :=
+  ofLocalDateTime (dt.timestamp.toLocalDateTime.addHours hours) tz
+
+/--
+Subtract `Hour.Offset` from a `DateTime`.
+-/
+@[inline]
+def subHours (dt : DateTime tz) (hours : Hour.Offset) : DateTime tz :=
+  ofLocalDateTime (dt.timestamp.toLocalDateTime.subHours hours) tz
+
+/--
+Add `Minute.Offset` to a `DateTime`.
+-/
+@[inline]
+def addMinutes (dt : DateTime tz) (minutes : Minute.Offset) : DateTime tz :=
+  ofLocalDateTime (dt.timestamp.toLocalDateTime.addMinutes minutes) tz
+
+/--
+Subtract `Minute.Offset` from a `DateTime`.
+-/
+@[inline]
+def subMinutes (dt : DateTime tz) (minutes : Minute.Offset) : DateTime tz :=
+  ofLocalDateTime (dt.timestamp.toLocalDateTime.subMinutes minutes) tz
+
+/--
+Add `Second.Offset` to a `DateTime`.
+-/
+@[inline]
+def addSeconds (dt : DateTime tz) (seconds : Second.Offset) : DateTime tz :=
+  ofLocalDateTime (dt.timestamp.toLocalDateTime.addSeconds seconds) tz
+
+/--
+Subtract `Second.Offset` from a `DateTime`.
+-/
+@[inline]
+def subSeconds (dt : DateTime tz) (seconds : Second.Offset) : DateTime tz :=
+  ofLocalDateTime (dt.timestamp.toLocalDateTime.subSeconds seconds) tz
+
+/--
+Add `Nanosecond.Offset` to a `DateTime`.
+-/
+@[inline]
+def addNanoseconds (dt : DateTime tz) (nanoseconds : Nanosecond.Offset) : DateTime tz :=
+  ofLocalDateTime (dt.timestamp.toLocalDateTime.addNanoseconds nanoseconds) tz
+
+/--
+Subtract `Nanosecond.Offset` from a `DateTime`.
+-/
+@[inline]
+def subNanoseconds (dt : DateTime tz) (nanoseconds : Nanosecond.Offset) : DateTime tz :=
+  ofLocalDateTime (dt.timestamp.toLocalDateTime.subNanoseconds nanoseconds) tz
+
+/--
 Add `Day.Offset` to a `DateTime`.
 -/
 @[inline]
@@ -200,6 +256,36 @@ Gets the `Weekday` of a DateTime.
 @[inline]
 def weekday (dt : DateTime tz) : Weekday :=
   dt.date.get.date.weekday
+
+instance : HAdd (DateTime tz) (Day.Offset) (DateTime tz) where
+  hAdd := addDays
+
+instance : HSub (DateTime tz) (Day.Offset) (DateTime tz) where
+  hSub := subDays
+
+instance : HAdd (DateTime tz) (Hour.Offset) (DateTime tz) where
+  hAdd := addHours
+
+instance : HSub (DateTime tz) (Hour.Offset) (DateTime tz) where
+  hSub := subHours
+
+instance : HAdd (DateTime tz) (Minute.Offset) (DateTime tz) where
+  hAdd := addMinutes
+
+instance : HSub (DateTime tz) (Minute.Offset) (DateTime tz) where
+  hSub := subMinutes
+
+instance : HAdd (DateTime tz) (Second.Offset) (DateTime tz) where
+  hAdd := addSeconds
+
+instance : HSub (DateTime tz) (Second.Offset) (DateTime tz) where
+  hSub := subSeconds
+
+instance : HAdd (DateTime tz) (Nanosecond.Offset) (DateTime tz) where
+  hAdd := addNanoseconds
+
+instance : HSub (DateTime tz) (Nanosecond.Offset) (DateTime tz) where
+  hSub := subNanoseconds
 
 end DateTime
 end Time

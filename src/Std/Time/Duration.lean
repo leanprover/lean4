@@ -50,5 +50,5 @@ def isZero (d : Duration) : Bool :=
 instance : HAdd Timestamp Duration Timestamp where
   hAdd := add
 
-instance : HAdd Timestamp Timestamp Duration where
-  hAdd := Std.Time.Timestamp.sub
+instance : HSub Timestamp Timestamp Duration where
+  hSub := Std.Time.Timestamp.sub

@@ -52,7 +52,7 @@ def ofUTCTimestamp (stamp : Timestamp) : LocalDateTime := Id.run do
   let daysPer100Y := 365 * 100 + 24
   let daysPer4Y := 365 * 4 + 1
 
-  let nanos := stamp.toNanoseconds
+  let nanos := stamp.toNanosecondsSinceUnixEpoch
   let secs : Second.Offset := nanos.ediv 1000000000
   let daysSinceEpoch : Day.Offset := secs.ediv 86400
   let boundedDaysSinceEpoch := daysSinceEpoch
@@ -133,18 +133,12 @@ Adds a `Day.Offset` to a `LocalDateTime`.
 def addDays (dt : LocalDateTime) (days : Day.Offset) : LocalDateTime :=
   { dt with date := dt.date.addDays days }
 
-instance : HAdd LocalDateTime Day.Offset LocalDateTime where
-  hAdd := addDays
-
 /--
 Subtracts a `Day.Offset` from a `LocalDateTime`.
 -/
 @[inline]
 def subDays (dt : LocalDateTime) (days : Day.Offset) : LocalDateTime :=
   { dt with date := dt.date.subDays days }
-
-instance : HSub LocalDateTime Day.Offset LocalDateTime where
-  hSub := subDays
 
 /--
 Adds a `Month.Offset` to a `LocalDateTime`, adjusting the day to the last valid day of the resulting
@@ -210,7 +204,7 @@ def subYearsClip (dt : LocalDateTime) (years : Year.Offset) : LocalDateTime :=
 Adds an `Hour.Offset` to a `LocalDateTime`, adjusting the date if the hour overflows.
 -/
 @[inline]
-def addHour (dt : LocalDateTime) (hours : Hour.Offset) : LocalDateTime :=
+def addHours (dt : LocalDateTime) (hours : Hour.Offset) : LocalDateTime :=
   let totalSeconds := dt.time.toSeconds + hours.toSeconds
   let days := totalSeconds.ediv 86400
   let newTime := dt.time.addSeconds (hours.toSeconds)
@@ -220,14 +214,14 @@ def addHour (dt : LocalDateTime) (hours : Hour.Offset) : LocalDateTime :=
 Subtracts an `Hour.Offset` from a `LocalDateTime`, adjusting the date if the hour underflows.
 -/
 @[inline]
-def subHour (dt : LocalDateTime) (hours : Hour.Offset) : LocalDateTime :=
-  addHour dt (-hours)
+def subHours (dt : LocalDateTime) (hours : Hour.Offset) : LocalDateTime :=
+  addHours dt (-hours)
 
 /--
 Adds a `Minute.Offset` to a `LocalDateTime`, adjusting the hour and date if the minutes overflow.
 -/
 @[inline]
-def addMinute (dt : LocalDateTime) (minutes : Minute.Offset) : LocalDateTime :=
+def addMinutes (dt : LocalDateTime) (minutes : Minute.Offset) : LocalDateTime :=
   let totalSeconds := dt.time.toSeconds + minutes.toSeconds
   let days := totalSeconds.ediv 86400
   let newTime := dt.time.addSeconds (minutes.toSeconds)
@@ -237,14 +231,14 @@ def addMinute (dt : LocalDateTime) (minutes : Minute.Offset) : LocalDateTime :=
 Subtracts a `Minute.Offset` from a `LocalDateTime`, adjusting the hour and date if the minutes underflow.
 -/
 @[inline]
-def subMinute (dt : LocalDateTime) (minutes : Minute.Offset) : LocalDateTime :=
-  addMinute dt (-minutes)
+def subMinutes (dt : LocalDateTime) (minutes : Minute.Offset) : LocalDateTime :=
+  addMinutes dt (-minutes)
 
 /--
 Adds a `Second.Offset` to a `LocalDateTime`, adjusting the minute, hour, and date if the seconds overflow.
 -/
 @[inline]
-def addSecond (dt : LocalDateTime) (seconds : Second.Offset) : LocalDateTime :=
+def addSeconds (dt : LocalDateTime) (seconds : Second.Offset) : LocalDateTime :=
   let totalSeconds := dt.time.toSeconds + seconds
   let days := totalSeconds.ediv 86400
   let newTime := dt.time.addSeconds seconds
@@ -254,14 +248,14 @@ def addSecond (dt : LocalDateTime) (seconds : Second.Offset) : LocalDateTime :=
 Subtracts a `Second.Offset` from a `LocalDateTime`, adjusting the minute, hour, and date if the seconds underflow.
 -/
 @[inline]
-def subSecond (dt : LocalDateTime) (seconds : Second.Offset) : LocalDateTime :=
-  addSecond dt (-seconds)
+def subSeconds (dt : LocalDateTime) (seconds : Second.Offset) : LocalDateTime :=
+  addSeconds dt (-seconds)
 
 /--
 Adds a `Nanosecond.Offset` to a `LocalDateTime`, adjusting the seconds, minutes, hours, and date if the nanoseconds overflow.
 -/
 @[inline]
-def addNanosecond (dt : LocalDateTime) (nanos : Nanosecond.Offset) : LocalDateTime :=
+def addNanoseconds (dt : LocalDateTime) (nanos : Nanosecond.Offset) : LocalDateTime :=
   let nano : Nanosecond.Offset := UnitVal.mk dt.time.nano.val
   let totalNanos := nano + nanos
   let extraSeconds : Second.Offset := totalNanos.ediv 1000000000
@@ -273,8 +267,8 @@ def addNanosecond (dt : LocalDateTime) (nanos : Nanosecond.Offset) : LocalDateTi
 Subtracts a `Nanosecond.Offset` from a `LocalDateTime`, adjusting the seconds, minutes, hours, and date if the nanoseconds underflow.
 -/
 @[inline]
-def subNanosecond (dt : LocalDateTime) (nanos : Nanosecond.Offset) : LocalDateTime :=
-  addNanosecond dt (-nanos)
+def subNanoseconds (dt : LocalDateTime) (nanos : Nanosecond.Offset) : LocalDateTime :=
+  addNanoseconds dt (-nanos)
 
 /--
 Getter for the `Year` inside of a `LocalDateTime`.
@@ -325,29 +319,35 @@ Getter for the `Second` inside of a `LocalDateTime`.
 def nanosecond (dt : LocalDateTime) : Nanosecond.Ordinal :=
   dt.time.nano
 
+instance : HAdd LocalDateTime Day.Offset LocalDateTime where
+  hAdd := addDays
+
+instance : HSub LocalDateTime Day.Offset LocalDateTime where
+  hSub := subDays
+
 instance : HAdd LocalDateTime Hour.Offset LocalDateTime where
-  hAdd := addHour
+  hAdd := addHours
 
 instance : HSub LocalDateTime Hour.Offset LocalDateTime where
-  hSub := subHour
+  hSub := subHours
 
 instance : HAdd LocalDateTime Minute.Offset LocalDateTime where
-  hAdd := addMinute
+  hAdd := addMinutes
 
 instance : HSub LocalDateTime Minute.Offset LocalDateTime where
-  hSub := subMinute
+  hSub := subMinutes
 
 instance : HAdd LocalDateTime Second.Offset LocalDateTime where
-  hAdd := addSecond
+  hAdd := addSeconds
 
 instance : HSub LocalDateTime Second.Offset LocalDateTime where
-  hSub := subSecond
+  hSub := subSeconds
 
 instance : HAdd LocalDateTime Nanosecond.Offset LocalDateTime where
-  hAdd := addNanosecond
+  hAdd := addNanoseconds
 
 instance : HSub LocalDateTime Nanosecond.Offset LocalDateTime where
-  hSub := subNanosecond
+  hSub := subNanoseconds
 
 end LocalDateTime
 end Time

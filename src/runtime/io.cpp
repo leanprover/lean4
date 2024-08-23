@@ -545,6 +545,35 @@ extern "C" LEAN_EXPORT obj_res lean_get_current_time(obj_arg /* w */) {
     return lean_io_result_mk_ok(lean_ts);
 }
 
+/* Std.Time.TimeZone.getCurrentTimezone : IO Timezone */
+extern "C" LEAN_EXPORT obj_res lean_get_timezone_offset(obj_arg /* w */) {
+    using namespace std::chrono;
+
+    auto now = system_clock::now();
+    auto now_time_t = system_clock::to_time_t(now);
+
+    std::tm tm_info;
+#if defined(_MSC_VER) // For Microsoft Visual C++
+    localtime_s(&tm_info, &now_time_t); // localtime_s for thread safety
+#else
+    localtime_r(&now_time_t, &tm_info); // localtime_r for POSIX systems
+#endif
+
+    int offset_hour = tm_info.tm_gmtoff / 3600;
+    int offset_seconds = tm_info.tm_gmtoff;
+
+    lean_object *lean_offset = lean_alloc_ctor(0, 2, 0);
+    lean_ctor_set(lean_offset, 0, lean_int_to_int(static_cast<int>(offset_hour)));
+    lean_ctor_set(lean_offset, 1, lean_int_to_int(static_cast<int>(offset_seconds)));
+
+    lean_object *lean_tz = lean_alloc_ctor(0, 2, 1);
+    lean_ctor_set(lean_tz, 0, lean_offset);
+    lean_ctor_set(lean_tz, 1, lean_mk_ascii_string_unchecked("Unknown"));
+    lean_ctor_set_uint8(lean_tz, sizeof(void*)*2, tm_info.tm_isdst);
+
+    return lean_io_result_mk_ok(lean_tz);
+}
+
 /* monoMsNow : BaseIO Nat */
 extern "C" LEAN_EXPORT obj_res lean_io_mono_ms_now(obj_arg /* w */) {
     static_assert(sizeof(std::chrono::milliseconds::rep) <= sizeof(uint64), "size of std::chrono::nanoseconds::rep may not exceed 64");

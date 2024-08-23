@@ -13,6 +13,27 @@ import Std.Time.Zoned.Database.Basic
 
 namespace Std
 namespace Time
+
+namespace LocalDateTime
+
+/--
+Creaates a new `LocalDateTime` out of a `Timestamp` and a `TimeZone`.
+-/
+def ofTimestamp (stamp : Timestamp) (tz : TimeZone) : LocalDateTime :=
+  let stamp := stamp.subSeconds tz.toSeconds
+  LocalDateTime.ofUTCTimestamp stamp
+
+/--
+Get the current monotonic time.
+-/
+@[inline]
+def now : IO LocalDateTime := do
+  let tm ← Timestamp.now
+  let tz ← TimeZone.getCurrentTimezone
+  return LocalDateTime.ofTimestamp tm tz
+
+end LocalDateTime
+
 namespace DateTime
 
 /--
@@ -20,7 +41,7 @@ Converts a `LocalDate` to a `DateTime`
 -/
 @[inline]
 def ofLocalDate (ld : LocalDate) (tz : TimeZone) : DateTime tz :=
-  DateTime.ofUTCTimestamp (Timestamp.ofLocalDate ld) tz
+  DateTime.ofTimestamp (Timestamp.ofLocalDate ld) tz
 
 /--
 Converts a `DateTime` to a `LocalDate`
@@ -34,7 +55,7 @@ Converts a `LocalTime` to a `DateTime`
 -/
 @[inline]
 def ofLocalTime (lt : LocalTime) (tz : TimeZone) : DateTime tz :=
-  DateTime.ofUTCTimestamp (Timestamp.ofLocalTime lt) tz
+  DateTime.ofTimestamp (Timestamp.ofLocalTime lt) tz
 
 /--
 Converts a `DateTime` to a `LocalTime`
@@ -48,11 +69,20 @@ end DateTime
 namespace ZonedDateTime
 
 /--
+Gets the current `DateTime`.
+-/
+@[inline]
+def now : IO ZonedDateTime := do
+  let date ← Timestamp.now
+  let tz ← TimeZone.getCurrentTimezone
+  return ofTimestamp date tz
+
+/--
 Converts a `LocalDate` to a `ZonedDateTime`
 -/
 @[inline]
 def ofLocalDate (ld : LocalDate) (tz : TimeZone) : ZonedDateTime :=
-  ⟨tz, DateTime.ofUTCTimestamp (Timestamp.ofLocalDate ld) tz⟩
+  ⟨tz, DateTime.ofTimestamp (Timestamp.ofLocalDate ld) tz⟩
 
 /--
 Converts a `ZonedDateTime` to a `LocalDate`
@@ -66,7 +96,7 @@ Converts a `LocalTime` to a `ZonedDateTime`
 -/
 @[inline]
 def ofLocalTime (lt : LocalTime) (tz : TimeZone) : ZonedDateTime :=
-  ⟨tz, DateTime.ofUTCTimestamp (Timestamp.ofLocalTime lt) tz⟩
+  ⟨tz, DateTime.ofTimestamp (Timestamp.ofLocalTime lt) tz⟩
 
 /--
 Converts a `ZonedDateTime` to a `LocalTime`

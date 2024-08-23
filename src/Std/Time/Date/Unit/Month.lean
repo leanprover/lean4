@@ -206,7 +206,6 @@ def clipDay (leap : Bool) (month : Month.Ordinal) (day : Day.Ordinal) : { day : 
     then ⟨max, Int.le_refl max.val⟩
     else ⟨day, Int.not_lt.mp h⟩
 
-
 /--
 Transforms a `Day.Ordinal.OfYear` into a tuple of a `Month` and a `Day`.
 -/

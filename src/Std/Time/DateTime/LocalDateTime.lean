@@ -248,13 +248,6 @@ Getter for the `Second` inside of a `LocalDateTime`.
 def nanosecond (dt : LocalDateTime) : Nanosecond.Ordinal :=
   dt.time.nano
 
-/--
-Get the current monotonic time.
--/
-@[inline]
-def now : IO LocalDateTime :=
-  ofUTCTimestamp <$> Timestamp.now
-
 end LocalDateTime
 end Time
 end Std

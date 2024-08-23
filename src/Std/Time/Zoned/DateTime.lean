@@ -41,7 +41,7 @@ namespace DateTime
 Creates a new `DateTime` out of a `Timestamp` that is in a `TimeZone`.
 -/
 @[inline]
-def ofUTCTimestamp (tm : Timestamp) (tz : TimeZone) : DateTime tz :=
+def ofTimestamp (tm : Timestamp) (tz : TimeZone) : DateTime tz :=
   DateTime.mk tm (Thunk.mk <| λ_ => (tm.addSeconds tz.toSeconds).toLocalDateTime)
 
 /--
@@ -56,8 +56,7 @@ Changes the `TimeZone` to a new one.
 -/
 @[inline]
 def convertTimeZone (date : DateTime tz) (tz₁ : TimeZone) : DateTime tz₁ :=
-  ofUTCTimestamp date.timestamp tz₁
-
+  ofTimestamp date.timestamp tz₁
 
 /--
 Creates a new `DateTime` out of a `LocalDateTime`
@@ -66,14 +65,6 @@ Creates a new `DateTime` out of a `LocalDateTime`
 def ofLocalDateTime (date : LocalDateTime) (tz : TimeZone) : DateTime tz :=
   let tm := Timestamp.ofLocalDateTime date
   DateTime.mk (tm.subSeconds tz.toSeconds) (Thunk.mk <| λ_ => date)
-
-/--
-Gets the current `DateTime`.
--/
-@[inline]
-def now : IO (DateTime tz) := do
-  let loca ← LocalDateTime.now
-  return ofLocalDateTime loca tz
 
 /--
 Add `Day.Offset` to a `DateTime`.

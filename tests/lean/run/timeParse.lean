@@ -32,7 +32,7 @@ info: "2014-06-16T03:03:03-0300"
     ISO8601UTC.format t.snd
 
 def tm := date₁.timestamp
-def date₂ := DateTime.ofUTCTimestamp tm brTZ
+def date₂ := DateTime.ofTimestamp tm brTZ
 
 /--
 info: "2014-06-16T03:03:03-0300"
@@ -43,7 +43,7 @@ info: "2014-06-16T03:03:03-0300"
     ISO8601UTC.format t.snd
 
 def tm₃ := date₁.toTimestamp
-def date₃ := DateTime.ofUTCTimestamp tm₃ brTZ
+def date₃ := DateTime.ofTimestamp tm₃ brTZ
 
 /--
 info: "2014-06-16T00:00:00UTC"
@@ -62,9 +62,9 @@ BR: 15 August 2024 13:28:12 GMT-03:00
 -/
 def tm₄ : Second.Offset := 1723739292
 
-def dateBR := DateTime.ofUTCTimestamp (Timestamp.ofSecondsSinceUnixEpoch tm₄) brTZ
-def dateJP := DateTime.ofUTCTimestamp (Timestamp.ofSecondsSinceUnixEpoch tm₄) jpTZ
-def dateUTC := DateTime.ofUTCTimestamp (Timestamp.ofSecondsSinceUnixEpoch tm₄) .UTC
+def dateBR := DateTime.ofTimestamp (Timestamp.ofSecondsSinceUnixEpoch tm₄) brTZ
+def dateJP := DateTime.ofTimestamp (Timestamp.ofSecondsSinceUnixEpoch tm₄) jpTZ
+def dateUTC := DateTime.ofTimestamp (Timestamp.ofSecondsSinceUnixEpoch tm₄) .UTC
 
 /--
 info: "2024-08-15T13:28:12-0300"

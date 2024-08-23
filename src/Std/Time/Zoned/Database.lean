@@ -40,4 +40,4 @@ def ofUTCTimestamp [Database α] (db : α) (tm : Timestamp) : IO ZonedDateTime :
   let rules ← Database.localRules db
   let tz ← IO.ofExcept <| timezoneAt rules tm
   let tm := applyLeapSeconds tm rules
-  return ZonedDateTime.ofUTCTimestamp tm tz
+  return ZonedDateTime.ofTimestamp tm tz

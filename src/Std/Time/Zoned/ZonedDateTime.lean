@@ -34,8 +34,8 @@ open DateTime
 Creates a new `ZonedDateTime` out of a `Timestamp`
 -/
 @[inline]
-def ofUTCTimestamp (tm : Timestamp) (tz : TimeZone) : ZonedDateTime :=
-  ⟨tz, DateTime.ofUTCTimestamp tm tz⟩
+def ofTimestamp (tm : Timestamp) (tz : TimeZone) : ZonedDateTime :=
+  ⟨tz, DateTime.ofTimestamp tm tz⟩
 
 /--
 Creates a new `Timestamp` out of a `ZonedDateTime`
@@ -51,14 +51,14 @@ Creates a new `DateTime` out of a `Timestamp`
 def ofZoneRules (tm : Timestamp) (rules : TimeZone.ZoneRules) : Option ZonedDateTime := do
   let transition ← rules.findTransitionForTimestamp tm
   let tm := rules.applyLeapSeconds tm
-  return ofUTCTimestamp tm transition.localTimeType.getTimeZone
+  return ofTimestamp tm transition.localTimeType.getTimeZone
 
 /--
 Changes the `TimeZone` to a new one.
 -/
 @[inline]
 def convertTimeZone (date : ZonedDateTime) (tz₁ : TimeZone) : ZonedDateTime :=
-  ofUTCTimestamp (date.toTimestamp) tz₁
+  ofTimestamp (date.toTimestamp) tz₁
 
 /--
 Creates a new `ZonedDateTime` out of a `LocalDateTime`
@@ -73,14 +73,6 @@ Converts a `ZonedDateTime` to a `LocalDateTime`
 @[inline]
 def toLocalDateTime (dt : ZonedDateTime) : LocalDateTime :=
   DateTime.toLocalDateTime dt.snd
-
-/--
-Gets the current `ZonedDataTime`.
--/
-@[inline]
-def now (tz : TimeZone) : IO ZonedDateTime := do
-  let loca ← LocalDateTime.now
-  return ofLocalDateTime loca tz
 
 /--
 Getter for the `Year` inside of a `ZonedDateTime`

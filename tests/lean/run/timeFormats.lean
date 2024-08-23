@@ -28,7 +28,7 @@ info: "Monday, June 16, 2014 03:03:03 -0300"
 #eval FullDayTimeZone.format date₁
 
 def tm := date₁.timestamp
-def date₂ := DateTime.ofUTCTimestamp tm brTZ
+def date₂ := DateTime.ofTimestamp tm brTZ
 
 /--
 info: "Monday, June 16, 2014 03:03:03 -0300"
@@ -37,7 +37,7 @@ info: "Monday, June 16, 2014 03:03:03 -0300"
 #eval FullDayTimeZone.format date₂
 
 def tm₃ := date₁.toTimestamp
-def date₃ := DateTime.ofUTCTimestamp tm₃ brTZ
+def date₃ := DateTime.ofTimestamp tm₃ brTZ
 
 /--
 info: "Monday, June 16, 2014 03:03:03 -0300"
@@ -56,9 +56,9 @@ BR: 15 August 2024 13:28:12 GMT-03:00
 -/
 def tm₄ : Second.Offset := 1723739292
 
-def dateBR := DateTime.ofUTCTimestamp (Timestamp.ofSecondsSinceUnixEpoch tm₄) brTZ
-def dateJP := DateTime.ofUTCTimestamp (Timestamp.ofSecondsSinceUnixEpoch tm₄) jpTZ
-def dateUTC := DateTime.ofUTCTimestamp (Timestamp.ofSecondsSinceUnixEpoch tm₄) .UTC
+def dateBR := DateTime.ofTimestamp (Timestamp.ofSecondsSinceUnixEpoch tm₄) brTZ
+def dateJP := DateTime.ofTimestamp (Timestamp.ofSecondsSinceUnixEpoch tm₄) jpTZ
+def dateUTC := DateTime.ofTimestamp (Timestamp.ofSecondsSinceUnixEpoch tm₄) .UTC
 
 /--
 info: "Thursday, August 15, 2024 13:28:12 -0300"

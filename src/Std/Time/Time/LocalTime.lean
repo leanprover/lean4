@@ -146,7 +146,10 @@ Creates a `LocalTime` value from a total number of seconds.
 -/
 @[inline]
 def ofSeconds (secs : Second.Offset) : LocalTime :=
-  ofNanoseconds (secs.mul 1000000000)
+  have hours := Bounded.LE.byEmod (secs.val / 3600) 24 (by decide)
+  have minutes := (Bounded.LE.byEmod secs.val 3600 (by decide)).ediv 60 (by decide)
+  have seconds := Bounded.LE.byEmod secs.val 60 (by decide)
+  ofValidHourMinuteSecondsNano hours minutes seconds 0
 
 /--
 Adds seconds to a `LocalTime`.
@@ -168,8 +171,8 @@ Adds minutes to a `LocalTime`.
 -/
 @[inline]
 def addMinutes (time : LocalTime) (minutesToAdd : Minute.Offset) : LocalTime :=
-  let totalMinutes := time.toMinutes + minutesToAdd
-  ofSeconds (totalMinutes.toSeconds)
+  let total := time.toSeconds + minutesToAdd.toSeconds
+  ofSeconds total
 
 /--
 Subtracts minutes from a `LocalTime`.
@@ -182,8 +185,8 @@ def subMinutes (time : LocalTime) (minutesToSub : Minute.Offset) : LocalTime :=
 Adds hours to a `LocalTime`.
 -/
 def addHours (time : LocalTime) (hoursToAdd : Hour.Offset) : LocalTime :=
-  let totalHours := time.toHours + hoursToAdd
-  ofSeconds (totalHours.toSeconds)
+  let total := time.toSeconds + hoursToAdd.toSeconds
+  ofSeconds total
 
 /--
 Subtracts hours from a `LocalTime`.
@@ -196,8 +199,8 @@ def subHours (time : LocalTime) (hoursToSub : Hour.Offset) : LocalTime :=
 Adds nanoseconds to a `LocalTime`.
 -/
 def addNanoseconds (time : LocalTime) (nanosToAdd : Nanosecond.Offset) : LocalTime :=
-  let totalNanos := time.toNanoseconds + nanosToAdd
-  ofNanoseconds totalNanos
+  let total := time.toNanoseconds + nanosToAdd
+  ofNanoseconds total
 
 /--
 Subtracts nanoseconds from a `LocalTime`.

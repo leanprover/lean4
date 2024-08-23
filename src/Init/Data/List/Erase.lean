@@ -230,6 +230,12 @@ theorem eraseP_comm {l : List α} (h : ∀ a ∈ l, ¬ p a ∨ ¬ q a) :
       · simp [h₁, h₂, ih (fun b m => h b (mem_cons_of_mem _ m))]
       · simp [h₁, h₂, ih (fun b m => h b (mem_cons_of_mem _ m))]
 
+theorem head_eraseP_mem (xs : List α) (p : α → Bool) (h) : (xs.eraseP p).head h ∈ xs :=
+  (eraseP_sublist xs).head_mem h
+
+theorem getLast_eraseP_mem (xs : List α) (p : α → Bool) (h) : (xs.eraseP p).getLast h ∈ xs :=
+  (eraseP_sublist xs).getLast_mem h
+
 /-! ### erase -/
 section erase
 variable [BEq α]
@@ -387,6 +393,12 @@ theorem Nodup.not_mem_erase [LawfulBEq α] {a : α} (h : Nodup l) : a ∉ l.eras
 
 theorem Nodup.erase [LawfulBEq α] (a : α) : Nodup l → Nodup (l.erase a) :=
   Nodup.sublist <| erase_sublist _ _
+
+theorem head_erase_mem (xs : List α) (a : α) (h) : (xs.erase a).head h ∈ xs :=
+  (erase_sublist a xs).head_mem h
+
+theorem getLast_erase_mem (xs : List α) (a : α) (h) : (xs.erase a).getLast h ∈ xs :=
+  (erase_sublist a xs).getLast_mem h
 
 end erase
 

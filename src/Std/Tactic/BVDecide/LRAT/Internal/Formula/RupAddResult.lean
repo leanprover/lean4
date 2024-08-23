@@ -1120,7 +1120,7 @@ theorem nodup_derivedLits {n : Nat} (f : DefaultFormula n)
   have li_in_derivedLits : li ∈ derivedLits := by
     have derivedLits_rw : derivedLits = (Array.mk derivedLits).data := by simp only
     simp only [derivedLits_arr_def, li]
-    conv => rhs; rw [derivedLits_rw]
+    conv => rhs; simp (config := {singlePass := true}) only [derivedLits_rw]
     apply Array.getElem_mem_data
   have i_in_bounds : i.1 < derivedLits.length := by
     have i_property := i.2

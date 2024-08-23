@@ -383,6 +383,12 @@ register_builtin_option deprecated.oldSectionVars : Bool := {
   descr    := "re-enable deprecated behavior of including exactly the section variables used in a declaration"
 }
 
+register_builtin_option debug.proofAsSorry : Bool := {
+  defValue := false
+  group    := "debug"
+  descr    := "replace theorem bodies with `sorry`"
+}
+
 private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr) (sc : Command.Scope) : TermElabM (Array Expr) :=
   headers.mapM fun header => do
     let mut reusableResult? := none
@@ -404,7 +410,9 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
         for i in [0:header.binderIds.size] do
           -- skip auto-bound prefix in `xs`
           addLocalVarInfo header.binderIds[i]! xs[header.numParams - header.binderIds.size + i]!
-        let val ← withReader ({ · with tacSnap? := header.tacSnap? }) do
+        let val ← if debug.proofAsSorry.get (← getOptions) then
+          mkSorry type false
+        else withReader ({ · with tacSnap? := header.tacSnap? }) do
           -- synthesize mvars here to force the top-level tactic block (if any) to run
           elabTermEnsuringType valStx type <* synthesizeSyntheticMVarsNoPostponing
         -- NOTE: without this `instantiatedMVars`, `mkLambdaFVars` may leave around a redex that

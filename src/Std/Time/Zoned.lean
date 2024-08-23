@@ -20,7 +20,7 @@ namespace LocalDateTime
 Creaates a new `LocalDateTime` out of a `Timestamp` and a `TimeZone`.
 -/
 def ofTimestamp (stamp : Timestamp) (tz : TimeZone) : LocalDateTime :=
-  let stamp := stamp.subSeconds tz.toSeconds
+  let stamp := stamp.addSeconds tz.toSeconds
   LocalDateTime.ofUTCTimestamp stamp
 
 /--

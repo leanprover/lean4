@@ -49,13 +49,11 @@ def isTodo (name : Name) : M Bool := do
   else
     return false
 
-/-- Use the current `Environment` to throw a `KernelException`. -/
-def throwKernelException (ex : KernelException) : M Unit := do
-    let ctx := { fileName := "", options := ({} : KVMap), fileMap := default }
-    let state := { env := (← get).env }
-    Prod.fst <$> (Lean.Core.CoreM.toIO · ctx state) do Lean.throwKernelException ex
+/-- Use the current `Environment` to throw a `Kernel.Exception`. -/
+def throwKernelException (ex : Kernel.Exception) : M Unit := do
+  throw <| .userError <| (← ex.toMessageData {} |>.toString)
 
-/-- Add a declaration, possibly throwing a `KernelException`. -/
+/-- Add a declaration, possibly throwing a `Kernel.Exception`. -/
 def addDecl (d : Declaration) : M Unit := do
   match (← get).env.addDecl {} d with
   | .ok env => modify fun s => { s with env := env }

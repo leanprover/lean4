@@ -681,7 +681,7 @@ private partial def checkResultingUniversesForFields (fieldInfos : Array StructF
       throwErrorAt info.ref msg
 
 @[extern "lean_mk_projections"]
-private opaque mkProjections (env : Environment) (structName : Name) (projs : List Name) (isClass : Bool) : Except KernelException Environment
+private opaque mkProjections (env : Environment) (structName : Name) (projs : List Name) (isClass : Bool) : Except Kernel.Exception Environment
 
 private def addProjections (r : ElabHeaderResult) (fieldInfos : Array StructFieldInfo) : TermElabM Unit := do
   if r.type.isProp then

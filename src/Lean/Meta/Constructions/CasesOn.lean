@@ -9,13 +9,13 @@ import Lean.Meta.Basic
 
 namespace Lean
 
-@[extern "lean_mk_cases_on"] opaque mkCasesOnImp (env : Environment) (declName : @& Name) : Except KernelException Declaration
+@[extern "lean_mk_cases_on"] opaque mkCasesOnImp (env : Kernel.Environment) (declName : @& Name) : Except Kernel.Exception Declaration
 
 open Meta
 
 def mkCasesOn (declName : Name) : MetaM Unit := do
   let name := mkCasesOnName declName
-  let decl ← ofExceptKernelException (mkCasesOnImp (← getEnv) declName)
+  let decl ← ofExceptKernelException (mkCasesOnImp (← getEnv).toKernelEnv declName)
   addDecl decl
   setReducibleAttribute name
   modifyEnv fun env => markAuxRecursor env name

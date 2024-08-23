@@ -77,6 +77,24 @@ end Formats
 namespace LocalDate
 
 /--
+Formats a `LocalDate` using a specific format.
+-/
+def format (date : LocalDate) (format : String) : String :=
+  let format : Except String (Format .any) := Format.spec format
+  match format with
+  | .error err => s!"error: {err}"
+  | .ok res =>
+    let res := res.formatGeneric fun
+      | .YYYY | .YY => some date.year
+      | .MMMM | .MMM | .MM | .M => some date.month
+      | .DD | .D | .d => some date.day
+      | .EEEE | .EEE => some date.weekday
+      | _ => none
+    match res with
+    | some res => res
+    | none => "invalid time"
+
+/--
 Parses a date string in the American format (`MM/DD/YYYY`) and returns a `LocalDate`.
 -/
 def fromAmericanDateString (input : String) : Except String LocalDate := do
@@ -116,6 +134,24 @@ instance : Repr LocalDate where
 end LocalDate
 
 namespace LocalTime
+
+/--
+Formats a `LocalTime` using a specific format.
+-/
+def format (time : LocalTime) (format : String) : String :=
+  let format : Except String (Format .any) := Format.spec format
+  match format with
+  | .error err => s!"error: {err}"
+  | .ok res =>
+    let res := res.formatGeneric fun
+      | .HH | .H => some time.hour
+      | .mm | .m => some time.minute
+      | .sss => some (Internal.Bounded.LE.ofNat 0 (by decide))
+      | .ss | .s => some time.second
+      | _ => none
+    match res with
+    | some res => res
+    | none => "invalid time"
 
 /--
 Parses a time string in the 24-hour format (`hh:mm:ss`) and returns a `LocalTime`.
@@ -161,6 +197,16 @@ instance : Repr LocalTime where
 end LocalTime
 
 namespace ZonedDateTime
+
+
+/--
+Formats a `ZonedDateTime` using a specific format.
+-/
+def format (data: ZonedDateTime) (format : String) : String :=
+  let format : Except String (Format .any) := Format.spec format
+  match format with
+  | .error err => s!"error: {err}"
+  | .ok res => res.format data.snd
 
 /--
 Parses a `String` in the `ISO8601` format and returns a `ZonedDateTime`.
@@ -217,6 +263,28 @@ end ZonedDateTime
 namespace LocalDateTime
 
 /--
+Formats a `LocalDateTime` using a specific format.
+-/
+def format (date : LocalDateTime) (format : String) : String :=
+  let format : Except String (Format .any) := Format.spec format
+  match format with
+  | .error err => s!"error: {err}"
+  | .ok res =>
+    let res := res.formatGeneric fun
+      | .YYYY | .YY => some date.year
+      | .MMMM | .MMM | .MM | .M => some date.month
+      | .DD | .D | .d => some date.day
+      | .EEEE | .EEE => some date.date.weekday
+      | .HH | .H => some date.time.hour
+      | .mm | .m => some date.time.minute
+      | .sss => some (Internal.Bounded.LE.ofNat 0 (by decide))
+      | .ss | .s => some date.time.second
+      | _ => none
+    match res with
+    | some res => res
+    | none => "invalid time"
+
+/--
 Parses a `String` in the `AscTime` format and returns a `LocalDateTime` object in the GMT time zone.
 -/
 def fromAscTimeString (input : String) : Except String LocalDateTime :=
@@ -258,6 +326,15 @@ instance : Repr LocalDateTime where
 end LocalDateTime
 
 namespace DateTime
+
+/--
+Formats a `DateTime` using a specific format.
+-/
+def format (data: DateTime tz) (format : String) : String :=
+  let format : Except String (Format .any) := Format.spec format
+  match format with
+  | .error err => s!"error: {err}"
+  | .ok res => res.format data
 
 /--
 Parses a `String` in the `AscTime` format and returns a `DateTime` object in the GMT time zone.

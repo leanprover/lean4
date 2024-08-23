@@ -261,3 +261,15 @@ info: Sun, 14 Jul 2002 14:13:12 +0900
 -/
 #guard_msgs in
 #eval date% 2002-07-14:14:13:12+09:00
+
+/--
+info: "2002-07-14"
+-/
+#guard_msgs in
+#eval (date% 2002-07-14:14:13:12+09:00).format "YYYY-MM-DD"
+
+/--
+info: "14-13-12"
+-/
+#guard_msgs in
+#eval (date% 2002-07-14:14:13:12+09:00).format "hh-mm-ss"

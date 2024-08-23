@@ -660,6 +660,16 @@ def formatBuilder (format : Format aw) : FormatType String format.string :=
   go "" format.string
 
 /--
+Formats the date using the format into a String.
+-/
+def formatGeneric (format : Format aw) (getInfo : (typ : Modifier) → Option (SingleFormatType typ)) : Option String :=
+  let rec go (data : String) : (format : FormatString) → Option String
+    | .modifier x :: xs => do go (data ++ formatPart x (← getInfo x)) xs
+    | .string x :: xs => go (data ++ x) xs
+    | [] => data
+  go "" format.string
+
+/--
 Parser for a ZonedDateTime.
 -/
 def parser (format : FormatString) (aw : Awareness) : Parser (aw.type) :=

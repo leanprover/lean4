@@ -85,7 +85,18 @@ def ofValidHourMinuteSecondsNano (hour : Hour.Ordinal false) (minute : Minute.Or
   exact λx => nomatch (Int.ne_iff_lt_or_gt.mpr (Or.inl (Int.lt_add_one_iff.mpr hour.property.right)) x)
 
 /--
-Converts a `LocalTime` value to the total number of seconds.
+Converts a `LocalTime` value to the total number of milliseconds.
+-/
+def toMilliseconds (time : LocalTime) : Millisecond.Offset :=
+  let secs :=
+    time.hour.snd.toOffset.toSeconds +
+    time.minute.toOffset.toSeconds +
+    time.second.snd.toOffset
+  let millis := secs.mul 1000
+  UnitVal.mk (millis.val + time.nano.val)
+
+/--
+Converts a `LocalTime` value to the total number of nanoseconds.
 -/
 def toNanoseconds (time : LocalTime) : Nanosecond.Offset :=
   let secs :=

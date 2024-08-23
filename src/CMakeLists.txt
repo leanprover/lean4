@@ -633,6 +633,10 @@ file(COPY ${LEAN_SOURCE_DIR}/bin/leanmake DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
 install(DIRECTORY "${CMAKE_BINARY_DIR}/bin/" USE_SOURCE_PERMISSIONS DESTINATION bin)
 
+if (${STAGE} GREATER 0)
+  install(PROGRAMS "${CADICAL}" DESTINATION bin)
+endif()
+
 add_custom_target(clean-stdlib
   COMMAND rm -rf "${CMAKE_BINARY_DIR}/lib" || true)
 

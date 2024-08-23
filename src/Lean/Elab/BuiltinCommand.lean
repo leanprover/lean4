@@ -176,7 +176,8 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
   let mut binderIds := binderIds
   let mut binderIdsIniSize := binderIds.size
   let mut modifiedVarDecls := false
-  for varDecl in varDecls do
+  -- Go through declarations in reverse to respect shadowing
+  for varDecl in varDecls.reverse do
     let (ids, ty?, explicit') ← match varDecl with
       | `(bracketedBinderF|($ids* $[: $ty?]? $(annot?)?)) =>
         if annot?.isSome then
@@ -208,7 +209,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
           `(bracketedBinderF| ($id $[: $ty?]?))
         else
           `(bracketedBinderF| {$id $[: $ty?]?})
-      for id in ids do
+      for id in ids.reverse do
         if let some idx := binderIds.findIdx? fun binderId => binderId.raw.isIdent && binderId.raw.getId == id.raw.getId then
           binderIds := binderIds.eraseIdx idx
           modifiedVarDecls := true
@@ -216,7 +217,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
         else
           varDeclsNew := varDeclsNew.push (← mkBinder id explicit')
   if modifiedVarDecls then
-    modifyScope fun scope => { scope with varDecls := varDeclsNew }
+    modifyScope fun scope => { scope with varDecls := varDeclsNew.reverse }
   if binderIds.size != binderIdsIniSize then
     binderIds.mapM fun binderId =>
       if explicit then
@@ -228,15 +229,14 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
 
 @[builtin_command_elab «variable»] def elabVariable : CommandElab
   | `(variable $binders*) => do
+    let binders ← binders.concatMapM replaceBinderAnnotation
     -- Try to elaborate `binders` for sanity checking
     runTermElabM fun _ => Term.withSynthesize <| Term.withAutoBoundImplicit <|
       Term.elabBinders binders fun _ => pure ()
+    -- Remark: if we want to produce error messages when variables shadow existing ones, here is the place to do it.
     for binder in binders do
-      let binders ← replaceBinderAnnotation binder
-      -- Remark: if we want to produce error messages when variables shadow existing ones, here is the place to do it.
-      for binder in binders do
-        let varUIds ← (← getBracketedBinderIds binder) |>.mapM (withFreshMacroScope ∘ MonadQuotation.addMacroScope)
-        modifyScope fun scope => { scope with varDecls := scope.varDecls.push binder, varUIds := scope.varUIds ++ varUIds }
+      let varUIds ← (← getBracketedBinderIds binder) |>.mapM (withFreshMacroScope ∘ MonadQuotation.addMacroScope)
+      modifyScope fun scope => { scope with varDecls := scope.varDecls.push binder, varUIds := scope.varUIds ++ varUIds }
   | _ => throwUnsupportedSyntax
 
 open Meta

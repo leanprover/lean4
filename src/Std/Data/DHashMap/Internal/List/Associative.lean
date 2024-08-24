@@ -26,6 +26,8 @@ open List (Perm)
 
 namespace Std.DHashMap.Internal.List
 
+attribute [-simp] List.isEmpty_eq_false
+
 @[elab_as_elim]
 theorem assoc_induction {motive : List ((a : α) × β a) → Prop} (nil : motive [])
     (cons : (k : α) → (v : β k) → (tail : List ((a : α) × β a)) →

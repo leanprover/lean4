@@ -444,6 +444,14 @@ theorem or_lt_two_pow {x y n : Nat} (left : x < 2^n) (right : y < 2^n) : x ||| y
 theorem xor_lt_two_pow {x y n : Nat} (left : x < 2^n) (right : y < 2^n) : x ^^^ y < 2^n :=
   bitwise_lt_two_pow left right
 
+theorem and_xor_distrib_right {a b c : Nat} : (a ^^^ b) &&& c = (a &&& c) ^^^ (b &&& c) := by
+  apply Nat.eq_of_testBit_eq
+  simp [Bool.and_xor_distrib_right]
+
+theorem and_xor_distrib_left {a b c : Nat} : a &&& (b ^^^ c) = (a &&& b) ^^^ (a &&& c) := by
+  apply Nat.eq_of_testBit_eq
+  simp [Bool.and_xor_distrib_left]
+
 /-! ### Arithmetic -/
 
 theorem testBit_mul_pow_two_add (a : Nat) {b i : Nat} (b_lt : b < 2^i) (j : Nat) :

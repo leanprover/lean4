@@ -28,8 +28,31 @@ example [Decidable p] [Decidable (id p)] (h : foo p) : foo (id p) := by
   conv => arg 1; rw [id]
   exact h
 
+/--
+error: tactic 'fail' failed
+p : Prop
+inst✝ : Decidable p
+⊢ Decidable (id p)
+---
+error: unsolved goals
+p : Prop
+inst✝ : Decidable p
+⊢ foo (id p)
+-/
+#guard_msgs in
+example [Decidable p] : foo p := by
+  conv =>
+    arg 1
+    · rw [← id.eq_def p]
+    · tactic => fail
+
 example [PropClass n] [PropClass (id n)] (h : P1 n) : P1 (id n) := by
   conv => arg 1; rw [id]
+  exact h
+
+example [PropClass n] (h : P1 n) : P1 n := by
+  conv => arg 1; rw [← id.eq_def n]
+  conv => arg 1; rw [id.eq_def n]
   exact h
 
 /-- error: cannot select argument -/

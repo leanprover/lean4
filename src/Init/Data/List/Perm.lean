@@ -123,10 +123,8 @@ theorem Perm.nil_eq {l : List α} (p : [] ~ l) : [] = l := p.symm.eq_nil.symm
 
 @[simp] theorem nil_perm {l₁ : List α} : [] ~ l₁ ↔ l₁ = [] := perm_comm.trans perm_nil
 
-@[simp]
 theorem not_perm_nil_cons (x : α) (l : List α) : ¬[] ~ x :: l := (nomatch ·.symm.eq_nil)
 
-@[simp]
 theorem not_perm_cons_nil {l : List α} {a : α} : ¬(Perm (a::l) []) :=
   fun h => by simpa using h.length_eq
 

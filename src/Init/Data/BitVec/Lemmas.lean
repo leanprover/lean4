@@ -413,11 +413,9 @@ theorem msb_truncate (x : BitVec w) : (x.truncate (k + 1)).msb = x.getLsb k := b
     (x.truncate l).truncate k = x.truncate k :=
   zeroExtend_zeroExtend_of_le x h
 
-/--Truncating by the bitwidth has no effect. -/
-@[simp]
-theorem truncate_eq_self {x : BitVec w} : x.truncate w = x := by
-  ext i
-  simp [getLsb_zeroExtend]
+/-- Truncating by the bitwidth has no effect. -/
+-- This doesn't need to be a `@[simp]` lemma, as `zeroExtend_eq` applies.
+theorem truncate_eq_self {x : BitVec w} : x.truncate w = x := zeroExtend_eq _
 
 @[simp] theorem truncate_cast {h : w = v} : (cast h x).truncate k = x.truncate k := by
   apply eq_of_getLsb_eq
@@ -776,7 +774,6 @@ theorem shiftLeft_shiftLeft {w : Nat} (x : BitVec w) (n m : Nat) :
 @[simp]
 theorem shiftLeft_eq' {x : BitVec w₁} {y : BitVec w₂} : x <<< y = x <<< y.toNat := by rfl
 
-@[simp]
 theorem shiftLeft_zero' {x : BitVec w₁} : x <<< 0#w₂ = x := by simp
 
 theorem shiftLeft_shiftLeft' {x : BitVec w₁} {y : BitVec w₂} {z : BitVec w₃} :

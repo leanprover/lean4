@@ -379,19 +379,15 @@ theorem forall_mem_ne {a : α} {l : List α} : (∀ a' : α, a' ∈ l → ¬a = 
 theorem forall_mem_ne' {a : α} {l : List α} : (∀ a' : α, a' ∈ l → ¬a' = a) ↔ a ∉ l :=
   ⟨fun h m => h _ m rfl, fun h _ m e => h (e.symm ▸ m)⟩
 
-@[simp]
 theorem any_beq [BEq α] [LawfulBEq α] {l : List α} : (l.any fun x => a == x) ↔ a ∈ l := by
   induction l <;> simp_all
 
-@[simp]
 theorem any_beq' [BEq α] [LawfulBEq α] {l : List α} : (l.any fun x => x == a) ↔ a ∈ l := by
   induction l <;> simp_all [eq_comm (a := a)]
 
-@[simp]
 theorem all_bne [BEq α] [LawfulBEq α] {l : List α} : (l.all fun x => a != x) ↔ a ∉ l := by
   induction l <;> simp_all
 
-@[simp]
 theorem all_bne' [BEq α] [LawfulBEq α] {l : List α} : (l.all fun x => x != a) ↔ a ∉ l := by
   induction l <;> simp_all [eq_comm (a := a)]
 
@@ -515,7 +511,7 @@ theorem isEmpty_iff_length_eq_zero {l : List α} : l.isEmpty ↔ l.length = 0 :=
 @[simp] theorem isEmpty_eq_true {l : List α} : l.isEmpty ↔ l = [] := by
   cases l <;> simp
 
-@[simp] theorem isEmpty_eq_false {l : List α} : ¬ l.isEmpty ↔ l ≠ [] := by
+@[simp] theorem isEmpty_eq_false {l : List α} : l.isEmpty = false ↔ l ≠ [] := by
   cases l <;> simp
 
 /-! ### any / all -/
@@ -555,7 +551,7 @@ theorem get_set_eq {l : List α} {i : Nat} {a : α} (h : i < (l.set i a).length)
   simp_all [getElem?_eq_some]
 
 @[simp]
-theorem getElem?_set_eq' {l : List α} {i : Nat} {a : α} : (set l i a)[i]? = (fun _ => a) <$> l[i]? := by
+theorem getElem?_set_eq' {l : List α} {i : Nat} {a : α} : (set l i a)[i]? = Function.const _ a <$> l[i]? := by
   by_cases h : i < l.length
   · simp [getElem?_set_eq h, getElem?_eq_getElem h]
   · simp only [Nat.not_lt] at h
@@ -612,7 +608,7 @@ theorem getElem?_set {l : List α} {i j : Nat} {a : α} :
 theorem getElem?_set' {l : List α} {i j : Nat} {a : α} :
     (set l i a)[j]? = if i = j then (fun _ => a) <$> l[j]? else l[j]? := by
   by_cases i = j
-  · simp only [getElem?_set_eq', Option.map_eq_map, ↓reduceIte, *]
+  · simp only [getElem?_set_eq', Option.map_eq_map, ↓reduceIte, *]; rfl
   · simp only [ne_eq, not_false_eq_true, getElem?_set_ne, ↓reduceIte, *]
 
 theorem set_eq_of_length_le {l : List α} {n : Nat} (h : l.length ≤ n) {a : α} :
@@ -892,7 +888,7 @@ theorem getLast?_eq_get? (l : List α) : getLast? l = l.get? (l.length - 1) := b
 @[simp] theorem getLast?_concat (l : List α) : getLast? (l ++ [a]) = some a := by
   simp [getLast?_eq_getElem?, Nat.succ_sub_succ]
 
-@[simp] theorem getLastD_concat (a b l) : @getLastD α (l ++ [b]) a = b := by
+theorem getLastD_concat (a b l) : @getLastD α (l ++ [b]) a = b := by
   rw [getLastD_eq_getLast?, getLast?_concat]; rfl
 
 /-! ## Head and tail -/
@@ -1504,9 +1500,9 @@ theorem getElem?_append {l₁ l₂ : List α} {n : Nat} :
   · exact getElem?_append_left h
   · exact getElem?_append_right (by simpa using h)
 
-@[simp] theorem head_append_of_ne_nil {l : List α} (w : l ≠ []) :
-    head (l ++ l') (by simp_all) = head l w := by
-  match l, w with
+@[simp] theorem head_append_of_ne_nil {l : List α} {w₁} (w₂) :
+    head (l ++ l') w₁ = head l w₂ := by
+  match l, w₂ with
   | a :: l, _ => rfl
 
 theorem head_append {l₁ l₂ : List α} (w : l₁ ++ l₂ ≠ []) :
@@ -2135,18 +2131,19 @@ theorem bind_replicate {β} (f : α → List β) : (replicate n a).bind f = (rep
   | nil => rfl
   | cons a as ih => simp [ih]
 
-@[simp] theorem mem_reverseAux {x : α} : ∀ {as bs}, x ∈ reverseAux as bs ↔ x ∈ as ∨ x ∈ bs
+theorem mem_reverseAux {x : α} : ∀ {as bs}, x ∈ reverseAux as bs ↔ x ∈ as ∨ x ∈ bs
   | [], _ => ⟨.inr, fun | .inr h => h⟩
   | a :: _, _ => by rw [reverseAux, mem_cons, or_assoc, or_left_comm, mem_reverseAux, mem_cons]
 
-@[simp] theorem mem_reverse {x : α} {as : List α} : x ∈ reverse as ↔ x ∈ as := by simp [reverse]
+@[simp] theorem mem_reverse {x : α} {as : List α} : x ∈ reverse as ↔ x ∈ as := by
+  simp [reverse, mem_reverseAux]
 
 @[simp] theorem reverse_eq_nil_iff {xs : List α} : xs.reverse = [] ↔ xs = [] := by
   match xs with
   | [] => simp
   | x :: xs => simp
 
-@[simp] theorem reverse_ne_nil_iff {xs : List α} : xs.reverse ≠ [] ↔ xs ≠ [] :=
+theorem reverse_ne_nil_iff {xs : List α} : xs.reverse ≠ [] ↔ xs ≠ [] :=
   not_congr reverse_eq_nil_iff
 
 theorem getElem?_reverse' : ∀ {l : List α} (i j), i + j + 1 = length l →
@@ -2290,8 +2287,8 @@ theorem head_eq_getLast_reverse {l : List α} (h : l ≠ []) :
     l.head h = l.reverse.getLast (by simp_all) := by
   rw [← getLast_reverse]
 
-@[simp] theorem getLast_append_of_ne_nil {l : List α} (h : l' ≠ []) :
-    (l ++ l').getLast (append_ne_nil_of_right_ne_nil l h) = l'.getLast (by simp_all) := by
+@[simp] theorem getLast_append_of_ne_nil {l : List α} {h₁} (h₂ : l' ≠ []) :
+    (l ++ l').getLast h₁ = l'.getLast h₂ := by
   simp only [getLast_eq_head_reverse, reverse_append]
   rw [head_append_of_ne_nil]
 
@@ -2463,8 +2460,8 @@ theorem dropLast_append {l₁ l₂ : List α} :
     (l₁ ++ l₂).dropLast = if l₂.isEmpty then l₁.dropLast else l₁ ++ l₂.dropLast := by
   split <;> simp_all
 
-@[simp] theorem dropLast_append_cons : dropLast (l₁ ++ b::l₂) = l₁ ++ dropLast (b::l₂) := by
-  simp only [ne_eq, not_false_eq_true, dropLast_append_of_ne_nil]
+theorem dropLast_append_cons : dropLast (l₁ ++ b::l₂) = l₁ ++ dropLast (b::l₂) := by
+  simp
 
 @[simp 1100] theorem dropLast_concat : dropLast (l₁ ++ [b]) = l₁ := by simp
 

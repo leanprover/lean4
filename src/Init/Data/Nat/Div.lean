@@ -48,7 +48,7 @@ def div.inductionOn.{u}
 decreasing_by apply div_rec_lemma; assumption
 
 theorem div_le_self (n k : Nat) : n / k ≤ n := by
-  induction n using Nat.strongInductionOn with
+  induction n using Nat.strongRecOn with
   | ind n ih =>
     rw [div_eq]
     -- Note: manual split to avoid Classical.em which is not yet defined
@@ -334,7 +334,7 @@ theorem mul_mod_mul_left (z x y : Nat) : (z * x) % (z * y) = z * (x % y) :=
   else if z0 : z = 0 then by
     rw [z0, Nat.zero_mul, Nat.zero_mul, Nat.zero_mul, mod_zero]
   else by
-    induction x using Nat.strongInductionOn with
+    induction x using Nat.strongRecOn with
     | _ n IH =>
       have y0 : y > 0 := Nat.pos_of_ne_zero y0
       have z0 : z > 0 := Nat.pos_of_ne_zero z0

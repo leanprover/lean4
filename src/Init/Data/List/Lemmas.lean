@@ -265,6 +265,14 @@ theorem getElem?_eq (l : List α) (i : Nat) :
     l[i]? = if h : i < l.length then some l[i] else none := by
   split <;> simp_all
 
+@[simp] theorem some_getElem_eq_getElem? {α} (xs : List α) (i : Nat) (h : i < xs.length) :
+    (some xs[i] = xs[i]?) ↔ True := by
+  simp [h]
+
+@[simp] theorem getElem?_eq_some_getElem {α} (xs : List α) (i : Nat) (h : i < xs.length) :
+    (xs[i]? = some xs[i]) ↔ True := by
+  simp [h]
+
 theorem getElem_eq_iff {l : List α} {n : Nat} {h : n < l.length} : l[n] = x ↔ l[n]? = some x := by
   simp only [getElem?_eq_some]
   exact ⟨fun w => ⟨h, w⟩, fun h => h.2⟩
@@ -351,6 +359,9 @@ theorem get?_concat_length (l : List α) (a : α) : (l ++ [a]).get? l.length = s
    fun | Or.inl rfl => by constructor | Or.inr h => by constructor; assumption⟩
 
 theorem mem_cons_self (a : α) (l : List α) : a ∈ a :: l := .head ..
+
+theorem mem_concat_self (xs : List α) (a : α) : a ∈ xs ++ [a] :=
+  mem_append_of_mem_right xs (mem_cons_self a _)
 
 theorem mem_cons_of_mem (y : α) {a : α} {l : List α} : a ∈ l → a ∈ y :: l := .tail _
 
@@ -905,12 +916,26 @@ theorem head!_of_head? [Inhabited α] : ∀ {l : List α}, head? l = some a → 
 theorem head?_eq_head : ∀ {l} h, @head? α l = some (head l h)
   | _::_, _ => rfl
 
+/--
+We simplify `xs.head h = a` to `xs.head? = some a`,
+despite not simplifying `xs.head h` to `(xs.head?).get ⋯`.
+We can often make further progress on the goal after this simplification,
+because the dependency on `h` has been removed.
+-/
+@[simp] theorem head_eq_iff_head?_eq_some {xs : List α} (h) : xs.head h = a ↔ xs.head? = some a := by
+  cases xs with
+  | nil => simp at h
+  | cons x xs => simp
+
 theorem head?_eq_getElem? : ∀ l : List α, head? l = l[0]?
   | [] => rfl
   | a::l => by simp
 
 @[simp] theorem head?_eq_none_iff : l.head? = none ↔ l = [] := by
   cases l <;> simp
+
+theorem head?_eq_some_iff {xs : List α} {a : α} : xs.head? = some a ↔ ∃ ys, xs = a :: ys := by
+  cases xs <;> simp_all
 
 @[simp] theorem head_mem : ∀ {l : List α} (h : l ≠ []), head l h ∈ l
   | [], h => absurd rfl h
@@ -2192,6 +2217,10 @@ theorem reverseAux_reverseAux_nil (as bs : List α) : reverseAux (reverseAux as 
 theorem reverse_eq_iff {as bs : List α} : as.reverse = bs ↔ as = bs.reverse := by
   constructor <;> (rintro rfl; simp)
 
+@[simp] theorem reverse_eq_cons {xs : List α} {a : α} {ys : List α} :
+    xs.reverse = a :: ys ↔ xs = ys.reverse ++ [a] := by
+  rw [reverse_eq_iff, reverse_cons]
+
 @[simp] theorem getLast?_reverse (l : List α) : l.reverse.getLast? = l.head? := by cases l <;> simp
 
 @[simp] theorem head?_reverse (l : List α) : l.reverse.head? = l.getLast? := by
@@ -2227,8 +2256,16 @@ theorem reverse_map (f : α → β) (l : List α) : (l.map f).reverse = l.revers
 @[simp] theorem reverse_append (as bs : List α) : (as ++ bs).reverse = bs.reverse ++ as.reverse := by
   induction as <;> simp_all
 
-theorem reverse_concat (l : List α) (a : α) : (l.concat a).reverse = a :: l.reverse := by
-  rw [concat_eq_append, reverse_append]; rfl
+@[simp] theorem reverse_eq_append {xs ys zs : List α} :
+    xs.reverse = ys ++ zs ↔ xs = zs.reverse ++ ys.reverse := by
+  rw [reverse_eq_iff, reverse_append]
+
+theorem reverse_concat (l : List α) (a : α) : (l ++ [a]).reverse = a :: l.reverse := by
+  rw [reverse_append]; rfl
+
+@[simp] theorem reverse_eq_concat {xs ys : List α} {a : α} :
+    xs.reverse = ys ++ [a] ↔ xs = a :: ys.reverse := by
+  rw [reverse_eq_iff, reverse_concat]
 
 /-- Reversing a join is the same as reversing the order of parts and reversing all parts. -/
 theorem reverse_join (L : List (List α)) :
@@ -2272,15 +2309,37 @@ theorem bind_reverse {β} (l : List α) (f : α → List β) : (l.reverse.bind f
   induction l with
   | nil => contradiction
   | cons a l ih =>
-    simp
+    simp only [reverse_cons]
     by_cases h' : l = []
     · simp_all
-    · rw [getLast_cons, head_append_of_ne_nil, ih]
-      simp_all
+    · simp only [head_eq_iff_head?_eq_some, head?_reverse] at ih
+      simp [ih, h, h', getLast_cons]
 
 theorem getLast_eq_head_reverse {l : List α} (h : l ≠ []) :
     l.getLast h = l.reverse.head (by simp_all) := by
   rw [← head_reverse]
+
+/--
+We simplify `xs.getLast h = a` to `xs.getLast? = some a`,
+despite not simplifying `xs.getLast h` to `(xs.getLast?).get ⋯`.
+We can often make further progress on the goal after this simplification,
+because the dependency on `h` has been removed.
+-/
+@[simp] theorem getLast_eq_iff_getLast_eq_some {xs : List α} (h) : xs.getLast h = a ↔ xs.getLast? = some a := by
+  rw [getLast_eq_head_reverse, head_eq_iff_head?_eq_some]
+  simp
+
+@[simp] theorem getLast?_eq_none_iff {xs : List α} : xs.getLast? = none ↔ xs = [] := by
+  rw [getLast?_eq_head?_reverse, head?_eq_none_iff, reverse_eq_nil_iff]
+
+theorem getLast?_eq_some_iff {xs : List α} {a : α} : xs.getLast? = some a ↔ ∃ ys, xs = ys ++ [a] := by
+  rw [getLast?_eq_head?_reverse, head?_eq_some_iff]
+  simp only [reverse_eq_cons]
+  exact ⟨fun ⟨ys, h⟩ => ⟨ys.reverse, by simpa using h⟩, fun ⟨ys, h⟩ => ⟨ys.reverse, by simpa using h⟩⟩
+
+theorem mem_of_getLast?_eq_some {xs : List α} {a : α} (h : xs.getLast? = some a) : a ∈ xs := by
+  obtain ⟨ys, rfl⟩ := getLast?_eq_some_iff.1 h
+  exact mem_concat_self ys a
 
 @[simp] theorem getLast_reverse {l : List α} (h : l.reverse ≠ []) :
     l.reverse.getLast h = l.head (by simp_all) := by

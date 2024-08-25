@@ -798,12 +798,12 @@ theorem infix_cons_iff : l₁ <:+: a :: l₂ ↔ l₁ <+: a :: l₂ ∨ l₁ <:+
 
 theorem prefix_concat_iff {l₁ l₂ : List α} {a : α} :
     l₁ <+: l₂ ++ [a] ↔ l₁ = l₂ ++ [a] ∨ l₁ <+: l₂ := by
-  simp only [← concat_eq_append, ← reverse_suffix, reverse_concat, suffix_cons_iff]
+  simp only [← reverse_suffix, reverse_concat, suffix_cons_iff]
   simp only [concat_eq_append, ← reverse_concat, reverse_eq_iff, reverse_reverse]
 
 theorem suffix_concat_iff {l₁ l₂ : List α} {a : α} :
     l₁ <:+ l₂ ++ [a] ↔ l₁ = [] ∨ ∃ t, l₁ = t ++ [a] ∧ t <:+ l₂ := by
-  rw [← reverse_prefix, ← concat_eq_append, reverse_concat, prefix_cons_iff]
+  rw [← reverse_prefix, reverse_concat, prefix_cons_iff]
   simp only [reverse_eq_nil_iff]
   apply or_congr_right
   constructor
@@ -814,7 +814,7 @@ theorem suffix_concat_iff {l₁ l₂ : List α} {a : α} :
 
 theorem infix_concat_iff {l₁ l₂ : List α} {a : α} :
     l₁ <:+: l₂ ++ [a] ↔ l₁ <:+ l₂ ++ [a] ∨ l₁ <:+: l₂ := by
-  rw [← reverse_infix, ← concat_eq_append, reverse_concat, infix_cons_iff, reverse_infix,
+  rw [← reverse_infix, reverse_concat, infix_cons_iff, reverse_infix,
     ← reverse_prefix, reverse_concat]
 
 theorem isPrefix_iff : l₁ <+: l₂ ↔ ∀ i (h : i < l₁.length), l₂[i]? = some l₁[i] := by

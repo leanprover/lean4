@@ -181,8 +181,19 @@ theorem map_eq_bind {x : Option α} : x.map f = x.bind (some ∘ f) := by
 theorem map_congr {x : Option α} (h : ∀ a, a ∈ x → f a = g a) : x.map f = x.map g := by
   cases x <;> simp only [map_none', map_some', h, mem_def]
 
-@[simp] theorem map_id' : Option.map (@id α) = id := map_id
-@[simp] theorem map_id'' {x : Option α} : (x.map fun a => a) = x := congrFun map_id x
+@[simp] theorem map_id_fun {α : Type u} : Option.map (id : α → α) = id := by
+  funext; simp [map_id]
+
+theorem map_id' {x : Option α} : (x.map fun a => a) = x := congrFun map_id x
+
+@[simp] theorem map_id_fun' {α : Type u} : Option.map (fun (a : α) => a) = id := by
+  funext; simp [map_id']
+
+theorem get_map {f : α → β} {o : Option α} {h : (o.map f).isSome} :
+    (o.map f).get h = f (o.get (by simpa using h)) := by
+  cases o with
+  | none => simp at h
+  | some a => simp
 
 @[simp] theorem map_map (h : β → γ) (g : α → β) (x : Option α) :
     (x.map g).map h = x.map (h ∘ g) := by

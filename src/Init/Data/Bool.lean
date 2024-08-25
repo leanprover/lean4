@@ -254,10 +254,11 @@ theorem beq_eq_decide_eq [BEq α] [LawfulBEq α] [DecidableEq α] (a b : α) :
   · simp [ne_of_beq_false h]
   · simp [eq_of_beq h]
 
-@[simp] theorem eq_not : ∀ (a b : Bool), (a = (!b)) ↔ (a ≠ b) := by decide
-@[simp] theorem not_eq : ∀ (a b : Bool), ((!a) = b) ↔ (a ≠ b) := by decide
-theorem not_eq_not : ∀ {a b : Bool}, ¬a = !b ↔ a = b := by decide
-theorem not_not_eq : ∀ {a b : Bool}, ¬(!a) = b ↔ a = b := by decide
+theorem eq_not : ∀ (a b : Bool), (a = (!b)) ↔ (a ≠ b) := by decide
+theorem not_eq : ∀ (a b : Bool), ((!a) = b) ↔ (a ≠ b) := by decide
+
+@[simp] theorem not_eq_not : ∀ {a b : Bool}, ¬a = !b ↔ a = b := by decide
+@[simp] theorem not_not_eq : ∀ {a b : Bool}, ¬(!a) = b ↔ a = b := by decide
 
 @[simp] theorem coe_iff_coe : ∀(a b : Bool), (a ↔ b) ↔ a = b := by decide
 

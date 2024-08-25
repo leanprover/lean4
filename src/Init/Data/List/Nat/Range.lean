@@ -222,7 +222,7 @@ theorem head?_range (n : Nat) : (range n).head? = if n = 0 then none else some 0
 theorem take_range (m n : Nat) : take m (range n) = range (min m n) := by
   apply List.ext_getElem
   · simp
-  · simp (config := { contextual := true }) [← getElem_take, Nat.lt_min]
+  · simp (config := { contextual := true }) [← getElem_take', Nat.lt_min]
 
 theorem nodup_range (n : Nat) : Nodup (range n) := by
   simp (config := {decide := true}) only [range_eq_range', nodup_range']

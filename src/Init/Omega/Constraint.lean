@@ -300,6 +300,8 @@ theorem normalize_sat {s x v} (w : s.sat' x v) :
   · split
     · simp
     · dsimp [Constraint.sat'] at w
+      simp only [IntList.gcd_eq_zero] at h
+      simp only [IntList.dot_eq_zero_of_left_eq_zero h] at w
       simp_all
   · split
     · exact w

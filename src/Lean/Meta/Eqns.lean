@@ -57,13 +57,13 @@ def isEqnReservedNameSuffix (s : String) : Bool :=
   eqnThmSuffixBasePrefix.isPrefixOf s && (s.drop 3).isNat
 
 def unfoldThmSuffix := "eq_def"
-def constUnfoldThmSuffix := "unfold"
+def eqUnfoldThmSuffix := "eq_unfold"
 
 /--
 Throw an error if names for equation theorems for `declName` are not available.
 -/
 def ensureEqnReservedNamesAvailable (declName : Name) : CoreM Unit := do
-  ensureReservedNameAvailable declName constUnfoldThmSuffix
+  ensureReservedNameAvailable declName eqUnfoldThmSuffix
   ensureReservedNameAvailable declName unfoldThmSuffix
   ensureReservedNameAvailable declName eqn1ThmSuffix
   -- TODO: `declName` may need to reserve multiple `eq_<idx>` names, but we check only the first one.
@@ -75,7 +75,7 @@ Ensures that `f.eq_def`, `f.unfold` and `f.eq_<idx>` are reserved names if `f` i
 builtin_initialize registerReservedNamePredicate fun env n =>
   match n with
   | .str p s =>
-    (isEqnReservedNameSuffix s || s == unfoldThmSuffix || s == constUnfoldThmSuffix)
+    (isEqnReservedNameSuffix s || s == unfoldThmSuffix || s == eqUnfoldThmSuffix)
     && env.isSafeDefinition p
     -- Remark: `f.match_<idx>.eq_<idx>` are private definitions and are not treated as reserved names
     -- Reason: `f.match_<idx>.splitter is generated at the same time, and can eliminate into type.

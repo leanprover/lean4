@@ -23,34 +23,34 @@ info: Option_map.eq_def.{u_1, u_2} {α : Type u_1} {β : Type u_2} (f : α → �
 #check Option_map.eq_def
 
 /--
-info: Option_map.unfold.{u_1, u_2} :
+info: Option_map.eq_unfold.{u_1, u_2} :
   @Option_map = fun {α} {β} f x =>
     match x with
     | none => none
     | some x => some (f x)
 -/
 #guard_msgs in
-#check Option_map.unfold
+#check Option_map.eq_unfold
 
 def answer := 42
 
-/-- info: answer.unfold : answer = 42 -/
+/-- info: answer.eq_unfold : answer = 42 -/
 #guard_msgs in
-#check answer.unfold
+#check answer.eq_unfold
 
 -- structural recursion
 def List_map (f : α → β) : List α → List β
   | [] => []
   | x::xs => f x :: List_map f xs
 /--
-info: List_map.unfold.{u_1, u_2} :
+info: List_map.eq_unfold.{u_1, u_2} :
   @List_map = fun {α} {β} f x =>
     match x with
     | [] => []
     | x :: xs => f x :: List_map f xs
 -/
 #guard_msgs in
-#check List_map.unfold
+#check List_map.eq_unfold
 
 -- wf recursion
 def List_map2 (f : α → β) : List α → List β
@@ -59,11 +59,11 @@ def List_map2 (f : α → β) : List α → List β
 termination_by l => l
 
 /--
-info: List_map2.unfold.{u_1, u_2} :
+info: List_map2.eq_unfold.{u_1, u_2} :
   @List_map2 = fun {α} {β} f x =>
     match x with
     | [] => []
     | x :: xs => f x :: List_map2 f xs
 -/
 #guard_msgs in
-#check List_map2.unfold
+#check List_map2.eq_unfold

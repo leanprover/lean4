@@ -398,6 +398,12 @@ theorem IsInfix.find?_eq_none {l₁ l₂ : List α} {p : α → Bool} (h : l₁ 
     List.find? p l₂ = none → List.find? p l₁ = none :=
   h.sublist.find?_eq_none
 
+theorem find?_pmap {P : α → Prop} (f : (a : α) → P a → β) (xs : List α)
+    (H : ∀ (a : α), a ∈ xs → P a) (p : β → Bool) :
+    (xs.pmap f H).find? p = (xs.attach.find? (fun ⟨a, m⟩ => p (f a (H a m)))).map fun ⟨a, m⟩ => f a (H a m) := by
+  simp only [pmap_eq_map_attach, find?_map]
+  rfl
+
 /-! ### findIdx -/
 
 theorem findIdx_cons (p : α → Bool) (b : α) (l : List α) :

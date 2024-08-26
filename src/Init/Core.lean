@@ -36,6 +36,17 @@ and `flip (·<·)` is the greater-than relation.
 
 theorem Function.comp_def {α β δ} (f : β → δ) (g : α → β) : f ∘ g = fun x => f (g x) := rfl
 
+@[simp] theorem Function.const_comp {f : α → β} {c : γ} :
+    (Function.const β c ∘ f) = Function.const α c := by
+  rfl
+@[simp] theorem Function.comp_const {f : β → γ} {b : β} :
+    (f ∘ Function.const α b) = Function.const α (f b) := by
+  rfl
+@[simp] theorem Function.true_comp {f : α → β} : ((fun _ => true) ∘ f) = fun _ => true := by
+  rfl
+@[simp] theorem Function.false_comp {f : α → β} : ((fun _ => false) ∘ f) = fun _ => false := by
+  rfl
+
 attribute [simp] namedPattern
 
 /--

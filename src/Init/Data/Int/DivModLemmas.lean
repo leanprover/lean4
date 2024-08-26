@@ -1091,8 +1091,7 @@ theorem bmod_mul_bmod : Int.bmod (Int.bmod x n * y) n = Int.bmod (x * y) n := by
   next p =>
     simp
   next p =>
-    rw [Int.sub_mul, Int.sub_eq_add_neg, ← Int.mul_neg]
-    simp
+    rw [Int.sub_mul, Int.sub_eq_add_neg, ← Int.mul_neg, bmod_add_mul_cancel, emod_mul_bmod_congr]
 
 @[simp] theorem mul_bmod_bmod : Int.bmod (x * Int.bmod y n) n = Int.bmod (x * y) n := by
   rw [Int.mul_comm x, bmod_mul_bmod, Int.mul_comm x]

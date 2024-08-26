@@ -10,7 +10,7 @@ set_option trace.Meta.Tactic.simp true
 warning: declaration uses 'sorry'
 ---
 info: [Meta.Tactic.simp.rewrite] h₁:1000, k ≤ v - 1 ==> True
-[Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ✅
+[Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ✅️
       0 < v
   [Meta.Tactic.simp.rewrite] h₂:1000, 0 < v ==> True
 [Meta.Tactic.simp.rewrite] succ_pred_eq_of_pos:1000, v - 1 + 1 ==> v
@@ -35,7 +35,7 @@ example (h₁: k ≤ v - 1) (h₂: 0 < v):
 warning: declaration uses 'sorry'
 ---
 info: [Meta.Tactic.simp.rewrite] h₁:1000, k ≤ v - 1 ==> True
-[Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ✅
+[Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ✅️
       0 < v
   [Meta.Tactic.simp.rewrite] h₂:1000, 0 < v ==> True
 [Meta.Tactic.simp.rewrite] succ_pred_eq_of_pos:1000, v - 1 + 1 ==> v
@@ -58,7 +58,7 @@ example (h₁: k ≤ v - 1) (h₂: 0 < v):
 warning: declaration uses 'sorry'
 ---
 info: [Meta.Tactic.simp.rewrite] h₁:1000, k ≤ v - 1 ==> True
-[Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ✅
+[Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ✅️
       0 < v
   [Meta.Tactic.simp.rewrite] h₂:1000, 0 < v ==> True
 [Meta.Tactic.simp.rewrite] succ_pred_eq_of_pos:1000, v - 1 + 1 ==> v

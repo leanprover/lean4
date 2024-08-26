@@ -1,4 +1,4 @@
 Pi.hasLe : LE ((i : ι) → α i)
-[Meta.isDefEq.assign] ✅ ?m i := α i
+[Meta.isDefEq.assign] ✅️ ?m i := α i
   [Meta.isDefEq.assign.beforeMkLambda] ?m [i] := α i
-  [Meta.isDefEq.assign.checkTypes] ✅ (?m : ι → Type ?u) := (α : ι → Type v)
+  [Meta.isDefEq.assign.checkTypes] ✅️ (?m : ι → Type ?u) := (α : ι → Type v)

@@ -303,6 +303,9 @@ theorem toInt_ofNat {n : Nat} (x : Nat) :
 @[simp] theorem ofInt_natCast (w n : Nat) :
   BitVec.ofInt w (n : Int) = BitVec.ofNat w n := rfl
 
+@[simp] theorem ofInt_ofNat (w n : Nat) :
+  BitVec.ofInt w (no_index (OfNat.ofNat n)) = BitVec.ofNat w (OfNat.ofNat n) := rfl
+
 theorem toInt_neg_iff {w : Nat} {x : BitVec w} :
     BitVec.toInt x < 0 ↔ 2 ^ w ≤ 2 * x.toNat := by
   simp [toInt_eq_toNat_cond]; omega

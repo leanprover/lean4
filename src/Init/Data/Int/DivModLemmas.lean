@@ -357,6 +357,7 @@ theorem add_ediv_of_dvd_left {a b c : Int} (H : c ∣ a) : (a + b) / c = a / c +
 @[simp] theorem mul_ediv_cancel_left (b : Int) (H : a ≠ 0) : (a * b) / a = b :=
   Int.mul_comm .. ▸ Int.mul_ediv_cancel _ H
 
+
 theorem div_nonneg_iff_of_pos {a b : Int} (h : 0 < b) : a / b ≥ 0 ↔ a ≥ 0 := by
   rw [Int.div_def]
   match b, h with
@@ -454,6 +455,12 @@ theorem lt_mul_ediv_self_add {x k : Int} (h : 0 < k) : x < k * (x / k) + k :=
 @[simp] theorem add_mul_emod_self_left (a b c : Int) : (a + b * c) % b = a % b := by
   rw [Int.mul_comm, Int.add_mul_emod_self]
 
+@[simp] theorem add_neg_mul_emod_self {a b c : Int} : (a + -(b * c)) % c = a % c := by
+  rw [Int.neg_mul_eq_neg_mul, add_mul_emod_self]
+
+@[simp] theorem add_neg_mul_emod_self_left {a b c : Int} : (a + -(b * c)) % b = a % b := by
+  rw [Int.neg_mul_eq_mul_neg, add_mul_emod_self_left]
+
 @[simp] theorem add_emod_self {a b : Int} : (a + b) % b = a % b := by
   have := add_mul_emod_self_left a b 1; rwa [Int.mul_one] at this
 
@@ -500,6 +507,9 @@ theorem mul_emod (a b n : Int) : (a * b) % n = (a % n) * (b % n) % n := by
 
 @[simp] theorem emod_self {a : Int} : a % a = 0 := by
   have := mul_emod_left 1 a; rwa [Int.one_mul] at this
+
+@[simp] theorem neg_emod_self (a : Int) : -a % a = 0 := by
+  rw [neg_emod, Int.sub_self, zero_emod]
 
 @[simp] theorem emod_emod_of_dvd (n : Int) {m k : Int}
     (h : m ∣ k) : (n % k) % m = n % m := by
@@ -596,6 +606,14 @@ theorem emod_eq_zero_of_dvd : ∀ {a b : Int}, a ∣ b → b % a = 0
 theorem dvd_iff_emod_eq_zero (a b : Int) : a ∣ b ↔ b % a = 0 :=
   ⟨emod_eq_zero_of_dvd, dvd_of_emod_eq_zero⟩
 
+@[simp] theorem neg_mul_emod_left (a b : Int) : -(a * b) % b = 0 := by
+  rw [← dvd_iff_emod_eq_zero, Int.dvd_neg]
+  exact Int.dvd_mul_left a b
+
+@[simp] theorem neg_mul_emod_right (a b : Int) : -(a * b) % a = 0 := by
+  rw [← dvd_iff_emod_eq_zero, Int.dvd_neg]
+  exact Int.dvd_mul_right a b
+
 instance decidableDvd : DecidableRel (α := Int) (· ∣ ·) := fun _ _ =>
   decidable_of_decidable_of_iff (dvd_iff_emod_eq_zero ..).symm
 
@@ -620,6 +638,12 @@ theorem neg_ediv_of_dvd : ∀ {a b : Int}, b ∣ a → (-a) / b = -(a / b)
     · simp [bz]
     · rw [Int.neg_mul_eq_mul_neg, Int.mul_ediv_cancel_left _ bz, Int.mul_ediv_cancel_left _ bz]
 
+@[simp] theorem neg_mul_ediv_cancel (a b : Int) (h : b ≠ 0) : -(a * b) / b = -a := by
+  rw [neg_ediv_of_dvd (Int.dvd_mul_left a b), mul_ediv_cancel _ h]
+
+@[simp] theorem neg_mul_ediv_cancel_left (a b : Int) (h : a ≠ 0) : -(a * b) / a = -b := by
+  rw [neg_ediv_of_dvd (Int.dvd_mul_right a b), mul_ediv_cancel_left _ h]
+
 theorem sub_ediv_of_dvd (a : Int) {b c : Int}
     (hcb : c ∣ b) : (a - b) / c = a / c - b / c := by
   rw [Int.sub_eq_add_neg, Int.sub_eq_add_neg, Int.add_ediv_of_dvd_right (Int.dvd_neg.2 hcb)]
@@ -635,12 +659,21 @@ theorem sub_ediv_of_dvd (a : Int) {b c : Int}
 @[simp] protected theorem ediv_self {a : Int} (H : a ≠ 0) : a / a = 1 := by
   have := Int.mul_ediv_cancel 1 H; rwa [Int.one_mul] at this
 
+@[simp] protected theorem neg_ediv_self (a : Int) (h : a ≠ 0) : (-a) / a = -1 := by
+  rw [neg_ediv_of_dvd (Int.dvd_refl a), Int.ediv_self h]
+
 @[simp]
-theorem emod_sub_cancel (x y : Int): (x - y)%y = x%y := by
+theorem emod_sub_cancel (x y : Int): (x - y) % y = x % y := by
   by_cases h : y = 0
   · simp [h]
   · simp only [Int.emod_def, Int.sub_ediv_of_dvd, Int.dvd_refl, Int.ediv_self h, Int.mul_sub]
     simp [Int.mul_one, Int.sub_sub, Int.add_comm y]
+
+@[simp] theorem add_neg_emod_self (a b : Int) : (a + -b) % b = a % b := by
+  rw [← Int.sub_eq_add_neg, emod_sub_cancel]
+
+@[simp] theorem neg_add_emod_self (a b : Int) : (-a + b) % a = b % a := by
+  rw [Int.add_comm, add_neg_emod_self]
 
 /-- If `a % b = c` then `b` divides `a - c`. -/
 theorem dvd_sub_of_emod_eq {a b c : Int} (h : a % b = c) : b ∣ a - c := by
@@ -891,6 +924,14 @@ theorem mod_eq_zero_of_dvd : ∀ {a b : Int}, a ∣ b → mod b a = 0
 theorem dvd_iff_mod_eq_zero (a b : Int) : a ∣ b ↔ mod b a = 0 :=
   ⟨mod_eq_zero_of_dvd, dvd_of_mod_eq_zero⟩
 
+@[simp] theorem neg_mul_mod_right (a b : Int) : (-(a * b)).mod a = 0 := by
+  rw [← dvd_iff_mod_eq_zero, Int.dvd_neg]
+  exact Int.dvd_mul_right a b
+
+@[simp] theorem neg_mul_mod_left (a b : Int) : (-(a * b)).mod b = 0 := by
+  rw [← dvd_iff_mod_eq_zero, Int.dvd_neg]
+  exact Int.dvd_mul_left a b
+
 protected theorem div_mul_cancel {a b : Int} (H : b ∣ a) : a.div b * b = a :=
   div_mul_cancel_of_mod_eq_zero (mod_eq_zero_of_dvd H)
 
@@ -902,6 +943,10 @@ protected theorem eq_mul_of_div_eq_right {a b c : Int}
 
 @[simp] theorem mod_self {a : Int} : a.mod a = 0 := by
   have := mul_mod_left 1 a; rwa [Int.one_mul] at this
+
+@[simp] theorem neg_mod_self (a : Int) : (-a).mod a = 0 := by
+  rw [← dvd_iff_mod_eq_zero, Int.dvd_neg]
+  exact Int.dvd_refl a
 
 theorem lt_div_add_one_mul_self (a : Int) {b : Int} (H : 0 < b) : a < (a.div b + 1) * b := by
   rw [Int.add_mul, Int.one_mul, Int.mul_comm]

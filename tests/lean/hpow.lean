@@ -1,4 +1,5 @@
-import Lean.Data.Rat
+import Std.Internal.Rat
+open Std.Internal
 
 /-!
 Test the `rightact%` elaborator for `HPow.hPow`, added to address #2854

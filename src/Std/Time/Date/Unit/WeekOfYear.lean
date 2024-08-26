@@ -4,12 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Lean.Data.Rat
+import Std.Internal.Rat
 import Std.Time.Date.Unit.Day
 
 namespace Std
 namespace Time
 namespace WeekOfYear
+open Std.Internal
 open Internal
 
 set_option linter.all true

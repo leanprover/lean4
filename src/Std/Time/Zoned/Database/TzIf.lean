@@ -5,8 +5,8 @@ Authors: Sofia Rodrigues
 -/
 prelude
 import Init.Data.Range
-import Lean.Data.Parsec
-import Lean.Data.Parsec.ByteArray
+import Std.Internal.Parsec
+import Std.Internal.Parsec.ByteArray
 
 -- Based on: https://www.rfc-editor.org/rfc/rfc8536.html
 
@@ -14,7 +14,7 @@ namespace Std
 namespace Time
 namespace TimeZone
 namespace TZif
-open Lean.Parsec Lean.Parsec.ByteArray
+open Std.Internal.Parsec Std.Internal.Parsec.ByteArray
 
 set_option linter.all true
 

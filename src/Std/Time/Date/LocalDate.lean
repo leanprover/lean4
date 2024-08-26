@@ -6,10 +6,11 @@ Authors: Sofia Rodrigues
 prelude
 import Std.Time.Internal
 import Std.Time.Date.Basic
-import Lean.Data.Rat
+import Std.Internal.Rat
 
 namespace Std
 namespace Time
+open Std.Internal
 open Internal
 open Lean
 

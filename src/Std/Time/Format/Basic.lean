@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Lean.Data.Parsec
+import Std.Internal.Parsec
 import Std.Time.Date
 import Std.Time.Time
 import Std.Time.Zoned
@@ -13,8 +13,8 @@ import Std.Time.DateTime
 namespace Std
 namespace Time
 open Internal
-open Lean.Parsec.String
-open Lean.Parsec Lean LocalTime LocalDate TimeZone DateTime
+open Std.Internal.Parsec.String
+open Std.Internal.Parsec Lean LocalTime LocalDate TimeZone DateTime
 
 set_option linter.all true
 

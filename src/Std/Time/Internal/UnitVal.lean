@@ -5,12 +5,12 @@ Authors: Sofia Rodrigues
 -/
 prelude
 import Init.Data
-import Lean.Data.Rat
+import Std.Internal.Rat
 
 namespace Std
 namespace Time
 namespace Internal
-
+open Std.Internal
 open Lean
 
 set_option linter.all true

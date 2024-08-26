@@ -5,13 +5,14 @@ Authors: Sofia Rodrigues
 -/
 prelude
 import Std.Time.Internal
-import Lean.Data.Rat
+import Std.Internal.Rat
 import Std.Time.Date.Unit.Day
 import Std.Time.Date.Unit.Month
 
 namespace Std
 namespace Time
 namespace Year
+open Std.Internal
 open Internal
 
 set_option linter.all true

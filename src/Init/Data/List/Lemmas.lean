@@ -91,6 +91,10 @@ theorem cons_ne_nil (a : α) (l : List α) : a :: l ≠ [] := nofun
 @[simp]
 theorem cons_ne_self (a : α) (l : List α) : a :: l ≠ l := mt (congrArg length) (Nat.succ_ne_self _)
 
+@[simp] theorem ne_cons_self {a : α} {l : List α} : l ≠ a :: l := by
+  rw [ne_eq, eq_comm]
+  simp
+
 theorem head_eq_of_cons_eq (H : h₁ :: t₁ = h₂ :: t₂) : h₁ = h₂ := (cons.inj H).1
 
 theorem tail_eq_of_cons_eq (H : h₁ :: t₁ = h₂ :: t₂) : t₁ = t₂ := (cons.inj H).2
@@ -1560,6 +1564,14 @@ theorem append_ne_nil_of_right_ne_nil (s : List α) : t ≠ [] → s ++ t ≠ []
 theorem append_ne_nil_of_ne_nil_left {s : List α} (h : s ≠ []) (t : List α) : s ++ t ≠ [] := by simp_all
 @[deprecated append_ne_nil_of_right_ne_nil (since := "2024-07-24")]
 theorem append_ne_nil_of_ne_nil_right (s : List α) : t ≠ [] → s ++ t ≠ [] := by simp_all
+
+theorem tail_append (xs ys : List α) :
+    (xs ++ ys).tail = if xs.isEmpty then ys.tail else xs.tail ++ ys := by
+  cases xs <;> simp
+
+@[simp] theorem tail_append_of_ne_nil (xs ys : List α) (h : xs ≠ []) :
+    (xs ++ ys).tail = xs.tail ++ ys := by
+  simp_all [tail_append]
 
 theorem append_eq_cons :
     a ++ b = x :: c ↔ (a = [] ∧ b = x :: c) ∨ (∃ a', a = x :: a' ∧ c = a' ++ b) := by

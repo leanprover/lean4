@@ -58,6 +58,25 @@ theorem exists_of_findSome?_eq_some {l : List α} {f : α → Option β} (w : l.
     · simp only [Option.guard_eq_none] at h
       simp [ih, h]
 
+@[simp] theorem filterMap_head? (f : α → Option β) (l : List α) : (l.filterMap f).head? = l.findSome? f := by
+  induction l with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [filterMap_cons, findSome?_cons]
+    split <;> simp [*]
+
+@[simp] theorem filterMap_head (f : α → Option β) (l : List α) (h) :
+    (l.filterMap f).head h = (l.findSome? f).get (by simp_all [Option.isSome_iff_ne_none])  := by
+  simp
+
+@[simp] theorem filterMap_getLast? (f : α → Option β) (l : List α) : (l.filterMap f).getLast? = l.reverse.findSome? f := by
+  rw [getLast?_eq_head?_reverse]
+  simp [← filterMap_reverse]
+
+@[simp] theorem filterMap_getLast (f : α → Option β) (l : List α) (h) :
+    (l.filterMap f).getLast h = (l.reverse.findSome? f).get (by simp_all [Option.isSome_iff_ne_none]) := by
+  simp
+
 @[simp] theorem map_findSome? (f : α → Option β) (g : β → γ) (l : List α) :
     (l.findSome? f).map g = l.findSome? (Option.map g ∘ f) := by
   induction l <;> simp [findSome?_cons]; split <;> simp [*]
@@ -101,7 +120,9 @@ theorem Sublist.findSome?_isSome {l₁ l₂ : List α} (h : l₁ <+ l₂) :
   | cons a h ih
   | cons₂ a h ih =>
     simp only [findSome?]
-    split <;> simp_all
+    split
+    · simp_all
+    · exact ih
 
 theorem Sublist.findSome?_eq_none {l₁ l₂ : List α} (h : l₁ <+ l₂) :
     l₂.findSome? f = none → l₁.findSome? f = none := by
@@ -219,6 +240,21 @@ theorem mem_of_find?_eq_some : ∀ {l}, find? p l = some a → a ∈ l
     split <;>
     · simp only [find?_cons]
       split <;> simp_all
+
+@[simp] theorem filter_head? (p : α → Bool) (l : List α) : (l.filter p).head? = l.find? p := by
+  rw [← filterMap_eq_filter, filterMap_head?, findSome?_guard]
+
+@[simp] theorem filter_head (p : α → Bool) (l : List α) (h) :
+    (l.filter p).head h = (l.find? p).get (by simp_all [Option.isSome_iff_ne_none]) := by
+  simp
+
+@[simp] theorem filter_getLast? (p : α → Bool) (l : List α) : (l.filter p).getLast? = l.reverse.find? p := by
+  rw [getLast?_eq_head?_reverse]
+  simp [← filter_reverse]
+
+@[simp] theorem filter_getLast (p : α → Bool) (l : List α) (h) :
+    (l.filter p).getLast h = (l.reverse.find? p).get (by simp_all [Option.isSome_iff_ne_none]) := by
+  simp
 
 @[simp] theorem find?_filterMap (xs : List α) (f : α → Option β) (p : β → Bool) :
     (xs.filterMap f).find? p = (xs.find? (fun a => match f a with | none => false | some b => p b)).map f := by

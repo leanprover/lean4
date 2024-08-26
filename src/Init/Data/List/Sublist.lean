@@ -921,7 +921,6 @@ theorem infix_of_mem_join : ∀ {L : List (List α)}, l ∈ L → l <:+: join L
 theorem prefix_append_right_inj (l) : l ++ l₁ <+: l ++ l₂ ↔ l₁ <+: l₂ :=
   exists_congr fun r => by rw [append_assoc, append_right_inj]
 
-@[simp]
 theorem prefix_cons_inj (a) : a :: l₁ <+: a :: l₂ ↔ l₁ <+: l₂ :=
   prefix_append_right_inj [a]
 

@@ -567,7 +567,6 @@ theorem get_set_eq {l : List α} {i : Nat} {a : α} (h : i < (l.set i a).length)
     (l.set i a)[i]? = some a := by
   simp_all [getElem?_eq_some]
 
-@[simp]
 theorem getElem?_set_eq' {l : List α} {i : Nat} {a : α} : (set l i a)[i]? = Function.const _ a <$> l[i]? := by
   by_cases h : i < l.length
   · simp [getElem?_set_eq h, getElem?_eq_getElem h]
@@ -902,7 +901,7 @@ theorem getLast?_eq_getElem? : ∀ (l : List α), getLast? l = l[l.length - 1]?
 theorem getLast?_eq_get? (l : List α) : getLast? l = l.get? (l.length - 1) := by
   simp [getLast?_eq_getElem?]
 
-@[simp] theorem getLast?_concat (l : List α) : getLast? (l ++ [a]) = some a := by
+theorem getLast?_concat (l : List α) : getLast? (l ++ [a]) = some a := by
   simp [getLast?_eq_getElem?, Nat.succ_sub_succ]
 
 theorem getLastD_concat (a b l) : @getLastD α (l ++ [b]) a = b := by
@@ -1489,7 +1488,7 @@ theorem append_left_inj {s₁ s₂ : List α} (t) : s₁ ++ t = s₂ ++ t ↔ s�
 @[simp] theorem append_eq_nil : p ++ q = [] ↔ p = [] ∧ q = [] := by
   cases p <;> simp
 
-@[simp] theorem getLast_concat {a : α} : ∀ (l : List α), getLast (l ++ [a]) (by simp) = a
+theorem getLast_concat {a : α} : ∀ (l : List α), getLast (l ++ [a]) (by simp) = a
   | [] => rfl
   | a::t => by
     simp [getLast_cons _, getLast_concat t]
@@ -1556,7 +1555,7 @@ theorem head_append {l₁ l₂ : List α} (w : l₁ ++ l₂ ≠ []) :
 -- `getLast_append_of_ne_nil`, `getLast_append` and `getLast?_append`
 -- are stated and proved later in the `reverse` section.
 
-@[simp] theorem nil_eq_append : [] = a ++ b ↔ a = [] ∧ b = [] := by
+theorem nil_eq_append : [] = a ++ b ↔ a = [] ∧ b = [] := by
   rw [eq_comm, append_eq_nil]
 
 theorem append_ne_nil_of_left_ne_nil {s : List α} (h : s ≠ []) (t : List α) : s ++ t ≠ [] := by simp_all
@@ -1831,11 +1830,10 @@ theorem join_filter_ne_nil [DecidablePred fun l : List α => l ≠ []] {L : List
   simp only [ne_eq, ← isEmpty_iff, Bool.not_eq_true, Bool.decide_eq_false,
     join_filter_not_isEmpty]
 
-@[simp] theorem join_map_filter (p : α → Bool) (l : List (List α)) : (l.map (filter p)).join = (l.join).filter p := by
-  induction l with
-  | nil => simp
-  | cons x xs ih =>
-    simp only [ih, map_cons, join_cons, filter_append]
+@[deprecated filter_join (since := "2024-08-26")]
+theorem join_map_filter (p : α → Bool) (l : List (List α)) :
+    (l.map (filter p)).join = (l.join).filter p := by
+  rw [filter_join]
 
 @[simp] theorem join_append (L₁ L₂ : List (List α)) : join (L₁ ++ L₂) = join L₁ ++ join L₂ := by
   induction L₁ <;> simp_all
@@ -2235,7 +2233,8 @@ theorem reverse_eq_iff {as bs : List α} : as.reverse = bs ↔ as = bs.reverse :
     xs.reverse = a :: ys ↔ xs = ys.reverse ++ [a] := by
   rw [reverse_eq_iff, reverse_cons]
 
-@[simp] theorem getLast?_reverse (l : List α) : l.reverse.getLast? = l.head? := by cases l <;> simp
+@[simp] theorem getLast?_reverse (l : List α) : l.reverse.getLast? = l.head? := by
+  cases l <;> simp [getLast?_concat]
 
 @[simp] theorem head?_reverse (l : List α) : l.reverse.head? = l.getLast? := by
   rw [← getLast?_reverse, reverse_reverse]
@@ -2277,7 +2276,7 @@ theorem reverse_map (f : α → β) (l : List α) : (l.map f).reverse = l.revers
 theorem reverse_concat (l : List α) (a : α) : (l ++ [a]).reverse = a :: l.reverse := by
   rw [reverse_append]; rfl
 
-@[simp] theorem reverse_eq_concat {xs ys : List α} {a : α} :
+theorem reverse_eq_concat {xs ys : List α} {a : α} :
     xs.reverse = ys ++ [a] ↔ xs = a :: ys.reverse := by
   rw [reverse_eq_iff, reverse_concat]
 

@@ -257,7 +257,8 @@ theorem mem_of_find?_eq_some : ∀ {l}, find? p l = some a → a ∈ l
   simp
 
 @[simp] theorem find?_filterMap (xs : List α) (f : α → Option β) (p : β → Bool) :
-    (xs.filterMap f).find? p = (xs.find? (fun a => match f a with | none => false | some b => p b)).map f := by
+    List.find? p (List.filterMap f xs) =
+      (xs.find? (fun a => match f a with | none => false | some b => p b)).bind f := by
   induction xs with
   | nil => simp
   | cons x xs ih =>

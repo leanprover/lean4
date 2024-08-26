@@ -1191,18 +1191,6 @@ type_checker::~type_checker() {
         delete m_st;
 }
 
-extern "C" LEAN_EXPORT lean_object * lean_kernel_is_def_eq(lean_object * env, lean_object * lctx, lean_object * a, lean_object * b) {
-    return catch_kernel_exceptions<object*>([&]() {
-        return lean_box(type_checker(environment(env), local_ctx(lctx)).is_def_eq(expr(a), expr(b)));
-    });
-}
-
-extern "C" LEAN_EXPORT lean_object * lean_kernel_whnf(lean_object * env, lean_object * lctx, lean_object * a) {
-    return catch_kernel_exceptions<object*>([&]() {
-        return type_checker(environment(env), local_ctx(lctx)).whnf(expr(a)).steal();
-    });
-}
-
 inline static expr * new_persistent_expr_const(name const & n) {
     expr * e = new expr(mk_const(n));
     mark_persistent(e->raw());

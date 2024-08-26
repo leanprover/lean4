@@ -1128,20 +1128,24 @@ namespace Kernel
 
 /--
   Kernel isDefEq predicate. We use it mainly for debugging purposes.
-  Recall that the Kernel type checker does not support metavariables.
+  Recall that the kernel type checker does not support metavariables.
   When implementing automation, consider using the `MetaM` methods. -/
+-- We use `Lean.Environment` here to allow for native reduction; as this is a debugging function, we
+-- forgo a `Kernel.Environment` base variant
 @[extern "lean_kernel_is_def_eq"]
-opaque isDefEq (env : Environment) (lctx : LocalContext) (a b : Expr) : Except Kernel.Exception Bool
+opaque isDefEq (env : Lean.Environment) (lctx : LocalContext) (a b : Expr) : Except Kernel.Exception Bool
 
-def isDefEqGuarded (env : Environment) (lctx : LocalContext) (a b : Expr) : Bool :=
+def isDefEqGuarded (env : Lean.Environment) (lctx : LocalContext) (a b : Expr) : Bool :=
   if let .ok result := isDefEq env lctx a b then result else false
 
 /--
   Kernel WHNF function. We use it mainly for debugging purposes.
-  Recall that the Kernel type checker does not support metavariables.
+  Recall that the kernel type checker does not support metavariables.
   When implementing automation, consider using the `MetaM` methods. -/
+-- We use `Lean.Environment` here to allow for native reduction; as this is a debugging function, we
+-- forgo a `Kernel.Environment` base variant
 @[extern "lean_kernel_whnf"]
-opaque whnf (env : Environment) (lctx : LocalContext) (a : Expr) : Except Kernel.Exception Expr
+opaque whnf (env : Lean.Environment) (lctx : LocalContext) (a : Expr) : Except Kernel.Exception Expr
 
 end Kernel
 

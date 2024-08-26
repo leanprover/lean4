@@ -47,7 +47,7 @@ do let env ← getEnv
    pure ()
 
 /--
-info: #[const2ModIdx, constants, extensions, extraConstNames, header]
+info: #[base, const2ModIdx, extensions, extraConstNames, header]
 #[toS2, toS1, x, y, z, toS3, w, s]
 (some [S4.toS2, S2.toS1])
 #[S2, S3]

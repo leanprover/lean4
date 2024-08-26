@@ -52,4 +52,22 @@ void elab_environment::display_stats() const {
     dec_ref(lean_display_stats(to_obj_arg(), io_mk_world()));
 }
 
+extern "C" LEAN_EXPORT lean_object * lean_kernel_is_def_eq(lean_object * obj_env, lean_object * lctx, lean_object * a, lean_object * b) {
+    elab_environment env(obj_env);
+    native_reduce_fn reduce_fn = mk_default_native_reduce_fn(env);
+    scope_native_reduce_fn _(&reduce_fn);
+    return catch_kernel_exceptions<object*>([&]() {
+        return lean_box(type_checker(env.to_kernel_env(), local_ctx(lctx)).is_def_eq(expr(a), expr(b)));
+    });
+}
+
+extern "C" LEAN_EXPORT lean_object * lean_kernel_whnf(lean_object * obj_env, lean_object * lctx, lean_object * a) {
+    elab_environment env(obj_env);
+    native_reduce_fn reduce_fn = mk_default_native_reduce_fn(env);
+    scope_native_reduce_fn _(&reduce_fn);
+    return catch_kernel_exceptions<object*>([&]() {
+        return type_checker(env.to_kernel_env(), local_ctx(lctx)).whnf(expr(a)).steal();
+    });
+}
+
 }

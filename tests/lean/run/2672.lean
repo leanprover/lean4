@@ -4,7 +4,7 @@ open Lean Elab Term
 elab "foo" t:term "," s:term : term => do
   let e ← Elab.Term.elabTermAndSynthesize t none
   let e2 ← Elab.Term.elabTermAndSynthesize s none
-  let t ← ofExceptKernelException (Kernel.whnf (← getEnv).toKernelEnv (← getLCtx) (.app e e2))
+  let t ← ofExceptKernelException (Kernel.whnf (← getEnv) (← getLCtx) (.app e e2))
   logInfo t
   return e
 

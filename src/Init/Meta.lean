@@ -388,9 +388,9 @@ def getSubstring? (stx : Syntax) (withLeading := true) (withTrailing := true) : 
 partial def setTailInfoAux (info : SourceInfo) : Syntax → Option Syntax
   | atom _ val             => some <| atom info val
   | ident _ rawVal val pre => some <| ident info rawVal val pre
-  | node info k args       =>
+  | node info' k args      =>
     match updateLast args (setTailInfoAux info) args.size with
-    | some args => some <| node info k args
+    | some args => some <| node info' k args
     | none      => none
   | _                      => none
 

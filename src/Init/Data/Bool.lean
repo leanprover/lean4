@@ -547,7 +547,7 @@ theorem apply_cond (f : α → β) {b : Bool} {a a' : α} :
     f (bif b then a else a') = bif b then f a else f a' := by
   cases b <;> simp
 
-/-# decidability -/
+/-! # decidability -/
 
 protected theorem decide_coe (b : Bool) [Decidable (b = true)] : decide (b = true) = b := decide_eq_true
 

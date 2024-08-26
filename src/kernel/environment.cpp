@@ -132,15 +132,6 @@ static void check_constant_val(environment const & env, constant_val const & v, 
     checker.ensure_sort(sort, v.get_type());
 }
 
-static void check_constant_val(environment const & env, constant_val const & v, diagnostics * diag, definition_safety ds) {
-    type_checker checker(env, diag, ds);
-    check_constant_val(env, v, checker);
-}
-
-static void check_constant_val(environment const & env, constant_val const & v, diagnostics * diag, bool safe_only) {
-    check_constant_val(env, v, diag, safe_only ? definition_safety::safe : definition_safety::unsafe);
-}
-
 void environment::add_core(constant_info const & info) {
     m_obj = lean_environment_add(m_obj, info.to_obj_arg());
 }
@@ -149,27 +140,29 @@ environment environment::add(constant_info const & info) const {
     return environment(lean_environment_add(to_obj_arg(), info.to_obj_arg()));
 }
 
-environment environment::add_axiom(declaration const & d, bool check) const {
+environment environment::add_axiom(declaration const & d, bool check, native_reduce_fn const * red_fn) const {
     scoped_diagnostics diag(*this, check);
     axiom_val const & v = d.to_axiom_val();
-    if (check)
-        check_constant_val(*this, v.to_constant_val(), diag.get(), !d.is_unsafe());
+    if (check) {
+        type_checker checker(*this, red_fn, diag.get(), d.is_unsafe() ? definition_safety::unsafe : definition_safety::safe);
+        check_constant_val(*this, v.to_constant_val(), checker);
+    }
     return diag.update(add(constant_info(d)));
 }
 
-environment environment::add_definition(declaration const & d, bool check) const {
+environment environment::add_definition(declaration const & d, bool check, native_reduce_fn const * red_fn) const {
     scoped_diagnostics diag(*this, check);
     definition_val const & v = d.to_definition_val();
     if (v.is_unsafe()) {
         /* Meta definition can be recursive.
            So, we check the header, add, and then type check the body. */
         if (check) {
-            type_checker checker(*this, diag.get(), definition_safety::unsafe);
+            type_checker checker(*this, red_fn, diag.get(), definition_safety::unsafe);
             check_constant_val(*this, v.to_constant_val(), checker);
         }
         environment new_env = add(constant_info(d));
         if (check) {
-            type_checker checker(new_env, diag.get(), definition_safety::unsafe);
+            type_checker checker(new_env, red_fn, diag.get(), definition_safety::unsafe);
             check_no_metavar_no_fvar(new_env, v.get_name(), v.get_value());
             expr val_type = checker.check(v.get_value(), v.get_lparams());
             if (!checker.is_def_eq(val_type, v.get_type()))
@@ -178,7 +171,7 @@ environment environment::add_definition(declaration const & d, bool check) const
         return diag.update(new_env);
     } else {
         if (check) {
-            type_checker checker(*this, diag.get());
+            type_checker checker(*this, red_fn, diag.get());
             check_constant_val(*this, v.to_constant_val(), checker);
             check_no_metavar_no_fvar(*this, v.get_name(), v.get_value());
             expr val_type = checker.check(v.get_value(), v.get_lparams());
@@ -189,11 +182,11 @@ environment environment::add_definition(declaration const & d, bool check) const
     }
 }
 
-environment environment::add_theorem(declaration const & d, bool check) const {
+environment environment::add_theorem(declaration const & d, bool check, native_reduce_fn const * red_fn) const {
     scoped_diagnostics diag(*this, check);
     theorem_val const & v = d.to_theorem_val();
     if (check) {
-        type_checker checker(*this, diag.get());
+        type_checker checker(*this, red_fn, diag.get());
         sharecommon_persistent_fn share;
         expr val(share(v.get_value().raw()));
         expr type(share(v.get_type().raw()));
@@ -208,11 +201,11 @@ environment environment::add_theorem(declaration const & d, bool check) const {
     return diag.update(add(constant_info(d)));
 }
 
-environment environment::add_opaque(declaration const & d, bool check) const {
+environment environment::add_opaque(declaration const & d, bool check, native_reduce_fn const * red_fn) const {
     scoped_diagnostics diag(*this, check);
     opaque_val const & v = d.to_opaque_val();
     if (check) {
-        type_checker checker(*this, diag.get());
+        type_checker checker(*this, red_fn, diag.get());
         check_constant_val(*this, v.to_constant_val(), checker);
         expr val_type = checker.check(v.get_value(), v.get_lparams());
         if (!checker.is_def_eq(val_type, v.get_type()))
@@ -221,7 +214,7 @@ environment environment::add_opaque(declaration const & d, bool check) const {
     return diag.update(add(constant_info(d)));
 }
 
-environment environment::add_mutual(declaration const & d, bool check) const {
+environment environment::add_mutual(declaration const & d, bool check, native_reduce_fn const * red_fn) const {
     scoped_diagnostics diag(*this, check);
     definition_vals const & vs = d.to_definition_vals();
     if (empty(vs))
@@ -231,7 +224,7 @@ environment environment::add_mutual(declaration const & d, bool check) const {
         throw kernel_exception(*this, "invalid mutual definition, declaration is not tagged as unsafe/partial");
     /* Check declarations header */
     if (check) {
-        type_checker checker(*this, diag.get(), safety);
+        type_checker checker(*this, red_fn, diag.get(), safety);
         for (definition_val const & v : vs) {
             if (v.get_safety() != safety)
                 throw kernel_exception(*this, "invalid mutual definition, declarations must have the same safety annotation");
@@ -245,7 +238,7 @@ environment environment::add_mutual(declaration const & d, bool check) const {
     }
     /* Check actual definitions */
     if (check) {
-        type_checker checker(new_env, diag.get(), safety);
+        type_checker checker(new_env, red_fn, diag.get(), safety);
         for (definition_val const & v : vs) {
             check_no_metavar_no_fvar(new_env, v.get_name(), v.get_value());
             expr val_type = checker.check(v.get_value(), v.get_lparams());
@@ -256,15 +249,15 @@ environment environment::add_mutual(declaration const & d, bool check) const {
     return diag.update(new_env);
 }
 
-environment environment::add(declaration const & d, bool check) const {
+environment environment::add(declaration const & d, bool check, native_reduce_fn const * red_fn) const {
     switch (d.kind()) {
-    case declaration_kind::Axiom:            return add_axiom(d, check);
-    case declaration_kind::Definition:       return add_definition(d, check);
-    case declaration_kind::Theorem:          return add_theorem(d, check);
-    case declaration_kind::Opaque:           return add_opaque(d, check);
-    case declaration_kind::MutualDefinition: return add_mutual(d, check);
+    case declaration_kind::Axiom:            return add_axiom(d, check, red_fn);
+    case declaration_kind::Definition:       return add_definition(d, check, red_fn);
+    case declaration_kind::Theorem:          return add_theorem(d, check, red_fn);
+    case declaration_kind::Opaque:           return add_opaque(d, check, red_fn);
+    case declaration_kind::MutualDefinition: return add_mutual(d, check, red_fn);
     case declaration_kind::Quot:             return add_quot();
-    case declaration_kind::Inductive:        return add_inductive(d);
+    case declaration_kind::Inductive:        return add_inductive(d, red_fn);
     }
     lean_unreachable();
 }

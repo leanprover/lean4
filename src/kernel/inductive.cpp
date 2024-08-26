@@ -122,30 +122,31 @@ optional<recursor_rule> get_rec_rule_for(recursor_val const & rec_val, expr cons
 
 /* Auxiliary class for adding a mutual inductive datatype declaration. */
 class add_inductive_fn {
-    environment            m_env;
-    name_generator         m_ngen;
-    diagnostics *          m_diag;
-    local_ctx              m_lctx;
+    environment              m_env;
+    name_generator           m_ngen;
+    diagnostics *            m_diag;
+    native_reduce_fn const * m_native_reduce_fn;
+    local_ctx                m_lctx;
     names      m_lparams;
-    unsigned               m_nparams;
-    bool                   m_is_unsafe;
-    buffer<inductive_type> m_ind_types;
-    buffer<unsigned>       m_nindices;
-    level                  m_result_level;
+    unsigned                 m_nparams;
+    bool                     m_is_unsafe;
+    buffer<inductive_type>   m_ind_types;
+    buffer<unsigned>         m_nindices;
+    level                    m_result_level;
     /* m_lparams ==> m_levels */
-    levels                 m_levels;
+    levels                   m_levels;
     /* We track whether the resultant universe cannot be zero for any
        universe level instantiation */
-    bool                   m_is_not_zero;
+    bool                     m_is_not_zero;
     /* A free variable for each parameter */
-    buffer<expr>           m_params;
+    buffer<expr>             m_params;
     /* A constant for each inductive type */
-    buffer<expr>           m_ind_cnsts;
+    buffer<expr>             m_ind_cnsts;
 
-    level                  m_elim_level;
-    bool                   m_K_target;
+    level                    m_elim_level;
+    bool                     m_K_target;
 
-    unsigned               m_nnested;
+    unsigned                 m_nnested;
 
     struct rec_info {
         expr         m_C;        /* free variable for "main" motive */
@@ -159,8 +160,8 @@ class add_inductive_fn {
     buffer<rec_info>       m_rec_infos;
 
 public:
-    add_inductive_fn(environment const & env, diagnostics * diag, inductive_decl const & decl, unsigned nnested):
-        m_env(env), m_ngen(*g_ind_fresh), m_diag(diag), m_lparams(decl.get_lparams()), m_is_unsafe(decl.is_unsafe()),
+    add_inductive_fn(environment const & env, diagnostics * diag, native_reduce_fn const * red_fn, inductive_decl const & decl, unsigned nnested):
+        m_env(env), m_ngen(*g_ind_fresh), m_diag(diag), m_native_reduce_fn(red_fn), m_lparams(decl.get_lparams()), m_is_unsafe(decl.is_unsafe()),
         m_nnested(nnested) {
         if (!decl.get_nparams().is_small())
             throw kernel_exception(env, "invalid inductive datatype, number of parameters is too big");
@@ -168,7 +169,7 @@ public:
         to_buffer(decl.get_types(), m_ind_types);
     }
 
-    type_checker tc() { return type_checker(m_env, m_lctx, m_diag, m_is_unsafe ? definition_safety::unsafe : definition_safety::safe); }
+    type_checker tc() { return type_checker(m_env, m_lctx, m_native_reduce_fn, m_diag, m_is_unsafe ? definition_safety::unsafe : definition_safety::safe); }
 
     /** Return type of the parameter at position `i` */
     expr get_param_type(unsigned i) const {
@@ -1110,11 +1111,11 @@ static pair<names, name_map<name>> mk_aux_rec_name_map(environment const & aux_e
     return mk_pair(names(old_rec_names), rec_map);
 }
 
-environment environment::add_inductive(declaration const & d) const {
+environment environment::add_inductive(declaration const & d, native_reduce_fn const * red_fn) const {
     elim_nested_inductive_result res = elim_nested_inductive_fn(*this, d)();
     unsigned nnested = res.m_aux2nested.size();
     scoped_diagnostics diag(*this, true);
-    environment aux_env = add_inductive_fn(*this, diag.get(), inductive_decl(res.m_aux_decl), nnested)();
+    environment aux_env = add_inductive_fn(*this, diag.get(), red_fn, inductive_decl(res.m_aux_decl), nnested)();
     if (!nnested) {
         /* `d` did not contain nested inductive types. */
         return diag.update(aux_env);

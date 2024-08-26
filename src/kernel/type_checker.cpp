@@ -41,10 +41,6 @@ static expr * g_nat_xor      = nullptr;
 static expr * g_nat_shiftLeft  = nullptr;
 static expr * g_nat_shiftRight = nullptr;
 
-LEAN_THREAD_VALUE(native_reduce_fn *, g_native_reduce_fn, nullptr);
-scope_native_reduce_fn::scope_native_reduce_fn(native_reduce_fn * fn):
-  flet<native_reduce_fn *>(g_native_reduce_fn, fn) {}
-
 type_checker::state::state(environment const & env):
     m_env(env), m_ngen(*g_kernel_fresh) {}
 
@@ -555,25 +551,25 @@ static expr * g_lean_reduce_nat  = nullptr;
 expr mk_bool_true();
 expr mk_bool_false();
 
-optional<expr> reduce_native(environment const & env, expr const & e) {
-    if (!g_native_reduce_fn) return none_expr();
+optional<expr> type_checker::reduce_native(expr const & e) {
+    if (!m_native_reduce_fn) return none_expr();
     if (!is_app(e)) return none_expr();
     expr const & arg = app_arg(e);
     if (!is_constant(arg)) return none_expr();
     if (app_fn(e) == *g_lean_reduce_bool) {
-        object * r = (*g_native_reduce_fn)(const_name(arg));
+        object * r = (*m_native_reduce_fn)(const_name(arg));
         if (!lean_is_scalar(r)) {
             lean_dec_ref(r);
-            throw kernel_exception(env, "type checker failure, unexpected result value for 'Lean.reduceBool'");
+            throw kernel_exception(env(), "type checker failure, unexpected result value for 'Lean.reduceBool'");
         }
         return lean_unbox(r) == 0 ? some_expr(mk_bool_false()) : some_expr(mk_bool_true());
     }
     if (app_fn(e) == *g_lean_reduce_nat) {
-        object * r = (*g_native_reduce_fn)(const_name(arg));
+        object * r = (*m_native_reduce_fn)(const_name(arg));
         if (lean_is_scalar(r) || lean_is_mpz(r)) {
             return some_expr(mk_lit(literal(nat(r))));
         } else {
-            throw kernel_exception(env, "type checker failure, unexpected result value for 'Lean.reduceNat'");
+            throw kernel_exception(env(), "type checker failure, unexpected result value for 'Lean.reduceNat'");
         }
     }
     return none_expr();
@@ -677,7 +673,7 @@ expr type_checker::whnf(expr const & e) {
     expr t = e;
     while (true) {
         expr t1 = whnf_core(t);
-        if (auto v = reduce_native(env(), t1)) {
+        if (auto v = reduce_native(t1)) {
             m_st->m_whnf.insert(mk_pair(e, *v));
             return *v;
         } else if (auto v = reduce_nat(t1)) {
@@ -995,9 +991,9 @@ lbool type_checker::lazy_delta_reduction(expr & t_n, expr & s_n) {
             }
         }
 
-        if (auto t_v = reduce_native(env(), t_n)) {
+        if (auto t_v = reduce_native(t_n)) {
             return to_lbool(is_def_eq_core(*t_v, s_n));
-        } else if (auto s_v = reduce_native(env(), s_n)) {
+        } else if (auto s_v = reduce_native(s_n)) {
             return to_lbool(is_def_eq_core(t_n, *s_v));
         }
 
@@ -1170,18 +1166,19 @@ expr type_checker::eta_expand(expr const & e) {
     return m_lctx.mk_lambda(fvars, r);
 }
 
-type_checker::type_checker(environment const & env, local_ctx const & lctx, diagnostics * diag, definition_safety ds):
-    m_st_owner(true), m_st(new state(env)), m_diag(diag),
+type_checker::type_checker(environment const & env, local_ctx const & lctx, native_reduce_fn const * native_reduce_fn, diagnostics * diag, definition_safety ds):
+    m_st_owner(true), m_st(new state(env)), m_diag(diag), m_native_reduce_fn(native_reduce_fn),
     m_lctx(lctx), m_definition_safety(ds), m_lparams(nullptr) {
 }
 
 type_checker::type_checker(state & st, local_ctx const & lctx, definition_safety ds):
-    m_st_owner(false), m_st(&st), m_diag(nullptr), m_lctx(lctx),
+    m_st_owner(false), m_st(&st), m_diag(nullptr), m_native_reduce_fn(nullptr), m_lctx(lctx),
     m_definition_safety(ds), m_lparams(nullptr) {
 }
 
 type_checker::type_checker(type_checker && src):
-    m_st_owner(src.m_st_owner), m_st(src.m_st), m_diag(src.m_diag), m_lctx(std::move(src.m_lctx)),
+    m_st_owner(src.m_st_owner), m_st(src.m_st), m_diag(src.m_diag),
+    m_native_reduce_fn(src.m_native_reduce_fn), m_lctx(std::move(src.m_lctx)),
     m_definition_safety(src.m_definition_safety), m_lparams(src.m_lparams) {
     src.m_st_owner = false;
 }

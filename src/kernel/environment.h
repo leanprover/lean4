@@ -24,6 +24,9 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
+/** \brief Type of native reduction function: maps declaration names to runtime object evaluations. */
+typedef std::function<object *(name const &)> native_reduce_fn;
+
 /* Wrapper for `Kernel.Diagnostics` */
 class diagnostics : public object_ref {
 public:
@@ -63,13 +66,13 @@ class LEAN_EXPORT environment : public object_ref {
     void add_core(constant_info const & info);
     void mark_quot_initialized();
     environment add(constant_info const & info) const;
-    environment add_axiom(declaration const & d, bool check) const;
-    environment add_definition(declaration const & d, bool check) const;
-    environment add_theorem(declaration const & d, bool check) const;
-    environment add_opaque(declaration const & d, bool check) const;
-    environment add_mutual(declaration const & d, bool check) const;
+    environment add_axiom(declaration const & d, bool check, native_reduce_fn const *) const;
+    environment add_definition(declaration const & d, bool check, native_reduce_fn const *) const;
+    environment add_theorem(declaration const & d, bool check, native_reduce_fn const *) const;
+    environment add_opaque(declaration const & d, bool check, native_reduce_fn const *) const;
+    environment add_mutual(declaration const & d, bool check, native_reduce_fn const *) const;
     environment add_quot() const;
-    environment add_inductive(declaration const & d) const;
+    environment add_inductive(declaration const & d, native_reduce_fn const *) const;
 public:
     environment(environment const & other):object_ref(other) {}
     environment(environment && other):object_ref(other) {}
@@ -92,7 +95,7 @@ public:
     constant_info get(name const & n) const;
 
     /** \brief Extends the current environment with the given declaration */
-    environment add(declaration const & d, bool check = true) const;
+    environment add(declaration const & d, bool check = true, native_reduce_fn const * red_fn = nullptr) const;
 
     /** \brief Apply the function \c f to each constant */
     void for_each_constant(std::function<void(constant_info const & d)> const & f) const;

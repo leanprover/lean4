@@ -21,9 +21,8 @@ native_reduce_fn mk_default_native_reduce_fn(elab_environment const & env) {
 extern "C" obj_res lean_elab_environment_update_base_after_kernel_add(obj_arg env, obj_arg d, obj_arg kenv);
 
 elab_environment elab_environment::add(declaration const & d, bool check) const {
-    native_reduce_fn reduce_fn = mk_default_native_reduce_fn(*this);
-    scope_native_reduce_fn _(&reduce_fn);
-    environment kenv = to_kernel_env().add(d, check);
+    native_reduce_fn red_fn = mk_default_native_reduce_fn(*this);
+    environment kenv = to_kernel_env().add(d, check, &red_fn);
     return elab_environment(lean_elab_environment_update_base_after_kernel_add(this->to_obj_arg(), d.to_obj_arg(), kenv.to_obj_arg()));
 }
 
@@ -54,19 +53,17 @@ void elab_environment::display_stats() const {
 
 extern "C" LEAN_EXPORT lean_object * lean_kernel_is_def_eq(lean_object * obj_env, lean_object * lctx, lean_object * a, lean_object * b) {
     elab_environment env(obj_env);
-    native_reduce_fn reduce_fn = mk_default_native_reduce_fn(env);
-    scope_native_reduce_fn _(&reduce_fn);
+    native_reduce_fn red_fn = mk_default_native_reduce_fn(env);
     return catch_kernel_exceptions<object*>([&]() {
-        return lean_box(type_checker(env.to_kernel_env(), local_ctx(lctx)).is_def_eq(expr(a), expr(b)));
+        return lean_box(type_checker(env.to_kernel_env(), local_ctx(lctx), &red_fn).is_def_eq(expr(a), expr(b)));
     });
 }
 
 extern "C" LEAN_EXPORT lean_object * lean_kernel_whnf(lean_object * obj_env, lean_object * lctx, lean_object * a) {
     elab_environment env(obj_env);
-    native_reduce_fn reduce_fn = mk_default_native_reduce_fn(env);
-    scope_native_reduce_fn _(&reduce_fn);
+    native_reduce_fn red_fn = mk_default_native_reduce_fn(env);
     return catch_kernel_exceptions<object*>([&]() {
-        return type_checker(env.to_kernel_env(), local_ctx(lctx)).whnf(expr(a)).steal();
+        return type_checker(env.to_kernel_env(), local_ctx(lctx), &red_fn).whnf(expr(a)).steal();
     });
 }
 

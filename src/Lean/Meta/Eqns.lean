@@ -17,6 +17,15 @@ register_builtin_option eqns.nonrecursive : Bool := {
     descr    := "Create fine-grained equational lemmas even for non-recursive definitions."
   }
 
+register_builtin_option eqns.deepRecursiveSplit : Bool := {
+    defValue := true
+    descr    := "Create equational lemmas for recursive functions like for non-recursive \
+                functions. If disabled, match statements in recursive function definitions \
+                that do not contain recursive calls do not cause further splits in the \
+                equational lemmas. This was the behavior before Lean 4.12, and the purpose of \
+                this option is to help migrating old code."
+  }
+
 
 /--
 These options affect the generation of equational theorems in a significant way. For these, their
@@ -26,7 +35,7 @@ This is implemented by
  * eagerly realizing the equations when they are set to a non-default vaule
  * when realizing them lazily, reset the options to their default
 -/
-def eqnAffectingOptions : Array (Lean.Option Bool) := #[eqns.nonrecursive]
+def eqnAffectingOptions : Array (Lean.Option Bool) := #[eqns.nonrecursive, eqns.deepRecursiveSplit]
 
 /--
 Environment extension for storing which declarations are recursive.

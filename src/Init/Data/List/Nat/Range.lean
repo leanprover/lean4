@@ -68,6 +68,9 @@ theorem mem_range' : ∀{n}, m ∈ range' s n step ↔ ∃ i < n, m = s + step *
 theorem head?_range' (n : Nat) : (range' s n).head? = if n = 0 then none else some s := by
   induction n <;> simp_all [range'_succ, head?_append]
 
+@[simp] theorem head_range' (n : Nat) (h) : (range' s n).head h = s := by
+  repeat simp_all [head?_range']
+
 theorem getLast?_range' (n : Nat) : (range' s n).getLast? = if n = 0 then none else some (s + n - 1) := by
   induction n generalizing s with
   | zero => simp
@@ -79,6 +82,11 @@ theorem getLast?_range' (n : Nat) : (range' s n).getLast? = if n = 0 then none e
     · rw [if_neg h]
       simp
       omega
+
+@[simp] theorem getLast_range' (n : Nat) (h) : (range' s n).getLast h = s + n - 1 := by
+  cases n with
+  | zero => simp at h
+  | succ n => simp [getLast?_range']
 
 theorem pairwise_lt_range' s n (step := 1) (pos : 0 < step := by simp) :
     Pairwise (· < ·) (range' s n step) :=
@@ -294,6 +302,23 @@ theorem head?_range (n : Nat) : (range n).head? = if n = 0 then none else some 0
     simp only [range_succ, head?_append, ih]
     split <;> simp_all
 
+@[simp] theorem head_range (n : Nat) (h) : (range n).head h = 0 := by
+  cases n with
+  | zero => simp at h
+  | succ n => simp [head?_range]
+
+theorem getLast?_range (n : Nat) : (range n).getLast? = if n = 0 then none else some (n - 1) := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    simp only [range_succ, getLast?_append, ih]
+    split <;> simp_all
+
+@[simp] theorem getLast_range (n : Nat) (h) : (range n).getLast h = n - 1 := by
+  cases n with
+  | zero => simp at h
+  | succ n => simp [getLast?_range]
+
 theorem take_range (m n : Nat) : take m (range n) = range (min m n) := by
   apply List.ext_getElem
   · simp
@@ -386,6 +411,10 @@ theorem nodup_iota (n : Nat) : Nodup (iota n) :=
   rw [getLast?_eq_head?_reverse]
   simp [head?_range']
 
+@[simp] theorem getLast_iota (n : Nat) (h) : (iota n).getLast h = 1 := by
+  rw [getLast_eq_head_reverse]
+  simp
+
 @[simp] theorem find?_iota_eq_none (n : Nat) (p : Nat → Bool) :
     (iota n).find? p = none ↔ ∀ i, 0 < i → i ≤ n → !p i := by
   rw [find?_eq_none]
@@ -433,6 +462,15 @@ theorem nodup_iota (n : Nat) : Nodup (iota n) :=
 @[simp]
 theorem enumFrom_singleton (x : α) (n : Nat) : enumFrom n [x] = [(n, x)] :=
   rfl
+
+@[simp] theorem head?_enumFrom (n : Nat) (l : List α) :
+    (enumFrom n l).head? = l.head?.map fun a => (n, a) := by
+  simp [head?_eq_getElem?]
+
+@[simp] theorem getLast?_enumFrom (n : Nat) (l : List α) :
+    (enumFrom n l).getLast? = l.getLast?.map fun a => (n + l.length - 1, a) := by
+  simp [getLast?_eq_getElem?]
+  cases l <;> simp; omega
 
 theorem mk_add_mem_enumFrom_iff_getElem? {n i : Nat} {x : α} {l : List α} :
     (n + i, x) ∈ enumFrom n l ↔ l[i]? = some x := by
@@ -545,6 +583,14 @@ theorem getElem?_enum (l : List α) (n : Nat) : (enum l)[n]? = l[n]?.map fun a =
 theorem getElem_enum (l : List α) (i : Nat) (h : i < l.enum.length) :
     l.enum[i] = (i, l[i]'(by simpa [enum_length] using h)) := by
   simp [enum]
+
+@[simp] theorem head?_enum (l : List α) :
+    l.enum.head? = l.head?.map fun a => (0, a) := by
+  simp [head?_eq_getElem?]
+
+@[simp] theorem getLast?_enum (l : List α) :
+    l.enum.getLast? = l.getLast?.map fun a => (l.length - 1, a) := by
+  simp [getLast?_eq_getElem?]
 
 theorem mk_mem_enum_iff_getElem? {i : Nat} {x : α} {l : List α} : (i, x) ∈ enum l ↔ l[i]? = x := by
   simp [enum, mk_mem_enumFrom_iff_le_and_getElem?_sub]

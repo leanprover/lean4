@@ -136,19 +136,6 @@ theorem pmap_ne_nil {P : α → Prop} (f : (a : α) → P a → β) (xs : List �
 theorem attach_eq_nil (l : List α) : l.attach = [] ↔ l = [] :=
   pmap_eq_nil
 
-theorem getLast_pmap (p : α → Prop) (f : ∀ a, p a → β) (l : List α)
-    (hl₁ : ∀ a ∈ l, p a) (hl₂ : l ≠ []) :
-    (l.pmap f hl₁).getLast (mt List.pmap_eq_nil.1 hl₂) =
-      f (l.getLast hl₂) (hl₁ _ (List.getLast_mem hl₂)) := by
-  induction l with
-  | nil => apply (hl₂ rfl).elim
-  | cons l_hd l_tl l_ih =>
-    by_cases hl_tl : l_tl = []
-    · simp [hl_tl]
-    · simp only [pmap]
-      rw [getLast_cons, l_ih _ hl_tl]
-      simp only [getLast_cons hl_tl]
-
 theorem getElem?_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h : ∀ a ∈ l, p a) (n : Nat) :
     (pmap f l h)[n]? = Option.pmap f l[n]? fun x H => h x (getElem?_mem H) := by
   induction l generalizing n with
@@ -251,11 +238,35 @@ theorem reverse_attach (xs : List α) : xs.attach.reverse = xs.reverse.attach.ma
   intros
   rfl
 
+
+theorem getLast?_attach {xs : List α} :
+    xs.attach.getLast? = match h : xs.getLast? with | none => none | some a => some ⟨a, mem_of_getLast?_eq_some h⟩ := by
+  rw [getLast?_eq_head?_reverse, reverse_attach, head?_map]
+  split <;> rename_i h
+  · simp only [getLast?_eq_none_iff] at h
+    subst h
+    simp
+  · obtain ⟨ys, rfl⟩ := getLast?_eq_some_iff.mp h
+    simp
+
 @[simp] theorem getLast?_pmap {P : α → Prop} (f : (a : α) → P a → β) (xs : List α)
     (H : ∀ (a : α), a ∈ xs → P a) : (xs.pmap f H).getLast? = xs.attach.getLast?.map fun ⟨a, m⟩ => f a (H a m) := by
   simp only [getLast?_eq_head?_reverse]
   rw [reverse_pmap, reverse_attach, head?_map, pmap_eq_map_attach, head?_map]
   simp only [Option.map_map]
   congr
+
+@[simp] theorem getLast_pmap {P : α → Prop} (f : (a : α) → P a → β) (xs : List α)
+    (H : ∀ (a : α), a ∈ xs → P a) (h : xs.pmap f H ≠ []) :
+    (xs.pmap f H).getLast h = f (xs.getLast (by simpa using h)) (H _ (getLast_mem _)) := by
+  simp only [getLast_eq_iff_getLast_eq_some, getLast?_pmap, Option.map_eq_some', Subtype.exists]
+  refine ⟨xs.getLast (by simpa using h), by simp, ?_⟩
+  simp only [getLast?_attach, and_true]
+  split <;> rename_i h'
+  · simp only [getLast?_eq_none_iff] at h'
+    subst h'
+    simp at h
+  · symm
+    simpa
 
 end List

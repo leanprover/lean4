@@ -8,7 +8,7 @@ example : α := x
 /--
 error: unknown identifier 'x'
 ---
-error: ❌ Docstring on `#guard_msgs` does not match generated message:
+error: ❌️ Docstring on `#guard_msgs` does not match generated message:
 
 error: unknown identifier 'x'
 -/
@@ -62,7 +62,7 @@ example : α := 22
 info: foo ⏎
 bar
 ---
-error: ❌ Docstring on `#guard_msgs` does not match generated message:
+error: ❌️ Docstring on `#guard_msgs` does not match generated message:
 
 info: foo ⏎
 bar
@@ -83,7 +83,7 @@ run_meta Lean.logInfo "foo \nbar"
 info: foo ⏎⏎
 bar
 ---
-error: ❌ Docstring on `#guard_msgs` does not match generated message:
+error: ❌️ Docstring on `#guard_msgs` does not match generated message:
 
 info: foo ⏎⏎
 bar
@@ -170,7 +170,7 @@ info: ABCDEFG
 HIJKLMNOP
 QRSTUVWXYZ
 ---
-error: ❌ Docstring on `#guard_msgs` does not match generated message:
+error: ❌️ Docstring on `#guard_msgs` does not match generated message:
 
 -
 + info: ABCDEFG
@@ -187,7 +187,7 @@ info: ABCDEFG
 HIJKLMNOP
 QRSTUVWXYZ
 ---
-error: ❌ Docstring on `#guard_msgs` does not match generated message:
+error: ❌️ Docstring on `#guard_msgs` does not match generated message:
 
   info: ABCDEFG
 + HIJKLMNOP
@@ -237,7 +237,7 @@ info: Tree.branch
     4
     (Tree.branch (Tree.branch (Tree.leaf 0) 1 (Tree.leaf 0)) 2 (Tree.branch (Tree.leaf 0) 1 (Tree.leaf 0))))
 ---
-error: ❌ Docstring on `#guard_msgs` does not match generated message:
+error: ❌️ Docstring on `#guard_msgs` does not match generated message:
 
   info: Tree.branch
     (Tree.branch

@@ -123,7 +123,7 @@ theorem ne_zero_implies_bit_true {x : Nat} (xnz : x ≠ 0) : ∃ i, testBit x i 
     match mod_two_eq_zero_or_one x with
     | Or.inl mod2_eq =>
       rw [←div_add_mod x 2] at xnz
-      simp [mod2_eq, ne_eq, Nat.mul_eq_zero, Nat.add_zero, false_or] at xnz
+      simp only [mod2_eq, ne_eq, Nat.mul_eq_zero, Nat.add_zero, false_or, reduceCtorEq] at xnz
       have ⟨d, dif⟩   := hyp x_pos xnz
       apply Exists.intro (d+1)
       simp_all

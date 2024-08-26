@@ -47,11 +47,11 @@ theorem length_eq_countP_add_countP (l) : length l = countP p l + countP (fun a 
     if h : p x then
       rw [countP_cons_of_pos _ _ h, countP_cons_of_neg _ _ _, length, ih]
       · rw [Nat.add_assoc, Nat.add_comm _ 1, Nat.add_assoc]
-      · simp [h, not_true_eq_false, decide_False, not_false_eq_true]
+      · simp [h]
     else
       rw [countP_cons_of_pos (fun a => ¬p a) _ _, countP_cons_of_neg _ _ h, length, ih]
       · rfl
-      · simp [h, not_false_eq_true, decide_True]
+      · simp [h]
 
 theorem countP_eq_length_filter (l) : countP p l = length (filter p l) := by
   induction l with
@@ -234,7 +234,7 @@ theorem count_erase (a b : α) :
       rw [if_pos hc_beq, hc, count_cons, Nat.add_sub_cancel]
     else
       have hc_beq := beq_false_of_ne hc
-      simp [hc_beq, if_false, count_cons, count_cons, count_erase a b l]
+      simp only [hc_beq, if_false, count_cons, count_cons, count_erase a b l, reduceCtorEq]
       if ha : b = a then
         rw [ha, eq_comm] at hc
         rw [if_pos ((beq_iff_eq _ _).2 ha), if_neg (by simpa using Ne.symm hc), Nat.add_zero, Nat.add_zero]

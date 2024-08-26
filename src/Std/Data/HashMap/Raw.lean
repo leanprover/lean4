@@ -108,7 +108,7 @@ Tries to retrieve the mapping for the given key, returning `none` if no such map
   m.inner.contains a
 
 instance [BEq α] [Hashable α] : Membership α (Raw α β) where
-  mem a m := a ∈ m.inner
+  mem m a := a ∈ m.inner
 
 instance [BEq α] [Hashable α] {m : Raw α β} {a : α} : Decidable (a ∈ m) :=
   inferInstanceAs (Decidable (a ∈ m.inner))

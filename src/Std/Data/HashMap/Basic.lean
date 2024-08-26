@@ -121,7 +121,7 @@ def find? (m : HashMap α β) (a : α) : Option β :=
   m.inner.contains a
 
 instance [BEq α] [Hashable α] : Membership α (HashMap α β) where
-  mem a m := a ∈ m.inner
+  mem m a := a ∈ m.inner
 
 instance [BEq α] [Hashable α] {m : HashMap α β} {a : α} : Decidable (a ∈ m) :=
   inferInstanceAs (Decidable (a ∈ m.inner))

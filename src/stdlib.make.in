@@ -106,7 +106,6 @@ ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}: 
 	@echo "[    ] Building $@"
 	"${CMAKE_BINARY_DIR}/leanc.sh" -shared -o $@ \
 	  ${LAKESHARED_LINKER_FLAGS} -lleanshared ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}
-endif
 
 libLake_shared: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}
 

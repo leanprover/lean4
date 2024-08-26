@@ -154,9 +154,9 @@ theorem readyForRupAdd_ofArray {n : Nat} (arr : Array (Option (DefaultClause n))
               exact cOpt_in_arr
             · next b_eq_false =>
               simp only [Bool.not_eq_true] at b_eq_false
-              simp [hasAssignment, b_eq_false, ite_false, hasNeg_addPos] at h
+              simp only [hasAssignment, b_eq_false, ite_false, hasNeg_addPos, reduceCtorEq] at h
               specialize ih l false
-              simp [hasAssignment, ite_false] at ih
+              simp only [hasAssignment, ite_false] at ih
               rw [b_eq_false, Subtype.ext i_eq_l]
               exact ih h
           · next i_ne_l =>
@@ -302,8 +302,8 @@ theorem readyForRupAdd_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClaus
             · next b_eq_false =>
               simp only [Bool.not_eq_true] at b_eq_false
               exact b_eq_false
-          simp [hasAssignment, b_eq_false, l_eq_i, Array.getElem_modify_self i_in_bounds, ite_false, hasNeg_addPos] at hb
-          simp [hasAssignment, b_eq_false, ite_false, hb]
+          simp only [hasAssignment, b_eq_false, l_eq_i, Array.getElem_modify_self i_in_bounds, ite_false, hasNeg_addPos, reduceCtorEq] at hb
+          simp only [hasAssignment, b_eq_false, ite_false, hb, reduceCtorEq]
         · next l_ne_i =>
           simp only [Array.getElem_modify_of_ne i_in_bounds _ l_ne_i] at hb
           exact hb

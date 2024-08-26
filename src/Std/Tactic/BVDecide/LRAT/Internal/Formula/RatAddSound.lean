@@ -405,8 +405,8 @@ theorem assignmentsInvariant_performRupCheck_of_assignmentsInvariant {n : Nat} (
     rw [hb] at h
     by_cases pi : p i
     · exact pi
-    · simp at pi
-      simp [pi, decide_True, h] at h1
+    · simp only at pi
+      simp [pi, h] at h1
   · simp only [Bool.not_eq_true] at hb
     rw [hb]
     rw [hb] at h

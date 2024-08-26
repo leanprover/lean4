@@ -6,8 +6,8 @@ mutual
     | n, false => n + g n
   termination_by n b => (n, if b then 2 else 1)
   decreasing_by
-  · apply Prod.Lex.right; simp -- decide TODO: add `reduceCtorEq` at `clean_wf` after update-stage0
-  · apply Prod.Lex.right; simp -- decide
+  · apply Prod.Lex.right; decide
+  · apply Prod.Lex.right; decide
 
   def g (n : Nat) : Nat :=
     if h : n ≠ 0 then

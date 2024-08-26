@@ -666,7 +666,7 @@ theorem confirmRupHint_preserves_motive {n : Nat} (f : DefaultFormula n) (rupHin
         simp only [ConfirmRupHintFoldEntailsMotive]
         split
         · simp [h1, hsize]
-        · simp [Array.size_modify, hsize]
+        · simp only [Array.size_modify, hsize, Bool.false_eq_true, false_implies, and_true, true_and]
           intro p pf
           have pacc := h1 p pf
           have pc : p ⊨ c := by

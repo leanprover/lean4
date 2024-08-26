@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Ext
-// Imports: Init.Ext Lean.Elab.DeclarationRange Lean.Elab.Tactic.RCases Lean.Elab.Tactic.Repeat Lean.Elab.Tactic.BuiltinTactic Lean.Elab.Command Lean.Linter.Util
+// Imports: Init.Ext Lean.Elab.DeclarationRange Lean.Elab.Tactic.RCases Lean.Elab.Tactic.Repeat Lean.Elab.Tactic.BuiltinTactic Lean.Elab.Command Lean.Linter.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20401,7 +20401,7 @@ lean_object* initialize_Lean_Elab_Tactic_RCases(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Repeat(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_BuiltinTactic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Command(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Linter_Util(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Linter_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Ext(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -20425,7 +20425,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_Command(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Linter_Util(builtin, lean_io_mk_world());
+res = initialize_Lean_Linter_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_Tactic_Ext_withExtHyps___rarg___lambda__2___closed__1 = _init_l_Lean_Elab_Tactic_Ext_withExtHyps___rarg___lambda__2___closed__1();

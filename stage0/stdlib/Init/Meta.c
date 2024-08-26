@@ -7568,7 +7568,6 @@ return x_3;
 case 1:
 {
 uint8_t x_4; 
-lean_dec(x_1);
 x_4 = !lean_is_exclusive(x_2);
 if (x_4 == 0)
 {
@@ -7578,8 +7577,7 @@ x_6 = lean_ctor_get(x_2, 1);
 x_7 = lean_ctor_get(x_2, 2);
 x_8 = lean_array_get_size(x_7);
 x_9 = l_Lean_instInhabitedSyntax;
-lean_inc(x_5);
-x_10 = l___private_Init_Meta_0__Lean_Syntax_updateLast___at_Lean_Syntax_setTailInfoAux___spec__1(x_5, x_9, x_7, x_8);
+x_10 = l___private_Init_Meta_0__Lean_Syntax_updateLast___at_Lean_Syntax_setTailInfoAux___spec__1(x_1, x_9, x_7, x_8);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_11; 
@@ -7626,8 +7624,7 @@ lean_inc(x_16);
 lean_dec(x_2);
 x_19 = lean_array_get_size(x_18);
 x_20 = l_Lean_instInhabitedSyntax;
-lean_inc(x_16);
-x_21 = l___private_Init_Meta_0__Lean_Syntax_updateLast___at_Lean_Syntax_setTailInfoAux___spec__1(x_16, x_20, x_18, x_19);
+x_21 = l___private_Init_Meta_0__Lean_Syntax_updateLast___at_Lean_Syntax_setTailInfoAux___spec__1(x_1, x_20, x_18, x_19);
 if (lean_obj_tag(x_21) == 0)
 {
 lean_object* x_22; 

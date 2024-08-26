@@ -95,7 +95,6 @@ lean_object* l_Lean_reportOutOfHeartbeats(lean_object*, lean_object*, lean_objec
 lean_object* l_Lean_FVarId_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Rewrites_evalExact___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instantiateMVars___at_Lean_Elab_Tactic_getMainTarget___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_getBracketedBinderIds___spec__1(size_t, size_t, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkOptionalNode(lean_object*);
@@ -162,6 +161,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Rewrites_evalExact___lambda__1___boxed(lean
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Elab_Rewrites_evalExact___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withMCtx___at_Lean_Elab_Rewrites_evalExact___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_getBracketedBinderIds___spec__2(size_t, size_t, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Replace_0__Lean_Meta_replaceLocalDeclCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_Rewrites_droppedKeys;
@@ -3420,7 +3420,7 @@ size_t x_1; size_t x_2; lean_object* x_3; lean_object* x_4;
 x_1 = 0;
 x_2 = l_Lean_Elab_Rewrites_evalExact___lambda__7___closed__8;
 x_3 = l_Lean_Elab_Rewrites_evalExact___lambda__7___closed__7;
-x_4 = l_Array_mapMUnsafe_map___at_Lean_Elab_Command_getBracketedBinderIds___spec__1(x_2, x_1, x_3);
+x_4 = l_Array_mapMUnsafe_map___at_Lean_Elab_Command_getBracketedBinderIds___spec__2(x_2, x_1, x_3);
 return x_4;
 }
 }
@@ -3538,7 +3538,7 @@ x_60 = lean_ctor_get(x_4, 0);
 lean_inc(x_60);
 lean_dec(x_4);
 x_61 = lean_array_size(x_60);
-x_62 = l_Array_mapMUnsafe_map___at_Lean_Elab_Command_getBracketedBinderIds___spec__1(x_61, x_19, x_60);
+x_62 = l_Array_mapMUnsafe_map___at_Lean_Elab_Command_getBracketedBinderIds___spec__2(x_61, x_19, x_60);
 x_63 = lean_array_get_size(x_62);
 x_64 = lean_unsigned_to_nat(0u);
 x_65 = lean_nat_dec_lt(x_64, x_63);

@@ -38,6 +38,26 @@ theorem exists_of_findSome?_eq_some {l : List α} {f : α → Option β} (w : l.
 @[simp] theorem findSome?_eq_none : findSome? p l = none ↔ ∀ x ∈ l, p x = none := by
   induction l <;> simp [findSome?_cons]; split <;> simp [*]
 
+@[simp] theorem findSome?_isSome_iff (f : α → Option β) (l : List α) :
+    (l.findSome? f).isSome ↔ ∃ x, x ∈ l ∧ (f x).isSome := by
+  induction l with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [findSome?_cons]
+    split <;> simp_all
+
+@[simp] theorem findSome?_guard (l : List α) : findSome? (Option.guard fun x => p x) l = find? p l := by
+  induction l with
+  | nil => simp
+  | cons x xs ih =>
+    simp [guard, findSome?, find?]
+    split <;> rename_i h
+    · simp only [Option.guard_eq_some] at h
+      obtain ⟨rfl, h⟩ := h
+      simp [h]
+    · simp only [Option.guard_eq_none] at h
+      simp [ih, h]
+
 @[simp] theorem map_findSome? (f : α → Option β) (g : β → γ) (l : List α) :
     (l.findSome? f).map g = l.findSome? (Option.map g ∘ f) := by
   induction l <;> simp [findSome?_cons]; split <;> simp [*]

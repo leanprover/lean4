@@ -1,4 +1,4 @@
-Try this: simp only [f]
+Try this: simp only [f, reduceCtorEq]
 [Meta.Tactic.simp.rewrite] unfold f, f (a :: b = []) ==> a :: b = []
 [Meta.Tactic.simp.rewrite] eq_self:1000, False = False ==> True
 Try this: simp only [length, gt_iff_lt]

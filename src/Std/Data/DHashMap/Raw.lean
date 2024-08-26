@@ -142,7 +142,7 @@ Observe that this is different behavior than for lists: for lists, `∈` uses `=
   else false -- will never happen for well-formed inputs
 
 instance [BEq α] [Hashable α] : Membership α (Raw α β) where
-  mem a m := m.contains a
+  mem m a := m.contains a
 
 instance [BEq α] [Hashable α] {m : Raw α β} {a : α} : Decidable (a ∈ m) :=
   inferInstanceAs (Decidable (m.contains a))

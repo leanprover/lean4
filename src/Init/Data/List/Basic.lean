@@ -689,7 +689,7 @@ inductive Mem (a : α) : List α → Prop
   | tail (b : α) {as : List α} : Mem a as → Mem a (b::as)
 
 instance : Membership α (List α) where
-  mem := Mem
+  mem l a := Mem a l
 
 theorem mem_of_elem_eq_true [BEq α] [LawfulBEq α] {a : α} {as : List α} : elem a as = true → a ∈ as := by
   match as with

@@ -303,6 +303,17 @@ theorem toInt_ofNat {n : Nat} (x : Nat) :
 @[simp] theorem ofInt_natCast (w n : Nat) :
   BitVec.ofInt w (n : Int) = BitVec.ofNat w n := rfl
 
+@[simp] theorem ofInt_ofNat (w n : Nat) :
+  BitVec.ofInt w (no_index (OfNat.ofNat n)) = BitVec.ofNat w (OfNat.ofNat n) := rfl
+
+theorem toInt_neg_iff {w : Nat} {x : BitVec w} :
+    BitVec.toInt x < 0 ↔ 2 ^ w ≤ 2 * x.toNat := by
+  simp [toInt_eq_toNat_cond]; omega
+
+theorem toInt_pos_iff {w : Nat} {x : BitVec w} :
+    0 ≤ BitVec.toInt x ↔ 2 * x.toNat < 2 ^ w := by
+  simp [toInt_eq_toNat_cond]; omega
+
 /-! ### zeroExtend and truncate -/
 
 theorem truncate_eq_zeroExtend {v : Nat} {x : BitVec w} :
@@ -983,7 +994,7 @@ theorem signExtend_eq_not_zeroExtend_not_of_msb_false {x : BitVec w} {v : Nat} (
   ext i
   by_cases hv : i < v
   · simp only [signExtend, getLsb, getLsb_zeroExtend, hv, decide_True, Bool.true_and, toNat_ofInt,
-      BitVec.toInt_eq_msb_cond, hmsb, ↓reduceIte]
+      BitVec.toInt_eq_msb_cond, hmsb, ↓reduceIte, reduceCtorEq]
     rw [Int.ofNat_mod_ofNat, Int.toNat_ofNat, Nat.testBit_mod_two_pow]
     simp [BitVec.testBit_toNat]
   · simp only [getLsb_zeroExtend, hv, decide_False, Bool.false_and]

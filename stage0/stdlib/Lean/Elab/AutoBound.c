@@ -248,7 +248,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_43
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("When \"relaxed\" mode is enabled, any atomic nonempty identifier is eligible for auto bound implicit locals (see optin `autoBoundImplicitLocal`.", 142, 142);
+x_1 = lean_mk_string_unchecked("When \"relaxed\" mode is enabled, any atomic nonempty identifier is eligible for auto bound implicit locals (see option `autoImplicit`).", 134, 134);
 return x_1;
 }
 }

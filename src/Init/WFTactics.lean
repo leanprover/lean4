@@ -26,7 +26,7 @@ macro "clean_wf" : tactic =>
   `(tactic| simp
      (config := { unfoldPartialApp := true, zetaDelta := true, failIfUnchanged := false })
      only [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel,
-           WellFoundedRelation.rel, sizeOf_nat])
+           WellFoundedRelation.rel, sizeOf_nat, reduceCtorEq])
 
 /-- Extensible helper tactic for `decreasing_tactic`. This handles the "base case"
 reasoning after applying lexicographic order lemmas.

@@ -270,7 +270,7 @@ environment environment::add(declaration const & d, bool check) const {
 }
 /*
 addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
-  (cancelTk? : @& Option IO.CancelToken) : Except KernelException Environment
+  (cancelTk? : @& Option IO.CancelToken) : Except Kernel.Exception Environment
 */
 extern "C" LEAN_EXPORT object * lean_add_decl(object * env, size_t max_heartbeat, object * decl,
     object * opt_cancel_tk) {

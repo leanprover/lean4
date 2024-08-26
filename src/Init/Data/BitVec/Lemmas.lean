@@ -990,8 +990,9 @@ theorem signExtend_eq_not_zeroExtend_not_of_msb_false {x : BitVec w} {v : Nat} (
     x.signExtend v = x.zeroExtend v := by
   ext i
   by_cases hv : i < v
-  · simp only [signExtend, getLsb, getLsb_zeroExtend, hv, decide_True, Bool.true_and, toNat_ofInt,
-      BitVec.toInt_eq_msb_cond, hmsb, ↓reduceIte]
+  · have : (false = true) = False := by simp
+    simp only [signExtend, getLsb, getLsb_zeroExtend, hv, decide_True, Bool.true_and, toNat_ofInt,
+      BitVec.toInt_eq_msb_cond, hmsb, ↓reduceIte, this]
     rw [Int.ofNat_mod_ofNat, Int.toNat_ofNat, Nat.testBit_mod_two_pow]
     simp [BitVec.testBit_toNat]
   · simp only [getLsb_zeroExtend, hv, decide_False, Bool.false_and]

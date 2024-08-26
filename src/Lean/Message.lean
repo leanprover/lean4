@@ -483,12 +483,7 @@ def toMessageList (msgs : Array MessageData) : MessageData :=
 
 namespace Kernel.Exception
 
-private def mkCtx (_env : Kernel.Environment) (_lctx : LocalContext) (_opts : Options) (msg : MessageData) : MessageData :=
-  -- TODO
-  msg
-  --MessageData.withContext { env := env, mctx := {}, lctx := lctx, opts := opts } msg
-
-def toMessageData (e : Kernel.Exception) (opts : Options) : MessageData :=
+def toMessageData (elabEnv : Lean.Environment) (e : Kernel.Exception) (opts : Options) : MessageData :=
   match e with
   | unknownConstant env constName       => mkCtx env {} opts m!"(kernel) unknown constant '{constName}'"
   | alreadyDeclared env constName       => mkCtx env {} opts m!"(kernel) constant has already been declared '{constName}'"
@@ -515,6 +510,9 @@ def toMessageData (e : Kernel.Exception) (opts : Options) : MessageData :=
   | excessiveMemory                     => "(kernel) excessive memory consumption detected"
   | deepRecursion                       => "(kernel) deep recursion detected"
   | interrupted                         => "(kernel) interrupted"
+where mkCtx (env : Kernel.Environment) (lctx : LocalContext) (opts : Options) (msg : MessageData) : MessageData :=
+  MessageData.withContext { env := elabEnv.setBase env, mctx := {}, lctx := lctx, opts := opts } msg
+
 
 end Kernel.Exception
 end Lean

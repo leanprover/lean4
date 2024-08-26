@@ -147,7 +147,7 @@ def declareBuiltin (forDecl : Name) (value : Expr) : CoreM Unit := do
   match (← getEnv).addAndCompile {} decl with
   -- TODO: pretty print error
   | Except.error e => do
-    let msg ← (e.toMessageData {}).toString
+    let msg ← (e.toMessageData (← getEnv) {}).toString
     throwError "failed to emit registration code for builtin '{forDecl}': {msg}"
   | Except.ok env  => IO.ofExcept (setBuiltinInitAttr env name) >>= setEnv
 

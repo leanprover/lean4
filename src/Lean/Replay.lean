@@ -32,7 +32,7 @@ structure Context where
   newConstants : Std.HashMap Name ConstantInfo
 
 structure State where
-  env : Kernel.Environment
+  env : Environment
   remaining : NameSet := {}
   pending : NameSet := {}
   postponedConstructors : NameSet := {}
@@ -51,7 +51,7 @@ def isTodo (name : Name) : M Bool := do
 
 /-- Use the current `Environment` to throw a `Kernel.Exception`. -/
 def throwKernelException (ex : Kernel.Exception) : M Unit := do
-  throw <| .userError <| (← ex.toMessageData {} |>.toString)
+  throw <| .userError <| (← ex.toMessageData (← get).env {} |>.toString)
 
 /-- Add a declaration, possibly throwing a `Kernel.Exception`. -/
 def addDecl (d : Declaration) : M Unit := do
@@ -153,7 +153,7 @@ open Replay
 Throws a `IO.userError` if the kernel rejects a constant,
 or if there are malformed recursors or constructors for inductive types.
 -/
-def replay (newConstants : Std.HashMap Name ConstantInfo) (env : Kernel.Environment) : IO Kernel.Environment := do
+def replay (newConstants : Std.HashMap Name ConstantInfo) (env : Environment) : IO Environment := do
   let mut remaining : NameSet := ∅
   for (n, ci) in newConstants.toList do
     -- We skip unsafe constants, and also partial constants.

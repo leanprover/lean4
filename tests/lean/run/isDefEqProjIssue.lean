@@ -121,7 +121,7 @@ run_meta do
   withLocalDeclD `x (mkConst ``Nat) fun x => do
     let lhs := Expr.proj ``Foo 0 <| mkApp (mkConst ``f) x
     let rhs := Expr.proj ``Foo 0 <| mkApp (mkConst ``g) x
-    match Kernel.isDefEq (← getEnv) {} lhs rhs with
+    match Kernel.isDefEq (← getEnv).toKernelEnv {} lhs rhs with
     | .ok b => assert! b
     | .error _ => throwError "failed"
 

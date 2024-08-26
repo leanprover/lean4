@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <memory>
 #include <string>
-#include "kernel/environment.h"
+#include "library/elab_environment.h"
 #include "util/options.h"
 #include "util/message_definitions.h"
 
@@ -20,13 +20,13 @@ bool is_trace_class_enabled(name const & n);
 #define lean_is_trace_enabled(CName) (::lean::is_trace_enabled() && ::lean::is_trace_class_enabled(CName))
 
 class scope_trace_env {
-    unsigned                m_enable_sz;
-    unsigned                m_disable_sz;
-    environment const *     m_old_env;
-    options     const *     m_old_opts;
-    void init(environment * env, options * opts);
+    unsigned                 m_enable_sz;
+    unsigned                 m_disable_sz;
+    elab_environment const * m_old_env;
+    options     const *      m_old_opts;
+    void init(elab_environment * env, options * opts);
 public:
-    scope_trace_env(environment const & env, options const & opts);
+    scope_trace_env(elab_environment const & env, options const & opts);
     ~scope_trace_env();
 };
 

@@ -363,6 +363,8 @@ theorem mem_cons_self (a : α) (l : List α) : a ∈ a :: l := .head ..
 theorem mem_concat_self (xs : List α) (a : α) : a ∈ xs ++ [a] :=
   mem_append_of_mem_right xs (mem_cons_self a _)
 
+theorem mem_append_cons_self : a ∈ xs ++ a :: ys := mem_append_of_mem_right _ (mem_cons_self _ _)
+
 theorem mem_cons_of_mem (y : α) {a : α} {l : List α} : a ∈ l → a ∈ y :: l := .tail _
 
 theorem exists_mem_of_ne_nil (l : List α) (h : l ≠ []) : ∃ x, x ∈ l :=
@@ -2213,6 +2215,9 @@ theorem reverseAux_reverseAux_nil (as bs : List α) : reverseAux (reverseAux as 
 
 theorem reverse_eq_iff {as bs : List α} : as.reverse = bs ↔ as = bs.reverse := by
   constructor <;> (rintro rfl; simp)
+
+@[simp] theorem reverse_inj {xs ys : List α} : xs.reverse = ys.reverse ↔ xs = ys := by
+  simp [reverse_eq_iff]
 
 @[simp] theorem reverse_eq_cons {xs : List α} {a : α} {ys : List α} :
     xs.reverse = a :: ys ↔ xs = ys.reverse ++ [a] := by

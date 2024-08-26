@@ -78,7 +78,7 @@ builtin_dsimproc ↓ [simp, seval] dreduceDIte (dite _ _ _) := fun e => do
 
 builtin_simproc [simp, seval] reduceCtorEq (_ = _) := fun e => withReducibleAndInstances do
   let_expr Eq _ lhs rhs ← e | return .continue
-  match (← constructorApp'? lhs), (← constructorApp'? rhs) with
+  match (← constructorApp'? lhs (useWHNF := false)), (← constructorApp'? rhs (useWHNF := false)) with
   | some (c₁, _), some (c₂, _) =>
     if c₁.name != c₂.name then
       withLocalDeclD `h e fun h =>

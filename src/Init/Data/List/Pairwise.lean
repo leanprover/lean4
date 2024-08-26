@@ -123,7 +123,7 @@ theorem pairwise_filterMap (f : β → Option α) {l : List β} :
   match e : f a with
   | none =>
     rw [filterMap_cons_none e, pairwise_cons]
-    simp only [e, false_implies, implies_true, true_and, IH]
+    simp [e, false_implies, implies_true, true_and, IH]
   | some b =>
     rw [filterMap_cons_some e]
     simpa [IH, e] using fun _ =>

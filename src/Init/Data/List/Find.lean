@@ -737,10 +737,10 @@ theorem findIdx?_eq_enum_findSome? {xs : List α} {p : α → Bool} :
   induction xs with
   | nil => simp
   | cons x xs ih =>
-    simp only [findIdx?_cons, Nat.zero_add, findIdx?_succ, enum]
+    simp [findIdx?_cons, Nat.zero_add, findIdx?_succ, enum]
     split
     · simp_all
-    · simp_all only [enumFrom_cons, ite_false, Option.isNone_none, findSome?_cons_of_isNone]
+    · simp_all [enumFrom_cons, ite_false, Option.isNone_none, findSome?_cons_of_isNone]
       simp [Function.comp_def, ← map_fst_add_enum_eq_enumFrom, findSome?_map]
 
 theorem Sublist.findIdx?_isSome {l₁ l₂ : List α} (h : l₁ <+ l₂) :

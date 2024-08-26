@@ -1,7 +1,7 @@
 macroStack.lean:4:5-4:6: error: unknown identifier 'x'
 macroStack.lean:8:6-8:7: error: unknown identifier 'x'
 with resulting expansion
-  binrel% GT.gt✝ x 0
+  binrel% GT.gt✝︎ x 0
 while expanding
   x > 0
 while expanding
@@ -13,14 +13,14 @@ macroStack.lean:17:0-17:6: error: failed to synthesize
   HAdd Nat String ?m
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
 with resulting expansion
-  binop% HAdd.hAdd✝ (x + x✝) x✝¹
+  binop% HAdd.hAdd✝︎ (x + x✝︎) x✝︎¹
 while expanding
-  (x + x✝) + x✝¹
+  (x + x✝︎) + x✝︎¹
 while expanding
-  foo!(x + x✝)
+  foo!(x + x✝︎)
 while expanding
-  foo!(x + x✝) < 1
+  foo!(x + x✝︎) < 1
 while expanding
-  if foo!(x + x✝) < 1 then true✝ else false✝
+  if foo!(x + x✝︎) < 1 then true✝︎ else false✝︎
 while expanding
   bla! x

@@ -3,7 +3,7 @@ notationPrecheck.lean:4:16-4:19: error: no macro or `[quot_precheck]` instance f
   b x
 This means we cannot eagerly check your notation/quotation for unbound identifiers; you can use `set_option quotPrecheck false` to disable this check.
 notationPrecheck.lean:8:7-8:8: error: elaboration function for 'termB_' has not been implemented
-  b x✝
+  b x✝︎
 notationPrecheck.lean:13:27-13:32: error: ambiguous notation with at least one interpretation that failed quotation precheck, possible interpretations 
   («term_∧__1» `x "∧" `y)
   unknown identifier 'y' at quotation precheck; you can use `set_option quotPrecheck false` to disable this check.

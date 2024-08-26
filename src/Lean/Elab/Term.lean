@@ -1547,9 +1547,9 @@ private def useImplicitLambda (stx : Syntax) (expectedType? : Option Expr) : Ter
       example (x) : foo2mk x = foo2mk x := rfl
       ```
       The example about would fail without this special case.
-      The expected type would be `(a : α✝) → a = a`, where `α✝` is a new free variable introduced by the implicit lambda.
-      Now, let `?m` be the type of `x`. Then, the constraint `?m =?= (a : α✝) → a = a` cannot be solved using the
-      assignment `?m := (a : α✝) → a = a` since `α✝` is not in the scope of `?m`.
+      The expected type would be `(a : α✝︎) → a = a`, where `α✝︎` is a new free variable introduced by the implicit lambda.
+      Now, let `?m` be the type of `x`. Then, the constraint `?m =?= (a : α✝︎) → a = a` cannot be solved using the
+      assignment `?m := (a : α✝︎) → a = a` since `α✝︎` is not in the scope of `?m`.
 
       Note that, this workaround does not prevent the following example from failing.
       ```

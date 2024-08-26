@@ -42,18 +42,18 @@ decreasing_by
 Contexts
 
 n: Nat
-x✝: ∀ (y : Nat), (invImage (fun a => sizeOf a) instWellFoundedRelation).1 y (Nat.succ n) → ∃ m, m > y
-t✝: ∃ m, m > n
+x✝︎: ∀ (y : Nat), (invImage (fun a => sizeOf a) instWellFoundedRelation).1 y (Nat.succ n) → ∃ m, m > y
+t✝︎: ∃ m, m > n
 ⊢ (invImage (fun a => sizeOf a) instWellFoundedRelation).1 n (Nat.succ n)
 n: Nat
-x✝: ∀ (y : Nat), (invImage (fun a => sizeOf a) instWellFoundedRelation).1 y (Nat.succ n) → ∃ m, m > y
+x✝︎: ∀ (y : Nat), (invImage (fun a => sizeOf a) instWellFoundedRelation).1 y (Nat.succ n) → ∃ m, m > y
 ⊢ (invImage (fun a => sizeOf a) instWellFoundedRelation).1 n (Nat.succ n)
 n: Nat
-x✝: ∀ (y : Nat), (invImage (fun a => sizeOf a) instWellFoundedRelation).1 y (Nat.succ n) → ∃ m, m > y
-w✝: Nat
-h✝: w✝ > n
+x✝︎: ∀ (y : Nat), (invImage (fun a => sizeOf a) instWellFoundedRelation).1 y (Nat.succ n) → ∃ m, m > y
+w✝︎: Nat
+h✝︎: w✝︎ > n
 ⊢ (invImage (fun a => sizeOf a) instWellFoundedRelation).1 n (Nat.succ n)
 n: Nat
-x✝: ∀ (y : Nat), (invImage (fun a => sizeOf a) instWellFoundedRelation).1 y (Nat.succ n) → ∃ m, m > y
+x✝︎: ∀ (y : Nat), (invImage (fun a => sizeOf a) instWellFoundedRelation).1 y (Nat.succ n) → ∃ m, m > y
 ⊢ (invImage (fun a => sizeOf a) instWellFoundedRelation).1 n (Nat.succ n)
 -/

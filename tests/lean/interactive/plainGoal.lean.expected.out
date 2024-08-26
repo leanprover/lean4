@@ -29,8 +29,8 @@
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 17, "character": 5}}
 {"rendered":
- "```lean\ncase succ\nn✝ : Nat\na✝ : 0 + n✝ = n✝\n⊢ 0 + (n✝ + 1) = n✝ + 1\n```",
- "goals": ["case succ\nn✝ : Nat\na✝ : 0 + n✝ = n✝\n⊢ 0 + (n✝ + 1) = n✝ + 1"]}
+ "```lean\ncase succ\nn✝︎ : Nat\na✝︎ : 0 + n✝︎ = n✝︎\n⊢ 0 + (n✝︎ + 1) = n✝︎ + 1\n```",
+ "goals": ["case succ\nn✝︎ : Nat\na✝︎ : 0 + n✝︎ = n✝︎\n⊢ 0 + (n✝︎ + 1) = n✝︎ + 1"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 21, "character": 9}}
 {"rendered": "```lean\nα : Sort ?u\na : α\n⊢ α\n```",
@@ -61,16 +61,16 @@
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 40, "character": 3}}
 {"rendered":
- "```lean\ncase zero\n⊢ 0 + 0 = 0\n```\n---\n```lean\ncase succ\nn✝ : Nat\na✝ : 0 + n✝ = n✝\n⊢ 0 + (n✝ + 1) = n✝ + 1\n```",
+ "```lean\ncase zero\n⊢ 0 + 0 = 0\n```\n---\n```lean\ncase succ\nn✝︎ : Nat\na✝︎ : 0 + n✝︎ = n✝︎\n⊢ 0 + (n✝︎ + 1) = n✝︎ + 1\n```",
  "goals":
  ["case zero\n⊢ 0 + 0 = 0",
-  "case succ\nn✝ : Nat\na✝ : 0 + n✝ = n✝\n⊢ 0 + (n✝ + 1) = n✝ + 1"]}
+  "case succ\nn✝︎ : Nat\na✝︎ : 0 + n✝︎ = n✝︎\n⊢ 0 + (n✝︎ + 1) = n✝︎ + 1"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 44, "character": 3}}
 {"rendered":
- "```lean\ncase zero\n⊢ 0 + 0 = 0\n```\n---\n```lean\ncase succ\nn✝ : Nat\n⊢ 0 + (n✝ + 1) = n✝ + 1\n```",
+ "```lean\ncase zero\n⊢ 0 + 0 = 0\n```\n---\n```lean\ncase succ\nn✝︎ : Nat\n⊢ 0 + (n✝︎ + 1) = n✝︎ + 1\n```",
  "goals":
- ["case zero\n⊢ 0 + 0 = 0", "case succ\nn✝ : Nat\n⊢ 0 + (n✝ + 1) = n✝ + 1"]}
+ ["case zero\n⊢ 0 + 0 = 0", "case succ\nn✝︎ : Nat\n⊢ 0 + (n✝︎ + 1) = n✝︎ + 1"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 48, "character": 3}}
 {"rendered": "```lean\na b : Nat\n⊢ a = b\n```",
@@ -82,9 +82,9 @@
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 55, "character": 3}}
 {"rendered":
- "```lean\nα : Sort u_1\np : α → Prop\na b : α\ninst✝ : DecidablePred p\nh : ∀ {p : α → Prop} [inst : DecidablePred p], p a → p b\n⊢ p a\n```",
+ "```lean\nα : Sort u_1\np : α → Prop\na b : α\ninst✝︎ : DecidablePred p\nh : ∀ {p : α → Prop} [inst : DecidablePred p], p a → p b\n⊢ p a\n```",
  "goals":
- ["α : Sort u_1\np : α → Prop\na b : α\ninst✝ : DecidablePred p\nh : ∀ {p : α → Prop} [inst : DecidablePred p], p a → p b\n⊢ p a"]}
+ ["α : Sort u_1\np : α → Prop\na b : α\ninst✝︎ : DecidablePred p\nh : ∀ {p : α → Prop} [inst : DecidablePred p], p a → p b\n⊢ p a"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 61, "character": 3}}
 {"rendered": "```lean\ncase left\n⊢ True\n```", "goals": ["case left\n⊢ True"]}
@@ -102,11 +102,11 @@
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 78, "character": 29}}
 {"rendered":
- "```lean\nt a n✝ : Nat\na✝ : t * (a + n✝) = t * a + t * n✝\n⊢ t * (a + n✝) + t = t * a + t * (n✝ + 1)\n```\n---\n```lean\nt a n✝ : Nat\na✝ : t * (a + n✝) = t * a + t * n✝\n⊢ t * (a + n✝) + t = t * a + (t * n✝ + t)\n```\n---\n```lean\nt a n✝ : Nat\na✝ : t * (a + n✝) = t * a + t * n✝\n⊢ t * (a + n✝) + t = t * a + (t * n✝ + t)\n```",
+ "```lean\nt a n✝︎ : Nat\na✝︎ : t * (a + n✝︎) = t * a + t * n✝︎\n⊢ t * (a + n✝︎) + t = t * a + t * (n✝︎ + 1)\n```\n---\n```lean\nt a n✝︎ : Nat\na✝︎ : t * (a + n✝︎) = t * a + t * n✝︎\n⊢ t * (a + n✝︎) + t = t * a + (t * n✝︎ + t)\n```\n---\n```lean\nt a n✝︎ : Nat\na✝︎ : t * (a + n✝︎) = t * a + t * n✝︎\n⊢ t * (a + n✝︎) + t = t * a + (t * n✝︎ + t)\n```",
  "goals":
- ["t a n✝ : Nat\na✝ : t * (a + n✝) = t * a + t * n✝\n⊢ t * (a + n✝) + t = t * a + t * (n✝ + 1)",
-  "t a n✝ : Nat\na✝ : t * (a + n✝) = t * a + t * n✝\n⊢ t * (a + n✝) + t = t * a + (t * n✝ + t)",
-  "t a n✝ : Nat\na✝ : t * (a + n✝) = t * a + t * n✝\n⊢ t * (a + n✝) + t = t * a + (t * n✝ + t)"]}
+ ["t a n✝︎ : Nat\na✝︎ : t * (a + n✝︎) = t * a + t * n✝︎\n⊢ t * (a + n✝︎) + t = t * a + t * (n✝︎ + 1)",
+  "t a n✝︎ : Nat\na✝︎ : t * (a + n✝︎) = t * a + t * n✝︎\n⊢ t * (a + n✝︎) + t = t * a + (t * n✝︎ + t)",
+  "t a n✝︎ : Nat\na✝︎ : t * (a + n✝︎) = t * a + t * n✝︎\n⊢ t * (a + n✝︎) + t = t * a + (t * n✝︎ + t)"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 82, "character": 53}}
 {"rendered":
@@ -170,10 +170,10 @@ null
 {"rendered": "```lean\ncase left\n⊢ True\n```", "goals": ["case left\n⊢ True"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 139, "character": 34}}
-{"rendered": "```lean\nx✝ : Nat\n⊢ True\n```", "goals": ["x✝ : Nat\n⊢ True"]}
+{"rendered": "```lean\nx✝︎ : Nat\n⊢ True\n```", "goals": ["x✝︎ : Nat\n⊢ True"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 142, "character": 34}}
-{"rendered": "```lean\nx✝ : Nat\n⊢ True\n```", "goals": ["x✝ : Nat\n⊢ True"]}
+{"rendered": "```lean\nx✝︎ : Nat\n⊢ True\n```", "goals": ["x✝︎ : Nat\n⊢ True"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 145, "character": 34}}
-{"rendered": "```lean\nx✝ : Nat\n⊢ True\n```", "goals": ["x✝ : Nat\n⊢ True"]}
+{"rendered": "```lean\nx✝︎ : Nat\n⊢ True\n```", "goals": ["x✝︎ : Nat\n⊢ True"]}

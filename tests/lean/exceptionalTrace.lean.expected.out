@@ -4,5 +4,5 @@ use `set_option diagnostics true` to get diagnostic information
 [Elab.step] expected type: <not-available>, term
     rt + 1
   [Elab.step] expected type: <not-available>, term
-      binop% HAdd.hAdd✝ rt 1
+      binop% HAdd.hAdd✝︎ rt 1
     [Elab.step] expected type: <not-available>, term rt

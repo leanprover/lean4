@@ -13,11 +13,11 @@ warning: declaration uses 'sorry'
 ---
 info: a b c : Bool
 p q : Prop
-left✝ : a = true
-right✝ : b = true ∨ c = true
+left✝︎ : a = true
+right✝︎ : b = true ∨ c = true
 left : p
 right : q
-x✝ : b = false ∨ a = false
+x✝︎ : b = false ∨ a = false
 ⊢ False
 -/
 #guard_msgs in
@@ -32,8 +32,8 @@ warning: declaration uses 'sorry'
 ---
 info: a b c : Bool
 p q : Prop
-left✝ : a = true
-h✝ : b = true
+left✝︎ : a = true
+h✝︎ : b = true
 left : p
 right : q
 h : b = false
@@ -41,8 +41,8 @@ h : b = false
 
 a b c : Bool
 p q : Prop
-left✝ : a = true
-h✝ : b = true
+left✝︎ : a = true
+h✝︎ : b = true
 left : p
 right : q
 h : a = false
@@ -50,8 +50,8 @@ h : a = false
 
 a b c : Bool
 p q : Prop
-left✝ : a = true
-h✝ : c = true
+left✝︎ : a = true
+h✝︎ : c = true
 left : p
 right : q
 h : b = false
@@ -59,8 +59,8 @@ h : b = false
 
 a b c : Bool
 p q : Prop
-left✝ : a = true
-h✝ : c = true
+left✝︎ : a = true
+h✝︎ : c = true
 left : p
 right : q
 h : a = false

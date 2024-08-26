@@ -15,7 +15,7 @@ example : U := by
 
 /--
 info: [Meta.Tactic.simp.discharge] bar discharge ✅️
-      autoParam T _auto✝
+      autoParam T _auto✝︎
   [Meta.Tactic.simp.rewrite] T.mk:1000, T ==> True
 [Meta.Tactic.simp.rewrite] bar:1000, U ==> True
 -/

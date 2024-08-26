@@ -81,7 +81,7 @@ Some remarks:
    ``` latex
    \usepackage{newunicodechar}
    \newfontfamily{\freeserif}{DejaVu Sans}
-   \newunicodechar{✝}{\freeserif{✝}}
+   \newunicodechar{✝︎}{\freeserif{✝︎}}
    \newunicodechar{𝓞}{\ensuremath{\mathcal{O}}}
    ```
  - If you are using an old version of Pygments, you can copy 

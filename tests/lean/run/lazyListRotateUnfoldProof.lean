@@ -59,7 +59,7 @@ info: case delayed
 nil : LazyList τ
 R : List τ
 t : Thunk (LazyList τ)
-a✝ : ∀ (h : t.get.length + 1 = R.length), (rotate t.get R nil h).length = t.get.length + R.length
+a✝︎ : ∀ (h : t.get.length + 1 = R.length), (rotate t.get R nil h).length = t.get.length + R.length
 ⊢ ∀ (h : (LazyList.delayed t).length + 1 = R.length),
     (rotate (LazyList.delayed t) R nil h).length = (LazyList.delayed t).length + R.length
 -/

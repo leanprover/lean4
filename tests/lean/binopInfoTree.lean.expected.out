@@ -9,7 +9,7 @@
             3
               -- should propagate through multiple macro expansions
           ===>
-          binop% HAdd.hAdd✝ (1 + 2)
+          binop% HAdd.hAdd✝︎ (1 + 2)
             3
               -- should propagate through multiple macro expansions
           • 1 + 2 + 3 : Nat @ ⟨5, 7⟩†-⟨5, 16⟩† @ Lean.Elab.Term.Op.elabBinOp
@@ -18,10 +18,10 @@
                 • Macro expansion
                   1 + 2
                   ===>
-                  binop% HAdd.hAdd✝ 1 2
+                  binop% HAdd.hAdd✝︎ 1 2
                   • 1 + 2 : Nat @ ⟨5, 7⟩†-⟨5, 12⟩†
-                    • [.] HAdd.hAdd✝ : none @ ⟨5, 7⟩†-⟨5, 16⟩†
-                    • [.] HAdd.hAdd✝ : none @ ⟨5, 7⟩†-⟨5, 12⟩†
+                    • [.] HAdd.hAdd✝︎ : none @ ⟨5, 7⟩†-⟨5, 16⟩†
+                    • [.] HAdd.hAdd✝︎ : none @ ⟨5, 7⟩†-⟨5, 12⟩†
                     • 1 : Nat @ ⟨5, 7⟩-⟨5, 8⟩ @ Lean.Elab.Term.elabNumLit
                     • 2 : Nat @ ⟨5, 11⟩-⟨5, 12⟩ @ Lean.Elab.Term.elabNumLit
               • 3 : Nat @ ⟨5, 15⟩-⟨5, 16⟩ @ Lean.Elab.Term.elabNumLit
@@ -48,10 +48,10 @@ fun n m l => ↑n + (↑m + ↑l) : Nat → Nat → Nat → Int
             • Macro expansion
               n + (m +' l)
               ===>
-              binop% HAdd.hAdd✝ n (m +' l)
+              binop% HAdd.hAdd✝︎ n (m +' l)
               • ↑n + (↑m + ↑l) : Int @ ⟨7, 29⟩†-⟨7, 41⟩† @ Lean.Elab.Term.Op.elabBinOp
                 • ↑n + (↑m + ↑l) : Int @ ⟨7, 29⟩†-⟨7, 41⟩†
-                  • [.] HAdd.hAdd✝ : none @ ⟨7, 29⟩†-⟨7, 41⟩†
+                  • [.] HAdd.hAdd✝︎ : none @ ⟨7, 29⟩†-⟨7, 41⟩†
                   • n : Nat @ ⟨7, 29⟩-⟨7, 30⟩ @ Lean.Elab.Term.elabIdent
                     • [.] n : none @ ⟨7, 29⟩-⟨7, 30⟩
                     • n : Nat @ ⟨7, 29⟩-⟨7, 30⟩
@@ -64,9 +64,9 @@ fun n m l => ↑n + (↑m + ↑l) : Nat → Nat → Nat → Int
                         • Macro expansion
                           m + l
                           ===>
-                          binop% HAdd.hAdd✝ m l
+                          binop% HAdd.hAdd✝︎ m l
                           • ↑m + ↑l : Int @ ⟨7, 34⟩†-⟨7, 40⟩†
-                            • [.] HAdd.hAdd✝ : none @ ⟨7, 34⟩†-⟨7, 40⟩†
+                            • [.] HAdd.hAdd✝︎ : none @ ⟨7, 34⟩†-⟨7, 40⟩†
                             • m : Nat @ ⟨7, 34⟩-⟨7, 35⟩ @ Lean.Elab.Term.elabIdent
                               • [.] m : none @ ⟨7, 34⟩-⟨7, 35⟩
                               • m : Nat @ ⟨7, 34⟩-⟨7, 35⟩

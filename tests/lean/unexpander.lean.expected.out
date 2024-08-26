@@ -1,4 +1,4 @@
 def ns.foo : Foo :=
-unexpand✝
+unexpand✝︎
 def ns.bar : Foo :=
-unexpand✝
+unexpand✝︎

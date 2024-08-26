@@ -9,11 +9,11 @@ set_option pp.explicit true
 
 /--
 info: filter.eq_2.{u_1} {α : Type u_1} (p : α → Prop) [@DecidablePred α p] (x : α) (xs' : List α) :
-  @Eq (List α) (@filter α p inst✝ (@List.cons α x xs'))
-    (@ite (List α) (p x) (inst✝ x) (@List.cons α x (@filter α p inst✝ xs')) (@filter α p inst✝ xs'))
+  @Eq (List α) (@filter α p inst✝︎ (@List.cons α x xs'))
+    (@ite (List α) (p x) (inst✝︎ x) (@List.cons α x (@filter α p inst✝︎ xs')) (@filter α p inst✝︎ xs'))
 -/
 #guard_msgs in
-#check filter.eq_2 -- We should not have terms of the form `@filter α p (fun x => inst✝ x) xs'`
+#check filter.eq_2 -- We should not have terms of the form `@filter α p (fun x => inst✝︎ x) xs'`
 
 
 def filter_length (p : α → Prop) [DecidablePred p] : (filter p xs).length ≤ xs.length := by

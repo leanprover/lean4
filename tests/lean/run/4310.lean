@@ -6,7 +6,7 @@ mutual
 end
 
 /--
-error: invalid mutually inductive types, parameter name mismatch 'x', expected 'inst✝'
+error: invalid mutually inductive types, parameter name mismatch 'x', expected 'inst✝︎'
 -/
 #guard_msgs in
 mutual
@@ -31,11 +31,11 @@ macro "gen_mutual" : command =>
    end)
 
 /--
-error: unknown universe level 'u✝'
+error: unknown universe level 'u✝︎'
 ---
-error: unknown universe level 'u✝'
+error: unknown universe level 'u✝︎'
 ---
-error: invalid mutually inductive types, parameter name mismatch 'β✝', expected 'α✝'
+error: invalid mutually inductive types, parameter name mismatch 'β✝︎', expected 'α✝︎'
 -/
 #guard_msgs in
 gen_mutual

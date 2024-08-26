@@ -39,4 +39,4 @@ example : x ≤ z := by
   assumption
 
 example : x ≤ y → y ≤ z → x ≤ z :=
-  λ h h' => _ -- goal view has the unfolded `x✝ ∈ x → x✝ ∈ z` instead of `x ≤ y`
+  λ h h' => _ -- goal view has the unfolded `x✝︎ ∈ x → x✝︎ ∈ z` instead of `x ≤ y`

@@ -94,8 +94,8 @@ variable (α : Type) [C α]
 error: tactic 'fail' failed
 P : Nat → Prop
 α : Type
-inst✝ : C α
-⊢ P inst✝.1
+inst✝︎ : C α
+⊢ P inst✝︎.1
 -/
 #guard_msgs in
 example : P (C.meth α) := by rw [C.meth]; fail
@@ -104,8 +104,8 @@ example : P (C.meth α) := by rw [C.meth]; fail
 error: tactic 'fail' failed
 P : Nat → Prop
 α : Type
-inst✝ : C α
-⊢ P inst✝.1
+inst✝︎ : C α
+⊢ P inst✝︎.1
 -/
 #guard_msgs in
 example : P (C.meth α) := by unfold C.meth; fail

@@ -128,7 +128,7 @@ example {n : Type} {T : n} : T = T := Foo.induction n
 
 /--
 error: failed to elaborate eliminator, motive is not type correct:
-  fun x => T✝ = T✝
+  fun x => T✝︎ = T✝︎
 -/
 #guard_msgs in
 example {n : Type} : {T : n} → T = T := Foo.induction n

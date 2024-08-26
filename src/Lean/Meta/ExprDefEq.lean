@@ -1953,11 +1953,11 @@ where
       The example at issue #2011, the following weird
       instance was being generated for `Zero (f x)`
       ```
-      (@Zero.mk (f x✝) ((@instZero I (fun i => f i) fun i => inst✝¹ i).1 x✝)
+      (@Zero.mk (f x✝︎) ((@instZero I (fun i => f i) fun i => inst✝︎¹ i).1 x✝︎)
       ```
-      where `inst✝¹` is the local instance `[∀ i, Zero (f i)]`
+      where `inst✝︎¹` is the local instance `[∀ i, Zero (f i)]`
       Note that this instance is definitionally equal to the expected nicer
-      instance `inst✝¹ x✝`.
+      instance `inst✝︎¹ x✝︎`.
       However, the nasty instance trigger nasty unification higher order
       constraints later.
 

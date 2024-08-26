@@ -2505,11 +2505,11 @@ For example, the goal
   right : Tree β
   ihl : BST left → Tree.find? (Tree.insert left k v) k = some v
   ihr : BST right → Tree.find? (Tree.insert right k v) k = some v
-  h✝ : k < key
-  a✝³ : BST left
-  a✝² : ForallTree (fun k v => k < key) left
-  a✝¹ : BST right
-  a✝ : ForallTree (fun k v => key < k) right
+  h✝︎ : k < key
+  a✝︎³ : BST left
+  a✝︎² : ForallTree (fun k v => k < key) left
+  a✝︎¹ : BST right
+  a✝︎ : ForallTree (fun k v => key < k) right
   ⊢ BST left
   ```
   is now displayed as
@@ -2562,7 +2562,7 @@ For example, the goal
 
   example (x : Nat × Nat) (h : x.1 > 0) : f x > 0 := by
     match x with
-    | (a, b) => _ -- Local context does not contain the `h✝ : x.fst > 0` anymore
+    | (a, b) => _ -- Local context does not contain the `h✝︎ : x.fst > 0` anymore
   ```
 
 * Improve `let`-pattern (and `have`-pattern) macro expansion. In the following example,
@@ -2818,13 +2818,13 @@ For example, given `f : Nat → Nat` and `g : Nat → Nat`, `f.comp g` is now no
 
   example (a : A) : a.x = 1 := by
     have aux := a.h
-    -- `aux` has now type `a.x = 1` instead of `autoParam (a.x = 1) auto✝`
+    -- `aux` has now type `a.x = 1` instead of `autoParam (a.x = 1) auto✝︎`
     exact aux
 
   example (a : A) : a.x = 1 := by
     cases a with
     | mk x h =>
-      -- `h` has now type `x = 1` instead of `autoParam (x = 1) auto✝`
+      -- `h` has now type `x = 1` instead of `autoParam (x = 1) auto✝︎`
       assumption
   ```
 

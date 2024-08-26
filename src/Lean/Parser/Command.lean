@@ -364,12 +364,12 @@ namespace Logger
     log.trace.filterMap
       fun (src', str') => if src' == src then some str' else none
   #check filterSrc
-  -- Logger.filterSrc {Src : Type} (log : Logger Src) (src : Src) [inst✝ : BEq Src] : List String
+  -- Logger.filterSrc {Src : Type} (log : Logger Src) (src : Src) [inst✝︎ : BEq Src] : List String
 
   def lenSrc :=
     log.filterSrc src |>.length
   #check lenSrc
-  -- Logger.lenSrc {Src : Type} (log : Logger Src) (src : Src) [inst✝ : BEq Src] : Nat
+  -- Logger.lenSrc {Src : Type} (log : Logger Src) (src : Src) [inst✝︎ : BEq Src] : Nat
 end Logger
 ```
 

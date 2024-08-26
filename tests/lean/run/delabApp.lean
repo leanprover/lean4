@@ -92,7 +92,7 @@ def myFun (x : Nat) : Nat := x
 open Lean PrettyPrinter Delaborator in
 @[app_delab myFun] def delabMyFun : Delab := withOverApp 0 `(id)
 
-/-- info: id✝ 2 : Nat -/
+/-- info: id✝︎ 2 : Nat -/
 #guard_msgs in #check myFun 2
 
 /-!

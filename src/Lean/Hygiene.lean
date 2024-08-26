@@ -47,9 +47,9 @@ end Unhygienic
 private def mkInaccessibleUserNameAux (unicode : Bool) (name : Name) (idx : Nat) : Name :=
   if unicode then
     if idx == 0 then
-      name.appendAfter "✝"
+      name.appendAfter "✝︎"
     else
-      name.appendAfter ("✝" ++ idx.toSuperscriptString)
+      name.appendAfter ("✝︎" ++ idx.toSuperscriptString)
   else
     name ++ Name.num `_inaccessible idx
 
@@ -75,9 +75,9 @@ def getSanitizeNames (o : Options) : Bool := pp.sanitizeNames.get o
 
 structure NameSanitizerState where
   options            : Options
-  /-- `x` ~> 2 if we're already using `x✝`, `x✝¹` -/
+  /-- `x` ~> 2 if we're already using `x✝︎`, `x✝︎¹` -/
   nameStem2Idx       : NameMap Nat := {}
-  /-- `x._hyg...` ~> `x✝` -/
+  /-- `x._hyg...` ~> `x✝︎` -/
   userName2Sanitized : NameMap Name := {}
 
 private partial def mkFreshInaccessibleUserName (userName : Name) (idx : Nat) : StateM NameSanitizerState Name := do

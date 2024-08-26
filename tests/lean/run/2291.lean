@@ -27,6 +27,6 @@ def f := 1
 
 add_bad_alias f
 
--- Formerly was info: bad✝ : ℕ
+-- Formerly was info: bad✝︎ : ℕ
 /-- info: f : Nat -/
 #guard_msgs in #check (f)

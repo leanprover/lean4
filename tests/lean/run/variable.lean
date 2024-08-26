@@ -129,9 +129,9 @@ omit α in
 theorem t12 (a : α) : True := trivial
 
 /--
-error: cannot omit referenced section variable 'inst✝'
+error: cannot omit referenced section variable 'inst✝︎'
 ---
-error: cannot omit referenced section variable 'inst✝'
+error: cannot omit referenced section variable 'inst✝︎'
 -/
 #guard_msgs in
 variable [ToString α] in

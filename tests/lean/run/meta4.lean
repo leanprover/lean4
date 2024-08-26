@@ -45,8 +45,8 @@ info: [Meta.debug] (α β : Type) → α → β → DecidableEq β
 [Meta.debug] (b : ?β) → Decidable (?a = b)
 [Meta.debug] Decidable (?a = ?b)
 [Meta.debug] Decidable (?a = ?b)
-[Meta.debug] #[α, β, a✝¹, a✝, a, b]
-[Meta.debug] #[α, β, a✝¹, a✝, a, b]
+[Meta.debug] #[α, β, a✝︎¹, a✝︎, a, b]
+[Meta.debug] #[α, β, a✝︎¹, a✝︎, a, b]
 -/
 #guard_msgs in
 #eval tst1

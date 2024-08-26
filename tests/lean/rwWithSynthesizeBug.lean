@@ -39,7 +39,7 @@ example : True := by
   rw [foo] at h
   -- Previous goal state:
   /-
-  h✝ : @w Nat 5
+  h✝︎ : @w Nat 5
   h : @w Nat (@f Nat _uniq.158 5)
   inst : Bar Nat := @Bar.mk Nat 0
   ⊢ True

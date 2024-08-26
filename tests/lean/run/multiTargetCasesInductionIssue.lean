@@ -25,10 +25,10 @@ def Vec.casesOn
 
 /--
 info: α : Type u_1
-n✝ : Nat
-a✝ : α
-as✝ : Vec α n✝
-x✝ n : Nat
+n✝︎ : Nat
+a✝︎ : α
+as✝︎ : Vec α n✝︎
+x✝︎ n : Nat
 a : α
 as : Vec α n
 ih : as = as
@@ -44,9 +44,9 @@ example (n : Nat) (a : α) (as : Vec α n) : Vec.cons a (Vec.cons a as) = Vec.co
 
 /--
 info: α : Type u_1
-n✝ : Nat
-a✝ : α
-as✝ : Vec α n✝
+n✝︎ : Nat
+a✝︎ : α
+as✝︎ : Vec α n✝︎
 n : Nat
 a : α
 as : Vec α n

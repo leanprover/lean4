@@ -87,27 +87,27 @@ inductive Vec (α : Type) : Nat → Type
 info: case cons.cons.fst
 α β : Type
 n : Nat
-a✝¹ : α
-as✝¹ : Vec α n
-a✝ : β
-as✝ : Vec β n
+a✝︎¹ : α
+as✝︎¹ : Vec α n
+a✝︎ : β
+as✝︎ : Vec β n
 ⊢ α
 
 case cons.cons.snd
 α β : Type
 n : Nat
-a✝¹ : α
-as✝¹ : Vec α n
-a✝ : β
-as✝ : Vec β n
+a✝︎¹ : α
+as✝︎¹ : Vec α n
+a✝︎ : β
+as✝︎ : Vec β n
 ⊢ β
 case cons.cons.snd
 α β : Type
 n : Nat
-a✝¹ : α
-as✝¹ : Vec α n
-a✝ : β
-as✝ : Vec β n
+a✝︎¹ : α
+as✝︎¹ : Vec α n
+a✝︎ : β
+as✝︎ : Vec β n
 ⊢ β
 -/
 #guard_msgs in

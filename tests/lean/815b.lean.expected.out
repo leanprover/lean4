@@ -7,8 +7,8 @@
 815b.lean:11:9-11:13: warning: declaration uses 'sorry'
 [Meta.synthInstance] ✅️ IsSmooth fun g a => f (g a) d
   [Meta.synthInstance] new goal IsSmooth fun g a => f (g a) d
-    [Meta.synthInstance.instances] #[@identity, @const, @parm, @comp, @diag, @swap, inst✝]
-  [Meta.synthInstance] ❌️ apply inst✝ to IsSmooth fun g a => f (g a) d
+    [Meta.synthInstance.instances] #[@identity, @const, @parm, @comp, @diag, @swap, inst✝︎]
+  [Meta.synthInstance] ❌️ apply inst✝︎ to IsSmooth fun g a => f (g a) d
     [Meta.synthInstance.tryResolve] ❌️ IsSmooth fun g a => f (g a) d ≟ IsSmooth f
   [Meta.synthInstance] ✅️ apply @swap to IsSmooth fun g a => f (g a) d
     [Meta.synthInstance.tryResolve] ✅️ IsSmooth fun g a => f (g a) d ≟ IsSmooth fun b a => f (b a) d

@@ -61,7 +61,7 @@ def parse (c : Cmd) : Id Cmd.Parsed := do
   -- synthesized type class instance is not definitionally equal to expression inferred by typing rules, synthesized
   -- instDecidableAnd
   -- inferred
-  -- ?m.4652 flags✝ positionalArgs variableArgs
+  -- ?m.4652 flags✝︎ positionalArgs variableArgs
   if cmd.hasFlag "help" ∧ parsedCmd.hasFlag "help" ∨ cmd.hasFlag "version" ∧ parsedCmd.hasFlag "version" then
     return parsedCmd
   return parsedCmd

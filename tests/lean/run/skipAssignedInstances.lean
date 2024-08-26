@@ -71,8 +71,8 @@ set_option tactic.skipAssignedInstances false in
 /--
 error: tactic 'rewrite' failed, failed to assign synthesized instance
 u v : Prop
-inst✝¹ : Decidable u
-inst✝ : Decidable v
+inst✝︎¹ : Decidable u
+inst✝︎ : Decidable v
 ⊢ decide (u ∧ ¬v) = (decide u && !decide v)
 -/
 #guard_msgs in

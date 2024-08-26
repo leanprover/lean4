@@ -3,6 +3,6 @@ case z
 ⊢ add Nat.z Nat.z = Nat.z
 
 case s
-a✝ : Nat
-a_ih✝ : add Nat.z a✝ = a✝
-⊢ add Nat.z a✝.s = a✝.s
+a✝︎ : Nat
+a_ih✝︎ : add Nat.z a✝︎ = a✝︎
+⊢ add Nat.z a✝︎.s = a✝︎.s

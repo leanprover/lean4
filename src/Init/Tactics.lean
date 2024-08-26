@@ -63,9 +63,9 @@ def AllEven (f : Nat → Nat) := ∀ n, f n % 2 = 0
 example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
   intros
   /- Tactic state
-     f✝ : Nat → Nat
-     a✝ : AllEven f✝
-     ⊢ AllEven fun k => f✝ (k + 1) -/
+     f✝︎ : Nat → Nat
+     a✝︎ : AllEven f✝︎
+     ⊢ AllEven fun k => f✝︎ (k + 1) -/
   sorry
 
 -- Introduces exactly two hypotheses, naming only the first
@@ -73,7 +73,7 @@ example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := b
   intros g _
   /- Tactic state
      g : Nat → Nat
-     a✝ : AllEven g
+     a✝︎ : AllEven g
      ⊢ AllEven fun k => g (k + 1) -/
   sorry
 
@@ -93,8 +93,8 @@ Implications:
 example (p q : Prop) : p → q → p := by
   intros
   /- Tactic state
-     a✝¹ : p
-     a✝ : q
+     a✝︎¹ : p
+     a✝︎ : q
      ⊢ p      -/
   assumption
 ```
@@ -103,9 +103,9 @@ Let bindings:
 ```lean
 example : let n := 1; let k := 2; n + k = 3 := by
   intros
-  /- n✝ : Nat := 1
-     k✝ : Nat := 2
-     ⊢ n✝ + k✝ = 3 -/
+  /- n✝︎ : Nat := 1
+     k✝︎ : Nat := 2
+     ⊢ n✝︎ + k✝︎ = 3 -/
   rfl
 ```
 -/

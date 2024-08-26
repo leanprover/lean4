@@ -4,7 +4,7 @@ matchUnknownFVarBug.lean:2:2-2:7: error: missing cases:
 none, (some _)
 none, none
 matchUnknownFVarBug.lean:3:18-3:19: error: unsolved goals
-n? x✝ : Option Nat
+n? x✝︎ : Option Nat
 h : n? = some 0
-h' : n? = x✝
+h' : n? = x✝︎
 ⊢ False

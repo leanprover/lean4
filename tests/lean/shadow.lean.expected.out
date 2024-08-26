@@ -1,7 +1,7 @@
 shadow.lean:6:0-6:1: error: type mismatch
   h
 has type
-  x✝ = x✝ : Prop
+  x✝︎ = x✝︎ : Prop
 but is expected to have type
   x = x : Prop
 shadow.lean:10:0-10:1: error: type mismatch
@@ -13,8 +13,8 @@ but is expected to have type
 shadow.lean:13:0-13:1: error: don't know how to synthesize placeholder
 context:
 α : Type u_1
-inst✝¹ : Inhabited α
-inst✝ inst : α
+inst✝︎¹ : Inhabited α
+inst✝︎ inst : α
 ⊢ {β δ : Type} → α → β → δ → α × β × δ
 shadow.lean:17:0-17:1: error: don't know how to synthesize placeholder
 context:
@@ -26,8 +26,8 @@ shadow.lean:20:0-20:1: error: don't know how to synthesize placeholder
 context:
 α : Type u_1
 β : Sort u_2
-inst✝² : α
-inst✝¹ b : β
+inst✝︎² : α
+inst✝︎¹ b : β
 inst : α
-inst✝ : Inhabited α
+inst✝︎ : Inhabited α
 ⊢ {β δ : Type} → α → β → δ → α × β × δ

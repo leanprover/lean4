@@ -13,9 +13,9 @@ P : Nat → Prop
 
 case succ
 P : Nat → Prop
-n✝ : Nat
-a✝ : P n✝
-⊢ P (n✝ + 1)
+n✝︎ : Nat
+a✝︎ : P n✝︎
+⊢ P (n✝︎ + 1)
 -/
 #guard_msgs in
 example (P : Nat → Prop) : P n := by
@@ -36,9 +36,9 @@ P : Nat → Prop
 
 case succ
 P : Nat → Prop
-n✝ : Nat
-n_ih✝ : P n✝
-⊢ P n✝.succ
+n✝︎ : Nat
+n_ih✝︎ : P n✝︎
+⊢ P n✝︎.succ
 -/
 #guard_msgs in
 example (P : Nat → Prop) : P n := by

@@ -13,8 +13,8 @@ matchLeftovers.lean:25:32-25:36: error: unsolved goals
 α : Type ?u
 n : Nat
 a : α
-i n✝ : Nat
-h : i + 1 < n✝ + 1 + 1
+i n✝︎ : Nat
+h : i + 1 < n✝︎ + 1 + 1
 x : α
-xs : Vector α n✝
-⊢ Vector α (n✝ + 1 + 1)
+xs : Vector α n✝︎
+⊢ Vector α (n✝︎ + 1 + 1)

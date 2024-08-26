@@ -110,13 +110,13 @@ def isDiscrGenException (ex : Exception) : Bool :=
     for the `split` tactic  should be
     ```
     case h_1
-    x x✝ : Nat
-    h✝ : g x = 0
+    x x✝︎ : Nat
+    h✝︎ : g x = 0
     ⊢ 1 = 2 * x + 1
 
     case h_2
-    x x✝ y✝ : Nat
-    h✝ : g x = Nat.succ y✝
+    x x✝︎ y✝︎ : Nat
+    h✝︎ : g x = Nat.succ y✝︎
     ⊢ g x = 2 * x + 1
     ```
 -/

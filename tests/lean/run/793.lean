@@ -9,8 +9,8 @@ macro "foo" x:ident : command =>
 foo test
 
 /--
-info: theorem test : ∀ (x : Foo✝), f✝ x = 42 :=
-fun x => of_eq_true (Eq.trans (congrArg (fun x => x = 42) (Foo.prop✝ x)) (eq_self 42))
+info: theorem test : ∀ (x : Foo✝︎), f✝︎ x = 42 :=
+fun x => of_eq_true (Eq.trans (congrArg (fun x => x = 42) (Foo.prop✝︎ x)) (eq_self 42))
 -/
 #guard_msgs in
 #print test

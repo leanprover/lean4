@@ -12,34 +12,34 @@ h : Vec.cons x xs = ys
 inductionGen.lean:64:8-64:11: warning: declaration uses 'sorry'
 case natVal
 α : ExprType
-a✝ : Nat
+a✝︎ : Nat
 b : Expr ExprType.nat
-h : Expr.natVal a✝ = b
-⊢ eval (constProp (Expr.natVal a✝)) = eval b
+h : Expr.natVal a✝︎ = b
+⊢ eval (constProp (Expr.natVal a✝︎)) = eval b
 
 case boolVal
 α : ExprType
-a✝ : Bool
+a✝︎ : Bool
 b : Expr ExprType.bool
-h : Expr.boolVal a✝ = b
-⊢ eval (constProp (Expr.boolVal a✝)) = eval b
+h : Expr.boolVal a✝︎ = b
+⊢ eval (constProp (Expr.boolVal a✝︎)) = eval b
 
 case eq
-α α✝ : ExprType
-a✝¹ a✝ : Expr α✝
-a_ih✝¹ : ∀ (b : Expr α✝), a✝¹ = b → eval (constProp a✝¹) = eval b
-a_ih✝ : ∀ (b : Expr α✝), a✝ = b → eval (constProp a✝) = eval b
+α α✝︎ : ExprType
+a✝︎¹ a✝︎ : Expr α✝︎
+a_ih✝︎¹ : ∀ (b : Expr α✝︎), a✝︎¹ = b → eval (constProp a✝︎¹) = eval b
+a_ih✝︎ : ∀ (b : Expr α✝︎), a✝︎ = b → eval (constProp a✝︎) = eval b
 b : Expr ExprType.bool
-h : a✝¹.eq a✝ = b
-⊢ eval (constProp (a✝¹.eq a✝)) = eval b
+h : a✝︎¹.eq a✝︎ = b
+⊢ eval (constProp (a✝︎¹.eq a✝︎)) = eval b
 
 case add
 α : ExprType
-a✝¹ a✝ : Expr ExprType.nat
-a_ih✝¹ : ∀ (b : Expr ExprType.nat), a✝¹ = b → eval (constProp a✝¹) = eval b
-a_ih✝ : ∀ (b : Expr ExprType.nat), a✝ = b → eval (constProp a✝) = eval b
+a✝︎¹ a✝︎ : Expr ExprType.nat
+a_ih✝︎¹ : ∀ (b : Expr ExprType.nat), a✝︎¹ = b → eval (constProp a✝︎¹) = eval b
+a_ih✝︎ : ∀ (b : Expr ExprType.nat), a✝︎ = b → eval (constProp a✝︎) = eval b
 b : Expr ExprType.nat
-h : a✝¹.add a✝ = b
-⊢ eval (constProp (a✝¹.add a✝)) = eval b
+h : a✝︎¹.add a✝︎ = b
+⊢ eval (constProp (a✝︎¹.add a✝︎)) = eval b
 inductionGen.lean:78:2-78:27: error: target (or one of its indices) occurs more than once
   n

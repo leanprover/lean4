@@ -3,8 +3,8 @@
       • option trace.Elab.info @ ⟨6, 11⟩-⟨6, 26⟩
 1018unknowMVarIssue.lean:9:18-9:19: error: don't know how to synthesize placeholder
 context:
-α✝ β : Type
-x : Fam2 α✝ β
+α✝︎ β : Type
+x : Fam2 α✝︎ β
 α : Type
 a : α
 ⊢ α

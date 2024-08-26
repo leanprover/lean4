@@ -115,7 +115,7 @@ def getRoot : Name → Name
 
 @[export lean_is_inaccessible_user_name]
 def isInaccessibleUserName : Name → Bool
-  | Name.str _ s   => s.contains '✝' || s == "_inaccessible"
+  | Name.str _ s   => s.contains '✝︎' || s == "_inaccessible"
   | Name.num p _   => isInaccessibleUserName p
   | _              => false
 

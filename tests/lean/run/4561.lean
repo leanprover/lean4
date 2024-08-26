@@ -8,7 +8,7 @@ Example from the issue. Here, ppSpace is wrapped in a group due to macro argumen
 -/
 macro (name := useSyntax) "use0" ppSpace arg:term : tactic => `(tactic| sorry)
 
-/-- info: use0 .succ✝ 0 -/
+/-- info: use0 .succ✝︎ 0 -/
 #guard_msgs in
 run_cmd do
   Lean.logInfo <| ← `(tactic| use0 .succ 0)
@@ -21,9 +21,9 @@ syntax "use1" ppSpace term,+ : tactic
 syntax "use2" group(ppSpace) term,+ : tactic
 
 /--
-info: use1 .succ✝ 0
+info: use1 .succ✝︎ 0
 ---
-info: use2 .succ✝ 0
+info: use2 .succ✝︎ 0
 -/
 #guard_msgs in
 run_cmd Lean.Elab.Command.liftTermElabM do
@@ -40,9 +40,9 @@ syntax "use3" myPPSpace term,+ : tactic
 syntax "use4" group(myPPSpace) term,+ : tactic
 
 /--
-info: use3 .succ✝ 0
+info: use3 .succ✝︎ 0
 ---
-info: use4 .succ✝ 0
+info: use4 .succ✝︎ 0
 -/
 #guard_msgs in
 run_cmd Lean.Elab.Command.liftTermElabM do

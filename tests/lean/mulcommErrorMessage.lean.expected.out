@@ -3,10 +3,10 @@ mulcommErrorMessage.lean:8:13-13:25: error: type mismatch
 has type
   (a : ?m) → (b : ?m a) → ?m a b : Sort (imax ?u ?u ?u)
 but is expected to have type
-  a✝ * b✝ = b✝ * a✝ : Prop
+  a✝︎ * b✝︎ = b✝︎ * a✝︎ : Prop
 the following variables have been introduced by the implicit lambda feature
-  a✝ : Bool
-  b✝ : Bool
+  a✝︎ : Bool
+  b✝︎ : Bool
 you can disable implicit lambdas using `@` or writing a lambda expression with `{}` or `[]` binder annotations.
 mulcommErrorMessage.lean:11:22-11:25: error: type mismatch
   rfl
@@ -25,9 +25,9 @@ mulcommErrorMessage.lean:16:3-17:47: error: type mismatch
 has type
   (a : ?m) → (b : ?m a) → ?m a b : Sort (imax ?u ?u ?u)
 but is expected to have type
-  a✝ * b✝ = b✝ * a✝ : Prop
+  a✝︎ * b✝︎ = b✝︎ * a✝︎ : Prop
 the following variables have been introduced by the implicit lambda feature
-  a✝ : Bool
-  b✝ : Bool
+  a✝︎ : Bool
+  b✝︎ : Bool
 you can disable implicit lambdas using `@` or writing a lambda expression with `{}` or `[]` binder annotations.
 mulcommErrorMessage.lean:16:12-17:47: error: failed to elaborate eliminator, expected type is not available

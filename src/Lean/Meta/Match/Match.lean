@@ -312,12 +312,12 @@ private def processAsPattern (p : Problem) : MetaM Problem := withGoalOf p do
         ```
         we reach the state
         ```
-          [Meta.Match.match] remaining variables: [x✝:(vec n✝)]
+          [Meta.Match.match] remaining variables: [x✝︎:(vec n✝︎)]
           alternatives:
             [n:(Nat), x:(vec (Nat.succ n)), h:(Int), t:(vec n)] |- [x@(vec.cons n h t)] => h_1 n x h t
-            [x✝:(vec n✝)] |- [x✝] => h_2 n✝ x✝
+            [x✝︎:(vec n✝︎)] |- [x✝︎] => h_2 n✝︎ x✝︎
         ```
-        The variables `x✝:(vec n✝)` and `x:(vec (Nat.succ n))` have different types, but we perform the substitution anyway,
+        The variables `x✝︎:(vec n✝︎)` and `x:(vec (Nat.succ n))` have different types, but we perform the substitution anyway,
         because we claim the "discrepancy" will be corrected after we process the pattern `(vec.cons n h t)`.
         The right-hand-side is temporarily type incorrect, but we claim this is fine because it will be type correct again after
         we the pattern `(vec.cons n h t)`. TODO: try to find a cleaner solution.
@@ -359,14 +359,14 @@ def Arrow.compose (f : Arrow β γ) (g : Arrow α β) : Arrow α γ :=
 ```
 The initial state for the `match`-expression above is
 ```lean
-[Meta.Match.match] remaining variables: [β✝:(Type), γ✝:(Type), f✝:(Arrow β✝ γ✝), g✝:(Arrow α β✝)]
+[Meta.Match.match] remaining variables: [β✝︎:(Type), γ✝︎:(Type), f✝︎:(Arrow β✝︎ γ✝︎), g✝︎:(Arrow α β✝︎)]
 alternatives:
   [β:(Type), g:(Arrow α β)] |- [β, .(β), (Arrow.id .(β)), g] => h_1 β g
   [γ:(Type), f:(Arrow α γ)] |- [.(α), γ, f, (Arrow.id .(α))] => h_2 γ f
   [β:(Type), γ:(Type), f:(Arrow β γ), g:(Arrow α β)] |- [β, γ, f, g] => h_3 β γ f g
 ```
-The first step is a variable-transition which replaces `β` with `β✝` in the first and third alternatives.
-The constraint `β✝ ≋ α` in the second alternative used to be discarded. We now store it at the
+The first step is a variable-transition which replaces `β` with `β✝︎` in the first and third alternatives.
+The constraint `β✝︎ ≋ α` in the second alternative used to be discarded. We now store it at the
 alternative `cnstrs` field.
 -/
 

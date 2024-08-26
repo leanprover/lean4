@@ -19,7 +19,7 @@ runTacticMustCatchExceptions.lean:4:25-4:28: error: The rfl tactic failed. Possi
 Try using the reflexivity lemma for your relation explicitly, e.g. `exact Eq.refl _` or
 `exact HEq.rfl` etc.
 a b : Nat
-this✝ : 1 ≤ a + b
+this✝︎ : 1 ≤ a + b
 this : a + b ≤ b
 ⊢ b ≤ 2
 runTacticMustCatchExceptions.lean:9:18-9:21: error: The rfl tactic failed. Possible reasons:

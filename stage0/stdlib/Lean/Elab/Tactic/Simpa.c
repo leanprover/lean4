@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Simpa
-// Imports: Lean.Meta.Tactic.Assumption Lean.Meta.Tactic.TryThis Lean.Elab.Tactic.Simp Lean.Linter.Util
+// Imports: Lean.Meta.Tactic.Assumption Lean.Meta.Tactic.TryThis Lean.Elab.Tactic.Simp Lean.Linter.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -50,7 +50,6 @@ lean_object* l_Lean_MVarId_assign___at_Lean_Elab_Tactic_refineCore___spec__1(lea
 static lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__8___closed__5;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getMainGoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_3037_(lean_object*, lean_object*);
 lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Tactic_TryThis_addSuggestion(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__12___closed__1;
@@ -165,6 +164,7 @@ lean_object* l_Array_mkArray3___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_initFn____x40_Lean_Elab_Tactic_Simpa___hyg_5_(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__11___closed__7;
+lean_object* l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_3025_(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Simpa_0__Lean_Elab_Tactic_Simpa_reprUseImplicitLambdaResult____x40_Lean_Elab_Tactic_Simpa___hyg_53____closed__10;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__10___closed__1;
@@ -544,7 +544,7 @@ lean_inc(x_9);
 lean_dec(x_1);
 x_10 = lean_unsigned_to_nat(1024u);
 x_11 = lean_nat_dec_le(x_10, x_2);
-x_12 = l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_3037_(x_9, x_10);
+x_12 = l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_3025_(x_9, x_10);
 x_13 = l___private_Lean_Elab_Tactic_Simpa_0__Lean_Elab_Tactic_Simpa_reprUseImplicitLambdaResult____x40_Lean_Elab_Tactic_Simpa___hyg_53____closed__11;
 x_14 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
@@ -6642,7 +6642,7 @@ return x_4;
 lean_object* initialize_Lean_Meta_Tactic_Assumption(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_TryThis(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Simp(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Linter_Util(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Linter_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Simpa(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -6657,7 +6657,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Simp(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Linter_Util(builtin, lean_io_mk_world());
+res = initialize_Lean_Linter_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_initFn____x40_Lean_Elab_Tactic_Simpa___hyg_5____closed__1 = _init_l_initFn____x40_Lean_Elab_Tactic_Simpa___hyg_5____closed__1();

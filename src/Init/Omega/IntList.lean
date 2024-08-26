@@ -352,7 +352,6 @@ attribute [simp] Int.zero_dvd
 theorem gcd_dvd_dot_left (xs ys : IntList) : (xs.gcd : Int) ∣ dot xs ys :=
   Int.dvd_of_emod_eq_zero (dot_mod_gcd_left xs ys)
 
-@[simp]
 theorem dot_eq_zero_of_left_eq_zero {xs ys : IntList} (h : ∀ x, x ∈ xs → x = 0) : dot xs ys = 0 := by
   induction xs generalizing ys with
   | nil => rfl
@@ -362,6 +361,8 @@ theorem dot_eq_zero_of_left_eq_zero {xs ys : IntList} (h : ∀ x, x ∈ xs → x
     | cons y ys =>
       rw [dot_cons₂, h x (List.mem_cons_self _ _), ih (fun x m => h x (List.mem_cons_of_mem _ m)),
         Int.zero_mul, Int.add_zero]
+
+@[simp] theorem nil_dot (xs : IntList) : dot [] xs = 0 := rfl
 
 theorem dot_sdiv_left (xs ys : IntList) {d : Int} (h : d ∣ xs.gcd) :
     dot (xs.sdiv d) ys = (dot xs ys) / d := by

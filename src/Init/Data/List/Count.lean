@@ -47,11 +47,11 @@ theorem length_eq_countP_add_countP (l) : length l = countP p l + countP (fun a 
     if h : p x then
       rw [countP_cons_of_pos _ _ h, countP_cons_of_neg _ _ _, length, ih]
       · rw [Nat.add_assoc, Nat.add_comm _ 1, Nat.add_assoc]
-      · simp only [h, not_true_eq_false, decide_False, not_false_eq_true]
+      · simp [h]
     else
       rw [countP_cons_of_pos (fun a => ¬p a) _ _, countP_cons_of_neg _ _ h, length, ih]
       · rfl
-      · simp only [h, not_false_eq_true, decide_True]
+      · simp [h]
 
 theorem countP_eq_length_filter (l) : countP p l = length (filter p l) := by
   induction l with
@@ -80,6 +80,10 @@ theorem countP_eq_length : countP p l = l.length ↔ ∀ a ∈ l, p a := by
 theorem Sublist.countP_le (s : l₁ <+ l₂) : countP p l₁ ≤ countP p l₂ := by
   simp only [countP_eq_length_filter]
   apply s.filter _ |>.length_le
+
+theorem IsPrefix.countP_le (s : l₁ <+: l₂) : countP p l₁ ≤ countP p l₂ := s.sublist.countP_le _
+theorem IsSuffix.countP_le (s : l₁ <:+ l₂) : countP p l₁ ≤ countP p l₂ := s.sublist.countP_le _
+theorem IsInfix.countP_le (s : l₁ <:+: l₂) : countP p l₁ ≤ countP p l₂ := s.sublist.countP_le _
 
 theorem countP_filter (l : List α) :
     countP p (filter q l) = countP (fun a => p a ∧ q a) l := by
@@ -139,6 +143,10 @@ theorem count_tail : ∀ (l : List α) (a : α) (h : l ≠ []),
 theorem count_le_length (a : α) (l : List α) : count a l ≤ l.length := countP_le_length _
 
 theorem Sublist.count_le (h : l₁ <+ l₂) (a : α) : count a l₁ ≤ count a l₂ := h.countP_le _
+
+theorem IsPrefix.count_le (h : l₁ <+: l₂) (a : α) : count a l₁ ≤ count a l₂ := h.sublist.count_le _
+theorem IsSuffix.count_le (h : l₁ <:+ l₂) (a : α) : count a l₁ ≤ count a l₂ := h.sublist.count_le _
+theorem IsInfix.count_le (h : l₁ <:+: l₂) (a : α) : count a l₁ ≤ count a l₂ := h.sublist.count_le _
 
 theorem count_le_count_cons (a b : α) (l : List α) : count a l ≤ count a (b :: l) :=
   (sublist_cons_self _ _).count_le _
@@ -226,7 +234,7 @@ theorem count_erase (a b : α) :
       rw [if_pos hc_beq, hc, count_cons, Nat.add_sub_cancel]
     else
       have hc_beq := beq_false_of_ne hc
-      simp only [hc_beq, if_false, count_cons, count_cons, count_erase a b l]
+      simp only [hc_beq, if_false, count_cons, count_cons, count_erase a b l, reduceCtorEq]
       if ha : b = a then
         rw [ha, eq_comm] at hc
         rw [if_pos ((beq_iff_eq _ _).2 ha), if_neg (by simpa using Ne.symm hc), Nat.add_zero, Nat.add_zero]

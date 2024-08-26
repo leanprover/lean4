@@ -495,9 +495,7 @@ def sum_below (n : Nat) (f : (i : Nat) → below n i → Nat) :=
 def foo (n : Nat) :=
   1 + sum_below n (fun i _ => foo i)
 termination_by n
-decreasing_by
-  simp_wf
-  simp [below_lt, *]
+decreasing_by simp [below_lt, *]
 
 /--
 info: GramSchmidt.foo.induct (motive : Nat → Prop) (case1 : ∀ (x : Nat), (∀ (i : Nat), below x i → motive i) → motive x)

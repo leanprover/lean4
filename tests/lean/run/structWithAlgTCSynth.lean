@@ -572,7 +572,7 @@ infixr:25 " →+* " => RingHom
 namespace RingHom
 
 def id (α : Type _) : α →+* α := by
-  refine' { toFun := _root_.id.. }
+  refine { toFun := _root_.id.. }
 
 def comp (g : β →+* γ) (f : α →+* β) : α →+* γ :=
   { toFun := g.toFun ∘ f.toFun }

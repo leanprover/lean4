@@ -1,3 +1,4 @@
+import Lean
 /-!
 # Testing features of the app delaborator, including overapplication
 -/
@@ -77,3 +78,36 @@ def g (a : Nat) (b := 1) (c := 2) (d := 3) := a + b + c + d
 -- Both the `start` and `stop` arguments are omitted.
 /-- info: fun a => Array.foldl (fun x y => x + y) 0 a : Array Nat → Nat -/
 #guard_msgs in #check fun (a : Array Nat) => a.foldl (fun x y => x + y) 0
+
+
+/-!
+Testing overriding the app delaborator with an `@[app_delab]`
+-/
+
+def myFun (x : Nat) : Nat := x
+
+/-- info: myFun 2 : Nat -/
+#guard_msgs in #check myFun 2
+
+open Lean PrettyPrinter Delaborator in
+@[app_delab myFun] def delabMyFun : Delab := withOverApp 0 `(id)
+
+/-- info: id✝ 2 : Nat -/
+#guard_msgs in #check myFun 2
+
+/-!
+Testing `@[app_delab]` error conditions.
+-/
+
+/-- error: unknown declaration 'noSuchFunction' -/
+#guard_msgs in
+open Lean PrettyPrinter Delaborator in
+@[app_delab noSuchFunction] def delabErr1 : Delab := withOverApp 0 `(id)
+
+def A.f := 0
+def B.f := 0
+open A B
+/-- error: ambiguous declaration 'f' -/
+#guard_msgs in
+open Lean PrettyPrinter Delaborator in
+@[app_delab f] def delabErr2 : Delab := withOverApp 0 `(id)

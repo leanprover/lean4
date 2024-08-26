@@ -407,7 +407,7 @@
   "end": {"line": 206, "character": 13}},
  "contents":
  {"value":
-  "```lean\n?m x✝¹ x✝\n```\n***\n`a + b` computes the sum of `a` and `b`.\nThe meaning of this notation is type-dependent. ",
+  "```lean\n?m x1✝ x2✝\n```\n***\n`a + b` computes the sum of `a` and `b`.\nThe meaning of this notation is type-dependent. ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 215, "character": 28}}

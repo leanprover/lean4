@@ -67,3 +67,17 @@ import Init.Prelude
                  --^ insert: " "
                  --^ collectDiagnostics
 #eval "import"
+
+/-!
+`where` should not break incrementality
+(used to fail with "(kernel) declaration has metavariables '_example'")
+-/
+-- RESET
+example : False := by
+  trivial
+where
+  bar : True := by
+    trivial
+         --^ sync
+         --^ insert: " "
+         --^ collectDiagnostics

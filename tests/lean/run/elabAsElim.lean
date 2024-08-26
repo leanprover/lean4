@@ -153,7 +153,7 @@ def isEmptyElim [IsEmpty α] {p : α → Sort _} (a : α) : p a :=
 
 def Set (α : Type u) := α → Prop
 def Set.univ {α : Type _} : Set α := fun _ => True
-instance : Membership α (Set α) := ⟨fun x s => s x⟩
+instance : Membership α (Set α) := ⟨fun s x => s x⟩
 def Set.pi {α : ι → Type _} (s : Set ι) (t : (i : ι) → Set (α i)) : Set ((i : ι) → α i) := fun f => ∀ i ∈ s, f i ∈ t i
 
 example {α : Type u} [IsEmpty α] {β : α → Type v} (x : (a : α) → β a) (s : (i : α) → Set (β i)) :

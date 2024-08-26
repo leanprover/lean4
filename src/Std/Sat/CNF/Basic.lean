@@ -116,19 +116,19 @@ theorem any_not_isEmpty_iff_exists_mem {f : CNF α} :
   simp only [List.any_eq_true, Bool.not_eq_true', List.isEmpty_false_iff_exists_mem, Mem,
     Clause.Mem]
   constructor
-  . intro h
+  · intro h
     rcases h with ⟨clause, ⟨hclause1, hclause2⟩⟩
     rcases hclause2 with ⟨lit, hlit⟩
     exists lit.fst, clause
     constructor
-    . assumption
-    . rcases lit with ⟨_, ⟨_ | _⟩⟩ <;> simp_all
-  . intro h
+    · assumption
+    · rcases lit with ⟨_, ⟨_ | _⟩⟩ <;> simp_all
+  · intro h
     rcases h with ⟨lit, clause, ⟨hclause1, hclause2⟩⟩
     exists clause
     constructor
-    . assumption
-    . cases hclause2 with
+    · assumption
+    · cases hclause2 with
       | inl hl => exact Exists.intro _ hl
       | inr hr => exact Exists.intro _ hr
 

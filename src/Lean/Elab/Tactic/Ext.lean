@@ -10,7 +10,7 @@ import Lean.Elab.Tactic.RCases
 import Lean.Elab.Tactic.Repeat
 import Lean.Elab.Tactic.BuiltinTactic
 import Lean.Elab.Command
-import Lean.Linter.Util
+import Lean.Linter.Basic
 
 /-!
 # Implementation of the `@[ext]` attribute
@@ -340,7 +340,7 @@ Runs continuation `k` on each subgoal.
 -/
 def withExtN [Monad m] [MonadLiftT TermElabM m] [MonadExcept Exception m]
     (g : MVarId) (pats : List (TSyntax `rcasesPat)) (k : MVarId → List (TSyntax `rcasesPat) → m Nat)
-    (depth := 1000000) (failIfUnchanged := true) : m Nat :=
+    (depth := 100) (failIfUnchanged := true) : m Nat :=
   match depth with
   | 0 => k g pats
   | depth+1 => do
@@ -358,7 +358,7 @@ This is built on top of `withExtN`, running in `TermElabM` to build the list of 
 (And, for each goal, the patterns consumed.)
 -/
 def extCore (g : MVarId) (pats : List (TSyntax `rcasesPat))
-    (depth := 1000000) (failIfUnchanged := true) :
+    (depth := 100) (failIfUnchanged := true) :
     TermElabM (Nat × Array (MVarId × List (TSyntax `rcasesPat))) := do
   StateT.run (m := TermElabM) (s := #[])
     (withExtN g pats (fun g qs => modify (·.push (g, qs)) *> pure 0) depth failIfUnchanged)
@@ -367,7 +367,7 @@ def extCore (g : MVarId) (pats : List (TSyntax `rcasesPat))
   match stx with
   | `(tactic| ext $pats* $[: $n]?) => do
     let pats := RCases.expandRIntroPats pats
-    let depth := n.map (·.getNat) |>.getD 1000000
+    let depth := n.map (·.getNat) |>.getD 100
     let (used, gs) ← extCore (← getMainGoal) pats.toList depth
     if RCases.linter.unusedRCasesPattern.get (← getOptions) then
       if used < pats.size then

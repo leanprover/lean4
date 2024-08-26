@@ -447,6 +447,7 @@ see there for more information.
 @[extern "lean_io_remove_dir"] opaque removeDir : @& FilePath → IO Unit
 @[extern "lean_io_create_dir"] opaque createDir : @& FilePath → IO Unit
 
+
 /--
 Moves a file or directory `old` to the new location `new`.
 
@@ -454,6 +455,16 @@ This function coincides with the [POSIX `rename` function](https://pubs.opengrou
 see there for more information.
 -/
 @[extern "lean_io_rename"] opaque rename (old new : @& FilePath) : IO Unit
+
+/--
+Creates a temporary file in the most secure manner possible. There are no race conditions in the
+file’s creation. The file is readable and writable only by the creating user ID. Additionally
+on UNIX style platforms the file is executable by nobody. The function returns both a `Handle`
+to the already opened file as well as its `FilePath`.
+
+Note that it is the caller's job to remove the file after use.
+-/
+@[extern "lean_io_create_tempfile"] opaque createTempFile : IO (Handle × FilePath)
 
 end FS
 
@@ -467,34 +478,37 @@ namespace FS
 def withFile (fn : FilePath) (mode : Mode) (f : Handle → IO α) : IO α :=
   Handle.mk fn mode >>= f
 
+/--
+Like `createTempFile` but also takes care of removing the file after usage.
+-/
+def withTempFile [Monad m] [MonadFinally m] [MonadLiftT IO m] (f : Handle → FilePath → m α) :
+    m α := do
+  let (handle, path) ← createTempFile
+  try
+    f handle path
+  finally
+    removeFile path
+
 def Handle.putStrLn (h : Handle) (s : String) : IO Unit :=
   h.putStr (s.push '\n')
 
-partial def Handle.readBinToEnd (h : Handle) : IO ByteArray := do
+partial def Handle.readBinToEndInto (h : Handle) (buf : ByteArray) : IO ByteArray := do
   let rec loop (acc : ByteArray) : IO ByteArray := do
     let buf ← h.read 1024
     if buf.isEmpty then
       return acc
     else
       loop (acc ++ buf)
-  loop ByteArray.empty
+  loop buf
 
-partial def Handle.readToEnd (h : Handle) : IO String := do
-  let rec loop (s : String) := do
-    let line ← h.getLine
-    if line.isEmpty then
-      return s
-    else
-      loop (s ++ line)
-  loop ""
+partial def Handle.readBinToEnd (h : Handle) : IO ByteArray := do
+  h.readBinToEndInto .empty
 
-def readBinFile (fname : FilePath) : IO ByteArray := do
-  let h ← Handle.mk fname Mode.read
-  h.readBinToEnd
-
-def readFile (fname : FilePath) : IO String := do
-  let h ← Handle.mk fname Mode.read
-  h.readToEnd
+def Handle.readToEnd (h : Handle) : IO String := do
+  let data ← h.readBinToEnd
+  match String.fromUTF8? data with
+  | some s => return s
+  | none => throw <| .userError s!"Tried to read from handle containing non UTF-8 data."
 
 partial def lines (fname : FilePath) : IO (Array String) := do
   let h ← Handle.mk fname Mode.read
@@ -504,7 +518,7 @@ partial def lines (fname : FilePath) : IO (Array String) := do
       pure lines
     else if line.back == '\n' then
       let line := line.dropRight 1
-      let line := if System.Platform.isWindows && line.back == '\x0d' then line.dropRight 1 else line
+      let line := if line.back == '\r' then line.dropRight 1 else line
       read <| lines.push line
     else
       pure <| lines.push line
@@ -599,6 +613,28 @@ where
 end System.FilePath
 
 namespace IO
+
+namespace FS
+
+def readBinFile (fname : FilePath) : IO ByteArray := do
+  -- Requires metadata so defined after metadata
+  let mdata ← fname.metadata
+  let size := mdata.byteSize.toUSize
+  let handle ← IO.FS.Handle.mk fname .read
+  let buf ←
+    if size > 0 then
+      handle.read mdata.byteSize.toUSize
+    else
+      pure <| ByteArray.mkEmpty 0
+  handle.readBinToEndInto buf
+
+def readFile (fname : FilePath) : IO String := do
+  let data ← readBinFile fname
+  match String.fromUTF8? data with
+  | some s => return s
+  | none => throw <| .userError s!"Tried to read file '{fname}' containing non UTF-8 data."
+
+end FS
 
 def withStdin [Monad m] [MonadFinally m] [MonadLiftT BaseIO m] (h : FS.Stream) (x : m α) : m α := do
   let prev ← setStdin h

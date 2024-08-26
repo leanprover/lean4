@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Std.Data.HashMap.Basic
+import Lean.Data.HashMap
 import Lean.Data.PersistentHashMap
 universe u v w w'
 

@@ -55,13 +55,14 @@ jobs:
           # the default is to use a virtual merge commit between the PR and master: just use the PR
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Set Up Nix Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: nix-store-cache
           key: ${{ matrix.name }}-nix-store-cache-${{ github.sha }}
           # fall back to (latest) previous cache
           restore-keys: |
             ${{ matrix.name }}-nix-store-cache
+          save-always: true
       - name: Further Set Up Nix Cache
         shell: bash -euxo pipefail {0}
         run: |
@@ -78,13 +79,14 @@ jobs:
           sudo mkdir -m0770 -p /nix/var/cache/ccache
           sudo chown -R $USER /nix/var/cache/ccache
       - name: Setup CCache Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /nix/var/cache/ccache
           key: ${{ matrix.name }}-nix-ccache-${{ github.sha }}
           # fall back to (latest) previous cache
           restore-keys: |
             ${{ matrix.name }}-nix-ccache
+          save-always: true
       - name: Further Set Up CCache Cache
         run: |
           sudo chown -R root:nixbld /nix/var/cache

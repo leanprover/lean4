@@ -244,7 +244,7 @@ instance : Std.Associative (· || ·) := ⟨Bool.or_assoc⟩
 
 @[simp] theorem decide_not [g : Decidable p] [h : Decidable (Not p)] : decide (Not p) = !(decide p) := by
   cases g <;> (rename_i gp; simp [gp]; rfl)
-@[simp] theorem not_decide_eq_true [h : Decidable p] : ((!decide p) = true) = ¬ p := by simp
+theorem not_decide_eq_true [h : Decidable p] : ((!decide p) = true) = ¬ p := by simp
 
 @[simp] theorem heq_eq_eq (a b : α) : HEq a b = (a = b) := propext <| Iff.intro eq_of_heq heq_of_eq
 

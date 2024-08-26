@@ -18,6 +18,7 @@ set_option linter.missingDocs true
 set_option autoImplicit false
 
 open Std.DHashMap.Internal
+open List (Perm perm_middle)
 
 universe w v u
 
@@ -133,15 +134,15 @@ theorem toList_filterMap {f : (a : α) → β a → Option (γ a)} {l : AssocLis
     simpa using this .nil l
   intros l l'
   induction l' generalizing l
-  · simpa [filterMap.go] using Perm.refl _
+  · simp [filterMap.go]
   · next k v t ih =>
     simp only [filterMap.go, toList_cons, List.filterMap_cons]
     split
-    · next h => exact (ih _).trans (by simpa [h] using Perm.refl _)
+    · next h => exact (ih _).trans (by simp [h])
     · next h =>
       refine (ih _).trans ?_
       simp only [toList_cons, List.cons_append]
-      exact perm_middle.symm.trans (by simpa [h] using Perm.refl _)
+      exact perm_middle.symm.trans (by simp [h])
 
 theorem toList_map {f : (a : α) → β a → γ a} {l : AssocList α β} :
     Perm (l.map f).toList (l.toList.map fun p => ⟨p.1, f p.1 p.2⟩) := by
@@ -151,7 +152,7 @@ theorem toList_map {f : (a : α) → β a → γ a} {l : AssocList α β} :
     simpa using this .nil l
   intros l l'
   induction l' generalizing l
-  · simpa [map.go] using Perm.refl _
+  · simp [map.go]
   · next k v t ih =>
     simp only [map.go, toList_cons, List.map_cons]
     refine (ih _).trans ?_
@@ -165,7 +166,7 @@ theorem toList_filter {f : (a : α) → β a → Bool} {l : AssocList α β} :
     simpa using this .nil l
   intros l l'
   induction l' generalizing l
-  · simpa [filter.go] using Perm.refl _
+  · simp [filter.go]
   · next k v t ih =>
     simp only [filter.go, toList_cons, List.filter_cons, cond_eq_if]
     split

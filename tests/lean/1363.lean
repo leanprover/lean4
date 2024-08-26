@@ -1,5 +1,5 @@
-import Lean.Data.Parsec
-open Lean Parsec String
+import Std.Internal.Parsec
+open Std Internal Parsec String
 
 @[macro_inline] -- Error
 def f : Nat → Nat

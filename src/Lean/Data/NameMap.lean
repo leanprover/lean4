@@ -5,6 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import Std.Data.HashSet.Basic
+import Lean.Data.HashSet
 import Lean.Data.RBMap
 import Lean.Data.RBTree
 import Lean.Data.SSet

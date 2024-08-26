@@ -240,7 +240,7 @@ structure Package where
 
 instance : Nonempty Package :=
   have : Inhabited Environment := Classical.inhabited_of_nonempty inferInstance
-  by refine' ⟨{..}⟩ <;> exact default
+  ⟨by constructor <;> exact default⟩
 
 hydrate_opaque_type OpaquePackage Package
 

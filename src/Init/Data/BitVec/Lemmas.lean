@@ -162,6 +162,16 @@ theorem toNat_zero (n : Nat) : (0#n).toNat = 0 := by trivial
 @[simp] theorem toNat_mod_cancel (x : BitVec n) : x.toNat % (2^n) = x.toNat :=
   Nat.mod_eq_of_lt x.isLt
 
+@[simp] theorem sub_toNat_mod_cancel {x : BitVec w} (h : ¬ x = 0#w) :
+    (2 ^ w - x.toNat) % 2 ^ w = 2 ^ w - x.toNat := by
+  simp only [toNat_eq, toNat_ofNat, Nat.zero_mod] at h
+  rw [Nat.mod_eq_of_lt (by omega)]
+
+@[simp] theorem sub_sub_toNat_cancel {x : BitVec w} :
+    2 ^ w - (2 ^ w - x.toNat) = x.toNat := by
+  simp [Nat.sub_sub_eq_min, Nat.min_eq_right]
+  omega
+
 private theorem lt_two_pow_of_le {x m n : Nat} (lt : x < 2 ^ m) (le : m ≤ n) : x < 2 ^ n :=
   Nat.lt_of_lt_of_le lt (Nat.pow_le_pow_of_le_right (by trivial : 0 < 2) le)
 
@@ -293,6 +303,17 @@ theorem toInt_ofNat {n : Nat} (x : Nat) :
 @[simp] theorem ofInt_natCast (w n : Nat) :
   BitVec.ofInt w (n : Int) = BitVec.ofNat w n := rfl
 
+@[simp] theorem ofInt_ofNat (w n : Nat) :
+  BitVec.ofInt w (no_index (OfNat.ofNat n)) = BitVec.ofNat w (OfNat.ofNat n) := rfl
+
+theorem toInt_neg_iff {w : Nat} {x : BitVec w} :
+    BitVec.toInt x < 0 ↔ 2 ^ w ≤ 2 * x.toNat := by
+  simp [toInt_eq_toNat_cond]; omega
+
+theorem toInt_pos_iff {w : Nat} {x : BitVec w} :
+    0 ≤ BitVec.toInt x ↔ 2 * x.toNat < 2 ^ w := by
+  simp [toInt_eq_toNat_cond]; omega
+
 /-! ### zeroExtend and truncate -/
 
 theorem truncate_eq_zeroExtend {v : Nat} {x : BitVec w} :
@@ -300,8 +321,7 @@ theorem truncate_eq_zeroExtend {v : Nat} {x : BitVec w} :
 
 @[simp, bv_toNat] theorem toNat_zeroExtend' {m n : Nat} (p : m ≤ n) (x : BitVec m) :
     (zeroExtend' p x).toNat = x.toNat := by
-  unfold zeroExtend'
-  simp [p, x.isLt, Nat.mod_eq_of_lt]
+  simp [zeroExtend']
 
 @[bv_toNat] theorem toNat_zeroExtend (i : Nat) (x : BitVec n) :
     BitVec.toNat (zeroExtend i x) = x.toNat % 2^i := by
@@ -404,11 +424,9 @@ theorem msb_truncate (x : BitVec w) : (x.truncate (k + 1)).msb = x.getLsb k := b
     (x.truncate l).truncate k = x.truncate k :=
   zeroExtend_zeroExtend_of_le x h
 
-/--Truncating by the bitwidth has no effect. -/
-@[simp]
-theorem truncate_eq_self {x : BitVec w} : x.truncate w = x := by
-  ext i
-  simp [getLsb_zeroExtend]
+/-- Truncating by the bitwidth has no effect. -/
+-- This doesn't need to be a `@[simp]` lemma, as `zeroExtend_eq` applies.
+theorem truncate_eq_self {x : BitVec w} : x.truncate w = x := zeroExtend_eq _
 
 @[simp] theorem truncate_cast {h : w = v} : (cast h x).truncate k = x.truncate k := by
   apply eq_of_getLsb_eq
@@ -463,10 +481,18 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
 @[simp] theorem extractLsb_toNat (hi lo : Nat) (x : BitVec n) :
   (extractLsb hi lo x).toNat = (x.toNat >>> lo) % 2^(hi-lo+1) := rfl
 
+@[simp] theorem getLsb_extractLsb' (start len : Nat) (x : BitVec n) (i : Nat) :
+    (extractLsb' start len x).getLsb i = (i < len && x.getLsb (start+i)) := by
+  simp [getLsb, Nat.lt_succ]
+
 @[simp] theorem getLsb_extract (hi lo : Nat) (x : BitVec n) (i : Nat) :
     getLsb (extractLsb hi lo x) i = (i ≤ (hi-lo) && getLsb x (lo+i)) := by
-  unfold getLsb
-  simp [Nat.lt_succ]
+  simp [getLsb, Nat.lt_succ]
+
+theorem extractLsb'_eq_extractLsb {w : Nat} (x : BitVec w) (start len : Nat) (h : len > 0) :
+    x.extractLsb' start len = (x.extractLsb (len - 1 + start) start).cast (by omega) := by
+  apply eq_of_toNat_eq
+  simp [extractLsb, show len - 1 + 1 = len by omega]
 
 /-! ### allOnes -/
 
@@ -507,6 +533,13 @@ theorem or_assoc (x y z : BitVec w) :
     x ||| y ||| z = x ||| (y ||| z) := by
   ext i
   simp [Bool.or_assoc]
+instance : Std.Associative (α := BitVec n) (· ||| ·) := ⟨BitVec.or_assoc⟩
+
+theorem or_comm (x y : BitVec w) :
+    x ||| y = y ||| x := by
+  ext i
+  simp [Bool.or_comm]
+instance : Std.Commutative (fun (x y : BitVec w) => x ||| y) := ⟨BitVec.or_comm⟩
 
 /-! ### and -/
 
@@ -538,11 +571,13 @@ theorem and_assoc (x y z : BitVec w) :
     x &&& y &&& z = x &&& (y &&& z) := by
   ext i
   simp [Bool.and_assoc]
+instance : Std.Associative (α := BitVec n) (· &&& ·) := ⟨BitVec.and_assoc⟩
 
 theorem and_comm (x y : BitVec w) :
     x &&& y = y &&& x := by
   ext i
   simp [Bool.and_comm]
+instance : Std.Commutative (fun (x y : BitVec w) => x &&& y) := ⟨BitVec.and_comm⟩
 
 /-! ### xor -/
 
@@ -559,6 +594,15 @@ theorem and_comm (x y : BitVec w) :
   rw [← testBit_toNat, getLsb, getLsb]
   simp
 
+@[simp] theorem getMsb_xor {x y : BitVec w} :
+    (x ^^^ y).getMsb i = (xor (x.getMsb i) (y.getMsb i)) := by
+  simp only [getMsb]
+  by_cases h : i < w <;> simp [h]
+
+@[simp] theorem msb_xor {x y : BitVec w} :
+    (x ^^^ y).msb = (xor x.msb y.msb) := by
+  simp [BitVec.msb]
+
 @[simp] theorem truncate_xor {x y : BitVec w} :
     (x ^^^ y).truncate k = x.truncate k ^^^ y.truncate k := by
   ext
@@ -568,6 +612,13 @@ theorem xor_assoc (x y z : BitVec w) :
     x ^^^ y ^^^ z = x ^^^ (y ^^^ z) := by
   ext i
   simp [Bool.xor_assoc]
+instance : Std.Associative (fun (x y : BitVec w) => x ^^^ y) := ⟨BitVec.xor_assoc⟩
+
+theorem xor_comm (x y : BitVec w) :
+    x ^^^ y = y ^^^ x := by
+  ext i
+  simp [Bool.xor_comm]
+instance : Std.Commutative (fun (x y : BitVec w) => x ^^^ y) := ⟨BitVec.xor_comm⟩
 
 /-! ### not -/
 
@@ -651,6 +702,27 @@ theorem zero_shiftLeft (n : Nat) : 0#w <<< n = 0#w := by
   cases h₁ : decide (i < m) <;> cases h₂ : decide (n ≤ i) <;> cases h₃ : decide (i < n)
   all_goals { simp_all <;> omega }
 
+theorem shiftLeft_xor_distrib (x y : BitVec w) (n : Nat) :
+    (x ^^^ y) <<< n = (x <<< n) ^^^ (y <<< n) := by
+  ext i
+  simp only [getLsb_shiftLeft, Fin.is_lt, decide_True, Bool.true_and, getLsb_xor]
+  by_cases h : i < n
+    <;> simp [h]
+
+theorem shiftLeft_and_distrib (x y : BitVec w) (n : Nat) :
+    (x &&& y) <<< n = (x <<< n) &&& (y <<< n) := by
+  ext i
+  simp only [getLsb_shiftLeft, Fin.is_lt, decide_True, Bool.true_and, getLsb_and]
+  by_cases h : i < n
+    <;> simp [h]
+
+theorem shiftLeft_or_distrib (x y : BitVec w) (n : Nat) :
+    (x ||| y) <<< n = (x <<< n) ||| (y <<< n) := by
+  ext i
+  simp only [getLsb_shiftLeft, Fin.is_lt, decide_True, Bool.true_and, getLsb_or]
+  by_cases h : i < n
+    <;> simp [h]
+
 @[simp] theorem getMsb_shiftLeft (x : BitVec w) (i) :
     (x <<< i).getMsb k = x.getMsb (k + i) := by
   simp only [getMsb, getLsb_shiftLeft]
@@ -713,7 +785,6 @@ theorem shiftLeft_shiftLeft {w : Nat} (x : BitVec w) (n m : Nat) :
 @[simp]
 theorem shiftLeft_eq' {x : BitVec w₁} {y : BitVec w₂} : x <<< y = x <<< y.toNat := by rfl
 
-@[simp]
 theorem shiftLeft_zero' {x : BitVec w₁} : x <<< 0#w₂ = x := by simp
 
 theorem shiftLeft_shiftLeft' {x : BitVec w₁} {y : BitVec w₂} {z : BitVec w₃} :
@@ -822,6 +893,30 @@ theorem sshiftRight_eq_of_msb_true {x : BitVec w} {s : Nat} (h : x.msb = true) :
         Nat.not_lt, decide_eq_true_eq]
       omega
 
+theorem sshiftRight_xor_distrib (x y : BitVec w) (n : Nat) :
+    (x ^^^ y).sshiftRight n = (x.sshiftRight n) ^^^ (y.sshiftRight n) := by
+  ext i
+  simp only [getLsb_sshiftRight, getLsb_xor, msb_xor]
+  split
+    <;> by_cases w ≤ i
+    <;> simp [*]
+
+theorem sshiftRight_and_distrib (x y : BitVec w) (n : Nat) :
+    (x &&& y).sshiftRight n = (x.sshiftRight n) &&& (y.sshiftRight n) := by
+  ext i
+  simp only [getLsb_sshiftRight, getLsb_and, msb_and]
+  split
+    <;> by_cases w ≤ i
+    <;> simp [*]
+
+theorem sshiftRight_or_distrib (x y : BitVec w) (n : Nat) :
+    (x ||| y).sshiftRight n = (x.sshiftRight n) ||| (y.sshiftRight n) := by
+  ext i
+  simp only [getLsb_sshiftRight, getLsb_or, msb_or]
+  split
+    <;> by_cases w ≤ i
+    <;> simp [*]
+
 /-- The msb after arithmetic shifting right equals the original msb. -/
 theorem sshiftRight_msb_eq_msb {n : Nat} {x : BitVec w} :
     (x.sshiftRight n).msb = x.msb := by
@@ -857,6 +952,31 @@ theorem sshiftRight_add {x : BitVec w} {m n : Nat} :
 @[simp]
 theorem sshiftRight_eq' (x : BitVec w) : x.sshiftRight' y = x.sshiftRight y.toNat := rfl
 
+/-! ### udiv -/
+
+theorem udiv_eq {x y : BitVec n} : x.udiv y = BitVec.ofNat n (x.toNat / y.toNat) := by
+  have h : x.toNat / y.toNat < 2 ^ n := Nat.lt_of_le_of_lt (Nat.div_le_self ..) (by omega)
+  simp [udiv, bv_toNat, h, Nat.mod_eq_of_lt]
+
+@[simp, bv_toNat]
+theorem toNat_udiv {x y : BitVec n} : (x.udiv y).toNat = x.toNat / y.toNat := by
+  simp only [udiv_eq]
+  by_cases h : y = 0
+  · simp [h]
+  · rw [toNat_ofNat, Nat.mod_eq_of_lt]
+    exact Nat.lt_of_le_of_lt (Nat.div_le_self ..) (by omega)
+
+/-! ### umod -/
+
+theorem umod_eq {x y : BitVec n} :
+    x.umod y = BitVec.ofNat n (x.toNat % y.toNat) := by
+  have h : x.toNat % y.toNat < 2 ^ n := Nat.lt_of_le_of_lt (Nat.mod_le _ _) x.isLt
+  simp [umod, bv_toNat, Nat.mod_eq_of_lt h]
+
+@[simp, bv_toNat]
+theorem toNat_umod {x y : BitVec n} :
+    (x.umod y).toNat = x.toNat % y.toNat := rfl
+
 /-! ### signExtend -/
 
 /-- Equation theorem for `Int.sub` when both arguments are `Int.ofNat` -/
@@ -874,7 +994,7 @@ theorem signExtend_eq_not_zeroExtend_not_of_msb_false {x : BitVec w} {v : Nat} (
   ext i
   by_cases hv : i < v
   · simp only [signExtend, getLsb, getLsb_zeroExtend, hv, decide_True, Bool.true_and, toNat_ofInt,
-      BitVec.toInt_eq_msb_cond, hmsb, ↓reduceIte]
+      BitVec.toInt_eq_msb_cond, hmsb, ↓reduceIte, reduceCtorEq]
     rw [Int.ofNat_mod_ofNat, Int.toNat_ofNat, Nat.testBit_mod_two_pow]
     simp [BitVec.testBit_toNat]
   · simp only [getLsb_zeroExtend, hv, decide_False, Bool.false_and]
@@ -1247,6 +1367,19 @@ theorem neg_eq_not_add (x : BitVec w) : -x = ~~~x + 1 := by
   congr
   have hx : x.toNat < 2^w := x.isLt
   rw [Nat.sub_sub, Nat.add_comm 1 x.toNat, ← Nat.sub_sub, Nat.sub_add_cancel (by omega)]
+
+@[simp]
+theorem neg_neg {x : BitVec w} : - - x = x := by
+  by_cases h : x = 0#w
+  · simp [h]
+  · simp [bv_toNat, h]
+
+theorem neg_ne_iff_ne_neg {x y : BitVec w} : -x ≠ y ↔ x ≠ -y := by
+  constructor
+  all_goals
+    intro h h'
+    subst h'
+    simp at h
 
 /-! ### mul -/
 

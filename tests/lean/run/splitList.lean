@@ -78,7 +78,6 @@ def len : List α → Nat
 termination_by xs => xs.length
 decreasing_by
   all_goals
-    simp_wf
     have := splitList_length (fst ++ snd) (by simp_arith [h₁]) h₁
     subst h₂
     simp_arith [eq_of_heq h₃] at this |- ; simp [this]

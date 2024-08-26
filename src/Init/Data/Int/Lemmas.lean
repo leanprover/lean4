@@ -288,7 +288,7 @@ protected theorem neg_sub (a b : Int) : -(a - b) = b - a := by
 protected theorem sub_sub_self (a b : Int) : a - (a - b) = b := by
   simp [Int.sub_eq_add_neg, ← Int.add_assoc]
 
-protected theorem sub_neg (a b : Int) : a - -b = a + b := by simp [Int.sub_eq_add_neg]
+@[simp] protected theorem sub_neg (a b : Int) : a - -b = a + b := by simp [Int.sub_eq_add_neg]
 
 @[simp] protected theorem sub_add_cancel (a b : Int) : a - b + b = a :=
   Int.neg_add_cancel_right a b
@@ -444,10 +444,10 @@ protected theorem neg_mul_eq_neg_mul (a b : Int) : -(a * b) = -a * b :=
 protected theorem neg_mul_eq_mul_neg (a b : Int) : -(a * b) = a * -b :=
   Int.neg_eq_of_add_eq_zero <| by rw [← Int.mul_add, Int.add_right_neg, Int.mul_zero]
 
-@[local simp] protected theorem neg_mul (a b : Int) : -a * b = -(a * b) :=
+@[simp] protected theorem neg_mul (a b : Int) : -a * b = -(a * b) :=
   (Int.neg_mul_eq_neg_mul a b).symm
 
-@[local simp] protected theorem mul_neg (a b : Int) : a * -b = -(a * b) :=
+@[simp] protected theorem mul_neg (a b : Int) : a * -b = -(a * b) :=
   (Int.neg_mul_eq_mul_neg a b).symm
 
 protected theorem neg_mul_neg (a b : Int) : -a * -b = a * b := by simp

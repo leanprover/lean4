@@ -78,19 +78,19 @@ private def printStructure (id : Name) (levelParams : List Name) (numParams : Na
   logInfo m
 where
   doFields := liftTermElabM do
-    forallTelescope (← getConstInfo id).type fun params type =>
-      withLocalDeclD `self type fun self => do
+    forallTelescope (← getConstInfo id).type fun params _ =>
+      withLocalDeclD `self (mkAppN (Expr.const id (levelParams.map .param)) params) fun self => do
         let params := params.push self
-        let mut m : Format := ""
+        let mut m : MessageData := ""
         for field in fields do
           match getProjFnForField? (← getEnv) id field with
           | some proj =>
             let field : Format := if isPrivateName proj then "private " ++ toString field else toString field
             let cinfo ← getConstInfo proj
             let ftype ← instantiateForall cinfo.type params
-            m := m ++ Format.line ++ field ++ " : " ++ (← ppExpr ftype) -- Why ppExpr here?
+            m := m ++ Format.line ++ field ++ " : " ++ ftype
           | none => panic! "missing structure field info"
-        return m
+        addMessageContext m
 
 private def printIdCore (id : Name) : CommandElabM Unit := do
   let env ← getEnv
@@ -134,7 +134,7 @@ private def printAxiomsOf (constName : Name) : CommandElabM Unit := do
   | _ => throwUnsupportedSyntax
 
 private def printEqnsOf (constName : Name) : CommandElabM Unit := do
-  let some eqns ← liftTermElabM <| Meta.getEqnsFor? constName (nonRec := true) |
+  let some eqns ← liftTermElabM <| Meta.getEqnsFor? constName |
     logInfo m!"'{constName}' does not have equations"
   let mut m := m!"equations:"
   for eq in eqns do

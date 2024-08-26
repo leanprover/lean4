@@ -27,6 +27,8 @@ universe u v w
 
 variable {α : Type u} {β : α → Type v} {γ : Type w} {δ : α → Type w}
 
+open List (Perm perm_append_comm_assoc)
+
 namespace Std.DHashMap.Internal
 
 open Internal.List
@@ -170,8 +172,7 @@ theorem toListModel_updateBucket [BEq α] [Hashable α] [PartialEquivBEq α] [La
   obtain ⟨l, h₁, h₂, h₃⟩ := exists_bucket_of_update m.1.buckets m.2 a f
   refine h₂.trans (Perm.trans ?_ (hg₁ hm.distinct h₁).symm)
   rw [hfg, hg₂]
-  · exact Perm.refl _
-  · exact h₃ hm.buckets_hash_self _ rfl
+  exact h₃ hm.buckets_hash_self _ rfl
 
 /-- This is the general theorem to show that mapping operations (like `map` and `filter`) are
 correct. -/
@@ -191,7 +192,7 @@ theorem toListModel_updateAllBuckets {m : Raw₀ α β} {f : AssocList α β →
       Perm (g l'') l' →
       Perm (l.foldl (fun acc a => acc ++ (f a).toList) l')
         (g (l.foldl (fun acc a => acc ++ a.toList) l'')) by
-    simpa using this m.1.buckets.data [] [] (by simpa [hg₀] using Perm.refl _)
+    simpa using this m.1.buckets.data [] [] (by simp [hg₀])
   rintro l l' l'' h
   induction l generalizing l' l''
   · simpa using h.symm

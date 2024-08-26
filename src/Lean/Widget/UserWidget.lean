@@ -78,10 +78,7 @@ builtin_initialize moduleRegistry : ModuleRegistry ←
     toArrayFn     := fun es => es.toArray
   }
 
-/--
-Registers `[builtin_widget_module]` and `[widget_module]` and binds the latter's implementation
-(used for creating the obsolete `[widget]` alias below).
- -/
+/-- Registers a widget module. Its type must implement `Lean.Widget.ToModule`. -/
 builtin_initialize widgetModuleAttrImpl : AttributeImpl ←
   let mkAttr (builtin : Bool) (name : Name) := do
     let impl := {
@@ -109,6 +106,9 @@ builtin_initialize widgetModuleAttrImpl : AttributeImpl ←
     }
     registerBuiltinAttribute impl
     return impl
+  /- We declare the `[builtin_widget_module]` and `[widget_module]` attributes
+  and bind the latter's implementation
+  (used for creating the obsolete `[widget]` alias below). -/
   let _ ← mkAttr true `builtin_widget_module
   mkAttr false `widget_module
 

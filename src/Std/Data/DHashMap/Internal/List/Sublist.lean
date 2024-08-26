@@ -43,7 +43,7 @@ theorem Sublist.length_le {l₁ l₂ : List α} (h : Sublist l₁ l₂) : l₁.l
 theorem Sublist.of_cons_left {l₁ l₂ : List α} {a : α} (h : Sublist (a::l₁) l₂) : Sublist l₁ l₂ := by
   cases h
   · exact .cons_right .refl
-  . exact .cons_right ‹_›
+  · exact .cons_right ‹_›
   · next h t ih => exact .cons_right (Sublist.of_cons_left ‹_›)
 
 @[simp]

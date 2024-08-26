@@ -336,7 +336,7 @@ macro_rules | `($x == $y) => `(binrel_no_prop% BEq.beq $x $y)
 @[inherit_doc] infixl:30 " || " => or
 @[inherit_doc] notation:max "!" b:40 => not b
 
-@[inherit_doc] infix:50 " ∈ " => Membership.mem
+@[inherit_doc] notation:50 a:50 " ∈ " b:50 => Membership.mem b a
 /-- `a ∉ b` is negated elementhood. It is notation for `¬ (a ∈ b)`. -/
 notation:50 a:50 " ∉ " b:50 => ¬ (a ∈ b)
 
@@ -703,6 +703,17 @@ syntax (name := checkSimp) "#check_simp " term "~>" term : command
 `#check_simp t !~>` checks `simp` fails on reducing `t`.
 -/
 syntax (name := checkSimpFailure) "#check_simp " term "!~>" : command
+
+/--
+Time the elaboration of a command, and print the result (in milliseconds).
+
+Example usage:
+```
+set_option maxRecDepth 100000 in
+#time example : (List.range 500).length = 500 := rfl
+```
+-/
+syntax (name := timeCmd) "#time " command : command
 
 /--
 `#discr_tree_key  t` prints the discrimination tree keys for a term `t` (or, if it is a single identifier, the type of that constant).

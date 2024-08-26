@@ -14,5 +14,5 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 
 namespace lean {
 /** \brief Store module using \c env. */
-void write_module(environment const & env, std::string const & olean_fn);
+LEAN_EXPORT void write_module(environment const & env, std::string const & olean_fn);
 }

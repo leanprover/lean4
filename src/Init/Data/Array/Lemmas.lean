@@ -335,6 +335,13 @@ theorem mem_data {a : α} {l : Array α} : a ∈ l.data ↔ a ∈ l := (mem_def 
 
 theorem not_mem_nil (a : α) : ¬ a ∈ #[] := nofun
 
+theorem getElem_of_mem {a : α} {as : Array α} :
+    a ∈ as → (∃ (n : Nat) (h : n < as.size), as[n]'h = a) := by
+  intro ha
+  rcases List.getElem_of_mem ha.val with ⟨i, hbound, hi⟩
+  exists i
+  exists hbound
+
 /-- # get lemmas -/
 
 theorem lt_of_getElem {x : α} {a : Array α} {idx : Nat} {hidx : idx < a.size} (_ : a[idx] = x) :
@@ -734,6 +741,12 @@ theorem getElem_modify_of_ne {as : Array α} {i : Nat} (hj : j < as.size)
     (f : α → α) (h : i ≠ j) :
     (as.modify i f)[j]'(by rwa [size_modify]) = as[j] := by
   simp [getElem_modify hj, h]
+
+@[deprecated getElem_modify (since := "2024-08-08")]
+theorem get_modify {arr : Array α} {x i} (h : i < arr.size) :
+    (arr.modify x f).get ⟨i, by simp [h]⟩ =
+    if x = i then f (arr.get ⟨i, h⟩) else arr.get ⟨i, h⟩ := by
+  simp [getElem_modify h]
 
 /-! ### filter -/
 

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.Diff
-// Imports: Init.Data Std.Data.HashMap.Basic Init.Omega
+// Imports: Init.Data.Array.Subarray.Split Init.Data.Range Lean.Data.HashMap Std.Data.HashMap.Basic Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4357,7 +4357,9 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_Data(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Subarray_Split(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Range(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_HashMap(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_HashMap_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Omega(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -4365,7 +4367,13 @@ LEAN_EXPORT lean_object* initialize_Lean_Util_Diff(uint8_t builtin, lean_object*
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_Subarray_Split(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Data_HashMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_HashMap_Basic(builtin, lean_io_mk_world());

@@ -226,10 +226,16 @@ private def elabHeaders (views : Array DefView)
       headers := headers.push newHeader
     return headers
 where
-  getBodyTerm? (stx : Syntax) : Option Syntax :=
+  getBodyTerm? (stx : Syntax) : Option Syntax := do
     -- TODO: does not work with partial syntax
-    --| `(Parser.Command.declVal| := $body $_suffix:suffix $[$_where]?) => body
-    guard (stx.isOfKind ``Parser.Command.declValSimple) *> some stx[1]
+    --| `(Parser.Command.declVal| := $body $_suffix:suffix) => body
+    guard (stx.isOfKind ``Parser.Command.declValSimple)
+    let body := stx[1]
+    let whereDeclsOpt := stx[3]
+    -- We currently disable incrementality in presence of `where` as we would have to handle the
+    -- generated leading `let rec` specially
+    guard whereDeclsOpt.isNone
+    return body
 
   /-- Creates snapshot task with appropriate range from body syntax and promise. -/
   mkBodyTask (body : Syntax) (new : IO.Promise (Option BodyProcessedSnapshot)) :
@@ -327,7 +333,62 @@ def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
   profileitM Exception s!"instantiate metavars" (← getOptions) do
     instantiateMVars e
 
-private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array Expr) :=
+/--
+Runs `k` with a restricted local context where only section variables from `vars` are included that
+* are directly referenced in any `headers`,
+* are included in `sc.includedVars` (via the `include` command),
+* are directly referenced in any variable included by these rules, OR
+* are instance-implicit variables that only reference section variables included by these rules AND
+  are not listed in `sc.omittedVars` (via `omit`; note that `omit` also subtracts from
+  `sc.includedVars`).
+-/
+private def withHeaderSecVars {α} (vars : Array Expr) (sc : Command.Scope) (headers : Array DefViewElabHeader)
+    (k : Array Expr → TermElabM α) : TermElabM α := do
+  let mut revSectionFVars : Std.HashMap FVarId Name := {}
+  for (uid, var) in (← read).sectionFVars do
+    revSectionFVars := revSectionFVars.insert var.fvarId! uid
+  let (_, used) ← collectUsed revSectionFVars |>.run {}
+  let (lctx, localInsts, vars) ← removeUnused vars used
+  withLCtx lctx localInsts <| k vars
+where
+  collectUsed revSectionFVars : StateRefT CollectFVars.State MetaM Unit := do
+    -- directly referenced in headers
+    headers.forM (·.type.collectFVars)
+    -- included by `include`
+    for var in vars do
+      if let some uid := revSectionFVars[var.fvarId!]? then
+        if sc.includedVars.contains uid then
+          modify (·.add var.fvarId!)
+    -- transitively referenced
+    get >>= (·.addDependencies) >>= set
+    for var in (← get).fvarIds do
+      if let some uid := revSectionFVars[var]? then
+        if sc.omittedVars.contains uid then
+          throwError "cannot omit referenced section variable '{Expr.fvar var}'"
+    -- instances (`addDependencies` unnecessary as by definition they may only reference variables
+    -- already included)
+    for var in vars do
+      let ldecl ← getFVarLocalDecl var
+      if let some uid := revSectionFVars[var.fvarId!]? then
+        if sc.omittedVars.contains uid then
+          continue
+      let st ← get
+      if ldecl.binderInfo.isInstImplicit && (← getFVars ldecl.type).all st.fvarSet.contains then
+        modify (·.add ldecl.fvarId)
+  getFVars (e : Expr) : MetaM (Array FVarId) :=
+    (·.2.fvarIds) <$> e.collectFVars.run {}
+
+register_builtin_option deprecated.oldSectionVars : Bool := {
+  defValue := false
+  descr    := "re-enable deprecated behavior of including exactly the section variables used in a declaration"
+}
+
+register_builtin_option linter.unusedSectionVars : Bool := {
+  defValue := true
+  descr := "enable the 'unused section variables in theorem body' linter"
+}
+
+private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr) (sc : Command.Scope) : TermElabM (Array Expr) :=
   headers.mapM fun header => do
     let mut reusableResult? := none
     if let some snap := header.bodySnap? then
@@ -342,6 +403,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array
       withReuseContext header.value do
       withDeclName header.declName <| withLevelNames header.levelNames do
       let valStx ← liftMacroM <| declValToTerm header.value
+      (if header.kind.isTheorem && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc #[header] else fun x => x #[]) fun vars => do
       forallBoundedTelescope header.type header.numParams fun xs type => do
         -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
         for i in [0:header.binderIds.size] do
@@ -353,7 +415,27 @@ private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array
         -- NOTE: without this `instantiatedMVars`, `mkLambdaFVars` may leave around a redex that
         -- leads to more section variables being included than necessary
         let val ← instantiateMVarsProfiling val
-        mkLambdaFVars xs val
+        let val ← mkLambdaFVars xs val
+        if linter.unusedSectionVars.get (← getOptions) && !header.type.hasSorry && !val.hasSorry then
+          let unusedVars ← vars.filterMapM fun var => do
+            let varDecl ← var.fvarId!.getDecl
+            return if sc.includedVars.contains varDecl.userName ||
+                header.type.containsFVar var.fvarId! || val.containsFVar var.fvarId! ||
+                (← vars.anyM (fun v => return (← v.fvarId!.getType).containsFVar var.fvarId!)) then
+              none
+            else
+              if varDecl.userName.hasMacroScopes && varDecl.binderInfo.isInstImplicit then
+                some m!"[{varDecl.type}]"
+              else
+                some m!"{var}"
+          if unusedVars.size > 0 then
+            Linter.logLint linter.unusedSectionVars header.ref
+              m!"automatically included section variable(s) unused in theorem '{header.declName}':\
+              \n  {MessageData.joinSep unusedVars.toList "\n  "}\
+              \nconsider restructuring your `variable` declarations so that the variables are not \
+                in scope or explicitly omit them:\
+              \n  omit {MessageData.joinSep unusedVars.toList " "} in theorem ..."
+        return val
     if let some snap := header.bodySnap? then
       snap.new.resolve <| some {
         diagnostics :=
@@ -904,7 +986,7 @@ partial def checkForHiddenUnivLevels (allUserLevelNames : List Name) (preDefs : 
     for preDef in preDefs do
       checkPreDef preDef
 
-def elabMutualDef (vars : Array Expr) (views : Array DefView) : TermElabM Unit :=
+def elabMutualDef (vars : Array Expr) (sc : Command.Scope) (views : Array DefView) : TermElabM Unit :=
   if isExample views then
     withoutModifyingEnv do
       -- save correct environment in info tree
@@ -925,7 +1007,7 @@ where
           addLocalVarInfo view.declId funFVar
         let values ←
           try
-            let values ← elabFunValues headers
+            let values ← elabFunValues headers vars sc
             Term.synthesizeSyntheticMVarsNoPostponing
             values.mapM (instantiateMVarsProfiling ·)
           catch ex =>
@@ -935,7 +1017,7 @@ where
         let letRecsToLift ← getLetRecsToLift
         let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift
         checkLetRecsToLiftTypes funFVars letRecsToLift
-        withUsed vars headers values letRecsToLift fun vars => do
+        (if headers.all (·.kind.isTheorem) && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc headers else withUsed vars headers values letRecsToLift) fun vars => do
           let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift
           for preDef in preDefs do
             trace[Elab.definition] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
@@ -1006,7 +1088,8 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
     if let some snap := snap? then
       -- no non-fatal diagnostics at this point
       snap.new.resolve <| .ofTyped { defs, diagnostics := .empty : DefsParsedSnapshot }
-    runTermElabM fun vars => Term.elabMutualDef vars views
+    let sc ← getScope
+    runTermElabM fun vars => Term.elabMutualDef vars sc views
 
 builtin_initialize
   registerTraceClass `Elab.definition.mkClosure

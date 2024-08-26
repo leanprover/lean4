@@ -558,7 +558,7 @@ structure Iterator where
   `Iterator.next` when `Iterator.atEnd` is true. If the position is not valid, then the
   current character is `(default : Char)`, similar to `String.get` on an invalid position. -/
   i : Pos
-  deriving DecidableEq
+  deriving DecidableEq, Inhabited
 
 /-- Creates an iterator at the beginning of a string. -/
 def mkIterator (s : String) : Iterator :=

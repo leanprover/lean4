@@ -25,6 +25,14 @@ theorem length_filter_lt_length_iff_exists (l) :
   simpa [length_eq_countP_add_countP p l, countP_eq_length_filter] using
   countP_pos (fun x => ¬p x) (l := l)
 
+/-! ### reverse -/
+
+theorem getElem_eq_getElem_reverse {l : List α} {i} (h : i < l.length) :
+    l[i] = l.reverse[l.length - 1 - i]'(by simpa using Nat.sub_one_sub_lt_of_lt h) := by
+  rw [getElem_reverse]
+  congr
+  omega
+
 /-! ### leftpad -/
 
 /-- The length of the List returned by `List.leftpad n a l` is equal

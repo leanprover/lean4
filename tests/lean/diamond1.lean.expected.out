@@ -11,5 +11,5 @@ toBar : Bar (α → α)
 c : Bool → α
 d : Nat
 def f : Nat → Foo Nat :=
-fun x => { a := fun y => x + y, b := fun x x_1 => x + x_1, c := fun x_1 => x, d := x }
+fun x => { a := fun y => x + y, b := fun x1 x2 => x1 + x2, c := fun x_1 => x, d := x }
 diamond1.lean:27:47-27:52: warning: field 'a' from 'Baz' has already been declared

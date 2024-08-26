@@ -7,7 +7,6 @@ import Lean.Data.Json
 import Lean.Data.NameMap
 import Lake.Util.DRBMap
 import Lake.Util.RBArray
-import Lake.Util.Compare
 
 open Lean
 

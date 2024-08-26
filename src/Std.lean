@@ -7,3 +7,5 @@ prelude
 import Std.Data
 import Std.Sat
 import Std.Time
+import Std.Tactic
+import Std.Internal

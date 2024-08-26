@@ -36,6 +36,17 @@ and `flip (·<·)` is the greater-than relation.
 
 theorem Function.comp_def {α β δ} (f : β → δ) (g : α → β) : f ∘ g = fun x => f (g x) := rfl
 
+@[simp] theorem Function.const_comp {f : α → β} {c : γ} :
+    (Function.const β c ∘ f) = Function.const α c := by
+  rfl
+@[simp] theorem Function.comp_const {f : β → γ} {b : β} :
+    (f ∘ Function.const α b) = Function.const α (f b) := by
+  rfl
+@[simp] theorem Function.true_comp {f : α → β} : ((fun _ => true) ∘ f) = fun _ => true := by
+  rfl
+@[simp] theorem Function.false_comp {f : α → β} : ((fun _ => false) ∘ f) = fun _ => false := by
+  rfl
+
 attribute [simp] namedPattern
 
 /--
@@ -1104,6 +1115,13 @@ inductive Relation.TransGen {α : Sort u} (r : α → α → Prop) : α → α �
 /-- Deprecated synonym for `Relation.TransGen`. -/
 @[deprecated Relation.TransGen (since := "2024-07-16")] abbrev TC := @Relation.TransGen
 
+theorem Relation.TransGen.trans {α : Sort u} {r : α → α → Prop} {a b c} :
+    TransGen r a b → TransGen r b c → TransGen r a c := by
+  intro hab hbc
+  induction hbc with
+  | single h => exact TransGen.tail hab h
+  | tail _ h ih => exact TransGen.tail ih h
+
 /-! # Subtype -/
 
 namespace Subtype
@@ -1546,7 +1564,7 @@ so you should consider the simpler versions if they apply:
 * `Quot.recOnSubsingleton`, when the target type is a `Subsingleton`
 * `Quot.hrecOn`, which uses `HEq (f a) (f b)` instead of a `sound p ▸ f a = f b` assummption
 -/
-protected abbrev rec
+@[elab_as_elim] protected abbrev rec
     (f : (a : α) → motive (Quot.mk r a))
     (h : (a b : α) → (p : r a b) → Eq.ndrec (f a) (sound p) = f b)
     (q : Quot r) : motive q :=

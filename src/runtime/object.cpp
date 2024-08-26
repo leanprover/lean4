@@ -46,12 +46,18 @@ Author: Leonardo de Moura
 
 namespace lean {
 
+static bool should_abort_on_panic() {
+#ifdef LEAN_EMSCRIPTEN
+    return false;
+#else
+    return std::getenv("LEAN_ABORT_ON_PANIC");
+#endif
+}
+
 static void abort_on_panic() {
-#ifndef LEAN_EMSCRIPTEN
-    if (std::getenv("LEAN_ABORT_ON_PANIC")) {
+    if (should_abort_on_panic()) {
         abort();
     }
-#endif
 }
 
 extern "C" LEAN_EXPORT void lean_internal_panic(char const * msg) {
@@ -83,27 +89,41 @@ extern "C" LEAN_EXPORT void lean_set_panic_messages(bool flag) {
     g_panic_messages = flag;
 }
 
+static void panic_eprintln(char const * line) {
+    if (g_exit_on_panic || should_abort_on_panic()) {
+        // If we are about to kill the process, we should skip the Lean stderr buffer
+        std::cerr << line << "\n";
+    } else {
+        io_eprintln(lean_mk_string(line));
+    }
+}
+
 static void print_backtrace() {
 #ifdef __GLIBC__
     void * bt_buf[100];
     int nptrs = backtrace(bt_buf, sizeof(bt_buf) / sizeof(void *));
-    backtrace_symbols_fd(bt_buf, nptrs, STDERR_FILENO);
-    if (nptrs == sizeof(bt_buf)) {
-        std::cerr << "...\n";
+    if (char ** symbols = backtrace_symbols(bt_buf, nptrs)) {
+        for (int i = 0; i < nptrs; i++) {
+            panic_eprintln(symbols[i]);
+        }
+        // According to `man backtrace`, each `symbols[i]` should NOT be freed
+        free(symbols);
+        if (nptrs == sizeof(bt_buf)) {
+            panic_eprintln("...");
+        }
     }
 #else
-    std::cerr << "(stack trace unavailable)\n";
+    panic_eprintln("(stack trace unavailable)");
 #endif
 }
 
 extern "C" LEAN_EXPORT object * lean_panic_fn(object * default_val, object * msg) {
-    // TODO(Leo, Kha): add thread local buffer for interpreter.
     if (g_panic_messages) {
-        std::cerr << lean_string_cstr(msg) << "\n";
+        panic_eprintln(lean_string_cstr(msg));
 #ifdef __GLIBC__
         char * bt_env = getenv("LEAN_BACKTRACE");
         if (!bt_env || strcmp(bt_env, "0") != 0) {
-            std::cerr << "backtrace:\n";
+            panic_eprintln("backtrace:");
             print_backtrace();
         }
 #endif

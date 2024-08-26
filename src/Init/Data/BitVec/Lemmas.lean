@@ -1457,20 +1457,6 @@ protected theorem lt_of_le_ne (x y : BitVec n) (h1 : x <= y) (h2 : ¬ x = y) : x
   simp
   exact Nat.lt_of_le_of_ne
 
-/-! ### intMax -/
-
-/-- The bitvector of width `w` that has the largest value when interpreted as an integer. -/
-def intMax (w : Nat) : BitVec w := BitVec.ofNat w (2^w - 1)
-
-theorem getLsb_intMax_eq (w : Nat) : (intMax w).getLsb i = decide (i < w) := by
-  simp [intMax, getLsb]
-
-theorem toNat_intMax_eq : (intMax w).toNat = 2^w - 1 := by
-  have h : 2^w - 1 < 2^w := by
-    have pos : 2^w > 0 := Nat.pow_pos (by decide)
-    omega
-  simp [intMax, Nat.shiftLeft_eq, Nat.one_mul, natCast_eq_ofNat, toNat_ofNat, Nat.mod_eq_of_lt h]
-
 /-! ### ofBoolList -/
 
 @[simp] theorem getMsb_ofBoolListBE : (ofBoolListBE bs).getMsb i = bs.getD i false := by
@@ -1793,5 +1779,49 @@ theorem getLsb_replicate {n w : Nat} (x : BitVec w) :
     · rw [Nat.mul_succ] at hi ⊢
       simp only [show ¬i < w * n by omega, decide_False, cond_false, hi, Bool.false_and]
       apply BitVec.getLsb_ge (x := x) (i := i - w * n) (ge := by omega)
+
+/-! ### intMin -/
+
+/-- The bitvector of width `w` that has the smallest value when interpreted as an integer. -/
+abbrev intMin (w : Nat) := twoPow w (w - 1)
+
+theorem getLsb_intMin (w : Nat) : (intMin w).getLsb i = decide (i + 1 = w) := by
+  simp only [getLsb_twoPow, Bool.and_eq_decide, decide_eq_decide]
+  omega
+
+@[simp, bv_toNat]
+theorem toNat_intMin : (intMin w).toNat = 2 ^ (w - 1) % 2 ^ w := by
+  simp
+
+@[simp]
+theorem neg_intMin {w : Nat} : -intMin w = intMin w := by
+  by_cases h : 0 < w
+  · simp [bv_toNat, h]
+  · simp only [Nat.not_lt, Nat.le_zero_eq] at h
+    simp [bv_toNat, h]
+
+/-! ### intMax -/
+
+/-- The bitvector of width `w` that has the largest value when interpreted as an integer. -/
+abbrev intMax (w : Nat) := (twoPow w (w - 1)) - 1
+
+@[simp, bv_toNat]
+theorem toNat_intMax : (intMax w).toNat = 2 ^ (w - 1) - 1 := by
+  simp only [intMax]
+  by_cases h : w = 0
+  · simp [h]
+  · have h' : 0 < w := by omega
+    rw [toNat_sub, toNat_twoPow, ← Nat.sub_add_comm (by simpa [h'] using Nat.one_le_two_pow),
+      Nat.add_sub_assoc (by simpa [h'] using Nat.one_le_two_pow),
+      Nat.two_pow_pred_mod_two_pow h', ofNat_eq_ofNat, toNat_ofNat, Nat.one_mod_two_pow h',
+      Nat.add_mod_left, Nat.mod_eq_of_lt]
+    have := Nat.two_pow_pred_lt_two_pow h'
+    have := Nat.two_pow_pos w
+    omega
+
+@[simp]
+theorem getLsb_intMax (w : Nat) : (intMax w).getLsb i = decide (i + 1 < w) := by
+  rw [← testBit_toNat, toNat_intMax, Nat.testBit_two_pow_sub_one, decide_eq_decide]
+  omega
 
 end BitVec

@@ -185,6 +185,12 @@ theorem Sublist.subset : l₁ <+ l₂ → l₁ ⊆ l₂
 protected theorem Sublist.mem (hx : a ∈ l₁) (hl : l₁ <+ l₂) : a ∈ l₂ :=
   hl.subset hx
 
+theorem Sublist.head_mem (s : ys <+ xs) (h) : ys.head h ∈ xs :=
+  s.mem (List.head_mem h)
+
+theorem Sublist.getLast_mem (s : ys <+ xs) (h) : ys.getLast h ∈ xs :=
+  s.mem (List.getLast_mem h)
+
 instance : Trans (@Sublist α) Subset Subset :=
   ⟨fun h₁ h₂ => trans h₁.subset h₂⟩
 
@@ -245,6 +251,12 @@ protected theorem Sublist.filterMap (f : α → Option β) (s : l₁ <+ l₂) :
 
 protected theorem Sublist.filter (p : α → Bool) {l₁ l₂} (s : l₁ <+ l₂) : filter p l₁ <+ filter p l₂ := by
   rw [← filterMap_eq_filter]; apply s.filterMap
+
+theorem head_filter_mem (xs : List α) (p : α → Bool) (h) : (xs.filter p).head h ∈ xs :=
+  (filter_sublist xs).head_mem h
+
+theorem getLast_filter_mem (xs : List α) (p : α → Bool) (h) : (xs.filter p).getLast h ∈ xs :=
+  (filter_sublist xs).getLast_mem h
 
 theorem sublist_filterMap_iff {l₁ : List β} {f : α → Option β} :
     l₁ <+ l₂.filterMap f ↔ ∃ l', l' <+ l₂ ∧ l₁ = l'.filterMap f := by
@@ -786,12 +798,12 @@ theorem infix_cons_iff : l₁ <:+: a :: l₂ ↔ l₁ <+: a :: l₂ ∨ l₁ <:+
 
 theorem prefix_concat_iff {l₁ l₂ : List α} {a : α} :
     l₁ <+: l₂ ++ [a] ↔ l₁ = l₂ ++ [a] ∨ l₁ <+: l₂ := by
-  simp only [← concat_eq_append, ← reverse_suffix, reverse_concat, suffix_cons_iff]
+  simp only [← reverse_suffix, reverse_concat, suffix_cons_iff]
   simp only [concat_eq_append, ← reverse_concat, reverse_eq_iff, reverse_reverse]
 
 theorem suffix_concat_iff {l₁ l₂ : List α} {a : α} :
     l₁ <:+ l₂ ++ [a] ↔ l₁ = [] ∨ ∃ t, l₁ = t ++ [a] ∧ t <:+ l₂ := by
-  rw [← reverse_prefix, ← concat_eq_append, reverse_concat, prefix_cons_iff]
+  rw [← reverse_prefix, reverse_concat, prefix_cons_iff]
   simp only [reverse_eq_nil_iff]
   apply or_congr_right
   constructor
@@ -802,7 +814,7 @@ theorem suffix_concat_iff {l₁ l₂ : List α} {a : α} :
 
 theorem infix_concat_iff {l₁ l₂ : List α} {a : α} :
     l₁ <:+: l₂ ++ [a] ↔ l₁ <:+ l₂ ++ [a] ∨ l₁ <:+: l₂ := by
-  rw [← reverse_infix, ← concat_eq_append, reverse_concat, infix_cons_iff, reverse_infix,
+  rw [← reverse_infix, reverse_concat, infix_cons_iff, reverse_infix,
     ← reverse_prefix, reverse_concat]
 
 theorem isPrefix_iff : l₁ <+: l₂ ↔ ∀ i (h : i < l₁.length), l₂[i]? = some l₁[i] := by

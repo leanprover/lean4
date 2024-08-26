@@ -42,7 +42,7 @@ theorem exists_of_findSome?_eq_some {l : List α} {f : α → Option β} (w : l.
     (l.findSome? f).map g = l.findSome? (Option.map g ∘ f) := by
   induction l <;> simp [findSome?_cons]; split <;> simp [*]
 
-@[simp] theorem findSome?_map (f : β → γ) (l : List β) : findSome? p (l.map f) = l.findSome? (p ∘ f) := by
+theorem findSome?_map (f : β → γ) (l : List β) : findSome? p (l.map f) = l.findSome? (p ∘ f) := by
   induction l with
   | nil => simp
   | cons x xs ih =>
@@ -217,7 +217,7 @@ theorem mem_of_find?_eq_some : ∀ {l}, find? p l = some a → a ∈ l
     simp only [map_cons, find?]
     by_cases h : p (f x) <;> simp [h, ih]
 
-theorem find?_append {l₁ l₂ : List α} : (l₁ ++ l₂).find? p = (l₁.find? p).or (l₂.find? p) := by
+@[simp] theorem find?_append {l₁ l₂ : List α} : (l₁ ++ l₂).find? p = (l₁.find? p).or (l₂.find? p) := by
   induction l₁ with
   | nil => simp
   | cons x xs ih =>
@@ -236,9 +236,53 @@ theorem find?_join_eq_none (xs : List (List α)) (p : α → Bool) :
     xs.join.find? p = none ↔ ∀ ys ∈ xs, ∀ x ∈ ys, !p x := by
   simp
 
+/--
+If `find? p` returns `some a` from `xs.join`, then `p a` holds, and
+some list in `xs` contains `a`, and no earlier element of that list satisfies `p`.
+Moreover, no earlier list in `xs` has an element satisfying `p`.
+-/
+theorem find?_join_eq_some (xs : List (List α)) (p : α → Bool) (a : α) :
+    xs.join.find? p = some a ↔
+      p a ∧ ∃ as ys zs bs, xs = as ++ (ys ++ a :: zs) :: bs ∧
+        (∀ a ∈ as, ∀ x ∈ a, !p x) ∧ (∀ x ∈ ys, !p x) := by
+  rw [find?_eq_some]
+  constructor
+  · rintro ⟨h, ⟨ys, zs, h₁, h₂⟩⟩
+    refine ⟨h, ?_⟩
+    rw [join_eq_append] at h₁
+    obtain (⟨as, bs, rfl, rfl, h₁⟩ | ⟨as, bs, c, cs, ds, rfl, rfl, h₁⟩) := h₁
+    · replace h₁ := h₁.symm
+      rw [join_eq_cons] at h₁
+      obtain ⟨bs, cs, ds, rfl, h₁, rfl⟩ := h₁
+      refine ⟨as ++ bs, [], cs, ds, by simp, ?_⟩
+      simp
+      rintro a (ma | mb) x m
+      · simpa using h₂ x (by simpa using ⟨a, ma, m⟩)
+      · specialize h₁ _ mb
+        simp_all
+    · simp [h₁]
+      refine ⟨as, bs, ?_⟩
+      refine ⟨?_, ?_, ?_⟩
+      · simp_all
+      · intro l ml a m
+        simpa using h₂ a (by simpa using .inl ⟨l, ml, m⟩)
+      · intro x m
+        simpa using h₂ x (by simpa using .inr m)
+  · rintro ⟨h, ⟨as, ys, zs, bs, rfl, h₁, h₂⟩⟩
+    refine ⟨h, as.join ++ ys, zs ++ bs.join, by simp, ?_⟩
+    intro a m
+    simp at m
+    obtain ⟨l, ml, m⟩ | m := m
+    · exact h₁ l ml a m
+    · exact h₂ a m
+
 @[simp] theorem find?_bind (xs : List α) (f : α → List β) (p : β → Bool) :
     (xs.bind f).find? p = xs.findSome? (fun x => (f x).find? p) := by
-  simp [bind_def]; rfl
+  simp [bind_def, findSome?_map]; rfl
+
+theorem find?_bind_eq_none (xs : List α) (f : α → List β) (p : β → Bool) :
+    (xs.bind f).find? p = none ↔ ∀ x ∈ xs, ∀ y ∈ f x, !p y := by
+  simp
 
 theorem find?_replicate : find? p (replicate n a) = if n = 0 then none else if p a then some a else none := by
   cases n
@@ -254,7 +298,8 @@ theorem find?_replicate : find? p (replicate n a) = if n = 0 then none else if p
 @[simp] theorem find?_replicate_of_neg (h : ¬ p a) : find? p (replicate n a) = none := by
   simp [find?_replicate, h]
 
-@[simp] theorem find?_replicate_eq_none (n : Nat) (a : α) (p : α → Bool) :
+-- This isn't a `@[simp]` lemma since there is already a lemma for `l.find? p = none` for any `l`.
+theorem find?_replicate_eq_none (n : Nat) (a : α) (p : α → Bool) :
     (replicate n a).find? p = none ↔ n = 0 ∨ !p a := by
   simp [Classical.or_iff_not_imp_left]
 
@@ -633,7 +678,7 @@ theorem findIdx?_eq_enum_findSome? {xs : List α} {p : α → Bool} :
     split
     · simp_all
     · simp_all only [enumFrom_cons, ite_false, Option.isNone_none, findSome?_cons_of_isNone]
-      simp [Function.comp_def, ← map_fst_add_enum_eq_enumFrom]
+      simp [Function.comp_def, ← map_fst_add_enum_eq_enumFrom, findSome?_map]
 
 theorem Sublist.findIdx?_isSome {l₁ l₂ : List α} (h : l₁ <+ l₂) :
     (l₁.findIdx? p).isSome → (l₂.findIdx? p).isSome := by

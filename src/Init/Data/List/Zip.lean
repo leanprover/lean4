@@ -78,13 +78,13 @@ theorem map_prod_left_eq_zip {l : List α} (f : α → β) :
     (l.map fun x => (x, f x)) = l.zip (l.map f) := by
   rw [← zip_map']
   congr
-  exact map_id _
+  simp
 
 theorem map_prod_right_eq_zip {l : List α} (f : α → β) :
     (l.map fun x => (f x, x)) = (l.map f).zip l := by
   rw [← zip_map']
   congr
-  exact map_id _
+  simp
 
 /-- See also `List.zip_replicate` in `Init.Data.List.TakeDrop` for a generalization with different lengths. -/
 @[simp] theorem zip_replicate' {a : α} {b : β} {n : Nat} :

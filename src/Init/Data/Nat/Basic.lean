@@ -158,7 +158,7 @@ theorem add_one (n : Nat) : n + 1 = succ n :=
   rfl
 
 @[simp] theorem add_one_ne_zero (n : Nat) : n + 1 ≠ 0 := nofun
-@[simp] theorem zero_ne_add_one (n : Nat) : 0 ≠ n + 1 := nofun
+theorem zero_ne_add_one (n : Nat) : 0 ≠ n + 1 := by simp
 
 protected theorem add_comm : ∀ (n m : Nat), n + m = m + n
   | n, 0   => Eq.symm (Nat.zero_add n)

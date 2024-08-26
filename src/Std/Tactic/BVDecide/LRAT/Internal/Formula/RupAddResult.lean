@@ -20,6 +20,9 @@ namespace DefaultFormula
 open Std.Sat
 open DefaultClause DefaultFormula Assignment
 
+-- TODO: remove aux lemma after update-stage0
+private theorem false_ne_true : (false = true) = False := by simp
+
 theorem size_insertUnit {n : Nat} (units : Array (Literal (PosFin n)))
     (assignments : Array Assignment) (b : Bool) (l : Literal (PosFin n)) :
     (insertUnit (units, assignments, b) l).2.1.size = assignments.size := by
@@ -111,7 +114,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
           ⟨units.size, units_size_lt_updatedUnits_size⟩
         have i_gt_zero : i.1 > 0 := by rw [i_eq_l]; exact l.1.2.1
         refine ⟨mostRecentUnitIdx, l.2, i_gt_zero, ?_⟩
-        simp only [insertUnit, h3, ite_false, Array.get_push_eq, i_eq_l]
+        simp [insertUnit, h3, ite_false, Array.get_push_eq, i_eq_l]
         constructor
         · rfl
         · constructor
@@ -127,7 +130,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
                 apply Nat.lt_of_le_of_ne
                 · apply Nat.le_of_lt_succ
                   have k_property := k.2
-                  simp only [insertUnit, h3, ite_false, Array.size_push] at k_property
+                  simp [insertUnit, h3, ite_false, Array.size_push] at k_property
                   exact k_property
                 · intro h
                   simp only [← h, not_true, mostRecentUnitIdx] at hk
@@ -137,7 +140,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
               exact h2 ⟨k.1, k_in_bounds⟩
       · next i_ne_l =>
         apply Or.inl
-        simp only [insertUnit, h3, ite_false]
+        simp [insertUnit, h3, ite_false]
         rw [Array.getElem_modify_of_ne i_in_bounds _ (Ne.symm i_ne_l)]
         constructor
         · exact h1
@@ -178,7 +181,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
         let mostRecentUnitIdx : Fin (insertUnit (units, assignments, foundContradiction) l).1.size :=
           ⟨units.size, units_size_lt_updatedUnits_size⟩
         have j_lt_updatedUnits_size : j.1 < (insertUnit (units, assignments, foundContradiction) l).1.size := by
-          simp only [insertUnit, h5, ite_false, Array.size_push]
+          simp [insertUnit, h5, ite_false, Array.size_push]
           exact Nat.lt_trans j.2 (Nat.lt_succ_self units.size)
         match hb : b, hl : l.2 with
         | true, true =>
@@ -189,11 +192,11 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
           exact h5 (has_add _ true)
         | true, false =>
           refine ⟨⟨j.1, j_lt_updatedUnits_size⟩, mostRecentUnitIdx, i_gt_zero, ?_⟩
-          simp only [insertUnit, h5, ite_false, Array.get_push_eq, ne_eq]
+          simp [insertUnit, h5, ite_false, Array.get_push_eq, ne_eq]
           constructor
           · rw [Array.get_push_lt units l j.1 j.2, h1]
           · constructor
-            · simp only [i_eq_l, ← hl]
+            · simp [i_eq_l, ← hl]
               rfl
             · constructor
               · simp only [i_eq_l]
@@ -219,16 +222,16 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
                     exact h4 ⟨k.1, h⟩ k_ne_j
                   · exfalso
                     have k_property := k.2
-                    simp only [insertUnit, h5, ite_false, Array.size_push] at k_property
+                    simp [insertUnit, h5, ite_false, Array.size_push] at k_property
                     rcases Nat.lt_or_eq_of_le <| Nat.le_of_lt_succ k_property with k_lt_units_size | k_eq_units_size
                     · exact h k_lt_units_size
                     · simp only [← k_eq_units_size, not_true, mostRecentUnitIdx] at k_ne_l
                       exact k_ne_l rfl
         | false, true =>
           refine ⟨mostRecentUnitIdx, ⟨j.1, j_lt_updatedUnits_size⟩, i_gt_zero, ?_⟩
-          simp only [insertUnit, h5, ite_false, Array.get_push_eq, ne_eq]
+          simp [insertUnit, h5, ite_false, Array.get_push_eq, ne_eq]
           constructor
-          · simp only [i_eq_l, ← hl]
+          · simp [i_eq_l, ← hl]
             rfl
           · constructor
             · rw [Array.get_push_lt units l j.1 j.2, h1]
@@ -241,8 +244,8 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
                 · match h : assignments0[i.val]'_ with
                   | unassigned => rfl
                   | pos =>
-                    simp only [addAssignment, h, ite_false, addNegAssignment] at h2
-                    simp only [i_eq_l] at h2
+                    simp [addAssignment, h, ite_false, addNegAssignment] at h2
+                    simp [i_eq_l] at h2
                     simp [hasAssignment, hl, getElem!, l_in_bounds, h2, hasPosAssignment, decidableGetElem?] at h5
                   | neg  => simp (config := {decide := true}) only [h] at h3
                   | both => simp (config := {decide := true}) only [h] at h3
@@ -256,7 +259,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
                     exact h4 ⟨k.1, h⟩ k_ne_j
                   · exfalso
                     have k_property := k.2
-                    simp only [insertUnit, h5, ite_false, Array.size_push] at k_property
+                    simp [insertUnit, h5, ite_false, Array.size_push] at k_property
                     rcases Nat.lt_or_eq_of_le <| Nat.le_of_lt_succ k_property with k_lt_units_size | k_eq_units_size
                     · exact h k_lt_units_size
                     · simp only [← k_eq_units_size, not_true, mostRecentUnitIdx] at k_ne_l
@@ -270,10 +273,10 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
       · next i_ne_l =>
         apply Or.inr ∘ Or.inl
         have j_lt_updatedUnits_size : j.1 < (insertUnit (units, assignments, foundContradiction) l).1.size := by
-          simp only [insertUnit, h5, ite_false, Array.size_push]
+          simp [insertUnit, h5, ite_false, Array.size_push]
           exact Nat.lt_trans j.2 (Nat.lt_succ_self units.size)
         refine ⟨⟨j.1, j_lt_updatedUnits_size⟩, b,i_gt_zero, ?_⟩
-        simp only [insertUnit, h5, ite_false]
+        simp [insertUnit, h5, ite_false]
         constructor
         · rw [Array.get_push_lt units l j.1 j.2, h1]
         · constructor
@@ -350,7 +353,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
                 simp only
                 have k_eq_units_size : k.1 = units.size := by
                   have k_property := k.2
-                  simp only [insertUnit, h, ite_false, Array.size_push] at k_property
+                  simp [insertUnit, h, ite_false, Array.size_push] at k_property
                   rcases Nat.lt_or_eq_of_le <| Nat.le_of_lt_succ k_property with k_lt_units_size | k_eq_units_size
                   · exfalso; exact k_not_lt_units_size k_lt_units_size
                   · exact k_eq_units_size
@@ -431,7 +434,7 @@ theorem nodup_insertRupUnits {n : Nat} (f : DefaultFormula n) (f_readyForRupAdd 
         by_cases j = k2
         · next j_eq_k2 =>
           rw [← j_eq_k2, hj, ← bi_eq_bj, bi_eq_true] at h2
-          simp only [Prod.mk.injEq, and_false] at h2
+          simp at h2
         · next j_ne_k2 =>
           specialize h5 j j_ne_k1 j_ne_k2
           rw [hj, li_eq_lj] at h5
@@ -440,7 +443,7 @@ theorem nodup_insertRupUnits {n : Nat} (f : DefaultFormula n) (f_readyForRupAdd 
         by_cases i = k2
         · next i_eq_k2 =>
           rw [← i_eq_k2, hi, bi_eq_true] at h2
-          simp only [Prod.mk.injEq, and_false] at h2
+          simp at h2
         · next i_ne_k2 =>
           specialize h5 i i_ne_k1 i_ne_k2
           rw [hi] at h5
@@ -453,7 +456,7 @@ theorem nodup_insertRupUnits {n : Nat} (f : DefaultFormula n) (f_readyForRupAdd 
         by_cases j = k1
         · next j_eq_k1 =>
           rw [← j_eq_k1, hj, ← bi_eq_bj, bi_eq_false] at h1
-          simp only [Prod.mk.injEq, and_false] at h1
+          simp at h1
         · next j_ne_k1 =>
           specialize h5 j j_ne_k1 j_ne_k2
           rw [hj, li_eq_lj] at h5
@@ -462,7 +465,7 @@ theorem nodup_insertRupUnits {n : Nat} (f : DefaultFormula n) (f_readyForRupAdd 
         by_cases i = k1
         · next i_eq_k1 =>
           rw [← i_eq_k1, hi, bi_eq_false] at h1
-          simp only [Prod.mk.injEq, and_false] at h1
+          simp at h1
         · next i_ne_k1 =>
           specialize h5 i i_ne_k1 i_ne_k2
           rw [hi] at h5
@@ -580,7 +583,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
       have idx_ne_j2 : idx ≠ j2 := by
         rw [idx_eq_j1]
         intro j1_eq_j2
-        simp only [j1_eq_j2, ih2, Prod.mk.injEq, and_false] at ih1
+        simp [j1_eq_j2, ih2] at ih1
       refine Or.inr <| Or.inl <| ⟨j2, false, i_gt_zero, ?_⟩
       constructor
       · apply Nat.le_of_lt_succ
@@ -597,7 +600,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
             rw [Array.getElem_modify_self i_in_bounds, ih3, ih4]
             decide
           · constructor
-            · simp only [hasAssignment, hasNegAssignment, ih4, ite_false, not_false_eq_true]
+            · simp [hasAssignment, hasNegAssignment, ih4]
             · intro k k_ge_idx_add_one k_ne_j2
               intro h1
               by_cases units[k.1].2
@@ -873,7 +876,7 @@ theorem confirmRupHint_preserves_invariant_helper {n : Nat} (f : DefaultFormula 
                 simp only [l'_eq_false, hasAssignment, ite_false] at h2
                 simp only [hasAssignment, l_eq_true, getElem!, l_eq_i, i_in_bounds,
                   Array.get_eq_getElem, ↓reduceIte, ↓reduceDIte, h1, addAssignment, l'_eq_false,
-                  hasPos_addNeg, decidableGetElem?] at h
+                  hasPos_addNeg, decidableGetElem?, false_ne_true] at h
                 exact unassigned_of_has_neither _ h h2
               · intro k k_ne_zero k_ne_j_succ
                 have k_eq_succ : ∃ k' : Nat, ∃ k'_succ_in_bounds : k' + 1 < (l :: acc.2.1).length, k = ⟨k' + 1, k'_succ_in_bounds⟩ := by
@@ -921,7 +924,7 @@ theorem confirmRupHint_preserves_invariant_helper {n : Nat} (f : DefaultFormula 
               · simp only [l'] at l'_eq_true
                 simp only [hasAssignment, l'_eq_true, ite_true] at h2
                 simp only [hasAssignment, l_eq_false, ↓reduceIte, getElem!, l_eq_i, i_in_bounds,
-                  Array.get_eq_getElem, h1, addAssignment, l'_eq_true, hasNeg_addPos, decidableGetElem?] at h
+                  Array.get_eq_getElem, h1, addAssignment, l'_eq_true, hasNeg_addPos, decidableGetElem?, false_ne_true] at h
                 exact unassigned_of_has_neither _ h2 h
               · intro k k_ne_j_succ k_ne_zero
                 have k_eq_succ : ∃ k' : Nat, ∃ k'_succ_in_bounds : k' + 1 < (l :: acc.2.1).length, k = ⟨k' + 1, k'_succ_in_bounds⟩ := by
@@ -1330,9 +1333,9 @@ theorem rupAdd_result {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) (ru
   · simp only [clear_insertRup f f_readyForRupAdd (negate c), Prod.mk.injEq, and_true] at rupAddSuccess
     exact rupAddSuccess.symm
   · split at rupAddSuccess
-    · simp only [Prod.mk.injEq, and_false] at rupAddSuccess
+    · simp at rupAddSuccess
     · split at rupAddSuccess
-      · simp only [Prod.mk.injEq, and_false] at rupAddSuccess
+      · simp at rupAddSuccess
       · let fc := (insertRupUnits f (negate c)).1
         have fc_assignments_size : (insertRupUnits f (negate c)).1.assignments.size = n := by
           rw [size_assignments_insertRupUnits f (negate c)]

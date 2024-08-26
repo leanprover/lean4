@@ -137,7 +137,7 @@ theorem Inv2.property (decls : Array (Decl α)) (idx upper : Nat) (map : HashMap
     next idx' _ _ =>
     replace hidx : idx ≤ idx' := by omega
     cases Nat.eq_or_lt_of_le hidx with
-    | inl hidxeq => simp only [hidxeq, ih3] at heq
+    | inl hidxeq => simp [hidxeq, ih3] at heq
     | inr hlt => apply ih4 <;> assumption
   | gate ih1 ih2 ih3 ih4 =>
     next idx' _ _ _ _ _ =>

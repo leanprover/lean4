@@ -162,7 +162,7 @@ theorem map_some : f <$> some a = some (f a) := rfl
 theorem map_eq_some : f <$> x = some b ↔ ∃ a, x = some a ∧ f a = b := map_eq_some'
 
 @[simp] theorem map_eq_none' : x.map f = none ↔ x = none := by
-  cases x <;> simp only [map_none', map_some', eq_self_iff_true]
+  cases x <;> simp [map_none', map_some', eq_self_iff_true]
 
 theorem isSome_map {x : Option α} : (f <$> x).isSome = x.isSome := by
   cases x <;> simp

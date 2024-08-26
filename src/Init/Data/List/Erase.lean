@@ -39,13 +39,13 @@ theorem eraseP_of_forall_not {l : List α} (h : ∀ a, a ∈ l → ¬p a) : l.er
   | cons x xs ih =>
     simp only [eraseP_cons, cond_eq_if]
     split <;> rename_i h
-    · simp only [false_or]
+    · simp
       constructor
       · rintro rfl
         simpa
       · rintro ⟨_, _, rfl, rfl⟩
         rfl
-    · simp only [cons.injEq, false_or, false_iff, not_exists, not_and]
+    · simp
       rintro x h' rfl
       simp_all
 

@@ -155,7 +155,7 @@ theorem isUnit_iff (c : DefaultClause n) (l : Literal (PosFin n)) :
   split
   · next l' heq => simp [heq]
   · next hne =>
-    simp only [false_iff]
+    simp [false_iff]
     apply hne
 
 def negate (c : DefaultClause n) : CNF.Clause (PosFin n) := c.clause.map Literal.negate
@@ -183,13 +183,13 @@ def insert (c : DefaultClause n) (l : Literal (PosFin n)) : Option (DefaultClaus
         · apply Or.inr
           constructor
           · intro heq
-            simp only [← heq] at hl
+            simp [← heq] at hl
           · simpa [hl, ← l'_eq_l] using heq1
         · simp only [Bool.not_eq_true] at hl
           apply Or.inl
           constructor
           · intro heq
-            simp only [← heq] at hl
+            simp [← heq] at hl
           · simpa [hl, ← l'_eq_l] using heq1
       · next l'_ne_l =>
         have := c.nodupkey l'
@@ -250,14 +250,14 @@ theorem ofArray_eq (arr : Array (Literal (PosFin n)))
     intro c' heq
     simp only [Fin.getElem_fin, fold_fn] at heq
     split at heq
-    · simp only at heq
+    · simp at heq
     · next acc =>
       specialize ih acc rfl
       rcases ih with ⟨hsize, ih⟩
       simp only at ih
       simp only [insert] at heq
       split at heq
-      · exact False.elim heq
+      · simp at heq
       · split at heq
         · next h_dup =>
           exfalso -- h_dup contradicts arrNodup

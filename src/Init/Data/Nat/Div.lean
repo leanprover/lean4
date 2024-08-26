@@ -221,7 +221,7 @@ theorem le_div_iff_mul_le (k0 : 0 < k) : x ≤ y / k ↔ x * k ≤ y := by
   induction y, k using mod.inductionOn generalizing x with
     (rw [div_eq]; simp [h]; cases x with | zero => simp [zero_le] | succ x => ?_)
   | base y k h =>
-    simp only [add_one, succ_mul, false_iff, Nat.not_le]
+    simp only [add_one, succ_mul, false_iff, Nat.not_le, Nat.succ_ne_zero]
     refine Nat.lt_of_lt_of_le ?_ (Nat.le_add_left ..)
     exact Nat.not_le.1 fun h' => h ⟨k0, h'⟩
   | ind y k h IH =>

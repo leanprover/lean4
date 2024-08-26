@@ -17,9 +17,6 @@ namespace Internal
 
 namespace DefaultFormula
 
--- TODO: remove aux lemma after update-stage0
-private theorem false_ne_true : (false = true) = False := by simp
-
 open Std.Sat
 open DefaultClause DefaultFormula Assignment ReduceResult
 
@@ -52,7 +49,7 @@ theorem contradiction_of_insertUnit_success {n : Nat} (assignments : Array Assig
         simp [Array.getElem_modify_of_ne i_in_bounds _ l_ne_i]
         exact h
     · apply Exists.intro l.1
-      simp only [insertUnit, hl, ite_false, Array.getElem_modify_self l_in_bounds, false_ne_true]
+      simp only [insertUnit, hl, ite_false, Array.getElem_modify_self l_in_bounds, reduceCtorEq]
       simp only [getElem!, l_in_bounds, dite_true, decidableGetElem?] at assignments_l_ne_unassigned
       by_cases l.2
       · next l_eq_true =>
@@ -184,7 +181,7 @@ theorem sat_of_insertRup {n : Nat} (f : DefaultFormula n) (f_readyForRupAdd : Re
     · apply Or.inr
       rw [i'_eq_i] at i_true_in_c
       apply And.intro i_true_in_c
-      simp only [addAssignment, ← b_eq_false, addNegAssignment, ite_false, false_ne_true] at h2
+      simp only [addAssignment, ← b_eq_false, addNegAssignment, ite_false, reduceCtorEq] at h2
       split at h2
       · next heq =>
         have hasPosAssignment_fi : hasAssignment true (f.assignments[i.1]'i_in_bounds) := by
@@ -669,7 +666,7 @@ theorem confirmRupHint_preserves_motive {n : Nat} (f : DefaultFormula n) (rupHin
         simp only [ConfirmRupHintFoldEntailsMotive]
         split
         · simp [h1, hsize]
-        · simp [Array.size_modify, hsize]
+        · simp only [Array.size_modify, hsize, Bool.false_eq_true, false_implies, and_true, true_and]
           intro p pf
           have pacc := h1 p pf
           have pc : p ⊨ c := by
@@ -703,7 +700,7 @@ theorem confirmRupHint_preserves_motive {n : Nat} (f : DefaultFormula n) (rupHin
               by_cases hb : b
               · simp [(· ⊨ ·), hb, Subtype.ext l_eq_i, pi] at plb
               · simp only [Bool.not_eq_true] at hb
-                simp only [hasAssignment, addAssignment, hb, ite_false, ite_true, hasPos_addNeg, false_ne_true]
+                simp only [hasAssignment, addAssignment, hb, ite_false, ite_true, hasPos_addNeg, reduceCtorEq]
                 simp only [hasAssignment, ite_true] at pacc
                 exact pacc
           · next l_ne_i =>

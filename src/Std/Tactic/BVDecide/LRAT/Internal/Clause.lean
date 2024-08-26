@@ -155,7 +155,7 @@ theorem isUnit_iff (c : DefaultClause n) (l : Literal (PosFin n)) :
   split
   · next l' heq => simp [heq]
   · next hne =>
-    simp [false_iff]
+    simp
     apply hne
 
 def negate (c : DefaultClause n) : CNF.Clause (PosFin n) := c.clause.map Literal.negate

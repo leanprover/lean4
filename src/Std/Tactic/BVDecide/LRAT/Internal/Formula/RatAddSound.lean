@@ -17,9 +17,6 @@ namespace Internal
 
 namespace DefaultFormula
 
--- TODO: remove aux lemma after update-stage0
-private theorem false_ne_true : (false = true) = False := by simp
-
 open Std.Sat
 open DefaultClause DefaultFormula Assignment ReduceResult
 
@@ -318,7 +315,7 @@ theorem sat_of_insertRat {n : Nat} (f : DefaultFormula n)
     · apply Or.inr
       rw [i'_eq_i] at i_true_in_c
       apply And.intro i_true_in_c
-      simp only [addAssignment, ← b_eq_false, addNegAssignment, ite_false, false_ne_true] at h2
+      simp only [addAssignment, ← b_eq_false, addNegAssignment, ite_false, reduceCtorEq] at h2
       split at h2
       · next heq =>
         have hasPosAssignment_fi : hasAssignment true (f.assignments[i.1]'i_in_bounds) := by
@@ -408,8 +405,8 @@ theorem assignmentsInvariant_performRupCheck_of_assignmentsInvariant {n : Nat} (
     rw [hb] at h
     by_cases pi : p i
     · exact pi
-    · simp at pi
-      simp [pi, decide_True, h] at h1
+    · simp only at pi
+      simp [pi, h] at h1
   · simp only [Bool.not_eq_true] at hb
     rw [hb]
     rw [hb] at h

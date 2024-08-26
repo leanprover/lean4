@@ -57,8 +57,7 @@ theorem apply_ite (f : α → β) (P : Prop) [Decidable P] (x y : α) :
 -- We don't mark this as `simp` as it is already handled by `ite_eq_right_iff`.
 theorem ite_some_none_eq_none [Decidable P] :
     (if P then some x else none) = none ↔ ¬ P := by
-  have : some x ≠ none := Option.noConfusion
-  simp only [ite_eq_right_iff, this]
+  simp only [ite_eq_right_iff, reduceCtorEq]
   rfl
 
 @[simp] theorem ite_some_none_eq_some [Decidable P] :

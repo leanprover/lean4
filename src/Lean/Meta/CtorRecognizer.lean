@@ -72,7 +72,7 @@ def constructorApp? (e : Expr) : MetaM (Option (ConstructorVal × Array Expr)) :
 Similar to `constructorApp?`, but on failure it puts `e` in WHNF and tries again.
 It also `isOffset?`
 -/
-def constructorApp'? (e : Expr) (useWHNF := true) : MetaM (Option (ConstructorVal × Array Expr)) := do
+def constructorApp'? (e : Expr) : MetaM (Option (ConstructorVal × Array Expr)) := do
   if let some (e, k) ← isOffset? e then
     if k = 0 then
       return none
@@ -82,9 +82,13 @@ def constructorApp'? (e : Expr) (useWHNF := true) : MetaM (Option (ConstructorVa
       else return some (val, #[mkNatAdd e (toExpr (k-1))])
   else if let some r ← constructorApp? e then
     return some r
-  else if useWHNF then
+  else try
+    /-
+    We added the `try` block here because `whnf` fails at terms `n ^ m`
+    when `m` is a big numeral, and `n` is a numeral. This is a little bit hackish.
+    -/
     constructorApp? (← whnf e)
-  else
+  catch _ =>
     return none
 
 end Lean.Meta

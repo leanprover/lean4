@@ -20,6 +20,11 @@ Further results on `List.take` and `List.drop`, which rely on stronger automatio
 are given in `Init.Data.List.TakeDrop`.
 -/
 
+theorem take_cons {l : List α} (h : 0 < n) : take n (a :: l) = a :: take (n - 1) l := by
+  cases n with
+  | zero => exact absurd h (Nat.lt_irrefl _)
+  | succ n => rfl
+
 @[simp]
 theorem drop_one : ∀ l : List α, drop 1 l = tail l
   | [] | _ :: _ => rfl
@@ -74,7 +79,7 @@ theorem drop_eq_get_cons {n} {l : List α} (h) : drop n l = get l ⟨n, h⟩ :: 
   simp [drop_eq_getElem_cons]
 
 @[simp]
-theorem getElem?_take {l : List α} {n m : Nat} (h : m < n) : (l.take n)[m]? = l[m]? := by
+theorem getElem?_take_of_lt {l : List α} {n m : Nat} (h : m < n) : (l.take n)[m]? = l[m]? := by
   induction n generalizing l m with
   | zero =>
     exact absurd h (Nat.not_lt_of_le m.zero_le)
@@ -86,13 +91,11 @@ theorem getElem?_take {l : List α} {n m : Nat} (h : m < n) : (l.take n)[m]? = l
       · simp
       · simpa using hn (Nat.lt_of_succ_lt_succ h)
 
-@[deprecated getElem?_take (since := "2024-06-12")]
+@[deprecated getElem?_take_of_lt (since := "2024-06-12")]
 theorem get?_take {l : List α} {n m : Nat} (h : m < n) : (l.take n).get? m = l.get? m := by
-  simp [getElem?_take, h]
+  simp [getElem?_take_of_lt, h]
 
-@[simp]
-theorem getElem?_take_of_succ {l : List α} {n : Nat} : (l.take (n + 1))[n]? = l[n]? :=
-  getElem?_take (Nat.lt_succ_self n)
+theorem getElem?_take_of_succ {l : List α} {n : Nat} : (l.take (n + 1))[n]? = l[n]? := by simp
 
 @[simp] theorem drop_drop (n : Nat) : ∀ (m) (l : List α), drop n (drop m l) = drop (n + m) l
   | m, [] => by simp
@@ -432,6 +435,12 @@ theorem take_takeWhile {l : List α} (p : α → Bool) n :
   induction l with
   | nil => rfl
   | cons h t ih => by_cases p h <;> simp_all
+
+/-! ### splitAt -/
+
+@[simp] theorem splitAt_eq (n : Nat) (l : List α) : splitAt n l = (l.take n, l.drop n) := by
+  rw [splitAt, splitAt_go, reverse_nil, nil_append]
+  split <;> simp_all [take_of_length_le, drop_of_length_le]
 
 /-! ### rotateLeft -/
 

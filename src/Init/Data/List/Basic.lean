@@ -96,7 +96,7 @@ namespace List
 
 /-! ### concat -/
 
-@[simp high] theorem length_concat (as : List α) (a : α) : (concat as a).length = as.length + 1 := by
+theorem length_concat (as : List α) (a : α) : (concat as a).length = as.length + 1 := by
   induction as with
   | nil => rfl
   | cons _ xs ih => simp [concat, ih]
@@ -278,8 +278,9 @@ def getLastD : (as : List α) → (fallback : α) → α
   | [],   a₀ => a₀
   | a::as, _ => getLast (a::as) (fun h => List.noConfusion h)
 
-@[simp] theorem getLastD_nil (a) : @getLastD α [] a = a := rfl
-@[simp] theorem getLastD_cons (a b l) : @getLastD α (b::l) a = getLastD l b := by cases l <;> rfl
+-- These aren't `simp` lemmas since we always simplify `getLastD` in terms of `getLast?`.
+theorem getLastD_nil (a) : @getLastD α [] a = a := rfl
+theorem getLastD_cons (a b l) : @getLastD α (b::l) a = getLastD l b := by cases l <;> rfl
 
 /-! ## Head and tail -/
 
@@ -961,6 +962,26 @@ substring of `l₂`, that is, `l₂` has the form `s ++ l₁ ++ t` for some `s, 
 def IsInfix (l₁ : List α) (l₂ : List α) : Prop := Exists fun s => Exists fun t => s ++ l₁ ++ t = l₂
 
 @[inherit_doc] infixl:50 " <:+: " => IsInfix
+
+/-! ### splitAt -/
+
+/--
+Split a list at an index.
+```
+splitAt 2 [a, b, c] = ([a, b], [c])
+```
+-/
+def splitAt (n : Nat) (l : List α) : List α × List α := go l n [] where
+  /--
+  Auxiliary for `splitAt`:
+  `splitAt.go l xs n acc = (acc.reverse ++ take n xs, drop n xs)` if `n < xs.length`,
+  and `(l, [])` otherwise.
+  -/
+  go : List α → Nat → List α → List α × List α
+  | [], _, _ => (l, []) -- This branch ensures the pointer equality of the result with the input
+                        -- without any runtime branching cost.
+  | x :: xs, n+1, acc => go xs n (x :: acc)
+  | xs, _, acc => (acc.reverse, xs)
 
 /-! ### rotateLeft -/
 

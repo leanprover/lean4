@@ -176,7 +176,8 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
   let mut binderIds := binderIds
   let mut binderIdsIniSize := binderIds.size
   let mut modifiedVarDecls := false
-  for varDecl in varDecls do
+  -- Go through declarations in reverse to respect shadowing
+  for varDecl in varDecls.reverse do
     let (ids, ty?, explicit') ← match varDecl with
       | `(bracketedBinderF|($ids* $[: $ty?]? $(annot?)?)) =>
         if annot?.isSome then
@@ -208,7 +209,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
           `(bracketedBinderF| ($id $[: $ty?]?))
         else
           `(bracketedBinderF| {$id $[: $ty?]?})
-      for id in ids do
+      for id in ids.reverse do
         if let some idx := binderIds.findIdx? fun binderId => binderId.raw.isIdent && binderId.raw.getId == id.raw.getId then
           binderIds := binderIds.eraseIdx idx
           modifiedVarDecls := true
@@ -216,7 +217,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
         else
           varDeclsNew := varDeclsNew.push (← mkBinder id explicit')
   if modifiedVarDecls then
-    modifyScope fun scope => { scope with varDecls := varDeclsNew }
+    modifyScope fun scope => { scope with varDecls := varDeclsNew.reverse }
   if binderIds.size != binderIdsIniSize then
     binderIds.mapM fun binderId =>
       if explicit then
@@ -228,15 +229,14 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
 
 @[builtin_command_elab «variable»] def elabVariable : CommandElab
   | `(variable $binders*) => do
+    let binders ← binders.concatMapM replaceBinderAnnotation
     -- Try to elaborate `binders` for sanity checking
     runTermElabM fun _ => Term.withSynthesize <| Term.withAutoBoundImplicit <|
       Term.elabBinders binders fun _ => pure ()
+    -- Remark: if we want to produce error messages when variables shadow existing ones, here is the place to do it.
     for binder in binders do
-      let binders ← replaceBinderAnnotation binder
-      -- Remark: if we want to produce error messages when variables shadow existing ones, here is the place to do it.
-      for binder in binders do
-        let varUIds ← getBracketedBinderIds binder |>.mapM (withFreshMacroScope ∘ MonadQuotation.addMacroScope)
-        modifyScope fun scope => { scope with varDecls := scope.varDecls.push binder, varUIds := scope.varUIds ++ varUIds }
+      let varUIds ← (← getBracketedBinderIds binder) |>.mapM (withFreshMacroScope ∘ MonadQuotation.addMacroScope)
+      modifyScope fun scope => { scope with varDecls := scope.varDecls.push binder, varUIds := scope.varUIds ++ varUIds }
   | _ => throwUnsupportedSyntax
 
 open Meta
@@ -504,12 +504,60 @@ def elabRunMeta : CommandElab := fun stx =>
 
 @[builtin_command_elab Lean.Parser.Command.include] def elabInclude : CommandElab
   | `(Lean.Parser.Command.include| include $ids*) => do
-    let vars := (← getScope).varDecls.concatMap getBracketedBinderIds
+    let sc ← getScope
+    let vars ← sc.varDecls.concatMapM getBracketedBinderIds
+    let mut uids := #[]
     for id in ids do
-      unless vars.contains id.getId do
+      if let some idx := vars.findIdx? (· == id.getId) then
+        uids := uids.push sc.varUIds[idx]!
+      else
         throwError "invalid 'include', variable '{id}' has not been declared in the current scope"
-    modifyScope fun sc =>
-      { sc with includedVars := sc.includedVars ++ ids.toList.map (·.getId) }
+    modifyScope fun sc => { sc with
+      includedVars := sc.includedVars ++ uids.toList
+      omittedVars := sc.omittedVars.filter (!uids.contains ·) }
+  | _ => throwUnsupportedSyntax
+
+@[builtin_command_elab Lean.Parser.Command.omit] def elabOmit : CommandElab
+  | `(Lean.Parser.Command.omit| omit $omits*) => do
+    -- TODO: this really shouldn't have to re-elaborate section vars... they should come
+    -- pre-elaborated
+    let omittedVars ← runTermElabM fun vars => do
+      Term.synthesizeSyntheticMVarsNoPostponing
+      -- We don't want to store messages produced when elaborating `(getVarDecls s)` because they have already been saved when we elaborated the `variable`(s) command.
+      -- So, we use `Core.resetMessageLog`.
+      Core.resetMessageLog
+      -- resolve each omit to variable user name or type pattern
+      let elaboratedOmits : Array (Sum Name Expr) ← omits.mapM fun
+        | `(ident| $id:ident) => pure <| Sum.inl id.getId
+        | `(Lean.Parser.Term.instBinder| [$id : $_]) => pure <| Sum.inl id.getId
+        | `(Lean.Parser.Term.instBinder| [$ty]) =>
+          Sum.inr <$> Term.withoutErrToSorry (Term.elabTermAndSynthesize ty none)
+        | _ => throwUnsupportedSyntax
+      -- check that each omit is actually used in the end
+      let mut omitsUsed := omits.map fun _ => false
+      let mut omittedVars := #[]
+      let mut revSectionFVars : Std.HashMap FVarId Name := {}
+      for (uid, var) in (← read).sectionFVars do
+        revSectionFVars := revSectionFVars.insert var.fvarId! uid
+      for var in vars do
+        let ldecl ← var.fvarId!.getDecl
+        if let some idx := (← elaboratedOmits.findIdxM? fun
+            | .inl id => return ldecl.userName == id
+            | .inr ty => do
+              let mctx ← getMCtx
+              isDefEq ty ldecl.type <* setMCtx mctx) then
+          if let some uid := revSectionFVars[var.fvarId!]? then
+            omittedVars := omittedVars.push uid
+            omitsUsed := omitsUsed.set! idx true
+          else
+            throwError "invalid 'omit', '{ldecl.userName}' has not been declared in the current scope"
+      for o in omits, used in omitsUsed do
+        unless used do
+          throwError "'{o}' did not match any variables in the current scope"
+      return omittedVars
+    modifyScope fun sc => { sc with
+      omittedVars := sc.omittedVars ++ omittedVars.toList
+      includedVars := sc.includedVars.filter (!omittedVars.contains ·) }
   | _ => throwUnsupportedSyntax
 
 @[builtin_command_elab Parser.Command.exit] def elabExit : CommandElab := fun _ =>

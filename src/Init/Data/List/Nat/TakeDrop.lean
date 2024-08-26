@@ -70,20 +70,20 @@ theorem get?_take_eq_none {l : List α} {n m : Nat} (h : n ≤ m) :
     (l.take n).get? m = none := by
   simp [getElem?_take_eq_none h]
 
-theorem getElem?_take_eq_if {l : List α} {n m : Nat} :
+theorem getElem?_take {l : List α} {n m : Nat} :
     (l.take n)[m]? = if m < n then l[m]? else none := by
   split
-  · next h => exact getElem?_take h
+  · next h => exact getElem?_take_of_lt h
   · next h => exact getElem?_take_eq_none (Nat.le_of_not_lt h)
 
-@[deprecated getElem?_take_eq_if (since := "2024-06-12")]
+@[deprecated getElem?_take (since := "2024-06-12")]
 theorem get?_take_eq_if {l : List α} {n m : Nat} :
     (l.take n).get? m = if m < n then l.get? m else none := by
-  simp [getElem?_take_eq_if]
+  simp [getElem?_take]
 
 theorem head?_take {l : List α} {n : Nat} :
     (l.take n).head? = if n = 0 then none else l.head? := by
-  simp [head?_eq_getElem?, getElem?_take_eq_if]
+  simp [head?_eq_getElem?, getElem?_take]
   split
   · rw [if_neg (by omega)]
   · rw [if_pos (by omega)]
@@ -95,7 +95,7 @@ theorem head_take {l : List α} {n : Nat} (h : l.take n ≠ []) :
   simp_all
 
 theorem getLast?_take {l : List α} : (l.take n).getLast? = if n = 0 then none else l[n - 1]?.or l.getLast? := by
-  rw [getLast?_eq_getElem?, getElem?_take_eq_if, length_take]
+  rw [getLast?_eq_getElem?, getElem?_take, length_take]
   split
   · rw [if_neg (by omega)]
     rw [Nat.min_def]
@@ -128,7 +128,7 @@ theorem take_take : ∀ (n m) (l : List α), take n (take m l) = take (min n m) 
 theorem take_set_of_lt (a : α) {n m : Nat} (l : List α) (h : m < n) :
     (l.set n a).take m = l.take m :=
   List.ext_getElem? fun i => by
-    rw [getElem?_take_eq_if, getElem?_take_eq_if]
+    rw [getElem?_take, getElem?_take]
     split
     · next h' => rw [getElem?_set_ne (by omega)]
     · rfl
@@ -203,7 +203,7 @@ theorem map_eq_append_split {f : α → β} {l : List α} {s₁ s₂ : List β}
 theorem take_prefix_take_left (l : List α) {m n : Nat} (h : m ≤ n) : take m l <+: take n l := by
   rw [isPrefix_iff]
   intro i w
-  rw [getElem?_take, getElem_take', getElem?_eq_getElem]
+  rw [getElem?_take_of_lt, getElem_take', getElem?_eq_getElem]
   simp only [length_take] at w
   exact Nat.lt_of_lt_of_le (Nat.lt_of_lt_of_le w (Nat.min_le_left _ _)) h
 
@@ -275,7 +275,7 @@ theorem head?_drop (l : List α) (n : Nat) :
 theorem head_drop {l : List α} {n : Nat} (h : l.drop n ≠ []) :
     (l.drop n).head h = l[n]'(by simp_all) := by
   have w : n < l.length := length_lt_of_drop_ne_nil h
-  simpa [head?_eq_head, getElem?_eq_getElem, h, w] using head?_drop l n
+  simpa [getElem?_eq_getElem, h, w] using head?_drop l n
 
 theorem getLast?_drop {l : List α} : (l.drop n).getLast? = if l.length ≤ n then none else l.getLast? := by
   rw [getLast?_eq_getElem?, getElem?_drop]
@@ -334,7 +334,7 @@ theorem set_eq_take_append_cons_drop {l : List α} {n : Nat} {a : α} :
   · ext1 m
     by_cases h' : m < n
     · rw [getElem?_append_left (by simp [length_take]; omega), getElem?_set_ne (by omega),
-        getElem?_take h']
+        getElem?_take_of_lt h']
     · by_cases h'' : m = n
       · subst h''
         rw [getElem?_set_eq ‹_›, getElem?_append_right, length_take,
@@ -373,40 +373,67 @@ theorem drop_take : ∀ (m n : Nat) (l : List α), drop n (take m l) = take (m -
     congr 1
     omega
 
-theorem take_reverse {α} {xs : List α} {n : Nat} (h : n ≤ xs.length) :
+theorem take_reverse {α} {xs : List α} {n : Nat} :
     xs.reverse.take n = (xs.drop (xs.length - n)).reverse := by
-  induction xs generalizing n <;>
-    simp only [reverse_cons, drop, reverse_nil, Nat.zero_sub, length, take_nil]
-  next xs_hd xs_tl xs_ih =>
-  cases Nat.lt_or_eq_of_le h with
-  | inl h' =>
-    have h' := Nat.le_of_succ_le_succ h'
-    rw [take_append_of_le_length, xs_ih h']
-    rw [show xs_tl.length + 1 - n = succ (xs_tl.length - n) from _, drop]
-    · rwa [succ_eq_add_one, Nat.sub_add_comm]
-    · rwa [length_reverse]
-  | inr h' =>
-    subst h'
-    rw [length, Nat.sub_self, drop]
-    suffices xs_tl.length + 1 = (xs_tl.reverse ++ [xs_hd]).length by
-      rw [this, take_length, reverse_cons]
-    rw [length_append, length_reverse]
-    rfl
+  by_cases h : n ≤ xs.length
+  · induction xs generalizing n <;>
+      simp only [reverse_cons, drop, reverse_nil, Nat.zero_sub, length, take_nil]
+    next xs_hd xs_tl xs_ih =>
+    cases Nat.lt_or_eq_of_le h with
+    | inl h' =>
+      have h' := Nat.le_of_succ_le_succ h'
+      rw [take_append_of_le_length, xs_ih h']
+      rw [show xs_tl.length + 1 - n = succ (xs_tl.length - n) from _, drop]
+      · rwa [succ_eq_add_one, Nat.sub_add_comm]
+      · rwa [length_reverse]
+    | inr h' =>
+      subst h'
+      rw [length, Nat.sub_self, drop]
+      suffices xs_tl.length + 1 = (xs_tl.reverse ++ [xs_hd]).length by
+        rw [this, take_length, reverse_cons]
+      rw [length_append, length_reverse]
+      rfl
+  · have w : xs.length - n = 0 := by omega
+    rw [take_of_length_le, w, drop_zero]
+    simp
+    omega
 
-@[deprecated (since := "2024-06-15")] abbrev reverse_take := @take_reverse
-
-theorem drop_reverse {α} {xs : List α} {n : Nat} (h : n ≤ xs.length) :
+theorem drop_reverse {α} {xs : List α} {n : Nat} :
     xs.reverse.drop n = (xs.take (xs.length - n)).reverse := by
-  conv =>
-    rhs
-    rw [← reverse_reverse xs]
-  rw [← reverse_reverse xs] at h
-  generalize xs.reverse = xs' at h ⊢
-  rw [take_reverse]
-  · simp only [length_reverse, reverse_reverse] at *
+  by_cases h : n ≤ xs.length
+  · conv =>
+      rhs
+      rw [← reverse_reverse xs]
+    rw [← reverse_reverse xs] at h
+    generalize xs.reverse = xs' at h ⊢
+    rw [take_reverse]
+    · simp only [length_reverse, reverse_reverse] at *
+      congr
+      omega
+  · have w : xs.length - n = 0 := by omega
+    rw [drop_of_length_le, w, take_zero, reverse_nil]
+    simp
+    omega
+
+theorem reverse_take {l : List α} {n : Nat} :
+    (l.take n).reverse = l.reverse.drop (l.length - n) := by
+  by_cases h : n ≤ l.length
+  · rw [drop_reverse]
     congr
     omega
-  · simp only [length_reverse, sub_le]
+  · have w : l.length - n = 0 := by omega
+    rw [w, drop_zero, take_of_length_le]
+    omega
+
+theorem reverse_drop {l : List α} {n : Nat} :
+    (l.drop n).reverse = l.reverse.take (l.length - n) := by
+  by_cases h : n ≤ l.length
+  · rw [take_reverse]
+    congr
+    omega
+  · have w : l.length - n = 0 := by omega
+    rw [w, take_zero, drop_of_length_le, reverse_nil]
+    omega
 
 /-! ### rotateLeft -/
 

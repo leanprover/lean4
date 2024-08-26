@@ -126,4 +126,49 @@ theorem prefix_take_le_iff {L : List α} (hm : m < L.length) :
         simp only [length_cons, Nat.succ_eq_add_one, Nat.add_lt_add_iff_right] at hm
         simp [← @IH n ls hm, Nat.min_eq_left, Nat.le_of_lt hm]
 
+@[simp] theorem append_left_sublist_self (xs ys : List α) : xs ++ ys <+ ys ↔ xs = [] := by
+  constructor
+  · intro h
+    replace h := h.length_le
+    simp only [length_append] at h
+    have : xs.length = 0 := by omega
+    simp_all
+  · rintro rfl
+    simp
+@[simp] theorem append_right_sublist_self (xs ys : List α) : xs ++ ys <+ xs ↔ ys = [] := by
+  constructor
+  · intro h
+    replace h := h.length_le
+    simp only [length_append] at h
+    have : ys.length = 0 := by omega
+    simp_all
+  · rintro rfl
+    simp
+
+theorem append_sublist_of_sublist_left (xs ys zs : List α) (h : zs <+ xs) :
+    xs ++ ys <+ zs ↔ ys = [] ∧ xs = zs := by
+  constructor
+  · intro h'
+    have hl := h.length_le
+    have hl' := h'.length_le
+    simp only [length_append] at hl'
+    have : ys.length = 0 := by omega
+    simp_all only [Nat.add_zero, length_eq_zero, true_and, append_nil]
+    exact Sublist.eq_of_length_le h' hl
+  · rintro ⟨rfl, rfl⟩
+    simp
+
+theorem append_sublist_of_sublist_right (xs ys zs : List α) (h : zs <+ ys) :
+    xs ++ ys <+ zs ↔ xs = [] ∧ ys = zs := by
+  constructor
+  · intro h'
+    have hl := h.length_le
+    have hl' := h'.length_le
+    simp only [length_append] at hl'
+    have : xs.length = 0 := by omega
+    simp_all only [Nat.zero_add, length_eq_zero, true_and, append_nil]
+    exact Sublist.eq_of_length_le h' hl
+  · rintro ⟨rfl, rfl⟩
+    simp
+
 end List

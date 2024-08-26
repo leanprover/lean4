@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
 prelude
-import Lean.Elab.Tactic.BVDecide.Bitblast
+import Lean.Elab.Tactic.BVDecide.LRAT
+import Lean.Elab.Tactic.BVDecide.External
 
 /-!
 This directory implements the `bv_decide` tactic as a verified bitblaster with subterm sharing.

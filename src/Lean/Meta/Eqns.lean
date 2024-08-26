@@ -11,6 +11,32 @@ import Lean.Meta.AppBuilder
 import Lean.Meta.Match.MatcherInfo
 
 namespace Lean.Meta
+
+register_builtin_option eqns.nonrecursive : Bool := {
+    defValue := true
+    descr    := "Create fine-grained equational lemmas even for non-recursive definitions."
+  }
+
+register_builtin_option eqns.deepRecursiveSplit : Bool := {
+    defValue := true
+    descr    := "Create equational lemmas for recursive functions like for non-recursive \
+                functions. If disabled, match statements in recursive function definitions \
+                that do not contain recursive calls do not cause further splits in the \
+                equational lemmas. This was the behavior before Lean 4.12, and the purpose of \
+                this option is to help migrating old code."
+  }
+
+
+/--
+These options affect the generation of equational theorems in a significant way. For these, their
+value at definition time, not realization time, should matter.
+
+This is implemented by
+ * eagerly realizing the equations when they are set to a non-default vaule
+ * when realizing them lazily, reset the options to their default
+-/
+def eqnAffectingOptions : Array (Lean.Option Bool) := #[eqns.nonrecursive, eqns.deepRecursiveSplit]
+
 /--
 Environment extension for storing which declarations are recursive.
 This information is populated by the `PreDefinition` module, but the simplifier
@@ -105,7 +131,8 @@ def registerGetEqnsFn (f : GetEqnsFn) : IO Unit := do
 /-- Returns `true` iff `declName` is a definition and its type is not a proposition. -/
 private def shouldGenerateEqnThms (declName : Name) : MetaM Bool := do
   if let some (.defnInfo info) := (← getEnv).find? declName then
-    return !(← isProp info.type)
+    if (← isProp info.type) then return false
+    return true
   else
     return false
 
@@ -170,12 +197,7 @@ private partial def alreadyGenerated? (declName : Name) : MetaM (Option (Array N
   else
     return none
 
-/--
-Returns equation theorems for the given declaration.
-By default, we do not create equation theorems for nonrecursive definitions.
-You can use `nonRec := true` to override this behavior, a dummy `rfl` proof is created on the fly.
--/
-def getEqnsFor? (declName : Name) (nonRec := false) : MetaM (Option (Array Name)) := withLCtx {} {} do
+private def getEqnsFor?Core (declName : Name) : MetaM (Option (Array Name)) := withLCtx {} {} do
   if let some eqs := eqnsExt.getState (← getEnv) |>.map.find? declName then
     return some eqs
   else if let some eqs ← alreadyGenerated? declName then
@@ -185,12 +207,24 @@ def getEqnsFor? (declName : Name) (nonRec := false) : MetaM (Option (Array Name)
       if let some r ← f declName then
         registerEqnThms declName r
         return some r
-    if nonRec then
-      let some eqThm ← mkSimpleEqThm declName (suffix := Name.mkSimple eqn1ThmSuffix) | return none
-      let r := #[eqThm]
-      registerEqnThms declName r
-      return some r
   return none
+
+/--
+Returns equation theorems for the given declaration.
+-/
+def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := withLCtx {} {} do
+  -- This is the entry point for lazy equaion generation. Ignore the current value
+  -- of the options, and revert to the default.
+  withOptions (eqnAffectingOptions.foldl fun os o => o.set os o.defValue) do
+    getEqnsFor?Core declName
+
+/--
+If any equation theorem affecting option is not the default value, create the equations now.
+-/
+def generateEagerEqns (declName : Name) : MetaM Unit := do
+  let opts ← getOptions
+  if eqnAffectingOptions.any fun o => o.get opts != o.defValue then
+    let _ ← getEqnsFor?Core declName
 
 def GetUnfoldEqnFn := Name → MetaM (Option Name)
 
@@ -251,7 +285,7 @@ builtin_initialize
     let .str p s := name | return false
     unless (← getEnv).isSafeDefinition p do return false
     if isEqnReservedNameSuffix s then
-      return (← MetaM.run' <| getEqnsFor? p (nonRec := true)).isSome
+      return (← MetaM.run' <| getEqnsFor? p).isSome
     if isUnfoldReservedNameSuffix s then
       return (← MetaM.run' <| getUnfoldEqnFor? p (nonRec := true)).isSome
     return false

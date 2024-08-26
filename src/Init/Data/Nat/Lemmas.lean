@@ -50,6 +50,11 @@ protected theorem add_eq_zero_iff : n + m = 0 ↔ n = 0 ∧ m = 0 :=
 @[simp] protected theorem add_right_cancel_iff {n : Nat} : m + n = k + n ↔ m = k :=
   ⟨Nat.add_right_cancel, fun | rfl => rfl⟩
 
+@[simp] protected theorem add_left_eq_self  {a b : Nat} : a + b = b ↔ a = 0 := by omega
+@[simp] protected theorem add_right_eq_self {a b : Nat} : a + b = a ↔ b = 0 := by omega
+@[simp] protected theorem self_eq_add_right {a b : Nat} : a = a + b ↔ b = 0 := by omega
+@[simp] protected theorem self_eq_add_left  {a b : Nat} : a = b + a ↔ b = 0 := by omega
+
 @[simp] protected theorem add_le_add_iff_left {n : Nat} : n + m ≤ n + k ↔ m ≤ k :=
   ⟨Nat.le_of_add_le_add_left, fun h => Nat.add_le_add_left h _⟩
 
@@ -539,6 +544,11 @@ theorem mod_two_eq_zero_or_one (n : Nat) : n % 2 = 0 ∨ n % 2 = 1 :=
   | 0, _ => .inl rfl
   | 1, _ => .inr rfl
 
+@[simp] theorem mod_two_bne_zero : ((a % 2) != 0) = (a % 2 == 1) := by
+  cases mod_two_eq_zero_or_one a <;> simp_all
+@[simp] theorem mod_two_bne_one : ((a % 2) != 1) = (a % 2 == 0) := by
+  cases mod_two_eq_zero_or_one a <;> simp_all
+
 theorem le_of_mod_lt {a b : Nat} (h : a % b < a) : b ≤ a :=
   Nat.not_lt.1 fun hf => (ne_of_lt h).elim (Nat.mod_eq_of_lt hf)
 
@@ -648,6 +658,13 @@ protected theorem one_le_two_pow : 1 ≤ 2 ^ n :=
     by subst h; simp
   else
     Nat.le_of_lt (Nat.one_lt_two_pow h)
+
+@[simp] theorem one_mod_two_pow_eq_one : 1 % 2 ^ n = 1 ↔ 0 < n := by
+  cases n with
+  | zero => simp
+  | succ n =>
+    rw [mod_eq_of_lt (a := 1) (Nat.one_lt_two_pow (by omega))]
+    simp
 
 protected theorem pow_pos (h : 0 < a) : 0 < a^n :=
   match n with

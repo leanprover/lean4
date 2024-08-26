@@ -1264,7 +1264,7 @@ def withNewMutableVars {α} (newVars : Array Var) (mutable : Bool) (x : M α) : 
 
 def checkReassignable (xs : Array Var) : M Unit := do
   let throwInvalidReassignment (x : Name) : M Unit :=
-    throwError "`{x.simpMacroScopes}` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intent to mutate but define `{x.simpMacroScopes}`, consider using `let {x.simpMacroScopes}` instead"
+    throwError "`{x.simpMacroScopes}` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intend to mutate but define `{x.simpMacroScopes}`, consider using `let {x.simpMacroScopes}` instead"
   let ctx ← read
   for x in xs do
     unless ctx.mutableVars.contains x.getId do

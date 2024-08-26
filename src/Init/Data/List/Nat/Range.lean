@@ -200,7 +200,7 @@ theorem range'_eq_append_iff : range' s n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs =
       cases k with
       | zero => simp [range'_succ]
       | succ k =>
-        simp only [range'_succ, false_and, cons.injEq, true_and, ih, exists_eq_left', false_or]
+        simp [range'_succ, ih, exists_eq_left']
         refine ⟨k, ?_⟩
         simp_all
         omega

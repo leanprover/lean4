@@ -666,6 +666,9 @@ protected theorem one_le_two_pow : 1 ≤ 2 ^ n :=
     rw [mod_eq_of_lt (a := 1) (Nat.one_lt_two_pow (by omega))]
     simp
 
+@[simp] theorem one_mod_two_pow (h : 0 < n) : 1 % 2 ^ n = 1 :=
+  one_mod_two_pow_eq_one.mpr h
+
 protected theorem pow_pos (h : 0 < a) : 0 < a^n :=
   match n with
   | 0 => Nat.zero_lt_one
@@ -716,6 +719,36 @@ protected theorem pow_lt_pow_iff_right {a n m : Nat} (h : 1 < a) :
     exact Nat.lt_of_lt_of_le w.1 (Nat.pow_le_pow_of_le h w.2)
   · intro w
     exact Nat.pow_lt_pow_of_lt h w
+
+@[simp]
+protected theorem pow_pred_mul {x w : Nat} (h : 0 < w) :
+    x ^ (w - 1) * x = x ^ w := by
+  simp [← Nat.pow_succ, succ_eq_add_one, Nat.sub_add_cancel h]
+
+protected theorem pow_pred_lt_pow {x w : Nat} (h₁ : 1 < x) (h₂ : 0 < w) :
+    x ^ (w - 1) < x ^ w :=
+  Nat.pow_lt_pow_of_lt h₁ (by omega)
+
+protected theorem two_pow_pred_lt_two_pow {w : Nat} (h : 0 < w) :
+    2 ^ (w - 1) < 2 ^ w :=
+  Nat.pow_pred_lt_pow (by omega) h
+
+@[simp]
+protected theorem two_pow_pred_add_two_pow_pred (h : 0 < w) :
+    2 ^ (w - 1) + 2 ^ (w - 1) = 2 ^ w := by
+  rw [← Nat.pow_pred_mul h]
+  omega
+
+@[simp]
+protected theorem two_pow_sub_two_pow_pred (h : 0 < w) :
+    2 ^ w - 2 ^ (w - 1) = 2 ^ (w - 1) := by
+  simp [← Nat.two_pow_pred_add_two_pow_pred h]
+
+@[simp]
+protected theorem two_pow_pred_mod_two_pow (h : 0 < w) :
+    2 ^ (w - 1) % 2 ^ w = 2 ^ (w - 1) := by
+  rw [mod_eq_of_lt]
+  apply Nat.pow_pred_lt_pow (by omega) h
 
 /-! ### log2 -/
 

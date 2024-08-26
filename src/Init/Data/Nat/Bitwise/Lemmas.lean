@@ -40,7 +40,7 @@ An induction principal that works on divison by two.
 -/
 noncomputable def div2Induction {motive : Nat → Sort u}
     (n : Nat) (ind : ∀(n : Nat), (n > 0 → motive (n/2)) → motive n) : motive n := by
-  induction n using Nat.strongInductionOn with
+  induction n using Nat.strongRecOn with
   | ind n hyp =>
     apply ind
     intro n_pos
@@ -258,7 +258,7 @@ theorem testBit_two_pow_add_gt {i j : Nat} (j_lt_i : j < i) (x : Nat) :
 
 @[simp] theorem testBit_mod_two_pow (x j i : Nat) :
     testBit (x % 2^j) i = (decide (i < j) && testBit x i) := by
-  induction x using Nat.strongInductionOn generalizing j i with
+  induction x using Nat.strongRecOn generalizing j i with
   | ind x hyp =>
     rw [mod_eq]
     rcases Nat.lt_or_ge x (2^j) with x_lt_j | x_ge_j
@@ -337,10 +337,9 @@ theorem testBit_one_eq_true_iff_self_eq_zero {i : Nat} :
 
 /-! ### bitwise -/
 
-theorem testBit_bitwise
-  (false_false_axiom : f false false = false) (x y i : Nat)
-: (bitwise f x y).testBit i = f (x.testBit i) (y.testBit i) := by
-  induction i using Nat.strongInductionOn generalizing x y with
+theorem testBit_bitwise (false_false_axiom : f false false = false) (x y i : Nat) :
+    (bitwise f x y).testBit i = f (x.testBit i) (y.testBit i) := by
+  induction i using Nat.strongRecOn generalizing x y with
   | ind i hyp =>
     unfold bitwise
     if x_zero : x = 0 then

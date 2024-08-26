@@ -1564,7 +1564,7 @@ so you should consider the simpler versions if they apply:
 * `Quot.recOnSubsingleton`, when the target type is a `Subsingleton`
 * `Quot.hrecOn`, which uses `HEq (f a) (f b)` instead of a `sound p ▸ f a = f b` assummption
 -/
-protected abbrev rec
+@[elab_as_elim] protected abbrev rec
     (f : (a : α) → motive (Quot.mk r a))
     (h : (a b : α) → (p : r a b) → Eq.ndrec (f a) (sound p) = f b)
     (q : Quot r) : motive q :=

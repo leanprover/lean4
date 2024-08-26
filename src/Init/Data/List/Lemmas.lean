@@ -639,7 +639,7 @@ theorem set_eq_of_length_le {l : List α} {n : Nat} (h : l.length ≤ n) {a : α
       exact Nat.succ_le_succ_iff.mp h
 
 @[simp] theorem set_eq_nil (l : List α) (n : Nat) (a : α) : l.set n a = [] ↔ l = [] := by
-  cases l <;> cases n <;> simp only [set]
+  cases l <;> cases n <;> simp [set]
 
 theorem set_comm (a b : α) : ∀ {n m : Nat} (l : List α), n ≠ m →
     (l.set n a).set m b = (l.set m b).set n a
@@ -1874,7 +1874,7 @@ theorem join_eq_append (xs : List (List α)) (ys zs : List α) :
   · induction xs generalizing ys with
     | nil =>
       simp only [join_nil, nil_eq, append_eq_nil, and_false, cons_append, false_and, exists_const,
-        exists_false, or_false, and_imp]
+        exists_false, or_false, and_imp, List.cons_ne_nil]
       rintro rfl rfl
       exact ⟨[], [], by simp⟩
     | cons x xs ih =>

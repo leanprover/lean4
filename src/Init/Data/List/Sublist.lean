@@ -767,7 +767,7 @@ theorem prefix_cons_iff : l₁ <+: a :: l₂ ↔ l₁ = [] ∨ ∃ t, l₁ = a :
         refine ⟨s, by simp [h']⟩
 
 @[simp] theorem cons_prefix_cons : a :: l₁ <+: b :: l₂ ↔ a = b ∧ l₁ <+: l₂ := by
-  simp only [prefix_cons_iff, cons.injEq, false_or]
+  simp only [prefix_cons_iff, cons.injEq, false_or, List.cons_ne_nil]
   constructor
   · rintro ⟨t, ⟨rfl, rfl⟩, h⟩
     exact ⟨rfl, h⟩

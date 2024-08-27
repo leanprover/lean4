@@ -10,9 +10,8 @@ termination_by a.size - i
 def check_sorted [x: LE α] [DecidableRel x.le] (a: Array α): Bool :=
   sorted_from_var a 0
 
--- works (because `rfl` of closed terms resorts to kernel defeq, see #3772)
 example: check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] := by
-  rfl
+  native_decide
 
 /--
 error: tactic 'decide' failed for proposition
@@ -32,9 +31,13 @@ After unfolding the instances 'instDecidableEqBool' and 'Bool.decEq', reduction 
 example: check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] := by
   decide -- fails because `decide` uses `.default` transparency, and `sorted_from_var` is marked as irreducible
 
+/-
+No longer works
+
 unseal sorted_from_var in
 example: check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] := by
   decide -- works
 
 example: check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] := by
   with_unfolding_all decide -- should work
+-/

@@ -29,7 +29,14 @@ but is expected to have type
 #guard_msgs in
 example : foo (n+1) = foo n := rfl
 
--- This succeeding is a bug or misfeature in the rfl tactic, using the kernel defeq check
+/--
+error: The rfl tactic failed. Possible reasons:
+- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).
+- The arguments of the relation are not equal.
+Try using the reflexivity lemma for your relation explicitly, e.g. `exact Eq.refl _` or
+`exact HEq.rfl` etc.
+⊢ foo 0 = 0
+-/
 #guard_msgs in
 example : foo 0 = 0 := by rfl
 
@@ -50,11 +57,15 @@ section Unsealed
 
 unseal foo
 
+/-
+After preventing the kernel from reducing `fix_eq`, this is no longer works
+
 example : foo 0 = 0 := rfl
 example : foo 0 = 0 := by rfl
 
 example : foo (n+1) = foo n := rfl
 example : foo (n+1) = foo n := by rfl
+-/
 
 end Unsealed
 
@@ -101,7 +112,8 @@ example : foo = bar := rfl
   | n+1 => baz n
 termination_by n => n
 
-example : baz 0 = 0 := rfl
+-- Also no longer works with fix_eq not kernel-reducible
+-- example : baz 0 = 0 := rfl
 
 seal baz in
 /--
@@ -115,14 +127,14 @@ but is expected to have type
 #guard_msgs in
 example : baz 0 = 0 := rfl
 
-example : baz 0 = 0 := rfl
+-- example : baz 0 = 0 := rfl
 
 @[reducible] def quux : Nat → Nat
   | 0 => 0
   | n+1 => quux n
 termination_by n => n
 
-example : quux 0 = 0 := rfl
+-- example : quux 0 = 0 := rfl
 
 set_option allowUnsafeReducibility true in
 seal quux in
@@ -137,4 +149,5 @@ but is expected to have type
 #guard_msgs in
 example : quux 0 = 0 := rfl
 
-example : quux 0 = 0 := rfl
+-- Also no longer works with fix_eq not kernel-reducible
+-- example : quux 0 = 0 := rfl

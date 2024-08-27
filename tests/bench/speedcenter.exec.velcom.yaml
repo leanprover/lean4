@@ -242,7 +242,7 @@
     tags: [fast]
   run_config:
     <<: *time
-    cmd: ./ilean_roundtrip.lean.out 10000
+    cmd: ./ilean_roundtrip.lean.out 200000
     parse_output: true
   build_config:
     cmd: ./compile.sh ilean_roundtrip.lean

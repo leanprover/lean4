@@ -69,7 +69,7 @@ theorem head?_range' (n : Nat) : (range' s n).head? = if n = 0 then none else so
   induction n <;> simp_all [range'_succ, head?_append]
 
 @[simp] theorem head_range' (n : Nat) (h) : (range' s n).head h = s := by
-  repeat simp_all [head?_range']
+  repeat simp_all [head?_range', head_eq_iff_head?_eq_some]
 
 theorem getLast?_range' (n : Nat) : (range' s n).getLast? = if n = 0 then none else some (s + n - 1) := by
   induction n generalizing s with
@@ -86,7 +86,7 @@ theorem getLast?_range' (n : Nat) : (range' s n).getLast? = if n = 0 then none e
 @[simp] theorem getLast_range' (n : Nat) (h) : (range' s n).getLast h = s + n - 1 := by
   cases n with
   | zero => simp at h
-  | succ n => simp [getLast?_range']
+  | succ n => simp [getLast?_range', getLast_eq_iff_getLast_eq_some]
 
 theorem pairwise_lt_range' s n (step := 1) (pos : 0 < step := by simp) :
     Pairwise (· < ·) (range' s n step) :=
@@ -305,7 +305,7 @@ theorem head?_range (n : Nat) : (range n).head? = if n = 0 then none else some 0
 @[simp] theorem head_range (n : Nat) (h) : (range n).head h = 0 := by
   cases n with
   | zero => simp at h
-  | succ n => simp [head?_range]
+  | succ n => simp [head?_range, head_eq_iff_head?_eq_some]
 
 theorem getLast?_range (n : Nat) : (range n).getLast? = if n = 0 then none else some (n - 1) := by
   induction n with
@@ -317,7 +317,7 @@ theorem getLast?_range (n : Nat) : (range n).getLast? = if n = 0 then none else 
 @[simp] theorem getLast_range (n : Nat) (h) : (range n).getLast h = n - 1 := by
   cases n with
   | zero => simp at h
-  | succ n => simp [getLast?_range]
+  | succ n => simp [getLast?_range, getLast_eq_iff_getLast_eq_some]
 
 theorem take_range (m n : Nat) : take m (range n) = range (min m n) := by
   apply List.ext_getElem

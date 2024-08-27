@@ -67,7 +67,7 @@ theorem exists_of_findSome?_eq_some {l : List α} {f : α → Option β} (w : l.
 
 @[simp] theorem filterMap_head (f : α → Option β) (l : List α) (h) :
     (l.filterMap f).head h = (l.findSome? f).get (by simp_all [Option.isSome_iff_ne_none])  := by
-  simp
+  simp [head_eq_iff_head?_eq_some]
 
 @[simp] theorem filterMap_getLast? (f : α → Option β) (l : List α) : (l.filterMap f).getLast? = l.reverse.findSome? f := by
   rw [getLast?_eq_head?_reverse]
@@ -75,7 +75,7 @@ theorem exists_of_findSome?_eq_some {l : List α} {f : α → Option β} (w : l.
 
 @[simp] theorem filterMap_getLast (f : α → Option β) (l : List α) (h) :
     (l.filterMap f).getLast h = (l.reverse.findSome? f).get (by simp_all [Option.isSome_iff_ne_none]) := by
-  simp
+  simp [getLast_eq_iff_getLast_eq_some]
 
 @[simp] theorem map_findSome? (f : α → Option β) (g : β → γ) (l : List α) :
     (l.findSome? f).map g = l.findSome? (Option.map g ∘ f) := by
@@ -246,7 +246,7 @@ theorem mem_of_find?_eq_some : ∀ {l}, find? p l = some a → a ∈ l
 
 @[simp] theorem filter_head (p : α → Bool) (l : List α) (h) :
     (l.filter p).head h = (l.find? p).get (by simp_all [Option.isSome_iff_ne_none]) := by
-  simp
+  simp [head_eq_iff_head?_eq_some]
 
 @[simp] theorem filter_getLast? (p : α → Bool) (l : List α) : (l.filter p).getLast? = l.reverse.find? p := by
   rw [getLast?_eq_head?_reverse]
@@ -254,7 +254,7 @@ theorem mem_of_find?_eq_some : ∀ {l}, find? p l = some a → a ∈ l
 
 @[simp] theorem filter_getLast (p : α → Bool) (l : List α) (h) :
     (l.filter p).getLast h = (l.reverse.find? p).get (by simp_all [Option.isSome_iff_ne_none]) := by
-  simp
+  simp [getLast_eq_iff_getLast_eq_some]
 
 @[simp] theorem find?_filterMap (xs : List α) (f : α → Option β) (p : β → Bool) :
     (xs.filterMap f).find? p = (xs.find? (fun a => (f a).any p)).bind f := by

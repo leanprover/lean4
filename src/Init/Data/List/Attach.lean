@@ -267,6 +267,6 @@ theorem getLast?_attach {xs : List α} :
     subst h'
     simp at h
   · symm
-    simpa
+    simpa [getLast_eq_iff_getLast_eq_some]
 
 end List

@@ -85,11 +85,14 @@ theorem fixFEq (x : α) (acx : Acc r x) : fixF F x acx = F x (fun (y : α) (p : 
 
 end
 
+-- TODO: Move some
+opaque withoutKernelReduction {P : Prop} (h : P) : P := h
+
 variable {α : Sort u} {C : α → Sort v} {r : α → α → Prop}
 
 -- Well-founded fixpoint
 noncomputable def fix (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) : C x :=
-  fixF F x (apply hwf x)
+  fixF F x (withoutKernelReduction (apply hwf x))
 
 -- Well-founded fixpoint satisfies fixpoint equation
 theorem fix_eq (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) :

@@ -1798,7 +1798,7 @@ theorem getLsb_replicate {n w : Nat} (x : BitVec w) :
 abbrev intMin (w : Nat) := twoPow w (w - 1)
 
 theorem getLsb_intMin (w : Nat) : (intMin w).getLsb i = decide (i + 1 = w) := by
-  simp only [getLsb_twoPow, Bool.and_eq_decide, decide_eq_decide]
+  simp only [getLsb_twoPow, boolToPropSimps]
   omega
 
 @[simp, bv_toNat]

@@ -10,7 +10,383 @@ of each version.
 
 v4.11.0
 ----------
-Release notes to be written.
+
+* [#5170](https://github.com/leanprover/lean4/pull/5170) fix: Syntax.unsetTrailing
+* [#5138](https://github.com/leanprover/lean4/pull/5138) fix: improper handling of strict-implicit section variables
+* [#5036](https://github.com/leanprover/lean4/pull/5036) feat: improve unused section variable warning
+* [#5000](https://github.com/leanprover/lean4/pull/5000) feat: `omit`
+? [0edf1b](https://github.com/leanprover/lean4/commit/0edf1bac392f7e2fe0266b28b51c498306363a84) chore: adapt stdlib to new `variable` behavior
+? [1242ff](https://github.com/leanprover/lean4/commit/1242ffbfb5a79296041683682268e770fc3cf820) feat: new `variable` command
+* [#4989](https://github.com/leanprover/lean4/pull/4989) fix: omega regression
+* [#4956](https://github.com/leanprover/lean4/pull/4956) fix: export more symbols needed by Verso
+? [daa221](https://github.com/leanprover/lean4/commit/daa22187642d4cf6954c39a23eab20d8a8675416) update CMakeLists.txt
+* [#4903](https://github.com/leanprover/lean4/pull/4903) perf: use `NatPow Int` instead of `HPow Int Nat Int`
+* [#4702](https://github.com/leanprover/lean4/pull/4702) perf: avoid expr copies in replace_rec_fn::apply
+* [#4700](https://github.com/leanprover/lean4/pull/4700) perf: fix implementation of move constructors and move assignment ope…
+* [#4741](https://github.com/leanprover/lean4/pull/4741) feat: accept user-defined options on the cmdline
+* [#4895](https://github.com/leanprover/lean4/pull/4895) chore: deprecate Nix-based build, remove interactive components
+* [#4873](https://github.com/leanprover/lean4/pull/4873) feat: getLsb_replicate
+* [#4648](https://github.com/leanprover/lean4/pull/4648) doc: add docstring to `IO.FS.realpath`
+* [#4896](https://github.com/leanprover/lean4/pull/4896) chore: revert "fix: make import resolution case-sensitive on all platforms"
+* [#4893](https://github.com/leanprover/lean4/pull/4893) fix: `LEAN_EXPORT` in sharecommon
+* [#4884](https://github.com/leanprover/lean4/pull/4884) fix: export symbols needed by Verso
+* [#4890](https://github.com/leanprover/lean4/pull/4890) perf: precise cache for `expr_eq_fn`
+* [#4872](https://github.com/leanprover/lean4/pull/4872) feat: ushiftRight bitblasting
+* [#4887](https://github.com/leanprover/lean4/pull/4887) refactor: `sharecommon`
+* [#4882](https://github.com/leanprover/lean4/pull/4882) chore: shorten suggestion about diagnostics
+* [#4874](https://github.com/leanprover/lean4/pull/4874) feat: Nat simprocs for simplifying bit expressions
+* [#4538](https://github.com/leanprover/lean4/pull/4538) fix: make import resolution case-sensitive on all platforms
+* [#4883](https://github.com/leanprover/lean4/pull/4883) feat: `include` command
+* [#4881](https://github.com/leanprover/lean4/pull/4881) refactor: split out Lean.Language.Lean.Types
+* [#4869](https://github.com/leanprover/lean4/pull/4869) chore: correct doc-string for Array.swap!
+* [#4876](https://github.com/leanprover/lean4/pull/4876) chore: updates to release_checklist.md
+* [#4781](https://github.com/leanprover/lean4/pull/4781) fix: make "use `set_option diagnostics true" message conditional on current setting
+* [#4875](https://github.com/leanprover/lean4/pull/4875) fix: mistake in statement of `List.take_takeWhile`
+* [#4878](https://github.com/leanprover/lean4/pull/4878) chore: rename PSigma.exists
+* [#4877](https://github.com/leanprover/lean4/pull/4877) chore: fix binder explicitness in List.map_subset
+* [#4871](https://github.com/leanprover/lean4/pull/4871) perf: precise cache for `foldConsts`
+* [#4868](https://github.com/leanprover/lean4/pull/4868) chore: fix naming of List.Subset lemmas
+* [#4865](https://github.com/leanprover/lean4/pull/4865) chore: upstream List.eraseIdx lemmas
+* [#4866](https://github.com/leanprover/lean4/pull/4866) chore: upstream List.pairwise_iff_getElem
+* [#4863](https://github.com/leanprover/lean4/pull/4863) chore: split Init.Data.List.Lemmas
+* [#4826](https://github.com/leanprover/lean4/pull/4826) refactor: deriving DecidableEq to use `termination_by structural`
+* [#4817](https://github.com/leanprover/lean4/pull/4817) fix: make `elabAsElim` aware of explicit motive arguments
+* [#4854](https://github.com/leanprover/lean4/pull/4854) feat: more than one optional argument can be omitted while pretty printing
+* [#4862](https://github.com/leanprover/lean4/pull/4862) chore: fix universe in PSigma.exists
+? [abf420](https://github.com/leanprover/lean4/commit/abf4206e9c0fcadf17b6f7933434fd1580175015) chore: CI: fix msys2
+* [#4856](https://github.com/leanprover/lean4/pull/4856) feat: upstream more List lemmas
+? [93ac63](https://github.com/leanprover/lean4/commit/93ac635a89daa5a8e8ef33ec96b0bcbb5d7ec1ea) chore: fix parenthesizing in test
+? [a04f3c](https://github.com/leanprover/lean4/commit/a04f3cab5a9fe2870825af6544ca13c5bb766706) fix: reduction behaviour of derived `BEq` instances
+? [86af04](https://github.com/leanprover/lean4/commit/86af04cc08c0dbbe0e735ea13d16edea3465f850) fix: handle dependent fields when `deriving BEq`
+? [7253ef](https://github.com/leanprover/lean4/commit/7253ef8751f76bcbe0e6f46dcfa8069699a2bac7) chore: inverse rhs construction order in `BEq`'s handler
+* [#4841](https://github.com/leanprover/lean4/pull/4841) refactor: IndPredBelow: use `apply_assumption`
+* [#4839](https://github.com/leanprover/lean4/pull/4839) fix: IndPred: track function's motive in a let binding, use withoutProofIrrelevance, no chaining
+* [#4855](https://github.com/leanprover/lean4/pull/4855) feat: upstream more List operations
+* [#4853](https://github.com/leanprover/lean4/pull/4853) chore: update Topological.lean
+* [#4780](https://github.com/leanprover/lean4/pull/4780) fix: handle unimported builtin names for location links
+* [#4852](https://github.com/leanprover/lean4/pull/4852) chore: cleanups for Mathlib.Init
+* [#4571](https://github.com/leanprover/lean4/pull/4571) feat: bitVec shiftLeft recurrences for bitblasting
+* [#4847](https://github.com/leanprover/lean4/pull/4847) feat: lake: CLI options to control output & failure log levels
+* [#4515](https://github.com/leanprover/lean4/pull/4515) fix: calling programs with spaces on Windows
+? [c02aa9](https://github.com/leanprover/lean4/commit/c02aa98c6a08c3a9b05f68039c071085a4ef70d7) doc: triage
+* [#4843](https://github.com/leanprover/lean4/pull/4843) chore: correct List.Subset lemma names
+* [#4842](https://github.com/leanprover/lean4/pull/4842) chore: fix List deprecations
+* [#4838](https://github.com/leanprover/lean4/pull/4838) chore: upon nightly release, trigger nightly_bump_toolchain on mathlib4
+* [#4837](https://github.com/leanprover/lean4/pull/4837) feat: List.IsPrefix/IsSuffix is decidable
+* [#4835](https://github.com/leanprover/lean4/pull/4835) feat: gaps/cleanup in List lemmas
+* [#4836](https://github.com/leanprover/lean4/pull/4836) chore: upstream IsPrefix/IsSuffix/IsInfix
+* [#4831](https://github.com/leanprover/lean4/pull/4831) fix: structural recursion: do not check for brecOn too early
+* [#4830](https://github.com/leanprover/lean4/pull/4830) chore: report github actions failure on zulip
+* [#4829](https://github.com/leanprover/lean4/pull/4829) test: make #1697 test case Linux-Debug safe
+* [#4786](https://github.com/leanprover/lean4/pull/4786) fix: filter duplicate subexpressions
+* [#4608](https://github.com/leanprover/lean4/pull/4608) feat: create ci workflow on lake new/init
+? [0768ad](https://github.com/leanprover/lean4/commit/0768ad4eb9020af0777587a25a692d181e857c14) chore: CI: Jira sync
+* [#4818](https://github.com/leanprover/lean4/pull/4818) fix: make sure anonymous dot notation works with pi-type-valued type synonyms
+* [#4580](https://github.com/leanprover/lean4/pull/4580) feat: trailing whitespace changes should not invalidate imports
+* [#4727](https://github.com/leanprover/lean4/pull/4727) feat: respond to info view requests as soon as relevant tactic has finished execution
+? [af40e6](https://github.com/leanprover/lean4/commit/af40e618111581c82fc44de922368a02208b499f) chore: typo
+* [#4820](https://github.com/leanprover/lean4/pull/4820) chore: List.filterMapM runs and returns left-to-right
+* [#4819](https://github.com/leanprover/lean4/pull/4819) test: test case for #4751
+? [6d9718](https://github.com/leanprover/lean4/commit/6d971827e253a4dc08cda3cf6524d7f37819eb47) chore: CI: add back dropped check-stage3
+* [#4815](https://github.com/leanprover/lean4/pull/4815) test: update test output following stage0 update
+* [#4810](https://github.com/leanprover/lean4/pull/4810) feat: safer #eval, and #eval!
+* [#4808](https://github.com/leanprover/lean4/pull/4808) chore: release notes for mutual structural induction
+* [#4806](https://github.com/leanprover/lean4/pull/4806) doc: update quickstart guide
+* [#4803](https://github.com/leanprover/lean4/pull/4803) feat: more hash map lemmas
+* [#4800](https://github.com/leanprover/lean4/pull/4800) fix: make `elab_as_elim` eagerly elaborate arguments for parameters appearing in the types of targets
+* [#4748](https://github.com/leanprover/lean4/pull/4748) doc: document `Command.Scope`
+* [#4809](https://github.com/leanprover/lean4/pull/4809) feat: unnecessary termination_by clauses cause warnings, not errors
+* [#4772](https://github.com/leanprover/lean4/pull/4772) feat: functional induction for mutual structural recursion
+* [#4791](https://github.com/leanprover/lean4/pull/4791) chore: remove bif from hash map lemmas
+* [#4807](https://github.com/leanprover/lean4/pull/4807) refactor: Introduce PProdN module
+* [#4789](https://github.com/leanprover/lean4/pull/4789) refactor: FunInd overhaul
+* [#4802](https://github.com/leanprover/lean4/pull/4802) feat: use usize for array types
+* [#4801](https://github.com/leanprover/lean4/pull/4801) feat: usize for array types
+* [#4790](https://github.com/leanprover/lean4/pull/4790) fix: remove typeclass assumptions for Nodup.eraseP
+* [#4782](https://github.com/leanprover/lean4/pull/4782) doc: remove reference to HashMap.find? from Option docstring
+* [#4799](https://github.com/leanprover/lean4/pull/4799) perf: `Expr.replace`
+* [#4798](https://github.com/leanprover/lean4/pull/4798) fix: `replace_fn.cpp`
+* [#4797](https://github.com/leanprover/lean4/pull/4797) fix: `for_each_fn.cpp`
+* [#4796](https://github.com/leanprover/lean4/pull/4796) perf: kernel `replace` with precise cache
+* [#4795](https://github.com/leanprover/lean4/pull/4795) perf: `find?` and `findExt?`
+* [#4794](https://github.com/leanprover/lean4/pull/4794) perf: `for_each` with precise cache
+* [#4742](https://github.com/leanprover/lean4/pull/4742) feat: theory from LeanSAT
+* [#4792](https://github.com/leanprover/lean4/pull/4792) fix: add term elaborator for `Lean.Parser.Term.namedPattern`
+* [#4788](https://github.com/leanprover/lean4/pull/4788) refactor: add numFixed to Structural.EqnInfo
+* [#4787](https://github.com/leanprover/lean4/pull/4787) refactor: IndGroupInst.brecOn
+? [7d2155](https://github.com/leanprover/lean4/commit/7d2155943c67c743409420b4546d47fadf73af1c) doc: fix integer division example
+* [#4784](https://github.com/leanprover/lean4/pull/4784) chore: `Simp.Config.implicitDefEqProofs := true` by default
+* [#4712](https://github.com/leanprover/lean4/pull/4712) fix: `.eq_def` theorem generation with messy universes
+* [#4783](https://github.com/leanprover/lean4/pull/4783) chore: document `replaceUnsafeM` issue
+* [#4779](https://github.com/leanprover/lean4/pull/4779) perf: ensure `Expr.replaceExpr` preserve DAG structure in `Expr`s
+* [#4722](https://github.com/leanprover/lean4/pull/4722) fix: have elabAsElim check inferred motive for type correctness
+* [#4778](https://github.com/leanprover/lean4/pull/4778) feat: add some low level helper APIs
+* [#4762](https://github.com/leanprover/lean4/pull/4762) feat: improve `@[ext]` error message when `ext_iff` generation fails
+* [#4777](https://github.com/leanprover/lean4/pull/4777) fix: missing assignment validation at `closeMainGoal`
+* [#4776](https://github.com/leanprover/lean4/pull/4776) perf: `Replacement.apply`
+* [#4775](https://github.com/leanprover/lean4/pull/4775) chore: simplify `shareCommon'`
+* [#4771](https://github.com/leanprover/lean4/pull/4771) doc: mention linearity in hash map docstring
+* [#4759](https://github.com/leanprover/lean4/pull/4759) fix: resolve instances for `HashMap` via unification
+* [#4732](https://github.com/leanprover/lean4/pull/4732) chore: fix BEq argument order in hash map lemmas
+* [#4765](https://github.com/leanprover/lean4/pull/4765) feat: simprocs for #[1,2,3,4,5][2]
+* [#4769](https://github.com/leanprover/lean4/pull/4769) chore: add missing `withTraceNode`
+* [#4767](https://github.com/leanprover/lean4/pull/4767) perf: add `ShareCommon.shareCommon'`
+* [#4766](https://github.com/leanprover/lean4/pull/4766) refactor: move Synax.hasIdent, shake dependencies
+* [#4756](https://github.com/leanprover/lean4/pull/4756) feat: PProd syntax (part 3)
+* [#4764](https://github.com/leanprover/lean4/pull/4764) chore: add comment for why anonymous constructor notation isn't flattened during pretty printing
+* [#4760](https://github.com/leanprover/lean4/pull/4760) chore: rename TC to Relation.TransGen
+* [#4754](https://github.com/leanprover/lean4/pull/4754) feat: add `Lean.Expr.numObjs`
+* [#4753](https://github.com/leanprover/lean4/pull/4753) chore: missing `profileitM`
+* [#4725](https://github.com/leanprover/lean4/pull/4725) chore: rename HashMap.remove to HashMap.erase
+? [7aec6c](https://github.com/leanprover/lean4/commit/7aec6c9ae7a54935ada0df0b4cc1efafc2291007) chore: temporarily remove test broken by #4746
+? [f167cf](https://github.com/leanprover/lean4/commit/f167cfba7189717f616abcf8c5a0c602e94be103) chore: exclude more symbols to get below Windows symbol limit
+* [#4730](https://github.com/leanprover/lean4/pull/4730) feat: PProd and MProd syntax (part 2)
+* [#4747](https://github.com/leanprover/lean4/pull/4747) feat: PProd and MProd syntax (part 1)
+* [#4733](https://github.com/leanprover/lean4/pull/4733) feat: structural recursion over nested datatypes
+* [#4718](https://github.com/leanprover/lean4/pull/4718) feat: infer mutual structural recursion
+* [#4740](https://github.com/leanprover/lean4/pull/4740) test: extend test for #4671 with nice example reported on zulip
+* [#4738](https://github.com/leanprover/lean4/pull/4738) refactor: IndGroupInfo and IndGroupInst
+* [#4737](https://github.com/leanprover/lean4/pull/4737) doc: fix misplaced docstring for `getThe`
+* [#4735](https://github.com/leanprover/lean4/pull/4735) feat: lake: cleaner release handling & related touchups
+* [#4734](https://github.com/leanprover/lean4/pull/4734) refactor: use `indVal.numNested` or `indVal.numTypeFormers` where applicable
+* [#4658](https://github.com/leanprover/lean4/pull/4658) feat: .below and .brecOn for nested inductive
+* [#4447](https://github.com/leanprover/lean4/pull/4447) feat: add `#discr_tree_key` command and `discr_tree_key` tactic
+* [#4731](https://github.com/leanprover/lean4/pull/4731) feat: Meta.withErasedFVars
+* [#4674](https://github.com/leanprover/lean4/pull/4674) feat: detailed feedback on `decide` tactic failure
+* [#4728](https://github.com/leanprover/lean4/pull/4728) fix: nested structural recursion over reflexive data type
+* [#4724](https://github.com/leanprover/lean4/pull/4724) fix: make matcher pretty printer sensitive to `pp.explicit`
+* [#4723](https://github.com/leanprover/lean4/pull/4723) feat: further theorems for List.erase
+* [#4719](https://github.com/leanprover/lean4/pull/4719) chore: fix typo in doc-string
+* [#4720](https://github.com/leanprover/lean4/pull/4720) feat: upstream more erase API
+* [#4713](https://github.com/leanprover/lean4/pull/4713) fix: deprecated warnings for overloaded symbols
+* [#4710](https://github.com/leanprover/lean4/pull/4710) fix: make iff theorem generated by `@[ext]` preserve inst implicits
+* [#4711](https://github.com/leanprover/lean4/pull/4711) fix: `decide` tactic transparency
+* [#4709](https://github.com/leanprover/lean4/pull/4709) fix: `Repr` instances for `Int` and `Float`
+* [#4708](https://github.com/leanprover/lean4/pull/4708) chore: reorganise lemmas on list getters
+* [#4707](https://github.com/leanprover/lean4/pull/4707) feat: simp normal form tests for Pairwise and Nodup
+* [#4678](https://github.com/leanprover/lean4/pull/4678) feat: lemmas for List.head and List.getLast
+* [#4458](https://github.com/leanprover/lean4/pull/4458) doc: update release checklist for new release notes workflow
+* [#4706](https://github.com/leanprover/lean4/pull/4706) feat: basic material on List.Pairwise and Nodup
+* [#4704](https://github.com/leanprover/lean4/pull/4704) feat: characterisations of List.Sublist
+* [#4652](https://github.com/leanprover/lean4/pull/4652) fix: prefer original module in const2ModIdx
+* [#4697](https://github.com/leanprover/lean4/pull/4697) feat: chore upstream `List.Sublist` and API from Batteries
+* [#4695](https://github.com/leanprover/lean4/pull/4695) feat: omega doesn't push coercion over multiplication unnecessarily
+? [582d6e](https://github.com/leanprover/lean4/commit/582d6e7f7168e0dc0819099edaace27d913b893e) chore: CI: update download-artifact actions
+* [#4689](https://github.com/leanprover/lean4/pull/4689) chore: upstream eq_iff_true_of_subsingleton
+* [#4694](https://github.com/leanprover/lean4/pull/4694) chore: make use of `ext_iff` realization now that stage0 is updated
+* [#4543](https://github.com/leanprover/lean4/pull/4543) feat: make `@[ext]` derive `ext_iff` theorems from user `ext` theorems
+? [98ee78](https://github.com/leanprover/lean4/commit/98ee789990f91ff5935627787b537911ef8773c4) refactor: `InductiveVal.numNested` instead of `.isNested`
+* [#4693](https://github.com/leanprover/lean4/pull/4693) chore: add step to release checklist
+* [#4691](https://github.com/leanprover/lean4/pull/4691) chore: improve compatibility of tests/list_simp with Mathlib
+* [#4690](https://github.com/leanprover/lean4/pull/4690) chore: upstream SMap.foldM
+* [#4688](https://github.com/leanprover/lean4/pull/4688) chore: forward and backward directions of not_exists
+* [#4453](https://github.com/leanprover/lean4/pull/4453) chore: upstream `ToExpr FilePath` and `compile_time_search_path%`
+* [#4687](https://github.com/leanprover/lean4/pull/4687) chore: adjust `List.replicate` simp lemmas
+* [#4660](https://github.com/leanprover/lean4/pull/4660) feat: `Process.tryWait`
+* [#4575](https://github.com/leanprover/lean4/pull/4575) feat: structural mutual recursion
+* [#4683](https://github.com/leanprover/lean4/pull/4683) chore: update comments in kernel/declaration.h
+* [#4669](https://github.com/leanprover/lean4/pull/4669) chore: fix "max dynamic symbols" metric
+* [#4679](https://github.com/leanprover/lean4/pull/4679) fix: unorphan modules in Std.Data
+* [#4681](https://github.com/leanprover/lean4/pull/4681) chore: update codeowners
+* [#4682](https://github.com/leanprover/lean4/pull/4682) chore: `Inhabited` instances for `Std.HashMap`
+* [#4680](https://github.com/leanprover/lean4/pull/4680) fix: unorphan modules in Init
+* [#4621](https://github.com/leanprover/lean4/pull/4621) chore: cleanup unused arguments (from linter)
+* [#4664](https://github.com/leanprover/lean4/pull/4664) chore: bump actions/checkout and actions/upload-artifacts
+* [#4672](https://github.com/leanprover/lean4/pull/4672) fix: `hasBadParamDep?` to look at term, not type
+* [#4666](https://github.com/leanprover/lean4/pull/4666) chore: make Antisymm a Prop
+* [#4668](https://github.com/leanprover/lean4/pull/4668) fix: explicitly initialize `Std` in `lean_initialize`
+* [#4661](https://github.com/leanprover/lean4/pull/4661) fix: move Std from libleanshared to much smaller libInit_shared
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Language features, tactics, and metaprograms
+
+* **Recursive definitions**
+  * Structural recursion can now be explicitly requested using
+  ```
+  termination_by structural x
+  ```
+  in analogy to the existing `termination_by x` syntax that causes well-founded recursion to be used.
+  [#4542](https://github.com/leanprover/lean4/pull/4542)
+
+* `omega` tactic
+  * [#4612](https://github.com/leanprover/lean4/pull/4612) normalizes the order that constraints appear in error messages.
+
+* **Metaprogramming**
+  * [#4593](https://github.com/leanprover/lean4/pull/4593) adds `unresolveNameGlobalAvoidingLocals`.
+  * [#4618](https://github.com/leanprover/lean4/pull/4618) deletes deprecated functions from 2022.
+  * [#4642](https://github.com/leanprover/lean4/pull/4642) adds `lambdaBoundedTelescope`.
+
+### Language server, widgets, and IDE extensions
+
+### Pretty printing
+
+* [#4558](https://github.com/leanprover/lean4/pull/4558) fixes the `pp.instantiateMVars` setting and changes the default value to `true`.
+* [#4631](https://github.com/leanprover/lean4/pull/4631) makes sure syntax nodes always run their formatters. Fixes an issue where if `ppSpace` appears in a `macro` or `elab` command then it does not format with a space.
+* [#4665](https://github.com/leanprover/lean4/pull/4665) fixes a bug where pretty printed signatures (for example in `#check`) were overly hoverable due to `pp.tagAppFns` being set.
+
+### Library
+
+* `Nat`
+  * [#4597](https://github.com/leanprover/lean4/pull/4597) adds bitwise lemmas `Nat.and_le_(left|right)`
+* `UInt*` and `Fin`
+  * [#4605](https://github.com/leanprover/lean4/pull/4605) adds lemmas.
+  * [#4629](https://github.com/leanprover/lean4/pull/4629) adds `*.and_toNat`.
+* `Option`
+  * [#4599](https://github.com/leanprover/lean4/pull/4599) adds `get` lemmas.
+  * [#4600](https://github.com/leanprover/lean4/pull/4600) adds `Option.or`, a version of `Option.orElse` that is strict in the second argument.
+* `GetElem`
+  * [#4603](https://github.com/leanprover/lean4/pull/4603) adds `getElem_congr` to help with rewriting indices.
+* `List` and `Array`
+  * [#4586](https://github.com/leanprover/lean4/pull/4586) upstreams `List.attach` and `Array.attach` from Batteries
+  * Lemmas: [#4602](https://github.com/leanprover/lean4/pull/4602), [#4627](https://github.com/leanprover/lean4/pull/4627)
+* `ByteArray`
+  * [#4582](https://github.com/leanprover/lean4/pull/4582) removes `partial` for `ByteArray.toList` and `ByteArray.findIdx?`.
+* `BitVec`
+  * [#4568](https://github.com/leanprover/lean4/pull/4568) adds recurrence theorems for bitblasting multiplication.
+* `Std.HashMap`
+  * [#4583](https://github.com/leanprover/lean4/pull/4583) adds `Std.HashMap` as a verified replacement for `Lean.HashMap`. See the PR for naming differences.
+* `BEq`
+  * [#4607](https://github.com/leanprover/lean4/pull/4607) adds `PartialEquivBeq`, `ReflBEq`, `EquivBEq`, and `LawfulHashable` classes.
+* **Other fixes or improvements**
+  * [#4604](https://github.com/leanprover/lean4/pull/4604) adds lemmas for cond.
+  * [#4619](https://github.com/leanprover/lean4/pull/4619) changes some definitions into theorems.
+  * [#4616](https://github.com/leanprover/lean4/pull/4616) fixes some names with duplicated namespaces.
+  * [#4620](https://github.com/leanprover/lean4/pull/4620) fixes simp lemmas flagged by the simpNF linter.
+
+### Lean internals
+* **Elaboration**
+  * [#4596](https://github.com/leanprover/lean4/pull/4596) enforces `isDefEqStuckEx` at `unstuckMVar` procedure, causing isDefEq to throw a stuck defeq exception if the metavariable was created in a previous level. This results in some better error messages, and it helps `rw` succeed in synthesizing instances (see issue [#2736](https://github.com/leanprover/lean4/issues/2736)).
+* **Typeclass inference**
+  * [#4646](https://github.com/leanprover/lean4/pull/4646) improves `synthAppInstances`, the function responsible for synthesizing instances for the `rw` and `apply` tactics. Adds a syntheses loop to handle functions whose instances need to be synthesized in a complex order.
+* **Diagnostics and profiling**
+  * [#4611](https://github.com/leanprover/lean4/pull/4611) makes kernel diagnostics appear when `diagnostics` is enabled even if it is the only section.
+* **Kernel**
+  * [#4637](https://github.com/leanprover/lean4/pull/4637) adds a check to prevent large `Nat` exponentiations from evaluating. Elaborator reduction is controlled by the option `exponentiation.threshold`.
+* **Other fixes or improvements**
+  * [#4590](https://github.com/leanprover/lean4/pull/4590) fixes a typo in some constants and `trace.profiler.useHeartbeats`.
+  * [#4617](https://github.com/leanprover/lean4/pull/4617) add 'since' dates to `deprecated` attributes.
+  * [#4625](https://github.com/leanprover/lean4/pull/4625) improves the robustness of the constructor-as-variable test.
+  * Typos: [#4635](https://github.com/leanprover/lean4/pull/4635)
+
+### Compiler, runtime, and FFI
+
+
+### Lake
+
+### DevOps/CI
+
+* [#4531](https://github.com/leanprover/lean4/pull/4531) makes release trigger an update of `release.lean-lang.org`.
+* [#4598](https://github.com/leanprover/lean4/pull/4598) adjusts `pr-release` to the new `lakefile.lean` syntax.
+* [#4632](https://github.com/leanprover/lean4/pull/4632) makes `pr-release` use the correct tag name.
+* [#4638](https://github.com/leanprover/lean4/pull/4638) adds ability to manually trigger nightly release.
+* [#4640](https://github.com/leanprover/lean4/pull/4640) adds more debugging output for `restart-on-label` CI.
+* [#4663](https://github.com/leanprover/lean4/pull/4663) bumps up waiting for 10s to 30s for `restart-on-label`
+
+### Breaking changes
+
+
+
+### TODO
+
+new-variable.md
+(from #5000)
+**breaking change**
+
+The effect of the `variable` command on proofs of `theorem`s has been changed. Whether such section variables are accessible in the proof now depends only on the theorem signature and other top-level commands, not on the proof itself.
+This change ensures that
+* the statement of a theorem is independent of its proof. In other words, changes in the proof cannot change the theorem statement.
+* tactics such as `induction` cannot accidentally include a section variable.
+* the proof can be elaborated in parallel to subsequent declarations in a future version of Lean.
+
+The effect of `variable`s on the theorem header as well as on other kinds of declarations is unchanged.
+
+Specifically, section variables are included if they
+* are directly referenced by the theorem header,
+* are included via the new `include` command in the current section and not subsequently mentioned in an `omit` statement,
+* are directly referenced by any variable included by these rules, OR
+* are instance-implicit variables that reference only variables included by these rules.
+
+For porting, a new option `deprecated.oldSectionVars` is included to locally switch back to the old behavior.
+
+
+
+mutualStructural.md
+
+* The `termination_by?` syntax no longer forces the use of well-founded recursion, and when structural
+  recursion is inferred, will print the result using the `termination_by` syntax.
+
+* Mutual structural recursion is supported now. This supports both mutual recursion over a non-mutual
+  data type, as well as recursion over mutual or nested data types:
+
+  ```lean
+  mutual
+  def Even : Nat → Prop
+    | 0 => True
+    | n+1 => Odd n
+
+  def Odd : Nat → Prop
+    | 0 => False
+    | n+1 => Even n
+  end
+
+  mutual
+  inductive A
+  | other : B → A
+  | empty
+  inductive B
+  | other : A → B
+  | empty
+  end
+
+  mutual
+  def A.size : A → Nat
+  | .other b => b.size + 1
+  | .empty => 0
+
+  def B.size : B → Nat
+  | .other a => a.size + 1
+  | .empty => 0
+  end
+
+  inductive Tree where | node : List Tree → Tree
+
+  mutual
+  def Tree.size : Tree → Nat
+  | node ts => Tree.list_size ts
+
+  def Tree.list_size : List Tree → Nat
+  | [] => 0
+  | t::ts => Tree.size t + Tree.list_size ts
+  end
+  ```
+
+  Functional induction principles are generated for these functions as well (`A.size.induct`, `A.size.mutual_induct`).
+
+  Nested structural recursion is still not supported.
+
+  PRs [#4639](https://github.com/leanprover/lean4/pull/4639), [#4715](https://github.com/leanprover/lean4/pull/4715), [#4642](https://github.com/leanprover/lean4/pull/4642), [#4656](https://github.com/leanprover/lean4/pull/4656), [#4684](https://github.com/leanprover/lean4/pull/4684), [#4715](https://github.com/leanprover/lean4/pull/4715), [#4728](https://github.com/leanprover/lean4/pull/4728), [#4575](https://github.com/leanprover/lean4/pull/4575), [#4731](https://github.com/leanprover/lean4/pull/4731), [#4658](https://github.com/leanprover/lean4/pull/4658), [#4734](https://github.com/leanprover/lean4/pull/4734), [#4738](https://github.com/leanprover/lean4/pull/4738), [#4718](https://github.com/leanprover/lean4/pull/4718),
+  [#4733](https://github.com/leanprover/lean4/pull/4733), [#4787](https://github.com/leanprover/lean4/pull/4787), [#4788](https://github.com/leanprover/lean4/pull/4788), [#4789](https://github.com/leanprover/lean4/pull/4789), [#4807](https://github.com/leanprover/lean4/pull/4807), [#4772](https://github.com/leanprover/lean4/pull/4772)
+
+* A bugfix in the structural recursion code may in some cases break existing code, when a parameter
+  of the type of the recursive argument is bound behind indices of that type. This can usually be
+  fixed by reordering the parameters of the function (PR #4672)
+
+
 
 v4.10.0
 ----------
@@ -523,7 +899,7 @@ v4.9.0
     fixing a pretty printing error in hovers and strengthening the unused variable linter.
   * [dfb496](https://github.com/leanprover/lean4/commit/dfb496a27123c3864571aec72f6278e2dad1cecf) fixes `declareBuiltin` to allow it to be called multiple times per declaration.
   * [#4569](https://github.com/leanprover/lean4/pull/4569) fixes an issue introduced in a merge conflict, where the interrupt exception was swallowed by some `tryCatchRuntimeEx` uses.
-  * [b056a0](https://github.com/leanprover/lean4/commit/b056a0b395bb728512a3f3e83bf9a093059d4301) adapts kernel interruption to the new cancellation system.
+  * [#4584](https://github.com/leanprover/lean4/pull/4584) (backported as [b056a0](https://github.com/leanprover/lean4/commit/b056a0b395bb728512a3f3e83bf9a093059d4301)) adapts kernel interruption to the new cancellation system.
   * Cleanup: [#4112](https://github.com/leanprover/lean4/pull/4112), [#4126](https://github.com/leanprover/lean4/pull/4126), [#4091](https://github.com/leanprover/lean4/pull/4091), [#4139](https://github.com/leanprover/lean4/pull/4139), [#4153](https://github.com/leanprover/lean4/pull/4153).
   * Tests: [030406](https://github.com/leanprover/lean4/commit/03040618b8f9b35b7b757858483e57340900cdc4), [#4133](https://github.com/leanprover/lean4/pull/4133).
 

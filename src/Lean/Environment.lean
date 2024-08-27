@@ -101,6 +101,20 @@ structure EnvironmentHeader where
   moduleData   : Array ModuleData := #[]
   deriving Nonempty
 
+register_builtin_option debug.skipKernelTC : Bool := {
+  defValue := false
+  group    := "debug"
+  descr    := "skip kernel type checker. WARNING: setting this option to true may compromise soundness because your proofs will not be checked by the Lean kernel"
+}
+
+register_builtin_option maxHeartbeats : Nat := {
+  defValue := 200000
+  descr := "maximum amount of heartbeats per command. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit"
+}
+
+def Core.getMaxHeartbeats (opts : Options) : Nat :=
+  maxHeartbeats.get opts * 1000
+
 namespace Kernel
 
 structure Diagnostics where
@@ -206,6 +220,19 @@ and the kernel will not catch it if the new option is set to true.
 @[extern "lean_add_decl_without_checking"]
 opaque addDeclWithoutChecking (env : Environment) (decl : @& Declaration) : Except Exception Environment
 
+/--
+Add given declaration to the environment, respecting `debug.skipKernelTC`.
+
+**NOTE**: This function does not implement `reduceBool`/`reduceNat` special reduction rules.
+Use `Lean.Environment.addDecl` to activate them, adding the code generator to the TCB.
+-/
+def addDecl (env : Environment) (opts : Options) (decl : Declaration)
+    (cancelTk? : Option IO.CancelToken := none) : Except Exception Environment :=
+  if debug.skipKernelTC.get opts then
+    addDeclWithoutChecking env decl
+  else
+    addDeclCore env (Core.getMaxHeartbeats opts).toUSize decl cancelTk?
+
 @[export lean_environment_add]
 private def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
   { env with constants := env.constants.insert cinfo.name cinfo }
@@ -305,7 +332,8 @@ structure Environment where
   private extraConstNames : NameSet
   /-- The header contains additional information that is set at import time. -/
   header                  : EnvironmentHeader := {}
-  asyncTheorems : Array AsyncTheoremVal := #[]
+  asyncTheorems           : Array AsyncTheoremVal := #[]
+  prefixRestriction       : Name := .anonymous
   toKernelEnvThunk : Thunk Kernel.Environment := ⟨fun _ => mkKernelEnv base asyncTheorems⟩
 deriving Nonempty
 
@@ -351,6 +379,9 @@ def mainModule (env : Environment) : Name :=
 
 def getModuleIdxFor? (env : Environment) (declName : Name) : Option ModuleIdx :=
   env.const2ModIdx[declName]?
+
+def setPrefixRestriction (env : Environment) (prefixRestriction : Name) : Environment :=
+  { env with prefixRestriction }
 
 def isConstructor (env : Environment) (declName : Name) : Bool :=
   match env.find? declName with
@@ -1093,11 +1124,22 @@ private def updateBaseAfterKernelAdd (env : Environment) (added : Declaration) (
 
 /-- Type check given declaration and add it to the environment. -/
 @[extern "lean_elab_add_decl"]
-opaque addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
+private opaque addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
   (cancelTk? : @& Option IO.CancelToken) : Except Kernel.Exception Environment
 
 @[inherit_doc Kernel.Environment.addDeclWithoutChecking, extern "lean_elab_add_decl_without_checking"]
-opaque addDeclWithoutChecking (env : Environment) (decl : @& Declaration) : Except Kernel.Exception Environment
+private opaque addDeclWithoutChecking (env : Environment) (decl : @& Declaration) : Except Kernel.Exception Environment
+
+def addDecl (env : Environment) (opts : Options) (decl : Declaration)
+    (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment := do
+  if !env.prefixRestriction.isAnonymous then
+    if let some c := decl.getNames.find? (!env.prefixRestriction.isPrefixOf ·) then
+      throw <| .other s!"declaration '{c}' cannot be added to the environment because the context \
+        is restricted to the prefix '{env.prefixRestriction}'"
+  if debug.skipKernelTC.get opts then
+    addDeclWithoutChecking env decl
+  else
+    addDeclCore env (Core.getMaxHeartbeats opts).toUSize decl cancelTk?
 
 @[export lean_display_stats]
 def displayStats (env : Environment) : IO Unit := do

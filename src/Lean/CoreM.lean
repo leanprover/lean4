@@ -26,11 +26,6 @@ register_builtin_option diagnostics.threshold : Nat := {
   descr    := "only diagnostic counters above this threshold are reported by the definitional equality"
 }
 
-register_builtin_option maxHeartbeats : Nat := {
-  defValue := 200000
-  descr := "maximum amount of heartbeats per command. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit"
-}
-
 /--
 If the `diagnostics` option is not already set, gives a message explaining this option.
 Begins with a `\n`, so an error message can look like `m!"some error occurred{useDiagnosticMsg}"`.
@@ -45,9 +40,6 @@ def useDiagnosticMsg : MessageData :=
 namespace Core
 
 builtin_initialize registerTraceClass `Kernel
-
-def getMaxHeartbeats (opts : Options) : Nat :=
-  maxHeartbeats.get opts * 1000
 
 abbrev InstantiateLevelCache := PersistentHashMap Name (List Level × Expr)
 
@@ -102,7 +94,6 @@ structure Context where
   errors; see also `logMessage` below.
   -/
   suppressElabErrors : Bool := false
-  envFrozen : Bool := false
   deriving Nonempty
 
 /-- CoreM is a monad for manipulating the Lean environment.
@@ -129,10 +120,7 @@ instance : MonadRef CoreM where
 
 instance : MonadEnv CoreM where
   getEnv := return (← get).env
-  modifyEnv f := do
-    if (← read).envFrozen then
-      throw <| .error (← getRef) (dbgStackTrace fun _ => "`modifyEnv` is no longer implemented in `CoreM`")
-    modify fun s => { s with env := f s.env, cache := {} }
+  modifyEnv f := modify fun s => { s with env := f s.env, cache := {} }
 
 instance : MonadOptions CoreM where
   getOptions := return (← read).options

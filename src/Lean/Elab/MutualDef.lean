@@ -394,9 +394,9 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
           snap.new.resolve <| some old
           reusableResult? := some (old.value, old.state)
 
-    let (val, state) ← withRestoreOrSaveFull reusableResult? header.tacSnap? do
+    let (val, state) ← withRestoreOrSaveFull reusableResult? header.tacSnap? try
+      modifyEnv (·.setPrefixRestriction header.declName)
       withReuseContext header.value do
-      withTheReader Core.Context ({ · with envFrozen := header.kind.isTheorem }) do
       withDeclName header.declName <| withLevelNames header.levelNames do
       let valStx ← liftMacroM <| declValToTerm header.value
       (if header.kind.isTheorem && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc #[header] else fun x => x #[]) fun vars => do
@@ -425,6 +425,8 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
               logWarningAt header.ref m!"included section variable '{var}' is not used in \
                 '{header.declName}', consider excluding it"
         return val
+    finally
+      modifyEnv (·.setPrefixRestriction .anonymous)
     if let some snap := header.bodySnap? then
       snap.new.resolve <| some {
         diagnostics :=

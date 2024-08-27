@@ -9080,7 +9080,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("❌ Docstring on `#guard_msgs` does not match generated message:\n\n", 66, 64);
+x_1 = lean_mk_string_unchecked("❌️ Docstring on `#guard_msgs` does not match generated message:\n\n", 69, 65);
 return x_1;
 }
 }

@@ -616,13 +616,13 @@ If the position is zero, this function is the identity. -/
 @[inline] def hasPrev : Iterator → Bool
   | ⟨_, i⟩ => i.byteIdx > 0
 
-@[inline] def curr' (it : Iterator) (_h : it.hasNext) : Char :=
+@[inline] def curr' (it : Iterator) (h : it.hasNext) : Char :=
   match it with
-  | ⟨s, i⟩ => get' s i (by simp_all only [hasNext, endPos, decide_eq_true_eq, String.atEnd, ge_iff_le, Nat.not_le])
+  | ⟨s, i⟩ => get' s i (by simpa only [hasNext, endPos, decide_eq_true_eq, String.atEnd, ge_iff_le, Nat.not_le] using h)
 
-@[inline] def next' (it : Iterator) (_h : it.hasNext) : Iterator :=
+@[inline] def next' (it : Iterator) (h : it.hasNext) : Iterator :=
   match it with
-  | ⟨s, i⟩ => ⟨s, s.next' i (by simp_all only [hasNext, endPos, decide_eq_true_eq, String.atEnd, ge_iff_le, Nat.not_le])⟩
+  | ⟨s, i⟩ => ⟨s, s.next' i (by simpa only [hasNext, endPos, decide_eq_true_eq, String.atEnd, ge_iff_le, Nat.not_le] using h)⟩
 
 /-- Replaces the current character in the string.
 

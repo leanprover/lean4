@@ -77,12 +77,12 @@ private partial def digitsCore (acc : Nat) : Parser Nat := fun it =>
   .success it res
 where
   go (it : ByteArray.Iterator) (acc : Nat) : Nat × ByteArray.Iterator :=
-    if it.hasNext then
-      let candidate := it.curr
+    if h : it.hasNext then
+      let candidate := it.curr' h
       if '0'.toUInt8 ≤ candidate ∧ candidate ≤ '9'.toUInt8 then
         let digit := digitToNat candidate
         let acc := acc * 10 + digit
-        go it.next acc
+        go (it.next' h) acc
       else
         (acc, it)
     else

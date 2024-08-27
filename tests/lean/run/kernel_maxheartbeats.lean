@@ -1,22 +1,53 @@
 import Lean
 
-def ack : Nat → Nat → Nat
-  | 0,   y   => y+1
-  | x+1, 0   => ack x 1
-  | x+1, y+1 => ack x (ack (x+1) y)
+def fib (n : Nat) :=
+  match n with
+  | 0 | 1 => 1
+  | x+2 => fib x + fib (x+1)
+termination_by structural n
 
-set_option maxHeartbeats 500
+set_option maxHeartbeats 100
 open Lean Meta
 
 /--
-error: (kernel) deterministic timeout
+error: (deterministic) timeout at `elaborator`, maximum number of heartbeats (100) has been reached
+Use `set_option maxHeartbeats <num>` to set the limit.
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+---
+error: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (100) has been reached
+Use `set_option maxHeartbeats <num>` to set the limit.
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+---
+error: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (100) has been reached
+Use `set_option maxHeartbeats <num>` to set the limit.
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+---
+error: (deterministic) timeout at `whnf`, maximum number of heartbeats (100) has been reached
+Use `set_option maxHeartbeats <num>` to set the limit.
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+---
+error: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (100) has been reached
+Use `set_option maxHeartbeats <num>` to set the limit.
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+---
+error: (deterministic) timeout at `whnf`, maximum number of heartbeats (100) has been reached
+Use `set_option maxHeartbeats <num>` to set the limit.
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+---
+error: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (100) has been reached
+Use `set_option maxHeartbeats <num>` to set the limit.
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+---
+error: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (100) has been reached
+Use `set_option maxHeartbeats <num>` to set the limit.
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
 run_meta do
-  let type ← mkEq (← mkAppM ``ack #[mkNatLit 4, mkNatLit 4]) (mkNatLit 100000)
-  let value ← mkEqRefl (mkNatLit 100000)
+  let type ← mkEq (← mkAppM ``fib #[mkNatLit 200]) (mkNatLit 453973694165307953197296969697410619233826)
+  let value ← mkEqRefl (mkNatLit 453973694165307953197296969697410619233826)
   addDecl <| .thmDecl {
-    name        := `ack_4_4
+    name        := `fib_30
     levelParams := []
     type, value
   }

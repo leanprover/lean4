@@ -144,17 +144,15 @@ theorem eq_one_of_mul_eq_one_left {a b : Int} (H : 0 ≤ b) (H' : a * b = 1) : b
   | ofNat _ => show ofNat _ = _ by simp
   | -[_+1] => show -ofNat _ = _ by simp
 
-unseal Nat.div in
 @[simp] protected theorem div_zero : ∀ a : Int, div a 0 = 0
   | ofNat _ => show ofNat _ = _ by simp
-  | -[_+1] => rfl
+  | -[_+1] => show -ofNat _ = _ by simp
 
 @[simp] theorem zero_fdiv (b : Int) : fdiv 0 b = 0 := by cases b <;> rfl
 
-unseal Nat.div in
 @[simp] protected theorem fdiv_zero : ∀ a : Int, fdiv a 0 = 0
   | 0      => rfl
-  | succ _ => rfl
+  | succ _ => by simp [fdiv]
   | -[_+1] => rfl
 
 /-! ### div equivalences  -/
@@ -772,16 +770,17 @@ theorem ediv_eq_ediv_of_mul_eq_mul {a b c d : Int}
   | (n:Nat) => congrArg ofNat (Nat.div_one _)
   | -[n+1] => by simp [Int.div, neg_ofNat_succ]; rfl
 
-unseal Nat.div in
 @[simp] protected theorem div_neg : ∀ a b : Int, a.div (-b) = -(a.div b)
-  | ofNat m, 0 => show ofNat (m / 0) = -↑(m / 0) by rw [Nat.div_zero]; rfl
+  | ofNat m, 0 => by simp
   | ofNat m, -[n+1] | -[m+1], succ n => (Int.neg_neg _).symm
-  | ofNat m, succ n | -[m+1], 0 | -[m+1], -[n+1] => rfl
+  | ofNat m, succ n => by simp only [div, neg_ofNat_succ]
+  | -[m+1], 0 => by simp only [Int.neg_zero, Int.div_zero]
+  | -[m+1], -[n+1] => by simp only [div, neg_negSucc]
 
-unseal Nat.div in
 @[simp] protected theorem neg_div : ∀ a b : Int, (-a).div b = -(a.div b)
-  | 0, n => by simp [Int.neg_zero]
-  | succ m, (n:Nat) | -[m+1], 0 | -[m+1], -[n+1] => rfl
+  | 0, n => by simp
+  | succ m, (n:Nat) | -[m+1], 0 | -[m+1], -[n+1] => by
+      simp only [div, neg_ofNat_succ, neg_negSucc, Int.eq_neg_comm]
   | succ m, -[n+1] | -[m+1], succ n => (Int.neg_neg _).symm
 
 protected theorem neg_div_neg (a b : Int) : (-a).div (-b) = a.div b := by
@@ -947,9 +946,10 @@ theorem fdiv_nonneg {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : 0 ≤ a.fdiv b :
   match a, b, eq_ofNat_of_zero_le Ha, eq_ofNat_of_zero_le Hb with
   | _, _, ⟨_, rfl⟩, ⟨_, rfl⟩ => ofNat_fdiv .. ▸ ofNat_zero_le _
 
-unseal Nat.div in
 theorem fdiv_nonpos : ∀ {a b : Int}, 0 ≤ a → b ≤ 0 → a.fdiv b ≤ 0
-  | 0, 0, _, _ | 0, -[_+1], _, _ | succ _, 0, _, _ | succ _, -[_+1], _, _ => ⟨_⟩
+  | 0, 0, _, _ | 0, -[_+1], _, _ | succ _, 0, _, _ | succ _, -[_+1], _, _ =>
+    by simp [fdiv]
+       try exact le.intro_sub _ rfl
 
 theorem fdiv_neg' : ∀ {a b : Int}, a < 0 → 0 < b → a.fdiv b < 0
   | -[_+1], succ _, _, _ => negSucc_lt_zero _

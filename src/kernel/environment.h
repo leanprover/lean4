@@ -24,7 +24,15 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
-/** \brief Type of native reduction function: maps declaration names to runtime object evaluations. */
+/** \brief Type of native reduction function: maps declaration names to runtime object evaluations.
+
+    Native reduction refers to the reduction special cases of `reduceBool/reduceNat`. As running the
+    the interpreter (which may then jump to into native code) for such reductions requires access to
+    the IR and other environment extensions, we make this significant extension of the TCB explicit
+    in the structure of the code as well by storing all environment extensions in a separate type
+    `elab_environment` extending the core `environment` type below. If no native reduction function
+    is passed to the type checker, only `environment` data is accessed.
+    */
 typedef std::function<object *(name const &)> native_reduce_fn;
 
 /* Wrapper for `Kernel.Diagnostics` */
@@ -39,7 +47,7 @@ public:
 };
 
 /*
-Store `Kernel.Diagnostics` stored in environment extension in `m_diag` IF
+Store `Kernel.Diagnostics` (to be stored in `Kernel.Environment.diagnostics`) in `m_diag` IF
 - `Kernel.Diagnostics.enable = true`
 - `collect = true`. This is a minor optimization.
 
@@ -57,6 +65,7 @@ public:
     diagnostics * get() const { return m_diag; }
 };
 
+/* Wrapper for `Lean.Kernel.Environment` */
 class LEAN_EXPORT environment : public object_ref {
     friend class add_inductive_fn;
 

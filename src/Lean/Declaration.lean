@@ -193,6 +193,10 @@ def Declaration.definitionVal! : Declaration → DefinitionVal
   | .defnDecl val => val
   | _ => panic! "Expected a `Declaration.defnDecl`."
 
+/--
+Returns all top-level names to be defined by adding this declaration to the environment. This does
+not include auxiliary definitions such as projections.
+-/
 def Declaration.getNames : Declaration → List Name
   | .axiomDecl val          => [val.name]
   | .defnDecl val           => [val.name]

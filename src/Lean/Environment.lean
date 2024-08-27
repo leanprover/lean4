@@ -111,41 +111,43 @@ structure Diagnostics where
   deriving Inhabited
 
 /--
-An environment stores declarations provided by the user. The kernel
-currently supports different kinds of declarations such as definitions, theorems,
-and inductive families. Each has a unique identifier (i.e., `Name`), and can be
-parameterized by a sequence of universe parameters.
-A constant in Lean is just a reference to a `ConstantInfo` object. The main task of
-the kernel is to type check these declarations and refuse type incorrect ones. The
-kernel does not allow declarations containing metavariables and/or free variables
-to be added to an environment. Environments are never destructively updated.
+An environment stores declarations provided by the user. The kernel currently supports different
+kinds of declarations such as definitions, theorems, and inductive families. Each has a unique
+identifier (i.e., `Name`), and can be parameterized by a sequence of universe parameters. A constant
+in Lean is just a reference to a `ConstantInfo` object. The main task of the kernel is to type check
+these declarations and refuse type incorrect ones. The kernel does not allow declarations containing
+metavariables and/or free variables to be added to an environment. Environments are never
+destructively updated.
 
-The environment also contains a collection of extensions. For example, the `simp` theorems
-declared by users are stored in an environment extension. Users can declare new extensions
-using meta-programming.
+This type contains only the minimal data necessary for basic type checking. Other data used only by
+and for elaboration, as well data for the TCB extension of native reduction, is stored in
+`Lean.Environment`.
 -/
 structure Environment where
-  /-- The constructor of `Environment` is private to protect against modification
-  that bypasses the kernel. -/
+  /--
+  The constructor of `Environment` is private to protect against modification that bypasses the
+  kernel.
+  -/
   private mk ::
   /--
-  Mapping from constant name to `ConstantInfo`. It contains all constants (definitions, theorems, axioms, etc)
-  that have been already type checked by the kernel.
+  Mapping from constant name to `ConstantInfo`. It contains all constants (definitions, theorems,
+  axioms, etc) that have been already type checked by the kernel.
   -/
   constants   : ConstMap
   /--
   `quotInit = true` if the command `init_quot` has already been executed for the environment, and
-  `Quot` declarations have been added to the environment.
+  `Quot` declarations have been added to the environment. When the flag is set, the type checker can
+  assume that the `Quot` declarations in the environment have indeed been added by the kernel and
+  not by the user.
   -/
   quotInit    : Bool := false
   /--
   Diagnostic information collected during kernel execution.
 
-  Remark: We store kernel diagnostic information in an environment field to simplify
-  the interface with the kernel implemented in C/C++. Thus, we can only track
-  declarations in methods, such as `addDecl`, which return a new environment.
-  `Kernel.isDefEq` and `Kernel.whnf` do not update the statistics. We claim
-  this is ok since these methods are mainly used for debugging.
+  Remark: We store kernel diagnostic information in an environment field to simplify the interface
+  with the kernel implemented in C/C++. Thus, we can only track declarations in methods, such as
+  `addDecl`, which return a new environment. `Kernel.isDefEq` and `Kernel.whnf` do not update the
+  statistics. We claim this is ok since these methods are mainly used for debugging.
   -/
   diagnostics : Diagnostics := {}
 deriving Nonempty
@@ -188,7 +190,7 @@ private def isQuotInit (env : Environment) : Bool :=
 /--
 Type check given declaration and add it to the environment
 
-**NOTE**: This function does not implement `ofReduceBool`/`ofReduceNat` special reduction rules.
+**NOTE**: This function does not implement `reduceBool`/`reduceNat` special reduction rules.
 Use `Lean.Environment.addDeclCore` to activate them, adding the code generator to the TCB.
 -/
 @[extern "lean_add_decl"]
@@ -244,13 +246,16 @@ end Kernel.Environment
 abbrev KernelException := Kernel.Exception
 
 /--
-Extension of `Kernel.Environment` that adds tracking of compiler IR, arbitrary environment
-extensions, and asynchronously elaborated declarations.
+Extension of `Kernel.Environment` that adds tracking of compiler IR, asynchronously elaborated
+declarations, and arbitrary environment extensions. For example, the `simp` theorems declared by
+users are stored in an environment extension. Users can declare new extensions using
+meta-programming.
 -/
 structure Environment where
   /-
-  Unlike `Kernel.Environment`, there is no safety concern in making the constructor public, but not
-  doing so still leads to a cleaner API.
+  Like with `Kernel.Environment`, this constructor is private to protect consistency of the
+  environment, though in this case only the consistency between definitions in `base` and IR in
+  `extensions` is relevant, and only when native reduction is used.
   -/
   private mk ::
   private base            : Kernel.Environment
@@ -1064,9 +1069,7 @@ private def updateBaseAfterKernelAdd (env : Environment) (added : Declaration) (
   let env := added.getNames.foldl registerNamePrefixes env
   env.setBase base
 
-/--
-Type check given declaration and add it to the environment
--/
+/-- Type check given declaration and add it to the environment. -/
 @[extern "lean_elab_add_decl"]
 opaque addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
   (cancelTk? : @& Option IO.CancelToken) : Except Kernel.Exception Environment

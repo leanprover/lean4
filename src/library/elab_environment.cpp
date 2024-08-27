@@ -11,13 +11,30 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include "library/compiler/ir_interpreter.h"
 
 namespace lean {
+/* Default native reduction function: we use the environment extensions stored in `elab_environment`
+   not directly accessible by the type checker in order to run the interpreter (which may then jump
+   into native code).
 
+   While more definitions can be added to the kernel environment during type checking, these would
+   not yet have any IR, so it is okay to capture and use the `elab_environment` strictly before type
+   checking here. */
 native_reduce_fn mk_default_native_reduce_fn(elab_environment const & env) {
     return [&env](name const & d) {
+        // TODO: we should pass the correct options here in order to respect e.g.
+        // `interpreter.prefer_native` during native reduction if we start using it during
+        // bootstrapping
         return ir::run_boxed(env, options(), d, 0, nullptr);
     };
 }
 
+/* updateBaseAfterKernelAdd (env : Environment) (added : Declaration) (base : Kernel.Environment) :
+   Environment
+
+   Updates an elab environment with a given kernel environment after the declaration `d` has been
+   added to it. `d` is used to adjust further elab env data such as registering new namespaces.
+
+   NOTE: Ideally this language switching would not be necessary and we could do all this in Lean
+   only but the old code generator and `mk_projections` still need a C++ `elab_environment::add`. */
 extern "C" obj_res lean_elab_environment_update_base_after_kernel_add(obj_arg env, obj_arg d, obj_arg kenv);
 
 elab_environment elab_environment::add(declaration const & d, bool check) const {

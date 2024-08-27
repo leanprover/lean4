@@ -184,25 +184,6 @@ v4.11.0
 * [#4687](https://github.com/leanprover/lean4/pull/4687) chore: adjust `List.replicate` simp lemmas
 * [#4660](https://github.com/leanprover/lean4/pull/4660) feat: `Process.tryWait`
 * [#4575](https://github.com/leanprover/lean4/pull/4575) feat: structural mutual recursion
-* [#4683](https://github.com/leanprover/lean4/pull/4683) chore: update comments in kernel/declaration.h
-* [#4669](https://github.com/leanprover/lean4/pull/4669) chore: fix "max dynamic symbols" metric
-* [#4679](https://github.com/leanprover/lean4/pull/4679) fix: unorphan modules in Std.Data
-* [#4681](https://github.com/leanprover/lean4/pull/4681) chore: update codeowners
-* [#4682](https://github.com/leanprover/lean4/pull/4682) chore: `Inhabited` instances for `Std.HashMap`
-* [#4680](https://github.com/leanprover/lean4/pull/4680) fix: unorphan modules in Init
-* [#4621](https://github.com/leanprover/lean4/pull/4621) chore: cleanup unused arguments (from linter)
-* [#4664](https://github.com/leanprover/lean4/pull/4664) chore: bump actions/checkout and actions/upload-artifacts
-* [#4672](https://github.com/leanprover/lean4/pull/4672) fix: `hasBadParamDep?` to look at term, not type
-* [#4666](https://github.com/leanprover/lean4/pull/4666) chore: make Antisymm a Prop
-* [#4668](https://github.com/leanprover/lean4/pull/4668) fix: explicitly initialize `Std` in `lean_initialize`
-* [#4661](https://github.com/leanprover/lean4/pull/4661) fix: move Std from libleanshared to much smaller libInit_shared
-
-
-
-
-
-
-
 
 
 
@@ -217,11 +198,12 @@ v4.11.0
 
 * **Recursive definitions**
   * Structural recursion can now be explicitly requested using
-  ```
-  termination_by structural x
-  ```
-  in analogy to the existing `termination_by x` syntax that causes well-founded recursion to be used.
-  [#4542](https://github.com/leanprover/lean4/pull/4542)
+    ```
+    termination_by structural x
+    ```
+    in analogy to the existing `termination_by x` syntax that causes well-founded recursion to be used.
+    [#4542](https://github.com/leanprover/lean4/pull/4542)
+  * [#4672](https://github.com/leanprover/lean4/pull/4672) fixes a bug that could lead to ill-typed terms.
 
 * `omega` tactic
   * [#4612](https://github.com/leanprover/lean4/pull/4612) normalizes the order that constraints appear in error messages.
@@ -260,6 +242,7 @@ v4.11.0
   * [#4568](https://github.com/leanprover/lean4/pull/4568) adds recurrence theorems for bitblasting multiplication.
 * `Std.HashMap`
   * [#4583](https://github.com/leanprover/lean4/pull/4583) adds `Std.HashMap` as a verified replacement for `Lean.HashMap`. See the PR for naming differences.
+  * [#4682](https://github.com/leanprover/lean4/pull/4682) adds `Inhabited` instances.
 * `BEq`
   * [#4607](https://github.com/leanprover/lean4/pull/4607) adds `PartialEquivBeq`, `ReflBEq`, `EquivBEq`, and `LawfulHashable` classes.
 * **Other fixes or improvements**
@@ -267,6 +250,10 @@ v4.11.0
   * [#4619](https://github.com/leanprover/lean4/pull/4619) changes some definitions into theorems.
   * [#4616](https://github.com/leanprover/lean4/pull/4616) fixes some names with duplicated namespaces.
   * [#4620](https://github.com/leanprover/lean4/pull/4620) fixes simp lemmas flagged by the simpNF linter.
+  * [#4666](https://github.com/leanprover/lean4/pull/4666) makes the `Antisymm` class be a `Prop`.
+  * [#4621](https://github.com/leanprover/lean4/pull/4621) cleans up unused arguments flagged by linter.
+  * [#4680](https://github.com/leanprover/lean4/pull/4680) imports orphaned `Init` modules.
+  * [#4679](https://github.com/leanprover/lean4/pull/4679) imports orphaned `Std.Data` modules.
 
 ### Lean internals
 * **Elaboration**
@@ -277,6 +264,7 @@ v4.11.0
   * [#4611](https://github.com/leanprover/lean4/pull/4611) makes kernel diagnostics appear when `diagnostics` is enabled even if it is the only section.
 * **Kernel**
   * [#4637](https://github.com/leanprover/lean4/pull/4637) adds a check to prevent large `Nat` exponentiations from evaluating. Elaborator reduction is controlled by the option `exponentiation.threshold`.
+  * [#4683](https://github.com/leanprover/lean4/pull/4683) updates comments in `kernel/declaration.h`, making sure they reflect the current Lean 4 types.
 * **Other fixes or improvements**
   * [#4590](https://github.com/leanprover/lean4/pull/4590) fixes a typo in some constants and `trace.profiler.useHeartbeats`.
   * [#4617](https://github.com/leanprover/lean4/pull/4617) add 'since' dates to `deprecated` attributes.
@@ -284,7 +272,8 @@ v4.11.0
   * Typos: [#4635](https://github.com/leanprover/lean4/pull/4635)
 
 ### Compiler, runtime, and FFI
-
+* [#4661](https://github.com/leanprover/lean4/pull/4661) moves `Std` from `libleanshared` to much smaller `libInit_shared`. This fixes the Windows build.
+* [#4668](https://github.com/leanprover/lean4/pull/4668) fixes initialization, explicitly initializing `Std` in `lean_initialize`.
 
 ### Lake
 
@@ -295,7 +284,9 @@ v4.11.0
 * [#4632](https://github.com/leanprover/lean4/pull/4632) makes `pr-release` use the correct tag name.
 * [#4638](https://github.com/leanprover/lean4/pull/4638) adds ability to manually trigger nightly release.
 * [#4640](https://github.com/leanprover/lean4/pull/4640) adds more debugging output for `restart-on-label` CI.
-* [#4663](https://github.com/leanprover/lean4/pull/4663) bumps up waiting for 10s to 30s for `restart-on-label`
+* [#4663](https://github.com/leanprover/lean4/pull/4663) bumps up waiting for 10s to 30s for `restart-on-label`.
+* [#4664](https://github.com/leanprover/lean4/pull/4664) version bump for `actions/checkout` and `actions/upload-artifacts`.
+* [#4669](https://github.com/leanprover/lean4/pull/4669) fixes the "max dynamic symbols" metric per static library.
 
 ### Breaking changes
 
@@ -384,7 +375,7 @@ mutualStructural.md
 
 * A bugfix in the structural recursion code may in some cases break existing code, when a parameter
   of the type of the recursive argument is bound behind indices of that type. This can usually be
-  fixed by reordering the parameters of the function (PR #4672)
+  fixed by reordering the parameters of the function ([#4672](https://github.com/leanprover/lean4/pull/4672))
 
 
 

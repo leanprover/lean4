@@ -1824,4 +1824,10 @@ theorem getLsb_intMax (w : Nat) : (intMax w).getLsb i = decide (i + 1 < w) := by
   rw [← testBit_toNat, toNat_intMax, Nat.testBit_two_pow_sub_one, decide_eq_decide]
   omega
 
+@[simp] theorem intMax_add_one {w : Nat} : intMax w + 1#w = intMin w := by
+  simp only [toNat_eq, toNat_intMax, toNat_add, toNat_intMin, toNat_ofNat, Nat.add_mod_mod]
+  by_cases h : w = 0
+  · simp [h]
+  · rw [Nat.sub_add_cancel (Nat.two_pow_pos (w - 1)), Nat.two_pow_pred_mod_two_pow (by omega)]
+
 end BitVec

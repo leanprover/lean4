@@ -510,8 +510,14 @@ def toMessageData (elabEnv : Lean.Environment) (e : Kernel.Exception) (opts : Op
   | excessiveMemory                     => "(kernel) excessive memory consumption detected"
   | deepRecursion                       => "(kernel) deep recursion detected"
   | interrupted                         => "(kernel) interrupted"
-where mkCtx (env : Kernel.Environment) (lctx : LocalContext) (opts : Options) (msg : MessageData) : MessageData :=
-  MessageData.withContext { env := elabEnv.setBase env, mctx := {}, lctx := lctx, opts := opts } msg
+where mkCtx (_env : Kernel.Environment) (lctx : LocalContext) (opts : Options) (msg : MessageData) : MessageData :=
+  -- In the split of `Lean.Kernel.Environment` from `Lean.Environment`, the environment returned in
+  -- kernel exceptions is not of the correct type anymore, and we do not want to pass the full
+  -- environment to the kernel. Thus the environment set here may be missing declarations added
+  -- during the kernel execution up to the exception. We could update `elabEnv.base` with this
+  -- environment but the environment type is opaque at this point. We claim that the added
+  -- declarations should rarely be relevant to the presentation of this less frequent exception.
+  MessageData.withContext { env := elabEnv, mctx := {}, lctx := lctx, opts := opts } msg
 
 
 end Kernel.Exception

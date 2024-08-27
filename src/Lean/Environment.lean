@@ -1061,13 +1061,10 @@ private def registerNamePrefixes : Environment → Name → Environment
   | env, .str p _ => if isNamespaceName p then registerNamePrefixes (registerNamespace env p) p else env
   | env, _        => env
 
-def setBase (env : Environment) (base : Kernel.Environment) : Environment :=
-  { env with base }
-
 @[export lean_elab_environment_update_base_after_kernel_add]
 private def updateBaseAfterKernelAdd (env : Environment) (added : Declaration) (base : Kernel.Environment) : Environment :=
   let env := added.getNames.foldl registerNamePrefixes env
-  env.setBase base
+  { env with base }
 
 /-- Type check given declaration and add it to the environment. -/
 @[extern "lean_elab_add_decl"]

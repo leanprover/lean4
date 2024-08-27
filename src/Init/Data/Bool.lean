@@ -448,16 +448,18 @@ theorem not_ite_eq_false_eq_true (p : Prop) [h : Decidable p] (b c : Bool) :
   cases h with | _ p => simp [p]
 
 /-
-Added for confluence between `if_true_left` and `ite_false_same` on
-`if b = true then True else b = true`
+It would be nice to have this for confluence between `if_true_left` and `ite_false_same` on
+`if b = true then True else b = true`.
+However the discrimination tree key is just `→`, so this is tried too often.
 -/
-@[simp] theorem eq_false_imp_eq_true : ∀(b:Bool), (b = false → b = true) ↔ (b = true) := by decide
+theorem eq_false_imp_eq_true : ∀(b:Bool), (b = false → b = true) ↔ (b = true) := by decide
 
 /-
-Added for confluence between `if_true_left` and `ite_false_same` on
-`if b = false then True else b = false`
+It would be nice to have this for confluence between `if_true_left` and `ite_false_same` on
+`if b = false then True else b = false`.
+However the discrimination tree key is just `→`, so this is tried too often.
 -/
-@[simp] theorem eq_true_imp_eq_false : ∀(b:Bool), (b = true → b = false) ↔ (b = false) := by decide
+theorem eq_true_imp_eq_false : ∀(b:Bool), (b = true → b = false) ↔ (b = false) := by decide
 
 /-! ### forall -/
 

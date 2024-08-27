@@ -403,7 +403,7 @@ theorem Decidable.not_imp_symm [Decidable a] (h : ¬a → b) (hb : ¬b) : a :=
 theorem Decidable.not_imp_comm [Decidable a] [Decidable b] : (¬a → b) ↔ (¬b → a) :=
   ⟨not_imp_symm, not_imp_symm⟩
 
-@[simp] theorem Decidable.not_imp_self [Decidable a] : (¬a → a) ↔ a := by
+theorem Decidable.not_imp_self [Decidable a] : (¬a → a) ↔ a := by
   have := @imp_not_self (¬a); rwa [not_not] at this
 
 theorem Decidable.or_iff_not_imp_left [Decidable a] : a ∨ b ↔ (¬a → b) :=

@@ -388,11 +388,9 @@ theorem forall_mem_cons {p : α → Prop} {a : α} {l : List α} :
   ⟨fun H => ⟨H _ (.head ..), fun _ h => H _ (.tail _ h)⟩,
    fun ⟨H₁, H₂⟩ _ => fun | .head .. => H₁ | .tail _ h => H₂ _ h⟩
 
-@[simp]
 theorem forall_mem_ne {a : α} {l : List α} : (∀ a' : α, a' ∈ l → ¬a = a') ↔ a ∉ l :=
   ⟨fun h m => h _ m rfl, fun h _ m e => h (e.symm ▸ m)⟩
 
-@[simp]
 theorem forall_mem_ne' {a : α} {l : List α} : (∀ a' : α, a' ∈ l → ¬a' = a) ↔ a ∉ l :=
   ⟨fun h m => h _ m rfl, fun h _ m e => h (e.symm ▸ m)⟩
 

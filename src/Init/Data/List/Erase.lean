@@ -337,7 +337,7 @@ theorem mem_of_mem_erase {a b : α} {l : List α} (h : a ∈ l.erase b) : a ∈ 
 
 @[simp] theorem erase_eq_self_iff [LawfulBEq α] {l : List α} : l.erase a = l ↔ a ∉ l := by
   rw [erase_eq_eraseP', eraseP_eq_self_iff]
-  simp
+  simp [forall_mem_ne']
 
 theorem erase_filter [LawfulBEq α] (f : α → Bool) (l : List α) :
     (filter f l).erase a = filter f (l.erase a) := by

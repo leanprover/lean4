@@ -67,7 +67,7 @@ theorem exists_of_findSome?_eq_some {l : List α} {f : α → Option β} (w : l.
 
 @[simp] theorem filterMap_head (f : α → Option β) (l : List α) (h) :
     (l.filterMap f).head h = (l.findSome? f).get (by simp_all [Option.isSome_iff_ne_none])  := by
-  simp
+  simp [head_eq_iff_head?_eq_some]
 
 @[simp] theorem filterMap_getLast? (f : α → Option β) (l : List α) : (l.filterMap f).getLast? = l.reverse.findSome? f := by
   rw [getLast?_eq_head?_reverse]
@@ -246,7 +246,7 @@ theorem mem_of_find?_eq_some : ∀ {l}, find? p l = some a → a ∈ l
 
 @[simp] theorem filter_head (p : α → Bool) (l : List α) (h) :
     (l.filter p).head h = (l.find? p).get (by simp_all [Option.isSome_iff_ne_none]) := by
-  simp
+  simp [head_eq_iff_head?_eq_some]
 
 @[simp] theorem filter_getLast? (p : α → Bool) (l : List α) : (l.filter p).getLast? = l.reverse.find? p := by
   rw [getLast?_eq_head?_reverse]

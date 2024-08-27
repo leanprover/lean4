@@ -917,13 +917,7 @@ theorem head!_of_head? [Inhabited α] : ∀ {l : List α}, head? l = some a → 
 theorem head?_eq_head : ∀ {l} h, @head? α l = some (head l h)
   | _::_, _ => rfl
 
-/--
-We simplify `xs.head h = a` to `xs.head? = some a`,
-despite not simplifying `xs.head h` to `(xs.head?).get ⋯`.
-We can often make further progress on the goal after this simplification,
-because the dependency on `h` has been removed.
--/
-@[simp] theorem head_eq_iff_head?_eq_some {xs : List α} (h) : xs.head h = a ↔ xs.head? = some a := by
+theorem head_eq_iff_head?_eq_some {xs : List α} (h) : xs.head h = a ↔ xs.head? = some a := by
   cases xs with
   | nil => simp at h
   | cons x xs => simp
@@ -2326,18 +2320,12 @@ theorem bind_reverse {β} (l : List α) (f : α → List β) : (l.reverse.bind f
     by_cases h' : l = []
     · simp_all
     · simp only [head_eq_iff_head?_eq_some, head?_reverse] at ih
-      simp [ih, h, h', getLast_cons]
+      simp [ih, h, h', getLast_cons, head_eq_iff_head?_eq_some]
 
 theorem getLast_eq_head_reverse {l : List α} (h : l ≠ []) :
     l.getLast h = l.reverse.head (by simp_all) := by
   rw [← head_reverse]
 
-/--
-We simplify `xs.getLast h = a` to `xs.getLast? = some a`,
-despite not simplifying `xs.getLast h` to `(xs.getLast?).get ⋯`.
-We can often make further progress on the goal after this simplification,
-because the dependency on `h` has been removed.
--/
 theorem getLast_eq_iff_getLast_eq_some {xs : List α} (h) : xs.getLast h = a ↔ xs.getLast? = some a := by
   rw [getLast_eq_head_reverse, head_eq_iff_head?_eq_some]
   simp

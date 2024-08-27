@@ -563,17 +563,17 @@ protected theorem decide_coe (b : Bool) [Decidable (b = true)] : decide (b = tru
     decide (p ↔ q) = (decide p == decide q) := by
   cases dp with | _ p => simp [p]
 
---@[boolToPropSimps]
+@[boolToPropSimps]
 theorem and_eq_decide (p q : Prop) [dpq : Decidable (p ∧ q)] [dp : Decidable p] [dq : Decidable q] :
     (p && q) = decide (p ∧ q) := by
   cases dp with | _ p => simp [p]
 
---@[boolToPropSimps]
+@[boolToPropSimps]
 theorem or_eq_decide (p q : Prop) [dpq : Decidable (p ∨ q)] [dp : Decidable p] [dq : Decidable q] :
     (p || q) = decide (p ∨ q) := by
   cases dp with | _ p => simp [p]
 
---@[boolToPropSimps]
+@[boolToPropSimps]
 theorem decide_beq_decide (p q : Prop) [dpq : Decidable (p ↔ q)] [dp : Decidable p] [dq : Decidable q] :
     (decide p == decide q) = decide (p ↔ q) := by
   cases dp with | _ p => simp [p]

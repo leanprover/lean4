@@ -2338,7 +2338,7 @@ despite not simplifying `xs.getLast h` to `(xs.getLast?).get ⋯`.
 We can often make further progress on the goal after this simplification,
 because the dependency on `h` has been removed.
 -/
-@[simp] theorem getLast_eq_iff_getLast_eq_some {xs : List α} (h) : xs.getLast h = a ↔ xs.getLast? = some a := by
+theorem getLast_eq_iff_getLast_eq_some {xs : List α} (h) : xs.getLast h = a ↔ xs.getLast? = some a := by
   rw [getLast_eq_head_reverse, head_eq_iff_head?_eq_some]
   simp
 

@@ -600,6 +600,46 @@ theorem getD_congr [EquivBEq α] [LawfulHashable α] {a b : α} {fallback : β} 
 end Const
 
 @[simp]
+theorem getKey?_empty {a : α} {c} : (empty c : DHashMap α β).getKey? a = none :=
+  Raw₀.getKey?_empty
+
+@[simp]
+theorem getKey?_emptyc {a : α} : (∅ : DHashMap α β).getKey? a = none :=
+  Raw₀.getKey?_empty
+
+theorem getKey?_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} :
+    m.isEmpty = true → m.getKey? a = none :=
+  Raw₀.getKey?_of_isEmpty ⟨m.1, _⟩ m.2
+
+theorem getKey?_insert [EquivBEq α] [LawfulHashable α] {a k : α} {v : β k} :
+    (m.insert k v).getKey? a = if k == a then some k else m.getKey? a :=
+  Raw₀.getKey?_insert ⟨m.1, _⟩ m.2
+
+@[simp]
+theorem getKey?_insert_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
+    (m.insert k v).getKey? k = some k :=
+  Raw₀.getKey?_insert_self ⟨m.1, _⟩ m.2
+
+theorem contains_eq_isSome_getKey? [EquivBEq α] [LawfulHashable α] {a : α} :
+    m.contains a = (m.getKey? a).isSome :=
+  Raw₀.contains_eq_isSome_getKey? ⟨m.1, _⟩ m.2
+
+theorem getKey?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] {a : α} :
+    m.contains a = false → m.getKey? a = none :=
+  Raw₀.getKey?_eq_none ⟨m.1, _⟩ m.2
+
+theorem getKey?_eq_none [EquivBEq α] [LawfulHashable α] {a : α} : ¬a ∈ m → m.getKey? a = none := by
+  simpa [mem_iff_contains] using getKey?_eq_none_of_contains_eq_false
+
+theorem getKey?_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
+    (m.erase k).getKey? a = if k == a then none else m.getKey? a :=
+  Raw₀.getKey?_erase ⟨m.1, _⟩ m.2
+
+@[simp]
+theorem getKey?_erase_self [EquivBEq α] [LawfulHashable α] {k : α} : (m.erase k).getKey? k = none :=
+  Raw₀.getKey?_erase_self ⟨m.1, _⟩ m.2
+
+@[simp]
 theorem isEmpty_insertIfNew [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
     (m.insertIfNew k v).isEmpty = false :=
   Raw₀.isEmpty_insertIfNew ⟨m.1, _⟩ m.2
@@ -613,6 +653,11 @@ theorem contains_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : �
 theorem mem_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :
     a ∈ m.insertIfNew k v ↔ k == a ∨ a ∈ m := by
   simp [mem_iff_contains, contains_insertIfNew]
+
+theorem getKey?_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :
+    getKey? (m.insertIfNew k v) a = if k == a ∧ ¬k ∈ m then some k else getKey? m a := by
+  simp [mem_iff_contains, contains_insertIfNew]
+  exact Raw₀.getKey?_insertIfNew ⟨m.1, _⟩ m.2
 
 theorem contains_insertIfNew_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
     (m.insertIfNew k v).contains k :=

@@ -103,6 +103,10 @@ Tries to retrieve the mapping for the given key, returning `none` if no such map
 @[inline] def get? [beq : BEq α] [Hashable α] (m : Raw α β) (a : α) : Option β :=
   DHashMap.Raw.Const.get? m.inner a
 
+@[inline, inherit_doc DHashMap.Raw.getKey?] def getKey? [BEq α] [Hashable α] (m : Raw α β) (a : α) :
+    Option α :=
+  DHashMap.Raw.getKey? m.inner a
+
 @[inline, inherit_doc DHashMap.Raw.contains] def contains [BEq α] [Hashable α] (m : Raw α β)
     (a : α) : Bool :=
   m.inner.contains a

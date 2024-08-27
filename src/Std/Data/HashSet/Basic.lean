@@ -89,6 +89,13 @@ Equivalent to (but potentially faster than) calling `contains` followed by `inse
   ⟨replaced, ⟨r⟩⟩
 
 /--
+Checks if given key is contained and returns the key if it is, otherwise `none`.
+The result in the `some` case is guaranteed to be pointer equal to the key in the set.
+-/
+@[inline] def getKey? (m : HashSet α) (a : α) : Option α :=
+  m.inner.getKey? a
+
+/--
 Returns `true` if the given key is present in the set. There is also a `Prop`-valued version of
 this: `a ∈ m` is equivalent to `m.contains a = true`.
 

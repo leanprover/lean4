@@ -214,6 +214,16 @@ theorem get_eq_getValueCast [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α
     m.get a h = getValueCast a (toListModel m.1.buckets) (contains_eq_containsKey hm ▸ h) := by
   rw [get_eq_getₘ, getₘ_eq_getValue hm]
 
+theorem getKey?ₘ_eq_getKey? [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
+    (hm : Raw.WFImp m.1) {a : α} :
+    m.getKey?ₘ a = List.getKey? a (toListModel m.1.buckets) :=
+  apply_bucket hm AssocList.getKey?_eq List.getKey?_of_perm List.getKey?_append_of_containsKey_eq_false
+
+theorem getKey?_eq_getKey? [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
+    (hm : Raw.WFImp m.1) {a : α} :
+    m.getKey? a = List.getKey? a (toListModel m.1.buckets) := by
+  rw [getKey?_eq_getKey?ₘ, getKey?ₘ_eq_getKey? hm]
+
 theorem get!ₘ_eq_getValueCast! [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β}
     (hm : Raw.WFImp m.1) {a : α} [Inhabited (β a)] :
     m.get!ₘ a = getValueCast! a (toListModel m.1.buckets) := by

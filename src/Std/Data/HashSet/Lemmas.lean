@@ -46,6 +46,41 @@ theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] {a : α} : (m.insert a)
 theorem mem_iff_contains {a : α} : a ∈ m ↔ m.contains a :=
   HashMap.mem_iff_contains
 
+@[simp]
+theorem getKey?_empty {a : α} {c} : (empty c : HashSet α).getKey? a = none :=
+  HashMap.getKey?_empty
+
+@[simp]
+theorem getKey?_emptyc {a : α} : (∅ : HashSet α).getKey? a = none :=
+  HashMap.getKey?_emptyc
+
+theorem getKey?_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} :
+    m.isEmpty = true → m.getKey? a = none :=
+  HashMap.getKey?_of_isEmpty
+
+theorem getKey?_insert [EquivBEq α] [LawfulHashable α] {k a : α} :
+    (m.insert k).getKey? a = if k == a ∧ ¬k ∈ m then some k else m.getKey? a :=
+  HashMap.getKey?_insertIfNew
+
+theorem contains_eq_isSome_getKey? [EquivBEq α] [LawfulHashable α] {a : α} :
+    m.contains a = (m.getKey? a).isSome :=
+  HashMap.contains_eq_isSome_getKey?
+
+theorem getKey?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] {a : α} :
+    m.contains a = false → m.getKey? a = none :=
+  HashMap.getKey?_eq_none_of_contains_eq_false
+
+theorem getKey?_eq_none [EquivBEq α] [LawfulHashable α] {a : α} : ¬a ∈ m → m.getKey? a = none :=
+  HashMap.getKey?_eq_none
+
+theorem getKey?_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
+    (m.erase k).getKey? a = if k == a then none else m.getKey? a :=
+  HashMap.getKey?_erase
+
+@[simp]
+theorem getKey?_erase_self [EquivBEq α] [LawfulHashable α] {k : α} : (m.erase k).getKey? k = none :=
+  HashMap.getKey?_erase_self
+
 theorem contains_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) :
     m.contains a = m.contains b :=
   HashMap.contains_congr hab

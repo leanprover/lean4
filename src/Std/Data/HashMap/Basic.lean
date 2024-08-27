@@ -116,6 +116,9 @@ Tries to retrieve the mapping for the given key, returning `none` if no such map
 def find? (m : HashMap α β) (a : α) : Option β :=
   m.get? a
 
+@[inline, inherit_doc DHashMap.getKey?] def getKey? (m : HashMap α β) (a : α) : Option α :=
+  DHashMap.getKey? m.inner a
+
 @[inline, inherit_doc DHashMap.contains] def contains (m : HashMap α β)
     (a : α) : Bool :=
   m.inner.contains a

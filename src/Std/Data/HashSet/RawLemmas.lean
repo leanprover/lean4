@@ -68,6 +68,43 @@ theorem mem_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {a b : α} (hab :
     a ∈ m ↔ b ∈ m :=
   HashMap.Raw.mem_congr h.out hab
 
+@[simp]
+theorem getKey?_empty {a : α} {c} : (empty c : Raw α).getKey? a = none :=
+  HashMap.Raw.getKey?_empty
+
+@[simp]
+theorem getKey?_emptyc {a : α} : (∅ : Raw α).getKey? a = none :=
+  HashMap.Raw.getKey?_emptyc
+
+theorem getKey?_of_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    m.isEmpty = true → m.getKey? a = none :=
+  HashMap.Raw.getKey?_of_isEmpty h.out
+
+theorem getKey?_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
+    (m.insert k).getKey? a = if k == a ∧ ¬k ∈ m then some k else m.getKey? a :=
+  HashMap.Raw.getKey?_insertIfNew h.out
+
+theorem contains_eq_isSome_getKey? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    m.contains a = (m.getKey? a).isSome :=
+  HashMap.Raw.contains_eq_isSome_getKey? h.out
+
+theorem getKey?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    m.contains a = false → m.getKey? a = none :=
+  HashMap.Raw.getKey?_eq_none_of_contains_eq_false h.out
+
+theorem getKey?_eq_none [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    ¬a ∈ m → m.getKey? a = none :=
+  HashMap.Raw.getKey?_eq_none h.out
+
+theorem getKey?_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
+    (m.erase k).getKey? a = if k == a then none else m.getKey? a :=
+  HashMap.Raw.getKey?_erase h.out
+
+@[simp]
+theorem getKey?_erase_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+    (m.erase k).getKey? k = none :=
+  HashMap.Raw.getKey?_erase_self h.out
+
 @[simp] theorem contains_empty {a : α} {c} : (empty c : Raw α).contains a = false :=
   HashMap.Raw.contains_empty
 

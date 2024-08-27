@@ -58,6 +58,11 @@ theorem getCast?_eq [BEq α] [LawfulBEq α] {l : AssocList α β} {a : α} :
   induction l <;> simp_all [getCast?, List.getValueCast?]
 
 @[simp]
+theorem getKey?_eq [BEq α] {l : AssocList α β} {a : α} :
+    l.getKey? a = List.getKey? a l.toList := by
+  induction l <;> simp_all [getKey?]
+
+@[simp]
 theorem contains_eq [BEq α] {l : AssocList α β} {a : α} :
     l.contains a = containsKey a l.toList := by
   induction l <;> simp_all [contains, List.containsKey]

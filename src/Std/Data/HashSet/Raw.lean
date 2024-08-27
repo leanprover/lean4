@@ -14,7 +14,7 @@ set with unbundled well-formedness invariant.
 
 This version is safe to use in nested inductive types. The well-formedness predicate is
 available as `Std.Data.HashSet.Raw.WF` and we prove in this file that all operations preserve
-well-formedness. When in doubt, prefer `HashSet` over `DHashSet.Raw`.
+well-formedness. When in doubt, prefer `HashSet` over `HashSet.Raw`.
 
 Lemmas about the operations on `Std.Data.HashSet.Raw` are available in the module
 `Std.Data.HashSet.RawLemmas`.
@@ -88,6 +88,13 @@ Equivalent to (but potentially faster than) calling `contains` followed by `inse
 @[inline] def containsThenInsert [BEq α] [Hashable α] (m : Raw α) (a : α) : Bool × Raw α :=
   let ⟨replaced, r⟩ := m.inner.containsThenInsertIfNew a ()
   ⟨replaced, ⟨r⟩⟩
+
+/--
+Checks if given key is contained and returns the key if it is, otherwise `none`.
+The result in the `some` case is guaranteed to be pointer equal to the key in the map.
+-/
+@[inline] def getKey? [BEq α] [Hashable α] (m : Raw α) (a : α) : Option α :=
+  m.inner.getKey? a
 
 /--
 Returns `true` if the given element is present in the set. There is also a `Prop`-valued version

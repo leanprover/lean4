@@ -104,6 +104,14 @@ theorem get?_val [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} {a : �
     m.val.get? a = m.get? a := by
   simp [Raw.get?, m.2]
 
+theorem getKey?_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {a : α} :
+    m.getKey? a = Raw₀.getKey? ⟨m, h.size_buckets_pos⟩ a := by
+  simp [Raw.getKey?, h.size_buckets_pos]
+
+theorem getKey?_val [BEq α] [Hashable α] {m : Raw₀ α β} {a : α} :
+    m.val.getKey? a = m.getKey? a := by
+  simp [Raw.getKey?, m.2]
+
 theorem contains_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {a : α} :
     m.contains a = Raw₀.contains ⟨m, h.size_buckets_pos⟩ a := by
   simp [Raw.contains, h.size_buckets_pos]

@@ -401,6 +401,48 @@ theorem getD_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {a b : α} {fall
   DHashMap.Raw.Const.getD_congr h.out hab
 
 @[simp]
+theorem getKey?_empty {a : α} {c} : (empty c : Raw α β).getKey? a = none :=
+  DHashMap.Raw.getKey?_empty
+
+@[simp]
+theorem getKey?_emptyc {a : α} : (∅ : Raw α β).getKey? a = none :=
+  DHashMap.Raw.getKey?_emptyc
+
+theorem getKey?_of_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    m.isEmpty = true → m.getKey? a = none :=
+  DHashMap.Raw.getKey?_of_isEmpty h.out
+
+theorem getKey?_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {v : β} :
+    (m.insert k v).getKey? a = if k == a then some k else m.getKey? a :=
+  DHashMap.Raw.getKey?_insert h.out
+
+@[simp]
+theorem getKey?_insert_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β} :
+    (m.insert k v).getKey? k = some k :=
+  DHashMap.Raw.getKey?_insert_self h.out
+
+theorem contains_eq_isSome_getKey? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    m.contains a = (m.getKey? a).isSome :=
+  DHashMap.Raw.contains_eq_isSome_getKey? h.out
+
+theorem getKey?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    m.contains a = false → m.getKey? a = none :=
+  DHashMap.Raw.getKey?_eq_none_of_contains_eq_false h.out
+
+theorem getKey?_eq_none [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    ¬a ∈ m → m.getKey? a = none :=
+  DHashMap.Raw.getKey?_eq_none h.out
+
+theorem getKey?_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
+    (m.erase k).getKey? a = if k == a then none else m.getKey? a :=
+  DHashMap.Raw.getKey?_erase h.out
+
+@[simp]
+theorem getKey?_erase_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+    (m.erase k).getKey? k = none :=
+  DHashMap.Raw.getKey?_erase_self h.out
+
+@[simp]
 theorem isEmpty_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β} :
     (m.insertIfNew k v).isEmpty = false :=
   DHashMap.Raw.isEmpty_insertIfNew h.out
@@ -472,6 +514,10 @@ theorem getD_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α}
     (m.insertIfNew k v).getD a fallback =
       if k == a ∧ ¬k ∈ m then v else m.getD a fallback :=
   DHashMap.Raw.Const.getD_insertIfNew h.out
+
+theorem getKey?_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {v : β} :
+    (m.insertIfNew k v).getKey? a = if k == a ∧ ¬k ∈ m then some k else m.getKey? a :=
+  DHashMap.Raw.getKey?_insertIfNew h.out
 
 @[simp]
 theorem getThenInsertIfNew?_fst (h : m.WF) {k : α} {v : β} :

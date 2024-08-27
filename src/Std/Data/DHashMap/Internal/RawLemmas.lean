@@ -83,7 +83,7 @@ private def queryNames : Array Name :=
   #[``contains_eq_containsKey, ``Raw.isEmpty_eq_isEmpty, ``Raw.size_eq_length,
     ``get?_eq_getValueCast?, ``Const.get?_eq_getValue?, ``get_eq_getValueCast,
     ``Const.get_eq_getValue, ``get!_eq_getValueCast!, ``getD_eq_getValueCastD,
-    ``Const.get!_eq_getValue!, ``Const.getD_eq_getValueD]
+    ``Const.get!_eq_getValue!, ``Const.getD_eq_getValueD, ``getKey?_eq_getKey?]
 
 private def modifyNames : Array Name :=
   #[``toListModel_insert, ``toListModel_erase, ``toListModel_insertIfNew]
@@ -93,7 +93,7 @@ private def congrNames : MacroM (Array (TSyntax `term)) := do
     ← `(_root_.List.Perm.length_eq), ← `(getValueCast?_of_perm _),
     ← `(getValue?_of_perm _), ← `(getValue_of_perm _), ← `(getValueCast_of_perm _),
     ← `(getValueCast!_of_perm _), ← `(getValueCastD_of_perm _), ← `(getValue!_of_perm _),
-    ← `(getValueD_of_perm _) ]
+    ← `(getValueD_of_perm _), ← `(getKey?_of_perm _) ]
 
 /-- Internal implementation detail of the hash map -/
 scoped syntax "simp_to_model" ("using" term)? : tactic
@@ -239,6 +239,38 @@ theorem get?_erase [LawfulBEq α] (h : m.1.WF) {k a : α} :
 
 theorem get?_erase_self [LawfulBEq α] (h : m.1.WF) {k : α} : (m.erase k).get? k = none := by
   simp_to_model using List.getValueCast?_eraseKey_self
+
+@[simp]
+theorem getKey?_empty {a : α} {c} : (empty c : Raw₀ α β).getKey? a = none := by
+  simp [getKey?]
+
+theorem getKey?_of_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a : α} :
+    m.1.isEmpty = true → m.getKey? a = none := by
+  simp_to_model; empty
+
+theorem getKey?_insert [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a k : α} {v : β k} :
+    (m.insert k v).getKey? a = if k == a then some k else m.getKey? a := by
+  simp_to_model using List.getKey?_insertEntry
+
+theorem getKey?_insert_self [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} {v : β k} :
+    (m.insert k v).getKey? k = some k := by
+  simp_to_model using List.getKey?_insertEntry_self
+
+theorem contains_eq_isSome_getKey? [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a : α} :
+    m.contains a = (m.getKey? a).isSome := by
+  simp_to_model using List.containsKey_eq_isSome_getKey?
+
+theorem getKey?_eq_none [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a : α} :
+    m.contains a = false → m.getKey? a = none := by
+  simp_to_model using List.getKey?_eq_none
+
+theorem getKey?_erase [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k a : α} :
+    (m.erase k).getKey? a = if k == a then none else m.getKey? a := by
+  simp_to_model using List.getKey?_eraseKey
+
+theorem getKey?_erase_self [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} :
+    (m.erase k).getKey? k = none := by
+  simp_to_model using List.getKey?_eraseKey_self
 
 namespace Const
 
@@ -619,6 +651,10 @@ theorem getD_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k a : �
   simp_to_model using List.getValueD_insertEntryIfNew
 
 end Const
+
+theorem getKey?_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k a : α} {v : β k} :
+    (m.insertIfNew k v).getKey? a = if k == a ∧ m.contains k = false then some k else m.getKey? a := by
+  simp_to_model using List.getKey?_insertEntryIfNew
 
 @[simp]
 theorem getThenInsertIfNew?_fst [LawfulBEq α] {k : α} {v : β k} :

@@ -263,6 +263,10 @@ def get?ₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) : 
   (bucket m.1.buckets m.2 a).getCast? a
 
 /-- Internal implementation detail of the hash map -/
+def getKey?ₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Option α :=
+  (bucket m.1.buckets m.2 a).getKey? a
+
+/-- Internal implementation detail of the hash map -/
 def containsₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Bool :=
   (bucket m.1.buckets m.2 a).contains a
 
@@ -336,6 +340,9 @@ theorem reinsertAux_eq [Hashable α] (data : { d : Array (AssocList α β) // 0 
 
 theorem get?_eq_get?ₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) :
     get? m a = get?ₘ m a := rfl
+
+theorem getKey?_eq_getKey?ₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) :
+    getKey? m a = getKey?ₘ m a := rfl
 
 theorem get_eq_getₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) (h : m.contains a) :
     get m a h = getₘ m a h := rfl

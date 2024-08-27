@@ -54,7 +54,8 @@ private def baseNames : Array Name :=
     ``contains_eq, ``contains_val,
     ``get_eq, ``get_val,
     ``getD_eq, ``getD_val,
-    ``get!_eq, ``get!_val]
+    ``get!_eq, ``get!_val,
+    ``getKey?_eq, ``getKey?_val]
 
 /-- Internal implementation detail of the hash map -/
 scoped syntax "simp_to_raw" ("using" term)? : tactic
@@ -662,6 +663,49 @@ theorem getD_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {a b : α} {fall
 end Const
 
 @[simp]
+theorem getKey?_empty {a : α} {c} :
+    (empty c : Raw α β).getKey? a = none := by
+  simp_to_raw using Raw₀.getKey?_empty
+
+@[simp]
+theorem getKey?_emptyc {a : α} : (∅ : Raw α β).getKey? a = none :=
+  getKey?_empty
+
+theorem getKey?_of_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    m.isEmpty = true → m.getKey? a = none := by
+  simp_to_raw using Raw₀.getKey?_of_isEmpty ⟨m, _⟩
+
+theorem getKey?_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {a k : α} {v : β k} :
+    (m.insert k v).getKey? a = if k == a then some k else m.getKey? a := by
+  simp_to_raw using Raw₀.getKey?_insert
+
+@[simp]
+theorem getKey?_insert_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β k} :
+    (m.insert k v).getKey? k = some k := by
+  simp_to_raw using Raw₀.getKey?_insert_self
+
+theorem contains_eq_isSome_getKey? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    m.contains a = (m.getKey? a).isSome := by
+  simp_to_raw using Raw₀.contains_eq_isSome_getKey?
+
+theorem getKey?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    m.contains a = false → m.getKey? a = none := by
+  simp_to_raw using Raw₀.getKey?_eq_none
+
+theorem getKey?_eq_none [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    ¬a ∈ m → m.getKey? a = none := by
+  simpa [mem_iff_contains] using getKey?_eq_none_of_contains_eq_false h
+
+theorem getKey?_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
+    (m.erase k).getKey? a = if k == a then none else m.getKey? a := by
+  simp_to_raw using Raw₀.getKey?_erase
+
+@[simp]
+theorem getKey?_erase_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+    (m.erase k).getKey? k = none := by
+  simp_to_raw using Raw₀.getKey?_erase_self
+
+@[simp]
 theorem isEmpty_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β k} :
     (m.insertIfNew k v).isEmpty = false := by
   simp_to_raw using Raw₀.isEmpty_insertIfNew
@@ -773,6 +817,11 @@ theorem getD_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α}
   simp_to_raw using Raw₀.Const.getD_insertIfNew
 
 end Const
+
+theorem getKey?_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {v : β k} :
+    getKey? (m.insertIfNew k v) a = if k == a ∧ ¬k ∈ m then some k else getKey? m a := by
+  simp only [mem_iff_contains, Bool.not_eq_true]
+  simp_to_raw using Raw₀.getKey?_insertIfNew
 
 @[simp]
 theorem getThenInsertIfNew?_fst [LawfulBEq α] (h : m.WF) {k : α} {v : β k} :

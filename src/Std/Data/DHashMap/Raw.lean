@@ -130,6 +130,15 @@ Uses the `LawfulBEq` instance to cast the retrieved value to the correct type.
   else none -- will never happen for well-formed inputs
 
 /--
+Checks if a mapping for the given key exists and returns the key if it does, otherwise `none`.
+The result in the `some` case is guaranteed to be pointer equal to the key in the map.
+-/
+@[inline] def getKey? [BEq α] [Hashable α] (m : Raw α β) (a : α) : Option α :=
+  if h : 0 < m.buckets.size then
+    Raw₀.getKey? ⟨m, h⟩ a
+  else none -- will never happen for well-formed inputs
+
+/--
 Returns `true` if there is a mapping for the given key. There is also a `Prop`-valued version
 of this: `a ∈ m` is equivalent to `m.contains a = true`.
 

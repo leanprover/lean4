@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Thrane Christiansen
 -/
 prelude
-import Init.Data
+import Init.Data.Array.Subarray.Split
+import Init.Data.Range
 import Lean.Data.HashMap
 import Std.Data.HashMap.Basic
 import Init.Omega

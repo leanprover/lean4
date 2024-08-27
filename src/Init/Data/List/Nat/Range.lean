@@ -23,14 +23,20 @@ open Nat
 theorem range'_succ (s n step) : range' s (n + 1) step = s :: range' (s + step) n step := by
   simp [range', Nat.add_succ, Nat.mul_succ]
 
-@[simp] theorem range'_one {s step : Nat} : range' s 1 step = [s] := rfl
-
 @[simp] theorem length_range' (s step) : ∀ n : Nat, length (range' s n step) = n
   | 0 => rfl
   | _ + 1 => congrArg succ (length_range' _ _ _)
 
 @[simp] theorem range'_eq_nil : range' s n step = [] ↔ n = 0 := by
   rw [← length_eq_zero, length_range']
+
+theorem range'_ne_nil (s n : Nat) : range' s n ≠ [] ↔ n ≠ 0 := by
+  cases n <;> simp
+
+@[simp] theorem range'_zero : range' s 0 = [] := by
+  simp
+
+@[simp] theorem range'_one {s step : Nat} : range' s 1 step = [s] := rfl
 
 theorem mem_range' : ∀{n}, m ∈ range' s n step ↔ ∃ i < n, m = s + step * i
   | 0 => by simp [range', Nat.not_lt_zero]
@@ -44,6 +50,21 @@ theorem mem_range' : ∀{n}, m ∈ range' s n step ↔ ∃ i < n, m = s + step *
   simp [mem_range']; exact ⟨
     fun ⟨i, h, e⟩ => e ▸ ⟨Nat.le_add_right .., Nat.add_lt_add_left h _⟩,
     fun ⟨h₁, h₂⟩ => ⟨m - s, Nat.sub_lt_left_of_lt_add h₁ h₂, (Nat.add_sub_cancel' h₁).symm⟩⟩
+
+theorem head?_range' (n : Nat) : (range' s n).head? = if n = 0 then none else some s := by
+  induction n <;> simp_all [range'_succ, head?_append]
+
+theorem getLast?_range' (n : Nat) : (range' s n).getLast? = if n = 0 then none else some (s + n - 1) := by
+  induction n generalizing s with
+  | zero => simp
+  | succ n ih =>
+    rw [range'_succ, getLast?_cons, ih]
+    by_cases h : n = 0
+    · rw [if_pos h]
+      simp [h]
+    · rw [if_neg h]
+      simp
+      omega
 
 theorem pairwise_lt_range' s n (step := 1) (pos : 0 < step := by simp) :
     Pairwise (· < ·) (range' s n step) :=
@@ -153,6 +174,9 @@ theorem range'_eq_map_range (s n : Nat) : range' s n = map (s + ·) (range n) :=
 @[simp] theorem range_eq_nil {n : Nat} : range n = [] ↔ n = 0 := by
   rw [← length_eq_zero, length_range]
 
+theorem range_ne_nil (n : Nat) : range n ≠ [] ↔ n ≠ 0 := by
+  cases n <;> simp
+
 @[simp]
 theorem range_sublist {m n : Nat} : range m <+ range n ↔ m ≤ n := by
   simp only [range_eq_range', range'_sublist_right]
@@ -188,6 +212,13 @@ theorem range_add (a b : Nat) : range (a + b) = range a ++ (range b).map (a + ·
   rw [← range'_eq_map_range]
   simpa [range_eq_range', Nat.add_comm] using (range'_append_1 0 a b).symm
 
+theorem head?_range (n : Nat) : (range n).head? = if n = 0 then none else some 0 := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    simp only [range_succ, head?_append, ih]
+    split <;> simp_all
+
 theorem take_range (m n : Nat) : take m (range n) = range (min m n) := by
   apply List.ext_getElem
   · simp
@@ -204,6 +235,12 @@ theorem iota_eq_reverse_range' : ∀ n : Nat, iota n = reverse (range' 1 n)
 
 @[simp] theorem length_iota (n : Nat) : length (iota n) = n := by simp [iota_eq_reverse_range']
 
+@[simp] theorem iota_eq_nil (n : Nat) : iota n = [] ↔ n = 0 := by
+  cases n <;> simp
+
+theorem iota_ne_nil (n : Nat) : iota n ≠ [] ↔ n ≠ 0 := by
+  cases n <;> simp
+
 @[simp]
 theorem mem_iota {m n : Nat} : m ∈ iota n ↔ 1 ≤ m ∧ m ≤ n := by
   simp [iota_eq_reverse_range', Nat.add_comm, Nat.lt_succ]
@@ -213,6 +250,25 @@ theorem pairwise_gt_iota (n : Nat) : Pairwise (· > ·) (iota n) := by
 
 theorem nodup_iota (n : Nat) : Nodup (iota n) :=
   (pairwise_gt_iota n).imp Nat.ne_of_gt
+
+
+@[simp] theorem head?_iota (n : Nat) : (iota n).head? = if n = 0 then none else some n := by
+  cases n <;> simp
+
+@[simp] theorem head_iota (n : Nat) (h) : (iota n).head h = n := by
+  cases n with
+  | zero => simp at h
+  | succ n => simp
+
+@[simp] theorem reverse_iota : reverse (iota n) = range' 1 n := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [iota_succ, reverse_cons, ih, range'_1_concat, Nat.add_comm]
+
+@[simp] theorem getLast?_iota (n : Nat) : (iota n).getLast? = if n = 0 then none else some 1 := by
+  rw [getLast?_eq_head?_reverse]
+  simp [head?_range']
 
 /-! ### enumFrom -/
 
@@ -260,9 +316,24 @@ theorem enumFrom_map_snd : ∀ (n) (l : List α), map Prod.snd (enumFrom n l) = 
 theorem snd_mem_of_mem_enumFrom {x : Nat × α} {n : Nat} {l : List α} (h : x ∈ enumFrom n l) : x.2 ∈ l :=
   enumFrom_map_snd n l ▸ mem_map_of_mem _ h
 
-theorem mem_enumFrom {x : α} {i j : Nat} (xs : List α) (h : (i, x) ∈ xs.enumFrom j) :
-    j ≤ i ∧ i < j + xs.length ∧ x ∈ xs :=
-  ⟨le_fst_of_mem_enumFrom h, fst_lt_add_of_mem_enumFrom h, snd_mem_of_mem_enumFrom h⟩
+theorem snd_eq_of_mem_enumFrom {x : Nat × α} {n : Nat} {l : List α} (h : x ∈ enumFrom n l) :
+    x.2 = l[x.1 - n]'(by have := le_fst_of_mem_enumFrom h; have := fst_lt_add_of_mem_enumFrom h; omega) := by
+  induction l generalizing n with
+  | nil => cases h
+  | cons hd tl ih =>
+    cases h with
+    | head h => simp
+    | tail h m =>
+      specialize ih m
+      have : x.1 - n = x.1 - (n + 1) + 1 := by
+        have := le_fst_of_mem_enumFrom m
+        omega
+      simp [this, ih]
+
+theorem mem_enumFrom {x : α} {i j : Nat} {xs : List α} (h : (i, x) ∈ xs.enumFrom j) :
+    j ≤ i ∧ i < j + xs.length ∧
+      x = xs[i - j]'(by have := le_fst_of_mem_enumFrom h; have := fst_lt_add_of_mem_enumFrom h; omega) :=
+  ⟨le_fst_of_mem_enumFrom h, fst_lt_add_of_mem_enumFrom h, snd_eq_of_mem_enumFrom h⟩
 
 theorem enumFrom_cons' (n : Nat) (x : α) (xs : List α) :
     enumFrom n (x :: xs) = (n, x) :: (enumFrom n xs).map (Prod.map (· + 1) id) := by
@@ -328,6 +399,14 @@ theorem fst_lt_of_mem_enum {x : Nat × α} {l : List α} (h : x ∈ enum l) : x.
 
 theorem snd_mem_of_mem_enum {x : Nat × α} {l : List α} (h : x ∈ enum l) : x.2 ∈ l :=
   snd_mem_of_mem_enumFrom h
+
+theorem snd_eq_of_mem_enum {x : Nat × α} {l : List α} (h : x ∈ enum l) :
+    x.2 = l[x.1]'(fst_lt_of_mem_enum h) :=
+  snd_eq_of_mem_enumFrom h
+
+theorem mem_enum {x : α} {i : Nat} {xs : List α} (h : (i, x) ∈ xs.enum) :
+    i < xs.length ∧ x = xs[i]'(fst_lt_of_mem_enum h) :=
+  by simpa using mem_enumFrom h
 
 theorem map_enum (f : α → β) (l : List α) : map (Prod.map id f) (enum l) = enum (map f l) :=
   map_enumFrom f 0 l

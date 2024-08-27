@@ -22,6 +22,8 @@ universe u v w
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w}
 
+open List (Perm)
+
 namespace Std.DHashMap.Internal.List
 
 @[elab_as_elim]
@@ -1340,16 +1342,16 @@ theorem getEntry?_of_perm [BEq α] [PartialEquivBEq α] {l l' : List ((a : α) �
     (hl : DistinctKeys l) (h : Perm l l') : getEntry? a l = getEntry? a l' := by
   induction h
   · simp
-  · next t₁ t₂ p _ ih₂ =>
+  · next p t₁ t₂ _ ih₂ =>
     rcases p with ⟨k', v'⟩
     simp only [getEntry?_cons, ih₂ hl.tail]
-  · next p p' _ _ =>
+  · next p p' _ =>
     rcases p with ⟨k₁, v₁⟩
     rcases p' with ⟨k₂, v₂⟩
     simp only [getEntry?_cons]
     cases h₂ : k₂ == a <;> cases h₁ : k₁ == a <;> try simp; done
     simp only [distinctKeys_cons_iff, containsKey_cons, Bool.or_eq_false_iff] at hl
-    exact ((Bool.eq_false_iff.1 hl.2.1).elim (BEq.trans h₂ (BEq.symm h₁))).elim
+    exact ((Bool.eq_false_iff.1 hl.2.1).elim (BEq.trans h₁ (BEq.symm h₂))).elim
   · next l₁ l₂ l₃ hl₁₂ _ ih₁ ih₂ => exact (ih₁ hl).trans (ih₂ (hl.perm (hl₁₂.symm)))
 
 theorem containsKey_of_perm [BEq α] [PartialEquivBEq α] {l l' : List ((a : α) × β a)} {k : α}
@@ -1417,8 +1419,8 @@ theorem perm_cons_getEntry [BEq α] {l : List ((a : α) × β a)} {a : α} (h : 
     cases hk : k' == a
     · obtain ⟨l', hl'⟩ := ih (h.resolve_left (Bool.not_eq_true _ ▸ hk))
       rw [getEntry_cons_of_false hk]
-      exact ⟨⟨k', v'⟩ :: l', (hl'.cons _).trans (Perm.swap _ _ (Perm.refl _))⟩
-    · exact ⟨t, by rw [getEntry_cons_of_beq hk]; exact Perm.refl _⟩
+      exact ⟨⟨k', v'⟩ :: l', (hl'.cons _).trans (Perm.swap' _ _ (Perm.refl _))⟩
+    · exact ⟨t, by rw [getEntry_cons_of_beq hk]⟩
 
 -- Note: this theorem becomes false if you don't assume that BEq is reflexive on α.
 theorem getEntry?_ext [BEq α] [EquivBEq α] {l l' : List ((a : α) × β a)} (hl : DistinctKeys l)

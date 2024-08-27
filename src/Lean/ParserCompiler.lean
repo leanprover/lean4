@@ -106,7 +106,7 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
         let env ← getEnv
         let env ← match env.addAndCompile {} decl with
           | Except.ok    env => pure env
-          | Except.error kex => do throwError (← (kex.toMessageData {}).toString)
+          | Except.error kex => do throwError (← (kex.toMessageData env {}).toString)
         setEnv <| ctx.combinatorAttr.setDeclFor env c c'
         if cinfo.type.isConst then
           if let some kind ← parserNodeKind? cinfo.value! then

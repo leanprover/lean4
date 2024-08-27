@@ -50,6 +50,11 @@ protected theorem add_eq_zero_iff : n + m = 0 ↔ n = 0 ∧ m = 0 :=
 @[simp] protected theorem add_right_cancel_iff {n : Nat} : m + n = k + n ↔ m = k :=
   ⟨Nat.add_right_cancel, fun | rfl => rfl⟩
 
+@[simp] protected theorem add_left_eq_self  {a b : Nat} : a + b = b ↔ a = 0 := by omega
+@[simp] protected theorem add_right_eq_self {a b : Nat} : a + b = a ↔ b = 0 := by omega
+@[simp] protected theorem self_eq_add_right {a b : Nat} : a = a + b ↔ b = 0 := by omega
+@[simp] protected theorem self_eq_add_left  {a b : Nat} : a = b + a ↔ b = 0 := by omega
+
 @[simp] protected theorem add_le_add_iff_left {n : Nat} : n + m ≤ n + k ↔ m ≤ k :=
   ⟨Nat.le_of_add_le_add_left, fun h => Nat.add_le_add_left h _⟩
 

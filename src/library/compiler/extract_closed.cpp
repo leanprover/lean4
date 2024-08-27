@@ -25,7 +25,7 @@ bool is_extract_closed_aux_fn(name const & n) {
 }
 
 class extract_closed_fn {
-    elab_environment         m_env;
+    elab_environment    m_env;
     comp_decls          m_input_decls;
     name_generator      m_ngen;
     local_ctx           m_lctx;

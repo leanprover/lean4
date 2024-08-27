@@ -65,7 +65,7 @@ where
   go (fvars : Array Expr) (vals : Array Expr) : M α := do
     if !(vals.all fun val => val.isLambda) then
       k fvars vals
-    else if !(← vals.allM fun val => return val.bindingName! == vals[0]!.bindingName! && val.binderInfo == vals[0]!.binderInfo && (← isDefEq val.bindingDomain! vals[0]!.bindingDomain!)) then
+    else if !(← vals.allM fun val=> isDefEq val.bindingDomain! vals[0]!.bindingDomain!) then
       k fvars vals
     else
       withLocalDecl vals[0]!.bindingName! vals[0]!.binderInfo vals[0]!.bindingDomain! fun x =>

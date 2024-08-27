@@ -8,6 +8,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include "kernel/environment.h"
 
 namespace lean {
+/* Wrapper for `Lean.Environment` */
 class LEAN_EXPORT elab_environment : public object_ref {
 public:
     elab_environment(elab_environment const & other):object_ref(other) {}

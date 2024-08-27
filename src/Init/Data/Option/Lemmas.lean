@@ -261,7 +261,7 @@ theorem liftOrGet_eq_or_eq {f : α → α → α} (h : ∀ a b, f a b = a ∨ f 
 @[simp] theorem getD_map (f : α → β) (x : α) (o : Option α) :
   (o.map f).getD (f x) = f (getD o x) := by cases o <;> rfl
 
-section
+section choice
 
 attribute [local instance] Classical.propDecidable
 
@@ -277,7 +277,7 @@ theorem choice_eq {α : Type _} [Subsingleton α] (a : α) : choice α = some a 
 theorem choice_isSome_iff_nonempty {α : Type _} : (choice α).isSome ↔ Nonempty α :=
   ⟨fun h => ⟨(choice α).get h⟩, fun h => by simp only [choice, dif_pos h, isSome_some]⟩
 
-end
+end choice
 
 @[simp] theorem toList_some (a : α) : (a : Option α).toList = [a] := rfl
 
@@ -333,3 +333,43 @@ theorem or_of_isSome {o o' : Option α} (h : o.isSome) : o.or o' = o := by
 theorem or_of_isNone {o o' : Option α} (h : o.isNone) : o.or o' = o' := by
   match o, h with
   | none, _ => simp
+
+section ite
+
+@[simp] theorem isSome_dite {p : Prop} [Decidable p] {b : p → β} :
+    (if h : p then some (b h) else none).isSome = true ↔ p := by
+  split <;> simpa
+@[simp] theorem isSome_ite {p : Prop} [Decidable p] :
+    (if p then some b else none).isSome = true ↔ p := by
+  split <;> simpa
+@[simp] theorem isSome_dite' {p : Prop} [Decidable p] {b : ¬ p → β} :
+    (if h : p then none else some (b h)).isSome = true ↔ ¬ p := by
+  split <;> simpa
+@[simp] theorem isSome_ite' {p : Prop} [Decidable p] :
+    (if p then none else some b).isSome = true ↔ ¬ p := by
+  split <;> simpa
+
+@[simp] theorem get_dite {p : Prop} [Decidable p] (b : p → β) (w) :
+    (if h : p then some (b h) else none).get w = b (by simpa using w) := by
+  split
+  · simp
+  · exfalso
+    simp at w
+    contradiction
+@[simp] theorem get_ite {p : Prop} [Decidable p] (h) :
+    (if p then some b else none).get h = b := by
+  simpa using get_dite (p := p) (fun _ => b) (by simpa using h)
+@[simp] theorem get_dite' {p : Prop} [Decidable p] (b : ¬ p → β) (w) :
+    (if h : p then none else some (b h)).get w = b (by simpa using w) := by
+  split
+  · exfalso
+    simp at w
+    contradiction
+  · simp
+@[simp] theorem get_ite' {p : Prop} [Decidable p] (h) :
+    (if p then none else some b).get h = b := by
+  simpa using get_dite' (p := p) (fun _ => b) (by simpa using h)
+
+end ite
+
+end Option

@@ -30,7 +30,7 @@ bool is_lambda_lifting_name(name fn) {
 }
 
 class lambda_lifting_fn {
-    elab_environment         m_env;
+    elab_environment    m_env;
     name_generator      m_ngen;
     local_ctx           m_lctx;
     buffer<comp_decl>   m_new_decls;

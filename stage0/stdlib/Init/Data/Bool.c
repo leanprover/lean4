@@ -16,12 +16,14 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Bool_instDecidableForallOfDecidablePred(lean_object*);
 LEAN_EXPORT uint8_t l_Bool_instMin(uint8_t, uint8_t);
 LEAN_EXPORT uint8_t l_Bool_not(uint8_t);
+LEAN_EXPORT lean_object* l_boolPredToPred(lean_object*);
 LEAN_EXPORT lean_object* l_Bool_instDecidableLe___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Bool_instDecidableForallOfDecidablePred___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Bool_toNat(uint8_t);
 LEAN_EXPORT lean_object* l_Bool_xor___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_xor(uint8_t, uint8_t);
 LEAN_EXPORT uint8_t l_Bool_and(uint8_t, uint8_t);
+LEAN_EXPORT lean_object* l_boolRelToRel(lean_object*);
 LEAN_EXPORT lean_object* l_Bool_and___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Bool_toNat___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Bool_instLT;
@@ -422,6 +424,18 @@ x_2 = lean_unbox(x_1);
 lean_dec(x_1);
 x_3 = l_Bool_toNat(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_boolPredToPred(lean_object* x_1) {
+_start:
+{
+return lean_box(0);
+}
+}
+LEAN_EXPORT lean_object* l_boolRelToRel(lean_object* x_1) {
+_start:
+{
+return lean_box(0);
 }
 }
 lean_object* initialize_Init_BinderPredicates(uint8_t builtin, lean_object*);

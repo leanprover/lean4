@@ -111,43 +111,43 @@ structure Diagnostics where
   deriving Inhabited
 
 /--
-An environment stores declarations provided by the user. The kernel
-currently supports different kinds of declarations such as definitions, theorems,
-and inductive families. Each has a unique identifier (i.e., `Name`), and can be
-parameterized by a sequence of universe parameters.
-A constant in Lean is just a reference to a `ConstantInfo` object. The main task of
-the kernel is to type check these declarations and refuse type incorrect ones. The
-kernel does not allow declarations containing metavariables and/or free variables
-to be added to an environment. Environments are never destructively updated.
+An environment stores declarations provided by the user. The kernel currently supports different
+kinds of declarations such as definitions, theorems, and inductive families. Each has a unique
+identifier (i.e., `Name`), and can be parameterized by a sequence of universe parameters. A constant
+in Lean is just a reference to a `ConstantInfo` object. The main task of the kernel is to type check
+these declarations and refuse type incorrect ones. The kernel does not allow declarations containing
+metavariables and/or free variables to be added to an environment. Environments are never
+destructively updated.
 
-The environment also contains a collection of extensions. For example, the `simp` theorems
-declared by users are stored in an environment extension. Users can declare new extensions
-using meta-programming.
+This type contains only the minimal data necessary for basic type checking. Other data used only by
+and for elaboration, as well data for the TCB extension of native reduction, is stored in
+`Lean.Environment`.
 -/
 structure Environment where
-  /-- The constructor of `Environment` is private to protect against modification
-  that bypasses the kernel. -/
+  /--
+  The constructor of `Environment` is private to protect against modification that bypasses the
+  kernel.
+  -/
   private mk ::
   /--
-  Mapping from constant name to `ConstantInfo`. It contains all constants (definitions, theorems, axioms, etc)
-  that have been already type checked by the kernel.
+  Mapping from constant name to `ConstantInfo`. It contains all constants (definitions, theorems,
+  axioms, etc) that have been already type checked by the kernel.
   -/
-  constants    : ConstMap
+  constants   : ConstMap
   /--
   `quotInit = true` if the command `init_quot` has already been executed for the environment, and
-  `Quot` declarations have been added to the environment.
+  `Quot` declarations have been added to the environment. When the flag is set, the type checker can
+  assume that the `Quot` declarations in the environment have indeed been added by the kernel and
+  not by the user.
   -/
-  quotInit     : Bool         := false
-  /-- The header contains additional information that is not updated often. -/
-  header       : EnvironmentHeader := {}
+  quotInit    : Bool := false
   /--
-  Extension for storting diagnostic information.
+  Diagnostic information collected during kernel execution.
 
-  Remark: We store kernel diagnostic information in an environment extension to simplify
-  the interface with the kernel implemented in C/C++. Thus, we can only track
-  declarations in methods, such as `addDecl`, which return a new environment.
-  `Kernel.isDefEq` and `Kernel.whnf` do not update the statistics. We claim
-  this is ok since these methods are mainly used for debugging.
+  Remark: We store kernel diagnostic information in an environment field to simplify the interface
+  with the kernel implemented in C/C++. Thus, we can only track declarations in methods, such as
+  `addDecl`, which return a new environment. `Kernel.isDefEq` and `Kernel.whnf` do not update the
+  statistics. We claim this is ok since these methods are mainly used for debugging.
   -/
   diagnostics : Diagnostics := {}
 deriving Nonempty
@@ -189,6 +189,9 @@ private def isQuotInit (env : Environment) : Bool :=
 
 /--
 Type check given declaration and add it to the environment
+
+**NOTE**: This function does not implement `reduceBool`/`reduceNat` special reduction rules.
+Use `Lean.Environment.addDeclCore` to activate them, adding the code generator to the TCB.
 -/
 @[extern "lean_add_decl"]
 opaque addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
@@ -204,7 +207,7 @@ and the kernel will not catch it if the new option is set to true.
 opaque addDeclWithoutChecking (env : Environment) (decl : @& Declaration) : Except Exception Environment
 
 @[export lean_environment_add]
-def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
+private def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
   { env with constants := env.constants.insert cinfo.name cinfo }
 
 @[export lean_kernel_diag_is_enabled]
@@ -239,6 +242,7 @@ def setDiagnostics (env : Environment) (diag : Diagnostics) : Environment :=
 
 end Kernel.Environment
 
+@[deprecated Kernel.Exception]
 abbrev KernelException := Kernel.Exception
 
 structure AsyncTheoremVal extends ConstantVal where
@@ -264,9 +268,20 @@ private def mkKernelEnv (base : Kernel.Environment) (asyncTheorems : Array Async
       kenv := kenv.add (.thmInfo thm.toTheoremVal)
     kenv
 
+/--
+Extension of `Kernel.Environment` that adds tracking of compiler IR, asynchronously elaborated
+declarations, and arbitrary environment extensions. For example, the `simp` theorems declared by
+users are stored in an environment extension. Users can declare new extensions using
+meta-programming.
+-/
 structure Environment where
+  /-
+  Like with `Kernel.Environment`, this constructor is private to protect consistency of the
+  environment, though in this case only the consistency between definitions in `base` and IR in
+  `extensions` is relevant, and only when native reduction is used.
+  -/
   private mk ::
-  base : Kernel.Environment
+  private base            : Kernel.Environment
   /--
   Mapping from constant name to module (index) where constant has been declared.
   Recall that a Lean file has a header where previously compiled modules can be imported.
@@ -277,30 +292,32 @@ structure Environment where
   the field `constants`. These auxiliary constants are invisible to the Lean kernel and elaborator.
   Only the code generator uses them.
   -/
-  const2ModIdx : Std.HashMap Name ModuleIdx
+  private const2ModIdx    : Std.HashMap Name ModuleIdx
   /--
   Environment extensions. It also includes user-defined extensions.
   -/
-  extensions   : Array EnvExtensionState
+  private extensions      : Array EnvExtensionState
   /--
   Constant names to be saved in the field `extraConstNames` at `ModuleData`.
   It contains auxiliary declaration names created by the code generator which are not in `constants`.
   When importing modules, we want to insert them at `const2ModIdx`.
   -/
-  extraConstNames : NameSet
+  private extraConstNames : NameSet
+  /-- The header contains additional information that is set at import time. -/
+  header                  : EnvironmentHeader := {}
   asyncTheorems : Array AsyncTheoremVal := #[]
   toKernelEnvThunk : Thunk Kernel.Environment := ⟨fun _ => mkKernelEnv base asyncTheorems⟩
 deriving Nonempty
 
 namespace Environment
 
-def header (env : Environment) : EnvironmentHeader :=
-  -- no async updates to header
-  env.base.header
-
 @[export lean_elab_environment_to_kernel_env]
 def toKernelEnv (env : Environment) : Kernel.Environment :=
-  env.toKernelEnvThunk.get
+  env.base
+
+@[inherit_doc Kernel.Environment.constants]
+def constants (env : Environment) : ConstMap :=
+  env.toKernelEnv.constants
 
 /--
 Save an extra constant name that is used to populate `const2ModIdx` when we import
@@ -327,7 +344,7 @@ def allImportedModuleNames (env : Environment) : Array Name :=
   env.header.moduleNames
 
 def setMainModule (env : Environment) (m : Name) : Environment :=
-  { env with base.header.mainModule := m }
+  { env with header.mainModule := m }
 
 def mainModule (env : Environment) : Name :=
   env.header.mainModule
@@ -347,20 +364,6 @@ def isSafeDefinition (env : Environment) (declName : Name) : Bool :=
 
 def getModuleIdx? (env : Environment) (moduleName : Name) : Option ModuleIdx :=
   env.header.moduleNames.findIdx? (· == moduleName)
-
-@[export lean_elab_environment_set_base]
-private def setBase (env : Environment) (base : Kernel.Environment) : Environment :=
-  { env with base, asyncTheorems := #[], toKernelEnvThunk := ⟨fun _ => mkKernelEnv base env.asyncTheorems⟩ }
-
-@[inherit_doc Kernel.Environment.addDeclCore]
-def addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
-    (cancelTk? : @& Option IO.CancelToken) : Except KernelException Environment :=
-  env.setBase <$> env.toKernelEnv.addDeclCore maxHeartbeats decl cancelTk?
-
-@[inherit_doc Kernel.Environment.addDeclWithoutChecking, export lean_elab_environment_add_decl_without_checking]
-def addDeclWithoutChecking (env : Environment) (decl : @& Declaration) :
-    Except KernelException Environment :=
-  env.setBase <$> env.toKernelEnv.addDeclWithoutChecking decl
 
 end Environment
 
@@ -522,7 +525,7 @@ def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
   pure {
     const2ModIdx    := {}
     base.constants  := {}
-    base.header     := { trustLevel := trustLevel }
+    header          := { trustLevel }
     extraConstNames := {}
     extensions      := exts
   }
@@ -978,10 +981,10 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
   let mut env : Environment := {
     const2ModIdx    := const2ModIdx
     base.constants  := constants
+    base.quotInit   := !imports.isEmpty -- We assume `core.lean` initializes quotient module
     extraConstNames := {}
     extensions      := exts
-    base.quotInit   := !imports.isEmpty -- We assume `core.lean` initializes quotient module
-    base.header     := {
+    header     := {
       trustLevel   := trustLevel
       imports      := imports
       regions      := s.regions
@@ -1083,9 +1086,18 @@ private def registerNamePrefixes : Environment → Name → Environment
   | env, .str p _ => if isNamespaceName p then registerNamePrefixes (registerNamespace env p) p else env
   | env, _        => env
 
-def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
-  let env := registerNamePrefixes env cinfo.name
-  { env with base := env.toKernelEnv.add cinfo, asyncTheorems := #[] }
+@[export lean_elab_environment_update_base_after_kernel_add]
+private def updateBaseAfterKernelAdd (env : Environment) (added : Declaration) (base : Kernel.Environment) : Environment :=
+  let env := added.getNames.foldl registerNamePrefixes env
+  { env with base }
+
+/-- Type check given declaration and add it to the environment. -/
+@[extern "lean_elab_add_decl"]
+opaque addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
+  (cancelTk? : @& Option IO.CancelToken) : Except Kernel.Exception Environment
+
+@[inherit_doc Kernel.Environment.addDeclWithoutChecking, extern "lean_elab_add_decl_without_checking"]
+opaque addDeclWithoutChecking (env : Environment) (decl : @& Declaration) : Except Kernel.Exception Environment
 
 @[export lean_display_stats]
 def displayStats (env : Environment) : IO Unit := do
@@ -1141,20 +1153,24 @@ namespace Kernel
 
 /--
   Kernel isDefEq predicate. We use it mainly for debugging purposes.
-  Recall that the Kernel type checker does not support metavariables.
+  Recall that the kernel type checker does not support metavariables.
   When implementing automation, consider using the `MetaM` methods. -/
+-- We use `Lean.Environment` here to allow for native reduction; as this is a debugging function, we
+-- forgo a `Kernel.Environment` base variant
 @[extern "lean_kernel_is_def_eq"]
-opaque isDefEq (env : Environment) (lctx : LocalContext) (a b : Expr) : Except KernelException Bool
+opaque isDefEq (env : Lean.Environment) (lctx : LocalContext) (a b : Expr) : Except Kernel.Exception Bool
 
-def isDefEqGuarded (env : Environment) (lctx : LocalContext) (a b : Expr) : Bool :=
+def isDefEqGuarded (env : Lean.Environment) (lctx : LocalContext) (a b : Expr) : Bool :=
   if let .ok result := isDefEq env lctx a b then result else false
 
 /--
   Kernel WHNF function. We use it mainly for debugging purposes.
-  Recall that the Kernel type checker does not support metavariables.
+  Recall that the kernel type checker does not support metavariables.
   When implementing automation, consider using the `MetaM` methods. -/
+-- We use `Lean.Environment` here to allow for native reduction; as this is a debugging function, we
+-- forgo a `Kernel.Environment` base variant
 @[extern "lean_kernel_whnf"]
-opaque whnf (env : Environment) (lctx : LocalContext) (a : Expr) : Except KernelException Expr
+opaque whnf (env : Lean.Environment) (lctx : LocalContext) (a : Expr) : Except Kernel.Exception Expr
 
 end Kernel
 

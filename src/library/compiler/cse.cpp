@@ -21,7 +21,7 @@ namespace lean {
 static name * g_cse_fresh = nullptr;
 
 class cse_fn {
-    elab_environment       m_env;
+    elab_environment  m_env;
     name_generator    m_ngen;
     bool              m_before_erasure;
     expr_map<expr>    m_map;

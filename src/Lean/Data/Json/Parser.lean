@@ -6,13 +6,13 @@ Authors: Gabriel Ebner, Marc Huisinga
 -/
 prelude
 import Lean.Data.Json.Basic
-import Lean.Data.Parsec
 import Lean.Data.RBMap
+import Std.Internal.Parsec
 
 namespace Lean.Json.Parser
 
-open Lean.Parsec
-open Lean.Parsec.String
+open Std.Internal.Parsec
+open Std.Internal.Parsec.String
 
 @[inline]
 def hexChar : Parser Nat := do
@@ -216,8 +216,8 @@ namespace Json
 
 def parse (s : String) : Except String Lean.Json :=
   match Json.Parser.any s.mkIterator with
-  | Parsec.ParseResult.success _ res => Except.ok res
-  | Parsec.ParseResult.error it err  => Except.error s!"offset {repr it.i.byteIdx}: {err}"
+  | .success _ res => Except.ok res
+  | .error it err  => Except.error s!"offset {repr it.i.byteIdx}: {err}"
 
 end Json
 

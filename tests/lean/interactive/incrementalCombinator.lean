@@ -11,8 +11,22 @@ def case (h : a ∨ b ∨ c) : True := by
                   --^ sync
                   --^ insert: ".5"
 
+/-!
+`case` with multiple tags should *not* be accidentally incremental, leading to e.g. kernel errors.
+-/
+
 -- RESET
-def case (h : a ∨ b) : True := by
+def case2 (h : a ∨ b ∨ c) : True := by
+  cases h
+  case inl | inr =>
+    skip
+    sorry
+       --^ sync
+       --^ insert: " "
+       --^ collectDiagnostics
+
+-- RESET
+def cdot (h : a ∨ b) : True := by
   cases h
   . dbg_trace "d 0"
     dbg_trace "d 1"

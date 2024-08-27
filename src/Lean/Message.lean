@@ -483,11 +483,7 @@ def toMessageList (msgs : Array MessageData) : MessageData :=
 
 namespace Kernel.Exception
 
-private def mkCtx (_env : Kernel.Environment) (_lctx : LocalContext) (_opts : Options) (msg : MessageData) : MessageData :=
-  msg
-  --MessageData.withContext { env := env, mctx := {}, lctx := lctx, opts := opts } msg
-
-def toMessageData (e : KernelException) (opts : Options) : MessageData :=
+def toMessageData (elabEnv : Lean.Environment) (e : Kernel.Exception) (opts : Options) : MessageData :=
   match e with
   | unknownConstant env constName       => mkCtx env {} opts m!"(kernel) unknown constant '{constName}'"
   | alreadyDeclared env constName       => mkCtx env {} opts m!"(kernel) constant has already been declared '{constName}'"
@@ -514,6 +510,15 @@ def toMessageData (e : KernelException) (opts : Options) : MessageData :=
   | excessiveMemory                     => "(kernel) excessive memory consumption detected"
   | deepRecursion                       => "(kernel) deep recursion detected"
   | interrupted                         => "(kernel) interrupted"
+where mkCtx (_env : Kernel.Environment) (lctx : LocalContext) (opts : Options) (msg : MessageData) : MessageData :=
+  -- In the split of `Lean.Kernel.Environment` from `Lean.Environment`, the environment returned in
+  -- kernel exceptions is not of the correct type anymore, and we do not want to pass the full
+  -- environment to the kernel. Thus the environment set here may be missing declarations added
+  -- during the kernel execution up to the exception. We could update `elabEnv.base` with this
+  -- environment but the environment type is opaque at this point. We claim that the added
+  -- declarations should rarely be relevant to the presentation of this less frequent exception.
+  MessageData.withContext { env := elabEnv, mctx := {}, lctx := lctx, opts := opts } msg
+
 
 end Kernel.Exception
 end Lean

@@ -60,3 +60,115 @@ theorem MulEquiv.decompositionMonoid (_b : β) : α = α :=
 /-- info: MulEquiv.decompositionMonoid {α β F : Type} [EquivLike F α β] (f : F) (_b : β) : α = α -/
 #guard_msgs in
 #check MulEquiv.decompositionMonoid
+
+section
+/-! `omit` -/
+variable [ToString α] [ToString β]
+
+/--
+error: failed to synthesize
+  ToString α
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#guard_msgs in
+omit [ToString α] in
+theorem t8 (a : α) (b : β) : True :=
+  let _ := toString a; let _ := toString b; trivial
+
+/--
+error: failed to synthesize
+  ToString β
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#guard_msgs in
+omit [ToString β] in
+theorem t9 (a : α) (b : β) : True :=
+  let _ := toString a; let _ := toString b; trivial
+
+/--
+error: failed to synthesize
+  ToString α
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+---
+error: failed to synthesize
+  ToString β
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#guard_msgs in
+omit [ToString _] in
+theorem t10 (a : α) (b : β) : True :=
+  let _ := toString a; let _ := toString b; trivial
+end
+
+/-! illegal `omit`s -/
+
+/-- error: invalid 'omit', 'α' has not been declared in the current scope -/
+#guard_msgs in
+variable (a : α) in
+omit α in
+theorem t11 (a : α) : True := trivial
+
+/--
+error: cannot omit referenced section variable 'α'
+---
+error: cannot omit referenced section variable 'α'
+-/
+#guard_msgs in
+variable (α : Type) in
+omit α in
+theorem t12 (a : α) : True := trivial
+
+/--
+error: cannot omit referenced section variable 'inst✝'
+---
+error: cannot omit referenced section variable 'inst✝'
+-/
+#guard_msgs in
+variable [ToString α] in
+omit [ToString α] in
+theorem t13 (a : α) : toString a = toString a := rfl
+
+/--
+error: application type mismatch
+  ToString True
+argument
+  True
+has type
+  Prop : Type
+but is expected to have type
+  Type ?u.1758 : Type (?u.1758 + 1)
+-/
+#guard_msgs in
+omit [ToString True]
+
+/-- error: '[ToString Nat]' did not match any variables in the current scope -/
+#guard_msgs in
+omit [ToString Nat]
+
+/-! `omit` can also be used to revert an `include` -/
+
+variable (α : Type) in
+include α in
+omit α in
+theorem t13 : True := trivial
+
+/-- warning: included section variable 'α' is not used in 't14', consider excluding it -/
+#guard_msgs in
+variable (α : Type) in
+include α in
+omit α in
+include α in
+theorem t14 : True := trivial
+
+/-! But you probably shouldn't use it -/
+
+set_option linter.omit true in
+/--
+warning: `omit` should be avoided in favor of restructuring your `variable` declarations
+note: this linter can be disabled with `set_option linter.omit false`
+-/
+#guard_msgs in
+variable (α : Type) in
+include α in
+omit α in
+theorem t15 : True := trivial

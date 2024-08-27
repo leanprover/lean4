@@ -1,7 +1,7 @@
-import Lean.Elab.Tactic.BVDecide.Bitblast.BoolExpr
+import Std.Tactic.BVDecide.Bitblast.BoolExpr
 
 open Std.Sat
-open Lean.Elab.Tactic.BVDecide
+open Std.Tactic.BVDecide
 
 def mkFalseCollapsible (n : Nat) : BoolExpr Nat :=
   match n with

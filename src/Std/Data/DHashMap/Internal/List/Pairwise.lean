@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
 prelude
+import Init.Data.List.Perm
 import Std.Data.DHashMap.Internal.List.Defs
-import Std.Data.DHashMap.Internal.List.Perm
 import Std.Data.DHashMap.Internal.List.Sublist
 
 /-!
@@ -17,6 +17,8 @@ File contents: tiny private implementation of `List.Pairwise`
 
 set_option linter.missingDocs true
 set_option autoImplicit false
+
+open List (Perm)
 
 namespace Std.DHashMap.Internal.List
 
@@ -34,7 +36,7 @@ theorem Pairwise.perm {P : α → α → Prop} (hP : ∀ {x y}, P x y → P y x)
   induction h
   · exact id
   · next l₁ l₂ a h ih => exact fun hx => ⟨fun y hy => hx.1 _ (h.mem_iff.2 hy), ih hx.2⟩
-  · next l₁ _ a a' _ _ =>
+  · next l₁ a a' =>
     intro ⟨hx₁, hx₂, hx⟩
     refine ⟨?_, ?_, hx⟩
     · intro y hy

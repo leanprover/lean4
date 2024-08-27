@@ -1308,11 +1308,7 @@ private partial def dropTermParens : Syntax → Syntax := fun stx =>
   | _         => stx
 
 private def isHole (stx : Syntax) : Bool :=
-  match stx with
-  | `(_)          => true
-  | `(? _)        => true
-  | `(? $_:ident) => true
-  | _             => false
+  stx.isOfKind ``Lean.Parser.Term.hole || stx.isOfKind ``Lean.Parser.Term.syntheticHole
 
 private def isTacticBlock (stx : Syntax) : Bool :=
   match stx with

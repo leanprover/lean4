@@ -6,7 +6,7 @@ Authors: Dany Fabian
 
 prelude
 import Init.Classical
-import Init.Data.List
+import Init.ByCases
 
 namespace Lean.Data.AC
 inductive Expr

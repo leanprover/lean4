@@ -70,7 +70,7 @@ def add (f : Timestamp) (d : Duration) : Timestamp :=
   Std.Time.Timestamp.add f d
 
 /--
-Checks if the duration is zero seconds ands zero nanoseconds.
+Checks if the duration is zero seconds and zero nanoseconds.
 -/
 def isZero (d : Duration) : Bool :=
   d.second.val = 0 ∧ d.nano.val = 0

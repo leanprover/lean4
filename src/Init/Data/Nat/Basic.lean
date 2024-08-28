@@ -779,6 +779,11 @@ theorem pow_le_pow_of_le_right {n : Nat} (hx : n > 0) {i : Nat} : ∀ {j}, i ≤
 theorem pos_pow_of_pos {n : Nat} (m : Nat) (h : 0 < n) : 0 < n^m :=
   pow_le_pow_of_le_right h (Nat.zero_le _)
 
+@[simp] theorem zero_pow_of_pos (n : Nat) (h : 0 < n) : 0 ^ n = 0 := by
+  cases n with
+  | zero => cases h
+  | succ n => simp [Nat.pow_succ]
+
 /-! # min/max -/
 
 /--

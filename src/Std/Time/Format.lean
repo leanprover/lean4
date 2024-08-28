@@ -40,19 +40,40 @@ def time12Hour : Format .any := date-spec% "HH:mm:ss AA"
 The Time24Hour format, which follows the pattern `hh:mm:ss` for representing time
 in a 24-hour clock format.
 -/
-def time24Hour : Format .any := date-spec% "hh:mm:ss.sssssssss"
+def time24Hour : Format .any := date-spec% "hh:mm:ss:sssssssss"
 
 /--
 The DateTimeZone24Hour format, which follows the pattern `YYYY-MM-DD hh:mm:ss.sssssssss` for
 representing date, time, and time zone.
 -/
-def dateTime24Hour : Format (.only .GMT) := date-spec% "YYYY-MM-DD hh:mm:ss.sssssssss"
+def dateTime24Hour : Format (.only .GMT) := date-spec% "YYYY-MM-DD:hh:mm:ss.sssssssss"
 
 /--
 The DateTimeWithZone format, which follows the pattern `YYYY-MM-DD hh:mm:ss.sssssssss`
 for representing date, time, and time zone.
 -/
-def dateTimeWithZone : Format .any := date-spec% "YYYY-MM-DD hh:mm:ss.sssssssss ZZZ"
+def dateTimeWithZone : Format .any := date-spec% "YYYY-MM-DD:hh:mm:ss.sssssssssZZZ"
+
+/--
+The Time24Hour format, which follows the pattern `hh:mm:ss` for representing time
+in a 24-hour clock format. It uses the default value that can be parsed with the
+notation of dates.
+-/
+def leanTime24Hour : Format .any := date-spec% "hh:mm:ss:sssssssss"
+
+/--
+The DateTimeZone24Hour format, which follows the pattern `YYYY-MM-DD hh:mm:ss:sssssssss` for
+representing date, time, and time zone. It uses the default value that can be parsed with the
+notation of dates.
+-/
+def leanDateTime24Hour : Format (.only .GMT) := date-spec% "YYYY-MM-DD:hh:mm:ss:sssssssss"
+
+/--
+The DateTimeWithZone format, which follows the pattern `YYYY-MM-DD hh:mm:ss:sssssssss`
+for representing date, time, and time zone. It uses the default value that can be parsed with the
+notation of dates.
+-/
+def leanDateTimeWithZone : Format .any := date-spec% "YYYY-MM-DD:hh:mm:ss:sssssssssZZZZZ"
 
 /--
 The SQLDate format, which follows the pattern `YYYY-MM-DD` and is commonly used
@@ -166,16 +187,28 @@ def format (time : PlainTime) (format : String) : String :=
     | none => "invalid time"
 
 /--
-Parses a time string in the 24-hour format (`hh:mm:ss`) and returns a `PlainTime`.
+Parses a time string in the 24-hour format (`hh:mm:ss.sssssssss`) and returns a `PlainTime`.
 -/
 def fromTime24Hour (input : String) : Except String PlainTime :=
   Formats.time24Hour.parseBuilder (λh m s n => PlainTime.ofHourMinuteSecondsNano? h.snd m s.snd n) input
 
 /--
-Formats a `PlainTime` value into a 24-hour format string (`hh:mm:ss`).
+Formats a `PlainTime` value into a 24-hour format string (`hh:mm:ss.sssssssss`).
 -/
 def toTime24Hour (input : PlainTime) : String :=
   Formats.time24Hour.formatBuilder input.hour input.minute input.second input.nano
+
+/--
+Parses a time string in the 24-hour format (`hh:mm:ss.sssssssss`) and returns a `PlainTime`.
+-/
+def fromLeanTime24Hour (input : String) : Except String PlainTime :=
+  Formats.leanTime24Hour.parseBuilder (λh m s n => PlainTime.ofHourMinuteSecondsNano? h.snd m s.snd n) input
+
+/--
+Formats a `PlainTime` value into a 24-hour format string (`hh:mm:ss.sssssssss`).
+-/
+def toLeanTime24Hour (input : PlainTime) : String :=
+  Formats.leanTime24Hour.formatBuilder input.hour input.minute input.second input.nano
 
 /--
 Parses a time string in the 12-hour format (`hh:mm:ss aa`) and returns a `PlainTime`.
@@ -201,7 +234,7 @@ def parse (input : String) : Except String PlainTime :=
   <|> fromTime24Hour input
 
 instance : ToString PlainTime where
-  toString := toTime24Hour
+  toString := toLeanTime24Hour
 
 instance : Repr PlainTime where
   reprPrec data := Repr.addAppParen (toString data)
@@ -263,10 +296,22 @@ def fromDateTimeWithZoneString (input : String) : Except String ZonedDateTime :=
   Formats.dateTimeWithZone.parse input
 
 /--
-Formats a `DateTime` value into a `DateTimeWithZone` format string.
+Formats a `DateTime` value into a simple date time with timezone string.
 -/
 def toDateTimeWithZoneString (pdt : ZonedDateTime) : String :=
   Formats.dateTimeWithZone.format pdt.snd
+
+/--
+Parses a `String` in the `DateTimeWithZone` format and returns a `DateTime` object in the GMT time zone.
+-/
+def fromLeanDateTimeWithZoneString (input : String) : Except String ZonedDateTime :=
+  Formats.leanDateTimeWithZone.parse input
+
+/--
+Formats a `DateTime` value into a simple date time with timezone string that can be parsed by the date% notationg.
+-/
+def toLeanDateTimeWithZoneString (pdt : ZonedDateTime) : String :=
+  Formats.leanDateTimeWithZone.format pdt.snd
 
 /--
 Parses a `String` in the `ISO8601`, `RFC822` or `RFC850` format and returns a `ZonedDateTime`.
@@ -277,7 +322,7 @@ def parse (input : String) : Except String ZonedDateTime :=
   <|> fromRFC850String input
 
 instance : ToString ZonedDateTime where
-  toString := toDateTimeWithZoneString
+  toString := toLeanDateTimeWithZoneString
 
 instance : Repr ZonedDateTime where
   reprPrec data := Repr.addAppParen (toString data)
@@ -351,14 +396,28 @@ def toDateTimeString (pdt : PlainDateTime) : String :=
   Formats.dateTime24Hour.format (DateTime.ofPlainDateTime pdt .UTC)
 
 /--
+Parses a `String` in the `DateTime` format and returns a `PlainDateTime`.
+-/
+def fromLeanDateTimeString (input : String) : Except String PlainDateTime :=
+  Formats.leanDateTime24Hour.parse input
+  |>.map DateTime.toPlainDateTime
+
+/--
+Formats a `PlainDateTime` value into a `DateTime` format string.
+-/
+def toLeanDateTimeString (pdt : PlainDateTime) : String :=
+  Formats.leanDateTime24Hour.format (DateTime.ofPlainDateTime pdt .UTC)
+
+/--
 Parses a `String` in the `AscTime` or `LongDate` format and returns a `PlainDateTime`.
 -/
 def parse (date : String) : Except String PlainDateTime :=
   fromAscTimeString date
   <|> fromLongDateFormatString date
+  <|> fromDateTimeString date
 
 instance : ToString PlainDateTime where
-  toString := toDateTimeString
+  toString := toLeanDateTimeString
 
 instance : Repr PlainDateTime where
   reprPrec data := Repr.addAppParen (toString data)
@@ -425,6 +484,12 @@ def toDateTimeWithZoneString (pdt : DateTime tz) : String :=
   Formats.dateTimeWithZone.format pdt
 
 /--
+Formats a `DateTime` value into a `DateTimeWithZone` format string that can be parsed by `date%`.
+-/
+def toLeanDateTimeWithZoneString (pdt : DateTime tz) : String :=
+  Formats.leanDateTimeWithZone.format pdt
+
+/--
 Parses a `String` in the `AscTime` or `LongDate` format and returns a `DateTime`.
 -/
 def parse (date : String) : Except String (DateTime .GMT) :=
@@ -432,7 +497,7 @@ def parse (date : String) : Except String (DateTime .GMT) :=
   <|> fromLongDateFormatString date
 
 instance : ToString (DateTime tz) where
-  toString := toDateTimeWithZoneString
+  toString := toLeanDateTimeWithZoneString
 
 instance : Repr (DateTime tz) where
   reprPrec data := Repr.addAppParen (toString data)

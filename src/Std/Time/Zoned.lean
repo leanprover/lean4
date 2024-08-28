@@ -66,7 +66,17 @@ def toPlainTime (dt : DateTime tz) : PlainTime :=
 
 /--
 Calculates the duration between a given `DateTime` and a specified date.
+
+## Example
+
+```lean
+example : Duration :=
+  let startDate := date% 2023-1-1:05:10:20UTC
+  let endDate := date% 2023-3-15:05:10:20UTC
+  endDate.since startDate
+```
 -/
+@[inline]
 def since [ToTimestamp α] (date : DateTime tz) (since : α) : Duration :=
   let date  := date.toTimestamp
   let since := ToTimestamp.toTimestamp since
@@ -114,6 +124,15 @@ def toPlainTime (dt : ZonedDateTime) : PlainTime :=
 
 /--
 Calculates the duration between a given `ZonedDateTime` and a specified date.
+
+## Example
+
+```lean
+def example : Duration :=
+  let startDate := date% 2023-1-1:05:10:20UTC
+  let endDate := date% 2023-3-15:05:10:20UTC
+  endDate.since startDate
+```
 -/
 @[inline]
 def since [ToTimestamp α] (date : ZonedDateTime) (since : α) : Duration :=

@@ -240,8 +240,11 @@ theorem eraseP_eq_iff {p} {l : List α} :
     (replicate n a).eraseP p = replicate n a := by
   rw [eraseP_of_forall_not (by simp_all)]
 
+theorem Pairwise.eraseP (q) : Pairwise p l → Pairwise p (l.eraseP q) :=
+  Pairwise.sublist <| eraseP_sublist _
+
 theorem Nodup.eraseP (p) : Nodup l → Nodup (l.eraseP p) :=
-  Nodup.sublist <| eraseP_sublist _
+  Pairwise.eraseP p
 
 theorem eraseP_comm {l : List α} (h : ∀ a ∈ l, ¬ p a ∨ ¬ q a) :
     (l.eraseP p).eraseP q = (l.eraseP q).eraseP p := by
@@ -414,6 +417,9 @@ theorem erase_eq_iff [LawfulBEq α] {a : α} {l : List α} :
   rw [erase_of_not_mem]
   simp_all
 
+theorem Pairwise.erase [LawfulBEq α] {l : List α} (a) : Pairwise p l → Pairwise p (l.erase a) :=
+  Pairwise.sublist <| erase_sublist _ _
+
 theorem Nodup.erase_eq_filter [LawfulBEq α] {l} (d : Nodup l) (a : α) : l.erase a = l.filter (· != a) := by
   induction d with
   | nil => rfl
@@ -434,7 +440,7 @@ theorem Nodup.not_mem_erase [LawfulBEq α] {a : α} (h : Nodup l) : a ∉ l.eras
   simpa using ((Nodup.mem_erase_iff h).mp H).left
 
 theorem Nodup.erase [LawfulBEq α] (a : α) : Nodup l → Nodup (l.erase a) :=
-  Nodup.sublist <| erase_sublist _ _
+  Pairwise.erase a
 
 theorem head_erase_mem (xs : List α) (a : α) (h) : (xs.erase a).head h ∈ xs :=
   (erase_sublist a xs).head_mem h
@@ -521,6 +527,12 @@ theorem eraseIdx_replicate {n : Nat} {a : α} {k : Nat} :
     simp only [mem_replicate] at m
     exact m.2
   · rw [eraseIdx_of_length_le (by simpa using h)]
+
+theorem Pairwise.eraseIdx {l : List α} (k) : Pairwise p l → Pairwise p (l.eraseIdx k) :=
+  Pairwise.sublist <| eraseIdx_sublist _ _
+
+theorem Nodup.eraseIdx {l : List α} (k) : Nodup l → Nodup (l.eraseIdx k) :=
+  Pairwise.eraseIdx k
 
 protected theorem IsPrefix.eraseIdx {l l' : List α} (h : l <+: l') (k : Nat) :
     eraseIdx l k <+: eraseIdx l' k := by

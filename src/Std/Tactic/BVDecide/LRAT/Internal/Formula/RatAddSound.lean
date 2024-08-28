@@ -534,7 +534,7 @@ theorem safe_insert_of_performRatCheck_fold_success {n : Nat} (f : DefaultFormul
   · intro h p pfc
     specialize h p
     simp only [(· ⊨ ·), List.all_eq_true, decide_eq_true_eq, Classical.not_forall,
-      exists_prop] at h pfc
+      exists_prop, nonempty_prop] at h pfc
     rcases h with ⟨c', c'_in_f, pc'⟩
     have c'_in_fc : c' ∈ toList (insert f c) := by rw [insert_iff]; exact Or.inr c'_in_f
     exact pc' <| pfc c' c'_in_fc

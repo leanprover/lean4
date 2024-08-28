@@ -128,19 +128,13 @@ Your time zone: 15 Aguust 2024 11:03:47 GMT-03:00
 def localTm : Second.Offset := 1723730627
 
 /--
-This localDate is relative to the local time.
+This PlainDate is relative to the local time.
 -/
-def localDate : LocalDateTime := Timestamp.toLocalDateTime (Timestamp.ofSecondsSinceUnixEpoch localTm)
+def PlainDate : PlainDateTime := Timestamp.toPlainDateTime (Timestamp.ofSecondsSinceUnixEpoch localTm)
 
-/--
-info: "08/15/2024 14:03:47"
--/
-#guard_msgs in
-#eval ShortDateTime.formatBuilder localDate.month localDate.day localDate.year localDate.time.hour localDate.minute localDate.time.second
-
-def dateBR₁ := DateTime.ofLocalDateTime localDate brTZ
-def dateJP₁ := DateTime.ofLocalDateTime localDate jpTZ
-def dateUTC₁ := DateTime.ofLocalDateTime localDate .UTC
+def dateBR₁ := DateTime.ofPlainDateTime PlainDate brTZ
+def dateJP₁ := DateTime.ofPlainDateTime PlainDate jpTZ
+def dateUTC₁ := DateTime.ofPlainDateTime PlainDate .UTC
 
 /--
 info: "Thursday, August 15, 2024 14:03:47 -0300"
@@ -206,37 +200,37 @@ info: "06/16/2014"
 info: "0053-06-19"
 -/
 #guard_msgs in
-#eval Formats.sqlDate.format (DateTime.ofLocalDate (LocalDate.ofDaysSinceUNIXEpoch ⟨-700000⟩) .UTC)
+#eval Formats.sqlDate.format (DateTime.ofPlainDate (PlainDate.ofDaysSinceUNIXEpoch ⟨-700000⟩) .UTC)
 
 /--
 info: "-0002-09-16"
 -/
 #guard_msgs in
-#eval Formats.sqlDate.format (DateTime.ofLocalDate (LocalDate.ofDaysSinceUNIXEpoch ⟨-720000⟩) .UTC)
+#eval Formats.sqlDate.format (DateTime.ofPlainDate (PlainDate.ofDaysSinceUNIXEpoch ⟨-720000⟩) .UTC)
 
 /--
 info: "-0084-07-28"
 -/
 #guard_msgs in
-#eval Formats.sqlDate.format (DateTime.ofLocalDate (LocalDate.ofDaysSinceUNIXEpoch ⟨-750000⟩) .UTC)
+#eval Formats.sqlDate.format (DateTime.ofPlainDate (PlainDate.ofDaysSinceUNIXEpoch ⟨-750000⟩) .UTC)
 
 /--
 info: "-0221-09-04"
 -/
 #guard_msgs in
-#eval Formats.sqlDate.format (DateTime.ofLocalDate (LocalDate.ofDaysSinceUNIXEpoch ⟨-800000⟩) .UTC)
+#eval Formats.sqlDate.format (DateTime.ofPlainDate (PlainDate.ofDaysSinceUNIXEpoch ⟨-800000⟩) .UTC)
 
 /--
 info: -0221-09-04
 -/
 #guard_msgs in
-#eval (LocalDate.ofDaysSinceUNIXEpoch ⟨-800000⟩)
+#eval (PlainDate.ofDaysSinceUNIXEpoch ⟨-800000⟩)
 
 /--
 info: "-0221-09-04"
 -/
 #guard_msgs in
-#eval toString (LocalDate.ofDaysSinceUNIXEpoch ⟨-800000⟩)
+#eval toString (PlainDate.ofDaysSinceUNIXEpoch ⟨-800000⟩)
 
 /--
 info: 2002-07-14
@@ -251,13 +245,13 @@ info: 14:13:12
 #eval time% 14:13:12
 
 /--
-info: Sunday, July 14, 2002 14:13:12
+info: 2002-07-14 14:13:12
 -/
 #guard_msgs in
 #eval date% 2002-07-14:14:13:12
 
 /--
-info: Sun, 14 Jul 2002 14:13:12 +0900
+info: 2002-07-14 14:13:12 +0900
 -/
 #guard_msgs in
 #eval date% 2002-07-14:14:13:12+09:00

@@ -5,7 +5,7 @@ Authors: Sofia Rodrigues
 -/
 prelude
 import Std.Time.DateTime.Timestamp
-import Std.Time.DateTime.LocalDateTime
+import Std.Time.DateTime.PlainDateTime
 
 namespace Std
 namespace Time
@@ -14,83 +14,83 @@ namespace Timestamp
 set_option linter.all true
 
 /--
-Converts a `LocalDateTime` to a `Timestamp`
+Converts a `PlainDateTime` to a `Timestamp`
 -/
 @[inline]
-def ofLocalDateTime (ldt : LocalDateTime) : Timestamp :=
-  ldt.toLocalTimestamp
+def ofPlainDateTime (ldt : PlainDateTime) : Timestamp :=
+  ldt.toPlainTimestamp
 
 /--
-Converts a `Timestamp` to a `LocalDateTime`
+Converts a `Timestamp` to a `PlainDateTime`
 -/
 @[inline]
-def toLocalDateTime (timestamp : Timestamp) : LocalDateTime :=
-  LocalDateTime.ofUTCTimestamp timestamp
+def toPlainDateTime (timestamp : Timestamp) : PlainDateTime :=
+  PlainDateTime.ofUTCTimestamp timestamp
 
 /--
-Converts a `LocalDate` to a `Timestamp`
+Converts a `PlainDate` to a `Timestamp`
 -/
 @[inline]
-def ofLocalDate (ld : LocalDate) : Timestamp :=
+def ofPlainDate (ld : PlainDate) : Timestamp :=
   let days := ld.toDaysSinceUNIXEpoch
   let secs := days.toSeconds
   Timestamp.ofSecondsSinceUnixEpoch secs
 
 /--
-Converts a `Timestamp` to a `LocalDate`
+Converts a `Timestamp` to a `PlainDate`
 -/
 @[inline]
-def toLocalDate (timestamp : Timestamp) : LocalDate :=
+def toPlainDate (timestamp : Timestamp) : PlainDate :=
   let secs := timestamp.toSecondsSinceUnixEpoch
   let days := Day.Offset.ofSeconds secs
-  LocalDate.ofDaysSinceUNIXEpoch days
+  PlainDate.ofDaysSinceUNIXEpoch days
 
 /--
-Converts a `LocalTime` to a `Timestamp`
+Converts a `PlainTime` to a `Timestamp`
 -/
 @[inline]
-def ofLocalTime (lt : LocalTime) : Timestamp :=
+def ofPlainTime (lt : PlainTime) : Timestamp :=
   let nanos := lt.toNanoseconds
   Timestamp.ofNanosecondsSinceUnixEpoch nanos
 
 /--
-Converts a `Timestamp` to a `LocalTime`
+Converts a `Timestamp` to a `PlainTime`
 -/
 @[inline]
-def toLocalTime (timestamp : Timestamp) : LocalTime :=
+def toPlainTime (timestamp : Timestamp) : PlainTime :=
   let nanos := timestamp.toNanosecondsSinceUnixEpoch
-  LocalTime.ofNanoseconds nanos
+  PlainTime.ofNanoseconds nanos
 
 end Timestamp
 
-namespace LocalDateTime
+namespace PlainDateTime
 
 /--
-Converts a `LocalDate` to a `Timestamp`
+Converts a `PlainDate` to a `Timestamp`
 -/
 @[inline]
-def ofLocalDate (ld : LocalDate) : LocalDateTime :=
-  LocalDateTime.ofUTCTimestamp (Timestamp.ofLocalDate ld)
+def ofPlainDate (ld : PlainDate) : PlainDateTime :=
+  PlainDateTime.ofUTCTimestamp (Timestamp.ofPlainDate ld)
 
 /--
-Converts a `LocalDateTime` to a `LocalDate`
+Converts a `PlainDateTime` to a `PlainDate`
 -/
 @[inline]
-def toLocalDate (ldt : LocalDateTime) : LocalDate :=
-  Timestamp.toLocalDate ldt.toLocalTimestamp
+def toPlainDate (ldt : PlainDateTime) : PlainDate :=
+  Timestamp.toPlainDate ldt.toPlainTimestamp
 
 /--
-Converts a `LocalTime` to a `LocalDateTime`
+Converts a `PlainTime` to a `PlainDateTime`
 -/
 @[inline]
-def ofLocalTime (lt : LocalTime) : LocalDateTime :=
-  LocalDateTime.ofUTCTimestamp (Timestamp.ofLocalTime lt)
+def ofPlainTime (lt : PlainTime) : PlainDateTime :=
+  PlainDateTime.ofUTCTimestamp (Timestamp.ofPlainTime lt)
 
 /--
-Converts a `LocalDateTime` to a `LocalTime`
+Converts a `PlainDateTime` to a `PlainTime`
 -/
 @[inline]
-def toLocalTime (ldt : LocalDateTime) : LocalTime :=
-  Timestamp.toLocalTime ldt.toLocalTimestamp
+def toPlainTime (ldt : PlainDateTime) : PlainTime :=
+  Timestamp.toPlainTime ldt.toPlainTimestamp
 
-end LocalDateTime
+end PlainDateTime

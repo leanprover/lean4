@@ -44,7 +44,7 @@ instance : Inhabited Timestamp where
 
 instance : OfNat Timestamp n where
   ofNat := by
-    refine ⟨UnitVal.mk n, ⟨0, by decide⟩, ?_⟩
+    refine ⟨.ofInt n, ⟨0, by decide⟩, ?_⟩
     simp <;> exact Int.le_total s.val 0 |>.symm
     exact Int.le_total 0 n
 
@@ -98,7 +98,7 @@ protected def add (t₁ t₂ : Timestamp) : Timestamp := by
     let truncated := diffNano.truncateTop (Int.le_sub_one_of_lt h.right)
     let nano := truncated.addTop 1000000000 (by decide)
     let proof₁ : 0 ≤ diffSecs - 1 := Int.le_sub_one_of_lt h.left
-    refine { second := UnitVal.mk (diffSecs.val - 1), nano, proof := ?_ }
+    refine { second := .ofInt (diffSecs.val - 1), nano, proof := ?_ }
     simp [nano, Bounded.LE.addTop]
     refine (Or.inl (And.intro proof₁ ?_))
     let h₃ := (Int.add_le_add_iff_left 1000000000).mpr diffNano.property.left
@@ -108,7 +108,7 @@ protected def add (t₁ t₂ : Timestamp) : Timestamp := by
     let second := diffSecs.val + 1
     let truncated := diffNano.truncateBottom h₁.right
     let nano := truncated.subBottom 1000000000 (by decide)
-    refine { second := UnitVal.mk second, nano, proof := ?_ }
+    refine { second := .ofInt second, nano, proof := ?_ }
     simp [nano, truncated, Bounded.LE.subBottom, Bounded.LE.truncateBottom]
     refine (Or.inr (And.intro ?_ ?_))
     · exact h₁.left
@@ -159,7 +159,7 @@ Converts a `Timestamp` from a `Nanosecond.Offset`
 @[inline]
 def toNanosecondsSinceUnixEpoch (tm : Timestamp) : Nanosecond.Offset :=
   let nanos := tm.toSecondsSinceUnixEpoch.mul 1000000000
-  let nanos := nanos + (UnitVal.mk tm.nano.val)
+  let nanos := nanos + (.ofInt tm.nano.val)
   nanos
 
 /--

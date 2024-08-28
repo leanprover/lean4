@@ -41,6 +41,24 @@ def Offset : Type := UnitVal 1
 
 instance : OfNat Offset n := ⟨UnitVal.ofNat n⟩
 
+namespace Offset
+
+/--
+Creates an `Offset` from a natural number.
+-/
+@[inline]
+def ofNat (data : Nat) : Offset :=
+  UnitVal.mk data
+
+/--
+Creates an `Offset` from an integer.
+-/
+@[inline]
+def ofInt (data : Int) : Offset :=
+  UnitVal.mk data
+
+end Offset
+
 namespace Ordinal
 
 /--

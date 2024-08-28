@@ -6,7 +6,7 @@ Authors: Sofia Rodrigues
 prelude
 import Std.Time.Date.Unit.Year
 import Std.Time.Date.Unit.WeekOfYear
-import Std.Time.Date.LocalDate
+import Std.Time.Date.PlainDate
 
 namespace Std
 namespace Time
@@ -37,7 +37,7 @@ Converts a `WeekDate` to a `Day.Offset`.
 -/
 def toDays (wd : WeekDate) : Day.Offset :=
   let days := wd.year.toInt * 365 + wd.week.val * 7
-  UnitVal.mk days
+  Day.Offset.ofInt days
 
 /--
 Creates a `WeekDate` from a `Day.Offset`.

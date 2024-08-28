@@ -138,19 +138,13 @@ Your time zone: 15 Aguust 2024 11:03:47 GMT-03:00
 def localTm : Second.Offset := 1723730627
 
 /--
-This localDate is relative to the local time.
+This PlainDate is relative to the local time.
 -/
-def localDate : LocalDateTime := Timestamp.toLocalDateTime (Timestamp.ofSecondsSinceUnixEpoch localTm)
+def PlainDate : PlainDateTime := Timestamp.toPlainDateTime (Timestamp.ofSecondsSinceUnixEpoch localTm)
 
-/--
-info: "08/15/2024 14:03:47"
--/
-#guard_msgs in
-#eval ShortDateTime.formatBuilder localDate.month localDate.day localDate.year localDate.time.hour localDate.minute localDate.time.second
-
-def dateBR₁ := DateTime.ofLocalDateTime localDate brTZ
-def dateJP₁ := DateTime.ofLocalDateTime localDate jpTZ
-def dateUTC₁ := DateTime.ofLocalDateTime localDate .UTC
+def dateBR₁ := DateTime.ofPlainDateTime PlainDate brTZ
+def dateJP₁ := DateTime.ofPlainDateTime PlainDate jpTZ
+def dateUTC₁ := DateTime.ofPlainDateTime PlainDate .UTC
 
 /--
 info: "2024-08-15T14:03:47-0300"

@@ -14,7 +14,7 @@ namespace Std
 namespace Time
 open Internal
 open Std.Internal.Parsec.String
-open Std.Internal.Parsec Lean LocalTime LocalDate TimeZone DateTime
+open Std.Internal.Parsec Lean PlainTime PlainDate TimeZone DateTime
 
 set_option linter.all true
 
@@ -583,9 +583,9 @@ private def DateBuilder.build (builder : DateBuilder) (aw : Awareness) : Except 
       pure builder.hour
 
   if let .isTrue p := inferInstanceAs (Decidable (ValidTime hour.snd builder.minute builder.second.snd)) then
-    let build := DateTime.ofLocalDateTime {
-      date := LocalDate.clip builder.year builder.month builder.day
-      time := LocalTime.mk hour builder.minute builder.second (.ofMillisecond builder.millisecond) p
+    let build := DateTime.ofPlainDateTime {
+      date := PlainDate.clip builder.year builder.month builder.day
+      time := PlainTime.mk hour builder.minute builder.second (.ofMillisecond builder.millisecond) p
     }
 
     match aw with

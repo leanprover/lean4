@@ -14,54 +14,54 @@ import Std.Time.Zoned.Database.Basic
 namespace Std
 namespace Time
 
-namespace LocalDateTime
+namespace PlainDateTime
 
 /--
-Creaates a new `LocalDateTime` out of a `Timestamp` and a `TimeZone`.
+Creaates a new `PlainDateTime` out of a `Timestamp` and a `TimeZone`.
 -/
-def ofTimestamp (stamp : Timestamp) (tz : TimeZone) : LocalDateTime :=
+def ofTimestamp (stamp : Timestamp) (tz : TimeZone) : PlainDateTime :=
   let stamp := stamp.addSeconds tz.toSeconds
-  LocalDateTime.ofUTCTimestamp stamp
+  PlainDateTime.ofUTCTimestamp stamp
 
 /--
 Get the current monotonic time.
 -/
 @[inline]
-def now : IO LocalDateTime := do
+def now : IO PlainDateTime := do
   let tm ← Timestamp.now
   let tz ← TimeZone.getCurrentTimezone
-  return LocalDateTime.ofTimestamp tm tz
+  return PlainDateTime.ofTimestamp tm tz
 
-end LocalDateTime
+end PlainDateTime
 
 namespace DateTime
 
 /--
-Converts a `LocalDate` to a `DateTime`
+Converts a `PlainDate` to a `DateTime`
 -/
 @[inline]
-def ofLocalDate (ld : LocalDate) (tz : TimeZone) : DateTime tz :=
-  DateTime.ofTimestamp (Timestamp.ofLocalDate ld) tz
+def ofPlainDate (ld : PlainDate) (tz : TimeZone) : DateTime tz :=
+  DateTime.ofTimestamp (Timestamp.ofPlainDate ld) tz
 
 /--
-Converts a `DateTime` to a `LocalDate`
+Converts a `DateTime` to a `PlainDate`
 -/
 @[inline]
-def toLocalDate (dt : DateTime tz) : LocalDate :=
-  Timestamp.toLocalDate dt.toTimestamp
+def toPlainDate (dt : DateTime tz) : PlainDate :=
+  Timestamp.toPlainDate dt.toTimestamp
 
 /--
-Converts a `LocalTime` to a `DateTime`
+Converts a `PlainTime` to a `DateTime`
 -/
 @[inline]
-def ofLocalTime (lt : LocalTime) (tz : TimeZone) : DateTime tz :=
-  DateTime.ofTimestamp (Timestamp.ofLocalTime lt) tz
+def ofPlainTime (lt : PlainTime) (tz : TimeZone) : DateTime tz :=
+  DateTime.ofTimestamp (Timestamp.ofPlainTime lt) tz
 
 /--
-Converts a `DateTime` to a `LocalTime`
+Converts a `DateTime` to a `PlainTime`
 -/
 @[inline]
-def toLocalTime (dt : DateTime tz) : LocalTime :=
+def toPlainTime (dt : DateTime tz) : PlainTime :=
   dt.date.get.time
 
 end DateTime
@@ -78,31 +78,31 @@ def now : IO ZonedDateTime := do
   return ofTimestamp date tz
 
 /--
-Converts a `LocalDate` to a `ZonedDateTime`
+Converts a `PlainDate` to a `ZonedDateTime`
 -/
 @[inline]
-def ofLocalDate (ld : LocalDate) (tz : TimeZone) : ZonedDateTime :=
-  ⟨tz, DateTime.ofTimestamp (Timestamp.ofLocalDate ld) tz⟩
+def ofPlainDate (ld : PlainDate) (tz : TimeZone) : ZonedDateTime :=
+  ⟨tz, DateTime.ofTimestamp (Timestamp.ofPlainDate ld) tz⟩
 
 /--
-Converts a `ZonedDateTime` to a `LocalDate`
+Converts a `ZonedDateTime` to a `PlainDate`
 -/
 @[inline]
-def toLocalDate (dt : ZonedDateTime) : LocalDate :=
-  DateTime.toLocalDate dt.snd
+def toPlainDate (dt : ZonedDateTime) : PlainDate :=
+  DateTime.toPlainDate dt.snd
 
 /--
-Converts a `LocalTime` to a `ZonedDateTime`
+Converts a `PlainTime` to a `ZonedDateTime`
 -/
 @[inline]
-def ofLocalTime (lt : LocalTime) (tz : TimeZone) : ZonedDateTime :=
-  ⟨tz, DateTime.ofTimestamp (Timestamp.ofLocalTime lt) tz⟩
+def ofPlainTime (lt : PlainTime) (tz : TimeZone) : ZonedDateTime :=
+  ⟨tz, DateTime.ofTimestamp (Timestamp.ofPlainTime lt) tz⟩
 
 /--
-Converts a `ZonedDateTime` to a `LocalTime`
+Converts a `ZonedDateTime` to a `PlainTime`
 -/
 @[inline]
-def toLocalTime (dt : ZonedDateTime) : LocalTime :=
-  DateTime.toLocalTime dt.snd
+def toPlainTime (dt : ZonedDateTime) : PlainTime :=
+  DateTime.toPlainTime dt.snd
 
 end ZonedDateTime

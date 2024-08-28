@@ -24,7 +24,7 @@ def applyLeapSecondsOnUTCTimestamp [Database α] (db : α) (tm : Timestamp) : IO
 /--
 Gets the TimeZone at the local timezone.
 -/
-def getLocalTimeZoneAt [Database α] (db : α) (tm : Timestamp) : IO TimeZone := do
+def getPlainTimeZoneAt [Database α] (db : α) (tm : Timestamp) : IO TimeZone := do
   (IO.ofExcept <| timezoneAt · tm) =<< Database.localRules db
 
 /--

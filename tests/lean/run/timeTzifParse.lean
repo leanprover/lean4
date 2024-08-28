@@ -44,7 +44,7 @@ info: 91
 info: 3
 -/
 #guard_msgs in
-#eval code.v1.localTimeTypes.size
+#eval code.v1.PlainTimeTypes.size
 
 /--
 info: 0

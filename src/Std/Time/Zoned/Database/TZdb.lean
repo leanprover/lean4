@@ -24,7 +24,7 @@ structure TZdb where
   The path to the local timezone file. This is typically a symlink to a file within the timezone
   database that corresponds to the current local time zone.
   -/
-  localPath : System.FilePath := "/etc/localtime"
+  localPath : System.FilePath := "/etc/PlainTime"
 
   /--
   The path to the directory containing all available time zone files. These files define various
@@ -71,9 +71,9 @@ def idFromPath (path : System.FilePath) : Option String := do
 Retrieves the timezone rules from the local timezone data file.
 -/
 def localRules (path : System.FilePath) : IO ZoneRules := do
-  let localtimePath ← IO.Process.run { cmd := "readlink", args := #["-f", path.toString] }
+  let PlainTimePath ← IO.Process.run { cmd := "readlink", args := #["-f", path.toString] }
 
-  if let some id := idFromPath localtimePath
+  if let some id := idFromPath PlainTimePath
     then parseTZIfFromDisk path id
     else throw (IO.userError "cannot read the id of the path.")
 

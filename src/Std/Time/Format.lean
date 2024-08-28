@@ -43,6 +43,18 @@ in a 24-hour clock format.
 def time24Hour : Format .any := date-spec% "hh:mm:ss"
 
 /--
+The DateTimeZone24Hour format, which follows the pattern `YYYY-MM-DD hh:mm:ss Z` for
+representing date, time, and time zone.
+-/
+def dateTime24Hour : Format (.only .GMT) := date-spec% "YYYY-MM-DD hh:mm:ss"
+
+/--
+The DateTimeWithZone format, which follows the pattern `YYYY-MM-DD hh:mm:ss Z`
+for representing date, time, and time zone.
+-/
+def dateTimeWithZone : Format .any := date-spec% "YYYY-MM-DD hh:mm:ss ZZZ"
+
+/--
 The SQLDate format, which follows the pattern `YYYY-MM-DD` and is commonly used
 in SQL databases to represent dates.
 -/
@@ -74,12 +86,12 @@ def rfc850 : Format .any := date-spec% "EEEE, DD-MMM-YY hh:mm:ss ZZZ"
 
 end Formats
 
-namespace LocalDate
+namespace PlainDate
 
 /--
-Formats a `LocalDate` using a specific format.
+Formats a `PlainDate` using a specific format.
 -/
-def format (date : LocalDate) (format : String) : String :=
+def format (date : PlainDate) (format : String) : String :=
   let format : Except String (Format .any) := Format.spec format
   match format with
   | .error err => s!"error: {err}"
@@ -95,50 +107,50 @@ def format (date : LocalDate) (format : String) : String :=
     | none => "invalid time"
 
 /--
-Parses a date string in the American format (`MM/DD/YYYY`) and returns a `LocalDate`.
+Parses a date string in the American format (`MM/DD/YYYY`) and returns a `PlainDate`.
 -/
-def fromAmericanDateString (input : String) : Except String LocalDate := do
-  Formats.americanDate.parseBuilder (λm d y => LocalDate.ofYearMonthDay y m d) input
+def fromAmericanDateString (input : String) : Except String PlainDate := do
+  Formats.americanDate.parseBuilder (λm d y => PlainDate.ofYearMonthDay y m d) input
 
 /--
 Converts a Date in the American format (`MM/DD/YYYY`) into a `String`.
 -/
-def toAmericanDateString (input : LocalDate) : String :=
+def toAmericanDateString (input : PlainDate) : String :=
   Formats.americanDate.formatBuilder input.month input.day input.year
 
 /--
 Converts a Date in the SQL format (`YYYY-MM-DD`) into a `String`.
 -/
-def fromSQLDateString (input : String) : Except String LocalDate := do
-  Formats.sqlDate.parseBuilder (λy m d => LocalDate.ofYearMonthDay y m d) input
+def fromSQLDateString (input : String) : Except String PlainDate := do
+  Formats.sqlDate.parseBuilder (λy m d => PlainDate.ofYearMonthDay y m d) input
 
 /--
 Converts a Date in the SQL format (`YYYY-MM-DD`) into a `String`.
 -/
-def toSQLDateString (input : LocalDate) : String :=
+def toSQLDateString (input : PlainDate) : String :=
   Formats.sqlDate.formatBuilder input.year input.month input.day
 
 /--
-Parses a `String` in the `AmericanDate` or `SQLDate` format and returns a `LocalDate`.
+Parses a `String` in the `AmericanDate` or `SQLDate` format and returns a `PlainDate`.
 -/
-def parse (input : String) : Except String LocalDate :=
+def parse (input : String) : Except String PlainDate :=
   fromAmericanDateString input
   <|> fromSQLDateString input
 
-instance : ToString LocalDate where
+instance : ToString PlainDate where
   toString := toSQLDateString
 
-instance : Repr LocalDate where
+instance : Repr PlainDate where
   reprPrec data := Repr.addAppParen (toString data)
 
-end LocalDate
+end PlainDate
 
-namespace LocalTime
+namespace PlainTime
 
 /--
-Formats a `LocalTime` using a specific format.
+Formats a `PlainTime` using a specific format.
 -/
-def format (time : LocalTime) (format : String) : String :=
+def format (time : PlainTime) (format : String) : String :=
   let format : Except String (Format .any) := Format.spec format
   match format with
   | .error err => s!"error: {err}"
@@ -154,47 +166,47 @@ def format (time : LocalTime) (format : String) : String :=
     | none => "invalid time"
 
 /--
-Parses a time string in the 24-hour format (`hh:mm:ss`) and returns a `LocalTime`.
+Parses a time string in the 24-hour format (`hh:mm:ss`) and returns a `PlainTime`.
 -/
-def fromTime24Hour (input : String) : Except String LocalTime :=
-  Formats.time24Hour.parseBuilder (λh m s => LocalTime.ofHourMinuteSeconds? h.snd m s.snd) input
+def fromTime24Hour (input : String) : Except String PlainTime :=
+  Formats.time24Hour.parseBuilder (λh m s => PlainTime.ofHourMinuteSeconds? h.snd m s.snd) input
 
 /--
-Formats a `LocalTime` value into a 24-hour format string (`hh:mm:ss`).
+Formats a `PlainTime` value into a 24-hour format string (`hh:mm:ss`).
 -/
-def toTime24Hour (input : LocalTime) : String :=
+def toTime24Hour (input : PlainTime) : String :=
   Formats.time24Hour.formatBuilder input.hour input.minute input.second
 
 /--
-Parses a time string in the 12-hour format (`hh:mm:ss aa`) and returns a `LocalTime`.
+Parses a time string in the 12-hour format (`hh:mm:ss aa`) and returns a `PlainTime`.
 -/
-def fromTime12Hour (input : String) : Except String LocalTime := do
-  let builder h m s a : Option LocalTime := do
+def fromTime12Hour (input : String) : Except String PlainTime := do
+  let builder h m s a : Option PlainTime := do
     let value ← Internal.Bounded.ofInt? h.snd.val
-    LocalTime.ofHourMinuteSeconds? (leap₂ := false) (HourMarker.toAbsolute a value) m s.snd
+    PlainTime.ofHourMinuteSeconds? (leap₂ := false) (HourMarker.toAbsolute a value) m s.snd
 
   Formats.time12Hour.parseBuilder builder input
 
 /--
-Formats a `LocalTime` value into a 12-hour format string (`hh:mm:ss aa`).
+Formats a `PlainTime` value into a 12-hour format string (`hh:mm:ss aa`).
 -/
-def toTime12Hour (input : LocalTime) : String :=
+def toTime12Hour (input : PlainTime) : String :=
   Formats.time12Hour.formatBuilder input.hour input.minute input.second (if input.hour.snd.val ≥ 12 then HourMarker.pm else HourMarker.am)
 
 /--
-Parses a `String` in the `Time12Hour` or `Time24Hour` format and returns a `LocalTime`.
+Parses a `String` in the `Time12Hour` or `Time24Hour` format and returns a `PlainTime`.
 -/
-def parse (input : String) : Except String LocalTime :=
+def parse (input : String) : Except String PlainTime :=
   fromTime12Hour input
   <|> fromTime24Hour input
 
-instance : ToString LocalTime where
+instance : ToString PlainTime where
   toString := toTime24Hour
 
-instance : Repr LocalTime where
+instance : Repr PlainTime where
   reprPrec data := Repr.addAppParen (toString data)
 
-end LocalTime
+end PlainTime
 
 namespace ZonedDateTime
 
@@ -245,6 +257,18 @@ def toRFC850String (date : ZonedDateTime) : String :=
   Formats.rfc850.format date.snd
 
 /--
+Parses a `String` in the `DateTimeWithZone` format and returns a `DateTime` object in the GMT time zone.
+-/
+def fromDateTimeWithZoneString (input : String) : Except String ZonedDateTime :=
+  Formats.dateTimeWithZone.parse input
+
+/--
+Formats a `DateTime` value into a `DateTimeWithZone` format string.
+-/
+def toDateTimeWithZoneString (ldt : ZonedDateTime) : String :=
+  Formats.dateTimeWithZone.format ldt.snd
+
+/--
 Parses a `String` in the `ISO8601`, `RFC822` or `RFC850` format and returns a `ZonedDateTime`.
 -/
 def parse (input : String) : Except String ZonedDateTime :=
@@ -253,19 +277,19 @@ def parse (input : String) : Except String ZonedDateTime :=
   <|> fromRFC850String input
 
 instance : ToString ZonedDateTime where
-  toString := toRFC822String
+  toString := toDateTimeWithZoneString
 
 instance : Repr ZonedDateTime where
   reprPrec data := Repr.addAppParen (toString data)
 
 end ZonedDateTime
 
-namespace LocalDateTime
+namespace PlainDateTime
 
 /--
-Formats a `LocalDateTime` using a specific format.
+Formats a `PlainDateTime` using a specific format.
 -/
-def format (date : LocalDateTime) (format : String) : String :=
+def format (date : PlainDateTime) (format : String) : String :=
   let format : Except String (Format .any) := Format.spec format
   match format with
   | .error err => s!"error: {err}"
@@ -285,45 +309,58 @@ def format (date : LocalDateTime) (format : String) : String :=
     | none => "invalid time"
 
 /--
-Parses a `String` in the `AscTime` format and returns a `LocalDateTime` object in the GMT time zone.
+Parses a `String` in the `AscTime` format and returns a `PlainDateTime` object in the GMT time zone.
 -/
-def fromAscTimeString (input : String) : Except String LocalDateTime :=
+def fromAscTimeString (input : String) : Except String PlainDateTime :=
   Formats.ascTime.parse input
-  |>.map DateTime.toLocalDateTime
+  |>.map DateTime.toPlainDateTime
 
 /--
-Formats a `LocalDateTime` value into an AscTime format string.
+Formats a `PlainDateTime` value into an AscTime format string.
 -/
-def toAscTimeString (ldt : LocalDateTime) : String :=
-  Formats.ascTime.format (DateTime.ofLocalDateTime ldt .UTC)
+def toAscTimeString (ldt : PlainDateTime) : String :=
+  Formats.ascTime.format (DateTime.ofPlainDateTime ldt .UTC)
 
 /--
-Parses a `String` in the `LongDateFormat` and returns a `LocalDateTime` object in the GMT time zone.
+Parses a `String` in the `LongDateFormat` and returns a `PlainDateTime` object in the GMT time zone.
 -/
-def fromLongDateFormatString (input : String) : Except String LocalDateTime :=
+def fromLongDateFormatString (input : String) : Except String PlainDateTime :=
   Formats.longDateFormat.parse input
-  |>.map DateTime.toLocalDateTime
+  |>.map DateTime.toPlainDateTime
 
 /--
-Formats a `LocalDateTime` value into a LongDateFormat string.
+Formats a `PlainDateTime` value into a LongDateFormat string.
 -/
-def toLongDateFormatString (ldt : LocalDateTime) : String :=
-  Formats.longDateFormat.format (DateTime.ofLocalDateTime ldt .UTC)
+def toLongDateFormatString (ldt : PlainDateTime) : String :=
+  Formats.longDateFormat.format (DateTime.ofPlainDateTime ldt .UTC)
 
 /--
-Parses a `String` in the `AscTime` or `LongDate` format and returns a `LocalDateTime`.
+Parses a `String` in the `DateTime` format and returns a `PlainDateTime`.
 -/
-def parse (date : String) : Except String LocalDateTime :=
+def fromDateTimeString (input : String) : Except String PlainDateTime :=
+  Formats.dateTime24Hour.parse input
+  |>.map DateTime.toPlainDateTime
+
+/--
+Formats a `PlainDateTime` value into a `DateTime` format string.
+-/
+def toDateTimeString (ldt : PlainDateTime) : String :=
+  Formats.dateTime24Hour.format (DateTime.ofPlainDateTime ldt .UTC)
+
+/--
+Parses a `String` in the `AscTime` or `LongDate` format and returns a `PlainDateTime`.
+-/
+def parse (date : String) : Except String PlainDateTime :=
   fromAscTimeString date
   <|> fromLongDateFormatString date
 
-instance : ToString LocalDateTime where
-  toString := toLongDateFormatString
+instance : ToString PlainDateTime where
+  toString := toDateTimeString
 
-instance : Repr LocalDateTime where
+instance : Repr PlainDateTime where
   reprPrec data := Repr.addAppParen (toString data)
 
-end LocalDateTime
+end PlainDateTime
 
 namespace DateTime
 
@@ -379,6 +416,12 @@ def toRFC850String (date : DateTime tz) : String :=
   Formats.rfc850.format date
 
 /--
+Formats a `DateTime` value into a `DateTimeWithZone` format string.
+-/
+def toDateTimeWithZoneString (ldt : DateTime tz) : String :=
+  Formats.dateTimeWithZone.format ldt
+
+/--
 Parses a `String` in the `AscTime` or `LongDate` format and returns a `DateTime`.
 -/
 def parse (date : String) : Except String (DateTime .GMT) :=
@@ -386,7 +429,7 @@ def parse (date : String) : Except String (DateTime .GMT) :=
   <|> fromLongDateFormatString date
 
 instance : ToString (DateTime tz) where
-  toString := toRFC822String
+  toString := toDateTimeWithZoneString
 
 instance : Repr (DateTime tz) where
   reprPrec data := Repr.addAppParen (toString data)

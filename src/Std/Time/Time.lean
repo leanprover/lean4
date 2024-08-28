@@ -6,4 +6,4 @@ Authors: Sofia Rodrigues
 prelude
 import Std.Time.Time.Basic
 import Std.Time.Time.HourMarker
-import Std.Time.Time.LocalTime
+import Std.Time.Time.PlainTime

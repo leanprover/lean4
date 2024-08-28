@@ -28,6 +28,20 @@ instance : OfNat Offset n := ⟨Int.ofNat n⟩
 namespace Offset
 
 /--
+Creates an `Offset` from a natural number.
+-/
+@[inline]
+def ofNat (data : Nat) : Offset :=
+  .ofNat data
+
+/--
+Creates an `Offset` from an integer.
+-/
+@[inline]
+def ofInt (data : Int) : Offset :=
+  data
+
+/--
 Converts the `Year` offset to an `Int`.
 -/
 @[inline]

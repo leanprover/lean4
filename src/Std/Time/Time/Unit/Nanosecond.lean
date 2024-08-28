@@ -58,6 +58,24 @@ def Offset : Type := UnitVal (1 / 1000000000)
 
 instance : OfNat Offset n := ⟨UnitVal.ofNat n⟩
 
+namespace Offset
+
+/--
+Creates an `Offset` from a natural number.
+-/
+@[inline]
+def ofNat (data : Nat) : Offset :=
+  UnitVal.mk data
+
+/--
+Creates an `Offset` from an integer.
+-/
+@[inline]
+def ofInt (data : Int) : Offset :=
+  UnitVal.mk data
+
+end Offset
+
 /--
 `Span` represents a bounded value for nanoseconds, ranging between -999999999 and 999999999.
 This can be used for operations that involve differences or adjustments within this range.

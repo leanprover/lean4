@@ -51,7 +51,7 @@ Creates a new `DateTime` out of a `Timestamp`
 def ofZoneRules (tm : Timestamp) (rules : TimeZone.ZoneRules) : Option ZonedDateTime := do
   let transition ← rules.findTransitionForTimestamp tm
   let tm := rules.applyLeapSeconds tm
-  return ofTimestamp tm transition.localTimeType.getTimeZone
+  return ofTimestamp tm transition.PlainTimeType.getTimeZone
 
 /--
 Changes the `TimeZone` to a new one.
@@ -61,18 +61,18 @@ def convertTimeZone (date : ZonedDateTime) (tz₁ : TimeZone) : ZonedDateTime :=
   ofTimestamp (date.toTimestamp) tz₁
 
 /--
-Creates a new `ZonedDateTime` out of a `LocalDateTime`
+Creates a new `ZonedDateTime` out of a `PlainDateTime`
 -/
 @[inline]
-def ofLocalDateTime (date : LocalDateTime) (tz : TimeZone) : ZonedDateTime :=
-  ⟨tz, DateTime.ofLocalDateTime date tz⟩
+def ofPlainDateTime (date : PlainDateTime) (tz : TimeZone) : ZonedDateTime :=
+  ⟨tz, DateTime.ofPlainDateTime date tz⟩
 
 /--
-Converts a `ZonedDateTime` to a `LocalDateTime`
+Converts a `ZonedDateTime` to a `PlainDateTime`
 -/
 @[inline]
-def toLocalDateTime (dt : ZonedDateTime) : LocalDateTime :=
-  DateTime.toLocalDateTime dt.snd
+def toPlainDateTime (dt : ZonedDateTime) : PlainDateTime :=
+  DateTime.toPlainDateTime dt.snd
 
 /--
 Getter for the `Year` inside of a `ZonedDateTime`

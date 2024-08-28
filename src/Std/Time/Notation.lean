@@ -63,7 +63,7 @@ syntax date_component noWs "-" noWs date_component noWs "-" noWs date_component 
 
 private def parseDate : TSyntax `date -> MacroM (TSyntax `term)
   | `(date|$year:date_component-$month:date_component-$day:date_component) => do
-    `(Std.Time.LocalDate.mk $(← parseComponent none none year) $(← parseComponent (some 1) (some 12) month) $(← parseComponent (some 1) (some 31) day) (by decide))
+    `(Std.Time.PlainDate.mk $(← parseComponent none none year) $(← parseComponent (some 1) (some 12) month) $(← parseComponent (some 1) (some 31) day) (by decide))
   | syn => Macro.throwErrorAt syn "unsupported type"
 
 /--
@@ -83,9 +83,9 @@ syntax date_component noWs ":" noWs date_component noWs ":" noWs date_component 
 
 private def parseTime : TSyntax `time -> MacroM (TSyntax `term)
   | `(time| $hour:date_component:$minute:date_component:$second:date_component) => do
-    `(Std.Time.LocalTime.mk ⟨true, $(← parseComponent (some 0) (some 24) hour)⟩ $(← parseComponent (some 0) (some 59) minute) ⟨true, $(← parseComponent (some 0) (some 60) second)⟩ 0 (by decide))
+    `(Std.Time.PlainTime.mk ⟨true, $(← parseComponent (some 0) (some 24) hour)⟩ $(← parseComponent (some 0) (some 59) minute) ⟨true, $(← parseComponent (some 0) (some 60) second)⟩ 0 (by decide))
   | `(time| $hour:date_component:$minute:date_component:$second:date_component.$nanos:date_component) => do
-    `(Std.Time.LocalTime.mk ⟨true, $(← parseComponent (some 0) (some 24) hour)⟩ $(← parseComponent (some 0) (some 59) minute) ⟨true, $(← parseComponent (some 0) (some 60) second)⟩ $(← parseComponent (some 0) (some 999) nanos) (by decide))
+    `(Std.Time.PlainTime.mk ⟨true, $(← parseComponent (some 0) (some 24) hour)⟩ $(← parseComponent (some 0) (some 59) minute) ⟨true, $(← parseComponent (some 0) (some 60) second)⟩ $(← parseComponent (some 0) (some 999) nanos) (by decide))
   | syn => Macro.throwErrorAt syn "unsupported syntax"
 
 /--
@@ -105,9 +105,9 @@ syntax date_component : datetime
 
 private def parseDateTime : TSyntax `datetime -> MacroM (TSyntax `term)
   | `(datetime| $date:date:$time:time) => do
-    `(Std.Time.LocalDateTime.mk $(← parseDate date) $(← parseTime time))
+    `(Std.Time.PlainDateTime.mk $(← parseDate date) $(← parseTime time))
   | `(datetime|$tm:date_component) => do
-    `(Std.Time.LocalDateTime.ofUTCTimestamp $(← parseComponent none none tm))
+    `(Std.Time.PlainDateTime.ofUTCTimestamp $(← parseComponent none none tm))
   | syn => Macro.throwErrorAt syn "unsupported syntax"
 
 /--
@@ -159,7 +159,7 @@ private def parseZoned : TSyntax `zoned -> MacroM (TSyntax `term)
   | `(zoned| $timestamp:num $zone) => do
     `(Std.Time.DateTime.ofUTCTimestamp $timestamp $(← parseZone zone))
   | `(zoned| $datetime:datetime $zone) => do
-    `(Std.Time.DateTime.ofLocalDateTime $(← parseDateTime datetime) $(← parseZone zone))
+    `(Std.Time.DateTime.ofPlainDateTime $(← parseDateTime datetime) $(← parseZone zone))
   | syn => Macro.throwErrorAt syn "unsupported syntax"
 
 /--

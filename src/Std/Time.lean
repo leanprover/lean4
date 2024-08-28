@@ -88,18 +88,18 @@ that are just shifts in dates and times. Types like `Date` are made using of com
 ## Date
 These types provide precision down to the day level, useful for representing and manipulating dates.
 
-- **`LocalDate`:** Represents a calendar date in the format `YYYY-MM-DD`.
+- **`PlainDate`:** Represents a calendar date in the format `YYYY-MM-DD`.
 - **`WeekDate`:** Uses the `YYYY-Www` format with week level precision.
 
 ## Time
 These types offer precision down to the nanosecond level, useful for representing and manipulating time of day.
 
-- **`LocalTime`**: Represents a time of day in the format `HH:mm:ss.SSSSSSSSS`.
+- **`PlainTime`**: Represents a time of day in the format `HH:mm:ss.SSSSSSSSS`.
 
 ## Date and time
 Combines date and time into a single representation, useful for precise timestamps and scheduling.
 
-- **`LocalDateTime`**: Represents both date and time in the format `YYYY-MM-DDTHH:mm:ss.SSSSSSSSS`.
+- **`PlainDateTime`**: Represents both date and time in the format `YYYY-MM-DDTHH:mm:ss.SSSSSSSSS`.
 - **`Timestamp`**: Represents a point in time with second-level precision. It starts on the UNIX
 epoch and it should be used when you receive or need to send timestamps to another systems.
 

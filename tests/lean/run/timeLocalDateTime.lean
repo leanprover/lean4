@@ -4,8 +4,8 @@ open Std.Time
 
 def ShortDateTime : Format .any := date-spec% "DD/MM/YYYY hh:mm:ss"
 def ShortDate : Format .any := date-spec% "DD/MM/YYYY"
-def format (localDate : LocalDateTime) : String := ShortDateTime.formatBuilder localDate.day localDate.month localDate.year localDate.time.hour localDate.minute localDate.time.second
-def format₂ (localDate : LocalDate) : String := ShortDate.formatBuilder localDate.day localDate.month localDate.year
+def format (PlainDate : PlainDateTime) : String := ShortDateTime.formatBuilder PlainDate.day PlainDate.month PlainDate.year PlainDate.time.hour PlainDate.minute PlainDate.time.second
+def format₂ (PlainDate : PlainDate) : String := ShortDate.formatBuilder PlainDate.day PlainDate.month PlainDate.year
 
 def date₁ := date% 1993-11-19:09:08:07
 def date₂ := date% 1993-05-09:12:59:59
@@ -31,43 +31,43 @@ info: "09/05/1993 12:59:59"
 info: 753700087
 -/
 #guard_msgs in
-#eval date₁.toLocalTimestamp.toSeconds
+#eval date₁.toLocalTimestamp.toSecondsSinceUnixEpoch
 
 /--
 info: 736952399
 -/
 #guard_msgs in
-#eval date₂.toLocalTimestamp.toSeconds
+#eval date₂.toLocalTimestamp.toSecondsSinceUnixEpoch
 
 /--
 info: "09/05/1993 12:59:59"
 -/
 #guard_msgs in
-#eval LocalDateTime.ofUTCTimestamp 736952399 |> format
+#eval PlainDateTime.ofUTCTimestamp 736952399 |> format
 
 /--
 info: 736952399
 -/
 #guard_msgs in
-#eval LocalDateTime.toLocalTimestamp date₂ |>.toSeconds
+#eval PlainDateTime.toPlainTimestamp date₂ |>.toSecondsSinceUnixEpoch
 
 /--
 info: "16/08/2024"
 -/
 #guard_msgs in
-#eval LocalDate.ofDaysSinceUNIXEpoch 19951 |> format₂
+#eval PlainDate.ofDaysSinceUNIXEpoch 19951 |> format₂
 
 /--
 info: 19951
 -/
 #guard_msgs in
-#eval LocalDate.toDaysSinceUNIXEpoch date₃
+#eval PlainDate.toDaysSinceUNIXEpoch date₃
 
 /--
 info: Std.Time.Weekday.friday
 -/
 #guard_msgs in
-#eval LocalDate.weekday date₃
+#eval PlainDate.weekday date₃
 
 /--
 info: #[]
@@ -78,7 +78,7 @@ info: #[]
 
   for i in [0:10000] do
     let i := Int.ofNat i - 999975
-    let date := LocalDate.ofDaysSinceUNIXEpoch (Day.Offset.ofInt i)
+    let date := PlainDate.ofDaysSinceUNIXEpoch (Day.Offset.ofInt i)
     let num := date.toDaysSinceUNIXEpoch
     if i ≠ num.val then
       res := res.push i

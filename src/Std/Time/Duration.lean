@@ -27,6 +27,9 @@ instance : ToString Duration where
       else if s.nano.val < 0 then ("-", -s.second.val, -s.nano.val) else ("", s.second.val, s.nano.val)
     sign ++ toString secs ++ "." ++ toString nanos ++ "s"
 
+instance : Repr Duration where
+  reprPrec s := reprPrec (toString s)
+
 namespace Duration
 
 /--
@@ -66,6 +69,8 @@ instance : HAdd Timestamp Duration Timestamp where
 instance : HSub Timestamp Timestamp Duration where
   hSub := Std.Time.Timestamp.sub
 
+end Duration
+
 namespace PlainDate
 
 /--
@@ -74,7 +79,7 @@ Calculates the duration between a given `PlainDate` and a specified date.
 def since [ToTimestamp α] (date : PlainDate) (since : α) : Duration :=
   let date  := date.toTimestamp
   let since := ToTimestamp.toTimestamp since
-  Std.Time.Timestamp.sub since date
+  Std.Time.Timestamp.sub date since
 
 end PlainDate
 
@@ -86,7 +91,7 @@ Calculates the duration between a given `PlainDateTime` and a specified date.
 def since [ToTimestamp α] (date : PlainDateTime) (since : α) : Duration :=
   let date  := date.toTimestamp
   let since := ToTimestamp.toTimestamp since
-  Std.Time.Timestamp.sub since date
+  Std.Time.Timestamp.sub date since
 
 end PlainDateTime
 
@@ -98,7 +103,7 @@ Calculates the duration between a given `DateTime` and a specified date.
 def since [ToTimestamp α] (date : DateTime tz) (since : α) : Duration :=
   let date  := date.toTimestamp
   let since := ToTimestamp.toTimestamp since
-  Std.Time.Timestamp.sub since date
+  Std.Time.Timestamp.sub date since
 
 end DateTime
 
@@ -110,6 +115,6 @@ Calculates the duration between a given `ZonedDateTime` and a specified date.
 def since [ToTimestamp α] (date : ZonedDateTime) (since : α) : Duration :=
   let date  := date.toTimestamp
   let since := ToTimestamp.toTimestamp since
-  Std.Time.Timestamp.sub since date
+  Std.Time.Timestamp.sub date since
 
 end ZonedDateTime

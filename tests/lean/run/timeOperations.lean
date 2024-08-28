@@ -265,3 +265,9 @@ info: 2000-01-20 06:01:01 -0300
 -/
 #guard_msgs in
 #eval datetimetz.subSeconds 60
+
+/--
+info: "86400.0s"
+-/
+#guard_msgs in
+#eval (date% 2000-1-20).since (date% 2000-1-19)

@@ -101,7 +101,7 @@ Combines date and time into a single representation, useful for precise timestam
 
 - **`PlainDateTime`**: Represents both date and time in the format `YYYY-MM-DDTHH:mm:ss.SSSSSSSSS`.
 - **`Timestamp`**: Represents a point in time with second-level precision. It starts on the UNIX
-epoch and it should be used when you receive or need to send timestamps to another systems.
+epoch and it should be used when you receive or need to send timestamps to other systems.
 
 ## Zoned date and times.
 Combines date, time and time zones.

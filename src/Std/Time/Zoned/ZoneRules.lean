@@ -191,7 +191,7 @@ def applyLeapSeconds (tm : Timestamp) (leapSeconds : ZoneRules) : Timestamp := I
     let leapSeconds := leapSeconds.leapSeconds
     for i in [:leapSeconds.size] do
       let leapSec := leapSeconds.get! i
-      if currentTime.second.val >= leapSec.transitionTime.val then
+      if currentTime.toSecondsSinceUnixEpoch.val >= leapSec.transitionTime.val then
         currentTime := tm.addSeconds (.ofInt leapSec.correction.val)
     return currentTime
 

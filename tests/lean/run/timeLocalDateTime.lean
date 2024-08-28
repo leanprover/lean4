@@ -31,13 +31,13 @@ info: "09/05/1993 12:59:59"
 info: 753700087
 -/
 #guard_msgs in
-#eval date₁.toLocalTimestamp.toSecondsSinceUnixEpoch
+#eval date₁.toTimestampAssumingUTC.toSecondsSinceUnixEpoch
 
 /--
 info: 736952399
 -/
 #guard_msgs in
-#eval date₂.toLocalTimestamp.toSecondsSinceUnixEpoch
+#eval date₂.toTimestampAssumingUTC.toSecondsSinceUnixEpoch
 
 /--
 info: "09/05/1993 12:59:59"
@@ -49,7 +49,7 @@ info: "09/05/1993 12:59:59"
 info: 736952399
 -/
 #guard_msgs in
-#eval PlainDateTime.toLocalTimestamp date₂ |>.toSecondsSinceUnixEpoch
+#eval PlainDateTime.toTimestampAssumingUTC date₂ |>.toSecondsSinceUnixEpoch
 
 /--
 info: "16/08/2024"

@@ -37,7 +37,7 @@ namespace PlainDateTime
 /--
 Converts a `PlainDateTime` to a `Timestamp`
 -/
-def toLocalTimestamp (dt : PlainDateTime) : Timestamp :=
+def toTimestampAssumingUTC (dt : PlainDateTime) : Timestamp :=
   let days := dt.date.toDaysSinceUNIXEpoch
   let nanos : Nanosecond.Offset := days.toSeconds + dt.time.toSeconds |>.mul 1000000000
   let nanos := nanos.val + dt.time.nano.val

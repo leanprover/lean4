@@ -9,6 +9,7 @@ import Std.Time.DateTime.PlainDateTime
 
 namespace Std
 namespace Time
+
 namespace Timestamp
 
 set_option linter.all true
@@ -18,7 +19,7 @@ Converts a `PlainDateTime` to a `Timestamp`
 -/
 @[inline]
 def ofPlainDateTime (pdt : PlainDateTime) : Timestamp :=
-  pdt.toLocalTimestamp
+  pdt.toTimestampAssumingUTC
 
 /--
 Converts a `Timestamp` to a `PlainDateTime`
@@ -62,7 +63,24 @@ def toPlainTime (timestamp : Timestamp) : PlainTime :=
   PlainTime.ofNanoseconds nanos
 
 end Timestamp
+namespace PlainDate
 
+/--
+Converts a `PlainDate` to a `Timestamp`
+-/
+@[inline]
+def toTimestamp (pdt : PlainDate) : Timestamp :=
+  Timestamp.ofPlainDate pdt
+
+/--
+Calculates the duration between a given `PlainDate` and a specified date.
+-/
+def since [ToTimestamp α] (date : PlainDate) (since : α) : Duration :=
+  let date  := date.toTimestamp
+  let since := ToTimestamp.toTimestamp since
+  Std.Time.Duration.sub date.toDurationSinceUnixEpoch since.toDurationSinceUnixEpoch
+
+end PlainDate
 namespace PlainDateTime
 
 /--
@@ -77,7 +95,7 @@ Converts a `PlainDateTime` to a `PlainDate`
 -/
 @[inline]
 def toPlainDate (pdt : PlainDateTime) : PlainDate :=
-  Timestamp.toPlainDate pdt.toLocalTimestamp
+  Timestamp.toPlainDate pdt.toTimestampAssumingUTC
 
 /--
 Converts a `PlainTime` to a `PlainDateTime`
@@ -91,7 +109,7 @@ Converts a `PlainDateTime` to a `PlainTime`
 -/
 @[inline]
 def toPlainTime (pdt : PlainDateTime) : PlainTime :=
-  Timestamp.toPlainTime pdt.toLocalTimestamp
+  Timestamp.toPlainTime pdt.toTimestampAssumingUTC
 
 instance : ToTimestamp PlainDateTime where
   toTimestamp := Timestamp.ofPlainDateTime
@@ -99,26 +117,19 @@ instance : ToTimestamp PlainDateTime where
 instance : ToTimestamp PlainDate where
   toTimestamp := Timestamp.ofPlainDate
 
-end PlainDateTime
-
-namespace PlainDate
-
-/--
-Converts a `PlainDate` to a `Timestamp`
--/
-@[inline]
-def toTimestamp (pdt : PlainDate) : Timestamp :=
-  Timestamp.ofPlainDate pdt
-
-end PlainDate
-
-namespace PlainDateTime
-
 /--
 Converts a `PlainDateTime` to a `Timestamp`
 -/
 @[inline]
 def toTimestamp (pdt : PlainDateTime) : Timestamp :=
   Timestamp.ofPlainDateTime pdt
+
+/--
+Calculates the duration between a given `PlainDateTime` and a specified date.
+-/
+def since [ToTimestamp α] (date : PlainDateTime) (since : α) : Duration :=
+  let date  := date.toTimestamp
+  let since := ToTimestamp.toTimestamp since
+  Std.Time.Duration.sub date.toDurationSinceUnixEpoch since.toDurationSinceUnixEpoch
 
 end PlainDateTime

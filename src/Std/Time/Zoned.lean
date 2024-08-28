@@ -64,8 +64,15 @@ Converts a `DateTime` to a `PlainTime`
 def toPlainTime (dt : DateTime tz) : PlainTime :=
   dt.date.get.time
 
-end DateTime
+/--
+Calculates the duration between a given `DateTime` and a specified date.
+-/
+def since [ToTimestamp α] (date : DateTime tz) (since : α) : Duration :=
+  let date  := date.toTimestamp
+  let since := ToTimestamp.toTimestamp since
+  Std.Time.Duration.sub date.toDurationSinceUnixEpoch since.toDurationSinceUnixEpoch
 
+end DateTime
 namespace ZonedDateTime
 
 /--
@@ -104,5 +111,14 @@ Converts a `ZonedDateTime` to a `PlainTime`
 @[inline]
 def toPlainTime (dt : ZonedDateTime) : PlainTime :=
   DateTime.toPlainTime dt.snd
+
+/--
+Calculates the duration between a given `ZonedDateTime` and a specified date.
+-/
+@[inline]
+def since [ToTimestamp α] (date : ZonedDateTime) (since : α) : Duration :=
+  let date  := date.toTimestamp
+  let since := ToTimestamp.toTimestamp since
+  Std.Time.Duration.sub date.toDurationSinceUnixEpoch since.toDurationSinceUnixEpoch
 
 end ZonedDateTime

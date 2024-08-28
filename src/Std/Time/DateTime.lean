@@ -69,14 +69,14 @@ namespace PlainDate
 Converts a `PlainDate` to a `Timestamp`
 -/
 @[inline]
-def toTimestamp (pdt : PlainDate) : Timestamp :=
+def toTimestampAssumingUTC (pdt : PlainDate) : Timestamp :=
   Timestamp.ofPlainDate pdt
 
 /--
 Calculates the duration between a given `PlainDate` and a specified date.
 -/
 def since [ToTimestamp α] (date : PlainDate) (since : α) : Duration :=
-  let date  := date.toTimestamp
+  let date  := date.toTimestampAssumingUTC
   let since := ToTimestamp.toTimestamp since
   Std.Time.Duration.sub date.toDurationSinceUnixEpoch since.toDurationSinceUnixEpoch
 
@@ -118,17 +118,10 @@ instance : ToTimestamp PlainDate where
   toTimestamp := Timestamp.ofPlainDate
 
 /--
-Converts a `PlainDateTime` to a `Timestamp`
--/
-@[inline]
-def toTimestamp (pdt : PlainDateTime) : Timestamp :=
-  Timestamp.ofPlainDateTime pdt
-
-/--
 Calculates the duration between a given `PlainDateTime` and a specified date.
 -/
 def since [ToTimestamp α] (date : PlainDateTime) (since : α) : Duration :=
-  let date  := date.toTimestamp
+  let date  := date.toTimestampAssumingUTC
   let since := ToTimestamp.toTimestamp since
   Std.Time.Duration.sub date.toDurationSinceUnixEpoch since.toDurationSinceUnixEpoch
 

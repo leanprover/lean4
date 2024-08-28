@@ -48,13 +48,13 @@ def toDays (tm : Duration) : Day.Offset :=
 Creates a new `Duration` out of `Second.Offset`.
 -/
 def ofSeconds (secs : Second.Offset) : Duration :=
-  Timestamp.ofSeconds secs
+  Timestamp.ofSecondsSinceUnixEpoch secs
 
 /--
 Creates a new `Duration` out of `Nanosecond.Offset`.
 -/
 def ofNanosecond (secs : Nanosecond.Offset) : Duration :=
-  Timestamp.ofNanoseconds secs
+  Timestamp.ofNanosecondsSinceUnixEpoch secs
 
 /--
 Calculates a `Duration` out of two `Timestamp`s.

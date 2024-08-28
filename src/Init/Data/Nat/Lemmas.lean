@@ -27,6 +27,11 @@ namespace Nat
   ⟨fun ⟨n, h, w⟩ => by cases n with | zero => simp at h | succ n => exact ⟨n, w⟩,
     fun ⟨n, w⟩ => ⟨n + 1, by simp, w⟩⟩
 
+@[simp] theorem exists_eq_add_one : (∃ n, a = n + 1) ↔ 0 < a :=
+  ⟨fun ⟨n, h⟩ => by omega, fun h => ⟨a - 1, by omega⟩⟩
+@[simp] theorem exists_add_one_eq : (∃ n, n + 1 = a) ↔ 0 < a :=
+  ⟨fun ⟨n, h⟩ => by omega, fun h => ⟨a - 1, by omega⟩⟩
+
 /-! ## add -/
 
 protected theorem add_add_add_comm (a b c d : Nat) : (a + b) + (c + d) = (a + c) + (b + d) := by

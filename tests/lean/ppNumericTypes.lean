@@ -7,7 +7,7 @@ Tests for `pp.numericTypes` and `pp.natLit`
 RFC #3021
 -/
 
-open Lean (Rat)
+open Lean
 
 section
 

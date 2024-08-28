@@ -15,7 +15,7 @@ variable (n : Nat) (m : Int) (q : Rat)
 #check (n ^ 2 + (1 : Nat) : Int)
 
 instance instNatPowRat : NatPow Rat where
-  pow q n := Lean.mkRat (q.num ^ n) (q.den ^ n)
+  pow q n := Std.Internal.mkRat (q.num ^ n) (q.den ^ n)
 
 instance instPowRatInt : Pow Rat Int where
   pow q m := if 0 ≤ m then q ^ (m.toNat : Nat) else (1/q) ^ ((-m).toNat)

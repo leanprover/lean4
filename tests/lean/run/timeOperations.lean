@@ -271,3 +271,15 @@ info: "86400.0s"
 -/
 #guard_msgs in
 #eval (date% 2000-1-20).since (date% 2000-1-19)
+
+/--
+info: "86399.0s"
+-/
+#guard_msgs in
+#eval (date% 2000-1-20:0:0:0).since (date% 2000-1-19:0:0:1)
+
+/--
+info: "86399.0s"
+-/
+#guard_msgs in
+#eval (date% 2000-1-20:0:0:0UTC).since (date% 2000-1-19:0:0:1UTC)

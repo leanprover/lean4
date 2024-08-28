@@ -5,6 +5,7 @@ Authors: Sofia Rodrigues
 -/
 prelude
 import Std.Time.DateTime
+import Std.Time.Zoned
 
 namespace Std
 namespace Time
@@ -64,3 +65,51 @@ instance : HAdd Timestamp Duration Timestamp where
 
 instance : HSub Timestamp Timestamp Duration where
   hSub := Std.Time.Timestamp.sub
+
+namespace PlainDate
+
+/--
+Calculates the duration between a given `PlainDate` and a specified date.
+-/
+def since [ToTimestamp α] (date : PlainDate) (since : α) : Duration :=
+  let date  := date.toTimestamp
+  let since := ToTimestamp.toTimestamp since
+  Std.Time.Timestamp.sub since date
+
+end PlainDate
+
+namespace PlainDateTime
+
+/--
+Calculates the duration between a given `PlainDateTime` and a specified date.
+-/
+def since [ToTimestamp α] (date : PlainDateTime) (since : α) : Duration :=
+  let date  := date.toTimestamp
+  let since := ToTimestamp.toTimestamp since
+  Std.Time.Timestamp.sub since date
+
+end PlainDateTime
+
+namespace DateTime
+
+/--
+Calculates the duration between a given `DateTime` and a specified date.
+-/
+def since [ToTimestamp α] (date : DateTime tz) (since : α) : Duration :=
+  let date  := date.toTimestamp
+  let since := ToTimestamp.toTimestamp since
+  Std.Time.Timestamp.sub since date
+
+end DateTime
+
+namespace ZonedDateTime
+
+/--
+Calculates the duration between a given `ZonedDateTime` and a specified date.
+-/
+def since [ToTimestamp α] (date : ZonedDateTime) (since : α) : Duration :=
+  let date  := date.toTimestamp
+  let since := ToTimestamp.toTimestamp since
+  Std.Time.Timestamp.sub since date
+
+end ZonedDateTime

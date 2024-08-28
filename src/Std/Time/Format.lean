@@ -265,8 +265,8 @@ def fromDateTimeWithZoneString (input : String) : Except String ZonedDateTime :=
 /--
 Formats a `DateTime` value into a `DateTimeWithZone` format string.
 -/
-def toDateTimeWithZoneString (ldt : ZonedDateTime) : String :=
-  Formats.dateTimeWithZone.format ldt.snd
+def toDateTimeWithZoneString (pdt : ZonedDateTime) : String :=
+  Formats.dateTimeWithZone.format pdt.snd
 
 /--
 Parses a `String` in the `ISO8601`, `RFC822` or `RFC850` format and returns a `ZonedDateTime`.
@@ -318,8 +318,8 @@ def fromAscTimeString (input : String) : Except String PlainDateTime :=
 /--
 Formats a `PlainDateTime` value into an AscTime format string.
 -/
-def toAscTimeString (ldt : PlainDateTime) : String :=
-  Formats.ascTime.format (DateTime.ofPlainDateTime ldt .UTC)
+def toAscTimeString (pdt : PlainDateTime) : String :=
+  Formats.ascTime.format (DateTime.ofPlainDateTime pdt .UTC)
 
 /--
 Parses a `String` in the `LongDateFormat` and returns a `PlainDateTime` object in the GMT time zone.
@@ -331,8 +331,8 @@ def fromLongDateFormatString (input : String) : Except String PlainDateTime :=
 /--
 Formats a `PlainDateTime` value into a LongDateFormat string.
 -/
-def toLongDateFormatString (ldt : PlainDateTime) : String :=
-  Formats.longDateFormat.format (DateTime.ofPlainDateTime ldt .UTC)
+def toLongDateFormatString (pdt : PlainDateTime) : String :=
+  Formats.longDateFormat.format (DateTime.ofPlainDateTime pdt .UTC)
 
 /--
 Parses a `String` in the `DateTime` format and returns a `PlainDateTime`.
@@ -344,8 +344,8 @@ def fromDateTimeString (input : String) : Except String PlainDateTime :=
 /--
 Formats a `PlainDateTime` value into a `DateTime` format string.
 -/
-def toDateTimeString (ldt : PlainDateTime) : String :=
-  Formats.dateTime24Hour.format (DateTime.ofPlainDateTime ldt .UTC)
+def toDateTimeString (pdt : PlainDateTime) : String :=
+  Formats.dateTime24Hour.format (DateTime.ofPlainDateTime pdt .UTC)
 
 /--
 Parses a `String` in the `AscTime` or `LongDate` format and returns a `PlainDateTime`.
@@ -418,8 +418,8 @@ def toRFC850String (date : DateTime tz) : String :=
 /--
 Formats a `DateTime` value into a `DateTimeWithZone` format string.
 -/
-def toDateTimeWithZoneString (ldt : DateTime tz) : String :=
-  Formats.dateTimeWithZone.format ldt
+def toDateTimeWithZoneString (pdt : DateTime tz) : String :=
+  Formats.dateTimeWithZone.format pdt
 
 /--
 Parses a `String` in the `AscTime` or `LongDate` format and returns a `DateTime`.

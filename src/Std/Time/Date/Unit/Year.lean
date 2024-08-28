@@ -18,6 +18,20 @@ open Internal
 set_option linter.all true
 
 /--
+Defines the different eras.
+-/
+inductive Era
+  /--
+  The era before the Common Era (BCE), always represents a date before year 0.
+  -/
+  | bce
+
+  /--
+  The Common Era (CE), represents dates from year 0 onwards.
+  -/
+  | ce
+
+/--
 `Offset` represents a year offset, defined as an `Int`.
 -/
 def Offset : Type := Int

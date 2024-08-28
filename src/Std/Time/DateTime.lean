@@ -17,8 +17,8 @@ set_option linter.all true
 Converts a `PlainDateTime` to a `Timestamp`
 -/
 @[inline]
-def ofPlainDateTime (ldt : PlainDateTime) : Timestamp :=
-  ldt.toPlainTimestamp
+def ofPlainDateTime (pdt : PlainDateTime) : Timestamp :=
+  pdt.toLocalTimestamp
 
 /--
 Converts a `Timestamp` to a `PlainDateTime`
@@ -31,8 +31,8 @@ def toPlainDateTime (timestamp : Timestamp) : PlainDateTime :=
 Converts a `PlainDate` to a `Timestamp`
 -/
 @[inline]
-def ofPlainDate (ld : PlainDate) : Timestamp :=
-  let days := ld.toDaysSinceUNIXEpoch
+def ofPlainDate (pd : PlainDate) : Timestamp :=
+  let days := pd.toDaysSinceUNIXEpoch
   let secs := days.toSeconds
   Timestamp.ofSecondsSinceUnixEpoch secs
 
@@ -49,8 +49,8 @@ def toPlainDate (timestamp : Timestamp) : PlainDate :=
 Converts a `PlainTime` to a `Timestamp`
 -/
 @[inline]
-def ofPlainTime (lt : PlainTime) : Timestamp :=
-  let nanos := lt.toNanoseconds
+def ofPlainTime (pt : PlainTime) : Timestamp :=
+  let nanos := pt.toNanoseconds
   Timestamp.ofNanosecondsSinceUnixEpoch nanos
 
 /--
@@ -69,28 +69,56 @@ namespace PlainDateTime
 Converts a `PlainDate` to a `Timestamp`
 -/
 @[inline]
-def ofPlainDate (ld : PlainDate) : PlainDateTime :=
-  PlainDateTime.ofUTCTimestamp (Timestamp.ofPlainDate ld)
+def ofPlainDate (pd : PlainDate) : PlainDateTime :=
+  PlainDateTime.ofUTCTimestamp (Timestamp.ofPlainDate pd)
 
 /--
 Converts a `PlainDateTime` to a `PlainDate`
 -/
 @[inline]
-def toPlainDate (ldt : PlainDateTime) : PlainDate :=
-  Timestamp.toPlainDate ldt.toPlainTimestamp
+def toPlainDate (pdt : PlainDateTime) : PlainDate :=
+  Timestamp.toPlainDate pdt.toLocalTimestamp
 
 /--
 Converts a `PlainTime` to a `PlainDateTime`
 -/
 @[inline]
-def ofPlainTime (lt : PlainTime) : PlainDateTime :=
-  PlainDateTime.ofUTCTimestamp (Timestamp.ofPlainTime lt)
+def ofPlainTime (pt : PlainTime) : PlainDateTime :=
+  PlainDateTime.ofUTCTimestamp (Timestamp.ofPlainTime pt)
 
 /--
 Converts a `PlainDateTime` to a `PlainTime`
 -/
 @[inline]
-def toPlainTime (ldt : PlainDateTime) : PlainTime :=
-  Timestamp.toPlainTime ldt.toPlainTimestamp
+def toPlainTime (pdt : PlainDateTime) : PlainTime :=
+  Timestamp.toPlainTime pdt.toLocalTimestamp
+
+instance : ToTimestamp PlainDateTime where
+  toTimestamp := Timestamp.ofPlainDateTime
+
+instance : ToTimestamp PlainDate where
+  toTimestamp := Timestamp.ofPlainDate
+
+end PlainDateTime
+
+namespace PlainDate
+
+/--
+Converts a `PlainDate` to a `Timestamp`
+-/
+@[inline]
+def toTimestamp (pdt : PlainDate) : Timestamp :=
+  Timestamp.ofPlainDate pdt
+
+end PlainDate
+
+namespace PlainDateTime
+
+/--
+Converts a `PlainDateTime` to a `Timestamp`
+-/
+@[inline]
+def toTimestamp (pdt : PlainDateTime) : Timestamp :=
+  Timestamp.ofPlainDateTime pdt
 
 end PlainDateTime

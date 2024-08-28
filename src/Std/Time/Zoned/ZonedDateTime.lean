@@ -232,6 +232,25 @@ Subtract `Second.Offset` from a `ZonedDateTime`, adjusting the date if necessary
 def subSeconds (dt : ZonedDateTime) (seconds : Second.Offset) : ZonedDateTime :=
   Sigma.mk dt.fst (dt.snd.subSeconds seconds)
 
+/--
+Determines the era of the given `PlainDate` based on its year.
+-/
+@[inline]
+def era (date : ZonedDateTime) : Year.Era :=
+  if date.year.toInt ≥ 0 then
+    .ce
+  else
+    .bce
+
+/--
+Checks if the `DateTime` is in a leap year.
+-/
+def inLeapYear (date : ZonedDateTime) : Bool :=
+  date.year.isLeap
+
+instance : ToTimestamp ZonedDateTime where
+  toTimestamp dt := dt.toTimestamp
+
 instance : HAdd ZonedDateTime (Day.Offset) ZonedDateTime where
   hAdd := addDays
 

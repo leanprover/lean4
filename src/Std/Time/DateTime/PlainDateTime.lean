@@ -313,6 +313,21 @@ def second (dt : PlainDateTime) : Second.Ordinal dt.time.second.fst :=
   dt.time.second.snd
 
 /--
+Determines the era of the given `PlainDateTime` based on its year.
+-/
+def era (date : PlainDateTime) : Year.Era :=
+  if date.year.toInt ≥ 0 then
+    .ce
+  else
+    .bce
+
+/--
+Checks if the `PlainDateTime` is in a leap year.
+-/
+def inLeapYear (date : PlainDateTime) : Bool :=
+  date.year.isLeap
+
+/--
 Getter for the `Second` inside of a `PlainDateTime`.
 -/
 @[inline]

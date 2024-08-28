@@ -18,49 +18,49 @@ info: 1970-01-08
 def datetime := date% 2000-01-20:03:02:01
 
 /--
-info: Thursday, January 20, 2000 04:02:01
+info: 2000-01-20 04:02:01
 -/
 #guard_msgs in
 #eval datetime + (1 : Hour.Offset)
 
 /--
-info: Thursday, January 20, 2000 02:02:01
+info: 2000-01-20 02:02:01
 -/
 #guard_msgs in
 #eval datetime - (1 : Hour.Offset)
 
 /--
-info: Thursday, January 20, 2000 03:12:01
+info: 2000-01-20 03:12:01
 -/
 #guard_msgs in
 #eval datetime + (10 : Minute.Offset)
 
 /--
-info: Thursday, January 20, 2000 02:52:01
+info: 2000-01-20 02:52:01
 -/
 #guard_msgs in
 #eval datetime - (10 : Minute.Offset)
 
 /--
-info: Thursday, January 20, 2000 03:03:01
+info: 2000-01-20 03:03:01
 -/
 #guard_msgs in
 #eval datetime + (60 : Second.Offset)
 
 /--
-info: Thursday, January 20, 2000 03:01:01
+info: 2000-01-20 03:01:01
 -/
 #guard_msgs in
 #eval datetime - (60 : Second.Offset)
 
 /--
-info: Friday, January 21, 2000 03:02:01
+info: 2000-01-21 03:02:01
 -/
 #guard_msgs in
 #eval datetime + (1 : Day.Offset)
 
 /--
-info: Wednesday, January 19, 2000 03:02:01
+info: 2000-01-19 03:02:01
 -/
 #guard_msgs in
 #eval datetime - (1 : Day.Offset)
@@ -106,49 +106,49 @@ info: 13:01:01
 def datetimetz := date% 2000-01-20:03:02:01-03:00
 
 /--
-info: Sat, 22 Jan 2000 06:02:01 -0300
+info: 2000-01-22 06:02:01 -0300
 -/
 #guard_msgs in
 #eval datetimetz + (2 : Day.Offset)
 
 /--
-info: Wed, 19 Jan 2000 06:02:01 -0300
+info: 2000-01-19 06:02:01 -0300
 -/
 #guard_msgs in
 #eval datetimetz - (1 : Day.Offset)
 
 /--
-info: Thu, 20 Jan 2000 07:02:01 -0300
+info: 2000-01-20 07:02:01 -0300
 -/
 #guard_msgs in
 #eval datetimetz + (1 : Hour.Offset)
 
 /--
-info: Thu, 20 Jan 2000 05:02:01 -0300
+info: 2000-01-20 05:02:01 -0300
 -/
 #guard_msgs in
 #eval datetimetz - (1 : Hour.Offset)
 
 /--
-info: Thu, 20 Jan 2000 06:12:01 -0300
+info: 2000-01-20 06:12:01 -0300
 -/
 #guard_msgs in
 #eval datetimetz + (10 : Minute.Offset)
 
 /--
-info: Thu, 20 Jan 2000 05:52:01 -0300
+info: 2000-01-20 05:52:01 -0300
 -/
 #guard_msgs in
 #eval datetimetz - (10 : Minute.Offset)
 
 /--
-info: Thu, 20 Jan 2000 06:03:01 -0300
+info: 2000-01-20 06:03:01 -0300
 -/
 #guard_msgs in
 #eval datetimetz + (60 : Second.Offset)
 
 /--
-info: Thu, 20 Jan 2000 06:01:01 -0300
+info: 2000-01-20 06:01:01 -0300
 -/
 #guard_msgs in
 #eval datetimetz - (60 : Second.Offset)

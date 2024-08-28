@@ -36,6 +36,19 @@ structure Timestamp where
   proof : (second.val ≥ 0 ∧ nano.val ≥ 0) ∨ (second.val ≤ 0 ∧ nano.val ≤ 0)
   deriving Repr
 
+/--
+Type class to transform to `Timestamp`. It's used internally to generate durations out of
+some absolute date types.
+-/
+class ToTimestamp (α : Type) where
+  /--
+  Transforms into a `Timestamp`.
+  -/
+  toTimestamp : α → Timestamp
+
+instance : ToTimestamp Timestamp where
+  toTimestamp := id
+
 instance : BEq Timestamp where
   beq x y := x.second == y.second && y.nano == x.nano
 

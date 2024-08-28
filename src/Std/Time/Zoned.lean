@@ -40,8 +40,8 @@ namespace DateTime
 Converts a `PlainDate` to a `DateTime`
 -/
 @[inline]
-def ofPlainDate (ld : PlainDate) (tz : TimeZone) : DateTime tz :=
-  DateTime.ofTimestamp (Timestamp.ofPlainDate ld) tz
+def ofPlainDate (pd : PlainDate) (tz : TimeZone) : DateTime tz :=
+  DateTime.ofTimestamp (Timestamp.ofPlainDate pd) tz
 
 /--
 Converts a `DateTime` to a `PlainDate`
@@ -54,8 +54,8 @@ def toPlainDate (dt : DateTime tz) : PlainDate :=
 Converts a `PlainTime` to a `DateTime`
 -/
 @[inline]
-def ofPlainTime (lt : PlainTime) (tz : TimeZone) : DateTime tz :=
-  DateTime.ofTimestamp (Timestamp.ofPlainTime lt) tz
+def ofPlainTime (pt : PlainTime) (tz : TimeZone) : DateTime tz :=
+  DateTime.ofTimestamp (Timestamp.ofPlainTime pt) tz
 
 /--
 Converts a `DateTime` to a `PlainTime`
@@ -81,8 +81,8 @@ def now : IO ZonedDateTime := do
 Converts a `PlainDate` to a `ZonedDateTime`
 -/
 @[inline]
-def ofPlainDate (ld : PlainDate) (tz : TimeZone) : ZonedDateTime :=
-  ⟨tz, DateTime.ofTimestamp (Timestamp.ofPlainDate ld) tz⟩
+def ofPlainDate (pd : PlainDate) (tz : TimeZone) : ZonedDateTime :=
+  ⟨tz, DateTime.ofTimestamp (Timestamp.ofPlainDate pd) tz⟩
 
 /--
 Converts a `ZonedDateTime` to a `PlainDate`
@@ -95,8 +95,8 @@ def toPlainDate (dt : ZonedDateTime) : PlainDate :=
 Converts a `PlainTime` to a `ZonedDateTime`
 -/
 @[inline]
-def ofPlainTime (lt : PlainTime) (tz : TimeZone) : ZonedDateTime :=
-  ⟨tz, DateTime.ofTimestamp (Timestamp.ofPlainTime lt) tz⟩
+def ofPlainTime (pt : PlainTime) (tz : TimeZone) : ZonedDateTime :=
+  ⟨tz, DateTime.ofTimestamp (Timestamp.ofPlainTime pt) tz⟩
 
 /--
 Converts a `ZonedDateTime` to a `PlainTime`

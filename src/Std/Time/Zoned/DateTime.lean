@@ -257,6 +257,24 @@ Gets the `Weekday` of a DateTime.
 def weekday (dt : DateTime tz) : Weekday :=
   dt.date.get.date.weekday
 
+/--
+Determines the era of the given `DateTime` based on its year.
+-/
+def era (date : DateTime tz) : Year.Era :=
+  if date.year.toInt ≥ 0 then
+    .ce
+  else
+    .bce
+
+/--
+Checks if the `DateTime` is in a leap year.
+-/
+def inLeapYear (date : DateTime tz) : Bool :=
+  date.year.isLeap
+
+instance : ToTimestamp (DateTime tz) where
+  toTimestamp dt := dt.toTimestamp
+
 instance : HAdd (DateTime tz) (Day.Offset) (DateTime tz) where
   hAdd := addDays
 

@@ -49,7 +49,7 @@ info: "09/05/1993 12:59:59"
 info: 736952399
 -/
 #guard_msgs in
-#eval PlainDateTime.toPlainTimestamp date₂ |>.toSecondsSinceUnixEpoch
+#eval PlainDateTime.toLocalTimestamp date₂ |>.toSecondsSinceUnixEpoch
 
 /--
 info: "16/08/2024"

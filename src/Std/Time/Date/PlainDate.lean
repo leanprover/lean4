@@ -135,6 +135,21 @@ def weekday (date : PlainDate) : Weekday :=
   .ofFin ⟨d.toNat % 7, Nat.mod_lt d.toNat (by decide)⟩
 
 /--
+Determines the era of the given `PlainDate` based on its year.
+-/
+def era (date : PlainDate) : Year.Era :=
+  if date.year.toInt ≥ 0 then
+    .ce
+  else
+    .bce
+
+/--
+Checks if the `PlainDate` is in a leap year.
+-/
+def inLeapYear (date : PlainDate) : Bool :=
+  date.year.isLeap
+
+/--
 Converts a `PlainDate` to the number of days since the UNIX epoch.
 -/
 def toDaysSinceUNIXEpoch (date : PlainDate) : Day.Offset :=

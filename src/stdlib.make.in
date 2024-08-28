@@ -100,9 +100,9 @@ leanshared: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRAR
 
 Lake:
 # lake is in its own subdirectory, so must adjust relative paths...
-	+"${LEAN_BIN}/leanmake" -C lake lib lib.export PKG=Lake $(LEANMAKE_OPTS) OUT="../${LIB}" LIB_OUT="../${LIB}/lean" TEMP_OUT="../${LIB}/temp" OLEAN_OUT="../${LIB}/lean" EXTRA_SRC_ROOTS=LakeMain.lean
+	+"${LEAN_BIN}/leanmake" -C lake lib lib.export ../${LIB}/temp/LakeMain.o.export  PKG=Lake $(LEANMAKE_OPTS) OUT="../${LIB}" LIB_OUT="../${LIB}/lean" TEMP_OUT="../${LIB}/temp" OLEAN_OUT="../${LIB}/lean" EXTRA_SRC_ROOTS=LakeMain.lean
 
-${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libInit_shared${CMAKE_SHARED_LIBRARY_SUFFIX} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_1${CMAKE_SHARED_LIBRARY_SUFFIX} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX} ${LIB}/temp/libLean.a.export ${LIB}/lean/libLake.a
+${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libInit_shared${CMAKE_SHARED_LIBRARY_SUFFIX} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_1${CMAKE_SHARED_LIBRARY_SUFFIX} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX} ${LIB}/temp/libLean.a.export ${LIB}/temp/libLake.a.export
 	@echo "[    ] Building $@"
 	"${CMAKE_BINARY_DIR}/leanc.sh" -shared -o $@ \
 	  ${LAKESHARED_LINKER_FLAGS} -lleanshared -lleanshared_1 -lInit_shared ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}

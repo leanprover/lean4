@@ -9,11 +9,10 @@ import Std.Time.Time
 import Std.Time.Zoned
 import Std.Time.DateTime
 import Std.Time.Format.Basic
-import Lean.Elab.Command
 
 namespace Std
 namespace Time
-open Lean.Elab Term Lean Parser Command Std
+open Lean Parser Command Std
 
 /--
 Category of units that are valid inside a date.

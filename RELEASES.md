@@ -29,7 +29,7 @@ v4.11.0
   * [#4672](https://github.com/leanprover/lean4/pull/4672) fixes a bug that could lead to ill-typed terms.
   * The `termination_by?` syntax no longer forces the use of well-founded recursion, and when structural
     recursion is inferred, it will print the result using the `termination_by` syntax.
-  * **Mutual structural recursion** is supported now. This supports both mutual recursion over a non-mutual
+  * **Mutual structural recursion** is now supported. This feature supports both mutual recursion over a non-mutual
     data type, as well as recursion over mutual or nested data types:
 
     ```lean
@@ -162,40 +162,32 @@ v4.11.0
 * `GetElem`
   * [#4603](https://github.com/leanprover/lean4/pull/4603) adds `getElem_congr` to help with rewriting indices.
 * `List` and `Array`
-  * [#4586](https://github.com/leanprover/lean4/pull/4586) upstreams `List.attach` and `Array.attach` from Batteries
+  * Upstreamed from Batteries: [#4586](https://github.com/leanprover/lean4/pull/4586) upstreams `List.attach` and `Array.attach`, [#4697](https://github.com/leanprover/lean4/pull/4697) upstreams `List.Subset` and `List.Sublist` and API, [#4706](https://github.com/leanprover/lean4/pull/4706) upstreams basic material on `List.Pairwise` and `List.Nodup`, [#4720](https://github.com/leanprover/lean4/pull/4720) upstreams more `List.erase` API, [#4836](https://github.com/leanprover/lean4/pull/4836) and [#4837](https://github.com/leanprover/lean4/pull/4837) upstream `List.IsPrefix`/`List.IsSuffix`/`List.IsInfix` and add `Decidable` instances, [#4855](https://github.com/leanprover/lean4/pull/4855) upstreams `List.tail`, `List.findIdx`, `List.indexOf`, `List.countP`, `List.count`, and `List.range'`, [#4856](https://github.com/leanprover/lean4/pull/4856) upstreams more List lemmas, [#4866](https://github.com/leanprover/lean4/pull/4866) upstreams `List.pairwise_iff_getElem`, [#4865](https://github.com/leanprover/lean4/pull/4865) upstreams `List.eraseIdx` lemmas.
   * [#4687](https://github.com/leanprover/lean4/pull/4687) adjusts `List.replicate` simp lemmas and simprocs.
-  * [#4697](https://github.com/leanprover/lean4/pull/4697) upstreams `List.Subset` and `List.Sublist` and API from Batteries.
   * [#4704](https://github.com/leanprover/lean4/pull/4704) adds characterisations of `List.Sublist`.
-  * [#4706](https://github.com/leanprover/lean4/pull/4706) upstreams basic material on `List.Pairwise` and `List.Nodup`.
   * [#4707](https://github.com/leanprover/lean4/pull/4707) adds simp normal form tests for `List.Pairwise` and `List.Nodup`.
   * [#4708](https://github.com/leanprover/lean4/pull/4708) and [#4815](https://github.com/leanprover/lean4/pull/4815) reorganise lemmas on list getters.
-  * [#4720](https://github.com/leanprover/lean4/pull/4720) upstreams more `List.erase` API.
   * [#4765](https://github.com/leanprover/lean4/pull/4765) adds simprocs for literal array accesses such as `#[1,2,3,4,5][2]`.
   * [#4790](https://github.com/leanprover/lean4/pull/4790) removes typeclass assumptions for `List.Nodup.eraseP`.
   * [#4801](https://github.com/leanprover/lean4/pull/4801) adds efficient `usize` functions for array types.
   * [#4820](https://github.com/leanprover/lean4/pull/4820) changes `List.filterMapM` to run left-to-right.
-  * [#4836](https://github.com/leanprover/lean4/pull/4836) and [#4837](https://github.com/leanprover/lean4/pull/4837) upstream `List.IsPrefix`/`List.IsSuffix`/`List.IsInfix` and add `Decidable` instances.
   * [#4835](https://github.com/leanprover/lean4/pull/4835) fills in and cleans up gaps in List API.
   * [#4843](https://github.com/leanprover/lean4/pull/4843), [#4868](https://github.com/leanprover/lean4/pull/4868), and [#4877](https://github.com/leanprover/lean4/pull/4877) correct `List.Subset` lemmas.
-  * [#4855](https://github.com/leanprover/lean4/pull/4855) upstreams `List.tail`, `List.findIdx`, `List.indexOf`, `List.countP`, `List.count`, and `List.range'` from Batteries.
-  * [#4856](https://github.com/leanprover/lean4/pull/4856) upstreams more List lemmas.
   * [#4863](https://github.com/leanprover/lean4/pull/4863) splits `Init.Data.List.Lemmas` into function-specific files.
-  * [#4866](https://github.com/leanprover/lean4/pull/4866) upstreams `List.pairwise_iff_getElem`.
-  * [#4865](https://github.com/leanprover/lean4/pull/4865) upstreams `List.eraseIdx` lemmas.
   * [#4875](https://github.com/leanprover/lean4/pull/4875) fixes statement of `List.take_takeWhile`.
   * Lemmas: [#4602](https://github.com/leanprover/lean4/pull/4602), [#4627](https://github.com/leanprover/lean4/pull/4627), [#4678](https://github.com/leanprover/lean4/pull/4678) for `List.head` and `list.getLast`, [#4723](https://github.com/leanprover/lean4/pull/4723) for `List.erase`, [#4742](https://github.com/leanprover/lean4/pull/4742)
 * `ByteArray`
-  * [#4582](https://github.com/leanprover/lean4/pull/4582) removes `partial` for `ByteArray.toList` and `ByteArray.findIdx?`.
+  * [#4582](https://github.com/leanprover/lean4/pull/4582) eliminates `partial` from `ByteArray.toList` and `ByteArray.findIdx?`.
 * `BitVec`
   * [#4568](https://github.com/leanprover/lean4/pull/4568) adds recurrence theorems for bitblasting multiplication.
   * [#4571](https://github.com/leanprover/lean4/pull/4571) adds `shiftLeftRec` lemmas.
   * [#4872](https://github.com/leanprover/lean4/pull/4872) adds `ushiftRightRec` and lemmas.
   * [#4873](https://github.com/leanprover/lean4/pull/4873) adds `getLsb_replicate`.
-* `Std.HashMap`
-  * [#4583](https://github.com/leanprover/lean4/pull/4583) adds `Std.HashMap` as a verified replacement for `Lean.HashMap`. See the PR for naming differences, but [#4725](https://github.com/leanprover/lean4/pull/4725) renames `HashMap.remove` to `HashMap.erase`.
+* `Std.HashMap` added:
+  * [#4583](https://github.com/leanprover/lean4/pull/4583) **adds `Std.HashMap`** as a verified replacement for `Lean.HashMap`. See the PR for naming differences, but [#4725](https://github.com/leanprover/lean4/pull/4725) renames `HashMap.remove` to `HashMap.erase`.
   * [#4682](https://github.com/leanprover/lean4/pull/4682) adds `Inhabited` instances.
   * [#4732](https://github.com/leanprover/lean4/pull/4732) improves `BEq` argument order in hash map lemmas.
-  * [#4759](https://github.com/leanprover/lean4/pull/4759) makes `HashMap` resolve instances via unification.
+  * [#4759](https://github.com/leanprover/lean4/pull/4759) makes lemmas resolve instances via unification.
   * [#4771](https://github.com/leanprover/lean4/pull/4771) documents that hash maps should be used linearly to avoid expensive copies.
   * [#4791](https://github.com/leanprover/lean4/pull/4791) removes `bif` from hash map lemmas, which is inconvenient to work with in practice.
   * [#4803](https://github.com/leanprover/lean4/pull/4803) adds more lemmas.
@@ -205,7 +197,7 @@ v4.11.0
   * [#4607](https://github.com/leanprover/lean4/pull/4607) adds `PartialEquivBeq`, `ReflBEq`, `EquivBEq`, and `LawfulHashable` classes.
 * `IO`
   * [#4660](https://github.com/leanprover/lean4/pull/4660) adds `IO.Process.Child.tryWait`.
-* [#4747](https://github.com/leanprover/lean4/pull/4747), [#4730](https://github.com/leanprover/lean4/pull/4730), [#4756](https://github.com/leanprover/lean4/pull/4756) add `×'` syntax for `PProd`. Adds a delaborator for `PProd` and `MProd` values to pretty print as flattened angle bracket tuples.
+* [#4747](https://github.com/leanprover/lean4/pull/4747), [#4730](https://github.com/leanprover/lean4/pull/4730), and [#4756](https://github.com/leanprover/lean4/pull/4756) add `×'` syntax for `PProd`. Adds a delaborator for `PProd` and `MProd` values to pretty print as flattened angle bracket tuples.
 * **Other fixes or improvements**
   * [#4604](https://github.com/leanprover/lean4/pull/4604) adds lemmas for cond.
   * [#4619](https://github.com/leanprover/lean4/pull/4619) changes some definitions into theorems.
@@ -213,8 +205,8 @@ v4.11.0
   * [#4620](https://github.com/leanprover/lean4/pull/4620) fixes simp lemmas flagged by the simpNF linter.
   * [#4666](https://github.com/leanprover/lean4/pull/4666) makes the `Antisymm` class be a `Prop`.
   * [#4621](https://github.com/leanprover/lean4/pull/4621) cleans up unused arguments flagged by linter.
-  * [#4680](https://github.com/leanprover/lean4/pull/4680) imports orphaned `Init` modules.
-  * [#4679](https://github.com/leanprover/lean4/pull/4679) imports orphaned `Std.Data` modules.
+  * [#4680](https://github.com/leanprover/lean4/pull/4680) adds imports for orphaned `Init` modules.
+  * [#4679](https://github.com/leanprover/lean4/pull/4679) adds imports for orphaned `Std.Data` modules.
   * [#4688](https://github.com/leanprover/lean4/pull/4688) adds forward and backward directions of `not_exists`.
   * [#4689](https://github.com/leanprover/lean4/pull/4689) upstreams `eq_iff_true_of_subsingleton`.
   * [#4709](https://github.com/leanprover/lean4/pull/4709) fixes precedence handling for `Repr` instances for negative numbers for `Int` and `Float`.
@@ -229,18 +221,18 @@ v4.11.0
 ### Lean internals
 * **Elaboration**
   * [#4596](https://github.com/leanprover/lean4/pull/4596) enforces `isDefEqStuckEx` at `unstuckMVar` procedure, causing isDefEq to throw a stuck defeq exception if the metavariable was created in a previous level. This results in some better error messages, and it helps `rw` succeed in synthesizing instances (see issue [#2736](https://github.com/leanprover/lean4/issues/2736)).
-  * [#4713](https://github.com/leanprover/lean4/pull/4713) fixes deprecation warning when there are overloaded symbols.
+  * [#4713](https://github.com/leanprover/lean4/pull/4713) fixes deprecation warnings when there are overloaded symbols.
   * `elab_as_elim` algorithm:
     * [#4722](https://github.com/leanprover/lean4/pull/4722) adds check that inferred motive is type-correct.
     * [#4800](https://github.com/leanprover/lean4/pull/4800) elaborates arguments for parameters appearing in the types of targets.
-    * [#4817](https://github.com/leanprover/lean4/pull/4817) makes it be aware of explicit motive arguments.
+    * [#4817](https://github.com/leanprover/lean4/pull/4817) makes the algorithm correctly handle eliminators with explicit motive arguments.
   * [#4792](https://github.com/leanprover/lean4/pull/4792) adds term elaborator for `Lean.Parser.Term.namedPattern` (e.g. `n@(n' + 1)`) to report errors when used in non-pattern-matching contexts.
   * [#4818](https://github.com/leanprover/lean4/pull/4818) makes anonymous dot notation work when the expected type is a pi-type-valued type synonym.
 * **Typeclass inference**
   * [#4646](https://github.com/leanprover/lean4/pull/4646) improves `synthAppInstances`, the function responsible for synthesizing instances for the `rw` and `apply` tactics. Adds a syntheses loop to handle functions whose instances need to be synthesized in a complex order.
 * **Inductive types**
   * [#4684](https://github.com/leanprover/lean4/pull/4684) (backported as [98ee78](https://github.com/leanprover/lean4/commit/98ee789990f91ff5935627787b537911ef8773c4)) refactors `InductiveVal` to have a `numNested : Nat` field instead of `isNested : Bool`. This modifies the kernel.
-* **Definitions*
+* **Definitions**
   * [#4776](https://github.com/leanprover/lean4/pull/4776) improves performance of `Replacement.apply`.
   * [#4712](https://github.com/leanprover/lean4/pull/4712) fixes `.eq_def` theorem generation with messy universes.
   * [#4841](https://github.com/leanprover/lean4/pull/4841) improves success of finding `T.below x` hypothesis when transforming `match` statements for `IndPredBelow`.
@@ -249,7 +241,7 @@ v4.11.0
   * [#4753](https://github.com/leanprover/lean4/pull/4753) adds missing `profileitM` functions.
   * [#4754](https://github.com/leanprover/lean4/pull/4754) adds `Lean.Expr.numObjs` to compute the number of allocated sub-expressions in a given expression, primarily for diagonising performance issues.
   * [#4769](https://github.com/leanprover/lean4/pull/4769) adds missing `withTraceNode`s to improve `trace.profiler` output.
-  * [#4781](https://github.com/leanprover/lean4/pull/4781) and [#4882](https://github.com/leanprover/lean4/pull/4882) make the "use `set_option diagnostics true" message be conditional on current setting of `diagnostics`.
+  * [#4781](https://github.com/leanprover/lean4/pull/4781) and [#4882](https://github.com/leanprover/lean4/pull/4882) make the "use `set_option diagnostics true`" message be conditional on current setting of `diagnostics`.
 * **Performance**
   * [#4767](https://github.com/leanprover/lean4/pull/4767), [#4775](https://github.com/leanprover/lean4/pull/4775), and [#4887](https://github.com/leanprover/lean4/pull/4887) add `ShareCommon.shareCommon'` for sharing common terms. In an example with 16 million subterms, it is 20 times faster than the old `shareCommon` procedure.
   * [#4779](https://github.com/leanprover/lean4/pull/4779) ensures `Expr.replaceExpr` preserves DAG structure in `Expr`s.
@@ -294,10 +286,10 @@ and related error handling.
 
   * On error, Lake now prints all top-level logs. Top-level logs are those produced by Lake outside of the job monitor (e.g., when cloning dependencies).
   * When fetching a remote for a dependency, Lake now forcibly fetches tags. This prevents potential errors caused by a repository recreating tags already fetched.
-  * Tweaked Git error handling to hopefully be more informative.
-  * The builtin package facets `release`, `optRelease`, `extraDep` are now caption in the same manner as other facets. Previously, they were attempting to be too clever.
+  * Git error handling is now more informative.
+  * The builtin package facets `release`, `optRelease`, `extraDep` are now captions in the same manner as other facets.
   * `afterReleaseSync` and `afterReleaseAsync` now fetch `optRelease` rather than `release`.
-  * Added support for optional jobs, whose failure does not cause the whole build to failure (and made `optRelease` such a job).
+  * Added support for optional jobs, whose failure does not cause the whole build to failure. Now `optRelease` is such a job.
 
 * [#4608](https://github.com/leanprover/lean4/pull/4608) adds draft CI workflow when creating new projects.
 * [#4847](https://github.com/leanprover/lean4/pull/4847) adds CLI options to control log levels. The `--log-level=<lv>` controls the minimum log level Lake should output. For instance, `--log-level=error` will only print errors (not warnings or info). Also, adds an analogous `--fail-level` option to control the minimum log level for build failures. The existing `--iofail` and `--wfail` options are respectively equivalent to `--fail-level=info` and `--fail-level=warning`.

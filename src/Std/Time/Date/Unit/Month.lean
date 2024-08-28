@@ -192,7 +192,7 @@ def daysWithoutProof (leap : Bool) (month : Ordinal) : Day.Ordinal :=
     rw [← p] at r
     exact months.get r
 
-theorem all_greater_than_27 (leap : Bool) (i: Month.Ordinal) : daysWithoutProof leap i > 27 := by
+theorem all_greater_than_27 (leap : Bool) (i : Month.Ordinal) : daysWithoutProof leap i > 27 := by
   simp [daysWithoutProof, monthSizesNonLeap, Bounded.LE.sub, Bounded.LE.add, Bounded.LE.toFin]
   match i with
   | ⟨2, _⟩ => split <;> (simp; try split); all_goals decide

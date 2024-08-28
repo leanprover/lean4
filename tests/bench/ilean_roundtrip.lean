@@ -40,13 +40,15 @@ def main (args : List String) : IO Unit := do
   let compressStartTime ← IO.monoMsNow
   let s ← compress refs
   let compressEndTime ← IO.monoMsNow
-  IO.println s!"compress: {compressEndTime - compressStartTime}"
+  let compressTime : Float := (compressEndTime - compressStartTime).toFloat / 1000.0
+  IO.println s!"compress: {compressTime}"
   let parseStartTime ← IO.monoMsNow
   let r ← parse s
   let parseEndTime ← IO.monoMsNow
+  let parseTime : Float := (parseEndTime - parseStartTime).toFloat / 1000.0
   match r with
   | .ok _ =>
-    IO.println s!"parse: {parseEndTime - parseStartTime}"
+    IO.println s!"parse: {parseTime}"
   | .error _ =>
-    IO.println s!"parse: {parseEndTime - parseStartTime}"
+    IO.println s!"parse: {parseTime}"
     IO.println "error"

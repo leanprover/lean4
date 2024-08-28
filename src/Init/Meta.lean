@@ -117,6 +117,7 @@ def getRoot : Name → Name
 def isInaccessibleUserName : Name → Bool
   -- note: this uses `✝` (`\u{271D}`) whereas everywhere else in the code
   -- we use the text-variant selector `✝︎` (`\u{271D}\u{FE0E}`).
+  -- This is easier simply because we don't have `s.hasSubstring` in core.
   | Name.str _ s   => s.contains '✝' || s == "_inaccessible"
   | Name.num p _   => isInaccessibleUserName p
   | _              => false

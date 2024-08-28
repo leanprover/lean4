@@ -973,7 +973,7 @@ theorem getValueD_insertEntry_self {β : Type v} [BEq α] [EquivBEq α] {l : Lis
     {k : α} {fallback v : β} : getValueD k (insertEntry k v l) fallback = v := by
   simp [getValueD_insertEntry, BEq.refl]
 
-@[simp]
+@[local simp]
 theorem containsKey_insertEntry [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)} {k a : α}
     {v : β k} : containsKey a (insertEntry k v l) = ((k == a) || containsKey a l) := by
   rw [containsKey_eq_isSome_getEntry?, containsKey_eq_isSome_getEntry?, getEntry?_insertEntry]
@@ -983,7 +983,6 @@ theorem containsKey_insertEntry_of_beq [BEq α] [PartialEquivBEq α] {l : List (
     {k a : α} {v : β k} (h : k == a) : containsKey a (insertEntry k v l) := by
   simp [h]
 
-@[simp]
 theorem containsKey_insertEntry_self [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} {k : α}
     {v : β k} : containsKey k (insertEntry k v l) :=
   containsKey_insertEntry_of_beq BEq.refl

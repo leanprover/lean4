@@ -292,6 +292,12 @@ instance : HAdd Duration Nanosecond.Offset Duration where
 instance : HSub Duration Nanosecond.Offset Duration where
   hSub := subNanoseconds
 
+instance : HSub Duration Duration Duration where
+  hSub := sub
+
+instance : HAdd Duration Duration Duration where
+  hAdd := add
+
 end Duration
 end Time
 end Std

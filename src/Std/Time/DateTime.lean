@@ -80,6 +80,9 @@ def since [ToTimestamp α] (date : PlainDate) (since : α) : Duration :=
   let since := ToTimestamp.toTimestamp since
   Std.Time.Duration.sub date.toDurationSinceUnixEpoch since.toDurationSinceUnixEpoch
 
+instance : HSub PlainDate PlainDate Duration where
+  hSub x y := x.toTimestampAssumingUTC - y.toTimestampAssumingUTC
+
 end PlainDate
 namespace PlainDateTime
 
@@ -124,5 +127,8 @@ def since [ToTimestamp α] (date : PlainDateTime) (since : α) : Duration :=
   let date  := date.toTimestampAssumingUTC
   let since := ToTimestamp.toTimestamp since
   Std.Time.Duration.sub date.toDurationSinceUnixEpoch since.toDurationSinceUnixEpoch
+
+instance : HSub PlainDateTime PlainDateTime Duration where
+  hSub x y := x.toTimestampAssumingUTC - y.toTimestampAssumingUTC
 
 end PlainDateTime

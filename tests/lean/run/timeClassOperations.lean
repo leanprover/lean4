@@ -152,3 +152,9 @@ info: 2000-01-20 06:01:01 -0300
 -/
 #guard_msgs in
 #eval datetimetz - (60 : Second.Offset)
+
+/--
+info: "3600.0s"
+-/
+#guard_msgs in
+#eval (date% 2000-12-20:00:0:00-03:00) - (date% 2000-12-20:00:00:00-02:00)

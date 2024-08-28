@@ -305,6 +305,9 @@ instance : HAdd (DateTime tz) (Nanosecond.Offset) (DateTime tz) where
 instance : HSub (DateTime tz) (Nanosecond.Offset) (DateTime tz) where
   hSub := subNanoseconds
 
+instance : HSub (DateTime tz) (DateTime tz₁) Duration where
+  hSub x y := x.toTimestamp - y.toTimestamp
+
 end DateTime
 end Time
 end Std

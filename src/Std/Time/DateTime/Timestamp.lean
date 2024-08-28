@@ -217,4 +217,7 @@ instance : HAdd Timestamp Nanosecond.Offset Timestamp where
 instance : HSub Timestamp Nanosecond.Offset Timestamp where
   hSub := subNanoseconds
 
+instance : HSub Timestamp Timestamp Duration where
+  hSub x y := x.val - y.val
+
 end Timestamp

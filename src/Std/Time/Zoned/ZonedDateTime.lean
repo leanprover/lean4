@@ -275,6 +275,9 @@ instance : HAdd ZonedDateTime (Second.Offset) ZonedDateTime where
 instance : HSub ZonedDateTime (Second.Offset) ZonedDateTime where
   hSub := subSeconds
 
+instance : HSub ZonedDateTime ZonedDateTime Duration where
+  hSub x y := x.toTimestamp - y.toTimestamp
+
 end ZonedDateTime
 end Time
 end Std

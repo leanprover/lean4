@@ -40,19 +40,19 @@ def time12Hour : Format .any := date-spec% "HH:mm:ss AA"
 The Time24Hour format, which follows the pattern `hh:mm:ss` for representing time
 in a 24-hour clock format.
 -/
-def time24Hour : Format .any := date-spec% "hh:mm:ss"
+def time24Hour : Format .any := date-spec% "hh:mm:ss.sssssssss"
 
 /--
-The DateTimeZone24Hour format, which follows the pattern `YYYY-MM-DD hh:mm:ss Z` for
+The DateTimeZone24Hour format, which follows the pattern `YYYY-MM-DD hh:mm:ss.sssssssss` for
 representing date, time, and time zone.
 -/
-def dateTime24Hour : Format (.only .GMT) := date-spec% "YYYY-MM-DD hh:mm:ss"
+def dateTime24Hour : Format (.only .GMT) := date-spec% "YYYY-MM-DD hh:mm:ss.sssssssss"
 
 /--
-The DateTimeWithZone format, which follows the pattern `YYYY-MM-DD hh:mm:ss Z`
+The DateTimeWithZone format, which follows the pattern `YYYY-MM-DD hh:mm:ss.sssssssss`
 for representing date, time, and time zone.
 -/
-def dateTimeWithZone : Format .any := date-spec% "YYYY-MM-DD hh:mm:ss ZZZ"
+def dateTimeWithZone : Format .any := date-spec% "YYYY-MM-DD hh:mm:ss.sssssssss ZZZ"
 
 /--
 The SQLDate format, which follows the pattern `YYYY-MM-DD` and is commonly used
@@ -169,13 +169,13 @@ def format (time : PlainTime) (format : String) : String :=
 Parses a time string in the 24-hour format (`hh:mm:ss`) and returns a `PlainTime`.
 -/
 def fromTime24Hour (input : String) : Except String PlainTime :=
-  Formats.time24Hour.parseBuilder (λh m s => PlainTime.ofHourMinuteSeconds? h.snd m s.snd) input
+  Formats.time24Hour.parseBuilder (λh m s n => PlainTime.ofHourMinuteSecondsNano? h.snd m s.snd n) input
 
 /--
 Formats a `PlainTime` value into a 24-hour format string (`hh:mm:ss`).
 -/
 def toTime24Hour (input : PlainTime) : String :=
-  Formats.time24Hour.formatBuilder input.hour input.minute input.second
+  Formats.time24Hour.formatBuilder input.hour input.minute input.second input.nano
 
 /--
 Parses a time string in the 12-hour format (`hh:mm:ss aa`) and returns a `PlainTime`.
@@ -300,8 +300,11 @@ def format (date : PlainDateTime) (format : String) : String :=
       | .DD | .D | .d => some date.day
       | .EEEE | .EEE => some date.date.weekday
       | .HH | .H => some date.time.hour
+      | .hh | .h => some date.time.hour
+      | .aa | .AA => some (if date.time.hour.snd.val > 12 then HourMarker.pm else HourMarker.am)
       | .mm | .m => some date.time.minute
-      | .sss => some (Internal.Bounded.LE.ofNat 0 (by decide))
+      | .sssssssss => some date.time.nano
+      | .sss => some date.time.nano.toMillisecond
       | .ss | .s => some date.time.second
       | _ => none
     match res with

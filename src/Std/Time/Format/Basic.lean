@@ -119,6 +119,11 @@ inductive Modifier
   | m
 
   /--
+  `sssssssss` Nine-digit nanosecond (e.g., 000000001).
+  -/
+  | sssssssss
+
+  /--
   `sss`: Three-digit milliseconds (e.g., 001, 202).
   -/
   | sss
@@ -246,6 +251,7 @@ private def parseModifier : Parser Modifier
   <|> pstring "aa" *> pure .aa
   <|> pstring "mm" *> pure .mm
   <|> pstring "m" *> pure .m
+  <|> pstring "sssssssss" *> pure .sssssssss
   <|> pstring "sss" *> pure .sss
   <|> pstring "ss" *> pure .ss
   <|> pstring "s" *> pure .s
@@ -354,6 +360,7 @@ private def formatWithDate (date : DateTime tz) : Modifier → String
   | .aa    => if date.hour.toInt < 12 then "am" else "pm"
   | .mm    => s!"{leftPadNum 2 <| date.minute.toInt}"
   | .m     => s!"{date.minute.toInt}"
+  | .sssssssss => s!"{leftPadNum 9 <| date.nanoseconds.toInt}"
   | .sss    => s!"{leftPadNum 3 <| date.milliseconds.toInt}"
   | .ss    => s!"{leftPadNum 2 <| date.second.toInt}"
   | .s     => s!"{date.second.toInt}"
@@ -378,6 +385,7 @@ private def SingleFormatType : Modifier → Type
   | .hh | .h | .HH | .H => Sigma Hour.Ordinal
   | .AA | .aa => HourMarker
   | .mm | .m => Minute.Ordinal
+  | .sssssssss => Nanosecond.Ordinal
   | .sss => Millisecond.Ordinal
   | .ss | .s => Sigma Second.Ordinal
   | .ZZZZZ | .ZZZZ | .ZZZ | .Z => Offset
@@ -404,6 +412,7 @@ private def formatPart (modifier : Modifier) (data : SingleFormatType modifier) 
   | .aa    => match data with | .am => "am" | .pm => "pm"
   | .mm    => s!"{leftPadNum 2 data.toInt}"
   | .m     => s!"{data.toInt}"
+  | .sssssssss    => s!"{leftPadNum 9 data.toInt}"
   | .sss    => s!"{leftPadNum 3 data.toInt}"
   | .ss    => s!"{leftPadNum 2 data.snd.toInt}"
   | .s     => s!"{data.snd.toInt}"
@@ -551,6 +560,7 @@ private def parserWithFormat : (typ: Modifier) → Parser (SingleFormatType typ)
   | .aa => parserLowerHourMarker
   | .mm => transform Bounded.LE.ofInt twoDigit
   | .m => transform Bounded.LE.ofInt number
+  | .sssssssss => transform Bounded.LE.ofInt threeDigit
   | .sss => transform Bounded.LE.ofInt threeDigit
   | .ss => Sigma.mk true <$> transform Bounded.LE.ofInt twoDigit
   | .s => Sigma.mk true <$> transform Bounded.LE.ofInt number
@@ -569,7 +579,7 @@ private structure DateBuilder where
   hour : Sigma Hour.Ordinal := ⟨true, 0⟩
   minute : Minute.Ordinal := 0
   second : Sigma Second.Ordinal := ⟨true, 0⟩
-  millisecond : Millisecond.Ordinal := 0
+  nanoseconds : Nanosecond.Ordinal := 0
   marker : Option HourMarker := none
 
 private def DateBuilder.build (builder : DateBuilder) (aw : Awareness) : Except String aw.type := do
@@ -585,7 +595,7 @@ private def DateBuilder.build (builder : DateBuilder) (aw : Awareness) : Except 
   if let .isTrue p := inferInstanceAs (Decidable (ValidTime hour.snd builder.minute builder.second.snd)) then
     let build := DateTime.ofPlainDateTime {
       date := PlainDate.clip builder.year builder.month builder.day
-      time := PlainTime.mk hour builder.minute builder.second (.ofMillisecond builder.millisecond) p
+      time := PlainTime.mk hour builder.minute builder.second builder.nanoseconds p
     }
 
     match aw with
@@ -605,7 +615,8 @@ private def addDataInDateTime (data : DateBuilder) (typ : Modifier) (value : Sin
   | .EEEE | .EEE => .ok data
   | .hh | .h | .HH | .H => .ok { data with hour := value }
   | .mm | .m => .ok { data with minute := value }
-  | .sss => .ok { data with millisecond := value }
+  | .sssssssss => .ok { data with nanoseconds := value }
+  | .sss => .ok { data with nanoseconds := Nanosecond.Ordinal.ofMillisecond value }
   | .ss | .s => .ok { data with second := value }
   | .ZZZZZ | .ZZZZ | .ZZZ
   | .Z => .ok { data with tz := value }

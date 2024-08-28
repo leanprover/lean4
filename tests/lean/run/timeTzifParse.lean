@@ -59,13 +59,13 @@ info: 0
 #eval code.v1.utLocalIndicators.size
 
 /--
-info: some (1969-12-30 21:00:00 -0300)
+info: some (1969-12-30 21:00:00.000000000 -0300)
 -/
 #guard_msgs in
 #eval ZonedDateTime.ofZoneRules (Timestamp.ofSecondsSinceUnixEpoch 0) rules
 
 /--
-info: some (2012-12-10 00:35:47 -0200)
+info: some (2012-12-10 00:35:47.000000000 -0200)
 -/
 #guard_msgs in
 #eval ZonedDateTime.ofZoneRules (Timestamp.ofSecondsSinceUnixEpoch 1355106947) rules

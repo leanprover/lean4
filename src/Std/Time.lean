@@ -94,12 +94,12 @@ These types provide precision down to the day level, useful for representing and
 ## Time
 These types offer precision down to the nanosecond level, useful for representing and manipulating time of day.
 
-- **`PlainTime`**: Represents a time of day in the format `HH:mm:ss.SSSSSSSSS`.
+- **`PlainTime`**: Represents a time of day in the format `HH:mm:ss.sssssssss`.
 
 ## Date and time
 Combines date and time into a single representation, useful for precise timestamps and scheduling.
 
-- **`PlainDateTime`**: Represents both date and time in the format `YYYY-MM-DDTHH:mm:ss.SSSSSSSSS`.
+- **`PlainDateTime`**: Represents both date and time in the format `YYYY-MM-DDTHH:mm:ss.sssssssss`.
 - **`Timestamp`**: Represents a point in time with nanosecond-level precision. It starts on the UNIX
 epoch and it should be used when you receive or need to send timestamps to other systems.
 
@@ -146,6 +146,7 @@ The supported formats include:
   - `mm`: Two-digit minute (e.g., 01, 02)
   - `m`: One or two-digit minute (e.g., 1, 2)
 - **Second:**
+  - `sssssssss` : Nine-digit nanosseconds (e.g., 000000009)
   - `sss`: Three-digit milliseconds (e.g., 001, 202)
   - `ss`: Two-digit second (e.g., 01, 02)
   - `s`: One or two-digit second (e.g., 1, 2)
@@ -159,12 +160,13 @@ The supported formats include:
 # Macros
 
 In order to help the user build dates easily, there are a lot of macros available for creating dates.
+The `.sssssssss` can be ommited in most cases.
 
 - **`date% YYYY-MM-DD`**: Defines a date in the `YYYY-MM-DD` format.
-- **`date% HH:mm:ss.sssssss`**: Defines a time in the `HH:mm:ss.sssssss` format, including fractional seconds.
-- **`date% YYYY-MM-DD:HH:mm:ss`**: Defines a datetime in the `YYYY-MM-DD:HH:mm:ss` format.
-- **`date% YYYY-MM-DDTHH:mm:ssZ`**: Defines a datetime with a timezone in the `YYYY-MM-DDTHH:mm:ssZ` format.
-- **`time% HH:mm:ss`**: Defines a time in the `HH:mm:ss` format.
+- **`date% HH:mm:ss:sssssssss`**: Defines a time in the `HH:mm:ss:sssssssss` format, including fractional seconds.
+- **`date% YYYY-MM-DD:HH:mm:ss.sssssssss`**: Defines a datetime in the `YYYY-MM-DD:HH:mm:ss:sssssssss` format.
+- **`date% YYYY-MM-DDTHH:mm:ss:sssssssssZ`**: Defines a datetime with a timezone in the `YYYY-MM-DDTHH:mm:ss:sssssssssZ` format.
+- **`time% HH:mm:ss:sssssssss`**: Defines a time in the `HH:mm:ss` format.
 - **`offset% +HH:mm`**: Defines a timezone offset in the format `+HH:mm`.
 - **`timezone% NAME/ID offset% +HH:mm`**: Defines a timezone with a name and an offset.
 - **`date-spec% "format"`**: Defines a date specification format at compile time using the provided format string.

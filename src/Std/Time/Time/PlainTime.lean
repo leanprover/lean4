@@ -64,15 +64,15 @@ abbrev ValidTime (hour : Hour.Ordinal l) (minute : Minute.Ordinal) (second : Sec
 /--
 Creates a `PlainTime` value from hours, minutes, and seconds.
 -/
-def ofHourMinuteSeconds (hour : Hour.Ordinal leap₂) (minute : Minute.Ordinal) (second : Second.Ordinal leap) (proof : ValidTime hour minute second) : PlainTime :=
-  ⟨Sigma.mk leap₂ hour, minute, Sigma.mk leap second, 0, proof⟩
+def ofHourMinuteSecondsNano (hour : Hour.Ordinal leap₂) (minute : Minute.Ordinal) (second : Second.Ordinal leap) (nano : Nanosecond.Ordinal) (proof : ValidTime hour minute second) : PlainTime :=
+  ⟨Sigma.mk leap₂ hour, minute, Sigma.mk leap second, nano, proof⟩
 
 /--
 Creates a `PlainTime` value from hours, minutes, and seconds. Return `none` if its invalid.
 -/
 def ofHourMinuteSeconds? (hour : Hour.Ordinal leap₂) (minute : Minute.Ordinal) (second : Second.Ordinal leap) : Option PlainTime :=
   if h : ValidTime hour minute second
-    then some <| ofHourMinuteSeconds hour minute second h
+    then some <| ofHourMinuteSecondsNano hour minute second 0 h
     else none
 
 /--
@@ -83,6 +83,14 @@ def ofValidHourMinuteSecondsNano (hour : Hour.Ordinal false) (minute : Minute.Or
   constructor
   exact λx => nomatch (Int.ne_iff_lt_or_gt.mpr (Or.inl (Int.lt_add_one_iff.mpr second.property.right)) x)
   exact λx => nomatch (Int.ne_iff_lt_or_gt.mpr (Or.inl (Int.lt_add_one_iff.mpr hour.property.right)) x)
+
+/--
+Creates a `PlainTime` value from hours, minutes, and seconds. Return `none` if its invalid.
+-/
+def ofHourMinuteSecondsNano? (hour : Hour.Ordinal leap₂) (minute : Minute.Ordinal) (second : Second.Ordinal leap) (nano : Nanosecond.Ordinal) : Option PlainTime :=
+  if h : ValidTime hour minute second
+    then some <| ofHourMinuteSecondsNano hour minute second nano h
+    else none
 
 /--
 Converts a `PlainTime` value to the total number of milliseconds.

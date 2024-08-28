@@ -251,6 +251,13 @@ def milliseconds (dt : DateTime tz) : Millisecond.Ordinal :=
   dt.date.get.time.nano.toMillisecond
 
 /--
+Getter for the `Nanosecond` inside of a `DateTime`
+-/
+@[inline]
+def nanoseconds (dt : DateTime tz) : Nanosecond.Ordinal :=
+  dt.date.get.time.nano
+
+/--
 Gets the `Weekday` of a DateTime.
 -/
 @[inline]

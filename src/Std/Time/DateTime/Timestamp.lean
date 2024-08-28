@@ -31,12 +31,7 @@ instance : OfNat Timestamp n where
   ofNat := ⟨OfNat.ofNat n⟩
 
 instance : ToString Timestamp where
-  toString s :=
-    let (sign, secs, nanos) :=
-      if s.val.second.val > 0 then ("" ,s.val.second.val, s.val.nano.val)
-      else if s.val.second.val < 0 then ("-", -s.val.second.val, -s.val.nano.val)
-      else if s.val.nano.val < 0 then ("-", -s.val.second.val, -s.val.nano.val) else ("", s.val.second.val, s.val.nano.val)
-    sign ++ toString secs ++ "." ++ toString nanos ++ "s"
+  toString s := toString s.val
 
 instance : Repr Timestamp where
   reprPrec s := reprPrec (toString s)

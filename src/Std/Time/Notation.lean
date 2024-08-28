@@ -76,15 +76,15 @@ Date in `HH-mm-ss` format.
 syntax date_component noWs ":" noWs date_component noWs ":" noWs date_component : time
 
 /--
-Date in `HH-mm-ss.sssssss` format.
+Date in `HH-mm-ss.sssssssss` format.
 -/
-syntax date_component noWs ":" noWs date_component noWs ":" noWs date_component "." noWs date_component : time
+syntax date_component noWs ":" noWs date_component noWs ":" noWs date_component noWs ":" noWs date_component : time
 
 private def parseTime : TSyntax `time -> MacroM (TSyntax `term)
+  | `(time| $hour:date_component:$minute:date_component:$second:date_component:$nanos:date_component) => do
+    `(Std.Time.PlainTime.mk ⟨true, $(← parseComponent (some 0) (some 24) hour)⟩ $(← parseComponent (some 0) (some 59) minute) ⟨true, $(← parseComponent (some 0) (some 60) second)⟩ $(← parseComponent (some 0) (some 999999999) nanos) (by decide))
   | `(time| $hour:date_component:$minute:date_component:$second:date_component) => do
     `(Std.Time.PlainTime.mk ⟨true, $(← parseComponent (some 0) (some 24) hour)⟩ $(← parseComponent (some 0) (some 59) minute) ⟨true, $(← parseComponent (some 0) (some 60) second)⟩ 0 (by decide))
-  | `(time| $hour:date_component:$minute:date_component:$second:date_component.$nanos:date_component) => do
-    `(Std.Time.PlainTime.mk ⟨true, $(← parseComponent (some 0) (some 24) hour)⟩ $(← parseComponent (some 0) (some 59) minute) ⟨true, $(← parseComponent (some 0) (some 60) second)⟩ $(← parseComponent (some 0) (some 999) nanos) (by decide))
   | syn => Macro.throwErrorAt syn "unsupported syntax"
 
 /--
@@ -234,6 +234,7 @@ private def convertModifier : Modifier → MacroM (TSyntax `term)
   | .aa => `(Std.Time.Modifier.aa)
   | .mm => `(Std.Time.Modifier.mm)
   | .m => `(Std.Time.Modifier.m)
+  | .sssssssss => `(Std.Time.Modifier.sssssssss)
   | .sss => `(Std.Time.Modifier.sss)
   | .ss => `(Std.Time.Modifier.ss)
   | .s => `(Std.Time.Modifier.s)

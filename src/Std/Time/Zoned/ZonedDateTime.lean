@@ -233,6 +233,19 @@ def subSeconds (dt : ZonedDateTime) (seconds : Second.Offset) : ZonedDateTime :=
   Sigma.mk dt.fst (dt.snd.subSeconds seconds)
 
 /--
+Add `Nanosecond.Offset` to a `ZonedDateTime`, adjusting the date if necessary.
+-/
+def addNanoseconds (dt : ZonedDateTime) (nanoseconds : Nanosecond.Offset) : ZonedDateTime :=
+  Sigma.mk dt.fst (dt.snd.addNanoseconds nanoseconds)
+
+/--
+Subtract `Nanosecond.Offset` from a `ZonedDateTime`, adjusting the date if necessary.
+-/
+@[inline]
+def subNanoseconds (dt : ZonedDateTime) (nanoseconds : Nanosecond.Offset) : ZonedDateTime :=
+  Sigma.mk dt.fst (dt.snd.subNanoseconds nanoseconds)
+
+/--
 Determines the era of the given `PlainDate` based on its year.
 -/
 @[inline]
@@ -274,6 +287,12 @@ instance : HAdd ZonedDateTime (Second.Offset) ZonedDateTime where
 
 instance : HSub ZonedDateTime (Second.Offset) ZonedDateTime where
   hSub := subSeconds
+
+instance : HAdd ZonedDateTime (Nanosecond.Offset) ZonedDateTime where
+  hAdd := addNanoseconds
+
+instance : HSub ZonedDateTime (Nanosecond.Offset) ZonedDateTime where
+  hSub := subNanoseconds
 
 instance : HSub ZonedDateTime ZonedDateTime Duration where
   hSub x y := x.toTimestamp - y.toTimestamp

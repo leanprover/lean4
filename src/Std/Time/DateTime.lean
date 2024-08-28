@@ -34,7 +34,7 @@ Converts a `PlainDate` to a `Timestamp`
 def ofPlainDate (pd : PlainDate) : Timestamp :=
   let days := pd.toDaysSinceUNIXEpoch
   let secs := days.toSeconds
-  Timestamp.ofSecondsSinceUnixEpoch secs
+  Timestamp.ofSeconds secs
 
 /--
 Converts a `Timestamp` to a `PlainDate`
@@ -51,7 +51,7 @@ Converts a `PlainTime` to a `Timestamp`
 @[inline]
 def ofPlainTime (pt : PlainTime) : Timestamp :=
   let nanos := pt.toNanoseconds
-  Timestamp.ofNanosecondsSinceUnixEpoch nanos
+  Timestamp.ofNanoseconds nanos
 
 /--
 Converts a `Timestamp` to a `PlainTime`

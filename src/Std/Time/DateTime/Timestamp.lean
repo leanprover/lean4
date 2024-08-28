@@ -148,7 +148,7 @@ protected def sub (t₁ t₂ : Timestamp) : Timestamp :=
 Creates a new `Timestamp` out of `Second.Offset`.
 -/
 @[inline]
-def ofSecondsSinceUnixEpoch (s : Second.Offset) : Timestamp := by
+def ofSeconds (s : Second.Offset) : Timestamp := by
   refine ⟨s, ⟨0, by decide⟩, ?_⟩
   simp <;> exact Int.le_total s.val 0 |>.symm
 
@@ -156,7 +156,7 @@ def ofSecondsSinceUnixEpoch (s : Second.Offset) : Timestamp := by
 Creates a new `Timestamp` out of `Second.Offset`.
 -/
 @[inline]
-def ofNanosecondsSinceUnixEpoch (s : Nanosecond.Offset) : Timestamp := by
+def ofNanoseconds (s : Nanosecond.Offset) : Timestamp := by
     refine ⟨s.ediv 1000000000, Bounded.LE.byMod s.val 1000000000 (by decide), ?_⟩
     cases Int.le_total s.val 0
     next n => exact Or.inr (And.intro (Int.ediv_le_ediv (by decide) n) (mod_nonpos 1000000000 n (by decide)))
@@ -176,32 +176,44 @@ def toNanosecondsSinceUnixEpoch (tm : Timestamp) : Nanosecond.Offset :=
   nanos
 
 /--
+Converts a `Timestamp` to a `Minute.Offset`
+-/
+def toMinutes (tm : Timestamp) : Minute.Offset :=
+  tm.second.ediv 60
+
+/--
+Converts a `Timestamp` to a `Day.Offset`
+-/
+def toDays (tm : Timestamp) : Day.Offset :=
+  tm.second.ediv 86400
+
+/--
 Adds a `Nanosecond.Offset` to a `Timestamp`
 -/
 @[inline]
 def addNanoseconds (t : Timestamp) (s : Nanosecond.Offset) : Timestamp :=
-  t.add (ofNanosecondsSinceUnixEpoch s)
+  t.add (ofNanoseconds s)
 
 /--
 Adds a `Nanosecond.Offset` to a `Timestamp`
 -/
 @[inline]
 def subNanoseconds (t : Timestamp) (s : Nanosecond.Offset) : Timestamp :=
-  t.sub (ofNanosecondsSinceUnixEpoch s)
+  t.sub (ofNanoseconds s)
 
 /--
 Adds a `Second.Offset` to a `Timestamp`
 -/
 @[inline]
 def addSeconds (t : Timestamp) (s : Second.Offset) : Timestamp :=
-  t.add (ofSecondsSinceUnixEpoch s)
+  t.add (ofSeconds s)
 
 /--
 Subtracts a `Second.Offset` from a `Timestamp`
 -/
 @[inline]
 def subSeconds (t : Timestamp) (s : Second.Offset) : Timestamp :=
-  t.sub (ofSecondsSinceUnixEpoch s)
+  t.sub (ofSeconds s)
 
 /--
 Adds a `Minute.Offset` to a `Timestamp`

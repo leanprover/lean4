@@ -33,16 +33,28 @@ instance : Repr Duration where
 namespace Duration
 
 /--
+Converts a `Duration` to a `Minute.Offset`
+-/
+def toMinutes (tm : Duration) : Minute.Offset :=
+  tm.second.ediv 60
+
+/--
+Converts a `Duration` to a `Day.Offset`
+-/
+def toDays (tm : Duration) : Day.Offset :=
+  tm.second.ediv 86400
+
+/--
 Creates a new `Duration` out of `Second.Offset`.
 -/
 def ofSeconds (secs : Second.Offset) : Duration :=
-  Timestamp.ofSecondsSinceUnixEpoch secs
+  Timestamp.ofSeconds secs
 
 /--
 Creates a new `Duration` out of `Nanosecond.Offset`.
 -/
 def ofNanosecond (secs : Nanosecond.Offset) : Duration :=
-  Timestamp.ofNanosecondsSinceUnixEpoch secs
+  Timestamp.ofNanoseconds secs
 
 /--
 Calculates a `Duration` out of two `Timestamp`s.

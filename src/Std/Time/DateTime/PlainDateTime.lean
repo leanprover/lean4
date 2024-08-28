@@ -41,7 +41,7 @@ def toLocalTimestamp (dt : PlainDateTime) : Timestamp :=
   let days := dt.date.toDaysSinceUNIXEpoch
   let nanos : Nanosecond.Offset := days.toSeconds + dt.time.toSeconds |>.mul 1000000000
   let nanos := nanos.val + dt.time.nano.val
-  Timestamp.ofNanosecondsSinceUnixEpoch (Nanosecond.Offset.ofInt nanos)
+  Timestamp.ofNanoseconds (Nanosecond.Offset.ofInt nanos)
 
 /--
 Converts a UNIX `Timestamp` to a `PlainDateTime`.

@@ -198,10 +198,12 @@ def derive (e : Expr) : MetaM Simp.Result := do
     let post := upwardAndElim (← normCastExt.up.getTheorems)
     r.mkEqTrans (← Simp.main r.expr { config, congrTheorems } (methods := { post })).1
 
+  let simprocs ← ({} : Simp.SimprocsArray).add `reduceCtorEq false
+
   -- step 3: casts are squashed
   let r ← withTrace "squashing" do
     let simpTheorems := #[← normCastExt.squash.getTheorems]
-    r.mkEqTrans (← simp r.expr { simpTheorems, config, congrTheorems }).1
+    r.mkEqTrans (← simp r.expr { simpTheorems, config, congrTheorems } simprocs).1
 
   return r
 

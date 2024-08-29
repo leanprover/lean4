@@ -141,6 +141,12 @@ theorem eq_zero_or_eq_succ {n : Nat} : ∀ i : Fin (n + 1), i = 0 ∨ ∃ j : Fi
 theorem eq_succ_of_ne_zero {n : Nat} {i : Fin (n + 1)} (hi : i ≠ 0) : ∃ j : Fin n, i = j.succ :=
   (eq_zero_or_eq_succ i).resolve_left hi
 
+protected theorem le_antisymm_iff {x y : Fin n} : x = y ↔ x ≤ y ∧ y ≤ x :=
+  Fin.ext_iff.trans Nat.le_antisymm_iff
+
+protected theorem le_antisymm {x y : Fin n} (h1 : x ≤ y) (h2 : y ≤ x) : x = y :=
+  Fin.le_antisymm_iff.2 ⟨h1, h2⟩
+
 @[simp] theorem val_rev (i : Fin n) : rev i = n - (i + 1) := rfl
 
 @[simp] theorem rev_rev (i : Fin n) : rev (rev i) = i := Fin.ext <| by

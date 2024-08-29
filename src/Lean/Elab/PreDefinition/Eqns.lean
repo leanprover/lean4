@@ -100,7 +100,7 @@ private def findMatchToSplit? (deepRecursiveSplit : Bool) (env : Environment) (e
 partial def splitMatch? (mvarId : MVarId) (declNames : Array Name) : MetaM (Option (List MVarId)) := commitWhenSome? do
   let target ← mvarId.getType'
   let rec go (badCases : ExprSet) : MetaM (Option (List MVarId)) := do
-    if let some e := findMatchToSplit? (eqns.deepRecursiveSplit.get (← getOptions)) (← getEnv)
+    if let some e := findMatchToSplit? (backward.eqns.deepRecursiveSplit.get (← getOptions)) (← getEnv)
                                        target declNames badCases then
       try
         Meta.Split.splitMatch mvarId e

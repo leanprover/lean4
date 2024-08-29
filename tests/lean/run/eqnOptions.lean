@@ -17,7 +17,7 @@ end Test1
 
 namespace Test2
 
-set_option eqns.nonrecursive false in
+set_option backward.eqns.nonrecursive false in
 def nonrecfun : Bool → Nat
   | false => 0
   | true => 0
@@ -42,7 +42,7 @@ def nonrecfun : Bool → Nat
   | true => 0
 
 -- should have no effect
-set_option eqns.nonrecursive false
+set_option backward.eqns.nonrecursive false
 
 /--
 info: equations:

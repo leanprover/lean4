@@ -89,7 +89,7 @@ def eof : Parsec ι Unit := fun it =>
     .success it ()
 
 @[inline]
-def eof? : Parsec ι Bool := fun it =>
+def isEof : Parsec ι Bool := fun it =>
   .success it (!Input.hasNext it)
 
 @[specialize]

@@ -61,10 +61,10 @@ partial def strCore (acc : String) : Parser String := do
 @[inline] def str : Parser String := strCore ""
 
 partial def natCore (acc : Nat) : Parser Nat := do
-  let c ← peekD '\x00'
-  if c == '\x00' then
+  if ← isEof then
     return acc
   else
+    let c ← peek!
     if '0' <= c && c <= '9' then
       skip
       let acc' := 10*acc + (c.val - '0'.val).toNat
@@ -73,10 +73,10 @@ partial def natCore (acc : Nat) : Parser Nat := do
       return acc
 
 partial def natCoreNumDigits (acc digits : Nat) : Parser (Nat × Nat) := do
-  let c ← peekD '\x00'
-  if c == '\x00' then
+  if ← isEof then
     return (acc, digits)
   else
+    let c ← peek!
     if '0' <= c && c <= '9' then
       skip
       let acc' := 10*acc + (c.val - '0'.val).toNat
@@ -129,34 +129,40 @@ def nat : Parser Nat := do
 def numWithDecimals : Parser JsonNumber := do
   let sign ← numSign
   let whole ← nat
-  let c ← peekD '\x00'
-  if c == '.' then
-    skip
-    let (n, d) ← natNumDigits
-    if d > USize.size then fail "too many decimals"
-    let mantissa' := sign * (whole * (10^d : Nat) + n)
-    let exponent' := d
-    pure <| JsonNumber.mk mantissa' exponent'
-  else
+  if ← isEof then
     pure <| JsonNumber.fromInt (sign * whole)
+  else
+    let c ← peek!
+    if c == '.' then
+      skip
+      let (n, d) ← natNumDigits
+      if d > USize.size then fail "too many decimals"
+      let mantissa' := sign * (whole * (10^d : Nat) + n)
+      let exponent' := d
+      pure <| JsonNumber.mk mantissa' exponent'
+    else
+      pure <| JsonNumber.fromInt (sign * whole)
 
 @[inline]
 def exponent (value : JsonNumber) : Parser JsonNumber := do
-  let c ← peekD '\x00'
-  if c == 'e' || c == 'E' then
-    skip
-    let c ← peek!
-    if c == '-' then
-      skip
-      let n ← natMaybeZero
-      return value.shiftr n
-    else
-      if c = '+' then skip
-      let n ← natMaybeZero
-      if n > USize.size then fail "exp too large"
-      return value.shiftl n
-  else
+  if ← isEof then
     return value
+  else
+    let c ← peek!
+    if c == 'e' || c == 'E' then
+      skip
+      let c ← peek!
+      if c == '-' then
+        skip
+        let n ← natMaybeZero
+        return value.shiftr n
+      else
+        if c = '+' then skip
+        let n ← natMaybeZero
+        if n > USize.size then fail "exp too large"
+        return value.shiftl n
+    else
+      return value
 
 def num : Parser JsonNumber := do
   let res : JsonNumber ← numWithDecimals

@@ -132,7 +132,7 @@ where
     if (← peek!) == 'c'.toUInt8 then
       let _ ← many (satisfy (fun c => c != '\n'.toUInt8 && c != '\r'.toUInt8))
       skipNewline
-      if ← eof? then
+      if ← isEof then
         return actions
       else
         go actions
@@ -140,7 +140,7 @@ where
       let action ← parseAction
       skipNewline
       let actions := actions.push action
-      if ← eof? then
+      if ← isEof then
         return actions
       else
         go actions

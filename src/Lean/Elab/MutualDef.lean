@@ -16,6 +16,7 @@ import Lean.Elab.Deriving.Basic
 import Lean.Elab.PreDefinition.Main
 import Lean.Elab.PreDefinition.TerminationHint
 import Lean.Elab.DeclarationRange
+import Std.Data.HashMap
 
 namespace Lean.Elab
 open Lean.Parser.Term

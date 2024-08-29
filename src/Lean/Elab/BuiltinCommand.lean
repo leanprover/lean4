@@ -12,6 +12,7 @@ import Lean.Elab.Eval
 import Lean.Elab.Command
 import Lean.Elab.Open
 import Lean.Elab.SetOption
+import Std.Data.HashMap
 
 namespace Lean.Elab.Command
 

@@ -92,6 +92,7 @@ x_3 = lean_ctor_get(x_1, 2);
 lean_inc(x_3);
 lean_dec(x_1);
 x_4 = l_System_FilePath_join(x_2, x_3);
+lean_dec(x_3);
 return x_4;
 }
 }
@@ -104,10 +105,12 @@ lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 2);
 lean_inc(x_3);
 x_4 = l_System_FilePath_join(x_2, x_3);
+lean_dec(x_3);
 x_5 = lean_ctor_get(x_1, 3);
 lean_inc(x_5);
 lean_dec(x_1);
 x_6 = l_System_FilePath_join(x_4, x_5);
+lean_dec(x_5);
 return x_6;
 }
 }
@@ -121,6 +124,7 @@ x_3 = lean_ctor_get(x_1, 2);
 lean_inc(x_3);
 lean_dec(x_1);
 x_4 = l_System_FilePath_join(x_2, x_3);
+lean_dec(x_3);
 x_5 = l_Lake_defaultLakeDir;
 x_6 = l_System_FilePath_join(x_4, x_5);
 return x_6;

@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Language_withAlwaysResolvedPromises___spec__1(lean_object*, lean_object*);
-lean_object* l_List_iota(lean_object*);
 LEAN_EXPORT lean_object* l_Functor_mapRev___at_Lean_Language_reportMessages___spec__7(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_format_go___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_cancel(lean_object*, lean_object*);
@@ -239,6 +238,7 @@ lean_object* lean_io_bind_task(lean_object*, lean_object*, lean_object*, uint8_t
 LEAN_EXPORT lean_object* l_Lean_Language_withAlwaysResolvedPromises(lean_object*, lean_object*);
 static lean_object* l_Lean_Language_withAlwaysResolvedPromise___rarg___lambda__3___closed__1;
 static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__31;
+lean_object* l_List_iotaTR(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_format___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Language_instInhabitedSnapshot___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_format(lean_object*);
@@ -1724,7 +1724,7 @@ _start:
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_7 = lean_ctor_get(x_1, 1);
 lean_inc(x_7);
-x_8 = l_List_iota(x_5);
+x_8 = l_List_iotaTR(x_5);
 x_9 = l_List_redLength___rarg(x_8);
 x_10 = lean_mk_empty_array_with_capacity(x_9);
 lean_dec(x_9);

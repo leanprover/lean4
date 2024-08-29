@@ -55,6 +55,7 @@ static lean_object* l___private_Lake_CLI_Error_0__Lake_reprCliError____x40_Lake_
 static lean_object* l___private_Lake_CLI_Error_0__Lake_reprCliError____x40_Lake_CLI_Error___hyg_322____closed__98;
 static lean_object* l_Lake_CliError_toString___closed__8;
 static lean_object* l___private_Lake_CLI_Error_0__Lake_reprCliError____x40_Lake_CLI_Error___hyg_322____closed__95;
+lean_object* lean_string_utf8_byte_size(lean_object*);
 static lean_object* l___private_Lake_CLI_Error_0__Lake_reprCliError____x40_Lake_CLI_Error___hyg_322____closed__94;
 lean_object* lean_string_push(lean_object*, uint32_t);
 static lean_object* l___private_Lake_CLI_Error_0__Lake_reprCliError____x40_Lake_CLI_Error___hyg_322____closed__26;
@@ -64,7 +65,6 @@ static lean_object* l___private_Lake_CLI_Error_0__Lake_reprCliError____x40_Lake_
 static lean_object* l_Lake_CliError_toString___closed__34;
 static lean_object* l___private_Lake_CLI_Error_0__Lake_reprCliError____x40_Lake_CLI_Error___hyg_322____closed__23;
 static lean_object* l___private_Lake_CLI_Error_0__Lake_reprCliError____x40_Lake_CLI_Error___hyg_322____closed__33;
-uint8_t l_String_isEmpty(lean_object*);
 static lean_object* l___private_Lake_CLI_Error_0__Lake_reprCliError____x40_Lake_CLI_Error___hyg_322____closed__27;
 static lean_object* l_Lake_CliError_toString___closed__7;
 static lean_object* l_Lake_CliError_toString___closed__22;
@@ -127,6 +127,7 @@ static lean_object* l___private_Lake_CLI_Error_0__Lake_reprCliError____x40_Lake_
 static lean_object* l_Lake_CliError_toString___closed__39;
 static lean_object* l___private_Lake_CLI_Error_0__Lake_reprCliError____x40_Lake_CLI_Error___hyg_322____closed__37;
 static lean_object* l___private_Lake_CLI_Error_0__Lake_reprCliError____x40_Lake_CLI_Error___hyg_322____closed__61;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Error_0__Lake_reprCliError____x40_Lake_CLI_Error___hyg_322____closed__36;
 static lean_object* l_Lake_CliError_toString___closed__23;
 static lean_object* l_Lake_CliError_toString___closed__36;
@@ -4439,7 +4440,7 @@ return x_182;
 }
 case 27:
 {
-lean_object* x_183; lean_object* x_184; lean_object* x_185; lean_object* x_186; lean_object* x_187; lean_object* x_188; uint8_t x_189; 
+lean_object* x_183; lean_object* x_184; lean_object* x_185; lean_object* x_186; lean_object* x_187; lean_object* x_188; lean_object* x_189; lean_object* x_190; uint8_t x_191; 
 x_183 = lean_ctor_get(x_1, 0);
 lean_inc(x_183);
 x_184 = lean_ctor_get(x_1, 1);
@@ -4450,34 +4451,37 @@ x_186 = lean_string_append(x_185, x_183);
 lean_dec(x_183);
 x_187 = l_Lake_CliError_toString___closed__40;
 x_188 = lean_string_append(x_186, x_187);
-x_189 = l_String_isEmpty(x_184);
-if (x_189 == 0)
+x_189 = lean_string_utf8_byte_size(x_184);
+x_190 = lean_unsigned_to_nat(0u);
+x_191 = lean_nat_dec_eq(x_189, x_190);
+lean_dec(x_189);
+if (x_191 == 0)
 {
-lean_object* x_190; lean_object* x_191; lean_object* x_192; 
-x_190 = lean_string_append(x_188, x_184);
+lean_object* x_192; lean_object* x_193; lean_object* x_194; 
+x_192 = lean_string_append(x_188, x_184);
 lean_dec(x_184);
-x_191 = l_Lake_CliError_toString___closed__5;
-x_192 = lean_string_append(x_190, x_191);
-return x_192;
+x_193 = l_Lake_CliError_toString___closed__5;
+x_194 = lean_string_append(x_192, x_193);
+return x_194;
 }
 else
 {
-lean_object* x_193; lean_object* x_194; lean_object* x_195; lean_object* x_196; 
+lean_object* x_195; lean_object* x_196; lean_object* x_197; lean_object* x_198; 
 lean_dec(x_184);
-x_193 = l_Lake_CliError_toString___closed__41;
-x_194 = lean_string_append(x_188, x_193);
-x_195 = l_Lake_CliError_toString___closed__5;
-x_196 = lean_string_append(x_194, x_195);
-return x_196;
+x_195 = l_Lake_CliError_toString___closed__41;
+x_196 = lean_string_append(x_188, x_195);
+x_197 = l_Lake_CliError_toString___closed__5;
+x_198 = lean_string_append(x_196, x_197);
+return x_198;
 }
 }
 default: 
 {
-lean_object* x_197; 
-x_197 = lean_ctor_get(x_1, 0);
-lean_inc(x_197);
+lean_object* x_199; 
+x_199 = lean_ctor_get(x_1, 0);
+lean_inc(x_199);
 lean_dec(x_1);
-return x_197;
+return x_199;
 }
 }
 }

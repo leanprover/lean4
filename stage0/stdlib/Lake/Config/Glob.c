@@ -1349,7 +1349,6 @@ _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_7 = l_Lake_Glob_forEachModuleIn___rarg___lambda__2___closed__1;
-lean_inc(x_2);
 x_8 = l_Lean_modToFilePath(x_1, x_2, x_7);
 x_9 = lean_alloc_closure((void*)(l_Lake_Glob_forEachModuleIn___rarg___lambda__1), 3, 2);
 lean_closure_set(x_9, 0, x_2);
@@ -1381,7 +1380,6 @@ x_8 = lean_ctor_get(x_5, 0);
 lean_inc(x_8);
 lean_dec(x_5);
 x_9 = l_Lake_Glob_forEachModuleIn___rarg___lambda__2___closed__1;
-lean_inc(x_8);
 x_10 = l_Lean_modToFilePath(x_3, x_8, x_9);
 lean_dec(x_3);
 x_11 = lean_alloc_closure((void*)(l_Lake_Glob_forEachModuleIn___rarg___lambda__1), 3, 2);

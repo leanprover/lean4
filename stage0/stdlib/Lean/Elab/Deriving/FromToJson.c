@@ -17,6 +17,7 @@ static lean_object* l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lambda__3
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___spec__6___closed__11;
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstance___lambda__2___closed__2;
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJson_mkFromJsonInstance_mkAlts___spec__7___lambda__2___closed__12;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___spec__6___closed__8;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJson_mkFromJsonInstance___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -29,6 +30,7 @@ static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJson_mk
 lean_object* l_Lean_Syntax_mkNameLit(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_FromToJson_mkToJsonInstance_mkAlts___spec__4___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lambda__3___closed__12;
+uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lambda__4___closed__12;
 static lean_object* l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lambda__1___closed__10;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -118,8 +120,8 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJs
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJson_mkFromJsonInstance_mkAlts___spec__7___lambda__1___closed__32;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___spec__6___closed__18;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___spec__3___closed__3;
+lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT uint8_t l_Array_qsort_sort___at_Lean_Elab_Deriving_FromToJson_mkFromJsonInstance_mkAlts___spec__8___lambda__1(lean_object*, lean_object*);
-lean_object* l_String_dropRightWhile(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lambda__3___closed__24;
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Elab_Deriving_FromToJson_mkFromJsonInstance___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJson_mkFromJsonInstance___spec__3___closed__25;
@@ -158,10 +160,10 @@ static lean_object* l_Array_mapIdxM_map___at_Lean_Elab_Deriving_FromToJson_mkFro
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJson_mkFromJsonInstance_mkAlts___spec__7___lambda__1___closed__7;
 lean_object* l_Lean_Elab_registerDerivingHandler(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lambda__4___closed__10;
+LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at_Lean_Elab_Deriving_FromToJson_mkJsonField___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfo___at_Lean_Elab_Command_expandDeclId___spec__9(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Deriving_FromToJson_mkToJsonInstance_mkAlts___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_Deriving_FromToJson_mkJsonField___closed__5;
 static lean_object* l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lambda__1___closed__16;
 static lean_object* l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstance___lambda__3___closed__7;
 lean_object* l_Lean_Elab_Deriving_mkLet(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -266,7 +268,8 @@ static lean_object* l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lambda__1
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_FromToJson_mkFromJsonInstance_mkAlts___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Elab_Deriving_FromToJson_mkJsonField___lambda__1(uint32_t);
+LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at_Lean_Elab_Deriving_FromToJson_mkJsonField___spec__2(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJson_mkFromJsonInstance___spec__3___closed__13;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJson_mkFromJsonInstance_mkAlts___spec__6___closed__1;
 static lean_object* l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lambda__3___closed__1;
@@ -299,7 +302,6 @@ static lean_object* l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lambda__3
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJson_mkFromJsonInstance_mkAlts___spec__4___closed__7;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___spec__3___closed__6;
-LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_FromToJson_mkJsonField___lambda__1___boxed(lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJson_mkFromJsonInstance___spec__5___closed__2;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJson_mkFromJsonInstance_mkAlts___spec__7___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_FromToJson_mkToJsonInstance___lambda__4___closed__5;
@@ -533,13 +535,34 @@ return x_13;
 }
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Elab_Deriving_FromToJson_mkJsonField___lambda__1(uint32_t x_1) {
+LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at_Lean_Elab_Deriving_FromToJson_mkJsonField___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-uint32_t x_2; uint8_t x_3; 
-x_2 = 63;
-x_3 = lean_uint32_dec_eq(x_1, x_2);
+uint8_t x_4; 
+x_4 = lean_nat_dec_lt(x_2, x_3);
+if (x_4 == 0)
+{
 return x_3;
+}
+else
+{
+lean_object* x_5; uint32_t x_6; uint32_t x_7; uint8_t x_8; 
+x_5 = lean_string_utf8_prev(x_1, x_3);
+x_6 = lean_string_utf8_get(x_1, x_5);
+x_7 = 63;
+x_8 = lean_uint32_dec_eq(x_6, x_7);
+if (x_8 == 0)
+{
+lean_dec(x_5);
+return x_3;
+}
+else
+{
+lean_dec(x_3);
+x_3 = x_5;
+goto _start;
+}
+}
 }
 }
 static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkJsonField___closed__1() {
@@ -576,14 +599,6 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkJsonField___closed__5() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Deriving_FromToJson_mkJsonField___lambda__1___boxed), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_FromToJson_mkJsonField(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -594,75 +609,78 @@ x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
 if (lean_obj_tag(x_5) == 0)
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; 
 x_6 = lean_ctor_get(x_1, 1);
 lean_inc(x_6);
 lean_dec(x_1);
-x_7 = l_Lean_Elab_Deriving_FromToJson_mkJsonField___closed__5;
-x_8 = l_String_dropRightWhile(x_6, x_7);
-x_9 = lean_string_dec_eq(x_6, x_8);
+x_7 = lean_string_utf8_byte_size(x_6);
+x_8 = lean_unsigned_to_nat(0u);
+x_9 = l_Substring_takeRightWhileAux___at_Lean_Elab_Deriving_FromToJson_mkJsonField___spec__2(x_6, x_8, x_7);
+x_10 = lean_string_utf8_extract(x_6, x_8, x_9);
+lean_dec(x_9);
+x_11 = lean_string_dec_eq(x_6, x_10);
 lean_dec(x_6);
-x_10 = lean_box(2);
-x_11 = l_Lean_Syntax_mkStrLit(x_8, x_10);
-lean_dec(x_8);
-if (x_9 == 0)
+x_12 = lean_box(2);
+x_13 = l_Lean_Syntax_mkStrLit(x_10, x_12);
+lean_dec(x_10);
+if (x_11 == 0)
 {
-uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_12 = 1;
-x_13 = lean_box(x_12);
-x_14 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_14, 0, x_13);
-lean_ctor_set(x_14, 1, x_11);
-x_15 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_15, 0, x_14);
-lean_ctor_set(x_15, 1, x_4);
-return x_15;
+uint8_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_14 = 1;
+x_15 = lean_box(x_14);
+x_16 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_16, 0, x_15);
+lean_ctor_set(x_16, 1, x_13);
+x_17 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_17, 0, x_16);
+lean_ctor_set(x_17, 1, x_4);
+return x_17;
 }
 else
 {
-uint8_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_16 = 0;
-x_17 = lean_box(x_16);
-x_18 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_18, 0, x_17);
-lean_ctor_set(x_18, 1, x_11);
-x_19 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_19, 0, x_18);
-lean_ctor_set(x_19, 1, x_4);
-return x_19;
+uint8_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
+x_18 = 0;
+x_19 = lean_box(x_18);
+x_20 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_20, 0, x_19);
+lean_ctor_set(x_20, 1, x_13);
+x_21 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_21, 0, x_20);
+lean_ctor_set(x_21, 1, x_4);
+return x_21;
 }
 }
 else
 {
-lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 lean_dec(x_5);
-x_20 = l_Lean_MessageData_ofName(x_1);
-x_21 = l_Lean_Elab_Deriving_FromToJson_mkJsonField___closed__2;
-x_22 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_22, 0, x_21);
-lean_ctor_set(x_22, 1, x_20);
-x_23 = l_Lean_Elab_Deriving_FromToJson_mkJsonField___closed__4;
+x_22 = l_Lean_MessageData_ofName(x_1);
+x_23 = l_Lean_Elab_Deriving_FromToJson_mkJsonField___closed__2;
 x_24 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_24, 0, x_22);
-lean_ctor_set(x_24, 1, x_23);
-x_25 = l_Lean_throwError___at_Lean_Elab_Deriving_FromToJson_mkJsonField___spec__1(x_24, x_2, x_3, x_4);
-return x_25;
+lean_ctor_set(x_24, 0, x_23);
+lean_ctor_set(x_24, 1, x_22);
+x_25 = l_Lean_Elab_Deriving_FromToJson_mkJsonField___closed__4;
+x_26 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_26, 0, x_24);
+lean_ctor_set(x_26, 1, x_25);
+x_27 = l_Lean_throwError___at_Lean_Elab_Deriving_FromToJson_mkJsonField___spec__1(x_26, x_2, x_3, x_4);
+return x_27;
 }
 }
 else
 {
-lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
-x_26 = l_Lean_MessageData_ofName(x_1);
-x_27 = l_Lean_Elab_Deriving_FromToJson_mkJsonField___closed__2;
-x_28 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_28, 0, x_27);
-lean_ctor_set(x_28, 1, x_26);
-x_29 = l_Lean_Elab_Deriving_FromToJson_mkJsonField___closed__4;
+lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
+x_28 = l_Lean_MessageData_ofName(x_1);
+x_29 = l_Lean_Elab_Deriving_FromToJson_mkJsonField___closed__2;
 x_30 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_30, 0, x_28);
-lean_ctor_set(x_30, 1, x_29);
-x_31 = l_Lean_throwError___at_Lean_Elab_Deriving_FromToJson_mkJsonField___spec__1(x_30, x_2, x_3, x_4);
-return x_31;
+lean_ctor_set(x_30, 0, x_29);
+lean_ctor_set(x_30, 1, x_28);
+x_31 = l_Lean_Elab_Deriving_FromToJson_mkJsonField___closed__4;
+x_32 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_32, 0, x_30);
+lean_ctor_set(x_32, 1, x_31);
+x_33 = l_Lean_throwError___at_Lean_Elab_Deriving_FromToJson_mkJsonField___spec__1(x_32, x_2, x_3, x_4);
+return x_33;
 }
 }
 }
@@ -676,14 +694,13 @@ lean_dec(x_2);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_FromToJson_mkJsonField___lambda__1___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux___at_Lean_Elab_Deriving_FromToJson_mkJsonField___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-uint32_t x_2; uint8_t x_3; lean_object* x_4; 
-x_2 = lean_unbox_uint32(x_1);
+lean_object* x_4; 
+x_4 = l_Substring_takeRightWhileAux___at_Lean_Elab_Deriving_FromToJson_mkJsonField___spec__2(x_1, x_2, x_3);
+lean_dec(x_2);
 lean_dec(x_1);
-x_3 = l_Lean_Elab_Deriving_FromToJson_mkJsonField___lambda__1(x_2);
-x_4 = lean_box(x_3);
 return x_4;
 }
 }
@@ -20087,8 +20104,6 @@ l_Lean_Elab_Deriving_FromToJson_mkJsonField___closed__3 = _init_l_Lean_Elab_Deri
 lean_mark_persistent(l_Lean_Elab_Deriving_FromToJson_mkJsonField___closed__3);
 l_Lean_Elab_Deriving_FromToJson_mkJsonField___closed__4 = _init_l_Lean_Elab_Deriving_FromToJson_mkJsonField___closed__4();
 lean_mark_persistent(l_Lean_Elab_Deriving_FromToJson_mkJsonField___closed__4);
-l_Lean_Elab_Deriving_FromToJson_mkJsonField___closed__5 = _init_l_Lean_Elab_Deriving_FromToJson_mkJsonField___closed__5();
-lean_mark_persistent(l_Lean_Elab_Deriving_FromToJson_mkJsonField___closed__5);
 l_Lean_getConstInfoCtor___at_Lean_Elab_Deriving_FromToJson_mkToJsonInstance_mkAlts___spec__1___closed__1 = _init_l_Lean_getConstInfoCtor___at_Lean_Elab_Deriving_FromToJson_mkToJsonInstance_mkAlts___spec__1___closed__1();
 lean_mark_persistent(l_Lean_getConstInfoCtor___at_Lean_Elab_Deriving_FromToJson_mkToJsonInstance_mkAlts___spec__1___closed__1);
 l_Lean_getConstInfoCtor___at_Lean_Elab_Deriving_FromToJson_mkToJsonInstance_mkAlts___spec__1___closed__2 = _init_l_Lean_getConstInfoCtor___at_Lean_Elab_Deriving_FromToJson_mkToJsonInstance_mkAlts___spec__1___closed__2();

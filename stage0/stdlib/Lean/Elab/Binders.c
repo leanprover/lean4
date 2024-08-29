@@ -1274,6 +1274,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_Elab_Term_kindOfBinderName(x_1);
+lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -4918,7 +4919,6 @@ lean_object* x_15; lean_object* x_16; uint8_t x_17; uint8_t x_18; lean_object* x
 x_15 = lean_ctor_get(x_1, 1);
 lean_inc(x_15);
 x_16 = l_Lean_Syntax_getId(x_15);
-lean_inc(x_16);
 x_17 = l_Lean_Elab_Term_kindOfBinderName(x_16);
 x_18 = lean_ctor_get_uint8(x_1, sizeof(void*)*3);
 x_19 = lean_alloc_closure((void*)(l___private_Lean_Elab_Binders_0__Lean_Elab_Term_elabBinderViews_loop___rarg___lambda__1___boxed), 14, 6);
@@ -17089,7 +17089,6 @@ lean_ctor_set(x_28, 3, x_27);
 x_29 = lean_ctor_get(x_5, 1);
 lean_inc(x_29);
 x_30 = l_Lean_Syntax_getId(x_29);
-lean_inc(x_30);
 x_31 = l_Lean_Elab_Term_kindOfBinderName(x_30);
 x_32 = lean_ctor_get_uint8(x_5, sizeof(void*)*3);
 lean_inc(x_16);
@@ -17530,7 +17529,6 @@ lean_ctor_set(x_127, 3, x_126);
 x_128 = lean_ctor_get(x_5, 1);
 lean_inc(x_128);
 x_129 = l_Lean_Syntax_getId(x_128);
-lean_inc(x_129);
 x_130 = l_Lean_Elab_Term_kindOfBinderName(x_129);
 x_131 = lean_ctor_get_uint8(x_5, sizeof(void*)*3);
 lean_inc(x_16);
@@ -25889,7 +25887,6 @@ lean_object* x_27; lean_object* x_28; lean_object* x_29; uint8_t x_30; lean_obje
 x_27 = lean_ctor_get(x_21, 0);
 x_28 = lean_ctor_get(x_21, 1);
 x_29 = l_Lean_Syntax_getId(x_1);
-lean_inc(x_29);
 x_30 = l_Lean_Elab_Term_kindOfBinderName(x_29);
 x_31 = l_Lean_Elab_Term_elabLetDeclAux___closed__1;
 x_32 = l_Lean_isTracingEnabledFor___at_Lean_Elab_Term_traceAtCmdPos___spec__1(x_31, x_10, x_11, x_12, x_13, x_14, x_15, x_22);
@@ -26010,7 +26007,6 @@ lean_inc(x_70);
 lean_inc(x_69);
 lean_dec(x_21);
 x_71 = l_Lean_Syntax_getId(x_1);
-lean_inc(x_71);
 x_72 = l_Lean_Elab_Term_kindOfBinderName(x_71);
 x_73 = l_Lean_Elab_Term_elabLetDeclAux___closed__1;
 x_74 = l_Lean_isTracingEnabledFor___at_Lean_Elab_Term_traceAtCmdPos___spec__1(x_73, x_10, x_11, x_12, x_13, x_14, x_15, x_22);
@@ -26105,7 +26101,6 @@ if (lean_is_exclusive(x_21)) {
  x_100 = lean_box(0);
 }
 x_101 = l_Lean_Syntax_getId(x_1);
-lean_inc(x_101);
 x_102 = l_Lean_Elab_Term_kindOfBinderName(x_101);
 x_103 = l_Lean_Elab_Term_elabLetDeclAux___closed__1;
 x_104 = l_Lean_isTracingEnabledFor___at_Lean_Elab_Term_traceAtCmdPos___spec__1(x_103, x_10, x_11, x_12, x_13, x_14, x_15, x_22);

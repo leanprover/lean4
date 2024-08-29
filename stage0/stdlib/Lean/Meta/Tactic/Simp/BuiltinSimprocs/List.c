@@ -28,12 +28,12 @@ LEAN_EXPORT lean_object* l_List_reduceReplicate(lean_object*, lean_object*, lean
 static lean_object* l___regBuiltin_List_reduceReplicate_declare__1____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List___hyg_254____closed__8;
 extern lean_object* l_Lean_Meta_Simp_builtinSimprocsRef;
 static lean_object* l_List_reduceReplicate___closed__5;
-lean_object* l_List_replicate___rarg(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_List_reduceReplicate_declare__1____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List___hyg_258____closed__1;
 lean_object* l_Lean_Expr_appArg(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appFnCleanup(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_List_reduceReplicate_declare__1____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List___hyg_256____closed__2;
 LEAN_EXPORT lean_object* l___regBuiltin_List_reduceReplicate_declare__1____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List___hyg_254_(lean_object*);
+lean_object* l_List_replicateTR___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_List_reduceReplicate_declare__1____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List___hyg_256_(lean_object*);
 LEAN_EXPORT lean_object* l_List_reduceReplicate___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_List_reduceReplicate_declare__1____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List___hyg_254____closed__7;
@@ -122,8 +122,7 @@ if (x_21 == 0)
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 x_22 = lean_ctor_get(x_13, 0);
-x_23 = l_List_replicate___rarg(x_22, x_3);
-lean_dec(x_22);
+x_23 = l_List_replicateTR___rarg(x_22, x_3);
 x_24 = l_Lean_Meta_mkListLit(x_1, x_23, x_7, x_8, x_9, x_10, x_20);
 if (lean_obj_tag(x_24) == 0)
 {
@@ -184,8 +183,7 @@ lean_object* x_34; lean_object* x_35; lean_object* x_36;
 x_34 = lean_ctor_get(x_13, 0);
 lean_inc(x_34);
 lean_dec(x_13);
-x_35 = l_List_replicate___rarg(x_34, x_3);
-lean_dec(x_34);
+x_35 = l_List_replicateTR___rarg(x_34, x_3);
 x_36 = l_Lean_Meta_mkListLit(x_1, x_35, x_7, x_8, x_9, x_10, x_20);
 if (lean_obj_tag(x_36) == 0)
 {

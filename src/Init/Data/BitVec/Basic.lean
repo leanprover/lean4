@@ -172,7 +172,7 @@ instance : GetElem (BitVec w) Nat Bool fun _ i => i < w where
 
 theorem getLsbD_eq_getElem?_getD (x : BitVec w) (i : Nat) (h : i < w) :
     x.getLsbD i = x[i]?.getD false := by
-  simp only [getElem?, decidableGetElem?, getElem]
+  rw [getElem?_def]
   split <;> rfl
 
 end getElem

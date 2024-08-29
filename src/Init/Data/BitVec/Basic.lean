@@ -157,6 +157,26 @@ def getMsb (x : BitVec w) (i : Nat) : Bool := x.getMsbD i
 
 end getXsb
 
+section getElem
+
+instance : GetElem (BitVec w) Nat Bool fun _ i => i < w where
+  getElem xs i h := xs.getLsb' i h
+
+/-- We prefer `x[i]` as the simp normal form for `getLsb'` -/
+@[simp] theorem getLsb'_eq_getElem (x : BitVec w) (i : Nat) (h : i < w) :
+    x.getLsb' i h = x[i] := rfl
+
+/-- We prefer `x[i]?` as the simp normal form for `getLsb?` -/
+@[simp] theorem getLsb?_eq_getElem? (x : BitVec w) (i : Nat) :
+    x.getLsb? i = x[i]? := rfl
+
+theorem getLsbD_eq_getElem?_getD (x : BitVec w) (i : Nat) (h : i < w) :
+    x.getLsbD i = x[i]?.getD false := by
+  simp only [getElem?, decidableGetElem?, getElem]
+  split <;> rfl
+
+end getElem
+
 section Int
 
 /-- Interpret the bitvector as an integer stored in two's complement form. -/

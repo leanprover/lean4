@@ -322,3 +322,15 @@
   run_config:
     <<: *time
     cmd: lean workspaceSymbols.lean
+- attributes:
+    description: bv_decide_realworld
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean bv_decide_realworld.lean
+- attributes:
+    description: bv_decide_mul
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean bv_decide_mul.lean

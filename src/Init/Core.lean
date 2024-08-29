@@ -1650,7 +1650,7 @@ protected theorem ind {α : Sort u} {s : Setoid α} {motive : Quotient s → Pro
 
 /--
 The analogue of `Quot.liftOn`: if `f : α → β` respects the equivalence relation `≈`,
-then it lifts to a function on `Quotient s` such that `lift (mk a) f h = f a`.
+then it lifts to a function on `Quotient s` such that `liftOn (mk a) f h = f a`.
 -/
 protected abbrev liftOn {α : Sort u} {β : Sort v} {s : Setoid α} (q : Quotient s) (f : α → β) (c : (a b : α) → a ≈ b → f a = f b) : β :=
   Quot.liftOn q f c

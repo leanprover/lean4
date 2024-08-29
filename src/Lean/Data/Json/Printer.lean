@@ -6,6 +6,7 @@ Authors: Gabriel Ebner, Marc Huisinga, Wojciech Nawrocki
 prelude
 import Lean.Data.Format
 import Lean.Data.Json.Basic
+import Init.Data.List.Impl
 
 namespace Lean
 namespace Json

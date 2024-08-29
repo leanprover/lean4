@@ -94,7 +94,7 @@ def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   if (← isRecursiveDefinition declName) then
     return none
   if let some (.defnInfo info) := (← getEnv).find? declName then
-    if eqns.nonrecursive.get (← getOptions) then
+    if backward.eqns.nonrecursive.get (← getOptions) then
       mkEqns declName info
     else
       let o ← mkSimpleEqThm declName

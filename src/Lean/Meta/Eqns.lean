@@ -12,12 +12,12 @@ import Lean.Meta.Match.MatcherInfo
 
 namespace Lean.Meta
 
-register_builtin_option eqns.nonrecursive : Bool := {
+register_builtin_option backward.eqns.nonrecursive : Bool := {
     defValue := true
     descr    := "Create fine-grained equational lemmas even for non-recursive definitions."
   }
 
-register_builtin_option eqns.deepRecursiveSplit : Bool := {
+register_builtin_option backward.eqns.deepRecursiveSplit : Bool := {
     defValue := true
     descr    := "Create equational lemmas for recursive functions like for non-recursive \
                 functions. If disabled, match statements in recursive function definitions \
@@ -35,7 +35,7 @@ This is implemented by
  * eagerly realizing the equations when they are set to a non-default vaule
  * when realizing them lazily, reset the options to their default
 -/
-def eqnAffectingOptions : Array (Lean.Option Bool) := #[eqns.nonrecursive, eqns.deepRecursiveSplit]
+def eqnAffectingOptions : Array (Lean.Option Bool) := #[backward.eqns.nonrecursive, backward.eqns.deepRecursiveSplit]
 
 /--
 Environment extension for storing which declarations are recursive.

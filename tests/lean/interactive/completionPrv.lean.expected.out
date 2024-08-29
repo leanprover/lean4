@@ -30,7 +30,7 @@
      "position": {"line": 9, "character": 11}},
     "id": {"const": {"declName": "instToBoolBool"}}}},
   {"sortText": "2",
-   "label": "BitVec.getLsb_ofBoolListBE",
+   "label": "BitVec.getLsbD_ofBoolListBE",
    "kind": 3,
    "data":
    {"params":
@@ -38,7 +38,7 @@
      "position": {"line": 9, "character": 11}},
     "id": {"const": {"declName": "BitVec.getLsbD_ofBoolListBE"}}}},
   {"sortText": "3",
-   "label": "BitVec.getMsb_ofBoolListBE",
+   "label": "BitVec.getMsbD_ofBoolListBE",
    "kind": 3,
    "data":
    {"params":

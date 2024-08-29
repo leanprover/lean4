@@ -425,9 +425,9 @@ where
   levelMVarToParam' (type : Expr) : TermElabM Expr := do
     Term.levelMVarToParam type (except := fun mvarId => univToInfer? == some mvarId)
 
-def mkResultUniverse (us : Array Level) (rOffset : Nat) : Level :=
+def mkResultUniverse (us : Array Level) (rOffset : Nat) (defaultLevel : Level) : Level :=
   if us.isEmpty && rOffset == 0 then
-    levelOne
+    defaultLevel
   else
     let r := Level.mkNaryMax us.toList
     if rOffset == 0 && !r.isZero && !r.isNeverZero then
@@ -452,8 +452,8 @@ where
   go (u : Level) (rOffset : Nat) : OptionT (StateT (Array Level) Id) Unit := do
     match u, rOffset with
     | .max u v,  rOffset   => go u rOffset; go v rOffset
-    | .imax u v, rOffset   => go u rOffset; go v rOffset
     | .zero,     _         => return ()
+    | .imax u v, rOffset   => go u rOffset; go v rOffset
     | .succ u,   rOffset+1 => go u rOffset
     | u,         rOffset   =>
       if rOffset == 0 && u == r then
@@ -520,7 +520,7 @@ private def updateResultingUniverse (views : Array InductiveView) (numParams : N
     throwError "failed to compute resulting universe level of inductive datatype, provide universe explicitly: {r}"
   let us ← collectUniverses views r rOffset numParams indTypes
   trace[Elab.inductive] "updateResultingUniverse us: {us}, r: {r}, rOffset: {rOffset}"
-  let rNew := mkResultUniverse us rOffset
+  let rNew := mkResultUniverse us rOffset levelOne
   assignLevelMVar r.mvarId! rNew
   indTypes.mapM fun indType => do
     let type ← instantiateMVars indType.type

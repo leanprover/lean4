@@ -638,7 +638,7 @@ private def updateResultingUniverse (fieldInfos : Array StructFieldInfo) (type :
   match r with
   | Level.mvar mvarId =>
     let us ← collectUniversesFromFields r rOffset fieldInfos
-    let rNew := mkResultUniverse us rOffset
+    let rNew := mkResultUniverse us rOffset (if fieldInfos.size == 0 then levelOne else levelZero)
     assignLevelMVar mvarId rNew
     instantiateMVars type
   | _ => throwError "failed to compute resulting universe level of structure, provide universe explicitly"

@@ -100,6 +100,7 @@ lib.warn "The Nix-based build is deprecated" rec {
       };
       Lake-Main = build {
         name = "LakeMain";
+        roots = [{ glob = "one"; mod = "LakeMain"; }];
         executableName = "lake";
         deps = [ Lake ];
         linkFlags = lib.optional stdenv.isLinux "-rdynamic";

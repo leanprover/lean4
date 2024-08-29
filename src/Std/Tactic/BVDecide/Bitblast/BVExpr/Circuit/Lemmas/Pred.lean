@@ -6,7 +6,7 @@ Authors: Henrik Böving
 prelude
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Eq
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Ult
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.GetLsb
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.GetLsbD
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Expr
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Pred
 
@@ -49,7 +49,7 @@ theorem denote_bitblast (aig : AIG BVBit) (pred : BVPred) (assign : BVExpr.Assig
       · intros
         simp
   | getLsbD expr idx =>
-    simp only [bitblast, denote_blastGetLsb, BVExpr.denote_bitblast, dite_eq_ite,
+    simp only [bitblast, denote_blastGetLsbD, BVExpr.denote_bitblast, dite_eq_ite,
       Bool.if_false_right, eval_getLsbD, Bool.and_iff_right_iff_imp, decide_eq_true_eq]
     apply BitVec.lt_of_getLsbD
 

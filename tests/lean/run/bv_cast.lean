@@ -35,5 +35,5 @@ theorem cast_unit_8 (x : BitVec 64) : (x.signExtend 128 = x.zeroExtend 128) ↔ 
 theorem cast_unit_9 (x : BitVec 32) : (x.replicate 20).zeroExtend 32 = x := by
   bv_decide
 
-theorem cast_unit_10 (x : BitVec 32) : (x.replicate 20).getLsb 40 = x.getLsb 8 := by
+theorem cast_unit_10 (x : BitVec 32) : (x.replicate 20).getLsbD 40 = x.getLsbD 8 := by
   bv_decide

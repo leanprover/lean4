@@ -46,7 +46,7 @@ def of (t : Expr) : M (Option ReifiedBVPred) := do
     binaryReflection lhsExpr rhsExpr .eq ``Std.Tactic.BVDecide.Reflect.BitVec.beq_congr
   | BitVec.ult _ lhsExpr rhsExpr =>
     binaryReflection lhsExpr rhsExpr .ult ``Std.Tactic.BVDecide.Reflect.BitVec.ult_congr
-  | BitVec.getLsb _ subExpr idxExpr =>
+  | BitVec.getLsbD _ subExpr idxExpr =>
     let some sub ← ReifiedBVExpr.of subExpr | return none
     let some idx ← getNatValue? idxExpr | return none
     let bvExpr : BVPred := .getLsbD sub.bvExpr idx

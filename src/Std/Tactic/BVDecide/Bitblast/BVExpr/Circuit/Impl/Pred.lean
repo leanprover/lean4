@@ -6,7 +6,7 @@ Authors: Henrik Böving
 prelude
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Eq
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Ult
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.GetLsb
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.GetLsbD
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
 
 /-!
@@ -42,7 +42,7 @@ def bitblast (aig : AIG BVBit) (pred : BVPred) : AIG.Entrypoint BVBit :=
     let res := expr.bitblast aig
     let aig := res.aig
     let refs := res.vec
-    blastGetLsb aig ⟨refs, idx⟩
+    blastGetLsbD aig ⟨refs, idx⟩
 
 instance : AIG.LawfulOperator BVBit (fun _ => BVPred) bitblast where
   le_size := by
@@ -60,7 +60,7 @@ instance : AIG.LawfulOperator BVBit (fun _ => BVPred) bitblast where
         apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := BVExpr.bitblast)
         apply AIG.LawfulVecOperator.le_size (f := BVExpr.bitblast)
     | getLsbD expr idx =>
-      apply AIG.LawfulOperator.le_size_of_le_aig_size (f := blastGetLsb)
+      apply AIG.LawfulOperator.le_size_of_le_aig_size (f := blastGetLsbD)
       apply AIG.LawfulVecOperator.le_size (f := BVExpr.bitblast)
   decl_eq := by
     intro aig pred idx h1 h2
@@ -89,7 +89,7 @@ instance : AIG.LawfulOperator BVBit (fun _ => BVPred) bitblast where
           assumption
     | getLsbD expr idx =>
       simp only [bitblast]
-      rw [AIG.LawfulOperator.decl_eq (f := blastGetLsb)]
+      rw [AIG.LawfulOperator.decl_eq (f := blastGetLsbD)]
       rw [AIG.LawfulVecOperator.decl_eq (f := BVExpr.bitblast)]
       apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := BVExpr.bitblast)
       assumption

@@ -8,7 +8,7 @@ import Std.Sat.AIG.CachedGatesLemmas
 import Std.Sat.AIG.RefVec
 
 /-!
-This module contains the implementation of a bitblaster for `BitVec.getLsb`.
+This module contains the implementation of a bitblaster for `BitVec.getLsbD`.
 -/
 
 namespace Std.Tactic.BVDecide
@@ -19,27 +19,27 @@ namespace BVPred
 
 variable [Hashable α] [DecidableEq α]
 
-structure GetLsbTarget (aig : AIG α) where
+structure GetLsbDTarget (aig : AIG α) where
   {w : Nat}
   vec : AIG.RefVec aig w
   idx : Nat
 
-def blastGetLsb (aig : AIG α) (target : GetLsbTarget aig) : AIG.Entrypoint α :=
+def blastGetLsbD (aig : AIG α) (target : GetLsbDTarget aig) : AIG.Entrypoint α :=
   if h : target.idx < target.w then
     ⟨aig, target.vec.get target.idx h⟩
   else
     AIG.mkConstCached aig false
 
-instance : AIG.LawfulOperator α GetLsbTarget blastGetLsb where
+instance : AIG.LawfulOperator α GetLsbDTarget blastGetLsbD where
   le_size := by
     intros
-    unfold blastGetLsb
+    unfold blastGetLsbD
     split
     · simp
     · apply AIG.LawfulOperator.le_size (f := AIG.mkConstCached)
   decl_eq := by
     intros
-    unfold blastGetLsb
+    unfold blastGetLsbD
     split
     · simp
     · rw [AIG.LawfulOperator.decl_eq (f := AIG.mkConstCached)]

@@ -157,16 +157,8 @@ protected theorem sub_le_iff_le_add' {a b c : Nat} : a - b ≤ c ↔ a ≤ b + c
 protected theorem le_sub_iff_add_le {n : Nat} (h : k ≤ m) : n ≤ m - k ↔ n + k ≤ m :=
   ⟨Nat.add_le_of_le_sub h, Nat.le_sub_of_add_le⟩
 
-@[deprecated Nat.le_sub_iff_add_le (since := "2024-02-19")]
-protected theorem add_le_to_le_sub (n : Nat) (h : m ≤ k) : n + m ≤ k ↔ n ≤ k - m :=
-  (Nat.le_sub_iff_add_le h).symm
-
 protected theorem add_le_of_le_sub' {n k m : Nat} (h : m ≤ k) : n ≤ k - m → m + n ≤ k :=
   Nat.add_comm .. ▸ Nat.add_le_of_le_sub h
-
-@[deprecated Nat.add_le_of_le_sub' (since := "2024-02-19")]
-protected theorem add_le_of_le_sub_left {n k m : Nat} (h : m ≤ k) : n ≤ k - m → m + n ≤ k :=
-  Nat.add_le_of_le_sub' h
 
 protected theorem le_sub_of_add_le' {n k m : Nat} : m + n ≤ k → n ≤ k - m :=
   Nat.add_comm .. ▸ Nat.le_sub_of_add_le
@@ -428,14 +420,6 @@ protected theorem mul_min_mul_left (a b c : Nat) : min (a * b) (a * c) = a * min
 --   exact Nat.mul_min_mul_right ..
 
 /-! ### mul -/
-
-@[deprecated Nat.mul_le_mul_left (since := "2024-02-19")]
-protected theorem mul_le_mul_of_nonneg_left {a b c : Nat} : a ≤ b → c * a ≤ c * b :=
-  Nat.mul_le_mul_left c
-
-@[deprecated Nat.mul_le_mul_right (since := "2024-02-19")]
-protected theorem mul_le_mul_of_nonneg_right {a b c : Nat} : a ≤ b → a * c ≤ b * c :=
-  Nat.mul_le_mul_right c
 
 protected theorem mul_right_comm (n m k : Nat) : n * m * k = n * k * m := by
   rw [Nat.mul_assoc, Nat.mul_comm m, ← Nat.mul_assoc]

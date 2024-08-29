@@ -451,7 +451,7 @@ def withAnonymousAntiquot := leading_parser
 /-- 
 Indicates that an argument to a function marked `@[extern]` is borrowed.
 
-Being borrowed only affects the way C code interacts with the function. From the perspective of Lean, this annotation has no effect. It similarly has no effect on functions not marked `@[extern]`.
+Being borrowed only affects the ABI and runtime behavior of the function when compiled or interpreted. From the perspective of Lean's type system, this annotation has no effect. It similarly has no effect on functions not marked `@[extern]`.
 
 When a function argument is borrowed, the function does not consume the value. This means that the function will not decrement the value's reference count or deallocate it, and the caller is responsible for doing so.
 

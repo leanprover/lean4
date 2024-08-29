@@ -48,10 +48,10 @@ theorem denote_bitblast (aig : AIG BVBit) (pred : BVPred) (assign : BVExpr.Assig
         · simp [Ref.hgate]
       · intros
         simp
-  | getLsb expr idx =>
+  | getLsbD expr idx =>
     simp only [bitblast, denote_blastGetLsb, BVExpr.denote_bitblast, dite_eq_ite,
-      Bool.if_false_right, eval_getLsb, Bool.and_iff_right_iff_imp, decide_eq_true_eq]
-    apply BitVec.lt_of_getLsb
+      Bool.if_false_right, eval_getLsbD, Bool.and_iff_right_iff_imp, decide_eq_true_eq]
+    apply BitVec.lt_of_getLsbD
 
 end BVPred
 

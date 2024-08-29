@@ -33,7 +33,7 @@ def bitblast (aig : AIG BVBit) (pred : BVPred) : AIG.Entrypoint BVBit :=
     match op with
     | .eq => mkEq aig ⟨lhsRefs, rhsRefs⟩
     | .ult => mkUlt aig ⟨lhsRefs, rhsRefs⟩
-  | .getLsb expr idx =>
+  | .getLsbD expr idx =>
     /-
     Note: This blasts the entire expression up to `w` despite only needing it up to `idx`.
     However the vast majority of operations are interested in all bits so the API is currently
@@ -59,7 +59,7 @@ instance : AIG.LawfulOperator BVBit (fun _ => BVPred) bitblast where
         apply AIG.LawfulOperator.le_size_of_le_aig_size (f := mkUlt)
         apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := BVExpr.bitblast)
         apply AIG.LawfulVecOperator.le_size (f := BVExpr.bitblast)
-    | getLsb expr idx =>
+    | getLsbD expr idx =>
       apply AIG.LawfulOperator.le_size_of_le_aig_size (f := blastGetLsb)
       apply AIG.LawfulVecOperator.le_size (f := BVExpr.bitblast)
   decl_eq := by
@@ -87,7 +87,7 @@ instance : AIG.LawfulOperator BVBit (fun _ => BVPred) bitblast where
         · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := BVExpr.bitblast)
           apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := BVExpr.bitblast)
           assumption
-    | getLsb expr idx =>
+    | getLsbD expr idx =>
       simp only [bitblast]
       rw [AIG.LawfulOperator.decl_eq (f := blastGetLsb)]
       rw [AIG.LawfulVecOperator.decl_eq (f := BVExpr.bitblast)]

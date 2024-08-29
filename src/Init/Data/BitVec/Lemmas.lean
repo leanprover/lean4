@@ -152,9 +152,6 @@ theorem getLsb_ofNat (n : Nat) (x : Nat) (i : Nat) :
   getLsb (BitVec.ofNat n x) i = (i < n && x.testBit i) := by
   simp [getLsb, BitVec.ofNat, Fin.val_ofNat']
 
-@[simp, deprecated toNat_ofNat (since := "2024-02-22")]
-theorem toNat_zero (n : Nat) : (0#n).toNat = 0 := by trivial
-
 @[simp] theorem getLsb_zero : (0#w).getLsb i = false := by simp [getLsb]
 
 @[simp] theorem getMsb_zero : (0#w).getMsb i = false := by simp [getMsb]

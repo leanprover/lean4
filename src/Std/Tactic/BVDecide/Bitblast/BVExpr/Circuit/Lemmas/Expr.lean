@@ -114,7 +114,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
       · dsimp only; omega
   | extract hi lo inner ih =>
     simp only [go, denote_blastExtract, Bool.if_false_right, eval_extract,
-      BitVec.getLsb_extract]
+      BitVec.getLsbD_extract]
     have : idx ≤ hi - lo := by omega
     simp only [this, decide_True, Bool.true_and]
     split

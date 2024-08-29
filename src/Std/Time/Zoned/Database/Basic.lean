@@ -13,17 +13,17 @@ namespace Time
 set_option linter.all true
 
 /--
-A timezone database that we can read the `ZoneRules` of some area by it's id.
+A timezone database from which we can read the `ZoneRules` of some area by it's id.
 -/
 class Database (α : Type) where
 
   /--
-  Loads a `ZoneRules` by it's id.
+  Loads a `ZoneRules` by its id.
   -/
   load : α → String → IO TimeZone.ZoneRules
 
   /--
-  Loads a `ZoneRules` that is setted by the local computer.
+  Loads a `ZoneRules` that is set by the local computer.
   -/
   localRules : α → IO TimeZone.ZoneRules
 

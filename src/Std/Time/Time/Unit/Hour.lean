@@ -23,6 +23,9 @@ account for valid timestamps like 24:00:00 with leap seconds.
 -/
 def Ordinal (leap : Bool) := Bounded.LE 0 (.ofNat (if leap then 24 else 23))
 
+instance : ToString (Ordinal leap) where
+  toString x := toString x.val
+
 instance : Repr (Ordinal l) where
   reprPrec r l := reprPrec r.val l
 
@@ -31,9 +34,6 @@ instance : OfNat (Ordinal leap) n := by
   cases leap
   · exact inst
   · exact ⟨inst.ofNat.expandTop (by decide)⟩
-
-instance : OfNat (Ordinal true) 24 where
-  ofNat := Bounded.LE.mk (Int.ofNat 24) (by decide)
 
 /--
 `Offset` represents an offset in hours, defined as an `Int`. This can be used to express durations
@@ -72,23 +72,6 @@ def toOffset (ordinal : Ordinal leap) : Offset :=
   UnitVal.ofInt ordinal.val
 
 end Ordinal
-namespace Offset
-
-/--
-Converts an `Hour.Offset` to a `Second.Offset`.
--/
-@[inline]
-def toSeconds (val : Offset) : Second.Offset :=
-  val.mul 3600
-
-/--
-Converts an `Hour.Offset` to a `Minute.Offset`.
--/
-@[inline]
-def toMinutes (val : Offset) : Minute.Offset :=
-  val.mul 60
-
-end Offset
 end Hour
 end Time
 end Std

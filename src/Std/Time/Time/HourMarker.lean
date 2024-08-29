@@ -21,6 +21,7 @@ inductive HourMarker
   | am
   /-- Post meridiem. -/
   | pm
+  deriving Repr, BEq
 
 /--
 Converts a 12-hour clock time to a 24-hour clock time based on the `HourMarker`.

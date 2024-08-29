@@ -132,9 +132,9 @@ This PlainDate is relative to the local time.
 -/
 def PlainDate : PlainDateTime := Timestamp.toPlainDateTime (Timestamp.ofSecondsSinceUnixEpoch localTm)
 
-def dateBR₁ := DateTime.ofPlainDateTime PlainDate brTZ
-def dateJP₁ := DateTime.ofPlainDateTime PlainDate jpTZ
-def dateUTC₁ := DateTime.ofPlainDateTime PlainDate .UTC
+def dateBR₁ := DateTime.ofLocalDateTime PlainDate brTZ
+def dateJP₁ := DateTime.ofLocalDateTime PlainDate jpTZ
+def dateUTC₁ := DateTime.ofLocalDateTime PlainDate .UTC
 
 /--
 info: "Thursday, August 15, 2024 14:03:47 -0300"
@@ -221,7 +221,7 @@ info: "-0221-09-04"
 #eval Formats.sqlDate.format (DateTime.ofPlainDate (PlainDate.ofDaysSinceUNIXEpoch ⟨-800000⟩) .UTC)
 
 /--
-info: -0221-09-04
+info: date% -0221-09-04
 -/
 #guard_msgs in
 #eval (PlainDate.ofDaysSinceUNIXEpoch ⟨-800000⟩)
@@ -233,25 +233,25 @@ info: "-0221-09-04"
 #eval toString (PlainDate.ofDaysSinceUNIXEpoch ⟨-800000⟩)
 
 /--
-info: 2002-07-14
+info: date% 2002-07-14
 -/
 #guard_msgs in
 #eval date% 2002-07-14
 
 /--
-info: 14:13:12:000000000
+info: time% 14:13:12:000000000
 -/
 #guard_msgs in
 #eval time% 14:13:12
 
 /--
-info: 2002-07-14:14:13:12:000000000
+info: date% 2002-07-14:14:13:12:000000000
 -/
 #guard_msgs in
 #eval date% 2002-07-14:14:13:12
 
 /--
-info: 2002-07-14:14:13:12:000000000+09:00
+info: date% 2002-07-14:14:13:12:000000000+09:00
 -/
 #guard_msgs in
 #eval date% 2002-07-14:14:13:12+09:00

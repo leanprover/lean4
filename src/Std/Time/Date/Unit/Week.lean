@@ -9,7 +9,7 @@ import Std.Time.Date.Unit.Day
 
 namespace Std
 namespace Time
-namespace WeekOfYear
+namespace Week
 open Std.Internal
 open Internal
 
@@ -20,6 +20,9 @@ set_option linter.all true
 -/
 def Ordinal := Bounded.LE 1 53
   deriving Repr, BEq, LE, LT
+
+instance : ToString Ordinal where
+  toString x := toString x.val
 
 instance : OfNat Ordinal n :=
   inferInstanceAs (OfNat (Bounded.LE 1 (1 + (52 : Nat))) n)
@@ -55,8 +58,64 @@ Converts an `Ordinal` to an `Offset`.
 def toOffset (ordinal : Ordinal) : Offset :=
   UnitVal.ofInt ordinal.val
 
+/--
+Convert `Week.Offset` into `Second.Offset`.
+-/
+@[inline]
+def toSeconds (weeks : Week.Offset) : Second.Offset :=
+  weeks.mul 604800
+
+/--
+Convert `Second.Offset` into `Week.Offset`.
+-/
+@[inline]
+def ofSeconds (secs : Second.Offset) : Week.Offset :=
+  secs.ediv 604800
+
+/--
+Convert `Week.Offset` into `Minute.Offset`.
+-/
+@[inline]
+def toMinutes (weeks : Week.Offset) : Minute.Offset :=
+  weeks.mul 10080
+
+/--
+Convert `Minute.Offset` into `Week.Offset`.
+-/
+@[inline]
+def ofMinutes (minutes : Minute.Offset) : Week.Offset :=
+  minutes.ediv 10080
+
+/--
+Convert `Week.Offset` into `Hour.Offset`.
+-/
+@[inline]
+def toHours (weeks : Week.Offset) : Hour.Offset :=
+  weeks.mul 168
+
+/--
+Convert `Hour.Offset` into `Week.Offset`.
+-/
+@[inline]
+def ofHours (hours : Hour.Offset) : Week.Offset :=
+  hours.ediv 168
+
+/--
+Convert `Week.Offset` into `Day.Offset`.
+-/
+@[inline]
+def toDays (weeks : Week.Offset) : Day.Offset :=
+  weeks.mul 7
+
+/--
+Convert `Day.Offset` into `Week.Offset`.
+-/
+@[inline]
+def ofDays (hours : Day.Offset) : Week.Offset :=
+  hours.ediv 7
+
 end Ordinal
 
-end WeekOfYear
+end Week
 end Time
 end Std

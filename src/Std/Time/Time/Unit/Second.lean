@@ -21,8 +21,11 @@ for potential leap second.
 -/
 def Ordinal (leap : Bool) := Bounded.LE 0 (.ofNat (if leap then 60 else 59))
 
+instance : ToString (Ordinal leap) where
+  toString x := toString x.val
+
 instance : Repr (Ordinal l) where
-  reprPrec r l := reprPrec r.val l
+  reprPrec r := reprPrec r.val
 
 instance : OfNat (Ordinal leap) n := by
   have inst := inferInstanceAs (OfNat (Bounded.LE 0 (0 + (59 : Nat))) n)

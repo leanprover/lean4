@@ -29,7 +29,7 @@ Get the current monotonic time.
 @[inline]
 def now : IO PlainDateTime := do
   let tm ← Timestamp.now
-  let tz ← TimeZone.getCurrentTimezone
+  let tz ← TimeZone.getSystemTimezone
   return PlainDateTime.ofTimestamp tm tz
 
 end PlainDateTime
@@ -91,7 +91,7 @@ Gets the current `DateTime`.
 @[inline]
 def now : IO ZonedDateTime := do
   let date ← Timestamp.now
-  let tz ← TimeZone.getCurrentTimezone
+  let tz ← TimeZone.getSystemTimezone
   return ofTimestamp date tz
 
 /--

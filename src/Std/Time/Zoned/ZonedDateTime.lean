@@ -45,7 +45,7 @@ def toTimestamp (date : ZonedDateTime) : Timestamp :=
   date.snd.toTimestamp
 
 /--
-Creates a new `DateTime` out of a `Timestamp`
+Creates a new `ZonedDateTime` out of a `Timestamp`
 -/
 @[inline]
 def ofZoneRules (tm : Timestamp) (rules : TimeZone.ZoneRules) : Option ZonedDateTime := do
@@ -58,14 +58,14 @@ Changes the `TimeZone` to a new one.
 -/
 @[inline]
 def convertTimeZone (date : ZonedDateTime) (tz₁ : TimeZone) : ZonedDateTime :=
-  ofTimestamp (date.toTimestamp) tz₁
+  ofTimestamp date.toTimestamp tz₁
 
 /--
 Creates a new `ZonedDateTime` out of a `PlainDateTime`
 -/
 @[inline]
-def ofPlainDateTime (date : PlainDateTime) (tz : TimeZone) : ZonedDateTime :=
-  ⟨tz, DateTime.ofPlainDateTime date tz⟩
+def ofPlainDateTimeAssumingUTC (date : PlainDateTime) (tz : TimeZone) : ZonedDateTime :=
+  ⟨tz, DateTime.ofPlainDateTimeAssumingUTC date tz⟩
 
 /--
 Converts a `ZonedDateTime` to a `PlainDateTime`
@@ -149,6 +149,19 @@ Subtracts `Day.Offset` to a `ZonedDateTime`.
 @[inline]
 def subDays (dt : ZonedDateTime) (days : Day.Offset) : ZonedDateTime :=
   Sigma.mk dt.fst (dt.snd.subDays days)
+
+/--
+Add `Week.Offset` to a `ZonedDateTime`.
+-/
+def addWeeks (dt : ZonedDateTime) (weeks : Week.Offset) : ZonedDateTime :=
+  Sigma.mk dt.fst (dt.snd.addWeeks weeks)
+
+/--
+Subtracts `Week.Offset` to a `ZonedDateTime`.
+-/
+@[inline]
+def subWeeks (dt : ZonedDateTime) (weeks : Week.Offset) : ZonedDateTime :=
+  Sigma.mk dt.fst (dt.snd.subWeeks weeks)
 
 /--
 Add `Month.Offset` to a `ZonedDateTime`, it clips the day to the last valid day of that month.
@@ -264,34 +277,40 @@ def inLeapYear (date : ZonedDateTime) : Bool :=
 instance : ToTimestamp ZonedDateTime where
   toTimestamp dt := dt.toTimestamp
 
-instance : HAdd ZonedDateTime (Day.Offset) ZonedDateTime where
+instance : HAdd ZonedDateTime Day.Offset ZonedDateTime where
   hAdd := addDays
 
-instance : HSub ZonedDateTime (Day.Offset) ZonedDateTime where
+instance : HSub ZonedDateTime Day.Offset ZonedDateTime where
   hSub := subDays
 
-instance : HAdd ZonedDateTime (Hour.Offset) ZonedDateTime where
+instance : HAdd ZonedDateTime Week.Offset ZonedDateTime where
+  hAdd := addWeeks
+
+instance : HSub ZonedDateTime Week.Offset ZonedDateTime where
+  hSub := subWeeks
+
+instance : HAdd ZonedDateTime Hour.Offset ZonedDateTime where
   hAdd := addHours
 
-instance : HSub ZonedDateTime (Hour.Offset) ZonedDateTime where
+instance : HSub ZonedDateTime Hour.Offset ZonedDateTime where
   hSub := subHours
 
-instance : HAdd ZonedDateTime (Minute.Offset) ZonedDateTime where
+instance : HAdd ZonedDateTime Minute.Offset ZonedDateTime where
   hAdd := addMinutes
 
-instance : HSub ZonedDateTime (Minute.Offset) ZonedDateTime where
+instance : HSub ZonedDateTime Minute.Offset ZonedDateTime where
   hSub := subMinutes
 
-instance : HAdd ZonedDateTime (Second.Offset) ZonedDateTime where
+instance : HAdd ZonedDateTime Second.Offset ZonedDateTime where
   hAdd := addSeconds
 
-instance : HSub ZonedDateTime (Second.Offset) ZonedDateTime where
+instance : HSub ZonedDateTime Second.Offset ZonedDateTime where
   hSub := subSeconds
 
-instance : HAdd ZonedDateTime (Nanosecond.Offset) ZonedDateTime where
+instance : HAdd ZonedDateTime Nanosecond.Offset ZonedDateTime where
   hAdd := addNanoseconds
 
-instance : HSub ZonedDateTime (Nanosecond.Offset) ZonedDateTime where
+instance : HSub ZonedDateTime Nanosecond.Offset ZonedDateTime where
   hSub := subNanoseconds
 
 instance : HSub ZonedDateTime ZonedDateTime Duration where

@@ -5,5 +5,4 @@ Authors: Sofia Rodrigues
 -/
 prelude
 import Std.Time.Date.Basic
-import Std.Time.Date.WeekDate
 import Std.Time.Date.PlainDate

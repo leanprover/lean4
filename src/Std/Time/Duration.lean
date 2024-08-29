@@ -72,64 +72,6 @@ protected def neg (duration : Duration) : Duration := by
   | inr n => exact Or.inl (n.imp Int.neg_le_neg Int.neg_le_neg)
 
 /--
-Adds two durations together, handling any carry-over in nanoseconds. It should not be used for `Duration`.
-The subtraction of two `Duration` returns a duration but the addition does not make sense at all.
--/
-def add (t₁ t₂ : Duration) : Duration := by
-  let diffSecs := t₁.second + t₂.second
-  let diffNano := t₁.nano.addBounds t₂.nano
-
-  let (diffSecs, diffNano) : Second.Offset × Nanosecond.Span :=
-    if h₀ : diffNano.val > 999999999 then
-      have diffNano := diffNano.truncateBottom h₀ |>.sub 999999999
-      (diffSecs + 1, diffNano.expandBottom (by decide))
-    else if h₁ : diffNano.val < -999999999 then
-      have diffNano := diffNano.truncateTop (Int.le_sub_one_of_lt h₁) |>.add 999999999
-      (diffSecs - 1, diffNano.expandTop (by decide))
-    else by
-      have h₀ := Int.le_sub_one_of_lt <| Int.not_le.mp h₀
-      have h₁ := Int.le_sub_one_of_lt <| Int.not_le.mp h₁
-      simp_all [Int.add_sub_cancel]
-      exact ⟨diffSecs, Bounded.mk diffNano.val (And.intro h₁ h₀)⟩
-
-  if h : diffSecs.val > 0 ∧ diffNano.val < 0 then
-    let truncated := diffNano.truncateTop (Int.le_sub_one_of_lt h.right)
-    let nano := truncated.addTop 1000000000 (by decide)
-    let proof₁ : 0 ≤ diffSecs - 1 := Int.le_sub_one_of_lt h.left
-    refine { second := .ofInt (diffSecs.val - 1), nano, proof := ?_ }
-    simp [nano, Bounded.LE.addTop]
-    refine (Or.inl (And.intro proof₁ ?_))
-    let h₃ := (Int.add_le_add_iff_left 1000000000).mpr diffNano.property.left
-    rw [Int.add_comm]
-    exact Int.le_trans (by decide) h₃
-  else if h₁ : diffSecs.val < 0 ∧ diffNano.val > 0 then
-    let second := diffSecs.val + 1
-    let truncated := diffNano.truncateBottom h₁.right
-    let nano := truncated.subBottom 1000000000 (by decide)
-    refine { second := .ofInt second, nano, proof := ?_ }
-    simp [nano, truncated, Bounded.LE.subBottom, Bounded.LE.truncateBottom]
-    refine (Or.inr (And.intro ?_ ?_))
-    · exact h₁.left
-    · let h₃ := Int.sub_le_sub_right diffNano.property.right 1000000000
-      simp at h₃
-      exact Int.le_trans h₃ (by decide)
-  else
-    refine ⟨diffSecs, diffNano, ?_⟩
-    if h₂ : diffSecs.val > 0 then
-      exact Or.inl (And.intro (Int.le_of_lt h₂) (Int.not_lt.mp (not_and.mp h h₂)))
-    else if h₃ : diffSecs.val < 0 then
-      exact Or.inr (And.intro (Int.le_of_lt h₃) (Int.not_lt.mp (not_and.mp h₁ h₃)))
-    else
-      exact Int.le_total diffNano.val 0 |>.symm.imp (And.intro (Int.not_lt.mp h₃)) (And.intro (Int.not_lt.mp h₂))
-
-/--
-Subtracts one `Duration` from another.
--/
-@[inline]
-def sub (t₁ t₂ : Duration) : Duration :=
-  t₁.add t₂.neg
-
-/--
 Creates a new `Duration` out of `Second.Offset`.
 -/
 @[inline]
@@ -187,6 +129,27 @@ Converts a `Duration` to a `Day.Offset`
 @[inline]
 def toDays (tm : Duration) : Day.Offset :=
   tm.second.ediv 86400
+
+/--
+Normalizes `Second.Offset` and `NanoSecond.span` in order to build a new `Duration` out of it.
+-/
+@[inline]
+def fromComponents (secs : Second.Offset) (nanos : Nanosecond.Span) : Duration :=
+  ofNanoseconds (secs.toNanoseconds + nanos.toOffset)
+
+/--
+Adds two durations together, handling any carry-over in nanoseconds.
+-/
+@[inline]
+def add (t₁ t₂ : Duration) : Duration :=
+  ofNanoseconds (toNanoseconds t₁ + toNanoseconds t₂)
+
+/--
+Subtracts one `Duration` from another.
+-/
+@[inline]
+def sub (t₁ t₂ : Duration) : Duration :=
+  t₁.add t₂.neg
 
 /--
 Adds a `Nanosecond.Offset` to a `Duration`
@@ -264,11 +227,33 @@ def subDays (t : Duration) (d : Day.Offset) : Duration :=
   let seconds := d.mul 86400
   t.subSeconds seconds
 
+/--
+Adds a `Week.Offset` to a `Duration`
+-/
+@[inline]
+def addWeeks (t : Duration) (w : Week.Offset) : Duration :=
+  let seconds := w.mul 604800
+  t.addSeconds seconds
+
+/--
+Subtracts a `Week.Offset` from a `Duration`
+-/
+@[inline]
+def subWeeks (t : Duration) (w : Week.Offset) : Duration :=
+  let seconds := w.mul 604800
+  t.subSeconds seconds
+
 instance : HAdd Duration Day.Offset Duration where
   hAdd := addDays
 
 instance : HSub Duration Day.Offset Duration where
   hSub := subDays
+
+instance : HAdd Duration Week.Offset Duration where
+  hAdd := addWeeks
+
+instance : HSub Duration Week.Offset Duration where
+  hSub := subWeeks
 
 instance : HAdd Duration Hour.Offset Duration where
   hAdd := addHours

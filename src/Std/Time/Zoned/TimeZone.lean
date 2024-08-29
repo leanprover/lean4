@@ -38,7 +38,7 @@ namespace TimeZone
 Fetches the current timestamp from the system.
 -/
 @[extern "lean_get_timezone_offset"]
-opaque getCurrentTimezone : IO TimeZone
+opaque getSystemTimezone : IO TimeZone
 
 /--
 A zeroed `Timezone` representing UTC (no offset).

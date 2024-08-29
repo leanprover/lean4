@@ -21,6 +21,9 @@ set_option linter.all true
 def Ordinal := Bounded.LE 0 999
   deriving Repr, BEq, LE, LT
 
+instance : ToString Ordinal where
+  toString x := toString x.val
+
 instance : OfNat Ordinal n :=
   inferInstanceAs (OfNat (Bounded.LE 0 (0 + (999 : Nat))) n)
 

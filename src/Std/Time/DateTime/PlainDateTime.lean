@@ -141,6 +141,20 @@ def subDays (dt : PlainDateTime) (days : Day.Offset) : PlainDateTime :=
   { dt with date := dt.date.subDays days }
 
 /--
+Adds a `Week.Offset` to a `PlainDateTime`.
+-/
+@[inline]
+def addWeeks (dt : PlainDateTime) (weeks : Week.Offset) : PlainDateTime :=
+  { dt with date := dt.date.addWeeks weeks }
+
+/--
+Subtracts a `Week.Offset` from a `PlainDateTime`.
+-/
+@[inline]
+def subWeeks (dt : PlainDateTime) (weeks : Week.Offset) : PlainDateTime :=
+  { dt with date := dt.date.subWeeks weeks }
+
+/--
 Adds a `Month.Offset` to a `PlainDateTime`, adjusting the day to the last valid day of the resulting
 month.
 -/
@@ -339,6 +353,12 @@ instance : HAdd PlainDateTime Day.Offset PlainDateTime where
 
 instance : HSub PlainDateTime Day.Offset PlainDateTime where
   hSub := subDays
+
+instance : HAdd PlainDateTime Week.Offset PlainDateTime where
+  hAdd := addWeeks
+
+instance : HSub PlainDateTime Week.Offset PlainDateTime where
+  hSub := subWeeks
 
 instance : HAdd PlainDateTime Hour.Offset PlainDateTime where
   hAdd := addHours

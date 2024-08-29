@@ -185,6 +185,23 @@ def subDays (date : PlainDate) (days : Day.Offset) : PlainDate :=
   addDays date (-days)
 
 /--
+Adds a given number of weeks to a `PlainDate`.
+-/
+
+@[inline]
+def addWeeks (date : PlainDate) (weeks : Week.Offset) : PlainDate :=
+  let dateDays := date.toDaysSinceUNIXEpoch
+  let daysToAdd := weeks.toDays
+  ofDaysSinceUNIXEpoch (dateDays + daysToAdd)
+
+/--
+Subtracts a given number of weeks from a `PlainDate`.
+-/
+@[inline]
+def subWeeks (date : PlainDate) (weeks : Week.Offset) : PlainDate :=
+  addWeeks date (-weeks)
+
+/--
 Adds a given number of months to a `PlainDate`, clipping the day to the last valid day of the month.
 -/
 def addMonthsClip (date : PlainDate) (months : Month.Offset) : PlainDate :=
@@ -283,6 +300,12 @@ instance : HAdd PlainDate Day.Offset PlainDate where
 
 instance : HSub PlainDate Day.Offset PlainDate where
   hSub := subDays
+
+instance : HAdd PlainDate Week.Offset PlainDate where
+  hAdd := addWeeks
+
+instance : HSub PlainDate Week.Offset PlainDate where
+  hSub := subWeeks
 
 end PlainDate
 end Time

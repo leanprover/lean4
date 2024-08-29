@@ -55,25 +55,31 @@ for representing date, time, and time zone.
 def dateTimeWithZone : Format .any := date-spec% "YYYY-MM-DD:hh:mm:ss.sssssssssZZZ"
 
 /--
-The Time24Hour format, which follows the pattern `hh:mm:ss` for representing time
+The Time24Hour format, which follows the pattern `date% hh:mm:ss` for representing time
 in a 24-hour clock format. It uses the default value that can be parsed with the
 notation of dates.
 -/
-def leanTime24Hour : Format .any := date-spec% "hh:mm:ss:sssssssss"
+def leanTime24Hour : Format .any := date-spec% "'time% 'hh:mm:ss:sssssssss"
 
 /--
-The DateTimeZone24Hour format, which follows the pattern `YYYY-MM-DD hh:mm:ss:sssssssss` for
+The DateTimeZone24Hour format, which follows the pattern `date% YYYY-MM-DD hh:mm:ss:sssssssss` for
 representing date, time, and time zone. It uses the default value that can be parsed with the
 notation of dates.
 -/
-def leanDateTime24Hour : Format (.only .GMT) := date-spec% "YYYY-MM-DD:hh:mm:ss:sssssssss"
+def leanDateTime24Hour : Format (.only .GMT) := date-spec% "'date% 'YYYY-MM-DD:hh:mm:ss:sssssssss"
 
 /--
-The DateTimeWithZone format, which follows the pattern `YYYY-MM-DD hh:mm:ss:sssssssss`
+The DateTimeWithZone format, which follows the pattern `date% YYYY-MM-DD hh:mm:ss:sssssssss`
 for representing date, time, and time zone. It uses the default value that can be parsed with the
 notation of dates.
 -/
-def leanDateTimeWithZone : Format .any := date-spec% "YYYY-MM-DD:hh:mm:ss:sssssssssZZZZZ"
+def leanDateTimeWithZone : Format .any := date-spec% "'date% 'YYYY-MM-DD:hh:mm:ss:sssssssssZZZZZ"
+
+/--
+The Lean Date format, which follows the pattern `date% YYYY-MM-DD`. It uses the default value that can be parsed with the
+notation of dates.
+-/
+def leanDate : Format .any := date-spec% "'date% 'YYYY-MM-DD"
 
 /--
 The SQLDate format, which follows the pattern `YYYY-MM-DD` and is commonly used
@@ -152,6 +158,12 @@ def toSQLDateString (input : PlainDate) : String :=
   Formats.sqlDate.formatBuilder input.year input.month input.day
 
 /--
+Converts a Date in the Lean format (`YYYY-MM-DD`) into a `String` with the format `date% YYY-MM-DD`.
+-/
+def toLeanDateString (input : PlainDate) : String :=
+  Formats.leanDate.formatBuilder input.year input.month input.day
+
+/--
 Parses a `String` in the `AmericanDate` or `SQLDate` format and returns a `PlainDate`.
 -/
 def parse (input : String) : Except String PlainDate :=
@@ -162,7 +174,7 @@ instance : ToString PlainDate where
   toString := toSQLDateString
 
 instance : Repr PlainDate where
-  reprPrec data := Repr.addAppParen (toString data)
+  reprPrec data := Repr.addAppParen (toLeanDateString data)
 
 end PlainDate
 
@@ -367,7 +379,7 @@ def fromAscTimeString (input : String) : Except String PlainDateTime :=
 Formats a `PlainDateTime` value into an AscTime format string.
 -/
 def toAscTimeString (pdt : PlainDateTime) : String :=
-  Formats.ascTime.format (DateTime.ofPlainDateTime pdt .UTC)
+  Formats.ascTime.format (DateTime.ofPlainDateTimeAssumingUTC pdt .UTC)
 
 /--
 Parses a `String` in the `LongDateFormat` and returns a `PlainDateTime` object in the GMT time zone.
@@ -380,7 +392,7 @@ def fromLongDateFormatString (input : String) : Except String PlainDateTime :=
 Formats a `PlainDateTime` value into a LongDateFormat string.
 -/
 def toLongDateFormatString (pdt : PlainDateTime) : String :=
-  Formats.longDateFormat.format (DateTime.ofPlainDateTime pdt .UTC)
+  Formats.longDateFormat.format (DateTime.ofPlainDateTimeAssumingUTC pdt .UTC)
 
 /--
 Parses a `String` in the `DateTime` format and returns a `PlainDateTime`.
@@ -393,7 +405,7 @@ def fromDateTimeString (input : String) : Except String PlainDateTime :=
 Formats a `PlainDateTime` value into a `DateTime` format string.
 -/
 def toDateTimeString (pdt : PlainDateTime) : String :=
-  Formats.dateTime24Hour.format (DateTime.ofPlainDateTime pdt .UTC)
+  Formats.dateTime24Hour.format (DateTime.ofPlainDateTimeAssumingUTC pdt .UTC)
 
 /--
 Parses a `String` in the `DateTime` format and returns a `PlainDateTime`.
@@ -406,7 +418,7 @@ def fromLeanDateTimeString (input : String) : Except String PlainDateTime :=
 Formats a `PlainDateTime` value into a `DateTime` format string.
 -/
 def toLeanDateTimeString (pdt : PlainDateTime) : String :=
-  Formats.leanDateTime24Hour.format (DateTime.ofPlainDateTime pdt .UTC)
+  Formats.leanDateTime24Hour.format (DateTime.ofPlainDateTimeAssumingUTC pdt .UTC)
 
 /--
 Parses a `String` in the `AscTime` or `LongDate` format and returns a `PlainDateTime`.

@@ -59,10 +59,20 @@ def convertTimeZone (date : DateTime tz) (tz₁ : TimeZone) : DateTime tz₁ :=
   ofTimestamp date.timestamp tz₁
 
 /--
-Creates a new `DateTime` out of a `PlainDateTime`
+Creates a new `DateTime` out of a `PlainDateTime`. It assumes that the `PlainDateTime` is relative
+to UTC. If you're using hte PlainDateTime
 -/
 @[inline]
-def ofPlainDateTime (date : PlainDateTime) (tz : TimeZone) : DateTime tz :=
+def ofPlainDateTimeAssumingUTC (date : PlainDateTime) (tz : TimeZone) : DateTime tz :=
+  let tm := Timestamp.ofPlainDateTime date
+  DateTime.mk tm (Thunk.mk <| λ_ => date.addSeconds tz.toSeconds)
+
+/--
+Creates a new `DateTime` out of a `PlainDateTime`. It assumes that the `PlainDateTime` it's relative
+to the
+-/
+@[inline]
+def ofLocalDateTime (date : PlainDateTime) (tz : TimeZone) : DateTime tz :=
   let tm := Timestamp.ofPlainDateTime date
   DateTime.mk (tm.subSeconds tz.toSeconds) (Thunk.mk <| λ_ => date)
 
@@ -71,90 +81,104 @@ Add `Hour.Offset` to a `DateTime`.
 -/
 @[inline]
 def addHours (dt : DateTime tz) (hours : Hour.Offset) : DateTime tz :=
-  ofPlainDateTime (dt.timestamp.toPlainDateTime.addHours hours) tz
+  ofLocalDateTime (dt.date.get.addHours hours) tz
 
 /--
 Subtract `Hour.Offset` from a `DateTime`.
 -/
 @[inline]
 def subHours (dt : DateTime tz) (hours : Hour.Offset) : DateTime tz :=
-  ofPlainDateTime (dt.timestamp.toPlainDateTime.subHours hours) tz
+  ofLocalDateTime (dt.date.get.subHours hours) tz
 
 /--
 Add `Minute.Offset` to a `DateTime`.
 -/
 @[inline]
 def addMinutes (dt : DateTime tz) (minutes : Minute.Offset) : DateTime tz :=
-  ofPlainDateTime (dt.timestamp.toPlainDateTime.addMinutes minutes) tz
+  ofLocalDateTime (dt.date.get.addMinutes minutes) tz
 
 /--
 Subtract `Minute.Offset` from a `DateTime`.
 -/
 @[inline]
 def subMinutes (dt : DateTime tz) (minutes : Minute.Offset) : DateTime tz :=
-  ofPlainDateTime (dt.timestamp.toPlainDateTime.subMinutes minutes) tz
+  ofLocalDateTime (dt.date.get.subMinutes minutes) tz
 
 /--
 Add `Second.Offset` to a `DateTime`.
 -/
 @[inline]
 def addSeconds (dt : DateTime tz) (seconds : Second.Offset) : DateTime tz :=
-  ofPlainDateTime (dt.timestamp.toPlainDateTime.addSeconds seconds) tz
+  ofLocalDateTime (dt.date.get.addSeconds seconds) tz
 
 /--
 Subtract `Second.Offset` from a `DateTime`.
 -/
 @[inline]
 def subSeconds (dt : DateTime tz) (seconds : Second.Offset) : DateTime tz :=
-  ofPlainDateTime (dt.timestamp.toPlainDateTime.subSeconds seconds) tz
+  ofLocalDateTime (dt.date.get.subSeconds seconds) tz
 
 /--
 Add `Nanosecond.Offset` to a `DateTime`.
 -/
 @[inline]
 def addNanoseconds (dt : DateTime tz) (nanoseconds : Nanosecond.Offset) : DateTime tz :=
-  ofPlainDateTime (dt.timestamp.toPlainDateTime.addNanoseconds nanoseconds) tz
+  ofLocalDateTime (dt.date.get.addNanoseconds nanoseconds) tz
 
 /--
 Subtract `Nanosecond.Offset` from a `DateTime`.
 -/
 @[inline]
 def subNanoseconds (dt : DateTime tz) (nanoseconds : Nanosecond.Offset) : DateTime tz :=
-  ofPlainDateTime (dt.timestamp.toPlainDateTime.subNanoseconds nanoseconds) tz
+  ofLocalDateTime (dt.date.get.subNanoseconds nanoseconds) tz
 
 /--
 Add `Day.Offset` to a `DateTime`.
 -/
 @[inline]
 def addDays (dt : DateTime tz) (days : Day.Offset) : DateTime tz :=
-  ofPlainDateTime (dt.timestamp.toPlainDateTime.addDays days) tz
+  ofLocalDateTime (dt.date.get.addDays days) tz
 
 /--
 Subtracts `Day.Offset` to a `DateTime`.
 -/
 @[inline]
 def subDays (dt : DateTime tz) (days : Day.Offset) : DateTime tz :=
-  ofPlainDateTime (dt.timestamp.toPlainDateTime.subDays days) tz
+  ofLocalDateTime (dt.date.get.subDays days) tz
+
+/--
+Add `Week.Offset` to a `DateTime`.
+-/
+@[inline]
+def addWeeks (dt : DateTime tz) (weeks : Week.Offset) : DateTime tz :=
+  ofLocalDateTime (dt.date.get.addWeeks weeks) tz
+
+/--
+Subtracts `Week.Offset` to a `DateTime`.
+-/
+@[inline]
+def subWeeks (dt : DateTime tz) (weeks : Week.Offset) : DateTime tz :=
+  ofLocalDateTime (dt.date.get.subWeeks weeks) tz
 
 /--
 Add `Month.Offset` to a `DateTime`, it clips the day to the last valid day of that month.
 -/
 def addMonthsClip (dt : DateTime tz) (months : Month.Offset) : DateTime tz :=
-  ofPlainDateTime (dt.timestamp.toPlainDateTime.addMonthsClip months) tz
+  ofLocalDateTime (dt.date.get.addMonthsClip months) tz
 
 /--
 Subtracts `Month.Offset` from a `DateTime`, it clips the day to the last valid day of that month.
 -/
 @[inline]
 def subMonthsClip (dt : DateTime tz) (months : Month.Offset) : DateTime tz :=
-  ofPlainDateTime (dt.timestamp.toPlainDateTime.subMonthsClip months) tz
+  ofLocalDateTime (dt.date.get.subMonthsClip months) tz
 
 /--
 Add `Month.Offset` from a `DateTime`, this function rolls over any excess days into the following
 month.
 -/
 def addMonthsRollOver (dt : DateTime tz) (months : Month.Offset) : DateTime tz :=
-  ofPlainDateTime (dt.timestamp.toPlainDateTime.addMonthsRollOver months) tz
+  ofLocalDateTime (dt.date.get.addMonthsRollOver months) tz
 
 /--
 Subtract `Month.Offset` from a `DateTime`, this function rolls over any excess days into the following
@@ -162,7 +186,7 @@ month.
 -/
 @[inline]
 def subMonthsRollOver (dt : DateTime tz) (months : Month.Offset) : DateTime tz :=
-  ofPlainDateTime (dt.timestamp.toPlainDateTime.subMonthsRollOver months) tz
+  ofLocalDateTime (dt.date.get.subMonthsRollOver months) tz
 
 /--
 Add `Year.Offset` to a `DateTime`, this function rolls over any excess days into the following
@@ -170,14 +194,14 @@ month.
 -/
 @[inline]
 def addYearsRollOver (dt : DateTime tz) (years : Year.Offset) : DateTime tz :=
-  ofPlainDateTime (dt.timestamp.toPlainDateTime.addYearsRollOver years) tz
+  ofLocalDateTime (dt.date.get.addYearsRollOver years) tz
 
 /--
 Add `Year.Offset` to a `DateTime`, it clips the day to the last valid day of that month.
 -/
 @[inline]
 def addYearsClip (dt : DateTime tz) (years : Year.Offset) : DateTime tz :=
-  ofPlainDateTime (dt.timestamp.toPlainDateTime.addYearsClip years) tz
+  ofLocalDateTime (dt.date.get.addYearsClip years) tz
 
 /--
 Subtract `Year.Offset` from a `DateTime`, this function rolls over any excess days into the following
@@ -185,14 +209,14 @@ month.
 -/
 @[inline]
 def subYearsRollOver (dt : DateTime tz) (years : Year.Offset) : DateTime tz :=
-  ofPlainDateTime (dt.timestamp.toPlainDateTime.subYearsRollOver years) tz
+  ofLocalDateTime (dt.date.get.subYearsRollOver years) tz
 
 /--
 Subtract `Year.Offset` from to a `DateTime`, it clips the day to the last valid day of that month.
 -/
 @[inline]
 def subYearsClip (dt : DateTime tz) (years : Year.Offset) : DateTime tz :=
-  ofPlainDateTime (dt.timestamp.toPlainDateTime.subYearsClip years) tz
+  ofLocalDateTime (dt.date.get.subYearsClip years) tz
 
 /--
 Converts a `Timestamp` to a `PlainDateTime`
@@ -287,6 +311,12 @@ instance : HAdd (DateTime tz) (Day.Offset) (DateTime tz) where
 
 instance : HSub (DateTime tz) (Day.Offset) (DateTime tz) where
   hSub := subDays
+
+instance : HAdd (DateTime tz) (Week.Offset) (DateTime tz) where
+  hAdd := addWeeks
+
+instance : HSub (DateTime tz) (Week.Offset) (DateTime tz) where
+  hSub := subWeeks
 
 instance : HAdd (DateTime tz) (Hour.Offset) (DateTime tz) where
   hAdd := addHours

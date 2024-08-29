@@ -17,7 +17,7 @@ namespace Time
 /-!
 # Time
 
-The Lean4 API for date, time, and duration functionalities, following the ISO standards.
+The Lean4 API for date, time, and duration functionalities, following the ISO8601 standards.
 
 # Overview
 
@@ -164,7 +164,7 @@ The `.sssssssss` can be ommited in most cases.
 
 - **`date% YYYY-MM-DD`**: Defines a date in the `YYYY-MM-DD` format.
 - **`date% HH:mm:ss:sssssssss`**: Defines a time in the `HH:mm:ss:sssssssss` format, including fractional seconds.
-- **`date% YYYY-MM-DD:HH:mm:ss.sssssssss`**: Defines a datetime in the `YYYY-MM-DD:HH:mm:ss:sssssssss` format.
+- **`date% YYYY-MM-DD:HH:mm:ss:sssssssss`**: Defines a datetime in the `YYYY-MM-DD:HH:mm:ss:sssssssss` format.
 - **`date% YYYY-MM-DDTHH:mm:ss:sssssssssZ`**: Defines a datetime with a timezone in the `YYYY-MM-DDTHH:mm:ss:sssssssssZ` format.
 - **`time% HH:mm:ss:sssssssss`**: Defines a time in the `HH:mm:ss` format.
 - **`offset% +HH:mm`**: Defines a timezone offset in the format `+HH:mm`.

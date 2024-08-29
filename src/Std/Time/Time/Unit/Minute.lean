@@ -22,6 +22,9 @@ set_option linter.all true
 def Ordinal := Bounded.LE 0 59
   deriving Repr, BEq, LE
 
+instance : ToString Ordinal where
+  toString x := toString x.val
+
 instance : OfNat Ordinal n :=
   inferInstanceAs (OfNat (Bounded.LE 0 (0 + (59 : Nat))) n)
 
@@ -62,17 +65,6 @@ def toOffset (ordinal : Ordinal) : Offset :=
   UnitVal.ofInt ordinal.val
 
 end Ordinal
-
-namespace Offset
-
-/--
-Converts a `Minute.Offset` to `Second.Offset`.
--/
-@[inline]
-def toSeconds (val : Offset) : Second.Offset :=
-  val.mul 60
-
-end Offset
 end Minute
 end Time
 end Std

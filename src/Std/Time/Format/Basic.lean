@@ -593,7 +593,7 @@ private def DateBuilder.build (builder : DateBuilder) (aw : Awareness) : Except 
       pure builder.hour
 
   if let .isTrue p := inferInstanceAs (Decidable (ValidTime hour.snd builder.minute builder.second.snd)) then
-    let build := DateTime.ofPlainDateTime {
+    let build := DateTime.ofLocalDateTime {
       date := PlainDate.clip builder.year builder.month builder.day
       time := PlainTime.mk hour builder.minute builder.second builder.nanoseconds p
     }

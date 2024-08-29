@@ -46,7 +46,6 @@ structure PlainTime where
 instance : Inhabited PlainTime where
   default := ⟨Sigma.mk false 0, 0, Sigma.mk false 0, 0, by simp; decide⟩
 
-
 instance : BEq PlainTime where
   beq x y := x.hour.snd.val == y.hour.snd.val && x.minute == y.minute
           && x.second.snd.val == y.second.snd.val && x.nano.val == y.nano.val

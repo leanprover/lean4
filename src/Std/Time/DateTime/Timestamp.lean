@@ -17,7 +17,7 @@ open Internal
 set_option linter.all true
 
 /--
-Timestamp is just a period between two timestamps.
+`Timestamp` represents a specific point in time since the UNIX Epoch.
 -/
 structure Timestamp where
 
@@ -182,11 +182,31 @@ Subtracts a `Day.Offset` from a `Timestamp`
 def subDays (t : Timestamp) (d : Day.Offset) : Timestamp :=
   ⟨t.val - d⟩
 
+/--
+Adds a `Week.Offset` to a `Timestamp`
+-/
+@[inline]
+def addWeeks (t : Timestamp) (d : Week.Offset) : Timestamp :=
+  ⟨t.val + d⟩
+
+/--
+Subtracts a `Week.Offset` from a `Timestamp`
+-/
+@[inline]
+def subWeeks (t : Timestamp) (d : Week.Offset) : Timestamp :=
+  ⟨t.val - d⟩
+
 instance : HAdd Timestamp Day.Offset Timestamp where
   hAdd := addDays
 
 instance : HSub Timestamp Day.Offset Timestamp where
   hSub := subDays
+
+instance : HAdd Timestamp Week.Offset Timestamp where
+  hAdd := addWeeks
+
+instance : HSub Timestamp Week.Offset Timestamp where
+  hSub := subWeeks
 
 instance : HAdd Timestamp Hour.Offset Timestamp where
   hAdd := addHours

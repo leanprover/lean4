@@ -19,6 +19,9 @@ set_option linter.all true
 def Ordinal := Bounded.LE 1 31
   deriving Repr, BEq, LE, LT
 
+instance : ToString Ordinal where
+  toString x := toString x.val
+
 instance : OfNat Ordinal n :=
   inferInstanceAs (OfNat (Bounded.LE 1 (1 + (30 : Nat))) n)
 
@@ -101,25 +104,39 @@ def ofInt (data : Int) : Offset :=
   UnitVal.mk data
 
 /--
+Convert `Day.Offset` into `Nanosecond.Offset`.
+-/
+@[inline]
+def toNanoseconds (days : Offset) : Nanosecond.Offset :=
+  days.mul 86400000000000
+
+/--
+Convert `Nanosecond.Offset` into `Day.Offset`.
+-/
+@[inline]
+def ofNanoseconds (ns : Nanosecond.Offset) : Offset :=
+  ns.ediv 86400000000000
+
+/--
+Convert `Day.Offset` into `Millisecond.Offset`.
+-/
+@[inline]
+def toMilliseconds (days : Offset) : Millisecond.Offset :=
+  days.mul 86400000
+
+/--
+Convert `Millisecond.Offset` into `Day.Offset`.
+-/
+@[inline]
+def ofMilliseconds (ms : Millisecond.Offset) : Offset :=
+  ms.ediv 86400000
+
+/--
 Convert `Day.Offset` into `Second.Offset`.
 -/
 @[inline]
 def toSeconds (days : Offset) : Second.Offset :=
   days.mul 86400
-
-/--
-Convert `Day.Offset` into `Minute.Offset`.
--/
-@[inline]
-def toMinutes (days : Offset) : Minute.Offset :=
-  days.mul 1440
-
-/--
-Convert `Day.Offset` into `Hour.Offset`.
--/
-@[inline]
-def toHours (days : Offset) : Hour.Offset :=
-  days.mul 24
 
 /--
 Convert `Second.Offset` into `Day.Offset`.
@@ -129,11 +146,25 @@ def ofSeconds (secs : Second.Offset) : Offset :=
   secs.ediv 86400
 
 /--
+Convert `Day.Offset` into `Minute.Offset`.
+-/
+@[inline]
+def toMinutes (days : Offset) : Minute.Offset :=
+  days.mul 1440
+
+/--
 Convert `Minute.Offset` into `Day.Offset`.
 -/
 @[inline]
 def ofMinutes (minutes : Minute.Offset) : Offset :=
   minutes.ediv 1440
+
+/--
+Convert `Day.Offset` into `Hour.Offset`.
+-/
+@[inline]
+def toHours (days : Offset) : Hour.Offset :=
+  days.mul 24
 
 /--
 Convert `Hour.Offset` into `Day.Offset`.

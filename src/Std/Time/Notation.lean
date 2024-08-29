@@ -158,7 +158,7 @@ private def parseZoned : TSyntax `zoned -> MacroM (TSyntax `term)
   | `(zoned| $timestamp:num $zone) => do
     `(Std.Time.DateTime.ofUTCTimestamp $timestamp $(← parseZone zone))
   | `(zoned| $datetime:datetime $zone) => do
-    `(Std.Time.DateTime.ofPlainDateTime $(← parseDateTime datetime) $(← parseZone zone))
+    `(Std.Time.DateTime.ofLocalDateTime $(← parseDateTime datetime) $(← parseZone zone))
   | syn => Macro.throwErrorAt syn "unsupported syntax"
 
 /--

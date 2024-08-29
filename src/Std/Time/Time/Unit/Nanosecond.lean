@@ -21,6 +21,9 @@ set_option linter.all true
 def Ordinal := Bounded.LE 0 999999999
   deriving Repr, BEq, LE, LT
 
+instance : ToString Ordinal where
+  toString x := toString x.val
+
 instance : OfNat Ordinal n where
   ofNat := Bounded.LE.ofFin (Fin.ofNat n)
 
@@ -85,6 +88,15 @@ def Span := Bounded.LE (-999999999) 999999999
 
 instance : Inhabited Span where default := Bounded.LE.mk 0 (by decide)
 
+namespace Span
+
+/--
+Creates a new `Offset` out of a `Span`.
+-/
+def toOffset (span : Span) : Offset :=
+  UnitVal.mk span.val
+
+end Span
 end Nanosecond
 end Time
 end Std

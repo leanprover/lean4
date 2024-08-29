@@ -546,7 +546,7 @@ extern "C" LEAN_EXPORT obj_res lean_get_timezone_offset(obj_arg /* w */) {
     auto now_time_t = system_clock::to_time_t(now);
 
     std::tm tm_info;
-#if defined(_MSC_VER)
+#if defined(LEAN_WINDOWS)
     localtime_s(&tm_info, &now_time_t);
 #else
     localtime_r(&now_time_t, &tm_info);

@@ -28,7 +28,7 @@ v4.11.0
     [#4542](https://github.com/leanprover/lean4/pull/4542)
   * [#4672](https://github.com/leanprover/lean4/pull/4672) fixes a bug that could lead to ill-typed terms.
   * The `termination_by?` syntax no longer forces the use of well-founded recursion, and when structural
-    recursion is inferred, it will print the result using the `termination_by` syntax.
+    recursion is inferred, it will print the result using the `termination_by structural` syntax.
   * **Mutual structural recursion** is now supported. This feature supports both mutual recursion over a non-mutual
     data type, as well as recursion over mutual or nested data types:
 
@@ -127,7 +127,7 @@ v4.11.0
   * [#4731](https://github.com/leanprover/lean4/pull/4731) adds `Meta.withErasedFVars`, to enter a context with some fvars erased from the local context.
   * [#4777](https://github.com/leanprover/lean4/pull/4777) adds assignment validation at `closeMainGoal`, preventing users from circumventing the occurs check for tactics such as `exact`.
   * [#4807](https://github.com/leanprover/lean4/pull/4807) introduces `Lean.Meta.PProdN` module for packing and projecting nested `PProd`s.
-  * [#5170](https://github.com/leanprover/lean4/pull/5170) fixes `Syntax.unsetTrailing`.
+  * [#5170](https://github.com/leanprover/lean4/pull/5170) fixes `Syntax.unsetTrailing`. A consequence of this is that "go to definition" now works on the last module name in an `import` block (issue [#4958](https://github.com/leanprover/lean4/issues/4958)).
 
 
 ### Language server, widgets, and IDE extensions

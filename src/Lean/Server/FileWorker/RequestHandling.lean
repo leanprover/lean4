@@ -38,15 +38,13 @@ def handleCompletion (p : CompletionParams)
   -- NOTE: use `+ 1` since we sometimes want to consider invalid input technically after the command,
   -- such as a trailing dot after an option name. This shouldn't be a problem since any subsequent
   -- command starts with a keyword that (currently?) does not participate in completion.
-  withWaitFindSnap doc (·.endPos + ' ' >= pos)
-    (notFoundX :=
+  mapTask (findInfoTreeAtPos doc pos (trailingLeniencyOffset := ⟨1⟩)) fun infoTree? => do
+    let some infoTree := infoTree?
       -- work around https://github.com/microsoft/vscode/issues/155738
-      -- this is important when a snapshot cannot be found because it was aborted
-      pure { items := #[{label := "-"}], isIncomplete := true })
-    (x := fun snap => do
-      if let some r ← Completion.find? p doc.meta.text pos snap.infoTree caps then
-        return r
-      return { items := #[ ], isIncomplete := true })
+      | return { items := #[{label := "-"}], isIncomplete := true }
+    if let some r ← Completion.find? p doc.meta.text pos infoTree caps then
+      return r
+    return { items := #[ ], isIncomplete := true }
 
 /--
 Handles `completionItem/resolve` requests that are sent by the client after the user selects

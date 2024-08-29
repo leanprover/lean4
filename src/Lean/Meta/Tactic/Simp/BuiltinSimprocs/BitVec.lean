@@ -154,9 +154,9 @@ builtin_dsimproc [simp, seval] reduceSDiv ((sdiv _ _ : BitVec _)) := reduceBin `
 /-- Simplification procedure for signed division of `BitVec`s using the SMT-Lib conventions. -/
 builtin_dsimproc [simp, seval] reduceSMTSDiv ((smtSDiv _ _ : BitVec _)) := reduceBin ``smtSDiv 3 smtSDiv
 /-- Simplification procedure for `getLsb` (lowest significant bit) on `BitVec`. -/
-builtin_dsimproc [simp, seval] reduceGetLsb (getLsb _ _) := reduceGetBit ``getLsb getLsb
+builtin_dsimproc [simp, seval] reduceGetLsb (getLsbD _ _) := reduceGetBit ``getLsbD getLsbD
 /-- Simplification procedure for `getMsb` (most significant bit) on `BitVec`. -/
-builtin_dsimproc [simp, seval] reduceGetMsb (getMsb _ _) := reduceGetBit ``getMsb getMsb
+builtin_dsimproc [simp, seval] reduceGetMsb (getMsbD _ _) := reduceGetBit ``getMsbD getMsbD
 
 /-- Simplification procedure for shift left on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceShiftLeft (BitVec.shiftLeft _ _) :=

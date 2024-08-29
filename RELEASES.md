@@ -87,7 +87,7 @@ v4.11.0
 
 * `omega` tactic
   * [#4612](https://github.com/leanprover/lean4/pull/4612) normalizes the order that constraints appear in error messages.
-  * [#4695](https://github.com/leanprover/lean4/pull/4695) prevents pushing casts into multiplications unless it produces a non-triial linear combination.
+  * [#4695](https://github.com/leanprover/lean4/pull/4695) prevents pushing casts into multiplications unless it produces a non-trivial linear combination.
   * [#4989](https://github.com/leanprover/lean4/pull/4989) fixes a regression.
 
 * `decide` tactic
@@ -100,7 +100,7 @@ v4.11.0
   * [#4710](https://github.com/leanprover/lean4/pull/4710) makes `ext_iff` theorem preserve inst implicit binder types, rather than making all binder types implicit.
 
 * `#eval` command
-  * [#4810](https://github.com/leanprover/lean4/pull/4810) introduces a safer `#eval` command that prevents evaluation of terms that contain `sorry`. The motivation is that failing tactics can, in conjunction with operations such as array accesses, can lead to the Lean process crashing. Users can use the new `#eval!` command to use the previous unsafe behavior. ([#4829](https://github.com/leanprover/lean4/pull/4829) adjusts a test.)
+  * [#4810](https://github.com/leanprover/lean4/pull/4810) introduces a safer `#eval` command that prevents evaluation of terms that contain `sorry`. The motivation is that failing tactics, in conjunction with operations such as array accesses, can lead to the Lean process crashing. Users can use the new `#eval!` command to use the previous unsafe behavior. ([#4829](https://github.com/leanprover/lean4/pull/4829) adjusts a test.)
 
 * [#4447](https://github.com/leanprover/lean4/pull/4447) adds `#discr_tree_key` and `#discr_tree_simp_key` commands, for helping debug discrimination tree failures. The `#discr_tree_key t` command prints the discrimination tree keys for a term `t` (or, if it is a single identifier, the type of that constant). It uses the default configuration for generating keys. The `#discr_tree_simp_key` command is similar to `#discr_tree_key`, but treats the underlying type as one of a simp lemma, that is it transforms it into an equality and produces the key of the left-hand side.
 
@@ -229,7 +229,7 @@ v4.11.0
   * [#4792](https://github.com/leanprover/lean4/pull/4792) adds term elaborator for `Lean.Parser.Term.namedPattern` (e.g. `n@(n' + 1)`) to report errors when used in non-pattern-matching contexts.
   * [#4818](https://github.com/leanprover/lean4/pull/4818) makes anonymous dot notation work when the expected type is a pi-type-valued type synonym.
 * **Typeclass inference**
-  * [#4646](https://github.com/leanprover/lean4/pull/4646) improves `synthAppInstances`, the function responsible for synthesizing instances for the `rw` and `apply` tactics. Adds a syntheses loop to handle functions whose instances need to be synthesized in a complex order.
+  * [#4646](https://github.com/leanprover/lean4/pull/4646) improves `synthAppInstances`, the function responsible for synthesizing instances for the `rw` and `apply` tactics. Adds a synthesis loop to handle functions whose instances need to be synthesized in a complex order.
 * **Inductive types**
   * [#4684](https://github.com/leanprover/lean4/pull/4684) (backported as [98ee78](https://github.com/leanprover/lean4/commit/98ee789990f91ff5935627787b537911ef8773c4)) refactors `InductiveVal` to have a `numNested : Nat` field instead of `isNested : Bool`. This modifies the kernel.
 * **Definitions**
@@ -239,7 +239,7 @@ v4.11.0
 * **Diagnostics and profiling**
   * [#4611](https://github.com/leanprover/lean4/pull/4611) makes kernel diagnostics appear when `diagnostics` is enabled even if it is the only section.
   * [#4753](https://github.com/leanprover/lean4/pull/4753) adds missing `profileitM` functions.
-  * [#4754](https://github.com/leanprover/lean4/pull/4754) adds `Lean.Expr.numObjs` to compute the number of allocated sub-expressions in a given expression, primarily for diagonising performance issues.
+  * [#4754](https://github.com/leanprover/lean4/pull/4754) adds `Lean.Expr.numObjs` to compute the number of allocated sub-expressions in a given expression, primarily for diagnosing performance issues.
   * [#4769](https://github.com/leanprover/lean4/pull/4769) adds missing `withTraceNode`s to improve `trace.profiler` output.
   * [#4781](https://github.com/leanprover/lean4/pull/4781) and [#4882](https://github.com/leanprover/lean4/pull/4882) make the "use `set_option diagnostics true`" message be conditional on current setting of `diagnostics`.
 * **Performance**

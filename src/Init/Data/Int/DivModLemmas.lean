@@ -14,9 +14,6 @@ import Init.RCases
 # Lemmas about integer division needed to bootstrap `omega`.
 -/
 
--- Remove after the next stage0 update
-set_option allowUnsafeReducibility true
-
 open Nat (succ)
 
 namespace Int

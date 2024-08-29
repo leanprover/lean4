@@ -93,7 +93,7 @@ theorem iunfoldr_getLsbD' {f : Fin w → α → α × Bool} (state : Nat → α)
 theorem iunfoldr_getLsbD {f : Fin w → α → α × Bool} (state : Nat → α) (i : Fin w)
     (ind : ∀(i : Fin w), (f i (state i.val)).fst = state (i.val+1)) :
   getLsbD (iunfoldr f (state 0)).snd i.val = (f i (state i.val)).snd := by
-  exact (iunfoldr_getLsb' state ind).1 i
+  exact (iunfoldr_getLsbD' state ind).1 i
 
 /--
 Correctness theorem for `iunfoldr`.

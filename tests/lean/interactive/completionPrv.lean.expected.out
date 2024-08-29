@@ -36,7 +36,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionPrv.lean"},
      "position": {"line": 9, "character": 11}},
-    "id": {"const": {"declName": "BitVec.getLsb_ofBoolListBE"}}}},
+    "id": {"const": {"declName": "BitVec.getLsbD_ofBoolListBE"}}}},
   {"sortText": "3",
    "label": "BitVec.getMsb_ofBoolListBE",
    "kind": 3,
@@ -44,7 +44,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionPrv.lean"},
      "position": {"line": 9, "character": 11}},
-    "id": {"const": {"declName": "BitVec.getMsb_ofBoolListBE"}}}},
+    "id": {"const": {"declName": "BitVec.getMsbD_ofBoolListBE"}}}},
   {"sortText": "4",
    "label": "BitVec.ofBoolListBE",
    "kind": 3,

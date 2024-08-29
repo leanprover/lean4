@@ -50,7 +50,7 @@ private theorem iunfoldr.eq_test
     intro i
     simp_all [truncate_succ]
 
-theorem iunfoldr_getLsb' {f : Fin w → α → α × Bool} (state : Nat → α)
+theorem iunfoldr_getLsbD' {f : Fin w → α → α × Bool} (state : Nat → α)
     (ind : ∀(i : Fin w), (f i (state i.val)).fst = state (i.val+1)) :
   (∀ i : Fin w, getLsbD (iunfoldr f (state 0)).snd i.val = (f i (state i.val)).snd)
   ∧ (iunfoldr f (state 0)).fst = state w := by

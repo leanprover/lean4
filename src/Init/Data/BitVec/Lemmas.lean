@@ -168,6 +168,17 @@ theorem getMsbD_eq_getMsb?_getD (x : BitVec w) (i : Nat) :
       intros
       omega
 
+theorem eq_of_getElem_eq {x y : BitVec w}
+    (pred : ∀ (i : Fin w), x[i] = y[i]) : x = y := by
+  apply eq_of_toNat_eq
+  apply Nat.eq_of_testBit_eq
+  intro i
+  if i_lt : i < w then
+    exact pred ⟨i, i_lt⟩
+  else
+    have p : i ≥ w := Nat.le_of_not_gt i_lt
+    simp [testBit_toNat, getLsbD_ge _ _ p]
+
 -- We choose `eq_of_getLsbD_eq` as the `@[ext]` theorem for `BitVec`
 -- somewhat arbitrarily over `eq_of_getMsbD_eq`.
 @[ext] theorem eq_of_getLsbD_eq {x y : BitVec w}

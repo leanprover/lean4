@@ -75,7 +75,7 @@ theorem Bool.decide_eq_true (a : Bool) : (decide (a = true)) = a := by
 theorem Bool.eq_true_eq_true_eq (x y : Bool) : ((x = true) = (y = true)) = (x = y) :=
   by simp
 
-attribute [bv_normalize] BitVec.getLsb_cast
+attribute [bv_normalize] BitVec.getLsbD_cast
 attribute [bv_normalize] BitVec.testBit_toNat
 
 @[bv_normalize]

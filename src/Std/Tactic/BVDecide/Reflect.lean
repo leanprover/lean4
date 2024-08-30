@@ -103,11 +103,11 @@ theorem ult_congr (lhs rhs lhs' rhs' : BitVec w) (h1 : lhs' = lhs) (h2 : rhs' = 
     (BitVec.ult lhs' rhs') = (BitVec.ult lhs rhs) := by
   simp[*]
 
-theorem getLsb_congr (i : Nat) (w : Nat) (e e' : BitVec w) (h : e' = e) :
-    (e'.getLsb i) = (e.getLsb i) := by
+theorem getLsbD_congr (i : Nat) (w : Nat) (e e' : BitVec w) (h : e' = e) :
+    (e'.getLsbD i) = (e.getLsbD i) := by
   simp[*]
 
-theorem ofBool_congr (b : Bool) (e' : BitVec 1) (h : e' = BitVec.ofBool b) : e'.getLsb 0 = b := by
+theorem ofBool_congr (b : Bool) (e' : BitVec 1) (h : e' = BitVec.ofBool b) : e'.getLsbD 0 = b := by
   cases b <;> simp [h]
 
 end BitVec

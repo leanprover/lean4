@@ -143,10 +143,19 @@ protected def LeanVer.decodeToml (v : Value) : Except (Array DecodeError) LeanVe
 
 instance : DecodeToml LeanVer := ⟨(LeanVer.decodeToml ·)⟩
 
-protected def StrPat.decodeToml (v : Value) : Except (Array DecodeError) StrPat :=
+protected def StrPat.decodeToml (v : Value) (presets : NameMap StrPat := {}) : Except (Array DecodeError) StrPat :=
   match v with
   | .array _ vs => .mem <$> decodeArray vs
-  | .table _ t => .startsWith <$> t.decode `startsWith
+  | .table r t => do
+    if let some pre ← t.decode? `startsWith then
+      return .startsWith pre
+    else if let some name ← t.decode? `preset then
+      if let some preset := presets.find? name then
+        return preset
+      else
+        throw #[.mk r s!"unknown preset '{name}'"]
+    else
+      throw #[.mk r "expected 'startsWith' or 'preset'"]
   | v => throw #[.mk v.ref "expected array or table"]
 
 instance : DecodeToml StrPat := ⟨(StrPat.decodeToml ·)⟩
@@ -198,9 +207,12 @@ protected def PackageConfig.decodeToml (t : Table) (ref := Syntax.missing) : Exc
   let lintDriver ← t.tryDecodeD `lintDriver ""
   let lintDriverArgs ← t.tryDecodeD `lintDriverArgs #[]
   let version ← t.tryDecodeD `version v!"0.0.0"
-  let versionTags ← t.tryDecodeD `versionTags (.startsWith "v")
+  let versionTags ← optDecodeD defaultVersionTags (t.find? `versionTags)
+    <| StrPat.decodeToml (presets := versionTagPresets)
+  let description ← t.tryDecodeD `description ""
   let keywords ← t.tryDecodeD `keywords #[]
-  let noReservoir ← t.tryDecodeD `noReservoir false
+  let homepage ← t.tryDecodeD `homepage ""
+  let reservoir ← t.tryDecodeD `reservoir true
   let toLeanConfig ← tryDecode <| LeanConfig.decodeToml t
   let toWorkspaceConfig ← tryDecode <| WorkspaceConfig.decodeToml t
   return {
@@ -208,7 +220,7 @@ protected def PackageConfig.decodeToml (t : Table) (ref := Syntax.missing) : Exc
     srcDir, buildDir, leanLibDir, nativeLibDir, binDir, irDir
     releaseRepo, buildArchive?, preferReleaseBuild
     testDriver, testDriverArgs, lintDriver, lintDriverArgs
-    version, versionTags, keywords, noReservoir
+    version, versionTags, description, keywords, homepage, reservoir
     toLeanConfig, toWorkspaceConfig
   }
 

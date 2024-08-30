@@ -26,8 +26,11 @@ namespace Lake
 
 /-- A `String` pattern. Matches some subset of strings. -/
 inductive StrPat
-/-- Matches a string that satisfies an arbitrary predicate. -/
-| satisfies (f : String → Bool)
+/--
+Matches a string that satisfies an arbitrary predicate
+(optionally identified by a `Name`).
+-/
+| satisfies (f : String → Bool) (name := Name.anonymous)
 /-- Matches a string that is a member of the the array -/
 | mem (xs : Array String)
 /-- Matches a string that starts with this prefix. -/
@@ -42,9 +45,32 @@ def StrPat.none : StrPat := .mem #[]
 
 instance : EmptyCollection StrPat := ⟨.none⟩
 
+/--
+Whether a string is "version-like".
+That is, a `v` followed by a digit.
+-/
+def isVerLike (s : String) : Bool :=
+  if h : s.utf8ByteSize ≥ 2 then
+    s.get' 0 (by simp [String.atEnd]; omega) == 'v' &&
+    (s.get' ⟨1⟩ (by simp [String.atEnd]; omega)).isDigit
+  else
+    false
+
+/-- Matches a "version-like" string: a `v` followed by a digit. -/
+def StrPat.verLike : StrPat := .satisfies isVerLike `verLike
+
+/-- Default string pattern for a Package's `versionTags`. -/
+def defaultVersionTags := StrPat.satisfies isVerLike `default
+
+/-- Builtin `StrPat` presets available to TOML for `versionTags`. -/
+def versionTagPresets :=
+  NameMap.empty
+  |>.insert `verLike .verLike
+  |>.insert `default defaultVersionTags
+
 /-- Returns whether the string `s` matches the pattern. -/
 def StrPat.matches (s : String) : (self : StrPat) → Bool
-| .satisfies f => f s
+| .satisfies f _ => f s
 | .mem xs => xs.contains s
 | .startsWith p => p.isPrefixOf s
 
@@ -257,12 +283,16 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   Package indices (e.g., Reservoir) can make use of this information to determine
   the Git revisions corresponding to released versions.
 
-  Defaults to tags with a `v` prefix.
+  Defaults to tags that are "version-like".
+  That is, start with a `v` and are followed by a digit.
   -/
-  versionTags : StrPat := .startsWith "v"
+  versionTags : StrPat := defaultVersionTags
+
+  /-- A short description for the package (e.g., for Reservoir). -/
+  description : String := ""
 
   /--
-  Developer-defined keywords associated with the package.
+  Custom keywords associated with the package.
   Reservoir can make use of a package's keywords to group related packages
   together and make it easier for users to discover them.
 
@@ -270,17 +300,25 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   `devtool`), specific subtopics (e.g., `topology`,  `cryptology`), and
   significant implementation details (e.g., `dsl`, `ffi`, `cli`).
   For instance, Lake's keywords could be `devtool`, `cli`, `dsl`,
-  `package manager`, `build system`.
+  `package-manager`, `build-system`.
   -/
   keywords : Array String := #[]
 
   /--
-  When set, Reservoir will not display the package in its public listing,
-  removing it if it was already there (when Reservoir is next updated).
+  A URL to information about the package.
 
-  Defaults to `false`.
+  Reservoir will already include a link to the package's GitHub repository
+  (if the package is sourced from there). Thus, users are advised to specify
+  something else for this link (if anything).
   -/
-  noReservoir : Bool := false
+  homepage : String := ""
+
+  /--
+  Whether Reservoir should include the package in its index.
+  When set to `false`, Reservoir will not add the package to its index
+  and will remove it if it was already there (when Reservoir is next updated).
+  -/
+  reservoir : Bool := true
 
 deriving Inhabited
 
@@ -394,13 +432,21 @@ namespace Package
 @[inline] def versionTags (self : Package) : StrPat  :=
   self.config.versionTags
 
+/-- The package's `description` configuration. -/
+@[inline] def description (self : Package) : String  :=
+  self.config.description
+
 /-- The package's `keywords` configuration. -/
 @[inline] def keywords (self : Package) : Array String  :=
   self.config.keywords
 
-/-- The package's `noReservoir` configuration. -/
-@[inline] def noReservoir (self : Package) : Bool  :=
-  self.config.noReservoir
+/-- The package's `homepage` configuration. -/
+@[inline] def homepage (self : Package) : String  :=
+  self.config.homepage
+
+/-- The package's `reservoir` configuration. -/
+@[inline] def reservoir (self : Package) : Bool  :=
+  self.config.reservoir
 
 /-- The package's direct dependencies. -/
 @[inline] def deps (self : Package) : Array Package  :=

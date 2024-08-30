@@ -484,8 +484,11 @@ structure ReservoirConfig where
   name : String
   version : LeanVer
   versionTags : List String
+  description : String
   keywords : Array String
-  noReservoir : Bool
+  homepage : String
+  platformIndependent : Option Bool
+  doIndex : Bool
   schemaVersion := ReservoirConfig.currentSchemaVersion
   deriving Lean.ToJson
 
@@ -506,8 +509,11 @@ protected def reservoirConfig : CliM PUnit := do
     name := pkg.name.toString
     version := pkg.version
     versionTags := repoTags.filter pkg.versionTags.matches
+    description := pkg.description
+    homepage := pkg.homepage
     keywords := pkg.keywords
-    noReservoir := pkg.noReservoir
+    platformIndependent := pkg.platformIndependent
+    doIndex := pkg.reservoir
   }
   IO.println (toJson cfg).pretty
 

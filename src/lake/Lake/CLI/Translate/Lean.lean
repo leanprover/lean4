@@ -121,20 +121,21 @@ def PackageConfig.mkSyntax (cfg : PackageConfig)
     |> addDeclFieldD `lintDriverArgs cfg.lintDriverArgs #[]
     |> addDeclFieldD `version cfg.version v!"0.0.0"
     |> addDeclField? `versionTags (quoteVerTags? cfg.versionTags)
+    |> addDeclFieldD `description cfg.description ""
     |> addDeclFieldD `keywords cfg.keywords #[]
-    |> addDeclFieldD `noReservoir cfg.noReservoir false
+    |> addDeclFieldD `homepage cfg.homepage ""
+    |> addDeclFieldD `reservoir cfg.reservoir true
     |> cfg.toWorkspaceConfig.addDeclFields
     |> cfg.toLeanConfig.addDeclFields
   `(packageDecl|package $(mkIdent cfg.name):ident $[$declVal?]?)
   where
     quoteVerTags? (pat : StrPat) : Option Term :=
       match pat with
-      | .mem xs =>
-        if xs.isEmpty then Unhygienic.run `(∅) else some (quote xs)
-      | .startsWith pre =>
-        if pre == "v" then none else
-        Unhygienic.run `(.$(mkIdent `startsWith) $(quote pre))
-      | _ => none
+      | .mem xs => if xs.isEmpty then Unhygienic.run `(∅) else some (quote xs)
+      | .startsWith pre => Unhygienic.run `(.$(mkIdent `startsWith) $(quote pre))
+      | .satisfies _ n =>
+        if n.isAnonymous || n == `default then none else
+        Unhygienic.run `(.$(mkIdent n))
 
 private def getEscapedNameParts? (acc : List String) : Name → Option (List String)
   | Name.anonymous => if acc.isEmpty then none else some acc

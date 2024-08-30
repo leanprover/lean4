@@ -77,19 +77,21 @@ protected def PackageConfig.toToml (cfg : PackageConfig) (t : Table := {}) : Tab
   |>.insertD `buildArchive (cfg.buildArchive?.getD cfg.buildArchive) (defaultBuildArchive cfg.name)
   |>.insertD `preferReleaseBuild cfg.preferReleaseBuild false
   |>.insertD `version cfg.version v!"0.0.0"
-  |>.insertSome `versionTags (encodeVerTags? cfg.versionTags)
+  |> smartInsertVerTags cfg.versionTags
+  |>.smartInsert `keywords cfg.description
   |>.smartInsert `keywords cfg.keywords
-  |>.insertD `noReservoir cfg.noReservoir false
+  |>.smartInsert `homepage cfg.homepage
+  |>.insertD `reservoir cfg.reservoir true
   |> cfg.toWorkspaceConfig.toToml
   |> cfg.toLeanConfig.toToml
 where
-  encodeVerTags? (pat : StrPat) : Option Value :=
+  smartInsertVerTags (pat : StrPat) (t : Table) : Table :=
     match pat with
-    | .mem s => toToml s
-    | .startsWith p =>
-      if p == "v" then none else
-      toToml <| Table.empty.insert `startsWith (toToml p)
-    | _ => none
+    | .mem s => t.insert `versionTags (toToml s)
+    | .startsWith p => t.insert `versionTags.startsWith (toToml p)
+    | .satisfies _ n =>
+      if n.isAnonymous || n == `default then t else
+      t.insert `versionTags.preset (toToml n)
 
 instance : ToToml PackageConfig := ⟨(toToml ·.toToml)⟩
 

@@ -28,9 +28,11 @@ weakLinkArgs = []
 backend = "default"
 platformIndependent = true
 version = "0.0.0"
-versionTags = {startsWith = "v"}
+versionTags = {preset = "default"}
+description = ""
 keywords = []
-noReservoir = false
+homepage = ""
+reservoir = true
 
 [[lean_lib]]
 name = "A"

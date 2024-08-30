@@ -21,9 +21,12 @@ $LAKE reservoir-config | diff -u --strip-trailing-cr <(cat << 'EOF'
 {"versionTags": ["v1", "v2"],
  "version": "0.0.0",
  "schemaVersion": "1.0.0",
- "noReservoir": false,
+ "platformIndependent": null,
  "name": "test",
- "keywords": ["test-case"]}
+ "keywords": ["test-case"],
+ "homepage": "https://example.com",
+ "doIndex": true,
+ "description": "Tests Reservoir configuration"}
 EOF
 ) -
 

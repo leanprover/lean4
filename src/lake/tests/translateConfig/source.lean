@@ -36,6 +36,9 @@ package test where
   description := ""
   keywords := #[]
   homepage := ""
+  license := ""
+  licenseFiles := #["LICENSE"]
+  readmeFile := "README.md"
   reservoir := true
 
 require "foo" / "baz" @ "git#abcdef"

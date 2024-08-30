@@ -32,6 +32,9 @@ versionTags = {preset = "default"}
 description = ""
 keywords = []
 homepage = ""
+license = ""
+licenseFiles = ["LICENSE"]
+readmeFile = "README.md"
 reservoir = true
 
 [[lean_lib]]

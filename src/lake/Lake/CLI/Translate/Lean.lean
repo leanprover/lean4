@@ -124,6 +124,9 @@ def PackageConfig.mkSyntax (cfg : PackageConfig)
     |> addDeclFieldD `description cfg.description ""
     |> addDeclFieldD `keywords cfg.keywords #[]
     |> addDeclFieldD `homepage cfg.homepage ""
+    |> addDeclFieldD `license cfg.license ""
+    |> addDeclFieldD `licenseFiles cfg.licenseFiles #["LICENSE"]
+    |> addDeclFieldD `readmeFile cfg.readmeFile "README.md"
     |> addDeclFieldD `reservoir cfg.reservoir true
     |> cfg.toWorkspaceConfig.addDeclFields
     |> cfg.toLeanConfig.addDeclFields

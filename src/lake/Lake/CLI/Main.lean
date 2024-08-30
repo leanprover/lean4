@@ -488,6 +488,9 @@ structure ReservoirConfig where
   keywords : Array String
   homepage : String
   platformIndependent : Option Bool
+  license : String
+  licenseFiles : Array FilePath
+  readmeFile : Option FilePath
   doIndex : Bool
   schemaVersion := ReservoirConfig.currentSchemaVersion
   deriving Lean.ToJson
@@ -505,6 +508,10 @@ protected def reservoirConfig : CliM PUnit := do
   noArgsRem do
   let pkg ← loadPackage cfg
   let repoTags ← GitRepo.getTags pkg.dir
+  let licenseFiles ← pkg.licenseFiles.filterMapM fun relPath => do
+    return if (← (pkg.dir / relPath).pathExists) then some relPath else none
+  let readmeFile :=
+    if (← pkg.readmeFile.pathExists) then some pkg.relReadmeFile else none
   let cfg : ReservoirConfig := {
     name := pkg.name.toString
     version := pkg.version
@@ -513,6 +520,9 @@ protected def reservoirConfig : CliM PUnit := do
     homepage := pkg.homepage
     keywords := pkg.keywords
     platformIndependent := pkg.platformIndependent
+    license := pkg.license
+    licenseFiles := licenseFiles
+    readmeFile := readmeFile
     doIndex := pkg.reservoir
   }
   IO.println (toJson cfg).pretty

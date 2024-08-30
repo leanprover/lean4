@@ -314,11 +314,47 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   homepage : String := ""
 
   /--
+  The package's license (if one).
+  Should be a valid [SPDX License Expression][1].
+
+  Reservoir requires that packages uses an OSI-approved license to be
+  included in its index, and currently only supports single identifier
+  SPDX expressions. For, a list of OSI-approved SPDX license identifiers,
+  see the [SPDX LIcense List][2].
+
+  [1]: https://spdx.github.io/spdx-spec/v3.0/annexes/SPDX-license-expressions/
+  [2]: https://spdx.org/licenses/
+  -/
+  license : String := ""
+
+  /--
+  Files containing licensing information for the package.
+
+  These should be the license files that users are expected to include when
+  distributing package sources, which may be more then one file for some licenses.
+  For example, the Apache 2.0 license requires the reproduction of a `NOTICE`
+  file along with the license (if such a file exists).
+
+  Defaults to `#["LICENSE"]`.
+  -/
+  licenseFiles : Array FilePath := #["LICENSE"]
+
+  /--
+  The path to the package's README.
+  A README should be a markdown file containing an overview of the package.
+  Reservoir displays the rendered HTML of this README on a package's page.
+
+  Defaults to `README.md`.
+  -/
+  readmeFile : FilePath := "README.md"
+
+  /--
   Whether Reservoir should include the package in its index.
   When set to `false`, Reservoir will not add the package to its index
   and will remove it if it was already there (when Reservoir is next updated).
   -/
   reservoir : Bool := true
+
 
 deriving Inhabited
 
@@ -447,6 +483,26 @@ namespace Package
 /-- The package's `reservoir` configuration. -/
 @[inline] def reservoir (self : Package) : Bool  :=
   self.config.reservoir
+
+/-- The package's `license` configuration. -/
+@[inline] def license (self : Package) : String  :=
+  self.config.license
+
+/-- The package's `licenseFiles` configuration. -/
+@[inline] def relLicenseFiles (self : Package) : Array FilePath  :=
+  self.config.licenseFiles
+
+/-- The package's `dir` joined with each of its `relLicenseFiles`. -/
+@[inline] def licenseFiles (self : Package) : Array FilePath  :=
+  self.relLicenseFiles.map (self.dir / ·)
+
+/-- The package's `readmeFile` configuration. -/
+@[inline] def relReadmeFile (self : Package) : FilePath  :=
+  self.config.readmeFile
+
+/-- The package's `dir` joined with its `relReadmeFile`. -/
+@[inline] def readmeFile (self : Package) : FilePath  :=
+  self.dir / self.config.readmeFile
 
 /-- The package's direct dependencies. -/
 @[inline] def deps (self : Package) : Array Package  :=

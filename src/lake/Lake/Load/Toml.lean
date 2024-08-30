@@ -206,12 +206,15 @@ protected def PackageConfig.decodeToml (t : Table) (ref := Syntax.missing) : Exc
   let testDriverArgs ← t.tryDecodeD `testDriverArgs #[]
   let lintDriver ← t.tryDecodeD `lintDriver ""
   let lintDriverArgs ← t.tryDecodeD `lintDriverArgs #[]
-  let version ← t.tryDecodeD `version v!"0.0.0"
+  let version : LeanVer ← t.tryDecodeD `version v!"0.0.0"
   let versionTags ← optDecodeD defaultVersionTags (t.find? `versionTags)
     <| StrPat.decodeToml (presets := versionTagPresets)
   let description ← t.tryDecodeD `description ""
   let keywords ← t.tryDecodeD `keywords #[]
   let homepage ← t.tryDecodeD `homepage ""
+  let license ← t.tryDecodeD `license ""
+  let licenseFiles : Array FilePath ← t.tryDecodeD `licenseFiles #["LICENSE"]
+  let readmeFile ← t.tryDecodeD `readmeFile "README.md"
   let reservoir ← t.tryDecodeD `reservoir true
   let toLeanConfig ← tryDecode <| LeanConfig.decodeToml t
   let toWorkspaceConfig ← tryDecode <| WorkspaceConfig.decodeToml t
@@ -221,6 +224,7 @@ protected def PackageConfig.decodeToml (t : Table) (ref := Syntax.missing) : Exc
     releaseRepo, buildArchive?, preferReleaseBuild
     testDriver, testDriverArgs, lintDriver, lintDriverArgs
     version, versionTags, description, keywords, homepage, reservoir
+    license, licenseFiles, readmeFile
     toLeanConfig, toWorkspaceConfig
   }
 

@@ -81,6 +81,9 @@ protected def PackageConfig.toToml (cfg : PackageConfig) (t : Table := {}) : Tab
   |>.smartInsert `keywords cfg.description
   |>.smartInsert `keywords cfg.keywords
   |>.smartInsert `homepage cfg.homepage
+  |>.smartInsert `license cfg.license
+  |>.insertD `licenseFiles cfg.licenseFiles #["LICENSE"]
+  |>.insertD `readmeFile cfg.readmeFile "README.md"
   |>.insertD `reservoir cfg.reservoir true
   |> cfg.toWorkspaceConfig.toToml
   |> cfg.toLeanConfig.toToml

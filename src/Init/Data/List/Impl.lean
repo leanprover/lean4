@@ -12,6 +12,9 @@ import Init.Data.Array.Lemmas
 
 Many of the proofs require theorems about `Array`,
 so these are in a separate file to minimize imports.
+
+If you import `Init.Data.List.Basic` but do not import this file,
+then at runtime you will get non-tail recursive versions of the following definitions.
 -/
 
 namespace List
@@ -31,25 +34,16 @@ The following operations are not recursive to begin with
 `isEmpty`, `isSuffixOf`, `isSuffixOf?`, `rotateLeft`, `rotateRight`, `insert`, `zip`, `enum`,
 `minimum?`, `maximum?`, and `removeAll`.
 
+The following operations were already given `@[csimp]` replacements in `Init/Data/List/Basic.lean`:
+`length`, `map`, `filter`, `replicate`, `leftPad`, `unzip`, `range'`, `iota`, `intersperse`.
+
 The following operations are given `@[csimp]` replacements below:
-`length`, `set`, `map`, `filter`, `filterMap`, `foldr`, `append`, `bind`, `join`, `replicate`,
-`take`, `takeWhile`, `dropLast`, `replace`, `erase`, `eraseIdx`, `zipWith`, `unzip`, `iota`,
-`enumFrom`, `intersperse`, and `intercalate`.
+``set`, `filterMap`, `foldr`, `append`, `bind`, `join`,
+`take`, `takeWhile`, `dropLast`, `replace`, `erase`, `eraseIdx`, `zipWith`, ,
+`enumFrom`, and `intercalate`.
 
 -/
 
-/-! ### length -/
-
-theorem length_add_eq_lengthTRAux (as : List α) (n : Nat) : as.length + n = as.lengthTRAux n := by
-  induction as generalizing n with
-  | nil  => simp [length, lengthTRAux]
-  | cons a as ih =>
-    simp [length, lengthTRAux, ← ih, Nat.succ_add]
-    rfl
-
-@[csimp] theorem length_eq_lengthTR : @List.length = @List.lengthTR := by
-  apply funext; intro α; apply funext; intro as
-  simp [lengthTR, ← length_add_eq_lengthTRAux]
 
 /-! ### set -/
 
@@ -70,53 +64,6 @@ theorem length_add_eq_lengthTRAux (as : List α) (n : Nat) : as.length + n = as.
   | x::xs, 0 => by simp [setTR.go, set]
   | x::xs, n+1 => fun h => by simp only [setTR.go, set]; rw [go _ xs] <;> simp [h]
   exact (go #[] _ _ rfl).symm
-
-/-! ### map -/
-
-/-- Tail-recursive version of `List.map`. -/
-@[inline] def mapTR (f : α → β) (as : List α) : List β :=
-  loop as []
-where
-  @[specialize] loop : List α → List β → List β
-  | [],    bs => bs.reverse
-  | a::as, bs => loop as (f a :: bs)
-
-theorem mapTR_loop_eq (f : α → β) (as : List α) (bs : List β) :
-    mapTR.loop f as bs = bs.reverse ++ map f as := by
-  induction as generalizing bs with
-  | nil => simp [mapTR.loop, map]
-  | cons a as ih =>
-    simp only [mapTR.loop, map]
-    rw [ih (f a :: bs), reverse_cons, append_assoc]
-    rfl
-
-@[csimp] theorem map_eq_mapTR : @map = @mapTR :=
-  funext fun α => funext fun β => funext fun f => funext fun as => by
-    simp [mapTR, mapTR_loop_eq]
-
-/-! ### filter -/
-
-/-- Tail-recursive version of `List.filter`. -/
-@[inline] def filterTR (p : α → Bool) (as : List α) : List α :=
-  loop as []
-where
-  @[specialize] loop : List α → List α → List α
-  | [],    rs => rs.reverse
-  | a::as, rs => match p a with
-     | true  => loop as (a::rs)
-     | false => loop as rs
-
-theorem filterTR_loop_eq (p : α → Bool) (as bs : List α) :
-    filterTR.loop p as bs = bs.reverse ++ filter p as := by
-  induction as generalizing bs with
-  | nil => simp [filterTR.loop, filter]
-  | cons a as ih =>
-    simp only [filterTR.loop, filter]
-    split <;> simp_all
-
-@[csimp] theorem filter_eq_filterTR : @filter = @filterTR := by
-  apply funext; intro α; apply funext; intro p; apply funext; intro as
-  simp [filterTR, filterTR_loop_eq]
 
 /-! ### filterMap -/
 
@@ -169,40 +116,6 @@ theorem filterTR_loop_eq (p : α → Bool) (as bs : List α) :
 
 @[csimp] theorem join_eq_joinTR : @join = @joinTR := by
   funext α l; rw [← List.bind_id, List.bind_eq_bindTR]; rfl
-
-/-! ### replicate -/
-
-/-- Tail-recursive version of `List.replicate`. -/
-def replicateTR {α : Type u} (n : Nat) (a : α) : List α :=
-  let rec loop : Nat → List α → List α
-    | 0, as => as
-    | n+1, as => loop n (a::as)
-  loop n []
-
-theorem replicateTR_loop_replicate_eq (a : α) (m n : Nat) :
-  replicateTR.loop a n (replicate m a) = replicate (n + m) a := by
-  induction n generalizing m with simp [replicateTR.loop]
-  | succ n ih => simp [Nat.succ_add]; exact ih (m+1)
-
-theorem replicateTR_loop_eq : ∀ n, replicateTR.loop a n acc = replicate n a ++ acc
-  | 0 => rfl
-  | n+1 => by rw [← replicateTR_loop_replicate_eq _ 1 n, replicate, replicate,
-    replicateTR.loop, replicateTR_loop_eq n, replicateTR_loop_eq n, append_assoc]; rfl
-
-@[csimp] theorem replicate_eq_replicateTR : @List.replicate = @List.replicateTR := by
-  apply funext; intro α; apply funext; intro n; apply funext; intro a
-  exact (replicateTR_loop_replicate_eq _ 0 n).symm
-
-/-! ## Additional functions -/
-
-/-! ### leftpad -/
-
-/-- Optimized version of `leftpad`. -/
-@[inline] def leftpadTR (n : Nat) (a : α) (l : List α) : List α :=
-  replicateTR.loop a (n - length l) l
-
-@[csimp] theorem leftpad_eq_leftpadTR : @leftpad = @leftpadTR := by
-  funext α n a l; simp [leftpad, leftpadTR, replicateTR_loop_eq]
 
 /-! ## Sublists -/
 
@@ -366,53 +279,7 @@ theorem replicateTR_loop_eq : ∀ n, replicateTR.loop a n acc = replicate n a ++
     | a::as, b::bs, acc => by simp [zipWithTR.go, zipWith, go as bs]
   exact (go as bs #[]).symm
 
-/-! ### unzip -/
-
-/-- Tail recursive version of `List.unzip`. -/
-def unzipTR (l : List (α × β)) : List α × List β :=
-  l.foldr (fun (a, b) (al, bl) => (a::al, b::bl)) ([], [])
-
-@[csimp] theorem unzip_eq_unzipTR : @unzip = @unzipTR := by
-  funext α β l; simp [unzipTR]; induction l <;> simp [*]
-
 /-! ## Ranges and enumeration -/
-
-/-! ### range' -/
-
-/-- Optimized version of `range'`. -/
-@[inline] def range'TR (s n : Nat) (step : Nat := 1) : List Nat := go n (s + step * n) [] where
-  /-- Auxiliary for `range'TR`: `range'TR.go n e = [e-n, ..., e-1] ++ acc`. -/
-  go : Nat → Nat → List Nat → List Nat
-  | 0, _, acc => acc
-  | n+1, e, acc => go n (e-step) ((e-step) :: acc)
-
-@[csimp] theorem range'_eq_range'TR : @range' = @range'TR := by
-  funext s n step
-  let rec go (s) : ∀ n m,
-    range'TR.go step n (s + step * n) (range' (s + step * n) m step) = range' s (n + m) step
-  | 0, m => by simp [range'TR.go]
-  | n+1, m => by
-    simp [range'TR.go]
-    rw [Nat.mul_succ, ← Nat.add_assoc, Nat.add_sub_cancel, Nat.add_right_comm n]
-    exact go s n (m + 1)
-  exact (go s n 0).symm
-
-/-! ### iota -/
-
-/-- Tail-recursive version of `List.iota`. -/
-def iotaTR (n : Nat) : List Nat :=
-  let rec go : Nat → List Nat → List Nat
-    | 0, r => r.reverse
-    | m@(n+1), r => go n (m::r)
-  go n []
-
-@[csimp]
-theorem iota_eq_iotaTR : @iota = @iotaTR :=
-  have aux (n : Nat) (r : List Nat) : iotaTR.go n r = r.reverse ++ iota n := by
-    induction n generalizing r with
-    | zero => simp [iota, iotaTR.go]
-    | succ n ih => simp [iota, iotaTR.go, ih, append_assoc]
-  funext fun n => by simp [iotaTR, aux]
 
 /-! ### enumFrom -/
 
@@ -433,20 +300,6 @@ def enumFromTR (n : Nat) (l : List α) : List (Nat × α) :=
   simp [go]
 
 /-! ## Other list operations -/
-
-/-! ### intersperse -/
-
-/-- Tail recursive version of `List.intersperse`. -/
-def intersperseTR (sep : α) : List α → List α
-  | [] => []
-  | [x] => [x]
-  | x::y::xs => x :: sep :: y :: xs.foldr (fun a r => sep :: a :: r) []
-
-@[csimp] theorem intersperse_eq_intersperseTR : @intersperse = @intersperseTR := by
-  funext α sep l; simp [intersperseTR]
-  match l with
-  | [] | [_] => rfl
-  | x::y::xs => simp [intersperse]; induction xs generalizing y <;> simp [*]
 
 /-! ### intercalate -/
 

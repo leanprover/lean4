@@ -8,6 +8,7 @@ import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.Range
 import Init.Data.List.Pairwise
 import Init.Data.List.Find
+import Init.Data.List.Erase
 
 /-!
 # Lemmas about `List.range` and `List.enum`
@@ -228,6 +229,28 @@ theorem range'_eq_append_iff : range' s n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs =
   rw [find?_eq_none]
   simp
 
+theorem erase_range' :
+    (range' s n).erase i =
+      range' s (min n (i - s)) ++ range' (max s (i + 1)) (min s (i + 1) + n - (i + 1)) := by
+  by_cases h : i ∈ range' s n
+  · obtain ⟨as, bs, h₁, h₂⟩ := eq_append_cons_of_mem h
+    rw [h₁, erase_append_right _ h₂, erase_cons_head]
+    rw [range'_eq_append_iff] at h₁
+    obtain ⟨k, -, rfl, hbs⟩ := h₁
+    rw [eq_comm, range'_eq_cons_iff] at hbs
+    obtain ⟨rfl, -, rfl⟩ := hbs
+    simp at h
+    congr 2 <;> omega
+  · rw [erase_of_not_mem h]
+    simp only [mem_range'_1, not_and, Nat.not_lt] at h
+    by_cases h' : s ≤ i
+    · have p : min s (i + 1) + n - (i + 1) = 0 := by omega
+      simp [p]
+      omega
+    · have p : i - s = 0 := by omega
+      simp [p]
+      omega
+
 /-! ### range -/
 
 theorem range_loop_range' : ∀ s n : Nat, range.loop s (range' s n) = range' 0 (n + s)
@@ -334,6 +357,9 @@ theorem nodup_range (n : Nat) : Nodup (range n) := by
 @[simp] theorem find?_range_eq_none (n : Nat) (p : Nat → Bool) :
     (range n).find? p = none ↔ ∀ i, i < n → !p i := by
   simp [range_eq_range']
+
+theorem erase_range : (range n).erase i = range (min n i) ++ range' (i + 1) (n - (i + 1)) := by
+  simp [range_eq_range', erase_range']
 
 /-! ### iota -/
 

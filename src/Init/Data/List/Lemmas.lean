@@ -369,6 +369,21 @@ theorem mem_concat_self (xs : List α) (a : α) : a ∈ xs ++ [a] :=
 
 theorem mem_append_cons_self : a ∈ xs ++ a :: ys := mem_append_of_mem_right _ (mem_cons_self _ _)
 
+theorem eq_append_cons_of_mem {a : α} {xs : List α} (h : a ∈ xs) :
+    ∃ as bs, xs = as ++ a :: bs ∧ a ∉ as := by
+  induction xs with
+  | nil => cases h
+  | cons x xs ih =>
+    simp at h
+    cases h with
+    | inl h => exact ⟨[], xs, by simp_all⟩
+    | inr h =>
+      by_cases h' : a = x
+      · subst h'
+        exact ⟨[], xs, by simp⟩
+      · obtain ⟨as, bs, rfl, h⟩ := ih h
+        exact ⟨x :: as, bs, rfl, by simp_all⟩
+
 theorem mem_cons_of_mem (y : α) {a : α} {l : List α} : a ∈ l → a ∈ y :: l := .tail _
 
 theorem exists_mem_of_ne_nil (l : List α) (h : l ≠ []) : ∃ x, x ∈ l :=

@@ -316,6 +316,11 @@ protected def build : CliM PUnit := do
   if showProgress then
     IO.println "Build completed successfully."
 
+protected def checkBuild : CliM PUnit := do
+  processOptions lakeOption
+  let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
+  noArgsRem do exit <| if pkg.defaultTargets.isEmpty then 1 else 0
+
 protected def resolveDeps : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
@@ -551,6 +556,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "new"                 => lake.new
 | "init"                => lake.init
 | "build"               => lake.build
+| "check-build"         => lake.checkBuild
 | "update" | "upgrade"  => lake.update
 | "resolve-deps"        => lake.resolveDeps
 | "pack"                => lake.pack

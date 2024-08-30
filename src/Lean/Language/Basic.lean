@@ -177,6 +177,22 @@ def withAlwaysResolvedPromise [Monad m] [MonadLiftT BaseIO m] [MonadFinally m] [
     p.resolve default
 
 /--
+Runs `act` with `count` newly created promises and finally resolves them to `default` if not done by
+`act`.
+
+Always resolving promises involved in the snapshot tree is important to avoid deadlocking the
+language server.
+-/
+def withAlwaysResolvedPromises [Monad m] [MonadLiftT BaseIO m] [MonadFinally m] [Inhabited α]
+    (count : Nat) (act : Array (IO.Promise α) → m Unit) : m Unit := do
+  let ps ← List.iota count |>.toArray.mapM fun _ => IO.Promise.new
+  try
+    act ps
+  finally
+    for p in ps do
+      p.resolve default
+
+/--
 Runs `act` with a newly created promise and resolves it to `default` if `act` is interrupted by an
 exception.
 
@@ -194,21 +210,17 @@ def withPromiseResolvedOnException [Monad m] [MonadLiftT BaseIO m] [always : Mon
     p.resolve default
     throw e
 
-/--
-Runs `act` with `count` newly created promises and finally resolves them to `default` if not done by
-`act`.
-
-Always resolving promises involved in the snapshot tree is important to avoid deadlocking the
-language server.
--/
-def withAlwaysResolvedPromises [Monad m] [MonadLiftT BaseIO m] [MonadFinally m] [Inhabited α]
-    (count : Nat) (act : Array (IO.Promise α) → m Unit) : m Unit := do
+/-- Variant of `withPromiseResolvedOnException` that generates a given number of promises. -/
+def withPromisesResolvedOnException [Monad m] [MonadLiftT BaseIO m] [always : MonadAlwaysExcept ε m]
+    [Inhabited α] (count : Nat) (act : Array (IO.Promise α) → m β) : m β := do
   let ps ← List.iota count |>.toArray.mapM fun _ => IO.Promise.new
+  let _ := always.except
   try
     act ps
-  finally
+  catch e =>
     for p in ps do
       p.resolve default
+    throw e
 
 /--
   Tree of snapshots where each snapshot comes with an array of asynchronous further subtrees. Used

@@ -274,6 +274,7 @@ abbrev KernelException := Kernel.Exception
 
 structure AsyncTheoremVal extends ConstantVal where
   value : Task Expr
+  subDecls : Task (Array Declaration)
   /--
     List of all (including this one) declarations in the same mutual block.
     See comment at `DefinitionVal.all`. -/
@@ -285,15 +286,10 @@ def AsyncTheoremVal.toTheoremVal (v : AsyncTheoremVal) : TheoremVal :=
 instance [Nonempty α] : Nonempty (Thunk α) :=
   Nonempty.intro ⟨fun _ => Classical.ofNonempty⟩
 
-private def mkKernelEnv (base : Kernel.Environment) (asyncTheorems : Array AsyncTheoremVal) :
-    Kernel.Environment :=
-  if asyncTheorems.isEmpty then
-    base
-  else dbgStackTrace fun _ => Id.run do
-    let mut kenv := base
-    for thm in asyncTheorems do
-      kenv := kenv.add (.thmInfo thm.toTheoremVal)
-    kenv
+structure PrefixRestriction where
+  declPrefix : Name
+  subDecls : Array Declaration
+deriving Inhabited
 
 /--
 Extension of `Kernel.Environment` that adds tracking of compiler IR, asynchronously elaborated
@@ -333,15 +329,52 @@ structure Environment where
   /-- The header contains additional information that is set at import time. -/
   header                  : EnvironmentHeader := {}
   asyncTheorems           : Array AsyncTheoremVal := #[]
-  prefixRestriction       : Name := .anonymous
-  toKernelEnvThunk : Thunk Kernel.Environment := ⟨fun _ => mkKernelEnv base asyncTheorems⟩
+  prefixRestriction?      : Option PrefixRestriction := none
 deriving Nonempty
 
 namespace Environment
 
+/-- Type check given declaration and add it to the environment. -/
+@[extern "lean_elab_add_decl"]
+opaque addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
+  (cancelTk? : @& Option IO.CancelToken) : Except Kernel.Exception Environment
+
+@[inherit_doc Kernel.Environment.addDeclWithoutChecking, extern "lean_elab_add_decl_without_checking"]
+opaque addDeclWithoutChecking (env : Environment) (decl : @& Declaration) : Except Kernel.Exception Environment
+
+def addDecl (env : Environment) (opts : Options) (decl : Declaration)
+    (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment := do
+  if let some r := env.prefixRestriction? then
+    if let some c := decl.getNames.find? (!r.declPrefix.isPrefixOf ·) then
+      throw <| .other s!"declaration '{c}' cannot be added to the environment because the context \
+        is restricted to the prefix {r.declPrefix}"
+    else
+      return { env with prefixRestriction? := some { r with subDecls := r.subDecls.push decl } }
+  else if debug.skipKernelTC.get opts then
+    addDeclWithoutChecking env decl
+  else
+    addDeclCore env (Core.getMaxHeartbeats opts).toUSize decl cancelTk?
+
 @[export lean_elab_environment_to_kernel_env]
 def toKernelEnv (env : Environment) : Kernel.Environment :=
-  env.base
+  if env.asyncTheorems.isEmpty then
+    env.base
+  else /-dbgStackTrace fun _ =>-/ Id.run do
+    let mut kenv := env.base
+    for thm in env.asyncTheorems do
+      for subDecl in thm.subDecls.get do
+        -- errors will be reported at full check (TODO)
+        match kenv.addDeclWithoutChecking subDecl with
+        | .ok kenv' => kenv := kenv'
+        | .error e => panic! "oh no"; return kenv
+      kenv := kenv.add (.thmInfo thm.toTheoremVal)
+    if let some prefixRestriction := env.prefixRestriction? then
+      for subDecl in prefixRestriction.subDecls do
+        match kenv.addDeclWithoutChecking subDecl with
+        | .ok kenv' => kenv := kenv'
+        | .error e => panic! "oh no"; return kenv
+    kenv
+
 
 @[inherit_doc Kernel.Environment.constants]
 def constants (env : Environment) : ConstMap :=
@@ -357,6 +390,13 @@ def addExtraName (env : Environment) (name : Name) : Environment :=
     env
   else
     { env with extraConstNames := env.extraConstNames.insert name }
+
+def addTheoremAsync (env : Environment) (val : AsyncTheoremVal) : Environment :=
+  { env with asyncTheorems := env.asyncTheorems.push val }
+
+def setPrefixRestriction? (env : Environment) (prefixRestriction? : Option PrefixRestriction) :
+    Environment :=
+  { env with prefixRestriction? }
 
 def find? (env : Environment) (n : Name) : Option ConstantInfo :=
   /- It is safe to use `find'` because we never overwrite imported declarations. -/
@@ -379,9 +419,6 @@ def mainModule (env : Environment) : Name :=
 
 def getModuleIdxFor? (env : Environment) (declName : Name) : Option ModuleIdx :=
   env.const2ModIdx[declName]?
-
-def setPrefixRestriction (env : Environment) (prefixRestriction : Name) : Environment :=
-  { env with prefixRestriction }
 
 def isConstructor (env : Environment) (declName : Name) : Bool :=
   match env.find? declName with
@@ -1121,25 +1158,6 @@ private def registerNamePrefixes : Environment → Name → Environment
 private def updateBaseAfterKernelAdd (env : Environment) (added : Declaration) (base : Kernel.Environment) : Environment :=
   let env := added.getNames.foldl registerNamePrefixes env
   { env with base }
-
-/-- Type check given declaration and add it to the environment. -/
-@[extern "lean_elab_add_decl"]
-private opaque addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
-  (cancelTk? : @& Option IO.CancelToken) : Except Kernel.Exception Environment
-
-@[inherit_doc Kernel.Environment.addDeclWithoutChecking, extern "lean_elab_add_decl_without_checking"]
-private opaque addDeclWithoutChecking (env : Environment) (decl : @& Declaration) : Except Kernel.Exception Environment
-
-def addDecl (env : Environment) (opts : Options) (decl : Declaration)
-    (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment := do
-  if !env.prefixRestriction.isAnonymous then
-    if let some c := decl.getNames.find? (!env.prefixRestriction.isPrefixOf ·) then
-      throw <| .other s!"declaration '{c}' cannot be added to the environment because the context \
-        is restricted to the prefix '{env.prefixRestriction}'"
-  if debug.skipKernelTC.get opts then
-    addDeclWithoutChecking env decl
-  else
-    addDeclCore env (Core.getMaxHeartbeats opts).toUSize decl cancelTk?
 
 @[export lean_display_stats]
 def displayStats (env : Environment) : IO Unit := do

@@ -383,7 +383,38 @@ register_builtin_option deprecated.oldSectionVars : Bool := {
   descr    := "re-enable deprecated behavior of including exactly the section variables used in a declaration"
 }
 
-private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr) (sc : Command.Scope) : TermElabM (Array Expr) :=
+/-- Runs the given action in a separate task, discarding its final state. -/
+def runAsync (act : TermElabM α) : TermElabM (Task (Except Exception α)) := do
+  let mut coreSt ← getThe Core.State
+  let metaSt ← getThe Meta.State
+  let st ← get
+  let coreCtx ← readThe Core.Context
+  let metaCtx ← readThe Meta.Context
+  let ctx ← read
+  if Language.internal.cmdlineSnapshots.get (← getOptions) then
+    coreSt := { coreSt with
+      env := Runtime.markPersistent coreSt.env, infoState := Runtime.markPersistent coreSt.infoState }
+  EIO.asTask (act.run' ctx st |>.run' metaCtx metaSt |>.run' coreCtx coreSt)
+
+/--
+Runs the given action in a separate task, discarding its final state except for the message log,
+which is reported in the returned snapshot.
+-/
+def runAsyncAsSnapshot (act : TermElabM Unit) : TermElabM (Task Language.SnapshotTree) := do
+  let t ← runAsync do
+    try
+      act
+    catch e =>
+      logError e.toMessageData
+    saveState
+  BaseIO.mapTask (t := t) fun
+    | .ok st =>
+      return .mk { diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog st.meta.core.messages) } #[]
+    | .error _ => return .mk { diagnostics := .empty } #[]
+
+private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr)
+    (sc : Command.Scope) :
+    TermElabM (Array Expr) :=
   headers.mapM fun header => do
     let mut reusableResult? := none
     if let some snap := header.bodySnap? then
@@ -394,8 +425,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
           snap.new.resolve <| some old
           reusableResult? := some (old.value, old.state)
 
-    let (val, state) ← withRestoreOrSaveFull reusableResult? header.tacSnap? try
-      modifyEnv (·.setPrefixRestriction header.declName)
+    let (val, state) ← withRestoreOrSaveFull reusableResult? header.tacSnap? do
       withReuseContext header.value do
       withDeclName header.declName <| withLevelNames header.levelNames do
       let valStx ← liftMacroM <| declValToTerm header.value
@@ -425,8 +455,6 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
               logWarningAt header.ref m!"included section variable '{var}' is not used in \
                 '{header.declName}', consider excluding it"
         return val
-    finally
-      modifyEnv (·.setPrefixRestriction .anonymous)
     if let some snap := header.bodySnap? then
       snap.new.resolve <| some {
         diagnostics :=
@@ -992,8 +1020,10 @@ def elabMutualDef (vars : Array Expr) (sc : Command.Scope) (views : Array DefVie
     go
 where
   go :=
-    withAlwaysResolvedPromises views.size fun bodyPromises =>
-    withAlwaysResolvedPromises views.size fun tacPromises => do
+    withPromisesResolvedOnException views.size fun bodyPromises =>
+    withPromisesResolvedOnException views.size fun tacPromises => do
+    withPromisesResolvedOnException views.size fun valPromises => do
+    withPromisesResolvedOnException views.size fun subDeclsPromises => do
       let scopeLevelNames ← getLevelNames
       let headers ← elabHeaders views bodyPromises tacPromises
       let headers ← levelMVarToParamHeaders views headers
@@ -1001,14 +1031,36 @@ where
       withFunLocalDecls headers fun funFVars => do
         for view in views, funFVar in funFVars do
           addLocalVarInfo view.declId funFVar
-        let values ←
+        let async := headers.size == 1 && headers.all (·.kind.isTheorem) && typeCheckedPromise?.isSome
+    --if header.kind.isTheorem then
+    --  unless (← isProp type) do
+    --    throwErrorAt header.ref "type of theorem '{header.declName}' is not a proposition{indentExpr type}"
+    --return preDefs.push {
+    --  ref         := getDeclarationSelectionRef header.ref
+    --  kind        := header.kind
+    --  declName    := header.declName
+    --  levelParams := [], -- we set it later
+    --  modifiers   := header.modifiers
+    --  type, value, termination
+    --}
+        let finishElab := try
+        let values ← do
+          if async then
+            modifyEnv fun env => env.setPrefixRestriction? <| some {
+              declPrefix := headers[0]!.declName
+              subDecls := #[]
+            }
           try
-            let values ← elabFunValues headers vars sc
-            Term.synthesizeSyntheticMVarsNoPostponing
-            values.mapM (instantiateMVarsProfiling ·)
-          catch ex =>
-            logException ex
-            headers.mapM fun header => mkSorry header.type (synthetic := true)
+            (try
+              let values ← elabFunValues headers vars sc
+              Term.synthesizeSyntheticMVarsNoPostponing
+              values.mapM (instantiateMVarsProfiling ·)
+            catch ex =>
+              logException ex
+              headers.mapM fun header => mkSorry header.type (synthetic := true))
+          finally
+            if let some prefixRestriction := (← getEnv).prefixRestriction? then
+              subDeclsPromise.resolve (← getEnv).prefixRestriction?.get!.subDecls
         let headers ← headers.mapM instantiateMVarsAtHeader
         let letRecsToLift ← getLetRecsToLift
         let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift
@@ -1024,32 +1076,33 @@ where
           for preDef in preDefs do
             trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
           checkForHiddenUnivLevels allUserLevelNames preDefs
-          if let some typeCheckedPromise := typeCheckedPromise? then
-            if let some (preEnv, postponed) ← addPreDefinitionsWithPostpone preDefs then
-              let opts ← getOptions
-              let fileName ← getFileName
-              let fileMap ← getFileMap
-              let ref := preDefs[0]!.ref
-              let pos    := ref.getPos?.getD 0
-              let endPos := ref.getTailPos?.getD pos
-              let pos    := fileMap.toPosition pos
-              let endPos := fileMap.toPosition endPos
-              let preEnv := if internal.cmdlineSnapshots.get opts then Runtime.markPersistent preEnv
-                else preEnv
-              let _ ← BaseIO.asTask <| delayBaseIO fun _ => do
-                let mut msgLog := .empty
-                if let .error e := preEnv.addDecl opts postponed then
-                  msgLog := msgLog.add {
-                    fileName, pos, endPos
-                    data := e.toMessageData preEnv opts
-                  }
-                typeCheckedPromise.resolve <|
-                  .mk { diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog) } #[]
-            else
-              typeCheckedPromise.resolve default
-          else
-            addPreDefinitions preDefs
+          addPreDefinitions preDefs
           processDeriving headers
+        finally
+          bodyPromises.forM (·.resolve default)
+          tacPromises.forM (·.resolve default)
+          valPromises.forM (·.resolve default)
+          subDeclsPromises.forM (·.resolve default)
+        if async then
+          let t ← runAsyncAsSnapshot finishElab
+          let _ ← BaseIO.mapTask (t := t) fun snap => do
+            if let some typeCheckedPromise := typeCheckedPromise? then
+              typeCheckedPromise.resolve snap
+          let mut env ← getEnv
+          for header in headers, valPromise in valPromises, subDeclsPromise in subDeclsPromises do
+            let type ← mkForallFVars vars header.type
+            env := env.addTheoremAsync {
+              name := header.declName
+              levelParams := []  -- TODO
+              type
+              value := valPromise.result
+              subDecls := subDeclsPromise.result
+            }
+          modifyEnv fun _ => env
+        else
+          finishElab
+          if let some typeCheckedPromise := typeCheckedPromise? then
+            typeCheckedPromise.resolve default
       for view in views, header in headers do
         -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
         -- that depends only on a part of the ref

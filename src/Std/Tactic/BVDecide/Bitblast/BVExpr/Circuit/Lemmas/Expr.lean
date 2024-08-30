@@ -112,11 +112,9 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
         · rw [BitVec.msb_eq_getLsb_last]
           rw [ih]
       · dsimp only; omega
-  | extract hi lo inner ih =>
+  | @extract w start len inner ih =>
     simp only [go, denote_blastExtract, Bool.if_false_right, eval_extract,
-      BitVec.getLsb_extract]
-    have : idx ≤ hi - lo := by omega
-    simp only [this, decide_True, Bool.true_and]
+      BitVec.getLsb_extractLsb', hidx, decide_True, Bool.true_and]
     split
     · next hsplit =>
       rw [ih]

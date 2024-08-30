@@ -52,7 +52,7 @@ s!"import Lake
 open Lake DSL
 
 package {repr pkgName} where
-  -- add package configuration options here
+  version := v!\"0.1.0\"
 
 lean_lib {libRoot} where
   -- add library configuration options here
@@ -64,6 +64,7 @@ lean_exe {repr exeName} where
 
 def stdTomlConfigFileContents (pkgName libRoot exeName : String) :=
 s!"name = {repr pkgName}
+version = \"0.1.0\"
 defaultTargets = [{repr exeName}]
 
 [[lean_lib]]
@@ -79,7 +80,7 @@ s!"import Lake
 open Lake DSL
 
 package {repr pkgName} where
-  -- add package configuration options here
+  version := v!\"0.1.0\"
 
 @[default_target]
 lean_exe {repr exeName} where
@@ -88,6 +89,7 @@ lean_exe {repr exeName} where
 
 def exeTomlConfigFileContents (pkgName exeName : String) :=
 s!"name = {repr pkgName}
+version = \"0.1.0\"
 defaultTargets = [{repr exeName}]
 
 [[lean_exe]]
@@ -100,7 +102,7 @@ s!"import Lake
 open Lake DSL
 
 package {repr pkgName} where
-  -- add package configuration options here
+  version := v!\"0.1.0\"
 
 @[default_target]
 lean_lib {libRoot} where
@@ -109,6 +111,7 @@ lean_lib {libRoot} where
 
 def libTomlConfigFileContents (pkgName libRoot : String) :=
 s!"name = {repr pkgName}
+version = \"0.1.0\"
 defaultTargets = [{repr libRoot}]
 
 [[lean_lib]]
@@ -120,11 +123,11 @@ s!"import Lake
 open Lake DSL
 
 package {repr pkgName} where
-  -- Settings applied to both builds and interactive editing
+  version := v!\"0.1.0\"
+  keywords := #[\"math\"]
   leanOptions := #[
     ⟨`pp.unicode.fun, true⟩ -- pretty-prints `fun a ↦ b`
   ]
-  -- add any additional package configuration options here
 
 require \"leanprover-community\" / \"mathlib\"
 
@@ -135,6 +138,8 @@ lean_lib {libRoot} where
 
 def mathTomlConfigFileContents (pkgName libRoot : String) :=
 s!"name = {repr pkgName}
+version = \"0.1.0\"
+keywords = [\"math\"]
 defaultTargets = [{repr libRoot}]
 
 [leanOptions]

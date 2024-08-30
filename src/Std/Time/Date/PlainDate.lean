@@ -119,20 +119,23 @@ def ofDaysSinceUNIXEpoch (day : Day.Offset) : PlainDate :=
 Calculates the `Weekday` of a given `PlainDate` using Zeller's Congruence for the Gregorian calendar.
 -/
 def weekday (date : PlainDate) : Weekday :=
-  let q := date.day.toInt
-  let m := date.month.toInt
+  let q := date.day
+  let m := date.month
   let y := date.year.toInt
 
-  let y := if m < 2 then y - 1 else y
-  let m := if m < 2 then m + 12 else m
+  let y := if m.val < 2 then y - 1 else y
 
-  let k := y % 100
-  let j := y.div 100
-  let part := q + (13 * (m + 1)).div 5 + k + (k.div 4)
-  let h := part + (j.div 4) - 2*j
-  let d := (h + 5) % 7
+  let m : Bounded.LE 1 13 := if h : m.val ≤ 1
+    then (m.truncateTop h |>.add 12 |>.expandBottom (by decide))
+    else m.expandTop (by decide)
 
-  .ofFin ⟨d.toNat % 7, Nat.mod_lt d.toNat (by decide)⟩
+  let k := Bounded.LE.byEmod y 100 (by decide)
+  let j : Bounded.LE (-10) 9 := (Bounded.LE.byMod y 1000 (by decide)).ediv 100 (by decide)
+  let part : Bounded.LE 6 190 := q.addBounds (((m.add 1).mul_pos 13 (by decide)).ediv 5 (by decide)) |>.addBounds k |>.addBounds (k.ediv 4 (by decide))
+  let h : Bounded.LE (-15) 212 := part.addBounds ((j.ediv 4 (by decide)).addBounds (j.mul_pos 2 (by decide)).neg)
+  let d :=  (h.add 5).emod 7 (by decide)
+
+  .ofOrdinal (d.add 1)
 
 /--
 Determines the era of the given `PlainDate` based on its year.

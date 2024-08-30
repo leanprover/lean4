@@ -59,21 +59,21 @@ The Time24Hour format, which follows the pattern `date% hh:mm:ss` for representi
 in a 24-hour clock format. It uses the default value that can be parsed with the
 notation of dates.
 -/
-def leanTime24Hour : Format .any := date-spec% "'time% 'hh:mm:ss:sssssssss"
+def leanTime24Hour : Format .any := date-spec% "'time% 'hh:mm:ss,sssssssss"
 
 /--
 The DateTimeZone24Hour format, which follows the pattern `date% YYYY-MM-DD hh:mm:ss:sssssssss` for
 representing date, time, and time zone. It uses the default value that can be parsed with the
 notation of dates.
 -/
-def leanDateTime24Hour : Format (.only .GMT) := date-spec% "'date% 'YYYY-MM-DD:hh:mm:ss:sssssssss"
+def leanDateTime24Hour : Format (.only .GMT) := date-spec% "'date% 'YYYY-MM-DD'T'hh:mm:ss,sssssssss"
 
 /--
 The DateTimeWithZone format, which follows the pattern `date% YYYY-MM-DD hh:mm:ss:sssssssss`
 for representing date, time, and time zone. It uses the default value that can be parsed with the
 notation of dates.
 -/
-def leanDateTimeWithZone : Format .any := date-spec% "'date% 'YYYY-MM-DD:hh:mm:ss:sssssssssZZZZZ"
+def leanDateTimeWithZone : Format .any := date-spec% "'date% 'YYYY-MM-DD'T'hh:mm:ss,sssssssssZZZZZ"
 
 /--
 The Lean Date format, which follows the pattern `date% YYYY-MM-DD`. It uses the default value that can be parsed with the

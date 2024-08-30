@@ -1,7 +1,7 @@
 import Std.Time
 open Std.Time
 
-def ISO8601UTC : Format .any := date-spec% "YYYY-MM-DD'T'hh:mm:ssZZZ"
+def ISO8601UTC : Format .any := date-spec% "YYYY-MM-DD'T'hh:mm:ss.sssZ"
 def RFC1123 : Format .any := date-spec% "EEE, DD MMM YYYY hh:mm:ss ZZZ"
 def ShortDate : Format .any := date-spec% "MM/DD/YYYY"
 def LongDate : Format .any := date-spec% "MMMM D, YYYY"
@@ -17,7 +17,7 @@ def CustomDayTime : Format .any := date-spec% "EEE D MMM YYYY hh:mm"
 def brTZ : TimeZone := timezone% "America/Sao_Paulo" -03:00
 def jpTZ : TimeZone := timezone% "Asia/Tokyo" +09:00
 
-def date₁ := date% 2014-06-16:03:03:03(brTZ)
+def date₁ := date% 2014-06-16 T 03:03:03(brTZ)
 def time₁ := time% 14:11:01
 def time₂ := time% 03:11:01
 
@@ -239,31 +239,31 @@ info: date% 2002-07-14
 #eval date% 2002-07-14
 
 /--
-info: time% 14:13:12:000000000
+info: time% 14:13:12,000000000
 -/
 #guard_msgs in
 #eval time% 14:13:12
 
 /--
-info: date% 2002-07-14:14:13:12:000000000
+info: date% 2002-07-14T14:13:12,000000000
 -/
 #guard_msgs in
-#eval date% 2002-07-14:14:13:12
+#eval date% 2002-07-14 T 14:13:12
 
 /--
-info: date% 2002-07-14:14:13:12:000000000+09:00
+info: date% 2002-07-14T14:13:12,000000000+09:00
 -/
 #guard_msgs in
-#eval date% 2002-07-14:14:13:12+09:00
+#eval date% 2002-07-14 T 14:13:12+09:00
 
 /--
 info: "2002-07-14"
 -/
 #guard_msgs in
-#eval (date% 2002-07-14:14:13:12+09:00).format "YYYY-MM-DD"
+#eval (date% 2002-07-14 T 14:13:12+09:00).format "YYYY-MM-DD"
 
 /--
 info: "14-13-12"
 -/
 #guard_msgs in
-#eval (date% 2002-07-14:14:13:12+09:00).format "hh-mm-ss"
+#eval (date% 2002-07-14 T 14:13:12+09:00).format "hh-mm-ss"

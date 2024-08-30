@@ -1,7 +1,7 @@
 import Std.Time
 open Std.Time
 
-def ISO8601UTC : Format .any := date-spec% "YYYY-MM-DD'T'hh:mm:ssZZZ"
+def ISO8601UTC : Format .any := date-spec% "YYYY-MM-DD'T'hh:mm:ss.sssZ"
 def RFC1123 : Format .any := date-spec% "EEE, DD MMM YYYY hh:mm:ss ZZZ"
 def ShortDate : Format .any := date-spec% "MM/DD/YYYY"
 def LongDate : Format .any := date-spec% "MMMM D, YYYY"
@@ -19,23 +19,23 @@ def Full12HourWrong : Format .any := date-spec% "MM/DD/YYYY hh:mm:ss aa Z"
 def brTZ : TimeZone := timezone% "America/Sao_Paulo" -03:00
 def jpTZ : TimeZone := timezone% "Asia/Tokyo" +09:00
 
-def date₁ := date% 2014-06-16:03:03:03(brTZ)
+def date₁ := date% 2014-06-16 T 03:03:03(brTZ)
 def time₁ := time% 14:11:01
 def time₂ := time% 03:11:01
 
 /--
-info: "2014-06-16T03:03:03-0300"
+info: "2014-06-16T03:03:03.000-03:00"
 -/
 #guard_msgs in
 #eval
-    let t : ZonedDateTime := ISO8601UTC.parse! "2014-06-16T03:03:03-0300"
+    let t : ZonedDateTime := ISO8601UTC.parse! "2014-06-16T03:03:03.000-03:00"
     ISO8601UTC.format t.snd
 
 def tm := date₁.timestamp
 def date₂ := DateTime.ofTimestamp tm brTZ
 
 /--
-info: "2014-06-16T03:03:03-0300"
+info: "2014-06-16T03:03:03.000-03:00"
 -/
 #guard_msgs in
 #eval
@@ -46,7 +46,7 @@ def tm₃ := date₁.toTimestamp
 def date₃ := DateTime.ofTimestamp tm₃ brTZ
 
 /--
-info: "2014-06-16T00:00:00UTC"
+info: "2014-06-16T00:00:00.000Z"
 -/
 #guard_msgs in
 #eval
@@ -67,7 +67,7 @@ def dateJP := DateTime.ofTimestamp (Timestamp.ofSecondsSinceUnixEpoch tm₄) jpT
 def dateUTC := DateTime.ofTimestamp (Timestamp.ofSecondsSinceUnixEpoch tm₄) .UTC
 
 /--
-info: "2024-08-15T13:28:12-0300"
+info: "2024-08-15T13:28:12.000-03:00"
 -/
 #guard_msgs in
 #eval
@@ -75,7 +75,7 @@ info: "2024-08-15T13:28:12-0300"
     ISO8601UTC.format t.snd
 
 /--
-info: "2024-08-16T01:28:00UTC"
+info: "2024-08-16T01:28:00.000Z"
 -/
 #guard_msgs in
 #eval
@@ -83,7 +83,7 @@ info: "2024-08-16T01:28:00UTC"
     ISO8601UTC.format t.snd
 
 /--
-info: "-0001-12-31T22:28:12+0900"
+info: "-0001-12-31T22:28:12.000+09:00"
 -/
 #guard_msgs in
 #eval
@@ -91,7 +91,7 @@ info: "-0001-12-31T22:28:12+0900"
     ISO8601UTC.format (t.snd.convertTimeZone jpTZ)
 
 /--
-info: "-0001-12-31T09:28:12-0300"
+info: "-0001-12-31T09:28:12.000-03:00"
 -/
 #guard_msgs in
 #eval
@@ -107,7 +107,7 @@ info: "Thu 15 Aug 2024 16:28"
     CustomDayTime.format t2.snd
 
 /--
-info: "2024-08-16T13:28:00UTC"
+info: "2024-08-16T13:28:00.000Z"
 -/
 #guard_msgs in
 #eval
@@ -115,7 +115,7 @@ info: "2024-08-16T13:28:00UTC"
     ISO8601UTC.format t5.snd
 
 /--
-info: "2024-08-16T01:28:12+0900"
+info: "2024-08-16T01:28:12.000+09:00"
 -/
 #guard_msgs in
 #eval
@@ -123,7 +123,7 @@ info: "2024-08-16T01:28:12+0900"
     ISO8601UTC.format (t6.snd.convertTimeZone jpTZ)
 
 /--
-info: "2024-08-16T01:28:12+0900"
+info: "2024-08-16T01:28:12.000+09:00"
 -/
 #guard_msgs in
 #eval
@@ -147,7 +147,7 @@ def dateJP₁ := DateTime.ofLocalDateTime PlainDate jpTZ
 def dateUTC₁ := DateTime.ofLocalDateTime PlainDate .UTC
 
 /--
-info: "2024-08-15T14:03:47-0300"
+info: "2024-08-15T14:03:47.000-03:00"
 -/
 #guard_msgs in
 #eval
@@ -155,7 +155,7 @@ info: "2024-08-15T14:03:47-0300"
     ISO8601UTC.format t.snd
 
 /--
-info: "2024-08-15T14:03:47+0900"
+info: "2024-08-15T14:03:47.000+09:00"
 -/
 #guard_msgs in
 #eval
@@ -163,7 +163,7 @@ info: "2024-08-15T14:03:47+0900"
     ISO8601UTC.format t1.snd
 
 /--
-info: "2014-06-16T03:03:03-0300"
+info: "2014-06-16T03:03:03.000-03:00"
 -/
 #guard_msgs in
 #eval
@@ -171,7 +171,7 @@ info: "2014-06-16T03:03:03-0300"
     ISO8601UTC.format t2.snd
 
 /--
-info: Except.ok "1993-05-10T10:30:23+0300"
+info: Except.ok "1993-05-10T10:30:23.000+03:00"
 -/
 #guard_msgs in
 #eval
@@ -179,7 +179,7 @@ info: Except.ok "1993-05-10T10:30:23+0300"
     (ISO8601UTC.format ·.snd) <$> t2
 
 /--
-info: Except.ok "1993-05-10T22:30:23+0300"
+info: Except.ok "1993-05-10T22:30:23.000+03:00"
 -/
 #guard_msgs in
 #eval

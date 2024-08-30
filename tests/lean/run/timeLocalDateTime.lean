@@ -7,8 +7,8 @@ def ShortDate : Format .any := date-spec% "DD/MM/YYYY"
 def format (PlainDate : PlainDateTime) : String := ShortDateTime.formatBuilder PlainDate.day PlainDate.month PlainDate.year PlainDate.time.hour PlainDate.minute PlainDate.time.second
 def format₂ (PlainDate : PlainDate) : String := ShortDate.formatBuilder PlainDate.day PlainDate.month PlainDate.year
 
-def date₁ := date% 1993-11-19:09:08:07
-def date₂ := date% 1993-05-09:12:59:59
+def date₁ := date% 1993-11-19 T 09:08:07
+def date₂ := date% 1993-05-09 T 12:59:59
 def date₃ := date% 2024-08-16
 def date₄ := date% 1500-08-16
 

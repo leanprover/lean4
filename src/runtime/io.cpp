@@ -547,9 +547,17 @@ extern "C" LEAN_EXPORT obj_res lean_get_timezone_offset(obj_arg /* w */) {
 
     std::tm tm_info;
 #if defined(LEAN_WINDOWS)
-    localtime_s(&tm_info, &now_time_t);
+    errno_t err = localtime_s(&tm_info, &now_time_t);
+
+    if (err != 0) {
+        return lean_io_result_mk_error(lean_decode_io_error(err, mk_string("")));
+    }
 #else
-    localtime_r(&now_time_t, &tm_info);
+    struct tm *err = localtime_r(&now_time_t, &tm_info);
+
+    if (err == NULL) {
+        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("")));
+    }
 #endif
 
     int offset_hour = tm_info.tm_gmtoff / 3600;

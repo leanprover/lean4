@@ -9,10 +9,11 @@ import Std.Time.Time
 import Std.Time.Zoned
 import Std.Time.DateTime
 import Std.Time.Format.Basic
+import Lean.Parser
 
 namespace Std
 namespace Time
-open Lean Parser Command Std
+open Lean Parser Command Std Lean.Parser
 
 /--
 Category of units that are valid inside a date.
@@ -76,12 +77,12 @@ Date in `HH-mm-ss` format.
 syntax date_component noWs ":" noWs date_component noWs ":" noWs date_component : time
 
 /--
-Date in `HH-mm-ss.sssssssss` format.
+Date in `HH-mm-ss,sssssssss` format.
 -/
-syntax date_component noWs ":" noWs date_component noWs ":" noWs date_component noWs ":" noWs date_component : time
+syntax date_component noWs ":" noWs date_component noWs ":" noWs date_component noWs "," noWs date_component : time
 
 private def parseTime : TSyntax `time -> MacroM (TSyntax `term)
-  | `(time| $hour:date_component:$minute:date_component:$second:date_component:$nanos:date_component) => do
+  | `(time| $hour:date_component:$minute:date_component:$second:date_component,$nanos:date_component) => do
     `(Std.Time.PlainTime.mk ⟨true, $(← parseComponent (some 0) (some 24) hour)⟩ $(← parseComponent (some 0) (some 59) minute) ⟨true, $(← parseComponent (some 0) (some 60) second)⟩ $(← parseComponent (some 0) (some 999999999) nanos) (by decide))
   | `(time| $hour:date_component:$minute:date_component:$second:date_component) => do
     `(Std.Time.PlainTime.mk ⟨true, $(← parseComponent (some 0) (some 24) hour)⟩ $(← parseComponent (some 0) (some 59) minute) ⟨true, $(← parseComponent (some 0) (some 60) second)⟩ 0 (by decide))
@@ -93,9 +94,9 @@ Category of date and time together.
 declare_syntax_cat datetime
 
 /--
-Date and time in `YYYY-MM-DD:HH:mm:ss` format.
+Date and time in `YYYY-MM-DDTHH:mm:ss,nano` format.
 -/
-syntax date noWs ":" noWs time : datetime
+syntax date &"T" time : datetime
 
 /--
 Date but using timestamp.
@@ -103,7 +104,7 @@ Date but using timestamp.
 syntax date_component : datetime
 
 private def parseDateTime : TSyntax `datetime -> MacroM (TSyntax `term)
-  | `(datetime| $date:date:$time:time) => do
+  | `(datetime| $date:date T $time:time) => do
     `(Std.Time.PlainDateTime.mk $(← parseDate date) $(← parseTime time))
   | `(datetime|$tm:date_component) => do
     `(Std.Time.PlainDateTime.ofUTCTimestamp $(← parseComponent none none tm))

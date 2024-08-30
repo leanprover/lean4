@@ -16,6 +16,7 @@ set_option linter.all true
 
 /--
 Defines the enumeration for days of the week. Each variant corresponds to a day of the week, from Monday to Sunday.
+As defined in the ISO 8601, It starts on monday.
 -/
 inductive Weekday
   /-- Monday. -/
@@ -37,53 +38,62 @@ inductive Weekday
 namespace Weekday
 
 /--
-Converts a `Fin 7` representing a day index into a corresponding `Weekday`. This function is useful
+`Ordinal` represents a bounded value for weekdays, which ranges between 1 and 7..
+-/
+def Ordinal := Bounded.LE 1 7
+
+instance : OfNat Ordinal n :=
+  inferInstanceAs (OfNat (Bounded.LE 1 (1 + (6 : Nat))) n)
+
+
+/--
+Converts a `Ordinal` representing a day index into a corresponding `Weekday`. This function is useful
 for mapping numerical representations to days of the week.
 -/
-def ofFin : Fin 7 → Weekday
-  | 0 => .monday
-  | 1 => .tuesday
-  | 2 => .wednesday
-  | 3 => .thursday
-  | 4 => .friday
-  | 5 => .saturday
-  | 6 => .sunday
+def ofOrdinal : Ordinal → Weekday
+  | 1 => .monday
+  | 2 => .tuesday
+  | 3 => .wednesday
+  | 4 => .thursday
+  | 5 => .friday
+  | 6 => .saturday
+  | 7 => .sunday
+
+/--
+Converts a `Weekday` to a `Nat`.
+-/
+def toOrdinal : Weekday → Ordinal
+  | .monday => 1
+  | .tuesday => 2
+  | .wednesday => 3
+  | .thursday => 4
+  | .friday => 5
+  | .saturday => 6
+  | .sunday => 7
 
 /--
 Converts a `Weekday` to a `Nat`.
 -/
 def toNat : Weekday → Nat
-  | .monday => 0
-  | .tuesday => 1
-  | .wednesday => 2
-  | .thursday => 3
-  | .friday => 4
-  | .saturday => 5
-  | .sunday => 6
-
-/--
-Converts a `Weekday` to a `Fin`.
--/
-def toFin : Weekday → Nat
-  | .monday => 0
-  | .tuesday => 1
-  | .wednesday => 2
-  | .thursday => 3
-  | .friday => 4
-  | .saturday => 5
-  | .sunday => 6
+  | .monday => 1
+  | .tuesday => 2
+  | .wednesday => 3
+  | .thursday => 4
+  | .friday => 5
+  | .saturday => 6
+  | .sunday => 7
 
 /--
 Converts a `Nat` to an `Option Weekday`.
 -/
 def ofNat? : Nat → Option Weekday
-  | 0 => some .monday
-  | 1 => some .tuesday
-  | 2 => some .wednesday
-  | 3 => some .thursday
-  | 4 => some .friday
-  | 5 => some .saturday
-  | 6 => some .sunday
+  | 1 => some .monday
+  | 2 => some .tuesday
+  | 3 => some .wednesday
+  | 4 => some .thursday
+  | 5 => some .friday
+  | 6 => some .saturday
+  | 7 => some .sunday
   | _ => none
 
 /--

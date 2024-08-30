@@ -19,7 +19,7 @@ set_option linter.all true
 `Ordinal` represents a bounded value for months, which ranges between 1 and 12.
 -/
 def Ordinal := Bounded.LE 1 12
-  deriving Repr, BEq, LE
+  deriving Repr, BEq, LE, LT
 
 instance : ToString Ordinal where
   toString x := toString x.val

@@ -14,7 +14,8 @@ import Init.Omega
 
 namespace Int
 
-@[simp] theorem toNat_sub' (a : Int) (b : Nat) : a.toNat - b = (a - b).toNat := by
+@[simp] theorem toNat_sub' (a : Int) (b : Nat) : (a - b).toNat = a.toNat - b := by
+  symm
   simp only [Int.toNat]
   split <;> rename_i x a
   · simp only [Int.ofNat_eq_coe]

@@ -121,22 +121,22 @@ Return the `i`-th least significant bit.
 
 This will be renamed `getLsb` after the existing deprecated alias is removed.
 -/
-@[inline] def getLsb' (x : BitVec w) (i : Nat) (_ : i < w) : Bool := x.toNat.testBit i
+@[inline] def getLsb' (x : BitVec w) (i : Fin w) : Bool := x.toNat.testBit i
 
 /-- Return the `i`-th least significant bit or `none` if `i ≥ w`. -/
 @[inline] def getLsb? (x : BitVec w) (i : Nat) : Option Bool :=
-  if h : i < w then some (getLsb' x i h) else none
+  if h : i < w then some (getLsb' x ⟨i, h⟩) else none
 
 /--
 Return the `i`-th most significant bit.
 
 This will be renamed `getMsb` after the existing deprecated alias is removed.
 -/
-@[inline] def getMsb' (x : BitVec w) (i : Nat) (_ : i < w) : Bool := x.getLsb' (w-1-i) (by omega)
+@[inline] def getMsb' (x : BitVec w) (i : Fin w) : Bool := x.getLsb' ⟨w-1-i, by omega⟩
 
 /-- Return the `i`-th most significant bit or `none` if `i ≥ w`. -/
 @[inline] def getMsb? (x : BitVec w) (i : Nat) : Option Bool :=
-  if h : i < w then some (getMsb' x i h) else none
+  if h : i < w then some (getMsb' x ⟨i, h⟩) else none
 
 /-- Return the `i`-th least significant bit or `false` if `i ≥ w`. -/
 @[inline] def getLsbD (x : BitVec w) (i : Nat) : Bool :=
@@ -160,20 +160,15 @@ end getXsb
 section getElem
 
 instance : GetElem (BitVec w) Nat Bool fun _ i => i < w where
-  getElem xs i h := xs.getLsb' i h
+  getElem xs i h := xs.getLsb' ⟨i, h⟩
 
 /-- We prefer `x[i]` as the simp normal form for `getLsb'` -/
-@[simp] theorem getLsb'_eq_getElem (x : BitVec w) (i : Nat) (h : i < w) :
-    x.getLsb' i h = x[i] := rfl
+@[simp] theorem getLsb'_eq_getElem (x : BitVec w) (i : Fin w) :
+    x.getLsb' i = x[i] := rfl
 
 /-- We prefer `x[i]?` as the simp normal form for `getLsb?` -/
 @[simp] theorem getLsb?_eq_getElem? (x : BitVec w) (i : Nat) :
     x.getLsb? i = x[i]? := rfl
-
-theorem getLsbD_eq_getElem?_getD (x : BitVec w) (i : Nat) (h : i < w) :
-    x.getLsbD i = x[i]?.getD false := by
-  rw [getElem?_def]
-  split <;> rfl
 
 end getElem
 

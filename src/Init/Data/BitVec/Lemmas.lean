@@ -16,32 +16,12 @@ set_option linter.missingDocs true
 
 namespace BitVec
 
-/--
-This normalized a bitvec using `ofFin` to `ofNat`.
--/
-theorem ofFin_eq_ofNat : @BitVec.ofFin w (Fin.mk x lt) = BitVec.ofNat w x := by
-  simp only [BitVec.ofNat, Fin.ofNat', lt, Nat.mod_eq_of_lt]
-
-/-- Prove equality of bitvectors in terms of nat operations. -/
-theorem eq_of_toNat_eq {n} : ∀ {x y : BitVec n}, x.toNat = y.toNat → x = y
-  | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
-
-@[simp] theorem val_toFin (x : BitVec w) : x.toFin.val = x.toNat := rfl
-
-@[bv_toNat] theorem toNat_eq (x y : BitVec n) : x = y ↔ x.toNat = y.toNat :=
-  Iff.intro (congrArg BitVec.toNat) eq_of_toNat_eq
-
-@[bv_toNat] theorem toNat_ne (x y : BitVec n) : x ≠ y ↔ x.toNat ≠ y.toNat := by
-  rw [Ne, toNat_eq]
-
-theorem testBit_toNat (x : BitVec w) : x.toNat.testBit i = x.getLsbD i := rfl
-
 @[simp] theorem getLsbD_ofFin (x : Fin (2^n)) (i : Nat) :
-  getLsbD (BitVec.ofFin x) i = x.val.testBit i := rfl
+    getLsbD (BitVec.ofFin x) i = x.val.testBit i := rfl
 
 @[simp] theorem getLsbD_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : getLsbD x i = false := by
   let ⟨x, x_lt⟩ := x
-  simp
+  simp only [getLsbD_ofFin]
   apply Nat.testBit_lt_two_pow
   have p : 2^w ≤ 2^i := Nat.pow_le_pow_of_le_right (by omega) ge
   omega
@@ -63,6 +43,79 @@ theorem lt_of_getMsbD (x : BitVec w) (i : Nat) : getMsbD x i = true → i < w :=
   else
     simp [Nat.ge_of_not_lt h]
 
+@[simp] theorem getElem?_eq_getElem {l : BitVec w} {n} (h : n < w) : l[n]? = some l[n] := by
+  simp only [getElem?_def, h, ↓reduceDIte]
+
+theorem getElem?_eq_some {l : BitVec w} : l[n]? = some a ↔ ∃ h : n < w, l[n] = a := by
+  simp only [getElem?_def]
+  split
+  · simp_all
+  · simp; omega
+
+@[simp] theorem getElem?_eq_none_iff {l : BitVec w} : l[n]? = none ↔ w ≤ n := by
+  simp only [getElem?_def]
+  split
+  · simp_all
+  · simp; omega
+
+theorem getElem?_eq_none {l : BitVec w} (h : w ≤ n) : l[n]? = none := getElem?_eq_none_iff.mpr h
+
+theorem getElem?_eq (l : BitVec w) (i : Nat) :
+    l[i]? = if h : i < w then some l[i] else none := by
+  split <;> simp_all
+
+@[simp] theorem some_getElem_eq_getElem? (l : BitVec w) (i : Nat) (h : i < w) :
+    (some l[i] = l[i]?) ↔ True := by
+  simp [h]
+
+@[simp] theorem getElem?_eq_some_getElem (l : BitVec w) (i : Nat) (h : i < w) :
+    (l[i]? = some l[i]) ↔ True := by
+  simp [h]
+
+theorem getElem_eq_iff {l : BitVec w} {n : Nat} {h : n < w} : l[n] = x ↔ l[n]? = some x := by
+  simp only [getElem?_eq_some]
+  exact ⟨fun w => ⟨h, w⟩, fun h => h.2⟩
+
+theorem getElem_eq_getElem? (l : BitVec w) (i : Nat) (h : i < w) :
+    l[i] = l[i]?.get (by simp [getElem?_eq_getElem, h]) := by
+  simp [getElem_eq_iff]
+
+theorem getLsbD_eq_getElem?_getD {x : BitVec w} {i : Nat} :
+    x.getLsbD i = x[i]?.getD false := by
+  rw [getElem?_def]
+  split
+  · rfl
+  · simp_all
+
+/--
+This normalized a bitvec using `ofFin` to `ofNat`.
+-/
+theorem ofFin_eq_ofNat : @BitVec.ofFin w (Fin.mk x lt) = BitVec.ofNat w x := by
+  simp only [BitVec.ofNat, Fin.ofNat', lt, Nat.mod_eq_of_lt]
+
+/-- Prove equality of bitvectors in terms of nat operations. -/
+theorem eq_of_toNat_eq {n} : ∀ {x y : BitVec n}, x.toNat = y.toNat → x = y
+  | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
+
+@[simp] theorem val_toFin (x : BitVec w) : x.toFin.val = x.toNat := rfl
+
+@[bv_toNat] theorem toNat_eq (x y : BitVec n) : x = y ↔ x.toNat = y.toNat :=
+  Iff.intro (congrArg BitVec.toNat) eq_of_toNat_eq
+
+@[bv_toNat] theorem toNat_ne (x y : BitVec n) : x ≠ y ↔ x.toNat ≠ y.toNat := by
+  rw [Ne, toNat_eq]
+
+theorem testBit_toNat (x : BitVec w) : x.toNat.testBit i = x.getLsbD i := rfl
+
+theorem getMsb'_eq_getLsb' (x : BitVec w) (i : Fin w) :
+    x.getMsb' i = x.getLsb' ⟨w - 1 - i, by omega⟩ := by
+  simp only [getMsb', getLsb']
+
+theorem getMsb?_eq_getLsb? (x : BitVec w) (i : Nat) :
+    x.getMsb? i = if i < w then x.getLsb? (w - 1 - i) else none := by
+  simp only [getMsb?, getLsb?_eq_getElem?]
+  split <;> simp [getMsb'_eq_getLsb']
+
 theorem getMsbD_eq_getLsbD (x : BitVec w) (i : Nat) : x.getMsbD i = (decide (i < w) && x.getLsbD (w - 1 - i)) := by
   rw [getMsbD, getLsbD]
 
@@ -75,6 +128,45 @@ theorem getLsbD_eq_getMsbD (x : BitVec w) (i : Nat) : x.getLsbD i = (decide (i <
   all_goals
     apply getLsbD_ge
     omega
+
+@[simp] theorem getLsb?_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : x[i]? = none := by
+  simp [ge]
+
+@[simp] theorem getMsb?_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : getMsb? x i = none := by
+  simp [getMsb?_eq_getLsb?]; omega
+
+theorem lt_of_getLsb?_eq_some (x : BitVec w) (i : Nat) : x[i]? = some b → i < w := by
+  cases h : x[i]? with
+  | none => simp
+  | some => by_cases i < w <;> simp_all
+
+theorem lt_of_getMsb?_eq_some (x : BitVec w) (i : Nat) : getMsb? x i = some b → i < w := by
+  if h : i < w then
+    simp [h]
+  else
+    simp [Nat.ge_of_not_lt h]
+
+theorem lt_of_getLsb?_isSome (x : BitVec w) (i : Nat) : x[i]?.isSome → i < w := by
+  cases h : x[i]? with
+  | none => simp
+  | some => by_cases i < w <;> simp_all
+
+theorem lt_of_getMsb?_isSome (x : BitVec w) (i : Nat) : (getMsb? x i).isSome → i < w := by
+  if h : i < w then
+    simp [h]
+  else
+    simp [Nat.ge_of_not_lt h]
+
+theorem getMsbD_eq_getMsb?_getD (x : BitVec w) (i : Nat) :
+    x.getMsbD i = (x.getMsb? i).getD false := by
+  rw [getMsbD_eq_getLsbD]
+  by_cases h : w = 0
+  · simp [getMsb?, h]
+  · rw [getLsbD_eq_getElem?_getD, getMsb?_eq_getLsb?]
+    split <;>
+    · simp
+      intros
+      omega
 
 -- We choose `eq_of_getLsbD_eq` as the `@[ext]` theorem for `BitVec`
 -- somewhat arbitrarily over `eq_of_getMsbD_eq`.

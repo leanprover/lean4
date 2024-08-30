@@ -255,7 +255,7 @@ theorem get!_len_le [Inhabited α] : ∀ {l : List α} {n}, length l ≤ n → l
 /-! ### getElem? and getElem -/
 
 @[simp] theorem getElem?_eq_getElem {l : List α} {n} (h : n < l.length) : l[n]? = some l[n] := by
-  simp only [← get?_eq_getElem?, get?_eq_get, h, get_eq_getElem]
+  simp only [getElem?_def, h, ↓reduceDIte]
 
 theorem getElem?_eq_some {l : List α} : l[n]? = some a ↔ ∃ h : n < l.length, l[n] = a := by
   simp only [← get?_eq_getElem?, get?_eq_some, get_eq_getElem]

@@ -134,7 +134,7 @@ v4.11.0
 
 * [#4727](https://github.com/leanprover/lean4/pull/4727) makes it so that responses to info view requests come as soon as the relevant tactic has finished execution.
 * [#4580](https://github.com/leanprover/lean4/pull/4580) makes it so that whitespace changes do not invalidate imports, and so starting to type the first declaration after imports should no longer cause them to reload.
-* [#4780](https://github.com/leanprover/lean4/pull/4780) fixes an issue where hoving over unimported builtin names could result in a panic.
+* [#4780](https://github.com/leanprover/lean4/pull/4780) fixes an issue where hovering over unimported builtin names could result in a panic.
 
 ### Pretty printing
 
@@ -143,7 +143,7 @@ v4.11.0
 * [#4665](https://github.com/leanprover/lean4/pull/4665) fixes a bug where pretty printed signatures (for example in `#check`) were overly hoverable due to `pp.tagAppFns` being set.
 * [#4724](https://github.com/leanprover/lean4/pull/4724) makes `match` pretty printer be sensitive to `pp.explicit`, which makes hovering over a `match` in the Infoview show the underlying term.
 * [#4764](https://github.com/leanprover/lean4/pull/4764) documents why anonymous constructor notation isn't pretty printed with flattening.
-* [#4786](https://github.com/leanprover/lean4/pull/4786) adjusts the parenthesizer so that only the parentheses are hoverable, impleented by having the parentheses "steal" the term info from the parenthesized expression.
+* [#4786](https://github.com/leanprover/lean4/pull/4786) adjusts the parenthesizer so that only the parentheses are hoverable, implemented by having the parentheses "steal" the term info from the parenthesized expression.
 * [#4854](https://github.com/leanprover/lean4/pull/4854) allows arbitrarily long sequences of optional arguments to be omitted from the end of applications, versus the previous conservative behavior of omitting up to one optional argument.
 
 ### Library
@@ -152,7 +152,7 @@ v4.11.0
   * [#4597](https://github.com/leanprover/lean4/pull/4597) adds bitwise lemmas `Nat.and_le_(left|right)`.
   * [#4874](https://github.com/leanprover/lean4/pull/4874) adds simprocs for simplifying bit expressions.
 * `Int`
-  * [#4903](https://github.com/leanprover/lean4/pull/4903) fixes perfomance of `HPow Int Nat Int` synthesis by rewriting it as a `NatPow Int` instance.
+  * [#4903](https://github.com/leanprover/lean4/pull/4903) fixes performance of `HPow Int Nat Int` synthesis by rewriting it as a `NatPow Int` instance.
 * `UInt*` and `Fin`
   * [#4605](https://github.com/leanprover/lean4/pull/4605) adds lemmas.
   * [#4629](https://github.com/leanprover/lean4/pull/4629) adds `*.and_toNat`.
@@ -164,9 +164,9 @@ v4.11.0
 * `List` and `Array`
   * Upstreamed from Batteries: [#4586](https://github.com/leanprover/lean4/pull/4586) upstreams `List.attach` and `Array.attach`, [#4697](https://github.com/leanprover/lean4/pull/4697) upstreams `List.Subset` and `List.Sublist` and API, [#4706](https://github.com/leanprover/lean4/pull/4706) upstreams basic material on `List.Pairwise` and `List.Nodup`, [#4720](https://github.com/leanprover/lean4/pull/4720) upstreams more `List.erase` API, [#4836](https://github.com/leanprover/lean4/pull/4836) and [#4837](https://github.com/leanprover/lean4/pull/4837) upstream `List.IsPrefix`/`List.IsSuffix`/`List.IsInfix` and add `Decidable` instances, [#4855](https://github.com/leanprover/lean4/pull/4855) upstreams `List.tail`, `List.findIdx`, `List.indexOf`, `List.countP`, `List.count`, and `List.range'`, [#4856](https://github.com/leanprover/lean4/pull/4856) upstreams more List lemmas, [#4866](https://github.com/leanprover/lean4/pull/4866) upstreams `List.pairwise_iff_getElem`, [#4865](https://github.com/leanprover/lean4/pull/4865) upstreams `List.eraseIdx` lemmas.
   * [#4687](https://github.com/leanprover/lean4/pull/4687) adjusts `List.replicate` simp lemmas and simprocs.
-  * [#4704](https://github.com/leanprover/lean4/pull/4704) adds characterisations of `List.Sublist`.
+  * [#4704](https://github.com/leanprover/lean4/pull/4704) adds characterizations of `List.Sublist`.
   * [#4707](https://github.com/leanprover/lean4/pull/4707) adds simp normal form tests for `List.Pairwise` and `List.Nodup`.
-  * [#4708](https://github.com/leanprover/lean4/pull/4708) and [#4815](https://github.com/leanprover/lean4/pull/4815) reorganise lemmas on list getters.
+  * [#4708](https://github.com/leanprover/lean4/pull/4708) and [#4815](https://github.com/leanprover/lean4/pull/4815) reorganize lemmas on list getters.
   * [#4765](https://github.com/leanprover/lean4/pull/4765) adds simprocs for literal array accesses such as `#[1,2,3,4,5][2]`.
   * [#4790](https://github.com/leanprover/lean4/pull/4790) removes typeclass assumptions for `List.Nodup.eraseP`.
   * [#4801](https://github.com/leanprover/lean4/pull/4801) adds efficient `usize` functions for array types.
@@ -194,7 +194,7 @@ v4.11.0
 * `SMap`
   * [#4690](https://github.com/leanprover/lean4/pull/4690) upstreams `SMap.foldM`.
 * `BEq`
-  * [#4607](https://github.com/leanprover/lean4/pull/4607) adds `PartialEquivBeq`, `ReflBEq`, `EquivBEq`, and `LawfulHashable` classes.
+  * [#4607](https://github.com/leanprover/lean4/pull/4607) adds `PartialEquivBEq`, `ReflBEq`, `EquivBEq`, and `LawfulHashable` classes.
 * `IO`
   * [#4660](https://github.com/leanprover/lean4/pull/4660) adds `IO.Process.Child.tryWait`.
 * [#4747](https://github.com/leanprover/lean4/pull/4747), [#4730](https://github.com/leanprover/lean4/pull/4730), and [#4756](https://github.com/leanprover/lean4/pull/4756) add `×'` syntax for `PProd`. Adds a delaborator for `PProd` and `MProd` values to pretty print as flattened angle bracket tuples.
@@ -266,7 +266,7 @@ v4.11.0
   * [#4617](https://github.com/leanprover/lean4/pull/4617) add 'since' dates to `deprecated` attributes.
   * [#4625](https://github.com/leanprover/lean4/pull/4625) improves the robustness of the constructor-as-variable test.
   * [#4740](https://github.com/leanprover/lean4/pull/4740) extends test with nice example reported on Zulip.
-  * [#4766](https://github.com/leanprover/lean4/pull/4766) moves `Synax.hasIdent` and shakes dependencies.
+  * [#4766](https://github.com/leanprover/lean4/pull/4766) moves `Syntax.hasIdent` to be available earlier and shakes dependencies.
   * [#4881](https://github.com/leanprover/lean4/pull/4881) splits out `Lean.Language.Lean.Types`.
   * [#4893](https://github.com/leanprover/lean4/pull/4893) adds `LEAN_EXPORT` for `sharecommon` functions.
   * Typos: [#4635](https://github.com/leanprover/lean4/pull/4635), [#4719](https://github.com/leanprover/lean4/pull/4719), [af40e6](https://github.com/leanprover/lean4/commit/af40e618111581c82fc44de922368a02208b499f)

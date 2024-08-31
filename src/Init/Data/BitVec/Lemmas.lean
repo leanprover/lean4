@@ -226,7 +226,7 @@ theorem eq_of_getMsbD_eq {x y : BitVec w}
     simpa [q_lt, Nat.sub_sub_self, r] using q
 
 -- This cannot be a `@[simp]` lemma, as it would be tried at every term.
-theorem of_length_zero {x : BitVec 0} : x = 0#0 := by ext; simp -- [BitVec.eq_nil x]
+theorem of_length_zero {x : BitVec 0} : x = 0#0 := by ext; simp [BitVec.eq_nil x]
 
 @[simp] theorem toNat_zero_length (x : BitVec 0) : x.toNat = 0 := by simp [of_length_zero]
 theorem getLsbD_zero_length (x : BitVec 0) : x.getLsbD i = false := by simp
@@ -507,14 +507,14 @@ theorem nat_eq_toNat (x : BitVec w) (y : Nat)
     getLsbD (zeroExtend m x) i = (decide (i < m) && getLsbD x i) := by
   simp [getLsbD, toNat_zeroExtend, Nat.testBit_mod_two_pow]
 
-@[simp] theorem getElem_zeroExtend' (m : Nat) (x : BitVec n) (i : Fin n) (h : i < m) :
+@[simp] theorem getElem_zeroExtend_fin (m : Nat) (x : BitVec n) (i : Fin n) (h : i < m) :
     (zeroExtend m x)[i] = x[i] := by
     rw [getElem_eq_toNat_testBit]
     have rlb := BitVec.getElem_eq_toNat_testBit (zeroExtend m x) ⟨i.val, h⟩
     simp only [Fin.getElem_fin, toNat_truncate, Nat.testBit_mod_two_pow] at rlb
     simp [rlb, h]
 
-@[simp] theorem getElem_zeroExtend (m : Nat) (x : BitVec n) (i : Nat) (h1 : i < n) (h : i < m) :
+@[simp] theorem getElem_zeroExtend_nat (m : Nat) (x : BitVec n) (i : Nat) (h1 : i < n) (h : i < m) :
     (zeroExtend m x)[i] = x[i] := by
     have rla := BitVec.getElem_eq_toNat_testBit (x) ⟨i, h1⟩
     have rlb := BitVec.getElem_eq_toNat_testBit (zeroExtend m x) ⟨i, h⟩
@@ -548,17 +548,17 @@ theorem msb_truncate (x : BitVec w) : (x.truncate (k + 1)).msb = x.getLsbD k := 
   revert p
   cases getLsbD x i <;> simp; omega
 
-@[simp] theorem zeroExtend_zeroExtend_of_le_getElem' (x : BitVec w) (h : k ≤ l) :
+@[simp] theorem zeroExtend_zeroExtend_of_le_getElem_fin (x : BitVec w) (h : k ≤ l) :
     (x.zeroExtend l).zeroExtend k = x.zeroExtend k := by
   apply eq_of_getElem_eq'
   intros i
-  simp [getElem_zeroExtend', h]
+  simp [getElem_zeroExtend_fin, h]
 
-@[simp] theorem zeroExtend_zeroExtend_of_le_getElem (x : BitVec w) (h : k ≤ l) :
+@[simp] theorem zeroExtend_zeroExtend_of_le_getElem_nat (x : BitVec w) (h : k ≤ l) :
     (x.zeroExtend l).zeroExtend k = x.zeroExtend k := by
   apply eq_of_getElem_eq
   intros i _
-  simp [getElem_zeroExtend, h]
+  simp [getElem_zeroExtend_nat, h]
 
 @[simp] theorem truncate_truncate_of_le (x : BitVec w) (h : k ≤ l) :
     (x.truncate l).truncate k = x.truncate k :=

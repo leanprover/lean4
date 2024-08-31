@@ -39,11 +39,13 @@ private def escapeAux (acc : String) (c : Char) : String :=
     let d4 := Nat.digitChar (n % 16)
     acc ++ "\\u" |>.push d1 |>.push d2 |>.push d3 |>.push d4
 
-def escape (s : String) : String :=
-  s.foldl escapeAux ""
+def escape (s : String) (acc : String := "") : String :=
+  s.foldl escapeAux acc
 
-def renderString (s : String) : String :=
-  "\"" ++ escape s ++ "\""
+def renderString (s : String) (acc : String := "") : String :=
+  let acc := acc ++ "\""
+  let acc := escape s acc
+  acc ++ "\""
 
 section
 
@@ -85,14 +87,14 @@ where go (acc : String) : List Json.CompressWorkItem → String
     | bool true  => go (acc ++ "true") is
     | bool false => go (acc ++ "false") is
     | num s      => go (acc ++ s.toString) is
-    | str s      => go (acc ++ renderString s) is
+    | str s      => go (renderString s acc) is
     | arr elems  => go (acc ++ "[") (elems.toList.map arrayElem ++ [arrayEnd] ++ is)
     | obj kvs    => go (acc ++ "{") (kvs.fold (init := []) (fun acc k j => objectField k j :: acc) ++ [objectEnd] ++ is)
   | arrayElem j :: arrayEnd :: is      => go acc (json j :: arrayEnd :: is)
   | arrayElem j :: is                  => go acc (json j :: comma :: is)
   | arrayEnd :: is                     => go (acc ++ "]") is
-  | objectField k j :: objectEnd :: is => go (acc ++ renderString k ++ ":") (json j :: objectEnd :: is)
-  | objectField k j :: is              => go (acc ++ renderString k ++ ":") (json j :: comma :: is)
+  | objectField k j :: objectEnd :: is => go (renderString k acc ++ ":") (json j :: objectEnd :: is)
+  | objectField k j :: is              => go (renderString k acc ++ ":") (json j :: comma :: is)
   | objectEnd :: is                    => go (acc ++ "}") is
   | comma :: is                        => go (acc ++ ",") is
 

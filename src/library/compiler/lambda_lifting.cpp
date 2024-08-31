@@ -30,7 +30,7 @@ bool is_lambda_lifting_name(name fn) {
 }
 
 class lambda_lifting_fn {
-    environment         m_env;
+    elab_environment    m_env;
     name_generator      m_ngen;
     local_ctx           m_lctx;
     buffer<comp_decl>   m_new_decls;
@@ -39,7 +39,7 @@ class lambda_lifting_fn {
 
     typedef std::unordered_set<name, name_hash_fn> name_set;
 
-    environment const & env() { return m_env; }
+    elab_environment const & env() { return m_env; }
 
     name_generator & ngen() { return m_ngen; }
 
@@ -207,10 +207,10 @@ class lambda_lifting_fn {
     }
 
 public:
-    lambda_lifting_fn(environment const & env):
+    lambda_lifting_fn(elab_environment const & env):
         m_env(env) {}
 
-    pair<environment, comp_decls> operator()(comp_decl const & cdecl) {
+    pair<elab_environment, comp_decls> operator()(comp_decl const & cdecl) {
         m_base_name = cdecl.fst();
         expr r = visit(cdecl.snd(), true);
         comp_decl new_cdecl(cdecl.fst(), r);
@@ -219,11 +219,11 @@ public:
     }
 };
 
-pair<environment, comp_decls> lambda_lifting(environment const & env, comp_decl const & d) {
+pair<elab_environment, comp_decls> lambda_lifting(elab_environment const & env, comp_decl const & d) {
     return lambda_lifting_fn(env)(d);
 }
 
-pair<environment, comp_decls> lambda_lifting(environment env, comp_decls const & ds) {
+pair<elab_environment, comp_decls> lambda_lifting(elab_environment env, comp_decls const & ds) {
     comp_decls r;
     for (comp_decl const & d : ds) {
         comp_decls new_ds;

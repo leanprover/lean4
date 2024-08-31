@@ -55,7 +55,7 @@ private def throwCtorExpected {α} (ident : Option Syntax) : M α := do
   if let .anonymous := name then throwError message
   let env ← getEnv
   let mut candidates : Array Name := #[]
-  for (c, _) in env.constants do
+  for (c, _) in env.toKernelEnv.constants do
     if isPrivateName c then continue
     if !(name.isSuffixOf c) then continue
     if env.isConstructor c || hasMatchPatternAttribute env c then
@@ -80,7 +80,7 @@ where
   -- to be global constants, so we don't need the local context.
   showName (env : Environment) (n : Name) : MessageData :=
       let params :=
-        env.constants.find?' n |>.map (·.levelParams.map Level.param) |>.getD []
+        env.toKernelEnv.constants.find?' n |>.map (·.levelParams.map Level.param) |>.getD []
       .ofFormatWithInfos {
         fmt := "'" ++ .tag 0 (format n) ++ "'",
         infos :=

@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 namespace lean {
 class erase_irrelevant_fn {
     typedef std::tuple<name, expr, expr> let_entry;
+    elab_environment     m_env;
     type_checker::state  m_st;
     local_ctx            m_lctx;
     buffer<expr>         m_let_fvars;
@@ -24,7 +25,7 @@ class erase_irrelevant_fn {
     unsigned             m_next_idx{1};
     expr_map<bool>       m_irrelevant_cache;
 
-    environment & env() { return m_st.env(); }
+    elab_environment & env() { return m_env; }
 
     name_generator & ngen() { return m_st.ngen(); }
 
@@ -485,14 +486,14 @@ class erase_irrelevant_fn {
         lean_unreachable();
     }
 public:
-    erase_irrelevant_fn(environment const & env, local_ctx const & lctx):
-        m_st(env), m_lctx(lctx), m_x("_x") {}
+    erase_irrelevant_fn(elab_environment const & env, local_ctx const & lctx):
+        m_env(env), m_st(env), m_lctx(lctx), m_x("_x") {}
     expr operator()(expr const & e) {
         return mk_let(0, visit(e));
     }
 };
 
-expr erase_irrelevant_core(environment const & env, local_ctx const & lctx, expr const & e) {
+expr erase_irrelevant_core(elab_environment const & env, local_ctx const & lctx, expr const & e) {
     return erase_irrelevant_fn(env, lctx)(e);
 }
 }

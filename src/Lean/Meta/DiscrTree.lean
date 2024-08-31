@@ -520,6 +520,7 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) (config : WhnfCoreConfig
   match e.getAppFn with
   | .lit v         => return (.lit v, #[])
   | .const c _     =>
+    let nargs := e.getAppNumArgs
     if (← getConfig).isDefEqStuckEx && e.hasExprMVar then
       if (← isReducible c) then
         /- `e` is a term `c ...` s.t. `c` is reducible and `e` has metavariables, but it was not unfolded.
@@ -538,17 +539,20 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) (config : WhnfCoreConfig
            and we are trying to synthesize `BEq (Ty.interp ?m)`
         -/
         Meta.throwIsDefEqStuck
+      /- Similar to the previous case, but for `match` and recursor applications. It may be stuck (i.e., did not reduce)
+          because of metavariables. -/
       else if let some matcherInfo := isMatcherAppCore? (← getEnv) e then
-        -- A matcher application is stuck is one of the discriminants has a metavariable
+        -- A matcher application is stuck if one of the discriminants has a metavariable
         let args := e.getAppArgs
-        for arg in args[matcherInfo.getFirstDiscrPos: matcherInfo.getFirstDiscrPos + matcherInfo.numDiscrs] do
+        for arg in args[matcherInfo.getFirstDiscrPos : matcherInfo.getFirstDiscrPos + matcherInfo.numDiscrs] do
           if arg.hasExprMVar then
             Meta.throwIsDefEqStuck
-      else if (← isRec c) then
-        /- Similar to the previous case, but for `match` and recursor applications. It may be stuck (i.e., did not reduce)
-           because of metavariables. -/
-        Meta.throwIsDefEqStuck
-    let nargs := e.getAppNumArgs
+      else if let .recInfo recVal ← getConstInfo c then
+        -- A recursor application is stuck if the major has a metavariable
+        let majorIdx := recVal.getMajorIdx
+        if majorIdx < nargs then
+          if (e.getArg! majorIdx).hasExprMVar then
+            Meta.throwIsDefEqStuck
     return (.const c nargs, e.getAppRevArgs)
   | .fvar fvarId   =>
     let nargs := e.getAppNumArgs

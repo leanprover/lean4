@@ -687,11 +687,13 @@ def elabLevel (stx : Syntax) : TermElabM Level :=
   liftLevelM <| Level.elabLevel stx
 
 /-- Elaborate `x` with `stx` on the macro stack -/
-def withPushMacroExpansionStack (beforeStx afterStx : Syntax) (x : TermElabM α) : TermElabM α :=
-  withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
+def withPushMacroExpansionStack [Monad m] [MonadWithReaderOf Context m]
+    (beforeStx afterStx : Syntax) (x : m α) : m α :=
+  withTheReader Context (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
 /-- Elaborate `x` with `stx` on the macro stack and produce macro expansion info -/
-def withMacroExpansion (beforeStx afterStx : Syntax) (x : TermElabM α) : TermElabM α :=
+def withMacroExpansion [Monad m] [MonadFinally m] [MonadInfoTree m] [MonadLCtx m] [MonadWithReaderOf Context m]
+    (beforeStx afterStx : Syntax) (x : m α) : m α :=
   withMacroExpansionInfo beforeStx afterStx do
     withPushMacroExpansionStack beforeStx afterStx x
 
@@ -1207,8 +1209,9 @@ def addTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none)
 def addTermInfo' (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none) (elaborator := Name.anonymous) (isBinder := false) : TermElabM Unit :=
   discard <| addTermInfo stx e expectedType? lctx? elaborator isBinder
 
-def withInfoContext' (stx : Syntax) (x : TermElabM Expr) (mkInfo : Expr → TermElabM (Sum Info MVarId)) : TermElabM Expr := do
-  if (← read).inPattern then
+def withInfoContext' [Monad m] [MonadInfoTree m] [MonadFinally m] [MonadReaderOf Context m]
+    (stx : Syntax) (x : m Expr) (mkInfo : Expr → m (Sum Info MVarId)) : m Expr := do
+  if (← readThe Elab.Term.Context).inPattern then
     let e ← x
     return mkPatternWithRef e stx
   else

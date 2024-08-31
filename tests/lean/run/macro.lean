@@ -40,7 +40,8 @@ syntax "⋃ " term ", " term : term
 macro_rules
 | `(⋃ $b, $r) => `(Union {$b:term | $r})
 
-/-- info: Union (setOf fun x => x = x) : Set ?m.4501 -/
+set_option pp.mvars false in
+/-- info: Union (setOf fun x => x = x) : Set ?_ -/
 #guard_msgs in
 #check ⋃ x,              x = x
 
@@ -48,7 +49,8 @@ macro_rules
 #guard_msgs in
 #check ⋃ (x : Set Unit), x = x
 
-/-- info: Union (setOf fun x => mem x univ ∧ x = x) : Set ?m.4538 -/
+set_option pp.mvars false in
+/-- info: Union (setOf fun x => mem x univ ∧ x = x) : Set ?_ -/
 #guard_msgs in
 #check ⋃ x ∈ univ,       x = x
 

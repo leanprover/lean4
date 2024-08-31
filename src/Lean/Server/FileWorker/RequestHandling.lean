@@ -265,9 +265,10 @@ def handlePlainGoal (p : PlainGoalParams)
       { goals := #[], rendered := "no goals" }
     else
       let goalStrs := goals.map (toString ·.pretty)
-      let goalBlocks := goalStrs.map fun goal => s!"```lean
-{goal}
-```"
+      let goalBlocks := goalStrs.map fun goal => s!"\
+        ```lean\n\
+        {goal}\n\
+        ```"
       let md := String.intercalate "\n---\n" goalBlocks.toList
       { goals := goalStrs, rendered := md }
 

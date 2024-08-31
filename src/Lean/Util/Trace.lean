@@ -182,10 +182,10 @@ register_builtin_option trace.profiler.output.pp : Bool := {
   defValue := false
   group    := "profiler"
   descr    :=
-    "if false, limit text in exported trace nodes to trace class name and `TraceData.tag`, if any
-
-This is useful when we are interested in the time taken by specific subsystems instead of specific \
-invocations, which is the common case."
+    "if false, limit text in exported trace nodes to trace class name and `TraceData.tag`, if any\
+    \n\
+    \nThis is useful when we are interested in the time taken by specific subsystems instead of specific \
+    invocations, which is the common case."
 }
 
 @[inline] private def withStartStop [Monad m] [MonadLiftT BaseIO m] (opts : Options) (act : m α) :

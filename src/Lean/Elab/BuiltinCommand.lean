@@ -253,10 +253,12 @@ def elabCheckCore (ignoreStuckTC : Bool) : CommandElab
       catch _ => pure ()  -- identifier might not be a constant but constant + projection
     let e ← Term.elabTerm term none
     Term.synthesizeSyntheticMVarsNoPostponing (ignoreStuckTC := ignoreStuckTC)
+    -- Users might be testing out buggy elaborators. Let's typecheck before proceeding:
+    withRef tk <| Meta.check e
     let e ← Term.levelMVarToParam (← instantiateMVars e)
-    let type ← inferType e
     if e.isSyntheticSorry then
       return
+    let type ← inferType e
     logInfoAt tk m!"{e} : {type}"
   | _ => throwUnsupportedSyntax
 
@@ -273,6 +275,8 @@ where
     withoutModifyingEnv <| runTermElabM fun _ => Term.withDeclName `_reduce do
       let e ← Term.elabTerm term none
       Term.synthesizeSyntheticMVarsNoPostponing
+      -- Users might be testing out buggy elaborators. Let's typecheck before proceeding:
+      withRef tk <| Meta.check e
       let e ← Term.levelMVarToParam (← instantiateMVars e)
       -- TODO: add options or notation for setting the following parameters
       withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.setBool `smartUnfolding false }) do

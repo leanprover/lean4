@@ -182,7 +182,7 @@ theorem eq_of_getLsbD_eq {x y : BitVec w}
     have p : i ≥ w := Nat.le_of_not_gt i_lt
     simp [testBit_toNat, getLsbD_ge _ _ p]
 
-theorem eq_of_getElem_eq' {x y : BitVec w}
+theorem eq_of_getElem_eq_fin {x y : BitVec w}
     (pred : ∀(i : Fin w), x.getLsbD i.val = y.getLsbD i.val) : x = y := by
   apply eq_of_toNat_eq
   apply Nat.eq_of_testBit_eq
@@ -193,7 +193,7 @@ theorem eq_of_getElem_eq' {x y : BitVec w}
     have _ : 2 ^ w ≤ 2 ^ i := Nat.pow_le_pow_of_le (by omega) (by omega)
     rw [Nat.testBit_lt_two_pow (by omega), Nat.testBit_lt_two_pow (by omega)]
 
-theorem eq_of_getElem_eq {x y : BitVec w}
+theorem eq_of_getElem_eq_nat {x y : BitVec w}
     (pred : ∀ (i : Nat) (_ : i < w), x[i] = y[i]) : x = y := by
   apply eq_of_toNat_eq
   apply Nat.eq_of_testBit_eq
@@ -550,13 +550,13 @@ theorem msb_truncate (x : BitVec w) : (x.truncate (k + 1)).msb = x.getLsbD k := 
 
 @[simp] theorem zeroExtend_zeroExtend_of_le_getElem_fin (x : BitVec w) (h : k ≤ l) :
     (x.zeroExtend l).zeroExtend k = x.zeroExtend k := by
-  apply eq_of_getElem_eq'
+  apply eq_of_getElem_eq_fin
   intros i
   simp [getElem_zeroExtend_fin, h]
 
 @[simp] theorem zeroExtend_zeroExtend_of_le_getElem_nat (x : BitVec w) (h : k ≤ l) :
     (x.zeroExtend l).zeroExtend k = x.zeroExtend k := by
-  apply eq_of_getElem_eq
+  apply eq_of_getElem_eq_nat
   intros i _
   simp [getElem_zeroExtend_nat, h]
 

@@ -28,16 +28,16 @@ private def escapeAux (acc : String) (c : Char) : String :=
   -- and encoding it with multiple \u is allowed, and it is up to parsers to make the
   -- decision.
   else if 0x0020 ≤ c.val ∧ c.val ≤ 0x10ffff then
-    acc ++ String.singleton c
+    acc.push c
   else
     let n := c.toNat;
     -- since c.val < 0x20 in this case, this conversion is more involved than necessary
     -- (but we keep it for completeness)
-    acc ++ "\\u" ++
-    [ Nat.digitChar (n / 4096),
-      Nat.digitChar ((n % 4096) / 256),
-      Nat.digitChar ((n % 256) / 16),
-      Nat.digitChar (n % 16) ].asString
+    let d1 := Nat.digitChar (n / 4096)
+    let d2 := Nat.digitChar ((n % 4096) / 256)
+    let d3 := Nat.digitChar ((n % 256) / 16)
+    let d4 := Nat.digitChar (n % 16)
+    acc ++ "\\u" |>.push d1 |>.push d2 |>.push d3 |>.push d4
 
 def escape (s : String) : String :=
   s.foldl escapeAux ""

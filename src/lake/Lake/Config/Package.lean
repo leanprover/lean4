@@ -235,8 +235,7 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   lintDriverArgs : Array String := #[]
 
   /--
-  The package version.
-  Versions have the [SemVer](https://semver.org)-like form:
+  The package version. Versions have the form:
 
   ```
   v!"<major>.<minor>.<patch>[-<specialDescr>]"
@@ -263,7 +262,7 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
     significant breakage, except in the edge case of users relying on the
     behavior of patched bugs.
 
-  Unlike rigid SemVer, backwards-incompatible changes may occur at any level.
+  **Note that backwards-incompatible changes may occur at any version increment.**
   The is because the current nature of Lean (e.g., transitive imports,
   rich metaprogramming, reducibility in proofs), makes it infeasible to
   define a completely stable interface for a package.
@@ -276,7 +275,7 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
 
   Packages without a defined version default to `0.0.0`.
   -/
-  version : LeanVer := v!"0.0.0"
+  version : StdVer := v!"0.0.0"
 
   /--
   Git tags of this package's repository that should be treated as versions.

@@ -483,11 +483,11 @@ protected def translateConfig : CliM PUnit := do
   if outFile?.isNone then
     IO.FS.rename pkg.configFile (pkg.configFile.addExtension "bak")
 
-def ReservoirConfig.currentSchemaVersion : LeanVer := v!"1.0.0"
+def ReservoirConfig.currentSchemaVersion : StdVer := v!"1.0.0"
 
 structure ReservoirConfig where
   name : String
-  version : LeanVer
+  version : StdVer
   versionTags : List String
   description : String
   keywords : Array String
@@ -507,7 +507,7 @@ protected def reservoirConfig : CliM PUnit := do
   let _ ← id do
     let some verStr ← takeArg?
       | return ReservoirConfig.currentSchemaVersion
-    match LeanVer.parse verStr with
+    match StdVer.parse verStr with
     | .ok ver => return ver
     | .error e => error s!"invalid target version: {e}"
   noArgsRem do

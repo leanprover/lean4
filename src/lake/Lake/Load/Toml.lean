@@ -136,12 +136,12 @@ def decodeLeanOptions (v : Value) : Except (Array DecodeError) (Array LeanOption
   | v =>
     throw #[.mk v.ref "expected array or table"]
 
-protected def LeanVer.decodeToml (v : Value) : Except (Array DecodeError) LeanVer := do
-  match LeanVer.parse (← v.decodeString) with
+protected def StdVer.decodeToml (v : Value) : Except (Array DecodeError) LeanVer := do
+  match StdVer.parse (← v.decodeString) with
   | .ok v => return v
   | .error e => throw #[.mk v.ref e]
 
-instance : DecodeToml LeanVer := ⟨(LeanVer.decodeToml ·)⟩
+instance : DecodeToml StdVer := ⟨(StdVer.decodeToml ·)⟩
 
 protected def StrPat.decodeToml (v : Value) (presets : NameMap StrPat := {}) : Except (Array DecodeError) StrPat :=
   match v with
@@ -206,7 +206,7 @@ protected def PackageConfig.decodeToml (t : Table) (ref := Syntax.missing) : Exc
   let testDriverArgs ← t.tryDecodeD `testDriverArgs #[]
   let lintDriver ← t.tryDecodeD `lintDriver ""
   let lintDriverArgs ← t.tryDecodeD `lintDriverArgs #[]
-  let version : LeanVer ← t.tryDecodeD `version v!"0.0.0"
+  let version : StdVer ← t.tryDecodeD `version v!"0.0.0"
   let versionTags ← optDecodeD defaultVersionTags (t.find? `versionTags)
     <| StrPat.decodeToml (presets := versionTagPresets)
   let description ← t.tryDecodeD `description ""

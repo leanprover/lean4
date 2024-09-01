@@ -88,7 +88,7 @@ where go (acc : String) : List Json.CompressWorkItem → String
     | bool false => go (acc ++ "false") is
     | num s      => go (acc ++ s.toString) is
     | str s      => go (renderString s acc) is
-    | arr elems  => go (acc ++ "[") (elems.toList.map arrayElem ++ [arrayEnd] ++ is)
+    | arr elems  => go (acc ++ "[") ((elems.map arrayElem).toListAppend (arrayEnd :: is))
     | obj kvs    => go (acc ++ "{") (kvs.fold (init := []) (fun acc k j => objectField k j :: acc) ++ [objectEnd] ++ is)
   | arrayElem j :: arrayEnd :: is      => go acc (json j :: arrayEnd :: is)
   | arrayElem j :: is                  => go acc (json j :: comma :: is)

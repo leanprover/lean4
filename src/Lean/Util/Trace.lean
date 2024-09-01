@@ -116,7 +116,7 @@ def isTracingEnabledFor (cls : Name) : m Bool := do
 @[inline] def setTraceState (s : TraceState) : m Unit :=
   modifyTraceState fun _ => s
 
-private def getResetTraces : m (PersistentArray TraceElem) := do
+def getResetTraces : m (PersistentArray TraceElem) := do
   let oldTraces ← getTraces
   modifyTraces fun _ => {}
   pure oldTraces

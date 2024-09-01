@@ -383,6 +383,28 @@ register_builtin_option deprecated.oldSectionVars : Bool := {
   descr    := "re-enable deprecated behavior of including exactly the section variables used in a declaration"
 }
 
+private def addTraceAsMessagesCore [Monad m] [MonadRef m] [MonadLog m] [MonadTrace m] (log : MessageLog) : m MessageLog := do
+  let traces ← getResetTraces
+  if traces.isEmpty then return log
+  let mut pos2traces : Std.HashMap (String.Pos × String.Pos) (Array MessageData) := ∅
+  for traceElem in traces do
+    let ref := replaceRef traceElem.ref (← getRef)
+    let pos := ref.getPos?.getD 0
+    let endPos := ref.getTailPos?.getD pos
+    pos2traces := pos2traces.insert (pos, endPos) <| pos2traces.getD (pos, endPos) #[] |>.push traceElem.msg
+  let mut log := log
+  let traces' := pos2traces.toArray.qsort fun ((a, _), _) ((b, _), _) => a < b
+  for ((pos, endPos), traceMsg) in traces' do
+    let data := .tagged `_traceMsg <| .joinSep traceMsg.toList "\n"
+    log := log.add <| mkMessageCore (← getFileName) (← getFileMap) data .information pos endPos
+  return log
+
+def addTraceAsMessages : TermElabM Unit := do
+  -- do not add trace messages if `trace.profiler.output` is set as it would be redundant and
+  -- pretty printing the trace messages is expensive
+  if trace.profiler.output.get? (← getOptions) |>.isNone then
+    Core.setMessageLog (← addTraceAsMessagesCore (← Core.getMessageLog))
+
 /-- Runs the given action in a separate task, discarding its final state. -/
 def runAsync (act : TermElabM α) : TermElabM (Task (Except Exception α)) := do
   let mut coreSt ← getThe Core.State
@@ -391,10 +413,17 @@ def runAsync (act : TermElabM α) : TermElabM (Task (Except Exception α)) := do
   let coreCtx ← readThe Core.Context
   let metaCtx ← readThe Meta.Context
   let ctx ← read
+  let heartbeats := (← IO.getNumHeartbeats) - coreCtx.initHeartbeats
   if Language.internal.cmdlineSnapshots.get (← getOptions) then
     coreSt := { coreSt with
       env := Runtime.markPersistent coreSt.env, infoState := Runtime.markPersistent coreSt.infoState }
-  EIO.asTask (act.run' ctx st |>.run' metaCtx metaSt |>.run' coreCtx coreSt)
+  withCurrHeartbeats (do
+      IO.addHeartbeats heartbeats.toUInt64
+      act : TermElabM _)
+    |>.run' ctx st
+    |>.run' metaCtx metaSt
+    |>.run' coreCtx coreSt
+    |> EIO.asTask
 
 /--
 Runs the given action in a separate task, discarding its final state except for the message log,
@@ -402,10 +431,12 @@ which is reported in the returned snapshot.
 -/
 def runAsyncAsSnapshot (act : TermElabM Unit) : TermElabM (Task Language.SnapshotTree) := do
   let t ← runAsync do
+    resetTraceState
     try
       act
     catch e =>
       logError e.toMessageData
+    addTraceAsMessages
     saveState
   BaseIO.mapTask (t := t) fun
     | .ok st =>
@@ -1023,7 +1054,7 @@ where
     withPromisesResolvedOnException views.size fun bodyPromises =>
     withPromisesResolvedOnException views.size fun tacPromises => do
     withPromisesResolvedOnException views.size fun valPromises => do
-    withPromisesResolvedOnException views.size fun subDeclsPromises => do
+    withPromiseResolvedOnException fun subDeclsPromise => do
       let scopeLevelNames ← getLevelNames
       let headers ← elabHeaders views bodyPromises tacPromises
       let headers ← levelMVarToParamHeaders views headers
@@ -1032,17 +1063,6 @@ where
         for view in views, funFVar in funFVars do
           addLocalVarInfo view.declId funFVar
         let async := headers.size == 1 && headers.all (·.kind.isTheorem) && typeCheckedPromise?.isSome
-    --if header.kind.isTheorem then
-    --  unless (← isProp type) do
-    --    throwErrorAt header.ref "type of theorem '{header.declName}' is not a proposition{indentExpr type}"
-    --return preDefs.push {
-    --  ref         := getDeclarationSelectionRef header.ref
-    --  kind        := header.kind
-    --  declName    := header.declName
-    --  levelParams := [], -- we set it later
-    --  modifiers   := header.modifiers
-    --  type, value, termination
-    --}
         let finishElab := try
         let values ← do
           if async then
@@ -1060,7 +1080,7 @@ where
               headers.mapM fun header => mkSorry header.type (synthetic := true))
           finally
             if let some prefixRestriction := (← getEnv).prefixRestriction? then
-              subDeclsPromise.resolve (← getEnv).prefixRestriction?.get!.subDecls
+              subDeclsPromise.resolve prefixRestriction.subDecls
         let headers ← headers.mapM instantiateMVarsAtHeader
         let letRecsToLift ← getLetRecsToLift
         let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift
@@ -1082,18 +1102,21 @@ where
           bodyPromises.forM (·.resolve default)
           tacPromises.forM (·.resolve default)
           valPromises.forM (·.resolve default)
-          subDeclsPromises.forM (·.resolve default)
+          subDeclsPromise.resolve default
         if async then
           let t ← runAsyncAsSnapshot finishElab
           let _ ← BaseIO.mapTask (t := t) fun snap => do
             if let some typeCheckedPromise := typeCheckedPromise? then
               typeCheckedPromise.resolve snap
           let mut env ← getEnv
-          for header in headers, valPromise in valPromises, subDeclsPromise in subDeclsPromises do
+          for header in headers, valPromise in valPromises do
             let type ← mkForallFVars vars header.type
+            let mut s : CollectLevelParams.State := {}
+            s := collectLevelParams s header.type
+            let levelParams ← IO.ofExcept <| sortDeclLevelParams scopeLevelNames allUserLevelNames s.params
             env := env.addTheoremAsync {
               name := header.declName
-              levelParams := []  -- TODO
+              levelParams
               type
               value := valPromise.result
               subDecls := subDeclsPromise.result
@@ -1107,7 +1130,6 @@ where
         -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
         -- that depends only on a part of the ref
         addDeclarationRanges header.declName view.ref
-
 
   processDeriving (headers : Array DefViewElabHeader) := do
     for header in headers, view in views do

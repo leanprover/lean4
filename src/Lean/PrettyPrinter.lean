@@ -9,6 +9,7 @@ import Lean.PrettyPrinter.Parenthesizer
 import Lean.PrettyPrinter.Formatter
 import Lean.Parser.Module
 import Lean.ParserCompiler
+import Lean.Util.NumObjs
 import Lean.Util.ShareCommon
 namespace Lean
 
@@ -43,11 +44,11 @@ register_builtin_option pp.exprSizes : Bool := {
     (size disregarding sharing/size with sharing/size with max sharing)"
 }
 
-private def maybePrependExprSizes (e : Expr) (f : Format) : MetaM Format :=
-  return if pp.exprSizes.get (← getOptions) then
-    f!"[size {e.sizeWithoutSharing}/{e.sizeWithSharing}/{ShareCommon.shareCommon e |>.sizeWithSharing}] {f}"
+private def maybePrependExprSizes (e : Expr) (f : Format) : MetaM Format := do
+  if pp.exprSizes.get (← getOptions) then
+    return f!"[size {e.sizeWithoutSharing}/{← e.numObjs}/{← (ShareCommon.shareCommon' e).numObjs}] {f}"
   else
-    f
+    return f
 
 def ppExpr (e : Expr) : MetaM Format := do
   ppUsing e delab >>= maybePrependExprSizes e

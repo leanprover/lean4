@@ -161,16 +161,6 @@ void for_each(expr const & e, std::function<bool(expr const &, unsigned)> && f) 
     return for_each_offset_fn(f)(e);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_expr_size_shared(b_obj_arg e_) {
-    expr const & e = TO_REF(expr, e_);
-    size_t size = 0;
-    for_each_fn<true>([&](expr const &) {
-        size++;
-        return true;
-    })(e);
-    return usize_to_nat(size);
-}
-
 extern "C" LEAN_EXPORT obj_res lean_find_expr(b_obj_arg p, b_obj_arg e_) {
     lean_object * found = nullptr;
     expr const & e = TO_REF(expr, e_);

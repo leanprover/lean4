@@ -223,7 +223,7 @@ def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
 
-  withWaitFindSnap doc (fun s => s.endPos > hoverPos)
+  withWaitFindSnap doc (fun s => s.endPos >= hoverPos)
     (notFoundX := pure #[]) fun snap => do
       if let some infoWithCtx := snap.infoTree.hoverableInfoAt? (omitIdentApps := true) (includeStop := true /- #767 -/) hoverPos then
         locationLinksOfInfo kind infoWithCtx snap.infoTree

@@ -499,6 +499,14 @@ theorem Decidable.or_congr_left' [Decidable c] (h : ¬c → (a ↔ b)) : a ∨ c
 theorem Decidable.or_congr_right' [Decidable a] (h : ¬a → (b ↔ c)) : a ∨ b ↔ a ∨ c := by
   rw [or_iff_not_imp_left, or_iff_not_imp_left]; exact imp_congr_right h
 
+@[simp] theorem Decidable.iff_congr_left {P Q R : Prop} [Decidable P] [Decidable Q] [Decidable R] :
+    ((P ↔ R) ↔ (Q ↔ R)) ↔ (P ↔ Q) :=
+  if h : R then by simp_all [Decidable.not_iff_not] else by simp_all [Decidable.not_iff_not]
+
+@[simp] theorem Decidable.iff_congr_right {P Q R : Prop} [Decidable P] [Decidable Q] [Decidable R] :
+    ((P ↔ Q) ↔ (P ↔ R)) ↔ (Q ↔ R) :=
+  if h : P then by simp_all [Decidable.not_iff_not] else by simp_all [Decidable.not_iff_not]
+
 /-- Transfer decidability of `a` to decidability of `b`, if the propositions are equivalent.
 **Important**: this function should be used instead of `rw` on `Decidable b`, because the
 kernel will get stuck reducing the usage of `propext` otherwise,

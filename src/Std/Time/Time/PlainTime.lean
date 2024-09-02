@@ -48,7 +48,7 @@ instance : Inhabited PlainTime where
 
 instance : BEq PlainTime where
   beq x y := x.hour.snd.val == y.hour.snd.val && x.minute == y.minute
-          && x.second.snd.val == y.second.snd.val && x.nano.val == y.nano.val
+          && x.second.snd.val == y.second.snd.val && x.nano == y.nano
 
 namespace PlainTime
 
@@ -75,13 +75,13 @@ def ofHourMinuteSeconds? (hour : Hour.Ordinal leap₂) (minute : Minute.Ordinal)
     else none
 
 /--
-Creates a `PlainTime` value from hours, minutes, and seconds, setting nanoseconds to zero.
+Creates a `PlainTime` value from hours, minutes, seconds and nanoseconds.
 -/
 def ofValidHourMinuteSecondsNano (hour : Hour.Ordinal false) (minute : Minute.Ordinal) (second : Second.Ordinal false) (nano : Nanosecond.Ordinal) : PlainTime := by
   refine ⟨Sigma.mk false hour, minute, Sigma.mk false second, nano, ?_⟩
   constructor
-  exact λx => nomatch (Int.ne_iff_lt_or_gt.mpr (Or.inl (Int.lt_add_one_iff.mpr second.property.right)) x)
-  exact λx => nomatch (Int.ne_iff_lt_or_gt.mpr (Or.inl (Int.lt_add_one_iff.mpr hour.property.right)) x)
+  exact fun x => nomatch (Int.ne_iff_lt_or_gt.mpr (Or.inl (Int.lt_add_one_iff.mpr second.property.right)) x)
+  exact fun x => nomatch (Int.ne_iff_lt_or_gt.mpr (Or.inl (Int.lt_add_one_iff.mpr hour.property.right)) x)
 
 /--
 Creates a `PlainTime` value from hours, minutes, and seconds. Return `none` if its invalid.

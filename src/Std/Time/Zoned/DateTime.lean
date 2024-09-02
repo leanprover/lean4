@@ -33,7 +33,7 @@ instance : BEq (DateTime tz) where
   beq x y := x.timestamp == y.timestamp
 
 instance : Inhabited (DateTime tz) where
-  default := ⟨Inhabited.default, Thunk.mk λ_ => Inhabited.default⟩
+  default := ⟨Inhabited.default, Thunk.mk fun _ => Inhabited.default⟩
 
 namespace DateTime
 
@@ -42,7 +42,7 @@ Creates a new `DateTime` out of a `Timestamp` that is in a `TimeZone`.
 -/
 @[inline]
 def ofTimestamp (tm : Timestamp) (tz : TimeZone) : DateTime tz :=
-  DateTime.mk tm (Thunk.mk <| λ_ => (tm.addSeconds tz.toSeconds).toPlainDateTime)
+  DateTime.mk tm (Thunk.mk fun _ => (tm.addSeconds tz.toSeconds).toPlainDateTime)
 
 /--
 Creates a new zone aware `Timestamp` out of a `DateTime`.
@@ -65,7 +65,7 @@ to UTC. If you're using hte PlainDateTime
 @[inline]
 def ofPlainDateTimeAssumingUTC (date : PlainDateTime) (tz : TimeZone) : DateTime tz :=
   let tm := Timestamp.ofPlainDateTime date
-  DateTime.mk tm (Thunk.mk <| λ_ => date.addSeconds tz.toSeconds)
+  DateTime.mk tm (Thunk.mk fun _ => date.addSeconds tz.toSeconds)
 
 /--
 Creates a new `DateTime` out of a `PlainDateTime`. It assumes that the `PlainDateTime` it's relative
@@ -74,7 +74,7 @@ to the
 @[inline]
 def ofLocalDateTime (date : PlainDateTime) (tz : TimeZone) : DateTime tz :=
   let tm := Timestamp.ofPlainDateTime date
-  DateTime.mk (tm.subSeconds tz.toSeconds) (Thunk.mk <| λ_ => date)
+  DateTime.mk (tm.subSeconds tz.toSeconds) (Thunk.mk fun _ => date)
 
 /--
 Add `Hour.Offset` to a `DateTime`.

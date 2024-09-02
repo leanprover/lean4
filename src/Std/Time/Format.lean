@@ -137,7 +137,7 @@ def format (date : PlainDate) (format : String) : String :=
 Parses a date string in the American format (`MM/DD/YYYY`) and returns a `PlainDate`.
 -/
 def fromAmericanDateString (input : String) : Except String PlainDate := do
-  Formats.americanDate.parseBuilder (λm d y => PlainDate.ofYearMonthDay y m d) input
+  Formats.americanDate.parseBuilder (fun m d y => PlainDate.ofYearMonthDay y m d) input
 
 /--
 Converts a Date in the American format (`MM/DD/YYYY`) into a `String`.
@@ -149,7 +149,7 @@ def toAmericanDateString (input : PlainDate) : String :=
 Converts a Date in the SQL format (`YYYY-MM-DD`) into a `String`.
 -/
 def fromSQLDateString (input : String) : Except String PlainDate := do
-  Formats.sqlDate.parseBuilder (λy m d => PlainDate.ofYearMonthDay y m d) input
+  Formats.sqlDate.parseBuilder (PlainDate.ofYearMonthDay) input
 
 /--
 Converts a Date in the SQL format (`YYYY-MM-DD`) into a `String`.
@@ -202,7 +202,7 @@ def format (time : PlainTime) (format : String) : String :=
 Parses a time string in the 24-hour format (`hh:mm:ss.sssssssss`) and returns a `PlainTime`.
 -/
 def fromTime24Hour (input : String) : Except String PlainTime :=
-  Formats.time24Hour.parseBuilder (λh m s n => PlainTime.ofHourMinuteSecondsNano? h.snd m s.snd n) input
+  Formats.time24Hour.parseBuilder (fun h m s n => PlainTime.ofHourMinuteSecondsNano? h.snd m s.snd n) input
 
 /--
 Formats a `PlainTime` value into a 24-hour format string (`hh:mm:ss.sssssssss`).
@@ -214,7 +214,7 @@ def toTime24Hour (input : PlainTime) : String :=
 Parses a time string in the 24-hour format (`hh:mm:ss.sssssssss`) and returns a `PlainTime`.
 -/
 def fromLeanTime24Hour (input : String) : Except String PlainTime :=
-  Formats.leanTime24Hour.parseBuilder (λh m s n => PlainTime.ofHourMinuteSecondsNano? h.snd m s.snd n) input
+  Formats.leanTime24Hour.parseBuilder (fun h m s n => PlainTime.ofHourMinuteSecondsNano? h.snd m s.snd n) input
 
 /--
 Formats a `PlainTime` value into a 24-hour format string (`hh:mm:ss.sssssssss`).

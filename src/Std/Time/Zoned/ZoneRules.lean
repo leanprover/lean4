@@ -171,7 +171,7 @@ If the timestamp falls between two transitions, it returns the most recent trans
 -/
 def findTransitionForTimestamp (zoneRules : ZoneRules) (timestamp : Timestamp) : Option Transition :=
   let value := timestamp.toSecondsSinceUnixEpoch
-  if let some idx := zoneRules.transitions.findIdx? (λ t => t.time.val > value.val)
+  if let some idx := zoneRules.transitions.findIdx? (fun t => t.time.val > value.val)
     then zoneRules.transitions.get? (idx - 1)
     else zoneRules.transitions.back?
 

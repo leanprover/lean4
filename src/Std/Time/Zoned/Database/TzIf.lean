@@ -286,7 +286,7 @@ private def parseFooter : Parser (Option String) := do
 
   if char = 0x0A then pure () else return none
 
-  let tzString ← many (satisfy (λ c => c ≠ 0x0A))
+  let tzString ← many (satisfy (· ≠ 0x0A))
   let mut str := ""
 
   for byte in tzString do

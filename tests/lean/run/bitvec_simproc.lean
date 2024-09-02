@@ -43,13 +43,13 @@ example (h : x = (1 : BitVec 32)) : x = - smtSDiv 9 0 := by
   simp; guard_target =ₛ x = 1#32; assumption
 example (h : x = (1 : BitVec 32)) : x = smtSDiv (-9) 0 := by
   simp; guard_target =ₛ x = 1#32; assumption
-example (h : x = false) : x = (4#3).getLsb 0:= by
+example (h : x = false) : x = (4#3).getLsbD 0:= by
   simp; guard_target =ₛ x = false; assumption
-example (h : x = true) : x = (4#3).getLsb 2:= by
+example (h : x = true) : x = (4#3).getLsbD 2:= by
   simp; guard_target =ₛ x = true; assumption
-example (h : x = true) : x = (4#3).getMsb 0:= by
+example (h : x = true) : x = (4#3).getMsbD 0:= by
   simp; guard_target =ₛ x = true; assumption
-example (h : x = false) : x = (4#3).getMsb 2:= by
+example (h : x = false) : x = (4#3).getMsbD 2:= by
   simp; guard_target =ₛ x = false; assumption
 example (h : x = (24 : BitVec 32)) : x = 6#32 <<< 2 := by
   simp; guard_target =ₛ x = 24#32; assumption
@@ -137,3 +137,7 @@ example (a : BitVec 32) (h : a >>> 3 = b) : (a >>> 1) >>> 2 = b := by
   simp; guard_target =ₛ a >>> 3 = b; assumption
 example (a : BitVec 32) (h : a >>> 3 = b) : (a >>> 1#32) >>> 2 = b := by
   simp; guard_target =ₛ a >>> 3 = b; assumption
+example (h : False) : 1#2 = 2#2 := by
+  simp; guard_target =ₛ False; exact h
+example : 1#2 ≠ 2#2 := by
+  simp

@@ -4,8 +4,10 @@
 *.lock
 .lake
 lake-manifest.json
-build
-!/src/lake/Lake/Build
+/build
+/src/lakefile.toml
+/tests/lakefile.toml
+/lakefile.toml
 GPATH
 GRTAGS
 GSYMS

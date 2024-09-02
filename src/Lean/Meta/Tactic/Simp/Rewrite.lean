@@ -123,7 +123,14 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
           return none
         pure <| some proof
       let rhs := (← instantiateMVars type).appArg!
-      if e == rhs then
+      /-
+      We used to use `e == rhs` in the following test.
+      However, it include unnecessary proof steps when `e` and `rhs`
+      are equal after metavariables are instantiated.
+      We are hoping the following `instantiateMVars` should not be too expensive since
+      we seldom have assigned metavariables in goals.
+      -/
+      if (← instantiateMVars e) == rhs then
         return none
       if thm.perm then
         /-
@@ -248,19 +255,6 @@ where
   inErasedSet (thm : SimpTheorem) : Bool :=
     erased.contains thm.origin
 
-def simpCtorEq : Simproc := fun e => withReducibleAndInstances do
-  match e.eq? with
-  | none => return .continue
-  | some (_, lhs, rhs) =>
-    match (← constructorApp'? lhs), (← constructorApp'? rhs) with
-    | some (c₁, _), some (c₂, _) =>
-      if c₁.name != c₂.name then
-        withLocalDeclD `h e fun h =>
-          return .done { expr := mkConst ``False, proof? := (← withDefault <| mkEqFalse' (← mkLambdaFVars #[h] (← mkNoConfusion (mkConst ``False) h))) }
-      else
-        return .continue
-    | _, _ => return .continue
-
 @[inline] def simpUsingDecide : Simproc := fun e => do
   unless (← getConfig).decide do
     return .continue
@@ -366,13 +360,13 @@ def rewritePost (rflOnly := false) : Simproc := fun e => do
 
 def drewritePre : DSimproc := fun e => do
   for thms in (← getContext).simpTheorems do
-    if let some r ← rewrite? e thms.pre thms.erased (tag := "pre") (rflOnly := true) then
+    if let some r ← rewrite? e thms.pre thms.erased (tag := "dpre") (rflOnly := true) then
       return .visit r.expr
   return .continue
 
 def drewritePost : DSimproc := fun e => do
   for thms in (← getContext).simpTheorems do
-    if let some r ← rewrite? e thms.post thms.erased (tag := "post") (rflOnly := true) then
+    if let some r ← rewrite? e thms.post thms.erased (tag := "dpost") (rflOnly := true) then
       return .visit r.expr
   return .continue
 
@@ -439,8 +433,7 @@ partial def preSEval (s : SimprocsArray) : Simproc :=
 def postSEval (s : SimprocsArray) : Simproc :=
   rewritePost >>
   userPostSimprocs s >>
-  sevalGround >>
-  simpCtorEq
+  sevalGround
 
 def mkSEvalMethods : CoreM Methods := do
   let s ← getSEvalSimprocs
@@ -508,7 +501,6 @@ def postDefault (s : SimprocsArray) : Simproc :=
   userPostSimprocs s >>
   simpGround >>
   simpArith >>
-  simpCtorEq >>
   simpUsingDecide
 
 /--

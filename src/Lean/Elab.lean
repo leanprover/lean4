@@ -50,3 +50,5 @@ import Lean.Elab.ParseImportsFast
 import Lean.Elab.GuardMsgs
 import Lean.Elab.CheckTactic
 import Lean.Elab.MatchExpr
+import Lean.Elab.Tactic.Doc
+import Lean.Elab.Time

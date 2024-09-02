@@ -104,7 +104,6 @@ lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_267____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_267____lambda__1___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_hasInlineAttrAux___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_FindImpl_findUnsafe_x3f(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_hasInlineAttrAux(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_267____closed__15;
 static lean_object* l_Lean_Compiler_setInlineAttribute___closed__1;
@@ -138,6 +137,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_InlineAttributeKind_noConfusion(lean_ob
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_267____closed__30;
 static lean_object* l_Lean_getConstInfo___at___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___spec__1___closed__4;
 uint8_t l_Lean_isAuxRecursorWithSuffix(lean_object*, lean_object*, lean_object*);
+lean_object* lean_find_expr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_getInlineAttribute_x3f(lean_object*, lean_object*);
 uint8_t lean_is_eager_lambda_lifting_name(lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_267____closed__1;
@@ -407,7 +407,7 @@ static lean_object* _init_l_Lean_getConstInfo___at___private_Lean_Compiler_Inlin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
+x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
 return x_1;
 }
 }
@@ -424,7 +424,7 @@ static lean_object* _init_l_Lean_getConstInfo___at___private_Lean_Compiler_Inlin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -543,7 +543,7 @@ static lean_object* _init_l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("WellFounded", 11);
+x_1 = lean_mk_string_unchecked("WellFounded", 11, 11);
 return x_1;
 }
 }
@@ -551,7 +551,7 @@ static lean_object* _init_l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fix", 3);
+x_1 = lean_mk_string_unchecked("fix", 3, 3);
 return x_1;
 }
 }
@@ -569,7 +569,7 @@ static lean_object* _init_l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_unary", 6);
+x_1 = lean_mk_string_unchecked("_unary", 6, 6);
 return x_1;
 }
 }
@@ -665,9 +665,8 @@ x_13 = lean_alloc_closure((void*)(l___private_Lean_Compiler_InlineAttrs_0__Lean_
 lean_closure_set(x_13, 0, x_11);
 lean_closure_set(x_13, 1, x_1);
 x_14 = lean_ctor_get(x_2, 1);
-lean_inc(x_14);
-lean_dec(x_2);
-x_15 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_13, x_14);
+x_15 = lean_find_expr(x_13, x_14);
+lean_dec(x_13);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; lean_object* x_17; 
@@ -704,9 +703,8 @@ x_24 = lean_alloc_closure((void*)(l___private_Lean_Compiler_InlineAttrs_0__Lean_
 lean_closure_set(x_24, 0, x_22);
 lean_closure_set(x_24, 1, x_1);
 x_25 = lean_ctor_get(x_2, 1);
-lean_inc(x_25);
-lean_dec(x_2);
-x_26 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_24, x_25);
+x_26 = lean_find_expr(x_24, x_25);
+lean_dec(x_24);
 if (lean_obj_tag(x_26) == 0)
 {
 lean_object* x_27; lean_object* x_28; 
@@ -780,6 +778,7 @@ lean_object* x_18; lean_object* x_19;
 lean_free_object(x_5);
 x_18 = lean_box(0);
 x_19 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lambda__3(x_1, x_10, x_18, x_2, x_3, x_8);
+lean_dec(x_10);
 return x_19;
 }
 }
@@ -819,6 +818,7 @@ else
 lean_object* x_30; lean_object* x_31; 
 x_30 = lean_box(0);
 x_31 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lambda__3(x_1, x_21, x_30, x_2, x_3, x_20);
+lean_dec(x_21);
 return x_31;
 }
 }
@@ -930,6 +930,7 @@ _start:
 lean_object* x_7; 
 x_7 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lambda__3(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_3);
+lean_dec(x_2);
 return x_7;
 }
 }
@@ -978,7 +979,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid use of `[macro_inline]` attribute at `", 46);
+x_1 = lean_mk_string_unchecked("invalid use of `[macro_inline]` attribute at `", 46, 46);
 return x_1;
 }
 }
@@ -995,7 +996,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`, it is not supported in this kind of declaration, declaration must be a non-recursive definition", 98);
+x_1 = lean_mk_string_unchecked("`, it is not supported in this kind of declaration, declaration must be a non-recursive definition", 98, 98);
 return x_1;
 }
 }
@@ -1355,7 +1356,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inline", 6);
+x_1 = lean_mk_string_unchecked("inline", 6, 6);
 return x_1;
 }
 }
@@ -1373,7 +1374,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mark definition to be inlined", 29);
+x_1 = lean_mk_string_unchecked("mark definition to be inlined", 29, 29);
 return x_1;
 }
 }
@@ -1406,7 +1407,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inline_if_reduce", 16);
+x_1 = lean_mk_string_unchecked("inline_if_reduce", 16, 16);
 return x_1;
 }
 }
@@ -1424,7 +1425,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mark definition to be inlined when resultant term after reduction is not a `cases_on` application", 97);
+x_1 = lean_mk_string_unchecked("mark definition to be inlined when resultant term after reduction is not a `cases_on` application", 97, 97);
 return x_1;
 }
 }
@@ -1457,7 +1458,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("noinline", 8);
+x_1 = lean_mk_string_unchecked("noinline", 8, 8);
 return x_1;
 }
 }
@@ -1475,7 +1476,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mark definition to never be inlined", 35);
+x_1 = lean_mk_string_unchecked("mark definition to never be inlined", 35, 35);
 return x_1;
 }
 }
@@ -1508,7 +1509,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("macro_inline", 12);
+x_1 = lean_mk_string_unchecked("macro_inline", 12, 12);
 return x_1;
 }
 }
@@ -1526,7 +1527,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mark definition to always be inlined before ANF conversion", 58);
+x_1 = lean_mk_string_unchecked("mark definition to always be inlined before ANF conversion", 58, 58);
 return x_1;
 }
 }
@@ -1559,7 +1560,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("always_inline", 13);
+x_1 = lean_mk_string_unchecked("always_inline", 13, 13);
 return x_1;
 }
 }
@@ -1577,7 +1578,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mark definition to be always inlined", 36);
+x_1 = lean_mk_string_unchecked("mark definition to be always inlined", 36, 36);
 return x_1;
 }
 }
@@ -1670,7 +1671,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1678,7 +1679,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Compiler", 8);
+x_1 = lean_mk_string_unchecked("Compiler", 8, 8);
 return x_1;
 }
 }
@@ -1686,7 +1687,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inlineAttrs", 11);
+x_1 = lean_mk_string_unchecked("inlineAttrs", 11, 11);
 return x_1;
 }
 }

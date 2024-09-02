@@ -17,6 +17,7 @@ namespace Lean.Elab.CheckTactic
 
 open Lean.Meta CheckTactic
 open Lean.Elab.Tactic
+open Lean.Elab.Term
 open Lean.Elab.Command
 
 @[builtin_command_elab Lean.Parser.checkTactic]
@@ -24,7 +25,7 @@ def elabCheckTactic : CommandElab := fun stx => do
   let `(#check_tactic $t ~> $result by $tac) := stx | throwUnsupportedSyntax
   withoutModifyingEnv $ do
     runTermElabM $ fun _vars => do
-      let u ← Lean.Elab.Term.elabTerm t none
+      let u ← withSynthesize (postpone := .no) <| Lean.Elab.Term.elabTerm t none
       let type ← inferType u
       let checkGoalType ← mkCheckGoalType u type
       let mvar ← mkFreshExprMVar (.some checkGoalType)

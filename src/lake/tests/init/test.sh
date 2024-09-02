@@ -50,9 +50,11 @@ rm -rf hello
 # Test exe template
 
 $LAKE new hello exe
+test -f hello/Main.lean
 $LAKE -d hello exe hello
 rm -rf hello
 $LAKE new hello exe.toml
+test -f hello/Main.lean
 $LAKE -d hello exe hello
 rm -rf hello
 
@@ -69,13 +71,13 @@ rm -rf hello
 
 # Test math template
 
-$LAKE new qed math
+$LAKE new qed math || true # ignore toolchain download errors
 # Remove the require, since we do not wish to download mathlib during tests
 sed_i '/^require.*/{N;d;}' qed/lakefile.lean
 $LAKE -d qed build Qed
 test -f qed/.lake/build/lib/Qed.olean
 rm -rf qed
-$LAKE new qed math.toml
+$LAKE new qed math.toml || true # ignore toolchain download errors
 # Remove the require, since we do not wish to download mathlib during tests
 sed_i '/^\[\[require\]\]/{N;N;N;d;}' qed/lakefile.toml
 $LAKE -d qed build Qed
@@ -102,8 +104,7 @@ $LAKE -d hello-world exe hello-world
 test -f hello-world/Hello/World/Basic.lean
 
 $LAKE new hello.exe exe
-$LAKE -d hello-exe exe hello.exe
-test -f hello-exe/hello/exe.lean
+$LAKE -d hello-exe exe hello-exe
 
 # Test creating packages with a `-` (i.e., a non-identifier package name)
 # https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/lake.20new.20lean-data
@@ -120,10 +121,10 @@ $LAKE -d 123-hello exe 123-hello
 # Test creating packages with components that contain `.`s
 # https://github.com/leanprover/lean4/issues/2999
 
-# this fails on windows for unrelated reasons
+# the unicode name is improperly encoded on windows for non-Lake reasons
 if [ "$OSTYPE" != "msys" ]; then
   $LAKE new «A.B».«C.D»
-  $LAKE -d «A-B»-«C-D» exe «a.b-c.d»
+  $LAKE -d A-B-C-D exe a-b-c-d
 fi
 
 # Test creating packages with keyword names

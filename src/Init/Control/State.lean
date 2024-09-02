@@ -87,7 +87,7 @@ protected def lift {α : Type u} (t : m α) : StateT σ m α :=
 instance : MonadLift m (StateT σ m) := ⟨StateT.lift⟩
 
 @[always_inline]
-instance (σ m) [Monad m] : MonadFunctor m (StateT σ m) := ⟨fun f x s => f (x s)⟩
+instance (σ m) : MonadFunctor m (StateT σ m) := ⟨fun f x s => f (x s)⟩
 
 @[always_inline]
 instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (StateT σ m) := {

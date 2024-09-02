@@ -19,6 +19,7 @@ structure Literal where
   n     : Nat
   /-- Actual value. -/
   value : BitVec n
+  deriving DecidableEq, Repr
 
 /--
 Try to convert `OfNat.ofNat`/`BitVec.OfNat` application into a
@@ -153,9 +154,9 @@ builtin_dsimproc [simp, seval] reduceSDiv ((sdiv _ _ : BitVec _)) := reduceBin `
 /-- Simplification procedure for signed division of `BitVec`s using the SMT-Lib conventions. -/
 builtin_dsimproc [simp, seval] reduceSMTSDiv ((smtSDiv _ _ : BitVec _)) := reduceBin ``smtSDiv 3 smtSDiv
 /-- Simplification procedure for `getLsb` (lowest significant bit) on `BitVec`. -/
-builtin_dsimproc [simp, seval] reduceGetLsb (getLsb _ _) := reduceGetBit ``getLsb getLsb
+builtin_dsimproc [simp, seval] reduceGetLsb (getLsbD _ _) := reduceGetBit ``getLsbD getLsbD
 /-- Simplification procedure for `getMsb` (most significant bit) on `BitVec`. -/
-builtin_dsimproc [simp, seval] reduceGetMsb (getMsb _ _) := reduceGetBit ``getMsb getMsb
+builtin_dsimproc [simp, seval] reduceGetMsb (getMsbD _ _) := reduceGetBit ``getMsbD getMsbD
 
 /-- Simplification procedure for shift left on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceShiftLeft (BitVec.shiftLeft _ _) :=
@@ -226,6 +227,9 @@ builtin_dsimproc [simp, seval] reduceOfNat (BitVec.ofNat _ _) := fun e => do
   let bv := BitVec.ofNat n v
   if bv.toNat == v then return .continue -- already normalized
   return .done <| toExpr (BitVec.ofNat n v)
+
+builtin_simproc [simp, seval] reduceEq  (( _ : BitVec _) = _)  := reduceBinPred ``Eq 3 (. = .)
+builtin_simproc [simp, seval] reduceNe  (( _ : BitVec _) ≠ _)  := reduceBinPred ``Ne 3 (. ≠ .)
 
 /-- Simplification procedure for `<` on `BitVec`s. -/
 builtin_simproc [simp, seval] reduceLT (( _ : BitVec _) < _)  := reduceBinPred ``LT.lt 4 (· < ·)

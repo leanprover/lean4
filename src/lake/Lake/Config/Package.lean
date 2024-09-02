@@ -19,15 +19,6 @@ open System Lean
 
 namespace Lake
 
-/--
-First tries to convert a string into a legal name.
-If that fails, defaults to making it a simple name (e.g., `Lean.Name.mkSimple`).
-Currently used for package and target names taken from the CLI.
--/
-def stringToLegalOrSimpleName (s : String) : Name :=
-  if s.toName.isAnonymous then Lean.Name.mkSimple s else s.toName
-
-
 /-- The default `buildArchive` configuration for a package with `name`. -/
 @[inline] def defaultBuildArchive (name : Name) : String :=
   s!"{name.toString false}-{System.Platform.target}.tar.gz"
@@ -249,15 +240,15 @@ structure Package where
 
 instance : Nonempty Package :=
   have : Inhabited Environment := Classical.inhabited_of_nonempty inferInstance
-  by refine' ⟨{..}⟩ <;> exact default
+  ⟨by constructor <;> exact default⟩
 
 hydrate_opaque_type OpaquePackage Package
 
 instance : Hashable Package where hash pkg := hash pkg.config.name
 instance : BEq Package where beq p1 p2 := p1.config.name == p2.config.name
 
-abbrev PackageSet := HashSet Package
-@[inline] def PackageSet.empty : PackageSet := HashSet.empty
+abbrev PackageSet := Std.HashSet Package
+@[inline] def PackageSet.empty : PackageSet := Std.HashSet.empty
 
 abbrev OrdPackageSet := OrdHashSet Package
 @[inline] def OrdPackageSet.empty : OrdPackageSet := OrdHashSet.empty

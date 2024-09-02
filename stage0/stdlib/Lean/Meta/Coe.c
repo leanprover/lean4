@@ -168,7 +168,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Coe___hyg_4____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("coe_decl", 8);
+x_1 = lean_mk_string_unchecked("coe_decl", 8, 8);
 return x_1;
 }
 }
@@ -186,7 +186,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Coe___hyg_4____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -194,7 +194,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Coe___hyg_4____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -202,7 +202,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Coe___hyg_4____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("coeDeclAttr", 11);
+x_1 = lean_mk_string_unchecked("coeDeclAttr", 11, 11);
 return x_1;
 }
 }
@@ -221,7 +221,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Coe___hyg_4____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("auxiliary definition used to implement coercion (unfolded during elaboration)", 77);
+x_1 = lean_mk_string_unchecked("auxiliary definition used to implement coercion (unfolded during elaboration)", 77, 77);
 return x_1;
 }
 }
@@ -797,7 +797,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Coe___hyg_220____c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("autoLift", 8);
+x_1 = lean_mk_string_unchecked("autoLift", 8, 8);
 return x_1;
 }
 }
@@ -815,7 +815,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Coe___hyg_220____c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -823,7 +823,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Coe___hyg_220____c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("insert monadic lifts (i.e., `liftM` and coercions) when needed", 62);
+x_1 = lean_mk_string_unchecked("insert monadic lifts (i.e., `liftM` and coercions) when needed", 62, 62);
 return x_1;
 }
 }
@@ -880,7 +880,7 @@ static lean_object* _init_l_Lean_Meta_coerceSimple_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CoeT", 4);
+x_1 = lean_mk_string_unchecked("CoeT", 4, 4);
 return x_1;
 }
 }
@@ -907,7 +907,7 @@ static lean_object* _init_l_Lean_Meta_coerceSimple_x3f___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("coe", 3);
+x_1 = lean_mk_string_unchecked("coe", 3, 3);
 return x_1;
 }
 }
@@ -934,7 +934,7 @@ static lean_object* _init_l_Lean_Meta_coerceSimple_x3f___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("could not coerce", 16);
+x_1 = lean_mk_string_unchecked("could not coerce", 16, 16);
 return x_1;
 }
 }
@@ -951,7 +951,7 @@ static lean_object* _init_l_Lean_Meta_coerceSimple_x3f___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nto", 3);
+x_1 = lean_mk_string_unchecked("\nto", 3, 3);
 return x_1;
 }
 }
@@ -968,7 +968,7 @@ static lean_object* _init_l_Lean_Meta_coerceSimple_x3f___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\ncoerced expression has wrong type:", 35);
+x_1 = lean_mk_string_unchecked("\ncoerced expression has wrong type:", 35, 35);
 return x_1;
 }
 }
@@ -1509,7 +1509,7 @@ static lean_object* _init_l_Lean_Meta_coerceToFunction_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CoeFun", 6);
+x_1 = lean_mk_string_unchecked("CoeFun", 6, 6);
 return x_1;
 }
 }
@@ -1537,7 +1537,7 @@ static lean_object* _init_l_Lean_Meta_coerceToFunction_x3f___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to coerce", 16);
+x_1 = lean_mk_string_unchecked("failed to coerce", 16, 16);
 return x_1;
 }
 }
@@ -1554,7 +1554,7 @@ static lean_object* _init_l_Lean_Meta_coerceToFunction_x3f___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nto a function, after applying `CoeFun.coe`, result is still not a function", 75);
+x_1 = lean_mk_string_unchecked("\nto a function, after applying `CoeFun.coe`, result is still not a function", 75, 75);
 return x_1;
 }
 }
@@ -1571,7 +1571,7 @@ static lean_object* _init_l_Lean_Meta_coerceToFunction_x3f___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nthis is often due to incorrect `CoeFun` instances, the synthesized instance was", 80);
+x_1 = lean_mk_string_unchecked("\nthis is often due to incorrect `CoeFun` instances, the synthesized instance was", 80, 80);
 return x_1;
 }
 }
@@ -3056,7 +3056,7 @@ static lean_object* _init_l_Lean_Meta_coerceToSort_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CoeSort", 7);
+x_1 = lean_mk_string_unchecked("CoeSort", 7, 7);
 return x_1;
 }
 }
@@ -3084,7 +3084,7 @@ static lean_object* _init_l_Lean_Meta_coerceToSort_x3f___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nto a type, after applying `CoeSort.coe`, result is still not a type", 68);
+x_1 = lean_mk_string_unchecked("\nto a type, after applying `CoeSort.coe`, result is still not a type", 68, 68);
 return x_1;
 }
 }
@@ -3101,7 +3101,7 @@ static lean_object* _init_l_Lean_Meta_coerceToSort_x3f___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nthis is often due to incorrect `CoeSort` instances, the synthesized instance was", 81);
+x_1 = lean_mk_string_unchecked("\nthis is often due to incorrect `CoeSort` instances, the synthesized instance was", 81, 81);
 return x_1;
 }
 }
@@ -4731,7 +4731,7 @@ static lean_object* _init_l_Lean_Meta_coerceMonadLift_x3f___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("MonadLiftT", 10);
+x_1 = lean_mk_string_unchecked("MonadLiftT", 10, 10);
 return x_1;
 }
 }
@@ -4758,7 +4758,7 @@ static lean_object* _init_l_Lean_Meta_coerceMonadLift_x3f___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("liftM", 5);
+x_1 = lean_mk_string_unchecked("liftM", 5, 5);
 return x_1;
 }
 }
@@ -4785,7 +4785,7 @@ static lean_object* _init_l_Lean_Meta_coerceMonadLift_x3f___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("a", 1);
+x_1 = lean_mk_string_unchecked("a", 1, 1);
 return x_1;
 }
 }
@@ -4812,7 +4812,7 @@ static lean_object* _init_l_Lean_Meta_coerceMonadLift_x3f___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Internal", 8);
+x_1 = lean_mk_string_unchecked("Internal", 8, 8);
 return x_1;
 }
 }
@@ -4820,7 +4820,7 @@ static lean_object* _init_l_Lean_Meta_coerceMonadLift_x3f___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("liftCoeM", 8);
+x_1 = lean_mk_string_unchecked("liftCoeM", 8, 8);
 return x_1;
 }
 }
@@ -4848,7 +4848,7 @@ static lean_object* _init_l_Lean_Meta_coerceMonadLift_x3f___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("coeM", 4);
+x_1 = lean_mk_string_unchecked("coeM", 4, 4);
 return x_1;
 }
 }

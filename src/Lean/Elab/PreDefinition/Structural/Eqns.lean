@@ -19,7 +19,9 @@ open Eqns
 namespace Structural
 
 structure EqnInfo extends EqnInfoCore where
-  recArgPos   : Nat
+  recArgPos : Nat
+  declNames : Array Name
+  numFixed  : Nat
   deriving Inhabited
 
 private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
@@ -62,12 +64,12 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
     let us := info.levelParams.map mkLevelParam
     let target ← mkEq (mkAppN (Lean.mkConst info.declName us) xs) body
     let goal ← mkFreshExprSyntheticOpaqueMVar target
-    mkEqnTypes (tryRefl := true) #[info.declName] goal.mvarId!
+    mkEqnTypes info.declNames goal.mvarId!
   let baseName := info.declName
   let mut thmNames := #[]
   for i in [: eqnTypes.size] do
     let type := eqnTypes[i]!
-    trace[Elab.definition.structural.eqns] "{eqnTypes[i]!}"
+    trace[Elab.definition.structural.eqns] "eqnType {i}: {type}"
     let name := (Name.str baseName eqnThmSuffixBase).appendIndexAfter (i+1)
     thmNames := thmNames.push name
     let value ← mkProof info.declName type
@@ -80,9 +82,11 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
 
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 
-def registerEqnsInfo (preDef : PreDefinition) (recArgPos : Nat) : CoreM Unit := do
+def registerEqnsInfo (preDef : PreDefinition) (declNames : Array Name) (recArgPos : Nat)
+    (numFixed : Nat) : CoreM Unit := do
   ensureEqnReservedNamesAvailable preDef.declName
-  modifyEnv fun env => eqnInfoExt.insert env preDef.declName { preDef with recArgPos }
+  modifyEnv fun env => eqnInfoExt.insert env preDef.declName
+    { preDef with recArgPos, declNames, numFixed }
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   if let some info := eqnInfoExt.find? (← getEnv) declName then

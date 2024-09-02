@@ -35,7 +35,7 @@ inductive ReducibilityHints where
   | opaque  : ReducibilityHints
   | abbrev  : ReducibilityHints
   | regular : UInt32 → ReducibilityHints
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 @[export lean_mk_reducibility_hints_regular]
 def mkReducibilityHintsRegularEx (h : UInt32) : ReducibilityHints :=
@@ -117,7 +117,7 @@ structure DefinitionVal extends ConstantVal where
     are compiled using recursors and `WellFounded.fix`.
   -/
   all : List Name := [name]
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 @[export lean_mk_definition_val]
 def mkDefinitionValEx (name : Name) (levelParams : List Name) (type : Expr) (value : Expr) (hints : ReducibilityHints) (safety : DefinitionSafety) (all : List Name) : DefinitionVal := {
@@ -161,13 +161,13 @@ def mkOpaqueValEx (name : Name) (levelParams : List Name) (type : Expr) (value :
 structure Constructor where
   name : Name
   type : Expr
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 structure InductiveType where
   name : Name
   type : Expr
   ctors : List Constructor
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 /-- Declaration object that can be sent to the kernel. -/
 inductive Declaration where
@@ -178,7 +178,7 @@ inductive Declaration where
   | quotDecl
   | mutualDefnDecl  (defns : List DefinitionVal) -- All definitions must be marked as `unsafe` or `partial`
   | inductDecl      (lparams : List Name) (nparams : Nat) (types : List InductiveType) (isUnsafe : Bool)
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 @[export lean_mk_inductive_decl]
 def mkInductiveDeclEs (lparams : List Name) (nparams : Nat) (types : List InductiveType) (isUnsafe : Bool) : Declaration :=
@@ -188,6 +188,10 @@ def mkInductiveDeclEs (lparams : List Name) (nparams : Nat) (types : List Induct
 def Declaration.isUnsafeInductiveDeclEx : Declaration → Bool
   | Declaration.inductDecl _ _ _ isUnsafe => isUnsafe
   | _ => false
+
+def Declaration.definitionVal! : Declaration → DefinitionVal
+  | .defnDecl val => val
+  | _ => panic! "Expected a `Declaration.defnDecl`."
 
 @[specialize] def Declaration.foldExprM {α} {m : Type → Type} [Monad m] (d : Declaration) (f : α → Expr → m α) (a : α) : m α :=
   match d with
@@ -235,6 +239,10 @@ structure InductiveVal extends ConstantVal where
   all : List Name
   /-- List of the names of the constructors for this inductive datatype. -/
   ctors : List Name
+  /-- Number of auxillary data types produced from nested occurrences.
+  An inductive definition `T` is nested when there is a constructor with an argument `x : F T`,
+   where `F : Type → Type` is some suitably behaved (ie strictly positive) function (Eg `Array T`, `List T`, `T × T`, ...).  -/
+  numNested : Nat
   /-- `true` when recursive (that is, the inductive type appears as an argument in a constructor). -/
   isRec : Bool
   /-- Whether the definition is flagged as unsafe. -/
@@ -253,14 +261,12 @@ structure InductiveVal extends ConstantVal where
   Section 2.2, Definition 3
   -/
   isReflexive : Bool
-  /-- An inductive definition `T` is nested when there is a constructor with an argument `x : F T`,
-   where `F : Type → Type` is some suitably behaved (ie strictly positive) function (Eg `Array T`, `List T`, `T × T`, ...). -/
-  isNested : Bool
+
   deriving Inhabited
 
 @[export lean_mk_inductive_val]
 def mkInductiveValEx (name : Name) (levelParams : List Name) (type : Expr) (numParams numIndices : Nat)
-    (all ctors : List Name) (isRec isUnsafe isReflexive isNested : Bool) : InductiveVal := {
+    (all ctors : List Name) (numNested : Nat) (isRec isUnsafe isReflexive : Bool) : InductiveVal := {
   name := name
   levelParams := levelParams
   type := type
@@ -268,18 +274,19 @@ def mkInductiveValEx (name : Name) (levelParams : List Name) (type : Expr) (numP
   numIndices := numIndices
   all := all
   ctors := ctors
+  numNested := numNested
   isRec := isRec
   isUnsafe := isUnsafe
   isReflexive := isReflexive
-  isNested := isNested
 }
 
 @[export lean_inductive_val_is_rec] def InductiveVal.isRecEx (v : InductiveVal) : Bool := v.isRec
 @[export lean_inductive_val_is_unsafe] def InductiveVal.isUnsafeEx (v : InductiveVal) : Bool := v.isUnsafe
 @[export lean_inductive_val_is_reflexive] def InductiveVal.isReflexiveEx (v : InductiveVal) : Bool := v.isReflexive
-@[export lean_inductive_val_is_nested] def InductiveVal.isNestedEx (v : InductiveVal) : Bool := v.isNested
 
 def InductiveVal.numCtors (v : InductiveVal) : Nat := v.ctors.length
+def InductiveVal.isNested (v : InductiveVal) : Bool := v.numNested > 0
+def InductiveVal.numTypeFormers (v : InductiveVal) : Nat := v.all.length + v.numNested
 
 structure ConstructorVal extends ConstantVal where
   /-- Inductive type this constructor is a member of -/

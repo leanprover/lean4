@@ -63,23 +63,23 @@ where
   loop (i : Nat) : Option Unit := do
     if i < a.size then
       let c ← utf8DecodeChar? a i
-      loop (i + csize c)
+      loop (i + c.utf8Size)
     else pure ()
   termination_by a.size - i
-  decreasing_by exact Nat.sub_lt_sub_left ‹_› (Nat.lt_add_of_pos_right (one_le_csize c))
+  decreasing_by exact Nat.sub_lt_sub_left ‹_› (Nat.lt_add_of_pos_right c.utf8Size_pos)
 
 /-- Converts a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded `ByteArray` string to `String`. -/
-@[extern "lean_string_from_utf8"]
+@[extern "lean_string_from_utf8_unchecked"]
 def fromUTF8 (a : @& ByteArray) (h : validateUTF8 a) : String :=
   loop 0 ""
 where
   loop (i : Nat) (acc : String) : String :=
     if i < a.size then
       let c := (utf8DecodeChar? a i).getD default
-      loop (i + csize c) (acc.push c)
+      loop (i + c.utf8Size) (acc.push c)
     else acc
   termination_by a.size - i
-  decreasing_by exact Nat.sub_lt_sub_left ‹_› (Nat.lt_add_of_pos_right (one_le_csize c))
+  decreasing_by exact Nat.sub_lt_sub_left ‹_› (Nat.lt_add_of_pos_right c.utf8Size_pos)
 
 /-- Converts a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded `ByteArray` string to `String`,
 or returns `none` if `a` is not properly UTF-8 encoded. -/
@@ -108,8 +108,8 @@ def utf8EncodeChar (c : Char) : List UInt8 :=
      (v >>>  6).toUInt8 &&& 0x3f ||| 0x80,
               v.toUInt8 &&& 0x3f ||| 0x80]
 
-@[simp] theorem length_utf8EncodeChar (c : Char) : (utf8EncodeChar c).length = csize c := by
-  simp [csize, utf8EncodeChar, Char.utf8Size]
+@[simp] theorem length_utf8EncodeChar (c : Char) : (utf8EncodeChar c).length = c.utf8Size := by
+  simp [Char.utf8Size, utf8EncodeChar]
   cases Decidable.em (c.val ≤ 0x7f) <;> simp [*]
   cases Decidable.em (c.val ≤ 0x7ff) <;> simp [*]
   cases Decidable.em (c.val ≤ 0xffff) <;> simp [*]

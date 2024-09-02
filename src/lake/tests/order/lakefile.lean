@@ -9,6 +9,8 @@ lean_exe Y
 require foo from "foo"
 require bar from "bar"
 
+require leaf from "leaf" with NameMap.empty.insert `val "666000"
+
 lean_lib A where
   moreLeanArgs := #["-DmaxHeartbeats=222000"]
 

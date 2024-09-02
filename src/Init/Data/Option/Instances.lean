@@ -19,14 +19,14 @@ theorem eq_of_eq_some {α : Type u} : ∀ {x y : Option α}, (∀z, x = some z �
 theorem eq_none_of_isNone {α : Type u} : ∀ {o : Option α}, o.isNone → o = none
   | none, _ => rfl
 
-instance : Membership α (Option α) := ⟨fun a b => b = some a⟩
+instance : Membership α (Option α) := ⟨fun b a => b = some a⟩
 
 @[simp] theorem mem_def {a : α} {b : Option α} : a ∈ b ↔ b = some a := .rfl
 
 instance [DecidableEq α] (j : α) (o : Option α) : Decidable (j ∈ o) :=
   inferInstanceAs <| Decidable (o = some j)
 
-theorem isNone_iff_eq_none {o : Option α} : o.isNone ↔ o = none :=
+@[simp] theorem isNone_iff_eq_none {o : Option α} : o.isNone ↔ o = none :=
   ⟨Option.eq_none_of_isNone, fun e => e.symm ▸ rfl⟩
 
 theorem some_inj {a b : α} : some a = some b ↔ a = b := by simp; rfl

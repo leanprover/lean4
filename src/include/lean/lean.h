@@ -448,9 +448,6 @@ static inline void lean_inc(lean_object * o) { if (!lean_is_scalar(o)) lean_inc_
 static inline void lean_inc_n(lean_object * o, size_t n) { if (!lean_is_scalar(o)) lean_inc_ref_n(o, n); }
 static inline void lean_dec(lean_object * o) { if (!lean_is_scalar(o)) lean_dec_ref(o); }
 
-/* Just free memory */
-LEAN_EXPORT void lean_dealloc(lean_object * o);
-
 static inline bool lean_is_ctor(lean_object * o) { return lean_ptr_tag(o) <= LeanMaxCtorTag; }
 static inline bool lean_is_closure(lean_object * o) { return lean_ptr_tag(o) == LeanClosure; }
 static inline bool lean_is_array(lean_object * o) { return lean_ptr_tag(o) == LeanArray; }
@@ -482,6 +479,10 @@ static inline bool lean_is_exclusive(lean_object * o) {
     } else {
         return false;
     }
+}
+
+static inline uint8_t lean_is_exclusive_obj(lean_object * o) {
+    return lean_is_exclusive(o);
 }
 
 static inline bool lean_is_shared(lean_object * o) {
@@ -990,7 +991,10 @@ static inline size_t lean_string_capacity(lean_object * o) { return lean_to_stri
 static inline size_t lean_string_byte_size(lean_object * o) { return sizeof(lean_string_object) + lean_string_capacity(o); }
 /* instance : inhabited char := ⟨'A'⟩ */
 static inline uint32_t lean_char_default_value() { return 'A'; }
+LEAN_EXPORT lean_obj_res lean_mk_string_unchecked(char const * s, size_t sz, size_t len);
 LEAN_EXPORT lean_obj_res lean_mk_string_from_bytes(char const * s, size_t sz);
+LEAN_EXPORT lean_obj_res lean_mk_string_from_bytes_unchecked(char const * s, size_t sz);
+LEAN_EXPORT lean_obj_res lean_mk_ascii_string_unchecked(char const * s);
 LEAN_EXPORT lean_obj_res lean_mk_string(char const * s);
 static inline char const * lean_string_cstr(b_lean_obj_arg o) {
     assert(lean_is_string(o));
@@ -1131,6 +1135,17 @@ static inline lean_external_class * lean_get_external_class(lean_object * o) {
 
 static inline void * lean_get_external_data(lean_object * o) {
     return lean_to_external(o)->m_data;
+}
+
+static inline lean_object * lean_set_external_data(lean_object * o, void * data) {
+    if (lean_is_exclusive(o)) {
+        lean_to_external(o)->m_data = data;
+        return o;
+    } else {
+        lean_object * o_new = lean_alloc_external(lean_get_external_class(o), data);
+        lean_dec_ref(o);
+        return o_new;
+    }
 }
 
 /* Natural numbers */

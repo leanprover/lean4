@@ -50,13 +50,13 @@ fun {x : Nat} => f x
 def tst2 : IO Unit :=
 do let m1 : ExprMap Nat := {};
    let m1 := m1.insert exprT1 10;
-   check (m1.find? exprT1 == some 10);
-   check (m1.find? exprT2 == some 10);
-   check (m1.find? exprT3 == none);
+   check (m1[exprT1]? == some 10);
+   check (m1[exprT2]? == some 10);
+   check (m1[exprT3]? == none);
    let m1 := m1.insert exprT4 20;
-   check (m1.find? exprT1 == some 10);
-   check (m1.find? exprT3 == some 20);
-   IO.println (m1.find? exprT1);
+   check (m1[exprT1]? == some 10);
+   check (m1[exprT3]? == some 20);
+   IO.println m1[exprT1]?;
    pure ()
 
 /-- info: (some 10) -/
@@ -66,14 +66,14 @@ do let m1 : ExprMap Nat := {};
 def tst3 : IO Unit :=
 do let m1 : ExprStructMap Nat := {};
    let m1 := m1.insert exprT1 10;
-   check (m1.find? exprT1 == some 10);
-   check (m1.find? exprT2 == none);
-   check (m1.find? exprT3 == none);
+   check (m1.get? exprT1 == some 10);
+   check (m1.get? exprT2 == none);
+   check (m1.get? exprT3 == none);
    let m1 := m1.insert exprT4 20;
-   check (m1.find? exprT1 == some 10);
-   check (m1.find? exprT4 == some 20);
-   check (m1.find? exprT3 == none);
-   IO.println (m1.find? exprT1);
+   check (m1.get? exprT1 == some 10);
+   check (m1.get? exprT4 == some 20);
+   check (m1.get? exprT3 == none);
+   IO.println (m1.get? exprT1);
    pure ()
 
 /-- info: (some 10) -/

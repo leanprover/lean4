@@ -17,7 +17,7 @@ fun x =>
 #guard_msgs in
 #print Nat.pred
 /--
-info: def List.head?.{u_1} : {α : Type u_1} → List α → Option α :=
+info: def List.head?.{u} : {α : Type u} → List α → Option α :=
 fun {α} x =>
   match x with
   | [] => none

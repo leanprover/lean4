@@ -107,7 +107,8 @@ def lazy (f : PPContext → IO MessageData)
     (hasSyntheticSorry : MetavarContext → Bool := fun _ => false) : MessageData :=
   .ofLazy (hasSyntheticSorry := hasSyntheticSorry) fun ctx? => do
     let msg ← match ctx? with
-      | .none => pure (.ofFormat "(invalid MessageData.lazy, missing context)")
+      | .none =>
+        pure (.ofFormat "(invalid MessageData.lazy, missing context)") -- see `addMessageContext`
       | .some ctx => f ctx
     return Dynamic.mk msg
 
@@ -141,14 +142,31 @@ def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPContext :=
 def ofSyntax (stx : Syntax) : MessageData :=
   -- discard leading/trailing whitespace
   let stx := stx.copyHeadTailInfoFrom .missing
-  .lazy fun ctx => ofFormat <$> ppTerm ctx ⟨stx⟩ -- HACK: might not be a term
+  .ofLazy
+    (fun ctx? => do
+      let msg ← ofFormat <$> match ctx? with
+        | .none => pure stx.formatStx
+        | .some ctx => ppTerm ctx ⟨stx⟩ -- HACK: might not be a term
+      return Dynamic.mk msg)
+    (fun _ => false)
 
 def ofExpr (e : Expr) : MessageData :=
-  .lazy (fun ctx => ofFormatWithInfos <$> ppExprWithInfos ctx e)
-        (fun mctx => instantiateMVarsCore mctx e |>.1.hasSyntheticSorry)
+  .ofLazy
+    (fun ctx? => do
+      let msg ← ofFormatWithInfos <$> match ctx? with
+        | .none => pure (format (toString e))
+        | .some ctx => ppExprWithInfos ctx e
+      return Dynamic.mk msg)
+    (fun mctx => instantiateMVarsCore mctx e |>.1.hasSyntheticSorry)
 
 def ofLevel (l : Level) : MessageData :=
-  .lazy fun ctx => ofFormat <$> ppLevel ctx l
+  .ofLazy
+    (fun ctx? => do
+      let msg ← ofFormat <$> match ctx? with
+        | .none => pure (format l)
+        | .some ctx => ppLevel ctx l
+      return Dynamic.mk msg)
+    (fun _ => false)
 
 def ofName (n : Name) : MessageData := ofFormat (format n)
 
@@ -237,6 +255,15 @@ def ofList : List MessageData → MessageData
 /-- See `MessageData.ofList`. -/
 def ofArray (msgs : Array MessageData) : MessageData :=
   ofList msgs.toList
+
+/-- Puts `MessageData` into a comma-separated list with `"and"` at the back (no Oxford comma).
+Best used on non-empty lists; returns `"– none –"` for an empty list.  -/
+def andList (xs : List MessageData) : MessageData :=
+  match xs with
+  | [] => "– none –"
+  | [x] => x
+  | _ => joinSep xs.dropLast ", " ++ " and " ++ xs.getLast!
+
 
 instance : Coe (List MessageData) MessageData := ⟨ofList⟩
 instance : Coe (List Expr) MessageData := ⟨fun es => ofList <| es.map ofExpr⟩
@@ -332,13 +359,20 @@ structure MessageLog where
   hadErrors : Bool := false
   /-- The list of messages not already reported, in insertion order. -/
   unreported : PersistentArray Message := {}
+  /--
+  Set of message kinds that have been added to the log.
+  For example, we have the kind `unsafe.exponentiation.warning` for warning messages associated with
+  the configuration option `exponentiation.threshold`.
+  We don't produce a warning if the kind is already in the following set.
+  -/
+  reportedKinds : NameSet := {}
   deriving Inhabited
 
 namespace MessageLog
 def empty : MessageLog := {}
 
 @[deprecated "renamed to `unreported`; direct access should in general be avoided in favor of \
-using `MessageLog.toList/toArray`"]
+using `MessageLog.toList/toArray`" (since := "2024-05-22")]
 def msgs : MessageLog → PersistentArray Message := unreported
 
 def hasUnreported (log : MessageLog) : Bool :=
@@ -385,6 +419,13 @@ def indentExpr (e : Expr) : MessageData :=
   indentD e
 
 class AddMessageContext (m : Type → Type) where
+  /--
+  Without context, a `MessageData` object may be be missing information
+  (e.g. hover info) for pretty printing, or may print an error. Hence,
+  `addMessageContext` should be called on all constructed `MessageData`
+  (e.g. via `m!`) before taking it out of context (e.g. leaving `MetaM` or
+  `CoreM`).
+  -/
   addMessageContext : MessageData → m MessageData
 
 export AddMessageContext (addMessageContext)

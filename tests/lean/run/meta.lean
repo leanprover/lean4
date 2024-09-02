@@ -80,14 +80,14 @@ def proveGoal : MetaM Unit := do
   let m := main.mvarId!
   IO.println (← ppGoal m)
   IO.println "-----"
-  let (xs, m) ← introNP m 3 -- `intro` 3 variables using the binder names to name the new locals
+  let (xs, m) ← m.introNP 3 -- `intro` 3 variables using the binder names to name the new locals
   IO.println (← ppGoal m)
   IO.println "-----"
   -- The `apply` tactic generates 0 or more subgoals
-  let [m] ← apply m (mkConst ``Eq.symm [levelOne]) | throwError "unexpected number of subgoals"
+  let [m] ← m.apply (mkConst ``Eq.symm [levelOne]) | throwError "unexpected number of subgoals"
   IO.println (← ppGoal m)
   IO.println "-----"
-  assumption m
+  m.assumption
   -- `main` contains the whole proof now
   IO.println (← ppExpr main)
   check main -- type check the proof. This is not the kernel type checker.

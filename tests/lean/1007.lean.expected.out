@@ -8,4 +8,4 @@
 1007.lean:39:4-39:7: warning: declaration uses 'sorry'
 1007.lean:56:64-56:78: error: failed to synthesize
   IsLin fun x => sum fun i => norm x
-use `set_option diagnostics true` to get diagnostic information
+Additional diagnostic information may be available using the `set_option diagnostics true` command.

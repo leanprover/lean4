@@ -229,10 +229,6 @@ def _root_.Lean.MVarId.induction (mvarId : MVarId) (majorFVarId : FVarId) (recur
         let recursor ← mkRecursorAppPrefix mvarId `induction majorFVarId recursorInfo indices
         finalize mvarId givenNames recursorInfo reverted major indices baseSubst recursor
 
-@[deprecated MVarId.induction (since := "2022-07-15")]
-def induction (mvarId : MVarId) (majorFVarId : FVarId) (recursorName : Name) (givenNames : Array AltVarNames := #[]) : MetaM (Array InductionSubgoal) :=
-  mvarId.induction majorFVarId recursorName givenNames
-
 builtin_initialize registerTraceClass `Meta.Tactic.induction
 
 end Lean.Meta

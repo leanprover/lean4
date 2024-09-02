@@ -92,7 +92,7 @@ partial def decodePats : Expr → MetaM (List Pattern)
 
 partial def decodeAltLHS (e : Expr) : MetaM AltLHS :=
 forallTelescopeReducing e fun args body => do
-  let decls ← args.toList.mapM (fun arg => getLocalDecl arg.fvarId!)
+  let decls ← args.toList.mapM (fun arg => arg.fvarId!.getDecl)
   let pats  ← decodePats body
   return { ref := Syntax.missing, fvarDecls := decls, patterns := pats }
 

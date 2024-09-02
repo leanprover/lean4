@@ -1,5 +1,5 @@
 dep/hello
-scripts/dismiss
+scripts/say-goodbye
 scripts/greet
 Hello, world!
 Hello, me!
@@ -13,10 +13,11 @@ Greet the entity with the given name. Otherwise, greet the whole world.
 
 Hello from Dep!
 Hello from Dep!
+Goodbye!
 error: unknown script nonexistant
 error: unknown script nonexistant
 dep/hello
-scripts/dismiss
+scripts/say-goodbye
 scripts/greet
 Hello, world!
 Goodbye!

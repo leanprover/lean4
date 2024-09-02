@@ -32,6 +32,7 @@ package test where
   leanOptions := #[⟨`pp.unicode.fun, true⟩]
   lintDriver := "b"
 
+require "foo" / "baz" @ "git#abcdef"
 require foo from "dir" with NameMap.empty.insert `foo "bar"
 require bar from git "https://example.com" @ "abc" / "sub" / "dir"
 

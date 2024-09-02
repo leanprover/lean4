@@ -198,7 +198,7 @@ theorem principal_nfp_blsub₂' (op : Ordinal → Ordinal → Ordinal) (o : Ordi
   · refine ⟨n+1, ?_⟩
     rw [Function.iterate_succ']
     -- universe 0 also works here
-    exact lt_blsub₂.{0} (@fun a _ b _ => op a b) (lt_of_lt_of_le hm h) hn
+    exact lt_blsub₂.{_, _, 0} (@fun a _ b _ => op a b) (lt_of_lt_of_le hm h) hn
   · sorry
 
 

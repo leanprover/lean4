@@ -1,4 +1,4 @@
-Try this: simp only [f]
+Try this: simp only [f, reduceCtorEq]
 [Meta.Tactic.simp.rewrite] unfold f, f (a :: b = []) ==> a :: b = []
 [Meta.Tactic.simp.rewrite] eq_self:1000, False = False ==> True
 Try this: simp only [length, gt_iff_lt]
@@ -75,7 +75,7 @@ Try this: simp only [bla, h] at h'
     | Sum.inr val => 0
 [Meta.Tactic.simp.rewrite] unfold h, h x ==> Sum.inl (x, x)
 Try this: simp only [bla, h, List.length_append] at *
-simp_trace.lean:99:101-100:40: error: unsolved goals
+simp_trace.lean:102:101-103:40: error: unsolved goals
 x y : Nat
 α : Type
 xs ys : List α
@@ -88,7 +88,7 @@ h₂ : xs.length + ys.length = y
 [Meta.Tactic.simp.rewrite] unfold h, h x ==> Sum.inl (x, x)
 [Meta.Tactic.simp.rewrite] List.length_append:1000, (xs ++ ys).length ==> xs.length + ys.length
 Try this: simp only [bla, h, List.length_append] at *
-simp_trace.lean:103:101-104:53: error: unsolved goals
+simp_trace.lean:106:101-107:53: error: unsolved goals
 x y : Nat
 α : Type
 xs ys : List α

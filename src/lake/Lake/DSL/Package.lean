@@ -29,13 +29,12 @@ package «pkg-name» where /- config opts -/
 There can only be one `package` declaration per Lake configuration file.
 The defined package configuration will be available for reference as `_package`.
 -/
-scoped macro (name := packageDecl)
+scoped elab (name := packageDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
-"package " sig:structDeclSig : command => do
+kw:"package " sig:structDeclSig : command => withRef kw do
   let attr ← `(Term.attrInstance| «package»)
-  let ty := mkCIdentFrom (← getRef) ``PackageConfig
   let attrs := #[attr] ++ expandAttrs attrs?
-  mkConfigDecl packageDeclName doc? attrs ty sig
+  elabConfigDecl ``PackageConfig sig doc? attrs packageDeclName
 
 abbrev PackageDecl := TSyntax ``packageDecl
 
@@ -72,10 +71,10 @@ optional(docComment) optional(Term.attributes)
 macro_rules
 | `($[$doc?]? $[$attrs?]? post_update%$kw $[$pkg?]? do $seq $[$wds?:whereDecls]?) =>
   `($[$doc?]? $[$attrs?]? post_update%$kw $[$pkg?]? := do $seq $[$wds?:whereDecls]?)
-| `($[$doc?]? $[$attrs?]? post_update%$kw $[$pkg?]? := $defn $[$wds?:whereDecls]?) => do
+| `($[$doc?]? $[$attrs?]? post_update%$kw $[$pkg?]? := $defn $[$wds?:whereDecls]?) => withRef kw do
   let pkg ← expandOptSimpleBinder pkg?
   let pkgName := mkIdentFrom pkg `_package.name
-  let attr ← withRef kw `(Term.attrInstance| «post_update»)
+  let attr ← `(Term.attrInstance| «post_update»)
   let attrs := #[attr] ++ expandAttrs attrs?
   `($[$doc?]? @[$attrs,*] def postUpdateHook : PostUpdateHookDecl :=
     {pkg := $pkgName, fn := fun $pkg => $defn} $[$wds?:whereDecls]?)

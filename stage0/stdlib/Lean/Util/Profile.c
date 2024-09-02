@@ -141,7 +141,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_Profile___hyg_6____clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("profiler", 8);
+x_1 = lean_mk_string_unchecked("profiler", 8, 8);
 return x_1;
 }
 }
@@ -159,7 +159,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_Profile___hyg_6____clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("show exclusive execution times of various Lean components\n  \nSee also `trace.profiler` for an alternative profiling system with structured output.", 146);
+x_1 = lean_mk_string_unchecked("show exclusive execution times of various Lean components\n  \nSee also `trace.profiler` for an alternative profiling system with structured output.", 146, 146);
 return x_1;
 }
 }
@@ -182,7 +182,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_Profile___hyg_6____clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -296,7 +296,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_Profile___hyg_43____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("threshold", 9);
+x_1 = lean_mk_string_unchecked("threshold", 9, 9);
 return x_1;
 }
 }
@@ -314,7 +314,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_Profile___hyg_43____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("threshold in milliseconds, profiling times under threshold will not be reported individually", 92);
+x_1 = lean_mk_string_unchecked("threshold in milliseconds, profiling times under threshold will not be reported individually", 92, 92);
 return x_1;
 }
 }

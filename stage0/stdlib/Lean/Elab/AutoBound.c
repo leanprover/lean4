@@ -25,6 +25,7 @@ lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_43____closed__1;
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_7____closed__8;
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
+uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 LEAN_EXPORT uint8_t l_Lean_Elab_isValidAutoBoundLevelName(lean_object*, uint8_t);
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_7____closed__3;
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_43____closed__2;
@@ -36,7 +37,6 @@ static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_7____clo
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_43____closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_AutoBound_0__Lean_Elab_isValidAutoBoundSuffix___boxed(lean_object*);
-uint8_t l_Char_isDigit(uint32_t);
 lean_object* l_Substring_nextn(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
 uint8_t l_Lean_isSubScriptAlnum(uint32_t);
@@ -51,7 +51,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_relaxedAutoImplicit;
 LEAN_EXPORT lean_object* l_Lean_Option_register___at_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_7____spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_isValidAutoBoundImplicitName(lean_object*, uint8_t);
-uint8_t l_Char_isLower(uint32_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_isValidAutoBoundLevelName___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_7____closed__1;
 LEAN_EXPORT lean_object* l_Lean_Option_register___at_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_7____spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -134,7 +133,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_7_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("autoImplicit", 12);
+x_1 = lean_mk_string_unchecked("autoImplicit", 12, 12);
 return x_1;
 }
 }
@@ -152,7 +151,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_7_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -160,7 +159,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_7_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Unbound local variables in declaration headers become implicit arguments. In \"relaxed\" mode (default), any atomic identifier is eligible, otherwise only single character followed by numeric digits are eligible. For example, `def f (x : Vector α n) : Vector α n :=` automatically introduces the implicit variables {α n}.", 322);
+x_1 = lean_mk_string_unchecked("Unbound local variables in declaration headers become implicit arguments. In \"relaxed\" mode (default), any atomic identifier is eligible, otherwise only single character followed by numeric digits are eligible. For example, `def f (x : Vector α n) : Vector α n :=` automatically introduces the implicit variables {α n}.", 322, 319);
 return x_1;
 }
 }
@@ -183,7 +182,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_7_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -191,7 +190,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_7_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -230,7 +229,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_43
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("relaxedAutoImplicit", 19);
+x_1 = lean_mk_string_unchecked("relaxedAutoImplicit", 19, 19);
 return x_1;
 }
 }
@@ -248,7 +247,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_43
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("When \"relaxed\" mode is enabled, any atomic nonempty identifier is eligible for auto bound implicit locals (see optin `autoBoundImplicitLocal`.", 142);
+x_1 = lean_mk_string_unchecked("When \"relaxed\" mode is enabled, any atomic nonempty identifier is eligible for auto bound implicit locals (see option `autoImplicit`).", 134, 134);
 return x_1;
 }
 }
@@ -303,64 +302,119 @@ return x_5;
 }
 else
 {
-uint32_t x_6; uint8_t x_7; 
+uint32_t x_6; uint32_t x_7; uint8_t x_8; 
 x_6 = lean_string_utf8_get(x_1, x_3);
-x_7 = l_Char_isDigit(x_6);
-if (x_7 == 0)
-{
-uint8_t x_8; 
-x_8 = l_Lean_isSubScriptAlnum(x_6);
+x_7 = 48;
+x_8 = lean_uint32_dec_le(x_7, x_6);
 if (x_8 == 0)
 {
-uint32_t x_9; uint8_t x_10; 
-x_9 = 95;
-x_10 = lean_uint32_dec_eq(x_6, x_9);
-if (x_10 == 0)
+uint8_t x_9; 
+x_9 = l_Lean_isSubScriptAlnum(x_6);
+if (x_9 == 0)
 {
-uint32_t x_11; uint8_t x_12; 
-x_11 = 39;
-x_12 = lean_uint32_dec_eq(x_6, x_11);
-if (x_12 == 0)
+uint32_t x_10; uint8_t x_11; 
+x_10 = 95;
+x_11 = lean_uint32_dec_eq(x_6, x_10);
+if (x_11 == 0)
 {
-uint8_t x_13; 
+uint32_t x_12; uint8_t x_13; 
+x_12 = 39;
+x_13 = lean_uint32_dec_eq(x_6, x_12);
+if (x_13 == 0)
+{
+uint8_t x_14; 
 lean_dec(x_3);
-x_13 = 1;
-return x_13;
+x_14 = 1;
+return x_14;
 }
 else
 {
-lean_object* x_14; 
-x_14 = lean_string_utf8_next(x_1, x_3);
+lean_object* x_15; 
+x_15 = lean_string_utf8_next(x_1, x_3);
 lean_dec(x_3);
-x_3 = x_14;
+x_3 = x_15;
 goto _start;
 }
 }
 else
 {
-lean_object* x_16; 
-x_16 = lean_string_utf8_next(x_1, x_3);
+lean_object* x_17; 
+x_17 = lean_string_utf8_next(x_1, x_3);
 lean_dec(x_3);
-x_3 = x_16;
+x_3 = x_17;
 goto _start;
 }
 }
 else
 {
-lean_object* x_18; 
-x_18 = lean_string_utf8_next(x_1, x_3);
+lean_object* x_19; 
+x_19 = lean_string_utf8_next(x_1, x_3);
 lean_dec(x_3);
-x_3 = x_18;
+x_3 = x_19;
 goto _start;
 }
 }
 else
 {
-lean_object* x_20; 
-x_20 = lean_string_utf8_next(x_1, x_3);
+uint32_t x_21; uint8_t x_22; 
+x_21 = 57;
+x_22 = lean_uint32_dec_le(x_6, x_21);
+if (x_22 == 0)
+{
+uint8_t x_23; 
+x_23 = l_Lean_isSubScriptAlnum(x_6);
+if (x_23 == 0)
+{
+uint32_t x_24; uint8_t x_25; 
+x_24 = 95;
+x_25 = lean_uint32_dec_eq(x_6, x_24);
+if (x_25 == 0)
+{
+uint32_t x_26; uint8_t x_27; 
+x_26 = 39;
+x_27 = lean_uint32_dec_eq(x_6, x_26);
+if (x_27 == 0)
+{
+uint8_t x_28; 
 lean_dec(x_3);
-x_3 = x_20;
+x_28 = 1;
+return x_28;
+}
+else
+{
+lean_object* x_29; 
+x_29 = lean_string_utf8_next(x_1, x_3);
+lean_dec(x_3);
+x_3 = x_29;
 goto _start;
+}
+}
+else
+{
+lean_object* x_31; 
+x_31 = lean_string_utf8_next(x_1, x_3);
+lean_dec(x_3);
+x_3 = x_31;
+goto _start;
+}
+}
+else
+{
+lean_object* x_33; 
+x_33 = lean_string_utf8_next(x_1, x_3);
+lean_dec(x_3);
+x_3 = x_33;
+goto _start;
+}
+}
+else
+{
+lean_object* x_35; 
+x_35 = lean_string_utf8_next(x_1, x_3);
+lean_dec(x_3);
+x_3 = x_35;
+goto _start;
+}
 }
 }
 }
@@ -519,47 +573,61 @@ else
 {
 if (x_2 == 0)
 {
-uint32_t x_9; uint8_t x_10; 
+uint32_t x_9; uint32_t x_10; uint8_t x_11; 
 x_9 = lean_string_utf8_get(x_4, x_6);
-x_10 = l_Char_isLower(x_9);
-if (x_10 == 0)
-{
-uint8_t x_11; 
-lean_dec(x_4);
-x_11 = 0;
-return x_11;
-}
-else
+x_10 = 97;
+x_11 = lean_uint32_dec_le(x_10, x_9);
+if (x_11 == 0)
 {
 uint8_t x_12; 
-x_12 = l___private_Lean_Elab_AutoBound_0__Lean_Elab_isValidAutoBoundSuffix(x_4);
+lean_dec(x_4);
+x_12 = 0;
 return x_12;
 }
-}
 else
 {
-uint8_t x_13; 
-lean_dec(x_4);
-x_13 = 1;
-return x_13;
-}
-}
-}
-else
-{
-uint8_t x_14; 
-lean_dec(x_3);
-lean_dec(x_1);
-x_14 = 0;
-return x_14;
-}
-}
-else
+uint32_t x_13; uint8_t x_14; 
+x_13 = 122;
+x_14 = lean_uint32_dec_le(x_9, x_13);
+if (x_14 == 0)
 {
 uint8_t x_15; 
-lean_dec(x_1);
+lean_dec(x_4);
 x_15 = 0;
 return x_15;
+}
+else
+{
+uint8_t x_16; 
+x_16 = l___private_Lean_Elab_AutoBound_0__Lean_Elab_isValidAutoBoundSuffix(x_4);
+return x_16;
+}
+}
+}
+else
+{
+uint8_t x_17; 
+lean_dec(x_4);
+x_17 = 1;
+return x_17;
+}
+}
+}
+else
+{
+uint8_t x_18; 
+lean_dec(x_3);
+lean_dec(x_1);
+x_18 = 0;
+return x_18;
+}
+}
+else
+{
+uint8_t x_19; 
+lean_dec(x_1);
+x_19 = 0;
+return x_19;
 }
 }
 }

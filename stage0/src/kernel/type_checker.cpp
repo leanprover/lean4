@@ -185,7 +185,7 @@ expr type_checker::infer_app(expr const & e, bool infer_only) {
 
 static void mark_used(unsigned n, expr const * fvars, expr const & b, bool * used) {
     if (!has_fvar(b)) return;
-    for_each(b, [&](expr const & x, unsigned) {
+    for_each(b, [&](expr const & x) {
             if (!has_fvar(x)) return false;
             if (is_fvar(x)) {
                 for (unsigned i = 0; i < n; i++) {
@@ -595,6 +595,18 @@ template<typename F> optional<expr> type_checker::reduce_bin_nat_op(F const & f,
     return some_expr(mk_lit(literal(nat(f(v1.raw(), v2.raw())))));
 }
 
+#define ReducePowMaxExp 1<<24 // TODO: make it configurable
+
+optional<expr> type_checker::reduce_pow(expr const & e) {
+    expr arg1 = whnf(app_arg(app_fn(e)));
+    expr arg2 = whnf(app_arg(e));
+    if (!is_nat_lit_ext(arg2)) return none_expr();
+    nat v1 = get_nat_val(arg1);
+    nat v2 = get_nat_val(arg2);
+    if (v2 > nat(ReducePowMaxExp)) return none_expr();
+    return some_expr(mk_lit(literal(nat(nat_pow(v1.raw(), v2.raw())))));
+}
+
 template<typename F> optional<expr> type_checker::reduce_bin_nat_pred(F const & f, expr const & e) {
     expr arg1 = whnf(app_arg(app_fn(e)));
     if (!is_nat_lit_ext(arg1)) return none_expr();
@@ -622,7 +634,7 @@ optional<expr> type_checker::reduce_nat(expr const & e) {
         if (f == *g_nat_add) return reduce_bin_nat_op(nat_add, e);
         if (f == *g_nat_sub) return reduce_bin_nat_op(nat_sub, e);
         if (f == *g_nat_mul) return reduce_bin_nat_op(nat_mul, e);
-        if (f == *g_nat_pow) return reduce_bin_nat_op(nat_pow, e);
+        if (f == *g_nat_pow) return reduce_pow(e);
         if (f == *g_nat_gcd) return reduce_bin_nat_op(nat_gcd, e);
         if (f == *g_nat_mod) return reduce_bin_nat_op(nat_mod, e);
         if (f == *g_nat_div) return reduce_bin_nat_op(nat_div, e);

@@ -87,8 +87,11 @@ namespace Hash
 @[inline] def ofNat (n : Nat) :=
   mk n.toUInt64
 
+def ofString? (s : String) : Option Hash :=
+  (inline s.toNat?).map ofNat
+
 def load? (hashFile : FilePath) : BaseIO (Option Hash) :=
-  (·.toNat?.map ofNat) <$> IO.FS.readFile hashFile |>.catchExceptions fun _ => pure none
+  ofString? <$> IO.FS.readFile hashFile |>.catchExceptions fun _ => pure none
 
 def nil : Hash :=
   mk <| 1723 -- same as Name.anonymous
@@ -201,6 +204,17 @@ instance [GetMTime α] : ComputeTrace α IO MTime := ⟨getMTime⟩
 instance : GetMTime FilePath := ⟨getFileMTime⟩
 instance : GetMTime TextFilePath := ⟨(getFileMTime ·.path)⟩
 
+/--
+Check if `info` is up-to-date using modification time.
+That is, check if the info is newer than `self`.
+-/
+@[specialize] def MTime.checkUpToDate
+  [GetMTime i] (info : i) (self : MTime)
+: BaseIO Bool := do
+  match (← getMTime info |>.toBaseIO) with
+  | .ok mtime => return self < mtime
+  | .error _ => return false
+
 --------------------------------------------------------------------------------
 /-! # Lake Build Trace (Hash + MTIme) -/
 --------------------------------------------------------------------------------
@@ -242,7 +256,7 @@ instance : MixTrace BuildTrace := ⟨mix⟩
 Check if the info is up-to-date using a hash.
 That is, check that info exists and its input hash matches this trace's hash.
 -/
-@[inline] def checkAgainstHash [CheckExists i]
+@[specialize] def checkAgainstHash [CheckExists i]
 (info : i) (hash : Hash) (self : BuildTrace) : BaseIO Bool :=
   pure (hash == self.hash) <&&> checkExists info
 
@@ -250,24 +264,35 @@ That is, check that info exists and its input hash matches this trace's hash.
 Check if the info is up-to-date using modification time.
 That is, check if the info is newer than this input trace's modification time.
 -/
-@[inline] def checkAgainstTime [GetMTime i]
-(info : i) (self : BuildTrace) : BaseIO Bool :=
-  EIO.catchExceptions (h := fun _ => pure false) do
-    return self.mtime < (← getMTime info)
+@[inline] def checkAgainstTime
+  [GetMTime i] (info : i) (self : BuildTrace)
+: BaseIO Bool := do
+  self.mtime.checkUpToDate info
 
 /--
 Check if the info is up-to-date using a trace file.
 If the file exists, match its hash to this trace's hash.
 If not, check if the info is newer than this trace's modification time.
+
+**Deprecated:** Should not be done manually,
+but as part of `buildUnlessUpToDate`.
 -/
-@[inline] def checkAgainstFile [CheckExists i] [GetMTime i]
-(info : i) (traceFile : FilePath) (self : BuildTrace) : BaseIO Bool := do
+@[deprecated (since := "2024-06-14"), specialize] def checkAgainstFile
+  [CheckExists i] [GetMTime i]
+  (info : i) (traceFile : FilePath) (self : BuildTrace)
+: BaseIO Bool := do
   if let some hash ← Hash.load? traceFile then
     self.checkAgainstHash info hash
   else
     self.checkAgainstTime info
 
-@[inline] def writeToFile (traceFile : FilePath) (self : BuildTrace) : IO PUnit := do
+/--
+Write trace to a file.
+
+**Deprecated:** Should not be done manually,
+but as part of `buildUnlessUpToDate`.
+-/
+@[deprecated (since := "2024-06-14")] def writeToFile (traceFile : FilePath) (self : BuildTrace) : IO PUnit := do
   createParentDirs traceFile
   IO.FS.writeFile traceFile self.hash.toString
 

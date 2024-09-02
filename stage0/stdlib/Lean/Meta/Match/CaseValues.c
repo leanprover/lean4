@@ -193,7 +193,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_ca
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("found decl", 10);
+x_1 = lean_mk_string_unchecked("found decl", 10, 10);
 return x_1;
 }
 }
@@ -294,7 +294,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_ca
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("searching for decl", 18);
+x_1 = lean_mk_string_unchecked("searching for decl", 18, 18);
 return x_1;
 }
 }
@@ -354,7 +354,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_ca
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("subst domain: ", 14);
+x_1 = lean_mk_string_unchecked("subst domain: ", 14, 14);
 return x_1;
 }
 }
@@ -371,7 +371,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_ca
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -476,7 +476,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_ca
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("caseValue", 9);
+x_1 = lean_mk_string_unchecked("caseValue", 9, 9);
 return x_1;
 }
 }
@@ -494,7 +494,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_ca
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Not", 3);
+x_1 = lean_mk_string_unchecked("Not", 3, 3);
 return x_1;
 }
 }
@@ -522,7 +522,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_ca
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("dite", 4);
+x_1 = lean_mk_string_unchecked("dite", 4, 4);
 return x_1;
 }
 }
@@ -559,7 +559,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_ca
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -1255,7 +1255,7 @@ static lean_object* _init_l_Lean_Meta_caseValue___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("h", 1);
+x_1 = lean_mk_string_unchecked("h", 1, 1);
 return x_1;
 }
 }
@@ -1273,7 +1273,7 @@ static lean_object* _init_l_Lean_Meta_caseValue___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("thenBranch", 10);
+x_1 = lean_mk_string_unchecked("thenBranch", 10, 10);
 return x_1;
 }
 }
@@ -1291,7 +1291,7 @@ static lean_object* _init_l_Lean_Meta_caseValue___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("elseBranch", 10);
+x_1 = lean_mk_string_unchecked("elseBranch", 10, 10);
 return x_1;
 }
 }
@@ -1776,7 +1776,7 @@ static lean_object* _init_l_Lean_Meta_caseValues_loop___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("caseValues", 10);
+x_1 = lean_mk_string_unchecked("caseValues", 10, 10);
 return x_1;
 }
 }
@@ -1794,7 +1794,7 @@ static lean_object* _init_l_Lean_Meta_caseValues_loop___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("list of values must not be empty", 32);
+x_1 = lean_mk_string_unchecked("list of values must not be empty", 32, 32);
 return x_1;
 }
 }
@@ -1831,7 +1831,7 @@ static lean_object* _init_l_Lean_Meta_caseValues_loop___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("case", 4);
+x_1 = lean_mk_string_unchecked("case", 4, 4);
 return x_1;
 }
 }

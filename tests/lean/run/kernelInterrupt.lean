@@ -12,9 +12,16 @@ open Lean
 #eval show CoreM _ from do
   let env ← getEnv
   let envPromise ← IO.Promise.new
+  let tk ← IO.CancelToken.new
   let t := Task.spawn fun _ =>
     let env := envPromise.result.get
-    Kernel.whnf env {} (mkApp2 (mkConst `Nat.add) (mkNatLit 1) (mkNatLit 2))
-  IO.cancel t
+    let decl := .axiomDecl {
+      name := `test
+      levelParams := []
+      type := mkConst `Nat
+      isUnsafe := false
+    }
+    env.addDeclCore 1000 decl tk
+  tk.set
   envPromise.resolve env
   assert! t.get matches .error .interrupted

@@ -23,7 +23,7 @@ jobs:
     # This action should push to an otherwise protected branch, so it
     # uses a deploy key with write permissions, as suggested at
     # https://stackoverflow.com/a/76135647/946226
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         ssh-key: ${{secrets.STAGE0_SSH_KEY}}
     - run: echo "should_update_stage0=yes" >> "$GITHUB_ENV"
@@ -47,7 +47,7 @@ jobs:
     #  uses: DeterminateSystems/magic-nix-cache-action@v2
     - if: env.should_update_stage0 == 'yes'
       name: Restore Build Cache
-      uses: actions/cache/restore@v3
+      uses: actions/cache/restore@v4
       with:
         path: nix-store-cache
         key: Nix Linux-nix-store-cache-${{ github.sha }}

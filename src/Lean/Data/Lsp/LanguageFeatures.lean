@@ -333,8 +333,8 @@ def SemanticTokenType.names : Array String :=
     "event", "method", "macro", "modifier", "comment", "string", "number",
     "regexp", "operator", "decorator", "leanSorryLike"]
 
-def SemanticTokenType.toNat (type : SemanticTokenType) : Nat :=
-  type.toCtorIdx
+def SemanticTokenType.toNat (tokenType : SemanticTokenType) : Nat :=
+  tokenType.toCtorIdx
 
 -- sanity check
 -- TODO: restore after update-stage0

@@ -13,8 +13,8 @@ def tst1 : MetaM Unit := do
 let cinfo ← getConstInfo `simple
 let mvar  ← mkFreshExprSyntheticOpaqueMVar cinfo.type
 let mvarId := mvar.mvarId!
-let (_, mvarId) ← introN mvarId 4
-assumption mvarId
+let (_, mvarId) ← mvarId.introN 4
+mvarId.assumption
 let result ← instantiateMVars mvar
 print result
 

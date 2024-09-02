@@ -46,6 +46,11 @@ extraDepTargets = []
 supportInterpreter = false
 
 [[require]]
+name = "baz"
+scope = "foo"
+version = "git#abcdef"
+
+[[require]]
 name = "foo"
 path = "-"
 

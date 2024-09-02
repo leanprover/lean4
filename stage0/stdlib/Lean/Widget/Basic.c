@@ -41,7 +41,7 @@ static lean_object* _init_l_Lean_Widget_instImpl____x40_Lean_Widget_Basic___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -49,7 +49,7 @@ static lean_object* _init_l_Lean_Widget_instImpl____x40_Lean_Widget_Basic___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -57,7 +57,7 @@ static lean_object* _init_l_Lean_Widget_instImpl____x40_Lean_Widget_Basic___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("InfoWithCtx", 11);
+x_1 = lean_mk_string_unchecked("InfoWithCtx", 11, 11);
 return x_1;
 }
 }
@@ -92,7 +92,7 @@ static lean_object* _init_l_Lean_Widget_instImpl____x40_Lean_Widget_Basic___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("MessageData", 11);
+x_1 = lean_mk_string_unchecked("MessageData", 11, 11);
 return x_1;
 }
 }
@@ -126,7 +126,7 @@ static lean_object* _init_l_Lean_Widget_instImpl____x40_Lean_Widget_Basic___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("LocalContext", 12);
+x_1 = lean_mk_string_unchecked("LocalContext", 12, 12);
 return x_1;
 }
 }
@@ -160,7 +160,7 @@ static lean_object* _init_l_Lean_Widget_instImpl____x40_Lean_Widget_Basic___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ContextInfo", 11);
+x_1 = lean_mk_string_unchecked("ContextInfo", 11, 11);
 return x_1;
 }
 }
@@ -195,7 +195,7 @@ static lean_object* _init_l_Lean_Widget_instImpl____x40_Lean_Widget_Basic___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("TermInfo", 8);
+x_1 = lean_mk_string_unchecked("TermInfo", 8, 8);
 return x_1;
 }
 }

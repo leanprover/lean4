@@ -1,1 +1,2 @@
-import Lib.Y
+-- Import a missing module within a Lake library
+import Lib.Bogus

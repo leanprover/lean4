@@ -75,7 +75,7 @@ See #2572.
 opaque Internal.hasLLVMBackend (u : Unit) : Bool
 
 /-- Valid identifier names -/
-def isGreek (c : Char) : Bool :=
+@[inline] def isGreek (c : Char) : Bool :=
   0x391 ≤ c.val && c.val ≤ 0x3dd
 
 def isLetterLike (c : Char) : Bool :=
@@ -86,7 +86,7 @@ def isLetterLike (c : Char) : Bool :=
   (0x2100 ≤ c.val && c.val ≤ 0x214f) ||                                  -- Letter like block
   (0x1d49c ≤ c.val && c.val ≤ 0x1d59f)                                   -- Latin letters, Script, Double-struck, Fractur
 
-def isNumericSubscript (c : Char) : Bool :=
+@[inline] def isNumericSubscript (c : Char) : Bool :=
   0x2080 ≤ c.val && c.val ≤ 0x2089
 
 def isSubScriptAlnum (c : Char) : Bool :=
@@ -94,16 +94,16 @@ def isSubScriptAlnum (c : Char) : Bool :=
   (0x2090 ≤ c.val && c.val ≤ 0x209c) ||
   (0x1d62 ≤ c.val && c.val ≤ 0x1d6a)
 
-def isIdFirst (c : Char) : Bool :=
+@[inline] def isIdFirst (c : Char) : Bool :=
   c.isAlpha || c = '_' || isLetterLike c
 
-def isIdRest (c : Char) : Bool :=
+@[inline] def isIdRest (c : Char) : Bool :=
   c.isAlphanum || c = '_' || c = '\'' || c == '!' || c == '?' || isLetterLike c || isSubScriptAlnum c
 
 def idBeginEscape := '«'
 def idEndEscape   := '»'
-def isIdBeginEscape (c : Char) : Bool := c = idBeginEscape
-def isIdEndEscape (c : Char) : Bool := c = idEndEscape
+@[inline] def isIdBeginEscape (c : Char) : Bool := c = idBeginEscape
+@[inline] def isIdEndEscape (c : Char) : Bool := c = idEndEscape
 namespace Name
 
 def getRoot : Name → Name
@@ -388,9 +388,9 @@ def getSubstring? (stx : Syntax) (withLeading := true) (withTrailing := true) : 
 partial def setTailInfoAux (info : SourceInfo) : Syntax → Option Syntax
   | atom _ val             => some <| atom info val
   | ident _ rawVal val pre => some <| ident info rawVal val pre
-  | node info k args       =>
+  | node info' k args      =>
     match updateLast args (setTailInfoAux info) args.size with
-    | some args => some <| node info k args
+    | some args => some <| node info' k args
     | none      => none
   | _                      => none
 
@@ -399,9 +399,16 @@ def setTailInfo (stx : Syntax) (info : SourceInfo) : Syntax :=
   | some stx => stx
   | none     => stx
 
+/--
+Replaces the trailing whitespace in `stx`, if any, with an empty substring.
+
+The trailing substring's `startPos` and `str` are preserved in order to ensure that the result could
+have been produced by the parser, in case any syntax consumers rely on such an assumption.
+-/
 def unsetTrailing (stx : Syntax) : Syntax :=
   match stx.getTailInfo with
-  | SourceInfo.original lead pos _ endPos => stx.setTailInfo (SourceInfo.original lead pos "".toSubstring endPos)
+  | SourceInfo.original lead pos trail endPos =>
+    stx.setTailInfo (SourceInfo.original lead pos { trail with stopPos := trail.startPos } endPos)
   | _                                     => stx
 
 @[specialize] private partial def updateFirst {α} [Inhabited α] (a : Array α) (f : α → Option α) (i : Nat) : Option (Array α) :=
@@ -1278,12 +1285,46 @@ def Occurrences.isAll : Occurrences → Bool
   | all => true
   | _   => false
 
+/--
+Controls which new mvars are turned in to goals by the `apply` tactic.
+- `nonDependentFirst`  mvars that don't depend on other goals appear first in the goal list.
+- `nonDependentOnly` only mvars that don't depend on other goals are added to goal list.
+- `all` all unassigned mvars are added to the goal list.
+-/
+-- TODO: Consider renaming to `Apply.NewGoals`
+inductive ApplyNewGoals where
+  | nonDependentFirst | nonDependentOnly | all
+
+/-- Configures the behaviour of the `apply` tactic. -/
+-- TODO: Consider renaming to `Apply.Config`
+structure ApplyConfig where
+  newGoals := ApplyNewGoals.nonDependentFirst
+  /--
+  If `synthAssignedInstances` is `true`, then `apply` will synthesize instance implicit arguments
+  even if they have assigned by `isDefEq`, and then check whether the synthesized value matches the
+  one inferred. The `congr` tactic sets this flag to false.
+  -/
+  synthAssignedInstances := true
+  /--
+  If `allowSynthFailures` is `true`, then `apply` will return instance implicit arguments
+  for which typeclass search failed as new goals.
+  -/
+  allowSynthFailures := false
+  /--
+  If `approx := true`, then we turn on `isDefEq` approximations. That is, we use
+  the `approxDefEq` combinator.
+  -/
+  approx : Bool := true
+
 namespace Rewrite
 
+abbrev NewGoals := ApplyNewGoals
+
 structure Config where
-  transparency : TransparencyMode := TransparencyMode.reducible
+  transparency : TransparencyMode := .reducible
   offsetCnstrs : Bool := true
-  occs : Occurrences := Occurrences.all
+  occs : Occurrences := .all
+  newGoals : NewGoals := .nonDependentFirst
 
 end Rewrite
 

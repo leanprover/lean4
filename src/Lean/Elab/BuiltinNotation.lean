@@ -205,7 +205,7 @@ private def elabTParserMacroAux (prec lhsPrec e : Term) : TermElabM Syntax := do
   | _                                        => Macro.throwUnsupported
 
 @[builtin_term_elab «sorry»] def elabSorry : TermElab := fun stx expectedType? => do
-  let stxNew ← `(@sorryAx _ false) -- Remark: we use `@` to ensure `sorryAx` will not consume auot params
+  let stxNew ← `(@sorryAx _ false) -- Remark: we use `@` to ensure `sorryAx` will not consume auto params
   withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
 
 /-- Return syntax `Prod.mk elems[0] (Prod.mk elems[1] ... (Prod.mk elems[elems.size - 2] elems[elems.size - 1])))` -/
@@ -220,6 +220,31 @@ partial def mkPairs (elems : Array Term) : MacroM Term :=
       pure acc
   loop (elems.size - 1) elems.back
 
+/-- Return syntax `PProd.mk elems[0] (PProd.mk elems[1] ... (PProd.mk elems[elems.size - 2] elems[elems.size - 1])))` -/
+partial def mkPPairs (elems : Array Term) : MacroM Term :=
+  let rec loop (i : Nat) (acc : Term) := do
+    if i > 0 then
+      let i    := i - 1
+      let elem := elems[i]!
+      let acc ← `(PProd.mk $elem $acc)
+      loop i acc
+    else
+      pure acc
+  loop (elems.size - 1) elems.back
+
+/-- Return syntax `MProd.mk elems[0] (MProd.mk elems[1] ... (MProd.mk elems[elems.size - 2] elems[elems.size - 1])))` -/
+partial def mkMPairs (elems : Array Term) : MacroM Term :=
+  let rec loop (i : Nat) (acc : Term) := do
+    if i > 0 then
+      let i    := i - 1
+      let elem := elems[i]!
+      let acc ← `(MProd.mk $elem $acc)
+      loop i acc
+    else
+      pure acc
+  loop (elems.size - 1) elems.back
+
+
 open Parser in
 partial def hasCDot : Syntax → Bool
   | Syntax.node _ k args =>
@@ -232,31 +257,52 @@ partial def hasCDot : Syntax → Bool
   Return `some` if succeeded expanding `·` notation occurring in
   the given syntax. Otherwise, return `none`.
   Examples:
-  - `· + 1` => `fun _a_1 => _a_1 + 1`
-  - `f · · b` => `fun _a_1 _a_2 => f _a_1 _a_2 b` -/
+  - `· + 1` => `fun x => x + 1`
+  - `f · · b` => `fun x1 x2 => f x1 x2 b` -/
 partial def expandCDot? (stx : Term) : MacroM (Option Term) := do
   if hasCDot stx then
-    let (newStx, binders) ← (go stx).run #[]
-    `(fun $binders* => $(⟨newStx⟩))
+    withFreshMacroScope do
+      let mut (newStx, binders) ← (go stx).run #[]
+      if binders.size == 1 then
+        -- It is nicer using `x` over `x1` if there's only a single binder.
+        let x1 := binders[0]!
+        let x := mkIdentFrom x1 (← MonadQuotation.addMacroScope `x) (canonical := true)
+        binders := binders.set! 0 x
+        newStx ← newStx.replaceM fun s => pure (if s == x1 then x else none)
+      `(fun $binders* => $(⟨newStx⟩))
   else
     pure none
 where
   /--
-    Auxiliary function for expanding the `·` notation.
-    The extra state `Array Syntax` contains the new binder names.
-    If `stx` is a `·`, we create a fresh identifier, store in the
-    extra state, and return it. Otherwise, we just return `stx`. -/
+  Auxiliary function for expanding the `·` notation.
+  The extra state `Array Syntax` contains the new binder names.
+  If `stx` is a `·`, we create a fresh identifier, store it in the
+  extra state, and return it. Otherwise, we just return `stx`.
+  -/
   go : Syntax → StateT (Array Ident) MacroM Syntax
-    | stx@`(($(_))) => pure stx
-    | stx@`(·) => withFreshMacroScope do
-      let id ← mkFreshIdent stx (canonical := true)
-      modify (·.push id)
-      pure id
-    | stx => match stx with
-      | .node _ k args => do
-        let args ← args.mapM go
-        return .node (.fromRef stx (canonical := true)) k args
-      | _ => pure stx
+  | stx@`(($(_))) => pure stx
+  | stx@`(·) => do
+    let name ← MonadQuotation.addMacroScope <| Name.mkSimple s!"x{(← get).size + 1}"
+    let id := mkIdentFrom stx name (canonical := true)
+    modify (fun s => s.push id)
+    pure id
+  | stx => match stx with
+    | .node _ k args => do
+      let args ←
+        if k == choiceKind then
+          if args.isEmpty then
+            return stx
+          let s ← get
+          let args' ← args.mapM (fun arg => go arg |>.run s)
+          let s' := args'[0]!.2
+          unless args'.all (fun (_, s'') => s''.size == s'.size) do
+            Macro.throwErrorAt stx "Ambiguous notation in cdot function has different numbers of '·' arguments in each alternative."
+          set s'
+          pure <| args'.map Prod.fst
+        else
+          args.mapM go
+      return .node (.fromRef stx (canonical := true)) k args
+    | _ => pure stx
 
 /--
   Helper method for elaborating terms such as `(.+.)` where a constant name is expected.

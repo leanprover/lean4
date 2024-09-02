@@ -30,7 +30,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("compiler", 8);
+x_1 = lean_mk_string_unchecked("compiler", 8, 8);
 return x_1;
 }
 }
@@ -38,7 +38,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("check", 5);
+x_1 = lean_mk_string_unchecked("check", 5, 5);
 return x_1;
 }
 }
@@ -56,7 +56,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("type check code after each compiler step (this is useful for debugging purses)", 78);
+x_1 = lean_mk_string_unchecked("type check code after each compiler step (this is useful for debugging purses)", 78, 78);
 return x_1;
 }
 }
@@ -79,7 +79,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -87,7 +87,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Compiler", 8);
+x_1 = lean_mk_string_unchecked("Compiler", 8, 8);
 return x_1;
 }
 }

@@ -148,7 +148,7 @@ static lean_object* _init_l_Lean_instInhabitedLeanOptionValue___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -174,7 +174,7 @@ static lean_object* _init_l___private_Lean_Util_LeanOptions_0__Lean_reprLeanOpti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.LeanOptionValue.ofString", 29);
+x_1 = lean_mk_string_unchecked("Lean.LeanOptionValue.ofString", 29, 29);
 return x_1;
 }
 }
@@ -222,7 +222,7 @@ static lean_object* _init_l___private_Lean_Util_LeanOptions_0__Lean_reprLeanOpti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.LeanOptionValue.ofBool", 27);
+x_1 = lean_mk_string_unchecked("Lean.LeanOptionValue.ofBool", 27, 27);
 return x_1;
 }
 }
@@ -252,7 +252,7 @@ static lean_object* _init_l___private_Lean_Util_LeanOptions_0__Lean_reprLeanOpti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("false", 5);
+x_1 = lean_mk_string_unchecked("false", 5, 5);
 return x_1;
 }
 }
@@ -306,7 +306,7 @@ static lean_object* _init_l___private_Lean_Util_LeanOptions_0__Lean_reprLeanOpti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("true", 4);
+x_1 = lean_mk_string_unchecked("true", 4, 4);
 return x_1;
 }
 }
@@ -408,7 +408,7 @@ static lean_object* _init_l___private_Lean_Util_LeanOptions_0__Lean_reprLeanOpti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.LeanOptionValue.ofNat", 26);
+x_1 = lean_mk_string_unchecked("Lean.LeanOptionValue.ofNat", 26, 26);
 return x_1;
 }
 }
@@ -919,7 +919,7 @@ static lean_object* _init_l_Lean_instFromJsonLeanOptionValue___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid LeanOptionValue type", 28);
+x_1 = lean_mk_string_unchecked("invalid LeanOptionValue type", 28, 28);
 return x_1;
 }
 }
@@ -1175,7 +1175,7 @@ static lean_object* _init_l_Lean_LeanOptionValue_asCliFlagValue___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\"", 1);
+x_1 = lean_mk_string_unchecked("\"", 1, 1);
 return x_1;
 }
 }
@@ -1275,7 +1275,7 @@ static lean_object* _init_l_Prod_repr___at___private_Lean_Util_LeanOptions_0__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -1305,7 +1305,7 @@ static lean_object* _init_l_Prod_repr___at___private_Lean_Util_LeanOptions_0__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -1341,7 +1341,7 @@ static lean_object* _init_l_Prod_repr___at___private_Lean_Util_LeanOptions_0__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -1544,7 +1544,7 @@ static lean_object* _init_l_List_repr___at___private_Lean_Util_LeanOptions_0__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[]", 2);
+x_1 = lean_mk_string_unchecked("[]", 2, 2);
 return x_1;
 }
 }
@@ -1562,7 +1562,7 @@ static lean_object* _init_l_List_repr___at___private_Lean_Util_LeanOptions_0__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -1598,7 +1598,7 @@ static lean_object* _init_l_List_repr___at___private_Lean_Util_LeanOptions_0__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -1682,7 +1682,7 @@ static lean_object* _init_l___private_Lean_Util_LeanOptions_0__Lean_reprLeanOpti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("values", 6);
+x_1 = lean_mk_string_unchecked("values", 6, 6);
 return x_1;
 }
 }
@@ -1712,7 +1712,7 @@ static lean_object* _init_l___private_Lean_Util_LeanOptions_0__Lean_reprLeanOpti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" := ", 4);
+x_1 = lean_mk_string_unchecked(" := ", 4, 4);
 return x_1;
 }
 }
@@ -1751,7 +1751,7 @@ static lean_object* _init_l___private_Lean_Util_LeanOptions_0__Lean_reprLeanOpti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.rbmapOf ", 13);
+x_1 = lean_mk_string_unchecked("Lean.rbmapOf ", 13, 13);
 return x_1;
 }
 }
@@ -1769,7 +1769,7 @@ static lean_object* _init_l___private_Lean_Util_LeanOptions_0__Lean_reprLeanOpti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("{ ", 2);
+x_1 = lean_mk_string_unchecked("{ ", 2, 2);
 return x_1;
 }
 }
@@ -1805,7 +1805,7 @@ static lean_object* _init_l___private_Lean_Util_LeanOptions_0__Lean_reprLeanOpti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" }", 2);
+x_1 = lean_mk_string_unchecked(" }", 2, 2);
 return x_1;
 }
 }
@@ -4676,7 +4676,7 @@ static lean_object* _init_l_Lean_instFromJsonLeanOptions___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid LeanOptions type", 24);
+x_1 = lean_mk_string_unchecked("invalid LeanOptions type", 24, 24);
 return x_1;
 }
 }

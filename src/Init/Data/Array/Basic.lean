@@ -50,6 +50,13 @@ instance : Inhabited (Array α) where
 def singleton (v : α) : Array α :=
   mkArray 1 v
 
+/-- Low-level version of `size` that directly queries the C array object cached size.
+    While this is not provable, `usize` always returns the exact size of the array since
+    the implementation only supports arrays of size less than `USize.size`.
+-/
+@[extern "lean_array_size", simp]
+def usize (a : @& Array α) : USize := a.size.toUSize
+
 /-- Low-level version of `fget` which is as fast as a C array read.
    `Fin` values are represented as tag pointers in the Lean runtime. Thus,
    `fget` may be slightly slower than `uget`. -/
@@ -59,8 +66,6 @@ def uget (a : @& Array α) (i : USize) (h : i.toNat < a.size) : α :=
 
 instance : GetElem (Array α) USize α fun xs i => i.toNat < xs.size where
   getElem xs i h := xs.uget i h
-
-instance : LawfulGetElem (Array α) USize α fun xs i => i.toNat < xs.size where
 
 def back [Inhabited α] (a : Array α) : α :=
   a.get! (a.size - 1)
@@ -103,7 +108,7 @@ def swap (a : Array α) (i j : @& Fin a.size) : Array α :=
   a'.set (size_set a i v₂ ▸ j) v₁
 
 /--
-Swaps two entries in an array, or panics if either index is out of bounds.
+Swaps two entries in an array, or returns the array unchanged if either index is out of bounds.
 
 This will perform the update destructively provided that `a` has a reference
 count of 1 when called.
@@ -176,7 +181,7 @@ def modifyOp (self : Array α) (idx : Nat) (f : α → α) : Array α :=
 
   This kind of low level trick can be removed with a little bit of compiler support. For example, if the compiler simplifies `as.size < usizeSz` to true. -/
 @[inline] unsafe def forInUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
-  let sz := USize.ofNat as.size
+  let sz := as.usize
   let rec @[specialize] loop (i : USize) (b : β) : m β := do
     if i < sz then
       let a := as.uget i lcProof
@@ -282,7 +287,7 @@ def foldrM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α
 /-- See comment at `forInUnsafe` -/
 @[inline]
 unsafe def mapMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m β) (as : Array α) : m (Array β) :=
-  let sz := USize.ofNat as.size
+  let sz := as.usize
   let rec @[specialize] map (i : USize) (r : Array NonScalar) : m (Array PNonScalar.{v}) := do
     if i < sz then
      let v    := r.uget i lcProof
@@ -481,7 +486,7 @@ def all (as : Array α) (p : α → Bool) (start := 0) (stop := as.size) : Bool 
   Id.run <| as.allM p start stop
 
 def contains [BEq α] (as : Array α) (a : α) : Bool :=
-  as.any fun b => a == b
+  as.any (· == a)
 
 def elem [BEq α] (a : α) (as : Array α) : Bool :=
   as.contains a

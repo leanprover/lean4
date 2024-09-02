@@ -1,3 +1,3 @@
 kernelMVarBug.lean:5:15-5:20: error: failed to synthesize
   HAdd α α α
-use `set_option diagnostics true` to get diagnostic information
+Additional diagnostic information may be available using the `set_option diagnostics true` command.

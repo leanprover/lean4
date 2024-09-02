@@ -341,13 +341,13 @@ def mkSimpOnly (stx : Syntax) (usedSimps : Simp.UsedSimps) : MetaM Syntax := do
   let mut localsOrStar := some #[]
   let lctx ← getLCtx
   let env ← getEnv
-  for (thm, _) in usedSimps.toArray.qsort (·.2 < ·.2) do
+  for thm in usedSimps.toArray do
     match thm with
     | .decl declName post inv => -- global definitions in the environment
       if env.contains declName
          && (inv || !simpOnlyBuiltins.contains declName)
          && !Match.isMatchEqnTheorem env declName then
-        let decl : Term ← `($(mkIdent (← unresolveNameGlobal declName)):ident)
+        let decl : Term ← `($(mkIdent (← unresolveNameGlobalAvoidingLocals declName)):ident)
         let arg ← match post, inv with
           | true,  true  => `(Parser.Tactic.simpLemma| ← $decl:term)
           | true,  false => `(Parser.Tactic.simpLemma| $decl:term)

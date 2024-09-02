@@ -201,7 +201,7 @@ static lean_object* _init_l_Lean_ParserCompiler_instInhabitedCombinatorAttribute
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -466,7 +466,7 @@ static lean_object* _init_l___auto____x40_Lean_ParserCompiler_Attribute___hyg_50
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -474,7 +474,7 @@ static lean_object* _init_l___auto____x40_Lean_ParserCompiler_Attribute___hyg_50
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -482,7 +482,7 @@ static lean_object* _init_l___auto____x40_Lean_ParserCompiler_Attribute___hyg_50
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -490,7 +490,7 @@ static lean_object* _init_l___auto____x40_Lean_ParserCompiler_Attribute___hyg_50
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq", 9);
+x_1 = lean_mk_string_unchecked("tacticSeq", 9, 9);
 return x_1;
 }
 }
@@ -510,7 +510,7 @@ static lean_object* _init_l___auto____x40_Lean_ParserCompiler_Attribute___hyg_50
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq1Indented", 18);
+x_1 = lean_mk_string_unchecked("tacticSeq1Indented", 18, 18);
 return x_1;
 }
 }
@@ -530,7 +530,7 @@ static lean_object* _init_l___auto____x40_Lean_ParserCompiler_Attribute___hyg_50
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -548,7 +548,7 @@ static lean_object* _init_l___auto____x40_Lean_ParserCompiler_Attribute___hyg_50
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("exact", 5);
+x_1 = lean_mk_string_unchecked("exact", 5, 5);
 return x_1;
 }
 }
@@ -590,7 +590,7 @@ static lean_object* _init_l___auto____x40_Lean_ParserCompiler_Attribute___hyg_50
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -598,7 +598,7 @@ static lean_object* _init_l___auto____x40_Lean_ParserCompiler_Attribute___hyg_50
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declName", 8);
+x_1 = lean_mk_string_unchecked("declName", 8, 8);
 return x_1;
 }
 }
@@ -618,7 +618,7 @@ static lean_object* _init_l___auto____x40_Lean_ParserCompiler_Attribute___hyg_50
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("decl_name%", 10);
+x_1 = lean_mk_string_unchecked("decl_name%", 10, 10);
 return x_1;
 }
 }
@@ -1097,7 +1097,7 @@ static lean_object* _init_l_Lean_ParserCompiler_registerCombinatorAttribute___la
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attribute cannot be erased", 26);
+x_1 = lean_mk_string_unchecked("attribute cannot be erased", 26, 26);
 return x_1;
 }
 }
@@ -1532,7 +1532,7 @@ static lean_object* _init_l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no declaration of attribute [", 29);
+x_1 = lean_mk_string_unchecked("no declaration of attribute [", 29, 29);
 return x_1;
 }
 }
@@ -1549,7 +1549,7 @@ static lean_object* _init_l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("] found for '", 13);
+x_1 = lean_mk_string_unchecked("] found for '", 13, 13);
 return x_1;
 }
 }
@@ -1566,7 +1566,7 @@ static lean_object* _init_l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }

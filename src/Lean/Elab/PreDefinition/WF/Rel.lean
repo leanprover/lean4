@@ -9,7 +9,7 @@ import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.Rename
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.WF.TerminationArgument
+import Lean.Elab.PreDefinition.TerminationArgument
 import Lean.Meta.ArgsPacker
 
 namespace Lean.Elab.WF

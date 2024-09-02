@@ -23,8 +23,10 @@ instance [Monad m] : MonadStore κ α (StateT (RBArray κ α cmp) m) where
   fetch? k := return (← get).find? k
   store k a := modify (·.insert k a)
 
-instance [Monad m] : MonadStore Name α (StateT (NameMap α) m) :=
-  inferInstanceAs (MonadStore _ _ (StateT (RBMap ..) _))
+-- uses the eagerly specialized `RBMap` functions in `NameMap`
+instance [Monad m] : MonadStore Name α (StateT (NameMap α) m) where
+  fetch? k := return (← get).find? k
+  store k a := modify (·.insert k a)
 
 @[inline] instance [MonadDStore κ β m] [t : FamilyOut β k α] : MonadStore1Of k α m where
   fetch? := cast (by rw [t.family_key_eq_type]) <| fetch? (m := m) k

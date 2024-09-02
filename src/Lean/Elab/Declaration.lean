@@ -184,7 +184,7 @@ def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
   elabInductiveViews #[v]
 
 def elabClassInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
-  let modifiers := modifiers.addAttribute { name := `class }
+  let modifiers := modifiers.addAttr { name := `class }
   let v ← classInductiveSyntaxToView modifiers stx
   elabInductiveViews #[v]
 

@@ -19,11 +19,9 @@ namespace Ex1
 def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100
 termination_by (n, m)
 decreasing_by
-  · simp_wf
-    apply Prod.Lex.right
+  · apply Prod.Lex.right
     apply dec2_lt
-  · simp_wf
-    apply Prod.Lex.left
+  · apply Prod.Lex.left
     apply dec1_lt
 
 end Ex1
@@ -35,11 +33,9 @@ namespace Ex2
 -- so this tactic script fails.
 def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100 -- Error
 decreasing_by
-  · simp_wf
-    apply Prod.Lex.right
+  · apply Prod.Lex.right
     apply dec2_lt
-  · simp_wf
-    apply Prod.Lex.left
+  · apply Prod.Lex.left
     apply dec1_lt
 
 end Ex2
@@ -49,7 +45,6 @@ namespace Ex3
 def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100
 termination_by (n, m)
 decreasing_by all_goals
-  simp_wf
   first
     | apply Prod.Lex.right
       apply dec2_lt
@@ -62,10 +57,9 @@ namespace Ex4
 
 -- Multiple goals, no termination_By
 -- This does work, because the tactic is flexible enough
--- (Not a recommended way; complex `decrasing_by` should go along with `termination_by`.)
+-- (Not a recommended way; complex `decreasing_by` should go along with `termination_by`.)
 def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100 -- Error
 decreasing_by all_goals
-  simp_wf
   first
     | apply Prod.Lex.right
       apply dec2_lt
@@ -108,8 +102,7 @@ namespace Ex8
 def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100
 termination_by (n, m)
 decreasing_by -- Error
-  · simp_wf
-    apply Prod.Lex.right
+  · apply Prod.Lex.right
     apply dec2_lt
 
 end Ex8
@@ -120,8 +113,7 @@ namespace Ex9
 -- Shows guess-lex matrix
 def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100 -- Error
 decreasing_by
-  · simp_wf
-    apply Prod.Lex.right
+  · apply Prod.Lex.right
     apply dec2_lt
 
 end Ex9
@@ -132,7 +124,6 @@ namespace Ex10
 -- (If it would it would produce the wrong termination order and then we should see errors)
 def foo (n m : Nat) : Nat := foo (n - 1) (dec2 m)
 decreasing_by all_goals
-  · simp_wf
-    apply dec2_lt
+  · apply dec2_lt
 
 end Ex10

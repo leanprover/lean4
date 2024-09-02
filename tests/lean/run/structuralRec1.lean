@@ -1,3 +1,5 @@
+set_option linter.unusedVariables false
+
 inductive PList (α : Type) : Prop
 | nil
 | cons : α → PList α → PList α
@@ -85,6 +87,7 @@ else
   match ys with
   | PList.nil    => PList.nil
   | y:::ys => (y + x/2 + 1) ::: pbla (x/2) ys
+termination_by structural ys
 
 theorem blaEq (y : Nat) (ys : List Nat) : bla 4 (y::ys) = (y+2) :: bla 2 ys :=
 rfl
@@ -181,11 +184,13 @@ match n, m, hn with
 | _, _, is_nat_T.S is_nat_T.Z => TF1
 | _, m, is_nat_T.S (is_nat_T.S h) => TFS («reordered discriminants, type» _ h m)
 
+
 theorem «reordered discriminants» : ∀ n, is_nat n → Nat → P n := fun n hn m =>
 match n, m, hn with
 | _, _, is_nat.Z => F0
 | _, _, is_nat.S is_nat.Z => F1
 | _, m, is_nat.S (is_nat.S h) => FS («reordered discriminants» _ h m)
+termination_by structural _ n => n
 
 /-- known unsupported case for types, just here for reference. -/
 -- def «unsupported nesting» (xs : List Nat) : True :=

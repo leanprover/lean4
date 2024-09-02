@@ -23,8 +23,8 @@ structure Module where
 instance : Hashable Module where hash m := hash m.keyName
 instance : BEq Module where beq m n := m.keyName == n.keyName
 
-abbrev ModuleSet := HashSet Module
-@[inline] def ModuleSet.empty : ModuleSet := HashSet.empty
+abbrev ModuleSet := Std.HashSet Module
+@[inline] def ModuleSet.empty : ModuleSet := Std.HashSet.empty
 
 abbrev OrdModuleSet := OrdHashSet Module
 @[inline] def OrdModuleSet.empty : OrdModuleSet := OrdHashSet.empty
@@ -80,9 +80,6 @@ abbrev pkg (self : Module) : Package :=
 @[inline] def ileanFile (self : Module) : FilePath :=
   self.leanLibPath "ilean"
 
-@[inline] def logFile (self : Module) : FilePath :=
-  self.leanLibPath "log.json"
-
 @[inline] def traceFile (self : Module) : FilePath :=
   self.leanLibPath "trace"
 
@@ -100,6 +97,9 @@ abbrev pkg (self : Module) : Package :=
 
 @[inline] def bcFile (self : Module) : FilePath :=
   self.irPath "bc"
+
+def bcFile? (self : Module) : Option FilePath :=
+  if Lean.Internal.hasLLVMBackend () then some self.bcFile else none
 
 @[inline] def bcoFile (self : Module) : FilePath :=
   self.irPath "bc.o"

@@ -36,7 +36,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalDelta___boxed(lean_object*, lean
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_deltaTarget(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalDelta___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-size_t lean_usize_of_nat(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalDelta__1___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_deltaLocalDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalDelta___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -72,9 +71,9 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_deltaTarget___lambda__1(lean_object*
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalDelta_declRange__1___closed__1;
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
+size_t lean_array_size(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalDelta_declRange__1___closed__6;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_MVarId_replaceLocalDeclDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalDelta__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_deltaTarget___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -149,7 +148,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_deltaLocalDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("delta", 5);
+x_1 = lean_mk_string_unchecked("delta", 5, 5);
 return x_1;
 }
 }
@@ -167,7 +166,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_deltaLocalDecl___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("did not delta reduce ", 21);
+x_1 = lean_mk_string_unchecked("did not delta reduce ", 21, 21);
 return x_1;
 }
 }
@@ -184,7 +183,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_deltaLocalDecl___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" at ", 4);
+x_1 = lean_mk_string_unchecked(" at ", 4, 4);
 return x_1;
 }
 }
@@ -201,7 +200,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_deltaLocalDecl___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -792,45 +791,43 @@ return x_22;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalDelta(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; size_t x_15; size_t x_16; lean_object* x_17; 
+lean_object* x_11; lean_object* x_12; lean_object* x_13; size_t x_14; size_t x_15; lean_object* x_16; 
 x_11 = lean_unsigned_to_nat(1u);
 x_12 = l_Lean_Syntax_getArg(x_1, x_11);
 x_13 = l_Lean_Syntax_getArgs(x_12);
 lean_dec(x_12);
-x_14 = lean_array_get_size(x_13);
-x_15 = lean_usize_of_nat(x_14);
-lean_dec(x_14);
-x_16 = 0;
+x_14 = lean_array_size(x_13);
+x_15 = 0;
 lean_inc(x_9);
 lean_inc(x_8);
-x_17 = l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_evalDelta___spec__1(x_15, x_16, x_13, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-if (lean_obj_tag(x_17) == 0)
+x_16 = l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_evalDelta___spec__1(x_14, x_15, x_13, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+if (lean_obj_tag(x_16) == 0)
 {
-lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
-x_18 = lean_ctor_get(x_17, 0);
+lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+x_17 = lean_ctor_get(x_16, 0);
+lean_inc(x_17);
+x_18 = lean_ctor_get(x_16, 1);
 lean_inc(x_18);
-x_19 = lean_ctor_get(x_17, 1);
-lean_inc(x_19);
-lean_dec(x_17);
-x_20 = lean_unsigned_to_nat(2u);
-x_21 = l_Lean_Syntax_getArg(x_1, x_20);
-x_22 = l_Lean_Elab_Tactic_expandOptLocation(x_21);
+lean_dec(x_16);
+x_19 = lean_unsigned_to_nat(2u);
+x_20 = l_Lean_Syntax_getArg(x_1, x_19);
+x_21 = l_Lean_Elab_Tactic_expandOptLocation(x_20);
+lean_dec(x_20);
+lean_inc(x_17);
+x_22 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_deltaLocalDecl___boxed), 11, 1);
+lean_closure_set(x_22, 0, x_17);
+lean_inc(x_17);
+x_23 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_deltaTarget___boxed), 10, 1);
+lean_closure_set(x_23, 0, x_17);
+x_24 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_evalDelta___lambda__1___boxed), 11, 1);
+lean_closure_set(x_24, 0, x_17);
+x_25 = l_Lean_Elab_Tactic_withLocation(x_21, x_22, x_23, x_24, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_18);
 lean_dec(x_21);
-lean_inc(x_18);
-x_23 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_deltaLocalDecl___boxed), 11, 1);
-lean_closure_set(x_23, 0, x_18);
-lean_inc(x_18);
-x_24 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_deltaTarget___boxed), 10, 1);
-lean_closure_set(x_24, 0, x_18);
-x_25 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_evalDelta___lambda__1___boxed), 11, 1);
-lean_closure_set(x_25, 0, x_18);
-x_26 = l_Lean_Elab_Tactic_withLocation(x_22, x_23, x_24, x_25, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_19);
-lean_dec(x_22);
-return x_26;
+return x_25;
 }
 else
 {
-uint8_t x_27; 
+uint8_t x_26; 
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -839,23 +836,23 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_27 = !lean_is_exclusive(x_17);
-if (x_27 == 0)
+x_26 = !lean_is_exclusive(x_16);
+if (x_26 == 0)
 {
-return x_17;
+return x_16;
 }
 else
 {
-lean_object* x_28; lean_object* x_29; lean_object* x_30; 
-x_28 = lean_ctor_get(x_17, 0);
-x_29 = lean_ctor_get(x_17, 1);
-lean_inc(x_29);
+lean_object* x_27; lean_object* x_28; lean_object* x_29; 
+x_27 = lean_ctor_get(x_16, 0);
+x_28 = lean_ctor_get(x_16, 1);
 lean_inc(x_28);
-lean_dec(x_17);
-x_30 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_30, 0, x_28);
-lean_ctor_set(x_30, 1, x_29);
-return x_30;
+lean_inc(x_27);
+lean_dec(x_16);
+x_29 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_29, 0, x_27);
+lean_ctor_set(x_29, 1, x_28);
+return x_29;
 }
 }
 }
@@ -907,7 +904,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalDelta__1___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -915,7 +912,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalDelta__1___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -923,7 +920,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalDelta__1___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -943,7 +940,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalDelta__1___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -951,7 +948,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalDelta__1___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalDelta", 9);
+x_1 = lean_mk_string_unchecked("evalDelta", 9, 9);
 return x_1;
 }
 }
@@ -999,7 +996,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalDelta_docString__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\"delta \" ident+ (location)\? ", 28);
+x_1 = lean_mk_string_unchecked("\"delta \" ident+ (location)\? ", 28, 28);
 return x_1;
 }
 }

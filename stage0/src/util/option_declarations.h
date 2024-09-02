@@ -35,7 +35,7 @@ public:
 };
 
 typedef name_map<option_declaration> option_declarations;
-option_declarations get_option_declarations();
+LEAN_EXPORT option_declarations get_option_declarations();
 void register_option(name const & n, name const & decl_name, data_value_kind k, char const * default_value, char const * description);
 #define register_bool_option(n, v, d) register_option(n, {}, data_value_kind::Bool, LEAN_STR(v), d)
 #define register_unsigned_option(n, v, d) register_option(n, {}, data_value_kind::Nat, LEAN_STR(v), d)

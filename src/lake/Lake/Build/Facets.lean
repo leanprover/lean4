@@ -118,12 +118,15 @@ module_data o.noexport : BuildJob FilePath
 
 /--
 A package's *optional* cloud build release.
-Does not fail if the release cannot be fetched.
+Will not cause the whole build to fail if the release cannot be fetched.
 -/
 abbrev Package.optReleaseFacet := `optRelease
 package_data optRelease : BuildJob Bool
 
-/-- A package's cloud build release. -/
+/--
+A package's cloud build release.
+Will cause the whole build to fail if the release cannot be fetched.
+-/
 abbrev Package.releaseFacet := `release
 package_data release : BuildJob Unit
 

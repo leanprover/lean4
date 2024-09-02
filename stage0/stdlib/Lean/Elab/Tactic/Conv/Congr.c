@@ -71,7 +71,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_congrFunN(lean_object*, lean_ob
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalCongr_declRange__1___closed__3;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalCongr_declRange__1___closed__4;
-lean_object* l_Lean_MVarId_assign___at_Lean_Elab_Tactic_closeMainGoal___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_Tactic_Conv_selectIdx___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -80,9 +79,9 @@ lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_Elab_Tactic_Conv_mkConvGoalFor(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalSkip__1___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalRhs__1___closed__2;
-lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Conv_extLetBodyCongr_x3f___lambda__2___closed__2;
+lean_object* l_Lean_MVarId_assign___at_Lean_Elab_Tactic_refineCore___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalRhs_declRange__1___closed__5;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Conv_congr___lambda__2___closed__4;
@@ -183,9 +182,11 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalFun__1___closed__5;
 static lean_object* l_Lean_Elab_Tactic_Conv_congr___lambda__3___closed__7;
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_filterMapTR_go___at_Lean_Elab_Tactic_Conv_evalCongr___spec__1(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalRhs_declRange__1___closed__3;
 LEAN_EXPORT lean_object* l_List_forIn_loop___at___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_Tactic_Conv_selectIdx___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_outOfBounds___rarg(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalSkip__1___closed__2;
 static lean_object* l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_Tactic_Conv_extCore___lambda__1___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalLhs_declRange__1___closed__6;
@@ -285,7 +286,6 @@ static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Tactic_Conv_congr___sp
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_Tactic_Conv_isImplies(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalFun_declRange__1___closed__3;
-LEAN_EXPORT lean_object* l_List_filterMap___at_Lean_Elab_Tactic_Conv_evalCongr___spec__1(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalArg_declRange__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_congr___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_Tactic_Conv_extCore___lambda__3___closed__1;
@@ -331,6 +331,7 @@ size_t lean_usize_add(size_t, size_t);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalRhs_declRange__1___closed__7;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalFun_declRange__1___closed__7;
 lean_object* lean_array_uget(lean_object*, size_t);
+size_t lean_array_size(lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_evalTactic___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_Tactic_Conv_selectIdx___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -354,7 +355,7 @@ lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_obje
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Elab_Tactic_Conv_evalArg___lambda__1___closed__3;
-lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_Tactic_Conv_selectIdx___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalSkip(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -392,7 +393,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_T
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("implies_congr", 13);
+x_1 = lean_mk_string_unchecked("implies_congr", 13, 13);
 return x_1;
 }
 }
@@ -425,7 +426,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_T
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'apply implies_congr' unexpected result", 39);
+x_1 = lean_mk_string_unchecked("'apply implies_congr' unexpected result", 39, 39);
 return x_1;
 }
 }
@@ -1374,7 +1375,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_Tactic_Conv_cong
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.Tactic.Conv.Congr", 27);
+x_1 = lean_mk_string_unchecked("Lean.Elab.Tactic.Conv.Congr", 27, 27);
 return x_1;
 }
 }
@@ -1382,7 +1383,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_Tactic_Conv_cong
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.Tactic.Conv.congr", 27);
+x_1 = lean_mk_string_unchecked("Lean.Elab.Tactic.Conv.congr", 27, 27);
 return x_1;
 }
 }
@@ -1390,7 +1391,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_Tactic_Conv_cong
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -1460,7 +1461,7 @@ if (x_37 == 0)
 {
 lean_object* x_409; lean_object* x_410; 
 x_409 = l_Lean_instInhabitedExpr;
-x_410 = l___private_Init_GetElem_0__outOfBounds___rarg(x_409);
+x_410 = l_outOfBounds___rarg(x_409);
 x_44 = x_410;
 goto block_408;
 }
@@ -1513,13 +1514,13 @@ if (x_40 == 0)
 {
 lean_object* x_77; lean_object* x_78; 
 x_77 = l_Lean_Meta_instInhabitedParamInfo;
-x_78 = l___private_Init_GetElem_0__outOfBounds___rarg(x_77);
+x_78 = l_outOfBounds___rarg(x_77);
 if (x_43 == 0)
 {
 uint8_t x_79; lean_object* x_80; lean_object* x_81; uint8_t x_82; lean_object* x_83; 
 x_79 = l_Lean_Meta_instInhabitedCongrArgKind;
 x_80 = lean_box(x_79);
-x_81 = l___private_Init_GetElem_0__outOfBounds___rarg(x_80);
+x_81 = l_outOfBounds___rarg(x_80);
 x_82 = lean_unbox(x_81);
 lean_dec(x_81);
 x_83 = lean_box(x_82);
@@ -2496,7 +2497,7 @@ if (x_43 == 0)
 uint8_t x_244; lean_object* x_245; lean_object* x_246; uint8_t x_247; lean_object* x_248; 
 x_244 = l_Lean_Meta_instInhabitedCongrArgKind;
 x_245 = lean_box(x_244);
-x_246 = l___private_Init_GetElem_0__outOfBounds___rarg(x_245);
+x_246 = l_outOfBounds___rarg(x_245);
 x_247 = lean_unbox(x_246);
 lean_dec(x_246);
 x_248 = lean_box(x_247);
@@ -3799,7 +3800,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_congr___lambda__2___closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Eq", 2);
+x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
@@ -3817,7 +3818,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_congr___lambda__2___closed__4(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'congr' conv tactic failed, equality expected", 45);
+x_1 = lean_mk_string_unchecked("'congr' conv tactic failed, equality expected", 45, 45);
 return x_1;
 }
 }
@@ -3834,7 +3835,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_congr___lambda__2___closed__6(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid 'congr' conv tactic, failed to resolve", 46);
+x_1 = lean_mk_string_unchecked("invalid 'congr' conv tactic, failed to resolve", 46, 46);
 return x_1;
 }
 }
@@ -3851,7 +3852,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_congr___lambda__2___closed__8(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\n=\?=", 4);
+x_1 = lean_mk_string_unchecked("\n=\?=", 4, 4);
 return x_1;
 }
 }
@@ -3868,7 +3869,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_congr___lambda__2___closed__10
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -4726,7 +4727,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_congr___lambda__3___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid 'congr' conv tactic, application or implication expected", 64);
+x_1 = lean_mk_string_unchecked("invalid 'congr' conv tactic, application or implication expected", 64, 64);
 return x_1;
 }
 }
@@ -4752,7 +4753,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_congr___lambda__3___closed__4(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'congr' conv tactic failed to create congruence theorem", 55);
+x_1 = lean_mk_string_unchecked("'congr' conv tactic failed to create congruence theorem", 55, 55);
 return x_1;
 }
 }
@@ -4769,7 +4770,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_congr___lambda__3___closed__6(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'congr' conv tactic failed, unexpected number of arguments in congruence theorem", 80);
+x_1 = lean_mk_string_unchecked("'congr' conv tactic failed, unexpected number of arguments in congruence theorem", 80, 80);
 return x_1;
 }
 }
@@ -6021,62 +6022,42 @@ x_11 = l_Lean_Elab_Tactic_Conv_congr(x_1, x_9, x_10, x_4, x_5, x_6, x_7, x_8);
 return x_11;
 }
 }
-LEAN_EXPORT lean_object* l_List_filterMap___at_Lean_Elab_Tactic_Conv_evalCongr___spec__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_List_filterMapTR_go___at_Lean_Elab_Tactic_Conv_evalCongr___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_object* x_2; 
-x_2 = lean_box(0);
-return x_2;
+lean_object* x_3; 
+x_3 = lean_array_to_list(lean_box(0), x_2);
+return x_3;
 }
 else
 {
-lean_object* x_3; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-if (lean_obj_tag(x_3) == 0)
-{
 lean_object* x_4; 
-x_4 = lean_ctor_get(x_1, 1);
+x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_5; 
+x_5 = lean_ctor_get(x_1, 1);
+lean_inc(x_5);
 lean_dec(x_1);
-x_1 = x_4;
+x_1 = x_5;
 goto _start;
 }
 else
 {
-uint8_t x_6; 
-x_6 = !lean_is_exclusive(x_1);
-if (x_6 == 0)
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_7 = lean_ctor_get(x_1, 1);
-x_8 = lean_ctor_get(x_1, 0);
-lean_dec(x_8);
-x_9 = lean_ctor_get(x_3, 0);
-lean_inc(x_9);
-lean_dec(x_3);
-x_10 = l_List_filterMap___at_Lean_Elab_Tactic_Conv_evalCongr___spec__1(x_7);
-lean_ctor_set(x_1, 1, x_10);
-lean_ctor_set(x_1, 0, x_9);
-return x_1;
-}
-else
-{
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_11 = lean_ctor_get(x_1, 1);
-lean_inc(x_11);
+lean_inc(x_7);
 lean_dec(x_1);
-x_12 = lean_ctor_get(x_3, 0);
-lean_inc(x_12);
-lean_dec(x_3);
-x_13 = l_List_filterMap___at_Lean_Elab_Tactic_Conv_evalCongr___spec__1(x_11);
-x_14 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_14, 0, x_12);
-lean_ctor_set(x_14, 1, x_13);
-return x_14;
-}
+x_8 = lean_ctor_get(x_4, 0);
+lean_inc(x_8);
+lean_dec(x_4);
+x_9 = lean_array_push(x_2, x_8);
+x_1 = x_7;
+x_2 = x_9;
+goto _start;
 }
 }
 }
@@ -6103,71 +6084,72 @@ lean_inc(x_5);
 x_15 = l_Lean_Elab_Tactic_Conv_congr(x_11, x_13, x_14, x_5, x_6, x_7, x_8, x_12);
 if (lean_obj_tag(x_15) == 0)
 {
-lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
 x_17 = lean_ctor_get(x_15, 1);
 lean_inc(x_17);
 lean_dec(x_15);
-x_18 = l_List_filterMap___at_Lean_Elab_Tactic_Conv_evalCongr___spec__1(x_16);
-x_19 = l_Lean_Elab_Tactic_replaceMainGoal(x_18, x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_17);
+x_18 = l_Lean_Elab_Tactic_Conv_congr___lambda__2___closed__1;
+x_19 = l_List_filterMapTR_go___at_Lean_Elab_Tactic_Conv_evalCongr___spec__1(x_16, x_18);
+x_20 = l_Lean_Elab_Tactic_replaceMainGoal(x_19, x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_17);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
-return x_19;
+return x_20;
 }
 else
 {
-uint8_t x_20; 
+uint8_t x_21; 
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
-x_20 = !lean_is_exclusive(x_15);
-if (x_20 == 0)
+x_21 = !lean_is_exclusive(x_15);
+if (x_21 == 0)
 {
 return x_15;
 }
 else
 {
-lean_object* x_21; lean_object* x_22; lean_object* x_23; 
-x_21 = lean_ctor_get(x_15, 0);
-x_22 = lean_ctor_get(x_15, 1);
+lean_object* x_22; lean_object* x_23; lean_object* x_24; 
+x_22 = lean_ctor_get(x_15, 0);
+x_23 = lean_ctor_get(x_15, 1);
+lean_inc(x_23);
 lean_inc(x_22);
-lean_inc(x_21);
 lean_dec(x_15);
-x_23 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_23, 0, x_21);
-lean_ctor_set(x_23, 1, x_22);
-return x_23;
+x_24 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_24, 0, x_22);
+lean_ctor_set(x_24, 1, x_23);
+return x_24;
 }
 }
 }
 else
 {
-uint8_t x_24; 
+uint8_t x_25; 
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
-x_24 = !lean_is_exclusive(x_10);
-if (x_24 == 0)
+x_25 = !lean_is_exclusive(x_10);
+if (x_25 == 0)
 {
 return x_10;
 }
 else
 {
-lean_object* x_25; lean_object* x_26; lean_object* x_27; 
-x_25 = lean_ctor_get(x_10, 0);
-x_26 = lean_ctor_get(x_10, 1);
+lean_object* x_26; lean_object* x_27; lean_object* x_28; 
+x_26 = lean_ctor_get(x_10, 0);
+x_27 = lean_ctor_get(x_10, 1);
+lean_inc(x_27);
 lean_inc(x_26);
-lean_inc(x_25);
 lean_dec(x_10);
-x_27 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_27, 0, x_25);
-lean_ctor_set(x_27, 1, x_26);
-return x_27;
+x_28 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_28, 0, x_26);
+lean_ctor_set(x_28, 1, x_27);
+return x_28;
 }
 }
 }
@@ -6205,7 +6187,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalCongr__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -6213,7 +6195,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalCongr__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -6221,7 +6203,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalCongr__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -6229,7 +6211,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalCongr__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Conv", 4);
+x_1 = lean_mk_string_unchecked("Conv", 4, 4);
 return x_1;
 }
 }
@@ -6237,7 +6219,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalCongr__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("congr", 5);
+x_1 = lean_mk_string_unchecked("congr", 5, 5);
 return x_1;
 }
 }
@@ -6258,7 +6240,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalCongr__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -6266,7 +6248,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalCongr__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalCongr", 9);
+x_1 = lean_mk_string_unchecked("evalCongr", 9, 9);
 return x_1;
 }
 }
@@ -6765,7 +6747,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_T
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid '", 9);
+x_1 = lean_mk_string_unchecked("invalid '", 9, 9);
 return x_1;
 }
 }
@@ -6782,7 +6764,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_T
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' conv tactic, application has only ", 36);
+x_1 = lean_mk_string_unchecked("' conv tactic, application has only ", 36, 36);
 return x_1;
 }
 }
@@ -6799,7 +6781,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_T
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" (nondependent) argument(s)", 27);
+x_1 = lean_mk_string_unchecked(" (nondependent) argument(s)", 27, 27);
 return x_1;
 }
 }
@@ -6874,7 +6856,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_T
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cannot select argument", 22);
+x_1 = lean_mk_string_unchecked("cannot select argument", 22, 22);
 return x_1;
 }
 }
@@ -7178,7 +7160,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalSkip__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("skip", 4);
+x_1 = lean_mk_string_unchecked("skip", 4, 4);
 return x_1;
 }
 }
@@ -7199,7 +7181,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalSkip__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalSkip", 8);
+x_1 = lean_mk_string_unchecked("evalSkip", 8, 8);
 return x_1;
 }
 }
@@ -7351,7 +7333,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_evalLhs___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lhs", 3);
+x_1 = lean_mk_string_unchecked("lhs", 3, 3);
 return x_1;
 }
 }
@@ -7490,7 +7472,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalLhs__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalLhs", 7);
+x_1 = lean_mk_string_unchecked("evalLhs", 7, 7);
 return x_1;
 }
 }
@@ -7642,7 +7624,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_evalRhs___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("rhs", 3);
+x_1 = lean_mk_string_unchecked("rhs", 3, 3);
 return x_1;
 }
 }
@@ -7781,7 +7763,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalRhs__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalRhs", 7);
+x_1 = lean_mk_string_unchecked("evalRhs", 7, 7);
 return x_1;
 }
 }
@@ -8005,7 +7987,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Elab_Tactic_Conv_cong
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid 'arg 0' conv tactic, failed to resolve", 46);
+x_1 = lean_mk_string_unchecked("invalid 'arg 0' conv tactic, failed to resolve", 46, 46);
 return x_1;
 }
 }
@@ -12506,7 +12488,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_congrFunN___lambda__2___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid 'arg 0' conv tactic, application expected", 49);
+x_1 = lean_mk_string_unchecked("invalid 'arg 0' conv tactic, application expected", 49, 49);
 return x_1;
 }
 }
@@ -12818,7 +12800,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_evalArg___lambda__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("num", 3);
+x_1 = lean_mk_string_unchecked("num", 3, 3);
 return x_1;
 }
 }
@@ -12836,7 +12818,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_evalArg___lambda__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("arg", 3);
+x_1 = lean_mk_string_unchecked("arg", 3, 3);
 return x_1;
 }
 }
@@ -13245,7 +13227,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalArg__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalArg", 7);
+x_1 = lean_mk_string_unchecked("evalArg", 7, 7);
 return x_1;
 }
 }
@@ -13401,7 +13383,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_evalFun___rarg___lambda__2___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid 'fun' conv tactic, application expected", 47);
+x_1 = lean_mk_string_unchecked("invalid 'fun' conv tactic, application expected", 47, 47);
 return x_1;
 }
 }
@@ -13418,7 +13400,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_evalFun___rarg___lambda__2___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid 'fun' conv tactic, failed to resolve", 44);
+x_1 = lean_mk_string_unchecked("invalid 'fun' conv tactic, failed to resolve", 44, 44);
 return x_1;
 }
 }
@@ -13506,7 +13488,7 @@ lean_inc(x_32);
 x_33 = lean_ctor_get(x_31, 1);
 lean_inc(x_33);
 lean_dec(x_31);
-x_34 = l_Lean_MVarId_assign___at_Lean_Elab_Tactic_closeMainGoal___spec__1(x_1, x_32, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_33);
+x_34 = l_Lean_MVarId_assign___at_Lean_Elab_Tactic_refineCore___spec__1(x_1, x_32, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_33);
 x_35 = !lean_is_exclusive(x_34);
 if (x_35 == 0)
 {
@@ -13819,7 +13801,7 @@ lean_inc(x_91);
 x_92 = lean_ctor_get(x_90, 1);
 lean_inc(x_92);
 lean_dec(x_90);
-x_93 = l_Lean_MVarId_assign___at_Lean_Elab_Tactic_closeMainGoal___spec__1(x_1, x_91, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_92);
+x_93 = l_Lean_MVarId_assign___at_Lean_Elab_Tactic_refineCore___spec__1(x_1, x_91, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_92);
 x_94 = lean_ctor_get(x_93, 1);
 lean_inc(x_94);
 if (lean_is_exclusive(x_93)) {
@@ -14105,7 +14087,7 @@ lean_inc(x_145);
 x_146 = lean_ctor_get(x_144, 1);
 lean_inc(x_146);
 lean_dec(x_144);
-x_147 = l_Lean_MVarId_assign___at_Lean_Elab_Tactic_closeMainGoal___spec__1(x_1, x_145, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_146);
+x_147 = l_Lean_MVarId_assign___at_Lean_Elab_Tactic_refineCore___spec__1(x_1, x_145, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_146);
 x_148 = lean_ctor_get(x_147, 1);
 lean_inc(x_148);
 if (lean_is_exclusive(x_147)) {
@@ -14410,7 +14392,7 @@ lean_inc(x_205);
 x_206 = lean_ctor_get(x_204, 1);
 lean_inc(x_206);
 lean_dec(x_204);
-x_207 = l_Lean_MVarId_assign___at_Lean_Elab_Tactic_closeMainGoal___spec__1(x_1, x_205, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_206);
+x_207 = l_Lean_MVarId_assign___at_Lean_Elab_Tactic_refineCore___spec__1(x_1, x_205, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_206);
 x_208 = lean_ctor_get(x_207, 1);
 lean_inc(x_208);
 if (lean_is_exclusive(x_207)) {
@@ -14785,7 +14767,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalFun__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fun", 3);
+x_1 = lean_mk_string_unchecked("fun", 3, 3);
 return x_1;
 }
 }
@@ -14806,7 +14788,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalFun__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalFun", 7);
+x_1 = lean_mk_string_unchecked("evalFun", 7, 7);
 return x_1;
 }
 }
@@ -14974,7 +14956,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_extLetBodyCongr_x3f___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to go inside let-declaration, type error", 47);
+x_1 = lean_mk_string_unchecked("failed to go inside let-declaration, type error", 47, 47);
 return x_1;
 }
 }
@@ -15013,7 +14995,7 @@ x_19 = 1;
 x_20 = 1;
 lean_inc(x_14);
 lean_inc(x_17);
-x_21 = l_Lean_Meta_mkLambdaFVars(x_17, x_14, x_18, x_19, x_20, x_7, x_8, x_9, x_10, x_15);
+x_21 = l_Lean_Meta_mkLambdaFVars(x_17, x_14, x_18, x_19, x_18, x_20, x_7, x_8, x_9, x_10, x_15);
 if (lean_obj_tag(x_21) == 0)
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; 
@@ -15047,7 +15029,7 @@ lean_inc(x_31);
 x_32 = lean_ctor_get(x_30, 1);
 lean_inc(x_32);
 lean_dec(x_30);
-x_33 = l_Lean_Meta_mkLambdaFVars(x_17, x_31, x_18, x_19, x_20, x_7, x_8, x_9, x_10, x_32);
+x_33 = l_Lean_Meta_mkLambdaFVars(x_17, x_31, x_18, x_19, x_18, x_20, x_7, x_8, x_9, x_10, x_32);
 if (lean_obj_tag(x_33) == 0)
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
@@ -15318,7 +15300,7 @@ x_21 = 0;
 x_22 = 1;
 x_23 = 1;
 lean_inc(x_19);
-x_24 = l_Lean_Meta_mkLambdaFVars(x_10, x_19, x_21, x_22, x_23, x_4, x_5, x_6, x_7, x_20);
+x_24 = l_Lean_Meta_mkLambdaFVars(x_10, x_19, x_21, x_22, x_21, x_23, x_4, x_5, x_6, x_7, x_20);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -15393,7 +15375,7 @@ x_38 = 0;
 x_39 = 1;
 x_40 = 1;
 lean_inc(x_36);
-x_41 = l_Lean_Meta_mkLambdaFVars(x_10, x_36, x_38, x_39, x_40, x_4, x_5, x_6, x_7, x_37);
+x_41 = l_Lean_Meta_mkLambdaFVars(x_10, x_36, x_38, x_39, x_38, x_40, x_4, x_5, x_6, x_7, x_37);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -15487,7 +15469,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_extLetBodyCongr_x3f___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("let_body_congr", 14);
+x_1 = lean_mk_string_unchecked("let_body_congr", 14, 14);
 return x_1;
 }
 }
@@ -15932,7 +15914,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_extLetBodyCongr_x3f___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("failed to abstract let-expression, result is not type correct", 61);
+x_1 = lean_mk_string_unchecked("failed to abstract let-expression, result is not type correct", 61, 61);
 return x_1;
 }
 }
@@ -16151,7 +16133,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_T
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("funext", 6);
+x_1 = lean_mk_string_unchecked("funext", 6, 6);
 return x_1;
 }
 }
@@ -16169,7 +16151,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_T
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'apply funext' unexpected result", 32);
+x_1 = lean_mk_string_unchecked("'apply funext' unexpected result", 32, 32);
 return x_1;
 }
 }
@@ -16494,7 +16476,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_T
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid 'ext' conv tactic, failed to resolve", 44);
+x_1 = lean_mk_string_unchecked("invalid 'ext' conv tactic, failed to resolve", 44, 44);
 return x_1;
 }
 }
@@ -16539,7 +16521,7 @@ x_20 = 1;
 x_21 = 1;
 lean_inc(x_15);
 lean_inc(x_18);
-x_22 = l_Lean_Meta_mkLambdaFVars(x_18, x_15, x_19, x_20, x_21, x_4, x_5, x_6, x_7, x_13);
+x_22 = l_Lean_Meta_mkLambdaFVars(x_18, x_15, x_19, x_20, x_19, x_21, x_4, x_5, x_6, x_7, x_13);
 if (lean_obj_tag(x_22) == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; 
@@ -16550,7 +16532,7 @@ lean_inc(x_24);
 lean_dec(x_22);
 lean_inc(x_16);
 lean_inc(x_18);
-x_25 = l_Lean_Meta_mkLambdaFVars(x_18, x_16, x_19, x_20, x_21, x_4, x_5, x_6, x_7, x_24);
+x_25 = l_Lean_Meta_mkLambdaFVars(x_18, x_16, x_19, x_20, x_19, x_21, x_4, x_5, x_6, x_7, x_24);
 if (lean_obj_tag(x_25) == 0)
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; 
@@ -16795,7 +16777,7 @@ x_72 = 1;
 x_73 = 1;
 lean_inc(x_67);
 lean_inc(x_70);
-x_74 = l_Lean_Meta_mkLambdaFVars(x_70, x_67, x_71, x_72, x_73, x_4, x_5, x_6, x_7, x_13);
+x_74 = l_Lean_Meta_mkLambdaFVars(x_70, x_67, x_71, x_72, x_71, x_73, x_4, x_5, x_6, x_7, x_13);
 if (lean_obj_tag(x_74) == 0)
 {
 lean_object* x_75; lean_object* x_76; lean_object* x_77; 
@@ -16806,7 +16788,7 @@ lean_inc(x_76);
 lean_dec(x_74);
 lean_inc(x_68);
 lean_inc(x_70);
-x_77 = l_Lean_Meta_mkLambdaFVars(x_70, x_68, x_71, x_72, x_73, x_4, x_5, x_6, x_7, x_76);
+x_77 = l_Lean_Meta_mkLambdaFVars(x_70, x_68, x_71, x_72, x_71, x_73, x_4, x_5, x_6, x_7, x_76);
 if (lean_obj_tag(x_77) == 0)
 {
 lean_object* x_78; lean_object* x_79; lean_object* x_80; 
@@ -17076,7 +17058,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_T
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("forall_congr", 12);
+x_1 = lean_mk_string_unchecked("forall_congr", 12, 12);
 return x_1;
 }
 }
@@ -17238,7 +17220,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_T
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid 'ext' conv tactic, function or arrow expected", 53);
+x_1 = lean_mk_string_unchecked("invalid 'ext' conv tactic, function or arrow expected", 53, 53);
 return x_1;
 }
 }
@@ -17255,7 +17237,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_T
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" : ", 3);
+x_1 = lean_mk_string_unchecked(" : ", 3, 3);
 return x_1;
 }
 }
@@ -18652,69 +18634,67 @@ lean_dec(x_12);
 x_14 = l_Array_isEmpty___rarg(x_13);
 if (x_14 == 0)
 {
-lean_object* x_15; size_t x_16; size_t x_17; lean_object* x_18; lean_object* x_19; 
-x_15 = lean_array_get_size(x_13);
-x_16 = lean_usize_of_nat(x_15);
-lean_dec(x_15);
-x_17 = 0;
-x_18 = lean_box(0);
-x_19 = l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_Conv_evalExt___spec__1(x_13, x_16, x_17, x_18, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+size_t x_15; size_t x_16; lean_object* x_17; lean_object* x_18; 
+x_15 = lean_array_size(x_13);
+x_16 = 0;
+x_17 = lean_box(0);
+x_18 = l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_Conv_evalExt___spec__1(x_13, x_15, x_16, x_17, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_8);
 lean_dec(x_13);
-if (lean_obj_tag(x_19) == 0)
+if (lean_obj_tag(x_18) == 0)
 {
-uint8_t x_20; 
-x_20 = !lean_is_exclusive(x_19);
-if (x_20 == 0)
+uint8_t x_19; 
+x_19 = !lean_is_exclusive(x_18);
+if (x_19 == 0)
 {
-lean_object* x_21; 
-x_21 = lean_ctor_get(x_19, 0);
-lean_dec(x_21);
-lean_ctor_set(x_19, 0, x_18);
-return x_19;
+lean_object* x_20; 
+x_20 = lean_ctor_get(x_18, 0);
+lean_dec(x_20);
+lean_ctor_set(x_18, 0, x_17);
+return x_18;
 }
 else
 {
-lean_object* x_22; lean_object* x_23; 
-x_22 = lean_ctor_get(x_19, 1);
-lean_inc(x_22);
-lean_dec(x_19);
-x_23 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_23, 0, x_18);
-lean_ctor_set(x_23, 1, x_22);
-return x_23;
+lean_object* x_21; lean_object* x_22; 
+x_21 = lean_ctor_get(x_18, 1);
+lean_inc(x_21);
+lean_dec(x_18);
+x_22 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_22, 0, x_17);
+lean_ctor_set(x_22, 1, x_21);
+return x_22;
 }
 }
 else
 {
-uint8_t x_24; 
-x_24 = !lean_is_exclusive(x_19);
-if (x_24 == 0)
+uint8_t x_23; 
+x_23 = !lean_is_exclusive(x_18);
+if (x_23 == 0)
 {
-return x_19;
+return x_18;
 }
 else
 {
-lean_object* x_25; lean_object* x_26; lean_object* x_27; 
-x_25 = lean_ctor_get(x_19, 0);
-x_26 = lean_ctor_get(x_19, 1);
-lean_inc(x_26);
+lean_object* x_24; lean_object* x_25; lean_object* x_26; 
+x_24 = lean_ctor_get(x_18, 0);
+x_25 = lean_ctor_get(x_18, 1);
 lean_inc(x_25);
-lean_dec(x_19);
-x_27 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_27, 0, x_25);
-lean_ctor_set(x_27, 1, x_26);
-return x_27;
+lean_inc(x_24);
+lean_dec(x_18);
+x_26 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_26, 0, x_24);
+lean_ctor_set(x_26, 1, x_25);
+return x_26;
 }
 }
 }
 else
 {
-lean_object* x_28; lean_object* x_29; 
+lean_object* x_27; lean_object* x_28; 
 lean_dec(x_13);
-x_28 = lean_box(0);
-x_29 = l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_Tactic_Conv_ext(x_28, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-return x_29;
+x_27 = lean_box(0);
+x_28 = l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_Tactic_Conv_ext(x_27, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+return x_28;
 }
 }
 }
@@ -18753,7 +18733,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalExt__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ext", 3);
+x_1 = lean_mk_string_unchecked("ext", 3, 3);
 return x_1;
 }
 }
@@ -18774,7 +18754,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalExt__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalExt", 7);
+x_1 = lean_mk_string_unchecked("evalExt", 7, 7);
 return x_1;
 }
 }

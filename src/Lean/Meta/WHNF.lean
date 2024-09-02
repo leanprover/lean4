@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Structure
 import Lean.Util.Recognizers
+import Lean.Util.SafeExponentiation
 import Lean.Meta.GetUnfoldableConst
 import Lean.Meta.FunInfo
 import Lean.Meta.Offset
@@ -885,6 +886,13 @@ def reduceBinNatOp (f : Nat → Nat → Nat) (a b : Expr) : MetaM (Option Expr) 
   trace[Meta.isDefEq.whnf.reduceBinOp] "{a} op {b}"
   return mkRawNatLit <| f a b
 
+def reducePow (a b : Expr) : MetaM (Option Expr) :=
+  withNatValue a fun a =>
+  withNatValue b fun b => OptionT.run do
+  guard (← checkExponent b)
+  trace[Meta.isDefEq.whnf.reduceBinOp] "{a} ^ {b}"
+  return mkRawNatLit <| a ^ b
+
 def reduceBinNatPred (f : Nat → Nat → Bool) (a b : Expr) : MetaM (Option Expr) := do
   withNatValue a fun a =>
   withNatValue b fun b =>
@@ -904,7 +912,7 @@ def reduceNat? (e : Expr) : MetaM (Option Expr) :=
     | ``Nat.mul => reduceBinNatOp Nat.mul a1 a2
     | ``Nat.div => reduceBinNatOp Nat.div a1 a2
     | ``Nat.mod => reduceBinNatOp Nat.mod a1 a2
-    | ``Nat.pow => reduceBinNatOp Nat.pow a1 a2
+    | ``Nat.pow => reducePow a1 a2
     | ``Nat.gcd => reduceBinNatOp Nat.gcd a1 a2
     | ``Nat.beq => reduceBinNatPred Nat.beq a1 a2
     | ``Nat.ble => reduceBinNatPred Nat.ble a1 a2

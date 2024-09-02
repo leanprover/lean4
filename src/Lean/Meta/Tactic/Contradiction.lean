@@ -226,10 +226,6 @@ def _root_.Lean.MVarId.contradiction (mvarId : MVarId) (config : Contradiction.C
   unless (← mvarId.contradictionCore config) do
     throwTacticEx `contradiction mvarId
 
-@[deprecated MVarId.contradiction (since := "2022-07-15")]
-def contradiction (mvarId : MVarId) (config : Contradiction.Config := {}) : MetaM Unit :=
-  mvarId.contradiction config
-
 builtin_initialize registerTraceClass `Meta.Tactic.contradiction
 
 end Lean.Meta

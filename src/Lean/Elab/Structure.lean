@@ -878,7 +878,7 @@ def structCtor           := leading_parser try (declModifiers >> ident >> " :: "
 def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
   checkValidInductiveModifier modifiers
   let isClass   := stx[0].getKind == ``Parser.Command.classTk
-  let modifiers := if isClass then modifiers.addAttribute { name := `class } else modifiers
+  let modifiers := if isClass then modifiers.addAttr { name := `class } else modifiers
   let declId    := stx[1]
   let params    := stx[2].getArgs
   let exts      := stx[3]

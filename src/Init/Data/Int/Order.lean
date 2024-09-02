@@ -127,9 +127,14 @@ protected theorem lt_iff_le_not_le {a b : Int} : a < b ↔ a ≤ b ∧ ¬b ≤ a
   · exact Int.le_antisymm h h'
   · subst h'; apply Int.le_refl
 
+protected theorem lt_of_not_ge {a b : Int} (h : ¬a ≤ b) : b < a :=
+  Int.lt_iff_le_not_le.mpr ⟨(Int.le_total ..).resolve_right h, h⟩
+
+protected theorem not_le_of_gt {a b : Int} (h : b < a) : ¬a ≤ b :=
+  (Int.lt_iff_le_not_le.mp h).right
+
 protected theorem not_le {a b : Int} : ¬a ≤ b ↔ b < a :=
-  ⟨fun h => Int.lt_iff_le_not_le.2 ⟨(Int.le_total ..).resolve_right h, h⟩,
-   fun h => (Int.lt_iff_le_not_le.1 h).2⟩
+  Iff.intro Int.lt_of_not_ge Int.not_le_of_gt
 
 protected theorem not_lt {a b : Int} : ¬a < b ↔ b ≤ a :=
   by rw [← Int.not_le, Decidable.not_not]
@@ -235,8 +240,23 @@ theorem le_natAbs {a : Int} : a ≤ natAbs a :=
 theorem negSucc_lt_zero (n : Nat) : -[n+1] < 0 :=
   Int.not_le.1 fun h => let ⟨_, h⟩ := eq_ofNat_of_zero_le h; nomatch h
 
+theorem negSucc_le_zero (n : Nat) : -[n+1] ≤ 0 :=
+  Int.le_of_lt (negSucc_lt_zero n)
+
 @[simp] theorem negSucc_not_nonneg (n : Nat) : 0 ≤ -[n+1] ↔ False := by
   simp only [Int.not_le, iff_false]; exact Int.negSucc_lt_zero n
+
+@[simp] theorem ofNat_max_zero (n : Nat) : (max (n : Int) 0) = n := by
+  rw [Int.max_eq_left (ofNat_zero_le n)]
+
+@[simp] theorem zero_max_ofNat (n : Nat) : (max 0 (n : Int)) = n := by
+  rw [Int.max_eq_right (ofNat_zero_le n)]
+
+@[simp] theorem negSucc_max_zero (n : Nat) : (max (Int.negSucc n) 0) = 0 := by
+  rw [Int.max_eq_right (negSucc_le_zero _)]
+
+@[simp] theorem zero_max_negSucc (n : Nat) : (max 0 (Int.negSucc n)) = 0 := by
+  rw [Int.max_eq_left (negSucc_le_zero _)]
 
 protected theorem add_le_add_left {a b : Int} (h : a ≤ b) (c : Int) : c + a ≤ c + b :=
   let ⟨n, hn⟩ := le.dest h; le.intro n <| by rw [Int.add_assoc, hn]
@@ -465,7 +485,15 @@ theorem toNat_eq_max : ∀ a : Int, (toNat a : Int) = max a 0
 
 @[simp] theorem toNat_ofNat (n : Nat) : toNat ↑n = n := rfl
 
+@[simp] theorem toNat_negSucc (n : Nat) : (Int.negSucc n).toNat = 0 := by
+  simp [toNat]
+
 @[simp] theorem toNat_ofNat_add_one {n : Nat} : ((n : Int) + 1).toNat = n + 1 := rfl
+
+@[simp] theorem ofNat_toNat (a : Int) : (a.toNat : Int) = max a 0 := by
+  match a with
+  | Int.ofNat n => simp
+  | Int.negSucc n => simp
 
 theorem self_le_toNat (a : Int) : a ≤ toNat a := by rw [toNat_eq_max]; apply Int.le_max_left
 
@@ -508,9 +536,6 @@ theorem mem_toNat' : ∀ (a : Int) (n : Nat), toNat' a = some n ↔ a = n
   | -[m+1], n => by constructor <;> nofun
 
 /-! ## Order properties of the integers -/
-
-protected theorem lt_of_not_ge {a b : Int} : ¬a ≤ b → b < a := Int.not_le.mp
-protected theorem not_le_of_gt {a b : Int} : b < a → ¬a ≤ b := Int.not_le.mpr
 
 protected theorem le_of_not_le {a b : Int} : ¬ a ≤ b → b ≤ a := (Int.le_total a b).resolve_left
 
@@ -586,7 +611,10 @@ theorem add_one_le_iff {a b : Int} : a + 1 ≤ b ↔ a < b := .rfl
 theorem lt_add_one_iff {a b : Int} : a < b + 1 ↔ a ≤ b := Int.add_le_add_iff_right _
 
 @[simp] theorem succ_ofNat_pos (n : Nat) : 0 < (n : Int) + 1 :=
-  lt_add_one_iff.2 (ofNat_zero_le _)
+  lt_add_one_iff.mpr (ofNat_zero_le _)
+
+theorem not_ofNat_neg (n : Nat) : ¬((n : Int) < 0) :=
+  Int.not_lt.mpr (ofNat_zero_le ..)
 
 theorem le_add_one {a b : Int} (h : a ≤ b) : a ≤ b + 1 :=
   Int.le_of_lt (Int.lt_add_one_iff.2 h)
@@ -801,6 +829,12 @@ protected theorem lt_add_of_neg_lt_sub_right {a b c : Int} (h : -b < a - c) : c 
 protected theorem neg_lt_sub_right_of_lt_add {a b c : Int} (h : c < a + b) : -b < a - c :=
   Int.lt_sub_left_of_add_lt (Int.sub_right_lt_of_lt_add h)
 
+protected theorem add_lt_iff (a b c : Int) : a + b < c ↔ a < -b + c := by
+  rw [← Int.add_lt_add_iff_left (-b), Int.add_comm (-b), Int.add_neg_cancel_right]
+
+protected theorem sub_lt_iff (a b c : Int) : a - b < c ↔ a < c + b :=
+  Iff.intro Int.lt_add_of_sub_right_lt Int.sub_right_lt_of_lt_add
+
 protected theorem sub_lt_of_sub_lt {a b c : Int} (h : a - b < c) : a - c < b :=
   Int.sub_left_lt_of_lt_add (Int.lt_add_of_sub_right_lt h)
 
@@ -995,7 +1029,7 @@ theorem natAbs_mul_self : ∀ {a : Int}, ↑(natAbs a * natAbs a) = a * a
 theorem eq_nat_or_neg (a : Int) : ∃ n : Nat, a = n ∨ a = -↑n := ⟨_, natAbs_eq a⟩
 
 theorem natAbs_mul_natAbs_eq {a b : Int} {c : Nat}
-    (h : a * b = (c : Int)) : a.natAbs * b.natAbs = c := by rw [← natAbs_mul, h, natAbs]
+    (h : a * b = (c : Int)) : a.natAbs * b.natAbs = c := by rw [← natAbs_mul, h, natAbs.eq_def]
 
 @[simp] theorem natAbs_mul_self' (a : Int) : (natAbs a * natAbs a : Int) = a * a := by
   rw [← Int.ofNat_mul, natAbs_mul_self]

@@ -8,7 +8,7 @@ import Lean.Elab.Quotation.Precheck
 import Lean.Elab.Term
 import Lean.Elab.BindersUtil
 import Lean.Elab.SyntheticMVars
-import Lean.Elab.PreDefinition.WF.TerminationHint
+import Lean.Elab.PreDefinition.TerminationHint
 
 namespace Lean.Elab.Term
 open Meta

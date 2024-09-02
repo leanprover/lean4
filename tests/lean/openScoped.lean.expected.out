@@ -1,7 +1,7 @@
 openScoped.lean:1:7-1:14: error: unknown identifier 'epsilon'
 openScoped.lean:4:2-4:24: error: failed to synthesize
   Decidable (f = g)
-use `set_option diagnostics true` to get diagnostic information
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
 Classical.epsilon.{u} {α : Sort u} [h : Nonempty α] (p : α → Prop) : α
 openScoped.lean:15:7-15:14: error: unknown identifier 'epsilon'
 openScoped.lean:20:7-20:14: error: unknown identifier 'epsilon'

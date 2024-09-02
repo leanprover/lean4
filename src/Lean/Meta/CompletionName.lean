@@ -25,7 +25,6 @@ namespace Lean.Meta
 
 builtin_initialize completionBlackListExt : TagDeclarationExtension ← mkTagDeclarationExtension
 
-@[export lean_completion_add_to_black_list]
 def addToCompletionBlackList (env : Environment) (declName : Name) : Environment :=
   completionBlackListExt.tag env declName
 

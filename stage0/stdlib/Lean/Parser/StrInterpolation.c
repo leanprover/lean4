@@ -89,7 +89,7 @@ static lean_object* _init_l_Lean_Parser_interpolatedStrFn_parse___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("interpolatedStrLitKind", 22);
+x_1 = lean_mk_string_unchecked("interpolatedStrLitKind", 22, 22);
 return x_1;
 }
 }
@@ -107,7 +107,7 @@ static lean_object* _init_l_Lean_Parser_interpolatedStrFn_parse___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'}'", 3);
+x_1 = lean_mk_string_unchecked("'}'", 3, 3);
 return x_1;
 }
 }
@@ -115,7 +115,7 @@ static lean_object* _init_l_Lean_Parser_interpolatedStrFn_parse___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("interpolatedStrKind", 19);
+x_1 = lean_mk_string_unchecked("interpolatedStrKind", 19, 19);
 return x_1;
 }
 }
@@ -154,7 +154,7 @@ static lean_object* _init_l_Lean_Parser_interpolatedStrFn_parse___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unterminated string literal", 27);
+x_1 = lean_mk_string_unchecked("unterminated string literal", 27, 27);
 return x_1;
 }
 }
@@ -291,7 +291,7 @@ static lean_object* _init_l_Lean_Parser_interpolatedStrFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("interpolated string", 19);
+x_1 = lean_mk_string_unchecked("interpolated string", 19, 19);
 return x_1;
 }
 }
@@ -299,7 +299,7 @@ static lean_object* _init_l_Lean_Parser_interpolatedStrFn___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected end of input", 23);
+x_1 = lean_mk_string_unchecked("unexpected end of input", 23, 23);
 return x_1;
 }
 }
@@ -362,7 +362,7 @@ static lean_object* _init_l_Lean_Parser_interpolatedStrNoAntiquot___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("interpolatedStr", 15);
+x_1 = lean_mk_string_unchecked("interpolatedStr", 15, 15);
 return x_1;
 }
 }

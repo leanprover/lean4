@@ -1,14 +1,13 @@
 import Lake
 open System Lake DSL
 
-package ffi {
+package ffi where
   srcDir := "lean"
-  precompileModules := true
-}
 
 lean_lib FFI
 
-@[default_target] lean_exe test where
+@[default_target]
+lean_exe test where
   root := `Main
 
 target ffi.o pkg : FilePath := do

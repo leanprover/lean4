@@ -22,27 +22,23 @@ reduce the size of the resulting JSON. -/
 /--
 Identifier of a reference.
 -/
+-- Names are represented by strings to avoid having to parse them to `Name`,
+-- which is relatively expensive. Most uses of these names only need equality, anyways.
 inductive RefIdent where
   /-- Named identifier. These are used in all references that are globally available. -/
-  | const (moduleName : Name) (identName : Name) : RefIdent
+  | const (moduleName : String) (identName : String) : RefIdent
   /-- Unnamed identifier. These are used for all local references. -/
-  | fvar (moduleName : Name) (id : FVarId) : RefIdent
+  | fvar (moduleName : String) (id : String) : RefIdent
   deriving BEq, Hashable, Inhabited
 
 namespace RefIdent
 
-instance : ToJson FVarId where
-  toJson id := toJson id.name
-
-instance : FromJson FVarId where
-  fromJson? s := return ⟨← fromJson? s⟩
-
 /-- Shortened representation of `RefIdent` for more compact serialization. -/
 inductive RefIdentJsonRepr
   /-- Shortened representation of `RefIdent.const` for more compact serialization. -/
-  | c (m n : Name)
+  | c (m n : String)
   /-- Shortened representation of `RefIdent.fvar` for more compact serialization. -/
-  | f (m : Name) (i : FVarId)
+  | f (m : String) (i : String)
   deriving FromJson, ToJson
 
 /-- Converts `id` to its compact serialization representation. -/
@@ -74,7 +70,7 @@ end RefIdent
 /-- Information about the declaration surrounding a reference. -/
 structure RefInfo.ParentDecl where
   /-- Name of the declaration surrounding a reference. -/
-  name           : Name
+  name           : String
   /-- Range of the declaration surrounding a reference. -/
   range          : Lsp.Range
   /-- Selection range of the declaration surrounding a reference. -/
@@ -104,7 +100,7 @@ instance : ToJson RefInfo where
     let rangeToList (r : Lsp.Range) : List Nat :=
       [r.start.line, r.start.character, r.end.line, r.end.character]
     let parentDeclToList (d : RefInfo.ParentDecl) : List Json :=
-      let name := d.name.toString |> toJson
+      let name := d.name |> toJson
       let range := rangeToList d.range |>.map toJson
       let selectionRange := rangeToList d.selectionRange |>.map toJson
       [name] ++ range ++ selectionRange
@@ -118,39 +114,47 @@ instance : ToJson RefInfo where
     ]
 
 instance : FromJson RefInfo where
+  -- This implementation is optimized to prevent redundant intermediate allocations.
   fromJson? j := do
-    let toRange : List Nat → Except String Lsp.Range
-      | [sLine, sChar, eLine, eChar] => pure ⟨⟨sLine, sChar⟩, ⟨eLine, eChar⟩⟩
-      | l => throw s!"Expected list of length 4, not {l.length}"
-    let toParentDecl (a : Array Json) : Except String RefInfo.ParentDecl := do
-      let name := String.toName <| ← fromJson? a[0]!
-      let range ← a[1:5].toArray.toList |>.mapM fromJson?
-      let range ← toRange range
-      let selectionRange ← a[5:].toArray.toList |>.mapM fromJson?
-      let selectionRange ← toRange selectionRange
+    let toRange (a : Array Json) (i : Nat) : Except String Lsp.Range :=
+      if h : a.size < i + 4 then
+        throw s!"Expected list of length 4, not {a.size}"
+      else
+        return {
+          start := {
+            line := ← fromJson? a[i]
+            character := ← fromJson? a[i+1]
+          }
+          «end» := {
+            line := ← fromJson? a[i+2]
+            character := ← fromJson? a[i+3]
+          }
+        }
+    let toParentDecl (a : Array Json) (i : Nat) : Except String RefInfo.ParentDecl := do
+      let name ← fromJson? a[i]!
+      let range ← toRange a (i + 1)
+      let selectionRange ← toRange a (i + 5)
       return ⟨name, range, selectionRange⟩
-    let toLocation (l : List Json) : Except String RefInfo.Location := do
-      let l := l.toArray
-      if l.size != 4 && l.size != 13 then
+    let toLocation (a : Array Json) : Except String RefInfo.Location := do
+      if a.size != 4 && a.size != 13 then
         .error "Expected list of length 4 or 13, not {l.size}"
-      let range ← l[:4].toArray.toList |>.mapM fromJson?
-      let range ← toRange range
-      if l.size == 13 then
-        let parentDecl ← toParentDecl l[4:].toArray
+      let range ← toRange a 0
+      if a.size == 13 then
+        let parentDecl ← toParentDecl a 4
         return ⟨range, parentDecl⟩
       else
         return ⟨range, none⟩
 
-    let definition? ← j.getObjValAs? (Option $ List Json) "definition"
+    let definition? ← j.getObjValAs? (Option $ Array Json) "definition"
     let definition? ← match definition? with
       | none => pure none
-      | some list => some <$> toLocation list
-    let usages ← j.getObjValAs? (Array $ List Json) "usages"
+      | some array => some <$> toLocation array
+    let usages ← j.getObjValAs? (Array $ Array Json) "usages"
     let usages ← usages.mapM toLocation
     pure { definition?, usages }
 
 /-- References from a single module/file -/
-def ModuleRefs := HashMap RefIdent RefInfo
+def ModuleRefs := Std.HashMap RefIdent RefInfo
 
 instance : ToJson ModuleRefs where
   toJson m := Json.mkObj <| m.toList.map fun (ident, info) => (ident.toJson.compress, toJson info)
@@ -158,7 +162,7 @@ instance : ToJson ModuleRefs where
 instance : FromJson ModuleRefs where
   fromJson? j := do
     let node ← j.getObj?
-    node.foldM (init := HashMap.empty) fun m k v =>
+    node.foldM (init := Std.HashMap.empty) fun m k v =>
       return m.insert (← RefIdent.fromJson? (← Json.parse k)) (← fromJson? v)
 
 /--

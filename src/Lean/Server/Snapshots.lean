@@ -9,7 +9,6 @@ import Init.System.IO
 
 import Lean.Elab.Import
 import Lean.Elab.Command
-import Lean.Language.Lean
 
 import Lean.Widget.InteractiveDiagnostic
 

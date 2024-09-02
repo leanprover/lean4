@@ -32,8 +32,6 @@ inductive HeadIndex where
   | forallE
   deriving Inhabited, BEq, Repr
 
-namespace HeadIndex
-
 /-- Hash code for a `HeadIndex` value. -/
 protected def HeadIndex.hash : HeadIndex → UInt64
   | fvar fvarId         => mixHash 11 <| hash fvarId
@@ -46,8 +44,6 @@ protected def HeadIndex.hash : HeadIndex → UInt64
   | forallE             => 37
 
 instance : Hashable HeadIndex := ⟨HeadIndex.hash⟩
-
-end HeadIndex
 
 namespace Expr
 

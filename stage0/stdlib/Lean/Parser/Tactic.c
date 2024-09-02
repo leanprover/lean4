@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Parser.Tactic
-// Imports: Lean.Parser.Term
+// Imports: Lean.Parser.Term Lean.Parser.Tactic.Doc
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -388,7 +388,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_initFn____x40_Lean_Parser_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeq", 9);
+x_1 = lean_mk_string_unchecked("tacticSeq", 9, 9);
 return x_1;
 }
 }
@@ -406,7 +406,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_initFn____x40_Lean_Parser_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -414,7 +414,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_initFn____x40_Lean_Parser_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -422,7 +422,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_initFn____x40_Lean_Parser_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -538,7 +538,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_initFn____x40_Lean_Parser_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticSeqIndentGt", 17);
+x_1 = lean_mk_string_unchecked("tacticSeqIndentGt", 17, 17);
 return x_1;
 }
 }
@@ -797,7 +797,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_unknown___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown", 7);
+x_1 = lean_mk_string_unchecked("unknown", 7, 7);
 return x_1;
 }
 }
@@ -829,7 +829,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_unknown___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknown tactic", 14);
+x_1 = lean_mk_string_unchecked("unknown tactic", 14, 14);
 return x_1;
 }
 }
@@ -905,7 +905,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_unknown__1___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tactic", 6);
+x_1 = lean_mk_string_unchecked("tactic", 6, 6);
 return x_1;
 }
 }
@@ -936,7 +936,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_unknown_declRange__1
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(23u);
+x_1 = lean_unsigned_to_nat(24u);
 x_2 = lean_unsigned_to_nat(25u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -948,7 +948,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_unknown_declRange__1
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(24u);
+x_1 = lean_unsigned_to_nat(25u);
 x_2 = lean_unsigned_to_nat(63u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -976,7 +976,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_unknown_declRange__1
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(23u);
+x_1 = lean_unsigned_to_nat(24u);
 x_2 = lean_unsigned_to_nat(29u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -988,7 +988,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_unknown_declRange__1
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(23u);
+x_1 = lean_unsigned_to_nat(24u);
 x_2 = lean_unsigned_to_nat(38u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1123,7 +1123,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_unknown_formatter__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("formatter", 9);
+x_1 = lean_mk_string_unchecked("formatter", 9, 9);
 return x_1;
 }
 }
@@ -1257,7 +1257,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_unknown_parenthesize
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("parenthesizer", 13);
+x_1 = lean_mk_string_unchecked("parenthesizer", 13, 13);
 return x_1;
 }
 }
@@ -1314,7 +1314,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_nestedTactic__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("nestedTactic", 12);
+x_1 = lean_mk_string_unchecked("nestedTactic", 12, 12);
 return x_1;
 }
 }
@@ -1347,7 +1347,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_nestedTactic_declRan
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(26u);
+x_1 = lean_unsigned_to_nat(27u);
 x_2 = lean_unsigned_to_nat(25u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1359,7 +1359,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_nestedTactic_declRan
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(26u);
+x_1 = lean_unsigned_to_nat(27u);
 x_2 = lean_unsigned_to_nat(63u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1387,7 +1387,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_nestedTactic_declRan
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(26u);
+x_1 = lean_unsigned_to_nat(27u);
 x_2 = lean_unsigned_to_nat(29u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1399,7 +1399,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_nestedTactic_declRan
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(26u);
+x_1 = lean_unsigned_to_nat(27u);
 x_2 = lean_unsigned_to_nat(41u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1510,7 +1510,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_match___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("match", 5);
+x_1 = lean_mk_string_unchecked("match", 5, 5);
 return x_1;
 }
 }
@@ -1542,7 +1542,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_match___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("match ", 6);
+x_1 = lean_mk_string_unchecked("match ", 6, 6);
 return x_1;
 }
 }
@@ -1577,7 +1577,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_match___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", ", 2);
+x_1 = lean_mk_string_unchecked(", ", 2, 2);
 return x_1;
 }
 }
@@ -1606,7 +1606,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_match___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" with ", 6);
+x_1 = lean_mk_string_unchecked(" with ", 6, 6);
 return x_1;
 }
 }
@@ -1725,7 +1725,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_match_docString__1__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n", 398);
+x_1 = lean_mk_string_unchecked("`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n", 398, 398);
 return x_1;
 }
 }
@@ -1743,7 +1743,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_match_declRange__1__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(44u);
+x_1 = lean_unsigned_to_nat(45u);
 x_2 = lean_unsigned_to_nat(25u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1755,7 +1755,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_match_declRange__1__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(47u);
+x_1 = lean_unsigned_to_nat(48u);
 x_2 = lean_unsigned_to_nat(32u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1783,7 +1783,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_match_declRange__1__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(44u);
+x_1 = lean_unsigned_to_nat(45u);
 x_2 = lean_unsigned_to_nat(29u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1795,7 +1795,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_match_declRange__1__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(44u);
+x_1 = lean_unsigned_to_nat(45u);
 x_2 = lean_unsigned_to_nat(36u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -2443,7 +2443,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_introMatch___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("introMatch", 10);
+x_1 = lean_mk_string_unchecked("introMatch", 10, 10);
 return x_1;
 }
 }
@@ -2475,7 +2475,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_introMatch___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("intro", 5);
+x_1 = lean_mk_string_unchecked("intro", 5, 5);
 return x_1;
 }
 }
@@ -2555,7 +2555,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_introMatch_docString
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n", 293);
+x_1 = lean_mk_string_unchecked("The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n", 293, 293);
 return x_1;
 }
 }
@@ -2573,7 +2573,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_introMatch_declRange
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(66u);
+x_1 = lean_unsigned_to_nat(67u);
 x_2 = lean_unsigned_to_nat(25u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -2585,7 +2585,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_introMatch_declRange
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(67u);
+x_1 = lean_unsigned_to_nat(68u);
 x_2 = lean_unsigned_to_nat(40u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -2613,7 +2613,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_introMatch_declRange
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(66u);
+x_1 = lean_unsigned_to_nat(67u);
 x_2 = lean_unsigned_to_nat(29u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -2625,7 +2625,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_introMatch_declRange
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(66u);
+x_1 = lean_unsigned_to_nat(67u);
 x_2 = lean_unsigned_to_nat(39u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -2875,7 +2875,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_decide___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("decide", 6);
+x_1 = lean_mk_string_unchecked("decide", 6, 6);
 return x_1;
 }
 }
@@ -2969,7 +2969,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_decide_docString__1_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`decide` attempts to prove the main goal (with target type `p`) by synthesizing an instance of `Decidable p`\nand then reducing that instance to evaluate the truth value of `p`.\nIf it reduces to `isTrue h`, then `h` is a proof of `p` that closes the goal.\n\nLimitations:\n- The target is not allowed to contain local variables or metavariables.\n  If there are local variables, you can try first using the `revert` tactic with these local variables\n  to move them into the target, which may allow `decide` to succeed.\n- Because this uses kernel reduction to evaluate the term, `Decidable` instances defined\n  by well-founded recursion might not work, because evaluating them requires reducing proofs.\n  The kernel can also get stuck reducing `Decidable` instances with `Eq.rec` terms for rewriting propositions.\n  These can appear for instances defined using tactics (such as `rw` and `simp`).\n  To avoid this, use definitions such as `decidable_of_iff` instead.\n\n## Examples\n\nProving inequalities:\n```lean\nexample : 2 + 2 ≠ 5 := by decide\n```\n\nTrying to prove a false proposition:\n```lean\nexample : 1 ≠ 1 := by decide\n/-\ntactic 'decide' proved that the proposition\n  1 ≠ 1\nis false\n-/\n```\n\nTrying to prove a proposition whose `Decidable` instance fails to reduce\n```lean\nopaque unknownProp : Prop\n\nopen scoped Classical in\nexample : unknownProp := by decide\n/-\ntactic 'decide' failed for proposition\n  unknownProp\nsince its 'Decidable' instance reduced to\n  Classical.choice ⋯\nrather than to the 'isTrue' constructor.\n-/\n```\n\n## Properties and relations\n\nFor equality goals for types with decidable equality, usually `rfl` can be used in place of `decide`.\n```lean\nexample : 1 + 1 = 2 := by decide\nexample : 1 + 1 = 2 := by rfl\n```\n", 1737);
+x_1 = lean_mk_string_unchecked("`decide` attempts to prove the main goal (with target type `p`) by synthesizing an instance of `Decidable p`\nand then reducing that instance to evaluate the truth value of `p`.\nIf it reduces to `isTrue h`, then `h` is a proof of `p` that closes the goal.\n\nLimitations:\n- The target is not allowed to contain local variables or metavariables.\n  If there are local variables, you can try first using the `revert` tactic with these local variables\n  to move them into the target, which may allow `decide` to succeed.\n- Because this uses kernel reduction to evaluate the term, `Decidable` instances defined\n  by well-founded recursion might not work, because evaluating them requires reducing proofs.\n  The kernel can also get stuck reducing `Decidable` instances with `Eq.rec` terms for rewriting propositions.\n  These can appear for instances defined using tactics (such as `rw` and `simp`).\n  To avoid this, use definitions such as `decidable_of_iff` instead.\n\n## Examples\n\nProving inequalities:\n```lean\nexample : 2 + 2 ≠ 5 := by decide\n```\n\nTrying to prove a false proposition:\n```lean\nexample : 1 ≠ 1 := by decide\n/-\ntactic 'decide' proved that the proposition\n  1 ≠ 1\nis false\n-/\n```\n\nTrying to prove a proposition whose `Decidable` instance fails to reduce\n```lean\nopaque unknownProp : Prop\n\nopen scoped Classical in\nexample : unknownProp := by decide\n/-\ntactic 'decide' failed for proposition\n  unknownProp\nsince its 'Decidable' instance reduced to\n  Classical.choice ⋯\nrather than to the 'isTrue' constructor.\n-/\n```\n\n## Properties and relations\n\nFor equality goals for types with decidable equality, usually `rfl` can be used in place of `decide`.\n```lean\nexample : 1 + 1 = 2 := by decide\nexample : 1 + 1 = 2 := by rfl\n```\n", 1737, 1729);
 return x_1;
 }
 }
@@ -2987,7 +2987,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_decide_declRange__1_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(124u);
+x_1 = lean_unsigned_to_nat(125u);
 x_2 = lean_unsigned_to_nat(25u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -2999,7 +2999,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_decide_declRange__1_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(125u);
+x_1 = lean_unsigned_to_nat(126u);
 x_2 = lean_unsigned_to_nat(28u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -3027,7 +3027,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_decide_declRange__1_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(124u);
+x_1 = lean_unsigned_to_nat(125u);
 x_2 = lean_unsigned_to_nat(29u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -3039,7 +3039,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_decide_declRange__1_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(124u);
+x_1 = lean_unsigned_to_nat(125u);
 x_2 = lean_unsigned_to_nat(35u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -3265,7 +3265,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_nativeDecide___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("nativeDecide", 12);
+x_1 = lean_mk_string_unchecked("nativeDecide", 12, 12);
 return x_1;
 }
 }
@@ -3297,7 +3297,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_nativeDecide___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("native_decide", 13);
+x_1 = lean_mk_string_unchecked("native_decide", 13, 13);
 return x_1;
 }
 }
@@ -3367,7 +3367,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_nativeDecide_docStri
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`native_decide` will attempt to prove a goal of type `p` by synthesizing an instance\nof `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this\nuses `#eval` to evaluate the decidability instance.\n\nThis should be used with care because it adds the entire lean compiler to the trusted\npart, and the axiom `ofReduceBool` will show up in `#print axioms` for theorems using\nthis method or anything that transitively depends on them. Nevertheless, because it is\ncompiled, this can be significantly more efficient than using `decide`, and for very\nlarge computations this is one way to run external programs and trust the result.\n```\nexample : (List.range 1000).length = 1000 := by native_decide\n```\n", 712);
+x_1 = lean_mk_string_unchecked("`native_decide` will attempt to prove a goal of type `p` by synthesizing an instance\nof `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this\nuses `#eval` to evaluate the decidability instance.\n\nThis should be used with care because it adds the entire lean compiler to the trusted\npart, and the axiom `ofReduceBool` will show up in `#print axioms` for theorems using\nthis method or anything that transitively depends on them. Nevertheless, because it is\ncompiled, this can be significantly more efficient than using `decide`, and for very\nlarge computations this is one way to run external programs and trust the result.\n```\nexample : (List.range 1000).length = 1000 := by native_decide\n```\n", 712, 712);
 return x_1;
 }
 }
@@ -3385,7 +3385,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_nativeDecide_declRan
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(140u);
+x_1 = lean_unsigned_to_nat(141u);
 x_2 = lean_unsigned_to_nat(25u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -3397,7 +3397,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_nativeDecide_declRan
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(141u);
+x_1 = lean_unsigned_to_nat(142u);
 x_2 = lean_unsigned_to_nat(35u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -3425,7 +3425,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_nativeDecide_declRan
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(140u);
+x_1 = lean_unsigned_to_nat(141u);
 x_2 = lean_unsigned_to_nat(29u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -3437,7 +3437,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_nativeDecide_declRan
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(140u);
+x_1 = lean_unsigned_to_nat(141u);
 x_2 = lean_unsigned_to_nat(41u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -3663,7 +3663,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_initFn____x40_Lean_Parser_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("matchRhsTacticSeq", 17);
+x_1 = lean_mk_string_unchecked("matchRhsTacticSeq", 17, 17);
 return x_1;
 }
 }
@@ -3681,7 +3681,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_initFn____x40_Lean_Parser_Tactic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("matchRhs", 8);
+x_1 = lean_mk_string_unchecked("matchRhs", 8, 8);
 return x_1;
 }
 }
@@ -3815,12 +3815,16 @@ return x_23;
 }
 }
 lean_object* initialize_Lean_Parser_Term(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Parser_Tactic_Doc(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Parser_Tactic(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Parser_Term(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Parser_Tactic_Doc(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Parser_Tactic_initFn____x40_Lean_Parser_Tactic___hyg_6____closed__1 = _init_l_Lean_Parser_Tactic_initFn____x40_Lean_Parser_Tactic___hyg_6____closed__1();

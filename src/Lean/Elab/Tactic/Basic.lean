@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
+import Lean.Meta.Tactic.Util
 import Lean.Elab.Term
 
 namespace Lean.Elab
@@ -96,14 +97,15 @@ def SavedState.restore (b : SavedState) (restoreInfo := false) : TacticM Unit :=
   b.term.restore restoreInfo
   set b.tactic
 
-@[specialize, inherit_doc Core.withRestoreOrSaveFull]
-def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState)) (act : TacticM α) :
+@[specialize, inherit_doc Term.withRestoreOrSaveFull]
+def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState))
+    (tacSnap? : Option (Language.SnapshotBundle Tactic.TacticParsedSnapshot)) (act : TacticM α) :
     TacticM (α × SavedState) := do
   if let some (_, state) := reusableResult? then
     set state.tactic
   let reusableResult? := reusableResult?.map (fun (val, state) => (val, state.term))
   let (a, term) ← controlAt TermElabM fun runInBase => do
-    Term.withRestoreOrSaveFull reusableResult? <| runInBase act
+    Term.withRestoreOrSaveFull reusableResult? tacSnap? <| runInBase act
   return (a, { term, tactic := (← get) })
 
 protected def getCurrMacroScope : TacticM MacroScope := do pure (← readThe Core.Context).currMacroScope
@@ -154,7 +156,9 @@ partial def evalTactic (stx : Syntax) : TacticM Unit := do
         -- Macro writers create a sequence of tactics `t₁ ... tₙ` using `mkNullNode #[t₁, ..., tₙ]`
         -- We could support incrementality here by allocating `n` new snapshot bundles but the
         -- practical value is not clear
-        Term.withoutTacticIncrementality true do
+        -- NOTE: `withTacticInfoContext` is used to preserve the invariant of `elabTactic` producing
+        -- exactly one info tree, which is necessary for using `getInfoTreeWithContext`.
+        Term.withoutTacticIncrementality true <| withTacticInfoContext stx do
           stx.getArgs.forM evalTactic
       else withTraceNode `Elab.step (fun _ => return stx) (tag := stx.getKind.toString) do
         let evalFns := tacticElabAttribute.getEntries (← getEnv) stx.getKind
@@ -221,14 +225,18 @@ where
                     snap.new.resolve <| .mk {
                       stx := stx'
                       diagnostics := .empty
-                      finished := .pure { state? := (← Tactic.saveState) }
-                    } #[{ range? := stx'.getRange?, task := promise.result }]
+                      finished := .pure {
+                        diagnostics := .empty
+                        state? := (← Tactic.saveState)
+                      }
+                      next := #[{ range? := stx'.getRange?, task := promise.result }]
+                    }
                     -- Update `tacSnap?` to old unfolding
                     withTheReader Term.Context ({ · with tacSnap? := some {
                       new := promise
                       old? := do
                         let old ← old?
-                        return ⟨old.data.stx, (← old.next.get? 0)⟩
+                        return ⟨old.data.stx, (← old.data.next.get? 0)⟩
                     } }) do
                       evalTactic stx'
                   return
@@ -397,12 +405,19 @@ def ensureHasNoMVars (e : Expr) : TacticM Unit := do
   if e.hasExprMVar then
     throwError "tactic failed, resulting expression contains metavariables{indentExpr e}"
 
-/-- Close main goal using the given expression. If `checkUnassigned == true`, then `val` must not contain unassigned metavariables. -/
-def closeMainGoal (val : Expr) (checkUnassigned := true): TacticM Unit := do
+/--
+Closes main goal using the given expression.
+If `checkUnassigned == true`, then `val` must not contain unassigned metavariables.
+Returns `true` if `val` was successfully used to close the goal.
+-/
+def closeMainGoal (tacName : Name) (val : Expr) (checkUnassigned := true): TacticM Unit := do
   if checkUnassigned then
     ensureHasNoMVars val
-  (← getMainGoal).assign val
-  replaceMainGoal []
+  let mvarId ← getMainGoal
+  if (← mvarId.checkedAssign val) then
+    replaceMainGoal []
+  else
+    throwTacticEx tacName mvarId m!"attempting to close the goal using{indentExpr val}\nthis is often due occurs-check failure"
 
 @[inline] def liftMetaMAtMain (x : MVarId → MetaM α) : TacticM α := do
   withMainContext do x (← getMainGoal)

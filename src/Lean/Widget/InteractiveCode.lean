@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Wojciech Nawrocki
 -/
 prelude
-import Lean.PrettyPrinter
 import Lean.Server.Rpc.Basic
 import Lean.Server.InfoUtils
 import Lean.Widget.TaggedText
@@ -76,7 +75,7 @@ where
 
 def ppExprTagged (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := do
   if pp.raw.get (← getOptions) then
-    return .text (toString e)
+    return .text (toString (← instantiateMVars e))
   let delab := open PrettyPrinter.Delaborator in
     if explicit then
       withOptionAtCurrPos pp.tagAppFns.name true do
@@ -86,6 +85,11 @@ def ppExprTagged (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := 
     else
       withOptionAtCurrPos pp.proofs.name true do
         delab
+  let mut e := e
+  -- When hovering over a metavariable, we want to see its value, even if `pp.instantiateMVars` is false.
+  if explicit && e.isMVar then
+    if let some e' ← getExprMVarAssignment? e.mvarId! then
+      e := e'
   let ⟨fmt, infos⟩ ← PrettyPrinter.ppExprWithInfos e (delab := delab)
   let tt := TaggedText.prettyTagged fmt
   let ctx := {

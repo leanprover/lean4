@@ -327,7 +327,7 @@ static lean_object* _init_l_Lean_Parser_initFn____x40_Lean_Parser_Level___hyg_5_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtin_level_parser", 20);
+x_1 = lean_mk_string_unchecked("builtin_level_parser", 20, 20);
 return x_1;
 }
 }
@@ -345,7 +345,7 @@ static lean_object* _init_l_Lean_Parser_initFn____x40_Lean_Parser_Level___hyg_5_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -353,7 +353,7 @@ static lean_object* _init_l_Lean_Parser_initFn____x40_Lean_Parser_Level___hyg_5_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -361,7 +361,7 @@ static lean_object* _init_l_Lean_Parser_initFn____x40_Lean_Parser_Level___hyg_5_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Category", 8);
+x_1 = lean_mk_string_unchecked("Category", 8, 8);
 return x_1;
 }
 }
@@ -369,7 +369,7 @@ static lean_object* _init_l_Lean_Parser_initFn____x40_Lean_Parser_Level___hyg_5_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("level", 5);
+x_1 = lean_mk_string_unchecked("level", 5, 5);
 return x_1;
 }
 }
@@ -409,7 +409,7 @@ static lean_object* _init_l_Lean_Parser_initFn____x40_Lean_Parser_Level___hyg_5_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -427,7 +427,7 @@ static lean_object* _init_l_Lean_Parser_initFn____x40_Lean_Parser_Level___hyg_5_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -465,7 +465,7 @@ static lean_object* _init_l_Lean_Parser_initFn____x40_Lean_Parser_Level___hyg_5_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Level", 5);
+x_1 = lean_mk_string_unchecked("Level", 5, 5);
 return x_1;
 }
 }
@@ -483,7 +483,7 @@ static lean_object* _init_l_Lean_Parser_initFn____x40_Lean_Parser_Level___hyg_5_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -542,7 +542,7 @@ static lean_object* _init_l_Lean_Parser_Level_paren___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("paren", 5);
+x_1 = lean_mk_string_unchecked("paren", 5, 5);
 return x_1;
 }
 }
@@ -574,7 +574,7 @@ static lean_object* _init_l_Lean_Parser_Level_paren___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -619,7 +619,7 @@ static lean_object* _init_l_Lean_Parser_Level_paren___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -940,7 +940,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Level_paren_formatter__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("formatter", 9);
+x_1 = lean_mk_string_unchecked("formatter", 9, 9);
 return x_1;
 }
 }
@@ -1104,7 +1104,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Level_paren_parenthesizer__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("parenthesizer", 13);
+x_1 = lean_mk_string_unchecked("parenthesizer", 13, 13);
 return x_1;
 }
 }
@@ -1153,7 +1153,7 @@ static lean_object* _init_l_Lean_Parser_Level_max___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("max", 3);
+x_1 = lean_mk_string_unchecked("max", 3, 3);
 return x_1;
 }
 }
@@ -1658,7 +1658,7 @@ static lean_object* _init_l_Lean_Parser_Level_imax___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("imax", 4);
+x_1 = lean_mk_string_unchecked("imax", 4, 4);
 return x_1;
 }
 }
@@ -2063,7 +2063,7 @@ static lean_object* _init_l_Lean_Parser_Level_hole___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("hole", 4);
+x_1 = lean_mk_string_unchecked("hole", 4, 4);
 return x_1;
 }
 }
@@ -2095,7 +2095,7 @@ static lean_object* _init_l_Lean_Parser_Level_hole___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_", 1);
+x_1 = lean_mk_string_unchecked("_", 1, 1);
 return x_1;
 }
 }
@@ -2463,7 +2463,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Level_num__1___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("num", 3);
+x_1 = lean_mk_string_unchecked("num", 3, 3);
 return x_1;
 }
 }
@@ -2668,7 +2668,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Level_ident__1___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ident", 5);
+x_1 = lean_mk_string_unchecked("ident", 5, 5);
 return x_1;
 }
 }
@@ -2839,7 +2839,7 @@ static lean_object* _init_l_Lean_Parser_Level_addLit___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("addLit", 6);
+x_1 = lean_mk_string_unchecked("addLit", 6, 6);
 return x_1;
 }
 }
@@ -2859,7 +2859,7 @@ static lean_object* _init_l_Lean_Parser_Level_addLit___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" + ", 3);
+x_1 = lean_mk_string_unchecked(" + ", 3, 3);
 return x_1;
 }
 }

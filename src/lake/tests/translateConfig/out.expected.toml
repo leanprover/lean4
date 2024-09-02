@@ -7,6 +7,11 @@ defaultTargets = ["A"]
 pp.unicode.fun = true
 
 [[require]]
+name = "baz"
+scope = "foo"
+version = "git#abcdef"
+
+[[require]]
 name = "foo"
 path = "dir"
 options = {foo = "bar"}

@@ -25,7 +25,7 @@ git commit -m "initial commit"
 GIT_REV=`git rev-parse HEAD`
 popd
 
-LATEST_VER=v1.0.0
+LATEST_VER=v1.1.0
 LOCKED_REV='0538596b94a0510f55dc820cabd3bde41ad93c3e'
 
 # Test an update produces the expected manifest of the latest version
@@ -66,3 +66,4 @@ test_manifest v5
 test_manifest v6
 test_manifest v7
 test_manifest v1.0.0
+test_manifest v1.1.0

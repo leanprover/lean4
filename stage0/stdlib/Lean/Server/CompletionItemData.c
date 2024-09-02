@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_List_join___rarg(lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Lsp_CompletionItem_getFileSource_x21___spec__1(lean_object*);
 static lean_object* l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__3;
 lean_object* l_Lean_Json_mkObj(lean_object*);
@@ -39,6 +39,7 @@ lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_fromJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_15____closed__5;
 static lean_object* l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__1;
+lean_object* l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_169____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_fromJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_15_(lean_object*);
 static lean_object* l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_fromJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_15____closed__8;
 static lean_object* l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_fromJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_15____closed__7;
@@ -51,6 +52,7 @@ static lean_object* l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_fromJ
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_toJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_78_(lean_object*);
 lean_object* l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_toJsonCompletionParams____x40_Lean_Data_Lsp_LanguageFeatures___hyg_2205_(lean_object*);
+static lean_object* l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_toJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_78____closed__1;
 static lean_object* l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_fromJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_15____closed__11;
 static lean_object* l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_fromJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_15____closed__4;
 lean_object* l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_fromJsonCompletionParams____x40_Lean_Data_Lsp_LanguageFeatures___hyg_2103_(lean_object*);
@@ -67,7 +69,7 @@ static lean_object* _init_l___private_Lean_Server_CompletionItemData_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("params", 6);
+x_1 = lean_mk_string_unchecked("params", 6, 6);
 return x_1;
 }
 }
@@ -75,7 +77,7 @@ static lean_object* _init_l___private_Lean_Server_CompletionItemData_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -83,7 +85,7 @@ static lean_object* _init_l___private_Lean_Server_CompletionItemData_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lsp", 3);
+x_1 = lean_mk_string_unchecked("Lsp", 3, 3);
 return x_1;
 }
 }
@@ -91,7 +93,7 @@ static lean_object* _init_l___private_Lean_Server_CompletionItemData_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("CompletionItemData", 18);
+x_1 = lean_mk_string_unchecked("CompletionItemData", 18, 18);
 return x_1;
 }
 }
@@ -120,7 +122,7 @@ static lean_object* _init_l___private_Lean_Server_CompletionItemData_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
+x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
@@ -168,7 +170,7 @@ static lean_object* _init_l___private_Lean_Server_CompletionItemData_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(": ", 2);
+x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
@@ -262,10 +264,19 @@ x_1 = l_Lean_Lsp_instFromJsonCompletionItemData___closed__1;
 return x_1;
 }
 }
+static lean_object* _init_l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_toJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_78____closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_toJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_78_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_2 = l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_toJsonCompletionParams____x40_Lean_Data_Lsp_LanguageFeatures___hyg_2205_(x_1);
 x_3 = l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_fromJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_15____closed__1;
 x_4 = lean_alloc_ctor(0, 2, 0);
@@ -278,9 +289,10 @@ lean_ctor_set(x_6, 1, x_5);
 x_7 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_7, 0, x_6);
 lean_ctor_set(x_7, 1, x_5);
-x_8 = l_List_join___rarg(x_7);
-x_9 = l_Lean_Json_mkObj(x_8);
-return x_9;
+x_8 = l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_toJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_78____closed__1;
+x_9 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_169____spec__1(x_7, x_8);
+x_10 = l_Lean_Json_mkObj(x_9);
+return x_10;
 }
 }
 static lean_object* _init_l_Lean_Lsp_instToJsonCompletionItemData___closed__1() {
@@ -312,7 +324,7 @@ static lean_object* _init_l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("no data param on completion item ", 33);
+x_1 = lean_mk_string_unchecked("no data param on completion item ", 33, 33);
 return x_1;
 }
 }
@@ -320,7 +332,7 @@ static lean_object* _init_l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -328,7 +340,7 @@ static lean_object* _init_l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Server.CompletionItemData", 30);
+x_1 = lean_mk_string_unchecked("Lean.Server.CompletionItemData", 30, 30);
 return x_1;
 }
 }
@@ -336,7 +348,7 @@ static lean_object* _init_l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItem.getFileSource!", 38);
+x_1 = lean_mk_string_unchecked("Lean.Lsp.CompletionItem.getFileSource!", 38, 38);
 return x_1;
 }
 }
@@ -458,6 +470,8 @@ l_Lean_Lsp_instFromJsonCompletionItemData___closed__1 = _init_l_Lean_Lsp_instFro
 lean_mark_persistent(l_Lean_Lsp_instFromJsonCompletionItemData___closed__1);
 l_Lean_Lsp_instFromJsonCompletionItemData = _init_l_Lean_Lsp_instFromJsonCompletionItemData();
 lean_mark_persistent(l_Lean_Lsp_instFromJsonCompletionItemData);
+l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_toJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_78____closed__1 = _init_l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_toJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_78____closed__1();
+lean_mark_persistent(l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_toJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_78____closed__1);
 l_Lean_Lsp_instToJsonCompletionItemData___closed__1 = _init_l_Lean_Lsp_instToJsonCompletionItemData___closed__1();
 lean_mark_persistent(l_Lean_Lsp_instToJsonCompletionItemData___closed__1);
 l_Lean_Lsp_instToJsonCompletionItemData = _init_l_Lean_Lsp_instToJsonCompletionItemData();

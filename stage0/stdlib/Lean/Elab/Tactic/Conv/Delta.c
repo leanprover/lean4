@@ -24,7 +24,6 @@ lean_object* l_Lean_Name_mkStr5(lean_object*, lean_object*, lean_object*, lean_o
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta_declRange__1___closed__6;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta__1___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalDelta___boxed__const__1;
-size_t lean_usize_of_nat(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta_declRange__1___closed__7;
 lean_object* l_Array_contains___at_Lean_findField_x3f___spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta_declRange__1___closed__4;
@@ -46,7 +45,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta__1___closed__
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalDelta(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta__1___closed__5;
-lean_object* lean_array_get_size(lean_object*);
+size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalDelta___lambda__1(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_deltaExpand(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta__1___closed__6;
@@ -210,22 +209,20 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalDelta(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; size_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+lean_object* x_11; lean_object* x_12; lean_object* x_13; size_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_11 = lean_unsigned_to_nat(1u);
 x_12 = l_Lean_Syntax_getArg(x_1, x_11);
 x_13 = l_Lean_Syntax_getArgs(x_12);
 lean_dec(x_12);
-x_14 = lean_array_get_size(x_13);
-x_15 = lean_usize_of_nat(x_14);
-lean_dec(x_14);
-x_16 = lean_box_usize(x_15);
-x_17 = l_Lean_Elab_Tactic_Conv_evalDelta___boxed__const__1;
-x_18 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Conv_evalDelta___lambda__1___boxed), 12, 3);
-lean_closure_set(x_18, 0, x_16);
-lean_closure_set(x_18, 1, x_17);
-lean_closure_set(x_18, 2, x_13);
-x_19 = l_Lean_Elab_Tactic_withMainContext___rarg(x_18, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-return x_19;
+x_14 = lean_array_size(x_13);
+x_15 = lean_box_usize(x_14);
+x_16 = l_Lean_Elab_Tactic_Conv_evalDelta___boxed__const__1;
+x_17 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Conv_evalDelta___lambda__1___boxed), 12, 3);
+lean_closure_set(x_17, 0, x_15);
+lean_closure_set(x_17, 1, x_16);
+lean_closure_set(x_17, 2, x_13);
+x_18 = l_Lean_Elab_Tactic_withMainContext___rarg(x_17, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+return x_18;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalDelta___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
@@ -253,7 +250,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -261,7 +258,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -269,7 +266,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -277,7 +274,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Conv", 4);
+x_1 = lean_mk_string_unchecked("Conv", 4, 4);
 return x_1;
 }
 }
@@ -285,7 +282,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("delta", 5);
+x_1 = lean_mk_string_unchecked("delta", 5, 5);
 return x_1;
 }
 }
@@ -306,7 +303,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -314,7 +311,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalDelta", 9);
+x_1 = lean_mk_string_unchecked("evalDelta", 9, 9);
 return x_1;
 }
 }

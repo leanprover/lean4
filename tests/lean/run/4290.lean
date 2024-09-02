@@ -1,3 +1,5 @@
+attribute [-simp] Nat.self_eq_add_right -- This was later added to the simp set and interfere with the test.
+
 def foo : Nat := 0
 def bar : Nat := 0
 

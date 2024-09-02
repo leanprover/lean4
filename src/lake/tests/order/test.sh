@@ -14,8 +14,9 @@ $LAKE update
 $LAKE build +A -v | grep --color 222000
 $LAKE build +A.B -v | grep --color 333000
 $LAKE build +A.B.C -v | grep --color 333000
-$LAKE build +X -v | grep --color 555000
+$LAKE build +X -v | grep --color 888000
 $LAKE build +Y -v | grep --color 666000
+$LAKE build +Z -v | grep --color 666000
 $LAKE exe Y | grep --color root
 
 # Tests that `lake update` does not reorder packages in the manifest
@@ -24,4 +25,10 @@ $LAKE exe Y | grep --color root
 
 cp lake-manifest.json lake-manifest-1.json
 $LAKE update foo
+diff --strip-trailing-cr lake-manifest-1.json lake-manifest.json
+
+# Tests that order does not change in the presence of dep manifests
+$LAKE -d foo update
+$LAKE -d bar update
+$LAKE update
 diff --strip-trailing-cr lake-manifest-1.json lake-manifest.json

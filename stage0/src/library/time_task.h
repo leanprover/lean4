@@ -11,11 +11,11 @@ Author: Sebastian Ullrich
 #include "util/message_definitions.h"
 
 namespace lean {
-void report_profiling_time(std::string const & category, second_duration time);
-void display_cumulative_profiling_times(std::ostream & out);
+LEAN_EXPORT void report_profiling_time(std::string const & category, second_duration time);
+LEAN_EXPORT void display_cumulative_profiling_times(std::ostream & out);
 
 /** Measure time of some task and report it for the final cumulative profile. */
-class time_task {
+class LEAN_EXPORT time_task {
     std::string     m_category;
     optional<xtimeit> m_timeit;
     time_task *     m_parent_task;

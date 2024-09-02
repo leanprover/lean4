@@ -130,7 +130,6 @@ static lean_object* l_Lean_Parser_command____Dsimproc_____x5b___x5d___x28___x29_
 static lean_object* l_Lean_Parser_command____Builtin__simproc_____x5b___x5d___x28___x29_x3a_x3d_____closed__5;
 LEAN_EXPORT lean_object* l_Lean_Parser___aux__Init__Simproc______macroRules__Lean__Parser__command__Builtin__dsimproc__decl___x28___x29_x3a_x3d____1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_command__Builtin__simproc__decl___x28___x29_x3a_x3d_____closed__3;
-size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_Parser___aux__Init__Simproc______macroRules__Lean__Parser__command__Simproc__decl___x28___x29_x3a_x3d____1___lambda__1___closed__30;
 static lean_object* l_Lean_Parser_command__Dsimproc__decl___x28___x29_x3a_x3d_____closed__11;
 static lean_object* l_Lean_Parser___aux__Init__Simproc______macroRules__Lean__Parser__command__Simproc__decl___x28___x29_x3a_x3d____1___lambda__1___closed__18;
@@ -313,13 +312,13 @@ static lean_object* l_Lean_Parser_command____Simproc_____x5b___x5d___x28___x29_x
 static lean_object* l_Lean_Parser_command____Builtin__dsimproc_____x5b___x5d___x28___x29_x3a_x3d_____closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
+size_t lean_array_size(lean_object*);
 static lean_object* l_Lean_Parser_command____Simproc_____x5b___x5d___x28___x29_x3a_x3d_____closed__4;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_command____Simproc_____x5b___x5d___x28___x29_x3a_x3d_____closed__23;
 LEAN_EXPORT lean_object* l_Lean_Parser___aux__Init__Simproc______macroRules__Lean__Parser__command____Dsimproc_____x5b___x5d___x28___x29_x3a_x3d____1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser___aux__Init__Simproc______macroRules__Lean__Parser__command__Simproc__decl___x28___x29_x3a_x3d____1___lambda__1___closed__27;
 static lean_object* l_Lean_Parser_command__Builtin__dsimproc__decl___x28___x29_x3a_x3d_____closed__11;
-lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lean_Parser_command____Dsimproc_____x5b___x5d___x28___x29_x3a_x3d_____closed__12;
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Parser___aux__Init__Simproc______macroRules__Lean__Parser__command____Dsimproc_____x5b___x5d___x28___x29_x3a_x3d____1___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -363,7 +362,7 @@ static lean_object* _init_l_Lean_Parser_command____Simproc_____x5b___x5d___x28__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -371,7 +370,7 @@ static lean_object* _init_l_Lean_Parser_command____Simproc_____x5b___x5d___x28__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -379,7 +378,7 @@ static lean_object* _init_l_Lean_Parser_command____Simproc_____x5b___x5d___x28__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("command__Simproc__[_]_(_):=_", 28);
+x_1 = lean_mk_string_unchecked("command__Simproc__[_]_(_):=_", 28, 28);
 return x_1;
 }
 }
@@ -398,7 +397,7 @@ static lean_object* _init_l_Lean_Parser_command____Simproc_____x5b___x5d___x28__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("andthen", 7);
+x_1 = lean_mk_string_unchecked("andthen", 7, 7);
 return x_1;
 }
 }
@@ -416,7 +415,7 @@ static lean_object* _init_l_Lean_Parser_command____Simproc_____x5b___x5d___x28__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("optional", 8);
+x_1 = lean_mk_string_unchecked("optional", 8, 8);
 return x_1;
 }
 }
@@ -434,7 +433,7 @@ static lean_object* _init_l_Lean_Parser_command____Simproc_____x5b___x5d___x28__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("docComment", 10);
+x_1 = lean_mk_string_unchecked("docComment", 10, 10);
 return x_1;
 }
 }
@@ -474,7 +473,7 @@ static lean_object* _init_l_Lean_Parser_command____Simproc_____x5b___x5d___x28__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attrKind", 8);
+x_1 = lean_mk_string_unchecked("attrKind", 8, 8);
 return x_1;
 }
 }
@@ -516,7 +515,7 @@ static lean_object* _init_l_Lean_Parser_command____Simproc_____x5b___x5d___x28__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simproc ", 8);
+x_1 = lean_mk_string_unchecked("simproc ", 8, 8);
 return x_1;
 }
 }
@@ -548,7 +547,7 @@ static lean_object* _init_l_Lean_Parser_command____Simproc_____x5b___x5d___x28__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("orelse", 6);
+x_1 = lean_mk_string_unchecked("orelse", 6, 6);
 return x_1;
 }
 }
@@ -606,7 +605,7 @@ static lean_object* _init_l_Lean_Parser_command____Simproc_____x5b___x5d___x28__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
+x_1 = lean_mk_string_unchecked("[", 1, 1);
 return x_1;
 }
 }
@@ -624,7 +623,7 @@ static lean_object* _init_l_Lean_Parser_command____Simproc_____x5b___x5d___x28__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ident", 5);
+x_1 = lean_mk_string_unchecked("ident", 5, 5);
 return x_1;
 }
 }
@@ -652,7 +651,7 @@ static lean_object* _init_l_Lean_Parser_command____Simproc_____x5b___x5d___x28__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(", ", 2);
+x_1 = lean_mk_string_unchecked(", ", 2, 2);
 return x_1;
 }
 }
@@ -670,7 +669,7 @@ static lean_object* _init_l_Lean_Parser_command____Simproc_____x5b___x5d___x28__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(",", 1);
+x_1 = lean_mk_string_unchecked(",", 1, 1);
 return x_1;
 }
 }
@@ -708,7 +707,7 @@ static lean_object* _init_l_Lean_Parser_command____Simproc_____x5b___x5d___x28__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_unchecked("]", 1, 1);
 return x_1;
 }
 }
@@ -780,7 +779,7 @@ static lean_object* _init_l_Lean_Parser_command____Simproc_____x5b___x5d___x28__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" (", 2);
+x_1 = lean_mk_string_unchecked(" (", 2, 2);
 return x_1;
 }
 }
@@ -812,7 +811,7 @@ static lean_object* _init_l_Lean_Parser_command____Simproc_____x5b___x5d___x28__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term", 4);
+x_1 = lean_mk_string_unchecked("term", 4, 4);
 return x_1;
 }
 }
@@ -856,7 +855,7 @@ static lean_object* _init_l_Lean_Parser_command____Simproc_____x5b___x5d___x28__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
+x_1 = lean_mk_string_unchecked(")", 1, 1);
 return x_1;
 }
 }
@@ -888,7 +887,7 @@ static lean_object* _init_l_Lean_Parser_command____Simproc_____x5b___x5d___x28__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" := ", 4);
+x_1 = lean_mk_string_unchecked(" := ", 4, 4);
 return x_1;
 }
 }
@@ -956,7 +955,7 @@ static lean_object* _init_l_Lean_Parser_command____Dsimproc_____x5b___x5d___x28_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("command__Dsimproc__[_]_(_):=_", 29);
+x_1 = lean_mk_string_unchecked("command__Dsimproc__[_]_(_):=_", 29, 29);
 return x_1;
 }
 }
@@ -975,7 +974,7 @@ static lean_object* _init_l_Lean_Parser_command____Dsimproc_____x5b___x5d___x28_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("dsimproc ", 9);
+x_1 = lean_mk_string_unchecked("dsimproc ", 9, 9);
 return x_1;
 }
 }
@@ -1141,7 +1140,7 @@ static lean_object* _init_l_Lean_Parser_command__Simproc__decl___x28___x29_x3a_x
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("command_Simproc_decl_(_):=_", 27);
+x_1 = lean_mk_string_unchecked("command_Simproc_decl_(_):=_", 27, 27);
 return x_1;
 }
 }
@@ -1160,7 +1159,7 @@ static lean_object* _init_l_Lean_Parser_command__Simproc__decl___x28___x29_x3a_x
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simproc_decl ", 13);
+x_1 = lean_mk_string_unchecked("simproc_decl ", 13, 13);
 return x_1;
 }
 }
@@ -1298,7 +1297,7 @@ static lean_object* _init_l_Lean_Parser_command__Dsimproc__decl___x28___x29_x3a_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("command_Dsimproc_decl_(_):=_", 28);
+x_1 = lean_mk_string_unchecked("command_Dsimproc_decl_(_):=_", 28, 28);
 return x_1;
 }
 }
@@ -1317,7 +1316,7 @@ static lean_object* _init_l_Lean_Parser_command__Dsimproc__decl___x28___x29_x3a_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("dsimproc_decl ", 14);
+x_1 = lean_mk_string_unchecked("dsimproc_decl ", 14, 14);
 return x_1;
 }
 }
@@ -1455,7 +1454,7 @@ static lean_object* _init_l_Lean_Parser_command____Builtin__simproc_____x5b___x5
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("command__Builtin_simproc__[_]_(_):=_", 36);
+x_1 = lean_mk_string_unchecked("command__Builtin_simproc__[_]_(_):=_", 36, 36);
 return x_1;
 }
 }
@@ -1474,7 +1473,7 @@ static lean_object* _init_l_Lean_Parser_command____Builtin__simproc_____x5b___x5
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtin_simproc ", 16);
+x_1 = lean_mk_string_unchecked("builtin_simproc ", 16, 16);
 return x_1;
 }
 }
@@ -1640,7 +1639,7 @@ static lean_object* _init_l_Lean_Parser_command____Builtin__dsimproc_____x5b___x
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("command__Builtin_dsimproc__[_]_(_):=_", 37);
+x_1 = lean_mk_string_unchecked("command__Builtin_dsimproc__[_]_(_):=_", 37, 37);
 return x_1;
 }
 }
@@ -1659,7 +1658,7 @@ static lean_object* _init_l_Lean_Parser_command____Builtin__dsimproc_____x5b___x
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtin_dsimproc ", 17);
+x_1 = lean_mk_string_unchecked("builtin_dsimproc ", 17, 17);
 return x_1;
 }
 }
@@ -1825,7 +1824,7 @@ static lean_object* _init_l_Lean_Parser_command__Builtin__simproc__decl___x28___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("command_Builtin_simproc_decl_(_):=_", 35);
+x_1 = lean_mk_string_unchecked("command_Builtin_simproc_decl_(_):=_", 35, 35);
 return x_1;
 }
 }
@@ -1844,7 +1843,7 @@ static lean_object* _init_l_Lean_Parser_command__Builtin__simproc__decl___x28___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtin_simproc_decl ", 21);
+x_1 = lean_mk_string_unchecked("builtin_simproc_decl ", 21, 21);
 return x_1;
 }
 }
@@ -1982,7 +1981,7 @@ static lean_object* _init_l_Lean_Parser_command__Builtin__dsimproc__decl___x28__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("command_Builtin_dsimproc_decl_(_):=_", 36);
+x_1 = lean_mk_string_unchecked("command_Builtin_dsimproc_decl_(_):=_", 36, 36);
 return x_1;
 }
 }
@@ -2001,7 +2000,7 @@ static lean_object* _init_l_Lean_Parser_command__Builtin__dsimproc__decl___x28__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtin_dsimproc_decl ", 22);
+x_1 = lean_mk_string_unchecked("builtin_dsimproc_decl ", 22, 22);
 return x_1;
 }
 }
@@ -2139,7 +2138,7 @@ static lean_object* _init_l_Lean_Parser_simprocPattern___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simprocPattern", 14);
+x_1 = lean_mk_string_unchecked("simprocPattern", 14, 14);
 return x_1;
 }
 }
@@ -2158,7 +2157,7 @@ static lean_object* _init_l_Lean_Parser_simprocPattern___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simproc_pattern% ", 17);
+x_1 = lean_mk_string_unchecked("simproc_pattern% ", 17, 17);
 return x_1;
 }
 }
@@ -2190,7 +2189,7 @@ static lean_object* _init_l_Lean_Parser_simprocPattern___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" => ", 4);
+x_1 = lean_mk_string_unchecked(" => ", 4, 4);
 return x_1;
 }
 }
@@ -2258,7 +2257,7 @@ static lean_object* _init_l_Lean_Parser_simprocPatternBuiltin___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simprocPatternBuiltin", 21);
+x_1 = lean_mk_string_unchecked("simprocPatternBuiltin", 21, 21);
 return x_1;
 }
 }
@@ -2277,7 +2276,7 @@ static lean_object* _init_l_Lean_Parser_simprocPatternBuiltin___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtin_simproc_pattern% ", 25);
+x_1 = lean_mk_string_unchecked("builtin_simproc_pattern% ", 25, 25);
 return x_1;
 }
 }
@@ -2359,7 +2358,7 @@ static lean_object* _init_l_Lean_Parser_Attr_simprocAttr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Attr", 4);
+x_1 = lean_mk_string_unchecked("Attr", 4, 4);
 return x_1;
 }
 }
@@ -2367,7 +2366,7 @@ static lean_object* _init_l_Lean_Parser_Attr_simprocAttr___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simprocAttr", 11);
+x_1 = lean_mk_string_unchecked("simprocAttr", 11, 11);
 return x_1;
 }
 }
@@ -2387,7 +2386,7 @@ static lean_object* _init_l_Lean_Parser_Attr_simprocAttr___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simproc", 7);
+x_1 = lean_mk_string_unchecked("simproc", 7, 7);
 return x_1;
 }
 }
@@ -2443,7 +2442,7 @@ static lean_object* _init_l_Lean_Parser_Attr_sevalprocAttr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sevalprocAttr", 13);
+x_1 = lean_mk_string_unchecked("sevalprocAttr", 13, 13);
 return x_1;
 }
 }
@@ -2463,7 +2462,7 @@ static lean_object* _init_l_Lean_Parser_Attr_sevalprocAttr___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sevalproc", 9);
+x_1 = lean_mk_string_unchecked("sevalproc", 9, 9);
 return x_1;
 }
 }
@@ -2519,7 +2518,7 @@ static lean_object* _init_l_Lean_Parser_Attr_simprocBuiltinAttr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simprocBuiltinAttr", 18);
+x_1 = lean_mk_string_unchecked("simprocBuiltinAttr", 18, 18);
 return x_1;
 }
 }
@@ -2539,7 +2538,7 @@ static lean_object* _init_l_Lean_Parser_Attr_simprocBuiltinAttr___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtin_simproc", 15);
+x_1 = lean_mk_string_unchecked("builtin_simproc", 15, 15);
 return x_1;
 }
 }
@@ -2595,7 +2594,7 @@ static lean_object* _init_l_Lean_Parser_Attr_sevalprocBuiltinAttr___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("sevalprocBuiltinAttr", 20);
+x_1 = lean_mk_string_unchecked("sevalprocBuiltinAttr", 20, 20);
 return x_1;
 }
 }
@@ -2615,7 +2614,7 @@ static lean_object* _init_l_Lean_Parser_Attr_sevalprocBuiltinAttr___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtin_sevalproc", 17);
+x_1 = lean_mk_string_unchecked("builtin_sevalproc", 17, 17);
 return x_1;
 }
 }
@@ -2671,7 +2670,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Meta", 4);
+x_1 = lean_mk_string_unchecked("Meta", 4, 4);
 return x_1;
 }
 }
@@ -2679,7 +2678,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Simp", 4);
+x_1 = lean_mk_string_unchecked("Simp", 4, 4);
 return x_1;
 }
 }
@@ -2687,7 +2686,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Simproc", 7);
+x_1 = lean_mk_string_unchecked("Simproc", 7, 7);
 return x_1;
 }
 }
@@ -2707,7 +2706,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -2725,7 +2724,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Command", 7);
+x_1 = lean_mk_string_unchecked("Command", 7, 7);
 return x_1;
 }
 }
@@ -2733,7 +2732,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declaration", 11);
+x_1 = lean_mk_string_unchecked("declaration", 11, 11);
 return x_1;
 }
 }
@@ -2753,7 +2752,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declModifiers", 13);
+x_1 = lean_mk_string_unchecked("declModifiers", 13, 13);
 return x_1;
 }
 }
@@ -2782,7 +2781,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("definition", 10);
+x_1 = lean_mk_string_unchecked("definition", 10, 10);
 return x_1;
 }
 }
@@ -2802,7 +2801,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("def", 3);
+x_1 = lean_mk_string_unchecked("def", 3, 3);
 return x_1;
 }
 }
@@ -2810,7 +2809,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declId", 6);
+x_1 = lean_mk_string_unchecked("declId", 6, 6);
 return x_1;
 }
 }
@@ -2830,7 +2829,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("optDeclSig", 10);
+x_1 = lean_mk_string_unchecked("optDeclSig", 10, 10);
 return x_1;
 }
 }
@@ -2850,7 +2849,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -2858,7 +2857,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("typeSpec", 8);
+x_1 = lean_mk_string_unchecked("typeSpec", 8, 8);
 return x_1;
 }
 }
@@ -2878,7 +2877,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
@@ -2895,7 +2894,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declValSimple", 13);
+x_1 = lean_mk_string_unchecked("declValSimple", 13, 13);
 return x_1;
 }
 }
@@ -2915,7 +2914,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":=", 2);
+x_1 = lean_mk_string_unchecked(":=", 2, 2);
 return x_1;
 }
 }
@@ -2923,7 +2922,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Termination", 11);
+x_1 = lean_mk_string_unchecked("Termination", 11, 11);
 return x_1;
 }
 }
@@ -2931,7 +2930,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("suffix", 6);
+x_1 = lean_mk_string_unchecked("suffix", 6, 6);
 return x_1;
 }
 }
@@ -2951,7 +2950,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simproc_pattern%", 16);
+x_1 = lean_mk_string_unchecked("simproc_pattern%", 16, 16);
 return x_1;
 }
 }
@@ -2959,7 +2958,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("=>", 2);
+x_1 = lean_mk_string_unchecked("=>", 2, 2);
 return x_1;
 }
 }
@@ -3236,7 +3235,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("DSimproc", 8);
+x_1 = lean_mk_string_unchecked("DSimproc", 8, 8);
 return x_1;
 }
 }
@@ -3513,7 +3512,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtin_simproc_pattern%", 24);
+x_1 = lean_mk_string_unchecked("builtin_simproc_pattern%", 24, 24);
 return x_1;
 }
 }
@@ -4026,7 +4025,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Init_Simproc_0
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attribute", 9);
+x_1 = lean_mk_string_unchecked("attribute", 9, 9);
 return x_1;
 }
 }
@@ -4046,7 +4045,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Init_Simproc_0
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("attrInstance", 12);
+x_1 = lean_mk_string_unchecked("attrInstance", 12, 12);
 return x_1;
 }
 }
@@ -4066,7 +4065,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Init_Simproc_0
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simp", 4);
+x_1 = lean_mk_string_unchecked("simp", 4, 4);
 return x_1;
 }
 }
@@ -4084,7 +4083,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Init_Simproc_0
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("seval", 5);
+x_1 = lean_mk_string_unchecked("seval", 5, 5);
 return x_1;
 }
 }
@@ -4102,7 +4101,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Init_Simproc_0
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_proc", 5);
+x_1 = lean_mk_string_unchecked("_proc", 5, 5);
 return x_1;
 }
 }
@@ -4387,26 +4386,24 @@ return x_48;
 }
 else
 {
-lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; size_t x_53; size_t x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; 
+lean_object* x_49; lean_object* x_50; lean_object* x_51; size_t x_52; size_t x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; 
 x_49 = lean_ctor_get(x_3, 0);
 x_50 = lean_box(0);
 x_51 = l_Lean_Syntax_TSepArray_getElems___rarg(x_49);
-x_52 = lean_array_get_size(x_51);
-x_53 = lean_usize_of_nat(x_52);
-lean_dec(x_52);
-x_54 = 0;
-x_55 = l_Lean_Parser___aux__Init__Simproc______macroRules__Lean__Parser__command__Simproc__decl___x28___x29_x3a_x3d____1___lambda__1___closed__12;
-x_56 = l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1(x_1, x_2, x_4, x_50, x_51, x_53, x_54, x_55, x_5, x_6);
+x_52 = lean_array_size(x_51);
+x_53 = 0;
+x_54 = l_Lean_Parser___aux__Init__Simproc______macroRules__Lean__Parser__command__Simproc__decl___x28___x29_x3a_x3d____1___lambda__1___closed__12;
+x_55 = l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1(x_1, x_2, x_4, x_50, x_51, x_52, x_53, x_54, x_5, x_6);
 lean_dec(x_51);
 lean_dec(x_2);
-x_57 = lean_ctor_get(x_56, 0);
+x_56 = lean_ctor_get(x_55, 0);
+lean_inc(x_56);
+x_57 = lean_ctor_get(x_55, 1);
 lean_inc(x_57);
-x_58 = lean_ctor_get(x_56, 1);
-lean_inc(x_58);
-lean_dec(x_56);
-x_59 = lean_box(0);
-x_60 = lean_apply_4(x_7, x_57, x_59, x_5, x_58);
-return x_60;
+lean_dec(x_55);
+x_58 = lean_box(0);
+x_59 = lean_apply_4(x_7, x_56, x_58, x_5, x_57);
+return x_59;
 }
 }
 }
@@ -4449,7 +4446,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simproc_decl", 12);
+x_1 = lean_mk_string_unchecked("simproc_decl", 12, 12);
 return x_1;
 }
 }
@@ -4457,7 +4454,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_unchecked("(", 1, 1);
 return x_1;
 }
 }
@@ -4954,7 +4951,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("dsimproc_decl", 13);
+x_1 = lean_mk_string_unchecked("dsimproc_decl", 13, 13);
 return x_1;
 }
 }
@@ -5430,7 +5427,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtin_simproc_decl", 20);
+x_1 = lean_mk_string_unchecked("builtin_simproc_decl", 20, 20);
 return x_1;
 }
 }
@@ -6278,7 +6275,7 @@ static lean_object* _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtin_dsimproc_decl", 21);
+x_1 = lean_mk_string_unchecked("builtin_dsimproc_decl", 21, 21);
 return x_1;
 }
 }

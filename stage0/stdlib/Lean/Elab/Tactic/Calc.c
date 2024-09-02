@@ -23,7 +23,7 @@ lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Tactic_tacticElabAttribute;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalCalc__1___closed__9;
-lean_object* l_Lean_MVarId_assign___at_Lean_Elab_Tactic_closeMainGoal___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MVarId_assign___at_Lean_Elab_Tactic_refineCore___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalCalc___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalCalc__1___closed__4;
 lean_object* l_Lean_instantiateMVars___at_Lean_Elab_Term_MVarErrorInfo_logError___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -86,7 +86,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalCalc_throwFailed___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'calc' tactic failed, has type", 30);
+x_1 = lean_mk_string_unchecked("'calc' tactic failed, has type", 30, 30);
 return x_1;
 }
 }
@@ -103,7 +103,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalCalc_throwFailed___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\nbut it is expected to have type", 32);
+x_1 = lean_mk_string_unchecked("\nbut it is expected to have type", 32, 32);
 return x_1;
 }
 }
@@ -120,7 +120,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalCalc_throwFailed___closed__5() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -193,7 +193,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalCalc___lambda__2___closed__2() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("calc", 4);
+x_1 = lean_mk_string_unchecked("calc", 4, 4);
 return x_1;
 }
 }
@@ -201,7 +201,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalCalc___lambda__2___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("step", 4);
+x_1 = lean_mk_string_unchecked("step", 4, 4);
 return x_1;
 }
 }
@@ -776,7 +776,7 @@ lean_inc(x_19);
 x_20 = lean_ctor_get(x_18, 1);
 lean_inc(x_20);
 lean_dec(x_18);
-x_21 = l_Lean_MVarId_assign___at_Lean_Elab_Tactic_closeMainGoal___spec__1(x_19, x_16, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_20);
+x_21 = l_Lean_MVarId_assign___at_Lean_Elab_Tactic_refineCore___spec__1(x_19, x_16, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_20);
 x_22 = lean_ctor_get(x_21, 1);
 lean_inc(x_22);
 lean_dec(x_21);
@@ -911,7 +911,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalCalc__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -919,7 +919,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalCalc__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("calcTactic", 10);
+x_1 = lean_mk_string_unchecked("calcTactic", 10, 10);
 return x_1;
 }
 }
@@ -937,7 +937,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalCalc__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elab", 4);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -945,7 +945,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalCalc__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Tactic", 6);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
@@ -953,7 +953,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalCalc__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("evalCalc", 8);
+x_1 = lean_mk_string_unchecked("evalCalc", 8, 8);
 return x_1;
 }
 }
@@ -1001,7 +1001,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalCalc_docString__1_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Elaborator for the `calc` tactic mode variant. ", 47);
+x_1 = lean_mk_string_unchecked("Elaborator for the `calc` tactic mode variant. ", 47, 47);
 return x_1;
 }
 }

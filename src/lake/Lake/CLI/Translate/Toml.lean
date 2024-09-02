@@ -105,14 +105,20 @@ protected def LeanExeConfig.toToml (cfg : LeanExeConfig) (t : Table  := {}) : Ta
 instance : ToToml LeanExeConfig := ⟨(toToml ·.toToml)⟩
 
 protected def Dependency.toToml (dep : Dependency) (t : Table  := {}) : Table :=
-  let t := t.insert `name dep.name
+  let t := t
+    |>.insert `name dep.name
+    |>.insertD `scope dep.scope ""
+    |>.smartInsert `version dep.version?
   let t :=
-    match dep.src with
-    | .path dir => t.insert `path (toToml dir)
-    | .git url rev subDir? =>
-      t.insert `git url
-      |>.smartInsert `rev rev
-      |>.smartInsert `subDir subDir?
+    if let some src := dep.src? then
+      match src with
+      | .path dir => t.insert `path (toToml dir)
+      | .git url rev subDir? =>
+        t.insert `git url
+        |>.smartInsert `rev rev
+        |>.smartInsert `subDir subDir?
+    else
+      t
   t.smartInsert `options <| dep.opts.fold (·.insert · ·) Table.empty
 
 instance : ToToml Dependency := ⟨(toToml ·.toToml)⟩

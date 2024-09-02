@@ -837,7 +837,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Core_0__Lean_Meta_G
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Tactic.Grind.Core", 27);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Tactic.Grind.Core", 27, 27);
 return x_1;
 }
 }
@@ -845,7 +845,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Core_0__Lean_Meta_G
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Meta.Tactic.Grind.Core.0.Lean.Meta.Grind.invertTrans.go", 69);
+x_1 = lean_mk_string_unchecked("_private.Lean.Meta.Tactic.Grind.Core.0.Lean.Meta.Grind.invertTrans.go", 69, 69);
 return x_1;
 }
 }
@@ -853,7 +853,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Core_0__Lean_Meta_G
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
@@ -1367,7 +1367,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Core_0__Lean_Meta_G
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Meta.Tactic.Grind.Core.0.Lean.Meta.Grind.addEqStep.updateRoots.loop", 81);
+x_1 = lean_mk_string_unchecked("_private.Lean.Meta.Tactic.Grind.Core.0.Lean.Meta.Grind.addEqStep.updateRoots.loop", 81, 81);
 return x_1;
 }
 }
@@ -2902,7 +2902,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_Core_0__Lean_Meta_G
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Meta.Tactic.Grind.Core.0.Lean.Meta.Grind.addEqStep", 64);
+x_1 = lean_mk_string_unchecked("_private.Lean.Meta.Tactic.Grind.Core.0.Lean.Meta.Grind.addEqStep", 64, 64);
 return x_1;
 }
 }

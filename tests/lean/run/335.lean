@@ -1,3 +1,5 @@
+set_option pp.mvars false
+
 opaque foo : {x : Nat} → Type
 opaque bar : {T : Type} → ({x : T} → Type) → Type
 structure Baz where
@@ -22,7 +24,7 @@ structure Tm where
 /--
 info: fun Γ A x x_1 xTy =>
   Eq.rec (motive := fun ty x => {Γ : ty.ctx} → ty.ty Γ) (fun {Γ} => x_1.tm)
-    xTy : (Γ : Type) → (A : Ty) → (x : Γ = A.ctx) → (x_1 : Tm) → (xTy : x_1.ty = A) → A.ty (?m.1082 Γ A x x_1 xTy)
+    xTy : (Γ : Type) → (A : Ty) → (x : Γ = A.ctx) → (x_1 : Tm) → (xTy : x_1.ty = A) → A.ty (?_ Γ A x x_1 xTy)
 -/
 #guard_msgs in
 #check fun (Γ : Type)
@@ -35,7 +37,7 @@ info: fun Γ A x x_1 xTy =>
 /--
 info: fun Γ A x x_1 xTy =>
   Eq.rec (motive := fun ty x => {Γ : ty.ctx} → ty.ty Γ) (fun {Γ} => x_1.tm)
-    xTy : (Γ : Type) → (A : Ty) → (x : Γ = A.ctx) → (x_1 : Tm) → (xTy : x_1.ty = A) → A.ty (?m.1176 Γ A x x_1 xTy)
+    xTy : (Γ : Type) → (A : Ty) → (x : Γ = A.ctx) → (x_1 : Tm) → (xTy : x_1.ty = A) → A.ty (?_ Γ A x x_1 xTy)
 -/
 #guard_msgs in
 #check fun (Γ : Type)

@@ -16,9 +16,7 @@ extern "C" {
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_90____closed__11;
 lean_object* l_Lean_MessageData_ofList(lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_90____closed__12;
-lean_object* l_Lean_profileitM___at_Lean_addDecl___spec__8___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
-lean_object* l_Lean_withTraceNode___at_Lean_addDecl___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_compile(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_90____closed__10;
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_90____closed__6;
@@ -30,6 +28,7 @@ lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*, lean
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_90____closed__3;
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
+lean_object* l_Lean_profileitM___at_Lean_Compiler_LCNF_main___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_compile___lambda__1___closed__4;
 static lean_object* l_Lean_Compiler_compile___closed__2;
@@ -41,6 +40,7 @@ static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_90___
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_90____closed__13;
 static lean_object* l_Lean_Compiler_compile___lambda__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Compiler_compile___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_withTraceNode___at_Lean_Compiler_LCNF_main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_compile___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_90_(lean_object*);
@@ -56,7 +56,7 @@ static lean_object* _init_l_Lean_Compiler_compile___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("compiling: ", 11);
+x_1 = lean_mk_string_unchecked("compiling: ", 11, 11);
 return x_1;
 }
 }
@@ -73,7 +73,7 @@ static lean_object* _init_l_Lean_Compiler_compile___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -167,7 +167,7 @@ static lean_object* _init_l_Lean_Compiler_compile___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Compiler", 8);
+x_1 = lean_mk_string_unchecked("Compiler", 8, 8);
 return x_1;
 }
 }
@@ -185,7 +185,7 @@ static lean_object* _init_l_Lean_Compiler_compile___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("compiler new", 12);
+x_1 = lean_mk_string_unchecked("compiler new", 12, 12);
 return x_1;
 }
 }
@@ -204,7 +204,7 @@ x_8 = l_Lean_Compiler_compile___closed__2;
 x_9 = 1;
 x_10 = l_Lean_Compiler_compile___lambda__1___closed__3;
 x_11 = lean_box(x_9);
-x_12 = lean_alloc_closure((void*)(l_Lean_withTraceNode___at_Lean_addDecl___spec__6___boxed), 8, 5);
+x_12 = lean_alloc_closure((void*)(l_Lean_withTraceNode___at_Lean_Compiler_LCNF_main___spec__1___boxed), 8, 5);
 lean_closure_set(x_12, 0, x_8);
 lean_closure_set(x_12, 1, x_6);
 lean_closure_set(x_12, 2, x_7);
@@ -212,7 +212,7 @@ lean_closure_set(x_12, 3, x_11);
 lean_closure_set(x_12, 4, x_10);
 x_13 = l_Lean_Compiler_compile___closed__3;
 x_14 = lean_box(0);
-x_15 = l_Lean_profileitM___at_Lean_addDecl___spec__8___rarg(x_13, x_5, x_12, x_14, x_2, x_3, x_4);
+x_15 = l_Lean_profileitM___at_Lean_Compiler_LCNF_main___spec__3___rarg(x_13, x_5, x_12, x_14, x_2, x_3, x_4);
 lean_dec(x_5);
 return x_15;
 }
@@ -232,7 +232,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -260,7 +260,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("initFn", 6);
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
 return x_1;
 }
 }
@@ -278,7 +278,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_@", 2);
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
@@ -316,7 +316,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Main", 4);
+x_1 = lean_mk_string_unchecked("Main", 4, 4);
 return x_1;
 }
 }
@@ -334,7 +334,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_hyg", 4);
+x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
@@ -362,7 +362,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("stat", 4);
+x_1 = lean_mk_string_unchecked("stat", 4, 4);
 return x_1;
 }
 }

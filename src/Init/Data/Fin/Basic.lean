@@ -141,8 +141,8 @@ instance : ShiftLeft (Fin n) where
 instance : ShiftRight (Fin n) where
   shiftRight := Fin.shiftRight
 
-instance instOfNat : OfNat (Fin (no_index (n+1))) i where
-  ofNat := Fin.ofNat i
+instance instOfNat {n : Nat} [NeZero n] {i : Nat} : OfNat (Fin (no_index n)) i where
+  ofNat := Fin.ofNat' i (pos_of_neZero _)
 
 instance : Inhabited (Fin (no_index (n+1))) where
   default := 0

@@ -1304,6 +1304,11 @@ class HShiftRight (α : Type u) (β : Type v) (γ : outParam (Type w)) where
     this is equivalent to `a / 2 ^ b`. -/
   hShiftRight : α → β → γ
 
+/-- A type with a zero element. -/
+class Zero (α : Type u) where
+  /-- The zero element of the type. -/
+  zero : α
+
 /-- The homogeneous version of `HAdd`: `a + b : α` where `a b : α`. -/
 class Add (α : Type u) where
   /-- `a + b` computes the sum of `a` and `b`. See `HAdd`. -/

@@ -17,21 +17,7 @@ git tag v2
 git commit --allow-empty -m "commit 3"
 git tag etc
 
-$LAKE reservoir-config | diff -u --strip-trailing-cr <(cat << 'EOF'
-{"versionTags": ["v1", "v2"],
- "version": "0.0.0",
- "schemaVersion": "1.0.0",
- "readmeFile": null,
- "platformIndependent": null,
- "name": "test",
- "licenseFiles": [],
- "license": "",
- "keywords": ["test-case"],
- "homepage": "https://example.com",
- "doIndex": true,
- "description": "Tests Reservoir configuration"}
-EOF
-) -
+$LAKE reservoir-config | diff -u --strip-trailing-cr expected.json -
 
 # Cleanup git repo
 rm -rf .git

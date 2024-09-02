@@ -1900,13 +1900,6 @@ def foldlM {α : Type} {m} [Monad m] (f : α → Expr → m α) (init : α) (e :
   Prod.snd <$> StateT.run (e.traverseChildren (fun e' => fun a => Prod.mk e' <$> f a e')) init
 
 /--
-Returns the size of `e` as a DAG, i.e. the number of unique `Expr` constructor objects reachable
-from `e`.
--/
-@[extern "lean_expr_size_shared"]
-opaque sizeWithSharing (e : Expr) : Nat
-
-/--
 Returns the size of `e` as a tree, i.e. nodes reachable via multiple paths are counted multiple
 times.
 

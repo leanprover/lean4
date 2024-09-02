@@ -36,18 +36,18 @@ zero. Also note that division by zero is defined to equal zero.
   Examples:
 
   ```
-  #eval (7 : Int) / (0 : Int) -- 0
-  #eval (0 : Int) / (7 : Int) -- 0
+  #eval (7 : Int).div (0 : Int) -- 0
+  #eval (0 : Int).div (7 : Int) -- 0
 
-  #eval (12 : Int) / (6 : Int) -- 2
-  #eval (12 : Int) / (-6 : Int) -- -2
-  #eval (-12 : Int) / (6 : Int) -- -2
-  #eval (-12 : Int) / (-6 : Int) -- 2
+  #eval (12 : Int).div (6 : Int) -- 2
+  #eval (12 : Int).div (-6 : Int) -- -2
+  #eval (-12 : Int).div (6 : Int) -- -2
+  #eval (-12 : Int).div (-6 : Int) -- 2
 
-  #eval (12 : Int) / (7 : Int) -- 1
-  #eval (12 : Int) / (-7 : Int) -- -1
-  #eval (-12 : Int) / (7 : Int) -- -1
-  #eval (-12 : Int) / (-7 : Int) -- 1
+  #eval (12 : Int).div (7 : Int) -- 1
+  #eval (12 : Int).div (-7 : Int) -- -1
+  #eval (-12 : Int).div (7 : Int) -- -1
+  #eval (-12 : Int).div (-7 : Int) -- 1
   ```
 
   Implemented by efficient native code.
@@ -71,18 +71,18 @@ def div : (@& Int) → (@& Int) → Int
   Examples:
 
   ```
-  #eval (7 : Int) % (0 : Int) -- 7
-  #eval (0 : Int) % (7 : Int) -- 0
+  #eval (7 : Int).mod (0 : Int) -- 7
+  #eval (0 : Int).mod (7 : Int) -- 0
 
-  #eval (12 : Int) % (6 : Int) -- 0
-  #eval (12 : Int) % (-6 : Int) -- 0
-  #eval (-12 : Int) % (6 : Int) -- 0
-  #eval (-12 : Int) % (-6 : Int) -- 0
+  #eval (12 : Int).mod (6 : Int) -- 0
+  #eval (12 : Int).mod (-6 : Int) -- 0
+  #eval (-12 : Int).mod (6 : Int) -- 0
+  #eval (-12 : Int).mod (-6 : Int) -- 0
 
-  #eval (12 : Int) % (7 : Int) -- 5
-  #eval (12 : Int) % (-7 : Int) -- 5
-  #eval (-12 : Int) % (7 : Int) -- 2
-  #eval (-12 : Int) % (-7 : Int) -- 2
+  #eval (12 : Int).mod (7 : Int) -- 5
+  #eval (12 : Int).mod (-7 : Int) -- 5
+  #eval (-12 : Int).mod (7 : Int) -- -5
+  #eval (-12 : Int).mod (-7 : Int) -- -5
   ```
 
   Implemented by efficient native code. -/
@@ -101,6 +101,24 @@ This pair satisfies `fdiv x y = floor (x / y)`.
 Integer division. This version of division uses the F-rounding convention
 (flooring division), in which `Int.fdiv x y` satisfies `fdiv x y = floor (x / y)`
 and `Int.fmod` is the unique function satisfying `fmod x y + (fdiv x y) * y = x`.
+
+Examples:
+```
+#eval (7 : Int).fdiv (0 : Int) -- 0
+#eval (0 : Int).fdiv (7 : Int) -- 0
+
+#eval (12 : Int).fdiv (6 : Int) -- 2
+#eval (12 : Int).fdiv (-6 : Int) -- -2
+#eval (-12 : Int).fdiv (6 : Int) -- -2
+#eval (-12 : Int).fdiv (-6 : Int) -- 2
+
+#eval (12 : Int).fdiv (7 : Int) -- 1
+#eval (12 : Int).fdiv (-7 : Int) -- -2
+#eval (-12 : Int).fdiv (7 : Int) -- -2
+#eval (-12 : Int).fdiv (-7 : Int) -- 1
+```
+
+Implemented by efficient native code.
 -/
 def fdiv : Int → Int → Int
   | 0,       _       => 0
@@ -114,6 +132,25 @@ def fdiv : Int → Int → Int
 Integer modulus. This version of `Int.mod` uses the F-rounding convention
 (flooring division), in which `Int.fdiv x y` satisfies `fdiv x y = floor (x / y)`
 and `Int.fmod` is the unique function satisfying `fmod x y + (fdiv x y) * y = x`.
+
+Examples:
+
+```
+#eval (7 : Int).fmod (0 : Int) -- 7
+#eval (0 : Int).fmod (7 : Int) -- 0
+
+#eval (12 : Int).fmod (6 : Int) -- 0
+#eval (12 : Int).fmod (-6 : Int) -- 0
+#eval (-12 : Int).fmod (6 : Int) -- 0
+#eval (-12 : Int).fmod (-6 : Int) -- 0
+
+#eval (12 : Int).fmod (7 : Int) -- 5
+#eval (12 : Int).fmod (-7 : Int) -- -2
+#eval (-12 : Int).fmod (7 : Int) -- 2
+#eval (-12 : Int).fmod (-7 : Int) -- -5
+```
+
+Implemented by efficient native code.
 -/
 def fmod : Int → Int → Int
   | 0,       _       => 0
@@ -130,6 +167,26 @@ This pair satisfies `0 ≤ mod x y < natAbs y` for `y ≠ 0`.
 Integer division. This version of `Int.div` uses the E-rounding convention
 (euclidean division), in which `Int.emod x y` satisfies `0 ≤ mod x y < natAbs y` for `y ≠ 0`
 and `Int.ediv` is the unique function satisfying `emod x y + (ediv x y) * y = x`.
+
+This is the function powering the `/` notation on integers.
+
+Examples:
+```
+#eval (7 : Int) / (0 : Int) -- 0
+#eval (0 : Int) / (7 : Int) -- 0
+
+#eval (12 : Int) / (6 : Int) -- 2
+#eval (12 : Int) / (-6 : Int) -- -2
+#eval (-12 : Int) / (6 : Int) -- -2
+#eval (-12 : Int) / (-6 : Int) -- 2
+
+#eval (12 : Int) / (7 : Int) -- 1
+#eval (12 : Int) / (-7 : Int) -- -1
+#eval (-12 : Int) / (7 : Int) -- -2
+#eval (-12 : Int) / (-7 : Int) -- 2
+```
+
+Implemented by efficient native code.
 -/
 @[extern "lean_int_ediv"]
 def ediv : (@& Int) → (@& Int) → Int
@@ -143,6 +200,26 @@ def ediv : (@& Int) → (@& Int) → Int
 Integer modulus. This version of `Int.mod` uses the E-rounding convention
 (euclidean division), in which `Int.emod x y` satisfies `0 ≤ emod x y < natAbs y` for `y ≠ 0`
 and `Int.ediv` is the unique function satisfying `emod x y + (ediv x y) * y = x`.
+
+This is the function powering the `%` notation on integers.
+
+Examples:
+```
+#eval (7 : Int) % (0 : Int) -- 7
+#eval (0 : Int) % (7 : Int) -- 0
+
+#eval (12 : Int) % (6 : Int) -- 0
+#eval (12 : Int) % (-6 : Int) -- 0
+#eval (-12 : Int) % (6 : Int) -- 0
+#eval (-12 : Int) % (-6 : Int) -- 0
+
+#eval (12 : Int) % (7 : Int) -- 5
+#eval (12 : Int) % (-7 : Int) -- 5
+#eval (-12 : Int) % (7 : Int) -- 2
+#eval (-12 : Int) % (-7 : Int) -- 2
+```
+
+Implemented by efficient native code.
 -/
 @[extern "lean_int_emod"]
 def emod : (@& Int) → (@& Int) → Int

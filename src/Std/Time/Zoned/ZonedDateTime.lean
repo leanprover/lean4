@@ -51,7 +51,7 @@ Creates a new `ZonedDateTime` out of a `Timestamp`
 def ofZoneRules (tm : Timestamp) (rules : TimeZone.ZoneRules) : Option ZonedDateTime := do
   let transition ← rules.findTransitionForTimestamp tm
   let tm := rules.applyLeapSeconds tm
-  return ofTimestamp tm transition.PlainTimeType.getTimeZone
+  return ofTimestamp tm transition.localTimeType.getTimeZone
 
 /--
 Changes the `TimeZone` to a new one.

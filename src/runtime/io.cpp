@@ -553,9 +553,9 @@ extern "C" LEAN_EXPORT obj_res lean_get_timezone_offset(obj_arg /* w */) {
         return lean_io_result_mk_error(lean_decode_io_error(err, mk_string("")));
     }
 #else
-    struct tm *err = localtime_r(&now_time_t, &tm_info);
+    struct tm *tm_ptr = localtime_r(&now_time_t, &tm_info);
 
-    if (err == NULL) {
+    if (tm_ptr == NULL) {
         return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("")));
     }
 #endif
@@ -564,8 +564,8 @@ extern "C" LEAN_EXPORT obj_res lean_get_timezone_offset(obj_arg /* w */) {
     int offset_seconds = tm_info.tm_gmtoff;
 
     lean_object *lean_offset = lean_alloc_ctor(0, 2, 0);
-    lean_ctor_set(lean_offset, 0, lean_int_to_int(static_cast<int>(offset_hour)));
-    lean_ctor_set(lean_offset, 1, lean_int_to_int(static_cast<int>(offset_seconds)));
+    lean_ctor_set(lean_offset, 0, lean_int_to_int(offset_hour));
+    lean_ctor_set(lean_offset, 1, lean_int_to_int(offset_seconds));
 
     lean_object *lean_tz = lean_alloc_ctor(0, 2, 1);
     lean_ctor_set(lean_tz, 0, lean_offset);

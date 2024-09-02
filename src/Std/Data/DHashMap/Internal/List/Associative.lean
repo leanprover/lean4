@@ -1531,6 +1531,16 @@ theorem getKey_of_perm [BEq α] [PartialEquivBEq α] {l l' : List ((a : α) × �
   rw [← Option.some_inj, ← getKey?_eq_some_getKey, ← getKey?_eq_some_getKey,
     getKey?_of_perm hl h]
 
+theorem getKeyD_of_perm [BEq α] [PartialEquivBEq α] {l l' : List ((a : α) × β a)} {a fallback : α}
+    (hl : DistinctKeys l) (h : Perm l l') :
+    getKeyD a l fallback = getKeyD a l' fallback := by
+  simp only [getKeyD_eq_getKey?, getKey?_of_perm hl h]
+
+theorem getKey!_of_perm [BEq α] [PartialEquivBEq α] [Inhabited α] {l l' : List ((a : α) × β a)}
+    {a : α} (hl : DistinctKeys l) (h : Perm l l') :
+    getKey! a l = getKey! a l' := by
+  simp only [getKey!_eq_getKey?, getKey?_of_perm hl h]
+
 theorem perm_cons_getEntry [BEq α] {l : List ((a : α) × β a)} {a : α} (h : containsKey a l) :
     ∃ l', Perm l (getEntry a l h :: l') := by
   induction l using assoc_induction

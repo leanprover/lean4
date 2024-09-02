@@ -83,7 +83,8 @@ private def queryNames : Array Name :=
   #[``contains_eq_containsKey, ``Raw.isEmpty_eq_isEmpty, ``Raw.size_eq_length,
     ``get?_eq_getValueCast?, ``Const.get?_eq_getValue?, ``get_eq_getValueCast,
     ``Const.get_eq_getValue, ``get!_eq_getValueCast!, ``getD_eq_getValueCastD,
-    ``Const.get!_eq_getValue!, ``Const.getD_eq_getValueD, ``getKey?_eq_getKey?]
+    ``Const.get!_eq_getValue!, ``Const.getD_eq_getValueD, ``getKey?_eq_getKey?,
+    ``getKey_eq_getKey, ``getKeyD_eq_getKeyD, ``getKey!_eq_getKey!]
 
 private def modifyNames : Array Name :=
   #[``toListModel_insert, ``toListModel_erase, ``toListModel_insertIfNew]
@@ -93,7 +94,8 @@ private def congrNames : MacroM (Array (TSyntax `term)) := do
     ← `(_root_.List.Perm.length_eq), ← `(getValueCast?_of_perm _),
     ← `(getValue?_of_perm _), ← `(getValue_of_perm _), ← `(getValueCast_of_perm _),
     ← `(getValueCast!_of_perm _), ← `(getValueCastD_of_perm _), ← `(getValue!_of_perm _),
-    ← `(getValueD_of_perm _), ← `(getKey?_of_perm _) ]
+    ← `(getValueD_of_perm _), ← `(getKey?_of_perm _), ← `(getKey_of_perm _), ← `(getKeyD_of_perm _),
+    ← `(getKey!_of_perm _)]
 
 /-- Internal implementation detail of the hash map -/
 scoped syntax "simp_to_model" ("using" term)? : tactic

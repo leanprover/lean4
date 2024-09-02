@@ -238,10 +238,7 @@ def ofOrdinal (ordinal : Day.Ordinal.OfYear leap) : { val : Month.Ordinal × Day
 
     if h : cumulative.val < ordinal.val ∧ ordinal.val ≤ cumulative.val + days.val then
       let bounded := Bounded.LE.mk ordinal.val h |>.sub cumulative
-
-      let bounded : Bounded.LE 1 days.val := bounded.cast
-        (by simp [Int.add_comm _ 1, Int.add_assoc, ←Int.sub_eq_add_neg];)
-        (by simp [Int.add_comm _ days.val, Int.add_assoc, ←Int.sub_eq_add_neg];)
+      let bounded : Bounded.LE 1 days.val := bounded.cast (by omega) (by omega)
 
       let ⟨left, right⟩ := bounded.property
       let days₁ : Day.Ordinal := ⟨bounded.val, And.intro left (Int.le_trans right days.property.right)⟩
@@ -252,7 +249,8 @@ def ofOrdinal (ordinal : Day.Ordinal.OfYear leap) : { val : Month.Ordinal × Day
         let ⟨day, valid⟩ := clipDay leap 1 1
         ⟨⟨1, day⟩, valid⟩
       else
-        go ⟨idx.val + 1, Nat.succ_le_succ (Nat.not_le.mp h)⟩ cumulative
+        go ⟨idx.val + 1, Nat.succ_le_succ (Nat.not_le.mp h)⟩ (cumulative + (Fin.ofNat days.val.toNat))
+
   termination_by 12 - idx.val
   go 0 0
 

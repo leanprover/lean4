@@ -52,8 +52,8 @@ def convertLeapSecond (tz : TZif.LeapSecond) : LeapSecond :=
 /--
 Converts a PlainTime.
 -/
-def convertPlainTime (index : Nat) (tz : TZif.TZifV1) (identifier : String) : Option PlainTimeType := do
-  let localType ← tz.PlainTimeTypes.get? index
+def convertPlainTime (index : Nat) (tz : TZif.TZifV1) (identifier : String) : Option LocalTimeType := do
+  let localType ← tz.localTimeTypes.get? index
   let abbreviation ← tz.abbreviations.getD index "Unknown"
   let wallflag := convertWall (tz.stdWallIndicators.getD index true)
   let utLocal := convertUt (tz.utLocalIndicators.getD index true)
@@ -70,17 +70,17 @@ def convertPlainTime (index : Nat) (tz : TZif.TZifV1) (identifier : String) : Op
 /--
 Converts a transition.
 -/
-def convertTransition (times: Array PlainTimeType) (index : Nat) (tz : TZif.TZifV1) : Option Transition := do
+def convertTransition (times: Array LocalTimeType) (index : Nat) (tz : TZif.TZifV1) : Option Transition := do
   let time := tz.transitionTimes.get! index
   let time := Second.Offset.ofInt time
   let indice := tz.transitionIndices.get! index
-  return { time, PlainTimeType := times.get! indice.toNat }
+  return { time, localTimeType := times.get! indice.toNat }
 
 /--
 Converts a `TZif.TZifV1` structure to a `ZoneRules` structure.
 -/
 def convertTZifV1 (tz : TZif.TZifV1) (id : String) : Except String ZoneRules := do
-  let mut times : Array PlainTimeType := #[]
+  let mut times : Array LocalTimeType := #[]
 
   for i in [0:tz.header.typecnt.toNat] do
     if let some result := convertPlainTime i tz id
@@ -95,7 +95,7 @@ def convertTZifV1 (tz : TZif.TZifV1) (id : String) : Except String ZoneRules := 
       then transitions := transitions.push result
       else .error s!"cannot convert transtiion {i} of the file"
 
-  .ok { leapSeconds, transitions, PlainTimes := times }
+  .ok { leapSeconds, transitions, localTimes := times }
 
 /--
 Converts a `TZif.TZifV2` structure to a `ZoneRules` structure.

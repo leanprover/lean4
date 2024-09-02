@@ -265,7 +265,7 @@ private def isFormatStart : Char → Bool := Char.isAlpha
 
 private def pnumber : Parser Nat := do
   let numbers ← manyChars digit
-  return numbers.foldl (λacc char => acc * 10 + (char.toNat - 48)) 0
+  return numbers.foldl (fun acc char => acc * 10 + (char.toNat - 48)) 0
 
 private def parseFormatPart : Parser FormatPart
   := (.modifier <$> parseModifier)
@@ -428,7 +428,7 @@ private def FormatType (result : Type) : FormatString → Type
   | .string _ :: xs => (FormatType result xs)
   | [] => result
 
-private def position : Parser Nat := λs => (ParseResult.success s (s.pos.byteIdx))
+private def position : Parser Nat := fun s => (ParseResult.success s (s.pos.byteIdx))
 
 private def size (data : Parser α) : Parser (α × Nat) := do
   let st ← position
@@ -545,7 +545,7 @@ private def parserWithFormat : (typ: Modifier) → Parser (SingleFormatType typ)
   | .M => transform Bounded.LE.ofInt number
   | .DD => transform Bounded.LE.ofInt twoDigit
   | .D => transform Bounded.LE.ofInt number
-  | .d => transform Bounded.LE.ofInt (orElse twoDigit (λ_ => pchar ' ' *> (singleDigit)))
+  | .d => transform Bounded.LE.ofInt (orElse twoDigit (fun _ => pchar ' ' *> (singleDigit)))
   | .EEEE => parseWeekdayUnnabrev
   | .EEE => parseWeekday
   | .hh => Sigma.mk true <$> transform Bounded.LE.ofInt twoDigit
@@ -568,7 +568,7 @@ private def parserWithFormat : (typ: Modifier) → Parser (SingleFormatType typ)
   | .ZZZZ => timeOffset false
   | .ZZZ => timeOrUTC "UTC" false
   | .Z => timeOrUTC "Z" true
-  | .z => many1Chars (satisfy (λc => c == ' ' || c.isAlpha))
+  | .z => many1Chars (satisfy (fun c => c == ' ' || c.isAlpha))
 
 private structure DateBuilder where
   tzName : String := "Greenwich Mean Time"
@@ -665,7 +665,7 @@ Formats the date using the format into a String.
 -/
 def formatBuilder (format : Format aw) : FormatType String format.string :=
   let rec go (data : String) : (format : FormatString) → FormatType String format
-    | .modifier x :: xs => λres => go (data ++ formatPart x res) xs
+    | .modifier x :: xs => fun res => go (data ++ formatPart x res) xs
     | .string x :: xs => go (data ++ x) xs
     | [] => data
   go "" format.string

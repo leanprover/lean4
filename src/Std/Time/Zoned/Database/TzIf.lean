@@ -123,7 +123,7 @@ structure TZifV1 where
   /--
   The array of local time type structures.
   -/
-  PlainTimeTypes : Array PlainTimeType
+  localTimeTypes : Array PlainTimeType
 
   /--
   The array of abbreviation strings used by local time types.
@@ -233,7 +233,7 @@ private def parseTransitionTimes (size : Parser Int32) (n : UInt32) : Parser (Ar
 private def parseTransitionIndices (n : UInt32) : Parser (Array UInt8) :=
   manyN (n.toNat) pu8
 
-private def parsePlainTimeTypes (n : UInt32) : Parser (Array PlainTimeType) :=
+private def parseLocalTimeType (n : UInt32) : Parser (Array PlainTimeType) :=
   manyN (n.toNat) parsePlainTimeType
 
 private def parseAbbreviations (times : Array PlainTimeType) (n : UInt32) : Parser (Array String) := do
@@ -264,8 +264,8 @@ private def parseTZifV1 : Parser TZifV1 := do
 
   let transitionTimes ← parseTransitionTimes pi32 header.timecnt
   let transitionIndices ← parseTransitionIndices header.timecnt
-  let PlainTimeTypes ← parsePlainTimeTypes header.typecnt
-  let abbreviations ← parseAbbreviations PlainTimeTypes header.charcnt
+  let localTimeTypes ← parseLocalTimeType header.typecnt
+  let abbreviations ← parseAbbreviations localTimeTypes header.charcnt
   let leapSeconds ← parseLeapSeconds pi32 header.leapcnt
   let stdWallIndicators ← parseIndicators header.isstdcnt
   let utLocalIndicators ← parseIndicators header.isutcnt
@@ -274,7 +274,7 @@ private def parseTZifV1 : Parser TZifV1 := do
       header
       transitionTimes
       transitionIndices
-      PlainTimeTypes
+      localTimeTypes
       abbreviations
       leapSeconds
       stdWallIndicators
@@ -299,8 +299,8 @@ private def parseTZifV2 : Parser (Option TZifV2) := optional do
 
   let transitionTimes ← parseTransitionTimes pi64 header.timecnt
   let transitionIndices ← parseTransitionIndices header.timecnt
-  let PlainTimeTypes ← parsePlainTimeTypes header.typecnt
-  let abbreviations ← parseAbbreviations PlainTimeTypes header.charcnt
+  let localTimeTypes ← parseLocalTimeType header.typecnt
+  let abbreviations ← parseAbbreviations localTimeTypes header.charcnt
   let leapSeconds ← parseLeapSeconds pi64 header.leapcnt
   let stdWallIndicators ← parseIndicators header.isstdcnt
   let utLocalIndicators ← parseIndicators header.isutcnt
@@ -309,7 +309,7 @@ private def parseTZifV2 : Parser (Option TZifV2) := optional do
       header
       transitionTimes
       transitionIndices
-      PlainTimeTypes
+      localTimeTypes
       abbreviations
       leapSeconds
       stdWallIndicators

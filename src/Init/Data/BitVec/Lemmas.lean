@@ -570,7 +570,6 @@ theorem msb_zeroExtend (x : BitVec w) : (x.zeroExtend v).msb = (decide (0 < v) &
 theorem msb_zeroExtend' (x : BitVec w) (h : w ≤ v) : (x.zeroExtend' h).msb = (decide (0 < v) && x.getLsbD (v - 1)) := by
   rw [zeroExtend'_eq, msb_zeroExtend]
 
-set_option debug.byAsSorry true in
 /-- zero extending a bitvector to width 1 equals the boolean of the lsb. -/
 theorem zeroExtend_one_eq_ofBool_getLsb_zero (x : BitVec w) :
     x.zeroExtend 1 = BitVec.ofBool (x.getLsbD 0) := by
@@ -587,7 +586,6 @@ theorem zeroExtend_ofNat_one_eq_ofNat_one_of_lt {v w : Nat} (hv : 0 < v) :
   have hv := Nat.testBit_one_eq_true_iff_self_eq_zero.mp hi₁
   omega
 
-set_option debug.byAsSorry true in
 /-- Truncating to width 1 produces a bitvector equal to the least significant bit. -/
 theorem truncate_one {x : BitVec w} :
     x.truncate 1 = ofBool (x.getLsbD 0) := by

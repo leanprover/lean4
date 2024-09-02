@@ -28,17 +28,22 @@ open Snapshots
 
 open Lean.Parser.Tactic.Doc (alternativeOfTactic getTacticExtensionString)
 
+def findCompletionInfoTreeAtPos
+    (doc : EditableDocument)
+    (pos : String.Pos)
+    : Task (Option Elab.InfoTree) :=
+  -- NOTE: use `+ 1` since we sometimes want to consider invalid input technically after the command,
+  -- such as a trailing dot after an option name. This shouldn't be a problem since any subsequent
+  -- command starts with a keyword that (currently?) does not participate in completion.
+  findInfoTreeAtPos doc (fun s => s.data.stx.getTailPos?.any (· + ⟨1⟩ >= pos)) pos
+
 def handleCompletion (p : CompletionParams)
     : RequestM (RequestTask CompletionList) := do
   let doc ← readDoc
   let text := doc.meta.text
   let pos := text.lspPosToUtf8Pos p.position
   let caps := (← read).initParams.capabilities
-  -- dbg_trace ">> handleCompletion invoked {pos}"
-  -- NOTE: use `+ 1` since we sometimes want to consider invalid input technically after the command,
-  -- such as a trailing dot after an option name. This shouldn't be a problem since any subsequent
-  -- command starts with a keyword that (currently?) does not participate in completion.
-  mapTask (findInfoTreeAtPos doc pos (trailingLeniencyOffset := ⟨1⟩)) fun infoTree? => do
+  mapTask (findCompletionInfoTreeAtPos doc pos) fun infoTree? => do
     let some infoTree := infoTree?
       -- work around https://github.com/microsoft/vscode/issues/155738
       | return { items := #[{label := "-"}], isIncomplete := true }
@@ -62,9 +67,10 @@ def handleCompletionItemResolve (item : CompletionItem)
   let some id := data.id?
     | return .pure item
   let pos := text.lspPosToUtf8Pos data.params.position
-  withWaitFindSnap doc (·.endPos + ' ' >= pos)
-    (notFoundX := pure item)
-    (x := fun snap => Completion.resolveCompletionItem? text pos snap.infoTree item id)
+  mapTask (findCompletionInfoTreeAtPos doc pos) fun infoTree? => do
+    let some infoTree := infoTree?
+      | return item
+    Completion.resolveCompletionItem? text pos infoTree item id
 
 open Elab in
 def handleHover (p : HoverParams)
@@ -232,7 +238,7 @@ def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Optio
   let doc ← readDoc
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
-  mapTask (findInfoTreeAtPos doc hoverPos) <| Option.bindM fun infoTree => do
+  mapTask (findInfoTreeAtPosWithTrailingWhitespace doc hoverPos) <| Option.bindM fun infoTree => do
     let rs@(_ :: _) := infoTree.goalsAt? doc.meta.text hoverPos
       | return none
     let goals : List Widget.InteractiveGoals ← rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter, .. } => do
@@ -274,7 +280,7 @@ def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
   let doc ← readDoc
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
-  mapTask (findInfoTreeAtPos doc hoverPos) <| Option.bindM fun infoTree => do
+  mapTask (findInfoTreeAtPosWithTrailingWhitespace doc hoverPos) <| Option.bindM fun infoTree => do
     let some {ctx := ci, info := i@(Elab.Info.ofTermInfo ti), ..} := infoTree.termGoalAt? hoverPos
       | return none
     let ty ← ci.runMetaM i.lctx do

@@ -191,23 +191,17 @@ where
 
 open Language in
 /--
-Finds the info tree of the first snapshot task containing `pos`, asynchronously. The info tree may
-be from a nested snapshot, such as a single tactic.
-
-The `trailingLeniencyOffset` parameter controls how far the cursor is allowed to be after a snapshot
-that is still considered. With its default `0`, only snapshots where the cursor is at most directly
-after the snapshot are considered.
+Finds the info tree of the first snapshot task matching `isMatchingSnapshot` and containing `pos`,
+asynchronously. The info tree may be from a nested snapshot, such as a single tactic.
 
 See `SnapshotTree.findInfoTreeAtPos` for details on how the search is done.
 -/
 partial def findInfoTreeAtPos
     (doc : EditableDocument)
+    (isMatchingSnapshot : Lean.CommandParsedSnapshot → Bool)
     (pos : String.Pos)
-    (trailingLeniencyOffset : String.Pos := 0)
     : Task (Option Elab.InfoTree) :=
-  -- NOTE: use `>=` since the cursor can be *after* the input (and there is no interesting info on
-  -- the first character of the subsequent command if any)
-  findCmdParsedSnap doc (·.data.parserState.pos + trailingLeniencyOffset ≥ pos) |>.bind (sync := true) fun
+  findCmdParsedSnap doc (isMatchingSnapshot ·) |>.bind (sync := true) fun
     | some cmdParsed => toSnapshotTree cmdParsed |>.findInfoTreeAtPos pos |>.bind (sync := true) fun
       | some infoTree => .pure <| some infoTree
       | none          => cmdParsed.data.finishedSnap.task.map (sync := true) fun s =>
@@ -215,6 +209,20 @@ partial def findInfoTreeAtPos
         assert! s.cmdState.infoState.trees.size == 1
         some s.cmdState.infoState.trees[0]!
     | none => .pure none
+
+/--
+Finds the info tree of the first snapshot task containing `pos` (including trailing whitespace),
+asynchronously. The info tree may be from a nested snapshot, such as a single tactic.
+
+See `SnapshotTree.findInfoTreeAtPos` for details on how the search is done.
+-/
+def findInfoTreeAtPosWithTrailingWhitespace
+    (doc : EditableDocument)
+    (pos : String.Pos)
+    : Task (Option Elab.InfoTree) :=
+  -- NOTE: use `>=` since the cursor can be *after* the input (and there is no interesting info on
+  -- the first character of the subsequent command if any)
+  findInfoTreeAtPos doc (·.data.parserState.pos ≥ pos) pos
 
 open Elab.Command in
 def runCommandElabM (snap : Snapshot) (c : RequestT CommandElabM α) : RequestM α := do

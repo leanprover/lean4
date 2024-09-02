@@ -34,7 +34,7 @@ def findCompletionInfoTreeAtPos
     : Task (Option Elab.InfoTree) :=
   -- NOTE: use `+ 1` since we sometimes want to consider invalid input technically after the command,
   -- such as a trailing dot after an option name. This shouldn't be a problem since any subsequent
-  -- command starts with a keyword that (currently?) does not participate in completion.
+  -- snapshot that is eligible for completion should be separated by some delimiter.
   findInfoTreeAtPos doc (fun s => s.data.stx.getTailPos?.any (· + ⟨1⟩ >= pos)) pos
 
 def handleCompletion (p : CompletionParams)

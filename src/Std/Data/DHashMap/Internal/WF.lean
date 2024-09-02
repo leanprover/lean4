@@ -254,23 +254,23 @@ theorem getKey_eq_getKey [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α
     m.getKey a h = List.getKey a (toListModel m.1.buckets) (contains_eq_containsKey hm ▸ h) := by
   rw [getKey_eq_getKeyₘ, getKeyₘ_eq_getKey hm]
 
-theorem getKey!ₘ_eq_getKey! [BEq α] [Hashable α] [LawfulBEq α] [Inhabited α] {m : Raw₀ α β}
-    (hm : Raw.WFImp m.1) {a : α} [Inhabited (β a)] :
+theorem getKey!ₘ_eq_getKey! [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] [Inhabited α]
+    {m : Raw₀ α β} (hm : Raw.WFImp m.1) {a : α} :
     m.getKey!ₘ a = List.getKey! a (toListModel m.1.buckets) := by
   rw [getKey!ₘ, getKey?ₘ_eq_getKey? hm, List.getKey!_eq_getKey?]
 
-theorem getKey!_eq_getKey! [BEq α] [Hashable α] [LawfulBEq α] [Inhabited α] {m : Raw₀ α β}
-    (hm : Raw.WFImp m.1) {a : α} [Inhabited (β a)] :
+theorem getKey!_eq_getKey! [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] [Inhabited α]
+    {m : Raw₀ α β} (hm : Raw.WFImp m.1) {a : α} :
     m.getKey! a = List.getKey! a (toListModel m.1.buckets) := by
   rw [getKey!_eq_getKey!ₘ, getKey!ₘ_eq_getKey! hm]
 
-theorem getKeyDₘ_eq_getKeyD [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β}
+theorem getKeyDₘ_eq_getKeyD [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
     (hm : Raw.WFImp m.1) {a : α} {fallback : α} :
     m.getKeyDₘ a fallback = List.getKeyD a (toListModel m.1.buckets) fallback := by
   rw [getKeyDₘ, getKey?ₘ_eq_getKey? hm, List.getKeyD_eq_getKey?]
 
-theorem getKeyD_eq_getKeyD [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} (hm : Raw.WFImp m.1)
-    {a : α} {fallback : α} :
+theorem getKeyD_eq_getKeyD [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
+    (hm : Raw.WFImp m.1) {a : α} {fallback : α} :
     m.getKeyD a fallback = List.getKeyD a (toListModel m.1.buckets) fallback := by
   rw [getKeyD_eq_getKeyDₘ, getKeyDₘ_eq_getKeyD hm]
 

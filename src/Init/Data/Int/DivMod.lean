@@ -117,8 +117,6 @@ Examples:
 #eval (-12 : Int).fdiv (7 : Int) -- -2
 #eval (-12 : Int).fdiv (-7 : Int) -- 1
 ```
-
-Implemented by efficient native code.
 -/
 def fdiv : Int → Int → Int
   | 0,       _       => 0
@@ -149,8 +147,6 @@ Examples:
 #eval (-12 : Int).fmod (7 : Int) -- 2
 #eval (-12 : Int).fmod (-7 : Int) -- -5
 ```
-
-Implemented by efficient native code.
 -/
 def fmod : Int → Int → Int
   | 0,       _       => 0

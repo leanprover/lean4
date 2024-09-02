@@ -10,9 +10,17 @@ termination_by a.size - i
 def check_sorted [x: LE α] [DecidableRel x.le] (a: Array α): Bool :=
   sorted_from_var a 0
 
--- works (because `rfl` of closed terms resorts to kernel defeq, see #3772)
-example: check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] := by
-  rfl
+/--
+error: The rfl tactic failed. Possible reasons:
+- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).
+- The arguments of the relation are not equal.
+Try using the reflexivity lemma for your relation explicitly, e.g. `exact Eq.refl _` or
+`exact HEq.rfl` etc.
+⊢ check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] = true
+-/
+#guard_msgs in
+example: check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] = true := by
+  rfl -- fails because `rfl` uses `.default` transparency, and `sorted_from_var` is marked as irreducible
 
 /--
 error: tactic 'decide' failed for proposition

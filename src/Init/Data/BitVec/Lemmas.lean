@@ -107,7 +107,7 @@ theorem eq_of_toNat_eq {n} : ∀ {x y : BitVec n}, x.toNat = y.toNat → x = y
 
 theorem testBit_toNat (x : BitVec w) : x.toNat.testBit i = x.getLsbD i := rfl
 
-theorem testBit_toNat_getElem (x : BitVec w) (i : Fin w): x.toNat.testBit i = x[i.val] := rfl
+theorem testBit_toNat_getElem (x : BitVec w) (i : Fin w) : x.toNat.testBit i = x[i.val] := rfl
 
 theorem getMsb'_eq_getLsb' (x : BitVec w) (i : Fin w) :
     x.getMsb' i = x.getLsb' ⟨w - 1 - i, by omega⟩ := by

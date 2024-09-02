@@ -47,7 +47,7 @@ inductive StdWall
 /--
 Represents a type of local time, including offset and daylight saving information.
 -/
-structure PlainTimeType where
+structure LocalTimeType where
 
   /--
   The offset from GMT for this local time.
@@ -80,15 +80,15 @@ structure PlainTimeType where
   identifier : String
   deriving Repr, Inhabited
 
-namespace PlainTimeType
+namespace LocalTimeType
 
 /--
-Gets the `TimeZone` offset from a `PlainTimeType`.
+Gets the `TimeZone` offset from a `LocalTimeType`.
 -/
-def getTimeZone (time : PlainTimeType) : TimeZone :=
+def getTimeZone (time : LocalTimeType) : TimeZone :=
   ⟨time.gmtOffset, time.abbreviation, time.isDst⟩
 
-end PlainTimeType
+end LocalTimeType
 
 /--
 Represents a leap second event, including the time of the transition and the correction applied.
@@ -119,7 +119,7 @@ structure Transition where
   /--
   The local time type associated with this transition.
   -/
-  PlainTimeType : PlainTimeType
+  localTimeType : LocalTimeType
   deriving Repr, Inhabited
 
 /--
@@ -130,7 +130,7 @@ structure ZoneRules where
   /--
   The array of local time types for the time zone.
   -/
-  PlainTimes : Array PlainTimeType
+  localTimes : Array LocalTimeType
 
   /--
   The array of transitions for the time zone.
@@ -149,15 +149,15 @@ namespace Transition
 Create a TimeZone from a Transition.
 -/
 def createTimeZoneFromTransition (transition : Transition) : TimeZone :=
-  let offset := transition.PlainTimeType.gmtOffset
-  let name := transition.PlainTimeType.abbreviation
-  TimeZone.mk offset name transition.PlainTimeType.isDst
+  let offset := transition.localTimeType.gmtOffset
+  let name := transition.localTimeType.abbreviation
+  TimeZone.mk offset name transition.localTimeType.isDst
 
 /--
 Applies the transition to a Timestamp.
 -/
 def apply (timestamp : Timestamp) (transition : Transition) : Timestamp :=
-  let offsetInSeconds := transition.PlainTimeType.gmtOffset.hour.mul 3600 |>.add transition.PlainTimeType.gmtOffset.second
+  let offsetInSeconds := transition.localTimeType.gmtOffset.hour.mul 3600 |>.add transition.localTimeType.gmtOffset.second
   let PlainTimestamp := timestamp.addSeconds offsetInSeconds
   PlainTimestamp
 

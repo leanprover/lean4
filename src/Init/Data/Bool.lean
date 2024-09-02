@@ -260,6 +260,12 @@ theorem not_eq : ∀ (a b : Bool), ((!a) = b) ↔ (a ≠ b) := by decide
 @[simp] theorem not_eq_not : ∀ {a b : Bool}, ¬a = !b ↔ a = b := by decide
 @[simp] theorem not_not_eq : ∀ {a b : Bool}, ¬(!a) = b ↔ a = b := by decide
 
+/--
+We move `!` from the left hand side of an equality to the right hand side.
+This helps confluence, and also helps combining pairs of `!`s.
+-/
+@[simp] theorem not_eq_eq_eq_not : ∀ {a b : Bool}, ((!a) = b) ↔ (a = !b) := by decide
+
 @[simp] theorem coe_iff_coe : ∀(a b : Bool), (a ↔ b) ↔ a = b := by decide
 
 @[simp] theorem coe_true_iff_false  : ∀(a b : Bool), (a ↔ b = false) ↔ a = (!b) := by decide
@@ -414,6 +420,13 @@ theorem toNat_lt (b : Bool) : b.toNat < 2 :=
     (ite p t f = false) = ite p (t = false) (f = false) := by
   cases h with | _ p => simp [p]
 
+@[simp] theorem ite_eq_false : (if b = false then p else q) ↔ if b then q else p := by
+  cases b <;> simp
+
+@[simp] theorem ite_eq_true_else_eq_false {q : Prop} :
+    (if b = true then q else b = false) ↔ (b = true → q) := by
+  cases b <;> simp
+
 /-
 `not_ite_eq_true_eq_true` and related theorems below are added for
 non-confluence.  A motivating example is
@@ -491,6 +504,11 @@ theorem cond_eq_if : (bif b then x else y) = (if b then x else y) := cond_eq_ite
   cases b <;> rfl
 
 @[simp] theorem cond_self (c : Bool) (t : α) : cond c t t = t := by cases c <;> rfl
+
+/-- If the return values are propositions, there is no harm in simplifying a `bif` to an `if`. -/
+@[simp] theorem cond_prop {b : Bool} {p q : Prop} :
+    (bif b then p else q) ↔ if b then p else q := by
+  cases b <;> simp
 
 /-
 This is a simp rule in Mathlib, but results in non-confluence that is difficult

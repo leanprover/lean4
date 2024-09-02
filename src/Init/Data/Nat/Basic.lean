@@ -5,6 +5,8 @@ Authors: Floris van Doorn, Leonardo de Moura
 -/
 prelude
 import Init.SimpLemmas
+import Init.Data.NeZero
+
 set_option linter.missingDocs true -- keep it documented
 universe u
 
@@ -355,6 +357,8 @@ theorem eq_zero_or_pos : ∀ (n : Nat), n = 0 ∨ n > 0
   | _+1 => Or.inr (succ_pos _)
 
 protected theorem pos_of_ne_zero {n : Nat} : n ≠ 0 → 0 < n := (eq_zero_or_pos n).resolve_left
+
+theorem pos_of_neZero (n : Nat) [NeZero n] : 0 < n := Nat.pos_of_ne_zero (NeZero.ne _)
 
 theorem lt.base (n : Nat) : n < succ n := Nat.le_refl (succ n)
 
@@ -714,6 +718,8 @@ protected theorem zero_ne_one : 0 ≠ (1 : Nat) :=
 
 theorem succ_ne_zero (n : Nat) : succ n ≠ 0 := by simp
 
+instance {n : Nat} : NeZero (succ n) := ⟨succ_ne_zero n⟩
+
 /-! # mul + order -/
 
 theorem mul_le_mul_left {n m : Nat} (k : Nat) (h : n ≤ m) : k * n ≤ k * m :=
@@ -783,6 +789,9 @@ theorem pos_pow_of_pos {n : Nat} (m : Nat) (h : 0 < n) : 0 < n^m :=
   cases n with
   | zero => cases h
   | succ n => simp [Nat.pow_succ]
+
+instance {n m : Nat} [NeZero n] : NeZero (n^m) :=
+  ⟨Nat.ne_zero_iff_zero_lt.mpr (Nat.pos_pow_of_pos m (pos_of_neZero _))⟩
 
 /-! # min/max -/
 

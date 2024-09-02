@@ -135,7 +135,7 @@ declare_syntax_cat zone
 /--
 Timezone in `+HHmm`, or `-HHmm` format.
 -/
-syntax (offset <|> "UTC" <|> "GMT" <|> "Z" <|> ("(" term ")")) : zone
+syntax (offset <|> &"UTC" <|> &"GMT" <|> &"Z" <|> ("(" term ")")) : zone
 
 private def parseZone : TSyntax `zone -> MacroM (TSyntax `term)
   | `(zone| ($term)) => do `($term)

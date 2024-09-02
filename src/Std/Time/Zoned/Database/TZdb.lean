@@ -24,7 +24,7 @@ structure TZdb where
   The path to the local timezone file. This is typically a symlink to a file within the timezone
   database that corresponds to the current local time zone.
   -/
-  localPath : System.FilePath := "/etc/PlainTime"
+  localPath : System.FilePath := "/etc/localtime"
 
   /--
   The path to the directory containing all available time zone files. These files define various

@@ -87,14 +87,20 @@ end
 
 variable {α : Sort u} {C : α → Sort v} {r : α → α → Prop}
 
--- Well-founded fixpoint
+/--
+The well-founded fixpoint: If `F` calls its arguments only on smaller values (according to relation
+`r`), then it admits a fixed point, as shown by `WellFounded.fix_eq`.
+-/
 noncomputable def fix (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) : C x :=
   fixF F x (apply hwf x)
 
--- Well-founded fixpoint satisfies fixpoint equation
+/--
+The well-founded fixpoint `WellFounded.fix` satisfies the fixpoint equation.
+-/
 theorem fix_eq (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) :
     fix hwf F x = F x (fun y _ => fix hwf F y) :=
   fixFEq F x (apply hwf x)
+
 end WellFounded
 
 open WellFounded
@@ -147,6 +153,23 @@ end InvImage
 @[reducible] def invImage (f : α → β) (h : WellFoundedRelation β) : WellFoundedRelation α where
   rel := InvImage h.rel f
   wf  := InvImage.wf f h.wf
+
+namespace WellFoundedRelation
+
+/--
+A variant of `WellFounded.fix`, using `WellFoundedRelation` to determine the relation and with an
+explicit measure functions. This function is used in the translation of recursive functions.
+-/
+-- NB: Putting `C` after `f` makes the FunInd implementation a bit easier
+noncomputable def fixBy {α : Sort u} {β : Sort v} [WellFoundedRelation β] (f : α → β)
+  {C : α → Sort w} (F : ∀ x, (∀ y, WellFoundedRelation.rel (f y) (f x) → C y) → C x) (x : α) : C x :=
+  fix (InvImage.wf f WellFoundedRelation.wf) F x
+
+theorem fixBy_eq {α : Sort u} {β : Sort v} [WellFoundedRelation β] (f : α → β)
+  {C : α → Sort w} (F : ∀ x, (∀ y, WellFoundedRelation.rel (f y) (f x) → C y) → C x) (x : α) :
+    fixBy f F x = F x (fun y _ => fixBy f F y) := fix_eq ..
+
+end WellFoundedRelation
 
 -- The transitive closure of a well-founded relation is well-founded
 open Relation

@@ -48,19 +48,15 @@ def checkCodomains (names : Array Name) (prefixArgs : Array Expr) (arities : Arr
 
 /--
 If the `termArgs` map the packed argument `argType` to `β`, then this function passes to the
-continuation a value of type `WellFoundedRelation argType` that is derived from the instance
-for `WellFoundedRelation β` using `invImage`.
+continuation the function `α → β` and the instance `WellFoundedRelation β`.
 -/
 def elabWFRel (preDefs : Array PreDefinition) (unaryPreDefName : Name) (prefixArgs : Array Expr)
-    (argsPacker : ArgsPacker) (argType : Expr) (termArgs : TerminationArguments)
-    (k : Expr → TermElabM α) : TermElabM α := withDeclName unaryPreDefName do
-  let α := argType
-  let u ← getLevel α
+    (argsPacker : ArgsPacker) (termArgs : TerminationArguments)
+    (k : Expr → Expr → TermElabM α) : TermElabM α := withDeclName unaryPreDefName do
   let β ← checkCodomains (preDefs.map (·.declName)) prefixArgs argsPacker.arities termArgs
   let v ← getLevel β
   let packedF ← argsPacker.uncurryND (termArgs.map (·.fn.beta prefixArgs))
   let inst ← synthInstance (.app (.const ``WellFoundedRelation [v]) β)
-  let rel ← instantiateMVars (mkApp4 (.const ``invImage [u,v]) α β packedF inst)
-  k rel
+  k packedF inst
 
 end Lean.Elab.WF

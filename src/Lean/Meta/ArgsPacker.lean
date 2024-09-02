@@ -269,7 +269,7 @@ def unpack (numFuncs : Nat) (expr : Expr) : MetaM (Nat × Expr) := do
       e := e.getArg! 2
       break
     else
-      throwError "Unexpected expression while unpacking mutual argument:{indentExpr expr}"
+      throwError "Unexpected expression while unpacking mutual argument of:{indentExpr expr}"
   return (funidx, e)
 
 

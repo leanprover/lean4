@@ -28,6 +28,7 @@ use by `solveDecreasingGoals` below.
 private def mkDecreasingProof (decreasingProp : Expr) : TermElabM Expr := do
   -- We store the current Ref in the MVar as a RecApp annotation around the type
   let ref ← getRef
+  trace[Elab.definition.wf] "mkDecreasingProof: {decreasingProp}"
   let mvar ← mkFreshExprSyntheticOpaqueMVar (mkRecAppWithSyntax decreasingProp ref)
   let mvarId := mvar.mvarId!
   let _mvarId ← mvarId.cleanup
@@ -175,6 +176,7 @@ know which function is making the call.
 The close coupling with how arguments are packed and termination goals look like is not great,
 but it works for now.
 -/
+-- TODO: This close coupling breaks if switching to `WellFoundedRelation.fixBy`. To be revisited.
 def groupGoalsByFunction (argsPacker : ArgsPacker) (numFuncs : Nat) (goals : Array MVarId) : MetaM (Array (Array MVarId)) := do
   let mut r := mkArray numFuncs #[]
   for goal in goals do
@@ -212,18 +214,18 @@ def solveDecreasingGoals (argsPacker : ArgsPacker) (decrTactics : Array (Option 
   instantiateMVars value
 
 def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (argsPacker : ArgsPacker)
-    (wfRel : Expr) (decrTactics : Array (Option DecreasingBy)) : TermElabM Expr := do
+    (packedF wfInst : Expr) (decrTactics : Array (Option DecreasingBy)) : TermElabM Expr := do
   let type ← instantiateForall preDef.type prefixArgs
   let (wfFix, varName) ← forallBoundedTelescope type (some 1) fun x type => do
     let x := x[0]!
     let α ← inferType x
+    let some (_, β) := (← inferType packedF).arrow? | panic! "Not an arrow"
     let u ← getLevel α
-    let v ← getLevel type
+    let v ← getLevel β
+    let w ← getLevel type
     let motive ← mkLambdaFVars #[x] type
-    let rel := mkProj ``WellFoundedRelation 0 wfRel
-    let wf  := mkProj ``WellFoundedRelation 1 wfRel
     let varName ← x.fvarId!.getUserName -- See comment below.
-    return (mkApp4 (mkConst ``WellFounded.fix [u, v]) α motive rel wf, varName)
+    return (mkApp5 (mkConst ``WellFoundedRelation.fixBy [u, v, w]) α β wfInst packedF motive, varName)
   forallBoundedTelescope (← whnf (← inferType wfFix)).bindingDomain! (some 2) fun xs _ => do
     let x   := xs[0]!
     -- Remark: we rename `x` here to make sure we preserve the variable name in the

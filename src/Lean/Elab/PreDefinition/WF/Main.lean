@@ -109,12 +109,11 @@ def wfRecursion (preDefs : Array PreDefinition) (termArg?s : Array (Option Termi
     let type ← whnfForall type
     unless type.isForall do
       throwError "wfRecursion: expected unary function type: {type}"
-    let packedArgType := type.bindingDomain!
-    elabWFRel preDefs unaryPreDef.declName prefixArgs argsPacker packedArgType wf fun wfRel => do
-      trace[Elab.definition.wf] "wfRel: {wfRel}"
+    elabWFRel preDefs unaryPreDef.declName prefixArgs argsPacker wf fun packedF wfInst => do
+      trace[Elab.definition.wf] "wfInst: {wfInst}"
       let (value, envNew) ← withoutModifyingEnv' do
         addAsAxiom unaryPreDef
-        let value ← mkFix unaryPreDef prefixArgs argsPacker wfRel (preDefs.map (·.termination.decreasingBy?))
+        let value ← mkFix unaryPreDef prefixArgs argsPacker packedF wfInst (preDefs.map (·.termination.decreasingBy?))
         eraseRecAppSyntaxExpr value
       /- `mkFix` invokes `decreasing_tactic` which may add auxiliary theorems to the environment. -/
       let value ← unfoldDeclsFrom envNew value

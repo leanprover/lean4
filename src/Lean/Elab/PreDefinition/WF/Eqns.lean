@@ -33,7 +33,7 @@ private partial def deltaLHSUntilFix (mvarId : MVarId) : MetaM MVarId := mvarId.
 private def rwFixEq (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   let target ← mvarId.getType'
   let some (_, lhs, rhs) := target.eq? | unreachable!
-  let h := mkAppN (mkConst ``WellFounded.fix_eq lhs.getAppFn.constLevels!) lhs.getAppArgs
+  let h := mkAppN (mkConst ``WellFoundedRelation.fixBy_eq lhs.getAppFn.constLevels!) lhs.getAppArgs
   let some (_, _, lhsNew) := (← inferType h).eq? | unreachable!
   let targetNew ← mkEq lhsNew rhs
   let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew

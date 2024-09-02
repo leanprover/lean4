@@ -578,9 +578,15 @@ theorem getKey_cons [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k}
 def getKeyD [BEq α] (a : α) (l : List ((a : α) × β a)) (fallback : α) : α :=
   (getKey? a l).getD fallback
 
+theorem getKeyD_eq_getKey? [BEq α] {l : List ((a : α) × β a)} {a : α}
+    {fallback : α} : getKeyD a l fallback = (getKey? a l).getD fallback := rfl
+
 /-- Internal implementation detail of the hash map -/
 def getKey! [BEq α] [Inhabited α] (a : α) (l : List ((a : α) × β a)) : α :=
   (getKey? a l).get!
+
+theorem getKey!_eq_getKey? [BEq α] [Inhabited α] {l : List ((a : α) × β a)} {a : α} :
+    getKey! a l = (getKey? a l).get! := rfl
 
 /-- Internal implementation detail of the hash map -/
 def replaceEntry [BEq α] (k : α) (v : β k) : List ((a : α) × β a) → List ((a : α) × β a)
@@ -1519,6 +1525,12 @@ theorem getKey?_of_perm [BEq α] [PartialEquivBEq α] {l l' : List ((a : α) × 
     (hl : DistinctKeys l) (h : Perm l l') : getKey? a l = getKey? a l' := by
   rw [getKey?_eq_getEntry?, getKey?_eq_getEntry?, getEntry?_of_perm hl h]
 
+theorem getKey_of_perm [BEq α] [PartialEquivBEq α] {l l' : List ((a : α) × β a)} {a : α} {h'}
+    (hl : DistinctKeys l) (h : Perm l l') :
+    getKey a l h' = getKey a l' ((containsKey_of_perm h).symm.trans h') := by
+  rw [← Option.some_inj, ← getKey?_eq_some_getKey, ← getKey?_eq_some_getKey,
+    getKey?_of_perm hl h]
+
 theorem perm_cons_getEntry [BEq α] {l : List ((a : α) × β a)} {a : α} (h : containsKey a l) :
     ∃ l', Perm l (getEntry a l h :: l') := by
   induction l using assoc_induction
@@ -1632,6 +1644,13 @@ theorem getKey?_append_of_containsKey_eq_false [BEq α] [PartialEquivBEq α]
     {l l' : List ((a : α) × β a)} {a : α} (hl' : containsKey a l' = false) :
     getKey? a (l ++ l') = getKey? a l := by
   simp [getKey?_eq_getEntry?, getEntry?_eq_none.2 hl']
+
+theorem getKey_append_of_containsKey_eq_false [BEq α] [PartialEquivBEq α]
+    {l l' : List ((a : α) × β a)} {a : α} {h} (hl' : containsKey a l' = false) :
+    getKey a (l ++ l') h =
+      getKey a l ((containsKey_append_of_not_contains_right hl').symm.trans h) := by
+  rw [← Option.some_inj, ← getKey?_eq_some_getKey, ← getKey?_eq_some_getKey,
+    getKey?_append_of_containsKey_eq_false hl']
 
 theorem replaceEntry_append_of_containsKey_left [BEq α] {l l' : List ((a : α) × β a)} {k : α}
     {v : β k} (h : containsKey k l) : replaceEntry k v (l ++ l') = replaceEntry k v l ++ l' := by

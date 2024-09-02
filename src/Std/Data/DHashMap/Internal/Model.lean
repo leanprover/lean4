@@ -288,11 +288,11 @@ def getKeyₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (h : m.contains
 
 /-- Internal implementation detail of the hash map -/
 def getKeyDₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : α) : α :=
-  (bucket m.1.buckets m.2 a).getKeyD a fallback
+  (m.getKey?ₘ a).getD fallback
 
 /-- Internal implementation detail of the hash map -/
 def getKey!ₘ [BEq α] [Hashable α] [Inhabited α] (m : Raw₀ α β) (a : α) : α :=
-  (bucket m.1.buckets m.2 a).getKey! a
+  (m.getKey?ₘ a).get!
 
 /-- Internal implementation detail of the hash map -/
 def insertₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) : Raw₀ α β :=
@@ -371,10 +371,12 @@ theorem getKey_eq_getKeyₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (
     getKey m a h = getKeyₘ m a h := rfl
 
 theorem getKeyD_eq_getKeyDₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : α) :
-    getKeyD m a fallback = getKeyDₘ m a fallback := rfl
+    getKeyD m a fallback = getKeyDₘ m a fallback := by
+  simp [getKeyD, getKeyDₘ, getKey?ₘ, List.getKeyD_eq_getKey?, bucket]
 
 theorem getKey!_eq_getKey!ₘ [BEq α] [Hashable α] [Inhabited α] (m : Raw₀ α β) (a : α) :
-    getKey! m a = getKey!ₘ m a := rfl
+    getKey! m a = getKey!ₘ m a := by
+  simp [getKey!, getKey!ₘ, getKey?ₘ, List.getKey!_eq_getKey?, bucket]
 
 theorem contains_eq_containsₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) :
     m.contains a = m.containsₘ a := rfl

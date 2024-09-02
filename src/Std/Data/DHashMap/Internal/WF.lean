@@ -214,16 +214,6 @@ theorem get_eq_getValueCast [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α
     m.get a h = getValueCast a (toListModel m.1.buckets) (contains_eq_containsKey hm ▸ h) := by
   rw [get_eq_getₘ, getₘ_eq_getValue hm]
 
-theorem getKey?ₘ_eq_getKey? [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
-    (hm : Raw.WFImp m.1) {a : α} :
-    m.getKey?ₘ a = List.getKey? a (toListModel m.1.buckets) :=
-  apply_bucket hm AssocList.getKey?_eq List.getKey?_of_perm List.getKey?_append_of_containsKey_eq_false
-
-theorem getKey?_eq_getKey? [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
-    (hm : Raw.WFImp m.1) {a : α} :
-    m.getKey? a = List.getKey? a (toListModel m.1.buckets) := by
-  rw [getKey?_eq_getKey?ₘ, getKey?ₘ_eq_getKey? hm]
-
 theorem get!ₘ_eq_getValueCast! [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β}
     (hm : Raw.WFImp m.1) {a : α} [Inhabited (β a)] :
     m.get!ₘ a = getValueCast! a (toListModel m.1.buckets) := by
@@ -242,6 +232,47 @@ theorem getD_eq_getValueCastD [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ 
     {a : α} {fallback : β a} :
     m.getD a fallback = getValueCastD a (toListModel m.1.buckets) fallback := by
   rw [getD_eq_getDₘ, getDₘ_eq_getValueCastD hm]
+
+theorem getKey?ₘ_eq_getKey? [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
+    (hm : Raw.WFImp m.1) {a : α} :
+    m.getKey?ₘ a = List.getKey? a (toListModel m.1.buckets) :=
+  apply_bucket hm AssocList.getKey?_eq List.getKey?_of_perm List.getKey?_append_of_containsKey_eq_false
+
+theorem getKey?_eq_getKey? [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
+    (hm : Raw.WFImp m.1) {a : α} :
+    m.getKey? a = List.getKey? a (toListModel m.1.buckets) := by
+  rw [getKey?_eq_getKey?ₘ, getKey?ₘ_eq_getKey? hm]
+
+theorem getKeyₘ_eq_getKey [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
+    (hm : Raw.WFImp m.1) {a : α} {h : m.contains a} :
+    m.getKeyₘ a h = List.getKey a (toListModel m.1.buckets) (contains_eq_containsKey hm ▸ h) :=
+  apply_bucket_with_proof hm a AssocList.getKey List.getKey AssocList.getKey_eq
+    List.getKey_of_perm List.getKey_append_of_containsKey_eq_false
+
+theorem getKey_eq_getKey [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
+    (hm : Raw.WFImp m.1) {a : α} {h : m.contains a} :
+    m.getKey a h = List.getKey a (toListModel m.1.buckets) (contains_eq_containsKey hm ▸ h) := by
+  rw [getKey_eq_getKeyₘ, getKeyₘ_eq_getKey hm]
+
+theorem getKey!ₘ_eq_getKey! [BEq α] [Hashable α] [LawfulBEq α] [Inhabited α] {m : Raw₀ α β}
+    (hm : Raw.WFImp m.1) {a : α} [Inhabited (β a)] :
+    m.getKey!ₘ a = List.getKey! a (toListModel m.1.buckets) := by
+  rw [getKey!ₘ, getKey?ₘ_eq_getKey? hm, List.getKey!_eq_getKey?]
+
+theorem getKey!_eq_getKey! [BEq α] [Hashable α] [LawfulBEq α] [Inhabited α] {m : Raw₀ α β}
+    (hm : Raw.WFImp m.1) {a : α} [Inhabited (β a)] :
+    m.getKey! a = List.getKey! a (toListModel m.1.buckets) := by
+  rw [getKey!_eq_getKey!ₘ, getKey!ₘ_eq_getKey! hm]
+
+theorem getKeyDₘ_eq_getKeyD [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β}
+    (hm : Raw.WFImp m.1) {a : α} {fallback : α} :
+    m.getKeyDₘ a fallback = List.getKeyD a (toListModel m.1.buckets) fallback := by
+  rw [getKeyDₘ, getKey?ₘ_eq_getKey? hm, List.getKeyD_eq_getKey?]
+
+theorem getKeyD_eq_getKeyD [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} (hm : Raw.WFImp m.1)
+    {a : α} {fallback : α} :
+    m.getKeyD a fallback = List.getKeyD a (toListModel m.1.buckets) fallback := by
+  rw [getKeyD_eq_getKeyDₘ, getKeyDₘ_eq_getKeyD hm]
 
 section
 

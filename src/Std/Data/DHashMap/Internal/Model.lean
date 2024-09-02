@@ -283,6 +283,18 @@ def get!ₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) [I
   (m.get?ₘ a).get!
 
 /-- Internal implementation detail of the hash map -/
+def getKeyₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (h : m.containsₘ a) : α :=
+  (bucket m.1.buckets m.2 a).getKey a h
+
+/-- Internal implementation detail of the hash map -/
+def getKeyDₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : α) : α :=
+  (bucket m.1.buckets m.2 a).getKeyD a fallback
+
+/-- Internal implementation detail of the hash map -/
+def getKey!ₘ [BEq α] [Hashable α] [Inhabited α] (m : Raw₀ α β) (a : α) : α :=
+  (bucket m.1.buckets m.2 a).getKey! a
+
+/-- Internal implementation detail of the hash map -/
 def insertₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) : Raw₀ α β :=
   if m.containsₘ a then m.replaceₘ a b else Raw₀.expandIfNecessary (m.consₘ a b)
 
@@ -341,9 +353,6 @@ theorem reinsertAux_eq [Hashable α] (data : { d : Array (AssocList α β) // 0 
 theorem get?_eq_get?ₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) :
     get? m a = get?ₘ m a := rfl
 
-theorem getKey?_eq_getKey?ₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) :
-    getKey? m a = getKey?ₘ m a := rfl
-
 theorem get_eq_getₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) (h : m.contains a) :
     get m a h = getₘ m a h := rfl
 
@@ -354,6 +363,18 @@ theorem getD_eq_getDₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β)
 theorem get!_eq_get!ₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) [Inhabited (β a)] :
     get! m a = get!ₘ m a := by
   simp [get!, get!ₘ, get?ₘ, List.getValueCast!_eq_getValueCast?, bucket]
+
+theorem getKey?_eq_getKey?ₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) :
+    getKey? m a = getKey?ₘ m a := rfl
+
+theorem getKey_eq_getKeyₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (h : m.contains a) :
+    getKey m a h = getKeyₘ m a h := rfl
+
+theorem getKeyD_eq_getKeyDₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : α) :
+    getKeyD m a fallback = getKeyDₘ m a fallback := rfl
+
+theorem getKey!_eq_getKey!ₘ [BEq α] [Hashable α] [Inhabited α] (m : Raw₀ α β) (a : α) :
+    getKey! m a = getKey!ₘ m a := rfl
 
 theorem contains_eq_containsₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) :
     m.contains a = m.containsₘ a := rfl

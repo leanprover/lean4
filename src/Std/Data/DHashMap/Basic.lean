@@ -123,6 +123,15 @@ instance [BEq α] [Hashable α] {m : DHashMap α β} {a : α} : Decidable (a ∈
     (a : α) (fallback : β a) : β a :=
   Raw₀.getD ⟨m.1, m.2.size_buckets_pos⟩ a fallback
 
+@[inline, inherit_doc Raw.getKey] def getKey (m : DHashMap α β) (a : α) (h : a ∈ m) : α :=
+  Raw₀.getKey ⟨m.1, m.2.size_buckets_pos⟩ a h
+
+@[inline, inherit_doc Raw.getKey!] def getKey! [Inhabited α] (m : DHashMap α β) (a : α) : α :=
+  Raw₀.getKey! ⟨m.1, m.2.size_buckets_pos⟩ a
+
+@[inline, inherit_doc Raw.getKeyD] def getKeyD (m : DHashMap α β) (a : α) (fallback : α) : α :=
+  Raw₀.getKeyD ⟨m.1, m.2.size_buckets_pos⟩ a fallback
+
 @[inline, inherit_doc Raw.erase] def erase (m : DHashMap α β) (a : α) :
     DHashMap α β :=
   ⟨Raw₀.erase ⟨m.1, m.2.size_buckets_pos⟩ a, .erase₀ m.2⟩

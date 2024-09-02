@@ -111,6 +111,27 @@ instance [BEq α] [Hashable α] : Membership α (HashSet α) where
 instance [BEq α] [Hashable α] {m : HashSet α} {a : α} : Decidable (a ∈ m) :=
   inferInstanceAs (Decidable (a ∈ m.inner))
 
+/--
+Retrieves the key from the set that matches `a`. Ensures that such a key exists by requiring a proof
+of `a ∈ m`. The result is guaranteed to be pointer equal to the key in the set.
+-/
+@[inline] def getKey [BEq α] [Hashable α] (m : HashSet α) (a : α) (h : a ∈ m) : α :=
+  m.inner.getKey a h
+
+/--
+Checks if given key is contained and returns the key if it is, otherwise `fallback`.
+If they key is contained the result is guaranteed to be pointer equal to the key in the set.
+-/
+@[inline] def getKeyD [BEq α] [Hashable α] (m : HashSet α) (a : α) (fallback : α) : α :=
+  m.inner.getKeyD a fallback
+
+/--
+Checks if given key is contained and returns the key if it is, otherwise panics.
+If no panic occurs the result is guaranteed to be pointer equal to the key in the set.
+-/
+@[inline] def getKey! [BEq α] [Hashable α] [Inhabited α] (m : HashSet α) (a : α) : α :=
+  m.inner.getKey! a
+
 /-- Removes the element if it exists. -/
 @[inline] def erase (m : HashSet α) (a : α) : HashSet α :=
   ⟨m.inner.erase a⟩

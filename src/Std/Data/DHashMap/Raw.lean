@@ -188,6 +188,32 @@ Uses the `LawfulBEq` instance to cast the retrieved value to the correct type.
     Raw₀.get! ⟨m, h⟩ a
   else default -- will never happen for well-formed inputs
 
+/--
+Retrieves the key from the mapping that matches `a`. Ensures that such a mapping exists by
+requiring a proof of `a ∈ m`. The result is guaranteed to be pointer equal to the key in the map.
+-/
+@[inline] def getKey [BEq α] [Hashable α] (m : Raw α β) (a : α) (h : a ∈ m) : α :=
+  Raw₀.getKey ⟨m, by change dite .. = true at h; split at h <;> simp_all⟩ a
+    (by change dite .. = true at h; split at h <;> simp_all)
+
+/--
+Checks if a mapping for the given key exists and returns the key if it does, otherwise `fallback`.
+If a mapping exists the result is guaranteed to be pointer equal to the key in the map.
+-/
+@[inline] def getKeyD [BEq α] [Hashable α] (m : Raw α β) (a : α) (fallback : α) : α :=
+  if h : 0 < m.buckets.size then
+    Raw₀.getKeyD ⟨m, h⟩ a fallback
+  else fallback -- will never happen for well-formed inputs
+
+/--
+Checks if a mapping for the given key exists and returns the key if it does, otherwise panics.
+If no panic occurs the result is guaranteed to be pointer equal to the key in the map.
+-/
+@[inline] def getKey! [BEq α] [Hashable α] [Inhabited α] (m : Raw α β) (a : α) : α :=
+  if h : 0 < m.buckets.size then
+    Raw₀.getKey! ⟨m, h⟩ a
+  else default -- will never happen for well-formed inputs
+
 /-- Removes the mapping for the given key if it exists. -/
 @[inline] def erase [BEq α] [Hashable α] (m : Raw α β) (a : α) : Raw α β :=
   if h : 0 < m.buckets.size then

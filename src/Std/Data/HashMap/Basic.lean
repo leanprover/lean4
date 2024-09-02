@@ -163,6 +163,15 @@ instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a �
   getElem? m a := m.get? a
   getElem! m a := m.get! a
 
+@[inline, inherit_doc DHashMap.getKey] def getKey (m : HashMap α β) (a : α) (h : a ∈ m) : α :=
+  DHashMap.getKey m.inner a h
+
+@[inline, inherit_doc DHashMap.getKeyD] def getKeyD (m : HashMap α β) (a : α) (fallback : α) : α :=
+  DHashMap.getKeyD m.inner a fallback
+
+@[inline, inherit_doc DHashMap.getKey!] def getKey! [Inhabited α] (m : HashMap α β) (a : α) : α :=
+  DHashMap.getKey! m.inner a
+
 @[inline, inherit_doc DHashMap.erase] def erase (m : HashMap α β) (a : α) :
     HashMap α β :=
   ⟨m.inner.erase a⟩

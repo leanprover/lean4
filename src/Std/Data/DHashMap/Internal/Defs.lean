@@ -286,12 +286,6 @@ where
   buckets[i].getCast? a
 
 /-- Internal implementation detail of the hash map -/
-@[inline] def getKey? [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Option α :=
-  let ⟨⟨_, buckets⟩, h⟩ := m
-  let ⟨i, h⟩ := mkIdx buckets.size h (hash a)
-  buckets[i].getKey? a
-
-/-- Internal implementation detail of the hash map -/
 @[inline] def contains [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Bool :=
   let ⟨⟨_, buckets⟩, h⟩ := m
   let ⟨i, h⟩ := mkIdx buckets.size h (hash a)
@@ -317,6 +311,30 @@ where
   let ⟨⟨_, buckets⟩, h⟩ := m
   let idx := mkIdx buckets.size h (hash a)
   buckets[idx.1].getCast! a
+
+/-- Internal implementation detail of the hash map -/
+@[inline] def getKey? [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Option α :=
+  let ⟨⟨_, buckets⟩, h⟩ := m
+  let ⟨i, h⟩ := mkIdx buckets.size h (hash a)
+  buckets[i].getKey? a
+
+/-- Internal implementation detail of the hash map -/
+@[inline] def getKey [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (hma : m.contains a) : α :=
+  let ⟨⟨_, buckets⟩, h⟩ := m
+  let idx := mkIdx buckets.size h (hash a)
+  buckets[idx.1].getKey a hma
+
+/-- Internal implementation detail of the hash map -/
+@[inline] def getKeyD [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : α) : α :=
+  let ⟨⟨_, buckets⟩, h⟩ := m
+  let idx := mkIdx buckets.size h (hash a)
+  buckets[idx.1].getKeyD a fallback
+
+/-- Internal implementation detail of the hash map -/
+@[inline] def getKey! [BEq α] [Hashable α] [Inhabited α] (m : Raw₀ α β) (a : α) : α :=
+  let ⟨⟨_, buckets⟩, h⟩ := m
+  let idx := mkIdx buckets.size h (hash a)
+  buckets[idx.1].getKey! a
 
 /-- Internal implementation detail of the hash map -/
 @[inline] def erase [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Raw₀ α β :=

@@ -553,6 +553,35 @@ theorem getKey?_eq_getEntry? [BEq α] {l : List ((a : α) × β a)} {a : α} :
     · rw [getEntry?_cons_of_false h, getKey?_cons_of_false h, ih]
     · rw [getEntry?_cons_of_true h, getKey?_cons_of_true h, Option.map_some']
 
+theorem containsKey_eq_isSome_getKey? [BEq α] {l : List ((a : α) × β a)} {a : α} :
+    containsKey a l = (getKey? a l).isSome := by
+  simp [containsKey_eq_isSome_getEntry?, getKey?_eq_getEntry?]
+
+/-- Internal implementation detail of the hash map -/
+def getKey [BEq α] (a : α) (l : List ((a : α) × β a)) (h : containsKey a l) : α :=
+  (getKey? a l).get <| containsKey_eq_isSome_getKey?.symm.trans h
+
+theorem getKey?_eq_some_getKey [BEq α] {l : List ((a : α) × β a)} {a : α} (h : containsKey a l) :
+    getKey? a l = some (getKey a l h) := by
+  simp [getKey]
+
+theorem getKey_cons [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k} {h} :
+    getKey a (⟨k, v⟩ :: l) h = if h' : k == a then k
+      else getKey a l (containsKey_of_containsKey_cons (k := k) h (Bool.eq_false_iff.2 h')) := by
+  rw [← Option.some_inj, ← getKey?_eq_some_getKey, getKey?_cons, apply_dite Option.some,
+    cond_eq_if]
+  split
+  · rfl
+  · exact getKey?_eq_some_getKey _
+
+/-- Internal implementation detail of the hash map -/
+def getKeyD [BEq α] (a : α) (l : List ((a : α) × β a)) (fallback : α) : α :=
+  (getKey? a l).getD fallback
+
+/-- Internal implementation detail of the hash map -/
+def getKey! [BEq α] [Inhabited α] (a : α) (l : List ((a : α) × β a)) : α :=
+  (getKey? a l).get!
+
 /-- Internal implementation detail of the hash map -/
 def replaceEntry [BEq α] (k : α) (v : β k) : List ((a : α) × β a) → List ((a : α) × β a)
   | [] => []
@@ -1023,10 +1052,6 @@ theorem getKey?_insertEntry [BEq α] [PartialEquivBEq α] {l : List ((a : α) ×
 theorem getKey?_insertEntry_self [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} {k : α}
     {v : β k} : getKey? k (insertEntry k v l) = some k := by
   simp [getKey?_insertEntry]
-
-theorem containsKey_eq_isSome_getKey? [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)}
-    {a : α} : containsKey a l = (getKey? a l).isSome := by
-  simp [containsKey_eq_isSome_getEntry?, getKey?_eq_getEntry?]
 
 theorem getKey?_eq_none [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)} {a : α}
     (h : containsKey a l = false) : getKey? a l = none := by

@@ -1053,8 +1053,7 @@ where
   go :=
     withPromisesResolvedOnException views.size fun bodyPromises =>
     withPromisesResolvedOnException views.size fun tacPromises => do
-    withPromisesResolvedOnException views.size fun valPromises => do
-    withPromiseResolvedOnException fun subDeclsPromise => do
+    withPromiseResolvedOnException fun valPromise => do
       let scopeLevelNames ← getLevelNames
       let headers ← elabHeaders views bodyPromises tacPromises
       let headers ← levelMVarToParamHeaders views headers
@@ -1062,66 +1061,59 @@ where
       withFunLocalDecls headers fun funFVars => do
         for view in views, funFVar in funFVars do
           addLocalVarInfo view.declId funFVar
-        let async := headers.size == 1 && headers.all (·.kind.isTheorem) && typeCheckedPromise?.isSome
-        let finishElab := try
-        let values ← do
-          if async then
-            modifyEnv fun env => env.setPrefixRestriction? <| some {
-              declPrefix := headers[0]!.declName
-              subDecls := #[]
-            }
-          try
-            (try
-              let values ← elabFunValues headers vars sc
-              Term.synthesizeSyntheticMVarsNoPostponing
-              values.mapM (instantiateMVarsProfiling ·)
-            catch ex =>
-              logException ex
-              headers.mapM fun header => mkSorry header.type (synthetic := true))
-          finally
-            if let some prefixRestriction := (← getEnv).prefixRestriction? then
-              subDeclsPromise.resolve prefixRestriction.subDecls
-        let headers ← headers.mapM instantiateMVarsAtHeader
-        let letRecsToLift ← getLetRecsToLift
-        let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift
-        checkLetRecsToLiftTypes funFVars letRecsToLift
-        (if headers.all (·.kind.isTheorem) && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc headers else withUsed vars headers values letRecsToLift) fun vars => do
-          let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift
-          for preDef in preDefs do
-            trace[Elab.definition] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
-          let preDefs ← withLevelNames allUserLevelNames <| levelMVarToParamPreDecls preDefs
-          let preDefs ← instantiateMVarsAtPreDecls preDefs
-          let preDefs ← shareCommonPreDefs preDefs
-          let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
-          for preDef in preDefs do
-            trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
-          checkForHiddenUnivLevels allUserLevelNames preDefs
-          addPreDefinitions preDefs
-          processDeriving headers
-        finally
-          bodyPromises.forM (·.resolve default)
-          tacPromises.forM (·.resolve default)
-          valPromises.forM (·.resolve default)
-          subDeclsPromise.resolve default
-        if async then
-          let t ← runAsyncAsSnapshot finishElab
-          let _ ← BaseIO.mapTask (t := t) fun snap => do
-            if let some typeCheckedPromise := typeCheckedPromise? then
-              typeCheckedPromise.resolve snap
-          let mut env ← getEnv
-          for header in headers, valPromise in valPromises do
+        let mut asyncEnv? := none
+        if let #[header] := headers then
+          if header.kind.isTheorem && typeCheckedPromise?.isSome then
             let type ← mkForallFVars vars header.type
             let mut s : CollectLevelParams.State := {}
             s := collectLevelParams s header.type
             let levelParams ← IO.ofExcept <| sortDeclLevelParams scopeLevelNames allUserLevelNames s.params
-            env := env.addTheoremAsync {
+            let env ← getEnv
+            let (env', asyncEnv) ← env.addTheoremAsync {
               name := header.declName
               levelParams
               type
               value := valPromise.result
-              subDecls := subDeclsPromise.result
             }
-          modifyEnv fun _ => env
+            modifyEnv fun _=> env'
+            asyncEnv? := some asyncEnv
+        let finishElab := try
+          let values ← try
+            let values ← elabFunValues headers vars sc
+            Term.synthesizeSyntheticMVarsNoPostponing
+            values.mapM (instantiateMVarsProfiling ·)
+          catch ex =>
+            logException ex
+            headers.mapM fun header => mkSorry header.type (synthetic := true)
+          let headers ← headers.mapM instantiateMVarsAtHeader
+          let letRecsToLift ← getLetRecsToLift
+          let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift
+          checkLetRecsToLiftTypes funFVars letRecsToLift
+          (if headers.all (·.kind.isTheorem) && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc headers else withUsed vars headers values letRecsToLift) fun vars => do
+            let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift
+            for preDef in preDefs do
+              trace[Elab.definition] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
+            let preDefs ← withLevelNames allUserLevelNames <| levelMVarToParamPreDecls preDefs
+            let preDefs ← instantiateMVarsAtPreDecls preDefs
+            let preDefs ← shareCommonPreDefs preDefs
+            let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
+            for preDef in preDefs do
+              trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
+            checkForHiddenUnivLevels allUserLevelNames preDefs
+            addPreDefinitions preDefs
+            processDeriving headers
+          finally
+            bodyPromises.forM (·.resolve default)
+            tacPromises.forM (·.resolve default)
+            valPromise.resolve default
+            (← getEnv).resolveAsync
+        if let some asyncEnv := asyncEnv? then
+          let t ← runAsyncAsSnapshot do
+            modifyEnv fun _ => asyncEnv
+            finishElab
+          let _ ← BaseIO.mapTask (t := t) fun snap => do
+            if let some typeCheckedPromise := typeCheckedPromise? then
+              typeCheckedPromise.resolve snap
         else
           finishElab
           if let some typeCheckedPromise := typeCheckedPromise? then

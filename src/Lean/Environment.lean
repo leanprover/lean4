@@ -7,6 +7,7 @@ prelude
 import Init.Control.StateRef
 import Init.Data.Array.BinSearch
 import Init.Data.Stream
+import Init.System.Promise
 import Lean.ImportingFlag
 import Lean.Data.HashMap
 import Lean.Data.SMap
@@ -274,7 +275,6 @@ abbrev KernelException := Kernel.Exception
 
 structure AsyncTheoremVal extends ConstantVal where
   value : Task Expr
-  subDecls : Task (Array Declaration)
   /--
     List of all (including this one) declarations in the same mutual block.
     See comment at `DefinitionVal.all`. -/
@@ -286,10 +286,11 @@ def AsyncTheoremVal.toTheoremVal (v : AsyncTheoremVal) : TheoremVal :=
 instance [Nonempty α] : Nonempty (Thunk α) :=
   Nonempty.intro ⟨fun _ => Classical.ofNonempty⟩
 
-structure PrefixRestriction where
+structure AsyncContext where
   declPrefix : Name
   subDecls : Array Declaration
-deriving Inhabited
+  resolve : IO.Promise Kernel.Environment
+deriving Nonempty
 
 /--
 Extension of `Kernel.Environment` that adds tracking of compiler IR, asynchronously elaborated
@@ -305,6 +306,7 @@ structure Environment where
   -/
   private mk ::
   private base            : Kernel.Environment
+  private final           : Task Kernel.Environment
   /--
   Mapping from constant name to module (index) where constant has been declared.
   Recall that a Lean file has a header where previously compiled modules can be imported.
@@ -329,7 +331,7 @@ structure Environment where
   /-- The header contains additional information that is set at import time. -/
   header                  : EnvironmentHeader := {}
   asyncTheorems           : Array AsyncTheoremVal := #[]
-  prefixRestriction?      : Option PrefixRestriction := none
+  private asyncCtx? : Option AsyncContext := none
 deriving Nonempty
 
 namespace Environment
@@ -344,37 +346,35 @@ opaque addDeclWithoutChecking (env : Environment) (decl : @& Declaration) : Exce
 
 def addDecl (env : Environment) (opts : Options) (decl : Declaration)
     (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment := do
-  if let some r := env.prefixRestriction? then
-    if let some c := decl.getNames.find? (!r.declPrefix.isPrefixOf ·) then
+  let mut env := env
+  if let some asyncCtx := env.asyncCtx? then
+    if decl.getNames = [asyncCtx.declPrefix] then
+      env := { env with asyncCtx? := some { asyncCtx with subDecls := #[] } }
+      for subDecl in asyncCtx.subDecls do
+        env ← addDecl' env subDecl
+    else if let some c := decl.getNames.find? (!asyncCtx.declPrefix.isPrefixOf ·) then
       throw <| .other s!"declaration '{c}' cannot be added to the environment because the context \
-        is restricted to the prefix {r.declPrefix}"
+        is restricted to the prefix {asyncCtx.declPrefix}"
     else
-      return { env with prefixRestriction? := some { r with subDecls := r.subDecls.push decl } }
-  else if debug.skipKernelTC.get opts then
+      return { env with asyncCtx? := some { asyncCtx with subDecls := asyncCtx.subDecls.push decl } }
+  addDecl' env decl
+where addDecl' env decl :=
+  if debug.skipKernelTC.get opts then
     addDeclWithoutChecking env decl
   else
     addDeclCore env (Core.getMaxHeartbeats opts).toUSize decl cancelTk?
 
 @[export lean_elab_environment_to_kernel_env]
-def toKernelEnv (env : Environment) : Kernel.Environment :=
-  if env.asyncTheorems.isEmpty then
-    env.base
-  else /-dbgStackTrace fun _ =>-/ Id.run do
-    let mut kenv := env.base
-    for thm in env.asyncTheorems do
-      for subDecl in thm.subDecls.get do
-        -- errors will be reported at full check (TODO)
-        match kenv.addDeclWithoutChecking subDecl with
-        | .ok kenv' => kenv := kenv'
-        | .error e => panic! "oh no"; return kenv
-      kenv := kenv.add (.thmInfo thm.toTheoremVal)
-    if let some prefixRestriction := env.prefixRestriction? then
-      for subDecl in prefixRestriction.subDecls do
-        match kenv.addDeclWithoutChecking subDecl with
-        | .ok kenv' => kenv := kenv'
-        | .error e => panic! "oh no"; return kenv
-    kenv
-
+def toKernelEnv (env : Environment) : Kernel.Environment := Id.run do
+  let mut kenv := if unsafe (unsafeBaseIO <| IO.hasFinished env.final) then
+    env.final.get
+  else /-dbgStackTrace fun _ =>-/ env.final.get
+  if let some asyncCtx := env.asyncCtx? then
+    for subDecl in asyncCtx.subDecls do
+      match kenv.addDeclWithoutChecking subDecl with
+      | .ok kenv' => kenv := kenv'
+      | .error _ => panic! "oh no"; return kenv
+  kenv
 
 @[inherit_doc Kernel.Environment.constants]
 def constants (env : Environment) : ConstMap :=
@@ -391,19 +391,30 @@ def addExtraName (env : Environment) (name : Name) : Environment :=
   else
     { env with extraConstNames := env.extraConstNames.insert name }
 
-def addTheoremAsync (env : Environment) (val : AsyncTheoremVal) : Environment :=
-  { env with asyncTheorems := env.asyncTheorems.push val }
+def addTheoremAsync (env : Environment) (val : AsyncTheoremVal) : BaseIO (Environment × Environment) := do
+  let resolve ← IO.Promise.new
+  return (
+    { env with asyncTheorems := env.asyncTheorems.push val, final := resolve.result },
+    { env with asyncCtx? := some { declPrefix := val.name, subDecls := #[], resolve }})
 
-def setPrefixRestriction? (env : Environment) (prefixRestriction? : Option PrefixRestriction) :
-    Environment :=
-  { env with prefixRestriction? }
+def resolveAsync (env : Environment) : BaseIO Unit := do
+  if let some asyncCtx := env.asyncCtx? then
+    asyncCtx.resolve.resolve env.toKernelEnv
 
-def find? (env : Environment) (n : Name) : Option ConstantInfo :=
-  /- It is safe to use `find'` because we never overwrite imported declarations. -/
-  env.toKernelEnv.constants.find?' n
+def find? (env : Environment) (n : Name) : Option ConstantInfo := do
+  if let some asyncThm := env.asyncTheorems.find? (·.name = n) then
+    return .thmInfo asyncThm.toTheoremVal
+  else if let some subDecl := env.asyncCtx?.bind (·.subDecls.find? (·.getNames.contains n)) then
+    match subDecl with
+      | .thmDecl thm => return .thmInfo thm
+      | .defnDecl defn => return .defnInfo defn
+      | _ => env.toKernelEnv.constants.find?' n
+  else
+    /- It is safe to use `find?'` because we never overwrite imported declarations. -/
+    env.base.constants.find?' n
 
 def contains (env : Environment) (n : Name) : Bool :=
-  env.toKernelEnv.constants.contains n
+  env.find? n |>.isSome
 
 def imports (env : Environment) : Array Import :=
   env.header.imports
@@ -590,9 +601,11 @@ def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
   let initializing ← IO.initializing
   if initializing then throw (IO.userError "environment objects cannot be created during initialization")
   let exts ← mkInitialExtensionStates
+  let base := { constants := {} }
   pure {
+    base
+    final           := .pure base
     const2ModIdx    := {}
-    base.constants  := {}
     header          := { trustLevel }
     extraConstNames := {}
     extensions      := exts
@@ -1046,10 +1059,14 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
       const2ModIdx := const2ModIdx.insertIfNew cname modIdx
   let constants : ConstMap := SMap.fromHashMap constantMap false
   let exts ← mkInitialExtensionStates
+  let base := {
+    constants  := constants
+    quotInit   := !imports.isEmpty -- We assume `core.lean` initializes quotient module
+  }
   let mut env : Environment := {
+    base
+    final           := .pure base
     const2ModIdx    := const2ModIdx
-    base.constants  := constants
-    base.quotInit   := !imports.isEmpty -- We assume `core.lean` initializes quotient module
     extraConstNames := {}
     extensions      := exts
     header     := {
@@ -1157,7 +1174,7 @@ private def registerNamePrefixes : Environment → Name → Environment
 @[export lean_elab_environment_update_base_after_kernel_add]
 private def updateBaseAfterKernelAdd (env : Environment) (added : Declaration) (base : Kernel.Environment) : Environment :=
   let env := added.getNames.foldl registerNamePrefixes env
-  { env with base }
+  { env with base, final := .pure base }
 
 @[export lean_display_stats]
 def displayStats (env : Environment) : IO Unit := do

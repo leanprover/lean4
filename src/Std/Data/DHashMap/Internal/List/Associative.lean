@@ -578,6 +578,10 @@ theorem getKey_cons [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k}
 def getKeyD [BEq α] (a : α) (l : List ((a : α) × β a)) (fallback : α) : α :=
   (getKey? a l).getD fallback
 
+@[simp]
+theorem getKeyD_nil [BEq α] {a : α} {fallback : α} :
+  getKeyD a ([] : List ((a : α) × β a)) fallback = fallback := rfl
+
 theorem getKeyD_eq_getKey? [BEq α] {l : List ((a : α) × β a)} {a : α}
     {fallback : α} : getKeyD a l fallback = (getKey? a l).getD fallback := rfl
 

@@ -4009,7 +4009,6 @@ x_63 = lean_ctor_get(x_57, 0);
 x_64 = lean_ctor_get(x_2, 0);
 lean_inc(x_64);
 lean_dec(x_2);
-lean_inc(x_63);
 lean_inc(x_64);
 x_65 = l_System_FilePath_join(x_64, x_63);
 x_66 = l_System_FilePath_pathExists(x_65, x_7);
@@ -4059,6 +4058,7 @@ x_79 = lean_string_append(x_78, x_65);
 x_80 = l_Lake_reuseManifest___lambda__2___closed__3;
 x_81 = lean_string_append(x_79, x_80);
 x_82 = l_System_FilePath_join(x_64, x_71);
+lean_dec(x_71);
 x_83 = lean_string_append(x_81, x_82);
 x_84 = l_Lake_reuseManifest___lambda__2___closed__4;
 x_85 = lean_string_append(x_83, x_84);
@@ -4067,7 +4067,6 @@ x_87 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_87, 0, x_85);
 lean_ctor_set_uint8(x_87, sizeof(void*)*1, x_86);
 x_88 = lean_array_push(x_6, x_87);
-lean_inc(x_82);
 x_89 = l_Lake_createParentDirs(x_82, x_69);
 if (lean_obj_tag(x_89) == 0)
 {
@@ -4347,6 +4346,7 @@ x_141 = lean_string_append(x_140, x_65);
 x_142 = l_Lake_reuseManifest___lambda__2___closed__3;
 x_143 = lean_string_append(x_141, x_142);
 x_144 = l_System_FilePath_join(x_64, x_132);
+lean_dec(x_132);
 x_145 = lean_string_append(x_143, x_144);
 x_146 = l_Lake_reuseManifest___lambda__2___closed__4;
 x_147 = lean_string_append(x_145, x_146);
@@ -4355,7 +4355,6 @@ x_149 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_149, 0, x_147);
 lean_ctor_set_uint8(x_149, sizeof(void*)*1, x_148);
 x_150 = lean_array_push(x_6, x_149);
-lean_inc(x_144);
 x_151 = l_Lake_createParentDirs(x_144, x_130);
 if (lean_obj_tag(x_151) == 0)
 {
@@ -4511,7 +4510,6 @@ lean_dec(x_57);
 x_175 = lean_ctor_get(x_2, 0);
 lean_inc(x_175);
 lean_dec(x_2);
-lean_inc(x_174);
 lean_inc(x_175);
 x_176 = l_System_FilePath_join(x_175, x_174);
 x_177 = l_System_FilePath_pathExists(x_176, x_7);
@@ -4572,6 +4570,7 @@ x_191 = lean_string_append(x_190, x_176);
 x_192 = l_Lake_reuseManifest___lambda__2___closed__3;
 x_193 = lean_string_append(x_191, x_192);
 x_194 = l_System_FilePath_join(x_175, x_182);
+lean_dec(x_182);
 x_195 = lean_string_append(x_193, x_194);
 x_196 = l_Lake_reuseManifest___lambda__2___closed__4;
 x_197 = lean_string_append(x_195, x_196);
@@ -4580,7 +4579,6 @@ x_199 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_199, 0, x_197);
 lean_ctor_set_uint8(x_199, sizeof(void*)*1, x_198);
 x_200 = lean_array_push(x_6, x_199);
-lean_inc(x_194);
 x_201 = l_Lake_createParentDirs(x_194, x_179);
 if (lean_obj_tag(x_201) == 0)
 {
@@ -4904,6 +4902,7 @@ lean_inc(x_105);
 x_106 = lean_ctor_get(x_6, 4);
 lean_inc(x_106);
 x_107 = l_System_FilePath_join(x_105, x_106);
+lean_dec(x_106);
 x_108 = l_Lake_Manifest_load(x_107, x_5);
 lean_dec(x_107);
 if (lean_obj_tag(x_108) == 0)
@@ -5344,6 +5343,7 @@ x_19 = lean_ctor_get(x_16, 0);
 x_20 = lean_ctor_get(x_1, 1);
 lean_inc(x_20);
 x_21 = l_System_FilePath_join(x_20, x_19);
+lean_dec(x_19);
 lean_ctor_set(x_16, 0, x_21);
 x_22 = 1;
 lean_inc(x_12);
@@ -5366,6 +5366,7 @@ lean_dec(x_16);
 x_29 = lean_ctor_get(x_1, 1);
 lean_inc(x_29);
 x_30 = l_System_FilePath_join(x_29, x_28);
+lean_dec(x_28);
 x_31 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_31, 0, x_30);
 x_32 = 1;
@@ -5447,6 +5448,7 @@ if (lean_is_exclusive(x_52)) {
 x_56 = lean_ctor_get(x_1, 1);
 lean_inc(x_56);
 x_57 = l_System_FilePath_join(x_56, x_54);
+lean_dec(x_54);
 if (lean_is_scalar(x_55)) {
  x_58 = lean_alloc_ctor(0, 1, 0);
 } else {
@@ -5552,6 +5554,7 @@ lean_inc(x_5);
 x_6 = lean_ctor_get(x_1, 4);
 lean_inc(x_6);
 x_7 = l_System_FilePath_join(x_5, x_6);
+lean_dec(x_6);
 x_192 = l_Lake_Manifest_load(x_7, x_4);
 if (lean_obj_tag(x_192) == 0)
 {
@@ -18847,6 +18850,7 @@ x_103 = lean_ctor_get(x_97, 4);
 lean_inc(x_103);
 lean_dec(x_97);
 x_104 = l_System_FilePath_join(x_102, x_103);
+lean_dec(x_103);
 if (x_96 == 0)
 {
 lean_object* x_121; 

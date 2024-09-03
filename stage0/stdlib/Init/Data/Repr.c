@@ -90,7 +90,6 @@ static lean_object* l_Repr_addAppParen___closed__2;
 LEAN_EXPORT lean_object* l_List_foldl___at_List_repr___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_instReprPos___closed__4;
-uint8_t l_String_isEmpty(lean_object*);
 static lean_object* l_Repr_addAppParen___closed__3;
 LEAN_EXPORT lean_object* l_List_repr___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_repr(lean_object*);
@@ -2648,22 +2647,23 @@ return x_1;
 LEAN_EXPORT lean_object* l_String_quote(lean_object* x_1) {
 _start:
 {
-uint8_t x_2; 
-x_2 = l_String_isEmpty(x_1);
-if (x_2 == 0)
+lean_object* x_2; lean_object* x_3; uint8_t x_4; 
+x_2 = lean_string_utf8_byte_size(x_1);
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = lean_nat_dec_eq(x_2, x_3);
+if (x_4 == 0)
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_3 = lean_string_utf8_byte_size(x_1);
-x_4 = lean_unsigned_to_nat(0u);
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = l_String_quote___closed__1;
-x_6 = l_String_foldlAux___at_String_quote___spec__1(x_1, x_3, x_4, x_5);
-lean_dec(x_3);
+x_6 = l_String_foldlAux___at_String_quote___spec__1(x_1, x_2, x_3, x_5);
+lean_dec(x_2);
 x_7 = lean_string_append(x_6, x_5);
 return x_7;
 }
 else
 {
 lean_object* x_8; 
+lean_dec(x_2);
 x_8 = l_String_quote___closed__2;
 return x_8;
 }

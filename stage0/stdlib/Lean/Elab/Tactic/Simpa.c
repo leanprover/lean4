@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Simpa
-// Imports: Lean.Meta.Tactic.Assumption Lean.Meta.Tactic.TryThis Lean.Elab.Tactic.Simp Lean.Linter.Util
+// Imports: Lean.Meta.Tactic.Assumption Lean.Meta.Tactic.TryThis Lean.Elab.Tactic.Simp Lean.Linter.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -6642,7 +6642,7 @@ return x_4;
 lean_object* initialize_Lean_Meta_Tactic_Assumption(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_TryThis(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Simp(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Linter_Util(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Linter_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Simpa(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -6657,7 +6657,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Simp(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Linter_Util(builtin, lean_io_mk_world());
+res = initialize_Lean_Linter_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_initFn____x40_Lean_Elab_Tactic_Simpa___hyg_5____closed__1 = _init_l_initFn____x40_Lean_Elab_Tactic_Simpa___hyg_5____closed__1();

@@ -95,9 +95,7 @@ theorem getElem?_take_of_lt {l : List α} {n m : Nat} (h : m < n) : (l.take n)[m
 theorem get?_take {l : List α} {n m : Nat} (h : m < n) : (l.take n).get? m = l.get? m := by
   simp [getElem?_take_of_lt, h]
 
-@[simp]
-theorem getElem?_take_of_succ {l : List α} {n : Nat} : (l.take (n + 1))[n]? = l[n]? :=
-  getElem?_take_of_lt (Nat.lt_succ_self n)
+theorem getElem?_take_of_succ {l : List α} {n : Nat} : (l.take (n + 1))[n]? = l[n]? := by simp
 
 @[simp] theorem drop_drop (n : Nat) : ∀ (m) (l : List α), drop n (drop m l) = drop (n + m) l
   | m, [] => by simp

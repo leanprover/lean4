@@ -728,9 +728,10 @@ list, so it should be brief.
 
 /--
 `include eeny meeny` instructs Lean to include the section `variable`s `eeny` and `meeny` in all
-declarations in the remainder of the current section, differing from the default behavior of
-conditionally including variables based on use in the declaration header. `include` is usually
-followed by the `in` combinator to limit the inclusion to the subsequent declaration.
+theorems in the remainder of the current section, differing from the default behavior of
+conditionally including variables based on use in the theorem header. Other commands are
+not affected. `include` is usually followed by `in theorem ...` to limit the inclusion
+to the subsequent declaration.
 -/
 @[builtin_command_parser] def «include» := leading_parser "include " >> many1 ident
 

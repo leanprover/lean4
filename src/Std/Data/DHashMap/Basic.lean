@@ -103,7 +103,7 @@ instance [BEq α] [Hashable α] : Inhabited (DHashMap α β) where
   Raw₀.contains ⟨m.1, m.2.size_buckets_pos⟩ a
 
 instance [BEq α] [Hashable α] : Membership α (DHashMap α β) where
-  mem a m := m.contains a
+  mem m a := m.contains a
 
 instance [BEq α] [Hashable α] {m : DHashMap α β} {a : α} : Decidable (a ∈ m) :=
   show Decidable (m.contains a) from inferInstance

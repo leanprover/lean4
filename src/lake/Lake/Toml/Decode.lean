@@ -158,6 +158,10 @@ instance : DecodeToml Table := ⟨(·.decodeTable)⟩
 
 end Value
 
+def decodeKeyval [dec : DecodeToml α] (k : Name) (v : Value) : Except (Array DecodeError) α := do
+  dec.decode v |>.mapError fun xs => xs.map fun x =>
+    {x with msg := s!"key {ppKey k}: " ++ x.msg}
+
 namespace Table
 
 @[inline] def decodeValue (t : Table) (k : Name) (ref := Syntax.missing) : Except DecodeError Value := do
@@ -167,8 +171,10 @@ namespace Table
 
 def decode [dec : DecodeToml α] (t : Table) (k : Name) (ref := Syntax.missing) : Except (Array DecodeError) α := do
   let a ← t.decodeValue k ref
-  dec.decode a |>.mapError fun xs => xs.map fun x =>
-    {x with msg := s!"key {ppKey k}: " ++ x.msg}
+  decodeKeyval (dec := dec) k a
+
+def decode? [dec : DecodeToml α] (t : Table) (k : Name) : Except (Array DecodeError) (Option α) := do
+  t.find? k |>.mapM fun v => decodeKeyval (dec := dec) k v
 
 def decodeNameMap [dec : DecodeToml α] (t : Toml.Table) : Except (Array DecodeError) (NameMap α) := do
   t.items.foldl (init := Except.ok {}) fun m (k,v) =>

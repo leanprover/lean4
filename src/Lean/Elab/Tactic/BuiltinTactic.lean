@@ -458,6 +458,8 @@ def renameInaccessibles (mvarId : MVarId) (hs : TSyntaxArray ``binderIdent) : Ta
       match lctx.getAt? j with
       | none => pure ()
       | some localDecl =>
+        if localDecl.isImplementationDetail then
+          continue
         let inaccessible := !(extractMacroScopes localDecl.userName |>.equalScope callerScopes)
         let shadowed := found.contains localDecl.userName
         if inaccessible || shadowed then

@@ -222,7 +222,7 @@ theorem append_cancel_right {as bs cs : List α} (h : as ++ bs = cs ++ bs) : as 
   next => apply append_cancel_right
   next => intro h; simp [h]
 
-@[simp] theorem sizeOf_get [SizeOf α] (as : List α) (i : Fin as.length) : sizeOf (as.get i) < sizeOf as := by
+theorem sizeOf_get [SizeOf α] (as : List α) (i : Fin as.length) : sizeOf (as.get i) < sizeOf as := by
   match as, i with
   | a::as, ⟨0, _⟩  => simp_arith [get]
   | a::as, ⟨i+1, h⟩ =>

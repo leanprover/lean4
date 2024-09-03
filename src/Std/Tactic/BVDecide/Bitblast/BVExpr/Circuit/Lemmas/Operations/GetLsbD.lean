@@ -5,7 +5,7 @@ Authors: Henrik Böving
 -/
 prelude
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.GetLsb
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.GetLsbD
 
 /-!
 This module contains the verification of the `BitVec.getLsb` bitblaster from `Impl.Operations.Extract`.
@@ -21,16 +21,16 @@ namespace BVPred
 variable [Hashable α] [DecidableEq α]
 
 @[simp]
-theorem denote_blastGetLsb (aig : AIG α) (target : GetLsbTarget aig)
+theorem denote_blastGetLsbD (aig : AIG α) (target : GetLsbDTarget aig)
     (assign : α → Bool) :
-    ⟦blastGetLsb aig target, assign⟧
+    ⟦blastGetLsbD aig target, assign⟧
       =
     if h : target.idx < target.w then
       ⟦aig, target.vec.get target.idx h, assign⟧
     else
       false := by
   rcases target with ⟨expr, idx⟩
-  unfold blastGetLsb
+  unfold blastGetLsbD
   dsimp only
   split <;> simp
 

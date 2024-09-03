@@ -62,8 +62,8 @@ theorem subset_def {l₁ l₂ : List α} : l₁ ⊆ l₂ ↔ ∀ {a : α}, a ∈
 theorem Subset.trans {l₁ l₂ l₃ : List α} (h₁ : l₁ ⊆ l₂) (h₂ : l₂ ⊆ l₃) : l₁ ⊆ l₃ :=
   fun _ i => h₂ (h₁ i)
 
-instance : Trans (Membership.mem : α → List α → Prop) Subset Membership.mem :=
-  ⟨fun h₁ h₂ => h₂ h₁⟩
+instance : Trans (fun l₁ l₂ => Subset l₂ l₁) (Membership.mem : List α → α → Prop) Membership.mem :=
+  ⟨fun h₁ h₂ => h₁ h₂⟩
 
 instance : Trans (Subset : List α → List α → Prop) Subset Subset :=
   ⟨Subset.trans⟩
@@ -185,14 +185,20 @@ theorem Sublist.subset : l₁ <+ l₂ → l₁ ⊆ l₂
 protected theorem Sublist.mem (hx : a ∈ l₁) (hl : l₁ <+ l₂) : a ∈ l₂ :=
   hl.subset hx
 
+theorem Sublist.head_mem (s : ys <+ xs) (h) : ys.head h ∈ xs :=
+  s.mem (List.head_mem h)
+
+theorem Sublist.getLast_mem (s : ys <+ xs) (h) : ys.getLast h ∈ xs :=
+  s.mem (List.getLast_mem h)
+
 instance : Trans (@Sublist α) Subset Subset :=
   ⟨fun h₁ h₂ => trans h₁.subset h₂⟩
 
 instance : Trans Subset (@Sublist α) Subset :=
   ⟨fun h₁ h₂ => trans h₁ h₂.subset⟩
 
-instance : Trans (Membership.mem : α → List α → Prop) Sublist Membership.mem :=
-  ⟨fun h₁ h₂ => h₂.subset h₁⟩
+instance : Trans (fun l₁ l₂ => Sublist l₂ l₁) (Membership.mem : List α → α → Prop) Membership.mem :=
+  ⟨fun h₁ h₂ => h₁.subset h₂⟩
 
 theorem mem_of_cons_sublist {a : α} {l₁ l₂ : List α} (s : a :: l₁ <+ l₂) : a ∈ l₂ :=
   (cons_subset.1 s.subset).1
@@ -245,6 +251,12 @@ protected theorem Sublist.filterMap (f : α → Option β) (s : l₁ <+ l₂) :
 
 protected theorem Sublist.filter (p : α → Bool) {l₁ l₂} (s : l₁ <+ l₂) : filter p l₁ <+ filter p l₂ := by
   rw [← filterMap_eq_filter]; apply s.filterMap
+
+theorem head_filter_mem (xs : List α) (p : α → Bool) (h) : (xs.filter p).head h ∈ xs :=
+  (filter_sublist xs).head_mem h
+
+theorem getLast_filter_mem (xs : List α) (p : α → Bool) (h) : (xs.filter p).getLast h ∈ xs :=
+  (filter_sublist xs).getLast_mem h
 
 theorem sublist_filterMap_iff {l₁ : List β} {f : α → Option β} :
     l₁ <+ l₂.filterMap f ↔ ∃ l', l' <+ l₂ ∧ l₁ = l'.filterMap f := by
@@ -755,7 +767,7 @@ theorem prefix_cons_iff : l₁ <+: a :: l₂ ↔ l₁ = [] ∨ ∃ t, l₁ = a :
         refine ⟨s, by simp [h']⟩
 
 @[simp] theorem cons_prefix_cons : a :: l₁ <+: b :: l₂ ↔ a = b ∧ l₁ <+: l₂ := by
-  simp only [prefix_cons_iff, cons.injEq, false_or]
+  simp only [prefix_cons_iff, cons.injEq, false_or, List.cons_ne_nil]
   constructor
   · rintro ⟨t, ⟨rfl, rfl⟩, h⟩
     exact ⟨rfl, h⟩
@@ -786,12 +798,12 @@ theorem infix_cons_iff : l₁ <:+: a :: l₂ ↔ l₁ <+: a :: l₂ ∨ l₁ <:+
 
 theorem prefix_concat_iff {l₁ l₂ : List α} {a : α} :
     l₁ <+: l₂ ++ [a] ↔ l₁ = l₂ ++ [a] ∨ l₁ <+: l₂ := by
-  simp only [← concat_eq_append, ← reverse_suffix, reverse_concat, suffix_cons_iff]
+  simp only [← reverse_suffix, reverse_concat, suffix_cons_iff]
   simp only [concat_eq_append, ← reverse_concat, reverse_eq_iff, reverse_reverse]
 
 theorem suffix_concat_iff {l₁ l₂ : List α} {a : α} :
     l₁ <:+ l₂ ++ [a] ↔ l₁ = [] ∨ ∃ t, l₁ = t ++ [a] ∧ t <:+ l₂ := by
-  rw [← reverse_prefix, ← concat_eq_append, reverse_concat, prefix_cons_iff]
+  rw [← reverse_prefix, reverse_concat, prefix_cons_iff]
   simp only [reverse_eq_nil_iff]
   apply or_congr_right
   constructor
@@ -802,7 +814,7 @@ theorem suffix_concat_iff {l₁ l₂ : List α} {a : α} :
 
 theorem infix_concat_iff {l₁ l₂ : List α} {a : α} :
     l₁ <:+: l₂ ++ [a] ↔ l₁ <:+ l₂ ++ [a] ∨ l₁ <:+: l₂ := by
-  rw [← reverse_infix, ← concat_eq_append, reverse_concat, infix_cons_iff, reverse_infix,
+  rw [← reverse_infix, reverse_concat, infix_cons_iff, reverse_infix,
     ← reverse_prefix, reverse_concat]
 
 theorem isPrefix_iff : l₁ <+: l₂ ↔ ∀ i (h : i < l₁.length), l₂[i]? = some l₁[i] := by
@@ -909,7 +921,6 @@ theorem infix_of_mem_join : ∀ {L : List (List α)}, l ∈ L → l <:+: join L
 theorem prefix_append_right_inj (l) : l ++ l₁ <+: l ++ l₂ ↔ l₁ <+: l₂ :=
   exists_congr fun r => by rw [append_assoc, append_right_inj]
 
-@[simp]
 theorem prefix_cons_inj (a) : a :: l₁ <+: a :: l₂ ↔ l₁ <+: l₂ :=
   prefix_append_right_inj [a]
 

@@ -240,8 +240,23 @@ theorem le_natAbs {a : Int} : a ≤ natAbs a :=
 theorem negSucc_lt_zero (n : Nat) : -[n+1] < 0 :=
   Int.not_le.1 fun h => let ⟨_, h⟩ := eq_ofNat_of_zero_le h; nomatch h
 
+theorem negSucc_le_zero (n : Nat) : -[n+1] ≤ 0 :=
+  Int.le_of_lt (negSucc_lt_zero n)
+
 @[simp] theorem negSucc_not_nonneg (n : Nat) : 0 ≤ -[n+1] ↔ False := by
   simp only [Int.not_le, iff_false]; exact Int.negSucc_lt_zero n
+
+@[simp] theorem ofNat_max_zero (n : Nat) : (max (n : Int) 0) = n := by
+  rw [Int.max_eq_left (ofNat_zero_le n)]
+
+@[simp] theorem zero_max_ofNat (n : Nat) : (max 0 (n : Int)) = n := by
+  rw [Int.max_eq_right (ofNat_zero_le n)]
+
+@[simp] theorem negSucc_max_zero (n : Nat) : (max (Int.negSucc n) 0) = 0 := by
+  rw [Int.max_eq_right (negSucc_le_zero _)]
+
+@[simp] theorem zero_max_negSucc (n : Nat) : (max 0 (Int.negSucc n)) = 0 := by
+  rw [Int.max_eq_left (negSucc_le_zero _)]
 
 protected theorem add_le_add_left {a b : Int} (h : a ≤ b) (c : Int) : c + a ≤ c + b :=
   let ⟨n, hn⟩ := le.dest h; le.intro n <| by rw [Int.add_assoc, hn]
@@ -470,7 +485,15 @@ theorem toNat_eq_max : ∀ a : Int, (toNat a : Int) = max a 0
 
 @[simp] theorem toNat_ofNat (n : Nat) : toNat ↑n = n := rfl
 
+@[simp] theorem toNat_negSucc (n : Nat) : (Int.negSucc n).toNat = 0 := by
+  simp [toNat]
+
 @[simp] theorem toNat_ofNat_add_one {n : Nat} : ((n : Int) + 1).toNat = n + 1 := rfl
+
+@[simp] theorem ofNat_toNat (a : Int) : (a.toNat : Int) = max a 0 := by
+  match a with
+  | Int.ofNat n => simp
+  | Int.negSucc n => simp
 
 theorem self_le_toNat (a : Int) : a ≤ toNat a := by rw [toNat_eq_max]; apply Int.le_max_left
 
@@ -1006,7 +1029,7 @@ theorem natAbs_mul_self : ∀ {a : Int}, ↑(natAbs a * natAbs a) = a * a
 theorem eq_nat_or_neg (a : Int) : ∃ n : Nat, a = n ∨ a = -↑n := ⟨_, natAbs_eq a⟩
 
 theorem natAbs_mul_natAbs_eq {a b : Int} {c : Nat}
-    (h : a * b = (c : Int)) : a.natAbs * b.natAbs = c := by rw [← natAbs_mul, h, natAbs]
+    (h : a * b = (c : Int)) : a.natAbs * b.natAbs = c := by rw [← natAbs_mul, h, natAbs.eq_def]
 
 @[simp] theorem natAbs_mul_self' (a : Int) : (natAbs a * natAbs a : Int) = a * a := by
   rw [← Int.ofNat_mul, natAbs_mul_self]

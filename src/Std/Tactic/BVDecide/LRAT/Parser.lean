@@ -12,7 +12,7 @@ import Std.Internal.Parsec
 This module implements parsers and serializers for both the binary and non-binary LRAT format.
 -/
 
-namespace Lean.Elab.Tactic.BVDecide
+namespace Std.Tactic.BVDecide
 
 open Std.Sat
 open Std.Tactic.BVDecide.LRAT (IntAction)
@@ -32,6 +32,10 @@ open Std.Internal.Parsec
 open Std.Internal.Parsec.ByteArray
 
 namespace Text
+
+@[inline]
+def skipNewline : Parser Unit := do
+  skipByteChar '\n' <|> skipString "\r\n"
 
 /-
 This implements a (corrected) version of the grammar presented in:
@@ -126,17 +130,17 @@ partial def parseActions : Parser (Array IntAction) :=
 where
   go (actions : Array IntAction) : Parser (Array IntAction) := do
     if (← peek!) == 'c'.toUInt8 then
-      let _ ← many (satisfy (· != '\n'.toUInt8))
-      skipByteChar '\n'
-      if ← eof? then
+      let _ ← many (satisfy (fun c => c != '\n'.toUInt8 && c != '\r'.toUInt8))
+      skipNewline
+      if ← isEof then
         return actions
       else
         go actions
     else
       let action ← parseAction
-      skipByteChar '\n'
+      skipNewline
       let actions := actions.push action
-      if ← eof? then
+      if ← isEof then
         return actions
       else
         go actions
@@ -290,10 +294,8 @@ def loadLRATProof (path : System.FilePath) : IO (Array IntAction) := do
 /--
 Parse `proof` as an LRAT proof. `proof` may contain either the binary or the non-binary LRAT format.
 -/
-def parseLRATProof (proof : ByteArray) : Option (Array IntAction) :=
-  match Parser.parseActions.run proof with
-  | .ok actions => some actions
-  | .error .. => none
+def parseLRATProof (proof : ByteArray) : Except String (Array IntAction) :=
+  Parser.parseActions.run proof
 
 /--
 Serialize `proof` into the non-binary LRAT format as a `String`.
@@ -422,4 +424,4 @@ def dumpLRATProof (path : System.FilePath) (proof : Array IntAction) (binaryProo
 
 end LRAT
 
-end Lean.Elab.Tactic.BVDecide
+end Std.Tactic.BVDecide

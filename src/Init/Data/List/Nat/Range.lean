@@ -7,6 +7,8 @@ prelude
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.Range
 import Init.Data.List.Pairwise
+import Init.Data.List.Find
+import Init.Data.List.Erase
 
 /-!
 # Lemmas about `List.range` and `List.enum`
@@ -38,6 +40,19 @@ theorem range'_ne_nil (s n : Nat) : range' s n ≠ [] ↔ n ≠ 0 := by
 
 @[simp] theorem range'_one {s step : Nat} : range' s 1 step = [s] := rfl
 
+@[simp] theorem range'_inj : range' s n = range' s' n' ↔ n = n' ∧ (n = 0 ∨ s = s') := by
+  constructor
+  · intro h
+    have h' := congrArg List.length h
+    simp at h'
+    subst h'
+    cases n with
+    | zero => simp
+    | succ n =>
+      simp only [range'_succ] at h
+      simp_all
+  · rintro ⟨rfl, rfl | rfl⟩ <;> simp
+
 theorem mem_range' : ∀{n}, m ∈ range' s n step ↔ ∃ i < n, m = s + step * i
   | 0 => by simp [range', Nat.not_lt_zero]
   | n + 1 => by
@@ -54,6 +69,9 @@ theorem mem_range' : ∀{n}, m ∈ range' s n step ↔ ∃ i < n, m = s + step *
 theorem head?_range' (n : Nat) : (range' s n).head? = if n = 0 then none else some s := by
   induction n <;> simp_all [range'_succ, head?_append]
 
+@[simp] theorem head_range' (n : Nat) (h) : (range' s n).head h = s := by
+  repeat simp_all [head?_range', head_eq_iff_head?_eq_some]
+
 theorem getLast?_range' (n : Nat) : (range' s n).getLast? = if n = 0 then none else some (s + n - 1) := by
   induction n generalizing s with
   | zero => simp
@@ -65,6 +83,11 @@ theorem getLast?_range' (n : Nat) : (range' s n).getLast? = if n = 0 then none e
     · rw [if_neg h]
       simp
       omega
+
+@[simp] theorem getLast_range' (n : Nat) (h) : (range' s n).getLast h = s + n - 1 := by
+  cases n with
+  | zero => simp at h
+  | succ n => simp [getLast?_range', getLast_eq_iff_getLast_eq_some]
 
 theorem pairwise_lt_range' s n (step := 1) (pos : 0 < step := by simp) :
     Pairwise (· < ·) (range' s n step) :=
@@ -145,6 +168,89 @@ theorem range'_concat (s n : Nat) : range' s (n + 1) step = range' s n step ++ [
 theorem range'_1_concat (s n : Nat) : range' s (n + 1) = range' s n ++ [s + n] := by
   simp [range'_concat]
 
+theorem range'_eq_cons_iff : range' s n = a :: xs ↔ s = a ∧ 0 < n ∧ xs = range' (a + 1) (n - 1) := by
+  induction n generalizing s with
+  | zero => simp
+  | succ n ih =>
+    simp only [range'_succ]
+    simp only [cons.injEq, and_congr_right_iff]
+    rintro rfl
+    simp [eq_comm]
+
+@[simp] theorem range'_eq_singleton {s n a : Nat} : range' s n = [a] ↔ s = a ∧ n = 1 := by
+  rw [range'_eq_cons_iff]
+  simp only [nil_eq, range'_eq_nil, and_congr_right_iff]
+  rintro rfl
+  omega
+
+theorem range'_eq_append_iff : range' s n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs = range' s k ∧ ys = range' (s + k) (n - k) := by
+  induction n generalizing s xs ys with
+  | zero => simp
+  | succ n ih =>
+    simp only [range'_succ]
+    rw [cons_eq_append]
+    constructor
+    · rintro (⟨rfl, rfl⟩ | ⟨a, rfl, h⟩)
+      · exact ⟨0, by simp [range'_succ]⟩
+      · simp only [ih] at h
+        obtain ⟨k, h, rfl, rfl⟩ := h
+        refine ⟨k + 1, ?_⟩
+        simp_all [range'_succ]
+        omega
+    · rintro ⟨k, h, rfl, rfl⟩
+      cases k with
+      | zero => simp [range'_succ]
+      | succ k =>
+        simp only [range'_succ, reduceCtorEq, false_and, cons.injEq, true_and, ih, range'_inj, exists_eq_left', or_true, and_true, false_or]
+        refine ⟨k, ?_⟩
+        simp_all
+        omega
+
+@[simp] theorem find?_range'_eq_some (s n : Nat) (i : Nat) (p : Nat → Bool) :
+    (range' s n).find? p = some i ↔ p i ∧ i ∈ range' s n ∧ ∀ j, s ≤ j → j < i → !p j := by
+  rw [find?_eq_some]
+  simp only [Bool.not_eq_true', exists_and_right, mem_range'_1, and_congr_right_iff]
+  simp only [range'_eq_append_iff, eq_comm (a := i :: _), range'_eq_cons_iff]
+  intro h
+  constructor
+  · rintro ⟨as, ⟨x, k, h₁, rfl, rfl, h₂, rfl⟩, h₃⟩
+    constructor
+    · omega
+    · simpa using h₃
+  · rintro ⟨⟨h₁, h₂⟩, h₃⟩
+    refine ⟨range' s (i - s), ⟨⟨range' (i + 1) (n - (i - s) - 1), i - s, ?_⟩ , ?_⟩⟩
+    · simp; omega
+    · simp only [mem_range'_1, and_imp]
+      intro a a₁ a₂
+      exact h₃ a a₁ (by omega)
+
+@[simp] theorem find?_range'_eq_none (s n : Nat) (p : Nat → Bool) :
+    (range' s n).find? p = none ↔ ∀ i, s ≤ i → i < s + n → !p i := by
+  rw [find?_eq_none]
+  simp
+
+theorem erase_range' :
+    (range' s n).erase i =
+      range' s (min n (i - s)) ++ range' (max s (i + 1)) (min s (i + 1) + n - (i + 1)) := by
+  by_cases h : i ∈ range' s n
+  · obtain ⟨as, bs, h₁, h₂⟩ := eq_append_cons_of_mem h
+    rw [h₁, erase_append_right _ h₂, erase_cons_head]
+    rw [range'_eq_append_iff] at h₁
+    obtain ⟨k, -, rfl, hbs⟩ := h₁
+    rw [eq_comm, range'_eq_cons_iff] at hbs
+    obtain ⟨rfl, -, rfl⟩ := hbs
+    simp at h
+    congr 2 <;> omega
+  · rw [erase_of_not_mem h]
+    simp only [mem_range'_1, not_and, Nat.not_lt] at h
+    by_cases h' : s ≤ i
+    · have p : min s (i + 1) + n - (i + 1) = 0 := by omega
+      simp [p]
+      omega
+    · have p : i - s = 0 := by omega
+      simp [p]
+      omega
+
 /-! ### range -/
 
 theorem range_loop_range' : ∀ s n : Nat, range.loop s (range' s n) = range' 0 (n + s)
@@ -219,6 +325,23 @@ theorem head?_range (n : Nat) : (range n).head? = if n = 0 then none else some 0
     simp only [range_succ, head?_append, ih]
     split <;> simp_all
 
+@[simp] theorem head_range (n : Nat) (h) : (range n).head h = 0 := by
+  cases n with
+  | zero => simp at h
+  | succ n => simp [head?_range, head_eq_iff_head?_eq_some]
+
+theorem getLast?_range (n : Nat) : (range n).getLast? = if n = 0 then none else some (n - 1) := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    simp only [range_succ, getLast?_append, ih]
+    split <;> simp_all
+
+@[simp] theorem getLast_range (n : Nat) (h) : (range n).getLast h = n - 1 := by
+  cases n with
+  | zero => simp at h
+  | succ n => simp [getLast?_range, getLast_eq_iff_getLast_eq_some]
+
 theorem take_range (m n : Nat) : take m (range n) = range (min m n) := by
   apply List.ext_getElem
   · simp
@@ -226,6 +349,17 @@ theorem take_range (m n : Nat) : take m (range n) = range (min m n) := by
 
 theorem nodup_range (n : Nat) : Nodup (range n) := by
   simp (config := {decide := true}) only [range_eq_range', nodup_range']
+
+@[simp] theorem find?_range_eq_some (n : Nat) (i : Nat) (p : Nat → Bool) :
+    (range n).find? p = some i ↔ p i ∧ i ∈ range n ∧ ∀ j, j < i → !p j := by
+  simp [range_eq_range']
+
+@[simp] theorem find?_range_eq_none (n : Nat) (p : Nat → Bool) :
+    (range n).find? p = none ↔ ∀ i, i < n → !p i := by
+  simp [range_eq_range']
+
+theorem erase_range : (range n).erase i = range (min n i) ++ range' (i + 1) (n - (i + 1)) := by
+  simp [range_eq_range', erase_range']
 
 /-! ### iota -/
 
@@ -242,15 +376,48 @@ theorem iota_ne_nil (n : Nat) : iota n ≠ [] ↔ n ≠ 0 := by
   cases n <;> simp
 
 @[simp]
-theorem mem_iota {m n : Nat} : m ∈ iota n ↔ 1 ≤ m ∧ m ≤ n := by
+theorem mem_iota {m n : Nat} : m ∈ iota n ↔ 0 < m ∧ m ≤ n := by
   simp [iota_eq_reverse_range', Nat.add_comm, Nat.lt_succ]
+  omega
+
+@[simp] theorem iota_inj : iota n = iota n' ↔ n = n' := by
+  constructor
+  · intro h
+    have h' := congrArg List.length h
+    simp at h'
+    exact h'
+  · rintro rfl
+    simp
+
+theorem iota_eq_cons_iff : iota n = a :: xs ↔ n = a ∧ 0 < n ∧ xs = iota (n - 1) := by
+  simp [iota_eq_reverse_range']
+  simp [range'_eq_append_iff, reverse_eq_iff]
+  constructor
+  · rintro ⟨k, h, rfl, h'⟩
+    rw [eq_comm, range'_eq_singleton] at h'
+    simp only [reverse_inj, range'_inj, or_true, and_true]
+    omega
+  · rintro ⟨rfl, h, rfl⟩
+    refine ⟨n - 1, by simp, rfl, ?_⟩
+    rw [eq_comm, range'_eq_singleton]
+    omega
+
+theorem iota_eq_append_iff : iota n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs = (range' (k + 1) (n - k)).reverse ∧ ys = iota k := by
+  simp only [iota_eq_reverse_range']
+  rw [reverse_eq_append]
+  rw [range'_eq_append_iff]
+  simp only [reverse_eq_iff]
+  constructor
+  · rintro ⟨k, h, rfl, rfl⟩
+    simp; omega
+  · rintro ⟨k, h, rfl, rfl⟩
+    exact ⟨k, by simp; omega⟩
 
 theorem pairwise_gt_iota (n : Nat) : Pairwise (· > ·) (iota n) := by
   simpa only [iota_eq_reverse_range', pairwise_reverse] using pairwise_lt_range' 1 n
 
 theorem nodup_iota (n : Nat) : Nodup (iota n) :=
   (pairwise_gt_iota n).imp Nat.ne_of_gt
-
 
 @[simp] theorem head?_iota (n : Nat) : (iota n).head? = if n = 0 then none else some n := by
   cases n <;> simp
@@ -270,11 +437,66 @@ theorem nodup_iota (n : Nat) : Nodup (iota n) :=
   rw [getLast?_eq_head?_reverse]
   simp [head?_range']
 
+@[simp] theorem getLast_iota (n : Nat) (h) : (iota n).getLast h = 1 := by
+  rw [getLast_eq_head_reverse]
+  simp
+
+@[simp] theorem find?_iota_eq_none (n : Nat) (p : Nat → Bool) :
+    (iota n).find? p = none ↔ ∀ i, 0 < i → i ≤ n → !p i := by
+  rw [find?_eq_none]
+  simp
+
+@[simp] theorem find?_iota_eq_some (n : Nat) (i : Nat) (p : Nat → Bool) :
+    (iota n).find? p = some i ↔ p i ∧ i ∈ iota n ∧ ∀ j, i < j → j ≤ n → !p j := by
+  rw [find?_eq_some]
+  simp only [iota_eq_reverse_range', reverse_eq_append, reverse_cons, append_assoc,
+    singleton_append, Bool.not_eq_true', exists_and_right, mem_reverse, mem_range'_1,
+    and_congr_right_iff]
+  intro h
+  constructor
+  · rintro ⟨as, ⟨xs, h⟩, h'⟩
+    constructor
+    · replace h : i ∈ range' 1 n := by
+        rw [h]
+        exact mem_append_cons_self
+      simpa using h
+    · rw [range'_eq_append_iff] at h
+      simp [reverse_eq_iff] at h
+      obtain ⟨k, h₁, rfl, h₂⟩ := h
+      rw [eq_comm, range'_eq_cons_iff, reverse_eq_iff] at h₂
+      obtain ⟨rfl, -, rfl⟩ := h₂
+      intro j j₁ j₂
+      apply h'
+      simp; omega
+  · rintro ⟨⟨i₁, i₂⟩, h⟩
+    refine ⟨(range' (i+1) (n-i)).reverse, ⟨(range' 1 (i-1)).reverse, ?_⟩, ?_⟩
+    · simp [← range'_succ]
+      rw [range'_eq_append_iff]
+      refine ⟨i-1, ?_⟩
+      constructor
+      · omega
+      · simp
+        omega
+    · simp
+      intros a a₁ a₂
+      apply h
+      · omega
+      · omega
+
 /-! ### enumFrom -/
 
 @[simp]
 theorem enumFrom_singleton (x : α) (n : Nat) : enumFrom n [x] = [(n, x)] :=
   rfl
+
+@[simp] theorem head?_enumFrom (n : Nat) (l : List α) :
+    (enumFrom n l).head? = l.head?.map fun a => (n, a) := by
+  simp [head?_eq_getElem?]
+
+@[simp] theorem getLast?_enumFrom (n : Nat) (l : List α) :
+    (enumFrom n l).getLast? = l.getLast?.map fun a => (n + l.length - 1, a) := by
+  simp [getLast?_eq_getElem?]
+  cases l <;> simp; omega
 
 theorem mk_add_mem_enumFrom_iff_getElem? {n i : Nat} {x : α} {l : List α} :
     (n + i, x) ∈ enumFrom n l ↔ l[i]? = some x := by
@@ -387,6 +609,14 @@ theorem getElem?_enum (l : List α) (n : Nat) : (enum l)[n]? = l[n]?.map fun a =
 theorem getElem_enum (l : List α) (i : Nat) (h : i < l.enum.length) :
     l.enum[i] = (i, l[i]'(by simpa [enum_length] using h)) := by
   simp [enum]
+
+@[simp] theorem head?_enum (l : List α) :
+    l.enum.head? = l.head?.map fun a => (0, a) := by
+  simp [head?_eq_getElem?]
+
+@[simp] theorem getLast?_enum (l : List α) :
+    l.enum.getLast? = l.getLast?.map fun a => (l.length - 1, a) := by
+  simp [getLast?_eq_getElem?]
 
 theorem mk_mem_enum_iff_getElem? {i : Nat} {x : α} {l : List α} : (i, x) ∈ enum l ↔ l[i]? = x := by
   simp [enum, mk_mem_enumFrom_iff_le_and_getElem?_sub]

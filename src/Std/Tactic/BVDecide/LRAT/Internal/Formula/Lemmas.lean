@@ -96,7 +96,7 @@ theorem ratUnits_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) :
 theorem size_ofArray_fold_fn {n : Nat} (assignments : Array Assignment)
     (cOpt : Option (DefaultClause n)) :
     (ofArray_fold_fn assignments cOpt).size = assignments.size := by
-  rw [ofArray_fold_fn]
+  rw [ofArray_fold_fn.eq_def]
   split
   · rfl
   · split <;> simp [Array.size_modify]
@@ -154,7 +154,7 @@ theorem readyForRupAdd_ofArray {n : Nat} (arr : Array (Option (DefaultClause n))
               exact cOpt_in_arr
             · next b_eq_false =>
               simp only [Bool.not_eq_true] at b_eq_false
-              simp only [hasAssignment, b_eq_false, ite_false, hasNeg_addPos] at h
+              simp only [hasAssignment, b_eq_false, ite_false, hasNeg_addPos, reduceCtorEq] at h
               specialize ih l false
               simp only [hasAssignment, ite_false] at ih
               rw [b_eq_false, Subtype.ext i_eq_l]
@@ -302,8 +302,8 @@ theorem readyForRupAdd_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClaus
             · next b_eq_false =>
               simp only [Bool.not_eq_true] at b_eq_false
               exact b_eq_false
-          simp only [hasAssignment, b_eq_false, l_eq_i, Array.getElem_modify_self i_in_bounds, ite_false, hasNeg_addPos] at hb
-          simp only [hasAssignment, b_eq_false, ite_false, hb]
+          simp only [hasAssignment, b_eq_false, l_eq_i, Array.getElem_modify_self i_in_bounds, ite_false, hasNeg_addPos, reduceCtorEq] at hb
+          simp only [hasAssignment, b_eq_false, ite_false, hb, reduceCtorEq]
         · next l_ne_i =>
           simp only [Array.getElem_modify_of_ne i_in_bounds _ l_ne_i] at hb
           exact hb
@@ -376,7 +376,7 @@ theorem mem_of_insertRupUnits {n : Nat} (f : DefaultFormula n) (units : CNF.Clau
     (unit : Literal (PosFin n)) (unit_in_units : unit ∈ units) :
     ∀ l : Literal (PosFin n), l ∈ (insertUnit acc unit).1.data → (l ∈ f.rupUnits.data ∨ l ∈ units) := by
     intro l hl
-    rw [insertUnit] at hl
+    rw [insertUnit.eq_def] at hl
     dsimp at hl
     split at hl
     · exact ih l hl
@@ -413,7 +413,7 @@ theorem mem_of_insertRatUnits {n : Nat} (f : DefaultFormula n) (units : CNF.Clau
     (unit : Literal (PosFin n)) (unit_in_units : unit ∈ units) :
     ∀ l : Literal (PosFin n), l ∈ (insertUnit acc unit).1.data → (l ∈ f.ratUnits.data ∨ l ∈ units) := by
     intro l hl
-    rw [insertUnit] at hl
+    rw [insertUnit.eq_def] at hl
     dsimp at hl
     split at hl
     · exact ih l hl
@@ -508,9 +508,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
               rw [hidx, hl] at heq
               simp only [unit, Option.some.injEq, DefaultClause.mk.injEq, List.cons.injEq, and_true] at heq
               simp only [← heq, not] at l_ne_b
-              split at l_ne_b
-              · simp only at l_ne_b
-              · simp only at l_ne_b
+              split at l_ne_b <;> simp at l_ne_b
             · next id_ne_idx => simp [id_ne_idx]
           · exact hf
         · exact Or.inr hf
@@ -551,7 +549,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
     · simp only [Prod.exists, Bool.exists_bool, not_exists, not_or, unit] at hl
       split
       · next some_eq_none =>
-        simp only at some_eq_none
+        simp at some_eq_none
       · next l _ _ heq =>
         simp only [Option.some.injEq] at heq
         rw [heq] at hl
@@ -565,7 +563,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
           simp only [deleteOne]
           split
           · next heq2 =>
-            simp only [heq] at heq2
+            simp [heq] at heq2
           · next l _ _ heq2 =>
             simp only [heq, Option.some.injEq] at heq2
             rw [heq2] at hl
@@ -608,9 +606,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
               specialize hl i
               simp only [unit, DefaultClause.mk.injEq, List.cons.injEq, Prod.mk.injEq, true_and, and_true,
                 Bool.not_eq_false, Bool.not_eq_true] at hl
-              by_cases b_val : b
-              · simp only [b_val, and_false] at hl
-              · simp only [b_val, false_and] at hl
+              by_cases b_val : b <;> simp [b_val] at hl
             · next id_ne_idx => simp [id_ne_idx]
           · exact hf
         · exact Or.inr hf
@@ -663,7 +659,7 @@ theorem deleteOne_subset (f : DefaultFormula n) (id : Nat) (c : DefaultClause n)
         rcases List.getElem_of_mem h1 with ⟨i, h, h4⟩
         rw [List.getElem_set] at h4
         split at h4
-        · exact False.elim h4
+        · simp at h4
         · rw [← h4]
           apply List.getElem_mem
       · exact h1

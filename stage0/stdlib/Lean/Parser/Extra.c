@@ -20,6 +20,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_many1_formatter(lean_object*, lean_object
 lean_object* l_Lean_PrettyPrinter_Formatter_setLhsPrec_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extra___hyg_1788____closed__55;
 LEAN_EXPORT lean_object* l_Lean_Parser_ppHardSpace_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extra___hyg_1788____closed__61;
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extra___hyg_1788____closed__98;
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -125,7 +126,6 @@ LEAN_EXPORT lean_object* l_Lean_Parser_withCache_parenthesizer___rarg(lean_objec
 LEAN_EXPORT lean_object* l_Lean_Parser_dbgTraceState_formatter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extra___hyg_1788____closed__100;
 LEAN_EXPORT lean_object* l_Lean_Parser_optional(lean_object*);
-lean_object* l_String_trim(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_termParser_formatter___boxed(lean_object*);
 static lean_object* l_Lean_Parser___aux__Lean__Parser__Extra______macroRules__Lean__Parser__termRegister__parser__alias_x28Kind_x3a_x3d___x29______________1___lambda__1___closed__61;
 LEAN_EXPORT lean_object* l_Lean_Parser_nameLit_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -208,6 +208,7 @@ static lean_object* l___regBuiltin_Lean_Parser_antiquotNestedExpr_parenthesizer_
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extra___hyg_1788____closed__11;
 static lean_object* l_Lean_Parser_antiquotNestedExpr_formatter___closed__1;
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extra___hyg_1788____closed__101;
+lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_setExpected_formatter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_termRegister__parser__alias_x28Kind_x3a_x3d___x29_______________closed__15;
 static lean_object* l_Lean_Parser_mkAntiquot_parenthesizer___closed__2;
@@ -541,6 +542,7 @@ static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extra___hyg_1788____
 static lean_object* l_Lean_Parser_antiquotNestedExpr_formatter___closed__9;
 static lean_object* l_Lean_Parser_antiquotNestedExpr_formatter___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Parser_sepByIndent_formatter___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Substring_takeWhileAux___at_Substring_trimLeft___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_termRegister__parser__alias_x28Kind_x3a_x3d___x29_______________closed__40;
 LEAN_EXPORT lean_object* l_Lean_Parser_scientificLit;
 LEAN_EXPORT lean_object* l_Lean_Parser_many(lean_object*);
@@ -620,6 +622,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_dbgTraceState_formatter___boxed(lean_obje
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extra___hyg_1788____closed__35;
 lean_object* lean_nat_mod(lean_object*, lean_object*);
+lean_object* l_Substring_takeRightWhileAux___at_Substring_trimRight___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_withCache_formatter___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_sepByElemParser_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_identWithPartialTrailingDot_parenthesizer___closed__6;
@@ -2351,15 +2354,21 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Parser_sepByElemParser_formatter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_8 = l_String_trim(x_2);
-x_9 = l_Lean_Parser_sepByElemParser_formatter___closed__3;
-x_10 = lean_string_append(x_8, x_9);
-x_11 = lean_alloc_closure((void*)(l_Lean_Parser_symbol_formatter), 6, 1);
-lean_closure_set(x_11, 0, x_10);
-x_12 = l_Lean_Parser_sepByElemParser_formatter___closed__2;
-x_13 = l_Lean_Parser_withAntiquotSpliceAndSuffix_formatter(x_12, x_1, x_11, x_3, x_4, x_5, x_6, x_7);
-return x_13;
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_8 = lean_string_utf8_byte_size(x_2);
+x_9 = lean_unsigned_to_nat(0u);
+x_10 = l_Substring_takeWhileAux___at_Substring_trimLeft___spec__1(x_2, x_8, x_9);
+x_11 = l_Substring_takeRightWhileAux___at_Substring_trimRight___spec__1(x_2, x_10, x_8);
+x_12 = lean_string_utf8_extract(x_2, x_10, x_11);
+lean_dec(x_11);
+lean_dec(x_10);
+x_13 = l_Lean_Parser_sepByElemParser_formatter___closed__3;
+x_14 = lean_string_append(x_12, x_13);
+x_15 = lean_alloc_closure((void*)(l_Lean_Parser_symbol_formatter), 6, 1);
+lean_closure_set(x_15, 0, x_14);
+x_16 = l_Lean_Parser_sepByElemParser_formatter___closed__2;
+x_17 = l_Lean_Parser_withAntiquotSpliceAndSuffix_formatter(x_16, x_1, x_15, x_3, x_4, x_5, x_6, x_7);
+return x_17;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Parser_sepByElemParser_formatter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -2474,15 +2483,21 @@ return x_12;
 LEAN_EXPORT lean_object* l_Lean_Parser_sepByElemParser_parenthesizer(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_8 = l_String_trim(x_2);
-x_9 = l_Lean_Parser_sepByElemParser_formatter___closed__3;
-x_10 = lean_string_append(x_8, x_9);
-x_11 = lean_alloc_closure((void*)(l_Lean_Parser_symbol_parenthesizer), 6, 1);
-lean_closure_set(x_11, 0, x_10);
-x_12 = l_Lean_Parser_sepByElemParser_formatter___closed__2;
-x_13 = l_Lean_Parser_withAntiquotSpliceAndSuffix_parenthesizer(x_12, x_1, x_11, x_3, x_4, x_5, x_6, x_7);
-return x_13;
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_8 = lean_string_utf8_byte_size(x_2);
+x_9 = lean_unsigned_to_nat(0u);
+x_10 = l_Substring_takeWhileAux___at_Substring_trimLeft___spec__1(x_2, x_8, x_9);
+x_11 = l_Substring_takeRightWhileAux___at_Substring_trimRight___spec__1(x_2, x_10, x_8);
+x_12 = lean_string_utf8_extract(x_2, x_10, x_11);
+lean_dec(x_11);
+lean_dec(x_10);
+x_13 = l_Lean_Parser_sepByElemParser_formatter___closed__3;
+x_14 = lean_string_append(x_12, x_13);
+x_15 = lean_alloc_closure((void*)(l_Lean_Parser_symbol_parenthesizer), 6, 1);
+lean_closure_set(x_15, 0, x_14);
+x_16 = l_Lean_Parser_sepByElemParser_formatter___closed__2;
+x_17 = l_Lean_Parser_withAntiquotSpliceAndSuffix_parenthesizer(x_16, x_1, x_15, x_3, x_4, x_5, x_6, x_7);
+return x_17;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Parser_sepByElemParser_parenthesizer___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {

@@ -587,6 +587,7 @@ x_15 = lean_ctor_get(x_13, 4);
 lean_inc(x_15);
 lean_dec(x_13);
 x_16 = l_System_FilePath_join(x_14, x_15);
+lean_dec(x_15);
 x_17 = l_Lake_Manifest_load_x3f(x_16, x_9);
 lean_dec(x_16);
 if (lean_obj_tag(x_17) == 0)
@@ -683,6 +684,7 @@ x_44 = lean_ctor_get(x_42, 4);
 lean_inc(x_44);
 lean_dec(x_42);
 x_45 = l_System_FilePath_join(x_43, x_44);
+lean_dec(x_44);
 x_46 = l_Lake_Manifest_load_x3f(x_45, x_9);
 lean_dec(x_45);
 if (lean_obj_tag(x_46) == 0)

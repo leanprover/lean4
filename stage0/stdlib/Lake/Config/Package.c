@@ -1345,6 +1345,7 @@ x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 lean_dec(x_3);
 x_5 = l_System_FilePath_join(x_2, x_4);
+lean_dec(x_4);
 return x_5;
 }
 }
@@ -1358,6 +1359,7 @@ x_3 = lean_ctor_get(x_1, 3);
 lean_inc(x_3);
 lean_dec(x_1);
 x_4 = l_System_FilePath_join(x_2, x_3);
+lean_dec(x_3);
 return x_4;
 }
 }
@@ -1371,6 +1373,7 @@ x_3 = lean_ctor_get(x_1, 4);
 lean_inc(x_3);
 lean_dec(x_1);
 x_4 = l_System_FilePath_join(x_2, x_3);
+lean_dec(x_3);
 return x_4;
 }
 }
@@ -1387,6 +1390,7 @@ x_4 = lean_ctor_get(x_3, 8);
 lean_inc(x_4);
 lean_dec(x_3);
 x_5 = l_System_FilePath_join(x_2, x_4);
+lean_dec(x_4);
 return x_5;
 }
 }
@@ -1540,6 +1544,7 @@ x_6 = lean_ctor_get(x_5, 16);
 lean_inc(x_6);
 lean_dec(x_5);
 x_7 = l_System_FilePath_join(x_4, x_6);
+lean_dec(x_6);
 return x_7;
 }
 }
@@ -1853,6 +1858,7 @@ x_4 = lean_ctor_get(x_3, 7);
 lean_inc(x_4);
 lean_dec(x_3);
 x_5 = l_System_FilePath_join(x_2, x_4);
+lean_dec(x_4);
 return x_5;
 }
 }
@@ -1869,6 +1875,7 @@ x_4 = lean_ctor_get(x_3, 7);
 lean_inc(x_4);
 lean_dec(x_3);
 x_5 = l_System_FilePath_join(x_2, x_4);
+lean_dec(x_4);
 return x_5;
 }
 }
@@ -1884,10 +1891,12 @@ lean_dec(x_1);
 x_4 = lean_ctor_get(x_3, 8);
 lean_inc(x_4);
 x_5 = l_System_FilePath_join(x_2, x_4);
+lean_dec(x_4);
 x_6 = lean_ctor_get(x_3, 9);
 lean_inc(x_6);
 lean_dec(x_3);
 x_7 = l_System_FilePath_join(x_5, x_6);
+lean_dec(x_6);
 return x_7;
 }
 }
@@ -1903,10 +1912,12 @@ lean_dec(x_1);
 x_4 = lean_ctor_get(x_3, 8);
 lean_inc(x_4);
 x_5 = l_System_FilePath_join(x_2, x_4);
+lean_dec(x_4);
 x_6 = lean_ctor_get(x_3, 10);
 lean_inc(x_6);
 lean_dec(x_3);
 x_7 = l_System_FilePath_join(x_5, x_6);
+lean_dec(x_6);
 return x_7;
 }
 }
@@ -1922,10 +1933,12 @@ lean_dec(x_1);
 x_4 = lean_ctor_get(x_3, 8);
 lean_inc(x_4);
 x_5 = l_System_FilePath_join(x_2, x_4);
+lean_dec(x_4);
 x_6 = lean_ctor_get(x_3, 11);
 lean_inc(x_6);
 lean_dec(x_3);
 x_7 = l_System_FilePath_join(x_5, x_6);
+lean_dec(x_6);
 return x_7;
 }
 }
@@ -1941,10 +1954,12 @@ lean_dec(x_1);
 x_4 = lean_ctor_get(x_3, 8);
 lean_inc(x_4);
 x_5 = l_System_FilePath_join(x_2, x_4);
+lean_dec(x_4);
 x_6 = lean_ctor_get(x_3, 12);
 lean_inc(x_6);
 lean_dec(x_3);
 x_7 = l_System_FilePath_join(x_5, x_6);
+lean_dec(x_6);
 return x_7;
 }
 }
@@ -2285,6 +2300,7 @@ x_5 = lean_ctor_get(x_4, 8);
 lean_inc(x_5);
 lean_dec(x_4);
 x_6 = l_System_FilePath_join(x_3, x_5);
+lean_dec(x_5);
 x_7 = l_System_FilePath_pathExists(x_6, x_2);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);

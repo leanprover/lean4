@@ -223,7 +223,7 @@ theorem lt_length_drop (L : List α) {i j : Nat} (h : i + j < L.length) : j < (L
 
 /-- The `i + j`-th element of a list coincides with the `j`-th element of the list obtained by
 dropping the first `i` elements. Version designed to rewrite from the big list to the small list. -/
-theorem getElem_drop (L : List α) {i j : Nat} (h : i + j < L.length) :
+theorem getElem_drop' (L : List α) {i j : Nat} (h : i + j < L.length) :
     L[i + j] = (L.drop i)[j]'(lt_length_drop L h) := by
   have : i ≤ L.length := Nat.le_trans (Nat.le_add_right _ _) (Nat.le_of_lt h)
   rw [getElem_of_eq (take_append_drop i L).symm h, getElem_append_right'] <;>
@@ -231,18 +231,18 @@ theorem getElem_drop (L : List α) {i j : Nat} (h : i + j < L.length) :
 
 /-- The `i + j`-th element of a list coincides with the `j`-th element of the list obtained by
 dropping the first `i` elements. Version designed to rewrite from the big list to the small list. -/
-@[deprecated getElem_drop (since := "2024-06-12")]
+@[deprecated getElem_drop' (since := "2024-06-12")]
 theorem get_drop (L : List α) {i j : Nat} (h : i + j < L.length) :
     get L ⟨i + j, h⟩ = get (L.drop i) ⟨j, lt_length_drop L h⟩ := by
-  simp [getElem_drop]
+  simp [getElem_drop']
 
 /-- The `i + j`-th element of a list coincides with the `j`-th element of the list obtained by
 dropping the first `i` elements. Version designed to rewrite from the small list to the big list. -/
-theorem getElem_drop' (L : List α) {i : Nat} {j : Nat} {h : j < (L.drop i).length} :
+@[simp] theorem getElem_drop (L : List α) {i : Nat} {j : Nat} {h : j < (L.drop i).length} :
     (L.drop i)[j] = L[i + j]'(by
       rw [Nat.add_comm]
       exact Nat.add_lt_of_lt_sub (length_drop i L ▸ h)) := by
-  rw [getElem_drop]
+  rw [getElem_drop']
 
 /-- The `i + j`-th element of a list coincides with the `j`-th element of the list obtained by
 dropping the first `i` elements. Version designed to rewrite from the small list to the big list. -/
@@ -251,12 +251,12 @@ theorem get_drop' (L : List α) {i j} :
     get (L.drop i) j = get L ⟨i + j, by
       rw [Nat.add_comm]
       exact Nat.add_lt_of_lt_sub (length_drop i L ▸ j.2)⟩ := by
-  simp [getElem_drop']
+  simp
 
 @[simp]
 theorem getElem?_drop (L : List α) (i j : Nat) : (L.drop i)[j]? = L[i + j]? := by
   ext
-  simp only [getElem?_eq_some, getElem_drop', Option.mem_def]
+  simp only [getElem?_eq_some, getElem_drop, Option.mem_def]
   constructor <;> intro ⟨h, ha⟩
   · exact ⟨_, ha⟩
   · refine ⟨?_, ha⟩
@@ -275,7 +275,7 @@ theorem head?_drop (l : List α) (n : Nat) :
 theorem head_drop {l : List α} {n : Nat} (h : l.drop n ≠ []) :
     (l.drop n).head h = l[n]'(by simp_all) := by
   have w : n < l.length := length_lt_of_drop_ne_nil h
-  simpa [head?_eq_head, getElem?_eq_getElem, h, w] using head?_drop l n
+  simpa [getElem?_eq_getElem, h, w, head_eq_iff_head?_eq_some] using head?_drop l n
 
 theorem getLast?_drop {l : List α} : (l.drop n).getLast? = if l.length ≤ n then none else l.getLast? := by
   rw [getLast?_eq_getElem?, getElem?_drop]

@@ -7393,7 +7393,7 @@ static lean_object* _init_l_Lean_bombEmoji___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("💥", 4, 1);
+x_1 = lean_mk_string_unchecked("💥️", 7, 2);
 return x_1;
 }
 }
@@ -7409,7 +7409,7 @@ static lean_object* _init_l_Lean_checkEmoji___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("✅", 3, 1);
+x_1 = lean_mk_string_unchecked("✅️", 6, 2);
 return x_1;
 }
 }
@@ -7425,7 +7425,7 @@ static lean_object* _init_l_Lean_crossEmoji___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("❌", 3, 1);
+x_1 = lean_mk_string_unchecked("❌️", 6, 2);
 return x_1;
 }
 }

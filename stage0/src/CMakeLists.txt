@@ -535,6 +535,12 @@ else()
     OUTPUT_NAME leancpp)
 endif()
 
+if((${STAGE} GREATER 0) AND CADICAL)
+  add_custom_target(copy-cadical
+    COMMAND cmake -E copy_if_different "${CADICAL}" "${CMAKE_BINARY_DIR}/bin/cadical${CMAKE_EXECUTABLE_SUFFIX}")
+  add_dependencies(leancpp copy-cadical)
+endif()
+
 # MSYS2 bash usually handles Windows paths relatively well, but not when putting them in the PATH
 string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")
 
@@ -632,6 +638,10 @@ endif()
 file(COPY ${LEAN_SOURCE_DIR}/bin/leanmake DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
 install(DIRECTORY "${CMAKE_BINARY_DIR}/bin/" USE_SOURCE_PERMISSIONS DESTINATION bin)
+
+if (${STAGE} GREATER 0 AND CADICAL)
+  install(PROGRAMS "${CADICAL}" DESTINATION bin)
+endif()
 
 add_custom_target(clean-stdlib
   COMMAND rm -rf "${CMAKE_BINARY_DIR}/lib" || true)

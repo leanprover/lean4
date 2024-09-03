@@ -24,10 +24,10 @@ LEAN_EXPORT lean_object* l_Lake_instToTomlTable;
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_insertD___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_instToTomlArray___spec__1(lean_object*);
 static lean_object* l_Lake_instToTomlValue___closed__1;
+lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToTomlBool(uint8_t);
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_insertSome(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToTomlArray(lean_object*);
-uint8_t l_String_isEmpty(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToTomlFilePath(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Lean_Name_quickCmp___boxed(lean_object*, lean_object*);
@@ -47,6 +47,7 @@ LEAN_EXPORT lean_object* l_Lake_Toml_Table_insert(lean_object*);
 lean_object* l_Lake_Toml_RBDict_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_insertUnless___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_smartInsert___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_id___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_insertUnless(lean_object*);
 lean_object* l_Lake_mkRelPathString(lean_object*);
@@ -419,18 +420,21 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_instSmartInsertString(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-uint8_t x_4; 
-x_4 = l_String_isEmpty(x_2);
-if (x_4 == 0)
+lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+x_4 = lean_string_utf8_byte_size(x_2);
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = lean_nat_dec_eq(x_4, x_5);
+lean_dec(x_4);
+if (x_6 == 0)
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_5 = lean_box(0);
-x_6 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_6, 0, x_5);
-lean_ctor_set(x_6, 1, x_2);
-x_7 = l_Lake_Toml_Table_insert___rarg___closed__1;
-x_8 = l_Lake_Toml_RBDict_insert___rarg(x_7, x_1, x_6, x_3);
-return x_8;
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_7 = lean_box(0);
+x_8 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_8, 0, x_7);
+lean_ctor_set(x_8, 1, x_2);
+x_9 = l_Lake_Toml_Table_insert___rarg___closed__1;
+x_10 = l_Lake_Toml_RBDict_insert___rarg(x_9, x_1, x_8, x_3);
+return x_10;
 }
 else
 {

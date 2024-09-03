@@ -75,7 +75,7 @@ See #2572.
 opaque Internal.hasLLVMBackend (u : Unit) : Bool
 
 /-- Valid identifier names -/
-def isGreek (c : Char) : Bool :=
+@[inline] def isGreek (c : Char) : Bool :=
   0x391 ≤ c.val && c.val ≤ 0x3dd
 
 def isLetterLike (c : Char) : Bool :=
@@ -86,7 +86,7 @@ def isLetterLike (c : Char) : Bool :=
   (0x2100 ≤ c.val && c.val ≤ 0x214f) ||                                  -- Letter like block
   (0x1d49c ≤ c.val && c.val ≤ 0x1d59f)                                   -- Latin letters, Script, Double-struck, Fractur
 
-def isNumericSubscript (c : Char) : Bool :=
+@[inline] def isNumericSubscript (c : Char) : Bool :=
   0x2080 ≤ c.val && c.val ≤ 0x2089
 
 def isSubScriptAlnum (c : Char) : Bool :=
@@ -94,16 +94,16 @@ def isSubScriptAlnum (c : Char) : Bool :=
   (0x2090 ≤ c.val && c.val ≤ 0x209c) ||
   (0x1d62 ≤ c.val && c.val ≤ 0x1d6a)
 
-def isIdFirst (c : Char) : Bool :=
+@[inline] def isIdFirst (c : Char) : Bool :=
   c.isAlpha || c = '_' || isLetterLike c
 
-def isIdRest (c : Char) : Bool :=
+@[inline] def isIdRest (c : Char) : Bool :=
   c.isAlphanum || c = '_' || c = '\'' || c == '!' || c == '?' || isLetterLike c || isSubScriptAlnum c
 
 def idBeginEscape := '«'
 def idEndEscape   := '»'
-def isIdBeginEscape (c : Char) : Bool := c = idBeginEscape
-def isIdEndEscape (c : Char) : Bool := c = idEndEscape
+@[inline] def isIdBeginEscape (c : Char) : Bool := c = idBeginEscape
+@[inline] def isIdEndEscape (c : Char) : Bool := c = idEndEscape
 namespace Name
 
 def getRoot : Name → Name
@@ -388,9 +388,9 @@ def getSubstring? (stx : Syntax) (withLeading := true) (withTrailing := true) : 
 partial def setTailInfoAux (info : SourceInfo) : Syntax → Option Syntax
   | atom _ val             => some <| atom info val
   | ident _ rawVal val pre => some <| ident info rawVal val pre
-  | node info k args       =>
+  | node info' k args      =>
     match updateLast args (setTailInfoAux info) args.size with
-    | some args => some <| node info k args
+    | some args => some <| node info' k args
     | none      => none
   | _                      => none
 

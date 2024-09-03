@@ -255,19 +255,6 @@ where
   inErasedSet (thm : SimpTheorem) : Bool :=
     erased.contains thm.origin
 
-def simpCtorEq : Simproc := fun e => withReducibleAndInstances do
-  match e.eq? with
-  | none => return .continue
-  | some (_, lhs, rhs) =>
-    match (← constructorApp'? lhs), (← constructorApp'? rhs) with
-    | some (c₁, _), some (c₂, _) =>
-      if c₁.name != c₂.name then
-        withLocalDeclD `h e fun h =>
-          return .done { expr := mkConst ``False, proof? := (← withDefault <| mkEqFalse' (← mkLambdaFVars #[h] (← mkNoConfusion (mkConst ``False) h))) }
-      else
-        return .continue
-    | _, _ => return .continue
-
 @[inline] def simpUsingDecide : Simproc := fun e => do
   unless (← getConfig).decide do
     return .continue
@@ -446,8 +433,7 @@ partial def preSEval (s : SimprocsArray) : Simproc :=
 def postSEval (s : SimprocsArray) : Simproc :=
   rewritePost >>
   userPostSimprocs s >>
-  sevalGround >>
-  simpCtorEq
+  sevalGround
 
 def mkSEvalMethods : CoreM Methods := do
   let s ← getSEvalSimprocs
@@ -515,7 +501,6 @@ def postDefault (s : SimprocsArray) : Simproc :=
   userPostSimprocs s >>
   simpGround >>
   simpArith >>
-  simpCtorEq >>
   simpUsingDecide
 
 /--

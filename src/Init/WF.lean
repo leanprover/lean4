@@ -190,21 +190,36 @@ def lt_wfRel : WellFoundedRelation Nat where
       | Or.inl e => subst e; assumption
       | Or.inr e => exact Acc.inv ih e
 
-protected noncomputable def strongInductionOn
+@[elab_as_elim] protected noncomputable def strongRecOn
     {motive : Nat → Sort u}
     (n : Nat)
     (ind : ∀ n, (∀ m, m < n → motive m) → motive n) : motive n :=
   Nat.lt_wfRel.wf.fix ind n
 
+@[deprecated Nat.strongRecOn (since := "2024-08-27")]
+protected noncomputable def strongInductionOn
+    {motive : Nat → Sort u}
+    (n : Nat)
+    (ind : ∀ n, (∀ m, m < n → motive m) → motive n) : motive n :=
+  Nat.strongRecOn n ind
+
+@[elab_as_elim] protected noncomputable def caseStrongRecOn
+    {motive : Nat → Sort u}
+    (a : Nat)
+    (zero : motive 0)
+    (ind : ∀ n, (∀ m, m ≤ n → motive m) → motive (succ n)) : motive a :=
+  Nat.strongRecOn a fun n =>
+    match n with
+    | 0   => fun _  => zero
+    | n+1 => fun h₁ => ind n (λ _ h₂ => h₁ _ (lt_succ_of_le h₂))
+
+@[deprecated Nat.caseStrongRecOn (since := "2024-08-27")]
 protected noncomputable def caseStrongInductionOn
     {motive : Nat → Sort u}
     (a : Nat)
     (zero : motive 0)
     (ind : ∀ n, (∀ m, m ≤ n → motive m) → motive (succ n)) : motive a :=
-  Nat.strongInductionOn a fun n =>
-    match n with
-    | 0   => fun _  => zero
-    | n+1 => fun h₁ => ind n (λ _ h₂ => h₁ _ (lt_succ_of_le h₂))
+  Nat.caseStrongRecOn a zero ind
 
 end Nat
 

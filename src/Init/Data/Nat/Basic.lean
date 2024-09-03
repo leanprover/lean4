@@ -158,7 +158,7 @@ theorem add_one (n : Nat) : n + 1 = succ n :=
   rfl
 
 @[simp] theorem add_one_ne_zero (n : Nat) : n + 1 ≠ 0 := nofun
-@[simp] theorem zero_ne_add_one (n : Nat) : 0 ≠ n + 1 := nofun
+theorem zero_ne_add_one (n : Nat) : 0 ≠ n + 1 := by simp
 
 protected theorem add_comm : ∀ (n m : Nat), n + m = m + n
   | n, 0   => Eq.symm (Nat.zero_add n)
@@ -779,6 +779,11 @@ theorem pow_le_pow_of_le_right {n : Nat} (hx : n > 0) {i : Nat} : ∀ {j}, i ≤
 theorem pos_pow_of_pos {n : Nat} (m : Nat) (h : 0 < n) : 0 < n^m :=
   pow_le_pow_of_le_right h (Nat.zero_le _)
 
+@[simp] theorem zero_pow_of_pos (n : Nat) (h : 0 < n) : 0 ^ n = 0 := by
+  cases n with
+  | zero => cases h
+  | succ n => simp [Nat.pow_succ]
+
 /-! # min/max -/
 
 /--
@@ -887,7 +892,7 @@ theorem sub_succ_lt_self (a i : Nat) (h : i < a) : a - (i + 1) < a - i := by
 
 theorem sub_ne_zero_of_lt : {a b : Nat} → a < b → b - a ≠ 0
   | 0, 0, h      => absurd h (Nat.lt_irrefl 0)
-  | 0, succ b, _ => by simp only [Nat.sub_zero, ne_eq, not_false_eq_true]
+  | 0, succ b, _ => by simp only [Nat.sub_zero, ne_eq, not_false_eq_true, Nat.succ_ne_zero]
   | succ a, 0, h => absurd h (Nat.not_lt_zero a.succ)
   | succ a, succ b, h => by rw [Nat.succ_sub_succ]; exact sub_ne_zero_of_lt (Nat.lt_of_succ_lt_succ h)
 

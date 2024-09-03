@@ -132,7 +132,7 @@ theorem any_not_isEmpty_iff_exists_mem {f : CNF α} :
       | inl hl => exact Exists.intro _ hl
       | inr hr => exact Exists.intro _ hr
 
-@[simp] theorem not_exists_mem : (¬ ∃ v, Mem v f) ↔ ∃ n, f = List.replicate n [] := by
+theorem not_exists_mem : (¬ ∃ v, Mem v f) ↔ ∃ n, f = List.replicate n [] := by
   simp only [← any_not_isEmpty_iff_exists_mem]
   simp only [List.any_eq_true, Bool.not_eq_true', not_exists, not_and, Bool.not_eq_false]
   induction f with
@@ -153,8 +153,8 @@ theorem any_not_isEmpty_iff_exists_mem {f : CNF α} :
 instance {f : CNF α} [DecidableEq α] : Decidable (∃ v, Mem v f) :=
   decidable_of_iff (f.any fun c => !c.isEmpty) any_not_isEmpty_iff_exists_mem
 
-@[simp] theorem not_mem_nil {v : α} : ¬Mem v ([] : CNF α) := by simp [Mem]
-@[simp] theorem mem_cons {v : α} {c} {f : CNF α} :
+theorem not_mem_nil {v : α} : ¬Mem v ([] : CNF α) := by simp [Mem]
+@[local simp] theorem mem_cons {v : α} {c} {f : CNF α} :
     Mem v (c :: f : CNF α) ↔ (Clause.Mem v c ∨ Mem v f) := by simp [Mem]
 
 theorem mem_of (h : c ∈ f) (w : Clause.Mem v c) : Mem v f := by

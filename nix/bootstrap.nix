@@ -95,6 +95,7 @@ lib.warn "The Nix-based build is deprecated" rec {
       Lean = attachSharedLib leanshared Lean' // { allExternalDeps = [ Std ]; };
       Lake = build {
         name = "Lake";
+        sharedLibName = "Lake_shared";
         src = src + "/src/lake";
         deps = [ Init Lean ];
       };
@@ -102,7 +103,6 @@ lib.warn "The Nix-based build is deprecated" rec {
         name = "LakeMain";
         roots = [{ glob = "one"; mod = "LakeMain"; }];
         executableName = "lake";
-        sharedLibName = "Lake_shared";
         deps = [ Lake ];
         linkFlags = lib.optional stdenv.isLinux "-rdynamic";
         src = src + "/src/lake";

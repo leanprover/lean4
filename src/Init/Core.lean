@@ -122,7 +122,7 @@ If and only if, or logical bi-implication. `a ↔ b` means that `a` implies `b` 
 By `propext`, this implies that `a` and `b` are equal and hence any expression involving `a`
 is equivalent to the corresponding expression with `b` instead.
 -/
-structure Iff (a b : Prop) : Prop where
+structure Iff (a b : Prop) where
   /-- If `a → b` and `b → a` then `a` and `b` are equivalent. -/
   intro ::
   /-- Modus ponens for if and only if. If `a ↔ b` and `a`, then `b`. -/
@@ -633,7 +633,7 @@ Unlike `x ≠ y` (which is notation for `Ne x y`), this is `Bool` valued instead
 (which supplies the `a == b` notation) coincides with logical equality `a = b`.
 In other words, `a == b` implies `a = b`, and `a == a` is true.
 -/
-class LawfulBEq (α : Type u) [BEq α] : Prop where
+class LawfulBEq (α : Type u) [BEq α] where
   /-- If `a == b` evaluates to `true`, then `a` and `b` are equal in the logic. -/
   eq_of_beq : {a b : α} → a == b → a = b
   /-- `==` is reflexive, that is, `(a == a) = true`. -/
@@ -1019,7 +1019,7 @@ are subsingletons as well and they inherit many of the same properties as propos
 `Subsingleton α` is a typeclass, so it is usually used as an implicit argument and
 inferred by typeclass inference.
 -/
-class Subsingleton (α : Sort u) : Prop where
+class Subsingleton (α : Sort u) where
   /-- Construct a proof that `α` is a subsingleton by showing that any two elements are equal. -/
   intro ::
   /-- Any two elements of a subsingleton are equal. -/
@@ -1075,7 +1075,7 @@ Equality is an equivalence relation, and equivalence relations share many of
 the properties of equality. In particular, `Quot α r` is most well behaved
 when `r` is an equivalence relation, and in this case we use `Quotient` instead.
 -/
-structure Equivalence {α : Sort u} (r : α → α → Prop) : Prop where
+structure Equivalence {α : Sort u} (r : α → α → Prop) where
   /-- An equivalence relation is reflexive: `x ~ x` -/
   refl  : ∀ x, r x x
   /-- An equivalence relation is symmetric: `x ~ y` implies `y ~ x` -/
@@ -1898,7 +1898,7 @@ instance : Subsingleton (Squash α) where
 /--
 `Antisymm (·≤·)` says that `(·≤·)` is antisymmetric, that is, `a ≤ b → b ≤ a → a = b`.
 -/
-class Antisymm {α : Sort u} (r : α → α → Prop) : Prop where
+class Antisymm {α : Sort u} (r : α → α → Prop) where
   /-- An antisymmetric relation `(·≤·)` satisfies `a ≤ b → b ≤ a → a = b`. -/
   antisymm {a b : α} : r a b → r b a → a = b
 
@@ -1994,7 +1994,7 @@ variable {α : Sort u}
 `Associative op` indicates `op` is an associative operation,
 i.e. `(a ∘ b) ∘ c = a ∘ (b ∘ c)`.
 -/
-class Associative (op : α → α → α) : Prop where
+class Associative (op : α → α → α) where
   /-- An associative operation satisfies `(a ∘ b) ∘ c = a ∘ (b ∘ c)`. -/
   assoc : (a b c : α) → op (op a b) c = op a (op b c)
 
@@ -2002,7 +2002,7 @@ class Associative (op : α → α → α) : Prop where
 `Commutative op` says that `op` is a commutative operation,
 i.e. `a ∘ b = b ∘ a`.
 -/
-class Commutative (op : α → α → α) : Prop where
+class Commutative (op : α → α → α) where
   /-- A commutative operation satisfies `a ∘ b = b ∘ a`. -/
   comm : (a b : α) → op a b = op b a
 
@@ -2010,7 +2010,7 @@ class Commutative (op : α → α → α) : Prop where
 `IdempotentOp op` indicates `op` is an idempotent binary operation.
 i.e. `a ∘ a = a`.
 -/
-class IdempotentOp (op : α → α → α) : Prop where
+class IdempotentOp (op : α → α → α) where
   /-- An idempotent operation satisfies `a ∘ a = a`. -/
   idempotent : (x : α) → op x x = x
 
@@ -2026,7 +2026,7 @@ class LeftIdentity (op : α → β → β) (o : outParam α) : Prop
 `LawfulLeftIdentify op o` indicates `o` is a verified left identity of
 `op`.
 -/
-class LawfulLeftIdentity (op : α → β → β) (o : outParam α) extends LeftIdentity op o : Prop where
+class LawfulLeftIdentity (op : α → β → β) (o : outParam α) extends LeftIdentity op o where
   /-- Left identity `o` is an identity. -/
   left_id : ∀ a, op o a = a
 
@@ -2042,7 +2042,7 @@ class RightIdentity (op : α → β → α) (o : outParam β) : Prop
 `LawfulRightIdentify op o` indicates `o` is a verified right identity of
 `op`.
 -/
-class LawfulRightIdentity (op : α → β → α) (o : outParam β) extends RightIdentity op o : Prop where
+class LawfulRightIdentity (op : α → β → α) (o : outParam β) extends RightIdentity op o where
   /-- Right identity `o` is an identity. -/
   right_id : ∀ a, op a o = a
 
@@ -2052,13 +2052,13 @@ class LawfulRightIdentity (op : α → β → α) (o : outParam β) extends Righ
 This class does not require a proof that `o` is an identity, and is used
 primarily for infering the identity using class resoluton.
 -/
-class Identity (op : α → α → α) (o : outParam α) extends LeftIdentity op o, RightIdentity op o : Prop
+class Identity (op : α → α → α) (o : outParam α) extends LeftIdentity op o, RightIdentity op o
 
 /--
 `LawfulIdentity op o` indicates `o` is a verified left and right
 identity of `op`.
 -/
-class LawfulIdentity (op : α → α → α) (o : outParam α) extends Identity op o, LawfulLeftIdentity op o, LawfulRightIdentity op o : Prop
+class LawfulIdentity (op : α → α → α) (o : outParam α) extends Identity op o, LawfulLeftIdentity op o, LawfulRightIdentity op o
 
 /--
 `LawfulCommIdentity` can simplify defining instances of `LawfulIdentity`
@@ -2069,7 +2069,7 @@ This class is intended for simplifying defining instances of
 `LawfulIdentity` and functions needed commutative operations with
 identity should just add a `LawfulIdentity` constraint.
 -/
-class LawfulCommIdentity (op : α → α → α) (o : outParam α) [hc : Commutative op] extends LawfulIdentity op o : Prop where
+class LawfulCommIdentity (op : α → α → α) (o : outParam α) [hc : Commutative op] extends LawfulIdentity op o where
   left_id a := Eq.trans (hc.comm o a) (right_id a)
   right_id a := Eq.trans (hc.comm a o) (left_id a)
 

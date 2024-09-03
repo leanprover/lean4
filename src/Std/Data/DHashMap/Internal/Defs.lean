@@ -424,12 +424,12 @@ end Raw₀
 
 /-- Internal implementation detail of the hash map -/
 structure List.HashesTo [BEq α] [Hashable α] (l : List ((a : α) × β a)) (i : Nat)
-    (size : Nat) : Prop where
+    (size : Nat) where
   /-- Internal implementation detail of the hash map -/
   hash_self : (h : 0 < size) → ∀ p, p ∈ l → (mkIdx size h (hash p.1)).1.toNat = i
 
 /-- Internal implementation detail of the hash map -/
-structure IsHashSelf [BEq α] [Hashable α] (m : Array (AssocList α β)) : Prop where
+structure IsHashSelf [BEq α] [Hashable α] (m : Array (AssocList α β)) where
   /-- Internal implementation detail of the hash map -/
   hashes_to (i : Nat) (h : i < m.size) : List.HashesTo m[i].toList i m.size
 
@@ -437,7 +437,7 @@ namespace Raw
 
 /-- This is the actual well-formedness predicate for hash maps. Users should never need to interact
 with this and should use `WF` instead. -/
-structure WFImp [BEq α] [Hashable α] (m : Raw α β) : Prop where
+structure WFImp [BEq α] [Hashable α] (m : Raw α β) where
   /-- Internal implementation detail of the hash map -/
   buckets_hash_self : IsHashSelf m.buckets
   /-- Internal implementation detail of the hash map -/

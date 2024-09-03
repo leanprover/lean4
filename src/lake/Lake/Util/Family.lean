@@ -134,11 +134,11 @@ Defines a single mapping of the **open type family** `Fam`, namely `Fam a = β`.
 See the module documentation of `Lake.Util.Family` for details on what an open
 type family is in Lake.
 -/
-class FamilyDef {α : Type u} (Fam : α → Type v) (a : α) (β : semiOutParam $ Type v) : Prop where
+class FamilyDef {α : Type u} (Fam : α → Type v) (a : α) (β : semiOutParam $ Type v) where
   family_key_eq_type : Fam a = β
 
 /-- Like `FamilyDef`, but `β` is an `outParam`. -/
-class FamilyOut {α : Type u} (Fam : α → Type v) (a : α) (β : outParam $ Type v) : Prop where
+class FamilyOut {α : Type u} (Fam : α → Type v) (a : α) (β : outParam $ Type v) where
   family_key_eq_type : Fam a = β
 
 -- Simplifies proofs involving open type families

@@ -13,19 +13,19 @@ partial equivalence relation, that is:
 * it is symmetric: `a == b → b == a`
 * it is transitive: `a == b → b == c → a == c`.
 -/
-class PartialEquivBEq (α) [BEq α] : Prop where
+class PartialEquivBEq (α) [BEq α] where
   /-- Symmetry for `BEq`. If `a == b` then `b == a`. -/
   symm : (a : α) == b → b == a
   /-- Transitivity for `BEq`. If `a == b` and `b == c` then `a == c`. -/
   trans : (a : α) == b → b == c → a == c
 
 /-- `ReflBEq α` says that the `BEq` implementation is reflexive. -/
-class ReflBEq (α) [BEq α] : Prop where
+class ReflBEq (α) [BEq α] where
   /-- Reflexivity for `BEq`. -/
   refl : (a : α) == a
 
 /-- `EquivBEq` says that the `BEq` implementation is an equivalence relation. -/
-class EquivBEq (α) [BEq α] extends PartialEquivBEq α, ReflBEq α : Prop
+class EquivBEq (α) [BEq α] extends PartialEquivBEq α, ReflBEq α
 
 @[simp]
 theorem BEq.refl [BEq α] [ReflBEq α] {a : α} : a == a :=

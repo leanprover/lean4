@@ -127,7 +127,7 @@ theorem getElem_congr [GetElem coll idx elem valid] {c : coll} {i j : idx} {h : 
   cases h'; rfl
 
 class LawfulGetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w))
-   (dom : outParam (cont → idx → Prop)) [ge : GetElem? cont idx elem dom] : Prop where
+   (dom : outParam (cont → idx → Prop)) [ge : GetElem? cont idx elem dom] where
 
   getElem?_def (c : cont) (i : idx) [Decidable (dom c i)] :
       c[i]? = if h : dom c i then some (c[i]'h) else none := by

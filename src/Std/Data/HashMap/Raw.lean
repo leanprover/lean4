@@ -233,7 +233,7 @@ Users of `HashMap.Raw` will need to provide proofs of `WF` to lemmas and should 
 `WF.empty` and `WF.insert` (which are always named exactly like the operations they are about) to
 show that map operations preserve well-formedness.
 -/
-structure WF [BEq α] [Hashable α] (m : Raw α β) : Prop where
+structure WF [BEq α] [Hashable α] (m : Raw α β) where
   /-- Internal implementation detail of the hash map -/
   out : m.inner.WF
 

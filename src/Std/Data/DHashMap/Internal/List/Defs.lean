@@ -33,7 +33,7 @@ def keys : List ((a : α) × β a) → List α
   | ⟨k, _⟩ :: l => k :: keys l
 
 /-- Internal implementation detail of the hash map -/
-structure DistinctKeys [BEq α] (l : List ((a : α) × β a)) : Prop where
+structure DistinctKeys [BEq α] (l : List ((a : α) × β a)) where
   /-- Internal implementation detail of the hash map -/
   distinct : Pairwise (fun a b => (a == b) = false) (keys l)
 

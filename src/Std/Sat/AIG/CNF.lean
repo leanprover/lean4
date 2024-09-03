@@ -134,7 +134,7 @@ theorem satAssignment_inr :
 /--
 The central invariants for the `Cache`.
 -/
-structure Cache.Inv (cnf : CNF (CNFVar aig)) (marks : Array Bool) (hmarks : marks.size = aig.decls.size) : Prop where
+structure Cache.Inv (cnf : CNF (CNFVar aig)) (marks : Array Bool) (hmarks : marks.size = aig.decls.size) where
   /--
   If there exists an AIG node that is marked, its children are also guaranteed to be marked already.
   This allows us to conclude that if a gate node is marked, all of its (transitive) children are
@@ -192,7 +192,7 @@ We say that a cache extends another by an index when it doesn't invalidate any e
 entry for that index.
 -/
 structure Cache.IsExtensionBy (cache1 : Cache aig cnf1) (cache2 : Cache aig cnf2) (new : Nat)
-    (hnew : new < aig.decls.size) : Prop where
+    (hnew : new < aig.decls.size) where
   /--
   No entry is invalidated.
   -/

@@ -18,7 +18,7 @@ namespace AIG
 /--
 `decls1` is a prefix of `decls2`
 -/
-structure IsPrefix (decls1 decls2 : Array (Decl α)) : Prop where
+structure IsPrefix (decls1 decls2 : Array (Decl α)) where
   of ::
     /--
     The prefix may never be longer than the other array.

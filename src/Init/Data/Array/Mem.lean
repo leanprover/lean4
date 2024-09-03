@@ -13,7 +13,7 @@ namespace Array
 /-- `a ∈ as` is a predicate which asserts that `a` is in the array `as`. -/
 -- NB: This is defined as a structure rather than a plain def so that a lemma
 -- like `sizeOf_lt_of_mem` will not apply with no actual arrays around.
-structure Mem (as : Array α) (a : α) : Prop where
+structure Mem (as : Array α) (a : α) where
   val : a ∈ as.data
 
 instance : Membership α (Array α) where

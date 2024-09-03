@@ -204,7 +204,7 @@ Users of `HashSet.Raw` will need to provide proofs of `WF` to lemmas and should 
 `WF.empty` and `WF.insert` (which are always named exactly like the operations they are about) to
 show that set operations preserve well-formedness.
 -/
-structure WF [BEq α] [Hashable α] (m : Raw α) : Prop where
+structure WF [BEq α] [Hashable α] (m : Raw α) where
   /-- Internal implementation detail of the hash set -/
   out : m.inner.WF
 

@@ -46,41 +46,6 @@ theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] {a : α} : (m.insert a)
 theorem mem_iff_contains {a : α} : a ∈ m ↔ m.contains a :=
   HashMap.mem_iff_contains
 
-@[simp]
-theorem getKey?_empty {a : α} {c} : (empty c : HashSet α).getKey? a = none :=
-  HashMap.getKey?_empty
-
-@[simp]
-theorem getKey?_emptyc {a : α} : (∅ : HashSet α).getKey? a = none :=
-  HashMap.getKey?_emptyc
-
-theorem getKey?_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} :
-    m.isEmpty = true → m.getKey? a = none :=
-  HashMap.getKey?_of_isEmpty
-
-theorem getKey?_insert [EquivBEq α] [LawfulHashable α] {k a : α} :
-    (m.insert k).getKey? a = if k == a ∧ ¬k ∈ m then some k else m.getKey? a :=
-  HashMap.getKey?_insertIfNew
-
-theorem contains_eq_isSome_getKey? [EquivBEq α] [LawfulHashable α] {a : α} :
-    m.contains a = (m.getKey? a).isSome :=
-  HashMap.contains_eq_isSome_getKey?
-
-theorem getKey?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] {a : α} :
-    m.contains a = false → m.getKey? a = none :=
-  HashMap.getKey?_eq_none_of_contains_eq_false
-
-theorem getKey?_eq_none [EquivBEq α] [LawfulHashable α] {a : α} : ¬a ∈ m → m.getKey? a = none :=
-  HashMap.getKey?_eq_none
-
-theorem getKey?_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
-    (m.erase k).getKey? a = if k == a then none else m.getKey? a :=
-  HashMap.getKey?_erase
-
-@[simp]
-theorem getKey?_erase_self [EquivBEq α] [LawfulHashable α] {k : α} : (m.erase k).getKey? k = none :=
-  HashMap.getKey?_erase_self
-
 theorem contains_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) :
     m.contains a = m.contains b :=
   HashMap.contains_congr hab
@@ -211,6 +176,161 @@ theorem size_erase_le [EquivBEq α] [LawfulHashable α] {k : α} : (m.erase k).s
 theorem size_le_size_erase [EquivBEq α] [LawfulHashable α] {k : α} :
     m.size ≤ (m.erase k).size + 1 :=
   HashMap.size_le_size_erase
+
+@[simp]
+theorem getKey?_empty {a : α} {c} : (empty c : HashSet α).getKey? a = none :=
+  HashMap.getKey?_empty
+
+@[simp]
+theorem getKey?_emptyc {a : α} : (∅ : HashSet α).getKey? a = none :=
+  HashMap.getKey?_emptyc
+
+theorem getKey?_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} :
+    m.isEmpty = true → m.getKey? a = none :=
+  HashMap.getKey?_of_isEmpty
+
+theorem getKey?_insert [EquivBEq α] [LawfulHashable α] {k a : α} :
+    (m.insert k).getKey? a = if k == a ∧ ¬k ∈ m then some k else m.getKey? a :=
+  HashMap.getKey?_insertIfNew
+
+theorem contains_eq_isSome_getKey? [EquivBEq α] [LawfulHashable α] {a : α} :
+    m.contains a = (m.getKey? a).isSome :=
+  HashMap.contains_eq_isSome_getKey?
+
+theorem getKey?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] {a : α} :
+    m.contains a = false → m.getKey? a = none :=
+  HashMap.getKey?_eq_none_of_contains_eq_false
+
+theorem getKey?_eq_none [EquivBEq α] [LawfulHashable α] {a : α} : ¬a ∈ m → m.getKey? a = none :=
+  HashMap.getKey?_eq_none
+
+theorem getKey?_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
+    (m.erase k).getKey? a = if k == a then none else m.getKey? a :=
+  HashMap.getKey?_erase
+
+@[simp]
+theorem getKey?_erase_self [EquivBEq α] [LawfulHashable α] {k : α} : (m.erase k).getKey? k = none :=
+  HashMap.getKey?_erase_self
+
+theorem getKey_insert [EquivBEq α] [LawfulHashable α] {k a : α} {h₁} :
+    (m.insert k).getKey a h₁ =
+      if h₂ : k == a then k else m.getKey a (mem_of_mem_insert h₁ (Bool.eq_false_iff.2 h₂)) :=
+  sorry
+  --HashMap.getKey_insertIfNew (h₁ := h₁)
+
+@[simp]
+theorem getKey_erase [EquivBEq α] [LawfulHashable α] {k a : α} {h'} :
+    (m.erase k).getKey a h' = m.getKey a (mem_of_mem_erase h') :=
+  HashMap.getKey_erase (h' := h')
+
+theorem getKey?_eq_some_getKey [EquivBEq α] [LawfulHashable α] {a : α} {h' : a ∈ m} :
+    m.getKey? a = some (m.getKey a h') :=
+  @HashMap.getKey?_eq_some_getKey _ _ _ _ _ _ _ _ h'
+
+@[simp]
+theorem getKey!_empty [Inhabited α] {a : α} {c} : (empty c : HashSet α).getKey! a = default :=
+  HashMap.getKey!_empty
+
+@[simp]
+theorem getKey!_emptyc [Inhabited α] {a : α} : (∅ : HashSet α).getKey! a = default :=
+  HashMap.getKey!_emptyc
+
+theorem getKey!_of_isEmpty [Inhabited α] [EquivBEq α] [LawfulHashable α] {a : α} :
+    m.isEmpty = true → m.getKey! a = default :=
+  HashMap.getKey!_of_isEmpty
+
+theorem getKey!_insert [Inhabited α] [EquivBEq α] [LawfulHashable α] {k a : α} :
+    (m.insert k).getKey! a = if k == a ∧ ¬k ∈ m then some k else m.getKey! a :=
+  sorry
+  --HashMap.getKey!_insertIfNew
+
+theorem getKey!_eq_default_of_contains_eq_false [Inhabited α] [EquivBEq α] [LawfulHashable α] {a : α} :
+    m.contains a = false → m.getKey! a = default :=
+  HashMap.getKey!_eq_default_of_contains_eq_false
+
+theorem getKey!_eq_default [Inhabited α] [EquivBEq α] [LawfulHashable α] {a : α} :
+    ¬a ∈ m → m.getKey! a = default :=
+  HashMap.getKey!_eq_default
+
+theorem getKey!_erase [Inhabited α] [EquivBEq α] [LawfulHashable α] {k a : α} :
+    (m.erase k).getKey! a = if k == a then default else m.getKey! a :=
+  HashMap.getKey!_erase
+
+@[simp]
+theorem getKey!_erase_self [Inhabited α] [EquivBEq α] [LawfulHashable α] {k : α} :
+    (m.erase k).getKey! k = default :=
+  HashMap.getKey!_erase_self
+
+theorem getKey?_eq_some_getKey!_of_contains [EquivBEq α] [LawfulHashable α] [Inhabited α]
+    {a : α} : m.contains a = true → m.getKey? a = some (m.getKey! a) :=
+  HashMap.getKey?_eq_some_getKey!_of_contains
+
+theorem getKey?_eq_some_getKey! [EquivBEq α] [LawfulHashable α] [Inhabited α] {a : α} :
+    a ∈ m → m.getKey? a = some (m.getKey! a) :=
+  HashMap.getKey?_eq_some_getKey!
+
+theorem getKey!_eq_get!_getKey? [EquivBEq α] [LawfulHashable α] [Inhabited α] {a : α} :
+    m.getKey! a = (m.getKey? a).get! :=
+  HashMap.getKey!_eq_get!_getKey?
+
+theorem getKey_eq_getKey! [EquivBEq α] [LawfulHashable α] [Inhabited α] {a : α} {h'} :
+    m.getKey a h' = m.getKey! a :=
+  HashMap.getKey_eq_getKey!
+
+@[simp]
+theorem getKeyD_empty {a fallback : α} {c} : (empty c : HashSet α).getKeyD a fallback = fallback :=
+  HashMap.getKeyD_empty
+
+@[simp]
+theorem getKeyD_emptyc {a fallback : α} : (∅ : HashSet α).getKeyD a fallback = fallback :=
+  HashMap.getKeyD_emptyc
+
+theorem getKeyD_of_isEmpty [EquivBEq α] [LawfulHashable α] {a fallback : α} :
+    m.isEmpty = true → m.getKeyD a fallback = fallback :=
+  HashMap.getKeyD_of_isEmpty
+
+theorem getKeyD_insert [EquivBEq α] [LawfulHashable α] {k a fallback : α} :
+    (m.insert k).getKeyD a fallback = if k == a ∧ ¬k ∈ m then some k else m.getKeyD a fallback :=
+  sorry
+  --HashMap.getKeyD_insertIfNew
+
+theorem getKeyD_eq_fallback_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    {a fallback : α} :
+    m.contains a = false → m.getKeyD a fallback = fallback :=
+  HashMap.getKeyD_eq_fallback_of_contains_eq_false
+
+theorem getKeyD_eq_fallback [EquivBEq α] [LawfulHashable α] {a fallback : α} :
+    ¬a ∈ m → m.getKeyD a fallback = fallback :=
+  HashMap.getKeyD_eq_fallback
+
+theorem getKeyD_erase [EquivBEq α] [LawfulHashable α] {k a fallback : α} :
+    (m.erase k).getKeyD a fallback = if k == a then fallback else m.getKeyD a fallback :=
+  HashMap.getKeyD_erase
+
+@[simp]
+theorem getKeyD_erase_self [EquivBEq α] [LawfulHashable α] {k fallback : α} :
+    (m.erase k).getKeyD k fallback = fallback :=
+  HashMap.getKeyD_erase_self
+
+theorem getKey?_eq_some_getKeyD_of_contains [EquivBEq α] [LawfulHashable α] {a : α}
+    {fallback : α} : m.contains a = true → m.getKey? a = some (m.getKeyD a fallback) :=
+  HashMap.getKey?_eq_some_getKeyD_of_contains
+
+theorem getKey?_eq_some_getKeyD [EquivBEq α] [LawfulHashable α] {a : α} {fallback : α} :
+    a ∈ m → m.getKey? a = some (m.getKeyD a fallback) :=
+  HashMap.getKey?_eq_some_getKeyD
+
+theorem getKeyD_eq_getD_getKey? [EquivBEq α] [LawfulHashable α] {a : α} {fallback : α} :
+    m.getKeyD a fallback = (m.getKey? a).getD fallback :=
+  HashMap.getKeyD_eq_getD_getKey?
+
+theorem getKey_eq_getKeyD [EquivBEq α] [LawfulHashable α] {a : α} {fallback : α} {h'} :
+    m.getKey a h' = m.getKeyD a fallback :=
+  @HashMap.getKey_eq_getKeyD _ _ _ _ _ _ _ _ _ h'
+
+theorem getKey!_eq_getKeyD_default [EquivBEq α] [LawfulHashable α] [Inhabited α] {a : α} :
+    m.getKey! a = m.getKeyD a default :=
+  HashMap.getKey!_eq_getKeyD_default
 
 @[simp]
 theorem containsThenInsert_fst {k : α} : (m.containsThenInsert k).1 = m.contains k :=

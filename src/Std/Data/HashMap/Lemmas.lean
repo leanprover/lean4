@@ -438,13 +438,13 @@ theorem getKey_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} {h�
 
 @[simp]
 theorem getKey_insert_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
-    (m.insert k v)[k]'mem_insert_self = v :=
-  DHashMap.Const.get_insert_self
+    (m.insert k v).getKey k mem_insert_self = k :=
+  DHashMap.getKey_insert_self
 
 @[simp]
 theorem getKey_erase [EquivBEq α] [LawfulHashable α] {k a : α} {h'} :
-    (m.erase k)[a]'h' = m[a]'(mem_of_mem_erase h') :=
-  DHashMap.Const.get_erase (h' := h')
+    (m.erase k).getKey a h' = m.getKey a (mem_of_mem_erase h') :=
+  DHashMap.getKey_erase (h' := h')
 
 theorem getKey?_eq_some_getKey [EquivBEq α] [LawfulHashable α] {a : α} {h' : a ∈ m} :
     m.getKey? a = some (m.getKey a h') :=

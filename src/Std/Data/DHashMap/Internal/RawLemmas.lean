@@ -767,8 +767,27 @@ theorem getD_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k a : �
 end Const
 
 theorem getKey?_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k a : α} {v : β k} :
-    (m.insertIfNew k v).getKey? a = if k == a ∧ m.contains k = false then some k else m.getKey? a := by
+    (m.insertIfNew k v).getKey? a =
+      if k == a ∧ m.contains k = false then some k else m.getKey? a := by
   simp_to_model using List.getKey?_insertEntryIfNew
+
+theorem getKey_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k a : α} {v : β k} {h₁} :
+    (m.insertIfNew k v).getKey a h₁ =
+      if h₂ : k == a ∧ m.contains k = false then k
+      else m.getKey a (contains_of_contains_insertIfNew' _ h h₁ h₂) := by
+  simp_to_model using List.getKey_insertEntryIfNew
+
+theorem getKey!_insertIfNew [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.1.WF) {k a : α}
+    {v : β k} :
+    (m.insertIfNew k v).getKey! a =
+      if k == a ∧ m.contains k = false then k else m.getKey! a := by
+  simp_to_model using List.getKey!_insertEntryIfNew
+
+theorem getKeyD_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k a fallback : α}
+    {v : β k} :
+    (m.insertIfNew k v).getKeyD a fallback =
+      if k == a ∧ m.contains k = false then k else m.getKeyD a fallback := by
+  simp_to_model using List.getKeyD_insertEntryIfNew
 
 @[simp]
 theorem getThenInsertIfNew?_fst [LawfulBEq α] {k : α} {v : β k} :

@@ -578,10 +578,6 @@ theorem mem_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
     a ∈ m.insertIfNew k v ↔ k == a ∨ a ∈ m :=
   DHashMap.mem_insertIfNew
 
-theorem getKey?_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
-    getKey? (m.insertIfNew k v) a = if k == a ∧ ¬k ∈ m then some k else getKey? m a :=
-  DHashMap.getKey?_insertIfNew
-
 theorem contains_insertIfNew_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
     (m.insertIfNew k v).contains k :=
   DHashMap.contains_insertIfNew_self
@@ -639,6 +635,23 @@ theorem getD_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {fallback 
     (m.insertIfNew k v).getD a fallback =
       if k == a ∧ ¬k ∈ m then v else m.getD a fallback :=
   DHashMap.Const.getD_insertIfNew
+
+theorem getKey?_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
+    getKey? (m.insertIfNew k v) a = if k == a ∧ ¬k ∈ m then some k else getKey? m a :=
+  DHashMap.getKey?_insertIfNew
+
+theorem getKey_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} {h₁} :
+    getKey (m.insertIfNew k v) a h₁ =
+      if h₂ : k == a ∧ ¬k ∈ m then k else getKey m a (mem_of_mem_insertIfNew' h₁ h₂) :=
+  DHashMap.getKey_insertIfNew
+
+theorem getKey!_insertIfNew [EquivBEq α] [LawfulHashable α] [Inhabited α] {k a : α} {v : β} :
+    getKey! (m.insertIfNew k v) a = if k == a ∧ ¬k ∈ m then k else getKey! m a :=
+  DHashMap.getKey!_insertIfNew
+
+theorem getKeyD_insertIfNew [EquivBEq α] [LawfulHashable α] {k a fallback : α} {v : β} :
+    getKeyD (m.insertIfNew k v) a fallback = if k == a ∧ ¬k ∈ m then k else getKeyD m a fallback :=
+  DHashMap.getKeyD_insertIfNew
 
 @[simp]
 theorem getThenInsertIfNew?_fst {k : α} {v : β} : (getThenInsertIfNew? m k v).1 = get? m k :=

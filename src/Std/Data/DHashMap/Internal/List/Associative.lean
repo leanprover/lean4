@@ -1219,14 +1219,6 @@ theorem getValue?_insertEntryIfNew {β : Type v} [BEq α] [PartialEquivBEq α] {
   simp [getValue?_eq_getEntry?, getEntry?_insertEntryIfNew,
       apply_ite (Option.map (fun (y : ((_ : α) × β)) => y.2))]
 
-theorem getKey?_insertEntryIfNew [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)} {k a : α}
-    {v : β k} : getKey? a (insertEntryIfNew k v l) =
-      if k == a ∧ containsKey k l = false then some k else getKey? a l := by
-  cases h : containsKey k l
-  · rw [insertEntryIfNew_of_containsKey_eq_false h]
-    split <;> simp_all
-  · simp [insertEntryIfNew_of_containsKey h]
-
 theorem containsKey_insertEntryIfNew [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)}
     {k a : α} {v : β k} :
     containsKey a (insertEntryIfNew k v l) = ((k == a) || containsKey a l) := by
@@ -1302,6 +1294,32 @@ theorem getValueD_insertEntryIfNew {β : Type v} [BEq α] [PartialEquivBEq α] {
       if k == a ∧ containsKey k l = false then v else getValueD a l fallback := by
   simp [getValueD_eq_getValue?, getValue?_insertEntryIfNew,
     apply_ite (fun x => Option.getD x fallback)]
+
+theorem getKey?_insertEntryIfNew [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)} {k a : α}
+    {v : β k} : getKey? a (insertEntryIfNew k v l) =
+      if k == a ∧ containsKey k l = false then some k else getKey? a l := by
+  cases h : containsKey k l
+  · rw [insertEntryIfNew_of_containsKey_eq_false h]
+    split <;> simp_all
+  · simp [insertEntryIfNew_of_containsKey h]
+
+theorem getKey_insertEntryIfNew [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)}
+    {k a : α} {v : β k} {h} : getKey a (insertEntryIfNew k v l) h =
+    if h' : k == a ∧ containsKey k l = false then k
+    else getKey a l (containsKey_of_containsKey_insertEntryIfNew' h h') := by
+  rw [← Option.some_inj, ← getKey?_eq_some_getKey, apply_dite Option.some,
+    getKey?_insertEntryIfNew, ← dite_eq_ite]
+  simp [← getKey?_eq_some_getKey]
+
+theorem getKey!_insertEntryIfNew [BEq α] [PartialEquivBEq α] [Inhabited α]
+    {l : List ((a : α) × β a)} {k a : α} {v : β k} : getKey! a (insertEntryIfNew k v l) =
+      if k == a ∧ containsKey k l = false then k else getKey! a l := by
+  simp [getKey!_eq_getKey?, getKey?_insertEntryIfNew, apply_ite Option.get!]
+
+theorem getKeyD_insertEntryIfNew [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)}
+    {k a fallback : α} {v : β k} : getKeyD a (insertEntryIfNew k v l) fallback =
+      if k == a ∧ containsKey k l = false then k else getKeyD a l fallback := by
+  simp [getKeyD_eq_getKey?, getKey?_insertEntryIfNew, apply_ite (fun x => Option.getD x fallback)]
 
 theorem length_insertEntryIfNew [BEq α] {l : List ((a : α) × β a)} {k : α} {v : β k} :
     (insertEntryIfNew k v l).length = if containsKey k l then l.length else l.length + 1 := by

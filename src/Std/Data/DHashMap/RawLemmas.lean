@@ -973,6 +973,25 @@ theorem getKey?_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : 
   simp only [mem_iff_contains, Bool.not_eq_true]
   simp_to_raw using Raw₀.getKey?_insertIfNew
 
+theorem getKey_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {v : β k} {h₁} :
+    getKey (m.insertIfNew k v) a h₁ =
+      if h₂ : k == a ∧ ¬k ∈ m then k else getKey m a (mem_of_mem_insertIfNew' h h₁ h₂) := by
+  simp only [mem_iff_contains, Bool.not_eq_true]
+  simp_to_raw using Raw₀.getKey_insertIfNew ⟨m, _⟩
+
+theorem getKey!_insertIfNew [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.WF) {k a : α}
+    {v : β k} :
+    getKey! (m.insertIfNew k v) a = if k == a ∧ ¬k ∈ m then k else getKey! m a := by
+  simp only [mem_iff_contains, Bool.not_eq_true]
+  simp_to_raw using Raw₀.getKey!_insertIfNew
+
+theorem getKeyD_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a fallback : α}
+    {v : β k} :
+    getKeyD (m.insertIfNew k v) a fallback =
+      if k == a ∧ ¬k ∈ m then k else getKeyD m a fallback := by
+  simp only [mem_iff_contains, Bool.not_eq_true]
+  simp_to_raw using Raw₀.getKeyD_insertIfNew
+
 @[simp]
 theorem getThenInsertIfNew?_fst [LawfulBEq α] (h : m.WF) {k : α} {v : β k} :
     (m.getThenInsertIfNew? k v).1 = m.get? k := by

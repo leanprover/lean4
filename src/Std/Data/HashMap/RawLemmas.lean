@@ -652,6 +652,20 @@ theorem getKey?_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : 
     (m.insertIfNew k v).getKey? a = if k == a ∧ ¬k ∈ m then some k else m.getKey? a :=
   DHashMap.Raw.getKey?_insertIfNew h.out
 
+theorem getKey_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {v : β} {h₁} :
+    (m.insertIfNew k v).getKey a h₁ =
+      if h₂ : k == a ∧ ¬k ∈ m then k else m.getKey a (mem_of_mem_insertIfNew' h h₁ h₂) :=
+  DHashMap.Raw.getKey_insertIfNew h.out
+
+theorem getKey!_insertIfNew [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.WF) {k a : α} {v : β} :
+    (m.insertIfNew k v).getKey! a = if k == a ∧ ¬k ∈ m then k else m.getKey! a :=
+  DHashMap.Raw.getKey!_insertIfNew h.out
+
+theorem getKeyD_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a fallback : α} {v : β} :
+    (m.insertIfNew k v).getKeyD a fallback = if k == a ∧ ¬k ∈ m then k else m.getKeyD a fallback :=
+  DHashMap.Raw.getKeyD_insertIfNew h.out
+
+
 @[simp]
 theorem getThenInsertIfNew?_fst (h : m.WF) {k : α} {v : β} :
     (getThenInsertIfNew? m k v).1 = get? m k :=

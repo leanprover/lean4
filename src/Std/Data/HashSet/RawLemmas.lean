@@ -122,6 +122,18 @@ theorem mem_of_mem_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α
     a ∈ m.insert k → (k == a) = false → a ∈ m :=
   HashMap.Raw.mem_of_mem_insertIfNew h.out
 
+/-- This is a restatement of `contains_insert` that is written to exactly match the proof
+obligation in the statement of `getKey_insert`. -/
+theorem contains_of_contains_insert' [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
+    (m.insert k).contains a → ¬((k == a) ∧ m.contains k = false) → m.contains a :=
+  HashMap.Raw.contains_of_contains_insertIfNew' h.out
+
+/-- This is a restatement of `mem_insert` that is written to exactly match the proof obligation
+in the statement of `getKey_insertIfNew`. -/
+theorem mem_of_mem_insert' [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
+    a ∈ m.insert k → ¬((k == a) ∧ ¬k ∈ m) → a ∈ m :=
+  HashMap.Raw.mem_of_mem_insertIfNew' h.out
+
 @[simp]
 theorem contains_insert_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
     (m.insert k).contains k :=
@@ -220,9 +232,8 @@ theorem getKey?_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
 
 theorem getKey_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {h₁} :
     (m.insert k).getKey a h₁ =
-      if h₂ : k == a then k else m.getKey a (mem_of_mem_insert h h₁ (Bool.eq_false_iff.2 h₂)) :=
-  sorry
-  --HashMap.Raw.getKey_insertIfNew (h₁ := h₁) h.out
+      if h₂ : k == a ∧ ¬k ∈ m then k else m.getKey a (mem_of_mem_insert' h h₁ sorry) := 
+  HashMap.Raw.getKey_insertIfNew (h₁ := h₁) h.out
 
 @[simp]
 theorem getKey_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {h'} :
@@ -251,9 +262,8 @@ theorem getKey!_of_isEmpty [Inhabited α] [EquivBEq α] [LawfulHashable α] (h :
   HashMap.Raw.getKey!_of_isEmpty h.out
 
 theorem getKey!_insert [Inhabited α] [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
-    (m.insert k).getKey! a = if k == a ∧ ¬k ∈ m then some k else m.getKey! a :=
-  sorry
-  --HashMap.Raw.getKey!_insertIfNew h.out
+    (m.insert k).getKey! a = if k == a ∧ ¬k ∈ m then k else m.getKey! a :=
+  HashMap.Raw.getKey!_insertIfNew h.out
 
 theorem getKey!_eq_default_of_contains_eq_false [Inhabited α] [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     m.contains a = false → m.getKey! a = default :=
@@ -301,9 +311,8 @@ theorem getKeyD_of_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF) {a fallb
   HashMap.Raw.getKeyD_of_isEmpty h.out
 
 theorem getKeyD_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a fallback : α} :
-    (m.insert k).getKeyD a fallback = if k == a ∧ ¬k ∈ m then some k else m.getKeyD a fallback :=
-  sorry
-  --HashMap.Raw.getKeyD_insertIfNew h.out
+    (m.insert k).getKeyD a fallback = if k == a ∧ ¬k ∈ m then k else m.getKeyD a fallback :=
+  HashMap.Raw.getKeyD_insertIfNew h.out
 
 theorem getKeyD_eq_fallback_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {a fallback : α} :

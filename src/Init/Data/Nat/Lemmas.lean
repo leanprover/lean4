@@ -46,7 +46,7 @@ theorem succ_add_eq_add_succ (a b) : succ a + b = a + succ b := Nat.succ_add ..
 protected theorem eq_zero_of_add_eq_zero_right (h : n + m = 0) : n = 0 :=
   (Nat.eq_zero_of_add_eq_zero h).1
 
-protected theorem add_eq_zero_iff : n + m = 0 ↔ n = 0 ∧ m = 0 :=
+@[simp] protected theorem add_eq_zero_iff : n + m = 0 ↔ n = 0 ∧ m = 0 :=
   ⟨Nat.eq_zero_of_add_eq_zero, fun ⟨h₁, h₂⟩ => h₂.symm ▸ h₁⟩
 
 @[simp] protected theorem add_left_cancel_iff {n : Nat} : n + m = n + k ↔ m = k :=

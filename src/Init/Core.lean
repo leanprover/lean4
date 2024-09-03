@@ -1988,7 +1988,7 @@ theorem lt_of_eq_of_lt {a b c : α} [LT α] (h₁ : a = b) (h₂ : b < c) : a < 
 theorem lt_of_lt_of_eq {a b c : α} [LT α] (h₁ : a < b) (h₂ : b = c) : a < c := h₂ ▸ h₁
 
 namespace Std
-variable {α : Sort u}
+variable {α : Sort u} {β : Sort v}
 
 /--
 `Associative op` indicates `op` is an associative operation,
@@ -2005,6 +2005,52 @@ i.e. `a ∘ b = b ∘ a`.
 class Commutative (op : α → α → α) : Prop where
   /-- A commutative operation satisfies `a ∘ b = b ∘ a`. -/
   comm : (a b : α) → op a b = op b a
+
+/--
+`SymmetricOp op` says that `op` is a symmetric operation,
+i.e. `a ∘ b = b ∘ a`. Unlike `Commutative` the output type may differ from the input type.
+-/
+class SymmetricOp (op : α → α → β) : Prop where
+  /-- A symmetric operation satisfies `a ∘ b = b ∘ a`. -/
+  symm : (a b : α) → op a b = op b a
+
+/--
+`LeftCancellative op` says that `op` is a left-cancellative operation,
+i.e. `a ∘ b = a ∘ c → b = c`.
+-/
+class LeftCancellative (op : α → α → β) : Prop where
+  /-- A left-cancellative operation satisfies `a ∘ b = a ∘ c → b = c`. -/
+  left_cancel : (a b c : α) → op a b = op a c → b = c
+
+/--
+`RightCancellative op` says that `op` is a right-cancellative operation,
+i.e. `a ∘ b = c ∘ b → a = c`.
+-/
+class RightCancellative (op : α → α → β) : Prop where
+  /-- A right-cancellative operation satisfies `a ∘ b = c ∘ b → a = c`. -/
+  right_cancel : (a b c : α) → op a b = op c b → a = c
+
+/--
+`LeftCommutative op` says that `op` is a left-commutative operation,
+i.e. `a ∘ (b ∘ c) = b ∘ (a ∘ c)`.
+-/
+class LeftCommutative (op : α → β → β) : Prop where
+  /-- A left-commutative operation satisfies `a ∘ (b ∘ c) = b ∘ (a ∘ c)`. -/
+  left_comm : (a b : α) → (c : β) → op a (op b c) = op b (op a c)
+
+/--
+`RightCommutative op` says that `op` is a right-commutative operation,
+i.e. `(a ∘ b) ∘ c = (a ∘ c) ∘ b`.
+-/
+class RightCommutative (op : β → α → β) : Prop where
+  /-- A right-commutative operation satisfies `(a ∘ b) ∘ c = (a ∘ c) ∘ b`. -/
+  right_comm : (a : β) → (b c : α) → op (op a b) c = op (op a c) b
+
+instance leftComm {op : α → α → α} [hc : Commutative op] [ha : Associative op] :
+    LeftCommutative op := ⟨fun a _ _ ↦ by rw [← ha.assoc, hc.comm a, ha.assoc]⟩
+
+instance rightComm {op : α → α → α} [hc : Commutative op] [ha : Associative op] :
+    RightCommutative op := ⟨fun _ b _ ↦ by rw [ha.assoc, hc.comm b, ha.assoc]⟩
 
 /--
 `IdempotentOp op` indicates `op` is an idempotent binary operation.

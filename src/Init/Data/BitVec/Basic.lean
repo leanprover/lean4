@@ -116,16 +116,61 @@ end zero_allOnes
 
 section getXsb
 
+/--
+Return the `i`-th least significant bit.
+
+This will be renamed `getLsb` after the existing deprecated alias is removed.
+-/
+@[inline] def getLsb' (x : BitVec w) (i : Fin w) : Bool := x.toNat.testBit i
+
+/-- Return the `i`-th least significant bit or `none` if `i ≥ w`. -/
+@[inline] def getLsb? (x : BitVec w) (i : Nat) : Option Bool :=
+  if h : i < w then some (getLsb' x ⟨i, h⟩) else none
+
+/--
+Return the `i`-th most significant bit.
+
+This will be renamed `getMsb` after the existing deprecated alias is removed.
+-/
+@[inline] def getMsb' (x : BitVec w) (i : Fin w) : Bool := x.getLsb' ⟨w-1-i, by omega⟩
+
+/-- Return the `i`-th most significant bit or `none` if `i ≥ w`. -/
+@[inline] def getMsb? (x : BitVec w) (i : Nat) : Option Bool :=
+  if h : i < w then some (getMsb' x ⟨i, h⟩) else none
+
 /-- Return the `i`-th least significant bit or `false` if `i ≥ w`. -/
-@[inline] def getLsb (x : BitVec w) (i : Nat) : Bool := x.toNat.testBit i
+@[inline] def getLsbD (x : BitVec w) (i : Nat) : Bool :=
+  x.toNat.testBit i
+
+@[deprecated getLsbD (since := "2024-08-29"), inherit_doc getLsbD]
+def getLsb (x : BitVec w) (i : Nat) : Bool := x.getLsbD i
 
 /-- Return the `i`-th most significant bit or `false` if `i ≥ w`. -/
-@[inline] def getMsb (x : BitVec w) (i : Nat) : Bool := i < w && getLsb x (w-1-i)
+@[inline] def getMsbD (x : BitVec w) (i : Nat) : Bool :=
+  i < w && x.getLsbD (w-1-i)
+
+@[deprecated getMsbD (since := "2024-08-29"), inherit_doc getMsbD]
+def getMsb (x : BitVec w) (i : Nat) : Bool := x.getMsbD i
 
 /-- Return most-significant bit in bitvector. -/
-@[inline] protected def msb (x : BitVec n) : Bool := getMsb x 0
+@[inline] protected def msb (x : BitVec n) : Bool := getMsbD x 0
 
 end getXsb
+
+section getElem
+
+instance : GetElem (BitVec w) Nat Bool fun _ i => i < w where
+  getElem xs i h := xs.getLsb' ⟨i, h⟩
+
+/-- We prefer `x[i]` as the simp normal form for `getLsb'` -/
+@[simp] theorem getLsb'_eq_getElem (x : BitVec w) (i : Fin w) :
+    x.getLsb' i = x[i] := rfl
+
+/-- We prefer `x[i]?` as the simp normal form for `getLsb?` -/
+@[simp] theorem getLsb?_eq_getElem? (x : BitVec w) (i : Nat) :
+    x.getLsb? i = x[i]? := rfl
+
+end getElem
 
 section Int
 

@@ -375,7 +375,7 @@ inductive BVPred where
   /--
   Getting a constant LSB from a `BitVec`.
   -/
-  | getLsb (expr : BVExpr w) (idx : Nat)
+  | getLsbD (expr : BVExpr w) (idx : Nat)
 
 namespace BVPred
 
@@ -389,7 +389,7 @@ structure ExprPair where
 
 def toString : BVPred → String
   | bin lhs op rhs => s!"({lhs.toString} {op.toString} {rhs.toString})"
-  | getLsb expr idx => s!"{expr.toString}[{idx}]"
+  | getLsbD expr idx => s!"{expr.toString}[{idx}]"
 
 instance : ToString BVPred := ⟨toString⟩
 
@@ -398,14 +398,14 @@ The semantics for `BVPred`.
 -/
 def eval (assign : BVExpr.Assignment) : BVPred → Bool
   | bin lhs op rhs => op.eval (lhs.eval assign) (rhs.eval assign)
-  | getLsb expr idx => (expr.eval assign).getLsb idx
+  | getLsbD expr idx => (expr.eval assign).getLsbD idx
 
 @[simp]
 theorem eval_bin : eval assign (.bin lhs op rhs) = op.eval (lhs.eval assign) (rhs.eval assign) := by
   rfl
 
 @[simp]
-theorem eval_getLsb : eval assign (.getLsb expr idx) = (expr.eval assign).getLsb idx := by
+theorem eval_getLsbD : eval assign (.getLsbD expr idx) = (expr.eval assign).getLsbD idx := by
   rfl
 
 end BVPred

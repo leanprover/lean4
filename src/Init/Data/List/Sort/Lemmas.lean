@@ -11,28 +11,30 @@ import Init.Data.Bool
 /-!
 # Basic properties of `mergeSort`.
 
-* `mergeSort_sorted`: `mergeSort` produces a sorted list.
+* `sorted_mergeSort`: `mergeSort` produces a sorted list.
 * `mergeSort_perm`: `mergeSort` is a permutation of the input list.
 * `mergeSort_of_sorted`: `mergeSort` does not change a sorted list.
 * `mergeSort_cons`: proves `mergeSort le (x :: xs) = l₁ ++ x :: l₂` for some `l₁, l₂`
   so that `mergeSort le xs = l₁ ++ l₂`, and no `a ∈ l₁` satisfies `le a x`.
-* `mergeSort_stable`: if `c` is a sorted sublist of `l`, then `c` is still a sublist of `mergeSort le l`.
+* `sublist_mergeSort`: if `c` is a sorted sublist of `l`, then `c` is still a sublist of `mergeSort le l`.
 
 -/
 
 namespace List
 
--- We enable this instance locally so we can write `Sorted le` instead of `Sorted (le · ·)` everywhere.
+-- We enable this instance locally so we can write `Pairwise le` instead of `Pairwise (le · ·)` everywhere.
 attribute [local instance] boolRelToRel
 
 variable {le : α → α → Bool}
 
 /-! ### splitInTwo -/
 
-@[simp] theorem splitInTwo_fst (l : { l : List α // l.length = n }) : (splitInTwo l).1 = ⟨l.1.take ((n+1)/2), by simp [splitInTwo, splitAt_eq, l.2]; omega⟩ := by
+@[simp] theorem splitInTwo_fst (l : { l : List α // l.length = n }) :
+    (splitInTwo l).1 = ⟨l.1.take ((n+1)/2), by simp [splitInTwo, splitAt_eq, l.2]; omega⟩ := by
   simp [splitInTwo, splitAt_eq]
 
-@[simp] theorem splitInTwo_snd (l : { l : List α // l.length = n }) : (splitInTwo l).2 = ⟨l.1.drop ((n+1)/2), by simp [splitInTwo, splitAt_eq, l.2]; omega⟩ := by
+@[simp] theorem splitInTwo_snd (l : { l : List α // l.length = n }) :
+    (splitInTwo l).2 = ⟨l.1.drop ((n+1)/2), by simp [splitInTwo, splitAt_eq, l.2]; omega⟩ := by
   simp [splitInTwo, splitAt_eq]
 
 theorem splitInTwo_fst_append_splitInTwo_snd (l : { l : List α // l.length = n }) : (splitInTwo l).1.1 ++ (splitInTwo l).2.1 = l.1 := by
@@ -162,7 +164,7 @@ theorem mem_merge {a : α} {xs ys : List α} : a ∈ merge le xs ys ↔ a ∈ xs
 If the ordering relation `le` is transitive and total (i.e. `le a b ∨ le b a` for all `a, b`)
 then the `merge` of two sorted lists is sorted.
 -/
-theorem merge_sorted
+theorem sorted_merge
     (trans : ∀ (a b c : α), le a b → le b c → le a c)
     (total : ∀ (a b : α), !le a b → le b a)
     (l₁ l₂ : List α) (h₁ : l₁.Pairwise le) (h₂ : l₂.Pairwise le) : (merge le l₁ l₂).Pairwise le := by
@@ -245,7 +247,7 @@ and total in the sense that `le a b ∨ le b a`.
 
 The comparison function need not be irreflexive, i.e. `le a b` and `le b a` is allowed even when `a ≠ b`.
 -/
-theorem mergeSort_sorted
+theorem sorted_mergeSort
     (trans : ∀ (a b c : α), le a b → le b c → le a c)
     (total : ∀ (a b : α), !le a b → le b a) :
     (l : List α) → (mergeSort le l).Pairwise le
@@ -255,10 +257,12 @@ theorem mergeSort_sorted
     have : (splitInTwo ⟨a :: b :: xs, rfl⟩).1.1.length < xs.length + 1 + 1 := by simp [splitInTwo_fst]; omega
     have : (splitInTwo ⟨a :: b :: xs, rfl⟩).2.1.length < xs.length + 1 + 1 := by simp [splitInTwo_snd]; omega
     rw [mergeSort]
-    apply merge_sorted @trans @total
-    apply mergeSort_sorted trans total
-    apply mergeSort_sorted trans total
+    apply sorted_merge @trans @total
+    apply sorted_mergeSort trans total
+    apply sorted_mergeSort trans total
 termination_by l => l.length
+
+@[deprecated (since := "2024-09-02")] abbrev mergeSort_sorted := @sorted_mergeSort
 
 /--
 If the input list is already sorted, then `mergeSort` does not change the list.
@@ -285,8 +289,8 @@ That is, elements which are equal with respect to the ordering function will rem
 in the same order in the output list as they were in the input list.
 
 See also:
-* `mergeSort_stable`: if `c <+ l` and `c.Pairwise le`, then `c <+ mergeSort le l`.
-* `mergeSort_stable_pair`: if `[a, b] <+ l` and `le a b`, then `[a, b] <+ mergeSort le l`)
+* `sublist_mergeSort`: if `c <+ l` and `c.Pairwise le`, then `c <+ mergeSort le l`.
+* `pair_sublist_mergeSort`: if `[a, b] <+ l` and `le a b`, then `[a, b] <+ mergeSort le l`)
 -/
 theorem mergeSort_enum {l : List α} :
     (mergeSort (enumLE le) (l.enum)).map (·.2) = mergeSort le l :=
@@ -323,7 +327,7 @@ theorem mergeSort_cons {le : α → α → Bool}
   have m₁ : (0, a) ∈ mergeSort (enumLE le) ((a :: l).enum) :=
     mem_mergeSort.mpr (mem_cons_self _ _)
   obtain ⟨l₁, l₂, h⟩ := append_of_mem m₁
-  have s := mergeSort_sorted (enumLE_trans trans) (enumLE_total total) ((a :: l).enum)
+  have s := sorted_mergeSort (enumLE_trans trans) (enumLE_total total) ((a :: l).enum)
   rw [h] at s
   have p := mergeSort_perm (enumLE le) ((a :: l).enum)
   rw [h] at p
@@ -350,7 +354,7 @@ theorem mergeSort_cons {le : α → α → Bool}
       · have := mem_enumFrom ha
         have := mem_enumFrom hb
         simp_all
-    · exact mergeSort_sorted (enumLE_trans trans) (enumLE_total total) ..
+    · exact sorted_mergeSort (enumLE_trans trans) (enumLE_total total) ..
     · exact s.sublist ((sublist_cons_self (0, a) l₂).append_left l₁)
     · exact q
   · intro b m
@@ -370,7 +374,7 @@ Another statement of stability of merge sort.
 If `c` is a sorted sublist of `l`,
 then `c` is still a sublist of `mergeSort le l`.
 -/
-theorem mergeSort_stable
+theorem sublist_mergeSort
     (trans : ∀ (a b c : α), le a b → le b c → le a c)
     (total : ∀ (a b : α), !le a b → le b a) :
     ∀ {c : List α} (_ : c.Pairwise le) (_ : c <+ l),
@@ -379,14 +383,14 @@ theorem mergeSort_stable
   | c, hc, @Sublist.cons _ _ l a h => by
     obtain ⟨l₁, l₂, h₁, h₂, -⟩ := mergeSort_cons trans total a l
     rw [h₁]
-    have h' := mergeSort_stable trans total hc h
+    have h' := sublist_mergeSort trans total hc h
     rw [h₂] at h'
     exact h'.middle a
   | _, _, @Sublist.cons₂ _ l₁ l₂ a h => by
     rename_i hc
     obtain ⟨l₃, l₄, h₁, h₂, h₃⟩ := mergeSort_cons trans total a l₂
     rw [h₁]
-    have h' := mergeSort_stable trans total hc.tail h
+    have h' := sublist_mergeSort trans total hc.tail h
     rw [h₂] at h'
     simp only [Bool.not_eq_true', tail_cons] at h₃ h'
     exact
@@ -394,13 +398,17 @@ theorem mergeSort_stable
         ((fun w => Sublist.of_sublist_append_right w h') fun b m₁ m₃ =>
           (Bool.eq_not_self true).mp ((rel_of_pairwise_cons hc m₁).symm.trans (h₃ b m₃))))
 
+@[deprecated (since := "2024-09-02")] abbrev mergeSort_stable := @sublist_mergeSort
+
 /--
 Another statement of stability of merge sort.
 If a pair `[a, b]` is a sublist of `l` and `le a b`,
 then `[a, b]` is still a sublist of `mergeSort le l`.
 -/
-theorem mergeSort_stable_pair
+theorem pair_sublist_mergeSort
     (trans : ∀ (a b c : α), le a b → le b c → le a c)
     (total : ∀ (a b : α), !le a b → le b a)
     (hab : le a b) (h : [a, b] <+ l) : [a, b] <+ mergeSort le l :=
-  mergeSort_stable trans total (pairwise_pair.mpr hab) h
+  sublist_mergeSort trans total (pairwise_pair.mpr hab) h
+
+@[deprecated (since := "2024-09-02")] abbrev mergeSort_stable_pair := @pair_sublist_mergeSort

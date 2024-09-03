@@ -255,7 +255,7 @@ theorem get!_len_le [Inhabited α] : ∀ {l : List α} {n}, length l ≤ n → l
 /-! ### getElem? and getElem -/
 
 @[simp] theorem getElem?_eq_getElem {l : List α} {n} (h : n < l.length) : l[n]? = some l[n] := by
-  simp only [← get?_eq_getElem?, get?_eq_get, h, get_eq_getElem]
+  simp only [getElem?_def, h, ↓reduceDIte]
 
 theorem getElem?_eq_some {l : List α} : l[n]? = some a ↔ ∃ h : n < l.length, l[n] = a := by
   simp only [← get?_eq_getElem?, get?_eq_some, get_eq_getElem]
@@ -368,6 +368,21 @@ theorem mem_concat_self (xs : List α) (a : α) : a ∈ xs ++ [a] :=
   mem_append_of_mem_right xs (mem_cons_self a _)
 
 theorem mem_append_cons_self : a ∈ xs ++ a :: ys := mem_append_of_mem_right _ (mem_cons_self _ _)
+
+theorem eq_append_cons_of_mem {a : α} {xs : List α} (h : a ∈ xs) :
+    ∃ as bs, xs = as ++ a :: bs ∧ a ∉ as := by
+  induction xs with
+  | nil => cases h
+  | cons x xs ih =>
+    simp at h
+    cases h with
+    | inl h => exact ⟨[], xs, by simp_all⟩
+    | inr h =>
+      by_cases h' : a = x
+      · subst h'
+        exact ⟨[], xs, by simp⟩
+      · obtain ⟨as, bs, rfl, h⟩ := ih h
+        exact ⟨x :: as, bs, rfl, by simp_all⟩
 
 theorem mem_cons_of_mem (y : α) {a : α} {l : List α} : a ∈ l → a ∈ y :: l := .tail _
 

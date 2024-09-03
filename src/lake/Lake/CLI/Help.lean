@@ -18,6 +18,7 @@ COMMANDS:
   init <name> <temp>    create a Lean package in the current directory
   build <targets>...    build targets
   exe <exe> <args>...   build an exe and run it in Lake's environment
+  check-build           check if any default build targets are configured
   test                  test the package using the configured test driver
   check-test            check if there is a properly configured test driver
   lint                  lint the package using the configured lint driver
@@ -133,6 +134,19 @@ TARGET EXAMPLES:        build the ...
 
 A bare `lake build` command will build the default facet of the root package.
 Package dependencies are not updated during a build."
+
+def helpCheckBuild :=
+"Check if any default build targets are configured
+
+USAGE:
+  lake check-build
+
+Exits with code 0 if the workspace's root package has any
+default targets configured. Errors (with code 1) otherwise.
+
+Does NOT verify that the configured default targets are valid.
+It merely verifies that some are specified.
+"
 
 def helpUpdate :=
 "Update dependencies and save them to the manifest
@@ -383,6 +397,7 @@ def help : (cmd : String) → String
 | "new"                 => helpNew
 | "init"                => helpInit
 | "build"               => helpBuild
+| "check-build"         => helpCheckBuild
 | "update" | "upgrade"  => helpUpdate
 | "pack"                => helpPack
 | "unpack"              => helpUnpack

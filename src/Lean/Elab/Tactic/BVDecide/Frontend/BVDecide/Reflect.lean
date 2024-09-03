@@ -88,8 +88,8 @@ where
   go : BVPred → Expr
   | .bin (w := w) lhs op rhs =>
     mkApp4 (mkConst ``BVPred.bin) (toExpr w) (toExpr lhs) (toExpr op) (toExpr rhs)
-  | .getLsb (w := w) expr idx =>
-    mkApp3 (mkConst ``BVPred.getLsb) (toExpr w) (toExpr expr) (toExpr idx)
+  | .getLsbD (w := w) expr idx =>
+    mkApp3 (mkConst ``BVPred.getLsbD) (toExpr w) (toExpr expr) (toExpr idx)
 
 
 instance [ToExpr α] : ToExpr (BoolExpr α) where

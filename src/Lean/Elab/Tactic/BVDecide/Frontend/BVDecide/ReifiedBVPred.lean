@@ -46,16 +46,16 @@ def of (t : Expr) : M (Option ReifiedBVPred) := do
     binaryReflection lhsExpr rhsExpr .eq ``Std.Tactic.BVDecide.Reflect.BitVec.beq_congr
   | BitVec.ult _ lhsExpr rhsExpr =>
     binaryReflection lhsExpr rhsExpr .ult ``Std.Tactic.BVDecide.Reflect.BitVec.ult_congr
-  | BitVec.getLsb _ subExpr idxExpr =>
+  | BitVec.getLsbD _ subExpr idxExpr =>
     let some sub ← ReifiedBVExpr.of subExpr | return none
     let some idx ← getNatValue? idxExpr | return none
-    let bvExpr : BVPred := .getLsb sub.bvExpr idx
-    let expr := mkApp3 (mkConst ``BVPred.getLsb) (toExpr sub.width) sub.expr idxExpr
+    let bvExpr : BVPred := .getLsbD sub.bvExpr idx
+    let expr := mkApp3 (mkConst ``BVPred.getLsbD) (toExpr sub.width) sub.expr idxExpr
     let proof := do
       let subEval ← ReifiedBVExpr.mkEvalExpr sub.width sub.expr
       let subProof ← sub.evalsAtAtoms
       return mkApp5
-        (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.getLsb_congr)
+        (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.getLsbD_congr)
         idxExpr
         (toExpr sub.width)
         subExpr
@@ -73,8 +73,8 @@ def of (t : Expr) : M (Option ReifiedBVPred) := do
     let ty ← inferType t
     let_expr Bool := ty | return none
     let atom ← ReifiedBVExpr.mkAtom (mkApp (mkConst ``BitVec.ofBool) t) 1
-    let bvExpr : BVPred := .getLsb atom.bvExpr 0
-    let expr := mkApp3 (mkConst ``BVPred.getLsb) (toExpr 1) atom.expr (toExpr 0)
+    let bvExpr : BVPred := .getLsbD atom.bvExpr 0
+    let expr := mkApp3 (mkConst ``BVPred.getLsbD) (toExpr 1) atom.expr (toExpr 0)
     let proof := do
       let atomEval ← ReifiedBVExpr.mkEvalExpr atom.width atom.expr
       let atomProof ← atom.evalsAtAtoms

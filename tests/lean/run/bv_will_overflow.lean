@@ -78,7 +78,7 @@ bool will_add_overflow_bitwise_3(int32_t a_, int32_t b_) {
 -/
 def will_add_overflow_bitwise_3 (a b : BitVec 32) : Bool :=
   let c := a + b
-  getLsb (((~~~a &&& ~~~b &&& c) ||| (a &&& b &&& ~~~c)) >>> 31) 0
+  getLsbD (((~~~a &&& ~~~b &&& c) ||| (a &&& b &&& ~~~c)) >>> 31) 0
 
 example (a b : BitVec 32) : will_add_overflow_bitwise_2 a b = will_add_overflow_bitwise_3 a b := by
   dsimp [will_add_overflow_bitwise_2, will_add_overflow_bitwise_3]
@@ -93,7 +93,7 @@ bool will_add_overflow_optimized_a(int32_t a_, int32_t b_) {
 -/
 def will_add_overflow_optimized_a (a b : BitVec 32) : Bool :=
   let c := a + b
-  getLsb ((~~~(a ^^^ b) &&& (c ^^^ a)) >>> 31) 0
+  getLsbD ((~~~(a ^^^ b) &&& (c ^^^ a)) >>> 31) 0
 
 example (a b : BitVec 32) :
     will_add_overflow_bitwise_3 a b = will_add_overflow_optimized_a a b := by
@@ -109,7 +109,7 @@ bool will_add_overflow_optimized_b(int32_t a_, int32_t b_) {
 -/
 def will_add_overflow_optimized_b (a b : BitVec 32) : Bool :=
   let c := a + b
-  getLsb (((c ^^^ a) &&& (c ^^^ b)) >>> 31) 0
+  getLsbD (((c ^^^ a) &&& (c ^^^ b)) >>> 31) 0
 
 example (a b : BitVec 32) :
     will_add_overflow_optimized_a a b = will_add_overflow_optimized_b a b := by

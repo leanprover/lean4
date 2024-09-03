@@ -8,7 +8,7 @@ import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Add
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Append
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Eq
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Extract
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.GetLsb
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.GetLsbD
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Mul
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Not
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Replicate

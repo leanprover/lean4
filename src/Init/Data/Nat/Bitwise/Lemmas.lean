@@ -463,6 +463,10 @@ theorem and_pow_two_identity {x : Nat} (lt : x < 2^n) : x &&& 2^n-1 = x := by
   rw [testBit_and]
   simp
 
+theorem and_div_two : (a &&& b) / 2 = a / 2 &&& b / 2 := by
+  apply Nat.eq_of_testBit_eq
+  simp [testBit_and, ← testBit_add_one]
+
 /-! ### lor -/
 
 @[simp] theorem zero_or (x : Nat) : 0 ||| x = x := by
@@ -486,6 +490,10 @@ theorem or_lt_two_pow {x y n : Nat} (left : x < 2^n) (right : y < 2^n) : x ||| y
   rw [testBit_or]
   simp
 
+theorem or_div_two : (a ||| b) / 2 = a / 2 ||| b / 2 := by
+  apply Nat.eq_of_testBit_eq
+  simp [testBit_or, ← testBit_add_one]
+
 /-! ### xor -/
 
 @[simp] theorem testBit_xor (x y i : Nat) :
@@ -507,6 +515,10 @@ theorem and_xor_distrib_left {a b c : Nat} : a &&& (b ^^^ c) = (a &&& b) ^^^ (a 
   simp only [mod_two_eq_one_iff_testBit_zero]
   rw [testBit_xor]
   simp
+
+theorem xor_div_two : (a ^^^ b) / 2 = a / 2 ^^^ b / 2 := by
+  apply Nat.eq_of_testBit_eq
+  simp [testBit_xor, ← testBit_add_one]
 
 /-! ### Arithmetic -/
 

@@ -136,6 +136,30 @@ def decodeLeanOptions (v : Value) : Except (Array DecodeError) (Array LeanOption
   | v =>
     throw #[.mk v.ref "expected array or table"]
 
+protected def StdVer.decodeToml (v : Value) : Except (Array DecodeError) LeanVer := do
+  match StdVer.parse (← v.decodeString) with
+  | .ok v => return v
+  | .error e => throw #[.mk v.ref e]
+
+instance : DecodeToml StdVer := ⟨(StdVer.decodeToml ·)⟩
+
+protected def StrPat.decodeToml (v : Value) (presets : NameMap StrPat := {}) : Except (Array DecodeError) StrPat :=
+  match v with
+  | .array _ vs => .mem <$> decodeArray vs
+  | .table r t => do
+    if let some pre ← t.decode? `startsWith then
+      return .startsWith pre
+    else if let some name ← t.decode? `preset then
+      if let some preset := presets.find? name then
+        return preset
+      else
+        throw #[.mk r s!"unknown preset '{name}'"]
+    else
+      throw #[.mk r "expected 'startsWith' or 'preset'"]
+  | v => throw #[.mk v.ref "expected array or table"]
+
+instance : DecodeToml StrPat := ⟨(StrPat.decodeToml ·)⟩
+
 /-! ## Configuration Decoders -/
 
 protected def WorkspaceConfig.decodeToml (t : Table) : Except (Array DecodeError) WorkspaceConfig := ensureDecode do
@@ -182,13 +206,25 @@ protected def PackageConfig.decodeToml (t : Table) (ref := Syntax.missing) : Exc
   let testDriverArgs ← t.tryDecodeD `testDriverArgs #[]
   let lintDriver ← t.tryDecodeD `lintDriver ""
   let lintDriverArgs ← t.tryDecodeD `lintDriverArgs #[]
+  let version : StdVer ← t.tryDecodeD `version v!"0.0.0"
+  let versionTags ← optDecodeD defaultVersionTags (t.find? `versionTags)
+    <| StrPat.decodeToml (presets := versionTagPresets)
+  let description ← t.tryDecodeD `description ""
+  let keywords ← t.tryDecodeD `keywords #[]
+  let homepage ← t.tryDecodeD `homepage ""
+  let license ← t.tryDecodeD `license ""
+  let licenseFiles : Array FilePath ← t.tryDecodeD `licenseFiles #["LICENSE"]
+  let readmeFile ← t.tryDecodeD `readmeFile "README.md"
+  let reservoir ← t.tryDecodeD `reservoir true
   let toLeanConfig ← tryDecode <| LeanConfig.decodeToml t
   let toWorkspaceConfig ← tryDecode <| WorkspaceConfig.decodeToml t
   return {
-    name, precompileModules, moreGlobalServerArgs,
-    srcDir, buildDir, leanLibDir, nativeLibDir, binDir, irDir,
+    name, precompileModules, moreGlobalServerArgs
+    srcDir, buildDir, leanLibDir, nativeLibDir, binDir, irDir
     releaseRepo, buildArchive?, preferReleaseBuild
     testDriver, testDriverArgs, lintDriver, lintDriverArgs
+    version, versionTags, description, keywords, homepage, reservoir
+    license, licenseFiles, readmeFile
     toLeanConfig, toWorkspaceConfig
   }
 

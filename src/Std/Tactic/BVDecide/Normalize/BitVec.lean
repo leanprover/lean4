@@ -34,8 +34,8 @@ attribute [bv_normalize] ge_iff_le
 theorem BitVec.truncate_eq_zeroExtend (x : BitVec w) : x.truncate n = x.zeroExtend n := by
   rfl
 
-attribute [bv_normalize] BitVec.msb_eq_getLsb_last
 attribute [bv_normalize] BitVec.extractLsb
+attribute [bv_normalize] BitVec.msb_eq_getLsbD_last
 attribute [bv_normalize] BitVec.slt_eq_ult
 attribute [bv_normalize] BitVec.sle_eq_not_slt
 
@@ -58,9 +58,9 @@ attribute [bv_normalize] BitVec.sub_self
 attribute [bv_normalize] BitVec.sub_zero
 attribute [bv_normalize] BitVec.zeroExtend_eq
 attribute [bv_normalize] BitVec.zeroExtend_zero
-attribute [bv_normalize] BitVec.getLsb_zero
-attribute [bv_normalize] BitVec.getLsb_zero_length
-attribute [bv_normalize] BitVec.getLsb_concat_zero
+attribute [bv_normalize] BitVec.getLsbD_zero
+attribute [bv_normalize] BitVec.getLsbD_zero_length
+attribute [bv_normalize] BitVec.getLsbD_concat_zero
 attribute [bv_normalize] BitVec.mul_one
 attribute [bv_normalize] BitVec.one_mul
 
@@ -124,12 +124,12 @@ theorem BitVec.neg_add (a : BitVec w) : (-a) + a = 0#w := by
 @[bv_normalize]
 theorem BitVec.zero_sshiftRight : BitVec.sshiftRight 0#w a = 0#w := by
   ext
-  simp [BitVec.getLsb_sshiftRight]
+  simp [BitVec.getLsbD_sshiftRight]
 
 @[bv_normalize]
 theorem BitVec.sshiftRight_zero : BitVec.sshiftRight a 0 = a := by
   ext
-  simp [BitVec.getLsb_sshiftRight]
+  simp [BitVec.getLsbD_sshiftRight]
 
 @[bv_normalize]
 theorem BitVec.mul_zero (a : BitVec w) : a * 0#w = 0#w := by

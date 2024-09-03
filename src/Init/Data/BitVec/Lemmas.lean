@@ -1166,7 +1166,7 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
     have t : y.getLsbD (w + v - 1) = false := getLsbD_ge _ _ (by omega)
     simp [h, q, t, BitVec.msb, getMsbD]
 
-@[simp] theorem truncate_append {x : BitVec w} {y : BitVec v} :
+theorem truncate_append {x : BitVec w} {y : BitVec v} :
     (x ++ y).truncate k = if h : k ≤ v then y.truncate k else (x.truncate (k - v) ++ y).cast (by omega) := by
   apply eq_of_getLsbD_eq
   intro i
@@ -1180,7 +1180,7 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
       simp [t, t']
 
 @[simp] theorem truncate_cons {x : BitVec w} : (cons a x).truncate w = x := by
-  simp [cons]
+  simp [cons, truncate_append]
 
 @[simp] theorem not_append {x : BitVec w} {y : BitVec v} : ~~~ (x ++ y) = (~~~ x) ++ (~~~ y) := by
   ext i
@@ -1765,14 +1765,12 @@ theorem getLsbD_twoPow (i j : Nat) : (twoPow w i).getLsbD j = ((i < w) && (i = j
           simp at hi
         simp_all
 
-@[simp]
 theorem and_twoPow (x : BitVec w) (i : Nat) :
     x &&& (twoPow w i) = if x.getLsbD i then twoPow w i else 0#w := by
   ext j
   simp only [getLsbD_and, getLsbD_twoPow]
   by_cases hj : i = j <;> by_cases hx : x.getLsbD i <;> simp_all
 
-@[simp]
 theorem twoPow_and (x : BitVec w) (i : Nat) :
     (twoPow w i) &&& x = if x.getLsbD i then twoPow w i else 0#w := by
   rw [BitVec.and_comm, and_twoPow]

@@ -322,7 +322,8 @@ theorem zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_twoPow (x : BitVec w
       · have hik'' : ¬ (k < i) := by omega
         simp [hik', hik'']
   · ext k
-    simp
+    simp only [and_twoPow, getLsbD_and, getLsbD_zeroExtend, Fin.is_lt, decide_True, Bool.true_and,
+      getLsbD_zero, and_eq_false_imp, and_eq_true, decide_eq_true_eq, and_imp]
     by_cases hi : x.getLsbD i <;> simp [hi] <;> omega
 
 /--
@@ -414,7 +415,7 @@ theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} :
     · simp only [h, ↓reduceIte]
       rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsbD_true h,
         shiftLeft_or_of_and_eq_zero]
-      simp
+      simp [and_twoPow]
     · simp only [h, false_eq_true, ↓reduceIte, shiftLeft_zero']
       rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsbD_false (i := n + 1)]
       simp [h]
@@ -474,7 +475,7 @@ theorem sshiftRightRec_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) :
     simp only [sshiftRightRec_succ_eq, and_twoPow, ih]
     by_cases h : y.getLsbD (n + 1)
     · rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsbD_true h,
-        sshiftRight'_or_of_and_eq_zero (by simp), h]
+        sshiftRight'_or_of_and_eq_zero (by simp [and_twoPow]), h]
       simp
     · rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsbD_false (i := n + 1)
         (by simp [h])]
@@ -540,7 +541,7 @@ theorem ushiftRightRec_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) :
     by_cases h : y.getLsbD (n + 1) <;> simp only [h, ↓reduceIte]
     · rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsbD_true h,
         ushiftRight'_or_of_and_eq_zero]
-      simp
+      simp [and_twoPow]
     · simp [zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsbD_false, h]
 
 /--

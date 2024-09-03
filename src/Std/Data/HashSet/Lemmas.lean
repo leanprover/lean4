@@ -321,19 +321,19 @@ theorem getKeyD_erase_self [EquivBEq α] [LawfulHashable α] {k fallback : α} :
     (m.erase k).getKeyD k fallback = fallback :=
   HashMap.getKeyD_erase_self
 
-theorem getKey?_eq_some_getKeyD_of_contains [EquivBEq α] [LawfulHashable α] {a : α}
-    {fallback : α} : m.contains a = true → m.getKey? a = some (m.getKeyD a fallback) :=
+theorem getKey?_eq_some_getKeyD_of_contains [EquivBEq α] [LawfulHashable α] {a fallback : α} :
+    m.contains a = true → m.getKey? a = some (m.getKeyD a fallback) :=
   HashMap.getKey?_eq_some_getKeyD_of_contains
 
-theorem getKey?_eq_some_getKeyD [EquivBEq α] [LawfulHashable α] {a : α} {fallback : α} :
+theorem getKey?_eq_some_getKeyD [EquivBEq α] [LawfulHashable α] {a fallback : α} :
     a ∈ m → m.getKey? a = some (m.getKeyD a fallback) :=
   HashMap.getKey?_eq_some_getKeyD
 
-theorem getKeyD_eq_getD_getKey? [EquivBEq α] [LawfulHashable α] {a : α} {fallback : α} :
+theorem getKeyD_eq_getD_getKey? [EquivBEq α] [LawfulHashable α] {a fallback : α} :
     m.getKeyD a fallback = (m.getKey? a).getD fallback :=
   HashMap.getKeyD_eq_getD_getKey?
 
-theorem getKey_eq_getKeyD [EquivBEq α] [LawfulHashable α] {a : α} {fallback : α} {h'} :
+theorem getKey_eq_getKeyD [EquivBEq α] [LawfulHashable α] {a fallback : α} {h'} :
     m.getKey a h' = m.getKeyD a fallback :=
   @HashMap.getKey_eq_getKeyD _ _ _ _ _ _ _ _ _ h'
 

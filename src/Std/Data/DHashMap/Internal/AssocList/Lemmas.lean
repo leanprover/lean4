@@ -125,7 +125,7 @@ theorem getKey_eq [BEq α] {l : AssocList α β} {a : α} {h} :
   · next k v t ih => simp only [getKey, toList_cons, List.getKey_cons, ih]
 
 @[simp]
-theorem getKeyD_eq [BEq α] {l : AssocList α β} {a : α} {fallback : α} :
+theorem getKeyD_eq [BEq α] {l : AssocList α β} {a fallback : α} :
     l.getKeyD a fallback = List.getKeyD a l.toList fallback := by
   induction l
   · simp [getKeyD, List.getKeyD]

@@ -533,6 +533,7 @@ def getKey? [BEq α] (a : α) : List ((a : α) × β a) → Option α
 
 @[simp] theorem getKey?_nil [BEq α] {a : α} :
     getKey? a ([] : List ((a : α) × β a)) = none := rfl
+
 @[simp] theorem getKey?_cons [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k} :
     getKey? a (⟨k, v⟩ :: l) = bif k == a then some k else getKey? a l := rfl
 
@@ -579,25 +580,25 @@ def getKeyD [BEq α] (a : α) (l : List ((a : α) × β a)) (fallback : α) : α
   (getKey? a l).getD fallback
 
 @[simp]
-theorem getKeyD_nil [BEq α] {a : α} {fallback : α} :
+theorem getKeyD_nil [BEq α] {a fallback : α} :
   getKeyD a ([] : List ((a : α) × β a)) fallback = fallback := rfl
 
-theorem getKeyD_eq_getKey? [BEq α] {l : List ((a : α) × β a)} {a : α}
-    {fallback : α} : getKeyD a l fallback = (getKey? a l).getD fallback := rfl
+theorem getKeyD_eq_getKey? [BEq α] {l : List ((a : α) × β a)} {a fallback : α} :
+  getKeyD a l fallback = (getKey? a l).getD fallback := rfl
 
-theorem getKeyD_eq_fallback [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} {a : α}
-    {fallback : α} (h : containsKey a l = false) : getKeyD a l fallback = fallback := by
+theorem getKeyD_eq_fallback [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} {a fallback : α}
+    (h : containsKey a l = false) : getKeyD a l fallback = fallback := by
   rw [containsKey_eq_isSome_getKey?, Bool.eq_false_iff, ne_eq,
     Option.not_isSome_iff_eq_none] at h
   rw [getKeyD_eq_getKey?, h, Option.getD_none]
 
-theorem getKey_eq_getKeyD [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} {a : α}
-    {fallback : α} (h : containsKey a l = true) :
+theorem getKey_eq_getKeyD [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} {a fallback : α}
+    (h : containsKey a l = true) :
     getKey a l h = getKeyD a l fallback := by
   rw [getKeyD_eq_getKey?, getKey, Option.get_eq_getD]
 
-theorem getKey?_eq_some_getKeyD [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} {a : α}
-    {fallback : α} (h : containsKey a l = true) :
+theorem getKey?_eq_some_getKeyD [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} {a fallback : α}
+    (h : containsKey a l = true) :
     getKey? a l = some (getKeyD a l fallback) := by
   rw [getKey?_eq_some_getKey h, getKey_eq_getKeyD]
 
@@ -606,29 +607,29 @@ def getKey! [BEq α] [Inhabited α] (a : α) (l : List ((a : α) × β a)) : α 
   (getKey? a l).get!
 
 @[simp]
-theorem getKey!_nil [BEq α] {a : α} [Inhabited α] :
+theorem getKey!_nil [BEq α] [Inhabited α] {a : α} :
     getKey! a ([] : List ((a : α) × β a)) = default := rfl
 
 theorem getKey!_eq_getKey? [BEq α] [Inhabited α] {l : List ((a : α) × β a)} {a : α} :
     getKey! a l = (getKey? a l).get! := rfl
 
-theorem getKey!_eq_default [BEq α] {l : List ((a : α) × β a)} {a : α}
-    [Inhabited α] (h : containsKey a l = false) : getKey! a l = default := by
+theorem getKey!_eq_default [BEq α] [Inhabited α] {l : List ((a : α) × β a)} {a : α}
+    (h : containsKey a l = false) : getKey! a l = default := by
   rw [containsKey_eq_isSome_getKey?, Bool.eq_false_iff, ne_eq,
     Option.not_isSome_iff_eq_none] at h
   rw [getKey!_eq_getKey?, h, Option.get!_none]
 
-theorem getKey_eq_getKey! [BEq α] {l : List ((a : α) × β a)} {a : α} [Inhabited α]
+theorem getKey_eq_getKey! [BEq α] [Inhabited α] {l : List ((a : α) × β a)} {a : α}
     (h : containsKey a l = true) : getKey a l h = getKey! a l := by
   rw [getKey!_eq_getKey?, getKey, Option.get_eq_get!]
 
-theorem getKey?_eq_some_getKey! [BEq α] {l : List ((a : α) × β a)} {a : α} [Inhabited α]
+theorem getKey?_eq_some_getKey! [BEq α] [Inhabited α] {l : List ((a : α) × β a)} {a : α}
     (h : containsKey a l = true) :
     getKey? a l = some (getKey! a l) := by
   rw [getKey?_eq_some_getKey h, getKey_eq_getKey!]
 
-theorem getKey!_eq_getKeyD_default [BEq α] [EquivBEq α] {l : List ((a : α) × β a)}
-    {a : α} [Inhabited α] : getKey! a l = getKeyD a l default := rfl
+theorem getKey!_eq_getKeyD_default [BEq α] [EquivBEq α] [Inhabited α] {l : List ((a : α) × β a)}
+    {a : α} : getKey! a l = getKeyD a l default := rfl
 
 /-- Internal implementation detail of the hash map -/
 def replaceEntry [BEq α] (k : α) (v : β k) : List ((a : α) × β a) → List ((a : α) × β a)
@@ -1105,22 +1106,22 @@ theorem getKey?_eq_none [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β 
     (h : containsKey a l = false) : getKey? a l = none := by
   rwa [← Option.not_isSome_iff_eq_none, ← containsKey_eq_isSome_getKey?, Bool.not_eq_true]
 
-theorem getKey!_insertEntry [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} {k a : α}
-    [Inhabited α] {v : β k} : getKey! a (insertEntry k v l) =
+theorem getKey!_insertEntry [BEq α] [EquivBEq α] [Inhabited α]  {l : List ((a : α) × β a)}
+    {k a : α} {v : β k} : getKey! a (insertEntry k v l) =
       if k == a then k else getKey! a l := by
   simp [getKey!_eq_getKey?, getKey?_insertEntry, apply_ite Option.get!]
 
-theorem getKey!_insertEntry_self [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} {k : α}
-    [Inhabited α] {v : β k} : getKey! k (insertEntry k v l) = k := by
+theorem getKey!_insertEntry_self [BEq α] [EquivBEq α] [Inhabited α] {l : List ((a : α) × β a)}
+    {k : α} {v : β k} : getKey! k (insertEntry k v l) = k := by
   rw [getKey!_insertEntry, if_pos BEq.refl]
 
-theorem getKeyD_insertEntry [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} {k a : α}
-    {v : β k} {fallback : α} : getKeyD a (insertEntry k v l) fallback =
+theorem getKeyD_insertEntry [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} {k a fallback : α}
+    {v : β k} : getKeyD a (insertEntry k v l) fallback =
       if k == a then k else getKeyD a l fallback := by
   simp [getKeyD_eq_getKey?, getKey?_insertEntry, apply_ite (fun x => Option.getD x fallback)]
 
-theorem getKeyD_insertEntry_self [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} {k : α}
-    {v : β k} {fallback : α} : getKeyD k (insertEntry k v l) fallback = k := by
+theorem getKeyD_insertEntry_self [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} {k fallback : α}
+    {v : β k} : getKeyD k (insertEntry k v l) fallback = k := by
   rw [getKeyD_insertEntry, if_pos BEq.refl]
 
 @[local simp]
@@ -1451,22 +1452,22 @@ theorem getKey?_eraseKey_self [BEq α] [PartialEquivBEq α] {l : List ((a : α) 
     (hl : DistinctKeys l) : getKey? k (eraseKey k l) = none := by
   simp [getKey?_eq_getEntry?, getEntry?_eraseKey_self hl]
 
-theorem getKey!_eraseKey [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)} {k a : α}
-    [Inhabited α] (hl : DistinctKeys l) :
+theorem getKey!_eraseKey [BEq α] [PartialEquivBEq α] [Inhabited α] {l : List ((a : α) × β a)}
+    {k a : α} (hl : DistinctKeys l) :
     getKey! a (eraseKey k l) = if k == a then default else getKey! a l := by
   simp [getKey!_eq_getKey?, getKey?_eraseKey hl, apply_ite Option.get!]
 
-theorem getKey!_eraseKey_self [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)} {k : α}
-    [Inhabited α] (hl : DistinctKeys l) : getKey! k (eraseKey k l) = default := by
+theorem getKey!_eraseKey_self [BEq α] [PartialEquivBEq α] [Inhabited α]  {l : List ((a : α) × β a)}
+    {k : α} (hl : DistinctKeys l) : getKey! k (eraseKey k l) = default := by
   simp [getKey!_eq_getKey?, getKey?_eraseKey_self hl]
 
-theorem getKeyD_eraseKey [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)} {k a : α}
-    {fallback : α} (hl : DistinctKeys l) :
+theorem getKeyD_eraseKey [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)} {k a fallback : α}
+    (hl : DistinctKeys l) :
     getKeyD a (eraseKey k l) fallback = if k == a then fallback else getKeyD a l fallback := by
   simp [getKeyD_eq_getKey?, getKey?_eraseKey hl, apply_ite (fun x => Option.getD x fallback)]
 
-theorem getKeyD_eraseKey_self [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)} {k : α}
-    {fallback : α} (hl : DistinctKeys l) : getKeyD k (eraseKey k l) fallback = fallback := by
+theorem getKeyD_eraseKey_self [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)}
+    {k fallback : α} (hl : DistinctKeys l) : getKeyD k (eraseKey k l) fallback = fallback := by
   simp [getKeyD_eq_getKey?, getKey?_eraseKey_self hl]
 
 theorem containsKey_eraseKey_self [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)} {k : α}
@@ -1645,15 +1646,15 @@ theorem getKey_of_perm [BEq α] [PartialEquivBEq α] {l l' : List ((a : α) × �
   rw [← Option.some_inj, ← getKey?_eq_some_getKey, ← getKey?_eq_some_getKey,
     getKey?_of_perm hl h]
 
-theorem getKeyD_of_perm [BEq α] [PartialEquivBEq α] {l l' : List ((a : α) × β a)} {a fallback : α}
-    (hl : DistinctKeys l) (h : Perm l l') :
-    getKeyD a l fallback = getKeyD a l' fallback := by
-  simp only [getKeyD_eq_getKey?, getKey?_of_perm hl h]
-
 theorem getKey!_of_perm [BEq α] [PartialEquivBEq α] [Inhabited α] {l l' : List ((a : α) × β a)}
     {a : α} (hl : DistinctKeys l) (h : Perm l l') :
     getKey! a l = getKey! a l' := by
   simp only [getKey!_eq_getKey?, getKey?_of_perm hl h]
+
+theorem getKeyD_of_perm [BEq α] [PartialEquivBEq α] {l l' : List ((a : α) × β a)} {a fallback : α}
+    (hl : DistinctKeys l) (h : Perm l l') :
+    getKeyD a l fallback = getKeyD a l' fallback := by
+  simp only [getKeyD_eq_getKey?, getKey?_of_perm hl h]
 
 theorem perm_cons_getEntry [BEq α] {l : List ((a : α) × β a)} {a : α} (h : containsKey a l) :
     ∃ l', Perm l (getEntry a l h :: l') := by

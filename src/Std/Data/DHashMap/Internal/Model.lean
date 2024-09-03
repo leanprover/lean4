@@ -370,7 +370,7 @@ theorem getKey?_eq_getKey?ₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α)
 theorem getKey_eq_getKeyₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (h : m.contains a) :
     getKey m a h = getKeyₘ m a h := rfl
 
-theorem getKeyD_eq_getKeyDₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : α) :
+theorem getKeyD_eq_getKeyDₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a fallback : α) :
     getKeyD m a fallback = getKeyDₘ m a fallback := by
   simp [getKeyD, getKeyDₘ, getKey?ₘ, List.getKeyD_eq_getKey?, bucket]
 

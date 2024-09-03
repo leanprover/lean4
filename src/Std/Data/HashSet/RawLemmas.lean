@@ -232,7 +232,7 @@ theorem getKey?_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
 
 theorem getKey_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {h₁} :
     (m.insert k).getKey a h₁ =
-      if h₂ : k == a ∧ ¬k ∈ m then k else m.getKey a (mem_of_mem_insert' h h₁ sorry) := 
+      if h₂ : k == a ∧ ¬k ∈ m then k else m.getKey a (mem_of_mem_insert' h h₁ h₂) :=
   HashMap.Raw.getKey_insertIfNew (h₁ := h₁) h.out
 
 @[simp]
@@ -265,7 +265,8 @@ theorem getKey!_insert [Inhabited α] [EquivBEq α] [LawfulHashable α] (h : m.W
     (m.insert k).getKey! a = if k == a ∧ ¬k ∈ m then k else m.getKey! a :=
   HashMap.Raw.getKey!_insertIfNew h.out
 
-theorem getKey!_eq_default_of_contains_eq_false [Inhabited α] [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+theorem getKey!_eq_default_of_contains_eq_false [Inhabited α] [EquivBEq α] [LawfulHashable α]
+    (h : m.WF) {a : α} :
     m.contains a = false → m.getKey! a = default :=
   HashMap.Raw.getKey!_eq_default_of_contains_eq_false h.out
 

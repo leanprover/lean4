@@ -98,9 +98,6 @@ instance [BEq α] [Hashable α] : Inhabited (DHashMap α β) where
     (a : α) : Option (β a) :=
   Raw₀.get? ⟨m.1, m.2.size_buckets_pos⟩ a
 
-@[inline, inherit_doc Raw.getKey?] def getKey? (m : DHashMap α β) (a : α) : Option α :=
-  Raw₀.getKey? ⟨m.1, m.2.size_buckets_pos⟩ a
-
 @[inline, inherit_doc Raw.contains] def contains (m : DHashMap α β) (a : α) :
     Bool :=
   Raw₀.contains ⟨m.1, m.2.size_buckets_pos⟩ a
@@ -122,6 +119,9 @@ instance [BEq α] [Hashable α] {m : DHashMap α β} {a : α} : Decidable (a ∈
 @[inline, inherit_doc Raw.getD] def getD [LawfulBEq α] (m : DHashMap α β)
     (a : α) (fallback : β a) : β a :=
   Raw₀.getD ⟨m.1, m.2.size_buckets_pos⟩ a fallback
+
+@[inline, inherit_doc Raw.getKey?] def getKey? (m : DHashMap α β) (a : α) : Option α :=
+  Raw₀.getKey? ⟨m.1, m.2.size_buckets_pos⟩ a
 
 @[inline, inherit_doc Raw.getKey] def getKey (m : DHashMap α β) (a : α) (h : a ∈ m) : α :=
   Raw₀.getKey ⟨m.1, m.2.size_buckets_pos⟩ a h

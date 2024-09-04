@@ -501,6 +501,18 @@ theorem getLsbD_truncate (m : Nat) (x : BitVec n) (i : Nat) :
 theorem msb_truncate (x : BitVec w) : (x.truncate (k + 1)).msb = x.getLsbD k := by
   simp [BitVec.msb, getMsbD]
 
+@[simp] theorem cast_zeroExtend (h : v = v') (x : BitVec w) :
+    cast h (zeroExtend v x) = zeroExtend v' x := by
+  subst h
+  ext
+  simp
+
+@[simp] theorem cast_truncate (h : v = v') (x : BitVec w) :
+    cast h (truncate v x) = truncate v' x := by
+  subst h
+  ext
+  simp
+
 @[simp] theorem zeroExtend_zeroExtend_of_le (x : BitVec w) (h : k ≤ l) :
     (x.zeroExtend l).zeroExtend k = x.zeroExtend k := by
   ext i
@@ -746,6 +758,10 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
   ext
   simp [h]
   omega
+
+@[simp] theorem not_zero : ~~~(0#n) = allOnes n := by
+  ext
+  simp
 
 /-! ### cast -/
 
@@ -1165,6 +1181,32 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
     have q : 0 < w + v := by omega
     have t : y.getLsbD (w + v - 1) = false := getLsbD_ge _ _ (by omega)
     simp [h, q, t, BitVec.msb, getMsbD]
+
+@[simp] theorem append_zero_width (x : BitVec w) (y : BitVec 0) : x ++ y = x := by
+  ext
+  rw [getLsbD_append] -- Why does this not work with `simp [getLsbD_append]`?
+  simp
+
+@[simp] theorem zero_width_append (x : BitVec 0) (y : BitVec v) : x ++ y = cast (by omega) y := by
+  ext
+  rw [getLsbD_append]
+  simpa using lt_of_getLsbD _ _
+
+@[simp] theorem cast_append_right (h : w + v = w + v') (x : BitVec w) (y : BitVec v) :
+    cast h (x ++ y) = x ++ cast (by omega) y := by
+  ext
+  simp only [getLsbD_cast, getLsbD_append, cond_eq_if, decide_eq_true_eq]
+  split <;> split
+  · rfl
+  · omega
+  · omega
+  · congr
+    omega
+
+@[simp] theorem cast_append_left (h : w + v = w' + v) (x : BitVec w) (y : BitVec v) :
+    cast h (x ++ y) = cast (by omega) x ++ y := by
+  ext
+  simp
 
 theorem truncate_append {x : BitVec w} {y : BitVec v} :
     (x ++ y).truncate k = if h : k ≤ v then y.truncate k else (x.truncate (k - v) ++ y).cast (by omega) := by

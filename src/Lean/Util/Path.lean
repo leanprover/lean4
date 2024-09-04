@@ -10,7 +10,6 @@ with a directory `A/`. `import A` resolves to `path/A.olean`.
 -/
 prelude
 import Init.System.IO
-import Init.Data.List.Control
 
 namespace Lean
 open System

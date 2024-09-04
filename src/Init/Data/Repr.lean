@@ -7,7 +7,7 @@ prelude
 import Init.Data.Format.Basic
 import Init.Data.Int.Basic
 import Init.Data.Nat.Div
-import Init.Data.UInt.Basic
+import Init.Data.UInt.BasicAux
 import Init.Control.Id
 open Sum Subtype Nat
 

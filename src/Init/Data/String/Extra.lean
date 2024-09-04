@@ -5,6 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Data.ByteArray
+import Init.Data.UInt.Basic
 
 namespace String
 

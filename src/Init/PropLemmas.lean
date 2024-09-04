@@ -483,7 +483,7 @@ theorem Decidable.iff_iff_and_or_not_and_not {a b : Prop} [Decidable b] :
 
 theorem Decidable.iff_iff_not_or_and_or_not [Decidable a] [Decidable b] :
     (a ↔ b) ↔ (¬a ∨ b) ∧ (a ∨ ¬b) := by
-  rw [iff_iff_implies_and_implies a b]; simp only [imp_iff_not_or, Or.comm]
+  rw [iff_iff_implies_and_implies (a := a) (b := b)]; simp only [imp_iff_not_or, Or.comm]
 
 theorem Decidable.not_and_not_right [Decidable b] : ¬(a ∧ ¬b) ↔ (a → b) :=
   ⟨fun h ha => not_imp_symm (And.intro ha) h, fun h ⟨ha, hb⟩ => hb <| h ha⟩

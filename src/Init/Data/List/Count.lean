@@ -230,14 +230,14 @@ theorem count_erase (a b : α) :
   | c :: l => by
     rw [erase_cons]
     if hc : c = b then
-      have hc_beq := (beq_iff_eq _ _).mpr hc
+      have hc_beq := beq_iff_eq.mpr hc
       rw [if_pos hc_beq, hc, count_cons, Nat.add_sub_cancel]
     else
       have hc_beq := beq_false_of_ne hc
       simp only [hc_beq, if_false, count_cons, count_cons, count_erase a b l, reduceCtorEq]
       if ha : b = a then
         rw [ha, eq_comm] at hc
-        rw [if_pos ((beq_iff_eq _ _).2 ha), if_neg (by simpa using Ne.symm hc), Nat.add_zero, Nat.add_zero]
+        rw [if_pos (beq_iff_eq.2 ha), if_neg (by simpa using Ne.symm hc), Nat.add_zero, Nat.add_zero]
       else
         rw [if_neg (by simpa using ha), Nat.sub_zero, Nat.sub_zero]
 

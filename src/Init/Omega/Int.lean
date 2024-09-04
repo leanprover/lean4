@@ -206,7 +206,7 @@ end Fin
 namespace Prod
 
 theorem of_lex (w : Prod.Lex r s p q) : r p.fst q.fst ∨ p.fst = q.fst ∧ s p.snd q.snd :=
-  (Prod.lex_def r s).mp w
+  Prod.lex_def.mp w
 
 theorem of_not_lex {α} {r : α → α → Prop} [DecidableEq α] {β} {s : β → β → Prop}
     {p q : α × β} (w : ¬ Prod.Lex r s p q) :

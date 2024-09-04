@@ -604,6 +604,15 @@ theorem extractLsb'_eq_extractLsb {w : Nat} (x : BitVec w) (start len : Nat) (h 
 @[simp] theorem getLsbD_allOnes : (allOnes v).getLsbD i = decide (i < v) := by
   simp [allOnes]
 
+@[simp] theorem ofFin_add_rev (x : Fin (2^n)) : ofFin (x + x.rev) = allOnes n := by
+  ext
+  simp only [Fin.rev, getLsbD_ofFin, getLsbD_allOnes, Fin.is_lt, decide_True]
+  rw [Fin.add_def]
+  simp only [Nat.testBit_mod_two_pow, Fin.is_lt, decide_True, Bool.true_and]
+  have h : (x : Nat) + (2 ^ n - (x + 1)) = 2 ^ n - 1 := by omega
+  rw [h, Nat.testBit_two_pow_sub_one]
+  simp
+
 /-! ### or -/
 
 @[simp] theorem toNat_or (x y : BitVec v) :

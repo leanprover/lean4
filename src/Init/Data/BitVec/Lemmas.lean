@@ -461,6 +461,26 @@ theorem nat_eq_toNat (x : BitVec w) (y : Nat)
   rw [@eq_comm _ _ x.toNat]
   apply toNat_eq_nat
 
+theorem getElem_zeroExtend' (x : BitVec w) (i : Nat) (h : w ≤ v) (hi : i < v) :
+    (zeroExtend' h x)[i] = x.getLsbD i := by
+  rw [getElem_eq_testBit_toNat, toNat_zeroExtend', getLsbD]
+
+theorem getElem_zeroExtend (m : Nat) (x : BitVec n) (i : Nat) (h : i < m) :
+    (zeroExtend m x)[i] = x.getLsbD i := by
+  rw [zeroExtend]
+  split
+  · rw [getElem_zeroExtend']
+  · simp [getElem_eq_testBit_toNat, getLsbD]
+    omega
+
+theorem getElem?_zeroExtend' (x : BitVec w) (i : Nat) (h : w ≤ v) :
+    (zeroExtend' h x)[i]? = if i < v then some (x.getLsbD i) else none := by
+  simp [getElem?_eq, getElem_zeroExtend']
+
+theorem getElem?_zeroExtend (m : Nat) (x : BitVec n) (i : Nat) :
+    (x.zeroExtend m)[i]? = if i < m then some (x.getLsbD i) else none := by
+  simp [getElem?_eq, getElem_zeroExtend]
+
 @[simp] theorem getLsbD_zeroExtend' (ge : m ≥ n) (x : BitVec n) (i : Nat) :
     getLsbD (zeroExtend' ge x) i = getLsbD x i := by
   simp [getLsbD, toNat_zeroExtend']

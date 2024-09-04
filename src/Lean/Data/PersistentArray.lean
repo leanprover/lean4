@@ -7,6 +7,7 @@ prelude
 import Init.Data.Array.Basic
 import Init.NotationExtra
 import Init.Data.ToString.Macro
+import Init.Data.UInt.Basic
 
 universe u v w
 

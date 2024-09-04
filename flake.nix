@@ -39,7 +39,10 @@
           CTEST_OUTPUT_ON_FAILURE = 1;
         } // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
           GMP = pkgsDist.gmp.override { withStatic = true; };
-          LIBUV = pkgsDist.libuv.overrideAttrs (attrs: { configureFlags = ["--enable-static"]; });
+          LIBUV = pkgsDist.libuv.overrideAttrs (attrs: {
+            configureFlags = ["--enable-static"];
+            version = "1.48.0";
+          });
           GLIBC = pkgsDist.glibc;
           GLIBC_DEV = pkgsDist.glibc.dev;
           GCC_LIB = pkgsDist.gcc.cc.lib;

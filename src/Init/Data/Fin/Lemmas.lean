@@ -54,6 +54,11 @@ theorem mk_val (i : Fin n) : (⟨i, i.isLt⟩ : Fin n) = i := Fin.eta ..
 @[simp] theorem val_ofNat' (a : Nat) (is_pos : n > 0) :
   (Fin.ofNat' a is_pos).val = a % n := rfl
 
+@[simp] theorem ofNat'_val_eq_self (x : Fin n) (h) : (Fin.ofNat' x h) = x := by
+  ext
+  rw [val_ofNat', Nat.mod_eq_of_lt]
+  exact x.2
+
 @[simp] theorem mod_val (a b : Fin n) : (a % b).val = a.val % b.val :=
   rfl
 

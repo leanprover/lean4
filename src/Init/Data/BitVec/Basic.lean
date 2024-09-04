@@ -22,36 +22,6 @@ of SMT-LIBv2.
 
 set_option linter.missingDocs true
 
-/--
-A bitvector of the specified width.
-
-This is represented as the underlying `Nat` number in both the runtime
-and the kernel, inheriting all the special support for `Nat`.
--/
-structure BitVec (w : Nat) where
-  /-- Construct a `BitVec w` from a number less than `2^w`.
-  O(1), because we use `Fin` as the internal representation of a bitvector. -/
-  ofFin ::
-  /-- Interpret a bitvector as a number less than `2^w`.
-  O(1), because we use `Fin` as the internal representation of a bitvector. -/
-  toFin : Fin (2^w)
-
-/--
-Bitvectors have decidable equality. This should be used via the instance `DecidableEq (BitVec n)`.
--/
--- We manually derive the `DecidableEq` instances for `BitVec` because
--- we want to have builtin support for bit-vector literals, and we
--- need a name for this function to implement `canUnfoldAtMatcher` at `WHNF.lean`.
-def BitVec.decEq (x y : BitVec n) : Decidable (x = y) :=
-  match x, y with
-  | ⟨n⟩, ⟨m⟩ =>
-    if h : n = m then
-      isTrue (h ▸ rfl)
-    else
-      isFalse (fun h' => BitVec.noConfusion h' (fun h' => absurd h' h))
-
-instance : DecidableEq (BitVec n) := BitVec.decEq
-
 namespace BitVec
 
 section Nat

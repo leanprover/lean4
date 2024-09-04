@@ -1150,7 +1150,7 @@ theorem emod_bmod {x : Int} {m : Nat} : bmod (x % m) m = bmod x m := by
 
 @[simp] theorem bmod_zero : Int.bmod 0 m = 0 := by
   dsimp [bmod]
-  simp only [zero_emod, Int.zero_sub, ite_eq_left_iff, Int.neg_eq_zero]
+  simp only [Int.zero_sub, ite_eq_left_iff, Int.neg_eq_zero]
   intro h
   rw [@Int.not_lt] at h
   match m with

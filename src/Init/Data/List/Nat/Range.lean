@@ -124,9 +124,8 @@ theorem range'_eq_append_iff : range' s n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs =
       intro a a₁ a₂
       exact h₃ a a₁ (by omega)
 
-@[simp] theorem find?_range'_eq_none (s n : Nat) (p : Nat → Bool) :
+theorem find?_range'_eq_none (s n : Nat) (p : Nat → Bool) :
     (range' s n).find? p = none ↔ ∀ i, s ≤ i → i < s + n → !p i := by
-  rw [find?_eq_none]
   simp
 
 theorem erase_range' :
@@ -186,9 +185,9 @@ theorem nodup_range (n : Nat) : Nodup (range n) := by
     (range n).find? p = some i ↔ p i ∧ i ∈ range n ∧ ∀ j, j < i → !p j := by
   simp [range_eq_range']
 
-@[simp] theorem find?_range_eq_none (n : Nat) (p : Nat → Bool) :
+theorem find?_range_eq_none (n : Nat) (p : Nat → Bool) :
     (range n).find? p = none ↔ ∀ i, i < n → !p i := by
-  simp [range_eq_range']
+  simp
 
 theorem erase_range : (range n).erase i = range (min n i) ++ range' (i + 1) (n - (i + 1)) := by
   simp [range_eq_range', erase_range']
@@ -273,9 +272,8 @@ theorem nodup_iota (n : Nat) : Nodup (iota n) :=
   rw [getLast_eq_head_reverse]
   simp
 
-@[simp] theorem find?_iota_eq_none (n : Nat) (p : Nat → Bool) :
+theorem find?_iota_eq_none (n : Nat) (p : Nat → Bool) :
     (iota n).find? p = none ↔ ∀ i, 0 < i → i ≤ n → !p i := by
-  rw [find?_eq_none]
   simp
 
 @[simp] theorem find?_iota_eq_some (n : Nat) (i : Nat) (p : Nat → Bool) :

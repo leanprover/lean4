@@ -263,6 +263,7 @@ extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_obj_arg fname)
     case UV_EBADF: case UV_EINVAL: case UV_EILSEQ:
     case UV_ENOTCONN: case UV_ENOTSOCK:
         if (fname == nullptr) {
+            printf("fname is null\n");
             return lean_mk_io_error_invalid_argument(errnum, details);
         } else {
             inc_ref(fname);
@@ -927,7 +928,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_rename(b_obj_arg from, b_obj_arg to, lean
 /* createTempFile : IO (Handle × FilePath) */
 extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile(lean_object * /* w */) {
     char path[PATH_MAX];
-    size_t base_len;
+    size_t base_len = PATH_MAX;
     int ret = uv_os_tmpdir(path, &base_len);
     if (ret < 0) {
         return io_result_mk_error(decode_uv_error(ret, nullptr));

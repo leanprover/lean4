@@ -40,7 +40,7 @@ theorem apply_ite (f : α → β) (P : Prop) [Decidable P] (x y : α) :
 /-- A `dite` whose results do not actually depend on the condition may be reduced to an `ite`. -/
 @[simp] theorem dite_eq_ite [Decidable P] : (dite P (fun _ => a) fun _ => b) = ite P a b := rfl
 
--- We don't mark this as `simp` as it is already handled by `ite_eq_else`.
+-- We don't mark this as `simp` as it is already handled by `ite_eq_right_iff`.
 theorem ite_some_none_eq_none [Decidable P] :
     (if P then some x else none) = none ↔ ¬ P := by
   simp only [ite_eq_right_iff, reduceCtorEq]
@@ -50,7 +50,7 @@ theorem ite_some_none_eq_none [Decidable P] :
     (if P then some x else none) = some y ↔ P ∧ x = y := by
   split <;> simp_all
 
--- This is not marked as `simp` as it is already handled by `dite_eq_else`.
+-- This is not marked as `simp` as it is already handled by `dite_eq_right_iff`.
 theorem dite_some_none_eq_none [Decidable P] {x : P → α} :
     (if h : P then some (x h) else none) = none ↔ ¬P := by
   simp

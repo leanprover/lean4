@@ -235,7 +235,6 @@ private def normPrivateName? (declName : Name) : MetaM (Option Name) := do
   Remark: `danglingDot == true` when the completion point is an identifier followed by `.`.
 -/
 private def matchDecl? (ns : Name) (id : Name) (danglingDot : Bool) (declName : Name) : MetaM (Option (Name × Float)) := do
-  -- dbg_trace "{ns}, {id}, {declName}, {danglingDot}"
   let some declName ← normPrivateName? declName
     | return none
   if !ns.isPrefixOf declName then
@@ -333,7 +332,6 @@ private def idCompletionCore
   if let HoverInfo.inside delta := hoverInfo then
     id := truncate id delta
     danglingDot := false
-  -- dbg_trace ">> id {id} : {expectedType?}"
   if id.isAtomic then
     -- search for matches in the local context
     for localDecl in (← getLCtx) do
@@ -679,36 +677,47 @@ where
       : Option (HoverInfo × ContextInfo × Info) :=
     if !info.isCompletion then
       best?
-    else if info.occursInside? hoverPos |>.isSome then
-      let headPos          := info.pos?.get!
+    else if info.occursInOrOnBoundary hoverPos then
+      let headPos := info.pos?.get!
+      let tailPos := info.tailPos?.get!
+      let hoverInfo :=
+        if hoverPos < tailPos then
+          HoverInfo.inside (hoverPos - headPos).byteIdx
+        else
+          HoverInfo.after
       let ⟨headPosLine, _⟩ := fileMap.toPosition headPos
       let ⟨tailPosLine, _⟩ := fileMap.toPosition info.tailPos?.get!
       if headPosLine != hoverLine || headPosLine != tailPosLine then
         best?
       else match best? with
-        | none                         => (HoverInfo.inside (hoverPos - headPos).byteIdx, ctx, info)
-        | some (HoverInfo.after, _, _) => (HoverInfo.inside (hoverPos - headPos).byteIdx, ctx, info)
+        | none              => (hoverInfo, ctx, info)
         | some (_, _, best) =>
-          if info.isSmaller best then
-            (HoverInfo.inside (hoverPos - headPos).byteIdx, ctx, info)
-          else
-            best?
-    else if let some (HoverInfo.inside _, _, _) := best? then
-      -- We assume the "inside matches" have precedence over "before ones".
-      best?
-    else if info.occursDirectlyBefore hoverPos then
-      let pos := info.tailPos?.get!
-      let ⟨line, _⟩ := fileMap.toPosition pos
-      if line != hoverLine then best?
-      else match best? with
-        | none => (HoverInfo.after, ctx, info)
-        | some (_, _, best) =>
-          if info.isSmaller best then
-            (HoverInfo.after, ctx, info)
+          if isBetter info best then
+            (hoverInfo, ctx, info)
           else
             best?
     else
       best?
+
+  isBetter : Info → Info → Bool
+    | i₁@(.ofCompletionInfo ci₁), i₂@(.ofCompletionInfo ci₂) =>
+      -- Use the smallest info available and prefer non-id completion over id completions as a
+      -- tie-breaker.
+      -- This is necessary because the elaborator sometimes generates both for the same range.
+      -- If two infos are equivalent, always prefer the first one.
+      if i₁.isSmaller i₂ then
+        true
+      else if i₂.isSmaller i₁ then
+        false
+      else if !(ci₁ matches .id ..) && ci₂ matches .id .. then
+        true
+      else if ci₁ matches .id .. && !(ci₂ matches .id ..) then
+        false
+      else
+        true
+    | .ofCompletionInfo _, _ => true
+    | _, .ofCompletionInfo _ => false
+    | _, _ => true
 
 /--
 Assigns the `CompletionItem.sortText?` for all items in `completions` according to their order

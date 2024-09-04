@@ -38,8 +38,8 @@ The following operations were already given `@[csimp]` replacements in `Init/Dat
 `length`, `map`, `filter`, `replicate`, `leftPad`, `unzip`, `range'`, `iota`, `intersperse`.
 
 The following operations are given `@[csimp]` replacements below:
-``set`, `filterMap`, `foldr`, `append`, `bind`, `join`,
-`take`, `takeWhile`, `dropLast`, `replace`, `erase`, `eraseIdx`, `zipWith`, ,
+`set`, `filterMap`, `foldr`, `append`, `bind`, `join`,
+`take`, `takeWhile`, `dropLast`, `replace`, `erase`, `eraseIdx`, `zipWith`,
 `enumFrom`, and `intercalate`.
 
 -/

@@ -831,7 +831,7 @@ theorem isPrefix_iff : l₁ <+: l₂ ↔ ∀ i (h : i < l₁.length), l₂[i]? =
 
 -- See `Init.Data.List.Nat.Sublist` for `isSuffix_iff` and `ifInfix_iff`.
 
-theorem isPrefix_filterMap_iff {β} (f : α → Option β) {l₁ : List α} {l₂ : List β} :
+theorem isPrefix_filterMap_iff {β} {f : α → Option β} {l₁ : List α} {l₂ : List β} :
     l₂ <+: filterMap f l₁ ↔ ∃ l, l <+: l₁ ∧ l₂ = filterMap f l := by
   simp only [IsPrefix, append_eq_filterMap]
   constructor
@@ -840,7 +840,7 @@ theorem isPrefix_filterMap_iff {β} (f : α → Option β) {l₁ : List α} {l�
   · rintro ⟨l₁, ⟨l₂, rfl⟩, rfl⟩
     exact ⟨_, l₁, l₂, rfl, rfl, rfl⟩
 
-theorem isSuffix_filterMap_iff {β} (f : α → Option β) {l₁ : List α} {l₂ : List β} :
+theorem isSuffix_filterMap_iff {β} {f : α → Option β} {l₁ : List α} {l₂ : List β} :
     l₂ <:+ filterMap f l₁ ↔ ∃ l, l <:+ l₁ ∧ l₂ = filterMap f l := by
   simp only [IsSuffix, append_eq_filterMap]
   constructor
@@ -849,7 +849,7 @@ theorem isSuffix_filterMap_iff {β} (f : α → Option β) {l₁ : List α} {l�
   · rintro ⟨l₁, ⟨l₂, rfl⟩, rfl⟩
     exact ⟨_, l₂, l₁, rfl, rfl, rfl⟩
 
-theorem isInfix_filterMap_iff {β} (f : α → Option β) {l₁ : List α} {l₂ : List β} :
+theorem isInfix_filterMap_iff {β} {f : α → Option β} {l₁ : List α} {l₂ : List β} :
     l₂ <:+: filterMap f l₁ ↔ ∃ l, l <:+: l₁ ∧ l₂ = filterMap f l := by
   simp only [IsInfix, append_eq_filterMap, filterMap_eq_append]
   constructor
@@ -870,15 +870,15 @@ theorem isInfix_filter_iff {p : α → Bool} {l₁ l₂ : List α} :
     l₂ <:+: l₁.filter p ↔ ∃ l, l <:+: l₁ ∧ l₂ = l.filter p := by
   rw [← filterMap_eq_filter, isInfix_filterMap_iff]
 
-theorem isPrefix_map_iff {β} (f : α → β) {l₁ : List α} {l₂ : List β} :
+theorem isPrefix_map_iff {β} {f : α → β} {l₁ : List α} {l₂ : List β} :
     l₂ <+: l₁.map f ↔ ∃ l, l <+: l₁ ∧ l₂ = l.map f := by
   rw [← filterMap_eq_map, isPrefix_filterMap_iff]
 
-theorem isSuffix_map_iff {β} (f : α → β) {l₁ : List α} {l₂ : List β} :
+theorem isSuffix_map_iff {β} {f : α → β} {l₁ : List α} {l₂ : List β} :
     l₂ <:+ l₁.map f ↔ ∃ l, l <:+ l₁ ∧ l₂ = l.map f := by
   rw [← filterMap_eq_map, isSuffix_filterMap_iff]
 
-theorem isInfix_map_iff {β} (f : α → β) {l₁ : List α} {l₂ : List β} :
+theorem isInfix_map_iff {β} {f : α → β} {l₁ : List α} {l₂ : List β} :
     l₂ <:+: l₁.map f ↔ ∃ l, l <:+: l₁ ∧ l₂ = l.map f := by
   rw [← filterMap_eq_map, isInfix_filterMap_iff]
 

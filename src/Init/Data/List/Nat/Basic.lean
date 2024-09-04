@@ -20,7 +20,7 @@ namespace List
 
 /-! ### filter -/
 
-theorem length_filter_lt_length_iff_exists (l) :
+theorem length_filter_lt_length_iff_exists {l} :
     length (filter p l) < length l ↔ ∃ x ∈ l, ¬p x := by
   simpa [length_eq_countP_add_countP p l, countP_eq_length_filter] using
     countP_pos (p := fun x => ¬p x)

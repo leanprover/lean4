@@ -106,7 +106,7 @@ theorem range'_eq_append_iff : range' s n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs =
         simp_all
         omega
 
-@[simp] theorem find?_range'_eq_some (s n : Nat) (i : Nat) (p : Nat → Bool) :
+@[simp] theorem find?_range'_eq_some {s n : Nat} {i : Nat} {p : Nat → Bool} :
     (range' s n).find? p = some i ↔ p i ∧ i ∈ range' s n ∧ ∀ j, s ≤ j → j < i → !p j := by
   rw [find?_eq_some]
   simp only [Bool.not_eq_true', exists_and_right, mem_range'_1, and_congr_right_iff]
@@ -124,7 +124,7 @@ theorem range'_eq_append_iff : range' s n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs =
       intro a a₁ a₂
       exact h₃ a a₁ (by omega)
 
-@[simp] theorem find?_range'_eq_none (s n : Nat) (p : Nat → Bool) :
+@[simp] theorem find?_range'_eq_none {s n : Nat} {p : Nat → Bool} :
     (range' s n).find? p = none ↔ ∀ i, s ≤ i → i < s + n → !p i := by
   rw [find?_eq_none]
   simp
@@ -182,11 +182,11 @@ theorem take_range (m n : Nat) : take m (range n) = range (min m n) := by
 theorem nodup_range (n : Nat) : Nodup (range n) := by
   simp (config := {decide := true}) only [range_eq_range', nodup_range']
 
-@[simp] theorem find?_range_eq_some (n : Nat) (i : Nat) (p : Nat → Bool) :
+@[simp] theorem find?_range_eq_some {n : Nat} {i : Nat} {p : Nat → Bool} :
     (range n).find? p = some i ↔ p i ∧ i ∈ range n ∧ ∀ j, j < i → !p j := by
   simp [range_eq_range']
 
-@[simp] theorem find?_range_eq_none (n : Nat) (p : Nat → Bool) :
+@[simp] theorem find?_range_eq_none {n : Nat} {p : Nat → Bool} :
     (range n).find? p = none ↔ ∀ i, i < n → !p i := by
   simp [range_eq_range']
 
@@ -201,10 +201,10 @@ theorem iota_eq_reverse_range' : ∀ n : Nat, iota n = reverse (range' 1 n)
 
 @[simp] theorem length_iota (n : Nat) : length (iota n) = n := by simp [iota_eq_reverse_range']
 
-@[simp] theorem iota_eq_nil (n : Nat) : iota n = [] ↔ n = 0 := by
+@[simp] theorem iota_eq_nil {n : Nat} : iota n = [] ↔ n = 0 := by
   cases n <;> simp
 
-theorem iota_ne_nil (n : Nat) : iota n ≠ [] ↔ n ≠ 0 := by
+theorem iota_ne_nil {n : Nat} : iota n ≠ [] ↔ n ≠ 0 := by
   cases n <;> simp
 
 @[simp]
@@ -273,12 +273,12 @@ theorem nodup_iota (n : Nat) : Nodup (iota n) :=
   rw [getLast_eq_head_reverse]
   simp
 
-@[simp] theorem find?_iota_eq_none (n : Nat) (p : Nat → Bool) :
+@[simp] theorem find?_iota_eq_none {n : Nat} {p : Nat → Bool} :
     (iota n).find? p = none ↔ ∀ i, 0 < i → i ≤ n → !p i := by
   rw [find?_eq_none]
   simp
 
-@[simp] theorem find?_iota_eq_some (n : Nat) (i : Nat) (p : Nat → Bool) :
+@[simp] theorem find?_iota_eq_some {n : Nat} {i : Nat} {p : Nat → Bool} :
     (iota n).find? p = some i ↔ p i ∧ i ∈ iota n ∧ ∀ j, i < j → j ≤ n → !p j := by
   rw [find?_eq_some]
   simp only [iota_eq_reverse_range', reverse_eq_append, reverse_cons, append_assoc,

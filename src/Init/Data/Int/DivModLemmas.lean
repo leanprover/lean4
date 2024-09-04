@@ -600,7 +600,7 @@ theorem dvd_emod_sub_self {x : Int} {m : Nat} : (m : Int) ∣ x % m - x := by
 theorem emod_eq_zero_of_dvd : ∀ {a b : Int}, a ∣ b → b % a = 0
   | _, _, ⟨_, rfl⟩ => mul_emod_right ..
 
-theorem dvd_iff_emod_eq_zero (a b : Int) : a ∣ b ↔ b % a = 0 :=
+theorem dvd_iff_emod_eq_zero {a b : Int} : a ∣ b ↔ b % a = 0 :=
   ⟨emod_eq_zero_of_dvd, dvd_of_emod_eq_zero⟩
 
 @[simp] theorem neg_mul_emod_left (a b : Int) : -(a * b) % b = 0 := by
@@ -784,7 +784,7 @@ protected theorem lt_ediv_of_mul_lt {a b c : Int} (H1 : 0 ≤ b) (H2 : b ∣ c) 
     a < c / b :=
   Int.lt_of_not_ge <| mt (Int.le_mul_of_ediv_le H1 H2) (Int.not_le_of_gt H3)
 
-protected theorem lt_ediv_iff_mul_lt {a b : Int} (c : Int) (H : 0 < c) (H' : c ∣ b) :
+protected theorem lt_ediv_iff_mul_lt {a b : Int} {c : Int} (H : 0 < c) (H' : c ∣ b) :
     a < b / c ↔ a * c < b :=
   ⟨Int.mul_lt_of_lt_ediv H, Int.lt_ediv_of_mul_lt (Int.le_of_lt H) H'⟩
 
@@ -918,7 +918,7 @@ theorem mod_nonneg : ∀ {a : Int} (b : Int), 0 ≤ a → 0 ≤ mod a b
 theorem mod_eq_zero_of_dvd : ∀ {a b : Int}, a ∣ b → mod b a = 0
   | _, _, ⟨_, rfl⟩ => mul_mod_right ..
 
-theorem dvd_iff_mod_eq_zero (a b : Int) : a ∣ b ↔ mod b a = 0 :=
+theorem dvd_iff_mod_eq_zero {a b : Int} : a ∣ b ↔ mod b a = 0 :=
   ⟨mod_eq_zero_of_dvd, dvd_of_mod_eq_zero⟩
 
 @[simp] theorem neg_mul_mod_right (a b : Int) : (-(a * b)).mod a = 0 := by

@@ -68,13 +68,13 @@ theorem countP_le_length : countP p l ≤ l.length := by
 @[simp] theorem countP_append (l₁ l₂) : countP p (l₁ ++ l₂) = countP p l₁ + countP p l₂ := by
   simp only [countP_eq_length_filter, filter_append, length_append]
 
-theorem countP_pos : 0 < countP p l ↔ ∃ a ∈ l, p a := by
+theorem countP_pos {p} : 0 < countP p l ↔ ∃ a ∈ l, p a := by
   simp only [countP_eq_length_filter, length_pos_iff_exists_mem, mem_filter, exists_prop]
 
-theorem countP_eq_zero : countP p l = 0 ↔ ∀ a ∈ l, ¬p a := by
+theorem countP_eq_zero {p} : countP p l = 0 ↔ ∀ a ∈ l, ¬p a := by
   simp only [countP_eq_length_filter, length_eq_zero, filter_eq_nil]
 
-theorem countP_eq_length : countP p l = l.length ↔ ∀ a ∈ l, p a := by
+theorem countP_eq_length {p} : countP p l = l.length ↔ ∀ a ∈ l, p a := by
   rw [countP_eq_length_filter, filter_length_eq_length]
 
 theorem Sublist.countP_le (s : l₁ <+ l₂) : countP p l₁ ≤ countP p l₂ := by
@@ -230,14 +230,14 @@ theorem count_erase (a b : α) :
   | c :: l => by
     rw [erase_cons]
     if hc : c = b then
-      have hc_beq := (beq_iff_eq _ _).mpr hc
+      have hc_beq := beq_iff_eq.mpr hc
       rw [if_pos hc_beq, hc, count_cons, Nat.add_sub_cancel]
     else
       have hc_beq := beq_false_of_ne hc
       simp only [hc_beq, if_false, count_cons, count_cons, count_erase a b l, reduceCtorEq]
       if ha : b = a then
         rw [ha, eq_comm] at hc
-        rw [if_pos ((beq_iff_eq _ _).2 ha), if_neg (by simpa using Ne.symm hc), Nat.add_zero, Nat.add_zero]
+        rw [if_pos (beq_iff_eq.2 ha), if_neg (by simpa using Ne.symm hc), Nat.add_zero, Nat.add_zero]
       else
         rw [if_neg (by simpa using ha), Nat.sub_zero, Nat.sub_zero]
 

@@ -800,7 +800,7 @@ theorem cast_heq {α β : Sort u} : (h : α = β) → (a : α) → HEq (cast h a
 
 variable {a b c d : Prop}
 
-theorem iff_iff_implies_and_implies (a b : Prop) : (a ↔ b) ↔ (a → b) ∧ (b → a) :=
+theorem iff_iff_implies_and_implies {a b : Prop} : (a ↔ b) ↔ (a → b) ∧ (b → a) :=
   Iff.intro (fun h => And.intro h.mp h.mpr) (fun h => Iff.intro h.left h.right)
 
 theorem Iff.refl (a : Prop) : a ↔ a :=
@@ -896,7 +896,7 @@ theorem byContradiction [dec : Decidable p] (h : ¬p → False) : p :=
 theorem of_not_not [Decidable p] : ¬ ¬ p → p :=
   fun hnn => byContradiction (fun hn => absurd hn hnn)
 
-theorem not_and_iff_or_not (p q : Prop) [d₁ : Decidable p] [d₂ : Decidable q] : ¬ (p ∧ q) ↔ ¬ p ∨ ¬ q :=
+theorem not_and_iff_or_not {p q : Prop} [d₁ : Decidable p] [d₂ : Decidable q] : ¬ (p ∧ q) ↔ ¬ p ∨ ¬ q :=
   Iff.intro
     (fun h => match d₁, d₂ with
       | isTrue h₁,  isTrue h₂   => absurd (And.intro h₁ h₂) h
@@ -1351,7 +1351,7 @@ theorem Nat.succ.inj {m n : Nat} : m.succ = n.succ → m = n :=
 theorem Nat.succ.injEq (u v : Nat) : (u.succ = v.succ) = (u = v) :=
   Eq.propIntro Nat.succ.inj (congrArg Nat.succ)
 
-@[simp] theorem beq_iff_eq [BEq α] [LawfulBEq α] (a b : α) : a == b ↔ a = b :=
+@[simp] theorem beq_iff_eq [BEq α] [LawfulBEq α] {a b : α} : a == b ↔ a = b :=
   ⟨eq_of_beq, by intro h; subst h; exact LawfulBEq.rfl⟩
 
 /-! # Prop lemmas -/
@@ -1416,7 +1416,7 @@ theorem false_of_true_eq_false  (h : True = False) : False := false_of_true_iff_
 
 theorem true_eq_false_of_false : False → (True = False) := False.elim
 
-theorem iff_def  : (a ↔ b) ↔ (a → b) ∧ (b → a) := iff_iff_implies_and_implies a b
+theorem iff_def  : (a ↔ b) ↔ (a → b) ∧ (b → a) := iff_iff_implies_and_implies
 theorem iff_def' : (a ↔ b) ↔ (b → a) ∧ (a → b) := Iff.trans iff_def And.comm
 
 theorem true_iff_false : (True ↔ False) ↔ False := iff_false_intro (·.mp  True.intro)
@@ -1444,7 +1444,7 @@ theorem imp_true_iff (α : Sort u) : (α → True) ↔ True := iff_true_intro (f
 
 theorem false_imp_iff (a : Prop) : (False → a) ↔ True := iff_true_intro False.elim
 
-theorem true_imp_iff (α : Prop) : (True → α) ↔ α := imp_iff_right True.intro
+theorem true_imp_iff {α : Prop} : (True → α) ↔ α := imp_iff_right True.intro
 
 @[simp high] theorem imp_self : (a → a) ↔ True := iff_true_intro id
 

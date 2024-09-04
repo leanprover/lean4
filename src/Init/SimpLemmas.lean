@@ -188,9 +188,9 @@ theorem or_iff_left_of_imp  (hb : b → a) : (a ∨ b) ↔ a  := Iff.intro (Or.r
 @[simp] theorem or_iff_left_iff_imp  : (a ∨ b ↔ a) ↔ (b → a) := Iff.intro (·.mp ∘ Or.inr) or_iff_left_of_imp
 @[simp] theorem or_iff_right_iff_imp : (a ∨ b ↔ b) ↔ (a → b) := by rw [or_comm, or_iff_left_iff_imp]
 
-@[simp] theorem iff_self_or (a b : Prop) : (a ↔ a ∨ b) ↔ (b → a) :=
+@[simp] theorem iff_self_or {a b : Prop} : (a ↔ a ∨ b) ↔ (b → a) :=
   propext (@Iff.comm _ a) ▸ @or_iff_left_iff_imp a b
-@[simp] theorem iff_or_self (a b : Prop) : (b ↔ a ∨ b) ↔ (a → b) :=
+@[simp] theorem iff_or_self {a b : Prop} : (b ↔ a ∨ b) ↔ (a → b) :=
   propext (@Iff.comm _ b) ▸ @or_iff_right_iff_imp a b
 
 /-# Bool -/
@@ -260,8 +260,8 @@ theorem bne_self_eq_false' [DecidableEq α] (a : α) : (a != a) = false := by si
 @[simp] theorem decide_False : decide False = false := rfl
 @[simp] theorem decide_True  : decide True  = true := rfl
 
-@[simp] theorem bne_iff_ne [BEq α] [LawfulBEq α] (a b : α) : a != b ↔ a ≠ b := by
-  simp [bne]; rw [← beq_iff_eq a b]; simp [-beq_iff_eq]
+@[simp] theorem bne_iff_ne [BEq α] [LawfulBEq α] {a b : α} : a != b ↔ a ≠ b := by
+  simp [bne]; rw [← beq_iff_eq (a := a) (b := b)]; simp [-beq_iff_eq]
 
 /-
 Added for critical pair for `¬((a != b) = true)`
@@ -271,14 +271,12 @@ Added for critical pair for `¬((a != b) = true)`
 
 These will both normalize to `a = b` with the first via `bne_eq_false_iff_eq`.
 -/
-@[simp] theorem beq_eq_false_iff_ne [BEq α] [LawfulBEq α]
-    (a b : α) : (a == b) = false ↔ a ≠ b := by
-  rw [ne_eq, ← beq_iff_eq a b]
+@[simp] theorem beq_eq_false_iff_ne [BEq α] [LawfulBEq α] {a b : α} : (a == b) = false ↔ a ≠ b := by
+  rw [ne_eq, ← beq_iff_eq (a := a) (b := b)]
   cases a == b <;> decide
 
-@[simp] theorem bne_eq_false_iff_eq [BEq α] [LawfulBEq α] (a b : α) :
-    (a != b) = false ↔ a = b := by
-  rw [bne, ← beq_iff_eq a b]
+@[simp] theorem bne_eq_false_iff_eq [BEq α] [LawfulBEq α] {a b : α} : (a != b) = false ↔ a = b := by
+  rw [bne, ← beq_iff_eq (a := a) (b := b)]
   cases a == b <;> decide
 
 theorem Bool.beq_to_eq (a b : Bool) : (a == b) = (a = b) := by simp

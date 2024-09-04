@@ -80,7 +80,7 @@ open Nat
 
 /-! ### nil -/
 
-@[simp] theorem nil_eq {α} (xs : List α) : [] = xs ↔ xs = [] := by
+@[simp] theorem nil_eq {α} {xs : List α} : [] = xs ↔ xs = [] := by
   cases xs <;> simp
 
 /-! ### cons -/
@@ -501,7 +501,7 @@ theorem mem_iff_getElem? {a} {l : List α} : a ∈ l ↔ ∃ n : Nat, l[n]? = so
 theorem mem_iff_get? {a} {l : List α} : a ∈ l ↔ ∃ n, l.get? n = some a := by
   simp [getElem?_eq_some, Fin.exists_iff, mem_iff_get]
 
-theorem forall_getElem (l : List α) (p : α → Prop) :
+theorem forall_getElem {l : List α} {p : α → Prop} :
     (∀ (n : Nat) h, p (l[n]'h)) ↔ ∀ a, a ∈ l → p a := by
   induction l with
   | nil => simp
@@ -530,7 +530,7 @@ theorem forall_getElem (l : List α) (p : α → Prop) :
 theorem isEmpty_iff {l : List α} : l.isEmpty ↔ l = [] := by
   cases l <;> simp
 
-theorem isEmpty_false_iff_exists_mem (xs : List α) :
+theorem isEmpty_false_iff_exists_mem {xs : List α} :
     (List.isEmpty xs = false) ↔ ∃ x, x ∈ xs := by
   cases xs <;> simp
 
@@ -650,7 +650,7 @@ theorem set_eq_of_length_le {l : List α} {n : Nat} (h : l.length ≤ n) {a : α
       rw [ih]
       exact Nat.succ_le_succ_iff.mp h
 
-@[simp] theorem set_eq_nil (l : List α) (n : Nat) (a : α) : l.set n a = [] ↔ l = [] := by
+@[simp] theorem set_eq_nil {l : List α} (n : Nat) (a : α) : l.set n a = [] ↔ l = [] := by
   cases l <;> cases n <;> simp [set]
 
 theorem set_comm (a b : α) : ∀ {n m : Nat} (l : List α), n ≠ m →
@@ -1665,7 +1665,7 @@ theorem set_append {s t : List α} :
 @[simp] theorem foldr_append (f : α → β → β) (b) (l l' : List α) :
     (l ++ l').foldr f b = l.foldr f (l'.foldr f b) := by simp [foldr_eq_foldrM]
 
-theorem filterMap_eq_append (f : α → Option β) :
+theorem filterMap_eq_append {f : α → Option β} :
     filterMap f l = L₁ ++ L₂ ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ filterMap f l₁ = L₁ ∧ filterMap f l₂ = L₂ := by
   constructor
   · induction l generalizing L₁ with
@@ -1691,26 +1691,26 @@ theorem filterMap_eq_append (f : α → Option β) :
   · rintro ⟨l₁, l₂, rfl, rfl, rfl⟩
     simp
 
-theorem append_eq_filterMap (f : α → Option β) :
+theorem append_eq_filterMap {f : α → Option β} :
     L₁ ++ L₂ = filterMap f l ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ filterMap f l₁ = L₁ ∧ filterMap f l₂ = L₂ := by
   rw [eq_comm, filterMap_eq_append]
 
-theorem filter_eq_append (p : α → Bool) :
+theorem filter_eq_append {p : α → Bool} :
     filter p l = L₁ ++ L₂ ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ filter p l₁ = L₁ ∧ filter p l₂ = L₂ := by
   rw [← filterMap_eq_filter, filterMap_eq_append]
 
-theorem append_eq_filter (p : α → Bool) :
+theorem append_eq_filter {p : α → Bool} :
     L₁ ++ L₂ = filter p l ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ filter p l₁ = L₁ ∧ filter p l₂ = L₂ := by
   rw [eq_comm, filter_eq_append]
 
 @[simp] theorem map_append (f : α → β) : ∀ l₁ l₂, map f (l₁ ++ l₂) = map f l₁ ++ map f l₂ := by
   intro l₁; induction l₁ <;> intros <;> simp_all
 
-theorem map_eq_append (f : α → β) :
+theorem map_eq_append {f : α → β} :
     map f l = L₁ ++ L₂ ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ map f l₁ = L₁ ∧ map f l₂ = L₂ := by
   rw [← filterMap_eq_map, filterMap_eq_append]
 
-theorem append_eq_map (f : α → β) :
+theorem append_eq_map {f : α → β} :
     L₁ ++ L₂ = map f l ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ map f l₁ = L₁ ∧ map f l₂ = L₂ := by
   rw [eq_comm, map_eq_append]
 
@@ -1779,7 +1779,7 @@ theorem join_singleton (l : List α) : [l].join = l := by simp
 @[deprecated join_eq_nil (since := "2024-08-22")]
 theorem join_eq_nil_iff {L : List (List α)} : L.join = [] ↔ ∀ l ∈ L, l = [] := join_eq_nil
 
-theorem join_ne_nil (xs : List (List α)) : xs.join ≠ [] ↔ ∃ x, x ∈ xs ∧ x ≠ [] := by
+theorem join_ne_nil {xs : List (List α)} : xs.join ≠ [] ↔ ∃ x, x ∈ xs ∧ x ≠ [] := by
   simp
 
 theorem exists_of_mem_join : a ∈ join L → ∃ l, l ∈ L ∧ a ∈ l := mem_join.1
@@ -1850,7 +1850,7 @@ theorem join_concat (L : List (List α)) (l : List α) : join (L ++ [l]) = join 
 theorem join_join {L : List (List (List α))} : join (join L) = join (map join L) := by
   induction L <;> simp_all
 
-theorem join_eq_cons (xs : List (List α)) (y : α) (ys : List α) :
+theorem join_eq_cons {xs : List (List α)} {y : α} {ys : List α} :
     xs.join = y :: ys ↔
       ∃ as bs cs, xs = as ++ (y :: bs) :: cs ∧ (∀ l, l ∈ as → l = []) ∧ ys = bs ++ cs.join := by
   constructor
@@ -1871,7 +1871,7 @@ theorem join_eq_cons (xs : List (List α)) (y : α) (ys : List α) :
   · rintro ⟨as, bs, cs, rfl, h₁, rfl⟩
     simp [join_eq_nil.mpr h₁]
 
-theorem join_eq_append (xs : List (List α)) (ys zs : List α) :
+theorem join_eq_append {xs : List (List α)} {ys zs : List α} :
     xs.join = ys ++ zs ↔
       (∃ as bs, xs = as ++ bs ∧ ys = as.join ∧ zs = bs.join) ∨
         ∃ as bs c cs ds, xs = as ++ (bs ++ c :: cs) :: ds ∧ ys = as.join ++ bs ∧
@@ -1888,7 +1888,7 @@ theorem join_eq_append (xs : List (List α)) (ys zs : List α) :
       simp only [join_cons] at h
       rw [append_eq_append_iff] at h
       obtain (⟨ys, rfl, h⟩ | ⟨c', rfl, h⟩) := h
-      · obtain (⟨as, bs, rfl, rfl, rfl⟩ | ⟨as, bs, c, cs, ds, rfl, rfl, rfl⟩) := ih _ h
+      · obtain (⟨as, bs, rfl, rfl, rfl⟩ | ⟨as, bs, c, cs, ds, rfl, rfl, rfl⟩) := ih h
         · exact .inl ⟨x :: as, bs, by simp⟩
         · exact .inr ⟨x :: as, bs, c, cs, ds, by simp⟩
       · simp only [h]
@@ -1901,7 +1901,7 @@ theorem join_eq_append (xs : List (List α)) (ys zs : List α) :
 
 /-- Two lists of sublists are equal iff their joins coincide, as well as the lengths of the
 sublists. -/
-theorem eq_iff_join_eq : ∀ (L L' : List (List α)),
+theorem eq_iff_join_eq : ∀ {L L' : List (List α)},
     L = L' ↔ L.join = L'.join ∧ map length L = map length L'
   | _, [] => by simp_all
   | [], x' :: L' => by simp_all
@@ -2023,7 +2023,7 @@ theorem forall_mem_replicate {p : α → Prop} {a : α} {n} :
 @[simp] theorem replicate_succ_ne_nil (n : Nat) (a : α) : replicate (n+1) a ≠ [] := by
   simp [replicate_succ]
 
-@[simp] theorem replicate_eq_nil (n : Nat) (a : α) : replicate n a = [] ↔ n = 0 := by
+@[simp] theorem replicate_eq_nil {n : Nat} (a : α) : replicate n a = [] ↔ n = 0 := by
   cases n <;> simp
 
 @[simp] theorem getElem_replicate (a : α) {n : Nat} {m} (h : m < (replicate n a).length) :
@@ -2440,7 +2440,7 @@ theorem elem_cons_self [BEq α] [LawfulBEq α] {a : α} : (a::as).elem a = true 
 theorem contains_eq_any_beq [BEq α] (l : List α) (a : α) : l.contains a = l.any (a == ·) := by
   induction l with simp | cons b l => cases b == a <;> simp [*]
 
-theorem contains_iff_exists_mem_beq [BEq α] (l : List α) (a : α) :
+theorem contains_iff_exists_mem_beq [BEq α] {l : List α} {a : α} :
     l.contains a ↔ ∃ a' ∈ l, a == a' := by
   induction l <;> simp_all
 

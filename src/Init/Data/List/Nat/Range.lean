@@ -22,55 +22,10 @@ open Nat
 
 /-! ### range' -/
 
-theorem range'_succ (s n step) : range' s (n + 1) step = s :: range' (s + step) n step := by
-  simp [range', Nat.add_succ, Nat.mul_succ]
-
-@[simp] theorem length_range' (s step) : ∀ n : Nat, length (range' s n step) = n
-  | 0 => rfl
-  | _ + 1 => congrArg succ (length_range' _ _ _)
-
-@[simp] theorem range'_eq_nil : range' s n step = [] ↔ n = 0 := by
-  rw [← length_eq_zero, length_range']
-
-theorem range'_ne_nil (s n : Nat) : range' s n ≠ [] ↔ n ≠ 0 := by
-  cases n <;> simp
-
-@[simp] theorem range'_zero : range' s 0 = [] := by
-  simp
-
-@[simp] theorem range'_one {s step : Nat} : range' s 1 step = [s] := rfl
-
-@[simp] theorem range'_inj : range' s n = range' s' n' ↔ n = n' ∧ (n = 0 ∨ s = s') := by
-  constructor
-  · intro h
-    have h' := congrArg List.length h
-    simp at h'
-    subst h'
-    cases n with
-    | zero => simp
-    | succ n =>
-      simp only [range'_succ] at h
-      simp_all
-  · rintro ⟨rfl, rfl | rfl⟩ <;> simp
-
-theorem mem_range' : ∀{n}, m ∈ range' s n step ↔ ∃ i < n, m = s + step * i
-  | 0 => by simp [range', Nat.not_lt_zero]
-  | n + 1 => by
-    have h (i) : i ≤ n ↔ i = 0 ∨ ∃ j, i = succ j ∧ j < n := by
-      cases i <;> simp [Nat.succ_le, Nat.succ_inj']
-    simp [range', mem_range', Nat.lt_succ, h]; simp only [← exists_and_right, and_assoc]
-    rw [exists_comm]; simp [Nat.mul_succ, Nat.add_assoc, Nat.add_comm]
-
 @[simp] theorem mem_range'_1 : m ∈ range' s n ↔ s ≤ m ∧ m < s + n := by
   simp [mem_range']; exact ⟨
     fun ⟨i, h, e⟩ => e ▸ ⟨Nat.le_add_right .., Nat.add_lt_add_left h _⟩,
     fun ⟨h₁, h₂⟩ => ⟨m - s, Nat.sub_lt_left_of_lt_add h₁ h₂, (Nat.add_sub_cancel' h₁).symm⟩⟩
-
-theorem head?_range' (n : Nat) : (range' s n).head? = if n = 0 then none else some s := by
-  induction n <;> simp_all [range'_succ, head?_append]
-
-@[simp] theorem head_range' (n : Nat) (h) : (range' s n).head h = s := by
-  repeat simp_all [head?_range', head_eq_iff_head?_eq_some]
 
 theorem getLast?_range' (n : Nat) : (range' s n).getLast? = if n = 0 then none else some (s + n - 1) := by
   induction n generalizing s with
@@ -116,66 +71,11 @@ theorem pairwise_le_range' s n (step := 1) :
 theorem nodup_range' (s n : Nat) (step := 1) (h : 0 < step := by simp) : Nodup (range' s n step) :=
   (pairwise_lt_range' s n step h).imp Nat.ne_of_lt
 
-@[simp]
-theorem map_add_range' (a) : ∀ s n step, map (a + ·) (range' s n step) = range' (a + s) n step
-  | _, 0, _ => rfl
-  | s, n + 1, step => by simp [range', map_add_range' _ (s + step) n step, Nat.add_assoc]
-
 theorem map_sub_range' (a s n : Nat) (h : a ≤ s) :
     map (· - a) (range' s n step) = range' (s - a) n step := by
   conv => lhs; rw [← Nat.add_sub_cancel' h]
   rw [← map_add_range', map_map, (?_ : _∘_ = _), map_id]
   funext x; apply Nat.add_sub_cancel_left
-
-theorem range'_append : ∀ s m n step : Nat,
-    range' s m step ++ range' (s + step * m) n step = range' s (n + m) step
-  | s, 0, n, step => rfl
-  | s, m + 1, n, step => by
-    simpa [range', Nat.mul_succ, Nat.add_assoc, Nat.add_comm]
-      using range'_append (s + step) m n step
-
-@[simp] theorem range'_append_1 (s m n : Nat) :
-    range' s m ++ range' (s + m) n = range' s (n + m) := by simpa using range'_append s m n 1
-
-theorem range'_sublist_right {s m n : Nat} : range' s m step <+ range' s n step ↔ m ≤ n :=
-  ⟨fun h => by simpa only [length_range'] using h.length_le,
-   fun h => by rw [← Nat.sub_add_cancel h, ← range'_append]; apply sublist_append_left⟩
-
-theorem range'_subset_right {s m n : Nat} (step0 : 0 < step) :
-    range' s m step ⊆ range' s n step ↔ m ≤ n := by
-  refine ⟨fun h => Nat.le_of_not_lt fun hn => ?_, fun h => (range'_sublist_right.2 h).subset⟩
-  have ⟨i, h', e⟩ := mem_range'.1 <| h <| mem_range'.2 ⟨_, hn, rfl⟩
-  exact Nat.ne_of_gt h' (Nat.eq_of_mul_eq_mul_left step0 (Nat.add_left_cancel e))
-
-theorem range'_subset_right_1 {s m n : Nat} : range' s m ⊆ range' s n ↔ m ≤ n :=
-  range'_subset_right (by decide)
-
-theorem getElem?_range' (s step) :
-    ∀ {m n : Nat}, m < n → (range' s n step)[m]? = some (s + step * m)
-  | 0, n + 1, _ => by simp [range'_succ]
-  | m + 1, n + 1, h => by
-    simp only [range'_succ, getElem?_cons_succ]
-    exact (getElem?_range' (s + step) step (Nat.lt_of_add_lt_add_right h)).trans <| by
-      simp [Nat.mul_succ, Nat.add_assoc, Nat.add_comm]
-
-@[simp] theorem getElem_range' {n m step} (i) (H : i < (range' n m step).length) :
-    (range' n m step)[i] = n + step * i :=
-  (getElem?_eq_some.1 <| getElem?_range' n step (by simpa using H)).2
-
-theorem range'_concat (s n : Nat) : range' s (n + 1) step = range' s n step ++ [s + step * n] := by
-  rw [Nat.add_comm n 1]; exact (range'_append s n 1 step).symm
-
-theorem range'_1_concat (s n : Nat) : range' s (n + 1) = range' s n ++ [s + n] := by
-  simp [range'_concat]
-
-theorem range'_eq_cons_iff : range' s n = a :: xs ↔ s = a ∧ 0 < n ∧ xs = range' (a + 1) (n - 1) := by
-  induction n generalizing s with
-  | zero => simp
-  | succ n ih =>
-    simp only [range'_succ]
-    simp only [cons.injEq, and_congr_right_iff]
-    rintro rfl
-    simp [eq_comm]
 
 @[simp] theorem range'_eq_singleton {s n a : Nat} : range' s n = [a] ↔ s = a ∧ n = 1 := by
   rw [range'_eq_cons_iff]
@@ -253,43 +153,12 @@ theorem erase_range' :
 
 /-! ### range -/
 
-theorem range_loop_range' : ∀ s n : Nat, range.loop s (range' s n) = range' 0 (n + s)
-  | 0, n => rfl
-  | s + 1, n => by rw [← Nat.add_assoc, Nat.add_right_comm n s 1]; exact range_loop_range' s (n + 1)
-
-theorem range_eq_range' (n : Nat) : range n = range' 0 n :=
-  (range_loop_range' n 0).trans <| by rw [Nat.zero_add]
-
-theorem range_succ_eq_map (n : Nat) : range (n + 1) = 0 :: map succ (range n) := by
-  rw [range_eq_range', range_eq_range', range', Nat.add_comm, ← map_add_range']
-  congr; exact funext (Nat.add_comm 1)
-
 theorem reverse_range' : ∀ s n : Nat, reverse (range' s n) = map (s + n - 1 - ·) (range n)
   | s, 0 => rfl
   | s, n + 1 => by
     rw [range'_1_concat, reverse_append, range_succ_eq_map,
       show s + (n + 1) - 1 = s + n from rfl, map, map_map]
     simp [reverse_range', Nat.sub_right_comm, Nat.sub_sub]
-
-theorem range'_eq_map_range (s n : Nat) : range' s n = map (s + ·) (range n) := by
-  rw [range_eq_range', map_add_range']; rfl
-
-@[simp] theorem length_range (n : Nat) : length (range n) = n := by
-  simp only [range_eq_range', length_range']
-
-@[simp] theorem range_eq_nil {n : Nat} : range n = [] ↔ n = 0 := by
-  rw [← length_eq_zero, length_range]
-
-theorem range_ne_nil (n : Nat) : range n ≠ [] ↔ n ≠ 0 := by
-  cases n <;> simp
-
-@[simp]
-theorem range_sublist {m n : Nat} : range m <+ range n ↔ m ≤ n := by
-  simp only [range_eq_range', range'_sublist_right]
-
-@[simp]
-theorem range_subset {m n : Nat} : range m ⊆ range n ↔ m ≤ n := by
-  simp only [range_eq_range', range'_subset_right, lt_succ_self]
 
 @[simp]
 theorem mem_range {m n : Nat} : m ∈ range n ↔ m < n := by
@@ -304,43 +173,6 @@ theorem pairwise_lt_range (n : Nat) : Pairwise (· < ·) (range n) := by
 
 theorem pairwise_le_range (n : Nat) : Pairwise (· ≤ ·) (range n) :=
   Pairwise.imp Nat.le_of_lt (pairwise_lt_range _)
-
-theorem getElem?_range {m n : Nat} (h : m < n) : (range n)[m]? = some m := by
-  simp [range_eq_range', getElem?_range' _ _ h]
-
-@[simp] theorem getElem_range {n : Nat} (m) (h : m < (range n).length) : (range n)[m] = m := by
-  simp [range_eq_range']
-
-theorem range_succ (n : Nat) : range (succ n) = range n ++ [n] := by
-  simp only [range_eq_range', range'_1_concat, Nat.zero_add]
-
-theorem range_add (a b : Nat) : range (a + b) = range a ++ (range b).map (a + ·) := by
-  rw [← range'_eq_map_range]
-  simpa [range_eq_range', Nat.add_comm] using (range'_append_1 0 a b).symm
-
-theorem head?_range (n : Nat) : (range n).head? = if n = 0 then none else some 0 := by
-  induction n with
-  | zero => simp
-  | succ n ih =>
-    simp only [range_succ, head?_append, ih]
-    split <;> simp_all
-
-@[simp] theorem head_range (n : Nat) (h) : (range n).head h = 0 := by
-  cases n with
-  | zero => simp at h
-  | succ n => simp [head?_range, head_eq_iff_head?_eq_some]
-
-theorem getLast?_range (n : Nat) : (range n).getLast? = if n = 0 then none else some (n - 1) := by
-  induction n with
-  | zero => simp
-  | succ n ih =>
-    simp only [range_succ, getLast?_append, ih]
-    split <;> simp_all
-
-@[simp] theorem getLast_range (n : Nat) (h) : (range n).getLast h = n - 1 := by
-  cases n with
-  | zero => simp at h
-  | succ n => simp [getLast?_range, getLast_eq_iff_getLast_eq_some]
 
 theorem take_range (m n : Nat) : take m (range n) = range (min m n) := by
   apply List.ext_getElem

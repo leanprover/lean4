@@ -6,6 +6,7 @@ Authors: Kim Morrison
 prelude
 import Init.Data.List.Perm
 import Init.Data.List.Sort.Basic
+import Init.Data.List.Nat.Range
 import Init.Data.Bool
 
 /-!

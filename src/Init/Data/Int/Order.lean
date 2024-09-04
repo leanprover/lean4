@@ -480,7 +480,7 @@ theorem toNat_eq_max : ∀ a : Int, (toNat a : Int) = max a 0
 
 @[simp] theorem toNat_one : (1 : Int).toNat = 1 := rfl
 
-@[simp] theorem toNat_of_nonneg {a : Int} (h : 0 ≤ a) : (toNat a : Int) = a := by
+theorem toNat_of_nonneg {a : Int} (h : 0 ≤ a) : (toNat a : Int) = a := by
   rw [toNat_eq_max, Int.max_eq_left h]
 
 @[simp] theorem toNat_ofNat (n : Nat) : toNat ↑n = n := rfl
@@ -515,7 +515,7 @@ theorem toNat_add_nat {a : Int} (ha : 0 ≤ a) (n : Nat) : (a + n).toNat = a.toN
   | (n+1:Nat) => by simp [ofNat_add]
   | -[n+1] => rfl
 
-@[simp] theorem toNat_sub_toNat_neg : ∀ n : Int, ↑n.toNat - ↑(-n).toNat = n
+theorem toNat_sub_toNat_neg : ∀ n : Int, ↑n.toNat - ↑(-n).toNat = n
   | 0 => rfl
   | (_+1:Nat) => Int.sub_zero _
   | -[_+1] => Int.zero_sub _

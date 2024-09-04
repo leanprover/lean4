@@ -1968,7 +1968,7 @@ theorem getLsbD_intMin (w : Nat) : (intMin w).getLsbD i = decide (i + 1 = w) := 
   simp only [getLsbD_twoPow, boolToPropSimps]
   omega
 
-@[simp, bv_toNat]
+@[bv_toNat]
 theorem toNat_intMin : (intMin w).toNat = 2 ^ (w - 1) % 2 ^ w := by
   simp
 

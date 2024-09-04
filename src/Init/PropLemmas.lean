@@ -340,7 +340,7 @@ theorem not_forall_of_exists_not {p : α → Prop} : (∃ x, ¬p x) → ¬∀ x,
 @[simp] theorem exists_prop' (p : Prop) : (∃ _ : α, p) ↔ Nonempty α ∧ p :=
   ⟨fun ⟨a, h⟩ => ⟨⟨a⟩, h⟩, fun ⟨⟨a⟩, h⟩ => ⟨a, h⟩⟩
 
-@[simp] theorem exists_prop : (∃ _h : a, b) ↔ a ∧ b :=
+theorem exists_prop : (∃ _h : a, b) ↔ a ∧ b :=
   ⟨fun ⟨hp, hq⟩ => ⟨hp, hq⟩, fun ⟨hp, hq⟩ => ⟨hp, hq⟩⟩
 
 @[simp] theorem exists_apply_eq_apply (f : α → β) (a' : α) : ∃ a, f a = f a' := ⟨a', rfl⟩

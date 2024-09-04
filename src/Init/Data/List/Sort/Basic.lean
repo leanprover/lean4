@@ -5,6 +5,7 @@ Authors: Kim Morrison
 -/
 prelude
 import Init.Data.List.Impl
+import Init.Data.List.Nat.TakeDrop
 
 /-!
 # Definition of `merge` and `mergeSort`.

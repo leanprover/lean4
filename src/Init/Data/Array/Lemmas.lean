@@ -4,11 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro
 -/
 prelude
-import Init.Data.Nat.MinMax
 import Init.Data.Nat.Lemmas
 import Init.Data.List.Monadic
-import Init.Data.List.Nat.Range
-import Init.Data.Fin.Basic
+import Init.Data.List.Range
 import Init.Data.Array.Mem
 import Init.TacticsExtra
 

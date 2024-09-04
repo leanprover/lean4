@@ -167,8 +167,8 @@ theorem getElem_append_right (as bs : List α) (h : ¬ i < as.length) {h' h''} :
   induction as generalizing i with
   | nil => trivial
   | cons a as ih =>
-    cases i with simp [get, Nat.succ_sub_succ] <;> simp_arith [Nat.succ_sub_succ] at h
-    | succ i => apply ih; simp_arith [h]
+    cases i with simp [get, Nat.succ_sub_succ] <;> simp [Nat.succ_sub_succ] at h
+    | succ i => apply ih; simp [h]
 
 theorem get_last {as : List α} {i : Fin (length (as ++ [a]))} (h : ¬ i.1 < as.length) : (as ++ [a] : List _).get i = a := by
   cases i; rename_i i h'
@@ -177,8 +177,8 @@ theorem get_last {as : List α} {i : Fin (length (as ++ [a]))} (h : ¬ i.1 < as.
     | zero => simp [List.get]
     | succ => simp_arith at h'
   | cons a as ih =>
-    cases i with simp_arith at h
-    | succ i => apply ih; simp_arith [h]
+    cases i with simp at h
+    | succ i => apply ih; simp [h]
 
 theorem sizeOf_lt_of_mem [SizeOf α] {as : List α} (h : a ∈ as) : sizeOf a < sizeOf as := by
   induction h with

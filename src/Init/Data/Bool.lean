@@ -236,7 +236,7 @@ due to `beq_iff_eq`.
 @[simp] theorem bne_self_left  : ∀(a b : Bool), (a != (a != b)) = b := by decide
 @[simp] theorem bne_self_right : ∀(a b : Bool), ((a != b) != b) = a := by decide
 
-@[simp] theorem not_bne_not : ∀ (x y : Bool), ((!x) != (!y)) = (x != y) := by decide
+theorem not_bne_not : ∀ (x y : Bool), ((!x) != (!y)) = (x != y) := by simp
 
 @[simp] theorem bne_assoc : ∀ (x y z : Bool), ((x != y) != z) = (x != (y != z)) := by decide
 instance : Std.Associative (· != ·) := ⟨bne_assoc⟩

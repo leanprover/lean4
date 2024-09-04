@@ -504,7 +504,7 @@ theorem sublist_join_iff {L : List (List α)} {l} :
     · rintro ⟨L', rfl, h⟩
       simp only [join_nil, sublist_nil, join_eq_nil]
       simp only [getElem?_nil, Option.getD_none, sublist_nil] at h
-      exact (forall_getElem L' (· = [])).1 h
+      exact (forall_getElem (p := (· = []))).1 h
   | cons l' L ih =>
     simp only [join_cons, sublist_append_iff, ih]
     constructor

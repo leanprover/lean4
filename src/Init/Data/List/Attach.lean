@@ -128,12 +128,12 @@ theorem length_attach (L : List α) : L.attach.length = L.length :=
 theorem pmap_eq_nil {p : α → Prop} {f : ∀ a, p a → β} {l H} : pmap f l H = [] ↔ l = [] := by
   rw [← length_eq_zero, length_pmap, length_eq_zero]
 
-theorem pmap_ne_nil {P : α → Prop} (f : (a : α) → P a → β) (xs : List α)
+theorem pmap_ne_nil {P : α → Prop} (f : (a : α) → P a → β) {xs : List α}
     (H : ∀ (a : α), a ∈ xs → P a) : xs.pmap f H ≠ [] ↔ xs ≠ [] := by
   simp
 
 @[simp]
-theorem attach_eq_nil (l : List α) : l.attach = [] ↔ l = [] :=
+theorem attach_eq_nil {l : List α} : l.attach = [] ↔ l = [] :=
   pmap_eq_nil
 
 theorem getElem?_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h : ∀ a ∈ l, p a) (n : Nat) :

@@ -68,13 +68,13 @@ theorem countP_le_length : countP p l ≤ l.length := by
 @[simp] theorem countP_append (l₁ l₂) : countP p (l₁ ++ l₂) = countP p l₁ + countP p l₂ := by
   simp only [countP_eq_length_filter, filter_append, length_append]
 
-theorem countP_pos : 0 < countP p l ↔ ∃ a ∈ l, p a := by
+theorem countP_pos {p} : 0 < countP p l ↔ ∃ a ∈ l, p a := by
   simp only [countP_eq_length_filter, length_pos_iff_exists_mem, mem_filter, exists_prop]
 
-theorem countP_eq_zero : countP p l = 0 ↔ ∀ a ∈ l, ¬p a := by
+theorem countP_eq_zero {p} : countP p l = 0 ↔ ∀ a ∈ l, ¬p a := by
   simp only [countP_eq_length_filter, length_eq_zero, filter_eq_nil]
 
-theorem countP_eq_length : countP p l = l.length ↔ ∀ a ∈ l, p a := by
+theorem countP_eq_length {p} : countP p l = l.length ↔ ∀ a ∈ l, p a := by
   rw [countP_eq_length_filter, filter_length_eq_length]
 
 theorem Sublist.countP_le (s : l₁ <+ l₂) : countP p l₁ ≤ countP p l₂ := by

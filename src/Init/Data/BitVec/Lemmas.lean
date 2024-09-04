@@ -1962,15 +1962,15 @@ theorem getLsbD_replicate {n w : Nat} (x : BitVec w) :
 /-! ### intMin -/
 
 /-- The bitvector of width `w` that has the smallest value when interpreted as an integer. -/
-abbrev intMin (w : Nat) := twoPow w (w - 1)
+def intMin (w : Nat) := twoPow w (w - 1)
 
 theorem getLsbD_intMin (w : Nat) : (intMin w).getLsbD i = decide (i + 1 = w) := by
-  simp only [getLsbD_twoPow, boolToPropSimps]
+  simp only [intMin, getLsbD_twoPow, boolToPropSimps]
   omega
 
 @[simp, bv_toNat]
 theorem toNat_intMin : (intMin w).toNat = 2 ^ (w - 1) % 2 ^ w := by
-  simp
+  simp [intMin]
 
 @[simp]
 theorem neg_intMin {w : Nat} : -intMin w = intMin w := by
@@ -1982,7 +1982,7 @@ theorem neg_intMin {w : Nat} : -intMin w = intMin w := by
 /-! ### intMax -/
 
 /-- The bitvector of width `w` that has the largest value when interpreted as an integer. -/
-abbrev intMax (w : Nat) := (twoPow w (w - 1)) - 1
+def intMax (w : Nat) := (twoPow w (w - 1)) - 1
 
 @[simp, bv_toNat]
 theorem toNat_intMax : (intMax w).toNat = 2 ^ (w - 1) - 1 := by

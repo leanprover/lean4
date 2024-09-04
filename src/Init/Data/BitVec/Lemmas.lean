@@ -203,10 +203,19 @@ theorem eq_of_getMsbD_eq {x y : BitVec w}
 -- This cannot be a `@[simp]` lemma, as it would be tried at every term.
 theorem of_length_zero {x : BitVec 0} : x = 0#0 := by ext; simp
 
-@[simp] theorem toNat_zero_length (x : BitVec 0) : x.toNat = 0 := by simp [of_length_zero]
+theorem toNat_zero_length (x : BitVec 0) : x.toNat = 0 := by simp [of_length_zero]
 theorem getLsbD_zero_length (x : BitVec 0) : x.getLsbD i = false := by simp
 theorem getMsbD_zero_length (x : BitVec 0) : x.getMsbD i = false := by simp
-@[simp] theorem msb_zero_length (x : BitVec 0) : x.msb = false := by simp [BitVec.msb, of_length_zero]
+theorem msb_zero_length (x : BitVec 0) : x.msb = false := by simp [BitVec.msb, of_length_zero]
+
+theorem toNat_of_zero_length (h : w = 0) (x : BitVec w) : x.toNat = 0 := by
+  subst h; simp [toNat_zero_length]
+theorem getLsbD_of_zero_length (h : w = 0) (x : BitVec w) : x.getLsbD i = false := by
+  subst h; simp [getLsbD_zero_length]
+theorem getMsbD_of_zero_length (h : w = 0) (x : BitVec w) : x.getMsbD i = false := by
+  subst h; simp [getMsbD_zero_length]
+theorem msb_of_zero_length (h : w = 0) (x : BitVec w) : x.msb = false := by
+  subst h; simp [msb_zero_length]
 
 theorem eq_of_toFin_eq : ∀ {x y : BitVec w}, x.toFin = y.toFin → x = y
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
@@ -285,7 +294,7 @@ theorem msb_eq_getLsbD_last (x : BitVec w) :
 @[bv_toNat] theorem getLsbD_last (x : BitVec w) :
     x.getLsbD (w-1) = decide (2 ^ (w-1) ≤ x.toNat) := by
   rcases w with rfl | w
-  · simp
+  · simp [toNat_of_zero_length]
   · simp only [getLsbD, Nat.testBit_to_div_mod, Nat.succ_sub_succ_eq_sub, Nat.sub_zero]
     rcases (Nat.lt_or_ge (BitVec.toNat x) (2 ^ w)) with h | h
     · simp [Nat.div_eq_of_lt h, h]
@@ -336,7 +345,7 @@ theorem toInt_eq_toNat_cond (x : BitVec n) :
   rfl
 
 theorem msb_eq_false_iff_two_mul_lt (x : BitVec w) : x.msb = false ↔ 2 * x.toNat < 2^w := by
-  cases w <;> simp [Nat.pow_succ, Nat.mul_comm _ 2, msb_eq_decide]
+  cases w <;> simp [Nat.pow_succ, Nat.mul_comm _ 2, msb_eq_decide, toNat_of_zero_length]
 
 theorem msb_eq_true_iff_two_mul_ge (x : BitVec w) : x.msb = true ↔ 2 * x.toNat ≥ 2^w := by
   simp [← Bool.ne_false_iff, msb_eq_false_iff_two_mul_lt]
@@ -992,7 +1001,7 @@ theorem sshiftRight_eq_of_msb_true {x : BitVec w} {s : Nat} (h : x.msb = true) :
     (x.sshiftRight s) = ~~~((~~~x) >>> s) := by
   apply BitVec.eq_of_toNat_eq
   rcases w with rfl | w
-  · simp
+  · simp [toNat_of_zero_length]
   · rw [BitVec.sshiftRight_eq, BitVec.toInt_eq_toNat_cond]
     have hxbound : (2 * x.toNat ≥ 2 ^ (w + 1)) := (BitVec.msb_eq_true_iff_two_mul_ge x).mp h
     replace hxbound : ¬ (2 * x.toNat < 2 ^ (w + 1)) := by omega
@@ -1813,7 +1822,7 @@ theorem getLsbD_rotateRight {x : BitVec w} {r i : Nat} :
 @[simp, bv_toNat]
 theorem toNat_twoPow (w : Nat) (i : Nat) : (twoPow w i).toNat = 2^i % 2^w := by
   rcases w with rfl | w
-  · simp [Nat.mod_one]
+  · simp [Nat.mod_one, toNat_of_zero_length]
   · simp only [twoPow, toNat_shiftLeft, toNat_ofNat]
     have h1 : 1 < 2 ^ (w + 1) := Nat.one_lt_two_pow (by omega)
     rw [Nat.mod_eq_of_lt h1, Nat.shiftLeft_eq, Nat.one_mul]

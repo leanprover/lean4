@@ -190,7 +190,7 @@ theorem BitVec.zero_ult' (a : BitVec w) : (BitVec.ult 0#w a) = (0#w != a) := by
 
 theorem BitVec.max_ult (a : BitVec w) : ¬ ((-1#w) < a) := by
 rcases w with rfl | w
-· simp [bv_toNat]
+· simp [bv_toNat, BitVec.toNat_of_zero_length]
 · simp only [BitVec.lt_def, BitVec.toNat_neg, BitVec.toNat_ofNat, Nat.not_lt]
   rw [Nat.mod_eq_of_lt (a := 1) (by simp)];
   rw [Nat.mod_eq_of_lt]

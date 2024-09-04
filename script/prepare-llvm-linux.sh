@@ -67,4 +67,4 @@ echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='-L ROOT/lib -L ROOT/lib/glibc ROOT/lib/
 echo -n " -DLEAN_EXTRA_LINKER_FLAGS='-Wl,--as-needed -lgmp -luv -lpthread -ldl -lrt -Wl,--no-as-needed'"
 # do not set `LEAN_CC` for tests
 echo -n " -DLEAN_TEST_VARS=''"
-echo -n " -v
+echo -n " -v"

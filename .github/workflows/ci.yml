@@ -216,7 +216,7 @@ jobs:
                 "os": "windows-2022",
                 "release": true,
                 "check-level": 2,
-                "shell": "clang64 {0}",
+                "shell": "msys2 {0}",
                 "CMAKE_OPTIONS": "-G \"Unix Makefiles\" -DUSE_GMP=OFF",
                 // for reasons unknown, interactivetests are flaky on Windows
                 "CTEST_OPTIONS": "--repeat until-pass:2",

@@ -8,9 +8,8 @@ import Init.Data.Bool
 import Init.Data.Option.Lemmas
 import Init.Data.List.BasicAux
 import Init.Data.List.Control
-import Init.PropLemmas
 import Init.Control.Lawful.Basic
-import Init.Hints
+import Init.BinderPredicates
 
 /-! # Theorems about `List` operations.
 

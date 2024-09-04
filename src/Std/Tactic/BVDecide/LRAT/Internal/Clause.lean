@@ -5,6 +5,7 @@ Authors: Josh Clune
 -/
 prelude
 import Init.Data.List.Erase
+import Init.Data.Array.Lemmas
 import Std.Sat.CNF.Basic
 import Std.Tactic.BVDecide.LRAT.Internal.PosFin
 import Std.Tactic.BVDecide.LRAT.Internal.Assignment

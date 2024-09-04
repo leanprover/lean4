@@ -799,8 +799,10 @@ theorem ext' {as bs : Array α} (h : as.data = bs.data) : as = bs := by
 @[simp] theorem toArrayAux_eq (as : List α) (acc : Array α) : (as.toArrayAux acc).data = acc.data ++ as := by
   induction as generalizing acc <;> simp [*, List.toArrayAux, Array.push, List.append_assoc, List.concat_eq_append]
 
-theorem data_toArray (as : List α) : as.toArray.data = as := by
+@[simp] theorem data_toArray (as : List α) : as.toArray.data = as := by
   simp [List.toArray, Array.mkEmpty]
+
+@[simp] theorem size_toArray (as : List α) : as.toArray.size = as.length := by simp [size]
 
 theorem toArrayLit_eq (as : Array α) (n : Nat) (hsz : as.size = n) : as = toArrayLit as n hsz := by
   apply ext'

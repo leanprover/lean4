@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: F. G. Dorais
 -/
 prelude
-import Init.BinderPredicates
+import Init.NotationExtra
 
 /-- Boolean exclusive or -/
 abbrev xor : Bool → Bool → Bool := bne

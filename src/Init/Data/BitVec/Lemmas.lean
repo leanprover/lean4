@@ -1391,14 +1391,14 @@ theorem eq_msb_cons_truncate (x : BitVec (w+1)) : x = (cons x.msb (x.truncate w)
   cases b
   · simp
   · rintro (_ | i)
-    <;> simp [Nat.add_mod, Nat.add_comm, Nat.add_mul_div_right]
+    <;> simp [Nat.add_mod, Nat.add_comm, Nat.add_mul_div_right, Nat.testBit_add_one]
 
 theorem getLsbD_concat (x : BitVec w) (b : Bool) (i : Nat) :
     (concat x b).getLsbD i = if i = 0 then b else x.getLsbD (i - 1) := by
   simp only [concat, getLsbD, toNat_append, toNat_ofBool, Nat.testBit_or, Nat.shiftLeft_eq]
   cases i
   · simp [Nat.mod_eq_of_lt b.toNat_lt]
-  · simp [Nat.div_eq_of_lt b.toNat_lt]
+  · simp [Nat.div_eq_of_lt b.toNat_lt, Nat.testBit_add_one]
 
 @[simp] theorem getLsbD_concat_zero : (concat x b).getLsbD 0 = b := by
   simp [getLsbD_concat]

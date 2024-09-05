@@ -123,7 +123,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${EMSCRIPTEN_SETTINGS}")
 endif()
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux" AND ${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm64")
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux" AND ${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64")
   # GMP seems to need this
   string(APPEND LEAN_EXTRA_CXX_FLAGS " -fstack-protector-all")
 endif()
@@ -255,7 +255,7 @@ if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
     PREFIX libuv
     GIT_REPOSITORY https://github.com/libuv/libuv
     GIT_TAG v1.48.0
-    CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DLIBUV_BUILD_TESTS=OFF -DLIBUV_BUILD_SHARED=OFF -DMMAP=OFF -DCMAKE_AR=${CMAKE_SOURCE_DIR}/../emsdk/emsdk-main/upstream/emscripten/emar -DCMAKE_TOOLCHAIN_FILE=${CMAKE_SOURCE_DIR}/../emsdk/emsdk-main/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_CXX_FLAGS=-fPIC
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DLIBUV_BUILD_TESTS=OFF -DLIBUV_BUILD_SHARED=OFF -DMMAP=OFF -DCMAKE_AR=${CMAKE_SOURCE_DIR}/../emsdk/emsdk-main/upstream/emscripten/emar -DCMAKE_TOOLCHAIN_FILE=${CMAKE_SOURCE_DIR}/../emsdk/emsdk-main/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON
     BUILD_IN_SOURCE ON
     INSTALL_COMMAND "")
   set(LIBUV_INCLUDE_DIR "${CMAKE_BINARY_DIR}/libuv/src/libuv/include")

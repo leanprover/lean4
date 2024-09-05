@@ -59,6 +59,17 @@ if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   list(APPEND CL_ARGS -DCADICAL=${CADICAL})
 endif()
 
+# Only on WebAssembly we compile LibUV ourselves
+if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+  ExternalProject_add(libuv
+    PREFIX libuv
+    GIT_REPOSITORY https://github.com/libuv/libuv
+    GIT_TAG v1.48.0
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DLIBUV_BUILD_TESTS=OFF -DLIBUV_BUILD_SHARED=OFF
+    BUILD_IN_SOURCE ON
+    INSTALL_COMMAND "")
+endif()
+
 ExternalProject_add(stage0
   SOURCE_DIR "${LEAN_SOURCE_DIR}/stage0"
   SOURCE_SUBDIR src

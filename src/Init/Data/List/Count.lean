@@ -72,7 +72,7 @@ theorem countP_pos : 0 < countP p l ↔ ∃ a ∈ l, p a := by
   simp only [countP_eq_length_filter, length_pos_iff_exists_mem, mem_filter, exists_prop]
 
 theorem countP_eq_zero : countP p l = 0 ↔ ∀ a ∈ l, ¬p a := by
-  simp only [countP_eq_length_filter, length_eq_zero, filter_eq_nil]
+  simp only [countP_eq_length_filter, length_eq_zero, filter_eq_nil_iff]
 
 theorem countP_eq_length : countP p l = l.length ↔ ∀ a ∈ l, p a := by
   rw [countP_eq_length_filter, filter_length_eq_length]
@@ -199,7 +199,7 @@ theorem count_replicate (a b : α) (n : Nat) : count a (replicate n b) = if b ==
   · exact count_eq_zero.2 <| mt eq_of_mem_replicate (Ne.symm h)
 
 theorem filter_beq (l : List α) (a : α) : l.filter (· == a) = replicate (count a l) a := by
-  simp only [count, countP_eq_length_filter, eq_replicate, mem_filter, beq_iff_eq]
+  simp only [count, countP_eq_length_filter, eq_replicate_iff, mem_filter, beq_iff_eq]
   exact ⟨trivial, fun _ h => h.2⟩
 
 theorem filter_eq {α} [DecidableEq α] (l : List α) (a : α) : l.filter (· = a) = replicate (count a l) a :=

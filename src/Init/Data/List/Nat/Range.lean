@@ -88,7 +88,7 @@ theorem range'_eq_append_iff : range' s n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs =
   | zero => simp
   | succ n ih =>
     simp only [range'_succ]
-    rw [cons_eq_append]
+    rw [cons_eq_append_iff]
     constructor
     · rintro (⟨rfl, rfl⟩ | ⟨a, rfl, h⟩)
       · exact ⟨0, by simp [range'_succ]⟩
@@ -235,7 +235,7 @@ theorem iota_eq_cons_iff : iota n = a :: xs ↔ n = a ∧ 0 < n ∧ xs = iota (n
 
 theorem iota_eq_append_iff : iota n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs = (range' (k + 1) (n - k)).reverse ∧ ys = iota k := by
   simp only [iota_eq_reverse_range']
-  rw [reverse_eq_append]
+  rw [reverse_eq_append_iff]
   rw [range'_eq_append_iff]
   simp only [reverse_eq_iff]
   constructor
@@ -279,7 +279,7 @@ theorem find?_iota_eq_none (n : Nat) (p : Nat → Bool) :
 @[simp] theorem find?_iota_eq_some (n : Nat) (i : Nat) (p : Nat → Bool) :
     (iota n).find? p = some i ↔ p i ∧ i ∈ iota n ∧ ∀ j, i < j → j ≤ n → !p j := by
   rw [find?_eq_some]
-  simp only [iota_eq_reverse_range', reverse_eq_append, reverse_cons, append_assoc,
+  simp only [iota_eq_reverse_range', reverse_eq_append_iff, reverse_cons, append_assoc,
     singleton_append, Bool.not_eq_true', exists_and_right, mem_reverse, mem_range'_1,
     and_congr_right_iff]
   intro h

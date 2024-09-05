@@ -140,7 +140,7 @@ theorem perm_cons_append_cons {l l₁ l₂ : List α} (a : α) (p : l ~ l₁ ++ 
 
 @[simp] theorem perm_replicate {n : Nat} {a : α} {l : List α} :
     l ~ replicate n a ↔ l = replicate n a := by
-  refine ⟨fun p => eq_replicate.2 ?_, fun h => h ▸ .rfl⟩
+  refine ⟨fun p => eq_replicate_iff.2 ?_, fun h => h ▸ .rfl⟩
   exact ⟨p.length_eq.trans <| length_replicate .., fun _b m => eq_of_mem_replicate <| p.subset m⟩
 
 @[simp] theorem replicate_perm {n : Nat} {a : α} {l : List α} :

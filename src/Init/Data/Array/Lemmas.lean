@@ -112,7 +112,7 @@ theorem foldr_push (f : α → β → β) (init : β) (arr : Array α) (a : α) 
 @[inline] def toListRev (arr : Array α) : List α := arr.foldl (fun l t => t :: l) []
 
 @[simp] theorem toListRev_eq (arr : Array α) : arr.toListRev = arr.data.reverse := by
-  rw [toListRev, foldl_eq_foldl_data, ← List.foldr_reverse, List.foldr_self]
+  rw [toListRev, foldl_eq_foldl_data, ← List.foldr_reverse, List.foldr_cons_nil]
 
 theorem get_push_lt (a : Array α) (x : α) (i : Nat) (h : i < a.size) :
     have : i < (a.push x).size := by simp [*, Nat.lt_succ_of_le, Nat.le_of_lt]

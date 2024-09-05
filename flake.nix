@@ -48,6 +48,7 @@
               rev = "v1.48.0";
               sha256 = "100nj16fg8922qg4m2hdjh62zv4p32wyrllsvqr659hdhjc03bsk";
             };
+            doCheck = false;
           });
           GLIBC = pkgsDist.glibc;
           GLIBC_DEV = pkgsDist.glibc.dev;

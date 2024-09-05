@@ -589,7 +589,7 @@ instance : Std.Associative (α := Nat) (· ^^^ ·) where
 instance : Std.Commutative (α := Nat) (· ^^^ ·) where
   comm := xor_comm
 
-instance : Std.LawfulCommIdentity (α:=Nat) (· ^^^ ·) 0 where
+instance : Std.LawfulCommIdentity (α := Nat) (· ^^^ ·) 0 where
   left_id := zero_xor
   right_id := xor_zero
 

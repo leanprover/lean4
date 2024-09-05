@@ -244,6 +244,7 @@ if("${USE_GMP}" MATCHES "ON")
 endif()
 
 # LibUV
+if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
   # Only on WebAssembly we compile LibUV ourselves
   ExternalProject_add(libuv
     PREFIX libuv
@@ -254,9 +255,9 @@ endif()
     INSTALL_COMMAND "")
   set(LIBUV_INCLUDE_DIR "${CMAKE_BINARY_DIR}/libuv/src/libuv/include")
   set(LIBUV_LIBRARIES "${CMAKE_BINARY_DIR}/libuv/src/libuv/libuv.a")
-# else()
-#   find_package(LibUV 1.0.0 REQUIRED)
-# endif()
+else()
+  find_package(LibUV 1.0.0 REQUIRED)
+endif()
 include_directories(${LIBUV_INCLUDE_DIR})
 if(NOT LEAN_STANDALONE)
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${LIBUV_LIBRARIES}")

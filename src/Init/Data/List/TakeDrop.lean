@@ -436,6 +436,18 @@ theorem take_takeWhile {l : List α} (p : α → Bool) n :
   | nil => rfl
   | cons h t ih => by_cases p h <;> simp_all
 
+theorem replace_takeWhile [BEq α] [LawfulBEq α] {l : List α} {p : α → Bool} (h : p a = p b) :
+    (l.takeWhile p).replace a b = (l.replace a b).takeWhile p := by
+  induction l with
+  | nil => rfl
+  | cons x xs ih =>
+    simp only [takeWhile_cons, replace_cons]
+    split <;> rename_i h₁ <;> split <;> rename_i h₂
+    · simp_all
+    · simp [replace_cons, h₂, takeWhile_cons, h₁, ih]
+    · simp_all
+    · simp_all
+
 /-! ### splitAt -/
 
 @[simp] theorem splitAt_eq (n : Nat) (l : List α) : splitAt n l = (l.take n, l.drop n) := by

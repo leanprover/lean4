@@ -35,8 +35,10 @@ theorem exists_of_findSome?_eq_some {l : List α} {f : α → Option β} (w : l.
     simp_all only [findSome?_cons, mem_cons, exists_eq_or_imp]
     split at w <;> simp_all
 
-@[simp] theorem findSome?_eq_none : findSome? p l = none ↔ ∀ x ∈ l, p x = none := by
+@[simp] theorem findSome?_eq_none_iff : findSome? p l = none ↔ ∀ x ∈ l, p x = none := by
   induction l <;> simp [findSome?_cons]; split <;> simp [*]
+
+@[deprecated findSome?_eq_none_iff (since := "2024-09-05")] abbrev findSome?_eq_none := @findSome?_eq_none_iff
 
 @[simp] theorem findSome?_isSome_iff {f : α → Option β} {l : List α} :
     (l.findSome? f).isSome ↔ ∃ x, x ∈ l ∧ (f x).isSome := by
@@ -45,6 +47,41 @@ theorem exists_of_findSome?_eq_some {l : List α} {f : α → Option β} (w : l.
   | cons x xs ih =>
     simp only [findSome?_cons]
     split <;> simp_all
+
+theorem findSome?_eq_some_iff {f : α → Option β} {l : List α} {b : β} :
+    l.findSome? f = some b ↔ ∃ l₁ a l₂, l = l₁ ++ a :: l₂ ∧ f a = some b ∧ ∀ x ∈ l₁, f x = none := by
+  induction l with
+  | nil => simp
+  | cons p l ih =>
+    simp only [findSome?_cons]
+    split <;> rename_i b' h
+    · simp only [Option.some.injEq, exists_and_right]
+      constructor
+      · rintro rfl
+        exact ⟨[], p, ⟨l, rfl⟩, h, by simp⟩
+      · rintro ⟨(⟨⟩ | ⟨p', l₁⟩), a, ⟨l₂, h₁⟩, h₂, h₃⟩
+        · simp only [nil_append, cons.injEq] at h₁
+          apply Option.some.inj
+          simp [← h, ← h₂, h₁.1]
+        · simp only [cons_append, cons.injEq] at h₁
+          obtain ⟨rfl, rfl⟩ := h₁
+          specialize h₃ p
+          simp_all
+    · rw [ih]
+      constructor
+      · rintro ⟨l₁, a, l₂, rfl, h₁, h₂⟩
+        refine ⟨p :: l₁, a, l₂, rfl, h₁, ?_⟩
+        intro a w
+        simp at w
+        rcases w with rfl | w
+        · exact h
+        · exact h₂ _ w
+      · rintro ⟨l₁, a, l₂, h₁, h₂, h₃⟩
+        rcases l₁ with (⟨⟩ | ⟨a', l₁⟩)
+        · simp_all
+        · simp only [cons_append, cons.injEq] at h₁
+          obtain ⟨⟨rfl, rfl⟩, rfl⟩ := h₁
+          exact ⟨l₁, a, l₂, rfl, h₂, fun a' w => h₃ a' (mem_cons_of_mem p w)⟩
 
 @[simp] theorem findSome?_guard (l : List α) : findSome? (Option.guard fun x => p x) l = find? p l := by
   induction l with
@@ -95,6 +132,15 @@ theorem findSome?_append {l₁ l₂ : List α} : (l₁ ++ l₂).findSome? f = (l
     simp only [cons_append, findSome?]
     split <;> simp_all
 
+theorem head_join {L : List (List α)} (h : ∃ l, l ∈ L ∧ l ≠ []) :
+    (join L).head (by simpa using h) = (L.findSome? fun l => l.head?).get (by simpa using h) := by
+  simp [head_eq_iff_head?_eq_some, head?_join]
+
+theorem getLast_join {L : List (List α)} (h : ∃ l, l ∈ L ∧ l ≠ []) :
+    (join L).getLast (by simpa using h) =
+      (L.reverse.findSome? fun l => l.getLast?).get (by simpa using h) := by
+  simp [getLast_eq_iff_getLast_eq_some, getLast?_join]
+
 theorem findSome?_replicate : findSome? f (replicate n a) = if n = 0 then none else f a := by
   cases n with
   | zero => simp
@@ -126,7 +172,7 @@ theorem Sublist.findSome?_isSome {l₁ l₂ : List α} (h : l₁ <+ l₂) :
 
 theorem Sublist.findSome?_eq_none {l₁ l₂ : List α} (h : l₁ <+ l₂) :
     l₂.findSome? f = none → l₁.findSome? f = none := by
-  simp only [List.findSome?_eq_none, Bool.not_eq_true]
+  simp only [List.findSome?_eq_none_iff, Bool.not_eq_true]
   exact fun w x m => w x (Sublist.mem m h)
 
 theorem IsPrefix.findSome?_eq_some {l₁ l₂ : List α} {f : α → Option β} (h : l₁ <+: l₂) :
@@ -775,5 +821,97 @@ theorem indexOf_cons [BEq α] :
     (x :: xs : List α).indexOf y = bif x == y then 0 else xs.indexOf y + 1 := by
   dsimp [indexOf]
   simp [findIdx_cons]
+
+/-! ### lookup -/
+section lookup
+variable [BEq α] [LawfulBEq α]
+
+@[simp] theorem lookup_cons_self  {k : α} : ((k,b) :: es).lookup k = some b := by
+  simp [lookup_cons]
+
+theorem lookup_eq_findSome? (l : List (α × β)) (k : α) :
+    l.lookup k = l.findSome? fun p => if k == p.1 then some p.2 else none := by
+  induction l with
+  | nil => rfl
+  | cons p l ih =>
+    match p with
+    | (k', v) =>
+      simp only [lookup_cons, findSome?_cons]
+      split <;> simp_all
+
+@[simp] theorem lookup_eq_none_iff {l : List (α × β)} {k : α} :
+    l.lookup k = none ↔ ∀ p ∈ l, k != p.1 := by
+  simp [lookup_eq_findSome?]
+
+@[simp] theorem lookup_isSome_iff {l : List (α × β)} {k : α} :
+    (l.lookup k).isSome ↔ ∃ p ∈ l, k == p.1 := by
+  simp [lookup_eq_findSome?]
+
+theorem lookup_eq_some_iff {l : List (α × β)} {k : α} {b : β} :
+    l.lookup k = some b ↔ ∃ l₁ l₂, l = l₁ ++ (k, b) :: l₂ ∧ ∀ p ∈ l₁, k != p.1 := by
+  simp only [lookup_eq_findSome?, findSome?_eq_some_iff]
+  constructor
+  · rintro ⟨l₁, a, l₂, rfl, h₁, h₂⟩
+    simp only [beq_iff_eq, ite_some_none_eq_some] at h₁
+    obtain ⟨rfl, rfl⟩ := h₁
+    simp at h₂
+    exact ⟨l₁, l₂, rfl, by simpa using h₂⟩
+  · rintro ⟨l₁, l₂, rfl, h⟩
+    exact ⟨l₁, (k, b), l₂, rfl, by simp, by simpa using h⟩
+
+theorem lookup_append {l₁ l₂ : List (α × β)} {k : α} :
+    (l₁ ++ l₂).lookup k = (l₁.lookup k).or (l₂.lookup k) := by
+  simp [lookup_eq_findSome?, findSome?_append]
+
+theorem lookup_replicate {k : α} :
+    (replicate n (a,b)).lookup k = if n = 0 then none else if k == a then some b else none := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    simp only [replicate_succ, lookup_cons]
+    split <;> simp_all
+
+theorem lookup_replicate_of_pos {k : α} (h : 0 < n) :
+    (replicate n (a, b)).lookup k = if k == a then some b else none := by
+  simp [lookup_replicate, Nat.ne_of_gt h]
+
+theorem lookup_replicate_self {a : α} :
+    (replicate n (a, b)).lookup a = if n = 0 then none else some b := by
+  simp [lookup_replicate]
+
+@[simp] theorem lookup_replicate_self_of_pos {a : α} (h : 0 < n) :
+    (replicate n (a, b)).lookup a = some b := by
+  simp [lookup_replicate_self, Nat.ne_of_gt h]
+
+@[simp] theorem lookup_replicate_ne {k : α} (h : !k == a) :
+    (replicate n (a, b)).lookup k = none := by
+  simp_all [lookup_replicate]
+
+theorem Sublist.lookup_isSome {l₁ l₂ : List (α × β)} (h : l₁ <+ l₂) :
+    (l₁.lookup k).isSome → (l₂.lookup k).isSome := by
+  simp only [lookup_eq_findSome?]
+  exact h.findSome?_isSome
+
+theorem Sublist.lookup_eq_none {l₁ l₂ : List (α × β)} (h : l₁ <+ l₂) :
+    l₂.lookup k = none → l₁.lookup k = none := by
+  simp only [lookup_eq_findSome?]
+  exact h.findSome?_eq_none
+
+theorem IsPrefix.lookup_eq_some {l₁ l₂ : List (α × β)} (h : l₁ <+: l₂) :
+    List.lookup k l₁ = some b → List.lookup k l₂ = some b := by
+  simp only [lookup_eq_findSome?]
+  exact h.findSome?_eq_some
+
+theorem IsPrefix.lookup_eq_none {l₁ l₂ : List (α × β)} (h : l₁ <+: l₂) :
+    List.lookup k l₂ = none → List.lookup k l₁ = none :=
+  h.sublist.lookup_eq_none
+theorem IsSuffix.lookup_eq_none {l₁ l₂ : List (α × β)} (h : l₁ <:+ l₂) :
+    List.lookup k l₂ = none → List.lookup k l₁ = none :=
+  h.sublist.lookup_eq_none
+theorem IsInfix.lookup_eq_none {l₁ l₂ : List (α × β)} (h : l₁ <:+: l₂) :
+    List.lookup k l₂ = none → List.lookup k l₁ = none :=
+  h.sublist.lookup_eq_none
+
+end lookup
 
 end List

@@ -5,33 +5,34 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.UInt.BasicAux
+import Init.Data.BitVec.Basic
 
 open Nat
 
 @[extern "lean_uint8_add"]
-def UInt8.add (a b : UInt8) : UInt8 := ⟨a.val + b.val⟩
+def UInt8.add (a b : UInt8) : UInt8 := ⟨a.toBitVec + b.toBitVec⟩
 @[extern "lean_uint8_sub"]
-def UInt8.sub (a b : UInt8) : UInt8 := ⟨a.val - b.val⟩
+def UInt8.sub (a b : UInt8) : UInt8 := ⟨a.toBitVec - b.toBitVec⟩
 @[extern "lean_uint8_mul"]
-def UInt8.mul (a b : UInt8) : UInt8 := ⟨a.val * b.val⟩
+def UInt8.mul (a b : UInt8) : UInt8 := ⟨a.toBitVec * b.toBitVec⟩
 @[extern "lean_uint8_div"]
-def UInt8.div (a b : UInt8) : UInt8 := ⟨a.val / b.val⟩
+def UInt8.div (a b : UInt8) : UInt8 := ⟨BitVec.udiv a.toBitVec b.toBitVec⟩
 @[extern "lean_uint8_mod"]
-def UInt8.mod (a b : UInt8) : UInt8 := ⟨a.val % b.val⟩
+def UInt8.mod (a b : UInt8) : UInt8 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
 @[extern "lean_uint8_modn"]
-def UInt8.modn (a : UInt8) (n : @& Nat) : UInt8 := ⟨Fin.modn a.val n⟩
+def UInt8.modn (a : UInt8) (n : @& Nat) : UInt8 := ⟨Fin.modn a.val n⟩ -- TODO
 @[extern "lean_uint8_land"]
-def UInt8.land (a b : UInt8) : UInt8 := ⟨Fin.land a.val b.val⟩
+def UInt8.land (a b : UInt8) : UInt8 := ⟨a.toBitVec &&& b.toBitVec⟩
 @[extern "lean_uint8_lor"]
-def UInt8.lor (a b : UInt8) : UInt8 := ⟨Fin.lor a.val b.val⟩
+def UInt8.lor (a b : UInt8) : UInt8 := ⟨a.toBitVec ||| b.toBitVec⟩
 @[extern "lean_uint8_xor"]
-def UInt8.xor (a b : UInt8) : UInt8 := ⟨Fin.xor a.val b.val⟩
+def UInt8.xor (a b : UInt8) : UInt8 := ⟨a.toBitVec ^^^ b.toBitVec⟩
 @[extern "lean_uint8_shift_left"]
-def UInt8.shiftLeft (a b : UInt8) : UInt8 := ⟨a.val <<< (modn b 8).val⟩
+def UInt8.shiftLeft (a b : UInt8) : UInt8 := ⟨a.toBitVec <<< (modn b 8).toBitVec⟩
 @[extern "lean_uint8_shift_right"]
-def UInt8.shiftRight (a b : UInt8) : UInt8 := ⟨a.val >>> (modn b 8).val⟩
-def UInt8.lt (a b : UInt8) : Prop := a.val < b.val
-def UInt8.le (a b : UInt8) : Prop := a.val ≤ b.val
+def UInt8.shiftRight (a b : UInt8) : UInt8 := ⟨a.toBitVec >>> (modn b 8).toBitVec⟩
+def UInt8.lt (a b : UInt8) : Prop := BitVec.ult a.toBitVec b.toBitVec = true
+def UInt8.le (a b : UInt8) : Prop := BitVec.ule a.toBitVec b.toBitVec = true
 
 instance : Add UInt8       := ⟨UInt8.add⟩
 instance : Sub UInt8       := ⟨UInt8.sub⟩
@@ -43,7 +44,7 @@ instance : LT UInt8        := ⟨UInt8.lt⟩
 instance : LE UInt8        := ⟨UInt8.le⟩
 
 @[extern "lean_uint8_complement"]
-def UInt8.complement (a:UInt8) : UInt8 := 0-(a+1)
+def UInt8.complement (a : UInt8) : UInt8 := ⟨~~~a.toBitVec⟩
 
 instance : Complement UInt8 := ⟨UInt8.complement⟩
 instance : AndOp UInt8     := ⟨UInt8.land⟩
@@ -52,17 +53,13 @@ instance : Xor UInt8       := ⟨UInt8.xor⟩
 instance : ShiftLeft UInt8  := ⟨UInt8.shiftLeft⟩
 instance : ShiftRight UInt8 := ⟨UInt8.shiftRight⟩
 
-set_option bootstrap.genMatcherCode false in
 @[extern "lean_uint8_dec_lt"]
 def UInt8.decLt (a b : UInt8) : Decidable (a < b) :=
-  match a, b with
-  | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (n < m))
+  inferInstanceAs (Decidable (BitVec.ult a.toBitVec b.toBitVec))
 
-set_option bootstrap.genMatcherCode false in
 @[extern "lean_uint8_dec_le"]
 def UInt8.decLe (a b : UInt8) : Decidable (a ≤ b) :=
-  match a, b with
-  | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (n <= m))
+  inferInstanceAs (Decidable (BitVec.ule a.toBitVec b.toBitVec))
 
 instance (a b : UInt8) : Decidable (a < b) := UInt8.decLt a b
 instance (a b : UInt8) : Decidable (a ≤ b) := UInt8.decLe a b

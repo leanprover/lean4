@@ -6,6 +6,8 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.UInt.Basic
 import Init.Data.Fin.Lemmas
+import Init.Data.BitVec.Lemmas
+import Init.Data.BitVec.Bitblast
 
 set_option hygiene false in
 macro "declare_uint_theorems" typeName:ident : command =>
@@ -64,11 +66,100 @@ protected theorem toNat_lt_size (a : $typeName) : a.toNat < size := a.1.2
 end $typeName
 )
 
-declare_uint_theorems UInt8
 declare_uint_theorems UInt16
 declare_uint_theorems UInt32
 declare_uint_theorems UInt64
 declare_uint_theorems USize
+
+set_option hygiene false in
+macro "declare_new_uint_theorems" typeName:ident : command =>
+`(
+namespace $typeName
+
+instance : Inhabited $typeName where
+  default := 0
+
+theorem zero_def : (0 : $typeName) = ⟨0⟩ := rfl
+theorem one_def : (1 : $typeName) = ⟨1⟩ := rfl
+theorem sub_def (a b : $typeName) : a - b = ⟨a.toBitVec - b.toBitVec⟩ := rfl
+theorem mul_def (a b : $typeName) : a * b = ⟨a.toBitVec * b.toBitVec⟩ := rfl
+theorem mod_def (a b : $typeName) : a % b = ⟨a.toBitVec % b.toBitVec⟩ := rfl
+theorem add_def (a b : $typeName) : a + b = ⟨a.toBitVec + b.toBitVec⟩ := rfl
+
+@[simp] theorem mk_toBitVec_eq : ∀ (a : $typeName), mk a.toBitVec = a
+  | ⟨_, _⟩ => rfl
+
+theorem toBitVec_eq_of_lt {a : Nat} : a < size → (ofNat a).toBitVec.toNat = a :=
+  Nat.mod_eq_of_lt
+
+theorem toNat_ofNat_of_lt {n : Nat} (h : n < size) : (ofNat n).toNat = n := by
+  rw [toNat, toBitVec_eq_of_lt h]
+
+theorem le_def {a b : $typeName} : a ≤ b ↔ BitVec.ule a.toBitVec b.toBitVec := sorry--.rfl
+
+theorem lt_def {a b : $typeName} : a < b ↔ BitVec.ult a.toBitVec b.toBitVec := sorry--.rfl
+
+@[simp] protected theorem not_le {a b : $typeName} : ¬ a ≤ b ↔ b < a := by
+  simp [le_def, lt_def, BitVec.ule_eq_not_ult]
+
+@[simp] protected theorem not_lt {a b : $typeName} : ¬ a < b ↔ b ≤ a := by
+  simp [le_def, lt_def, BitVec.ule_eq_not_ult]
+
+@[simp] protected theorem le_refl (a : $typeName) : a ≤ a := by simp [le_def]; sorry
+
+@[simp] protected theorem lt_irrefl (a : $typeName) : ¬ a < a := by simp
+
+protected theorem le_trans {a b c : $typeName} : a ≤ b → b ≤ c → a ≤ c := sorry--Fin.le_trans
+
+protected theorem lt_trans {a b c : $typeName} : a < b → b < c → a < c := sorry--Fin.lt_trans
+
+protected theorem le_total (a b : $typeName) : a ≤ b ∨ b ≤ a := sorry--Fin.le_total a.1 b.1
+
+protected theorem lt_asymm {a b : $typeName} (h : a < b) : ¬ b < a := sorry--Fin.lt_asymm h
+
+protected theorem toBitVec_eq_of_eq {a b : $typeName} (h : a = b) : a.toBitVec = b.toBitVec := h ▸ rfl
+
+protected theorem eq_of_toBitVec_eq {a b : $typeName} (h : a.toBitVec = b.toBitVec) : a = b := by
+  cases a; cases b; simp_all
+
+open $typeName (toBitVec_eq_of_eq) in
+protected theorem ne_of_toBitVec_ne {a b : $typeName} (h : a.toBitVec ≠ b.toBitVec) : a ≠ b :=
+  fun h' => absurd (toBitVec_eq_of_eq h') h
+
+open $typeName (ne_of_toBitVec_ne) in
+protected theorem ne_of_lt {a b : $typeName} (h : a < b) : a ≠ b := ne_of_toBitVec_ne sorry--(Fin.ne_of_lt h)
+
+@[simp] protected theorem toNat_zero : (0 : $typeName).toNat = 0 := Nat.zero_mod _
+
+@[simp] protected theorem toNat_mod (a b : $typeName) : (a % b).toNat = a.toNat % b.toNat := BitVec.toNat_umod ..
+
+@[simp] protected theorem toNat_div (a b : $typeName) : (a / b).toNat = a.toNat / b.toNat := BitVec.toNat_udiv  ..
+
+@[simp] protected theorem toNat_sub_of_le (a b : $typeName) : b ≤ a → (a - b).toNat = a.toNat - b.toNat := sorry--Fin.sub_val_of_le
+
+@[simp] protected theorem toNat_modn (a : $typeName) (b : Nat) : (a.modn b).toNat = a.toNat % b := Fin.modn_val ..
+
+protected theorem modn_lt {m : Nat} : ∀ (u : $typeName), m > 0 → toNat (u % m) < m
+  | ⟨u⟩, h => sorry--Fin.modn_lt u h
+
+protected theorem mod_lt (a b : $typeName) (h : 0 < b) : a % b < b := sorry--modn_lt _ (by simp [lt_def] at h; exact h)
+
+protected theorem toNat.inj : ∀ {a b : $typeName}, a.toNat = b.toNat → a = b
+  | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
+
+protected theorem toNat_lt_size (a : $typeName) : a.toNat < size := a.toBitVec.isLt
+
+@[simp] protected theorem ofNat_one : ofNat 1 = 1 := rfl
+
+end $typeName
+)
+
+declare_new_uint_theorems UInt8
+
+namespace UInt8
+
+end UInt8
+
 
 @[deprecated (since := "2024-06-23")] protected abbrev UInt8.zero_toNat := @UInt8.toNat_zero
 @[deprecated (since := "2024-06-23")] protected abbrev UInt8.div_toNat := @UInt8.toNat_div

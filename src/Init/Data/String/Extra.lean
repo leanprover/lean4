@@ -21,7 +21,7 @@ def toNat! (s : String) : Nat :=
 def utf8DecodeChar? (a : ByteArray) (i : Nat) : Option Char := do
   let c ← a[i]?
   if c &&& 0x80 == 0 then
-    some ⟨c.toUInt32, .inl (Nat.lt_trans c.1.2 (by decide))⟩
+    some ⟨c.toUInt32, .inl (Nat.lt_trans c.toBitVec.isLt (by decide))⟩
   else if c &&& 0xe0 == 0xc0 then
     let c1 ← a[i+1]?
     guard (c1 &&& 0xc0 == 0x80)

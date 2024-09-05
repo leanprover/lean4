@@ -57,7 +57,7 @@ theorem isValidChar_zero : isValidChar 0 :=
   c.val.toUInt8
 
 /-- The numbers from 0 to 256 are all valid UTF-8 characters, so we can embed one in the other. -/
-def ofUInt8 (n : UInt8) : Char := ⟨n.toUInt32, .inl (Nat.lt_trans n.1.2 (by decide))⟩
+def ofUInt8 (n : UInt8) : Char := ⟨n.toUInt32, .inl (Nat.lt_trans n.toBitVec.isLt (by decide))⟩
 
 instance : Inhabited Char where
   default := 'A'

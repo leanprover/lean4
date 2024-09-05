@@ -8,6 +8,7 @@ import Init.Data.Fin.Basic
 import Init.Data.Nat.Bitwise.Lemmas
 import Init.Data.Nat.Power2
 import Init.Data.Int.Bitwise
+import Init.Data.BitVec.BasixAux
 
 /-!
 We define bitvectors. We choose the `Fin` representation over others for its relative efficiency
@@ -26,25 +27,7 @@ namespace BitVec
 
 section Nat
 
-/-- The `BitVec` with value `i`, given a proof that `i < 2^n`. -/
-@[match_pattern]
-protected def ofNatLt {n : Nat} (i : Nat) (p : i < 2^n) : BitVec n where
-  toFin := ⟨i, p⟩
-
-/-- The `BitVec` with value `i mod 2^n`. -/
-@[match_pattern]
-protected def ofNat (n : Nat) (i : Nat) : BitVec n where
-  toFin := Fin.ofNat' (2^n) i
-
-instance instOfNat : OfNat (BitVec n) i where ofNat := .ofNat n i
 instance natCastInst : NatCast (BitVec w) := ⟨BitVec.ofNat w⟩
-
-/-- Given a bitvector `x`, return the underlying `Nat`. This is O(1) because `BitVec` is a
-(zero-cost) wrapper around a `Nat`. -/
-protected def toNat (x : BitVec n) : Nat := x.toFin.val
-
-/-- Return the bound in terms of toNat. -/
-theorem isLt (x : BitVec w) : x.toNat < 2^w := x.toFin.isLt
 
 @[deprecated isLt (since := "2024-03-12")]
 theorem toNat_lt (x : BitVec n) : x.toNat < 2^n := x.isLt

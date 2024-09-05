@@ -1124,7 +1124,7 @@ theorem ext_iff {s₁ s₂ : String} : s₁ = s₂ ↔ s₁.data = s₂.data := 
 
 attribute [simp] toList -- prefer `String.data` over `String.toList` in lemmas
 
-theorem lt_iff (s t : String) : s < t ↔ s.data < t.data := .rfl
+theorem lt_iff {s t : String} : s < t ↔ s.data < t.data := .rfl
 
 namespace Pos
 

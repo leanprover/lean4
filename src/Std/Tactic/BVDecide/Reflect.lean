@@ -79,8 +79,8 @@ theorem replicate_congr (n : Nat) (w : Nat) (expr expr' : BitVec w) (h : expr' =
     BitVec.replicate n expr' = BitVec.replicate n expr := by
   simp[*]
 
-theorem extract_congr (hi lo : Nat) (w : Nat) (x x' : BitVec w) (h1 : x = x') :
-    BitVec.extractLsb hi lo x' = BitVec.extractLsb hi lo x := by
+theorem extract_congr (start len : Nat) (w : Nat) (x x' : BitVec w) (h1 : x = x') :
+    BitVec.extractLsb' start len x' = BitVec.extractLsb' start len x := by
   simp[*]
 
 theorem rotateLeft_congr (n : Nat) (w : Nat) (x x' : BitVec w) (h : x = x') :

@@ -33,7 +33,7 @@ theorem eraseP_of_forall_not {l : List α} (h : ∀ a, a ∈ l → ¬p a) : l.er
   | nil => rfl
   | cons _ _ ih => simp [h _ (.head ..), ih (forall_mem_cons.1 h).2]
 
-@[simp] theorem eraseP_eq_nil (xs : List α) (p : α → Bool) : xs.eraseP p = [] ↔ xs = [] ∨ ∃ x, p x ∧ xs = [x] := by
+@[simp] theorem eraseP_eq_nil {xs : List α} {p : α → Bool} : xs.eraseP p = [] ↔ xs = [] ∨ ∃ x, p x ∧ xs = [x] := by
   induction xs with
   | nil => simp
   | cons x xs ih =>
@@ -49,7 +49,7 @@ theorem eraseP_of_forall_not {l : List α} (h : ∀ a, a ∈ l → ¬p a) : l.er
       rintro x h' rfl
       simp_all
 
-theorem eraseP_ne_nil (xs : List α) (p : α → Bool) : xs.eraseP p ≠ [] ↔ xs ≠ [] ∧ ∀ x, p x → xs ≠ [x] := by
+theorem eraseP_ne_nil {xs : List α} {p : α → Bool} : xs.eraseP p ≠ [] ↔ xs ≠ [] ∧ ∀ x, p x → xs ≠ [x] := by
   simp
 
 theorem exists_of_eraseP : ∀ {l : List α} {a} (al : a ∈ l) (pa : p a),
@@ -294,12 +294,12 @@ theorem erase_eq_eraseP [LawfulBEq α] (a : α) : ∀ l : List α,  l.erase a = 
   | b :: l => by
     if h : a = b then simp [h] else simp [h, Ne.symm h, erase_eq_eraseP a l]
 
-@[simp] theorem erase_eq_nil [LawfulBEq α] (xs : List α) (a : α) :
+@[simp] theorem erase_eq_nil [LawfulBEq α] {xs : List α} {a : α} :
     xs.erase a = [] ↔ xs = [] ∨ xs = [a] := by
   rw [erase_eq_eraseP]
   simp
 
-theorem erase_ne_nil [LawfulBEq α] (xs : List α) (a : α) :
+theorem erase_ne_nil [LawfulBEq α] {xs : List α} {a : α} :
     xs.erase a ≠ [] ↔ xs ≠ [] ∧ xs ≠ [a] := by
   rw [erase_eq_eraseP]
   simp

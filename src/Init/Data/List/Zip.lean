@@ -136,14 +136,14 @@ theorem getElem?_zipWith' {f : α → β → γ} {i : Nat} :
     · simp
     · cases i <;> simp_all
 
-theorem getElem?_zipWith_eq_some (f : α → β → γ) (l₁ : List α) (l₂ : List β) (z : γ) (i : Nat) :
+theorem getElem?_zipWith_eq_some {f : α → β → γ} {l₁ : List α} {l₂ : List β} {z : γ} {i : Nat} :
     (zipWith f l₁ l₂)[i]? = some z ↔
       ∃ x y, l₁[i]? = some x ∧ l₂[i]? = some y ∧ f x y = z := by
   induction l₁ generalizing l₂ i
   · simp
   · cases l₂ <;> cases i <;> simp_all
 
-theorem getElem?_zip_eq_some (l₁ : List α) (l₂ : List β) (z : α × β) (i : Nat) :
+theorem getElem?_zip_eq_some {l₁ : List α} {l₂ : List β} {z : α × β} {i : Nat} :
     (zip l₁ l₂)[i]? = some z ↔ l₁[i]? = some z.1 ∧ l₂[i]? = some z.2 := by
   cases z
   rw [zip, getElem?_zipWith_eq_some]; constructor

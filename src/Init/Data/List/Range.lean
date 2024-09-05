@@ -32,7 +32,7 @@ theorem range'_succ (s n step) : range' s (n + 1) step = s :: range' (s + step) 
 @[simp] theorem range'_eq_nil : range' s n step = [] ↔ n = 0 := by
   rw [← length_eq_zero, length_range']
 
-theorem range'_ne_nil (s n : Nat) : range' s n ≠ [] ↔ n ≠ 0 := by
+theorem range'_ne_nil (s : Nat) {n : Nat} : range' s n ≠ [] ↔ n ≠ 0 := by
   cases n <;> simp
 
 @[simp] theorem range'_zero : range' s 0 = [] := by
@@ -150,7 +150,7 @@ theorem range'_eq_map_range (s n : Nat) : range' s n = map (s + ·) (range n) :=
 @[simp] theorem range_eq_nil {n : Nat} : range n = [] ↔ n = 0 := by
   rw [← length_eq_zero, length_range]
 
-theorem range_ne_nil (n : Nat) : range n ≠ [] ↔ n ≠ 0 := by
+theorem range_ne_nil {n : Nat} : range n ≠ [] ↔ n ≠ 0 := by
   cases n <;> simp
 
 @[simp]

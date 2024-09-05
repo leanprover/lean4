@@ -34,6 +34,7 @@ attribute [bv_normalize] ge_iff_le
 theorem BitVec.truncate_eq_zeroExtend (x : BitVec w) : x.truncate n = x.zeroExtend n := by
   rfl
 
+attribute [bv_normalize] BitVec.extractLsb
 attribute [bv_normalize] BitVec.msb_eq_getLsbD_last
 attribute [bv_normalize] BitVec.slt_eq_ult
 attribute [bv_normalize] BitVec.sle_eq_not_slt

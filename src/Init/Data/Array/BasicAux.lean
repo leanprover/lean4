@@ -38,7 +38,7 @@ private theorem List.of_toArrayAux_eq_toArrayAux {as bs : List α} {cs ds : Arra
   · intro h; rw [h]
 
 def Array.mapM' [Monad m] (f : α → m β) (as : Array α) : m { bs : Array β // bs.size = as.size } :=
-  go 0 ⟨mkEmpty as.size, rfl⟩ (by simp_arith)
+  go 0 ⟨mkEmpty as.size, rfl⟩ (by simp)
 where
   go (i : Nat) (acc : { bs : Array β // bs.size = i }) (hle : i ≤ as.size) : m { bs : Array β // bs.size = as.size } := do
     if h : i = as.size then

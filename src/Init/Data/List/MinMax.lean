@@ -51,7 +51,7 @@ theorem minimum?_mem [Min α] (min_eq_or : ∀ a b : α, min a b = a ∨ min a b
 
 theorem le_minimum?_iff [Min α] [LE α]
     (le_min_iff : ∀ a b c : α, a ≤ min b c ↔ a ≤ b ∧ a ≤ c) :
-    {xs : List α} → xs.minimum? = some a → ∀ x, x ≤ a ↔ ∀ b, b ∈ xs → x ≤ b
+    {xs : List α} → xs.minimum? = some a → ∀ {x}, x ≤ a ↔ ∀ b, b ∈ xs → x ≤ b
   | nil => by simp
   | cons x xs => by
     rw [minimum?]
@@ -72,13 +72,13 @@ theorem minimum?_eq_some_iff [Min α] [LE α] [anti : Antisymm ((· : α) ≤ ·
     (min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b)
     (le_min_iff : ∀ a b c : α, a ≤ min b c ↔ a ≤ b ∧ a ≤ c) {xs : List α} :
     xs.minimum? = some a ↔ a ∈ xs ∧ ∀ b, b ∈ xs → a ≤ b := by
-  refine ⟨fun h => ⟨minimum?_mem min_eq_or h, (le_minimum?_iff le_min_iff h _).1 (le_refl _)⟩, ?_⟩
+  refine ⟨fun h => ⟨minimum?_mem min_eq_or h, (le_minimum?_iff le_min_iff h).1 (le_refl _)⟩, ?_⟩
   intro ⟨h₁, h₂⟩
   cases xs with
   | nil => simp at h₁
   | cons x xs =>
     exact congrArg some <| anti.1
-      ((le_minimum?_iff le_min_iff (xs := x::xs) rfl _).1 (le_refl _) _ h₁)
+      ((le_minimum?_iff le_min_iff (xs := x::xs) rfl).1 (le_refl _) _ h₁)
       (h₂ _ (minimum?_mem min_eq_or (xs := x::xs) rfl))
 
 theorem minimum?_replicate [Min α] {n : Nat} {a : α} (w : min a a = a) :
@@ -116,7 +116,7 @@ theorem maximum?_mem [Max α] (min_eq_or : ∀ a b : α, max a b = a ∨ max a b
 
 theorem maximum?_le_iff [Max α] [LE α]
     (max_le_iff : ∀ a b c : α, max b c ≤ a ↔ b ≤ a ∧ c ≤ a) :
-    {xs : List α} → xs.maximum? = some a → ∀ x, a ≤ x ↔ ∀ b ∈ xs, b ≤ x
+    {xs : List α} → xs.maximum? = some a → ∀ {x}, a ≤ x ↔ ∀ b ∈ xs, b ≤ x
   | nil => by simp
   | cons x xs => by
     rw [maximum?]; rintro ⟨⟩ y
@@ -131,14 +131,14 @@ theorem maximum?_eq_some_iff [Max α] [LE α] [anti : Antisymm ((· : α) ≤ ·
     (max_eq_or : ∀ a b : α, max a b = a ∨ max a b = b)
     (max_le_iff : ∀ a b c : α, max b c ≤ a ↔ b ≤ a ∧ c ≤ a) {xs : List α} :
     xs.maximum? = some a ↔ a ∈ xs ∧ ∀ b ∈ xs, b ≤ a := by
-  refine ⟨fun h => ⟨maximum?_mem max_eq_or h, (maximum?_le_iff max_le_iff h _).1 (le_refl _)⟩, ?_⟩
+  refine ⟨fun h => ⟨maximum?_mem max_eq_or h, (maximum?_le_iff max_le_iff h).1 (le_refl _)⟩, ?_⟩
   intro ⟨h₁, h₂⟩
   cases xs with
   | nil => simp at h₁
   | cons x xs =>
     exact congrArg some <| anti.1
       (h₂ _ (maximum?_mem max_eq_or (xs := x::xs) rfl))
-      ((maximum?_le_iff max_le_iff (xs := x::xs) rfl _).1 (le_refl _) _ h₁)
+      ((maximum?_le_iff max_le_iff (xs := x::xs) rfl).1 (le_refl _) _ h₁)
 
 theorem maximum?_replicate [Max α] {n : Nat} {a : α} (w : max a a = a) :
     (replicate n a).maximum? = if n = 0 then none else some a := by

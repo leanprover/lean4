@@ -160,7 +160,7 @@ theorem not_iff : ¬(a ↔ b) ↔ (¬a ↔ b) := Decidable.not_iff
 
 @[simp] theorem not_imp : ¬(a → b) ↔ a ∧ ¬b := Decidable.not_imp_iff_and_not
 
-@[simp] theorem imp_and_neg_imp_iff (p q : Prop) : (p → q) ∧ (¬p → q) ↔ q :=
+@[simp] theorem imp_and_neg_imp_iff (p : Prop) {q : Prop} : (p → q) ∧ (¬p → q) ↔ q :=
   Iff.intro (fun (a : _ ∧ _) => (Classical.em p).rec a.left a.right)
             (fun a => And.intro (fun _ => a) (fun _ => a))
 

@@ -227,7 +227,7 @@ theorem gcd_eq_zero_iff {i j : Nat} : gcd i j = 0 ↔ i = 0 ∧ j = 0 :=
    fun h => by simp [h]⟩
 
 /-- Characterization of the value of `Nat.gcd`. -/
-theorem gcd_eq_iff (a b : Nat) :
+theorem gcd_eq_iff {a b : Nat} :
     gcd a b = g ↔ g ∣ a ∧ g ∣ b ∧ (∀ c, c ∣ a → c ∣ b → c ∣ g) := by
   constructor
   · rintro rfl

@@ -223,7 +223,7 @@ def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
 
-  withWaitFindSnap doc (fun s => s.endPos > hoverPos)
+  withWaitFindSnap doc (fun s => s.endPos >= hoverPos)
     (notFoundX := pure #[]) fun snap => do
       if let some infoWithCtx := snap.infoTree.hoverableInfoAt? (omitIdentApps := true) (includeStop := true /- #767 -/) hoverPos then
         locationLinksOfInfo kind infoWithCtx snap.infoTree
@@ -315,7 +315,7 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
     let trees := snaps.map (·.infoTree)
     let refs : Lsp.ModuleRefs ← findModuleRefs text trees |>.toLspModuleRefs
     let mut ranges := #[]
-    for ident in refs.findAt p.position do
+    for ident in refs.findAt p.position (includeStop := true) do
       if let some info := refs.get? ident then
         if let some ⟨definitionRange, _⟩ := info.definition? then
           ranges := ranges.push definitionRange
@@ -324,7 +324,7 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
       return none
     return some <| ranges.map ({ range := ·, kind? := DocumentHighlightKind.text })
 
-  withWaitFindSnap doc (fun s => s.endPos > pos)
+  withWaitFindSnap doc (fun s => s.endPos >= pos)
     (notFoundX := pure #[]) fun snap => do
       let (snaps, _) ← doc.cmdSnaps.getFinishedPrefix
       if let some his ← highlightRefs? snaps.toArray then

@@ -256,7 +256,7 @@ theorem get_drop' (L : List α) {i j} :
 @[simp]
 theorem getElem?_drop (L : List α) (i j : Nat) : (L.drop i)[j]? = L[i + j]? := by
   ext
-  simp only [getElem?_eq_some, getElem_drop, Option.mem_def]
+  simp only [getElem?_eq_some_iff, getElem_drop, Option.mem_def]
   constructor <;> intro ⟨h, ha⟩
   · exact ⟨_, ha⟩
   · refine ⟨?_, ha⟩
@@ -337,7 +337,7 @@ theorem set_eq_take_append_cons_drop {l : List α} {n : Nat} {a : α} :
         getElem?_take_of_lt h']
     · by_cases h'' : m = n
       · subst h''
-        rw [getElem?_set_eq ‹_›, getElem?_append_right, length_take,
+        rw [getElem?_set_self ‹_›, getElem?_append_right, length_take,
           Nat.min_eq_left (by omega), Nat.sub_self, getElem?_cons_zero]
         rw [length_take]
         exact Nat.min_le_left m l.length

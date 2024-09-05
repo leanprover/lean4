@@ -113,7 +113,7 @@ instance {v : α} {f : CNF α} [DecidableEq α] : Decidable (Mem v f) :=
 
 theorem any_not_isEmpty_iff_exists_mem {f : CNF α} :
     (List.any f fun c => !List.isEmpty c) = true ↔ ∃ v, Mem v f := by
-  simp only [List.any_eq_true, Bool.not_eq_true', List.isEmpty_false_iff_exists_mem, Mem,
+  simp only [List.any_eq_true, Bool.not_eq_true', List.isEmpty_eq_false_iff_exists_mem, Mem,
     Clause.Mem]
   constructor
   · intro h

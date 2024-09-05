@@ -355,7 +355,7 @@ theorem getElem_fin_eq_data_get (a : Array α) (i : Fin _) : a[i] = a.data.get i
 @[simp] theorem ugetElem_eq_getElem (a : Array α) {i : USize} (h : i.toNat < a.size) :
   a[i] = a[i.toNat] := rfl
 
-theorem getElem?_eq_getElem (a : Array α) (i : Nat) (h : i < a.size) : a[i]? = a[i] :=
+theorem getElem?_eq_getElem (a : Array α) (i : Nat) (h : i < a.size) : a[i]? = some a[i] :=
   getElem?_pos ..
 
 theorem get?_len_le (a : Array α) (i : Nat) (h : a.size ≤ i) : a[i]? = none := by
@@ -410,7 +410,7 @@ theorem get?_push {a : Array α} : (a.push x)[i]? = if i = a.size then some x el
 
 theorem get_set_eq (a : Array α) (i : Fin a.size) (v : α) :
     (a.set i v)[i.1] = v := by
-  simp only [set, getElem_eq_data_getElem, List.getElem_set_eq]
+  simp only [set, getElem_eq_data_getElem, List.getElem_set_self]
 
 theorem get?_set_eq (a : Array α) (i : Fin a.size) (v : α) :
     (a.set i v)[i.1]? = v := by simp [getElem?_pos, i.2]

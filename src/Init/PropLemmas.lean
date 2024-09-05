@@ -640,7 +640,7 @@ attribute [local simp] Decidable.imp_iff_left_iff
 @[simp] theorem dite_iff_right_iff {p : Prop} [Decidable p] {x : p → Prop} {y : Prop} : ((if h : p then x h else y) ↔ y) ↔ ∀ h : p, x h ↔ y := by
   split <;> simp_all
 
-@[simp] theorem ite_eq_left_iff {p : Prop} [Decidable p] (x y : α) : (if p then x else y) = x ↔ ¬ p → y = x := by
+@[simp] theorem ite_eq_left_iff {p : Prop} [Decidable p] {x y : α} : (if p then x else y) = x ↔ ¬ p → y = x := by
   split <;> simp_all
 
 @[simp] theorem ite_eq_right_iff {p : Prop} [Decidable p] {x y : α} : (if p then x else y) = y ↔ p → x = y := by

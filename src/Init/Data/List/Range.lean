@@ -71,7 +71,7 @@ theorem getElem?_range' (s step) :
 
 @[simp] theorem getElem_range' {n m step} (i) (H : i < (range' n m step).length) :
     (range' n m step)[i] = n + step * i :=
-  (getElem?_eq_some.1 <| getElem?_range' n step (by simpa using H)).2
+  (getElem?_eq_some_iff.1 <| getElem?_range' n step (by simpa using H)).2
 
 theorem head?_range' (n : Nat) : (range' s n).head? = if n = 0 then none else some s := by
   induction n <;> simp_all [range'_succ, head?_append]
@@ -215,7 +215,7 @@ theorem getElem?_enumFrom :
 theorem getElem_enumFrom (l : List α) (n) (i : Nat) (h : i < (l.enumFrom n).length) :
     (l.enumFrom n)[i] = (n + i, l[i]'(by simpa [enumFrom_length] using h)) := by
   simp only [enumFrom_length] at h
-  rw [getElem_eq_getElem?]
+  rw [getElem_eq_getElem?_get]
   simp only [getElem?_enumFrom, getElem?_eq_getElem h]
   simp
 

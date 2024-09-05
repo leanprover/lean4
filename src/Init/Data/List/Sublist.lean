@@ -502,7 +502,7 @@ theorem sublist_join_iff {L : List (List α)} {l} :
       subst w
       exact ⟨[], by simp, fun i x => by cases x⟩
     · rintro ⟨L', rfl, h⟩
-      simp only [join_nil, sublist_nil, join_eq_nil]
+      simp only [join_nil, sublist_nil, join_eq_nil_iff]
       simp only [getElem?_nil, Option.getD_none, sublist_nil] at h
       exact (forall_getElem (p := (· = []))).1 h
   | cons l' L ih =>
@@ -833,7 +833,7 @@ theorem isPrefix_iff : l₁ <+: l₂ ↔ ∀ i (h : i < l₁.length), l₂[i]? =
 
 theorem isPrefix_filterMap_iff {β} {f : α → Option β} {l₁ : List α} {l₂ : List β} :
     l₂ <+: filterMap f l₁ ↔ ∃ l, l <+: l₁ ∧ l₂ = filterMap f l := by
-  simp only [IsPrefix, append_eq_filterMap]
+  simp only [IsPrefix, append_eq_filterMap_iff]
   constructor
   · rintro ⟨_, l₁, l₂, rfl, rfl, rfl⟩
     exact ⟨l₁, ⟨l₂, rfl⟩, rfl⟩
@@ -842,7 +842,7 @@ theorem isPrefix_filterMap_iff {β} {f : α → Option β} {l₁ : List α} {l�
 
 theorem isSuffix_filterMap_iff {β} {f : α → Option β} {l₁ : List α} {l₂ : List β} :
     l₂ <:+ filterMap f l₁ ↔ ∃ l, l <:+ l₁ ∧ l₂ = filterMap f l := by
-  simp only [IsSuffix, append_eq_filterMap]
+  simp only [IsSuffix, append_eq_filterMap_iff]
   constructor
   · rintro ⟨_, l₁, l₂, rfl, rfl, rfl⟩
     exact ⟨l₂, ⟨l₁, rfl⟩, rfl⟩
@@ -851,7 +851,7 @@ theorem isSuffix_filterMap_iff {β} {f : α → Option β} {l₁ : List α} {l�
 
 theorem isInfix_filterMap_iff {β} {f : α → Option β} {l₁ : List α} {l₂ : List β} :
     l₂ <:+: filterMap f l₁ ↔ ∃ l, l <:+: l₁ ∧ l₂ = filterMap f l := by
-  simp only [IsInfix, append_eq_filterMap, filterMap_eq_append]
+  simp only [IsInfix, append_eq_filterMap_iff, filterMap_eq_append_iff]
   constructor
   · rintro ⟨_, _, _, l₁, rfl, ⟨⟨l₂, l₃, rfl, rfl, rfl⟩, rfl⟩⟩
     exact ⟨l₃, ⟨l₂, l₁, rfl⟩, rfl⟩
@@ -885,7 +885,7 @@ theorem isInfix_map_iff {β} {f : α → β} {l₁ : List α} {l₂ : List β} :
 theorem isPrefix_replicate_iff {n} {a : α} {l : List α} :
     l <+: List.replicate n a ↔ l.length ≤ n ∧ l = List.replicate l.length a := by
   rw [IsPrefix]
-  simp only [append_eq_replicate]
+  simp only [append_eq_replicate_iff]
   constructor
   · rintro ⟨_, rfl, _, _⟩
     exact ⟨le_add_right .., ‹_›⟩
@@ -902,7 +902,7 @@ theorem isSuffix_replicate_iff {n} {a : α} {l : List α} :
 theorem isInfix_replicate_iff {n} {a : α} {l : List α} :
     l <:+: List.replicate n a ↔ l.length ≤ n ∧ l = List.replicate l.length a := by
   rw [IsInfix]
-  simp only [append_eq_replicate, length_append]
+  simp only [append_eq_replicate_iff, length_append]
   constructor
   · rintro ⟨_, _, rfl, ⟨-, _, _⟩, _⟩
     exact ⟨le_add_right_of_le (le_add_left ..), ‹_›⟩

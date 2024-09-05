@@ -305,10 +305,10 @@ theorem find?_join_eq_some {xs : List (List α)} {p : α → Bool} {a : α} :
   constructor
   · rintro ⟨h, ⟨ys, zs, h₁, h₂⟩⟩
     refine ⟨h, ?_⟩
-    rw [join_eq_append] at h₁
+    rw [join_eq_append_iff] at h₁
     obtain (⟨as, bs, rfl, rfl, h₁⟩ | ⟨as, bs, c, cs, ds, rfl, rfl, h₁⟩) := h₁
     · replace h₁ := h₁.symm
-      rw [join_eq_cons] at h₁
+      rw [join_eq_cons_iff] at h₁
       obtain ⟨bs, cs, ds, rfl, h₁, rfl⟩ := h₁
       refine ⟨as ++ bs, [], cs, ds, by simp, ?_⟩
       simp

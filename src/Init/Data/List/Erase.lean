@@ -520,7 +520,7 @@ theorem eraseIdx_append_of_length_le {l : List α} {k : Nat} (hk : length l ≤ 
 theorem eraseIdx_replicate {n : Nat} {a : α} {k : Nat} :
     (replicate n a).eraseIdx k = if k < n then replicate (n - 1) a else replicate n a := by
   split <;> rename_i h
-  · rw [eq_replicate, length_eraseIdx (by simpa using h)]
+  · rw [eq_replicate_iff, length_eraseIdx (by simpa using h)]
     simp only [length_replicate, true_and]
     intro b m
     replace m := mem_of_mem_eraseIdx m

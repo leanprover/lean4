@@ -61,7 +61,7 @@ theorem mem_eraseIdx_iff_getElem? {x : α} {l} {k} : x ∈ eraseIdx l k ↔ ∃ 
   constructor
   · rintro ⟨_, h⟩; exact h
   · rintro h;
-    obtain ⟨h', -⟩ := getElem?_eq_some.1 h
+    obtain ⟨h', -⟩ := getElem?_eq_some_iff.1 h
     exact ⟨h', h⟩
 
 /-! ### minimum? -/

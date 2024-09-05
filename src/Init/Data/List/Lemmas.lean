@@ -939,8 +939,8 @@ theorem getLast_eq_iff_getLast?_eq_some {xs : List α} (h) :
   rw [getLast?_eq_getLast _ h]
   simp
 
--- `getLast?_eq_none_iff`, `getLast?_eq_some_iff`, and `getLast_mem` are proved later
--- once more `reverse` theorems are available.
+-- `getLast?_eq_none_iff`, `getLast?_eq_some_iff`, `getLast?_isSome`, and `getLast_mem`
+-- are proved later once more `reverse` theorems are available.
 
 theorem getLast?_cons {a : α} : (a::l).getLast? = l.getLast?.getD a := by
   cases l <;> simp [getLast?, getLast]
@@ -985,6 +985,9 @@ theorem head_eq_iff_head?_eq_some {xs : List α} (h) : xs.head h = a ↔ xs.head
 
 theorem head?_eq_some_iff {xs : List α} {a : α} : xs.head? = some a ↔ ∃ ys, xs = a :: ys := by
   cases xs <;> simp_all
+
+@[simp] theorem head?_isSome : l.head?.isSome ↔ l ≠ [] := by
+  cases l <;> simp
 
 @[simp] theorem head_mem : ∀ {l : List α} (h : l ≠ []), head l h ∈ l
   | [], h => absurd rfl h
@@ -1150,6 +1153,10 @@ theorem map_eq_foldr (f : α → β) (l : List α) : map f l = foldr (fun a bs =
 
 @[simp] theorem tail?_map (f : α → β) (l : List α) : tail? (map f l) = (tail? l).map (map f) := by
   cases l <;> rfl
+
+@[simp] theorem tail_map (f : α → β) (l : List α) :
+    (map f l).tail = map f l.tail := by
+  cases l <;> simp_all
 
 theorem headD_map (f : α → β) (l : List α) (a : α) : headD (map f l) (f a) = f (headD l a) := by
   cases l <;> rfl
@@ -1643,8 +1650,26 @@ theorem head_append_right {l₁ l₂ : List α} (w : l₁ ++ l₂ ≠ []) (h : l
 -- `getLast_append_of_ne_nil`, `getLast_append` and `getLast?_append`
 -- are stated and proved later in the `reverse` section.
 
-theorem nil_eq_append : [] = a ++ b ↔ a = [] ∧ b = [] := by
+theorem tail?_append {l l' : List α} : (l ++ l').tail? = (l.tail?.map (· ++ l')).or l'.tail? := by
+  cases l <;> simp
+
+theorem tail?_append_of_ne_nil {l l' : List α} (_ : l ≠ []) : (l ++ l').tail? = some (l.tail ++ l') :=
+  match l with
+  | _ :: _ => by simp
+
+theorem tail_append {l l' : List α} : (l ++ l').tail = if l.isEmpty then l'.tail else l.tail ++ l' := by
+  cases l <;> simp
+
+@[simp] theorem tail_append_of_ne_nil {xs ys : List α} (h : xs ≠ []) :
+    (xs ++ ys).tail = xs.tail ++ ys := by
+  simp_all [tail_append]
+
+@[deprecated tail_append_of_ne_nil (since := "2024-07-24")] abbrev tail_append_left := @tail_append_of_ne_nil
+
+theorem nil_eq_append_iff : [] = a ++ b ↔ a = [] ∧ b = [] := by
   rw [eq_comm, append_eq_nil]
+
+@[deprecated nil_eq_append_iff (since := "2024-07-24")] abbrev nil_eq_append := @nil_eq_append_iff
 
 theorem append_ne_nil_of_left_ne_nil {s : List α} (h : s ≠ []) (t : List α) : s ++ t ≠ [] := by simp_all
 theorem append_ne_nil_of_right_ne_nil (s : List α) : t ≠ [] → s ++ t ≠ [] := by simp_all
@@ -1653,22 +1678,6 @@ theorem append_ne_nil_of_right_ne_nil (s : List α) : t ≠ [] → s ++ t ≠ []
 theorem append_ne_nil_of_ne_nil_left {s : List α} (h : s ≠ []) (t : List α) : s ++ t ≠ [] := by simp_all
 @[deprecated append_ne_nil_of_right_ne_nil (since := "2024-07-24")]
 theorem append_ne_nil_of_ne_nil_right (s : List α) : t ≠ [] → s ++ t ≠ [] := by simp_all
-
-theorem tail_append (xs ys : List α) :
-    (xs ++ ys).tail = if xs.isEmpty then ys.tail else xs.tail ++ ys := by
-  cases xs <;> simp
-
-theorem tail_append_left {xs ys : List α} (h : xs ≠ []) :
-    (xs ++ ys).tail = xs.tail ++ ys := by
-  simp [tail_append, h]
-
-theorem tail_append_right {xs ys : List α} (h : ys = []) :
-    (xs ++ ys).tail = xs.tail := by
-  simp [tail_append, h]
-
-@[simp] theorem tail_append_of_ne_nil (xs ys : List α) (h : xs ≠ []) :
-    (xs ++ ys).tail = xs.tail ++ ys := by
-  simp_all [tail_append]
 
 theorem append_eq_cons_iff :
     a ++ b = x :: c ↔ (a = [] ∧ b = x :: c) ∨ (∃ a', a = x :: a' ∧ c = a' ++ b) := by
@@ -1749,7 +1758,7 @@ theorem filterMap_eq_append_iff {f : α → Option β} :
   constructor
   · induction l generalizing L₁ with
     | nil =>
-      simp only [filterMap_nil, nil_eq_append, and_imp]
+      simp only [filterMap_nil, nil_eq_append_iff, and_imp]
       rintro rfl rfl
       exact ⟨[], [], by simp⟩
     | cons x l ih =>
@@ -1895,7 +1904,8 @@ theorem head?_join {L : List (List α)} : (join L).head? = L.findSome? fun l => 
     simp only [findSome?_cons]
     split <;> simp_all
 
--- `getLast?_join` is proved later, after the `reverse` section
+-- `getLast?_join` is proved later, after the `reverse` section.
+-- `head_join` and `getLast_join` are proved in `Init.Data.List.Find`.
 
 theorem foldl_join (f : β → α → β) (b : β) (L : List (List α)) :
     (join L).foldl f b = L.foldl (fun b l => l.foldl f b) b := by
@@ -2465,6 +2475,10 @@ theorem getLast?_eq_some_iff {xs : List α} {a : α} : xs.getLast? = some a ↔ 
   simp only [reverse_eq_cons_iff]
   exact ⟨fun ⟨ys, h⟩ => ⟨ys.reverse, by simpa using h⟩, fun ⟨ys, h⟩ => ⟨ys.reverse, by simpa using h⟩⟩
 
+@[simp] theorem getLast?_isSome : l.getLast?.isSome ↔ l ≠ [] := by
+  rw [getLast?_eq_head?_reverse, head?_isSome]
+  simp
+
 theorem mem_of_getLast?_eq_some {xs : List α} {a : α} (h : xs.getLast? = some a) : a ∈ xs := by
   obtain ⟨ys, rfl⟩ := getLast?_eq_some_iff.1 h
   exact mem_concat_self ys a
@@ -2790,6 +2804,14 @@ theorem replace_append [LawfulBEq α] {l₁ l₂ : List α} :
     simp only [cons_append, replace_cons]
     split <;> split <;> simp_all
 
+theorem replace_append_left [LawfulBEq α] {l₁ l₂ : List α} (h : a ∈ l₁) :
+    (l₁ ++ l₂).replace a b = l₁.replace a b ++ l₂ := by
+  simp [replace_append, h]
+
+theorem replace_append_right [LawfulBEq α] {l₁ l₂ : List α} (h : ¬ a ∈ l₁) :
+    (l₁ ++ l₂).replace a b = l₁ ++ l₂.replace a b := by
+  simp [replace_append, h]
+
 theorem replace_take {l : List α} {n : Nat} :
     (l.take n).replace a b = (l.replace a b).take n := by
   induction l generalizing n with
@@ -2868,7 +2890,8 @@ theorem length_insert_pos {l : List α} {a : α} : 0 < (l.insert a).length := by
 theorem insert_eq {l : List α} {a : α} : l.insert a = if a ∈ l then l else a :: l := by
   simp [List.insert]
 
-theorem getElem?_insert_zero (l : List α) (a : α) : (l.insert a)[0]? = if a ∈ l then l[0]? else some a := by
+theorem getElem?_insert_zero (l : List α) (a : α) :
+    (l.insert a)[0]? = if a ∈ l then l[0]? else some a := by
   simp only [insert_eq]
   split <;> simp
 
@@ -2912,6 +2935,14 @@ theorem insert_append {l₁ l₂ : List α} {a : α} :
   simp only [insert_eq, mem_append]
   (repeat split) <;> simp_all
 
+theorem insert_append_of_mem_left {l₁ l₂ : List α} (h : a ∈ l₂) :
+    (l₁ ++ l₂).insert a = l₁ ++ l₂ := by
+  simp [insert_append, h]
+
+theorem insert_append_of_not_mem_left {l₁ l₂ : List α} (h : ¬ a ∈ l₂) :
+    (l₁ ++ l₂).insert a = l₁.insert a ++ l₂ := by
+  simp [insert_append, h]
+
 @[simp] theorem insert_replicate_self {a : α} (h : 0 < n) : (replicate n a).insert a = replicate n a := by
   cases n <;> simp_all
 
@@ -2921,39 +2952,6 @@ theorem insert_append {l₁ l₂ : List α} {a : α} :
   simp_all
 
 end insert
-
-/-! ### lookup -/
-section lookup
-variable [BEq α] [LawfulBEq α]
-
-@[simp] theorem lookup_cons_self  {k : α} : ((k,b)::es).lookup k = some b := by
-  simp [lookup_cons]
-
-theorem lookup_replicate {k : α} :
-    (replicate n (a,b)).lookup k = if n = 0 then none else if k == a then some b else none := by
-  induction n with
-  | zero => simp
-  | succ n ih =>
-    simp only [replicate_succ, lookup_cons]
-    split <;> simp_all
-
-theorem lookup_replicate_of_pos {k : α} (h : 0 < n) :
-    (replicate n (a, b)).lookup k = if k == a then some b else none := by
-  simp [lookup_replicate, Nat.ne_of_gt h]
-
-theorem lookup_replicate_self {a : α} :
-    (replicate n (a, b)).lookup a = if n = 0 then none else some b := by
-  simp [lookup_replicate]
-
-@[simp] theorem lookup_replicate_self_of_pos {a : α} (h : 0 < n) :
-    (replicate n (a, b)).lookup a = some b := by
-  simp [lookup_replicate_self, Nat.ne_of_gt h]
-
-@[simp] theorem lookup_replicate_ne {k : α} (h : !k == a) :
-    (replicate n (a, b)).lookup k = none := by
-  simp_all [lookup_replicate]
-
-end lookup
 
 /-! ## Logic -/
 

@@ -7,7 +7,7 @@ prelude
 import Init.Data.Fin.Log2
 
 @[extern "lean_uint8_log2"]
-def UInt8.log2 (a : UInt8) : UInt8 := ⟨Fin.log2 a.val⟩
+def UInt8.log2 (a : UInt8) : UInt8 := ⟨⟨Fin.log2 a.val⟩⟩
 
 @[extern "lean_uint16_log2"]
 def UInt16.log2 (a : UInt16) : UInt16 := ⟨Fin.log2 a.val⟩

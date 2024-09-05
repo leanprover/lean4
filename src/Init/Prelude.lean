@@ -1898,6 +1898,11 @@ def BitVec.decEq (x y : BitVec n) : Decidable (Eq x y) :=
 
 instance : DecidableEq (BitVec n) := BitVec.decEq
 
+/-- The `BitVec` with value `i`, given a proof that `i < 2^n`. -/
+@[match_pattern]
+protected def BitVec.ofNatLt {n : Nat} (i : Nat) (p : LT.lt i (hPow 2 n)) : BitVec n where
+  toFin := ⟨i, p⟩
+
 /-- The size of type `UInt8`, that is, `2^8 = 256`. -/
 abbrev UInt8.size : Nat := 256
 
@@ -1906,12 +1911,14 @@ The type of unsigned 8-bit integers. This type has special support in the
 compiler to make it actually 8 bits rather than wrapping a `Nat`.
 -/
 structure UInt8 where
-  /-- Unpack a `UInt8` as a `Nat` less than `2^8`.
+  /-- Unpack a `UInt8` as a `BitVec 8`.
   This function is overridden with a native implementation. -/
-  val : Fin UInt8.size
+  toBitVec : BitVec 8
 
 attribute [extern "lean_uint8_of_nat_mk"] UInt8.mk
-attribute [extern "lean_uint8_to_nat"] UInt8.val
+attribute [extern "lean_uint8_to_nat"] UInt8.toBitVec
+
+def UInt8.val (x : UInt8) : Fin UInt8.size := x.toBitVec.toFin
 
 /--
 Pack a `Nat` less than `2^8` into a `UInt8`.
@@ -1919,7 +1926,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint8_of_nat"]
 def UInt8.ofNatCore (n : @& Nat) (h : LT.lt n UInt8.size) : UInt8 where
-  val := { val := n, isLt := h }
+  toBitVec := BitVec.ofNatLt n h
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -1930,7 +1937,9 @@ This function is overridden with a native implementation.
 def UInt8.decEq (a b : UInt8) : Decidable (Eq a b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ =>
-    dite (Eq n m) (fun h => isTrue (h ▸ rfl)) (fun h => isFalse (fun h' => UInt8.noConfusion h' (fun h' => absurd h' h)))
+    dite (Eq n m)
+      (fun h => isTrue (h ▸ rfl))
+      (fun h => isFalse (fun h' => UInt8.noConfusion h' (fun h' => absurd h' h)))
 
 instance : DecidableEq UInt8 := UInt8.decEq
 

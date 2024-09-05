@@ -5,14 +5,15 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Fin.Basic
+import Init.Data.BitVec.BasixAux
 
 open Nat
 
 @[extern "lean_uint8_of_nat"]
-def UInt8.ofNat (n : @& Nat) : UInt8 := ⟨Fin.ofNat n⟩
+def UInt8.ofNat (n : @& Nat) : UInt8 := ⟨BitVec.ofNat 8 n⟩
 abbrev Nat.toUInt8 := UInt8.ofNat
 @[extern "lean_uint8_to_nat"]
-def UInt8.toNat (n : UInt8) : Nat := n.val.val
+def UInt8.toNat (n : UInt8) : Nat := n.toBitVec.toNat
 
 instance UInt8.instOfNat : OfNat UInt8 n := ⟨UInt8.ofNat n⟩
 
@@ -24,7 +25,7 @@ def UInt16.toNat (n : UInt16) : Nat := n.val.val
 @[extern "lean_uint16_to_uint8"]
 def UInt16.toUInt8 (a : UInt16) : UInt8 := a.toNat.toUInt8
 @[extern "lean_uint8_to_uint16"]
-def UInt8.toUInt16 (a : UInt8) : UInt16 := ⟨a.val, Nat.lt_trans a.1.2 (by decide)⟩
+def UInt8.toUInt16 (a : UInt8) : UInt16 := ⟨a.val, Nat.lt_trans a.toBitVec.isLt (by decide)⟩
 
 instance UInt16.instOfNat : OfNat UInt16 n := ⟨UInt16.ofNat n⟩
 
@@ -47,9 +48,9 @@ def UInt32.toUInt8 (a : UInt32) : UInt8 := a.toNat.toUInt8
 @[extern "lean_uint32_to_uint16"]
 def UInt32.toUInt16 (a : UInt32) : UInt16 := a.toNat.toUInt16
 @[extern "lean_uint8_to_uint32"]
-def UInt8.toUInt32 (a : UInt8) : UInt32 := ⟨a.val, Nat.lt_trans a.1.2 (by decide)⟩
+def UInt8.toUInt32 (a : UInt8) : UInt32 := ⟨a.val, Nat.lt_trans a.toBitVec.isLt (by decide)⟩
 @[extern "lean_uint16_to_uint32"]
-def UInt16.toUInt32 (a : UInt16) : UInt32 := ⟨a.val, Nat.lt_trans a.1.2 (by decide)⟩
+def UInt16.toUInt32 (a : UInt16) : UInt32 := ⟨a.val, Nat.lt_trans a.val.2 (by decide)⟩
 
 
 instance UInt32.instOfNat : OfNat UInt32 n := ⟨UInt32.ofNat n⟩
@@ -66,11 +67,11 @@ def UInt64.toUInt16 (a : UInt64) : UInt16 := a.toNat.toUInt16
 @[extern "lean_uint64_to_uint32"]
 def UInt64.toUInt32 (a : UInt64) : UInt32 := a.toNat.toUInt32
 @[extern "lean_uint8_to_uint64"]
-def UInt8.toUInt64 (a : UInt8) : UInt64 := ⟨a.val, Nat.lt_trans a.1.2 (by decide)⟩
+def UInt8.toUInt64 (a : UInt8) : UInt64 := ⟨a.val, Nat.lt_trans a.toBitVec.isLt (by decide)⟩
 @[extern "lean_uint16_to_uint64"]
-def UInt16.toUInt64 (a : UInt16) : UInt64 := ⟨a.val, Nat.lt_trans a.1.2 (by decide)⟩
+def UInt16.toUInt64 (a : UInt16) : UInt64 := ⟨a.val, Nat.lt_trans a.val.2 (by decide)⟩
 @[extern "lean_uint32_to_uint64"]
-def UInt32.toUInt64 (a : UInt32) : UInt64 := ⟨a.val, Nat.lt_trans a.1.2 (by decide)⟩
+def UInt32.toUInt64 (a : UInt32) : UInt64 := ⟨a.val, Nat.lt_trans a.val.2 (by decide)⟩
 
 instance UInt64.instOfNat : OfNat UInt64 n := ⟨UInt64.ofNat n⟩
 

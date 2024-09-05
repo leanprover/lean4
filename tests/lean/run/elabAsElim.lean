@@ -186,3 +186,10 @@ example (h : False) : Nat := False.rec (fun _ => Nat) h
 example (h : False) : Nat := False.rec _ h
 example (h : False) : Nat := h.rec
 example (h : False) : Nat := h.rec _
+
+/-!
+Check that the overapplied arguments given to the eliminator are not permuted.
+In this example, `h0` and `h1` used to be reversed, leading to a kernel typechecking error.
+-/
+example (n : Nat) (h0 : n ≠ 0) (h1 : n ≠ 1) : n - 2 ≠ n - 1 :=
+  Nat.recOn n (by simp) (by rintro (_ | _) <;> simp) h0 h1

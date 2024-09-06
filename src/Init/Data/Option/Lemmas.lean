@@ -412,4 +412,23 @@ end ite
 @[simp] theorem pmap_some {p : α → Prop} {f : ∀ (a : α), p a → β} {h}:
     pmap f (some a) h = f a (h a (mem_some_self a)) := rfl
 
+@[simp] theorem pmap_eq_none {p : α → Prop} {f : ∀ (a : α), p a → β} {h} :
+    pmap f o h = none ↔ o = none := by
+  cases o <;> simp
+
+@[simp] theorem pmap_isSome {p : α → Prop} {f : ∀ (a : α), p a → β} {o : Option α} {h} :
+    (pmap f o h).isSome = o.isSome := by
+  cases o <;> simp
+
+@[simp] theorem pmap_eq_some {p : α → Prop} {f : ∀ (a : α), p a → β} {o : Option α} {h} :
+    pmap f o h = some b ↔ ∃ (a : α) (h : p a), o = some a ∧ b = f a h := by
+  cases o with
+  | none => simp
+  | some a =>
+    simp only [pmap, eq_comm, some.injEq, exists_and_left, exists_eq_left']
+    constructor
+    · exact fun w => ⟨h a rfl, w⟩
+    · rintro ⟨h, rfl⟩
+      rfl
+
 end Option

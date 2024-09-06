@@ -19,13 +19,8 @@ protected def ofNat (n : Nat) (i : Nat) : BitVec n where
 
 instance instOfNat : OfNat (BitVec n) i where ofNat := .ofNat n i
 
-/-- Given a bitvector `x`, return the underlying `Nat`. This is O(1) because `BitVec` is a
-(zero-cost) wrapper around a `Nat`. -/
-protected def toNat (x : BitVec n) : Nat := x.toFin.val
-
 /-- Return the bound in terms of toNat. -/
 theorem isLt (x : BitVec w) : x.toNat < 2^w := x.toFin.isLt
-
 
 end Nat
 

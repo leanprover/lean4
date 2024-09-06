@@ -73,9 +73,9 @@ def UInt16.sub (a b : UInt16) : UInt16 := ⟨a.toBitVec - b.toBitVec⟩
 @[extern "lean_uint16_mul"]
 def UInt16.mul (a b : UInt16) : UInt16 := ⟨a.toBitVec * b.toBitVec⟩
 @[extern "lean_uint16_div"]
-def UInt16.div (a b : UInt16) : UInt16 := ⟨a.toBitVec / b.toBitVec⟩
+def UInt16.div (a b : UInt16) : UInt16 := ⟨BitVec.udiv a.toBitVec b.toBitVec⟩
 @[extern "lean_uint16_mod"]
-def UInt16.mod (a b : UInt16) : UInt16 := ⟨a.toBitVec % b.toBitVec⟩
+def UInt16.mod (a b : UInt16) : UInt16 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
 @[extern "lean_uint16_modn"]
 def UInt16.modn (a : UInt16) (n : @& Nat) : UInt16 := ⟨Fin.modn a.val n⟩
 @[extern "lean_uint16_land"]
@@ -101,7 +101,7 @@ instance : LT UInt16        := ⟨UInt16.lt⟩
 instance : LE UInt16        := ⟨UInt16.le⟩
 
 @[extern "lean_uint16_complement"]
-def UInt16.complement (a:UInt16) : UInt16 := ⟨~~~a.toBitVec⟩
+def UInt16.complement (a : UInt16) : UInt16 := ⟨~~~a.toBitVec⟩
 
 instance : Complement UInt16 := ⟨UInt16.complement⟩
 instance : AndOp UInt16     := ⟨UInt16.land⟩
@@ -126,27 +126,27 @@ instance : Max UInt16 := maxOfLe
 instance : Min UInt16 := minOfLe
 
 @[extern "lean_uint32_add"]
-def UInt32.add (a b : UInt32) : UInt32 := ⟨a.val + b.val⟩
+def UInt32.add (a b : UInt32) : UInt32 := ⟨a.toBitVec + b.toBitVec⟩
 @[extern "lean_uint32_sub"]
-def UInt32.sub (a b : UInt32) : UInt32 := ⟨a.val - b.val⟩
+def UInt32.sub (a b : UInt32) : UInt32 := ⟨a.toBitVec - b.toBitVec⟩
 @[extern "lean_uint32_mul"]
-def UInt32.mul (a b : UInt32) : UInt32 := ⟨a.val * b.val⟩
+def UInt32.mul (a b : UInt32) : UInt32 := ⟨a.toBitVec * b.toBitVec⟩
 @[extern "lean_uint32_div"]
-def UInt32.div (a b : UInt32) : UInt32 := ⟨a.val / b.val⟩
+def UInt32.div (a b : UInt32) : UInt32 := ⟨BitVec.udiv a.toBitVec b.toBitVec⟩
 @[extern "lean_uint32_mod"]
-def UInt32.mod (a b : UInt32) : UInt32 := ⟨a.val % b.val⟩
+def UInt32.mod (a b : UInt32) : UInt32 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
 @[extern "lean_uint32_modn"]
 def UInt32.modn (a : UInt32) (n : @& Nat) : UInt32 := ⟨Fin.modn a.val n⟩
 @[extern "lean_uint32_land"]
-def UInt32.land (a b : UInt32) : UInt32 := ⟨Fin.land a.val b.val⟩
+def UInt32.land (a b : UInt32) : UInt32 := ⟨a.toBitVec &&& b.toBitVec⟩
 @[extern "lean_uint32_lor"]
-def UInt32.lor (a b : UInt32) : UInt32 := ⟨Fin.lor a.val b.val⟩
+def UInt32.lor (a b : UInt32) : UInt32 := ⟨a.toBitVec ||| b.toBitVec⟩
 @[extern "lean_uint32_xor"]
-def UInt32.xor (a b : UInt32) : UInt32 := ⟨Fin.xor a.val b.val⟩
+def UInt32.xor (a b : UInt32) : UInt32 := ⟨a.toBitVec ^^^ b.toBitVec⟩
 @[extern "lean_uint32_shift_left"]
-def UInt32.shiftLeft (a b : UInt32) : UInt32 := ⟨a.val <<< (modn b 32).val⟩
+def UInt32.shiftLeft (a b : UInt32) : UInt32 := ⟨a.toBitVec <<< (modn b 32).toBitVec⟩
 @[extern "lean_uint32_shift_right"]
-def UInt32.shiftRight (a b : UInt32) : UInt32 := ⟨a.val >>> (modn b 32).val⟩
+def UInt32.shiftRight (a b : UInt32) : UInt32 := ⟨a.toBitVec >>> (modn b 32).toBitVec⟩
 
 instance : Add UInt32       := ⟨UInt32.add⟩
 instance : Sub UInt32       := ⟨UInt32.sub⟩
@@ -156,7 +156,7 @@ instance : HMod UInt32 Nat UInt32 := ⟨UInt32.modn⟩
 instance : Div UInt32       := ⟨UInt32.div⟩
 
 @[extern "lean_uint32_complement"]
-def UInt32.complement (a:UInt32) : UInt32 := 0-(a+1)
+def UInt32.complement (a : UInt32) : UInt32 := ⟨~~~a.toBitVec⟩
 
 instance : Complement UInt32 := ⟨UInt32.complement⟩
 instance : AndOp UInt32     := ⟨UInt32.land⟩

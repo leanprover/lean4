@@ -936,12 +936,17 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile(lean_object * /* w */) {
     if (ret < 0) {
         return io_result_mk_error(decode_uv_error(ret, nullptr));
     } else if (base_len == 0) {
-        lean_io_result_mk_error(decode_uv_error(UV_ENOENT, mk_string("")));
+        return lean_io_result_mk_error(decode_uv_error(UV_ENOENT, mk_string("")));
     }
 
-    // On window we have a guarantee that the tmpdir terminates with \.
+#if defined(LEAN_WINDOWS)
+    // On Windows `GetTempPathW` always returns a path ending in \, but libuv removes it.
     // https://learn.microsoft.com/en-us/windows/win32/fileio/creating-and-using-a-temporary-file
-#if !defined(LEAN_WINDOWS)
+    if (path[base_len - 1] != '\\') {
+        lean_always_assert(PATH_MAX >= base_len + 1 + 1);
+        strcat(path, "\\");
+    }
+#else
     // No guarantee that we have a trailing / in TMPDIR.
     if (path[base_len - 1] != '/') {
         lean_always_assert(PATH_MAX >= base_len + 1 + 1);
@@ -950,7 +955,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile(lean_object * /* w */) {
 #endif
 
     const char* file_pattern = "tmp.XXXXXXXX";
-    const int file_pattern_size = strlen(file_pattern);
+    const size_t file_pattern_size = strlen(file_pattern);
     lean_always_assert(PATH_MAX >= strlen(path) + file_pattern_size + 1);
     strcat(path, file_pattern);
 

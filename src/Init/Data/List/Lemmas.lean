@@ -993,6 +993,15 @@ theorem head?_eq_some_iff {xs : List α} {a : α} : xs.head? = some a ↔ ∃ ys
   | [], h => absurd rfl h
   | _::_, _ => .head ..
 
+theorem mem_of_mem_head? : ∀ {l : List α} {a : α}, a ∈ l.head? → a ∈ l := by
+  intro l a h
+  cases l with
+  | nil => simp at h
+  | cons b l =>
+    simp at h
+    cases h
+    exact mem_cons_self a l
+
 theorem head?_concat {a : α} : (l ++ [a]).head? = l.head?.getD a := by
   cases l <;> simp
 
@@ -2373,6 +2382,11 @@ theorem getLast?_eq_head?_reverse {xs : List α} : xs.getLast? = xs.reverse.head
 
 theorem head?_eq_getLast?_reverse {xs : List α} : xs.head? = xs.reverse.getLast? := by
   simp
+
+theorem mem_of_mem_getLast? {l : List α} {a : α} (h : a ∈ getLast? l) : a ∈ l := by
+  rw [getLast?_eq_head?_reverse] at h
+  rw [← mem_reverse]
+  exact mem_of_mem_head? h
 
 @[simp] theorem map_reverse (f : α → β) (l : List α) : l.reverse.map f = (l.map f).reverse := by
   induction l <;> simp [*]

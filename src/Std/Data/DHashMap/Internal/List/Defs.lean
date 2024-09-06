@@ -20,6 +20,8 @@ universe u v w
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w}
 
+open List (Pairwise)
+
 namespace Std.DHashMap.Internal.List
 
 /-- Internal implementation detail of the hash map -/
@@ -30,7 +32,7 @@ def keys : List ((a : α) × β a) → List α
 /-- Internal implementation detail of the hash map -/
 structure DistinctKeys [BEq α] (l : List ((a : α) × β a)) : Prop where
   /-- Internal implementation detail of the hash map -/
-  distinct : List.Pairwise (fun a b => (a == b) = false) (keys l)
+  distinct : Pairwise (fun a b => (a == b) = false) (keys l)
 
 /-- Internal implementation detail of the hash map -/
 def values {β : Type v} : List ((_ : α) × β) → List β

@@ -67,29 +67,29 @@ instance : Max UInt8 := maxOfLe
 instance : Min UInt8 := minOfLe
 
 @[extern "lean_uint16_add"]
-def UInt16.add (a b : UInt16) : UInt16 := ⟨a.val + b.val⟩
+def UInt16.add (a b : UInt16) : UInt16 := ⟨a.toBitVec + b.toBitVec⟩
 @[extern "lean_uint16_sub"]
-def UInt16.sub (a b : UInt16) : UInt16 := ⟨a.val - b.val⟩
+def UInt16.sub (a b : UInt16) : UInt16 := ⟨a.toBitVec - b.toBitVec⟩
 @[extern "lean_uint16_mul"]
-def UInt16.mul (a b : UInt16) : UInt16 := ⟨a.val * b.val⟩
+def UInt16.mul (a b : UInt16) : UInt16 := ⟨a.toBitVec * b.toBitVec⟩
 @[extern "lean_uint16_div"]
-def UInt16.div (a b : UInt16) : UInt16 := ⟨a.val / b.val⟩
+def UInt16.div (a b : UInt16) : UInt16 := ⟨a.toBitVec / b.toBitVec⟩
 @[extern "lean_uint16_mod"]
-def UInt16.mod (a b : UInt16) : UInt16 := ⟨a.val % b.val⟩
+def UInt16.mod (a b : UInt16) : UInt16 := ⟨a.toBitVec % b.toBitVec⟩
 @[extern "lean_uint16_modn"]
 def UInt16.modn (a : UInt16) (n : @& Nat) : UInt16 := ⟨Fin.modn a.val n⟩
 @[extern "lean_uint16_land"]
-def UInt16.land (a b : UInt16) : UInt16 := ⟨Fin.land a.val b.val⟩
+def UInt16.land (a b : UInt16) : UInt16 := ⟨a.toBitVec &&& b.toBitVec⟩
 @[extern "lean_uint16_lor"]
-def UInt16.lor (a b : UInt16) : UInt16 := ⟨Fin.lor a.val b.val⟩
+def UInt16.lor (a b : UInt16) : UInt16 := ⟨a.toBitVec ||| b.toBitVec⟩
 @[extern "lean_uint16_xor"]
-def UInt16.xor (a b : UInt16) : UInt16 := ⟨Fin.xor a.val b.val⟩
+def UInt16.xor (a b : UInt16) : UInt16 := ⟨a.toBitVec ^^^ b.toBitVec⟩
 @[extern "lean_uint16_shift_left"]
-def UInt16.shiftLeft (a b : UInt16) : UInt16 := ⟨a.val <<< (modn b 16).val⟩
+def UInt16.shiftLeft (a b : UInt16) : UInt16 := ⟨a.toBitVec <<< (modn b 16).toBitVec⟩
 @[extern "lean_uint16_shift_right"]
-def UInt16.shiftRight (a b : UInt16) : UInt16 := ⟨a.val >>> (modn b 16).val⟩
-def UInt16.lt (a b : UInt16) : Prop := a.val < b.val
-def UInt16.le (a b : UInt16) : Prop := a.val ≤ b.val
+def UInt16.shiftRight (a b : UInt16) : UInt16 := ⟨a.toBitVec >>> (modn b 16).toBitVec⟩
+def UInt16.lt (a b : UInt16) : Prop := BitVec.ult a.toBitVec b.toBitVec
+def UInt16.le (a b : UInt16) : Prop := BitVec.ule a.toBitVec b.toBitVec
 
 instance : Add UInt16       := ⟨UInt16.add⟩
 instance : Sub UInt16       := ⟨UInt16.sub⟩
@@ -101,7 +101,7 @@ instance : LT UInt16        := ⟨UInt16.lt⟩
 instance : LE UInt16        := ⟨UInt16.le⟩
 
 @[extern "lean_uint16_complement"]
-def UInt16.complement (a:UInt16) : UInt16 := 0-(a+1)
+def UInt16.complement (a:UInt16) : UInt16 := ⟨~~~a.toBitVec⟩
 
 instance : Complement UInt16 := ⟨UInt16.complement⟩
 instance : AndOp UInt16     := ⟨UInt16.land⟩
@@ -113,14 +113,12 @@ instance : ShiftRight UInt16 := ⟨UInt16.shiftRight⟩
 set_option bootstrap.genMatcherCode false in
 @[extern "lean_uint16_dec_lt"]
 def UInt16.decLt (a b : UInt16) : Decidable (a < b) :=
-  match a, b with
-  | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (n < m))
+  inferInstanceAs (Decidable (BitVec.ult a.toBitVec b.toBitVec))
 
 set_option bootstrap.genMatcherCode false in
 @[extern "lean_uint16_dec_le"]
 def UInt16.decLe (a b : UInt16) : Decidable (a ≤ b) :=
-  match a, b with
-  | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (n <= m))
+  inferInstanceAs (Decidable (BitVec.ule a.toBitVec b.toBitVec))
 
 instance (a b : UInt16) : Decidable (a < b) := UInt16.decLt a b
 instance (a b : UInt16) : Decidable (a ≤ b) := UInt16.decLe a b

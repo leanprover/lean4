@@ -15,7 +15,7 @@ import Init.Data.Nat.Linear
   cases a; simp_arith [UInt8.toNat]; sorry
 
 @[simp] protected theorem UInt16.sizeOf (a : UInt16) : sizeOf a = a.toNat + 2 := by
-  cases a; simp_arith [UInt16.toNat]
+  cases a; simp_arith [UInt16.toNat]; sorry
 
 @[simp] protected theorem UInt32.sizeOf (a : UInt32) : sizeOf a = a.toNat + 2 := by
   cases a; simp_arith [UInt32.toNat]

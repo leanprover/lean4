@@ -404,6 +404,16 @@ end ite
 @[simp] theorem pbind_none : pbind none f = none := rfl
 @[simp] theorem pbind_some : pbind (some a) f = f a (mem_some_self a) := rfl
 
+@[simp] theorem map_pbind {o : Option α} {f : (a : α) → a ∈ o → Option β} {g : β → γ} :
+    (o.pbind f).map g = o.pbind (fun a h => (f a h).map g) := by
+  cases o <;> simp
+
+@[congr] theorem pbind_congr {o o' : Option α} (ho : o = o')
+    {f : (a : α) → a ∈ o → Option β} {g : (a : α) → a ∈ o' → Option β}
+    (hf : ∀ a h, f a (ho ▸ h) = g a h) : o.pbind f = o'.pbind g := by
+  subst ho
+  exact (funext fun a => funext fun h => hf a h) ▸ Eq.refl (o.pbind f)
+
 /-! ### pmap -/
 
 @[simp] theorem pmap_none {p : α → Prop} {f : ∀ (a : α), p a → β} {h} :

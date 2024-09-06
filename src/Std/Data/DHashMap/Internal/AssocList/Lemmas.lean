@@ -58,11 +58,6 @@ theorem getCast?_eq [BEq α] [LawfulBEq α] {l : AssocList α β} {a : α} :
   induction l <;> simp_all [getCast?, List.getValueCast?]
 
 @[simp]
-theorem getKey?_eq [BEq α] {l : AssocList α β} {a : α} :
-    l.getKey? a = List.getKey? a l.toList := by
-  induction l <;> simp_all [getKey?]
-
-@[simp]
 theorem contains_eq [BEq α] {l : AssocList α β} {a : α} :
     l.contains a = containsKey a l.toList := by
   induction l <;> simp_all [contains, List.containsKey]
@@ -116,6 +111,11 @@ theorem get!_eq {β : Type v} [BEq α] [Inhabited β] {l : AssocList α (fun _ =
   · simp [get!, List.getValue!]
   · simp_all [get!, List.getValue!, List.getValue!, List.getValue?_cons,
       Bool.apply_cond Option.get!]
+
+@[simp]
+theorem getKey?_eq [BEq α] {l : AssocList α β} {a : α} :
+    l.getKey? a = List.getKey? a l.toList := by
+  induction l <;> simp_all [getKey?]
 
 @[simp]
 theorem getKey_eq [BEq α] {l : AssocList α β} {a : α} {h} :

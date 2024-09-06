@@ -89,13 +89,6 @@ Equivalent to (but potentially faster than) calling `contains` followed by `inse
   ⟨replaced, ⟨r⟩⟩
 
 /--
-Checks if given key is contained and returns the key if it is, otherwise `none`.
-The result in the `some` case is guaranteed to be pointer equal to the key in the set.
--/
-@[inline] def get? (m : HashSet α) (a : α) : Option α :=
-  m.inner.getKey? a
-
-/--
 Returns `true` if the given key is present in the set. There is also a `Prop`-valued version of
 this: `a ∈ m` is equivalent to `m.contains a = true`.
 
@@ -110,6 +103,21 @@ instance [BEq α] [Hashable α] : Membership α (HashSet α) where
 
 instance [BEq α] [Hashable α] {m : HashSet α} {a : α} : Decidable (a ∈ m) :=
   inferInstanceAs (Decidable (a ∈ m.inner))
+
+/-- Removes the element if it exists. -/
+@[inline] def erase (m : HashSet α) (a : α) : HashSet α :=
+  ⟨m.inner.erase a⟩
+
+/-- The number of elements present in the set -/
+@[inline] def size (m : HashSet α) : Nat :=
+  m.inner.size
+
+/--
+Checks if given key is contained and returns the key if it is, otherwise `none`.
+The result in the `some` case is guaranteed to be pointer equal to the key in the set.
+-/
+@[inline] def get? (m : HashSet α) (a : α) : Option α :=
+  m.inner.getKey? a
 
 /--
 Retrieves the key from the set that matches `a`. Ensures that such a key exists by requiring a proof
@@ -131,14 +139,6 @@ If no panic occurs the result is guaranteed to be pointer equal to the key in th
 -/
 @[inline] def get! [BEq α] [Hashable α] [Inhabited α] (m : HashSet α) (a : α) : α :=
   m.inner.getKey! a
-
-/-- Removes the element if it exists. -/
-@[inline] def erase (m : HashSet α) (a : α) : HashSet α :=
-  ⟨m.inner.erase a⟩
-
-/-- The number of elements present in the set -/
-@[inline] def size (m : HashSet α) : Nat :=
-  m.inner.size
 
 /--
 Returns `true` if the hash set contains no elements.

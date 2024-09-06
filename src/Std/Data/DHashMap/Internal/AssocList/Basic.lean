@@ -88,11 +88,6 @@ def getCast? [BEq α] [LawfulBEq α] (a : α) : AssocList α β → Option (β a
       else es.getCast? a
 
 /-- Internal implementation detail of the hash map -/
-def getKey? [BEq α] (a : α) : AssocList α β → Option α
-  | nil => none
-  | cons k _ es => if k == a then some k else es.getKey? a
-
-/-- Internal implementation detail of the hash map -/
 def contains [BEq α] (a : α) : AssocList α β → Bool
   | nil => false
   | cons k _ l => k == a || l.contains a
@@ -116,6 +111,11 @@ def getKey [BEq α] (a : α) : (l : AssocList α β) → l.contains a → α
 def getCast! [BEq α] [LawfulBEq α] (a : α) [Inhabited (β a)] : AssocList α β → β a
   | nil => panic! "key is not present in hash table"
   | cons k v es => if h : k == a then cast (congrArg β (eq_of_beq h)) v else es.getCast! a
+
+/-- Internal implementation detail of the hash map -/
+def getKey? [BEq α] (a : α) : AssocList α β → Option α
+  | nil => none
+  | cons k _ es => if k == a then some k else es.getKey? a
 
 /-- Internal implementation detail of the hash map -/
 def get! {β : Type v} [BEq α] [Inhabited β] (a : α) : AssocList α (fun _ => β) → β

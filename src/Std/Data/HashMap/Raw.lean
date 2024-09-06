@@ -103,10 +103,6 @@ Tries to retrieve the mapping for the given key, returning `none` if no such map
 @[inline] def get? [beq : BEq α] [Hashable α] (m : Raw α β) (a : α) : Option β :=
   DHashMap.Raw.Const.get? m.inner a
 
-@[inline, inherit_doc DHashMap.Raw.getKey?] def getKey? [BEq α] [Hashable α] (m : Raw α β) (a : α) :
-    Option α :=
-  DHashMap.Raw.getKey? m.inner a
-
 @[inline, inherit_doc DHashMap.Raw.contains] def contains [BEq α] [Hashable α] (m : Raw α β)
     (a : α) : Bool :=
   m.inner.contains a
@@ -141,6 +137,10 @@ instance [BEq α] [Hashable α] : GetElem? (Raw α β) α β (fun m a => a ∈ m
   getElem m a h := m.get a h
   getElem? m a := m.get? a
   getElem! m a := m.get! a
+
+@[inline, inherit_doc DHashMap.Raw.getKey?] def getKey? [BEq α] [Hashable α] (m : Raw α β) (a : α) :
+    Option α :=
+  DHashMap.Raw.getKey? m.inner a
 
 @[inline, inherit_doc DHashMap.Raw.getKey] def getKey [BEq α] [Hashable α] (m : Raw α β) (a : α)
     (h : a ∈ m) : α :=

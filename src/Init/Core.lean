@@ -165,9 +165,13 @@ inductive PSum (α : Sort u) (β : Sort v) where
 
 @[inherit_doc] infixr:30 " ⊕' " => PSum
 
-instance {α β} [Inhabited α] : Inhabited (PSum α β) := ⟨PSum.inl default⟩
+instance instInhabitedPSumLeft {α β} [Inhabited α] : Inhabited (PSum α β) := ⟨PSum.inl default⟩
 
-instance {α β} [Inhabited β] : Inhabited (PSum α β) := ⟨PSum.inr default⟩
+/--
+`PSum α β` is inhabited if `β` is inhabited.
+This is not an instance to avoid non-defeq instances.
+-/
+def instInhabitedPSumRight {α β} [Inhabited β] : Inhabited (PSum α β) := ⟨PSum.inr default⟩
 
 /--
 `Sigma β`, also denoted `Σ a : α, β a` or `(a : α) × β a`, is the type of dependent pairs
@@ -1153,7 +1157,8 @@ variable {α : Type u} {β : Type v}
 instance Sum.inhabitedLeft [Inhabited α] : Inhabited (Sum α β) where
   default := Sum.inl default
 
-instance Sum.inhabitedRight [Inhabited β] : Inhabited (Sum α β) where
+/-- This is not an instance to avoid non-defeq instances. -/
+def Sum.inhabitedRight [Inhabited β] : Inhabited (Sum α β) where
   default := Sum.inr default
 
 instance {α : Type u} {β : Type v} [DecidableEq α] [DecidableEq β] : DecidableEq (Sum α β) := fun a b =>

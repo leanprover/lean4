@@ -523,6 +523,14 @@ theorem getElem?_zeroExtend (m : Nat) (x : BitVec n) (i : Nat) :
   all_goals (first | apply getLsbD_ge | apply Eq.symm; apply getLsbD_ge)
     <;> omega
 
+theorem getElem_truncate (m : Nat) (x : BitVec n) (i : Nat) (hi : i < m) :
+    (truncate m x)[i] = x.getLsbD i := by
+  simp [getElem?_eq, getElem_zeroExtend]
+
+theorem getElem?_truncate (m : Nat) (x : BitVec n) (i : Nat) :
+    (truncate m x)[i]? = if i < m then some (x.getLsbD i) else none :=
+  getElem?_zeroExtend m x i
+
 theorem getLsbD_truncate (m : Nat) (x : BitVec n) (i : Nat) :
     getLsbD (truncate m x) i = (decide (i < m) && getLsbD x i) :=
   getLsbD_zeroExtend m x i

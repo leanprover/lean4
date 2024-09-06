@@ -166,29 +166,29 @@ instance : ShiftLeft UInt32  := ⟨UInt32.shiftLeft⟩
 instance : ShiftRight UInt32 := ⟨UInt32.shiftRight⟩
 
 @[extern "lean_uint64_add"]
-def UInt64.add (a b : UInt64) : UInt64 := ⟨a.val + b.val⟩
+def UInt64.add (a b : UInt64) : UInt64 := ⟨a.toBitVec + b.toBitVec⟩
 @[extern "lean_uint64_sub"]
-def UInt64.sub (a b : UInt64) : UInt64 := ⟨a.val - b.val⟩
+def UInt64.sub (a b : UInt64) : UInt64 := ⟨a.toBitVec - b.toBitVec⟩
 @[extern "lean_uint64_mul"]
-def UInt64.mul (a b : UInt64) : UInt64 := ⟨a.val * b.val⟩
+def UInt64.mul (a b : UInt64) : UInt64 := ⟨a.toBitVec * b.toBitVec⟩
 @[extern "lean_uint64_div"]
-def UInt64.div (a b : UInt64) : UInt64 := ⟨a.val / b.val⟩
+def UInt64.div (a b : UInt64) : UInt64 := ⟨BitVec.udiv a.toBitVec b.toBitVec⟩
 @[extern "lean_uint64_mod"]
-def UInt64.mod (a b : UInt64) : UInt64 := ⟨a.val % b.val⟩
+def UInt64.mod (a b : UInt64) : UInt64 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
 @[extern "lean_uint64_modn"]
 def UInt64.modn (a : UInt64) (n : @& Nat) : UInt64 := ⟨Fin.modn a.val n⟩
 @[extern "lean_uint64_land"]
-def UInt64.land (a b : UInt64) : UInt64 := ⟨Fin.land a.val b.val⟩
+def UInt64.land (a b : UInt64) : UInt64 := ⟨a.toBitVec &&& b.toBitVec⟩
 @[extern "lean_uint64_lor"]
-def UInt64.lor (a b : UInt64) : UInt64 := ⟨Fin.lor a.val b.val⟩
+def UInt64.lor (a b : UInt64) : UInt64 := ⟨a.toBitVec ||| b.toBitVec⟩
 @[extern "lean_uint64_xor"]
-def UInt64.xor (a b : UInt64) : UInt64 := ⟨Fin.xor a.val b.val⟩
+def UInt64.xor (a b : UInt64) : UInt64 := ⟨a.toBitVec ^^^ b.toBitVec⟩
 @[extern "lean_uint64_shift_left"]
 def UInt64.shiftLeft (a b : UInt64) : UInt64 := ⟨a.val <<< (modn b 64).val⟩
 @[extern "lean_uint64_shift_right"]
 def UInt64.shiftRight (a b : UInt64) : UInt64 := ⟨a.val >>> (modn b 64).val⟩
-def UInt64.lt (a b : UInt64) : Prop := a.val < b.val
-def UInt64.le (a b : UInt64) : Prop := a.val ≤ b.val
+def UInt64.lt (a b : UInt64) : Prop := BitVec.ult a.toBitVec b.toBitVec
+def UInt64.le (a b : UInt64) : Prop := BitVec.ule a.toBitVec b.toBitVec
 
 instance : Add UInt64       := ⟨UInt64.add⟩
 instance : Sub UInt64       := ⟨UInt64.sub⟩
@@ -200,7 +200,7 @@ instance : LT UInt64        := ⟨UInt64.lt⟩
 instance : LE UInt64        := ⟨UInt64.le⟩
 
 @[extern "lean_uint64_complement"]
-def UInt64.complement (a:UInt64) : UInt64 := 0-(a+1)
+def UInt64.complement (a : UInt64) : UInt64 := ⟨~~~a.toBitVec⟩
 
 instance : Complement UInt64 := ⟨UInt64.complement⟩
 instance : AndOp UInt64     := ⟨UInt64.land⟩
@@ -212,17 +212,13 @@ instance : ShiftRight UInt64 := ⟨UInt64.shiftRight⟩
 @[extern "lean_bool_to_uint64"]
 def Bool.toUInt64 (b : Bool) : UInt64 := if b then 1 else 0
 
-set_option bootstrap.genMatcherCode false in
 @[extern "lean_uint64_dec_lt"]
 def UInt64.decLt (a b : UInt64) : Decidable (a < b) :=
-  match a, b with
-  | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (n < m))
+  inferInstanceAs (Decidable (BitVec.ult a.toBitVec b.toBitVec))
 
-set_option bootstrap.genMatcherCode false in
 @[extern "lean_uint64_dec_le"]
 def UInt64.decLe (a b : UInt64) : Decidable (a ≤ b) :=
-  match a, b with
-  | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (n <= m))
+  inferInstanceAs (Decidable (BitVec.ule a.toBitVec b.toBitVec))
 
 instance (a b : UInt64) : Decidable (a < b) := UInt64.decLt a b
 instance (a b : UInt64) : Decidable (a ≤ b) := UInt64.decLe a b

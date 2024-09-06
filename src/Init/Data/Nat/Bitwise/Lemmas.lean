@@ -96,7 +96,13 @@ theorem testBit_succ (x i : Nat) : testBit x (succ i) = testBit (x/2) i := by
   unfold testBit
   simp [shiftRight_succ_inside]
 
-@[simp] theorem testBit_add_one (x i : Nat) : testBit x (i + 1) = testBit (x/2) i := by
+/--
+Depending on use cases either `testBit_add_one` or `testBit_div_two`
+may be more useful as a `simp` lemma, so neither is a global `simp` lemma.
+-/
+-- We turn `testBit_add_one` on as a `local simp` for this file.
+@[local simp]
+theorem testBit_add_one (x i : Nat) : testBit x (i + 1) = testBit (x/2) i := by
   unfold testBit
   simp [shiftRight_succ_inside]
 

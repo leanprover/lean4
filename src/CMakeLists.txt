@@ -124,10 +124,9 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux" AND ${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64")
-  message(STATUS "aarch64 detected; disabling stack protector")
+  message(STATUS "aarch64 detected")
   # GMP seems to need this
-  string(APPEND LEAN_EXTRA_CXX_FLAGS " -fstack-protector-strong")
-  string(APPEND LEAN_EXTRA_LINKER_FLAGS " -fstack-protector-strong")
+  string(APPEND LEANC_EXTRA_FLAGS " -fstack-protector-strong")
 endif()
 
 # Added for CTest
@@ -252,12 +251,13 @@ endif()
 
 # LibUV
 if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
+  set(LIBUV_EMSCRIPTEN_FLAGS "${EMSCRIPTEN_SETTINGS} -s EXPORT_ALL=1")
   # Only on WebAssembly we compile LibUV ourselves
   ExternalProject_add(libuv
     PREFIX libuv
     GIT_REPOSITORY https://github.com/libuv/libuv
     GIT_TAG v1.48.0
-    CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DLIBUV_BUILD_TESTS=OFF -DLIBUV_BUILD_SHARED=OFF -DCMAKE_AR=${CMAKE_SOURCE_DIR}/../emsdk/emsdk-main/upstream/emscripten/emar -DCMAKE_TOOLCHAIN_FILE=${CMAKE_SOURCE_DIR}/../emsdk/emsdk-main/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_C_FLAGS=${EMSCRIPTEN_SETTINGS}
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DLIBUV_BUILD_TESTS=OFF -DLIBUV_BUILD_SHARED=OFF -DCMAKE_AR=${CMAKE_SOURCE_DIR}/../emsdk/emsdk-main/upstream/emscripten/emar -DCMAKE_TOOLCHAIN_FILE=${CMAKE_SOURCE_DIR}/../emsdk/emsdk-main/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_C_FLAGS=${LIBUV_EMSCRIPTEN_FLAGS}
     BUILD_IN_SOURCE ON
     INSTALL_COMMAND "")
   set(LIBUV_INCLUDE_DIR "${CMAKE_BINARY_DIR}/libuv/src/libuv/include")

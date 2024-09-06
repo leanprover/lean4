@@ -187,13 +187,16 @@ theorem ite_true_same (p q : Prop) [Decidable p] : (if p then p else q) = (¬p �
 theorem ite_false_same (p q : Prop) [Decidable p] : (if p then q else p) = (p ∧ q) := ite_else_self p q
 
 /-- If two if-then-else statements only differ by the `Decidable` instances, they are equal. -/
+-- This is useful for ensuring confluence, but rarely otherwise.
 @[simp] theorem ite_eq_ite (p : Prop) {h h' : Decidable p} (x y : α) :
     (@ite _ p h x y = @ite _ p h' x y) ↔ True := by
   simp
   congr
 
 /-- If two if-then-else statements only differ by the `Decidable` instances, they are equal. -/
-@[simp] theorem ite_iff_ite (p : Prop) {h h' : Decidable p} (x y : Prop) : (@ite _ p h x y ↔ @ite _ p h' x y) ↔ True := by
+-- This is useful for ensuring confluence, but rarely otherwise.
+@[simp] theorem ite_iff_ite (p : Prop) {h h' : Decidable p} (x y : Prop) :
+    (@ite _ p h x y ↔ @ite _ p h' x y) ↔ True := by
   rw [iff_true]
   suffices @ite _ p h x y = @ite _ p h' x y by simp [this]
   congr

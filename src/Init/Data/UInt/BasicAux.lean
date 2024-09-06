@@ -33,7 +33,7 @@ instance UInt16.instOfNat : OfNat UInt16 n := ⟨UInt16.ofNat n⟩
 @[extern "lean_uint32_of_nat"]
 def UInt32.ofNat (n : @& Nat) : UInt32 := ⟨BitVec.ofNat 32 n⟩
 @[extern "lean_uint32_of_nat"]
-def UInt32.ofNat' (n : Nat) (h : n < UInt32.size) : UInt32 := ⟨⟨n, h⟩⟩
+def UInt32.ofNat' (n : Nat) (h : n < UInt32.size) : UInt32 := ⟨BitVec.ofNatLt n h⟩
 /--
 Converts the given natural number to `UInt32`, but returns `2^32 - 1` for natural numbers `>= 2^32`.
 -/

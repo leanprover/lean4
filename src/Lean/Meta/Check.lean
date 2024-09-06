@@ -74,7 +74,8 @@ partial def addPPExplicitToExposeDiff (a b : Expr) : MetaM (Expr × Expr) := do
   if (← getOptions).getBool `pp.all false || (← getOptions).getBool `pp.explicit false then
     return (a, b)
   else
-    visit (← instantiateMVars a) (← instantiateMVars b)
+    -- Use a new metacontext depth to prevent isDefEq from unifying any metavariables.
+    withNewMCtxDepth do visit (← instantiateMVars a) (← instantiateMVars b)
 where
   visit (a b : Expr) : MetaM (Expr × Expr) := do
     try

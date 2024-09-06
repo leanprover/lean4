@@ -900,7 +900,7 @@ theorem getLast_eq_getLastD (a l h) : @getLast α (a::l) h = getLastD l a := by
 theorem getLast!_cons [Inhabited α] : @getLast! α _ (a::l) = getLastD l a := by
   simp [getLast!, getLast_eq_getLastD]
 
-@[simp] theorem getLast_mem : ∀ {l : List α} (h : l ≠ []), getLast l h ∈ l
+theorem getLast_mem : ∀ {l : List α} (h : l ≠ []), getLast l h ∈ l
   | [], h => absurd rfl h
   | [_], _ => .head ..
   | _::a::l, _ => .tail _ <| getLast_mem (cons_ne_nil a l)
@@ -989,7 +989,7 @@ theorem head?_eq_some_iff {xs : List α} {a : α} : xs.head? = some a ↔ ∃ ys
 @[simp] theorem head?_isSome : l.head?.isSome ↔ l ≠ [] := by
   cases l <;> simp
 
-@[simp] theorem head_mem : ∀ {l : List α} (h : l ≠ []), head l h ∈ l
+theorem head_mem : ∀ {l : List α} (h : l ≠ []), head l h ∈ l
   | [], h => absurd rfl h
   | _::_, _ => .head ..
 

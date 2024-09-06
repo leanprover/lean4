@@ -11,7 +11,11 @@ import Init.Ext
 
 namespace Option
 
-theorem mem_iff {a : α} {b : Option α} : a ∈ b ↔ b = a := .rfl
+theorem mem_iff {a : α} {b : Option α} : a ∈ b ↔ b = some a := .rfl
+
+@[simp] theorem mem_some {a b : α} : a ∈ some b ↔ a = b := by simp [mem_iff, eq_comm]
+
+theorem mem_some_self (a : α) : a ∈ some a := mem_some.2 rfl
 
 theorem some_ne_none (x : α) : some x ≠ none := nofun
 
@@ -394,5 +398,18 @@ section ite
   simpa using get_dite' (p := p) (fun _ => b) (by simpa using h)
 
 end ite
+
+/-! ### pbind -/
+
+@[simp] theorem pbind_none : pbind none f = none := rfl
+@[simp] theorem pbind_some : pbind (some a) f = f a (mem_some_self a) := rfl
+
+/-! ### pmap -/
+
+@[simp] theorem pmap_none {p : α → Prop} {f : ∀ (a : α), p a → β} {h} :
+    pmap f none h = none := rfl
+
+@[simp] theorem pmap_some {p : α → Prop} {f : ∀ (a : α), p a → β} {h}:
+    pmap f (some a) h = f a (h a (mem_some_self a)) := rfl
 
 end Option

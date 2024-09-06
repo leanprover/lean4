@@ -1903,6 +1903,24 @@ instance : DecidableEq (BitVec n) := BitVec.decEq
 protected def BitVec.ofNatLt {n : Nat} (i : Nat) (p : LT.lt i (hPow 2 n)) : BitVec n where
   toFin := ⟨i, p⟩
 
+/-- Given a bitvector `x`, return the underlying `Nat`. This is O(1) because `BitVec` is a
+(zero-cost) wrapper around a `Nat`. -/
+protected def BitVec.toNat (x : BitVec n) : Nat := x.toFin.val
+
+/--
+Unsigned less-than for bit vectors.
+
+SMT-Lib name: `bvult`.
+-/
+protected def BitVec.ult (x y : BitVec n) : Bool := decide (LT.lt x.toNat y.toNat)
+
+/--
+Unsigned less-than-or-equal-to for bit vectors.
+
+SMT-Lib name: `bvule`.
+-/
+protected def BitVec.ule (x y : BitVec n) : Bool := decide (LE.le x.toNat y.toNat)
+
 /-- The size of type `UInt8`, that is, `2^8 = 256`. -/
 abbrev UInt8.size : Nat := 256
 
@@ -1997,12 +2015,14 @@ The type of unsigned 32-bit integers. This type has special support in the
 compiler to make it actually 32 bits rather than wrapping a `Nat`.
 -/
 structure UInt32 where
-  /-- Unpack a `UInt32` as a `Nat` less than `2^32`.
+  /-- Unpack a `UInt32` as a `BitVec 32.
   This function is overridden with a native implementation. -/
-  val : Fin UInt32.size
+  toBitVec : BitVec 32
 
 attribute [extern "lean_uint32_of_nat_mk"] UInt32.mk
-attribute [extern "lean_uint32_to_nat"] UInt32.val
+attribute [extern "lean_uint32_to_nat"] UInt32.toBitVec
+
+def UInt32.val (x : UInt32) : Fin UInt32.size := x.toBitVec.toFin
 
 /--
 Pack a `Nat` less than `2^32` into a `UInt32`.
@@ -2010,14 +2030,14 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint32_of_nat"]
 def UInt32.ofNatCore (n : @& Nat) (h : LT.lt n UInt32.size) : UInt32 where
-  val := { val := n, isLt := h }
+  toBitVec := BitVec.ofNatLt n h
 
 /--
 Unpack a `UInt32` as a `Nat`.
 This function is overridden with a native implementation.
 -/
 @[extern "lean_uint32_to_nat"]
-def UInt32.toNat (n : UInt32) : Nat := n.val.val
+def UInt32.toNat (n : UInt32) : Nat := n.toBitVec.toNat
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -2036,30 +2056,26 @@ instance : Inhabited UInt32 where
   default := UInt32.ofNatCore 0 (by decide)
 
 instance : LT UInt32 where
-  lt a b := LT.lt a.val b.val
+  lt a b := Eq (BitVec.ult a.toBitVec b.toBitVec) true
 
 instance : LE UInt32 where
-  le a b := LE.le a.val b.val
+  le a b := Eq (BitVec.ule a.toBitVec b.toBitVec) true
 
-set_option bootstrap.genMatcherCode false in
 /--
 Decides less-equal on `UInt32`.
 This function is overridden with a native implementation.
 -/
 @[extern "lean_uint32_dec_lt"]
 def UInt32.decLt (a b : UInt32) : Decidable (LT.lt a b) :=
-  match a, b with
-  | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (LT.lt n m))
+  inferInstanceAs (Decidable (Eq (BitVec.ult a.toBitVec b.toBitVec) true))
 
-set_option bootstrap.genMatcherCode false in
 /--
 Decides less-than on `UInt32`.
 This function is overridden with a native implementation.
 -/
 @[extern "lean_uint32_dec_le"]
 def UInt32.decLe (a b : UInt32) : Decidable (LE.le a b) :=
-  match a, b with
-  | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (LE.le n m))
+  inferInstanceAs (Decidable (Eq (BitVec.ule a.toBitVec b.toBitVec) true))
 
 instance (a b : UInt32) : Decidable (LT.lt a b) := UInt32.decLt a b
 instance (a b : UInt32) : Decidable (LE.le a b) := UInt32.decLe a b
@@ -2220,7 +2236,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint32_of_nat"]
 def Char.ofNatAux (n : @& Nat) (h : n.isValidChar) : Char :=
-  { val := ⟨{ val := n, isLt := isValidChar_UInt32 h }⟩, valid := h }
+  { val := ⟨BitVec.ofNatLt n (isValidChar_UInt32 h)⟩, valid := h }
 
 /--
 Convert a `Nat` into a `Char`. If the `Nat` does not encode a valid unicode scalar value,
@@ -2230,7 +2246,7 @@ Convert a `Nat` into a `Char`. If the `Nat` does not encode a valid unicode scal
 def Char.ofNat (n : Nat) : Char :=
   dite (n.isValidChar)
     (fun h => Char.ofNatAux n h)
-    (fun _ => { val := ⟨{ val := 0, isLt := by decide }⟩, valid := Or.inl (by decide) })
+    (fun _ => { val := ⟨BitVec.ofNatLt 0 (by decide)⟩, valid := Or.inl (by decide) })
 
 theorem Char.eq_of_val_eq : ∀ {c d : Char}, Eq c.val d.val → Eq c d
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl

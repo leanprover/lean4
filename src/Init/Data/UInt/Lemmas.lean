@@ -66,7 +66,6 @@ protected theorem toNat_lt_size (a : $typeName) : a.toNat < size := a.1.2
 end $typeName
 )
 
-declare_uint_theorems UInt32
 declare_uint_theorems UInt64
 declare_uint_theorems USize
 
@@ -155,6 +154,7 @@ end $typeName
 
 declare_new_uint_theorems UInt8
 declare_new_uint_theorems UInt16
+declare_new_uint_theorems UInt32
 
 namespace UInt8
 

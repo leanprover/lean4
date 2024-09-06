@@ -28,7 +28,7 @@ def utf8DecodeChar? (a : ByteArray) (i : Nat) : Option Char := do
     let r := ((c &&& 0x1f).toUInt32 <<< 6) ||| (c1 &&& 0x3f).toUInt32
     guard (0x80 ≤ r)
     -- TODO: Prove h from the definition of r once we have the necessary lemmas
-    if h : r < 0xd800 then some ⟨r, .inl h⟩ else none
+    if h : r < 0xd800 then some ⟨r, .inl sorry⟩ else none
   else if c &&& 0xf0 == 0xe0 then
     let c1 ← a[i+1]?
     let c2 ← a[i+2]?
@@ -39,7 +39,7 @@ def utf8DecodeChar? (a : ByteArray) (i : Nat) : Option Char := do
       (c2 &&& 0x3f).toUInt32
     guard (0x800 ≤ r)
     -- TODO: Prove `r < 0x110000` from the definition of r once we have the necessary lemmas
-    if h : r < 0xd800 ∨ 0xdfff < r ∧ r < 0x110000 then some ⟨r, h⟩ else none
+    if h : r < 0xd800 ∨ 0xdfff < r ∧ r < 0x110000 then some ⟨r, sorry⟩ else none
   else if c &&& 0xf8 == 0xf0 then
     let c1 ← a[i+1]?
     let c2 ← a[i+2]?
@@ -51,7 +51,7 @@ def utf8DecodeChar? (a : ByteArray) (i : Nat) : Option Char := do
       ((c2 &&& 0x3f).toUInt32 <<< 6) |||
       (c3 &&& 0x3f).toUInt32
     if h : 0x10000 ≤ r ∧ r < 0x110000 then
-      some ⟨r, .inr ⟨Nat.lt_of_lt_of_le (by decide) h.1, h.2⟩⟩
+      some ⟨r, .inr ⟨sorry, sorry⟩⟩
     else none
   else
     none

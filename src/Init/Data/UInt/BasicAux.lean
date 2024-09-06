@@ -31,7 +31,7 @@ instance UInt16.instOfNat : OfNat UInt16 n := ⟨UInt16.ofNat n⟩
 
 
 @[extern "lean_uint32_of_nat"]
-def UInt32.ofNat (n : @& Nat) : UInt32 := ⟨Fin.ofNat n⟩
+def UInt32.ofNat (n : @& Nat) : UInt32 := ⟨BitVec.ofNat 32 n⟩
 @[extern "lean_uint32_of_nat"]
 def UInt32.ofNat' (n : Nat) (h : n < UInt32.size) : UInt32 := ⟨⟨n, h⟩⟩
 /--

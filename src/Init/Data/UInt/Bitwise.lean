@@ -18,7 +18,6 @@ namespace $typeName
 end $typeName
 )
 
-declare_bitwise_uint_theorems UInt64
 declare_bitwise_uint_theorems USize
 
 set_option hygiene false in
@@ -34,3 +33,4 @@ end $typeName
 declare_new_bitwise_uint_theorems UInt8
 declare_new_bitwise_uint_theorems UInt16
 declare_new_bitwise_uint_theorems UInt32
+declare_new_bitwise_uint_theorems UInt64

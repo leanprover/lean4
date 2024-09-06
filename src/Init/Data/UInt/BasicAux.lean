@@ -56,10 +56,10 @@ def UInt16.toUInt32 (a : UInt16) : UInt32 := ⟨a.val, Nat.lt_trans a.val.2 (by 
 instance UInt32.instOfNat : OfNat UInt32 n := ⟨UInt32.ofNat n⟩
 
 @[extern "lean_uint64_of_nat"]
-def UInt64.ofNat (n : @& Nat) : UInt64 := ⟨Fin.ofNat n⟩
+def UInt64.ofNat (n : @& Nat) : UInt64 := ⟨BitVec.ofNat 64 n⟩
 abbrev Nat.toUInt64 := UInt64.ofNat
 @[extern "lean_uint64_to_nat"]
-def UInt64.toNat (n : UInt64) : Nat := n.val.val
+def UInt64.toNat (n : UInt64) : Nat := n.toBitVec.toNat
 @[extern "lean_uint64_to_uint8"]
 def UInt64.toUInt8 (a : UInt64) : UInt8 := a.toNat.toUInt8
 @[extern "lean_uint64_to_uint16"]

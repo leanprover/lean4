@@ -92,7 +92,7 @@ Equivalent to (but potentially faster than) calling `contains` followed by `inse
 Checks if given key is contained and returns the key if it is, otherwise `none`.
 The result in the `some` case is guaranteed to be pointer equal to the key in the set.
 -/
-@[inline] def getKey? (m : HashSet α) (a : α) : Option α :=
+@[inline] def get? (m : HashSet α) (a : α) : Option α :=
   m.inner.getKey? a
 
 /--
@@ -115,21 +115,21 @@ instance [BEq α] [Hashable α] {m : HashSet α} {a : α} : Decidable (a ∈ m) 
 Retrieves the key from the set that matches `a`. Ensures that such a key exists by requiring a proof
 of `a ∈ m`. The result is guaranteed to be pointer equal to the key in the set.
 -/
-@[inline] def getKey [BEq α] [Hashable α] (m : HashSet α) (a : α) (h : a ∈ m) : α :=
+@[inline] def get [BEq α] [Hashable α] (m : HashSet α) (a : α) (h : a ∈ m) : α :=
   m.inner.getKey a h
 
 /--
 Checks if given key is contained and returns the key if it is, otherwise `fallback`.
 If they key is contained the result is guaranteed to be pointer equal to the key in the set.
 -/
-@[inline] def getKeyD [BEq α] [Hashable α] (m : HashSet α) (a : α) (fallback : α) : α :=
+@[inline] def getD [BEq α] [Hashable α] (m : HashSet α) (a : α) (fallback : α) : α :=
   m.inner.getKeyD a fallback
 
 /--
 Checks if given key is contained and returns the key if it is, otherwise panics.
 If no panic occurs the result is guaranteed to be pointer equal to the key in the set.
 -/
-@[inline] def getKey! [BEq α] [Hashable α] [Inhabited α] (m : HashSet α) (a : α) : α :=
+@[inline] def get! [BEq α] [Hashable α] [Inhabited α] (m : HashSet α) (a : α) : α :=
   m.inner.getKey! a
 
 /-- Removes the element if it exists. -/

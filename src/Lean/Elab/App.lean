@@ -1594,10 +1594,13 @@ private def elabAtom : TermElab := fun stx expectedType? => do
 @[builtin_term_elab dotIdent] def elabDotIdent : TermElab := elabAtom
 @[builtin_term_elab explicitUniv] def elabExplicitUniv : TermElab := elabAtom
 @[builtin_term_elab pipeProj] def elabPipeProj : TermElab
-  | `($e |>.$f $args*), expectedType? =>
+  | `($e |>.%$tk$f $args*), expectedType? =>
     universeConstraintsCheckpoint do
       let (namedArgs, args, ellipsis) ← expandArgs args
-      elabAppAux (← `($e |>.$f)) namedArgs args (ellipsis := ellipsis) expectedType?
+      let mut stx ← `($e |>.%$tk$f)
+      if let (some startPos, some stopPos) := (e.raw.getPos?, f.raw.getTailPos?) then
+        stx := ⟨stx.raw.setInfo <| .synthetic (canonical := true) startPos stopPos⟩
+      elabAppAux stx namedArgs args (ellipsis := ellipsis) expectedType?
   | _, _ => throwUnsupportedSyntax
 
 @[builtin_term_elab explicit] def elabExplicit : TermElab := fun stx expectedType? =>

@@ -125,7 +125,7 @@ endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux" AND ${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64")
   # GMP seems to need this
-  string(APPEND LEAN_EXTRA_CXX_FLAGS " -fstack-protector-all")
+  string(APPEND LEAN_EXTRA_CXX_FLAGS " -fno-stack-protector")
 endif()
 
 # Added for CTest

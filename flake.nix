@@ -34,7 +34,7 @@
             tree  # for CI
           ];
           # https://github.com/NixOS/nixpkgs/issues/60919
-          hardeningDisable = [ "all" ];
+          # hardeningDisable = [ "all" ];
           # more convenient `ctest` output
           CTEST_OUTPUT_ON_FAILURE = 1;
         } // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {

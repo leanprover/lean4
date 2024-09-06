@@ -1151,18 +1151,18 @@ theorem map_eq_foldr (f : α → β) (l : List α) : map f l = foldr (fun a bs =
 @[simp] theorem head?_map (f : α → β) (l : List α) : head? (map f l) = (head? l).map f := by
   cases l <;> rfl
 
-@[simp] theorem tail?_map (f : α → β) (l : List α) : tail? (map f l) = (tail? l).map (map f) := by
+@[simp] theorem map_tail? (f : α → β) (l : List α) : (tail? l).map (map f) = tail? (map f l) := by
   cases l <;> rfl
 
-@[simp] theorem tail_map (f : α → β) (l : List α) :
-    (map f l).tail = map f l.tail := by
+@[simp] theorem map_tail (f : α → β) (l : List α) :
+    map f l.tail = (map f l).tail := by
   cases l <;> simp_all
 
 theorem headD_map (f : α → β) (l : List α) (a : α) : headD (map f l) (f a) = f (headD l a) := by
   cases l <;> rfl
 
 theorem tailD_map (f : α → β) (l : List α) (l' : List α) :
-    tailD (map f l) (map f l') = map f (tailD l l') := by simp
+    tailD (map f l) (map f l') = map f (tailD l l') := by simp [← map_tail?]
 
 @[simp] theorem getLast_map (f : α → β) (l : List α) (h) :
     getLast (map f l) h = f (getLast l (by simpa using h)) := by

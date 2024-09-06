@@ -18,10 +18,10 @@ def UInt8.toNat (n : UInt8) : Nat := n.toBitVec.toNat
 instance UInt8.instOfNat : OfNat UInt8 n := ⟨UInt8.ofNat n⟩
 
 @[extern "lean_uint16_of_nat"]
-def UInt16.ofNat (n : @& Nat) : UInt16 := ⟨Fin.ofNat n⟩
+def UInt16.ofNat (n : @& Nat) : UInt16 := ⟨BitVec.ofNat 16 n⟩
 abbrev Nat.toUInt16 := UInt16.ofNat
 @[extern "lean_uint16_to_nat"]
-def UInt16.toNat (n : UInt16) : Nat := n.val.val
+def UInt16.toNat (n : UInt16) : Nat := n.toBitVec.toNat
 @[extern "lean_uint16_to_uint8"]
 def UInt16.toUInt8 (a : UInt16) : UInt8 := a.toNat.toUInt8
 @[extern "lean_uint8_to_uint16"]

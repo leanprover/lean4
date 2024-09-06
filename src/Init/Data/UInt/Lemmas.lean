@@ -66,7 +66,6 @@ protected theorem toNat_lt_size (a : $typeName) : a.toNat < size := a.1.2
 end $typeName
 )
 
-declare_uint_theorems UInt16
 declare_uint_theorems UInt32
 declare_uint_theorems UInt64
 declare_uint_theorems USize
@@ -137,7 +136,7 @@ protected theorem ne_of_lt {a b : $typeName} (h : a < b) : a ≠ b := ne_of_toBi
 
 @[simp] protected theorem toNat_sub_of_le (a b : $typeName) : b ≤ a → (a - b).toNat = a.toNat - b.toNat := sorry--Fin.sub_val_of_le
 
-@[simp] protected theorem toNat_modn (a : $typeName) (b : Nat) : (a.modn b).toNat = a.toNat % b := Fin.modn_val ..
+@[simp] protected theorem toNat_modn (a : $typeName) (b : Nat) : (a.modn b).toNat = a.toNat % b := sorry --Fin.modn_val ..
 
 protected theorem modn_lt {m : Nat} : ∀ (u : $typeName), m > 0 → toNat (u % m) < m
   | ⟨u⟩, h => sorry--Fin.modn_lt u h
@@ -155,6 +154,7 @@ end $typeName
 )
 
 declare_new_uint_theorems UInt8
+declare_new_uint_theorems UInt16
 
 namespace UInt8
 

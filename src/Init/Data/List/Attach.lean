@@ -207,7 +207,7 @@ theorem getElem_attach {xs : List α} {i : Nat} (h : i < xs.attach.length) :
   apply Option.some.inj
   rw [← getElem?_eq_getElem]
   rw [getElem?_attach]
-  simp
+  simp only [Option.pmap]
   split <;> rename_i h' _
   · simp at h
     simp at h'
@@ -231,22 +231,32 @@ theorem getElem_attach {xs : List α} {i : Nat} (h : i < xs.attach.length) :
   induction xs with
   | nil => simp at h
   | cons x xs ih => simp [head_pmap, ih]
-#check Option.pmap
+
 theorem pmap_pmap {p : α → Prop} {q : β → Prop} (g : ∀ a, p a → β) (f : ∀ b, q b → γ) (l H₁ H₂) :
     pmap f (pmap g l H₁) H₂ =
       pmap (α := { x // x ∈ l }) (fun a h => f (g a h) (H₂ (g a h) (mem_pmap_of_mem a.2))) l.attach
-        (fun a h => H₁ a a.2) := by
+        (fun a _ => H₁ a a.2) := by
   induction l with
   | nil => rfl
   | cons x xs ih =>
     simp only [pmap, ih, cons.injEq, true_and]
     ext1 i
-    simp
+    simp only [getElem?_pmap, Option.pmap]
     split <;> rename_i h _ <;> split <;> rename_i h' _
     · rfl
-    · simp? at h
-
-      split at h <;> rename_i h'' _
+    · simp only [getElem?_attach, Option.pmap_eq_none, getElem?_eq_none_iff] at h
+      simp [getElem?_eq_none h] at h'
+    · simp only [getElem?_pmap, Option.pmap_eq_none, getElem?_eq_none_iff] at h'
+      rw [getElem?_eq_none] at h
+      simp only [reduceCtorEq] at h
+      simpa using h'
+    · simp only [getElem?_attach, Option.pmap_eq_some, exists_and_left] at h
+      simp only [getElem?_pmap, Option.pmap_eq_some, mem_cons, exists_and_left] at h'
+      obtain ⟨a, h, x, rfl⟩ := h
+      obtain ⟨a, h', x', rfl⟩ := h'
+      simp only [h, Option.some.injEq] at h'
+      subst h'
+      rfl
 
 @[simp] theorem pmap_append {p : ι → Prop} (f : ∀ a : ι, p a → α) (l₁ l₂ : List ι)
     (h : ∀ a ∈ l₁ ++ l₂, p a) :

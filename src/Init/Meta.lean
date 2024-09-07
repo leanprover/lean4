@@ -154,18 +154,17 @@ Converts a name to a string.
 - If `escape` is `true`, then escapes name components using `«` and `»` to ensure that
   those names that can appear in source files round trip.
   Names with number components, anonymous names, and names containing `»` might not round trip.
-  Furthermore, "pseudo-syntax" produced by the elaborator, such as `_`, `#0` or `?u`, is not escaped.
-- The optional `isToken?` function is used when `escape` is `true` to determine whether more
+  Furthermore, "pseudo-syntax" produced by the delaborator, such as `_`, `#0` or `?u`, is not escaped.
+- The optional `isToken` function is used when `escape` is `true` to determine whether more
   escaping is necessary to avoid parser tokens.
   The insertion algorithm works so long as parser tokens do not themselves contain `«` or `»`.
 -/
-protected def toString (n : Name) (escape := true) (isToken? : Option (String → Bool) := none) : String :=
+protected def toString (n : Name) (escape := true) (isToken : String → Bool := fun _ => false) : String :=
   -- never escape "prettified" inaccessible names or macro scopes or pseudo-syntax introduced by the delaborator
   toStringWithSep "." (escape && !n.isInaccessibleUserName && !n.hasMacroScopes && !maybePseudoSyntax) n isToken
 where
-  isToken := isToken?.getD fun _ => false
   maybePseudoSyntax :=
-    if n == .str .anonymous "_" then
+    if n == `_ then
       -- output hole as is
       true
     else if let .str _ s := n.getRoot then

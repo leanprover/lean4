@@ -422,7 +422,7 @@ def identNoAntiquot.formatter : Formatter := do
   let id := id.simpMacroScopes
   let tokenTable := getTokenTable (← getEnv)
   let isToken (s : String) : Bool := (tokenTable.find? s).isSome
-  withMaybeTag (getExprPos? stx) (pushToken info (id.toString (isToken? := isToken)))
+  withMaybeTag (getExprPos? stx) (pushToken info (id.toString (isToken := isToken)))
   goLeft
 
 @[combinator_formatter rawIdentNoAntiquot] def rawIdentNoAntiquot.formatter : Formatter := do

@@ -414,6 +414,42 @@ end ite
   subst ho
   exact (funext fun a => funext fun h => hf a h) ▸ Eq.refl (o.pbind f)
 
+theorem pbind_eq_none_iff {o : Option α} {f : (a : α) → a ∈ o → Option β} :
+    o.pbind f = none ↔ o = none ∨ ∃ a h, f a h = none := by
+  cases o with
+  | none => simp
+  | some a =>
+    simp only [pbind_some, reduceCtorEq, mem_def, some.injEq, false_or]
+    constructor
+    · intro h
+      exact ⟨a, rfl, h⟩
+    · rintro ⟨a, rfl, h⟩
+      exact h
+
+theorem pbind_isSome {o : Option α} {f : (a : α) → a ∈ o → Option β} :
+    (o.pbind f).isSome = ∃ a h, (f a h).isSome := by
+  cases o with
+  | none => simp
+  | some a =>
+    simp only [pbind_some, mem_def, some.injEq, eq_iff_iff]
+    constructor
+    · intro h
+      exact ⟨a, rfl, h⟩
+    · rintro ⟨a, rfl, h⟩
+      exact h
+
+theorem pbind_eq_some_iff {o : Option α} {f : (a : α) → a ∈ o → Option β} {b : β} :
+    o.pbind f = some b ↔ ∃ a h, f a h = some b := by
+  cases o with
+  | none => simp
+  | some a =>
+    simp only [pbind_some, mem_def, some.injEq]
+    constructor
+    · intro h
+      exact ⟨a, rfl, h⟩
+    · rintro ⟨a, rfl, h⟩
+      exact h
+
 /-! ### pmap -/
 
 @[simp] theorem pmap_none {p : α → Prop} {f : ∀ (a : α), p a → β} {h} :
@@ -422,7 +458,7 @@ end ite
 @[simp] theorem pmap_some {p : α → Prop} {f : ∀ (a : α), p a → β} {h}:
     pmap f (some a) h = f a (h a (mem_some_self a)) := rfl
 
-@[simp] theorem pmap_eq_none {p : α → Prop} {f : ∀ (a : α), p a → β} {h} :
+@[simp] theorem pmap_eq_none_iff {p : α → Prop} {f : ∀ (a : α), p a → β} {h} :
     pmap f o h = none ↔ o = none := by
   cases o <;> simp
 
@@ -430,7 +466,7 @@ end ite
     (pmap f o h).isSome = o.isSome := by
   cases o <;> simp
 
-@[simp] theorem pmap_eq_some {p : α → Prop} {f : ∀ (a : α), p a → β} {o : Option α} {h} :
+@[simp] theorem pmap_eq_some_iff {p : α → Prop} {f : ∀ (a : α), p a → β} {o : Option α} {h} :
     pmap f o h = some b ↔ ∃ (a : α) (h : p a), o = some a ∧ b = f a h := by
   cases o with
   | none => simp

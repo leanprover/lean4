@@ -12,7 +12,13 @@ open Meta
 
 @[builtin_tactic Lean.Parser.Tactic.Conv.unfold] def evalUnfold : Tactic := fun stx => withMainContext do
   for declNameId in stx[1].getArgs do
-    let declName ← realizeGlobalConstNoOverloadWithInfo declNameId
-    applySimpResult (← unfold (← getLhs) declName)
+    let e ← elabTermForApply declNameId (mayPostpone := false)
+    match e with
+    | .const declName _ =>
+      applySimpResult (← unfold (← getLhs) declName)
+    | .fvar declFVarId =>
+      let lhs ← instantiateMVars (← getLhs)
+      changeLhs (← Meta.zetaDeltaFVars lhs #[declFVarId])
+    | _ => throwErrorAt declNameId m!"'unfold' conv tactic failed, expression {e} is not a global or local constant"
 
 end Lean.Elab.Tactic.Conv

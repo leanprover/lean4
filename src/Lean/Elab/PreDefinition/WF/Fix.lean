@@ -28,7 +28,9 @@ use by `solveDecreasingGoals` below.
 private def mkDecreasingProof (decreasingProp : Expr) : TermElabM Expr := do
   -- We store the current Ref in the MVar as a RecApp annotation around the type
   let ref ← getRef
-  let mvar ← mkFreshExprSyntheticOpaqueMVar (mkRecAppWithSyntax decreasingProp ref)
+  let some name ← Term.getDeclName? | throwError "mkDecreasingProof: No declname set?"
+  trace[Elab.definition.wf] "mkDecreasingProof: {decreasingProp}"
+  let mvar ← mkFreshExprSyntheticOpaqueMVar (mkRecAppWithSyntax decreasingProp name ref)
   let mvarId := mvar.mvarId!
   let _mvarId ← mvarId.cleanup
   return mvar
@@ -71,8 +73,8 @@ where
       withLetDecl n (← loop F type) (← loop F val) fun x => do
         mkLetFVars #[x] (← loop F (body.instantiate1 x)) (usedLetOnly := false)
     | Expr.mdata d b =>
-      if let some stx := getRecAppSyntax? e then
-        withRef stx <| loop F b
+      if let some (name, stx) := getRecAppSyntax? e then
+        withReader (fun ctx => { ctx with declName? := name }) <| withRef stx <| loop F b
       else
         return mkMData d (← loop F b)
     | Expr.proj n i e => return mkProj n i (← loop F e)
@@ -168,34 +170,28 @@ def assignSubsumed (mvars : Array MVarId) : MetaM (Array MVarId) :=
           return (false, true)
     return (true, true)
 
-/--
-The subgoals, created by `mkDecreasingProof`, are of the form `[data _recApp: rel arg param]`, where
-`param` is the `PackMutual`'ed parameter of the current function, and thus we can peek at that to
-know which function is making the call.
-The close coupling with how arguments are packed and termination goals look like is not great,
-but it works for now.
--/
-def groupGoalsByFunction (argsPacker : ArgsPacker) (numFuncs : Nat) (goals : Array MVarId) : MetaM (Array (Array MVarId)) := do
-  let mut r := mkArray numFuncs #[]
+def groupGoalsByFunction (declNames : Array Name) (goals : Array MVarId) : MetaM (Array (Array MVarId)) := do
+  let mut r := mkArray declNames.size #[]
   for goal in goals do
     let type ← goal.getType
-    let (.mdata _ (.app _ param)) := type
-        | throwError "MVar does not look like a recursive call:{indentExpr type}"
-    let (funidx, _) ← argsPacker.unpack param
+    let some (name, ref) := getRecAppSyntax? type
+      | throwError "MVar not annotated as a recursive call:{indentExpr type}"
+    let some funidx := declNames.indexOf? name
+      | throwErrorAt ref "Caller {name} not among {declNames}"
     r := r.modify funidx (·.push goal)
   return r
 
-def solveDecreasingGoals (argsPacker : ArgsPacker) (decrTactics : Array (Option DecreasingBy)) (value : Expr) : MetaM Expr := do
+def solveDecreasingGoals (declNames : Array Name) (decrTactics : Array (Option DecreasingBy)) (value : Expr) : MetaM Expr := do
   let goals ← getMVarsNoDelayed value
   let goals ← assignSubsumed goals
-  let goalss ← groupGoalsByFunction argsPacker decrTactics.size goals
+  let goalss ← groupGoalsByFunction declNames goals
   for goals in goalss, decrTactic? in decrTactics do
     Lean.Elab.Term.TermElabM.run' do
     match decrTactic? with
     | none => do
       for goal in goals do
         let type ← goal.getType
-        let some ref := getRecAppSyntax? (← goal.getType)
+        let some (_name, ref) := getRecAppSyntax? (← goal.getType)
           | throwError "MVar not annotated as a recursive call:{indentExpr type}"
         withRef ref <| applyDefaultDecrTactic goal
     | some decrTactic => withRef decrTactic.ref do
@@ -211,7 +207,7 @@ def solveDecreasingGoals (argsPacker : ArgsPacker) (decrTactics : Array (Option 
           Term.reportUnsolvedGoals remainingGoals
   instantiateMVars value
 
-def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (argsPacker : ArgsPacker)
+def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (declNames : Array Name)
     (wfRel : Expr) (decrTactics : Array (Option DecreasingBy)) : TermElabM Expr := do
   let type ← instantiateForall preDef.type prefixArgs
   let (wfFix, varName) ← forallBoundedTelescope type (some 1) fun x type => do
@@ -235,7 +231,7 @@ def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (argsPacker : ArgsP
       let val := preDef.value.beta (prefixArgs.push x)
       let val ← processSumCasesOn x F val fun x F val => do
         processPSigmaCasesOn x F val (replaceRecApps preDef.declName prefixArgs.size)
-      let val ← solveDecreasingGoals argsPacker decrTactics val
+      let val ← solveDecreasingGoals declNames decrTactics val
       mkLambdaFVars prefixArgs (mkApp wfFix (← mkLambdaFVars #[x, F] val))
 
 end Lean.Elab.WF

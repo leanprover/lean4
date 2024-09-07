@@ -136,7 +136,7 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
       withLetDecl n (← loop below type) (← loop below val) fun x => do
         mkLetFVars #[x] (← loop below (body.instantiate1 x)) (usedLetOnly := false)
     | Expr.mdata d b =>
-      if let some stx := getRecAppSyntax? e then
+      if let some (_name, stx) := getRecAppSyntax? e then
         withRef stx <| loop below b
       else
         return mkMData d (← loop below b)

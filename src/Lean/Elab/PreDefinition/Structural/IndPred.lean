@@ -53,7 +53,7 @@ private partial def replaceIndPredRecApps (recArgInfo : RecArgInfo) (funType : E
       withLetDecl n (← loop type) (← loop val) fun x => do
         mkLetFVars #[x] (← loop (body.instantiate1 x))
     | Expr.mdata d b => do
-      if let some stx := getRecAppSyntax? e then
+      if let some (_name, stx) := getRecAppSyntax? e then
         withRef stx <| loop b
       else
         return mkMData d (← loop b)

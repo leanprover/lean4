@@ -1561,8 +1561,9 @@ private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array A
       withRef f <| mergeFailures candidates
 
 /--
-  We annotate recursive applications with their `Syntax` node to make sure we can produce error messages with
-  correct position information at `WF` and `Structural`.
+  We annotate recursive applications with their `Syntax` node to make sure we can produce error
+  messages with correct position information at `WF` and `Structural`, and with the calling
+  function name, to use the correct decreasing_by tactic.
 -/
 -- TODO: It is overkill to store the whole `Syntax` object, and we have to make sure we erase it later.
 -- We should store only the position information in the future.
@@ -1574,7 +1575,8 @@ private def annotateIfRec (stx : Syntax) (e : Expr) : TermElabM Expr := do
     if resultFn.isFVar then
       let localDecl ← resultFn.fvarId!.getDecl
       if localDecl.isAuxDecl then
-        return mkRecAppWithSyntax e stx
+        let some caller ← getDeclName? | panic! "No declname set?"
+        return mkRecAppWithSyntax e caller stx
   return e
 
 @[builtin_term_elab app] def elabApp : TermElab := fun stx expectedType? =>

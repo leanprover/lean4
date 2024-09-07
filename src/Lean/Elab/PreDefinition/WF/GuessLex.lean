@@ -244,7 +244,7 @@ where
       withLetDecl n type val fun x => do
         loop param (body.instantiate1 x)
     | Expr.mdata _d b =>
-      if let some stx := getRecAppSyntax? e then
+      if let some (_name, stx) := getRecAppSyntax? e then
         withRef stx <| loop param b
       else
         loop param b

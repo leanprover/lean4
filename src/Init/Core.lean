@@ -177,6 +177,12 @@ This is not an instance to avoid non-canonical instances.
 -/
 @[reducible] def PSum.inhabitedRight {α β} [Inhabited β] : Inhabited (PSum α β) := ⟨PSum.inr default⟩
 
+instance PSum.nonemptyLeft [h : Nonempty α] : Nonempty (PSum α β) :=
+  Nonempty.elim h (fun a => ⟨PSum.inl a⟩)
+
+instance PSum.nonemptyRight [h : Nonempty β] : Nonempty (PSum α β) :=
+  Nonempty.elim h (fun b => ⟨PSum.inr b⟩)
+
 /--
 `Sigma β`, also denoted `Σ a : α, β a` or `(a : α) × β a`, is the type of dependent pairs
 whose first component is `a : α` and whose second component is `b : β a`
@@ -1165,6 +1171,12 @@ variable {α : Type u} {β : Type v}
 /-- This is not an instance to avoid non-canonical instances. -/
 @[reducible] def Sum.inhabitedRight [Inhabited β] : Inhabited (Sum α β) where
   default := Sum.inr default
+
+instance Sum.nonemptyLeft [h : Nonempty α] : Nonempty (Sum α β) :=
+  Nonempty.elim h (fun a => ⟨Sum.inl a⟩)
+
+instance Sum.nonemptyRight [h : Nonempty β] : Nonempty (Sum α β) :=
+  Nonempty.elim h (fun b => ⟨Sum.inr b⟩)
 
 instance {α : Type u} {β : Type v} [DecidableEq α] [DecidableEq β] : DecidableEq (Sum α β) := fun a b =>
   match a, b with

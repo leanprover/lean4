@@ -21,6 +21,9 @@ structure NamedArg where
   ref  : Syntax := Syntax.missing
   name : Name
   val  : Arg
+  /-- If `true`, then make all parameters that the corresponding named parameter depends on
+  become implicit. This is used for projection notation to suppress explicit type parameters. -/
+  suppressDeps : Bool := false
   deriving Inhabited
 
 /--

@@ -145,6 +145,8 @@ structure State where
     When `..` is used, eta-expansion is disabled, and missing arguments are treated as `_`.
   -/
   etaArgs              : Array Expr   := #[]
+  /-- Missing explicit arguments, from dependencies of named arguments. These cannot be eta arguments. -/
+  missingExplicits     : Array Expr   := #[]
   /-- Metavariables that we need to set the error context using the application being built. -/
   toSetErrorCtx        : Array MVarId := #[]
   /-- Metavariables for the instance implicit arguments that have already been processed. -/
@@ -378,6 +380,13 @@ private def finalize : M Expr := do
   -- Register the error context of implicits
   for mvarId in s.toSetErrorCtx do
     registerMVarErrorImplicitArgInfo mvarId ref e
+  unless s.missingExplicits.isEmpty do
+    let mes := s.missingExplicits.map fun e => m!"{indentExpr e}"
+    logError m!"insufficient number of arguments, \
+      missing {s.missingExplicits.size} explicit argument(s) that are dependencies of a named argument.\n\n\
+      Such arguments can be filled in with '_', or '(_)' if it is a non-canonical instance argument. \
+      These are the inferred missing arguments:\
+      {MessageData.joinSep mes.toList ""}"
   if !s.etaArgs.isEmpty then
     e ← mkLambdaFVars s.etaArgs e
   /-
@@ -411,21 +420,24 @@ private def finalize : M Expr := do
   synthesizeAppInstMVars
   return e
 
-/-- Return `true` if there is a named argument that depends on the next argument. -/
-private def anyNamedArgDependsOnCurrent : M Bool := do
+/--
+Returns a named argument that depends on the next argument, otherwise `none`.
+If `onlySuppressDeps` is true, then only returns such a named argument with `suppressDeps` true.
+-/
+private def anyNamedArgDependsOnCurrent? (onlySuppressDeps := true) : M (Option NamedArg) := do
   let s ← get
-  if s.namedArgs.isEmpty then
-    return false
-  else
+  if s.namedArgs.any (·.suppressDeps || !onlySuppressDeps) then
     forallTelescopeReducing s.fType fun xs _ => do
       let curr := xs[0]!
       for i in [1:xs.size] do
         let xDecl ← xs[i]!.fvarId!.getDecl
-        if s.namedArgs.any fun arg => arg.name == xDecl.userName then
+        if let some arg := s.namedArgs.find? fun arg => (arg.suppressDeps || !onlySuppressDeps) && arg.name == xDecl.userName then
           /- Remark: a default value at `optParam` does not count as a dependency -/
           if (← exprDependsOn xDecl.type.cleanupAnnotations curr.fvarId!) then
-            return true
-      return false
+            return arg
+      return none
+  else
+    return none
 
 
 /-- Return `true` if there are regular or named arguments to be processed. -/
@@ -524,7 +536,7 @@ mutual
       addNewArg argName x
       main
 
-  private partial def addImplicitArg (argName : Name) : M Expr := do
+  private partial def addImplicitArg (argName : Name) (missingExplicit : Bool := false) : M Expr := do
     let argType ← getArgExpectedType
     let arg ← if (← isNextOutParamOfLocalInstanceAndResult) then
       let arg ← mkFreshExprMVar argType
@@ -537,6 +549,8 @@ mutual
     else
       mkFreshExprMVar argType
     modify fun s => { s with toSetErrorCtx := s.toSetErrorCtx.push arg.mvarId! }
+    if missingExplicit then
+      modify fun s => { s with missingExplicits := s.missingExplicits.push arg }
     addNewArg argName arg
     main
 
@@ -546,13 +560,16 @@ mutual
   private partial def processExplicitArg (argName : Name) : M Expr := do
     match (← get).args with
     | arg::args =>
-      if (← anyNamedArgDependsOnCurrent) then
+      if ← pure !(← read).explicit <&&> Option.isSome <$> anyNamedArgDependsOnCurrent? then
         /-
-        We treat the explicit argument `argName` as implicit if we have named arguments that depend on it.
-        The idea is that this explicit argument can be inferred using the type of the named argument one.
+        We treat the explicit argument `argName` as implicit if we have a named arguments that depends on it
+        that has the `suppressDeps` flag set to `true`.
+        The idea is that this explicit argument can be inferred using the type of the named argument.
         Note that we also use this approach in the branch where there are no explicit arguments left.
         This is important to make sure the system behaves in a uniform way.
-        Moreover, users rely on this behavior. For example, consider the example on issue #1851
+
+        The motivation is that class projections can have explicit type parameters.
+        For example, consider the example on issue #1851
         ```
         class Approx {α : Type} (a : α) (X : Type) : Type where
           val : X
@@ -568,8 +585,9 @@ mutual
         Recall that `f.val` is sugar for `Approx.val (self := f)`. In both `#check` commands above
         the user assumed that `a` does not need to be provided since it can be inferred from the type
         of `self`.
+        Setting `suppressDeps` for this `self` argument enables this feature.
         We used to that only in the branch where `(← get).args` was empty, but it created an asymmetry
-        because `#check f.val` worked as expected, but one would have to write `#check f.val _ x.val`
+        because `#check f.val` worked as expected, but one would have to write `#check f.val _ x.val`.
         -/
         return (← addImplicitArg argName)
       propagateExpectedType arg
@@ -610,8 +628,14 @@ mutual
         throwError "invalid autoParam, argument must be a constant"
       | _, _, _ =>
         if !(← get).namedArgs.isEmpty then
-          if (← anyNamedArgDependsOnCurrent) then
-            addImplicitArg argName
+          if let some arg ← anyNamedArgDependsOnCurrent? (onlySuppressDeps := false) then
+            /-
+            Dependencies of named arguments cannot be turned into eta arguments.
+            Doing so leads to confusing type errors.
+            However, they can safely be turned into implicit arguments for elaboration.
+            This is an error unless the named argument is meant to suppress dependencies.
+            -/
+            addImplicitArg argName (missingExplicit := (← read).explicit || !arg.suppressDeps)
           else if (← read).ellipsis then
             addImplicitArg argName
           else
@@ -651,29 +675,7 @@ mutual
     This method assume `fType` is a function type -/
   private partial def processInstImplicitArg (argName : Name) : M Expr := do
     if (← read).explicit then
-      if (← anyNamedArgDependsOnCurrent) then
-        /-
-        See the note in processExplicitArg about `anyNamedArgDependsOnCurrent`.
-        For consistency, instance implicit arguments should always become implicit if a named argument depends on them.
-        If we do not do this check here, then the `nextArgHole?` branch being before `processExplicitArg`
-        would result in counterintuitive behavior.
-        For example, without this block of code, in the following the `_` is optional.
-        When it is omitted, `processExplicitArg` sees that `h` depends on the `Decidable` instance
-        so makes the `Decidable` instance argument become implicit.
-        When it is `_`, the `nextArgHole?` branch allows it to be present.
-        The third example counterintuitively yields a "function expected" error.
-        ```lean
-        theorem foo {p : Prop} [Decidable p] (h : ite p x y = x) : p := sorry
-
-        variable {p : Prop} [Decidable p] {α : Type} (x y : α) (h : ite p x y = x)
-
-        example : p := @foo (h := h)
-        example : p := @foo (h := h) _
-        example : p := @foo (h := h) inferInstance
-        ```
-        -/
-        addImplicitArg argName
-      else if let some stx ← nextArgHole? then
+      if let some stx ← nextArgHole? then
         /- Recall that if '@' has been used, and the argument is '_', then we still use type class resolution -/
         let ty ← getArgExpectedType
         let arg ← mkInstMVar ty
@@ -1278,7 +1280,7 @@ private partial def mkBaseProjections (baseStructName : Name) (structName : Name
     let mut e := e
     for projFunName in path do
       let projFn ← mkConst projFunName
-      e ← elabAppArgs projFn #[{ name := `self, val := Arg.expr e }] (args := #[]) (expectedType? := none) (explicit := false) (ellipsis := false)
+      e ← elabAppArgs projFn #[{ name := `self, val := Arg.expr e, suppressDeps := true }] (args := #[]) (expectedType? := none) (explicit := false) (ellipsis := false)
     return e
 
 private def typeMatchesBaseName (type : Expr) (baseName : Name) : MetaM Bool := do
@@ -1362,10 +1364,10 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
         let projFn ← mkConst info.projFn
         let projFn ← addProjTermInfo lval.getRef projFn
         if lvals.isEmpty then
-          let namedArgs ← addNamedArg namedArgs { name := `self, val := Arg.expr f }
+          let namedArgs ← addNamedArg namedArgs { name := `self, val := Arg.expr f, suppressDeps := true }
           elabAppArgs projFn namedArgs args expectedType? explicit ellipsis
         else
-          let f ← elabAppArgs projFn #[{ name := `self, val := Arg.expr f }] #[] (expectedType? := none) (explicit := false) (ellipsis := false)
+          let f ← elabAppArgs projFn #[{ name := `self, val := Arg.expr f, suppressDeps := true }] #[] (expectedType? := none) (explicit := false) (ellipsis := false)
           loop f lvals
       else
         unreachable!

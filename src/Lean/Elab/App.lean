@@ -654,10 +654,10 @@ mutual
       if (← anyNamedArgDependsOnCurrent) then
         /-
         See the note in processExplicitArg about `anyNamedArgDependsOnCurrent`.
-        For consistency, instance implicit arguments should remain instance implicit if a named
-        argument depends on them.
+        For consistency, instance implicit arguments should always become implicit if a named argument depends on them.
         If we do not do this check here, then the `nextArgHole?` branch being before `processExplicitArg`
-        would result in counterintuitive behavior. For example, in the following the `_` is optional.
+        would result in counterintuitive behavior.
+        For example, without this block of code, in the following the `_` is optional.
         When it is omitted, `processExplicitArg` sees that `h` depends on the `Decidable` instance
         so makes the `Decidable` instance argument become implicit.
         When it is `_`, the `nextArgHole?` branch allows it to be present.
@@ -672,8 +672,7 @@ mutual
         example : p := @foo (h := h) inferInstance
         ```
         -/
-        discard <| mkInstMVar (← getArgExpectedType)
-        main
+        addImplicitArg argName
       else if let some stx ← nextArgHole? then
         /- Recall that if '@' has been used, and the argument is '_', then we still use type class resolution -/
         let ty ← getArgExpectedType

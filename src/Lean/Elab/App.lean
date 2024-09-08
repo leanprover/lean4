@@ -433,11 +433,13 @@ private def hasArgsToProcess : M Bool := do
   let s ← get
   return !s.args.isEmpty || !s.namedArgs.isEmpty
 
-/-- Return `true` if the next argument at `args` is of the form `_` -/
-private def isNextArgHole : M Bool := do
+/--
+Returns the argument syntax if the next argument at `args` is of the form `_`.
+-/
+private def nextArgHole? : M (Option Syntax) := do
   match (← get).args with
-  | Arg.stx (Syntax.node _ ``Lean.Parser.Term.hole _) :: _ => pure true
-  | _ => pure false
+  | Arg.stx stx@(Syntax.node _ ``Lean.Parser.Term.hole _) :: _ => pure stx
+  | _ => pure none
 
 /--
   Return `true` if the next argument to be processed is the outparam of a local instance, and it the result type
@@ -649,20 +651,47 @@ mutual
     This method assume `fType` is a function type -/
   private partial def processInstImplicitArg (argName : Name) : M Expr := do
     if (← read).explicit then
-      if (← isNextArgHole) then
+      if (← anyNamedArgDependsOnCurrent) then
+        /-
+        See the note in processExplicitArg about `anyNamedArgDependsOnCurrent`.
+        For consistency, instance implicit arguments should remain instance implicit if a named
+        argument depends on them.
+        If we do not do this check here, then the `nextArgHole?` branch being before `processExplicitArg`
+        would result in counterintuitive behavior. For example, in the following the `_` is optional.
+        When it is omitted, `processExplicitArg` sees that `h` depends on the `Decidable` instance
+        so makes the `Decidable` instance argument become implicit.
+        When it is `_`, the `nextArgHole?` branch allows it to be present.
+        The third example counterintuitively yields a "function expected" error.
+        ```lean
+        theorem foo {p : Prop} [Decidable p] (h : ite p x y = x) : p := sorry
+
+        variable {p : Prop} [Decidable p] {α : Type} (x y : α) (h : ite p x y = x)
+
+        example : p := @foo (h := h)
+        example : p := @foo (h := h) _
+        example : p := @foo (h := h) inferInstance
+        ```
+        -/
+        discard <| mkInstMVar (← getArgExpectedType)
+        main
+      else if let some stx ← nextArgHole? then
         /- Recall that if '@' has been used, and the argument is '_', then we still use type class resolution -/
-        let arg ← mkFreshExprMVar (← getArgExpectedType) MetavarKind.synthetic
+        let ty ← getArgExpectedType
+        let arg ← mkInstMVar ty
+        addTermInfo' stx arg ty (← getLCtx)
         modify fun s => { s with args := s.args.tail! }
-        addInstMVar arg.mvarId!
-        addNewArg argName arg
         main
       else
         processExplicitArg argName
     else
-      let arg ← mkFreshExprMVar (← getArgExpectedType) MetavarKind.synthetic
+      discard <| mkInstMVar (← getArgExpectedType)
+      main
+  where
+    mkInstMVar (ty : Expr) : M Expr := do
+      let arg ← mkFreshExprMVar ty MetavarKind.synthetic
       addInstMVar arg.mvarId!
       addNewArg argName arg
-      main
+      return arg
 
   /-- Elaborate function application arguments. -/
   partial def main : M Expr := do

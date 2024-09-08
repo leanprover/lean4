@@ -1,0 +1,8 @@
+{"textDocument": {"uri": "file:///explicitAppInstHole.lean"},
+ "position": {"line": 4, "character": 29}}
+{"range":
+ {"start": {"line": 4, "character": 29}, "end": {"line": 4, "character": 30}},
+ "contents":
+ {"value":
+  "```lean\ninstDecidableTrue : Decidable True\n```\n***\nA placeholder term, to be synthesized by unification. \n***\n*import Init.Core*",
+  "kind": "markdown"}}

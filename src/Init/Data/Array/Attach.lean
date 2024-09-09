@@ -20,7 +20,7 @@ Unsafe implementation of `attachWith`, taking advantage of the fact that the rep
   with the same elements but in the type `{x // P x}`. -/
 @[implemented_by attachWithImpl] def attachWith
     (xs : Array α) (P : α → Prop) (H : ∀ x ∈ xs, P x) : Array {x // P x} :=
-  ⟨xs.data.attachWith P fun x h => H x (Array.Mem.mk h)⟩
+  ⟨xs.toList.attachWith P fun x h => H x (Array.Mem.mk h)⟩
 
 /-- `O(1)`. "Attach" the proof that the elements of `xs` are in `xs` to produce a new array
   with the same elements but in the type `{x // x ∈ xs}`. -/

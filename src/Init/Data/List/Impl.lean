@@ -57,8 +57,8 @@ The following operations are given `@[csimp]` replacements below:
 
 @[csimp] theorem set_eq_setTR : @set = @setTR := by
   funext α l n a; simp [setTR]
-  let rec go (acc) : ∀ xs n, l = acc.data ++ xs →
-    setTR.go l a xs n acc = acc.data ++ xs.set n a
+  let rec go (acc) : ∀ xs n, l = acc.toList ++ xs →
+    setTR.go l a xs n acc = acc.toList ++ xs.set n a
   | [], _ => fun h => by simp [setTR.go, set, h]
   | x::xs, 0 => by simp [setTR.go, set]
   | x::xs, n+1 => fun h => by simp only [setTR.go, set]; rw [go _ xs] <;> simp [h]
@@ -77,10 +77,11 @@ The following operations are given `@[csimp]` replacements below:
 
 @[csimp] theorem filterMap_eq_filterMapTR : @List.filterMap = @filterMapTR := by
   funext α β f l
-  let rec go : ∀ as acc, filterMapTR.go f as acc = acc.data ++ as.filterMap f
+  let rec go : ∀ as acc, filterMapTR.go f as acc = acc.toList ++ as.filterMap f
     | [], acc => by simp [filterMapTR.go, filterMap]
     | a::as, acc => by
-      simp only [filterMapTR.go, go as, Array.push_data, append_assoc, singleton_append, filterMap]
+      simp only [filterMapTR.go, go as, Array.push_toList, append_assoc, singleton_append,
+        filterMap]
       split <;> simp [*]
   exact (go l #[]).symm
 
@@ -90,7 +91,7 @@ The following operations are given `@[csimp]` replacements below:
 @[specialize] def foldrTR (f : α → β → β) (init : β) (l : List α) : β := l.toArray.foldr f init
 
 @[csimp] theorem foldr_eq_foldrTR : @foldr = @foldrTR := by
-  funext α β f init l; simp [foldrTR, Array.foldr_eq_foldr_data, -Array.size_toArray]
+  funext α β f init l; simp [foldrTR, Array.foldr_eq_foldr_toList, -Array.size_toArray]
 
 /-! ### bind  -/
 
@@ -103,7 +104,7 @@ The following operations are given `@[csimp]` replacements below:
 
 @[csimp] theorem bind_eq_bindTR : @List.bind = @bindTR := by
   funext α β as f
-  let rec go : ∀ as acc, bindTR.go f as acc = acc.data ++ as.bind f
+  let rec go : ∀ as acc, bindTR.go f as acc = acc.toList ++ as.bind f
     | [], acc => by simp [bindTR.go, bind]
     | x::xs, acc => by simp [bindTR.go, bind, go xs]
   exact (go as #[]).symm
@@ -131,7 +132,7 @@ The following operations are given `@[csimp]` replacements below:
 
 @[csimp] theorem take_eq_takeTR : @take = @takeTR := by
   funext α n l; simp [takeTR]
-  suffices ∀ xs acc, l = acc.data ++ xs → takeTR.go l xs n acc = acc.data ++ xs.take n from
+  suffices ∀ xs acc, l = acc.toList ++ xs → takeTR.go l xs n acc = acc.toList ++ xs.take n from
     (this l #[] (by simp)).symm
   intro xs; induction xs generalizing n with intro acc
   | nil => cases n <;> simp [take, takeTR.go]
@@ -152,13 +153,13 @@ The following operations are given `@[csimp]` replacements below:
 
 @[csimp] theorem takeWhile_eq_takeWhileTR : @takeWhile = @takeWhileTR := by
   funext α p l; simp [takeWhileTR]
-  suffices ∀ xs acc, l = acc.data ++ xs →
-      takeWhileTR.go p l xs acc = acc.data ++ xs.takeWhile p from
+  suffices ∀ xs acc, l = acc.toList ++ xs →
+      takeWhileTR.go p l xs acc = acc.toList ++ xs.takeWhile p from
     (this l #[] (by simp)).symm
   intro xs; induction xs with intro acc
   | nil => simp [takeWhile, takeWhileTR.go]
   | cons x xs IH =>
-    simp only [takeWhileTR.go, Array.toList_eq, takeWhile]
+    simp only [takeWhileTR.go, Array.toListImpl_eq, takeWhile]
     split
     · intro h; rw [IH] <;> simp_all
     · simp [*]
@@ -185,8 +186,8 @@ The following operations are given `@[csimp]` replacements below:
 
 @[csimp] theorem replace_eq_replaceTR : @List.replace = @replaceTR := by
   funext α _ l b c; simp [replaceTR]
-  suffices ∀ xs acc, l = acc.data ++ xs →
-      replaceTR.go l b c xs acc = acc.data ++ xs.replace b c from
+  suffices ∀ xs acc, l = acc.toList ++ xs →
+      replaceTR.go l b c xs acc = acc.toList ++ xs.replace b c from
     (this l #[] (by simp)).symm
   intro xs; induction xs with intro acc
   | nil => simp [replace, replaceTR.go]
@@ -208,7 +209,7 @@ The following operations are given `@[csimp]` replacements below:
 
 @[csimp] theorem erase_eq_eraseTR : @List.erase = @eraseTR := by
   funext α _ l a; simp [eraseTR]
-  suffices ∀ xs acc, l = acc.data ++ xs → eraseTR.go l a xs acc = acc.data ++ xs.erase a from
+  suffices ∀ xs acc, l = acc.toList ++ xs → eraseTR.go l a xs acc = acc.toList ++ xs.erase a from
     (this l #[] (by simp)).symm
   intro xs; induction xs with intro acc h
   | nil => simp [List.erase, eraseTR.go, h]
@@ -228,8 +229,8 @@ The following operations are given `@[csimp]` replacements below:
 
 @[csimp] theorem eraseP_eq_erasePTR : @eraseP = @erasePTR := by
   funext α p l; simp [erasePTR]
-  let rec go (acc) : ∀ xs, l = acc.data ++ xs →
-    erasePTR.go p l xs acc = acc.data ++ xs.eraseP p
+  let rec go (acc) : ∀ xs, l = acc.toList ++ xs →
+    erasePTR.go p l xs acc = acc.toList ++ xs.eraseP p
   | [] => fun h => by simp [erasePTR.go, eraseP, h]
   | x::xs => by
     simp [erasePTR.go, eraseP]; cases p x <;> simp
@@ -249,7 +250,7 @@ The following operations are given `@[csimp]` replacements below:
 
 @[csimp] theorem eraseIdx_eq_eraseIdxTR : @eraseIdx = @eraseIdxTR := by
   funext α l n; simp [eraseIdxTR]
-  suffices ∀ xs acc, l = acc.data ++ xs → eraseIdxTR.go l xs n acc = acc.data ++ xs.eraseIdx n from
+  suffices ∀ xs acc, l = acc.toList ++ xs → eraseIdxTR.go l xs n acc = acc.toList ++ xs.eraseIdx n from
     (this l #[] (by simp)).symm
   intro xs; induction xs generalizing n with intro acc h
   | nil => simp [eraseIdx, eraseIdxTR.go, h]
@@ -273,7 +274,7 @@ The following operations are given `@[csimp]` replacements below:
 
 @[csimp] theorem zipWith_eq_zipWithTR : @zipWith = @zipWithTR := by
   funext α β γ f as bs
-  let rec go : ∀ as bs acc, zipWithTR.go f as bs acc = acc.data ++ as.zipWith f bs
+  let rec go : ∀ as bs acc, zipWithTR.go f as bs acc = acc.toList ++ as.zipWith f bs
     | [], _, acc | _::_, [], acc => by simp [zipWithTR.go, zipWith]
     | a::as, b::bs, acc => by simp [zipWithTR.go, zipWith, go as bs]
   exact (go as bs #[]).symm
@@ -295,7 +296,7 @@ def enumFromTR (n : Nat) (l : List α) : List (Nat × α) :=
     | a::as, n => by
       rw [← show _ + as.length = n + (a::as).length from Nat.succ_add .., foldr, go as]
       simp [enumFrom, f]
-  rw [Array.foldr_eq_foldr_data]
+  rw [Array.foldr_eq_foldr_toList]
   simp [go]
 
 /-! ## Other list operations -/
@@ -321,7 +322,7 @@ where
   | [_] => simp
   | x::y::xs =>
     let rec go {acc x} : ∀ xs,
-      intercalateTR.go sep.toArray x xs acc = acc.data ++ join (intersperse sep (x::xs))
+      intercalateTR.go sep.toArray x xs acc = acc.toList ++ join (intersperse sep (x::xs))
     | [] => by simp [intercalateTR.go]
     | _::_ => by simp [intercalateTR.go, go]
     simp [intersperse, go]

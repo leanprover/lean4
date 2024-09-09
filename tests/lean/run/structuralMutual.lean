@@ -696,7 +696,7 @@ info: WithTuple.Tree.map.induct {α β : Type} (f : α → β) (motive_1 : WithT
 info: WithArray.Tree.map.induct {α β : Type} (f : α → β) (motive_1 : WithArray.Tree α → Prop)
   (motive_2 : Array (WithArray.Tree α) → Prop) (motive_3 : List (WithArray.Tree α) → Prop)
   (case1 : ∀ (x : α) (arr₁ : Array (WithArray.Tree α)), motive_2 arr₁ → motive_1 (WithArray.Tree.node x arr₁))
-  (case2 : ∀ (arr₁ : List (WithArray.Tree α)), motive_3 arr₁ → motive_2 { data := arr₁ }) (case3 : motive_3 [])
+  (case2 : ∀ (arr₁ : List (WithArray.Tree α)), motive_3 arr₁ → motive_2 { toList := arr₁ }) (case3 : motive_3 [])
   (case4 : ∀ (h₁ : WithArray.Tree α) (t₁ : List (WithArray.Tree α)), motive_1 h₁ → motive_3 t₁ → motive_3 (h₁ :: t₁))
   (x : WithArray.Tree α) : motive_1 x
 -/

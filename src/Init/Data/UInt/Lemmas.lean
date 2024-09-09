@@ -10,7 +10,7 @@ import Init.Data.BitVec.Lemmas
 import Init.Data.BitVec.Bitblast
 
 set_option hygiene false in
-macro "declare_new_uint_theorems" typeName:ident : command =>
+macro "declare_uint_theorems" typeName:ident : command =>
 `(
 namespace $typeName
 
@@ -92,11 +92,11 @@ protected theorem toNat_lt_size (a : $typeName) : a.toNat < size := a.toBitVec.i
 end $typeName
 )
 
-declare_new_uint_theorems UInt8
-declare_new_uint_theorems UInt16
-declare_new_uint_theorems UInt32
-declare_new_uint_theorems UInt64
-declare_new_uint_theorems USize
+declare_uint_theorems UInt8
+declare_uint_theorems UInt16
+declare_uint_theorems UInt32
+declare_uint_theorems UInt64
+declare_uint_theorems USize
 
 theorem UInt32.toNat_lt_of_lt {n : UInt32} {m : Nat} (h : n < OfNat.ofNat m) :
     n.toNat < m := sorry

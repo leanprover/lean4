@@ -134,7 +134,7 @@ lib.warn "The Nix-based build is deprecated" rec {
       mods = foldl' (mods: pkg: mods // pkg.mods) {} stdlib;
       print-paths = Lean.makePrintPathsFor [] mods;
       leanc = writeShellScriptBin "leanc" ''
-        LEAN_CC=${stdenv.cc}/bin/cc ${Leanc.executable}/bin/leanc -I${lean-bin-tools-unwrapped}/include ${stdlibLinkFlags} -L${libInit_shared} -L${leanshared_1} -L${leanshared} "$@"
+        LEAN_CC=${stdenv.cc}/bin/cc ${Leanc.executable}/bin/leanc -I${lean-bin-tools-unwrapped}/include ${stdlibLinkFlags} -L${libInit_shared} -L${leanshared_1} -L${leanshared} -L${Lake.sharedLib} "$@"
       '';
       lean = runCommand "lean" { buildInputs = lib.optional stdenv.isDarwin darwin.cctools; } ''
         mkdir -p $out/bin

@@ -363,6 +363,22 @@ theorem or_of_isNone {o o' : Option α} (h : o.isNone) : o.or o' = o' := by
 
 section ite
 
+@[simp] theorem mem_dite_none_left {x : α} [Decidable p] {l : ¬ p → Option α} :
+    (x ∈ if h : p then none else l h) ↔ ∃ h : ¬ p, x ∈ l h := by
+  split <;> simp_all
+
+@[simp] theorem mem_dite_none_right {x : α} [Decidable p] {l : p → Option α} :
+    (x ∈ if h : p then l h else none) ↔ ∃ h : p, x ∈ l h := by
+  split <;> simp_all
+
+@[simp] theorem mem_ite_none_left {x : α} [Decidable p] {l : Option α} :
+    (x ∈ if p then none else l) ↔ ¬ p ∧ x ∈ l := by
+  split <;> simp_all
+
+@[simp] theorem mem_ite_none_right {x : α} [Decidable p] {l : Option α} :
+    (x ∈ if p then l else none) ↔ p ∧ x ∈ l := by
+  split <;> simp_all
+
 @[simp] theorem isSome_dite {p : Prop} [Decidable p] {b : p → β} :
     (if h : p then some (b h) else none).isSome = true ↔ p := by
   split <;> simpa

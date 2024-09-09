@@ -63,6 +63,10 @@ end Term
 
 def DerivingHandler := (typeNames : Array Name) → CommandElabM Bool
 
+/-- Deprecated - `DerivingHandler` no longer assumes arguments -/
+@[deprecated DerivingHandler (since := "2024-09-09")]
+def DerivingHandlerNoArgs := (typeNames : Array Name) → CommandElabM Bool
+
 builtin_initialize derivingHandlersRef : IO.Ref (NameMap (List DerivingHandler)) ← IO.mkRef {}
 
 /-- A `DerivingHandler` is called on the fully qualified names of all types it is running for

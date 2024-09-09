@@ -2202,13 +2202,12 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_usize_of_nat"]
 def USize.ofNat32 (n : @& Nat) (h : LT.lt n 4294967296) : USize where
-  toBitVec := sorry
-  --val := {
-  --  val  := n
-  --  isLt := match USize.size, usize_size_eq with
-  --    | _, Or.inl rfl => h
-  --    | _, Or.inr rfl => Nat.lt_trans h (by decide)
-  --}
+  toBitVec :=
+    BitVec.ofNatLt n (
+      match System.Platform.numBits, System.Platform.numBits_eq with
+      | _, Or.inl rfl => h
+      | _, Or.inr rfl => Nat.lt_trans h (by decide)
+    )
 
 /--
 A `Nat` denotes a valid unicode codepoint if it is less than `0x110000`, and
@@ -3513,13 +3512,12 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_usize_to_uint64"]
 def USize.toUInt64 (u : USize) : UInt64 where
-  toBitVec := BitVec.ofNatLt sorry sorry
-      --u.val.val
-      --(let ⟨n, h⟩ := u
-      -- show LT.lt n _ from
-      -- match USize.size, usize_size_eq, h with
-      -- | _, Or.inl rfl, h => Nat.lt_trans h (by decide)
-      -- | _, Or.inr rfl, h => h)
+  toBitVec := BitVec.ofNatLt u.toBitVec.toNat
+      (let ⟨⟨n, h⟩⟩ := u
+       show LT.lt n _ from
+       match System.Platform.numBits, System.Platform.numBits_eq, h with
+       | _, Or.inl rfl, h => Nat.lt_trans h (by decide)
+       | _, Or.inr rfl, h => h)
 
 /-- An opaque hash mixing operation, used to implement hashing for tuples. -/
 @[extern "lean_uint64_mix_hash"]

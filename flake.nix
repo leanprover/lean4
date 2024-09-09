@@ -28,7 +28,7 @@
           stdenv = pkgs.overrideCC pkgs.stdenv lean-packages.llvmPackages.clang;
         } ({
           buildInputs = with pkgs; [
-            cmake gmp libuv ccache cadical zstd
+            cmake gmp libuv ccache cadical zstd zlib
             lean-packages.llvmPackages.llvm  # llvm-symbolizer for asan/lsan
             gdb
             tree  # for CI

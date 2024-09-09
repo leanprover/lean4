@@ -199,7 +199,7 @@ protected def tryCatch [Monad m] (x : EStateT ε σ m α) (handle : ε → EStat
   | .error e s => handle e s
   | ok         => pure ok
 
-instance [Monad m] : MonadExceptOf ε (EStateT ε σ m) where
+instance (priority := high) [Monad m] : MonadExceptOf ε (EStateT ε σ m) where
   throw    := EStateT.throw
   tryCatch := EStateT.tryCatch
 

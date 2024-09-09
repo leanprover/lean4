@@ -55,7 +55,7 @@ instance inhabitedOfMonadCycle [MonadCycle κ m] : Inhabited (m α) := ⟨throwC
 /-- A transformer that equips a monad with a `CallStack`. -/
 abbrev CallStackT κ m := ReaderT (CallStack κ) m
 
-instance [Monad m] : MonadCallStackOf κ (CallStackT κ m) where
+instance (priority := high) [Monad m] : MonadCallStackOf κ (CallStackT κ m) where
   getCallStack := read
   withCallStack s x := x s
 

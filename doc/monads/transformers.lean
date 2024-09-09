@@ -218,7 +218,7 @@ def liftTest2 (x : Except String Float) :
 The ReaderT monadLift is even simpler than the one for StateT:
 
 ```lean,ignore
-instance  : MonadLift m (ReaderT ρ m) where
+instance : MonadLift m (ReaderT ρ m) where
   monadLift x := fun _ => x
 ```
 

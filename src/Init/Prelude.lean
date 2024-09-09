@@ -3065,7 +3065,7 @@ namespace ReaderT
 section
 variable {ρ : Type u} {m : Type u → Type v} {α : Type u}
 
-instance  : MonadLift m (ReaderT ρ m) where
+instance : MonadLift m (ReaderT ρ m) where
   monadLift x := fun _ => x
 
 @[always_inline]
@@ -3161,7 +3161,8 @@ instance (ρ : Type u) (m : Type u → Type v) [MonadReaderOf ρ m] : MonadReade
 instance {ρ : Type u} {m : Type u → Type v} {n : Type u → Type w} [MonadLift m n] [MonadReaderOf ρ m] : MonadReaderOf ρ n where
   read := liftM (m := m) read
 
-instance {ρ : Type u} {m : Type u → Type v} [Monad m] : MonadReaderOf ρ (ReaderT ρ m) where
+/- (priority := high) -/
+instance (priority := 10000) {ρ : Type u} {m : Type u → Type v} [Monad m] : MonadReaderOf ρ (ReaderT ρ m) where
   read := ReaderT.read
 
 /--
@@ -3198,7 +3199,8 @@ instance (ρ : Type u) (m : Type u → Type v) [MonadWithReaderOf ρ m] : MonadW
 instance {ρ : Type u} {m : Type u → Type v} {n : Type u → Type v} [MonadFunctor m n] [MonadWithReaderOf ρ m] : MonadWithReaderOf ρ n where
   withReader f := monadMap (m := m) (withTheReader ρ f)
 
-instance {ρ : Type u} {m : Type u → Type v} : MonadWithReaderOf ρ (ReaderT ρ m) where
+/- (priority := high) -/
+instance (priority := 10000) {ρ : Type u} {m : Type u → Type v} : MonadWithReaderOf ρ (ReaderT ρ m) where
   withReader f x := fun ctx => x (f ctx)
 
 /--
@@ -3284,8 +3286,6 @@ of the state. It is equivalent to `get <* modify f` but may be more efficient.
 def getModify {σ : Type u} {m : Type u → Type v} [MonadState σ m] (f : σ → σ) : m σ :=
   modifyGet fun s => (s, f s)
 
--- NOTE: The Ordering of the following two instances determines that the top-most `StateT` Monad layer
--- will be picked first
 @[always_inline]
 instance {σ : Type u} {m : Type u → Type v} {n : Type u → Type w} [MonadLift m n] [MonadStateOf σ m] : MonadStateOf σ n where
   get         := liftM (m := m) MonadStateOf.get
@@ -3422,7 +3422,8 @@ instance : MonadStateOf σ (EStateM ε σ) where
   get       := EStateM.get
   modifyGet := EStateM.modifyGet
 
-instance {δ} [Backtrackable δ σ] : MonadExceptOf ε (EStateM ε σ) where
+/- (priority := high) -/
+instance (priority := 10000) {δ} [Backtrackable δ σ] : MonadExceptOf ε (EStateM ε σ) where
   throw    := EStateM.throw
   tryCatch := EStateM.tryCatch
 

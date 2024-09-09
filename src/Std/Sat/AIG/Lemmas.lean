@@ -277,7 +277,7 @@ theorem denote_congr (assign1 assign2 : α → Bool) (aig : AIG α) (idx : Nat)
     simp only [denote_idx_atom heq]
     apply h
     rw [mem_def, ← heq, Array.mem_def]
-    apply Array.getElem_mem_data
+    apply Array.getElem_mem_toList
   · intro lhs rhs linv rinv heq
     simp only [denote_idx_gate heq]
     have := aig.invariant hidx heq

@@ -63,7 +63,7 @@ where go (val : TSyntax `ident) (width depth : Nat) (cmds : Array <| TSyntax `co
     let cmd : TSyntax `command := ⟨mkNullNode cmds⟩
     `($cmd:command)
   | m+1 =>
-    let len := cmds.data.length
+    let len := cmds.toList.length
     let newTerm (s : String) := if len = 1 then baseTypeIdent else mkIdent' s (m+1)
     let newTerm' (s : String) := if len = 1 then baseIdent else mkIdent' s (m+1)
     let fieldsStx ← mkFieldsStx type (s!"x{m}_") width

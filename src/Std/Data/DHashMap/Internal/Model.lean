@@ -121,7 +121,7 @@ theorem exists_bucket_of_update [BEq α] [Hashable α] (m : Array (AssocList α 
 
 theorem exists_bucket' [BEq α] [Hashable α]
     (self : Array (AssocList α β)) (i : USize) (hi : i.toNat < self.size) :
-      ∃ l, Perm (self.data.bind AssocList.toList) (self[i.toNat].toList ++ l) ∧
+      ∃ l, Perm (self.toList.bind AssocList.toList) (self[i.toNat].toList ++ l) ∧
         (∀ [LawfulHashable α], IsHashSelf self → ∀ k,
           (mkIdx self.size (by omega) (hash k)).1.toNat = i.toNat → containsKey k l = false) := by
   obtain ⟨l, h₁, -, h₂⟩ := exists_bucket_of_uset self i hi .nil
@@ -186,13 +186,13 @@ theorem toListModel_updateAllBuckets {m : Raw₀ α β} {f : AssocList α β →
     have := (hg (l := []) (l' := [])).length_eq
     rw [List.length_append, List.append_nil] at this
     omega
-  rw [updateAllBuckets, toListModel, Array.map_data, List.bind_eq_foldl, List.foldl_map,
+  rw [updateAllBuckets, toListModel, Array.map_toList, List.bind_eq_foldl, List.foldl_map,
     toListModel, List.bind_eq_foldl]
   suffices ∀ (l : List (AssocList α β)) (l' : List ((a: α) × δ a)) (l'' : List ((a : α) × β a)),
       Perm (g l'') l' →
       Perm (l.foldl (fun acc a => acc ++ (f a).toList) l')
         (g (l.foldl (fun acc a => acc ++ a.toList) l'')) by
-    simpa using this m.1.buckets.data [] [] (by simp [hg₀])
+    simpa using this m.1.buckets.toList [] [] (by simp [hg₀])
   rintro l l' l'' h
   induction l generalizing l' l''
   · simpa using h.symm

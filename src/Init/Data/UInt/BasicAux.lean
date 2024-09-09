@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Fin.Basic
-import Init.Data.BitVec.BasixAux
+import Init.Data.BitVec.BasicAux
 
 open Nat
 

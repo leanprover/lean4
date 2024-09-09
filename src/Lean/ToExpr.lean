@@ -59,35 +59,35 @@ instance : ToExpr (BitVec n) where
 instance : ToExpr UInt8 where
   toTypeExpr := mkConst ``UInt8
   toExpr a :=
-    let r := mkRawNatLit a.val
+    let r := mkRawNatLit a.toNat
     mkApp3 (.const ``OfNat.ofNat [0]) (mkConst ``UInt8) r
       (.app (.const ``UInt8.instOfNat []) r)
 
 instance : ToExpr UInt16 where
   toTypeExpr := mkConst ``UInt16
   toExpr a :=
-    let r := mkRawNatLit a.val
+    let r := mkRawNatLit a.toNat
     mkApp3 (.const ``OfNat.ofNat [0]) (mkConst ``UInt16) r
       (.app (.const ``UInt16.instOfNat []) r)
 
 instance : ToExpr UInt32 where
   toTypeExpr := mkConst ``UInt32
   toExpr a :=
-    let r := mkRawNatLit a.val
+    let r := mkRawNatLit a.toNat
     mkApp3 (.const ``OfNat.ofNat [0]) (mkConst ``UInt32) r
       (.app (.const ``UInt32.instOfNat []) r)
 
 instance : ToExpr UInt64 where
   toTypeExpr := mkConst ``UInt64
   toExpr a :=
-    let r := mkRawNatLit a.val
+    let r := mkRawNatLit a.toNat
     mkApp3 (.const ``OfNat.ofNat [0]) (mkConst ``UInt64) r
       (.app (.const ``UInt64.instOfNat []) r)
 
 instance : ToExpr USize where
   toTypeExpr := mkConst ``USize
   toExpr a :=
-    let r := mkRawNatLit a.val
+    let r := mkRawNatLit a.toNat
     mkApp3 (.const ``OfNat.ofNat [0]) (mkConst ``USize) r
       (.app (.const ``USize.instOfNat []) r)
 

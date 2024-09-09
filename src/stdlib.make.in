@@ -113,7 +113,7 @@ ${CMAKE_BINARY_DIR}/bin/lake${CMAKE_EXECUTABLE_SUFFIX}: ${LIB}/temp/LakeMain.o.e
 	@echo "[    ] Building $@"
 # on Windows, must remove file before writing a new one (since the old one may be in use)
 	@rm -f $@
-	"${CMAKE_BINARY_DIR}/leanc.sh" $^ ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${LEANC_OPTS} -o $@
+	"${CMAKE_BINARY_DIR}/leanc.sh" $< -lLake_shared ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${LEANC_OPTS} -o $@
 
 lake: ${CMAKE_BINARY_DIR}/bin/lake${CMAKE_EXECUTABLE_SUFFIX}
 

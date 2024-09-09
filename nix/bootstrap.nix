@@ -178,7 +178,7 @@ lib.warn "The Nix-based build is deprecated" rec {
         '';
       };
       update-stage0 =
-        let cTree = symlinkJoin { name = "cs"; paths = map (lib: lib.cTree) stdlib; }; in
+        let cTree = symlinkJoin { name = "cs"; paths = map (lib: lib.cTree) (stdlib ++ [Lake-Main]); }; in
         writeShellScriptBin "update-stage0" ''
           CSRCS=${cTree} CP_C_PARAMS="--dereference --no-preserve=all" ${src + "/script/lib/update-stage0"}
         '';

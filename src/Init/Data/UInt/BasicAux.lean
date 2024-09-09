@@ -90,8 +90,10 @@ def UInt32.toUInt64 (a : UInt32) : UInt64 := ⟨a.val, Nat.lt_trans a.toBitVec.i
 
 instance UInt64.instOfNat : OfNat UInt64 n := ⟨UInt64.ofNat n⟩
 
-theorem usize_size_gt_zero : USize.size > 0 :=
-  sorry--Nat.zero_lt_succ ..
+theorem usize_size_gt_zero : USize.size > 0 := by
+  cases usize_size_eq with
+  | inl h => rw [h]; decide
+  | inr h => rw [h]; decide
 
 @[extern "lean_usize_of_nat"]
 def USize.ofNat (n : @& Nat) : USize := ⟨BitVec.ofNat _ n⟩

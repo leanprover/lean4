@@ -78,6 +78,9 @@ theorem eq_none_iff_forall_not_mem : o = none ↔ ∀ a, a ∉ o :=
 
 theorem isSome_iff_exists : isSome x ↔ ∃ a, x = some a := by cases x <;> simp [isSome]
 
+@[simp] theorem isSome_eq_isSome : (isSome x = isSome y) ↔ (x = none ↔ y = none) := by
+  cases x <;> cases y <;> simp
+
 @[simp] theorem isNone_none : @isNone α none = true := rfl
 
 @[simp] theorem isNone_some : isNone (some a) = false := rfl
@@ -220,7 +223,16 @@ theorem mem_map_of_mem (g : α → β) (h : a ∈ x) : g a ∈ Option.map g x :=
   split <;> rfl
 
 @[simp] theorem filter_none (p : α → Bool) : none.filter p = none := rfl
+
 theorem filter_some : Option.filter p (some a) = if p a then some a else none := rfl
+
+theorem isSome_filter_of_isSome (p : α → Bool) (o : Option α) (h : (o.filter p).isSome) :
+    o.isSome := by
+  cases o <;> simp at h ⊢
+
+@[simp] theorem filter_eq_none (p : α → Bool) :
+    Option.filter p o = none ↔ o = none ∨ ∀ a, a ∈ o → ¬ p a := by
+  cases o <;> simp [filter_some]
 
 @[simp] theorem all_guard (p : α → Prop) [DecidablePred p] (a : α) :
     Option.all q (guard p a) = (!p a || q a) := by
@@ -361,6 +373,20 @@ theorem or_of_isNone {o o' : Option α} (h : o.isNone) : o.or o' = o' := by
   match o, h with
   | none, _ => simp
 
+/-! ### beq -/
+
+section beq
+
+variable [BEq α]
+
+@[simp] theorem none_beq_none : ((none : Option α) == none) = true := rfl
+@[simp] theorem none_beq_some (a : α) : ((none : Option α) == some a) = false := rfl
+@[simp] theorem some_beq_none (a : α) : ((some a : Option α) == none) = false := rfl
+@[simp] theorem some_beq_some {a b : α} : (some a == some b) = (a == b) := rfl
+
+end beq
+
+/-! ### ite -/
 section ite
 
 @[simp] theorem isSome_dite {p : Prop} [Decidable p] {b : p → β} :

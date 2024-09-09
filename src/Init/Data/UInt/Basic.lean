@@ -28,9 +28,9 @@ def UInt8.lor (a b : UInt8) : UInt8 := ⟨a.toBitVec ||| b.toBitVec⟩
 @[extern "lean_uint8_xor"]
 def UInt8.xor (a b : UInt8) : UInt8 := ⟨a.toBitVec ^^^ b.toBitVec⟩
 @[extern "lean_uint8_shift_left"]
-def UInt8.shiftLeft (a b : UInt8) : UInt8 := ⟨a.toBitVec <<< (modn b 8).toBitVec⟩
+def UInt8.shiftLeft (a b : UInt8) : UInt8 := ⟨a.toBitVec <<< (mod b 8).toBitVec⟩
 @[extern "lean_uint8_shift_right"]
-def UInt8.shiftRight (a b : UInt8) : UInt8 := ⟨a.toBitVec >>> (modn b 8).toBitVec⟩
+def UInt8.shiftRight (a b : UInt8) : UInt8 := ⟨a.toBitVec >>> (mod b 8).toBitVec⟩
 def UInt8.lt (a b : UInt8) : Prop := BitVec.ult a.toBitVec b.toBitVec = true
 def UInt8.le (a b : UInt8) : Prop := BitVec.ule a.toBitVec b.toBitVec = true
 
@@ -85,9 +85,9 @@ def UInt16.lor (a b : UInt16) : UInt16 := ⟨a.toBitVec ||| b.toBitVec⟩
 @[extern "lean_uint16_xor"]
 def UInt16.xor (a b : UInt16) : UInt16 := ⟨a.toBitVec ^^^ b.toBitVec⟩
 @[extern "lean_uint16_shift_left"]
-def UInt16.shiftLeft (a b : UInt16) : UInt16 := ⟨a.toBitVec <<< (modn b 16).toBitVec⟩
+def UInt16.shiftLeft (a b : UInt16) : UInt16 := ⟨a.toBitVec <<< (mod b 16).toBitVec⟩
 @[extern "lean_uint16_shift_right"]
-def UInt16.shiftRight (a b : UInt16) : UInt16 := ⟨a.toBitVec >>> (modn b 16).toBitVec⟩
+def UInt16.shiftRight (a b : UInt16) : UInt16 := ⟨a.toBitVec >>> (mod b 16).toBitVec⟩
 def UInt16.lt (a b : UInt16) : Prop := BitVec.ult a.toBitVec b.toBitVec
 def UInt16.le (a b : UInt16) : Prop := BitVec.ule a.toBitVec b.toBitVec
 
@@ -144,9 +144,9 @@ def UInt32.lor (a b : UInt32) : UInt32 := ⟨a.toBitVec ||| b.toBitVec⟩
 @[extern "lean_uint32_xor"]
 def UInt32.xor (a b : UInt32) : UInt32 := ⟨a.toBitVec ^^^ b.toBitVec⟩
 @[extern "lean_uint32_shift_left"]
-def UInt32.shiftLeft (a b : UInt32) : UInt32 := ⟨a.toBitVec <<< (modn b 32).toBitVec⟩
+def UInt32.shiftLeft (a b : UInt32) : UInt32 := ⟨a.toBitVec <<< (mod b 32).toBitVec⟩
 @[extern "lean_uint32_shift_right"]
-def UInt32.shiftRight (a b : UInt32) : UInt32 := ⟨a.toBitVec >>> (modn b 32).toBitVec⟩
+def UInt32.shiftRight (a b : UInt32) : UInt32 := ⟨a.toBitVec >>> (mod b 32).toBitVec⟩
 
 instance : Add UInt32       := ⟨UInt32.add⟩
 instance : Sub UInt32       := ⟨UInt32.sub⟩
@@ -184,9 +184,9 @@ def UInt64.lor (a b : UInt64) : UInt64 := ⟨a.toBitVec ||| b.toBitVec⟩
 @[extern "lean_uint64_xor"]
 def UInt64.xor (a b : UInt64) : UInt64 := ⟨a.toBitVec ^^^ b.toBitVec⟩
 @[extern "lean_uint64_shift_left"]
-def UInt64.shiftLeft (a b : UInt64) : UInt64 := ⟨a.val <<< (modn b 64).val⟩
+def UInt64.shiftLeft (a b : UInt64) : UInt64 := ⟨a.val <<< (mod b 64).val⟩
 @[extern "lean_uint64_shift_right"]
-def UInt64.shiftRight (a b : UInt64) : UInt64 := ⟨a.val >>> (modn b 64).val⟩
+def UInt64.shiftRight (a b : UInt64) : UInt64 := ⟨a.val >>> (mod b 64).val⟩
 def UInt64.lt (a b : UInt64) : Prop := BitVec.ult a.toBitVec b.toBitVec
 def UInt64.le (a b : UInt64) : Prop := BitVec.ule a.toBitVec b.toBitVec
 

@@ -61,9 +61,6 @@ variable (m n : Nat)
 
 #check_simp l.head? = none ~> l = []
 
-variable (w : l ≠ []) in
-#check_simp l.head w ∈ l ~> True
-
 /-! ### tail!, tail?, tailD -/
 
 /-! ## Basic operations -/

@@ -24,4 +24,24 @@ theorem isLt (x : BitVec w) : x.toNat < 2^w := x.toFin.isLt
 
 end Nat
 
+section arithmetic
+
+/--
+Addition for bit vectors. This can be interpreted as either signed or unsigned addition
+modulo `2^n`.
+
+SMT-Lib name: `bvadd`.
+-/
+protected def add (x y : BitVec n) : BitVec n := .ofNat n (x.toNat + y.toNat)
+instance : Add (BitVec n) := ⟨BitVec.add⟩
+
+/--
+Subtraction for bit vectors. This can be interpreted as either signed or unsigned subtraction
+modulo `2^n`.
+-/
+protected def sub (x y : BitVec n) : BitVec n := .ofNat n ((2^n - y.toNat) + x.toNat)
+instance : Sub (BitVec n) := ⟨BitVec.sub⟩
+
+end arithmetic
+
 end BitVec

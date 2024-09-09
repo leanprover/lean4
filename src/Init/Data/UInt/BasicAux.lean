@@ -91,20 +91,20 @@ def UInt32.toUInt64 (a : UInt32) : UInt64 := ⟨a.val, Nat.lt_trans a.toBitVec.i
 instance UInt64.instOfNat : OfNat UInt64 n := ⟨UInt64.ofNat n⟩
 
 theorem usize_size_gt_zero : USize.size > 0 :=
-  Nat.zero_lt_succ ..
+  sorry--Nat.zero_lt_succ ..
 
 @[extern "lean_usize_of_nat"]
-def USize.ofNat (n : @& Nat) : USize := ⟨Fin.ofNat' n usize_size_gt_zero⟩
+def USize.ofNat (n : @& Nat) : USize := ⟨BitVec.ofNat _ n⟩
 abbrev Nat.toUSize := USize.ofNat
 @[extern "lean_usize_to_nat"]
-def USize.toNat (n : USize) : Nat := n.val.val
+def USize.toNat (n : USize) : Nat := n.toBitVec.toNat
 @[extern "lean_usize_add"]
-def USize.add (a b : USize) : USize := ⟨a.val + b.val⟩
+def USize.add (a b : USize) : USize := ⟨a.toBitVec + b.toBitVec⟩
 @[extern "lean_usize_sub"]
-def USize.sub (a b : USize) : USize := ⟨a.val - b.val⟩
+def USize.sub (a b : USize) : USize := ⟨a.toBitVec - b.toBitVec⟩
 
-def USize.lt (a b : USize) : Prop := a.val < b.val
-def USize.le (a b : USize) : Prop := a.val ≤ b.val
+def USize.lt (a b : USize) : Prop := BitVec.ult a.toBitVec b.toBitVec = true
+def USize.le (a b : USize) : Prop := BitVec.ule a.toBitVec b.toBitVec = true
 
 instance USize.instOfNat : OfNat USize n := ⟨USize.ofNat n⟩
 instance : Add USize       := ⟨USize.add⟩
@@ -115,14 +115,12 @@ instance : LE USize        := ⟨USize.le⟩
 set_option bootstrap.genMatcherCode false in
 @[extern "lean_usize_dec_lt"]
 def USize.decLt (a b : USize) : Decidable (a < b) :=
-  match a, b with
-  | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (n < m))
+  inferInstanceAs (Decidable (BitVec.ult a.toBitVec b.toBitVec))
 
 set_option bootstrap.genMatcherCode false in
 @[extern "lean_usize_dec_le"]
 def USize.decLe (a b : USize) : Decidable (a ≤ b) :=
-  match a, b with
-  | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (n <= m))
+  inferInstanceAs (Decidable (BitVec.ule a.toBitVec b.toBitVec))
 
 instance (a b : USize) : Decidable (a < b) := USize.decLt a b
 instance (a b : USize) : Decidable (a ≤ b) := USize.decLe a b

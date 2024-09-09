@@ -19,4 +19,4 @@ def UInt32.log2 (a : UInt32) : UInt32 := ⟨⟨Fin.log2 a.val⟩⟩
 def UInt64.log2 (a : UInt64) : UInt64 := ⟨⟨Fin.log2 a.val⟩⟩
 
 @[extern "lean_usize_log2"]
-def USize.log2 (a : USize) : USize := ⟨Fin.log2 a.val⟩
+def USize.log2 (a : USize) : USize := ⟨⟨Fin.log2 a.val⟩⟩

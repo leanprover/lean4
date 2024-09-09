@@ -231,23 +231,23 @@ instance : Min UInt64 := minOfLe
 private def instNeZeroUSizeSize : NeZero USize.size := ⟨add_one_ne_zero _⟩
 
 @[extern "lean_usize_mul"]
-def USize.mul (a b : USize) : USize := ⟨a.val * b.val⟩
+def USize.mul (a b : USize) : USize := ⟨a.toBitVec * b.toBitVec⟩
 @[extern "lean_usize_div"]
-def USize.div (a b : USize) : USize := ⟨a.val / b.val⟩
+def USize.div (a b : USize) : USize := ⟨a.toBitVec / b.toBitVec⟩
 @[extern "lean_usize_mod"]
-def USize.mod (a b : USize) : USize := ⟨a.val % b.val⟩
+def USize.mod (a b : USize) : USize := ⟨a.toBitVec % b.toBitVec⟩
 @[extern "lean_usize_modn"]
 def USize.modn (a : USize) (n : @& Nat) : USize := ⟨Fin.modn a.val n⟩
 @[extern "lean_usize_land"]
-def USize.land (a b : USize) : USize := ⟨Fin.land a.val b.val⟩
+def USize.land (a b : USize) : USize := ⟨a.toBitVec &&& b.toBitVec⟩
 @[extern "lean_usize_lor"]
-def USize.lor (a b : USize) : USize := ⟨Fin.lor a.val b.val⟩
+def USize.lor (a b : USize) : USize := ⟨a.toBitVec ||| b.toBitVec⟩
 @[extern "lean_usize_xor"]
-def USize.xor (a b : USize) : USize := ⟨Fin.xor a.val b.val⟩
+def USize.xor (a b : USize) : USize := ⟨a.toBitVec ^^^ b.toBitVec⟩
 @[extern "lean_usize_shift_left"]
-def USize.shiftLeft (a b : USize) : USize := ⟨a.val <<< (modn b System.Platform.numBits).val⟩
+def USize.shiftLeft (a b : USize) : USize := ⟨a.toBitVec <<< (modn b System.Platform.numBits).toBitVec⟩
 @[extern "lean_usize_shift_right"]
-def USize.shiftRight (a b : USize) : USize := ⟨a.val >>> (modn b System.Platform.numBits).val⟩
+def USize.shiftRight (a b : USize) : USize := ⟨a.toBitVec >>> (modn b System.Platform.numBits).toBitVec⟩
 
 instance : Mul USize       := ⟨USize.mul⟩
 instance : Mod USize       := ⟨USize.mod⟩
@@ -255,7 +255,7 @@ instance : HMod USize Nat USize := ⟨USize.modn⟩
 instance : Div USize       := ⟨USize.div⟩
 
 @[extern "lean_usize_complement"]
-def USize.complement (a:USize) : USize := 0-(a+1)
+def USize.complement (a : USize) : USize := ⟨~~~a.toBitVec⟩
 
 instance : Complement USize := ⟨USize.complement⟩
 instance : AndOp USize      := ⟨USize.land⟩

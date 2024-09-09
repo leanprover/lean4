@@ -9,18 +9,6 @@ import Init.Data.Fin.Bitwise
 import Init.Data.BitVec.Lemmas
 
 set_option hygiene false in
-macro "declare_bitwise_uint_theorems" typeName:ident : command =>
-`(
-namespace $typeName
-
-@[simp] protected theorem and_toNat (a b : $typeName) : (a &&& b).toNat = a.toNat &&& b.toNat := Fin.and_val ..
-
-end $typeName
-)
-
-declare_bitwise_uint_theorems USize
-
-set_option hygiene false in
 macro "declare_new_bitwise_uint_theorems" typeName:ident : command =>
 `(
 namespace $typeName
@@ -34,3 +22,4 @@ declare_new_bitwise_uint_theorems UInt8
 declare_new_bitwise_uint_theorems UInt16
 declare_new_bitwise_uint_theorems UInt32
 declare_new_bitwise_uint_theorems UInt64
+declare_new_bitwise_uint_theorems USize

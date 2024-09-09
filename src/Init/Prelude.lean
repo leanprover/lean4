@@ -2142,10 +2142,10 @@ instance : OfNat (Fin (n+1)) i where
   ofNat := Fin.ofNat i
 ```
 -/
-abbrev USize.size : Nat := hAdd (hSub (hPow 2 System.Platform.numBits) 1) 1
+abbrev USize.size : Nat := (hPow 2 System.Platform.numBits)
 
 theorem usize_size_eq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073709551616) :=
-  show Or (Eq (Nat.succ (Nat.sub (hPow 2 System.Platform.numBits) 1)) 4294967296) (Eq (Nat.succ (Nat.sub (hPow 2 System.Platform.numBits) 1)) 18446744073709551616) from
+  show Or (Eq (hPow 2 System.Platform.numBits) 4294967296) (Eq (hPow 2 System.Platform.numBits) 18446744073709551616) from
   match System.Platform.numBits, System.Platform.numBits_eq with
   | _, Or.inl rfl => Or.inl (by decide)
   | _, Or.inr rfl => Or.inr (by decide)
@@ -2158,21 +2158,22 @@ For example, if running on a 32-bit machine, USize is equivalent to UInt32.
 Or on a 64-bit machine, UInt64.
 -/
 structure USize where
-  /-- Unpack a `USize` as a `Nat` less than `USize.size`.
+  /-- Unpack a `USize` as a `BitVec System.Platform.numBits`.
   This function is overridden with a native implementation. -/
-  val : Fin USize.size
+  toBitVec : BitVec System.Platform.numBits
 
 attribute [extern "lean_usize_of_nat_mk"] USize.mk
-attribute [extern "lean_usize_to_nat"] USize.val
+attribute [extern "lean_usize_to_nat"] USize.toBitVec
+
+def USize.val (x : USize) : Fin USize.size := x.toBitVec.toFin
 
 /--
 Pack a `Nat` less than `USize.size` into a `USize`.
 This function is overridden with a native implementation.
 -/
 @[extern "lean_usize_of_nat"]
-def USize.ofNatCore (n : @& Nat) (h : LT.lt n USize.size) : USize := {
-  val := { val := n, isLt := h }
-}
+def USize.ofNatCore (n : @& Nat) (h : LT.lt n USize.size) : USize where
+  toBitVec := BitVec.ofNatLt n h
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -2183,7 +2184,9 @@ This function is overridden with a native implementation.
 def USize.decEq (a b : USize) : Decidable (Eq a b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ =>
-    dite (Eq n m) (fun h =>isTrue (h ▸ rfl)) (fun h => isFalse (fun h' => USize.noConfusion h' (fun h' => absurd h' h)))
+    dite (Eq n m)
+      (fun h => isTrue (h ▸ rfl))
+      (fun h => isFalse (fun h' => USize.noConfusion h' (fun h' => absurd h' h)))
 
 instance : DecidableEq USize := USize.decEq
 
@@ -2199,12 +2202,13 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_usize_of_nat"]
 def USize.ofNat32 (n : @& Nat) (h : LT.lt n 4294967296) : USize where
-  val := {
-    val  := n
-    isLt := match USize.size, usize_size_eq with
-      | _, Or.inl rfl => h
-      | _, Or.inr rfl => Nat.lt_trans h (by decide)
-  }
+  toBitVec := sorry
+  --val := {
+  --  val  := n
+  --  isLt := match USize.size, usize_size_eq with
+  --    | _, Or.inl rfl => h
+  --    | _, Or.inr rfl => Nat.lt_trans h (by decide)
+  --}
 
 /--
 A `Nat` denotes a valid unicode codepoint if it is less than `0x110000`, and
@@ -3509,13 +3513,13 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_usize_to_uint64"]
 def USize.toUInt64 (u : USize) : UInt64 where
-  toBitVec := BitVec.ofNatLt
-      u.val.val
-      (let ⟨n, h⟩ := u
-       show LT.lt n _ from
-       match USize.size, usize_size_eq, h with
-       | _, Or.inl rfl, h => Nat.lt_trans h (by decide)
-       | _, Or.inr rfl, h => h)
+  toBitVec := BitVec.ofNatLt sorry sorry
+      --u.val.val
+      --(let ⟨n, h⟩ := u
+      -- show LT.lt n _ from
+      -- match USize.size, usize_size_eq, h with
+      -- | _, Or.inl rfl, h => Nat.lt_trans h (by decide)
+      -- | _, Or.inr rfl, h => h)
 
 /-- An opaque hash mixing operation, used to implement hashing for tuples. -/
 @[extern "lean_uint64_mix_hash"]

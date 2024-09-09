@@ -26,8 +26,8 @@ import Init.Data.Nat.Linear
 @[simp] protected theorem UInt64.sizeOf (a : UInt64) : sizeOf a = a.toNat + 3 := by
   cases a; simp_arith [UInt64.toNat, BitVec.toNat]
 
-@[simp] protected theorem USize.sizeOf (a : USize) : sizeOf a = a.toNat + 2 := by
-  cases a; simp_arith [USize.toNat]
+@[simp] protected theorem USize.sizeOf (a : USize) : sizeOf a = a.toNat + 3 := by
+  cases a; simp_arith [USize.toNat, BitVec.toNat]
 
 @[simp] protected theorem Char.sizeOf (a : Char) : sizeOf a = a.toNat + 4 := by
   cases a; simp_arith [Char.toNat]

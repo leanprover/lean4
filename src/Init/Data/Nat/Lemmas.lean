@@ -739,6 +739,11 @@ protected theorem two_pow_pred_mod_two_pow (h : 0 < w) :
   rw [mod_eq_of_lt]
   apply Nat.pow_pred_lt_pow (by omega) h
 
+protected theorem pow_lt_pow_eq_pow_mul_le_pow {a n m : Nat} (h : 1 < a) :
+    a ^ n < a ^ m ↔ a ^ n * a ≤ a ^ m := by
+  rw [←Nat.pow_add_one, Nat.pow_le_pow_iff_right (by omega), Nat.pow_lt_pow_iff_right (by omega)]
+  omega
+
 /-! ### log2 -/
 
 @[simp]

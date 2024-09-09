@@ -966,6 +966,17 @@ theorem ushiftRight_or_distrib (x y : BitVec w)  (n : Nat) :
 theorem ushiftRight_zero_eq (x : BitVec w) : x >>> 0 = x := by
   simp [bv_toNat]
 
+/--
+Shifting right by `n < w` yields a bitvector whose value is less than `2 ^ (w - n)`.
+-/
+theorem toNat_ushiftRight_lt (x : BitVec w) (n : Nat) (hn : n ≤ w) :
+    (x >>> n).toNat < 2 ^ (w - n) := by
+  rw [toNat_ushiftRight, Nat.shiftRight_eq_div_pow, Nat.div_lt_iff_lt_mul]
+  · rw [Nat.pow_sub_mul_pow]
+    · apply x.isLt
+    · apply hn
+  · apply Nat.pow_pos (by decide)
+
 /-! ### ushiftRight reductions from BitVec to Nat -/
 
 @[simp]
@@ -1421,6 +1432,28 @@ theorem getLsbD_concat (x : BitVec w) (b : Bool) (i : Nat) :
     (concat x a) ^^^ (concat y b) = concat (x ^^^ y) (xor a b) := by
   ext i; cases i using Fin.succRecOn <;> simp
 
+/-! ### shiftConcat -/
+
+@[simp]
+theorem getLsb_shiftConcat {x : BitVec w} {b : Bool} {i : Nat} :
+    (x.shiftConcat b).getLsbD i =
+    ((decide (i < w) && !decide (i < 1) && x.getLsbD (i - 1)) ||
+      decide (i < w) && (decide (i = 0) && b)) := by
+  simp [shiftConcat]
+
+theorem shiftRight_sub_one_eq_shiftConcat_getLsb_of_lt {n : BitVec w} (hwn : 0 < wn) :
+    n >>> (wn - 1) = (n >>> wn).shiftConcat (n.getLsbD (wn - 1)) := by
+  ext i
+  simp only [getLsbD_ushiftRight, getLsbD_or, getLsbD_shiftLeft, Fin.is_lt, decide_True, Bool.true_and,
+    getLsbD_zeroExtend, getLsbD_ofBool]
+  by_cases (i : Nat) < 1
+  case pos h =>
+    simp [show (i : Nat) = 0 by omega]
+    omega
+  case neg h =>
+    have hi : (i : Nat) ≠ 0 := by omega
+    simp [shiftConcat, h, hi, show wn - 1 + ↑i = wn + (↑i - 1) by omega]
+
 /-! ### add -/
 
 theorem add_def {n} (x y : BitVec n) : x + y = .ofNat n (x.toNat + y.toNat) := rfl
@@ -1637,6 +1670,10 @@ protected theorem lt_of_le_ne (x y : BitVec n) (h1 : x <= y) (h2 : ¬ x = y) : x
   let ⟨y, lt⟩ := y
   simp
   exact Nat.lt_of_le_of_ne
+
+theorem le_iff_not_lt {x y : BitVec w} : (¬ x < y) ↔ y ≤ x := by
+  constructor <;>
+    (intro h; simp only [lt_def, Nat.not_lt, le_def] at h ⊢; omega)
 
 /-! ### ofBoolList -/
 
@@ -1876,6 +1913,11 @@ theorem twoPow_zero {w : Nat} : twoPow w 0 = 1#w := by
 theorem getLsbD_one {w i : Nat} : (1#w).getLsbD i = (decide (0 < w) && decide (0 = i)) := by
   rw [← twoPow_zero, getLsbD_twoPow]
 
+theorem shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :
+    x <<< n = x * (BitVec.twoPow w n) := by
+  ext i
+  simp [getLsbD_shiftLeft, Fin.is_lt, decide_True, Bool.true_and, mul_twoPow_eq_shiftLeft]
+
 /- ### zeroExtend, truncate, and bitwise operations -/
 
 /--
@@ -2008,5 +2050,14 @@ theorem getLsbD_intMax (w : Nat) : (intMax w).getLsbD i = decide (i + 1 < w) := 
   by_cases h : w = 0
   · simp [h]
   · rw [Nat.sub_add_cancel (Nat.two_pow_pos (w - 1)), Nat.two_pow_pred_mod_two_pow (by omega)]
+
+/-! ### Lemmas about non-overflowing computations -/
+
+theorem toNat_sub_of_le {x y : BitVec w} (h : y ≤ x) :
+    (x - y).toNat = x.toNat - y.toNat := by
+  rw [BitVec.le_def] at h
+  simp only [toNat_sub, show 2 ^ w - y.toNat + x.toNat = 2 ^ w + (x.toNat - y.toNat) by omega,
+    Nat.add_mod_left]
+  rw [Nat.mod_eq_of_lt (by omega)]
 
 end BitVec

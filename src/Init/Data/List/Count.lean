@@ -116,7 +116,7 @@ theorem IsSuffix.countP_le (s : l₁ <:+ l₂) : countP p l₁ ≤ countP p l₂
 theorem IsInfix.countP_le (s : l₁ <:+: l₂) : countP p l₁ ≤ countP p l₂ := s.sublist.countP_le _
 
 theorem countP_filter (l : List α) :
-    countP p (filter q l) = countP (fun a => p a ∧ q a) l := by
+    countP p (filter q l) = countP (fun a => p a && q a) l := by
   simp only [countP_eq_length_filter, filter_filter]
 
 @[simp] theorem countP_true {l : List α} : (l.countP fun _ => true) = l.length := by

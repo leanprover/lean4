@@ -687,7 +687,7 @@ theorem get_modify {arr : Array α} {x i} (h : i < arr.size) :
   | cons => split <;> simp [*]
 
 @[simp] theorem filter_filter (q) (l : Array α) :
-    filter p (filter q l) = filter (fun a => p a ∧ q a) l := by
+    filter p (filter q l) = filter (fun a => p a && q a) l := by
   apply ext'
   simp only [filter_data, List.filter_filter]
 

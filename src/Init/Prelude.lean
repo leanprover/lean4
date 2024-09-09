@@ -1936,8 +1936,6 @@ structure UInt8 where
 attribute [extern "lean_uint8_of_nat_mk"] UInt8.mk
 attribute [extern "lean_uint8_to_nat"] UInt8.toBitVec
 
-def UInt8.val (x : UInt8) : Fin UInt8.size := x.toBitVec.toFin
-
 /--
 Pack a `Nat` less than `2^8` into a `UInt8`.
 This function is overridden with a native implementation.
@@ -1979,8 +1977,6 @@ structure UInt16 where
 attribute [extern "lean_uint16_of_nat_mk"] UInt16.mk
 attribute [extern "lean_uint16_to_nat"] UInt16.toBitVec
 
-def UInt16.val (x : UInt16) : Fin UInt16.size := x.toBitVec.toFin
-
 /--
 Pack a `Nat` less than `2^16` into a `UInt16`.
 This function is overridden with a native implementation.
@@ -2021,8 +2017,6 @@ structure UInt32 where
 
 attribute [extern "lean_uint32_of_nat_mk"] UInt32.mk
 attribute [extern "lean_uint32_to_nat"] UInt32.toBitVec
-
-def UInt32.val (x : UInt32) : Fin UInt32.size := x.toBitVec.toFin
 
 /--
 Pack a `Nat` less than `2^32` into a `UInt32`.
@@ -2091,12 +2085,11 @@ compiler to make it actually 64 bits rather than wrapping a `Nat`.
 structure UInt64 where
   /-- Unpack a `UInt64` as a `BitVec 64`.
   This function is overridden with a native implementation. -/
-  toBitVec : BitVec 64
+  toBitVec: BitVec 64
 
 attribute [extern "lean_uint64_of_nat_mk"] UInt64.mk
 attribute [extern "lean_uint64_to_nat"] UInt64.toBitVec
 
-def UInt64.val (x : UInt64) : Fin UInt64.size := x.toBitVec.toFin
 /--
 Pack a `Nat` less than `2^64` into a `UInt64`.
 This function is overridden with a native implementation.
@@ -2164,8 +2157,6 @@ structure USize where
 
 attribute [extern "lean_usize_of_nat_mk"] USize.mk
 attribute [extern "lean_usize_to_nat"] USize.toBitVec
-
-def USize.val (x : USize) : Fin USize.size := x.toBitVec.toFin
 
 /--
 Pack a `Nat` less than `USize.size` into a `USize`.

@@ -184,9 +184,9 @@ def UInt64.lor (a b : UInt64) : UInt64 := ⟨a.toBitVec ||| b.toBitVec⟩
 @[extern "lean_uint64_xor"]
 def UInt64.xor (a b : UInt64) : UInt64 := ⟨a.toBitVec ^^^ b.toBitVec⟩
 @[extern "lean_uint64_shift_left"]
-def UInt64.shiftLeft (a b : UInt64) : UInt64 := ⟨a.val <<< (mod b 64).val⟩
+def UInt64.shiftLeft (a b : UInt64) : UInt64 := ⟨a.toBitVec <<< (mod b 64).toBitVec⟩
 @[extern "lean_uint64_shift_right"]
-def UInt64.shiftRight (a b : UInt64) : UInt64 := ⟨a.val >>> (mod b 64).val⟩
+def UInt64.shiftRight (a b : UInt64) : UInt64 := ⟨a.toBitVec >>> (mod b 64).toBitVec⟩
 def UInt64.lt (a b : UInt64) : Prop := BitVec.ult a.toBitVec b.toBitVec
 def UInt64.le (a b : UInt64) : Prop := BitVec.ule a.toBitVec b.toBitVec
 

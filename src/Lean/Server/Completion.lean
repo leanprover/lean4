@@ -323,11 +323,20 @@ def completeNamespaces (ctx : ContextInfo) (id : Name) (danglingDot : Bool) : M 
 
 private def idCompletionCore
     (ctx         : ContextInfo)
+    (stx         : Syntax)
     (id          : Name)
     (hoverInfo   : HoverInfo)
     (danglingDot : Bool)
     : M Unit := do
-  let mut id := id.eraseMacroScopes
+  let mut id := id
+  if id.hasMacroScopes then
+    if stx.getHeadInfo matches .original .. then
+      id := id.eraseMacroScopes
+    else
+      -- Identifier is synthetic and has macro scopes => no completions
+      -- Erasing the macro scopes does not make sense in this case because the identifier name
+      -- is some random synthetic string.
+      return
   let mut danglingDot := danglingDot
   if let HoverInfo.inside delta := hoverInfo then
     id := truncate id delta
@@ -417,12 +426,13 @@ private def idCompletion
     (params        : CompletionParams)
     (ctx           : ContextInfo)
     (lctx          : LocalContext)
+    (stx           : Syntax)
     (id            : Name)
     (hoverInfo     : HoverInfo)
     (danglingDot   : Bool)
     : IO (Option CompletionList) :=
   runM params ctx lctx do
-    idCompletionCore ctx id hoverInfo danglingDot
+    idCompletionCore ctx stx id hoverInfo danglingDot
 
 private def unfoldeDefinitionGuarded? (e : Expr) : MetaM (Option Expr) :=
   try unfoldDefinition? e catch _ => pure none
@@ -523,10 +533,10 @@ private def dotCompletion
     if nameSet.isEmpty then
       let stx := info.stx
       if stx.isIdent then
-        idCompletionCore ctx stx.getId hoverInfo (danglingDot := false)
+        idCompletionCore ctx stx stx.getId hoverInfo (danglingDot := false)
       else if stx.getKind == ``Lean.Parser.Term.completion && stx[0].isIdent then
         -- TODO: truncation when there is a dangling dot
-        idCompletionCore ctx stx[0].getId HoverInfo.after (danglingDot := true)
+        idCompletionCore ctx stx stx[0].getId HoverInfo.after (danglingDot := true)
       else
         failure
       return
@@ -749,8 +759,8 @@ partial def find?
     match info with
     | .dot info .. =>
       dotCompletion params ctx info hoverInfo
-    | .id _ id danglingDot lctx .. =>
-      idCompletion params ctx lctx id hoverInfo danglingDot
+    | .id stx id danglingDot lctx .. =>
+      idCompletion params ctx lctx stx id hoverInfo danglingDot
     | .dotId _ id lctx expectedType? =>
       dotIdCompletion params ctx lctx id expectedType?
     | .fieldId _ id lctx structName =>

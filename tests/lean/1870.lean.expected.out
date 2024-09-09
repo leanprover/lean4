@@ -1,7 +1,7 @@
 1870.lean:21:2-21:35: error: type mismatch
-  congrArg (@OfNat.ofNat Nat 0) (congrArg (@Zero.toOfNat0 Nat) ?_)
+  congrArg ?_ (congrArg ?_ ?_)
 has type
-  OfNat.ofNat 0 = OfNat.ofNat 0 : Prop
+  ?_ (?_ ?_) = ?_ (?_ ?_) : Prop
 but is expected to have type
   OfNat.ofNat 0 = OfNat.ofNat 1 : Prop
 1870.lean:25:2-25:16: error: tactic 'apply' failed, failed to unify

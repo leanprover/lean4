@@ -15,9 +15,9 @@ def foo := fun n => (not_and_self_iff _).mp ⟨Nat.lt_irrefl _, Fin.is_lt _⟩
 
 /--
 error: type mismatch
-  Fin.is_lt ?m.185
+  Fin.is_lt ?m.181
 has type
-  ↑?m.185 < ?m.184 : Prop
+  ↑?m.181 < ?m.180 : Prop
 but is expected to have type
   ?a < ?a : Prop
 ---

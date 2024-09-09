@@ -50,10 +50,25 @@ def UInt32.toUInt16 (a : UInt32) : UInt16 := a.toNat.toUInt16
 @[extern "lean_uint8_to_uint32"]
 def UInt8.toUInt32 (a : UInt8) : UInt32 := ⟨a.val, Nat.lt_trans a.toBitVec.isLt (by decide)⟩
 @[extern "lean_uint16_to_uint32"]
-def UInt16.toUInt32 (a : UInt16) : UInt32 := ⟨a.val, Nat.lt_trans a.val.2 (by decide)⟩
-
+def UInt16.toUInt32 (a : UInt16) : UInt32 := ⟨a.val, Nat.lt_trans a.toBitVec.isLt (by decide)⟩
 
 instance UInt32.instOfNat : OfNat UInt32 n := ⟨UInt32.ofNat n⟩
+
+theorem UInt32.ofNat'_lt_of_lt {n m : Nat} (h : n < UInt32.size) :
+     n < m → UInt32.ofNat' n h < OfNat.ofNat m := by
+  intro h
+  simp [UInt32.ofNat', OfNat.ofNat, UInt32.ofNat, (· < ·)]
+  rw [BitVec.ult]
+  simp [BitVec.ofNat, BitVec.toNat, BitVec.ofNatLt, Fin.ofNat']
+  sorry
+
+theorem UInt32.lt_ofNat'_of_lt {n m : Nat} (h : n < UInt32.size) :
+     m < n → OfNat.ofNat m < UInt32.ofNat' n h  := by
+  intro h
+  simp [UInt32.ofNat', OfNat.ofNat, UInt32.ofNat, (· < ·)]
+  rw [BitVec.ult]
+  simp [BitVec.ofNat, BitVec.toNat, BitVec.ofNatLt, Fin.ofNat']
+  sorry
 
 @[extern "lean_uint64_of_nat"]
 def UInt64.ofNat (n : @& Nat) : UInt64 := ⟨BitVec.ofNat 64 n⟩
@@ -69,9 +84,9 @@ def UInt64.toUInt32 (a : UInt64) : UInt32 := a.toNat.toUInt32
 @[extern "lean_uint8_to_uint64"]
 def UInt8.toUInt64 (a : UInt8) : UInt64 := ⟨a.val, Nat.lt_trans a.toBitVec.isLt (by decide)⟩
 @[extern "lean_uint16_to_uint64"]
-def UInt16.toUInt64 (a : UInt16) : UInt64 := ⟨a.val, Nat.lt_trans a.val.2 (by decide)⟩
+def UInt16.toUInt64 (a : UInt16) : UInt64 := ⟨a.val, Nat.lt_trans a.toBitVec.isLt (by decide)⟩
 @[extern "lean_uint32_to_uint64"]
-def UInt32.toUInt64 (a : UInt32) : UInt64 := ⟨a.val, Nat.lt_trans a.val.2 (by decide)⟩
+def UInt32.toUInt64 (a : UInt32) : UInt64 := ⟨a.val, Nat.lt_trans a.toBitVec.isLt (by decide)⟩
 
 instance UInt64.instOfNat : OfNat UInt64 n := ⟨UInt64.ofNat n⟩
 

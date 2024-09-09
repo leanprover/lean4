@@ -156,10 +156,11 @@ declare_new_uint_theorems UInt16
 declare_new_uint_theorems UInt32
 declare_new_uint_theorems UInt64
 
-namespace UInt8
+theorem UInt32.toNat_lt_of_lt {n : UInt32} {m : Nat} (h : n < OfNat.ofNat m) :
+    n.toNat < m := sorry
 
-end UInt8
-
+theorem UInt32.lt_toNat_of_lt {n : UInt32} {m : Nat} (h : OfNat.ofNat m < n) :
+    m < n.toNat := sorry
 
 @[deprecated (since := "2024-06-23")] protected abbrev UInt8.zero_toNat := @UInt8.toNat_zero
 @[deprecated (since := "2024-06-23")] protected abbrev UInt8.div_toNat := @UInt8.toNat_div

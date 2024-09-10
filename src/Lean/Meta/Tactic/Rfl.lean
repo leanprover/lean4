@@ -48,12 +48,6 @@ initialize registerBuiltinAttribute {
 
 open Elab Tactic
 
-private def useKernel (lhs rhs : Expr) : MetaM Bool := do
-  if lhs.hasFVar || lhs.hasMVar || rhs.hasFVar || rhs.hasMVar then
-    return false
-  else
-    return (← getTransparency) matches TransparencyMode.default | TransparencyMode.all
-
 /-- `MetaM` version of the `rfl` tactic.
 
 This tactic applies to a goal whose target has the form `x ~ x`, where `~` is a reflexive

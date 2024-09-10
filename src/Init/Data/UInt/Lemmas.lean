@@ -33,27 +33,33 @@ theorem toBitVec_eq_of_lt {a : Nat} : a < size → (ofNat a).toBitVec.toNat = a 
 theorem toNat_ofNat_of_lt {n : Nat} (h : n < size) : (ofNat n).toNat = n := by
   rw [toNat, toBitVec_eq_of_lt h]
 
-theorem le_def {a b : $typeName} : a ≤ b ↔ BitVec.ule a.toBitVec b.toBitVec := sorry--.rfl
+theorem le_def {a b : $typeName} : a ≤ b ↔ a.toBitVec ≤ b.toBitVec := .rfl
 
-theorem lt_def {a b : $typeName} : a < b ↔ BitVec.ult a.toBitVec b.toBitVec := sorry--.rfl
+theorem lt_def {a b : $typeName} : a < b ↔ a.toBitVec < b.toBitVec := .rfl
 
-@[simp] protected theorem not_le {a b : $typeName} : ¬ a ≤ b ↔ b < a := by
-  simp [le_def, lt_def, BitVec.ule_eq_not_ult]
+@[simp] protected theorem not_le {a b : $typeName} : ¬ a ≤ b ↔ b < a := by simp [le_def, lt_def]
 
-@[simp] protected theorem not_lt {a b : $typeName} : ¬ a < b ↔ b ≤ a := by
-  simp [le_def, lt_def, BitVec.ule_eq_not_ult]
+@[simp] protected theorem not_lt {a b : $typeName} : ¬ a < b ↔ b ≤ a := by simp [le_def, lt_def]
 
-@[simp] protected theorem le_refl (a : $typeName) : a ≤ a := by simp [le_def]; sorry
+@[simp] protected theorem le_refl (a : $typeName) : a ≤ a := by simp [le_def]
 
 @[simp] protected theorem lt_irrefl (a : $typeName) : ¬ a < a := by simp
 
-protected theorem le_trans {a b c : $typeName} : a ≤ b → b ≤ c → a ≤ c := sorry--Fin.le_trans
+protected theorem le_trans {a b c : $typeName} : a ≤ b → b ≤ c → a ≤ c := by
+  simp only [le_def, lt_def]
+  apply BitVec.le_trans
 
-protected theorem lt_trans {a b c : $typeName} : a < b → b < c → a < c := sorry--Fin.lt_trans
+protected theorem lt_trans {a b c : $typeName} : a < b → b < c → a < c := by
+  simp only [le_def, lt_def]
+  apply BitVec.lt_trans
 
-protected theorem le_total (a b : $typeName) : a ≤ b ∨ b ≤ a := sorry--Fin.le_total a.1 b.1
+protected theorem le_total (a b : $typeName) : a ≤ b ∨ b ≤ a := by
+  simp only [le_def, lt_def]
+  apply BitVec.le_total
 
-protected theorem lt_asymm {a b : $typeName} (h : a < b) : ¬ b < a := sorry--Fin.lt_asymm h
+protected theorem lt_asymm {a b : $typeName} : a < b → ¬ b < a := by
+  simp only [le_def, lt_def]
+  apply BitVec.lt_asymm
 
 protected theorem toBitVec_eq_of_eq {a b : $typeName} (h : a = b) : a.toBitVec = b.toBitVec := h ▸ rfl
 

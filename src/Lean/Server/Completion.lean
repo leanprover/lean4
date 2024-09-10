@@ -676,6 +676,7 @@ private def findCompletionInfoAt?
   | some (hoverInfo, ctx, Info.ofCompletionInfo info) =>
     some (hoverInfo, ctx, info)
   | _ => do
+    -- No completion info => Attempt providing identifier completions
     -- Find some context containing `hoverPos` since we just need the syntax surrounding `hoverPos`.
     let some (ctx, info) := infoTree.findInfoWithContext? (fun _ i => i.contains hoverPos (includeStop := true))
       | none

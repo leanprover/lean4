@@ -19,16 +19,32 @@ example : false = true := by rfl
 
 -- Setup
 
+-- In addition to Eq, HEq and Iff  we test four relations:
+
+-- Plain reflexive predicate
 inductive P : α → α → Prop where | refl : P a a
 attribute [refl] P.refl
 
 -- Defeq to relation `P` at reducible transparency
 abbrev Q : α → α → Prop := P
+
 -- Defeq to relation `P` at default transparency
 def Q' : α → α → Prop := P
 
 -- No refl attribute
 inductive R : α → α → Prop where | refl : R a a
+
+
+/-
+Now we systematically test all relations with
+* syntactic equal arguments
+* reducibly equal arguments
+* semireducibly equal arguments
+* nonequal arguments
+
+and all using `apply_rfl` and `with_reducible apply_rfl`
+-/
+
 
 -- Syntactic equal
 

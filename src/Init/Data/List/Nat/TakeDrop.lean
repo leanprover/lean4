@@ -36,23 +36,23 @@ theorem length_take_of_le (h : n ≤ length l) : length (take n l) = n := by sim
 
 /-- The `i`-th element of a list coincides with the `i`-th element of any of its prefixes of
 length `> i`. Version designed to rewrite from the big list to the small list. -/
-theorem getElem_take (L : List α) {i j : Nat} (hi : i < L.length) (hj : i < j) :
+theorem getElem_take' (L : List α) {i j : Nat} (hi : i < L.length) (hj : i < j) :
     L[i] = (L.take j)[i]'(length_take .. ▸ Nat.lt_min.mpr ⟨hj, hi⟩) :=
   getElem_of_eq (take_append_drop j L).symm _ ▸ getElem_append ..
 
 /-- The `i`-th element of a list coincides with the `i`-th element of any of its prefixes of
 length `> i`. Version designed to rewrite from the small list to the big list. -/
-theorem getElem_take' (L : List α) {j i : Nat} {h : i < (L.take j).length} :
+theorem getElem_take (L : List α) {j i : Nat} {h : i < (L.take j).length} :
     (L.take j)[i] =
     L[i]'(Nat.lt_of_lt_of_le h (length_take_le' _ _)) := by
-  rw [length_take, Nat.lt_min] at h; rw [getElem_take L _ h.1]
+  rw [length_take, Nat.lt_min] at h; rw [getElem_take' L _ h.1]
 
 /-- The `i`-th element of a list coincides with the `i`-th element of any of its prefixes of
 length `> i`. Version designed to rewrite from the big list to the small list. -/
-@[deprecated getElem_take (since := "2024-06-12")]
+@[deprecated getElem_take' (since := "2024-06-12")]
 theorem get_take (L : List α) {i j : Nat} (hi : i < L.length) (hj : i < j) :
     get L ⟨i, hi⟩ = get (L.take j) ⟨i, length_take .. ▸ Nat.lt_min.mpr ⟨hj, hi⟩⟩ := by
-  simp [getElem_take _ hi hj]
+  simp [getElem_take' _ hi hj]
 
 /-- The `i`-th element of a list coincides with the `i`-th element of any of its prefixes of
 length `> i`. Version designed to rewrite from the small list to the big list. -/
@@ -60,7 +60,7 @@ length `> i`. Version designed to rewrite from the small list to the big list. -
 theorem get_take' (L : List α) {j i} :
     get (L.take j) i =
     get L ⟨i.1, Nat.lt_of_lt_of_le i.2 (length_take_le' _ _)⟩ := by
-  simp [getElem_take']
+  simp [getElem_take]
 
 theorem getElem?_take_eq_none {l : List α} {n m : Nat} (h : n ≤ m) :
     (l.take n)[m]? = none :=
@@ -110,7 +110,7 @@ theorem getLast?_take {l : List α} : (l.take n).getLast? = if n = 0 then none e
 
 theorem getLast_take {l : List α} (h : l.take n ≠ []) :
     (l.take n).getLast h = l[n - 1]?.getD (l.getLast (by simp_all)) := by
-  rw [getLast_eq_getElem, getElem_take']
+  rw [getLast_eq_getElem, getElem_take]
   simp [length_take, Nat.min_def]
   simp at h
   split
@@ -196,7 +196,7 @@ theorem dropLast_take {n : Nat} {l : List α} (h : n < l.length) :
 theorem take_prefix_take_left (l : List α) {m n : Nat} (h : m ≤ n) : take m l <+: take n l := by
   rw [isPrefix_iff]
   intro i w
-  rw [getElem?_take_of_lt, getElem_take', getElem?_eq_getElem]
+  rw [getElem?_take_of_lt, getElem_take, getElem?_eq_getElem]
   simp only [length_take] at w
   exact Nat.lt_of_lt_of_le (Nat.lt_of_lt_of_le w (Nat.min_le_left _ _)) h
 
@@ -267,9 +267,9 @@ theorem mem_take_iff_getElem {l : List α} {a : α} :
   constructor
   · rintro ⟨i, hm, rfl⟩
     simp at hm
-    refine ⟨i, by omega, by rw [getElem_take']⟩
+    refine ⟨i, by omega, by rw [getElem_take]⟩
   · rintro ⟨i, hm, rfl⟩
-    refine ⟨i, by simpa, by rw [getElem_take']⟩
+    refine ⟨i, by simpa, by rw [getElem_take]⟩
 
 theorem mem_drop_iff_getElem {l : List α} {a : α} :
     a ∈ l.drop n ↔ ∃ (i : Nat) (hm : i + n < l.length), l[n + i] = a := by

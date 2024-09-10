@@ -429,18 +429,23 @@ def runAsync (act : TermElabM α) : TermElabM (Task (Except Exception α)) := do
 Runs the given action in a separate task, discarding its final state except for the message log,
 which is reported in the returned snapshot.
 -/
-def runAsyncAsSnapshot (act : TermElabM Unit) : TermElabM (Task Language.SnapshotTree) := do
+def runAsyncAsSnapshot (act : TermElabM Unit) (desc := "") : TermElabM (Task Language.SnapshotTree) := do
   let t ← runAsync do
-    resetTraceState
+    let tid ← IO.getTID
+    modifyTraceState fun _ => { tid }
     try
-      act
+      withTraceNode `Elab.async (fun _ => return desc) do
+        act
     catch e =>
       logError e.toMessageData
     addTraceAsMessages
     saveState
   BaseIO.mapTask (t := t) fun
     | .ok st =>
-      return .mk { diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog st.meta.core.messages) } #[]
+      return .mk {
+        diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog st.meta.core.messages)
+        traces := st.meta.core.traceState
+      } #[]
     | .error _ => return .mk { diagnostics := .empty } #[]
 
 private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr)
@@ -1108,7 +1113,7 @@ where
             valPromise.resolve default
             (← getEnv).resolveAsync
         if let some asyncEnv := asyncEnv? then
-          let t ← runAsyncAsSnapshot do
+          let t ← runAsyncAsSnapshot (desc := s!"elaborating proof of {headers[0]!.declName}") do
             modifyEnv fun _ => asyncEnv
             finishElab
           let _ ← BaseIO.mapTask (t := t) fun snap => do
@@ -1189,6 +1194,7 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
 
 builtin_initialize
   registerTraceClass `Elab.definition.mkClosure
+  registerTraceClass `Elab.async
 
 end Command
 end Lean.Elab

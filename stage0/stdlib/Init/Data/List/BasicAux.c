@@ -69,7 +69,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp
 static lean_object* l_List_tacticSizeOf__list__dec___closed__4;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__42;
 LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at_List_mapMono___spec__1(lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__46;
 LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_get_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -487,8 +487,8 @@ lean_dec(x_1);
 x_7 = lean_ctor_get(x_6, 1);
 lean_inc(x_7);
 lean_dec(x_6);
-x_8 = lean_array_to_list(lean_box(0), x_4);
-x_9 = lean_array_to_list(lean_box(0), x_5);
+x_8 = lean_array_to_list(x_4);
+x_9 = lean_array_to_list(x_5);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_8);
 lean_ctor_set(x_10, 1, x_9);
@@ -571,8 +571,8 @@ if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 lean_dec(x_1);
-x_5 = lean_array_to_list(lean_box(0), x_3);
-x_6 = lean_array_to_list(lean_box(0), x_4);
+x_5 = lean_array_to_list(x_3);
+x_6 = lean_array_to_list(x_4);
 x_7 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_7, 0, x_5);
 lean_ctor_set(x_7, 1, x_6);

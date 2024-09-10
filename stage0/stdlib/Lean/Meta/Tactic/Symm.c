@@ -126,7 +126,7 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_21____closed__7;
 LEAN_EXPORT lean_object* l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_106____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 static lean_object* l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_106____lambda__1___closed__16;
 lean_object* l_Lean_MVarId_note(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
@@ -4323,7 +4323,7 @@ lean_inc(x_17);
 x_18 = lean_ctor_get(x_16, 1);
 lean_inc(x_18);
 lean_dec(x_16);
-x_19 = lean_array_to_list(lean_box(0), x_14);
+x_19 = lean_array_to_list(x_14);
 x_20 = l_Lean_Meta_saveState___rarg(x_3, x_4, x_5, x_18);
 x_21 = !lean_is_exclusive(x_20);
 if (x_21 == 0)
@@ -5332,7 +5332,7 @@ lean_inc(x_15);
 x_16 = lean_ctor_get(x_14, 1);
 lean_inc(x_16);
 lean_dec(x_14);
-x_17 = lean_array_to_list(lean_box(0), x_15);
+x_17 = lean_array_to_list(x_15);
 x_18 = l_Lean_Meta_saveState___rarg(x_3, x_4, x_5, x_16);
 x_19 = !lean_is_exclusive(x_18);
 if (x_19 == 0)

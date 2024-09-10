@@ -98,7 +98,7 @@ LEAN_EXPORT lean_object* l_Array_sequenceMap_loop___at_Lean_Elab_LibrarySearch_e
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at_Lean_Elab_LibrarySearch_exact_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_log___at_Lean_Elab_Tactic_closeUsingOrAdmit___spec__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_LibrarySearch_elabExact_x3fTerm___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_LibrarySearch_evalExact___closed__6;
 extern lean_object* l_Lean_Elab_Term_termElabAttribute;
@@ -789,7 +789,7 @@ lean_inc(x_18);
 x_19 = lean_ctor_get(x_17, 1);
 lean_inc(x_19);
 lean_dec(x_17);
-x_20 = lean_array_to_list(lean_box(0), x_18);
+x_20 = lean_array_to_list(x_18);
 x_21 = lean_box(0);
 x_22 = l_List_mapTR_loop___at_Lean_Elab_LibrarySearch_exact_x3f___spec__1(x_20, x_21);
 lean_inc(x_22);

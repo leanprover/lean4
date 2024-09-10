@@ -165,6 +165,7 @@ static lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety___
 LEAN_EXPORT lean_object* l_Lean_instInhabitedConstructor;
 LEAN_EXPORT lean_object* l_Lean_ConstantInfo_numLevelParams___boxed(lean_object*);
 lean_object* l_panic___at_Lean_Expr_appFn_x21___spec__1(lean_object*);
+lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_beq___at___private_Lean_Declaration_0__Lean_beqInductiveType____x40_Lean_Declaration___hyg_1591____spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Declaration_0__Lean_beqOpaqueVal____x40_Lean_Declaration___hyg_1282____boxed(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -301,7 +302,6 @@ LEAN_EXPORT lean_object* l_Lean_instInhabitedInductiveType;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedConstantVal;
 LEAN_EXPORT lean_object* l___private_Lean_Declaration_0__Lean_beqConstructor____x40_Lean_Declaration___hyg_1476____boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_ReducibilityHints_isRegular(lean_object*);
-lean_object* l_List_length___rarg(lean_object*);
 LEAN_EXPORT lean_object* lean_mk_theorem_val(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t lean_inductive_val_is_rec(lean_object*);
 static lean_object* l_Lean_instInhabitedConstructor___closed__1;
@@ -3210,10 +3210,11 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_InductiveVal_numCtors(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_ctor_get(x_1, 4);
-x_3 = l_List_length___rarg(x_2);
-return x_3;
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = l_List_lengthTRAux___rarg(x_2, x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_InductiveVal_numCtors___boxed(lean_object* x_1) {
@@ -3248,13 +3249,14 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_InductiveVal_numTypeFormers(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_2 = lean_ctor_get(x_1, 3);
-x_3 = l_List_length___rarg(x_2);
-x_4 = lean_ctor_get(x_1, 5);
-x_5 = lean_nat_add(x_3, x_4);
-lean_dec(x_3);
-return x_5;
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = l_List_lengthTRAux___rarg(x_2, x_3);
+x_5 = lean_ctor_get(x_1, 5);
+x_6 = lean_nat_add(x_4, x_5);
+lean_dec(x_4);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_InductiveVal_numTypeFormers___boxed(lean_object* x_1) {
@@ -4293,11 +4295,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_ConstantInfo_numLevelParams(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Lean_ConstantInfo_levelParams(x_1);
-x_3 = l_List_length___rarg(x_2);
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = l_List_lengthTRAux___rarg(x_2, x_3);
 lean_dec(x_2);
-return x_3;
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_ConstantInfo_numLevelParams___boxed(lean_object* x_1) {

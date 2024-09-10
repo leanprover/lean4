@@ -123,7 +123,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_SolveByElim_elabConfig___lambda__4(l
 uint8_t l_List_isEmpty___rarg(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_SolveByElim_elabConfig___closed__5;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_SolveByElim_evalApplyAssumption__1___closed__4;
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_SolveByElim_evalApplyAssumption___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_SolveByElim_evalUnsafe____x40_Lean_Elab_Tactic_SolveByElim___hyg_8_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_mapM___at_Lean_Elab_Tactic_SolveByElim_elabConfig___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3694,7 +3694,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_3; 
-x_3 = lean_array_to_list(lean_box(0), x_2);
+x_3 = lean_array_to_list(x_2);
 return x_3;
 }
 else
@@ -3747,7 +3747,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_3; 
-x_3 = lean_array_to_list(lean_box(0), x_2);
+x_3 = lean_array_to_list(x_2);
 return x_3;
 }
 else
@@ -3836,7 +3836,7 @@ size_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; l
 x_4 = l_Lean_Elab_Tactic_SolveByElim_parseArgs___closed__1;
 x_5 = l_Lean_Elab_Tactic_SolveByElim_elabConfig___closed__7;
 x_6 = l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_SolveByElim_parseArgs___spec__2(x_4, x_2, x_5);
-x_7 = lean_array_to_list(lean_box(0), x_6);
+x_7 = lean_array_to_list(x_6);
 lean_inc(x_7);
 x_8 = l_List_elem___at_Lean_Elab_Tactic_SolveByElim_parseArgs___spec__3(x_3, x_7);
 lean_inc(x_7);
@@ -3867,7 +3867,7 @@ lean_dec(x_14);
 x_17 = l_Lean_Elab_Tactic_SolveByElim_parseArgs___closed__1;
 x_18 = l_Lean_Elab_Tactic_SolveByElim_elabConfig___closed__7;
 x_19 = l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_SolveByElim_parseArgs___spec__2(x_17, x_2, x_18);
-x_20 = lean_array_to_list(lean_box(0), x_19);
+x_20 = lean_array_to_list(x_19);
 lean_inc(x_20);
 x_21 = l_List_elem___at_Lean_Elab_Tactic_SolveByElim_parseArgs___spec__3(x_3, x_20);
 lean_inc(x_20);
@@ -3894,7 +3894,7 @@ x_30 = l_Lean_Syntax_TSepArray_getElems___rarg(x_29);
 lean_dec(x_29);
 x_31 = lean_array_size(x_30);
 x_32 = l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_SolveByElim_parseArgs___spec__2(x_31, x_2, x_30);
-x_33 = lean_array_to_list(lean_box(0), x_32);
+x_33 = lean_array_to_list(x_32);
 lean_inc(x_33);
 x_34 = l_List_elem___at_Lean_Elab_Tactic_SolveByElim_parseArgs___spec__3(x_3, x_33);
 x_35 = l_Lean_Elab_Tactic_SolveByElim_elabConfig___closed__7;

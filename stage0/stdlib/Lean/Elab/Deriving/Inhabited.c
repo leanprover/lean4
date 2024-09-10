@@ -159,7 +159,7 @@ lean_object* l_Lean_Elab_addMacroStack___at_Lean_Elab_Term_instAddErrorMessageCo
 LEAN_EXPORT lean_object* l_Lean_ForEachExprWhere_visited___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_collectUsedLocalsInsts___spec__6(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_mkInhabitedInstanceHandler(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isInductive___at_Lean_Elab_mkInhabitedInstanceHandler___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -869,7 +869,7 @@ return x_13;
 else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_14 = lean_array_to_list(lean_box(0), x_3);
+x_14 = lean_array_to_list(x_3);
 x_15 = lean_box(0);
 x_16 = lean_unsigned_to_nat(0u);
 x_17 = l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_addLocalInstancesForParamsAux___rarg(x_4, x_14, x_16, x_15, x_5, x_6, x_7, x_8, x_9, x_10, x_11);

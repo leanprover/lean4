@@ -170,7 +170,7 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_precheckBinrel_
 uint8_t l_List_isEmpty___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_Quotation_precheck___spec__1___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Quotation_initFn____x40_Lean_Elab_Quotation_Precheck___hyg_127____closed__5;
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_Quotation_withNewLocals___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Term_termElabAttribute;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_Quotation_precheckChoice___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5293,7 +5293,7 @@ if (x_21 == 0)
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
 lean_free_object(x_13);
-x_22 = lean_array_to_list(lean_box(0), x_20);
+x_22 = lean_array_to_list(x_20);
 x_23 = l_Lean_Elab_Term_Quotation_precheckChoice___closed__4;
 x_24 = l_Lean_MessageData_joinSep(x_22, x_23);
 x_25 = l_Lean_indentD(x_24);
@@ -5350,7 +5350,7 @@ x_38 = l_Array_isEmpty___rarg(x_37);
 if (x_38 == 0)
 {
 lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; 
-x_39 = lean_array_to_list(lean_box(0), x_37);
+x_39 = lean_array_to_list(x_37);
 x_40 = l_Lean_Elab_Term_Quotation_precheckChoice___closed__4;
 x_41 = l_Lean_MessageData_joinSep(x_39, x_40);
 x_42 = l_Lean_indentD(x_41);

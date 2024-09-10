@@ -129,7 +129,7 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkAppM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_MVarId_getNondepPropHyps___spec__17(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_appendTagSuffix(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_synthInstance(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7565,7 +7565,7 @@ if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; 
 x_16 = lean_ctor_get(x_14, 0);
-x_17 = lean_array_to_list(lean_box(0), x_16);
+x_17 = lean_array_to_list(x_16);
 lean_ctor_set(x_14, 0, x_17);
 return x_14;
 }
@@ -7577,7 +7577,7 @@ x_19 = lean_ctor_get(x_14, 1);
 lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_14);
-x_20 = lean_array_to_list(lean_box(0), x_18);
+x_20 = lean_array_to_list(x_18);
 x_21 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set(x_21, 1, x_19);

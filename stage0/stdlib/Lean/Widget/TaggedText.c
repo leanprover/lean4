@@ -117,7 +117,7 @@ LEAN_EXPORT lean_object* l_Nat_repeatTR_loop___at_Lean_Widget_TaggedText_prettyT
 LEAN_EXPORT lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_fromJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_406____rarg___lambda__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_TaggedText_rewrite___spec__1(lean_object*, lean_object*);
 static lean_object* l_panic___at_Lean_Widget_TaggedText_prettyTagged___spec__8___closed__1;
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_TaggedText_instRpcEncodable___spec__2___rarg(lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_TaggedText_instRpcEncodable___spec__6(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_TaggedText_instRpcEncodable___spec__4___boxed(lean_object*, lean_object*, lean_object*);
@@ -1141,7 +1141,7 @@ if (x_40 == 0)
 if (x_43 == 0)
 {
 lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; uint8_t x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; uint8_t x_59; lean_object* x_60; lean_object* x_61; 
-x_44 = lean_array_to_list(lean_box(0), x_38);
+x_44 = lean_array_to_list(x_38);
 x_45 = l___private_Lean_Widget_TaggedText_0__Lean_Widget_reprTaggedText____x40_Lean_Widget_TaggedText___hyg_224____rarg___closed__11;
 x_46 = l_Std_Format_joinSep___at___private_Lean_Widget_TaggedText_0__Lean_Widget_reprTaggedText____x40_Lean_Widget_TaggedText___hyg_224____spec__2___rarg(x_1, x_44, x_45);
 x_47 = l___private_Lean_Widget_TaggedText_0__Lean_Widget_reprTaggedText____x40_Lean_Widget_TaggedText___hyg_224____rarg___closed__15;
@@ -1190,7 +1190,7 @@ else
 if (x_43 == 0)
 {
 lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; uint8_t x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; uint8_t x_79; lean_object* x_80; lean_object* x_81; 
-x_64 = lean_array_to_list(lean_box(0), x_38);
+x_64 = lean_array_to_list(x_38);
 x_65 = l___private_Lean_Widget_TaggedText_0__Lean_Widget_reprTaggedText____x40_Lean_Widget_TaggedText___hyg_224____rarg___closed__11;
 x_66 = l_Std_Format_joinSep___at___private_Lean_Widget_TaggedText_0__Lean_Widget_reprTaggedText____x40_Lean_Widget_TaggedText___hyg_224____spec__4___rarg(x_1, x_64, x_65);
 x_67 = l___private_Lean_Widget_TaggedText_0__Lean_Widget_reprTaggedText____x40_Lean_Widget_TaggedText___hyg_224____rarg___closed__15;

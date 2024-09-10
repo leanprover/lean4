@@ -25,7 +25,7 @@ LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_RelabelFin_0__Std_Sat_CNF_numLi
 static lean_object* l_Std_Sat_CNF_relabelFin___closed__1;
 LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_RelabelFin_0__Std_Sat_CNF_numLiterals_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_maximum_x3f___at_Std_Sat_CNF_Clause_maxLiteral___spec__2(lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 static lean_object* l_Std_Sat_CNF_maxLiteral___closed__1;
 lean_object* l_List_replicateTR___rarg(lean_object*, lean_object*);
 lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
@@ -179,7 +179,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_3; 
-x_3 = lean_array_to_list(lean_box(0), x_2);
+x_3 = lean_array_to_list(x_2);
 return x_3;
 }
 else

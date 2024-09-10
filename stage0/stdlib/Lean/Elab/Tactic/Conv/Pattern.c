@@ -102,7 +102,7 @@ static lean_object* l_Lean_Elab_Tactic_Conv_evalPattern___lambda__9___closed__2;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalPattern_declRange__1___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalPattern___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 lean_object* l_Lean_Meta_abstractMVars(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Conv_Pattern_0__Lean_Elab_Tactic_Conv_pre(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_toHeadIndex(lean_object*);
@@ -2861,7 +2861,7 @@ x_25 = l_Lean_MVarId_assign___at_Lean_Elab_Tactic_refineCore___spec__1(x_20, x_2
 x_26 = lean_ctor_get(x_25, 1);
 lean_inc(x_26);
 lean_dec(x_25);
-x_27 = lean_array_to_list(lean_box(0), x_2);
+x_27 = lean_array_to_list(x_2);
 x_28 = l_Lean_Elab_Tactic_replaceMainGoal(x_27, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_26);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -4321,7 +4321,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalPattern___lambda__10(lean_o
 _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_13 = lean_array_to_list(lean_box(0), x_1);
+x_13 = lean_array_to_list(x_1);
 x_14 = l___private_Lean_Elab_Tactic_Conv_Pattern_0__Lean_Elab_Tactic_Conv_getContext___rarg___closed__2;
 x_15 = lean_unsigned_to_nat(0u);
 x_16 = lean_alloc_ctor(1, 3, 0);

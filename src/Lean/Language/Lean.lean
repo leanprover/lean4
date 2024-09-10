@@ -571,7 +571,7 @@ where
       LeanProcessingM Command.State := do
     let ctx ← read
     let scope := cmdState.scopes.head!
-    let cmdStateRef ← IO.mkRef { cmdState with messages := .empty }
+    let cmdStateRef ← IO.mkRef { cmdState with messages := .empty, traceState := {} }
     /-
     The same snapshot may be executed by different tasks. So, to make sure `elabCommandTopLevel`
     has exclusive access to the cache, we create a fresh reference here. Before this change, the
@@ -613,6 +613,7 @@ where
     finishedPromise.resolve {
       diagnostics := (← Snapshot.Diagnostics.ofMessageLog cmdState.messages)
       infoTree? := infoTree
+      traces := cmdState.traceState
       cmdState := if cmdline then {
         env := Runtime.markPersistent cmdState.env
         maxRecDepth := 0

@@ -28,19 +28,20 @@
           stdenv = pkgs.overrideCC pkgs.stdenv lean-packages.llvmPackages.clang;
         } ({
           buildInputs = with pkgs; [
-            cmake gmp libuv ccache cadical zstd zlib
+            cmake gmp libuv ccache cadical
             lean-packages.llvmPackages.llvm  # llvm-symbolizer for asan/lsan
             gdb
             tree  # for CI
           ];
           # https://github.com/NixOS/nixpkgs/issues/60919
-          # hardeningDisable = [ "all" ];
+          hardeningDisable = [ "all" ];
           # more convenient `ctest` output
           CTEST_OUTPUT_ON_FAILURE = 1;
         } // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
           GMP = pkgsDist.gmp.override { withStatic = true; };
           LIBUV = pkgsDist.libuv.overrideAttrs (attrs: {
             configureFlags = ["--enable-static"];
+            hardeningDisable = [ "all" ];
             version = "1.48.0";
             src = pkgs.fetchFromGitHub {
               owner = "libuv";

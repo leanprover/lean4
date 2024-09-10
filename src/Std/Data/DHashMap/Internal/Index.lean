@@ -58,7 +58,9 @@ cf. https://github.com/leanprover/lean4/issues/4157
         simp only [decide_eq_true_eq]
         change _ ≤ (_ % _)
         rw [Nat.mod_eq_of_lt h']
-        sorry
+        rw [USize.toBitVec_eq_of_lt]
+        · omega
+        · cases usize_size_eq <;> omega
     · exact Nat.lt_of_lt_of_le (USize.toNat_lt_size _) (Nat.le_of_not_lt h')⟩
 
 end Std.DHashMap.Internal

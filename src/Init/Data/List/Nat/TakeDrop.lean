@@ -309,7 +309,7 @@ theorem getLast?_drop {l : List α} : (l.drop n).getLast? = if l.length ≤ n th
 
 theorem getLast_drop {l : List α} (h : l.drop n ≠ []) :
     (l.drop n).getLast h = l.getLast (ne_nil_of_length_pos (by simp at h; omega)) := by
-  simp only [ne_eq, drop_eq_nil_iff_le] at h
+  simp only [ne_eq, drop_eq_nil_iff] at h
   apply Option.some_inj.1
   simp only [← getLast?_eq_getLast, getLast?_drop, ite_eq_right_iff]
   omega
@@ -458,12 +458,23 @@ theorem reverse_drop {l : List α} {n : Nat} :
 
 /-! ### findIdx -/
 
-theorem take_findIdx {xs : List α} {p : α → Bool} :
-    ∀ x ∈ xs.take (xs.findIdx p), p x = false := by
-  simp only [mem_take_iff_getElem, forall_exists_index]
-  rintro x i h rfl
-  have : i < findIdx p xs := by omega
-  exact?
+theorem false_of_mem_take_findIdx {xs : List α} {p : α → Bool} (h : x ∈ xs.take (xs.findIdx p)) :
+    p x = false := by
+  simp only [mem_take_iff_getElem, forall_exists_index] at h
+  obtain ⟨i, h, rfl⟩ := h
+  exact not_of_lt_findIdx (by omega)
+
+theorem findIdx_take {xs : List α} {n : Nat} {p : α → Bool} :
+    (xs.take n).findIdx p = min n (xs.findIdx p) := by
+  induction xs generalizing n with
+  | nil => simp
+  | cons x xs ih =>
+    cases n
+    · simp
+    · simp only [take_succ_cons, findIdx_cons, ih, cond_eq_if]
+      split
+      · simp
+      · rw [Nat.add_min_add_right]
 
 /-! ### rotateLeft -/
 

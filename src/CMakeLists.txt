@@ -546,6 +546,11 @@ else()
   add_library(leancpp STATIC ${LEAN_OBJS} $<TARGET_OBJECTS:initialize>)
   set_target_properties(leancpp PROPERTIES
     OUTPUT_NAME leancpp)
+
+  if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
+    add_dependencies(leancpp_1 libuv)
+    add_dependencies(leancpp libuv)
+  endif()
 endif()
 
 if((${STAGE} GREATER 0) AND CADICAL)

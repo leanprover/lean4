@@ -72,7 +72,7 @@ def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext
   let lhs := t.appFn!.appArg!
   let rhs := t.appArg!
 
-  let success ← isDefEq lhs rhs
+  let success ← approxDefEq <| isDefEqGuarded lhs rhs
   unless success do
     throwTacticEx `rfl goal m!"The lhs{indentExpr lhs}\nis not definitionally equal to rhs{indentExpr rhs}"
 

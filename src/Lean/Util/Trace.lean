@@ -247,11 +247,12 @@ def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls :
   let _ := always.except
   let opts ← getOptions
   let clsEnabled ← isTracingEnabledFor cls
-  unless clsEnabled || trace.profiler.get opts do
+  let traceProfilerEnabled := trace.profiler.get opts
+  unless clsEnabled || traceProfilerEnabled do
     return (← k)
   let oldTraces ← getResetTraces
   let (res, start, stop) ← withStartStop opts <| observing k
-  let aboveThresh := trace.profiler.get opts &&
+  let aboveThresh := traceProfilerEnabled &&
     stop - start > trace.profiler.threshold.unitAdjusted opts
   unless clsEnabled || aboveThresh do
     modifyTraces (oldTraces ++ ·)
@@ -259,7 +260,7 @@ def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls :
   let ref ← getRef
   let mut m ← try msg res catch _ => pure m!"<exception thrown while producing trace node message>"
   let mut data := { cls, collapsed, tag }
-  if profiler.get opts || aboveThresh then
+  if traceProfilerEnabled || profiler.get opts || aboveThresh then
     data := { data with startTime := start, stopTime := stop }
   addTraceNode oldTraces data ref m
   MonadExcept.ofExcept res

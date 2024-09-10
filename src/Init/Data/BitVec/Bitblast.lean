@@ -629,16 +629,6 @@ def DivModState.Lawful.toLawfulShiftSubtract {qr : DivModState w}
 
 /-! ### shiftConcat -/
 
-/--
-If `n : Bitvec w` has only the low `k < w` bits set,
-then `(n <<< 1 | b)` does not overflow.
--/
-private theorem mul_two_add_lt_two_pow_of_lt_two_pow_of_lt_two {n b k w : Nat}
-    (hn : n < 2 ^ k) (hb : b < 2) (hk : k < w) :
-    n * 2 + b < 2 ^ w := by
-  have : 2^(k + 1) ≤ 2 ^w := Nat.pow_le_pow_of_le_right (by decide) (by assumption)
-  omega
-
 @[simp, bv_toNat]
 theorem toNat_shiftConcat {x : BitVec w} {b : Bool} : (x.shiftConcat b).toNat =
     (x.toNat <<< 1 + b.toNat) % 2 ^ w  := by
@@ -655,17 +645,17 @@ theorem toNat_shiftConcat_eq_of_lt_of_lt_two_pow {x : BitVec w} {b : Bool} {k : 
   (hk : k < w) (hx : x.toNat < 2 ^ k) :
     (x.shiftConcat b).toNat = x.toNat * 2 + b.toNat := by
   simp [bv_toNat, Nat.shiftLeft_eq]
-  have h := @Nat.pow_lt_pow_of_lt 2 k w (by omega) (by omega)
-  have := (@Nat.pow_lt_pow_eq_pow_mul_le_pow 2 k w (by omega)).mp h
+  have : 2 ^ k < 2 ^ w := Nat.pow_lt_pow_of_lt (by omega) (by omega)
+  have : 2 ^ k * 2 ≤ 2 ^ w := (Nat.pow_lt_pow_eq_pow_mul_le_pow (by omega)).mp this
   rw [Nat.mod_eq_of_lt (by cases b <;> simp [bv_toNat] <;> omega)]
 
 theorem toNat_shiftConcat_lt_of_lt_of_lt_two_pow {x : BitVec w} {b : Bool} {k : Nat}
     (hk : k < w) (hx : x.toNat < 2 ^ k) :
     (x.shiftConcat b).toNat < 2 ^ (k + 1) := by
   rw [toNat_shiftConcat_eq_of_lt_of_lt_two_pow hk hx]
-  apply mul_two_add_lt_two_pow_of_lt_two_pow_of_lt_two hx
-  · cases b <;> decide
-  · omega
+  have : 2 ^ (k + 1) ≤ 2 ^ w := Nat.pow_le_pow_of_le_right (by decide) (by assumption)
+  have := Bool.toNat_lt b
+  omega
 
 /-! ### Division shift subtractor -/
 

@@ -1435,13 +1435,13 @@ theorem getLsbD_concat (x : BitVec w) (b : Bool) (i : Nat) :
 /-! ### shiftConcat -/
 
 @[simp]
-theorem getLsb_shiftConcat {x : BitVec w} {b : Bool} {i : Nat} :
+theorem getLsbD_shiftConcat {x : BitVec w} {b : Bool} {i : Nat} :
     (x.shiftConcat b).getLsbD i =
     ((decide (i < w) && !decide (i < 1) && x.getLsbD (i - 1)) ||
       decide (i < w) && (decide (i = 0) && b)) := by
   simp [shiftConcat]
 
-theorem shiftRight_sub_one_eq_shiftConcat_getLsb_of_lt {n : BitVec w} (hwn : 0 < wn) :
+theorem shiftRight_sub_one_eq_shiftConcat_getLsbD_of_lt {n : BitVec w} (hwn : 0 < wn) :
     n >>> (wn - 1) = (n >>> wn).shiftConcat (n.getLsbD (wn - 1)) := by
   ext i
   simp only [getLsbD_ushiftRight, getLsbD_or, getLsbD_shiftLeft, Fin.is_lt, decide_True, Bool.true_and,

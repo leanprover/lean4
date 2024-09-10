@@ -679,7 +679,7 @@ def divSubtractShift (n : BitVec w) (d : BitVec w) (wn : Nat) (qr : DivModState 
 theorem DivModState.toNat_shiftRight_sub_one_eq
     (qr : DivModState w) (h : qr.LawfulShiftSubtract wr wn n d):
     n.toNat >>> (wn - 1) = (n.toNat >>> wn) * 2 + (n.getLsbD (wn - 1)).toNat := by
-  have hn := shiftRight_sub_one_eq_shiftConcat_getLsb_of_lt (n := n) (wn := wn) h.hwn_lt
+  have hn := shiftRight_sub_one_eq_shiftConcat_getLsbD_of_lt (n := n) (wn := wn) h.hwn_lt
   obtain hn : (n >>> (wn - 1)).toNat = ((n >>> wn).shiftConcat (n.getLsbD (wn - 1))).toNat := by
     simp [hn]
   simp only [toNat_ushiftRight] at hn

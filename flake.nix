@@ -41,7 +41,7 @@
           GMP = pkgsDist.gmp.override { withStatic = true; };
           LIBUV = pkgsDist.libuv.overrideAttrs (attrs: {
             configureFlags = ["--enable-static"];
-            hardeningDisable = [ "all" ];
+            hardeningDisable = [ "stackprotector" ];
             version = "1.48.0";
             src = pkgs.fetchFromGitHub {
               owner = "libuv";

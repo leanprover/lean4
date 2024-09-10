@@ -245,7 +245,7 @@ endif()
 
 # LibUV
 if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
-  set(LIBUV_EMSCRIPTEN_FLAGS "${EMSCRIPTEN_SETTINGS} -s EXPORT_ALL=1")
+  set(LIBUV_EMSCRIPTEN_FLAGS "${EMSCRIPTEN_SETTINGS} -ffunction-sections")
   # Only on WebAssembly we compile LibUV ourselves
   ExternalProject_add(libuv
     PREFIX libuv

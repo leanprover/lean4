@@ -183,7 +183,7 @@ protected def get [Pure m] : EStateT ε σ m σ := fun s =>
 protected def modifyGet [Pure m] (f : σ → Prod α σ) : EStateT ε σ m α := fun s =>
   match f s with | (a, s) => pure <| .ok a s
 
-instance [Pure m] : MonadStateOf σ (EStateT ε σ m) where
+instance (priority := high) [Pure m] : MonadStateOf σ (EStateT ε σ m) where
   set       := EStateT.set
   get       := EStateT.get
   modifyGet := EStateT.modifyGet

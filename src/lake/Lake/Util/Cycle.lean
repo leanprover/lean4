@@ -62,7 +62,7 @@ instance (priority := high) [Monad m] : MonadCallStackOf κ (CallStackT κ m) wh
 /-- A transformer that equips a monad with a `CallStack` to detect cycles. -/
 abbrev CycleT κ m := CallStackT κ <| ExceptT (Cycle κ) m
 
-instance [Monad m] : MonadCycleOf κ (CycleT κ m) where
+instance (priority := high) [Monad m] : MonadCycleOf κ (CycleT κ m) where
   throwCycle := throw
 
 /--

@@ -28,7 +28,7 @@ class MonadDStore (κ : Type u) (β : semiOutParam $ κ → Type v) (m : Type v 
   fetch? : (key : κ) → m (Option (β key))
   store : (key : κ) → β key → m PUnit
 
-instance [MonadDStore κ β m] : MonadStore1Of k (β k) m where
+instance (priority := high) [MonadDStore κ β m] : MonadStore1Of k (β k) m where
   fetch? := MonadDStore.fetch? k
   store o := MonadDStore.store k o
 

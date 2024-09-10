@@ -113,7 +113,7 @@ def ForM.forIn [Monad m] [ForM (StateT β (ExceptT β m)) ρ α]
 section
 variable {σ : Type u} {m : Type u → Type v}
 
-instance [Monad m] : MonadStateOf σ (StateT σ m) where
+instance (priority := high) [Monad m] : MonadStateOf σ (StateT σ m) where
   get       := StateT.get
   set       := StateT.set
   modifyGet := StateT.modifyGet

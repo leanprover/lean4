@@ -101,7 +101,7 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_induction___lambda__2(lean_object*, lean_
 static lean_object* l_Nat_forM_loop___at_Lean_Meta_getMajorTypeIndices___spec__1___lambda__2___closed__1;
 static lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_mkRecursorAppPrefix___spec__2___lambda__2___closed__3;
 static lean_object* l_Nat_forM_loop___at_Lean_Meta_getMajorTypeIndices___spec__1___closed__1;
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_MVarId_induction___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_induction(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_getTypeBody___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4016,7 +4016,7 @@ _start:
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_14 = lean_ctor_get(x_1, 0);
 lean_inc(x_14);
-x_15 = lean_array_to_list(lean_box(0), x_2);
+x_15 = lean_array_to_list(x_2);
 x_16 = l_Lean_Expr_const___override(x_14, x_15);
 x_17 = lean_ctor_get(x_1, 5);
 lean_inc(x_17);

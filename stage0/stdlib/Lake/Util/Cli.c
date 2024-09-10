@@ -58,7 +58,7 @@ LEAN_EXPORT lean_object* l_Lake_collectArgs___rarg(lean_object*, lean_object*, l
 LEAN_EXPORT lean_object* l_Lake_processLeadingOption___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ArgsT_run___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_collectArgs___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ArgsT_run_x27___rarg___lambda__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_processOptions___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_shortOptionWithSpace___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1952,7 +1952,7 @@ LEAN_EXPORT lean_object* l_Lake_processOptions___rarg___lambda__1(lean_object* x
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_array_to_list(lean_box(0), x_2);
+x_3 = lean_array_to_list(x_2);
 x_4 = lean_ctor_get(x_1, 1);
 lean_inc(x_4);
 lean_dec(x_1);

@@ -124,7 +124,7 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_panic___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__2___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Constructions_BRecOn_0__Lean_buildBelowMinorPremise___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBRecOnFromRec___lambda__3___boxed(lean_object**);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Constructions_BRecOn_0__Lean_etaPProd___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBRecOnFromRec___spec__1___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1024,7 +1024,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Constructions_BRecOn_0__Lean_buil
 _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_10 = lean_array_to_list(lean_box(0), x_3);
+x_10 = lean_array_to_list(x_3);
 x_11 = l___private_Lean_Meta_Constructions_BRecOn_0__Lean_buildBelowMinorPremise___lambda__1___closed__1;
 x_12 = l___private_Lean_Meta_Constructions_BRecOn_0__Lean_buildBelowMinorPremise_go(x_1, x_2, x_11, x_10, x_5, x_6, x_7, x_8, x_9);
 return x_12;
@@ -4657,7 +4657,7 @@ x_28 = l_Lean_Expr_withAppAux___at___private_Lean_Meta_Constructions_BRecOn_0__L
 x_29 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_29, 0, x_27);
 lean_ctor_set(x_29, 1, x_28);
-x_30 = lean_array_to_list(lean_box(0), x_2);
+x_30 = lean_array_to_list(x_2);
 x_31 = lean_box(0);
 x_32 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExpr___spec__1(x_30, x_31);
 x_33 = l_Lean_MessageData_ofList(x_32);
@@ -5407,7 +5407,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Constructions_BRecOn_0__Lean_buil
 _start:
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_12 = lean_array_to_list(lean_box(0), x_5);
+x_12 = lean_array_to_list(x_5);
 x_13 = l___private_Lean_Meta_Constructions_BRecOn_0__Lean_buildBelowMinorPremise___lambda__1___closed__1;
 x_14 = l___private_Lean_Meta_Constructions_BRecOn_0__Lean_buildBRecOnMinorPremise_go(x_1, x_2, x_3, x_4, x_6, x_13, x_12, x_7, x_8, x_9, x_10, x_11);
 return x_14;
@@ -8068,7 +8068,7 @@ x_122 = l___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBRecOnFromRec___lam
 x_123 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_123, 0, x_121);
 lean_ctor_set(x_123, 1, x_122);
-x_124 = lean_array_to_list(lean_box(0), x_32);
+x_124 = lean_array_to_list(x_32);
 x_125 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExpr___spec__1(x_124, x_12);
 x_126 = l_Lean_MessageData_ofList(x_125);
 x_127 = lean_alloc_ctor(7, 2, 0);
@@ -8125,7 +8125,7 @@ x_137 = l___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBRecOnFromRec___lam
 x_138 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_138, 0, x_136);
 lean_ctor_set(x_138, 1, x_137);
-x_139 = lean_array_to_list(lean_box(0), x_32);
+x_139 = lean_array_to_list(x_32);
 x_140 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExpr___spec__1(x_139, x_12);
 x_141 = l_Lean_MessageData_ofList(x_140);
 x_142 = lean_alloc_ctor(7, 2, 0);

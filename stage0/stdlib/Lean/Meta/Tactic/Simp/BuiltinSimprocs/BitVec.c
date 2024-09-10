@@ -13122,7 +13122,7 @@ static lean_object* _init_l_BitVec_reduceGetLsb___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("getLsb", 6, 6);
+x_1 = lean_mk_string_unchecked("getLsbD", 7, 7);
 return x_1;
 }
 }
@@ -13578,7 +13578,7 @@ static lean_object* _init_l_BitVec_reduceGetMsb___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("getMsb", 6, 6);
+x_1 = lean_mk_string_unchecked("getMsbD", 7, 7);
 return x_1;
 }
 }

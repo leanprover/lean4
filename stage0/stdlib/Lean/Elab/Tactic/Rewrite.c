@@ -110,7 +110,7 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getMainTarget(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Tactic_withRWRulesSeq___spec__1___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalRewriteSeq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Tactic_withRWRulesSeq___spec__1___closed__2;
 lean_object* l_Lean_Elab_withInfoTreeContext___at_Lean_Elab_Term_runTactic___spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
@@ -1315,7 +1315,7 @@ x_23 = lean_array_get_size(x_22);
 x_24 = lean_unsigned_to_nat(1u);
 x_25 = lean_nat_dec_eq(x_23, x_24);
 lean_dec(x_23);
-x_26 = lean_array_to_list(lean_box(0), x_22);
+x_26 = lean_array_to_list(x_22);
 if (x_25 == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
@@ -1630,7 +1630,7 @@ x_92 = lean_array_get_size(x_91);
 x_93 = lean_unsigned_to_nat(1u);
 x_94 = lean_nat_dec_eq(x_92, x_93);
 lean_dec(x_92);
-x_95 = lean_array_to_list(lean_box(0), x_91);
+x_95 = lean_array_to_list(x_91);
 if (x_94 == 0)
 {
 lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; 
@@ -2018,7 +2018,7 @@ x_22 = lean_array_get_size(x_21);
 x_23 = lean_unsigned_to_nat(1u);
 x_24 = lean_nat_dec_eq(x_22, x_23);
 lean_dec(x_22);
-x_25 = lean_array_to_list(lean_box(0), x_21);
+x_25 = lean_array_to_list(x_21);
 if (x_24 == 0)
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
@@ -2333,7 +2333,7 @@ x_91 = lean_array_get_size(x_90);
 x_92 = lean_unsigned_to_nat(1u);
 x_93 = lean_nat_dec_eq(x_91, x_92);
 lean_dec(x_91);
-x_94 = lean_array_to_list(lean_box(0), x_90);
+x_94 = lean_array_to_list(x_90);
 if (x_93 == 0)
 {
 lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; 

@@ -57,7 +57,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_tacticDocsOnTactics___elambda_
 LEAN_EXPORT uint8_t l_Array_qsort_sort___at_Lean_Parser_Tactic_Doc_allTags___spec__4___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_3642____spec__3___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_825____closed__18;
-lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
+lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_253____closed__3;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Parser_Tactic_Doc_allTags___spec__2___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
@@ -223,7 +223,7 @@ extern lean_object* l_Lean_Parser_parserExtension;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2839____lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_3642____closed__5;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_getTacticExtensions(lean_object*, lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2839____spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_MessageData_hasTag(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2839____lambda__2___closed__2;
@@ -5772,14 +5772,15 @@ return x_2;
 LEAN_EXPORT uint8_t l_Array_qsort_sort___at_Lean_Parser_Tactic_Doc_allTags___spec__4___lambda__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8_t x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+uint8_t x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_3 = 1;
-x_4 = l_Lean_Name_toString(x_1, x_3);
-x_5 = l_Lean_Name_toString(x_2, x_3);
-x_6 = lean_string_dec_lt(x_4, x_5);
+x_4 = l_Lean_Parser_Tactic_Doc_isTactic___closed__5;
+x_5 = l_Lean_Name_toString(x_1, x_3, x_4);
+x_6 = l_Lean_Name_toString(x_2, x_3, x_4);
+x_7 = lean_string_dec_lt(x_5, x_6);
+lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
-return x_6;
+return x_7;
 }
 }
 static lean_object* _init_l_Array_qsort_sort___at_Lean_Parser_Tactic_Doc_allTags___spec__4___closed__1() {
@@ -5850,7 +5851,7 @@ lean_dec(x_6);
 x_9 = lean_unsigned_to_nat(0u);
 x_10 = l_Array_qsort_sort___at_Lean_Parser_Tactic_Doc_allTags___spec__4(x_5, x_9, x_8);
 lean_dec(x_8);
-x_11 = lean_array_to_list(lean_box(0), x_10);
+x_11 = lean_array_to_list(x_10);
 x_12 = lean_apply_2(x_4, lean_box(0), x_11);
 return x_12;
 }
@@ -6330,20 +6331,21 @@ return x_2;
 LEAN_EXPORT uint8_t l_Array_qsort_sort___at_Lean_Parser_Tactic_Doc_allTagsWithInfo___spec__4___lambda__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
+lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 lean_dec(x_1);
 x_4 = 1;
-x_5 = l_Lean_Name_toString(x_3, x_4);
-x_6 = lean_ctor_get(x_2, 0);
-lean_inc(x_6);
+x_5 = l_Lean_Parser_Tactic_Doc_isTactic___closed__5;
+x_6 = l_Lean_Name_toString(x_3, x_4, x_5);
+x_7 = lean_ctor_get(x_2, 0);
+lean_inc(x_7);
 lean_dec(x_2);
-x_7 = l_Lean_Name_toString(x_6, x_4);
-x_8 = lean_string_dec_lt(x_5, x_7);
-lean_dec(x_7);
-lean_dec(x_5);
-return x_8;
+x_8 = l_Lean_Name_toString(x_7, x_4, x_5);
+x_9 = lean_string_dec_lt(x_6, x_8);
+lean_dec(x_8);
+lean_dec(x_6);
+return x_9;
 }
 }
 static lean_object* _init_l_Array_qsort_sort___at_Lean_Parser_Tactic_Doc_allTagsWithInfo___spec__4___closed__1() {
@@ -6415,7 +6417,7 @@ lean_dec(x_7);
 x_10 = lean_unsigned_to_nat(0u);
 x_11 = l_Array_qsort_sort___at_Lean_Parser_Tactic_Doc_allTagsWithInfo___spec__4(x_6, x_10, x_9);
 lean_dec(x_9);
-x_12 = lean_array_to_list(lean_box(0), x_11);
+x_12 = lean_array_to_list(x_11);
 x_13 = lean_apply_2(x_4, lean_box(0), x_12);
 return x_13;
 }
@@ -7196,7 +7198,7 @@ lean_dec(x_24);
 x_27 = lean_unsigned_to_nat(0u);
 x_28 = l_Array_qsort_sort___at_Lean_Parser_Tactic_Doc_allTags___spec__4(x_23, x_27, x_26);
 lean_dec(x_26);
-x_29 = lean_array_to_list(lean_box(0), x_28);
+x_29 = lean_array_to_list(x_28);
 lean_ctor_set(x_20, 0, x_29);
 return x_20;
 }
@@ -7216,7 +7218,7 @@ lean_dec(x_33);
 x_36 = lean_unsigned_to_nat(0u);
 x_37 = l_Array_qsort_sort___at_Lean_Parser_Tactic_Doc_allTags___spec__4(x_32, x_36, x_35);
 lean_dec(x_35);
-x_38 = lean_array_to_list(lean_box(0), x_37);
+x_38 = lean_array_to_list(x_37);
 x_39 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_39, 0, x_38);
 lean_ctor_set(x_39, 1, x_31);
@@ -9842,7 +9844,7 @@ lean_dec(x_4);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_7 = lean_array_to_list(lean_box(0), x_3);
+x_7 = lean_array_to_list(x_3);
 x_8 = lean_box(0);
 x_9 = l_List_mapTR_loop___at_Lean_Parser_Tactic_Doc_getTacticExtensionString___spec__1(x_7, x_8);
 x_10 = l_Lean_logAt___at_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_825____spec__1___lambda__1___closed__1;

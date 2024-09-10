@@ -28,6 +28,7 @@ static lean_object* l___private_Lean_Compiler_NameMangling_0__String_mangleAux__
 LEAN_EXPORT lean_object* l_List_foldl___at___private_Lean_Compiler_NameMangling_0__String_mangleAux___spec__2(lean_object*, lean_object*);
 static lean_object* l_String_mangle___closed__1;
 static lean_object* l___private_Lean_Compiler_NameMangling_0__String_mangleAux___closed__3;
+lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 lean_object* l_Nat_toDigits(lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -43,7 +44,6 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_name_mangle(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_String_mangle(lean_object*);
-lean_object* l_List_length___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_repeatTR_loop___at___private_Lean_Compiler_NameMangling_0__String_mangleAux___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -339,7 +339,7 @@ x_20 = l___private_Lean_Compiler_NameMangling_0__String_mangleAux___closed__1;
 x_21 = lean_string_append(x_3, x_20);
 x_22 = lean_unsigned_to_nat(16u);
 x_23 = l_Nat_toDigits(x_22, x_15);
-x_24 = l_List_length___rarg(x_23);
+x_24 = l_List_lengthTRAux___rarg(x_23, x_4);
 x_25 = lean_unsigned_to_nat(8u);
 x_26 = lean_nat_sub(x_25, x_24);
 lean_dec(x_24);

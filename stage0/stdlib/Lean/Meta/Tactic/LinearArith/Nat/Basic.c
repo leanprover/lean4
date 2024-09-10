@@ -128,7 +128,7 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Linear_Nat_ToLinear_toLinearExpr_visit___closed__16;
 LEAN_EXPORT lean_object* l_Prod_repr___at___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__Lean_Meta_Linear_Nat_reprPolyCnstr____x40_Lean_Meta_Tactic_LinearArith_Nat_Basic___hyg_358____spec__3(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__Lean_Meta_Linear_Nat_reprExpr____x40_Lean_Meta_Tactic_LinearArith_Nat_Basic___hyg_4____closed__3;
 lean_object* l_Lean_Expr_appFnCleanup(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Nat_LinearExpr_toArith(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7039,7 +7039,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Nat_toContextExpr(lean_object* x_1, 
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_7 = lean_array_to_list(lean_box(0), x_1);
+x_7 = lean_array_to_list(x_1);
 x_8 = l_Lean_Meta_Linear_Nat_toContextExpr___closed__1;
 x_9 = l_Lean_Meta_mkListLit(x_8, x_7, x_2, x_3, x_4, x_5, x_6);
 return x_9;

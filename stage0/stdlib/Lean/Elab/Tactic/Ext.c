@@ -401,7 +401,7 @@ static lean_object* l_Lean_Elab_Tactic_Ext_applyExtTheoremAt___lambda__3___close
 static lean_object* l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_3768____closed__6;
 lean_object* l_Lean_Syntax_getOptional_x3f(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 lean_object* l_ReaderT_instApplicativeOfMonad___rarg(lean_object*);
 lean_object* l_Lean_Meta_mkEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_Ext_applyExtTheoremAt___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2813,7 +2813,7 @@ lean_inc(x_33);
 x_34 = lean_ctor_get(x_32, 1);
 lean_inc(x_34);
 lean_dec(x_32);
-x_35 = lean_array_to_list(lean_box(0), x_33);
+x_35 = lean_array_to_list(x_33);
 x_36 = l_Lean_mkAndN(x_35);
 x_37 = l_Array_toSubarray___rarg(x_2, x_23, x_15);
 x_38 = lean_ctor_get(x_37, 2);
@@ -8989,7 +8989,7 @@ lean_dec(x_32);
 if (x_33 == 0)
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; uint8_t x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; 
-x_34 = lean_array_to_list(lean_box(0), x_31);
+x_34 = lean_array_to_list(x_31);
 x_35 = l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_reprExtTheorem____x40_Lean_Elab_Tactic_Ext___hyg_3191____closed__20;
 x_36 = l_Std_Format_joinSep___at___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_reprExtTheorem____x40_Lean_Elab_Tactic_Ext___hyg_3191____spec__2(x_34, x_35);
 x_37 = l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_reprExtTheorem____x40_Lean_Elab_Tactic_Ext___hyg_3191____closed__24;
@@ -19685,7 +19685,7 @@ size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_1
 x_12 = lean_array_size(x_1);
 x_13 = 0;
 x_14 = l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_Ext_evalExt___spec__1(x_12, x_13, x_1);
-x_15 = lean_array_to_list(lean_box(0), x_14);
+x_15 = lean_array_to_list(x_14);
 x_16 = l_Lean_Elab_Tactic_replaceMainGoal(x_15, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 return x_16;
 }
@@ -19853,7 +19853,7 @@ block_88:
 {
 lean_object* x_21; uint8_t x_22; lean_object* x_23; 
 lean_inc(x_17);
-x_21 = lean_array_to_list(lean_box(0), x_17);
+x_21 = lean_array_to_list(x_17);
 x_22 = 1;
 lean_inc(x_11);
 lean_inc(x_10);
@@ -19934,7 +19934,7 @@ x_43 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_43, 0, x_41);
 lean_ctor_set(x_43, 1, x_42);
 lean_ctor_set(x_43, 2, x_40);
-x_44 = lean_array_to_list(lean_box(0), x_40);
+x_44 = lean_array_to_list(x_40);
 x_45 = l_Lean_Elab_Tactic_Ext_evalExt___lambda__2___closed__4;
 x_46 = l_List_mapTR_loop___at_Lean_Elab_Tactic_Ext_evalExt___spec__2(x_45, x_44, x_13);
 x_47 = l_Lean_MessageData_ofList(x_46);
@@ -20029,7 +20029,7 @@ x_71 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_71, 0, x_69);
 lean_ctor_set(x_71, 1, x_70);
 lean_ctor_set(x_71, 2, x_68);
-x_72 = lean_array_to_list(lean_box(0), x_68);
+x_72 = lean_array_to_list(x_68);
 x_73 = l_Lean_Elab_Tactic_Ext_evalExt___lambda__2___closed__4;
 x_74 = l_List_mapTR_loop___at_Lean_Elab_Tactic_Ext_evalExt___spec__2(x_73, x_72, x_13);
 x_75 = l_Lean_MessageData_ofList(x_74);

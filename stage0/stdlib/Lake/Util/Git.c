@@ -46,8 +46,11 @@ static lean_object* l_Lake_GitRepo_checkoutDetach___closed__3;
 static lean_object* l_Lake_GitRepo_branchExists___closed__4;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_GitRepo_resolveRemoteRevision(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lake_GitRepo_getTags___closed__2;
 static lean_object* l_Lake_GitRepo_quietInit___closed__1;
 static lean_object* l_Lake_GitRepo_quietInit___closed__3;
+static lean_object* l_Lake_GitRepo_getTags___closed__3;
+lean_object* l_String_split___at_Lean_stringToMessageData___spec__1(lean_object*);
 lean_object* l_Lake_captureProc_x3f(lean_object*, lean_object*);
 static lean_object* l_Lake_GitRepo_clone___closed__2;
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
@@ -56,6 +59,7 @@ static lean_object* l_Lake_GitRepo_fetch___closed__6;
 static lean_object* l_Lake_GitRepo_fetch___closed__4;
 static lean_object* l_Lake_GitRepo_clone___closed__1;
 lean_object* l_System_FilePath_isDir(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instCoeFilePathGitRepo(lean_object*);
 static lean_object* l_Lake_GitRepo_fetch___closed__5;
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Lake_GitRepo_branchExists___boxed(lean_object*, lean_object*, lean_object*);
@@ -98,6 +102,7 @@ LEAN_EXPORT lean_object* l_Lake_GitRepo_findTag_x3f(lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_Lake_GitRepo_checkoutDetach(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_GitRepo_getHeadRevision_x3f(lean_object*, lean_object*);
 static lean_object* l_Lake_Git_filterUrl_x3f___closed__6;
+static lean_object* l_Lake_GitRepo_getTags___closed__1;
 LEAN_EXPORT lean_object* l_Lake_GitRepo_getHeadRevision___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToStringGitRepo___boxed(lean_object*);
 static lean_object* l_Lake_Git_filterUrl_x3f___closed__3;
@@ -108,6 +113,7 @@ static lean_object* l_Lake_GitRepo_resolveRemoteRevision___lambda__1___closed__1
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lake_GitRepo_getHeadRevision___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lake_GitRepo_execGit(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instCoeFilePathGitRepo___boxed(lean_object*);
 static lean_object* l_Lake_Git_filterUrl_x3f___closed__7;
 static lean_object* l_Lake_GitRepo_resolveRemoteRevision___lambda__1___closed__2;
 static lean_object* l_Lake_GitRepo_resolveRevision_x3f___closed__6;
@@ -129,6 +135,7 @@ uint8_t l_Substring_beq(lean_object*, lean_object*);
 static lean_object* l_Lake_GitRepo_getHeadRevision___lambda__1___closed__1;
 static lean_object* l_Lake_GitRepo_resolveRevision_x3f___closed__2;
 static lean_object* l_Lake_GitRepo_checkoutDetach___closed__2;
+LEAN_EXPORT lean_object* l_Lake_GitRepo_getTags(lean_object*, lean_object*);
 static lean_object* l_Lake_GitRepo_resolveRevision_x3f___closed__5;
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lake_Git_filterUrl_x3f___closed__8;
@@ -490,6 +497,22 @@ x_2 = l_Lake_Git_isFullObjectName(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instCoeFilePathGitRepo(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instCoeFilePathGitRepo___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lake_instCoeFilePathGitRepo(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_instToStringGitRepo(lean_object* x_1) {
@@ -1706,6 +1729,115 @@ x_14 = l_Lake_testProc(x_13, x_3);
 return x_14;
 }
 }
+static lean_object* _init_l_Lake_GitRepo_getTags___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(1u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lake_GitRepo_getTags___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("tag", 3, 3);
+return x_1;
+}
+}
+static lean_object* _init_l_Lake_GitRepo_getTags___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lake_GitRepo_getTags___closed__1;
+x_2 = l_Lake_GitRepo_getTags___closed__2;
+x_3 = lean_array_push(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_GitRepo_getTags(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_3 = lean_box(0);
+x_4 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_4, 0, x_1);
+x_5 = l_Lake_GitRepo_captureGit_x3f___closed__1;
+x_6 = l_Lake_Git_filterUrl_x3f___closed__1;
+x_7 = l_Lake_GitRepo_getTags___closed__3;
+x_8 = l_Lake_GitRepo_captureGit_x3f___closed__2;
+x_9 = 0;
+x_10 = lean_alloc_ctor(0, 5, 1);
+lean_ctor_set(x_10, 0, x_5);
+lean_ctor_set(x_10, 1, x_6);
+lean_ctor_set(x_10, 2, x_7);
+lean_ctor_set(x_10, 3, x_4);
+lean_ctor_set(x_10, 4, x_8);
+lean_ctor_set_uint8(x_10, sizeof(void*)*5, x_9);
+x_11 = l_Lake_captureProc_x3f(x_10, x_2);
+x_12 = lean_ctor_get(x_11, 0);
+lean_inc(x_12);
+if (lean_obj_tag(x_12) == 0)
+{
+uint8_t x_13; 
+x_13 = !lean_is_exclusive(x_11);
+if (x_13 == 0)
+{
+lean_object* x_14; 
+x_14 = lean_ctor_get(x_11, 0);
+lean_dec(x_14);
+lean_ctor_set(x_11, 0, x_3);
+return x_11;
+}
+else
+{
+lean_object* x_15; lean_object* x_16; 
+x_15 = lean_ctor_get(x_11, 1);
+lean_inc(x_15);
+lean_dec(x_11);
+x_16 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_16, 0, x_3);
+lean_ctor_set(x_16, 1, x_15);
+return x_16;
+}
+}
+else
+{
+uint8_t x_17; 
+x_17 = !lean_is_exclusive(x_11);
+if (x_17 == 0)
+{
+lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+x_18 = lean_ctor_get(x_11, 0);
+lean_dec(x_18);
+x_19 = lean_ctor_get(x_12, 0);
+lean_inc(x_19);
+lean_dec(x_12);
+x_20 = l_String_split___at_Lean_stringToMessageData___spec__1(x_19);
+lean_dec(x_19);
+lean_ctor_set(x_11, 0, x_20);
+return x_11;
+}
+else
+{
+lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
+x_21 = lean_ctor_get(x_11, 1);
+lean_inc(x_21);
+lean_dec(x_11);
+x_22 = lean_ctor_get(x_12, 0);
+lean_inc(x_22);
+lean_dec(x_12);
+x_23 = l_String_split___at_Lean_stringToMessageData___spec__1(x_22);
+lean_dec(x_22);
+x_24 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_24, 0, x_23);
+lean_ctor_set(x_24, 1, x_21);
+return x_24;
+}
+}
+}
+}
 static lean_object* _init_l_Lake_GitRepo_findTag_x3f___closed__1() {
 _start:
 {
@@ -2242,6 +2374,12 @@ l_Lake_GitRepo_revisionExists___closed__2 = _init_l_Lake_GitRepo_revisionExists_
 lean_mark_persistent(l_Lake_GitRepo_revisionExists___closed__2);
 l_Lake_GitRepo_revisionExists___closed__3 = _init_l_Lake_GitRepo_revisionExists___closed__3();
 lean_mark_persistent(l_Lake_GitRepo_revisionExists___closed__3);
+l_Lake_GitRepo_getTags___closed__1 = _init_l_Lake_GitRepo_getTags___closed__1();
+lean_mark_persistent(l_Lake_GitRepo_getTags___closed__1);
+l_Lake_GitRepo_getTags___closed__2 = _init_l_Lake_GitRepo_getTags___closed__2();
+lean_mark_persistent(l_Lake_GitRepo_getTags___closed__2);
+l_Lake_GitRepo_getTags___closed__3 = _init_l_Lake_GitRepo_getTags___closed__3();
+lean_mark_persistent(l_Lake_GitRepo_getTags___closed__3);
 l_Lake_GitRepo_findTag_x3f___closed__1 = _init_l_Lake_GitRepo_findTag_x3f___closed__1();
 lean_mark_persistent(l_Lake_GitRepo_findTag_x3f___closed__1);
 l_Lake_GitRepo_findTag_x3f___closed__2 = _init_l_Lake_GitRepo_findTag_x3f___closed__2();

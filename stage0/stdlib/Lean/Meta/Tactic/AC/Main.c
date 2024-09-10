@@ -148,7 +148,7 @@ static lean_object* l_Lean_Meta_AC_initFn____x40_Lean_Meta_Tactic_AC_Main___hyg_
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at_Lean_Meta_AC_toACExpr___spec__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkAppM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_AC_buildNormProof_mkContext___closed__1;
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_AC_buildNormProof_convertTarget(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_AC_removeNeutrals_loop___at_Lean_Meta_AC_buildNormProof___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_withContext___at_Lean_Elab_Tactic_withMainContext___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3984,7 +3984,7 @@ if (x_24 == 0)
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
 x_25 = lean_ctor_get(x_23, 0);
 x_26 = lean_ctor_get(x_23, 1);
-x_27 = lean_array_to_list(lean_box(0), x_26);
+x_27 = lean_array_to_list(x_26);
 x_28 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_28, 0, x_3);
 lean_ctor_set(x_28, 1, x_13);
@@ -4252,7 +4252,7 @@ x_123 = lean_ctor_get(x_23, 1);
 lean_inc(x_123);
 lean_inc(x_122);
 lean_dec(x_23);
-x_124 = lean_array_to_list(lean_box(0), x_123);
+x_124 = lean_array_to_list(x_123);
 x_125 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_125, 0, x_3);
 lean_ctor_set(x_125, 1, x_13);

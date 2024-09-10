@@ -183,7 +183,7 @@ static lean_object* l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_reprSimpCongrTheorem____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems___hyg_53____spec__2(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 static lean_object* l_List_repr___at___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_reprSimpCongrTheorems____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems___hyg_185____spec__11___closed__4;
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_reprSimpCongrTheorems____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems___hyg_185____spec__6(lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_SimpCongrTheorems_lemmas___default___closed__5;
@@ -923,7 +923,7 @@ lean_ctor_set_uint8(x_39, sizeof(void*)*1, x_8);
 if (x_33 == 0)
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; uint8_t x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; 
-x_40 = lean_array_to_list(lean_box(0), x_31);
+x_40 = lean_array_to_list(x_31);
 x_41 = l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_reprSimpCongrTheorem____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems___hyg_53____closed__25;
 x_42 = l_Std_Format_joinSep___at___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_reprSimpCongrTheorem____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems___hyg_53____spec__2(x_40, x_41);
 x_43 = l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_reprSimpCongrTheorem____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems___hyg_53____closed__29;

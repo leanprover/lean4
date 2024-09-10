@@ -1631,12 +1631,41 @@ theorem ofInt_mul {n} (x y : Int) : BitVec.ofInt n (x * y) =
 @[simp] theorem ofNat_lt_ofNat {n} (x y : Nat) : BitVec.ofNat n x < BitVec.ofNat n y ↔ x % 2^n < y % 2^n := by
   simp [lt_def]
 
-protected theorem lt_of_le_ne (x y : BitVec n) (h1 : x <= y) (h2 : ¬ x = y) : x < y := by
-  revert h1 h2
-  let ⟨x, lt⟩ := x
-  let ⟨y, lt⟩ := y
-  simp
-  exact Nat.lt_of_le_of_ne
+@[simp] protected theorem not_le {x y : BitVec n} : ¬ x ≤ y ↔ y < x := by
+  simp [le_def, lt_def]
+
+@[simp] protected theorem not_lt {x y : BitVec n} : ¬ x < y ↔ y ≤ x := by
+  simp [le_def, lt_def]
+
+@[simp] protected theorem le_refl (x : BitVec n) : x ≤ x := by
+  simp [le_def]
+
+@[simp] protected theorem lt_irrefl (x : BitVec n) : ¬x < x := by
+  simp [lt_def]
+
+protected theorem le_trans {x y z : BitVec n} : x ≤ y → y ≤ z → x ≤ z := by
+  simp only [le_def]
+  apply Nat.le_trans
+
+protected theorem lt_trans {x y z : BitVec n} : x < y → y < z → x < z := by
+  simp only [lt_def]
+  apply Nat.lt_trans
+
+protected theorem le_total (x y : BitVec n) : x ≤ y ∨ y ≤ x := by
+  simp only [le_def]
+  apply Nat.le_total
+
+protected theorem le_antisymm {x y : BitVec n} : x ≤ y → y ≤ x → x = y := by
+  simp only [le_def, BitVec.toNat_eq]
+  apply Nat.le_antisymm
+
+protected theorem lt_asymm {x y : BitVec n} : x < y → ¬ y < x := by
+  simp only [lt_def]
+  apply Nat.lt_asymm
+
+protected theorem lt_of_le_ne {x y : BitVec n} : x ≤ y → ¬ x = y → x < y := by
+  simp only [lt_def, le_def, BitVec.toNat_eq]
+  apply Nat.lt_of_le_of_ne
 
 /-! ### ofBoolList -/
 

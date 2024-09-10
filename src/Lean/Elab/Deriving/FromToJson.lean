@@ -180,7 +180,7 @@ def mkFromJsonBody (ctx : Context) (e : Expr) : TermElabM Term := do
 def mkFromJsonAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
   let auxFunName := ctx.auxFunNames[i]!
   let indval     := ctx.typeInfos[i]!
-  let header     ←  mkFromJsonHeader indval --TODO fix header info
+  let header     ←  mkFromJsonHeader indval
   let binders    := header.binders
   Term.elabBinders binders fun _ => do
   let type ← Term.elabTerm header.targetType none

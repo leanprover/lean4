@@ -675,9 +675,26 @@ private def findCompletionInfoAt?
   match infoTree.foldInfo (init := none) (choose hoverLine) with
   | some (hoverInfo, ctx, Info.ofCompletionInfo info) =>
     some (hoverInfo, ctx, info)
-  | _ =>
-    -- TODO try to extract id from `fileMap` and some `ContextInfo` from `InfoTree`
-    none
+  | _ => do
+    -- Find some context containing `hoverPos` since we just need the syntax surrounding `hoverPos`.
+    let some (ctx, info) := infoTree.findInfoWithContext? (fun _ i => i.contains hoverPos (includeStop := true))
+      | none
+    let fullCompletionFallback := (HoverInfo.after, ctx, .id .missing (.str .anonymous "") false .empty none)
+    let some stack := info.stx.findStack? (·.getRange?.any (·.contains hoverPos (includeStop := true)))
+      | return fullCompletionFallback
+    let some (stx, id, danglingDot) := stack.findSome? fun (stx, _) =>
+        match stx with
+        | `($id:ident) => some (stx, id.getId, false)
+        | `($id:ident.) => some (stx, id.getId, true)
+        | _ => none
+      | return fullCompletionFallback
+    let tailPos := stx.getTailPos?.get!
+    let hoverInfo :=
+      if hoverPos < tailPos then
+        HoverInfo.inside (tailPos - hoverPos).byteIdx
+      else
+        HoverInfo.after
+    some (hoverInfo, ctx, .id stx id danglingDot .empty none)
 where
   choose
       (hoverLine : Nat)

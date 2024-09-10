@@ -104,6 +104,12 @@ theorem UInt32.toNat_lt_of_lt {n : UInt32} {m : Nat} (h : n < OfNat.ofNat m) :
 theorem UInt32.lt_toNat_of_lt {n : UInt32} {m : Nat} (h : OfNat.ofNat m < n) :
     m < n.toNat := sorry
 
+theorem UInt32.toNat_le_of_le {n : UInt32} {m : Nat} (h : n ≤ OfNat.ofNat m) :
+    n.toNat ≤ m := sorry
+
+theorem UInt32.le_toNat_of_le {n : UInt32} {m : Nat} (h : OfNat.ofNat m ≤ n) :
+    m ≤ n.toNat := sorry
+
 @[deprecated (since := "2024-06-23")] protected abbrev UInt8.zero_toNat := @UInt8.toNat_zero
 @[deprecated (since := "2024-06-23")] protected abbrev UInt8.div_toNat := @UInt8.toNat_div
 @[deprecated (since := "2024-06-23")] protected abbrev UInt8.mod_toNat := @UInt8.toNat_mod

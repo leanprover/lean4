@@ -58,7 +58,7 @@ def utf8DecodeChar? (a : ByteArray) (i : Nat) : Option Char := do
       ((c2 &&& 0x3f).toUInt32 <<< 6) |||
       (c3 &&& 0x3f).toUInt32
     if h : 0x10000 ≤ r ∧ r < 0x110000 then
-      some ⟨r, .inr ⟨UInt32.lt_toNat_of_lt sorry, UInt32.toNat_lt_of_lt h.right⟩⟩
+      some ⟨r, .inr ⟨Nat.lt_of_lt_of_le (by decide) (UInt32.le_toNat_of_le h.left), UInt32.toNat_lt_of_lt h.right⟩⟩
     else none
   else
     none

@@ -539,7 +539,7 @@ theorem findIdx_lt_length {p : α → Bool} {xs : List α} :
 
 /-- `p` does not hold for elements with indices less than `xs.findIdx p`. -/
 theorem not_of_lt_findIdx {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs.findIdx p) :
-    p (xs[i]'(Nat.le_trans h (findIdx_le_length p))) = false:= by
+    p (xs[i]'(Nat.le_trans h (findIdx_le_length p))) = false := by
   revert i
   induction xs with
   | nil => intro i h; rw [findIdx_nil] at h; simp at h

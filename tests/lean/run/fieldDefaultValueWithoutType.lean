@@ -5,7 +5,7 @@ structure S :=
 def f (s : S) : Bool :=
 s.x
 
-#eval f {}
+#guard f {}
 
 theorem ex : f {} = true :=
 rfl

@@ -181,16 +181,6 @@ bool has_and_decls(environment const & env) {
     return has_constructor(env, get_and_intro_name(), get_and_name(), 4);
 }
 
-/* n is considered to be recursive if it is an inductive datatype and
-   1) It has a constructor that takes n as an argument
-   2) It is part of a mutually recursive declaration, and some constructor
-      of an inductive datatype takes another inductive datatype from the
-      same declaration as an argument. */
-bool is_recursive_datatype(environment const & env, name const & n) {
-    constant_info info = env.get(n);
-    return info.is_inductive() && info.to_inductive_val().is_rec();
-}
-
 static name * g_util_fresh = nullptr;
 
 level get_datatype_level(environment const & env, expr const & ind_type) {

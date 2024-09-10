@@ -7,8 +7,6 @@ prelude
 import Init.Data.Ord
 namespace Lean
 
-instance : Coe String Name := ⟨Name.mkSimple⟩
-
 namespace Name
 -- Remark: we export the `Name.hash` to make sure it matches the hash implemented in C++
 @[export lean_name_hash_exported] def hashEx : Name → UInt64 :=
@@ -121,6 +119,26 @@ def isInternalOrNum : Name → Bool
   | .str p s => s.get 0 == '_' || isInternalOrNum p
   | .num _ _ => true
   | _       => false
+
+/--
+Returns true if this a part of name that is internal or dynamically
+generated so that it may easily be changed.
+
+Generally, user code should not explicitly use internal names.
+-/
+def isInternalDetail : Name → Bool
+  | .str p s     =>
+    s.startsWith "_"
+      || matchPrefix s "eq_"
+      || matchPrefix s "match_"
+      || matchPrefix s "proof_"
+      || p.isInternalOrNum
+  | .num _ _     => true
+  | p            => p.isInternalOrNum
+where
+  /-- Check that a string begins with the given prefix, and then is only digit characters. -/
+  matchPrefix (s : String) (pre : String) :=
+    s.startsWith pre && (s |>.drop pre.length |>.all Char.isDigit)
 
 /--
 Checks whether the name is an implementation-detail hypothesis name.

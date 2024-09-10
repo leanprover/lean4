@@ -10,12 +10,6 @@ import Lean.Meta.Tactic.Apply
 
 namespace Lean.Meta
 
-private def useKernel (lhs rhs : Expr) : MetaM Bool := do
-  if lhs.hasFVar || lhs.hasMVar || rhs.hasFVar || rhs.hasMVar then
-    return false
-  else
-    return (← getTransparency) matches TransparencyMode.default | TransparencyMode.all
-
 /--
 Close given goal using `Eq.refl`.
 
@@ -30,23 +24,12 @@ def _root_.Lean.MVarId.refl (mvarId : MVarId) : MetaM Unit := do
       throwTacticEx `rfl mvarId m!"equality expected{indentExpr targetType}"
     let lhs ← instantiateMVars targetType.appFn!.appArg!
     let rhs ← instantiateMVars targetType.appArg!
-    let success ← if (← useKernel lhs rhs) then
-      ofExceptKernelException (Kernel.isDefEq (← getEnv) {} lhs rhs)
-    else
-      isDefEq lhs rhs
+    let success ← isDefEq lhs rhs
     unless success do
       throwTacticEx `rfl mvarId m!"equality lhs{indentExpr lhs}\nis not definitionally equal to rhs{indentExpr rhs}"
     let us := targetType.getAppFn.constLevels!
     let α := targetType.appFn!.appFn!.appArg!
     mvarId.assign (mkApp2 (mkConst ``Eq.refl  us) α lhs)
-
-@[deprecated MVarId.refl]
-def refl (mvarId : MVarId) : MetaM Unit := do
-  mvarId.refl
-
-@[deprecated MVarId.refl]
-def _root_.Lean.MVarId.applyRefl (mvarId : MVarId) (msg : MessageData := "refl failed") : MetaM Unit :=
-  try mvarId.refl catch _ => throwError msg
 
 /--
 Try to apply `heq_of_eq`. If successful, then return new goal, otherwise return `mvarId`.
@@ -70,6 +53,6 @@ Close given goal using `HEq.refl`.
 def _root_.Lean.MVarId.hrefl (mvarId : MVarId) : MetaM Unit := do
   mvarId.withContext do
     let some [] ← observing? do mvarId.apply (mkConst ``HEq.refl [← mkFreshLevelMVar])
-      | throwTacticEx `hrefl mvarId ""
+      | throwTacticEx `hrefl mvarId
 
 end Lean.Meta

@@ -10,7 +10,7 @@ import Init.Control.Except
 
 universe u v
 
-instance : ToBool (Option α) := ⟨Option.toBool⟩
+instance : ToBool (Option α) := ⟨Option.isSome⟩
 
 def OptionT (m : Type u → Type v) (α : Type u) : Type v :=
   m (Option α)
@@ -67,7 +67,7 @@ instance : MonadExceptOf Unit (OptionT m) where
   throw    := fun _ => OptionT.fail
   tryCatch := OptionT.tryCatch
 
-instance (ε : Type u) [Monad m] [MonadExceptOf ε m] : MonadExceptOf ε (OptionT m) where
+instance (ε : Type u) [MonadExceptOf ε m] : MonadExceptOf ε (OptionT m) where
   throw e           := OptionT.mk <| throwThe ε e
   tryCatch x handle := OptionT.mk <| tryCatchThe ε x handle
 

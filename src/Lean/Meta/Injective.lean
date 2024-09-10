@@ -31,6 +31,35 @@ def elimOptParam (type : Expr) : CoreM Expr := do
     else
       return .continue
 
+
+/-- Returns true if `e` occurs either in `t`, or in the type of a sub-expression of `t`.
+  Consider the following example:
+  ```lean
+  inductive Tyₛ : Type (u+1)
+  | SPi : (T : Type u) -> (T -> Tyₛ) -> Tyₛ
+
+  inductive Tmₛ.{u} :  Tyₛ.{u} -> Type (u+1)
+  | app : Tmₛ (.SPi T A) -> (arg : T) -> Tmₛ (A arg)```
+  ```
+  When looking for fixed arguments in `Tmₛ.app`, if we only consider occurences in the term `Tmₛ (A arg)`,
+  `T` is considered non-fixed despite the fact that `A : T -> Tyₛ`.
+  This leads to an ill-typed injectivity theorem signature:
+  ```lean
+  theorem Tmₛ.app.inj {T : Type u} {A : T → Tyₛ} {a : Tmₛ (Tyₛ.SPi T A)} {arg : T} {T_1 : Type u} {a_1 : Tmₛ (Tyₛ.SPi T_1 A)} :
+  Tmₛ.app a arg = Tmₛ.app a_1 arg →
+    T = T_1 ∧ HEq a a_1 := fun x => Tmₛ.noConfusion x fun T_eq A_eq a_eq arg_eq => eq_of_heq a_eq
+  ```
+  Instead of checking the type of every subterm, we only need to check the type of free variables, since free variables introduced in
+  the constructor may only appear in the type of other free variables introduced after them.
+-/
+def occursOrInType (lctx : LocalContext) (e : Expr) (t : Expr) : Bool :=
+  t.find? go |>.isSome
+where
+  go s := Id.run do
+    let .fvar fvarId := s | s == e
+    let some decl := lctx.find? fvarId | s == e
+    return s == e || e.occurs decl.type
+
 private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useEq : Bool) : MetaM (Option Expr) := do
   let us := ctorVal.levelParams.map mkLevelParam
   let type ← elimOptParam ctorVal.type
@@ -58,7 +87,7 @@ private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useE
         match (← whnf type) with
         | Expr.forallE n d b _ =>
           let arg1 := args1.get ⟨i, h⟩
-          if arg1.occurs resultType then
+          if occursOrInType (← getLCtx) arg1 resultType then
             mkArgs2 (i + 1) (b.instantiate1 arg1) (args2.push arg1) args2New
           else
             withLocalDecl n (if useEq then BinderInfo.default else BinderInfo.implicit) d fun arg2 =>

@@ -26,8 +26,16 @@ abbrev LakeEnvT := ReaderT Lake.Env
   ReaderT.run self env
 
 /-- A monad equipped with a (read-only) Lake `Workspace`. -/
-abbrev MonadWorkspace (m : Type → Type u) :=
-  MonadReaderOf Workspace m
+class MonadWorkspace (m : Type → Type u) where
+  getWorkspace : m Workspace
+
+export MonadWorkspace (getWorkspace)
+
+instance [MonadReaderOf Workspace m] : MonadWorkspace m where
+  getWorkspace := read
+
+instance [MonadStateOf Workspace m] : MonadWorkspace m where
+  getWorkspace := get
 
 /-- A monad equipped with a (read-only) Lake context. -/
 abbrev MonadLake (m : Type → Type u) :=
@@ -38,31 +46,27 @@ abbrev MonadLake (m : Type → Type u) :=
   opaqueWs := ws
 
 instance [MonadWorkspace m] [Functor m] : MonadLake m where
-  read := (mkLakeContext ·) <$> read
+  read := (mkLakeContext ·) <$> getWorkspace
 
 @[inline] def Context.workspace (self : Context) :=
   self.opaqueWs.get
 
 instance [MonadLake m] [Functor m] : MonadWorkspace m where
-  read := (·.workspace) <$> read
+  getWorkspace := (·.workspace) <$> read
 
 instance [MonadWorkspace m] [Functor m] : MonadLakeEnv m where
-  read := (·.lakeEnv) <$> read
+  read := (·.lakeEnv) <$> getWorkspace
 
 section
 variable [MonadWorkspace m]
 
 /-! ## Workspace Helpers -/
 
-/-- Get the workspace of the context. -/
-@[inline] def getWorkspace : m Workspace :=
-  read
-
 variable [Functor m]
 
 /-- Get the root package of the context's workspace. -/
 @[inline] def getRootPackage : m Package :=
-  (·.root) <$> read
+  (·.root) <$> getWorkspace
 
 @[inherit_doc Workspace.findPackage?, inline]
 def findPackage? (name : Name) : m (Option (NPackage name)) :=

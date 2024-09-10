@@ -18,9 +18,7 @@ LEAN_EXPORT uint8_t l_Bool_toLBool(uint8_t);
 LEAN_EXPORT lean_object* l_Bool_toLBool___boxed(lean_object*);
 static lean_object* l_Lean_LBool_toString___closed__3;
 LEAN_EXPORT lean_object* l_Lean_LBool_toCtorIdx(uint8_t);
-LEAN_EXPORT uint8_t l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_15_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_LBool_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_15____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_toLBoolM___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_instBEqLBool___closed__1;
@@ -29,19 +27,21 @@ LEAN_EXPORT lean_object* l_Lean_LBool_noConfusion___rarg___lambda__1(lean_object
 LEAN_EXPORT lean_object* l_toLBoolM(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_LBool_noConfusion___rarg___closed__1;
-static lean_object* l_Lean_LBool_instToStringLBool___closed__1;
 LEAN_EXPORT uint8_t l_Lean_LBool_and(uint8_t, uint8_t);
+LEAN_EXPORT uint8_t l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_17_(uint8_t, uint8_t);
 LEAN_EXPORT uint8_t l_Lean_instInhabitedLBool;
 LEAN_EXPORT uint8_t l_Lean_LBool_neg(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_LBool_toString(uint8_t);
 LEAN_EXPORT lean_object* l_toLBoolM___rarg___lambda__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_LBool_toString___closed__2;
+static lean_object* l_Lean_LBool_instToString___closed__1;
+LEAN_EXPORT lean_object* l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_17____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_and___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_toString___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_neg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LBool_instToString;
 LEAN_EXPORT lean_object* l_Lean_LBool_noConfusion(lean_object*);
 static lean_object* l_Lean_LBool_toString___closed__1;
-LEAN_EXPORT lean_object* l_Lean_LBool_instToStringLBool;
 LEAN_EXPORT lean_object* l_toLBoolM___rarg___lambda__1(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_instBEqLBool;
 LEAN_EXPORT lean_object* l_Lean_LBool_toCtorIdx(uint8_t x_1) {
@@ -139,7 +139,7 @@ x_1 = 0;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_15_(uint8_t x_1, uint8_t x_2) {
+LEAN_EXPORT uint8_t l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_17_(uint8_t x_1, uint8_t x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
@@ -151,7 +151,7 @@ lean_dec(x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_15____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_17____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
@@ -159,7 +159,7 @@ x_3 = lean_unbox(x_1);
 lean_dec(x_1);
 x_4 = lean_unbox(x_2);
 lean_dec(x_2);
-x_5 = l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_15_(x_3, x_4);
+x_5 = l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_17_(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }
@@ -168,7 +168,7 @@ static lean_object* _init_l_Lean_instBEqLBool___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_15____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_17____boxed), 2, 0);
 return x_1;
 }
 }
@@ -249,7 +249,7 @@ static lean_object* _init_l_Lean_LBool_toString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("false", 5);
+x_1 = lean_mk_string_unchecked("false", 5, 5);
 return x_1;
 }
 }
@@ -257,7 +257,7 @@ static lean_object* _init_l_Lean_LBool_toString___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("true", 4);
+x_1 = lean_mk_string_unchecked("true", 4, 4);
 return x_1;
 }
 }
@@ -265,7 +265,7 @@ static lean_object* _init_l_Lean_LBool_toString___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("undef", 5);
+x_1 = lean_mk_string_unchecked("undef", 5, 5);
 return x_1;
 }
 }
@@ -304,7 +304,7 @@ x_3 = l_Lean_LBool_toString(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_LBool_instToStringLBool___closed__1() {
+static lean_object* _init_l_Lean_LBool_instToString___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -312,11 +312,11 @@ x_1 = lean_alloc_closure((void*)(l_Lean_LBool_toString___boxed), 1, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_LBool_instToStringLBool() {
+static lean_object* _init_l_Lean_LBool_instToString() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_LBool_instToStringLBool___closed__1;
+x_1 = l_Lean_LBool_instToString___closed__1;
 return x_1;
 }
 }
@@ -416,10 +416,10 @@ l_Lean_LBool_toString___closed__2 = _init_l_Lean_LBool_toString___closed__2();
 lean_mark_persistent(l_Lean_LBool_toString___closed__2);
 l_Lean_LBool_toString___closed__3 = _init_l_Lean_LBool_toString___closed__3();
 lean_mark_persistent(l_Lean_LBool_toString___closed__3);
-l_Lean_LBool_instToStringLBool___closed__1 = _init_l_Lean_LBool_instToStringLBool___closed__1();
-lean_mark_persistent(l_Lean_LBool_instToStringLBool___closed__1);
-l_Lean_LBool_instToStringLBool = _init_l_Lean_LBool_instToStringLBool();
-lean_mark_persistent(l_Lean_LBool_instToStringLBool);
+l_Lean_LBool_instToString___closed__1 = _init_l_Lean_LBool_instToString___closed__1();
+lean_mark_persistent(l_Lean_LBool_instToString___closed__1);
+l_Lean_LBool_instToString = _init_l_Lean_LBool_instToString();
+lean_mark_persistent(l_Lean_LBool_instToString);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -21,7 +21,7 @@ inductive TransformStep where
   For `pre`, this means visiting the children of the expression.
   For `post`, this is equivalent to returning `done`. -/
   | continue (e? : Option Expr := none)
-  deriving Inhabited
+  deriving Inhabited, Repr
 
 namespace Core
 
@@ -81,7 +81,7 @@ namespace Meta
   `.const f` is not visited again. Put differently: every `.const f` is visited once, with its
   arguments if present, on its own otherwise.
  -/
-partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m] [MonadTrace m] [MonadRef m] [MonadOptions m] [AddMessageContext m]
+partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
     (input : Expr)
     (pre   : Expr → m TransformStep := fun _ => return .continue)
     (post  : Expr → m TransformStep := fun e => return .done e)
@@ -150,6 +150,22 @@ def zetaReduce (e : Expr) : MetaM Expr := do
           return TransformStep.done e
     | _ => return .continue
   transform e (pre := pre) (usedLetOnly := true)
+
+/--
+Zeta reduces only the provided fvars, beta reducing the substitutions.
+-/
+def zetaDeltaFVars (e : Expr) (fvars : Array FVarId) : MetaM Expr :=
+  let unfold? (fvarId : FVarId) : MetaM (Option Expr) := do
+    if fvars.contains fvarId then
+      fvarId.getValue?
+    else
+      return none
+  let pre (e : Expr) : MetaM TransformStep := do
+    if let .fvar fvarId := e.getAppFn then
+      if let some val ← unfold? fvarId then
+        return .visit <| (← instantiateMVars val).beta e.getAppArgs
+    return .continue
+  transform e (pre := pre)
 
 /-- Unfold definitions and theorems in `e` that are not in the current environment, but are in `biggerEnv`. -/
 def unfoldDeclsFrom (biggerEnv : Environment) (e : Expr) : CoreM Expr := do

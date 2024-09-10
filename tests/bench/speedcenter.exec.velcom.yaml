@@ -6,8 +6,15 @@
       # alternative config: use `perf stat` for extended properties
       runner: perf_stat
       perf_stat:
-        properties: ['wall-clock', 'task-clock', 'instructions', 'branches', 'branch-misses']
-      rusage_properties: ['maxrss']
+        properties:
+          [
+            "wall-clock",
+            "task-clock",
+            "instructions",
+            "branches",
+            "branch-misses",
+          ]
+      rusage_properties: ["maxrss"]
   run_config:
     <<: *time
     cmd: |
@@ -24,19 +31,17 @@
   run_config:
     cwd: ../../
     cmd: |
-      bash -c "
-      set -euxo pipefail &&
-      echo -n 'lines: ' &&
+      set -euxo pipefail
+      echo -n 'lines: '
       find src -name '*.lean' -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
-      echo -n 'bytes .olean: ' &&
+      echo -n 'bytes .olean: '
       find ${BUILD:-build/release}/stage2/lib/lean -name '*.olean' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
-      echo -n 'lines C: ' &&
+      echo -n 'lines C: '
       find ${BUILD:-build/release}/stage2/lib/temp -name '*.c' -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
-      echo -n 'lines C++: ' &&
-      find src \( -name '*.h' -o -name '*.cpp' \) -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1 &&
-      echo -n 'max dynamic symbols: ' &&
-      find ${BUILD:-build/release}/stage2/lib/lean -name '*.so' -exec bash -c 'nm --dynamic --defined-only {} | wc -l' \; | sort | head -n1
-      "
+      echo -n 'lines C++: '
+      find src \( -name '*.h' -o -name '*.cpp' \) -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
+      echo -n 'max dynamic symbols: '
+      find ${BUILD:-build/release}/stage2/lib/lean -name '*.a' -exec bash -c 'nm {} | grep " T " | wc -l' \; | sort --reverse --numeric-sort | head -n1
     max_runs: 1
     runner: output
 - attributes:
@@ -233,6 +238,15 @@
     <<: *time
     cmd: lean -Dlinter.all=false --run server_startup.lean
 - attributes:
+    description: ilean roundtrip
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: ./ilean_roundtrip.lean.out 200000
+    parse_output: true
+  build_config:
+    cmd: ./compile.sh ilean_roundtrip.lean
+- attributes:
     description: liasolver
     tags: [fast, suite]
   run_config:
@@ -303,6 +317,14 @@
     <<: *time
     cmd: lean reduceMatch.lean
 - attributes:
+    description: nat_repr
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: ./nat_repr.lean.out 5000
+  build_config:
+    cmd: ./compile.sh nat_repr.lean
+- attributes:
     description: unionfind
     tags: [fast, suite]
   run_config:
@@ -316,3 +338,15 @@
   run_config:
     <<: *time
     cmd: lean workspaceSymbols.lean
+- attributes:
+    description: bv_decide_realworld
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean bv_decide_realworld.lean
+- attributes:
+    description: bv_decide_mul
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean bv_decide_mul.lean

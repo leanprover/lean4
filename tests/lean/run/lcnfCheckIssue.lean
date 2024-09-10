@@ -11,4 +11,4 @@ def bigop (init : β) (seq : Sequence α) (op : β → β → β) (f : α → Bo
   return result
 
 set_option trace.Compiler.result true
-#eval Lean.Compiler.compile #[``bigop]
+run_meta Lean.Compiler.compile #[``bigop]

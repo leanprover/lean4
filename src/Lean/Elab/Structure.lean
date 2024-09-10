@@ -82,15 +82,6 @@ def StructFieldInfo.isSubobject (info : StructFieldInfo) : Bool :=
   | StructFieldKind.subobject => true
   | _                         => false
 
-structure ElabStructResult where
-  decl            : Declaration
-  projInfos       : List ProjectionInfo
-  projInstances   : List Name -- projections (to parent classes) that must be marked as instances.
-  mctx            : MetavarContext
-  lctx            : LocalContext
-  localInsts      : LocalInstances
-  defaultAuxDecls : Array (Name × Expr × Expr)
-
 private def defaultCtorName := `mk
 
 /-
@@ -302,7 +293,7 @@ private def getFieldType (infos : Array StructFieldInfo) (parentType : Expr) (fi
           let args := e.getAppArgs
           if let some major := args.get? numParams then
             if (← getNestedProjectionArg major) == parent then
-              if let some existingFieldInfo := findFieldInfo? infos subFieldName then
+              if let some existingFieldInfo := findFieldInfo? infos (.mkSimple subFieldName) then
                 return TransformStep.done <| mkAppN existingFieldInfo.fvar args[numParams+1:args.size]
       return TransformStep.done e
     let projType ← Meta.transform projType (post := visit)
@@ -704,6 +695,7 @@ private def registerStructure (structName : Name) (infos : Array StructFieldInfo
       if info.kind == StructFieldKind.fromParent then
         return none
       else
+        let env ← getEnv
         return some {
           fieldName  := info.name
           projFn     := info.declName
@@ -711,9 +703,9 @@ private def registerStructure (structName : Name) (infos : Array StructFieldInfo
           autoParam? := (← inferType info.fvar).getAutoParamTactic?
           subobject? :=
             if info.kind == StructFieldKind.subobject then
-              match (← getEnv).find? info.declName with
-              | some (ConstantInfo.defnInfo val) =>
-                match val.type.getForallBody.getAppFn with
+              match env.find? info.declName with
+              | some info =>
+                match info.type.getForallBody.getAppFn with
                 | Expr.const parentName .. => some parentName
                 | _ => panic! "ill-formed structure"
               | _ => panic! "ill-formed environment"
@@ -886,7 +878,7 @@ def structCtor           := leading_parser try (declModifiers >> ident >> " :: "
 def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
   checkValidInductiveModifier modifiers
   let isClass   := stx[0].getKind == ``Parser.Command.classTk
-  let modifiers := if isClass then modifiers.addAttribute { name := `class } else modifiers
+  let modifiers := if isClass then modifiers.addAttr { name := `class } else modifiers
   let declId    := stx[1]
   let params    := stx[2].getArgs
   let exts      := stx[3]

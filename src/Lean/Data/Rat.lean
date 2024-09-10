@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.NotationExtra
-import Init.Data.ToString.Basic
+import Init.Data.ToString.Macro
 import Init.Data.Int.DivMod
 import Init.Data.Nat.Gcd
 namespace Lean

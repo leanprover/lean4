@@ -4,9 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura, Robert Y. Lewis, Keeley Hoek, Mario Carneiro
 -/
 prelude
-import Init.Data.Nat.Div
 import Init.Data.Nat.Bitwise.Basic
-import Init.Coe
 
 open Nat
 
@@ -15,17 +13,40 @@ namespace Fin
 instance coeToNat : CoeOut (Fin n) Nat :=
   ⟨fun v => v.val⟩
 
+/--
+From the empty type `Fin 0`, any desired result `α` can be derived. This is simlar to `Empty.elim`.
+-/
 def elim0.{u} {α : Sort u} : Fin 0 → α
   | ⟨_, h⟩ => absurd h (not_lt_zero _)
 
+/--
+Returns the successor of the argument.
+
+The bound in the result type is increased:
+```
+(2 : Fin 3).succ = (3 : Fin 4)
+```
+This differs from addition, which wraps around:
+```
+(2 : Fin 3) + 1 = (0 : Fin 3)
+```
+-/
 def succ : Fin n → Fin n.succ
   | ⟨i, h⟩ => ⟨i+1, Nat.succ_lt_succ h⟩
 
 variable {n : Nat}
 
+/--
+Returns `a` modulo `n + 1` as a `Fin n.succ`.
+-/
 protected def ofNat {n : Nat} (a : Nat) : Fin n.succ :=
   ⟨a % (n+1), Nat.mod_lt _ (Nat.zero_lt_succ _)⟩
 
+/--
+Returns `a` modulo `n` as a `Fin n`.
+
+The assumption `n > 0` ensures that `Fin n` is nonempty.
+-/
 protected def ofNat' {n : Nat} (a : Nat) (h : n > 0) : Fin n :=
   ⟨a % n, Nat.mod_lt _ h⟩
 
@@ -35,14 +56,34 @@ private theorem mlt {b : Nat} : {a : Nat} → a < n → b % n < n
     have : n > 0 := Nat.lt_trans (Nat.zero_lt_succ _) h;
     Nat.mod_lt _ this
 
+/-- Addition modulo `n` -/
 protected def add : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a + b) % n, mlt h⟩
 
+/-- Multiplication modulo `n` -/
 protected def mul : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a * b) % n, mlt h⟩
 
+/-- Subtraction modulo `n` -/
 protected def sub : Fin n → Fin n → Fin n
-  | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a + (n - b)) % n, mlt h⟩
+  /-
+  The definition of `Fin.sub` has been updated to improve performance.
+  The right-hand-side of the following `match` was originally
+  ```
+  ⟨(a + (n - b)) % n, mlt h⟩
+  ```
+  This caused significant performance issues when testing definitional equality,
+  such as `x =?= x - 1` where `x : Fin n` and `n` is a big number,
+  as Lean spent a long time reducing
+  ```
+  ((n - 1) + x.val) % n
+  ```
+  For example, this was an issue for `Fin 2^64` (i.e., `UInt64`).
+  This change improves performance by leveraging the fact that `Nat.add` is defined
+  using recursion on the second argument.
+  See issue #4413.
+  -/
+  | ⟨a, h⟩, ⟨b, _⟩ => ⟨((n - b) + a) % n, mlt h⟩
 
 /-!
 Remark: land/lor can be defined without using (% n), but
@@ -108,6 +149,9 @@ instance : Inhabited (Fin (no_index (n+1))) where
 
 @[simp] theorem zero_eta : (⟨0, Nat.zero_lt_succ _⟩ : Fin (n + 1)) = 0 := rfl
 
+theorem ne_of_val_ne {i j : Fin n} (h : val i ≠ val j) : i ≠ j :=
+  fun h' => absurd (val_eq_of_eq h') h
+
 theorem val_ne_of_ne {i j : Fin n} (h : i ≠ j) : val i ≠ val j :=
   fun h' => absurd (eq_of_val_eq h') h
 
@@ -169,10 +213,7 @@ theorem val_add_one_le_of_lt {n : Nat} {a b : Fin n} (h : a < b) : (a : Nat) + 1
 
 theorem val_add_one_le_of_gt {n : Nat} {a b : Fin n} (h : a > b) : (b : Nat) + 1 ≤ (a : Nat) := h
 
+theorem exists_iff {p : Fin n → Prop} : (Exists fun i => p i) ↔ Exists fun i => Exists fun h => p ⟨i, h⟩ :=
+  ⟨fun ⟨⟨i, hi⟩, hpi⟩ => ⟨i, hi, hpi⟩, fun ⟨i, hi, hpi⟩ => ⟨⟨i, hi⟩, hpi⟩⟩
+
 end Fin
-
-instance [GetElem cont Nat elem dom] : GetElem cont (Fin n) elem fun xs i => dom xs i where
-  getElem xs i h := getElem xs i.1 h
-
-macro_rules
-  | `(tactic| get_elem_tactic_trivial) => `(tactic| apply Fin.val_lt_of_le; get_elem_tactic_trivial; done)

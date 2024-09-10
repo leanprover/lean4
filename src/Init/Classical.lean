@@ -15,6 +15,13 @@ namespace Classical
 noncomputable def indefiniteDescription {α : Sort u} (p : α → Prop) (h : ∃ x, p x) : {x // p x} :=
   choice <| let ⟨x, px⟩ := h; ⟨⟨x, px⟩⟩
 
+/--
+Given that there exists an element satisfying `p`, returns one such element.
+
+This is a straightforward consequence of, and equivalent to, `Classical.choice`.
+
+See also `choose_spec`, which asserts that the returned value has property `p`.
+-/
 noncomputable def choose {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : α :=
   (indefiniteDescription p h).val
 
@@ -153,7 +160,7 @@ theorem not_iff : ¬(a ↔ b) ↔ (¬a ↔ b) := Decidable.not_iff
 
 @[simp] theorem not_imp : ¬(a → b) ↔ a ∧ ¬b := Decidable.not_imp_iff_and_not
 
-@[simp] theorem imp_and_neg_imp_iff (p q : Prop) : (p → q) ∧ (¬p → q) ↔ q :=
+@[simp] theorem imp_and_neg_imp_iff (p : Prop) {q : Prop} : (p → q) ∧ (¬p → q) ↔ q :=
   Iff.intro (fun (a : _ ∧ _) => (Classical.em p).rec a.left a.right)
             (fun a => And.intro (fun _ => a) (fun _ => a))
 

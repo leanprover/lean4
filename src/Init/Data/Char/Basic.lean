@@ -40,7 +40,7 @@ theorem isValidUInt32 (n : Nat) (h : isValidCharNat n) : n < UInt32.size := by
     apply Nat.lt_trans h₂
     decide
 
-theorem isValidChar_of_isValidChar_Nat (n : Nat) (h : isValidCharNat n) : isValidChar (UInt32.ofNat' n (isValidUInt32 n h)) :=
+theorem isValidChar_of_isValidCharNat (n : Nat) (h : isValidCharNat n) : isValidChar (UInt32.ofNat' n (isValidUInt32 n h)) :=
   match h with
   | Or.inl h        => Or.inl h
   | Or.inr ⟨h₁, h₂⟩ => Or.inr ⟨h₁, h₂⟩
@@ -52,31 +52,38 @@ theorem isValidChar_zero : isValidChar 0 :=
 @[inline] def toNat (c : Char) : Nat :=
   c.val.toNat
 
+/-- Convert a character into a `UInt8`, by truncating (reducing modulo 256) if necessary. -/
+@[inline] def toUInt8 (c : Char) : UInt8 :=
+  c.val.toUInt8
+
+/-- The numbers from 0 to 256 are all valid UTF-8 characters, so we can embed one in the other. -/
+def ofUInt8 (n : UInt8) : Char := ⟨n.toUInt32, .inl (Nat.lt_trans n.1.2 (by decide))⟩
+
 instance : Inhabited Char where
   default := 'A'
 
 /-- Is the character a space (U+0020) a tab (U+0009), a carriage return (U+000D) or a newline (U+000A)? -/
-def isWhitespace (c : Char) : Bool :=
+@[inline] def isWhitespace (c : Char) : Bool :=
   c = ' ' || c = '\t' || c = '\r' || c = '\n'
 
 /-- Is the character in `ABCDEFGHIJKLMNOPQRSTUVWXYZ`? -/
-def isUpper (c : Char) : Bool :=
+@[inline] def isUpper (c : Char) : Bool :=
   c.val ≥ 65 && c.val ≤ 90
 
 /-- Is the character in `abcdefghijklmnopqrstuvwxyz`? -/
-def isLower (c : Char) : Bool :=
+@[inline] def isLower (c : Char) : Bool :=
   c.val ≥ 97 && c.val ≤ 122
 
 /-- Is the character in `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz`? -/
-def isAlpha (c : Char) : Bool :=
+@[inline] def isAlpha (c : Char) : Bool :=
   c.isUpper || c.isLower
 
 /-- Is the character in `0123456789`? -/
-def isDigit (c : Char) : Bool :=
+@[inline] def isDigit (c : Char) : Bool :=
   c.val ≥ 48 && c.val ≤ 57
 
 /-- Is the character in `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`? -/
-def isAlphanum (c : Char) : Bool :=
+@[inline] def isAlphanum (c : Char) : Bool :=
   c.isAlpha || c.isDigit
 
 /-- Convert an upper case character to its lower case character.

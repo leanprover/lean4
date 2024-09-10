@@ -67,6 +67,9 @@ def lift {α : Type v} (t : m α) : EquipT ρ m α :=
 instance : MonadLift m (EquipT ρ m) where
   monadLift := EquipT.lift
 
+instance : MonadFunctor m (EquipT ρ m) where
+  monadMap f x := fun ctx => f (x ctx)
+
 @[inline] protected
 def failure [Alternative m] {α : Type v} : EquipT ρ m α :=
   fun _ => failure
@@ -90,3 +93,7 @@ def tryCatch {ε : Type v} [MonadExceptOf ε m] {α : Type v} (self : EquipT ρ 
 instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (EquipT ρ m) where
   throw    := EquipT.throw
   tryCatch := EquipT.tryCatch
+
+@[always_inline]
+instance [MonadFinally m] [Monad m] : MonadFinally (EquipT ρ m) where
+  tryFinally' x h ctx := tryFinally' (x ctx) (fun a? => h a? ctx)

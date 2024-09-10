@@ -5,7 +5,8 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Control.Id
-import Init.Data.List.Basic
+import Init.Data.List.Impl
+
 universe u v w w'
 namespace Lean
 

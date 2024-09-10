@@ -12,7 +12,8 @@ Run the code generation pipeline for all declarations in `declNames`
 that fulfill the requirements of `shouldGenerateCode`.
 -/
 def compile (declNames : Array Name) : CoreM Unit := do profileitM Exception "compiler new" (← getOptions) do
-  discard <| LCNF.compile declNames
+  withTraceNode `Compiler (fun _ => return m!"compiling: {declNames}") do
+    discard <| LCNF.compile declNames
 
 builtin_initialize
   registerTraceClass `Compiler

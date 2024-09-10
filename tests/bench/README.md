@@ -40,7 +40,8 @@ We recommend using [Nix](https://nixos.org/nix/) for building/obtaining all Lean
 compilers in a reproducible way. After installing Nix, running the benchmarks is as easy as
 
 ```
-nix shell -c make
+nix develop
+make
 ```
 
 This will record 50 runs for each benchmark configuration (this can be changed with `runs` in `cross.yaml`),
@@ -51,7 +52,7 @@ In order to reduce noise in the benchmarking data, you may instead want to try c
 temci shell:
 
 ```
-nix shell -c temci short shell --sudo --preset usable --cpuset_active make
+temci short shell --sudo --preset usable --cpuset_active make
 ```
 
 Using root powers, this will temporarily configure your machine similarly to the

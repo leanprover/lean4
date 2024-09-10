@@ -114,10 +114,7 @@ unsafe def mkElabAttribute (γ) (attrBuiltinName attrName : Name) (parserNamespa
       return kind
     onAdded       := fun builtin declName => do
       if builtin then
-        if let some doc ← findDocString? (← getEnv) declName (includeBuiltin := false) then
-          declareBuiltin (declName ++ `docString) (mkAppN (mkConst ``addBuiltinDocString) #[toExpr declName, toExpr doc])
-        if let some declRanges ← findDeclarationRanges? declName then
-          declareBuiltin (declName ++ `declRange) (mkAppN (mkConst ``addBuiltinDeclarationRanges) #[toExpr declName, toExpr declRanges])
+        declareBuiltinDocStringAndRanges declName
   } attrDeclName
 
 unsafe def mkMacroAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute Macro) :=
@@ -208,10 +205,13 @@ def logException [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [
   match ex with
   | Exception.error ref msg => logErrorAt ref msg
   | Exception.internal id _ =>
-    unless isAbortExceptionId id do
+    unless isAbortExceptionId id || id == Core.interruptExceptionId do
       let name ← id.getName
       logError m!"internal exception: {name}"
 
+/--
+If `x` throws an exception, catch it and turn it into a log message (using `logException`).
+-/
 def withLogging [Monad m] [MonadLog m] [MonadExcept Exception m] [AddMessageContext m] [MonadOptions m] [MonadLiftT IO m]
     (x : m Unit) : m Unit := do
   try x catch ex => logException ex

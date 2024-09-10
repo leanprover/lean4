@@ -25,39 +25,41 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
 @[builtin_tactic simpTrace] def evalSimpTrace : Tactic := fun stx =>
   match stx with
   | `(tactic|
-      simp?%$tk $[!%$bang]? $(config)? $(discharger)? $[only%$o]? $[[$args,*]]? $(loc)?) => withMainContext do
+      simp?%$tk $[!%$bang]? $(config)? $(discharger)? $[only%$o]? $[[$args,*]]? $(loc)?) => withMainContext do withSimpDiagnostics do
     let stx ← if bang.isSome then
       `(tactic| simp!%$tk $(config)? $(discharger)? $[only%$o]? $[[$args,*]]? $(loc)?)
     else
       `(tactic| simp%$tk $(config)? $(discharger)? $[only%$o]? $[[$args,*]]? $(loc)?)
     let { ctx, simprocs, dischargeWrapper } ← mkSimpContext stx (eraseLocal := false)
-    let usedSimps ← dischargeWrapper.with fun discharge? =>
+    let stats ← dischargeWrapper.with fun discharge? =>
       simpLocation ctx (simprocs := simprocs) discharge? <|
         (loc.map expandLocation).getD (.targets #[] true)
-    let stx ← mkSimpCallStx stx usedSimps
+    let stx ← mkSimpCallStx stx stats.usedTheorems
     addSuggestion tk stx (origSpan? := ← getRef)
+    return stats.diag
   | _ => throwUnsupportedSyntax
 
 @[builtin_tactic simpAllTrace] def evalSimpAllTrace : Tactic := fun stx =>
   match stx with
-  | `(tactic| simp_all?%$tk $[!%$bang]? $(config)? $(discharger)? $[only%$o]? $[[$args,*]]?) => do
+  | `(tactic| simp_all?%$tk $[!%$bang]? $(config)? $(discharger)? $[only%$o]? $[[$args,*]]?) => withSimpDiagnostics do
     let stx ← if bang.isSome then
       `(tactic| simp_all!%$tk $(config)? $(discharger)? $[only%$o]? $[[$args,*]]?)
     else
       `(tactic| simp_all%$tk $(config)? $(discharger)? $[only%$o]? $[[$args,*]]?)
     let { ctx, .. } ← mkSimpContext stx (eraseLocal := true)
       (kind := .simpAll) (ignoreStarArg := true)
-    let (result?, usedSimps) ← simpAll (← getMainGoal) ctx
+    let (result?, stats) ← simpAll (← getMainGoal) ctx
     match result? with
     | none => replaceMainGoal []
     | some mvarId => replaceMainGoal [mvarId]
-    let stx ← mkSimpCallStx stx usedSimps
+    let stx ← mkSimpCallStx stx stats.usedTheorems
     addSuggestion tk stx (origSpan? := ← getRef)
+    return stats.diag
   | _ => throwUnsupportedSyntax
 
 /-- Implementation of `dsimp?`. -/
 def dsimpLocation' (ctx : Simp.Context) (simprocs : SimprocsArray) (loc : Location) :
-    TacticM Simp.UsedSimps := do
+    TacticM Simp.Stats := do
   match loc with
   | Location.targets hyps simplifyTarget =>
     withMainContext do
@@ -68,25 +70,26 @@ def dsimpLocation' (ctx : Simp.Context) (simprocs : SimprocsArray) (loc : Locati
       go (← (← getMainGoal).getNondepPropHyps) (simplifyTarget := true)
 where
   /-- Implementation of `dsimp?`. -/
-  go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) : TacticM Simp.UsedSimps := do
+  go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) : TacticM Simp.Stats := do
     let mvarId ← getMainGoal
-    let (result?, usedSimps) ← dsimpGoal mvarId ctx simprocs (simplifyTarget := simplifyTarget)
+    let (result?, stats) ← dsimpGoal mvarId ctx simprocs (simplifyTarget := simplifyTarget)
       (fvarIdsToSimp := fvarIdsToSimp)
     match result? with
     | none => replaceMainGoal []
     | some mvarId => replaceMainGoal [mvarId]
-    pure usedSimps
+    pure stats
 
 @[builtin_tactic dsimpTrace] def evalDSimpTrace : Tactic := fun stx =>
   match stx with
-  | `(tactic| dsimp?%$tk $[!%$bang]? $(config)? $[only%$o]? $[[$args,*]]? $(loc)?) => do
+  | `(tactic| dsimp?%$tk $[!%$bang]? $(config)? $[only%$o]? $[[$args,*]]? $(loc)?) => withSimpDiagnostics do
     let stx ← if bang.isSome then
       `(tactic| dsimp!%$tk $(config)? $[only%$o]? $[[$args,*]]? $(loc)?)
     else
       `(tactic| dsimp%$tk $(config)? $[only%$o]? $[[$args,*]]? $(loc)?)
     let { ctx, simprocs, .. } ←
       withMainContext <| mkSimpContext stx (eraseLocal := false) (kind := .dsimp)
-    let usedSimps ← dsimpLocation' ctx simprocs <| (loc.map expandLocation).getD (.targets #[] true)
-    let stx ← mkSimpCallStx stx usedSimps
+    let stats ← dsimpLocation' ctx simprocs <| (loc.map expandLocation).getD (.targets #[] true)
+    let stx ← mkSimpCallStx stx stats.usedTheorems
     addSuggestion tk stx (origSpan? := ← getRef)
+    return stats.diag
   | _ => throwUnsupportedSyntax

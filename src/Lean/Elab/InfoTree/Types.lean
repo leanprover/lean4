@@ -76,7 +76,7 @@ structure CommandInfo extends ElabInfo where
 /-- A completion is an item that appears in the [IntelliSense](https://code.visualstudio.com/docs/editor/intellisense)
 box that appears as you type. -/
 inductive CompletionInfo where
-  | dot (termInfo : TermInfo) (field? : Option Syntax) (expectedType? : Option Expr)
+  | dot (termInfo : TermInfo) (expectedType? : Option Expr)
   | id (stx : Syntax) (id : Name) (danglingDot : Bool) (lctx : LocalContext) (expectedType? : Option Expr)
   | dotId (stx : Syntax) (id : Name) (lctx : LocalContext) (expectedType? : Option Expr)
   | fieldId (stx : Syntax) (id : Name) (lctx : LocalContext) (structName : Name)
@@ -157,12 +157,13 @@ structure FieldRedeclInfo where
 
 /--
 Denotes information for the term `⋯` that is emitted by the delaborator when omitting a term
-due to `pp.deepTerms false`. Omission needs to be treated differently from regular terms because
+due to `pp.deepTerms false` or `pp.proofs false`. Omission needs to be treated differently from regular terms because
 it has to be delaborated differently in `Lean.Widget.InteractiveDiagnostics.infoToInteractive`:
 Regular terms are delaborated explicitly, whereas omitted terms are simply to be expanded with
 regular delaboration settings.
 -/
-structure OmissionInfo extends TermInfo
+structure OmissionInfo extends TermInfo where
+  reason : String
 
 /-- Header information for a node in `InfoTree`. -/
 inductive Info where

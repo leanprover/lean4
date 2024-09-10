@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int.Lemmas
-// Imports: Init.Data.Int.Basic Init.Conv Init.PropLemmas
+// Imports: Init.Data.Int.Basic Init.Conv Init.NotationExtra Init.PropLemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* initialize_Init_Data_Int_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Conv(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_NotationExtra(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_PropLemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Int_Lemmas(uint8_t builtin, lean_object* w) {
@@ -25,6 +26,9 @@ res = initialize_Init_Data_Int_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Conv(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_NotationExtra(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_PropLemmas(builtin, lean_io_mk_world());

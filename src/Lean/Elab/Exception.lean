@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.InternalExceptionId
-import Lean.Meta.Basic
+import Lean.Exception
 
 namespace Lean.Elab
 

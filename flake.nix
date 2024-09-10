@@ -1,63 +1,61 @@
 {
-  description = "Lean interactive theorem prover";
+  description = "Lean development flake. Not intended for end users.";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  # old nixpkgs used for portable release with older glibc (2.27)
+  inputs.nixpkgs-old.url = "github:NixOS/nixpkgs/nixos-19.03";
+  inputs.nixpkgs-old.flake = false;
+  # for cadical 1.9.5; sync with CMakeLists.txt
+  inputs.nixpkgs-cadical.url = "github:NixOS/nixpkgs/12bf09802d77264e441f48e25459c10c93eada2e";
   inputs.flake-utils.url = "github:numtide/flake-utils";
-  inputs.nix.url = "github:NixOS/nix";
-  inputs.lean4-mode = {
-    url = "github:leanprover/lean4-mode";
-    flake = false;
-  };
-  # used *only* by `stage0-from-input` below
-  #inputs.lean-stage0 = {
-  #  url = github:leanprover/lean4;
-  #  inputs.nixpkgs.follows = "nixpkgs";
-  #  inputs.flake-utils.follows = "flake-utils";
-  #  inputs.nix.follows = "nix";
-  #  inputs.lean4-mode.follows = "lean4-mode";
-  #};
 
-  outputs = { self, nixpkgs, flake-utils, nix, lean4-mode, ... }@inputs: flake-utils.lib.eachDefaultSystem (system:
+  outputs = { self, nixpkgs, nixpkgs-old, flake-utils, ... }@inputs: flake-utils.lib.eachDefaultSystem (system:
     let
-      pkgs = import nixpkgs {
-        inherit system;
-        # for `vscode-with-extensions`
-        config.allowUnfree = true;
-      };
-      lean-packages = pkgs.callPackage (./nix/packages.nix) { src = ./.; inherit nix lean4-mode; };
+      pkgs = import nixpkgs { inherit system; };
+      # An old nixpkgs for creating releases with an old glibc
+      pkgsDist-old = import nixpkgs-old { inherit system; };
+      # An old nixpkgs for creating releases with an old glibc
+      pkgsDist-old-aarch = import nixpkgs-old { localSystem.config = "aarch64-unknown-linux-gnu"; };
+      pkgsCadical = import inputs.nixpkgs-cadical { inherit system; };
+      cadical = if pkgs.stdenv.isLinux then
+        # use statically-linked cadical on Linux to avoid glibc versioning troubles
+        pkgsCadical.pkgsStatic.cadical.overrideAttrs { doCheck = false; }
+      else pkgsCadical.cadical;
+
+      lean-packages = pkgs.callPackage (./nix/packages.nix) { src = ./.; };
+
+      devShellWithDist = pkgsDist: pkgs.mkShell.override {
+          stdenv = pkgs.overrideCC pkgs.stdenv lean-packages.llvmPackages.clang;
+        } ({
+          buildInputs = with pkgs; [
+            cmake gmp libuv ccache cadical
+            lean-packages.llvmPackages.llvm  # llvm-symbolizer for asan/lsan
+            gdb
+            tree  # for CI
+          ];
+          # https://github.com/NixOS/nixpkgs/issues/60919
+          hardeningDisable = [ "all" ];
+          # more convenient `ctest` output
+          CTEST_OUTPUT_ON_FAILURE = 1;
+        } // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
+          GMP = pkgsDist.gmp.override { withStatic = true; };
+          LIBUV = pkgsDist.libuv.overrideAttrs (attrs: { configureFlags = ["--enable-static"]; });
+          GLIBC = pkgsDist.glibc;
+          GLIBC_DEV = pkgsDist.glibc.dev;
+          GCC_LIB = pkgsDist.gcc.cc.lib;
+          ZLIB = pkgsDist.zlib;
+          GDB = pkgsDist.gdb;
+        });
     in {
-      packages = lean-packages // rec {
-        debug = lean-packages.override { debug = true; };
-        stage0debug = lean-packages.override { stage0debug = true; };
-        asan = lean-packages.override { extraCMakeFlags = [ "-DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address" "-DLEANC_EXTRA_FLAGS=-fsanitize=address" "-DSMALL_ALLOCATOR=OFF" "-DSYMBOLIC=OFF" ]; };
-        asandebug = asan.override { debug = true; };
-        tsan = lean-packages.override {
-          extraCMakeFlags = [ "-DLEAN_EXTRA_CXX_FLAGS=-fsanitize=thread" "-DLEANC_EXTRA_FLAGS=-fsanitize=thread" "-DCOMPRESSED_OBJECT_HEADER=OFF" ];
-          stage0 = (lean-packages.override {
-            # Compressed headers currently trigger data race reports in tsan.
-            # Turn them off for stage 0 as well so stage 1 can read its own stdlib.
-            extraCMakeFlags = [ "-DCOMPRESSED_OBJECT_HEADER=OFF" ];
-          }).stage1;
-        };
-        tsandebug = tsan.override { debug = true; };
-        stage0-from-input = lean-packages.override {
-          stage0 = pkgs.writeShellScriptBin "lean" ''
-            exec ${inputs.lean-stage0.packages.${system}.lean}/bin/lean -Dinterpreter.prefer_native=false "$@"
-          '';
-        };
-        inherit self;
-      };
-      defaultPackage = lean-packages.lean-all;
-
-      inherit (lean-packages) devShell;
-
-      checks.lean = lean-packages.test;
-    }) // rec {
-      templates.pkg = {
-        path = ./nix/templates/pkg;
-        description = "A custom Lean package";
+      packages = {
+        # to be removed when Nix CI is not needed anymore
+        inherit (lean-packages) cacheRoots test update-stage0-commit ciShell;
+        deprecated = lean-packages;
       };
 
-      defaultTemplate = templates.pkg;
-    };
+      # The default development shell for working on lean itself
+      devShells.default = devShellWithDist pkgs;
+      devShells.oldGlibc = devShellWithDist pkgsDist-old;
+      devShells.oldGlibcAArch = devShellWithDist pkgsDist-old-aarch;
+    });
 }

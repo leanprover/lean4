@@ -70,6 +70,8 @@ where
           if localDecl.binderInfo.isExplicit then
             if (← inferType x).isAppOf indVal.name then
               rhs ← `($rhs ++ Format.line ++ $(mkIdent auxFunName):ident $a:ident max_prec)
+            else if (← isType x <||> isProof x) then
+              rhs ← `($rhs ++ Format.line ++ "_")
             else
               rhs ← `($rhs ++ Format.line ++ reprArg $a)
         patterns := patterns.push (← `(@$(mkIdent ctorName):ident $ctorArgs:term*))

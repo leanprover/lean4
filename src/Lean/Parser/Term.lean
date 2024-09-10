@@ -145,11 +145,14 @@ def optSemicolon (p : Parser) : Parser :=
 /-- Parses a "synthetic hole", that is, `?foo` or `?_`.
 This syntax is used to construct named metavariables. -/
 @[builtin_term_parser] def syntheticHole := leading_parser
-  "?" >> (ident <|> hole)
+  "?" >> (ident <|> "_")
 /--
-Denotes a term that was omitted by the pretty printer.
-This is only meant to be used for pretty printing, however for copy/paste friendliness it elaborates like `_` while logging a warning.
-The presence of `⋯` in pretty printer output is controlled by the `pp.deepTerms` and `pp.proofs` options.
+The `⋯` term denotes a term that was omitted by the pretty printer.
+The presence of `⋯` in pretty printer output is controlled by the `pp.deepTerms` and `pp.proofs` options,
+and these options can be further adjusted using `pp.deepTerms.threshold` and `pp.proofs.threshold`.
+
+It is only meant to be used for pretty printing.
+However, in case it is copied and pasted from the Infoview, `⋯` logs a warning and elaborates like `_`.
 -/
 @[builtin_term_parser] def omission := leading_parser
   "⋯"
@@ -171,9 +174,11 @@ do not yield the right result.
 -/
 @[builtin_term_parser] def typeAscription := leading_parser
   "(" >> (withoutPosition (withoutForbidden (termParser >> " :" >> optional (ppSpace >> termParser)))) >> ")"
+
 /-- Tuple notation; `()` is short for `Unit.unit`, `(a, b, c)` for `Prod.mk a (Prod.mk b c)`, etc. -/
 @[builtin_term_parser] def tuple := leading_parser
   "(" >> optional (withoutPosition (withoutForbidden (termParser >> ", " >> sepBy1 termParser ", " (allowTrailingSep := true)))) >> ")"
+
 /--
 Parentheses, used for grouping expressions (e.g., `a * (b + c)`).
 Can also be used for creating simple functions when combined with `·`. Here are some examples:
@@ -263,29 +268,49 @@ open Lean.PrettyPrinter Parenthesizer Syntax.MonadTraverser in
     term.parenthesizer prec
     visitToken
 
-def explicitBinder (requireType := false) := ppGroup $ leading_parser
+/--
+Explicit binder, like `(x y : A)` or `(x y)`.
+Default values can be specified using `(x : A := v)` syntax, and tactics using `(x : A := by tac)`.
+-/
+def explicitBinder (requireType := false) := leading_parser ppGroup <|
   "(" >> withoutPosition (many1 binderIdent >> binderType requireType >> optional (binderTactic <|> binderDefault)) >> ")"
 /--
-Implicit binder. In regular applications without `@`, it is automatically inserted
-and solved by unification whenever all explicit parameters before it are specified.
+Implicit binder, like `{x y : A}` or `{x y}`.
+In regular applications, whenever all parameters before it have been specified,
+then a `_` placeholder is automatically inserted for this parameter.
+Implicit parameters should be able to be determined from the other arguments and the return type
+by unification.
+
+In `@` explicit mode, implicit binders behave like explicit binders.
 -/
-def implicitBinder (requireType := false) := ppGroup $ leading_parser
+def implicitBinder (requireType := false) := leading_parser ppGroup <|
   "{" >> withoutPosition (many1 binderIdent >> binderType requireType) >> "}"
 def strictImplicitLeftBracket := atomic (group (symbol "{" >> "{")) <|> "⦃"
 def strictImplicitRightBracket := atomic (group (symbol "}" >> "}")) <|> "⦄"
 /--
-Strict-implicit binder. In contrast to `{ ... }` regular implicit binders,
-a strict-implicit binder is inserted automatically only when at least one subsequent
-explicit parameter is specified.
+Strict-implicit binder, like `⦃x y : A⦄` or `⦃x y⦄`.
+In contrast to `{ ... }` implicit binders, strict-implicit binders do not automatically insert
+a `_` placeholder until at least one subsequent explicit parameter is specified.
+Do *not* use strict-implicit binders unless there is a subsequent explicit parameter.
+Assuming this rule is followed, for fully applied expressions implicit and strict-implicit binders have the same behavior.
+
+Example: If `h : ∀ ⦃x : A⦄, x ∈ s → p x` and `hs : y ∈ s`,
+then `h` by itself elaborates to itself without inserting `_` for the `x : A` parameter,
+and `h hs` has type `p y`.
+In contrast, if `h' : ∀ {x : A}, x ∈ s → p x`, then `h` by itself elaborates to have type `?m ∈ s → p ?m`
+with `?m` a fresh metavariable.
 -/
-def strictImplicitBinder (requireType := false) := ppGroup <| leading_parser
+def strictImplicitBinder (requireType := false) := leading_parser ppGroup <|
   strictImplicitLeftBracket >> many1 binderIdent >>
   binderType requireType >> strictImplicitRightBracket
 /--
-Instance-implicit binder. In regular applications without `@`, it is automatically inserted
-and solved by typeclass inference of the specified class.
+Instance-implicit binder, like `[C]` or `[inst : C]`.
+In regular applications without `@` explicit mode, it is automatically inserted
+and solved for by typeclass inference for the specified class `C`.
+In `@` explicit mode, if `_` is used for an an instance-implicit parameter, then it is still solved for by typeclass inference;
+use `(_)` to inhibit this and have it be solved for by unification instead, like an implicit argument.
 -/
-def instBinder := ppGroup <| leading_parser
+def instBinder := leading_parser ppGroup <|
   "[" >> withoutPosition (optIdent >> termParser) >> "]"
 /-- A `bracketedBinder` matches any kind of binder group that uses some kind of brackets:
 * An explicit binder like `(x y : A)`
@@ -519,8 +544,11 @@ It is often used when building macros.
 @[builtin_term_parser] def «let_tmp» := leading_parser:leadPrec
   withPosition ("let_tmp " >> letDecl) >> optSemicolon termParser
 
+def haveId := leading_parser (withAnonymousAntiquot := false)
+  (ppSpace >> binderIdent) <|> hygieneInfo
 /- like `let_fun` but with optional name -/
-def haveIdLhs    := ((ppSpace >> binderIdent) <|> hygieneInfo) >> many (ppSpace >> letIdBinder) >> optType
+def haveIdLhs    :=
+  haveId >> many (ppSpace >> letIdBinder) >> optType
 def haveIdDecl   := leading_parser (withAnonymousAntiquot := false)
   atomic (haveIdLhs >> " := ") >> termParser
 def haveEqnsDecl := leading_parser (withAnonymousAntiquot := false)
@@ -557,12 +585,12 @@ letrec we need them here already.
 -/
 
 /--
-Specify a termination argument for well-founded termination:
+Specify a termination argument for recursive functions.
 ```
 termination_by a - b
 ```
 indicates that termination of the currently defined recursive function follows
-because the difference between the the arguments `a` and `b`.
+because the difference between the arguments `a` and `b` decreases.
 
 If the fuction takes further argument after the colon, you can name them as follows:
 ```
@@ -570,11 +598,18 @@ def example (a : Nat) : Nat → Nat → Nat :=
 termination_by b c => a - b
 ```
 
+By default, a `termination_by` clause will cause the function to be constructed using well-founded
+recursion. The syntax `termination_by structural a` (or `termination_by structural _ c => c`)
+indicates the the function is expected to be structural recursive on the argument. In this case
+the body of the `termination_by` clause must be one of the function's parameters.
+
 If omitted, a termination argument will be inferred. If written as `termination_by?`,
 the inferrred termination argument will be suggested.
+
 -/
 def terminationBy := leading_parser
   "termination_by " >>
+  optional (nonReservedSymbol "structural ") >>
   optional (atomic (many (ppSpace >> Term.binderIdent) >> " => ")) >>
   termParser
 
@@ -587,6 +622,9 @@ Manually prove that the termination argument (as specified with `termination_by`
 decreases at each recursive call.
 
 By default, the tactic `decreasing_tactic` is used.
+
+Forces the use of well-founded recursion and is hence incompatible with
+`termination_by structural`.
 -/
 def decreasingBy := leading_parser
   ppDedent ppLine >> "decreasing_by " >> Tactic.tacticSeqIndentGt
@@ -743,6 +781,17 @@ is short for accessing the `i`-th field (1-indexed) of `e` if it is of a structu
 @[builtin_term_parser] def arrow    := trailing_parser
   checkPrec 25 >> unicodeSymbol " → " " -> " >> termParser 25
 
+/--
+Syntax kind for syntax nodes representing the field of a projection in the `InfoTree`.
+Specifically, the `InfoTree` node for a projection `s.f` contains a child `InfoTree` node
+with syntax ``(Syntax.node .none identProjKind #[`f])``.
+
+This is necessary because projection syntax cannot always be detected purely syntactically
+(`s.f` may refer to either the identifier `s.f` or a projection `s.f` depending on
+the available context).
+-/
+def identProjKind := `Lean.Parser.Term.identProj
+
 def isIdent (stx : Syntax) : Bool :=
   -- antiquotations should also be allowed where an identifier is expected
   stx.isAntiquot || stx.isIdent
@@ -752,7 +801,7 @@ def isIdent (stx : Syntax) : Bool :=
   checkStackTop isIdent "expected preceding identifier" >>
   checkNoWsBefore "no space before '.{'" >> ".{" >>
   sepBy1 levelParser ", " >> "}"
-/-- `x@e` or `x:h@e` matches the pattern `e` and binds its value to the identifier `x`.
+/-- `x@e` or `x@h:e` matches the pattern `e` and binds its value to the identifier `x`.
 If present, the identifier `h` is bound to a proof of `x = e`. -/
 @[builtin_term_parser] def namedPattern : TrailingParser := trailing_parser
   checkStackTop isIdent "expected preceding identifier" >>
@@ -773,6 +822,10 @@ It is especially useful for avoiding parentheses with repeated applications.
 Given `h : a = b` and `e : p a`, the term `h ▸ e` has type `p b`.
 You can also view `h ▸ e` as a "type casting" operation
 where you change the type of `e` by using `h`.
+
+The macro tries both orientations of `h`. If the context provides an
+expected type, it rewrites the expeced type, else it rewrites the type of e`.
+
 See the Chapter "Quantifiers and Equality" in the manual
 "Theorem Proving in Lean" for additional information.
 -/
@@ -836,7 +889,7 @@ def matchExprElseAlt (rhsParser : Parser) := leading_parser "| " >> ppIndent (ho
 def matchExprAlts (rhsParser : Parser) :=
   leading_parser withPosition $
     many (ppLine >> checkColGe "irrelevant" >> notFollowedBy (symbol "| " >> " _ ") "irrelevant" >> matchExprAlt rhsParser)
-    >> (ppLine >> checkColGe "irrelevant" >> matchExprElseAlt rhsParser)
+    >> (ppLine >> checkColGe "else-alternative for `match_expr`, i.e., `| _ => ...`" >> matchExprElseAlt rhsParser)
 @[builtin_term_parser] def matchExpr := leading_parser:leadPrec
   "match_expr " >> termParser >> " with" >> ppDedent (matchExprAlts termParser)
 

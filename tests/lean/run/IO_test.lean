@@ -32,6 +32,8 @@ withFile "foo.txt" Mode.read fun h => do
     check_eq "5" [] ys.toList
 pure ()
 
+/-- info: -/
+#guard_msgs in
 #eval test
 
 def test2 : IO Unit := do
@@ -74,6 +76,26 @@ let ys ← readFile fn2;
 check_eq "3" (String.join rs) ys;
 pure ()
 
+/--
+info: ⟨[₂,α]⟩⟨[₂,α]⟩
+
+⟨[₂,α]⟩⟨[₂,α]⟩
+
+4
+"⟨[₂,α]⟩⟨[₂,α]⟩\n"
+3
+"/* Handle.getLine : Handle → IO Unit                     *//*   The line returned by `lean_io_prim_handle_get_line` *//*   is truncated at the first '\\0' character and the    *//*   rest of the line is discarded.                      */\n"
+2
+"⟨[6,8,@]⟩\n"
+1
+"⟨[6,8,@]⟩\n"
+[⟨[₂,α]⟩⟨[₂,α]⟩
+, /* Handle.getLine : Handle → IO Unit                     *//*   The line returned by `lean_io_prim_handle_get_line` *//*   is truncated at the first '\0' character and the    *//*   rest of the line is discarded.                      */
+, ⟨[6,8,@]⟩
+, ⟨[6,8,@]⟩
+]
+-/
+#guard_msgs in
 #eval test2
 
 def test3 : IO Unit := do
@@ -98,6 +120,11 @@ IO.println $ repr ys
 check_eq "2" ys #[xs₀, xs₁, xs₂, xs₃]
 pure ()
 
+/--
+info: #[]
+#["abc", "", "hello", "world"]
+-/
+#guard_msgs in
 #eval test3
 
 def test4 : IO Unit := do
@@ -108,4 +135,6 @@ check_eq "1" [] ys.toList
 let ys ← withFile fn4 Mode.read $ fun h => h.read 1;
 check_eq "2" [] ys.toList
 
+/-- info: -/
+#guard_msgs in
 #eval test4

@@ -1,7 +1,7 @@
 true
 (match i with
   | 0 => true
-  | Nat.succ n => true) &&
+  | n.succ => true) &&
   f i
 if i < 5 then 0 else 1
 if i < 5 then 0 else g i j

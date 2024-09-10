@@ -67,9 +67,4 @@ opaque compileDecls (env : Environment) (opt : @& Options) (decls : @& List Name
 def compileDecl (env : Environment) (opt : @& Options) (decl : @& Declaration) : Except KernelException Environment :=
   compileDecls env opt (Compiler.getDeclNamesForCodeGen decl)
 
-
-def addAndCompile (env : Environment) (opt : Options) (decl : Declaration) : Except KernelException Environment := do
-  let env ← addDecl env decl
-  compileDecl env opt decl
-
 end Environment

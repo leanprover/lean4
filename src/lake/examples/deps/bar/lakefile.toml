@@ -1,0 +1,13 @@
+name = "bar"
+defaultTargets = ["bar"]
+
+[[require]]
+name = "foo"
+path = "../foo"
+
+[[lean_lib]]
+name = "Bar"
+
+[[lean_exe]]
+name = "bar"
+root = "Main"

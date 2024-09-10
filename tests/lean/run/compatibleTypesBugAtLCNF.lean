@@ -1,3 +1,3 @@
 import Lean
 
-#eval Lean.Compiler.compile #[``Lean.Compiler.LCNF.Simp.etaPolyApp?]
+run_meta Lean.Compiler.compile #[``Lean.Compiler.LCNF.Simp.etaPolyApp?]

@@ -8,6 +8,7 @@ import Lean.Meta.LitValues
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int
 import Init.Data.BitVec.Basic
+import Init.Data.BitVec.Lemmas
 
 namespace BitVec
 open Lean Meta Simp
@@ -18,6 +19,7 @@ structure Literal where
   n     : Nat
   /-- Actual value. -/
   value : BitVec n
+  deriving DecidableEq, Repr
 
 /--
 Try to convert `OfNat.ofNat`/`BitVec.OfNat` application into a
@@ -77,6 +79,16 @@ Helper function for reducing bitvector functions such as `shiftLeft` and `rotate
   let some v ← fromExpr? e.appFn!.appArg! | return .continue
   let some i ← Nat.fromExpr? e.appArg! | return .continue
   return .done <| toExpr (op v.value i)
+
+/--
+Helper function for reducing `x <<< i` and `x >>> i` where `i` is a bitvector literal,
+into one that is a natural number literal.
+-/
+@[inline] def reduceShiftWithBitVecLit (declName : Name) (e : Expr) : SimpM DStep := do
+  unless e.isAppOfArity declName 6 do return .continue
+  let v := e.appFn!.appArg!
+  let some i ← fromExpr? e.appArg! | return .continue
+  return .visit (← mkAppM declName #[v, toExpr i.value.toNat])
 
 /--
 Helper function for reducing bitvector predicates.
@@ -142,9 +154,9 @@ builtin_dsimproc [simp, seval] reduceSDiv ((sdiv _ _ : BitVec _)) := reduceBin `
 /-- Simplification procedure for signed division of `BitVec`s using the SMT-Lib conventions. -/
 builtin_dsimproc [simp, seval] reduceSMTSDiv ((smtSDiv _ _ : BitVec _)) := reduceBin ``smtSDiv 3 smtSDiv
 /-- Simplification procedure for `getLsb` (lowest significant bit) on `BitVec`. -/
-builtin_dsimproc [simp, seval] reduceGetLsb (getLsb _ _) := reduceGetBit ``getLsb getLsb
+builtin_dsimproc [simp, seval] reduceGetLsb (getLsbD _ _) := reduceGetBit ``getLsbD getLsbD
 /-- Simplification procedure for `getMsb` (most significant bit) on `BitVec`. -/
-builtin_dsimproc [simp, seval] reduceGetMsb (getMsb _ _) := reduceGetBit ``getMsb getMsb
+builtin_dsimproc [simp, seval] reduceGetMsb (getMsbD _ _) := reduceGetBit ``getMsbD getMsbD
 
 /-- Simplification procedure for shift left on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceShiftLeft (BitVec.shiftLeft _ _) :=
@@ -158,9 +170,15 @@ builtin_dsimproc [simp, seval] reduceSShiftRight (BitVec.sshiftRight _ _) :=
 /-- Simplification procedure for shift left on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceHShiftLeft ((_ <<< _ : BitVec _)) :=
   reduceShift ``HShiftLeft.hShiftLeft 6 (· <<< ·)
+/-- Simplification procedure for converting a shift with a bit-vector literal into a natural number literal. -/
+builtin_dsimproc [simp, seval] reduceHShiftLeft' ((_ <<< (_ : BitVec _) : BitVec _)) :=
+  reduceShiftWithBitVecLit ``HShiftLeft.hShiftLeft
 /-- Simplification procedure for shift right on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceHShiftRight ((_ >>> _ : BitVec _)) :=
   reduceShift ``HShiftRight.hShiftRight 6 (· >>> ·)
+/-- Simplification procedure for converting a shift with a bit-vector literal into a natural number literal. -/
+builtin_dsimproc [simp, seval] reduceHShiftRight' ((_ >>> (_ : BitVec _) : BitVec _)) :=
+  reduceShiftWithBitVecLit ``HShiftRight.hShiftRight
 /-- Simplification procedure for rotate left on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceRotateLeft (BitVec.rotateLeft _ _) :=
   reduceShift ``BitVec.rotateLeft 3 BitVec.rotateLeft
@@ -209,6 +227,9 @@ builtin_dsimproc [simp, seval] reduceOfNat (BitVec.ofNat _ _) := fun e => do
   let bv := BitVec.ofNat n v
   if bv.toNat == v then return .continue -- already normalized
   return .done <| toExpr (BitVec.ofNat n v)
+
+builtin_simproc [simp, seval] reduceEq  (( _ : BitVec _) = _)  := reduceBinPred ``Eq 3 (. = .)
+builtin_simproc [simp, seval] reduceNe  (( _ : BitVec _) ≠ _)  := reduceBinPred ``Ne 3 (. ≠ .)
 
 /-- Simplification procedure for `<` on `BitVec`s. -/
 builtin_simproc [simp, seval] reduceLT (( _ : BitVec _) < _)  := reduceBinPred ``LT.lt 4 (· < ·)
@@ -286,5 +307,27 @@ builtin_dsimproc [simp, seval] reduceBitVecToFin (BitVec.toFin _)  := fun e => d
   let_expr BitVec.toFin _ v ← e | return .continue
   let some ⟨_, v⟩ ← getBitVecValue? v | return .continue
   return .done <| toExpr v.toFin
+
+/--
+Helper function for reducing `(x <<< i) <<< j` (and `(x >>> i) >>> j`) where `i` and `j` are
+natural number literals.
+-/
+@[inline] def reduceShiftShift (declName : Name) (thmName : Name) (e : Expr) : SimpM Step := do
+  unless e.isAppOfArity declName 6 do return .continue
+  let aux := e.appFn!.appArg!
+  let some i ← Nat.fromExpr? e.appArg! | return .continue
+  unless aux.isAppOfArity declName 6 do return .continue
+  let x := aux.appFn!.appArg!
+  let some j ← Nat.fromExpr? aux.appArg! | return .continue
+  let i_add_j := toExpr (i + j)
+  let expr ← mkAppM declName #[x, i_add_j]
+  let proof ← mkAppM thmName #[x, aux.appArg!, e.appArg!]
+  let proof ← mkEqSymm proof -- we rewrite (x <<< i) <<< j ↦ x <<< (i + j) [the opposite direction]
+  return .visit { expr, proof? := some proof }
+
+builtin_simproc reduceShiftLeftShiftLeft (((_ <<< _ : BitVec _) <<< _ : BitVec _)) :=
+  reduceShiftShift ``HShiftLeft.hShiftLeft ``shiftLeft_add
+builtin_simproc reduceShiftRightShiftRight (((_ >>> _ : BitVec _) >>> _ : BitVec _)) :=
+  reduceShiftShift ``HShiftRight.hShiftRight ``shiftRight_add
 
 end BitVec

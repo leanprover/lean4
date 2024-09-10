@@ -21,21 +21,28 @@ and falls back to plain `lean --server`.
 def invalidConfigEnvVar := "LAKE_INVALID_CONFIG"
 
 /--
-Build a list of imports of a file and print the `.olean` and source directories of every used package, as well as the server options for the file.
+Build a list of imports of a file and print the `.olean` and source directories
+of every used package, as well as the server options for the file.
 If no configuration file exists, exit silently with `noConfigFileCode` (i.e, 2).
 
-The `setup-file` command is used internally by Lean 4 server.
+The `setup-file` command is used internally by the Lean 4 server.
 -/
-def setupFile (loadConfig : LoadConfig) (path : FilePath) (imports : List String := [])
-(buildConfig : BuildConfig := {}) (verbosity : Verbosity := .normal) : MainM PUnit := do
-  if (← loadConfig.configFile.pathExists) then
+def setupFile
+  (loadConfig : LoadConfig) (path : FilePath) (imports : List String := [])
+  (buildConfig : BuildConfig := {})
+: MainM PUnit := do
+  if (← configFileExists loadConfig.configFile) then
     if let some errLog := (← IO.getEnv invalidConfigEnvVar) then
       IO.eprint errLog
       IO.eprintln s!"Invalid Lake configuration.  Please restart the server after fixing the Lake configuration file."
       exit 1
-    let ws ← MainM.runLogIO (loadWorkspace loadConfig) verbosity
-    let dynlibs ← ws.runBuild (buildImportsAndDeps imports) buildConfig
-      |>.run (MonadLog.eio verbosity)
+    let outLv := buildConfig.verbosity.minLogLv
+    let ws ← MainM.runLogIO (minLv := outLv) (ansiMode := .noAnsi) do
+      loadWorkspace loadConfig
+    let imports := imports.foldl (init := #[]) fun imps imp =>
+      if let some mod := ws.findModule? imp.toName then imps.push mod else imps
+    let dynlibs ← MainM.runLogIO (minLv := outLv) (ansiMode := .noAnsi) do
+      ws.runBuild (buildImportsAndDeps path imports) buildConfig
     let paths : LeanPaths := {
       oleanPath := ws.leanPath
       srcPath := ws.leanSrcPath
@@ -63,16 +70,16 @@ with the given additional `args`.
 -/
 def serve (config : LoadConfig) (args : Array String) : IO UInt32 := do
   let (extraEnv, moreServerArgs) ← do
-    let (log, ws?) ← loadWorkspace config |>.captureLog
-    IO.eprint log
+    let (ws?, log) ← (loadWorkspace config).run?
+    log.replay (logger := MonadLog.stderr)
     if let some ws := ws? then
       let ctx := mkLakeContext ws
       pure (← LakeT.run ctx getAugmentedEnv, ws.root.moreGlobalServerArgs)
     else
       IO.eprintln "warning: package configuration has errors, falling back to plain `lean --server`"
-      pure (config.env.baseVars.push (invalidConfigEnvVar, log), #[])
+      pure (config.lakeEnv.baseVars.push (invalidConfigEnvVar, log.toString), #[])
   (← IO.Process.spawn {
-    cmd := config.env.lean.lean.toString
+    cmd := config.lakeEnv.lean.lean.toString
     args := #["--server"] ++ moreServerArgs ++ args
     env := extraEnv
   }).wait

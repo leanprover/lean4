@@ -9,7 +9,6 @@ import Init.System.IO
 
 import Lean.Elab.Import
 import Lean.Elab.Command
-import Lean.Language.Lean
 
 import Lean.Widget.InteractiveDiagnostic
 
@@ -58,6 +57,8 @@ def runCommandElabM (snap : Snapshot) (meta : DocumentMeta) (c : CommandElabM α
     fileName := meta.uri,
     fileMap := meta.text,
     tacticCache? := none
+    snap? := none
+    cancelTk? := none
   }
   c.run ctx |>.run' snap.cmdState
 

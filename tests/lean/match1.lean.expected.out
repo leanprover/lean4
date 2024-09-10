@@ -38,7 +38,7 @@ fun x x_1 =>
 fun x =>
   (match (motive := Nat → Nat → Nat) x with
     | 0 => id
-    | Nat.succ x => id)
+    | x.succ => id)
     x : Nat → Nat
 fun x =>
   match x with

@@ -27,8 +27,9 @@ where
       let rhs ← if isProof then
         `(have h : @$a = @$b := rfl; by subst h; exact $(← mkSameCtorRhs todo):term)
       else
+        let sameCtor ← mkSameCtorRhs todo
         `(if h : @$a = @$b then
-           by subst h; exact $(← mkSameCtorRhs todo):term
+           by subst h; exact $sameCtor:term
           else
            isFalse (by intro n; injection n; apply h _; assumption))
       if let some auxFunName := recField then
@@ -90,8 +91,14 @@ def mkAuxFunction (ctx : Context) (auxFunName : Name) (indVal : InductiveVal): T
   let header  ← mkDecEqHeader indVal
   let body    ← mkMatch ctx header indVal
   let binders := header.binders
-  let type    ← `(Decidable ($(mkIdent header.targetNames[0]!) = $(mkIdent header.targetNames[1]!)))
-  `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type:term := $body:term)
+  let target₁ := mkIdent header.targetNames[0]!
+  let target₂ := mkIdent header.targetNames[1]!
+  let termSuffix ← if indVal.isRec
+    then `(Parser.Termination.suffix|termination_by structural $target₁)
+    else `(Parser.Termination.suffix|)
+  let type    ← `(Decidable ($target₁ = $target₂))
+  `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type:term := $body:term
+    $termSuffix:suffix)
 
 def mkAuxFunctions (ctx : Context) : TermElabM (TSyntax `command) := do
   let mut res : Array (TSyntax `command) := #[]

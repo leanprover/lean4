@@ -5,3 +5,4 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Char.Basic
+import Init.Data.Char.Lemmas

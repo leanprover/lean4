@@ -6,7 +6,9 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Hashable
 import Lean.Data.KVMap
+import Lean.Data.SMap
 import Lean.Level
+import Std.Data.HashSet.Basic
 
 namespace Lean
 
@@ -243,7 +245,7 @@ def FVarIdSet.insert (s : FVarIdSet) (fvarId : FVarId) : FVarIdSet :=
 A set of unique free variable identifiers implemented using hashtables.
 Hashtables are faster than red-black trees if they are used linearly.
 They are not persistent data-structures. -/
-def FVarIdHashSet := HashSet FVarId
+def FVarIdHashSet := Std.HashSet FVarId
   deriving Inhabited, EmptyCollection
 
 /--
@@ -1387,9 +1389,11 @@ def mkDecIsTrue (pred proof : Expr) :=
 def mkDecIsFalse (pred proof : Expr) :=
   mkAppB (mkConst `Decidable.isFalse) pred proof
 
-abbrev ExprMap (α : Type)  := HashMap Expr α
+abbrev ExprMap (α : Type)  := Std.HashMap Expr α
 abbrev PersistentExprMap (α : Type) := PHashMap Expr α
-abbrev ExprSet := HashSet Expr
+abbrev SExprMap (α : Type)  := SMap Expr α
+
+abbrev ExprSet := Std.HashSet Expr
 abbrev PersistentExprSet := PHashSet Expr
 abbrev PExprSet := PersistentExprSet
 
@@ -1414,7 +1418,7 @@ instance : ToString ExprStructEq := ⟨fun e => toString e.val⟩
 
 end ExprStructEq
 
-abbrev ExprStructMap (α : Type) := HashMap ExprStructEq α
+abbrev ExprStructMap (α : Type) := Std.HashMap ExprStructEq α
 abbrev PersistentExprStructMap (α : Type) := PHashMap ExprStructEq α
 
 namespace Expr
@@ -1449,28 +1453,26 @@ partial def betaRev (f : Expr) (revArgs : Array Expr) (useZeta := false) (preser
   else
     let sz := revArgs.size
     let rec go (e : Expr) (i : Nat) : Expr :=
+      let done (_ : Unit) : Expr :=
+        let n := sz - i
+        mkAppRevRange (e.instantiateRange n sz revArgs) 0 n revArgs
       match e with
-      | Expr.lam _ _ b _ =>
+      | .lam _ _ b _ =>
         if i + 1 < sz then
           go b (i+1)
         else
-          let n := sz - (i + 1)
-          mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
-      | Expr.letE _ _ v b _ =>
+          b.instantiate revArgs
+      | .letE _ _ v b _ =>
         if useZeta && i < sz then
           go (b.instantiate1 v) i
         else
-          let n := sz - i
-          mkAppRevRange (e.instantiateRange n sz revArgs) 0 n revArgs
-      | Expr.mdata k b =>
+          done ()
+      | .mdata _ b =>
         if preserveMData then
-          let n := sz - i
-          mkMData k (mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs)
+          done ()
         else
           go b i
-      | b =>
-        let n := sz - i
-        mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
+      | _ => done ()
     go f 0
 
 /--
@@ -1881,6 +1883,38 @@ def letFunAppArgs? (e : Expr) : Option (Array Expr × Name × Expr × Expr × Ex
   | .lam n _ b _ => some (rest, n, t, v, b)
   | _ => some (rest, .anonymous, t, v, .app f (.bvar 0))
 
+/-- Maps `f` on each immediate child of the given expression. -/
+@[specialize]
+def traverseChildren [Applicative M] (f : Expr → M Expr) : Expr → M Expr
+  | e@(forallE _ d b _) => pure e.updateForallE! <*> f d <*> f b
+  | e@(lam _ d b _)     => pure e.updateLambdaE! <*> f d <*> f b
+  | e@(mdata _ b)       => e.updateMData! <$> f b
+  | e@(letE _ t v b _)  => pure e.updateLet! <*> f t <*> f v <*> f b
+  | e@(app l r)         => pure e.updateApp! <*> f l <*> f r
+  | e@(proj _ _ b)      => e.updateProj! <$> f b
+  | e                   => pure e
+
+/-- `e.foldlM f a` folds the monadic function `f` over the subterms of the expression `e`,
+with initial value `a`. -/
+def foldlM {α : Type} {m} [Monad m] (f : α → Expr → m α) (init : α) (e : Expr) : m α :=
+  Prod.snd <$> StateT.run (e.traverseChildren (fun e' => fun a => Prod.mk e' <$> f a e')) init
+
+/--
+Returns the size of `e` as a tree, i.e. nodes reachable via multiple paths are counted multiple
+times.
+
+This is a naive implementation that visits shared subterms multiple times instead of caching their
+sizes. It is primarily meant for debugging.
+-/
+def sizeWithoutSharing : (e : Expr) → Nat
+  | .forallE _ d b _ => 1 + d.sizeWithoutSharing + b.sizeWithoutSharing
+  | .lam _ d b _     => 1 + d.sizeWithoutSharing + b.sizeWithoutSharing
+  | .mdata _ e       => 1 + e.sizeWithoutSharing
+  | .letE _ t v b _  => 1 + t.sizeWithoutSharing + v.sizeWithoutSharing + b.sizeWithoutSharing
+  | .app f a         => 1 + f.sizeWithoutSharing + a.sizeWithoutSharing
+  | .proj _ _ e      => 1 + e.sizeWithoutSharing
+  | .lit .. | .const .. | .sort .. | .mvar .. | .fvar .. | .bvar .. => 1
+
 end Expr
 
 /--
@@ -2003,17 +2037,46 @@ def mkEM (p : Expr) : Expr := mkApp (mkConst ``Classical.em) p
 /-- Return `p ↔ q` -/
 def mkIff (p q : Expr) : Expr := mkApp2 (mkConst ``Iff) p q
 
+/-! Constants for Nat typeclasses. -/
+namespace Nat
+
+protected def mkType : Expr := mkConst ``Nat
+
+def mkInstAdd : Expr := mkConst ``instAddNat
+def mkInstHAdd : Expr := mkApp2 (mkConst ``instHAdd [levelZero]) Nat.mkType mkInstAdd
+
+def mkInstSub : Expr := mkConst ``instSubNat
+def mkInstHSub : Expr := mkApp2 (mkConst ``instHSub [levelZero]) Nat.mkType mkInstSub
+
+def mkInstMul : Expr := mkConst ``instMulNat
+def mkInstHMul : Expr := mkApp2 (mkConst ``instHMul [levelZero]) Nat.mkType mkInstMul
+
+def mkInstDiv : Expr := mkConst ``Nat.instDiv
+def mkInstHDiv : Expr := mkApp2 (mkConst ``instHDiv [levelZero]) Nat.mkType mkInstDiv
+
+def mkInstMod : Expr := mkConst ``Nat.instMod
+def mkInstHMod : Expr := mkApp2 (mkConst ``instHMod [levelZero]) Nat.mkType mkInstMod
+
+def mkInstNatPow : Expr := mkConst ``instNatPowNat
+def mkInstPow  : Expr := mkApp2 (mkConst ``instPowNat [levelZero]) Nat.mkType mkInstNatPow
+def mkInstHPow : Expr := mkApp3 (mkConst ``instHPow [levelZero, levelZero]) Nat.mkType Nat.mkType mkInstPow
+
+def mkInstLT : Expr := mkConst ``instLTNat
+def mkInstLE : Expr := mkConst ``instLENat
+
+end Nat
+
 private def natAddFn : Expr :=
   let nat := mkConst ``Nat
-  mkApp4 (mkConst ``HAdd.hAdd [0, 0, 0]) nat nat nat (mkApp2 (mkConst ``instHAdd [0]) nat (mkConst ``instAddNat))
+  mkApp4 (mkConst ``HAdd.hAdd [0, 0, 0]) nat nat nat Nat.mkInstHAdd
 
 private def natSubFn : Expr :=
   let nat := mkConst ``Nat
-  mkApp4 (mkConst ``HSub.hSub [0, 0, 0]) nat nat nat (mkApp2 (mkConst ``instHSub [0]) nat (mkConst ``instSubNat))
+  mkApp4 (mkConst ``HSub.hSub [0, 0, 0]) nat nat nat Nat.mkInstHSub
 
 private def natMulFn : Expr :=
   let nat := mkConst ``Nat
-  mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) nat nat nat (mkApp2 (mkConst ``instHMul [0]) nat (mkConst ``instMulNat))
+  mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) nat nat nat Nat.mkInstHMul
 
 /-- Given `a : Nat`, returns `Nat.succ a` -/
 def mkNatSucc (a : Expr) : Expr :=
@@ -2032,7 +2095,7 @@ def mkNatMul (a b : Expr) : Expr :=
   mkApp2 natMulFn a b
 
 private def natLEPred : Expr :=
-  mkApp2 (mkConst ``LE.le [0]) (mkConst ``Nat) (mkConst ``instLENat)
+  mkApp2 (mkConst ``LE.le [0]) (mkConst ``Nat) Nat.mkInstLE
 
 /-- Given `a b : Nat`, return `a ≤ b` -/
 def mkNatLE (a b : Expr) : Expr :=

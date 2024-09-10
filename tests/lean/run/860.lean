@@ -28,4 +28,6 @@ def pack (n: Nat) : List Nat :=
 
   loop n 0 []
 
+/-- info: [2, 0, 0] -/
+#guard_msgs in
 #eval pack 27

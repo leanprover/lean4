@@ -149,7 +149,7 @@ def checkDecl : SimpleHandler := fun stx => do
           lintField rest[1][0] stx[1] "computed field"
   else if rest.getKind == ``«structure» then
     unless rest[5][2].isNone do
-      let redecls : HashSet String.Pos :=
+      let redecls : Std.HashSet String.Pos :=
         (← get).infoState.trees.foldl (init := {}) fun s tree =>
           tree.foldInfo (init := s) fun _ info s =>
             if let .ofFieldRedeclInfo info := info then
@@ -236,7 +236,7 @@ def checkRegisterSimpAttr : SimpleHandler := mkSimpleHandler "simp attr"
 @[builtin_missing_docs_handler «in»]
 def handleIn : Handler := fun _ stx => do
   if stx[0].getKind == ``«set_option» then
-    let opts ← Elab.elabSetOption stx[0][1] stx[0][2]
+    let opts ← Elab.elabSetOption stx[0][1] stx[0][3]
     withScope (fun scope => { scope with opts }) do
       missingDocs.run stx[2]
   else

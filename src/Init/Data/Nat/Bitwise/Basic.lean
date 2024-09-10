@@ -78,6 +78,8 @@ of a number.
 -/
 
 /-- `testBit m n` returns whether the `(n+1)` least significant bit is `1` or `0`-/
-def testBit (m n : Nat) : Bool := (m >>> n) &&& 1 != 0
+def testBit (m n : Nat) : Bool :=
+  -- `1 &&& n` is faster than `n &&& 1` for big `n`.
+  1 &&& (m >>> n) != 0
 
 end Nat

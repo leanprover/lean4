@@ -7,6 +7,7 @@ import Lake.Util.Git
 import Lake.Load.Manifest
 import Lake.Config.Dependency
 import Lake.Config.Package
+import Lake.Reservoir
 
 open System Lean
 
@@ -29,7 +30,7 @@ def updateGitPkg (name : String) (repo : GitRepo) (rev? : Option String) : LogIO
     repo.checkoutDetach rev
 
 /-- Clone the Git package as `repo`. -/
-def cloneGitPkg (name : Name) (repo : GitRepo)
+def cloneGitPkg (name : String) (repo : GitRepo)
 (url : String) (rev? : Option String) : LogIO PUnit := do
   logInfo s!"{name}: cloning {url} to '{repo.dir}'"
   repo.clone url
@@ -81,8 +82,6 @@ structure MaterializedDep where
   remoteUrl? : Option String
   /-- The manifest entry for the dependency. -/
   manifestEntry : PackageEntry
-  /-- The configuration-specified dependency. -/
-  configDep : Dependency
   deriving Inhabited
 
 @[inline] def MaterializedDep.name (self : MaterializedDep) :=
@@ -96,57 +95,76 @@ structure MaterializedDep where
 @[inline] def MaterializedDep.configFile (self : MaterializedDep) :=
   self.manifestEntry.configFile
 
- /-- Lake configuration options for the dependency. -/
-@[inline] def MaterializedDep.configOpts (self : MaterializedDep) :=
-  self.configDep.opts
-
 /--
 Materializes a configuration dependency.
 For Git dependencies, updates it to the latest input revision.
 -/
-def Dependency.materialize (dep : Dependency) (inherited : Bool)
-(wsDir relPkgsDir relParentDir : FilePath) (pkgUrlMap : NameMap String)
-: LogIO MaterializedDep :=
-  match dep.src with
-  | .path dir =>
-    let relPkgDir := relParentDir / dir
-    return {
-      relPkgDir
-      remoteUrl? := none
-      manifestEntry := .path dep.name inherited defaultConfigFile none relPkgDir
-      configDep := dep
-    }
-  | .git url inputRev? subDir? => do
-    let sname := dep.name.toString (escape := false)
-    let relGitDir := relPkgsDir / sname
-    let repo := GitRepo.mk (wsDir / relGitDir)
-    let materializeUrl := pkgUrlMap.find? dep.name |>.getD url
-    materializeGitRepo sname repo materializeUrl inputRev?
+def Dependency.materialize
+  (dep : Dependency) (inherited : Bool)
+  (lakeEnv : Env) (wsDir relPkgsDir relParentDir : FilePath)
+: LogIO MaterializedDep := do
+  if let some src := dep.src? then
+    match src with
+    | .path dir =>
+      let relPkgDir := relParentDir / dir
+      return {
+        relPkgDir
+        remoteUrl? := none
+        manifestEntry := mkEntry <| .path relPkgDir
+      }
+    | .git url inputRev? subDir? => do
+      let sname := dep.name.toString (escape := false)
+      let repoUrl? := Git.filterUrl? url
+      materializeGit sname (relPkgsDir / sname) url repoUrl? inputRev? subDir?
+  else
+    if dep.scope.isEmpty then
+      error s!"{dep.name}: ill-formed dependency: \
+        dependency is missing a source and is missing a scope for Reservoir"
+    let verRev? ← dep.version?.mapM fun ver =>
+      if ver.startsWith "git#" then
+        return ver.drop 4
+      else
+        error s!"{dep.name} unsupported dependency version format '{ver}' (should be \"git#>rev>\")"
+    let depName := dep.name.toString (escape := false)
+    let some pkg ← fetchReservoirPkg? lakeEnv dep.scope depName
+      | error s!"{dep.scope}/{depName}: could not materialize package: \
+        dependency has no explicit source and was not found on Reservoir"
+    let relPkgDir := relPkgsDir / pkg.name
+    match pkg.gitSrc? with
+    | some (.git _ url githubUrl? defaultBranch? subDir?) =>
+      materializeGit pkg.fullName relPkgDir url githubUrl? (verRev? <|> defaultBranch?) subDir?
+    | _ => error s!"{pkg.fullName}: Git source not found on Reservoir"
+where
+  mkEntry src : PackageEntry :=
+    {name := dep.name, scope := dep.scope, inherited, src}
+  materializeGit name relPkgDir gitUrl remoteUrl? inputRev? subDir? : LogIO MaterializedDep := do
+    let repo := GitRepo.mk (wsDir / relPkgDir)
+    let gitUrl := lakeEnv.pkgUrlMap.find? dep.name |>.getD gitUrl
+    materializeGitRepo name repo gitUrl inputRev?
     let rev ← repo.getHeadRevision
-    let relPkgDir := match subDir? with | .some subDir => relGitDir / subDir | .none => relGitDir
+    let relPkgDir := if let some subDir := subDir? then relPkgDir / subDir else relPkgDir
     return {
       relPkgDir
-      remoteUrl? := Git.filterUrl? url
-      manifestEntry := .git dep.name inherited defaultConfigFile none url rev inputRev? subDir?
-      configDep := dep
+      remoteUrl? := remoteUrl?
+      manifestEntry := mkEntry <| .git gitUrl rev inputRev? subDir?
     }
 
 /--
 Materializes a manifest package entry, cloning and/or checking it out as necessary.
 -/
-def PackageEntry.materialize (manifestEntry : PackageEntry)
-(configDep : Dependency) (wsDir relPkgsDir : FilePath) (pkgUrlMap : NameMap String)
+def PackageEntry.materialize
+  (manifestEntry : PackageEntry)
+  (lakeEnv : Env) (wsDir relPkgsDir : FilePath)
 : LogIO MaterializedDep :=
-  match manifestEntry with
+  match manifestEntry.src with
   | .path (dir := relPkgDir) .. =>
     return {
       relPkgDir
       remoteUrl? := none
       manifestEntry
-      configDep
     }
-  | .git name (url := url) (rev := rev) (subDir? := subDir?) .. => do
-    let sname := name.toString (escape := false)
+  | .git (url := url) (rev := rev) (subDir? := subDir?) .. => do
+    let sname := manifestEntry.name.toString (escape := false)
     let relGitDir := relPkgsDir / sname
     let gitDir := wsDir / relGitDir
     let repo := GitRepo.mk gitDir
@@ -161,15 +179,14 @@ def PackageEntry.materialize (manifestEntry : PackageEntry)
         if (← repo.hasDiff) then
           logWarning s!"{sname}: repository '{repo.dir}' has local changes"
       else
-        let url := pkgUrlMap.find? name |>.getD url
+        let url := lakeEnv.pkgUrlMap.find? manifestEntry.name |>.getD url
         updateGitRepo sname repo url rev
     else
-      let url := pkgUrlMap.find? name |>.getD url
+      let url := lakeEnv.pkgUrlMap.find? manifestEntry.name |>.getD url
       cloneGitPkg sname repo url rev
     let relPkgDir := match subDir? with | .some subDir => relGitDir / subDir | .none => relGitDir
     return {
       relPkgDir
       remoteUrl? := Git.filterUrl? url
       manifestEntry
-      configDep
     }

@@ -1,0 +1,46 @@
+# This file allows lake to build Lean, Init, and Lake as Lean libraries.
+#
+# This is the file used when working with the stage0 compiler on the libraries
+#
+# It is not yet possible to build the compiler and other tooling executables with Lake; to build
+# them, please consult the instructions in doc/dev/index.md.
+
+name = "lean4"
+
+defaultTargets = ["Init", "Lean", "Lake"]
+
+# The root of all the compiler output directories
+buildDir = "${CMAKE_BINARY_DIR}"
+
+# The directory of Lean source files (i.e., `src`)
+srcDir = "${LEAN_SOURCE_DIR}"
+
+# Destination C files and other intermediate representations
+irDir = "lib/temp"
+
+# Destination for olean files
+leanLibDir = "lib/lean"
+
+# Destination for static libraries
+nativeLibDir = "lib/lean"
+
+[[lean_lib]]
+name = "Init"
+
+[[lean_lib]]
+name = "Std"
+
+[[lean_lib]]
+name = "Lean"
+globs = [
+  # Library root
+  "Lean",
+  # Deliberate orphan file so `import Lean` does not induce an LLVM dependency
+  "Lean.Compiler.IR.EmitLLVM",
+  # New compiler orphan file used in tests
+  "Lean.Compiler.LCNF.Probing",
+]
+
+[[lean_lib]]
+name = "Lake"
+srcDir = "lake"

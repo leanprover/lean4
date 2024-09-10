@@ -20,24 +20,27 @@ private def formatInfo (showInfo : Bool) (info : SourceInfo) (f : Format) : Form
   | true, SourceInfo.synthetic pos endPos false     => f!"{pos}:{f}:{endPos}"
   | _,    _                                         => f
 
-partial def formatStxAux (maxDepth : Option Nat) (showInfo : Bool) : Nat → Syntax → Format
-  | _,     atom info val     => formatInfo showInfo info $ format (repr val)
-  | _,     ident info _ val _   => formatInfo showInfo info $ format "`" ++ format val
-  | _,     missing           => "<missing>"
-  | depth, node _ kind args  =>
+partial def formatStxAux (maxDepth : Option Nat) (showInfo : Bool) (depth : Nat) : Syntax → Format
+  | atom info val        => formatInfo showInfo info <| format (repr val)
+  | ident info _ val _   => formatInfo showInfo info <| format "`" ++ format val
+  | missing              => "<missing>"
+  | node info kind args  =>
     let depth := depth + 1;
     if kind == nullKind then
-      sbracket $
+      sbracket <|
         if args.size > 0 && depth > maxDepth.getD depth then
           ".."
         else
           joinSep (args.toList.map (formatStxAux maxDepth showInfo depth)) line
     else
-      let shorterName := kind.replacePrefix `Lean.Parser Name.anonymous;
-      let header      := format shorterName;
+      let shorterName := kind.replacePrefix `Lean.Parser Name.anonymous
+      let header      := formatInfo showInfo info <| format shorterName
       let body : List Format :=
-        if args.size > 0 && depth > maxDepth.getD depth then [".."] else args.toList.map (formatStxAux maxDepth showInfo depth);
-      paren $ joinSep (header :: body) line
+        if args.size > 0 && depth > maxDepth.getD depth then
+          [".."]
+        else
+          args.toList.map (formatStxAux maxDepth showInfo depth)
+      paren <| joinSep (header :: body) line
 
 /-- Pretty print the given syntax `stx` as a `Format`.
 Nodes deeper than `maxDepth` are omitted.

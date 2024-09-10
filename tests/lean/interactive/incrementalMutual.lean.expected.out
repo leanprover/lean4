@@ -1,0 +1,50 @@
+b 0 0
+b 1 0
+b 0 1
+b 1 1
+b 1 1.5
+f 0 0
+f 1 0
+f 0 1
+f 1 1
+f 1 0
+f 0 1.5
+f 1 1
+h 0 0
+h 1 0
+h 0 1
+h 1 1
+h 1 0.5
+h 0 1
+h 1 1
+{"version": 1, "uri": "file:///incrementalMutual.lean", "diagnostics": []}
+{"version": 2, "uri": "file:///incrementalMutual.lean", "diagnostics": []}
+ns 0
+ns 1
+ns 1.5
+nt 0
+nt 1
+nt 0
+nt 1
+so 0
+so 1
+so 1.5
+{"version": 2,
+ "uri": "file:///incrementalMutual.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 2, "character": 16}, "end": {"line": 2, "character": 28}},
+   "message": "unknown identifier 'doesNotExist'",
+   "fullRange":
+   {"start": {"line": 2, "character": 16},
+    "end": {"line": 2, "character": 28}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 3, "character": 16}, "end": {"line": 3, "character": 28}},
+   "message": "unknown identifier 'doesNotExist'",
+   "fullRange":
+   {"start": {"line": 3, "character": 16},
+    "end": {"line": 3, "character": 28}}}]}

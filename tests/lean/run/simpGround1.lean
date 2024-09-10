@@ -43,7 +43,7 @@ example (h : xs = [6, 7, 8]) : f4 [1, 2, 3] 5 = xs := by
   simp (config := { ground := true })
   rw [h]
 
-#check List.instAppendList
+#check List.instAppend
 
 example (h : xs = [4, 3, 2]) : ([1, 2, 3].map (· + 1) |>.reverse) = xs := by
   simp (config := { ground := true })

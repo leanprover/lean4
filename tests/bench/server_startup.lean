@@ -7,7 +7,6 @@ def main : IO Unit := do
     hIn.write (←FS.readBinFile "server_startup.log")
     hIn.flush
     let initResp ← Ipc.readResponseAs 0 InitializeResult
-    let regWatchReq ← Ipc.readRequestAs "client/registerCapability" Json
     Ipc.writeNotification ⟨"initialized", InitializedParams.mk⟩
 
     Ipc.shutdown 1

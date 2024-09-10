@@ -26,17 +26,9 @@ def _root_.Lean.MVarId.assumptionCore (mvarId : MVarId) : MetaM Bool :=
     | none => return false
     | some fvarId => mvarId.assign (mkFVar fvarId); return true
 
-@[deprecated MVarId.assumptionCore]
-def assumptionCore (mvarId : MVarId) : MetaM Bool :=
-  mvarId.assumptionCore
-
 /-- Close goal `mvarId` using an assumption. Throw error message if failed. -/
 def _root_.Lean.MVarId.assumption (mvarId : MVarId) : MetaM Unit :=
   unless (← mvarId.assumptionCore) do
-    throwTacticEx `assumption mvarId ""
-
-@[deprecated MVarId.assumption]
-def assumption (mvarId : MVarId) : MetaM Unit :=
-  mvarId.assumption
+    throwTacticEx `assumption mvarId
 
 end Lean.Meta

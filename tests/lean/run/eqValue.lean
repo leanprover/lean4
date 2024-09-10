@@ -15,7 +15,7 @@
 #guard_msgs in
 #check f.eq_3
 /--
-info: f.eq_4 (x_2 : Nat) (x_3 : x_2 = 99 → False) (x_4 : x_2 = 999 → False) : f (Nat.succ x_2) = f x_2
+info: f.eq_4 (x_2 : Nat) (x_3 : x_2 = 99 → False) (x_4 : x_2 = 999 → False) : f x_2.succ = f x_2
 -/
 #guard_msgs in
 #check f.eq_4

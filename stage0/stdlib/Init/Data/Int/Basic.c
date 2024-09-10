@@ -13,24 +13,27 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_instCoeTailIntOfIntCast(lean_object*);
 static lean_object* l_Int___aux__Init__Data__Int__Basic______macroRules__Int__term_x2d_x5b___x2b1_x5d__1___closed__13;
 LEAN_EXPORT lean_object* l_instIntCastInt___boxed(lean_object*);
 static lean_object* l_Int_term_x2d_x5b___x2b1_x5d___closed__9;
 LEAN_EXPORT lean_object* l_Int_cast(lean_object*);
 uint8_t lean_int_dec_nonneg(lean_object*);
-LEAN_EXPORT lean_object* l_instCoeHTCTInt___rarg(lean_object*);
 static lean_object* l_Int___aux__Init__Data__Int__Basic______macroRules__Int__term_x2d_x5b___x2b1_x5d__1___closed__5;
+LEAN_EXPORT lean_object* l_Int_instInhabited;
 static lean_object* l_Int___aux__Init__Data__Int__Basic______unexpand__Int__negSucc__1___closed__2;
+LEAN_EXPORT lean_object* l_instCoeHTCTIntOfIntCast(lean_object*);
 LEAN_EXPORT lean_object* l_Int_add___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_instMinInt___boxed(lean_object*, lean_object*);
+static lean_object* l_Int_instInhabited___closed__1;
 static lean_object* l_Int_term_x2d_x5b___x2b1_x5d___closed__14;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 static lean_object* l_Int_sign___closed__1;
 LEAN_EXPORT lean_object* l_Int_negOfNat___boxed(lean_object*);
-static lean_object* l_Int_instInhabitedInt___closed__1;
+LEAN_EXPORT lean_object* l_instCoeTailIntOfIntCast___rarg(lean_object*);
+static lean_object* l_Int_instMul___closed__1;
 static lean_object* l_Int___aux__Init__Data__Int__Basic______macroRules__Int__term_x2d_x5b___x2b1_x5d__1___closed__15;
+LEAN_EXPORT lean_object* l_Int_instMax(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_instMaxInt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_sign___boxed(lean_object*);
 static lean_object* l_Int___aux__Init__Data__Int__Basic______macroRules__Int__term_x2d_x5b___x2b1_x5d__1___closed__9;
 LEAN_EXPORT lean_object* l_Int_sub___boxed(lean_object*, lean_object*);
@@ -39,28 +42,30 @@ static lean_object* l_Int_term_x2d_x5b___x2b1_x5d___closed__6;
 static lean_object* l_Int_term_x2d_x5b___x2b1_x5d___closed__13;
 static lean_object* l_Int_instNegInt___closed__1;
 LEAN_EXPORT lean_object* l_Int_toNat___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Int_instDecidableEq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_sign(lean_object*);
+static lean_object* l_Int_instAdd___closed__1;
 LEAN_EXPORT lean_object* l_Int_instNegInt;
-LEAN_EXPORT lean_object* l_Int_instMaxInt___boxed(lean_object*, lean_object*);
 static lean_object* l_Int_term_x2d_x5b___x2b1_x5d___closed__3;
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 lean_object* lean_nat_to_int(lean_object*);
+LEAN_EXPORT lean_object* l_instCoeHTCTIntOfIntCast___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Int_pow(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int___aux__Init__Data__Int__Basic______unexpand__Int__negSucc__1___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_instDecidableEqInt___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_instNatPow;
 LEAN_EXPORT lean_object* l_Int_decLe___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_decLt___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_instMulInt;
 LEAN_EXPORT lean_object* l_Int_negSucc___boxed(lean_object*);
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Int_instMulInt___closed__1;
+LEAN_EXPORT lean_object* l_Int_instDvd;
+LEAN_EXPORT lean_object* l_Int_instMul;
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_Basic_0__Int_decNonneg___boxed(lean_object*);
 static lean_object* l_Int_term_x2d_x5b___x2b1_x5d___closed__1;
-LEAN_EXPORT lean_object* l_Int_instMinInt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_cast___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_instLTInt;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+static lean_object* l_Int_instNatPow___closed__1;
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l_Int___aux__Init__Data__Int__Basic______unexpand__Int__negSucc__1___closed__1;
@@ -71,24 +76,24 @@ static lean_object* l_Int_term_x2d_x5b___x2b1_x5d___closed__5;
 lean_object* lean_int_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instIntCastInt(lean_object*);
 static lean_object* l_Int_term_x2d_x5b___x2b1_x5d___closed__10;
-LEAN_EXPORT lean_object* l_Int_instDvdInt;
 LEAN_EXPORT lean_object* l_Int_subNatNat(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_ofNat___boxed(lean_object*);
 static lean_object* l_Int___aux__Init__Data__Int__Basic______macroRules__Int__term_x2d_x5b___x2b1_x5d__1___closed__3;
 LEAN_EXPORT lean_object* l_Int_subNatNat___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 lean_object* lean_int_mul(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_instDecidableEq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_toNat_x27___boxed(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_instHPowIntNat;
+LEAN_EXPORT lean_object* l_Int_instAdd;
 static lean_object* l_Int___aux__Init__Data__Int__Basic______macroRules__Int__term_x2d_x5b___x2b1_x5d__1___closed__14;
 static lean_object* l_Int___aux__Init__Data__Int__Basic______macroRules__Int__term_x2d_x5b___x2b1_x5d__1___closed__11;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Int_sign___closed__2;
 LEAN_EXPORT lean_object* l_Int___aux__Init__Data__Int__Basic______unexpand__Int__negSucc__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_instSubInt;
 LEAN_EXPORT lean_object* l_Int_neg___boxed(lean_object*);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_instSub;
 static lean_object* l_Int_term_x2d_x5b___x2b1_x5d___closed__4;
 LEAN_EXPORT lean_object* l_Int_mul___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_toNat(lean_object*);
@@ -99,9 +104,11 @@ static lean_object* l_Int_term_x2d_x5b___x2b1_x5d___closed__12;
 static lean_object* l_Int___aux__Init__Data__Int__Basic______macroRules__Int__term_x2d_x5b___x2b1_x5d__1___closed__7;
 lean_object* lean_int_neg_succ_of_nat(lean_object*);
 static lean_object* l_Int___aux__Init__Data__Int__Basic______macroRules__Int__term_x2d_x5b___x2b1_x5d__1___closed__8;
+static lean_object* l_Int_instSub___closed__1;
 static lean_object* l_Int_term_x2d_x5b___x2b1_x5d___closed__8;
 LEAN_EXPORT lean_object* l_Int___aux__Init__Data__Int__Basic______macroRules__Int__term_x2d_x5b___x2b1_x5d__1(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Int_instAddInt___closed__1;
+LEAN_EXPORT lean_object* l_Int_instMax___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_instMin(lean_object*, lean_object*);
 static lean_object* l_Int___aux__Init__Data__Int__Basic______macroRules__Int__term_x2d_x5b___x2b1_x5d__1___closed__6;
 lean_object* lean_int_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_term_x2d_x5b___x2b1_x5d;
@@ -109,28 +116,21 @@ lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_o
 static lean_object* l_Int___aux__Init__Data__Int__Basic______macroRules__Int__term_x2d_x5b___x2b1_x5d__1___closed__1;
 static lean_object* l_Int___aux__Init__Data__Int__Basic______macroRules__Int__term_x2d_x5b___x2b1_x5d__1___closed__2;
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
-static lean_object* l_Int_instSubInt___closed__1;
 static lean_object* l_Int_term_x2d_x5b___x2b1_x5d___closed__15;
-LEAN_EXPORT lean_object* l_Int_instInhabitedInt;
 static lean_object* l_Int_term_x2d_x5b___x2b1_x5d___closed__11;
 lean_object* lean_int_neg(lean_object*);
+LEAN_EXPORT lean_object* l_Int_instMin___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_decEq___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instCoeTailInt___rarg(lean_object*);
 static lean_object* l_Int_term_x2d_x5b___x2b1_x5d___closed__2;
 static lean_object* l_Int___aux__Init__Data__Int__Basic______macroRules__Int__term_x2d_x5b___x2b1_x5d__1___closed__12;
 static lean_object* l_Int___aux__Init__Data__Int__Basic______macroRules__Int__term_x2d_x5b___x2b1_x5d__1___closed__10;
-LEAN_EXPORT uint8_t l_Int_instDecidableEqInt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_instLEInt;
-LEAN_EXPORT lean_object* l_instCoeTailInt(lean_object*);
 LEAN_EXPORT lean_object* l_Int_negOfNat(lean_object*);
 lean_object* l_String_toSubstring_x27(lean_object*);
-LEAN_EXPORT lean_object* l_Int_instAddInt;
 LEAN_EXPORT lean_object* l_Int_pow___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instCoeHTCTInt(lean_object*);
 static lean_object* l_Int_term_x2d_x5b___x2b1_x5d___closed__7;
 static lean_object* l_Int___aux__Init__Data__Int__Basic______macroRules__Int__term_x2d_x5b___x2b1_x5d__1___closed__4;
 LEAN_EXPORT lean_object* l_Int_natAbs___boxed(lean_object*);
-static lean_object* l_Int_instHPowIntNat___closed__1;
 LEAN_EXPORT lean_object* l_Int_ofNat___boxed(lean_object* x_1) {
 _start:
 {
@@ -167,7 +167,7 @@ static lean_object* _init_l_Int_term_x2d_x5b___x2b1_x5d___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Int", 3);
+x_1 = lean_mk_string_unchecked("Int", 3, 3);
 return x_1;
 }
 }
@@ -175,7 +175,7 @@ static lean_object* _init_l_Int_term_x2d_x5b___x2b1_x5d___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term-[_+1]", 10);
+x_1 = lean_mk_string_unchecked("term-[_+1]", 10, 10);
 return x_1;
 }
 }
@@ -193,7 +193,7 @@ static lean_object* _init_l_Int_term_x2d_x5b___x2b1_x5d___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("andthen", 7);
+x_1 = lean_mk_string_unchecked("andthen", 7, 7);
 return x_1;
 }
 }
@@ -211,7 +211,7 @@ static lean_object* _init_l_Int_term_x2d_x5b___x2b1_x5d___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("-[", 2);
+x_1 = lean_mk_string_unchecked("-[", 2, 2);
 return x_1;
 }
 }
@@ -229,7 +229,7 @@ static lean_object* _init_l_Int_term_x2d_x5b___x2b1_x5d___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term", 4);
+x_1 = lean_mk_string_unchecked("term", 4, 4);
 return x_1;
 }
 }
@@ -273,7 +273,7 @@ static lean_object* _init_l_Int_term_x2d_x5b___x2b1_x5d___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("+1]", 3);
+x_1 = lean_mk_string_unchecked("+1]", 3, 3);
 return x_1;
 }
 }
@@ -327,7 +327,7 @@ static lean_object* _init_l_Int___aux__Init__Data__Int__Basic______macroRules__I
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -335,7 +335,7 @@ static lean_object* _init_l_Int___aux__Init__Data__Int__Basic______macroRules__I
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -343,7 +343,7 @@ static lean_object* _init_l_Int___aux__Init__Data__Int__Basic______macroRules__I
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Term", 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
@@ -351,7 +351,7 @@ static lean_object* _init_l_Int___aux__Init__Data__Int__Basic______macroRules__I
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("app", 3);
+x_1 = lean_mk_string_unchecked("app", 3, 3);
 return x_1;
 }
 }
@@ -371,7 +371,7 @@ static lean_object* _init_l_Int___aux__Init__Data__Int__Basic______macroRules__I
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("negSucc", 7);
+x_1 = lean_mk_string_unchecked("negSucc", 7, 7);
 return x_1;
 }
 }
@@ -454,7 +454,7 @@ static lean_object* _init_l_Int___aux__Init__Data__Int__Basic______macroRules__I
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("null", 4);
+x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
@@ -496,6 +496,7 @@ x_10 = lean_ctor_get(x_2, 5);
 lean_inc(x_10);
 x_11 = 0;
 x_12 = l_Lean_SourceInfo_fromRef(x_10, x_11);
+lean_dec(x_10);
 x_13 = lean_ctor_get(x_2, 2);
 lean_inc(x_13);
 x_14 = lean_ctor_get(x_2, 1);
@@ -527,7 +528,7 @@ static lean_object* _init_l_Int___aux__Init__Data__Int__Basic______unexpand__Int
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ident", 5);
+x_1 = lean_mk_string_unchecked("ident", 5, 5);
 return x_1;
 }
 }
@@ -605,6 +606,7 @@ x_20 = l_Lean_replaceRef(x_9, x_2);
 lean_dec(x_9);
 x_21 = 0;
 x_22 = l_Lean_SourceInfo_fromRef(x_20, x_21);
+lean_dec(x_20);
 x_23 = l_Int_term_x2d_x5b___x2b1_x5d___closed__6;
 lean_inc(x_22);
 x_24 = lean_alloc_ctor(2, 2, 0);
@@ -635,7 +637,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_Int_instInhabitedInt___closed__1() {
+static lean_object* _init_l_Int_instInhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -644,11 +646,11 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Int_instInhabitedInt() {
+static lean_object* _init_l_Int_instInhabited() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Int_instInhabitedInt___closed__1;
+x_1 = l_Int_instInhabited___closed__1;
 return x_1;
 }
 }
@@ -669,7 +671,7 @@ return x_6;
 else
 {
 lean_object* x_7; 
-x_7 = l_Int_instInhabitedInt___closed__1;
+x_7 = l_Int_instInhabited___closed__1;
 return x_7;
 }
 }
@@ -754,7 +756,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Int_instAddInt___closed__1() {
+static lean_object* _init_l_Int_instAdd___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -762,11 +764,11 @@ x_1 = lean_alloc_closure((void*)(l_Int_add___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Int_instAddInt() {
+static lean_object* _init_l_Int_instAdd() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Int_instAddInt___closed__1;
+x_1 = l_Int_instAdd___closed__1;
 return x_1;
 }
 }
@@ -780,7 +782,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Int_instMulInt___closed__1() {
+static lean_object* _init_l_Int_instMul___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -788,11 +790,11 @@ x_1 = lean_alloc_closure((void*)(l_Int_mul___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Int_instMulInt() {
+static lean_object* _init_l_Int_instMul() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Int_instMulInt___closed__1;
+x_1 = l_Int_instMul___closed__1;
 return x_1;
 }
 }
@@ -806,7 +808,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Int_instSubInt___closed__1() {
+static lean_object* _init_l_Int_instSub___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -814,11 +816,11 @@ x_1 = lean_alloc_closure((void*)(l_Int_sub___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Int_instSubInt() {
+static lean_object* _init_l_Int_instSub() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Int_instSubInt___closed__1;
+x_1 = l_Int_instSub___closed__1;
 return x_1;
 }
 }
@@ -849,7 +851,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT uint8_t l_Int_instDecidableEqInt(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Int_instDecidableEq(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -857,11 +859,11 @@ x_3 = lean_int_dec_eq(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Int_instDecidableEqInt___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Int_instDecidableEq___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Int_instDecidableEqInt(x_1, x_2);
+x_3 = l_Int_instDecidableEq(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -931,7 +933,7 @@ LEAN_EXPORT lean_object* l_Int_sign(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = l_Int_instInhabitedInt___closed__1;
+x_2 = l_Int_instInhabited___closed__1;
 x_3 = lean_int_dec_lt(x_1, x_2);
 if (x_3 == 0)
 {
@@ -949,7 +951,7 @@ return x_7;
 else
 {
 lean_object* x_8; 
-x_8 = l_Int_instInhabitedInt___closed__1;
+x_8 = l_Int_instInhabited___closed__1;
 return x_8;
 }
 }
@@ -974,7 +976,7 @@ LEAN_EXPORT lean_object* l_Int_toNat(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = l_Int_instInhabitedInt___closed__1;
+x_2 = l_Int_instInhabited___closed__1;
 x_3 = lean_int_dec_lt(x_1, x_2);
 if (x_3 == 0)
 {
@@ -1003,7 +1005,7 @@ LEAN_EXPORT lean_object* l_Int_toNat_x27(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = l_Int_instInhabitedInt___closed__1;
+x_2 = l_Int_instInhabited___closed__1;
 x_3 = lean_int_dec_lt(x_1, x_2);
 if (x_3 == 0)
 {
@@ -1030,7 +1032,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Int_instDvdInt() {
+static lean_object* _init_l_Int_instDvd() {
 _start:
 {
 lean_object* x_1; 
@@ -1073,7 +1075,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Int_instHPowIntNat___closed__1() {
+static lean_object* _init_l_Int_instNatPow___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1081,15 +1083,15 @@ x_1 = lean_alloc_closure((void*)(l_Int_pow___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Int_instHPowIntNat() {
+static lean_object* _init_l_Int_instNatPow() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Int_instHPowIntNat___closed__1;
+x_1 = l_Int_instNatPow___closed__1;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Int_instMinInt(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Int_instMin(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -1106,17 +1108,17 @@ return x_1;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Int_instMinInt___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Int_instMin___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Int_instMinInt(x_1, x_2);
+x_3 = l_Int_instMin(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Int_instMaxInt(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Int_instMax(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -1133,11 +1135,11 @@ return x_2;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Int_instMaxInt___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Int_instMax___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Int_instMaxInt(x_1, x_2);
+x_3 = l_Int_instMax(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
@@ -1175,7 +1177,7 @@ x_2 = lean_alloc_closure((void*)(l_Int_cast___rarg), 2, 0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_instCoeTailInt___rarg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_instCoeTailIntOfIntCast___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -1184,15 +1186,15 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_instCoeTailInt(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_instCoeTailIntOfIntCast(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instCoeTailInt___rarg), 1, 0);
+x_2 = lean_alloc_closure((void*)(l_instCoeTailIntOfIntCast___rarg), 1, 0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_instCoeHTCTInt___rarg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_instCoeHTCTIntOfIntCast___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -1201,11 +1203,11 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_instCoeHTCTInt(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_instCoeHTCTIntOfIntCast(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instCoeHTCTInt___rarg), 1, 0);
+x_2 = lean_alloc_closure((void*)(l_instCoeHTCTIntOfIntCast___rarg), 1, 0);
 return x_2;
 }
 }
@@ -1292,26 +1294,26 @@ l_Int___aux__Init__Data__Int__Basic______unexpand__Int__negSucc__1___closed__1 =
 lean_mark_persistent(l_Int___aux__Init__Data__Int__Basic______unexpand__Int__negSucc__1___closed__1);
 l_Int___aux__Init__Data__Int__Basic______unexpand__Int__negSucc__1___closed__2 = _init_l_Int___aux__Init__Data__Int__Basic______unexpand__Int__negSucc__1___closed__2();
 lean_mark_persistent(l_Int___aux__Init__Data__Int__Basic______unexpand__Int__negSucc__1___closed__2);
-l_Int_instInhabitedInt___closed__1 = _init_l_Int_instInhabitedInt___closed__1();
-lean_mark_persistent(l_Int_instInhabitedInt___closed__1);
-l_Int_instInhabitedInt = _init_l_Int_instInhabitedInt();
-lean_mark_persistent(l_Int_instInhabitedInt);
+l_Int_instInhabited___closed__1 = _init_l_Int_instInhabited___closed__1();
+lean_mark_persistent(l_Int_instInhabited___closed__1);
+l_Int_instInhabited = _init_l_Int_instInhabited();
+lean_mark_persistent(l_Int_instInhabited);
 l_Int_instNegInt___closed__1 = _init_l_Int_instNegInt___closed__1();
 lean_mark_persistent(l_Int_instNegInt___closed__1);
 l_Int_instNegInt = _init_l_Int_instNegInt();
 lean_mark_persistent(l_Int_instNegInt);
-l_Int_instAddInt___closed__1 = _init_l_Int_instAddInt___closed__1();
-lean_mark_persistent(l_Int_instAddInt___closed__1);
-l_Int_instAddInt = _init_l_Int_instAddInt();
-lean_mark_persistent(l_Int_instAddInt);
-l_Int_instMulInt___closed__1 = _init_l_Int_instMulInt___closed__1();
-lean_mark_persistent(l_Int_instMulInt___closed__1);
-l_Int_instMulInt = _init_l_Int_instMulInt();
-lean_mark_persistent(l_Int_instMulInt);
-l_Int_instSubInt___closed__1 = _init_l_Int_instSubInt___closed__1();
-lean_mark_persistent(l_Int_instSubInt___closed__1);
-l_Int_instSubInt = _init_l_Int_instSubInt();
-lean_mark_persistent(l_Int_instSubInt);
+l_Int_instAdd___closed__1 = _init_l_Int_instAdd___closed__1();
+lean_mark_persistent(l_Int_instAdd___closed__1);
+l_Int_instAdd = _init_l_Int_instAdd();
+lean_mark_persistent(l_Int_instAdd);
+l_Int_instMul___closed__1 = _init_l_Int_instMul___closed__1();
+lean_mark_persistent(l_Int_instMul___closed__1);
+l_Int_instMul = _init_l_Int_instMul();
+lean_mark_persistent(l_Int_instMul);
+l_Int_instSub___closed__1 = _init_l_Int_instSub___closed__1();
+lean_mark_persistent(l_Int_instSub___closed__1);
+l_Int_instSub = _init_l_Int_instSub();
+lean_mark_persistent(l_Int_instSub);
 l_Int_instLEInt = _init_l_Int_instLEInt();
 lean_mark_persistent(l_Int_instLEInt);
 l_Int_instLTInt = _init_l_Int_instLTInt();
@@ -1320,12 +1322,12 @@ l_Int_sign___closed__1 = _init_l_Int_sign___closed__1();
 lean_mark_persistent(l_Int_sign___closed__1);
 l_Int_sign___closed__2 = _init_l_Int_sign___closed__2();
 lean_mark_persistent(l_Int_sign___closed__2);
-l_Int_instDvdInt = _init_l_Int_instDvdInt();
-lean_mark_persistent(l_Int_instDvdInt);
-l_Int_instHPowIntNat___closed__1 = _init_l_Int_instHPowIntNat___closed__1();
-lean_mark_persistent(l_Int_instHPowIntNat___closed__1);
-l_Int_instHPowIntNat = _init_l_Int_instHPowIntNat();
-lean_mark_persistent(l_Int_instHPowIntNat);
+l_Int_instDvd = _init_l_Int_instDvd();
+lean_mark_persistent(l_Int_instDvd);
+l_Int_instNatPow___closed__1 = _init_l_Int_instNatPow___closed__1();
+lean_mark_persistent(l_Int_instNatPow___closed__1);
+l_Int_instNatPow = _init_l_Int_instNatPow();
+lean_mark_persistent(l_Int_instNatPow);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

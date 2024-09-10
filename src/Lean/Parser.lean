@@ -12,6 +12,7 @@ import Lean.Parser.Command
 import Lean.Parser.Module
 import Lean.Parser.Syntax
 import Lean.Parser.Do
+import Lean.Parser.Tactic.Doc
 
 namespace Lean
 namespace Parser
@@ -49,9 +50,9 @@ builtin_initialize
   register_parser_alias andthen { stackSz? := none }
   register_parser_alias recover
 
-  registerAlias "notFollowedBy" ``notFollowedBy (notFollowedBy · "element")
-  Parenthesizer.registerAlias "notFollowedBy" notFollowedBy.parenthesizer
-  Formatter.registerAlias "notFollowedBy" notFollowedBy.formatter
+  registerAlias `notFollowedBy ``notFollowedBy (notFollowedBy · "element")
+  Parenthesizer.registerAlias `notFollowedBy notFollowedBy.parenthesizer
+  Formatter.registerAlias `notFollowedBy notFollowedBy.formatter
 
 end Parser
 

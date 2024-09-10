@@ -7,6 +7,8 @@ prelude
 import Lean.Data.LBool
 import Lean.Meta.InferType
 import Lean.Meta.NatInstTesters
+import Lean.Meta.NatInstTesters
+import Lean.Util.SafeExponentiation
 
 namespace Lean.Meta
 
@@ -29,6 +31,10 @@ partial def evalNat (e : Expr) : OptionT MetaM Nat := do
   | .mvar ..             => visit e
   | _                    => failure
 where
+  evalPow (b n : Expr) : OptionT MetaM Nat := do
+    let n ← evalNat n
+    guard (← checkExponent n)
+    return (← evalNat b) ^ n
   visit e := do
     match_expr e with
     | OfNat.ofNat _ n i => guard (← isInstOfNatNat i); evalNat n
@@ -48,11 +54,21 @@ where
     | Nat.mod a b => return (← evalNat a) % (← evalNat b)
     | Mod.mod _ i a b => guard (← isInstModNat i); return (← evalNat a) % (← evalNat b)
     | HMod.hMod _ _ _ i a b => guard (← isInstHModNat i); return (← evalNat a) % (← evalNat b)
-    | Nat.pow a b => return (← evalNat a) ^ (← evalNat b)
-    | NatPow.pow _ i a b => guard (← isInstNatPowNat i); return (← evalNat a) ^ (← evalNat b)
-    | Pow.pow _ _ i a b => guard (← isInstPowNat i); return (← evalNat a) ^ (← evalNat b)
-    | HPow.hPow _ _ _ i a b => guard (← isInstHPowNat i); return (← evalNat a) ^ (← evalNat b)
+    | Nat.pow a b => evalPow a b
+    | NatPow.pow _ i a b => guard (← isInstNatPowNat i); evalPow a b
+    | Pow.pow _ _ i a b => guard (← isInstPowNat i); evalPow a b
+    | HPow.hPow _ _ _ i a b => guard (← isInstHPowNat i); evalPow a b
     | _ => failure
+
+/--
+Checks that expression `e` is definitional equal to `inst`.
+
+Uses `instances` transparency so that reducible terms and instances extended
+other instances are unfolded.
+-/
+def matchesInstance (e inst : Expr) : MetaM Bool :=
+  -- Note. We use withNewMCtxDepth to avoid assigning meta-variables in isDefEq checks
+  withNewMCtxDepth (withTransparency .instances (isDefEq e inst))
 
 mutual
 
@@ -65,7 +81,7 @@ private partial def getOffset (e : Expr) : MetaM (Expr × Nat) :=
   return (← isOffset? e).getD (e, 0)
 
 /--
-Similar to `getOffset` but returns `none` if the expression is not syntactically an offset.
+Similar to `getOffset` but returns `none` if the expression is not an offset.
 -/
 partial def isOffset? (e : Expr) : OptionT MetaM (Expr × Nat) := do
   let add (a b : Expr) := do
@@ -77,8 +93,8 @@ partial def isOffset? (e : Expr) : OptionT MetaM (Expr × Nat) := do
     let (s, k) ← getOffset a
     return (s, k+1)
   | Nat.add a b => add a b
-  | Add.add _ i a b => guard (← isInstAddNat i); add a b
-  | HAdd.hAdd _ _ _ i a b => guard (← isInstHAddNat i); add a b
+  | Add.add _ i a b => guard (← matchesInstance i Nat.mkInstAdd); add a b
+  | HAdd.hAdd _ _ _ i a b => guard (← matchesInstance i Nat.mkInstHAdd); add a b
   | _ => failure
 
 end

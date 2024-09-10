@@ -6,7 +6,7 @@
 #guard_msgs in
 #check iota.eq_1
 
-/-- info: iota.eq_2 (n : Nat) : iota (Nat.succ n) = Nat.succ n :: iota n -/
+/-- info: iota.eq_2 (n : Nat) : iota n.succ = n.succ :: iota n -/
 #guard_msgs in
 #check iota.eq_2
 

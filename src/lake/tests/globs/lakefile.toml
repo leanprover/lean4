@@ -1,0 +1,9 @@
+name = 'test'
+
+[[lean_lib]]
+name = 'TBA'
+globs = 'TBA.*'
+
+[[lean_lib]]
+name = 'Test'
+globs = ['Test.+']

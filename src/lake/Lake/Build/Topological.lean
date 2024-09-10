@@ -29,7 +29,7 @@ In this section, we define the primitives that make up a builder.
 A dependently typed monadic *fetch* function.
 
 That is, a function within the monad `m` and takes an input `a : α`
-describing what to fetch and and produces some output `b : β a` (dependently
+describing what to fetch and produces some output `b : β a` (dependently
 typed) or `b : B` (not) describing what was fetched. All build functions are
 fetch functions, but not all fetch functions need build something.
 -/
@@ -77,22 +77,25 @@ define the `acyclicRecFetch` below to guard against such cases.
 -/
 
 /--
-A `recFetch` augmented by a `CycleT` to guard against recursive cycles.
+A `recFetch` augmented by a `MonadCycle` to guard against recursive cycles.
 If the set of visited keys is finite, this function should provably terminate.
 
 We use `keyOf` to the derive the unique key of a fetch from its descriptor
 `a : α`. We do this because descriptors may not be comparable and/or contain
 more information than necessary to determine uniqueness.
 -/
-@[inline] partial def recFetchAcyclic [BEq κ] [Monad m]
-(keyOf : α → κ) (fetch : DRecFetchFn α β (CycleT κ m)) : DFetchFn α β (CycleT κ m) :=
-  recFetch fun a recurse =>
+@[specialize] def recFetchAcyclic
+  [BEq κ] [Monad m] [MonadCycle κ m]
+  (keyOf : α → κ) (fetch : DRecFetchFn α β m)
+: DFetchFn α β m :=
+  recFetch fun a recurse => guardCycle (keyOf a) do
     /-
     NOTE: We provide the stack directly to `recurse` rather than
-    get it through `ReaderT` to prevent it being overridden by the `fetch`
-    function (and thereby potentially produce a cycle).
+    using the version in the monad to prevent it being overridden by
+    the `fetch` function (and thereby potentially produce a cycle).
     -/
-    guardCycle (keyOf a) fun stack => fetch a (recurse · stack) stack
+    let stack ← getCallStack
+    fetch a fun a => withCallStack stack (recurse a)
 
 /-!
 When building, we usually do not want to build the same thing twice during
@@ -105,35 +108,9 @@ future fetches. This is what `recFetchMemoize` below does.
 `recFetchAcyclic` augmented with a `MonadDStore` to
 memoize fetch results and thus avoid computing the same result twice.
 -/
-@[inline] def recFetchMemoize [BEq κ] [Monad m] [MonadDStore κ β m]
-(keyOf : α → κ) (fetch : DRecFetchFn α (fun a => β (keyOf a)) (CycleT κ m))
-: DFetchFn α (fun a => β (keyOf a)) (CycleT κ m) :=
-  recFetchAcyclic keyOf fun a recurse =>
+@[specialize] def recFetchMemoize
+  [BEq κ] [Monad m] [MonadCycle κ m] [MonadDStore κ β m]
+  (keyOf : α → κ) (fetch : DRecFetchFn α (fun a => β (keyOf a)) m)
+: DFetchFn α (fun a => β (keyOf a)) m :=
+  inline <| recFetchAcyclic keyOf fun a recurse =>
     fetchOrCreate (keyOf a) do fetch a recurse
-
-/-!
-## Building
-
-In this section, we use the abstractions we have just created to define
-the desired topological recursive build function (a.k.a. a suspending scheduler).
--/
-
-/-- Recursively builds objects for the keys `κ`, avoiding cycles. -/
-@[inline] def buildAcyclic [BEq κ] [Monad m]
-(keyOf : α → κ) (a : α) (build : RecFetchFn α β (CycleT κ m)) : ExceptT (Cycle κ) m β :=
-  recFetchAcyclic (β := fun _ => β) keyOf build a []
-
-/-- Dependently typed version of `buildTop`. -/
-@[inline] def buildDTop (β) [BEq κ] [Monad m] [MonadDStore κ β m]
-(keyOf : α → κ) (a : α) (build : DRecFetchFn α (fun a => β (keyOf a)) (CycleT κ m))
-: ExceptT (Cycle κ) m (β (keyOf a)) :=
-  recFetchMemoize keyOf build a []
-
-/--
-Recursively fills a `MonadStore` of key-object pairs by
-building objects topologically (ι.e., depth-first with memoization).
-If a cycle is detected, the list of keys traversed is thrown.
--/
-@[inline] def buildTop [BEq κ] [Monad m] [MonadStore κ β m]
-(keyOf : α → κ) (a : α) (build : RecFetchFn α β (CycleT κ m)) : ExceptT (Cycle κ) m β :=
-  recFetchMemoize (β := fun _ => β) keyOf build a []

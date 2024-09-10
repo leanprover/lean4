@@ -5,6 +5,7 @@ Authors: Scott Morrison
 -/
 prelude
 import Init.Omega.Coeffs
+import Init.Data.ToString.Macro
 
 /-!
 # Linear combinations
@@ -36,6 +37,10 @@ theorem ext {a b : LinearCombo} (w₁ : a.const = b.const) (w₂ : a.coeffs = b.
   cases a; cases b
   subst w₁; subst w₂
   congr
+
+/-- Check if a linear combination is an atom, i.e. the constant term is zero and there is exactly one nonzero coefficient, which is one. -/
+def isAtom (a : LinearCombo) : Bool :=
+  a.const == 0 && (a.coeffs.filter (· == 1)).length == 1 && a.coeffs.all fun c => c == 0 || c == 1
 
 /--
 Evaluate a linear combination `⟨r, [c_1, …, c_k]⟩` at values `[v_1, …, v_k]` to obtain

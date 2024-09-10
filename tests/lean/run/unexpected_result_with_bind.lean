@@ -18,6 +18,8 @@ let falseBranch ← pure "falseBranch";
 (1 : Nat).foldM (λ _ (s : String) => do
   let s ← pure $ if b then trueBranch else falseBranch; pure s) ""
 
+/-- info: "trueBranch" -/
+#guard_msgs in
 #eval unexpectedBehavior ()
 
 end Repro

@@ -1,6 +1,11 @@
 1673.lean:1:4-1:9: error: fail to show termination for
   foo.a
 with errors
-structural recursion cannot be used
+failed to infer structural recursion:
+Not considering parameter n of foo.a:
+  it is unchanged in the recursive calls
+Not considering parameter nope of foo.a:
+  it is unchanged in the recursive calls
+no parameters suitable for structural recursion
 
 well-founded recursion cannot be used, 'foo.a' does not take any (non-fixed) arguments

@@ -32,3 +32,6 @@ test% g.match_1
 #check g.match_1.eq_1
 #check g.match_1.eq_2
 #check g.match_1.splitter
+
+
+def bla.splitter := 5 -- ok

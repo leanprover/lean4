@@ -28,17 +28,17 @@ such as `contradiction`.
 -/
 private def _root_.Lean.MVarId.contradictionQuick (mvarId : MVarId) : MetaM Bool := do
   mvarId.withContext do
-    let mut posMap : HashMap Expr FVarId := {}
-    let mut negMap : HashMap Expr FVarId := {}
+    let mut posMap : Std.HashMap Expr FVarId := {}
+    let mut negMap : Std.HashMap Expr FVarId := {}
     for localDecl in (← getLCtx) do
       unless localDecl.isImplementationDetail do
         if let some p ← matchNot? localDecl.type then
-          if let some pFVarId := posMap.find? p then
+          if let some pFVarId := posMap[p]? then
             mvarId.assign (← mkAbsurd (← mvarId.getType) (mkFVar pFVarId) localDecl.toExpr)
             return true
           negMap := negMap.insert p localDecl.fvarId
         if (← isProp localDecl.type) then
-          if let some nFVarId := negMap.find? localDecl.type then
+          if let some nFVarId := negMap[localDecl.type]? then
             mvarId.assign (← mkAbsurd (← mvarId.getType) localDecl.toExpr (mkFVar nFVarId))
             return true
           posMap := posMap.insert localDecl.type localDecl.fvarId
@@ -649,7 +649,15 @@ where
 private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := withLCtx {} {} do
   trace[Meta.Match.matchEqs] "mkEquationsFor '{matchDeclName}'"
   withConfig (fun c => { c with etaStruct := .none }) do
+  /-
+  Remark: user have requested the `split` tactic to be available for writing code.
+  Thus, the `splitter` declaration must be a definition instead of a theorem.
+  Moreover, the `splitter` is generated on demand, and we currently
+  can't import the same definition from different modules. Thus, we must
+  keep `splitter` as a private declaration to prevent import failures.
+  -/
   let baseName := mkPrivateName (← getEnv) matchDeclName
+  let splitterName := baseName ++ `splitter
   let constInfo ← getConstInfo matchDeclName
   let us := constInfo.levelParams.map mkLevelParam
   let some matchInfo ← getMatcherInfo? matchDeclName | throwError "'{matchDeclName}' is not a matcher function"
@@ -720,7 +728,6 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
       let template ← deltaExpand template (· == constInfo.name)
       let template := template.headBeta
       let splitterVal ← mkLambdaFVars splitterParams (← mkSplitterProof matchDeclName template alts altsNew splitterAltNumParams altArgMasks)
-      let splitterName := baseName ++ `splitter
       addAndCompile <| Declaration.defnDecl {
         name        := splitterName
         levelParams := constInfo.levelParams

@@ -1,4 +1,4 @@
 (100, 400)
 (49, 576, 576)
 def g : Int → Int → Int :=
-fun (x y : Int) => @mul.{0} (@magmaOfMul.{0} Int Int.instMulInt) x y
+fun (x y : Int) => @mul.{0} (@magmaOfMul.{0} Int Int.instMul) x y

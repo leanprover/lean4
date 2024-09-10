@@ -18,28 +18,49 @@ COMMANDS:
   init <name> <temp>    create a Lean package in the current directory
   build <targets>...    build targets
   exe <exe> <args>...   build an exe and run it in Lake's environment
+  check-build           check if any default build targets are configured
+  test                  test the package using the configured test driver
+  check-test            check if there is a properly configured test driver
+  lint                  lint the package using the configured lint driver
+  check-lint            check if there is a properly configured lint driver
   clean                 remove build outputs
   env <cmd> <args>...   execute a command in Lake's environment
+  lean <file>           elaborate a Lean file in Lake's context
   update                update dependencies and save them to the manifest
+  pack                  pack build artifacts into an archive for distribution
+  unpack                unpack build artifacts from an distributed archive
   upload <tag>          upload build artifacts to a GitHub release
   script                manage and run workspace scripts
   scripts               shorthand for `lake script list`
   run <script>          shorthand for `lake script run`
+  translate-config      change language of the package configuration
   serve                 start the Lean language server
 
-OPTIONS:
+BASIC OPTIONS:
   --version             print version and exit
   --help, -h            print help of the program or a command and exit
   --dir, -d=file        use the package configuration in a specific directory
   --file, -f=file       use a specific file for the package configuration
-  --quiet, -q           hide progress messages
-  --verbose, -v         show verbose information (command invocations)
   --lean=cmd            specify the `lean` command used by Lake
   -K key[=value]        set the configuration file option named key
   --old                 only rebuild modified modules (ignore transitive deps)
   --rehash, -H          hash all files for traces (do not trust `.hash` files)
   --update, -U          update manifest before building
   --reconfigure, -R     elaborate configuration files instead of using OLeans
+  --no-build            exit immediately if a build target is not up-to-date
+
+OUTPUT OPTIONS:
+  --quiet, -q           hide informational logs and the progress indicator
+  --verbose, -v         show trace logs (command invocations) and built targets
+  --ansi, --no-ansi     toggle the use of ANSI escape codes to prettify output
+  --log-level=lv        minimum log level to output on success
+                        (levels: trace, info, warning, error)
+  --fail-level=lv       minimum log level to fail a build (default: error)
+  --iofail              fail build if any I/O or other info is logged
+                        (same as --fail-level=info)
+  --wfail               fail build if warnings are logged
+                        (same as --fail-level=warning)
+
 
 See `lake help <command>` for more information on a specific command."
 
@@ -49,13 +70,16 @@ s!"The initial configuration and starter files are based on the template:
   std                   library and executable; default
   exe                   executable only
   lib                   library only
-  math                  library only with a mathlib dependency"
+  math                  library only with a mathlib dependency
+
+Templates can be suffixed with `.lean` or `.toml` to produce a Lean or TOML
+version of the configuration file, respectively. The default is Lean."
 
 def helpNew :=
 s!"Create a Lean package in a new directory
 
 USAGE:
-  lake new <name> [<template>]
+  lake new <name> [<template>][.<language>]
 
 {templateHelp}"
 
@@ -63,7 +87,7 @@ def helpInit :=
 s!"Create a Lean package in the current directory
 
 USAGE:
-  lake init [<name>] [<template>]
+  lake init [<name>] [<template>][.<language>]
 
 {templateHelp}
 
@@ -111,6 +135,19 @@ TARGET EXAMPLES:        build the ...
 A bare `lake build` command will build the default facet of the root package.
 Package dependencies are not updated during a build."
 
+def helpCheckBuild :=
+"Check if any default build targets are configured
+
+USAGE:
+  lake check-build
+
+Exits with code 0 if the workspace's root package has any
+default targets configured. Errors (with code 1) otherwise.
+
+Does NOT verify that the configured default targets are valid.
+It merely verifies that some are specified.
+"
+
 def helpUpdate :=
 "Update dependencies and save them to the manifest
 
@@ -130,6 +167,86 @@ removed from the configuration). If there are dependencies on multiple versions
 of the same package, the version materialized is undefined.
 
 A bare `lake update` will upgrade all dependencies."
+
+def helpTest :=
+"Test the workspace's root package using its configured test driver
+
+USAGE:
+  lake test [-- <args>...]
+
+A test driver can be configured by either setting the 'testDriver'
+package configuration option or by tagging a script, executable, or library
+`@[test_driver]`. A definition in a dependency can be used as a test driver
+by using the `<pkg>/<name>` syntax for the 'testDriver' configuration option.
+
+A script test driver will be run with the  package configuration's
+`testDriverArgs` plus the CLI `args`. An executable test driver will be
+built and then run like a script. A library test driver will just be built.
+"
+
+def helpCheckTest :=
+"Check if there is a properly configured test driver
+
+USAGE:
+  lake check-test
+
+Exits with code 0 if the workspace's root package has a properly
+configured lint driver. Errors (with code 1) otherwise.
+
+Does NOT verify that the configured test driver actually exists in the
+package or its dependencies. It merely verifies that one is specified.
+"
+
+def helpLint :=
+"Lint the workspace's root package using its configured lint driver
+
+USAGE:
+  lake lint [-- <args>...]
+
+A lint driver can be configured by either setting the `lintDriver` package
+configuration option by tagging a script or executable `@[lint_driver]`.
+A definition in dependency can be used as a test driver by using the
+`<pkg>/<name>` syntax for the 'testDriver' configuration option.
+
+A script lint driver will be run with the  package configuration's
+`lintDriverArgs` plus the CLI `args`. An executable lint driver will be
+built and then run like a script.
+"
+
+def helpCheckLint :=
+"Check if there is a properly configured lint driver
+
+USAGE:
+  lake check-lint
+
+Exits with code 0 if the workspace's root package has a properly
+configured lint driver. Errors (with code 1) otherwise.
+
+Does NOT verify that the configured lint driver actually exists in the
+package or its dependencies. It merely verifies that one is specified.
+"
+
+def helpPack :=
+"Pack build artifacts into a archive for distribution
+
+USAGE:
+  lake pack [<file.tgz>]
+
+Packs the root package's `buildDir` into a gzip tar archive using `tar`.
+If a path for the archive is not specified, creates a archive in the package's
+Lake directory (`.lake`) named according to its `buildArchive` setting.
+
+Does NOT build any artifacts. It just packs the existing ones."
+
+def helpUnpack :=
+"Unpack build artifacts from a distributed archive
+
+USAGE:
+  lake unpack [<file.tgz>]
+
+Unpack build artifacts from the gzip tar archive `file.tgz` into the root
+package's `buildDir`. If a path for the archive is not specified, uses the
+the package's `buildArchive` in its Lake directory (`.lake`)."
 
 def helpUpload :=
 "Upload build artifacts to a GitHub release
@@ -244,6 +361,32 @@ learn how to specify targets), builds it if it is out of date, and then runs
 it with the given `args` in Lake's environment (see `lake help env` for how
 the environment is set up)."
 
+def helpLean :=
+"Elaborate a Lean file in the context of the Lake workspace
+
+USAGE:
+  lake lean <file> [-- <args>...]
+
+Build the imports of the the given file and then runs `lean` on it using
+the workspace's root package's additional Lean arguments and the given args
+(in that order). The `lean` process is executed in Lake's environment like
+`lake env lean` (see `lake help env` for how the environment is set up)."
+
+def helpTranslateConfig :=
+"Translate a Lake configuration file into a different language
+
+USAGE:
+  lake translate-config <lang> [<out-file>]
+
+Translates the loaded package's configuration into another of
+Lake's supported configuration languages (i.e., either `lean` or `toml`).
+The produced file is written to `out-file` or, if not provided, the path of
+the configuration file with the new language's extension. If the output file
+already exists, Lake will error.
+
+Translation is lossy. It does not preserve comments or formatting and
+non-declarative configuration will be discarded."
+
 def helpScript : (cmd : String) → String
 | "list"                => helpScriptList
 | "run"                 => helpScriptRun
@@ -254,8 +397,15 @@ def help : (cmd : String) → String
 | "new"                 => helpNew
 | "init"                => helpInit
 | "build"               => helpBuild
+| "check-build"         => helpCheckBuild
 | "update" | "upgrade"  => helpUpdate
+| "pack"                => helpPack
+| "unpack"              => helpUnpack
 | "upload"              => helpUpload
+| "test"                => helpTest
+| "check-test"          => helpCheckTest
+| "lint"                => helpLint
+| "check-lint"          => helpCheckLint
 | "clean"               => helpClean
 | "script"              => helpScriptCli
 | "scripts"             => helpScriptList
@@ -263,4 +413,6 @@ def help : (cmd : String) → String
 | "serve"               => helpServe
 | "env"                 => helpEnv
 | "exe" | "exec"        => helpExe
+| "lean"                => helpLean
+| "translate-config"    => helpTranslateConfig
 | _                     => usage

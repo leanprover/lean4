@@ -1,0 +1,16 @@
+{
+  "fruit": {
+    "apple": {
+      "color": {
+        "type": "string",
+        "value": "red"
+      },
+      "taste": {
+        "sweet": {
+          "type": "bool",
+          "value": "true"
+        }
+      }
+    }
+  }
+}

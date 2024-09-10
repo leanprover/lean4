@@ -6,14 +6,12 @@ Authors: Leonardo de Moura
 Extra notation that depends on Init/Meta
 -/
 prelude
-import Init.Meta
+import Init.Data.ToString.Basic
 import Init.Data.Array.Subarray
-import Init.Data.ToString
 import Init.Conv
-namespace Lean
+import Init.Meta
 
-macro "Macro.trace[" id:ident "]" s:interpolatedStr(term) : term =>
-  `(Macro.trace $(quote id.getId.eraseMacroScopes) (s! $s))
+namespace Lean
 
 -- Auxiliary parsers and functions for declaring notation with binders
 
@@ -89,6 +87,7 @@ macro:35 xs:bracketedExplicitBinders " × " b:term:35  : term => expandBrackedBi
 macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBrackedBinders ``PSigma xs b
 end
 
+namespace Lean
 -- first step of a `calc` block
 syntax calcFirstStep := ppIndent(colGe term (" := " term)?)
 -- enforce indentation of calc steps so we know when to stop parsing them
@@ -138,6 +137,7 @@ syntax (name := calcTactic) "calc" calcSteps : tactic
 @[inherit_doc «calc»]
 macro tk:"calc" steps:calcSteps : conv =>
   `(conv| tactic => calc%$tk $steps)
+end Lean
 
 @[app_unexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `(())
@@ -224,35 +224,35 @@ macro tk:"calc" steps:calcSteps : conv =>
   | _ => throw ()
 
 @[app_unexpander Name.mkStr1] def unexpandMkStr1 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a.getString}"]
+  | `($(_) $a:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++  a.getString)]
   | _  => throw ()
 
 @[app_unexpander Name.mkStr2] def unexpandMkStr2 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}"]
+  | `($(_) $a1:str $a2:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString)]
   | _  => throw ()
 
 @[app_unexpander Name.mkStr3] def unexpandMkStr3 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str $a3:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}.{a3.getString}"]
+  | `($(_) $a1:str $a2:str $a3:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString ++ "." ++ a3.getString)]
   | _  => throw ()
 
 @[app_unexpander Name.mkStr4] def unexpandMkStr4 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str $a3:str $a4:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}.{a3.getString}.{a4.getString}"]
+  | `($(_) $a1:str $a2:str $a3:str $a4:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString ++ "." ++ a3.getString ++ "." ++ a4.getString)]
   | _  => throw ()
 
 @[app_unexpander Name.mkStr5] def unexpandMkStr5 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}.{a3.getString}.{a4.getString}.{a5.getString}"]
+  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString ++ "." ++ a3.getString ++ "." ++ a4.getString ++ "." ++ a5.getString)]
   | _  => throw ()
 
 @[app_unexpander Name.mkStr6] def unexpandMkStr6 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str $a6:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}.{a3.getString}.{a4.getString}.{a5.getString}.{a6.getString}"]
+  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str $a6:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString ++ "." ++ a3.getString ++ "." ++ a4.getString ++ "." ++ a5.getString ++ "." ++ a6.getString)]
   | _  => throw ()
 
 @[app_unexpander Name.mkStr7] def unexpandMkStr7 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str $a6:str $a7:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}.{a3.getString}.{a4.getString}.{a5.getString}.{a6.getString}.{a7.getString}"]
+  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str $a6:str $a7:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString ++ "." ++ a3.getString ++ "." ++ a4.getString ++ "." ++ a5.getString ++ "." ++ a6.getString ++ "." ++ a7.getString)]
   | _  => throw ()
 
 @[app_unexpander Name.mkStr8] def unexpandMkStr8 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str $a6:str $a7:str $a8:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}.{a3.getString}.{a4.getString}.{a5.getString}.{a6.getString}.{a7.getString}.{a8.getString}"]
+  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str $a6:str $a7:str $a8:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString ++ "." ++ a3.getString ++ "." ++ a4.getString ++ "." ++ a5.getString ++ "." ++ a6.getString ++ "." ++ a7.getString ++ "." ++ a8.getString)]
   | _  => throw ()
 
 @[app_unexpander Array.empty] def unexpandArrayEmpty : Lean.PrettyPrinter.Unexpander
@@ -363,6 +363,7 @@ macro_rules
   | `(letI $_:ident $_* : $_ := $_; $_) => Lean.Macro.throwUnsupported -- handled by elab
 
 
+namespace Lean
 syntax cdotTk := patternIgnore("· " <|> ". ")
 /-- `· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. -/
 syntax (name := cdot) cdotTk tacticSeqIndentGt : tactic
@@ -370,12 +371,11 @@ syntax (name := cdot) cdotTk tacticSeqIndentGt : tactic
 /--
   Similar to `first`, but succeeds only if one the given tactics solves the current goal.
 -/
-syntax (name := solve) "solve" withPosition((ppDedent(ppLine) colGe "| " tacticSeq)+) : tactic
+syntax (name := solveTactic) "solve" withPosition((ppDedent(ppLine) colGe "| " tacticSeq)+) : tactic
 
 macro_rules
   | `(tactic| solve $[| $ts]* ) => `(tactic| focus first $[| ($ts); done]*)
 
-namespace Lean
 /-! # `repeat` and `while` notation -/
 
 inductive Loop where

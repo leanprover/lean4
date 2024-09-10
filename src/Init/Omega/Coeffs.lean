@@ -68,7 +68,7 @@ abbrev map (f : Int → Int) (xs : Coeffs) : Coeffs := List.map f xs
 /-- Shim for `.enum.find?`. -/
 abbrev findIdx? (f : Int → Bool) (xs : Coeffs) : Option Nat :=
   -- List.findIdx? f xs
-  -- We could avoid `Std.Data.List.Basic` by using the less efficient:
+  -- We could avoid `Batteries.Data.List.Basic` by using the less efficient:
   xs.enum.find? (f ·.2) |>.map (·.1)
 /-- Shim for `IntList.bmod`. -/
 abbrev bmod (x : Coeffs) (m : Nat) : Coeffs := IntList.bmod x m

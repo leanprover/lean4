@@ -1,0 +1,73 @@
+testDriver = "b"
+lintDriver = "b"
+defaultTargets = ['A']
+
+name = "test"
+extraDepTargets = []
+precompileModules = false
+moreGlobalServerArgs = []
+srcDir = "."
+buildDir = ".lake/build"
+leanLibDir = "lib"
+nativeLibDir = "lib"
+binDir = "bin"
+irDir = "ir"
+releaseRepo = ""
+buildArchive = ""
+preferReleaseBuild = false
+packagesDir = ".lake/packages"
+buildType = "release"
+leanOptions = []
+moreServerOptions = []
+moreLeanArgs = []
+weakLeanArgs = []
+moreLeancArgs = []
+weakLeancArgs = []
+moreLinkArgs = []
+weakLinkArgs = []
+backend = "default"
+platformIndependent = true
+version = "0.0.0"
+versionTags = {preset = "default"}
+description = ""
+keywords = []
+homepage = ""
+license = ""
+licenseFiles = ["LICENSE"]
+readmeFile = "README.md"
+reservoir = true
+
+[[lean_lib]]
+name = "A"
+srcDir = "."
+roots = ["A"]
+globs = ["A"]
+extraDepTargets = []
+precompileModules = false
+defaultFacets = ["leanArts"]
+
+[[lean_exe]]
+name = "b"
+srcDir = "."
+root = "b"
+exeName = "b"
+extraDepTargets = []
+supportInterpreter = false
+
+[[require]]
+name = "baz"
+scope = "foo"
+version = "git#abcdef"
+
+[[require]]
+name = "foo"
+path = "-"
+
+[require.options]
+foo = "bar"
+
+[[require]]
+name = "bar"
+git = "https://example.com"
+rev = "abc"
+subDir = "sub/dir"

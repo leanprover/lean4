@@ -4,7 +4,7 @@
  [{"git":
    {"url": "bar",
     "subDir?": null,
-    "rev": "253735aaee71d8bb0f29ae5cfc3ce086a4b9e64f",
+    "rev": "0538596b94a0510f55dc820cabd3bde41ad93c3e",
     "opts": {},
     "name": "bar",
     "inputRev?": null,

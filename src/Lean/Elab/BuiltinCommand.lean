@@ -5,13 +5,13 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Util.CollectLevelParams
+import Lean.Util.CollectAxioms
 import Lean.Meta.Reduce
 import Lean.Elab.DeclarationRange
 import Lean.Elab.Eval
 import Lean.Elab.Command
 import Lean.Elab.Open
 import Lean.Elab.SetOption
-import Lean.PrettyPrinter
 
 namespace Lean.Elab.Command
 
@@ -55,7 +55,7 @@ private def popScopes (numScopes : Nat) : CommandElabM Unit :=
 
 private def checkAnonymousScope : List Scope → Option Name
   | { header := "", .. } :: _ => none
-  | { header := h, .. }  :: _ => some h
+  | { header := h, .. }  :: _ => some <| .mkSimple h
   | _                         => some .anonymous -- should not happen
 
 private def checkEndHeader : Name → List Scope → Option Name
@@ -64,7 +64,7 @@ private def checkEndHeader : Name → List Scope → Option Name
     if h == s then
       (.str · s) <$> checkEndHeader p scopes
     else
-      some h
+      some <| .mkSimple h
   | _, _ => some .anonymous -- should not happen
 
 @[builtin_command_elab «namespace»] def elabNamespace : CommandElab := fun stx =>
@@ -119,96 +119,14 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
 @[builtin_command_elab choice] def elabChoice : CommandElab := fun stx =>
   elabChoiceAux stx.getArgs 0
 
-/-- Declares one or more universe variables.
-
-`universe u v`
-
-`Prop`, `Type`, `Type u` and `Sort u` are types that classify other types, also known as
-*universes*. In `Type u` and `Sort u`, the variable `u` stands for the universe's *level*, and a
-universe at level `u` can only classify universes that are at levels lower than `u`. For more
-details on type universes, please refer to [the relevant chapter of Theorem Proving in Lean][tpil
-universes].
-
-Just as type arguments allow polymorphic definitions to be used at many different types, universe
-parameters, represented by universe variables, allow a definition to be used at any required level.
-While Lean mostly handles universe levels automatically, declaring them explicitly can provide more
-control when writing signatures. The `universe` keyword allows the declared universe variables to be
-used in a collection of definitions, and Lean will ensure that these definitions use them
-consistently.
-
-[tpil universes]: https://lean-lang.org/theorem_proving_in_lean4/dependent_type_theory.html#types-as-objects
-(Type universes on Theorem Proving in Lean)
-
-```lean
-/- Explicit type-universe parameter. -/
-def id₁.{u} (α : Type u) (a : α) := a
-
-/- Implicit type-universe parameter, equivalent to `id₁`.
-  Requires option `autoImplicit true`, which is the default. -/
-def id₂ (α : Type u) (a : α) := a
-
-/- Explicit standalone universe variable declaration, equivalent to `id₁` and `id₂`. -/
-universe u
-def id₃ (α : Type u) (a : α) := a
-```
-
-On a more technical note, using a universe variable only in the right-hand side of a definition
-causes an error if the universe has not been declared previously.
-
-```lean
-def L₁.{u} := List (Type u)
-
--- def L₂ := List (Type u) -- error: `unknown universe level 'u'`
-
-universe u
-def L₃ := List (Type u)
-```
-
-## Examples
-
-```lean
-universe u v w
-
-structure Pair (α : Type u) (β : Type v) : Type (max u v) where
-  a : α
-  b : β
-
-#check Pair.{v, w}
--- Pair : Type v → Type w → Type (max v w)
-```
--/
 @[builtin_command_elab «universe»] def elabUniverse : CommandElab := fun n => do
   n[1].forArgsM addUnivLevel
 
 @[builtin_command_elab «init_quot»] def elabInitQuot : CommandElab := fun _ => do
-  match (← getEnv).addDecl Declaration.quotDecl with
+  match (← getEnv).addDecl (← getOptions) Declaration.quotDecl with
   | Except.ok env   => setEnv env
   | Except.error ex => throwError (ex.toMessageData (← getOptions))
 
-/-- Adds names from other namespaces to the current namespace.
-
-The command `export Some.Namespace (name₁ name₂)` makes `name₁` and `name₂`:
-
-- visible in the current namespace without prefix `Some.Namespace`, like `open`, and
-- visible from outside the current namespace `N` as `N.name₁` and `N.name₂`.
-
-## Examples
-
-```lean
-namespace Morning.Sky
-  def star := "venus"
-end Morning.Sky
-
-namespace Evening.Sky
-  export Morning.Sky (star)
-  -- `star` is now in scope
-  #check star
-end Evening.Sky
-
--- `star` is visible in `Evening.Sky`
-#check Evening.Sky.star
-```
--/
 @[builtin_command_elab «export»] def elabExport : CommandElab := fun stx => do
   let `(export $ns ($ids*)) := stx | throwUnsupportedSyntax
   let nss ← resolveNamespace ns
@@ -223,118 +141,6 @@ end Evening.Sky
     aliases := aliases.push (currNamespace ++ id, declName)
   modify fun s => { s with env := aliases.foldl (init := s.env) fun env p => addAlias env p.1 p.2 }
 
-/-- Makes names from other namespaces visible without writing the namespace prefix.
-
-Names that are made available with `open` are visible within the current `section` or `namespace`
-block. This makes referring to (type) definitions and theorems easier, but note that it can also
-make [scoped instances], notations, and attributes from a different namespace available.
-
-The `open` command can be used in a few different ways:
-
-* `open Some.Namespace.Path1 Some.Namespace.Path2` makes all non-protected names in
-  `Some.Namespace.Path1` and `Some.Namespace.Path2` available without the prefix, so that
-  `Some.Namespace.Path1.x` and `Some.Namespace.Path2.y` can be referred to by writing only `x` and
-  `y`.
-
-* `open Some.Namespace.Path hiding def1 def2` opens all non-protected names in `Some.Namespace.Path`
-  except `def1` and `def2`.
-
-* `open Some.Namespace.Path (def1 def2)` only makes `Some.Namespace.Path.def1` and
-  `Some.Namespace.Path.def2` available without the full prefix, so `Some.Namespace.Path.def3` would
-  be unaffected.
-
-  This works even if `def1` and `def2` are `protected`.
-
-* `open Some.Namespace.Path renaming def1 → def1', def2 → def2'` same as `open Some.Namespace.Path
-  (def1 def2)` but `def1`/`def2`'s names are changed to `def1'`/`def2'`.
-
-  This works even if `def1` and `def2` are `protected`.
-
-* `open scoped Some.Namespace.Path1 Some.Namespace.Path2` **only** opens [scoped instances],
-  notations, and attributes from `Namespace1` and `Namespace2`; it does **not** make any other name
-  available.
-
-* `open <any of the open shapes above> in` makes the names `open`-ed visible only in the next
-  command or expression.
-
-[scoped instance]: https://lean-lang.org/theorem_proving_in_lean4/type_classes.html#scoped-instances
-(Scoped instances in Theorem Proving in Lean)
-
-
-## Examples
-
-```lean
-/-- SKI combinators https://en.wikipedia.org/wiki/SKI_combinator_calculus -/
-namespace Combinator.Calculus
-  def I (a : α) : α := a
-  def K (a : α) : β → α := fun _ => a
-  def S (x : α → β → γ) (y : α → β) (z : α) : γ := x z (y z)
-end Combinator.Calculus
-
-section
-  -- open everything under `Combinator.Calculus`, *i.e.* `I`, `K` and `S`,
-  -- until the section ends
-  open Combinator.Calculus
-
-  theorem SKx_eq_K : S K x = I := rfl
-end
-
--- open everything under `Combinator.Calculus` only for the next command (the next `theorem`, here)
-open Combinator.Calculus in
-theorem SKx_eq_K' : S K x = I := rfl
-
-section
-  -- open only `S` and `K` under `Combinator.Calculus`
-  open Combinator.Calculus (S K)
-
-  theorem SKxy_eq_y : S K x y = y := rfl
-
-  -- `I` is not in scope, we have to use its full path
-  theorem SKxy_eq_Iy : S K x y = Combinator.Calculus.I y := rfl
-end
-
-section
-  open Combinator.Calculus
-    renaming
-      I → identity,
-      K → konstant
-
-  #check identity
-  #check konstant
-end
-
-section
-  open Combinator.Calculus
-    hiding S
-
-  #check I
-  #check K
-end
-
-section
-  namespace Demo
-    inductive MyType
-    | val
-
-    namespace N1
-      scoped infix:68 " ≋ " => BEq.beq
-
-      scoped instance : BEq MyType where
-        beq _ _ := true
-
-      def Alias := MyType
-    end N1
-  end Demo
-
-  -- bring `≋` and the instance in scope, but not `Alias`
-  open scoped Demo.N1
-
-  #check Demo.MyType.val == Demo.MyType.val
-  #check Demo.MyType.val ≋ Demo.MyType.val
-  -- #check Alias -- unknown identifier 'Alias'
-end
-```
--/
 @[builtin_command_elab «open»] def elabOpen : CommandElab
   | `(open $decl:openDecl) => do
     let openDecls ← elabOpenDecl decl
@@ -370,7 +176,8 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
   let mut binderIds := binderIds
   let mut binderIdsIniSize := binderIds.size
   let mut modifiedVarDecls := false
-  for varDecl in varDecls do
+  -- Go through declarations in reverse to respect shadowing
+  for varDecl in varDecls.reverse do
     let (ids, ty?, explicit') ← match varDecl with
       | `(bracketedBinderF|($ids* $[: $ty?]? $(annot?)?)) =>
         if annot?.isSome then
@@ -402,7 +209,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
           `(bracketedBinderF| ($id $[: $ty?]?))
         else
           `(bracketedBinderF| {$id $[: $ty?]?})
-      for id in ids do
+      for id in ids.reverse do
         if let some idx := binderIds.findIdx? fun binderId => binderId.raw.isIdent && binderId.raw.getId == id.raw.getId then
           binderIds := binderIds.eraseIdx idx
           modifiedVarDecls := true
@@ -410,7 +217,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
         else
           varDeclsNew := varDeclsNew.push (← mkBinder id explicit')
   if modifiedVarDecls then
-    modifyScope fun scope => { scope with varDecls := varDeclsNew }
+    modifyScope fun scope => { scope with varDecls := varDeclsNew.reverse }
   if binderIds.size != binderIdsIniSize then
     binderIds.mapM fun binderId =>
       if explicit then
@@ -420,113 +227,16 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
   else
     return #[binder]
 
-/-- Declares one or more typed variables, or modifies whether already-declared variables are
-implicit.
-
-Introduces variables that can be used in definitions within the same `namespace` or `section` block.
-When a definition mentions a variable, Lean will add it as an argument of the definition. The
-`variable` command is also able to add typeclass parameters. This is useful in particular when
-writing many definitions that have parameters in common (see below for an example).
-
-Variable declarations have the same flexibility as regular function paramaters. In particular they
-can be [explicit, implicit][binder docs], or [instance implicit][tpil classes] (in which case they
-can be anonymous). This can be changed, for instance one can turn explicit variable `x` into an
-implicit one with `variable {x}`. Note that currently, you should avoid changing how variables are
-bound and declare new variables at the same time; see [issue 2789] for more on this topic.
-
-See [*Variables and Sections* from Theorem Proving in Lean][tpil vars] for a more detailed
-discussion.
-
-[tpil vars]: https://lean-lang.org/theorem_proving_in_lean4/dependent_type_theory.html#variables-and-sections
-(Variables and Sections on Theorem Proving in Lean)
-[tpil classes]: https://lean-lang.org/theorem_proving_in_lean4/type_classes.html
-(Type classes on Theorem Proving in Lean)
-[binder docs]: https://leanprover-community.github.io/mathlib4_docs/Lean/Expr.html#Lean.BinderInfo
-(Documentation for the BinderInfo type)
-[issue 2789]: https://github.com/leanprover/lean4/issues/2789
-(Issue 2789 on github)
-
-## Examples
-
-```lean
-section
-  variable
-    {α : Type u}      -- implicit
-    (a : α)           -- explicit
-    [instBEq : BEq α] -- instance implicit, named
-    [Hashable α]      -- instance implicit, anonymous
-
-  def isEqual (b : α) : Bool :=
-    a == b
-
-  #check isEqual
-  -- isEqual.{u} {α : Type u} (a : α) [instBEq : BEq α] (b : α) : Bool
-
-  variable
-    {a} -- `a` is implicit now
-
-  def eqComm {b : α} := a == b ↔ b == a
-
-  #check eqComm
-  -- eqComm.{u} {α : Type u} {a : α} [instBEq : BEq α] {b : α} : Prop
-end
-```
-
-The following shows a typical use of `variable` to factor out definition arguments:
-
-```lean
-variable (Src : Type)
-
-structure Logger where
-  trace : List (Src × String)
-#check Logger
--- Logger (Src : Type) : Type
-
-namespace Logger
-  -- switch `Src : Type` to be implicit until the `end Logger`
-  variable {Src}
-
-  def empty : Logger Src where
-    trace := []
-  #check empty
-  -- Logger.empty {Src : Type} : Logger Src
-
-  variable (log : Logger Src)
-
-  def len :=
-    log.trace.length
-  #check len
-  -- Logger.len {Src : Type} (log : Logger Src) : Nat
-
-  variable (src : Src) [BEq Src]
-
-  -- at this point all of `log`, `src`, `Src` and the `BEq` instance can all become arguments
-
-  def filterSrc :=
-    log.trace.filterMap
-      fun (src', str') => if src' == src then some str' else none
-  #check filterSrc
-  -- Logger.filterSrc {Src : Type} (log : Logger Src) (src : Src) [inst✝ : BEq Src] : List String
-
-  def lenSrc :=
-    log.filterSrc src |>.length
-  #check lenSrc
-  -- Logger.lenSrc {Src : Type} (log : Logger Src) (src : Src) [inst✝ : BEq Src] : Nat
-end Logger
-```
-
--/
 @[builtin_command_elab «variable»] def elabVariable : CommandElab
   | `(variable $binders*) => do
+    let binders ← binders.concatMapM replaceBinderAnnotation
     -- Try to elaborate `binders` for sanity checking
-    runTermElabM fun _ => Term.withAutoBoundImplicit <|
+    runTermElabM fun _ => Term.withSynthesize <| Term.withAutoBoundImplicit <|
       Term.elabBinders binders fun _ => pure ()
+    -- Remark: if we want to produce error messages when variables shadow existing ones, here is the place to do it.
     for binder in binders do
-      let binders ← replaceBinderAnnotation binder
-      -- Remark: if we want to produce error messages when variables shadow existing ones, here is the place to do it.
-      for binder in binders do
-        let varUIds ← getBracketedBinderIds binder |>.mapM (withFreshMacroScope ∘ MonadQuotation.addMacroScope)
-        modifyScope fun scope => { scope with varDecls := scope.varDecls.push binder, varUIds := scope.varUIds ++ varUIds }
+      let varUIds ← (← getBracketedBinderIds binder) |>.mapM (withFreshMacroScope ∘ MonadQuotation.addMacroScope)
+      modifyScope fun scope => { scope with varDecls := scope.varDecls.push binder, varUIds := scope.varUIds ++ varUIds }
   | _ => throwUnsupportedSyntax
 
 open Meta
@@ -538,33 +248,40 @@ def elabCheckCore (ignoreStuckTC : Bool) : CommandElab
       try
         for c in (← realizeGlobalConstWithInfos term) do
           addCompletionInfo <| .id term id.getId (danglingDot := false) {} none
-          logInfoAt tk <| .ofPPFormat { pp := fun
-            | some ctx => ctx.runMetaM <| PrettyPrinter.ppSignature c
-            | none     => return f!"{c}"  -- should never happen
-          }
+          logInfoAt tk <| .signature c
           return
       catch _ => pure ()  -- identifier might not be a constant but constant + projection
     let e ← Term.elabTerm term none
     Term.synthesizeSyntheticMVarsNoPostponing (ignoreStuckTC := ignoreStuckTC)
+    -- Users might be testing out buggy elaborators. Let's typecheck before proceeding:
+    withRef tk <| Meta.check e
     let e ← Term.levelMVarToParam (← instantiateMVars e)
-    let type ← inferType e
     if e.isSyntheticSorry then
       return
+    let type ← inferType e
     logInfoAt tk m!"{e} : {type}"
   | _ => throwUnsupportedSyntax
 
 @[builtin_command_elab Lean.Parser.Command.check] def elabCheck : CommandElab := elabCheckCore (ignoreStuckTC := true)
 
-@[builtin_command_elab Lean.Parser.Command.reduce] def elabReduce : CommandElab
-  | `(#reduce%$tk $term) => withoutModifyingEnv <| runTermElabM fun _ => Term.withDeclName `_reduce do
-    let e ← Term.elabTerm term none
-    Term.synthesizeSyntheticMVarsNoPostponing
-    let e ← Term.levelMVarToParam (← instantiateMVars e)
-    -- TODO: add options or notation for setting the following parameters
-    withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.setBool `smartUnfolding false }) do
-      let e ← withTransparency (mode := TransparencyMode.all) <| reduce e (skipProofs := false) (skipTypes := false)
-      logInfoAt tk e
+@[builtin_command_elab Lean.reduceCmd] def elabReduce : CommandElab
+  | `(#reduce%$tk $term) => go tk term
+  | `(#reduce%$tk (proofs := true) $term) => go tk term (skipProofs := false)
+  | `(#reduce%$tk (types := true) $term) => go tk term (skipTypes := false)
+  | `(#reduce%$tk (proofs := true) (types := true) $term) => go tk term (skipProofs := false) (skipTypes := false)
   | _ => throwUnsupportedSyntax
+where
+  go (tk : Syntax) (term : Syntax) (skipProofs := true) (skipTypes := true) : CommandElabM Unit :=
+    withoutModifyingEnv <| runTermElabM fun _ => Term.withDeclName `_reduce do
+      let e ← Term.elabTerm term none
+      Term.synthesizeSyntheticMVarsNoPostponing
+      -- Users might be testing out buggy elaborators. Let's typecheck before proceeding:
+      withRef tk <| Meta.check e
+      let e ← Term.levelMVarToParam (← instantiateMVars e)
+      -- TODO: add options or notation for setting the following parameters
+      withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.setBool `smartUnfolding false }) do
+        let e ← withTransparency (mode := TransparencyMode.all) <| reduce e (skipProofs := skipProofs) (skipTypes := skipTypes)
+        logInfoAt tk e
 
 def hasNoErrorMessages : CommandElabM Bool := do
   return !(← get).messages.hasErrors
@@ -628,8 +345,7 @@ private def mkRunEval (e : Expr) : MetaM Expr := do
   let instVal ← mkEvalInstCore ``Lean.Eval e
   instantiateMVars (mkAppN (mkConst ``Lean.runEval [u]) #[α, instVal, mkSimpleThunk e])
 
-unsafe def elabEvalUnsafe : CommandElab
-  | `(#eval%$tk $term) => do
+unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax): CommandElabM Unit := do
     let declName := `_eval
     let addAndCompile (value : Expr) : TermElabM Unit := do
       let value ← Term.levelMVarToParam (← instantiateMVars value)
@@ -646,6 +362,13 @@ unsafe def elabEvalUnsafe : CommandElab
       }
       Term.ensureNoUnassignedMVars decl
       addAndCompile decl
+    -- Check for sorry axioms
+    let checkSorry (declName : Name) : MetaM Unit := do
+      unless bang do
+        let axioms ← collectAxioms declName
+        if axioms.contains ``sorryAx then
+          throwError ("cannot evaluate expression that depends on the `sorry` axiom.\nUse `#eval!` to " ++
+            "evaluate nevertheless (which may cause lean to crash).")
     -- Elaborate `term`
     let elabEvalTerm : TermElabM Expr := do
       let e ← Term.elabTerm term none
@@ -674,6 +397,7 @@ unsafe def elabEvalUnsafe : CommandElab
           else
             let e ← mkRunMetaEval e
             addAndCompile e
+            checkSorry declName
             let act ← evalConst (Environment → Options → IO (String × Except IO.Error Environment)) declName
             pure <| Sum.inr act
       match act with
@@ -690,6 +414,7 @@ unsafe def elabEvalUnsafe : CommandElab
       -- modify e to `runEval e`
       let e ← mkRunEval (← elabEvalTerm)
       addAndCompile e
+      checkSorry declName
       let act ← evalConst (IO (String × Except IO.Error Unit)) declName
       let (out, res) ← liftM (m := IO) act
       logInfoAt tk out
@@ -700,10 +425,19 @@ unsafe def elabEvalUnsafe : CommandElab
       elabMetaEval
     else
       elabEval
+
+@[implemented_by elabEvalCoreUnsafe]
+opaque elabEvalCore (bang : Bool) (tk term : Syntax): CommandElabM Unit
+
+@[builtin_command_elab «eval»]
+def elabEval : CommandElab
+  | `(#eval%$tk $term) => elabEvalCore false tk term
   | _ => throwUnsupportedSyntax
 
-@[builtin_command_elab «eval», implemented_by elabEvalUnsafe]
-opaque elabEval : CommandElab
+@[builtin_command_elab evalBang]
+def elabEvalBang : CommandElab
+  | `(Parser.Command.evalBang|#eval!%$tk $term) => elabEvalCore true tk term
+  | _ => throwUnsupportedSyntax
 
 private def checkImportsForRunCmds : CommandElabM Unit := do
   unless (← getEnv).contains ``CommandElabM do
@@ -749,12 +483,14 @@ def elabRunMeta : CommandElab := fun stx =>
     pure ()
 
 @[builtin_command_elab «set_option»] def elabSetOption : CommandElab := fun stx => do
-  let options ← Elab.elabSetOption stx[1] stx[2]
+  let options ← Elab.elabSetOption stx[1] stx[3]
   modify fun s => { s with maxRecDepth := maxRecDepth.get options }
   modifyScope fun scope => { scope with opts := options }
 
 @[builtin_macro Lean.Parser.Command.«in»] def expandInCmd : Macro
-  | `($cmd₁ in $cmd₂) => `(section $cmd₁:command $cmd₂ end)
+  | `($cmd₁ in%$tk $cmd₂) =>
+    -- Limit ref variability for incrementality; see Note [Incremental Macros]
+    withRef tk `(section $cmd₁:command $cmd₂ end)
   | _                 => Macro.throwUnsupported
 
 @[builtin_command_elab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do
@@ -768,6 +504,64 @@ def elabRunMeta : CommandElab := fun stx =>
       -- in particular `Quot.mk` et al which are added by `init_quot`
       addAuxDeclarationRanges declName stx id
     addDocString declName (← getDocStringText doc)
+  | _ => throwUnsupportedSyntax
+
+@[builtin_command_elab Lean.Parser.Command.include] def elabInclude : CommandElab
+  | `(Lean.Parser.Command.include| include $ids*) => do
+    let sc ← getScope
+    let vars ← sc.varDecls.concatMapM getBracketedBinderIds
+    let mut uids := #[]
+    for id in ids do
+      if let some idx := vars.findIdx? (· == id.getId) then
+        uids := uids.push sc.varUIds[idx]!
+      else
+        throwError "invalid 'include', variable '{id}' has not been declared in the current scope"
+    modifyScope fun sc => { sc with
+      includedVars := sc.includedVars ++ uids.toList
+      omittedVars := sc.omittedVars.filter (!uids.contains ·) }
+  | _ => throwUnsupportedSyntax
+
+@[builtin_command_elab Lean.Parser.Command.omit] def elabOmit : CommandElab
+  | `(Lean.Parser.Command.omit| omit $omits*) => do
+    -- TODO: this really shouldn't have to re-elaborate section vars... they should come
+    -- pre-elaborated
+    let omittedVars ← runTermElabM fun vars => do
+      Term.synthesizeSyntheticMVarsNoPostponing
+      -- We don't want to store messages produced when elaborating `(getVarDecls s)` because they have already been saved when we elaborated the `variable`(s) command.
+      -- So, we use `Core.resetMessageLog`.
+      Core.resetMessageLog
+      -- resolve each omit to variable user name or type pattern
+      let elaboratedOmits : Array (Sum Name Expr) ← omits.mapM fun
+        | `(ident| $id:ident) => pure <| Sum.inl id.getId
+        | `(Lean.Parser.Term.instBinder| [$id : $_]) => pure <| Sum.inl id.getId
+        | `(Lean.Parser.Term.instBinder| [$ty]) =>
+          Sum.inr <$> Term.withoutErrToSorry (Term.elabTermAndSynthesize ty none)
+        | _ => throwUnsupportedSyntax
+      -- check that each omit is actually used in the end
+      let mut omitsUsed := omits.map fun _ => false
+      let mut omittedVars := #[]
+      let mut revSectionFVars : Std.HashMap FVarId Name := {}
+      for (uid, var) in (← read).sectionFVars do
+        revSectionFVars := revSectionFVars.insert var.fvarId! uid
+      for var in vars do
+        let ldecl ← var.fvarId!.getDecl
+        if let some idx := (← elaboratedOmits.findIdxM? fun
+            | .inl id => return ldecl.userName == id
+            | .inr ty => do
+              let mctx ← getMCtx
+              isDefEq ty ldecl.type <* setMCtx mctx) then
+          if let some uid := revSectionFVars[var.fvarId!]? then
+            omittedVars := omittedVars.push uid
+            omitsUsed := omitsUsed.set! idx true
+          else
+            throwError "invalid 'omit', '{ldecl.userName}' has not been declared in the current scope"
+      for o in omits, used in omitsUsed do
+        unless used do
+          throwError "'{o}' did not match any variables in the current scope"
+      return omittedVars
+    modifyScope fun sc => { sc with
+      omittedVars := sc.omittedVars ++ omittedVars.toList
+      includedVars := sc.includedVars.filter (!omittedVars.contains ·) }
   | _ => throwUnsupportedSyntax
 
 @[builtin_command_elab Parser.Command.exit] def elabExit : CommandElab := fun _ =>

@@ -17,7 +17,7 @@
   };
 
   outputs = inputs@{ self, ... }: inputs.flake-utils.lib.eachDefaultSystem (system:
-    with inputs.lean.packages.${system}; with nixpkgs;
+    with inputs.lean.packages.${system}.deprecated; with nixpkgs;
     let
       doc-src = lib.sourceByRegex ../. ["doc.*" "tests(/lean(/beginEndAsMacro.lean)?)?"];
     in {
@@ -27,7 +27,7 @@
         src = inputs.mdBook;
         cargoDeps = drv.cargoDeps.overrideAttrs (_: {
           inherit src;
-          outputHash = "sha256-1YlPS6cqgxE4fjy9G8pWrpP27YrrbCDnfeyIsX81ZNw=";
+          outputHash = "sha256-CO3A9Kpp4sIvkT9X3p+GTidazk7Fn4jf0AP2PINN44A=";
         });
         doCheck = false;
       });
@@ -43,21 +43,6 @@
           cp -r ${inked}/* .
           mdbook build -d $out
         '';
-      };
-      # We use a separate derivation instead of `checkPhase` so we can push it but not `doc` to the binary cache
-      test = stdenv.mkDerivation {
-        name ="lean-doc-test";
-        src = doc-src;
-        buildInputs = [ lean-mdbook stage1.Lean.lean-package strace ];
-        patchPhase = ''
-          cd doc
-          patchShebangs test
-        '';
-        buildPhase = ''
-          mdbook test
-          touch $out
-        '';
-        dontInstall = true;
       };
       leanInk = (buildLeanPackage {
         name = "Main";

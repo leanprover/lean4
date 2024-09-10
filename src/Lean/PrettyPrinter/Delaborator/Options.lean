@@ -8,6 +8,11 @@ import Lean.Data.Options
 
 namespace Lean
 
+register_builtin_option pp.maxSteps : Nat := {
+  defValue := 5000
+  group    := "pp"
+  descr    := "(pretty printer) maximum number of expressions to visit, after which terms will pretty print as `⋯`"
+}
 register_builtin_option pp.all : Bool := {
   defValue := false
   group    := "pp"
@@ -75,9 +80,20 @@ register_builtin_option pp.numericTypes : Bool := {
   descr    := "(pretty printer) display types of numeric literals"
 }
 register_builtin_option pp.instantiateMVars : Bool := {
-  defValue := false -- TODO: default to true?
+  defValue := true
   group    := "pp"
   descr    := "(pretty printer) instantiate mvars before delaborating"
+}
+register_builtin_option pp.mvars : Bool := {
+  defValue := true
+  group    := "pp"
+  descr    := "(pretty printer) display names of metavariables when true, \
+    and otherwise display them as '?_' (for expression metavariables) and as '_' (for universe level metavariables)"
+}
+register_builtin_option pp.mvars.withType : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) display metavariables with a type ascription"
 }
 register_builtin_option pp.beta : Bool := {
   defValue := false
@@ -87,14 +103,23 @@ register_builtin_option pp.beta : Bool := {
 register_builtin_option pp.structureInstances : Bool := {
   defValue := true
   group    := "pp"
-  -- TODO: implement second part
-  descr    := "(pretty printer) display structure instances using the '{ fieldName := fieldValue, ... }' notation " ++
-              "or '⟨fieldValue, ... ⟩' if structure is tagged with [pp_using_anonymous_constructor] attribute"
+  descr    := "(pretty printer) display structure instances using the '{ fieldName := fieldValue, ... }' notation, \
+              or using '⟨fieldValue, ... ⟩' if structure is tagged with the '@[pp_using_anonymous_constructor]' attribute"
 }
-register_builtin_option pp.structureProjections : Bool := {
+register_builtin_option pp.structureInstances.flatten : Bool := {
   defValue := true
   group    := "pp"
-  descr    := "(pretty printer) display structure projections using field notation"
+  descr    := "(pretty printer) flatten nested structure instances for parent projections"
+}
+register_builtin_option pp.fieldNotation : Bool := {
+  defValue := true
+  group    := "pp"
+  descr    := "(pretty printer) use field notation when pretty printing, including for structure projections, unless '@[pp_nodot]' is applied"
+}
+register_builtin_option pp.fieldNotation.generalized : Bool := {
+  defValue := true
+  group    := "pp"
+  descr    := "(pretty printer) when `pp.fieldNotation` is true, enable using generalized field notation when the argument for field notation is the first explicit argument"
 }
 register_builtin_option pp.explicit : Bool := {
   defValue := false
@@ -142,12 +167,12 @@ register_builtin_option pp.instanceTypes : Bool := {
   descr    := "(pretty printer) when printing explicit applications, show the types of inst-implicit arguments"
 }
 register_builtin_option pp.deepTerms : Bool := {
-  defValue := true
+  defValue := false
   group    := "pp"
   descr    := "(pretty printer) display deeply nested terms, replacing them with `⋯` if set to false"
 }
 register_builtin_option pp.deepTerms.threshold : Nat := {
-  defValue := 20
+  defValue := 50
   group    := "pp"
   descr    := "(pretty printer) when `pp.deepTerms` is false, the depth at which terms start being replaced with `⋯`"
 }
@@ -168,16 +193,6 @@ register_builtin_option pp.motives.all : Bool := {
 }
 -- TODO:
 /-
-register_builtin_option g_pp_max_depth : Nat := {
-  defValue := false
-  group    := "pp"
-  descr    := "(pretty printer) maximum expression depth, after that it will use ellipsis"
-}
-register_builtin_option g_pp_max_steps : Nat := {
-  defValue := false
-  group    := "pp"
-  descr    := "(pretty printer) maximum number of visited expressions, after that it will use ellipsis"
-}
 register_builtin_option g_pp_locals_full_names : Bool := {
   defValue := false
   group    := "pp"
@@ -205,6 +220,7 @@ register_builtin_option g_pp_compact_let : Bool := {
 }
 -/
 
+def getPPMaxSteps (o : Options) : Nat := o.get pp.maxSteps.name pp.maxSteps.defValue
 def getPPAll (o : Options) : Bool := o.get pp.all.name false
 def getPPFunBinderTypes (o : Options) : Bool := o.get pp.funBinderTypes.name (getPPAll o)
 def getPPPiBinderTypes (o : Options) : Bool := o.get pp.piBinderTypes.name pp.piBinderTypes.defValue
@@ -216,14 +232,18 @@ def getPPExplicit (o : Options) : Bool := o.get pp.explicit.name (getPPAll o)
 def getPPNotation (o : Options) : Bool := o.get pp.notation.name (!getPPAll o)
 def getPPUnicodeFun (o : Options) : Bool := o.get pp.unicode.fun.name false
 def getPPMatch (o : Options) : Bool := o.get pp.match.name (!getPPAll o)
-def getPPStructureProjections (o : Options) : Bool := o.get pp.structureProjections.name (!getPPAll o)
+def getPPFieldNotation (o : Options) : Bool := o.get pp.fieldNotation.name (!getPPAll o)
+def getPPFieldNotationGeneralized (o : Options) : Bool := o.get pp.fieldNotation.generalized.name pp.fieldNotation.generalized.defValue
 def getPPStructureInstances (o : Options) : Bool := o.get pp.structureInstances.name (!getPPAll o)
+def getPPStructureInstancesFlatten (o : Options) : Bool := o.get pp.structureInstances.flatten.name pp.structureInstances.flatten.defValue
 def getPPStructureInstanceType (o : Options) : Bool := o.get pp.structureInstanceTypes.name (getPPAll o)
 def getPPTagAppFns (o : Options) : Bool := o.get pp.tagAppFns.name (getPPAll o)
 def getPPUniverses (o : Options) : Bool := o.get pp.universes.name (getPPAll o)
 def getPPFullNames (o : Options) : Bool := o.get pp.fullNames.name (getPPAll o)
 def getPPPrivateNames (o : Options) : Bool := o.get pp.privateNames.name (getPPAll o)
 def getPPInstantiateMVars (o : Options) : Bool := o.get pp.instantiateMVars.name pp.instantiateMVars.defValue
+def getPPMVars (o : Options) : Bool := o.get pp.mvars.name pp.mvars.defValue
+def getPPMVarsWithType (o : Options) : Bool := o.get pp.mvars.withType.name pp.mvars.withType.defValue
 def getPPBeta (o : Options) : Bool := o.get pp.beta.name pp.beta.defValue
 def getPPSafeShadowing (o : Options) : Bool := o.get pp.safeShadowing.name pp.safeShadowing.defValue
 def getPPProofs (o : Options) : Bool := o.get pp.proofs.name (pp.proofs.defValue || getPPAll o)

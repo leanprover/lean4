@@ -13,7 +13,7 @@ Recall that nonnegative numerals are considered to be a `Nat` if there are no ty
 
 The operator `/` for `Int` implements integer division.
 ```lean
-#eval -10 / 4 -- -2
+#eval -10 / 4 -- -3
 ```
 
 Similar to `Nat`, the internal representation of `Int` is optimized. Small integers are

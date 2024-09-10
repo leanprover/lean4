@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 Notation for operators defined at Prelude.lean
 -/
 prelude
-import Init.Meta
+import Init.Tactics
 
 namespace Lean.Parser.Tactic.Conv
 
@@ -97,11 +97,18 @@ Users should prefer `unfold` for unfolding definitions. -/
 syntax (name := delta) "delta" (ppSpace colGt ident)+ : conv
 
 /--
-* `unfold foo` unfolds all occurrences of `foo` in the target.
+* `unfold id` unfolds all occurrences of definition `id` in the target.
 * `unfold id1 id2 ...` is equivalent to `unfold id1; unfold id2; ...`.
-Like the `unfold` tactic, this uses equational lemmas for the chosen definition
-to rewrite the target. For recursive definitions,
-only one layer of unfolding is performed. -/
+
+Definitions can be either global or local definitions.
+
+For non-recursive global definitions, this tactic is identical to `delta`.
+For recursive global definitions, it uses the "unfolding lemma" `id.eq_def`,
+which is generated for each recursive definition, to unfold according to the recursive definition given by the user.
+Only one level of unfolding is performed, in contrast to `simp only [id]`, which unfolds definition `id` recursively.
+
+This is the `conv` version of the `unfold` tactic.
+-/
 syntax (name := unfold) "unfold" (ppSpace colGt ident)+ : conv
 
 /--
@@ -201,7 +208,7 @@ macro (name := anyGoals) tk:"any_goals " s:convSeq : conv =>
   with inaccessible names to the given names.
 * `case tag₁ | tag₂ => tac` is equivalent to `(case tag₁ => tac); (case tag₂ => tac)`.
 -/
-macro (name := case) tk:"case " args:sepBy1(caseArg, " | ") arr:" => " s:convSeq : conv =>
+macro (name := case) tk:"case " args:sepBy1(caseArg, "|") arr:" => " s:convSeq : conv =>
   `(conv| tactic' => case%$tk $args|* =>%$arr conv' => ($s); all_goals rfl)
 
 /--
@@ -210,7 +217,7 @@ has been solved after applying `tac`, nor admits the goal if `tac` failed.
 Recall that `case` closes the goal using `sorry` when `tac` fails, and
 the tactic execution is not interrupted.
 -/
-macro (name := case') tk:"case' " args:sepBy1(caseArg, " | ") arr:" => " s:convSeq : conv =>
+macro (name := case') tk:"case' " args:sepBy1(caseArg, "|") arr:" => " s:convSeq : conv =>
   `(conv| tactic' => case'%$tk $args|* =>%$arr conv' => $s)
 
 /--

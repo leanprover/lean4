@@ -6,6 +6,7 @@ Platforms built & tested by our CI, available as binary releases via elan (see b
 
 * x86-64 Linux with glibc 2.27+
 * x86-64 macOS 10.15+
+* aarch64 (Apple Silicon) macOS 10.15+
 * x86-64 Windows 10+
 
 ### Tier 2
@@ -16,7 +17,6 @@ Releases may be silently broken due to the lack of automated testing.
 Issue reports and fixes are welcome.
 
 * aarch64 Linux with glibc 2.27+
-* aarch64 (Apple Silicon) macOS
 * x86 (32-bit) Linux
 * Emscripten Web Assembly
 

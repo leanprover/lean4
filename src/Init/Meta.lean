@@ -9,7 +9,6 @@ prelude
 import Init.MetaTypes
 import Init.Data.Array.Basic
 import Init.Data.Option.BasicAux
-import Init.Data.String.Extra
 
 namespace Lean
 
@@ -76,7 +75,7 @@ See #2572.
 opaque Internal.hasLLVMBackend (u : Unit) : Bool
 
 /-- Valid identifier names -/
-def isGreek (c : Char) : Bool :=
+@[inline] def isGreek (c : Char) : Bool :=
   0x391 ≤ c.val && c.val ≤ 0x3dd
 
 def isLetterLike (c : Char) : Bool :=
@@ -87,7 +86,7 @@ def isLetterLike (c : Char) : Bool :=
   (0x2100 ≤ c.val && c.val ≤ 0x214f) ||                                  -- Letter like block
   (0x1d49c ≤ c.val && c.val ≤ 0x1d59f)                                   -- Latin letters, Script, Double-struck, Fractur
 
-def isNumericSubscript (c : Char) : Bool :=
+@[inline] def isNumericSubscript (c : Char) : Bool :=
   0x2080 ≤ c.val && c.val ≤ 0x2089
 
 def isSubScriptAlnum (c : Char) : Bool :=
@@ -95,53 +94,16 @@ def isSubScriptAlnum (c : Char) : Bool :=
   (0x2090 ≤ c.val && c.val ≤ 0x209c) ||
   (0x1d62 ≤ c.val && c.val ≤ 0x1d6a)
 
-def isIdFirst (c : Char) : Bool :=
+@[inline] def isIdFirst (c : Char) : Bool :=
   c.isAlpha || c = '_' || isLetterLike c
 
-def isIdRest (c : Char) : Bool :=
+@[inline] def isIdRest (c : Char) : Bool :=
   c.isAlphanum || c = '_' || c = '\'' || c == '!' || c == '?' || isLetterLike c || isSubScriptAlnum c
 
 def idBeginEscape := '«'
 def idEndEscape   := '»'
-def isIdBeginEscape (c : Char) : Bool := c = idBeginEscape
-def isIdEndEscape (c : Char) : Bool := c = idEndEscape
-
-private def findLeadingSpacesSize (s : String) : Nat :=
-  let it := s.iter
-  let it := it.find (· == '\n') |>.next
-  consumeSpaces it 0 s.length
-where
-  consumeSpaces (it : String.Iterator) (curr min : Nat) : Nat :=
-    if it.atEnd then min
-    else if it.curr == ' ' || it.curr == '\t' then consumeSpaces it.next (curr + 1) min
-    else if it.curr == '\n' then findNextLine it.next min
-    else findNextLine it.next (Nat.min curr min)
-  findNextLine (it : String.Iterator) (min : Nat) : Nat :=
-    if it.atEnd then min
-    else if it.curr == '\n' then consumeSpaces it.next 0 min
-    else findNextLine it.next min
-
-private def removeNumLeadingSpaces (n : Nat) (s : String) : String :=
-  consumeSpaces n s.iter ""
-where
-  consumeSpaces (n : Nat) (it : String.Iterator) (r : String) : String :=
-     match n with
-     | 0 => saveLine it r
-     | n+1 =>
-       if it.atEnd then r
-       else if it.curr == ' ' || it.curr == '\t' then consumeSpaces n it.next r
-       else saveLine it r
-  termination_by (it, 1)
-  saveLine (it : String.Iterator) (r : String) : String :=
-    if it.atEnd then r
-    else if it.curr == '\n' then consumeSpaces n it.next (r.push '\n')
-    else saveLine it.next (r.push it.curr)
-  termination_by (it, 0)
-
-def removeLeadingSpaces (s : String) : String :=
-  let n := findLeadingSpacesSize s
-  if n == 0 then s else removeNumLeadingSpaces n s
-
+@[inline] def isIdBeginEscape (c : Char) : Bool := c = idBeginEscape
+@[inline] def isIdEndEscape (c : Char) : Bool := c = idEndEscape
 namespace Name
 
 def getRoot : Name → Name
@@ -157,28 +119,55 @@ def isInaccessibleUserName : Name → Bool
   | Name.num p _   => isInaccessibleUserName p
   | _              => false
 
-def escapePart (s : String) : Option String :=
-  if s.length > 0 && isIdFirst (s.get 0) && (s.toSubstring.drop 1).all isIdRest then s
+/--
+Creates a round-trippable string name component if possible, otherwise returns `none`.
+Names that are valid identifiers are not escaped, and otherwise, if they do not contain `»`, they are escaped.
+- If `force` is `true`, then even valid identifiers are escaped.
+-/
+def escapePart (s : String) (force : Bool := false) : Option String :=
+  if s.length > 0 && !force && isIdFirst (s.get 0) && (s.toSubstring.drop 1).all isIdRest then s
   else if s.any isIdEndEscape then none
   else some <| idBeginEscape.toString ++ s ++ idEndEscape.toString
 
--- NOTE: does not roundtrip even with `escape = true` if name is anonymous or contains numeric part or `idEndEscape`
-variable (sep : String) (escape : Bool)
-def toStringWithSep : Name → String
+variable (sep : String) (escape : Bool) in
+/--
+Uses the separator `sep` (usually `"."`) to combine the components of the `Name` into a string.
+See the documentation for `Name.toString` for an explanation of `escape` and `isToken`.
+-/
+def toStringWithSep (n : Name) (isToken : String → Bool := fun _ => false) : String :=
+  match n with
   | anonymous       => "[anonymous]"
-  | str anonymous s => maybeEscape s
+  | str anonymous s => maybeEscape s (isToken s)
   | num anonymous v => toString v
-  | str n s         => toStringWithSep n ++ sep ++ maybeEscape s
-  | num n v         => toStringWithSep n ++ sep ++ Nat.repr v
+  | str n s         =>
+    -- Escape the last component if the identifier would otherwise be a token
+    let r := toStringWithSep n isToken
+    let r' := r ++ sep ++ maybeEscape s false
+    if escape && isToken r' then r ++ sep ++ maybeEscape s true else r'
+  | num n v         => toStringWithSep n (isToken := fun _ => false) ++ sep ++ Nat.repr v
 where
-  maybeEscape s := if escape then escapePart s |>.getD s else s
+  maybeEscape s force := if escape then escapePart s force |>.getD s else s
 
-protected def toString (n : Name) (escape := true) : String :=
+/--
+Converts a name to a string.
+
+- If `escape` is `true`, then escapes name components using `«` and `»` to ensure that
+  those names that can appear in source files round trip.
+  Names with number components, anonymous names, and names containing `»` might not round trip.
+  Furthermore, "pseudo-syntax" produced by the delaborator, such as `_`, `#0` or `?u`, is not escaped.
+- The optional `isToken` function is used when `escape` is `true` to determine whether more
+  escaping is necessary to avoid parser tokens.
+  The insertion algorithm works so long as parser tokens do not themselves contain `«` or `»`.
+-/
+protected def toString (n : Name) (escape := true) (isToken : String → Bool := fun _ => false) : String :=
   -- never escape "prettified" inaccessible names or macro scopes or pseudo-syntax introduced by the delaborator
-  toStringWithSep "." (escape && !n.isInaccessibleUserName && !n.hasMacroScopes && !maybePseudoSyntax) n
+  toStringWithSep "." (escape && !n.isInaccessibleUserName && !n.hasMacroScopes && !maybePseudoSyntax) n isToken
 where
   maybePseudoSyntax :=
-    if let .str _ s := n.getRoot then
+    if n == `_ then
+      -- output hole as is
+      true
+    else if let .str _ s := n.getRoot then
       -- could be pseudo-syntax for loose bvar or universe mvar, output as is
       "#".isPrefixOf s || "?".isPrefixOf s
     else
@@ -426,9 +415,9 @@ def getSubstring? (stx : Syntax) (withLeading := true) (withTrailing := true) : 
 partial def setTailInfoAux (info : SourceInfo) : Syntax → Option Syntax
   | atom _ val             => some <| atom info val
   | ident _ rawVal val pre => some <| ident info rawVal val pre
-  | node info k args       =>
+  | node info' k args      =>
     match updateLast args (setTailInfoAux info) args.size with
-    | some args => some <| node info k args
+    | some args => some <| node info' k args
     | none      => none
   | _                      => none
 
@@ -437,9 +426,16 @@ def setTailInfo (stx : Syntax) (info : SourceInfo) : Syntax :=
   | some stx => stx
   | none     => stx
 
+/--
+Replaces the trailing whitespace in `stx`, if any, with an empty substring.
+
+The trailing substring's `startPos` and `str` are preserved in order to ensure that the result could
+have been produced by the parser, in case any syntax consumers rely on such an assumption.
+-/
 def unsetTrailing (stx : Syntax) : Syntax :=
   match stx.getTailInfo with
-  | SourceInfo.original lead pos _ endPos => stx.setTailInfo (SourceInfo.original lead pos "".toSubstring endPos)
+  | SourceInfo.original lead pos trail endPos =>
+    stx.setTailInfo (SourceInfo.original lead pos { trail with stopPos := trail.startPos } endPos)
   | _                                     => stx
 
 @[specialize] private partial def updateFirst {α} [Inhabited α] (a : Array α) (f : α → Option α) (i : Nat) : Option (Array α) :=
@@ -947,6 +943,11 @@ def _root_.Substring.toName (s : Substring) : Name :=
       else
         Name.mkStr n comp
 
+/--
+Converts a `String` to a hierarchical `Name` after splitting it at the dots.
+
+`"a.b".toName` is the name `a.b`, not `«a.b»`. For the latter, use `Name.mkSimple`.
+-/
 def _root_.String.toName (s : String) : Name :=
   s.toSubstring.toName
 
@@ -1090,6 +1091,7 @@ where
     else
       Syntax.mkCApp (Name.mkStr2 "Array" ("mkArray" ++ toString xs.size)) args
   termination_by xs.size - i
+  decreasing_by decreasing_trivial_pre_omega
 
 instance [Quote α `term] : Quote (Array α) `term where
   quote := quoteArray
@@ -1227,14 +1229,6 @@ instance : Coe (Lean.Term) (Lean.TSyntax `Lean.Parser.Term.funBinder) where
 
 end Lean.Syntax
 
-set_option linter.unusedVariables.funArgs false in
-/--
-  Gadget for automatic parameter support. This is similar to the `optParam` gadget, but it uses
-  the given tactic.
-  Like `optParam`, this gadget only affects elaboration.
-  For example, the tactic will *not* be invoked during type class resolution. -/
-abbrev autoParam.{u} (α : Sort u) (tactic : Lean.Syntax) : Sort u := α
-
 /-! # Helper functions for manipulating interpolated strings -/
 
 namespace Lean.Syntax
@@ -1318,12 +1312,46 @@ def Occurrences.isAll : Occurrences → Bool
   | all => true
   | _   => false
 
+/--
+Controls which new mvars are turned in to goals by the `apply` tactic.
+- `nonDependentFirst`  mvars that don't depend on other goals appear first in the goal list.
+- `nonDependentOnly` only mvars that don't depend on other goals are added to goal list.
+- `all` all unassigned mvars are added to the goal list.
+-/
+-- TODO: Consider renaming to `Apply.NewGoals`
+inductive ApplyNewGoals where
+  | nonDependentFirst | nonDependentOnly | all
+
+/-- Configures the behaviour of the `apply` tactic. -/
+-- TODO: Consider renaming to `Apply.Config`
+structure ApplyConfig where
+  newGoals := ApplyNewGoals.nonDependentFirst
+  /--
+  If `synthAssignedInstances` is `true`, then `apply` will synthesize instance implicit arguments
+  even if they have assigned by `isDefEq`, and then check whether the synthesized value matches the
+  one inferred. The `congr` tactic sets this flag to false.
+  -/
+  synthAssignedInstances := true
+  /--
+  If `allowSynthFailures` is `true`, then `apply` will return instance implicit arguments
+  for which typeclass search failed as new goals.
+  -/
+  allowSynthFailures := false
+  /--
+  If `approx := true`, then we turn on `isDefEq` approximations. That is, we use
+  the `approxDefEq` combinator.
+  -/
+  approx : Bool := true
+
 namespace Rewrite
 
+abbrev NewGoals := ApplyNewGoals
+
 structure Config where
-  transparency : TransparencyMode := TransparencyMode.reducible
+  transparency : TransparencyMode := .reducible
   offsetCnstrs : Bool := true
-  occs : Occurrences := Occurrences.all
+  occs : Occurrences := .all
+  newGoals : NewGoals := .nonDependentFirst
 
 end Rewrite
 

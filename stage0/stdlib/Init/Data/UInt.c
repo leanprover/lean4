@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.UInt
-// Imports: Init.Data.UInt.Basic Init.Data.UInt.Log2
+// Imports: Init.Data.UInt.Basic Init.Data.UInt.Log2 Init.Data.UInt.Lemmas Init.Data.UInt.Bitwise
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,6 +15,8 @@ extern "C" {
 #endif
 lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_UInt_Log2(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_UInt_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_UInt_Bitwise(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_UInt(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -24,6 +26,12 @@ res = initialize_Init_Data_UInt_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_UInt_Log2(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_UInt_Lemmas(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_UInt_Bitwise(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

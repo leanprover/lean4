@@ -38,10 +38,10 @@ example : cond false Nat Int → cond true Int Nat → Nat ⊕ Unit → True := 
 
 example (x y : Nat) (h : x = y) : True := by
   rcases x with _|⟨⟩|z
-  · guard_hyp h : Nat.zero = y; trivial
-  · guard_hyp h : Nat.succ Nat.zero = y; trivial
+  · guard_hyp h :ₛ 0 = y; trivial
+  · guard_hyp h :ₛ 0 + 1 = y; trivial
   · guard_hyp z : Nat
-    guard_hyp h : Nat.succ (Nat.succ z) = y; trivial
+    guard_hyp h :ₛ z + 1 + 1 = y; trivial
 
 example (h : x = 3) (h₂ : x < 4) : x < 4 := by
   rcases h with ⟨⟩
@@ -188,8 +188,8 @@ example (h : a ≤ 2 ∨ 2 < a) : True := by
 
 example (a : Nat) : True := by
   rcases h : a with _ | n
-  · guard_hyp h : a = 0; trivial
-  · guard_hyp h : a = n + 1; trivial
+  · guard_hyp h :ₛ a = 0; trivial
+  · guard_hyp h :ₛ a = n + 1; trivial
 
 inductive BaseType : Type where
   | one

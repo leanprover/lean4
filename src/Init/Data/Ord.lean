@@ -114,11 +114,23 @@ by `cmp₂` to break the tie.
 @[inline] def compareLex (cmp₁ cmp₂ : α → β → Ordering) (a : α) (b : β) : Ordering :=
   (cmp₁ a b).then (cmp₂ a b)
 
+/--
+`Ord α` provides a computable total order on `α`, in terms of the
+`compare : α → α → Ordering` function.
+
+Typically instances will be transitive, reflexive, and antisymmetric,
+but this is not enforced by the typeclass.
+
+There is a derive handler, so appending `deriving Ord` to an inductive type or structure
+will attempt to create an `Ord` instance.
+-/
 class Ord (α : Type u) where
+  /-- Compare two elements in `α` using the comparator contained in an `[Ord α]` instance. -/
   compare : α → α → Ordering
 
 export Ord (compare)
 
+set_option linter.unusedVariables false in  -- allow specifying `ord` explicitly
 /--
 Compare `x` and `y` by comparing `f x` and `f y`.
 -/
@@ -170,15 +182,13 @@ instance [Ord α] : Ord (Option α) where
 
 /-- The lexicographic order on pairs. -/
 def lexOrd [Ord α] [Ord β] : Ord (α × β) where
-  compare p1 p2 := match compare p1.1 p2.1 with
-    | .eq => compare p1.2 p2.2
-    | o   => o
+  compare := compareLex (compareOn (·.1)) (compareOn (·.2))
 
 def ltOfOrd [Ord α] : LT α where
-  lt a b := compare a b == Ordering.lt
+  lt a b := compare a b = Ordering.lt
 
 instance [Ord α] : DecidableRel (@LT.lt α ltOfOrd) :=
-  inferInstanceAs (DecidableRel (fun a b => compare a b == Ordering.lt))
+  inferInstanceAs (DecidableRel (fun a b => compare a b = Ordering.lt))
 
 def leOfOrd [Ord α] : LE α where
   le a b := (compare a b).isLE
@@ -215,7 +225,7 @@ protected def opposite (ord : Ord α) : Ord α where
 /--
 `ord.on f` compares `x` and `y` by comparing `f x` and `f y` according to `ord`.
 -/
-protected def on (ord : Ord β) (f : α → β) : Ord α where
+protected def on (_ : Ord β) (f : α → β) : Ord α where
   compare := compareOn f
 
 /--

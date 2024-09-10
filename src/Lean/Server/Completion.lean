@@ -81,7 +81,7 @@ open Elab
 open Meta
 open FuzzyMatching
 
-abbrev EligibleHeaderDecls := HashMap Name ConstantInfo
+abbrev EligibleHeaderDecls := Std.HashMap Name ConstantInfo
 
 /-- Cached header declarations for which `allowCompletion headerEnv decl` is true. -/
 builtin_initialize eligibleHeaderDeclsRef : IO.Ref (Option EligibleHeaderDecls) ←
@@ -250,7 +250,7 @@ private def matchDecl? (ns : Name) (id : Name) (danglingDot : Bool) (declName : 
   else if let (.str p₁ s₁, .str p₂ s₂) := (id, declName) then
     if p₁ == p₂ then
       -- If the namespaces agree, fuzzy-match on the trailing part
-      return fuzzyMatchScoreWithThreshold? s₁ s₂ |>.map (s₂, ·)
+      return fuzzyMatchScoreWithThreshold? s₁ s₂ |>.map (.mkSimple s₂, ·)
     else if p₁.isAnonymous then
       -- If `id` is namespace-less, also fuzzy-match declaration names in arbitrary namespaces
       -- (but don't match the namespace itself).
@@ -383,14 +383,14 @@ private def idCompletionCore
   let addAlias (alias : Name) (declNames : List Name) (score : Float) : M Unit := do
     declNames.forM fun declName => do
       if allowCompletion eligibleHeaderDecls env declName then
-        addUnresolvedCompletionItemForDecl alias.getString! declName score
+        addUnresolvedCompletionItemForDecl (.mkSimple alias.getString!) declName score
   -- search explicitly open `ids`
   for openDecl in ctx.openDecls do
     match openDecl with
     | OpenDecl.explicit openedId resolvedId =>
       if allowCompletion eligibleHeaderDecls env resolvedId then
         if let some score := matchAtomic id openedId then
-          addUnresolvedCompletionItemForDecl openedId.getString! resolvedId score
+          addUnresolvedCompletionItemForDecl (.mkSimple openedId.getString!) resolvedId score
     | OpenDecl.simple ns _      =>
       getAliasState env |>.forM fun alias declNames => do
         if let some score := matchAlias ns alias then
@@ -543,7 +543,7 @@ private def dotCompletion
       if ! (← isDotCompletionMethod typeName c) then
         return
       let completionKind ← getCompletionKindForDecl c
-      addUnresolvedCompletionItem c.name.getString! (.const c.name) (kind := completionKind) 1
+      addUnresolvedCompletionItem (.mkSimple c.name.getString!) (.const c.name) (kind := completionKind) 1
 
 private def dotIdCompletion
     (params        : CompletionParams)
@@ -580,7 +580,7 @@ private def dotIdCompletion
       let completionKind ← getCompletionKindForDecl c
       if id.isAnonymous then
         -- We're completing a lone dot => offer all decls of the type
-        addUnresolvedCompletionItem c.name.getString! (.const c.name) completionKind 1
+        addUnresolvedCompletionItem (.mkSimple c.name.getString!) (.const c.name) completionKind 1
         return
 
       let some (label, score) ← matchDecl? typeName id (danglingDot := false) declName | pure ()
@@ -659,10 +659,10 @@ private def tacticCompletion (params : CompletionParams) (ctx : ContextInfo) : I
     return some { items := sortCompletionItems items, isIncomplete := true }
 
 private def findCompletionInfoAt?
-  (fileMap  : FileMap)
-  (hoverPos : String.Pos)
-  (infoTree : InfoTree)
-  : Option (HoverInfo × ContextInfo × CompletionInfo) :=
+    (fileMap  : FileMap)
+    (hoverPos : String.Pos)
+    (infoTree : InfoTree)
+    : Option (HoverInfo × ContextInfo × CompletionInfo) :=
   let ⟨hoverLine, _⟩ := fileMap.toPosition hoverPos
   match infoTree.foldInfo (init := none) (choose hoverLine) with
   | some (hoverInfo, ctx, Info.ofCompletionInfo info) =>
@@ -677,7 +677,8 @@ where
       (info      : Info)
       (best?     : Option (HoverInfo × ContextInfo × Info))
       : Option (HoverInfo × ContextInfo × Info) :=
-    if !info.isCompletion then best?
+    if !info.isCompletion then
+      best?
     else if info.occursInside? hoverPos |>.isSome then
       let headPos          := info.pos?.get!
       let ⟨headPosLine, _⟩ := fileMap.toPosition headPos
@@ -695,15 +696,14 @@ where
     else if let some (HoverInfo.inside _, _, _) := best? then
       -- We assume the "inside matches" have precedence over "before ones".
       best?
-    else if let some d := info.occursBefore? hoverPos then
+    else if info.occursDirectlyBefore hoverPos then
       let pos := info.tailPos?.get!
       let ⟨line, _⟩ := fileMap.toPosition pos
       if line != hoverLine then best?
       else match best? with
         | none => (HoverInfo.after, ctx, info)
         | some (_, _, best) =>
-          let dBest := best.occursBefore? hoverPos |>.get!
-          if d < dBest || (d == dBest && info.isSmaller best) then
+          if info.isSmaller best then
             (HoverInfo.after, ctx, info)
           else
             best?

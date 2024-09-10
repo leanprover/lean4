@@ -13,11 +13,13 @@ inductive CliError
 | unknownCommand (cmd : String)
 | missingArg (arg : String)
 | missingOptArg (opt arg : String)
+| invalidOptArg (opt arg : String)
 | unknownShortOption (opt : Char)
 | unknownLongOption (opt : String)
 | unexpectedArguments (args : List String)
 /- Init CLI Errors -/
 | unknownTemplate (spec : String)
+| unknownConfigLang (spec : String)
 /- Build CLI Errors -/
 | unknownModule (mod : Name)
 | unknownPackage (spec : String)
@@ -31,10 +33,12 @@ inductive CliError
 | invalidFacet (target : Name) (facet : Name)
 /- Executable CLI Errors -/
 | unknownExe (spec : String)
-/- Script CLI Error -/
+/- Script CLI Error  -/
 | unknownScript (script : String)
 | missingScriptDoc (script : String)
 | invalidScriptSpec (spec : String)
+/-- Translate Errors -/
+| outputConfigExists (path : System.FilePath)
 /- Config Errors -/
 | unknownLeanInstall
 | unknownLakeInstall
@@ -48,11 +52,13 @@ def toString : CliError → String
 | missingCommand          => "missing command"
 | unknownCommand cmd      => s!"unknown command '{cmd}'"
 | missingArg arg          => s!"missing {arg}"
-| missingOptArg opt arg   => s!"missing {arg} after {opt}"
+| missingOptArg opt arg   => s!"missing {arg} for {opt}"
+| invalidOptArg opt arg   => s!"invalid argument for {opt}; expected {arg}"
 | unknownShortOption opt  => s!"unknown short option '-{opt}'"
 | unknownLongOption opt   => s!"unknown long option '{opt}'"
 | unexpectedArguments as  => s!"unexpected arguments: {" ".intercalate as}"
 | unknownTemplate spec    => s!"unknown package template `{spec}`"
+| unknownConfigLang spec  => s!"unknown configuration language `{spec}`"
 | unknownModule mod       => s!"unknown module `{mod.toString false}`"
 | unknownPackage spec     => s!"unknown package `{spec}`"
 | unknownFacet ty f       => s!"unknown {ty} facet `{f.toString false}`"
@@ -67,6 +73,7 @@ def toString : CliError → String
 | unknownScript s         => s!"unknown script {s}"
 | missingScriptDoc s      => s!"no documentation provided for `{s}`"
 | invalidScriptSpec s     => s!"invalid script spec '{s}' (too many '/')"
+| outputConfigExists f    => s!"output configuration file already exists: {f}"
 | unknownLeanInstall      => "could not detect a Lean installation"
 | unknownLakeInstall      => "could not detect the configuration of the Lake installation"
 | leanRevMismatch e a     => s!"expected Lean commit {e}, but got {if a.isEmpty then "nothing" else a}"

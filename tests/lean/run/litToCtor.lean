@@ -42,17 +42,17 @@ info: Int.ofNat 3
 #guard_msgs in
 #eval test (3 : Int)
 /--
-info: { val := 3, isLt := ⋯ }
+info: ⟨3, ⋯⟩
 -/
 #guard_msgs in
 #eval test (3 : Fin 5)
 /--
-info: { val := 0, isLt := ⋯ }
+info: ⟨0, ⋯⟩
 -/
 #guard_msgs in
 #eval test (0 : Fin 5)
 /--
-info: { val := 1, isLt := ⋯ }
+info: ⟨1, ⋯⟩
 -/
 #guard_msgs in
 #eval test (6 : Fin 5)

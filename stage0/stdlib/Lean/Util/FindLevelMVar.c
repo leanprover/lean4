@@ -18,10 +18,14 @@ LEAN_EXPORT lean_object* l_Lean_Expr_findLevelMVar_x3f(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_List_foldr___at_Lean_FindLevelMVar_main___spec__1___at_Lean_FindLevelMVar_main___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_visit(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_visitLevel(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_mainLevel___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Level_hasMVar(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_visit___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldr___at_Lean_FindLevelMVar_main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_visitLevel___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_main(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldr___at_Lean_FindLevelMVar_main___spec__1___at_Lean_FindLevelMVar_main___spec__2(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_main___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasLevelMVar(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_visitLevel(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
@@ -47,6 +51,7 @@ else
 {
 lean_dec(x_2);
 lean_dec(x_1);
+lean_inc(x_3);
 return x_3;
 }
 }
@@ -75,6 +80,7 @@ lean_dec(x_2);
 lean_inc(x_1);
 x_8 = l_Lean_FindLevelMVar_visitLevel(x_1, x_7, x_3);
 x_9 = l_Lean_FindLevelMVar_visitLevel(x_1, x_6, x_8);
+lean_dec(x_8);
 return x_9;
 }
 case 3:
@@ -88,6 +94,7 @@ lean_dec(x_2);
 lean_inc(x_1);
 x_12 = l_Lean_FindLevelMVar_visitLevel(x_1, x_11, x_3);
 x_13 = l_Lean_FindLevelMVar_visitLevel(x_1, x_10, x_12);
+lean_dec(x_12);
 return x_13;
 }
 case 5:
@@ -103,12 +110,12 @@ lean_dec(x_15);
 if (x_16 == 0)
 {
 lean_dec(x_14);
+lean_inc(x_3);
 return x_3;
 }
 else
 {
 lean_object* x_17; 
-lean_dec(x_3);
 x_17 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_17, 0, x_14);
 return x_17;
@@ -118,9 +125,28 @@ default:
 {
 lean_dec(x_2);
 lean_dec(x_1);
+lean_inc(x_3);
 return x_3;
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_visitLevel___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_FindLevelMVar_visitLevel(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_mainLevel___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_FindLevelMVar_mainLevel(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_visit(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -147,6 +173,7 @@ else
 {
 lean_dec(x_2);
 lean_dec(x_1);
+lean_inc(x_3);
 return x_3;
 }
 }
@@ -172,6 +199,7 @@ lean_dec(x_3);
 lean_inc(x_1);
 x_8 = l_List_foldr___at_Lean_FindLevelMVar_main___spec__1(x_1, x_2, x_7, x_4);
 x_9 = l_Lean_FindLevelMVar_visitLevel(x_1, x_6, x_8);
+lean_dec(x_8);
 return x_9;
 }
 }
@@ -196,6 +224,7 @@ lean_dec(x_2);
 lean_inc(x_1);
 x_6 = l_List_foldr___at_Lean_FindLevelMVar_main___spec__1___at_Lean_FindLevelMVar_main___spec__2(x_1, x_5, x_3);
 x_7 = l_Lean_FindLevelMVar_visitLevel(x_1, x_4, x_6);
+lean_dec(x_6);
 return x_7;
 }
 }
@@ -220,7 +249,6 @@ x_6 = lean_ctor_get(x_2, 1);
 lean_inc(x_6);
 lean_dec(x_2);
 x_7 = l_List_foldr___at_Lean_FindLevelMVar_main___spec__1___at_Lean_FindLevelMVar_main___spec__2(x_1, x_6, x_3);
-lean_dec(x_3);
 return x_7;
 }
 case 5:
@@ -234,6 +262,7 @@ lean_dec(x_2);
 lean_inc(x_1);
 x_10 = l_Lean_FindLevelMVar_visit(x_1, x_8, x_3);
 x_11 = l_Lean_FindLevelMVar_visit(x_1, x_9, x_10);
+lean_dec(x_10);
 return x_11;
 }
 case 6:
@@ -247,6 +276,7 @@ lean_dec(x_2);
 lean_inc(x_1);
 x_14 = l_Lean_FindLevelMVar_visit(x_1, x_12, x_3);
 x_15 = l_Lean_FindLevelMVar_visit(x_1, x_13, x_14);
+lean_dec(x_14);
 return x_15;
 }
 case 7:
@@ -260,6 +290,7 @@ lean_dec(x_2);
 lean_inc(x_1);
 x_18 = l_Lean_FindLevelMVar_visit(x_1, x_16, x_3);
 x_19 = l_Lean_FindLevelMVar_visit(x_1, x_17, x_18);
+lean_dec(x_18);
 return x_19;
 }
 case 8:
@@ -276,7 +307,9 @@ lean_inc(x_1);
 x_23 = l_Lean_FindLevelMVar_visit(x_1, x_20, x_3);
 lean_inc(x_1);
 x_24 = l_Lean_FindLevelMVar_visit(x_1, x_21, x_23);
+lean_dec(x_23);
 x_25 = l_Lean_FindLevelMVar_visit(x_1, x_22, x_24);
+lean_dec(x_24);
 return x_25;
 }
 case 10:
@@ -301,9 +334,19 @@ default:
 {
 lean_dec(x_2);
 lean_dec(x_1);
+lean_inc(x_3);
 return x_3;
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_visit___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_FindLevelMVar_visit(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_List_foldr___at_Lean_FindLevelMVar_main___spec__1___at_Lean_FindLevelMVar_main___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -311,6 +354,15 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_List_foldr___at_Lean_FindLevelMVar_main___spec__1___at_Lean_FindLevelMVar_main___spec__2(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_main___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_FindLevelMVar_main(x_1, x_2, x_3);
 lean_dec(x_3);
 return x_4;
 }

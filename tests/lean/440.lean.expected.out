@@ -6,4 +6,5 @@ context:
 x : Nat
 ⊢ Nat
 f (x : Nat) : Nat
-440.lean:11:0-11:9: error: cannot evaluate code because 'g' uses 'sorry' and/or contains errors
+440.lean:11:0-11:9: error: cannot evaluate expression that depends on the `sorry` axiom.
+Use `#eval!` to evaluate nevertheless (which may cause lean to crash).

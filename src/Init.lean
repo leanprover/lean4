@@ -33,3 +33,5 @@ import Init.SizeOfLemmas
 import Init.BinderPredicates
 import Init.Ext
 import Init.Omega
+import Init.MacroTrace
+import Init.Grind

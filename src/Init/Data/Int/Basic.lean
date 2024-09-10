@@ -8,7 +8,7 @@ The integers, with addition, multiplication, and subtraction.
 prelude
 import Init.Data.Cast
 import Init.Data.Nat.Div
-import Init.Data.List.Basic
+
 set_option linter.missingDocs true -- keep it documented
 open Nat
 
@@ -100,7 +100,7 @@ protected def neg (n : @& Int) : Int :=
   ```
 -/
 @[default_instance mid]
-instance : Neg Int where
+instance instNegInt : Neg Int where
   neg := Int.neg
 
 /-- Subtraction of two natural numbers. -/
@@ -173,13 +173,13 @@ inductive NonNeg : Int → Prop where
 /-- Definition of `a ≤ b`, encoded as `b - a ≥ 0`. -/
 protected def le (a b : Int) : Prop := NonNeg (b - a)
 
-instance : LE Int where
+instance instLEInt : LE Int where
   le := Int.le
 
 /-- Definition of `a < b`, encoded as `a + 1 ≤ b`. -/
 protected def lt (a b : Int) : Prop := (a + 1) ≤ b
 
-instance : LT Int where
+instance instLTInt : LT Int where
   lt := Int.lt
 
 set_option bootstrap.genMatcherCode false in
@@ -322,8 +322,8 @@ protected def pow (m : Int) : Nat → Int
   | 0      => 1
   | succ n => Int.pow m n * m
 
-instance : HPow Int Nat Int where
-  hPow := Int.pow
+instance : NatPow Int where
+  pow := Int.pow
 
 instance : LawfulBEq Int where
   eq_of_beq h := by simp [BEq.beq] at h; assumption

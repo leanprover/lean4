@@ -58,7 +58,7 @@ theorem ex2 : g 0 = 0 := by
   unfold g
   simp
 
-#check g.def
+#check g.eq_def
 
 
 end Ex2

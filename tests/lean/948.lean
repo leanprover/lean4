@@ -17,3 +17,4 @@ def add_one_to_one (x : Int) (h : x = 1) : add_one (x : Int) = (2 : Int) := by
     pattern add_one _
     trace_state
     rw [h]
+  rfl

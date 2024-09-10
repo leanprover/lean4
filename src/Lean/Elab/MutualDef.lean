@@ -14,34 +14,30 @@ import Lean.Elab.Match
 import Lean.Elab.DefView
 import Lean.Elab.Deriving.Basic
 import Lean.Elab.PreDefinition.Main
-import Lean.Elab.PreDefinition.WF.TerminationHint
+import Lean.Elab.PreDefinition.TerminationHint
 import Lean.Elab.DeclarationRange
 
 namespace Lean.Elab
 open Lean.Parser.Term
 
-/-- `DefView` after elaborating the header. -/
-structure DefViewElabHeader where
-  ref           : Syntax
-  modifiers     : Modifiers
-  /-- Stores whether this is the header of a definition, theorem, ... -/
-  kind          : DefKind
+open Language
+
+/-- `DefView` plus header elaboration data and snapshot. -/
+structure DefViewElabHeader extends DefView, DefViewElabHeaderData where
   /--
-    Short name. Recall that all declarations in Lean 4 are potentially recursive. We use `shortDeclName` to refer
-    to them at `valueStx`, and other declarations in the same mutual block. -/
-  shortDeclName : Name
-  /-- Full name for this declaration. This is the name that will be added to the `Environment`. -/
-  declName      : Name
-  /-- Universe level parameter names explicitly provided by the user. -/
-  levelNames    : List Name
-  /-- Syntax objects for the binders occurring before `:`, we use them to populate the `InfoTree` when elaborating `valueStx`. -/
-  binderIds     : Array Syntax
-  /-- Number of parameters before `:`, it also includes auto-implicit parameters automatically added by Lean. -/
-  numParams     : Nat
-  /-- Type including parameters. -/
-  type          : Expr
-  /-- `Syntax` object the body/value of the definition. -/
-  valueStx      : Syntax
+  Snapshot for incremental processing of top-level tactic block, if any.
+
+  Invariant: if the bundle's `old?` is set, then the state *up to the start* of the tactic block is
+  unchanged, i.e. reuse is possible.
+  -/
+  tacSnap? : Option (Language.SnapshotBundle Tactic.TacticParsedSnapshot)
+  /--
+  Snapshot for incremental processing of definition body.
+
+  Invariant: if the bundle's `old?` is set, then elaboration of the body is guaranteed to result in
+  the same elaboration result and state, i.e. reuse is possible.
+  -/
+  bodySnap? : Option (Language.SnapshotBundle (Option BodyProcessedSnapshot))
   deriving Inhabited
 
 namespace Term
@@ -127,15 +123,52 @@ private def cleanupOfNat (type : Expr) : MetaM Expr := do
     let eNew := mkApp e.appFn! argArgs[1]!
     return .done eNew
 
-/-- Elaborate only the declaration headers. We have to elaborate the headers first because we support mutually recursive declarations in Lean 4. -/
-private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHeader) := do
-  let expandedDeclIds ← views.mapM fun view => withRef view.ref do
+/--
+Elaborates only the declaration view headers. We have to elaborate the headers first because we
+support mutually recursive declarations in Lean 4.
+-/
+private def elabHeaders (views : Array DefView)
+    (bodyPromises : Array (IO.Promise (Option BodyProcessedSnapshot)))
+    (tacPromises : Array (IO.Promise Tactic.TacticParsedSnapshot)) :
+    TermElabM (Array DefViewElabHeader) := do
+  let expandedDeclIds ← views.mapM fun view => withRef view.headerRef do
     Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
   withAutoBoundImplicitForbiddenPred (fun n => expandedDeclIds.any (·.shortName == n)) do
     let mut headers := #[]
-    for view in views, ⟨shortDeclName, declName, levelNames⟩ in expandedDeclIds do
-      let newHeader ← withRef view.ref do
-        addDeclarationRanges declName view.ref
+    -- Can we reuse the result for a body? For starters, all headers (even those below the body)
+    -- must be reusable
+    let mut reuseBody := views.all (·.headerSnap?.any (·.old?.isSome))
+    for view in views, ⟨shortDeclName, declName, levelNames⟩ in expandedDeclIds,
+        tacPromise in tacPromises, bodyPromise in bodyPromises do
+      let mut reusableResult? := none
+      let mut oldBodySnap? := none
+      let mut oldTacSnap? := none
+      if let some snap := view.headerSnap? then
+        -- by the `DefView.headerSnap?` invariant, safe to reuse results at this point, so let's
+        -- wait for them!
+        if let some old := snap.old?.bind (·.val.get) then
+          -- Transition from `DefView.snap?` to `DefViewElabHeader.tacSnap?` invariant: if all
+          -- headers and all previous bodies could be reused, then the state at the *start* of the
+          -- top-level tactic block (if any) is unchanged
+          let reuseTac := reuseBody
+          -- Transition from `DefView.snap?` to `DefViewElabHeader.bodySnap?` invariant: if all
+          -- headers and all previous bodies could be reused and this body syntax is unchanged, then
+          -- we can reuse the result
+          reuseBody := reuseBody &&
+            view.value.eqWithInfoAndTraceReuse (← getOptions) old.bodyStx
+          -- no syntax guard to store, we already did the necessary checks
+          oldBodySnap? := guard reuseBody *> pure ⟨.missing, old.bodySnap⟩
+          oldTacSnap? := do
+              guard reuseTac
+              some ⟨(← old.tacStx?), (← old.tacSnap?)⟩
+          let newHeader : DefViewElabHeader := { view, old.view with
+            bodySnap? := none, tacSnap? := none }  -- filled below
+          reusableResult? := some (newHeader, old.state)
+        else
+          reuseBody := false
+
+      let mut (newHeader, newState) ← withRestoreOrSaveFull reusableResult? none do
+        withReuseContext view.headerRef do
         applyAttributesAt declName view.modifiers.attrs .beforeElaboration
         withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|
           elabBindersEx view.binders.getArgs fun xs => do
@@ -164,21 +197,68 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
               let pendingMVarIds ← getMVars type
               discard <| logUnassignedUsingErrorInfos pendingMVarIds <|
                 getPendindMVarErrorMessage views
-            let newHeader := {
-              ref           := view.ref
-              modifiers     := view.modifiers
-              kind          := view.kind
-              shortDeclName := shortDeclName
-              declName, type, levelNames, binderIds
-              numParams     := xs.size
-              valueStx      := view.value : DefViewElabHeader }
+            let newHeader : DefViewElabHeaderData := {
+              declName, shortDeclName, type, levelNames, binderIds
+              numParams := xs.size
+            }
+            let newHeader : DefViewElabHeader := { view, newHeader with
+              bodySnap? := none, tacSnap? := none }
             check headers newHeader
             return newHeader
+      if let some snap := view.headerSnap? then
+        let (tacStx?, newTacTask?) ← mkTacTask view.value tacPromise
+        snap.new.resolve <| some {
+          diagnostics :=
+            (← Language.Snapshot.Diagnostics.ofMessageLog (← Core.getAndEmptyMessageLog))
+          view := newHeader.toDefViewElabHeaderData
+          state := newState
+          tacStx?
+          tacSnap? := newTacTask?
+          bodyStx := view.value
+          bodySnap := mkBodyTask view.value bodyPromise
+        }
+        newHeader := { newHeader with
+          -- We should only forward the promise if we are actually waiting on the
+          -- corresponding task; otherwise, diagnostics assigned to it will be lost
+          tacSnap? := guard newTacTask?.isSome *> some { old? := oldTacSnap?, new := tacPromise }
+          bodySnap? := some { old? := oldBodySnap?, new := bodyPromise }
+        }
       headers := headers.push newHeader
     return headers
+where
+  getBodyTerm? (stx : Syntax) : Option Syntax := do
+    -- TODO: does not work with partial syntax
+    --| `(Parser.Command.declVal| := $body $_suffix:suffix) => body
+    guard (stx.isOfKind ``Parser.Command.declValSimple)
+    let body := stx[1]
+    let whereDeclsOpt := stx[3]
+    -- We currently disable incrementality in presence of `where` as we would have to handle the
+    -- generated leading `let rec` specially
+    guard whereDeclsOpt.isNone
+    return body
+
+  /-- Creates snapshot task with appropriate range from body syntax and promise. -/
+  mkBodyTask (body : Syntax) (new : IO.Promise (Option BodyProcessedSnapshot)) :
+      Language.SnapshotTask (Option BodyProcessedSnapshot) :=
+    let rangeStx := getBodyTerm? body |>.getD body
+    { range? := rangeStx.getRange?, task := new.result }
+
+  /--
+  If `body` allows for incremental tactic reporting and reuse, creates a snapshot task out of the
+  passed promise with appropriate range, otherwise immediately resolves the promise to a dummy
+  value.
+  -/
+  mkTacTask (body : Syntax) (tacPromise : IO.Promise Tactic.TacticParsedSnapshot) :
+      TermElabM (Option Syntax × Option (Language.SnapshotTask Tactic.TacticParsedSnapshot))
+   := do
+    if let some e := getBodyTerm? body then
+      if let `(by $tacs*) := e then
+        return (e, some { range? := mkNullNode tacs |>.getRange?, task := tacPromise.result })
+    tacPromise.resolve default
+    return (none, none)
 
 /--
-  Create auxiliary local declarations `fs` for the given hearders using their `shortDeclName` and `type`, given hearders, and execute `k fs`.
+  Create auxiliary local declarations `fs` for the given headers using their `shortDeclName` and `type`, given headers, and execute `k fs`.
   The new free variables are tagged as `auxDecl`.
   Remark: `fs.size = headers.size`.
 -/
@@ -241,24 +321,129 @@ private def declValToTerm (declVal : Syntax) : MacroM Syntax := withRef declVal 
     Macro.throwErrorAt declVal "unexpected declaration body"
 
 /-- Elaborates the termination hints in a `declVal` syntax. -/
-private def declValToTerminationHint (declVal : Syntax) : TermElabM WF.TerminationHints :=
+private def declValToTerminationHint (declVal : Syntax) : TermElabM TerminationHints :=
   if declVal.isOfKind ``Parser.Command.declValSimple then
-    WF.elabTerminationHints ⟨declVal[2]⟩
+    elabTerminationHints ⟨declVal[2]⟩
   else if declVal.isOfKind ``Parser.Command.declValEqns then
-    WF.elabTerminationHints ⟨declVal[0][1]⟩
+    elabTerminationHints ⟨declVal[0][1]⟩
   else
     return .none
 
-private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array Expr) :=
-  headers.mapM fun header => withDeclName header.declName <| withLevelNames header.levelNames do
-    let valStx ← liftMacroM <| declValToTerm header.valueStx
-    forallBoundedTelescope header.type header.numParams fun xs type => do
-      -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
-      for i in [0:header.binderIds.size] do
-        -- skip auto-bound prefix in `xs`
-        addLocalVarInfo header.binderIds[i]! xs[header.numParams - header.binderIds.size + i]!
-      let val ← elabTermEnsuringType valStx type
-      mkLambdaFVars xs val
+def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
+  profileitM Exception s!"instantiate metavars" (← getOptions) do
+    instantiateMVars e
+
+/--
+Runs `k` with a restricted local context where only section variables from `vars` are included that
+* are directly referenced in any `headers`,
+* are included in `sc.includedVars` (via the `include` command),
+* are directly referenced in any variable included by these rules, OR
+* are instance-implicit variables that only reference section variables included by these rules AND
+  are not listed in `sc.omittedVars` (via `omit`; note that `omit` also subtracts from
+  `sc.includedVars`).
+-/
+private def withHeaderSecVars {α} (vars : Array Expr) (sc : Command.Scope) (headers : Array DefViewElabHeader)
+    (k : Array Expr → TermElabM α) : TermElabM α := do
+  let mut revSectionFVars : Std.HashMap FVarId Name := {}
+  for (uid, var) in (← read).sectionFVars do
+    revSectionFVars := revSectionFVars.insert var.fvarId! uid
+  let (_, used) ← collectUsed revSectionFVars |>.run {}
+  let (lctx, localInsts, vars) ← removeUnused vars used
+  withLCtx lctx localInsts <| k vars
+where
+  collectUsed revSectionFVars : StateRefT CollectFVars.State MetaM Unit := do
+    -- directly referenced in headers
+    headers.forM (·.type.collectFVars)
+    -- included by `include`
+    for var in vars do
+      if let some uid := revSectionFVars[var.fvarId!]? then
+        if sc.includedVars.contains uid then
+          modify (·.add var.fvarId!)
+    -- transitively referenced
+    get >>= (·.addDependencies) >>= set
+    for var in (← get).fvarIds do
+      if let some uid := revSectionFVars[var]? then
+        if sc.omittedVars.contains uid then
+          throwError "cannot omit referenced section variable '{Expr.fvar var}'"
+    -- instances (`addDependencies` unnecessary as by definition they may only reference variables
+    -- already included)
+    for var in vars do
+      let ldecl ← getFVarLocalDecl var
+      if let some uid := revSectionFVars[var.fvarId!]? then
+        if sc.omittedVars.contains uid then
+          continue
+      let st ← get
+      if ldecl.binderInfo.isInstImplicit && (← getFVars ldecl.type).all st.fvarSet.contains then
+        modify (·.add ldecl.fvarId)
+  getFVars (e : Expr) : MetaM (Array FVarId) :=
+    (·.2.fvarIds) <$> e.collectFVars.run {}
+
+register_builtin_option deprecated.oldSectionVars : Bool := {
+  defValue := false
+  descr    := "re-enable deprecated behavior of including exactly the section variables used in a declaration"
+}
+
+register_builtin_option linter.unusedSectionVars : Bool := {
+  defValue := true
+  descr := "enable the 'unused section variables in theorem body' linter"
+}
+
+private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr) (sc : Command.Scope) : TermElabM (Array Expr) :=
+  headers.mapM fun header => do
+    let mut reusableResult? := none
+    if let some snap := header.bodySnap? then
+      if let some old := snap.old? then
+        -- guaranteed reusable as by the `bodySnap?` invariant, so let's wait on the previous
+        -- elaboration
+        if let some old := old.val.get then
+          snap.new.resolve <| some old
+          reusableResult? := some (old.value, old.state)
+
+    let (val, state) ← withRestoreOrSaveFull reusableResult? header.tacSnap? do
+      withReuseContext header.value do
+      withDeclName header.declName <| withLevelNames header.levelNames do
+      let valStx ← liftMacroM <| declValToTerm header.value
+      (if header.kind.isTheorem && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc #[header] else fun x => x #[]) fun vars => do
+      forallBoundedTelescope header.type header.numParams fun xs type => do
+        -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
+        for i in [0:header.binderIds.size] do
+          -- skip auto-bound prefix in `xs`
+          addLocalVarInfo header.binderIds[i]! xs[header.numParams - header.binderIds.size + i]!
+        let val ← withReader ({ · with tacSnap? := header.tacSnap? }) do
+          -- synthesize mvars here to force the top-level tactic block (if any) to run
+          elabTermEnsuringType valStx type <* synthesizeSyntheticMVarsNoPostponing
+        -- NOTE: without this `instantiatedMVars`, `mkLambdaFVars` may leave around a redex that
+        -- leads to more section variables being included than necessary
+        let val ← instantiateMVarsProfiling val
+        let val ← mkLambdaFVars xs val
+        if linter.unusedSectionVars.get (← getOptions) && !header.type.hasSorry && !val.hasSorry then
+          let unusedVars ← vars.filterMapM fun var => do
+            let varDecl ← var.fvarId!.getDecl
+            return if sc.includedVars.contains varDecl.userName ||
+                header.type.containsFVar var.fvarId! || val.containsFVar var.fvarId! ||
+                (← vars.anyM (fun v => return (← v.fvarId!.getType).containsFVar var.fvarId!)) then
+              none
+            else
+              if varDecl.userName.hasMacroScopes && varDecl.binderInfo.isInstImplicit then
+                some m!"[{varDecl.type}]"
+              else
+                some m!"{var}"
+          if unusedVars.size > 0 then
+            Linter.logLint linter.unusedSectionVars header.ref
+              m!"automatically included section variable(s) unused in theorem '{header.declName}':\
+              \n  {MessageData.joinSep unusedVars.toList "\n  "}\
+              \nconsider restructuring your `variable` declarations so that the variables are not \
+                in scope or explicitly omit them:\
+              \n  omit {MessageData.joinSep unusedVars.toList " "} in theorem ..."
+        return val
+    if let some snap := header.bodySnap? then
+      snap.new.resolve <| some {
+        diagnostics :=
+          (← Language.Snapshot.Diagnostics.ofMessageLog (← Core.getAndEmptyMessageLog))
+        state
+        value := val
+      }
+    return val
 
 private def collectUsed (headers : Array DefViewElabHeader) (values : Array Expr) (toLift : List LetRecToLift)
     : StateRefT CollectFVars.State MetaM Unit := do
@@ -290,7 +475,7 @@ private def instantiateMVarsAtHeader (header : DefViewElabHeader) : TermElabM De
 
 private def instantiateMVarsAtLetRecToLift (toLift : LetRecToLift) : TermElabM LetRecToLift := do
   let type ← instantiateMVars toLift.type
-  let val ← instantiateMVars toLift.val
+  let val ← instantiateMVarsProfiling toLift.val
   pure { toLift with type, val }
 
 private def typeHasRecFun (type : Expr) (funFVars : Array Expr) (letRecsToLift : List LetRecToLift) : Option FVarId :=
@@ -498,7 +683,7 @@ private def pickMaxFVar? (lctx : LocalContext) (fvarIds : Array FVarId) : Option
   fvarIds.getMax? fun fvarId₁ fvarId₂ => (lctx.get! fvarId₁).index < (lctx.get! fvarId₂).index
 
 private def preprocess (e : Expr) : TermElabM Expr := do
-  let e ← instantiateMVars e
+  let e ← instantiateMVarsProfiling e
   -- which let-decls are dependent. We say a let-decl is dependent if its lambda abstraction is type incorrect.
   Meta.check e
   pure e
@@ -609,7 +794,7 @@ private def mkLetRecClosures (sectionVars : Array Expr) (mainFVarIds : Array FVa
       -- This can happen when this particular let-rec has nested let-rec that have been resolved in previous iterations.
       -- This code relies on the fact that nested let-recs occur before the outer most let-recs at `letRecsToLift`.
       -- Unresolved nested let-recs appear as metavariables before they are resolved. See `assignExprMVar` at `mkLetRecClosureFor`
-      let valNew ← instantiateMVars letRecsToLift[i]!.val
+      let valNew ← instantiateMVarsProfiling letRecsToLift[i]!.val
       letRecsToLift := letRecsToLift.modify i fun t => { t with val := valNew }
       -- We have to recompute the `freeVarMap` in this case. This overhead should not be an issue in practice.
       freeVarMap ← mkFreeVarMap sectionVars mainFVarIds recFVarIds letRecsToLift
@@ -629,18 +814,32 @@ def insertReplacementForLetRecs (r : Replacement) (letRecClosures : List LetRecC
   letRecClosures.foldl (init := r) fun r c =>
     r.insert c.toLift.fvarId c.closed
 
+def isApplicable (r : Replacement) (e : Expr) : Bool :=
+  Option.isSome <| e.findExt? fun e =>
+    if e.hasFVar then
+      match e with
+      | .fvar fvarId => if r.contains fvarId then .found else .done
+      | _ => .visit
+    else
+      .done
+
 def Replacement.apply (r : Replacement) (e : Expr) : Expr :=
-  e.replace fun e => match e with
-    | .fvar fvarId => match r.find? fvarId with
-      | some c => some c
-      | _      => none
-    | _ => none
+  -- Remark: if `r` is not a singlenton, then declaration is using `mutual` or `let rec`,
+  -- and there is a big chance `isApplicable r e` is true.
+  if r.isSingleton && !isApplicable r e then
+    e
+  else
+    e.replace fun e => match e with
+      | .fvar fvarId => match r.find? fvarId with
+        | some c => some c
+        | _      => none
+      | _ => none
 
 def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mainVals : Array Expr)
     : TermElabM (Array PreDefinition) :=
   mainHeaders.size.foldM (init := preDefs) fun i preDefs => do
     let header := mainHeaders[i]!
-    let termination ← declValToTerminationHint header.valueStx
+    let termination ← declValToTerminationHint header.value
     let termination := termination.rememberExtraParams header.numParams mainVals[i]!
     let value ← mkLambdaFVars sectionVars mainVals[i]!
     let type ← mkForallFVars sectionVars header.type
@@ -708,10 +907,10 @@ def main (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mai
     let letRecsToLift ← letRecsToLift.mapM fun toLift => withLCtx toLift.lctx toLift.localInstances do
       Meta.check toLift.type
       Meta.check toLift.val
-      return { toLift with val := (← instantiateMVars toLift.val), type := (← instantiateMVars toLift.type) }
+      return { toLift with val := (← instantiateMVarsProfiling toLift.val), type := (← instantiateMVars toLift.type) }
     let letRecClosures ← mkLetRecClosures sectionVars mainFVarIds recFVarIds letRecsToLift
     -- mkLetRecClosures assign metavariables that were placeholders for the lifted declarations.
-    let mainVals    ← mainVals.mapM (instantiateMVars ·)
+    let mainVals    ← mainVals.mapM (instantiateMVarsProfiling ·)
     let mainHeaders ← mainHeaders.mapM instantiateMVarsAtHeader
     let letRecClosures ← letRecClosures.mapM fun closure => do pure { closure with toLift := (← instantiateMVarsAtLetRecToLift closure.toLift) }
     -- Replace fvarIds for functions being defined with closed terms
@@ -738,7 +937,7 @@ private def levelMVarToParamHeaders (views : Array DefView) (headers : Array Def
   let rec process : StateRefT Nat TermElabM (Array DefViewElabHeader) := do
     let mut newHeaders := #[]
     for view in views, header in headers do
-      if view.kind.isTheorem then
+      if ← pure view.kind.isTheorem <||> isProp header.type then
         newHeaders ←
           withLevelNames header.levelNames do
             return newHeaders.push { header with type := (← levelMVarToParam header.type), levelNames := (← getLevelNames) }
@@ -787,7 +986,7 @@ partial def checkForHiddenUnivLevels (allUserLevelNames : List Name) (preDefs : 
     for preDef in preDefs do
       checkPreDef preDef
 
-def elabMutualDef (vars : Array Expr) (views : Array DefView) : TermElabM Unit :=
+def elabMutualDef (vars : Array Expr) (sc : Command.Scope) (views : Array DefView) : TermElabM Unit :=
   if isExample views then
     withoutModifyingEnv do
       -- save correct environment in info tree
@@ -796,38 +995,46 @@ def elabMutualDef (vars : Array Expr) (views : Array DefView) : TermElabM Unit :
   else
     go
 where
-  go := do
-    let scopeLevelNames ← getLevelNames
-    let headers ← elabHeaders views
-    let headers ← levelMVarToParamHeaders views headers
-    let allUserLevelNames := getAllUserLevelNames headers
-    withFunLocalDecls headers fun funFVars => do
-      for view in views, funFVar in funFVars do
-        addLocalVarInfo view.declId funFVar
-      let values ←
-        try
-          let values ← elabFunValues headers
-          Term.synthesizeSyntheticMVarsNoPostponing
-          values.mapM (instantiateMVars ·)
-        catch ex =>
-          logException ex
-          headers.mapM fun header => mkSorry header.type (synthetic := true)
-      let headers ← headers.mapM instantiateMVarsAtHeader
-      let letRecsToLift ← getLetRecsToLift
-      let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift
-      checkLetRecsToLiftTypes funFVars letRecsToLift
-      withUsed vars headers values letRecsToLift fun vars => do
-        let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift
-        for preDef in preDefs do
-          trace[Elab.definition] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
-        let preDefs ← withLevelNames allUserLevelNames <| levelMVarToParamPreDecls preDefs
-        let preDefs ← instantiateMVarsAtPreDecls preDefs
-        let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
-        for preDef in preDefs do
-          trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
-        checkForHiddenUnivLevels allUserLevelNames preDefs
-        addPreDefinitions preDefs
-        processDeriving headers
+  go :=
+    withAlwaysResolvedPromises views.size fun bodyPromises =>
+    withAlwaysResolvedPromises views.size fun tacPromises => do
+      let scopeLevelNames ← getLevelNames
+      let headers ← elabHeaders views bodyPromises tacPromises
+      let headers ← levelMVarToParamHeaders views headers
+      let allUserLevelNames := getAllUserLevelNames headers
+      withFunLocalDecls headers fun funFVars => do
+        for view in views, funFVar in funFVars do
+          addLocalVarInfo view.declId funFVar
+        let values ←
+          try
+            let values ← elabFunValues headers vars sc
+            Term.synthesizeSyntheticMVarsNoPostponing
+            values.mapM (instantiateMVarsProfiling ·)
+          catch ex =>
+            logException ex
+            headers.mapM fun header => mkSorry header.type (synthetic := true)
+        let headers ← headers.mapM instantiateMVarsAtHeader
+        let letRecsToLift ← getLetRecsToLift
+        let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift
+        checkLetRecsToLiftTypes funFVars letRecsToLift
+        (if headers.all (·.kind.isTheorem) && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc headers else withUsed vars headers values letRecsToLift) fun vars => do
+          let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift
+          for preDef in preDefs do
+            trace[Elab.definition] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
+          let preDefs ← withLevelNames allUserLevelNames <| levelMVarToParamPreDecls preDefs
+          let preDefs ← instantiateMVarsAtPreDecls preDefs
+          let preDefs ← shareCommonPreDefs preDefs
+          let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
+          for preDef in preDefs do
+            trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
+          checkForHiddenUnivLevels allUserLevelNames preDefs
+          addPreDefinitions preDefs
+          processDeriving headers
+      for view in views, header in headers do
+        -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
+        -- that depends only on a part of the ref
+        addDeclarationRanges header.declName view.ref
+
 
   processDeriving (headers : Array DefViewElabHeader) := do
     for header in headers, view in views do
@@ -842,12 +1049,50 @@ end Term
 namespace Command
 
 def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
-  let views ← ds.mapM fun d => do
-    let modifiers ← elabModifiers d[0]
-    if ds.size > 1 && modifiers.isNonrec then
-      throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
-    mkDefView modifiers d[1]
-  runTermElabM fun vars => Term.elabMutualDef vars views
+  let opts ← getOptions
+  withAlwaysResolvedPromises ds.size fun headerPromises => do
+    let snap? := (← read).snap?
+    let mut views := #[]
+    let mut defs := #[]
+    let mut reusedAllHeaders := true
+    for h : i in [0:ds.size], headerPromise in headerPromises do
+      let d := ds[i]
+      let modifiers ← elabModifiers d[0]
+      if ds.size > 1 && modifiers.isNonrec then
+        throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
+      let mut view ← mkDefView modifiers d[1]
+      let fullHeaderRef := mkNullNode #[d[0], view.headerRef]
+      if let some snap := snap? then
+        view := { view with headerSnap? := some {
+          old? := do
+            -- transitioning from `Context.snap?` to `DefView.headerSnap?` invariant: if the
+            -- elaboration context and state are unchanged, and the syntax of this as well as all
+            -- previous headers is unchanged, then the elaboration result for this header (which
+            -- includes state from elaboration of previous headers!) should be unchanged.
+            guard reusedAllHeaders
+            let old ← snap.old?
+            -- blocking wait, `HeadersParsedSnapshot` (and hopefully others) should be quick
+            let old ← old.val.get.toTyped? DefsParsedSnapshot
+            let oldParsed ← old.defs[i]?
+            guard <| fullHeaderRef.eqWithInfoAndTraceReuse opts oldParsed.fullHeaderRef
+            -- no syntax guard to store, we already did the necessary checks
+            return ⟨.missing, oldParsed.headerProcessedSnap⟩
+          new := headerPromise
+        } }
+        defs := defs.push {
+          fullHeaderRef
+          headerProcessedSnap := { range? := d.getRange?, task := headerPromise.result }
+        }
+        reusedAllHeaders := reusedAllHeaders && view.headerSnap?.any (·.old?.isSome)
+      views := views.push view
+    if let some snap := snap? then
+      -- no non-fatal diagnostics at this point
+      snap.new.resolve <| .ofTyped { defs, diagnostics := .empty : DefsParsedSnapshot }
+    let sc ← getScope
+    runTermElabM fun vars => Term.elabMutualDef vars sc views
+
+builtin_initialize
+  registerTraceClass `Elab.definition.mkClosure
 
 end Command
 end Lean.Elab

@@ -5,11 +5,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Marc Huisinga
 -/
 prelude
-import Init.Data.List.Control
 import Init.Data.Range
 import Init.Data.OfScientific
 import Init.Data.Hashable
 import Lean.Data.RBMap
+import Init.Data.ToString.Macro
+
 namespace Lean
 
 -- mantissa * 10^-exponent

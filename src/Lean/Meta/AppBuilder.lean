@@ -164,7 +164,7 @@ def mkHEqTrans (h₁ h₂ : Expr) : MetaM Expr := do
     | none, _ => throwAppBuilderException ``HEq.trans ("heterogeneous equality proof expected" ++ hasTypeMsg h₁ hType₁)
     | _, none => throwAppBuilderException ``HEq.trans ("heterogeneous equality proof expected" ++ hasTypeMsg h₂ hType₂)
 
-/-- Given `h : Eq a b`, returns a proof of `HEq a b`. -/
+/-- Given `h : HEq a b` where `a` and `b` have the same type, returns a proof of `Eq a b`. -/
 def mkEqOfHEq (h : Expr) : MetaM Expr := do
   let hType ← infer h
   match hType.heq? with
@@ -174,7 +174,7 @@ def mkEqOfHEq (h : Expr) : MetaM Expr := do
     let u ← getLevel α
     return mkApp4 (mkConst ``eq_of_heq [u]) α a b h
   | _ =>
-    throwAppBuilderException ``HEq.trans m!"heterogeneous equality proof expected{indentExpr h}"
+    throwAppBuilderException ``eq_of_heq m!"heterogeneous equality proof expected{indentExpr h}"
 
 /--
 If `e` is `@Eq.refl α a`, return `a`.
@@ -189,7 +189,7 @@ def isRefl? (e : Expr) : Option Expr := do
 If `e` is `@congrArg α β a b f h`, return `α`, `f` and `h`.
 Also works if `e` can be turned into such an application (e.g. `congrFun`).
 -/
-def congrArg? (e : Expr) : MetaM (Option (Expr × Expr × Expr )) := do
+def congrArg? (e : Expr) : MetaM (Option (Expr × Expr × Expr)) := do
   if e.isAppOfArity ``congrArg 6 then
     let #[α, _β, _a, _b, f, h] := e.getAppArgs | unreachable!
     return some (α, f, h)
@@ -504,6 +504,14 @@ def mkArrayLit (type : Expr) (xs : List Expr) : MetaM Expr := do
   let listLit ← mkListLit type xs
   return mkApp (mkApp (mkConst ``List.toArray [u]) type) listLit
 
+def mkNone (type : Expr) : MetaM Expr := do
+  let u ← getDecLevel type
+  return mkApp (mkConst ``Option.none [u]) type
+
+def mkSome (type value : Expr) : MetaM Expr := do
+  let u ← getDecLevel type
+  return mkApp2 (mkConst ``Option.some [u]) type value
+
 def mkSorry (type : Expr) (synthetic : Bool) : MetaM Expr := do
   let u ← getLevel type
   return mkApp2 (mkConst ``sorryAx [u]) type (toExpr synthetic)
@@ -656,27 +664,6 @@ def mkIffOfEq (h : Expr) : MetaM Expr := do
     return h.appArg!
   else
     mkAppM ``Iff.of_eq #[h]
-
-/--
-Given proofs of `P₁`, …, `Pₙ`, returns a proof of `P₁ ∧ … ∧ Pₙ`.
-If `n = 0` returns a proof of `True`.
-If `n = 1` returns the proof of `P₁`.
--/
-def mkAndIntroN : Array Expr → MetaM Expr
-| #[] => return mkConst ``True.intro []
-| #[e] => return e
-| es => es.foldrM (start := es.size - 1) (fun a b => mkAppM ``And.intro #[a,b]) es.back
-
-
-/-- Given a proof of `P₁ ∧ … ∧ Pᵢ ∧ … ∧ Pₙ`, return the proof of `Pᵢ` -/
-def mkProjAndN (n i : Nat) (e : Expr) : Expr := Id.run do
-  let mut value := e
-  for _ in [:i] do
-      value := mkProj ``And 1 value
-  if i + 1 < n then
-      value := mkProj ``And 0 value
-  return value
-
 
 builtin_initialize do
   registerTraceClass `Meta.appBuilder

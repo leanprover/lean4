@@ -14,7 +14,7 @@ macro "mulPrec" : prec => `(prec| 70)
 infix:addPrec " +' " => Nat.add
 infix:mulPrec " *' " => Nat.mul
 
-#eval 10 +' 2 *' 3
+#guard 10 +' 2 *' 3 == 16
 
 theorem ex1 : 10 +' 2 *' 3 = 16 :=
   rfl

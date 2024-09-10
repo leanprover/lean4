@@ -22,9 +22,7 @@ info: bla.eq_1 (y : Nat) : bla 0 y = 10
 #guard_msgs in
 #check bla.eq_1
 
-/--
-info: bla.eq_4 (y_2 : Nat) : bla 2 (Nat.succ y_2) = bla 2 y_2 + 1
--/
+/-- info: bla.eq_4 (y_2 : Nat) : bla 2 y_2.succ = bla 2 y_2 + 1 -/
 #guard_msgs in
 #check bla.eq_4
 
@@ -67,8 +65,6 @@ info: foo'.eq_2 (y : Nat) : foo' (1#3) y = 6
 #guard_msgs in
 #check foo'.eq_2
 
-/--
-info: foo'.eq_9 (y_2 : Nat) : foo' (7#3) (Nat.succ y_2) = foo' 7 y_2 + 1
--/
+/-- info: foo'.eq_9 (y_2 : Nat) : foo' (7#3) y_2.succ = foo' 7 y_2 + 1 -/
 #guard_msgs in
 #check foo'.eq_9

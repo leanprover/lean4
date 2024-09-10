@@ -324,7 +324,7 @@ inductive SemanticTokenType where
   | decorator
   -- Extensions
   | leanSorryLike
-  deriving ToJson, FromJson
+  deriving ToJson, FromJson, BEq, Hashable
 
 -- must be in the same order as the constructors
 def SemanticTokenType.names : Array String :=
@@ -333,8 +333,8 @@ def SemanticTokenType.names : Array String :=
     "event", "method", "macro", "modifier", "comment", "string", "number",
     "regexp", "operator", "decorator", "leanSorryLike"]
 
-def SemanticTokenType.toNat (type : SemanticTokenType) : Nat :=
-  type.toCtorIdx
+def SemanticTokenType.toNat (tokenType : SemanticTokenType) : Nat :=
+  tokenType.toCtorIdx
 
 -- sanity check
 -- TODO: restore after update-stage0

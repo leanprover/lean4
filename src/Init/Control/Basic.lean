@@ -20,8 +20,29 @@ def Functor.discard {f : Type u → Type v} {α : Type u} [Functor f] (x : f α)
 
 export Functor (discard)
 
+/--
+An `Alternative` functor is an `Applicative` functor that can "fail" or be "empty"
+and a binary operation `<|>` that “collects values” or finds the “left-most success”.
+
+Important instances include
+* `Option`, where `failure := none` and `<|>` returns the left-most `some`.
+* Parser combinators typically provide an `Applicative` instance for error-handling and
+  backtracking.
+  
+Error recovery and state can interact subtly. For example, the implementation of `Alternative` for `OptionT (StateT σ Id)` keeps modifications made to the state while recovering from failure, while `StateT σ (OptionT Id)` discards them.
+-/
+-- NB: List instance is in mathlib. Once upstreamed, add
+-- * `List`, where `failure` is the empty list and `<|>` concatenates.
 class Alternative (f : Type u → Type v) extends Applicative f : Type (max (u+1) v) where
+  /--
+  Produces an empty collection or recoverable failure.  The `<|>` operator collects values or recovers
+  from failures. See `Alternative` for more details.
+  -/
   failure : {α : Type u} → f α
+  /--
+  Depending on the `Alternative` instance, collects values or recovers from `failure`s by
+  returning the leftmost success. Can be written using the `<|>` operator syntax.
+  -/
   orElse  : {α : Type u} → f α → (Unit → f α) → f α
 
 instance (f : Type u → Type v) (α : Type u) [Alternative f] : OrElse (f α) := ⟨Alternative.orElse⟩
@@ -30,9 +51,15 @@ variable {f : Type u → Type v} [Alternative f] {α : Type u}
 
 export Alternative (failure)
 
+/--
+If the proposition `p` is true, does nothing, else fails (using `failure`).
+-/
 @[always_inline, inline] def guard {f : Type → Type v} [Alternative f] (p : Prop) [Decidable p] : f Unit :=
   if p then pure () else failure
 
+/--
+Returns `some x` if `f` succeeds with value `x`, else returns `none`.
+-/
 @[always_inline, inline] def optional (x : f α) : f (Option α) :=
   some <$> x <|> pure none
 

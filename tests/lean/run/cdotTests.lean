@@ -11,8 +11,8 @@ instance {α} [Inc α] : Inc (List α) :=
 instance : Inc Nat :=
 { inc := Nat.succ }
 
-#eval inc 10
-#eval inc [1, 2, 3]
+#guard inc 10 == 11
+#guard inc [1, 2, 3] == [2, 3, 4]
 
 theorem ex1 : [(1, "hello"), (2, "world")].map (·.1) = [1, 2] :=
 rfl
@@ -24,10 +24,22 @@ def sum (xs : List Nat) : Nat :=
 (·.2) $ Id.run $ StateT.run (s:=0) do
   xs.forM fun x => modify (· + x)
 
-#eval sum [1, 2, 3, 4]
+#guard sum [1, 2, 3, 4] == 10
 
 theorem ex3 : sum [1, 2, 3] = 6 :=
 rfl
 
 theorem ex4 : sum [1, 2, 3, 4] = 10 :=
 rfl
+
+/-!
+Check that ambiguous notation inside cdot notation still has only a single argument.
+(Need to process choice nodes specially.)
+-/
+
+def tag (_ : α) (y : α) := y
+notation "f" x => tag 1 x
+notation "f" x => tag "2" x
+/-- info: fun x => (f x).length : String → Nat -/
+#guard_msgs in
+#check (String.length <| f ·)

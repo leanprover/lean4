@@ -1,21 +1,21 @@
 1682.lean:1:25-2:17: error: unsolved goals
 case a
-p : Sort ?u
+p : Sort u_1
 q r : Prop
 ⊢ p → q
 
 case b
-p : Sort ?u
+p : Sort u_1
 q r : Prop
 ⊢ r
 1682.lean:4:25-5:26: error: unsolved goals
 case a
-p : Sort ?u
+p : Sort u_1
 q r : Prop
 h : p
 ⊢ q
 
 case b
-p : Sort ?u
+p : Sort u_1
 q r : Prop
 ⊢ r

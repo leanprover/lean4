@@ -14,7 +14,7 @@ abbrev Visitor := Option MVarId → Option MVarId
 
 mutual
   partial def visit (p : MVarId → Bool) (e : Expr) : Visitor := fun s =>
-    if s.isSome || !e.hasMVar then s else main p e s
+    if s.isSome || !e.hasExprMVar then s else main p e s
 
   partial def main (p : MVarId → Bool) : Expr → Visitor
     | Expr.proj _ _ e      => visit p e

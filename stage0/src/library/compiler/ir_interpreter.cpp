@@ -34,14 +34,15 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 #else
 #include <dlfcn.h>
 #endif
+#include "library/compiler/ir_interpreter.h"
 #include "runtime/flet.h"
 #include "runtime/apply.h"
 #include "runtime/interrupt.h"
 #include "runtime/io.h"
 #include "runtime/option_ref.h"
 #include "runtime/array_ref.h"
+#include "kernel/trace.h"
 #include "library/time_task.h"
-#include "library/trace.h"
 #include "library/compiler/ir.h"
 #include "library/compiler/init_attribute.h"
 #include "util/nat.h"
@@ -796,7 +797,7 @@ private:
         }
         if (object * const * o = g_init_globals->find(fn)) {
             // persistent, so no `inc` needed
-            return *o;
+            return type_is_scalar(t) ? unbox_t(*o, t) : *o;
         }
 
         symbol_cache_entry e = lookup_symbol(fn);
@@ -867,7 +868,7 @@ private:
                 string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
                 throw exception(sstream() << "Could not find native implementation of external declaration '" << fn
                                           << "' (symbols '" << boxed_mangled.data() << "' or '" << mangled.data() << "').\n"
-                                          << "For declarations from `Init` or `Lean`, you need to set `supportInterpreter := true` "
+                                          << "For declarations from `Init`, `Std`, or `Lean`, you need to set `supportInterpreter := true` "
                                           << "in the relevant `lean_exe` statement in your `lakefile.lean`.");
             }
             // evaluate args in old stack frame
@@ -947,6 +948,8 @@ public:
     explicit interpreter(environment const & env, options const & opts) : m_env(env), m_opts(opts) {
         m_prefer_native = opts.get_bool(*g_interpreter_prefer_native, LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE);
     }
+
+    interpreter(interpreter const &) = delete;
 
     ~interpreter() {
         for_each(m_constant_cache, [](name const &, constant_cache_entry const & e) {

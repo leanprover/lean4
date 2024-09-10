@@ -48,8 +48,8 @@ def realizeGlobalName (id : Name) : CoreM (List (Name × List String)) := do
         executeReservedNameAction c
         return (← getEnv).contains c
       catch ex =>
-        -- We record the error produced by then reserved name action generator
-        logError ex.toMessageData
+        -- We record the error produced by the reserved name action generator
+        logError m!"Failed to realize constant {id}:{indentD ex.toMessageData}"
         return false
 
 /--
@@ -67,12 +67,18 @@ def realizeGlobalConstNoOverloadCore (n : Name) : CoreM Name := do
 
 /--
 Similar to `resolveGlobalConst`, but also executes reserved name actions.
+
+Consider using `realizeGlobalConstWithInfo` if you want the syntax to show the resulting name's info
+on hover.
 -/
 def realizeGlobalConst (stx : Syntax) : CoreM (List Name) :=
   withRef stx do preprocessSyntaxAndResolve stx realizeGlobalConstCore
 
 /--
 Similar to `realizeGlobalConstNoOverload`, but also executes reserved name actions.
+
+Consider using `realizeGlobalConstNoOverloadWithInfo` if you want the syntax to show the resulting
+name's info on hover.
 -/
 def realizeGlobalConstNoOverload (id : Syntax) : CoreM Name := do
   ensureNonAmbiguous id (← realizeGlobalConst id)

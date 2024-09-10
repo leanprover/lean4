@@ -6,7 +6,7 @@ Authors: Scott Morrison
 prelude
 import Init.BinderPredicates
 import Init.Data.Int.Order
-import Init.Data.List.Lemmas
+import Init.Data.List.MinMax
 import Init.Data.Nat.MinMax
 import Init.Data.Option.Lemmas
 
@@ -43,7 +43,7 @@ open Classical in
 @[simp] theorem nonzeroMinimum_eq_zero_iff {xs : List Nat} :
     xs.nonzeroMinimum = 0 ↔ ∀ x ∈ xs, x = 0 := by
   simp [nonzeroMinimum, Option.getD_eq_iff, minimum?_eq_none_iff, minimum?_eq_some_iff',
-    filter_eq_nil, mem_filter]
+    filter_eq_nil_iff, mem_filter]
 
 theorem nonzeroMinimum_mem {xs : List Nat} (w : xs.nonzeroMinimum ≠ 0) :
     xs.nonzeroMinimum ∈ xs := by

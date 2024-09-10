@@ -24,6 +24,7 @@ Author: Jared Roesch
 #include <fcntl.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <limits.h> // NOLINT
 #endif
 
 #include "runtime/object.h"
@@ -57,6 +58,24 @@ lean_object * wrap_win_handle(HANDLE h) {
     return lean_alloc_external(g_win_handle_external_class, static_cast<void *>(h));
 }
 
+extern "C" LEAN_EXPORT obj_res lean_io_process_get_current_dir(obj_arg) {
+    char path[MAX_PATH];
+    DWORD sz = GetCurrentDirectory(MAX_PATH, path);
+    if (sz != 0) {
+        return io_result_mk_ok(lean_mk_string_from_bytes(path, sz));
+    } else {
+        return io_result_mk_error((sstream() << GetLastError()).str());
+    }
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_process_set_current_dir(b_obj_arg path, obj_arg) {
+    if (SetCurrentDirectory(string_cstr(path))) {
+        return io_result_mk_ok(box(0));
+    } else {
+        return io_result_mk_error((sstream() << GetLastError()).str());
+    }
+}
+
 extern "C" LEAN_EXPORT obj_res lean_io_process_get_pid(obj_arg) {
     return lean_io_result_mk_ok(box_uint32(GetCurrentProcessId()));
 }
@@ -71,6 +90,22 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg c
         return io_result_mk_error((sstream() << GetLastError()).str());
     }
     return lean_io_result_mk_ok(box_uint32(exit_code));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_arg child, obj_arg) {
+    HANDLE h = static_cast<HANDLE>(lean_get_external_data(cnstr_get(child, 3)));
+    DWORD exit_code;
+    DWORD ret = WaitForSingleObject(h, 0);
+    if (ret == WAIT_FAILED) {
+        return io_result_mk_error((sstream() << GetLastError()).str());
+    } else if (ret == WAIT_TIMEOUT) {
+        return io_result_mk_ok(mk_option_none());
+    } else {
+        if (!GetExitCodeProcess(h, &exit_code)) {
+            return io_result_mk_error((sstream() << GetLastError()).str());
+        }
+        return lean_io_result_mk_ok(mk_option_some(box_uint32(exit_code)));
+    }
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg child, obj_arg) {
@@ -140,7 +175,12 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     object * parent_stdout = box(0); setup_stdio(&saAttr, &child_stdout, &parent_stdout, false, stdout_mode);
     object * parent_stderr = box(0); setup_stdio(&saAttr, &child_stderr, &parent_stderr, false, stderr_mode);
 
-    std::string command = proc_name.to_std_string();
+    std::string program = proc_name.to_std_string();
+
+    // Always escape program in cmdline, in case it contains spaces
+    std::string command = "\"";
+    command += program;
+    command += "\"";
 
     // This needs some thought, on Windows we must pass a command string
     // which is a valid command, that is a fully assembled command to be executed.
@@ -212,6 +252,8 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
 
     // Create the child process.
     bool bSuccess = CreateProcess(
+        // Passing `program` here should be more robust, but would require adding a `.exe` extension
+        // and searching through `PATH` where necessary
         NULL,
         const_cast<char *>(command.c_str()), // command line
         NULL,                                // process security attributes
@@ -252,6 +294,23 @@ void finalize_process() {}
 
 #else
 
+extern "C" LEAN_EXPORT obj_res lean_io_process_get_current_dir(obj_arg) {
+    char path[PATH_MAX];
+    if (getcwd(path, PATH_MAX)) {
+        return io_result_mk_ok(mk_string(path));
+    } else {
+        return io_result_mk_error(decode_io_error(errno, nullptr));
+    }
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_process_set_current_dir(b_obj_arg path, obj_arg) {
+    if (!chdir(string_cstr(path))) {
+        return io_result_mk_ok(box(0));
+    } else {
+        return io_result_mk_error(decode_io_error(errno, path));
+    }
+}
+
 extern "C" LEAN_EXPORT obj_res lean_io_process_get_pid(obj_arg) {
     static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
     return lean_io_result_mk_ok(box_uint32(getpid()));
@@ -270,6 +329,28 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg c
         lean_assert(WIFSIGNALED(status));
         // use bash's convention
         return lean_io_result_mk_ok(box_uint32(128 + static_cast<unsigned>(WTERMSIG(status))));
+    }
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_arg child, obj_arg) {
+    static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
+    pid_t pid = cnstr_get_uint32(child, 3 * sizeof(object *));
+    int status;
+    int ret = waitpid(pid, &status, WNOHANG);
+    if (ret == -1) {
+        return io_result_mk_error(decode_io_error(errno, nullptr));
+    } else if (ret == 0) {
+        return io_result_mk_ok(mk_option_none());
+    } else {
+        if (WIFEXITED(status)) {
+            obj_res output = box_uint32(static_cast<unsigned>(WEXITSTATUS(status)));
+            return lean_io_result_mk_ok(mk_option_some(output));
+        } else {
+            lean_assert(WIFSIGNALED(status));
+            // use bash's convention
+            obj_res output = box_uint32(128 + static_cast<unsigned>(WTERMSIG(status)));
+            return lean_io_result_mk_ok(mk_option_some(output));
+        }
     }
 }
 

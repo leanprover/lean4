@@ -23,7 +23,7 @@ def mkErrorStringWithPos (fileName : String) (pos : Position) (msg : String) (en
 
 inductive MessageSeverity where
   | information | warning | error
-  deriving Inhabited, BEq
+  deriving Inhabited, BEq, ToJson, FromJson
 
 structure MessageDataContext where
   env  : Environment
@@ -39,50 +39,87 @@ structure NamingContext where
   currNamespace : Name
   openDecls : List OpenDecl
 
-/-- Lazily formatted text to be used in `MessageData`. -/
-structure PPFormat where
-  /-- Pretty-prints text using surrounding context, if any. -/
-  pp : Option PPContext → IO FormatWithInfos
-  /-- Searches for synthetic sorries in original input. Used to filter out certain messages. -/
-  hasSyntheticSorry : MetavarContext → Bool := fun _ => false
+structure TraceData where
+  /-- Trace class, e.g. `Elab.step`. -/
+  cls       : Name
+  /-- Start time in seconds; 0 if unknown to avoid `Option` allocation. -/
+  startTime : Float := 0
+  /-- Stop time in seconds; 0 if unknown to avoid `Option` allocation. -/
+  stopTime  : Float := startTime
+  /-- Whether trace node defaults to collapsed in the infoview. -/
+  collapsed : Bool := true
+  /-- Optional tag shown in `trace.profiler.output` output after the trace class name. -/
+  tag       : String := ""
 
 /-- Structured message data. We use it for reporting errors, trace messages, etc. -/
 inductive MessageData where
-  /-- Eagerly formatted text. We inspect this in various hacks, so it is not immediately subsumed by `ofPPFormat`. -/
-  | ofFormat          : Format → MessageData
-  /-- Lazily formatted text. -/
-  | ofPPFormat        : PPFormat → MessageData
+  /-- Eagerly formatted text with info annotations.
+  This constructor is inspected in various hacks. -/
+  | ofFormatWithInfos : FormatWithInfos → MessageData
   | ofGoal            : MVarId → MessageData
+  /-- A widget instance.
+
+  In `ofWidget wi alt`,
+  the nested message `alt` should approximate the contents of the widget
+  without itself using `ofWidget wi _`.
+  This is used as fallback in environments that cannot display user widgets.
+  `alt` may nest any structured message,
+  for example `ofGoal` to approximate a tactic state widget,
+  and, if necessary, even other widget instances
+  (for which approximations are computed recursively). -/
+  | ofWidget          : Widget.WidgetInstance → MessageData → MessageData
   /-- `withContext ctx d` specifies the pretty printing context `(env, mctx, lctx, opts)` for the nested expressions in `d`. -/
   | withContext       : MessageDataContext → MessageData → MessageData
   | withNamingContext : NamingContext → MessageData → MessageData
   /-- Lifted `Format.nest` -/
-  |  nest              : Nat → MessageData → MessageData
+  | nest              : Nat → MessageData → MessageData
   /-- Lifted `Format.group` -/
-  |  group             : MessageData → MessageData
+  | group             : MessageData → MessageData
   /-- Lifted `Format.compose` -/
-  |  compose           : MessageData → MessageData → MessageData
+  | compose           : MessageData → MessageData → MessageData
   /-- Tagged sections. `Name` should be viewed as a "kind", and is used by `MessageData` inspector functions.
     Example: an inspector that tries to find "definitional equality failures" may look for the tag "DefEqFailure". -/
   | tagged            : Name → MessageData → MessageData
-  | trace (cls : Name) (msg : MessageData) (children : Array MessageData) (collapsed : Bool)
-  deriving Inhabited
+  | trace (data : TraceData) (msg : MessageData) (children : Array MessageData)
+  /-- A lazy message.
+  The provided thunk will not be run until it is about to be displayed.
+  This can save computation in cases where the message may never be seen.
+
+  The `Dynamic` value is expected to be a `MessageData`,
+  which is a workaround for the positivity restriction.
+
+  If the thunked message is produced for a term that contains a synthetic sorry,
+  `hasSyntheticSorry` should return `true`.
+  This is used to filter out certain messages. -/
+  | ofLazy (f : Option PPContext → IO Dynamic) (hasSyntheticSorry : MetavarContext → Bool)
+  deriving Inhabited, TypeName
 
 namespace MessageData
 
-/-- Determines whether the message contains any content. -/
-def isEmpty : MessageData → Bool
-  | ofFormat f => f.isEmpty
-  | withContext _ m => m.isEmpty
-  | withNamingContext _ m => m.isEmpty
-  | nest _ m => m.isEmpty
-  | group m => m.isEmpty
-  | compose m₁ m₂ => m₁.isEmpty && m₂.isEmpty
-  | tagged _ m => m.isEmpty
-  | _ => false
+/-- Eagerly formatted text. -/
+def ofFormat (fmt : Format) : MessageData := .ofFormatWithInfos ⟨fmt, .empty⟩
+
+/--
+Lazy message data production, with access to the context as given by
+a surrounding `MessageData.withContext` (which is expected to exist).
+-/
+def lazy (f : PPContext → IO MessageData)
+    (hasSyntheticSorry : MetavarContext → Bool := fun _ => false) : MessageData :=
+  .ofLazy (hasSyntheticSorry := hasSyntheticSorry) fun ctx? => do
+    let msg ← match ctx? with
+      | .none =>
+        pure (.ofFormat "(invalid MessageData.lazy, missing context)") -- see `addMessageContext`
+      | .some ctx => f ctx
+    return Dynamic.mk msg
 
 variable (p : Name → Bool) in
-/-- Returns true when the message contains a `MessageData.tagged tag ..` constructor where `p tag` is true. -/
+/-- Returns true when the message contains a `MessageData.tagged tag ..` constructor where `p tag`
+is true.
+
+This does not descend into lazily generated subtress (`.ofLazy`); message tags
+of interest (like those added by `logLinter`) are expected to be near the root
+of the `MessageData`, and not hidden inside `.ofLazy`.
+-/
 partial def hasTag : MessageData → Bool
   | withContext _ msg       => hasTag msg
   | withNamingContext _ msg => hasTag msg
@@ -90,7 +127,7 @@ partial def hasTag : MessageData → Bool
   | group msg               => hasTag msg
   | compose msg₁ msg₂       => hasTag msg₁ || hasTag msg₂
   | tagged n msg            => p n || hasTag msg
-  | trace cls msg msgs _    => p cls || hasTag msg || msgs.any hasTag
+  | trace data msg msgs     => p data.cls || hasTag msg || msgs.any hasTag
   | _                       => false
 
 /-- An empty message. -/
@@ -105,52 +142,71 @@ def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPContext :=
 def ofSyntax (stx : Syntax) : MessageData :=
   -- discard leading/trailing whitespace
   let stx := stx.copyHeadTailInfoFrom .missing
-  .ofPPFormat {
-    pp := fun
-      | some ctx => ppTerm ctx ⟨stx⟩  -- HACK: might not be a term
-      | none     => return stx.formatStx
-  }
+  .ofLazy
+    (fun ctx? => do
+      let msg ← ofFormat <$> match ctx? with
+        | .none => pure stx.formatStx
+        | .some ctx => ppTerm ctx ⟨stx⟩ -- HACK: might not be a term
+      return Dynamic.mk msg)
+    (fun _ => false)
 
 def ofExpr (e : Expr) : MessageData :=
-  .ofPPFormat {
-    pp := fun
-      | some ctx => ppExprWithInfos ctx e
-      | none     => return format (toString e)
-    hasSyntheticSorry := (instantiateMVarsCore · e |>.1.hasSyntheticSorry)
-  }
+  .ofLazy
+    (fun ctx? => do
+      let msg ← ofFormatWithInfos <$> match ctx? with
+        | .none => pure (format (toString e))
+        | .some ctx => ppExprWithInfos ctx e
+      return Dynamic.mk msg)
+    (fun mctx => instantiateMVarsCore mctx e |>.1.hasSyntheticSorry)
 
-def ofLevel (l : Level) : MessageData := ofFormat (format l)
+def ofLevel (l : Level) : MessageData :=
+  .ofLazy
+    (fun ctx? => do
+      let msg ← ofFormat <$> match ctx? with
+        | .none => pure (format l)
+        | .some ctx => ppLevel ctx l
+      return Dynamic.mk msg)
+    (fun _ => false)
+
 def ofName (n : Name) : MessageData := ofFormat (format n)
 
 partial def hasSyntheticSorry (msg : MessageData) : Bool :=
   visit none msg
 where
   visit (mctx? : Option MetavarContext) : MessageData → Bool
-  | ofPPFormat f            => f.hasSyntheticSorry (mctx?.getD {})
+  | ofLazy _ f              => f (mctx?.getD {})
   | withContext ctx msg     => visit ctx.mctx msg
   | withNamingContext _ msg => visit mctx? msg
   | nest _ msg              => visit mctx? msg
   | group msg               => visit mctx? msg
   | compose msg₁ msg₂       => visit mctx? msg₁ || visit mctx? msg₂
   | tagged _ msg            => visit mctx? msg
-  | trace _ msg msgs _      => visit mctx? msg || msgs.any (visit mctx?)
+  | trace _ msg msgs        => visit mctx? msg || msgs.any (visit mctx?)
   | _                       => false
 
 partial def formatAux : NamingContext → Option MessageDataContext → MessageData → IO Format
-  | _,    _,         ofFormat fmt             => return fmt
-  | nCtx, ctx?,      ofPPFormat f             => (·.fmt) <$> f.pp (ctx?.map (mkPPContext nCtx))
+  | _, _,            ofFormatWithInfos fmt    => return fmt.1
   | _,    none,      ofGoal mvarId            => return "goal " ++ format (mkMVar mvarId)
   | nCtx, some ctx,  ofGoal mvarId            => ppGoal (mkPPContext nCtx ctx) mvarId
+  | nCtx, ctx,       ofWidget _ d             => formatAux nCtx ctx d
   | nCtx, _,         withContext ctx d        => formatAux nCtx ctx d
   | _,    ctx,       withNamingContext nCtx d => formatAux nCtx ctx d
   | nCtx, ctx,       tagged _ d               => formatAux nCtx ctx d
   | nCtx, ctx,       nest n d                 => Format.nest n <$> formatAux nCtx ctx d
   | nCtx, ctx,       compose d₁ d₂            => return (← formatAux nCtx ctx d₁) ++ (← formatAux nCtx ctx d₂)
   | nCtx, ctx,       group d                  => Format.group <$> formatAux nCtx ctx d
-  | nCtx, ctx,       trace cls header children _ => do
-    let msg := f!"[{cls}] {(← formatAux nCtx ctx header).nest 2}"
+  | nCtx, ctx,       trace data header children => do
+    let mut msg := f!"[{data.cls}]"
+    if data.startTime != 0 then
+      msg := f!"{msg} [{data.stopTime - data.startTime}]"
+    msg := f!"{msg} {(← formatAux nCtx ctx header).nest 2}"
     let children ← children.mapM (formatAux nCtx ctx)
     return .nest 2 (.joinSep (msg::children.toList) "\n")
+  | nCtx, ctx?,      ofLazy pp _             => do
+    let dyn ← pp (ctx?.map (mkPPContext nCtx))
+    let some msg := dyn.get? MessageData
+      | panic! s!"MessageData.ofLazy: expected MessageData in Dynamic, got {dyn.typeName}"
+    formatAux nCtx ctx? msg
 
 protected def format (msgData : MessageData) : IO Format :=
   formatAux { currNamespace := Name.anonymous, openDecls := [] } none msgData
@@ -200,14 +256,29 @@ def ofList : List MessageData → MessageData
 def ofArray (msgs : Array MessageData) : MessageData :=
   ofList msgs.toList
 
+/-- Puts `MessageData` into a comma-separated list with `"and"` at the back (no Oxford comma).
+Best used on non-empty lists; returns `"– none –"` for an empty list.  -/
+def andList (xs : List MessageData) : MessageData :=
+  match xs with
+  | [] => "– none –"
+  | [x] => x
+  | _ => joinSep xs.dropLast ", " ++ " and " ++ xs.getLast!
+
+
 instance : Coe (List MessageData) MessageData := ⟨ofList⟩
 instance : Coe (List Expr) MessageData := ⟨fun es => ofList <| es.map ofExpr⟩
 
 end MessageData
 
-/-- A `Message` is a richly formatted piece of information emitted by Lean.
-They are rendered by client editors in the infoview and in diagnostic windows. -/
-structure Message where
+/--
+A `BaseMessage` is a richly formatted piece of information emitted by Lean.
+They are rendered by client editors in the infoview and in diagnostic windows.
+There are two varieties in the Lean core:
+* `Message`: Uses structured, effectful `MessageData` for formatting content.
+* `SerialMessage`: Stores pure `String` data. Obtained by running the effectful
+`Message.serialize`.
+-/
+structure BaseMessage (α : Type u) where
   fileName      : String
   pos           : Position
   endPos        : Option Position := none
@@ -216,67 +287,125 @@ structure Message where
   severity      : MessageSeverity := MessageSeverity.error
   caption       : String          := ""
   /-- The content of the message. -/
-  data          : MessageData
-  deriving Inhabited
+  data          : α
+  deriving Inhabited, ToJson, FromJson
 
-namespace Message
+/-- A `Message` is a richly formatted piece of information emitted by Lean.
+They are rendered by client editors in the infoview and in diagnostic windows. -/
+abbrev Message := BaseMessage MessageData
 
-protected def toString (msg : Message) (includeEndPos := false) : IO String := do
-  let mut str ← msg.data.toString
+/-- A `SerialMessage` is a `Message` whose `MessageData` has been eagerly
+serialized and is thus appropriate for use in pure contexts where the effectful
+`MessageData.toString` cannot be used. -/
+abbrev SerialMessage := BaseMessage String
+
+namespace SerialMessage
+
+@[inline] def toMessage (msg : SerialMessage) : Message :=
+  {msg with data := msg.data}
+
+protected def toString (msg : SerialMessage) (includeEndPos := false) : String := Id.run do
+  let mut str := msg.data
   let endPos := if includeEndPos then msg.endPos else none
   unless msg.caption == "" do
     str := msg.caption ++ ":\n" ++ str
   match msg.severity with
-  | MessageSeverity.information => pure ()
-  | MessageSeverity.warning     => str := mkErrorStringWithPos msg.fileName msg.pos (endPos := endPos) "warning: " ++ str
-  | MessageSeverity.error       => str := mkErrorStringWithPos msg.fileName msg.pos (endPos := endPos) "error: " ++ str
+  | .information => pure ()
+  | .warning     => str := mkErrorStringWithPos msg.fileName msg.pos (endPos := endPos) "warning: " ++ str
+  | .error       => str := mkErrorStringWithPos msg.fileName msg.pos (endPos := endPos) "error: " ++ str
   if str.isEmpty || str.back != '\n' then
     str := str ++ "\n"
   return str
 
+instance : ToString SerialMessage := ⟨SerialMessage.toString⟩
+
+end SerialMessage
+
+namespace Message
+
+@[inline] def serialize (msg : Message) : IO SerialMessage := do
+  return {msg with data := ← msg.data.toString}
+
+protected def toString (msg : Message) (includeEndPos := false) : IO String := do
+  -- Remark: The inline here avoids a new message allocation when `msg` is shared
+  return inline <| (← msg.serialize).toString includeEndPos
+
+protected def toJson (msg : Message) : IO Json := do
+  -- Remark: The inline here avoids a new message allocation when `msg` is shared
+  return inline <| toJson (← msg.serialize)
+
 end Message
 
-/-- A persistent array of messages. -/
+/--
+A persistent array of messages.
+
+In the Lean elaborator, we use a fresh message log per command but may also report diagnostics at
+various points inside a command, which will empty `unreported` and updated `hadErrors` accordingly
+(see `CoreM.getAndEmptyMessageLog`).
+-/
 structure MessageLog where
-  msgs : PersistentArray Message := {}
+  /--
+  If true, there was an error in the log previously that has already been reported to the user and
+  removed from the log. Thus we say that in the current context (usually the current command), we
+  "have errors" if either this flag is set or there is an error in `msgs`; see
+  `MessageLog.hasErrors`. If we have errors, we suppress some error messages that are often the
+  result of a previous error.
+  -/
+  /-
+  Design note: We considered introducing a `hasErrors` field instead that already includes the
+  presence of errors in `msgs` but this would not be compatible with e.g.
+  `MessageLog.errorsToWarnings`.
+  -/
+  hadErrors : Bool := false
+  /-- The list of messages not already reported, in insertion order. -/
+  unreported : PersistentArray Message := {}
+  /--
+  Set of message kinds that have been added to the log.
+  For example, we have the kind `unsafe.exponentiation.warning` for warning messages associated with
+  the configuration option `exponentiation.threshold`.
+  We don't produce a warning if the kind is already in the following set.
+  -/
+  reportedKinds : NameSet := {}
   deriving Inhabited
 
 namespace MessageLog
-def empty : MessageLog := ⟨{}⟩
+def empty : MessageLog := {}
 
-def isEmpty (log : MessageLog) : Bool :=
-  log.msgs.isEmpty
+@[deprecated "renamed to `unreported`; direct access should in general be avoided in favor of \
+using `MessageLog.toList/toArray`" (since := "2024-05-22")]
+def msgs : MessageLog → PersistentArray Message := unreported
+
+def hasUnreported (log : MessageLog) : Bool :=
+  !log.unreported.isEmpty
 
 def add (msg : Message) (log : MessageLog) : MessageLog :=
-  ⟨log.msgs.push msg⟩
+  { log with unreported := log.unreported.push msg }
 
 protected def append (l₁ l₂ : MessageLog) : MessageLog :=
-  ⟨l₁.msgs ++ l₂.msgs⟩
+  { hadErrors := l₁.hadErrors || l₂.hadErrors, unreported := l₁.unreported ++ l₂.unreported }
 
 instance : Append MessageLog :=
   ⟨MessageLog.append⟩
 
 def hasErrors (log : MessageLog) : Bool :=
-  log.msgs.any fun m => match m.severity with
-    | MessageSeverity.error => true
-    | _                     => false
+  log.hadErrors || log.unreported.any (·.severity matches .error)
 
 def errorsToWarnings (log : MessageLog) : MessageLog :=
-  { msgs := log.msgs.map (fun m => match m.severity with | MessageSeverity.error => { m with severity := MessageSeverity.warning } | _ => m) }
+  { unreported := log.unreported.map (fun m => match m.severity with | MessageSeverity.error => { m with severity := MessageSeverity.warning } | _ => m) }
 
 def getInfoMessages (log : MessageLog) : MessageLog :=
-  { msgs := log.msgs.filter fun m => match m.severity with | MessageSeverity.information => true | _ => false }
+  { unreported := log.unreported.filter fun m => match m.severity with | MessageSeverity.information => true | _ => false }
 
 def forM {m : Type → Type} [Monad m] (log : MessageLog) (f : Message → m Unit) : m Unit :=
-  log.msgs.forM f
+  log.unreported.forM f
 
-/-- Converts the log to a list, oldest message first. -/
+/-- Converts the unreported messages to a list, oldest message first. -/
 def toList (log : MessageLog) : List Message :=
-  log.msgs.toList
+  log.unreported.toList
 
-/-- Converts the log to an array, oldest message first. -/
+/-- Converts the unreported messages to an array, oldest message first. -/
 def toArray (log : MessageLog) : Array Message :=
-  log.msgs.toArray
+  log.unreported.toArray
 
 end MessageLog
 
@@ -290,6 +419,13 @@ def indentExpr (e : Expr) : MessageData :=
   indentD e
 
 class AddMessageContext (m : Type → Type) where
+  /--
+  Without context, a `MessageData` object may be be missing information
+  (e.g. hover info) for pretty printing, or may print an error. Hence,
+  `addMessageContext` should be called on all constructed `MessageData`
+  (e.g. via `m!`) before taking it out of context (e.g. leaving `MetaM` or
+  `CoreM`).
+  -/
   addMessageContext : MessageData → m MessageData
 
 export AddMessageContext (addMessageContext)

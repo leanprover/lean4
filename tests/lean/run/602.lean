@@ -28,4 +28,6 @@ instance R.Ring : Ring R := { add := foo }
 
 variable {E : Type} [instSNG : SemiNormedGroup E] [instSNS : SemiNormedSpace R E]
 
+/-- info: SemiNormedSpace.toModule -/
+#guard_msgs in
 #synth Module R E

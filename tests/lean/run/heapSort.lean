@@ -133,7 +133,7 @@ def insertExtractMax {lt} (self : BinaryHeap α lt) (x : α) : α × BinaryHeap 
   | some m =>
     if lt x m then
       let a := self.1.set ⟨0, size_pos_of_max e⟩ x
-      (m, ⟨heapifyDown lt a ⟨0, by simp [a]; exact size_pos_of_max e⟩⟩)
+      (m, ⟨heapifyDown lt a ⟨0, by simp only [Array.size_set, a]; exact size_pos_of_max e⟩⟩)
     else (x, self)
 
 /-- `O(log n)`. Equivalent to `(self.max, self.popMax.insert x)`. -/
@@ -142,7 +142,7 @@ def replaceMax {lt} (self : BinaryHeap α lt) (x : α) : Option α × BinaryHeap
   | none => (none, ⟨self.1.push x⟩)
   | some m =>
     let a := self.1.set ⟨0, size_pos_of_max e⟩ x
-    (some m, ⟨heapifyDown lt a ⟨0, by simp [a]; exact size_pos_of_max e⟩⟩)
+    (some m, ⟨heapifyDown lt a ⟨0, by simp only [Array.size_set, a]; exact size_pos_of_max e⟩⟩)
 
 /-- `O(log n)`. Replace the value at index `i` by `x`. Assumes that `x ≤ self.get i`. -/
 def decreaseKey {lt} (self : BinaryHeap α lt) (i : Fin self.size) (x : α) : BinaryHeap α lt where
@@ -177,11 +177,11 @@ attribute [simp] Array.heapSort.loop
 /--
 info: Array.heapSort.loop.eq_1.{u_1} {α : Type u_1} (lt : α → α → Bool) (a : BinaryHeap α fun y x => lt x y) (out : Array α) :
   Array.heapSort.loop lt a out =
-    match e : BinaryHeap.max a with
+    match e : a.max with
     | none => out
     | some x =>
       let_fun this := ⋯;
-      Array.heapSort.loop lt (BinaryHeap.popMax a) (Array.push out x)
+      Array.heapSort.loop lt a.popMax (out.push x)
 -/
 #guard_msgs in
 #check Array.heapSort.loop.eq_1

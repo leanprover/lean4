@@ -14,6 +14,11 @@ do let f   := mkConst `f [];
    unless as₁.reverse == as₂ do throw $ IO.userError "failed";
    pure ()
 
+/--
+info: #[a, b, b]
+#[b, b, a]
+-/
+#guard_msgs in
 #eval tst1
 
 def tst2 : IO Unit :=
@@ -24,6 +29,11 @@ do let l1 := mkLevelMax (mkLevelParam `a) (mkLevelParam `b);
    unless Level.isEquiv l1 l2 do throw $ IO.userError "not equiv";
    pure ()
 
+/--
+info: max a b
+max b a
+-/
+#guard_msgs in
 #eval tst2
 
 def tst3 : IO Unit :=
@@ -37,6 +47,12 @@ do let f   := mkConst `f [];
    IO.println $ t.getArg! 2;
    pure ()
 
+/--
+info: a
+b
+c
+-/
+#guard_msgs in
 #eval tst3
 
 
@@ -58,6 +74,8 @@ do let f   := mkConst `f [];
    unless (!t2.hasLooseBVar 1) do throw $ IO.userError "failed-6";
    pure ()
 
+/-- info: -/
+#guard_msgs in
 #eval tst4
 
 def tst5 : IO Unit :=
@@ -92,6 +110,14 @@ do let f   := mkConst `f [];
    unless (t.etaExpanded? == some (mkApp f a)) do throw $ IO.userError "failed-9";
    pure ()
 
+/--
+info: (some f)
+fun (x : Nat) (y : Nat) => f x y
+fun (x : Nat) (y : Nat) (z : Nat) => f x y z
+fun (x : Nat) (y : Nat) (z : Nat) => f a x y z
+(some (f a))
+-/
+#guard_msgs in
 #eval tst5
 
 def tst6 : IO Unit := do
@@ -106,6 +132,12 @@ IO.println $ t3;
 unless (t2 == t3) do throw $ IO.userError "failed-1";
 pure ()
 
+/--
+info: f #1 #2
+forall (x : Nat), f x #1
+forall (x : Nat), f x #0
+-/
+#guard_msgs in
 #eval tst6
 
 instance : Coe Name FVarId where
@@ -120,4 +152,8 @@ let t := t.abstract #[x, y];
 let t := t.instantiateRev #[mkNatLit 0, mkNatLit 1];
 IO.println t
 
+/--
+info: f (OfNat.ofNat.{0} Nat 0 (instOfNatNat 0)) (OfNat.ofNat.{0} Nat 1 (instOfNatNat 1)) (OfNat.ofNat.{0} Nat 2 (instOfNatNat 2))
+-/
+#guard_msgs in
 #eval tst7

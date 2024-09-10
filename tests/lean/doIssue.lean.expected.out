@@ -5,15 +5,15 @@ has type
 but is expected to have type
   IO PUnit : Type
 doIssue.lean:10:2-10:13: error: type mismatch
-  Array.set! xs 0 1
+  xs.set! 0 1
 has type
   Array Nat : Type
 but is expected to have type
   IO PUnit : Type
 doIssue.lean:18:7-18:20: error: application type mismatch
-  pure (Array.set! xs 0 1)
+  pure (xs.set! 0 1)
 argument
-  Array.set! xs 0 1
+  xs.set! 0 1
 has type
   Array Nat : Type
 but is expected to have type

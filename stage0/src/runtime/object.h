@@ -238,6 +238,7 @@ inline size_t string_capacity(object * o) { return lean_string_capacity(o); }
 inline uint32 char_default_value() { return lean_char_default_value(); }
 inline obj_res alloc_string(size_t size, size_t capacity, size_t len) { return lean_alloc_string(size, capacity, len); }
 inline obj_res mk_string(char const * s) { return lean_mk_string(s); }
+LEAN_EXPORT obj_res mk_ascii_string_unchecked(std::string const & s);
 LEAN_EXPORT obj_res mk_string(std::string const & s);
 LEAN_EXPORT std::string string_to_std(b_obj_arg o);
 inline char const * string_cstr(b_obj_arg o) { return lean_string_cstr(o); }
@@ -288,7 +289,7 @@ inline b_obj_res task_get(b_obj_arg t) { return lean_task_get(t); }
 
 inline bool io_check_canceled_core() { return lean_io_check_canceled_core(); }
 inline void io_cancel_core(b_obj_arg t) { return lean_io_cancel_core(t); }
-inline bool io_has_finished_core(b_obj_arg t) { return lean_io_has_finished_core(t); }
+inline bool io_get_task_state_core(b_obj_arg t) { return lean_io_get_task_state_core(t); }
 inline b_obj_res io_wait_any_core(b_obj_arg task_list) { return lean_io_wait_any_core(task_list); }
 
 // =======================================

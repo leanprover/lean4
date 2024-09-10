@@ -115,8 +115,15 @@ if #.1 == 0 then
 else
   IO.println "first field is not zero"
 
+/-- info: tst7 : StateT (Nat × Nat) IO Unit -/
+#guard_msgs in
 #check tst7
 
+/--
+info: first field is zero
+((), 0, 2)
+-/
+#guard_msgs in
 #eval tst7.run (0, 2)
 
 def f1 (x : Nat) : StateT Nat IO Nat := do
@@ -140,4 +147,11 @@ unless (← f1 30 |>.run' 0) == 140 do
 unless (← f1 5 |>.run' 0) == 15 do
   throw $ IO.userError $ "error"
 
+/--
+info: hello
+++ 50
+hello
+>> 15
+-/
+#guard_msgs in
 #eval f1Test

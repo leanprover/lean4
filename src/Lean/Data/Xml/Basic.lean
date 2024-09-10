@@ -5,6 +5,8 @@ Author: Dany Fabian
 -/
 prelude
 import Lean.Data.RBMap
+import Init.Data.ToString.Macro
+
 namespace Lean
 namespace Xml
 

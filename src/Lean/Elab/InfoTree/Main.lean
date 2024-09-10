@@ -102,8 +102,10 @@ def ContextInfo.runCoreM (info : ContextInfo) (x : CoreM α) : IO α := do
     have been used in `lctx` and `info.mctx`.
   -/
   (·.1) <$>
-    x.toIO { options := info.options, currNamespace := info.currNamespace, openDecls := info.openDecls, fileName := "<InfoTree>", fileMap := default }
-           { env := info.env, ngen := info.ngen }
+    (withOptions (fun _ => info.options) x).toIO
+      { currNamespace := info.currNamespace, openDecls := info.openDecls
+        fileName := "<InfoTree>", fileMap := default }
+      { env := info.env, ngen := info.ngen }
 
 def ContextInfo.runMetaM (info : ContextInfo) (lctx : LocalContext) (x : MetaM α) : IO α := do
   (·.1) <$> info.runCoreM (x.run { lctx := lctx } { mctx := info.mctx })
@@ -187,7 +189,7 @@ def FieldRedeclInfo.format (ctx : ContextInfo) (info : FieldRedeclInfo) : Format
   f!"FieldRedecl @ {formatStxRange ctx info.stx}"
 
 def OmissionInfo.format (ctx : ContextInfo) (info : OmissionInfo) : IO Format := do
-  return f!"Omission @ {← TermInfo.format ctx info.toTermInfo}"
+  return f!"Omission @ {← TermInfo.format ctx info.toTermInfo}\nReason: {info.reason}"
 
 def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofTacticInfo i         => i.format ctx

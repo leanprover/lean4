@@ -13,16 +13,17 @@ def recOnSuffix         := "recOn"
 def brecOnSuffix        := "brecOn"
 def binductionOnSuffix  := "binductionOn"
 def belowSuffix         := "below"
+def ibelowSuffix        := "ibelow"
 
 def mkCasesOnName (indDeclName : Name) : Name := Name.mkStr indDeclName casesOnSuffix
 def mkRecOnName (indDeclName : Name) : Name   := Name.mkStr indDeclName recOnSuffix
 def mkBRecOnName (indDeclName : Name) : Name  := Name.mkStr indDeclName brecOnSuffix
 def mkBInductionOnName (indDeclName : Name) : Name  := Name.mkStr indDeclName binductionOnSuffix
 def mkBelowName (indDeclName : Name) : Name := Name.mkStr indDeclName belowSuffix
+def mkIBelowName (indDeclName : Name) : Name := Name.mkStr indDeclName ibelowSuffix
 
 builtin_initialize auxRecExt : TagDeclarationExtension ← mkTagDeclarationExtension
 
-@[export lean_mark_aux_recursor]
 def markAuxRecursor (env : Environment) (declName : Name) : Environment :=
   auxRecExt.tag env declName
 
@@ -34,9 +35,9 @@ def isAuxRecursor (env : Environment) (declName : Name) : Bool :=
   || declName == ``Eq.ndrec
   || declName == ``Eq.ndrecOn
 
-def isAuxRecursorWithSuffix (env : Environment) (declName : Name) (suffix : Name) : Bool :=
+def isAuxRecursorWithSuffix (env : Environment) (declName : Name) (suffix : String) : Bool :=
   match declName with
-  | .str _ s => s == suffix && isAuxRecursor env declName
+  | .str _ s => (s == suffix || s.startsWith s!"{suffix}_") && isAuxRecursor env declName
   | _ => false
 
 def isCasesOnRecursor (env : Environment) (declName : Name) : Bool :=
@@ -50,7 +51,6 @@ def isBRecOnRecursor (env : Environment) (declName : Name) : Bool :=
 
 builtin_initialize noConfusionExt : TagDeclarationExtension ← mkTagDeclarationExtension
 
-@[export lean_mark_no_confusion]
 def markNoConfusion (env : Environment) (n : Name) : Environment :=
   noConfusionExt.tag env n
 

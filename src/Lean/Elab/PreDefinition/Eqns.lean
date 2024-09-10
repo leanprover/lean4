@@ -43,15 +43,6 @@ def expandRHS? (mvarId : MVarId) : MetaM (Option MVarId) := do
   let (true, rhs') := expand false rhs | return none
   return some (← mvarId.replaceTargetDefEq (← mkEq lhs rhs'))
 
-def funext? (mvarId : MVarId) : MetaM (Option MVarId) := do
-  let target ← mvarId.getType'
-  let some (_, _, rhs) := target.eq? | return none
-  unless rhs.isLambda do return none
-  commitWhenSome? do
-    let [mvarId] ← mvarId.apply (← mkConstWithFreshMVarLevels ``funext) | return none
-    let (_, mvarId) ← mvarId.intro1
-    return some mvarId
-
 def simpMatch? (mvarId : MVarId) : MetaM (Option MVarId) := do
   let mvarId' ← Split.simpMatchTarget mvarId
   if mvarId != mvarId' then return some mvarId' else return none
@@ -60,7 +51,8 @@ def simpIf? (mvarId : MVarId) : MetaM (Option MVarId) := do
   let mvarId' ← simpIfTarget mvarId (useDecide := true)
   if mvarId != mvarId' then return some mvarId' else return none
 
-private def findMatchToSplit? (env : Environment) (e : Expr) (declNames : Array Name) (exceptionSet : ExprSet) : Option Expr :=
+private def findMatchToSplit? (deepRecursiveSplit : Bool) (env : Environment) (e : Expr)
+    (declNames : Array Name) (exceptionSet : ExprSet) : Option Expr :=
   e.findExt? fun e => Id.run do
     if e.hasLooseBVars || exceptionSet.contains e then
       return Expr.FindStep.visit
@@ -75,7 +67,14 @@ private def findMatchToSplit? (env : Environment) (e : Expr) (declNames : Array 
           break
       unless hasFVarDiscr do
         return Expr.FindStep.visit
-      -- At least one alternative must contain a `declNames` application with loose bound variables.
+      -- For non-recursive functions (`declNames` empty), we split here
+      if declNames.isEmpty then
+          return Expr.FindStep.found
+      -- For recursive functions, the “new” behavior is to likewise split
+      if deepRecursiveSplit then
+          return Expr.FindStep.found
+      -- Else, the “old” behavior is split only when at least one alternative contains a `declNames`
+      -- application with loose bound variables.
       for i in [info.getFirstAltPos : info.getFirstAltPos + info.numAlts] do
         let alt := args[i]!
         if Option.isSome <| alt.find? fun e => declNames.any e.isAppOf && e.hasLooseBVars then
@@ -92,7 +91,8 @@ private def findMatchToSplit? (env : Environment) (e : Expr) (declNames : Array 
 partial def splitMatch? (mvarId : MVarId) (declNames : Array Name) : MetaM (Option (List MVarId)) := commitWhenSome? do
   let target ← mvarId.getType'
   let rec go (badCases : ExprSet) : MetaM (Option (List MVarId)) := do
-    if let some e := findMatchToSplit? (← getEnv) target declNames badCases then
+    if let some e := findMatchToSplit? (backward.eqns.deepRecursiveSplit.get (← getOptions)) (← getEnv)
+                                       target declNames badCases then
       try
         Meta.Split.splitMatch mvarId e
       catch _ =>
@@ -101,9 +101,6 @@ partial def splitMatch? (mvarId : MVarId) (declNames : Array Name) : MetaM (Opti
       trace[Meta.Tactic.split] "did not find term to split\n{MessageData.ofGoal mvarId}"
       return none
   go {}
-
-structure Context where
-  declNames : Array Name
 
 private def lhsDependsOn (type : Expr) (fvarId : FVarId) : MetaM Bool :=
   forallTelescope type fun _ type => do
@@ -229,20 +226,14 @@ private def shouldUseSimpMatch (e : Expr) : MetaM Bool := do
   return (← (find e).run) matches .error _
 
 partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) : MetaM (Array Expr) := do
-  let (_, eqnTypes) ← go mvarId |>.run { declNames } |>.run #[]
+  let (_, eqnTypes) ← go mvarId |>.run #[]
   return eqnTypes
 where
-  go (mvarId : MVarId) : ReaderT Context (StateRefT (Array Expr) MetaM) Unit := do
+  go (mvarId : MVarId) : StateRefT (Array Expr) MetaM Unit := do
     trace[Elab.definition.eqns] "mkEqnTypes step\n{MessageData.ofGoal mvarId}"
-    if (← tryURefl mvarId) then
-      saveEqn mvarId
-      return ()
 
     if let some mvarId ← expandRHS? mvarId then
       return (← go mvarId)
---  The following `funext?` was producing an overapplied `lhs`. Possible refinement: only do it if we want to apply `splitMatch` on the body of the lambda
-/-    if let some mvarId ← funext? mvarId then
-        return (← go mvarId) -/
 
     if (← shouldUseSimpMatch (← mvarId.getType')) then
       if let some mvarId ← simpMatch? mvarId then
@@ -330,7 +321,7 @@ def tryContradiction (mvarId : MVarId) : MetaM Bool := do
 partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
   let some eqs ← getEqnsFor? declName | throwError "failed to generate equations for '{declName}'"
   let tryEqns (mvarId : MVarId) : MetaM Bool :=
-    eqs.anyM fun eq => commitWhen do
+    eqs.anyM fun eq => commitWhen do checkpointDefEq (mayPostpone := false) do
       try
         let subgoals ← mvarId.apply (← mkConstWithFreshMVarLevels eq)
         subgoals.allM fun subgoal => do
@@ -343,9 +334,6 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
   let rec go (mvarId : MVarId) : MetaM Unit := do
     if (← tryEqns mvarId) then
       return ()
-    -- Remark: we removed funext? from `mkEqnTypes`
-    -- else if let some mvarId ← funext? mvarId then
-    --  go mvarId
 
     if (← shouldUseSimpMatch (← mvarId.getType')) then
       if let some mvarId ← simpMatch? mvarId then
@@ -371,7 +359,7 @@ def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := withLCtx {
       mkUnfoldProof declName goal.mvarId!
       let type ← mkForallFVars xs type
       let value ← mkLambdaFVars xs (← instantiateMVars goal)
-      let name := baseName ++ `def
+      let name := Name.str baseName unfoldThmSuffix
       addDecl <| Declaration.thmDecl {
         name, type, value
         levelParams := info.levelParams

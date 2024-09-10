@@ -29,7 +29,37 @@ public:
     virtual ~environment_extension() {}
 };
 
-class environment : public object_ref {
+/* Wrapper for `Kernel.Diagnostics` */
+class diagnostics : public object_ref {
+public:
+    diagnostics(diagnostics const & other):object_ref(other) {}
+    diagnostics(diagnostics && other):object_ref(other) {}
+    explicit diagnostics(b_obj_arg o, bool b):object_ref(o, b) {}
+    explicit diagnostics(obj_arg o):object_ref(o) {}
+    ~diagnostics() {}
+    void record_unfold(name const & decl_name);
+};
+
+/*
+Store `Kernel.Diagnostics` stored in environment extension in `m_diag` IF
+- `Kernel.Diagnostics.enable = true`
+- `collect = true`. This is a minor optimization.
+
+We use this class to ensure we don't waste time collecting information
+that was not requested.
+*/
+class scoped_diagnostics {
+    diagnostics * m_diag;
+public:
+    scoped_diagnostics(environment const & env, bool collect);
+    scoped_diagnostics(scoped_diagnostics const &) = delete;
+    scoped_diagnostics(scoped_diagnostics &&) = delete;
+    ~scoped_diagnostics();
+    environment update(environment const &) const;
+    diagnostics * get() const { return m_diag; }
+};
+
+class LEAN_EXPORT environment : public object_ref {
     friend class add_inductive_fn;
 
     void check_name(name const & n) const;
@@ -55,6 +85,9 @@ public:
 
     environment & operator=(environment const & other) { object_ref::operator=(other); return *this; }
     environment & operator=(environment && other) { object_ref::operator=(other); return *this; }
+
+    diagnostics get_diag() const;
+    environment set_diag(diagnostics const & diag) const;
 
     /** \brief Return the trust level of this environment. */
     unsigned trust_lvl() const;

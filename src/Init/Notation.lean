@@ -267,6 +267,7 @@ syntax (name := rawNatLit) "nat_lit " num : term
 
 @[inherit_doc] infixr:90 " ∘ "  => Function.comp
 @[inherit_doc] infixr:35 " × "  => Prod
+@[inherit_doc] infixr:35 " ×' " => PProd
 
 @[inherit_doc] infix:50  " ∣ " => Dvd.dvd
 @[inherit_doc] infixl:55 " ||| " => HOr.hOr
@@ -296,7 +297,7 @@ macro_rules | `($x - $y)   => `(binop% HSub.hSub $x $y)
 macro_rules | `($x * $y)   => `(binop% HMul.hMul $x $y)
 macro_rules | `($x / $y)   => `(binop% HDiv.hDiv $x $y)
 macro_rules | `($x % $y)   => `(binop% HMod.hMod $x $y)
--- exponentiation should be considered a right action (#2220)
+-- exponentiation should be considered a right action (#2854)
 macro_rules | `($x ^ $y)   => `(rightact% HPow.hPow $x $y)
 macro_rules | `($x ++ $y)  => `(binop% HAppend.hAppend $x $y)
 macro_rules | `(- $x)      => `(unop% Neg.neg $x)
@@ -335,7 +336,7 @@ macro_rules | `($x == $y) => `(binrel_no_prop% BEq.beq $x $y)
 @[inherit_doc] infixl:30 " || " => or
 @[inherit_doc] notation:max "!" b:40 => not b
 
-@[inherit_doc] infix:50 " ∈ " => Membership.mem
+@[inherit_doc] notation:50 a:50 " ∈ " b:50 => Membership.mem b a
 /-- `a ∉ b` is negated elementhood. It is notation for `¬ (a ∈ b)`. -/
 notation:50 a:50 " ∉ " b:50 => ¬ (a ∈ b)
 
@@ -492,9 +493,12 @@ The attribute `@[deprecated]` on a declaration indicates that the declaration
 is discouraged for use in new code, and/or should be migrated away from in
 existing code. It may be removed in a future version of the library.
 
-`@[deprecated myBetterDef]` means that `myBetterDef` is the suggested replacement.
+* `@[deprecated myBetterDef]` means that `myBetterDef` is the suggested replacement.
+* `@[deprecated myBetterDef "use myBetterDef instead"]` allows customizing the deprecation message.
+* `@[deprecated (since := "2024-04-21")]` records when the deprecation was first applied.
 -/
-syntax (name := deprecated) "deprecated" (ppSpace ident)? : attr
+syntax (name := deprecated) "deprecated" (ppSpace ident)? (ppSpace str)?
+    (" (" &"since" " := " str ")")? : attr
 
 /--
 The `@[coe]` attribute on a function (which should also appear in a
@@ -552,15 +556,68 @@ except that it doesn't print an empty diagnostic.
 -/
 syntax (name := runMeta) "run_meta " doSeq : command
 
-/-- Element that can be part of a `#guard_msgs` specification. -/
-syntax guardMsgsSpecElt := &"drop"? (&"info" <|> &"warning" <|> &"error" <|> &"all")
+set_option linter.missingDocs false in
+syntax guardMsgsFilterSeverity := &"info" <|> &"warning" <|> &"error" <|> &"all"
 
-/-- Specification for `#guard_msgs` command. -/
+/--
+`#reduce <expression>` reduces the expression `<expression>` to its normal form. This
+involves applying reduction rules until no further reduction is possible.
+
+By default, proofs and types within the expression are not reduced. Use modifiers
+`(proofs := true)`  and `(types := true)` to reduce them.
+Recall that propositions are types in Lean.
+
+**Warning:** This can be a computationally expensive operation,
+especially for complex expressions.
+
+Consider using `#eval <expression>` for simple evaluation/execution
+of expressions.
+-/
+syntax (name := reduceCmd) "#reduce " (atomic("(" &"proofs" " := " &"true" ")"))? (atomic("(" &"types" " := " &"true" ")"))? term : command
+
+/--
+A message filter specification for `#guard_msgs`.
+- `info`, `warning`, `error`: capture messages with the given severity level.
+- `all`: capture all messages (the default).
+- `drop info`, `drop warning`, `drop error`: drop messages with the given severity level.
+- `drop all`: drop every message.
+These filters are processed in left-to-right order.
+-/
+syntax guardMsgsFilter := &"drop"? guardMsgsFilterSeverity
+
+set_option linter.missingDocs false in
+syntax guardMsgsWhitespaceArg := &"exact" <|> &"normalized" <|> &"lax"
+
+/--
+Whitespace handling for `#guard_msgs`:
+- `whitespace := exact` requires an exact whitespace match.
+- `whitespace := normalized` converts all newline characters to a space before matching
+  (the default). This allows breaking long lines.
+- `whitespace := lax` collapses whitespace to a single space before matching.
+In all cases, leading and trailing whitespace is trimmed before matching.
+-/
+syntax guardMsgsWhitespace := &"whitespace" " := " guardMsgsWhitespaceArg
+
+set_option linter.missingDocs false in
+syntax guardMsgsOrderingArg := &"exact" <|> &"sorted"
+
+/--
+Message ordering for `#guard_msgs`:
+- `ordering := exact` uses the exact ordering of the messages (the default).
+- `ordering := sorted` sorts the messages in lexicographic order.
+  This helps with testing commands that are non-deterministic in their ordering.
+-/
+syntax guardMsgsOrdering := &"ordering" " := " guardMsgsOrderingArg
+
+set_option linter.missingDocs false in
+syntax guardMsgsSpecElt := guardMsgsFilter <|> guardMsgsWhitespace <|> guardMsgsOrdering
+
+set_option linter.missingDocs false in
 syntax guardMsgsSpec := "(" guardMsgsSpecElt,* ")"
 
 /--
-`#guard_msgs` captures the messages generated by another command and checks that they
-match the contents of the docstring attached to the `#guard_msgs` command.
+`/-- ... -/ #guard_msgs in cmd` captures the messages generated by the command `cmd`
+and checks that they match the contents of the docstring.
 
 Basic example:
 ```lean
@@ -570,10 +627,10 @@ error: unknown identifier 'x'
 #guard_msgs in
 example : α := x
 ```
-This checks that there is such an error and then consumes the message entirely.
+This checks that there is such an error and then consumes the message.
 
-By default, the command intercepts all messages, but there is a way to specify which types
-of messages to consider. For example, we can select only warnings:
+By default, the command captures all messages, but the filter condition can be adjusted.
+For example, we can select only warnings:
 ```lean
 /--
 warning: declaration uses 'sorry'
@@ -586,29 +643,37 @@ or only errors
 #guard_msgs(error) in
 example : α := sorry
 ```
-In this last example, since the message is not intercepted there is a warning on `sorry`.
+In the previous example, since warnings are not captured there is a warning on `sorry`.
 We can drop the warning completely with
 ```lean
 #guard_msgs(error, drop warning) in
 example : α := sorry
 ```
 
-Syntax description:
+In general, `#guard_msgs` accepts a comma-separated list of configuration clauses in parentheses:
 ```
-#guard_msgs (drop? info|warning|error|all,*)? in cmd
+#guard_msgs (configElt,*) in cmd
 ```
+By default, the configuration list is `(all, whitespace := normalized, ordering := exact)`.
 
-If there is no specification, `#guard_msgs` intercepts all messages.
-Otherwise, if there is one, the specification is considered in left-to-right order, and the first
-that applies chooses the outcome of the message:
-- `info`, `warning`, `error`: intercept a message with the given severity level.
-- `all`: intercept any message (so `#guard_msgs in cmd` and `#guard_msgs (all) in cmd`
-  are equivalent).
-- `drop info`, `drop warning`, `drop error`: intercept a message with the given severity
-  level and then drop it. These messages are not checked.
-- `drop all`: intercept a message and drop it.
+Message filters (processed in left-to-right order):
+- `info`, `warning`, `error`: capture messages with the given severity level.
+- `all`: capture all messages (the default).
+- `drop info`, `drop warning`, `drop error`: drop messages with the given severity level.
+- `drop all`: drop every message.
 
-For example, `#guard_msgs (error, drop all) in cmd` means to check warnings and then drop
+Whitespace handling (after trimming leading and trailing whitespace):
+- `whitespace := exact` requires an exact whitespace match.
+- `whitespace := normalized` converts all newline characters to a space before matching
+  (the default). This allows breaking long lines.
+- `whitespace := lax` collapses whitespace to a single space before matching.
+
+Message ordering:
+- `ordering := exact` uses the exact ordering of the messages (the default).
+- `ordering := sorted` sorts the messages in lexicographic order.
+  This helps with testing commands that are non-deterministic in their ordering.
+
+For example, `#guard_msgs (error, drop all) in cmd` means to check warnings and drop
 everything else.
 -/
 syntax (name := guardMsgsCmd)
@@ -638,5 +703,61 @@ syntax (name := checkSimp) "#check_simp " term "~>" term : command
 `#check_simp t !~>` checks `simp` fails on reducing `t`.
 -/
 syntax (name := checkSimpFailure) "#check_simp " term "!~>" : command
+
+/--
+Time the elaboration of a command, and print the result (in milliseconds).
+
+Example usage:
+```
+set_option maxRecDepth 100000 in
+#time example : (List.range 500).length = 500 := rfl
+```
+-/
+syntax (name := timeCmd) "#time " command : command
+
+/--
+`#discr_tree_key  t` prints the discrimination tree keys for a term `t` (or, if it is a single identifier, the type of that constant).
+It uses the default configuration for generating keys.
+
+For example,
+```
+#discr_tree_key (∀ {a n : Nat}, bar a (OfNat.ofNat n))
+-- bar _ (@OfNat.ofNat Nat _ _)
+
+#discr_tree_simp_key Nat.add_assoc
+-- @HAdd.hAdd Nat Nat Nat _ (@HAdd.hAdd Nat Nat Nat _ _ _) _
+```
+
+`#discr_tree_simp_key` is similar to `#discr_tree_key`, but treats the underlying type
+as one of a simp lemma, i.e. transforms it into an equality and produces the key of the
+left-hand side.
+-/
+syntax (name := discrTreeKeyCmd) "#discr_tree_key " term : command
+
+@[inherit_doc discrTreeKeyCmd]
+syntax (name := discrTreeSimpKeyCmd) "#discr_tree_simp_key" term : command
+
+/--
+The `seal foo` command ensures that the definition of `foo` is sealed, meaning it is marked as `[irreducible]`.
+This command is particularly useful in contexts where you want to prevent the reduction of `foo` in proofs.
+
+In terms of functionality, `seal foo` is equivalent to `attribute [local irreducible] foo`.
+This attribute specifies that `foo` should be treated as irreducible only within the local scope,
+which helps in maintaining the desired abstraction level without affecting global settings.
+-/
+syntax "seal " (ppSpace ident)+ : command
+
+/--
+The `unseal foo` command ensures that the definition of `foo` is unsealed, meaning it is marked as `[semireducible]`, the
+default reducibility setting. This command is useful when you need to allow some level of reduction of `foo` in proofs.
+
+Functionally, `unseal foo` is equivalent to `attribute [local semireducible] foo`.
+Applying this attribute makes `foo` semireducible only within the local scope.
+-/
+syntax "unseal " (ppSpace ident)+ : command
+
+macro_rules
+  | `(seal $fs:ident*) => `(attribute [local irreducible] $fs:ident*)
+  | `(unseal $fs:ident*) => `(attribute [local semireducible] $fs:ident*)
 
 end Parser

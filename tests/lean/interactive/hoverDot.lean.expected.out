@@ -20,7 +20,7 @@
  {"start": {"line": 12, "character": 14}, "end": {"line": 12, "character": 18}},
  "contents":
  {"value":
-  "```lean\nNat.succ (n : Nat) : Nat\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
+  "```lean\nNat.succ (n : Nat) : Nat\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. Using `succ n` should usually\nbe avoided in favor of `n + 1`, in order to remain compatible with the simp\nnormal form defined by `Nat.succ_eq_add_one`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hoverDot.lean"},
  "position": {"line": 16, "character": 11}}
@@ -34,7 +34,7 @@
  {"start": {"line": 16, "character": 14}, "end": {"line": 16, "character": 18}},
  "contents":
  {"value":
-  "```lean\nNat.succ (n : Nat) : Nat\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
+  "```lean\nNat.succ (n : Nat) : Nat\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. Using `succ n` should usually\nbe avoided in favor of `n + 1`, in order to remain compatible with the simp\nnormal form defined by `Nat.succ_eq_add_one`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hoverDot.lean"},
  "position": {"line": 19, "character": 13}}
@@ -48,7 +48,7 @@
  {"start": {"line": 19, "character": 16}, "end": {"line": 19, "character": 20}},
  "contents":
  {"value":
-  "```lean\nNat.succ (n : Nat) : Nat\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
+  "```lean\nNat.succ (n : Nat) : Nat\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. Using `succ n` should usually\nbe avoided in favor of `n + 1`, in order to remain compatible with the simp\nnormal form defined by `Nat.succ_eq_add_one`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hoverDot.lean"},
  "position": {"line": 22, "character": 14}}
@@ -62,5 +62,5 @@
  {"start": {"line": 22, "character": 17}, "end": {"line": 22, "character": 21}},
  "contents":
  {"value":
-  "```lean\nNat.succ (n : Nat) : Nat\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
+  "```lean\nNat.succ (n : Nat) : Nat\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. Using `succ n` should usually\nbe avoided in favor of `n + 1`, in order to remain compatible with the simp\nnormal form defined by `Nat.succ_eq_add_one`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}

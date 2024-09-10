@@ -13,6 +13,11 @@ let e ← elabTermAndSynthesize stx none;
 trace[Elab.debug] m!">>> {e}"; -- display message when `trace.Elab.debug` is true
 IO.println "message 2"
 
+/--
+info: message 1
+message 2
+-/
+#guard_msgs in
 #eval tst1
 
 def tst2 : TermElabM Unit := do
@@ -24,4 +29,6 @@ let e ← elabTermAndSynthesize stx none;
 trace[Elab.debug] m!">>> {e}";
 throwErrorIfErrors
 
+/-- info: -/
+#guard_msgs in
 #eval tst2

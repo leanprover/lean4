@@ -9,8 +9,9 @@ while expanding
 while expanding
   if h : (x > 0) then 1 else 0
 macroStack.lean:11:9-11:15: error: invalid use of `(<- ...)`, must be nested inside a 'do' expression
-macroStack.lean:17:0-17:6: error: failed to synthesize instance
+macroStack.lean:17:0-17:6: error: failed to synthesize
   HAdd Nat String ?m
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
 with resulting expansion
   binop% HAdd.hAdd✝ (x + x✝) x✝¹
 while expanding

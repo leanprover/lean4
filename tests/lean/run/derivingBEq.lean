@@ -41,9 +41,9 @@ inductive Bla (α : Type u) where
 
 namespace Bla
 
-#eval node [] == leaf 10
-#eval node [leaf 10] == node [leaf 10]
-#eval node [leaf 10] == node [leaf 10, leaf 20]
+#guard node [] != leaf 10
+#guard node [leaf 10] == node [leaf 10]
+#guard node [leaf 10] != node [leaf 10, leaf 20]
 
 end Bla
 

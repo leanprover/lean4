@@ -12,4 +12,6 @@ instance FooBarToTop (α : Type) [Foo α] [Bar α] : Top := {u:=()}
 
 set_option pp.all true
 
+/-- info: @FooBarToTop Nat (FooAll Nat) BarNat -/
+#guard_msgs in
 #synth Top

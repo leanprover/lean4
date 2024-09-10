@@ -1,0 +1,6 @@
+{
+  "str": {
+    "type": "string",
+    "value": "I'm a string. \"You can quote me\". Name\tJosé\nLocation\tSF."
+  }
+}

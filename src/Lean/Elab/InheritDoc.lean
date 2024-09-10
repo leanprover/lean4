@@ -5,7 +5,7 @@ Authors: Mario Carneiro
 -/
 prelude
 import Lean.Elab.InfoTree.Main
-import Lean.DocString
+import Lean.DocString.Extension
 
 namespace Lean
 
@@ -21,9 +21,9 @@ builtin_initialize
         let some id := id?
           | throwError "invalid `[inherit_doc]` attribute, could not infer doc source"
         let declName ← Elab.realizeGlobalConstNoOverloadWithInfo id
-        if (← findDocString? (← getEnv) decl).isSome then
+        if (← findSimpleDocString? (← getEnv) decl).isSome then
           logWarning m!"{← mkConstWithLevelParams decl} already has a doc string"
-        let some doc ← findDocString? (← getEnv) declName
+        let some doc ← findSimpleDocString? (← getEnv) declName
           | logWarningAt id m!"{← mkConstWithLevelParams declName} does not have a doc string"
         addDocString decl doc
       | _  => throwError "invalid `[inherit_doc]` attribute"

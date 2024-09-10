@@ -40,11 +40,18 @@ do let env ← getEnv
    check $ !isStructure env `Nat
    check $ !isStructure env `D
    IO.println (getStructureFieldsFlattened env `S4)
-   IO.println (getStructureFields env `D)
    IO.println (getPathToBaseStructure? env `S1 `S4)
    IO.println (getParentStructures env `S4)
    IO.println (getAllParentStructures env `S4)
    check $ getPathToBaseStructure? env `S1 `S4 == some [`S4.toS2, `S2.toS1]
    pure ()
 
+/--
+info: #[const2ModIdx, constants, extensions, extraConstNames, header]
+#[toS2, toS1, x, y, z, toS3, w, s]
+(some [S4.toS2, S2.toS1])
+#[S2, S3]
+#[S2, S1, S3]
+-/
+#guard_msgs in
 #eval tst

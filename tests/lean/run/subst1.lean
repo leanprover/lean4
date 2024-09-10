@@ -7,7 +7,6 @@ theorem tst1 (x y z : Nat) : y = z → x = x → x = y → x = z := by
   subst x
   assumption
 
-
 theorem tst2 (x y z : Nat) : y = z → x = z + y → x = z + z := by
   intros h1 h2
   subst h1

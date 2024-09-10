@@ -7,13 +7,19 @@ import Lean.Data.Json
 import Lean.Data.NameMap
 import Lake.Util.DRBMap
 import Lake.Util.RBArray
-import Lake.Util.Compare
 
 open Lean
 
 namespace Lake
 
 export Lean (Name NameMap)
+
+/--
+First tries to convert a string into a legal name.
+If that fails, defaults to making it a simple name (e.g., `Lean.Name.mkSimple`).
+-/
+def stringToLegalOrSimpleName (s : String) : Name :=
+  if s.toName.isAnonymous then Lean.Name.mkSimple s else s.toName
 
 @[inline] def NameMap.empty : NameMap α := RBMap.empty
 
@@ -47,7 +53,7 @@ namespace Name
 open Lean.Name
 
 @[simp] protected theorem beq_false (m n : Name) : (m == n) = false ↔ ¬ (m = n) := by
-  rw [← beq_iff_eq m n]; cases m == n <;> simp (config := { decide := true })
+  rw [← beq_iff_eq (a := m) (b := n)]; cases m == n <;> simp (config := { decide := true })
 
 @[simp] theorem isPrefixOf_self {n : Name} : n.isPrefixOf n := by
   cases n <;> simp [isPrefixOf]
@@ -88,9 +94,6 @@ instance : LawfulCmpEq Name Name.quickCmp where
   eq_of_cmp := eq_of_quickCmp
   cmp_rfl := quickCmp_rfl
 
-open Syntax
-
-def quoteFrom (ref : Syntax) : Name → Term
-| .anonymous => mkCIdentFrom ref ``anonymous
-| .str p s => mkApp (mkCIdentFrom ref ``mkStr) #[quoteFrom ref p, quote s]
-| .num p v => mkApp (mkCIdentFrom ref ``mkNum) #[quoteFrom ref p, quote v]
+open Syntax in
+def quoteFrom (ref : Syntax) (n : Name) : Term :=
+  ⟨copyHeadTailInfoFrom (quote n : Term) ref⟩

@@ -66,3 +66,8 @@ def insert (self : RBArray α β cmp) (a : α) (b : β) : RBArray α β cmp :=
   self.toArray.forIn init f
 
 instance : ForIn m (RBArray α β cmp) β := ⟨RBArray.forIn⟩
+
+end RBArray
+
+@[inline] def mkRBArray  (f : β → α) (vs : Array β) : RBArray α β cmp :=
+  vs.foldl (init := RBArray.mkEmpty vs.size) fun m v => m.insert (f v) v

@@ -50,12 +50,12 @@ def makePopup : WithRpcRef InfoWithCtx → RequestM (RequestTask InfoPopup)
   | ⟨i⟩ => RequestM.asTask do
     i.ctx.runMetaM i.info.lctx do
       let type? ← match (← i.info.type?) with
-        | some type => some <$> (ppExprTagged =<< instantiateMVars type)
+        | some type => some <$> ppExprTagged type
         | none => pure none
       let exprExplicit? ← match i.info with
         | Elab.Info.ofTermInfo ti =>
           pure <| some <| ← ppExprTaggedWithoutTopLevelHighlight ti.expr (explicit := true)
-        | Elab.Info.ofOmissionInfo { toTermInfo := ti } =>
+        | Elab.Info.ofOmissionInfo { toTermInfo := ti, .. } =>
           -- Omitted terms are simply to be expanded, not printed explicitly.
           -- Keep the top-level tag so that users can also see the explicit version
           -- of the omitted term.

@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/type_checker.h"
 #include "kernel/inductive.h"
-#include "library/trace.h"
+#include "kernel/trace.h"
 #include "library/suffixes.h"
 #include "library/compiler/util.h"
 

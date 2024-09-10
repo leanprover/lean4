@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Wojciech Nawrocki, Marc Huisinga
 -/
 prelude
-import Lean.Language.Lean
+import Lean.Language.Lean.Types
 import Lean.Server.Utils
 import Lean.Server.Snapshots
 import Lean.Server.AsyncList
@@ -14,22 +14,6 @@ import Lean.Server.Rpc.Basic
 namespace Lean.Server.FileWorker
 open Snapshots
 open IO
-
-structure CancelToken where
-  ref : IO.Ref Bool
-
-namespace CancelToken
-
-def new : IO CancelToken :=
-  CancelToken.mk <$> IO.mkRef false
-
-def set (tk : CancelToken) : BaseIO Unit :=
-  tk.ref.set true
-
-def isSet (tk : CancelToken) : BaseIO Bool :=
-  tk.ref.get
-
-end CancelToken
 
 -- TEMP: translate from new heterogeneous snapshot tree to old homogeneous async list
 private partial def mkCmdSnaps (initSnap : Language.Lean.InitialSnapshot) :
@@ -42,14 +26,14 @@ private partial def mkCmdSnaps (initSnap : Language.Lean.InitialSnapshot) :
       mpState := headerParsed.parserState
       cmdState := headerSuccess.cmdState
     } <| .delayed <| headerSuccess.firstCmdSnap.task.bind go
-where go cmdParsed :=
-  cmdParsed.data.sigSnap.task.bind fun sig =>
-    sig.finishedSnap.task.map fun finished =>
+where
+  go cmdParsed :=
+    cmdParsed.data.finishedSnap.task.map fun finished =>
       .ok <| .cons {
         stx := cmdParsed.data.stx
         mpState := cmdParsed.data.parserState
         cmdState := finished.cmdState
-      } (match cmdParsed.next? with
+      } (match cmdParsed.nextCmdSnap? with
         | some next => .delayed <| next.task.bind go
         | none => .nil)
 

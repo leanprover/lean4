@@ -8,3 +8,4 @@ import Lake.Config
 import Lake.DSL
 import Lake.Version
 import Lake.CLI.Actions
+import Lake.Toml

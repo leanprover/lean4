@@ -1,4 +1,6 @@
-eagerUnfoldingIssue.lean:6:2-6:17: error: failed to synthesize instance
+eagerUnfoldingIssue.lean:6:2-6:17: error: failed to synthesize
   MonadLog (StateM Nat)
-eagerUnfoldingIssue.lean:12:2-12:17: error: failed to synthesize instance
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+eagerUnfoldingIssue.lean:12:2-12:17: error: failed to synthesize
   MonadLog (StateM Nat)
+Additional diagnostic information may be available using the `set_option diagnostics true` command.

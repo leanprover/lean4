@@ -1,5 +1,5 @@
 [Elab.info] • command @ ⟨3, 0⟩-⟨3, 31⟩ @ Lean.Elab.Command.elabSetOption
-      • [.] (Command.set_option "set_option" `trace.Elab.info) @ ⟨3, 0⟩-⟨3, 26⟩
+      • [.] (Command.set_option "set_option" `trace.Elab.info []) @ ⟨3, 0⟩-⟨3, 26⟩
       • option trace.Elab.info @ ⟨3, 11⟩-⟨3, 26⟩
 1 + 2 + 3 : Nat
 [Elab.info] • command @ ⟨5, 0⟩-⟨5, 16⟩ @ Lean.Elab.Command.elabCheck

@@ -54,7 +54,7 @@ open Expr
 def add : Expr ctx (Ty.fn Ty.int (Ty.fn Ty.int Ty.int)) :=
   lam (lam (op (.+.) (var .stop) (var (.pop .stop))))
 
-#eval interp Env.nil add 10 20
+#guard interp Env.nil add 10 20 == 30
 
 def fact : Expr ctx (Ty.fn Ty.int Ty.int) :=
   lam (ife (op (.==.) (var .stop) (val 0))
@@ -62,4 +62,4 @@ def fact : Expr ctx (Ty.fn Ty.int Ty.int) :=
            (op (.*.) (delay fun _ => app fact (op (.-.) (var .stop) (val 1))) (var .stop)))
   decreasing_by sorry
 
-#eval interp Env.nil fact 10
+#guard interp Env.nil fact 10 == 3628800

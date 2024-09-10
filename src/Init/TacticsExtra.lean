@@ -31,15 +31,19 @@ private def expandIfThenElse
       pure (hole, #[case])
   let (posHole, posCase) ← mkCase thenTk pos `(?pos)
   let (negHole, negCase) ← mkCase elseTk neg `(?neg)
-  `(tactic| (open Classical in refine%$ifTk $(← mkIf posHole negHole); $[$(posCase ++ negCase)]*))
+  `(tactic| ((open Classical in refine%$ifTk $(← mkIf posHole negHole)); $[$(posCase ++ negCase)]*))
 
 macro_rules
   | `(tactic| if%$tk $h : $c then%$ttk $pos else%$etk $neg) =>
-    expandIfThenElse tk ttk etk pos neg fun pos neg => `(if $h : $c then $pos else $neg)
+    -- Limit ref variability for incrementality; see Note [Incremental Macros]
+    withRef tk do
+      expandIfThenElse tk ttk etk pos neg fun pos neg => `(if $h : $c then $pos else $neg)
 
 macro_rules
   | `(tactic| if%$tk $c then%$ttk $pos else%$etk $neg) =>
-    expandIfThenElse tk ttk etk pos neg fun pos neg => `(if h : $c then $pos else $neg)
+    -- Limit ref variability for incrementality; see Note [Incremental Macros]
+    withRef tk do
+      expandIfThenElse tk ttk etk pos neg fun pos neg => `(if h : $c then $pos else $neg)
 
 /--
 `iterate n tac` runs `tac` exactly `n` times.

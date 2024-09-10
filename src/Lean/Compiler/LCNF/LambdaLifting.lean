@@ -88,7 +88,7 @@ occurring in `decl`.
 -/
 def mkAuxDecl (closure : Array Param) (decl : FunDecl) : LiftM LetDecl := do
   let nameNew ← mkAuxDeclName
-  let inlineAttr? := if (← read).inheritInlineAttrs then (← read).mainDecl.inlineAttr? else none
+  let inlineAttr? ← if (← read).inheritInlineAttrs then pure (← read).mainDecl.inlineAttr? else pure none
   let auxDecl ← go nameNew (← read).mainDecl.safe inlineAttr? |>.run' {}
   let us := auxDecl.levelParams.map mkLevelParam
   let auxDeclName ← match (← cacheAuxDecl auxDecl) with

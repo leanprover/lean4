@@ -7,6 +7,7 @@ prelude
 import Lean.Language.Lean
 import Lean.Util.Profile
 import Lean.Server.References
+import Lean.Util.Profiler
 
 namespace Lean.Elab.Frontend
 
@@ -15,6 +16,7 @@ structure State where
   parserState  : Parser.ModuleParserState
   cmdPos       : String.Pos
   commands     : Array Syntax := #[]
+deriving Nonempty
 
 structure Context where
   inputCtx : Parser.InputContext
@@ -32,6 +34,8 @@ def setCommandState (commandState : Command.State) : FrontendM Unit :=
     fileName     := ctx.inputCtx.fileName
     fileMap      := ctx.inputCtx.fileMap
     tacticCache? := none
+    snap?        := none
+    cancelTk?    := none
   }
   match (← liftM <| EIO.toIO' <| (x cmdCtx).run s.commandState) with
   | Except.error e      => throw <| IO.Error.userError s!"unexpected internal error: {← e.toMessageData.toString}"
@@ -42,15 +46,6 @@ def elabCommandAtFrontend (stx : Syntax) : FrontendM Unit := do
     let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
     Command.elabCommandTopLevel stx
     let mut msgs := (← get).messages
-    -- `stx.hasMissing` should imply `initMsgs.hasErrors`, but the latter should be cheaper to check
-    -- in general
-    if !Language.Lean.showPartialSyntaxErrors.get (← getOptions) && initMsgs.hasErrors &&
-        stx.hasMissing then
-      -- discard elaboration errors, except for a few important and unlikely misleading ones, on
-      -- parse error
-      msgs := ⟨msgs.msgs.filter fun msg =>
-        msg.data.hasTag (fun tag => tag == `Elab.synthPlaceholder ||
-          tag == `Tactic.unsolvedGoals || (`_traceMsg).isSuffixOf tag)⟩
     modify ({ · with messages := initMsgs ++ msgs })
 
 def updateCmdPos : FrontendM Unit := do
@@ -86,18 +81,55 @@ end Frontend
 
 open Frontend
 
-def IO.processCommands (inputCtx : Parser.InputContext) (parserState : Parser.ModuleParserState) (commandState : Command.State) : IO State := do
-  let (_, s) ← (Frontend.processCommands.run { inputCtx := inputCtx }).run { commandState := commandState, parserState := parserState, cmdPos := parserState.pos }
-  pure s
+structure IncrementalState extends State where
+  inputCtx    : Parser.InputContext
+  initialSnap : Language.Lean.CommandParsedSnapshot
+deriving Nonempty
+
+open Language in
+/--
+Variant of `IO.processCommands` that allows for potential incremental reuse. Pass in the result of a
+previous invocation done with the same state (but usually different input context) to allow for
+reuse.
+-/
+partial def IO.processCommandsIncrementally (inputCtx : Parser.InputContext)
+    (parserState : Parser.ModuleParserState) (commandState : Command.State)
+    (old? : Option IncrementalState) :
+    BaseIO IncrementalState := do
+  let task ← Language.Lean.processCommands inputCtx parserState commandState
+    (old?.map fun old => (old.inputCtx, old.initialSnap))
+  go task.get task #[]
+where
+  go initialSnap t commands :=
+    let snap := t.get
+    let commands := commands.push snap.data.stx
+    if let some next := snap.nextCmdSnap? then
+      go initialSnap next.task commands
+    else
+      -- Opting into reuse also enables incremental reporting, so make sure to collect messages from
+      -- all snapshots
+      let messages := toSnapshotTree initialSnap
+        |>.getAll.map (·.diagnostics.msgLog)
+        |>.foldl (· ++ ·) {}
+      let trees := toSnapshotTree initialSnap
+        |>.getAll.map (·.infoTree?) |>.filterMap id |>.toPArray'
+      return {
+        commandState := { snap.data.finishedSnap.get.cmdState with messages, infoState.trees := trees }
+        parserState := snap.data.parserState
+        cmdPos := snap.data.parserState.pos
+        inputCtx, initialSnap, commands
+      }
+
+def IO.processCommands (inputCtx : Parser.InputContext) (parserState : Parser.ModuleParserState)
+    (commandState : Command.State) : IO State := do
+  let st ← IO.processCommandsIncrementally inputCtx parserState commandState none
+  return st.toState
 
 def process (input : String) (env : Environment) (opts : Options) (fileName : Option String := none) : IO (Environment × MessageLog) := do
   let fileName   := fileName.getD "<input>"
   let inputCtx   := Parser.mkInputContext input fileName
   let s ← IO.processCommands inputCtx { : Parser.ModuleParserState } (Command.mkState env {} opts)
   pure (s.commandState.env, s.commandState.messages)
-
-builtin_initialize
-  registerTraceClass `Elab.info
 
 @[export lean_run_frontend]
 def runFrontend
@@ -107,52 +139,35 @@ def runFrontend
     (mainModuleName : Name)
     (trustLevel : UInt32 := 0)
     (ileanFileName? : Option String := none)
+    (jsonOutput : Bool := false)
     : IO (Environment × Bool) := do
+  let startTime := (← IO.monoNanosNow).toFloat / 1000000000
   let inputCtx := Parser.mkInputContext input fileName
-  -- TODO: replace with `#lang` processing
-  if /- Lean #lang? -/ true then
-    -- Temporarily keep alive old cmdline driver for the Lean language so that we don't pay the
-    -- overhead of passing the environment between snapshots until we actually make good use of it
-    -- outside the server
-    let (header, parserState, messages) ← Parser.parseHeader inputCtx
-    -- allow `env` to be leaked, which would live until the end of the process anyway
-    let (env, messages) ← processHeader (leakEnv := true) header opts messages inputCtx trustLevel
-    let env := env.setMainModule mainModuleName
-    let mut commandState := Command.mkState env messages opts
-
-    if ileanFileName?.isSome then
-      -- Collect InfoTrees so we can later extract and export their info to the ilean file
-      commandState := { commandState with infoState.enabled := true }
-
-    let s ← IO.processCommands inputCtx parserState commandState
-    for msg in s.commandState.messages.toList do
-      IO.print (← msg.toString (includeEndPos := Language.printMessageEndPos.get opts))
-
-    if let some ileanFileName := ileanFileName? then
-      let trees := s.commandState.infoState.trees.toArray
-      let references ←
-        Lean.Server.findModuleRefs inputCtx.fileMap trees (localVars := false) |>.toLspModuleRefs
-      let ilean := { module := mainModuleName, references : Lean.Server.Ilean }
-      IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean
-
-    return (s.commandState.env, !s.commandState.messages.hasErrors)
-
-  let ctx := { inputCtx with mainModuleName, opts, trustLevel }
+  let opts := Language.Lean.internal.cmdlineSnapshots.set opts true
+  let ctx := { inputCtx with }
   let processor := Language.Lean.process
-  let snap ← processor none ctx
+  let snap ← processor (fun _ => pure <| .ok { mainModuleName, opts, trustLevel }) none ctx
   let snaps := Language.toSnapshotTree snap
-  snaps.runAndReport opts
+  snaps.runAndReport opts jsonOutput
+
   if let some ileanFileName := ileanFileName? then
     let trees := snaps.getAll.concatMap (match ·.infoTree? with | some t => #[t] | _ => #[])
     let references := Lean.Server.findModuleRefs inputCtx.fileMap trees (localVars := false)
     let ilean := { module := mainModuleName, references := ← references.toLspModuleRefs : Lean.Server.Ilean }
     IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean
 
-  let hasErrors := snaps.getAll.any (·.diagnostics.msgLog.hasErrors)
   -- TODO: remove default when reworking cmdline interface in Lean; currently the only case
   -- where we use the environment despite errors in the file is `--stats`
-  let env := Language.Lean.waitForFinalEnv? snap |>.getD (← mkEmptyEnvironment)
-  pure (env, !hasErrors)
+  let some cmdState := Language.Lean.waitForFinalCmdState? snap
+    | return (← mkEmptyEnvironment, false)
+
+  if let some out := trace.profiler.output.get? opts then
+    let traceState := cmdState.traceState
+    let profile ← Firefox.Profile.export mainModuleName.toString startTime traceState opts
+    IO.FS.writeFile ⟨out⟩ <| Json.compress <| toJson profile
+
+  let hasErrors := snaps.getAll.any (·.diagnostics.msgLog.hasErrors)
+  pure (cmdState.env, !hasErrors)
 
 
 end Lean.Elab

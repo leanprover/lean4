@@ -1,3 +1,3 @@
 rwWithoutOffsetCnstrs.lean:5:0-5:7: warning: declaration uses 'sorry'
 m n : Nat
-⊢ Nat.ble (n + 1) n = false
+⊢ (n + 1).ble n = false

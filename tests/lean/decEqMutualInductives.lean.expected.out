@@ -6,6 +6,7 @@
            let inst✝ := decEqListTree✝ @a✝ @b✝;
            if h✝ : @a✝ = @b✝ then by subst h✝; exact isTrue✝ rfl✝
            else isFalse✝ (by intro n✝; injection n✝; apply h✝ _; assumption)
+       termination_by structural x✝
        private def decEqListTree✝ (x✝² : @ListTree✝) (x✝³ : @ListTree✝) : Decidable✝ (x✝² = x✝³) :=
          match x✝², x✝³ with
          | @ListTree.nil, @ListTree.nil => isTrue✝¹ rfl✝¹
@@ -19,6 +20,7 @@
                if h✝³ : @a✝² = @b✝² then by subst h✝³; exact isTrue✝² rfl✝²
                else isFalse✝² (by intro n✝¹; injection n✝¹; apply h✝³ _; assumption)
            else isFalse✝³ (by intro n✝²; injection n✝²; apply h✝² _; assumption)
+       termination_by structural x✝²
      end,
      instance : DecidableEq✝ (@ListTree✝) :=
        decEqListTree✝]
@@ -33,18 +35,21 @@
            let inst✝ := decEqFoo₂✝ @a✝ @b✝;
            if h✝¹ : @a✝ = @b✝ then by subst h✝¹; exact isTrue✝¹ rfl✝¹
            else isFalse✝¹ (by intro n✝; injection n✝; apply h✝¹ _; assumption)
+       termination_by structural x✝
        private def decEqFoo₂✝ (x✝² : @Foo₂✝) (x✝³ : @Foo₂✝) : Decidable✝ (x✝² = x✝³) :=
          match x✝², x✝³ with
          | @Foo₂.foo₂ a✝¹, @Foo₂.foo₂ b✝¹ =>
            let inst✝¹ := decEqFoo₃✝ @a✝¹ @b✝¹;
            if h✝² : @a✝¹ = @b✝¹ then by subst h✝²; exact isTrue✝² rfl✝²
            else isFalse✝² (by intro n✝¹; injection n✝¹; apply h✝² _; assumption)
+       termination_by structural x✝²
        private def decEqFoo₃✝ (x✝⁴ : @Foo₃✝) (x✝⁵ : @Foo₃✝) : Decidable✝ (x✝⁴ = x✝⁵) :=
          match x✝⁴, x✝⁵ with
          | @Foo₃.foo₃ a✝², @Foo₃.foo₃ b✝² =>
            let inst✝² := decEqFoo₁✝ @a✝² @b✝²;
            if h✝³ : @a✝² = @b✝² then by subst h✝³; exact isTrue✝³ rfl✝³
            else isFalse✝³ (by intro n✝²; injection n✝²; apply h✝³ _; assumption)
+       termination_by structural x✝⁴
      end,
      instance : DecidableEq✝ (@Foo₁✝) :=
        decEqFoo₁✝]

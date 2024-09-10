@@ -83,6 +83,34 @@ inductive Vec (α : Type) : Nat → Type
   | nil  : Vec α 0
   | cons : (a : α) → {n : Nat} → (as : Vec α n) → Vec α (n+1)
 
+/--
+info: case cons.cons.fst
+α β : Type
+n : Nat
+a✝¹ : α
+as✝¹ : Vec α n
+a✝ : β
+as✝ : Vec β n
+⊢ α
+
+case cons.cons.snd
+α β : Type
+n : Nat
+a✝¹ : α
+as✝¹ : Vec α n
+a✝ : β
+as✝ : Vec β n
+⊢ β
+case cons.cons.snd
+α β : Type
+n : Nat
+a✝¹ : α
+as✝¹ : Vec α n
+a✝ : β
+as✝ : Vec β n
+⊢ β
+-/
+#guard_msgs in
 def getHeads {α β} {n} (xs : Vec α (n+1)) (ys : Vec β (n+1)) : α × β := by
   cases xs
   cases ys

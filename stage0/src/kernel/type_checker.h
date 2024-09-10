@@ -42,6 +42,7 @@ public:
 private:
     bool                      m_st_owner;
     state *                   m_st;
+    diagnostics *             m_diag;
     local_ctx                 m_lctx;
     definition_safety         m_definition_safety;
     /* When `m_lparams != nullptr, the `check` method makes sure all level parameters
@@ -63,6 +64,7 @@ private:
 
     enum class reduction_status { Continue, DefUnknown, DefEqual, DefDiff };
     optional<expr> reduce_recursor(expr const & e, bool cheap_rec, bool cheap_proj);
+    optional<expr> reduce_proj_core(expr c, unsigned idx);
     optional<expr> reduce_proj(expr const & e, bool cheap_rec, bool cheap_proj);
     expr whnf_fvar(expr const & e, bool cheap_rec, bool cheap_proj);
     optional<constant_info> is_delta(expr const & e) const;
@@ -91,6 +93,7 @@ private:
     void cache_failure(expr const & t, expr const & s);
     reduction_status lazy_delta_reduction_step(expr & t_n, expr & s_n);
     lbool lazy_delta_reduction(expr & t_n, expr & s_n);
+    bool lazy_delta_proj_reduction(expr & t_n, expr & s_n, nat const & idx);
     bool is_def_eq_core(expr const & t, expr const & s);
     /** \brief Like \c check, but ignores undefined universes */
     expr check_ignore_undefined_universes(expr const & e);
@@ -98,12 +101,13 @@ private:
 
     template<typename F> optional<expr> reduce_bin_nat_op(F const & f, expr const & e);
     template<typename F> optional<expr> reduce_bin_nat_pred(F const & f, expr const & e);
+    optional<expr> reduce_pow(expr const & e);
     optional<expr> reduce_nat(expr const & e);
 public:
     type_checker(state & st, local_ctx const & lctx, definition_safety ds = definition_safety::safe);
     type_checker(state & st, definition_safety ds = definition_safety::safe):type_checker(st, local_ctx(), ds) {}
-    type_checker(environment const & env, local_ctx const & lctx, definition_safety ds = definition_safety::safe);
-    type_checker(environment const & env, definition_safety ds = definition_safety::safe):type_checker(env, local_ctx(), ds) {}
+    type_checker(environment const & env, local_ctx const & lctx, diagnostics * diag = nullptr, definition_safety ds = definition_safety::safe);
+    type_checker(environment const & env, diagnostics * diag = nullptr, definition_safety ds = definition_safety::safe):type_checker(env, local_ctx(), diag, ds) {}
     type_checker(type_checker &&);
     type_checker(type_checker const &) = delete;
     ~type_checker();

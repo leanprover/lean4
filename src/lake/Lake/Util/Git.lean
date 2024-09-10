@@ -38,6 +38,7 @@ end Git
 structure GitRepo where
   dir : FilePath
 
+instance : Coe FilePath GitRepo := ⟨(⟨·⟩)⟩
 instance : ToString GitRepo := ⟨(·.dir.toString)⟩
 
 namespace GitRepo
@@ -46,9 +47,6 @@ def cwd : GitRepo := ⟨"."⟩
 
 @[inline] def dirExists (repo : GitRepo) : BaseIO Bool :=
   repo.dir.isDir
-
-@[inline] def captureGit (args : Array String) (repo : GitRepo) : LogIO String :=
-  captureProc {cmd := "git", args, cwd := repo.dir}
 
 @[inline] def captureGit? (args : Array String) (repo : GitRepo) : BaseIO (Option String) :=
   captureProc? {cmd := "git", args, cwd := repo.dir}
@@ -66,31 +64,30 @@ def cwd : GitRepo := ⟨"."⟩
   repo.execGit #["init", "-q"]
 
 @[inline] def fetch (repo : GitRepo) (remote := Git.defaultRemote) : LogIO PUnit  :=
-  repo.execGit #["fetch", remote]
+  repo.execGit #["fetch", "--tags", "--force", remote]
 
 @[inline] def checkoutBranch (branch : String) (repo : GitRepo) : LogIO PUnit :=
   repo.execGit #["checkout", "-B", branch]
 
 @[inline] def checkoutDetach (hash : String) (repo : GitRepo) : LogIO PUnit  :=
-  repo.execGit #["checkout", "--detach", hash]
+  repo.execGit #["checkout", "--detach", hash, "--"]
 
 @[inline] def resolveRevision? (rev : String) (repo : GitRepo) : BaseIO (Option String) := do
-  repo.captureGit? #["rev-parse", "--verify", rev]
-
-@[inline] def resolveRevision (rev : String) (repo : GitRepo) : LogIO String := do
-  repo.captureGit #["rev-parse", "--verify", rev]
-
-@[inline] def getHeadRevision (repo : GitRepo) : LogIO String :=
-  repo.resolveRevision "HEAD"
+  repo.captureGit? #["rev-parse", "--verify", "--end-of-options", rev]
 
 @[inline] def getHeadRevision? (repo : GitRepo) : BaseIO (Option String) :=
   repo.resolveRevision? "HEAD"
+
+def getHeadRevision (repo : GitRepo) : LogIO String := do
+  if let some rev ← repo.getHeadRevision? then return rev
+  error s!"{repo}: could not resolve 'HEAD' to a commit; \
+    the repository may be corrupt, so you may need to remove it and try again"
 
 def resolveRemoteRevision (rev : String) (remote := Git.defaultRemote) (repo : GitRepo) : LogIO String := do
   if Git.isFullObjectName rev then return rev
   if let some rev ← repo.resolveRevision? s!"{remote}/{rev}"  then return rev
   if let some rev ← repo.resolveRevision? rev then return rev
-  error s!"cannot find revision {rev} in repository {repo}"
+  error s!"{repo}: revision not found '{rev}'"
 
 def findRemoteRevision (repo : GitRepo) (rev? : Option String := none) (remote := Git.defaultRemote) : LogIO String := do
   repo.fetch remote; repo.resolveRemoteRevision (rev?.getD Git.upstreamBranch) remote
@@ -100,6 +97,10 @@ def findRemoteRevision (repo : GitRepo) (rev? : Option String := none) (remote :
 
 @[inline] def revisionExists (rev : String) (repo : GitRepo) : BaseIO Bool := do
   repo.testGit #["rev-parse", "--verify", rev ++ "^{commit}"]
+
+@[inline] def getTags (repo : GitRepo) : BaseIO (List String) := do
+  let some out ← repo.captureGit? #["tag"] | return []
+  return out.split (· == '\n')
 
 @[inline] def findTag? (rev : String := "HEAD") (repo : GitRepo) : BaseIO (Option String) := do
   repo.captureGit? #["describe", "--tags", "--exact-match", rev]

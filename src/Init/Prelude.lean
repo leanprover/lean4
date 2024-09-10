@@ -320,7 +320,7 @@ Because this is in the `Eq` namespace, if you have a variable `h : a = b`,
 
 For more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
 -/
-theorem Eq.symm {α : Sort u} {a b : α} (h : Eq a b) : Eq b a :=
+@[symm] theorem Eq.symm {α : Sort u} {a b : α} (h : Eq a b) : Eq b a :=
   h ▸ rfl
 
 /--
@@ -477,6 +477,8 @@ and `Prod.snd p` respectively. You can also write `p.fst` and `p.snd`.
 For more information: [Constructors with Arguments](https://lean-lang.org/theorem_proving_in_lean4/inductive_types.html?highlight=Prod#constructors-with-arguments)
 -/
 structure Prod (α : Type u) (β : Type v) where
+  /-- Constructs a pair from two terms. -/
+  mk ::
   /-- The first projection out of a pair. if `p : α × β` then `p.1 : α`. -/
   fst : α
   /-- The second projection out of a pair. if `p : α × β` then `p.2 : β`. -/
@@ -486,6 +488,7 @@ attribute [unbox] Prod
 
 /--
 Similar to `Prod`, but `α` and `β` can be propositions.
+You can use `α ×' β` as notation for `PProd α β`.
 We use this type internally to automatically generate the `brecOn` recursor.
 -/
 structure PProd (α : Sort u) (β : Sort v) where
@@ -509,6 +512,7 @@ structure MProd (α β : Type u) where
 constructed and destructed like a pair: if `ha : a` and `hb : b` then
 `⟨ha, hb⟩ : a ∧ b`, and if `h : a ∧ b` then `h.left : a` and `h.right : b`.
 -/
+@[pp_using_anonymous_constructor]
 structure And (a b : Prop) : Prop where
   /-- `And.intro : a → b → a ∧ b` is the constructor for the And operation. -/
   intro ::
@@ -575,6 +579,7 @@ a pair-like type, so if you have `x : α` and `h : p x` then
 `⟨x, h⟩ : {x // p x}`. An element `s : {x // p x}` will coerce to `α` but
 you can also make it explicit using `s.1` or `s.val`.
 -/
+@[pp_using_anonymous_constructor]
 structure Subtype {α : Sort u} (p : α → Prop) where
   /-- If `s : {x // p x}` then `s.val : α` is the underlying element in the base
   type. You can also write this as `s.1`, or simply as `s` when the type is
@@ -735,7 +740,7 @@ prove `p` given any element `x : α`, then `p` holds. Note that it is essential
 that `p` is a `Prop` here; the version with `p` being a `Sort u` is equivalent
 to `Classical.choice`.
 -/
-protected def Nonempty.elim {α : Sort u} {p : Prop} (h₁ : Nonempty α) (h₂ : α → p) : p :=
+protected theorem Nonempty.elim {α : Sort u} {p : Prop} (h₁ : Nonempty α) (h₂ : α → p) : p :=
   match h₁ with
   | intro a => h₂ a
 
@@ -909,6 +914,9 @@ is `Bool` valued instead of `Prop` valued, and it also does not have any
 axioms like being reflexive or agreeing with `=`. It is mainly intended for
 programming applications. See `LawfulBEq` for a version that requires that
 `==` and `=` coincide.
+
+Typically we prefer to put the "more variable" term on the left,
+and the "more constant" term on the right.
 -/
 class BEq (α : Type u) where
   /-- Boolean equality, notated as `a == b`. -/
@@ -1063,11 +1071,15 @@ This type is special-cased by both the kernel and the compiler:
   library (usually [GMP](https://gmplib.org/)).
 -/
 inductive Nat where
-  /-- `Nat.zero`, normally written `0 : Nat`, is the smallest natural number.
-  This is one of the two constructors of `Nat`. -/
+  /-- `Nat.zero`, is the smallest natural number. This is one of the two
+  constructors of `Nat`. Using `Nat.zero` should usually be avoided in favor of
+  `0 : Nat` or simply `0`, in order to remain compatible with the simp normal
+  form defined by `Nat.zero_eq`. -/
   | zero : Nat
   /-- The successor function on natural numbers, `succ n = n + 1`.
-  This is one of the two constructors of `Nat`. -/
+  This is one of the two constructors of `Nat`. Using `succ n` should usually
+  be avoided in favor of `n + 1`, in order to remain compatible with the simp
+  normal form defined by `Nat.succ_eq_add_one`. -/
   | succ (n : Nat) : Nat
 
 instance : Inhabited Nat where
@@ -1093,7 +1105,7 @@ class OfNat (α : Type u) (_ : Nat) where
   ofNat : α
 
 @[default_instance 100] /- low prio -/
-instance (n : Nat) : OfNat Nat n where
+instance instOfNatNat (n : Nat) : OfNat Nat n where
   ofNat := n
 
 /-- `LE α` is the typeclass which supports the notation `x ≤ y` where `x y : α`.-/
@@ -1194,7 +1206,12 @@ class HDiv (α : Type u) (β : Type v) (γ : outParam (Type w)) where
   /-- `a / b` computes the result of dividing `a` by `b`.
   The meaning of this notation is type-dependent.
   * For most types like `Nat`, `Int`, `Rat`, `Real`, `a / 0` is defined to be `0`.
-  * For `Nat` and `Int`, `a / b` rounds toward 0.
+  * For `Nat`, `a / b` rounds downwards.
+  * For `Int`, `a / b` rounds downwards if `b` is positive or upwards if `b` is negative.
+    It is implemented as `Int.ediv`, the unique function satisfiying
+    `a % b + b * (a / b) = a` and `0 ≤ a % b < natAbs b` for `b ≠ 0`.
+    Other rounding conventions are available using the functions
+    `Int.fdiv` (floor rounding) and `Int.div` (truncation rounding).
   * For `Float`, `a / 0` follows the IEEE 754 semantics for division,
     usually resulting in `inf` or `nan`. -/
   hDiv : α → β → γ
@@ -1206,7 +1223,8 @@ This enables the notation `a % b : γ` where `a : α`, `b : β`.
 class HMod (α : Type u) (β : Type v) (γ : outParam (Type w)) where
   /-- `a % b` computes the remainder upon dividing `a` by `b`.
   The meaning of this notation is type-dependent.
-  * For `Nat` and `Int`, `a % 0` is defined to be `a`. -/
+  * For `Nat` and `Int` it satisfies `a % b + b * (a / b) = a`,
+    and `a % 0` is defined to be `a`. -/
   hMod : α → β → γ
 
 /--
@@ -1421,31 +1439,31 @@ class ShiftRight (α : Type u) where
   shiftRight : α → α → α
 
 @[default_instance]
-instance [Add α] : HAdd α α α where
+instance instHAdd [Add α] : HAdd α α α where
   hAdd a b := Add.add a b
 
 @[default_instance]
-instance [Sub α] : HSub α α α where
+instance instHSub [Sub α] : HSub α α α where
   hSub a b := Sub.sub a b
 
 @[default_instance]
-instance [Mul α] : HMul α α α where
+instance instHMul [Mul α] : HMul α α α where
   hMul a b := Mul.mul a b
 
 @[default_instance]
-instance [Div α] : HDiv α α α where
+instance instHDiv [Div α] : HDiv α α α where
   hDiv a b := Div.div a b
 
 @[default_instance]
-instance [Mod α] : HMod α α α where
+instance instHMod [Mod α] : HMod α α α where
   hMod a b := Mod.mod a b
 
 @[default_instance]
-instance [Pow α β] : HPow α β α where
+instance instHPow [Pow α β] : HPow α β α where
   hPow a b := Pow.pow a b
 
 @[default_instance]
-instance [NatPow α] : Pow α Nat where
+instance instPowNat [NatPow α] : Pow α Nat where
   pow a n := NatPow.pow a n
 
 @[default_instance]
@@ -1497,7 +1515,7 @@ of the elements of the container.
 -/
 class Membership (α : outParam (Type u)) (γ : Type v) where
   /-- The membership relation `a ∈ s : Prop` where `a : α`, `s : γ`. -/
-  mem : α → γ → Prop
+  mem : γ → α → Prop
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -1512,7 +1530,7 @@ protected def Nat.add : (@& Nat) → (@& Nat) → Nat
   | a, Nat.zero   => a
   | a, Nat.succ b => Nat.succ (Nat.add a b)
 
-instance : Add Nat where
+instance instAddNat : Add Nat where
   add := Nat.add
 
 /- We mark the following definitions as pattern to make sure they can be used in recursive equations,
@@ -1532,7 +1550,7 @@ protected def Nat.mul : (@& Nat) → (@& Nat) → Nat
   | _, 0          => 0
   | a, Nat.succ b => Nat.add (Nat.mul a b) a
 
-instance : Mul Nat where
+instance instMulNat : Mul Nat where
   mul := Nat.mul
 
 set_option bootstrap.genMatcherCode false in
@@ -1548,7 +1566,7 @@ protected def Nat.pow (m : @& Nat) : (@& Nat) → Nat
   | 0      => 1
   | succ n => Nat.mul (Nat.pow m n) m
 
-instance : NatPow Nat := ⟨Nat.pow⟩
+instance instNatPowNat : NatPow Nat := ⟨Nat.pow⟩
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -1625,14 +1643,14 @@ protected inductive Nat.le (n : Nat) : Nat → Prop
   /-- If `n ≤ m`, then `n ≤ m + 1`. -/
   | step {m} : Nat.le n m → Nat.le n (succ m)
 
-instance : LE Nat where
+instance instLENat : LE Nat where
   le := Nat.le
 
 /-- The strict less than relation on natural numbers is defined as `n < m := n + 1 ≤ m`. -/
 protected def Nat.lt (n m : Nat) : Prop :=
   Nat.le (succ n) m
 
-instance : LT Nat where
+instance instLTNat : LT Nat where
   lt := Nat.lt
 
 theorem Nat.not_succ_le_zero : ∀ (n : Nat), LE.le (succ n) 0 → False
@@ -1784,7 +1802,7 @@ protected def Nat.sub : (@& Nat) → (@& Nat) → Nat
   | a, 0      => a
   | a, succ b => pred (Nat.sub a b)
 
-instance : Sub Nat where
+instance instSubNat : Sub Nat where
   sub := Nat.sub
 
 /--
@@ -1809,7 +1827,10 @@ theorem System.Platform.numBits_eq : Or (Eq numBits 32) (Eq numBits 64) :=
 `Fin n` is a natural number `i` with the constraint that `0 ≤ i < n`.
 It is the "canonical type with `n` elements".
 -/
+@[pp_using_anonymous_constructor]
 structure Fin (n : Nat) where
+  /-- Creates a `Fin n` from `i : Nat` and a proof that `i < n`. -/
+  mk ::
   /-- If `i : Fin n`, then `i.val : ℕ` is the described number. It can also be
   written as `i.1` or just `i` when the target type is known. -/
   val  : Nat
@@ -1824,14 +1845,11 @@ theorem Fin.eq_of_val_eq {n} : ∀ {i j : Fin n}, Eq i.val j.val → Eq i j
 theorem Fin.val_eq_of_eq {n} {i j : Fin n} (h : Eq i j) : Eq i.val j.val :=
   h ▸ rfl
 
-theorem Fin.ne_of_val_ne {n} {i j : Fin n} (h : Not (Eq i.val j.val)) : Not (Eq i j) :=
-  fun h' => absurd (val_eq_of_eq h') h
-
 instance (n : Nat) : DecidableEq (Fin n) :=
   fun i j =>
     match decEq i.val j.val with
     | isTrue h  => isTrue (Fin.eq_of_val_eq h)
-    | isFalse h => isFalse (Fin.ne_of_val_ne h)
+    | isFalse h => isFalse (fun h' => absurd (Fin.val_eq_of_eq h') h)
 
 instance {n} : LT (Fin n) where
   lt a b := LT.lt a.val b.val
@@ -2182,26 +2200,27 @@ instance : DecidableEq Char :=
     | isFalse h => isFalse (Char.ne_of_val_ne h)
 
 /-- Returns the number of bytes required to encode this `Char` in UTF-8. -/
-def Char.utf8Size (c : Char) : UInt32 :=
+def Char.utf8Size (c : Char) : Nat :=
   let v := c.val
-  ite (LE.le v (UInt32.ofNatCore 0x7F (by decide)))
-    (UInt32.ofNatCore 1 (by decide))
-    (ite (LE.le v (UInt32.ofNatCore 0x7FF (by decide)))
-      (UInt32.ofNatCore 2 (by decide))
-      (ite (LE.le v (UInt32.ofNatCore 0xFFFF (by decide)))
-        (UInt32.ofNatCore 3 (by decide))
-        (UInt32.ofNatCore 4 (by decide))))
+  ite (LE.le v (UInt32.ofNatCore 0x7F (by decide))) 1
+    (ite (LE.le v (UInt32.ofNatCore 0x7FF (by decide))) 2
+      (ite (LE.le v (UInt32.ofNatCore 0xFFFF (by decide))) 3 4))
 
 /--
 `Option α` is the type of values which are either `some a` for some `a : α`,
 or `none`. In functional programming languages, this type is used to represent
 the possibility of failure, or sometimes nullability.
 
-For example, the function `HashMap.find? : HashMap α β → α → Option β` looks up
+For example, the function `HashMap.get? : HashMap α β → α → Option β` looks up
 a specified key `a : α` inside the map. Because we do not know in advance
 whether the key is actually in the map, the return type is `Option β`, where
 `none` means the value was not in the map, and `some b` means that the value
 was found and `b` is the value retrieved.
+
+The `xs[i]` syntax, which is used to index into collections, has a variant
+`xs[i]?` that returns an optional value depending on whether the given index
+is valid. For example, if `m : HashMap α β` and `a : α`, then `m[a]?` is
+equivalent to `HashMap.get? m a`.
 
 To extract a value from an `Option α`, we use pattern matching:
 ```
@@ -2290,24 +2309,6 @@ protected def List.hasDecEq {α : Type u} [DecidableEq α] : (a b : List α) →
 instance {α : Type u} [DecidableEq α] : DecidableEq (List α) := List.hasDecEq
 
 /--
-Folds a function over a list from the left:
-`foldl f z [a, b, c] = f (f (f z a) b) c`
--/
-@[specialize]
-def List.foldl {α : Type u} {β : Type v} (f : α → β → α) : (init : α) → List β → α
-  | a, nil      => a
-  | a, cons b l => foldl f (f a b) l
-
-/--
-`l.set n a` sets the value of list `l` at (zero-based) index `n` to `a`:
-`[a, b, c, d].set 1 b' = [a, b', c, d]`
--/
-def List.set : List α → Nat → α → List α
-  | cons _ as, 0,          b => cons b as
-  | cons a as, Nat.succ n, b => cons a (set as n b)
-  | nil,       _,          _ => nil
-
-/--
 The length of a list: `[].length = 0` and `(a :: l).length = l.length + 1`.
 
 This function is overridden in the compiler to `lengthTR`, which uses constant
@@ -2330,14 +2331,6 @@ without running out of stack space.
 def List.lengthTR (as : List α) : Nat :=
   lengthTRAux as 0
 
-@[simp] theorem List.length_cons {α} (a : α) (as : List α) : Eq (cons a as).length as.length.succ :=
-  rfl
-
-/-- `l.concat a` appends `a` at the *end* of `l`, that is, `l ++ [a]`. -/
-def List.concat {α : Type u} : List α → α → List α
-  | nil,       b => cons b nil
-  | cons a as, b => cons a (concat as b)
-
 /--
 `as.get i` returns the `i`'th element of the list `as`.
 This version of the function uses `i : Fin as.length` to ensure that it will
@@ -2346,6 +2339,29 @@ not index out of bounds.
 def List.get {α : Type u} : (as : List α) → Fin as.length → α
   | cons a _,  ⟨0, _⟩ => a
   | cons _ as, ⟨Nat.succ i, h⟩ => get as ⟨i, Nat.le_of_succ_le_succ h⟩
+
+/--
+`l.set n a` sets the value of list `l` at (zero-based) index `n` to `a`:
+`[a, b, c, d].set 1 b' = [a, b', c, d]`
+-/
+def List.set : List α → Nat → α → List α
+  | cons _ as, 0,          b => cons b as
+  | cons a as, Nat.succ n, b => cons a (set as n b)
+  | nil,       _,          _ => nil
+
+/--
+Folds a function over a list from the left:
+`foldl f z [a, b, c] = f (f (f z a) b) c`
+-/
+@[specialize]
+def List.foldl {α : Type u} {β : Type v} (f : α → β → α) : (init : α) → List β → α
+  | a, nil      => a
+  | a, cons b l => foldl f (f a b) l
+
+/-- `l.concat a` appends `a` at the *end* of `l`, that is, `l ++ [a]`. -/
+def List.concat {α : Type u} : List α → α → List α
+  | nil,       b => cons b nil
+  | cons a as, b => cons a (concat as b)
 
 /--
 `String` is the type of (UTF-8 encoded) strings.
@@ -2419,10 +2435,6 @@ instance : Inhabited Substring where
 @[inline] def Substring.bsize : Substring → Nat
   | ⟨_, b, e⟩ => e.byteIdx.sub b.byteIdx
 
-/-- Returns the number of bytes required to encode this `Char` in UTF-8. -/
-def String.csize (c : Char) : Nat :=
-  c.utf8Size.toNat
-
 /--
 The UTF-8 byte length of this string.
 This is overridden by the compiler to be cached and O(1).
@@ -2433,7 +2445,7 @@ def String.utf8ByteSize : (@& String) → Nat
 where
   go : List Char → Nat
    | .nil       => 0
-   | .cons c cs => hAdd (go cs) (csize c)
+   | .cons c cs => hAdd (go cs) c.utf8Size
 
 instance : HAdd String.Pos String.Pos String.Pos where
   hAdd p₁ p₂ := { byteIdx := hAdd p₁.byteIdx p₂.byteIdx }
@@ -2442,7 +2454,7 @@ instance : HSub String.Pos String.Pos String.Pos where
   hSub p₁ p₂ := { byteIdx := HSub.hSub p₁.byteIdx p₂.byteIdx }
 
 instance : HAdd String.Pos Char String.Pos where
-  hAdd p c := { byteIdx := hAdd p.byteIdx (String.csize c) }
+  hAdd p c := { byteIdx := hAdd p.byteIdx c.utf8Size }
 
 instance : HAdd String.Pos String String.Pos where
   hAdd p s := { byteIdx := hAdd p.byteIdx s.utf8ByteSize }
@@ -2534,43 +2546,6 @@ def panic {α : Type u} [Inhabited α] (msg : String) : α :=
 attribute [nospecialize] Inhabited
 
 /--
-The class `GetElem cont idx elem dom` implements the `xs[i]` notation.
-When you write this, given `xs : cont` and `i : idx`, Lean looks for an instance
-of `GetElem cont idx elem dom`. Here `elem` is the type of `xs[i]`, while
-`dom` is whatever proof side conditions are required to make this applicable.
-For example, the instance for arrays looks like
-`GetElem (Array α) Nat α (fun xs i => i < xs.size)`.
-
-The proof side-condition `dom xs i` is automatically dispatched by the
-`get_elem_tactic` tactic, which can be extended by adding more clauses to
-`get_elem_tactic_trivial`.
--/
-class GetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w)) (dom : outParam (cont → idx → Prop)) where
-  /--
-  The syntax `arr[i]` gets the `i`'th element of the collection `arr`.
-  If there are proof side conditions to the application, they will be automatically
-  inferred by the `get_elem_tactic` tactic.
-
-  The actual behavior of this class is type-dependent,
-  but here are some important implementations:
-  * `arr[i] : α` where `arr : Array α` and `i : Nat` or `i : USize`:
-    does array indexing with no bounds check and a proof side goal `i < arr.size`.
-  * `l[i] : α` where `l : List α` and `i : Nat`: index into a list,
-    with proof side goal `i < l.length`.
-  * `stx[i] : Syntax` where `stx : Syntax` and `i : Nat`: get a syntax argument,
-    no side goal (returns `.missing` out of range)
-
-  There are other variations on this syntax:
-  * `arr[i]`: proves the proof side goal by `get_elem_tactic`
-  * `arr[i]!`: panics if the side goal is false
-  * `arr[i]?`: returns `none` if the side goal is false
-  * `arr[i]'h`: uses `h` to prove the side goal
-  -/
-  getElem (xs : cont) (i : idx) (h : dom xs i) : elem
-
-export GetElem (getElem)
-
-/--
 `Array α` is the type of [dynamic arrays](https://en.wikipedia.org/wiki/Dynamic_array)
 with elements from `α`. This type has special support in the runtime.
 
@@ -2626,9 +2601,6 @@ def Array.get {α : Type u} (a : @& Array α) (i : @& Fin a.size) : α :=
 @[extern "lean_array_get"]
 def Array.get! {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
   Array.getD a i default
-
-instance : GetElem (Array α) Nat α fun xs i => LT.lt i xs.size where
-  getElem xs i h := xs.get ⟨i, h⟩
 
 /--
 Push an element onto the end of an array. This is amortized O(1) because
@@ -2745,7 +2717,7 @@ def List.redLength : List α → Nat
 /-- Convert a `List α` into an `Array α`. This is O(n) in the length of the list.  -/
 -- This function is exported to C, where it is called by `Array.mk`
 -- (the constructor) to implement this functionality.
-@[inline, match_pattern, export lean_list_to_array]
+@[inline, match_pattern, pp_nodot, export lean_list_to_array]
 def List.toArray (as : List α) : Array α :=
   as.toArrayAux (Array.mkEmpty as.redLength)
 
@@ -3003,7 +2975,7 @@ def MonadExcept.ofExcept [Monad m] [MonadExcept ε m] : Except ε α → m α
 
 export MonadExcept (throw tryCatch ofExcept)
 
-instance (ε : outParam (Type u)) (m : Type v → Type w) [MonadExceptOf ε m] : MonadExcept ε m where
+instance (ε : Type u) (m : Type v → Type w) [MonadExceptOf ε m] : MonadExcept ε m where
   throw    := throwThe ε
   tryCatch := tryCatchThe ε
 
@@ -3177,7 +3149,7 @@ instance (ρ : Type u) (m : Type u → Type v) [MonadWithReaderOf ρ m] : MonadW
 instance {ρ : Type u} {m : Type u → Type v} {n : Type u → Type v} [MonadFunctor m n] [MonadWithReaderOf ρ m] : MonadWithReaderOf ρ n where
   withReader f := monadMap (m := m) (withTheReader ρ f)
 
-instance {ρ : Type u} {m : Type u → Type v} [Monad m] : MonadWithReaderOf ρ (ReaderT ρ m) where
+instance {ρ : Type u} {m : Type u → Type v} : MonadWithReaderOf ρ (ReaderT ρ m) where
   withReader f x := fun ctx => x (f ctx)
 
 /--
@@ -3202,8 +3174,8 @@ class MonadStateOf (σ : semiOutParam (Type u)) (m : Type u → Type v) where
 export MonadStateOf (set)
 
 /--
-Like `withReader`, but with `ρ` explicit. This is useful if a monad supports
-`MonadWithReaderOf` for multiple different types `ρ`.
+Like `get`, but with `σ` explicit. This is useful if a monad supports
+`MonadStateOf` for multiple different types `σ`.
 -/
 abbrev getThe (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] : m σ :=
   MonadStateOf.get
@@ -3260,7 +3232,7 @@ def modify {σ : Type u} {m : Type u → Type v} [MonadState σ m] (f : σ → �
 of the state. It is equivalent to `get <* modify f` but may be more efficient.
 -/
 @[always_inline, inline]
-def getModify {σ : Type u} {m : Type u → Type v} [MonadState σ m] [Monad m] (f : σ → σ) : m σ :=
+def getModify {σ : Type u} {m : Type u → Type v} [MonadState σ m] (f : σ → σ) : m σ :=
   modifyGet fun s => (s, f s)
 
 -- NOTE: The Ordering of the following two instances determines that the top-most `StateT` Monad layer
@@ -3387,7 +3359,7 @@ protected def seqRight (x : EStateM ε σ α) (y : Unit → EStateM ε σ β) : 
   | Result.error e s => Result.error e s
 
 @[always_inline]
-instance : Monad (EStateM ε σ) where
+instance instMonad : Monad (EStateM ε σ) where
   bind     := EStateM.bind
   pure     := EStateM.pure
   map      := EStateM.map
@@ -3482,20 +3454,31 @@ instance : Hashable String where
 namespace Lean
 
 /--
-Hierarchical names. We use hierarchical names to name declarations and
-for creating unique identifiers for free variables and metavariables.
+Hierarchical names consist of a sequence of components, each of
+which is either a string or numeric, that are written separated by dots (`.`).
 
-You can create hierarchical names using the following quotation notation.
+Hierarchical names are used to name declarations and for creating
+unique identifiers for free variables and metavariables.
+
+You can create hierarchical names using a backtick:
 ```
 `Lean.Meta.whnf
 ```
-It is short for `.str (.str (.str .anonymous "Lean") "Meta") "whnf"`
-You can use double quotes to request Lean to statically check whether the name
+It is short for `.str (.str (.str .anonymous "Lean") "Meta") "whnf"`.
+
+You can use double backticks to request Lean to statically check whether the name
 corresponds to a Lean declaration in scope.
 ```
 ``Lean.Meta.whnf
 ```
 If the name is not in scope, Lean will report an error.
+
+There are two ways to convert a `String` to a `Name`:
+
+ 1. `Name.mkSimple` creates a name with a single string component.
+
+ 2. `String.toName` first splits the string into its dot-separated
+    components, and then creates a hierarchical name.
 -/
 inductive Name where
   /-- The "anonymous" name. -/
@@ -3546,7 +3529,9 @@ abbrev mkNum (p : Name) (v : Nat) : Name :=
   Name.num p v
 
 /--
-Short for `.str .anonymous s`.
+Converts a `String` to a `Name` without performing any parsing. `mkSimple s` is short for `.str .anonymous s`.
+
+This means that `mkSimple "a.b"` is the name `«a.b»`, not `a.b`.
 -/
 abbrev mkSimple (s : String) : Name :=
   .str .anonymous s
@@ -3656,6 +3641,17 @@ def getPos? (info : SourceInfo) (canonicalOnly := false) : Option String.Pos :=
   | synthetic (pos := pos) (canonical := true) .., _
   | synthetic (pos := pos) .., false => some pos
   | _,                         _     => none
+
+/--
+Gets the end position information from a `SourceInfo`, if available.
+If `originalOnly` is true, then `.synthetic` syntax will also return `none`.
+-/
+def getTailPos? (info : SourceInfo) (canonicalOnly := false) : Option String.Pos :=
+  match info, canonicalOnly with
+  | original (endPos := endPos) ..,  _
+  | synthetic (endPos := endPos) (canonical := true) .., _
+  | synthetic (endPos := endPos) .., false => some endPos
+  | _,                               _     => none
 
 end SourceInfo
 
@@ -3883,9 +3879,6 @@ def getArg (stx : Syntax) (i : Nat) : Syntax :=
   match stx with
   | Syntax.node _ _ args => args.getD i Syntax.missing
   | _                    => Syntax.missing
-
-instance : GetElem Syntax Nat Syntax fun _ _ => True where
-  getElem stx i _ := stx.getArg i
 
 /-- Gets the list of arguments of the syntax node, or `#[]` if it's not a `node`. -/
 def getArgs (stx : Syntax) : Array Syntax :=
@@ -4351,8 +4344,13 @@ def addMacroScope (mainModule : Name) (n : Name) (scp : MacroScope) : Name :=
     Name.mkNum (Name.mkStr (Name.appendCore (Name.mkStr n "_@") mainModule) "_hyg") scp
 
 /--
-Append two names that may have macro scopes. The macro scopes in `b` are always erased.
-If `a` has macro scopes, then they are propagated to the result of `append a b`.
+Appends two names `a` and `b`, propagating macro scopes from `a` or `b`, if any, to the result.
+Panics if both `a` and `b` have macro scopes.
+
+This function is used for the `Append Name` instance.
+
+See also `Lean.Name.appendCore`, which appends names without any consideration for macro scopes.
+Also consider `Lean.Name.eraseMacroScopes` to erase macro scopes before appending, if appropriate.
 -/
 def Name.append (a b : Name) : Name :=
   match a.hasMacroScopes, b.hasMacroScopes with
@@ -4383,7 +4381,7 @@ def defaultMaxRecDepth := 512
 
 /-- The message to display on stack overflow. -/
 def maxRecDepthErrorMessage : String :=
-  "maximum recursion depth has been reached (use `set_option maxRecDepth <num>` to increase limit)"
+  "maximum recursion depth has been reached\nuse `set_option maxRecDepth <num>` to increase limit\nuse `set_option diagnostics true` to get diagnostic information"
 
 namespace Syntax
 

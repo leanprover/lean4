@@ -14,6 +14,7 @@ open Lean Meta Simp
 structure Value where
   n     : Nat
   value : Fin n
+  deriving DecidableEq, Repr
 
 def fromExpr? (e : Expr) : SimpM (Option Value) := do
   let some ⟨n, value⟩ ← getFinValue? e | return none
@@ -63,8 +64,9 @@ builtin_dsimproc [simp, seval] reduceBNe  (( _ : Fin _) != _)  := reduceBoolPred
 
 /-- Simplification procedure for ensuring `Fin` literals are normalized. -/
 builtin_dsimproc [simp, seval] isValue ((OfNat.ofNat _ : Fin _)) := fun e => do
+  let_expr OfNat.ofNat _ m _ ← e | return .continue
   let some ⟨n, v⟩ ← getFinValue? e | return .continue
-  let some m ← getNatValue? e.appFn!.appArg! | return .continue
+  let some m ← getNatValue? m | return .continue
   if n == m then
     -- Design decision: should we return `.continue` instead of `.done` when simplifying.
     -- In the symbolic evaluator, we must return `.done`, otherwise it will unfold the `OfNat.ofNat`

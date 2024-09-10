@@ -6,6 +6,7 @@ Authors: Newell Jensen, Thomas Murrills
 prelude
 import Lean.Meta.Tactic.Apply
 import Lean.Elab.Tactic.Basic
+import Lean.Meta.Tactic.Refl
 
 /-!
 # `rfl` tactic extension for reflexive relations
@@ -38,6 +39,8 @@ initialize registerBuiltinAttribute {
     let fail := throwError
       "@[refl] attribute only applies to lemmas proving x ∼ x, got {declTy}"
     let .app (.app rel lhs) rhs := targetTy | fail
+    if let .app (.const ``Eq [_]) _ := rel then
+      throwError "@[refl] attribute may not be used on `Eq.refl`."
     unless ← withNewMCtxDepth <| isDefEq lhs rhs do fail
     let key ← DiscrTree.mkPath rel reflExt.config
     reflExt.add (decl, key) kind
@@ -75,10 +78,7 @@ def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext
   let lhs := t.appFn!.appArg!
   let rhs := t.appArg!
 
-  let success ← if (← useKernel lhs rhs) then
-    ofExceptKernelException (Kernel.isDefEq (← getEnv) {} lhs rhs)
-  else
-    isDefEq lhs rhs
+  let success ← isDefEq lhs rhs
   unless success do
     throwTacticEx `rfl goal m!"The lhs{indentExpr lhs}\nis not definitionally equal to rhs{indentExpr rhs}"
 
@@ -114,7 +114,7 @@ private theorem rel_of_eq_and_refl {α : Sort _} {R : α → α → Prop}
 
 /--
 Convert a goal of the form `x ~ y` into the form `x = y`, where `~` is a reflexive
-relation, that is, a relation which has a reflexive lemma tagged with the attribute `[refl]`.
+relation, that is, a relation which has a reflexive lemma tagged with the attribute `@[refl]`.
 If this can't be done, returns the original `MVarId`.
 -/
 def _root_.Lean.MVarId.liftReflToEq (mvarId : MVarId) : MetaM MVarId := do

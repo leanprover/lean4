@@ -5,9 +5,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Wojciech Nawrocki
 -/
 prelude
+import Lean.DocString
 import Lean.PrettyPrinter
+import Lean.Parser.Tactic.Doc
 
 namespace Lean.Elab
+
+open Lean.Parser.Tactic.Doc (alternativeOfTactic getTacticExtensionString)
 
 /-- Elaborator information with elaborator context.
 
@@ -166,10 +170,10 @@ def Info.isSmaller (i₁ i₂ : Info) : Bool :=
   | some _, none => true
   | _, _ => false
 
-def Info.occursBefore? (i : Info) (hoverPos : String.Pos) : Option String.Pos := do
-  let tailPos ← i.tailPos?
-  guard (tailPos ≤ hoverPos)
-  return hoverPos - tailPos
+def Info.occursDirectlyBefore (i : Info) (hoverPos : String.Pos) : Bool := Id.run do
+  let some tailPos := i.tailPos?
+    | return false
+  return tailPos == hoverPos
 
 def Info.occursInside? (i : Info) (hoverPos : String.Pos) : Option String.Pos := do
   let headPos ← i.pos?
@@ -244,7 +248,7 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
   match i with
   | .ofTermInfo ti =>
     if let some n := ti.expr.constName? then
-      return ← findDocString? env n
+      return (← findDocString? env n)
   | .ofFieldInfo fi => return ← findDocString? env fi.projName
   | .ofOptionInfo oi =>
     if let some doc ← findDocString? env oi.declName then
@@ -252,11 +256,12 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
     if let some decl := (← getOptionDecls).find? oi.optionName then
       return decl.descr
     return none
-  | .ofOmissionInfo _ => return none -- Do not display the docstring of ⋯ for omitted terms
+  | .ofOmissionInfo { reason := s, .. } => return s -- Show the omission reason for the docstring.
   | _ => pure ()
   if let some ei := i.toElabInfo? then
     return ← findDocString? env ei.stx.getKind <||> findDocString? env ei.elaborator
   return none
+
 
 /-- Construct a hover popup, if any, from an info node in a context.-/
 def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option FormatWithInfos) := do
@@ -398,7 +403,7 @@ where go ci?
   | .node i cs =>
     match ci?, i with
     | some ci, .ofTermInfo ti
-    | some ci, .ofOmissionInfo { toTermInfo := ti } => do
+    | some ci, .ofOmissionInfo { toTermInfo := ti, .. } => do
       let expr ← ti.runMetaM ci (instantiateMVars ti.expr)
       return expr.hasSorry
       -- we assume that `cs` are subterms of `ti.expr` and

@@ -1,0 +1,122 @@
+b 0
+b 1
+b 2
+b 2.5
+t 0
+t 1
+t 2
+t 2
+{"version": 3,
+ "uri": "file:///incrementalTactic.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 4, "character": 4}, "end": {"line": 4, "character": 13}},
+   "message":
+   "tactic 'introN' failed, insufficient number of binders\na n : Nat\n⊢ True",
+   "fullRange":
+   {"start": {"line": 4, "character": 4}, "end": {"line": 4, "character": 13}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 2, "character": 22}, "end": {"line": 3, "character": 0}},
+   "message": "unsolved goals\nthis : Nat → Nat → True\n⊢ True",
+   "fullRange":
+   {"start": {"line": 2, "character": 22},
+    "end": {"line": 10, "character": 11}}}]}
+{"version": 1,
+ "uri": "file:///incrementalTactic.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 1, "character": 38}, "end": {"line": 4, "character": 3}},
+   "message": "unexpected token '/-!'; expected ')', '_', identifier or term",
+   "fullRange":
+   {"start": {"line": 1, "character": 38},
+    "end": {"line": 4, "character": 3}}}]}
+{"version": 1,
+ "uri": "file:///incrementalTactic.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 2, "character": 9}, "end": {"line": 2, "character": 11}},
+   "message": "unknown identifier 'no'",
+   "fullRange":
+   {"start": {"line": 2, "character": 9}, "end": {"line": 2, "character": 11}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 3, "character": 9}, "end": {"line": 3, "character": 16}},
+   "message": "unsolved goals\n⊢ Nat",
+   "fullRange":
+   {"start": {"line": 3, "character": 9},
+    "end": {"line": 3, "character": 16}}}]}
+s
+{ goals := #[{ type := Lean.Widget.TaggedText.tag
+                         { subexprPos := "/", diffStatus? := none }
+                         (Lean.Widget.TaggedText.text "True"),
+               isInserted? := some false,
+               isRemoved? := none,
+               hyps := #[] }] }
+
+{"version": 1,
+ "uri": "file:///incrementalTactic.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 2, "character": 8}, "end": {"line": 2, "character": 25}},
+   "message":
+   "tactic 'rewrite' failed, did not find instance of the pattern in the target expression\n  0\n⊢ True",
+   "fullRange":
+   {"start": {"line": 2, "character": 8},
+    "end": {"line": 2, "character": 25}}}]}
+{"version": 1,
+ "uri": "file:///incrementalTactic.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 3, "character": 12}, "end": {"line": 3, "character": 16}},
+   "message": "unsolved goals\ncase zero\n⊢ True",
+   "fullRange":
+   {"start": {"line": 3, "character": 12},
+    "end": {"line": 3, "character": 16}}}]}
+{"version": 2,
+ "uri": "file:///incrementalTactic.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 2, "character": 6}, "end": {"line": 2, "character": 10}},
+   "message": "unsolved goals\n⊢ True",
+   "fullRange":
+   {"start": {"line": 2, "character": 6}, "end": {"line": 2, "character": 10}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 3, "character": 4}, "end": {"line": 3, "character": 10}},
+   "message": "no goals to be solved",
+   "fullRange":
+   {"start": {"line": 3, "character": 4}, "end": {"line": 3, "character": 10}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 4, "character": 2}, "end": {"line": 4, "character": 8}},
+   "message": "no goals to be solved",
+   "fullRange":
+   {"start": {"line": 4, "character": 2}, "end": {"line": 4, "character": 8}}}]}
+{"version": 2,
+ "uri": "file:///incrementalTactic.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 3, "character": 8}, "end": {"line": 3, "character": 21}},
+   "message": "unknown identifier 'noSuchTheorem'",
+   "fullRange":
+   {"start": {"line": 3, "character": 8},
+    "end": {"line": 3, "character": 21}}}]}

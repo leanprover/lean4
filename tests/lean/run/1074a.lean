@@ -19,10 +19,10 @@ def Brx.interp_nil (H: Brx a): H.interp = H.interp
   }
 
 /--
-info: Brx.interp.eq_1 (n z : Term) (H_2 : Brx (Term.id2 n z)) :
-  Brx.interp H_2 =
+info: Brx.interp.eq_1 (n z : Term) (H_2 : Brx (n.id2 z)) :
+  H_2.interp =
     match ⋯ with
-    | ⋯ => Brx.interp Hz
+    | ⋯ => Hz.interp
 -/
 #guard_msgs in
 #check Brx.interp.eq_1

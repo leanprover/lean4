@@ -18,6 +18,7 @@ namespace ExceptCpsT
 def run {ε α : Type u} [Monad m] (x : ExceptCpsT ε m α) : m (Except ε α) :=
   x _ (fun a => pure (Except.ok a)) (fun e => pure (Except.error e))
 
+set_option linter.unusedVariables false in  -- `s` unused
 @[always_inline, inline]
 def runK {ε α : Type u} (x : ExceptCpsT ε m α) (s : ε) (ok : α → m β) (error : ε → m β) : m β :=
   x _ ok error
@@ -33,7 +34,7 @@ instance : Monad (ExceptCpsT ε m) where
   bind x f := fun _ k₁ k₂ => x _ (fun a => f a _ k₁ k₂) k₂
 
 instance : LawfulMonad (ExceptCpsT σ m) := by
-  refine' { .. } <;> intros <;> rfl
+  refine LawfulMonad.mk' _ ?_ ?_ ?_ <;> intros <;> rfl
 
 instance : MonadExceptOf ε (ExceptCpsT ε m) where
   throw e  := fun _ _ k => k e

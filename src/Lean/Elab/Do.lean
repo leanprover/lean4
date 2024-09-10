@@ -63,8 +63,9 @@ private def letDeclHasBinders (letDecl : Syntax) : Bool :=
 /-- Return true if we should generate an error message when lifting a method over this kind of syntax. -/
 private def liftMethodForbiddenBinder (stx : Syntax) : Bool :=
   let k := stx.getKind
+  -- TODO: make this extensible in the future.
   if k == ``Parser.Term.fun || k == ``Parser.Term.matchAlts ||
-     k == ``Parser.Term.doLetRec || k == ``Parser.Term.letrec  then
+     k == ``Parser.Term.doLetRec || k == ``Parser.Term.letrec then
      -- It is never ok to lift over this kind of binder
     true
   -- The following kinds of `let`-expressions require extra checks to decide whether they contain binders or not
@@ -77,12 +78,15 @@ private def liftMethodForbiddenBinder (stx : Syntax) : Bool :=
   else
     false
 
+-- TODO: we must track whether we are inside a quotation or not.
 private partial def hasLiftMethod : Syntax → Bool
   | Syntax.node _ k args =>
     if liftMethodDelimiter k then false
     -- NOTE: We don't check for lifts in quotations here, which doesn't break anything but merely makes this rare case a
     -- bit slower
     else if k == ``Parser.Term.liftMethod then true
+    -- For `pure` if-then-else, we only lift `(<- ...)` occurring in the condition.
+    else if k == ``termDepIfThenElse || k == ``termIfThenElse then args.size >= 2 && hasLiftMethod args[1]!
     else args.any hasLiftMethod
   | _ => false
 
@@ -684,27 +688,15 @@ def getDoLetVars (doLet : Syntax) : TermElabM (Array Var) :=
   -- leading_parser "let " >> optional "mut " >> letDecl
   getLetDeclVars doLet[2]
 
-def getHaveIdLhsVar (optIdent : Syntax) : Var :=
-  if optIdent.getKind == hygieneInfoKind then
-    HygieneInfo.mkIdent optIdent[0] `this
-  else
-    optIdent
-
-def getDoHaveVars (doHave : Syntax) : TermElabM (Array Var) := do
-  -- doHave := leading_parser "have " >> Term.haveDecl
-  -- haveDecl := leading_parser haveIdDecl <|> letPatDecl <|> haveEqnsDecl
-  let arg := doHave[1][0]
-  if arg.getKind == ``Parser.Term.haveIdDecl then
-    -- haveIdDecl := leading_parser atomic (haveIdLhs >> " := ") >> termParser
-    -- haveIdLhs := (binderIdent <|> hygieneInfo) >> many letIdBinder >> optType
-    return #[getHaveIdLhsVar arg[0]]
-  else if arg.getKind == ``Parser.Term.letPatDecl then
-    getLetPatDeclVars arg
-  else if arg.getKind == ``Parser.Term.haveEqnsDecl then
-    -- haveEqnsDecl := leading_parser haveIdLhs >> matchAlts
-    return #[getHaveIdLhsVar arg[0]]
-  else
-    throwError "unexpected kind of have declaration"
+def getDoHaveVars : Syntax → TermElabM (Array Var)
+  -- NOTE: `hygieneInfo` case should come first as `id` will match anything else
+  | `(doElem| have $info:hygieneInfo $_params* $[$_:typeSpec]? := $_val)
+  | `(doElem| have $info:hygieneInfo $_params* $[$_:typeSpec]? $_eqns:matchAlts) =>
+    return #[HygieneInfo.mkIdent info `this]
+  | `(doElem| have $id $_params* $[$_:typeSpec]? := $_val)
+  | `(doElem| have $id $_params* $[$_:typeSpec]? $_eqns:matchAlts) => return #[id]
+  | `(doElem| have $pat:letPatDecl) => getLetPatDeclVars pat
+  | _ => throwError "unexpected kind of have declaration"
 
 def getDoLetRecVars (doLetRec : Syntax) : TermElabM (Array Var) := do
   -- letRecDecls is an array of `(group (optional attributes >> letDecl))`
@@ -1272,7 +1264,7 @@ def withNewMutableVars {α} (newVars : Array Var) (mutable : Bool) (x : M α) : 
 
 def checkReassignable (xs : Array Var) : M Unit := do
   let throwInvalidReassignment (x : Name) : M Unit :=
-    throwError "`{x.simpMacroScopes}` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intent to mutate but define `{x.simpMacroScopes}`, consider using `let {x.simpMacroScopes}` instead"
+    throwError "`{x.simpMacroScopes}` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intend to mutate but define `{x.simpMacroScopes}`, consider using `let {x.simpMacroScopes}` instead"
   let ctx ← read
   for x in xs do
     unless ctx.mutableVars.contains x.getId do
@@ -1321,6 +1313,12 @@ private partial def expandLiftMethodAux (inQuot : Bool) (inBinder : Bool) : Synt
       return .node i k (alts.map (·.1))
     else if liftMethodDelimiter k then
       return stx
+    -- For `pure` if-then-else, we only lift `(<- ...)` occurring in the condition.
+    else if args.size >= 2 && (k == ``termDepIfThenElse || k == ``termIfThenElse) then do
+      let inAntiquot := stx.isAntiquot && !stx.isEscapedAntiquot
+      let arg1 ← expandLiftMethodAux (inQuot && !inAntiquot || stx.isQuot) inBinder args[1]!
+      let args := args.set! 1 arg1
+      return Syntax.node i k args
     else if k == ``Parser.Term.liftMethod && !inQuot then withFreshMacroScope do
       if inBinder then
         throwErrorAt stx "cannot lift `(<- ...)` over a binder, this error usually happens when you are trying to lift a method nested in a `fun`, `let`, or `match`-alternative, and it can often be fixed by adding a missing `do`"

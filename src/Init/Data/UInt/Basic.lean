@@ -31,8 +31,8 @@ def UInt8.xor (a b : UInt8) : UInt8 := ⟨a.toBitVec ^^^ b.toBitVec⟩
 def UInt8.shiftLeft (a b : UInt8) : UInt8 := ⟨a.toBitVec <<< (mod b 8).toBitVec⟩
 @[extern "lean_uint8_shift_right"]
 def UInt8.shiftRight (a b : UInt8) : UInt8 := ⟨a.toBitVec >>> (mod b 8).toBitVec⟩
-def UInt8.lt (a b : UInt8) : Prop := BitVec.ult a.toBitVec b.toBitVec = true
-def UInt8.le (a b : UInt8) : Prop := BitVec.ule a.toBitVec b.toBitVec = true
+def UInt8.lt (a b : UInt8) : Prop := a.toBitVec < b.toBitVec
+def UInt8.le (a b : UInt8) : Prop := a.toBitVec ≤ b.toBitVec
 
 instance : Add UInt8       := ⟨UInt8.add⟩
 instance : Sub UInt8       := ⟨UInt8.sub⟩
@@ -55,11 +55,11 @@ instance : ShiftRight UInt8 := ⟨UInt8.shiftRight⟩
 
 @[extern "lean_uint8_dec_lt"]
 def UInt8.decLt (a b : UInt8) : Decidable (a < b) :=
-  inferInstanceAs (Decidable (BitVec.ult a.toBitVec b.toBitVec))
+  inferInstanceAs (Decidable (a.toBitVec < b.toBitVec))
 
 @[extern "lean_uint8_dec_le"]
 def UInt8.decLe (a b : UInt8) : Decidable (a ≤ b) :=
-  inferInstanceAs (Decidable (BitVec.ule a.toBitVec b.toBitVec))
+  inferInstanceAs (Decidable (a.toBitVec ≤ b.toBitVec))
 
 instance (a b : UInt8) : Decidable (a < b) := UInt8.decLt a b
 instance (a b : UInt8) : Decidable (a ≤ b) := UInt8.decLe a b
@@ -88,8 +88,8 @@ def UInt16.xor (a b : UInt16) : UInt16 := ⟨a.toBitVec ^^^ b.toBitVec⟩
 def UInt16.shiftLeft (a b : UInt16) : UInt16 := ⟨a.toBitVec <<< (mod b 16).toBitVec⟩
 @[extern "lean_uint16_shift_right"]
 def UInt16.shiftRight (a b : UInt16) : UInt16 := ⟨a.toBitVec >>> (mod b 16).toBitVec⟩
-def UInt16.lt (a b : UInt16) : Prop := BitVec.ult a.toBitVec b.toBitVec
-def UInt16.le (a b : UInt16) : Prop := BitVec.ule a.toBitVec b.toBitVec
+def UInt16.lt (a b : UInt16) : Prop := a.toBitVec < b.toBitVec
+def UInt16.le (a b : UInt16) : Prop := a.toBitVec ≤ b.toBitVec
 
 instance : Add UInt16       := ⟨UInt16.add⟩
 instance : Sub UInt16       := ⟨UInt16.sub⟩
@@ -113,12 +113,12 @@ instance : ShiftRight UInt16 := ⟨UInt16.shiftRight⟩
 set_option bootstrap.genMatcherCode false in
 @[extern "lean_uint16_dec_lt"]
 def UInt16.decLt (a b : UInt16) : Decidable (a < b) :=
-  inferInstanceAs (Decidable (BitVec.ult a.toBitVec b.toBitVec))
+  inferInstanceAs (Decidable (a.toBitVec < b.toBitVec))
 
 set_option bootstrap.genMatcherCode false in
 @[extern "lean_uint16_dec_le"]
 def UInt16.decLe (a b : UInt16) : Decidable (a ≤ b) :=
-  inferInstanceAs (Decidable (BitVec.ule a.toBitVec b.toBitVec))
+  inferInstanceAs (Decidable (a.toBitVec ≤ b.toBitVec))
 
 instance (a b : UInt16) : Decidable (a < b) := UInt16.decLt a b
 instance (a b : UInt16) : Decidable (a ≤ b) := UInt16.decLe a b
@@ -187,8 +187,8 @@ def UInt64.xor (a b : UInt64) : UInt64 := ⟨a.toBitVec ^^^ b.toBitVec⟩
 def UInt64.shiftLeft (a b : UInt64) : UInt64 := ⟨a.toBitVec <<< (mod b 64).toBitVec⟩
 @[extern "lean_uint64_shift_right"]
 def UInt64.shiftRight (a b : UInt64) : UInt64 := ⟨a.toBitVec >>> (mod b 64).toBitVec⟩
-def UInt64.lt (a b : UInt64) : Prop := BitVec.ult a.toBitVec b.toBitVec
-def UInt64.le (a b : UInt64) : Prop := BitVec.ule a.toBitVec b.toBitVec
+def UInt64.lt (a b : UInt64) : Prop := a.toBitVec < b.toBitVec
+def UInt64.le (a b : UInt64) : Prop := a.toBitVec ≤ b.toBitVec
 
 instance : Add UInt64       := ⟨UInt64.add⟩
 instance : Sub UInt64       := ⟨UInt64.sub⟩
@@ -214,11 +214,11 @@ def Bool.toUInt64 (b : Bool) : UInt64 := if b then 1 else 0
 
 @[extern "lean_uint64_dec_lt"]
 def UInt64.decLt (a b : UInt64) : Decidable (a < b) :=
-  inferInstanceAs (Decidable (BitVec.ult a.toBitVec b.toBitVec))
+  inferInstanceAs (Decidable (a.toBitVec < b.toBitVec))
 
 @[extern "lean_uint64_dec_le"]
 def UInt64.decLe (a b : UInt64) : Decidable (a ≤ b) :=
-  inferInstanceAs (Decidable (BitVec.ule a.toBitVec b.toBitVec))
+  inferInstanceAs (Decidable (a.toBitVec ≤ b.toBitVec))
 
 instance (a b : UInt64) : Decidable (a < b) := UInt64.decLt a b
 instance (a b : UInt64) : Decidable (a ≤ b) := UInt64.decLe a b

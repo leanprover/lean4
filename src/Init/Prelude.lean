@@ -1907,19 +1907,13 @@ protected def BitVec.ofNatLt {n : Nat} (i : Nat) (p : LT.lt i (hPow 2 n)) : BitV
 (zero-cost) wrapper around a `Nat`. -/
 protected def BitVec.toNat (x : BitVec n) : Nat := x.toFin.val
 
-/--
-Unsigned less-than for bit vectors.
+instance : LT (BitVec n) where lt := (LT.lt ·.toNat ·.toNat)
+instance (x y : BitVec n) : Decidable (LT.lt x y) :=
+  inferInstanceAs (Decidable (LT.lt x.toNat y.toNat))
 
-SMT-Lib name: `bvult`.
--/
-protected def BitVec.ult (x y : BitVec n) : Bool := decide (LT.lt x.toNat y.toNat)
-
-/--
-Unsigned less-than-or-equal-to for bit vectors.
-
-SMT-Lib name: `bvule`.
--/
-protected def BitVec.ule (x y : BitVec n) : Bool := decide (LE.le x.toNat y.toNat)
+instance : LE (BitVec n) where le := (LE.le ·.toNat ·.toNat)
+instance (x y : BitVec n) : Decidable (LE.le x y) :=
+  inferInstanceAs (Decidable (LE.le x.toNat y.toNat))
 
 /-- The size of type `UInt8`, that is, `2^8 = 256`. -/
 abbrev UInt8.size : Nat := 256
@@ -2050,10 +2044,10 @@ instance : Inhabited UInt32 where
   default := UInt32.ofNatCore 0 (by decide)
 
 instance : LT UInt32 where
-  lt a b := Eq (BitVec.ult a.toBitVec b.toBitVec) true
+  lt a b := LT.lt a.toBitVec b.toBitVec
 
 instance : LE UInt32 where
-  le a b := Eq (BitVec.ule a.toBitVec b.toBitVec) true
+  le a b := LE.le a.toBitVec b.toBitVec
 
 /--
 Decides less-equal on `UInt32`.
@@ -2061,7 +2055,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint32_dec_lt"]
 def UInt32.decLt (a b : UInt32) : Decidable (LT.lt a b) :=
-  inferInstanceAs (Decidable (Eq (BitVec.ult a.toBitVec b.toBitVec) true))
+  inferInstanceAs (Decidable (LT.lt a.toBitVec b.toBitVec))
 
 /--
 Decides less-than on `UInt32`.
@@ -2069,7 +2063,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint32_dec_le"]
 def UInt32.decLe (a b : UInt32) : Decidable (LE.le a b) :=
-  inferInstanceAs (Decidable (Eq (BitVec.ule a.toBitVec b.toBitVec) true))
+  inferInstanceAs (Decidable (LE.le a.toBitVec b.toBitVec))
 
 instance (a b : UInt32) : Decidable (LT.lt a b) := UInt32.decLt a b
 instance (a b : UInt32) : Decidable (LE.le a b) := UInt32.decLe a b

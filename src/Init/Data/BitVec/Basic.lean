@@ -317,13 +317,19 @@ end bool
 
 section relations
 
-instance : LT (BitVec n) where lt := (·.toNat < ·.toNat)
-instance (x y : BitVec n) : Decidable (x < y) :=
-  inferInstanceAs (Decidable (x.toNat < y.toNat))
+/--
+Unsigned less-than for bit vectors.
 
-instance : LE (BitVec n) where le := (·.toNat ≤ ·.toNat)
-instance (x y : BitVec n) : Decidable (x ≤ y) :=
-  inferInstanceAs (Decidable (x.toNat ≤ y.toNat))
+SMT-Lib name: `bvult`.
+-/
+protected def ult (x y : BitVec n) : Bool := x.toNat < y.toNat
+
+/--
+Unsigned less-than-or-equal-to for bit vectors.
+
+SMT-Lib name: `bvule`.
+-/
+protected def ule (x y : BitVec n) : Bool := x.toNat ≤ y.toNat
 
 /--
 Signed less-than for bit vectors.

@@ -81,8 +81,7 @@ attribute [bv_normalize] BitVec.testBit_toNat
 @[bv_normalize]
 theorem BitVec.lt_ult (x y : BitVec w) : (x < y) = (BitVec.ult x y = true) := by
   rw [BitVec.ult]
-  rw [LT.lt]
-  rw [BitVec.instLT]
+  simp only [(· < ·)]
   simp
 
 attribute [bv_normalize] BitVec.natCast_eq_ofNat

@@ -526,6 +526,10 @@ if(${STAGE} GREATER 1)
   endif()
 else()
   add_subdirectory(runtime)
+  if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
+    add_dependencies(leanrt libuv)
+    add_dependencies(leanrt_initial-exec libuv)
+  endif()
 
   add_subdirectory(util)
   set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:util>)
@@ -546,11 +550,6 @@ else()
   add_library(leancpp STATIC ${LEAN_OBJS} $<TARGET_OBJECTS:initialize>)
   set_target_properties(leancpp PROPERTIES
     OUTPUT_NAME leancpp)
-
-  if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
-    add_dependencies(leancpp_1 libuv)
-    add_dependencies(leancpp libuv)
-  endif()
 endif()
 
 if((${STAGE} GREATER 0) AND CADICAL)

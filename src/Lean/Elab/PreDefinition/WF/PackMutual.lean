@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.ArgsPacker
 import Lean.Elab.PreDefinition.Basic
+import Lean.Elab.PreDefinition.WF.Basic
 
 namespace Lean.Elab.WF
 open Meta
@@ -58,10 +59,12 @@ def packMutual (fixedPrefix : Nat) (argsPacker : ArgsPacker) (preDefs : Array Pr
   if let #[1] := arities then return preDefs[0]!
   let newFn := if argsPacker.numFuncs > 1 then preDefs[0]!.declName ++ `_mutual
                                           else preDefs[0]!.declName ++ `_unary
-  -- Bring the fixed Prefix into scope
+  -- Bring the fixed prefix into scope
   forallBoundedTelescope preDefs[0]!.type (some fixedPrefix) fun ys _ => do
     let types ← preDefs.mapM (instantiateForall ·.type ys)
-    let vals ← preDefs.mapM (instantiateLambda ·.value ys)
+    let vals ← preDefs.mapM fun preDef => do
+      let val ← instantiateLambda preDef.value ys
+      return mkDeclNameMData val preDef.declName
 
     let type ← argsPacker.uncurryType types
     let packedDomain := type.bindingDomain!

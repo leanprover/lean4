@@ -29,7 +29,7 @@ private def mkDecreasingProof (decreasingProp : Expr) : TermElabM Expr := do
   -- We store the current Ref in the MVar as a RecApp annotation around the type
   let ref ← getRef
   let some name ← Term.getDeclName? | throwError "mkDecreasingProof: No declname set?"
-  trace[Elab.definition.wf] "mkDecreasingProof: {decreasingProp}"
+  trace[Elab.definition.wf] "mkDecreasingProof (in {name}): {decreasingProp}"
   let mvar ← mkFreshExprSyntheticOpaqueMVar (mkRecAppWithSyntax decreasingProp name ref)
   let mvarId := mvar.mvarId!
   let _mvarId ← mvarId.cleanup
@@ -73,8 +73,11 @@ where
       withLetDecl n (← loop F type) (← loop F val) fun x => do
         mkLetFVars #[x] (← loop F (body.instantiate1 x)) (usedLetOnly := false)
     | Expr.mdata d b =>
-      if let some (name, stx) := getRecAppSyntax? e then
-        withReader (fun ctx => { ctx with declName? := name }) <| withRef stx <| loop F b
+      if let some (_, stx) := getRecAppSyntax? e then
+        withRef stx <| loop F b
+      else if let some name := d.declName? then
+        trace[Elab.definition.wf] "replaceRecApps: Now in {name}"
+        withReader (fun ctx => { ctx with declName? := name }) <| loop F b
       else
         return mkMData d (← loop F b)
     | Expr.proj n i e => return mkProj n i (← loop F e)

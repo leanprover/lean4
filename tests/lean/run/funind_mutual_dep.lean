@@ -18,6 +18,8 @@ def List.product (xs : List α) (ys : List β) : List (α × β) := Id.run do
       out := (x, y) :: out
   pure out.reverse
 
+-- set_option pp.raw true
+set_option trace.Elab.definition.wf true
 mutual
 def Finite.enumerate (t : Finite) : List t.asType :=
   match t with
@@ -25,6 +27,7 @@ def Finite.enumerate (t : Finite) : List t.asType :=
   | .bool => [true, false]
   | .pair t1 t2 => t1.enumerate.product t2.enumerate
   | .arr t1 t2 => t1.functions t2.enumerate
+termination_by t
 
 def Finite.functions (t : Finite) (results : List α) : List (t.asType → α) :=
   match t with
@@ -43,6 +46,7 @@ def Finite.functions (t : Finite) (results : List α) : List (t.asType → α) :
     args.foldr (init := base) fun arg rest =>
       (t2.functions rest).map fun (more : t2.asType → (t1.asType → t2.asType) → α) =>
         fun (f : t1.asType → t2.asType) => more (f arg) f
+termination_by t
 end
 
 /--

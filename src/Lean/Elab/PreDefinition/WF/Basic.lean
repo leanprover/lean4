@@ -22,4 +22,18 @@ def applyCleanWfTactic : TacticM Unit := do
   unless debug.rawDecreasingByGoal.get (← getOptions) do
     Tactic.evalTactic (← `(tactic| all_goals clean_wf))
 
+private def declNameKey := `_origDeclName
+
+def mkDeclNameMData (e : Expr) (declName : Name) : Expr :=
+  mkMData (KVMap.empty.insert declNameKey (.ofName declName)) e
+
+def _root_.Lean.MData.declName? (d : MData) : Option Name :=
+  match d.find declNameKey with
+  | some (.ofName n) => some n
+  | _ => none
+
+def _root_.Lean.MData.isDeclName (d : MData) : Bool :=
+  d.contains declNameKey
+
+
 end Lean.Elab.WF

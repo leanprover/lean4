@@ -42,6 +42,7 @@
           LIBUV = pkgsDist.libuv.overrideAttrs (attrs: {
             configureFlags = ["--enable-static"];
             hardeningDisable = [ "stackprotector" ];
+            # Sync version with CMakeLists.txt
             version = "1.48.0";
             src = pkgs.fetchFromGitHub {
               owner = "libuv";

@@ -627,10 +627,23 @@ theorem IsPrefix.findIdx_eq_of_findIdx_lt_length {l₁ l₂ : List α} {p : α �
 @[simp] theorem findIdx?_cons :
     (x :: xs).findIdx? p i = if p x then some i else findIdx? p xs (i + 1) := rfl
 
-@[simp] theorem findIdx?_succ :
+theorem findIdx?_succ :
     (xs : List α).findIdx? p (i+1) = (xs.findIdx? p i).map fun i => i + 1 := by
   induction xs generalizing i with simp
   | cons _ _ _ => split <;> simp_all
+
+@[simp] theorem findIdx?_start_succ :
+    (xs : List α).findIdx? p (i+1) = (xs.findIdx? p 0).map fun k => k + (i + 1) := by
+  induction xs generalizing i with
+  | nil => simp
+  | cons _ _ _ =>
+    simp only [findIdx?_succ, findIdx?_cons, Nat.zero_add]
+    split
+    · simp_all
+    · simp_all only [findIdx?_succ, Bool.not_eq_true, Option.map_map, Nat.zero_add]
+      congr
+      ext
+      simp only [Nat.add_comm i, Function.comp_apply, Nat.add_assoc]
 
 @[simp]
 theorem findIdx?_eq_none_iff {xs : List α} {p : α → Bool} :
@@ -682,6 +695,16 @@ theorem findIdx?_eq_some_of_exists {xs : List α} {p : α → Bool} (h : ∃ x, 
 theorem findIdx?_eq_none_iff_findIdx_eq {xs : List α} {p : α → Bool} :
     xs.findIdx? p = none ↔ xs.findIdx p = xs.length := by
   simp
+
+theorem findIdx?_eq_guard_findIdx_lt {xs : List α} {p : α → Bool} :
+    xs.findIdx? p = Option.guard (fun i => i < xs.length) (xs.findIdx p) := by
+  match h : xs.findIdx? p with
+  | none =>
+    simp only [findIdx?_eq_none_iff] at h
+    simp [findIdx_eq_length_of_false h, Option.guard]
+  | some i =>
+    simp only [findIdx?_eq_some_iff_findIdx_eq] at h
+    simp [h]
 
 theorem findIdx?_eq_some_iff_getElem {xs : List α} {p : α → Bool} {i : Nat} :
     xs.findIdx? p = some i ↔

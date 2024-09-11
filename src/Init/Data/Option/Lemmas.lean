@@ -247,6 +247,12 @@ theorem isSome_filter_of_isSome (p : α → Bool) (o : Option α) (h : (o.filter
 theorem bind_map_comm {α β} {x : Option (Option α)} {f : α → β} :
     x.bind (Option.map f) = (x.map (Option.map f)).bind id := by cases x <;> simp
 
+@[simp] theorem bind_map {f : α → β} {g : β → Option γ} {x : Option α} :
+    (x.map f).bind g = x.bind (g ∘ f) := by cases x <;> simp
+
+@[simp] theorem map_bind {f : α → Option β} {g : β → γ} {x : Option α} :
+    (x.bind f).map g = x.bind (Option.map g ∘ f) := by cases x <;> simp
+
 theorem join_map_eq_map_join {f : α → β} {x : Option (Option α)} :
     (x.map (Option.map f)).join = x.join.map f := by cases x <;> simp
 
@@ -276,6 +282,27 @@ theorem map_orElse {x y : Option α} : (x <|> y).map f = (x.map f <|> y.map f) :
 
 @[simp] theorem guard_pos [DecidablePred p] (h : p a) : Option.guard p a = some a := by
   simp [Option.guard, h]
+
+@[congr] theorem guard_congr {f g : α → Prop} [DecidablePred f] [DecidablePred g]
+    (h : ∀ a, f a ↔ g a):
+    guard f = guard g := by
+  funext a
+  simp [guard, h]
+
+@[simp] theorem guard_false {α} :
+    guard (fun (_ : α) => False) = fun _ => none := by
+  funext a
+  simp [guard]
+
+@[simp] theorem guard_true {α} :
+    guard (fun (_ : α) => True) = some := by
+  funext a
+  simp [guard]
+
+theorem guard_comp {p : α → Prop} [DecidablePred p] {f : β → α} :
+    guard p ∘ f = Option.map f ∘ guard (p ∘ f) := by
+  ext1 b
+  simp [guard]
 
 theorem liftOrGet_eq_or_eq {f : α → α → α} (h : ∀ a b, f a b = a ∨ f a b = b) :
     ∀ o₁ o₂, liftOrGet f o₁ o₂ = o₁ ∨ liftOrGet f o₁ o₂ = o₂

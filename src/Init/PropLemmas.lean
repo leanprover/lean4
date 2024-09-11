@@ -556,6 +556,9 @@ This is the same as `decidable_of_iff` but the iff is flipped. -/
 instance Decidable.predToBool (p : α → Prop) [DecidablePred p] :
     CoeDep (α → Prop) p (α → Bool) := ⟨fun b => decide <| p b⟩
 
+instance [DecidablePred p] : DecidablePred (p ∘ f) :=
+  fun x => inferInstanceAs (Decidable (p (f x)))
+
 /-- Prove that `a` is decidable by constructing a boolean `b` and a proof that `b ↔ a`.
 (This is sometimes taken as an alternate definition of decidability.) -/
 def decidable_of_bool : ∀ (b : Bool), (b ↔ a) → Decidable a

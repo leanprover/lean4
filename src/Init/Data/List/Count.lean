@@ -119,12 +119,12 @@ theorem countP_filter (l : List α) :
     countP p (filter q l) = countP (fun a => p a && q a) l := by
   simp only [countP_eq_length_filter, filter_filter]
 
-@[simp] theorem countP_true {l : List α} : (l.countP fun _ => true) = l.length := by
-  rw [countP_eq_length]
+@[simp] theorem countP_true : (countP fun (_ : α) => true) = length := by
+  funext l
   simp
 
-@[simp] theorem countP_false {l : List α} : (l.countP fun _ => false) = 0 := by
-  rw [countP_eq_zero]
+@[simp] theorem countP_false : (countP fun (_ : α) => false) = Function.const _ 0 := by
+  funext l
   simp
 
 @[simp] theorem countP_map (p : β → Bool) (f : α → β) :

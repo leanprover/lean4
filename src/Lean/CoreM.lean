@@ -118,12 +118,36 @@ instance : MonadRef CoreM where
   getRef := return (← read).ref
   withRef ref x := withReader (fun ctx => { ctx with ref := ref }) x
 
-instance : MonadEnv CoreM where
-  getEnv := return (← get).env
-  modifyEnv f := modify fun s => { s with env := f s.env, cache := {} }
-
 instance : MonadOptions CoreM where
   getOptions := return (← read).options
+
+@[inline] def liftIOCore (x : IO α) : CoreM α := do
+  let ref ← getRef
+  IO.toEIO (fun (err : IO.Error) => Exception.error ref (toString err)) x
+
+instance : MonadLift IO CoreM where
+  monadLift := liftIOCore
+
+instance : MonadTrace CoreM where
+  getTraceState := return (← get).traceState
+  modifyTraceState f := modify fun s => { s with traceState := f s.traceState }
+
+instance : AddMessageContext CoreM where
+  addMessageContext msgData := do
+    let env := (← get).env
+    let opts ← getOptions
+    return MessageData.withContext { env := env, mctx := {}, lctx := {}, opts := opts } msgData
+
+protected def getEnv (traceBlock := true) : CoreM Environment := do
+  if traceBlock && (← isTracingEnabledFor `Elab.block) then
+    withTraceNode `Elab.block (fun _ => return "getEnv") do
+      return (← get).env.wait
+  else
+    return (← get).env
+
+instance : MonadEnv CoreM where
+  getEnv := Core.getEnv
+  modifyEnv f := modify fun s => { s with env := f s.env, cache := {} }
 
 instance : MonadWithOptions CoreM where
   withOptions f x := do
@@ -142,9 +166,6 @@ instance : MonadWithOptions CoreM where
 -- Helper function for ensuring fields that depend on `options` have the correct value.
 @[inline] private def withConsistentCtx (x : CoreM α) : CoreM α := do
   withOptions id x
-
-instance : AddMessageContext CoreM where
-  addMessageContext := addMessageContextPartial
 
 instance : MonadNameGenerator CoreM where
   getNGen := return (← get).ngen
@@ -198,17 +219,6 @@ def instantiateValueLevelParams (c : ConstantInfo) (us : List Level) : CoreM Exp
   let r := c.instantiateValueLevelParams! us
   modifyInstLevelValueCache fun s => s.insert c.name (us, r)
   return r
-
-@[inline] def liftIOCore (x : IO α) : CoreM α := do
-  let ref ← getRef
-  IO.toEIO (fun (err : IO.Error) => Exception.error ref (toString err)) x
-
-instance : MonadLift IO CoreM where
-  monadLift := liftIOCore
-
-instance : MonadTrace CoreM where
-  getTraceState := return (← get).traceState
-  modifyTraceState f := modify fun s => { s with traceState := f s.traceState }
 
 structure SavedState extends State where
   /-- Number of heartbeats passed inside `withRestoreOrSaveFull`, not used otherwise. -/
@@ -533,5 +543,8 @@ def reportMessageKind (kind : Name) : CoreM Bool := do
   else
     modify fun s => { s with messages.reportedKinds := s.messages.reportedKinds.insert kind }
     return true
+
+builtin_initialize
+  registerTraceClass `Elab.block
 
 end Lean

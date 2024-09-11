@@ -1073,7 +1073,7 @@ where
             let mut s : CollectLevelParams.State := {}
             s := collectLevelParams s header.type
             let levelParams ← IO.ofExcept <| sortDeclLevelParams scopeLevelNames allUserLevelNames s.params
-            let env ← getEnv
+            let env ← Core.getEnv (traceBlock := false)
             let (env', asyncEnv) ← env.addTheoremAsync {
               name := header.declName
               levelParams
@@ -1111,7 +1111,7 @@ where
             bodyPromises.forM (·.resolve default)
             tacPromises.forM (·.resolve default)
             valPromise.resolve default
-            (← getEnv).resolveAsync
+            (← Core.getEnv (traceBlock := false)).resolveAsync
         if let some asyncEnv := asyncEnv? then
           let t ← runAsyncAsSnapshot (desc := s!"elaborating proof of {headers[0]!.declName}") do
             modifyEnv fun _ => asyncEnv

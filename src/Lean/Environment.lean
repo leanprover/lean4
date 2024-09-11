@@ -376,6 +376,10 @@ def toKernelEnv (env : Environment) : Kernel.Environment := Id.run do
       | .error _ => panic! "oh no"; return kenv
   kenv
 
+def wait (env : Environment) : Environment :=
+  let kenv := env.final.get
+  { env with base := kenv, final := .pure kenv }
+
 @[inherit_doc Kernel.Environment.constants]
 def constants (env : Environment) : ConstMap :=
   env.toKernelEnv.constants

@@ -680,15 +680,14 @@ private def findCompletionInfoAt?
     -- Find some context containing `hoverPos` since we just need the syntax surrounding `hoverPos`.
     let some (ctx, info) := infoTree.findInfoWithContext? (fun _ i => i.contains hoverPos (includeStop := true))
       | none
-    let fullCompletionFallback := (HoverInfo.after, ctx, .id .missing (.str .anonymous "") false .empty none)
     let some stack := info.stx.findStack? (·.getRange?.any (·.contains hoverPos (includeStop := true)))
-      | return fullCompletionFallback
+      | none
     let some (stx, id, danglingDot) := stack.findSome? fun (stx, _) =>
         match stx with
         | `($id:ident) => some (stx, id.getId, false)
         | `($id:ident.) => some (stx, id.getId, true)
         | _ => none
-      | return fullCompletionFallback
+      | none
     let tailPos := stx.getTailPos?.get!
     let hoverInfo :=
       if hoverPos < tailPos then

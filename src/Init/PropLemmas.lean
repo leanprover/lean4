@@ -303,8 +303,12 @@ theorem exists_or : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ ∃ x, q x :=
 
 @[simp] theorem exists_false : ¬(∃ _a : α, False) := fun ⟨_, h⟩ => h
 
-@[simp] theorem forall_const (α : Sort _) [i : Nonempty α] : (α → b) ↔ b :=
+-- This is not a good simp lemma, as it applies to any arrow, and generates a `Nonempty` side goal.
+theorem forall_const (α : Sort _) [i : Nonempty α] : (α → b) ↔ b :=
   ⟨i.elim, fun hb _ => hb⟩
+
+@[simp] theorem not_forall_of_nonempty [Nonempty β] : ((α → β) → False) ↔ False := by
+  simp [forall_const]
 
 theorem Exists.nonempty : (∃ x, p x) → Nonempty α | ⟨x, _⟩ => ⟨x⟩
 

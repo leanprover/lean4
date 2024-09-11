@@ -74,7 +74,10 @@ def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext
 
   let success ← approxDefEq <| isDefEqGuarded lhs rhs
   unless success do
-    throwTacticEx `rfl goal m!"The lhs{indentExpr lhs}\nis not definitionally equal to rhs{indentExpr rhs}"
+    let explanation := MessageData.ofLazyM (es := #[lhs, rhs]) do
+      let (lhs, rhs) ← addPPExplicitToExposeDiff lhs rhs
+      return m!"The lhs{indentExpr lhs}\nis not definitionally equal to rhs{indentExpr rhs}"
+    throwTacticEx `apply_rfl goal explanation
 
   if rel.isAppOfArity `Eq 1 then
     -- The common case is equality: just use `Eq.refl`

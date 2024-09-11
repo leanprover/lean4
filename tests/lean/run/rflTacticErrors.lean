@@ -21,40 +21,41 @@ example : false = true := by rfl
 
 -- Now to `apply_rfl`.
 
+-- A plain reflexive predicate
+inductive P : α → α → Prop where | refl : P a a
+attribute [refl] P.refl
+
 -- Plain error
 
 /--
-error: tactic 'rfl' failed, The lhs
+error: tactic 'apply_rfl' failed, The lhs
   42
 is not definitionally equal to rhs
   23
-⊢ 42 = 23
+⊢ P 42 23
 -/
 #guard_msgs in
-example : 42 = 23 := by apply_rfl
+example : P 42 23 := by apply_rfl
 
 -- Revealing implicit arguments
 
 opaque withImplicitNat {n : Nat} : Nat
 
 /--
-error: tactic 'rfl' failed, The lhs
-  withImplicitNat
+error: tactic 'apply_rfl' failed, The lhs
+  @withImplicitNat 42
 is not definitionally equal to rhs
-  withImplicitNat
-⊢ withImplicitNat = withImplicitNat
+  @withImplicitNat 23
+⊢ P withImplicitNat withImplicitNat
 -/
 #guard_msgs in
-example : @withImplicitNat 42 = @withImplicitNat 23 := by apply_rfl
+example : P (@withImplicitNat 42) (@withImplicitNat 23) := by apply_rfl
 
 
 -- Exhaustive testing of various combinations:
 
 -- In addition to Eq, HEq and Iff  we test four relations:
 
--- Plain reflexive predicate
-inductive P : α → α → Prop where | refl : P a a
-attribute [refl] P.refl
 
 -- Defeq to relation `P` at reducible transparency
 abbrev Q : α → α → Prop := P
@@ -178,7 +179,7 @@ error: rfl failed, no @[refl] lemma registered for relation
 example : R true'' true   := by apply_rfl -- Error
 
 /--
-error: tactic 'rfl' failed, The lhs
+error: tactic 'apply_rfl' failed, The lhs
   true''
 is not definitionally equal to rhs
   true
@@ -196,7 +197,7 @@ with
 #guard_msgs in
 example : HEq true'' true := by with_reducible apply_rfl -- Error
 /--
-error: tactic 'rfl' failed, The lhs
+error: tactic 'apply_rfl' failed, The lhs
   True''
 is not definitionally equal to rhs
   True
@@ -205,7 +206,7 @@ is not definitionally equal to rhs
 #guard_msgs in
 example : True'' ↔ True   := by with_reducible apply_rfl -- Error
 /--
-error: tactic 'rfl' failed, The lhs
+error: tactic 'apply_rfl' failed, The lhs
   true''
 is not definitionally equal to rhs
   true
@@ -214,7 +215,7 @@ is not definitionally equal to rhs
 #guard_msgs in
 example : P true'' true   := by with_reducible apply_rfl -- Error
 /--
-error: tactic 'rfl' failed, The lhs
+error: tactic 'apply_rfl' failed, The lhs
   true''
 is not definitionally equal to rhs
   true
@@ -223,7 +224,7 @@ is not definitionally equal to rhs
 #guard_msgs in
 example : Q true'' true   := by with_reducible apply_rfl -- Error
 /--
-error: tactic 'rfl' failed, The lhs
+error: tactic 'apply_rfl' failed, The lhs
   true''
 is not definitionally equal to rhs
   true
@@ -232,7 +233,7 @@ is not definitionally equal to rhs
 #guard_msgs in
 example : Q' true'' true  := by with_reducible apply_rfl -- Error
 /--
-error: tactic 'rfl' failed, The lhs
+error: tactic 'apply_rfl' failed, The lhs
   true''
 is not definitionally equal to rhs
   true
@@ -243,7 +244,7 @@ example : R true'' true   := by with_reducible apply_rfl -- Error
 
 -- Unequal
 /--
-error: tactic 'rfl' failed, The lhs
+error: tactic 'apply_rfl' failed, The lhs
   false
 is not definitionally equal to rhs
   true
@@ -261,7 +262,7 @@ with
 #guard_msgs in
 example : HEq false true := by apply_rfl -- Error
 /--
-error: tactic 'rfl' failed, The lhs
+error: tactic 'apply_rfl' failed, The lhs
   False
 is not definitionally equal to rhs
   True
@@ -270,7 +271,7 @@ is not definitionally equal to rhs
 #guard_msgs in
 example : False ↔ True   := by apply_rfl -- Error
 /--
-error: tactic 'rfl' failed, The lhs
+error: tactic 'apply_rfl' failed, The lhs
   false
 is not definitionally equal to rhs
   true
@@ -279,7 +280,7 @@ is not definitionally equal to rhs
 #guard_msgs in
 example : P false true   := by apply_rfl -- Error
 /--
-error: tactic 'rfl' failed, The lhs
+error: tactic 'apply_rfl' failed, The lhs
   false
 is not definitionally equal to rhs
   true
@@ -288,7 +289,7 @@ is not definitionally equal to rhs
 #guard_msgs in
 example : Q false true   := by apply_rfl -- Error
 /--
-error: tactic 'rfl' failed, The lhs
+error: tactic 'apply_rfl' failed, The lhs
   false
 is not definitionally equal to rhs
   true
@@ -297,7 +298,7 @@ is not definitionally equal to rhs
 #guard_msgs in
 example : Q' false true  := by apply_rfl -- Error
 /--
-error: tactic 'rfl' failed, The lhs
+error: tactic 'apply_rfl' failed, The lhs
   false
 is not definitionally equal to rhs
   true
@@ -307,7 +308,7 @@ is not definitionally equal to rhs
 example : R false true   := by apply_rfl -- Error
 
 /--
-error: tactic 'rfl' failed, The lhs
+error: tactic 'apply_rfl' failed, The lhs
   false
 is not definitionally equal to rhs
   true
@@ -325,7 +326,7 @@ with
 #guard_msgs in
 example : HEq false true := by with_reducible apply_rfl -- Error
 /--
-error: tactic 'rfl' failed, The lhs
+error: tactic 'apply_rfl' failed, The lhs
   False
 is not definitionally equal to rhs
   True
@@ -334,7 +335,7 @@ is not definitionally equal to rhs
 #guard_msgs in
 example : False ↔ True   := by with_reducible apply_rfl -- Error
 /--
-error: tactic 'rfl' failed, The lhs
+error: tactic 'apply_rfl' failed, The lhs
   false
 is not definitionally equal to rhs
   true
@@ -343,7 +344,7 @@ is not definitionally equal to rhs
 #guard_msgs in
 example : P false true   := by with_reducible apply_rfl -- Error
 /--
-error: tactic 'rfl' failed, The lhs
+error: tactic 'apply_rfl' failed, The lhs
   false
 is not definitionally equal to rhs
   true
@@ -352,7 +353,7 @@ is not definitionally equal to rhs
 #guard_msgs in
 example : Q false true   := by with_reducible apply_rfl -- Error
 /--
-error: tactic 'rfl' failed, The lhs
+error: tactic 'apply_rfl' failed, The lhs
   false
 is not definitionally equal to rhs
   true
@@ -361,7 +362,7 @@ is not definitionally equal to rhs
 #guard_msgs in
 example : Q' false true  := by with_reducible apply_rfl -- Error
 /--
-error: tactic 'rfl' failed, The lhs
+error: tactic 'apply_rfl' failed, The lhs
   false
 is not definitionally equal to rhs
   true
@@ -397,7 +398,7 @@ example : HEq true 1 := by with_reducible apply_rfl -- Error
 inductive S : Bool → Bool → Prop where | refl : a = true → S a a
 attribute [refl] S.refl
 /--
-error: tactic 'rfl' failed, The lhs
+error: tactic 'apply_rfl' failed, The lhs
   true
 is not definitionally equal to rhs
   false
@@ -406,7 +407,7 @@ is not definitionally equal to rhs
 #guard_msgs in
 example : S true false  := by apply_rfl -- Error
 /--
-error: tactic 'rfl' failed, The lhs
+error: tactic 'apply_rfl' failed, The lhs
   true
 is not definitionally equal to rhs
   false

@@ -13,7 +13,7 @@ namespace Option
 
 theorem mem_iff {a : α} {b : Option α} : a ∈ b ↔ b = some a := .rfl
 
-@[simp] theorem mem_some {a b : α} : a ∈ some b ↔ a = b := by simp [mem_iff, eq_comm]
+@[simp] theorem mem_some {a b : α} : a ∈ some b ↔ b = a := by simp [mem_iff]
 
 theorem mem_some_self (a : α) : a ∈ some a := mem_some.2 rfl
 
@@ -430,6 +430,38 @@ section ite
 
 @[simp] theorem mem_ite_none_right {x : α} [Decidable p] {l : Option α} :
     (x ∈ if p then l else none) ↔ p ∧ x ∈ l := by
+  split <;> simp_all
+
+@[simp] theorem dite_none_left_eq_some {p : Prop} [Decidable p] {b : ¬p → Option β} :
+    (if h : p then none else b h) = some a ↔ ∃ h, b h = some a := by
+  split <;> simp_all
+
+@[simp] theorem dite_none_right_eq_some {p : Prop} [Decidable p] {b : p → Option α} :
+    (if h : p then b h else none) = some a ↔ ∃ h, b h = some a := by
+  split <;> simp_all
+
+@[simp] theorem some_eq_dite_none_left {p : Prop} [Decidable p] {b : ¬p → Option β} :
+    some a = (if h : p then none else b h) ↔ ∃ h, some a = b h := by
+  split <;> simp_all
+
+@[simp] theorem some_eq_dite_none_right {p : Prop} [Decidable p] {b : p → Option α} :
+    some a = (if h : p then b h else none) ↔ ∃ h, some a = b h := by
+  split <;> simp_all
+
+@[simp] theorem ite_none_left_eq_some {p : Prop} [Decidable p] {b : Option β} :
+    (if p then none else b) = some a ↔ ¬ p ∧ b = some a := by
+  split <;> simp_all
+
+@[simp] theorem ite_none_right_eq_some {p : Prop} [Decidable p] {b : Option α} :
+    (if p then b else none) = some a ↔ p ∧ b = some a := by
+  split <;> simp_all
+
+@[simp] theorem some_eq_ite_none_left {p : Prop} [Decidable p] {b : Option β} :
+    some a = (if p then none else b) ↔ ¬ p ∧ some a = b := by
+  split <;> simp_all
+
+@[simp] theorem some_eq_ite_none_right {p : Prop} [Decidable p] {b : Option α} :
+    some a = (if p then b else none) ↔ p ∧ some a = b := by
   split <;> simp_all
 
 @[simp] theorem isSome_dite {p : Prop} [Decidable p] {b : p → β} :

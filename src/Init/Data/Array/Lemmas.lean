@@ -147,6 +147,9 @@ theorem anyM_stop_le_start [Monad m] (p : α → m Bool) (as : Array α) (start 
 theorem mem_def {a : α} {as : Array α} : a ∈ as ↔ a ∈ as.toList :=
   ⟨fun | .mk h => h, Array.Mem.mk⟩
 
+@[simp] theorem not_mem_empty (a : α) : ¬(a ∈ #[]) := by
+  simp [mem_def]
+
 /-! # get -/
 
 @[simp] theorem get_eq_getElem (a : Array α) (i : Fin _) : a.get i = a[i.1] := rfl

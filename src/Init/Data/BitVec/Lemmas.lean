@@ -1464,7 +1464,7 @@ theorem toNat_shiftConcat {x : BitVec w} {b : Bool} :
 theorem toNat_shiftConcat_eq_of_lt {x : BitVec w} {b : Bool} {k : Nat}
     (hk : k < w) (hx : x.toNat < 2 ^ k) :
     (x.shiftConcat b).toNat = x.toNat * 2 + b.toNat := by
-  simp [bv_toNat, Nat.shiftLeft_eq]
+  simp only [toNat_shiftConcat, Nat.shiftLeft_eq, Nat.pow_one]
   have : 2 ^ k < 2 ^ w := Nat.pow_lt_pow_of_lt (by omega) (by omega)
   have : 2 ^ k * 2 ≤ 2 ^ w := (Nat.pow_lt_pow_eq_pow_mul_le_pow (by omega)).mp this
   rw [Nat.mod_eq_of_lt (by cases b <;> simp [bv_toNat] <;> omega)]

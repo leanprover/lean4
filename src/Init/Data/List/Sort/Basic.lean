@@ -22,17 +22,18 @@ namespace List
 This version is not tail-recursive,
 but it is replaced at runtime by `mergeTR` using a `@[csimp]` lemma.
 -/
-def merge (le : α → α → Bool) : List α → List α → List α
+def merge (xs ys : List α) (le : α → α → Bool := by exact fun a b => a ≤ b) : List α :=
+  match xs, ys with
   | [], ys => ys
   | xs, [] => xs
   | x :: xs, y :: ys =>
     if le x y then
-      x :: merge le xs (y :: ys)
+      x :: merge xs (y :: ys) le
     else
-      y :: merge le (x :: xs) ys
+      y :: merge (x :: xs) ys le
 
-@[simp] theorem nil_merge (ys : List α) : merge le [] ys = ys := by simp [merge]
-@[simp] theorem merge_right (xs : List α) : merge le xs [] = xs := by
+@[simp] theorem nil_merge (ys : List α) : merge [] ys le = ys := by simp [merge]
+@[simp] theorem merge_right (xs : List α) : merge xs [] le = xs := by
   induction xs with
   | nil => simp [merge]
   | cons x xs ih => simp [merge, ih]
@@ -45,6 +46,7 @@ def splitInTwo (l : { l : List α // l.length = n }) :
   let r := splitAt ((n+1)/2) l.1
   (⟨r.1, by simp [r, splitAt_eq, l.2]; omega⟩, ⟨r.2, by simp [r, splitAt_eq, l.2]; omega⟩)
 
+set_option linter.unusedVariables false in
 /--
 Simplified implementation of stable merge sort.
 
@@ -56,16 +58,15 @@ It is replaced at runtime in the compiler by `mergeSortTR₂` using a `@[csimp]`
 Because we want the sort to be stable,
 it is essential that we split the list in two contiguous sublists.
 -/
-def mergeSort (le : α → α → Bool) : List α → List α
-  | [] => []
-  | [a] => [a]
-  | a :: b :: xs =>
+def mergeSort : ∀ (xs : List α) (le : α → α → Bool := by exact fun a b => a ≤ b), List α
+  | [], _ => []
+  | [a], _ => [a]
+  | a :: b :: xs, le =>
     let lr := splitInTwo ⟨a :: b :: xs, rfl⟩
     have := by simpa using lr.2.2
     have := by simpa using lr.1.2
-    merge le (mergeSort le lr.1) (mergeSort le lr.2)
-termination_by l => l.length
-
+    merge (mergeSort lr.1 le) (mergeSort lr.2 le) le
+termination_by xs => xs.length
 
 /--
 Given an ordering relation `le : α → α → Bool`,

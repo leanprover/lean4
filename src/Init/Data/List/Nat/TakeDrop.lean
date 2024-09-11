@@ -38,7 +38,7 @@ theorem length_take_of_le (h : n ≤ length l) : length (take n l) = n := by sim
 length `> i`. Version designed to rewrite from the big list to the small list. -/
 theorem getElem_take (L : List α) {i j : Nat} (hi : i < L.length) (hj : i < j) :
     L[i] = (L.take j)[i]'(length_take .. ▸ Nat.lt_min.mpr ⟨hj, hi⟩) :=
-  getElem_of_eq (take_append_drop j L).symm _ ▸ getElem_append ..
+  getElem_of_eq (take_append_drop j L).symm _ ▸ getElem_append_left ..
 
 /-- The `i`-th element of a list coincides with the `i`-th element of any of its prefixes of
 length `> i`. Version designed to rewrite from the small list to the big list. -/
@@ -219,8 +219,9 @@ dropping the first `i` elements. Version designed to rewrite from the big list t
 theorem getElem_drop' (L : List α) {i j : Nat} (h : i + j < L.length) :
     L[i + j] = (L.drop i)[j]'(lt_length_drop L h) := by
   have : i ≤ L.length := Nat.le_trans (Nat.le_add_right _ _) (Nat.le_of_lt h)
-  rw [getElem_of_eq (take_append_drop i L).symm h, getElem_append_right'] <;>
-    simp [Nat.min_eq_left this, Nat.add_sub_cancel_left, Nat.le_add_right]
+  rw [getElem_of_eq (take_append_drop i L).symm h, getElem_append_right]
+  · simp [Nat.min_eq_left this, Nat.add_sub_cancel_left]
+  · simp [Nat.min_eq_left this, Nat.le_add_right]
 
 /-- The `i + j`-th element of a list coincides with the `j`-th element of the list obtained by
 dropping the first `i` elements. Version designed to rewrite from the big list to the small list. -/

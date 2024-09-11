@@ -630,14 +630,10 @@ def DivModState.Lawful.toLawfulShiftSubtract {qr : DivModState w}
 /-! ### shiftConcat -/
 
 @[simp, bv_toNat]
-theorem toNat_shiftConcat {x : BitVec w} {b : Bool} : (x.shiftConcat b).toNat =
-    (x.toNat <<< 1 + b.toNat) % 2 ^ w  := by
-  simp only [shiftConcat]
-  rw [← add_eq_or_of_and_eq_zero] -- Due to `add_eq_or_of_and_eq_zero`, this must live in `Bitblast`.
-  · simp
-  · ext i
-    simp
-    omega
+theorem toNat_shiftConcat {x : BitVec w} {b : Bool} :
+    (x.shiftConcat b).toNat
+    = (x.toNat <<< 1 + b.toNat) % 2 ^ w  := by
+  simp [shiftConcat, Nat.shiftLeft_eq]
 
 /-- `x.shiftConcat b` does not overflow if `x < 2^k` for `k < w`, and so
 `x.shiftConcat b |>.toNat = x.toNat * 2 + b.toNat`. -/
@@ -679,7 +675,7 @@ def divSubtractShift (n : BitVec w) (d : BitVec w) (wn : Nat) (qr : DivModState 
 theorem DivModState.toNat_shiftRight_sub_one_eq
     (qr : DivModState w) (h : qr.LawfulShiftSubtract wr wn n d):
     n.toNat >>> (wn - 1) = (n.toNat >>> wn) * 2 + (n.getLsbD (wn - 1)).toNat := by
-  have hn := shiftRight_sub_one_eq_shiftConcat_getLsbD_of_lt (n := n) (wn := wn) h.hwn_lt
+  have hn := shiftRight_sub_one_eq_shiftConcat (n := n) (wn := wn) h.hwn_lt
   obtain hn : (n >>> (wn - 1)).toNat = ((n >>> wn).shiftConcat (n.getLsbD (wn - 1))).toNat := by
     simp [hn]
   simp only [toNat_ushiftRight] at hn

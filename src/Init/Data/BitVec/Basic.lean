@@ -663,7 +663,7 @@ def concat {n} (msbs : BitVec n) (lsb : Bool) : BitVec (n+1) := msbs ++ (ofBool 
 It is a non-dependent version of `concat` that does not change the total bitwidth.
 -/
 def shiftConcat (x : BitVec n) (b : Bool) : BitVec n :=
-  x <<< 1 ||| (ofBool b).zeroExtend n
+  (x.concat b).truncate n
 
 /-- Prepend a single bit to the front of a bitvector, using big endian order (see `append`).
     That is, the new bit is the most significant bit. -/

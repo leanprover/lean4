@@ -1434,25 +1434,27 @@ theorem getLsbD_concat (x : BitVec w) (b : Bool) (i : Nat) :
 
 /-! ### shiftConcat -/
 
-@[simp]
-theorem getLsbD_shiftConcat {x : BitVec w} {b : Bool} {i : Nat} :
-    (x.shiftConcat b).getLsbD i =
-    ((decide (i < w) && !decide (i < 1) && x.getLsbD (i - 1)) ||
-      decide (i < w) && (decide (i = 0) && b)) := by
-  simp [shiftConcat]
+theorem getLsbD_shiftConcat (x : BitVec w) (b : Bool) (i : Nat) :
+    (shiftConcat x b).getLsbD i
+    = (decide (i < w) && (if (i = 0) then b else x.getLsbD (i - 1))) := by
+  simp only [shiftConcat, getLsbD_zeroExtend, getLsbD_concat]
 
-theorem shiftRight_sub_one_eq_shiftConcat_getLsbD_of_lt {n : BitVec w} (hwn : 0 < wn) :
+theorem getLsbD_shiftConcat_eq_decide (x : BitVec w) (b : Bool) (i : Nat) :
+    (shiftConcat x b).getLsbD i
+    = (decide (i < w) && ((decide (i = 0) && b) || (decide (0 < i) && x.getLsbD (i - 1)))) := by
+  simp only [getLsbD_shiftConcat]
+  split
+  · simp [*]
+  · have : 0 < i := by omega
+    simp [*]
+
+theorem shiftRight_sub_one_eq_shiftConcat {n : BitVec w} (hwn : 0 < wn) :
     n >>> (wn - 1) = (n >>> wn).shiftConcat (n.getLsbD (wn - 1)) := by
   ext i
-  simp only [getLsbD_ushiftRight, getLsbD_or, getLsbD_shiftLeft, Fin.is_lt, decide_True, Bool.true_and,
-    getLsbD_zeroExtend, getLsbD_ofBool]
-  by_cases (i : Nat) < 1
-  case pos h =>
-    simp [show (i : Nat) = 0 by omega]
-    omega
-  case neg h =>
-    have hi : (i : Nat) ≠ 0 := by omega
-    simp [shiftConcat, h, hi, show wn - 1 + ↑i = wn + (↑i - 1) by omega]
+  simp only [getLsbD_ushiftRight, getLsbD_shiftConcat, Fin.is_lt, decide_True, Bool.true_and]
+  split
+  · simp [*]
+  · congr 1; omega
 
 /-! ### add -/
 

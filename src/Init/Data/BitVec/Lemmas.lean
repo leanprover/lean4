@@ -1443,10 +1443,7 @@ theorem getLsbD_shiftConcat_eq_decide (x : BitVec w) (b : Bool) (i : Nat) :
     (shiftConcat x b).getLsbD i
     = (decide (i < w) && ((decide (i = 0) && b) || (decide (0 < i) && x.getLsbD (i - 1)))) := by
   simp only [getLsbD_shiftConcat]
-  split
-  · simp [*]
-  · have : 0 < i := by omega
-    simp [*]
+  split <;> simp [*, show ((0 < i) ↔ ¬(i = 0)) by omega]
 
 theorem shiftRight_sub_one_eq_shiftConcat {n : BitVec w} (hwn : 0 < wn) :
     n >>> (wn - 1) = (n >>> wn).shiftConcat (n.getLsbD (wn - 1)) := by

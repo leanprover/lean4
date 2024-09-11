@@ -1667,6 +1667,11 @@ protected theorem lt_of_le_ne {x y : BitVec n} : x ≤ y → ¬ x = y → x < y 
   simp only [lt_def, le_def, BitVec.toNat_eq]
   apply Nat.lt_of_le_of_ne
 
+protected theorem ne_of_lt {x y : BitVec n} : x < y → x ≠ y := by
+  simp only [lt_def, ne_eq, toNat_eq]
+  apply Nat.ne_of_lt
+
+
 /-! ### ofBoolList -/
 
 @[simp] theorem getMsbD_ofBoolListBE : (ofBoolListBE bs).getMsbD i = bs.getD i false := by

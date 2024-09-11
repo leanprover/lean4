@@ -6,6 +6,8 @@ This file tests the `rfl` tactic:
  * Effect of `with_reducible`
 -/
 
+-- First, let's see what `rfl` does:
+
 /--
 error: The rfl tactic failed. Possible reasons:
 - The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).
@@ -17,7 +19,36 @@ Try using the reflexivity lemma for your relation explicitly, e.g. `exact Eq.ref
 #guard_msgs in
 example : false = true := by rfl
 
--- Setup
+-- Now to `apply_rfl`.
+
+-- Plain error
+
+/--
+error: tactic 'rfl' failed, The lhs
+  42
+is not definitionally equal to rhs
+  23
+⊢ 42 = 23
+-/
+#guard_msgs in
+example : 42 = 23 := by apply_rfl
+
+-- Revealing implicit arguments
+
+opaque withImplicitNat {n : Nat} : Nat
+
+/--
+error: tactic 'rfl' failed, The lhs
+  withImplicitNat
+is not definitionally equal to rhs
+  withImplicitNat
+⊢ withImplicitNat = withImplicitNat
+-/
+#guard_msgs in
+example : @withImplicitNat 42 = @withImplicitNat 23 := by apply_rfl
+
+
+-- Exhaustive testing of various combinations:
 
 -- In addition to Eq, HEq and Iff  we test four relations:
 

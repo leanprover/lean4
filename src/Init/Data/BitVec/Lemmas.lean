@@ -1445,13 +1445,37 @@ theorem getLsbD_shiftConcat_eq_decide (x : BitVec w) (b : Bool) (i : Nat) :
   simp only [getLsbD_shiftConcat]
   split <;> simp [*, show ((0 < i) ↔ ¬(i = 0)) by omega]
 
-theorem shiftRight_sub_one_eq_shiftConcat {n : BitVec w} (hwn : 0 < wn) :
+theorem shiftRight_sub_one_eq_shiftConcat (n : BitVec w) (hwn : 0 < wn) :
     n >>> (wn - 1) = (n >>> wn).shiftConcat (n.getLsbD (wn - 1)) := by
   ext i
   simp only [getLsbD_ushiftRight, getLsbD_shiftConcat, Fin.is_lt, decide_True, Bool.true_and]
   split
   · simp [*]
   · congr 1; omega
+
+@[simp, bv_toNat]
+theorem toNat_shiftConcat {x : BitVec w} {b : Bool} :
+    (x.shiftConcat b).toNat
+    = (x.toNat <<< 1 + b.toNat) % 2 ^ w  := by
+  simp [shiftConcat, Nat.shiftLeft_eq]
+
+/-- `x.shiftConcat b` does not overflow if `x < 2^k` for `k < w`, and so
+`x.shiftConcat b |>.toNat = x.toNat * 2 + b.toNat`. -/
+theorem toNat_shiftConcat_eq_of_lt {x : BitVec w} {b : Bool} {k : Nat}
+    (hk : k < w) (hx : x.toNat < 2 ^ k) :
+    (x.shiftConcat b).toNat = x.toNat * 2 + b.toNat := by
+  simp [bv_toNat, Nat.shiftLeft_eq]
+  have : 2 ^ k < 2 ^ w := Nat.pow_lt_pow_of_lt (by omega) (by omega)
+  have : 2 ^ k * 2 ≤ 2 ^ w := (Nat.pow_lt_pow_eq_pow_mul_le_pow (by omega)).mp this
+  rw [Nat.mod_eq_of_lt (by cases b <;> simp [bv_toNat] <;> omega)]
+
+theorem toNat_shiftConcat_lt_of_lt {x : BitVec w} {b : Bool} {k : Nat}
+    (hk : k < w) (hx : x.toNat < 2 ^ k) :
+    (x.shiftConcat b).toNat < 2 ^ (k + 1) := by
+  rw [toNat_shiftConcat_eq_of_lt hk hx]
+  have : 2 ^ (k + 1) ≤ 2 ^ w := Nat.pow_le_pow_of_le_right (by decide) (by assumption)
+  have := Bool.toNat_lt b
+  omega
 
 /-! ### add -/
 

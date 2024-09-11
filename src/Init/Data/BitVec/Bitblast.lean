@@ -627,32 +627,6 @@ def DivModState.Lawful.toLawfulShiftSubtract {qr : DivModState w}
   hdiv := h.hdiv
   hwn_lt := by omega
 
-/-! ### shiftConcat -/
-
-@[simp, bv_toNat]
-theorem toNat_shiftConcat {x : BitVec w} {b : Bool} :
-    (x.shiftConcat b).toNat
-    = (x.toNat <<< 1 + b.toNat) % 2 ^ w  := by
-  simp [shiftConcat, Nat.shiftLeft_eq]
-
-/-- `x.shiftConcat b` does not overflow if `x < 2^k` for `k < w`, and so
-`x.shiftConcat b |>.toNat = x.toNat * 2 + b.toNat`. -/
-theorem toNat_shiftConcat_eq_of_lt_of_lt_two_pow {x : BitVec w} {b : Bool} {k : Nat}
-  (hk : k < w) (hx : x.toNat < 2 ^ k) :
-    (x.shiftConcat b).toNat = x.toNat * 2 + b.toNat := by
-  simp [bv_toNat, Nat.shiftLeft_eq]
-  have : 2 ^ k < 2 ^ w := Nat.pow_lt_pow_of_lt (by omega) (by omega)
-  have : 2 ^ k * 2 ≤ 2 ^ w := (Nat.pow_lt_pow_eq_pow_mul_le_pow (by omega)).mp this
-  rw [Nat.mod_eq_of_lt (by cases b <;> simp [bv_toNat] <;> omega)]
-
-theorem toNat_shiftConcat_lt_of_lt_of_lt_two_pow {x : BitVec w} {b : Bool} {k : Nat}
-    (hk : k < w) (hx : x.toNat < 2 ^ k) :
-    (x.shiftConcat b).toNat < 2 ^ (k + 1) := by
-  rw [toNat_shiftConcat_eq_of_lt_of_lt_two_pow hk hx]
-  have : 2 ^ (k + 1) ≤ 2 ^ w := Nat.pow_le_pow_of_le_right (by decide) (by assumption)
-  have := Bool.toNat_lt b
-  omega
-
 /-! ### Division shift subtractor -/
 
 /--
@@ -675,18 +649,13 @@ def divSubtractShift (n : BitVec w) (d : BitVec w) (wn : Nat) (qr : DivModState 
 theorem DivModState.toNat_shiftRight_sub_one_eq
     (qr : DivModState w) (h : qr.LawfulShiftSubtract wr wn n d):
     n.toNat >>> (wn - 1) = (n.toNat >>> wn) * 2 + (n.getLsbD (wn - 1)).toNat := by
-  have hn := shiftRight_sub_one_eq_shiftConcat (n := n) (wn := wn) h.hwn_lt
-  obtain hn : (n >>> (wn - 1)).toNat = ((n >>> wn).shiftConcat (n.getLsbD (wn - 1))).toNat := by
-    simp [hn]
-  simp only [toNat_ushiftRight] at hn
-  rw [toNat_shiftConcat_eq_of_lt_of_lt_two_pow (k := w - wn)] at hn
-  · rw [hn]
-    rw [toNat_ushiftRight]
-  · have := h.hwn_lt
-    have := h.hw
-    omega
+  show BitVec.toNat (n >>> (wn - 1)) = _
+  have {..} := h -- break the structure down for `omega`
+  rw [shiftRight_sub_one_eq_shiftConcat n h.hwn_lt]
+  rw [toNat_shiftConcat_eq_of_lt (k := w - wn)]
+  · simp
+  · omega
   · apply BitVec.toNat_ushiftRight_lt
-    have := h.hwrn
     omega
 
 /--
@@ -710,19 +679,19 @@ def divSubtractShiftProof (qr : DivModState w) (h : qr.LawfulShiftSubtract  wr w
   by_cases rltd : shiftConcat qr.r (n.getLsbD (wn - 1)) < d
   · simp only [rltd, ↓reduceIte]
     constructor <;> try bv_omega
-    case pos.hrWidth => apply toNat_shiftConcat_lt_of_lt_of_lt_two_pow <;> omega
-    case pos.hqWidth => apply toNat_shiftConcat_lt_of_lt_of_lt_two_pow <;> omega
+    case pos.hrWidth => apply toNat_shiftConcat_lt_of_lt <;> omega
+    case pos.hqWidth => apply toNat_shiftConcat_lt_of_lt <;> omega
     case pos.hdiv =>
       simp [qr.toNat_shiftRight_sub_one_eq h, h.hdiv, this,
-        toNat_shiftConcat_eq_of_lt_of_lt_two_pow (qr.wr_lt_w h) h.hrWidth,
-        toNat_shiftConcat_eq_of_lt_of_lt_two_pow (qr.wr_lt_w h) h.hqWidth]
+        toNat_shiftConcat_eq_of_lt (qr.wr_lt_w h) h.hrWidth,
+        toNat_shiftConcat_eq_of_lt (qr.wr_lt_w h) h.hqWidth]
       omega
   · simp only [rltd, ↓reduceIte]
     constructor <;> try bv_omega
     case neg.hrLtDivisor =>
       simp only [lt_def, Nat.not_lt] at rltd
       rw [BitVec.toNat_sub_of_le rltd,
-        toNat_shiftConcat_eq_of_lt_of_lt_two_pow (hk := qr.wr_lt_w h) (hx := h.hrWidth),
+        toNat_shiftConcat_eq_of_lt (hk := qr.wr_lt_w h) (hx := h.hrWidth),
         Nat.mul_comm]
       apply two_mul_add_sub_lt_of_lt_of_lt_two <;> bv_omega
     case neg.hrWidth =>
@@ -730,19 +699,19 @@ def divSubtractShiftProof (qr : DivModState w) (h : qr.LawfulShiftSubtract  wr w
       have hdr' : d ≤ (qr.r.shiftConcat (n.getLsbD (wn - 1))) :=
         BitVec.le_iff_not_lt.mp rltd
       have hr' : ((qr.r.shiftConcat (n.getLsbD (wn - 1)))).toNat < 2 ^ (wr + 1) := by
-        apply toNat_shiftConcat_lt_of_lt_of_lt_two_pow <;> bv_omega
+        apply toNat_shiftConcat_lt_of_lt <;> bv_omega
       rw [BitVec.toNat_sub_of_le hdr']
       omega
     case neg.hqWidth =>
-      apply toNat_shiftConcat_lt_of_lt_of_lt_two_pow <;> omega
+      apply toNat_shiftConcat_lt_of_lt <;> omega
     case neg.hdiv =>
       have rltd' := (BitVec.le_iff_not_lt.mp rltd)
       simp only [qr.toNat_shiftRight_sub_one_eq h,
         BitVec.toNat_sub_of_le rltd',
-        toNat_shiftConcat_eq_of_lt_of_lt_two_pow (qr.wr_lt_w h) h.hrWidth]
+        toNat_shiftConcat_eq_of_lt (qr.wr_lt_w h) h.hrWidth]
       simp only [BitVec.le_def,
-        toNat_shiftConcat_eq_of_lt_of_lt_two_pow (qr.wr_lt_w h) h.hrWidth] at rltd'
-      simp only [toNat_shiftConcat_eq_of_lt_of_lt_two_pow (qr.wr_lt_w h) h.hqWidth, h.hdiv, Nat.mul_add]
+        toNat_shiftConcat_eq_of_lt (qr.wr_lt_w h) h.hrWidth] at rltd'
+      simp only [toNat_shiftConcat_eq_of_lt (qr.wr_lt_w h) h.hqWidth, h.hdiv, Nat.mul_add]
       bv_omega
 
 /-! ### Core division algorithm circuit -/

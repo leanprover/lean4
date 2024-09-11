@@ -101,7 +101,7 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_induction___lambda__2(lean_object*, lean_
 static lean_object* l_Nat_forM_loop___at_Lean_Meta_getMajorTypeIndices___spec__1___lambda__2___closed__1;
 static lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_mkRecursorAppPrefix___spec__2___lambda__2___closed__3;
 static lean_object* l_Nat_forM_loop___at_Lean_Meta_getMajorTypeIndices___spec__1___closed__1;
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_MVarId_induction___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_induction(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_getTypeBody___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -118,6 +118,7 @@ lean_object* l_Lean_MVarId_revert(lean_object*, lean_object*, uint8_t, uint8_t, 
 extern lean_object* l_Lean_instInhabitedExpr;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_getMajorTypeIndices___spec__2___lambda__2___closed__4;
 uint8_t l_Lean_BinderInfo_isInstImplicit(uint8_t);
+lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_getMajorTypeIndices___spec__2___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_getMajorTypeIndices___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_AltVarNames_varNames___default;
@@ -250,7 +251,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_fin
 static lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_mkRecursorAppPrefix___spec__2___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_MVarId_induction___spec__3___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
-lean_object* l_List_length___rarg(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_addRecParams___closed__5;
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_getTargetArity(lean_object* x_1) {
@@ -2613,17 +2613,17 @@ x_20 = lean_ctor_get(x_18, 1);
 lean_inc(x_20);
 lean_dec(x_18);
 x_21 = lean_ctor_get(x_3, 7);
-x_22 = l_List_length___rarg(x_21);
-x_23 = lean_ctor_get(x_3, 5);
-x_24 = l_List_length___rarg(x_23);
-x_25 = lean_unsigned_to_nat(1u);
-x_26 = lean_nat_add(x_24, x_25);
-lean_dec(x_24);
-x_27 = lean_unsigned_to_nat(0u);
+x_22 = lean_unsigned_to_nat(0u);
+x_23 = l_List_lengthTRAux___rarg(x_21, x_22);
+x_24 = lean_ctor_get(x_3, 5);
+x_25 = l_List_lengthTRAux___rarg(x_24, x_22);
+x_26 = lean_unsigned_to_nat(1u);
+x_27 = lean_nat_add(x_25, x_26);
+lean_dec(x_25);
 x_28 = 0;
 x_29 = l_Lean_Meta_InductionSubgoal_fields___default___closed__1;
-x_30 = l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_17, x_22, x_26, x_27, x_8, x_19, x_28, x_29, x_9, x_10, x_11, x_12, x_20);
-lean_dec(x_22);
+x_30 = l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_17, x_23, x_27, x_22, x_8, x_19, x_28, x_29, x_9, x_10, x_11, x_12, x_20);
+lean_dec(x_23);
 lean_dec(x_17);
 return x_30;
 }
@@ -4016,7 +4016,7 @@ _start:
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_14 = lean_ctor_get(x_1, 0);
 lean_inc(x_14);
-x_15 = lean_array_to_list(lean_box(0), x_2);
+x_15 = lean_array_to_list(x_2);
 x_16 = l_Lean_Expr_const___override(x_14, x_15);
 x_17 = lean_ctor_get(x_1, 5);
 lean_inc(x_17);

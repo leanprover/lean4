@@ -98,6 +98,7 @@ lean_object* lean_io_error_to_string(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_moduleFromDocumentUri(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_find___at_Lean_NameMap_find_x3f___spec__1___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_locationLinksFromDecl___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_documentUriFromModule___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRanges_x3f___at_Lean_Server_locationLinksFromDecl___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_GoToKind_noConfusion___rarg___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_GoToKind_toCtorIdx(uint8_t x_1) {
@@ -795,6 +796,15 @@ return x_43;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Server_documentUriFromModule___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Server_documentUriFromModule(x_1, x_2, x_3);
+lean_dec(x_2);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Server_moduleFromDocumentUri(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1227,6 +1237,7 @@ x_18 = lean_ctor_get(x_12, 0);
 x_19 = lean_ctor_get(x_8, 5);
 lean_inc(x_19);
 x_20 = l_Lean_Server_documentUriFromModule(x_4, x_18, x_16);
+lean_dec(x_18);
 if (lean_obj_tag(x_20) == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; 
@@ -1296,6 +1307,7 @@ lean_dec(x_12);
 x_36 = lean_ctor_get(x_8, 5);
 lean_inc(x_36);
 x_37 = l_Lean_Server_documentUriFromModule(x_4, x_35, x_16);
+lean_dec(x_35);
 if (lean_obj_tag(x_37) == 0)
 {
 lean_object* x_38; lean_object* x_39; lean_object* x_40; 

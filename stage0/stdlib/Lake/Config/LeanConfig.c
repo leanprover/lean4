@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 static lean_object* l___private_Lake_Config_LeanConfig_0__Lake_reprBackend____x40_Lake_Config_LeanConfig___hyg_413____closed__17;
+LEAN_EXPORT lean_object* l_Lake_LeanOption_asCliArg___lambda__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildType_ofString_x3f___boxed(lean_object*);
 lean_object* l_Lean_Name_reprPrec(lean_object*, lean_object*);
 static lean_object* l_Lake_instToStringBackend___closed__1;
@@ -21,6 +22,7 @@ static lean_object* l___private_Lake_Config_LeanConfig_0__Lake_reprBackend____x4
 static lean_object* l___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1189____closed__4;
 static lean_object* l_Lake_BuildType_leancArgs___closed__14;
 static lean_object* l___private_Lake_Config_LeanConfig_0__Lake_reprBackend____x40_Lake_Config_LeanConfig___hyg_413____closed__9;
+lean_object* l_Std_Format_joinSep___at___private_Init_Meta_0__Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_2049____spec__3(lean_object*, lean_object*);
 static lean_object* l_Lake_Backend_ofString_x3f___closed__5;
 static lean_object* l___private_Lake_Config_LeanConfig_0__Lake_reprLeanOption____x40_Lake_Config_LeanConfig___hyg_929____closed__9;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -43,7 +45,7 @@ static lean_object* l_Option_repr___at___private_Lake_Config_LeanConfig_0__Lake_
 static lean_object* l___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1189____closed__33;
 LEAN_EXPORT lean_object* l_Lake_LeanConfig_moreServerOptions___default;
 static lean_object* l_Option_repr___at___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1189____spec__2___closed__9;
-lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
+lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_LeanOptionValue_asCliFlagValue(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -119,10 +121,11 @@ LEAN_EXPORT lean_object* l_Lake_BuildType_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lake_BuildType_leancArgs___closed__5;
 static lean_object* l___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1189____closed__41;
 static lean_object* l___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1189____closed__36;
+LEAN_EXPORT uint8_t l_Lake_LeanOption_asCliArg___lambda__1(lean_object*);
 static lean_object* l___private_Lake_Config_LeanConfig_0__Lake_reprBuildType____x40_Lake_Config_LeanConfig___hyg_17____closed__5;
 static lean_object* l_Lake_Backend_ofString_x3f___closed__2;
 static lean_object* l_Lake_instOrdBuildType___closed__1;
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 static lean_object* l___private_Lake_Config_LeanConfig_0__Lake_reprBackend____x40_Lake_Config_LeanConfig___hyg_413____closed__5;
 static lean_object* l_Lake_Backend_ofString_x3f___closed__6;
 LEAN_EXPORT lean_object* l_Lake_BuildType_noConfusion___rarg___lambda__1___boxed(lean_object*);
@@ -151,6 +154,7 @@ static lean_object* l_Option_repr___at___private_Lake_Config_LeanConfig_0__Lake_
 static lean_object* l___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1189____closed__32;
 static lean_object* l_Lake_BuildType_ofString_x3f___closed__6;
 LEAN_EXPORT lean_object* l_Lake_instMinBuildType___boxed(lean_object*, lean_object*);
+static lean_object* l_Lake_LeanOption_asCliArg___closed__3;
 static lean_object* l_Lake_instReprBackend___closed__1;
 static lean_object* l___private_Lake_Config_LeanConfig_0__Lake_reprBackend____x40_Lake_Config_LeanConfig___hyg_413____closed__15;
 LEAN_EXPORT lean_object* l_repr___at___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1189____spec__1(lean_object*);
@@ -209,7 +213,6 @@ static lean_object* l_Lake_BuildType_leancArgs___closed__8;
 static lean_object* l_Lake_Backend_ofString_x3f___closed__1;
 static lean_object* l___private_Lake_Config_LeanConfig_0__Lake_reprBuildType____x40_Lake_Config_LeanConfig___hyg_17____closed__8;
 LEAN_EXPORT lean_object* l_Lake_LeanOption_asCliArg(lean_object*);
-lean_object* l_Std_Format_joinSep___at___private_Init_Meta_0__Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_2008____spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Backend_toCtorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lake_instDecidableEqBuildType___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildType_ofString_x3f(lean_object*);
@@ -2349,7 +2352,23 @@ x_1 = l_Lake_instReprLeanOption___closed__1;
 return x_1;
 }
 }
+LEAN_EXPORT uint8_t l_Lake_LeanOption_asCliArg___lambda__1(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; 
+x_2 = 0;
+return x_2;
+}
+}
 static lean_object* _init_l_Lake_LeanOption_asCliArg___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lake_LeanOption_asCliArg___lambda__1___boxed), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lake_LeanOption_asCliArg___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -2357,7 +2376,7 @@ x_1 = lean_mk_string_unchecked("-D", 2, 2);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_LeanOption_asCliArg___closed__2() {
+static lean_object* _init_l_Lake_LeanOption_asCliArg___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -2368,25 +2387,36 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lake_LeanOption_asCliArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
 x_3 = 1;
-x_4 = l_Lean_Name_toString(x_2, x_3);
-x_5 = l_Lake_LeanOption_asCliArg___closed__1;
-x_6 = lean_string_append(x_5, x_4);
-lean_dec(x_4);
-x_7 = l_Lake_LeanOption_asCliArg___closed__2;
-x_8 = lean_string_append(x_6, x_7);
-x_9 = lean_ctor_get(x_1, 1);
-lean_inc(x_9);
+x_4 = l_Lake_LeanOption_asCliArg___closed__1;
+x_5 = l_Lean_Name_toString(x_2, x_3, x_4);
+x_6 = l_Lake_LeanOption_asCliArg___closed__2;
+x_7 = lean_string_append(x_6, x_5);
+lean_dec(x_5);
+x_8 = l_Lake_LeanOption_asCliArg___closed__3;
+x_9 = lean_string_append(x_7, x_8);
+x_10 = lean_ctor_get(x_1, 1);
+lean_inc(x_10);
 lean_dec(x_1);
-x_10 = l_Lean_LeanOptionValue_asCliFlagValue(x_9);
-x_11 = lean_string_append(x_8, x_10);
-lean_dec(x_10);
-x_12 = l_Lake_instInhabitedLeanOption___closed__1;
-x_13 = lean_string_append(x_11, x_12);
-return x_13;
+x_11 = l_Lean_LeanOptionValue_asCliFlagValue(x_10);
+x_12 = lean_string_append(x_9, x_11);
+lean_dec(x_11);
+x_13 = l_Lake_instInhabitedLeanOption___closed__1;
+x_14 = lean_string_append(x_12, x_13);
+return x_14;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_LeanOption_asCliArg___lambda__1___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lake_LeanOption_asCliArg___lambda__1(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
 }
 }
 static uint8_t _init_l_Lake_LeanConfig_buildType___default() {
@@ -3239,7 +3269,7 @@ lean_ctor_set_uint8(x_53, sizeof(void*)*1, x_8);
 if (x_22 == 0)
 {
 lean_object* x_254; lean_object* x_255; lean_object* x_256; lean_object* x_257; lean_object* x_258; lean_object* x_259; lean_object* x_260; lean_object* x_261; lean_object* x_262; uint8_t x_263; lean_object* x_264; 
-x_254 = lean_array_to_list(lean_box(0), x_20);
+x_254 = lean_array_to_list(x_20);
 x_255 = l___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1189____closed__32;
 x_256 = l_Std_Format_joinSep___at___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1189____spec__3(x_254, x_255);
 x_257 = l___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1189____closed__36;
@@ -3298,9 +3328,9 @@ lean_ctor_set(x_63, 1, x_18);
 if (x_25 == 0)
 {
 lean_object* x_241; lean_object* x_242; lean_object* x_243; lean_object* x_244; lean_object* x_245; lean_object* x_246; lean_object* x_247; lean_object* x_248; lean_object* x_249; uint8_t x_250; lean_object* x_251; 
-x_241 = lean_array_to_list(lean_box(0), x_23);
+x_241 = lean_array_to_list(x_23);
 x_242 = l___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1189____closed__32;
-x_243 = l_Std_Format_joinSep___at___private_Init_Meta_0__Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_2008____spec__3(x_241, x_242);
+x_243 = l_Std_Format_joinSep___at___private_Init_Meta_0__Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_2049____spec__3(x_241, x_242);
 x_244 = l___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1189____closed__36;
 x_245 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_245, 0, x_244);
@@ -3357,9 +3387,9 @@ lean_ctor_set(x_73, 1, x_18);
 if (x_28 == 0)
 {
 lean_object* x_228; lean_object* x_229; lean_object* x_230; lean_object* x_231; lean_object* x_232; lean_object* x_233; lean_object* x_234; lean_object* x_235; lean_object* x_236; uint8_t x_237; lean_object* x_238; 
-x_228 = lean_array_to_list(lean_box(0), x_26);
+x_228 = lean_array_to_list(x_26);
 x_229 = l___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1189____closed__32;
-x_230 = l_Std_Format_joinSep___at___private_Init_Meta_0__Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_2008____spec__3(x_228, x_229);
+x_230 = l_Std_Format_joinSep___at___private_Init_Meta_0__Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_2049____spec__3(x_228, x_229);
 x_231 = l___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1189____closed__36;
 x_232 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_232, 0, x_231);
@@ -3415,9 +3445,9 @@ lean_ctor_set(x_82, 1, x_18);
 if (x_31 == 0)
 {
 lean_object* x_215; lean_object* x_216; lean_object* x_217; lean_object* x_218; lean_object* x_219; lean_object* x_220; lean_object* x_221; lean_object* x_222; lean_object* x_223; uint8_t x_224; lean_object* x_225; 
-x_215 = lean_array_to_list(lean_box(0), x_29);
+x_215 = lean_array_to_list(x_29);
 x_216 = l___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1189____closed__32;
-x_217 = l_Std_Format_joinSep___at___private_Init_Meta_0__Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_2008____spec__3(x_215, x_216);
+x_217 = l_Std_Format_joinSep___at___private_Init_Meta_0__Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_2049____spec__3(x_215, x_216);
 x_218 = l___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1189____closed__36;
 x_219 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_219, 0, x_218);
@@ -3474,7 +3504,7 @@ lean_ctor_set(x_92, 1, x_18);
 if (x_34 == 0)
 {
 lean_object* x_202; lean_object* x_203; lean_object* x_204; lean_object* x_205; lean_object* x_206; lean_object* x_207; lean_object* x_208; lean_object* x_209; lean_object* x_210; uint8_t x_211; lean_object* x_212; 
-x_202 = lean_array_to_list(lean_box(0), x_32);
+x_202 = lean_array_to_list(x_32);
 x_203 = l___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1189____closed__32;
 x_204 = l_Std_Format_joinSep___at___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1189____spec__3(x_202, x_203);
 x_205 = l___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1189____closed__36;
@@ -3533,9 +3563,9 @@ lean_ctor_set(x_102, 1, x_18);
 if (x_37 == 0)
 {
 lean_object* x_189; lean_object* x_190; lean_object* x_191; lean_object* x_192; lean_object* x_193; lean_object* x_194; lean_object* x_195; lean_object* x_196; lean_object* x_197; uint8_t x_198; lean_object* x_199; 
-x_189 = lean_array_to_list(lean_box(0), x_35);
+x_189 = lean_array_to_list(x_35);
 x_190 = l___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1189____closed__32;
-x_191 = l_Std_Format_joinSep___at___private_Init_Meta_0__Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_2008____spec__3(x_189, x_190);
+x_191 = l_Std_Format_joinSep___at___private_Init_Meta_0__Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_2049____spec__3(x_189, x_190);
 x_192 = l___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1189____closed__36;
 x_193 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_193, 0, x_192);
@@ -3591,9 +3621,9 @@ lean_ctor_set(x_111, 1, x_18);
 if (x_40 == 0)
 {
 lean_object* x_176; lean_object* x_177; lean_object* x_178; lean_object* x_179; lean_object* x_180; lean_object* x_181; lean_object* x_182; lean_object* x_183; lean_object* x_184; uint8_t x_185; lean_object* x_186; 
-x_176 = lean_array_to_list(lean_box(0), x_38);
+x_176 = lean_array_to_list(x_38);
 x_177 = l___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1189____closed__32;
-x_178 = l_Std_Format_joinSep___at___private_Init_Meta_0__Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_2008____spec__3(x_176, x_177);
+x_178 = l_Std_Format_joinSep___at___private_Init_Meta_0__Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_2049____spec__3(x_176, x_177);
 x_179 = l___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1189____closed__36;
 x_180 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_180, 0, x_179);
@@ -3649,9 +3679,9 @@ lean_ctor_set(x_120, 1, x_18);
 if (x_43 == 0)
 {
 lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; uint8_t x_130; lean_object* x_131; lean_object* x_132; lean_object* x_133; lean_object* x_134; lean_object* x_135; lean_object* x_136; lean_object* x_137; lean_object* x_138; lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; lean_object* x_148; lean_object* x_149; lean_object* x_150; lean_object* x_151; lean_object* x_152; lean_object* x_153; 
-x_121 = lean_array_to_list(lean_box(0), x_41);
+x_121 = lean_array_to_list(x_41);
 x_122 = l___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1189____closed__32;
-x_123 = l_Std_Format_joinSep___at___private_Init_Meta_0__Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_2008____spec__3(x_121, x_122);
+x_123 = l_Std_Format_joinSep___at___private_Init_Meta_0__Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_2049____spec__3(x_121, x_122);
 x_124 = l___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1189____closed__36;
 x_125 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_125, 0, x_124);
@@ -4068,6 +4098,8 @@ l_Lake_LeanOption_asCliArg___closed__1 = _init_l_Lake_LeanOption_asCliArg___clos
 lean_mark_persistent(l_Lake_LeanOption_asCliArg___closed__1);
 l_Lake_LeanOption_asCliArg___closed__2 = _init_l_Lake_LeanOption_asCliArg___closed__2();
 lean_mark_persistent(l_Lake_LeanOption_asCliArg___closed__2);
+l_Lake_LeanOption_asCliArg___closed__3 = _init_l_Lake_LeanOption_asCliArg___closed__3();
+lean_mark_persistent(l_Lake_LeanOption_asCliArg___closed__3);
 l_Lake_LeanConfig_buildType___default = _init_l_Lake_LeanConfig_buildType___default();
 l_Lake_LeanConfig_leanOptions___default___closed__1 = _init_l_Lake_LeanConfig_leanOptions___default___closed__1();
 lean_mark_persistent(l_Lake_LeanConfig_leanOptions___default___closed__1);

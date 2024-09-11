@@ -1,5 +1,5 @@
 { src, debug ? false, stage0debug ? false, extraCMakeFlags ? [],
-  stdenv, lib, cmake, gmp, libuv, git, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused, darwin, llvmPackages, linkFarmFromDrvs,
+  stdenv, lib, cmake, gmp, libuv, cadical, git, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused, darwin, llvmPackages, linkFarmFromDrvs,
   ... } @ args:
 with builtins;
 lib.warn "The Nix-based build is deprecated" rec {
@@ -17,7 +17,7 @@ lib.warn "The Nix-based build is deprecated" rec {
     '';
   } // args // {
     src = args.realSrc or (sourceByRegex args.src [ "[a-z].*" "CMakeLists\.txt" ]);
-    cmakeFlags = (args.cmakeFlags or [ "-DSTAGE=1" "-DPREV_STAGE=./faux-prev-stage" "-DUSE_GITHASH=OFF" ]) ++ (args.extraCMakeFlags or extraCMakeFlags) ++ lib.optional (args.debug or debug) [ "-DCMAKE_BUILD_TYPE=Debug" ];
+    cmakeFlags = (args.cmakeFlags or [ "-DSTAGE=1" "-DPREV_STAGE=./faux-prev-stage" "-DUSE_GITHASH=OFF" "-DCADICAL=${cadical}/bin/cadical" ]) ++ (args.extraCMakeFlags or extraCMakeFlags) ++ lib.optional (args.debug or debug) [ "-DCMAKE_BUILD_TYPE=Debug" ];
     preConfigure = args.preConfigure or "" + ''
       # ignore absence of submodule
       sed -i 's!lake/Lake.lean!!' CMakeLists.txt
@@ -95,12 +95,13 @@ lib.warn "The Nix-based build is deprecated" rec {
       Lean = attachSharedLib leanshared Lean' // { allExternalDeps = [ Std ]; };
       Lake = build {
         name = "Lake";
+        sharedLibName = "Lake_shared";
         src = src + "/src/lake";
         deps = [ Init Lean ];
       };
       Lake-Main = build {
-        name = "Lake.Main";
-        roots = [ "Lake.Main" ];
+        name = "LakeMain";
+        roots = [{ glob = "one"; mod = "LakeMain"; }];
         executableName = "lake";
         deps = [ Lake ];
         linkFlags = lib.optional stdenv.isLinux "-rdynamic";
@@ -133,7 +134,7 @@ lib.warn "The Nix-based build is deprecated" rec {
       mods = foldl' (mods: pkg: mods // pkg.mods) {} stdlib;
       print-paths = Lean.makePrintPathsFor [] mods;
       leanc = writeShellScriptBin "leanc" ''
-        LEAN_CC=${stdenv.cc}/bin/cc ${Leanc.executable}/bin/leanc -I${lean-bin-tools-unwrapped}/include ${stdlibLinkFlags} -L${libInit_shared} -L${leanshared_1} -L${leanshared} "$@"
+        LEAN_CC=${stdenv.cc}/bin/cc ${Leanc.executable}/bin/leanc -I${lean-bin-tools-unwrapped}/include ${stdlibLinkFlags} -L${libInit_shared} -L${leanshared_1} -L${leanshared} -L${Lake.sharedLib} "$@"
       '';
       lean = runCommand "lean" { buildInputs = lib.optional stdenv.isDarwin darwin.cctools; } ''
         mkdir -p $out/bin
@@ -144,7 +145,7 @@ lib.warn "The Nix-based build is deprecated" rec {
         name = "lean-${desc}";
         buildCommand = ''
           mkdir -p $out/bin $out/lib/lean
-          ln -sf ${leancpp}/lib/lean/* ${lib.concatMapStringsSep " " (l: "${l.modRoot}/* ${l.staticLib}/*") (lib.reverseList stdlib)} ${libInit_shared}/* ${leanshared_1}/* ${leanshared}/* $out/lib/lean/
+          ln -sf ${leancpp}/lib/lean/* ${lib.concatMapStringsSep " " (l: "${l.modRoot}/* ${l.staticLib}/*") (lib.reverseList stdlib)} ${libInit_shared}/* ${leanshared_1}/* ${leanshared}/* ${Lake.sharedLib}/* $out/lib/lean/
           # put everything in a single final derivation so `IO.appDir` references work
           cp ${lean}/bin/lean ${leanc}/bin/leanc ${Lake-Main.executable}/bin/lake $out/bin
           # NOTE: `lndir` will not override existing `bin/leanc`
@@ -158,7 +159,7 @@ lib.warn "The Nix-based build is deprecated" rec {
       test = buildCMake {
         name = "lean-test-${desc}";
         realSrc = lib.sourceByRegex src [ "src.*" "tests.*" ];
-        buildInputs = [ gmp libuv perl git ];
+        buildInputs = [ gmp libuv perl git cadical ];
         preConfigure = ''
           cd src
         '';
@@ -177,7 +178,7 @@ lib.warn "The Nix-based build is deprecated" rec {
         '';
       };
       update-stage0 =
-        let cTree = symlinkJoin { name = "cs"; paths = map (lib: lib.cTree) stdlib; }; in
+        let cTree = symlinkJoin { name = "cs"; paths = map (lib: lib.cTree) (stdlib ++ [Lake-Main]); }; in
         writeShellScriptBin "update-stage0" ''
           CSRCS=${cTree} CP_C_PARAMS="--dereference --no-preserve=all" ${src + "/script/lib/update-stage0"}
         '';

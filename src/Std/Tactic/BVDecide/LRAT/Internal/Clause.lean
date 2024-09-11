@@ -5,6 +5,7 @@ Authors: Josh Clune
 -/
 prelude
 import Init.Data.List.Erase
+import Init.Data.Array.Lemmas
 import Std.Sat.CNF.Basic
 import Std.Tactic.BVDecide.LRAT.Internal.PosFin
 import Std.Tactic.BVDecide.LRAT.Internal.Assignment
@@ -155,7 +156,7 @@ theorem isUnit_iff (c : DefaultClause n) (l : Literal (PosFin n)) :
   split
   · next l' heq => simp [heq]
   · next hne =>
-    simp only [false_iff]
+    simp
     apply hne
 
 def negate (c : DefaultClause n) : CNF.Clause (PosFin n) := c.clause.map Literal.negate
@@ -183,13 +184,13 @@ def insert (c : DefaultClause n) (l : Literal (PosFin n)) : Option (DefaultClaus
         · apply Or.inr
           constructor
           · intro heq
-            simp only [← heq] at hl
+            simp [← heq] at hl
           · simpa [hl, ← l'_eq_l] using heq1
         · simp only [Bool.not_eq_true] at hl
           apply Or.inl
           constructor
           · intro heq
-            simp only [← heq] at hl
+            simp [← heq] at hl
           · simpa [hl, ← l'_eq_l] using heq1
       · next l'_ne_l =>
         have := c.nodupkey l'
@@ -222,7 +223,7 @@ theorem ofArray_eq (arr : Array (Literal (PosFin n)))
     ofArray arr = some c → toList c = Array.toList arr := by
   intro h
   simp only [ofArray] at h
-  rw [toList, Array.toList_eq]
+  rw [toList]
   let motive (idx : Nat) (acc : Option (DefaultClause n)) : Prop :=
     ∃ idx_le_arr_size : idx ≤ arr.size, ∀ c' : DefaultClause n, acc = some c' →
       ∃ hsize : c'.clause.length = arr.size - idx, ∀ i : Fin c'.clause.length,
@@ -250,14 +251,14 @@ theorem ofArray_eq (arr : Array (Literal (PosFin n)))
     intro c' heq
     simp only [Fin.getElem_fin, fold_fn] at heq
     split at heq
-    · simp only at heq
+    · simp at heq
     · next acc =>
       specialize ih acc rfl
       rcases ih with ⟨hsize, ih⟩
       simp only at ih
       simp only [insert] at heq
       split at heq
-      · exact False.elim heq
+      · simp at heq
       · split at heq
         · next h_dup =>
           exfalso -- h_dup contradicts arrNodup
@@ -292,13 +293,13 @@ theorem ofArray_eq (arr : Array (Literal (PosFin n)))
   next i l =>
   by_cases i_in_bounds : i < c.clause.length
   · specialize h ⟨i, i_in_bounds⟩
-    have i_in_bounds' : i < arr.data.length := by
+    have i_in_bounds' : i < arr.toList.length := by
       dsimp; omega
     rw [List.getElem?_eq_getElem i_in_bounds, List.getElem?_eq_getElem i_in_bounds']
     simp only [List.get_eq_getElem, Nat.zero_add] at h
-    rw [← Array.getElem_eq_data_getElem]
+    rw [← Array.getElem_eq_toList_getElem]
     simp [h]
-  · have arr_data_length_le_i : arr.data.length ≤ i := by
+  · have arr_data_length_le_i : arr.toList.length ≤ i := by
       dsimp; omega
     simp only [Nat.not_lt, ← List.getElem?_eq_none_iff] at i_in_bounds arr_data_length_le_i
     rw [i_in_bounds, arr_data_length_le_i]

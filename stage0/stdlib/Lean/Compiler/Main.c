@@ -25,9 +25,8 @@ static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_90___
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_90____closed__1;
 static lean_object* l_Lean_Compiler_compile___lambda__1___closed__1;
 lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*, lean_object*);
-lean_object* l_List_map___at_Lean_compileDecl___spec__1(lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_90____closed__3;
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 lean_object* l_Lean_profileitM___at_Lean_Compiler_LCNF_main___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
@@ -51,6 +50,7 @@ static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_90___
 static lean_object* l_Lean_Compiler_compile___closed__3;
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_90____closed__15;
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_90____closed__16;
+lean_object* l_List_mapTR_loop___at_Lean_compileDecl___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_compile___closed__1;
 static lean_object* _init_l_Lean_Compiler_compile___lambda__1___closed__1() {
 _start:
@@ -89,22 +89,23 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Compiler_compile___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_6 = lean_array_to_list(lean_box(0), x_1);
-x_7 = l_List_map___at_Lean_compileDecl___spec__1(x_6);
-x_8 = l_Lean_MessageData_ofList(x_7);
-x_9 = l_Lean_Compiler_compile___lambda__1___closed__2;
-x_10 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_10, 0, x_9);
-lean_ctor_set(x_10, 1, x_8);
-x_11 = l_Lean_Compiler_compile___lambda__1___closed__4;
-x_12 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_12, 0, x_10);
-lean_ctor_set(x_12, 1, x_11);
-x_13 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_13, 0, x_12);
-lean_ctor_set(x_13, 1, x_5);
-return x_13;
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_6 = lean_array_to_list(x_1);
+x_7 = lean_box(0);
+x_8 = l_List_mapTR_loop___at_Lean_compileDecl___spec__1(x_6, x_7);
+x_9 = l_Lean_MessageData_ofList(x_8);
+x_10 = l_Lean_Compiler_compile___lambda__1___closed__2;
+x_11 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_11, 0, x_10);
+lean_ctor_set(x_11, 1, x_9);
+x_12 = l_Lean_Compiler_compile___lambda__1___closed__4;
+x_13 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_13, 0, x_11);
+lean_ctor_set(x_13, 1, x_12);
+x_14 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_14, 0, x_13);
+lean_ctor_set(x_14, 1, x_5);
+return x_14;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Compiler_compile___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

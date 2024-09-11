@@ -6,7 +6,8 @@ Authors: Markus Himmel
 prelude
 import Init.Data.BEq
 import Init.Data.Nat.Simproc
-import Std.Data.DHashMap.Internal.List.Pairwise
+import Init.Data.List.Perm
+import Std.Data.DHashMap.Internal.List.Defs
 
 /-!
 This is an internal implementation file of the hash map. Users of the hash map should not rely on
@@ -22,9 +23,11 @@ universe u v w
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w}
 
-open List (Perm)
+open List (Perm Sublist pairwise_cons erase_sublist filter_sublist)
 
 namespace Std.DHashMap.Internal.List
+
+attribute [-simp] List.isEmpty_eq_false
 
 @[elab_as_elim]
 theorem assoc_induction {motive : List ((a : α) × β a) → Prop} (nil : motive [])
@@ -687,7 +690,7 @@ theorem sublist_eraseKey [BEq α] {l : List ((a : α) × β a)} {k : α} :
     rw [eraseKey_cons]
     cases k' == k
     · simpa
-    · simpa using Sublist.cons_right Sublist.refl
+    · simp
 
 theorem length_eraseKey [BEq α] {l : List ((a : α) × β a)} {k : α} :
     (eraseKey k l).length = if containsKey k l then l.length - 1 else l.length := by
@@ -751,7 +754,7 @@ open List
 
 theorem DistinctKeys.perm_keys [BEq α] [PartialEquivBEq α] {l l' : List ((a : α) × β a)}
     (h : Perm (keys l') (keys l)) : DistinctKeys l → DistinctKeys l'
-  | ⟨h'⟩ => ⟨h'.perm BEq.symm_false h.symm⟩
+  | ⟨h'⟩ => ⟨h'.perm h.symm BEq.symm_false⟩
 
 theorem DistinctKeys.perm [BEq α] [PartialEquivBEq α] {l l' : List ((a : α) × β a)}
     (h : Perm l' l) : DistinctKeys l → DistinctKeys l' :=
@@ -771,7 +774,7 @@ theorem distinctKeys_of_sublist [BEq α] {l l' : List ((a : α) × β a)} (h : S
 
 theorem DistinctKeys.of_keys_eq [BEq α] {l : List ((a : α) × β a)} {l' : List ((a : α) × γ a)}
     (h : keys l = keys l') : DistinctKeys l → DistinctKeys l' :=
-  distinctKeys_of_sublist_keys (h ▸ Sublist.refl)
+  distinctKeys_of_sublist_keys (h ▸ Sublist.refl _)
 
 theorem containsKey_iff_exists [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)} {a : α} :
     containsKey a l ↔ ∃ a' ∈ keys l, a == a' := by
@@ -971,7 +974,7 @@ theorem getValueD_insertEntry_self {β : Type v} [BEq α] [EquivBEq α] {l : Lis
     {k : α} {fallback v : β} : getValueD k (insertEntry k v l) fallback = v := by
   simp [getValueD_insertEntry, BEq.refl]
 
-@[simp]
+@[local simp]
 theorem containsKey_insertEntry [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)} {k a : α}
     {v : β k} : containsKey a (insertEntry k v l) = ((k == a) || containsKey a l) := by
   rw [containsKey_eq_isSome_getEntry?, containsKey_eq_isSome_getEntry?, getEntry?_insertEntry]
@@ -981,7 +984,6 @@ theorem containsKey_insertEntry_of_beq [BEq α] [PartialEquivBEq α] {l : List (
     {k a : α} {v : β k} (h : k == a) : containsKey a (insertEntry k v l) := by
   simp [h]
 
-@[simp]
 theorem containsKey_insertEntry_self [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} {k : α}
     {v : β k} : containsKey k (insertEntry k v l) :=
   containsKey_insertEntry_of_beq BEq.refl

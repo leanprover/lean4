@@ -6,8 +6,15 @@
       # alternative config: use `perf stat` for extended properties
       runner: perf_stat
       perf_stat:
-        properties: ['wall-clock', 'task-clock', 'instructions', 'branches', 'branch-misses']
-      rusage_properties: ['maxrss']
+        properties:
+          [
+            "wall-clock",
+            "task-clock",
+            "instructions",
+            "branches",
+            "branch-misses",
+          ]
+      rusage_properties: ["maxrss"]
   run_config:
     <<: *time
     cmd: |
@@ -231,6 +238,15 @@
     <<: *time
     cmd: lean -Dlinter.all=false --run server_startup.lean
 - attributes:
+    description: ilean roundtrip
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: ./ilean_roundtrip.lean.out 200000
+    parse_output: true
+  build_config:
+    cmd: ./compile.sh ilean_roundtrip.lean
+- attributes:
     description: liasolver
     tags: [fast, suite]
   run_config:
@@ -322,3 +338,15 @@
   run_config:
     <<: *time
     cmd: lean workspaceSymbols.lean
+- attributes:
+    description: bv_decide_realworld
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean bv_decide_realworld.lean
+- attributes:
+    description: bv_decide_mul
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean bv_decide_mul.lean

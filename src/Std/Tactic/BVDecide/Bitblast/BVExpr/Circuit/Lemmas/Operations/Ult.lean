@@ -24,8 +24,8 @@ variable [Hashable α] [DecidableEq α]
 
 theorem mkUlt_denote_eq (aig : AIG α) (lhs rhs : BitVec w) (input : BinaryRefVec aig w)
     (assign : α → Bool)
-    (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.lhs.get idx hidx, assign⟧ = lhs.getLsb idx)
-    (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.rhs.get idx hidx, assign⟧ = rhs.getLsb idx) :
+    (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.lhs.get idx hidx, assign⟧ = lhs.getLsbD idx)
+    (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.rhs.get idx hidx, assign⟧ = rhs.getLsbD idx) :
     ⟦(mkUlt aig input).aig, (mkUlt aig input).ref, assign⟧ = BitVec.ult lhs rhs := by
   rw [BitVec.ult_eq_not_carry]
   unfold mkUlt
@@ -42,7 +42,7 @@ theorem mkUlt_denote_eq (aig : AIG α) (lhs rhs : BitVec w) (input : BinaryRefVe
   · dsimp only
     intro idx hidx
     rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
-    · simp only [RefVec.get_cast, Ref.gate_cast, BitVec.getLsb_not, hidx, decide_True,
+    · simp only [RefVec.get_cast, Ref.gate_cast, BitVec.getLsbD_not, hidx, decide_True,
         Bool.true_and]
       rw [BVExpr.bitblast.denote_blastNot]
       congr 1

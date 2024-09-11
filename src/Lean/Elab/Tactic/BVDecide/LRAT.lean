@@ -5,10 +5,9 @@ Authors: Henrik Böving
 -/
 prelude
 import Lean.Elab.Tactic.BVDecide.LRAT.Trim
-import Lean.Elab.Tactic.BVDecide.LRAT.Parser
 
 /-!
-This directory contains the implementation of the LRAT parsing and trimming algorithms.
-They mostly live here because they used datastructures and parsing infrastructure from `Lean`.
+This directory contains the implementation of the LRAT trimming algorithms.
+It lives here because it uses datastructures and parsing infrastructure from `Lean`.
 Otherwise they could be put into `Std.Tactic.BVDecide.LRAT`.
 -/

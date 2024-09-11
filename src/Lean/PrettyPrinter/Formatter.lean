@@ -420,7 +420,9 @@ def identNoAntiquot.formatter : Formatter := do
   let stx@(Syntax.ident info _ id _) ← getCur
     | throwError m!"not an ident: {← getCur}"
   let id := id.simpMacroScopes
-  withMaybeTag (getExprPos? stx) (pushToken info id.toString)
+  let tokenTable := getTokenTable (← getEnv)
+  let isToken (s : String) : Bool := (tokenTable.find? s).isSome
+  withMaybeTag (getExprPos? stx) (pushToken info (id.toString (isToken := isToken)))
   goLeft
 
 @[combinator_formatter rawIdentNoAntiquot] def rawIdentNoAntiquot.formatter : Formatter := do

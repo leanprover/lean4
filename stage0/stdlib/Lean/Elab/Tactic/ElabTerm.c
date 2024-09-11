@@ -315,7 +315,7 @@ lean_object* l_Lean_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExpr
 lean_object* l_Lean_Elab_Tactic_getMainTarget(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalConstructor_declRange__1___closed__2;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalExact_declRange__1(lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalWithReducibleAndInstances(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalRename___closed__3;
 static lean_object* l_Lean_Elab_Tactic_evalRename___lambda__1___closed__2;
@@ -4014,7 +4014,7 @@ lean_dec(x_1);
 x_4 = lean_ctor_get(x_3, 1);
 lean_inc(x_4);
 lean_dec(x_3);
-x_5 = lean_array_to_list(lean_box(0), x_2);
+x_5 = lean_array_to_list(x_2);
 x_6 = lean_apply_2(x_4, lean_box(0), x_5);
 return x_6;
 }
@@ -4155,7 +4155,7 @@ if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; 
 x_16 = lean_ctor_get(x_14, 0);
-x_17 = lean_array_to_list(lean_box(0), x_16);
+x_17 = lean_array_to_list(x_16);
 lean_ctor_set(x_14, 0, x_17);
 return x_14;
 }
@@ -4167,7 +4167,7 @@ x_19 = lean_ctor_get(x_14, 1);
 lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_14);
-x_20 = lean_array_to_list(lean_box(0), x_18);
+x_20 = lean_array_to_list(x_18);
 x_21 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set(x_21, 1, x_19);
@@ -4311,7 +4311,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_withCollectingNewGoalsFrom_go___lamb
 _start:
 {
 lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_14 = lean_array_to_list(lean_box(0), x_1);
+x_14 = lean_array_to_list(x_1);
 x_15 = l_Lean_Elab_Tactic_sortMVarIdsByIndex___at_Lean_Elab_Tactic_withCollectingNewGoalsFrom_go___spec__1(x_14, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 x_16 = !lean_is_exclusive(x_15);
 if (x_16 == 0)
@@ -16391,7 +16391,7 @@ x_60 = lean_array_get_size(x_17);
 x_61 = lean_unsigned_to_nat(1u);
 x_62 = lean_nat_dec_eq(x_60, x_61);
 lean_dec(x_60);
-x_63 = lean_array_to_list(lean_box(0), x_17);
+x_63 = lean_array_to_list(x_17);
 x_64 = l_Lean_MessageData_andList(x_63);
 lean_inc(x_16);
 x_65 = l_Lean_indentExpr(x_16);
@@ -16603,7 +16603,7 @@ x_134 = lean_array_get_size(x_90);
 x_135 = lean_unsigned_to_nat(1u);
 x_136 = lean_nat_dec_eq(x_134, x_135);
 lean_dec(x_134);
-x_137 = lean_array_to_list(lean_box(0), x_90);
+x_137 = lean_array_to_list(x_90);
 x_138 = l_Lean_MessageData_andList(x_137);
 lean_inc(x_89);
 x_139 = l_Lean_indentExpr(x_89);

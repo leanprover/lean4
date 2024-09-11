@@ -1899,6 +1899,22 @@ with initial value `a`. -/
 def foldlM {α : Type} {m} [Monad m] (f : α → Expr → m α) (init : α) (e : Expr) : m α :=
   Prod.snd <$> StateT.run (e.traverseChildren (fun e' => fun a => Prod.mk e' <$> f a e')) init
 
+/--
+Returns the size of `e` as a tree, i.e. nodes reachable via multiple paths are counted multiple
+times.
+
+This is a naive implementation that visits shared subterms multiple times instead of caching their
+sizes. It is primarily meant for debugging.
+-/
+def sizeWithoutSharing : (e : Expr) → Nat
+  | .forallE _ d b _ => 1 + d.sizeWithoutSharing + b.sizeWithoutSharing
+  | .lam _ d b _     => 1 + d.sizeWithoutSharing + b.sizeWithoutSharing
+  | .mdata _ e       => 1 + e.sizeWithoutSharing
+  | .letE _ t v b _  => 1 + t.sizeWithoutSharing + v.sizeWithoutSharing + b.sizeWithoutSharing
+  | .app f a         => 1 + f.sizeWithoutSharing + a.sizeWithoutSharing
+  | .proj _ _ e      => 1 + e.sizeWithoutSharing
+  | .lit .. | .const .. | .sort .. | .mvar .. | .fvar .. | .bvar .. => 1
+
 end Expr
 
 /--

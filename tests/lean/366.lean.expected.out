@@ -1,7 +1,7 @@
-[Meta.synthInstance] ✅ Inhabited Nat
+[Meta.synthInstance] ✅️ Inhabited Nat
   [Meta.synthInstance] new goal Inhabited Nat
     [Meta.synthInstance.instances] #[@instInhabitedOfMonad, instInhabitedNat]
-  [Meta.synthInstance] ✅ apply instInhabitedNat to Inhabited Nat
-    [Meta.synthInstance.tryResolve] ✅ Inhabited Nat ≟ Inhabited Nat
-    [Meta.synthInstance.answer] ✅ Inhabited Nat
+  [Meta.synthInstance] ✅️ apply instInhabitedNat to Inhabited Nat
+    [Meta.synthInstance.tryResolve] ✅️ Inhabited Nat ≟ Inhabited Nat
+    [Meta.synthInstance.answer] ✅️ Inhabited Nat
   [Meta.synthInstance] result instInhabitedNat

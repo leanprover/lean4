@@ -703,7 +703,7 @@ static inline void lean_array_set_core(u_lean_obj_arg o, size_t i, lean_obj_arg 
     lean_to_array(o)->m_data[i] = v;
 }
 LEAN_EXPORT lean_object * lean_array_mk(lean_obj_arg l);
-LEAN_EXPORT lean_object * lean_array_data(lean_obj_arg a);
+LEAN_EXPORT lean_object * lean_array_to_list(lean_obj_arg a);
 
 /* Arrays of objects (high level API) */
 

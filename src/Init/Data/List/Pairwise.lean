@@ -113,7 +113,7 @@ theorem Pairwise.map {S : β → β → Prop} (f : α → β) (H : ∀ a b : α,
     (p : Pairwise R l) : Pairwise S (map f l) :=
   pairwise_map.2 <| p.imp (H _ _)
 
-theorem pairwise_filterMap (f : β → Option α) {l : List β} :
+theorem pairwise_filterMap {f : β → Option α} {l : List β} :
     Pairwise R (filterMap f l) ↔ Pairwise (fun a a' : β => ∀ b ∈ f a, ∀ b' ∈ f a', R b b') l := by
   let _S (a a' : β) := ∀ b ∈ f a, ∀ b' ∈ f a', R b b'
   simp only [Option.mem_def]
@@ -123,7 +123,7 @@ theorem pairwise_filterMap (f : β → Option α) {l : List β} :
   match e : f a with
   | none =>
     rw [filterMap_cons_none e, pairwise_cons]
-    simp only [e, false_implies, implies_true, true_and, IH]
+    simp only [e, false_implies, implies_true, true_and, IH, reduceCtorEq]
   | some b =>
     rw [filterMap_cons_some e]
     simpa [IH, e] using fun _ =>
@@ -132,11 +132,11 @@ theorem pairwise_filterMap (f : β → Option α) {l : List β} :
 theorem Pairwise.filterMap {S : β → β → Prop} (f : α → Option β)
     (H : ∀ a a' : α, R a a' → ∀ b ∈ f a, ∀ b' ∈ f a', S b b') {l : List α} (p : Pairwise R l) :
     Pairwise S (filterMap f l) :=
-  (pairwise_filterMap _).2 <| p.imp (H _ _)
+  pairwise_filterMap.2 <| p.imp (H _ _)
 
 @[deprecated Pairwise.filterMap (since := "2024-07-29")] abbrev Pairwise.filter_map := @Pairwise.filterMap
 
-theorem pairwise_filter (p : α → Prop) [DecidablePred p] {l : List α} :
+theorem pairwise_filter {p : α → Prop} [DecidablePred p] {l : List α} :
     Pairwise R (filter p l) ↔ Pairwise (fun x y => p x → p y → R x y) l := by
   rw [← filterMap_eq_filter, pairwise_filterMap]
   simp

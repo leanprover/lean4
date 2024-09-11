@@ -60,7 +60,7 @@ static lean_object* l_Lean_Parser_command____Simproc_____x5b___x5d___x28___x29_x
 static lean_object* l_Lean_Parser_Attr_simprocBuiltinAttr___closed__5;
 static lean_object* l_Lean_Parser_command__Builtin__dsimproc__decl___x28___x29_x3a_x3d_____closed__12;
 LEAN_EXPORT lean_object* l_Lean_Parser___aux__Init__Simproc______macroRules__Lean__Parser__command____Builtin__simproc_____x5b___x5d___x28___x29_x3a_x3d____1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
+lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_Parser_command____Builtin__dsimproc_____x5b___x5d___x28___x29_x3a_x3d_____closed__5;
 static lean_object* l_Lean_Parser___aux__Init__Simproc______macroRules__Lean__Parser__command__Simproc__decl___x28___x29_x3a_x3d____1___lambda__1___closed__16;
 lean_object* l_Lean_Syntax_getId(lean_object*);
@@ -106,6 +106,7 @@ static lean_object* l_Lean_Parser_command____Simproc_____x5b___x5d___x28___x29_x
 static lean_object* l_Lean_Parser___aux__Init__Simproc______macroRules__Lean__Parser__command__Dsimproc__decl___x28___x29_x3a_x3d____1___lambda__1___closed__1;
 static lean_object* l_Lean_Parser_command__Builtin__dsimproc__decl___x28___x29_x3a_x3d_____closed__6;
 static lean_object* l_Lean_Parser_command____Simproc_____x5b___x5d___x28___x29_x3a_x3d_____closed__2;
+static lean_object* l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___closed__14;
 static lean_object* l_Lean_Parser_command__Simproc__decl___x28___x29_x3a_x3d_____closed__7;
 static lean_object* l_Lean_Parser___aux__Init__Simproc______macroRules__Lean__Parser__command____Simproc_____x5b___x5d___x28___x29_x3a_x3d____1___lambda__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Parser___aux__Init__Simproc______macroRules__Lean__Parser__command____Builtin__simproc_____x5b___x5d___x28___x29_x3a_x3d____1___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -158,6 +159,7 @@ static lean_object* l_Lean_Parser_simprocPatternBuiltin___closed__3;
 static lean_object* l_Lean_Parser_command__Builtin__simproc__decl___x28___x29_x3a_x3d_____closed__12;
 static lean_object* l_Lean_Parser_Attr_simprocBuiltinAttr___closed__6;
 static lean_object* l_Lean_Parser_Attr_sevalprocBuiltinAttr___closed__6;
+LEAN_EXPORT uint8_t l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___lambda__1(lean_object*);
 static lean_object* l_Lean_Parser_simprocPattern___closed__1;
 static lean_object* l_Lean_Parser___aux__Init__Simproc______macroRules__Lean__Parser__command__Simproc__decl___x28___x29_x3a_x3d____1___lambda__1___closed__29;
 static lean_object* l___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___closed__1;
@@ -175,6 +177,7 @@ static lean_object* l_Lean_Parser___aux__Init__Simproc______macroRules__Lean__Pa
 static lean_object* l_Lean_Parser_command____Simproc_____x5b___x5d___x28___x29_x3a_x3d_____closed__17;
 static lean_object* l_Lean_Parser_Attr_simprocBuiltinAttr___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Parser___aux__Init__Simproc______macroRules__Lean__Parser__command____Builtin__simproc_____x5b___x5d___x28___x29_x3a_x3d____1___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___lambda__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser___aux__Init__Simproc______macroRules__Lean__Parser__command__Simproc__decl___x28___x29_x3a_x3d____1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_command____Dsimproc_____x5b___x5d___x28___x29_x3a_x3d_____closed__8;
 LEAN_EXPORT lean_object* l_Lean_Parser_command__Builtin__dsimproc__decl___x28___x29_x3a_x3d__;
@@ -4012,6 +4015,14 @@ lean_dec(x_2);
 return x_4;
 }
 }
+LEAN_EXPORT uint8_t l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___lambda__1(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; 
+x_2 = 0;
+return x_2;
+}
+}
 static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___closed__1() {
 _start:
 {
@@ -4118,6 +4129,14 @@ return x_3;
 static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___closed__12() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___lambda__1___boxed), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___closed__13() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Parser_Attr_sevalprocAttr___closed__1;
@@ -4125,7 +4144,7 @@ x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___closed__13() {
+static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4165,37 +4184,38 @@ x_52 = l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAtt
 x_53 = lean_name_eq(x_49, x_52);
 if (x_53 == 0)
 {
-lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; uint8_t x_58; lean_object* x_59; 
+lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; uint8_t x_58; lean_object* x_59; lean_object* x_60; 
 x_54 = l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___closed__10;
 x_55 = lean_name_append_after(x_49, x_54);
 x_56 = l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___closed__11;
 lean_inc(x_55);
 x_57 = l_Lean_Name_append(x_56, x_55);
 x_58 = 1;
-x_59 = l_Lean_Name_toString(x_55, x_58);
+x_59 = l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___closed__12;
+x_60 = l_Lean_Name_toString(x_55, x_58, x_59);
 x_11 = x_57;
-x_12 = x_59;
+x_12 = x_60;
 goto block_45;
 }
 else
 {
-lean_object* x_60; lean_object* x_61; 
+lean_object* x_61; lean_object* x_62; 
 lean_dec(x_49);
-x_60 = l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___closed__12;
-x_61 = l_Lean_Parser_Attr_sevalprocAttr___closed__3;
-x_11 = x_60;
-x_12 = x_61;
+x_61 = l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___closed__13;
+x_62 = l_Lean_Parser_Attr_sevalprocAttr___closed__3;
+x_11 = x_61;
+x_12 = x_62;
 goto block_45;
 }
 }
 else
 {
-lean_object* x_62; lean_object* x_63; 
+lean_object* x_63; lean_object* x_64; 
 lean_dec(x_49);
-x_62 = l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___closed__13;
-x_63 = l_Lean_Parser_Attr_simprocAttr___closed__4;
-x_11 = x_62;
-x_12 = x_63;
+x_63 = l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___closed__14;
+x_64 = l_Lean_Parser_Attr_simprocAttr___closed__4;
+x_11 = x_63;
+x_12 = x_64;
 goto block_45;
 }
 }
@@ -4405,6 +4425,16 @@ x_58 = lean_box(0);
 x_59 = lean_apply_4(x_7, x_56, x_58, x_5, x_57);
 return x_59;
 }
+}
+}
+LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___lambda__1___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___lambda__1(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
@@ -7634,6 +7664,8 @@ l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeC
 lean_mark_persistent(l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___closed__12);
 l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___closed__13 = _init_l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___closed__13();
 lean_mark_persistent(l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___closed__13);
+l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___closed__14 = _init_l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___closed__14();
+lean_mark_persistent(l_Array_forInUnsafe_loop___at___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___spec__1___closed__14);
 l___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___closed__1 = _init_l___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___closed__1();
 lean_mark_persistent(l___private_Init_Simproc_0__Lean_Parser_mkAttributeCmds___closed__1);
 l_Lean_Parser___aux__Init__Simproc______macroRules__Lean__Parser__command____Simproc_____x5b___x5d___x28___x29_x3a_x3d____1___lambda__1___closed__1 = _init_l_Lean_Parser___aux__Init__Simproc______macroRules__Lean__Parser__command____Simproc_____x5b___x5d___x28___x29_x3a_x3d____1___lambda__1___closed__1();

@@ -48,11 +48,11 @@ theorem eq_of_compareOfLessAndEq [LT α] [DecidableEq α] {a a' : α}
   unfold compareOfLessAndEq at h
   split at h
   next =>
-    exact False.elim h
+    simp at h
   next =>
     split at h
     next => assumption
-    next => exact False.elim h
+    next => simp at h
 
 theorem compareOfLessAndEq_rfl [LT α] [DecidableEq α] {a : α}
 [Decidable (a < a)] (lt_irrefl : ¬ a < a) : compareOfLessAndEq a a = .eq := by

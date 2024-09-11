@@ -145,6 +145,7 @@ def wfRecursion (preDefs : Array PreDefinition) (termArg?s : Array (Option Termi
   registerEqnsInfo preDefs preDefNonRec.declName fixedPrefixSize argsPacker
   for preDef in preDefs do
     markAsRecursive preDef.declName
+    generateEagerEqns preDef.declName
     applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
     -- Unless the user asks for something else, mark the definition as irreducible
     unless preDef.modifiers.attrs.any fun a =>

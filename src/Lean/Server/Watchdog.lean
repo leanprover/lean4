@@ -530,7 +530,8 @@ private def callHierarchyItemOf?
     | return none
 
   match ident with
-  | .const definitionModule definitionName =>
+  | .const definitionModule definitionNameString =>
+    let definitionName := definitionNameString.toName
     -- If we have a constant with a proper name, use it.
     -- If `callHierarchyItemOf?` is used either on the name of a definition itself or e.g. an
     -- `inductive` constructor, this is the right thing to do and using the parent decl is
@@ -545,14 +546,15 @@ private def callHierarchyItemOf?
       range          := definitionLocation.range,
       selectionRange := definitionLocation.range
       data?          := toJson {
-        module := definitionModule
+        module := definitionModule.toName
         name   := definitionName
         : CallHierarchyItemData
       }
     }
   | _ =>
-    let some ⟨parentDeclName, parentDeclRange, parentDeclSelectionRange⟩ := parentDecl?
+    let some ⟨parentDeclNameString, parentDeclRange, parentDeclSelectionRange⟩ := parentDecl?
       | return none
+    let parentDeclName := parentDeclNameString.toName
 
     let some definitionModule ← srcSearchPath.searchModuleNameOfUri definitionLocation.uri
       | return none
@@ -596,12 +598,14 @@ def handleCallHierarchyIncomingCalls (p : CallHierarchyIncomingCallsParams)
   let srcSearchPath := (← read).srcSearchPath
 
   let references ← (← read).references.get
-  let identRefs ← references.referringTo srcSearchPath (.const itemData.module itemData.name) false
+  let identRefs ← references.referringTo srcSearchPath (.const itemData.module.toString itemData.name.toString) false
 
   let incomingCalls ← identRefs.filterMapM fun ⟨location, parentDecl?⟩ => do
 
-    let some ⟨parentDeclName, parentDeclRange, parentDeclSelectionRange⟩ := parentDecl?
+    let some ⟨parentDeclNameString, parentDeclRange, parentDeclSelectionRange⟩ := parentDecl?
       | return none
+
+    let parentDeclName := parentDeclNameString.toName
 
     let some refModule ← srcSearchPath.searchModuleNameOfUri location.uri
       | return none
@@ -657,7 +661,7 @@ def handleCallHierarchyOutgoingCalls (p : CallHierarchyOutgoingCallsParams)
     let outgoingUsages := info.usages.filter fun usage => Id.run do
       let some parentDecl := usage.parentDecl?
         | return false
-      return itemData.name == parentDecl.name
+      return itemData.name == parentDecl.name.toName
 
     let outgoingUsages := outgoingUsages.map (·.range)
     if outgoingUsages.isEmpty then

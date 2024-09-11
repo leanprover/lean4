@@ -202,7 +202,7 @@ inductive BVExpr : Nat → Type where
   /--
   Extract a slice from a `BitVec`.
   -/
-  | extract (hi lo : Nat) (expr : BVExpr w) : BVExpr (hi - lo + 1)
+  | extract (start len : Nat) (expr : BVExpr w) : BVExpr len
   /--
   A binary operation on two `BVExpr`.
   -/
@@ -277,7 +277,7 @@ def eval (assign : Assignment) : BVExpr w → BitVec w
     bv.truncate w
   | .const val => val
   | .zeroExtend v expr => BitVec.zeroExtend v (eval assign expr)
-  | .extract hi lo expr => BitVec.extractLsb hi lo (eval assign expr)
+  | .extract start len expr => BitVec.extractLsb' start len (eval assign expr)
   | .bin lhs op rhs => op.eval (eval assign lhs) (eval assign rhs)
   | .un op operand => op.eval (eval assign operand)
   | .append lhs rhs => (eval assign lhs) ++ (eval assign rhs)
@@ -298,7 +298,7 @@ theorem eval_zeroExtend : eval assign (.zeroExtend v expr) = BitVec.zeroExtend v
   rfl
 
 @[simp]
-theorem eval_extract : eval assign (.extract hi lo expr) = BitVec.extractLsb hi lo (eval assign expr) := by
+theorem eval_extract : eval assign (.extract start len expr) = BitVec.extractLsb' start len (eval assign expr) := by
   rfl
 
 @[simp]
@@ -375,7 +375,7 @@ inductive BVPred where
   /--
   Getting a constant LSB from a `BitVec`.
   -/
-  | getLsb (expr : BVExpr w) (idx : Nat)
+  | getLsbD (expr : BVExpr w) (idx : Nat)
 
 namespace BVPred
 
@@ -389,7 +389,7 @@ structure ExprPair where
 
 def toString : BVPred → String
   | bin lhs op rhs => s!"({lhs.toString} {op.toString} {rhs.toString})"
-  | getLsb expr idx => s!"{expr.toString}[{idx}]"
+  | getLsbD expr idx => s!"{expr.toString}[{idx}]"
 
 instance : ToString BVPred := ⟨toString⟩
 
@@ -398,14 +398,14 @@ The semantics for `BVPred`.
 -/
 def eval (assign : BVExpr.Assignment) : BVPred → Bool
   | bin lhs op rhs => op.eval (lhs.eval assign) (rhs.eval assign)
-  | getLsb expr idx => (expr.eval assign).getLsb idx
+  | getLsbD expr idx => (expr.eval assign).getLsbD idx
 
 @[simp]
 theorem eval_bin : eval assign (.bin lhs op rhs) = op.eval (lhs.eval assign) (rhs.eval assign) := by
   rfl
 
 @[simp]
-theorem eval_getLsb : eval assign (.getLsb expr idx) = (expr.eval assign).getLsb idx := by
+theorem eval_getLsbD : eval assign (.getLsbD expr idx) = (expr.eval assign).getLsbD idx := by
   rfl
 
 end BVPred

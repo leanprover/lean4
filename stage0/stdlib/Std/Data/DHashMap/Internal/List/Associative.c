@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DHashMap.Internal.List.Associative
-// Imports: Init.Data.BEq Init.Data.Nat.Simproc Std.Data.DHashMap.Internal.List.Pairwise
+// Imports: Init.Data.BEq Init.Data.Nat.Simproc Init.Data.List.Perm Std.Data.DHashMap.Internal.List.Defs
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1116,7 +1116,8 @@ return x_4;
 }
 lean_object* initialize_Init_Data_BEq(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Simproc(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DHashMap_Internal_List_Pairwise(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Perm(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_DHashMap_Internal_List_Defs(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_DHashMap_Internal_List_Associative(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1128,7 +1129,10 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Simproc(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DHashMap_Internal_List_Pairwise(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_Perm(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_DHashMap_Internal_List_Defs(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_DHashMap_Internal_List_getValueCast_x21___rarg___closed__1 = _init_l_Std_DHashMap_Internal_List_getValueCast_x21___rarg___closed__1();

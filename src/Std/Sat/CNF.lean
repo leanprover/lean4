@@ -8,3 +8,4 @@ import Std.Sat.CNF.Basic
 import Std.Sat.CNF.Literal
 import Std.Sat.CNF.Relabel
 import Std.Sat.CNF.RelabelFin
+import Std.Sat.CNF.Dimacs

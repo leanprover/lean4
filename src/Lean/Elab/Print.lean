@@ -134,7 +134,7 @@ private def printAxiomsOf (constName : Name) : CommandElabM Unit := do
   | _ => throwUnsupportedSyntax
 
 private def printEqnsOf (constName : Name) : CommandElabM Unit := do
-  let some eqns ← liftTermElabM <| Meta.getEqnsFor? constName (nonRec := true) |
+  let some eqns ← liftTermElabM <| Meta.getEqnsFor? constName |
     logInfo m!"'{constName}' does not have equations"
   let mut m := m!"equations:"
   for eq in eqns do

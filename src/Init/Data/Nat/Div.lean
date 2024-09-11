@@ -48,7 +48,7 @@ def div.inductionOn.{u}
 decreasing_by apply div_rec_lemma; assumption
 
 theorem div_le_self (n k : Nat) : n / k ≤ n := by
-  induction n using Nat.strongInductionOn with
+  induction n using Nat.strongRecOn with
   | ind n ih =>
     rw [div_eq]
     -- Note: manual split to avoid Classical.em which is not yet defined
@@ -143,7 +143,7 @@ theorem mod_lt (x : Nat) {y : Nat} : y > 0 → x % y < y := by
   induction x, y using mod.inductionOn with
   | base x y h₁ =>
     intro h₂
-    have h₁ : ¬ 0 < y ∨ ¬ y ≤ x := Iff.mp (Decidable.not_and_iff_or_not _ _) h₁
+    have h₁ : ¬ 0 < y ∨ ¬ y ≤ x := Decidable.not_and_iff_or_not.mp h₁
     match h₁ with
     | Or.inl h₁ => exact absurd h₂ h₁
     | Or.inr h₁ =>
@@ -221,7 +221,7 @@ theorem le_div_iff_mul_le (k0 : 0 < k) : x ≤ y / k ↔ x * k ≤ y := by
   induction y, k using mod.inductionOn generalizing x with
     (rw [div_eq]; simp [h]; cases x with | zero => simp [zero_le] | succ x => ?_)
   | base y k h =>
-    simp only [add_one, succ_mul, false_iff, Nat.not_le]
+    simp only [add_one, succ_mul, false_iff, Nat.not_le, Nat.succ_ne_zero]
     refine Nat.lt_of_lt_of_le ?_ (Nat.le_add_left ..)
     exact Nat.not_le.1 fun h' => h ⟨k0, h'⟩
   | ind y k h IH =>
@@ -334,7 +334,7 @@ theorem mul_mod_mul_left (z x y : Nat) : (z * x) % (z * y) = z * (x % y) :=
   else if z0 : z = 0 then by
     rw [z0, Nat.zero_mul, Nat.zero_mul, Nat.zero_mul, mod_zero]
   else by
-    induction x using Nat.strongInductionOn with
+    induction x using Nat.strongRecOn with
     | _ n IH =>
       have y0 : y > 0 := Nat.pos_of_ne_zero y0
       have z0 : z > 0 := Nat.pos_of_ne_zero z0

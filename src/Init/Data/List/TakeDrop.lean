@@ -7,7 +7,7 @@ prelude
 import Init.Data.List.Lemmas
 
 /-!
-# Lemmas about `List.zip`, `List.zipWith`, `List.zipWithAll`, and `List.unzip`.
+# Lemmas about `List.take` and `List.drop`.
 -/
 
 namespace List
@@ -95,9 +95,7 @@ theorem getElem?_take_of_lt {l : List α} {n m : Nat} (h : m < n) : (l.take n)[m
 theorem get?_take {l : List α} {n m : Nat} (h : m < n) : (l.take n).get? m = l.get? m := by
   simp [getElem?_take_of_lt, h]
 
-@[simp]
-theorem getElem?_take_of_succ {l : List α} {n : Nat} : (l.take (n + 1))[n]? = l[n]? :=
-  getElem?_take_of_lt (Nat.lt_succ_self n)
+theorem getElem?_take_of_succ {l : List α} {n : Nat} : (l.take (n + 1))[n]? = l[n]? := by simp
 
 @[simp] theorem drop_drop (n : Nat) : ∀ (m) (l : List α), drop n (drop m l) = drop (n + m) l
   | m, [] => by simp
@@ -131,7 +129,7 @@ theorem drop_tail (l : List α) (n : Nat) : l.tail.drop n = l.drop (n + 1) := by
   rw [← drop_drop, drop_one]
 
 @[simp]
-theorem drop_eq_nil_iff_le {l : List α} {k : Nat} : l.drop k = [] ↔ l.length ≤ k := by
+theorem drop_eq_nil_iff {l : List α} {k : Nat} : l.drop k = [] ↔ l.length ≤ k := by
   refine ⟨fun h => ?_, drop_eq_nil_of_le⟩
   induction k generalizing l with
   | zero =>
@@ -142,6 +140,8 @@ theorem drop_eq_nil_iff_le {l : List α} {k : Nat} : l.drop k = [] ↔ l.length 
     · simp
     · simp only [drop] at h
       simpa [Nat.succ_le_succ_iff] using hk h
+
+@[deprecated drop_eq_nil_iff (since := "2024-09-10")] abbrev drop_eq_nil_iff_le := @drop_eq_nil_iff
 
 @[simp]
 theorem take_eq_nil_iff {l : List α} {k : Nat} : l.take k = [] ↔ k = 0 ∨ l = [] := by
@@ -437,6 +437,18 @@ theorem take_takeWhile {l : List α} (p : α → Bool) n :
   induction l with
   | nil => rfl
   | cons h t ih => by_cases p h <;> simp_all
+
+theorem replace_takeWhile [BEq α] [LawfulBEq α] {l : List α} {p : α → Bool} (h : p a = p b) :
+    (l.takeWhile p).replace a b = (l.replace a b).takeWhile p := by
+  induction l with
+  | nil => rfl
+  | cons x xs ih =>
+    simp only [takeWhile_cons, replace_cons]
+    split <;> rename_i h₁ <;> split <;> rename_i h₂
+    · simp_all
+    · simp [replace_cons, h₂, takeWhile_cons, h₁, ih]
+    · simp_all
+    · simp_all
 
 /-! ### splitAt -/
 

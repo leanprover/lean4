@@ -21,11 +21,11 @@ theorem sat_negate_iff_not_sat {p : α → Bool} {l : Literal α} : p ⊨ Litera
   simp only [Literal.negate, sat_iff]
   constructor
   · intro h pl
-    rw [sat_iff, h, not] at pl
+    rw [sat_iff, h, not.eq_def] at pl
     split at pl <;> simp_all
   · intro h
     rw [sat_iff] at h
-    rw [not]
+    rw [not.eq_def]
     split <;> simp_all
 
 theorem unsat_of_limplies_complement [Entails α t] (x : t) (l : Literal α) :
@@ -113,7 +113,7 @@ theorem limplies_insert [Clause α β] [Entails α σ] [Formula α β σ] {c : �
   simp only [formulaEntails_def, List.all_eq_true, decide_eq_true_eq]
   intro h c' c'_in_f
   have c'_in_fc : c' ∈ toList (insert f c) := by
-    simp only [insert_iff, Array.toList_eq, Array.data_toArray, List.mem_singleton]
+    simp only [insert_iff, Array.toList_toArray, List.mem_singleton]
     exact Or.inr c'_in_f
   exact h c' c'_in_fc
 
@@ -131,4 +131,3 @@ end Formula
 end Internal
 end LRAT
 end Std.Tactic.BVDecide
-

@@ -99,7 +99,7 @@ Observe that this is different behavior than for lists: for lists, `∈` uses `=
   m.inner.contains a
 
 instance [BEq α] [Hashable α] : Membership α (HashSet α) where
-  mem a m := a ∈ m.inner
+  mem m a := a ∈ m.inner
 
 instance [BEq α] [Hashable α] {m : HashSet α} {a : α} : Decidable (a ∈ m) :=
   inferInstanceAs (Decidable (a ∈ m.inner))

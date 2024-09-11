@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.LRAT.Internal.Clause
-// Imports: Init.Data.List.Erase Std.Sat.CNF.Basic Std.Tactic.BVDecide.LRAT.Internal.PosFin Std.Tactic.BVDecide.LRAT.Internal.Assignment
+// Imports: Init.Data.List.Erase Init.Data.Array.Lemmas Std.Sat.CNF.Basic Std.Tactic.BVDecide.LRAT.Internal.PosFin Std.Tactic.BVDecide.LRAT.Internal.Assignment
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2691,6 +2691,7 @@ return x_12;
 }
 }
 lean_object* initialize_Init_Data_List_Erase(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Sat_CNF_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Tactic_BVDecide_LRAT_Internal_PosFin(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Tactic_BVDecide_LRAT_Internal_Assignment(uint8_t builtin, lean_object*);
@@ -2700,6 +2701,9 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_List_Erase(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Sat_CNF_Basic(builtin, lean_io_mk_world());

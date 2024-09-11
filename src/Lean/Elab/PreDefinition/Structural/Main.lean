@@ -193,6 +193,7 @@ def structuralRecursion (preDefs : Array PreDefinition) (termArg?s : Array (Opti
         registerEqnsInfo preDef (preDefs.map (·.declName)) recArgPos numFixed
     addSmartUnfoldingDef preDef recArgPos
     markAsRecursive preDef.declName
+    generateEagerEqns preDef.declName
   applyAttributesOf preDefsNonRec AttributeApplicationTime.afterCompilation
 
 

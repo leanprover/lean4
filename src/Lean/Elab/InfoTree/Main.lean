@@ -85,23 +85,6 @@ partial def InfoTree.findInfo? (p : Info → Bool) (t : InfoTree) : Option Info 
       ts.findSome? (findInfo? p)
   | _ => none
 
-partial def InfoTree.findInfoWithContext? (p : ContextInfo → Info → Bool) (tree : InfoTree)
-    : Option (ContextInfo × Info) :=
-  go none tree
-where
-  go outerContext? tree :=
-    match tree with
-    | context innerContext tree => go (innerContext.mergeIntoOuter? outerContext?) tree
-    | node i ts   =>
-      match outerContext? with
-      | none => ts.findSome? (go outerContext?)
-      | some outerContext =>
-        if p outerContext i then
-          some (outerContext, i)
-        else
-          ts.findSome? (go outerContext?)
-    | _ => none
-
 /-- Instantiate the holes on the given `tree` with the assignment table.
 (analogous to instantiating the metavariables in an expression) -/
 partial def InfoTree.substitute (tree : InfoTree) (assignment : PersistentHashMap MVarId InfoTree) : InfoTree :=

@@ -572,17 +572,25 @@ theorem any_eq {l : List α} : l.any p = decide (∃ x, x ∈ l ∧ p x) := by i
 
 theorem all_eq {l : List α} : l.all p = decide (∀ x, x ∈ l → p x) := by induction l <;> simp [*]
 
-@[simp] theorem any_decide {l : List α} {p : α → Prop} [DecidablePred p] :
-    l.any p = decide (∃ x, x ∈ l ∧ p x) := by
+theorem decide_exists_mem {l : List α} {p : α → Prop} [DecidablePred p] :
+    decide (∃ x, x ∈ l ∧ p x) = l.any p := by
   simp [any_eq]
 
-@[simp] theorem all_decide {l : List α} {p : α → Prop} [DecidablePred p] :
-    l.all p = decide (∀ x, x ∈ l → p x) := by
+theorem decide_forall_mem {l : List α} {p : α → Prop} [DecidablePred p] :
+    decide (∀ x, x ∈ l → p x) = l.all p := by
   simp [all_eq]
 
-@[simp] theorem any_eq_true {l : List α} : l.any p = true ↔ ∃ x, x ∈ l ∧ p x := by simp [any_eq]
+@[simp] theorem any_eq_true {l : List α} : l.any p = true ↔ ∃ x, x ∈ l ∧ p x := by
+  simp only [any_eq, decide_eq_true_eq]
 
-@[simp] theorem all_eq_true {l : List α} : l.all p = true ↔ ∀ x, x ∈ l → p x := by simp [all_eq]
+@[simp] theorem all_eq_true {l : List α} : l.all p = true ↔ ∀ x, x ∈ l → p x := by
+  simp only [all_eq, decide_eq_true_eq]
+
+@[simp] theorem any_eq_false {l : List α} : l.any p = false ↔ ∀ x, x ∈ l → ¬p x := by
+  simp [any_eq]
+
+@[simp] theorem all_eq_false {l : List α} : l.all p = false ↔ ∃ x, x ∈ l ∧ ¬p x := by
+  simp [all_eq]
 
 /-! ### set -/
 

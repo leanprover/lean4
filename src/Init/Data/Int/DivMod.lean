@@ -22,7 +22,7 @@ In early versions of Lean, the typeclasses provided by `/` and `%`
 were defined in terms of `tdiv` and `tmod`, and these were named simply as `div` and `mod`.
 
 However we decided it was better to use `ediv` and `emod`,
-as they are consistent with the conventions used in SMTLib, Mathlib,
+as they are consistent with the conventions used in SMTLib, and Mathlib,
 and often mathematical reasoning is easier with these conventions.
 
 At that time, we did not rename `div` and `mod` to `tdiv` and `tmod` (along with all their lemma).

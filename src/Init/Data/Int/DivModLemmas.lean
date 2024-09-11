@@ -306,6 +306,23 @@ theorem ediv_nonneg {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : 0 ≤ a / b :=
   match a, b, eq_ofNat_of_zero_le Ha, eq_ofNat_of_zero_le Hb with
   | _, _, ⟨_, rfl⟩, ⟨_, rfl⟩ => ofNat_zero_le _
 
+theorem ediv_nonneg' {a b : Int} (Ha : a ≤ 0) (Hb : b ≤ 0) : 0 ≤ a / b := by
+  match a, b with
+  | Int.ofNat a, b =>
+    match Int.le_antisymm_iff.mpr ⟨Ha, Int.zero_le_ofNat a⟩ with
+    | h1 =>
+    rw [h1, Int.zero_ediv]
+  | a, Int.ofNat b =>
+    match Int.le_antisymm_iff.mpr ⟨Hb, Int.zero_le_ofNat b⟩ with
+    | h1 =>
+    rw [h1, Int.ediv_zero]
+  | Int.negSucc a, Int.negSucc b =>
+    rw [Int.div_def, Int.ediv]
+    have le_succ {a: Int} : a ≤ a+1 := (Int.le_add_one (Int.le_refl a))
+    have h2: 0 ≤ ((↑b:Int) + 1) := Int.le_trans (Int.ofNat_zero_le b) le_succ
+    have h3: (0:Int) ≤ ↑a / (↑b + 1) := (Int.ediv_nonneg (Int.ofNat_zero_le a) h2)
+    exact Int.le_trans h3 le_succ
+
 theorem ediv_nonpos {a b : Int} (Ha : 0 ≤ a) (Hb : b ≤ 0) : a / b ≤ 0 :=
   Int.nonpos_of_neg_nonneg <| Int.ediv_neg .. ▸ Int.ediv_nonneg Ha (Int.neg_nonneg_of_nonpos Hb)
 

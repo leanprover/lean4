@@ -54,8 +54,7 @@ cf. https://github.com/leanprover/lean4/issues/4157
         · exact Nat.one_pos
         · exact Nat.lt_of_le_of_lt h h'
       · exact h'
-      · rw [USize.le_def, BitVec.ule]
-        simp only [decide_eq_true_eq]
+      · rw [USize.le_def, BitVec.le_def]
         change _ ≤ (_ % _)
         rw [Nat.mod_eq_of_lt h']
         rw [USize.toBitVec_eq_of_lt]

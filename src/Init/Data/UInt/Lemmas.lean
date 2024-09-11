@@ -71,7 +71,10 @@ protected theorem ne_of_toBitVec_ne {a b : $typeName} (h : a.toBitVec ≠ b.toBi
   fun h' => absurd (toBitVec_eq_of_eq h') h
 
 open $typeName (ne_of_toBitVec_ne) in
-protected theorem ne_of_lt {a b : $typeName} (h : a < b) : a ≠ b := ne_of_toBitVec_ne sorry--(Fin.ne_of_lt h)
+protected theorem ne_of_lt {a b : $typeName} (h : a < b) : a ≠ b := by
+  apply ne_of_toBitVec_ne
+  apply BitVec.ne_of_lt
+  simpa [lt_def] using h
 
 @[simp] protected theorem toNat_zero : (0 : $typeName).toNat = 0 := Nat.zero_mod _
 
@@ -81,12 +84,9 @@ protected theorem ne_of_lt {a b : $typeName} (h : a < b) : a ≠ b := ne_of_toBi
 
 @[simp] protected theorem toNat_sub_of_le (a b : $typeName) : b ≤ a → (a - b).toNat = a.toNat - b.toNat := sorry--Fin.sub_val_of_le
 
-@[simp] protected theorem toNat_modn (a : $typeName) (b : Nat) : (a.modn b).toNat = a.toNat % b := sorry --Fin.modn_val ..
-
-protected theorem modn_lt {m : Nat} : ∀ (u : $typeName), m > 0 → toNat (u % m) < m
-  | ⟨u⟩, h => sorry--Fin.modn_lt u h
-
-protected theorem mod_lt (a b : $typeName) (h : 0 < b) : a % b < b := sorry--modn_lt _ (by simp [lt_def] at h; exact h)
+protected theorem mod_lt (a : $typeName) {b : $typeName} : 0 < b → a % b < b := by
+  simp only [lt_def, mod_def]
+  apply BitVec.umod_lt
 
 protected theorem toNat.inj : ∀ {a b : $typeName}, a.toNat = b.toNat → a = b
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
@@ -119,24 +119,19 @@ theorem UInt32.le_toNat_of_le {n : UInt32} {m : Nat} (h : OfNat.ofNat m ≤ n) :
 @[deprecated (since := "2024-06-23")] protected abbrev UInt8.zero_toNat := @UInt8.toNat_zero
 @[deprecated (since := "2024-06-23")] protected abbrev UInt8.div_toNat := @UInt8.toNat_div
 @[deprecated (since := "2024-06-23")] protected abbrev UInt8.mod_toNat := @UInt8.toNat_mod
-@[deprecated (since := "2024-06-23")] protected abbrev UInt8.modn_toNat := @UInt8.toNat_modn
 
 @[deprecated (since := "2024-06-23")] protected abbrev UInt16.zero_toNat := @UInt16.toNat_zero
 @[deprecated (since := "2024-06-23")] protected abbrev UInt16.div_toNat := @UInt16.toNat_div
 @[deprecated (since := "2024-06-23")] protected abbrev UInt16.mod_toNat := @UInt16.toNat_mod
-@[deprecated (since := "2024-06-23")] protected abbrev UInt16.modn_toNat := @UInt16.toNat_modn
 
 @[deprecated (since := "2024-06-23")] protected abbrev UInt32.zero_toNat := @UInt32.toNat_zero
 @[deprecated (since := "2024-06-23")] protected abbrev UInt32.div_toNat := @UInt32.toNat_div
 @[deprecated (since := "2024-06-23")] protected abbrev UInt32.mod_toNat := @UInt32.toNat_mod
-@[deprecated (since := "2024-06-23")] protected abbrev UInt32.modn_toNat := @UInt32.toNat_modn
 
 @[deprecated (since := "2024-06-23")] protected abbrev UInt64.zero_toNat := @UInt64.toNat_zero
 @[deprecated (since := "2024-06-23")] protected abbrev UInt64.div_toNat := @UInt64.toNat_div
 @[deprecated (since := "2024-06-23")] protected abbrev UInt64.mod_toNat := @UInt64.toNat_mod
-@[deprecated (since := "2024-06-23")] protected abbrev UInt64.modn_toNat := @UInt64.toNat_modn
 
 @[deprecated (since := "2024-06-23")] protected abbrev USize.zero_toNat := @USize.toNat_zero
 @[deprecated (since := "2024-06-23")] protected abbrev USize.div_toNat := @USize.toNat_div
 @[deprecated (since := "2024-06-23")] protected abbrev USize.mod_toNat := @USize.toNat_mod
-@[deprecated (since := "2024-06-23")] protected abbrev USize.modn_toNat := @USize.toNat_modn

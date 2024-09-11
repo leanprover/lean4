@@ -3422,8 +3422,7 @@ instance : MonadStateOf σ (EStateM ε σ) where
   get       := EStateM.get
   modifyGet := EStateM.modifyGet
 
-/- (priority := high) -/
-instance (priority := 10000) {δ} [Backtrackable δ σ] : MonadExceptOf ε (EStateM ε σ) where
+instance {δ} [Backtrackable δ σ] : MonadExceptOf ε (EStateM ε σ) where
   throw    := EStateM.throw
   tryCatch := EStateM.tryCatch
 

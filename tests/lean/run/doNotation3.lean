@@ -15,7 +15,7 @@ let rec loop : (i : Nat) → i ≤ as.size → β → m β
     loop i (Nat.le_of_lt h') b
 loop as.size (Nat.le_refl _) b
 
-#eval Id.run $ fold #[1, 2, 3, 4] 0 (pure $ · + ·)
+#guard (Id.run $ fold #[1, 2, 3, 4] 0 (pure $ · + ·)) == 10
 
 theorem ex : (Id.run $ fold #[1, 2, 3, 4] 0 (pure $ · + ·)) = 10 :=
 rfl
@@ -55,6 +55,11 @@ unless (← g 2 1 (← IO.mkRef (10, 20))) == (2, 1)   do throw $ IO.userError "
 unless (← g 0 1 (← IO.mkRef (10, 20))) == (10, 20) do throw $ IO.userError "unexpected"
 return ()
 
+/--
+info: x: 2, y: 1
+x: 10, y: 20
+-/
+#guard_msgs in
 #eval gTest
 
 macro "ret!" x:term : doElem => `(doElem| return $x)

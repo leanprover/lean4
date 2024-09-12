@@ -8,7 +8,7 @@ example : α := x
 /--
 error: unknown identifier 'x'
 ---
-error: ❌ Docstring on `#guard_msgs` does not match generated message:
+error: ❌️ Docstring on `#guard_msgs` does not match generated message:
 
 error: unknown identifier 'x'
 -/
@@ -46,8 +46,12 @@ example : α := x
 
 #guard_msgs in
 /--
-error: failed to synthesize instance
+error: failed to synthesize
   OfNat α 22
+numerals are polymorphic in Lean, but the numeral `22` cannot be used in a context where the expected type is
+  α
+due to the absence of the instance above
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs(error) in
 example : α := 22
@@ -58,7 +62,7 @@ example : α := 22
 info: foo ⏎
 bar
 ---
-error: ❌ Docstring on `#guard_msgs` does not match generated message:
+error: ❌️ Docstring on `#guard_msgs` does not match generated message:
 
 info: foo ⏎
 bar
@@ -79,7 +83,7 @@ run_meta Lean.logInfo "foo \nbar"
 info: foo ⏎⏎
 bar
 ---
-error: ❌ Docstring on `#guard_msgs` does not match generated message:
+error: ❌️ Docstring on `#guard_msgs` does not match generated message:
 
 info: foo ⏎⏎
 bar
@@ -100,13 +104,19 @@ run_meta Lean.logInfo "foo ⏎\nbar"
 Lax whitespace
 -/
 
-/-- error: failed to synthesize DecidableEq (Nat → Nat) -/
+/--
+error: failed to synthesize
+  DecidableEq (Nat → Nat)
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
 #guard_msgs (whitespace := lax) in
 #synth DecidableEq (Nat → Nat)
 
-/-- error: failed to synthesize
-
-DecidableEq (Nat → Nat) -/
+/--
+error: failed to synthesize
+  DecidableEq (Nat → Nat)
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
 #guard_msgs (whitespace := lax) in
 #synth DecidableEq (Nat → Nat)
 
@@ -160,7 +170,7 @@ info: ABCDEFG
 HIJKLMNOP
 QRSTUVWXYZ
 ---
-error: ❌ Docstring on `#guard_msgs` does not match generated message:
+error: ❌️ Docstring on `#guard_msgs` does not match generated message:
 
 -
 + info: ABCDEFG
@@ -177,7 +187,7 @@ info: ABCDEFG
 HIJKLMNOP
 QRSTUVWXYZ
 ---
-error: ❌ Docstring on `#guard_msgs` does not match generated message:
+error: ❌️ Docstring on `#guard_msgs` does not match generated message:
 
   info: ABCDEFG
 + HIJKLMNOP
@@ -227,7 +237,7 @@ info: Tree.branch
     4
     (Tree.branch (Tree.branch (Tree.leaf 0) 1 (Tree.leaf 0)) 2 (Tree.branch (Tree.leaf 0) 1 (Tree.leaf 0))))
 ---
-error: ❌ Docstring on `#guard_msgs` does not match generated message:
+error: ❌️ Docstring on `#guard_msgs` does not match generated message:
 
   info: Tree.branch
     (Tree.branch

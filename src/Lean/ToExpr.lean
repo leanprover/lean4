@@ -106,6 +106,10 @@ instance : ToExpr Unit where
   toExpr     := fun _ => mkConst `Unit.unit
   toTypeExpr := mkConst ``Unit
 
+instance : ToExpr System.FilePath where
+  toExpr p := mkApp (mkConst ``System.FilePath.mk) (toExpr p.toString)
+  toTypeExpr := mkConst ``System.FilePath
+
 private def Name.toExprAux (n : Name) : Expr :=
   if isSimple n 0 then
     mkStr n 0 #[]
@@ -171,6 +175,12 @@ instance : ToExpr Literal where
 instance : ToExpr FVarId where
   toTypeExpr    := mkConst ``FVarId
   toExpr fvarId := mkApp (mkConst ``FVarId.mk) (toExpr fvarId.name)
+
+instance : ToExpr Syntax.Preresolved where
+  toTypeExpr := .const ``Syntax.Preresolved []
+  toExpr
+    | .namespace ns => mkApp (.const ``Syntax.Preresolved.namespace []) (toExpr ns)
+    | .decl a ls => mkApp2 (.const ``Syntax.Preresolved.decl []) (toExpr a) (toExpr ls)
 
 def Expr.toCtorIfLit : Expr → Expr
   | .lit (.natVal v) =>

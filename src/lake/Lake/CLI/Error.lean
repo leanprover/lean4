@@ -13,6 +13,7 @@ inductive CliError
 | unknownCommand (cmd : String)
 | missingArg (arg : String)
 | missingOptArg (opt arg : String)
+| invalidOptArg (opt arg : String)
 | unknownShortOption (opt : Char)
 | unknownLongOption (opt : String)
 | unexpectedArguments (args : List String)
@@ -51,7 +52,8 @@ def toString : CliError → String
 | missingCommand          => "missing command"
 | unknownCommand cmd      => s!"unknown command '{cmd}'"
 | missingArg arg          => s!"missing {arg}"
-| missingOptArg opt arg   => s!"missing {arg} after {opt}"
+| missingOptArg opt arg   => s!"missing {arg} for {opt}"
+| invalidOptArg opt arg   => s!"invalid argument for {opt}; expected {arg}"
 | unknownShortOption opt  => s!"unknown short option '-{opt}'"
 | unknownLongOption opt   => s!"unknown long option '{opt}'"
 | unexpectedArguments as  => s!"unexpected arguments: {" ".intercalate as}"

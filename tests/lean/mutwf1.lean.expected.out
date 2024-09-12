@@ -1,9 +1,9 @@
-mutwf1.lean:23:2-23:6: error: unsolved goals
+mutwf1.lean:21:2-21:6: error: unsolved goals
 case h.a
 n : Nat
 h : n ≠ 0
 ⊢ n.sub 0 ≠ 0
-mutwf1.lean:33:22-33:29: error: failed to prove termination, possible solutions:
+mutwf1.lean:31:22-31:29: error: failed to prove termination, possible solutions:
   - Use `have`-expressions to prove the remaining goals
   - Use `termination_by` to specify a different well-founded relation
   - Use `decreasing_by` to specify your own tactic for discharging this kind of goal

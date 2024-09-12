@@ -48,7 +48,7 @@ def div.inductionOn.{u}
 decreasing_by apply div_rec_lemma; assumption
 
 theorem div_le_self (n k : Nat) : n / k ≤ n := by
-  induction n using Nat.strongInductionOn with
+  induction n using Nat.strongRecOn with
   | ind n ih =>
     rw [div_eq]
     -- Note: manual split to avoid Classical.em which is not yet defined
@@ -82,22 +82,34 @@ decreasing_by apply div_rec_lemma; assumption
 
 @[extern "lean_nat_mod"]
 protected def mod : @& Nat → @& Nat → Nat
-  /- This case is not needed mathematically as the case below is equal to it; however, it makes
-  `0 % n = 0` true definitionally rather than just propositionally.
-  This property is desirable for `Fin n`, as it means `(ofNat 0 : Fin n).val = 0` by definition.
-  Primarily, this is valuable because mathlib in Lean3 assumed this was true definitionally, and so
-  keeping this definitional equality makes mathlib easier to port to mathlib4. -/
+  /-
+  Nat.modCore is defined by well-founded recursion and thus irreducible. Nevertheless it is
+  desireable if trivial `Nat.mod` calculations, namely
+  * `Nat.mod 0 m` for all `m`
+  * `Nat.mod n (m+n)` for concrete literals `n`
+  reduce definitionally.
+  This property is desirable for `Fin n` literals, as it means `(ofNat 0 : Fin n).val = 0` by
+  definition.
+   -/
   | 0, _ => 0
-  | x@(_ + 1), y => Nat.modCore x y
+  | n@(_ + 1), m =>
+    if m ≤ n -- NB: if n < m does not reduce as well as `m ≤ n`!
+    then Nat.modCore n m
+    else n
 
 instance instMod : Mod Nat := ⟨Nat.mod⟩
 
-protected theorem modCore_eq_mod (x y : Nat) : Nat.modCore x y = x % y := by
-  cases x with
-  | zero =>
+protected theorem modCore_eq_mod (n m : Nat) : Nat.modCore n m = n % m := by
+  show Nat.modCore n m = Nat.mod n m
+  match n, m with
+  | 0, _ =>
     rw [Nat.modCore]
     exact if_neg fun ⟨hlt, hle⟩ => Nat.lt_irrefl _ (Nat.lt_of_lt_of_le hlt hle)
-  | succ x => rfl
+  | (_ + 1), _ =>
+    rw [Nat.mod]; dsimp
+    refine iteInduction (fun _ => rfl) (fun h => ?false) -- cannot use `split` this early yet
+    rw [Nat.modCore]
+    exact if_neg fun ⟨_hlt, hle⟩ => h hle
 
 theorem mod_eq (x y : Nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x := by
   rw [←Nat.modCore_eq_mod, ←Nat.modCore_eq_mod, Nat.modCore]
@@ -191,6 +203,10 @@ theorem mod_add_div (m k : Nat) : m % k + k * (m / k) = m := by
   | base x y h => simp [h]
   | ind x y h IH => simp [h]; rw [Nat.mul_succ, ← Nat.add_assoc, IH, Nat.sub_add_cancel h.2]
 
+theorem mod_def (m k : Nat) : m % k = m - k * (m / k) := by
+  rw [Nat.sub_eq_of_eq_add]
+  apply (Nat.mod_add_div _ _).symm
+
 @[simp] protected theorem div_one (n : Nat) : n / 1 = n := by
   have := mod_add_div n 1
   rwa [mod_one, Nat.zero_add, Nat.one_mul] at this
@@ -205,7 +221,7 @@ theorem le_div_iff_mul_le (k0 : 0 < k) : x ≤ y / k ↔ x * k ≤ y := by
   induction y, k using mod.inductionOn generalizing x with
     (rw [div_eq]; simp [h]; cases x with | zero => simp [zero_le] | succ x => ?_)
   | base y k h =>
-    simp only [add_one, succ_mul, false_iff, Nat.not_le]
+    simp only [add_one, succ_mul, false_iff, Nat.not_le, Nat.succ_ne_zero]
     refine Nat.lt_of_lt_of_le ?_ (Nat.le_add_left ..)
     exact Nat.not_le.1 fun h' => h ⟨k0, h'⟩
   | ind y k h IH =>
@@ -239,10 +255,10 @@ theorem div_mul_le_self : ∀ (m n : Nat), m / n * n ≤ m
 theorem div_lt_iff_lt_mul (Hk : 0 < k) : x / k < y ↔ x < y * k := by
   rw [← Nat.not_le, ← Nat.not_le]; exact not_congr (le_div_iff_mul_le Hk)
 
-@[simp] theorem add_div_right (x : Nat) {z : Nat} (H : 0 < z) : (x + z) / z = succ (x / z) := by
+@[simp] theorem add_div_right (x : Nat) {z : Nat} (H : 0 < z) : (x + z) / z = (x / z) + 1 := by
   rw [div_eq_sub_div H (Nat.le_add_left _ _), Nat.add_sub_cancel]
 
-@[simp] theorem add_div_left (x : Nat) {z : Nat} (H : 0 < z) : (z + x) / z = succ (x / z) := by
+@[simp] theorem add_div_left (x : Nat) {z : Nat} (H : 0 < z) : (z + x) / z = (x / z) + 1 := by
   rw [Nat.add_comm, add_div_right x H]
 
 theorem add_mul_div_left (x z : Nat) {y : Nat} (H : 0 < y) : (x + y * z) / y = x / y + z := by
@@ -273,7 +289,7 @@ theorem add_mul_div_right (x y : Nat) {z : Nat} (H : 0 < z) : (x + y * z) / z = 
 @[simp] theorem mul_mod_left (m n : Nat) : (m * n) % n = 0 := by
   rw [Nat.mul_comm, mul_mod_right]
 
-protected theorem div_eq_of_lt_le (lo : k * n ≤ m) (hi : m < succ k * n) : m / n = k :=
+protected theorem div_eq_of_lt_le (lo : k * n ≤ m) (hi : m < (k + 1) * n) : m / n = k :=
 have npos : 0 < n := (eq_zero_or_pos _).resolve_left fun hn => by
   rw [hn, Nat.mul_zero] at hi lo; exact absurd lo (Nat.not_le_of_gt hi)
 Nat.le_antisymm
@@ -295,7 +311,7 @@ theorem sub_mul_div (x n p : Nat) (h₁ : n*p ≤ x) : (x - n*p) / n = x / n - p
       rw [sub_succ, ← IH h₂, div_eq_sub_div h₀ h₃]
       simp [Nat.pred_succ, mul_succ, Nat.sub_sub]
 
-theorem mul_sub_div (x n p : Nat) (h₁ : x < n*p) : (n * p - succ x) / n = p - succ (x / n) := by
+theorem mul_sub_div (x n p : Nat) (h₁ : x < n*p) : (n * p - (x + 1)) / n = p - ((x / n) + 1) := by
   have npos : 0 < n := (eq_zero_or_pos _).resolve_left fun n0 => by
     rw [n0, Nat.zero_mul] at h₁; exact not_lt_zero _ h₁
   apply Nat.div_eq_of_lt_le
@@ -318,7 +334,7 @@ theorem mul_mod_mul_left (z x y : Nat) : (z * x) % (z * y) = z * (x % y) :=
   else if z0 : z = 0 then by
     rw [z0, Nat.zero_mul, Nat.zero_mul, Nat.zero_mul, mod_zero]
   else by
-    induction x using Nat.strongInductionOn with
+    induction x using Nat.strongRecOn with
     | _ n IH =>
       have y0 : y > 0 := Nat.pos_of_ne_zero y0
       have z0 : z > 0 := Nat.pos_of_ne_zero z0

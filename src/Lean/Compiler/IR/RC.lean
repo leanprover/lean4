@@ -9,9 +9,10 @@ import Lean.Compiler.IR.CompilerM
 import Lean.Compiler.IR.LiveVars
 
 namespace Lean.IR.ExplicitRC
-/-! Insert explicit RC instructions. So, it assumes the input code does not contain `inc` nor `dec` instructions.
-   This transformation is applied before lower level optimizations
-   that introduce the instructions `release` and `set`
+/-!
+Insert explicit RC instructions. So, it assumes the input code does not contain `inc` nor `dec` instructions.
+This transformation is applied before lower level optimizations
+that introduce the instructions `release` and `set`
 -/
 
 structure VarInfo where

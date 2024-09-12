@@ -256,11 +256,17 @@ def getDeclTypeValueDagSize (declName : Name) : CoreM Nat := do
   | some v => return n + (← v.dagSize)
 
 #eval getDeclTypeValueDagSize `test2
+
 #eval getDeclTypeValueDagSize `test3
+
 #eval getDeclTypeValueDagSize `test4
+
 #eval getDeclTypeValueDagSize `test5
+
 #eval getDeclTypeValueDagSize `test6
+
 #eval getDeclTypeValueDagSize `test7
+
 #eval getDeclTypeValueDagSize `test8
 
 def reduceAndGetDagSize (declName : Name) : MetaM Nat := do
@@ -270,12 +276,19 @@ def reduceAndGetDagSize (declName : Name) : MetaM Nat := do
   e.dagSize
 
 #eval reduceAndGetDagSize `test1
+
 #eval reduceAndGetDagSize `test2
+
 #eval reduceAndGetDagSize `test3
+
 #eval reduceAndGetDagSize `test4
+
 #eval reduceAndGetDagSize `test5
+
 #eval reduceAndGetDagSize `test6
+
 #eval reduceAndGetDagSize `test7
+
 -- Use `set_option` to trace the reduced term
 set_option pp.all true in
 set_option trace.Meta.debug true in

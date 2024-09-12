@@ -55,8 +55,8 @@ private def setBinderInfosD (ys : Array Expr) (lctx : LocalContext) : LocalConte
 
 partial def mkHCongrWithArity (f : Expr) (numArgs : Nat) : MetaM CongrTheorem := do
   let fType ← inferType f
-  forallBoundedTelescope fType numArgs fun xs _ =>
-  forallBoundedTelescope fType numArgs fun ys _ => do
+  forallBoundedTelescope fType numArgs (cleanupAnnotations := true) fun xs _ =>
+  forallBoundedTelescope fType numArgs (cleanupAnnotations := true) fun ys _ => do
     if xs.size != numArgs then
       throwError "failed to generate hcongr theorem, insufficient number of arguments"
     else
@@ -80,8 +80,8 @@ where
       if  i < xs.size then
         let x := xs[i]!
         let y := ys[i]!
-        let xType := (← inferType x).consumeTypeAnnotations
-        let yType := (← inferType y).consumeTypeAnnotations
+        let xType := (← inferType x).cleanupAnnotations
+        let yType := (← inferType y).cleanupAnnotations
         if xType == yType then
           withLocalDeclD ((`e).appendIndexAfter (i+1)) (← mkEq x y) fun h =>
             loop (i+1) (eqs.push h) (kinds.push CongrArgKind.eq)
@@ -98,9 +98,9 @@ where
     else if let some (_, lhs, _, _) := type.heq? then
       mkHEqRefl lhs
     else
-      forallBoundedTelescope type (some 1) fun a type =>
+      forallBoundedTelescope type (some 1) (cleanupAnnotations := true) fun a type =>
       let a := a[0]!
-      forallBoundedTelescope type (some 1) fun b motive =>
+      forallBoundedTelescope type (some 1) (cleanupAnnotations := true) fun b motive =>
       let b := b[0]!
       let type := type.bindingBody!.instantiate1 a
       withLocalDeclD motive.bindingName! motive.bindingDomain! fun eqPr => do
@@ -159,7 +159,7 @@ private def hasCastLike (kinds : Array CongrArgKind) : Bool :=
   kinds.any fun kind => kind matches CongrArgKind.cast || kind matches CongrArgKind.subsingletonInst
 
 private def withNext (type : Expr) (k : Expr → Expr → MetaM α) : MetaM α := do
-  forallBoundedTelescope type (some 1) fun xs type => k xs[0]! type
+  forallBoundedTelescope type (some 1) (cleanupAnnotations := true) fun xs type => k xs[0]! type
 
 /--
   Test whether we should use `subsingletonInst` kind for instances which depend on `eq`.
@@ -182,7 +182,7 @@ private def getClassSubobjectMask? (f : Expr) : MetaM (Option (Array Bool)) := d
   let .const declName _ := f | return none
   let .ctorInfo val ← getConstInfo declName | return none
   unless isClass (← getEnv) val.induct do return none
-  forallTelescopeReducing val.type fun xs _ => do
+  forallTelescopeReducing val.type (cleanupAnnotations := true) fun xs _ => do
     let env ← getEnv
     let mut mask := #[]
     for i in [:xs.size] do
@@ -255,7 +255,7 @@ where
   mk? (f : Expr) (info : FunInfo) (kinds : Array CongrArgKind) : MetaM (Option CongrTheorem) := do
     try
       let fType ← inferType f
-      forallBoundedTelescope fType kinds.size fun lhss _ => do
+      forallBoundedTelescope fType kinds.size (cleanupAnnotations := true) fun lhss _ => do
         if lhss.size != kinds.size then return none
         let rec go (i : Nat) (rhss : Array Expr) (eqs : Array (Option Expr)) (hyps : Array Expr) : MetaM CongrTheorem := do
           if i == kinds.size then

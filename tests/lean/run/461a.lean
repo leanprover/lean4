@@ -3,6 +3,8 @@ structure FooS where
   y : Nat
   h : x = y := by rfl
 
+/-- info: constructor FooS.mk : (x y : Nat) → autoParam (x = y) _auto✝ → FooS -/
+#guard_msgs in
 #print FooS.mk
 
 def f1 (x : Nat) : FooS :=
@@ -13,6 +15,8 @@ structure BooS where
   y : Nat
   h (aux1 : True) (aux2 : x > 2) : x = y := by { intros; rfl }
 
+/-- info: constructor BooS.mk : (x y : Nat) → autoParam (True → x > 2 → x = y) _auto✝ → BooS -/
+#guard_msgs in
 #print BooS.mk
 
 def f2 (x : Nat) : BooS :=

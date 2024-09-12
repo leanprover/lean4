@@ -129,11 +129,13 @@ def pushLine : FormatterM Unit :=
 def pushAlign (force : Bool) : FormatterM Unit :=
   pushWhitespace (.align force)
 
-/-- Execute `x` at the right-most child of the current node, if any, then advance to the left. -/
+/--
+Execute `x` at the right-most child of the current node, if any, then advance to the left.
+Runs `x` even if there are no children, in which case the current syntax node will be `.missing`.
+-/
 def visitArgs (x : FormatterM Unit) : FormatterM Unit := do
   let stx ← getCur
-  if stx.getArgs.size > 0 then
-    goDown (stx.getArgs.size - 1) *> x <* goUp
+  goDown (stx.getArgs.size - 1) *> x <* goUp
   goLeft
 
 /-- Execute `x`, pass array of generated Format objects to `fn`, and push result. -/
@@ -454,7 +456,9 @@ def manyNoAntiquot.formatter (p : Formatter) : Formatter := do
 @[combinator_formatter many1NoAntiquot] def many1NoAntiquot.formatter (p : Formatter) : Formatter := manyNoAntiquot.formatter p
 
 @[combinator_formatter optionalNoAntiquot]
-def optionalNoAntiquot.formatter (p : Formatter) : Formatter := visitArgs p
+def optionalNoAntiquot.formatter (p : Formatter) : Formatter := do
+  let stx ← getCur
+  visitArgs <| unless stx.getArgs.isEmpty do p
 
 @[combinator_formatter many1Unbox]
 def many1Unbox.formatter (p : Formatter) : Formatter := do
@@ -467,7 +471,7 @@ def many1Unbox.formatter (p : Formatter) : Formatter := do
 @[combinator_formatter sepByNoAntiquot]
 def sepByNoAntiquot.formatter (p pSep : Formatter) : Formatter := do
   let stx ← getCur
-  visitArgs <| (List.range stx.getArgs.size).reverse.forM fun i => if i % 2 == 0 then p else pSep
+  visitArgs <| stx.getArgs.size.forRevM fun i => if i % 2 == 0 then p else pSep
 
 @[combinator_formatter sepBy1NoAntiquot] def sepBy1NoAntiquot.formatter := sepByNoAntiquot.formatter
 

@@ -81,6 +81,7 @@ def Poly.add (e₁ e₂ : Poly) : Poly :=
       else
         { val := r }
     termination_by (e₁.size - i₁, e₂.size - i₂)
+    decreasing_by all_goals decreasing_with decreasing_trivial_pre_omega
   go 0 0 #[]
 
 def Poly.combine (d₁ : Int) (e₁ : Poly) (d₂ : Int) (e₂ : Poly) : Poly :=
@@ -108,6 +109,7 @@ def Poly.combine (d₁ : Int) (e₁ : Poly) (d₂ : Int) (e₂ : Poly) : Poly :=
       else
         { val := r }
     termination_by (e₁.size - i₁, e₂.size - i₂)
+    decreasing_by all_goals decreasing_with decreasing_trivial_pre_omega
   go 0 0 #[]
 
 def Poly.eval? (e : Poly) (a : Assignment) : Option Rat := Id.run do

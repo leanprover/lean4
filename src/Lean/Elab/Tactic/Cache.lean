@@ -37,7 +37,7 @@ private def dbg_cache (msg : String) : TacticM Unit := do
 private def dbg_cache' (cacheRef : IO.Ref Cache) (pos : String.Pos) (mvarId : MVarId) (msg : String) : TacticM Unit := do
   if tactic.dbg_cache.get (← getOptions) then
     let {line, column} := (← getFileMap).toPosition pos
-    dbg_trace "{msg}, cache size: {(← cacheRef.get).pre.size}, line: {line}, column: {column}, contains entry: {(← cacheRef.get).pre.find? { mvarId, pos } |>.isSome}"
+    dbg_trace "{msg}, line: {line}, column: {column}, contains entry: {(← cacheRef.get).pre.find? { mvarId, pos } |>.isSome}"
 
 private def findCache? (cacheRef : IO.Ref Cache) (mvarId : MVarId) (stx : Syntax) (pos : String.Pos) : TacticM (Option Snapshot) := do
   let some s := (← cacheRef.get).pre.find? { mvarId, pos } | do dbg_cache "cache key not found"; return none

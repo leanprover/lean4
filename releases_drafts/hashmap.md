@@ -1,0 +1,3 @@
+* The `Lean` module has switched from `Lean.HashMap` and `Lean.HashSet` to `Std.HashMap` and `Std.HashSet`. `Lean.HashMap` and `Lean.HashSet` are now deprecated and will be removed in a future release. Users of `Lean` APIs that interact with hash maps, for example `Lean.Environment.const2ModIdx`, might encounter minor breakage due to the following breaking changes from `Lean.HashMap` to `Std.HashMap`:
+    * query functions use the term `get` instead of `find`,
+    * the notation `map[key]` no longer returns an optional value but expects a proof that the key is present in the map instead. The previous behavior is available via the `map[key]?` notation.

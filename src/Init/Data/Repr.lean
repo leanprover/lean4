@@ -230,7 +230,7 @@ protected def Int.repr : Int → String
     | negSucc m => "-" ++ Nat.repr (succ m)
 
 instance : Repr Int where
-  reprPrec i _ := i.repr
+  reprPrec i prec := if i < 0 then Repr.addAppParen i.repr prec else i.repr
 
 def hexDigitRepr (n : Nat) : String :=
   String.singleton <| Nat.digitChar n

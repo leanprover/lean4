@@ -10,4 +10,6 @@ def test : MetaM Unit := do
   IO.println (e.abstract #[x, y])
   assert! e.abstract #[x, y] == mkApp3 add (mkBVar 1) (mkNatLit 1) (mkBVar 0)
 
+/-- info: Nat.add #1 (OfNat.ofNat.{0} Nat 1 (instOfNatNat 1)) #0 -/
+#guard_msgs in
 #eval test

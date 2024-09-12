@@ -22,6 +22,8 @@ let t ← mkLambdaFVars ys ys.back
 trace[Meta.debug] t
 pure ()
 
+/-- info: [Meta.debug] fun x x => x -/
+#guard_msgs in
 #eval tst1
 
 set_option pp.all true
@@ -37,6 +39,8 @@ let t ← mkLambdaFVars ys ys.back
 trace[Meta.debug] t
 pure ()
 
+/-- info: [Meta.debug] fun (x : Nat) (x_1 : Vec Nat x) (x : @Eq.{1} (Vec Nat x) x_1 x_1) => x -/
+#guard_msgs in
 #eval tst2
 
 def failIfSuccess (x : MetaM Unit) : MetaM Unit := do
@@ -57,4 +61,6 @@ failIfSuccess do
   pure ()
 trace[Meta.debug] "failed as expected"
 
+/-- info: [Meta.debug] failed as expected -/
+#guard_msgs in
 #eval tst3

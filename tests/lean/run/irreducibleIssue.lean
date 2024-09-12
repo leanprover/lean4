@@ -17,4 +17,7 @@ section Real
   attribute [irreducible] ℝ
 
   variable (x : ℝ)
+
+  /-- info: norm x : Trait.R ℝ -/
+  #guard_msgs in
   #check (norm x : ℝ)

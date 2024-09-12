@@ -48,7 +48,7 @@ static lean_object* _init_l_Lean_Meta_Simp_evalPropStep___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Bool", 4);
+x_1 = lean_mk_string_unchecked("Bool", 4, 4);
 return x_1;
 }
 }
@@ -56,7 +56,7 @@ static lean_object* _init_l_Lean_Meta_Simp_evalPropStep___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("false", 5);
+x_1 = lean_mk_string_unchecked("false", 5, 5);
 return x_1;
 }
 }
@@ -84,7 +84,7 @@ static lean_object* _init_l_Lean_Meta_Simp_evalPropStep___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("False", 5);
+x_1 = lean_mk_string_unchecked("False", 5, 5);
 return x_1;
 }
 }
@@ -112,7 +112,7 @@ static lean_object* _init_l_Lean_Meta_Simp_evalPropStep___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("eq_false_of_decide", 18);
+x_1 = lean_mk_string_unchecked("eq_false_of_decide", 18, 18);
 return x_1;
 }
 }
@@ -149,7 +149,7 @@ static lean_object* _init_l_Lean_Meta_Simp_evalPropStep___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("true", 4);
+x_1 = lean_mk_string_unchecked("true", 4, 4);
 return x_1;
 }
 }
@@ -177,7 +177,7 @@ static lean_object* _init_l_Lean_Meta_Simp_evalPropStep___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("True", 4);
+x_1 = lean_mk_string_unchecked("True", 4, 4);
 return x_1;
 }
 }
@@ -205,7 +205,7 @@ static lean_object* _init_l_Lean_Meta_Simp_evalPropStep___closed__18() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("eq_true_of_decide", 17);
+x_1 = lean_mk_string_unchecked("eq_true_of_decide", 17, 17);
 return x_1;
 }
 }
@@ -267,6 +267,7 @@ x_21 = lean_array_push(x_20, x_18);
 x_22 = lean_array_push(x_21, x_17);
 x_23 = l_Lean_Meta_Simp_evalPropStep___closed__10;
 x_24 = l_Lean_mkAppN(x_23, x_22);
+lean_dec(x_22);
 x_25 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_25, 0, x_24);
 x_26 = l_Lean_Meta_Simp_evalPropStep___closed__7;
@@ -296,6 +297,7 @@ x_35 = lean_array_push(x_34, x_32);
 x_36 = lean_array_push(x_35, x_30);
 x_37 = l_Lean_Meta_Simp_evalPropStep___closed__10;
 x_38 = l_Lean_mkAppN(x_37, x_36);
+lean_dec(x_36);
 x_39 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_39, 0, x_38);
 x_40 = l_Lean_Meta_Simp_evalPropStep___closed__7;
@@ -363,6 +365,7 @@ x_58 = lean_array_push(x_57, x_55);
 x_59 = lean_array_push(x_58, x_54);
 x_60 = l_Lean_Meta_Simp_evalPropStep___closed__20;
 x_61 = l_Lean_mkAppN(x_60, x_59);
+lean_dec(x_59);
 x_62 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_62, 0, x_61);
 x_63 = l_Lean_Meta_Simp_evalPropStep___closed__17;
@@ -392,6 +395,7 @@ x_72 = lean_array_push(x_71, x_69);
 x_73 = lean_array_push(x_72, x_67);
 x_74 = l_Lean_Meta_Simp_evalPropStep___closed__20;
 x_75 = l_Lean_mkAppN(x_74, x_73);
+lean_dec(x_73);
 x_76 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_76, 0, x_75);
 x_77 = l_Lean_Meta_Simp_evalPropStep___closed__17;

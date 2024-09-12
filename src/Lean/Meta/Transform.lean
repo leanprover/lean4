@@ -21,7 +21,7 @@ inductive TransformStep where
   For `pre`, this means visiting the children of the expression.
   For `post`, this is equivalent to returning `done`. -/
   | continue (e? : Option Expr := none)
-  deriving Inhabited
+  deriving Inhabited, Repr
 
 namespace Core
 
@@ -81,7 +81,7 @@ namespace Meta
   `.const f` is not visited again. Put differently: every `.const f` is visited once, with its
   arguments if present, on its own otherwise.
  -/
-partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m] [MonadTrace m] [MonadRef m] [MonadOptions m] [AddMessageContext m]
+partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
     (input : Expr)
     (pre   : Expr → m TransformStep := fun _ => return .continue)
     (post  : Expr → m TransformStep := fun e => return .done e)

@@ -1,0 +1,57 @@
+name: Check for stage0 changes
+
+on:
+  merge_group:
+  pull_request:
+
+jobs:
+  check-stage0-on-queue:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+        filter: blob:none
+        fetch-depth: 0
+
+    - name: Find base commit
+      if: github.event_name == 'pull_request'
+      run: echo "BASE=$(git merge-base origin/${{ github.base_ref }} HEAD)" >> "$GITHUB_ENV"
+
+    - name: Identify stage0 changes
+      run: |
+        git diff "${BASE:-HEAD^}..HEAD" --name-only -- stage0 |
+          grep -v -x -F $'stage0/src/stdlib_flags.h\nstage0/src/lean.mk.in' \
+          > "$RUNNER_TEMP/stage0" || true
+        if test -s "$RUNNER_TEMP/stage0"
+        then
+          echo "CHANGES=yes" >> "$GITHUB_ENV"
+        else
+          echo "CHANGES=no" >> "$GITHUB_ENV"
+        fi
+      shell: bash
+
+    - if: github.event_name == 'pull_request'
+      name: Set label
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const { owner, repo, number: issue_number  } = context.issue;
+          if (process.env.CHANGES == 'yes') {
+            await github.rest.issues.addLabels({ owner, repo, issue_number, labels: ['changes-stage0'] }).catch(() => {});
+          } else {
+            await github.rest.issues.removeLabel({ owner, repo, issue_number, name: 'changes-stage0' }).catch(() => {});
+          }
+
+    - if: env.CHANGES == 'yes'
+      name: Report changes
+      run: |
+        echo "Found changes to stage0/, please do not merge using the merge queue." | tee "$GITHUB_STEP_SUMMARY"
+        # shellcheck disable=SC2129
+        echo '```'                  >> "$GITHUB_STEP_SUMMARY"
+        cat  "$RUNNER_TEMP/stage0"  >> "$GITHUB_STEP_SUMMARY"
+        echo '```'                  >> "$GITHUB_STEP_SUMMARY"
+
+    - if: github.event_name == 'merge_group' && env.CHANGES == 'yes'
+      name: Fail when on the merge queue
+      run: exit 1

@@ -6,7 +6,7 @@ Authors: Scott Morrison
 prelude
 import Init.BinderPredicates
 import Init.Data.Int.Order
-import Init.Data.List.Lemmas
+import Init.Data.List.MinMax
 import Init.Data.Nat.MinMax
 import Init.Data.Option.Lemmas
 

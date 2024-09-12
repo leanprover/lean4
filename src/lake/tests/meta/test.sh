@@ -10,18 +10,18 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 # ---
 
 # Test `run_io`
-$LAKE resolve-deps -R 2>&1 | grep impure
-$LAKE resolve-deps 2>&1 | (grep impure && false || true)
+$LAKE resolve-deps -R 2>&1 | grep --color impure
+$LAKE resolve-deps 2>&1 | (grep --color impure && exit 1 || true)
 
 # Test `meta if` and command `do`
-$LAKE resolve-deps -R 2>&1 | (grep -E "foo|bar|baz|1|2" && false || true)
-$LAKE resolve-deps -R -Kbaz 2>&1 | grep baz
-$LAKE resolve-deps -R -Kenv=foo 2>&1 | grep foo
-$LAKE run print_env 2>&1 | grep foo
-$LAKE resolve-deps -R -Kenv=bar 2>&1 | grep bar
-$LAKE run print_env 2>&1 | grep bar
+$LAKE resolve-deps -R 2>&1 | (grep --color -E "foo|bar|baz|1|2" && exit 1 || true)
+$LAKE resolve-deps -R -Kbaz 2>&1 | grep --color baz
+$LAKE resolve-deps -R -Kenv=foo 2>&1 | grep --color foo
+$LAKE run print_env 2>&1 | grep --color foo
+$LAKE resolve-deps -R -Kenv=bar 2>&1 | grep --color bar
+$LAKE run print_env 2>&1 | grep --color bar
 
 # Test environment extension filtering
 # https://github.com/leanprover/lean4/issues/2632
 
-$LAKE run print_elab 2>&1 | grep elabbed-string
+$LAKE run print_elab 2>&1 | grep --color elabbed-string

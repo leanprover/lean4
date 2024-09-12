@@ -25,7 +25,7 @@ MSYS2 has a package management system, [pacman][pacman], which is used in Arch L
 Here are the commands to install all dependencies needed to compile Lean on your machine.
 
 ```bash
-pacman -S make python mingw-w64-x86_64-cmake mingw-w64-x86_64-clang mingw-w64-x86_64-ccache git unzip diffutils binutils
+pacman -S make python mingw-w64-x86_64-cmake mingw-w64-x86_64-clang mingw-w64-x86_64-ccache mingw-w64-x86_64-libuv mingw-w64-x86_64-gmp git unzip diffutils binutils
 ```
 
 You should now be able to run these commands:
@@ -38,10 +38,9 @@ cmake --version
 Then follow the [generic build instructions](index.md) in the MSYS2
 MinGW shell, using:
 ```
-cmake ../.. -G "Unix Makefiles"  -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+cmake --preset release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
 ```
-instead of `cmake ../..`. This ensures that cmake will call `sh` instead of `cmd.exe`
-for script tasks and it will use the clang compiler instead of gcc, which is required.
+instead of `cmake --preset release`. This will use the clang compiler instead of gcc, which is required with msys2.
 
 ## Install lean
 
@@ -65,6 +64,7 @@ they are installed in your MSYS setup:
 - libgcc_s_seh-1.dll
 - libstdc++-6.dll
 - libgmp-10.dll
+- libuv-1.dll
 - libwinpthread-1.dll
 
 The following linux command will do that:

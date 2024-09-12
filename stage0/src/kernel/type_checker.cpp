@@ -185,7 +185,7 @@ expr type_checker::infer_app(expr const & e, bool infer_only) {
 
 static void mark_used(unsigned n, expr const * fvars, expr const & b, bool * used) {
     if (!has_fvar(b)) return;
-    for_each(b, [&](expr const & x, unsigned) {
+    for_each(b, [&](expr const & x) {
             if (!has_fvar(x)) return false;
             if (is_fvar(x)) {
                 for (unsigned i = 0; i < n; i++) {
@@ -477,6 +477,11 @@ expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
                           cheap_rec, cheap_proj);
         } else if (f == f0) {
             if (auto r = reduce_recursor(e, cheap_rec, cheap_proj)) {
+                if (m_diag) {
+                    auto f = get_app_fn(e);
+                    if (is_constant(f))
+                        m_diag->record_unfold(const_name(f));
+                }
                 /* iota-reduction and quotient reduction rules */
                 return whnf_core(*r, cheap_rec, cheap_proj);
             } else {
@@ -513,8 +518,12 @@ optional<constant_info> type_checker::is_delta(expr const & e) const {
 optional<expr> type_checker::unfold_definition_core(expr const & e) {
     if (is_constant(e)) {
         if (auto d = is_delta(e)) {
-            if (length(const_levels(e)) == d->get_num_lparams())
+            if (length(const_levels(e)) == d->get_num_lparams()) {
+                if (m_diag) {
+                    m_diag->record_unfold(d->get_name());
+                }
                 return some_expr(instantiate_value_lparams(*d, const_levels(e)));
+            }
         }
     }
     return none_expr();
@@ -586,6 +595,18 @@ template<typename F> optional<expr> type_checker::reduce_bin_nat_op(F const & f,
     return some_expr(mk_lit(literal(nat(f(v1.raw(), v2.raw())))));
 }
 
+#define ReducePowMaxExp 1<<24 // TODO: make it configurable
+
+optional<expr> type_checker::reduce_pow(expr const & e) {
+    expr arg1 = whnf(app_arg(app_fn(e)));
+    expr arg2 = whnf(app_arg(e));
+    if (!is_nat_lit_ext(arg2)) return none_expr();
+    nat v1 = get_nat_val(arg1);
+    nat v2 = get_nat_val(arg2);
+    if (v2 > nat(ReducePowMaxExp)) return none_expr();
+    return some_expr(mk_lit(literal(nat(nat_pow(v1.raw(), v2.raw())))));
+}
+
 template<typename F> optional<expr> type_checker::reduce_bin_nat_pred(F const & f, expr const & e) {
     expr arg1 = whnf(app_arg(app_fn(e)));
     if (!is_nat_lit_ext(arg1)) return none_expr();
@@ -613,7 +634,7 @@ optional<expr> type_checker::reduce_nat(expr const & e) {
         if (f == *g_nat_add) return reduce_bin_nat_op(nat_add, e);
         if (f == *g_nat_sub) return reduce_bin_nat_op(nat_sub, e);
         if (f == *g_nat_mul) return reduce_bin_nat_op(nat_mul, e);
-        if (f == *g_nat_pow) return reduce_bin_nat_op(nat_pow, e);
+        if (f == *g_nat_pow) return reduce_pow(e);
         if (f == *g_nat_gcd) return reduce_bin_nat_op(nat_gcd, e);
         if (f == *g_nat_mod) return reduce_bin_nat_op(nat_mod, e);
         if (f == *g_nat_div) return reduce_bin_nat_op(nat_div, e);
@@ -1148,18 +1169,18 @@ expr type_checker::eta_expand(expr const & e) {
     return m_lctx.mk_lambda(fvars, r);
 }
 
-type_checker::type_checker(environment const & env, local_ctx const & lctx, definition_safety ds):
-    m_st_owner(true), m_st(new state(env)),
+type_checker::type_checker(environment const & env, local_ctx const & lctx, diagnostics * diag, definition_safety ds):
+    m_st_owner(true), m_st(new state(env)), m_diag(diag),
     m_lctx(lctx), m_definition_safety(ds), m_lparams(nullptr) {
 }
 
 type_checker::type_checker(state & st, local_ctx const & lctx, definition_safety ds):
-    m_st_owner(false), m_st(&st), m_lctx(lctx),
+    m_st_owner(false), m_st(&st), m_diag(nullptr), m_lctx(lctx),
     m_definition_safety(ds), m_lparams(nullptr) {
 }
 
 type_checker::type_checker(type_checker && src):
-    m_st_owner(src.m_st_owner), m_st(src.m_st), m_lctx(std::move(src.m_lctx)),
+    m_st_owner(src.m_st_owner), m_st(src.m_st), m_diag(src.m_diag), m_lctx(std::move(src.m_lctx)),
     m_definition_safety(src.m_definition_safety), m_lparams(src.m_lparams) {
     src.m_st_owner = false;
 }

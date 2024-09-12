@@ -89,6 +89,8 @@ def fieldNotationCandidate? (f : Expr) (args : Array Expr) (useGeneralizedFieldN
   -- Handle structure projections
   try
     let (field, numParams, _) ← projInfo c
+    unless numParams + 1 ≤ args.size do return none
+    unless (← whnf <| ← inferType args[numParams]!).isAppOf c.getPrefix do return none
     return (field, numParams)
   catch _ => pure ()
   -- Handle generalized field notation
@@ -102,14 +104,24 @@ def fieldNotationCandidate? (f : Expr) (args : Array Expr) (useGeneralizedFieldN
   return none
 
 /--
-Returns `true` if `e` is an application that is a projection to a parent structure.
-If `explicit` is `true`, then further requires that the structure have no parameters.
+Returns the field name of the projection if `e` is an application that is a projection to a parent structure.
+If `explicit` is `true`, then requires that the structure have no parameters.
 -/
-def isParentProj (explicit : Bool) (e : Expr) : MetaM Bool := do
-  unless e.isApp do return false
+def parentProj? (explicit : Bool) (e : Expr) : MetaM (Option Name) := do
+  unless e.isApp do return none
   try
     let .const c .. := e.getAppFn | failure
-    let (_, numParams, isParentProj) ← projInfo c
-    return isParentProj && (!explicit || numParams == 0) && e.getAppNumArgs == numParams + 1
+    let (field, numParams, isParentProj) ← projInfo c
+    if isParentProj && (!explicit || numParams == 0) && e.getAppNumArgs == numParams + 1 then
+      return some field
+    else
+      return none
   catch _ =>
-    return false
+    return none
+
+/--
+Returns `true` if `e` is an application that is a projection to a parent structure.
+If `explicit` is `true`, then requires that the structure have no parameters.
+-/
+def isParentProj (explicit : Bool) (e : Expr) : MetaM Bool := do
+  return (← parentProj? explicit e).isSome

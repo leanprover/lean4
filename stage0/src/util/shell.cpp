@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "runtime/load_dynlib.h"
 #include "runtime/array_ref.h"
 #include "runtime/object_ref.h"
+#include "runtime/utf8.h"
 #include "util/timer.h"
 #include "util/macros.h"
 #include "util/io.h"
@@ -29,11 +30,11 @@ Author: Leonardo de Moura
 #include "util/option_declarations.h"
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
+#include "kernel/trace.h"
 #include "library/formatter.h"
 #include "library/module.h"
 #include "library/time_task.h"
 #include "library/compiler/ir.h"
-#include "library/trace.h"
 #include "library/print.h"
 #include "initialize/init.h"
 #include "library/compiler/ir_interpreter.h"
@@ -190,46 +191,49 @@ static void display_features(std::ostream & out) {
 static void display_help(std::ostream & out) {
     display_header(out);
     std::cout << "Miscellaneous:\n";
-    std::cout << "  --help -h          display this message\n";
-    std::cout << "  --features -f      display features compiler provides (eg. LLVM support)\n";
-    std::cout << "  --version -v       display version number\n";
-    std::cout << "  --githash          display the git commit hash number used to build this binary\n";
-    std::cout << "  --run              call the 'main' definition in a file with the remaining arguments\n";
-    std::cout << "  --o=oname -o       create olean file\n";
-    std::cout << "  --i=iname -i       create ilean file\n";
-    std::cout << "  --c=fname -c       name of the C output file\n";
-    std::cout << "  --bc=fname -b      name of the LLVM bitcode file\n";
-    std::cout << "  --stdin            take input from stdin\n";
-    std::cout << "  --root=dir         set package root directory from which the module name of the input file is calculated\n"
-              << "                     (default: current working directory)\n";
-    std::cout << "  --trust=num -t     trust level (default: max) 0 means do not trust any macro,\n"
-              << "                     and type check all imported modules\n";
-    std::cout << "  --quiet -q         do not print verbose messages\n";
-    std::cout << "  --memory=num -M    maximum amount of memory that should be used by Lean\n";
-    std::cout << "                     (in megabytes)\n";
-    std::cout << "  --timeout=num -T   maximum number of memory allocations per task\n";
-    std::cout << "                     this is a deterministic way of interrupting long running tasks\n";
+    std::cout << "  -h, --help             display this message\n";
+    std::cout << "  -f, --features         display features compiler provides (eg. LLVM support)\n";
+    std::cout << "  -v, --version          display version number\n";
+    std::cout << "      --githash          display the git commit hash number used to build this binary\n";
+    std::cout << "      --run              call the 'main' definition in a file with the remaining arguments\n";
+    std::cout << "  -o, --o=oname          create olean file\n";
+    std::cout << "  -i, --i=iname          create ilean file\n";
+    std::cout << "  -c, --c=fname          name of the C output file\n";
+    std::cout << "  -b, --bc=fname         name of the LLVM bitcode file\n";
+    std::cout << "      --stdin            take input from stdin\n";
+    std::cout << "      --root=dir         set package root directory from which the module name\n"
+              << "                         of the input file is calculated\n"
+              << "                         (default: current working directory)\n";
+    std::cout << "  -t, --trust=num        trust level (default: max) 0 means do not trust any macro,\n"
+              << "                         and type check all imported modules\n";
+    std::cout << "  -q, --quiet            do not print verbose messages\n";
+    std::cout << "  -M, --memory=num       maximum amount of memory that should be used by Lean\n";
+    std::cout << "                         (in megabytes)\n";
+    std::cout << "  -T, --timeout=num      maximum number of memory allocations per task\n";
+    std::cout << "                         this is a deterministic way of interrupting long running tasks\n";
 #if defined(LEAN_MULTI_THREAD)
-    std::cout << "  --threads=num -j   number of threads used to process lean files\n";
-    std::cout << "  --tstack=num -s    thread stack size in Kb\n";
-    std::cout << "  --server           start lean in server mode\n";
-    std::cout << "  --worker           start lean in server-worker mode\n";
+    std::cout << "  -j, --threads=num      number of threads used to process lean files\n";
+    std::cout << "  -s, --tstack=num       thread stack size in Kb\n";
+    std::cout << "      --server           start lean in server mode\n";
+    std::cout << "      --worker           start lean in server-worker mode\n";
 #endif
-    std::cout << "  --plugin=file      load and initialize Lean shared library for registering linters etc.\n";
-    std::cout << "  --load-dynlib=file load shared library to make its symbols available to the interpreter\n";
-    std::cout << "  --deps             just print dependencies of a Lean input\n";
-    std::cout << "  --print-prefix     print the installation prefix for Lean and exit\n";
-    std::cout << "  --print-libdir     print the installation directory for Lean's built-in libraries and exit\n";
-    std::cout << "  --profile          display elaboration/type checking time for each definition/theorem\n";
-    std::cout << "  --stats            display environment statistics\n";
+    std::cout << "      --plugin=file      load and initialize Lean shared library for registering linters etc.\n";
+    std::cout << "      --load-dynlib=file load shared library to make its symbols available to the interpreter\n";
+    std::cout << "      --json             report Lean output (e.g., messages) as JSON (one per line)\n";
+    std::cout << "      --deps             just print dependencies of a Lean input\n";
+    std::cout << "      --print-prefix     print the installation prefix for Lean and exit\n";
+    std::cout << "      --print-libdir     print the installation directory for Lean's built-in libraries and exit\n";
+    std::cout << "      --profile          display elaboration/type checking time for each definition/theorem\n";
+    std::cout << "      --stats            display environment statistics\n";
     DEBUG_CODE(
-    std::cout << "  --debug=tag        enable assertions with the given tag\n";
+    std::cout << "      --debug=tag        enable assertions with the given tag\n";
         )
-    std::cout << "  -D name=value      set a configuration option (see set_option command)\n";
+    std::cout << "      -D name=value      set a configuration option (see set_option command)\n";
 }
 
 static int print_prefix = 0;
 static int print_libdir = 0;
+static int json_output = 0;
 
 static struct option g_long_options[] = {
     {"version",      no_argument,       0, 'v'},
@@ -260,6 +264,7 @@ static struct option g_long_options[] = {
 #endif
     {"plugin",       required_argument, 0, 'p'},
     {"load-dynlib",  required_argument, 0, 'l'},
+    {"json",         no_argument,       &json_output, 1},
     {"print-prefix", no_argument,       &print_prefix, 1},
     {"print-libdir", no_argument,       &print_libdir, 1},
 #ifdef LEAN_DEBUG
@@ -306,7 +311,9 @@ options set_config_option(options const & opts, char const * in) {
                                   << "' cannot be set in the command line, use set_option command");
         }
     } else {
-        throw lean::exception(lean::sstream() << "invalid -D parameter, unknown configuration option '" << opt << "'");
+        // More options may be registered by imports, so we leave validating them to the Lean side.
+        // This (minor) duplication will be resolved when this file is rewritten in Lean.
+        return opts.update(opt, val.c_str());
     }
 }
 
@@ -346,6 +353,7 @@ extern "C" object * lean_run_frontend(
     object * main_module_name,
     uint32_t trust_level,
     object * ilean_filename,
+    uint8_t  json_output,
     object * w
 );
 pair_ref<environment, object_ref> run_new_frontend(
@@ -353,7 +361,8 @@ pair_ref<environment, object_ref> run_new_frontend(
     options const & opts, std::string const & file_name,
     name const & main_module_name,
     uint32_t trust_level,
-    optional<std::string> const & ilean_file_name
+    optional<std::string> const & ilean_file_name,
+    uint8_t json
 ) {
     object * oilean_file_name = mk_option_none();
     if (ilean_file_name) {
@@ -366,6 +375,7 @@ pair_ref<environment, object_ref> run_new_frontend(
         main_module_name.to_obj_arg(),
         trust_level,
         oilean_file_name,
+        json_output,
         io_mk_world()
     ));
 }
@@ -716,7 +726,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 
         if (!main_module_name)
             main_module_name = name("_stdin");
-        pair_ref<environment, object_ref> r = run_new_frontend(contents, opts, mod_fn, *main_module_name, trust_lvl, ilean_fn);
+        pair_ref<environment, object_ref> r = run_new_frontend(contents, opts, mod_fn, *main_module_name, trust_lvl, ilean_fn, json_output);
         env = r.fst();
         bool ok = unbox(r.snd().raw());
 

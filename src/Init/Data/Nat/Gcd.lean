@@ -37,11 +37,17 @@ def gcd (m n : @& Nat) : Nat :=
   termination_by m
   decreasing_by simp_wf; apply mod_lt _ (zero_lt_of_ne_zero _); assumption
 
-@[simp] theorem gcd_zero_left (y : Nat) : gcd 0 y = y :=
-  rfl
+@[simp] theorem gcd_zero_left (y : Nat) : gcd 0 y = y := by
+  rw [gcd]; rfl
 
-theorem gcd_succ (x y : Nat) : gcd (succ x) y = gcd (y % succ x) (succ x) :=
-  rfl
+theorem gcd_succ (x y : Nat) : gcd (succ x) y = gcd (y % succ x) (succ x) := by
+  rw [gcd]; rfl
+
+theorem gcd_add_one (x y : Nat) : gcd (x + 1) y = gcd (y % (x + 1)) (x + 1) := by
+  rw [gcd]; rfl
+
+theorem gcd_def (x y : Nat) : gcd x y = if x = 0 then y else gcd (y % x) x := by
+  cases x <;> simp [Nat.gcd_add_one]
 
 @[simp] theorem gcd_one_left (n : Nat) : gcd 1 n = 1 := by
   rw [gcd_succ, mod_one]
@@ -54,18 +60,22 @@ theorem gcd_succ (x y : Nat) : gcd (succ x) y = gcd (y % succ x) (succ x) :=
     -- `simp [gcd_succ]` produces an invalid term unless `gcd_succ` is proved with `id rfl` instead
     rw [gcd_succ]
     exact gcd_zero_left _
+instance : Std.LawfulIdentity gcd 0 where
+  left_id := gcd_zero_left
+  right_id := gcd_zero_right
 
 @[simp] theorem gcd_self (n : Nat) : gcd n n = n := by
   cases n <;> simp [gcd_succ]
+instance : Std.IdempotentOp gcd := ⟨gcd_self⟩
 
 theorem gcd_rec (m n : Nat) : gcd m n = gcd (n % m) m :=
   match m with
-  | 0 => by have := (mod_zero n).symm; rwa [gcd_zero_right]
+  | 0 => by have := (mod_zero n).symm; rwa [gcd, gcd_zero_right]
   | _ + 1 => by simp [gcd_succ]
 
 @[elab_as_elim] theorem gcd.induction {P : Nat → Nat → Prop} (m n : Nat)
     (H0 : ∀n, P 0 n) (H1 : ∀ m n, 0 < m → P (n % m) m → P m n) : P m n :=
-  Nat.strongInductionOn (motive := fun m => ∀ n, P m n) m
+  Nat.strongRecOn (motive := fun m => ∀ n, P m n) m
     (fun
     | 0, _ => H0
     | _+1, IH => fun _ => H1 _ _ (succ_pos _) (IH _ (mod_lt _ (succ_pos _)) _) )
@@ -97,6 +107,7 @@ theorem gcd_comm (m n : Nat) : gcd m n = gcd n m :=
   Nat.dvd_antisymm
     (dvd_gcd (gcd_dvd_right m n) (gcd_dvd_left m n))
     (dvd_gcd (gcd_dvd_right n m) (gcd_dvd_left n m))
+instance : Std.Commutative gcd := ⟨gcd_comm⟩
 
 theorem gcd_eq_left_iff_dvd : m ∣ n ↔ gcd m n = m :=
   ⟨fun h => by rw [gcd_rec, mod_eq_zero_of_dvd h, gcd_zero_left],

@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "util/nat.h"
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"
-#include "library/trace.h"
+#include "kernel/trace.h"
 #include "library/compiler/util.h"
 #include "library/compiler/llnf.h"
 #include "library/compiler/extern_attribute.h"

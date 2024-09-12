@@ -30,6 +30,35 @@ if(NOT (DEFINED STAGE0_CMAKE_EXECUTABLE_SUFFIX))
     set(STAGE0_CMAKE_EXECUTABLE_SUFFIX "${CMAKE_EXECUTABLE_SUFFIX}")
 endif()
 
+# Don't do anything with cadical on wasm
+if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+  # On CI Linux, we source cadical from Nix instead; see flake.nix
+  find_program(CADICAL cadical)
+  if(NOT CADICAL)
+    set(CADICAL_CXX c++)
+    find_program(CCACHE ccache)
+    if(CCACHE)
+      set(CADICAL_CXX "${CCACHE} ${CADICAL_CXX}")
+    endif()
+    # missing stdio locking API on Windows
+    if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+      string(APPEND CADICAL_CXXFLAGS " -DNUNLOCKED")
+    endif()
+    ExternalProject_add(cadical
+      PREFIX cadical
+      GIT_REPOSITORY https://github.com/arminbiere/cadical
+      GIT_TAG rel-1.9.5
+      CONFIGURE_COMMAND ""
+      # https://github.com/arminbiere/cadical/blob/master/BUILD.md#manual-build
+      BUILD_COMMAND $(MAKE) -f ${CMAKE_SOURCE_DIR}/src/cadical.mk CMAKE_EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX} CXX=${CADICAL_CXX} CXXFLAGS=${CADICAL_CXXFLAGS}
+      BUILD_IN_SOURCE ON
+      INSTALL_COMMAND "")
+    set(CADICAL ${CMAKE_BINARY_DIR}/cadical/cadical${CMAKE_EXECUTABLE_SUFFIX} CACHE FILEPATH "path to cadical binary" FORCE)
+    set(EXTRA_DEPENDS "cadical")
+  endif()
+  list(APPEND CL_ARGS -DCADICAL=${CADICAL})
+endif()
+
 ExternalProject_add(stage0
   SOURCE_DIR "${LEAN_SOURCE_DIR}/stage0"
   SOURCE_SUBDIR src

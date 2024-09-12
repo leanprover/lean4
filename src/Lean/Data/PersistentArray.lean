@@ -72,8 +72,6 @@ def get! [Inhabited α] (t : PersistentArray α) (i : Nat) : α :=
 instance [Inhabited α] : GetElem (PersistentArray α) Nat α fun as i => i < as.size where
   getElem xs i _ := xs.get! i
 
-instance [Inhabited α] : LawfulGetElem (PersistentArray α) Nat α fun as i => i < as.size where
-
 partial def setAux : PersistentArrayNode α → USize → USize → α → PersistentArrayNode α
   | node cs, i, shift, a =>
     let j     := div2Shift i shift

@@ -10,7 +10,7 @@ import Lean.Meta.Tactic.Simp.Main
 
 namespace Lean.Meta
 
-open Simp (UsedSimps SimprocsArray)
+open Simp (Stats SimprocsArray)
 
 namespace SimpAll
 
@@ -24,12 +24,13 @@ structure Entry where
   deriving Inhabited
 
 structure State where
-  modified  : Bool := false
-  mvarId    : MVarId
-  entries   : Array Entry := #[]
-  ctx       : Simp.Context
-  simprocs  : SimprocsArray
-  usedSimps : UsedSimps := {}
+  modified     : Bool := false
+  mvarId       : MVarId
+  entries      : Array Entry := #[]
+  ctx          : Simp.Context
+  simprocs     : SimprocsArray
+  usedTheorems : Simp.UsedSimps := {}
+  diag         : Simp.Diagnostics := {}
 
 abbrev M := StateRefT State MetaM
 
@@ -62,8 +63,8 @@ private partial def loop : M Bool := do
     -- We disable the current entry to prevent it to be simplified to `True`
     let simpThmsWithoutEntry := (← getSimpTheorems).eraseTheorem entry.id
     let ctx := { ctx with simpTheorems := simpThmsWithoutEntry }
-    let (r, usedSimps) ← simpStep (← get).mvarId entry.proof entry.type ctx simprocs (usedSimps := (← get).usedSimps)
-    modify fun s => { s with usedSimps }
+    let (r, stats) ← simpStep (← get).mvarId entry.proof entry.type ctx simprocs (stats := { (← get) with })
+    modify fun s => { s with usedTheorems := stats.usedTheorems, diag := stats.diag }
     match r with
     | none => return true -- closed the goal
     | some (proofNew, typeNew) =>
@@ -102,8 +103,8 @@ private partial def loop : M Bool := do
         }
   -- simplify target
   let mvarId := (← get).mvarId
-  let (r, usedSimps) ← simpTarget mvarId (← get).ctx simprocs (usedSimps := (← get).usedSimps)
-  modify fun s => { s with usedSimps }
+  let (r, stats) ← simpTarget mvarId (← get).ctx simprocs (stats := { (← get) with })
+  modify fun s => { s with usedTheorems := stats.usedTheorems, diag := stats.diag }
   match r with
   | none => return true
   | some mvarIdNew =>
@@ -143,12 +144,15 @@ def main : M (Option MVarId) := do
 
 end SimpAll
 
-def simpAll (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray := #[]) (usedSimps : UsedSimps := {}) : MetaM (Option MVarId × UsedSimps) := do
+def simpAll (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray := #[]) (stats : Stats := {}) : MetaM (Option MVarId × Stats) := do
   mvarId.withContext do
-    let (r, s) ← SimpAll.main.run { mvarId, ctx, usedSimps, simprocs }
+    let (r, s) ← SimpAll.main.run { stats with mvarId, ctx, simprocs }
     if let .some mvarIdNew := r then
       if ctx.config.failIfUnchanged && mvarId == mvarIdNew then
         throwError "simp_all made no progress"
-    return (r, s.usedSimps)
+    return (r, { s with })
+
+builtin_initialize
+  registerTraceClass `Meta.Tactic.simp.all
 
 end Lean.Meta

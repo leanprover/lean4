@@ -108,19 +108,37 @@ return x_5;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_6 = lean_ctor_get(x_2, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_2, 1);
-lean_inc(x_7);
+uint8_t x_6; 
+x_6 = !lean_is_exclusive(x_2);
+if (x_6 == 0)
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_7 = lean_ctor_get(x_2, 0);
+x_8 = lean_ctor_get(x_2, 1);
+x_9 = l_Lean_PrefixTreeNode_insert_insertEmpty___rarg(x_1, x_8);
+x_10 = lean_box(0);
+x_11 = l_Lean_RBNode_singleton___rarg(x_7, x_9);
+lean_ctor_set_tag(x_2, 0);
+lean_ctor_set(x_2, 1, x_11);
+lean_ctor_set(x_2, 0, x_10);
+return x_2;
+}
+else
+{
+lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_12 = lean_ctor_get(x_2, 0);
+x_13 = lean_ctor_get(x_2, 1);
+lean_inc(x_13);
+lean_inc(x_12);
 lean_dec(x_2);
-x_8 = l_Lean_PrefixTreeNode_insert_insertEmpty___rarg(x_1, x_7);
-x_9 = lean_box(0);
-x_10 = l_Lean_RBNode_singleton___rarg(x_6, x_8);
-x_11 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_11, 0, x_9);
-lean_ctor_set(x_11, 1, x_10);
-return x_11;
+x_14 = l_Lean_PrefixTreeNode_insert_insertEmpty___rarg(x_1, x_13);
+x_15 = lean_box(0);
+x_16 = l_Lean_RBNode_singleton___rarg(x_12, x_14);
+x_17 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_17, 0, x_15);
+lean_ctor_set(x_17, 1, x_16);
+return x_17;
+}
 }
 }
 }

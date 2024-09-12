@@ -1,4 +1,4 @@
-open Std
+open Batteries
 open Lean
 
 inductive BoolExpr where

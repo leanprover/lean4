@@ -4,16 +4,16 @@ def ack : Nat → Nat → Nat
   | 0,   y   => y+1
   | x+1, 0   => ack x 1
   | x+1, y+1 => ack x (ack (x+1) y)
-termination_by ack x y => (x, y)
+termination_by x y => (x, y)
 
 def sum (a : Array Int) : Int :=
   let rec go (i : Nat) :=
-     if i < a.size then
+     if _ : i < a.size then
         a[i] + go (i+1)
      else
         0
+  termination_by a.size - i
   go 0
-termination_by go i => a.size - i
 
 set_option pp.proofs true
 #print sum.go

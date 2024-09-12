@@ -1,2 +1,2 @@
-1707.lean:1:9-1:12: error: invalid field index
-1707.lean:1:12-1:13: error: unexpected identifier; expected command
+1707.lean:1:9-1:10: error: unknown identifier 'c'
+1707.lean:1:12: error: expected token

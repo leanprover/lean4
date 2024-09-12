@@ -21,6 +21,6 @@ script greet (args) do
   return 0
 
 @[default_script]
-script dismiss do
+script "say-goodbye" do
   IO.println "Goodbye!"
   return 0

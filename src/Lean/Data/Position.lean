@@ -5,6 +5,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Lean.Data.Format
+import Lean.Data.Json
 import Lean.ToExpr
 
 namespace Lean
@@ -12,7 +13,7 @@ namespace Lean
 structure Position where
   line   : Nat
   column : Nat
-  deriving Inhabited, DecidableEq, Repr
+  deriving Inhabited, DecidableEq, Repr, ToJson, FromJson
 
 namespace Position
 protected def lt : Position → Position → Bool
@@ -105,7 +106,7 @@ def ofPosition (text : FileMap) (pos : Position) : String.Pos :=
 
 /--
 Returns the position of the start of (1-based) line `line`.
-This gives the stame result as `map.ofPosition ⟨line, 0⟩`, but is more efficient.
+This gives the same result as `map.ofPosition ⟨line, 0⟩`, but is more efficient.
 -/
 def lineStart (map : FileMap) (line : Nat) : String.Pos :=
   if h : line - 1 < map.positions.size then

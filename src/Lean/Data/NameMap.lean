@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
+import Std.Data.HashSet.Basic
 import Lean.Data.HashSet
 import Lean.Data.RBMap
 import Lean.Data.RBTree
@@ -27,7 +28,7 @@ def insert (m : NameMap α) (n : Name) (a : α) := RBMap.insert m n a
 
 def contains (m : NameMap α) (n : Name) : Bool := RBMap.contains m n
 
-@[inline] def find? (m : NameMap α) (n : Name) : Option α := RBMap.find? m n
+def find? (m : NameMap α) (n : Name) : Option α := RBMap.find? m n
 
 instance : ForIn m (NameMap α) (Name × α) :=
   inferInstanceAs (ForIn _ (RBMap ..) ..)
@@ -64,14 +65,14 @@ abbrev insert (s : NameSSet) (n : Name) : NameSSet := SSet.insert s n
 abbrev contains (s : NameSSet) (n : Name) : Bool := SSet.contains s n
 end NameSSet
 
-def NameHashSet := HashSet Name
+def NameHashSet := Std.HashSet Name
 
 namespace NameHashSet
-@[inline] def empty : NameHashSet := HashSet.empty
+@[inline] def empty : NameHashSet := Std.HashSet.empty
 instance : EmptyCollection NameHashSet := ⟨empty⟩
 instance : Inhabited NameHashSet := ⟨{}⟩
-def insert (s : NameHashSet) (n : Name) := HashSet.insert s n
-def contains (s : NameHashSet) (n : Name) : Bool := HashSet.contains s n
+def insert (s : NameHashSet) (n : Name) := Std.HashSet.insert s n
+def contains (s : NameHashSet) (n : Name) : Bool := Std.HashSet.contains s n
 end NameHashSet
 
 def MacroScopesView.isPrefixOf (v₁ v₂ : MacroScopesView) : Bool :=

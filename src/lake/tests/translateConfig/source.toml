@@ -1,4 +1,5 @@
-testRunner = "b"
+testDriver = "b"
+lintDriver = "b"
 defaultTargets = ['A']
 
 name = "test"
@@ -43,6 +44,11 @@ root = "b"
 exeName = "b"
 extraDepTargets = []
 supportInterpreter = false
+
+[[require]]
+name = "baz"
+scope = "foo"
+version = "git#abcdef"
 
 [[require]]
 name = "foo"

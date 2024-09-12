@@ -96,6 +96,7 @@ uint8_t lean_byte_array_get(lean_object*, lean_object*);
 lean_object* lean_uint8_to_nat(uint8_t);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_values_go___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_findPrefix_go___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_find_x3f_loop(lean_object*);
@@ -998,7 +999,6 @@ LEAN_EXPORT lean_object* l_Lean_Data_Trie_values_go___rarg___lambda__1(lean_obje
 _start:
 {
 lean_object* x_4; 
-lean_dec(x_2);
 x_4 = l_Lean_Data_Trie_values_go___rarg(x_1, x_3);
 return x_4;
 }
@@ -1007,7 +1007,6 @@ LEAN_EXPORT lean_object* l_Lean_Data_Trie_values_go___rarg___lambda__2(lean_obje
 _start:
 {
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-lean_dec(x_2);
 x_4 = lean_array_get_size(x_1);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = lean_nat_dec_lt(x_5, x_4);
@@ -1166,11 +1165,21 @@ lean_dec(x_1);
 return x_8;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_values_go___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Data_Trie_values_go___rarg___lambda__1(x_1, x_2, x_3);
+lean_dec(x_2);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_values_go___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Data_Trie_values_go___rarg___lambda__2(x_1, x_2, x_3);
+lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
 }

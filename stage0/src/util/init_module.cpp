@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/init_module.h"
 #include "runtime/init_module.h"
 #include "util/ascii.h"
 #include "util/name.h"

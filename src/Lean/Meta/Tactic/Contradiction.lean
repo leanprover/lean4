@@ -224,11 +224,7 @@ Throw exception if goal failed to be closed.
 -/
 def _root_.Lean.MVarId.contradiction (mvarId : MVarId) (config : Contradiction.Config := {}) : MetaM Unit :=
   unless (← mvarId.contradictionCore config) do
-    throwTacticEx `contradiction mvarId ""
-
-@[deprecated MVarId.contradiction]
-def contradiction (mvarId : MVarId) (config : Contradiction.Config := {}) : MetaM Unit :=
-  mvarId.contradiction config
+    throwTacticEx `contradiction mvarId
 
 builtin_initialize registerTraceClass `Meta.Tactic.contradiction
 

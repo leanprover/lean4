@@ -4,7 +4,9 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 
 ./clean.sh
 $LAKE -d bar update
-$LAKE -d bar build # tests lake#83
+# test that build a module w/o precompile modules still precompiles deps
+# https://github.com/leanprover/lake/issues/83
+$LAKE -d bar build
 $LAKE -d foo build
 
 ./clean.sh

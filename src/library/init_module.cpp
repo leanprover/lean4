@@ -4,12 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "library/trace.h"
+#include "library/init_module.h"
 #include "library/constants.h"
 #include "library/class.h"
 #include "library/num.h"
 #include "library/annotation.h"
-#include "library/protected.h"
 #include "library/print.h"
 #include "library/util.h"
 #include "library/profiling.h"
@@ -21,11 +20,9 @@ void initialize_library_core_module() {
     initialize_formatter();
     initialize_constants();
     initialize_profiling();
-    initialize_trace();
 }
 
 void finalize_library_core_module() {
-    finalize_trace();
     finalize_profiling();
     finalize_constants();
     finalize_formatter();

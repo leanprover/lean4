@@ -21,6 +21,8 @@ def g1 : M Nat :=
     (tryCatchThe String act1 (fun ex => pure 100))
     (fun ex => pure 200)
 
+/-- info: -/
+#guard_msgs in
 #eval testM g1 200
 
 @[noinline] def act2 : M Nat :=
@@ -31,14 +33,20 @@ tryCatchThe Exception
   (tryCatchThe String act2 (fun ex => pure 100))
   (fun ex => pure 200)
 
+/-- info: -/
+#guard_msgs in
 #eval testM g2 100
 
 def h1 : CoreM Nat :=
 pure 10
 
+/-- info: 10 -/
+#guard_msgs in
 #eval h1
 
 def h2 : MetaM Nat :=
 pure 20
 
+/-- info: 20 -/
+#guard_msgs in
 #eval h2

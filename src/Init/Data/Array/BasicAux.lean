@@ -9,7 +9,7 @@ import Init.Data.Nat.Linear
 import Init.NotationExtra
 
 theorem Array.of_push_eq_push {as bs : Array α} (h : as.push a = bs.push b) : as = bs ∧ a = b := by
-  simp [push] at h
+  simp only [push, mk.injEq] at h
   have ⟨h₁, h₂⟩ := List.of_concat_eq_concat h
   cases as; cases bs
   simp_all
@@ -48,6 +48,7 @@ where
       let b ← f as[i]
       go (i+1) ⟨acc.val.push b, by simp [acc.property]⟩ hlt
   termination_by as.size - i
+  decreasing_by decreasing_trivial_pre_omega
 
 @[inline] private unsafe def mapMonoMImp [Monad m] (as : Array α) (f : α → m α) : m (Array α) :=
   go 0 as

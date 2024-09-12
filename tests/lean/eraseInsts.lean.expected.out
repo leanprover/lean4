@@ -1,2 +1,3 @@
-eraseInsts.lean:12:22-12:27: error: failed to synthesize instance
+eraseInsts.lean:12:22-12:27: error: failed to synthesize
   HAdd Foo Foo ?m
+Additional diagnostic information may be available using the `set_option diagnostics true` command.

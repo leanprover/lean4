@@ -114,7 +114,7 @@ For example:
 
 (The type of `inst` must not contain mvars.)
 -/
-partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
+private partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
   withReducible do
   let instTy ← inferType inst
 
@@ -217,8 +217,11 @@ def getGlobalInstancesIndex : CoreM (DiscrTree InstanceEntry) :=
 def getErasedInstances : CoreM (PHashSet Name) :=
   return Meta.instanceExtension.getState (← getEnv) |>.erased
 
+def isInstanceCore (env : Environment) (declName : Name) : Bool :=
+  Meta.instanceExtension.getState env |>.instanceNames.contains declName
+
 def isInstance (declName : Name) : CoreM Bool :=
-  return Meta.instanceExtension.getState (← getEnv) |>.instanceNames.contains declName
+  return isInstanceCore (← getEnv) declName
 
 def getInstancePriority? (declName : Name) : CoreM (Option Nat) := do
   let some entry := Meta.instanceExtension.getState (← getEnv) |>.instanceNames.find? declName | return none

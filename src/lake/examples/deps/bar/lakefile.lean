@@ -3,6 +3,7 @@ open System Lake DSL
 
 package bar
 
+/-- Require statements can have doc comments. -/
 require foo from ".."/"foo"
 
 lean_lib Bar

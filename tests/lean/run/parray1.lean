@@ -12,4 +12,6 @@ def tst1 : IO Unit := do
   assert! check (List.iota 2600)
   IO.println "done"
 
+/-- info: done -/
+#guard_msgs in
 #eval tst1

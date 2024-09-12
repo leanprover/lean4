@@ -52,14 +52,14 @@ which appear in the type and local context of `mvarId`, as well as the
 metavariables which *those* metavariables depend on, etc.
 -/
 partial def _root_.Lean.MVarId.getMVarDependencies (mvarId : MVarId) (includeDelayed := false) :
-    MetaM (HashSet MVarId) :=
+    MetaM (Std.HashSet MVarId) :=
   (·.snd) <$> (go mvarId).run {}
 where
   /-- Auxiliary definition for `getMVarDependencies`. -/
-  addMVars (e : Expr) : StateRefT (HashSet MVarId) MetaM Unit := do
+  addMVars (e : Expr) : StateRefT (Std.HashSet MVarId) MetaM Unit := do
     let mvars ← getMVars e
     let mut s ← get
-    set ({} : HashSet MVarId) -- Ensure that `s` is not shared.
+    set ({} : Std.HashSet MVarId) -- Ensure that `s` is not shared.
     for mvarId in mvars do
       if ← pure includeDelayed <||> notM (mvarId.isDelayedAssigned) then
         s := s.insert mvarId
@@ -67,7 +67,7 @@ where
     mvars.forM go
 
   /-- Auxiliary definition for `getMVarDependencies`. -/
-  go (mvarId : MVarId) : StateRefT (HashSet MVarId) MetaM Unit :=
+  go (mvarId : MVarId) : StateRefT (Std.HashSet MVarId) MetaM Unit :=
     withIncRecDepth do
       let mdecl ← mvarId.getDecl
       addMVars mdecl.type

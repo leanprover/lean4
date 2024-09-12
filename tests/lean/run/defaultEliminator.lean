@@ -22,7 +22,7 @@ termination_by (x, y)
 
 example (x y : Nat) : f x y > 0 := by
   induction x, y with
-  | zero_zero => decide
+  | zero_zero => simp [f]
   | succ_zero x ih => simp [f, ih]
   | zero_succ y ih => simp [f, ih]
   | succ_succ x y ih => simp [f, ih]

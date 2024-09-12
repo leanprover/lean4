@@ -146,7 +146,7 @@ def optSemicolon (p : Parser) : Parser :=
 /-- Parses a "synthetic hole", that is, `?foo` or `?_`.
 This syntax is used to construct named metavariables. -/
 @[builtin_term_parser] def syntheticHole := leading_parser
-  "?" >> (ident <|> hole)
+  "?" >> (ident <|> "_")
 /--
 The `⋯` term denotes a term that was omitted by the pretty printer.
 The presence of `⋯` in pretty printer output is controlled by the `pp.deepTerms` and `pp.proofs` options,
@@ -175,9 +175,11 @@ do not yield the right result.
 -/
 @[builtin_term_parser] def typeAscription := leading_parser
   "(" >> (withoutPosition (withoutForbidden (termParser >> " :" >> optional (ppSpace >> termParser)))) >> ")"
+
 /-- Tuple notation; `()` is short for `Unit.unit`, `(a, b, c)` for `Prod.mk a (Prod.mk b c)`, etc. -/
 @[builtin_term_parser] def tuple := leading_parser
   "(" >> optional (withoutPosition (withoutForbidden (termParser >> ", " >> sepBy1 termParser ", " (allowTrailingSep := true)))) >> ")"
+
 /--
 Parentheses, used for grouping expressions (e.g., `a * (b + c)`).
 Can also be used for creating simple functions when combined with `·`. Here are some examples:
@@ -543,8 +545,11 @@ It is often used when building macros.
 @[builtin_term_parser] def «let_tmp» := leading_parser:leadPrec
   withPosition ("let_tmp " >> letDecl) >> optSemicolon termParser
 
+def haveId := leading_parser (withAnonymousAntiquot := false)
+  (ppSpace >> binderIdent) <|> hygieneInfo
 /- like `let_fun` but with optional name -/
-def haveIdLhs    := ((ppSpace >> binderIdent) <|> hygieneInfo) >> many (ppSpace >> letIdBinder) >> optType
+def haveIdLhs    :=
+  haveId >> many (ppSpace >> letIdBinder) >> optType
 def haveIdDecl   := leading_parser (withAnonymousAntiquot := false)
   atomic (haveIdLhs >> " := ") >> termParser
 def haveEqnsDecl := leading_parser (withAnonymousAntiquot := false)
@@ -581,12 +586,12 @@ letrec we need them here already.
 -/
 
 /--
-Specify a termination argument for well-founded termination:
+Specify a termination argument for recursive functions.
 ```
 termination_by a - b
 ```
 indicates that termination of the currently defined recursive function follows
-because the difference between the the arguments `a` and `b`.
+because the difference between the arguments `a` and `b` decreases.
 
 If the fuction takes further argument after the colon, you can name them as follows:
 ```
@@ -594,11 +599,18 @@ def example (a : Nat) : Nat → Nat → Nat :=
 termination_by b c => a - b
 ```
 
+By default, a `termination_by` clause will cause the function to be constructed using well-founded
+recursion. The syntax `termination_by structural a` (or `termination_by structural _ c => c`)
+indicates the the function is expected to be structural recursive on the argument. In this case
+the body of the `termination_by` clause must be one of the function's parameters.
+
 If omitted, a termination argument will be inferred. If written as `termination_by?`,
 the inferrred termination argument will be suggested.
+
 -/
 @[builtin_doc] def terminationBy := leading_parser
   "termination_by " >>
+  optional (nonReservedSymbol "structural ") >>
   optional (atomic (many (ppSpace >> Term.binderIdent) >> " => ")) >>
   termParser
 
@@ -611,6 +623,9 @@ Manually prove that the termination argument (as specified with `termination_by`
 decreases at each recursive call.
 
 By default, the tactic `decreasing_tactic` is used.
+
+Forces the use of well-founded recursion and is hence incompatible with
+`termination_by structural`.
 -/
 @[builtin_doc] def decreasingBy := leading_parser
   ppDedent ppLine >> "decreasing_by " >> Tactic.tacticSeqIndentGt
@@ -788,7 +803,7 @@ def isIdent (stx : Syntax) : Bool :=
   checkStackTop isIdent "expected preceding identifier" >>
   checkNoWsBefore "no space before '.{'" >> ".{" >>
   sepBy1 levelParser ", " >> "}"
-/-- `x@e` or `x:h@e` matches the pattern `e` and binds its value to the identifier `x`.
+/-- `x@e` or `x@h:e` matches the pattern `e` and binds its value to the identifier `x`.
 If present, the identifier `h` is bound to a proof of `x = e`. -/
 @[builtin_term_parser] def namedPattern : TrailingParser := trailing_parser
   checkStackTop isIdent "expected preceding identifier" >>
@@ -809,6 +824,10 @@ It is especially useful for avoiding parentheses with repeated applications.
 Given `h : a = b` and `e : p a`, the term `h ▸ e` has type `p b`.
 You can also view `h ▸ e` as a "type casting" operation
 where you change the type of `e` by using `h`.
+
+The macro tries both orientations of `h`. If the context provides an
+expected type, it rewrites the expeced type, else it rewrites the type of e`.
+
 See the Chapter "Quantifiers and Equality" in the manual
 "Theorem Proving in Lean" for additional information.
 -/
@@ -872,7 +891,7 @@ def matchExprElseAlt (rhsParser : Parser) := leading_parser "| " >> ppIndent (ho
 def matchExprAlts (rhsParser : Parser) :=
   leading_parser withPosition $
     many (ppLine >> checkColGe "irrelevant" >> notFollowedBy (symbol "| " >> " _ ") "irrelevant" >> matchExprAlt rhsParser)
-    >> (ppLine >> checkColGe "irrelevant" >> matchExprElseAlt rhsParser)
+    >> (ppLine >> checkColGe "else-alternative for `match_expr`, i.e., `| _ => ...`" >> matchExprElseAlt rhsParser)
 @[builtin_term_parser] def matchExpr := leading_parser:leadPrec
   "match_expr " >> termParser >> " with" >> ppDedent (matchExprAlts termParser)
 

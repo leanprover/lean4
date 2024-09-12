@@ -6,9 +6,9 @@ def f (x : Nat) : Nat := by
     apply Nat.mul 2
     exact f x'
 
-#eval f 10
+#guard f 10 == 1024
 
-example : f x.succ = 2 * f x := rfl
+example : f x.succ = 2 * f x := by rw [f]; rfl
 end Ex1
 
 namespace Ex2

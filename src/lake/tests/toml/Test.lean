@@ -5,7 +5,6 @@ Authors: Mac Malone
 -/
 import Lake.Toml
 import Lake.Util.Message
-import Lake.Util.Newline
 
 /-!
 ## TOML Test Runner
@@ -24,39 +23,13 @@ inductive TomlOutcome where
 | fail (log : MessageLog)
 | error (e : IO.Error)
 
-@[inline] def Fin.allM [Monad m] (n) (f : Fin n → m Bool) : m Bool :=
-  loop 0
-where
-  loop (i : Nat) : m Bool := do
-    if h : i < n then
-      if (← f ⟨i, h⟩) then loop (i+1) else pure false
-    else
-      pure true
-  termination_by n - i
-
-@[inline] def Fin.all (n) (f : Fin n → Bool) : Bool :=
-  Id.run <| allM n f
-
-def bytesBEq (a b : ByteArray) : Bool :=
-  if h_size : a.size = b.size then
-    Fin.all a.size fun i => a[i] = b[i]'(h_size ▸ i.isLt)
-  else
-    false
-
-def String.fromUTF8 (bytes : ByteArray) : String :=
-  String.fromUTF8Unchecked bytes |>.map id
-
-@[inline] def String.fromUTF8? (bytes : ByteArray) : Option String :=
-  let s := String.fromUTF8 bytes
-  if bytesBEq s.toUTF8 bytes then some s else none
-
 nonrec def loadToml (tomlFile : FilePath) : BaseIO TomlOutcome := do
   let fileName := tomlFile.fileName.getD tomlFile.toString
   let input ←
     match (← IO.FS.readBinFile tomlFile |>.toBaseIO) with
     | .ok bytes =>
       if let some input := String.fromUTF8? bytes then
-        pure (crlf2lf input)
+        pure input.crlfToLf
       else
         return .fail <| MessageLog.empty.add
           {fileName, pos := ⟨1,0⟩, data := m!"file contains invalid characters"}

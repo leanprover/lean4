@@ -104,22 +104,28 @@ end
 instance : ToString Value := ⟨Value.toString⟩
 
 def ppTable (t : Table) : String :=
-  String.trimLeft <| t.items.foldl (init := "") fun s (k,v) =>
+  let (ts, fs) := t.items.foldl (init := ("", "")) fun (ts, fs) (k,v) =>
     match v with
     | .array _ vs =>
       if vs.all (· matches .table ..) then
-        vs.foldl (init := s) fun s v =>
+        let fs := vs.foldl (init := fs) fun s v =>
           match v with
           | .table _ t =>
-            let s := s ++ s!"\n[[{ppKey k}]]\n"
-            t.items.foldl (fun s (k,v) => appendKeyval s k v) s
+            let s := s ++ s!"[[{ppKey k}]]\n"
+            let s := t.items.foldl (fun s (k,v) => appendKeyval s k v) s
+            s.push '\n'
           | _ => unreachable!
+        (ts, fs)
       else
-        s.append s!"{ppKey k} = {ppInlineArray vs}\n"
+        (ts.append s!"{ppKey k} = {ppInlineArray vs}\n", fs)
     | .table _ t =>
-      let s := s ++ s!"\n[{ppKey k}]\n"
-      t.items.foldl (fun s (k,v) => appendKeyval s k v) s
-    | _ => appendKeyval s k v
+      let fs := fs ++ s!"[{ppKey k}]\n"
+      let fs := t.items.foldl (fun s (k,v) => appendKeyval s k v) fs
+      (ts, fs.push '\n')
+    | _ => (appendKeyval ts k v, fs)
+  -- Ensures root table keys come before subtables
+  -- See https://github.com/leanprover/lean4/issues/4099
+  (ts.push '\n' ++ fs).trimRight.push '\n'
 where
   appendKeyval s k v :=
     s.append s!"{ppKey k} = {v}\n"

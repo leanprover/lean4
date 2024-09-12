@@ -43,8 +43,6 @@ namespace Toml.Table
 @[inline] nonrec def insert [enc : ToToml α] (k : Name) (v : α) (t : Table) : Table :=
   t.insert k (enc.toToml v)
 
-instance (priority := low) [ToToml α] : SmartInsert α := ⟨Table.insert⟩
-
 /-- If the value is not `none`, inserts the encoded value into the table. -/
 @[inline] nonrec def insertSome [enc : ToToml α] (k : Name) (v? : Option α) (t : Table) : Table :=
   t.insertSome k (v?.map enc.toToml)
@@ -59,6 +57,9 @@ instance : SmartInsert Table where
   smartInsert k v t := t.insertUnless v.isEmpty k (toToml v)
 
 instance [ToToml (Array α)] : SmartInsert (Array α) where
+  smartInsert k v t := t.insertUnless v.isEmpty k (toToml v)
+
+instance : SmartInsert String  where
   smartInsert k v t := t.insertUnless v.isEmpty k (toToml v)
 
 /-- Insert a value into the table if `p` is `true`. -/

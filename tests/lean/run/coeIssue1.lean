@@ -39,4 +39,5 @@ def sext {s:Nat} (x : Expr (bv s)) (n:Nat) : Expr (bv (s+n)) := Expr.sextC x (s+
 open MCType
 
 variable {u:Nat} (e : Expr (bv 64))
+
 #check (bvmul (sext (Reg.rax 64) 64) (sext e 64) : Expr (bv 128))

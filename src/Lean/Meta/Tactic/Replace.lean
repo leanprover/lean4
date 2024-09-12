@@ -32,10 +32,6 @@ def _root_.Lean.MVarId.replaceTargetEq (mvarId : MVarId) (targetNew : Expr) (eqP
     mvarId.assign val
     return mvarNew.mvarId!
 
-@[deprecated MVarId.replaceTargetEq]
-def replaceTargetEq (mvarId : MVarId) (targetNew : Expr) (eqProof : Expr) : MetaM MVarId :=
-  mvarId.replaceTargetEq targetNew eqProof
-
 /--
   Convert the given goal `Ctx |- target` into `Ctx |- targetNew`. It assumes the goals are definitionally equal.
   We use the proof term
@@ -55,10 +51,6 @@ def _root_.Lean.MVarId.replaceTargetDefEq (mvarId : MVarId) (targetNew : Expr) :
       let newVal  ← mkExpectedTypeHint mvarNew target
       mvarId.assign newVal
       return mvarNew.mvarId!
-
-@[deprecated MVarId.replaceTargetDefEq]
-def replaceTargetDefEq (mvarId : MVarId) (targetNew : Expr) : MetaM MVarId :=
-  mvarId.replaceTargetDefEq targetNew
 
 private def replaceLocalDeclCore (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (eqProof : Expr) : MetaM AssertAfterResult :=
   mvarId.withContext do
@@ -102,10 +94,6 @@ where
 abbrev _root_.Lean.MVarId.replaceLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (eqProof : Expr) : MetaM AssertAfterResult :=
   replaceLocalDeclCore mvarId fvarId typeNew eqProof
 
-@[deprecated MVarId.replaceLocalDecl]
-abbrev replaceLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (eqProof : Expr) : MetaM AssertAfterResult :=
-  mvarId.replaceLocalDecl fvarId typeNew eqProof
-
 /--
 Replace the type of `fvarId` at `mvarId` with `typeNew`.
 Remark: this method assumes that `typeNew` is definitionally equal to the current type of `fvarId`.
@@ -121,10 +109,6 @@ def _root_.Lean.MVarId.replaceLocalDeclDefEq (mvarId : MVarId) (fvarId : FVarId)
       mvarId.assign mvarNew
       return mvarNew.mvarId!
 
-@[deprecated MVarId.replaceLocalDeclDefEq]
-def replaceLocalDeclDefEq (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) : MetaM MVarId := do
-  mvarId.replaceLocalDeclDefEq fvarId typeNew
-
 /--
 Replace the target type of `mvarId` with `typeNew`.
 If `checkDefEq = false`, this method assumes that `typeNew` is definitionally equal to the current target type.
@@ -136,10 +120,6 @@ def _root_.Lean.MVarId.change (mvarId : MVarId) (targetNew : Expr) (checkDefEq :
     unless (← isDefEq target targetNew) do
       throwTacticEx `change mvarId m!"given type{indentExpr targetNew}\nis not definitionally equal to{indentExpr target}"
   mvarId.replaceTargetDefEq targetNew
-
-@[deprecated MVarId.change]
-def change (mvarId : MVarId) (targetNew : Expr) (checkDefEq := true) : MetaM MVarId := mvarId.withContext do
-  mvarId.change targetNew checkDefEq
 
 /--
 Executes the revert/intro pattern, running the continuation `k` after temporarily reverting
@@ -210,10 +190,6 @@ def _root_.Lean.MVarId.changeLocalDecl (mvarId : MVarId) (fvarId : FVarId) (type
     | _ => throwTacticEx `changeLocalDecl mvarId "unexpected auxiliary target"
   return mvarId
 
-@[deprecated MVarId.changeLocalDecl]
-def changeLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (checkDefEq := true) : MetaM MVarId := do
-  mvarId.changeLocalDecl fvarId typeNew checkDefEq
-
 /--
 Modify `mvarId` target type using `f`.
 -/
@@ -221,10 +197,6 @@ def _root_.Lean.MVarId.modifyTarget (mvarId : MVarId) (f : Expr → MetaM Expr) 
   mvarId.withContext do
     mvarId.checkNotAssigned `modifyTarget
     mvarId.change (← f (← mvarId.getType)) (checkDefEq := false)
-
-@[deprecated modifyTarget]
-def modifyTarget (mvarId : MVarId) (f : Expr → MetaM Expr) : MetaM MVarId := do
-  mvarId.modifyTarget f
 
 /--
 Modify `mvarId` target type left-hand-side using `f`.
@@ -236,9 +208,5 @@ def _root_.Lean.MVarId.modifyTargetEqLHS (mvarId : MVarId) (f : Expr → MetaM E
        mkEq (← f lhs) rhs
      else
        throwTacticEx `modifyTargetEqLHS mvarId m!"equality expected{indentExpr target}"
-
-@[deprecated MVarId.modifyTargetEqLHS]
-def modifyTargetEqLHS (mvarId : MVarId) (f : Expr → MetaM Expr) : MetaM MVarId := do
-  mvarId.modifyTargetEqLHS f
 
 end Lean.Meta

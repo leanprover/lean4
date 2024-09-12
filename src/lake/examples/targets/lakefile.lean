@@ -1,9 +1,8 @@
 import Lake
 open Lake DSL
 
-package targets {
+package targets where
   srcDir := "src"
-}
 
 @[default_target]
 lean_lib Foo where
@@ -37,12 +36,12 @@ target bark : Unit := do
 target bark_bark : Unit := do
   bark.fetch
 
-package_facet print_name pkg : Unit := do
+package_facet print_name pkg : Unit := Job.async do
   IO.println pkg.name
-  return .nil
+  return ((), .nil)
 
 module_facet get_src mod : FilePath := do
-  inputFile mod.leanFile
+  inputTextFile mod.leanFile
 
 module_facet print_src mod : Unit := do
   (← fetch <| mod.facet `get_src).bindSync fun src trace => do

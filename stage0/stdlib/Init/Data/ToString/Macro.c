@@ -55,7 +55,7 @@ static lean_object* _init_l_termS_x21_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("termS!_", 7);
+x_1 = lean_mk_string_unchecked("termS!_", 7, 7);
 return x_1;
 }
 }
@@ -73,7 +73,7 @@ static lean_object* _init_l_termS_x21_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("andthen", 7);
+x_1 = lean_mk_string_unchecked("andthen", 7, 7);
 return x_1;
 }
 }
@@ -91,7 +91,7 @@ static lean_object* _init_l_termS_x21_____closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("s!", 2);
+x_1 = lean_mk_string_unchecked("s!", 2, 2);
 return x_1;
 }
 }
@@ -109,7 +109,7 @@ static lean_object* _init_l_termS_x21_____closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("interpolatedStr", 15);
+x_1 = lean_mk_string_unchecked("interpolatedStr", 15, 15);
 return x_1;
 }
 }
@@ -127,7 +127,7 @@ static lean_object* _init_l_termS_x21_____closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term", 4);
+x_1 = lean_mk_string_unchecked("term", 4, 4);
 return x_1;
 }
 }
@@ -205,7 +205,7 @@ static lean_object* _init_l___aux__Init__Data__ToString__Macro______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("String", 6);
+x_1 = lean_mk_string_unchecked("String", 6, 6);
 return x_1;
 }
 }
@@ -278,7 +278,7 @@ static lean_object* _init_l___aux__Init__Data__ToString__Macro______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("toString", 8);
+x_1 = lean_mk_string_unchecked("toString", 8, 8);
 return x_1;
 }
 }
@@ -305,7 +305,7 @@ static lean_object* _init_l___aux__Init__Data__ToString__Macro______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ToString", 8);
+x_1 = lean_mk_string_unchecked("ToString", 8, 8);
 return x_1;
 }
 }
@@ -371,6 +371,7 @@ x_10 = lean_ctor_get(x_2, 5);
 lean_inc(x_10);
 x_11 = 0;
 x_12 = l_Lean_SourceInfo_fromRef(x_10, x_11);
+lean_dec(x_10);
 x_13 = lean_ctor_get(x_2, 2);
 lean_inc(x_13);
 x_14 = lean_ctor_get(x_2, 1);

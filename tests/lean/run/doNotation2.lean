@@ -12,6 +12,19 @@ discard <| aux x x;
   aux x
  x
 
+/--
+info: hello world
+aux started
+y: 10, z: 11
+aux started
+y: 10, z: 9
+aux started
+y: 10, z: 10
+aux started
+y: 10, z: 10
+20
+-/
+#guard_msgs in
 #eval f 10
 
 def g (xs : List Nat) : StateT Nat Id Nat := do
@@ -21,7 +34,18 @@ if xs.isEmpty then
 dbg_trace ">>> xs: {xs}"
 return xs.length
 
+/--
+info: >>> xs: [1, 2, 3]
+3
+-/
+#guard_msgs in
 #eval g [1, 2, 3] |>.run' 10
+
+/--
+info: >>> xs: [10]
+1
+-/
+#guard_msgs in
 #eval g [] |>.run' 10
 
 theorem ex1 : (g [1, 2, 4, 5] |>.run' 0) = 4 :=
@@ -58,6 +82,13 @@ for x in xs do
   dbg_trace ">> x: {x}"
 return sum
 
+/--
+info: >> x: 1
+>> x: 3
+>> x: 5
+16
+-/
+#guard_msgs in
 #eval sumOdd [1, 2, 3, 4, 5, 6, 7, 9, 11, 101] 10
 
 theorem ex5 : sumOdd [1, 2, 3, 4, 5, 6, 7, 9, 11, 101] 10 = 16 :=
@@ -87,6 +118,19 @@ let rec loop : Nat → IO Unit
   | x+1 => do IO.println x; loop x
 loop x
 
+/--
+info: 9
+8
+7
+6
+5
+4
+3
+2
+1
+0
+-/
+#guard_msgs in
 #eval f1 10
 
 partial def f2 (x : Nat) : IO Unit := do
@@ -99,7 +143,12 @@ let rec
     | x+1 => isEven x
 IO.println ("isOdd(" ++ toString x ++ "): " ++ toString (isOdd x))
 
+/-- info: isOdd(11): true -/
+#guard_msgs in
 #eval f2 11
+
+/-- info: isOdd(10): false -/
+#guard_msgs in
 #eval f2 10
 
 def split (xs : List Nat) : List Nat × List Nat := Id.run do
@@ -126,8 +175,8 @@ def f4 (x y : Nat) : Nat × Nat := Id.run <| do
   | _ => x := x + y
   return (x, y)
 
-#eval f4 0 10
-#eval f4 5 10
+#guard f4 0 10 == (0, 11)
+#guard f4 5 10 == (15,10)
 
 theorem ex9 (y : Nat) : f4 0 y = (0, y+1) :=
 rfl
@@ -142,6 +191,11 @@ def f5 (x y : Nat) : Nat × Nat := Id.run <| do
   | z+1 => dbg_trace "z: {z}"; x := x + y
   return (x, y)
 
+/--
+info: z: 4
+(11, 6)
+-/
+#guard_msgs in
 #eval f5 5 6
 
 theorem ex11 (x y : Nat) : f5 (x+1) y = ((x+1)+y, y) :=
@@ -181,6 +235,8 @@ def f7Test : IO Unit := do
 unless (← f7 (← IO.mkRef (some (10, 20)))) == 30 do throw $ IO.userError "unexpected"
 unless (← f7 (← IO.mkRef none)) == 100 do throw $ IO.userError "unexpected"
 
+/-- info: 10, 20 -/
+#guard_msgs in
 #eval f7Test
 
 def f8 (x : Nat) : IO Nat := do
@@ -197,4 +253,9 @@ def f8Test : IO Unit := do
 unless (← f8 0) == 100 do throw $ IO.userError "unexpected"
 unless (← f8 1) == 2 do throw $ IO.userError "unexpected"
 
+/--
+info: x is zero
+y: 2
+-/
+#guard_msgs in
 #eval f8Test

@@ -29,7 +29,7 @@ structure CandidateInfo where
   The set of candidates that rely on this candidate to be a join point.
   For a more detailed explanation see the documentation of `find`
   -/
-  associated : HashSet FVarId
+  associated : Std.HashSet FVarId
   deriving Inhabited
 
 /--
@@ -39,14 +39,14 @@ structure FindState where
   /--
   All current join point candidates accessible by their `FVarId`.
   -/
-  candidates : HashMap FVarId CandidateInfo := .empty
+  candidates : Std.HashMap FVarId CandidateInfo := .empty
   /--
   The `FVarId`s of all `fun` declarations that were declared within the
   current `fun`.
   -/
-  scope : HashSet FVarId := .empty
+  scope : Std.HashSet FVarId := .empty
 
-abbrev ReplaceCtx := HashMap FVarId Name
+abbrev ReplaceCtx := Std.HashMap FVarId Name
 
 abbrev FindM := ReaderT (Option FVarId) StateRefT FindState ScopeM
 abbrev ReplaceM := ReaderT ReplaceCtx CompilerM
@@ -55,7 +55,7 @@ abbrev ReplaceM := ReaderT ReplaceCtx CompilerM
 Attempt to find a join point candidate by its `FVarId`.
 -/
 private def findCandidate? (fvarId : FVarId) : FindM (Option CandidateInfo) := do
-  return (← get).candidates.find? fvarId
+  return (← get).candidates[fvarId]?
 
 /--
 Erase a join point candidate as well as all the ones that depend on it
@@ -69,7 +69,7 @@ private partial def eraseCandidate (fvarId : FVarId) : FindM Unit := do
 /--
 Combinator for modifying the candidates in `FindM`.
 -/
-private def modifyCandidates (f : HashMap FVarId CandidateInfo → HashMap FVarId CandidateInfo) : FindM Unit :=
+private def modifyCandidates (f : Std.HashMap FVarId CandidateInfo → Std.HashMap FVarId CandidateInfo) : FindM Unit :=
   modify (fun state => {state with candidates := f state.candidates })
 
 /--
@@ -196,7 +196,7 @@ where
           return code
       | _, _ => return Code.updateLet! code decl (← go k)
     | .fun decl k =>
-      if let some replacement := (← read).find? decl.fvarId then
+      if let some replacement := (← read)[decl.fvarId]? then
         let newDecl := { decl with
           binderName := replacement,
           value := (← go decl.value)
@@ -244,7 +244,7 @@ structure ExtendState where
   to `Param`s. The free variables in this map are the once that the context
   of said join point will be extended by by passing in the respective parameter.
   -/
-  fvarMap : HashMap FVarId (HashMap FVarId Param) := {}
+  fvarMap : Std.HashMap FVarId (Std.HashMap FVarId Param) := {}
 
 /--
 The monad for the `extendJoinPointContext` pass.
@@ -262,7 +262,7 @@ otherwise just return `fvar`.
 def replaceFVar (fvar : FVarId) : ExtendM FVarId := do
   if (← read).candidates.contains fvar then
     if let some currentJp := (← read).currentJp? then
-      if let some replacement := (← get).fvarMap.find! currentJp |>.find? fvar then
+      if let some replacement := (← get).fvarMap[currentJp]![fvar]? then
         return replacement.fvarId
   return fvar
 
@@ -313,7 +313,7 @@ This is necessary if:
 -/
 def extendByIfNecessary (fvar : FVarId) : ExtendM Unit := do
   if let some currentJp := (← read).currentJp? then
-    let mut translator := (← get).fvarMap.find! currentJp
+    let mut translator := (← get).fvarMap[currentJp]!
     let candidates := (← read).candidates
     if !(← isInScope fvar) && !translator.contains fvar && candidates.contains fvar then
       let typ ← getType fvar
@@ -337,7 +337,7 @@ of `j.2` in `j.1`.
 -/
 def mergeJpContextIfNecessary (jp : FVarId) : ExtendM Unit := do
   if (← read).currentJp?.isSome then
-    let additionalArgs := (← get).fvarMap.find! jp |>.toArray
+    let additionalArgs := (← get).fvarMap[jp]!.toArray
     for (fvar, _) in additionalArgs do
       extendByIfNecessary fvar
 
@@ -405,7 +405,7 @@ where
     | .jp decl k =>
       let decl ← withNewJpScope decl do
         let value ← go decl.value
-        let additionalParams := (← get).fvarMap.find! decl.fvarId |>.toArray |>.map Prod.snd
+        let additionalParams := (← get).fvarMap[decl.fvarId]!.toArray |>.map Prod.snd
         let newType := additionalParams.foldr (init := decl.type) (fun val acc => .forallE val.binderName val.type acc .default)
         decl.update newType (additionalParams ++ decl.params) value
       mergeJpContextIfNecessary decl.fvarId
@@ -426,7 +426,7 @@ where
       return Code.updateCases! code cs.resultType discr alts
     | .jmp fn args =>
       let mut newArgs ← args.mapM (mapFVarM goFVar)
-      let additionalArgs := (← get).fvarMap.find! fn |>.toArray |>.map Prod.fst
+      let additionalArgs := (← get).fvarMap[fn]!.toArray |>.map Prod.fst
       if let some _currentJp := (← read).currentJp? then
         let f := fun arg => do
           return .fvar (← goFVar arg)
@@ -545,7 +545,7 @@ where
       if let some knownArgs := (← get).jpJmpArgs.find? fn then
         let mut newArgs := knownArgs
         for (param, arg) in decl.params.zip args do
-          if let some knownVal := newArgs.find? param.fvarId then
+          if let some knownVal := newArgs[param.fvarId]? then
             if arg.toExpr != knownVal then
               newArgs := newArgs.erase param.fvarId
         modify fun s => { s with jpJmpArgs := s.jpJmpArgs.insert fn newArgs }

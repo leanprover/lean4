@@ -16,7 +16,7 @@ import Lean.Data.Json.FromToJson
 
 import Lean.Util.FileSetupInfo
 import Lean.LoadDynlib
-import Lean.Language.Basic
+import Lean.Language.Lean
 
 import Lean.Server.Utils
 import Lean.Server.AsyncList
@@ -60,7 +60,6 @@ open Snapshots
 open JsonRpc
 
 open Widget in
-abbrev StickyDiagnostics := RBTree InteractiveDiagnostic InteractiveDiagnostic.compareAsDiagnostics
 
 structure WorkerContext where
   /-- Synchronized output channel for LSP messages. Notifications for outdated versions are
@@ -80,7 +79,7 @@ structure WorkerContext where
   /--
   Diagnostics that are included in every single `textDocument/publishDiagnostics` notification.
   -/
-  stickyDiagnosticsRef : IO.Ref StickyDiagnostics
+  stickyDiagnosticsRef : IO.Ref (Array InteractiveDiagnostic)
   hLog                 : FS.Stream
   initParams           : InitializeParams
   processor            : Parser.InputContext → BaseIO Lean.Language.Lean.InitialSnapshot
@@ -155,7 +154,7 @@ This option can only be set on the command line, not in the lakefile or via `set
     let stickyInteractiveDiagnostics ← ctx.stickyDiagnosticsRef.get
     let docInteractiveDiagnostics ← doc.diagnosticsRef.get
     let diagnostics :=
-      stickyInteractiveDiagnostics.toArray ++ docInteractiveDiagnostics
+      stickyInteractiveDiagnostics ++ docInteractiveDiagnostics
       |>.map (·.toDiagnostic)
     let notification := mkPublishDiagnosticsNotification doc.meta diagnostics
     ctx.chanOut.send notification
@@ -196,7 +195,7 @@ This option can only be set on the command line, not in the lakefile or via `set
         return .pure ()
   where
     go (node : SnapshotTree) (st : ReportSnapshotsState) : BaseIO (Task ReportSnapshotsState) := do
-      if !node.element.diagnostics.msgLog.isEmpty then
+      if node.element.diagnostics.msgLog.hasUnreported then
         let diags ←
           if let some memorized ← node.element.diagnostics.interactiveDiagsRef?.bindM fun ref => do
               return (← ref.get).bind (·.get? MemorizedInteractiveDiagnostics) then
@@ -265,9 +264,9 @@ open Language Lean in
 Callback from Lean language processor after parsing imports that requests necessary information from
 Lake for processing imports.
 -/
-def setupImports (meta : DocumentMeta) (chanOut : Channel JsonRpc.Message)
+def setupImports (meta : DocumentMeta) (cmdlineOpts : Options) (chanOut : Channel JsonRpc.Message)
     (srcSearchPathPromise : Promise SearchPath) (stx : Syntax) :
-    Language.ProcessingT IO (Except Language.Lean.HeaderProcessedSnapshot Options) := do
+    Language.ProcessingT IO (Except Language.Lean.HeaderProcessedSnapshot SetupImportsResult) := do
   let importsAlreadyLoaded ← importsLoadedRef.modifyGet ((·, true))
   if importsAlreadyLoaded then
     -- As we never unload imports in the server, we should not run the code below twice in the
@@ -306,27 +305,38 @@ def setupImports (meta : DocumentMeta) (chanOut : Channel JsonRpc.Message)
   | _ => pure ()
 
   srcSearchPathPromise.resolve fileSetupResult.srcSearchPath
-  return .ok fileSetupResult.fileOptions
+
+  let mainModuleName ← if let some path := System.Uri.fileUriToPath? meta.uri then
+    EIO.catchExceptions (h := fun _ => pure Name.anonymous) do
+      if let some mod ← searchModuleNameOfFileName path fileSetupResult.srcSearchPath then
+        pure mod
+      else
+        moduleNameOfFileName path none
+  else
+    pure Name.anonymous
+
+  -- override cmdline options with file options
+  let opts := cmdlineOpts.mergeBy (fun _ _ fileOpt => fileOpt) fileSetupResult.fileOptions
+
+  return .ok {
+    mainModuleName
+    opts
+  }
 
 /- Worker initialization sequence. -/
 section Initialization
   def initializeWorker (meta : DocumentMeta) (o e : FS.Stream) (initParams : InitializeParams) (opts : Options)
       : IO (WorkerContext × WorkerState) := do
     let clientHasWidgets := initParams.initializationOptions?.bind (·.hasWidgets?) |>.getD false
-    let mut mainModuleName := Name.anonymous
-    try
-      if let some path := System.Uri.fileUriToPath? meta.uri then
-        mainModuleName ← moduleNameOfFileName path none
-    catch _ => pure ()
     let maxDocVersionRef ← IO.mkRef 0
-    let freshRequestIdRef ← IO.mkRef 0
+    let freshRequestIdRef ← IO.mkRef (0 : Int)
     let chanIsProcessing ← IO.Channel.new
     let stickyDiagnosticsRef ← IO.mkRef ∅
     let chanOut ← mkLspOutputChannel maxDocVersionRef chanIsProcessing
     let srcSearchPathPromise ← IO.Promise.new
 
-    let processor := Language.Lean.process (setupImports meta chanOut srcSearchPathPromise)
-    let processor ← Language.mkIncrementalProcessor processor { opts, mainModuleName }
+    let processor := Language.Lean.process (setupImports meta opts chanOut srcSearchPathPromise)
+    let processor ← Language.mkIncrementalProcessor processor
     let initSnap ← processor meta.mkInputContext
     let _ ← IO.mapTask (t := srcSearchPathPromise.result) fun srcSearchPath => do
       let importClosure := getImportClosure? initSnap
@@ -452,14 +462,18 @@ section NotificationHandling
     let ctx ← read
     let s ← get
     let text := s.doc.meta.text
+    let importOutOfDataMessage := .text s!"Imports are out of date and should be rebuilt; \
+      use the \"Restart File\" command in your editor."
     let diagnostic := {
       range      := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩
       fullRange? := some ⟨⟨0, 0⟩, text.utf8PosToLspPos text.source.endPos⟩
       severity?  := DiagnosticSeverity.information
-      message    := .text s!"Imports are out of date and should be rebuilt; \
-        use the \"Restart File\" command in your editor."
+      message := importOutOfDataMessage
     }
-    ctx.stickyDiagnosticsRef.modify fun stickyDiagnostics => stickyDiagnostics.insert diagnostic
+    ctx.stickyDiagnosticsRef.modify fun stickyDiagnostics =>
+      let stickyDiagnostics := stickyDiagnostics.filter
+        (·.message.stripTags != importOutOfDataMessage.stripTags)
+      stickyDiagnostics.push diagnostic
     publishDiagnostics ctx s.doc.toEditableDocumentCore
 
 def handleRpcRelease (p : Lsp.RpcReleaseParams) : WorkerM Unit := do
@@ -528,7 +542,7 @@ section MessageHandling
     -- NOTE: does not wait for `lineRange?` to be fully elaborated, which would be problematic with
     -- fine-grained incremental reporting anyway; instead, the client is obligated to resend the
     -- request when the non-interactive diagnostics of this range have changed
-    return (stickyDiags.toArray ++ diags).filter fun diag =>
+    return (stickyDiags ++ diags).filter fun diag =>
       let r := diag.fullRange
       let diagStartLine := r.start.line
       let diagEndLine   :=
@@ -694,12 +708,9 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO UInt32 := do
   let initParams ← i.readLspRequestAs "initialize" InitializeParams
   let ⟨_, param⟩ ← i.readLspNotificationAs "textDocument/didOpen" LeanDidOpenTextDocumentParams
   let doc := param.textDocument
-  /- NOTE(WN): `toFileMap` marks line beginnings as immediately following
-    "\n", which should be enough to handle both LF and CRLF correctly.
-    This is because LSP always refers to characters by (line, column),
-    so if we get the line number correct it shouldn't matter that there
-    is a CR there. -/
-  let meta : DocumentMeta := ⟨doc.uri, doc.version, doc.text.toFileMap, param.dependencyBuildMode?.getD .always⟩
+  /- Note (kmill): LSP always refers to characters by (line, column),
+     so converting CRLF to LF preserves line and column numbers. -/
+  let meta : DocumentMeta := ⟨doc.uri, doc.version, doc.text.crlfToLf.toFileMap, param.dependencyBuildMode?.getD .always⟩
   let e := e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e
   let (ctx, st) ← try

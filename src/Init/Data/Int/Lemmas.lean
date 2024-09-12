@@ -7,6 +7,7 @@ prelude
 import Init.Data.Int.Basic
 import Init.Conv
 import Init.NotationExtra
+import Init.PropLemmas
 
 namespace Int
 
@@ -137,12 +138,16 @@ protected theorem add_comm : ∀ a b : Int, a + b = b + a
   | ofNat _, -[_+1]  => rfl
   | -[_+1],  ofNat _ => rfl
   | -[_+1],  -[_+1]  => by simp [Nat.add_comm]
+instance : Std.Commutative (α := Int) (· + ·) := ⟨Int.add_comm⟩
 
 @[simp] protected theorem add_zero : ∀ a : Int, a + 0 = a
   | ofNat _ => rfl
   | -[_+1]  => rfl
 
 @[simp] protected theorem zero_add (a : Int) : 0 + a = a := Int.add_comm .. ▸ a.add_zero
+instance : Std.LawfulIdentity (α := Int) (· + ·) 0 where
+  left_id := Int.zero_add
+  right_id := Int.add_zero
 
 theorem ofNat_add_negSucc_of_lt (h : m < n.succ) : ofNat m + -[n+1] = -[n - m+1] :=
   show subNatNat .. = _ by simp [succ_sub (le_of_lt_succ h), subNatNat]
@@ -196,6 +201,7 @@ where
     simp
     rw [Int.add_comm, subNatNat_add_negSucc]
     simp [Nat.add_comm, Nat.add_left_comm, Nat.add_assoc]
+instance : Std.Associative (α := Int) (· + ·) := ⟨Int.add_assoc⟩
 
 protected theorem add_left_comm (a b c : Int) : a + (b + c) = b + (a + c) := by
   rw [← Int.add_assoc, Int.add_comm a, Int.add_assoc]
@@ -283,7 +289,7 @@ protected theorem neg_sub (a b : Int) : -(a - b) = b - a := by
 protected theorem sub_sub_self (a b : Int) : a - (a - b) = b := by
   simp [Int.sub_eq_add_neg, ← Int.add_assoc]
 
-protected theorem sub_neg (a b : Int) : a - -b = a + b := by simp [Int.sub_eq_add_neg]
+@[simp] protected theorem sub_neg (a b : Int) : a - -b = a + b := by simp [Int.sub_eq_add_neg]
 
 @[simp] protected theorem sub_add_cancel (a b : Int) : a - b + b = a :=
   Int.neg_add_cancel_right a b
@@ -351,6 +357,7 @@ protected theorem sub_right_inj (i j k : Int) : (i - k = j - k) ↔ i = j := by
 
 protected theorem mul_comm (a b : Int) : a * b = b * a := by
   cases a <;> cases b <;> simp [Nat.mul_comm]
+instance : Std.Commutative (α := Int) (· * ·) := ⟨Int.mul_comm⟩
 
 theorem ofNat_mul_negOfNat (m n : Nat) : (m : Nat) * negOfNat n = negOfNat (m * n) := by
   cases n <;> rfl
@@ -369,6 +376,7 @@ attribute [local simp] ofNat_mul_negOfNat negOfNat_mul_ofNat
 
 protected theorem mul_assoc (a b c : Int) : a * b * c = a * (b * c) := by
   cases a <;> cases b <;> cases c <;> simp [Nat.mul_assoc]
+instance : Std.Associative (α := Int) (· * ·) := ⟨Int.mul_assoc⟩
 
 protected theorem mul_left_comm (a b c : Int) : a * (b * c) = b * (a * c) := by
   rw [← Int.mul_assoc, ← Int.mul_assoc, Int.mul_comm a]
@@ -437,10 +445,10 @@ protected theorem neg_mul_eq_neg_mul (a b : Int) : -(a * b) = -a * b :=
 protected theorem neg_mul_eq_mul_neg (a b : Int) : -(a * b) = a * -b :=
   Int.neg_eq_of_add_eq_zero <| by rw [← Int.mul_add, Int.add_right_neg, Int.mul_zero]
 
-@[local simp] protected theorem neg_mul (a b : Int) : -a * b = -(a * b) :=
+@[simp] protected theorem neg_mul (a b : Int) : -a * b = -(a * b) :=
   (Int.neg_mul_eq_neg_mul a b).symm
 
-@[local simp] protected theorem mul_neg (a b : Int) : a * -b = -(a * b) :=
+@[simp] protected theorem mul_neg (a b : Int) : a * -b = -(a * b) :=
   (Int.neg_mul_eq_mul_neg a b).symm
 
 protected theorem neg_mul_neg (a b : Int) : -a * -b = a * b := by simp
@@ -458,6 +466,9 @@ protected theorem sub_mul (a b c : Int) : (a - b) * c = a * c - b * c := by
   | -[n+1]  => show -[1 * n +1] = -[n+1] by rw [Nat.one_mul]
 
 @[simp] protected theorem mul_one (a : Int) : a * 1 = a := by rw [Int.mul_comm, Int.one_mul]
+instance : Std.LawfulIdentity (α := Int) (· * ·) 1 where
+  left_id := Int.one_mul
+  right_id := Int.mul_one
 
 protected theorem mul_neg_one (a : Int) : a * -1 = -a := by rw [Int.mul_neg, Int.mul_one]
 
@@ -475,6 +486,9 @@ protected theorem mul_eq_zero {a b : Int} : a * b = 0 ↔ a = 0 ∨ b = 0 := by
 
 protected theorem mul_ne_zero {a b : Int} (a0 : a ≠ 0) (b0 : b ≠ 0) : a * b ≠ 0 :=
   Or.rec a0 b0 ∘ Int.mul_eq_zero.mp
+
+@[simp] protected theorem mul_ne_zero_iff (a b : Int) : a * b ≠ 0 ↔ a ≠ 0 ∧ b ≠ 0 := by
+  rw [ne_eq, Int.mul_eq_zero, not_or, ne_eq]
 
 protected theorem eq_of_mul_eq_mul_right {a b c : Int} (ha : a ≠ 0) (h : b * a = c * a) : b = c :=
   have : (b - c) * a = 0 := by rwa [Int.sub_mul, Int.sub_eq_zero]

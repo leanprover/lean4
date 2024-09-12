@@ -7,13 +7,6 @@ prelude
 import Lean.Meta.Basic
 
 namespace Lean.Meta
-
-structure AbstractMVarsResult where
-  paramNames : Array Name
-  numMVars   : Nat
-  expr       : Expr
-  deriving Inhabited, BEq
-
 namespace AbstractMVars
 
 structure State where
@@ -23,8 +16,8 @@ structure State where
   nextParamIdx   : Nat := 0
   paramNames     : Array Name := #[]
   fvars          : Array Expr  := #[]
-  lmap           : HashMap LMVarId Level := {}
-  emap           : HashMap MVarId Expr  := {}
+  lmap           : Std.HashMap LMVarId Level := {}
+  emap           : Std.HashMap MVarId Expr  := {}
   abstractLevels : Bool -- whether to abstract level mvars
 
 abbrev M := StateM State
@@ -61,7 +54,7 @@ private partial def abstractLevelMVars (u : Level) : M Level := do
       if depth != s.mctx.depth then
         return u -- metavariables from lower depths are treated as constants
       else
-        match s.lmap.find? mvarId with
+        match s.lmap[mvarId]? with
         | some u => pure u
         | none   =>
           let paramId := Name.mkNum `_abstMVar s.nextParamIdx
@@ -94,7 +87,7 @@ partial def abstractExprMVars (e : Expr) : M Expr := do
         if e != eNew then
           abstractExprMVars eNew
         else
-          match (← get).emap.find? mvarId with
+          match (← get).emap[mvarId]? with
           | some e =>
             return e
           | none   =>

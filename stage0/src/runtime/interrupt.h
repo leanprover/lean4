@@ -35,15 +35,21 @@ LEAN_EXPORT void set_max_heartbeat_thousands(unsigned max);
 LEAN_EXPORT size_t get_max_heartbeat();
 
 /* Update the thread local max heartbeat */
-class scope_max_heartbeat : flet<size_t> {
+class LEAN_EXPORT scope_max_heartbeat : flet<size_t> {
 public:
-    scope_max_heartbeat(size_t max);
+    LEAN_EXPORT scope_max_heartbeat(size_t max);
 };
 
 LEAN_EXPORT void check_heartbeat();
 
+/* Update the thread local `IO.CancelToken` (`nullptr` if unset) */
+class LEAN_EXPORT scope_cancel_tk : flet<lean_object *> {
+public:
+    LEAN_EXPORT scope_cancel_tk(lean_object *);
+};
+
 /**
-   \brief Throw an interrupted exception if the current task is marked cancelled.
+   \brief Throw an interrupted exception if the current thread's cancel token is set.
 */
 LEAN_EXPORT void check_interrupted();
 

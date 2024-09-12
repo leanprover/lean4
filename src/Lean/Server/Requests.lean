@@ -16,6 +16,32 @@ import Lean.Server.FileWorker.Utils
 
 import Lean.Server.Rpc.Basic
 
+namespace Lean.Language
+
+/--
+Finds the first (in pre-order) snapshot task in `tree` whose `range?` contains `pos` and which
+contains an info tree, and then returns that info tree, waiting for any snapshot tasks on the way.
+Subtrees that do not contain the position are skipped without forcing their tasks.
+-/
+partial def SnapshotTree.findInfoTreeAtPos (tree : SnapshotTree) (pos : String.Pos) :
+    Task (Option Elab.InfoTree) :=
+  goSeq tree.children.toList
+where
+  goSeq
+    | [] => .pure none
+    | t::ts =>
+      if t.range?.any (·.contains pos) then
+        t.task.bind (sync := true) fun tree => Id.run do
+          if let some infoTree := tree.element.infoTree? then
+            return .pure infoTree
+          tree.findInfoTreeAtPos pos |>.bind (sync := true) fun
+            | some infoTree => .pure (some infoTree)
+            | none => goSeq ts
+      else
+        goSeq ts
+
+end Lean.Language
+
 namespace Lean.Server
 
 structure RequestError where
@@ -143,6 +169,45 @@ def withWaitFindSnapAtPos
   withWaitFindSnap doc (fun s => s.endPos >= pos)
     (notFoundX := throw ⟨.invalidParams, s!"no snapshot found at {lspPos}"⟩)
     (x := f)
+
+open Language.Lean in
+/-- Finds the first `CommandParsedSnapshot` fulfilling `p`, asynchronously. -/
+partial def findCmdParsedSnap (doc : EditableDocument) (p : CommandParsedSnapshot → Bool) :
+    Task (Option CommandParsedSnapshot) := Id.run do
+  let some headerParsed := doc.initSnap.result?
+    | .pure none
+  headerParsed.processedSnap.task.bind (sync := true) fun headerProcessed => Id.run do
+    let some headerSuccess := headerProcessed.result?
+      | return .pure none
+    headerSuccess.firstCmdSnap.task.bind (sync := true) go
+where
+  go cmdParsed :=
+    if p cmdParsed then
+      .pure (some cmdParsed)
+    else
+      match cmdParsed.nextCmdSnap? with
+      | some next => next.task.bind (sync := true) go
+      | none => .pure none
+
+open Language in
+/--
+Finds the info tree of the first snapshot task containing `pos`, asynchronously. The info tree may
+be from a nested snapshot, such as a single tactic.
+
+See `SnapshotTree.findInfoTreeAtPos` for details on how the search is done.
+-/
+partial def findInfoTreeAtPos (doc : EditableDocument) (pos : String.Pos) :
+    Task (Option Elab.InfoTree) :=
+  -- NOTE: use `>=` since the cursor can be *after* the input (and there is no interesting info on
+  -- the first character of the subsequent command if any)
+  findCmdParsedSnap doc (·.data.parserState.pos ≥ pos) |>.bind (sync := true) fun
+    | some cmdParsed => toSnapshotTree cmdParsed |>.findInfoTreeAtPos pos |>.bind (sync := true) fun
+      | some infoTree => .pure <| some infoTree
+      | none          => cmdParsed.data.finishedSnap.task.map (sync := true) fun s =>
+        -- the parser returns exactly one command per snapshot, and the elaborator creates exactly one node per command
+        assert! s.cmdState.infoState.trees.size == 1
+        some s.cmdState.infoState.trees[0]!
+    | none => .pure none
 
 open Elab.Command in
 def runCommandElabM (snap : Snapshot) (c : RequestT CommandElabM α) : RequestM α := do

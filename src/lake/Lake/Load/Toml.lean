@@ -12,7 +12,8 @@ open Lean Parser
 
 /-! # TOML Loader
 
-Load a package from a TOML Lake configuration file.
+This module contains the main definitions to load a package from a
+Lake configuration file written in TOML.
 -/
 
 namespace Lake
@@ -175,12 +176,19 @@ protected def PackageConfig.decodeToml (t : Table) (ref := Syntax.missing) : Exc
   let releaseRepo ← t.tryDecode? `releaseRepo
   let buildArchive? ← t.tryDecode? `buildArchive
   let preferReleaseBuild ← t.tryDecodeD `preferReleaseBuild false
+  let testRunner ← t.tryDecodeD `testRunner ""
+  let testDriver ← t.tryDecodeD `testDriver ""
+  let testDriver := if ¬testRunner.isEmpty ∧ testDriver.isEmpty then testRunner else testDriver
+  let testDriverArgs ← t.tryDecodeD `testDriverArgs #[]
+  let lintDriver ← t.tryDecodeD `lintDriver ""
+  let lintDriverArgs ← t.tryDecodeD `lintDriverArgs #[]
   let toLeanConfig ← tryDecode <| LeanConfig.decodeToml t
   let toWorkspaceConfig ← tryDecode <| WorkspaceConfig.decodeToml t
   return {
     name, precompileModules, moreGlobalServerArgs,
     srcDir, buildDir, leanLibDir, nativeLibDir, binDir, irDir,
     releaseRepo, buildArchive?, preferReleaseBuild
+    testDriver, testDriverArgs, lintDriver, lintDriverArgs
     toLeanConfig, toWorkspaceConfig
   }
 
@@ -213,41 +221,54 @@ protected def LeanExeConfig.decodeToml (t : Table) (ref := Syntax.missing) : Exc
 
 instance : DecodeToml LeanExeConfig := ⟨fun v => do LeanExeConfig.decodeToml (← v.decodeTable) v.ref⟩
 
-protected def Source.decodeToml (t : Table) (ref := Syntax.missing) : Except (Array DecodeError) Source := do
+protected def DependencySrc.decodeToml (t : Table) (ref := Syntax.missing) : Except (Array DecodeError) DependencySrc := do
   let typeVal ← t.decodeValue `type
   match (← typeVal.decodeString) with
   | "path" =>
-    return Source.path (← t.decode `dir)
+    return .path (← t.decode `dir)
   | "git" => ensureDecode do
-    return Source.git (← t.tryDecode `url ref) (← t.tryDecode? `rev) (← t.tryDecode? `subDir)
+    return .git (← t.tryDecode `url ref) (← t.tryDecode? `rev) (← t.tryDecode? `subDir)
   | _ =>
     throw #[DecodeError.mk typeVal.ref "expected one of 'path' or 'git'"]
 
-instance : DecodeToml Source := ⟨fun v => do Source.decodeToml (← v.decodeTable) v.ref⟩
+instance : DecodeToml DependencySrc := ⟨fun v => do DependencySrc.decodeToml (← v.decodeTable) v.ref⟩
 
 protected def Dependency.decodeToml (t : Table) (ref := Syntax.missing) : Except (Array DecodeError) Dependency := ensureDecode do
-  let name ← t.tryDecode `name ref
-  let src ← id do
+  let name  ← stringToLegalOrSimpleName <$> t.tryDecode `name ref
+  let rev? ← t.tryDecode? `rev
+  let src? : Option DependencySrc ← id do
     if let some dir ← t.tryDecode? `path then
-      return Source.path dir
+      return some <| .path dir
     else if let some g := t.find? `git then
       match g with
       | .string _ url =>
-        return Source.git url (← t.tryDecode? `rev) (← t.tryDecode? `subDir)
+        return some <| .git url rev? (← t.tryDecode? `subDir)
       | .table ref t =>
-        return Source.git (← t.tryDecode `url ref) (← t.tryDecode? `rev) (← t.tryDecode? `subDir)
+        return some <| .git (← t.tryDecode `url ref) rev? (← t.tryDecode? `subDir)
       | _ =>
         modify (·.push <| .mk g.ref "expected string or table")
         return default
     else
-      t.tryDecode `source ref
+      t.tryDecode? `source
+  let scope ← t.tryDecodeD `scope ""
+  let version? ← id do
+    if let some ver ← t.tryDecode? `version then
+      return some ver
+    else if let some rev := rev? then
+      return if src?.isSome then none else some s!"git#{rev}"
+    else
+      return none
   let opts ← t.tryDecodeD `options {}
-  return {name, src, opts}
+  return {name, scope, version?, src?, opts}
 
 instance : DecodeToml Dependency := ⟨fun v => do Dependency.decodeToml (← v.decodeTable) v.ref⟩
 
 /-! ## Root Loader -/
 
+/--
+Load a `Package` from a TOML Lake configuration file.
+The resulting package does not yet include any dependencies.
+-/
 def loadTomlConfig (dir relDir relConfigFile : FilePath) : LogIO Package := do
   let configFile := dir / relConfigFile
   let input ← IO.FS.readFile configFile
@@ -259,20 +280,17 @@ def loadTomlConfig (dir relDir relConfigFile : FilePath) : LogIO Package := do
       let leanLibConfigs ← mkRBArray (·.name) <$> table.tryDecodeD `lean_lib #[]
       let leanExeConfigs ← mkRBArray (·.name) <$> table.tryDecodeD `lean_exe #[]
       let defaultTargets ← table.tryDecodeD `defaultTargets #[]
-      let testRunner ← table.tryDecodeD `testRunner .anonymous
       let depConfigs ← table.tryDecodeD `require #[]
       return {
         dir, relDir, relConfigFile
         config, depConfigs, leanLibConfigs, leanExeConfigs
-        defaultTargets, testRunner
+        defaultTargets
       }
     if errs.isEmpty then
       return pkg
     else
-      errs.forM fun {ref, msg} =>
+      errorWithLog <| errs.forM fun {ref, msg} =>
         let pos := ictx.fileMap.toPosition <| ref.getPos?.getD 0
         logError <| mkErrorStringWithPos ictx.fileName pos msg
-      failure
   | .error log =>
-    log.forM fun msg => do logError (← msg.toString)
-    failure
+    errorWithLog <| log.forM fun msg => do logError (← msg.toString)

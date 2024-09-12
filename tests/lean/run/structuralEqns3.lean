@@ -13,6 +13,8 @@ def wk_comp : Wk n m → Wk m l → Wk n l
   | Wk.id, σ => σ
   | Wk.step ρ, σ => Wk.step (wk_comp ρ σ)
 
+/-- info: (some wk_comp.eq_def) -/
+#guard_msgs in
 #eval tst ``wk_comp
 
 #check @wk_comp.eq_1

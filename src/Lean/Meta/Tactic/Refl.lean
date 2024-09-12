@@ -37,14 +37,6 @@ def _root_.Lean.MVarId.refl (mvarId : MVarId) : MetaM Unit := do
     let α := targetType.appFn!.appFn!.appArg!
     mvarId.assign (mkApp2 (mkConst ``Eq.refl  us) α lhs)
 
-@[deprecated MVarId.refl]
-def refl (mvarId : MVarId) : MetaM Unit := do
-  mvarId.refl
-
-@[deprecated MVarId.refl]
-def _root_.Lean.MVarId.applyRefl (mvarId : MVarId) (msg : MessageData := "refl failed") : MetaM Unit :=
-  try mvarId.refl catch _ => throwError msg
-
 /--
 Try to apply `heq_of_eq`. If successful, then return new goal, otherwise return `mvarId`.
 -/
@@ -67,6 +59,6 @@ Close given goal using `HEq.refl`.
 def _root_.Lean.MVarId.hrefl (mvarId : MVarId) : MetaM Unit := do
   mvarId.withContext do
     let some [] ← observing? do mvarId.apply (mkConst ``HEq.refl [← mkFreshLevelMVar])
-      | throwTacticEx `hrefl mvarId ""
+      | throwTacticEx `hrefl mvarId
 
 end Lean.Meta

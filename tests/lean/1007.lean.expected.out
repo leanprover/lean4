@@ -6,5 +6,6 @@
 1007.lean:34:0-34:8: warning: declaration uses 'sorry'
 1007.lean:38:4-38:8: warning: declaration uses 'sorry'
 1007.lean:39:4-39:7: warning: declaration uses 'sorry'
-1007.lean:56:64-56:78: error: failed to synthesize instance
+1007.lean:56:64-56:78: error: failed to synthesize
   IsLin fun x => sum fun i => norm x
+Additional diagnostic information may be available using the `set_option diagnostics true` command.

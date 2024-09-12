@@ -15,4 +15,4 @@ where
       return as
 
 set_option trace.Compiler.result true
-#eval Lean.Compiler.compile #[``mapMonoMImp, ``mapMonoMImp.go]
+run_meta Lean.Compiler.compile #[``mapMonoMImp, ``mapMonoMImp.go]

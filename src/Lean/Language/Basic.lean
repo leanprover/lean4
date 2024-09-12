@@ -12,13 +12,19 @@ prelude
 import Init.System.Promise
 import Lean.Message
 import Lean.Parser.Types
+import Lean.Elab.InfoTree
 
 set_option linter.missingDocs true
 
 namespace Lean.Language
 
-/-- `MessageLog` with interactive diagnostics. -/
+/--
+`MessageLog` with interactive diagnostics.
+
+Can be created using `Diagnostics.empty` or `Diagnostics.ofMessageLog`.
+-/
 structure Snapshot.Diagnostics where
+  private mk ::
   /-- Non-interactive message log. -/
   msgLog : MessageLog
   /--
@@ -41,6 +47,8 @@ def Snapshot.Diagnostics.empty : Snapshot.Diagnostics where
   The base class of all snapshots: all the generic information the language server needs about a
   snapshot. -/
 structure Snapshot where
+  /-- Debug description shown by `trace.Elab.snapshotTree`, defaults to the caller's decl name. -/
+  desc : String := by exact decl_name%.toString
   /--
     The messages produced by this step. The union of message logs of all finished snapshots is
     reported to the user. -/
@@ -66,7 +74,7 @@ structure SnapshotTask (α : Type) where
   range? : Option String.Range
   /-- Underlying task producing the snapshot. -/
   task : Task α
-deriving Nonempty
+deriving Nonempty, Inhabited
 
 /-- Creates a snapshot task from a reporting range and a `BaseIO` action. -/
 def SnapshotTask.ofIO (range? : Option String.Range) (act : BaseIO α) : BaseIO (SnapshotTask α) := do
@@ -133,8 +141,7 @@ checking if we can reuse `old?` if set or else redoing the corresponding elabora
 case, we derive new bundles for nested snapshots, if any, and finally `resolve` `new` to the result.
 
 Note that failing to `resolve` a created promise will block the language server indefinitely!
-Corresponding `IO.Promise.new` calls should come with a "definitely resolved in ..." comment
-explaining how this is avoided in each case.
+We use `withAlwaysResolvedPromise`/`withAlwaysResolvedPromises` to ensure this doesn't happen.
 
 In the future, the 1-element history `old?` may be replaced with a global cache indexed by strong
 hashes but the promise will still need to be passed through the elaborator.
@@ -152,6 +159,36 @@ structure SnapshotBundle (α : Type) where
   new  : IO.Promise α
 
 /--
+Runs `act` with a newly created promise and finally resolves it to `default` if not done by `act`.
+
+Always resolving promises involved in the snapshot tree is important to avoid deadlocking the
+language server.
+-/
+def withAlwaysResolvedPromise [Monad m] [MonadLiftT BaseIO m] [MonadFinally m] [Inhabited α]
+    (act : IO.Promise α → m β) : m β := do
+  let p ← IO.Promise.new
+  try
+    act p
+  finally
+    p.resolve default
+
+/--
+Runs `act` with `count` newly created promises and finally resolves them to `default` if not done by
+`act`.
+
+Always resolving promises involved in the snapshot tree is important to avoid deadlocking the
+language server.
+-/
+def withAlwaysResolvedPromises [Monad m] [MonadLiftT BaseIO m] [MonadFinally m] [Inhabited α]
+    (count : Nat) (act : Array (IO.Promise α) → m Unit) : m Unit := do
+  let ps ← List.iota count |>.toArray.mapM fun _ => IO.Promise.new
+  try
+    act ps
+  finally
+    for p in ps do
+      p.resolve default
+
+/--
   Tree of snapshots where each snapshot comes with an array of asynchronous further subtrees. Used
   for asynchronously collecting information about the entirety of snapshots in the language server.
   The involved tasks may form a DAG on the `Task` dependency level but this is not captured by this
@@ -167,6 +204,21 @@ abbrev SnapshotTree.element : SnapshotTree → Snapshot
 /-- The asynchronously available children of the snapshot tree node. -/
 abbrev SnapshotTree.children : SnapshotTree → Array (SnapshotTask SnapshotTree)
   | mk _ children => children
+
+/-- Produces debug tree format of given snapshot tree, synchronously waiting on all children. -/
+partial def SnapshotTree.format [Monad m] [MonadFileMap m] [MonadLiftT IO m] :
+    SnapshotTree → m Format :=
+  go none
+where go range? s := do
+  let file ← getFileMap
+  let mut desc := f!"• {s.element.desc}"
+  if let some range := range? then
+    desc := desc ++ f!"{file.toPosition range.start}-{file.toPosition range.stop} "
+  desc := desc ++ .prefixJoin "\n• " (← s.element.diagnostics.msgLog.toList.mapM (·.toString))
+  if let some t := s.element.infoTree? then
+    desc := desc ++ f!"\n{← t.format}"
+  desc := desc ++ .prefixJoin "\n" (← s.children.toList.mapM fun c => go c.range? c.get)
+  return .nestD desc
 
 /--
   Helper class for projecting a heterogeneous hierarchy of snapshot classes to a homogeneous
@@ -194,7 +246,6 @@ structure DynamicSnapshot where
   val  : Dynamic
   /-- Snapshot tree retrieved from `val` before erasure. -/
   tree : SnapshotTree
-deriving Nonempty
 
 instance : ToSnapshotTree DynamicSnapshot where
   toSnapshotTree s := s.tree
@@ -209,6 +260,19 @@ def DynamicSnapshot.toTyped? (α : Type) [TypeName α] (snap : DynamicSnapshot) 
     Option α :=
   snap.val.get? α
 
+instance : Inhabited DynamicSnapshot where
+  default := .ofTyped { diagnostics := .empty : SnapshotLeaf }
+
+/--
+  Runs a tree of snapshots to conclusion, incrementally performing `f` on each snapshot in tree
+  preorder. -/
+@[specialize] partial def SnapshotTree.forM [Monad m] (s : SnapshotTree)
+    (f : Snapshot → m PUnit) : m PUnit := do
+  match s with
+  | mk element children =>
+    f element
+    children.forM (·.get.forM f)
+
 /--
   Option for printing end position of each message in addition to start position. Used for testing
   message ranges in the test suite. -/
@@ -216,37 +280,27 @@ register_builtin_option printMessageEndPos : Bool := {
   defValue := false, descr := "print end position of each message in addition to start position"
 }
 
+/-- Reports messages on stdout. If `json` is true, prints messages as JSON (one per line). -/
+def reportMessages (msgLog : MessageLog) (opts : Options) (json := false) : IO Unit := do
+  if json then
+    msgLog.forM (·.toJson <&> (·.compress) >>= IO.println)
+  else
+    msgLog.forM (·.toString (includeEndPos := printMessageEndPos.get opts) >>= IO.print)
+
 /--
   Runs a tree of snapshots to conclusion and incrementally report messages on stdout. Messages are
   reported in tree preorder.
   This function is used by the cmdline driver; see `Lean.Server.FileWorker.reportSnapshots` for how
   the language server reports snapshots asynchronously.  -/
-partial def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options) : IO Unit := do
-  s.element.diagnostics.msgLog.forM
-    (·.toString (includeEndPos := printMessageEndPos.get opts) >>= IO.print)
-  for t in s.children do
-    t.get.runAndReport opts
+def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options) (json := false) : IO Unit := do
+  s.forM (reportMessages ·.diagnostics.msgLog opts json)
 
 /-- Waits on and returns all snapshots in the tree. -/
-partial def SnapshotTree.getAll (s : SnapshotTree) : Array Snapshot :=
-  go s |>.run #[] |>.2
-where
-  go s : StateM (Array Snapshot) Unit := do
-    modify (·.push s.element)
-    for t in s.children do
-      go t.get
-
-/-- Metadata that does not change during the lifetime of the language processing process. -/
-structure ModuleProcessingContext where
-  /-- Module name of the file being processed. -/
-  mainModuleName : Name
-  /-- Options provided outside of the file content, e.g. on the cmdline or in the lakefile. -/
-  opts : Options
-  /-- Kernel trust level. -/
-  trustLevel : UInt32 := 0
+def SnapshotTree.getAll (s : SnapshotTree) : Array Snapshot :=
+  s.forM (m := StateM _) (fun s => modify (·.push s)) |>.run #[] |>.2
 
 /-- Context of an input processing invocation. -/
-structure ProcessingContext extends ModuleProcessingContext, Parser.InputContext
+structure ProcessingContext extends Parser.InputContext
 
 /-- Monad transformer holding all relevant data for processing. -/
 abbrev ProcessingT m := ReaderT ProcessingContext m
@@ -287,10 +341,10 @@ end Language
 /--
   Builds a function for processing a language using incremental snapshots by passing the previous
   snapshot to `Language.process` on subsequent invocations. -/
-partial def Language.mkIncrementalProcessor (process : Option InitSnap → ProcessingM InitSnap)
-    (ctx : ModuleProcessingContext) : BaseIO (Parser.InputContext → BaseIO InitSnap) := do
+def Language.mkIncrementalProcessor (process : Option InitSnap → ProcessingM InitSnap) :
+    BaseIO (Parser.InputContext → BaseIO InitSnap) := do
   let oldRef ← IO.mkRef none
   return fun ictx => do
-    let snap ← process (← oldRef.get) { ctx, ictx with }
+    let snap ← process (← oldRef.get) { ictx with }
     oldRef.set (some snap)
     return snap

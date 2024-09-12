@@ -65,8 +65,8 @@ structure Context (llvmctx : LLVM.Context) where
   llvmmodule : LLVM.Module llvmctx
 
 structure State (llvmctx : LLVM.Context) where
-  var2val : HashMap VarId (LLVM.LLVMType llvmctx × LLVM.Value llvmctx)
-  jp2bb   : HashMap JoinPointId (LLVM.BasicBlock llvmctx)
+  var2val : Std.HashMap VarId (LLVM.LLVMType llvmctx × LLVM.Value llvmctx)
+  jp2bb   : Std.HashMap JoinPointId (LLVM.BasicBlock llvmctx)
 
 abbrev Error := String
 
@@ -84,7 +84,7 @@ def addJpTostate (jp : JoinPointId) (bb : LLVM.BasicBlock llvmctx) : M llvmctx U
 
 def emitJp (jp : JoinPointId) : M llvmctx (LLVM.BasicBlock llvmctx) := do
   let state ← get
-  match state.jp2bb.find? jp with
+  match state.jp2bb[jp]? with
   | .some bb => return bb
   | .none => throw s!"unable to find join point {jp}"
 
@@ -178,14 +178,14 @@ def callLeanUnsignedToNatFn (builder : LLVM.Builder llvmctx)
   let nv ← constIntUnsigned n
   LLVM.buildCall2 builder fnty f #[nv] name
 
-def callLeanMkStringFromBytesFn (builder : LLVM.Builder llvmctx)
-    (strPtr nBytes : LLVM.Value llvmctx) (name : String) : M llvmctx (LLVM.Value llvmctx) := do
-  let fnName :=  "lean_mk_string_from_bytes"
+def callLeanMkStringUncheckedFn (builder : LLVM.Builder llvmctx)
+    (strPtr nBytes nChars : LLVM.Value llvmctx) (name : String) : M llvmctx (LLVM.Value llvmctx) := do
+  let fnName :=  "lean_mk_string_unchecked"
   let retty ← LLVM.voidPtrType llvmctx
-  let argtys :=  #[← LLVM.voidPtrType llvmctx, ← LLVM.size_tType llvmctx]
+  let argtys :=  #[← LLVM.voidPtrType llvmctx, ← LLVM.size_tType llvmctx, ← LLVM.size_tType llvmctx]
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
   let fnty ← LLVM.functionType retty argtys
-  LLVM.buildCall2 builder fnty fn #[strPtr, nBytes] name
+  LLVM.buildCall2 builder fnty fn #[strPtr, nBytes, nChars] name
 
 def callLeanMkString (builder : LLVM.Builder llvmctx)
     (strPtr : LLVM.Value llvmctx) (name : String) : M llvmctx (LLVM.Value llvmctx) := do
@@ -531,7 +531,7 @@ def emitFnDecls : M llvmctx Unit := do
 
 def emitLhsSlot_ (x : VarId) : M llvmctx (LLVM.LLVMType llvmctx × LLVM.Value llvmctx) := do
   let state ← get
-  match state.var2val.find? x with
+  match state.var2val[x]? with
   | .some v => return v
   | .none => throw s!"unable to find variable {x}"
 
@@ -772,7 +772,8 @@ def emitLit (builder : LLVM.Builder llvmctx)
                                 (← LLVM.opaquePointerTypeInContext llvmctx)
                                 str_global #[zero] ""
                  let nbytes ← constIntSizeT v.utf8ByteSize
-                 callLeanMkStringFromBytesFn builder strPtr nbytes ""
+                 let nchars ← constIntSizeT v.length
+                 callLeanMkStringUncheckedFn builder strPtr nbytes nchars ""
   LLVM.buildStore builder zv zslot
   return zslot
 
@@ -1028,7 +1029,7 @@ def emitTailCall (builder : LLVM.Builder llvmctx) (f : FunId) (v : Expr) : M llv
 
 def emitJmp (builder : LLVM.Builder llvmctx) (jp : JoinPointId) (xs : Array Arg) : M llvmctx Unit := do
  let llvmctx ← read
-  let ps ← match llvmctx.jpMap.find? jp with
+  let ps ← match llvmctx.jpMap[jp]? with
   | some ps => pure ps
   | none    => throw s!"Unknown join point {jp}"
   unless xs.size == ps.size do throw s!"Invalid goto, mismatched sizes between arguments, formal parameters."

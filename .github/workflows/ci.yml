@@ -6,10 +6,20 @@ on:
     tags:
       - '*'
   pull_request:
-    types: [opened, synchronize, reopened, labeled]
   merge_group:
   schedule:
     - cron: '0 7 * * *'  # 8AM CET/11PM PT
+  # for manual re-release of a nightly
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action'
+        required: true
+        default: 'release nightly'
+        type: choice
+        options:
+        - release nightly
+
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
@@ -21,8 +31,10 @@ jobs:
   configure:
     runs-on: ubuntu-latest
     outputs:
-      # Should we run only a quick CI? Yes on a pull request without the full-ci label
-      quick: ${{ steps.set-quick.outputs.quick }}
+      # 0: PRs without special label
+      # 1: PRs with `merge-ci` label, merge queue checks, master commits
+      # 2: PRs with `release-ci` label, releases (incl. nightlies)
+      check-level: ${{ steps.set-level.outputs.check-level }}
       # The build matrix, dynamically generated here
       matrix: ${{ steps.set-matrix.outputs.result }}
       # Should we make a nightly release? If so, this output contains the lean version string, else it is empty
@@ -39,164 +51,12 @@ jobs:
       RELEASE_TAG: ${{ steps.set-release.outputs.RELEASE_TAG }}
 
     steps:
-      - name: Run quick CI?
-        id: set-quick
-        env:
-          quick: ${{
-            github.event_name == 'pull_request' && !contains( github.event.pull_request.labels.*.name, 'full-ci')
-           }}
-        run: |
-          echo "quick=${{env.quick}}" >> "$GITHUB_OUTPUT"
-
-      - name: Configure build matrix
-        id: set-matrix
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const quick = ${{ steps.set-quick.outputs.quick }};
-            console.log(`quick: ${quick}`)
-            let matrix = [
-              {
-                // portable release build: use channel with older glibc (2.27)
-                "name": "Linux LLVM",
-                "os": "ubuntu-latest",
-                "release": false,
-                "quick": false,
-                "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
-                "binary-check": "ldd -v",
-                // foreign code may be linked against more recent glibc
-                // reverse-ffi needs to be updated to link to LLVM libraries
-                "CTEST_OPTIONS": "-E 'foreign|leanlaketest_reverse-ffi'",
-                "CMAKE_OPTIONS": "-DLLVM=ON -DLLVM_CONFIG=${GITHUB_WORKSPACE}/build/llvm-host/bin/llvm-config"
-              },
-              {
-                "name": "Linux release",
-                "os": "ubuntu-latest",
-                "release": true,
-                "quick": true,
-                "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
-                "binary-check": "ldd -v",
-                // foreign code may be linked against more recent glibc
-                "CTEST_OPTIONS": "-E 'foreign'"
-              },
-              {
-                "name": "Linux",
-                "os": "ubuntu-latest",
-                "check-stage3": true,
-                "test-speedcenter": true,
-                "quick": false,
-              },
-              {
-                "name": "Linux Debug",
-                "os": "ubuntu-latest",
-                "quick": false,
-                "CMAKE_OPTIONS": "-DCMAKE_BUILD_TYPE=Debug",
-                // exclude seriously slow tests
-                "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest'"
-              },
-              // TODO: suddenly started failing in CI
-              /*{
-                "name": "Linux fsanitize",
-                "os": "ubuntu-latest",
-                "quick": false,
-                // turn off custom allocator & symbolic functions to make LSAN do its magic
-                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS='-fsanitize=address,undefined -fsanitize-link-c++-runtime' -DSMALL_ALLOCATOR=OFF -DBSYMBOLIC=OFF",
-                // exclude seriously slow/problematic tests (laketests crash)
-                "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest'"
-              },*/
-              {
-                "name": "macOS",
-                "os": "macos-latest",
-                "release": true,
-                "quick": false,
-                "shell": "bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
-                "binary-check": "otool -L",
-                "tar": "gtar" // https://github.com/actions/runner-images/issues/2619
-              },
-              {
-                "name": "macOS aarch64",
-                "os": "macos-latest",
-                "release": true,
-                "quick": false,
-                "cross": true,
-                "cross_target": "aarch64-apple-darwin",
-                "shell": "bash -euxo pipefail {0}",
-                "CMAKE_OPTIONS": "-DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-apple-darwin.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm-aarch64-* lean-llvm-x86_64-*",
-                "binary-check": "otool -L",
-                "tar": "gtar" // https://github.com/actions/runner-images/issues/2619
-              },
-              {
-                "name": "Windows",
-                "os": "windows-2022",
-                "release": true,
-                "quick": false,
-                "shell": "msys2 {0}",
-                "CMAKE_OPTIONS": "-G \"Unix Makefiles\" -DUSE_GMP=OFF",
-                // for reasons unknown, interactivetests are flaky on Windows
-                "CTEST_OPTIONS": "--repeat until-pass:2",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-mingw.sh lean-llvm*",
-                "binary-check": "ldd"
-              },
-              {
-                "name": "Linux aarch64",
-                "os": "ubuntu-latest",
-                "CMAKE_OPTIONS": "-DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-linux_aarch64",
-                "release": true,
-                "quick": false,
-                "cross": true,
-                "cross_target": "aarch64-unknown-linux-gnu",
-                "shell": "nix develop .#oldGlibcAArch -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-linux-gnu.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm-aarch64-* lean-llvm-x86_64-*"
-              },
-              {
-                "name": "Linux 32bit",
-                "os": "ubuntu-latest",
-                // Use 32bit on stage0 and stage1 to keep oleans compatible
-                "CMAKE_OPTIONS": "-DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_MMAP=OFF -DUSE_GMP=OFF -DLEAN_EXTRA_CXX_FLAGS='-m32' -DLEANC_OPTS='-m32' -DMMAP=OFF -DLEAN_INSTALL_SUFFIX=-linux_x86",
-                "cmultilib": true,
-                "release": true,
-                "quick": false,
-                "cross": true,
-                "shell": "bash -euxo pipefail {0}"
-              },
-              {
-                "name": "Web Assembly",
-                "os": "ubuntu-latest",
-                // Build a native 32bit binary in stage0 and use it to compile the oleans and the wasm build
-                "CMAKE_OPTIONS": "-DCMAKE_C_COMPILER_WORKS=1 -DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_CMAKE_CXX_COMPILER=clang++ -DSTAGE0_CMAKE_C_COMPILER=clang -DSTAGE0_CMAKE_EXECUTABLE_SUFFIX=\"\" -DUSE_GMP=OFF -DMMAP=OFF -DSTAGE0_MMAP=OFF -DCMAKE_AR=../emsdk/emsdk-main/upstream/emscripten/emar -DCMAKE_TOOLCHAIN_FILE=../emsdk/emsdk-main/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DLEAN_INSTALL_SUFFIX=-linux_wasm32",
-                "wasm": true,
-                "cmultilib": true,
-                "release": true,
-                "quick": false,
-                "cross": true,
-                "shell": "bash -euxo pipefail {0}",
-                // Just a few selected tests because wasm is slow
-                "CTEST_OPTIONS": "-R \"leantest_1007\\.lean|leantest_Format\\.lean|leanruntest\\_1037.lean|leanruntest_ac_rfl\\.lean\""
-              }
-            ];
-            console.log(`matrix:\n${JSON.stringify(matrix, null, 2)}`)
-            if (quick) {
-              return matrix.filter((job) => job.quick)
-            } else {
-              return matrix
-            }
-
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         # don't schedule nightlies on forks
-        if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4'
+        if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4' || inputs.action == 'release nightly'
       - name: Set Nightly
-        if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4'
+        if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4' || inputs.action == 'release nightly'
         id: set-nightly
         run: |
           if [[ -n '${{ secrets.PUSH_NIGHTLY_TOKEN }}' ]]; then
@@ -241,6 +101,168 @@ jobs:
             echo "Tag ${TAG_NAME} did not match SemVer regex."
           fi
 
+      - name: Set check level
+        id: set-level
+        # We do not use github.event.pull_request.labels.*.name here because
+        # re-running a run does not update that list, and we do want to be able to
+        # rerun the workflow run after setting the `release-ci`/`merge-ci` labels.
+        run: |
+          check_level=0
+
+          if [[ -n "${{ steps.set-nightly.outputs.nightly }}" || -n "${{ steps.set-release.outputs.RELEASE_TAG }}" ]]; then
+            check_level=2
+          elif [[ "${{ github.event_name }}" != "pull_request" ]]; then
+            check_level=1
+          else
+            labels="$(gh api repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls/${{ github.event.pull_request.number }}) --jq '.labels'"
+            if echo "$labels" | grep -q "release-ci"; then
+              check_level=2
+            elif echo "$labels" | grep -q "merge-ci"; then
+              check_level=1
+            fi
+          fi
+
+          echo "check-level=$check_level" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Configure build matrix
+        id: set-matrix
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const level = ${{ steps.set-level.outputs.check-level }};
+            console.log(`level: ${level}`);
+            // use large runners where available (original repo)
+            let large = ${{ github.repository == 'leanprover/lean4' }};
+            let matrix = [
+              {
+                // portable release build: use channel with older glibc (2.27)
+                "name": "Linux LLVM",
+                "os": "ubuntu-latest",
+                "release": false,
+                "check-level": 2,
+                "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst",
+                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
+                "binary-check": "ldd -v",
+                // foreign code may be linked against more recent glibc
+                // reverse-ffi needs to be updated to link to LLVM libraries
+                "CTEST_OPTIONS": "-E 'foreign|leanlaketest_reverse-ffi'",
+                "CMAKE_OPTIONS": "-DLLVM=ON -DLLVM_CONFIG=${GITHUB_WORKSPACE}/build/llvm-host/bin/llvm-config"
+              },
+              {
+                "name": "Linux release",
+                "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",
+                "release": true,
+                "check-level": 0,
+                "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst",
+                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
+                "binary-check": "ldd -v",
+                // foreign code may be linked against more recent glibc
+                "CTEST_OPTIONS": "-E 'foreign'"
+              },
+              {
+                "name": "Linux",
+                "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",
+                "check-stage3": level >= 2,
+                "test-speedcenter": level >= 2,
+                "check-level": 1,
+              },
+              {
+                "name": "Linux Debug",
+                "os": "ubuntu-latest",
+                "check-level": 2,
+                "CMAKE_PRESET": "debug",
+                // exclude seriously slow tests
+                "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest|bv_bitblast_stress'"
+              },
+              // TODO: suddenly started failing in CI
+              /*{
+                "name": "Linux fsanitize",
+                "os": "ubuntu-latest",
+                "check-level": 2,
+                // turn off custom allocator & symbolic functions to make LSAN do its magic
+                "CMAKE_PRESET": "sanitize",
+                // exclude seriously slow/problematic tests (laketests crash)
+                "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest'"
+              },*/
+              {
+                "name": "macOS",
+                "os": "macos-13",
+                "release": true,
+                "check-level": 2,
+                "shell": "bash -euxo pipefail {0}",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst",
+                "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
+                "binary-check": "otool -L",
+                "tar": "gtar" // https://github.com/actions/runner-images/issues/2619
+              },
+              {
+                "name": "macOS aarch64",
+                "os": "macos-14",
+                "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
+                "release": true,
+                "check-level": 0,
+                "shell": "bash -euxo pipefail {0}",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-apple-darwin.tar.zst",
+                "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
+                "binary-check": "otool -L",
+                "tar": "gtar" // https://github.com/actions/runner-images/issues/2619
+              },
+              {
+                "name": "Windows",
+                "os": "windows-2022",
+                "release": true,
+                "check-level": 2,
+                "shell": "msys2 {0}",
+                "CMAKE_OPTIONS": "-G \"Unix Makefiles\" -DUSE_GMP=OFF",
+                // for reasons unknown, interactivetests are flaky on Windows
+                "CTEST_OPTIONS": "--repeat until-pass:2",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
+                "prepare-llvm": "../script/prepare-llvm-mingw.sh lean-llvm*",
+                "binary-check": "ldd"
+              },
+              {
+                "name": "Linux aarch64",
+                "os": "nscloud-ubuntu-22.04-arm64-4x8",
+                "CMAKE_OPTIONS": "-DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-linux_aarch64",
+                "release": true,
+                "check-level": 2,
+                "shell": "nix develop .#oldGlibcAArch -c bash -euxo pipefail {0}",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-linux-gnu.tar.zst",
+                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*"
+              },
+              {
+                "name": "Linux 32bit",
+                "os": "ubuntu-latest",
+                // Use 32bit on stage0 and stage1 to keep oleans compatible
+                "CMAKE_OPTIONS": "-DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_MMAP=OFF -DUSE_GMP=OFF -DLEAN_EXTRA_CXX_FLAGS='-m32' -DLEANC_OPTS='-m32' -DMMAP=OFF -DLEAN_INSTALL_SUFFIX=-linux_x86 -DCMAKE_LIBRARY_PATH=/usr/lib/i386-linux-gnu/ -DSTAGE0_CMAKE_LIBRARY_PATH=/usr/lib/i386-linux-gnu/",
+                "cmultilib": true,
+                "release": true,
+                "check-level": 2,
+                "cross": true,
+                "shell": "bash -euxo pipefail {0}"
+              },
+              {
+                "name": "Web Assembly",
+                "os": "ubuntu-latest",
+                // Build a native 32bit binary in stage0 and use it to compile the oleans and the wasm build
+                "CMAKE_OPTIONS": "-DCMAKE_C_COMPILER_WORKS=1 -DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_CMAKE_CXX_COMPILER=clang++ -DSTAGE0_CMAKE_C_COMPILER=clang -DSTAGE0_CMAKE_EXECUTABLE_SUFFIX=\"\" -DUSE_GMP=OFF -DMMAP=OFF -DSTAGE0_MMAP=OFF -DCMAKE_AR=../emsdk/emsdk-main/upstream/emscripten/emar -DCMAKE_TOOLCHAIN_FILE=../emsdk/emsdk-main/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DLEAN_INSTALL_SUFFIX=-linux_wasm32 -DSTAGE0_CMAKE_LIBRARY_PATH=/usr/lib/i386-linux-gnu/",
+                "wasm": true,
+                "cmultilib": true,
+                "release": true,
+                "check-level": 2,
+                "cross": true,
+                "shell": "bash -euxo pipefail {0}",
+                // Just a few selected tests because wasm is slow
+                "CTEST_OPTIONS": "-R \"leantest_1007\\.lean|leantest_Format\\.lean|leanruntest\\_1037.lean|leanruntest_ac_rfl\\.lean|leanruntest_libuv\\.lean\""
+              }
+            ];
+            console.log(`matrix:\n${JSON.stringify(matrix, null, 2)}`)
+            return matrix.filter((job) => level >= job["check-level"])
+
   build:
     needs: [configure]
     if: github.event_name != 'schedule' || github.repository == 'leanprover/lean4'
@@ -267,28 +289,34 @@ jobs:
       CXX: c++
       MACOSX_DEPLOYMENT_TARGET: 10.15
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-          # the default is to use a virtual merge commit between the PR and master: just use the PR
-          ref: ${{ github.event.pull_request.head.sha }}
       - name: Install Nix
-        uses: cachix/install-nix-action@v18
-        with:
-          install_url: https://releases.nixos.org/nix/nix-2.12.0/install
-        if: matrix.os == 'ubuntu-latest' && !matrix.cmultilib
+        uses: DeterminateSystems/nix-installer-action@main
+        if: runner.os == 'Linux' && !matrix.cmultilib
       - name: Install MSYS2
         uses: msys2/setup-msys2@v2
         with:
           msystem: clang64
-          # `:p` means prefix with appropriate msystem prefix
-          pacboy: "make python cmake:p clang:p ccache:p gmp:p git zip unzip diffutils binutils tree zstd:p tar"
-        if: matrix.os == 'windows-2022'
+          # `:` means do not prefix with msystem
+          pacboy: "make: python: cmake clang ccache gmp libuv git: zip: unzip: diffutils: binutils: tree: zstd tar:"
+        if: runner.os == 'Windows'
       - name: Install Brew Packages
         run: |
-          brew install ccache tree zstd coreutils gmp
-        if: matrix.os == 'macos-latest'
+          brew install ccache tree zstd coreutils gmp libuv
+        if: runner.os == 'macOS'
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # the default is to use a virtual merge commit between the PR and master: just use the PR
+          ref: ${{ github.event.pull_request.head.sha }}
+      # Do check out some CI-relevant files from virtual merge commit to accommodate CI changes on
+      # master (as the workflow files themselves are always taken from the merge)
+      # (needs to be after "Install *" to use the right shell)
+      - name: CI Merge Checkout
+        run: |
+          git fetch --depth=1 origin ${{ github.sha }}
+          git checkout FETCH_HEAD flake.nix flake.lock
+        if: github.event_name == 'pull_request'
+      # (needs to be after "Checkout" so files don't get overriden)
       - name: Setup emsdk
         uses: mymindstorm/setup-emsdk@v12
         with:
@@ -297,33 +325,31 @@ jobs:
         if: matrix.wasm
       - name: Install 32bit c libs
         run: |
+          sudo dpkg --add-architecture i386
           sudo apt-get update
-          sudo apt-get install -y gcc-multilib g++-multilib ccache
+          sudo apt-get install -y gcc-multilib g++-multilib ccache libuv1-dev:i386
         if: matrix.cmultilib
       - name: Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: .ccache
-          key: ${{ matrix.name }}-build-v3-${{ github.sha }}
+          key: ${{ matrix.name }}-build-v3-${{ github.event.pull_request.head.sha }}
           # fall back to (latest) previous cache
           restore-keys: |
             ${{ matrix.name }}-build-v3
+          save-always: true
+      # open nix-shell once for initial setup
       - name: Setup
         run: |
-          # open nix-shell once for initial setup
-          true
-        if: matrix.os == 'ubuntu-latest'
-      - name: Set up core dumps
+          ccache --zero-stats
+        if: runner.os == 'Linux'
+      - name: Set up NPROC
         run: |
-          mkdir -p $PWD/coredumps
-          # store in current directory, for easy uploading together with binary
-          echo $PWD/coredumps/%e.%p.%t | sudo tee /proc/sys/kernel/core_pattern
-        if: matrix.os == 'ubuntu-latest'
+          echo "NPROC=$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4)" >> $GITHUB_ENV
       - name: Build
         run: |
           mkdir build
           cd build
-          ulimit -c unlimited # coredumps
           # arguments passed to `cmake`
           # this also enables githash embedding into stage 1 library
           OPTIONS=(-DCHECK_OLEAN_VERSION=ON)
@@ -349,11 +375,19 @@ jobs:
             OPTIONS+=(-DLEAN_SPECIAL_VERSION_DESC=${{ needs.configure.outputs.LEAN_SPECIAL_VERSION_DESC }})
           fi
           # contortion to support empty OPTIONS with old macOS bash
-          cmake .. ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
-          make -j4
-          make install
+          cmake .. --preset ${{ matrix.CMAKE_PRESET || 'release' }} -B . ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
+          time make -j$NPROC
+      - name: Install
+        run: |
+          make -C build install
       - name: Check Binaries
         run: ${{ matrix.binary-check }} lean-*/bin/* || true
+      - name: Count binary symbols
+        run: |
+          for f in lean-*/bin/*; do
+            echo "$f: $(nm $f | grep " T " | wc -l) exported symbols"
+          done
+        if: matrix.name == 'Windows'
       - name: List Install Tree
         run: |
           # omit contents of Init/, ...
@@ -369,7 +403,7 @@ jobs:
           else
             ${{ matrix.tar || 'tar' }} cf - $dir | zstd -T0 --no-progress -o pack/$dir.tar.zst
           fi
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: matrix.release
         with:
           name: build-${{ matrix.name }}
@@ -379,71 +413,43 @@ jobs:
           build/stage1/bin/lean --stats src/Lean.lean
         if: ${{ !matrix.cross }}
       - name: Test
+        id: test
         run: |
-          cd build/stage1
-          ulimit -c unlimited # coredumps
-          # exclude nonreproducible test
-          ctest -j4 --progress --output-junit test-results.xml --output-on-failure ${{ matrix.CTEST_OPTIONS }} < /dev/null
-        if: (matrix.wasm || !matrix.cross) && needs.configure.outputs.quick == 'false'
+          time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
+        if: (matrix.wasm || !matrix.cross) && needs.configure.outputs.check-level >= 1
       - name: Test Summary
         uses: test-summary/action@v2
         with:
           paths: build/stage1/test-results.xml
         # prefix `if` above with `always` so it's run even if tests failed
-        if: always() && (matrix.wasm || !matrix.cross) && needs.configure.outputs.quick == 'false'
+        if: always() && steps.test.conclusion != 'skipped'
       - name: Check Test Binary
         run: ${{ matrix.binary-check }} tests/compiler/534.lean.out
-        if: ${{ !matrix.cross && needs.configure.outputs.quick == 'false' }}
+        if: (!matrix.cross) && steps.test.conclusion != 'skipped'
       - name: Build Stage 2
         run: |
-          cd build
-          ulimit -c unlimited # coredumps
-          make -j4 stage2
+          make -C build -j$NPROC stage2
         if: matrix.test-speedcenter
       - name: Check Stage 3
         run: |
-          cd build
-          ulimit -c unlimited # coredumps
-          make -j4 check-stage3
+          make -C build -j$NPROC check-stage3
         if: matrix.test-speedcenter
       - name: Test Speedcenter Benchmarks
         run: |
-          echo -1 | sudo tee /proc/sys/kernel/perf_event_paranoid
+          # Necessary for some timing metrics but does not work on Namespace runners
+          # and we just want to test that the benchmarks run at all here
+          #echo -1 | sudo tee /proc/sys/kernel/perf_event_paranoid
           export BUILD=$PWD/build PATH=$PWD/build/stage1/bin:$PATH
           cd tests/bench
           nix shell .#temci -c temci exec --config speedcenter.yaml --included_blocks fast --runs 1
         if: matrix.test-speedcenter
       - name: Check rebootstrap
         run: |
-          cd build
-          ulimit -c unlimited # coredumps
           # clean rebuild in case of Makefile changes
-          make update-stage0 && rm -rf ./stage* && make -j4
-        if: matrix.name == 'Linux' && needs.configure.outputs.quick == 'false'
+          make -C build update-stage0 && rm -rf build/stage* && make -C build -j$NPROC
+        if: matrix.name == 'Linux' && needs.configure.outputs.check-level >= 1
       - name: CCache stats
         run: ccache -s
-      - name: Show stacktrace for coredumps
-        if: ${{ failure() && matrix.os == 'ubuntu-latest' }}
-        run: |
-          for c in coredumps/*; do
-            progbin="$(file $c | sed "s/.*execfn: '\([^']*\)'.*/\1/")"
-            echo bt | $GDB/bin/gdb -q $progbin $c || true
-          done
-      # has not been used in a long while, would need to be adapted to new
-      # shared libs
-      #- name: Upload coredumps
-      #  uses: actions/upload-artifact@v3
-      #  if: ${{ failure() && matrix.os == 'ubuntu-latest' }}
-      #  with:
-      #    name: coredumps-${{ matrix.name }}
-      #    path: |
-      #      ./coredumps
-      #      ./build/stage0/bin/lean
-      #      ./build/stage0/lib/lean/libleanshared.so
-      #      ./build/stage1/bin/lean
-      #      ./build/stage1/lib/lean/libleanshared.so
-      #      ./build/stage2/bin/lean
-      #      ./build/stage2/lib/lean/libleanshared.so
 
   # This job collects results from all the matrix jobs
   # This can be made the “required” job, instead of listing each
@@ -455,11 +461,23 @@ jobs:
     # mark as merely cancelled not failed if builds are cancelled
     if: ${{ !cancelled() }}
     steps:
+    - if: ${{ contains(needs.*.result, 'failure') && github.repository == 'leanprover/lean4' && github.ref_name == 'master' }}
+      uses: zulip/github-actions-zulip/send-message@v1
+      with:
+        api-key: ${{ secrets.ZULIP_BOT_KEY }}
+        email: "github-actions-bot@lean-fro.zulipchat.com"
+        organization-url: "https://lean-fro.zulipchat.com"
+        to: "infrastructure"
+        topic: "Github actions"
+        type: "stream"
+        content: |
+          A build of `${{ github.ref_name }}`, triggered by event `${{ github.event_name }}`, [failed](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
     - if: contains(needs.*.result, 'failure')
       uses: actions/github-script@v7
       with:
         script: |
             core.setFailed('Some jobs failed')
+
 
   # This job creates releases from tags
   # (whether they are "unofficial" releases for experiments, or official releases when the tag is "v" followed by a semver string.)
@@ -470,7 +488,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           path: artifacts
       - name: Release
@@ -478,8 +496,14 @@ jobs:
         with:
           files: artifacts/*/*
           fail_on_unmatched_files: true
+          prerelease: ${{ !startsWith(github.ref, 'refs/tags/v') || contains(github.ref, '-rc') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Update release.lean-lang.org
+        run: |
+          gh workflow -R leanprover/release-index run update-index.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_INDEX_TOKEN }}
 
   # This job creates nightly releases during the cron job.
   # It is responsible for creating the tag, and automatically generating a changelog.
@@ -489,12 +513,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           # needed for tagging
           fetch-depth: 0
           token: ${{ secrets.PUSH_NIGHTLY_TOKEN }}
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           path: artifacts
       - name: Prepare Nightly Release
@@ -522,3 +546,13 @@ jobs:
           repository: ${{ github.repository_owner }}/lean4-nightly
         env:
           GITHUB_TOKEN: ${{ secrets.PUSH_NIGHTLY_TOKEN }}
+      - name: Update release.lean-lang.org
+        run: |
+          gh workflow -R leanprover/release-index run update-index.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_INDEX_TOKEN }}
+      - name: Update toolchain on mathlib4's nightly-testing branch
+        run: |
+          gh workflow -R leanprover-community/mathlib4 run nightly_bump_toolchain.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.MATHLIB4_BOT }}

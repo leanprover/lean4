@@ -18,7 +18,7 @@ namespace Lake
 Collect the local modules of a library.
 That is, the modules from `getModuleArray` plus their local transitive imports.
 -/
-partial def LeanLib.recCollectLocalModules (self : LeanLib) : IndexBuildM (Array Module) := do
+partial def LeanLib.recCollectLocalModules (self : LeanLib) : FetchM (Array Module) := do
   let mut mods := #[]
   let mut modSet := ModuleSet.empty
   for mod in (← self.getModuleArray) do
@@ -42,17 +42,23 @@ def LeanLib.modulesFacetConfig : LibraryFacetConfig modulesFacet :=
   mkFacetConfig LeanLib.recCollectLocalModules
 
 protected def LeanLib.recBuildLean
-(self : LeanLib) : IndexBuildM (BuildJob Unit) := do
+(self : LeanLib) : FetchM (BuildJob Unit) := do
   let mods ← self.modules.fetch
   mods.foldlM (init := BuildJob.nil) fun job mod => do
-    job.mix <| ← mod.leanArts.fetch
+    return job.mix <| ← mod.leanArts.fetch
 
 /-- The `LibraryFacetConfig` for the builtin `leanArtsFacet`. -/
 def LeanLib.leanArtsFacetConfig : LibraryFacetConfig leanArtsFacet :=
-  mkFacetJobConfigSmall LeanLib.recBuildLean
+  mkFacetJobConfig LeanLib.recBuildLean
 
 @[specialize] protected def LeanLib.recBuildStatic
-(self : LeanLib) (shouldExport : Bool) : IndexBuildM (BuildJob FilePath) := do
+(self : LeanLib) (shouldExport : Bool) : FetchM (BuildJob FilePath) := do
+  let suffix :=
+    if (← getIsVerbose) then
+      if shouldExport then " (with exports)" else " (without exports)"
+    else
+      ""
+  withRegisterJob s!"{self.name}:static{suffix}" do
   let mods ← self.modules.fetch
   let oJobs ← mods.concatMapM fun mod =>
     mod.nativeFacets shouldExport |>.mapM fun facet => fetch <| mod.facet facet.name
@@ -71,7 +77,8 @@ def LeanLib.staticExportFacetConfig : LibraryFacetConfig staticExportFacet :=
 /-! ## Build Shared Lib -/
 
 protected def LeanLib.recBuildShared
-(self : LeanLib) : IndexBuildM (BuildJob FilePath) := do
+(self : LeanLib) : FetchM (BuildJob FilePath) := do
+  withRegisterJob s!"{self.name}:shared" do
   let mods ← self.modules.fetch
   let oJobs ← mods.concatMapM fun mod =>
     mod.nativeFacets true |>.mapM fun facet => fetch <| mod.facet facet.name
@@ -86,13 +93,13 @@ def LeanLib.sharedFacetConfig : LibraryFacetConfig sharedFacet :=
 /-! ## Build `extraDepTargets` -/
 
 /-- Build the `extraDepTargets` for the library and its package. -/
-def LeanLib.recBuildExtraDepTargets (self : LeanLib) : IndexBuildM (BuildJob Unit) := do
+def LeanLib.recBuildExtraDepTargets (self : LeanLib) : FetchM (BuildJob Unit) := do
   self.extraDepTargets.foldlM (init := ← self.pkg.extraDep.fetch) fun job target => do
-    job.mix <| ← self.pkg.fetchTargetJob target
+    return job.mix <| ← self.pkg.fetchTargetJob target
 
 /-- The `LibraryFacetConfig` for the builtin `extraDepFacet`. -/
 def LeanLib.extraDepFacetConfig : LibraryFacetConfig extraDepFacet :=
-  mkFacetJobConfigSmall LeanLib.recBuildExtraDepTargets
+  mkFacetJobConfig LeanLib.recBuildExtraDepTargets
 
 open LeanLib in
 /--

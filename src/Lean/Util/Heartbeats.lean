@@ -1,19 +1,15 @@
 /-
-Copyright (c) 2020 Microsoft Corporation. All rights reserved.
+Copyright (c) 2023 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Author: Leonardo de Moura
+Author: Kim Morrison
 -/
 prelude
 import Lean.CoreM
 
 /-!
-# Lean.Heartbeats
+# Heartbeats
 
-This provides some utilities is the first file in the Lean import hierarchy. It is responsible for setting
-up basic definitions, most of which Lean already has "built in knowledge" about,
-so it is important that they be set up in exactly this way. (For example, Lean will
-use `PUnit` in the desugaring of `do` notation, or in the pattern match compiler.)
-
+Functions for interacting with the deterministic timeout heartbeat mechanism.
 -/
 
 namespace Lean

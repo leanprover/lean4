@@ -3,9 +3,10 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Util.OptionIO
-
 namespace Lake
+
+/-- Ensure direct lifts are preferred over indirect ones. -/
+instance (priority := high) [MonadLift α β] : MonadLiftT α β := ⟨MonadLift.monadLift⟩
 
 instance [Pure m] : MonadLiftT Id m where
   monadLift act := pure act.run
@@ -33,7 +34,4 @@ instance [Monad m] [MonadExceptOf ε m] [MonadLiftT n m] : MonadLiftT (ExceptT �
   monadLift act := act.run >>= liftM
 
 instance [Monad m] [MonadExceptOf ε m] [MonadLiftT BaseIO m] : MonadLiftT (EIO ε) m where
-  monadLift act := act.toBaseIO >>= liftM
-
-instance [Monad m] [Alternative m] [MonadLiftT BaseIO m] : MonadLiftT OptionIO m where
   monadLift act := act.toBaseIO >>= liftM

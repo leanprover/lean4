@@ -182,15 +182,13 @@ instance [Ord α] : Ord (Option α) where
 
 /-- The lexicographic order on pairs. -/
 def lexOrd [Ord α] [Ord β] : Ord (α × β) where
-  compare p1 p2 := match compare p1.1 p2.1 with
-    | .eq => compare p1.2 p2.2
-    | o   => o
+  compare := compareLex (compareOn (·.1)) (compareOn (·.2))
 
 def ltOfOrd [Ord α] : LT α where
-  lt a b := compare a b == Ordering.lt
+  lt a b := compare a b = Ordering.lt
 
 instance [Ord α] : DecidableRel (@LT.lt α ltOfOrd) :=
-  inferInstanceAs (DecidableRel (fun a b => compare a b == Ordering.lt))
+  inferInstanceAs (DecidableRel (fun a b => compare a b = Ordering.lt))
 
 def leOfOrd [Ord α] : LE α where
   le a b := (compare a b).isLE

@@ -17,12 +17,18 @@ def fooRepr (foo : Foo) :=
 
 instance : Repr Foo := ⟨fun s _ => fooRepr s⟩
 
+/-- info: #[OH false, OH true, DR false, DR true] -/
+#guard_msgs in
 #eval elems Foo
 
+/-- info: #[OH false, OH true] -/
+#guard_msgs in
 #eval #[false, true].map Foo.mk1
 
 def Foo.toBool : Foo → Bool
 | Foo.mk1 b => b
 | Foo.mk2 b => b
 
+/-- info: #[false, true] -/
+#guard_msgs in
 #eval #[Foo.mk1 false, Foo.mk2 true].map Foo.toBool

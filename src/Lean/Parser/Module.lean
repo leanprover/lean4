@@ -141,7 +141,7 @@ partial def testParseModuleAux (env : Environment) (inputCtx : InputContext) (s 
     match parseCommand inputCtx { env := env, options := {} } state msgs with
     | (stx, state, msgs) =>
       if isTerminalCommand stx then
-        if msgs.isEmpty then
+        if !msgs.hasUnreported then
           pure stxs
         else do
           msgs.forM fun msg => msg.toString >>= IO.println

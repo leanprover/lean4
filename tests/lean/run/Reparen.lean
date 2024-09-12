@@ -50,5 +50,11 @@ open Lean
 
 syntax:80 term " ^~ " term:80 : term
 syntax:70 term " *~ " term:71 : term
+
+/-- info: ((1 + 2) *~ 3) ^~ 4 -/
+#guard_msgs in
 #eval check $ Unhygienic.run `(((1 + 2) *~ 3) ^~ 4)
+
+/-- info: opaque foo.1 (a.1 := (by exact 1)) : True.1 -/
+#guard_msgs in
 #eval check $ Unhygienic.run `(opaque foo (a := (by exact 1)) : True)

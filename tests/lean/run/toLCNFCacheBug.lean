@@ -6,4 +6,4 @@ def f' (x y : Nat) :=
   y + s.2
 
 set_option trace.Compiler true
-#eval Lean.Compiler.compile #[``f']
+run_meta Lean.Compiler.compile #[``f']

@@ -13,4 +13,9 @@ let ns : List Nat := ts.map Task.get;
 IO.println (">> " ++ toString ns) *>
 pure 0
 
+/--
+info: >> [100, 100, 100, 100, 100, 100, 100, 100, 100, 100]
+0
+-/
+#guard_msgs in
 #eval tst 10

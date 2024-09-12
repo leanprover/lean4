@@ -56,13 +56,11 @@ where
           return ⟨Syntax.mkAntiquotNode kind term⟩
         | some (.category cat) =>
           return ⟨Syntax.mkAntiquotNode cat term (isPseudoKind := true)⟩
-        | none =>
+        | some (.alias _) =>
           let id := id.getId.eraseMacroScopes
-          if (← Parser.isParserAlias id) then
-            let kind := (← Parser.getSyntaxKindOfParserAlias? id).getD Name.anonymous
-            return ⟨Syntax.mkAntiquotNode kind term⟩
-          else
-            throwError "unknown parser declaration/category/alias '{id}'"
+          let kind := (← Parser.getSyntaxKindOfParserAlias? id).getD Name.anonymous
+          return ⟨Syntax.mkAntiquotNode kind term⟩
+        | _ => throwError "unknown parser declaration/category/alias '{id}'"
     | stx, term => do
       -- can't match against `` `(stx| ($stxs*)) `` as `*` is interpreted as the `stx` operator
       if stx.raw.isOfKind ``Parser.Syntax.paren then

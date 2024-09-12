@@ -14,30 +14,30 @@ structure BuildSpec where
   info : BuildInfo
   getBuildJob : BuildData info.key → BuildJob Unit
 
-@[inline] def BuildSpec.getJob (self : BuildSpec) (data : BuildData self.info.key) : Job Unit :=
-  discard <| self.getBuildJob data
-
 @[inline] def BuildData.toBuildJob
-[FamilyOut BuildData k (BuildJob α)] (data : BuildData k) : BuildJob Unit :=
+  [FamilyOut BuildData k (BuildJob α)] (data : BuildData k)
+: BuildJob Unit :=
   discard <| ofFamily data
 
-@[inline] def mkBuildSpec (info : BuildInfo)
-[FamilyOut BuildData info.key (BuildJob α)] : BuildSpec :=
+@[inline] def mkBuildSpec
+  (info : BuildInfo) [FamilyOut BuildData info.key (BuildJob α)]
+: BuildSpec :=
   {info, getBuildJob := BuildData.toBuildJob}
 
-@[inline] def mkConfigBuildSpec (facetType : String)
-(info : BuildInfo) (config : FacetConfig Fam ι facet) (h : BuildData info.key = Fam facet)
+@[inline] def mkConfigBuildSpec
+  (facetType : String) (info : BuildInfo)
+  (config : FacetConfig Fam ι facet) (h : BuildData info.key = Fam facet)
 : Except CliError BuildSpec := do
   let some getJob := config.getJob?
     | throw <| CliError.nonCliFacet facetType facet
   return {info, getBuildJob := h ▸ getJob}
 
-def BuildSpec.build (self : BuildSpec) : RecBuildM (Job Unit) :=
-  self.getJob <$> buildIndexTop' self.info
+@[inline] protected def BuildSpec.fetch (self : BuildSpec) : FetchM (BuildJob Unit) := do
+  maybeRegisterJob (self.info.key.toSimpleString) <| ← do
+    self.getBuildJob <$> self.info.fetch
 
-def buildSpecs (specs : Array BuildSpec) : BuildM PUnit := do
-  let jobs ← RecBuildM.run do specs.mapM (·.build)
-  jobs.forM (discard <| ·.await)
+def buildSpecs (specs : Array BuildSpec) : FetchM (BuildJob Unit) := do
+  BuildJob.mixArray (← specs.mapM (·.fetch))
 
 /-! ## Parsing CLI Build Target Specifiers -/
 
@@ -50,7 +50,9 @@ def parsePackageSpec (ws : Workspace) (spec : String) : Except CliError Package 
     | none => throw <| CliError.unknownPackage spec
 
 open Module in
-def resolveModuleTarget (ws : Workspace) (mod : Module) (facet : Name) : Except CliError BuildSpec :=
+def resolveModuleTarget
+  (ws : Workspace) (mod : Module) (facet : Name := .anonymous)
+: Except CliError BuildSpec :=
   if facet.isAnonymous then
     return mkBuildSpec <| mod.facet leanArtsFacet
   else if let some config := ws.findModuleFacetConfig? facet then do
@@ -58,7 +60,9 @@ def resolveModuleTarget (ws : Workspace) (mod : Module) (facet : Name) : Except 
   else
     throw <| CliError.unknownFacet "module" facet
 
-def resolveLibTarget (ws : Workspace) (lib : LeanLib) (facet : Name) : Except CliError (Array BuildSpec) :=
+def resolveLibTarget
+  (ws : Workspace) (lib : LeanLib) (facet : Name := .anonymous)
+: Except CliError (Array BuildSpec) :=
   if facet.isAnonymous then
     lib.defaultFacets.mapM (resolveFacet ·)
   else

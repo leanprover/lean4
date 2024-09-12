@@ -6,126 +6,133 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include <memory>
+#include "runtime/alloc.h"
 #include "runtime/interrupt.h"
 #include "runtime/thread.h"
 #include "kernel/expr.h"
 #include "kernel/expr_sets.h"
 
-#ifndef LEAN_EQ_CACHE_CAPACITY
-#define LEAN_EQ_CACHE_CAPACITY 1024*8
-#endif
-
 namespace lean {
-struct eq_cache {
-    struct entry {
-        object * m_a;
-        object * m_b;
-        entry():m_a(nullptr), m_b(nullptr) {}
-    };
-    unsigned              m_capacity;
-    std::vector<entry>    m_cache;
-    std::vector<unsigned> m_used;
-    eq_cache():m_capacity(LEAN_EQ_CACHE_CAPACITY), m_cache(LEAN_EQ_CACHE_CAPACITY) {}
+/**
+\brief Functional object for comparing expressions.
 
-    bool check(expr const & a, expr const & b) {
-        if (!is_shared(a) || !is_shared(b))
-            return false;
-        unsigned i = hash(hash(a), hash(b)) % m_capacity;
-        if (m_cache[i].m_a == a.raw() && m_cache[i].m_b == b.raw()) {
-            return true;
-        } else {
-            if (m_cache[i].m_a == nullptr)
-                m_used.push_back(i);
-            m_cache[i].m_a = a.raw();
-            m_cache[i].m_b = b.raw();
-            return false;
-        }
-    }
-
-    void clear() {
-        for (unsigned i : m_used)
-            m_cache[i].m_a = nullptr;
-        m_used.clear();
-    }
-};
-
-/* CACHE_RESET: No */
-MK_THREAD_LOCAL_GET_DEF(eq_cache, get_eq_cache);
-
-/** \brief Functional object for comparing expressions.
-
-    Remark if CompareBinderInfo is true, then functional object will also compare
-    binder information attached to lambda and Pi expressions */
+Remark if CompareBinderInfo is true, then functional object will also compare
+binder information attached to lambda and Pi expressions
+*/
 template<bool CompareBinderInfo>
 class expr_eq_fn {
-    eq_cache & m_cache;
-
-    static void check_system() {
-        ::lean::check_system("expression equality test");
+    struct key_hasher {
+        std::size_t operator()(std::pair<lean_object *, lean_object *> const & p) const {
+            return hash((size_t)p.first >> 3, (size_t)p.second >> 3);
+        }
+    };
+    typedef std::unordered_set<std::pair<lean_object *, lean_object *>, key_hasher> cache;
+    cache * m_cache = nullptr;
+    size_t m_max_stack_depth = 0;
+    size_t m_counter = 0;
+    bool check_cache(expr const & a, expr const & b) {
+        if (!is_shared(a) || !is_shared(b))
+            return false;
+        if (!m_cache)
+            m_cache = new cache();
+        std::pair<lean_object *, lean_object *> key(a.raw(), b.raw());
+        if (m_cache->find(key) != m_cache->end())
+            return true;
+        m_cache->insert(key);
+        return false;
     }
-
-    bool apply(expr const & a, expr const & b) {
+    void check_system(unsigned depth) {
+        /*
+        We used to use `lean::check_system` here. We claim it is ok to not check memory consumption here.
+        Note that `do_check_interrupted` was set to `false`. Thus, `check_interrupted` and `check_heartbeat` were not being used.
+        */
+        if (depth > m_max_stack_depth) {
+            if (m_max_stack_depth > 0)
+                throw stack_space_exception("expression equality test");
+        }
+    }
+    bool apply(expr const & a, expr const & b, unsigned depth, bool root = false) {
         if (is_eqp(a, b))          return true;
         if (hash(a) != hash(b))    return false;
         if (a.kind() != b.kind())  return false;
-        if (is_bvar(a))            return bvar_idx(a) == bvar_idx(b);
-        if (m_cache.check(a, b))
+        switch (a.kind()) {
+        case expr_kind::BVar: return bvar_idx(a) == bvar_idx(b);
+        case expr_kind::Lit:  return lit_value(a) == lit_value(b);
+        case expr_kind::MVar: return mvar_name(a) == mvar_name(b);
+        case expr_kind::FVar: return fvar_name(a) == fvar_name(b);
+        case expr_kind::Sort: return sort_level(a) == sort_level(b);
+        default: break;
+        }
+        if (root) {
+            m_max_stack_depth = get_available_stack_size() / 256;
+        } else if (check_cache(a, b)) {
             return true;
+        }
         /*
            We increase the number of heartbeats here because some code (e.g., `simp`) may spend a lot of time comparing
            `Expr`s (e.g., checking a cache with many collisions) without allocating any significant amount of memory.
+           We use the counter to invoke `add_heartbeats` later. Reason: heartbeat is a thread local storage, and morexpensive to update.
          */
-        lean_inc_heartbeat();
+        m_counter++;
+        depth++;
         switch (a.kind()) {
         case expr_kind::BVar:
+        case expr_kind::Lit:
+        case expr_kind::MVar:
+        case expr_kind::FVar:
+        case expr_kind::Sort:
             lean_unreachable(); // LCOV_EXCL_LINE
         case expr_kind::MData:
             return
-                apply(mdata_expr(a), mdata_expr(b)) &&
+                apply(mdata_expr(a), mdata_expr(b), depth) &&
                 mdata_data(a) == mdata_data(b);
         case expr_kind::Proj:
             return
-                apply(proj_expr(a), proj_expr(b)) &&
+                apply(proj_expr(a), proj_expr(b), depth) &&
                 proj_sname(a) == proj_sname(b) &&
                 proj_idx(a) == proj_idx(b);
-        case expr_kind::Lit:
-            return lit_value(a) == lit_value(b);
         case expr_kind::Const:
             return
                 const_name(a) == const_name(b) &&
                 compare(const_levels(a), const_levels(b), [](level const & l1, level const & l2) { return l1 == l2; });
-        case expr_kind::MVar:
-            return mvar_name(a) == mvar_name(b);
-        case expr_kind::FVar:
-            return fvar_name(a) == fvar_name(b);
-        case expr_kind::App:
-            check_system();
-            return
-                apply(app_fn(a), app_fn(b)) &&
-                apply(app_arg(a), app_arg(b));
+        case expr_kind::App: {
+            check_system(depth);
+            if (!apply(app_arg(a), app_arg(b), depth)) return false;
+            expr const * curr_a = &app_fn(a);
+            expr const * curr_b = &app_fn(b);
+            while (true) {
+                if (!is_app(*curr_a)) break;
+                if (!is_app(*curr_b)) return false;
+                if (!apply(app_arg(*curr_a), app_arg(*curr_b), depth)) return false;
+                curr_a = &app_fn(*curr_a);
+                curr_b = &app_fn(*curr_b);
+            }
+            return apply(*curr_a, *curr_b, depth);
+        }
         case expr_kind::Lambda: case expr_kind::Pi:
-            check_system();
+            check_system(depth);
             return
-                apply(binding_domain(a), binding_domain(b)) &&
-                apply(binding_body(a), binding_body(b)) &&
+                apply(binding_domain(a), binding_domain(b), depth) &&
+                apply(binding_body(a), binding_body(b), depth) &&
                 (!CompareBinderInfo || binding_name(a) == binding_name(b)) &&
                 (!CompareBinderInfo || binding_info(a) == binding_info(b));
         case expr_kind::Let:
-            check_system();
+            check_system(depth);
             return
-                apply(let_type(a), let_type(b)) &&
-                apply(let_value(a), let_value(b)) &&
-                apply(let_body(a), let_body(b)) &&
+                apply(let_type(a), let_type(b), depth) &&
+                apply(let_value(a), let_value(b), depth) &&
+                apply(let_body(a), let_body(b), depth) &&
                 (!CompareBinderInfo || let_name(a) == let_name(b));
-        case expr_kind::Sort:
-            return sort_level(a) == sort_level(b);
         }
         lean_unreachable(); // LCOV_EXCL_LINE
     }
 public:
-    expr_eq_fn():m_cache(get_eq_cache()) {}
-    ~expr_eq_fn() { m_cache.clear(); }
-    bool operator()(expr const & a, expr const & b) { return apply(a, b); }
+    expr_eq_fn() {}
+    ~expr_eq_fn() {
+        if (m_cache) delete m_cache;
+        if (m_counter > 0) add_heartbeats(m_counter);
+    }
+    bool operator()(expr const & a, expr const & b) { return apply(a, b, 0, true); }
 };
 
 bool is_equal(expr const & a, expr const & b) {

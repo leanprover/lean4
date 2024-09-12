@@ -1,3 +1,5 @@
+set_option linter.unusedVariables false
+
 opaque f (x y : Nat) : Nat
 opaque g (x : Nat) : Nat
 
@@ -10,6 +12,13 @@ theorem ex2 (x : Nat) (h₁ : f x x = g x) (h₂ : g x = x) : f x (f x x) = x :=
 
 axiom g_ax (x : Nat) : g x = 0
 
+/--
+info: x y : Nat
+h₁ : f x x = g x
+h₂ : g x < 5
+⊢ g x + g x = 0
+-/
+#guard_msgs in
 theorem ex3 (x y : Nat) (h₁ : f x x = g x) (h₂ : f x x < 5) : f x x + f x x = 0 := by
   simp [*] at *
   trace_state

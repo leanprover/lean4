@@ -23,6 +23,8 @@ termination_by (m, n)
 Inferred termination argument:
 termination_by x1 x2 x3 x4 x5 x6 x7 x8 => (x8, x7, x6, x5, x4, x3, x2, x1)
 Inferred termination argument:
+termination_by x1 => x1
+Inferred termination argument:
 termination_by x1 => sizeOf x1
 Inferred termination argument:
 termination_by n m => (n, sizeOf m)

@@ -1,1 +1,1 @@
-rm -rf .lake lakefile.lean
+rm -rf .lake lakefile.lean serve.log

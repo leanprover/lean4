@@ -8,5 +8,5 @@ fun x =>
       | 0 => fun x => 1
       | n.succ => fun x =>
         let y := 42;
-        2 * x.fst.fst)
+        2 * x.1)
       f

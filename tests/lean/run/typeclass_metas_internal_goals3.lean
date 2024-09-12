@@ -17,4 +17,6 @@ instance BaseK : Base K := {u:=()}
 
 set_option pp.all true
 
+/-- info: @BaseAsImplicit₂ K BaseK (@DependsNotConstrainingImplicit K BaseK) -/
+#guard_msgs in
 #synth Top

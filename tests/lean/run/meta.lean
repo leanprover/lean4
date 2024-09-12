@@ -24,8 +24,12 @@ def mkLam1 : MetaM Expr :=
     /- `mkLambdaFVars` converts the free variables into de-Bruijn bound variables, and construct the lambda for us. -/
     mkLambdaFVars #[x, y] b
 
+/-- info: fun x y => x + y + x -/
+#guard_msgs in
 #eval execShow mkLam1
 
+/-- info: Nat → Nat → Nat -/
+#guard_msgs in
 #eval execShow do let e ← mkLam1; inferType e
 
 def mkForall1 : MetaM Expr :=
@@ -34,6 +38,8 @@ def mkForall1 : MetaM Expr :=
     let b ← mkEq x y
     mkForallFVars #[x, y] b
 
+/-- info: ∀ (x y : Nat), x = y -/
+#guard_msgs in
 #eval execShow mkForall1
 
 def mkForall2Lambda : MetaM Expr := do
@@ -48,6 +54,12 @@ def mkForall2Lambda : MetaM Expr := do
     let b ← mkAppM ``HMul.hMul xs
     mkLambdaFVars xs b
 
+/--
+info: >> #[x, y]
+>> x = y
+fun x y => x * y
+-/
+#guard_msgs in
 #eval execShow mkForall2Lambda
 
 def mkGoal : MetaM Expr :=
@@ -57,6 +69,8 @@ def mkGoal : MetaM Expr :=
     let b ← mkEq y x
     mkForallFVars #[x, y, h] b
 
+/-- info: ∀ (x y : Nat), x = y → y = x -/
+#guard_msgs in
 #eval execShow mkGoal
 
 def proveGoal : MetaM Unit := do
@@ -66,17 +80,33 @@ def proveGoal : MetaM Unit := do
   let m := main.mvarId!
   IO.println (← ppGoal m)
   IO.println "-----"
-  let (xs, m) ← introNP m 3 -- `intro` 3 variables using the binder names to name the new locals
+  let (xs, m) ← m.introNP 3 -- `intro` 3 variables using the binder names to name the new locals
   IO.println (← ppGoal m)
   IO.println "-----"
   -- The `apply` tactic generates 0 or more subgoals
-  let [m] ← apply m (mkConst ``Eq.symm [levelOne]) | throwError "unexpected number of subgoals"
+  let [m] ← m.apply (mkConst ``Eq.symm [levelOne]) | throwError "unexpected number of subgoals"
   IO.println (← ppGoal m)
   IO.println "-----"
-  assumption m
+  m.assumption
   -- `main` contains the whole proof now
   IO.println (← ppExpr main)
   check main -- type check the proof. This is not the kernel type checker.
   IO.println (← ppExpr (← inferType main))
 
+/--
+info: ⊢ ∀ (x y : Nat), x = y → y = x
+-----
+x y : Nat
+h : x = y
+⊢ y = x
+-----
+case h
+x y : Nat
+h : x = y
+⊢ x = y
+-----
+fun x y h => Eq.symm h
+∀ (x y : Nat), x = y → y = x
+-/
+#guard_msgs in
 #eval proveGoal

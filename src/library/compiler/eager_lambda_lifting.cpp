@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/type_checker.h"
 #include "kernel/inductive.h"
-#include "library/trace.h"
+#include "kernel/trace.h"
 #include "library/class.h"
 #include "library/compiler/util.h"
 #include "library/compiler/csimp.h"

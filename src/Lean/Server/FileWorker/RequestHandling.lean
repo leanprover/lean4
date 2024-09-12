@@ -10,6 +10,8 @@ import Lean.DeclarationRange
 import Lean.Data.Json
 import Lean.Data.Lsp
 
+import Lean.Parser.Tactic.Doc
+
 import Lean.Server.FileWorker.Utils
 import Lean.Server.Requests
 import Lean.Server.Completion
@@ -23,6 +25,8 @@ namespace Lean.Server.FileWorker
 open Lsp
 open RequestM
 open Snapshots
+
+open Lean.Parser.Tactic.Doc (alternativeOfTactic getTacticExtensionString)
 
 def handleCompletion (p : CompletionParams)
     : RequestM (RequestTask CompletionList) := do
@@ -85,7 +89,8 @@ def handleHover (p : HoverParams)
       let stxDoc? ← match stack? with
         | some stack => stack.findSomeM? fun (stx, _) => do
           let .node _ kind _ := stx | pure none
-          return (← findDocString? snap.env kind).map (·, stx.getRange?.get!)
+          let docStr ← findDocString? snap.env kind
+          return docStr.map (·, stx.getRange?.get!)
         | none => pure none
 
       -- now try info tree
@@ -229,31 +234,27 @@ def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Optio
   let doc ← readDoc
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
-  -- NOTE: use `>=` since the cursor can be *after* the input
-  withWaitFindSnap doc (fun s => s.endPos >= hoverPos)
-    (notFoundX := return none) fun snap => do
-      if let rs@(_ :: _) := snap.infoTree.goalsAt? doc.meta.text hoverPos then
-        let goals : List Widget.InteractiveGoals ← rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter, .. } => do
-          let ciAfter := { ci with mctx := ti.mctxAfter }
-          let ci := if useAfter then ciAfter else { ci with mctx := ti.mctxBefore }
-          -- compute the interactive goals
-          let goals ← ci.runMetaM {} (do
-            let goals := List.toArray <| if useAfter then ti.goalsAfter else ti.goalsBefore
-            let goals ← goals.mapM Widget.goalToInteractive
-            return {goals}
-          )
-          -- compute the goal diff
-          let goals ← ciAfter.runMetaM {} (do
-              try
-                Widget.diffInteractiveGoals useAfter ti goals
-              catch _ =>
-                -- fail silently, since this is just a bonus feature
-                return goals
-          )
-          return goals
-        return some <| goals.foldl (· ++ ·) ∅
-      else
-        return none
+  mapTask (findInfoTreeAtPos doc hoverPos) <| Option.bindM fun infoTree => do
+    let rs@(_ :: _) := infoTree.goalsAt? doc.meta.text hoverPos
+      | return none
+    let goals : List Widget.InteractiveGoals ← rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter, .. } => do
+      let ciAfter := { ci with mctx := ti.mctxAfter }
+      let ci := if useAfter then ciAfter else { ci with mctx := ti.mctxBefore }
+      -- compute the interactive goals
+      let goals ← ci.runMetaM {} (do
+        let goals := List.toArray <| if useAfter then ti.goalsAfter else ti.goalsBefore
+        let goals ← goals.mapM Widget.goalToInteractive
+        return {goals}
+      )
+      -- compute the goal diff
+      ciAfter.runMetaM {} (do
+          try
+            Widget.diffInteractiveGoals useAfter ti goals
+          catch _ =>
+            -- fail silently, since this is just a bonus feature
+            return goals
+      )
+    return some <| goals.foldl (· ++ ·) ∅
 
 open Elab in
 def handlePlainGoal (p : PlainGoalParams)
@@ -275,19 +276,17 @@ def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
   let doc ← readDoc
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
-  withWaitFindSnap doc (fun s => s.endPos > hoverPos)
-    (notFoundX := pure none) fun snap => do
-      if let some {ctx := ci, info := i@(Elab.Info.ofTermInfo ti), ..} := snap.infoTree.termGoalAt? hoverPos then
-        let ty ← ci.runMetaM i.lctx do
-          instantiateMVars <| ti.expectedType?.getD (← Meta.inferType ti.expr)
-        -- for binders, hide the last hypothesis (the binder itself)
-        let lctx' := if ti.isBinder then i.lctx.pop else i.lctx
-        let goal ← ci.runMetaM lctx' do
-          Widget.goalToInteractive (← Meta.mkFreshExprMVar ty).mvarId!
-        let range := if let some r := i.range? then r.toLspRange text else ⟨p.position, p.position⟩
-        return some { goal with range, term := ⟨ti⟩ }
-      else
-        return none
+  mapTask (findInfoTreeAtPos doc hoverPos) <| Option.bindM fun infoTree => do
+    let some {ctx := ci, info := i@(Elab.Info.ofTermInfo ti), ..} := infoTree.termGoalAt? hoverPos
+      | return none
+    let ty ← ci.runMetaM i.lctx do
+      instantiateMVars <| ti.expectedType?.getD (← Meta.inferType ti.expr)
+    -- for binders, hide the last hypothesis (the binder itself)
+    let lctx' := if ti.isBinder then i.lctx.pop else i.lctx
+    let goal ← ci.runMetaM lctx' do
+      Widget.goalToInteractive (← Meta.mkFreshExprMVar ty).mvarId!
+    let range := if let some r := i.range? then r.toLspRange text else ⟨p.position, p.position⟩
+    return some { goal with range, term := ⟨ti⟩ }
 
 def handlePlainTermGoal (p : PlainTermGoalParams)
     : RequestM (RequestTask (Option PlainTermGoal)) := do
@@ -317,7 +316,7 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
     let refs : Lsp.ModuleRefs ← findModuleRefs text trees |>.toLspModuleRefs
     let mut ranges := #[]
     for ident in refs.findAt p.position do
-      if let some info := refs.find? ident then
+      if let some info := refs.get? ident then
         if let some ⟨definitionRange, _⟩ := info.definition? then
           ranges := ranges.push definitionRange
         ranges := ranges.append <| info.usages.map (·.range)
@@ -468,11 +467,11 @@ def computeAbsoluteLspSemanticTokens
     (endPos?  : Option String.Pos)
     (tokens   : Array LeanSemanticToken)
     : Array AbsoluteLspSemanticToken :=
-  tokens.filterMap fun ⟨stx, type⟩ => do
+  tokens.filterMap fun ⟨stx, tokenType⟩ => do
     let (pos, tailPos) := (← stx.getPos?, ← stx.getTailPos?)
     guard <| beginPos <= pos && endPos?.all (pos < ·)
     let (lspPos, lspTailPos) := (text.utf8PosToLspPos pos, text.utf8PosToLspPos tailPos)
-    return ⟨lspPos, lspTailPos, type⟩
+    return ⟨lspPos, lspTailPos, tokenType⟩
 
 /-- Filters all duplicate semantic tokens with the same `pos`, `tailPos` and `type`. -/
 def filterDuplicateSemanticTokens (tokens : Array AbsoluteLspSemanticToken) : Array AbsoluteLspSemanticToken :=
@@ -488,11 +487,11 @@ def computeDeltaLspSemanticTokens (tokens : Array AbsoluteLspSemanticToken) : Se
     pos1 < pos2 || pos1 == pos2 && tailPos1 <= tailPos2
   let mut data : Array Nat := Array.mkEmpty (5*tokens.size)
   let mut lastPos : Lsp.Position := ⟨0, 0⟩
-  for ⟨pos, tailPos, type⟩ in tokens do
+  for ⟨pos, tailPos, tokenType⟩ in tokens do
     let deltaLine := pos.line - lastPos.line
     let deltaStart := pos.character - (if pos.line == lastPos.line then lastPos.character else 0)
     let length := tailPos.character - pos.character
-    let tokenType := type.toNat
+    let tokenType := tokenType.toNat
     let tokenModifiers := 0
     data := data ++ #[deltaLine, deltaStart, length, tokenType, tokenModifiers]
     lastPos := pos

@@ -105,7 +105,7 @@ class MonadRecDepth (m : Type → Type) where
   getRecDepth      : m Nat
   getMaxRecDepth   : m Nat
 
-instance [Monad m] [MonadRecDepth m] : MonadRecDepth (ReaderT ρ m) where
+instance [MonadRecDepth m] : MonadRecDepth (ReaderT ρ m) where
   withRecDepth d x := fun ctx => MonadRecDepth.withRecDepth d (x ctx)
   getRecDepth      := fun _ => MonadRecDepth.getRecDepth
   getMaxRecDepth   := fun _ => MonadRecDepth.getMaxRecDepth
@@ -130,7 +130,7 @@ been defined yet.
 -/
 def Exception.isMaxRecDepth (ex : Exception) : Bool :=
   match ex with
-  | error _ (MessageData.ofFormat (Std.Format.text msg)) => msg == maxRecDepthErrorMessage
+  | error _ (MessageData.ofFormatWithInfos ⟨Std.Format.text msg, _⟩) => msg == maxRecDepthErrorMessage
   | _ => false
 
 /--

@@ -485,43 +485,36 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_write(b_obj_arg h, b_obj_arg 
     }
 }
 
-/*
-  Handle.getLine : (@& Handle) → IO Unit
-  The line returned by `lean_io_prim_handle_get_line`
-  is truncated at the first '\0' character and the
-  rest of the line is discarded. */
+/* Handle.getLine : (@& Handle) → IO Unit */
 extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_get_line(b_obj_arg h, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
-    const int buf_sz = 64;
-    char buf_str[buf_sz]; // NOLINT
+
     std::string result;
-    bool first = true;
-    while (true) {
-        char * out = std::fgets(buf_str, buf_sz, fp);
-        if (out != nullptr) {
-            if (strlen(buf_str) < buf_sz-1 || buf_str[buf_sz-2] == '\n') {
-                if (first) {
-                    return io_result_mk_ok(mk_string(out));
-                } else {
-                    result.append(out);
-                    return io_result_mk_ok(mk_string(result));
-                }
-            }
-            result.append(out);
-        } else if (std::feof(fp)) {
-            clearerr(fp);
-            return io_result_mk_ok(mk_string(result));
-        } else {
-            return io_result_mk_error(decode_io_error(errno, nullptr));
+    int c; // Note: int, not char, required to handle EOF
+    while ((c = std::fgetc(fp)) != EOF) {
+        result.push_back(c);
+        if (c == '\n') {
+            break;
         }
-        first = false;
+    }
+
+    if (std::ferror(fp)) {
+        return io_result_mk_error(decode_io_error(errno, nullptr));
+    } else if (std::feof(fp)) {
+        clearerr(fp);
+        return io_result_mk_ok(mk_string(result));
+    } else {
+        obj_res ret = io_result_mk_ok(mk_string(result));
+        return ret;
     }
 }
 
 /* Handle.putStr : (@& Handle) → (@& String) → IO Unit */
 extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_put_str(b_obj_arg h, b_obj_arg s, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
-    if (std::fputs(lean_string_cstr(s), fp) != EOF) {
+    usize n = lean_string_size(s) - 1; // - 1 to ignore the terminal NULL byte.
+    usize m = std::fwrite(lean_string_cstr(s), 1, n, fp);
+    if (m == n) {
         return io_result_mk_ok(box(0));
     } else {
         return io_result_mk_error(decode_io_error(errno, nullptr));
@@ -553,7 +546,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_random_bytes (size_t nbytes, obj_arg 
 #if !defined(LEAN_WINDOWS)
     int fd_urandom = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
     if (fd_urandom < 0) {
-        return io_result_mk_error(decode_io_error(errno, lean_mk_string("/dev/urandom")));
+        return io_result_mk_error(decode_io_error(errno, lean_mk_ascii_string_unchecked("/dev/urandom")));
     }
 #endif
 
@@ -637,6 +630,12 @@ extern "C" LEAN_EXPORT obj_res lean_io_allocprof(b_obj_arg msg, obj_arg fn, obj_
 /* getNumHeartbeats : BaseIO Nat */
 extern "C" LEAN_EXPORT obj_res lean_io_get_num_heartbeats(obj_arg /* w */) {
     return io_result_mk_ok(lean_uint64_to_nat(get_num_heartbeats()));
+}
+
+/* addHeartbeats (count : Int64) : BaseIO Unit */
+extern "C" LEAN_EXPORT obj_res lean_io_add_heartbeats(int64_t count, obj_arg /* w */) {
+    add_heartbeats(count);
+    return io_result_mk_ok(box(0));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_getenv(b_obj_arg env_var, obj_arg) {
@@ -827,6 +826,57 @@ extern "C" LEAN_EXPORT obj_res lean_io_rename(b_obj_arg from, b_obj_arg to, lean
     }
 #endif
     return io_result_mk_ok(box(0));
+}
+
+/* createTempFile : IO (Handle × FilePath) */
+extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile(lean_object * /* w */) {
+    char path[PATH_MAX];
+    const char* file_pattern = "tmp.XXXXXXXX";
+    const int file_pattern_size = strlen(file_pattern);
+#if defined(LEAN_WINDOWS)
+    // https://learn.microsoft.com/en-us/windows/win32/fileio/creating-and-using-a-temporary-file
+    DWORD retval = GetTempPath(MAX_PATH, path);
+    if (retval > MAX_PATH || (retval == 0)) {
+        return io_result_mk_error((sstream() << GetLastError()).str());
+    }
+    // On Windows we have a guarantee that GetTempPath ends on a \.
+    // If the temp dir is so long that we can't put files into it something is seriously wrong.
+    lean_always_assert(PATH_MAX >= strlen(path) + file_pattern_size + 1);
+    strcat(path, file_pattern);
+#else
+    char* tmpdir = getenv("TMPDIR");
+    if (tmpdir == NULL) {
+        const char* path_template = "/tmp/tmp.XXXXXXXX";
+        strcpy(path, path_template);
+    } else {
+        strcpy(path, tmpdir);
+        int base_len = strlen(path);
+        if (base_len == 0) {
+            lean_io_result_mk_error(lean_decode_io_error(ENOENT, mk_string("")));
+        }
+        // No guarantee that we have a trailing / in TMPDIR.
+        if (path[base_len - 1] != '/') {
+            // If the temp dir is so long that we can't put files into it something is seriously wrong.
+            lean_always_assert(PATH_MAX >= strlen(path) + 1 + file_pattern_size + 1);
+            strcat(path, "/");
+            strcat(path, file_pattern);
+        } else {
+            // If the temp dir is so long that we can't put files into it something is seriously wrong.
+            lean_always_assert(PATH_MAX >= strlen(path) + file_pattern_size + 1);
+            strcat(path, file_pattern);
+        }
+    }
+#endif
+
+    int fd = mkstemp(path);
+    if (fd == -1) {
+        // If mkstemp throws an error we cannot rely on path to contain a proper file name.
+        return io_result_mk_error(decode_io_error(errno, nullptr));
+    } else {
+        FILE* handle = fdopen(fd, "r+");
+        object_ref pair = mk_cnstr(0, io_wrap_handle(handle), mk_string(path));
+        return lean_io_result_mk_ok(pair.steal());
+    }
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_remove_file(b_obj_arg fname, obj_arg) {
@@ -1066,8 +1116,8 @@ extern "C" LEAN_EXPORT obj_res lean_io_cancel(b_obj_arg t, obj_arg) {
     return io_result_mk_ok(box(0));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_has_finished(b_obj_arg t, obj_arg) {
-    return io_result_mk_ok(box(lean_io_has_finished_core(t)));
+extern "C" LEAN_EXPORT obj_res lean_io_get_task_state(b_obj_arg t, obj_arg) {
+    return io_result_mk_ok(box(lean_io_get_task_state_core(t)));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_wait(obj_arg t, obj_arg) {
@@ -1086,7 +1136,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_exit(uint8_t code, obj_arg /* w */) {
 }
 
 void initialize_io() {
-    g_io_error_nullptr_read = lean_mk_io_user_error(mk_string("null reference read"));
+    g_io_error_nullptr_read = lean_mk_io_user_error(mk_ascii_string_unchecked("null reference read"));
     mark_persistent(g_io_error_nullptr_read);
     g_io_handle_external_class = lean_register_external_class(io_handle_finalizer, io_handle_foreach);
 #if defined(LEAN_WINDOWS)

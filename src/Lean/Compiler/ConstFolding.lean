@@ -193,12 +193,13 @@ def foldCharOfNat (beforeErasure : Bool) (a : Expr) : Option Expr := do
   else
     return mkUInt32Lit 0
 
-def foldToNat (_ : Bool) (a : Expr) : Option Expr := do
+def foldToNat (size : Nat) (_ : Bool) (a : Expr) : Option Expr := do
   let n ← getNumLit a
-  return mkRawNatLit n
+  return mkRawNatLit (n % size)
+
 
 def uintFoldToNatFns : List (Name × UnFoldFn) :=
-  numScalarTypes.foldl (fun r info => (info.toNatFn, foldToNat) :: r) []
+  numScalarTypes.foldl (fun r info => (info.toNatFn, foldToNat info.size) :: r) []
 
 def unFoldFns : List (Name × UnFoldFn) :=
   [(``Nat.succ, foldNatSucc),

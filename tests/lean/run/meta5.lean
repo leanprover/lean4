@@ -11,7 +11,7 @@ withLetDecl `x (mkConst `Nat) (mkNatLit 0) $ fun x => do {
   let r ← mkLambdaFVars #[y, x] mvar;
   trace[Message.debug] r;
   let v := mkApp2 (mkConst `Nat.add) x y;
-  assignExprMVar mvar.mvarId! v;
+  mvar.mvarId!.assign v;
   trace[Meta.debug] mvar;
   trace[Meta.debug] r;
   let mctx ← getMCtx;
@@ -21,4 +21,17 @@ withLetDecl `x (mkConst `Nat) (mkNatLit 0) $ fun x => do {
 
 set_option trace.Meta.debug true
 
+/--
+info: [Meta.debug] ?m.3
+[Meta.debug] x.add y
+[Meta.debug] fun y =>
+      let x := 0;
+      x.add y
+[Meta.debug] ?_uniq.4 : Nat →
+      Nat →
+        let x := 0;
+        Nat
+[Meta.debug] ?_uniq.3 : Nat
+-/
+#guard_msgs in
 #eval tst1

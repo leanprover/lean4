@@ -7,7 +7,7 @@ where
     else
       0
 
-#eval numChars "aαc"
+#guard numChars "aαc" == 3
 
 example : numChars "aαc" = 3 := by
   rfl'

@@ -1,1 +1,1 @@
-rm -rf .lake lake-manifest.json
+rm -rf .lake lake-manifest.json Lib/Bogus.lean

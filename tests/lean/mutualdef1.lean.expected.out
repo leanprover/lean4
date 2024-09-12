@@ -1,3 +1,3 @@
-mutualdef1.lean:9:0-11:12: error: invalid mutually recursive definitions, cannot mix theorems and definitions
-mutualdef1.lean:21:0-22:4: error: invalid mutually recursive definitions, cannot mix examples and definitions
-mutualdef1.lean:32:7-34:12: error: invalid mutually recursive definitions, cannot mix unsafe and safe definitions
+mutualdef1.lean:9:0-9:31: error: invalid mutually recursive definitions, cannot mix theorems and definitions
+mutualdef1.lean:21:0-21:13: error: invalid mutually recursive definitions, cannot mix examples and definitions
+mutualdef1.lean:32:7-32:34: error: invalid mutually recursive definitions, cannot mix unsafe and safe definitions

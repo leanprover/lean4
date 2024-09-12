@@ -61,12 +61,14 @@ x_8 = lean_ctor_get(x_7, 1);
 lean_inc(x_8);
 lean_dec(x_7);
 x_9 = lean_unsigned_to_nat(0u);
+lean_inc(x_3);
 x_10 = l_Lean_FileMap_toPosition(x_3, x_9);
 lean_inc(x_10);
 x_11 = l_Lean_FileMap_leanPosToLspPos(x_3, x_10);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_dec(x_3);
 x_12 = lean_ctor_get(x_11, 1);
 lean_inc(x_12);
 lean_dec(x_11);
@@ -89,10 +91,12 @@ lean_dec(x_11);
 x_16 = lean_ctor_get(x_6, 0);
 lean_inc(x_16);
 lean_dec(x_6);
+lean_inc(x_3);
 x_17 = l_Lean_FileMap_toPosition(x_3, x_16);
 lean_dec(x_16);
 lean_inc(x_17);
 x_18 = l_Lean_FileMap_leanPosToLspPos(x_3, x_17);
+lean_dec(x_3);
 x_19 = lean_ctor_get(x_18, 1);
 lean_inc(x_19);
 lean_dec(x_18);
@@ -117,6 +121,7 @@ lean_dec(x_22);
 x_24 = lean_ctor_get(x_5, 0);
 lean_inc(x_24);
 lean_dec(x_5);
+lean_inc(x_3);
 x_25 = l_Lean_FileMap_toPosition(x_3, x_24);
 lean_dec(x_24);
 lean_inc(x_25);
@@ -124,6 +129,7 @@ x_26 = l_Lean_FileMap_leanPosToLspPos(x_3, x_25);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; 
+lean_dec(x_3);
 x_27 = lean_ctor_get(x_26, 1);
 lean_inc(x_27);
 lean_dec(x_26);
@@ -146,10 +152,12 @@ lean_dec(x_26);
 x_31 = lean_ctor_get(x_6, 0);
 lean_inc(x_31);
 lean_dec(x_6);
+lean_inc(x_3);
 x_32 = l_Lean_FileMap_toPosition(x_3, x_31);
 lean_dec(x_31);
 lean_inc(x_32);
 x_33 = l_Lean_FileMap_leanPosToLspPos(x_3, x_32);
+lean_dec(x_3);
 x_34 = lean_ctor_get(x_33, 1);
 lean_inc(x_34);
 lean_dec(x_33);
@@ -190,7 +198,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Elab_getDeclarationRange___rarg___lambda__1(x_1, x_2, x_3);
-lean_dec(x_3);
+lean_dec(x_1);
 return x_4;
 }
 }
@@ -198,7 +206,7 @@ static lean_object* _init_l_Lean_Elab_getDeclarationSelectionRef___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean", 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -206,7 +214,7 @@ static lean_object* _init_l_Lean_Elab_getDeclarationSelectionRef___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parser", 6);
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
@@ -214,7 +222,7 @@ static lean_object* _init_l_Lean_Elab_getDeclarationSelectionRef___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Command", 7);
+x_1 = lean_mk_string_unchecked("Command", 7, 7);
 return x_1;
 }
 }
@@ -222,7 +230,7 @@ static lean_object* _init_l_Lean_Elab_getDeclarationSelectionRef___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("instance", 8);
+x_1 = lean_mk_string_unchecked("instance", 8, 8);
 return x_1;
 }
 }
@@ -335,7 +343,7 @@ static lean_object* _init_l_Lean_Elab_addDeclarationRanges___rarg___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("example", 7);
+x_1 = lean_mk_string_unchecked("example", 7, 7);
 return x_1;
 }
 }

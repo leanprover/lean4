@@ -9,4 +9,4 @@ def bar : ReaderM Unit Unit :=
     pure ()
 
 set_option trace.Compiler true
-#eval Lean.Compiler.compile #[``bar]
+run_meta Lean.Compiler.compile #[``bar]

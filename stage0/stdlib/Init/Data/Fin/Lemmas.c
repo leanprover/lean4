@@ -15,10 +15,12 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Fin_reverseInduction(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_inductionOn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Fin_induction_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_lastCases(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_addCases(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_succRec___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_succRecOn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Fin_induction_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_induction(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_cases___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_cases___lambda__1(lean_object*, lean_object*, lean_object*);
@@ -98,21 +100,21 @@ lean_dec(x_1);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Fin_induction(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Fin_induction_go(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_6; uint8_t x_7; 
-x_6 = lean_unsigned_to_nat(0u);
-x_7 = lean_nat_dec_eq(x_5, x_6);
-if (x_7 == 0)
+lean_object* x_7; uint8_t x_8; 
+x_7 = lean_unsigned_to_nat(0u);
+x_8 = lean_nat_dec_eq(x_5, x_7);
+if (x_8 == 0)
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_8 = lean_unsigned_to_nat(1u);
-x_9 = lean_nat_sub(x_5, x_8);
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_9 = lean_unsigned_to_nat(1u);
+x_10 = lean_nat_sub(x_5, x_9);
 lean_inc(x_4);
-x_10 = l_Fin_induction(x_1, lean_box(0), x_3, x_4, x_9);
-x_11 = lean_apply_2(x_4, x_9, x_10);
-return x_11;
+x_11 = l_Fin_induction_go(x_1, lean_box(0), x_3, x_4, x_10, lean_box(0));
+x_12 = lean_apply_2(x_4, x_10, x_11);
+return x_12;
 }
 else
 {
@@ -120,6 +122,25 @@ lean_dec(x_4);
 lean_inc(x_3);
 return x_3;
 }
+}
+}
+LEAN_EXPORT lean_object* l_Fin_induction_go___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Fin_induction_go(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_5);
+lean_dec(x_3);
+lean_dec(x_1);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Fin_induction(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Fin_induction_go(x_1, lean_box(0), x_3, x_4, x_5, lean_box(0));
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Fin_induction___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -137,7 +158,7 @@ LEAN_EXPORT lean_object* l_Fin_inductionOn(lean_object* x_1, lean_object* x_2, l
 _start:
 {
 lean_object* x_6; 
-x_6 = l_Fin_induction(x_1, lean_box(0), x_4, x_5, x_2);
+x_6 = l_Fin_induction_go(x_1, lean_box(0), x_4, x_5, x_2, lean_box(0));
 return x_6;
 }
 }
@@ -166,7 +187,7 @@ _start:
 lean_object* x_6; lean_object* x_7; 
 x_6 = lean_alloc_closure((void*)(l_Fin_cases___lambda__1___boxed), 3, 1);
 lean_closure_set(x_6, 0, x_4);
-x_7 = l_Fin_induction(x_1, lean_box(0), x_3, x_6, x_5);
+x_7 = l_Fin_induction_go(x_1, lean_box(0), x_3, x_6, x_5, lean_box(0));
 return x_7;
 }
 }

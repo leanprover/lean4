@@ -8,7 +8,8 @@ def somethingBad : MetaM Nat := do
 /--
 error: invalid use of `(<- ...)`, must be nested inside a 'do' expression
 ---
-info:
+error: cannot evaluate expression that depends on the `sorry` axiom.
+Use `#eval!` to evaluate nevertheless (which may cause lean to crash).
 -/
 #guard_msgs in
 #eval show MetaM Unit from do
@@ -20,7 +21,8 @@ def foo : MetaM Bool :=
 /--
 error: invalid use of `(<- ...)`, must be nested inside a 'do' expression
 ---
-info:
+error: cannot evaluate expression that depends on the `sorry` axiom.
+Use `#eval!` to evaluate nevertheless (which may cause lean to crash).
 -/
 #guard_msgs in
 #eval show MetaM Unit from do

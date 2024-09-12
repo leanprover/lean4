@@ -49,6 +49,10 @@ variable [Monad m] [MonadStateOf ArgList m]
 @[inline] def takeArg? : m (Option String) :=
   modifyGet fun | [] => (none, []) | arg :: args => (some arg, args)
 
+/-- Take the head of the remaining argument list (or `default` if none). -/
+@[inline] def takeArgD (default : String) : m String :=
+  modifyGet fun | [] => (default, []) | arg :: args => (arg, args)
+
 /-- Take the remaining argument list, leaving only an empty list. -/
 @[inline] def takeArgs : m (List String) :=
   modifyGet fun args => (args, [])

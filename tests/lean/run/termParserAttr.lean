@@ -45,8 +45,16 @@ adaptExpander $ fun stx => match stx with
  | `((|| $e ||)) => `($e + 1)
  | _             => throwUnsupportedSyntax
 
+/-- info: id : Nat → Nat -/
+#guard_msgs in
 #eval runCore "#check [| @id.{1} Nat |]"
+
+/-- info: id 1 : Nat -/
+#guard_msgs in
 #eval runCore "#check (| id 1 |)"
+
+/-- info: id 1 + 1 : Nat -/
+#guard_msgs in
 #eval runCore "#check (|| id 1 ||)"
 
 
@@ -59,7 +67,12 @@ adaptExpander $ fun stx => match stx with
 
 -- Now both work
 
+/-- info: id 1 : Nat -/
+#guard_msgs in
 #eval runCore "#check (| id 1 |)"
+
+/-- info: (id 1, id 2) : Nat × Nat -/
+#guard_msgs in
 #eval runCore "#check (| id 1, id 2 |)"
 
 declare_syntax_cat foo
@@ -75,6 +88,14 @@ macro_rules
 | `(FOO $t:term) => `($t)
 
 
+/-- info: id 1 + 1 : Nat -/
+#guard_msgs in
 #check FOO ⟨| id 1 |⟩
+
+/-- info: 1 : Nat -/
+#guard_msgs in
 #check FOO 1
+
+/-- info: 1 >>> 2 : Nat -/
+#guard_msgs in
 #check FOO 1 >>> 2

@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.AddDecl
+import Lean.MonadEnv
 import Lean.Elab.InfoTree.Main
 
 namespace Lean
@@ -138,7 +140,7 @@ def setBuiltinInitAttr (env : Environment) (declName : Name) (initFnName : Name 
   builtinInitAttr.setParam env declName initFnName
 
 def declareBuiltin (forDecl : Name) (value : Expr) : CoreM Unit := do
-  let name := `_regBuiltin ++ forDecl
+  let name ← mkAuxName (`_regBuiltin ++ forDecl) 1
   let type := mkApp (mkConst `IO) (mkConst `Unit)
   let decl := Declaration.defnDecl { name, levelParams := [], type, value, hints := ReducibilityHints.opaque,
                                      safety := DefinitionSafety.safe }

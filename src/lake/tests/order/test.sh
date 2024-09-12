@@ -11,12 +11,13 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 # https://github.com/leanprover/lean4/issues/2548
 
 $LAKE update
-$LAKE build +A -v | grep 222000
-$LAKE build +A.B -v | grep 333000
-$LAKE build +A.B.C -v | grep 333000
-$LAKE build +X -v | grep 555000
-$LAKE build +Y -v | grep 666000
-$LAKE exe Y | grep root
+$LAKE build +A -v | grep --color 222000
+$LAKE build +A.B -v | grep --color 333000
+$LAKE build +A.B.C -v | grep --color 333000
+$LAKE build +X -v | grep --color 888000
+$LAKE build +Y -v | grep --color 666000
+$LAKE build +Z -v | grep --color 666000
+$LAKE exe Y | grep --color root
 
 # Tests that `lake update` does not reorder packages in the manifest
 # (if there have been no changes to the order in the configuration)
@@ -24,4 +25,10 @@ $LAKE exe Y | grep root
 
 cp lake-manifest.json lake-manifest-1.json
 $LAKE update foo
+diff --strip-trailing-cr lake-manifest-1.json lake-manifest.json
+
+# Tests that order does not change in the presence of dep manifests
+$LAKE -d foo update
+$LAKE -d bar update
+$LAKE update
 diff --strip-trailing-cr lake-manifest-1.json lake-manifest.json

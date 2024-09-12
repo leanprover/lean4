@@ -5,12 +5,12 @@ Authors: Mario Carneiro
 -/
 prelude
 import Lean.Compiler.InitAttr
-import Lean.DocString
+import Lean.DocString.Extension
 
 namespace Lean
 
 def declareBuiltinDocStringAndRanges (declName : Name) : AttrM Unit := do
-  if let some doc ← findDocString? (← getEnv) declName (includeBuiltin := false) then
+  if let some doc ← findSimpleDocString? (← getEnv) declName (includeBuiltin := false) then
     declareBuiltin (declName ++ `docString) (mkAppN (mkConst ``addBuiltinDocString) #[toExpr declName, toExpr doc])
   if let some declRanges ← findDeclarationRanges? declName then
     declareBuiltin (declName ++ `declRange) (mkAppN (mkConst ``addBuiltinDeclarationRanges) #[toExpr declName, toExpr declRanges])

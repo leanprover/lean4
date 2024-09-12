@@ -267,6 +267,7 @@ syntax (name := rawNatLit) "nat_lit " num : term
 
 @[inherit_doc] infixr:90 " ∘ "  => Function.comp
 @[inherit_doc] infixr:35 " × "  => Prod
+@[inherit_doc] infixr:35 " ×' " => PProd
 
 @[inherit_doc] infix:50  " ∣ " => Dvd.dvd
 @[inherit_doc] infixl:55 " ||| " => HOr.hOr
@@ -296,7 +297,7 @@ macro_rules | `($x - $y)   => `(binop% HSub.hSub $x $y)
 macro_rules | `($x * $y)   => `(binop% HMul.hMul $x $y)
 macro_rules | `($x / $y)   => `(binop% HDiv.hDiv $x $y)
 macro_rules | `($x % $y)   => `(binop% HMod.hMod $x $y)
--- exponentiation should be considered a right action (#2220)
+-- exponentiation should be considered a right action (#2854)
 macro_rules | `($x ^ $y)   => `(rightact% HPow.hPow $x $y)
 macro_rules | `($x ++ $y)  => `(binop% HAppend.hAppend $x $y)
 macro_rules | `(- $x)      => `(unop% Neg.neg $x)
@@ -335,7 +336,7 @@ macro_rules | `($x == $y) => `(binrel_no_prop% BEq.beq $x $y)
 @[inherit_doc] infixl:30 " || " => or
 @[inherit_doc] notation:max "!" b:40 => not b
 
-@[inherit_doc] infix:50 " ∈ " => Membership.mem
+@[inherit_doc] notation:50 a:50 " ∈ " b:50 => Membership.mem b a
 /-- `a ∉ b` is negated elementhood. It is notation for `¬ (a ∈ b)`. -/
 notation:50 a:50 " ∉ " b:50 => ¬ (a ∈ b)
 
@@ -492,9 +493,12 @@ The attribute `@[deprecated]` on a declaration indicates that the declaration
 is discouraged for use in new code, and/or should be migrated away from in
 existing code. It may be removed in a future version of the library.
 
-`@[deprecated myBetterDef]` means that `myBetterDef` is the suggested replacement.
+* `@[deprecated myBetterDef]` means that `myBetterDef` is the suggested replacement.
+* `@[deprecated myBetterDef "use myBetterDef instead"]` allows customizing the deprecation message.
+* `@[deprecated (since := "2024-04-21")]` records when the deprecation was first applied.
 -/
-syntax (name := deprecated) "deprecated" (ppSpace ident)? : attr
+syntax (name := deprecated) "deprecated" (ppSpace ident)? (ppSpace str)?
+    (" (" &"since" " := " str ")")? : attr
 
 /--
 The `@[coe]` attribute on a function (which should also appear in a
@@ -554,6 +558,22 @@ syntax (name := runMeta) "run_meta " doSeq : command
 
 set_option linter.missingDocs false in
 syntax guardMsgsFilterSeverity := &"info" <|> &"warning" <|> &"error" <|> &"all"
+
+/--
+`#reduce <expression>` reduces the expression `<expression>` to its normal form. This
+involves applying reduction rules until no further reduction is possible.
+
+By default, proofs and types within the expression are not reduced. Use modifiers
+`(proofs := true)`  and `(types := true)` to reduce them.
+Recall that propositions are types in Lean.
+
+**Warning:** This can be a computationally expensive operation,
+especially for complex expressions.
+
+Consider using `#eval <expression>` for simple evaluation/execution
+of expressions.
+-/
+syntax (name := reduceCmd) "#reduce " (atomic("(" &"proofs" " := " &"true" ")"))? (atomic("(" &"types" " := " &"true" ")"))? term : command
 
 /--
 A message filter specification for `#guard_msgs`.
@@ -683,5 +703,61 @@ syntax (name := checkSimp) "#check_simp " term "~>" term : command
 `#check_simp t !~>` checks `simp` fails on reducing `t`.
 -/
 syntax (name := checkSimpFailure) "#check_simp " term "!~>" : command
+
+/--
+Time the elaboration of a command, and print the result (in milliseconds).
+
+Example usage:
+```
+set_option maxRecDepth 100000 in
+#time example : (List.range 500).length = 500 := rfl
+```
+-/
+syntax (name := timeCmd) "#time " command : command
+
+/--
+`#discr_tree_key  t` prints the discrimination tree keys for a term `t` (or, if it is a single identifier, the type of that constant).
+It uses the default configuration for generating keys.
+
+For example,
+```
+#discr_tree_key (∀ {a n : Nat}, bar a (OfNat.ofNat n))
+-- bar _ (@OfNat.ofNat Nat _ _)
+
+#discr_tree_simp_key Nat.add_assoc
+-- @HAdd.hAdd Nat Nat Nat _ (@HAdd.hAdd Nat Nat Nat _ _ _) _
+```
+
+`#discr_tree_simp_key` is similar to `#discr_tree_key`, but treats the underlying type
+as one of a simp lemma, i.e. transforms it into an equality and produces the key of the
+left-hand side.
+-/
+syntax (name := discrTreeKeyCmd) "#discr_tree_key " term : command
+
+@[inherit_doc discrTreeKeyCmd]
+syntax (name := discrTreeSimpKeyCmd) "#discr_tree_simp_key" term : command
+
+/--
+The `seal foo` command ensures that the definition of `foo` is sealed, meaning it is marked as `[irreducible]`.
+This command is particularly useful in contexts where you want to prevent the reduction of `foo` in proofs.
+
+In terms of functionality, `seal foo` is equivalent to `attribute [local irreducible] foo`.
+This attribute specifies that `foo` should be treated as irreducible only within the local scope,
+which helps in maintaining the desired abstraction level without affecting global settings.
+-/
+syntax "seal " (ppSpace ident)+ : command
+
+/--
+The `unseal foo` command ensures that the definition of `foo` is unsealed, meaning it is marked as `[semireducible]`, the
+default reducibility setting. This command is useful when you need to allow some level of reduction of `foo` in proofs.
+
+Functionally, `unseal foo` is equivalent to `attribute [local semireducible] foo`.
+Applying this attribute makes `foo` semireducible only within the local scope.
+-/
+syntax "unseal " (ppSpace ident)+ : command
+
+macro_rules
+  | `(seal $fs:ident*) => `(attribute [local irreducible] $fs:ident*)
+  | `(unseal $fs:ident*) => `(attribute [local semireducible] $fs:ident*)
 
 end Parser

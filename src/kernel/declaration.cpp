@@ -30,7 +30,6 @@ int compare(reducibility_hints const & h1, reducibility_hints const & h2) {
                 return -1; /* unfold f1 */
             else
                 return 1;  /* unfold f2 */
-            return h1.get_height() > h2.get_height() ? -1 : 1;
         } else {
             return 0; /* reduce both */
         }
@@ -72,8 +71,10 @@ definition_val::definition_val(name const & n, names const & lparams, expr const
 
 definition_safety definition_val::get_safety() const { return static_cast<definition_safety>(lean_definition_val_get_safety(to_obj_arg())); }
 
-theorem_val::theorem_val(name const & n, names const & lparams, expr const & type, expr const & val):
-    object_ref(mk_cnstr(0, constant_val(n, lparams, type), val)) {
+extern "C" object * lean_mk_theorem_val(object * n, object * lparams, object * type, object * value, object * all);
+
+theorem_val::theorem_val(name const & n, names const & lparams, expr const & type, expr const & val, names const & all):
+    object_ref(lean_mk_theorem_val(n.to_obj_arg(), lparams.to_obj_arg(), type.to_obj_arg(), val.to_obj_arg(), all.to_obj_arg())) {
 }
 
 extern "C" object * lean_mk_opaque_val(object * n, object * lparams, object * type, object * value, uint8 is_unsafe, object * all);
@@ -99,22 +100,22 @@ recursor_rule::recursor_rule(name const & cnstr, unsigned nfields, expr const & 
 }
 
 extern "C" object * lean_mk_inductive_val(object * n, object * lparams, object * type, object * nparams, object * nindices,
-                                          object * all, object * cnstrs, uint8 rec, uint8 unsafe, uint8 is_refl, uint8 is_nested);
+                                          object * all, object * cnstrs, object * nnested, uint8 rec, uint8 unsafe, uint8 is_refl);
 extern "C" uint8 lean_inductive_val_is_rec(object * v);
 extern "C" uint8 lean_inductive_val_is_unsafe(object * v);
 extern "C" uint8 lean_inductive_val_is_reflexive(object * v);
-extern "C" uint8 lean_inductive_val_is_nested(object * v);
 
 inductive_val::inductive_val(name const & n, names const & lparams, expr const & type, unsigned nparams,
-                             unsigned nindices, names const & all, names const & cnstrs, bool rec, bool unsafe, bool is_refl, bool is_nested):
+                             unsigned nindices, names const & all, names const & cnstrs, unsigned nnested,
+                             bool rec, bool unsafe, bool is_refl):
     object_ref(lean_mk_inductive_val(n.to_obj_arg(), lparams.to_obj_arg(), type.to_obj_arg(), nat(nparams).to_obj_arg(),
-                                     nat(nindices).to_obj_arg(), all.to_obj_arg(), cnstrs.to_obj_arg(), rec, unsafe, is_refl, is_nested)) {
+                                     nat(nindices).to_obj_arg(), all.to_obj_arg(), cnstrs.to_obj_arg(),
+                                     nat(nnested).to_obj_arg(), rec, unsafe, is_refl)) {
 }
 
 bool inductive_val::is_rec() const { return lean_inductive_val_is_rec(to_obj_arg()); }
 bool inductive_val::is_unsafe() const { return lean_inductive_val_is_unsafe(to_obj_arg()); }
 bool inductive_val::is_reflexive() const { return lean_inductive_val_is_reflexive(to_obj_arg()); }
-bool inductive_val::is_nested() const { return lean_inductive_val_is_nested(to_obj_arg()); }
 
 extern "C" object * lean_mk_constructor_val(object * n, object * lparams, object * type, object * induct,
                                             object * cidx, object * nparams, object * nfields, uint8 unsafe);
@@ -160,7 +161,7 @@ bool declaration::is_unsafe() const {
 
 bool use_unsafe(environment const & env, expr const & e) {
     bool found = false;
-    for_each(e, [&](expr const & e, unsigned) {
+    for_each(e, [&](expr const & e) {
             if (found) return false;
             if (is_constant(e)) {
                 if (auto info = env.find(const_name(e))) {
@@ -180,7 +181,7 @@ declaration::declaration():declaration(*g_dummy) {}
 
 static unsigned get_max_height(environment const & env, expr const & v) {
     unsigned h = 0;
-    for_each(v, [&](expr const & e, unsigned) {
+    for_each(v, [&](expr const & e) {
             if (is_constant(e)) {
                 auto d = env.find(const_name(e));
                 if (d && d->get_hints().get_height() > h)
@@ -204,6 +205,10 @@ declaration mk_definition(name const & n, names const & params, expr const & t, 
 declaration mk_definition(environment const & env, name const & n, names const & params, expr const & t,
                           expr const & v, definition_safety safety) {
     return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Definition), mk_definition_val(env, n, params, t, v, safety)));
+}
+
+declaration mk_theorem(name const & n, names const & lparams, expr const & type, expr const & val) {
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Theorem), theorem_val(n, lparams, type, val, names(n))));
 }
 
 declaration mk_opaque(name const & n, names const & params, expr const & t, expr const & v, bool is_unsafe) {

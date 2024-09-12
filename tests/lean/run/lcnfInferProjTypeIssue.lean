@@ -53,10 +53,10 @@ def foo1 := λ (x y : FloatVector 2) => x + y
 
 def foo2 := λ {n} (s : Float) (x y : FloatVector n) => s * (x + y)
 
-#eval Lean.Compiler.compile #[``foo1]
-#eval Lean.Compiler.compile #[``foo2]
+run_meta Lean.Compiler.compile #[``foo1]
+run_meta Lean.Compiler.compile #[``foo2]
 
 set_option trace.Compiler.result true
 set_option pp.funBinderTypes true
-#eval Lean.Compiler.compile #[``foo1]
-#eval Lean.Compiler.compile #[``foo2]
+run_meta Lean.Compiler.compile #[``foo1]
+run_meta Lean.Compiler.compile #[``foo2]

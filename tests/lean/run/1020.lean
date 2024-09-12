@@ -18,9 +18,6 @@ def allPairsFixed (xs : List α) (ys : List β) : List (α × β) :=
     aux₂ ys (aux xs r)
   aux xs []
 
-
-#eval allPairsFixed [1, 2, 3] ['a', 'b']
-
 example : (allPairsFixed [1, 2, 3] ['a', 'b']) = [(1, 'b'), (1, 'a'), (2, 'b'), (2, 'a'), (3, 'b'), (3, 'a')] :=
   rfl
 

@@ -283,6 +283,51 @@ structure AsyncTheoremVal extends ConstantVal where
 def AsyncTheoremVal.toTheoremVal (v : AsyncTheoremVal) : Task TheoremVal :=
   v.value.map (sync := true) ({ v with value := · })
 
+inductive AsyncConstantInfo where
+  | axiomInfo    (val : AxiomVal)
+  | defnInfo     (val : DefinitionVal)
+  | thmInfo      (val : AsyncTheoremVal)
+  | opaqueInfo   (val : OpaqueVal)
+  | quotInfo     (val : QuotVal)
+  | inductInfo   (val : InductiveVal)
+  | ctorInfo     (val : ConstructorVal)
+  | recInfo      (val : RecursorVal)
+  deriving Inhabited
+
+namespace AsyncConstantInfo
+
+def toConstantVal : AsyncConstantInfo → ConstantVal
+  | defnInfo     {toConstantVal := d, ..} => d
+  | axiomInfo    {toConstantVal := d, ..} => d
+  | thmInfo      {toConstantVal := d, ..} => d
+  | opaqueInfo   {toConstantVal := d, ..} => d
+  | quotInfo     {toConstantVal := d, ..} => d
+  | inductInfo   {toConstantVal := d, ..} => d
+  | ctorInfo     {toConstantVal := d, ..} => d
+  | recInfo      {toConstantVal := d, ..} => d
+
+def toConstantInfo : AsyncConstantInfo → ConstantInfo
+  | defnInfo     val => .defnInfo val
+  | axiomInfo    val => .axiomInfo val
+  | thmInfo      val => .thmInfo val.toTheoremVal.get
+  | opaqueInfo   val => .opaqueInfo val
+  | quotInfo     val => .quotInfo val
+  | inductInfo   val => .inductInfo val
+  | ctorInfo     val => .ctorInfo val
+  | recInfo      val => .recInfo val
+
+def ofConstantInfo : ConstantInfo → AsyncConstantInfo
+  | .defnInfo     val => .defnInfo val
+  | .axiomInfo    val => .axiomInfo val
+  | .thmInfo      val => .thmInfo { val with value := .pure val.value }
+  | .opaqueInfo   val => .opaqueInfo val
+  | .quotInfo     val => .quotInfo val
+  | .inductInfo   val => .inductInfo val
+  | .ctorInfo     val => .ctorInfo val
+  | .recInfo      val => .recInfo val
+
+end AsyncConstantInfo
+
 instance [Nonempty α] : Nonempty (Thunk α) :=
   Nonempty.intro ⟨fun _ => Classical.ofNonempty⟩
 
@@ -418,10 +463,10 @@ private def findNoAsyncTheorem (env : Environment) (n : Name) : Option ConstantI
     /- It is safe to use `find?'` because we never overwrite imported declarations. -/
     env.base.constants.find?' n
 
-def findAsync? (env : Environment) (n : Name) : Option (Task ConstantInfo) := do
+def findAsync? (env : Environment) (n : Name) : Option AsyncConstantInfo := do
   if let some asyncThm := env.asyncTheorems.find? (·.name = n) then
-    return asyncThm.toTheoremVal.map (sync := true) .thmInfo
-  else env.findNoAsyncTheorem n |>.map .pure
+    return .thmInfo asyncThm
+  else env.findNoAsyncTheorem n |>.map .ofConstantInfo
 
 def findConstVal? (env : Environment) (n : Name) : Option ConstantVal := do
   if let some asyncThm := env.asyncTheorems.find? (·.name = n) then

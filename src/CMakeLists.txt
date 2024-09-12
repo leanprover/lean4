@@ -245,13 +245,13 @@ endif()
 
 # LibUV
 if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
-  set(LIBUV_EMSCRIPTEN_FLAGS "${EMSCRIPTEN_SETTINGS} -ffunction-sections")
+  set(LIBUV_EMSCRIPTEN_FLAGS "${EMSCRIPTEN_SETTINGS}")
   # Only on WebAssembly we compile LibUV ourselves
   ExternalProject_add(libuv
     PREFIX libuv
-    GIT_REPOSITORY https://github.com/libuv/libuv
+    GIT_REPOSITORY https://github.com/TwoFx/libuv
     # Sync version with flake.nix
-    GIT_TAG v1.48.0
+    GIT_TAG v1.48.0-patch1
     CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DLIBUV_BUILD_TESTS=OFF -DLIBUV_BUILD_SHARED=OFF -DCMAKE_AR=${CMAKE_AR} -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_C_FLAGS=${LIBUV_EMSCRIPTEN_FLAGS}
     BUILD_IN_SOURCE ON
     INSTALL_COMMAND "")

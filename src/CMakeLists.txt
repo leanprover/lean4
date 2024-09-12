@@ -620,17 +620,17 @@ else()
 endif()
 
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  add_custom_target(lake_lib # ALL # Restore after stage0 update
+  add_custom_target(lake_lib ALL
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
     DEPENDS leanshared
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Lake
     VERBATIM)
-  add_custom_target(lake_shared # ALL # Restore after stage0 update
+  add_custom_target(lake_shared ALL
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
     DEPENDS lake_lib
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make libLake_shared
     VERBATIM)
-  add_custom_target(lake # ALL # Restore after stage0 update
+  add_custom_target(lake ALL
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
     DEPENDS lake_shared
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make lake

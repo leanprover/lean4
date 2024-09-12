@@ -25,4 +25,10 @@ def getRight? : α ⊕ β → Option β
 protected def elim {α β γ} (f : α → γ) (g : β → γ) : α ⊕ β → γ :=
   fun x => Sum.casesOn x f g
 
+@[simp] theorem elim_inl (f : α → γ) (g : β → γ) (x : α) :
+    Sum.elim f g (inl x) = f x := rfl
+
+@[simp] theorem elim_inr (f : α → γ) (g : β → γ) (x : β) :
+    Sum.elim f g (inr x) = g x := rfl
+
 end Sum
